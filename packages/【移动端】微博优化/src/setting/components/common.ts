@@ -1,9 +1,54 @@
+import { VideoQualityMapWithPC } from "@/main/WeiBoUnlockQuality";
+import { UISelect } from "../common-components/ui-select";
 import { UISwitch } from "../common-components/ui-switch";
+import { UITextArea } from "../common-components/ui-textarea";
 
 const SettingUICommon: PopsPanelContentConfig = {
 	id: "weibo-panel-config-currency",
 	title: "通用",
 	forms: [
+		{
+			text: "功能",
+			type: "forms",
+			forms: [
+				UISelect(
+					"视频清晰度",
+					"weibo-common-lockVideoQuality",
+					"",
+					[
+						{
+							value: "",
+							text: "自动",
+						},
+						...(() => {
+							let result = <
+								{
+									value: string;
+									text: string;
+								}[]
+							>[];
+							Object.keys(VideoQualityMapWithPC).forEach((name) => {
+								let value = VideoQualityMapWithPC[name];
+								result.push({
+									value: value.name,
+									text: name,
+								});
+							});
+							return result;
+						})(),
+					],
+					void 0,
+					"设置视频清晰度，默认自动，其它的清晰度将自动被删除(强制固定选择的清晰度)"
+				),
+				UISwitch(
+					"解锁更多清晰度",
+					"weibo-common-unlockVideoHigherQuality",
+					true,
+					void 0,
+					"自动请求PC端的视频清晰度，如果请求成功，将解锁更多的清晰度，如1080p、2K、2K-60、4K-60"
+				),
+			],
+		},
 		{
 			text: "屏蔽",
 			type: "forms",
@@ -144,6 +189,20 @@ const SettingUICommon: PopsPanelContentConfig = {
 					true,
 					void 0,
 					"禁止注册serviceWorker"
+				),
+			],
+		},
+		{
+			text: "cookie配置",
+			type: "forms",
+			forms: [
+				UITextArea(
+					"weibo.com",
+					"weibo-common-cookie_weibo.com",
+					"",
+					void 0,
+					void 0,
+					"Cookie格式：xxx=xxxx;xxx=xxxx"
 				),
 			],
 		},

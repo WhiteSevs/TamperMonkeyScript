@@ -1,6 +1,6 @@
-export const SettingUIU: PopsPanelContentConfig = {
+export const SettingUISearch: PopsPanelContentConfig = {
 	id: "weibo-panel-config-u",
-	title: "主页",
+	title: "搜索",
 	forms: [
 		{
 			text: "功能",

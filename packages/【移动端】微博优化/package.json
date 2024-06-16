@@ -4,7 +4,7 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "vue-tsc --noEmit && vite",
+		"dev": "vue-tsc --noEmit && vite --force",
 		"build": "vue-tsc --noEmit && vite build",
 		"build:min": "vue-tsc --noEmit && vite build --minify",
 		"build:all": "vue-tsc --noEmit && vite build && vite build --minify --no-empty-outDir",
@@ -15,7 +15,7 @@
 	},
 	"dependencies": {
 		"@whitesev/domutils": "^1.1.1",
-		"@whitesev/utils": "^1.4.6",
+		"@whitesev/utils": "^1.5.2",
 		"qmsg": "^1.1.2"
 	},
 	"devDependencies": {

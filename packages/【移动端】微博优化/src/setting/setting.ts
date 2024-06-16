@@ -6,6 +6,7 @@ import { SettingUIHuaTi } from "./components/huati";
 import { SettingUIVideo } from "./components/video";
 import { SettingUIU } from "./components/u";
 import { SettingUIDetail } from "./components/detail";
+import { SettingUISearch } from "./components/search";
 
 const PopsPanel = {
 	/** 数据 */
@@ -301,6 +302,9 @@ const PopsPanel = {
 			aside.pops-panel-aside{
 			  width: auto !important;
 			}
+			.pops-panel-textarea textarea{
+				height: 100px;
+			}
 			`,
 		});
 	},
@@ -333,8 +337,9 @@ const PopsPanel = {
 	getPanelContentConfig() {
 		let configList: PopsPanelContentConfig[] = [
 			SettingUICommon,
-			SettingUIU,
-			SettingUIDetail,
+			// SettingUIU,
+			// SettingUISearch,
+			// SettingUIDetail,
 			SettingUIHuaTi,
 			SettingUIVideo,
 		];

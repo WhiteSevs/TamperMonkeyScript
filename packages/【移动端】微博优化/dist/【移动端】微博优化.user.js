@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.16
+// @version      2024.6.16.21
 // @author       WhiteSevs
-// @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，自定义视频清晰度(可1080p)
+// @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，自定义视频清晰度(可1080p、2K、2K-60、4K-60)
 // @license      GPL-3.0-only
 // @icon         https://favicon.yandex.net/favicon/v2/https://m.weibo.cn/?size=32
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
@@ -13,7 +13,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.4.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css
 // @connect      m.weibo.cn
@@ -33,6 +33,9 @@
 (function (Qmsg, DOMUtils, Utils) {
   'use strict';
 
+  var __defProp = Object.defineProperty;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var _a;
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
@@ -42,6 +45,9 @@
   var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
   var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
+  const KEY = "GM_Panel";
+  const ATTRIBUTE_KEY = "data-key";
+  const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const _SCRIPT_NAME_ = "【移动端】微博优化";
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
@@ -73,18 +79,42 @@
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand
   });
   const httpx = new utils.Httpx(_GM_xmlhttpRequest);
-  httpx.config({
-    logDetails: DEBUG,
-    onabort() {
-      Qmsg.warning("请求取消");
-    },
-    ontimeout() {
-      Qmsg.error("请求超时");
-    },
-    onerror(response) {
-      Qmsg.error("请求异常");
-      log.error(["httpx-onerror 请求异常", response]);
+  let GMPanel = _GM_getValue(KEY, {});
+  let userCookie = GMPanel["weibo-common-cookie_weibo.com"] || "";
+  httpx.interceptors.request.use((details) => {
+    if (utils.isNotNull(userCookie)) {
+      if (details.url.includes("weibo.com")) {
+        log.success("自定义添加Cookie");
+        if (details.headers) {
+          if (details.headers["Cookie"]) {
+            details.headers["Cookie"] += userCookie;
+          } else {
+            details.headers["Cookie"] = userCookie;
+          }
+        } else {
+          details.headers = {
+            Cookie: userCookie
+          };
+        }
+      }
     }
+    return details;
+  });
+  httpx.interceptors.response.use(void 0, (data) => {
+    log.error(["拦截器-请求错误", data]);
+    if (data.type === "onabort") {
+      Qmsg.warning("请求取消");
+    } else if (data.type === "onerror") {
+      Qmsg.error("请求异常");
+    } else if (data.type === "ontimeout") {
+      Qmsg.error("请求超时");
+    } else {
+      Qmsg.error("其它错误");
+    }
+    return data;
+  });
+  httpx.config({
+    logDetails: DEBUG
   });
   ({
     Object: {
@@ -100,311 +130,6 @@
     setTimeout: _unsafeWindow.setTimeout
   });
   const addStyle = utils.addStyle;
-  const KEY = "GM_Panel";
-  const ATTRIBUTE_KEY = "data-key";
-  const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description) {
-    let result = {
-      text,
-      type: "switch",
-      description,
-      attributes: {},
-      getValue() {
-        return Boolean(PopsPanel.getValue(key, defaultValue));
-      },
-      callback(event, value) {
-        log.success(`${value ? "开启" : "关闭"} ${text}`);
-        PopsPanel.setValue(key, Boolean(value));
-      },
-      afterAddToUListCallBack: void 0
-    };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
-    }
-    return result;
-  };
-  const SettingUICommon = {
-    id: "weibo-panel-config-currency",
-    title: "通用",
-    forms: [
-      {
-        text: "屏蔽",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "【屏蔽】广告",
-            "weibo_remove_ads",
-            true,
-            void 0,
-            "包括【登录/注册按钮】、【小程序横幅推荐】"
-          ),
-          UISwitch(
-            "【屏蔽】底部工具栏",
-            "weibo_shield_bottom_bar",
-            false,
-            void 0,
-            "屏蔽聊天/关注按钮"
-          )
-        ]
-      },
-      {
-        text: "拦截跳转",
-        type: "forms",
-        forms: [
-          UISwitch("api/attitudes/create", "weibo_apply_attitudes_create", true),
-          UISwitch(
-            "点赞",
-            "weibo_apply_likes_update",
-            true,
-            void 0,
-            "未登录时，拦截点赞跳转登录"
-          ),
-          UISwitch(
-            "评论",
-            "weibo_apply_comments_create",
-            true,
-            void 0,
-            "未登录时，拦截评论跳转登录"
-          ),
-          UISwitch(
-            "关注",
-            "weibo_apply_friendships_create",
-            true,
-            void 0,
-            "未登录时，拦截关注跳转登录"
-          ),
-          UISwitch(
-            "转发",
-            "weibo_apply_statuses_repostTimeline",
-            true,
-            void 0,
-            "未登录时，拦截查看转发数据"
-          ),
-          UISwitch(
-            "回复",
-            "weibo_apply_comments_reply",
-            true,
-            void 0,
-            "未登录时，拦截回复跳转登录"
-          ),
-          UISwitch(
-            "优化跳转主页",
-            "weibo_apply_profile_info",
-            true,
-            void 0,
-            "未登录时，正确跳转至用户主页"
-          ),
-          UISwitch(
-            "下拉加载更多评论",
-            "weibo_apply_comments_hotflow",
-            true,
-            void 0,
-            "未登录时，拦截下拉加载更多评论跳转登录"
-          ),
-          UISwitch(
-            "楼中楼下拉加载更多评论",
-            "weibo_apply_comments_hotFlowChild",
-            true,
-            void 0,
-            "未登录时，拦截下拉加载更多评论跳转登录"
-          )
-        ]
-      },
-      {
-        text: "网络请求(不一定能劫持到)",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "/api/config",
-            "weibo_request_api_config",
-            true,
-            void 0,
-            "Api为获取用户数据，未登录时伪装为已登录"
-          ),
-          UISwitch(
-            "/comments/hot",
-            "weibo_request_comments_hot",
-            true,
-            void 0,
-            "Api为获取评论数据，未登录时伪装为成功获取评论数据"
-          ),
-          UISwitch(
-            "/status/push",
-            "weibo_request_status_push",
-            true,
-            void 0,
-            "Api为获取顶部的热点新闻信息流"
-          )
-        ]
-      },
-      {
-        text: "Router路由",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "监听路由改变",
-            "weibo-listenRouterChange",
-            true,
-            void 0,
-            "监听路由改变，动态加载功能"
-          ),
-          UISwitch(
-            "修复用户主页正确跳转",
-            "weibo_router_profile_to_user_home",
-            true,
-            void 0,
-            "可以正确跳转至用户主页"
-          )
-        ]
-      },
-      {
-        text: "函数禁用",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "navigator.serviceWorker.register",
-            "weibo_hijack_navigator_service_worker_register",
-            true,
-            void 0,
-            "禁止注册serviceWorker"
-          )
-        ]
-      }
-    ]
-  };
-  const SettingUIHuaTi = {
-    id: "weibo-panel-config-huati",
-    title: "话题",
-    forms: [
-      {
-        text: "功能",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "伪装微博客户端",
-            "huati_weibo_masquerade_weibo_client_app",
-            true,
-            void 0,
-            "可以隐藏底部的【在微博内打开】"
-          )
-        ]
-      },
-      {
-        text: "网络请求(不一定能劫持到)",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "/ajax/super/starschedule",
-            "huati_weibo_get_more_celebrity_calendar_information",
-            true,
-            void 0,
-            "Api为获取日程数据，开启后可获取正常日程数据"
-          )
-        ]
-      }
-    ]
-  };
-  const UISelect = function(text, key, defaultValue, data, callback, description) {
-    let selectData = [];
-    if (typeof data === "function") {
-      selectData = data();
-    } else {
-      selectData = data;
-    }
-    let result = {
-      text,
-      type: "select",
-      description,
-      attributes: {},
-      getValue() {
-        return PopsPanel.getValue(key, defaultValue);
-      },
-      callback(event, isSelectedValue, isSelectedText) {
-        PopsPanel.setValue(key, isSelectedValue);
-      },
-      data: selectData
-    };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
-    }
-    return result;
-  };
-  const SettingUIVideo = {
-    id: "weibo-panel-config-video",
-    title: "视频",
-    forms: [
-      {
-        text: "功能",
-        type: "forms",
-        forms: [
-          UISelect(
-            "视频清晰度",
-            "weibo-video-quality",
-            "",
-            [
-              {
-                value: "",
-                text: "自动"
-              },
-              {
-                value: "mp4_ld_mp4",
-                text: "流畅360p"
-              },
-              {
-                value: "mp4_hd_mp4",
-                text: "标清480p"
-              },
-              {
-                value: "mp4_720p_mp4",
-                text: "高清720p"
-              },
-              {
-                value: "mp4_1080p_mp4",
-                text: "超清1080p"
-              }
-            ],
-            void 0,
-            "设置视频清晰度，默认自动，其它的清晰度将自动被删除(强制固定选择的清晰度)"
-          ),
-          UISwitch(
-            "解锁1080p",
-            "weibo-video-unlockVideo1080p",
-            true,
-            void 0,
-            "请求PC端的视频1080p链接，开启该功能↑选择的1080p才会生效"
-          )
-        ]
-      },
-      {
-        text: "屏蔽",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "【屏蔽】底部工具栏",
-            "weibo_video_shield_bottom_toolbar",
-            true
-          ),
-          UISwitch("【屏蔽】相关推荐", "weibo_video_shield_recommend", true),
-          UISwitch("【屏蔽】热门评论", "weibo_video_shield_hot_comments", true)
-        ]
-      },
-      {
-        text: "webpack",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "gotoApp",
-            "weibo_video_webpack_gotoApp",
-            true,
-            void 0,
-            "开启后阻止唤醒Scheme"
-          )
-        ]
-      }
-    ]
-  };
   const WeiBoApi = {
     /**
      * 获取组件播放信息
@@ -548,39 +273,35 @@
       name: "mp4_2160p_60fps_mp4"
     }
   };
-  const WeiBoDetail = {
-    $src: {
-      "高清 1080P": {
-        ...VideoQualityMapWithPC["高清 1080P"],
-        src: ""
-      },
-      "超清 2K": {
-        ...VideoQualityMapWithPC["超清 2K"],
-        src: ""
-      },
-      "超清 2K60": {
-        ...VideoQualityMapWithPC["超清 2K60"],
-        src: ""
-      },
-      "超清 4K60": {
-        ...VideoQualityMapWithPC["超清 4K60"],
-        src: ""
-      }
-    },
-    init() {
-      this.quality();
-      domUtils.ready(() => {
-        PopsPanel.execMenu("weibo-detail-unlockHigherVideoQuality", () => {
-          this.unlockHigherVideoQuality();
-        });
+  class WeiBoUnlockQuality {
+    constructor() {
+      __publicField(this, "$src", {
+        "高清 1080P": {
+          ...VideoQualityMapWithPC["高清 1080P"]
+        },
+        "超清 2K": {
+          ...VideoQualityMapWithPC["超清 2K"]
+        },
+        "超清 2K60": {
+          ...VideoQualityMapWithPC["超清 2K60"]
+        },
+        "超清 4K60": {
+          ...VideoQualityMapWithPC["超清 4K60"]
+        }
       });
-    },
+      __publicField(this, "$data", {
+        newQualityNameList: [],
+        videoQualityMap: new utils.Dictionary()
+      });
+      this.$data.newQualityNameList = [];
+      this.$data.newQualityNameList.push(...Object.keys(this.$src));
+    }
     /**
      * 锁定视频清晰度
      */
-    quality() {
-      log.info("锁定视频清晰度");
+    lockVideoQuality() {
       let that = this;
+      log.info("锁定视频清晰度");
       VueUtils.waitVuePropToSet(".video-player .mwb-video", [
         {
           msg: "等待获取属性 __vue__.player.controlBar.addChild",
@@ -590,7 +311,7 @@
           set(vueObj) {
             let oldAddChild = vueObj.player.controlBar.addChild;
             let userSetQuality = PopsPanel.getValue(
-              "weibo-detail-quality"
+              "weibo-common-lockVideoQuality"
             );
             let userSetQualitySign = -1;
             Object.keys(VideoQualityMapWithPC).find((key) => {
@@ -601,27 +322,35 @@
                 return false;
               }
             });
-            let details_myAddChild = function(...args) {
+            let ownAddChild = function(...args) {
               let name = args[0];
               if (name === "qualityButton") {
                 let qualityInfo = args[1];
-                let qualityList = qualityInfo["qualityList"];
                 log.info(["锁定视频清晰度", qualityInfo]);
-                Object.keys(that.$src).forEach((srcKey) => {
-                  let srcInfo = that.$src[srcKey];
-                  let findValue = qualityInfo["qualityList"].find(
-                    (item) => item.sign === srcInfo.sign
-                  );
-                  if (!findValue && utils.isNotNull(srcInfo.src)) {
-                    qualityList.push({
-                      label: srcInfo.label,
-                      sign: srcInfo.sign,
-                      src: srcInfo.src
-                    });
+                qualityInfo["qualityList"].find((item) => {
+                  if (!(item.sign === 1 && that.$data.videoQualityMap.has(item.src))) {
+                    return false;
                   }
+                  that.$data.videoQualityMap.get(item.src).forEach((videoQualityMapInfo) => {
+                    let findIndex = qualityInfo["qualityList"].findIndex(
+                      (qualityItem) => {
+                        return qualityItem.sign === videoQualityMapInfo.sign;
+                      }
+                    );
+                    if (findIndex === -1) {
+                      let newQuality = {
+                        label: videoQualityMapInfo.label,
+                        sign: videoQualityMapInfo.sign,
+                        src: videoQualityMapInfo.src
+                      };
+                      log.success(["添加新的视频清晰度", newQuality]);
+                      qualityInfo["qualityList"].push(newQuality);
+                    }
+                  });
+                  return true;
                 });
                 if (userSetQualitySign !== -1) {
-                  let findSign = qualityList.find(
+                  let findSign = qualityInfo["qualityList"].find(
                     (item) => item["sign"] === userSetQualitySign
                   );
                   if (findSign) {
@@ -648,82 +377,196 @@
               }
               return oldAddChild.apply(this, args);
             };
-            if (oldAddChild == details_myAddChild) {
+            if (oldAddChild == ownAddChild) {
               return;
             }
-            vueObj.player.controlBar.addChild = details_myAddChild;
+            vueObj.player.controlBar.addChild = ownAddChild;
             log.success("成功覆盖属性 __vue__.player.controlBar.addChild");
           }
         }
       ]);
-    },
+    }
     /**
      * 解锁更多视频清晰度
      */
-    unlockHigherVideoQuality() {
-      VueUtils.waitVuePropToSet(".weibo-media-wraps:not([data-unlock-quality])", [
-        {
-          msg: "等待获取属性 __vue__.item.object_id",
-          check(vueObj) {
-            var _a2, _b, _c;
-            if (typeof ((_a2 = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _a2.type) === "string" && ((_b = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _b.type) !== "video") {
-              return true;
-            }
-            return typeof ((_c = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _c.object_id) === "string";
-          },
-          async set(vueObj) {
-            var _a2;
-            if (vueObj.item.type !== "video") {
-              return;
-            }
-            (_a2 = vueObj.$el) == null ? void 0 : _a2.setAttribute("data-unlock-quality", "true");
-            let object_id = vueObj.item.object_id;
-            let urls = vueObj.item.urls;
-            log.success("成功获取属性 __vue__.item.object_id=" + object_id);
-            let componentInfo = await WeiBoApi.component(object_id);
-            if (!componentInfo) {
-              return;
-            }
-            log.info(["获取组件信息成功", componentInfo]);
-            if (!componentInfo.urls) {
-              log.error("获取组件信息urls失败");
-              Qmsg.error("获取组件信息urls失败");
-              return;
-            }
-            if (typeof componentInfo.urls !== "object") {
-              log.error("组件信息urls不是一个对象");
-              Qmsg.error("组件信息urls不是一个对象");
-              return;
-            }
-            if (!Object.keys(componentInfo.urls).length) {
-              log.error("组件信息urls为空");
-              Qmsg.error("组件信息urls为空");
-              return;
-            }
-            Object.keys(componentInfo.urls).forEach((srcName) => {
-              let src = componentInfo.urls[srcName];
-              if (srcName in WeiBoDetail.$src) {
-                WeiBoDetail.$src[srcName].src = src;
-              }
-              if (srcName in VideoQualityMapWithPC) {
-                let newSrcInfo = VideoQualityMapWithPC[srcName];
-                if (newSrcInfo.name in urls) ;
-                else {
-                  log.success(["新增清晰度：", newSrcInfo]);
-                  urls[newSrcInfo.name] = src;
+    async unlockVideoHigherQuality() {
+      let that = this;
+      let taskQueue = [];
+      document.querySelectorAll(
+        ".weibo-media-wraps:not([data-unlock-quality])"
+      ).forEach(($ele) => {
+        $ele.setAttribute("data-unlock-quality", "true");
+        let taskFunc = function() {
+          return new Promise((resolve, reject) => {
+            VueUtils.waitVuePropToSet($ele, [
+              {
+                msg: "等待获取属性 __vue__.item.object_id",
+                check(vueObj) {
+                  var _a2, _b, _c;
+                  if (typeof ((_a2 = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _a2.type) === "string" && ((_b = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _b.type) !== "video") {
+                    return true;
+                  }
+                  return typeof ((_c = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _c.object_id) === "string";
+                },
+                close() {
+                  resolve();
+                },
+                async set(vueObj) {
+                  try {
+                    if (vueObj.item.type !== "video") {
+                      return;
+                    }
+                    let object_id = vueObj.item.object_id;
+                    let urls = vueObj.item.urls;
+                    log.success(
+                      "成功获取属性 __vue__.item.object_id=" + object_id
+                    );
+                    let componentInfo = await WeiBoApi.component(object_id);
+                    if (!componentInfo) {
+                      return;
+                    }
+                    log.info(["获取组件信息成功", componentInfo]);
+                    if (!componentInfo.urls) {
+                      log.error("获取组件信息urls失败");
+                      Qmsg.error("获取组件信息urls失败");
+                      return;
+                    }
+                    if (typeof componentInfo.urls !== "object") {
+                      log.error("组件信息urls不是一个对象");
+                      Qmsg.error("组件信息urls不是一个对象");
+                      return;
+                    }
+                    if (!Object.keys(componentInfo.urls).length) {
+                      log.error("组件信息urls为空");
+                      Qmsg.error("组件信息urls为空");
+                      return;
+                    }
+                    Object.keys(componentInfo.urls).forEach((srcName) => {
+                      let src = componentInfo.urls[srcName];
+                      if (that.$data.newQualityNameList.includes(srcName)) {
+                        let mapInfo = {
+                          label: that.$src[srcName].label,
+                          name: that.$src[srcName].name,
+                          sign: that.$src[srcName].sign,
+                          src
+                        };
+                        let ld_mp4_url = urls["mp4_ld_mp4"];
+                        if (ld_mp4_url) {
+                          if (!that.$data.videoQualityMap.has(ld_mp4_url)) {
+                            that.$data.videoQualityMap.set(ld_mp4_url, [
+                              mapInfo
+                            ]);
+                          } else {
+                            let currentMapInfo = that.$data.videoQualityMap.get(ld_mp4_url);
+                            currentMapInfo.push(mapInfo);
+                            that.$data.videoQualityMap.set(
+                              ld_mp4_url,
+                              currentMapInfo
+                            );
+                          }
+                        }
+                      }
+                      if (srcName in VideoQualityMapWithPC) {
+                        let newSrcInfo = VideoQualityMapWithPC[srcName];
+                        if (newSrcInfo.name in urls) {
+                        } else {
+                          log.success(["新增清晰度：", newSrcInfo]);
+                          urls[newSrcInfo.name] = src;
+                        }
+                      } else {
+                        log.error(["视频清晰度映射尚未补充", { srcName, src }]);
+                      }
+                    });
+                  } catch (error) {
+                    log.error(error);
+                  } finally {
+                    resolve();
+                  }
                 }
-              } else {
-                log.error(["视频清晰度映射尚未补充", { srcName, src }]);
               }
-            });
-          }
-        }
-      ]);
+            ]);
+          });
+        };
+        taskQueue.push(taskFunc);
+      });
+      for (const taskIterator of taskQueue) {
+        taskIterator();
+        await utils.sleep(100);
+      }
     }
+  }
+  const UISelect = function(text, key, defaultValue, data, callback, description) {
+    let selectData = [];
+    if (typeof data === "function") {
+      selectData = data();
+    } else {
+      selectData = data;
+    }
+    let result = {
+      text,
+      type: "select",
+      description,
+      attributes: {},
+      getValue() {
+        return PopsPanel.getValue(key, defaultValue);
+      },
+      callback(event, isSelectedValue, isSelectedText) {
+        PopsPanel.setValue(key, isSelectedValue);
+      },
+      data: selectData
+    };
+    if (result.attributes) {
+      result.attributes[ATTRIBUTE_KEY] = key;
+      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
+    }
+    return result;
   };
-  const SettingUIU = {
-    id: "weibo-panel-config-u",
-    title: "主页",
+  const UISwitch = function(text, key, defaultValue, clickCallBack, description) {
+    let result = {
+      text,
+      type: "switch",
+      description,
+      attributes: {},
+      getValue() {
+        return Boolean(PopsPanel.getValue(key, defaultValue));
+      },
+      callback(event, value) {
+        log.success(`${value ? "开启" : "关闭"} ${text}`);
+        PopsPanel.setValue(key, Boolean(value));
+      },
+      afterAddToUListCallBack: void 0
+    };
+    if (result.attributes) {
+      result.attributes[ATTRIBUTE_KEY] = key;
+      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
+    }
+    return result;
+  };
+  const UITextArea = function(text, key, defaultValue, description, changeCallBack, placeholder = "", disabled) {
+    let result = {
+      text,
+      type: "textarea",
+      attributes: {},
+      description,
+      placeholder,
+      disabled,
+      getValue() {
+        let localValue = PopsPanel.getValue(key, defaultValue);
+        return localValue;
+      },
+      callback(event, value) {
+        PopsPanel.setValue(key, value);
+      }
+    };
+    if (result.attributes) {
+      result.attributes[ATTRIBUTE_KEY] = key;
+      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
+    }
+    return result;
+  };
+  const SettingUICommon = {
+    id: "weibo-panel-config-currency",
+    title: "通用",
     forms: [
       {
         text: "功能",
@@ -731,7 +574,7 @@
         forms: [
           UISelect(
             "视频清晰度",
-            "weibo-u-quality",
+            "weibo-common-lockVideoQuality",
             "",
             [
               {
@@ -754,19 +597,208 @@
             "设置视频清晰度，默认自动，其它的清晰度将自动被删除(强制固定选择的清晰度)"
           ),
           UISwitch(
-            "解锁更多的清晰度",
-            "weibo-u-unlockHigherVideoQuality",
+            "解锁更多清晰度",
+            "weibo-common-unlockVideoHigherQuality",
             true,
             void 0,
-            "自动请求PC端的视频清晰度，如果请求成功，将解锁更多的清晰度，如1080p、2K"
+            "自动请求PC端的视频清晰度，如果请求成功，将解锁更多的清晰度，如1080p、2K、2K-60、4K-60"
+          )
+        ]
+      },
+      {
+        text: "屏蔽",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "【屏蔽】广告",
+            "weibo_remove_ads",
+            true,
+            void 0,
+            "包括【登录/注册按钮】、【小程序横幅推荐】"
+          ),
+          UISwitch(
+            "【屏蔽】底部工具栏",
+            "weibo_shield_bottom_bar",
+            false,
+            void 0,
+            "屏蔽聊天/关注按钮"
+          )
+        ]
+      },
+      {
+        text: "拦截跳转",
+        type: "forms",
+        forms: [
+          UISwitch("api/attitudes/create", "weibo_apply_attitudes_create", true),
+          UISwitch(
+            "点赞",
+            "weibo_apply_likes_update",
+            true,
+            void 0,
+            "未登录时，拦截点赞跳转登录"
+          ),
+          UISwitch(
+            "评论",
+            "weibo_apply_comments_create",
+            true,
+            void 0,
+            "未登录时，拦截评论跳转登录"
+          ),
+          UISwitch(
+            "关注",
+            "weibo_apply_friendships_create",
+            true,
+            void 0,
+            "未登录时，拦截关注跳转登录"
+          ),
+          UISwitch(
+            "转发",
+            "weibo_apply_statuses_repostTimeline",
+            true,
+            void 0,
+            "未登录时，拦截查看转发数据"
+          ),
+          UISwitch(
+            "回复",
+            "weibo_apply_comments_reply",
+            true,
+            void 0,
+            "未登录时，拦截回复跳转登录"
+          ),
+          UISwitch(
+            "优化跳转主页",
+            "weibo_apply_profile_info",
+            true,
+            void 0,
+            "未登录时，正确跳转至用户主页"
+          ),
+          UISwitch(
+            "下拉加载更多评论",
+            "weibo_apply_comments_hotflow",
+            true,
+            void 0,
+            "未登录时，拦截下拉加载更多评论跳转登录"
+          ),
+          UISwitch(
+            "楼中楼下拉加载更多评论",
+            "weibo_apply_comments_hotFlowChild",
+            true,
+            void 0,
+            "未登录时，拦截下拉加载更多评论跳转登录"
+          )
+        ]
+      },
+      {
+        text: "网络请求(不一定能劫持到)",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "/api/config",
+            "weibo_request_api_config",
+            true,
+            void 0,
+            "Api为获取用户数据，未登录时伪装为已登录"
+          ),
+          UISwitch(
+            "/comments/hot",
+            "weibo_request_comments_hot",
+            true,
+            void 0,
+            "Api为获取评论数据，未登录时伪装为成功获取评论数据"
+          ),
+          UISwitch(
+            "/status/push",
+            "weibo_request_status_push",
+            true,
+            void 0,
+            "Api为获取顶部的热点新闻信息流"
+          )
+        ]
+      },
+      {
+        text: "Router路由",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "监听路由改变",
+            "weibo-listenRouterChange",
+            true,
+            void 0,
+            "监听路由改变，动态加载功能"
+          ),
+          UISwitch(
+            "修复用户主页正确跳转",
+            "weibo_router_profile_to_user_home",
+            true,
+            void 0,
+            "可以正确跳转至用户主页"
+          )
+        ]
+      },
+      {
+        text: "函数禁用",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "navigator.serviceWorker.register",
+            "weibo_hijack_navigator_service_worker_register",
+            true,
+            void 0,
+            "禁止注册serviceWorker"
+          )
+        ]
+      },
+      {
+        text: "cookie配置",
+        type: "forms",
+        forms: [
+          UITextArea(
+            "weibo.com",
+            "weibo-common-cookie_weibo.com",
+            "",
+            void 0,
+            void 0,
+            "Cookie格式：xxx=xxxx;xxx=xxxx"
           )
         ]
       }
     ]
   };
-  const SettingUIDetail = {
-    id: "weibo-panel-config-detail",
-    title: "正文",
+  const SettingUIHuaTi = {
+    id: "weibo-panel-config-huati",
+    title: "话题",
+    forms: [
+      {
+        text: "功能",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "伪装微博客户端",
+            "huati_weibo_masquerade_weibo_client_app",
+            true,
+            void 0,
+            "可以隐藏底部的【在微博内打开】"
+          )
+        ]
+      },
+      {
+        text: "网络请求(不一定能劫持到)",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "/ajax/super/starschedule",
+            "huati_weibo_get_more_celebrity_calendar_information",
+            true,
+            void 0,
+            "Api为获取日程数据，开启后可获取正常日程数据"
+          )
+        ]
+      }
+    ]
+  };
+  const SettingUIVideo = {
+    id: "weibo-panel-config-video",
+    title: "视频",
     forms: [
       {
         text: "功能",
@@ -774,34 +806,65 @@
         forms: [
           UISelect(
             "视频清晰度",
-            "weibo-detail-quality",
+            "weibo-video-quality",
             "",
             [
               {
                 value: "",
                 text: "自动"
               },
-              ...(() => {
-                let result = [];
-                Object.keys(VideoQualityMapWithPC).forEach((name) => {
-                  let value = VideoQualityMapWithPC[name];
-                  result.push({
-                    value: value.name,
-                    text: name
-                  });
-                });
-                return result;
-              })()
+              {
+                value: "mp4_ld_mp4",
+                text: "流畅360p"
+              },
+              {
+                value: "mp4_hd_mp4",
+                text: "标清480p"
+              },
+              {
+                value: "mp4_720p_mp4",
+                text: "高清720p"
+              },
+              {
+                value: "mp4_1080p_mp4",
+                text: "超清1080p"
+              }
             ],
             void 0,
             "设置视频清晰度，默认自动，其它的清晰度将自动被删除(强制固定选择的清晰度)"
           ),
           UISwitch(
-            "解锁更多的清晰度",
-            "weibo-detail-unlockHigherVideoQuality",
+            "解锁1080p",
+            "weibo-video-unlockVideo1080p",
             true,
             void 0,
-            "自动请求PC端的视频清晰度，如果请求成功，将解锁更多的清晰度，如1080p、2K"
+            "请求PC端的视频1080p链接，开启该功能↑选择的1080p才会生效"
+          )
+        ]
+      },
+      {
+        text: "屏蔽",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "【屏蔽】底部工具栏",
+            "weibo_video_shield_bottom_toolbar",
+            true
+          ),
+          UISwitch("【屏蔽】相关推荐", "weibo_video_shield_recommend", true),
+          UISwitch("【屏蔽】热门评论", "weibo_video_shield_hot_comments", true)
+        ]
+      },
+      {
+        text: "webpack",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "gotoApp",
+            "weibo_video_webpack_gotoApp",
+            true,
+            void 0,
+            "开启后阻止唤醒Scheme"
           )
         ]
       }
@@ -1064,6 +1127,9 @@
 			aside.pops-panel-aside{
 			  width: auto !important;
 			}
+			.pops-panel-textarea textarea{
+				height: 100px;
+			}
 			`
       });
     },
@@ -1096,8 +1162,9 @@
     getPanelContentConfig() {
       let configList = [
         SettingUICommon,
-        SettingUIU,
-        SettingUIDetail,
+        // SettingUIU,
+        // SettingUISearch,
+        // SettingUIDetail,
         SettingUIHuaTi,
         SettingUIVideo
       ];
@@ -1367,14 +1434,20 @@
     /**
      * 移动端微博-帖子
      */
-    isMWeiBoDetail() {
+    isMWeiBo_detail() {
       return this.isMWeiBo() && globalThis.location.pathname.startsWith("/detail/");
     },
     /**
      * 移动端微博-主页
      */
-    isMWeiBoU() {
+    isMWeiBo_u() {
       return this.isMWeiBo() && globalThis.location.pathname.startsWith("/u/");
+    },
+    /**
+     * 移动端微博-搜索
+     */
+    isMWeiBo_search() {
+      return this.isMWeiBo() && globalThis.location.pathname.startsWith("/search");
     },
     /**
      * 话题
@@ -1535,246 +1608,10 @@
       );
     }
   };
-  const WeiBoU = {
-    $src: {
-      "高清 1080P": {
-        ...VideoQualityMapWithPC["高清 1080P"]
-      },
-      "超清 2K": {
-        ...VideoQualityMapWithPC["超清 2K"]
-      },
-      "超清 2K60": {
-        ...VideoQualityMapWithPC["超清 2K60"]
-      },
-      "超清 4K60": {
-        ...VideoQualityMapWithPC["超清 4K60"]
-      }
-    },
-    $data: {
-      newQualityNameList: [],
-      videoQualityMap: new utils.Dictionary()
-    },
-    init() {
-      this.$data.newQualityNameList = [];
-      this.$data.newQualityNameList.push(...Object.keys(this.$src));
-      this.quality();
-      domUtils.ready(() => {
-        PopsPanel.execMenuOnce("weibo-u-unlockHigherVideoQuality", () => {
-          let lock = new utils.LockFunction(() => {
-            this.unlockHigherVideoQuality();
-          }, 15);
-          utils.mutationObserver(document.body, {
-            config: {
-              subtree: true,
-              childList: true
-            },
-            immediate: true,
-            callback: () => {
-              lock.run();
-            }
-          });
-        });
-      });
-    },
-    /**
-     * 锁定视频清晰度
-     */
-    quality() {
-      let that = this;
-      log.info("锁定视频清晰度");
-      VueUtils.waitVuePropToSet(".video-player .mwb-video", [
-        {
-          msg: "等待获取属性 __vue__.player.controlBar.addChild",
-          check(vueObj) {
-            return typeof vueObj.player.controlBar.addChild === "function";
-          },
-          set(vueObj) {
-            let oldAddChild = vueObj.player.controlBar.addChild;
-            let userSetQuality = PopsPanel.getValue("weibo-u-quality");
-            let userSetQualitySign = -1;
-            Object.keys(VideoQualityMapWithPC).find((key) => {
-              if (VideoQualityMapWithPC[key].name === userSetQuality) {
-                userSetQualitySign = VideoQualityMapWithPC[key].sign;
-                return true;
-              } else {
-                return false;
-              }
-            });
-            let u_myAddChild = function(...args) {
-              let name = args[0];
-              if (name === "qualityButton") {
-                let qualityInfo = args[1];
-                log.info(["锁定视频清晰度", qualityInfo]);
-                qualityInfo["qualityList"].find((item) => {
-                  if (!(item.sign === 1 && that.$data.videoQualityMap.has(item.src))) {
-                    return false;
-                  }
-                  that.$data.videoQualityMap.get(item.src).forEach((videoQualityMapInfo) => {
-                    let findIndex = qualityInfo["qualityList"].findIndex(
-                      (qualityItem) => {
-                        return qualityItem.sign === videoQualityMapInfo.sign;
-                      }
-                    );
-                    if (findIndex === -1) {
-                      let newQuality = {
-                        label: videoQualityMapInfo.label,
-                        sign: videoQualityMapInfo.sign,
-                        src: videoQualityMapInfo.src
-                      };
-                      log.success(["添加新的视频清晰度", newQuality]);
-                      qualityInfo["qualityList"].push(newQuality);
-                    }
-                  });
-                  return true;
-                });
-                if (userSetQualitySign !== -1) {
-                  let findSign = qualityInfo["qualityList"].find(
-                    (item) => item["sign"] === userSetQualitySign
-                  );
-                  if (findSign) {
-                    qualityInfo["defaultSign"] = userSetQualitySign;
-                  } else {
-                    let signList = qualityInfo["qualityList"].map((item) => {
-                      if (item.sign <= userSetQualitySign) {
-                        return item.sign;
-                      }
-                    }).filter((item) => item);
-                    let userSetQualitySignLower = utils.getMaxValue(...signList);
-                    qualityInfo["defaultSign"] = userSetQualitySignLower;
-                    log.error(
-                      "该清晰度不存在，选择比该画质低的清晰度：" + userSetQualitySignLower
-                    );
-                  }
-                } else {
-                  let signList = qualityInfo["qualityList"].map(
-                    (item) => item.sign
-                  );
-                  let maxSign = utils.getMaxValue(...signList);
-                  qualityInfo["defaultSign"] = maxSign;
-                }
-              }
-              return oldAddChild.apply(this, args);
-            };
-            if (oldAddChild == u_myAddChild) {
-              return;
-            }
-            vueObj.player.controlBar.addChild = u_myAddChild;
-            log.success("成功覆盖属性 __vue__.player.controlBar.addChild");
-          }
-        }
-      ]);
-    },
-    /**
-     * 解锁更多视频清晰度
-     */
-    async unlockHigherVideoQuality() {
-      let that = this;
-      let taskQueue = [];
-      document.querySelectorAll(
-        "#app .weibo-member:not([data-unlock-quality])"
-      ).forEach(($weiboMember) => {
-        $weiboMember.setAttribute("data-unlock-quality", "true");
-        let taskFunc = function() {
-          return new Promise(async (resolve, reject) => {
-            VueUtils.waitVuePropToSet($weiboMember, [
-              {
-                msg: "等待获取属性 __vue__.item.page_info.object_id",
-                check(vueObj) {
-                  var _a2, _b, _c, _d, _e, _f;
-                  if (typeof ((_b = (_a2 = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _a2.page_info) == null ? void 0 : _b.type) === "string" && ((_d = (_c = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _c.page_info) == null ? void 0 : _d.type) !== "video") {
-                    return true;
-                  }
-                  return typeof ((_f = (_e = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _e.page_info) == null ? void 0 : _f.object_id) === "string";
-                },
-                close() {
-                  resolve();
-                },
-                async set(vueObj) {
-                  try {
-                    if (vueObj.item.page_info.type !== "video") {
-                      return;
-                    }
-                    let id = vueObj.item.id || vueObj.item.mid;
-                    let page_info = vueObj.item.page_info;
-                    let object_id = page_info.object_id;
-                    log.success(
-                      "成功获取属性 __vue__.item.object_id=" + object_id
-                    );
-                    let componentInfo = await WeiBoApi.component(object_id);
-                    if (!componentInfo) {
-                      return;
-                    }
-                    log.info(["获取组件信息成功", componentInfo]);
-                    if (!componentInfo.urls) {
-                      log.error("获取组件信息urls失败");
-                      Qmsg.error("获取组件信息urls失败");
-                      return;
-                    }
-                    if (typeof componentInfo.urls !== "object") {
-                      log.error("组件信息urls不是一个对象");
-                      Qmsg.error("组件信息urls不是一个对象");
-                      return;
-                    }
-                    if (!Object.keys(componentInfo.urls).length) {
-                      log.error("组件信息urls为空");
-                      Qmsg.error("组件信息urls为空");
-                      return;
-                    }
-                    Object.keys(componentInfo.urls).forEach((srcName) => {
-                      let src = componentInfo.urls[srcName];
-                      if (that.$data.newQualityNameList.includes(srcName)) {
-                        let mapInfo = {
-                          label: that.$src[srcName].label,
-                          name: that.$src[srcName].name,
-                          sign: that.$src[srcName].sign,
-                          src
-                        };
-                        let ld_mp4_url = page_info.urls["mp4_ld_mp4"];
-                        if (ld_mp4_url) {
-                          if (!that.$data.videoQualityMap.has(ld_mp4_url)) {
-                            that.$data.videoQualityMap.set(ld_mp4_url, [
-                              mapInfo
-                            ]);
-                          } else {
-                            let currentMapInfo = that.$data.videoQualityMap.get(ld_mp4_url);
-                            currentMapInfo.push(mapInfo);
-                            that.$data.videoQualityMap.set(
-                              ld_mp4_url,
-                              currentMapInfo
-                            );
-                          }
-                        }
-                      }
-                      if (srcName in VideoQualityMapWithPC) {
-                        let newSrcInfo = VideoQualityMapWithPC[srcName];
-                        if (newSrcInfo.name in page_info.urls) {
-                        } else {
-                          log.success(["新增清晰度：", newSrcInfo]);
-                          page_info.urls[newSrcInfo.name] = src;
-                        }
-                      } else {
-                        log.error(["视频清晰度映射尚未补充", { srcName, src }]);
-                      }
-                    });
-                  } catch (error) {
-                    log.error(error);
-                  } finally {
-                    resolve();
-                  }
-                }
-              }
-            ]);
-          });
-        };
-        taskQueue.push(taskFunc);
-      });
-      for (const taskIterator of taskQueue) {
-        taskIterator();
-        await utils.sleep(100);
-      }
-    }
-  };
   const WeiBo = {
+    $data: {
+      weiBoUnlockQuality: new WeiBoUnlockQuality()
+    },
     init() {
       PopsPanel.execMenuOnce(
         "weibo_hijack_navigator_service_worker_register",
@@ -1798,12 +1635,30 @@
         PopsPanel.execMenuOnce("weibo_shield_bottom_bar", () => {
           this.shieldBottomBar();
         });
-        if (WeiBoRouter.isMWeiBoDetail()) {
+        this.$data.weiBoUnlockQuality.lockVideoQuality();
+        domUtils.ready(() => {
+          PopsPanel.execMenuOnce("weibo-common-unlockVideoHigherQuality", () => {
+            let lock = new utils.LockFunction(() => {
+              this.$data.weiBoUnlockQuality.unlockVideoHigherQuality();
+            }, 15);
+            utils.mutationObserver(document.body, {
+              config: {
+                subtree: true,
+                childList: true
+              },
+              immediate: true,
+              callback: () => {
+                lock.run();
+              }
+            });
+          });
+        });
+        if (WeiBoRouter.isMWeiBo_detail()) {
           log.info("Router: 移动端微博帖子");
-          WeiBoDetail.init();
-        } else if (WeiBoRouter.isMWeiBoU()) {
+        } else if (WeiBoRouter.isMWeiBo_u()) {
           log.info("Router: 移动端微博主页");
-          WeiBoU.init();
+        } else if (WeiBoRouter.isMWeiBo_search()) {
+          log.info("Router: 移动端微博搜索");
         }
       } else if (WeiBoRouter.isVideo()) {
         log.info("Router: 视频页");

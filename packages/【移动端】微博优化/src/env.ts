@@ -13,6 +13,8 @@ import {
 import Qmsg from "qmsg";
 import DOMUtils from "@whitesev/domutils";
 import Utils from "@whitesev/utils";
+import type { HttpxHeaders } from "@whitesev/utils/dist/src/Httpx";
+import { KEY } from "./setting/config";
 
 /* 脚本名 */
 const _SCRIPT_NAME_ = "【移动端】微博优化";
@@ -61,18 +63,47 @@ const GM_Menu = new utils.GM_Menu({
 });
 
 const httpx = new utils.Httpx(GM_xmlhttpRequest);
+let GMPanel = GM_getValue(KEY, {}) as any;
+let userCookie = GMPanel["weibo-common-cookie_weibo.com"] || "";
+
+// 添加拦截器
+httpx.interceptors.request.use((details) => {
+	if (utils.isNotNull(userCookie)) {
+		// 域名：weibo.com
+		if (details.url!.includes("weibo.com")) {
+			log.success("自定义添加Cookie");
+			if (details.headers) {
+				if ((details.headers as any)["Cookie"]) {
+					(details.headers as any)["Cookie"] += userCookie;
+				} else {
+					(details.headers as any)["Cookie"] = userCookie;
+				}
+			} else {
+				(details.headers as any) = {
+					Cookie: userCookie,
+				} as HttpxHeaders;
+			}
+		}
+	}
+	return details;
+});
+
+httpx.interceptors.response.use(void 0, (data) => {
+	log.error(["拦截器-请求错误", data]);
+	if (data.type === "onabort") {
+		Qmsg.warning("请求取消");
+	} else if (data.type === "onerror") {
+		Qmsg.error("请求异常");
+	} else if (data.type === "ontimeout") {
+		Qmsg.error("请求超时");
+	} else {
+		Qmsg.error("其它错误");
+	}
+	return data;
+});
+
 httpx.config({
 	logDetails: DEBUG,
-	onabort() {
-		Qmsg.warning("请求取消");
-	},
-	ontimeout() {
-		Qmsg.error("请求超时");
-	},
-	onerror(response: any) {
-		Qmsg.error("请求异常");
-		log.error(["httpx-onerror 请求异常", response]);
-	},
 });
 
 const OriginPrototype = {

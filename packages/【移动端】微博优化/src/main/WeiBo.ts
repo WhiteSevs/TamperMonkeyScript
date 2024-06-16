@@ -4,13 +4,18 @@ import blockAdsCSS from "./blockAds.css?raw";
 import { WeiBoHook } from "@/hook/WeiBoHook";
 import { WeiBoRouter } from "@/router/WeiBoRouter";
 import { WeiBoHuaTi } from "./huati/WeiBoHuaTi";
-import { addStyle, log } from "@/env";
+import { DOMUtils, addStyle, log, utils } from "@/env";
 import { WeiBoVideo } from "./video/WeiBoVideo";
 import { WeiBoDetail } from "./detail/WeiBoDetail";
 import { CommonUtils } from "@/utils/CommonUtils";
 import { WeiBoU } from "./u/WeiBoU";
+import { WeiBoSearch } from "./search/WeiBoSearch";
+import { WeiBoUnlockQuality } from "./WeiBoUnlockQuality";
 
 const WeiBo = {
+	$data: {
+		weiBoUnlockQuality: new WeiBoUnlockQuality(),
+	},
 	init() {
 		PopsPanel.execMenuOnce(
 			"weibo_hijack_navigator_service_worker_register",
@@ -38,12 +43,33 @@ const WeiBo = {
 			PopsPanel.execMenuOnce("weibo_shield_bottom_bar", () => {
 				this.shieldBottomBar();
 			});
-			if (WeiBoRouter.isMWeiBoDetail()) {
+			this.$data.weiBoUnlockQuality.lockVideoQuality();
+			DOMUtils.ready(() => {
+				PopsPanel.execMenuOnce("weibo-common-unlockVideoHigherQuality", () => {
+					let lock = new utils.LockFunction(() => {
+						this.$data.weiBoUnlockQuality.unlockVideoHigherQuality();
+					}, 15);
+					utils.mutationObserver(document.body, {
+						config: {
+							subtree: true,
+							childList: true,
+						},
+						immediate: true,
+						callback: () => {
+							lock.run();
+						},
+					});
+				});
+			});
+			if (WeiBoRouter.isMWeiBo_detail()) {
 				log.info("Router: 移动端微博帖子");
 				WeiBoDetail.init();
-			} else if (WeiBoRouter.isMWeiBoU()) {
+			} else if (WeiBoRouter.isMWeiBo_u()) {
 				log.info("Router: 移动端微博主页");
 				WeiBoU.init();
+			} else if (WeiBoRouter.isMWeiBo_search()) {
+				log.info("Router: 移动端微博搜索");
+				WeiBoSearch.init();
 			}
 		} else if (WeiBoRouter.isVideo()) {
 			// 视频页

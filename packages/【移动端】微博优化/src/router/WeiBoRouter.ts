@@ -9,7 +9,7 @@ const WeiBoRouter = {
 	/**
 	 * 移动端微博-帖子
 	 */
-	isMWeiBoDetail() {
+	isMWeiBo_detail() {
 		return (
 			this.isMWeiBo() && globalThis.location.pathname.startsWith("/detail/")
 		);
@@ -17,8 +17,16 @@ const WeiBoRouter = {
 	/**
 	 * 移动端微博-主页
 	 */
-	isMWeiBoU() {
+	isMWeiBo_u() {
 		return this.isMWeiBo() && globalThis.location.pathname.startsWith("/u/");
+	},
+	/**
+	 * 移动端微博-搜索
+	 */
+	isMWeiBo_search() {
+		return (
+			this.isMWeiBo() && globalThis.location.pathname.startsWith("/search")
+		);
 	},
 	/**
 	 * 话题
