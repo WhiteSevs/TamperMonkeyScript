@@ -11,6 +11,9 @@ export const BilibiliQrCodeLogin = {
 		}
 		this.confirmScanQrcode(qrcodeInfo);
 	},
+	/**'
+	 * 获取二维码信息
+	 */
 	getQRCodeInfo: async function () {
 		log.info("正在申请二维码...");
 		let qrcodeInfo = await BilibiliLogin.getQrCodeInfo();
@@ -138,6 +141,15 @@ export const BilibiliQrCodeLogin = {
 		$alert.close();
 	},
 	/**
+	 * 生成过期时间
+	 * @param monthNumber xx月后过期
+	 * @returns
+	 */
+	generateExpireAt(monthNumber: number = 6) {
+		// 6个月过期
+		return new Date().getTime() + 1000 * 60 * 60 * 24 * 30 * monthNumber;
+	},
+	/**
 	 * 设置获取到的access_token和过期时间
 	 * @param data
 	 */
@@ -159,5 +171,12 @@ export const BilibiliQrCodeLogin = {
 		} else {
 			return null;
 		}
+	},
+	/**
+	 * 获取access_token
+	 * @returns
+	 */
+	getAccessToken() {
+		return this.getAccessTokenInfo()?.access_token || "";
 	},
 };

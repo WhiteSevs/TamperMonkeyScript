@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.15.13
+// @version      2024.6.16
 // @author       WhiteSevs
 // @description  bilibili(哔哩哔哩)优化，免登录等
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://update.greasyfork.org/scripts/497907/1394170/QRCodeJS.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.4.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.4.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @connect      *
@@ -38,7 +38,7 @@
 (function (Qmsg, Utils, DOMUtils, md5) {
   'use strict';
 
-  var _a, _b;
+  var _a;
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
   var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
@@ -925,6 +925,9 @@
       }
       this.confirmScanQrcode(qrcodeInfo);
     },
+    /**'
+     * 获取二维码信息
+     */
     getQRCodeInfo: async function() {
       log.info("正在申请二维码...");
       let qrcodeInfo = await BilibiliLogin.getQrCodeInfo();
@@ -1042,6 +1045,14 @@
       $alert.close();
     },
     /**
+     * 生成过期时间
+     * @param monthNumber xx月后过期
+     * @returns
+     */
+    generateExpireAt(monthNumber = 6) {
+      return (/* @__PURE__ */ new Date()).getTime() + 1e3 * 60 * 60 * 24 * 30 * monthNumber;
+    },
+    /**
      * 设置获取到的access_token和过期时间
      * @param data
      */
@@ -1060,6 +1071,14 @@
       } else {
         return null;
       }
+    },
+    /**
+     * 获取access_token
+     * @returns
+     */
+    getAccessToken() {
+      var _a2;
+      return ((_a2 = this.getAccessTokenInfo()) == null ? void 0 : _a2.access_token) || "";
     }
   };
   const UIInput = function(text, key, defaultValue, description, changeCallBack, placeholder = "", isNumber, isPassword) {
@@ -1075,6 +1094,11 @@
         return localValue;
       },
       callback(event, value) {
+        if (typeof changeCallBack === "function") {
+          if (changeCallBack(event, value)) {
+            return;
+          }
+        }
         PopsPanel.setValue(key, value);
       },
       placeholder
@@ -1130,9 +1154,14 @@
           UIInput(
             "access_token",
             "bili-head-recommend-access_token",
-            ((_b = BilibiliQrCodeLogin.getAccessTokenInfo()) == null ? void 0 : _b.access_token) || "",
+            BilibiliQrCodeLogin.getAccessToken(),
             "填入access_token，即可获取推荐视频数据",
-            void 0,
+            (event, value, valueAsNumber) => {
+              BilibiliQrCodeLogin.setAccessTokenInfo({
+                access_token: value,
+                expireAt: BilibiliQrCodeLogin.generateExpireAt()
+              });
+            },
             void 0,
             false,
             true
@@ -1726,14 +1755,14 @@
                 let checkCount = 1;
                 let isSuccess = false;
                 let lockFunc = new utils.LockFunction(async () => {
-                  var _a2, _b2, _c, _d;
+                  var _a2, _b, _c, _d;
                   let $playerVideo = document.querySelector(
                     "#bilibiliPlayer video"
                   );
                   if ($playerVideo) {
                     isSuccess = true;
                     (_a2 = _unsafeWindow == null ? void 0 : _unsafeWindow.player) == null ? void 0 : _a2.off("restart_call_app");
-                    (_b2 = _unsafeWindow == null ? void 0 : _unsafeWindow.player) == null ? void 0 : _b2.off("force_call_app_show");
+                    (_b = _unsafeWindow == null ? void 0 : _unsafeWindow.player) == null ? void 0 : _b.off("force_call_app_show");
                     log.success("<video>标签已成功初始化");
                     return;
                   }
@@ -1904,13 +1933,13 @@
           return;
         }
         function handleVCardTopApp($vCard) {
-          var _a2, _b2;
+          var _a2, _b;
           let $title = $vCard.querySelector(".title");
           let $left = $vCard.querySelector(".count .left");
           let vueObj = BilibiliUtils.getVue($vCard);
           if ($title && $left && !$vCard.querySelector(".gm-right-container")) {
             let $upInfo = document.createElement("div");
-            let upName = (_b2 = (_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.owner) == null ? void 0 : _b2.name;
+            let upName = (_b = (_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.owner) == null ? void 0 : _b.name;
             $upInfo.className = "gm-up-name";
             $upInfo.innerHTML = `
 						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
@@ -1931,7 +1960,7 @@
           }
         }
         function handleVCard($vCard) {
-          var _a2, _b2, _c;
+          var _a2, _b, _c;
           let $title = $vCard.querySelector(".title");
           let $count = $vCard.querySelector(".count");
           let vueObj = BilibiliUtils.getVue($vCard);
@@ -1943,7 +1972,7 @@
             let $cloneCount = $count.cloneNode(true);
             $cloneCount.className = "left";
             let $upInfo = document.createElement("div");
-            let upName = (_c = (_b2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _b2.owner) == null ? void 0 : _c.name;
+            let upName = (_c = (_b = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _b.owner) == null ? void 0 : _c.name;
             $count.appendChild($duration);
             $upInfo.className = "gm-up-name";
             $upInfo.innerHTML = `
@@ -2125,12 +2154,12 @@
         utils.waitVueByInterval(
           $app,
           () => {
-            var _a2, _b2;
+            var _a2, _b;
             let vueObj = BilibiliUtils.getVue($app);
             if (vueObj == null) {
               return false;
             }
-            return typeof ((_b2 = (_a2 = vueObj == null ? void 0 : vueObj.$router) == null ? void 0 : _a2.options) == null ? void 0 : _b2.scrollBehavior) != null;
+            return typeof ((_b = (_a2 = vueObj == null ? void 0 : vueObj.$router) == null ? void 0 : _a2.options) == null ? void 0 : _b.scrollBehavior) != null;
           },
           250,
           1e4
@@ -2209,8 +2238,8 @@
         {
           msg: "设置参数 $store.state.userStat.pay",
           check(vueObj) {
-            var _a2, _b2, _c;
-            return typeof typeof ((_c = (_b2 = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b2.userStat) == null ? void 0 : _c.pay) === "number";
+            var _a2, _b, _c;
+            return typeof typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.userStat) == null ? void 0 : _c.pay) === "number";
           },
           set(vueObj) {
             log.success("成功设置参数 $store.state.userStat.pay=1");
@@ -2220,8 +2249,8 @@
         {
           msg: "设置参数 $store.state.mediaInfo.user_status.pay",
           check(vueObj) {
-            var _a2, _b2, _c, _d;
-            return typeof ((_d = (_c = (_b2 = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b2.mediaInfo) == null ? void 0 : _c.user_status) == null ? void 0 : _d.pay) === "number";
+            var _a2, _b, _c, _d;
+            return typeof ((_d = (_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.mediaInfo) == null ? void 0 : _c.user_status) == null ? void 0 : _d.pay) === "number";
           },
           set(vueObj) {
             log.success("成功设置参数 $store.state.mediaInfo.user_status.pay=1");
@@ -2300,8 +2329,8 @@
         {
           msg: "设置参数 $store.state.userStat.pay",
           check(vueObj) {
-            var _a2, _b2, _c;
-            return typeof typeof ((_c = (_b2 = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b2.userStat) == null ? void 0 : _c.pay) === "number";
+            var _a2, _b, _c;
+            return typeof typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.userStat) == null ? void 0 : _c.pay) === "number";
           },
           set(vueObj) {
             log.success("成功设置参数 $store.state.userStat.pay=1");
@@ -2311,8 +2340,8 @@
         {
           msg: "设置参数 $store.state.mediaInfo.user_status.pay",
           check(vueObj) {
-            var _a2, _b2, _c, _d;
-            return typeof ((_d = (_c = (_b2 = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b2.mediaInfo) == null ? void 0 : _c.user_status) == null ? void 0 : _d.pay) === "number";
+            var _a2, _b, _c, _d;
+            return typeof ((_d = (_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.mediaInfo) == null ? void 0 : _c.user_status) == null ? void 0 : _d.pay) === "number";
           },
           set(vueObj) {
             log.success("成功设置参数 $store.state.mediaInfo.user_status.pay=1");
@@ -2680,10 +2709,10 @@
         "click",
         BilibiliData.className.dynamic + " .at",
         function(event) {
-          var _a2, _b2;
+          var _a2, _b;
           utils.preventEvent(event);
           let $click = event.target;
-          let oid = $click.getAttribute("data-oid") || ((_b2 = (_a2 = BilibiliUtils.getVue($click)) == null ? void 0 : _a2.$props) == null ? void 0 : _b2.rid);
+          let oid = $click.getAttribute("data-oid") || ((_b = (_a2 = BilibiliUtils.getVue($click)) == null ? void 0 : _a2.$props) == null ? void 0 : _b.rid);
           if (utils.isNull(oid)) {
             Qmsg.error("获取data-oid或rid失败");
             return;
@@ -3170,9 +3199,9 @@
           document.querySelectorAll(
             BilibiliData.className.head + " .video-list .card-box .v-card"
           ).forEach(($vcard) => {
-            var _a2, _b2, _c, _d, _e;
+            var _a2, _b, _c, _d, _e;
             let vueObj = BilibiliUtils.getVue($vcard);
-            let upName = ((_b2 = (_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.author) == null ? void 0 : _b2.name) || ((_d = (_c = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _c.owner) == null ? void 0 : _d.name);
+            let upName = ((_b = (_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.author) == null ? void 0 : _b.name) || ((_d = (_c = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _c.owner) == null ? void 0 : _d.name);
             let duration = (_e = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _e.duration;
             if (upName && !$vcard.querySelector(".gm-up-info")) {
               let $upInfo = document.createElement("div");
@@ -3261,8 +3290,8 @@
         {
           msg: "设置参数 $store.state.common.noCallApp",
           check(vueObj) {
-            var _a2, _b2, _c;
-            return typeof ((_c = (_b2 = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b2.common) == null ? void 0 : _c.noCallApp) === "boolean";
+            var _a2, _b, _c;
+            return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.noCallApp) === "boolean";
           },
           set(vueObj) {
             log.success("成功设置参数 $store.state.common.noCallApp=true");
@@ -3272,8 +3301,8 @@
         {
           msg: "设置参数 $store.state.common.userInfo.isLogin",
           check(vueObj) {
-            var _a2, _b2, _c, _d;
-            return typeof ((_d = (_c = (_b2 = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b2.common) == null ? void 0 : _c.userInfo) == null ? void 0 : _d.isLogin) === "boolean";
+            var _a2, _b, _c, _d;
+            return typeof ((_d = (_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.userInfo) == null ? void 0 : _d.isLogin) === "boolean";
           },
           set(vueObj) {
             log.success("成功设置参数 $store.state.common.userInfo.isLogin=true");
@@ -3283,8 +3312,8 @@
         {
           msg: "设置参数 $store.state.loginInfo.isLogin",
           check(vueObj) {
-            var _a2, _b2, _c;
-            return typeof ((_c = (_b2 = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b2.loginInfo) == null ? void 0 : _c.isLogin) === "boolean";
+            var _a2, _b, _c;
+            return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.loginInfo) == null ? void 0 : _c.isLogin) === "boolean";
           },
           set(vueObj) {
             log.success("成功设置参数 $store.state.loginInfo.isLogin=true");
@@ -3307,8 +3336,8 @@
         {
           msg: "设置参数 $store.state.video.isClient",
           check(vueObj) {
-            var _a2, _b2, _c;
-            return typeof typeof ((_c = (_b2 = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b2.video) == null ? void 0 : _c.isClient) === "boolean";
+            var _a2, _b, _c;
+            return typeof typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.video) == null ? void 0 : _c.isClient) === "boolean";
           },
           set(vueObj) {
             log.success("成功设置参数 $store.state.video.isClient=true");
@@ -3318,8 +3347,8 @@
         {
           msg: "设置参数 $store.state.opus.isClient=true",
           check(vueObj) {
-            var _a2, _b2, _c;
-            return typeof ((_c = (_b2 = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b2.opus) == null ? void 0 : _c.isClient) === "boolean";
+            var _a2, _b, _c;
+            return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.opus) == null ? void 0 : _c.isClient) === "boolean";
           },
           set(vueObj) {
             log.success("成功设置参数 $store.state.opus.isClient");
@@ -3329,8 +3358,8 @@
         {
           msg: "设置参数 $store.state.playlist.isClient",
           check(vueObj) {
-            var _a2, _b2, _c;
-            return typeof ((_c = (_b2 = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b2.playlist) == null ? void 0 : _c.isClient) === "boolean";
+            var _a2, _b, _c;
+            return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.playlist) == null ? void 0 : _c.isClient) === "boolean";
           },
           set(vueObj) {
             log.success("成功设置参数 $store.state.playlist.isClient=true");
@@ -3340,8 +3369,8 @@
         {
           msg: "设置参数 $store.state.ver.bili",
           check(vueObj) {
-            var _a2, _b2, _c;
-            return typeof ((_c = (_b2 = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b2.ver) == null ? void 0 : _c.bili) === "boolean";
+            var _a2, _b, _c;
+            return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.ver) == null ? void 0 : _c.bili) === "boolean";
           },
           set(vueObj) {
             log.success("成功设置参数 $store.state.ver.bili=true");
@@ -3351,8 +3380,8 @@
         {
           msg: "设置参数 $store.state.ver.biliVer",
           check(vueObj) {
-            var _a2, _b2, _c;
-            return typeof ((_c = (_b2 = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b2.ver) == null ? void 0 : _c.biliVer) === "number";
+            var _a2, _b, _c;
+            return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.ver) == null ? void 0 : _c.biliVer) === "number";
           },
           set(vueObj) {
             log.success("成功设置参数 $store.state.ver.biliVer=2333333");
@@ -3371,8 +3400,8 @@
         {
           msg: "设置参数 $store.state.common.tinyApp",
           check(vueObj) {
-            var _a2, _b2, _c;
-            return typeof ((_c = (_b2 = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b2.common) == null ? void 0 : _c.tinyApp) === "boolean";
+            var _a2, _b, _c;
+            return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.tinyApp) === "boolean";
           },
           set(vueObj) {
             vueObj.$store.state.common.tinyApp = true;

@@ -47,9 +47,14 @@ export const SettingUIHead: PopsPanelContentConfig = {
 				UIInput(
 					"access_token",
 					"bili-head-recommend-access_token",
-					BilibiliQrCodeLogin.getAccessTokenInfo()?.access_token || "",
+					BilibiliQrCodeLogin.getAccessToken(),
 					"填入access_token，即可获取推荐视频数据",
-					void 0,
+					(event, value, valueAsNumber) => {
+						BilibiliQrCodeLogin.setAccessTokenInfo({
+							access_token: value,
+							expireAt: BilibiliQrCodeLogin.generateExpireAt(),
+						});
+					},
 					void 0,
 					false,
 					true
