@@ -1114,12 +1114,6 @@ export declare interface HttpxDetailsConfig extends HttpxDetails {
 	 * （可选）是否输出请求配置
 	 */
 	logDetails?: boolean;
-	/**
-	 * 发送请求前的回调
-	 * 如果返回false则阻止本次返回
-	 * @param details 当前的请求配置
-	 */
-	beforeRequestCallBack?(details: HttpxDetails): boolean | void;
 }
 /**
  * 响应的数据的data
@@ -1208,17 +1202,175 @@ export declare interface HttpxAsyncResult<T = HttpxDetails> {
 	type: HttpxResponseCallBackType;
 }
 
+export declare interface HttpxHookErrorData {
+	type: "onerror" | "ontimeout" | "onabort";
+	error: Error;
+	response: any;
+}
+
+const GenerateUUID = () => {
+	return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+		var r = (Math.random() * 16) | 0,
+			v = c == "x" ? r : (r & 0x3) | 0x8;
+		return v.toString(16);
+	});
+};
+
 class Httpx {
 	private GM_Api = {
 		xmlHttpRequest: null as any,
 	};
 	private HttpxRequestHook = {
 		/**
+		 * @private
+		 */
+		$config: {
+			configList: <
+				{
+					id: string;
+					fn: Function;
+				}[]
+			>[],
+		},
+		/**
 		 * 发送请求前的回调
 		 * 如果返回false则阻止本次返回
 		 * @param details 当前的请求配置
+		 * @private
 		 */
-		beforeRequestCallBack(details: HttpxDetails) {},
+		beforeRequestCallBack(details: HttpxDetails) {
+			for (let index = 0; index < this.$config.configList.length; index++) {
+				let item = this.$config.configList[index];
+				if (typeof item.fn === "function") {
+					let result = item.fn(details);
+					if (result == null) {
+						return;
+					}
+				}
+			}
+			return details;
+		},
+		/**
+		 * 添加请求前的回调处理配置
+		 */
+		add(fn: Function) {
+			if (typeof fn === "function") {
+				let uuid = GenerateUUID();
+				this.$config.configList.push({
+					id: uuid,
+					fn: fn,
+				});
+				return uuid;
+			} else {
+				console.warn(
+					"HttpxRequestHook.addBeforeRequestCallBack: fn is not a function"
+				);
+			}
+		},
+		/**
+		 * 删除请求前的回调处理配置
+		 * @param id
+		 */
+		delete(id: string) {
+			if (typeof id === "string") {
+				let findIndex = this.$config.configList.findIndex(
+					(item) => item.id === id
+				);
+				if (findIndex !== -1) {
+					this.$config.configList.splice(findIndex, 1);
+					return true;
+				}
+			}
+			return false;
+		},
+		/**
+		 * 清空设置的请求前的回调处理配置
+		 */
+		clearAll() {
+			this.$config.configList = [];
+		},
+	};
+	private HttpxResponseHook = {
+		/**
+		 * @private
+		 */
+		$config: {
+			configList: <
+				{
+					id: string;
+					successFn?: Function;
+					errorFn?: Function;
+				}[]
+			>[],
+		},
+		/**
+		 * 成功的回调
+		 * @param response
+		 */
+		successResponseCallBack(response: HttpxAsyncResultData) {
+			for (let index = 0; index < this.$config.configList.length; index++) {
+				let item = this.$config.configList[index];
+				if (typeof item.successFn === "function") {
+					if (item.successFn(response) == null) {
+						return;
+					}
+				}
+			}
+			return response;
+		},
+		/**
+		 * 失败的回调
+		 * @param response
+		 */
+		errorResponseCallBack(data: {
+			type: "onerror" | "ontimeout" | "onabort";
+			error: Error;
+			response: any;
+		}) {
+			for (let index = 0; index < this.$config.configList.length; index++) {
+				let item = this.$config.configList[index];
+				if (typeof item.errorFn === "function") {
+					if (item.errorFn(data) == null) {
+						return;
+					}
+				}
+			}
+			return data;
+		},
+		/**
+		 * 添加请求前的回调处理配置
+		 */
+		add(successFn?: Function, errorFn?: Function) {
+			let id = GenerateUUID();
+			this.$config.configList.push({
+				id: id,
+				successFn: successFn,
+				errorFn: errorFn,
+			});
+			return id;
+		},
+		/**
+		 * 删除请求前的回调处理配置
+		 * @param id
+		 */
+		delete(id: string) {
+			if (typeof id === "string") {
+				let findIndex = this.$config.configList.findIndex(
+					(item) => item.id === id
+				);
+				if (findIndex !== -1) {
+					this.$config.configList.splice(findIndex, 1);
+					return true;
+				}
+			}
+			return false;
+		},
+		/**
+		 * 清空设置的请求前的回调处理配置
+		 */
+		clearAll() {
+			this.$config.configList = [];
+		},
 	};
 	private HttpxRequestDetails = {
 		context: this,
@@ -1475,6 +1627,15 @@ class Httpx {
 			} else if ("onabort" in this.context.#defaultDetails) {
 				this.context.#defaultDetails!.onabort!.apply(this, argumentsList);
 			}
+			if (
+				this.context.HttpxResponseHook.errorResponseCallBack({
+					type: "onabort",
+					error: new TypeError("request canceled"),
+					response: null,
+				}) == null
+			) {
+				return;
+			}
 			resolve({
 				status: false,
 				data: [...argumentsList],
@@ -1503,6 +1664,15 @@ class Httpx {
 			if (response.length) {
 				response = response[0];
 			}
+			if (
+				this.context.HttpxResponseHook.errorResponseCallBack({
+					type: "onerror",
+					error: new TypeError("request error"),
+					response: response,
+				}) == null
+			) {
+				return;
+			}
 			resolve({
 				status: false,
 				data: response,
@@ -1526,6 +1696,16 @@ class Httpx {
 				details.ontimeout.apply(this, argumentsList);
 			} else if ("ontimeout" in this.context.#defaultDetails) {
 				this.context.#defaultDetails!.ontimeout!.apply(this, argumentsList);
+			}
+
+			if (
+				this.context.HttpxResponseHook.errorResponseCallBack({
+					type: "ontimeout",
+					error: new TypeError("request timeout"),
+					response: (argumentsList || [null])[0],
+				}) == null
+			) {
+				return;
 			}
 			resolve({
 				status: false,
@@ -1613,8 +1793,15 @@ class Httpx {
 			) {
 				Response["finalUrl"] = (Response as any)["responseURL"];
 			}
+
 			/* 状态码2xx都是成功的 */
 			if (Math.floor(Response.status / 100) === 2) {
+				if (
+					this.context.HttpxResponseHook.successResponseCallBack(Response) ==
+					null
+				) {
+					return;
+				}
 				resolve({
 					status: true,
 					data: Response,
@@ -1670,7 +1857,7 @@ class Httpx {
 			) {
 				let hookResult =
 					this.context.HttpxRequestHook.beforeRequestCallBack(details);
-				if (typeof hookResult === "boolean" && !hookResult) {
+				if (hookResult == null) {
 					return;
 				}
 			}
@@ -1860,6 +2047,8 @@ class Httpx {
 				"Httpx未传入GM_xmlhttpRequest函数或传入的GM_xmlhttpRequest不是Function，强制使用window.fetch"
 			);
 		}
+		this.interceptors.request.context = this as any;
+		this.interceptors.response.context = this as any;
 		this.GM_Api.xmlHttpRequest = __xmlHttpRequest__;
 	}
 
@@ -1880,6 +2069,79 @@ class Httpx {
 		}
 		this.#defaultDetails = Utils.assign(this.#defaultDetails, details);
 	}
+	/**
+	 * 拦截器
+	 */
+	public interceptors = {
+		/**
+		 * 请求拦截器
+		 */
+		request: {
+			context: null as any as Httpx,
+			/**
+			 * 添加拦截器
+			 * @param fn 设置的请求前回调函数，如果返回配置，则使用返回的配置，如果返回null|undefined，则阻止请求
+			 */
+			use(fn: <T extends Required<HttpxDetails>>(details: T) => void | T) {
+				if (typeof fn !== "function") {
+					console.warn("[Httpx-interceptors-request] 请传入拦截器函数");
+					return;
+				}
+				return this.context.HttpxRequestHook.add(fn);
+			},
+			/**
+			 * 移除拦截器
+			 * @param id 通过use返回的id
+			 */
+			eject(id: string) {
+				return this.context.HttpxRequestHook.delete(id);
+			},
+			/**
+			 * 移除所有拦截器
+			 */
+			ejectAll() {
+				this.context.HttpxRequestHook.clearAll();
+			},
+		},
+		/**
+		 * 响应拦截器
+		 */
+		response: {
+			context: null as any as Httpx,
+			/**
+			 * 添加拦截器
+			 * @param successFn 设置的响应后回调函数，如果返回响应，则使用返回的响应，如果返回null|undefined，则阻止响应
+			 * + 2xx 范围内的状态码都会触发该函数
+			 * @param errorFn 设置的响应后回调函数，如果返回响应，则使用返回的响应，如果返回null|undefined，则阻止响应
+			 * + 超出 2xx 范围的状态码都会触发该函数
+			 */
+			use(
+				successFn?: <T extends HttpxAsyncResultData>(
+					response: HttpxAsyncResultData
+				) => void | T,
+				errorFn?: <T extends HttpxHookErrorData>(data: T) => void | T
+			) {
+				if (typeof successFn !== "function" && typeof errorFn !== "function") {
+					console.warn("[Httpx-interceptors-response] 必须传入一个拦截器函数");
+					return;
+				}
+				return this.context.HttpxResponseHook.add(successFn!, errorFn!);
+			},
+			/**
+			 * 移除拦截器
+			 * @param id 通过use返回的id
+			 */
+			eject(id: string) {
+				return this.context.HttpxResponseHook.delete(id);
+			},
+			/**
+			 * 移除所有拦截器
+			 */
+			ejectAll() {
+				this.context.HttpxResponseHook.clearAll();
+			},
+		},
+	};
 	/**
 	 * 修改xmlHttpRequest
 	 * @param httpRequest 网络请求函数

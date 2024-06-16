@@ -1018,12 +1018,6 @@ export declare interface HttpxDetailsConfig extends HttpxDetails {
      * （可选）是否输出请求配置
      */
     logDetails?: boolean;
-    /**
-     * 发送请求前的回调
-     * 如果返回false则阻止本次返回
-     * @param details 当前的请求配置
-     */
-    beforeRequestCallBack?(details: HttpxDetails): boolean | void;
 }
 /**
  * 响应的数据的data
@@ -1111,10 +1105,16 @@ export declare interface HttpxAsyncResult<T = HttpxDetails> {
      */
     type: HttpxResponseCallBackType;
 }
+export declare interface HttpxHookErrorData {
+    type: "onerror" | "ontimeout" | "onabort";
+    error: Error;
+    response: any;
+}
 declare class Httpx {
     #private;
     private GM_Api;
     private HttpxRequestHook;
+    private HttpxResponseHook;
     private HttpxRequestDetails;
     private HttpxCallBack;
     private HttpxRequest;
@@ -1126,6 +1126,54 @@ declare class Httpx {
     config(details?: {
         [K in keyof HttpxDetailsConfig]?: HttpxDetailsConfig[K];
     }): void;
+    /**
+     * 拦截器
+     */
+    interceptors: {
+        /**
+         * 请求拦截器
+         */
+        request: {
+            context: Httpx;
+            /**
+             * 添加拦截器
+             * @param fn 设置的请求前回调函数，如果返回配置，则使用返回的配置，如果返回null|undefined，则阻止请求
+             */
+            use(fn: <T extends Required<HttpxDetails>>(details: T) => void | T): string | undefined;
+            /**
+             * 移除拦截器
+             * @param id 通过use返回的id
+             */
+            eject(id: string): boolean;
+            /**
+             * 移除所有拦截器
+             */
+            ejectAll(): void;
+        };
+        /**
+         * 响应拦截器
+         */
+        response: {
+            context: Httpx;
+            /**
+             * 添加拦截器
+             * @param successFn 设置的响应后回调函数，如果返回响应，则使用返回的响应，如果返回null|undefined，则阻止响应
+             * + 2xx 范围内的状态码都会触发该函数
+             * @param errorFn 设置的响应后回调函数，如果返回响应，则使用返回的响应，如果返回null|undefined，则阻止响应
+             * + 超出 2xx 范围的状态码都会触发该函数
+             */
+            use(successFn?: (<T_1 extends HttpxAsyncResultData<HttpxDetails>>(response: HttpxAsyncResultData) => void | T_1) | undefined, errorFn?: (<T_2 extends HttpxHookErrorData>(data: T_2) => void | T_2) | undefined): string | undefined;
+            /**
+             * 移除拦截器
+             * @param id 通过use返回的id
+             */
+            eject(id: string): boolean;
+            /**
+             * 移除所有拦截器
+             */
+            ejectAll(): void;
+        };
+    };
     /**
      * 修改xmlHttpRequest
      * @param httpRequest 网络请求函数

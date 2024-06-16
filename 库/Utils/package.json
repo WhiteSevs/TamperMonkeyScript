@@ -1,6 +1,6 @@
 {
 	"name": "@whitesev/utils",
-	"version": "1.4.6",
+	"version": "1.5.2",
 	"description": "一个常用的工具库",
 	"main": "dist/index.cjs.js",
 	"module": "dist/node/index.esm.js",

@@ -1428,17 +1428,147 @@ System.register('Utils', [], (function (exports) {
                 }
             }
 
+            const GenerateUUID = () => {
+                return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+                    var r = (Math.random() * 16) | 0, v = c == "x" ? r : (r & 0x3) | 0x8;
+                    return v.toString(16);
+                });
+            };
             class Httpx {
                 GM_Api = {
                     xmlHttpRequest: null,
                 };
                 HttpxRequestHook = {
                     /**
+                     * @private
+                     */
+                    $config: {
+                        configList: [],
+                    },
+                    /**
                      * 发送请求前的回调
                      * 如果返回false则阻止本次返回
                      * @param details 当前的请求配置
+                     * @private
                      */
-                    beforeRequestCallBack(details) { },
+                    beforeRequestCallBack(details) {
+                        for (let index = 0; index < this.$config.configList.length; index++) {
+                            let item = this.$config.configList[index];
+                            if (typeof item.fn === "function") {
+                                let result = item.fn(details);
+                                if (result == null) {
+                                    return;
+                                }
+                            }
+                        }
+                        return details;
+                    },
+                    /**
+                     * 添加请求前的回调处理配置
+                     */
+                    add(fn) {
+                        if (typeof fn === "function") {
+                            let uuid = GenerateUUID();
+                            this.$config.configList.push({
+                                id: uuid,
+                                fn: fn,
+                            });
+                            return uuid;
+                        }
+                        else {
+                            console.warn("HttpxRequestHook.addBeforeRequestCallBack: fn is not a function");
+                        }
+                    },
+                    /**
+                     * 删除请求前的回调处理配置
+                     * @param id
+                     */
+                    delete(id) {
+                        if (typeof id === "string") {
+                            let findIndex = this.$config.configList.findIndex((item) => item.id === id);
+                            if (findIndex !== -1) {
+                                this.$config.configList.splice(findIndex, 1);
+                                return true;
+                            }
+                        }
+                        return false;
+                    },
+                    /**
+                     * 清空设置的请求前的回调处理配置
+                     */
+                    clearAll() {
+                        this.$config.configList = [];
+                    },
+                };
+                HttpxResponseHook = {
+                    /**
+                     * @private
+                     */
+                    $config: {
+                        configList: [],
+                    },
+                    /**
+                     * 成功的回调
+                     * @param response
+                     */
+                    successResponseCallBack(response) {
+                        for (let index = 0; index < this.$config.configList.length; index++) {
+                            let item = this.$config.configList[index];
+                            if (typeof item.successFn === "function") {
+                                if (item.successFn(response) == null) {
+                                    return;
+                                }
+                            }
+                        }
+                        return response;
+                    },
+                    /**
+                     * 失败的回调
+                     * @param response
+                     */
+                    errorResponseCallBack(data) {
+                        for (let index = 0; index < this.$config.configList.length; index++) {
+                            let item = this.$config.configList[index];
+                            if (typeof item.errorFn === "function") {
+                                if (item.errorFn(data) == null) {
+                                    return;
+                                }
+                            }
+                        }
+                        return data;
+                    },
+                    /**
+                     * 添加请求前的回调处理配置
+                     */
+                    add(successFn, errorFn) {
+                        let id = GenerateUUID();
+                        this.$config.configList.push({
+                            id: id,
+                            successFn: successFn,
+                            errorFn: errorFn,
+                        });
+                        return id;
+                    },
+                    /**
+                     * 删除请求前的回调处理配置
+                     * @param id
+                     */
+                    delete(id) {
+                        if (typeof id === "string") {
+                            let findIndex = this.$config.configList.findIndex((item) => item.id === id);
+                            if (findIndex !== -1) {
+                                this.$config.configList.splice(findIndex, 1);
+                                return true;
+                            }
+                        }
+                        return false;
+                    },
+                    /**
+                     * 清空设置的请求前的回调处理配置
+                     */
+                    clearAll() {
+                        this.$config.configList = [];
+                    },
                 };
                 HttpxRequestDetails = {
                     context: this,
@@ -1653,6 +1783,13 @@ System.register('Utils', [], (function (exports) {
                         else if ("onabort" in this.context.#defaultDetails) {
                             this.context.#defaultDetails.onabort.apply(this, argumentsList);
                         }
+                        if (this.context.HttpxResponseHook.errorResponseCallBack({
+                            type: "onabort",
+                            error: new TypeError("request canceled"),
+                            response: null,
+                        }) == null) {
+                            return;
+                        }
                         resolve({
                             status: false,
                             data: [...argumentsList],
@@ -1677,6 +1814,13 @@ System.register('Utils', [], (function (exports) {
                         if (response.length) {
                             response = response[0];
                         }
+                        if (this.context.HttpxResponseHook.errorResponseCallBack({
+                            type: "onerror",
+                            error: new TypeError("request error"),
+                            response: response,
+                        }) == null) {
+                            return;
+                        }
                         resolve({
                             status: false,
                             data: response,
@@ -1697,6 +1841,13 @@ System.register('Utils', [], (function (exports) {
                         }
                         else if ("ontimeout" in this.context.#defaultDetails) {
                             this.context.#defaultDetails.ontimeout.apply(this, argumentsList);
+                        }
+                        if (this.context.HttpxResponseHook.errorResponseCallBack({
+                            type: "ontimeout",
+                            error: new TypeError("request timeout"),
+                            response: (argumentsList || [null])[0],
+                        }) == null) {
+                            return;
                         }
                         resolve({
                             status: false,
@@ -1778,6 +1929,10 @@ System.register('Utils', [], (function (exports) {
                         }
                         /* 状态码2xx都是成功的 */
                         if (Math.floor(Response.status / 100) === 2) {
+                            if (this.context.HttpxResponseHook.successResponseCallBack(Response) ==
+                                null) {
+                                return;
+                            }
                             resolve({
                                 status: true,
                                 data: Response,
@@ -1830,7 +1985,7 @@ System.register('Utils', [], (function (exports) {
                         if (typeof this.context.HttpxRequestHook.beforeRequestCallBack ===
                             "function") {
                             let hookResult = this.context.HttpxRequestHook.beforeRequestCallBack(details);
-                            if (typeof hookResult === "boolean" && !hookResult) {
+                            if (hookResult == null) {
                                 return;
                             }
                         }
@@ -1998,6 +2153,8 @@ System.register('Utils', [], (function (exports) {
                     if (typeof __xmlHttpRequest__ !== "function") {
                         console.warn("Httpx未传入GM_xmlhttpRequest函数或传入的GM_xmlhttpRequest不是Function，强制使用window.fetch");
                     }
+                    this.interceptors.request.context = this;
+                    this.interceptors.response.context = this;
                     this.GM_Api.xmlHttpRequest = __xmlHttpRequest__;
                 }
                 /**
@@ -2010,6 +2167,74 @@ System.register('Utils', [], (function (exports) {
                     }
                     this.#defaultDetails = utils.assign(this.#defaultDetails, details);
                 }
+                /**
+                 * 拦截器
+                 */
+                interceptors = {
+                    /**
+                     * 请求拦截器
+                     */
+                    request: {
+                        context: null,
+                        /**
+                         * 添加拦截器
+                         * @param fn 设置的请求前回调函数，如果返回配置，则使用返回的配置，如果返回null|undefined，则阻止请求
+                         */
+                        use(fn) {
+                            if (typeof fn !== "function") {
+                                console.warn("[Httpx-interceptors-request] 请传入拦截器函数");
+                                return;
+                            }
+                            return this.context.HttpxRequestHook.add(fn);
+                        },
+                        /**
+                         * 移除拦截器
+                         * @param id 通过use返回的id
+                         */
+                        eject(id) {
+                            return this.context.HttpxRequestHook.delete(id);
+                        },
+                        /**
+                         * 移除所有拦截器
+                         */
+                        ejectAll() {
+                            this.context.HttpxRequestHook.clearAll();
+                        },
+                    },
+                    /**
+                     * 响应拦截器
+                     */
+                    response: {
+                        context: null,
+                        /**
+                         * 添加拦截器
+                         * @param successFn 设置的响应后回调函数，如果返回响应，则使用返回的响应，如果返回null|undefined，则阻止响应
+                         * + 2xx 范围内的状态码都会触发该函数
+                         * @param errorFn 设置的响应后回调函数，如果返回响应，则使用返回的响应，如果返回null|undefined，则阻止响应
+                         * + 超出 2xx 范围的状态码都会触发该函数
+                         */
+                        use(successFn, errorFn) {
+                            if (typeof successFn !== "function" && typeof errorFn !== "function") {
+                                console.warn("[Httpx-interceptors-response] 必须传入一个拦截器函数");
+                                return;
+                            }
+                            return this.context.HttpxResponseHook.add(successFn, errorFn);
+                        },
+                        /**
+                         * 移除拦截器
+                         * @param id 通过use返回的id
+                         */
+                        eject(id) {
+                            return this.context.HttpxResponseHook.delete(id);
+                        },
+                        /**
+                         * 移除所有拦截器
+                         */
+                        ejectAll() {
+                            this.context.HttpxResponseHook.clearAll();
+                        },
+                    },
+                };
                 /**
                  * 修改xmlHttpRequest
                  * @param httpRequest 网络请求函数
