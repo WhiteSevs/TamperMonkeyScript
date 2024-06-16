@@ -119,7 +119,14 @@ const SettingUICommon: PopsPanelContentConfig = {
 			type: "forms",
 			forms: [
 				UISwitch(
-					"优化跳转用户主页",
+					"监听路由改变",
+					"weibo-listenRouterChange",
+					true,
+					void 0,
+					"监听路由改变，动态加载功能"
+				),
+				UISwitch(
+					"修复用户主页正确跳转",
 					"weibo_router_profile_to_user_home",
 					true,
 					void 0,

@@ -15,6 +15,12 @@ const WeiBoRouter = {
 		);
 	},
 	/**
+	 * 移动端微博-主页
+	 */
+	isMWeiBoU() {
+		return this.isMWeiBo() && globalThis.location.pathname.startsWith("/u/");
+	},
+	/**
 	 * 话题
 	 * @returns
 	 */

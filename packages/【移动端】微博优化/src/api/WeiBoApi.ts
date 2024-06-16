@@ -25,24 +25,22 @@ export const WeiBoApi = {
 		let postParams = {
 			page: "/tv/show/" + oid,
 		};
-		const params = new URLSearchParams();
-		params.append(
-			"data",
-			JSON.stringify({ Component_Play_Playinfo: { oid: oid } })
-		);
-		let api = `https://weibo.com/tv/api/component?${utils.toSearchParamsStr(
+		let postData = {
+			data: JSON.stringify({ Component_Play_Playinfo: { oid: oid } }),
+		};
+		let api = `https://www.weibo.com/tv/api/component?${utils.toSearchParamsStr(
 			postParams
 		)}`;
 		let postResp = await httpx.post(api, {
-			data: params.toString(),
+			data: utils.toSearchParamsStr(postData),
 			headers: {
-				"User-Agent": utils.getRandomPCUA(),
-				"Content-Type": "application/x-www-form-urlencoded",
 				Accept: "application/json, text/plain, */*",
-				Host: "weibo.com",
-				Origin: "https://weibo.com",
+				"Content-Type": "application/x-www-form-urlencoded",
+				Host: "www.weibo.com",
+				Origin: "https://www.weibo.com",
 				"Page-Referer": postParams.page,
-				Referer: "https://weibo.com" + postParams.page,
+				Referer: "https://www.weibo.com" + postParams.page,
+				"User-Agent": utils.getRandomPCUA(),
 			},
 		});
 		if (!postResp.status) {

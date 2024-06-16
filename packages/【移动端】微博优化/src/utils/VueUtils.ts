@@ -14,6 +14,10 @@ interface WaitSetVuePropOption {
 	 * 进行设置
 	 */
 	set(vueObj: Vue2Context): void;
+	/**
+	 * 超时关闭调用
+	 */
+	close?: () => void;
 }
 
 export const VueUtils = {
@@ -76,6 +80,9 @@ export const VueUtils = {
 				)
 				.then((result) => {
 					if (!result) {
+						if (typeof needSetOption.close === "function") {
+							needSetOption.close();
+						}
 						return;
 					}
 					let target = getTarget();

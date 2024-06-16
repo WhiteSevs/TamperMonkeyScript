@@ -4,6 +4,8 @@ import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
 import { SettingUICommon } from "./components/common";
 import { SettingUIHuaTi } from "./components/huati";
 import { SettingUIVideo } from "./components/video";
+import { SettingUIU } from "./components/u";
+import { SettingUIDetail } from "./components/detail";
 
 const PopsPanel = {
 	/** 数据 */
@@ -331,6 +333,8 @@ const PopsPanel = {
 	getPanelContentConfig() {
 		let configList: PopsPanelContentConfig[] = [
 			SettingUICommon,
+			SettingUIU,
+			SettingUIDetail,
 			SettingUIHuaTi,
 			SettingUIVideo,
 		];

@@ -1,8 +1,11 @@
 import { log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import type { AnyObject } from "@whitesev/utils/dist/src/Utils";
+import type { AnyObject, Vue2Context } from "@whitesev/utils/dist/src/Utils";
 import { unsafeWindow } from "ViteGM";
 import { WeiBoNetWorkHook } from "./WeiBoNetWorkHook";
+import { VueUtils } from "@/utils/VueUtils";
+import Qmsg from "qmsg";
+import { WeiBo } from "@/main/WeiBo";
 
 const WeiBoHook = {
 	/**
@@ -257,44 +260,47 @@ const WeiBoHook = {
 	 * 拦截Vue Router跳转
 	 */
 	hookVueRouter() {
-		utils.waitNode<HTMLDivElement>("#app").then(async ($app: any) => {
-			if (!$app) {
-				log.error("元素#app获取失败");
-				return;
-			}
-			await utils.waitPropertyByInterval(
-				$app,
-				() => {
-					return ($app as any)?.__vue__?.$router?.push;
+		VueUtils.waitVuePropToSet("#app", [
+			{
+				msg: "等待获取属性 __vue__.$router",
+				check(vueObj) {
+					return typeof vueObj?.$router?.push === "function";
 				},
-				250,
-				10000
-			);
-			if (!($app as any).__vue__) {
-				log.error("#app的vue属性不存在");
-				return;
-			}
-			let vueRouterPush = $app.__vue__.$router.push;
-			log.success("拦截Vue路由跳转");
-			$app.__vue__.$router.push = function (...args: any[]) {
-				let router = args[0] as AnyObject;
-				if (
-					router?.path?.startsWith("/profile/") &&
-					PopsPanel.getValue("weibo_router_profile_to_user_home")
-				) {
-					let uid = router?.params?.uid;
-					if (uid == null) {
-						uid = router.path.match(/\/profile\/([\d]+)/)?.[1];
-					}
-					log.success(["拦截跳转xx微博主页", router]);
-					let uidHomeUrl = `https://m.weibo.cn/u/${uid}`;
-					log.success("跳转微博主页：" + uidHomeUrl);
-					window.location.href = uidHomeUrl;
-					return;
-				}
-				return vueRouterPush.apply(this, arguments);
-			};
-		});
+				set(vueObj) {
+					log.success("拦截Vue路由跳转");
+					vueObj.$router.beforeEach(
+						(
+							to: Vue2Context["$route"],
+							from: Vue2Context["$route"],
+							next: Function
+						) => {
+							if (
+								to.name === "profile" &&
+								PopsPanel.getValue("weibo_router_profile_to_user_home")
+							) {
+								let uid = to?.params?.uid;
+								if (uid == null) {
+									log.error("获取uid失败");
+									Qmsg.error("获取uid失败");
+									return;
+								}
+								log.success(`修复跳转${uid}微博主页`);
+								let uidHomeUrl = `https://m.weibo.cn/u/${uid}`;
+								window.location.href = uidHomeUrl;
+								return;
+							}
+							next();
+						}
+					);
+					vueObj.$router.afterEach((to, from) => {
+						PopsPanel.execMenu("weibo-listenRouterChange", () => {
+							log.info("路由更新，重载功能");
+							WeiBo.init();
+						});
+					});
+				},
+			},
+		]);
 	},
 	/**
 	 * 禁止Service Worker注册

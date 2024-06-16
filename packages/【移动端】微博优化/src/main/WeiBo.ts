@@ -4,9 +4,11 @@ import blockAdsCSS from "./blockAds.css?raw";
 import { WeiBoHook } from "@/hook/WeiBoHook";
 import { WeiBoRouter } from "@/router/WeiBoRouter";
 import { WeiBoHuaTi } from "./huati/WeiBoHuaTi";
-import { log } from "@/env";
+import { addStyle, log } from "@/env";
 import { WeiBoVideo } from "./video/WeiBoVideo";
-import { WeiBoDetail } from "./WeiBoDetail";
+import { WeiBoDetail } from "./detail/WeiBoDetail";
+import { CommonUtils } from "@/utils/CommonUtils";
+import { WeiBoU } from "./u/WeiBoU";
 
 const WeiBo = {
 	init() {
@@ -17,25 +19,31 @@ const WeiBo = {
 			}
 		);
 
+		// 不同域名不会触发Router改变，所以单独设定m.weibo.cn下监听路由改变
 		if (WeiBoRouter.isHuaTi()) {
 			log.info("Router: 话题");
 			WeiBoHuaTi.init();
 		} else if (WeiBoRouter.isMWeiBo()) {
 			// 移动端微博
 			log.info("Router: 移动端微博");
-			WeiBoHook.hookNetWork();
-			WeiBoHook.hookApply();
-			WeiBoHook.hookVueRouter();
+			PopsPanel.onceExec("weibo-m-init", () => {
+				WeiBoHook.hookNetWork();
+				WeiBoHook.hookApply();
+				WeiBoHook.hookVueRouter();
+			});
 			PopsPanel.execMenuOnce("weibo_remove_ads", () => {
 				// 屏蔽 广告
-				GM_addStyle(blockAdsCSS);
+				addStyle(blockAdsCSS);
 			});
-			PopsPanel.execMenu("weibo_shield_bottom_bar", () => {
+			PopsPanel.execMenuOnce("weibo_shield_bottom_bar", () => {
 				this.shieldBottomBar();
 			});
 			if (WeiBoRouter.isMWeiBoDetail()) {
 				log.info("Router: 移动端微博帖子");
 				WeiBoDetail.init();
+			} else if (WeiBoRouter.isMWeiBoU()) {
+				log.info("Router: 移动端微博主页");
+				WeiBoU.init();
 			}
 		} else if (WeiBoRouter.isVideo()) {
 			// 视频页
@@ -51,10 +59,7 @@ const WeiBo = {
 	 */
 	shieldBottomBar() {
 		log.info("【屏蔽】底部工具栏");
-		GM_addStyle(`
-        #app div.m-tab-bar.m-bar-panel.m-container-max{
-            display: none !important;
-        }`);
+		CommonUtils.addBlockCSS("#app div.m-tab-bar.m-bar-panel.m-container-max");
 	},
 };
 
