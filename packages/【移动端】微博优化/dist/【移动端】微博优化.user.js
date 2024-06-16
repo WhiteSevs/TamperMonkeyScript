@@ -766,7 +766,7 @@
   };
   const SettingUIDetail = {
     id: "weibo-panel-config-detail",
-    title: "帖子",
+    title: "正文",
     forms: [
       {
         text: "功能",
