@@ -3061,7 +3061,7 @@ define((function () { 'use strict';
             UtilsCore.init(option);
         }
         /** 版本号 */
-        version = "2024.6.14";
+        version = "2024.6.16";
         addStyle(cssText) {
             if (typeof cssText !== "string") {
                 throw new Error("Utils.addStyle 参数cssText 必须为String类型");

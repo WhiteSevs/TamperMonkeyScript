@@ -12,6 +12,7 @@ import { Progress } from "./Progress";
 import { UtilsDictionary } from "./Dictionary";
 import type { DOMUtils_EventType } from "./Event";
 import type { UtilsCoreOption } from "./UtilsCore";
+import type { Vue2Object } from "./VueObject";
 export declare var unsafeWindow: Window & typeof globalThis;
 export type JSTypeMap = {
     string: string;
@@ -34,93 +35,7 @@ export declare interface AnyObject {
     [key: string]: any | AnyObject;
     toString(): string;
 }
-export declare interface Vue2Context extends AnyObject {
-    $attrs: AnyObject;
-    $children: Vue2Context[];
-    $createElement: (...args: any[]) => any;
-    $el: HTMLElement;
-    $listeners: AnyObject;
-    $options: AnyObject;
-    $parent: Vue2Context;
-    $refs: AnyObject;
-    $root: Vue2Context;
-    $scopedSlots: AnyObject;
-    $slots: AnyObject;
-    $store: AnyObject;
-    $vnode: AnyObject;
-    _data: AnyObject;
-    _directInactive: boolean;
-    _events: AnyObject;
-    _hasHookEvent: boolean;
-    _isBeingDestroyed: boolean;
-    _isDestroyed: boolean;
-    _isMounted: boolean;
-    _isVue: boolean;
-    $data: AnyObject;
-    $isServer: boolean;
-    $props: AnyObject;
-    $route: AnyObject & {
-        fullPath: string;
-        hash: string;
-        matched: AnyObject[];
-        meta: AnyObject;
-        name: string;
-        params: AnyObject;
-        path: string;
-        query: AnyObject;
-    };
-    $router: AnyObject & {
-        afterHooks: AnyObject[];
-        app: Vue2Context;
-        apps: Vue2Context[];
-        beforeHooks: ((...args: any[]) => any)[];
-        fallback: boolean;
-        history: AnyObject & {
-            base: string;
-            current: AnyObject;
-            listeners: AnyObject[];
-            router: Vue2Context["$router"];
-            /**
-             *
-             * @param delta 访问的距离。如果 delta < 0 则后退相应数量的记录，如果 > 0 则前进。
-             * @param triggerListeners 是否应该触发连接到该历史的监听器
-             * @returns
-             */
-            go: (delta: number, triggerListeners?: boolean) => void;
-            /**
-             *
-             * @param to 要设置的地址
-             * @param data 可选的 HistoryState 以关联该导航记录
-             * @returns
-             */
-            push: (to: string, data?: AnyObject) => void;
-            /**
-             *
-             * @param to 要设置的地址
-             * @param data 可选的 HistoryState 以关联该导航记录
-             * @returns
-             */
-            replace: (to: string, data?: AnyObject) => void;
-        };
-        matcher: AnyObject & {
-            addRoute: (...args: any[]) => any;
-            addRoutes: (...args: any[]) => any;
-            getRoutes: () => any;
-            match: (...args: any[]) => any;
-        };
-        mode: string;
-        resolveHooks: ((...args: any[]) => any)[];
-        currentRoute: AnyObject;
-        /**
-         * 传空就移除上一个监听
-         */
-        afterEach: ((to: Vue2Context["$route"], from: Vue2Context["$route"]) => void) | null;
-    };
-    $ssrContext: AnyObject;
-    $watch: (key: string | string[] | (() => any), handler: (this: any, newVal: any, oldVal: any) => void, options?: {
-        immediate?: boolean;
-        deep?: boolean;
-    }) => void;
+export declare interface Vue2Context extends Vue2Object {
 }
 declare class Utils {
     constructor(option?: UtilsCoreOption);
