@@ -7969,6 +7969,7 @@ div[class^="new-summary-container_"] {\r
       );
       const observer = new IntersectionObserver(
         (entries) => {
+          console.log(entries);
           lockFunc.run(entries);
         },
         {
@@ -8114,7 +8115,8 @@ div[class^="new-summary-container_"] {\r
             target: "#replySwitch",
             position: "top",
             root: $navBar,
-            offset: 48,
+            // offset: 48,
+            offset: 50,
             change() {
             }
           });
