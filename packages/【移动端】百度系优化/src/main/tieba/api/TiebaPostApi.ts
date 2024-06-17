@@ -1,5 +1,6 @@
 import { httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
+import { Api_getPdData } from "../apiType/TiebaPostApiType";
 
 interface TiebaPostApubthreadDetails {
 	/**
@@ -84,25 +85,25 @@ export const TiebaPostApi = {
 	 * 删除评论
 	 */
 	async deleteCommit(data: {
-        /**
-         * 贴吧tbs值 PageData.tbs
-         */
+		/**
+		 * 贴吧tbs值 PageData.tbs
+		 */
 		tbs: string;
-        /**
-         * 当前吧名 PageData.forum.forum_name
-         */
+		/**
+		 * 当前吧名 PageData.forum.forum_name
+		 */
 		kw: string;
-        /**
-         * threadId PageData.thread.thread_id
-         */
+		/**
+		 * threadId PageData.thread.thread_id
+		 */
 		fid: number | string;
-        /**
-         * threadId PageData.thread.thread_id
-         */
+		/**
+		 * threadId PageData.thread.thread_id
+		 */
 		tid: number | string;
-        /**
-         * 本回复的id comment_id
-         */
+		/**
+		 * 本回复的id comment_id
+		 */
 		pid: number | string;
 	}) {
 		let api = "https://tieba.baidu.com/f/commit/post/delete";
@@ -123,8 +124,8 @@ export const TiebaPostApi = {
 			is_vipdel: 1,
 			// 本回复的id comment_id
 			pid: data.pid,
-            // ???不知道是什么
-            is_finf: 1,
+			// ???不知道是什么
+			is_finf: 1,
 		};
 		let resp = await httpx.post(api, {
 			fetch: true,
@@ -153,5 +154,95 @@ export const TiebaPostApi = {
 			return;
 		}
 		return true;
+	},
+	/**
+	 * 获取评论数据
+	 * @param kz 帖子id
+	 * @param [pn=1] 评论页码
+	 * @param [rn=10] 每页评论数量
+	 * @param [only_post=1]
+	 */
+	async getPbData(
+		kz: number,
+		pn: number = 1,
+		rn: number = 10,
+		only_post: number = 1
+	) {
+		let searchParamsData = {
+			pn: pn,
+			rn: rn,
+			only_post: only_post,
+			kz: kz,
+		};
+		let Api = "https://tieba.baidu.com/mg/p/getPbData";
+		let getResp = await httpx.get(
+			Api + "?" + utils.toSearchParamsStr(searchParamsData),
+			{
+				fetch: true,
+				headers: {
+					Accept: "application/json, text/plain, */*",
+					"Referer-Asyn": "",
+					"X-Requested-With": "XMLHttpRequest",
+				},
+			}
+		);
+		if (!getResp.status) {
+			return;
+		}
+		let data = utils.toJSON(getResp.data.responseText);
+		if (data["errno"] !== 0) {
+			return;
+		}
+		let page = data["data"]["page"] as {
+			current_page: number;
+			/** 1有更多 0没有 */
+			has_more: number;
+			offset: number;
+			page_size: number;
+			req_num: number;
+			total_num: number;
+			total_page: number;
+		};
+		let post_list = data["data"]["post_list"] as Api_getPdData[];
+		return {
+			page: page,
+			post_list: post_list,
+		};
+	},
+	/**
+	 * 上传图片
+	 */
+	async cooluploadpic(imageFile: File) {
+		let postData = {
+			pic: imageFile,
+		};
+		let searchParamsData = {
+			fr: "smallapp",
+			from_zt: 1,
+			r: 0.10027896050957352,
+		};
+		let Api = "https://tieba.baidu.com/mo/q/cooluploadpic";
+		let postResp = await httpx.post(
+			Api + "?" + utils.toSearchParamsStr(searchParamsData),
+			{
+				fetch: true,
+				data: utils.toFormData(postData),
+				headers: {
+					Accept: "application/json, text/plain, */*",
+				},
+			}
+		);
+		if (!postResp.status) {
+			return;
+		}
+		let data = utils.toJSON(postResp.data.responseText);
+		if (data["no"] !== 0) {
+			return;
+		}
+		return {
+			upload_img_info: data["data"]["upload_img_info"] as string,
+			upload_img_url: data["data"]["upload_img_url"] as string,
+			view_img_url_auth: data["data"]["view_img_url_auth"] as string,
+		};
 	},
 };

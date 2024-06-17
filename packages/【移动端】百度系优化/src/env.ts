@@ -72,18 +72,23 @@ const GM_Menu = new utils.GM_Menu({
 });
 
 const httpx = new utils.Httpx(GM_xmlhttpRequest);
+
+httpx.interceptors.response.use(void 0, (data) => {
+	log.error(["拦截器-请求错误", data]);
+	if (data.type === "onabort") {
+		Qmsg.warning("请求取消");
+	} else if (data.type === "onerror") {
+		Qmsg.error("请求异常");
+	} else if (data.type === "ontimeout") {
+		Qmsg.error("请求超时");
+	} else {
+		Qmsg.error("其它错误");
+	}
+	return data;
+});
+
 httpx.config({
 	logDetails: DEBUG,
-	onabort() {
-		Qmsg.warning("请求取消");
-	},
-	ontimeout() {
-		Qmsg.error("请求超时");
-	},
-	onerror(response: any) {
-		Qmsg.error("请求异常");
-		log.error(["httpx-onerror 请求异常", response]);
-	},
 });
 
 const OriginPrototype = {

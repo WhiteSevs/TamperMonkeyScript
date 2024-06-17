@@ -556,6 +556,37 @@ const TiebaUrlApi = {
 	getForum(kw: string) {
 		return "https://tieba.baidu.com/f?kw=" + kw;
 	},
+	/**
+	 * 获取发帖页面的链接
+	 * @param fname 吧名
+	 * @param fid 吧id
+	 * @param tbs tbs值
+	 */
+	getPostPage(fname: string, fid: number | string, tbs: string) {
+		return `https://tieba.baidu.com/h5activity/post?fname=${fname}&fid=${fid}&tbs=${tbs}`;
+	},
+	/**
+	 * 进吧
+	 */
+	getGoToForum() {
+		return "https://tieba.baidu.com/index/tbwise/forum";
+	},
+	/**
+	 * 我的
+	 */
+	getMine() {
+		return "https://tieba.baidu.com/index/tbwise/mine";
+	},
+	/**
+	 * 获取登录链接
+	 * @param [from=window.location.href] 想要登录成功后重定向的地址，默认是当前地址
+	 */
+	getLoginUrl(from: string = window.location.href) {
+		return (
+			"https://wappass.baidu.com/passport?login&tpl=tb&u=" +
+			encodeURIComponent(from)
+		);
+	},
 };
 
 const TiebaPageDataApi = {

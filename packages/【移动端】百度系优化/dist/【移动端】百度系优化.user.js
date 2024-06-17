@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.12.16
+// @version      2024.6.17
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -13,14 +13,14 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://update.greasyfork.org/scripts/488179/1384528/showdown.js
-// @require      https://fastly.jsdelivr.net/npm/vue@3.4.27/dist/vue.global.prod.js
+// @require      https://fastly.jsdelivr.net/npm/vue@3.4.29/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.8/lib/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/pinia@2.1.7/dist/pinia.iife.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-router@4.3.3/dist/vue-router.global.js
 // @require      https://update.greasyfork.org/scripts/495227/1378053/Element-Plus.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.4.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css
@@ -52,10 +52,7 @@
 
   var __defProp = Object.defineProperty;
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField = (obj, key, value) => {
-    __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
+  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var _a2;
   var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
@@ -685,18 +682,21 @@
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand
   });
   const httpx = new utils.Httpx(_GM_xmlhttpRequest);
-  httpx.config({
-    logDetails: DEBUG,
-    onabort() {
+  httpx.interceptors.response.use(void 0, (data) => {
+    log.error(["拦截器-请求错误", data]);
+    if (data.type === "onabort") {
       Qmsg.warning("请求取消");
-    },
-    ontimeout() {
-      Qmsg.error("请求超时");
-    },
-    onerror(response) {
+    } else if (data.type === "onerror") {
       Qmsg.error("请求异常");
-      log.error(["httpx-onerror 请求异常", response]);
+    } else if (data.type === "ontimeout") {
+      Qmsg.error("请求超时");
+    } else {
+      Qmsg.error("其它错误");
     }
+    return data;
+  });
+  httpx.config({
+    logDetails: DEBUG
   });
   const OriginPrototype = {
     Object: {
@@ -1736,6 +1736,34 @@ match-attr##srcid##sp_purc_atom
      */
     getForum(kw) {
       return "https://tieba.baidu.com/f?kw=" + kw;
+    },
+    /**
+     * 获取发帖页面的链接
+     * @param fname 吧名
+     * @param fid 吧id
+     * @param tbs tbs值
+     */
+    getPostPage(fname, fid, tbs) {
+      return `https://tieba.baidu.com/h5activity/post?fname=${fname}&fid=${fid}&tbs=${tbs}`;
+    },
+    /**
+     * 进吧
+     */
+    getGoToForum() {
+      return "https://tieba.baidu.com/index/tbwise/forum";
+    },
+    /**
+     * 我的
+     */
+    getMine() {
+      return "https://tieba.baidu.com/index/tbwise/mine";
+    },
+    /**
+     * 获取登录链接
+     * @param [from=window.location.href] 想要登录成功后重定向的地址，默认是当前地址
+     */
+    getLoginUrl(from = window.location.href) {
+      return "https://wappass.baidu.com/passport?login&tpl=tb&u=" + encodeURIComponent(from);
     }
   };
   const TiebaPageDataApi = {
@@ -6301,6 +6329,17 @@ div[class^="new-summary-container_"] {\r
       return tbMobileViewport || mainPageWrap || tbForum || appView;
     },
     /**
+     * 获取当前的贴吧的id
+     */
+    getCurrentForumId() {
+      var _a3, _b, _c, _d;
+      let tbMobileViewport = (_b = (_a3 = VueUtils.getVue(
+        document.querySelector(".tb-mobile-viewport")
+      )) == null ? void 0 : _a3.forum) == null ? void 0 : _b.id;
+      let appView = (_d = (_c = VueUtils.getVue(document.querySelector(".app-view"))) == null ? void 0 : _c.forum) == null ? void 0 : _d.id;
+      return tbMobileViewport || appView;
+    },
+    /**
      * 获取当前帖子的tid
      */
     getCurrentForumPostTid() {
@@ -7549,7 +7588,17 @@ div[class^="new-summary-container_"] {\r
     }
   };
   const TiebaData = {
+    /**
+     * 当前吧名
+     */
     forumName: void 0,
+    /**
+     * 当前吧名的id
+     */
+    forumId: void 0,
+    /**
+     * 高清图片映射
+     */
     imageMap: /* @__PURE__ */ new Map()
   };
   const Toolbar = {
@@ -7785,6 +7834,82 @@ div[class^="new-summary-container_"] {\r
         return;
       }
       return true;
+    },
+    /**
+     * 获取评论数据
+     * @param kz 帖子id
+     * @param [pn=1] 评论页码
+     * @param [rn=10] 每页评论数量
+     * @param [only_post=1]
+     */
+    async getPbData(kz, pn = 1, rn = 10, only_post = 1) {
+      let searchParamsData = {
+        pn,
+        rn,
+        only_post,
+        kz
+      };
+      let Api = "https://tieba.baidu.com/mg/p/getPbData";
+      let getResp = await httpx.get(
+        Api + "?" + utils.toSearchParamsStr(searchParamsData),
+        {
+          fetch: true,
+          headers: {
+            Accept: "application/json, text/plain, */*",
+            "Referer-Asyn": "",
+            "X-Requested-With": "XMLHttpRequest"
+          }
+        }
+      );
+      if (!getResp.status) {
+        return;
+      }
+      let data = utils.toJSON(getResp.data.responseText);
+      if (data["errno"] !== 0) {
+        return;
+      }
+      let page = data["data"]["page"];
+      let post_list = data["data"]["post_list"];
+      return {
+        page,
+        post_list
+      };
+    },
+    /**
+     * 上传图片
+     */
+    async cooluploadpic(imageFile) {
+      let postData = {
+        pic: imageFile
+      };
+      let searchParamsData = {
+        fr: "smallapp",
+        from_zt: 1,
+        r: 0.10027896050957352
+      };
+      let Api = "https://tieba.baidu.com/mo/q/cooluploadpic";
+      let postResp = await httpx.post(
+        Api + "?" + utils.toSearchParamsStr(searchParamsData),
+        {
+          fetch: true,
+          data: utils.toFormData(postData),
+          headers: {
+            Accept: "application/json, text/plain, */*"
+          }
+        }
+      );
+      if (!postResp.status) {
+        return;
+      }
+      let data = utils.toJSON(postResp.data.responseText);
+      if (data["no"] !== 0) {
+        return;
+      }
+      return {
+        upload_img_info: data["data"]["upload_img_info"],
+        upload_img_url: data["data"]["upload_img_url"],
+        view_img_url_auth: data["data"]["view_img_url_auth"]
+      };
     }
   };
   function setAffix(option) {
@@ -8684,8 +8809,7 @@ div[class^="new-summary-container_"] {\r
       if (TiebaComment.page == 1) {
         comments.splice(0, 1);
       }
-      if (isNext)
-        ;
+      if (isNext) ;
       else {
         comments.reverse();
       }
@@ -8731,8 +8855,7 @@ div[class^="new-summary-container_"] {\r
      * scroll事件触发 自动加载下一页的评论
      */
     nextPageScrollEvent: async (event) => {
-      if (event.jsTrigger)
-        ;
+      if (event.jsTrigger) ;
       else if (!utils.isNearBottom(TiebaComment.isNearBottomValue)) {
         return;
       } else if (TiebaSearch.isShowSearchContainer()) {
@@ -8757,8 +8880,7 @@ div[class^="new-summary-container_"] {\r
      * scroll事件触发 自动加载上一页的评论
      */
     prevPageScrollEvent: async (event) => {
-      if (event.jsTrigger)
-        ;
+      if (event.jsTrigger) ;
       else if (!utils.isNearBottom(TiebaComment.isNearBottomValue)) {
         return;
       } else if (TiebaSearch.isShowSearchContainer()) {
@@ -12435,8 +12557,7 @@ div[class^="new-summary-container_"] {\r
       zIndex.value = increasingInjection.current;
       return currentZIndex.value;
     };
-    if (!isClient && !vue.inject(ZINDEX_INJECTION_KEY))
-      ;
+    if (!isClient && !vue.inject(ZINDEX_INJECTION_KEY)) ;
     return {
       initialZIndex,
       currentZIndex,
@@ -16888,8 +17009,7 @@ div[class^="new-summary-container_"] {\r
           content
         }]);
         if (no === 0) {
-          if (TiebaReply.$data.type.value === "lzl-comment")
-            ;
+          if (TiebaReply.$data.type.value === "lzl-comment") ;
           Qmsg.success("回复成功，请刷新查看~");
           ToolbarHandler.resetToolbar();
         } else {
@@ -19935,21 +20055,340 @@ div[class^="new-summary-container_"] {\r
       PopsPanel.execMenu("baidu_tieba_add_search", () => {
         TiebaSearch.init();
       });
-      domutils.ready(function() {
+      domutils.ready(() => {
         PopsPanel.execMenu("baidu_tieba_checkSkeleton", () => {
           TiebaCore.checkSkeleton();
         });
-        utils.waitAnyNode([".tb-mobile-viewport", ".main-page-wrap"]).then(async () => {
-          let interval = setInterval(() => {
-            TiebaData.forumName = TiebaCore.getCurrentForumName();
-            if (TiebaData.forumName) {
-              log.info("当前吧：" + TiebaData.forumName);
-              if (PopsPanel.getValue("baidu_tieba_optimize_image_preview")) {
-                TiebaPost.initPostImageInfo();
-              }
-              clearInterval(interval);
+        this.initTiebaData();
+        this.addTopLeftMenu();
+      });
+    },
+    /**
+     * 初始化贴吧数据
+     *
+     * 例如：吧名，高清图片
+     */
+    initTiebaData() {
+      utils.waitAnyNode([".tb-mobile-viewport", ".main-page-wrap"]).then(async () => {
+        let interval = setInterval(() => {
+          TiebaData.forumName = TiebaCore.getCurrentForumName();
+          TiebaData.forumId = TiebaCore.getCurrentForumId();
+          if (TiebaData.forumName) {
+            log.info("当前吧：" + TiebaData.forumName);
+            if (PopsPanel.getValue("baidu_tieba_optimize_image_preview")) {
+              TiebaPost.initPostImageInfo();
             }
-          }, 250);
+            clearInterval(interval);
+          }
+        }, 250);
+      });
+    },
+    /**
+     * 替换顶部左侧贴吧按钮为菜单按钮
+     */
+    addTopLeftMenu() {
+      addStyle(`
+		.logo-wrapper{
+			display: -webkit-box;
+			display: -webkit-flex;
+			display: -ms-flexbox;
+			display: flex;
+			margin-left: 0.13rem;
+		}	
+		`);
+      utils.waitNode(".nav-bar-top .logo-wrapper", 1e4).then(($ele) => {
+        if (!$ele) {
+          return;
+        }
+        $ele.outerHTML = `
+				<div class="logo-wrapper">
+					<svg t="1718595396255" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3147" width="24" height="24"><path d="M128 298.666667h768a42.666667 42.666667 0 0 0 0-85.333334H128a42.666667 42.666667 0 0 0 0 85.333334z m768 170.666666H128a42.666667 42.666667 0 0 0 0 85.333334h768a42.666667 42.666667 0 0 0 0-85.333334z m0 256H128a42.666667 42.666667 0 0 0 0 85.333334h768a42.666667 42.666667 0 0 0 0-85.333334z" p-id="3148"></path></svg>
+				</div>
+				`;
+        let $logoWrapper = document.querySelector(
+          ".nav-bar-top .logo-wrapper"
+        );
+        function getHelloText() {
+          var myDate = /* @__PURE__ */ new Date();
+          var i = myDate.getHours();
+          if (i < 12) return "早上好!";
+          else if (i >= 12 && i < 14) return "中午好!";
+          else if (i >= 14 && i < 18) return "下午好!";
+          else if (i >= 18) return "晚上好!";
+        }
+        let menuListInfo = [
+          {
+            "data-to": "home",
+            icon: '<svg fill="#3EBBFD" t="1718598127655" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2362"><path d="M459.704448 833.996598" fill="#DA2017" p-id="2363"></path><path d="M947.859367 456.556247 589.952908 156.258856c-21.905916-18.380626-49.721425-28.515451-78.323856-28.52466l-0.044002 0c-28.585035 0-56.395428 10.110265-78.305437 28.467355l-358.517373 300.340369c-12.852726 10.767228-14.544251 29.912263-3.777023 42.764989 6.007831 7.16519 14.616906 10.859325 23.288402 10.859325 6.875594 0 13.793144-2.322905 19.47761-7.082302l18.520819-15.519462 0 325.160661c0 21.898753 8.527211 42.488697 24.01188 57.973366 15.484669 15.482623 36.071543 24.010857 57.974389 24.010857l184.665837 0 0-0.019443c66.174142 0 60.780295-60.693314 60.780295-60.693314L459.704448 629.535927c0-4.14746 1.616824-8.048303 4.552689-10.983145 2.930749-2.934842 6.833639-4.547573 10.985192-4.547573l72.124667 0c4.15053 0 8.04728 1.612731 10.984169 4.547573 2.934842 2.934842 4.551666 6.836709 4.551666 10.983145l0 204.460672-0.010233 0c0 0-5.393847 60.693314 60.780295 60.693314l0 0.019443 184.678116 0c21.895683 0 42.484603-8.528234 57.969273-24.010857 15.488763-15.485693 24.015973-36.074613 24.015973-57.973366L890.336256 487.539912l18.501376 15.527648c12.844539 10.772344 31.993668 9.101285 42.770106-3.746324C962.379059 486.47772 960.702883 467.333708 947.859367 456.556247zM829.619406 812.724109c0 5.681396-2.210341 11.026124-6.226818 15.043624-4.0175 4.0175-9.357112 6.228865-15.040555 6.228865L623.614565 833.996598 623.614565 629.535927c0-20.364817-7.931646-39.513946-22.330588-53.91391-14.400988-14.402011-33.55114-22.334681-53.915957-22.334681l-72.124667 0c-20.369933 0-39.521109 7.93267-53.918004 22.334681-14.397918 14.398942-22.330588 33.54807-22.330588 53.91391l0 204.460672L214.257294 833.996598c-5.683443 0-11.023054-2.211365-15.040555-6.228865-4.022617-4.0175-6.232958-9.362228-6.232958-15.040555l0-376.024096 279.278681-233.966683c11.003612-9.216919 24.966625-14.292518 39.321564-14.292518l0.020466 0c14.359033 0.005117 28.328185 5.094018 39.326681 14.32117l278.688233 233.836723L829.619406 812.724109z" p-id="2364"></path></svg>',
+            text: "首页",
+            clickCallBack(event) {
+              window.location.href = window.location.origin;
+            }
+          },
+          {
+            "data-to": "posting",
+            icon: '<svg fill="#FF9900" t="1718599526156" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3362"><path d="M783.530667 910.961778l-252.017778-123.448889a38.001778 38.001778 0 0 1 33.28-68.266667l206.620444 101.319111 89.144889-610.247111-401.635555 481.678222v223.857778a37.944889 37.944889 0 0 1-75.832889 0v-236.316444c0-1.991111 0.113778-3.868444 0.455111-5.859556a38.968889 38.968889 0 0 1 8.533333-20.024889l378.424889-453.859555L163.84 514.389333l143.018667 74.126223c18.773333 9.898667 26.225778 32.824889 17.066666 51.768888a36.864 36.864 0 0 1-49.322666 17.066667L67.754667 549.717333a38.912 38.912 0 0 1-17.692445-18.887111 37.546667 37.546667 0 0 1 15.587556-50.744889L899.185778 47.786667a39.139556 39.139556 0 0 1 17.976889-4.323556 37.831111 37.831111 0 0 1 37.944889 31.004445 39.310222 39.310222 0 0 1-0.682667 18.318222L839.111111 882.062222a38.115556 38.115556 0 0 1-32.142222 32.199111 37.148444 37.148444 0 0 1-23.438222-3.299555z" p-id="3363"></path></svg>',
+            text: "发帖",
+            clickCallBack(event) {
+              if (BaiduRouter.isTieBaPost() || BaiduRouter.isTieBaNei()) {
+                let $mobileViewport = document.querySelector(
+                  ".tb-mobile-viewport"
+                );
+                if ($mobileViewport) {
+                  let mobileViewportVueObj = VueUtils.getVue($mobileViewport);
+                  if (mobileViewportVueObj && typeof mobileViewportVueObj.goPost === "function") {
+                    mobileViewportVueObj.goPost();
+                    return;
+                  }
+                }
+                let $appView = document.querySelector(".app-view");
+                if ($appView) {
+                  let appViewVueObj = VueUtils.getVue($appView);
+                  if (appViewVueObj && typeof appViewVueObj.gotoPostPage === "function") {
+                    appViewVueObj.gotoPostPage();
+                    return;
+                  }
+                }
+                Qmsg.error("未找到发帖函数");
+              } else {
+                Qmsg.error("请在吧内|帖子内使用");
+              }
+            }
+          },
+          {
+            "data-to": "search",
+            icon: '<svg fill="#9DCA08" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" ><path d="m795.904 750.72 124.992 124.928a32 32 0 0 1-45.248 45.248L750.656 795.904a416 416 0 1 1 45.248-45.248zM480 832a352 352 0 1 0 0-704 352 352 0 0 0 0 704"></path></svg>',
+            text: "搜索",
+            clickCallBack(event) {
+              let userInput = prompt("请输入需要搜索的内容");
+              if (userInput) {
+                window.location.href = TiebaUrlApi.getHybridSearch(userInput);
+              }
+            }
+          },
+          {
+            "data-to": "got-to-forum",
+            icon: '<svg fill="#F37D7D" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4247"><path d="M840.937 780.573h-173.721l-140.376 151.009-44.542-151.009c-100.088 0-181.253-82.372-181.253-184.022l-0-76.793c0-101.649 81.165-184.022 181.253-184.022h358.639c100.108 0 181.252 82.373 181.252 184.022v76.792c0 101.65-81.144 184.023-181.252 184.023zM469.343 303.194c-100.089 0-201.581 79.641-201.581 181.271v81.846c0 99.892 28.075 153.273 65.339 178.753l-72.147 77.614-51.45-174.46c-115.657 0-209.404-95.173-209.404-212.587v-90.157c0-117.414 93.747-212.604 209.404-212.604h419.318c99.383 0 182.421 70.374 203.843 164.667-6.4 3.336-13.54 5.677-22.319 5.677l-341.002-0.019z" p-id="4248"></path></svg>',
+            text: "进吧",
+            clickCallBack(event) {
+              window.location.href = TiebaUrlApi.getGoToForum();
+            }
+          },
+          {
+            "data-to": "mine",
+            icon: '<svg fill="#DA99DB" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4291" width="128" height="128"><path d="M678.4 537.6c76.8-51.2 128-140.8 128-243.2 0-162.133333-132.266667-294.4-294.4-294.4s-294.4 132.266667-294.4 294.4c0 102.4 51.2 192 128 243.2-179.2 68.266667-302.933333 238.933333-302.933333 439.466667 0 25.6 17.066667 42.666667 42.666666 42.666666s42.666667-17.066667 42.666667-42.666666c0-209.066667 174.933333-384 384-384s384 170.666667 384 384c0 25.6 17.066667 42.666667 42.666667 42.666666s42.666667-21.333333 42.666666-42.666666c0-200.533333-128-371.2-302.933333-439.466667z m-375.466667-238.933333c0-115.2 93.866667-209.066667 209.066667-209.066667s209.066667 93.866667 209.066667 209.066667-93.866667 209.066667-209.066667 209.066666-209.066667-93.866667-209.066667-209.066666z" p-id="4292"></path></svg>',
+            text: "我的",
+            clickCallBack(event) {
+              window.location.href = TiebaUrlApi.getMine();
+            }
+          }
+        ];
+        domutils.on($logoWrapper, "click", () => {
+          var _a3, _b, _c, _d, _e, _f, _g;
+          let $drawer = pops.drawer({
+            title: {
+              enable: true,
+              text: `
+							<div class="tieba_account_exit">
+								<a href="javascript:;">
+									<span>
+										退出登录
+									</span>
+								</a>
+							</div>
+							<a href="javascript:;" class="tieba_user">
+								<em>
+									<img class="tieba_account_avatar" src="">
+								</em>
+								<p class="tieba-user-info">
+									<span class="tieba_user_nologin_tip_center">
+									${getHelloText()} 请登录或注册
+									</span>
+								</p>
+                                <p class="tieba_user_nologin_tip_bottom">登录后更精彩...</p>
+                            </a>
+							`,
+              html: true,
+              style: ""
+            },
+            content: {
+              text: '<ul class="tieba-menu-list"></ul>',
+              html: true,
+              style: ""
+            },
+            btn: {
+              ok: {
+                enable: false
+              },
+              cancel: {
+                enable: false
+              },
+              close: {
+                enable: false
+              }
+            },
+            only: true,
+            size: "66%",
+            direction: "left",
+            mask: {
+              enable: true,
+              clickEvent: {
+                toClose: true
+              }
+            },
+            style: `
+						.pops{
+							--avatar-size: 60px;
+							--user-info-font-color: #ffffff;
+						}
+						.pops-drawer-title{
+							background: url(https://api.isoyu.com/bing_images.php) no-repeat 0 0 / cover;
+							background-size: cover;
+							background-position: center;
+							background-repeat: no-repeat;
+						}
+						.tieba_account_exit{
+							display: none;
+						}
+						.tieba_user{
+							position: relative;
+							display: block;
+							padding: 18px 15px 12px;
+							overflow: hidden;
+							width: 100%;
+							height: 175px;
+							text-decoration: none;
+						}
+						.tieba_user em{
+							display: block;
+							width: 64px;
+							height: 64px;
+							margin-bottom: 23px;
+							background: rgba(255, 255, 255, 0.4);
+							border-radius: 50%;
+							position: relative;
+						}
+						.tieba_account_avatar{
+							width: var(--avatar-size);
+							height: var(--avatar-size);
+							margin: 2px;
+							border-radius: 50%;
+						}
+						.tieba_user_nologin_tip_center{
+							font-size: 20px;
+							float: left;
+							font-weight: 400;
+							margin-right: 6px;
+							text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+							color: var(--user-info-font-color);
+						}
+						.tieba_user_nologin_tip_bottom{
+							display: block;
+							width: 100%;
+							height: 24px;
+							line-height: 24px;
+							overflow: hidden;
+							color: var(--user-info-font-color);
+							text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+							font-size: 13px;
+							margin-top: 5px;
+						}
+
+
+						.pops-drawer-content{
+							padding: 10px;
+						}
+						.tieba-menu-list{
+						
+						}
+						.tieba-menu-item{
+							display: flex;
+							align-items: center;
+							height: 38px;
+    						line-height: 38px;
+							font-size: 17px;
+							margin: 3px 0px;
+						}
+						.tieba-menu-item:first-child{
+							margin-top: 0px;
+						}
+						.tieba-menu-icon{
+							display: flex;
+    						align-items: center;
+							font-size: 22px;
+    						margin-right: 8px;
+						}
+						.tieba-menu-icon svg{
+							width: 20px;
+							height: 20px;
+						}
+						.teba-menu-text{
+							overflow: hidden;
+							text-overflow: ellipsis;
+							white-space: nowrap;
+						}
+						`
+          });
+          let isLogin = false;
+          let $tieba_user = $drawer.$shadowRoot.querySelector(".tieba_user");
+          let $menuList = $drawer.$shadowRoot.querySelector(
+            ".tieba-menu-list"
+          );
+          let $avatar = $drawer.$shadowRoot.querySelector(
+            ".tieba_account_avatar"
+          );
+          $drawer.$shadowRoot.querySelector(
+            ".tieba-user-info"
+          );
+          let $tieba_user_nologin_tip_center = $drawer.$shadowRoot.querySelector(
+            ".tieba_user_nologin_tip_center"
+          );
+          let $tieba_user_nologin_tip_bottom = $drawer.$shadowRoot.querySelector(
+            ".tieba_user_nologin_tip_bottom"
+          );
+          menuListInfo.forEach((menuItemInfo) => {
+            let $menuItem = document.createElement("li");
+            $menuItem.classList.add("tieba-menu-item");
+            $menuItem.setAttribute("data-to", menuItemInfo["data-to"]);
+            $menuItem.innerHTML = `
+						<i class="tieba-menu-icon">
+							${menuItemInfo.icon}
+						</i>
+						<p class="teba-menu-text">${menuItemInfo.text}</p>
+						`;
+            domutils.on($menuItem, "click", (event) => {
+              menuItemInfo.clickCallBack(event);
+            });
+            $menuList.appendChild($menuItem);
+          });
+          $avatar.src = TiebaUrlApi.getUserAvatar("null");
+          let $ele2 = document.querySelector(".app-view") || document.querySelector(".tb-mobile-viewport");
+          if ($ele2) {
+            let eleVueObj = VueUtils.getVue($ele2);
+            if (eleVueObj) {
+              if ((_a3 = eleVueObj == null ? void 0 : eleVueObj.user) == null ? void 0 : _a3.is_login) {
+                isLogin = true;
+                let portrait = eleVueObj.user.portrait;
+                let showName = eleVueObj.user.show_nickname || eleVueObj.user.name_show || eleVueObj.user.name;
+                $avatar.src = TiebaUrlApi.getUserAvatar(portrait);
+                $tieba_user_nologin_tip_center.innerText = showName;
+                domutils.hide($tieba_user_nologin_tip_bottom);
+              } else if ((_d = (_c = (_b = eleVueObj == null ? void 0 : eleVueObj.$store) == null ? void 0 : _b.state) == null ? void 0 : _c.common) == null ? void 0 : _d.isLogin) {
+                isLogin = true;
+                domutils.hide($tieba_user_nologin_tip_bottom);
+                $tieba_user_nologin_tip_center.innerText = "未知";
+                $avatar.src = TiebaUrlApi.getUserAvatar(
+                  (_g = (_f = (_e = eleVueObj == null ? void 0 : eleVueObj.$store) == null ? void 0 : _e.state) == null ? void 0 : _f.common) == null ? void 0 : _g.portrait
+                );
+              }
+            }
+          }
+          domutils.on($tieba_user, "click", () => {
+            if (isLogin) {
+              return;
+            }
+            window.open(TiebaUrlApi.getLoginUrl(), "_blank");
+          });
         });
       });
     }

@@ -110,6 +110,17 @@ const TiebaCore = {
 		return tbMobileViewport || mainPageWrap || tbForum || appView;
 	},
 	/**
+	 * 获取当前的贴吧的id
+	 */
+	getCurrentForumId(): number {
+		let tbMobileViewport = VueUtils.getVue(
+			document.querySelector(".tb-mobile-viewport")
+		)?.forum?.id;
+		let appView = VueUtils.getVue(document.querySelector(".app-view"))?.forum
+			?.id;
+		return tbMobileViewport || appView;
+	},
+	/**
 	 * 获取当前帖子的tid
 	 */
 	getCurrentForumPostTid(): string {
