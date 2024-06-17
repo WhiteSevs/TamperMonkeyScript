@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
-// @description  更新日志: 1. 调整小窗pushState，现在可以打开小窗口后刷新页面不会再跳转到首页了；2. 修复indexDB获取本地存储的数据失败问题；3. 修复在个人中心-帖子页面小窗、显示UID功能不生效问题
-// @version      2024.6.11
+// @description  更新日志: 修复贴内点赞功能失效问题
+// @version      2024.6.17
 // @author       WhiteSevs
 // @run-at       document-start
 // @match        *://bbs.binmt.cc/*
@@ -8679,7 +8679,7 @@
 								} else if (s.indexOf("今日评价机会已用完") >= 0) {
 									popups.toast("您今日的点赞机会已用完");
 								} else if (
-									s.indexOf(`'recommendv':${allowrecommend}''+`) >= 0
+									s.indexOf("'recommendv':'+" + allowrecommend + "'") >= 0
 								) {
 									var b = [],
 										r;
@@ -8730,13 +8730,13 @@
 											.addClass("comiis_recommend_list_on")
 											.prepend(
 												`<span id="comiis_recommend_list_t${uid}">
-                          <a href="home.php?mod=space&uid=${uid}" class="f_c">${username}</a>
-                          ${
+                          							<a href="home.php?mod=space&uid=${uid}" class="f_c">${username}</a>
+													${
 														$jq(".comiis_recommend_list_t a").length > 0
 															? '<span class="f_d"> , </span>'
 															: ""
 													}
-                        </span>`
+                        						</span>`
 											);
 									}
 									if ($jq(".comiis_recommend_list_s").length > 0) {
