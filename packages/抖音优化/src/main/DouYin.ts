@@ -1,18 +1,17 @@
 import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { ShieldHeader } from "./UIFrameShield/FrameNavigator";
-import { ShieldSearch } from "./UIFrameShield/FrameSearch";
-import { DouYinHook } from "./Hook/DouYinHook";
-import { DouYinAccount } from "./Account/DouYinAccount";
-import { DouYinVideo } from "./Video/DouYinVideo";
-import { DouYinRouter } from "@/router/router";
+import { ShieldHeader } from "../UIFrameShield/FrameNavigator";
+import { ShieldSearch } from "../UIFrameShield/FrameSearch";
+import { DouYinHook } from "../hook/DouYinHook";
+import { DouYinAccount } from "../account/DouYinAccount";
+import { DouYinVideo } from "./video/DouYinVideo";
+import { DouYinRouter } from "@/router/DouYinRouter";
 import { DouYinLive } from "./Live/DouYinLive";
 import { DouYinRedirect } from "./DouYinRedirect";
-import { DouYinSearch } from "./Search/DouYinSearch";
-import { DouYinElement } from "../utils/DouYinElement";
-import { DouYinUtils } from "@/utils/DouYinUtils";
+import { DouYinSearch } from "./search/DouYinSearch";
+import { DouYinShareUser } from "./share/user/DouYinShareUser";
 
-const DouYin = {
+export const DouYin = {
 	init() {
 		DouYinRedirect.init();
 		PopsPanel.execMenuOnce("debug", () => {
@@ -42,6 +41,9 @@ const DouYin = {
 				log.info("Router: 搜索");
 				DouYinSearch.init();
 			}
+		} else if (DouYinRouter.isShareUser()) {
+			log.info("Router: 分享用户");
+			DouYinShareUser.init();
 		} else {
 			log.error("未知router: " + window.location.hostname);
 		}
@@ -84,5 +86,3 @@ const DouYin = {
 			});
 	},
 };
-
-export { DouYin };

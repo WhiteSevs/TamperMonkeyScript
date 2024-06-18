@@ -1,9 +1,9 @@
 import { DOMUtils, utils } from "@/env";
 import { UISelect } from "../common-components/ui-select";
 import { UISwitch } from "../common-components/ui-switch";
-import { DouYinVideoFilter } from "@/main/Video/DouYinVideoFilter";
+import { DouYinVideoFilter } from "@/main/video/DouYinVideoFilter";
 import { UIButton } from "../common-components/ui-button";
-import { DouYinVideoShortcut } from "@/main/Video/DouYinVideoShortCut";
+import { DouYinVideoShortcut } from "@/main/video/DouYinVideoShortCut";
 
 const PanelVideoConfig: PopsPanelContentConfig = {
 	id: "panel-config-video",

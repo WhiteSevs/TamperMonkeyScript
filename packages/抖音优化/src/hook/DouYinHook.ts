@@ -1,7 +1,7 @@
 import { unsafeWindow } from "ViteGM";
 import { log } from "@/env";
 
-const DouYinHook = {
+export const DouYinHook = {
 	/**
 	 * 移除环境检测
 	 */
@@ -22,5 +22,3 @@ const DouYinHook = {
 		};
 	},
 };
-
-export { DouYinHook };

@@ -1,9 +1,8 @@
 import { PopsPanel } from "@/setting/setting";
-import { DouYinElement } from "../../utils/DouYinElement";
 import { addStyle, log } from "@/env";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 
-const DouYinLiveChatRoom = {
+export const DouYinLiveChatRoom = {
 	init() {
 		PopsPanel.execMenu("live-shieldChatRoom", () => {
 			this.shieldChatRoom();
@@ -80,5 +79,3 @@ const DouYinLiveChatRoom = {
 		DouYinUtils.addBlockCSS(".webcast-chatroom___bottom-message");
 	},
 };
-
-export { DouYinLiveChatRoom };

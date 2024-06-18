@@ -1,9 +1,8 @@
 import { DOMUtils, log, utils } from "@/env";
-import { DouYinElement } from "../../utils/DouYinElement";
 import { GM_getValue, GM_setValue } from "ViteGM";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 
-const DouYinDanmuFilter = {
+export const DouYinDanmuFilter = {
 	key: "douyin-live-danmu-rule",
 	$data: {
 		rule: [] as RegExp[],
@@ -70,7 +69,7 @@ const DouYinDanmuFilter = {
 	},
 };
 
-const DouYinLiveDanmuku = {
+export const DouYinLiveDanmuku = {
 	/**
 	 * 屏蔽弹幕
 	 */
@@ -103,5 +102,3 @@ const DouYinLiveDanmuku = {
 			});
 	},
 };
-
-export { DouYinLiveDanmuku, DouYinDanmuFilter };

@@ -1,11 +1,10 @@
 import { PopsPanel } from "@/setting/setting";
-import { DouYinElement } from "@/utils/DouYinElement";
-import { DouYinRouter } from "@/router/router";
+import { DouYinRouter } from "@/router/DouYinRouter";
 import { addStyle, log } from "@/env";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 
 /** 顶部屏蔽 */
-const ShieldHeader = {
+export const ShieldHeader = {
 	init() {
 		PopsPanel.execMenu("shieldClientTip", () => {
 			this.shieldClientTip();
@@ -177,5 +176,3 @@ const ShieldHeader = {
 		]);
 	},
 };
-
-export { ShieldHeader };

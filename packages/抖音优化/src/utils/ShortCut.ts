@@ -11,13 +11,13 @@ interface ShortCutValue {
 	};
 }
 
-interface ShortCutMap {
+export interface ShortCutMap {
 	[key: string]: {
 		callback(): void;
 	};
 }
 
-class ShortCut {
+export class ShortCut {
 	#key: string = "short-cut";
 	#isWaitPress: boolean = false;
 	constructor(key: string) {
@@ -197,5 +197,3 @@ class ShortCut {
 		);
 	}
 }
-
-export { ShortCut, type ShortCutMap };

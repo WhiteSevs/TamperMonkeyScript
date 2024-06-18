@@ -1,9 +1,8 @@
 import { PopsPanel } from "@/setting/setting";
-import { DouYinElement } from "../../utils/DouYinElement";
 import { addStyle, log } from "@/env";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 
-const ShieldSearch = {
+export const ShieldSearch = {
 	init() {
 		PopsPanel.execMenu("shieldSearch", () => {
 			this.shieldSearch();
@@ -62,5 +61,3 @@ const ShieldSearch = {
 		);
 	},
 };
-
-export { ShieldSearch };

@@ -1,6 +1,5 @@
 import { DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { DouYinElement } from "@/utils/DouYinElement";
 import { DouYinLiveChatRoom } from "./DouYinLiveChatRoom";
 import { DouYinLiveDanmuku } from "./DouYinLiveDanmuku";
 import Qmsg from "qmsg";
@@ -24,7 +23,7 @@ import { DouYinUtils } from "@/utils/DouYinUtils";
  *    }
  * }
  */
-const DouYinLive = {
+export const DouYinLive = {
 	init() {
 		PopsPanel.execMenu("live-autoEnterElementFullScreen", () => {
 			this.autoEnterElementFullScreen();
@@ -202,5 +201,3 @@ const DouYinLive = {
 		});
 	},
 };
-
-export { DouYinLive };

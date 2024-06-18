@@ -5,6 +5,7 @@ import { PanelLiveConfig } from "./components/live";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, KEY } from "./config";
 import { PanelVideoConfig } from "./components/video";
 import { PanelSearchConfig } from "./components/search";
+import { PanelShareConfig } from "./components/share";
 
 interface PosPanelListenerData {
 	id: number;
@@ -326,6 +327,7 @@ const PopsPanel = {
 			PanelVideoConfig,
 			PanelLiveConfig,
 			PanelSearchConfig,
+			PanelShareConfig,
 		];
 		return configList;
 	},

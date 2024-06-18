@@ -1,4 +1,4 @@
-const DouYinRouter = {
+export const DouYinRouter = {
 	/** 直播 */
 	isLive() {
 		return window.location.hostname === "live.douyin.com";
@@ -14,6 +14,10 @@ const DouYinRouter = {
 			window.location.pathname.startsWith("/search")
 		);
 	},
+	/**
+	 * 用户主页
+	 */
+	isShareUser() {
+		return window.location.pathname.startsWith("/share/user/");
+	},
 };
-
-export { DouYinRouter };
