@@ -1,0 +1,8 @@
+/* 顶部 打开看看 登录 */
+.adapt-login-header,
+/* 上面屏蔽后的空白区域 */
+.user-card .nav-bar-placeholder,
+/* 视频区域底部的【打开抖音App看更多内容】 */
+.select-list .img-button{
+    display: none !important;
+}

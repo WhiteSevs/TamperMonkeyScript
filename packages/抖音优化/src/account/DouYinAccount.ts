@@ -1,9 +1,9 @@
 import { log, utils } from "@/env";
-import { DouYinElement } from "../../utils/DouYinElement";
-import { DouYinRouter } from "@/router/router";
+import { DouYinElement } from "../utils/DouYinElement";
+import { DouYinRouter } from "@/router/DouYinRouter";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 
-const DouYinAccount = {
+export const DouYinAccount = {
 	/**
 	 * 伪装登录
 	 */
@@ -168,5 +168,3 @@ const DouYinAccount = {
 		});
 	},
 };
-
-export { DouYinAccount };

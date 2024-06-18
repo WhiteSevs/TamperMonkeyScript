@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.15.15
+// @version      2024.6.18
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -9,9 +9,9 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.douyin.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1396237/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.4.4/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.5.2/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
@@ -941,6 +941,68 @@
   }
   _key = new WeakMap();
   _isWaitPress = new WeakMap();
+  const MobileCSS$1 = '/* 去除顶部的padding距离 */\r\n#douyin-right-container {\r\n	padding-top: 0;\r\n}\r\n/* 放大放大顶部的综合、视频、用户等header的宽度 */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) {\r\n	width: 100dvw;\r\n}\r\n/* 放大顶部的综合、视频、用户等header */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) > div {\r\n	transform: scale(0.8);\r\n}\r\n/* 视频宽度 */\r\nul[data-e2e="scroll-list"] {\r\n	padding: 0px 10px;\r\n}\r\n#sliderVideo {\r\n	width: -webkit-fill-available;\r\n}\r\n/* 距离是顶部导航栏的高度 */\r\n#search-content-area {\r\n	margin-top: 65px;\r\n}\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#sliderVideo {\r\n		width: 100dvw;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#component-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: -webkit-fill-available;\r\n		padding-right: 0;\r\n	}\r\n}\r\n\r\n';
+  const DouYinSearchHideElement = {
+    init() {
+      PopsPanel.execMenuOnce("douyin-search-shieldReleatedSearches", () => {
+        this.shieldReleatedSearches();
+      });
+    },
+    /**
+     * 【屏蔽】相关搜索
+     */
+    shieldReleatedSearches() {
+      log.info("【屏蔽】相关搜索");
+      DouYinUtils.addBlockCSS("#search-content-area > div > div:nth-child(2)");
+      addStyle(`
+        #search-content-area > div > div:nth-child(1) > div:nth-child(1){
+            width: 100dvw;
+        }
+        `);
+    }
+  };
+  const DouYinSearch = {
+    init() {
+      DouYinSearchHideElement.init();
+    },
+    /**
+     * 手机模式
+     */
+    mobileMode() {
+      log.info("搜索-手机模式");
+      addStyle(MobileCSS$1);
+      utils.waitNode("#relatedVideoCard").then(($relatedVideoCard) => {
+        log.info("评论区展开的className：" + $relatedVideoCard.className);
+        addStyle(`
+				html[data-vertical-screen]
+					#sliderVideo[data-e2e="feed-active-video"]
+					#videoSideBar:has(#relatedVideoCard[class="${$relatedVideoCard.className}"]) {
+						width: 100dvw !important;
+				}`);
+      });
+    }
+  };
+  const DouYinRouter = {
+    /** 直播 */
+    isLive() {
+      return window.location.hostname === "live.douyin.com";
+    },
+    /** 视频 */
+    isVideo() {
+      return window.location.hostname === "www.douyin.com";
+    },
+    /** 搜索 */
+    isSearch() {
+      return window.location.hostname === "www.douyin.com" && window.location.pathname.startsWith("/search");
+    },
+    /**
+     * 用户主页
+     */
+    isShareUser() {
+      return window.location.pathname.startsWith("/share/user/");
+    }
+  };
+  const MobileCSS = '/* 右侧工具栏放大 */\r\n.basePlayerContainer .positionBox {\r\n	scale: unset !important;\r\n	bottom: 80px !important;\r\n	padding-right: 5px !important;\r\n	transform: scale(1.12) !important;\r\n}\r\n/* 图标再放大 */\r\n.basePlayerContainer .positionBox svg {\r\n	transform: scale(1.12);\r\n}\r\n/* 重置关注按钮的scale */\r\n.basePlayerContainer\r\n	.positionBox\r\n	.dy-tip-container\r\n	div[data-e2e="feed-follow-icon"]\r\n	svg {\r\n	scale: unset;\r\n}\r\n/* 设备处于横向方向，即宽度大于高度。 */\r\n@media screen and (orientation: landscape) {\r\n	/* 右侧工具栏放大 */\r\n	.basePlayerContainer .positionBox {\r\n		/*transform: scale(0.95) !important;\r\n		bottom: 42px !important;*/\r\n		padding-right: 10px !important;\r\n	}\r\n}\r\n/* 该设备是纵向的，即高度大于或等于宽度 */\r\n@media screen and (orientation: portrait) {\r\n}\r\n\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#slidelist {\r\n		width: 100dvw;\r\n		height: 100dvh;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: 150px;\r\n		padding-right: 0;\r\n		max-width: unset;\r\n	}\r\n	/* 搜索框获取焦点时自动放大宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]:focus) {\r\n		width: 100dvw;\r\n	}\r\n	/* 去除设置min-width超出浏览器宽度的问题 */\r\n	body {\r\n		min-width: 100% !important;\r\n	}\r\n	/* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n	#douyin-right-container #douyin-header {\r\n		width: 100%;\r\n	}\r\n	/* 去除设置 */\r\n	#douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n		min-width: 100%;\r\n	}\r\n}\r\n';
   const DouYinVideoHideElement = {
     init() {
       PopsPanel.execMenu("shieldRightExpandCommentButton", () => {
@@ -1116,61 +1178,6 @@
   		`);
     }
   };
-  const DouYinSearchHideElement = {
-    init() {
-      PopsPanel.execMenuOnce("douyin-search-shieldReleatedSearches", () => {
-        this.shieldReleatedSearches();
-      });
-    },
-    /**
-     * 【屏蔽】相关搜索
-     */
-    shieldReleatedSearches() {
-      log.info("【屏蔽】相关搜索");
-      DouYinUtils.addBlockCSS("#search-content-area > div > div:nth-child(2)");
-      addStyle(`
-        #search-content-area > div > div:nth-child(1) > div:nth-child(1){
-            width: 100dvw;
-        }
-        `);
-    }
-  };
-  const MobileCSS$1 = '/* 去除顶部的padding距离 */\r\n#douyin-right-container {\r\n	padding-top: 0;\r\n}\r\n/* 放大放大顶部的综合、视频、用户等header的宽度 */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) {\r\n	width: 100dvw;\r\n}\r\n/* 放大顶部的综合、视频、用户等header */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) > div {\r\n	transform: scale(0.8);\r\n}\r\n/* 视频宽度 */\r\nul[data-e2e="scroll-list"] {\r\n	padding: 0px 10px;\r\n}\r\n#sliderVideo {\r\n	width: -webkit-fill-available;\r\n}\r\n/* 距离是顶部导航栏的高度 */\r\n#search-content-area {\r\n	margin-top: 65px;\r\n}\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#sliderVideo {\r\n		width: 100dvw;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#component-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: -webkit-fill-available;\r\n		padding-right: 0;\r\n	}\r\n}\r\n\r\n';
-  const DouYinSearch = {
-    init() {
-      DouYinSearchHideElement.init();
-    },
-    /**
-     * 手机模式
-     */
-    mobileMode() {
-      log.info("搜索-手机模式");
-      addStyle(MobileCSS$1);
-      utils.waitNode("#relatedVideoCard").then(($relatedVideoCard) => {
-        log.info("评论区展开的className：" + $relatedVideoCard.className);
-        addStyle(`
-				html[data-vertical-screen]
-					#sliderVideo[data-e2e="feed-active-video"]
-					#videoSideBar:has(#relatedVideoCard[class="${$relatedVideoCard.className}"]) {
-						width: 100dvw !important;
-				}`);
-      });
-    }
-  };
-  const DouYinRouter = {
-    /** 直播 */
-    isLive() {
-      return window.location.hostname === "live.douyin.com";
-    },
-    /** 视频 */
-    isVideo() {
-      return window.location.hostname === "www.douyin.com";
-    },
-    /** 搜索 */
-    isSearch() {
-      return window.location.hostname === "www.douyin.com" && window.location.pathname.startsWith("/search");
-    }
-  };
   const DouYinVideoComment = {
     init() {
       PopsPanel.execMenuOnce("dy-video-shieldUserCommentToolBar", () => {
@@ -1198,7 +1205,6 @@
       DouYinUtils.addBlockCSS(".comment-header-with-search");
     }
   };
-  const MobileCSS = '/* 右侧工具栏放大 */\r\n.basePlayerContainer .positionBox {\r\n	scale: unset !important;\r\n	bottom: 80px !important;\r\n	padding-right: 5px !important;\r\n	transform: scale(1.12) !important;\r\n}\r\n/* 图标再放大 */\r\n.basePlayerContainer .positionBox svg {\r\n	transform: scale(1.12);\r\n}\r\n/* 重置关注按钮的scale */\r\n.basePlayerContainer\r\n	.positionBox\r\n	.dy-tip-container\r\n	div[data-e2e="feed-follow-icon"]\r\n	svg {\r\n	scale: unset;\r\n}\r\n/* 设备处于横向方向，即宽度大于高度。 */\r\n@media screen and (orientation: landscape) {\r\n	/* 右侧工具栏放大 */\r\n	.basePlayerContainer .positionBox {\r\n		/*transform: scale(0.95) !important;\r\n		bottom: 42px !important;*/\r\n		padding-right: 10px !important;\r\n	}\r\n}\r\n/* 该设备是纵向的，即高度大于或等于宽度 */\r\n@media screen and (orientation: portrait) {\r\n}\r\n\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#slidelist {\r\n		width: 100dvw;\r\n		height: 100dvh;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: 150px;\r\n		padding-right: 0;\r\n		max-width: unset;\r\n	}\r\n	/* 搜索框获取焦点时自动放大宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]:focus) {\r\n		width: 100dvw;\r\n	}\r\n	/* 去除设置min-width超出浏览器宽度的问题 */\r\n	body {\r\n		min-width: 100% !important;\r\n	}\r\n	/* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n	#douyin-right-container #douyin-header {\r\n		width: 100%;\r\n	}\r\n	/* 去除设置 */\r\n	#douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n		min-width: 100%;\r\n	}\r\n}\r\n';
   const DouYinVideo = {
     init() {
       DouYinVideoHideElement.init();
@@ -1937,6 +1943,32 @@
       }
     ]
   };
+  const PanelShareConfig = {
+    id: "panel-config-share",
+    title: "分享",
+    forms: [
+      {
+        text: "/share/user<br />覆盖点击事件",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "视频合集",
+            "dy-share-user-coverPlayletList",
+            true,
+            void 0,
+            "正确跳转视频合集页面"
+          ),
+          UISwitch(
+            "视频列表",
+            "dy-share-user-coverPostListContainer",
+            true,
+            void 0,
+            "正确跳转视频页面"
+          )
+        ]
+      }
+    ]
+  };
   const PopsPanel = {
     /** 数据 */
     $data: {
@@ -2220,7 +2252,8 @@
         PanelCommonConfig,
         PanelVideoConfig,
         PanelLiveConfig,
-        PanelSearchConfig
+        PanelSearchConfig,
+        PanelShareConfig
       ];
       return configList;
     }
@@ -2882,6 +2915,97 @@
       }
     }
   };
+  const blockCSS = "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 上面屏蔽后的空白区域 */\r\n.user-card .nav-bar-placeholder,\r\n/* 视频区域底部的【打开抖音App看更多内容】 */\r\n.select-list .img-button{\r\n    display: none !important;\r\n}";
+  const DouYinUrlUtils = {
+    /**
+     * 获取视频链接
+     * @param videoId 视频id
+     */
+    getVideoUrl(videoId) {
+      return "https://www.douyin.com/video/" + videoId;
+    },
+    /**
+     * 获取视频合集链接
+     * @param collectionId 合集id
+     */
+    getCollectionUrl(collectionId) {
+      return "https://www.douyin.com/collection/" + collectionId;
+    }
+  };
+  const DouYinShareUser = {
+    init() {
+      addStyle(blockCSS);
+      PopsPanel.execMenuOnce("dy-share-user-coverPlayletList", () => {
+        this.coverPlayletList();
+      });
+      PopsPanel.execMenuOnce("dy-share-user-coverPostListContainer", () => {
+        this.coverPostListContainer();
+      });
+    },
+    /**
+     * 覆盖视频合集点击事件
+     */
+    coverPlayletList() {
+      domUtils.on(
+        document,
+        "click",
+        ".user-playlet-list .playlet-item",
+        (event) => {
+          var _a2, _b, _c, _d;
+          utils.preventEvent(event);
+          let $click = event.target;
+          let reactFiber = (_a2 = utils.getReactObj($click)) == null ? void 0 : _a2.reactFiber;
+          console.log(reactFiber);
+          let key = reactFiber == null ? void 0 : reactFiber.key;
+          if (key == null) {
+            Qmsg.error("获取视频合集key失败");
+            return;
+          }
+          let index = reactFiber == null ? void 0 : reactFiber.index;
+          if (index == null) {
+            Qmsg.error("获取视频合集index失败");
+            return;
+          }
+          let playletList = (_d = (_c = (_b = reactFiber == null ? void 0 : reactFiber.return) == null ? void 0 : _b.return) == null ? void 0 : _c.pendingProps) == null ? void 0 : _d.playletList;
+          if (playletList == null) {
+            Qmsg.error("获取视频合集playletList失败");
+            return;
+          }
+          let currentPlaylet = playletList[index];
+          let url = DouYinUrlUtils.getCollectionUrl(currentPlaylet["mix_id"]);
+          window.open(url, "_blank");
+        },
+        {
+          capture: true
+        }
+      );
+    },
+    /**
+     * 覆盖视频列表点击事件
+     */
+    coverPostListContainer() {
+      domUtils.on(
+        document,
+        "click",
+        ".post-list-container .user-post-cover",
+        (event) => {
+          var _a2, _b, _c, _d, _e;
+          utils.preventEvent(event);
+          let $click = event.target;
+          let reactFiber = (_a2 = utils.getReactObj($click)) == null ? void 0 : _a2.reactFiber;
+          if ((_c = (_b = reactFiber == null ? void 0 : reactFiber.return) == null ? void 0 : _b.memoizedProps) == null ? void 0 : _c.productionUrl) {
+            let url = (_e = (_d = reactFiber == null ? void 0 : reactFiber.return) == null ? void 0 : _d.memoizedProps) == null ? void 0 : _e.productionUrl;
+            window.open(url, "_blank");
+          } else {
+            Qmsg.error("获取视频链接失败");
+          }
+        },
+        {
+          capture: true
+        }
+      );
+    }
+  };
   const DouYin = {
     init() {
       DouYinRedirect.init();
@@ -2912,6 +3036,9 @@
           log.info("Router: 搜索");
           DouYinSearch.init();
         }
+      } else if (DouYinRouter.isShareUser()) {
+        log.info("Router: 分享用户");
+        DouYinShareUser.init();
       } else {
         log.error("未知router: " + window.location.hostname);
       }

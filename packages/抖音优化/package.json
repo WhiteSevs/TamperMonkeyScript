@@ -4,23 +4,23 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "vue-tsc --noEmit && vite",
+		"dev": "vue-tsc --noEmit && vite --force",
 		"build": "vue-tsc --noEmit && vite build",
 		"build:min": "vue-tsc --noEmit && vite build --minify",
 		"build:all": "vue-tsc --noEmit && vite build && vite build --minify --no-empty-outDir",
 		"build:watch": "vue-tsc --noEmit && vite build --watch",
 		"build:no-cache": "pnpm store prune && vue-tsc --noEmit && vite build",
-		"preview": "vue-tsc --noEmit && vite preview",
+		"preview": "vite preview --host 0.0.0.0",
 		"clear": "del .\\SCRIPT_VERSION.json && pnpm store prune"
 	},
 	"dependencies": {
 		"@whitesev/domutils": "^1.1.1",
-		"@whitesev/utils": "^1.4.4",
+		"@whitesev/utils": "^1.5.2",
 		"qmsg": "^1.1.2",
 		"vue": "^3.4.29"
 	},
 	"devDependencies": {
-		"@types/node": "^20.14.2",
+		"@types/node": "^20.14.5",
 		"@vitejs/plugin-vue": "^5.0.5",
 		"typescript": "^5.4.5",
 		"vite": "^5.3.1",
