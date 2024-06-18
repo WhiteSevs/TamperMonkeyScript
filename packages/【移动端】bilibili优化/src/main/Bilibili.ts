@@ -1,6 +1,6 @@
 import "./block.css";
 import BilibiliBeautifyCSS from "./BilibiliBeautify.css?raw";
-import { BilibiliRouter } from "@/router/BilibiliRouter";
+import { BilibiliPCRouter, BilibiliRouter } from "@/router/BilibiliRouter";
 import { BilibiliVideo } from "./video/BilibiliVideo";
 import { addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
@@ -16,9 +16,12 @@ import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliVueProp } from "./BilibiliVueProp";
 import { unsafeWindow } from "ViteGM";
+import { BilibiliReadMobile } from "./read/mobile/BilibiliReadMobile";
+import { BilibiliNetworkHook } from "@/hook/BilibiliNetworkHook";
 
 const Bilibili = {
 	init() {
+		BilibiliNetworkHook.init();
 		BilibiliVueProp.init();
 		PopsPanel.onceExec("listenRouterChange", () => {
 			this.listenRouterChange();
@@ -26,6 +29,7 @@ const Bilibili = {
 		PopsPanel.execMenuOnce("bili-hookSetTimeout_autoOpenApp", () => {
 			log.info("hook  window.setTimeout autoOpenApp");
 			BilibiliHook.setTimeout("autoOpenApp");
+			BilibiliHook.setTimeout("bilibili://");
 		});
 		PopsPanel.execMenuOnce("bili-overrideLaunchAppBtn_Vue_openApp", () => {
 			log.info("覆盖元素.launch-app-btn上的openApp");
@@ -41,6 +45,9 @@ const Bilibili = {
 		} else if (BilibiliRouter.isOpus()) {
 			log.info("Router: 专栏稿件");
 			BilibiliOpus.init();
+		} else if (BilibiliPCRouter.isReadMobile()) {
+			log.info("PC-Router: 专栏稿件");
+			BilibiliReadMobile.init();
 		} else if (BilibiliRouter.isDynamic()) {
 			log.info("Router: 动态");
 			BilibiliDynamic.init();

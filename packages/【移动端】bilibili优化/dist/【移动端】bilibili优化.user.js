@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.16
+// @version      2024.6.18
 // @author       WhiteSevs
 // @description  bilibili(哔哩哔哩)优化，免登录等
 // @license      GPL-3.0-only
@@ -9,6 +9,7 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://m.bilibili.com/*
 // @match        *://live.bilibili.com/*
+// @match        *://www.bilibili.com/read/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://update.greasyfork.org/scripts/497907/1394170/QRCodeJS.js
@@ -21,6 +22,7 @@
 // @connect      www.bilibili.com
 // @connect      api.bilibili.com
 // @connect      app.bilibili.com
+// @connect      passport.bilibili.com
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
 // @grant        GM_getValue
@@ -33,7 +35,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(a=>{function e(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let p=document.createElement("style");return p.setAttribute("type","text/css"),p.innerHTML=n,document.head?document.head.appendChild(p):document.body?document.body.appendChild(p):document.documentElement.childNodes.length===0?document.documentElement.appendChild(p):document.documentElement.insertBefore(p,document.documentElement.childNodes[0]),p}if(typeof GM_addStyle=="function"){GM_addStyle(a);return}e(a)})(" .m-video2-awaken-btn,.openapp-dialog,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important} ");
+(a=>{function e(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let p=document.createElement("style");return p.setAttribute("type","text/css"),p.innerHTML=n,document.head?document.head.appendChild(p):document.body?document.body.appendChild(p):document.documentElement.childNodes.length===0?document.documentElement.appendChild(p):document.documentElement.insertBefore(p,document.documentElement.childNodes[0]),p}if(typeof GM_addStyle=="function"){GM_addStyle(a);return}e(a)})(" .m-video2-awaken-btn,.openapp-dialog,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#app .read-app-main bili-open-app{display:none!important} ");
 
 (function (Qmsg, Utils, DOMUtils, md5) {
   'use strict';
@@ -270,6 +272,20 @@
       return window.location.pathname === "/" || window.location.pathname.startsWith("/channel");
     }
   };
+  const BilibiliPCRouter = {
+    /**
+     * 桌面端
+     */
+    isPC() {
+      return window.location.hostname === "www.bilibili.com";
+    },
+    /**
+     * 应该是动态？
+     */
+    isReadMobile() {
+      return this.isPC() && window.location.pathname.startsWith("/read/mobile");
+    }
+  };
   const SettingUIVideo = {
     id: "panel-video",
     title: "视频",
@@ -366,6 +382,19 @@
         ]
       },
       {
+        text: "网络拦截",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "解锁清晰度",
+            "bili-video-xhr-unlockQuality",
+            true,
+            void 0,
+            "最高清晰度为720P"
+          )
+        ]
+      },
+      {
         text: "劫持/拦截",
         type: "forms",
         forms: [
@@ -424,6 +453,19 @@
             true,
             void 0,
             "让【更多推荐】的视频列表可点击跳转"
+          )
+        ]
+      },
+      {
+        text: "网络拦截",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "解锁清晰度",
+            "bili-bangumi-xhr-unlockQuality",
+            true,
+            void 0,
+            "最高清晰度为720P"
           )
         ]
       },
@@ -821,7 +863,7 @@
   function isWebApiSuccess(json) {
     return (json == null ? void 0 : json.code) === 0 && ((json == null ? void 0 : json.message) === "0" || (json == null ? void 0 : json.message) === "success");
   }
-  const BilibiliLogin = {
+  const BilibiliApi_Login = {
     /**
      * 获取登录二维码信息（TV端）
      * https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/login/login_action/QR.md#%E7%94%B3%E8%AF%B7%E4%BA%8C%E7%BB%B4%E7%A0%81(TV%E7%AB%AF)
@@ -930,7 +972,7 @@
      */
     getQRCodeInfo: async function() {
       log.info("正在申请二维码...");
-      let qrcodeInfo = await BilibiliLogin.getQrCodeInfo();
+      let qrcodeInfo = await BilibiliApi_Login.getQrCodeInfo();
       log.info(["获取到二维码信息", qrcodeInfo]);
       return qrcodeInfo;
     },
@@ -1002,7 +1044,7 @@
           break;
         }
         log.info("正在等待扫码登录...");
-        let pollInfo = await BilibiliLogin.poll(qrcodeInfo.auth_code);
+        let pollInfo = await BilibiliApi_Login.poll(qrcodeInfo.auth_code);
         if (pollInfo == null ? void 0 : pollInfo.success) {
           this.setAccessTokenInfo({
             access_token: pollInfo.accessKey,
@@ -1236,7 +1278,7 @@
         },
         {
           key: "go_to_login_to_parse_access_key",
-          text: "🛠 登录并解析access_key",
+          text: "🛠 扫码并解析access_key",
           autoReload: false,
           isStoreValue: false,
           showText(text) {
@@ -1687,6 +1729,13 @@
       "topic-detail": "#app .topic-detail",
       video: "#app .video",
       head: "#app .m-head"
+    }
+  };
+  const BilibiliPCData = {
+    className: {
+      read: {
+        mobile: "#app .read-app-main"
+      }
     }
   };
   const BilibiliVideoBeautifyCSS = "#app .video {\r\n	/* 下面的推荐视频卡片 */\r\n	.video-list .card-box {\r\n		--left-card-width: 33%;\r\n		--right-child-padding: 1.333vmin;\r\n		.v-card-toapp {\r\n			width: 100%;\r\n			border-bottom: 1px solid #b5b5b5;\r\n			padding-left: 0;\r\n			padding-right: 0;\r\n\r\n			> a {\r\n				display: flex;\r\n				flex-wrap: nowrap;\r\n				.card {\r\n					width: var(--left-card-width);\r\n					height: 80px;\r\n					flex: 0 auto;\r\n					.count {\r\n						background: transparent;\r\n						.left {\r\n							display: list-item;\r\n							span.item {\r\n								display: none;\r\n							}\r\n						}\r\n\r\n						.duration {\r\n							background: rgba(0, 0, 0, 0.4);\r\n							border-radius: 0.6vmin;\r\n							padding: 0px 0.5vmin;\r\n							right: 1vmin;\r\n							bottom: 1vmin;\r\n						}\r\n					}\r\n				}\r\n\r\n				.title {\r\n					flex: 1;\r\n					padding: var(--right-child-padding);\r\n					margin-top: 0;\r\n				}\r\n			}\r\n		}\r\n\r\n		/* 开启了bili-video-beautify */\r\n		.gm-right-container {\r\n			display: flex;\r\n			flex-direction: column;\r\n			width: calc(100% - var(--left-card-width));\r\n			> * {\r\n				padding: var(--right-child-padding);\r\n			}\r\n			.gm-up-name,\r\n			.left {\r\n				color: #999;\r\n				font-size: 3vmin;\r\n				transform-origin: left;\r\n				display: flex;\r\n				align-items: safe center;\r\n			}\r\n			.gm-up-name-text {\r\n				margin-left: 1vmin;\r\n			}\r\n			.num {\r\n				margin-right: 4vmin;\r\n			}\r\n		}\r\n\r\n		> a.v-card {\r\n			width: 100%;\r\n			border-bottom: 1px solid #b5b5b5;\r\n			padding-left: 0;\r\n			padding-right: 0;\r\n			display: flex;\r\n			flex-wrap: nowrap;\r\n			.card {\r\n				width: var(--left-card-width);\r\n				height: 100%;\r\n				flex: 0 auto;\r\n				.count {\r\n					background: transparent;\r\n					span {\r\n						display: none;\r\n					}\r\n					.duration {\r\n						background-color: rgba(0, 0, 0, 0.3);\r\n						border-radius: 4px;\r\n						color: #fff;\r\n						font-size: 12px;\r\n						height: 16px;\r\n						line-height: 16px;\r\n						margin-left: auto;\r\n						padding-left: 4px;\r\n						padding-right: 4px;\r\n					}\r\n				}\r\n			}\r\n\r\n			.title {\r\n				flex: 1;\r\n				padding: var(--right-child-padding);\r\n				margin-top: 0;\r\n			}\r\n		}\r\n	}\r\n}\r\n";
@@ -3411,8 +3460,210 @@
       ]);
     }
   };
+  const BilibiliReadMobile = {
+    init() {
+      PopsPanel.onceExec("bili-pc-read-mobile-autoExpand", () => {
+        this.autoExpand();
+      });
+    },
+    /**
+     * 自动展开
+     */
+    autoExpand() {
+      log.info("自动展开");
+      addStyle(`
+        ${BilibiliPCData.className.read.mobile} .limit{
+            overflow: unset !important;
+            max-height: unset !important;
+        }`);
+      BilibiliUtils.addBlockCSS(
+        BilibiliPCData.className.read.mobile + " .read-more"
+      );
+    }
+  };
+  let _ajaxHooker_ = null;
+  const XhrHook = {
+    get ajaxHooker() {
+      if (_ajaxHooker_ == null) {
+        log.info("启用ajaxHooker拦截网络");
+        _ajaxHooker_ = utils.ajaxHooker();
+      }
+      return _ajaxHooker_;
+    }
+  };
+  const BilibiliVideoPlayUrlQN = {
+    /**
+     * 仅mp4方式支持
+     */
+    "240P 极速": 6,
+    "360P 流畅": 16,
+    "480P 清晰": 32,
+    /**
+     * web端默认值
+     *
+     * B站前端需要登录才能选择，但是直接发送请求可以不登录就拿到720P的取流地址
+     *
+     * 无720P时则为720P60
+     */
+    "720P 高清": 64,
+    /**
+     * 需要认证登录账号
+     */
+    "720P60 高帧率": 74,
+    /**
+     * TV端与APP端默认值
+     *
+     * 需要认证登录账号
+     */
+    "1080P 高清": 80,
+    /**
+     * 大多情况需求认证大会员账号
+     */
+    "1080P+ 高码率": 112,
+    /**
+     * 大多情况需求认证大会员账号
+     */
+    "1080P60 高帧率": 116,
+    /**
+     * 需要fnval&128=128且fourk=1
+     *
+     * 大多情况需求认证大会员账号
+     */
+    "4K 超清": 120,
+    /**
+     * 仅支持dash方式
+     *
+     * 需要fnval&64=64
+     *
+     */
+    "HDR 真彩色": 125,
+    /**
+     * 仅支持dash方式
+     *
+     * 需要fnval&512=512
+     *
+     * 大多情况需求认证大会员账号
+     */
+    杜比视界: 126,
+    /**
+     * 仅支持dash方式
+     *
+     * 需要fnval&1024=1024
+     *
+     * 大多情况需求认证大会员账号
+     */
+    "8K 超高清": 127
+  };
+  const BilibiliNetworkHook = {
+    $flag: {
+      is_hook_video_playurl: false,
+      is_hook_bangumi_html5: false
+    },
+    init() {
+      PopsPanel.execMenuOnce("bili-video-xhr-unlockQuality", () => {
+        this.hook_video_playurl();
+      });
+      PopsPanel.execMenuOnce("bili-bangumi-xhr-unlockQuality", () => {
+        this.hook_bangumi_html5();
+      });
+    },
+    /**
+     * 视频播放地址获取
+     *
+     * + //api.bilibili.com/x/player/wbi/playurl
+     * + //api.bilibili.com/x/player/playurl
+     *
+     */
+    hook_video_playurl() {
+      if (this.$flag.is_hook_video_playurl) {
+        return;
+      }
+      this.$flag.is_hook_video_playurl = true;
+      XhrHook.ajaxHooker.hook((request) => {
+        if (request.url.includes("//api.bilibili.com/x/player/wbi/playurl") || request.url.includes("//api.bilibili.com/x/player/playurl")) {
+          if (request.url.startsWith("//")) {
+            request.url = window.location.protocol + request.url;
+          }
+          let playUrl = new URL(request.url);
+          playUrl.searchParams.set("platform", "html5");
+          playUrl.searchParams.set(
+            "qn",
+            BilibiliVideoPlayUrlQN["1080P60 高帧率"].toString()
+          );
+          playUrl.searchParams.set("high_quality", "1");
+          playUrl.searchParams.set("fnver", "0");
+          playUrl.searchParams.set("fourk", "1");
+          request.url = playUrl.toString();
+          request.response = (res) => {
+            let data2 = utils.toJSON(res.responseText);
+            log.info("当前解锁的quality值：" + data2["data"]["quality"]);
+            if (data2["data"]["quality"] && data2["data"]["support_formats"]) {
+              let findValue = data2["data"]["support_formats"].find(
+                (item) => {
+                  return item["quality"] == data2["data"]["quality"];
+                }
+              );
+              if (findValue) {
+                log.info(
+                  "当前已解锁的画质：" + findValue["new_description"] || findValue["display_desc"]
+                );
+              }
+            }
+          };
+        }
+      });
+    },
+    /**
+     * 番剧播放地址获取
+     *
+     * + //api.bilibili.com/pgc/player/web/playurl/html5
+     *
+     */
+    hook_bangumi_html5() {
+      if (this.$flag.is_hook_bangumi_html5) {
+        return;
+      }
+      this.$flag.is_hook_bangumi_html5 = true;
+      XhrHook.ajaxHooker.hook((request) => {
+        if (request.url.includes("//api.bilibili.com/pgc/player/web/playurl/html5")) {
+          if (request.url.startsWith("//")) {
+            request.url = window.location.protocol + request.url;
+          }
+          let playUrl = new URL(request.url);
+          playUrl.pathname = "/pgc/player/web/playurl";
+          playUrl.searchParams.delete("bsource");
+          playUrl.searchParams.set(
+            "qn",
+            BilibiliVideoPlayUrlQN["1080P60 高帧率"].toString()
+          );
+          playUrl.searchParams.set("fnval", "1");
+          playUrl.searchParams.set("fnver", "0");
+          playUrl.searchParams.set("fourk", "1");
+          playUrl.searchParams.set("from_client", "BROWSER");
+          playUrl.searchParams.set("drm_tech_type", "2");
+          request.url = playUrl.toString();
+          request.response = (res) => {
+            let data2 = utils.toJSON(res.responseText);
+            let result = data2["result"];
+            log.info("当前解锁的quality值：" + result["quality"]);
+            if (result["quality"] && result["support_formats"]) {
+              let findValue = result["support_formats"].find((item) => {
+                return item["quality"] == result["quality"];
+              });
+              if (findValue) {
+                log.info(
+                  "当前已解锁的画质：" + findValue["new_description"] || findValue["display_desc"]
+                );
+              }
+            }
+          };
+        }
+      });
+    }
+  };
   const Bilibili = {
     init() {
+      BilibiliNetworkHook.init();
       BilibiliVueProp.init();
       PopsPanel.onceExec("listenRouterChange", () => {
         this.listenRouterChange();
@@ -3420,6 +3671,7 @@
       PopsPanel.execMenuOnce("bili-hookSetTimeout_autoOpenApp", () => {
         log.info("hook  window.setTimeout autoOpenApp");
         BilibiliHook.setTimeout("autoOpenApp");
+        BilibiliHook.setTimeout("bilibili://");
       });
       PopsPanel.execMenuOnce("bili-overrideLaunchAppBtn_Vue_openApp", () => {
         log.info("覆盖元素.launch-app-btn上的openApp");
@@ -3435,6 +3687,9 @@
       } else if (BilibiliRouter.isOpus()) {
         log.info("Router: 专栏稿件");
         BilibiliOpus.init();
+      } else if (BilibiliPCRouter.isReadMobile()) {
+        log.info("PC-Router: 专栏稿件");
+        BilibiliReadMobile.init();
       } else if (BilibiliRouter.isDynamic()) {
         log.info("Router: 动态");
         BilibiliDynamic.init();

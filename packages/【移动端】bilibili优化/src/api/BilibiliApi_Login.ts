@@ -3,7 +3,7 @@ import { appSign } from "@/common/sign";
 import { httpx, utils, GMCookie, Qmsg, log } from "@/env";
 import { isWebApiSuccess } from "@/utils/BilibiliUtils";
 
-export const BilibiliLogin = {
+export const BilibiliApi_Login = {
 	/**
 	 * 获取登录二维码信息（TV端）
 	 * https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/login/login_action/QR.md#%E7%94%B3%E8%AF%B7%E4%BA%8C%E7%BB%B4%E7%A0%81(TV%E7%AB%AF)

@@ -97,6 +97,19 @@ const SettingUIVideo: PopsPanelContentConfig = {
 			],
 		},
 		{
+			text: "网络拦截",
+			type: "forms",
+			forms: [
+				UISwitch(
+					"解锁清晰度",
+					"bili-video-xhr-unlockQuality",
+					true,
+					void 0,
+					"最高清晰度为720P"
+				),
+			],
+		},
+		{
 			text: "劫持/拦截",
 			type: "forms",
 			forms: [

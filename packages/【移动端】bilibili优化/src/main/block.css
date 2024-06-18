@@ -99,3 +99,11 @@
 		display: none !important;
 	}
 }
+
+/* read mobile */
+#app .read-app-main {
+	/* 所有的bili-open-app元素 */
+	bili-open-app {
+		display: none !important;
+	}
+}

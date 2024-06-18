@@ -1,4 +1,4 @@
-const BilibiliRouter = {
+export const BilibiliRouter = {
 	/**
 	 * 判断当前路径
 	 * + /video/
@@ -61,4 +61,17 @@ const BilibiliRouter = {
 	},
 };
 
-export { BilibiliRouter };
+export const BilibiliPCRouter = {
+	/**
+	 * 桌面端
+	 */
+	isPC() {
+		return window.location.hostname === "www.bilibili.com";
+	},
+	/**
+	 * 应该是动态？
+	 */
+	isReadMobile() {
+		return this.isPC() && window.location.pathname.startsWith("/read/mobile");
+	},
+};

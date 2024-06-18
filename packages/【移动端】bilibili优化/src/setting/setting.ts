@@ -10,9 +10,7 @@ import { SettingUIOpus } from "./components/Opus";
 import { SettingUIDynamic } from "./components/Dynamic";
 import { SettingUITopicDetail } from "./components/TopicDetail";
 import { SettingUIHead } from "./components/Head";
-import { BilibiliUrlUtils } from "@/utils/BilibiliUrlUtils";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
-import { BilibiliLogin } from "@/account/BilibiliLogin";
 import { BilibiliQrCodeLogin } from "@/account/BilibiliQrCodeLogin";
 
 const PopsPanel = {
@@ -89,7 +87,7 @@ const PopsPanel = {
 			},
 			{
 				key: "go_to_login_to_parse_access_key",
-				text: "🛠 登录并解析access_key",
+				text: "🛠 扫码并解析access_key",
 				autoReload: false,
 				isStoreValue: false,
 				showText(text) {

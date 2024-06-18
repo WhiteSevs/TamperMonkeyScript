@@ -9,3 +9,11 @@ export const BilibiliData = {
 		head: "#app .m-head",
 	},
 };
+
+export const BilibiliPCData = {
+	className: {
+		read: {
+			mobile: "#app .read-app-main",
+		},
+	},
+};

@@ -73,13 +73,18 @@ export default defineConfig({
 
 				icon: "https://i0.hdslb.com/bfs/static/jinkela/long/images/512.png",
 				description: "bilibili(哔哩哔哩)优化，免登录等",
-				match: ["*://m.bilibili.com/*", "*://live.bilibili.com/*"],
+				match: [
+					"*://m.bilibili.com/*",
+					"*://live.bilibili.com/*",
+					"*://www.bilibili.com/read/*",
+				],
 				connect: [
 					"*",
 					"m.bilibili.com",
 					"www.bilibili.com",
 					"api.bilibili.com",
 					"app.bilibili.com",
+					"passport.bilibili.com",
 				],
 				grant: [
 					"GM_addStyle",
