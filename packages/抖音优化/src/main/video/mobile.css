@@ -43,6 +43,16 @@
 		.xg-right-grid {
 		margin-right: 35px !important;
 	}
+	/* 评论区全屏 */
+	div[data-e2e="video-detail"]
+		.leftContainer
+		> div:has(.comment-mainContent[data-e2e="comment-list"]),
+	div[data-e2e="video-detail"]
+		.leftContainer
+		> div
+		> div:has(.comment-mainContent[data-e2e="comment-list"]) {
+		width: 100dvw !important;
+	}
 }
 
 /* 调整视频列表的宽度 */
