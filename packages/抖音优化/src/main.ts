@@ -1,5 +1,11 @@
 import { DouYin } from "@/main/DouYin";
 import { PopsPanel } from "./setting/setting";
+import { MDouYinRouter } from "./router/MDouYinRouter";
+import { MDouYin } from "./m-main/share/MDouYin";
 
 PopsPanel.init();
-DouYin.init();
+if (MDouYinRouter.isMDouYin()) {
+	MDouYin.init();
+} else {
+	DouYin.init();
+}

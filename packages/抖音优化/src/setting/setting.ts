@@ -5,7 +5,8 @@ import { PanelLiveConfig } from "./components/live";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, KEY } from "./config";
 import { PanelVideoConfig } from "./components/video";
 import { PanelSearchConfig } from "./components/search";
-import { PanelShareConfig } from "./components/share";
+import { MPanelShareUserConfig } from "./m-components/shareUser";
+import { MPanelShareVideoConfig } from "./m-components/shareVideo";
 
 interface PosPanelListenerData {
 	id: number;
@@ -66,6 +67,18 @@ const PopsPanel = {
 					this.showPanel();
 				},
 			},
+			{
+				key: "show_pops_m_panel_setting",
+				text: "⚙ 移动端设置",
+				autoReload: false,
+				isStoreValue: false,
+				showText(text: string) {
+					return text;
+				},
+				callback: () => {
+					this.showMPanel();
+				},
+			},
 		]);
 	},
 	/** 初始化本地设置默认的值 */
@@ -96,7 +109,9 @@ const PopsPanel = {
 			}
 			that.$data.data.set(key, defaultValue);
 		}
-		let contentConfigList = this.getPanelContentConfig();
+		let contentConfigList = this.getPanelContentConfig().concat(
+			this.getMPanelContentConfig()
+		);
 		for (let index = 0; index < contentConfigList.length; index++) {
 			let leftContentConfigItem = contentConfigList[index];
 			if (!leftContentConfigItem.forms) {
@@ -299,6 +314,32 @@ const PopsPanel = {
 		});
 	},
 	/**
+	 * 显示移动端设置面板
+	 */
+	showMPanel() {
+		pops.panel({
+			title: {
+				text: `${SCRIPT_NAME}-设置`,
+				position: "center",
+				html: false,
+				style: "",
+			},
+			content: this.getMPanelContentConfig(),
+			mask: {
+				enable: true,
+				clickEvent: {
+					toClose: true,
+					toHide: false,
+				},
+			},
+			isMobile: true,
+			width: this.getWidth(),
+			height: this.getHeight(),
+			drag: true,
+			only: true,
+		});
+	},
+	/**
 	 * 获取设置面板的宽度
 	 */
 	getWidth() {
@@ -327,7 +368,16 @@ const PopsPanel = {
 			PanelVideoConfig,
 			PanelLiveConfig,
 			PanelSearchConfig,
-			PanelShareConfig,
+		];
+		return configList;
+	},
+	/**
+	 * 获取配置内容
+	 */
+	getMPanelContentConfig() {
+		let configList: PopsPanelContentConfig[] = [
+			MPanelShareUserConfig,
+			MPanelShareVideoConfig,
 		];
 		return configList;
 	},

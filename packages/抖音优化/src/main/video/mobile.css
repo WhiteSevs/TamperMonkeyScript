@@ -1,0 +1,82 @@
+/* 右侧工具栏放大 */
+.basePlayerContainer .positionBox {
+	scale: unset !important;
+	bottom: 80px !important;
+	padding-right: 5px !important;
+	transform: scale(1.12) !important;
+}
+/* 图标再放大 */
+.basePlayerContainer .positionBox svg {
+	transform: scale(1.12);
+}
+/* 重置关注按钮的scale */
+.basePlayerContainer
+	.positionBox
+	.dy-tip-container
+	div[data-e2e="feed-follow-icon"]
+	svg {
+	scale: unset;
+}
+/* 设备处于横向方向，即宽度大于高度。 */
+@media screen and (orientation: landscape) {
+	/* 右侧工具栏放大 */
+	.basePlayerContainer .positionBox {
+		/*transform: scale(0.95) !important;
+		bottom: 42px !important;*/
+		padding-right: 10px !important;
+	}
+}
+/* 该设备是纵向的，即高度大于或等于宽度 */
+@media screen and (orientation: portrait) {
+	/* /video/xxx页面 */
+	/* 点赞、评论、分享偏移 */
+	div[data-e2e="video-detail"]
+		.leftContainer
+		.basePlayerContainer
+		.positionBox {
+		padding-right: 30px !important;
+	}
+	/* 底部工具栏右侧的按钮 */
+	div[data-e2e="video-detail"]
+		.leftContainer
+		.xgplayer.xgplayer-pc
+		.xg-right-grid {
+		margin-right: 35px !important;
+	}
+}
+
+/* 调整视频列表的宽度 */
+@media screen and (max-width: 550px) {
+	#slidelist {
+		width: 100dvw;
+		height: 100dvh;
+	}
+	/* 调整顶部搜索框的宽度 */
+	#douyin-header
+		div[data-click="doubleClick"]
+		> div[data-click="doubleClick"]
+		> div:has(input[data-e2e="searchbar-input"]) {
+		width: 150px;
+		padding-right: 0;
+		max-width: unset;
+	}
+	/* 搜索框获取焦点时自动放大宽度 */
+	#douyin-header
+		div[data-click="doubleClick"]
+		> div[data-click="doubleClick"]
+		> div:has(input[data-e2e="searchbar-input"]:focus) {
+		width: 100dvw;
+	}
+	/* 去除设置min-width超出浏览器宽度的问题 */
+	body {
+		min-width: 100% !important;
+	}
+	/* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */
+	#douyin-right-container #douyin-header {
+		width: 100%;
+	}
+	/* 去除设置 */
+	#douyin-right-container #douyin-header > div[data-click="doubleClick"] {
+		min-width: 100%;
+	}
+}

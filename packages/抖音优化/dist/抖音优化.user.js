@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.18
+// @version      2024.6.19
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -994,15 +994,9 @@
     /** 搜索 */
     isSearch() {
       return window.location.hostname === "www.douyin.com" && window.location.pathname.startsWith("/search");
-    },
-    /**
-     * 用户主页
-     */
-    isShareUser() {
-      return window.location.pathname.startsWith("/share/user/");
     }
   };
-  const MobileCSS = '/* 右侧工具栏放大 */\r\n.basePlayerContainer .positionBox {\r\n	scale: unset !important;\r\n	bottom: 80px !important;\r\n	padding-right: 5px !important;\r\n	transform: scale(1.12) !important;\r\n}\r\n/* 图标再放大 */\r\n.basePlayerContainer .positionBox svg {\r\n	transform: scale(1.12);\r\n}\r\n/* 重置关注按钮的scale */\r\n.basePlayerContainer\r\n	.positionBox\r\n	.dy-tip-container\r\n	div[data-e2e="feed-follow-icon"]\r\n	svg {\r\n	scale: unset;\r\n}\r\n/* 设备处于横向方向，即宽度大于高度。 */\r\n@media screen and (orientation: landscape) {\r\n	/* 右侧工具栏放大 */\r\n	.basePlayerContainer .positionBox {\r\n		/*transform: scale(0.95) !important;\r\n		bottom: 42px !important;*/\r\n		padding-right: 10px !important;\r\n	}\r\n}\r\n/* 该设备是纵向的，即高度大于或等于宽度 */\r\n@media screen and (orientation: portrait) {\r\n}\r\n\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#slidelist {\r\n		width: 100dvw;\r\n		height: 100dvh;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: 150px;\r\n		padding-right: 0;\r\n		max-width: unset;\r\n	}\r\n	/* 搜索框获取焦点时自动放大宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]:focus) {\r\n		width: 100dvw;\r\n	}\r\n	/* 去除设置min-width超出浏览器宽度的问题 */\r\n	body {\r\n		min-width: 100% !important;\r\n	}\r\n	/* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n	#douyin-right-container #douyin-header {\r\n		width: 100%;\r\n	}\r\n	/* 去除设置 */\r\n	#douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n		min-width: 100%;\r\n	}\r\n}\r\n';
+  const MobileCSS = '/* 右侧工具栏放大 */\r\n.basePlayerContainer .positionBox {\r\n	scale: unset !important;\r\n	bottom: 80px !important;\r\n	padding-right: 5px !important;\r\n	transform: scale(1.12) !important;\r\n}\r\n/* 图标再放大 */\r\n.basePlayerContainer .positionBox svg {\r\n	transform: scale(1.12);\r\n}\r\n/* 重置关注按钮的scale */\r\n.basePlayerContainer\r\n	.positionBox\r\n	.dy-tip-container\r\n	div[data-e2e="feed-follow-icon"]\r\n	svg {\r\n	scale: unset;\r\n}\r\n/* 设备处于横向方向，即宽度大于高度。 */\r\n@media screen and (orientation: landscape) {\r\n	/* 右侧工具栏放大 */\r\n	.basePlayerContainer .positionBox {\r\n		/*transform: scale(0.95) !important;\r\n		bottom: 42px !important;*/\r\n		padding-right: 10px !important;\r\n	}\r\n}\r\n/* 该设备是纵向的，即高度大于或等于宽度 */\r\n@media screen and (orientation: portrait) {\r\n	/* /video/xxx页面 */\r\n	/* 点赞、评论、分享偏移 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.basePlayerContainer\r\n		.positionBox {\r\n		padding-right: 30px !important;\r\n	}\r\n	/* 底部工具栏右侧的按钮 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.xgplayer.xgplayer-pc\r\n		.xg-right-grid {\r\n		margin-right: 35px !important;\r\n	}\r\n}\r\n\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#slidelist {\r\n		width: 100dvw;\r\n		height: 100dvh;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: 150px;\r\n		padding-right: 0;\r\n		max-width: unset;\r\n	}\r\n	/* 搜索框获取焦点时自动放大宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]:focus) {\r\n		width: 100dvw;\r\n	}\r\n	/* 去除设置min-width超出浏览器宽度的问题 */\r\n	body {\r\n		min-width: 100% !important;\r\n	}\r\n	/* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n	#douyin-right-container #douyin-header {\r\n		width: 100%;\r\n	}\r\n	/* 去除设置 */\r\n	#douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n		min-width: 100%;\r\n	}\r\n}\r\n';
   const DouYinVideoHideElement = {
     init() {
       PopsPanel.execMenu("shieldRightExpandCommentButton", () => {
@@ -1275,22 +1269,25 @@
     doubleClickEnterElementFullScreen() {
       let isDouble = false;
       log.info("注册双击进入网页全屏事件");
-      domUtils.on(
-        document,
-        "click",
-        "#sliderVideo",
-        () => {
-          if (isDouble) {
-            isDouble = false;
-            DouYinVideo.autoEnterElementFullScreen();
-          } else {
-            isDouble = true;
-            setTimeout(() => {
+      let selectorList = [".newVideoPlayer", "#sliderVideo"];
+      selectorList.forEach((selector) => {
+        domUtils.on(
+          document,
+          "click",
+          selector,
+          () => {
+            if (isDouble) {
               isDouble = false;
-            }, 250);
+              DouYinVideo.autoEnterElementFullScreen();
+            } else {
+              isDouble = true;
+              setTimeout(() => {
+                isDouble = false;
+              }, 250);
+            }
           }
-        }
-      );
+        );
+      });
     },
     /**
      * 评论区修改为底部
@@ -1943,9 +1940,9 @@
       }
     ]
   };
-  const PanelShareConfig = {
-    id: "panel-config-share",
-    title: "分享",
+  const MPanelShareUserConfig = {
+    id: "m-panel-config-share-user",
+    title: "主页",
     forms: [
       {
         text: "/share/user<br />覆盖点击事件",
@@ -1953,17 +1950,36 @@
         forms: [
           UISwitch(
             "视频合集",
-            "dy-share-user-coverPlayletList",
+            "m-dy-share-user-coverPlayletList",
             true,
             void 0,
             "正确跳转视频合集页面"
           ),
           UISwitch(
             "视频列表",
-            "dy-share-user-coverPostListContainer",
+            "m-dy-share-user-coverPostListContainer",
             true,
             void 0,
             "正确跳转视频页面"
+          )
+        ]
+      }
+    ]
+  };
+  const MPanelShareVideoConfig = {
+    id: "m-panel-config-share-video",
+    title: "视频",
+    forms: [
+      {
+        text: "/share/video<br />覆盖点击事件",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "全局点击",
+            "m-dy-share-video-coverGlobalClick",
+            true,
+            void 0,
+            "阻止跳转至下载页"
           )
         ]
       }
@@ -2020,6 +2036,18 @@
           callback: () => {
             this.showPanel();
           }
+        },
+        {
+          key: "show_pops_m_panel_setting",
+          text: "⚙ 移动端设置",
+          autoReload: false,
+          isStoreValue: false,
+          showText(text) {
+            return text;
+          },
+          callback: () => {
+            this.showMPanel();
+          }
         }
       ]);
     },
@@ -2041,7 +2069,9 @@
         }
         that.$data.data.set(key, defaultValue);
       }
-      let contentConfigList = this.getPanelContentConfig();
+      let contentConfigList = this.getPanelContentConfig().concat(
+        this.getMPanelContentConfig()
+      );
       for (let index = 0; index < contentConfigList.length; index++) {
         let leftContentConfigItem = contentConfigList[index];
         if (!leftContentConfigItem.forms) {
@@ -2225,6 +2255,32 @@
       });
     },
     /**
+     * 显示移动端设置面板
+     */
+    showMPanel() {
+      pops.panel({
+        title: {
+          text: `${SCRIPT_NAME}-设置`,
+          position: "center",
+          html: false,
+          style: ""
+        },
+        content: this.getMPanelContentConfig(),
+        mask: {
+          enable: true,
+          clickEvent: {
+            toClose: true,
+            toHide: false
+          }
+        },
+        isMobile: true,
+        width: this.getWidth(),
+        height: this.getHeight(),
+        drag: true,
+        only: true
+      });
+    },
+    /**
      * 获取设置面板的宽度
      */
     getWidth() {
@@ -2252,8 +2308,17 @@
         PanelCommonConfig,
         PanelVideoConfig,
         PanelLiveConfig,
-        PanelSearchConfig,
-        PanelShareConfig
+        PanelSearchConfig
+      ];
+      return configList;
+    },
+    /**
+     * 获取配置内容
+     */
+    getMPanelContentConfig() {
+      let configList = [
+        MPanelShareUserConfig,
+        MPanelShareVideoConfig
       ];
       return configList;
     }
@@ -2915,7 +2980,96 @@
       }
     }
   };
-  const blockCSS = "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 上面屏蔽后的空白区域 */\r\n.user-card .nav-bar-placeholder,\r\n/* 视频区域底部的【打开抖音App看更多内容】 */\r\n.select-list .img-button{\r\n    display: none !important;\r\n}";
+  const DouYin = {
+    init() {
+      DouYinRedirect.init();
+      PopsPanel.execMenuOnce("debug", () => {
+        DouYinHook.removeEnvCheck();
+      });
+      PopsPanel.execMenuOnce("watchLoginDialogToClose", () => {
+        DouYinAccount.watchLoginDialogToClose();
+      });
+      PopsPanel.execMenuOnce("disguiseLogin", () => {
+        DouYinAccount.disguiseLogin();
+      });
+      PopsPanel.execMenuOnce("dy-initialScale", () => {
+        this.initialScale();
+      });
+      PopsPanel.execMenu("dy-apple-removeMetaAppleItunesApp", () => {
+        this.removeMetaAppleItunesApp();
+      });
+      ShieldHeader.init();
+      ShieldSearch.init();
+      if (DouYinRouter.isLive()) {
+        log.info("Router: 直播");
+        DouYinLive.init();
+      } else if (DouYinRouter.isVideo()) {
+        log.info("Router: 推荐视频");
+        DouYinVideo.init();
+        if (DouYinRouter.isSearch()) {
+          log.info("Router: 搜索");
+          DouYinSearch.init();
+        }
+      } else {
+        log.error("未知router: " + window.location.hostname);
+      }
+    },
+    /**
+     * 固定meta viewport缩放倍率为1
+     */
+    initialScale() {
+      log.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
+      let meta = domUtils.createElement(
+        "meta",
+        {},
+        {
+          name: "viewport",
+          content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"
+        }
+      );
+      domUtils.remove("meta[name='viewport']");
+      utils.waitNode("head").then(() => {
+        document.head.appendChild(meta);
+      });
+    },
+    /**
+     * 移除<meta>标签name="apple-itunes-app"
+     */
+    removeMetaAppleItunesApp() {
+      utils.waitNodeList(
+        ['meta[name="apple-itunes-app"]'],
+        1e4
+      ).then(($metaList) => {
+        if (!$metaList) {
+          return;
+        }
+        $metaList.forEach(($meta) => {
+          $meta.remove();
+        });
+      });
+    }
+  };
+  const MDouYinRouter = {
+    /**
+     * 是否是移动端抖音
+     */
+    isMDouYin() {
+      return window.location.host === "m.douyin.com";
+    },
+    /**
+     * 用户主页
+     */
+    isShareUser() {
+      return this.isMDouYin() && window.location.pathname.startsWith("/share/user/");
+    },
+    /**
+     * 分享的视频
+     */
+    isShareVideo() {
+      return this.isMDouYin() && window.location.pathname.startsWith("/share/video/");
+    }
+  };
+  const blockCSS$1 = "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 上面屏蔽后的空白区域 */\r\n.user-card .nav-bar-placeholder,\r\n/* 视频区域底部的【打开抖音App看更多内容】 */\r\n.select-list .img-button{\r\n    display: none !important;\r\n}";
   const DouYinUrlUtils = {
     /**
      * 获取视频链接
@@ -2932,13 +3086,13 @@
       return "https://www.douyin.com/collection/" + collectionId;
     }
   };
-  const DouYinShareUser = {
+  const MDouYinShareUser = {
     init() {
-      addStyle(blockCSS);
-      PopsPanel.execMenuOnce("dy-share-user-coverPlayletList", () => {
+      addStyle(blockCSS$1);
+      PopsPanel.execMenuOnce("m-dy-share-user-coverPlayletList", () => {
         this.coverPlayletList();
       });
-      PopsPanel.execMenuOnce("dy-share-user-coverPostListContainer", () => {
+      PopsPanel.execMenuOnce("m-dy-share-user-coverPostListContainer", () => {
         this.coverPostListContainer();
       });
     },
@@ -3006,79 +3160,54 @@
       );
     }
   };
-  const DouYin = {
+  const blockCSS = "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 视频描述信息区域中的 打开抖音看精彩视频 */\r\n.footer .img-button,\r\n/* 登录页面 */\r\n.login-page {\r\n	display: none !important;\r\n}\r\n";
+  const beautifyCSS = ".video-container {\r\n	height: 100% !important;\r\n	margin-top: 0 !important;\r\n}\r\n.footer {\r\n	bottom: 50px !important;\r\n}\r\n.mix-info {\r\n	bottom: 0px !important;\r\n}\r\n";
+  const MDouYinShareVideo = {
     init() {
-      DouYinRedirect.init();
-      PopsPanel.execMenuOnce("debug", () => {
-        DouYinHook.removeEnvCheck();
-      });
-      PopsPanel.execMenuOnce("watchLoginDialogToClose", () => {
-        DouYinAccount.watchLoginDialogToClose();
-      });
-      PopsPanel.execMenuOnce("disguiseLogin", () => {
-        DouYinAccount.disguiseLogin();
-      });
-      PopsPanel.execMenuOnce("dy-initialScale", () => {
-        this.initialScale();
-      });
-      PopsPanel.execMenu("dy-apple-removeMetaAppleItunesApp", () => {
-        this.removeMetaAppleItunesApp();
-      });
-      ShieldHeader.init();
-      ShieldSearch.init();
-      if (DouYinRouter.isLive()) {
-        log.info("Router: 直播");
-        DouYinLive.init();
-      } else if (DouYinRouter.isVideo()) {
-        log.info("Router: 推荐视频");
-        DouYinVideo.init();
-        if (DouYinRouter.isSearch()) {
-          log.info("Router: 搜索");
-          DouYinSearch.init();
-        }
-      } else if (DouYinRouter.isShareUser()) {
-        log.info("Router: 分享用户");
-        DouYinShareUser.init();
-      } else {
-        log.error("未知router: " + window.location.hostname);
-      }
-    },
-    /**
-     * 固定meta viewport缩放倍率为1
-     */
-    initialScale() {
-      log.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
-      let meta = domUtils.createElement(
-        "meta",
-        {},
-        {
-          name: "viewport",
-          content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"
-        }
-      );
-      domUtils.remove("meta[name='viewport']");
-      utils.waitNode("head").then(() => {
-        document.head.appendChild(meta);
+      addStyle(blockCSS);
+      addStyle(beautifyCSS);
+      PopsPanel.execMenuOnce("m-dy-share-video-coverGlobalClick", () => {
+        this.coverGlobalClick();
       });
     },
     /**
-     * 移除<meta>标签name="apple-itunes-app"
+     * 阻止全局点击，会跳转
      */
-    removeMetaAppleItunesApp() {
-      utils.waitNodeList(
-        ['meta[name="apple-itunes-app"]'],
-        1e4
-      ).then(($metaList) => {
-        if (!$metaList) {
-          return;
-        }
-        $metaList.forEach(($meta) => {
-          $meta.remove();
-        });
+    coverGlobalClick() {
+      let selectorList = [".right-con", ".footer", ".mix-info"];
+      selectorList.forEach((selector) => {
+        DOMUtils.on(
+          document,
+          "click",
+          selector,
+          (event) => {
+            return utils.preventEvent(event);
+          },
+          {
+            capture: true
+          }
+        );
       });
     }
   };
+  const MDouYin = {
+    init() {
+      if (MDouYinRouter.isShareUser()) {
+        log.info("M-Router: 分享用户");
+        MDouYinShareUser.init();
+      } else if (MDouYinRouter.isShareVideo()) {
+        log.info("M-Router: 分享视频");
+        MDouYinShareVideo.init();
+      } else {
+        log.error("未知M-router: " + window.location.hostname);
+      }
+    }
+  };
   PopsPanel.init();
-  DouYin.init();
+  if (MDouYinRouter.isMDouYin()) {
+    MDouYin.init();
+  } else {
+    DouYin.init();
+  }
 
 })(Qmsg, Utils, DOMUtils);

@@ -4,13 +4,13 @@ import Qmsg from "qmsg";
 import { DouYinUrlUtils } from "@/utils/DouYinUrlUtils";
 import { PopsPanel } from "@/setting/setting";
 
-export const DouYinShareUser = {
+export const MDouYinShareUser = {
 	init() {
 		addStyle(blockCSS);
-		PopsPanel.execMenuOnce("dy-share-user-coverPlayletList", () => {
+		PopsPanel.execMenuOnce("m-dy-share-user-coverPlayletList", () => {
 			this.coverPlayletList();
 		});
-		PopsPanel.execMenuOnce("dy-share-user-coverPostListContainer", () => {
+		PopsPanel.execMenuOnce("m-dy-share-user-coverPostListContainer", () => {
 			this.coverPostListContainer();
 		});
 	},

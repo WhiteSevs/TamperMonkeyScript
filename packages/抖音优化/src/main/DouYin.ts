@@ -9,7 +9,6 @@ import { DouYinRouter } from "@/router/DouYinRouter";
 import { DouYinLive } from "./Live/DouYinLive";
 import { DouYinRedirect } from "./DouYinRedirect";
 import { DouYinSearch } from "./search/DouYinSearch";
-import { DouYinShareUser } from "./share/user/DouYinShareUser";
 
 export const DouYin = {
 	init() {
@@ -41,9 +40,6 @@ export const DouYin = {
 				log.info("Router: 搜索");
 				DouYinSearch.init();
 			}
-		} else if (DouYinRouter.isShareUser()) {
-			log.info("Router: 分享用户");
-			DouYinShareUser.init();
 		} else {
 			log.error("未知router: " + window.location.hostname);
 		}

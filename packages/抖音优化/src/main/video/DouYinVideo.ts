@@ -86,22 +86,25 @@ export const DouYinVideo = {
 	doubleClickEnterElementFullScreen() {
 		let isDouble = false;
 		log.info("注册双击进入网页全屏事件");
-		DOMUtils.on<MouseEvent | PointerEvent>(
-			document,
-			"click",
-			"#sliderVideo",
-			() => {
-				if (isDouble) {
-					isDouble = false;
-					DouYinVideo.autoEnterElementFullScreen();
-				} else {
-					isDouble = true;
-					setTimeout(() => {
+		let selectorList = [".newVideoPlayer", "#sliderVideo"];
+		selectorList.forEach((selector) => {
+			DOMUtils.on<MouseEvent | PointerEvent>(
+				document,
+				"click",
+				selector,
+				() => {
+					if (isDouble) {
 						isDouble = false;
-					}, 250);
+						DouYinVideo.autoEnterElementFullScreen();
+					} else {
+						isDouble = true;
+						setTimeout(() => {
+							isDouble = false;
+						}, 250);
+					}
 				}
-			}
-		);
+			);
+		});
 	},
 	/**
 	 * 评论区修改为底部
