@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.16.21
+// @version      2024.6.19
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，自定义视频清晰度(可1080p、2K、2K-60、4K-60)
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @match        http*://huati.weibo.cn/*
 // @match        http*://h5.video.weibo.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1396237/pops.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
@@ -45,9 +45,82 @@
   var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
   var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
-  const KEY = "GM_Panel";
-  const ATTRIBUTE_KEY = "data-key";
-  const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
+  const HttpxCookieManager = {
+    $data: {
+      cookieList: [
+        {
+          key: "httpx-cookie-weibo.com",
+          hostname: /weibo.com/g
+        }
+      ]
+    },
+    /**
+     * 补充cookie末尾分号
+     */
+    fixCookieSplit(str) {
+      if (utils.isNotNull(str) && !str.trim().endsWith(";")) {
+        str += ";";
+      }
+      return str;
+    },
+    /**
+     * 合并两个cookie
+     */
+    concatCookie(targetCookie, newCookie) {
+      if (utils.isNull(targetCookie)) {
+        return newCookie;
+      }
+      targetCookie = targetCookie.trim();
+      newCookie = newCookie.trim();
+      targetCookie = this.fixCookieSplit(targetCookie);
+      if (newCookie.startsWith(";")) {
+        newCookie = newCookie.substring(1);
+      }
+      return targetCookie.concat(newCookie);
+    },
+    /**
+     * 处理cookie
+     * @param data
+     * @returns
+     */
+    handle(data) {
+      if (data.fetch) {
+        return;
+      }
+      if (!PopsPanel.getValue("httpx-use-cookie-enable")) {
+        return;
+      }
+      let ownCookie = "";
+      if (PopsPanel.getValue("httpx-use-document-cookie")) {
+        ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
+      }
+      let url = data.url;
+      if (url.startsWith("//")) {
+        url = window.location.protocol + url;
+      }
+      let urlObj = new URL(url);
+      this.$data.cookieList.forEach((item) => {
+        if (item.hostname.test(urlObj.hostname)) {
+          let cookie = PopsPanel.getValue(item.key);
+          if (utils.isNull(cookie)) {
+            return;
+          }
+          ownCookie = this.concatCookie(ownCookie, cookie);
+        }
+      });
+      if (utils.isNotNull(ownCookie)) {
+        if (data.headers && data.headers["Cookie"]) {
+          data.headers.Cookie = this.concatCookie(data.headers.Cookie, ownCookie);
+        } else {
+          data.headers["Cookie"] = ownCookie;
+        }
+        log.info(["Httpx => 设置cookie:", data]);
+      }
+      if (data.headers && data.headers.Cookie != null && utils.isNull(data.headers.Cookie)) {
+        delete data.headers.Cookie;
+      }
+    }
+  };
   const _SCRIPT_NAME_ = "【移动端】微博优化";
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
@@ -64,14 +137,39 @@
     autoClearConsole: true,
     tag: true
   });
-  Qmsg.config({
-    position: "bottom",
-    html: true,
-    maxNums: 5,
-    autoClose: true,
-    showClose: false,
-    showReverse: true
-  });
+  Qmsg.config(
+    Object.defineProperties(
+      {
+        html: true,
+        autoClose: true,
+        showClose: false
+      },
+      {
+        position: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-position", "bottom");
+          }
+        },
+        maxNums: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-maxnums", 5);
+          }
+        },
+        showReverse: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-showreverse", true);
+          }
+        },
+        zIndex: {
+          get() {
+            let maxZIndex = Utils.getMaxZIndex(10);
+            let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(10).zIndex;
+            return Utils.getMaxValue(maxZIndex, popsMaxZIndex);
+          }
+        }
+      }
+    )
+  );
   const GM_Menu = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
@@ -79,26 +177,9 @@
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand
   });
   const httpx = new utils.Httpx(_GM_xmlhttpRequest);
-  let GMPanel = _GM_getValue(KEY, {});
-  let userCookie = GMPanel["weibo-common-cookie_weibo.com"] || "";
-  httpx.interceptors.request.use((details) => {
-    if (utils.isNotNull(userCookie)) {
-      if (details.url.includes("weibo.com")) {
-        log.success("自定义添加Cookie");
-        if (details.headers) {
-          if (details.headers["Cookie"]) {
-            details.headers["Cookie"] += userCookie;
-          } else {
-            details.headers["Cookie"] = userCookie;
-          }
-        } else {
-          details.headers = {
-            Cookie: userCookie
-          };
-        }
-      }
-    }
-    return details;
+  httpx.interceptors.request.use((data) => {
+    HttpxCookieManager.handle(data);
+    return data;
   });
   httpx.interceptors.response.use(void 0, (data) => {
     log.error(["拦截器-请求错误", data]);
@@ -130,6 +211,9 @@
     setTimeout: _unsafeWindow.setTimeout
   });
   const addStyle = utils.addStyle;
+  const KEY = "GM_Panel";
+  const ATTRIBUTE_KEY = "data-key";
+  const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const WeiBoApi = {
     /**
      * 获取组件播放信息
@@ -512,6 +596,9 @@
       },
       callback(event, isSelectedValue, isSelectedText) {
         PopsPanel.setValue(key, isSelectedValue);
+        if (typeof callback === "function") {
+          callback(event, isSelectedValue, isSelectedText);
+        }
       },
       data: selectData
     };
@@ -749,12 +836,115 @@
         ]
       },
       {
-        text: "cookie配置",
+        text: "Toast配置",
         type: "forms",
         forms: [
+          UISelect(
+            "Toast位置",
+            "qmsg-config-position",
+            "bottom",
+            [
+              {
+                value: "topleft",
+                text: "左上角"
+              },
+              {
+                value: "top",
+                text: "顶部"
+              },
+              {
+                value: "topright",
+                text: "右上角"
+              },
+              {
+                value: "left",
+                text: "左边"
+              },
+              {
+                value: "center",
+                text: "中间"
+              },
+              {
+                value: "right",
+                text: "右边"
+              },
+              {
+                value: "bottomleft",
+                text: "左下角"
+              },
+              {
+                value: "bottom",
+                text: "底部"
+              },
+              {
+                value: "bottomright",
+                text: "右下角"
+              }
+            ],
+            (event, isSelectValue, isSelectText) => {
+              log.info("设置当前Qmsg弹出位置" + isSelectText);
+            },
+            "Toast显示在页面九宫格的位置"
+          ),
+          UISelect(
+            "最多显示的数量",
+            "qmsg-config-maxnums",
+            3,
+            [
+              {
+                value: 1,
+                text: "1"
+              },
+              {
+                value: 2,
+                text: "2"
+              },
+              {
+                value: 3,
+                text: "3"
+              },
+              {
+                value: 4,
+                text: "4"
+              },
+              {
+                value: 5,
+                text: "5"
+              }
+            ],
+            void 0,
+            "限制Toast显示的数量"
+          ),
+          UISwitch(
+            "逆序弹出",
+            "qmsg-config-showreverse",
+            false,
+            void 0,
+            "修改Toast弹出的顺序"
+          )
+        ]
+      },
+      {
+        text: "Cookie配置",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "启用",
+            "httpx-use-cookie-enable",
+            false,
+            void 0,
+            "启用后，将根据下面的配置进行添加cookie"
+          ),
+          UISwitch(
+            "使用document.cookie",
+            "httpx-use-document-cookie",
+            false,
+            void 0,
+            "自动根据请求的域名来获取对应的cookie"
+          ),
           UITextArea(
             "weibo.com",
-            "weibo-common-cookie_weibo.com",
+            "httpx-cookie-weibo.com",
             "",
             void 0,
             void 0,
@@ -876,17 +1066,15 @@
       /**
        * 菜单项的默认值
        */
-      data: new utils.Dictionary(),
+      data: new Utils.Dictionary(),
       /**
        * 成功只执行了一次的项
        */
-      oneSuccessExecMenu: new utils.Dictionary(),
+      oneSuccessExecMenu: new Utils.Dictionary(),
       /**
        * 成功只执行了一次的项
        */
-      onceExec: new utils.Dictionary(),
-      /** 脚本名，一般用在设置的标题上 */
-      scriptName: SCRIPT_NAME,
+      onceExec: new Utils.Dictionary(),
       /** 菜单项的总值在本地数据配置的键名 */
       key: KEY,
       /** 菜单项在attributes上配置的菜单键 */
@@ -899,7 +1087,7 @@
       /**
        * 值改变的监听器
        */
-      listenData: new utils.Dictionary()
+      listenData: new Utils.Dictionary()
     },
     init() {
       this.initPanelDefaultValue();

@@ -7,14 +7,12 @@ import {
 	GM_registerMenuCommand,
 	GM_unregisterMenuCommand,
 	GM_xmlhttpRequest,
-	GM_addStyle,
-	GM_getResourceText,
 } from "ViteGM";
 import Qmsg from "qmsg";
 import DOMUtils from "@whitesev/domutils";
 import Utils from "@whitesev/utils";
-import type { HttpxHeaders } from "@whitesev/utils/dist/src/Httpx";
-import { KEY } from "./setting/config";
+import { HttpxCookieManager } from "./utils/HttpxCookieManager";
+import { PopsPanel } from "./setting/setting";
 
 /* 脚本名 */
 const _SCRIPT_NAME_ = "【移动端】微博优化";
@@ -45,14 +43,39 @@ log.config({
 	tag: true,
 });
 /* 配置吐司Qmsg */
-Qmsg.config({
-	position: "bottom",
-	html: true,
-	maxNums: 5,
-	autoClose: true,
-	showClose: false,
-	showReverse: true,
-});
+Qmsg.config(
+	Object.defineProperties(
+		{
+			html: true,
+			autoClose: true,
+			showClose: false,
+		},
+		{
+			position: {
+				get() {
+					return PopsPanel.getValue("qmsg-config-position", "bottom");
+				},
+			},
+			maxNums: {
+				get() {
+					return PopsPanel.getValue("qmsg-config-maxnums", 5);
+				},
+			},
+			showReverse: {
+				get() {
+					return PopsPanel.getValue("qmsg-config-showreverse", true);
+				},
+			},
+			zIndex: {
+				get() {
+					let maxZIndex = Utils.getMaxZIndex(10);
+					let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(10).zIndex;
+					return Utils.getMaxValue(maxZIndex, popsMaxZIndex);
+				},
+			},
+		}
+	)
+);
 
 /** 油猴菜单 */
 const GM_Menu = new utils.GM_Menu({
@@ -63,31 +86,14 @@ const GM_Menu = new utils.GM_Menu({
 });
 
 const httpx = new utils.Httpx(GM_xmlhttpRequest);
-let GMPanel = GM_getValue(KEY, {}) as any;
-let userCookie = GMPanel["weibo-common-cookie_weibo.com"] || "";
 
-// 添加拦截器
-httpx.interceptors.request.use((details) => {
-	if (utils.isNotNull(userCookie)) {
-		// 域名：weibo.com
-		if (details.url!.includes("weibo.com")) {
-			log.success("自定义添加Cookie");
-			if (details.headers) {
-				if ((details.headers as any)["Cookie"]) {
-					(details.headers as any)["Cookie"] += userCookie;
-				} else {
-					(details.headers as any)["Cookie"] = userCookie;
-				}
-			} else {
-				(details.headers as any) = {
-					Cookie: userCookie,
-				} as HttpxHeaders;
-			}
-		}
-	}
-	return details;
+// 添加请求拦截器
+httpx.interceptors.request.use((data) => {
+	HttpxCookieManager.handle(data);
+	return data;
 });
 
+// 添加响应拦截器
 httpx.interceptors.response.use(void 0, (data) => {
 	log.error(["拦截器-请求错误", data]);
 	if (data.type === "onabort") {

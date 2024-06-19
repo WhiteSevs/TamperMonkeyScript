@@ -7,6 +7,7 @@ import { SettingUIVideo } from "./components/video";
 import { SettingUIU } from "./components/u";
 import { SettingUIDetail } from "./components/detail";
 import { SettingUISearch } from "./components/search";
+import Utils from "@whitesev/utils";
 
 const PopsPanel = {
 	/** 数据 */
@@ -14,17 +15,15 @@ const PopsPanel = {
 		/**
 		 * 菜单项的默认值
 		 */
-		data: new utils.Dictionary<string, any>(),
+		data: new Utils.Dictionary<string, any>(),
 		/**
 		 * 成功只执行了一次的项
 		 */
-		oneSuccessExecMenu: new utils.Dictionary<string, number>(),
+		oneSuccessExecMenu: new Utils.Dictionary<string, number>(),
 		/**
 		 * 成功只执行了一次的项
 		 */
-		onceExec: new utils.Dictionary<string, number>(),
-		/** 脚本名，一般用在设置的标题上 */
-		scriptName: SCRIPT_NAME,
+		onceExec: new Utils.Dictionary<string, number>(),
 		/** 菜单项的总值在本地数据配置的键名 */
 		key: KEY,
 		/** 菜单项在attributes上配置的菜单键 */
@@ -37,7 +36,7 @@ const PopsPanel = {
 		/**
 		 * 值改变的监听器
 		 */
-		listenData: new utils.Dictionary<
+		listenData: new Utils.Dictionary<
 			string,
 			{
 				id: number;

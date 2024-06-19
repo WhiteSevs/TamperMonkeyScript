@@ -10,7 +10,7 @@
 		"build:all": "vue-tsc --noEmit && vite build && vite build --minify --no-empty-outDir",
 		"build:watch": "vue-tsc --noEmit && vite build --watch",
 		"build:no-cache": "pnpm store prune && vue-tsc --noEmit && vite build",
-		"preview": "vue-tsc --noEmit && vite preview",
+		"preview": "vite preview --host 0.0.0.0",
 		"clear": "del .\\SCRIPT_VERSION.json && pnpm store prune"
 	},
 	"dependencies": {
@@ -19,7 +19,7 @@
 		"qmsg": "^1.1.2"
 	},
 	"devDependencies": {
-		"@types/node": "^20.14.2",
+		"@types/node": "^20.14.5",
 		"typescript": "^5.4.5",
 		"vite": "^5.3.1",
 		"vite-plugin-monkey": "4.0.3"
