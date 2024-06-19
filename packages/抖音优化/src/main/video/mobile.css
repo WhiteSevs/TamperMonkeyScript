@@ -28,6 +28,21 @@
 }
 /* 该设备是纵向的，即高度大于或等于宽度 */
 @media screen and (orientation: portrait) {
+	/* /video/xxx页面 */
+	/* 点赞、评论、分享偏移 */
+	div[data-e2e="video-detail"]
+		.leftContainer
+		.basePlayerContainer
+		.positionBox {
+		padding-right: 30px !important;
+	}
+	/* 底部工具栏右侧的按钮 */
+	div[data-e2e="video-detail"]
+		.leftContainer
+		.xgplayer.xgplayer-pc
+		.xg-right-grid {
+		margin-right: 35px !important;
+	}
 }
 
 /* 调整视频列表的宽度 */

@@ -14,10 +14,4 @@ export const DouYinRouter = {
 			window.location.pathname.startsWith("/search")
 		);
 	},
-	/**
-	 * 用户主页
-	 */
-	isShareUser() {
-		return window.location.pathname.startsWith("/share/user/");
-	},
 };
