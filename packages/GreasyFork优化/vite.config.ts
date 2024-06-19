@@ -132,6 +132,9 @@ export default defineConfig({
 			"@pops": Utils.getAbsolutePath("./../../库/pops"),
 		},
 	},
+	server: {
+		host: "0.0.0.0",
+	},
 	build: {
 		/* 构建的.user.js是否压缩 */
 		minify: isMinify,

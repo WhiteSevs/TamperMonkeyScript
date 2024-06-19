@@ -86,7 +86,6 @@ const SettingUIGeneral: PopsPanelContentConfig = {
 					],
 					(event, isSelectValue, isSelectText) => {
 						log.info("设置当前Qmsg弹出位置" + isSelectText);
-						i18next.changeLanguage(isSelectValue);
 					},
 					i18next.t("Toast显示在页面九宫格的位置")
 				),
