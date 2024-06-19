@@ -91,14 +91,16 @@
         return;
       }
       let ownCookie = "";
-      if (PopsPanel.getValue("httpx-use-document-cookie")) {
-        ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
-      }
       let url = data.url;
       if (url.startsWith("//")) {
         url = window.location.protocol + url;
       }
       let urlObj = new URL(url);
+      if (PopsPanel.getValue("httpx-use-document-cookie") && urlObj.hostname.endsWith(
+        window.location.hostname.split(".").slice(-2).join(".")
+      )) {
+        ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
+      }
       this.$data.cookieList.forEach((item) => {
         if (item.hostname.test(urlObj.hostname)) {
           let cookie = PopsPanel.getValue(item.key);

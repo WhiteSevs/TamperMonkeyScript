@@ -4,6 +4,14 @@ import type { HttpxDetails } from "@whitesev/utils/dist/src/Httpx";
 
 export const HttpxCookieManager = {
 	$data: {
+		/** 是否启用 */
+		get enable() {
+			return PopsPanel.getValue<boolean>("httpx-use-cookie-enable");
+		},
+		/** 是否使用document.cookie */
+		get useDocumentCookie() {
+			return PopsPanel.getValue<boolean>("httpx-use-document-cookie");
+		},
 		cookieList: [
 			{
 				key: "httpx-cookie-weibo.com",
@@ -47,15 +55,11 @@ export const HttpxCookieManager = {
 			return;
 		}
 
-		if (!PopsPanel.getValue("httpx-use-cookie-enable")) {
+		if (!this.$data.enable) {
 			// 未启用
 			return;
 		}
 		let ownCookie = "";
-		if (PopsPanel.getValue("httpx-use-document-cookie")) {
-			// 通过document.cookie获取添加
-			ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
-		}
 
 		let url = data.url;
 		// 完善Url
@@ -63,6 +67,15 @@ export const HttpxCookieManager = {
 			url = window.location.protocol + url;
 		}
 		let urlObj = new URL(url);
+		if (
+			this.$data.useDocumentCookie &&
+			urlObj.hostname.endsWith(
+				window.location.hostname.split(".").slice(-2).join(".")
+			)
+		) {
+			// 通过document.cookie获取添加
+			ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
+		}
 		this.$data.cookieList.forEach((item) => {
 			if (item.hostname.test(urlObj.hostname)) {
 				// 域名匹配成功

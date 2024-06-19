@@ -3749,6 +3749,14 @@ match-attr##srcid##sp_purc_atom
   };
   const HttpxCookieManager = {
     $data: {
+      /** 是否启用 */
+      get enable() {
+        return PopsPanel.getValue("httpx-use-cookie-enable");
+      },
+      /** 是否使用document.cookie */
+      get useDocumentCookie() {
+        return PopsPanel.getValue("httpx-use-document-cookie");
+      },
       cookieList: [
         {
           key: "httpx-cookie-tieba.baidu.com",
@@ -3789,18 +3797,20 @@ match-attr##srcid##sp_purc_atom
       if (data.fetch) {
         return;
       }
-      if (!PopsPanel.getValue("httpx-use-cookie-enable")) {
+      if (!this.$data.enable) {
         return;
       }
       let ownCookie = "";
-      if (PopsPanel.getValue("httpx-use-document-cookie")) {
-        ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
-      }
       let url = data.url;
       if (url.startsWith("//")) {
         url = window.location.protocol + url;
       }
       let urlObj = new URL(url);
+      if (this.$data.useDocumentCookie && urlObj.hostname.endsWith(
+        window.location.hostname.split(".").slice(-2).join(".")
+      )) {
+        ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
+      }
       this.$data.cookieList.forEach((item) => {
         if (item.hostname.test(urlObj.hostname)) {
           let cookie = PopsPanel.getValue(item.key);
