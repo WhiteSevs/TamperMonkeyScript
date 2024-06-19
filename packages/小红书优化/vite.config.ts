@@ -16,7 +16,11 @@ let isEmptyOutDir = true;
 if (process.argv.includes("--no-empty-outDir")) {
 	isEmptyOutDir = false;
 }
-const VERSION = Utils.getScriptVersion(!isEmptyOutDir);
+
+let VERSION = "0.0.1";
+if (process.argv.findIndex((i) => i.startsWith("build")) !== -1) {
+	VERSION = Utils.getScriptVersion(!isEmptyOutDir);
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -59,12 +63,15 @@ export default defineConfig({
 				autoGrant: true,
 				fileName: FILE_NAME,
 				externalResource: {
-					"element-plus/dist/index.css": cdn.jsdelivr(),
+					"element-plus/dist/index.css": cdn.jsdelivrFastly(),
 				},
 				externalGlobals: {
-					qmsg: cdn.jsdelivr("Qmsg", "dist/index.umd.js"),
-					"@whitesev/utils": cdn.jsdelivr("Utils", "dist/index.umd.js"),
-					"@whitesev/domutils": cdn.jsdelivr("DOMUtils", "dist/index.umd.js"),
+					qmsg: cdn.jsdelivrFastly("Qmsg", "dist/index.umd.js"),
+					"@whitesev/utils": cdn.jsdelivrFastly("Utils", "dist/index.umd.js"),
+					"@whitesev/domutils": cdn.jsdelivrFastly(
+						"DOMUtils",
+						"dist/index.umd.js"
+					),
 				},
 				cssSideEffects: () => {
 					return (cssText: string) => {
@@ -110,6 +117,9 @@ export default defineConfig({
 			"@库": Utils.getAbsolutePath("./../../库"),
 			"@": Utils.getAbsolutePath("./src"),
 		},
+	},
+	server: {
+		host: "0.0.0.0",
 	},
 	build: {
 		/* 构建的.user.js是否压缩 */

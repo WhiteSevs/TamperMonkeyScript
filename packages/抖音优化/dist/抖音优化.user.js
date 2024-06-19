@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.19.12
+// @version      2024.6.19
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*.douyin.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1396237/pops.js
-// @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.5.2/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
 // @grant        GM_getValue
@@ -35,46 +35,47 @@
   var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
   var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
   var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), member.set(obj, value), value);
-  var _a, _key, _isWaitPress;
+  var _key, _isWaitPress, _a;
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
   var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
   var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
   var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
   var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
-  const _SCRIPT_NAME_ = "抖音优化";
-  const utils = Utils.noConflict();
-  let domUtils = DOMUtils.noConflict();
-  const pops = _monkeyWindow.pops || _unsafeWindow.pops;
-  const console$1 = _unsafeWindow.console || _monkeyWindow.console;
-  const log = new utils.Log(_GM_info, console$1);
-  let SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
-  log.config({
-    debug: false,
-    logMaxCount: 100,
-    autoClearConsole: true,
-    tag: true
-  });
-  Qmsg.config({
-    position: "bottom",
-    html: true,
-    maxNums: 5,
-    autoClose: true,
-    showClose: false,
-    showReverse: true,
-    zIndex: 1e7
-  });
-  const GM_Menu = new utils.GM_Menu({
-    GM_getValue: _GM_getValue,
-    GM_setValue: _GM_setValue,
-    GM_registerMenuCommand: _GM_registerMenuCommand,
-    GM_unregisterMenuCommand: _GM_unregisterMenuCommand
-  });
-  const addStyle = utils.addStyle;
   const KEY = "GM_Panel";
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
+  const UISelect = function(text, key, defaultValue, data, callback, description) {
+    let selectData = [];
+    if (typeof data === "function") {
+      selectData = data();
+    } else {
+      selectData = data;
+    }
+    let result = {
+      text,
+      type: "select",
+      description,
+      attributes: {},
+      getValue() {
+        return PopsPanel.getValue(key, defaultValue);
+      },
+      callback(event, isSelectedValue, isSelectedText) {
+        PopsPanel.setValue(key, isSelectedValue);
+        if (typeof callback === "function") {
+          callback(event, isSelectedValue, isSelectedText);
+        }
+      },
+      data: selectData
+    };
+    if (result.attributes) {
+      result.attributes[ATTRIBUTE_KEY] = key;
+      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
+    }
+    return result;
+  };
   const UISwitch = function(text, key, defaultValue, clickCallBack, description) {
     let result = {
       text,
@@ -249,6 +250,95 @@
             false,
             void 0,
             "屏蔽元素"
+          )
+        ]
+      },
+      {
+        text: "Toast配置",
+        type: "forms",
+        forms: [
+          UISelect(
+            "Toast位置",
+            "qmsg-config-position",
+            "bottom",
+            [
+              {
+                value: "topleft",
+                text: "左上角"
+              },
+              {
+                value: "top",
+                text: "顶部"
+              },
+              {
+                value: "topright",
+                text: "右上角"
+              },
+              {
+                value: "left",
+                text: "左边"
+              },
+              {
+                value: "center",
+                text: "中间"
+              },
+              {
+                value: "right",
+                text: "右边"
+              },
+              {
+                value: "bottomleft",
+                text: "左下角"
+              },
+              {
+                value: "bottom",
+                text: "底部"
+              },
+              {
+                value: "bottomright",
+                text: "右下角"
+              }
+            ],
+            (event, isSelectValue, isSelectText) => {
+              log.info("设置当前Qmsg弹出位置" + isSelectText);
+            },
+            "Toast显示在页面九宫格的位置"
+          ),
+          UISelect(
+            "最多显示的数量",
+            "qmsg-config-maxnums",
+            3,
+            [
+              {
+                value: 1,
+                text: "1"
+              },
+              {
+                value: 2,
+                text: "2"
+              },
+              {
+                value: 3,
+                text: "3"
+              },
+              {
+                value: 4,
+                text: "4"
+              },
+              {
+                value: 5,
+                text: "5"
+              }
+            ],
+            void 0,
+            "限制Toast显示的数量"
+          ),
+          UISwitch(
+            "逆序弹出",
+            "qmsg-config-showreverse",
+            false,
+            void 0,
+            "修改Toast弹出的顺序"
           )
         ]
       }
@@ -538,32 +628,6 @@
       }
     ]
   };
-  const UISelect = function(text, key, defaultValue, data, callback, description) {
-    let selectData = [];
-    if (typeof data === "function") {
-      selectData = data();
-    } else {
-      selectData = data;
-    }
-    let result = {
-      text,
-      type: "select",
-      description,
-      attributes: {},
-      getValue() {
-        return PopsPanel.getValue(key, defaultValue);
-      },
-      callback(event, isSelectedValue, isSelectedText) {
-        PopsPanel.setValue(key, isSelectedValue);
-      },
-      data: selectData
-    };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
-    }
-    return result;
-  };
   const DouYinElement = {
     /**
      * 观察 #slidelist的加载每条视频
@@ -596,10 +660,18 @@
       return document.querySelector("#root div[class*='-os']") || document.querySelector("#douyin-right-container");
     }
   };
+  const __DouYinVideoFilter__ = {
+    rule: null
+  };
   const DouYinVideoFilter = {
     key: "douyin-shield-rule",
     $data: {
-      rule: new utils.Dictionary(),
+      get rule() {
+        if (__DouYinVideoFilter__.rule == null) {
+          __DouYinVideoFilter__.rule = new utils.Dictionary();
+        }
+        return __DouYinVideoFilter__.rule;
+      },
       /** 是否是首次加载视频 */
       isFirstLoad: true
     },
@@ -1330,9 +1402,12 @@
 			position: absolute;
 		}
 		`);
-      if (PopsPanel.getValue("douyin-video-autoCheckChangeCommentToBottom")) {
-        domUtils.on(window, "resize", autoChangeCommentPosition);
-      }
+      PopsPanel.execMenuOnce(
+        "douyin-video-autoCheckChangeCommentToBottom",
+        () => {
+          domUtils.on(window, "resize", autoChangeCommentPosition);
+        }
+      );
     },
     /**
      * 选择视频清晰度
@@ -1985,23 +2060,46 @@
       }
     ]
   };
+  const __PopsPanel__ = {
+    data: null,
+    oneSuccessExecMenu: null,
+    onceExec: null,
+    listenData: null
+  };
   const PopsPanel = {
     /** 数据 */
     $data: {
       /**
        * 菜单项的默认值
        */
-      data: new utils.Dictionary(),
+      get data() {
+        if (__PopsPanel__.data == null) {
+          __PopsPanel__.data = new utils.Dictionary();
+        }
+        return __PopsPanel__.data;
+      },
       /**
        * 成功只执行了一次的项
        */
-      oneSuccessExecMenu: new utils.Dictionary(),
+      get oneSuccessExecMenu() {
+        if (__PopsPanel__.oneSuccessExecMenu == null) {
+          __PopsPanel__.oneSuccessExecMenu = new utils.Dictionary();
+        }
+        return __PopsPanel__.oneSuccessExecMenu;
+      },
       /**
        * 成功只执行了一次的项
        */
-      onceExec: new utils.Dictionary(),
+      get onceExec() {
+        if (__PopsPanel__.onceExec == null) {
+          __PopsPanel__.onceExec = new utils.Dictionary();
+        }
+        return __PopsPanel__.onceExec;
+      },
       /** 脚本名，一般用在设置的标题上 */
-      scriptName: SCRIPT_NAME,
+      get scriptName() {
+        return SCRIPT_NAME;
+      },
       /** 菜单项的总值在本地数据配置的键名 */
       key: KEY,
       /** 菜单项在attributes上配置的菜单键 */
@@ -2014,7 +2112,12 @@
       /**
        * 值改变的监听器
        */
-      listenData: new utils.Dictionary()
+      get listenData() {
+        if (__PopsPanel__.listenData == null) {
+          __PopsPanel__.listenData = new utils.Dictionary();
+        }
+        return __PopsPanel__.listenData;
+      }
     },
     init() {
       this.initPanelDefaultValue();
@@ -2323,6 +2426,67 @@
       return configList;
     }
   };
+  const _SCRIPT_NAME_ = "抖音优化";
+  const utils = Utils.noConflict();
+  let domUtils = DOMUtils.noConflict();
+  const pops = _monkeyWindow.pops || _unsafeWindow.pops;
+  const console$1 = _unsafeWindow.console || _monkeyWindow.console;
+  const log = new utils.Log(_GM_info, console$1);
+  let SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
+  log.config({
+    debug: false,
+    logMaxCount: 100,
+    autoClearConsole: true,
+    tag: true
+  });
+  Qmsg.config(
+    Object.defineProperties(
+      {
+        html: true,
+        autoClose: true,
+        showClose: false,
+        zIndex: 1e7
+      },
+      {
+        position: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-position", "bottom");
+          }
+        },
+        maxNums: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-maxnums", 5);
+          }
+        },
+        showReverse: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-showreverse", true);
+          }
+        }
+      }
+    )
+  );
+  const GM_Menu = new utils.GM_Menu({
+    GM_getValue: _GM_getValue,
+    GM_setValue: _GM_setValue,
+    GM_registerMenuCommand: _GM_registerMenuCommand,
+    GM_unregisterMenuCommand: _GM_unregisterMenuCommand
+  });
+  const httpx = new utils.Httpx(_GM_xmlhttpRequest);
+  httpx.interceptors.response.use(void 0, (data) => {
+    log.error(["拦截器-请求错误", data]);
+    if (data.type === "onabort") {
+      Qmsg.warning("请求取消");
+    } else if (data.type === "onerror") {
+      Qmsg.error("请求异常");
+    } else if (data.type === "ontimeout") {
+      Qmsg.error("请求超时");
+    } else {
+      Qmsg.error("其它错误");
+    }
+    return data;
+  });
+  const addStyle = utils.addStyle;
   const ShieldHeader = {
     init() {
       PopsPanel.execMenu("shieldClientTip", () => {

@@ -150,9 +150,12 @@ export const DouYinVideo = {
 			position: absolute;
 		}
 		`);
-		if (PopsPanel.getValue("douyin-video-autoCheckChangeCommentToBottom")) {
-			DOMUtils.on(window, "resize", autoChangeCommentPosition);
-		}
+		PopsPanel.execMenuOnce(
+			"douyin-video-autoCheckChangeCommentToBottom",
+			() => {
+				DOMUtils.on(window, "resize", autoChangeCommentPosition);
+			}
+		);
 	},
 	/**
 	 * 选择视频清晰度

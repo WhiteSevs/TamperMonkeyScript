@@ -16,12 +16,12 @@
 	},
 	"dependencies": {
 		"@whitesev/domutils": "^1.1.1",
-		"@whitesev/utils": "^1.4.4",
+		"@whitesev/utils": "^1.5.2",
 		"i18next": "^23.11.5",
 		"qmsg": "^1.1.2"
 	},
 	"devDependencies": {
-		"@types/node": "^20.14.2",
+		"@types/node": "^20.14.5",
 		"typescript": "^5.4.5",
 		"vite": "^5.3.1",
 		"vite-plugin-monkey": "4.0.3"

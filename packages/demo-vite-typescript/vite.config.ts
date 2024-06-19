@@ -81,9 +81,12 @@ export default defineConfig({
 				fileName: FILE_NAME,
 				// 引入外部库
 				externalGlobals: {
-					qmsg: cdn.jsdelivr("Qmsg", "dist/index.umd.js"),
-					"@whitesev/utils": cdn.jsdelivr("Utils", "dist/index.umd.js"),
-					"@whitesev/domutils": cdn.jsdelivr("DOMUtils", "dist/index.umd.js"),
+					qmsg: cdn.jsdelivrFastly("Qmsg", "dist/index.umd.js"),
+					"@whitesev/utils": cdn.jsdelivrFastly("Utils", "dist/index.umd.js"),
+					"@whitesev/domutils": cdn.jsdelivrFastly(
+						"DOMUtils",
+						"dist/index.umd.js"
+					),
 				},
 				// 样式添加到页面的自定义处理
 				cssSideEffects: () => {
@@ -130,6 +133,9 @@ export default defineConfig({
 			"@": Utils.getAbsolutePath("./src"),
 			"@pops": Utils.getAbsolutePath("./../../库/pops"),
 		},
+	},
+	server: {
+		host: "0.0.0.0",
 	},
 	build: {
 		/* 构建的.user.js是否压缩 */

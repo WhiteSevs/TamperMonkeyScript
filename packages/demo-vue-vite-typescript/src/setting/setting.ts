@@ -2,6 +2,7 @@ import { GM_Menu, SCRIPT_NAME, log, pops, utils } from "@/env";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, KEY } from "@/setting/config";
 import type { UtilsDictionary } from "@whitesev/utils/dist/src/Dictionary";
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
+import { Component_Common } from "./components/common";
 
 const __PopsPanel__ = {
 	data: null as any as UtilsDictionary<string, any>,
@@ -360,7 +361,7 @@ const PopsPanel = {
 	 * 获取配置内容
 	 */
 	getPanelContentConfig() {
-		let configList: PopsPanelContentConfig[] = [];
+		let configList: PopsPanelContentConfig[] = [Component_Common];
 		return configList;
 	},
 };

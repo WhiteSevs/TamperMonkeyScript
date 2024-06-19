@@ -62,10 +62,13 @@ export default defineConfig({
 				autoGrant: true,
 				fileName: FILE_NAME,
 				externalGlobals: {
-					vue: cdn.jsdelivr("Vue", "dist/vue.global.prod.js"),
-					qmsg: cdn.jsdelivr("Qmsg", "dist/index.umd.js"),
-					"@whitesev/utils": cdn.jsdelivr("Utils", "dist/index.umd.js"),
-					"@whitesev/domutils": cdn.jsdelivr("DOMUtils", "dist/index.umd.js"),
+					vue: cdn.jsdelivrFastly("Vue", "dist/vue.global.prod.js"),
+					qmsg: cdn.jsdelivrFastly("Qmsg", "dist/index.umd.js"),
+					"@whitesev/utils": cdn.jsdelivrFastly("Utils", "dist/index.umd.js"),
+					"@whitesev/domutils": cdn.jsdelivrFastly(
+						"DOMUtils",
+						"dist/index.umd.js"
+					),
 				},
 				cssSideEffects: () => {
 					return (cssText: string) => {

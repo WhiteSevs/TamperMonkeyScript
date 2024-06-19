@@ -96,7 +96,7 @@ export default defineConfig({
 				require: await GetLib(["CoverUMD", "pops", "showdown"]),
 				resource: {
 					ElementPlusResourceCSS:
-						"https://fastly.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
+						"https://fastly.jsdelivr.net/npm/element-plus@2.7.5/dist/index.min.css",
 					ViewerCSS:
 						"https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css",
 				},

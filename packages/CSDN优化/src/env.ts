@@ -11,6 +11,7 @@ import {
 import Qmsg from "qmsg";
 import DOMUtils from "@whitesev/domutils";
 import Utils from "@whitesev/utils";
+import { PopsPanel } from "./setting/setting";
 
 const _SCRIPT_NAME_ = "CSDN优化";
 const utils = Utils.noConflict();
@@ -32,19 +33,44 @@ const DEBUG = false;
 /* 配置控制台日志 */
 log.config({
 	debug: DEBUG,
-	logMaxCount: 20000,
+	logMaxCount: 1000,
 	autoClearConsole: true,
 	tag: true,
 });
 /* 配置吐司Qmsg */
-Qmsg.config({
-	position: "bottom",
-	html: true,
-	maxNums: 5,
-	autoClose: true,
-	showClose: false,
-	showReverse: true,
-});
+Qmsg.config(
+	Object.defineProperties(
+		{
+			html: true,
+			autoClose: true,
+			showClose: false,
+		},
+		{
+			position: {
+				get() {
+					return PopsPanel.getValue("qmsg-config-position", "bottom");
+				},
+			},
+			maxNums: {
+				get() {
+					return PopsPanel.getValue("qmsg-config-maxnums", 5);
+				},
+			},
+			showReverse: {
+				get() {
+					return PopsPanel.getValue("qmsg-config-showreverse", true);
+				},
+			},
+			zIndex: {
+				get() {
+					let maxZIndex = Utils.getMaxZIndex(10);
+					let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(10).zIndex;
+					return Utils.getMaxValue(maxZIndex, popsMaxZIndex);
+				},
+			},
+		}
+	)
+);
 
 /** 油猴菜单 */
 const GM_Menu = new utils.GM_Menu({
@@ -55,18 +81,24 @@ const GM_Menu = new utils.GM_Menu({
 });
 
 const httpx = new utils.Httpx(GM_xmlhttpRequest);
+
+// 添加响应拦截器
+httpx.interceptors.response.use(void 0, (data) => {
+	log.error(["拦截器-请求错误", data]);
+	if (data.type === "onabort") {
+		Qmsg.warning("请求取消");
+	} else if (data.type === "onerror") {
+		Qmsg.error("请求异常");
+	} else if (data.type === "ontimeout") {
+		Qmsg.error("请求超时");
+	} else {
+		Qmsg.error("其它错误");
+	}
+	return data;
+});
+
 httpx.config({
 	logDetails: DEBUG,
-	onabort() {
-		Qmsg.warning("请求取消");
-	},
-	ontimeout() {
-		Qmsg.error("请求超时");
-	},
-	onerror(response: any) {
-		Qmsg.error("请求异常");
-		log.error(["httpx-onerror 请求异常", response]);
-	},
 });
 
 const OriginPrototype = {

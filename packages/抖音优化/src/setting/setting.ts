@@ -7,30 +7,56 @@ import { PanelVideoConfig } from "./components/video";
 import { PanelSearchConfig } from "./components/search";
 import { MPanelShareUserConfig } from "./m-components/shareUser";
 import { MPanelShareVideoConfig } from "./m-components/shareVideo";
+import type { UtilsDictionary } from "@whitesev/utils/dist/src/Dictionary";
 
 interface PosPanelListenerData {
 	id: number;
 	key: string;
 	callback: Function;
 }
-
+const __PopsPanel__ = {
+	data: null as any as UtilsDictionary<string, any>,
+	oneSuccessExecMenu: null as any as UtilsDictionary<string, number>,
+	onceExec: null as any as UtilsDictionary<string, number>,
+	listenData: null as any as UtilsDictionary<string, PosPanelListenerData>,
+};
 const PopsPanel = {
 	/** 数据 */
 	$data: {
 		/**
 		 * 菜单项的默认值
 		 */
-		data: new utils.Dictionary<string, any>(),
+		get data() {
+			if (__PopsPanel__.data == null) {
+				__PopsPanel__.data = new utils.Dictionary<string, any>();
+			}
+			return __PopsPanel__.data;
+		},
 		/**
 		 * 成功只执行了一次的项
 		 */
-		oneSuccessExecMenu: new utils.Dictionary<string, number>(),
+		get oneSuccessExecMenu() {
+			if (__PopsPanel__.oneSuccessExecMenu == null) {
+				__PopsPanel__.oneSuccessExecMenu = new utils.Dictionary<
+					string,
+					number
+				>();
+			}
+			return __PopsPanel__.oneSuccessExecMenu;
+		},
 		/**
 		 * 成功只执行了一次的项
 		 */
-		onceExec: new utils.Dictionary<string, number>(),
+		get onceExec() {
+			if (__PopsPanel__.onceExec == null) {
+				__PopsPanel__.onceExec = new utils.Dictionary<string, number>();
+			}
+			return __PopsPanel__.onceExec;
+		},
 		/** 脚本名，一般用在设置的标题上 */
-		scriptName: SCRIPT_NAME,
+		get scriptName() {
+			return SCRIPT_NAME;
+		},
 		/** 菜单项的总值在本地数据配置的键名 */
 		key: KEY,
 		/** 菜单项在attributes上配置的菜单键 */
@@ -43,7 +69,15 @@ const PopsPanel = {
 		/**
 		 * 值改变的监听器
 		 */
-		listenData: new utils.Dictionary<string, PosPanelListenerData>(),
+		get listenData() {
+			if (__PopsPanel__.listenData == null) {
+				__PopsPanel__.listenData = new utils.Dictionary<
+					string,
+					PosPanelListenerData
+				>();
+			}
+			return __PopsPanel__.listenData;
+		},
 	},
 	init() {
 		this.initPanelDefaultValue();

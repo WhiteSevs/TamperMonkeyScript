@@ -105,7 +105,7 @@ export default defineConfig({
 				// 引用外部资源
 				resource: {
 					ElementPlusResourceCSS:
-						"https://cdn.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
+						"https://fastly.jsdelivr.net/npm/element-plus@2.7.5/dist/index.min.css",
 				},
 			},
 			clientAlias: "ViteGM",
@@ -122,27 +122,33 @@ export default defineConfig({
 				fileName: FILE_NAME,
 				// 引入外部资源
 				externalResource: {
-					"element-plus/dist/index.css": cdn.jsdelivr(),
+					"element-plus/dist/index.css": cdn.jsdelivrFastly(),
 				},
 				// 引入外部库
 				externalGlobals: {
-					vue: cdn.jsdelivr("Vue", "dist/vue.global.prod.js"),
-					"vue-demi": cdn.jsdelivr("VueDemi", "lib/index.iife.min.js"),
-					pinia: cdn.jsdelivr("Pinia", "dist/pinia.iife.prod.js"),
-					"vue-router": cdn.jsdelivr("VueRouter", "dist/vue-router.global.js"),
+					vue: cdn.jsdelivrFastly("Vue", "dist/vue.global.prod.js"),
+					"vue-demi": cdn.jsdelivrFastly("VueDemi", "lib/index.iife.min.js"),
+					pinia: cdn.jsdelivrFastly("Pinia", "dist/pinia.iife.prod.js"),
+					"vue-router": cdn.jsdelivrFastly(
+						"VueRouter",
+						"dist/vue-router.global.js"
+					),
 					"element-plus": [
 						"ElementPlus",
 						() => {
 							return ElementPlusUrl;
 						},
 					],
-					"@element-plus/icons-vue": cdn.jsdelivr(
+					"@element-plus/icons-vue": cdn.jsdelivrFastly(
 						"ElementPlusIconsVue",
 						"dist/index.iife.min.js"
 					),
-					qmsg: cdn.jsdelivr("Qmsg", "dist/index.umd.js"),
-					"@whitesev/utils": cdn.jsdelivr("Utils", "dist/index.umd.js"),
-					"@whitesev/domutils": cdn.jsdelivr("DOMUtils", "dist/index.umd.js"),
+					qmsg: cdn.jsdelivrFastly("Qmsg", "dist/index.umd.js"),
+					"@whitesev/utils": cdn.jsdelivrFastly("Utils", "dist/index.umd.js"),
+					"@whitesev/domutils": cdn.jsdelivrFastly(
+						"DOMUtils",
+						"dist/index.umd.js"
+					),
 				},
 				// 样式添加到页面的自定义处理
 				cssSideEffects: () => {
@@ -189,6 +195,9 @@ export default defineConfig({
 			"@": Utils.getAbsolutePath("./src"),
 			"@pops": Utils.getAbsolutePath("./../../库/pops"),
 		},
+	},
+	server: {
+		host: "0.0.0.0",
 	},
 	build: {
 		/* 构建的.user.js是否压缩 */

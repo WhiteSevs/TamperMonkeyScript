@@ -7,10 +7,12 @@ import {
 	GM_registerMenuCommand,
 	GM_unregisterMenuCommand,
 	GM_addStyle,
+	GM_xmlhttpRequest,
 } from "ViteGM";
 import Qmsg from "qmsg";
 import Utils from "@whitesev/utils";
 import DOMUtils from "@whitesev/domutils";
+import { PopsPanel } from "./setting/setting";
 
 const _SCRIPT_NAME_ = "抖音优化";
 const utils = Utils.noConflict();
@@ -29,15 +31,33 @@ log.config({
 	tag: true,
 });
 /* 配置吐司Qmsg */
-Qmsg.config({
-	position: "bottom",
-	html: true,
-	maxNums: 5,
-	autoClose: true,
-	showClose: false,
-	showReverse: true,
-	zIndex: 10000000,
-});
+Qmsg.config(
+	Object.defineProperties(
+		{
+			html: true,
+			autoClose: true,
+			showClose: false,
+			zIndex: 10000000,
+		},
+		{
+			position: {
+				get() {
+					return PopsPanel.getValue("qmsg-config-position", "bottom");
+				},
+			},
+			maxNums: {
+				get() {
+					return PopsPanel.getValue("qmsg-config-maxnums", 5);
+				},
+			},
+			showReverse: {
+				get() {
+					return PopsPanel.getValue("qmsg-config-showreverse", true);
+				},
+			},
+		}
+	)
+);
 
 /** 油猴菜单 */
 const GM_Menu = new utils.GM_Menu({
@@ -45,6 +65,23 @@ const GM_Menu = new utils.GM_Menu({
 	GM_setValue,
 	GM_registerMenuCommand,
 	GM_unregisterMenuCommand,
+});
+
+const httpx = new utils.Httpx(GM_xmlhttpRequest);
+
+// 添加响应拦截器
+httpx.interceptors.response.use(void 0, (data) => {
+	log.error(["拦截器-请求错误", data]);
+	if (data.type === "onabort") {
+		Qmsg.warning("请求取消");
+	} else if (data.type === "onerror") {
+		Qmsg.error("请求异常");
+	} else if (data.type === "ontimeout") {
+		Qmsg.error("请求超时");
+	} else {
+		Qmsg.error("其它错误");
+	}
+	return data;
 });
 
 const addStyle = utils.addStyle;
@@ -57,5 +94,6 @@ export {
 	log,
 	GM_Menu,
 	SCRIPT_NAME,
+	httpx,
 	addStyle,
 };

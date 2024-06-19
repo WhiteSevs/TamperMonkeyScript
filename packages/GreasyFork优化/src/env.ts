@@ -16,6 +16,7 @@ import Utils from "@whitesev/utils";
 import { LanguageInit } from "./language/language";
 import i18next from "i18next";
 import { KEY } from "./setting/config";
+import { PopsPanel } from "./setting/setting";
 
 LanguageInit();
 const PanelData = GM_getValue(KEY, {}) as any;
@@ -43,29 +44,41 @@ const DEBUG = false;
 /* 配置控制台日志 */
 log.config({
 	debug: DEBUG,
-	logMaxCount: 20000,
+	logMaxCount: 1000,
 	autoClearConsole: true,
 	tag: true,
 });
 
 /* 配置吐司Qmsg */
 Qmsg.config(
-	Object.defineProperty(
+	Object.defineProperties(
 		{
-			position: PanelData["qmsg-config-position"] || "bottom",
 			html: true,
-			maxNums: PanelData["qmsg-config-maxnums"] || 5,
 			autoClose: true,
 			showClose: false,
-			showReverse: PanelData["qmsg-config-showreverse"] ?? true,
-			zIndex: utils.getMaxZIndex(10),
 		},
-		"zIndex",
 		{
-			get() {
-				let maxZIndex = utils.getMaxZIndex(10);
-				let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(10).zIndex;
-				return utils.getMaxValue(maxZIndex, popsMaxZIndex);
+			position: {
+				get() {
+					return PopsPanel.getValue("qmsg-config-position", "bottom");
+				},
+			},
+			maxNums: {
+				get() {
+					return PopsPanel.getValue("qmsg-config-maxnums", 5);
+				},
+			},
+			showReverse: {
+				get() {
+					return PopsPanel.getValue("qmsg-config-showreverse", true);
+				},
+			},
+			zIndex: {
+				get() {
+					let maxZIndex = Utils.getMaxZIndex(10);
+					let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(10).zIndex;
+					return Utils.getMaxValue(maxZIndex, popsMaxZIndex);
+				},
 			},
 		}
 	)
@@ -80,18 +93,24 @@ const GM_Menu = new utils.GM_Menu({
 });
 
 const httpx = new utils.Httpx(GM_xmlhttpRequest);
+
+// 添加响应拦截器
+httpx.interceptors.response.use(void 0, (data) => {
+	log.error(["拦截器-请求错误", data]);
+	if (data.type === "onabort") {
+		Qmsg.warning(i18next.t("请求取消"));
+	} else if (data.type === "onerror") {
+		Qmsg.error(i18next.t("请求异常"));
+	} else if (data.type === "ontimeout") {
+		Qmsg.error(i18next.t("请求超时"));
+	} else {
+		Qmsg.error(i18next.t("其它错误"));
+	}
+	return data;
+});
+
 httpx.config({
 	logDetails: DEBUG,
-	onabort() {
-		Qmsg.warning(i18next.t("请求取消"));
-	},
-	ontimeout() {
-		Qmsg.error(i18next.t("请求超时"));
-	},
-	onerror(response: any) {
-		Qmsg.error(i18next.t("请求异常"));
-		log.error(["httpx-onerror 请求异常", response]);
-	},
 });
 
 const OriginPrototype = {

@@ -2,6 +2,7 @@ import { GM_getValue, GM_setValue } from "ViteGM";
 import { log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { DouYinElement } from "@/utils/DouYinElement";
+import type { UtilsDictionary } from "@whitesev/utils/dist/src/Dictionary";
 
 interface DouYinShieldTagMap {
 	nickname?: string;
@@ -11,10 +12,22 @@ interface DouYinShieldTagMap {
 	videoTag: string[];
 }
 
+const __DouYinVideoFilter__ = {
+	rule: null as any as UtilsDictionary<keyof DouYinShieldTagMap, RegExp>,
+};
+
 export const DouYinVideoFilter = {
 	key: "douyin-shield-rule",
 	$data: {
-		rule: new utils.Dictionary<keyof DouYinShieldTagMap, RegExp>(),
+		get rule() {
+			if (__DouYinVideoFilter__.rule == null) {
+				__DouYinVideoFilter__.rule = new utils.Dictionary<
+					keyof DouYinShieldTagMap,
+					RegExp
+				>();
+			}
+			return __DouYinVideoFilter__.rule;
+		},
 		/** 是否是首次加载视频 */
 		isFirstLoad: true,
 	},

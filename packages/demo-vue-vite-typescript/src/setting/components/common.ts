@@ -1,64 +1,12 @@
 import { log } from "@/env";
-import { UISelect } from "../common-components/ui-select";
 import { UISwitch } from "../common-components/ui-switch";
+import { UITextArea } from "../common-components/ui-textarea";
+import { UISelect } from "../common-components/ui-select";
 
-const SettingUI_Common: PopsPanelContentConfig = {
-	id: "xhs-panel-config-common",
+export const Component_Common: PopsPanelContentConfig = {
+	id: "component-common",
 	title: "通用",
 	forms: [
-		{
-			text: "功能",
-			type: "forms",
-			forms: [
-				UISwitch(
-					"允许复制",
-					"pc-xhs-allowCopy",
-					true,
-					void 0,
-					"可以选择文字并复制"
-				),
-				UISwitch(
-					"新标签页打开文章",
-					"pc-xhs-open-blank-article",
-					false,
-					void 0,
-					"点击文章不会在本页展开，会打开新标签页"
-				),
-			],
-		},
-		{
-			text: "搜索",
-			type: "forms",
-			forms: [
-				UISwitch(
-					"新标签页打开-搜索按钮",
-					"pc-xhs-search-open-blank-btn",
-					false,
-					void 0,
-					"点击右边的搜索按钮直接新标签页打开搜索内容"
-				),
-				UISwitch(
-					"新标签页打开-回车键",
-					"pc-xhs-search-open-blank-keyboard-enter",
-					false,
-					void 0,
-					"按下回车键直接新标签页打开搜索内容"
-				),
-			],
-		},
-		{
-			text: "劫持/拦截",
-			type: "forms",
-			forms: [
-				UISwitch(
-					"劫持Vue",
-					"pc-xhs-hook-vue",
-					false,
-					void 0,
-					"恢复__vue__属性"
-				),
-			],
-		},
 		{
 			text: "Toast配置",
 			type: "forms",
@@ -148,7 +96,33 @@ const SettingUI_Common: PopsPanelContentConfig = {
 				),
 			],
 		},
+		{
+			text: "Cookie配置",
+			type: "forms",
+			forms: [
+				UISwitch(
+					"启用",
+					"httpx-use-cookie-enable",
+					false,
+					void 0,
+					"启用后，将根据下面的配置进行添加cookie"
+				),
+				UISwitch(
+					"使用document.cookie",
+					"httpx-use-document-cookie",
+					false,
+					void 0,
+					"自动根据请求的域名来设置对应的cookie"
+				),
+				// UITextArea(
+				// 	"tieba.baidu.com",
+				// 	"httpx-cookie-tieba.baidu.com",
+				// 	"",
+				// 	void 0,
+				// 	void 0,
+				// 	"Cookie格式：xxx=xxxx;xxx=xxxx"
+				// ),
+			],
+		},
 	],
 };
-
-export { SettingUI_Common };

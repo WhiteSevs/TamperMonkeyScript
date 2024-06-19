@@ -190,12 +190,13 @@
     左下角: "左下角",
     底部: "底部",
     右下角: "右下角",
-    "Toast显示在页面九宫格的位置": "Toast显示在页面九宫格的位置",
+    Toast显示在页面九宫格的位置: "Toast显示在页面九宫格的位置",
     最多显示的数量: "最多显示的数量",
     限制Toast显示的数量: "限制Toast显示的数量",
     逆序弹出: "逆序弹出",
     修改Toast弹出的顺序: "修改Toast弹出的顺序",
-    该脚本已经在该收藏集中: "该脚本已经在该收藏集中"
+    该脚本已经在该收藏集中: "该脚本已经在该收藏集中",
+    其它错误: "其它错误"
   };
   const en_US_language = {
     GreasyFork优化: "GreasyFork Optimization",
@@ -327,7 +328,7 @@
     美化页面元素: "Beautify page elements",
     美化历史版本页面: "Beautify the historical version page",
     "美化Greasyfork Beautify脚本": "Beautify Greasyfork Beauty Script",
-    "获取表单csrfToken失败": "Failed to obtain form csrfToken",
+    获取表单csrfToken失败: "Failed to obtain form csrfToken",
     Toast配置: "Toast Config",
     Toast位置: "Toast position",
     左上角: "Top left",
@@ -339,12 +340,13 @@
     左下角: "Bottom left",
     底部: "Bottom",
     右下角: "Bottom right",
-    "Toast显示在页面九宫格的位置": "Toast is displayed in the nine grid position on the page",
+    Toast显示在页面九宫格的位置: "Toast is displayed in the nine grid position on the page",
     最多显示的数量: "Maximum number of displays",
     限制Toast显示的数量: "Limit the number of Toast displays",
     逆序弹出: "Reverse pop-up",
     修改Toast弹出的顺序: "Modify the order in which Toast pops up",
-    该脚本已经在该收藏集中: "The script is already in this collection"
+    该脚本已经在该收藏集中: "The script is already in this collection",
+    其它错误: "Ohter Error"
   };
   const KEY = "GM_Panel";
   const ATTRIBUTE_KEY = "data-key";
@@ -367,7 +369,7 @@
     });
   };
   LanguageInit();
-  const PanelData = _GM_getValue(KEY, {});
+  _GM_getValue(KEY, {});
   const _SCRIPT_NAME_ = i18next.t("GreasyFork优化");
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
@@ -380,27 +382,39 @@
   const DEBUG = false;
   log.config({
     debug: DEBUG,
-    logMaxCount: 2e4,
+    logMaxCount: 1e3,
     autoClearConsole: true,
     tag: true
   });
   Qmsg.config(
-    Object.defineProperty(
+    Object.defineProperties(
       {
-        position: PanelData["qmsg-config-position"] || "bottom",
         html: true,
-        maxNums: PanelData["qmsg-config-maxnums"] || 5,
         autoClose: true,
-        showClose: false,
-        showReverse: PanelData["qmsg-config-showreverse"] ?? true,
-        zIndex: utils.getMaxZIndex(10)
+        showClose: false
       },
-      "zIndex",
       {
-        get() {
-          let maxZIndex = utils.getMaxZIndex(10);
-          let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(10).zIndex;
-          return utils.getMaxValue(maxZIndex, popsMaxZIndex);
+        position: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-position", "bottom");
+          }
+        },
+        maxNums: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-maxnums", 5);
+          }
+        },
+        showReverse: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-showreverse", true);
+          }
+        },
+        zIndex: {
+          get() {
+            let maxZIndex = Utils.getMaxZIndex(10);
+            let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(10).zIndex;
+            return Utils.getMaxValue(maxZIndex, popsMaxZIndex);
+          }
         }
       }
     )
@@ -412,18 +426,21 @@
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand
   });
   const httpx = new utils.Httpx(_GM_xmlhttpRequest);
-  httpx.config({
-    logDetails: DEBUG,
-    onabort() {
+  httpx.interceptors.response.use(void 0, (data) => {
+    log.error(["拦截器-请求错误", data]);
+    if (data.type === "onabort") {
       Qmsg.warning(i18next.t("请求取消"));
-    },
-    ontimeout() {
-      Qmsg.error(i18next.t("请求超时"));
-    },
-    onerror(response) {
+    } else if (data.type === "onerror") {
       Qmsg.error(i18next.t("请求异常"));
-      log.error(["httpx-onerror 请求异常", response]);
+    } else if (data.type === "ontimeout") {
+      Qmsg.error(i18next.t("请求超时"));
+    } else {
+      Qmsg.error(i18next.t("其它错误"));
     }
+    return data;
+  });
+  httpx.config({
+    logDetails: DEBUG
   });
   ({
     Object: {
@@ -3281,23 +3298,46 @@
     forms: []
   };
   const UIScriptListCSS = '.w-script-list-item {\r\n	padding: 10px 0;\r\n	border-bottom: 1px solid #e5e5e5;\r\n	font-size: 16px;\r\n	text-align: left;\r\n}\r\n.w-script-version,\r\n.w-script-fan-score,\r\n.w-script-create-time,\r\n.w-script-update-time,\r\n.w-script-locale,\r\n.w-script-sync-type {\r\n	font-size: 14px;\r\n	color: #7c7c7c;\r\n}\r\n.w-script-fan-score {\r\n	margin-left: unset !important;\r\n	text-align: unset !important;\r\n	max-width: unset !important;\r\n}\r\n.w-script-deleted {\r\n	text-decoration: line-through;\r\n	font-style: italic;\r\n	color: red;\r\n}\r\n.w-script-deleted .w-script-name::before {\r\n	content: "【删除】";\r\n}\r\n\r\nli[data-key="user"] .pops-panel-input,\r\nli[data-key="pwd"] .pops-panel-input {\r\n	max-width: 200px;\r\n}\r\n';
+  const __PopsPanel__ = {
+    data: null,
+    oneSuccessExecMenu: null,
+    onceExec: null,
+    listenData: null
+  };
   const PopsPanel = {
     /** 数据 */
     $data: {
       /**
        * 菜单项的默认值
        */
-      data: new utils.Dictionary(),
+      get data() {
+        if (__PopsPanel__.data == null) {
+          __PopsPanel__.data = new utils.Dictionary();
+        }
+        return __PopsPanel__.data;
+      },
       /**
        * 成功只执行了一次的项
        */
-      oneSuccessExecMenu: new utils.Dictionary(),
+      get oneSuccessExecMenu() {
+        if (__PopsPanel__.oneSuccessExecMenu == null) {
+          __PopsPanel__.oneSuccessExecMenu = new utils.Dictionary();
+        }
+        return __PopsPanel__.oneSuccessExecMenu;
+      },
       /**
        * 成功只执行了一次的项
        */
-      onceExec: new utils.Dictionary(),
+      get onceExec() {
+        if (__PopsPanel__.onceExec == null) {
+          __PopsPanel__.onceExec = new utils.Dictionary();
+        }
+        return __PopsPanel__.onceExec;
+      },
       /** 脚本名，一般用在设置的标题上 */
-      scriptName: SCRIPT_NAME,
+      get scriptName() {
+        return SCRIPT_NAME;
+      },
       /** 菜单项的总值在本地数据配置的键名 */
       key: KEY,
       /** 菜单项在attributes上配置的菜单键 */
@@ -3310,7 +3350,12 @@
       /**
        * 值改变的监听器
        */
-      listenData: new utils.Dictionary()
+      get listenData() {
+        if (__PopsPanel__.listenData == null) {
+          __PopsPanel__.listenData = new utils.Dictionary();
+        }
+        return __PopsPanel__.listenData;
+      }
     },
     init() {
       this.initPanelDefaultValue();

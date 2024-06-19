@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.6.10
+// @version      2024.6.19
 // @author       WhiteSevs
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转拦截的URL
 // @license      GPL-3.0-only
@@ -9,10 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.csdn.net/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
-// @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.9/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
+// @require      https://update.greasyfork.org/scripts/456485/1396237/pops.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_cookie
 // @grant        GM_deleteValue
@@ -51,18 +51,43 @@
   const DEBUG = false;
   log.config({
     debug: DEBUG,
-    logMaxCount: 2e4,
+    logMaxCount: 1e3,
     autoClearConsole: true,
     tag: true
   });
-  Qmsg.config({
-    position: "bottom",
-    html: true,
-    maxNums: 5,
-    autoClose: true,
-    showClose: false,
-    showReverse: true
-  });
+  Qmsg.config(
+    Object.defineProperties(
+      {
+        html: true,
+        autoClose: true,
+        showClose: false
+      },
+      {
+        position: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-position", "bottom");
+          }
+        },
+        maxNums: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-maxnums", 5);
+          }
+        },
+        showReverse: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-showreverse", true);
+          }
+        },
+        zIndex: {
+          get() {
+            let maxZIndex = Utils.getMaxZIndex(10);
+            let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(10).zIndex;
+            return Utils.getMaxValue(maxZIndex, popsMaxZIndex);
+          }
+        }
+      }
+    )
+  );
   const GM_Menu = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
@@ -70,18 +95,21 @@
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand
   });
   const httpx = new utils.Httpx(_GM_xmlhttpRequest);
-  httpx.config({
-    logDetails: DEBUG,
-    onabort() {
+  httpx.interceptors.response.use(void 0, (data) => {
+    log.error(["拦截器-请求错误", data]);
+    if (data.type === "onabort") {
       Qmsg.warning("请求取消");
-    },
-    ontimeout() {
-      Qmsg.error("请求超时");
-    },
-    onerror(response) {
+    } else if (data.type === "onerror") {
       Qmsg.error("请求异常");
-      log.error(["httpx-onerror 请求异常", response]);
+    } else if (data.type === "ontimeout") {
+      Qmsg.error("请求超时");
+    } else {
+      Qmsg.error("其它错误");
     }
+    return data;
+  });
+  httpx.config({
+    logDetails: DEBUG
   });
   ({
     Object: {
@@ -803,23 +831,321 @@
       }
     ]
   };
+  const UISelect = function(text, key, defaultValue, data, callback, description) {
+    let selectData = [];
+    if (typeof data === "function") {
+      selectData = data();
+    } else {
+      selectData = data;
+    }
+    let result = {
+      text,
+      type: "select",
+      description,
+      attributes: {},
+      getValue() {
+        return PopsPanel.getValue(key, defaultValue);
+      },
+      callback(event, isSelectedValue, isSelectedText) {
+        PopsPanel.setValue(key, isSelectedValue);
+        if (typeof callback === "function") {
+          callback(event, isSelectedValue, isSelectedText);
+        }
+      },
+      data: selectData
+    };
+    if (result.attributes) {
+      result.attributes[ATTRIBUTE_KEY] = key;
+      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
+    }
+    return result;
+  };
+  const SettingUICommon = {
+    id: "component-common",
+    title: "通用",
+    forms: [
+      {
+        text: "Toast配置",
+        type: "forms",
+        forms: [
+          UISelect(
+            "Toast位置",
+            "qmsg-config-position",
+            "bottom",
+            [
+              {
+                value: "topleft",
+                text: "左上角"
+              },
+              {
+                value: "top",
+                text: "顶部"
+              },
+              {
+                value: "topright",
+                text: "右上角"
+              },
+              {
+                value: "left",
+                text: "左边"
+              },
+              {
+                value: "center",
+                text: "中间"
+              },
+              {
+                value: "right",
+                text: "右边"
+              },
+              {
+                value: "bottomleft",
+                text: "左下角"
+              },
+              {
+                value: "bottom",
+                text: "底部"
+              },
+              {
+                value: "bottomright",
+                text: "右下角"
+              }
+            ],
+            (event, isSelectValue, isSelectText) => {
+              log.info("设置当前Qmsg弹出位置" + isSelectText);
+            },
+            "Toast显示在页面九宫格的位置"
+          ),
+          UISelect(
+            "最多显示的数量",
+            "qmsg-config-maxnums",
+            3,
+            [
+              {
+                value: 1,
+                text: "1"
+              },
+              {
+                value: 2,
+                text: "2"
+              },
+              {
+                value: 3,
+                text: "3"
+              },
+              {
+                value: 4,
+                text: "4"
+              },
+              {
+                value: 5,
+                text: "5"
+              }
+            ],
+            void 0,
+            "限制Toast显示的数量"
+          ),
+          UISwitch(
+            "逆序弹出",
+            "qmsg-config-showreverse",
+            false,
+            void 0,
+            "修改Toast弹出的顺序"
+          )
+        ]
+      }
+      // {
+      // 	text: "Cookie配置",
+      // 	type: "forms",
+      // 	forms: [
+      // 		UISwitch(
+      // 			"启用",
+      // 			"httpx-use-cookie-enable",
+      // 			false,
+      // 			void 0,
+      // 			"启用后，将根据下面的配置进行添加cookie"
+      // 		),
+      // 		UISwitch(
+      // 			"使用document.cookie",
+      // 			"httpx-use-document-cookie",
+      // 			false,
+      // 			void 0,
+      // 			"自动根据请求的域名来设置对应的cookie"
+      // 		),
+      // 		UITextArea(
+      // 			"tieba.baidu.com",
+      // 			"httpx-cookie-tieba.baidu.com",
+      // 			"",
+      // 			void 0,
+      // 			void 0,
+      // 			"Cookie格式：xxx=xxxx;xxx=xxxx"
+      // 		),
+      // 	],
+      // },
+    ]
+  };
+  const MSettingUICommon = {
+    id: "component-common",
+    title: "通用",
+    forms: [
+      {
+        text: "Toast配置",
+        type: "forms",
+        forms: [
+          UISelect(
+            "Toast位置",
+            "qmsg-config-position",
+            "bottom",
+            [
+              {
+                value: "topleft",
+                text: "左上角"
+              },
+              {
+                value: "top",
+                text: "顶部"
+              },
+              {
+                value: "topright",
+                text: "右上角"
+              },
+              {
+                value: "left",
+                text: "左边"
+              },
+              {
+                value: "center",
+                text: "中间"
+              },
+              {
+                value: "right",
+                text: "右边"
+              },
+              {
+                value: "bottomleft",
+                text: "左下角"
+              },
+              {
+                value: "bottom",
+                text: "底部"
+              },
+              {
+                value: "bottomright",
+                text: "右下角"
+              }
+            ],
+            (event, isSelectValue, isSelectText) => {
+              log.info("设置当前Qmsg弹出位置" + isSelectText);
+            },
+            "Toast显示在页面九宫格的位置"
+          ),
+          UISelect(
+            "最多显示的数量",
+            "qmsg-config-maxnums",
+            3,
+            [
+              {
+                value: 1,
+                text: "1"
+              },
+              {
+                value: 2,
+                text: "2"
+              },
+              {
+                value: 3,
+                text: "3"
+              },
+              {
+                value: 4,
+                text: "4"
+              },
+              {
+                value: 5,
+                text: "5"
+              }
+            ],
+            void 0,
+            "限制Toast显示的数量"
+          ),
+          UISwitch(
+            "逆序弹出",
+            "qmsg-config-showreverse",
+            false,
+            void 0,
+            "修改Toast弹出的顺序"
+          )
+        ]
+      }
+      // {
+      // 	text: "Cookie配置",
+      // 	type: "forms",
+      // 	forms: [
+      // 		UISwitch(
+      // 			"启用",
+      // 			"httpx-use-cookie-enable",
+      // 			false,
+      // 			void 0,
+      // 			"启用后，将根据下面的配置进行添加cookie"
+      // 		),
+      // 		UISwitch(
+      // 			"使用document.cookie",
+      // 			"httpx-use-document-cookie",
+      // 			false,
+      // 			void 0,
+      // 			"自动根据请求的域名来设置对应的cookie"
+      // 		),
+      // 		UITextArea(
+      // 			"tieba.baidu.com",
+      // 			"httpx-cookie-tieba.baidu.com",
+      // 			"",
+      // 			void 0,
+      // 			void 0,
+      // 			"Cookie格式：xxx=xxxx;xxx=xxxx"
+      // 		),
+      // 	],
+      // },
+    ]
+  };
+  const __PopsPanel__ = {
+    data: null,
+    oneSuccessExecMenu: null,
+    onceExec: null,
+    listenData: null
+  };
   const PopsPanel = {
     /** 数据 */
     $data: {
       /**
        * 菜单项的默认值
        */
-      data: new utils.Dictionary(),
+      get data() {
+        if (__PopsPanel__.data == null) {
+          __PopsPanel__.data = new utils.Dictionary();
+        }
+        return __PopsPanel__.data;
+      },
       /**
        * 成功只执行了一次的项
        */
-      oneSuccessExecMenu: new utils.Dictionary(),
+      get oneSuccessExecMenu() {
+        if (__PopsPanel__.oneSuccessExecMenu == null) {
+          __PopsPanel__.oneSuccessExecMenu = new utils.Dictionary();
+        }
+        return __PopsPanel__.oneSuccessExecMenu;
+      },
       /**
        * 成功只执行了一次的项
        */
-      onceExec: new utils.Dictionary(),
+      get onceExec() {
+        if (__PopsPanel__.onceExec == null) {
+          __PopsPanel__.onceExec = new utils.Dictionary();
+        }
+        return __PopsPanel__.onceExec;
+      },
       /** 脚本名，一般用在设置的标题上 */
-      scriptName: SCRIPT_NAME,
+      get scriptName() {
+        return SCRIPT_NAME;
+      },
       /** 菜单项的总值在本地数据配置的键名 */
       key: KEY,
       /** 菜单项在attributes上配置的菜单键 */
@@ -832,7 +1158,12 @@
       /**
        * 值改变的监听器
        */
-      listenData: new utils.Dictionary()
+      get listenData() {
+        if (__PopsPanel__.listenData == null) {
+          __PopsPanel__.listenData = new utils.Dictionary();
+        }
+        return __PopsPanel__.listenData;
+      }
     },
     init() {
       this.initPanelDefaultValue();
@@ -1138,6 +1469,7 @@
      */
     getPanelContentConfig() {
       let configList = [
+        SettingUICommon,
         SettingUIBlog,
         SettingUILink,
         SettingUIHuaWeiCloud,
@@ -1151,6 +1483,7 @@
      */
     getMPanelContentConfig() {
       let configList = [
+        MSettingUICommon,
         MSettingUIBlog,
         MSettingUILink,
         MSettingUIHuaWeiCloud,
