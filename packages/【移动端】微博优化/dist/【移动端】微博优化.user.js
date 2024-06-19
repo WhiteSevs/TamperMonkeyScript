@@ -47,6 +47,14 @@
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
   const HttpxCookieManager = {
     $data: {
+      /** 是否启用 */
+      get enable() {
+        return PopsPanel.getValue("httpx-use-cookie-enable");
+      },
+      /** 是否使用document.cookie */
+      get useDocumentCookie() {
+        return PopsPanel.getValue("httpx-use-document-cookie");
+      },
       cookieList: [
         {
           key: "httpx-cookie-weibo.com",
@@ -87,7 +95,7 @@
       if (data.fetch) {
         return;
       }
-      if (!PopsPanel.getValue("httpx-use-cookie-enable")) {
+      if (!this.$data.enable) {
         return;
       }
       let ownCookie = "";
@@ -96,7 +104,7 @@
         url = window.location.protocol + url;
       }
       let urlObj = new URL(url);
-      if (PopsPanel.getValue("httpx-use-document-cookie") && urlObj.hostname.endsWith(
+      if (this.$data.useDocumentCookie && urlObj.hostname.endsWith(
         window.location.hostname.split(".").slice(-2).join(".")
       )) {
         ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
@@ -1062,21 +1070,46 @@
       }
     ]
   };
+  const __PopsPanel__ = {
+    data: null,
+    oneSuccessExecMenu: null,
+    onceExec: null,
+    listenData: null
+  };
   const PopsPanel = {
     /** 数据 */
     $data: {
       /**
        * 菜单项的默认值
        */
-      data: new Utils.Dictionary(),
+      get data() {
+        if (__PopsPanel__.data == null) {
+          __PopsPanel__.data = new utils.Dictionary();
+        }
+        return __PopsPanel__.data;
+      },
       /**
        * 成功只执行了一次的项
        */
-      oneSuccessExecMenu: new Utils.Dictionary(),
+      get oneSuccessExecMenu() {
+        if (__PopsPanel__.oneSuccessExecMenu == null) {
+          __PopsPanel__.oneSuccessExecMenu = new utils.Dictionary();
+        }
+        return __PopsPanel__.oneSuccessExecMenu;
+      },
       /**
        * 成功只执行了一次的项
        */
-      onceExec: new Utils.Dictionary(),
+      get onceExec() {
+        if (__PopsPanel__.onceExec == null) {
+          __PopsPanel__.onceExec = new utils.Dictionary();
+        }
+        return __PopsPanel__.onceExec;
+      },
+      /** 脚本名，一般用在设置的标题上 */
+      get scriptName() {
+        return SCRIPT_NAME;
+      },
       /** 菜单项的总值在本地数据配置的键名 */
       key: KEY,
       /** 菜单项在attributes上配置的菜单键 */
@@ -1089,7 +1122,12 @@
       /**
        * 值改变的监听器
        */
-      listenData: new Utils.Dictionary()
+      get listenData() {
+        if (__PopsPanel__.listenData == null) {
+          __PopsPanel__.listenData = new utils.Dictionary();
+        }
+        return __PopsPanel__.listenData;
+      }
     },
     init() {
       this.initPanelDefaultValue();

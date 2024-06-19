@@ -23,7 +23,7 @@
     "vue-router": "^4.3.3"
   },
   "devDependencies": {
-    "@types/node": "^20.14.2",
+    "@types/node": "^20.14.5",
     "@vitejs/plugin-vue": "^5.0.5",
     "element-plus": "^2.7.5",
     "typescript": "^5.4.5",

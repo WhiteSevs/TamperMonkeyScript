@@ -1,9 +1,3 @@
-const DemoIndex = {
-    init(){
-
-    }
-}
-
-export {
-    DemoIndex
-}
+export const DemoIndex = {
+	init() {},
+};

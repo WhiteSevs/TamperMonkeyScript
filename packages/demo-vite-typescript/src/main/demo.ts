@@ -1,9 +1,3 @@
-const DeomIndex = {
-    init(){
-
-    }
-}
-
-export {
-    DeomIndex
-}
+export const DeomIndex = {
+	init() {},
+};
