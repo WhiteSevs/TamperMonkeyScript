@@ -2452,10 +2452,6 @@ const TiebaComment = {
 				Referer: "tieba.baidu.com",
 			},
 		};
-		if (PopsPanel.getValue("baidu_tieba_request_with_cookie")) {
-			log.success("贴吧-发送请求携带cookie");
-			(getDetails.headers as any)["Cookie"] = document.cookie;
-		}
 		let getResp = await httpx.get(getDetails);
 		let respData = getResp.data;
 		log.success(["获取评论", getResp]);

@@ -10,7 +10,7 @@
 		"build:all": "vue-tsc --noEmit && vite build && vite build --minify --no-empty-outDir",
 		"build:watch": "vue-tsc --noEmit && vite build --watch",
 		"build:no-cache": "pnpm store prune && vue-tsc --noEmit && vite build",
-		"preview": "vue-tsc --noEmit && vite preview --host 0.0.0.0",
+		"preview": "vite preview --host 0.0.0.0",
 		"clear": "del .\\SCRIPT_VERSION.json && pnpm store prune"
 	},
 	"dependencies": {
@@ -25,7 +25,7 @@
 		"vue-router": "^4.3.3"
 	},
 	"devDependencies": {
-		"@types/node": "^20.14.2",
+		"@types/node": "^20.14.5",
 		"@vitejs/plugin-vue": "^5.0.5",
 		"element-plus": "^2.7.5",
 		"typescript": "^5.4.5",

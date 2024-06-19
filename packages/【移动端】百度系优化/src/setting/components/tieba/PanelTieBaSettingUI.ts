@@ -339,13 +339,6 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 					void 0,
 					"只对评论和楼中楼的用户进行显示处理"
 				),
-				UISwitch(
-					"实验性-请求携带Cookie",
-					"baidu_tieba_request_with_cookie",
-					false,
-					void 0,
-					"非浏览器插件使用"
-				),
 			],
 		},
 		{

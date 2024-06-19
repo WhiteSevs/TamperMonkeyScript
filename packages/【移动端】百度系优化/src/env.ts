@@ -14,6 +14,8 @@ import { createApp } from "vue";
 import Qmsg from "qmsg";
 import Utils from "@whitesev/utils";
 import DOMUtils from "@whitesev/domutils";
+import { HttpxCookieManager } from "./utils/HttpxCookieManager";
+import { PopsPanel } from "./setting/setting";
 
 const _SCRIPT_NAME_ = "【移动端】百度系优化";
 const utils = Utils.noConflict();
@@ -22,7 +24,7 @@ const pops: typeof import("@库/pops") =
 	(monkeyWindow as any).pops || (unsafeWindow as any).pops;
 const showdown: typeof import("@库/showdown") =
 	(monkeyWindow as any).showdown || (unsafeWindow as any).showdown;
-const log = new utils.Log(
+const log = new Utils.Log(
 	GM_info,
 	(unsafeWindow as any).console || (monkeyWindow as any).console
 );
@@ -42,37 +44,56 @@ log.config({
 });
 /* 配置吐司Qmsg */
 Qmsg.config(
-	Object.defineProperty(
+	Object.defineProperties(
 		{
-			position: "bottom",
 			html: true,
-			maxNums: 5,
 			autoClose: true,
 			showClose: false,
-			showReverse: true,
-			zIndex: utils.getMaxZIndex(10),
 		},
-		"zIndex",
 		{
-			get() {
-				let maxZIndex = utils.getMaxZIndex(10);
-				let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(10).zIndex;
-				return utils.getMaxValue(maxZIndex, popsMaxZIndex);
+			position: {
+				get() {
+					return PopsPanel.getValue("qmsg-config-position", "bottom");
+				},
+			},
+			maxNums: {
+				get() {
+					return PopsPanel.getValue("qmsg-config-maxnums", 5);
+				},
+			},
+			showReverse: {
+				get() {
+					return PopsPanel.getValue("qmsg-config-showreverse", true);
+				},
+			},
+			zIndex: {
+				get() {
+					let maxZIndex = Utils.getMaxZIndex(10);
+					let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(10).zIndex;
+					return Utils.getMaxValue(maxZIndex, popsMaxZIndex);
+				},
 			},
 		}
 	)
 );
 
 /** 油猴菜单 */
-const GM_Menu = new utils.GM_Menu({
+const GM_Menu = new Utils.GM_Menu({
 	GM_getValue,
 	GM_setValue,
 	GM_registerMenuCommand,
 	GM_unregisterMenuCommand,
 });
 
-const httpx = new utils.Httpx(GM_xmlhttpRequest);
+const httpx = new Utils.Httpx(GM_xmlhttpRequest);
 
+// 添加请求拦截器
+httpx.interceptors.request.use((data) => {
+	HttpxCookieManager.handle(data);
+	return data;
+});
+
+// 添加响应拦截器
 httpx.interceptors.response.use(void 0, (data) => {
 	log.error(["拦截器-请求错误", data]);
 	if (data.type === "onabort") {
@@ -105,7 +126,7 @@ const OriginPrototype = {
 	setTimeout: unsafeWindow.setTimeout,
 };
 
-const addStyle = utils.addStyle;
+const addStyle = Utils.addStyle;
 
 const VUE_ELE_NAME_ID = "vite-app";
 /**

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.17
+// @version      2024.6.19
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @match        *://www.tieba.com/*
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1396237/pops.js
 // @require      https://update.greasyfork.org/scripts/488179/1384528/showdown.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.4.29/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.8/lib/index.iife.min.js
@@ -636,106 +636,6 @@
       );
     }
   }
-  const _SCRIPT_NAME_ = "【移动端】百度系优化";
-  const utils = Utils.noConflict();
-  const domutils = DOMUtils.noConflict();
-  const pops = _monkeyWindow.pops || _unsafeWindow.pops;
-  const showdown = _monkeyWindow.showdown || _unsafeWindow.showdown;
-  const log = new utils.Log(
-    _GM_info,
-    _unsafeWindow.console || _monkeyWindow.console
-  );
-  const SCRIPT_NAME = ((_a2 = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a2.name) || _SCRIPT_NAME_;
-  const loadingView = new LoadingView(true);
-  const DEBUG = false;
-  log.config({
-    debug: DEBUG,
-    logMaxCount: 2e4,
-    autoClearConsole: true,
-    tag: true
-  });
-  Qmsg.config(
-    Object.defineProperty(
-      {
-        position: "bottom",
-        html: true,
-        maxNums: 5,
-        autoClose: true,
-        showClose: false,
-        showReverse: true,
-        zIndex: utils.getMaxZIndex(10)
-      },
-      "zIndex",
-      {
-        get() {
-          let maxZIndex = utils.getMaxZIndex(10);
-          let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(10).zIndex;
-          return utils.getMaxValue(maxZIndex, popsMaxZIndex);
-        }
-      }
-    )
-  );
-  const GM_Menu = new utils.GM_Menu({
-    GM_getValue: _GM_getValue,
-    GM_setValue: _GM_setValue,
-    GM_registerMenuCommand: _GM_registerMenuCommand,
-    GM_unregisterMenuCommand: _GM_unregisterMenuCommand
-  });
-  const httpx = new utils.Httpx(_GM_xmlhttpRequest);
-  httpx.interceptors.response.use(void 0, (data) => {
-    log.error(["拦截器-请求错误", data]);
-    if (data.type === "onabort") {
-      Qmsg.warning("请求取消");
-    } else if (data.type === "onerror") {
-      Qmsg.error("请求异常");
-    } else if (data.type === "ontimeout") {
-      Qmsg.error("请求超时");
-    } else {
-      Qmsg.error("其它错误");
-    }
-    return data;
-  });
-  httpx.config({
-    logDetails: DEBUG
-  });
-  const OriginPrototype = {
-    Object: {
-      defineProperty: _unsafeWindow.Object.defineProperty
-    },
-    Function: {
-      apply: _unsafeWindow.Function.prototype.apply,
-      call: _unsafeWindow.Function.prototype.call
-    },
-    Element: {
-      appendChild: _unsafeWindow.Element.prototype.appendChild
-    },
-    setTimeout: _unsafeWindow.setTimeout
-  };
-  const addStyle = utils.addStyle;
-  const VUE_ELE_NAME_ID = "vite-app";
-  const MountVue = async function(targetApp, plugin = []) {
-    DOMUtils.ready(async () => {
-      const app = vue.createApp(targetApp);
-      let $mount = DOMUtils.createElement("div", {
-        id: VUE_ELE_NAME_ID
-      });
-      {
-        if (ElementPlusIconsVue != null) {
-          for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-            app.component(key, component);
-          }
-        }
-      }
-      document.body.appendChild($mount);
-      plugin.forEach((item) => {
-        app.use(item);
-      });
-      app.mount($mount);
-    });
-    {
-      addStyle(_GM_getResourceText("ElementPlusResourceCSS"));
-    }
-  };
   const KEY = "GM_Panel";
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
@@ -2118,13 +2018,6 @@ match-attr##srcid##sp_purc_atom
             true,
             void 0,
             "只对评论和楼中楼的用户进行显示处理"
-          ),
-          UISwitch(
-            "实验性-请求携带Cookie",
-            "baidu_tieba_request_with_cookie",
-            false,
-            void 0,
-            "非浏览器插件使用"
           )
         ]
       },
@@ -3362,23 +3255,195 @@ match-attr##srcid##sp_purc_atom
       $contentElement.scrollTo(0, $contentElement.scrollHeight);
     }
   };
+  const UISelect = function(text, key, defaultValue, data, callback, description) {
+    let selectData = [];
+    if (typeof data === "function") {
+      selectData = data();
+    } else {
+      selectData = data;
+    }
+    let result = {
+      text,
+      type: "select",
+      description,
+      attributes: {},
+      getValue() {
+        return PopsPanel.getValue(key, defaultValue);
+      },
+      callback(event, isSelectedValue, isSelectedText) {
+        PopsPanel.setValue(key, isSelectedValue);
+        if (typeof callback === "function") {
+          callback(event, isSelectedValue, isSelectedText);
+        }
+      },
+      data: selectData
+    };
+    if (result.attributes) {
+      result.attributes[ATTRIBUTE_KEY] = key;
+      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
+    }
+    return result;
+  };
+  const UITextArea = function(text, key, defaultValue, description, changeCallBack, placeholder = "", disabled) {
+    let result = {
+      text,
+      type: "textarea",
+      attributes: {},
+      description,
+      placeholder,
+      disabled,
+      getValue() {
+        let localValue = PopsPanel.getValue(key, defaultValue);
+        return localValue;
+      },
+      callback(event, value) {
+        PopsPanel.setValue(key, value);
+      }
+    };
+    if (result.attributes) {
+      result.attributes[ATTRIBUTE_KEY] = key;
+      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
+    }
+    return result;
+  };
+  const PanelCommonSettingUI = {
+    id: "baidu-panel-config-common",
+    title: "通用",
+    forms: [
+      {
+        text: "Toast配置",
+        type: "forms",
+        forms: [
+          UISelect(
+            "Toast位置",
+            "qmsg-config-position",
+            "bottom",
+            [
+              {
+                value: "topleft",
+                text: "左上角"
+              },
+              {
+                value: "top",
+                text: "顶部"
+              },
+              {
+                value: "topright",
+                text: "右上角"
+              },
+              {
+                value: "left",
+                text: "左边"
+              },
+              {
+                value: "center",
+                text: "中间"
+              },
+              {
+                value: "right",
+                text: "右边"
+              },
+              {
+                value: "bottomleft",
+                text: "左下角"
+              },
+              {
+                value: "bottom",
+                text: "底部"
+              },
+              {
+                value: "bottomright",
+                text: "右下角"
+              }
+            ],
+            (event, isSelectValue, isSelectText) => {
+              log.info("设置当前Qmsg弹出位置" + isSelectText);
+            },
+            "Toast显示在页面九宫格的位置"
+          ),
+          UISelect(
+            "最多显示的数量",
+            "qmsg-config-maxnums",
+            3,
+            [
+              {
+                value: 1,
+                text: "1"
+              },
+              {
+                value: 2,
+                text: "2"
+              },
+              {
+                value: 3,
+                text: "3"
+              },
+              {
+                value: 4,
+                text: "4"
+              },
+              {
+                value: 5,
+                text: "5"
+              }
+            ],
+            void 0,
+            "限制Toast显示的数量"
+          ),
+          UISwitch(
+            "逆序弹出",
+            "qmsg-config-showreverse",
+            false,
+            void 0,
+            "修改Toast弹出的顺序"
+          )
+        ]
+      },
+      {
+        text: "Cookie配置",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "启用",
+            "httpx-use-cookie-enable",
+            false,
+            void 0,
+            "启用后，将根据下面的配置进行添加cookie"
+          ),
+          UISwitch(
+            "使用document.cookie",
+            "httpx-use-document-cookie",
+            false,
+            void 0,
+            "自动根据请求的域名来获取对应的cookie"
+          ),
+          UITextArea(
+            "tieba.baidu.com",
+            "httpx-cookie-tieba.baidu.com",
+            "",
+            void 0,
+            void 0,
+            "Cookie格式：xxx=xxxx;xxx=xxxx"
+          )
+        ]
+      }
+    ]
+  };
   const PopsPanel = {
     /** 数据 */
     $data: {
       /**
        * 菜单项的默认值
        */
-      data: new utils.Dictionary(),
+      data: new Utils.Dictionary(),
       /**
        * 成功只执行了一次的项
        */
-      oneSuccessExecMenu: new utils.Dictionary(),
+      oneSuccessExecMenu: new Utils.Dictionary(),
       /**
        * 成功只执行了一次的项
        */
-      onceExec: new utils.Dictionary(),
-      /** 脚本名，一般用在设置的标题上 */
-      scriptName: SCRIPT_NAME,
+      onceExec: new Utils.Dictionary(),
       /** 菜单项的总值在本地数据配置的键名 */
       key: KEY,
       /** 菜单项在attributes上配置的菜单键 */
@@ -3391,7 +3456,7 @@ match-attr##srcid##sp_purc_atom
       /**
        * 值改变的监听器
        */
-      listenData: new utils.Dictionary()
+      listenData: new Utils.Dictionary()
     },
     init() {
       this.initPanelDefaultValue();
@@ -3657,6 +3722,7 @@ match-attr##srcid##sp_purc_atom
      */
     getPanelContentConfig() {
       let configList = [
+        PanelCommonSettingUI,
         PanelSearchSettingUI,
         PanelBaiJiaHaoSettingUI,
         PanelTieBaSettingUI,
@@ -3679,6 +3745,198 @@ match-attr##srcid##sp_purc_atom
         PanelAiStudySettingUI
       ];
       return configList;
+    }
+  };
+  const HttpxCookieManager = {
+    $data: {
+      cookieList: [
+        {
+          key: "httpx-cookie-tieba.baidu.com",
+          hostname: /(tieba.baidu|www.tieba|ala.baidu|static.tieba.baidu|nba.baidu).com/g
+        }
+      ]
+    },
+    /**
+     * 补充cookie末尾分号
+     */
+    fixCookieSplit(str) {
+      if (utils.isNotNull(str) && !str.trim().endsWith(";")) {
+        str += ";";
+      }
+      return str;
+    },
+    /**
+     * 合并两个cookie
+     */
+    concatCookie(targetCookie, newCookie) {
+      if (utils.isNull(targetCookie)) {
+        return newCookie;
+      }
+      targetCookie = targetCookie.trim();
+      newCookie = newCookie.trim();
+      targetCookie = this.fixCookieSplit(targetCookie);
+      if (newCookie.startsWith(";")) {
+        newCookie = newCookie.substring(1);
+      }
+      return targetCookie.concat(newCookie);
+    },
+    /**
+     * 处理cookie
+     * @param data
+     * @returns
+     */
+    handle(data) {
+      if (data.fetch) {
+        return;
+      }
+      if (!PopsPanel.getValue("httpx-use-cookie-enable")) {
+        return;
+      }
+      let ownCookie = "";
+      if (PopsPanel.getValue("httpx-use-document-cookie")) {
+        ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
+      }
+      let url = data.url;
+      if (url.startsWith("//")) {
+        url = window.location.protocol + url;
+      }
+      let urlObj = new URL(url);
+      this.$data.cookieList.forEach((item) => {
+        if (item.hostname.test(urlObj.hostname)) {
+          let cookie = PopsPanel.getValue(item.key);
+          if (utils.isNull(cookie)) {
+            return;
+          }
+          ownCookie = this.concatCookie(ownCookie, cookie);
+        }
+      });
+      if (utils.isNotNull(ownCookie)) {
+        if (data.headers && data.headers["Cookie"]) {
+          data.headers.Cookie = this.concatCookie(data.headers.Cookie, ownCookie);
+        } else {
+          data.headers["Cookie"] = ownCookie;
+        }
+        log.info(["Httpx => 设置cookie:", data]);
+      }
+      if (data.headers && data.headers.Cookie != null && utils.isNull(data.headers.Cookie)) {
+        delete data.headers.Cookie;
+      }
+    }
+  };
+  const _SCRIPT_NAME_ = "【移动端】百度系优化";
+  const utils = Utils.noConflict();
+  const domutils = DOMUtils.noConflict();
+  const pops = _monkeyWindow.pops || _unsafeWindow.pops;
+  const showdown = _monkeyWindow.showdown || _unsafeWindow.showdown;
+  const log = new Utils.Log(
+    _GM_info,
+    _unsafeWindow.console || _monkeyWindow.console
+  );
+  const SCRIPT_NAME = ((_a2 = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a2.name) || _SCRIPT_NAME_;
+  const loadingView = new LoadingView(true);
+  const DEBUG = false;
+  log.config({
+    debug: DEBUG,
+    logMaxCount: 2e4,
+    autoClearConsole: true,
+    tag: true
+  });
+  Qmsg.config(
+    Object.defineProperties(
+      {
+        html: true,
+        autoClose: true,
+        showClose: false
+      },
+      {
+        position: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-position", "bottom");
+          }
+        },
+        maxNums: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-maxnums", 5);
+          }
+        },
+        showReverse: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-showreverse", true);
+          }
+        },
+        zIndex: {
+          get() {
+            let maxZIndex = Utils.getMaxZIndex(10);
+            let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(10).zIndex;
+            return Utils.getMaxValue(maxZIndex, popsMaxZIndex);
+          }
+        }
+      }
+    )
+  );
+  const GM_Menu = new Utils.GM_Menu({
+    GM_getValue: _GM_getValue,
+    GM_setValue: _GM_setValue,
+    GM_registerMenuCommand: _GM_registerMenuCommand,
+    GM_unregisterMenuCommand: _GM_unregisterMenuCommand
+  });
+  const httpx = new Utils.Httpx(_GM_xmlhttpRequest);
+  httpx.interceptors.request.use((data) => {
+    HttpxCookieManager.handle(data);
+    return data;
+  });
+  httpx.interceptors.response.use(void 0, (data) => {
+    log.error(["拦截器-请求错误", data]);
+    if (data.type === "onabort") {
+      Qmsg.warning("请求取消");
+    } else if (data.type === "onerror") {
+      Qmsg.error("请求异常");
+    } else if (data.type === "ontimeout") {
+      Qmsg.error("请求超时");
+    } else {
+      Qmsg.error("其它错误");
+    }
+    return data;
+  });
+  httpx.config({
+    logDetails: DEBUG
+  });
+  const OriginPrototype = {
+    Object: {
+      defineProperty: _unsafeWindow.Object.defineProperty
+    },
+    Function: {
+      apply: _unsafeWindow.Function.prototype.apply,
+      call: _unsafeWindow.Function.prototype.call
+    },
+    Element: {
+      appendChild: _unsafeWindow.Element.prototype.appendChild
+    },
+    setTimeout: _unsafeWindow.setTimeout
+  };
+  const addStyle = Utils.addStyle;
+  const VUE_ELE_NAME_ID = "vite-app";
+  const MountVue = async function(targetApp, plugin = []) {
+    DOMUtils.ready(async () => {
+      const app = vue.createApp(targetApp);
+      let $mount = DOMUtils.createElement("div", {
+        id: VUE_ELE_NAME_ID
+      });
+      {
+        if (ElementPlusIconsVue != null) {
+          for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+            app.component(key, component);
+          }
+        }
+      }
+      document.body.appendChild($mount);
+      plugin.forEach((item) => {
+        app.use(item);
+      });
+      app.mount($mount);
+    });
+    {
+      addStyle(_GM_getResourceText("ElementPlusResourceCSS"));
     }
   };
   const SearchShieldCSS = `.c-container.na-ec-item,\r
@@ -4389,10 +4647,12 @@ div[class^="new-summary-container_"] {\r
     /**
      * 是否重构大家都在搜
      */
-    refactorEveryoneIsStillSearching: PopsPanel.getValue(
-      "baidu_search_refactor_everyone_is_still_searching",
-      false
-    ),
+    get refactorEveryoneIsStillSearching() {
+      return PopsPanel.getValue(
+        "baidu_search_refactor_everyone_is_still_searching",
+        false
+      );
+    },
     /**
      * 处理底部的
      * @param bottomElement
@@ -4414,7 +4674,10 @@ div[class^="new-summary-container_"] {\r
                         <a href="javascript:;" onclick="return false;" target="_self" class="whitesev-gm-refactor-everyone-searching">
                         <span>${searchText}</span>
                         </a>`;
-          searchItemEle.style.setProperty("padding", "0.06rem");
+          searchItemEle.style.setProperty(
+            "padding",
+            "0.06rem"
+          );
         });
         (_a3 = item.querySelector("div.c-line-clamp1")) == null ? void 0 : _a3.remove();
         if (!item.closest("#results")) {
@@ -4442,13 +4705,18 @@ div[class^="new-summary-container_"] {\r
         if (!recommendElement.querySelector("div.c-gap-inner-bottom-small") && !recommendElement.querySelector("div.cos-row div.cos-col")) {
           return;
         }
-        recommendElement.setAttribute("gm-refactor-everyone-search-center", "true");
+        recommendElement.setAttribute(
+          "gm-refactor-everyone-search-center",
+          "true"
+        );
         let rwListContainerHTML = "";
         let innerBottomSmallElementList = recommendElement.querySelectorAll(
           "div.c-gap-inner-bottom-small"
         );
         if (!innerBottomSmallElementList.length) {
-          innerBottomSmallElementList = recommendElement.querySelectorAll("div.cos-row div.cos-col");
+          innerBottomSmallElementList = recommendElement.querySelectorAll(
+            "div.cos-row div.cos-col"
+          );
         }
         innerBottomSmallElementList.forEach((item) => {
           var _a3;
@@ -9979,10 +10247,6 @@ div[class^="new-summary-container_"] {\r
           Referer: "tieba.baidu.com"
         }
       };
-      if (PopsPanel.getValue("baidu_tieba_request_with_cookie")) {
-        log.success("贴吧-发送请求携带cookie");
-        getDetails.headers["Cookie"] = document.cookie;
-      }
       let getResp = await httpx.get(getDetails);
       let respData = getResp.data;
       log.success(["获取评论", getResp]);
