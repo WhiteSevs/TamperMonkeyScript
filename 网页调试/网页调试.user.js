@@ -1762,7 +1762,7 @@
     $ele: {
       /** 隐藏调试工具的style元素 */
       hideDebugToolCSSNode: void 0,
-    },12
+    },
     erudaVersion: "3.0.1",
     vConsoleVersion: "3.15.1",
     pageSpyVersion: "1.8.12",
