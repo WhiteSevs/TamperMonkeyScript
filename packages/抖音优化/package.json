@@ -5,6 +5,7 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
+		"check": "vue-tsc",
 		"dev": "vue-tsc --noEmit && vite --force",
 		"build": "vue-tsc --noEmit && vite build",
 		"build:min": "vue-tsc --noEmit && vite build --minify",
