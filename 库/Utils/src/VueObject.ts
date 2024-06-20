@@ -122,3 +122,7 @@ export declare interface Vue2Object extends AnyObject {
 		}
 	) => void;
 }
+
+export declare interface HTMLVue2DivElement extends HTMLDivElement {
+	__vue__: Vue2Object;
+}

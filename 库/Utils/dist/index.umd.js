@@ -6220,6 +6220,33 @@
             return formData;
         }
         /**
+         * 将链接转为URL对象，自动补充URL的protocol或者origin
+         * @param text 需要转换的链接字符串
+         * @example
+         * Utils.toUrl("//www.baidu.com/s?word=666");
+         * Utils.toUrl("/s?word=666");
+         */
+        toUrl(text) {
+            if (typeof text !== "string") {
+                throw new TypeError("toUrl: text must be string");
+            }
+            text = text.trim();
+            if (text === "") {
+                throw new TypeError("toUrl: text must not be empty");
+            }
+            if (text.startsWith("//")) {
+                /* //www.baidu.com/xxxxxxx */
+                /* 没有protocol，加上 */
+                text = UtilsCore.globalThis.location.protocol + text;
+            }
+            else if (text.startsWith("/")) {
+                /* /xxx/info?xxx=xxx */
+                /* 没有Origin，加上 */
+                text = UtilsCore.globalThis.location.origin + text;
+            }
+            return new URL(text);
+        }
+        /**
          * 生成uuid
          * @example
          * Utils.generateUUID()

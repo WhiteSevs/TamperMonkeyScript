@@ -1746,6 +1746,14 @@ declare class Utils {
         [key: string]: string | Blob | File | number;
     }, isEncode?: boolean, valueAutoParseToStr?: boolean): FormData;
     /**
+     * 将链接转为URL对象，自动补充URL的protocol或者origin
+     * @param text 需要转换的链接字符串
+     * @example
+     * Utils.toUrl("//www.baidu.com/s?word=666");
+     * Utils.toUrl("/s?word=666");
+     */
+    toUrl(text: string): URL;
+    /**
      * 生成uuid
      * @example
      * Utils.generateUUID()
