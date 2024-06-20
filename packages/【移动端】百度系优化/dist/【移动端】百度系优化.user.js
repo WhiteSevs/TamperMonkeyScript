@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.20
+// @version      2024.6.20.18
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -8245,19 +8245,19 @@ div[class^="new-summary-container_"] {\r
 				z-index: ${defaultOption["z-index"]};
 			}
 			`);
+      let checkOffset = defaultOption.offset;
       let $affixLine = document.createElement("div");
       $affixLine.className = "affix-line";
       $target.setAttribute("data-target", defaultOption.target);
       domutils.before($target, $affixLine);
       let rootMargin = `0px`;
       if (defaultOption.position === "bottom") {
-        rootMargin = `0px 0px ${-defaultOption.offset}px 0px`;
+        rootMargin = `0px 0px ${-checkOffset}px 0px`;
       } else {
-        rootMargin = `${-defaultOption.offset}px 0px 0px 0px`;
+        rootMargin = `${-checkOffset}px 0px 0px 0px`;
       }
       let threshold = [0.01, 0.99];
-      threshold[0] * defaultOption.offset;
-      let thresholdMaxValue = threshold[threshold.length - 1] * defaultOption.offset;
+      let thresholdMaxValue = threshold[threshold.length - 1] * checkOffset;
       let lockFunc = new utils.LockFunction(
         (entries) => {
           let intersectionObserverEntry = entries[0];
@@ -8276,7 +8276,6 @@ div[class^="new-summary-container_"] {\r
       );
       const observer = new IntersectionObserver(
         (entries) => {
-          console.log(entries);
           lockFunc.run(entries);
         },
         {
@@ -8422,8 +8421,7 @@ div[class^="new-summary-container_"] {\r
             target: "#replySwitch",
             position: "top",
             root: $navBar,
-            // offset: 48,
-            offset: 50,
+            offset: 49,
             change() {
             }
           });
@@ -9330,18 +9328,12 @@ div[class^="new-summary-container_"] {\r
       let builderId = data_field["content"]["builderId"];
       let userComment = data_field["content"]["content"];
       if (!userComment) {
-        userComment = (_a3 = element.querySelector(".d_post_content")) == null ? void 0 : _a3.innerHTML;
+        userComment = ((_a3 = element.querySelector(".d_post_content")) == null ? void 0 : _a3.innerHTML) || "";
       }
       let userHomeUrl = (_b = element.querySelector(".p_author_face")) == null ? void 0 : _b.getAttribute("href");
-      data_field["author"]["user_name"];
-      let $userShowName = element.querySelector(".p_author_name");
-      let userShowName = "";
-      if (userShowName) {
-        userShowName = $userShowName == null ? void 0 : $userShowName.textContent;
-      } else {
-        userShowName = (_c = element.querySelector(".p_author_face > img")) == null ? void 0 : _c.getAttribute("username");
-      }
       let userName = data_field["author"]["user_name"];
+      let $userShowName = element.querySelector(".p_author_name");
+      let userShowName = ($userShowName == null ? void 0 : $userShowName.textContent) || ((_c = element.querySelector(".p_author_face > img")) == null ? void 0 : _c.getAttribute("username")) || userName;
       let userAvatar = ((_d = element.querySelector(".p_author_face > img")) == null ? void 0 : _d.getAttribute("data-tb-lazyload")) || ((_e = element.querySelector(".p_author_face > img")) == null ? void 0 : _e.src) || "";
       let is_landlord = 0;
       if (user_id == builderId) {
@@ -9355,7 +9347,9 @@ div[class^="new-summary-container_"] {\r
         );
       }
       if (element.querySelector(".user_badge .d_badge_title")) {
-        userForumLevelName = (_g = element.querySelector(".user_badge .d_badge_title")) == null ? void 0 : _g.textContent;
+        userForumLevelName = (_g = element.querySelector(
+          ".user_badge .d_badge_title"
+        )) == null ? void 0 : _g.textContent;
       }
       let { userFloor, userIpPosition, userCommentTime } = parseCommentBottomInfo(element);
       if (userAvatar.startsWith("//")) {

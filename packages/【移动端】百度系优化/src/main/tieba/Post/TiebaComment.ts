@@ -102,31 +102,34 @@ function setAffix(option: Partial<AffixOption>) {
 				z-index: ${defaultOption["z-index"]};
 			}
 			`);
+			let checkOffset = defaultOption.offset;
 			let $affixLine = document.createElement("div");
 			$affixLine.className = "affix-line";
 			$target.setAttribute("data-target", defaultOption.target);
 			DOMUtils.before($target, $affixLine);
 			let rootMargin = `0px`;
 			if (defaultOption.position === "bottom") {
-				rootMargin = `0px 0px ${-defaultOption.offset}px 0px`;
+				rootMargin = `0px 0px ${-checkOffset}px 0px`;
 			} else {
-				rootMargin = `${-defaultOption.offset}px 0px 0px 0px`;
+				rootMargin = `${-checkOffset}px 0px 0px 0px`;
 			}
 			let threshold = [0.01, 0.99];
-			let thresholdMinValue = threshold[0] * defaultOption.offset;
-			let thresholdMaxValue =
-				threshold[threshold.length - 1] * defaultOption.offset;
+			let thresholdMinValue = threshold[0] * checkOffset;
+			let thresholdMaxValue = threshold[threshold.length - 1] * checkOffset;
 			let lockFunc = new utils.LockFunction(
 				(entries: IntersectionObserverEntry[]) => {
 					let intersectionObserverEntry = entries[0];
 					let boundTop = intersectionObserverEntry.boundingClientRect.top;
+					// let boundTop = $target.getBoundingClientRect().top;
 					// let boundTop = $affixLine.getBoundingClientRect().top;
 					if (defaultOption.position === "top") {
 						/* top */
 						if (boundTop < thresholdMaxValue) {
+							// 固定
 							$affixLine.style.height = DOMUtils.outerHeight($target) + "px";
 							$target.classList.add("affix-container-top-fixed");
 						} else {
+							// 取消固定
 							$affixLine.style.height = "";
 							$target.classList.remove("affix-container-top-fixed");
 						}
@@ -138,7 +141,6 @@ function setAffix(option: Partial<AffixOption>) {
 			);
 			const observer = new IntersectionObserver(
 				(entries) => {
-					console.log(entries);
 					lockFunc.run(entries);
 				},
 				{
@@ -297,8 +299,7 @@ const TiebaComment = {
 							target: "#replySwitch",
 							position: "top",
 							root: $navBar,
-							// offset: 48,
-							offset: 50,
+							offset: 49,
 							change() {},
 						});
 					});
@@ -1280,33 +1281,31 @@ const TiebaComment = {
 		let builderId = data_field["content"]["builderId"];
 
 		/* 获取用户评论 */
-		let userComment = data_field["content"]["content"];
+		let userComment = data_field["content"]["content"] as string;
 		if (!userComment) {
 			/* 如果评论获取为空的话，可能是因为【该楼层疑似违规已被系统折叠】，直接获取innerHTML */
-			userComment = element.querySelector(".d_post_content")?.innerHTML;
+			userComment =
+				element.querySelector<HTMLDivElement>(".d_post_content")?.innerHTML ||
+				"";
 		}
 		/* 获取用户主页 */
 		let userHomeUrl = element
 			.querySelector(".p_author_face")
 			?.getAttribute("href");
-		/* 获取楼主名字 */
-		let user_landlord_name = data_field["author"]["user_name"];
-		/* 用户显示出的名字 */
-		let $userShowName = element.querySelector(".p_author_name");
-		let userShowName = "";
-		if (userShowName) {
-			userShowName = $userShowName?.textContent as string;
-		} else {
-			userShowName = element
-				.querySelector(".p_author_face > img")
-				?.getAttribute("username") as string;
-		}
 		/* 用户真实的名字 */
-		let userName = data_field["author"]["user_name"];
+		let userName = data_field["author"]["user_name"] as string;
+		/* 用户显示出的名字 */
+		let $userShowName = element.querySelector<HTMLDivElement>(".p_author_name");
+		let userShowName =
+			$userShowName?.textContent ||
+			element
+				.querySelector<HTMLImageElement>(".p_author_face > img")
+				?.getAttribute("username") ||
+			userName;
 		/* 获取用户头像 */
 		let userAvatar =
 			element
-				.querySelector(".p_author_face > img")
+				.querySelector<HTMLImageElement>(".p_author_face > img")
 				?.getAttribute("data-tb-lazyload") ||
 			element.querySelector<HTMLImageElement>(".p_author_face > img")?.src ||
 			"";
@@ -1320,14 +1319,16 @@ const TiebaComment = {
 		let userForumLevel = -1;
 		/* 用户本吧等级的名字 */
 		let userForumLevelName = void 0 as unknown as string;
-		if (element.querySelector(".user_badge .d_badge_lv")) {
+		if (element.querySelector<HTMLDivElement>(".user_badge .d_badge_lv")) {
 			userForumLevel = parseInt(
-				element.querySelector(".user_badge .d_badge_lv")?.textContent as string
+				element.querySelector<HTMLDivElement>(".user_badge .d_badge_lv")
+					?.textContent as string
 			);
 		}
-		if (element.querySelector(".user_badge .d_badge_title")) {
-			userForumLevelName = element.querySelector(".user_badge .d_badge_title")
-				?.textContent as string;
+		if (element.querySelector<HTMLDivElement>(".user_badge .d_badge_title")) {
+			userForumLevelName = element.querySelector<HTMLDivElement>(
+				".user_badge .d_badge_title"
+			)?.textContent as string;
 		}
 		let { userFloor, userIpPosition, userCommentTime } =
 			parseCommentBottomInfo(element);
