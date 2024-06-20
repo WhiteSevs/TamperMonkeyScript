@@ -1706,6 +1706,10 @@ declare interface PopsSearchSuggestionDetails {
 	 */
 	topDistance?: number;
 	/**
+	 * 建议框显示的位置，默认是auto(自动判断位置)
+	 */
+	position?: "top" | "bottom" | "auto";
+	/**
 	 * 层级，默认10000
 	 */
 	zIndex?: 10000;

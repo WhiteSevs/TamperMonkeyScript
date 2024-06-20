@@ -3073,7 +3073,7 @@
 		},
 		/**
 		 * 获取元素的高度
-		 * @param {HTMLElement} element - 要获取高度的元素
+		 * @param {HTMLElement|Window|Document} element - 要获取高度的元素
 		 * @param {boolean} [isShow=false] 是否已进行isShow，避免爆堆栈
 		 * @returns {number} - 元素的高度，单位为像素
 		 */
@@ -3089,6 +3089,7 @@
 				// @ts-ignore
 				return;
 			}
+			// @ts-ignore
 			if (element.nodeType === 9) {
 				/* 文档节点 */
 				return Math.max(
@@ -3104,6 +3105,7 @@
 					element.documentElement.clientHeight
 				);
 			}
+			// @ts-ignore
 			if (isShow || PopsUtils.isShow(element)) {
 				/* 已显示 */
 				/* 从style中获取对应的高度，因为可能使用了class定义了width !important */
@@ -3115,16 +3117,23 @@
 				}
 
 				/* 如果从css里获取到的值不是大于0  可能是auto 则通过offsetHeight来进行计算 */
+				// @ts-ignore
 				if (element.offsetHeight > 0) {
+					// @ts-ignore
 					let borderTopWidth = PopsUtils.getStyleValue(
+						// @ts-ignore
 						element,
 						"borderTopWidth"
 					);
+					// @ts-ignore
 					let borderBottomWidth = PopsUtils.getStyleValue(
+						// @ts-ignore
 						element,
 						"borderBottomWidth"
 					);
+					// @ts-ignore
 					let paddingTop = PopsUtils.getStyleValue(element, "paddingTop");
+					// @ts-ignore
 					let paddingBottom = PopsUtils.getStyleValue(element, "paddingBottom");
 					let backHeight =
 						// @ts-ignore
@@ -3143,6 +3152,7 @@
 				return 0;
 			} else {
 				/* 未显示 */
+				// @ts-ignore
 				let { recovery } = PopsUtils.showElement(element);
 				let height = PopsDOMUtils.height(element, true);
 				recovery();
@@ -12520,6 +12530,7 @@
 			maxHeight: "300px",
 			followTargetWidth: true,
 			topDistance: 0,
+			position: "auto",
 			zIndex: 10000,
 			searchingTip: "正在搜索中...",
 			toSearhNotResultHTML: '<li data-none="true">暂无其它数据</li>',
@@ -12605,62 +12616,65 @@
 					{
 						className: `pops pops-${PopsType}-search-suggestion`,
 						innerHTML: `
-            <style>
-            .pops-${PopsType}-animation{
-              -moz-animation: searchSelectFalIn 0.5s 1 linear;
-              -webkit-animation: searchSelectFalIn 0.5s 1 linear;
-              -o-animation: searchSelectFalIn 0.5s 1 linear;
-              -ms-animation: searchSelectFalIn 0.5s 1 linear;
-            }
-            .pops-${PopsType}-search-suggestion{
-              position: ${config.isAbsolute ? "absolute" : "fixed"};
-              z-index: ${config.zIndex};
-              top: 0;
-              bottom: 0;
-              left: 0;
-              right: 0;
-              height: 0;
-              border: initial;
-              overflow: initial;
-            }
-            ul.pops-${PopsType}-search-suggestion-hint{
-              width: 0;
-              left: 0;
-              max-height: ${config.maxHeight};
-              overflow-x: hidden;
-              overflow-y: auto;
-              padding: 5px 0;
-              background-color: #fff;
-              box-sizing: border-box;
-              border-radius: 4px;
-              box-shadow: 0 1px 6px rgb(0 0 0 / 20%);
-              position: absolute;
-            }
-            ul.pops-${PopsType}-search-suggestion-hint li{
-              padding: 7px;
-              margin: 0;
-              clear: both;
-              color: #515a6e;
-              font-size: 14px;
-              list-style: none;
-              cursor: pointer;
-              transition: background .2s ease-in-out;
-              overflow: hidden;
-              text-overflow: ellipsis;
-            }
-            ul.pops-${PopsType}-search-suggestion-hint li[data-none]{
-              text-align: center;
-              font-size: 12px;
-              color: #8e8e8e;
-            }
-            ul.pops-${PopsType}-search-suggestion-hint li:hover{
-              background-color: rgba(0, 0, 0, .1);
-            }            
-            </style>
-            <ul class="pops-${PopsType}-search-suggestion-hint">
-                ${config.toSearhNotResultHTML}
-            </ul>
-          `,
+						<style>
+							.pops-${PopsType}-animation{
+								-moz-animation: searchSelectFalIn 0.5s 1 linear;
+								-webkit-animation: searchSelectFalIn 0.5s 1 linear;
+								-o-animation: searchSelectFalIn 0.5s 1 linear;
+								-ms-animation: searchSelectFalIn 0.5s 1 linear;
+							}
+							.pops-${PopsType}-search-suggestion{
+								border: initial;
+								overflow: initial;
+							}
+							ul.pops-${PopsType}-search-suggestion-hint{
+								position: ${config.isAbsolute ? "absolute" : "fixed"};
+								z-index: ${config.zIndex};
+								width: 0;
+								left: 0;
+								max-height: ${config.maxHeight};
+								overflow-x: hidden;
+								overflow-y: auto;
+								padding: 5px 0;
+								background-color: #fff;
+								box-sizing: border-box;
+								border-radius: 4px;
+								box-shadow: 0 1px 6px rgb(0 0 0 / 20%);
+							}
+							/* 建议框在上面时 */
+							ul.pops-${PopsType}-search-suggestion-hint[data-top]{
+								display: flex;
+    							flex-direction: column-reverse;
+							}
+							ul.pops-${PopsType}-search-suggestion-hint[data-top] li{
+								flex-shrink: 0;
+							}
+							ul.pops-${PopsType}-search-suggestion-hint li{
+								padding: 7px;
+								margin: 0;
+								clear: both;
+								color: #515a6e;
+								font-size: 14px;
+								list-style: none;
+								cursor: pointer;
+								transition: background .2s ease-in-out;
+								overflow: hidden;
+								text-overflow: ellipsis;
+								width: 100%;
+							}
+							ul.pops-${PopsType}-search-suggestion-hint li[data-none]{
+								text-align: center;
+								font-size: 12px;
+								color: #8e8e8e;
+							}
+							ul.pops-${PopsType}-search-suggestion-hint li:hover{
+								background-color: rgba(0, 0, 0, .1);
+							}            
+						</style>
+						<ul class="pops-${PopsType}-search-suggestion-hint">
+							${config.toSearhNotResultHTML}
+						</ul>
+         				 `,
 					},
 					{
 						"data-guid": guid,
@@ -12684,12 +12698,12 @@
 					"data-index": index,
 					"data-value": this.getItemDataValue(item),
 					innerHTML: `
-          ${config.getItemHTML(item)}
-          ${
-						// @ts-ignore
-						config.deleteIcon.enable ? this.getDeleteIconHTML() : ""
-					}
-          `,
+          			${config.getItemHTML(item)}
+          			${
+									// @ts-ignore
+									config.deleteIcon.enable ? this.getDeleteIconHTML() : ""
+								}
+          			`,
 				});
 			},
 			/**
@@ -12889,11 +12903,11 @@
 			 */
 			getDeleteIconHTML(size = 16, fill = "#bababa") {
 				return `
-        <svg class="pops-${PopsType}-delete-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" fill="${fill}">
-          <path d="M512 883.2A371.2 371.2 0 1 0 140.8 512 371.2 371.2 0 0 0 512 883.2z m0 64a435.2 435.2 0 1 1 435.2-435.2 435.2 435.2 0 0 1-435.2 435.2z"></path>
-          <path d="M557.056 512l122.368 122.368a31.744 31.744 0 1 1-45.056 45.056L512 557.056l-122.368 122.368a31.744 31.744 0 1 1-45.056-45.056L466.944 512 344.576 389.632a31.744 31.744 0 1 1 45.056-45.056L512 466.944l122.368-122.368a31.744 31.744 0 1 1 45.056 45.056z"></path>
-        </svg>
-        `;
+				<svg class="pops-${PopsType}-delete-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" fill="${fill}">
+					<path d="M512 883.2A371.2 371.2 0 1 0 140.8 512 371.2 371.2 0 0 0 512 883.2z m0 64a435.2 435.2 0 1 1 435.2-435.2 435.2 435.2 0 0 1-435.2 435.2z"></path>
+					<path d="M557.056 512l122.368 122.368a31.744 31.744 0 1 1-45.056 45.056L512 557.056l-122.368 122.368a31.744 31.744 0 1 1-45.056-45.056L466.944 512 344.576 389.632a31.744 31.744 0 1 1 45.056-45.056L512 466.944l122.368-122.368a31.744 31.744 0 1 1 45.056 45.056z"></path>
+				</svg>
+        	`;
 			},
 			/**
 			 * 设置当前正在搜索中的提示
@@ -12933,10 +12947,51 @@
 					? PopsDOMUtils.offset(target)
 					: target.getBoundingClientRect();
 
-				SearchSuggestion.hintULElement.style.top =
-					// @ts-ignore
-					targetRect.height + targetRect.top + config.topDistance + "px";
-				SearchSuggestion.hintULElement.style.left = targetRect.left + "px";
+				let documentHeight = document.documentElement.clientHeight;
+				if (config.isAbsolute) {
+					// 绝对定位
+					documentHeight = PopsDOMUtils.height(document);
+				}
+				if (config.position === "top") {
+					SearchSuggestion.hintULElement.setAttribute("data-top", "true");
+					// 在上面
+					SearchSuggestion.hintULElement.style.top = "";
+					SearchSuggestion.hintULElement.style.bottom =
+						// @ts-ignore
+						documentHeight - targetRect.top + config.topDistance + "px";
+					SearchSuggestion.hintULElement.style.left = targetRect.left + "px";
+				} else if (config.position === "bottom") {
+					// 在下面
+					SearchSuggestion.hintULElement.removeAttribute("data-top");
+					SearchSuggestion.hintULElement.style.bottom = "";
+					SearchSuggestion.hintULElement.style.top =
+						// @ts-ignore
+						targetRect.height + targetRect.top + config.topDistance + "px";
+					SearchSuggestion.hintULElement.style.left = targetRect.left + "px";
+				} else if (config.position === "auto") {
+					// 自动判断
+					if (
+						targetRect.bottom +
+							PopsDOMUtils.height(SearchSuggestion.hintULElement) >
+						documentHeight
+					) {
+						SearchSuggestion.hintULElement.setAttribute("data-top", "true");
+						// 超出浏览器高度了，自动转换为上面去
+						SearchSuggestion.hintULElement.style.top = "";
+						SearchSuggestion.hintULElement.style.bottom =
+							// @ts-ignore
+							documentHeight - targetRect.top + config.topDistance + "px";
+					} else {
+						SearchSuggestion.hintULElement.removeAttribute("data-top");
+						SearchSuggestion.hintULElement.style.bottom = "";
+						SearchSuggestion.hintULElement.style.top =
+							// @ts-ignore
+							targetRect.height + targetRect.top + config.topDistance + "px";
+					}
+					SearchSuggestion.hintULElement.style.left = targetRect.left + "px";
+				} else {
+					throw new TypeError("未知设置的位置" + config.position);
+				}
 			},
 			/**
 			 * 修改搜索建议框的width
