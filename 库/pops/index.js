@@ -3382,7 +3382,7 @@
 	/** 配置 */
 	pops.config = {
 		/** 版本号 */
-		version: "2024.6.18",
+		version: "2024.6.21",
 		cssText: {
 			/** 主CSS */
 			index: `@charset "utf-8";
