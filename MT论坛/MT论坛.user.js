@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
-// @description  更新日志: 修复贴内点赞功能失效问题
-// @version      2024.6.17
+// @description  更新日志: 修复isFinding不存在导致报错问题
+// @version      2024.6.20
 // @author       WhiteSevs
 // @run-at       document-start
 // @match        *://bbs.binmt.cc/*
@@ -3295,7 +3295,7 @@
 						return;
 					}
 					setTimeout(() => {
-						isFinding = false;
+						isHandling = false;
 					}, 250);
 				},
 				config: { subtree: true, childList: true },
