@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.19
+// @version      2024.6.20
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -20,7 +20,7 @@
 // @require      https://update.greasyfork.org/scripts/495227/1378053/Element-Plus.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.5/dist/index.min.css
@@ -4826,8 +4826,9 @@ div[class^="new-summary-container_"] {\r
      */
     isBlackList(url) {
       let blackList = [
-        new RegExp("^http(s|)://(m[0-9]{0,2}|www).baidu.com/productcard", "g"),
-        new RegExp("^http(s|)://ks.baidu.com")
+        /^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/productcard/,
+        /^http(s|):\/\/ks.baidu.com/,
+        /^http(s|):\/\/mbd.baidu.com\/ma\/tips/
       ];
       for (const blackUrlRegexp of blackList) {
         if (url.match(blackUrlRegexp)) {
@@ -5340,8 +5341,6 @@ div[class^="new-summary-container_"] {\r
         if (!articleElement) {
           continue;
         }
-        articleElement.removeAttribute("rl-link-data-click");
-        articleElement.removeAttribute("rl-link-data-ivk");
         if (BaiduResultItem.isBlackList(resultItemOriginURL)) {
           log.error("黑名单链接不进行替换👉" + resultItemOriginURL);
           continue;
@@ -6151,56 +6150,56 @@ div[class^="new-summary-container_"] {\r
     openResultBlank() {
       function globalResultClickEvent(event) {
         let url = null;
-        let srcElement = event.srcElement;
-        let eventTarget = event.target;
-        if (srcElement) {
-          if (srcElement.closest("a")) {
-            let anchorNode = srcElement.closest("a");
-            if (utils.isNotNull(anchorNode.href)) {
+        let $click = event.composedPath()[0];
+        let $result = event.target;
+        if ($click) {
+          if ($click.closest("a")) {
+            let $link = $click.closest("a");
+            if (utils.isNotNull($link.href)) {
               log.info([
                 "链接来自上层a元素",
                 {
                   event,
-                  srcElement,
-                  anchorNode
+                  $click,
+                  $link
                 }
               ]);
-              url = anchorNode.href;
+              url = $link.href;
             }
-          } else if (srcElement.closest("[rl-link-href]")) {
-            let rlLinkHrefNode = srcElement.closest(
-              "[rl-link-href]"
-            );
-            let rlLinkHref = rlLinkHrefNode.getAttribute("rl-link-href");
+          } else if ($click.closest("[rl-link-href]")) {
+            let $rlLinkDiv = $click.closest("[rl-link-href]");
+            let rlLinkHref = $rlLinkDiv.getAttribute("rl-link-href");
             if (utils.isNotNull(rlLinkHref)) {
               log.info([
                 "链接来自上层含有[rl-link-href]属性的元素",
                 {
                   event,
-                  srcElement,
-                  rlLinkHrefNode
+                  $click,
+                  $rlLinkDiv
                 }
               ]);
               url = rlLinkHref;
             }
           }
         } else {
-          let $resultNode = eventTarget.querySelector("article");
-          url = $resultNode.getAttribute("rl-link-href");
+          let $article = $result.querySelector("article");
+          url = $article.getAttribute("rl-link-href");
           log.info([
             "链接来自顶层向下寻找article元素",
-            { event, eventTarget, $resultNode }
+            { event, $result, $article }
           ]);
         }
         if (utils.isNull(url)) {
-          log.info(["未找到有效链接", { event, eventTarget, srcElement, url }]);
+          log.info(["未找到有效链接", { event, url, $result, $click }]);
           return;
         }
         utils.preventEvent(event);
-        log.success(["新标签页打开-来自click事件", { url }]);
+        log.success(["新标签页打开-来自click事件", url]);
         window.open(url, "_blank");
       }
-      domutils.on(document, "click", ".c-result.result", globalResultClickEvent);
+      domutils.on(document, "click", ".c-result.result", globalResultClickEvent, {
+        capture: true
+      });
     }
   };
   const SearchHomeShieldCSS = "";

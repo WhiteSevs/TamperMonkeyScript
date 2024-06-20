@@ -137,57 +137,57 @@ const BaiduSearch = {
 	openResultBlank() {
 		function globalResultClickEvent(event: PointerEvent | MouseEvent | Event) {
 			let url = null;
-			let srcElement = event.srcElement as HTMLElement;
-			let eventTarget = event.target as HTMLElement;
-			if (srcElement) {
-				if (srcElement.closest("a")) {
-					let anchorNode = srcElement.closest("a") as HTMLAnchorElement;
-					if (utils.isNotNull(anchorNode.href)) {
+			let $click = event.composedPath()[0] as HTMLElement;
+			let $result = event.target as HTMLElement;
+			if ($click) {
+				if ($click.closest("a")) {
+					let $link = $click.closest("a") as HTMLAnchorElement;
+					if (utils.isNotNull($link.href)) {
 						log.info([
 							"链接来自上层a元素",
 							{
 								event,
-								srcElement,
-								anchorNode,
+								$click,
+								$link,
 							},
 						]);
-						url = anchorNode.href;
+						url = $link.href;
 					}
-				} else if (srcElement.closest("[rl-link-href]")) {
-					let rlLinkHrefNode = srcElement.closest(
-						"[rl-link-href]"
-					) as HTMLElement;
-					let rlLinkHref = rlLinkHrefNode.getAttribute("rl-link-href");
+				} else if ($click.closest("[rl-link-href]")) {
+					let $rlLinkDiv = $click.closest("[rl-link-href]") as HTMLElement;
+					let rlLinkHref = $rlLinkDiv.getAttribute("rl-link-href");
 					if (utils.isNotNull(rlLinkHref)) {
 						log.info([
 							"链接来自上层含有[rl-link-href]属性的元素",
 							{
 								event,
-								srcElement,
-								rlLinkHrefNode,
+								$click,
+								$rlLinkDiv,
 							},
 						]);
 						url = rlLinkHref;
 					}
 				}
 			} else {
-				let $resultNode = eventTarget.querySelector("article") as HTMLElement;
-				url = $resultNode.getAttribute("rl-link-href");
+				let $article = $result.querySelector("article") as HTMLElement;
+				url = $article.getAttribute("rl-link-href");
 				log.info([
 					"链接来自顶层向下寻找article元素",
-					{ event, eventTarget, $resultNode },
+					{ event, $result, $article },
 				]);
 			}
 			if (utils.isNull(url)) {
-				log.info(["未找到有效链接", { event, eventTarget, srcElement, url }]);
+				log.info(["未找到有效链接", { event, url, $result, $click }]);
 				return;
 			}
 			/* 阻止事件传递 */
 			utils.preventEvent(event);
-			log.success(["新标签页打开-来自click事件", { url }]);
-			window.open(url as string, "_blank");
+			log.success(["新标签页打开-来自click事件", url]);
+			window.open(url, "_blank");
 		}
-		DOMUtils.on(document, "click", ".c-result.result", globalResultClickEvent);
+		DOMUtils.on(document, "click", ".c-result.result", globalResultClickEvent, {
+			capture: true,
+		});
 	},
 };
 

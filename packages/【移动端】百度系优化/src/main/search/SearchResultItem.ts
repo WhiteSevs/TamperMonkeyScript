@@ -34,8 +34,9 @@ const BaiduResultItem = {
 	 */
 	isBlackList(url: string) {
 		let blackList = [
-			new RegExp("^http(s|)://(m[0-9]{0,2}|www).baidu.com/productcard", "g"),
-			new RegExp("^http(s|)://ks.baidu.com"),
+			/^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/productcard/,
+			/^http(s|):\/\/ks.baidu.com/,
+			/^http(s|):\/\/mbd.baidu.com\/ma\/tips/,
 		];
 		for (const blackUrlRegexp of blackList) {
 			if (url.match(blackUrlRegexp)) {
@@ -670,9 +671,9 @@ const BaiduResultItem = {
 				continue;
 			}
 			/* 移除属性rl-link-data-click，猜测该属性是用于点击事件触发 */
-			articleElement.removeAttribute("rl-link-data-click");
+			// articleElement.removeAttribute("rl-link-data-click");
 			/* ivk应该是invoke缩写，可能是调用跳转百度APP */
-			articleElement.removeAttribute("rl-link-data-ivk");
+			// articleElement.removeAttribute("rl-link-data-ivk");
 			/* 不对黑名单链接进行处理 */
 			if (BaiduResultItem.isBlackList(resultItemOriginURL)) {
 				log.error("黑名单链接不进行替换👉" + resultItemOriginURL);

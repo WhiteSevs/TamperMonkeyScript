@@ -16,7 +16,7 @@
 	"dependencies": {
 		"@element-plus/icons-vue": "^2.3.1",
 		"@whitesev/domutils": "^1.1.1",
-		"@whitesev/utils": "^1.5.2",
+		"@whitesev/utils": "^1.5.3",
 		"pinia": "^2.1.7",
 		"qmsg": "^1.1.2",
 		"viewerjs": "^1.11.6",
@@ -25,7 +25,7 @@
 		"vue-router": "^4.3.3"
 	},
 	"devDependencies": {
-		"@types/node": "^20.14.5",
+		"@types/node": "^20.14.6",
 		"@vitejs/plugin-vue": "^5.0.5",
 		"element-plus": "^2.7.5",
 		"typescript": "^5.4.5",
