@@ -847,6 +847,7 @@ declare class Utils {
      * Utils.isNotNull("123");
      * > true
      */
+    isNotNull<T>(value: T | null): value is T;
     isNotNull(...args: any[]): boolean;
     /**
      * 判断对象或数据是否为空
@@ -893,6 +894,7 @@ declare class Utils {
       Utils.isNull(false,[123]);
       > false
      **/
+    isNull<T>(value: T | null): value is null;
     isNull(...args: any[]): boolean;
     /**
      * 判断浏览器主题是否是暗黑|深色模式
@@ -1732,11 +1734,23 @@ declare class Utils {
     /**
      * 将对象转换为FormData
      * @param data 待转换的对象
-     * @param isEncode 是否对值为string进行编码转换(encodeURIComponent)
+     * @param isEncode 是否对值为string进行编码转换(encodeURIComponent)，默认false
+     * @param valueAutoParseToStr 是否对值强制使用JSON.stringify()转换，默认false
+     * @example
+     * Utils.toFormData({
+     * 	test: "1",
+     *  666: 666,
+     * })
      */
     toFormData(data: {
         [key: string]: string | Blob | File | number;
-    }, isEncode?: boolean): FormData;
+    }, isEncode?: boolean, valueAutoParseToStr?: boolean): FormData;
+    /**
+     * 生成uuid
+     * @example
+     * Utils.generateUUID()
+     */
+    generateUUID(): string;
 }
 declare let utils: Utils;
 export { utils as Utils };

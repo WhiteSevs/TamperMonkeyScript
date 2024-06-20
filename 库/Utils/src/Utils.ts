@@ -1323,7 +1323,7 @@ class Utils {
 		];
 		let androidVersion = UtilsContext.getRandomValue(12, 14);
 		let randomMobile = UtilsContext.getRandomValue(mobileNameList);
-		let chromeVersion1 = UtilsContext.getRandomValue(115, 125);
+		let chromeVersion1 = UtilsContext.getRandomValue(115, 127);
 		let chromeVersion2 = UtilsContext.getRandomValue(0, 0);
 		let chromeVersion3 = UtilsContext.getRandomValue(2272, 6099);
 		let chromeVersion4 = UtilsContext.getRandomValue(1, 218);
@@ -1417,7 +1417,7 @@ class Utils {
 	 **/
 	getRandomPCUA(): string {
 		let UtilsContext = this;
-		let chromeVersion1 = UtilsContext.getRandomValue(115, 126);
+		let chromeVersion1 = UtilsContext.getRandomValue(115, 127);
 		let chromeVersion2 = UtilsContext.getRandomValue(0, 0);
 		let chromeVersion3 = UtilsContext.getRandomValue(2272, 6099);
 		let chromeVersion4 = UtilsContext.getRandomValue(1, 218);
@@ -2019,6 +2019,7 @@ class Utils {
 	 * Utils.isNotNull("123");
 	 * > true
 	 */
+	isNotNull<T>(value: T | null): value is T;
 	isNotNull(...args: any[]): boolean;
 	isNotNull(...args: any[]): boolean {
 		let UtilsContext = this;
@@ -2069,6 +2070,7 @@ class Utils {
       Utils.isNull(false,[123]);
       > false
      **/
+	isNull<T>(value: T | null): value is null;
 	isNull(...args: any[]): boolean;
 	isNull(...args: any[]): boolean {
 		let result = true;
@@ -4834,15 +4836,25 @@ class Utils {
 	/**
 	 * 将对象转换为FormData
 	 * @param data 待转换的对象
-	 * @param isEncode 是否对值为string进行编码转换(encodeURIComponent)
+	 * @param isEncode 是否对值为string进行编码转换(encodeURIComponent)，默认false
+	 * @param valueAutoParseToStr 是否对值强制使用JSON.stringify()转换，默认false
+	 * @example
+	 * Utils.toFormData({
+	 * 	test: "1",
+	 *  666: 666,
+	 * })
 	 */
 	toFormData(
 		data: { [key: string]: string | Blob | File | number },
-		isEncode: boolean = false
+		isEncode: boolean = false,
+		valueAutoParseToStr: boolean = false
 	) {
 		const formData = new FormData();
 		Object.keys(data).forEach((key) => {
 			let value = data[key];
+			if (valueAutoParseToStr) {
+				value = JSON.stringify(value);
+			}
 			if (typeof value === "number") {
 				value = value.toString();
 			}
@@ -4856,6 +4868,26 @@ class Utils {
 			}
 		});
 		return formData;
+	}
+	/**
+	 * 生成uuid
+	 * @example
+	 * Utils.generateUUID()
+	 */
+	generateUUID() {
+		if (typeof globalThis?.crypto?.randomUUID === "function") {
+			return globalThis.crypto.randomUUID();
+		} else {
+			return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+				/[xy]/g,
+				function (charStr) {
+					var randomValue = (Math.random() * 16) | 0,
+						randomCharValue =
+							charStr === "x" ? randomValue : (randomValue & 0x3) | 0x8;
+					return randomCharValue.toString(16);
+				}
+			);
+		}
 	}
 }
 
