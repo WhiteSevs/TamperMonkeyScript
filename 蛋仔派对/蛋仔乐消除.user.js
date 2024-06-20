@@ -2,7 +2,7 @@
 // @name         蛋仔乐消除
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @icon         https://favicon.yandex.net/favicon/v2/https://party.163.com/h5/20230120/xxl/player?size=32
-// @version      2023.11.15
+// @version      2024.6.20
 // @description  一键完成赚金币任务和分享获取门票，按钮在油猴菜单中
 // @author       WhiteSev
 // @match        https://party.163.com/h5/20230120/xxl/player/*
@@ -23,9 +23,16 @@
 
 (function () {
   "use strict";
-  if(typeof unsafeWindow === "undefined"){
-    unsafeWindow = globalThis;
-  }
+	if (typeof unsafeWindow === "undefined") {
+		if (
+			typeof globalThis.unsafeWindow !== "undefined" &&
+			globalThis.unsafeWindow != null
+		) {
+			var unsafeWindow = globalThis.unsafeWindow;
+		} else {
+			var unsafeWindow = globalThis || window || self;
+		}
+	}
   const utils = Utils.noConflict();
   let config = {
     score: 1566 /* 分数 */,

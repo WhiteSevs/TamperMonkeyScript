@@ -16,6 +16,16 @@
 // ==/UserScript==
 
 (function () {
+	if (typeof unsafeWindow === "undefined") {
+		if (
+			typeof globalThis.unsafeWindow !== "undefined" &&
+			globalThis.unsafeWindow != null
+		) {
+			var unsafeWindow = globalThis.unsafeWindow;
+		} else {
+			var unsafeWindow = globalThis || window || self;
+		}
+	}
   /**
    * 油猴环境下就是unsafeWindow，如果不是就是globalThis
    */

@@ -41,7 +41,14 @@
 (async function () {
 	"use strict";
 	if (typeof unsafeWindow === "undefined") {
-		var unsafeWindow = window;
+		if (
+			typeof globalThis.unsafeWindow !== "undefined" &&
+			globalThis.unsafeWindow != null
+		) {
+			var unsafeWindow = globalThis.unsafeWindow;
+		} else {
+			var unsafeWindow = globalThis || window || self;
+		}
 	}
 	const console = unsafeWindow.console;
 	/**

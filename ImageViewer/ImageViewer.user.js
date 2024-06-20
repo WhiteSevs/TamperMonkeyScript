@@ -26,344 +26,351 @@
 // ==/UserScript==
 
 (function () {
-  if(typeof unsafeWindow === "undefined"){
-    unsafeWindow = globalThis;
-  }
-  /** @type {import("../库/pops")} */
-  const pops = window.pops;
-  /** @type {import("../库/Viewer/index")} */
-  const Viewer = window.Viewer;
-  /** @type {import("../库/Qmsg")} */
-  const Qmsg = window.Qmsg;
-  /** @type {import("../库/Utils")} */
-  const utils = window.Utils.noConflict();
-  /**@type {import("../库/DOMUtils")} */
-  const DOMUtils = window.DOMUtils.noConflict();
+	if (typeof unsafeWindow === "undefined") {
+		if (
+			typeof globalThis.unsafeWindow !== "undefined" &&
+			globalThis.unsafeWindow != null
+		) {
+			var unsafeWindow = globalThis.unsafeWindow;
+		} else {
+			var unsafeWindow = globalThis || window || self;
+		}
+	}
+	/** @type {import("../库/pops")} */
+	const pops = window.pops;
+	/** @type {import("../库/Viewer/index")} */
+	const Viewer = window.Viewer;
+	/** @type {import("../库/Qmsg")} */
+	const Qmsg = window.Qmsg;
+	/** @type {import("../库/Utils")} */
+	const utils = window.Utils.noConflict();
+	/**@type {import("../库/DOMUtils")} */
+	const DOMUtils = window.DOMUtils.noConflict();
 
-  const log = new utils.Log(GM_info, unsafeWindow.console || console);
-  /** 油猴菜单 */
-  const GM_Menu = new utils.GM_Menu({
-    GM_getValue,
-    GM_setValue,
-    GM_registerMenuCommand,
-    GM_unregisterMenuCommand,
-  });
-  /* 配置控制台日志 */
-  log.config({
-    debug: false,
-    logMaxCount: 20000,
-    autoClearConsole: true,
-    tag: true,
-  });
-  /* 配置吐司Qmsg */
-  Qmsg.config({
-    position: "bottom",
-    html: true,
-    maxNums: 5,
-    autoClose: true,
-    showClose: false,
-    showReverse: true,
-  });
+	const log = new utils.Log(GM_info, unsafeWindow.console || console);
+	/** 油猴菜单 */
+	const GM_Menu = new utils.GM_Menu({
+		GM_getValue,
+		GM_setValue,
+		GM_registerMenuCommand,
+		GM_unregisterMenuCommand,
+	});
+	/* 配置控制台日志 */
+	log.config({
+		debug: false,
+		logMaxCount: 20000,
+		autoClearConsole: true,
+		tag: true,
+	});
+	/* 配置吐司Qmsg */
+	Qmsg.config({
+		position: "bottom",
+		html: true,
+		maxNums: 5,
+		autoClose: true,
+		showClose: false,
+		showReverse: true,
+	});
 
-  /**
-   * 配置面板
-   */
-  const PopsPanel = {
-    /** 本地存储的总键名 */
-    key: "GM_Panel",
-    /** 属性attributes的data-key */
-    attributeDataKey_Name: "data-key",
-    /** 属性attributes的data-default-value */
-    attributeDataDefaultValue_Name: "data-default-value",
-    /** 初始化菜单 */
-    initMenu() {
-      this.initLocalDefaultValue();
-      if (unsafeWindow.top !== unsafeWindow.self) {
-        /* 不允许在iframe内重复注册 */
-        return;
-      }
-      GM_Menu.add([
-        {
-          key: "show_pops_panel_setting",
-          text: "⚙ 设置",
-          autoReload: false,
-          isStoreValue: false,
-          showText(text) {
-            return text;
-          },
-          callback: () => {
-            this.showPanel();
-          },
-        },
-      ]);
-    },
-    /** 初始化本地设置默认的值 */
-    initLocalDefaultValue() {
-      let content = this.getContent();
-      content.forEach((item) => {
-        if (!item["forms"]) {
-          return;
-        }
-        item.forms.forEach((__item__) => {
-          if (__item__.forms) {
-            __item__.forms.forEach((containerItem) => {
-              if (!containerItem.attributes) {
-                return;
-              }
-              let key = containerItem.attributes[this.attributeDataKey_Name];
-              let defaultValue =
-                containerItem.attributes[this.attributeDataDefaultValue_Name];
-              if (this.getValue(key) == null) {
-                this.setValue(key, defaultValue);
-              }
-            });
-          } else {
-          }
-        });
-      });
-    },
-    /**
-     * 设置值
-     * @param {string} key 键
-     * @param {any} value 值
-     */
-    setValue(key, value) {
-      let localValue = GM_getValue(this.key, {});
-      localValue[key] = value;
-      GM_setValue(this.key, localValue);
-    },
-    /**
-     * 获取值
-     * @param {string} key 键
-     * @param {boolean} defaultValue 默认值
-     * @returns {any}
-     */
-    getValue(key, defaultValue) {
-      let localValue = GM_getValue(this.key, {});
-      return localValue[key] ?? defaultValue;
-    },
-    /**
-     * 删除值
-     * @param {string} key 键
-     */
-    deleteValue(key) {
-      let localValue = GM_getValue(this.key, {});
-      delete localValue[key];
-      GM_setValue(this.key, localValue);
-    },
-    /**
-     * 显示设置面板
-     */
-    showPanel() {
-      pops.panel({
-        title: {
-          text: `${GM_info?.script?.name || ""}-设置`,
-          position: "center",
-        },
-        content: this.getContent(),
-        mask: {
-          enable: true,
-          clickEvent: {
-            toClose: true,
-          },
-        },
-        isMobile: false,
-        drag: true,
-        only: true,
-      });
-    },
-    /**
-     * 获取checkbox按钮配置
-     * @param {string} text 文字
-     * @param {string} key 键
-     * @param {boolean} defaultValue 默认值
-     * @param {?string} description （可选）描述
-     * @param {?(event: InputEvent,value: boolean)=>boolean} clickCallBack （可选）点击回调
-     * @returns {PopsPanelSwitchDetails}
-     */
-    getSwtichDetail(text, key, defaultValue, description, clickCallBack) {
-      /**
-       * @type {PopsPanelSwitchDetails}
-       */
-      let result = {
-        text: text,
-        type: "switch",
-        description: description,
-        attributes: {},
-        getValue() {
-          return Boolean(PopsPanel.getValue(key, defaultValue));
-        },
-        callback(event, value) {
-          log.success(`${value ? "开启" : "关闭"} ${text}`);
-          if (typeof clickCallBack === "function") {
-            if (clickCallBack(event, value)) {
-              return;
-            }
-          }
-          PopsPanel.setValue(key, Boolean(value));
-        },
-      };
-      result.attributes[this.attributeDataKey_Name] = key;
-      result.attributes[this.attributeDataDefaultValue_Name] =
-        Boolean(defaultValue);
-      return result;
-    },
-    /**
-     * 获取下拉列表配置
-     * @param {string} text 文字
-     * @param {string} key 键
-     * @param {any} defaultValue 默认值
-     * @param {{
-     * value: any,
-     * text: string,
-     * }[]} data 数据
-     * @param {string} description （可选）描述
-     * @param {(event:PointerEvent, isSelectedValue: any, isSelectedText:string)=>void} selectCallBack（可选）选择的回调
-     * @returns {PopsPanelSelectDetails}
-     */
-    getSelectDetail(
-      text,
-      key,
-      defaultValue,
-      data,
-      description,
-      selectCallBack
-    ) {
-      return {
-        text: text,
-        type: "select",
-        description: description,
-        attributes: {
-          "data-key": key,
-          "data-default-value": defaultValue,
-        },
-        getValue() {
-          return GM_getValue(key, defaultValue);
-        },
-        callback(event, isSelectedValue, isSelectedText) {
-          GM_setValue(key, isSelectedValue);
-          if (typeof selectCallBack === "function") {
-            selectCallBack(event, isSelectedValue, isSelectedText);
-          }
-        },
-        data: data,
-      };
-    },
-    /**
-     * 获取配置内容
-     * @returns {PopsPanelContentConfig[]}
-     */
-    getContent() {
-      return [
-        {
-          id: "panel-config-",
-          title: "通用",
-          forms: [
-            {
-              text: "功能",
-              type: "forms",
-              forms: [
-                this.getSwtichDetail(
-                  "默认规则",
-                  "user-rule-default-enable",
-                  true,
-                  "如果当前网站没有设置规则，那么使用默认规则"
-                ),
-              ],
-            },
-          ],
-        },
-      ];
-    },
-  };
+	/**
+	 * 配置面板
+	 */
+	const PopsPanel = {
+		/** 本地存储的总键名 */
+		key: "GM_Panel",
+		/** 属性attributes的data-key */
+		attributeDataKey_Name: "data-key",
+		/** 属性attributes的data-default-value */
+		attributeDataDefaultValue_Name: "data-default-value",
+		/** 初始化菜单 */
+		initMenu() {
+			this.initLocalDefaultValue();
+			if (unsafeWindow.top !== unsafeWindow.self) {
+				/* 不允许在iframe内重复注册 */
+				return;
+			}
+			GM_Menu.add([
+				{
+					key: "show_pops_panel_setting",
+					text: "⚙ 设置",
+					autoReload: false,
+					isStoreValue: false,
+					showText(text) {
+						return text;
+					},
+					callback: () => {
+						this.showPanel();
+					},
+				},
+			]);
+		},
+		/** 初始化本地设置默认的值 */
+		initLocalDefaultValue() {
+			let content = this.getContent();
+			content.forEach((item) => {
+				if (!item["forms"]) {
+					return;
+				}
+				item.forms.forEach((__item__) => {
+					if (__item__.forms) {
+						__item__.forms.forEach((containerItem) => {
+							if (!containerItem.attributes) {
+								return;
+							}
+							let key = containerItem.attributes[this.attributeDataKey_Name];
+							let defaultValue =
+								containerItem.attributes[this.attributeDataDefaultValue_Name];
+							if (this.getValue(key) == null) {
+								this.setValue(key, defaultValue);
+							}
+						});
+					} else {
+					}
+				});
+			});
+		},
+		/**
+		 * 设置值
+		 * @param {string} key 键
+		 * @param {any} value 值
+		 */
+		setValue(key, value) {
+			let localValue = GM_getValue(this.key, {});
+			localValue[key] = value;
+			GM_setValue(this.key, localValue);
+		},
+		/**
+		 * 获取值
+		 * @param {string} key 键
+		 * @param {boolean} defaultValue 默认值
+		 * @returns {any}
+		 */
+		getValue(key, defaultValue) {
+			let localValue = GM_getValue(this.key, {});
+			return localValue[key] ?? defaultValue;
+		},
+		/**
+		 * 删除值
+		 * @param {string} key 键
+		 */
+		deleteValue(key) {
+			let localValue = GM_getValue(this.key, {});
+			delete localValue[key];
+			GM_setValue(this.key, localValue);
+		},
+		/**
+		 * 显示设置面板
+		 */
+		showPanel() {
+			pops.panel({
+				title: {
+					text: `${GM_info?.script?.name || ""}-设置`,
+					position: "center",
+				},
+				content: this.getContent(),
+				mask: {
+					enable: true,
+					clickEvent: {
+						toClose: true,
+					},
+				},
+				isMobile: false,
+				drag: true,
+				only: true,
+			});
+		},
+		/**
+		 * 获取checkbox按钮配置
+		 * @param {string} text 文字
+		 * @param {string} key 键
+		 * @param {boolean} defaultValue 默认值
+		 * @param {?string} description （可选）描述
+		 * @param {?(event: InputEvent,value: boolean)=>boolean} clickCallBack （可选）点击回调
+		 * @returns {PopsPanelSwitchDetails}
+		 */
+		getSwtichDetail(text, key, defaultValue, description, clickCallBack) {
+			/**
+			 * @type {PopsPanelSwitchDetails}
+			 */
+			let result = {
+				text: text,
+				type: "switch",
+				description: description,
+				attributes: {},
+				getValue() {
+					return Boolean(PopsPanel.getValue(key, defaultValue));
+				},
+				callback(event, value) {
+					log.success(`${value ? "开启" : "关闭"} ${text}`);
+					if (typeof clickCallBack === "function") {
+						if (clickCallBack(event, value)) {
+							return;
+						}
+					}
+					PopsPanel.setValue(key, Boolean(value));
+				},
+			};
+			result.attributes[this.attributeDataKey_Name] = key;
+			result.attributes[this.attributeDataDefaultValue_Name] =
+				Boolean(defaultValue);
+			return result;
+		},
+		/**
+		 * 获取下拉列表配置
+		 * @param {string} text 文字
+		 * @param {string} key 键
+		 * @param {any} defaultValue 默认值
+		 * @param {{
+		 * value: any,
+		 * text: string,
+		 * }[]} data 数据
+		 * @param {string} description （可选）描述
+		 * @param {(event:PointerEvent, isSelectedValue: any, isSelectedText:string)=>void} selectCallBack（可选）选择的回调
+		 * @returns {PopsPanelSelectDetails}
+		 */
+		getSelectDetail(
+			text,
+			key,
+			defaultValue,
+			data,
+			description,
+			selectCallBack
+		) {
+			return {
+				text: text,
+				type: "select",
+				description: description,
+				attributes: {
+					"data-key": key,
+					"data-default-value": defaultValue,
+				},
+				getValue() {
+					return GM_getValue(key, defaultValue);
+				},
+				callback(event, isSelectedValue, isSelectedText) {
+					GM_setValue(key, isSelectedValue);
+					if (typeof selectCallBack === "function") {
+						selectCallBack(event, isSelectedValue, isSelectedText);
+					}
+				},
+				data: data,
+			};
+		},
+		/**
+		 * 获取配置内容
+		 * @returns {PopsPanelContentConfig[]}
+		 */
+		getContent() {
+			return [
+				{
+					id: "panel-config-",
+					title: "通用",
+					forms: [
+						{
+							text: "功能",
+							type: "forms",
+							forms: [
+								this.getSwtichDetail(
+									"默认规则",
+									"user-rule-default-enable",
+									true,
+									"如果当前网站没有设置规则，那么使用默认规则"
+								),
+							],
+						},
+					],
+				},
+			];
+		},
+	};
 
-  const ImageViewer = {
-    /**
-     * 查看图片
-     * @param {string[]} imageUrlList 图片链接Url
-     * @param {number} index 需要查看图片的下标，默认0
-     */
-    viewIMG(imageUrlList, index = 0) {
-      log.info(["查看图片", [imageUrlList, index]]);
-      let viewerULHTML = "";
-      imageUrlList.forEach((item) => {
-        viewerULHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
-      });
-      let viewerULElement = DOMUtils.createElement("ul", {
-        innerHTML: viewerULHTML,
-      });
-      let viewer = new Viewer(viewerULElement, {
-        inline: false,
-        url: "data-src",
-        zIndex: utils.getMaxZIndex() + 100,
-        hidden: () => {
-          viewer.destroy();
-        },
-      });
-      index = parseInt(index);
-      if (isNaN(index) || index < 0) {
-        index = 0;
-      }
-      viewer.view(index);
-      viewer.zoomTo(1);
-      viewer.show();
-    },
-  };
+	const ImageViewer = {
+		/**
+		 * 查看图片
+		 * @param {string[]} imageUrlList 图片链接Url
+		 * @param {number} index 需要查看图片的下标，默认0
+		 */
+		viewIMG(imageUrlList, index = 0) {
+			log.info(["查看图片", [imageUrlList, index]]);
+			let viewerULHTML = "";
+			imageUrlList.forEach((item) => {
+				viewerULHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
+			});
+			let viewerULElement = DOMUtils.createElement("ul", {
+				innerHTML: viewerULHTML,
+			});
+			let viewer = new Viewer(viewerULElement, {
+				inline: false,
+				url: "data-src",
+				zIndex: utils.getMaxZIndex() + 100,
+				hidden: () => {
+					viewer.destroy();
+				},
+			});
+			index = parseInt(index);
+			if (isNaN(index) || index < 0) {
+				index = 0;
+			}
+			viewer.view(index);
+			viewer.zoomTo(1);
+			viewer.show();
+		},
+	};
 
-  const ImageUtils = {
-    /**
-     * 获取<img>标签上的src属性
-     * @param {HTMLImageElement} element
-     * @returns {?string}
-     */
-    getImageElementUrl(element) {
-      function isStringNull(target) {
-        return (
-          target.trim() === "null" ||
-          target.trim() === "undefined" ||
-          target.trim() === ""
-        );
-      }
-      if (element == null) {
-        return;
-      }
-      if (typeof element === "string" && isStringNull(element)) {
-        return;
-      }
-      let url = "";
-      if (isStringNull(url)) {
-        if (element.hasAttribute("data-src")) {
-          url = element.getAttribute("data-src");
-        }
-      }
-      if (isStringNull(url)) {
-        if (element.hasAttribute("src")) {
-          url = element.getAttribute("src");
-        }
-      }
-      if (isStringNull(url)) {
-        if (element.hasAttribute("alt")) {
-          url = element.getAttribute("alt");
-        }
-      }
-      if (isStringNull(url)) {
-        return;
-      }
-      return url;
-    },
-  };
+	const ImageUtils = {
+		/**
+		 * 获取<img>标签上的src属性
+		 * @param {HTMLImageElement} element
+		 * @returns {?string}
+		 */
+		getImageElementUrl(element) {
+			function isStringNull(target) {
+				return (
+					target.trim() === "null" ||
+					target.trim() === "undefined" ||
+					target.trim() === ""
+				);
+			}
+			if (element == null) {
+				return;
+			}
+			if (typeof element === "string" && isStringNull(element)) {
+				return;
+			}
+			let url = "";
+			if (isStringNull(url)) {
+				if (element.hasAttribute("data-src")) {
+					url = element.getAttribute("data-src");
+				}
+			}
+			if (isStringNull(url)) {
+				if (element.hasAttribute("src")) {
+					url = element.getAttribute("src");
+				}
+			}
+			if (isStringNull(url)) {
+				if (element.hasAttribute("alt")) {
+					url = element.getAttribute("alt");
+				}
+			}
+			if (isStringNull(url)) {
+				return;
+			}
+			return url;
+		},
+	};
 
-  const WebSiteRule = {
-    /**
-     * 默认规则
-     * @type {ImageViewerHandleClickEventRule}
-     */
-    defaultRule: {
-      url: "*://*/*",
-      selector: "img",
-      mode: "handleClickEvent",
-      isPreventDefault: true,
-      clickEvent: `
+	const WebSiteRule = {
+		/**
+		 * 默认规则
+		 * @type {ImageViewerHandleClickEventRule}
+		 */
+		defaultRule: {
+			url: "*://*/*",
+			selector: "img",
+			mode: "handleClickEvent",
+			isPreventDefault: true,
+			clickEvent: `
       let imageElement = event.target;
       let url = this.ImageUtils.getImageElementUrl(imageElement);
       resolve({
@@ -371,143 +378,143 @@
         "imageList": [url],
       });
       `,
-    },
-    /**
-     * 本地存储的用户规则
-     * @type {ImageViewerRule[]}
-     */
-    userRule: GM_getValue("user-rule", []),
-    /**
-     * 当前筛选出的匹配的规则
-     * @type {ImageViewerRule[]}
-     */
-    currentRule: [],
-    /**
-     * 初始化用户自定义的规则
-     */
-    initUserRule() {
-      /* 筛选出当前网站的规则 */
-      log.info("正在匹配当前网站规则...");
-      this.userRule.forEach((rule, index) => {
-        if (utils.isNull(rule)) {
-          log.error(["改规则不存在匹配Url", [rule, index]]);
-          return;
-        }
-        let urlPattern = new RegExp(rule.url, "gi");
-        if (!urlPattern.test(window.location.href)) {
-          return;
-        }
-        this.currentRule.push(rule);
-      });
+		},
+		/**
+		 * 本地存储的用户规则
+		 * @type {ImageViewerRule[]}
+		 */
+		userRule: GM_getValue("user-rule", []),
+		/**
+		 * 当前筛选出的匹配的规则
+		 * @type {ImageViewerRule[]}
+		 */
+		currentRule: [],
+		/**
+		 * 初始化用户自定义的规则
+		 */
+		initUserRule() {
+			/* 筛选出当前网站的规则 */
+			log.info("正在匹配当前网站规则...");
+			this.userRule.forEach((rule, index) => {
+				if (utils.isNull(rule)) {
+					log.error(["改规则不存在匹配Url", [rule, index]]);
+					return;
+				}
+				let urlPattern = new RegExp(rule.url, "gi");
+				if (!urlPattern.test(window.location.href)) {
+					return;
+				}
+				this.currentRule.push(rule);
+			});
 
-      if (
-        this.currentRule.length === 0 &&
-        PopsPanel.getValue("user-rule-default-enable")
-      ) {
-        /* 没有规则，使用默认规则 */
-        this.currentRule.push(this.defaultRule);
-      }
-      log.success(["当前的看图规则", this.currentRule]);
-      this.currentRule.forEach((rule) => {
-        if (rule.mode === "handleClickEvent") {
-          this.handleClickEvent(rule);
-        } else if (rule.mode === "handleElement") {
-          this.handleElement(rule);
-        } else {
-          log.error(["未知模式的规则", rule]);
-        }
-      });
-    },
-    /**
-     * 处理点击事件
-     * @param {ImageViewerHandleClickEventRule} rule
-     */
-    handleClickEvent(rule) {
-      function setClickEvent(context) {
-        DOMUtils.on(
-          context,
-          "click",
-          rule.selector,
-          async function (event) {
-            /* 阻止默认事件触发 */
-            if (rule.isPreventDefault) {
-              utils.preventEvent(event);
-            }
-            const targetElement = event.target;
-            /* Viewer的图片浏览 */
-            if (
-              targetElement instanceof HTMLImageElement &&
-              targetElement.closest(".viewer-container")
-            ) {
-              return;
-            }
-            /* 图片列表 */
-            let imageList = [];
-            /* 图片列表下标 */
-            let imageIndex = 0;
-            if (typeof rule.clickEvent === "string") {
-              const asyncUserClickEvent = function (event) {
-                return new Promise((resolve, reject) => {
-                  let userClickEvent = new Function(
-                    "event",
-                    "resolve",
-                    "reject",
-                    rule.clickEvent
-                  ).bind({
-                    ImageUtils: ImageUtils,
-                    utils: utils,
-                    DOMUtils: DOMUtils,
-                  });
-                  userClickEvent(event, resolve, reject);
-                });
-              };
-              let result = await asyncUserClickEvent(event);
-              if (!Boolean(result["isView"])) {
-                return;
-              }
-              if (
-                result["imageList"] != null &&
-                Array.isArray(result["imageList"])
-              ) {
-                /* 覆盖当前的图片列表 */
-                imageList = result["imageList"];
-              }
-              if (typeof result["imageIndex"] === "number") {
-                imageIndex = result["imageIndex"];
-                if (imageIndex < 0 || imageIndex >= imageList.length) {
-                  /* 下标不在范围内，重置为0 */
-                  imageIndex = 0;
-                }
-              }
-            }
-            ImageViewer.viewIMG(imageList, imageIndex);
-          },
-          {
-            capture: true,
-          }
-        );
-      }
-      if (typeof rule.context === "string") {
-        utils.waitNode(rule.context).then((contextElement) => {
-          if (rule.useSelector === "querySelector") {
-            setClickEvent(document.querySelector(rule.context));
-          } else {
-            setClickEvent(document.querySelectorAll(rule.context));
-          }
-        });
-      } else {
-        setClickEvent(document);
-      }
-    },
-    /**
-     * 处理元素
-     * @param {ImageViewerHandleElementRule} rule
-     */
-    handleElement(rule) {},
-  };
+			if (
+				this.currentRule.length === 0 &&
+				PopsPanel.getValue("user-rule-default-enable")
+			) {
+				/* 没有规则，使用默认规则 */
+				this.currentRule.push(this.defaultRule);
+			}
+			log.success(["当前的看图规则", this.currentRule]);
+			this.currentRule.forEach((rule) => {
+				if (rule.mode === "handleClickEvent") {
+					this.handleClickEvent(rule);
+				} else if (rule.mode === "handleElement") {
+					this.handleElement(rule);
+				} else {
+					log.error(["未知模式的规则", rule]);
+				}
+			});
+		},
+		/**
+		 * 处理点击事件
+		 * @param {ImageViewerHandleClickEventRule} rule
+		 */
+		handleClickEvent(rule) {
+			function setClickEvent(context) {
+				DOMUtils.on(
+					context,
+					"click",
+					rule.selector,
+					async function (event) {
+						/* 阻止默认事件触发 */
+						if (rule.isPreventDefault) {
+							utils.preventEvent(event);
+						}
+						const targetElement = event.target;
+						/* Viewer的图片浏览 */
+						if (
+							targetElement instanceof HTMLImageElement &&
+							targetElement.closest(".viewer-container")
+						) {
+							return;
+						}
+						/* 图片列表 */
+						let imageList = [];
+						/* 图片列表下标 */
+						let imageIndex = 0;
+						if (typeof rule.clickEvent === "string") {
+							const asyncUserClickEvent = function (event) {
+								return new Promise((resolve, reject) => {
+									let userClickEvent = new Function(
+										"event",
+										"resolve",
+										"reject",
+										rule.clickEvent
+									).bind({
+										ImageUtils: ImageUtils,
+										utils: utils,
+										DOMUtils: DOMUtils,
+									});
+									userClickEvent(event, resolve, reject);
+								});
+							};
+							let result = await asyncUserClickEvent(event);
+							if (!Boolean(result["isView"])) {
+								return;
+							}
+							if (
+								result["imageList"] != null &&
+								Array.isArray(result["imageList"])
+							) {
+								/* 覆盖当前的图片列表 */
+								imageList = result["imageList"];
+							}
+							if (typeof result["imageIndex"] === "number") {
+								imageIndex = result["imageIndex"];
+								if (imageIndex < 0 || imageIndex >= imageList.length) {
+									/* 下标不在范围内，重置为0 */
+									imageIndex = 0;
+								}
+							}
+						}
+						ImageViewer.viewIMG(imageList, imageIndex);
+					},
+					{
+						capture: true,
+					}
+				);
+			}
+			if (typeof rule.context === "string") {
+				utils.waitNode(rule.context).then((contextElement) => {
+					if (rule.useSelector === "querySelector") {
+						setClickEvent(document.querySelector(rule.context));
+					} else {
+						setClickEvent(document.querySelectorAll(rule.context));
+					}
+				});
+			} else {
+				setClickEvent(document);
+			}
+		},
+		/**
+		 * 处理元素
+		 * @param {ImageViewerHandleElementRule} rule
+		 */
+		handleElement(rule) {},
+	};
 
-  /* ---------------------入口--------------------- */
-  PopsPanel.initMenu();
-  WebSiteRule.initUserRule();
-  /* ---------------------入口--------------------- */
+	/* ---------------------入口--------------------- */
+	PopsPanel.initMenu();
+	WebSiteRule.initUserRule();
+	/* ---------------------入口--------------------- */
 })();

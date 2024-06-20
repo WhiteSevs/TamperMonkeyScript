@@ -2,7 +2,7 @@
 // @name         调试
 // @namespace    https://greasyfork.org/zh-CN/scripts/475424
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.4.24
+// @version      2024.6.20
 // @description  用于调试油猴、ChromeXt和相关API
 // @author       WhiteSevs
 // @license      GPL-3.0-only
@@ -40,6 +40,16 @@
 // ==/UserScript==
 
 (function () {
+	if (typeof unsafeWindow === "undefined") {
+		if (
+			typeof globalThis.unsafeWindow !== "undefined" &&
+			globalThis.unsafeWindow != null
+		) {
+			var unsafeWindow = globalThis.unsafeWindow;
+		} else {
+			var unsafeWindow = globalThis || window || self;
+		}
+	}
   let utils = window.Utils.noConflict();
   let __unsafeWindow__ =
     typeof unsafeWindow === "undefined" ? globalThis : unsafeWindow;
