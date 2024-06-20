@@ -16,7 +16,7 @@
 	"dependencies": {
 		"@element-plus/icons-vue": "^2.3.1",
 		"@whitesev/domutils": "^1.1.1",
-		"@whitesev/utils": "^1.5.3",
+		"@whitesev/utils": "^1.5.4",
 		"pinia": "^2.1.7",
 		"qmsg": "^1.1.2",
 		"viewerjs": "^1.11.6",
