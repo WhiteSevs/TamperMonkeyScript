@@ -198,6 +198,7 @@ export declare interface DOMUtilsEventListenerOptionsAttribute {
      */
     selector?: string;
 }
+export declare type DOMUtilsElementEventType = HTMLElement | string | NodeList | (HTMLElement | Window | Document | Element | typeof globalThis)[] | Window | Document | Element | null | typeof globalThis | ShadowRoot | EventTarget | ChildNode | Node;
 declare class DOMUtilsEvent {
     /**
      * 绑定事件
@@ -217,7 +218,7 @@ declare class DOMUtilsEvent {
      *    console.log("事件触发",event)
      * })
      */
-    on<T extends DOMUtils_EventType>(element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis, eventType: T | T[], callback: (event: DOMUtils_Event[T]) => void, option?: boolean | AddEventListenerOptions): void;
+    on<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], callback: (event: DOMUtils_Event[T]) => void, option?: boolean | AddEventListenerOptions): void;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
@@ -236,7 +237,7 @@ declare class DOMUtilsEvent {
      *    console.log("事件触发",event)
      * })
      */
-    on<T extends Event>(element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis, eventType: string, callback: (event: T) => void, option?: boolean | AddEventListenerOptions): void;
+    on<T extends Event>(element: DOMUtilsElementEventType, eventType: string, callback: (event: T) => void, option?: boolean | AddEventListenerOptions): void;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
@@ -261,7 +262,7 @@ declare class DOMUtilsEvent {
      *    console.log("事件触发",event)
      * })
      */
-    on<T extends DOMUtils_EventType>(element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis, eventType: T | T[], selector: string | undefined | null, callback: (event: DOMUtils_Event[T]) => void, option?: boolean | AddEventListenerOptions): void;
+    on<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], selector: string | undefined | null, callback: (event: DOMUtils_Event[T]) => void, option?: boolean | AddEventListenerOptions): void;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
@@ -286,7 +287,7 @@ declare class DOMUtilsEvent {
      *    console.log("事件触发",event)
      * })
      */
-    on<T extends Event>(element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis, eventType: string, selector: string | undefined | null, callback: (event: T) => void, option?: boolean | AddEventListenerOptions): void;
+    on<T extends Event>(element: DOMUtilsElementEventType, eventType: string, selector: string | undefined | null, callback: (event: T) => void, option?: boolean | AddEventListenerOptions): void;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -300,7 +301,7 @@ declare class DOMUtilsEvent {
      * DOMUtils.off(document.querySelector("a.xx"),"click")
      * DOMUtils.off("a.xx","click")
      */
-    off<T extends DOMUtils_EventType>(element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis, eventType: T | T[], callback?: (event: DOMUtils_Event[T]) => void, option?: boolean | AddEventListenerOptions, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], callback?: (event: DOMUtils_Event[T]) => void, option?: boolean | AddEventListenerOptions, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -314,7 +315,7 @@ declare class DOMUtilsEvent {
      * DOMUtils.off(document.querySelector("a.xx"),"click")
      * DOMUtils.off("a.xx","click")
      */
-    off<T extends Event>(element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis, eventType: string, callback?: (event: T) => void, option?: boolean | AddEventListenerOptions, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends Event>(element: DOMUtilsElementEventType, eventType: string, callback?: (event: T) => void, option?: boolean | AddEventListenerOptions, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -329,7 +330,7 @@ declare class DOMUtilsEvent {
      * DOMUtils.off(document.querySelector("a.xx"),"click tap hover")
      * DOMUtils.off("a.xx",["click","tap","hover"])
      */
-    off<T extends DOMUtils_EventType>(element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis, eventType: T | T[], selector?: string | undefined, callback?: (event: DOMUtils_Event[T]) => void, option?: boolean | AddEventListenerOptions, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], selector?: string | undefined, callback?: (event: DOMUtils_Event[T]) => void, option?: boolean | AddEventListenerOptions, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -344,19 +345,19 @@ declare class DOMUtilsEvent {
      * DOMUtils.off(document.querySelector("a.xx"),"click tap hover")
      * DOMUtils.off("a.xx",["click","tap","hover"])
      */
-    off<T extends Event>(element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis, eventType: string, selector?: string | undefined, callback?: (event: T) => void, option?: boolean | AddEventListenerOptions, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends Event>(element: DOMUtilsElementEventType, eventType: string, selector?: string | undefined, callback?: (event: T) => void, option?: boolean | AddEventListenerOptions, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定所有的事件
      * @param element 需要取消绑定的元素|元素数组
      * @param eventType （可选）需要取消监听的事件
      */
-    offAll(element: HTMLElement | string | NodeList | HTMLElement[] | Window | Element | null, eventType?: string): void;
+    offAll(element: DOMUtilsElementEventType, eventType?: string): void;
     /**
      * 取消绑定所有的事件
      * @param element 需要取消绑定的元素|元素数组
      * @param eventType （可选）需要取消监听的事件
      */
-    offAll(element: HTMLElement | string | NodeList | HTMLElement[] | Window | Element | null, eventType?: DOMUtils_EventType | DOMUtils_EventType[]): void;
+    offAll(element: DOMUtilsElementEventType, eventType?: DOMUtils_EventType | DOMUtils_EventType[]): void;
     /**
      * 等待文档加载完成后执行指定的函数
      * @param callback 需要执行的函数

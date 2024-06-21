@@ -590,6 +590,15 @@ declare class DOMUtils extends DOMUtilsEvent {
      * @returns
      */
     createDOMUtils(option?: DOMUtilsCoreOption): DOMUtils;
+    /**
+     * 获取文字的位置信息
+     * @param $input 输入框
+     * @param selectionStart 起始位置
+     * @param selectionEnd 结束位置
+     * @example
+     * DOMUtils.getTextBoundingRect(document.querySelector("input"));
+     */
+    getTextBoundingRect($input: HTMLInputElement, selectionStart?: number | string, selectionEnd?: number | string): DOMRect;
 }
 declare let domUtils: DOMUtils;
 export { domUtils as DOMUtils };

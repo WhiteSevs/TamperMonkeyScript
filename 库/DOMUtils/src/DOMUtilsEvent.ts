@@ -227,6 +227,21 @@ export declare interface DOMUtilsEventListenerOptionsAttribute {
 	selector?: string;
 }
 
+export declare type DOMUtilsElementEventType =
+	| HTMLElement
+	| string
+	| NodeList
+	| (HTMLElement | Window | Document | Element | typeof globalThis)[]
+	| Window
+	| Document
+	| Element
+	| null
+	| typeof globalThis
+	| ShadowRoot
+	| EventTarget
+	| ChildNode
+	| Node;
+
 class DOMUtilsEvent {
 	/**
 	 * 绑定事件
@@ -247,16 +262,7 @@ class DOMUtilsEvent {
 	 * })
 	 */
 	on<T extends DOMUtils_EventType>(
-		element:
-			| HTMLElement
-			| string
-			| NodeList
-			| HTMLElement[]
-			| Window
-			| Document
-			| Element
-			| null
-			| typeof globalThis,
+		element: DOMUtilsElementEventType,
 		eventType: T | T[],
 		callback: (event: DOMUtils_Event[T]) => void,
 		option?: boolean | AddEventListenerOptions
@@ -280,16 +286,7 @@ class DOMUtilsEvent {
 	 * })
 	 */
 	on<T extends Event>(
-		element:
-			| HTMLElement
-			| string
-			| NodeList
-			| HTMLElement[]
-			| Window
-			| Document
-			| Element
-			| null
-			| typeof globalThis,
+		element: DOMUtilsElementEventType,
 		eventType: string,
 		callback: (event: T) => void,
 		option?: boolean | AddEventListenerOptions
@@ -319,16 +316,7 @@ class DOMUtilsEvent {
 	 * })
 	 */
 	on<T extends DOMUtils_EventType>(
-		element:
-			| HTMLElement
-			| string
-			| NodeList
-			| HTMLElement[]
-			| Window
-			| Document
-			| Element
-			| null
-			| typeof globalThis,
+		element: DOMUtilsElementEventType,
 		eventType: T | T[],
 		selector: string | undefined | null,
 		callback: (event: DOMUtils_Event[T]) => void,
@@ -359,16 +347,7 @@ class DOMUtilsEvent {
 	 * })
 	 */
 	on<T extends Event>(
-		element:
-			| HTMLElement
-			| string
-			| NodeList
-			| HTMLElement[]
-			| Window
-			| Document
-			| Element
-			| null
-			| typeof globalThis,
+		element: DOMUtilsElementEventType,
 		eventType: string,
 		selector: string | undefined | null,
 		callback: (event: T) => void,
@@ -544,16 +523,7 @@ class DOMUtilsEvent {
 	 * DOMUtils.off("a.xx","click")
 	 */
 	off<T extends DOMUtils_EventType>(
-		element:
-			| HTMLElement
-			| string
-			| NodeList
-			| HTMLElement[]
-			| Window
-			| Document
-			| Element
-			| null
-			| typeof globalThis,
+		element: DOMUtilsElementEventType,
 		eventType: T | T[],
 		callback?: (event: DOMUtils_Event[T]) => void,
 		option?: boolean | AddEventListenerOptions,
@@ -577,16 +547,7 @@ class DOMUtilsEvent {
 	 * DOMUtils.off("a.xx","click")
 	 */
 	off<T extends Event>(
-		element:
-			| HTMLElement
-			| string
-			| NodeList
-			| HTMLElement[]
-			| Window
-			| Document
-			| Element
-			| null
-			| typeof globalThis,
+		element: DOMUtilsElementEventType,
 		eventType: string,
 		callback?: (event: T) => void,
 		option?: boolean | AddEventListenerOptions,
@@ -611,16 +572,7 @@ class DOMUtilsEvent {
 	 * DOMUtils.off("a.xx",["click","tap","hover"])
 	 */
 	off<T extends DOMUtils_EventType>(
-		element:
-			| HTMLElement
-			| string
-			| NodeList
-			| HTMLElement[]
-			| Window
-			| Document
-			| Element
-			| null
-			| typeof globalThis,
+		element: DOMUtilsElementEventType,
 		eventType: T | T[],
 		selector?: string | undefined,
 		callback?: (event: DOMUtils_Event[T]) => void,
@@ -646,16 +598,7 @@ class DOMUtilsEvent {
 	 * DOMUtils.off("a.xx",["click","tap","hover"])
 	 */
 	off<T extends Event>(
-		element:
-			| HTMLElement
-			| string
-			| NodeList
-			| HTMLElement[]
-			| Window
-			| Document
-			| Element
-			| null
-			| typeof globalThis,
+		element: DOMUtilsElementEventType,
 		eventType: string,
 		selector?: string | undefined,
 		callback?: (event: T) => void,
@@ -806,31 +749,14 @@ class DOMUtilsEvent {
 	 * @param element 需要取消绑定的元素|元素数组
 	 * @param eventType （可选）需要取消监听的事件
 	 */
-	offAll(
-		element:
-			| HTMLElement
-			| string
-			| NodeList
-			| HTMLElement[]
-			| Window
-			| Element
-			| null,
-		eventType?: string
-	): void;
+	offAll(element: DOMUtilsElementEventType, eventType?: string): void;
 	/**
 	 * 取消绑定所有的事件
 	 * @param element 需要取消绑定的元素|元素数组
 	 * @param eventType （可选）需要取消监听的事件
 	 */
 	offAll(
-		element:
-			| HTMLElement
-			| string
-			| NodeList
-			| HTMLElement[]
-			| Window
-			| Element
-			| null,
+		element: DOMUtilsElementEventType,
 		eventType?: DOMUtils_EventType | DOMUtils_EventType[]
 	): void;
 	/**
@@ -839,14 +765,7 @@ class DOMUtilsEvent {
 	 * @param eventType （可选）需要取消监听的事件
 	 */
 	offAll(
-		element:
-			| HTMLElement
-			| string
-			| NodeList
-			| HTMLElement[]
-			| Window
-			| Element
-			| null,
+		element: DOMUtilsElementEventType,
 		eventType?: DOMUtils_EventType | DOMUtils_EventType[] | string
 	) {
 		if (typeof element === "string") {
@@ -857,8 +776,7 @@ class DOMUtilsEvent {
 		}
 		let elementList: HTMLElement[] = [];
 		if (element instanceof NodeList || Array.isArray(element)) {
-			element = element as HTMLElement[];
-			elementList = [...element];
+			elementList = [...(element as HTMLElement[])];
 		} else {
 			elementList.push(element as HTMLElement);
 		}
