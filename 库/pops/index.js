@@ -2979,22 +2979,17 @@
 		offset(element) {
 			let rect = element.getBoundingClientRect();
 			let win = element.ownerDocument.defaultView;
-			return {
-				// @ts-ignore
-				top: parseFloat(rect.top + win.pageYOffset),
-				// @ts-ignore
-				bottom: parseFloat(rect.bottom + win + pageYOffset),
-				// @ts-ignore
-				left: parseFloat(rect.left + win.pageXOffset),
-				// @ts-ignore
-				right: parseFloat(rect.right + win.pageXOffset),
-				width: rect.width,
-				height: rect.height,
-			};
+			let resultRect = new DOMRect(
+				parseFloat((rect.left + (win?.pageXOffset || 0)).toString()),
+				parseFloat((rect.top + (win?.pageYOffset || 0)).toString()),
+				rect.width,
+				rect.height
+			);
+			return resultRect;
 		},
 		/**
 		 * 获取元素的宽度
-		 * @param {HTMLElement} element - 要获取宽度的元素
+		 * @param {HTMLElement|Document|Window|typeof globalThis} element - 要获取宽度的元素
 		 * @param {boolean} [isShow=false] 是否已进行isShow，避免爆堆栈
 		 * @returns {number} - 元素的宽度，单位为像素
 		 */
@@ -3010,6 +3005,7 @@
 				// @ts-ignore
 				return;
 			}
+			// @ts-ignore
 			if (element.nodeType === 9) {
 				/* 文档节点 */
 				return Math.max(
@@ -3025,6 +3021,7 @@
 					element.documentElement.clientWidth
 				);
 			}
+			// @ts-ignore
 			if (isShow || PopsUtils.isShow(element)) {
 				/* 已显示 */
 				/* 不从style中获取对应的宽度，因为可能使用了class定义了width !important */
@@ -3037,16 +3034,21 @@
 				}
 
 				/* 如果从css里获取到的值不是大于0  可能是auto 则通过offsetWidth来进行计算 */
+				// @ts-ignore
 				if (element.offsetWidth > 0) {
 					let borderLeftWidth = PopsUtils.getStyleValue(
+						// @ts-ignore
 						element,
 						"borderLeftWidth"
 					);
 					let borderRightWidth = PopsUtils.getStyleValue(
+						// @ts-ignore
 						element,
 						"borderRightWidth"
 					);
+					// @ts-ignore
 					let paddingLeft = PopsUtils.getStyleValue(element, "paddingLeft");
+					// @ts-ignore
 					let paddingRight = PopsUtils.getStyleValue(element, "paddingRight");
 					let backHeight =
 						// @ts-ignore
@@ -3065,6 +3067,7 @@
 				return 0;
 			} else {
 				/* 未显示 */
+				// @ts-ignore
 				let { recovery } = PopsUtils.showElement(element);
 				let width = PopsDOMUtils.width(element, true);
 				recovery();
@@ -3073,7 +3076,7 @@
 		},
 		/**
 		 * 获取元素的高度
-		 * @param {HTMLElement|Window|Document} element - 要获取高度的元素
+		 * @param {HTMLElement|Document|Window|typeof globalThis} element - 要获取高度的元素
 		 * @param {boolean} [isShow=false] 是否已进行isShow，避免爆堆栈
 		 * @returns {number} - 元素的高度，单位为像素
 		 */
@@ -3373,6 +3376,172 @@
 				tempElement.setAttribute(key, value);
 			});
 			return tempElement;
+		},
+		/**
+		 * 获取文字的位置信息
+		 * @param {HTMLInputElement} input 输入框
+		 * @param {number|string} selectionStart 起始位置
+		 * @param {number|string} selectionEnd 结束位置
+		 * @param {boolean} debug 是否是调试模式
+		 * + true 不删除临时节点元素
+		 * + false 删除临时节点元素
+		 * @returns {DOMRect}
+		 */
+		getTextBoundingRect(input, selectionStart, selectionEnd, debug) {
+			// Basic parameter validation
+			if (!input || !("value" in input)) return input;
+			if (typeof selectionStart == "string")
+				selectionStart = parseFloat(selectionStart);
+			if (typeof selectionStart != "number" || isNaN(selectionStart)) {
+				selectionStart = 0;
+			}
+			if (selectionStart < 0) selectionStart = 0;
+			else selectionStart = Math.min(input.value.length, selectionStart);
+			if (typeof selectionEnd == "string")
+				selectionEnd = parseFloat(selectionEnd);
+			if (
+				typeof selectionEnd != "number" ||
+				isNaN(selectionEnd) ||
+				selectionEnd < selectionStart
+			) {
+				selectionEnd = selectionStart;
+			}
+			if (selectionEnd < 0) selectionEnd = 0;
+			else selectionEnd = Math.min(input.value.length, selectionEnd);
+
+			// If available (thus IE), use the createTextRange method
+			// @ts-ignore
+			if (typeof input.createTextRange == "function") {
+				// @ts-ignore
+				var range = input.createTextRange();
+				range.collapse(true);
+				range.moveStart("character", selectionStart);
+				range.moveEnd("character", selectionEnd - selectionStart);
+				return range.getBoundingClientRect();
+			}
+			// createTextRange is not supported, create a fake text range
+			var offset = getInputOffset(),
+				topPos = offset.top,
+				leftPos = offset.left,
+				width = getInputCSS("width", true),
+				height = getInputCSS("height", true);
+
+			// Styles to simulate a node in an input field
+			var cssDefaultStyles = "white-space:pre;padding:0;margin:0;",
+				listOfModifiers = [
+					"direction",
+					"font-family",
+					"font-size",
+					"font-size-adjust",
+					"font-variant",
+					"font-weight",
+					"font-style",
+					"letter-spacing",
+					"line-height",
+					"text-align",
+					"text-indent",
+					"text-transform",
+					"word-wrap",
+					"word-spacing",
+				];
+			// @ts-ignore
+			topPos += getInputCSS("padding-top", true);
+			// @ts-ignore
+			topPos += getInputCSS("border-top-width", true);
+			// @ts-ignore
+			leftPos += getInputCSS("padding-left", true);
+			// @ts-ignore
+			leftPos += getInputCSS("border-left-width", true);
+			leftPos += 1; //Seems to be necessary
+
+			for (var i = 0; i < listOfModifiers.length; i++) {
+				var property = listOfModifiers[i];
+				// @ts-ignore
+				cssDefaultStyles += property + ":" + getInputCSS(property) + ";";
+			}
+			// End of CSS variable checks
+			// 不能为空，不然获取不到高度
+			var text = input.value || "G",
+				textLen = text.length,
+				fakeClone = document.createElement("div");
+			if (selectionStart > 0) appendPart(0, selectionStart);
+			var fakeRange = appendPart(selectionStart, selectionEnd);
+			if (textLen > selectionEnd) appendPart(selectionEnd, textLen);
+
+			// Styles to inherit the font styles of the element
+			fakeClone.style.cssText = cssDefaultStyles;
+
+			// Styles to position the text node at the desired position
+			fakeClone.style.position = "absolute";
+			fakeClone.style.top = topPos + "px";
+			fakeClone.style.left = leftPos + "px";
+			fakeClone.style.width = width + "px";
+			fakeClone.style.height = height + "px";
+			document.body.appendChild(fakeClone);
+			var returnValue = fakeRange.getBoundingClientRect(); //Get rect
+
+			// @ts-ignore
+			if (!debug) fakeClone.parentNode.removeChild(fakeClone); //Remove temp
+			return returnValue;
+
+			// Local functions for readability of the previous code
+			/**
+			 *
+			 * @param {number} start
+			 * @param {number} end
+			 * @returns
+			 */
+			function appendPart(start, end) {
+				var span = document.createElement("span");
+				span.style.cssText = cssDefaultStyles; //Force styles to prevent unexpected results
+				span.textContent = text.substring(start, end);
+				fakeClone.appendChild(span);
+				return span;
+			}
+			// Computing offset position
+			function getInputOffset() {
+				var body = document.body,
+					win = document.defaultView,
+					docElem = document.documentElement,
+					box = document.createElement("div");
+				box.style.paddingLeft = box.style.width = "1px";
+				body.appendChild(box);
+				var isBoxModel = box.offsetWidth == 2;
+				body.removeChild(box);
+				// @ts-ignore
+				box = input.getBoundingClientRect();
+				var clientTop = docElem.clientTop || body.clientTop || 0,
+					clientLeft = docElem.clientLeft || body.clientLeft || 0,
+					scrollTop =
+						// @ts-ignore
+						win.pageYOffset ||
+						(isBoxModel && docElem.scrollTop) ||
+						body.scrollTop,
+					scrollLeft =
+						// @ts-ignore
+						win.pageXOffset ||
+						(isBoxModel && docElem.scrollLeft) ||
+						body.scrollLeft;
+				return {
+					// @ts-ignore
+					top: box.top + scrollTop - clientTop,
+					// @ts-ignore
+					left: box.left + scrollLeft - clientLeft,
+				};
+			}
+			/**
+			 *
+			 * @param {any} prop
+			 * @param {any} isnumber
+			 * @returns
+			 */
+			function getInputCSS(prop, isnumber) {
+				// @ts-ignore
+				var val = document.defaultView
+					.getComputedStyle(input, null)
+					.getPropertyValue(prop);
+				return isnumber ? parseFloat(val) : val;
+			}
 		},
 	};
 
@@ -12531,9 +12700,12 @@
 			followTargetWidth: true,
 			topDistance: 0,
 			position: "auto",
+			positionTopToReverse: true,
 			zIndex: 10000,
 			searchingTip: "正在搜索中...",
 			toSearhNotResultHTML: '<li data-none="true">暂无其它数据</li>',
+			toHideWithNotResult: false,
+			followPosition: "target",
 			getItemHTML(item) {
 				return item.text ?? item;
 			},
@@ -12545,6 +12717,9 @@
 				console.log("item项的点击回调", [event, liElement, data]);
 				// @ts-ignore
 				this.inputTarget.value = data.value;
+			},
+			selectCallBack(event, liElement, data) {
+				console.log("item项的选中回调", [event, liElement, data]);
 			},
 			// @ts-ignore
 			style: void 0,
@@ -12588,22 +12763,27 @@
 			 */
 			// @ts-ignore
 			hintULElement: null,
+			$data: {
+				/** 是否结果为空 */
+				isEmpty: true,
+			},
 			/**
 			 * 初始化
 			 */
 			init(parentElement = document.body || document.documentElement) {
-				this.root = this.getSearchSelectElement();
+				SearchSuggestion.root = SearchSuggestion.getSearchSelectElement();
 				// @ts-ignore
-				this.hintULElement = this.root.querySelector("ul");
-				this.update(config.data);
-				this.changeHintULElementWidth();
-				this.changeHintULElementPosition();
+				SearchSuggestion.hintULElement =
+					SearchSuggestion.root.querySelector("ul");
+				SearchSuggestion.update(config.data);
+				SearchSuggestion.changeHintULElementWidth();
+				SearchSuggestion.changeHintULElementPosition();
 
-				this.hide();
+				SearchSuggestion.hide();
 				if (config.isAnimation) {
-					this.root.classList.add(`pops-${PopsType}-animation`);
+					SearchSuggestion.root.classList.add(`pops-${PopsType}-animation`);
 				}
-				$shadowRoot.appendChild(this.root);
+				$shadowRoot.appendChild(SearchSuggestion.root);
 				parentElement.appendChild($shadowContainer);
 			},
 			/**
@@ -12642,11 +12822,11 @@
 								box-shadow: 0 1px 6px rgb(0 0 0 / 20%);
 							}
 							/* 建议框在上面时 */
-							ul.pops-${PopsType}-search-suggestion-hint[data-top]{
+							ul.pops-${PopsType}-search-suggestion-hint[data-top-reverse]{
 								display: flex;
     							flex-direction: column-reverse;
 							}
-							ul.pops-${PopsType}-search-suggestion-hint[data-top] li{
+							ul.pops-${PopsType}-search-suggestion-hint[data-top-reverse] li{
 								flex-shrink: 0;
 							}
 							ul.pops-${PopsType}-search-suggestion-hint li{
@@ -12696,12 +12876,14 @@
 				return PopsDOMUtils.createElement("li", {
 					className: `pops-${PopsType}-search-suggestion-hint-item pops-flex-items-center pops-flex-y-center`,
 					"data-index": index,
-					"data-value": this.getItemDataValue(item),
+					"data-value": SearchSuggestion.getItemDataValue(item),
 					innerHTML: `
           			${config.getItemHTML(item)}
           			${
 									// @ts-ignore
-									config.deleteIcon.enable ? this.getDeleteIconHTML() : ""
+									config.deleteIcon.enable
+										? SearchSuggestion.getDeleteIconHTML()
+										: ""
 								}
           			`,
 				});
@@ -12756,6 +12938,27 @@
 				);
 			},
 			/**
+			 * 设置搜索建议框每一项的选中事件
+			 * @param {HTMLLIElement} liElement
+			 */
+			setSearchItemSelectEvent(liElement) {
+				return;
+				PopsDOMUtils.on(
+					liElement,
+					"keyup",
+					void 0,
+					(event) => {
+						// @ts-ignore
+						let value = liElement["data-value"];
+						// @ts-ignore
+						config.selectCallBack(event, liElement, value);
+					},
+					{
+						capture: true,
+					}
+				);
+			},
+			/**
 			 * 监听输入框内容改变
 			 */
 			setInputChangeEvent() {
@@ -12772,7 +12975,7 @@
 					async (event) => {
 						// @ts-ignore
 						let getListResult = await config.getData(event.target.value);
-						this.update(getListResult);
+						SearchSuggestion.update(getListResult);
 					},
 					{
 						capture: true,
@@ -12794,23 +12997,57 @@
 			showEvent() {
 				SearchSuggestion.changeHintULElementPosition();
 				SearchSuggestion.changeHintULElementWidth();
-				SearchSuggestion.show();
+				if (config.toHideWithNotResult) {
+					if (SearchSuggestion.$data.isEmpty) {
+						SearchSuggestion.hide();
+					} else {
+						SearchSuggestion.show();
+					}
+				} else {
+					SearchSuggestion.show();
+				}
 			},
 			/**
 			 * 设置显示搜索建议框的事件
 			 */
 			setShowEvent() {
 				/* 焦点|点击事件*/
-				PopsDOMUtils.on(
-					// @ts-ignore
-					[config.target, config.inputTarget],
-					["focus", "click"],
-					void 0,
-					this.showEvent,
-					{
-						capture: true,
-					}
-				);
+				if (config.followPosition === "target") {
+					PopsDOMUtils.on(
+						// @ts-ignore
+						[config.target],
+						["focus", "click"],
+						void 0,
+						SearchSuggestion.showEvent,
+						{
+							capture: true,
+						}
+					);
+				} else if (config.followPosition === "input") {
+					PopsDOMUtils.on(
+						// @ts-ignore
+						[config.inputTarget],
+						["focus", "click"],
+						void 0,
+						SearchSuggestion.showEvent,
+						{
+							capture: true,
+						}
+					);
+				} else if (config.followPosition === "inputCursor") {
+					PopsDOMUtils.on(
+						// @ts-ignore
+						[config.inputTarget],
+						["focus", "click", "input"],
+						void 0,
+						SearchSuggestion.showEvent,
+						{
+							capture: true,
+						}
+					);
+				} else {
+					throw new TypeError("未知followPosition：" + config.followPosition);
+				}
 			},
 			/**
 			 * 移除显示搜索建议框的事件
@@ -12818,11 +13055,20 @@
 			removeShowEvent() {
 				/* 焦点|点击事件*/
 				PopsDOMUtils.off(
-					// @ts-ignore
 					[config.target, config.inputTarget],
 					["focus", "click"],
 					void 0,
-					this.showEvent,
+					SearchSuggestion.showEvent,
+					{
+						capture: true,
+					}
+				);
+				/* 内容改变事件 */
+				PopsDOMUtils.off(
+					[config.inputTarget],
+					["input"],
+					void 0,
+					SearchSuggestion.showEvent,
 					{
 						capture: true,
 					}
@@ -12842,7 +13088,6 @@
 						/* 点击在目标元素内 */
 						return;
 					}
-					// @ts-ignore
 					if (config.inputTarget.contains(event.target)) {
 						/* 点击在目标input内 */
 						return;
@@ -12861,7 +13106,7 @@
 					SearchSuggestion.selfDocument,
 					["click", "touchstart"],
 					void 0,
-					this.hideEvent,
+					SearchSuggestion.hideEvent,
 					{
 						capture: true,
 					}
@@ -12876,7 +13121,7 @@
 					SearchSuggestion.selfDocument,
 					["click", "touchstart"],
 					void 0,
-					this.hideEvent,
+					SearchSuggestion.hideEvent,
 					{
 						capture: true,
 					}
@@ -12886,17 +13131,17 @@
 			 * 设置所有监听
 			 */
 			setAllEvent() {
-				this.setInputChangeEvent();
-				this.setHideEvent();
-				this.setShowEvent();
+				SearchSuggestion.setInputChangeEvent();
+				SearchSuggestion.setHideEvent();
+				SearchSuggestion.setShowEvent();
 			},
 			/**
 			 * 移除所有监听
 			 */
 			removeAllEvent() {
-				this.removeInputChangeEvent();
-				this.removeHideEvent();
-				this.removeShowEvent();
+				SearchSuggestion.removeInputChangeEvent();
+				SearchSuggestion.removeHideEvent();
+				SearchSuggestion.removeShowEvent();
 			},
 			/**
 			 * 获取删除按钮的html
@@ -12943,31 +13188,48 @@
 			changeHintULElementPosition(
 				target = config.target ?? config.inputTarget
 			) {
-				let targetRect = config.isAbsolute
-					? PopsDOMUtils.offset(target)
-					: target.getBoundingClientRect();
-
+				/** @type {DOMRect|null} */
+				let targetRect = null;
+				if (config.followPosition === "inputCursor") {
+					targetRect = PopsDOMUtils.getTextBoundingRect(
+						config.inputTarget,
+						config.inputTarget.selectionStart || 0,
+						config.inputTarget.selectionEnd || 0,
+						false
+					);
+				} else {
+					targetRect = config.isAbsolute
+						? PopsDOMUtils.offset(target)
+						: target.getBoundingClientRect();
+				}
+				if (targetRect == null) {
+					return;
+				}
+				// 文档最大高度
 				let documentHeight = document.documentElement.clientHeight;
 				if (config.isAbsolute) {
 					// 绝对定位
 					documentHeight = PopsDOMUtils.height(document);
 				}
+				// 文档最大宽度
+				let documentWidth = PopsDOMUtils.width(document);
 				if (config.position === "top") {
-					SearchSuggestion.hintULElement.setAttribute("data-top", "true");
+					if (config.positionTopToReverse) {
+						SearchSuggestion.hintULElement.setAttribute(
+							"data-top-reverse",
+							"true"
+						);
+					}
 					// 在上面
 					SearchSuggestion.hintULElement.style.top = "";
 					SearchSuggestion.hintULElement.style.bottom =
-						// @ts-ignore
 						documentHeight - targetRect.top + config.topDistance + "px";
-					SearchSuggestion.hintULElement.style.left = targetRect.left + "px";
 				} else if (config.position === "bottom") {
 					// 在下面
-					SearchSuggestion.hintULElement.removeAttribute("data-top");
+					SearchSuggestion.hintULElement.removeAttribute("data-top-reverse");
 					SearchSuggestion.hintULElement.style.bottom = "";
 					SearchSuggestion.hintULElement.style.top =
-						// @ts-ignore
 						targetRect.height + targetRect.top + config.topDistance + "px";
-					SearchSuggestion.hintULElement.style.left = targetRect.left + "px";
 				} else if (config.position === "auto") {
 					// 自动判断
 					if (
@@ -12975,23 +13237,30 @@
 							PopsDOMUtils.height(SearchSuggestion.hintULElement) >
 						documentHeight
 					) {
-						SearchSuggestion.hintULElement.setAttribute("data-top", "true");
+						if (config.positionTopToReverse) {
+							SearchSuggestion.hintULElement.setAttribute(
+								"data-top-reverse",
+								"true"
+							);
+						}
 						// 超出浏览器高度了，自动转换为上面去
 						SearchSuggestion.hintULElement.style.top = "";
 						SearchSuggestion.hintULElement.style.bottom =
-							// @ts-ignore
 							documentHeight - targetRect.top + config.topDistance + "px";
 					} else {
 						SearchSuggestion.hintULElement.removeAttribute("data-top");
 						SearchSuggestion.hintULElement.style.bottom = "";
 						SearchSuggestion.hintULElement.style.top =
-							// @ts-ignore
 							targetRect.height + targetRect.top + config.topDistance + "px";
 					}
-					SearchSuggestion.hintULElement.style.left = targetRect.left + "px";
 				} else {
 					throw new TypeError("未知设置的位置" + config.position);
 				}
+				let hintUIWidth = PopsDOMUtils.width(SearchSuggestion.hintULElement);
+				SearchSuggestion.hintULElement.style.left =
+					(targetRect.left + hintUIWidth > documentWidth
+						? documentWidth - hintUIWidth
+						: targetRect.left) + "px";
 			},
 			/**
 			 * 修改搜索建议框的width
@@ -13017,28 +13286,42 @@
 				config.data = data;
 				/* 清空已有的搜索结果 */
 				if (config.data.length) {
-					this.clearAllSearchItemLi();
+					SearchSuggestion.$data.isEmpty = false;
+
+					if (config.toHideWithNotResult) {
+						SearchSuggestion.show();
+					}
+					SearchSuggestion.clearAllSearchItemLi();
 					/* 添加进ul中 */
 					config.data.forEach((item, index) => {
-						let itemElement = this.getSearchItemLiElement(item, index);
+						let itemElement = SearchSuggestion.getSearchItemLiElement(
+							item,
+							index
+						);
 						// @ts-ignore
-						this.setSearchItemClickEvent(itemElement);
-						this.hintULElement.appendChild(itemElement);
+						SearchSuggestion.setSearchItemClickEvent(itemElement);
+						// @ts-ignore
+						SearchSuggestion.setSearchItemSelectEvent(itemElement);
+						SearchSuggestion.hintULElement.appendChild(itemElement);
 					});
 				} else {
 					/* 清空 */
-					this.clear();
+					SearchSuggestion.clear();
 				}
 			},
 			/**
 			 * 清空当前的搜索结果并显示无结果
 			 */
 			clear() {
+				this.$data.isEmpty = true;
 				this.clearAllSearchItemLi();
 				this.hintULElement.appendChild(
 					// @ts-ignore
 					PopsUtils.parseTextToDOM(config.toSearhNotResultHTML)
 				);
+				if (config.toHideWithNotResult) {
+					this.hide();
+				}
 			},
 			/**
 			 * 隐藏搜索建议框

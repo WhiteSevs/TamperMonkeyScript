@@ -1710,6 +1710,10 @@ declare interface PopsSearchSuggestionDetails {
 	 */
 	position?: "top" | "bottom" | "auto";
 	/**
+	 * 当位置在上面时（包括auto自动判断在上面时），是否对搜索项进行反转，默认true
+	 */
+	positionTopToReverse?: boolean;
+	/**
 	 * 层级，默认10000
 	 */
 	zIndex?: 10000;
@@ -1721,6 +1725,14 @@ declare interface PopsSearchSuggestionDetails {
 	 * 没有搜索结果的提示的html
 	 */
 	toSearhNotResultHTML?: string;
+	/**
+	 * 没有搜索结果是否隐藏提示框，默认false
+	 */
+	toHideWithNotResult?: boolean;
+	/**
+	 * 跟随目标的位置，默认为target的位置
+	 */
+	followPosition?: "target" | "input" | "inputCursor";
 	/**
 	 * 获取每一项的html
 	 */
@@ -1738,6 +1750,17 @@ declare interface PopsSearchSuggestionDetails {
 	 */
 	itemClickCallBack: (
 		event: PointerEvent,
+		liElement: HTMLLIElement,
+		data: PopsSearchSuggestionData
+	) => void;
+	/**
+	 * 键盘的上下键选择的回调
+	 * @param event 触发的事件
+	 * @param liElement 每一项的元素
+	 * @param data config.data的数据
+	 */
+	selectCallBack?: (
+		event: MouseEvent,
 		liElement: HTMLLIElement,
 		data: PopsSearchSuggestionData
 	) => void;
