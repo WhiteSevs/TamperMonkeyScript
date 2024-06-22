@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.19
+// @version      2024.6.22
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，自定义视频清晰度(可1080p、2K、2K-60、4K-60)
 // @license      GPL-3.0-only
@@ -11,13 +11,14 @@
 // @match        http*://huati.weibo.cn/*
 // @match        http*://h5.video.weibo.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/456485/1396237/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1398647/pops.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css
 // @connect      m.weibo.cn
 // @connect      www.weibo.com
+// @connect      passport.weibo.com
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
 // @grant        GM_getValue
@@ -330,7 +331,7 @@
       });
     }
   };
-  const VideoQualityMapWithPC = {
+  const VideoQualityMap_Mobile = {
     "流畅 360P": {
       label: "流畅",
       sign: 1,
@@ -345,7 +346,9 @@
       label: "高清",
       sign: 3,
       name: "mp4_720p_mp4"
-    },
+    }
+  };
+  const VideoQualityMap_PC = {
     "高清 1080P": {
       label: "超清",
       sign: 4,
@@ -361,28 +364,24 @@
       sign: 6,
       name: "mp4_1440p_60fps_mp4"
     },
+    "超清 4K": {
+      label: "4K",
+      sign: 7,
+      name: "mp4_2160p_mp4"
+    },
     "超清 4K60": {
       label: "4K-60",
       sign: 7,
       name: "mp4_2160p_60fps_mp4"
     }
   };
+  const VideoQualityMap = {
+    ...VideoQualityMap_Mobile,
+    ...VideoQualityMap_PC
+  };
   class WeiBoUnlockQuality {
     constructor() {
-      __publicField(this, "$src", {
-        "高清 1080P": {
-          ...VideoQualityMapWithPC["高清 1080P"]
-        },
-        "超清 2K": {
-          ...VideoQualityMapWithPC["超清 2K"]
-        },
-        "超清 2K60": {
-          ...VideoQualityMapWithPC["超清 2K60"]
-        },
-        "超清 4K60": {
-          ...VideoQualityMapWithPC["超清 4K60"]
-        }
-      });
+      __publicField(this, "$src", VideoQualityMap_PC);
       __publicField(this, "$data", {
         newQualityNameList: [],
         videoQualityMap: new utils.Dictionary()
@@ -408,9 +407,9 @@
               "weibo-common-lockVideoQuality"
             );
             let userSetQualitySign = -1;
-            Object.keys(VideoQualityMapWithPC).find((key) => {
-              if (VideoQualityMapWithPC[key].name === userSetQuality) {
-                userSetQualitySign = VideoQualityMapWithPC[key].sign;
+            Object.keys(VideoQualityMap).find((key) => {
+              if (VideoQualityMap[key].name === userSetQuality) {
+                userSetQualitySign = VideoQualityMap[key].sign;
                 return true;
               } else {
                 return false;
@@ -560,8 +559,8 @@
                           }
                         }
                       }
-                      if (srcName in VideoQualityMapWithPC) {
-                        let newSrcInfo = VideoQualityMapWithPC[srcName];
+                      if (srcName in VideoQualityMap) {
+                        let newSrcInfo = VideoQualityMap[srcName];
                         if (newSrcInfo.name in urls) {
                         } else {
                           log.success(["新增清晰度：", newSrcInfo]);
@@ -680,8 +679,8 @@
               },
               ...(() => {
                 let result = [];
-                Object.keys(VideoQualityMapWithPC).forEach((name) => {
-                  let value = VideoQualityMapWithPC[name];
+                Object.keys(VideoQualityMap).forEach((name) => {
+                  let value = VideoQualityMap[name];
                   result.push({
                     value: value.name,
                     text: name

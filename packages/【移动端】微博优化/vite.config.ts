@@ -50,7 +50,7 @@ export default defineConfig({
 					"http*://huati.weibo.cn/*",
 					"http*://h5.video.weibo.com/*",
 				],
-				connect: ["m.weibo.cn", "www.weibo.com"],
+				connect: ["m.weibo.cn", "www.weibo.com", "passport.weibo.com"],
 				grant: [
 					"GM_addStyle",
 					"GM_registerMenuCommand",

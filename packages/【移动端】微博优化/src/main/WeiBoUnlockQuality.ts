@@ -1,6 +1,5 @@
 import { WeiBoApi } from "@/api/WeiBoApi";
 import { log, utils } from "@/env";
-import { WeiBoRouter } from "@/router/WeiBoRouter";
 import { PopsPanel } from "@/setting/setting";
 import { VueUtils } from "@/utils/VueUtils";
 import Qmsg from "qmsg";
@@ -9,10 +8,25 @@ interface VideoQualityMapInfo {
 	label: string;
 	sign: number;
 	name: string;
+	/** 链接 */
 	src: string;
 }
 
-export const VideoQualityMapWithPC = {
+interface VideoQualityMapData {
+	[key: string]: {
+		/** 显示的选项名 */
+		label: string;
+		/** 值 */
+		sign: number;
+		/** 值 */
+		name: string;
+	};
+}
+
+/**
+ * 手机端视频画质
+ */
+export const VideoQualityMap_Mobile: VideoQualityMapData = {
 	"流畅 360P": {
 		label: "流畅",
 		sign: 1,
@@ -28,6 +42,12 @@ export const VideoQualityMapWithPC = {
 		sign: 3,
 		name: "mp4_720p_mp4",
 	},
+};
+
+/**
+ * PC端视频画质
+ */
+export const VideoQualityMap_PC: VideoQualityMapData = {
 	"高清 1080P": {
 		label: "超清",
 		sign: 4,
@@ -43,34 +63,27 @@ export const VideoQualityMapWithPC = {
 		sign: 6,
 		name: "mp4_1440p_60fps_mp4",
 	},
+	"超清 4K": {
+		label: "4K",
+		sign: 7,
+		name: "mp4_2160p_mp4",
+	},
 	"超清 4K60": {
 		label: "4K-60",
 		sign: 7,
 		name: "mp4_2160p_60fps_mp4",
 	},
-} as {
-	[key: string]: {
-		label: string;
-		sign: number;
-		name: string;
-	};
+};
+/**
+ * 全部的视频画质
+ */
+export const VideoQualityMap = {
+	...VideoQualityMap_Mobile,
+	...VideoQualityMap_PC,
 };
 
 export class WeiBoUnlockQuality {
-	$src = {
-		"高清 1080P": {
-			...VideoQualityMapWithPC["高清 1080P"],
-		},
-		"超清 2K": {
-			...VideoQualityMapWithPC["超清 2K"],
-		},
-		"超清 2K60": {
-			...VideoQualityMapWithPC["超清 2K60"],
-		},
-		"超清 4K60": {
-			...VideoQualityMapWithPC["超清 4K60"],
-		},
-	};
+	$src = VideoQualityMap_PC;
 	$data = {
 		newQualityNameList: <string[]>[],
 		videoQualityMap: new utils.Dictionary<string, VideoQualityMapInfo[]>(),
@@ -97,9 +110,9 @@ export class WeiBoUnlockQuality {
 						"weibo-common-lockVideoQuality"
 					) as string;
 					let userSetQualitySign = -1;
-					Object.keys(VideoQualityMapWithPC).find((key) => {
-						if (VideoQualityMapWithPC[key].name === userSetQuality) {
-							userSetQualitySign = VideoQualityMapWithPC[key].sign;
+					Object.keys(VideoQualityMap).find((key) => {
+						if (VideoQualityMap[key].name === userSetQuality) {
+							userSetQualitySign = VideoQualityMap[key].sign;
 							return true;
 						} else {
 							return false;
@@ -272,8 +285,8 @@ export class WeiBoUnlockQuality {
 													}
 												}
 											}
-											if (srcName in VideoQualityMapWithPC) {
-												let newSrcInfo = VideoQualityMapWithPC[srcName];
+											if (srcName in VideoQualityMap) {
+												let newSrcInfo = VideoQualityMap[srcName];
 												if (newSrcInfo.name in urls) {
 													// 该清晰度已存在
 												} else {

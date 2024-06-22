@@ -1,4 +1,4 @@
-import { VideoQualityMapWithPC } from "@/main/WeiBoUnlockQuality";
+import { VideoQualityMap } from "@/main/WeiBoUnlockQuality";
 import { UISelect } from "../common-components/ui-select";
 import { UISwitch } from "../common-components/ui-switch";
 import { UITextArea } from "../common-components/ui-textarea";
@@ -28,8 +28,8 @@ const SettingUICommon: PopsPanelContentConfig = {
 									text: string;
 								}[]
 							>[];
-							Object.keys(VideoQualityMapWithPC).forEach((name) => {
-								let value = VideoQualityMapWithPC[name];
+							Object.keys(VideoQualityMap).forEach((name) => {
+								let value = VideoQualityMap[name];
 								result.push({
 									value: value.name,
 									text: name,
