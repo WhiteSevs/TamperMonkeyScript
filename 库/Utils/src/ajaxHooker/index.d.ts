@@ -1,5 +1,5 @@
 /** 请求的response配置 */
-declare interface UtilsAjaxHookResponseOptions {
+export declare interface UtilsAjaxHookResponseOptions {
 	/**
 	 * （重定向后的）Url
 	 */
@@ -23,7 +23,7 @@ declare interface UtilsAjaxHookResponseOptions {
 }
 
 /** hook请求的配置 */
-declare interface UtilsAjaxHookRequestOptions {
+export declare interface UtilsAjaxHookRequestOptions {
 	/**
 	 * 只读属性。一个字符串，表明请求类型是xhr还是fetch
 	 */
@@ -65,7 +65,7 @@ declare interface UtilsAjaxHookRequestOptions {
 }
 
 /** 过滤规则配置 */
-declare interface UtilsAjaxHookFilterOptions {
+export declare interface UtilsAjaxHookFilterOptions {
 	/**
 	 * 应是xhr或fetch
 	 */
@@ -85,7 +85,7 @@ declare interface UtilsAjaxHookFilterOptions {
 }
 
 /** Utils.ajaxHooker */
-declare interface UtilsAjaxHookResult {
+export declare interface UtilsAjaxHookResult {
 	/**
      * 劫持
      * @example

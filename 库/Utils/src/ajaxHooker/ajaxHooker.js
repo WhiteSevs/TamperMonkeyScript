@@ -1,4 +1,3 @@
-/// <reference path="./index.d.ts" />
 // @name         ajaxHooker
 // @author       cxxjackie
 // @version      1.4.3

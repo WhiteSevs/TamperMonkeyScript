@@ -12,6 +12,7 @@ import { UtilsDictionary } from "./Dictionary";
 import type { DOMUtils_EventType } from "./Event";
 import type { UtilsCoreOption } from "./UtilsCore";
 import type { Vue2Object } from "./VueObject";
+import type { UtilsAjaxHookResult } from "./ajaxHooker";
 export declare var unsafeWindow: Window & typeof globalThis;
 export type JSTypeMap = {
     string: string;
