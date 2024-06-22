@@ -114,6 +114,7 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 					"屏蔽元素"
 				),
 				UISwitch("【屏蔽】投稿", "shieldSubmission", false, void 0, "屏蔽元素"),
+				UISwitch("【屏蔽】壁纸", "shieldWallpaper", false, void 0, "屏蔽元素"),
 				UISwitch(
 					"【屏蔽】左侧导航栏",
 					"shieldLeftNavigator",

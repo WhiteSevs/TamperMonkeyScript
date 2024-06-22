@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.19
+// @version      2024.6.22
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -11,8 +11,8 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1396237/pops.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
 // @grant        GM_getValue
@@ -209,6 +209,7 @@
             "屏蔽元素"
           ),
           UISwitch("【屏蔽】投稿", "shieldSubmission", false, void 0, "屏蔽元素"),
+          UISwitch("【屏蔽】壁纸", "shieldWallpaper", false, void 0, "屏蔽元素"),
           UISwitch(
             "【屏蔽】左侧导航栏",
             "shieldLeftNavigator",
@@ -2510,6 +2511,9 @@
       PopsPanel.execMenu("shieldSubmission", () => {
         this.shieldSubmission();
       });
+      PopsPanel.execMenu("shieldWallpaper", () => {
+        this.shieldWallpaper();
+      });
       PopsPanel.execMenu("shieldLeftNavigator", () => {
         this.shieldLeftNavigator();
       });
@@ -2526,7 +2530,9 @@
     shieldFillingBricksAndStones() {
       log.info("【屏蔽】充砖石");
       DouYinUtils.addBlockCSS(
-        'pace-island[id^="island"] > div[class]:not([data-click]):has(div[data-e2e="something-button"]) > :has(path[d="M5.757 12.268a6.397 6.397 0 1112.793 0 6.397 6.397 0 01-12.793 0zm6.396-7.897a7.897 7.897 0 100 15.793 7.897 7.897 0 000-15.793zm2.127 3.52v-.497h-1.5v6.462h.001c0 .854-.685 1.536-1.517 1.536a1.527 1.527 0 01-1.517-1.536c0-.854.685-1.536 1.517-1.536v-1.5c-1.672 0-3.017 1.365-3.017 3.036 0 1.67 1.345 3.036 3.017 3.036s3.017-1.365 3.017-3.036h-.001v-3.228a3.184 3.184 0 001.715.498v-1.5a1.725 1.725 0 01-1.715-1.735z"])'
+        '#douyin-right-container pace-island[id^="island"] > div[class]:not([data-click]):has(div[data-e2e="something-button"]) > :has(path[d="M5.757 12.268a6.397 6.397 0 1112.793 0 6.397 6.397 0 01-12.793 0zm6.396-7.897a7.897 7.897 0 100 15.793 7.897 7.897 0 000-15.793zm2.127 3.52v-.497h-1.5v6.462h.001c0 .854-.685 1.536-1.517 1.536a1.527 1.527 0 01-1.517-1.536c0-.854.685-1.536 1.517-1.536v-1.5c-1.672 0-3.017 1.365-3.017 3.036 0 1.67 1.345 3.036 3.017 3.036s3.017-1.365 3.017-3.036h-.001v-3.228a3.184 3.184 0 001.715.498v-1.5a1.725 1.725 0 01-1.715-1.735z"])',
+        // 直播
+        '#douyin-header pace-island[id^="island"] > div[class]:not([data-click]):has(div[data-e2e="something-button"]) > :has(path[d="M5.757 12.268a6.397 6.397 0 1112.793 0 6.397 6.397 0 01-12.793 0zm6.396-7.897a7.897 7.897 0 100 15.793 7.897 7.897 0 000-15.793zm2.127 3.52v-.497h-1.5v6.462h.001c0 .854-.685 1.536-1.517 1.536a1.527 1.527 0 01-1.517-1.536c0-.854.685-1.536 1.517-1.536v-1.5c-1.672 0-3.017 1.365-3.017 3.036 0 1.67 1.345 3.036 3.017 3.036s3.017-1.365 3.017-3.036h-.001v-3.228a3.184 3.184 0 001.715.498v-1.5a1.725 1.725 0 01-1.715-1.735z"])'
       );
       if (DouYinRouter.isSearch()) {
         log.info("搜索-【屏蔽】充砖石");
@@ -2541,7 +2547,9 @@
     shieldClient() {
       log.info("【屏蔽】客户端");
       DouYinUtils.addBlockCSS(
-        'pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container'
+        '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container',
+        // 直播
+        '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container:has(a)'
       );
       if (DouYinRouter.isSearch()) {
         log.info("搜索-【屏蔽】客户端");
@@ -2569,7 +2577,9 @@
     shieldNotifitation() {
       log.info("【屏蔽】通知");
       DouYinUtils.addBlockCSS(
-        'pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(path[d="M9.905 19.407h4.5v-1.5h-4.5v1.5z"])'
+        '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(path[d="M9.905 19.407h4.5v-1.5h-4.5v1.5z"])',
+        // 直播
+        '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(path[d="M9.905 19.407h4.5v-1.5h-4.5v1.5z"])'
       );
       if (DouYinRouter.isSearch()) {
         log.info("搜索-【屏蔽】通知");
@@ -2582,7 +2592,9 @@
     shieldPrivateMessage() {
       log.info("【屏蔽】私信");
       DouYinUtils.addBlockCSS(
-        'pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])'
+        '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])',
+        // 直播
+        '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])'
       );
       if (DouYinRouter.isSearch()) {
         log.info("搜索-【屏蔽】私信");
@@ -2595,7 +2607,9 @@
     shieldSubmission() {
       log.info("【屏蔽】投稿");
       DouYinUtils.addBlockCSS(
-        'pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(ul[data-e2e="cooperate-list"])'
+        '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(ul[data-e2e="cooperate-list"])',
+        // 直播
+        '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(ul[data-e2e="cooperate-list"])'
       );
       if (DouYinRouter.isSearch()) {
         log.info("搜索-【屏蔽】投稿");
@@ -2615,7 +2629,19 @@
         /* 右上角 个人信息 客户端登录访问更便捷 [下载] */
         '#douyin-header pace-island[id^="island_"] ul > div:has(>a[class][download])',
         /* 右上角 私信 下载客户端，实时接收好友消息 */
-        '#douyin-header pace-island[id^="island_"] ul[class] li div[data-e2e="im-entry"]  div>div div div:has(a[download][href])'
+        '#douyin-header pace-island[id^="island_"] ul[class] li div[data-e2e="im-entry"]  div>div div div:has(a[download][href])',
+        /* 右上角 壁纸 下载客户端，使用壁纸 */
+        '#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container div:has(+ #wallpaper-modal)'
+      );
+    },
+    /**
+     * 【屏蔽】壁纸
+     */
+    shieldWallpaper() {
+      log.info("【屏蔽】壁纸");
+      DouYinUtils.addBlockCSS(
+        // 直播
+        '#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container:has(span.semi-icon)'
       );
     },
     /**
