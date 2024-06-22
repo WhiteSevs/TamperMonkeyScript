@@ -1,4 +1,3 @@
-/// <reference path="../../src/ajaxHooker/index.d.ts" />
 import { ColorConversion } from "./ColorConversion";
 import { GBKEncoder } from "./GBKEncoder";
 import { UtilsGMCookie } from "./UtilsGMCookie";
@@ -1413,8 +1412,8 @@ declare class Utils {
      */
     tryCatch: (...args: any) => {
         config(paramDetails: import("./TryCatch").UtilsTryCatchConfig): any;
-        error(handler: string | Function | ((...args: any[]) => any)): any;
-        run<A extends any[], R>(callback: string | Function | ((...args: A) => R), __context__?: any): import("./TryCatch").UtilsTryCatchType;
+        error(handler: ((...args: any[]) => any) | string | Function): any;
+        run<A extends any[], R>(callback: ((...args: A) => R) | string | Function, __context__?: any): import("./TryCatch").UtilsTryCatchType;
     };
     /**
      * 数组去重，去除重复的值

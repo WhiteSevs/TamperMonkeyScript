@@ -1510,13 +1510,14 @@
             },
             /**
              * 成功的回调
-             * @param response
+             * @param response 响应
+             * @param details 请求的配置
              */
-            successResponseCallBack(response) {
+            successResponseCallBack(response, details) {
                 for (let index = 0; index < this.$config.configList.length; index++) {
                     let item = this.$config.configList[index];
                     if (typeof item.successFn === "function") {
-                        if (item.successFn(response) == null) {
+                        if (item.successFn(response, details) == null) {
                             return;
                         }
                     }
@@ -1525,7 +1526,7 @@
             },
             /**
              * 失败的回调
-             * @param response
+             * @param data 配置
              */
             errorResponseCallBack(data) {
                 for (let index = 0; index < this.$config.configList.length; index++) {
@@ -1788,6 +1789,7 @@
                     type: "onabort",
                     error: new TypeError("request canceled"),
                     response: null,
+                    details: details,
                 }) == null) {
                     return;
                 }
@@ -1819,6 +1821,7 @@
                     type: "onerror",
                     error: new TypeError("request error"),
                     response: response,
+                    details: details,
                 }) == null) {
                     return;
                 }
@@ -1847,6 +1850,7 @@
                     type: "ontimeout",
                     error: new TypeError("request timeout"),
                     response: (argumentsList || [null])[0],
+                    details: details,
                 }) == null) {
                     return;
                 }
@@ -1930,8 +1934,7 @@
                 }
                 /* 状态码2xx都是成功的 */
                 if (Math.floor(Response.status / 100) === 2) {
-                    if (this.context.HttpxResponseHook.successResponseCallBack(Response) ==
-                        null) {
+                    if (this.context.HttpxResponseHook.successResponseCallBack(Response, details) == null) {
                         return;
                     }
                     resolve({
@@ -2052,7 +2055,7 @@
                     let responseText = "";
                     /** 响应xml文档 */
                     let responseXML = "";
-                    let arrayBuffer = await resp.arrayBuffer;
+                    let arrayBuffer = await resp.arrayBuffer();
                     let encoding = "utf-8";
                     if (resp.headers.has("Content-Type")) {
                         let charsetMatched = resp.headers
@@ -2063,7 +2066,7 @@
                         }
                     }
                     let textDecoder = new TextDecoder(encoding);
-                    responseText = textDecoder.decode(await resp.arrayBuffer());
+                    responseText = textDecoder.decode(arrayBuffer);
                     response = responseText;
                     if (details.responseType === "arraybuffer") {
                         response = arrayBuffer;
