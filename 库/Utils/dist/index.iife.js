@@ -466,26 +466,43 @@ var Utils = (function () {
     // @supportURL   https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
 
     const AjaxHooker = function () {
-    	return function() {
-    		const version = '1.4.3';
+    	return (function () {
+    		const version = "1.4.3";
     		const hookInst = {
     			hookFns: [],
-    			filters: []
+    			filters: [],
     		};
     		const win = window.unsafeWindow || document.defaultView || window;
     		let winAh = win.__ajaxHooker;
     		const resProto = win.Response.prototype;
-    		const xhrResponses = ['response', 'responseText', 'responseXML'];
-    		const fetchResponses = ['arrayBuffer', 'blob', 'formData', 'json', 'text'];
-    		const fetchInitProps = ['method', 'headers', 'body', 'mode', 'credentials', 'cache', 'redirect',
-    			'referrer', 'referrerPolicy', 'integrity', 'keepalive', 'signal', 'priority'];
-    		const xhrAsyncEvents = ['readystatechange', 'load', 'loadend'];
-    		const getType = ({}).toString.call.bind(({}).toString);
+    		const xhrResponses = ["response", "responseText", "responseXML"];
+    		const fetchResponses = ["arrayBuffer", "blob", "formData", "json", "text"];
+    		const fetchInitProps = [
+    			"method",
+    			"headers",
+    			"body",
+    			"mode",
+    			"credentials",
+    			"cache",
+    			"redirect",
+    			"referrer",
+    			"referrerPolicy",
+    			"integrity",
+    			"keepalive",
+    			"signal",
+    			"priority",
+    		];
+    		const xhrAsyncEvents = ["readystatechange", "load", "loadend"];
+    		const getType = {}.toString.call.bind({}.toString);
     		const getDescriptor = Object.getOwnPropertyDescriptor.bind(Object);
     		const emptyFn = () => {};
-    		const errorFn = e => console.error(e);
+    		const errorFn = (e) => console.error(e);
     		function isThenable(obj) {
-    			return obj && ['object', 'function'].includes(typeof obj) && typeof obj.then === 'function';
+    			return (
+    				obj &&
+    				["object", "function"].includes(typeof obj) &&
+    				typeof obj.then === "function"
+    			);
     		}
     		function catchError(fn, ...args) {
     			try {
@@ -501,7 +518,7 @@ var Utils = (function () {
     				configurable: true,
     				enumerable: true,
     				get: getter,
-    				set: setter
+    				set: setter,
     			});
     		}
     		function readonly(obj, prop, value = obj[prop]) {
@@ -512,27 +529,28 @@ var Utils = (function () {
     				configurable: true,
     				enumerable: true,
     				writable: true,
-    				value: value
+    				value: value,
     			});
     		}
     		function parseHeaders(obj) {
     			const headers = {};
     			switch (getType(obj)) {
-    				case '[object String]':
+    				case "[object String]":
     					for (const line of obj.trim().split(/[\r\n]+/)) {
     						const [header, value] = line.split(/\s*:\s*/);
     						if (!header) break;
     						const lheader = header.toLowerCase();
-    						headers[lheader] = lheader in headers ? `${headers[lheader]}, ${value}` : value;
+    						headers[lheader] =
+    							lheader in headers ? `${headers[lheader]}, ${value}` : value;
     					}
     					break;
-    				case '[object Headers]':
+    				case "[object Headers]":
     					for (const [key, val] of obj) {
     						headers[key] = val;
     					}
     					break;
-    				case '[object Object]':
-    					return {...obj};
+    				case "[object Object]":
+    					return { ...obj };
     			}
     			return headers;
     		}
@@ -548,104 +566,142 @@ var Utils = (function () {
     		class AHRequest {
     			constructor(request) {
     				this.request = request;
-    				this.requestClone = {...this.request};
+    				this.requestClone = { ...this.request };
     			}
     			shouldFilter(filters) {
-    				const {type, url, method, async} = this.request;
-    				return filters.length && !filters.find(obj => {
-    					switch (true) {
-    						case obj.type && obj.type !== type:
-    						case getType(obj.url) === '[object String]' && !url.includes(obj.url):
-    						case getType(obj.url) === '[object RegExp]' && !obj.url.test(url):
-    						case obj.method && obj.method.toUpperCase() !== method.toUpperCase():
-    						case 'async' in obj && obj.async !== async:
-    							return false;
-    					}
-    					return true;
-    				});
+    				const { type, url, method, async } = this.request;
+    				return (
+    					filters.length &&
+    					!filters.find((obj) => {
+    						switch (true) {
+    							case obj.type && obj.type !== type:
+    							case getType(obj.url) === "[object String]" &&
+    								!url.includes(obj.url):
+    							case getType(obj.url) === "[object RegExp]" && !obj.url.test(url):
+    							case obj.method &&
+    								obj.method.toUpperCase() !== method.toUpperCase():
+    							case "async" in obj && obj.async !== async:
+    								return false;
+    						}
+    						return true;
+    					})
+    				);
     			}
     			waitForRequestKeys() {
-    				const requestKeys = ['url', 'method', 'abort', 'headers', 'data'];
+    				const requestKeys = ["url", "method", "abort", "headers", "data"];
     				if (!this.request.async) {
-    					win.__ajaxHooker.hookInsts.forEach(({hookFns, filters}) => {
+    					win.__ajaxHooker.hookInsts.forEach(({ hookFns, filters }) => {
     						if (this.shouldFilter(filters)) return;
-    						hookFns.forEach(fn => {
-    							if (getType(fn) === '[object Function]') catchError(fn, this.request);
+    						hookFns.forEach((fn) => {
+    							if (getType(fn) === "[object Function]")
+    								catchError(fn, this.request);
     						});
-    						requestKeys.forEach(key => {
-    							if (isThenable(this.request[key])) this.request[key] = this.requestClone[key];
+    						requestKeys.forEach((key) => {
+    							if (isThenable(this.request[key]))
+    								this.request[key] = this.requestClone[key];
     						});
     					});
     					return new SyncThenable();
     				}
     				const promises = [];
-    				win.__ajaxHooker.hookInsts.forEach(({hookFns, filters}) => {
+    				win.__ajaxHooker.hookInsts.forEach(({ hookFns, filters }) => {
     					if (this.shouldFilter(filters)) return;
-    					promises.push(Promise.all(hookFns.map(fn => catchError(fn, this.request))).then(() => 
-    						Promise.all(requestKeys.map(key => Promise.resolve(this.request[key]).then(
-    							val => this.request[key] = val,
-    							() => this.request[key] = this.requestClone[key]
-    						)))
-    					));
+    					promises.push(
+    						Promise.all(hookFns.map((fn) => catchError(fn, this.request))).then(
+    							() =>
+    								Promise.all(
+    									requestKeys.map((key) =>
+    										Promise.resolve(this.request[key]).then(
+    											(val) => (this.request[key] = val),
+    											() => (this.request[key] = this.requestClone[key])
+    										)
+    									)
+    								)
+    						)
+    					);
     				});
     				return Promise.all(promises);
     			}
     			waitForResponseKeys(response) {
-    				const responseKeys = this.request.type === 'xhr' ? xhrResponses : fetchResponses;
+    				const responseKeys =
+    					this.request.type === "xhr" ? xhrResponses : fetchResponses;
     				if (!this.request.async) {
-    					if (getType(this.request.response) === '[object Function]') {
+    					if (getType(this.request.response) === "[object Function]") {
     						catchError(this.request.response, response);
-    						responseKeys.forEach(key => {
-    							if ('get' in getDescriptor(response, key) || isThenable(response[key])) {
+    						responseKeys.forEach((key) => {
+    							if (
+    								"get" in getDescriptor(response, key) ||
+    								isThenable(response[key])
+    							) {
     								delete response[key];
     							}
     						});
     					}
     					return new SyncThenable();
     				}
-    				return Promise.resolve(catchError(this.request.response, response)).then(() =>
-    					Promise.all(responseKeys.map(key => {
-    						const descriptor = getDescriptor(response, key);
-    						if (descriptor && 'value' in descriptor) {
-    							return Promise.resolve(descriptor.value).then(
-    								val => response[key] = val,
-    								() => delete response[key]
-    							);
-    						} else {
-    							delete response[key];
-    						}
-    					}))
+    				return Promise.resolve(
+    					catchError(this.request.response, response)
+    				).then(() =>
+    					Promise.all(
+    						responseKeys.map((key) => {
+    							const descriptor = getDescriptor(response, key);
+    							if (descriptor && "value" in descriptor) {
+    								return Promise.resolve(descriptor.value).then(
+    									(val) => (response[key] = val),
+    									() => delete response[key]
+    								);
+    							} else {
+    								delete response[key];
+    							}
+    						})
+    					)
     				);
     			}
     		}
     		const proxyHandler = {
     			get(target, prop) {
     				const descriptor = getDescriptor(target, prop);
-    				if (descriptor && !descriptor.configurable && !descriptor.writable && !descriptor.get) return target[prop];
+    				if (
+    					descriptor &&
+    					!descriptor.configurable &&
+    					!descriptor.writable &&
+    					!descriptor.get
+    				)
+    					return target[prop];
     				const ah = target.__ajaxHooker;
     				if (ah && ah.proxyProps) {
     					if (prop in ah.proxyProps) {
     						const pDescriptor = ah.proxyProps[prop];
-    						if ('get' in pDescriptor) return pDescriptor.get();
-    						if (typeof pDescriptor.value === 'function') return pDescriptor.value.bind(ah);
+    						if ("get" in pDescriptor) return pDescriptor.get();
+    						if (typeof pDescriptor.value === "function")
+    							return pDescriptor.value.bind(ah);
     						return pDescriptor.value;
     					}
-    					if (typeof target[prop] === 'function') return target[prop].bind(target);
+    					if (typeof target[prop] === "function")
+    						return target[prop].bind(target);
     				}
     				return target[prop];
     			},
     			set(target, prop, value) {
     				const descriptor = getDescriptor(target, prop);
-    				if (descriptor && !descriptor.configurable && !descriptor.writable && !descriptor.set) return true;
+    				if (
+    					descriptor &&
+    					!descriptor.configurable &&
+    					!descriptor.writable &&
+    					!descriptor.set
+    				)
+    					return true;
     				const ah = target.__ajaxHooker;
     				if (ah && ah.proxyProps && prop in ah.proxyProps) {
     					const pDescriptor = ah.proxyProps[prop];
-    					pDescriptor.set ? pDescriptor.set(value) : (pDescriptor.value = value);
+    					pDescriptor.set
+    						? pDescriptor.set(value)
+    						: (pDescriptor.value = value);
     				} else {
     					target[prop] = value;
     				}
     				return true;
-    			}
+    			},
     		};
     		class XhrHooker {
     			constructor(xhr) {
@@ -655,86 +711,113 @@ var Utils = (function () {
     					proxyXhr: new Proxy(xhr, proxyHandler),
     					resThenable: new SyncThenable(),
     					proxyProps: {},
-    					proxyEvents: {}
+    					proxyEvents: {},
     				});
-    				xhr.addEventListener('readystatechange', e => {
-    					if (ah.proxyXhr.readyState === 4 && ah.request && typeof ah.request.response === 'function') {
+    				xhr.addEventListener("readystatechange", (e) => {
+    					if (
+    						ah.proxyXhr.readyState === 4 &&
+    						ah.request &&
+    						typeof ah.request.response === "function"
+    					) {
     						const response = {
     							finalUrl: ah.proxyXhr.responseURL,
     							status: ah.proxyXhr.status,
-    							responseHeaders: parseHeaders(ah.proxyXhr.getAllResponseHeaders())
+    							responseHeaders: parseHeaders(
+    								ah.proxyXhr.getAllResponseHeaders()
+    							),
     						};
     						const tempValues = {};
     						for (const key of xhrResponses) {
     							try {
     								tempValues[key] = ah.originalXhr[key];
     							} catch (err) {}
-    							defineProp(response, key, () => {
-    								return response[key] = tempValues[key];
-    							}, val => {
-    								delete response[key];
-    								response[key] = val;
-    							});
+    							defineProp(
+    								response,
+    								key,
+    								() => {
+    									return (response[key] = tempValues[key]);
+    								},
+    								(val) => {
+    									delete response[key];
+    									response[key] = val;
+    								}
+    							);
     						}
-    						ah.resThenable = new AHRequest(ah.request).waitForResponseKeys(response).then(() => {
-    							for (const key of xhrResponses) {
-    								ah.proxyProps[key] = {get: () => {
-    									if (!(key in response)) response[key] = tempValues[key];
-    									return response[key];
-    								}};
-    							}
-    						});
+    						ah.resThenable = new AHRequest(ah.request)
+    							.waitForResponseKeys(response)
+    							.then(() => {
+    								for (const key of xhrResponses) {
+    									ah.proxyProps[key] = {
+    										get: () => {
+    											if (!(key in response)) response[key] = tempValues[key];
+    											return response[key];
+    										},
+    									};
+    								}
+    							});
     					}
     					ah.dispatchEvent(e);
     				});
-    				xhr.addEventListener('load', e => ah.dispatchEvent(e));
-    				xhr.addEventListener('loadend', e => ah.dispatchEvent(e));
+    				xhr.addEventListener("load", (e) => ah.dispatchEvent(e));
+    				xhr.addEventListener("loadend", (e) => ah.dispatchEvent(e));
     				for (const evt of xhrAsyncEvents) {
-    					const onEvt = 'on' + evt;
+    					const onEvt = "on" + evt;
     					ah.proxyProps[onEvt] = {
     						get: () => ah.proxyEvents[onEvt] || null,
-    						set: val => ah.addEvent(onEvt, val)
+    						set: (val) => ah.addEvent(onEvt, val),
     					};
     				}
-    				for (const method of ['setRequestHeader', 'addEventListener', 'removeEventListener', 'open', 'send']) {
-    					ah.proxyProps[method] = {value: ah[method]};
+    				for (const method of [
+    					"setRequestHeader",
+    					"addEventListener",
+    					"removeEventListener",
+    					"open",
+    					"send",
+    				]) {
+    					ah.proxyProps[method] = { value: ah[method] };
     				}
     			}
     			toJSON() {} // Converting circular structure to JSON
     			addEvent(type, event) {
-    				if (type.startsWith('on')) {
-    					this.proxyEvents[type] = typeof event === 'function' ? event : null;
+    				if (type.startsWith("on")) {
+    					this.proxyEvents[type] = typeof event === "function" ? event : null;
     				} else {
-    					if (typeof event === 'object' && event !== null) event = event.handleEvent;
-    					if (typeof event !== 'function') return;
+    					if (typeof event === "object" && event !== null)
+    						event = event.handleEvent;
+    					if (typeof event !== "function") return;
     					this.proxyEvents[type] = this.proxyEvents[type] || new Set();
     					this.proxyEvents[type].add(event);
     				}
     			}
     			removeEvent(type, event) {
-    				if (type.startsWith('on')) {
+    				if (type.startsWith("on")) {
     					this.proxyEvents[type] = null;
     				} else {
-    					if (typeof event === 'object' && event !== null) event = event.handleEvent;
+    					if (typeof event === "object" && event !== null)
+    						event = event.handleEvent;
     					this.proxyEvents[type] && this.proxyEvents[type].delete(event);
     				}
     			}
     			dispatchEvent(e) {
     				e.stopImmediatePropagation = stopImmediatePropagation;
-    				defineProp(e, 'target', () => this.proxyXhr);
-    				defineProp(e, 'currentTarget', () => this.proxyXhr);
-    				this.proxyEvents[e.type] && this.proxyEvents[e.type].forEach(fn => {
-    					this.resThenable.then(() => !e.ajaxHooker_isStopped && fn.call(this.proxyXhr, e));
-    				});
+    				defineProp(e, "target", () => this.proxyXhr);
+    				defineProp(e, "currentTarget", () => this.proxyXhr);
+    				this.proxyEvents[e.type] &&
+    					this.proxyEvents[e.type].forEach((fn) => {
+    						this.resThenable.then(
+    							() => !e.ajaxHooker_isStopped && fn.call(this.proxyXhr, e)
+    						);
+    					});
     				if (e.ajaxHooker_isStopped) return;
-    				const onEvent = this.proxyEvents['on' + e.type];
+    				const onEvent = this.proxyEvents["on" + e.type];
     				onEvent && this.resThenable.then(onEvent.bind(this.proxyXhr, e));
     			}
     			setRequestHeader(header, value) {
     				this.originalXhr.setRequestHeader(header, value);
     				if (!this.request) return;
     				const headers = this.request.headers;
-    				headers[header] = header in headers ? `${headers[header]}, ${value}` : value;
+    				headers[header] =
+    					header in headers ? `${headers[header]}, ${value}` : value;
     			}
     			addEventListener(...args) {
     				if (xhrAsyncEvents.includes(args[0])) {
@@ -752,18 +835,24 @@ var Utils = (function () {
     			}
     			open(method, url, async = true, ...args) {
     				this.request = {
-    					type: 'xhr',
+    					type: "xhr",
     					url: url.toString(),
     					method: method.toUpperCase(),
     					abort: false,
     					headers: {},
     					data: null,
     					response: null,
-    					async: !!async
+    					async: !!async,
     				};
     				this.openArgs = args;
     				this.resThenable = new SyncThenable();
-    				['responseURL', 'readyState', 'status', 'statusText', ...xhrResponses].forEach(key => {
+    				[
+    					"responseURL",
+    					"readyState",
+    					"status",
+    					"statusText",
+    					...xhrResponses,
+    				].forEach((key) => {
     					delete this.proxyProps[key];
     				});
     				return this.originalXhr.open(method, url, async, ...args);
@@ -776,17 +865,24 @@ var Utils = (function () {
     				request.data = data;
     				new AHRequest(request).waitForRequestKeys().then(() => {
     					if (request.abort) {
-    						if (typeof request.response === 'function') {
+    						if (typeof request.response === "function") {
     							Object.assign(ah.proxyProps, {
-    								responseURL: {value: request.url},
-    								readyState: {value: 4},
-    								status: {value: 200},
-    								statusText: {value: 'OK'}
+    								responseURL: { value: request.url },
+    								readyState: { value: 4 },
+    								status: { value: 200 },
+    								statusText: { value: "OK" },
     							});
-    							xhrAsyncEvents.forEach(evt => xhr.dispatchEvent(new Event(evt)));
+    							xhrAsyncEvents.forEach((evt) =>
+    								xhr.dispatchEvent(new Event(evt))
+    							);
     						}
     					} else {
-    						xhr.open(request.method, request.url, request.async, ...ah.openArgs);
+    						xhr.open(
+    							request.method,
+    							request.url,
+    							request.async,
+    							...ah.openArgs
+    						);
     						for (const header in request.headers) {
     							xhr.setRequestHeader(header, request.headers[header]);
     						}
@@ -797,79 +893,87 @@ var Utils = (function () {
     		}
     		function fakeXHR() {
     			const xhr = new winAh.realXHR();
-    			if ('__ajaxHooker' in xhr) console.warn('检测到不同版本的ajaxHooker，可能发生冲突！');
+    			if ("__ajaxHooker" in xhr)
+    				console.warn("检测到不同版本的ajaxHooker，可能发生冲突！");
     			xhr.__ajaxHooker = new XhrHooker(xhr);
     			return xhr.__ajaxHooker.proxyXhr;
     		}
     		fakeXHR.prototype = win.XMLHttpRequest.prototype;
-    		Object.keys(win.XMLHttpRequest).forEach(key => fakeXHR[key] = win.XMLHttpRequest[key]);
+    		Object.keys(win.XMLHttpRequest).forEach(
+    			(key) => (fakeXHR[key] = win.XMLHttpRequest[key])
+    		);
     		function fakeFetch(url, options = {}) {
     			if (!url) return winAh.realFetch.call(win, url, options);
     			return new Promise(async (resolve, reject) => {
     				const init = {};
-    				if (getType(url) === '[object Request]') {
+    				if (getType(url) === "[object Request]") {
     					for (const prop of fetchInitProps) init[prop] = url[prop];
     					if (url.body) init.body = await url.arrayBuffer();
     					url = url.url;
     				}
     				url = url.toString();
     				Object.assign(init, options);
-    				init.method = init.method || 'GET';
+    				init.method = init.method || "GET";
     				init.headers = init.headers || {};
     				const request = {
-    					type: 'fetch',
+    					type: "fetch",
     					url: url,
     					method: init.method.toUpperCase(),
     					abort: false,
     					headers: parseHeaders(init.headers),
     					data: init.body,
     					response: null,
-    					async: true
+    					async: true,
     				};
     				const req = new AHRequest(request);
     				await req.waitForRequestKeys();
     				if (request.abort) {
-    					if (typeof request.response === 'function') {
+    					if (typeof request.response === "function") {
     						const response = {
     							finalUrl: request.url,
     							status: 200,
-    							responseHeaders: {}
+    							responseHeaders: {},
     						};
     						await req.waitForResponseKeys(response);
-    						const key = fetchResponses.find(k => k in response);
+    						const key = fetchResponses.find((k) => k in response);
     						let val = response[key];
-    						if (key === 'json' && typeof val === 'object') {
+    						if (key === "json" && typeof val === "object") {
     							val = catchError(JSON.stringify.bind(JSON), val);
     						}
     						const res = new Response(val, {
     							status: 200,
-    							statusText: 'OK'
+    							statusText: "OK",
     						});
-    						defineProp(res, 'type', () => 'basic');
-    						defineProp(res, 'url', () => request.url);
+    						defineProp(res, "type", () => "basic");
+    						defineProp(res, "url", () => request.url);
     						resolve(res);
     					} else {
-    						reject(new DOMException('aborted', 'AbortError'));
+    						reject(new DOMException("aborted", "AbortError"));
     					}
     					return;
     				}
     				init.method = request.method;
     				init.headers = request.headers;
     				init.body = request.data;
-    				winAh.realFetch.call(win, request.url, init).then(res => {
-    					if (typeof request.response === 'function') {
+    				winAh.realFetch.call(win, request.url, init).then((res) => {
+    					if (typeof request.response === "function") {
     						const response = {
     							finalUrl: res.url,
     							status: res.status,
-    							responseHeaders: parseHeaders(res.headers)
+    							responseHeaders: parseHeaders(res.headers),
     						};
-    						fetchResponses.forEach(key => res[key] = function() {
-    							if (key in response) return Promise.resolve(response[key]);
-    							return resProto[key].call(this).then(val => {
-    								response[key] = val;
-    								return req.waitForResponseKeys(response).then(() => key in response ? response[key] : val);
-    							});
-    						});
+    						fetchResponses.forEach(
+    							(key) =>
+    								(res[key] = function () {
+    									if (key in response) return Promise.resolve(response[key]);
+    									return resProto[key].call(this).then((val) => {
+    										response[key] = val;
+    										return req
+    											.waitForResponseKeys(response)
+    											.then(() => (key in response ? response[key] : val));
+    									});
+    								})
+    						);
     					}
     					resolve(res);
     				}, reject);
@@ -882,38 +986,42 @@ var Utils = (function () {
     			return res;
     		}
     		winAh = win.__ajaxHooker = winAh || {
-    			version, fakeXHR, fakeFetch, fakeFetchClone,
+    			version,
+    			fakeXHR,
+    			fakeFetch,
+    			fakeFetchClone,
     			realXHR: win.XMLHttpRequest,
     			realFetch: win.fetch,
     			realFetchClone: resProto.clone,
-    			hookInsts: new Set()
+    			hookInsts: new Set(),
     		};
-    		if (winAh.version !== version) console.warn('检测到不同版本的ajaxHooker，可能发生冲突！');
+    		if (winAh.version !== version)
+    			console.warn("检测到不同版本的ajaxHooker，可能发生冲突！");
     		win.XMLHttpRequest = winAh.fakeXHR;
     		win.fetch = winAh.fakeFetch;
     		resProto.clone = winAh.fakeFetchClone;
     		winAh.hookInsts.add(hookInst);
     		return {
-    			hook: fn => hookInst.hookFns.push(fn),
-    			filter: arr => {
+    			hook: (fn) => hookInst.hookFns.push(fn),
+    			filter: (arr) => {
     				if (Array.isArray(arr)) hookInst.filters = arr;
     			},
     			protect: () => {
-    				readonly(win, 'XMLHttpRequest', winAh.fakeXHR);
-    				readonly(win, 'fetch', winAh.fakeFetch);
-    				readonly(resProto, 'clone', winAh.fakeFetchClone);
+    				readonly(win, "XMLHttpRequest", winAh.fakeXHR);
+    				readonly(win, "fetch", winAh.fakeFetch);
+    				readonly(resProto, "clone", winAh.fakeFetchClone);
     			},
     			unhook: () => {
     				winAh.hookInsts.delete(hookInst);
     				if (!winAh.hookInsts.size) {
-    					writable(win, 'XMLHttpRequest', winAh.realXHR);
-    					writable(win, 'fetch', winAh.realFetch);
-    					writable(resProto, 'clone', winAh.realFetchClone);
+    					writable(win, "XMLHttpRequest", winAh.realXHR);
+    					writable(win, "fetch", winAh.realFetch);
+    					writable(resProto, "clone", winAh.realFetchClone);
     					delete win.__ajaxHooker;
     				}
-    			}
+    			},
     		};
-    	}();
+    	})();
     };
 
     class GMMenu {
@@ -3283,7 +3391,6 @@ var Utils = (function () {
         }
     }
 
-    /// <reference path="./ajaxHooker/index.d.ts" />
     class Utils {
         constructor(option) {
             UtilsCore.init(option);

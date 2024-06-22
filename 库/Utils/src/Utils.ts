@@ -1,4 +1,3 @@
-/// <reference path="./ajaxHooker/index.d.ts" />
 import { ColorConversion } from "./ColorConversion";
 import { GBKEncoder } from "./GBKEncoder";
 import { UtilsCore } from "./UtilsCore";
@@ -16,7 +15,7 @@ import { UtilsDictionary } from "./Dictionary";
 import type { DOMUtils_EventType } from "./Event";
 import type { UtilsCoreOption } from "./UtilsCore";
 import type { Vue2Object } from "./VueObject";
-import type { UtilsAjaxHookResult } from "./ajaxHooker";
+import type { UtilsAjaxHookResult } from "./AjaxHookerType";
 
 export declare var unsafeWindow: Window & typeof globalThis;
 

@@ -1,3 +1,5 @@
+import type { HttpxHeaders, HttpxMethod, HttpxStatus } from "./Httpx";
+
 /** 请求的response配置 */
 export declare interface UtilsAjaxHookResponseOptions {
 	/**
