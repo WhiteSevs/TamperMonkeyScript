@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.19
+// @version      2024.6.23
 // @author       WhiteSevs
 // @description  bilibili(哔哩哔哩)优化，免登录等
 // @license      GPL-3.0-only
@@ -11,11 +11,11 @@
 // @match        *://live.bilibili.com/*
 // @match        *://www.bilibili.com/read/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/456485/1396237/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1398647/pops.js
 // @require      https://update.greasyfork.org/scripts/497907/1394170/QRCodeJS.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @connect      *
 // @connect      m.bilibili.com
@@ -59,7 +59,7 @@
       get useDocumentCookie() {
         return PopsPanel.getValue("httpx-use-document-cookie");
       },
-      cookieList: [
+      cookieRule: [
         {
           key: "httpx-cookie-bilibili.com",
           hostname: /bilibili.com/g
@@ -92,18 +92,18 @@
     },
     /**
      * 处理cookie
-     * @param data
+     * @param details
      * @returns
      */
-    handle(data2) {
-      if (data2.fetch) {
+    handle(details) {
+      if (details.fetch) {
         return;
       }
       if (!this.$data.enable) {
         return;
       }
       let ownCookie = "";
-      let url = data2.url;
+      let url = details.url;
       if (url.startsWith("//")) {
         url = window.location.protocol + url;
       }
@@ -113,9 +113,9 @@
       )) {
         ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
       }
-      this.$data.cookieList.forEach((item) => {
-        if (item.hostname.test(urlObj.hostname)) {
-          let cookie = PopsPanel.getValue(item.key);
+      this.$data.cookieRule.forEach((rule) => {
+        if (urlObj.hostname.match(rule.hostname)) {
+          let cookie = PopsPanel.getValue(rule.key);
           if (utils.isNull(cookie)) {
             return;
           }
@@ -123,15 +123,18 @@
         }
       });
       if (utils.isNotNull(ownCookie)) {
-        if (data2.headers && data2.headers["Cookie"]) {
-          data2.headers.Cookie = this.concatCookie(data2.headers.Cookie, ownCookie);
+        if (details.headers && details.headers["Cookie"]) {
+          details.headers.Cookie = this.concatCookie(
+            details.headers.Cookie,
+            ownCookie
+          );
         } else {
-          data2.headers["Cookie"] = ownCookie;
+          details.headers["Cookie"] = ownCookie;
         }
-        log.info(["Httpx => 设置cookie:", data2]);
+        log.info(["Httpx => 设置cookie:", details]);
       }
-      if (data2.headers && data2.headers.Cookie != null && utils.isNull(data2.headers.Cookie)) {
-        delete data2.headers.Cookie;
+      if (details.headers && details.headers.Cookie != null && utils.isNull(details.headers.Cookie)) {
+        delete details.headers.Cookie;
       }
     }
   };

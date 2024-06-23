@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.22
+// @version      2024.6.23
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，自定义视频清晰度(可1080p、2K、2K-60、4K-60)
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1398647/pops.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css
 // @connect      m.weibo.cn
@@ -56,7 +56,7 @@
       get useDocumentCookie() {
         return PopsPanel.getValue("httpx-use-document-cookie");
       },
-      cookieList: [
+      cookieRule: [
         {
           key: "httpx-cookie-weibo.com",
           hostname: /weibo.com/g
@@ -89,18 +89,18 @@
     },
     /**
      * 处理cookie
-     * @param data
+     * @param details
      * @returns
      */
-    handle(data) {
-      if (data.fetch) {
+    handle(details) {
+      if (details.fetch) {
         return;
       }
       if (!this.$data.enable) {
         return;
       }
       let ownCookie = "";
-      let url = data.url;
+      let url = details.url;
       if (url.startsWith("//")) {
         url = window.location.protocol + url;
       }
@@ -110,9 +110,9 @@
       )) {
         ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
       }
-      this.$data.cookieList.forEach((item) => {
-        if (item.hostname.test(urlObj.hostname)) {
-          let cookie = PopsPanel.getValue(item.key);
+      this.$data.cookieRule.forEach((rule) => {
+        if (urlObj.hostname.match(rule.hostname)) {
+          let cookie = PopsPanel.getValue(rule.key);
           if (utils.isNull(cookie)) {
             return;
           }
@@ -120,15 +120,18 @@
         }
       });
       if (utils.isNotNull(ownCookie)) {
-        if (data.headers && data.headers["Cookie"]) {
-          data.headers.Cookie = this.concatCookie(data.headers.Cookie, ownCookie);
+        if (details.headers && details.headers["Cookie"]) {
+          details.headers.Cookie = this.concatCookie(
+            details.headers.Cookie,
+            ownCookie
+          );
         } else {
-          data.headers["Cookie"] = ownCookie;
+          details.headers["Cookie"] = ownCookie;
         }
-        log.info(["Httpx => 设置cookie:", data]);
+        log.info(["Httpx => 设置cookie:", details]);
       }
-      if (data.headers && data.headers.Cookie != null && utils.isNull(data.headers.Cookie)) {
-        delete data.headers.Cookie;
+      if (details.headers && details.headers.Cookie != null && utils.isNull(details.headers.Cookie)) {
+        delete details.headers.Cookie;
       }
     }
   };

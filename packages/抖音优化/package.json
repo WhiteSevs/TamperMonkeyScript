@@ -17,16 +17,16 @@
 	},
 	"dependencies": {
 		"@whitesev/domutils": "^1.1.2",
-		"@whitesev/utils": "^1.5.4",
+		"@whitesev/utils": "^1.5.8",
 		"qmsg": "^1.1.2",
-		"vue": "^3.4.29"
+		"vue": "^3.4.30"
 	},
 	"devDependencies": {
-		"@types/node": "^20.14.7",
+		"@types/node": "^20.14.8",
 		"@vitejs/plugin-vue": "^5.0.5",
 		"typescript": "^5.5.2",
 		"vite": "^5.3.1",
 		"vite-plugin-monkey": "4.0.3",
-		"vue-tsc": "^2.0.21"
+		"vue-tsc": "^2.0.22"
 	}
 }

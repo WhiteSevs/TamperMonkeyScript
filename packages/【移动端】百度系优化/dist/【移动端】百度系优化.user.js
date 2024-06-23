@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.20.18
+// @version      2024.6.23
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -11,17 +11,17 @@
 // @match        *://www.tieba.com/*
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/456485/1396237/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1398647/pops.js
 // @require      https://update.greasyfork.org/scripts/488179/1384528/showdown.js
-// @require      https://fastly.jsdelivr.net/npm/vue@3.4.29/dist/vue.global.prod.js
+// @require      https://fastly.jsdelivr.net/npm/vue@3.4.30/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.8/lib/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/pinia@2.1.7/dist/pinia.iife.prod.js
-// @require      https://fastly.jsdelivr.net/npm/vue-router@4.3.3/dist/vue-router.global.js
+// @require      https://fastly.jsdelivr.net/npm/vue-router@4.4.0/dist/vue-router.global.js
 // @require      https://update.greasyfork.org/scripts/495227/1378053/Element-Plus.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.5/dist/index.min.css
 // @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
@@ -3787,7 +3787,7 @@ match-attr##srcid##sp_purc_atom
       get useDocumentCookie() {
         return PopsPanel.getValue("httpx-use-document-cookie");
       },
-      cookieList: [
+      cookieRule: [
         {
           key: "httpx-cookie-tieba.baidu.com",
           hostname: /(tieba.baidu|www.tieba|ala.baidu|static.tieba.baidu|nba.baidu).com/g
@@ -3820,18 +3820,18 @@ match-attr##srcid##sp_purc_atom
     },
     /**
      * 处理cookie
-     * @param data
+     * @param details
      * @returns
      */
-    handle(data) {
-      if (data.fetch) {
+    handle(details) {
+      if (details.fetch) {
         return;
       }
       if (!this.$data.enable) {
         return;
       }
       let ownCookie = "";
-      let url = data.url;
+      let url = details.url;
       if (url.startsWith("//")) {
         url = window.location.protocol + url;
       }
@@ -3841,9 +3841,9 @@ match-attr##srcid##sp_purc_atom
       )) {
         ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
       }
-      this.$data.cookieList.forEach((item) => {
-        if (item.hostname.test(urlObj.hostname)) {
-          let cookie = PopsPanel.getValue(item.key);
+      this.$data.cookieRule.forEach((rule) => {
+        if (urlObj.hostname.match(rule.hostname)) {
+          let cookie = PopsPanel.getValue(rule.key);
           if (utils.isNull(cookie)) {
             return;
           }
@@ -3851,15 +3851,18 @@ match-attr##srcid##sp_purc_atom
         }
       });
       if (utils.isNotNull(ownCookie)) {
-        if (data.headers && data.headers["Cookie"]) {
-          data.headers.Cookie = this.concatCookie(data.headers.Cookie, ownCookie);
+        if (details.headers && details.headers["Cookie"]) {
+          details.headers.Cookie = this.concatCookie(
+            details.headers.Cookie,
+            ownCookie
+          );
         } else {
-          data.headers["Cookie"] = ownCookie;
+          details.headers["Cookie"] = ownCookie;
         }
-        log.info(["Httpx => 设置cookie:", data]);
+        log.info(["Httpx => 设置cookie:", details]);
       }
-      if (data.headers && data.headers.Cookie != null && utils.isNull(data.headers.Cookie)) {
-        delete data.headers.Cookie;
+      if (details.headers && details.headers.Cookie != null && utils.isNull(details.headers.Cookie)) {
+        delete details.headers.Cookie;
       }
     }
   };

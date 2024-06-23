@@ -1,20 +1,19 @@
 // ==UserScript==
 // @name         Demo Script Name
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.29
+// @version      2024.6.23
 // @author       WhiteSevs
-// @description  demo desc
+// @description
 // @license      GPL-3.0-only
 // @icon
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @match        *://*/*
+// @match
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
-// @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.2.1/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.0/dist/index.umd.js
-// @resource     ElementPlusResourceCSS  https://cdn.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css
-// @connect      *
+// @require      https://update.greasyfork.org/scripts/456485/1398647/pops.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
+// @connect
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
@@ -40,6 +39,90 @@
   var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
   var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
+  const HttpxCookieManager = {
+    $data: {
+      /** 是否启用 */
+      get enable() {
+        return PopsPanel.getValue("httpx-use-cookie-enable");
+      },
+      /** 是否使用document.cookie */
+      get useDocumentCookie() {
+        return PopsPanel.getValue("httpx-use-document-cookie");
+      },
+      cookieRule: []
+    },
+    /**
+     * 补充cookie末尾分号
+     */
+    fixCookieSplit(str) {
+      if (utils.isNotNull(str) && !str.trim().endsWith(";")) {
+        str += ";";
+      }
+      return str;
+    },
+    /**
+     * 合并两个cookie
+     */
+    concatCookie(targetCookie, newCookie) {
+      if (utils.isNull(targetCookie)) {
+        return newCookie;
+      }
+      targetCookie = targetCookie.trim();
+      newCookie = newCookie.trim();
+      targetCookie = this.fixCookieSplit(targetCookie);
+      if (newCookie.startsWith(";")) {
+        newCookie = newCookie.substring(1);
+      }
+      return targetCookie.concat(newCookie);
+    },
+    /**
+     * 处理cookie
+     * @param details
+     * @returns
+     */
+    handle(details) {
+      if (details.fetch) {
+        return;
+      }
+      if (!this.$data.enable) {
+        return;
+      }
+      let ownCookie = "";
+      let url = details.url;
+      if (url.startsWith("//")) {
+        url = window.location.protocol + url;
+      }
+      let urlObj = new URL(url);
+      if (this.$data.useDocumentCookie && urlObj.hostname.endsWith(
+        window.location.hostname.split(".").slice(-2).join(".")
+      )) {
+        ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
+      }
+      this.$data.cookieRule.forEach((rule) => {
+        if (urlObj.hostname.match(rule.hostname)) {
+          let cookie = PopsPanel.getValue(rule.key);
+          if (utils.isNull(cookie)) {
+            return;
+          }
+          ownCookie = this.concatCookie(ownCookie, cookie);
+        }
+      });
+      if (utils.isNotNull(ownCookie)) {
+        if (details.headers && details.headers["Cookie"]) {
+          details.headers.Cookie = this.concatCookie(
+            details.headers.Cookie,
+            ownCookie
+          );
+        } else {
+          details.headers["Cookie"] = ownCookie;
+        }
+        log.info(["Httpx => 设置cookie:", details]);
+      }
+      if (details.headers && details.headers.Cookie != null && utils.isNull(details.headers.Cookie)) {
+        delete details.headers.Cookie;
+      }
+    }
+  };
   const _SCRIPT_NAME_ = "Demo Script Name";
   const utils = Utils.noConflict();
   DOMUtils.noConflict();
@@ -52,18 +135,43 @@
   const DEBUG = false;
   log.config({
     debug: DEBUG,
-    logMaxCount: 2e4,
+    logMaxCount: 1e3,
     autoClearConsole: true,
     tag: true
   });
-  Qmsg.config({
-    position: "bottom",
-    html: true,
-    maxNums: 5,
-    autoClose: true,
-    showClose: false,
-    showReverse: true
-  });
+  Qmsg.config(
+    Object.defineProperties(
+      {
+        html: true,
+        autoClose: true,
+        showClose: false
+      },
+      {
+        position: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-position", "bottom");
+          }
+        },
+        maxNums: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-maxnums", 5);
+          }
+        },
+        showReverse: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-showreverse", true);
+          }
+        },
+        zIndex: {
+          get() {
+            let maxZIndex = Utils.getMaxZIndex(10);
+            let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(10).zIndex;
+            return Utils.getMaxValue(maxZIndex, popsMaxZIndex);
+          }
+        }
+      }
+    )
+  );
   const GM_Menu = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
@@ -71,18 +179,25 @@
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand
   });
   const httpx = new utils.Httpx(_GM_xmlhttpRequest);
-  httpx.config({
-    logDetails: DEBUG,
-    onabort() {
+  httpx.interceptors.request.use((data) => {
+    HttpxCookieManager.handle(data);
+    return data;
+  });
+  httpx.interceptors.response.use(void 0, (data) => {
+    log.error(["拦截器-请求错误", data]);
+    if (data.type === "onabort") {
       Qmsg.warning("请求取消");
-    },
-    ontimeout() {
-      Qmsg.error("请求超时");
-    },
-    onerror(response) {
+    } else if (data.type === "onerror") {
       Qmsg.error("请求异常");
-      log.error(["httpx-onerror 请求异常", response]);
+    } else if (data.type === "ontimeout") {
+      Qmsg.error("请求超时");
+    } else {
+      Qmsg.error("其它错误");
     }
+    return data;
+  });
+  httpx.config({
+    logDetails: DEBUG
   });
   ({
     Object: {
@@ -100,23 +215,219 @@
   const KEY = "GM_Panel";
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
+  const UISwitch = function(text, key, defaultValue, clickCallBack, description) {
+    let result = {
+      text,
+      type: "switch",
+      description,
+      attributes: {},
+      getValue() {
+        return Boolean(PopsPanel.getValue(key, defaultValue));
+      },
+      callback(event, value) {
+        log.success(`${value ? "开启" : "关闭"} ${text}`);
+        PopsPanel.setValue(key, Boolean(value));
+      },
+      afterAddToUListCallBack: void 0
+    };
+    if (result.attributes) {
+      result.attributes[ATTRIBUTE_KEY] = key;
+      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
+    }
+    return result;
+  };
+  const UISelect = function(text, key, defaultValue, data, callback, description) {
+    let selectData = [];
+    if (typeof data === "function") {
+      selectData = data();
+    } else {
+      selectData = data;
+    }
+    let result = {
+      text,
+      type: "select",
+      description,
+      attributes: {},
+      getValue() {
+        return PopsPanel.getValue(key, defaultValue);
+      },
+      callback(event, isSelectedValue, isSelectedText) {
+        PopsPanel.setValue(key, isSelectedValue);
+        if (typeof callback === "function") {
+          callback(event, isSelectedValue, isSelectedText);
+        }
+      },
+      data: selectData
+    };
+    if (result.attributes) {
+      result.attributes[ATTRIBUTE_KEY] = key;
+      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
+    }
+    return result;
+  };
+  const Component_Common = {
+    id: "component-common",
+    title: "通用",
+    forms: [
+      {
+        text: "Toast配置",
+        type: "forms",
+        forms: [
+          UISelect(
+            "Toast位置",
+            "qmsg-config-position",
+            "bottom",
+            [
+              {
+                value: "topleft",
+                text: "左上角"
+              },
+              {
+                value: "top",
+                text: "顶部"
+              },
+              {
+                value: "topright",
+                text: "右上角"
+              },
+              {
+                value: "left",
+                text: "左边"
+              },
+              {
+                value: "center",
+                text: "中间"
+              },
+              {
+                value: "right",
+                text: "右边"
+              },
+              {
+                value: "bottomleft",
+                text: "左下角"
+              },
+              {
+                value: "bottom",
+                text: "底部"
+              },
+              {
+                value: "bottomright",
+                text: "右下角"
+              }
+            ],
+            (event, isSelectValue, isSelectText) => {
+              log.info("设置当前Qmsg弹出位置" + isSelectText);
+            },
+            "Toast显示在页面九宫格的位置"
+          ),
+          UISelect(
+            "最多显示的数量",
+            "qmsg-config-maxnums",
+            3,
+            [
+              {
+                value: 1,
+                text: "1"
+              },
+              {
+                value: 2,
+                text: "2"
+              },
+              {
+                value: 3,
+                text: "3"
+              },
+              {
+                value: 4,
+                text: "4"
+              },
+              {
+                value: 5,
+                text: "5"
+              }
+            ],
+            void 0,
+            "限制Toast显示的数量"
+          ),
+          UISwitch(
+            "逆序弹出",
+            "qmsg-config-showreverse",
+            false,
+            void 0,
+            "修改Toast弹出的顺序"
+          )
+        ]
+      },
+      {
+        text: "Cookie配置",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "启用",
+            "httpx-use-cookie-enable",
+            false,
+            void 0,
+            "启用后，将根据下面的配置进行添加cookie"
+          ),
+          UISwitch(
+            "使用document.cookie",
+            "httpx-use-document-cookie",
+            false,
+            void 0,
+            "自动根据请求的域名来设置对应的cookie"
+          )
+          // UITextArea(
+          // 	"tieba.baidu.com",
+          // 	"httpx-cookie-tieba.baidu.com",
+          // 	"",
+          // 	void 0,
+          // 	void 0,
+          // 	"Cookie格式：xxx=xxxx;xxx=xxxx"
+          // ),
+        ]
+      }
+    ]
+  };
+  const __PopsPanel__ = {
+    data: null,
+    oneSuccessExecMenu: null,
+    onceExec: null,
+    listenData: null
+  };
   const PopsPanel = {
     /** 数据 */
     $data: {
       /**
        * 菜单项的默认值
        */
-      data: new utils.Dictionary(),
+      get data() {
+        if (__PopsPanel__.data == null) {
+          __PopsPanel__.data = new utils.Dictionary();
+        }
+        return __PopsPanel__.data;
+      },
       /**
        * 成功只执行了一次的项
        */
-      oneSuccessExecMenu: new utils.Dictionary(),
+      get oneSuccessExecMenu() {
+        if (__PopsPanel__.oneSuccessExecMenu == null) {
+          __PopsPanel__.oneSuccessExecMenu = new utils.Dictionary();
+        }
+        return __PopsPanel__.oneSuccessExecMenu;
+      },
       /**
        * 成功只执行了一次的项
        */
-      onceExec: new utils.Dictionary(),
+      get onceExec() {
+        if (__PopsPanel__.onceExec == null) {
+          __PopsPanel__.onceExec = new utils.Dictionary();
+        }
+        return __PopsPanel__.onceExec;
+      },
       /** 脚本名，一般用在设置的标题上 */
-      scriptName: SCRIPT_NAME,
+      get scriptName() {
+        return SCRIPT_NAME;
+      },
       /** 菜单项的总值在本地数据配置的键名 */
       key: KEY,
       /** 菜单项在attributes上配置的菜单键 */
@@ -129,7 +440,12 @@
       /**
        * 值改变的监听器
        */
-      listenData: new utils.Dictionary()
+      get listenData() {
+        if (__PopsPanel__.listenData == null) {
+          __PopsPanel__.listenData = new utils.Dictionary();
+        }
+        return __PopsPanel__.listenData;
+      }
     },
     init() {
       this.initPanelDefaultValue();
@@ -382,7 +698,7 @@
      * 获取配置内容
      */
     getPanelContentConfig() {
-      let configList = [];
+      let configList = [Component_Common];
       return configList;
     }
   };

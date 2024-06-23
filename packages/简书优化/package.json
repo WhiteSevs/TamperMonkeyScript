@@ -14,13 +14,13 @@
     "clear": "del .\\SCRIPT_VERSION.json && pnpm store prune"
   },
   "dependencies": {
-    "@whitesev/domutils": "^1.1.1",
-    "@whitesev/utils": "^1.5.2",
+    "@whitesev/domutils": "^1.1.2",
+    "@whitesev/utils": "^1.5.8",
     "qmsg": "^1.1.2"
   },
   "devDependencies": {
-    "@types/node": "^20.14.5",
-    "typescript": "^5.4.5",
+    "@types/node": "^20.14.8",
+    "typescript": "^5.5.2",
     "vite": "^5.3.1",
     "vite-plugin-monkey": "4.0.3"
   }

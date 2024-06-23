@@ -2,6 +2,13 @@ import { log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import type { HttpxDetails } from "@whitesev/utils/dist/src/Httpx";
 
+interface HttpxCookieManagerRule {
+	/** PopsPanel存储的键名 */
+	key: string;
+	/** 匹配url的hostname的正则或字符串 */
+	hostname: RegExp | string;
+}
+
 export const HttpxCookieManager = {
 	$data: {
 		/** 是否启用 */
@@ -12,7 +19,7 @@ export const HttpxCookieManager = {
 		get useDocumentCookie() {
 			return PopsPanel.getValue<boolean>("httpx-use-document-cookie");
 		},
-		cookieList: [
+		cookieRule: <HttpxCookieManagerRule[]>[
 			{
 				key: "httpx-cookie-weibo.com",
 				hostname: /weibo.com/g,
@@ -46,11 +53,11 @@ export const HttpxCookieManager = {
 	},
 	/**
 	 * 处理cookie
-	 * @param data
+	 * @param details
 	 * @returns
 	 */
-	handle(data: Required<HttpxDetails>) {
-		if (data.fetch) {
+	handle(details: Required<HttpxDetails>) {
+		if (details.fetch) {
 			// fetch不做处理
 			return;
 		}
@@ -61,7 +68,7 @@ export const HttpxCookieManager = {
 		}
 		let ownCookie = "";
 
-		let url = data.url;
+		let url = details.url;
 		// 完善Url
 		if (url.startsWith("//")) {
 			url = window.location.protocol + url;
@@ -76,10 +83,11 @@ export const HttpxCookieManager = {
 			// 通过document.cookie获取添加
 			ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
 		}
-		this.$data.cookieList.forEach((item) => {
-			if (item.hostname.test(urlObj.hostname)) {
+		this.$data.cookieRule.forEach((rule) => {
+			// 正则不要使用test匹配
+			if (urlObj.hostname.match(rule.hostname)) {
 				// 域名匹配成功
-				let cookie = PopsPanel.getValue(item.key) as string;
+				let cookie = PopsPanel.getValue(rule.key) as string;
 				if (utils.isNull(cookie)) {
 					return;
 				}
@@ -88,22 +96,25 @@ export const HttpxCookieManager = {
 		});
 
 		if (utils.isNotNull(ownCookie)) {
-			if (data.headers && data.headers["Cookie"]) {
-				data.headers.Cookie = this.concatCookie(data.headers.Cookie, ownCookie);
+			if (details.headers && details.headers["Cookie"]) {
+				details.headers.Cookie = this.concatCookie(
+					details.headers.Cookie,
+					ownCookie
+				);
 			} else {
-				data.headers["Cookie"] = ownCookie;
+				details.headers["Cookie"] = ownCookie;
 			}
-			log.info(["Httpx => 设置cookie:", data]);
+			log.info(["Httpx => 设置cookie:", details]);
 		}
 
 		if (
-			data.headers &&
-			data.headers.Cookie != null &&
-			utils.isNull(data.headers.Cookie)
+			details.headers &&
+			details.headers.Cookie != null &&
+			utils.isNull(details.headers.Cookie)
 		) {
 			// 有cookie，但是cookie是空的
 			// 删除该设置
-			delete data.headers.Cookie;
+			delete details.headers.Cookie;
 		}
 	},
 };
