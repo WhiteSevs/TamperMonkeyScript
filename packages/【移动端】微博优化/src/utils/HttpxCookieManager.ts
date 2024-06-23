@@ -83,17 +83,17 @@ export const HttpxCookieManager = {
 			// 通过document.cookie获取添加
 			ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
 		}
-		this.$data.cookieRule.forEach((rule) => {
-			// 正则不要使用test匹配
+		for (let index = 0; index < this.$data.cookieRule.length; index++) {
+			let rule = this.$data.cookieRule[index];
 			if (urlObj.hostname.match(rule.hostname)) {
 				// 域名匹配成功
 				let cookie = PopsPanel.getValue(rule.key) as string;
 				if (utils.isNull(cookie)) {
-					return;
+					break;
 				}
 				ownCookie = this.concatCookie(ownCookie, cookie);
 			}
-		});
+		}
 
 		if (utils.isNotNull(ownCookie)) {
 			if (details.headers && details.headers["Cookie"]) {

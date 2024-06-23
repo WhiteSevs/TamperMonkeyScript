@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Demo Script Name
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.23
+// @version      2024.6.23.19
 // @author       WhiteSevs
 // @description
 // @license      GPL-3.0-only
@@ -98,15 +98,16 @@
       )) {
         ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
       }
-      this.$data.cookieRule.forEach((rule) => {
+      for (let index = 0; index < this.$data.cookieRule.length; index++) {
+        let rule = this.$data.cookieRule[index];
         if (urlObj.hostname.match(rule.hostname)) {
           let cookie = PopsPanel.getValue(rule.key);
           if (utils.isNull(cookie)) {
-            return;
+            break;
           }
           ownCookie = this.concatCookie(ownCookie, cookie);
         }
-      });
+      }
       if (utils.isNotNull(ownCookie)) {
         if (details.headers && details.headers["Cookie"]) {
           details.headers.Cookie = this.concatCookie(

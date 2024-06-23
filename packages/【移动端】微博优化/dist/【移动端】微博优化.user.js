@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.23
+// @version      2024.6.23.19
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，自定义视频清晰度(可1080p、2K、2K-60、4K-60)
 // @license      GPL-3.0-only
@@ -110,15 +110,16 @@
       )) {
         ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
       }
-      this.$data.cookieRule.forEach((rule) => {
+      for (let index = 0; index < this.$data.cookieRule.length; index++) {
+        let rule = this.$data.cookieRule[index];
         if (urlObj.hostname.match(rule.hostname)) {
           let cookie = PopsPanel.getValue(rule.key);
           if (utils.isNull(cookie)) {
-            return;
+            break;
           }
           ownCookie = this.concatCookie(ownCookie, cookie);
         }
-      });
+      }
       if (utils.isNotNull(ownCookie)) {
         if (details.headers && details.headers["Cookie"]) {
           details.headers.Cookie = this.concatCookie(
