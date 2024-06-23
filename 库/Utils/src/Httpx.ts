@@ -2127,7 +2127,8 @@ class Httpx {
 			 */
 			use(
 				successFn?: <T extends HttpxAsyncResultData>(
-					response: HttpxAsyncResultData
+					response: T,
+					details: HttpxDetails
 				) => void | T,
 				errorFn?: <T extends HttpxHookErrorData>(data: T) => void | T
 			) {
