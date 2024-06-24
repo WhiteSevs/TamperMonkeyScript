@@ -65,6 +65,13 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 					void 0,
 					"屏蔽元素"
 				),
+				UISwitch(
+					"【屏蔽】小黄车",
+					"live-shielYellowCar",
+					false,
+					void 0,
+					"屏蔽元素"
+				),
 			],
 		},
 		{

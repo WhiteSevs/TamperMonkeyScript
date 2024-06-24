@@ -3,9 +3,10 @@ import { UISwitch } from "../common-components/ui-switch";
 export const MPanelShareUserConfig: PopsPanelContentConfig = {
 	id: "m-panel-config-share-user",
 	title: "主页",
+	headerTitle: "/share/user<br />主页",
 	forms: [
 		{
-			text: "/share/user<br />覆盖点击事件",
+			text: "覆盖点击事件",
 			type: "forms",
 			forms: [
 				UISwitch(

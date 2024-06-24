@@ -37,6 +37,9 @@ export const DouYinLive = {
 		PopsPanel.execMenu("live-shieldGiftEffects", () => {
 			this.shieldGiftEffects();
 		});
+		PopsPanel.execMenu("live-shielYellowCar", () => {
+			this.shieldYellowCar();
+		});
 		PopsPanel.execMenu("live-shieldDanmuku", () => {
 			DouYinLiveDanmuku.shieldDanmu();
 		});
@@ -100,6 +103,15 @@ export const DouYinLive = {
 			// ↓该屏蔽会把连麦的用户也屏蔽了
 			// '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div>div)'
 			'.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div:not([class*="video_layout_container"])>div)'
+		);
+	},
+	/**
+	 * 【屏蔽】小黄车
+	 */
+	shieldYellowCar() {
+		log.info("【屏蔽】小黄车");
+		DouYinUtils.addBlockCSS(
+			'#living_room_player_container .basicPlayer  > div:has(div[data-e2e="yellowCart-container"])'
 		);
 	},
 	/**

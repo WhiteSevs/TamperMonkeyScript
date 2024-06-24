@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.23.19
+// @version      2024.6.24
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -532,6 +532,13 @@
           UISwitch(
             "【屏蔽】弹幕",
             "live-shieldDanmuku",
+            false,
+            void 0,
+            "屏蔽元素"
+          ),
+          UISwitch(
+            "【屏蔽】小黄车",
+            "live-shielYellowCar",
             false,
             void 0,
             "屏蔽元素"
@@ -2019,9 +2026,10 @@
   const MPanelShareUserConfig = {
     id: "m-panel-config-share-user",
     title: "主页",
+    headerTitle: "/share/user<br />主页",
     forms: [
       {
-        text: "/share/user<br />覆盖点击事件",
+        text: "覆盖点击事件",
         type: "forms",
         forms: [
           UISwitch(
@@ -2045,9 +2053,10 @@
   const MPanelShareVideoConfig = {
     id: "m-panel-config-share-video",
     title: "视频",
+    headerTitle: "/share/video<br />视频",
     forms: [
       {
-        text: "/share/video<br />覆盖点击事件",
+        text: "覆盖点击事件",
         type: "forms",
         forms: [
           UISwitch(
@@ -2056,6 +2065,121 @@
             true,
             void 0,
             "阻止跳转至下载页"
+          )
+        ]
+      }
+    ]
+  };
+  const MPanelShareNoteConfig = {
+    id: "m-panel-config-share-note",
+    title: "笔记",
+    headerTitle: "/share/note<br />笔记",
+    forms: [
+      {
+        text: "覆盖点击事件",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "用户",
+            "m-dy-share-note-coverUser",
+            true,
+            void 0,
+            "正确跳转用户主页"
+          ),
+          UISwitch(
+            "话题",
+            "m-dy-share-note-coverHashTag",
+            true,
+            void 0,
+            "正确跳转相关话题"
+          ),
+          UISwitch(
+            "音乐",
+            "m-dy-share-note-coverMusic",
+            true,
+            void 0,
+            "正确跳转相关音乐"
+          ),
+          UISwitch(
+            "相关推荐",
+            "m-dy-share-note-coverRecommend",
+            true,
+            void 0,
+            "正确跳转笔记页面"
+          )
+        ]
+      },
+      {
+        text: "屏蔽元素",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "【屏蔽】评论",
+            "m-dy-share-note-blockComment",
+            false,
+            void 0,
+            "屏蔽元素"
+          ),
+          UISwitch(
+            "【屏蔽】相关推荐",
+            "m-dy-share-note-blockRecommend",
+            false,
+            void 0,
+            "屏蔽元素"
+          ),
+          UISwitch(
+            "【屏蔽】底部工具栏",
+            "m-dy-share-note-blockFooterToobar",
+            false,
+            void 0,
+            "屏蔽元素"
+          )
+        ]
+      }
+    ]
+  };
+  const MPanelShareChallengeConfig = {
+    id: "m-panel-config-share-challenge",
+    title: "话题",
+    headerTitle: "/share/challenge<br />话题",
+    forms: [
+      {
+        text: "覆盖点击事件",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "顶部区域",
+            "m-dy-share-challenge-coverTopJump",
+            true,
+            void 0,
+            "阻止跳转至下载页面"
+          ),
+          UISwitch(
+            "视频卡片",
+            "m-dy-share-challenge-coverVideoCard",
+            true,
+            void 0,
+            "正确跳转视频页面"
+          )
+        ]
+      }
+    ]
+  };
+  const MPanelShareMusicConfig = {
+    id: "m-panel-config-share-music",
+    title: "音乐",
+    headerTitle: "/share/music<br />音乐",
+    forms: [
+      {
+        text: "覆盖点击事件",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "视频卡片",
+            "m-dy-share-music-coverVideoCard",
+            true,
+            void 0,
+            "正确跳转视频页面"
           )
         ]
       }
@@ -2422,7 +2546,10 @@
     getMPanelContentConfig() {
       let configList = [
         MPanelShareUserConfig,
-        MPanelShareVideoConfig
+        MPanelShareNoteConfig,
+        MPanelShareChallengeConfig,
+        MPanelShareVideoConfig,
+        MPanelShareMusicConfig
       ];
       return configList;
     }
@@ -3002,6 +3129,9 @@
       PopsPanel.execMenu("live-shieldGiftEffects", () => {
         this.shieldGiftEffects();
       });
+      PopsPanel.execMenu("live-shielYellowCar", () => {
+        this.shieldYellowCar();
+      });
       PopsPanel.execMenu("live-shieldDanmuku", () => {
         DouYinLiveDanmuku.shieldDanmu();
       });
@@ -3063,6 +3193,15 @@
         // ↓该屏蔽会把连麦的用户也屏蔽了
         // '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div>div)'
         '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div:not([class*="video_layout_container"])>div)'
+      );
+    },
+    /**
+     * 【屏蔽】小黄车
+     */
+    shieldYellowCar() {
+      log.info("【屏蔽】小黄车");
+      DouYinUtils.addBlockCSS(
+        '#living_room_player_container .basicPlayer  > div:has(div[data-e2e="yellowCart-container"])'
       );
     },
     /**
@@ -3257,9 +3396,27 @@
      */
     isShareVideo() {
       return this.isMDouYin() && window.location.pathname.startsWith("/share/video/");
+    },
+    /**
+     * 笔记
+     */
+    isShareNote() {
+      return this.isMDouYin() && window.location.pathname.startsWith("/share/note/");
+    },
+    /**
+     * 音乐
+     */
+    isShareMusic() {
+      return this.isMDouYin() && window.location.pathname.startsWith("/share/music/");
+    },
+    /**
+     * 话题
+     */
+    isShareChallenge() {
+      return this.isMDouYin() && window.location.pathname.startsWith("/share/challenge/");
     }
   };
-  const blockCSS$1 = "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 上面屏蔽后的空白区域 */\r\n.user-card .nav-bar-placeholder,\r\n/* 视频区域底部的【打开抖音App看更多内容】 */\r\n.select-list .img-button{\r\n    display: none !important;\r\n}";
+  const blockCSS$4 = "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 上面屏蔽后的空白区域 */\r\n.user-card .nav-bar-placeholder,\r\n/* 视频区域底部的【打开抖音App看更多内容】 */\r\n.select-list .img-button{\r\n    display: none !important;\r\n}";
   const DouYinUrlUtils = {
     /**
      * 获取视频链接
@@ -3274,11 +3431,39 @@
      */
     getCollectionUrl(collectionId) {
       return "https://www.douyin.com/collection/" + collectionId;
+    },
+    /**
+     * 获取笔记链接
+     * @param noteId 笔记id
+     */
+    getNoteUrl(noteId) {
+      return "https://www.douyin.com/note/" + noteId;
+    },
+    /**
+     * 获取话题链接
+     * @param hashTagId 话题id
+     */
+    getHashTagUrl(hashTagId) {
+      return "https://www.douyin.com/hashtag/" + hashTagId;
+    },
+    /**
+     * 获取用户主页链接
+     * @param sec_uid
+     */
+    getUserHomeUrl(sec_uid) {
+      return "https://www.douyin.com/user/" + sec_uid;
+    },
+    /**
+     * 获取音乐链接
+     * @param musicId 音乐id
+     */
+    getMusicUrl(musicId) {
+      return "https://www.douyin.com/music/" + musicId;
     }
   };
   const MDouYinShareUser = {
     init() {
-      addStyle(blockCSS$1);
+      addStyle(blockCSS$4);
       PopsPanel.execMenuOnce("m-dy-share-user-coverPlayletList", () => {
         this.coverPlayletList();
       });
@@ -3350,11 +3535,11 @@
       );
     }
   };
-  const blockCSS = "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 视频描述信息区域中的 打开抖音看精彩视频 */\r\n.footer .img-button,\r\n/* 登录页面 */\r\n.login-page {\r\n	display: none !important;\r\n}\r\n";
+  const blockCSS$3 = "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 视频描述信息区域中的 打开抖音看精彩视频 */\r\n.footer .img-button,\r\n/* 登录页面 */\r\n.login-page {\r\n	display: none !important;\r\n}\r\n";
   const beautifyCSS = ".video-container {\r\n	height: 100% !important;\r\n	margin-top: 0 !important;\r\n}\r\n.footer {\r\n	bottom: 50px !important;\r\n}\r\n.mix-info {\r\n	bottom: 0px !important;\r\n}\r\n";
   const MDouYinShareVideo = {
     init() {
-      addStyle(blockCSS);
+      addStyle(blockCSS$3);
       addStyle(beautifyCSS);
       PopsPanel.execMenuOnce("m-dy-share-video-coverGlobalClick", () => {
         this.coverGlobalClick();
@@ -3380,6 +3565,253 @@
       });
     }
   };
+  const blockCSS$2 = "/* 顶部 打开看看 登录 */\r\n.container .adapt-login-header,\r\n/* 底部中间的 App内打开 */\r\n.container .float-button-con {\r\n	display: none !important;\r\n}\r\n\r\n.gallery-container {\r\n	margin-top: 10px !important;\r\n}\r\n";
+  const MDouYinShareNote = {
+    init() {
+      addStyle(blockCSS$2);
+      PopsPanel.execMenuOnce("m-dy-share-note-blockRecommend", () => {
+        this.blockRecommend();
+      });
+      PopsPanel.execMenuOnce("m-dy-share-note-blockComment", () => {
+        this.blockComment();
+      });
+      PopsPanel.execMenuOnce("m-dy-share-note-blockFooterToobar", () => {
+        this.blockFooterToobar();
+      });
+      PopsPanel.execMenuOnce("m-dy-share-note-coverUser", () => {
+        this.coverUser();
+      });
+      PopsPanel.execMenuOnce("m-dy-share-note-coverHashTag", () => {
+        this.coverHashTag();
+      });
+      PopsPanel.execMenuOnce("m-dy-share-note-coverMusic", () => {
+        this.coverMusic();
+      });
+      PopsPanel.execMenuOnce("m-dy-share-note-coverRecommend", () => {
+        this.coverRecommend();
+      });
+    },
+    /**
+     * 【屏蔽】相关推荐
+     */
+    blockRecommend() {
+      log.info("【屏蔽】相关推荐");
+      DouYinUtils.addBlockCSS(".recommend-con");
+    },
+    /**
+     * 【屏蔽】评论
+     */
+    blockComment() {
+      log.info("【屏蔽】评论");
+      DouYinUtils.addBlockCSS(".comment-con");
+    },
+    /**
+     * 【屏蔽】底部工具栏
+     */
+    blockFooterToobar() {
+      log.info("【屏蔽】底部工具栏");
+      DouYinUtils.addBlockCSS(".footer-con");
+    },
+    /**
+     * 覆盖相关推荐的点击事件
+     */
+    coverRecommend() {
+      log.info("覆盖相关推荐的点击事件");
+      domUtils.on(
+        document,
+        "click",
+        "#masonry .card",
+        (event) => {
+          utils.preventEvent(event);
+          let $click = event.target;
+          let rectFiber = utils.getReactObj($click).reactFiber;
+          if (!rectFiber) {
+            log.error("获取reactFiber失败");
+            Qmsg.error("获取reactFiber失败");
+            return;
+          }
+          let awemeId = rectFiber.return.memoizedProps.awemeId;
+          let url = DouYinUrlUtils.getNoteUrl(awemeId);
+          window.open(url, "_blank");
+        },
+        { capture: true }
+      );
+    },
+    /**
+     * 覆盖用户点击事件
+     */
+    coverUser() {
+      log.info("覆盖用户点击事件");
+      domUtils.on(
+        document,
+        "click",
+        ".message-con__top",
+        (event) => {
+          utils.preventEvent(event);
+          let $click = event.target;
+          let rectFiber = utils.getReactObj($click).reactFiber;
+          if (!rectFiber) {
+            log.error("获取reactFiber失败");
+            Qmsg.error("获取reactFiber失败");
+            return;
+          }
+          let sec_id = rectFiber.return.return.memoizedProps.video.authorInfo.sec_uid;
+          let url = DouYinUrlUtils.getUserHomeUrl(sec_id);
+          window.open(url, "_blank");
+        },
+        { capture: true }
+      );
+    },
+    /**
+     * 覆盖话题点击事件
+     */
+    coverHashTag() {
+      log.info("覆盖话题点击事件");
+      domUtils.on(
+        document,
+        "click",
+        ".message-con__content__body .message-con__content__body-text",
+        (event) => {
+          utils.preventEvent(event);
+          let $click = event.target;
+          let rectFiber = utils.getReactObj($click).reactFiber;
+          if (!rectFiber) {
+            log.error("获取reactFiber失败");
+            Qmsg.error("获取reactFiber失败");
+            return;
+          }
+          let index = rectFiber.index;
+          let splitStrArr = rectFiber.return.return.return.return.memoizedProps.video.splitStrArr;
+          let currentSplitStr = splitStrArr[index];
+          let hashtagId = currentSplitStr["hashtagId"];
+          let url = DouYinUrlUtils.getHashTagUrl(hashtagId);
+          window.open(url, "_blank");
+        },
+        { capture: true }
+      );
+    },
+    /**
+     * 覆盖音乐点击事件
+     */
+    coverMusic() {
+      log.info("覆盖音乐点击事件");
+      domUtils.on(
+        document,
+        "click",
+        ".message-con__footer",
+        (event) => {
+          utils.preventEvent(event);
+          let $click = event.target;
+          let rectFiber = utils.getReactObj($click).reactFiber;
+          if (!rectFiber) {
+            log.error("获取reactFiber失败");
+            Qmsg.error("获取reactFiber失败");
+            return;
+          }
+          let musicId = rectFiber.return.return.memoizedProps.video.musicId;
+          let url = DouYinUrlUtils.getMusicUrl(musicId);
+          window.open(url, "_blank");
+        },
+        { capture: true }
+      );
+    }
+  };
+  const blockCSS$1 = "/* 顶部 打开看看 登录 */\r\n.page-reflow-challenge .header,\r\n/* 底部的 打开抖音App看更多内容 */\r\n.page-reflow-challenge .bottom-btn__con {\r\n	display: none !important;\r\n}\r\n\r\n.page-reflow-challenge {\r\n	padding-top: 0;\r\n}\r\n";
+  const MDouYinShareChallenge = {
+    init() {
+      addStyle(blockCSS$1);
+      PopsPanel.onceExec("m-dy-share-challenge-coverTopJump", () => {
+        this.coverTopJump();
+      });
+      PopsPanel.execMenuOnce("m-dy-share-challenge-coverVideoCard", () => {
+        this.coverVideoCard();
+      });
+    },
+    /**
+     * 阻止上面区域点击跳转至下载页面
+     */
+    coverTopJump() {
+      log.info("阻止上面区域点击跳转至下载页面");
+      domUtils.on(
+        document,
+        "click",
+        ".challenge-body",
+        (event) => {
+          utils.preventEvent(event);
+        },
+        {
+          capture: true
+        }
+      );
+    },
+    /**
+     * 覆盖视频卡片点击事件
+     */
+    coverVideoCard() {
+      log.info("覆盖视频卡片点击事件");
+      domUtils.on(
+        document,
+        "click",
+        "#pagelet-worklist li.item",
+        (event) => {
+          utils.preventEvent(event);
+          let $clikc = event.target;
+          let rectFiber = utils.getReactObj($clikc).reactFiber;
+          if (!rectFiber) {
+            log.error("获取reactFiber失败");
+            Qmsg.error("获取reactFiber失败");
+            return;
+          }
+          let listData = rectFiber.return.return.return.memoizedProps.listData;
+          let index = rectFiber.index;
+          let currentList = listData[index];
+          let url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
+          window.open(url, "_blank");
+        },
+        {
+          capture: true
+        }
+      );
+    }
+  };
+  const blockCSS = "/* 顶部 打开App，发现更多内容 */\r\n.page-reflow-music .header,\r\n/* ↑屏蔽后的 顶部空白区域 */\r\n.page-reflow-music .banner-placeholder ,\r\n/* 底部 打开抖音App看更多内容 */\r\n.page-reflow-music .bottom-btn__con {\r\n	display: none !important;\r\n}\r\n";
+  const MDouYinShareMusic = {
+    init() {
+      addStyle(blockCSS);
+      PopsPanel.execMenuOnce("m-dy-share-music-coverVideoCard", () => {
+        this.coverVideoCard();
+      });
+    },
+    /**
+     * 覆盖视频卡片点击事件
+     */
+    coverVideoCard() {
+      log.info("覆盖视频卡片点击事件");
+      domUtils.on(
+        document,
+        "click",
+        "#pagelet-worklist li.item",
+        (event) => {
+          utils.preventEvent(event);
+          let $clikc = event.target;
+          let rectFiber = utils.getReactObj($clikc).reactFiber;
+          if (!rectFiber) {
+            log.error("获取reactFiber失败");
+            Qmsg.error("获取reactFiber失败");
+            return;
+          }
+          let listData = rectFiber.return.return.return.memoizedProps.listData;
+          let index = rectFiber.index;
+          let currentList = listData[index];
+          let url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
+          window.open(url, "_blank");
+        },
+        {
+          capture: true
+        }
+      );
+    }
+  };
   const MDouYin = {
     init() {
       if (MDouYinRouter.isShareUser()) {
@@ -3388,6 +3820,15 @@
       } else if (MDouYinRouter.isShareVideo()) {
         log.info("M-Router: 分享视频");
         MDouYinShareVideo.init();
+      } else if (MDouYinRouter.isShareNote()) {
+        log.info("M-Router: 分享笔记");
+        MDouYinShareNote.init();
+      } else if (MDouYinRouter.isShareChallenge()) {
+        log.info("M-Router: 分享话题");
+        MDouYinShareChallenge.init();
+      } else if (MDouYinRouter.isShareMusic()) {
+        log.info("M-Router: 分享音乐");
+        MDouYinShareMusic.init();
       } else {
         log.error("未知M-router: " + window.location.hostname);
       }

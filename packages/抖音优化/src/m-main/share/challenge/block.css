@@ -1,0 +1,10 @@
+/* 顶部 打开看看 登录 */
+.page-reflow-challenge .header,
+/* 底部的 打开抖音App看更多内容 */
+.page-reflow-challenge .bottom-btn__con {
+	display: none !important;
+}
+
+.page-reflow-challenge {
+	padding-top: 0;
+}

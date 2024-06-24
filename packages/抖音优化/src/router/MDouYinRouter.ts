@@ -21,4 +21,29 @@ export const MDouYinRouter = {
 			this.isMDouYin() && window.location.pathname.startsWith("/share/video/")
 		);
 	},
+	/**
+	 * 笔记
+	 */
+	isShareNote() {
+		return (
+			this.isMDouYin() && window.location.pathname.startsWith("/share/note/")
+		);
+	},
+	/**
+	 * 音乐
+	 */
+	isShareMusic() {
+		return (
+			this.isMDouYin() && window.location.pathname.startsWith("/share/music/")
+		);
+	},
+	/**
+	 * 话题
+	 */
+	isShareChallenge() {
+		return (
+			this.isMDouYin() &&
+			window.location.pathname.startsWith("/share/challenge/")
+		);
+	},
 };

@@ -1,0 +1,8 @@
+/* 顶部 打开App，发现更多内容 */
+.page-reflow-music .header,
+/* ↑屏蔽后的 顶部空白区域 */
+.page-reflow-music .banner-placeholder ,
+/* 底部 打开抖音App看更多内容 */
+.page-reflow-music .bottom-btn__con {
+	display: none !important;
+}

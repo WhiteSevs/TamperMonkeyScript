@@ -8,6 +8,9 @@ import { PanelSearchConfig } from "./components/search";
 import { MPanelShareUserConfig } from "./m-components/shareUser";
 import { MPanelShareVideoConfig } from "./m-components/shareVideo";
 import type { UtilsDictionary } from "@whitesev/utils/dist/src/Dictionary";
+import { MPanelShareNoteConfig } from "./m-components/shareNote";
+import { MPanelShareChallengeConfig } from "./m-components/shareChallenge";
+import { MPanelShareMusicConfig } from "./m-components/shareMusic";
 
 interface PosPanelListenerData {
 	id: number;
@@ -411,7 +414,10 @@ const PopsPanel = {
 	getMPanelContentConfig() {
 		let configList: PopsPanelContentConfig[] = [
 			MPanelShareUserConfig,
+			MPanelShareNoteConfig,
+			MPanelShareChallengeConfig,
 			MPanelShareVideoConfig,
+			MPanelShareMusicConfig,
 		];
 		return configList;
 	},

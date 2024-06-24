@@ -3,9 +3,10 @@ import { UISwitch } from "../common-components/ui-switch";
 export const MPanelShareVideoConfig: PopsPanelContentConfig = {
 	id: "m-panel-config-share-video",
 	title: "视频",
+	headerTitle: "/share/video<br />视频",
 	forms: [
 		{
-			text: "/share/video<br />覆盖点击事件",
+			text: "覆盖点击事件",
 			type: "forms",
 			forms: [
 				UISwitch(
