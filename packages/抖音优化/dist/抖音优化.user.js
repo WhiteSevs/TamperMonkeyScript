@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.24
+// @version      2024.6.24.15
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -2080,6 +2080,13 @@
         type: "forms",
         forms: [
           UISwitch(
+            "精彩图文",
+            "m-dy-share-note-coverExcitingGraphicsAndText",
+            true,
+            void 0,
+            "正确跳转笔记页面"
+          ),
+          UISwitch(
             "用户",
             "m-dy-share-note-coverUser",
             true,
@@ -3590,6 +3597,12 @@
       PopsPanel.execMenuOnce("m-dy-share-note-coverRecommend", () => {
         this.coverRecommend();
       });
+      PopsPanel.execMenuOnce(
+        "m-dy-share-note-coverExcitingGraphicsAndText",
+        () => {
+          this.coverExcitingGraphicsAndText();
+        }
+      );
     },
     /**
      * 【屏蔽】相关推荐
@@ -3714,9 +3727,42 @@
         },
         { capture: true }
       );
+    },
+    /**
+     * 覆盖精彩图文点击事件
+     */
+    coverExcitingGraphicsAndText() {
+      log.info("覆盖精彩图文点击事件");
+      domUtils.on(
+        document,
+        "click",
+        ".container .related-list-con .related-note-item",
+        (event) => {
+          utils.preventEvent(event);
+          let $click = event.target;
+          let rectFiber = utils.getReactObj($click).reactFiber;
+          if (!rectFiber) {
+            log.error("获取reactFiber失败");
+            Qmsg.error("获取reactFiber失败");
+            return;
+          }
+          let itemData = rectFiber.return.memoizedProps.itemData;
+          let awemeId = itemData["awemeId"];
+          let url = DouYinUrlUtils.getNoteUrl(awemeId);
+          window.open(url, "_blank");
+        },
+        { capture: true }
+      );
+      domUtils.on(
+        document,
+        "click",
+        ".related-title-con",
+        (event) => utils.preventEvent(event),
+        { capture: true }
+      );
     }
   };
-  const blockCSS$1 = "/* 顶部 打开看看 登录 */\r\n.page-reflow-challenge .header,\r\n/* 底部的 打开抖音App看更多内容 */\r\n.page-reflow-challenge .bottom-btn__con {\r\n	display: none !important;\r\n}\r\n\r\n.page-reflow-challenge {\r\n	padding-top: 0;\r\n}\r\n";
+  const blockCSS$1 = "/* 顶部 打开看看 登录 */\r\n.page-reflow-challenge .header,\r\n/* 底部的 打开抖音App看更多内容 */\r\n.page-reflow-challenge .bottom-btn__con {\r\n	display: none !important;\r\n}\r\n\r\n.page-reflow-challenge {\r\n	padding-top: 0 !important;\r\n}\r\n";
   const MDouYinShareChallenge = {
     init() {
       addStyle(blockCSS$1);

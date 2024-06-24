@@ -10,6 +10,13 @@ export const MPanelShareNoteConfig: PopsPanelContentConfig = {
 			type: "forms",
 			forms: [
 				UISwitch(
+					"精彩图文",
+					"m-dy-share-note-coverExcitingGraphicsAndText",
+					true,
+					void 0,
+					"正确跳转笔记页面"
+				),
+				UISwitch(
 					"用户",
 					"m-dy-share-note-coverUser",
 					true,

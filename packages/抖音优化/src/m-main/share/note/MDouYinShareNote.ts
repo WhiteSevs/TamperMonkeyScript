@@ -29,6 +29,12 @@ export const MDouYinShareNote = {
 		PopsPanel.execMenuOnce("m-dy-share-note-coverRecommend", () => {
 			this.coverRecommend();
 		});
+		PopsPanel.execMenuOnce(
+			"m-dy-share-note-coverExcitingGraphicsAndText",
+			() => {
+				this.coverExcitingGraphicsAndText();
+			}
+		);
 	},
 	/**
 	 * 【屏蔽】相关推荐
@@ -129,7 +135,6 @@ export const MDouYinShareNote = {
 				let hashtagId = currentSplitStr["hashtagId"];
 				let url = DouYinUrlUtils.getHashTagUrl(hashtagId);
 				window.open(url, "_blank");
-				// __reactFiber$b5fdevj1ipn
 			},
 			{ capture: true }
 		);
@@ -157,6 +162,42 @@ export const MDouYinShareNote = {
 				let url = DouYinUrlUtils.getMusicUrl(musicId);
 				window.open(url, "_blank");
 			},
+			{ capture: true }
+		);
+	},
+	/**
+	 * 覆盖精彩图文点击事件
+	 */
+	coverExcitingGraphicsAndText() {
+		log.info("覆盖精彩图文点击事件");
+		DOMUtils.on(
+			document,
+			"click",
+			".container .related-list-con .related-note-item",
+			(event) => {
+				utils.preventEvent(event);
+				let $click = event.target as HTMLElement;
+				let rectFiber = utils.getReactObj($click).reactFiber;
+
+				if (!rectFiber) {
+					log.error("获取reactFiber失败");
+					Qmsg.error("获取reactFiber失败");
+					return;
+				}
+				let itemData = rectFiber.return.memoizedProps.itemData;
+				let awemeId = itemData["awemeId"];
+				let url = DouYinUrlUtils.getNoteUrl(awemeId);
+				window.open(url, "_blank");
+			},
+			{ capture: true }
+		);
+		// 推荐更多精彩图文
+		// 查看更多
+		DOMUtils.on(
+			document,
+			"click",
+			".related-title-con",
+			(event) => utils.preventEvent(event),
 			{ capture: true }
 		);
 	},
