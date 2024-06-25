@@ -52,6 +52,9 @@ export const DouYinLive = {
 		PopsPanel.execMenuOnce("live-waitToRemovePauseDialog", () => {
 			this.waitToRemovePauseDialog();
 		});
+		PopsPanel.execMenu("live-pauseVideo", () => {
+			this.pauseVideo();
+		});
 		DouYinLiveChatRoom.init();
 	},
 	/**
@@ -211,5 +214,28 @@ export const DouYinLive = {
 				},
 			});
 		});
+	},
+	/**
+	 * 暂停视频
+	 */
+	pauseVideo() {
+		log.info("禁止自动播放视频(直播)");
+		utils
+			.waitNode<HTMLVideoElement>('.basicPlayer[data-e2e="basicPlayer"] video')
+			.then(($video) => {
+				DOMUtils.on(
+					$video,
+					"play",
+					() => {
+						$video.pause();
+					},
+					{
+						capture: true,
+						once: true,
+					}
+				);
+				$video.autoplay = false;
+				$video.pause();
+			});
 	},
 };

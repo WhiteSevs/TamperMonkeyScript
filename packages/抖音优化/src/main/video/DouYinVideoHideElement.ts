@@ -169,7 +169,9 @@ export const DouYinVideoHideElement = {
 	shieldBottomVideoToolBar() {
 		log.info("【屏蔽】底部视频工具栏");
 		DouYinUtils.addBlockCSS("xg-controls.xgplayer-controls");
+		// 修复底部工具栏因屏蔽导致的空白区域
 		addStyle(`
+		#sliderVideo[data-e2e="feed-active-video"] div:has( > div > #video-info-wrap),
 		div:has( > div > pace-island > #video-info-wrap ),
 		xg-video-container.xg-video-container{
 			bottom: 0 !important;

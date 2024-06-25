@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.24.15
+// @version      2024.6.25
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -501,6 +501,13 @@
             true,
             void 0,
             "自动监听并检测弹窗"
+          ),
+          UISwitch(
+            "禁止自动播放",
+            "live-pauseVideo",
+            false,
+            void 0,
+            "暂停直播播放"
           )
         ]
       },
@@ -1245,6 +1252,7 @@
       log.info("【屏蔽】底部视频工具栏");
       DouYinUtils.addBlockCSS("xg-controls.xgplayer-controls");
       addStyle(`
+		#sliderVideo[data-e2e="feed-active-video"] div:has( > div > #video-info-wrap),
 		div:has( > div > pace-island > #video-info-wrap ),
 		xg-video-container.xg-video-container{
 			bottom: 0 !important;
@@ -3151,6 +3159,9 @@
       PopsPanel.execMenuOnce("live-waitToRemovePauseDialog", () => {
         this.waitToRemovePauseDialog();
       });
+      PopsPanel.execMenu("live-pauseVideo", () => {
+        this.pauseVideo();
+      });
       DouYinLiveChatRoom.init();
     },
     /**
@@ -3297,6 +3308,27 @@
             });
           }
         });
+      });
+    },
+    /**
+     * 暂停视频
+     */
+    pauseVideo() {
+      log.info("禁止自动播放视频(直播)");
+      utils.waitNode('.basicPlayer[data-e2e="basicPlayer"] video').then(($video) => {
+        domUtils.on(
+          $video,
+          "play",
+          () => {
+            $video.pause();
+          },
+          {
+            capture: true,
+            once: true
+          }
+        );
+        $video.autoplay = false;
+        $video.pause();
       });
     }
   };

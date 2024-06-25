@@ -31,6 +31,13 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 					void 0,
 					"自动监听并检测弹窗"
 				),
+				UISwitch(
+					"禁止自动播放",
+					"live-pauseVideo",
+					false,
+					void 0,
+					"暂停直播播放"
+				),
 			],
 		},
 		{
