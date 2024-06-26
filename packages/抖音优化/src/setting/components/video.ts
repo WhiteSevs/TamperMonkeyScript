@@ -235,6 +235,13 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 					void 0,
 					"屏蔽元素"
 				),
+				UISwitch(
+					"【屏蔽】弹幕容器",
+					"shieldBottomVideoToolbarDanmuContainer",
+					false,
+					void 0,
+					"屏蔽元素（不包括屏蔽弹幕）"
+				),
 			],
 		},
 		{

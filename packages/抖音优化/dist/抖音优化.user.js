@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.25
+// @version      2024.6.26
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -1122,6 +1122,9 @@
       PopsPanel.execMenu("shieldBottomVideoToolBar", () => {
         this.shieldBottomVideoToolBar();
       });
+      PopsPanel.execMenu("shieldBottomVideoToolbarDanmuContainer", () => {
+        this.shieldBottomVideoToolbarDanmuContainer();
+      });
     },
     /**
      * 【屏蔽】右侧的展开评论按钮
@@ -1258,6 +1261,15 @@
 			bottom: 0 !important;
 		}
   		`);
+    },
+    /**
+     * 【屏蔽】底部视频工具栏的弹幕容器
+     */
+    shieldBottomVideoToolbarDanmuContainer() {
+      log.info("【屏蔽】底部视频工具栏的弹幕容器");
+      DouYinUtils.addBlockCSS(
+        'xg-controls xg-inner-controls .danmakuContainer[data-e2e="danmaku-container"]'
+      );
     }
   };
   const DouYinVideoComment = {
@@ -1938,6 +1950,13 @@
             false,
             void 0,
             "屏蔽元素"
+          ),
+          UISwitch(
+            "【屏蔽】弹幕容器",
+            "shieldBottomVideoToolbarDanmuContainer",
+            false,
+            void 0,
+            "屏蔽元素（不包括屏蔽弹幕）"
           )
         ]
       },

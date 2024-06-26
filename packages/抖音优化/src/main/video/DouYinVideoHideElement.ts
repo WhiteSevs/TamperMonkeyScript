@@ -40,6 +40,9 @@ export const DouYinVideoHideElement = {
 		PopsPanel.execMenu("shieldBottomVideoToolBar", () => {
 			this.shieldBottomVideoToolBar();
 		});
+		PopsPanel.execMenu("shieldBottomVideoToolbarDanmuContainer", () => {
+			this.shieldBottomVideoToolbarDanmuContainer();
+		});
 	},
 	/**
 	 * 【屏蔽】右侧的展开评论按钮
@@ -177,5 +180,16 @@ export const DouYinVideoHideElement = {
 			bottom: 0 !important;
 		}
   		`);
+	},
+	/**
+	 * 【屏蔽】底部视频工具栏的弹幕容器
+	 */
+	shieldBottomVideoToolbarDanmuContainer() {
+		log.info("【屏蔽】底部视频工具栏的弹幕容器");
+		DouYinUtils.addBlockCSS(
+			'xg-controls xg-inner-controls .danmakuContainer[data-e2e="danmaku-container"]'
+		);
+		// 弹幕
+		// .basePlayerContainer > div.danmu
 	},
 };
