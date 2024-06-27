@@ -1,11 +1,18 @@
-import { DOMUtils } from "@/env";
+import { DOMUtils, log } from "@/env";
 import { GreasyforkForumFilter } from "./GreasyforkForumFilter";
+import { PopsPanel } from "@/setting/setting";
 
 const GreasyforkForum = {
 	init() {
 		DOMUtils.ready(() => {
-			GreasyforkForumFilter.init();
+			PopsPanel.execMenuOnce("greasyfork-discussions-filter-enable", () => {
+				this.filterEnable();
+			});
 		});
+	},
+	filterEnable() {
+		log.info("启用Greasyfork论坛过滤器");
+		GreasyforkForumFilter.init();
 	},
 };
 

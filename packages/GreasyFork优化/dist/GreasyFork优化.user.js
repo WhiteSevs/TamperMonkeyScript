@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.6.23.19
+// @version            2024.6.27
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -196,7 +196,10 @@
     逆序弹出: "逆序弹出",
     修改Toast弹出的顺序: "修改Toast弹出的顺序",
     该脚本已经在该收藏集中: "该脚本已经在该收藏集中",
-    其它错误: "其它错误"
+    其它错误: "其它错误",
+    启用: "启用",
+    开启后下面的功能才会生效: "开启后下面的功能才会生效",
+    屏蔽脚本: "屏蔽脚本"
   };
   const en_US_language = {
     GreasyFork优化: "GreasyFork Optimization",
@@ -346,7 +349,10 @@
     逆序弹出: "Reverse pop-up",
     修改Toast弹出的顺序: "Modify the order in which Toast pops up",
     该脚本已经在该收藏集中: "The script is already in this collection",
-    其它错误: "Ohter Error"
+    其它错误: "Ohter Error",
+    启用: "Enable",
+    开启后下面的功能才会生效: "The following functions will only take effect after being enabled",
+    屏蔽脚本: "Block script"
   };
   const KEY = "GM_Panel";
   const ATTRIBUTE_KEY = "data-key";
@@ -1459,6 +1465,13 @@
         type: "forms",
         forms: [
           UISwitch(
+            i18next.t("启用"),
+            "greasyfork-discussions-filter-enable",
+            true,
+            void 0,
+            i18next.t("开启后下面的功能才会生效")
+          ),
+          UISwitch(
             i18next.t("过滤重复的评论"),
             "greasyfork-discussions-filter-duplicate-comments",
             false,
@@ -1665,11 +1678,19 @@
   const SettingUIShield = {
     id: "greasy-fork-panel-config-shield",
     title: i18next.t("屏蔽"),
+    headerTitle: i18next.t("屏蔽脚本"),
     forms: [
       {
         text: i18next.t("规则(可正则)"),
         type: "forms",
         forms: [
+          UISwitch(
+            i18next.t("启用"),
+            "greasyfork-shield-enable",
+            true,
+            void 0,
+            i18next.t("开启后下面的功能才会生效")
+          ),
           {
             type: "own",
             getLiElementCallBack(liElement) {
@@ -2201,8 +2222,14 @@
   const GreasyforkForum = {
     init() {
       domUtils.ready(() => {
-        GreasyforkForumFilter.init();
+        PopsPanel.execMenuOnce("greasyfork-discussions-filter-enable", () => {
+          this.filterEnable();
+        });
       });
+    },
+    filterEnable() {
+      log.info("启用Greasyfork论坛过滤器");
+      GreasyforkForumFilter.init();
     }
   };
   const GreasyforkCollection = {
@@ -2524,7 +2551,9 @@
         GreasyforkMenu.initEnv();
         GreasyforkAccount.init();
         if (GreasyforkRouter.isScriptList()) {
-          GreasyforkShield.init();
+          PopsPanel.execMenuOnce("greasyfork-shield-enable", () => {
+            GreasyforkShield.init();
+          });
         }
         GreasyforkMenu.handleLocalGotoCallBack();
         Greasyfork.setFindCodeSearchBtn();

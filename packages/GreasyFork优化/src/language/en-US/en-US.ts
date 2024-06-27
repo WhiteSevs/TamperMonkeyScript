@@ -181,4 +181,9 @@ export const en_US_language = {
 	该脚本已经在该收藏集中: "The script is already in this collection",
 
 	其它错误: "Ohter Error",
+
+	启用: "Enable",
+	开启后下面的功能才会生效:
+		"The following functions will only take effect after being enabled",
+	屏蔽脚本: "Block script",
 };

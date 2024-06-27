@@ -12,6 +12,13 @@ const SettingUIDiscuessions: PopsPanelContentConfig = {
 			type: "forms",
 			forms: [
 				UISwitch(
+					i18next.t("启用"),
+					"greasyfork-discussions-filter-enable",
+					true,
+					void 0,
+					i18next.t("开启后下面的功能才会生效")
+				),
+				UISwitch(
 					i18next.t("过滤重复的评论"),
 					"greasyfork-discussions-filter-duplicate-comments",
 					false,

@@ -40,7 +40,10 @@ const Greasyfork = {
 			GreasyforkMenu.initEnv();
 			GreasyforkAccount.init();
 			if (GreasyforkRouter.isScriptList()) {
-				GreasyforkShield.init();
+				// 脚本页面
+				PopsPanel.execMenuOnce("greasyfork-shield-enable", () => {
+					GreasyforkShield.init();
+				});
 			}
 			GreasyforkMenu.handleLocalGotoCallBack();
 			Greasyfork.setFindCodeSearchBtn();

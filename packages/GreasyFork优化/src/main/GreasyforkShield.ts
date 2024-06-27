@@ -1,6 +1,7 @@
 import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 
+// 脚本屏蔽
 const GreasyforkShield = {
 	key: "gf-shield-rule",
 	init() {
