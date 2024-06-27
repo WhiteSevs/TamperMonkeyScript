@@ -902,6 +902,15 @@ export declare interface HttpxRequestInit extends RequestInit {
      */
     window?: null;
 }
+/** 允许拦截配置 */
+export declare interface HttpxAllowInterceptConfig {
+    /** 允许 beforeRequest */
+    beforeRequest: boolean;
+    /** 允许 afterResponse 的success回调 */
+    afterResponseSuccess: boolean;
+    /** 允许 afterResponse 的error回调 */
+    afterResponseError: boolean;
+}
 /**
  * 请求的配置
  */
@@ -972,6 +981,11 @@ export declare interface HttpxDetails {
      * 使用fetch请求的配置
      */
     fetchInit?: HttpxRequestInit;
+    /**
+     * 拒绝拦截配置
+     * 如果设置了相关配置，那么intercept将不会生效
+     */
+    allowInterceptConfig?: Partial<HttpxAllowInterceptConfig>;
     /**
      * 身份验证的用户名
      */

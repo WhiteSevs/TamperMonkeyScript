@@ -1536,12 +1536,21 @@
         }
     }
 
-    const GenerateUUID = () => {
-        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-            var r = (Math.random() * 16) | 0, v = c == "x" ? r : (r & 0x3) | 0x8;
-            return v.toString(16);
-        });
+    /**
+     * 生成uuid
+     */
+    const GenerateUUID = function () {
+        if (typeof UtilsCore.globalThis?.crypto?.randomUUID === "function") {
+            return UtilsCore.globalThis.crypto.randomUUID();
+        }
+        else {
+            return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (charStr) {
+                var randomValue = (Math.random() * 16) | 0, randomCharValue = charStr === "x" ? randomValue : (randomValue & 0x3) | 0x8;
+                return randomCharValue.toString(16);
+            });
+        }
     };
+
     class Httpx {
         GM_Api = {
             xmlHttpRequest: null,
@@ -1560,6 +1569,12 @@
              * @private
              */
             beforeRequestCallBack(details) {
+                if (!details.allowInterceptConfig) {
+                    return details;
+                }
+                if (!details.allowInterceptConfig.beforeRequest) {
+                    return details;
+                }
                 for (let index = 0; index < this.$config.configList.length; index++) {
                     let item = this.$config.configList[index];
                     if (typeof item.fn === "function") {
@@ -1621,6 +1636,12 @@
              * @param details 请求的配置
              */
             successResponseCallBack(response, details) {
+                if (!details.allowInterceptConfig) {
+                    return details;
+                }
+                if (!details.allowInterceptConfig.afterResponseSuccess) {
+                    return details;
+                }
                 for (let index = 0; index < this.$config.configList.length; index++) {
                     let item = this.$config.configList[index];
                     if (typeof item.successFn === "function") {
@@ -1636,6 +1657,12 @@
              * @param data 配置
              */
             errorResponseCallBack(data) {
+                if (!data.details.allowInterceptConfig) {
+                    return data;
+                }
+                if (!data.details.allowInterceptConfig.afterResponseError) {
+                    return data;
+                }
                 for (let index = 0; index < this.$config.configList.length; index++) {
                     let item = this.$config.configList[index];
                     if (typeof item.errorFn === "function") {
@@ -2247,6 +2274,11 @@
             anonymous: void 0,
             fetch: void 0,
             fetchInit: void 0,
+            allowInterceptConfig: {
+                beforeRequest: true,
+                afterResponseSuccess: true,
+                afterResponseError: true,
+            },
             user: void 0,
             password: void 0,
             onabort() { },
@@ -6360,17 +6392,7 @@
          * @example
          * Utils.generateUUID()
          */
-        generateUUID() {
-            if (typeof globalThis?.crypto?.randomUUID === "function") {
-                return globalThis.crypto.randomUUID();
-            }
-            else {
-                return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (charStr) {
-                    var randomValue = (Math.random() * 16) | 0, randomCharValue = charStr === "x" ? randomValue : (randomValue & 0x3) | 0x8;
-                    return randomCharValue.toString(16);
-                });
-            }
-        }
+        generateUUID = GenerateUUID;
     }
     let utils = new Utils();
 

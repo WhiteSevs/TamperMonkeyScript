@@ -1,4 +1,5 @@
 import { AnyObject, Utils } from "./Utils";
+import { GenerateUUID } from "./UtilsCommon";
 
 /**
  * 状态码
@@ -998,6 +999,15 @@ export declare interface HttpxRequestInit extends RequestInit {
 	 */
 	window?: null;
 }
+/** 允许拦截配置 */
+export declare interface HttpxAllowInterceptConfig {
+	/** 允许 beforeRequest */
+	beforeRequest: boolean;
+	/** 允许 afterResponse 的success回调 */
+	afterResponseSuccess: boolean;
+	/** 允许 afterResponse 的error回调 */
+	afterResponseError: boolean;
+}
 /**
  * 请求的配置
  */
@@ -1068,6 +1078,11 @@ export declare interface HttpxDetails {
 	 * 使用fetch请求的配置
 	 */
 	fetchInit?: HttpxRequestInit;
+	/**
+	 * 拒绝拦截配置
+	 * 如果设置了相关配置，那么intercept将不会生效
+	 */
+	allowInterceptConfig?: Partial<HttpxAllowInterceptConfig>;
 	/**
 	 * 身份验证的用户名
 	 */
@@ -1208,14 +1223,6 @@ export declare interface HttpxHookErrorData {
 	response: any;
 }
 
-const GenerateUUID = () => {
-	return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-		var r = (Math.random() * 16) | 0,
-			v = c == "x" ? r : (r & 0x3) | 0x8;
-		return v.toString(16);
-	});
-};
-
 class Httpx {
 	private GM_Api = {
 		xmlHttpRequest: null as any,
@@ -1239,6 +1246,12 @@ class Httpx {
 		 * @private
 		 */
 		beforeRequestCallBack(details: HttpxDetails) {
+			if (!details.allowInterceptConfig) {
+				return details;
+			}
+			if (!details.allowInterceptConfig.beforeRequest) {
+				return details;
+			}
 			for (let index = 0; index < this.$config.configList.length; index++) {
 				let item = this.$config.configList[index];
 				if (typeof item.fn === "function") {
@@ -1312,6 +1325,12 @@ class Httpx {
 			response: HttpxAsyncResultData,
 			details: HttpxDetails
 		) {
+			if (!details.allowInterceptConfig) {
+				return details;
+			}
+			if (!details.allowInterceptConfig.afterResponseSuccess) {
+				return details;
+			}
 			for (let index = 0; index < this.$config.configList.length; index++) {
 				let item = this.$config.configList[index];
 				if (typeof item.successFn === "function") {
@@ -1332,6 +1351,12 @@ class Httpx {
 			response: any;
 			details: HttpxDetails;
 		}) {
+			if (!data.details.allowInterceptConfig) {
+				return data;
+			}
+			if (!data.details.allowInterceptConfig.afterResponseError) {
+				return data;
+			}
 			for (let index = 0; index < this.$config.configList.length; index++) {
 				let item = this.$config.configList[index];
 				if (typeof item.errorFn === "function") {
@@ -2037,6 +2062,11 @@ class Httpx {
 		anonymous: void 0,
 		fetch: void 0,
 		fetchInit: void 0,
+		allowInterceptConfig: {
+			beforeRequest: true,
+			afterResponseSuccess: true,
+			afterResponseError: true,
+		},
 		user: void 0,
 		password: void 0,
 		onabort() {},

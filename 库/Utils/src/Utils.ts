@@ -16,6 +16,7 @@ import type { DOMUtils_EventType } from "./Event";
 import type { UtilsCoreOption } from "./UtilsCore";
 import type { Vue2Object } from "./VueObject";
 import type { UtilsAjaxHookResult } from "./AjaxHookerType";
+import { GenerateUUID } from "./UtilsCommon";
 
 export declare var unsafeWindow: Window & typeof globalThis;
 
@@ -4900,21 +4901,7 @@ class Utils {
 	 * @example
 	 * Utils.generateUUID()
 	 */
-	generateUUID() {
-		if (typeof globalThis?.crypto?.randomUUID === "function") {
-			return globalThis.crypto.randomUUID();
-		} else {
-			return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
-				/[xy]/g,
-				function (charStr) {
-					var randomValue = (Math.random() * 16) | 0,
-						randomCharValue =
-							charStr === "x" ? randomValue : (randomValue & 0x3) | 0x8;
-					return randomCharValue.toString(16);
-				}
-			);
-		}
-	}
+	generateUUID = GenerateUUID;
 }
 
 let utils = new Utils();

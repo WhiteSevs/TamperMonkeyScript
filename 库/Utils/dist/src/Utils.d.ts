@@ -1758,7 +1758,7 @@ declare class Utils {
      * @example
      * Utils.generateUUID()
      */
-    generateUUID(): string;
+    generateUUID: () => string;
 }
 declare let utils: Utils;
 export { utils as Utils };
