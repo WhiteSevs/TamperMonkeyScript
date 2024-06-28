@@ -8,6 +8,7 @@ import { SettingUIU } from "./components/u";
 import { SettingUIDetail } from "./components/detail";
 import { SettingUISearch } from "./components/search";
 import type { UtilsDictionary } from "@whitesev/utils/dist/src/Dictionary";
+import { SettingUICardArticle } from "./components/card";
 
 const __PopsPanel__ = {
 	data: null as any as UtilsDictionary<string, any>,
@@ -381,6 +382,7 @@ const PopsPanel = {
 			// SettingUIDetail,
 			SettingUIHuaTi,
 			SettingUIVideo,
+			SettingUICardArticle,
 		];
 		return configList;
 	},

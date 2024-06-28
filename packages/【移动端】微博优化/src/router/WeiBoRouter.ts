@@ -30,17 +30,29 @@ const WeiBoRouter = {
 	},
 	/**
 	 * 话题
-	 * @returns
 	 */
 	isHuaTi() {
 		return globalThis.location.hostname === "huati.weibo.cn";
 	},
 	/**
 	 * 视频页
-	 * @returns
 	 */
 	isVideo() {
 		return globalThis.location.hostname === "h5.video.weibo.com";
+	},
+	/**
+	 * 头条
+	 */
+	isCard() {
+		return globalThis.location.hostname === "card.weibo.com";
+	},
+	/**
+	 * 头条文章
+	 */
+	isCardArticle() {
+		return (
+			this.isCard() && globalThis.location.pathname.startsWith("/article/")
+		);
 	},
 };
 

@@ -41,7 +41,6 @@ export default defineConfig({
 					ElementPlusResourceCSS:
 						"https://fastly.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
 				},
-
 				icon: "https://favicon.yandex.net/favicon/v2/https://m.weibo.cn/?size=32",
 				description:
 					"劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，自定义视频清晰度(可1080p、2K、2K-60、4K-60)",
@@ -49,6 +48,7 @@ export default defineConfig({
 					"http*://m.weibo.cn/*",
 					"http*://huati.weibo.cn/*",
 					"http*://h5.video.weibo.com/*",
+					"http*://card.weibo.com/*",
 				],
 				connect: ["m.weibo.cn", "www.weibo.com", "passport.weibo.com"],
 				grant: [
@@ -66,7 +66,7 @@ export default defineConfig({
 			clientAlias: "ViteGM",
 			server: {
 				mountGmApi: false,
-				open: true,
+				open: false,
 			},
 			build: {
 				autoGrant: true,

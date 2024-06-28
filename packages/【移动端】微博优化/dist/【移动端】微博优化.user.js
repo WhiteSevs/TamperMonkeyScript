@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.23.19
+// @version      2024.6.28
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，自定义视频清晰度(可1080p、2K、2K-60、4K-60)
 // @license      GPL-3.0-only
@@ -10,10 +10,11 @@
 // @match        http*://m.weibo.cn/*
 // @match        http*://huati.weibo.cn/*
 // @match        http*://h5.video.weibo.com/*
+// @match        http*://card.weibo.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1398647/pops.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css
 // @connect      m.weibo.cn
@@ -1073,6 +1074,45 @@
       }
     ]
   };
+  const SettingUICardArticle = {
+    id: "weibo-panel-config-card-article",
+    title: "头条文章",
+    forms: [
+      {
+        text: "功能",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "自动展开全文",
+            "card_weibo_com__autoExpandFullArticle",
+            true,
+            void 0,
+            "自动展开全文，屏蔽展开按钮"
+          ),
+          UISwitch(
+            "修复文章作者主页正确跳转",
+            "card_weibo_com__repairArticleUserHomeJump",
+            true,
+            void 0,
+            "避免跳转至用户主页时需登录"
+          )
+        ]
+      },
+      {
+        text: "屏蔽",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "【屏蔽】评论",
+            "card_weibo_com__blockComment",
+            false,
+            void 0,
+            "屏蔽评论区"
+          )
+        ]
+      }
+    ]
+  };
   const __PopsPanel__ = {
     data: null,
     oneSuccessExecMenu: null,
@@ -1397,7 +1437,8 @@
         // SettingUISearch,
         // SettingUIDetail,
         SettingUIHuaTi,
-        SettingUIVideo
+        SettingUIVideo,
+        SettingUICardArticle
       ];
       return configList;
     }
@@ -1682,17 +1723,27 @@
     },
     /**
      * 话题
-     * @returns
      */
     isHuaTi() {
       return globalThis.location.hostname === "huati.weibo.cn";
     },
     /**
      * 视频页
-     * @returns
      */
     isVideo() {
       return globalThis.location.hostname === "h5.video.weibo.com";
+    },
+    /**
+     * 头条
+     */
+    isCard() {
+      return globalThis.location.hostname === "card.weibo.com";
+    },
+    /**
+     * 头条文章
+     */
+    isCardArticle() {
+      return this.isCard() && globalThis.location.pathname.startsWith("/article/");
     }
   };
   const WeiBoHuaTi = {
@@ -1839,6 +1890,69 @@
       );
     }
   };
+  const WeiBoCardArticle = {
+    init() {
+      PopsPanel.execMenuOnce("card_weibo_com__autoExpandFullArticle", () => {
+        this.autoExpandFullArticle();
+      });
+      PopsPanel.execMenuOnce("card_weibo_com__blockComment", () => {
+        this.blockComment();
+      });
+      PopsPanel.execMenuOnce("card_weibo_com__repairArticleUserHomeJump", () => {
+        this.repairArticleUserHomeJump();
+      });
+    },
+    /**
+     * 自动展开全文
+     */
+    autoExpandFullArticle() {
+      log.info("自动展开全文");
+      addStyle(`
+        .m-container-max .f-art,
+        .m-container-max .art-con-new{
+            height: unset !important;
+            overflow: unset !important;
+        }    
+        `);
+      CommonUtils.addBlockCSS(".m-container-max .f-art-opt");
+    },
+    /**
+     * 屏蔽评论
+     */
+    blockComment() {
+      log.info("【屏蔽】评论");
+      CommonUtils.addBlockCSS(".m-container-max .m-panel1");
+    },
+    /**
+     * 修复文章用户主页跳转
+     */
+    repairArticleUserHomeJump() {
+      log.info("修复文章用户主页跳转");
+      domUtils.on(
+        document,
+        "click",
+        ".m-feed .f-art-user-v2",
+        (event) => {
+          let $click = event.target;
+          let jQueryEventName = Object.keys($click).find(
+            (key) => key.startsWith("jQuery")
+          );
+          if (!jQueryEventName) {
+            return;
+          }
+          utils.preventEvent(event);
+          let jQueryEvent = $click[jQueryEventName];
+          let data = jQueryEvent["events"]["click"][0]["data"];
+          log.success(["跳转信息：", data]);
+          let url = data["url"] || data["target_url"];
+          window.open(url, "_blank");
+        },
+        {
+          capture: true
+        }
+      );
+    }
+  };
   const WeiBo = {
     $data: {
       weiBoUnlockQuality: new WeiBoUnlockQuality()
@@ -1869,19 +1983,7 @@
         this.$data.weiBoUnlockQuality.lockVideoQuality();
         domUtils.ready(() => {
           PopsPanel.execMenuOnce("weibo-common-unlockVideoHigherQuality", () => {
-            let lock = new utils.LockFunction(() => {
-              this.$data.weiBoUnlockQuality.unlockVideoHigherQuality();
-            }, 15);
-            utils.mutationObserver(document.body, {
-              config: {
-                subtree: true,
-                childList: true
-              },
-              immediate: true,
-              callback: () => {
-                lock.run();
-              }
-            });
+            this.unlockVideoHigherQuality();
           });
         });
         if (WeiBoRouter.isMWeiBo_detail()) {
@@ -1890,10 +1992,20 @@
           log.info("Router: 移动端微博主页");
         } else if (WeiBoRouter.isMWeiBo_search()) {
           log.info("Router: 移动端微博搜索");
+        } else {
+          log.error("Router: 未适配移动端微博 => " + window.location.href);
         }
       } else if (WeiBoRouter.isVideo()) {
         log.info("Router: 视频页");
         WeiBoVideo.init();
+      } else if (WeiBoRouter.isCard()) {
+        log.info("Router: 头条");
+        if (WeiBoRouter.isCardArticle()) {
+          log.info("Router: 头条文章");
+          WeiBoCardArticle.init();
+        } else {
+          log.error("Router: 未适配头条 => " + window.location.href);
+        }
       } else {
         log.error("Router: 未适配 => " + window.location.href);
       }
@@ -1904,6 +2016,24 @@
     shieldBottomBar() {
       log.info("【屏蔽】底部工具栏");
       CommonUtils.addBlockCSS("#app div.m-tab-bar.m-bar-panel.m-container-max");
+    },
+    /**
+     * 解锁微博视频高画质
+     **/
+    unlockVideoHigherQuality() {
+      let lock = new utils.LockFunction(() => {
+        this.$data.weiBoUnlockQuality.unlockVideoHigherQuality();
+      }, 15);
+      utils.mutationObserver(document.body, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        immediate: true,
+        callback: () => {
+          lock.run();
+        }
+      });
     }
   };
   PopsPanel.init();

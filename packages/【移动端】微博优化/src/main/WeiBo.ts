@@ -11,6 +11,7 @@ import { CommonUtils } from "@/utils/CommonUtils";
 import { WeiBoU } from "./u/WeiBoU";
 import { WeiBoSearch } from "./search/WeiBoSearch";
 import { WeiBoUnlockQuality } from "./WeiBoUnlockQuality";
+import { WeiBoCardArticle } from "./card/WeiBoCardArticle";
 
 const WeiBo = {
 	$data: {
@@ -46,19 +47,7 @@ const WeiBo = {
 			this.$data.weiBoUnlockQuality.lockVideoQuality();
 			DOMUtils.ready(() => {
 				PopsPanel.execMenuOnce("weibo-common-unlockVideoHigherQuality", () => {
-					let lock = new utils.LockFunction(() => {
-						this.$data.weiBoUnlockQuality.unlockVideoHigherQuality();
-					}, 15);
-					utils.mutationObserver(document.body, {
-						config: {
-							subtree: true,
-							childList: true,
-						},
-						immediate: true,
-						callback: () => {
-							lock.run();
-						},
-					});
+					this.unlockVideoHigherQuality();
 				});
 			});
 			if (WeiBoRouter.isMWeiBo_detail()) {
@@ -70,11 +59,22 @@ const WeiBo = {
 			} else if (WeiBoRouter.isMWeiBo_search()) {
 				log.info("Router: 移动端微博搜索");
 				WeiBoSearch.init();
+			} else {
+				log.error("Router: 未适配移动端微博 => " + window.location.href);
 			}
 		} else if (WeiBoRouter.isVideo()) {
 			// 视频页
 			log.info("Router: 视频页");
 			WeiBoVideo.init();
+		} else if (WeiBoRouter.isCard()) {
+			// 头条
+			log.info("Router: 头条");
+			if (WeiBoRouter.isCardArticle()) {
+				log.info("Router: 头条文章");
+				WeiBoCardArticle.init();
+			} else {
+				log.error("Router: 未适配头条 => " + window.location.href);
+			}
 		} else {
 			// 未适配Router
 			log.error("Router: 未适配 => " + window.location.href);
@@ -86,6 +86,25 @@ const WeiBo = {
 	shieldBottomBar() {
 		log.info("【屏蔽】底部工具栏");
 		CommonUtils.addBlockCSS("#app div.m-tab-bar.m-bar-panel.m-container-max");
+	},
+	/**
+	 * 解锁微博视频高画质
+	 **/
+	unlockVideoHigherQuality() {
+		let lock = new utils.LockFunction(() => {
+			this.$data.weiBoUnlockQuality.unlockVideoHigherQuality();
+		}, 15);
+
+		utils.mutationObserver(document.body, {
+			config: {
+				subtree: true,
+				childList: true,
+			},
+			immediate: true,
+			callback: () => {
+				lock.run();
+			},
+		});
 	},
 };
 
