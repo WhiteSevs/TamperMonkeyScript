@@ -1,6 +1,7 @@
-import { DOMUtils, utils } from "@/env";
+import { DOMUtils, log, utils } from "@/env";
 import { UISwitch } from "../common-components/ui-switch";
 import { DouYinDanmuFilter } from "@/main/Live/DouYinLiveDanmuku";
+import { PopsPanel } from "../setting";
 
 const PanelLiveConfig: PopsPanelContentConfig = {
 	id: "panel-config-live",
@@ -38,6 +39,61 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 					void 0,
 					"暂停直播播放"
 				),
+			],
+		},
+
+		{
+			text: "视频区域背景色",
+			type: "forms",
+			forms: [
+				UISwitch(
+					"启用",
+					"live-bgColor-enable",
+					false,
+					void 0,
+					"自定义视频背景色"
+				),
+				{
+					type: "own",
+					attributes: {
+						"data-key": "live-changeBackgroundColor",
+						"data-default-value": "#000000",
+					},
+					getLiElementCallBack(liElement) {
+						let $left = DOMUtils.createElement("div", {
+							className: "pops-panel-item-left-text",
+							innerHTML: `
+							<p class="pops-panel-item-left-main-text">视频背景颜色</p>
+							<p class="pops-panel-item-left-desc-text">自定义视频背景颜色，包括评论区</p>
+							`,
+						});
+						let $right = DOMUtils.createElement("div", {
+							className: "pops-panel-item-right",
+							innerHTML: `
+						    <input type="color" class="pops-color-choose" />
+						    `,
+						});
+						let $color =
+							$right.querySelector<HTMLInputElement>(".pops-color-choose")!;
+						$color.value = PopsPanel.getValue("live-changeBackgroundColor");
+						let $style = DOMUtils.createElement("style");
+						DOMUtils.append(document.head, $style);
+						DOMUtils.on($color, ["input", "propertychange"], (event) => {
+							log.info("选择颜色：" + $color.value);
+							$style.innerHTML = `
+							#living_room_player_container > div,
+							#chatroom > div{
+								background: ${$color.value};
+							}
+							`;
+							PopsPanel.setValue("live-changeBackgroundColor", $color.value);
+						});
+
+						liElement.appendChild($left);
+						liElement.appendChild($right);
+						return liElement;
+					},
+				},
 			],
 		},
 		{

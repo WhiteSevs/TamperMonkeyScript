@@ -1,9 +1,10 @@
-import { DOMUtils, utils } from "@/env";
+import { DOMUtils, log, utils } from "@/env";
 import { UISelect } from "../common-components/ui-select";
 import { UISwitch } from "../common-components/ui-switch";
 import { DouYinVideoFilter } from "@/main/video/DouYinVideoFilter";
 import { UIButton } from "../common-components/ui-button";
 import { DouYinVideoShortcut } from "@/main/video/DouYinVideoShortCut";
+import { PopsPanel } from "../setting";
 
 const PanelVideoConfig: PopsPanelContentConfig = {
 	id: "panel-config-video",
@@ -91,6 +92,62 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 					void 0,
 					"双击视频自动进入网页全屏，检测间隔250ms"
 				),
+			],
+		},
+		{
+			text: "视频区域背景色",
+			type: "forms",
+			forms: [
+				UISwitch(
+					"启用",
+					"dy-video-bgColor-enable",
+					false,
+					void 0,
+					"自定义视频背景色"
+				),
+				{
+					type: "own",
+					attributes: {
+						"data-key": "dy-video-changeBackgroundColor",
+						"data-default-value": "#000000",
+					},
+					getLiElementCallBack(liElement) {
+						let $left = DOMUtils.createElement("div", {
+							className: "pops-panel-item-left-text",
+							innerHTML: `
+							<p class="pops-panel-item-left-main-text">视频背景颜色</p>
+							<p class="pops-panel-item-left-desc-text">自定义视频背景颜色，包括评论区</p>
+							`,
+						});
+						let $right = DOMUtils.createElement("div", {
+							className: "pops-panel-item-right",
+							innerHTML: `
+						    <input type="color" class="pops-color-choose" />
+						    `,
+						});
+						let $color =
+							$right.querySelector<HTMLInputElement>(".pops-color-choose")!;
+						$color.value = PopsPanel.getValue("dy-video-changeBackgroundColor");
+						let $style = DOMUtils.createElement("style");
+						DOMUtils.append(document.head, $style);
+						DOMUtils.on($color, ["input", "propertychange"], (event) => {
+							log.info("选择颜色：" + $color.value);
+							$style.innerHTML = `
+							#sliderVideo > div{
+								background: ${$color.value};
+							}
+							`;
+							PopsPanel.setValue(
+								"dy-video-changeBackgroundColor",
+								$color.value
+							);
+						});
+
+						liElement.appendChild($left);
+						liElement.appendChild($right);
+						return liElement;
+					},
+				},
 			],
 		},
 		{

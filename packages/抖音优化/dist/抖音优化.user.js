@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.26
+// @version      2024.6.29
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1398647/pops.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
@@ -509,6 +509,58 @@
             void 0,
             "暂停直播播放"
           )
+        ]
+      },
+      {
+        text: "视频区域背景色",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "启用",
+            "live-bgColor-enable",
+            false,
+            void 0,
+            "自定义视频背景色"
+          ),
+          {
+            type: "own",
+            attributes: {
+              "data-key": "live-changeBackgroundColor",
+              "data-default-value": "#000000"
+            },
+            getLiElementCallBack(liElement) {
+              let $left = domUtils.createElement("div", {
+                className: "pops-panel-item-left-text",
+                innerHTML: `
+							<p class="pops-panel-item-left-main-text">视频背景颜色</p>
+							<p class="pops-panel-item-left-desc-text">自定义视频背景颜色，包括评论区</p>
+							`
+              });
+              let $right = domUtils.createElement("div", {
+                className: "pops-panel-item-right",
+                innerHTML: `
+						    <input type="color" class="pops-color-choose" />
+						    `
+              });
+              let $color = $right.querySelector(".pops-color-choose");
+              $color.value = PopsPanel.getValue("live-changeBackgroundColor");
+              let $style = domUtils.createElement("style");
+              domUtils.append(document.head, $style);
+              domUtils.on($color, ["input", "propertychange"], (event) => {
+                log.info("选择颜色：" + $color.value);
+                $style.innerHTML = `
+							#living_room_player_container > div,
+							#chatroom > div{
+								background: ${$color.value};
+							}
+							`;
+                PopsPanel.setValue("live-changeBackgroundColor", $color.value);
+              });
+              liElement.appendChild($left);
+              liElement.appendChild($right);
+              return liElement;
+            }
+          }
         ]
       },
       {
@@ -1322,6 +1374,14 @@
       PopsPanel.execMenu("dy-video-doubleClickEnterElementFullScreen", () => {
         this.doubleClickEnterElementFullScreen();
       });
+      PopsPanel.execMenu("dy-video-bgColor-enable", () => {
+        PopsPanel.execMenuOnce(
+          "dy-video-changeBackgroundColor",
+          (value) => {
+            this.changeBackgroundColor(value);
+          }
+        );
+      });
       domUtils.ready(() => {
         DouYinVideo.chooseVideoDefinition(
           PopsPanel.getValue("chooseVideoDefinition")
@@ -1672,6 +1732,18 @@
           DouYinSearch.mobileMode();
         });
       }
+    },
+    /**
+     * 修改视频背景颜色
+     * @param color 颜色
+     */
+    changeBackgroundColor(color) {
+      log.info("修改视频背景颜色");
+      addStyle(`
+		#sliderVideo > div{
+			background: ${color};
+		}	
+		`);
     }
   };
   const DouYinVideoShortcut = {
@@ -1809,6 +1881,60 @@
             void 0,
             "双击视频自动进入网页全屏，检测间隔250ms"
           )
+        ]
+      },
+      {
+        text: "视频区域背景色",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "启用",
+            "dy-video-bgColor-enable",
+            false,
+            void 0,
+            "自定义视频背景色"
+          ),
+          {
+            type: "own",
+            attributes: {
+              "data-key": "dy-video-changeBackgroundColor",
+              "data-default-value": "#000000"
+            },
+            getLiElementCallBack(liElement) {
+              let $left = domUtils.createElement("div", {
+                className: "pops-panel-item-left-text",
+                innerHTML: `
+							<p class="pops-panel-item-left-main-text">视频背景颜色</p>
+							<p class="pops-panel-item-left-desc-text">自定义视频背景颜色，包括评论区</p>
+							`
+              });
+              let $right = domUtils.createElement("div", {
+                className: "pops-panel-item-right",
+                innerHTML: `
+						    <input type="color" class="pops-color-choose" />
+						    `
+              });
+              let $color = $right.querySelector(".pops-color-choose");
+              $color.value = PopsPanel.getValue("dy-video-changeBackgroundColor");
+              let $style = domUtils.createElement("style");
+              domUtils.append(document.head, $style);
+              domUtils.on($color, ["input", "propertychange"], (event) => {
+                log.info("选择颜色：" + $color.value);
+                $style.innerHTML = `
+							#sliderVideo > div{
+								background: ${$color.value};
+							}
+							`;
+                PopsPanel.setValue(
+                  "dy-video-changeBackgroundColor",
+                  $color.value
+                );
+              });
+              liElement.appendChild($left);
+              liElement.appendChild($right);
+              return liElement;
+            }
+          }
         ]
       },
       {
@@ -3146,7 +3272,11 @@
      */
     shieldMessage() {
       log.info("【屏蔽】信息播报");
-      DouYinUtils.addBlockCSS(".webcast-chatroom___bottom-message");
+      DouYinUtils.addBlockCSS(
+        ".webcast-chatroom___bottom-message",
+        // 上面的滚动播报，xxx加入了直播间
+        '#chatroom >div>div>div:has(>div[elementtiming="element-timing"])'
+      );
     }
   };
   const DouYinLive = {
@@ -3180,6 +3310,11 @@
       });
       PopsPanel.execMenu("live-pauseVideo", () => {
         this.pauseVideo();
+      });
+      PopsPanel.execMenu("live-bgColor-enable", () => {
+        PopsPanel.execMenuOnce("live-changeBackgroundColor", (value) => {
+          this.changeBackgroundColor(value);
+        });
       });
       DouYinLiveChatRoom.init();
     },
@@ -3349,6 +3484,19 @@
         $video.autoplay = false;
         $video.pause();
       });
+    },
+    /**
+     * 修改视频背景颜色
+     * @param color 颜色
+     */
+    changeBackgroundColor(color) {
+      log.info("修改视频背景颜色");
+      addStyle(`
+		#living_room_player_container > div,
+		#chatroom > div{
+			background: ${color};
+		}	
+		`);
     }
   };
   const DouYinRedirect = {
@@ -3394,7 +3542,7 @@
         log.info("Router: 推荐视频");
         DouYinVideo.init();
         if (DouYinRouter.isSearch()) {
-          log.info("Router: 搜索");
+          log.info("Router: 推荐视频-搜索");
           DouYinSearch.init();
         }
       } else {
@@ -3406,17 +3554,19 @@
      */
     initialScale() {
       log.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
-      let meta = domUtils.createElement(
-        "meta",
-        {},
-        {
-          name: "viewport",
-          content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"
-        }
-      );
-      domUtils.remove("meta[name='viewport']");
-      utils.waitNode("head").then(() => {
-        document.head.appendChild(meta);
+      domUtils.ready(() => {
+        let meta = domUtils.createElement(
+          "meta",
+          {},
+          {
+            name: "viewport",
+            content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"
+          }
+        );
+        domUtils.remove("meta[name='viewport']");
+        utils.waitNode("head").then(() => {
+          document.head.appendChild(meta);
+        });
       });
     },
     /**

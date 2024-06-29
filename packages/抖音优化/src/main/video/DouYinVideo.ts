@@ -37,6 +37,14 @@ export const DouYinVideo = {
 		PopsPanel.execMenu("dy-video-doubleClickEnterElementFullScreen", () => {
 			this.doubleClickEnterElementFullScreen();
 		});
+		PopsPanel.execMenu("dy-video-bgColor-enable", () => {
+			PopsPanel.execMenuOnce(
+				"dy-video-changeBackgroundColor",
+				(value: string) => {
+					this.changeBackgroundColor(value);
+				}
+			);
+		});
 		DOMUtils.ready(() => {
 			DouYinVideo.chooseVideoDefinition(
 				PopsPanel.getValue("chooseVideoDefinition")
@@ -395,5 +403,17 @@ export const DouYinVideo = {
 				DouYinSearch.mobileMode();
 			});
 		}
+	},
+	/**
+	 * 修改视频背景颜色
+	 * @param color 颜色
+	 */
+	changeBackgroundColor(color: string) {
+		log.info("修改视频背景颜色");
+		addStyle(`
+		#sliderVideo > div{
+			background: ${color};
+		}	
+		`);
 	},
 };

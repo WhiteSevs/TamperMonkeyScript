@@ -55,6 +55,11 @@ export const DouYinLive = {
 		PopsPanel.execMenu("live-pauseVideo", () => {
 			this.pauseVideo();
 		});
+		PopsPanel.execMenu("live-bgColor-enable", () => {
+			PopsPanel.execMenuOnce("live-changeBackgroundColor", (value: string) => {
+				this.changeBackgroundColor(value);
+			});
+		});
 		DouYinLiveChatRoom.init();
 	},
 	/**
@@ -237,5 +242,18 @@ export const DouYinLive = {
 				$video.autoplay = false;
 				$video.pause();
 			});
+	},
+	/**
+	 * 修改视频背景颜色
+	 * @param color 颜色
+	 */
+	changeBackgroundColor(color: string) {
+		log.info("修改视频背景颜色");
+		addStyle(`
+		#living_room_player_container > div,
+		#chatroom > div{
+			background: ${color};
+		}	
+		`);
 	},
 };

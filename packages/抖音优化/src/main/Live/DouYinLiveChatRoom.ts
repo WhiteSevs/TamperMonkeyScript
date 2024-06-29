@@ -76,6 +76,10 @@ export const DouYinLiveChatRoom = {
 	 */
 	shieldMessage() {
 		log.info("【屏蔽】信息播报");
-		DouYinUtils.addBlockCSS(".webcast-chatroom___bottom-message");
+		DouYinUtils.addBlockCSS(
+			".webcast-chatroom___bottom-message",
+			// 上面的滚动播报，xxx加入了直播间
+			'#chatroom >div>div>div:has(>div[elementtiming="element-timing"])'
+		);
 	},
 };
