@@ -2,6 +2,8 @@ import { DOMUtils, log, utils } from "@/env";
 import { UISwitch } from "../common-components/ui-switch";
 import { DouYinDanmuFilter } from "@/main/Live/DouYinLiveDanmuku";
 import { PopsPanel } from "../setting";
+import { UISelect } from "../common-components/ui-select";
+import { VideoQualityMap } from "@/main/Live/DouYinLive";
 
 const PanelLiveConfig: PopsPanelContentConfig = {
 	id: "panel-config-live",
@@ -11,12 +13,21 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 			text: "功能",
 			type: "forms",
 			forms: [
-				UISwitch(
-					"自动进入网页全屏",
-					"live-autoEnterElementFullScreen",
-					false,
+				UISelect<string>(
+					"清晰度",
+					"live-chooseQuality",
+					"auto",
+					(() => {
+						return Object.keys(VideoQualityMap).map((key: string) => {
+							let item = VideoQualityMap[key];
+							return {
+								value: key,
+								text: item.label,
+							};
+						});
+					})(),
 					void 0,
-					"网页加载完毕后自动点击网页全屏按钮进入全屏"
+					"自行选择清晰度"
 				),
 				UISwitch(
 					"解锁画质选择",
@@ -24,6 +35,13 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 					true,
 					void 0,
 					"未登录的情况下选择原画实际上是未登录的情况下最高选择的画质"
+				),
+				UISwitch(
+					"自动进入网页全屏",
+					"live-autoEnterElementFullScreen",
+					false,
+					void 0,
+					"网页加载完毕后自动点击网页全屏按钮进入全屏"
 				),
 				UISwitch(
 					"监听并关闭【长时间无操作，已暂停播放】弹窗",

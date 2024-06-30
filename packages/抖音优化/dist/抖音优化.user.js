@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.29
+// @version      2024.6.30
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -473,6 +473,448 @@
       });
     }
   };
+  const DouYinLiveChatRoom = {
+    init() {
+      PopsPanel.execMenu("live-shieldChatRoom", () => {
+        this.shieldChatRoom();
+      });
+      PopsPanel.execMenu("live-shielChatRoomVipSeats", () => {
+        this.shielChatRoomVipSeats();
+      });
+      PopsPanel.execMenu("dy-live-shieldUserLevelIcon", () => {
+        this.shieldUserLevelIcon();
+      });
+      PopsPanel.execMenu("dy-live-shieldUserVIPIcon", () => {
+        this.shieldUserVIPIcon();
+      });
+      PopsPanel.execMenu("dy-live-shieldUserFansIcon", () => {
+        this.shieldUserFansIcon();
+      });
+      PopsPanel.execMenu("dy-live-shieldMessage", () => {
+        this.shieldMessage();
+      });
+    },
+    /**
+     * 【屏蔽】评论区
+     */
+    shieldChatRoom() {
+      log.info("【屏蔽】评论区");
+      DouYinUtils.addBlockCSS("#chatroom");
+      addStyle(`
+		div[data-e2e="living-container"],
+		div[data-e2e="living-container"] > div{
+			margin-bottom: 0px !important;
+		}`);
+    },
+    /**
+     * 【屏蔽】评论区的贵宾席
+     */
+    shielChatRoomVipSeats() {
+      log.info("【屏蔽】评论区的贵宾席");
+      DouYinUtils.addBlockCSS(
+        "#chatroom > div > div:has(#audiencePanelScrollId)"
+      );
+    },
+    /**
+     * 【屏蔽】用户等级图标
+     */
+    shieldUserLevelIcon() {
+      log.info("【屏蔽】用户等级图标");
+      DouYinUtils.addBlockCSS(
+        '.webcast-chatroom___item span:has(>img[src*="level"])'
+      );
+    },
+    /**
+     * 【屏蔽】VIP图标
+     */
+    shieldUserVIPIcon() {
+      log.info("【屏蔽】VIP图标");
+      DouYinUtils.addBlockCSS(
+        '.webcast-chatroom___item span:has(>img[src*="subscribe"])'
+      );
+    },
+    /**
+     * 【屏蔽】粉丝牌
+     */
+    shieldUserFansIcon() {
+      log.info("【屏蔽】粉丝牌");
+      DouYinUtils.addBlockCSS(
+        '.webcast-chatroom___item span:has(>div[style*="fansclub"])'
+      );
+    },
+    /**
+     * 【屏蔽】信息播报
+     */
+    shieldMessage() {
+      log.info("【屏蔽】信息播报");
+      DouYinUtils.addBlockCSS(
+        ".webcast-chatroom___bottom-message",
+        // 上面的滚动播报，xxx加入了直播间
+        '#chatroom >div>div>div:has(>div[elementtiming="element-timing"])'
+      );
+    }
+  };
+  const ReactUtils = {
+    /**
+     * 等待react某个属性并进行设置
+     */
+    async waitReactPropsToSet($target, propName, needSetList) {
+      function getTarget() {
+        let __target__ = null;
+        if (typeof $target === "string") {
+          __target__ = document.querySelector($target);
+        } else if (typeof $target === "function") {
+          __target__ = $target();
+        } else if ($target instanceof HTMLElement) {
+          __target__ = $target;
+        }
+        return __target__;
+      }
+      if (typeof $target === "string") {
+        let $ele = await utils.waitNode($target, 1e4);
+        if (!$ele) {
+          return;
+        }
+      }
+      needSetList.forEach((needSetOption) => {
+        if (typeof needSetOption.msg === "string") {
+          log.info(needSetOption.msg);
+        }
+        function checkObj() {
+          let target = getTarget();
+          if (target == null) {
+            return false;
+          }
+          let targetObj = utils.getReactObj(target);
+          if (targetObj == null) {
+            return false;
+          }
+          let targetObjProp = targetObj[propName];
+          if (targetObjProp == null) {
+            return false;
+          }
+          let needOwnCheck = needSetOption.check(targetObjProp);
+          return Boolean(needOwnCheck);
+        }
+        utils.waitPropertyByInterval(
+          () => {
+            return getTarget();
+          },
+          checkObj,
+          250,
+          1e4
+        ).then(() => {
+          let target = getTarget();
+          if (target == null) {
+            return;
+          }
+          let targetObj = utils.getReactObj(target);
+          if (targetObj == null) {
+            return;
+          }
+          let targetObjProp = targetObj[propName];
+          if (targetObjProp == null) {
+            return;
+          }
+          needSetOption.set(targetObjProp);
+        });
+      });
+    }
+  };
+  const VideoQualityMap = {
+    auto: {
+      label: "自动",
+      sign: 0
+    },
+    ld: {
+      label: "标清",
+      sign: 1
+    },
+    sd: {
+      label: "高清",
+      sign: 2
+    },
+    hd: {
+      label: "超清",
+      sign: 3
+    },
+    uhd: {
+      label: "蓝光",
+      sign: 4
+    },
+    origin: {
+      label: "潮汐海灵",
+      sign: 5
+    }
+  };
+  const DouYinLive = {
+    init() {
+      PopsPanel.execMenu("live-autoEnterElementFullScreen", () => {
+        this.autoEnterElementFullScreen();
+      });
+      PopsPanel.execMenu("live-shieldGiftColumn", () => {
+        this.shieldGiftColumn();
+      });
+      PopsPanel.execMenu("live-shieldTopToolBarInfo", () => {
+        this.shieldTopToolBarInfo();
+      });
+      PopsPanel.execMenu("live-shieldGiftEffects", () => {
+        this.shieldGiftEffects();
+      });
+      PopsPanel.execMenu("live-shielYellowCar", () => {
+        this.shieldYellowCar();
+      });
+      PopsPanel.execMenu("live-shieldDanmuku", () => {
+        DouYinLiveDanmuku.shieldDanmu();
+      });
+      PopsPanel.execMenu("live-danmu-shield-rule-enable", () => {
+        DouYinLiveDanmuku.filterDanmu();
+      });
+      PopsPanel.execMenu("live-chooseQuality", (quality) => {
+        this.chooseQuality(quality);
+      });
+      PopsPanel.execMenu("live-unlockImageQuality", () => {
+        this.unlockImageQuality();
+      });
+      PopsPanel.execMenuOnce("live-waitToRemovePauseDialog", () => {
+        this.waitToRemovePauseDialog();
+      });
+      PopsPanel.execMenu("live-pauseVideo", () => {
+        this.pauseVideo();
+      });
+      PopsPanel.execMenu("live-bgColor-enable", () => {
+        PopsPanel.execMenuOnce("live-changeBackgroundColor", (value) => {
+          this.changeBackgroundColor(value);
+        });
+      });
+      DouYinLiveChatRoom.init();
+    },
+    /**
+     * 自动进入网页全屏
+     */
+    autoEnterElementFullScreen() {
+      log.info("自动进入网页全屏");
+      utils.waitNode(
+        'xg-icon[classname] > div > div:has(path[d="M9.75 8.5a2 2 0 00-2 2v11a2 2 0 002 2h12.5a2 2 0 002-2v-11a2 2 0 00-2-2H9.75zM15 11.25h-3.75a1 1 0 00-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 01-1 1z"])'
+      ).then((element) => {
+        element.click();
+      });
+    },
+    /**
+     * 【屏蔽】底部的礼物栏
+     */
+    shieldGiftColumn() {
+      log.info("屏蔽底部的礼物栏");
+      DouYinUtils.addBlockCSS(
+        'div[data-e2e="living-container"] >div> :last-child',
+        /* 全屏状态下的礼物栏 */
+        'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"])'
+      );
+      addStyle(`
+		/* 去除全屏状态下的礼物栏后，上面的工具栏bottom也去除 */
+		div[data-e2e="living-container"] xg-controls xg-inner-controls:has(+div div[data-e2e="gifts-container"]){
+			bottom: 0 !important;
+		}
+		`);
+    },
+    /**
+     * 【屏蔽】顶栏信息
+     * 包括直播作者、右侧的礼物展馆
+     */
+    shieldTopToolBarInfo() {
+      log.info("【屏蔽】顶栏信息");
+      DouYinUtils.addBlockCSS(
+        'div[data-e2e="living-container"] > div > pace-island[id^="island_"]'
+      );
+    },
+    /**
+     * 【屏蔽】礼物特效
+     */
+    shieldGiftEffects() {
+      log.info("【屏蔽】礼物特效");
+      DouYinUtils.addBlockCSS(
+        // ↓该屏蔽会把连麦的用户也屏蔽了
+        // '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div>div)'
+        '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div:not([class*="video_layout_container"])>div)'
+      );
+    },
+    /**
+     * 【屏蔽】小黄车
+     */
+    shieldYellowCar() {
+      log.info("【屏蔽】小黄车");
+      DouYinUtils.addBlockCSS(
+        '#living_room_player_container .basicPlayer  > div:has(div[data-e2e="yellowCart-container"])'
+      );
+    },
+    /**
+     * 选择画质
+     * @param [quality="origin"] 选择的画质
+     */
+    chooseQuality(quality = "origin") {
+      ReactUtils.waitReactPropsToSet(
+        'xg-inner-controls xg-right-grid >div:has([data-e2e="quality-selector"])',
+        "reactProps",
+        [
+          {
+            check(reactObj) {
+              var _a2, _b, _c, _d;
+              return typeof ((_d = (_c = (_b = (_a2 = reactObj == null ? void 0 : reactObj.children) == null ? void 0 : _a2.props) == null ? void 0 : _b.children) == null ? void 0 : _c.props) == null ? void 0 : _d.qualityHandler) === "object";
+            },
+            set(reactObj) {
+              let qualityHandler = reactObj.children.props.children.props.qualityHandler;
+              let currentQualityList = qualityHandler.getCurrentQualityList();
+              if (currentQualityList.includes(quality)) {
+                qualityHandler.setCurrentQuality(quality);
+                log.success("成功设置画质为【" + quality + "】");
+              } else {
+                let __quality = quality;
+                Qmsg.error(
+                  "当前直播没有【" + __quality + "】画质，自动选择最高画质"
+                );
+                currentQualityList.sort((a, b) => {
+                  if (!VideoQualityMap[a]) {
+                    log.error("画质【" + a + "】不存在");
+                    return 0;
+                  }
+                  if (!VideoQualityMap[b]) {
+                    log.error("画质【" + b + "】不存在");
+                    return 0;
+                  }
+                  return VideoQualityMap[a].sign - VideoQualityMap[b].sign;
+                });
+                __quality = currentQualityList[currentQualityList.length - 1];
+                qualityHandler.setCurrentQuality(quality);
+                log.success("成功设置画质为【" + quality + "】");
+              }
+            }
+          }
+        ]
+      );
+    },
+    /**
+     * 解锁画质选择
+     *
+     * 未登录情况下最高选择【高清】画质
+     */
+    unlockImageQuality() {
+      log.info("解锁画质选择");
+      domUtils.on(
+        document,
+        "click",
+        'div[data-e2e="quality-selector"] > div',
+        function(event) {
+          var _a2, _b;
+          utils.preventEvent(event);
+          let clickNode = event.target;
+          try {
+            let reactObj = utils.getReactObj(clickNode);
+            let key = (_a2 = reactObj == null ? void 0 : reactObj.reactFiber) == null ? void 0 : _a2["key"];
+            let parent = clickNode.closest("div[data-index]");
+            let parentReactObj = utils.getReactObj(parent);
+            let current = (_b = parentReactObj == null ? void 0 : parentReactObj.reactProps) == null ? void 0 : _b["children"]["ref"]["current"];
+            log.info("当前选择的画质: " + key);
+            log.info(["所有的画质: ", current.getCurrentQualityList()]);
+            current.setCurrentQuality(key);
+          } catch (error) {
+            log.error(error);
+            Qmsg.error("切换画质失败");
+          }
+        },
+        {
+          capture: true
+        }
+      );
+    },
+    /**
+     * 长时间无操作，已暂停播放
+     * 累计节能xx分钟
+     */
+    waitToRemovePauseDialog() {
+      log.info("监听【长时间无操作，已暂停播放】弹窗");
+      function deepFindFunction(target, propName, funcName) {
+        let targetValue = target[propName];
+        if (typeof targetValue === "object") {
+          if (typeof targetValue[funcName] === "function") {
+            return targetValue[funcName];
+          } else {
+            return deepFindFunction(targetValue, propName, funcName);
+          }
+        }
+      }
+      function checkDialogToClose($ele, from) {
+        if ($ele.innerText.includes("长时间无操作") && $ele.innerText.includes("暂停播放")) {
+          log.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
+          Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
+          let $rect = utils.getReactObj($ele);
+          if (typeof $rect.reactContainer === "object") {
+            let onClose = deepFindFunction(
+              $rect.reactContainer,
+              "child",
+              "onClose"
+            );
+            if (typeof onClose === "function") {
+              log.success(`检测${from}：调用onClose关闭弹窗`);
+              Qmsg.success("调用onClose关闭弹窗");
+              onClose();
+            }
+          }
+        }
+      }
+      domUtils.ready(() => {
+        utils.mutationObserver(document.body, {
+          config: {
+            subtree: true,
+            childList: true
+          },
+          callback() {
+            document.querySelectorAll(
+              "body > div[elementtiming='element-timing']"
+            ).forEach(($elementTiming) => {
+              checkDialogToClose($elementTiming, "1");
+            });
+            document.querySelectorAll('body > div:not([id="root"])').forEach(($ele) => {
+              checkDialogToClose($ele, "2");
+            });
+          }
+        });
+      });
+    },
+    /**
+     * 暂停视频
+     */
+    pauseVideo() {
+      log.info("禁止自动播放视频(直播)");
+      utils.waitNode('.basicPlayer[data-e2e="basicPlayer"] video').then(($video) => {
+        domUtils.on(
+          $video,
+          "play",
+          () => {
+            $video.pause();
+          },
+          {
+            capture: true,
+            once: true
+          }
+        );
+        $video.autoplay = false;
+        $video.pause();
+      });
+    },
+    /**
+     * 修改视频背景颜色
+     * @param color 颜色
+     */
+    changeBackgroundColor(color) {
+      log.info("修改视频背景颜色");
+      addStyle(`
+		#living_room_player_container > div,
+		#chatroom > div{
+			background: ${color};
+		}	
+		`);
+    }
+  };
   const PanelLiveConfig = {
     id: "panel-config-live",
     title: "直播",
@@ -481,12 +923,21 @@
         text: "功能",
         type: "forms",
         forms: [
-          UISwitch(
-            "自动进入网页全屏",
-            "live-autoEnterElementFullScreen",
-            false,
+          UISelect(
+            "清晰度",
+            "live-chooseQuality",
+            "auto",
+            (() => {
+              return Object.keys(VideoQualityMap).map((key) => {
+                let item = VideoQualityMap[key];
+                return {
+                  value: key,
+                  text: item.label
+                };
+              });
+            })(),
             void 0,
-            "网页加载完毕后自动点击网页全屏按钮进入全屏"
+            "自行选择清晰度"
           ),
           UISwitch(
             "解锁画质选择",
@@ -494,6 +945,13 @@
             true,
             void 0,
             "未登录的情况下选择原画实际上是未登录的情况下最高选择的画质"
+          ),
+          UISwitch(
+            "自动进入网页全屏",
+            "live-autoEnterElementFullScreen",
+            false,
+            void 0,
+            "网页加载完毕后自动点击网页全屏按钮进入全屏"
           ),
           UISwitch(
             "监听并关闭【长时间无操作，已暂停播放】弹窗",
@@ -3198,307 +3656,6 @@
       });
     }
   };
-  const DouYinLiveChatRoom = {
-    init() {
-      PopsPanel.execMenu("live-shieldChatRoom", () => {
-        this.shieldChatRoom();
-      });
-      PopsPanel.execMenu("live-shielChatRoomVipSeats", () => {
-        this.shielChatRoomVipSeats();
-      });
-      PopsPanel.execMenu("dy-live-shieldUserLevelIcon", () => {
-        this.shieldUserLevelIcon();
-      });
-      PopsPanel.execMenu("dy-live-shieldUserVIPIcon", () => {
-        this.shieldUserVIPIcon();
-      });
-      PopsPanel.execMenu("dy-live-shieldUserFansIcon", () => {
-        this.shieldUserFansIcon();
-      });
-      PopsPanel.execMenu("dy-live-shieldMessage", () => {
-        this.shieldMessage();
-      });
-    },
-    /**
-     * 【屏蔽】评论区
-     */
-    shieldChatRoom() {
-      log.info("【屏蔽】评论区");
-      DouYinUtils.addBlockCSS("#chatroom");
-      addStyle(`
-		div[data-e2e="living-container"],
-		div[data-e2e="living-container"] > div{
-			margin-bottom: 0px !important;
-		}`);
-    },
-    /**
-     * 【屏蔽】评论区的贵宾席
-     */
-    shielChatRoomVipSeats() {
-      log.info("【屏蔽】评论区的贵宾席");
-      DouYinUtils.addBlockCSS(
-        "#chatroom > div > div:has(#audiencePanelScrollId)"
-      );
-    },
-    /**
-     * 【屏蔽】用户等级图标
-     */
-    shieldUserLevelIcon() {
-      log.info("【屏蔽】用户等级图标");
-      DouYinUtils.addBlockCSS(
-        '.webcast-chatroom___item span:has(>img[src*="level"])'
-      );
-    },
-    /**
-     * 【屏蔽】VIP图标
-     */
-    shieldUserVIPIcon() {
-      log.info("【屏蔽】VIP图标");
-      DouYinUtils.addBlockCSS(
-        '.webcast-chatroom___item span:has(>img[src*="subscribe"])'
-      );
-    },
-    /**
-     * 【屏蔽】粉丝牌
-     */
-    shieldUserFansIcon() {
-      log.info("【屏蔽】粉丝牌");
-      DouYinUtils.addBlockCSS(
-        '.webcast-chatroom___item span:has(>div[style*="fansclub"])'
-      );
-    },
-    /**
-     * 【屏蔽】信息播报
-     */
-    shieldMessage() {
-      log.info("【屏蔽】信息播报");
-      DouYinUtils.addBlockCSS(
-        ".webcast-chatroom___bottom-message",
-        // 上面的滚动播报，xxx加入了直播间
-        '#chatroom >div>div>div:has(>div[elementtiming="element-timing"])'
-      );
-    }
-  };
-  const DouYinLive = {
-    init() {
-      PopsPanel.execMenu("live-autoEnterElementFullScreen", () => {
-        this.autoEnterElementFullScreen();
-      });
-      PopsPanel.execMenu("live-shieldGiftColumn", () => {
-        this.shieldGiftColumn();
-      });
-      PopsPanel.execMenu("live-shieldTopToolBarInfo", () => {
-        this.shieldTopToolBarInfo();
-      });
-      PopsPanel.execMenu("live-shieldGiftEffects", () => {
-        this.shieldGiftEffects();
-      });
-      PopsPanel.execMenu("live-shielYellowCar", () => {
-        this.shieldYellowCar();
-      });
-      PopsPanel.execMenu("live-shieldDanmuku", () => {
-        DouYinLiveDanmuku.shieldDanmu();
-      });
-      PopsPanel.execMenu("live-danmu-shield-rule-enable", () => {
-        DouYinLiveDanmuku.filterDanmu();
-      });
-      PopsPanel.execMenu("live-unlockImageQuality", () => {
-        this.unlockImageQuality();
-      });
-      PopsPanel.execMenuOnce("live-waitToRemovePauseDialog", () => {
-        this.waitToRemovePauseDialog();
-      });
-      PopsPanel.execMenu("live-pauseVideo", () => {
-        this.pauseVideo();
-      });
-      PopsPanel.execMenu("live-bgColor-enable", () => {
-        PopsPanel.execMenuOnce("live-changeBackgroundColor", (value) => {
-          this.changeBackgroundColor(value);
-        });
-      });
-      DouYinLiveChatRoom.init();
-    },
-    /**
-     * 自动进入网页全屏
-     */
-    autoEnterElementFullScreen() {
-      log.info("自动进入网页全屏");
-      utils.waitNode(
-        'xg-icon[classname] > div > div:has(path[d="M9.75 8.5a2 2 0 00-2 2v11a2 2 0 002 2h12.5a2 2 0 002-2v-11a2 2 0 00-2-2H9.75zM15 11.25h-3.75a1 1 0 00-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 01-1 1z"])'
-      ).then((element) => {
-        element.click();
-      });
-    },
-    /**
-     * 【屏蔽】底部的礼物栏
-     */
-    shieldGiftColumn() {
-      log.info("屏蔽底部的礼物栏");
-      DouYinUtils.addBlockCSS(
-        'div[data-e2e="living-container"] >div> :last-child',
-        /* 全屏状态下的礼物栏 */
-        'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"])'
-      );
-      addStyle(`
-		/* 去除全屏状态下的礼物栏后，上面的工具栏bottom也去除 */
-		div[data-e2e="living-container"] xg-controls xg-inner-controls:has(+div div[data-e2e="gifts-container"]){
-			bottom: 0 !important;
-		}
-		`);
-    },
-    /**
-     * 【屏蔽】顶栏信息
-     * 包括直播作者、右侧的礼物展馆
-     */
-    shieldTopToolBarInfo() {
-      log.info("【屏蔽】顶栏信息");
-      DouYinUtils.addBlockCSS(
-        'div[data-e2e="living-container"] > div > pace-island[id^="island_"]'
-      );
-    },
-    /**
-     * 【屏蔽】礼物特效
-     */
-    shieldGiftEffects() {
-      log.info("【屏蔽】礼物特效");
-      DouYinUtils.addBlockCSS(
-        // ↓该屏蔽会把连麦的用户也屏蔽了
-        // '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div>div)'
-        '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div:not([class*="video_layout_container"])>div)'
-      );
-    },
-    /**
-     * 【屏蔽】小黄车
-     */
-    shieldYellowCar() {
-      log.info("【屏蔽】小黄车");
-      DouYinUtils.addBlockCSS(
-        '#living_room_player_container .basicPlayer  > div:has(div[data-e2e="yellowCart-container"])'
-      );
-    },
-    /**
-     * 解锁画质选择
-     *
-     * 未登录情况下最高选择【高清】画质
-     */
-    unlockImageQuality() {
-      log.info("解锁画质选择");
-      domUtils.on(
-        document,
-        "click",
-        'div[data-e2e="quality-selector"] > div',
-        function(event) {
-          var _a2, _b;
-          utils.preventEvent(event);
-          let clickNode = event.target;
-          try {
-            let reactObj = utils.getReactObj(clickNode);
-            let key = (_a2 = reactObj == null ? void 0 : reactObj.reactFiber) == null ? void 0 : _a2["key"];
-            let parent = clickNode.closest("div[data-index]");
-            let parentReactObj = utils.getReactObj(parent);
-            let current = (_b = parentReactObj == null ? void 0 : parentReactObj.reactProps) == null ? void 0 : _b["children"]["ref"]["current"];
-            log.info("当前选择的画质: " + key);
-            log.info(["所有的画质: ", current.getCurrentQualityList()]);
-            current.setCurrentQuality(key);
-          } catch (error) {
-            log.error(error);
-            Qmsg.error("切换画质失败");
-          }
-        },
-        {
-          capture: true
-        }
-      );
-    },
-    /**
-     * 长时间无操作，已暂停播放
-     * 累计节能xx分钟
-     */
-    waitToRemovePauseDialog() {
-      log.info("监听【长时间无操作，已暂停播放】弹窗");
-      function deepFindFunction(target, propName, funcName) {
-        let targetValue = target[propName];
-        if (typeof targetValue === "object") {
-          if (typeof targetValue[funcName] === "function") {
-            return targetValue[funcName];
-          } else {
-            return deepFindFunction(targetValue, propName, funcName);
-          }
-        }
-      }
-      function checkDialogToClose($ele, from) {
-        if ($ele.innerText.includes("长时间无操作") && $ele.innerText.includes("暂停播放")) {
-          log.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
-          Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
-          let $rect = utils.getReactObj($ele);
-          if (typeof $rect.reactContainer === "object") {
-            let onClose = deepFindFunction(
-              $rect.reactContainer,
-              "child",
-              "onClose"
-            );
-            if (typeof onClose === "function") {
-              log.success(`检测${from}：调用onClose关闭弹窗`);
-              Qmsg.success("调用onClose关闭弹窗");
-              onClose();
-            }
-          }
-        }
-      }
-      domUtils.ready(() => {
-        utils.mutationObserver(document.body, {
-          config: {
-            subtree: true,
-            childList: true
-          },
-          callback() {
-            document.querySelectorAll(
-              "body > div[elementtiming='element-timing']"
-            ).forEach(($elementTiming) => {
-              checkDialogToClose($elementTiming, "1");
-            });
-            document.querySelectorAll('body > div:not([id="root"])').forEach(($ele) => {
-              checkDialogToClose($ele, "2");
-            });
-          }
-        });
-      });
-    },
-    /**
-     * 暂停视频
-     */
-    pauseVideo() {
-      log.info("禁止自动播放视频(直播)");
-      utils.waitNode('.basicPlayer[data-e2e="basicPlayer"] video').then(($video) => {
-        domUtils.on(
-          $video,
-          "play",
-          () => {
-            $video.pause();
-          },
-          {
-            capture: true,
-            once: true
-          }
-        );
-        $video.autoplay = false;
-        $video.pause();
-      });
-    },
-    /**
-     * 修改视频背景颜色
-     * @param color 颜色
-     */
-    changeBackgroundColor(color) {
-      log.info("修改视频背景颜色");
-      addStyle(`
-		#living_room_player_container > div,
-		#chatroom > div{
-			background: ${color};
-		}	
-		`);
-    }
-  };
   const DouYinRedirect = {
     init() {
       PopsPanel.execMenu("douyin-redirect-url-home-to-root", () => {
@@ -3692,7 +3849,6 @@
           utils.preventEvent(event);
           let $click = event.target;
           let reactFiber = (_a2 = utils.getReactObj($click)) == null ? void 0 : _a2.reactFiber;
-          console.log(reactFiber);
           let key = reactFiber == null ? void 0 : reactFiber.key;
           if (key == null) {
             Qmsg.error("获取视频合集key失败");

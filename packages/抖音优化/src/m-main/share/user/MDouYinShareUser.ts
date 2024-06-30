@@ -27,7 +27,6 @@ export const MDouYinShareUser = {
 
 				let $click = event.target as HTMLDivElement;
 				let reactFiber = utils.getReactObj($click)?.reactFiber;
-				console.log(reactFiber);
 				let key = reactFiber?.key;
 				if (key == null) {
 					Qmsg.error("获取视频合集key失败");
