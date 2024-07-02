@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.30
+// @version      2024.7.2
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -1700,7 +1700,9 @@
     shieldAuthorAvatar() {
       log.info("【屏蔽】作者头像");
       DouYinUtils.addBlockCSS(
-        'div.dy-tip-container:has([data-e2e="video-avatar"])'
+        'div.dy-tip-container:has([data-e2e="video-avatar"])',
+        // 2024.7.2 新增其它的样式匹配
+        '.basePlayerContainer div[aria-describedby]:has([data-e2e="video-avatar"])'
       );
     },
     /**
@@ -1709,7 +1711,9 @@
     shieldLikeButton() {
       log.info("【屏蔽】点赞");
       DouYinUtils.addBlockCSS(
-        'div.dy-tip-container:has([data-e2e="video-player-digg"])'
+        'div.dy-tip-container:has([data-e2e="video-player-digg"])',
+        // 2024.7.2 新增其它的样式匹配
+        '.basePlayerContainer div[aria-describedby]:has([data-e2e="video-player-digg"])'
       );
     },
     /**
@@ -1718,7 +1722,9 @@
     shieldCommentButton() {
       log.info("【屏蔽】评论");
       DouYinUtils.addBlockCSS(
-        'div.dy-tip-container:has([data-e2e="feed-comment-icon"])'
+        'div.dy-tip-container:has([data-e2e="feed-comment-icon"])',
+        // 2024.7.2 新增其它的样式匹配
+        '.basePlayerContainer div[aria-describedby]:has([data-e2e="feed-comment-icon"])'
       );
     },
     /**
@@ -1727,7 +1733,9 @@
     shieldCollectionButton() {
       log.info("【屏蔽】收藏");
       DouYinUtils.addBlockCSS(
-        'div.dy-tip-container:has([data-e2e="video-player-collect"])'
+        'div.dy-tip-container:has([data-e2e="video-player-collect"])',
+        // 2024.7.2 新增其它的样式匹配
+        '.basePlayerContainer div[data-e2e="video-player-collect"][data-e2e-state="video-player-no-collect"]'
       );
     },
     /**
@@ -1736,7 +1744,9 @@
     shieldSharenButton() {
       log.info("【屏蔽】分享");
       DouYinUtils.addBlockCSS(
-        'div.dy-tip-container:has([data-e2e="video-player-share"])'
+        'div.dy-tip-container:has([data-e2e="video-player-share"])',
+        // 2024.7.2 新增其它的样式匹配
+        '.basePlayerContainer div:has(>div[data-e2e="video-player-share"])'
       );
     },
     /**
@@ -1746,7 +1756,9 @@
       log.info("【屏蔽】看相关");
       DouYinUtils.addBlockCSS(
         'div.dy-tip-container:has(path[d="M14 8a8 8 0 00-8 8v4a8 8 0 008 8h8a8 8 0 008-8v-4a8 8 0 00-8-8h-8zm8.5 10.866a1 1 0 000-1.732l-6-3.464a1 1 0 00-1.5.866v6.928a1 1 0 001.5.866l6-3.464z"])',
-        'div.dy-tip-container:has(path[d=" M-4,-10 C-4,-10 4,-10 4,-10 C8.418000221252441,-10 12,-6.418000221252441 12,-2 C12,-2 12,2 12,2 C12,6.418000221252441 8.418000221252441,10 4,10 C4,10 -4,10 -4,10 C-8.418000221252441,10 -12,6.418000221252441 -12,2 C-12,2 -12,-2 -12,-2 C-12,-6.418000221252441 -8.418000221252441,-10 -4,-10z M4.5,0.8659999966621399 C5.166999816894531,0.48100000619888306 5.166999816894531,-0.48100000619888306 4.5,-0.8659999966621399 C4.5,-0.8659999966621399 -1.5,-4.329999923706055 -1.5,-4.329999923706055 C-2.1670000553131104,-4.715000152587891 -3,-4.234000205993652 -3,-3.4639999866485596 C-3,-3.4639999866485596 -3,3.4639999866485596 -3,3.4639999866485596 C-3,4.234000205993652 -2.1670000553131104,4.715000152587891 -1.5,4.329999923706055 C-1.5,4.329999923706055 4.5,0.8659999966621399 4.5,0.8659999966621399z"])'
+        'div.dy-tip-container:has(path[d=" M-4,-10 C-4,-10 4,-10 4,-10 C8.418000221252441,-10 12,-6.418000221252441 12,-2 C12,-2 12,2 12,2 C12,6.418000221252441 8.418000221252441,10 4,10 C4,10 -4,10 -4,10 C-8.418000221252441,10 -12,6.418000221252441 -12,2 C-12,2 -12,-2 -12,-2 C-12,-6.418000221252441 -8.418000221252441,-10 -4,-10z M4.5,0.8659999966621399 C5.166999816894531,0.48100000619888306 5.166999816894531,-0.48100000619888306 4.5,-0.8659999966621399 C4.5,-0.8659999966621399 -1.5,-4.329999923706055 -1.5,-4.329999923706055 C-2.1670000553131104,-4.715000152587891 -3,-4.234000205993652 -3,-3.4639999866485596 C-3,-3.4639999866485596 -3,3.4639999866485596 -3,3.4639999866485596 C-3,4.234000205993652 -2.1670000553131104,4.715000152587891 -1.5,4.329999923706055 C-1.5,4.329999923706055 4.5,0.8659999966621399 4.5,0.8659999966621399z"])',
+        // 2024.7.2 新增其它的样式匹配
+        '.basePlayerContainer div[aria-describedby]:has(path[d="M14 8a8 8 0 00-8 8v4a8 8 0 008 8h8a8 8 0 008-8v-4a8 8 0 00-8-8h-8zm8.5 10.866a1 1 0 000-1.732l-6-3.464a1 1 0 00-1.5.866v6.928a1 1 0 001.5.866l6-3.464z"])'
       );
     },
     /**
@@ -1755,7 +1767,9 @@
     shieldMoreButton() {
       log.info("【屏蔽】更多");
       DouYinUtils.addBlockCSS(
-        'div.dy-tip-container:has([data-e2e="video-play-more"])'
+        'div.dy-tip-container:has([data-e2e="video-play-more"])',
+        // 2024.7.2 新增其它的样式匹配
+        '.basePlayerContainer div[data-e2e="video-play-more"]'
       );
     },
     /**
