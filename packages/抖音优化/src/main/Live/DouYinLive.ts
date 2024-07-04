@@ -269,11 +269,10 @@ export const DouYinLive = {
 				Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
 				let $rect = utils.getReactObj($ele);
 				if (typeof $rect.reactContainer === "object") {
-					let onClose = deepFindFunction(
-						$rect.reactContainer,
-						"child",
-						"onClose"
-					);
+					let onClose =
+						deepFindFunction($rect.reactContainer, "child", "onClose") ||
+						$rect?.reactContainer?.memoizedState?.element?.props?.children
+							?.props?.onClose;
 					if (typeof onClose === "function") {
 						log.success(`检测${from}：调用onClose关闭弹窗`);
 						Qmsg.success("调用onClose关闭弹窗");

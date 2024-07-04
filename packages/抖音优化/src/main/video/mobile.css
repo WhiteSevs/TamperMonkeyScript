@@ -1,13 +1,13 @@
 /* 右侧工具栏放大 */
 .basePlayerContainer .positionBox {
-	scale: unset !important;
 	bottom: 80px !important;
 	padding-right: 5px !important;
-	transform: scale(1.12) !important;
+	scale: unset !important;
+	transform: scale3d(1.12, 1.12, 1.12) !important;
 }
-/* 图标再放大 */
+/* 右侧工具栏的svg再放大 */
 .basePlayerContainer .positionBox svg {
-	transform: scale(1.12);
+	transform: scale3d(1.12, 1.12, 1.12);
 }
 /* 重置关注按钮的scale */
 .basePlayerContainer
@@ -15,7 +15,21 @@
 	.dy-tip-container
 	div[data-e2e="feed-follow-icon"]
 	svg {
-	scale: unset;
+	scale: unset !important;
+}
+/* 调整视频进度条的按钮大小 */
+xg-progress-btn,
+xg-progress-btn::before {
+	width: 20px !important;
+	height: 20px !important;
+}
+/* 调整视频进度条的按钮距离底部的位置 */
+xg-center-grid {
+	top: calc(-20px - 15px) !important;
+}
+/* 调整视频信息栏的bottom */
+.basePlayerContainer > div:has(#video-info-wrap) {
+	bottom: calc(48px + 15px) !important;
 }
 /* 设备处于横向方向，即宽度大于高度。 */
 @media screen and (orientation: landscape) {

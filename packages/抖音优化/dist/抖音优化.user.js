@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.2
+// @version      2024.7.5
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -843,16 +843,13 @@
         }
       }
       function checkDialogToClose($ele, from) {
+        var _a2, _b, _c, _d, _e, _f;
         if ($ele.innerText.includes("长时间无操作") && $ele.innerText.includes("暂停播放")) {
           log.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
           Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
           let $rect = utils.getReactObj($ele);
           if (typeof $rect.reactContainer === "object") {
-            let onClose = deepFindFunction(
-              $rect.reactContainer,
-              "child",
-              "onClose"
-            );
+            let onClose = deepFindFunction($rect.reactContainer, "child", "onClose") || ((_f = (_e = (_d = (_c = (_b = (_a2 = $rect == null ? void 0 : $rect.reactContainer) == null ? void 0 : _a2.memoizedState) == null ? void 0 : _b.element) == null ? void 0 : _c.props) == null ? void 0 : _d.children) == null ? void 0 : _e.props) == null ? void 0 : _f.onClose);
             if (typeof onClose === "function") {
               log.success(`检测${from}：调用onClose关闭弹窗`);
               Qmsg.success("调用onClose关闭弹窗");
@@ -1215,7 +1212,7 @@
       let firstLoadEndVideoId = null;
       DouYinElement.watchVideDataListChange(
         utils.debounce((osElement) => {
-          var _a2;
+          var _a2, _b, _c, _d, _e;
           let $videoList = document.querySelector(
             '#slidelist div[data-e2e="slideList"]'
           );
@@ -1248,14 +1245,29 @@
             let flag = false;
             if (!flag) {
               if (typeof videoData["cellRoom"] === "object" && PopsPanel.getValue("shieldVideo-live")) {
-                log.success("屏蔽直播: cellRoom is not null");
+                log.success("屏蔽直播: because cellRoom is not null");
                 flag = true;
               }
             }
             if (!flag) {
-              if (videoData["isAds"] && PopsPanel.getValue("shieldVideo-ads")) {
-                log.success("屏蔽广告: isAds is true");
-                flag = true;
+              if (PopsPanel.getValue("shieldVideo-ads")) {
+                if (videoData["isAds"]) {
+                  flag = true;
+                  log.success("屏蔽广告: because isAds is true");
+                } else if (typeof videoData["rawAdData"] === "string" && utils.isNotNull(videoData["rawAdData"])) {
+                  flag = true;
+                  log.success("屏蔽广告: because rawAdData is not null");
+                } else if ((_c = (_b = videoData["webRawData"]) == null ? void 0 : _b["brandAd"]) == null ? void 0 : _c["is_ad"]) {
+                  flag = true;
+                  log.success(
+                    "屏蔽广告: because webRawData.brandAd.is_ad is true"
+                  );
+                } else if ((_e = (_d = videoData["webRawData"]) == null ? void 0 : _d["insertInfo"]) == null ? void 0 : _e["is_ad"]) {
+                  flag = true;
+                  log.success(
+                    "屏蔽广告: because webRawData.insertInfo.is_ad is true"
+                  );
+                }
               }
             }
             if (!flag) {
@@ -1593,7 +1605,7 @@
       return window.location.hostname === "www.douyin.com" && window.location.pathname.startsWith("/search");
     }
   };
-  const MobileCSS = '/* 右侧工具栏放大 */\r\n.basePlayerContainer .positionBox {\r\n	scale: unset !important;\r\n	bottom: 80px !important;\r\n	padding-right: 5px !important;\r\n	transform: scale(1.12) !important;\r\n}\r\n/* 图标再放大 */\r\n.basePlayerContainer .positionBox svg {\r\n	transform: scale(1.12);\r\n}\r\n/* 重置关注按钮的scale */\r\n.basePlayerContainer\r\n	.positionBox\r\n	.dy-tip-container\r\n	div[data-e2e="feed-follow-icon"]\r\n	svg {\r\n	scale: unset;\r\n}\r\n/* 设备处于横向方向，即宽度大于高度。 */\r\n@media screen and (orientation: landscape) {\r\n	/* 右侧工具栏放大 */\r\n	.basePlayerContainer .positionBox {\r\n		/*transform: scale(0.95) !important;\r\n		bottom: 42px !important;*/\r\n		padding-right: 10px !important;\r\n	}\r\n}\r\n/* 该设备是纵向的，即高度大于或等于宽度 */\r\n@media screen and (orientation: portrait) {\r\n	/* /video/xxx页面 */\r\n	/* 点赞、评论、分享偏移 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.basePlayerContainer\r\n		.positionBox {\r\n		padding-right: 30px !important;\r\n	}\r\n	/* 底部工具栏右侧的按钮 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.xgplayer.xgplayer-pc\r\n		.xg-right-grid {\r\n		margin-right: 35px !important;\r\n	}\r\n	/* 评论区全屏 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n		width: 100dvw !important;\r\n	}\r\n}\r\n\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#slidelist {\r\n		width: 100dvw;\r\n		height: 100dvh;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: 150px;\r\n		padding-right: 0;\r\n		max-width: unset;\r\n	}\r\n	/* 搜索框获取焦点时自动放大宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]:focus) {\r\n		width: 100dvw;\r\n	}\r\n	/* 去除设置min-width超出浏览器宽度的问题 */\r\n	body {\r\n		min-width: 100% !important;\r\n	}\r\n	/* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n	#douyin-right-container #douyin-header {\r\n		width: 100%;\r\n	}\r\n	/* 去除设置 */\r\n	#douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n		min-width: 100%;\r\n	}\r\n}\r\n';
+  const MobileCSS = '/* 右侧工具栏放大 */\r\n.basePlayerContainer .positionBox {\r\n	bottom: 80px !important;\r\n	padding-right: 5px !important;\r\n	scale: unset !important;\r\n	transform: scale3d(1.12, 1.12, 1.12) !important;\r\n}\r\n/* 右侧工具栏的svg再放大 */\r\n.basePlayerContainer .positionBox svg {\r\n	transform: scale3d(1.12, 1.12, 1.12);\r\n}\r\n/* 重置关注按钮的scale */\r\n.basePlayerContainer\r\n	.positionBox\r\n	.dy-tip-container\r\n	div[data-e2e="feed-follow-icon"]\r\n	svg {\r\n	scale: unset !important;\r\n}\r\n/* 调整视频进度条的按钮大小 */\r\nxg-progress-btn,\r\nxg-progress-btn::before {\r\n	width: 20px !important;\r\n	height: 20px !important;\r\n}\r\n/* 调整视频进度条的按钮距离底部的位置 */\r\nxg-center-grid {\r\n	top: calc(-20px - 15px) !important;\r\n}\r\n/* 调整视频信息栏的bottom */\r\n.basePlayerContainer > div:has(#video-info-wrap) {\r\n	bottom: calc(48px + 15px) !important;\r\n}\r\n/* 设备处于横向方向，即宽度大于高度。 */\r\n@media screen and (orientation: landscape) {\r\n	/* 右侧工具栏放大 */\r\n	.basePlayerContainer .positionBox {\r\n		/*transform: scale(0.95) !important;\r\n		bottom: 42px !important;*/\r\n		padding-right: 10px !important;\r\n	}\r\n}\r\n/* 该设备是纵向的，即高度大于或等于宽度 */\r\n@media screen and (orientation: portrait) {\r\n	/* /video/xxx页面 */\r\n	/* 点赞、评论、分享偏移 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.basePlayerContainer\r\n		.positionBox {\r\n		padding-right: 30px !important;\r\n	}\r\n	/* 底部工具栏右侧的按钮 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.xgplayer.xgplayer-pc\r\n		.xg-right-grid {\r\n		margin-right: 35px !important;\r\n	}\r\n	/* 评论区全屏 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n		width: 100dvw !important;\r\n	}\r\n}\r\n\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#slidelist {\r\n		width: 100dvw;\r\n		height: 100dvh;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: 150px;\r\n		padding-right: 0;\r\n		max-width: unset;\r\n	}\r\n	/* 搜索框获取焦点时自动放大宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]:focus) {\r\n		width: 100dvw;\r\n	}\r\n	/* 去除设置min-width超出浏览器宽度的问题 */\r\n	body {\r\n		min-width: 100% !important;\r\n	}\r\n	/* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n	#douyin-right-container #douyin-header {\r\n		width: 100%;\r\n	}\r\n	/* 去除设置 */\r\n	#douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n		min-width: 100%;\r\n	}\r\n}\r\n';
   const DouYinVideoHideElement = {
     init() {
       PopsPanel.execMenu("shieldRightExpandCommentButton", () => {

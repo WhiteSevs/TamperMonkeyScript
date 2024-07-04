@@ -86,14 +86,32 @@ export const DouYinVideoFilter = {
 							typeof videoData["cellRoom"] === "object" &&
 							PopsPanel.getValue("shieldVideo-live")
 						) {
-							log.success("屏蔽直播: cellRoom is not null");
+							log.success("屏蔽直播: because cellRoom is not null");
 							flag = true;
 						}
 					}
 					if (!flag) {
-						if (videoData["isAds"] && PopsPanel.getValue("shieldVideo-ads")) {
-							log.success("屏蔽广告: isAds is true");
-							flag = true;
+						if (PopsPanel.getValue("shieldVideo-ads")) {
+							if (videoData["isAds"]) {
+								flag = true;
+								log.success("屏蔽广告: because isAds is true");
+							} else if (
+								typeof videoData["rawAdData"] === "string" &&
+								utils.isNotNull(videoData["rawAdData"])
+							) {
+								flag = true;
+								log.success("屏蔽广告: because rawAdData is not null");
+							} else if (videoData["webRawData"]?.["brandAd"]?.["is_ad"]) {
+								flag = true;
+								log.success(
+									"屏蔽广告: because webRawData.brandAd.is_ad is true"
+								);
+							} else if (videoData["webRawData"]?.["insertInfo"]?.["is_ad"]) {
+								flag = true;
+								log.success(
+									"屏蔽广告: because webRawData.insertInfo.is_ad is true"
+								);
+							}
 						}
 					}
 					/* 遍历自定义规则 */
