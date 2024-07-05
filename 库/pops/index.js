@@ -4475,8 +4475,8 @@
 				margin: 0px !important;
 			}
 			.pops[type-value="panel"].pops-panel-is-mobile section.pops-panel-container>ul li{
-				margin: 5px 5px!important;
-				padding: 5px 5px !important;
+				padding: 10px 10px;
+				margin: 0;
 			}
 			.pops[type-value="panel"].pops-panel-is-mobile section.pops-panel-container >ul > li div:nth-child(2){
 				max-width: 55%;
