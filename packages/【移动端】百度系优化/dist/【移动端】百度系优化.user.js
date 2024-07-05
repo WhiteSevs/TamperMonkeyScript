@@ -11,7 +11,7 @@
 // @match        *://www.tieba.com/*
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/456485/1398647/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1405857/pops.js
 // @require      https://update.greasyfork.org/scripts/488179/1384528/showdown.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.4.31/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.8/lib/index.iife.min.js
