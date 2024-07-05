@@ -129,6 +129,7 @@ type PopsPanelFormsTotalDetails =
 	| PopsPanelTextAreaDetails
 	| PopsPanelSelectDetails<any>
 	| PopsPanelButtonDetails
+	| PopsPanelDeepMenuDetails
 	| PopsPanelOwnDetails;
 
 /**
@@ -311,7 +312,7 @@ declare interface PopsPanelRightAsideContainerOptions {
 	/**  */
 	formContainerListElement?: HTMLLIElement;
 	/**  */
-	formHeaderDivElement?: HTMLDivElement;
+	formHeaderDivElement?: HTMLElement | HTMLDivElement;
 }
 declare interface PopsPanelCommonDetails {
 	/**
@@ -956,6 +957,62 @@ declare interface PopsPanelButtonDetails extends PopsPanelCommonDetails {
 	 * 点击button触发的事件
 	 */
 	callback: (event: MouseEvent | PointerEvent) => void;
+}
+/**
+ * pops.panel的 深层菜单
+ */
+declare interface PopsPanelDeepMenuDetails extends PopsPanelCommonDetails {
+	/**
+	 * 类型
+	 */
+	type: "deepMenu";
+	/**
+	 * （可选）className属性
+	 */
+	className?: string;
+	/**
+	 * （可选）自定义元素属性
+	 */
+	attributes?: NestedObjectWithToString;
+	/**
+	 * （可选）自定义属性
+	 */
+	props?: HTMLElement;
+	/**
+	 * 显示在左边的文字
+	 */
+	text: string;
+	/**
+	 * （可选）左边的文字下面的描述
+	 */
+	description?: string;
+	/**
+	 * （可选）右侧的文字
+	 */
+	rightText?: string;
+	/**
+	 * （可选）右侧的箭头图标，默认启用
+	 */
+	arrowRightIcon?: boolean;
+	/**
+	 * 点击整行触发的事件，可为异步函数
+	 * @param event click事件
+	 * @returns
+	 * + true 表示阻止进入深层菜单
+	 * + false （默认）表示允许进入深层菜单
+	 */
+	clickCallBack?: (
+		event: MouseEvent | PointerEvent,
+		formConfig: PopsPanelDeepMenuDetails
+	) => boolean | void;
+	/**
+	 * 菜单配置
+	 */
+	forms?: (PopsPanelFormsDetails | PopsPanelFormsTotalDetails)[];
+	/**
+	 * （可选）头部的标题文字，没有的话默认是text
+	 */
+	headerTitle?: string;
 }
 /**
  * pops.panel的 own

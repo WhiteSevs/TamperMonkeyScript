@@ -2616,11 +2616,11 @@
 		},
 		/**
 		 * 绑定事件
-		 * @param {HTMLElement|string|NodeList|HTMLElement[]|Window} element 需要绑定的元素|元素数组|window
-		 * @param {import("./../DOMUtils/dist/src/DOMUtilsEvent").DOMUtils_EventType|import("./../DOMUtils/dist/src/DOMUtilsEvent").DOMUtils_EventType[]} eventType 需要监听的事件
+		 * @param {null|Element|EventTarget|Node|HTMLElement|string|NodeList|HTMLElement[]|Window|typeof globalThis} element 需要绑定的元素|元素数组|window
+		 * @param {import("./../DOMUtils/dist/src/DOMUtilsEvent").DOMUtils_EventType|import("./../DOMUtils/dist/src/DOMUtilsEvent").DOMUtils_EventType[]|string|string[]} eventType 需要监听的事件
 		 * @param {string|undefined|null} selector 子元素选择器
-		 * @param {((event: Event)=>void)|undefined} callback 绑定事件触发的回调函数
-		 * @param {boolean|AddEventListenerOptions|undefined} option
+		 * @param {((event: any)=>void)|undefined} callback 绑定事件触发的回调函数
+		 * @param {boolean|AddEventListenerOptions|undefined} [option]
 		 * + capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
 		 * + once 表示事件是否只触发一次。默认为false
 		 * + passive 表示事件监听器是否不会调用preventDefault()。默认为false
@@ -2659,7 +2659,7 @@
 			if (typeof element === "string") {
 				element = document.querySelectorAll(element);
 			}
-			if (element == void 0) {
+			if (element == null) {
 				return;
 			}
 			/**
@@ -2784,11 +2784,11 @@
 		},
 		/**
 		 * 取消绑定事件
-		 * @param {HTMLElement|string|NodeList|HTMLElement[]|Window} element 需要取消绑定的元素|元素数组
-		 * @param {import("./../DOMUtils/dist/src/DOMUtilsEvent").DOMUtils_EventType|import("./../DOMUtils/dist/src/DOMUtilsEvent").DOMUtils_EventType[]|string} eventType 需要取消监听的事件
+		 * @param {null|Element|EventTarget|Node|HTMLElement|string|NodeList|HTMLElement[]|Window|typeof globalThis} element 需要取消绑定的元素|元素数组
+		 * @param {import("./../DOMUtils/dist/src/DOMUtilsEvent").DOMUtils_EventType|import("./../DOMUtils/dist/src/DOMUtilsEvent").DOMUtils_EventType[]|string|string[]} eventType 需要取消监听的事件
 		 * @param {string|undefined|null} selector 子元素选择器
-		 * @param {((event: Event)=>void)|undefined} callback 通过DOMUtils.on绑定的事件函数
-		 * @param {EventListenerOptions|boolean|undefined} option
+		 * @param {((event: any)=>void)|undefined} callback 通过DOMUtils.on绑定的事件函数
+		 * @param {EventListenerOptions|boolean|undefined} [option]
 		 * + capture 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
 		 */
 		// @ts-ignore
@@ -2816,7 +2816,7 @@
 			if (typeof element === "string") {
 				element = document.querySelectorAll(element);
 			}
-			if (element == void 0) {
+			if (element == null) {
 				return;
 			}
 			/**
@@ -2921,7 +2921,7 @@
 		/**
 		 * 主动触发事件
 		 * @param {HTMLElement|string|NodeList|HTMLElement[]|Window} element 需要触发的元素|元素数组|window
-		 * @param {import("./../DOMUtils/dist/src/DOMUtilsEvent").DOMUtils_EventType|import("./../DOMUtils/dist/src/DOMUtilsEvent").DOMUtils_EventType[]} eventType 需要触发的事件
+		 * @param {import("./../DOMUtils/dist/src/DOMUtilsEvent").DOMUtils_EventType|import("./../DOMUtils/dist/src/DOMUtilsEvent").DOMUtils_EventType[]|string|string[]} eventType 需要触发的事件
 		 * @param {object|undefined} details 赋予触发的Event的额外属性
 		 * @param {boolean} [useDispatchToTriggerEvent=true] 是否使用dispatchEvent来触发事件,默认true
 		 */
@@ -3339,8 +3339,8 @@
 		/**
 		 * 创建元素
 		 * @param {keyof HTMLElementTagNameMap} tagName 元素类型
-		 * @param {HTMLElement|undefined} property 元素属性，对已有元素上的属性或者自定义的属性赋值
-		 * @param {object|undefined} attributes 元素自定义属性，通过setAttribute赋值
+		 * @param {({[P in keyof HTMLElementTagNameMap[keyof HTMLElementTagNameMap]]?: HTMLElementTagNameMap[keyof HTMLElementTagNameMap][P];} & {[key: string]: any;}) | string} [property] 元素属性，对已有元素上的属性或者自定义的属性赋值
+		 * @param {object|undefined} [attributes] 元素自定义属性，通过setAttribute赋值
 		 * @returns {HTMLElement}
 		 */
 		createElement(tagName, property, attributes) {
@@ -3543,6 +3543,32 @@
 				return isnumber ? parseFloat(val) : val;
 			}
 		},
+		/**
+		 * 使用className来隐藏元素
+		 * @param {Element|null} ele
+		 * @param {boolean} [isImportant] 是否使用!important
+		 */
+		cssHide(ele, isImportant = false) {
+			if (ele == null) {
+				return;
+			}
+			if (isImportant) {
+				ele.classList.add("pops-hide-important");
+			} else {
+				ele.classList.add("pops-hide");
+			}
+		},
+		/**
+		 * cssHide的反向使用
+		 * @param {Element|null} ele
+		 */
+		cssShow(ele) {
+			if (ele == null) {
+				return;
+			}
+			ele.classList.remove("pops-hide-important");
+			ele.classList.remove("pops-hide");
+		},
 	};
 
 	/** 弹窗 */
@@ -3551,7 +3577,7 @@
 	/** 配置 */
 	pops.config = {
 		/** 版本号 */
-		version: "2024.6.21",
+		version: "2024.7.5",
 		cssText: {
 			/** 主CSS */
 			index: `@charset "utf-8";
@@ -4392,6 +4418,12 @@
 			
 			/* ↓panel的CSS↓ */
 			aside.pops-panel-aside{overflow:auto;box-sizing:border-box;flex-shrink:0;max-width:200px;height:100%;background:var(--aside-bg-color);border-right:1px solid var(--aside-bg-color);font-size:0.9em;}
+			aside.pops-panel-aside{
+				user-select: none;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+			}
 			.pops-panel-content{display:flex;flex-direction:row;flex:1;flex-basis:auto;box-sizing:border-box;min-width:0;bottom:0!important}
 			section.pops-panel-container{width:100%;padding:10px;overflow:hidden}
 			section.pops-panel-container .pops-panel-container-header-ul{border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));}
@@ -4406,8 +4438,8 @@
 				display: flex;
 				justify-content: space-between;
 				align-items: center;
-				margin: 0 10px;
-				padding: 10px 0;
+				margin: 0px;
+				padding: 10px 10px;
 				border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));
 				text-align: left;
 			}
@@ -4663,6 +4695,9 @@
 				background-color: transparent;
 				text-align: center;
 				user-select: none;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
 				line-height: normal;
 				outline: none;
 			}
@@ -4690,6 +4725,9 @@
 				box-sizing: border-box;
 				transition: var(--pops-slider-transition-duration-fast);
 				user-select: none;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
 			}
 			
 			.pops-slider__button:hover,
@@ -4795,6 +4833,9 @@
 				transition: .1s;
 				font-weight: 500;
 				user-select: none;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
 				vertical-align: middle;
 				-webkit-appearance: none;
 				appearance: none;
@@ -4891,6 +4932,43 @@
 			.pops-panel-select select:focus{border:1px solid rgb(64, 158, 255, var(--pops-bd-opacity));box-shadow:none}
 			/* select的CSS */
 			
+			/* deepMenu的css */
+			.panel-deepMenu{
+				cursor: pointer;
+			}
+			.panel-deepMenu:active{
+				background: #e9e9e9;
+				user-select: none;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+			}
+			.panel-deepMenu .pops-panel-deepMenu{
+				display: flex;
+				align-items: center;
+				color: #6c6c6c;
+				fill: #6c6c6c;
+			}
+			.panel-deepMenu .pops-panel-deepMenu-arrowRight-icon{
+				width: 15px;
+				height: 15px;
+				display: flex;
+    			align-items: center;
+			}
+			.pops-panel-deepMenu-container .pops-panel-deepMenu-container-header{
+				display: flex;
+    			align-items: center;
+				width: -webkit-fill-available;
+				width: -moz-available;
+			}
+			.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon{
+				width: 20px;
+				height: 20px;
+				display: flex;
+    			align-items: center;
+				cursor: pointer;
+			}
+			/* deepMenu的css */
 			`,
 			tooltipCSS: `
 			.pops-tip {
@@ -5220,6 +5298,12 @@
 				<path
 				d="M881.320472 766.079314H689.251876a43.901393 43.901393 0 0 1 0-87.802787h192.068596a21.950697 21.950697 0 0 0 21.950696-21.950696v-65.85209a43.901393 43.901393 0 0 1 87.802787 0v65.85209a109.753483 109.753483 0 0 1-109.753483 109.753483zM305.114684 502.670954H175.605573a43.901393 43.901393 0 0 1 0-87.802787h129.509111a43.901393 43.901393 0 0 1 0 87.802787zM563.03537 365.4791a43.901393 43.901393 0 0 1-43.901394-43.901394v-105.363344A109.753483 109.753483 0 0 1 628.88746 106.460879h61.461951a21.950697 21.950697 0 0 0 21.950696-21.950697V43.901393a43.901393 43.901393 0 0 1 87.802787 0v40.608789a109.753483 109.753483 0 0 1-109.753483 109.753484h-61.461951a21.950697 21.950697 0 0 0-21.950697 21.950696v105.363344a43.901393 43.901393 0 0 1-43.901393 43.901394z"></path>
 			</svg>`,
+			arrowRight: `
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" ><path d="M340.864 149.312a30.592 30.592 0 0 0 0 42.752L652.736 512 340.864 831.872a30.592 30.592 0 0 0 0 42.752 29.12 29.12 0 0 0 41.728 0L714.24 534.336a32 32 0 0 0 0-44.672L382.592 149.376a29.12 29.12 0 0 0-41.728 0z"></path></svg>
+			`,
+			arrowLeft: `
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" ><path d="M609.408 149.376 277.76 489.6a32 32 0 0 0 0 44.672l331.648 340.352a29.12 29.12 0 0 0 41.728 0 30.592 30.592 0 0 0 0-42.752L339.264 511.936l311.872-319.872a30.592 30.592 0 0 0 0-42.688 29.12 29.12 0 0 0-41.728 0z"></path></svg>
+			`,
 		},
 		/**
 		 * 动画名
@@ -9575,7 +9659,7 @@
 					id: "whitesev-panel-config-1",
 					title: "菜单配置1",
 					headerTitle: "菜单配置1",
-					isDefault: true,
+					isDefault: false,
 					attributes: [
 						{
 							"data-test": "test",
@@ -9667,7 +9751,7 @@
 					id: "whitesev-panel-config-2",
 					title: "菜单配置2",
 					headerTitle: "菜单配置2",
-					isDefault: false,
+					isDefault: true,
 					attributes: [
 						{
 							"data-value": "value",
@@ -9755,6 +9839,103 @@
 								},
 							],
 						},
+						{
+							type: "forms",
+							text: "deep菜单",
+							forms: [
+								{
+									type: "deepMenu",
+									className: "panel-deepMenu",
+									text: "deepMenu",
+									description: "二级菜单",
+									rightText: "自定义配置",
+									arrowRightIcon: true,
+									clickCallBack(event, formConfig) {
+										console.log("进入子配置", event, formConfig);
+									},
+									forms: [
+										{
+											className: "forms-1",
+											text: "区域设置",
+											type: "forms",
+											attributes: [],
+											forms: [
+												{
+													className: "panel-switch",
+													text: "switch",
+													type: "switch",
+													attributes: [],
+													getValue() {
+														return true;
+													},
+													// @ts-ignore
+													// @ts-ignore
+													callback(event, value) {
+														console.log("按钮开启状态：", value);
+													},
+												},
+												// @ts-ignore
+												{
+													className: "panel-slider",
+													text: "slider",
+													type: "slider",
+													attributes: [],
+													getValue() {
+														return 50;
+													},
+													// @ts-ignore
+													// @ts-ignore
+													callback(event, value) {
+														console.log("滑块当前数值：", value);
+													},
+													min: 1,
+													max: 100,
+												},
+												{
+													className: "panel-button",
+													text: "button",
+													type: "button",
+													attributes: [],
+													buttonIcon: "eleme",
+													buttonIconIsLoading: true,
+													buttonType: "warning",
+													buttonText: "warning按钮",
+													callback(event) {
+														console.log("点击按钮", event);
+													},
+												},
+												{
+													className: "panel-button",
+													text: "button",
+													type: "button",
+													attributes: [],
+													buttonIcon: "chromeFilled",
+													buttonIconIsLoading: true,
+													buttonType: "danger",
+													buttonText: "danger按钮",
+													callback(event) {
+														console.log("点击按钮", event);
+													},
+												},
+												{
+													className: "panel-button",
+													text: "button",
+													type: "button",
+													attributes: [],
+													buttonIcon: "upload",
+													buttonIconIsLoading: false,
+													buttonType: "info",
+													buttonText: "info按钮",
+													callback(event) {
+														console.log("点击按钮", event);
+													},
+												},
+											],
+										},
+									],
+								},
+							],
+						},
 					],
 				},
 			],
@@ -9817,27 +9998,26 @@
 			PopsType,
 			config,
 			`
-      <div 
-          class="pops-${PopsType}-title"
-          style="text-align: ${config.title.position};
-          ${headerStyle}">
-          ${
-						config.title.html
-							? config.title.text
-							: `<p pops style="${headerPStyle}">${config.title.text}</p>`
-					}
-          ${headerBtnHTML}
-      </div>
-      <div class="pops-${PopsType}-content">
-          <aside class="pops-${PopsType}-aside">
-            <ul></ul>
-          </aside>
-          <section class="pops-${PopsType}-container">
-            <ul class="pops-panel-container-header-ul"></ul>
-            <ul></ul>
-          </section>
-      </div>
-      `,
+			<div 
+				class="pops-${PopsType}-title"
+				style="text-align: ${config.title.position};
+				${headerStyle}">
+				${
+					config.title.html
+						? config.title.text
+						: `<p pops style="${headerPStyle}">${config.title.text}</p>`
+				}
+				${headerBtnHTML}
+			</div>
+			<div class="pops-${PopsType}-content">
+				<aside class="pops-${PopsType}-aside">
+					<ul></ul>
+				</aside>
+				<section class="pops-${PopsType}-container">
+					<ul class="pops-panel-container-header-ul"></ul>
+					<ul></ul>
+				</section>
+			</div>`,
 			""
 		);
 		/**
@@ -9926,16 +10106,19 @@
 		 */
 		const HandleContetDetails = {
 			/**
+			 * 左侧的ul容器
 			 * @type {HTMLUListElement}
 			 */
 			// @ts-ignore
 			asideULElement: null,
 			/**
+			 * 右侧主内容的顶部文字ul容器
 			 * @type {HTMLUListElement}
 			 */
 			// @ts-ignore
 			sectionContainerHeaderULElement: null,
 			/**
+			 * 右侧主内容的ul容器
 			 * @type {HTMLUListElement}
 			 */
 			// @ts-ignore
@@ -9990,7 +10173,7 @@
 						asideDefaultItemElement?.scrollIntoView();
 					}
 				} else {
-					console.error("左侧容器没有项");
+					console.error("pops.panel：左侧容器没有项");
 				}
 			},
 			/**
@@ -9999,6 +10182,9 @@
 			clearContainer() {
 				this.sectionContainerHeaderULElement.innerHTML = "";
 				this.sectionContainerULElement.innerHTML = "";
+				contentElement
+					?.querySelectorAll("section.pops-panel-deepMenu-container")
+					.forEach((ele) => ele.remove());
 			},
 			/**
 			 * 清空左侧容器已访问记录
@@ -10022,7 +10208,7 @@
 			/**
 			 * 为元素添加自定义属性
 			 * @param {HTMLElement} element
-			 * @param {object | object[]} attributes
+			 * @param {object | object[] | null | undefined} attributes
 			 */
 			addElementAttributes(element, attributes) {
 				if (attributes == null) {
@@ -10042,7 +10228,7 @@
 			/**
 			 * 为元素设置(自定义)属性
 			 * @param {HTMLElement} element
-			 * @param {?HTMLElement} props
+			 * @param {any} props
 			 */
 			setElementProps(element, props) {
 				if (props == null) {
@@ -10115,18 +10301,17 @@
 					leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
 				}
 				liElement.innerHTML = `
-        <div class="pops-panel-item-left-text">
-          <p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-          ${leftDescriptionText}
-        </div>
-        <div class="pops-panel-switch">
-          <input class="pops-panel-switch__input" type="checkbox">
-          <span class="pops-panel-switch__core">
-            <div class="pops-panel-switch__action">
-            </div>
-          </span>
-        </div>
-        `;
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+					${leftDescriptionText}
+				</div>
+				<div class="pops-panel-switch">
+					<input class="pops-panel-switch__input" type="checkbox">
+					<span class="pops-panel-switch__core">
+						<div class="pops-panel-switch__action">
+						</div>
+					</span>
+				</div>`;
 				const PopsPanelSwitch = {
 					[Symbol.toStringTag]: "PopsPanelSwitch",
 					$data: {
@@ -10252,14 +10437,13 @@
 					leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
 				}
 				liElement.innerHTML = `
-       <div class="pops-panel-item-left-text">
-         <p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-         ${leftDescriptionText}
-       </div>
-       <div class="pops-panel-slider">
-         <input type="range" min="${formConfig.min}" max="${formConfig.max}">
-       </div>
-       `;
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+					${leftDescriptionText}
+				</div>
+				<div class="pops-panel-slider">
+					<input type="range" min="${formConfig.min}" max="${formConfig.max}">
+				</div>`;
 				/**
 				 * @type {HTMLInputElement}
 				 */
@@ -10347,21 +10531,18 @@
 					leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
 				}
 				liElement.innerHTML = `
-        <div class="pops-panel-item-left-text" style="flex: 1;">
-          <p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-          ${leftDescriptionText}
-        </div>
-        <div class="pops-slider pops-slider-width">
-          <div class="pops-slider__runway">
-            <div class="pops-slider__bar" style="width: 0%; left: 0%"></div>
-            <div
-              class="pops-slider__button-wrapper"
-              style="left: 0%">
-              <div class="pops-slider__button"></div>
-            </div>
-          </div>
-        </div>
-        `;
+				<div class="pops-panel-item-left-text" style="flex: 1;">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+					${leftDescriptionText}
+				</div>
+				<div class="pops-slider pops-slider-width">
+					<div class="pops-slider__runway">
+						<div class="pops-slider__bar" style="width: 0%; left: 0%"></div>
+						<div class="pops-slider__button-wrapper" style="left: 0%">
+							<div class="pops-slider__button"></div>
+						</div>
+					</div>
+				</div>`;
 				const PopsPanelSlider = {
 					[Symbol.toStringTag]: "PopsPanelSlider",
 					/**
@@ -11005,14 +11186,14 @@
 					leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
 				}
 				liElement.innerHTML = `
-        <div class="pops-panel-item-left-text">
-          <p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-          ${leftDescriptionText}
-        </div>
-        <div class="pops-panel-input">
-          <input type="${inputType}" placeholder="${formConfig.placeholder}">
-        </div>
-        `;
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+				${leftDescriptionText}
+				</div>
+				<div class="pops-panel-input">
+					<input type="${inputType}" placeholder="${formConfig.placeholder}">
+				</div>
+				`;
 				const PopsPanelInput = {
 					[Symbol.toStringTag]: "PopsPanelInput",
 					$ele: {
@@ -11077,10 +11258,10 @@
 						);
 						this.$ele.inputSpanIcon.className = "pops-panel-input__suffix";
 						this.$ele.inputSpanIcon.innerHTML = `
-            <span class="pops-panel-input__suffix-inner">
-              <i class="pops-panel-icon"></i>
-            </span>
-            `;
+						<span class="pops-panel-input__suffix-inner">
+							<i class="pops-panel-icon"></i>
+						</span>
+						`;
 						// @ts-ignore
 						this.$ele.inputSpanIconInner =
 							this.$ele.inputSpanIcon.querySelector(
@@ -11244,15 +11425,15 @@
 					leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
 				}
 				liElement.innerHTML = `
-        <div class="pops-panel-item-left-text">
-          <p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-          ${leftDescriptionText}
-        </div>
-        <div class="pops-panel-textarea">
-          <textarea placeholder="${formConfig.placeholder ?? ""}">
-          </textarea>
-        </div>
-        `;
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+				${leftDescriptionText}
+				</div>
+				<div class="pops-panel-textarea">
+					<textarea placeholder="${formConfig.placeholder ?? ""}">
+				</textarea>
+				</div>
+				`;
 
 				const PopsPanelTextArea = {
 					[Symbol.toStringTag]: "PopsPanelTextArea",
@@ -11355,16 +11536,14 @@
 					leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
 				}
 				liElement.innerHTML = `
-        <div class="pops-panel-item-left-text">
-          <p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-          ${leftDescriptionText}
-        </div>
-        <div class="pops-panel-select">
-          <select>
-
-          </select>
-        </div>
-        `;
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+				${leftDescriptionText}
+				</div>
+				<div class="pops-panel-select">
+					<select></select>
+				</div>
+				`;
 
 				const PopsPanelSelect = {
 					[Symbol.toStringTag]: "PopsPanelSelect",
@@ -11512,17 +11691,17 @@
 					leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
 				}
 				liElement.innerHTML = `
-        <div class="pops-panel-item-left-text">
-          <p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-          ${leftDescriptionText}
-        </div>
-        <div class="pops-panel-button">
-          <button class="pops-panel-button_inner">
-            <i class="pops-bottom-icon"></i>
-            <span class="pops-panel-button-text"></span>
-          </button>
-        </div>
-        `;
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+					${leftDescriptionText}
+				</div>
+				<div class="pops-panel-button">
+					<button class="pops-panel-button_inner">
+						<i class="pops-bottom-icon"></i>
+						<span class="pops-panel-button-text"></span>
+					</button>
+				</div>
+				`;
 
 				const PopsPanelButton = {
 					[Symbol.toStringTag]: "PopsPanelButton",
@@ -11671,10 +11850,205 @@
 				return liElement;
 			},
 			/**
+			 * 获取深层容器的元素<li>
+			 * @param {PopsPanelDeepMenuDetails} formConfig
+			 * @returns {HTMLLIElement}
+			 */
+			getSectionContainerItem_deepMenu(formConfig) {
+				let liElement = document.createElement("li");
+				// @ts-ignore
+				liElement.__formConfig__ = formConfig;
+				if (formConfig.className) {
+					liElement.className = formConfig.className;
+				}
+				// 设置属性
+				this.addElementAttributes(liElement, formConfig.attributes);
+				// 设置元素上的属性
+				this.setElementProps(liElement, formConfig.props);
+
+				/* 左边底部的描述的文字 */
+				let leftDescriptionText = "";
+				if (Boolean(formConfig.description)) {
+					// 设置描述
+					leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+				}
+				// 箭头图标
+				let arrowRightIcon =
+					typeof formConfig.arrowRightIcon === "boolean"
+						? formConfig.arrowRightIcon
+						: true;
+				let arrowRightIconHTML = "";
+				if (arrowRightIcon) {
+					// @ts-ignore
+					arrowRightIconHTML = `<i class="pops-panel-deepMenu-arrowRight-icon">${pops.config.iconSVG.arrowRight}</i>`;
+				}
+				let rightText = "";
+				if (formConfig.rightText) {
+					rightText = `<p class="pops-panel-item-right-text">${formConfig.rightText}</p>`;
+				}
+				liElement.innerHTML = `
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+					${leftDescriptionText}
+				</div>
+				<div class="pops-panel-deepMenu">
+					${rightText}
+					${arrowRightIconHTML}
+				</div>
+				`;
+				const PopsPanelDeepMenu = {
+					[Symbol.toStringTag]: "PopsPanelDeepMenu",
+					$ele: {
+						/** @type {HTMLElement} */
+						get parentSection() {
+							// @ts-ignore
+							return contentSectionContainerElement;
+						},
+					},
+					init() {
+						this.setLiClickEvent();
+					},
+					/**
+					 * 生成配置每一项的元素
+					 * @param {HTMLElement} $container
+					 * @param {PopsPanelFormsTotalDetails | PopsPanelFormsDetails} formItemConfig
+					 */
+					initFormItem($container, formItemConfig) {
+						let that = this;
+						// @ts-ignore
+						if (formItemConfig["type"] === "forms") {
+							let childForms = formItemConfig["forms"];
+							/* 每一项<li>元素 */
+							let formContainerListElement = document.createElement("li");
+							/* 每一项<li>内的子<ul>元素 */
+							let formContainerULElement = document.createElement("ul");
+							formContainerListElement.className =
+								"pops-panel-forms-container-item";
+							/* 区域头部的文字 */
+							// @ts-ignore
+							let formHeaderDivElement = PopsDOMUtils.createElement("div", {
+								className: "pops-panel-forms-container-item-header-text",
+							});
+							// @ts-ignore
+							formHeaderDivElement.innerHTML = formItemConfig["text"];
+							/* 加进容器内 */
+							formContainerListElement.appendChild(formHeaderDivElement);
+							// @ts-ignore
+							if (formItemConfig.className) {
+								PopsDOMUtils.addClassName(
+									formContainerListElement,
+									// @ts-ignore
+									formItemConfig.className
+								);
+							}
+							HandleContetDetails.addElementAttributes(
+								formContainerListElement,
+								// @ts-ignore
+								formItemConfig.attributes
+							);
+							// @ts-ignore
+							HandleContetDetails.setElementProps(
+								formContainerListElement,
+								formItemConfig.props
+							);
+							childForms.forEach((childFormConfig) => {
+								// @ts-ignore
+								HandleContetDetails.uListContainerAddItem(childFormConfig, {
+									ulElement: formContainerULElement,
+									sectionContainerULElement:
+										HandleContetDetails.sectionContainerULElement,
+									formContainerListElement: formContainerListElement,
+									formHeaderDivElement: formHeaderDivElement,
+								});
+							});
+							formContainerListElement.appendChild(formContainerULElement);
+							$container.appendChild(formContainerListElement);
+						} else {
+							/* 如果成功创建，加入到中间容器中 */
+							// @ts-ignore
+							HandleContetDetails.uListContainerAddItem(formConfig, {
+								ulElement: HandleContetDetails.sectionContainerULElement,
+							});
+						}
+					},
+					/** 前往子菜单 */
+					gotoDeepMenu() {
+						PopsDOMUtils.cssHide(this.$ele.parentSection);
+						// 子菜单的容器
+						let $deepMenuContainer = PopsDOMUtils.createElement("section", {
+							className: "pops-panel-container pops-panel-deepMenu-container",
+						});
+						let $deepMenuHeaderUL = PopsDOMUtils.createElement("ul");
+						let $deepMenuChildMenuUL = PopsDOMUtils.createElement("ul");
+						// 标题文字
+						let headerTitleText = formConfig.headerTitle ?? formConfig.text;
+						let $header = PopsDOMUtils.createElement("div", {
+							className: "pops-panel-deepMenu-container-header",
+							innerHTML: `<p>${headerTitleText}</p>`,
+						});
+						let $headerLeftArrow = PopsDOMUtils.createElement("i", {
+							className: "pops-panel-deepMenu-container-left-arrow-icon",
+							innerHTML: pops.config.iconSVG.arrowLeft,
+						});
+						PopsDOMUtils.on(
+							$headerLeftArrow,
+							"click",
+							void 0,
+							(event) => {
+								event?.preventDefault();
+								event?.stopPropagation();
+								// 返回上一层菜单
+								let $prev = $deepMenuContainer.previousElementSibling;
+								PopsDOMUtils.cssShow($prev);
+								$deepMenuContainer.remove();
+							},
+							{
+								once: true,
+							}
+						);
+						$header.firstElementChild?.insertAdjacentElement(
+							"beforebegin",
+							$headerLeftArrow
+						);
+						$deepMenuHeaderUL.appendChild($header);
+						$deepMenuContainer.appendChild($deepMenuHeaderUL);
+						$deepMenuContainer.appendChild($deepMenuChildMenuUL);
+
+						if (formConfig.forms && Array.isArray(formConfig.forms)) {
+							for (let index = 0; index < formConfig.forms.length; index++) {
+								let formItemConfig = formConfig.forms[index];
+								this.initFormItem($deepMenuContainer, formItemConfig);
+							}
+						}
+
+						contentElement?.appendChild($deepMenuContainer);
+					},
+					/** 设置项的点击事件 */
+					setLiClickEvent() {
+						PopsDOMUtils.on(liElement, "click", void 0, async (event) => {
+							if (typeof formConfig.clickCallBack === "function") {
+								// @ts-ignore
+								let result = await formConfig.clickCallBack(event, formConfig);
+								if (result) {
+									return;
+								}
+								this.gotoDeepMenu();
+							}
+						});
+					},
+				};
+
+				PopsPanelDeepMenu.init();
+				// @ts-ignore
+				liElement["data-deepMenu"] = PopsPanelDeepMenu;
+
+				return liElement;
+			},
+			/**
 			 * 获取中间容器的元素<li>
 			 * type ===> own
 			 * @param {PopsPanelOwnDetails} formConfig
-			 * @returns
+			 * @returns {HTMLLIElement}
 			 */
 			getSectionContainerItem_own(formConfig) {
 				let liElement = document.createElement("li");
@@ -11689,28 +12063,112 @@
 			/**
 			 * 获取中间容器的元素<li>
 			 * @param {PopsPanelFormsTotalDetails} formConfig
-			 * @returns
+			 * @returns {HTMLLIElement | undefined | null}
 			 */
 			getSectionContainerItem(formConfig) {
-				if (formConfig["type"] === "switch") {
+				/** 配置项的类型 @type {PopsPanelFormsTotalDetails["type"]} */
+				let formType = formConfig["type"];
+
+				if (formType === "switch") {
+					// @ts-ignore
 					return this.getSectionContainerItem_switch(formConfig);
-				} else if (formConfig["type"] === "slider") {
+				} else if (formType === "slider") {
+					// @ts-ignore
 					return this.getSectionContainerItem_slider_new(formConfig);
-				} else if (formConfig["type"] === "input") {
+				} else if (formType === "input") {
+					// @ts-ignore
 					return this.getSectionContainerItem_input(formConfig);
-				} else if (formConfig["type"] === "textarea") {
+				} else if (formType === "textarea") {
+					// @ts-ignore
 					return this.getSectionContainerItem_textarea(formConfig);
-				} else if (formConfig["type"] === "select") {
+				} else if (formType === "select") {
+					// @ts-ignore
 					return this.getSectionContainerItem_select(formConfig);
-				} else if (formConfig["type"] === "button") {
+				} else if (formType === "button") {
+					// @ts-ignore
 					return this.getSectionContainerItem_button(formConfig);
-				} else if (formConfig["type"] === "own") {
+				} else if (formType === "deepMenu") {
+					// @ts-ignore
+					return this.getSectionContainerItem_deepMenu(formConfig);
+				} else if (formType === "own") {
+					// @ts-ignore
 					return this.getSectionContainerItem_own(formConfig);
 				} else {
 					console.error("尚未实现的type类型", formConfig);
 				}
 			},
-
+			/**
+			 * 生成配置每一项的元素
+			 * @param {PopsPanelContentConfig} formConfig
+			 */
+			initFormItem(formConfig) {
+				let that = this;
+				// @ts-ignore
+				if (formConfig["type"] === "forms") {
+					let childForms = formConfig["forms"];
+					/* 每一项<li>元素 */
+					let formContainerListElement = document.createElement("li");
+					/* 每一项<li>内的子<ul>元素 */
+					let formContainerULElement = document.createElement("ul");
+					formContainerListElement.className =
+						"pops-panel-forms-container-item";
+					/* 区域头部的文字 */
+					// @ts-ignore
+					let formHeaderDivElement = PopsDOMUtils.createElement("div", {
+						className: "pops-panel-forms-container-item-header-text",
+					});
+					// @ts-ignore
+					formHeaderDivElement.innerHTML = formConfig["text"];
+					/* 加进容器内 */
+					formContainerListElement.appendChild(formHeaderDivElement);
+					// @ts-ignore
+					if (formConfig.className) {
+						PopsDOMUtils.addClassName(
+							formContainerListElement,
+							// @ts-ignore
+							formConfig.className
+						);
+					}
+					that.addElementAttributes(
+						formContainerListElement,
+						// @ts-ignore
+						formConfig.attributes
+					);
+					// @ts-ignore
+					that.setElementProps(formContainerListElement, formConfig.props);
+					childForms.forEach((childFormConfig) => {
+						// @ts-ignore
+						that.uListContainerAddItem(childFormConfig, {
+							ulElement: formContainerULElement,
+							sectionContainerULElement: that.sectionContainerULElement,
+							formContainerListElement: formContainerListElement,
+							formHeaderDivElement: formHeaderDivElement,
+						});
+					});
+					formContainerListElement.appendChild(formContainerULElement);
+					that.sectionContainerULElement.appendChild(formContainerListElement);
+				} else {
+					/* 如果成功创建，加入到中间容器中 */
+					// @ts-ignore
+					that.uListContainerAddItem(formConfig, {
+						ulElement: that.sectionContainerULElement,
+					});
+				}
+			},
+			/**
+			 *
+			 * @param {PopsPanelFormsTotalDetails} formConfig
+			 * @param {PopsPanelRightAsideContainerOptions} containerOptions
+			 */
+			uListContainerAddItem(formConfig, containerOptions) {
+				let itemLiElement = this.getSectionContainerItem(formConfig);
+				if (itemLiElement) {
+					containerOptions["ulElement"].appendChild(itemLiElement);
+				}
+				if (typeof formConfig.afterAddToUListCallBack === "function") {
+					formConfig.afterAddToUListCallBack(formConfig, containerOptions);
+				}
+			},
 			/**
 			 * 为左侧容器元素添加点击事件
 			 * @param {HTMLElement} asideLiElement 左侧的容器<li>元素
@@ -11718,27 +12176,14 @@
 			 */
 			setAsideItemClickEvent(asideLiElement, asideConfig) {
 				let that = this;
-				/**
-				 *
-				 * @param {PopsPanelFormsTotalDetails} formConfig
-				 * @param {PopsPanelRightAsideContainerOptions} containerOptions
-				 */
-				function uListContainerAddItem(formConfig, containerOptions) {
-					let itemLiElement = that.getSectionContainerItem(formConfig);
-					if (itemLiElement) {
-						containerOptions["ulElement"].appendChild(itemLiElement);
-					}
-					if (typeof formConfig.afterAddToUListCallBack === "function") {
-						formConfig.afterAddToUListCallBack(formConfig, containerOptions);
-					}
-				}
 				// @ts-ignore
 				PopsDOMUtils.on(asideLiElement, "click", void 0, function (event) {
 					that.clearContainer();
+					PopsDOMUtils.cssShow(contentSectionContainerElement);
 					that.clearAsideItemIsVisited();
 					that.setAsideItemIsVisited(asideLiElement);
 					/* 顶部标题栏，存在就设置 */
-					let headerTitleText = asideConfig.headerTitle || asideConfig.title;
+					let headerTitleText = asideConfig.headerTitle ?? asideConfig.title;
 					if (
 						typeof headerTitleText === "string" &&
 						headerTitleText.trim() !== ""
@@ -11752,65 +12197,11 @@
 						);
 					}
 
-					/**
-					 * @type {PopsPanelContentConfig[]}
-					 */
+					/** @type {PopsPanelContentConfig[]} */
 					// @ts-ignore
 					let __forms__ = asideLiElement.__forms__;
 					__forms__.forEach((formConfig) => {
-						// @ts-ignore
-						if (formConfig["type"] === "forms") {
-							let childForms = formConfig["forms"];
-							/* 父<li>元素 */
-							let formContainerListElement = document.createElement("li");
-							/* 子<ul>元素 */
-							let formContainerULElement = document.createElement("ul");
-							formContainerListElement.className =
-								"pops-panel-forms-container-item";
-							/* 区域头部的文字 */
-							// @ts-ignore
-							let formHeaderDivElement = PopsDOMUtils.createElement("div", {
-								className: "pops-panel-forms-container-item-header-text",
-							});
-							// @ts-ignore
-							formHeaderDivElement.innerHTML = formConfig["text"];
-							/* 加进容器内 */
-							formContainerListElement.appendChild(formHeaderDivElement);
-							// @ts-ignore
-							if (formConfig.className) {
-								PopsDOMUtils.addClassName(
-									formContainerListElement,
-									// @ts-ignore
-									formConfig.className
-								);
-							}
-							that.addElementAttributes(
-								formContainerListElement,
-								// @ts-ignore
-								formConfig.attributes
-							);
-							// @ts-ignore
-							that.setElementProps(formContainerListElement, formConfig.props);
-							childForms.forEach((childFormConfig) => {
-								// @ts-ignore
-								uListContainerAddItem(childFormConfig, {
-									ulElement: formContainerULElement,
-									sectionContainerULElement: that.sectionContainerULElement,
-									formContainerListElement: formContainerListElement,
-									formHeaderDivElement: formHeaderDivElement,
-								});
-							});
-							formContainerListElement.appendChild(formContainerULElement);
-							that.sectionContainerULElement.appendChild(
-								formContainerListElement
-							);
-						} else {
-							/* 如果成功创建，加入到中间容器中 */
-							// @ts-ignore
-							uListContainerAddItem(formConfig, {
-								ulElement: that.sectionContainerULElement,
-							});
-						}
+						that.initFormItem(formConfig);
 					});
 
 					let autoAdaptionContentHeight =
