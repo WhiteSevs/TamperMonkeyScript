@@ -4426,7 +4426,8 @@
 			}
 			.pops-panel-content{display:flex;flex-direction:row;flex:1;flex-basis:auto;box-sizing:border-box;min-width:0;bottom:0!important}
 			section.pops-panel-container{width:100%;padding:10px;overflow:hidden}
-			section.pops-panel-container .pops-panel-container-header-ul{border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));}
+			section.pops-panel-container .pops-panel-container-header-ul,
+			section.pops-panel-container .pops-panel-deepMenu-container-header-ul{border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));}
 			section.pops-panel-container .pops-panel-container-header-ul li{display: flex;justify-content: flex-start !important;text-align:left;}
 			section.pops-panel-container > ul:last-child{overflow: auto;height: calc(100% - 45px);}
 			aside.pops-panel-aside ul li{margin:6px 8px;border-radius:4px;padding:6px 10px;cursor:default;display:flex;align-items:center;justify-content:flex-start}
@@ -4933,23 +4934,23 @@
 			/* select的CSS */
 			
 			/* deepMenu的css */
-			.panel-deepMenu{
+			.pops-panel-deepMenu-nav-item{
 				cursor: pointer;
 			}
-			.panel-deepMenu:active{
+			.pops-panel-deepMenu-nav-item:active{
 				background: #e9e9e9;
 				user-select: none;
 				-webkit-user-select: none;
 				-moz-user-select: none;
 				-ms-user-select: none;
 			}
-			.panel-deepMenu .pops-panel-deepMenu{
+			.pops-panel-deepMenu-nav-item .pops-panel-deepMenu{
 				display: flex;
 				align-items: center;
 				color: #6c6c6c;
 				fill: #6c6c6c;
 			}
-			.panel-deepMenu .pops-panel-deepMenu-arrowRight-icon{
+			.pops-panel-deepMenu-nav-item .pops-panel-deepMenu-arrowRight-icon{
 				width: 15px;
 				height: 15px;
 				display: flex;
@@ -4960,6 +4961,7 @@
     			align-items: center;
 				width: -webkit-fill-available;
 				width: -moz-available;
+				padding: 10px 10px 10px 5px;
 			}
 			.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon{
 				width: 20px;
@@ -11856,10 +11858,11 @@
 			 */
 			getSectionContainerItem_deepMenu(formConfig) {
 				let liElement = document.createElement("li");
+				liElement.classList.add("pops-panel-deepMenu-nav-item");
 				// @ts-ignore
 				liElement.__formConfig__ = formConfig;
 				if (formConfig.className) {
-					liElement.className = formConfig.className;
+					liElement.classList.add(formConfig.className);
 				}
 				// 设置属性
 				this.addElementAttributes(liElement, formConfig.attributes);
@@ -11978,7 +11981,9 @@
 						let $deepMenuContainer = PopsDOMUtils.createElement("section", {
 							className: "pops-panel-container pops-panel-deepMenu-container",
 						});
-						let $deepMenuHeaderUL = PopsDOMUtils.createElement("ul");
+						let $deepMenuHeaderUL = PopsDOMUtils.createElement("ul", {
+							className: "pops-panel-deepMenu-container-header-ul",
+						});
 						let $deepMenuChildMenuUL = PopsDOMUtils.createElement("ul");
 						// 标题文字
 						let headerTitleText = formConfig.headerTitle ?? formConfig.text;
@@ -12017,11 +12022,23 @@
 						if (formConfig.forms && Array.isArray(formConfig.forms)) {
 							for (let index = 0; index < formConfig.forms.length; index++) {
 								let formItemConfig = formConfig.forms[index];
-								this.initFormItem($deepMenuContainer, formItemConfig);
+								this.initFormItem($deepMenuChildMenuUL, formItemConfig);
 							}
 						}
-
 						contentElement?.appendChild($deepMenuContainer);
+
+						/* 根据标题的高度来自适应内容高度，默认开启 */
+						/* 中间容器的偏移量，看设置的section.pops-panel-container的padding，默认0 */
+						let contentContainerOffset = 0;
+						/* 获取标题的<ul>元素的高度 */
+						let sectionContainerHeaderULElementHeight =
+							PopsDOMUtils.height($deepMenuHeaderUL);
+						$deepMenuChildMenuUL.style.setProperty(
+							"height",
+							`calc( 100% - ${
+								sectionContainerHeaderULElementHeight + contentContainerOffset
+							}px )`
+						);
 					},
 					/** 设置项的点击事件 */
 					setLiClickEvent() {
@@ -12032,8 +12049,8 @@
 								if (result) {
 									return;
 								}
-								this.gotoDeepMenu();
 							}
+							this.gotoDeepMenu();
 						});
 					},
 				};
