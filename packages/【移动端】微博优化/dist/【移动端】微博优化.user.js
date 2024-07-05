@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.28
+// @version      2024.7.5
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，自定义视频清晰度(可1080p、2K、2K-60、4K-60)
 // @license      GPL-3.0-only
@@ -178,9 +178,9 @@
         },
         zIndex: {
           get() {
-            let maxZIndex = Utils.getMaxZIndex(10);
-            let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(10).zIndex;
-            return Utils.getMaxValue(maxZIndex, popsMaxZIndex);
+            let maxZIndex = Utils.getMaxZIndex();
+            let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(maxZIndex).zIndex;
+            return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
           }
         }
       }
@@ -1213,6 +1213,16 @@
         }
         that.$data.data.set(key, defaultValue);
       }
+      function loopInitDefaultValue(configList) {
+        for (let index = 0; index < configList.length; index++) {
+          let configItem = configList[index];
+          initDefaultValue(configItem);
+          let childForms = configItem.forms;
+          if (childForms && Array.isArray(childForms)) {
+            loopInitDefaultValue(childForms);
+          }
+        }
+      }
       let contentConfigList = this.getPanelContentConfig();
       for (let index = 0; index < contentConfigList.length; index++) {
         let leftContentConfigItem = contentConfigList[index];
@@ -1220,16 +1230,8 @@
           continue;
         }
         let rightContentConfigList = leftContentConfigItem.forms;
-        for (let formItemIndex = 0; formItemIndex < rightContentConfigList.length; formItemIndex++) {
-          let rightContentConfigItem = rightContentConfigList[formItemIndex];
-          if (rightContentConfigItem.forms) {
-            let childFormConfigList = rightContentConfigItem.forms;
-            for (let formChildConfigIndex = 0; formChildConfigIndex < childFormConfigList.length; formChildConfigIndex++) {
-              initDefaultValue(childFormConfigList[formChildConfigIndex]);
-            }
-          } else {
-            initDefaultValue(rightContentConfigItem);
-          }
+        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+          loopInitDefaultValue(rightContentConfigList);
         }
       }
     },

@@ -11,6 +11,30 @@ const PanelBaiKeSettingUI: PopsPanelContentConfig = {
 	scrollToDefaultView: true,
 	forms: [
 		{
+			text: "",
+			type: "forms",
+			forms: [
+				{
+					text: "他说",
+					description: "/tashuo",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "屏蔽",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"【屏蔽】底部广告",
+									"baidu_baike_tashuo_remove_bottom_ad",
+									true
+								),
+							],
+						},
+					],
+				},
+			],
+		},
+		{
 			text: "劫持Box",
 			type: "forms",
 			forms: [
@@ -69,17 +93,6 @@ const PanelBaiKeSettingUI: PopsPanelContentConfig = {
 					true,
 					void 0,
 					"Box.ios.invokeApp()置空"
-				),
-			],
-		},
-		{
-			text: "他说(/tashuo)",
-			type: "forms",
-			forms: [
-				UISwitch(
-					"【屏蔽】底部广告",
-					"baidu_baike_tashuo_remove_bottom_ad",
-					true
 				),
 			],
 		},

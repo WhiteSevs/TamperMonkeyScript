@@ -15,6 +15,203 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 	scrollToDefaultView: true,
 	forms: [
 		{
+			text: "",
+			type: "forms",
+			forms: [
+				{
+					text: "首页",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "功能",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"新标签页打开",
+									"baidu_tieba_index_openANewTab",
+									false,
+									void 0,
+									"新标签页打开帖子"
+								),
+							],
+						},
+					],
+				},
+				{
+					text: "话题热议",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "功能",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"重定向xx吧跳转",
+									"baidu_tieba_topic_redirect_jump",
+									true,
+									void 0,
+									"点击帖子直接跳转"
+								),
+								UISwitch(
+									"新标签页打开",
+									"baidu_tieba_topic_openANewTab",
+									false,
+									void 0,
+									"新标签页打开帖子"
+								),
+							],
+						},
+					],
+				},
+				{
+					text: "搜索综合",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "功能",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"新标签页打开",
+									"baidu_tieba_hybrid_search_openANewTab",
+									false,
+									void 0,
+									"新标签页打开帖子"
+								),
+							],
+						},
+					],
+				},
+				{
+					text: "吧内",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "功能",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"记住当前选择的看帖排序",
+									"baidu_tieba_remember_user_post_sort",
+									true,
+									void 0,
+									"记住选择的发布/回复"
+								),
+								UISwitch(
+									"过滤重复帖子",
+									"baidu_tieba_filterDuplicatePosts",
+									false,
+									void 0,
+									"过滤掉重复id的帖"
+								),
+								UISwitch(
+									"解除签到限制",
+									"baidu_tieba_removeForumSignInLimit",
+									true,
+									void 0,
+									"在登录情况下可点击签到"
+								),
+								UISwitch(
+									"新标签页打开",
+									"baidu_tieba_openANewTab",
+									false,
+									void 0,
+									"新标签页打开帖子"
+								),
+							],
+						},
+					],
+				},
+				{
+					text: "帖内",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "功能",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"楼中楼回复弹窗后退手势优化",
+									"baidu_tieba_lzl_ban_global_back",
+									false,
+									function (event, enable) {
+										if (enable) {
+											alert(
+												"开启后，当在手机浏览器中使用屏幕左滑回退网页操作或者点击浏览器的回退到上一页按钮，不会触发回退上一页操作，而是会关闭当前查看的楼中楼的弹窗。注：某些浏览器不适用"
+											);
+										}
+									},
+									"使浏览器后退变成关闭楼中楼弹窗"
+								),
+								UISwitch(
+									"新增滚动到顶部按钮",
+									"baidu_tieba_add_scroll_top_button_in_forum",
+									true,
+									void 0,
+									"向下滚动的距离>页面高度*2就会出现按钮"
+								),
+								UISwitch(
+									"优化查看评论",
+									"baidu_tieba_optimize_see_comments",
+									true,
+									void 0,
+									"可以查看更多的评论"
+								),
+								UISwitch(
+									"优化评论工具栏",
+									"baidu_tieba_optimize_comments_toolbar",
+									true,
+									void 0,
+									"可以进行评论区回复/楼中楼回复，需开启【优化查看评论】"
+								),
+								UISwitch(
+									"优化图片点击预览",
+									"baidu_tieba_optimize_image_preview",
+									true,
+									void 0,
+									"使用Viewer查看图片"
+								),
+								UISwitch(
+									"强制查看被屏蔽的帖子",
+									"baidu_tieba_repairErrorThread",
+									false,
+									function (event, enable) {
+										if (enable) {
+											window.alert(
+												"开启后，如果查看的帖子显示【贴子不存在或者已被删除】或【该帖子需要去app内查看哦】，且该帖子在PC端可以查看，那么该修复可以生效。"
+											);
+										}
+									},
+									"PC端可以查看帖子该功能才能正确生效"
+								),
+								UISwitch(
+									"点击楼主头像正确跳转主页",
+									"baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",
+									true,
+									void 0,
+									"点击头像正确跳转至用户主页"
+								),
+								UISwitch(
+									"屏蔽机器人",
+									"baidu_tieba_shield_commnets_baodating",
+									true,
+									void 0,
+									"屏蔽【贴吧包打听】机器人，回答的评论都是牛头不对马嘴的"
+								),
+								UISwitch(
+									"显示用户当前吧的等级头衔",
+									"baidu_tieba_show_forum_level",
+									true,
+									void 0,
+									"只对评论和楼中楼的用户进行显示处理"
+								),
+							],
+						},
+					],
+				},
+			],
+		},
+		{
 			text: "账号功能",
 			type: "forms",
 			forms: [
@@ -177,167 +374,6 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 					false,
 					void 0,
 					"使用贴吧移动端的搜索功能"
-				),
-			],
-		},
-		{
-			text: "首页",
-			type: "forms",
-			forms: [
-				UISwitch(
-					"新标签页打开",
-					"baidu_tieba_index_openANewTab",
-					false,
-					void 0,
-					"新标签页打开帖子"
-				),
-			],
-		},
-		{
-			text: "话题热议",
-			type: "forms",
-			forms: [
-				UISwitch(
-					"重定向xx吧跳转",
-					"baidu_tieba_topic_redirect_jump",
-					true,
-					void 0,
-					"点击帖子直接跳转"
-				),
-				UISwitch(
-					"新标签页打开",
-					"baidu_tieba_topic_openANewTab",
-					false,
-					void 0,
-					"新标签页打开帖子"
-				),
-			],
-		},
-		{
-			text: "搜索综合",
-			type: "forms",
-			forms: [
-				UISwitch(
-					"新标签页打开",
-					"baidu_tieba_hybrid_search_openANewTab",
-					false,
-					void 0,
-					"新标签页打开帖子"
-				),
-			],
-		},
-		{
-			text: "吧内功能",
-			type: "forms",
-			forms: [
-				UISwitch(
-					"记住当前选择的看帖排序",
-					"baidu_tieba_remember_user_post_sort",
-					true,
-					void 0,
-					"记住选择的发布/回复"
-				),
-				UISwitch(
-					"过滤重复帖子",
-					"baidu_tieba_filterDuplicatePosts",
-					false,
-					void 0,
-					"过滤掉重复id的帖"
-				),
-				UISwitch(
-					"解除签到限制",
-					"baidu_tieba_removeForumSignInLimit",
-					true,
-					void 0,
-					"在登录情况下可点击签到"
-				),
-				UISwitch(
-					"新标签页打开",
-					"baidu_tieba_openANewTab",
-					false,
-					void 0,
-					"新标签页打开帖子"
-				),
-			],
-		},
-		{
-			text: "帖内功能",
-			type: "forms",
-			forms: [
-				UISwitch(
-					"楼中楼回复弹窗后退手势优化",
-					"baidu_tieba_lzl_ban_global_back",
-					false,
-					function (event, enable) {
-						if (enable) {
-							alert(
-								"开启后，当在手机浏览器中使用屏幕左滑回退网页操作或者点击浏览器的回退到上一页按钮，不会触发回退上一页操作，而是会关闭当前查看的楼中楼的弹窗。注：某些浏览器不适用"
-							);
-						}
-					},
-					"使浏览器后退变成关闭楼中楼弹窗"
-				),
-				UISwitch(
-					"新增滚动到顶部按钮",
-					"baidu_tieba_add_scroll_top_button_in_forum",
-					true,
-					void 0,
-					"向下滚动的距离>页面高度*2就会出现按钮"
-				),
-				UISwitch(
-					"优化查看评论",
-					"baidu_tieba_optimize_see_comments",
-					true,
-					void 0,
-					"可以查看更多的评论"
-				),
-				UISwitch(
-					"优化评论工具栏",
-					"baidu_tieba_optimize_comments_toolbar",
-					true,
-					void 0,
-					"可以进行评论区回复/楼中楼回复，需开启【优化查看评论】"
-				),
-				UISwitch(
-					"优化图片点击预览",
-					"baidu_tieba_optimize_image_preview",
-					true,
-					void 0,
-					"使用Viewer查看图片"
-				),
-				UISwitch(
-					"强制查看被屏蔽的帖子",
-					"baidu_tieba_repairErrorThread",
-					false,
-					function (event, enable) {
-						if (enable) {
-							window.alert(
-								"开启后，如果查看的帖子显示【贴子不存在或者已被删除】或【该帖子需要去app内查看哦】，且该帖子在PC端可以查看，那么该修复可以生效。"
-							);
-						}
-					},
-					"PC端可以查看帖子该功能才能正确生效"
-				),
-				UISwitch(
-					"点击楼主头像正确跳转主页",
-					"baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",
-					true,
-					void 0,
-					"点击头像正确跳转至用户主页"
-				),
-				UISwitch(
-					"屏蔽机器人",
-					"baidu_tieba_shield_commnets_baodating",
-					true,
-					void 0,
-					"屏蔽【贴吧包打听】机器人，回答的评论都是牛头不对马嘴的"
-				),
-				UISwitch(
-					"显示用户当前吧的等级头衔",
-					"baidu_tieba_show_forum_level",
-					true,
-					void 0,
-					"只对评论和楼中楼的用户进行显示处理"
 				),
 			],
 		},

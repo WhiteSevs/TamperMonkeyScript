@@ -39,6 +39,21 @@ import { VueUtils } from "@/utils/VueUtils";
 const BaiduTieBa = {
 	init() {
 		addStyle(TieBaShieldCSS);
+		addStyle(`
+		/* 由于lzl弹窗的z-index是99999，所以，回复框、toast、登录弹窗的z-index要大于99999 */
+		/* 底部回复框 */
+        .comment-box-wrap-lzl{
+            z-index: calc(99999 + 10) !important;
+        }
+		/* 登录弹窗 */
+		.login-wake-modal-mask{
+			z-index: calc(99999 + 20) !important;
+		}
+		/* 消息toast */
+		.tb-toast{
+			z-index: calc(99999 + 100) !important;
+		}
+        `);
 		log.info("插入CSS规则");
 		PopsPanel.execMenu(
 			"baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",
@@ -180,13 +195,13 @@ const BaiduTieBa = {
 									".tb-mobile-viewport"
 								);
 								if ($mobileViewport) {
-									let mobileViewportVueObj = VueUtils.getVue($mobileViewport);
-									if (
-										mobileViewportVueObj &&
-										typeof mobileViewportVueObj.goPost === "function"
-									) {
-										mobileViewportVueObj.goPost();
-										return;
+									let vueObj = VueUtils.getVue($mobileViewport);
+									if (vueObj) {
+										let goPost = vueObj?.goPost || vueObj?.$parent?.goPost;
+										if (typeof goPost === "function") {
+											goPost();
+											return;
+										}
 									}
 								}
 
@@ -202,8 +217,10 @@ const BaiduTieBa = {
 										return;
 									}
 								}
+								log.error("未找到发帖函数");
 								Qmsg.error("未找到发帖函数");
 							} else {
+								log.error("请在吧内|帖子内使用");
 								Qmsg.error("请在吧内|帖子内使用");
 							}
 						},
@@ -294,8 +311,9 @@ const BaiduTieBa = {
 							--user-info-font-color: #ffffff;
 						}
 						.pops-drawer-title{
-							background: url(https://api.isoyu.com/bing_images.php) no-repeat 0 0 / cover;
-							background-size: cover;
+							background: url(https://api.chongss.com/pc.php?category=landscape);
+							// background-size: cover;
+							background-size: 100%;
 							background-position: center;
 							background-repeat: no-repeat;
 						}

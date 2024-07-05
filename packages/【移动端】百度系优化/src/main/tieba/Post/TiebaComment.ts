@@ -1580,7 +1580,9 @@ const TiebaComment = {
 						style: "color: #6251B3;margin-top: 5px 0 0 10px;",
 					}
 				);
-				DOMUtils.on(seeAllReplyElement, "click", function () {
+				// 查看全部xx条回复的点击事件
+				DOMUtils.on(seeAllReplyElement, "click", (event) => {
+					utils.preventEvent(event);
 					lzlPostElement.click();
 				});
 				DOMUtils.after(lzlPostElement, seeAllReplyElement);
@@ -1588,7 +1590,7 @@ const TiebaComment = {
 			DOMUtils.on(
 				lzlPostElement,
 				"click",
-				function (event) {
+				(event) => {
 					utils.preventEvent(event);
 					log.success(`点击查看全部回复`);
 					TiebaComment.showReplyDialog(lzlPostElement);
@@ -2018,43 +2020,53 @@ const TiebaComment = {
 			".whitesev-reply-dialog-sheet-other-content"
 		) as HTMLDivElement;
 		dialogOhterContentElement.appendChild($ohterCommentFragment);
+
+		let isClosingDialog = false;
 		/**
 		 * 设置浏览器历史地址
+		 * @param event
 		 */
-		function popstateEvent() {
+		function popstateEvent(event: Event) {
+			utils.preventEvent(event);
+			if (isClosingDialog) {
+				return;
+			}
 			log.success("触发popstate事件");
-			resumeBack();
+			removePopStateEvent();
 		}
 
 		/**
-		 * 禁止浏览器后退按钮
+		 * 设置popstate事件
 		 */
-		function banBack() {
+		function setPopStateEvent() {
 			/* 监听地址改变 */
-			log.success("监听地址改变");
+			log.success("监听popstate事件");
 			window.history.pushState({}, "", "#/seeLzlReply");
-			DOMUtils.on(window, "popstate", popstateEvent);
+			DOMUtils.on(window, "popstate", popstateEvent, {
+				capture: true,
+			});
 		}
 
 		/**
 		 * 允许浏览器后退并关闭小窗
 		 */
-		async function resumeBack() {
-			DOMUtils.off(window, "popstate", popstateEvent);
-			log.success("浏览器地址后退，并关闭小窗");
+		async function removePopStateEvent() {
+			isClosingDialog = true;
+			log.success("location地址后退并关闭评论弹窗");
 			closeDialogByUrlChange();
-			while (1) {
-				if (
-					VueUtils.getVue(TiebaComment.vueRootView)?.$router.history.current
-						.fullPath === "/seeLzlReply"
-				) {
+			while (true) {
+				if (globalThis.location.hash.endsWith("seeLzlReply")) {
 					log.info("后退！");
-					VueUtils.getVue(TiebaComment.vueRootView)?.$router.back();
-					await utils.sleep(250);
+					globalThis.history.back();
+					// VueUtils.getVue(TiebaComment.vueRootView)?.$router.back();
+					await utils.sleep(150);
 				} else {
-					return;
+					break;
 				}
 			}
+			log.success("停止popstate事件监听");
+			DOMUtils.off(window, "popstate", popstateEvent, { capture: true });
+			isClosingDialog = false;
 		}
 
 		/**
@@ -2068,7 +2080,7 @@ const TiebaComment = {
 				log.success("关闭楼中楼回复弹窗_click");
 				dialog.remove();
 				if (PopsPanel.getValue("baidu_tieba_lzl_ban_global_back")) {
-					resumeBack();
+					removePopStateEvent();
 				}
 			});
 		}
@@ -2345,7 +2357,7 @@ const TiebaComment = {
 			) as HTMLDivElement;
 			log.success(["成功获取Vue根元素", VueUtils.getVue(this.vueRootView)]);
 			if (PopsPanel.getValue("baidu_tieba_lzl_ban_global_back")) {
-				banBack();
+				setPopStateEvent();
 			}
 		}, 0);
 	},

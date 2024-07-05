@@ -187,21 +187,6 @@ export const TiebaReply = {
 		handlerCommentSuccess: null as any,
 	},
 	init() {
-		addStyle(`
-		/* 由于lzl弹窗的z-index是99999，所以，回复框、toast、登录弹窗的z-index要大于99999 */
-		/* 底部回复框 */
-        .comment-box-wrap-lzl{
-            z-index: calc(99999 + 10) !important;
-        }
-		/* 登录弹窗 */
-		.login-wake-modal-mask{
-			z-index: calc(99999 + 20) !important;
-		}
-		/* 消息toast */
-		.tb-toast{
-			z-index: calc(99999 + 100) !important;
-		}
-        `);
 		this.setGlobalContentClick();
 		DOMUtils.ready(() => {
 			// this.setAvatarClickEvent();

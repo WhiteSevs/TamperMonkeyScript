@@ -11,14 +11,26 @@ const PanelEasyLearnSettingUI: PopsPanelContentConfig = {
 	scrollToDefaultView: true,
 	forms: [
 		{
-			text: "小程序",
+			text: "",
 			type: "forms",
 			forms: [
-				UISwitch(
-					"【屏蔽】底部下拉菜单",
-					"mini_baidu_jiaoyu_shield_bottom_pull_down_menu",
-					false
-				),
+				{
+					text: "小程序",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "屏蔽",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"【屏蔽】底部下拉菜单",
+									"mini_baidu_jiaoyu_shield_bottom_pull_down_menu",
+									false
+								),
+							],
+						},
+					],
+				},
 			],
 		},
 		{

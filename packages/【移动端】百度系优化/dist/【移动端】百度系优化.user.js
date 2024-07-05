@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.23.19
+// @version      2024.7.5
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -13,14 +13,14 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1398647/pops.js
 // @require      https://update.greasyfork.org/scripts/488179/1384528/showdown.js
-// @require      https://fastly.jsdelivr.net/npm/vue@3.4.30/dist/vue.global.prod.js
+// @require      https://fastly.jsdelivr.net/npm/vue@3.4.31/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.8/lib/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/pinia@2.1.7/dist/pinia.iife.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-router@4.4.0/dist/vue-router.global.js
 // @require      https://update.greasyfork.org/scripts/495227/1378053/Element-Plus.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.5/dist/index.min.css
@@ -856,49 +856,200 @@ match-attr##srcid##sp_purc_atom
     },
     forms: [
       {
-        text: "主页",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch("精简主页", "baidu_search_home_homepage_minification", true)
-        ]
-      },
-      {
-        text: "百度健康(快速问医生)",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "【屏蔽】底部其它信息",
-            "baidu_search_headlth_shield_other_info",
-            true
-          ),
-          UISwitch(
-            "【屏蔽】底部工具栏",
-            "baidu_search_headlth_shield_bottom_toolbar",
-            true
-          )
-        ]
-      },
-      {
-        text: "userAgent包含SearchCraft时",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "自动点击翻页",
-            "baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua",
-            false,
-            function(event, enable) {
-              if (enable && PopsPanel.getValue("baidu_search_automatically_expand_next_page")) {
-                let checkboxCoreElement = document.querySelector(
-                  `li[${PopsPanel.$data.attributeKeyName}="baidu_search_automatically_expand_next_page"] span.pops-panel-switch__core`
-                );
-                if (!checkboxCoreElement) {
-                  throw new Error("未找到互斥元素");
-                }
-                checkboxCoreElement.click();
+          {
+            text: "百度健康",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "百度健康(快速问医生)",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】底部其它信息",
+                    "baidu_search_headlth_shield_other_info",
+                    true
+                  ),
+                  UISwitch(
+                    "【屏蔽】底部工具栏",
+                    "baidu_search_headlth_shield_bottom_toolbar",
+                    true
+                  )
+                ]
               }
-            },
-            "与【功能-自动翻页】冲突"
-          )
+            ]
+          },
+          {
+            text: "劫持/拦截",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "劫持-复制",
+                    "baidu_search_hijack_copy",
+                    true,
+                    void 0,
+                    "阻止百度复制xxx到剪贴板"
+                  ),
+                  UISwitch(
+                    "劫持-Scheme唤醒App",
+                    "baidu_search_hijack_scheme",
+                    true,
+                    void 0,
+                    "阻止唤醒调用App"
+                  ),
+                  UISwitch(
+                    "劫持-OpenBox函数",
+                    "baidu_search_hijack_openbox",
+                    true,
+                    void 0,
+                    "优化搜索结果跳转"
+                  ),
+                  UISwitch(
+                    "劫持-_onClick函数",
+                    "baidu_search_hijack__onClick",
+                    true,
+                    void 0,
+                    "优化搜索结果跳转"
+                  ),
+                  UISwitch(
+                    "劫持-setTimeout",
+                    "baidu_search_hijack_setTimeout",
+                    true,
+                    void 0,
+                    "可阻止获取定位、视频播放"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "自定义拦截规则",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "<a href='https://greasyfork.org/zh-CN/scripts/418349' target='_blank'>查看规则文档(在最下面)</><br><a href='javascript:;' class='baidu-search-shield-css-reset'>点击重置</a>",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "启用默认拦截规则",
+                    "baidu-search-enable-default-interception-rules",
+                    true,
+                    void 0,
+                    "默认拦截规则"
+                  ),
+                  {
+                    type: "own",
+                    afterAddToUListCallBack(formConfig, rightContainerOptions) {
+                      var _a3;
+                      let $searchShield = (_a3 = rightContainerOptions == null ? void 0 : rightContainerOptions.formHeaderDivElement) == null ? void 0 : _a3.querySelector(
+                        "a.baidu-search-shield-css-reset"
+                      );
+                      domutils.on($searchShield, "click", void 0, () => {
+                        BaiduSearchRule.clearLocalRule();
+                        let $textArea = rightContainerOptions.ulElement.querySelector(
+                          "textarea"
+                        );
+                        $textArea.value = "";
+                        Qmsg.success("已重置");
+                      });
+                    },
+                    getLiElementCallBack(liElement) {
+                      let $textAreaContainer = domutils.createElement("div", {
+                        className: "pops-panel-textarea baidu-search-interception-rule",
+                        innerHTML: `
+									<style>
+									.baidu-search-interception-rule{
+										width: 100%;
+									}
+									.baidu-search-interception-rule textarea{
+										min-height: 3.6rem;
+										white-space: pre;
+										border-radius: 0 !important;
+									}
+									</style>
+									<textarea></textarea>
+									`
+                      });
+                      let $textArea = $textAreaContainer.querySelector(
+                        "textarea"
+                      );
+                      let customRule = BaiduSearchRule.getLocalRule();
+                      $textArea.value = customRule;
+                      liElement.appendChild($textAreaContainer);
+                      domutils.on(
+                        $textArea,
+                        ["input", "propertychange"],
+                        void 0,
+                        utils.debounce(function() {
+                          BaiduSearchRule.setLocalRule($textArea.value);
+                        }, 100)
+                      );
+                      return liElement;
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            text: "自定义样式",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  {
+                    type: "own",
+                    getLiElementCallBack(liElement) {
+                      let $textAreaContainer = domutils.createElement("div", {
+                        className: "pops-panel-textarea baidu-search-user-style",
+                        innerHTML: `
+											<style>
+											.baidu-search-user-style{
+												width: 100%;
+											}
+											.baidu-search-user-style textarea{
+												min-height: 3.6rem;
+												white-space: pre;
+												border-radius: 0 !important;
+											}
+											</style>
+											<textarea></textarea>
+											`
+                      });
+                      let $textArea = $textAreaContainer.querySelector(
+                        "textarea"
+                      );
+                      $textArea.value = PopsPanel.getValue(
+                        "baidu-search-user-style",
+                        ""
+                      );
+                      liElement.appendChild($textAreaContainer);
+                      domutils.on(
+                        $textArea,
+                        ["input", "propertychange"],
+                        void 0,
+                        utils.debounce(function() {
+                          PopsPanel.setValue(
+                            "baidu-search-user-style",
+                            $textArea.value
+                          );
+                        }, 100)
+                      );
+                      return liElement;
+                    }
+                  }
+                ]
+              }
+            ]
+          }
         ]
       },
       {
@@ -925,6 +1076,7 @@ match-attr##srcid##sp_purc_atom
         text: "功能",
         type: "forms",
         forms: [
+          UISwitch("精简主页", "baidu_search_home_homepage_minification", true),
           UISwitch(
             "处理搜索结果",
             "baidu_search_handle_search_result",
@@ -945,6 +1097,23 @@ match-attr##srcid##sp_purc_atom
             true,
             void 0,
             "重构顶部的输入框、百度一下按钮、搜索建议框，可不出现百度App提示"
+          ),
+          UISwitch(
+            "自动点击翻页 => SearchCraft",
+            "baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua",
+            false,
+            function(event, enable) {
+              if (enable && PopsPanel.getValue("baidu_search_automatically_expand_next_page")) {
+                let checkboxCoreElement = document.querySelector(
+                  `li[${PopsPanel.$data.attributeKeyName}="baidu_search_automatically_expand_next_page"] span.pops-panel-switch__core`
+                );
+                if (!checkboxCoreElement) {
+                  throw new Error("未找到互斥元素");
+                }
+                checkboxCoreElement.click();
+              }
+            },
+            "userAgent包含SearchCraft时生效，与↓【自动翻页】功能冲突"
           ),
           UISwitch(
             "自动翻页",
@@ -976,165 +1145,22 @@ match-attr##srcid##sp_purc_atom
                 );
               }
             },
-            "地址同步自动翻页的地址"
+            "需启用【自动翻页】，浏览器地址栏会自动同步当前页面的Url"
           ),
           UISwitch(
             "【优化】大家还在搜",
             "baidu_search_refactor_everyone_is_still_searching",
             true,
             void 0,
-            "正确新标签页打开"
+            "正确新标签页打开，避免跳转至App下载页面"
           ),
           UISwitch(
-            "【beta】新标签页打开",
+            "新标签页打开",
             "baidu_search_hijack__onClick_to_blank",
             false,
             void 0,
-            "实验性功能，需开启【劫持-_onClick函数】和【处理搜索结果】且能成功劫持到该函数才会生效，否则是粗糙的提取article的链接跳转"
+            "需开启【劫持-_onClick函数】和【处理搜索结果】且能成功劫持到该函数才会生效，否则是提取article的URL链接信息跳转"
           )
-        ]
-      },
-      {
-        text: "劫持/拦截",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "劫持-复制",
-            "baidu_search_hijack_copy",
-            true,
-            void 0,
-            "阻止百度复制xxx到剪贴板"
-          ),
-          UISwitch(
-            "劫持-Scheme唤醒App",
-            "baidu_search_hijack_scheme",
-            true,
-            void 0,
-            "阻止唤醒调用App"
-          ),
-          UISwitch(
-            "劫持-OpenBox函数",
-            "baidu_search_hijack_openbox",
-            true,
-            void 0,
-            "优化搜索结果跳转"
-          ),
-          UISwitch(
-            "劫持-_onClick函数",
-            "baidu_search_hijack__onClick",
-            true,
-            void 0,
-            "优化搜索结果跳转"
-          ),
-          UISwitch(
-            "劫持-setTimeout",
-            "baidu_search_hijack_setTimeout",
-            true,
-            void 0,
-            "可阻止获取定位、视频播放"
-          )
-        ]
-      },
-      {
-        text: "自定义拦截规则<br><a href='https://greasyfork.org/zh-CN/scripts/418349' target='_blank'>查看规则文档(在最下面)</><br><a href='javascript:;' class='baidu-search-shield-css-reset'>点击重置</a>",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "启用默认拦截规则",
-            "baidu-search-enable-default-interception-rules",
-            true,
-            void 0,
-            "默认拦截规则"
-          ),
-          {
-            type: "own",
-            afterAddToUListCallBack(formConfig, rightContainerOptions) {
-              var _a3;
-              let $searchShield = (_a3 = rightContainerOptions == null ? void 0 : rightContainerOptions.formHeaderDivElement) == null ? void 0 : _a3.querySelector(
-                "a.baidu-search-shield-css-reset"
-              );
-              domutils.on($searchShield, "click", void 0, () => {
-                BaiduSearchRule.clearLocalRule();
-                let $textArea = rightContainerOptions.ulElement.querySelector("textarea");
-                $textArea.value = "";
-                Qmsg.success("已重置");
-              });
-            },
-            getLiElementCallBack(liElement) {
-              let $textAreaContainer = domutils.createElement("div", {
-                className: "pops-panel-textarea baidu-search-interception-rule",
-                innerHTML: `
-                            <style>
-                            .baidu-search-interception-rule{
-                                width: 100%;
-                            }
-                            .baidu-search-interception-rule textarea{
-                                min-height: 3.6rem;
-                                white-space: pre;
-                                border-radius: 0 !important;
-                            }
-                            </style>
-                            <textarea></textarea>
-                            `
-              });
-              let $textArea = $textAreaContainer.querySelector(
-                "textarea"
-              );
-              let customRule = BaiduSearchRule.getLocalRule();
-              $textArea.value = customRule;
-              liElement.appendChild($textAreaContainer);
-              domutils.on(
-                $textArea,
-                ["input", "propertychange"],
-                void 0,
-                utils.debounce(function() {
-                  BaiduSearchRule.setLocalRule($textArea.value);
-                }, 100)
-              );
-              return liElement;
-            }
-          }
-        ]
-      },
-      {
-        text: "自定义样式",
-        type: "forms",
-        forms: [
-          {
-            type: "own",
-            getLiElementCallBack(liElement) {
-              let $textAreaContainer = domutils.createElement("div", {
-                className: "pops-panel-textarea baidu-search-user-style",
-                innerHTML: `
-                            <style>
-                            .baidu-search-user-style{
-                                width: 100%;
-                            }
-                            .baidu-search-user-style textarea{
-                                min-height: 3.6rem;
-                                white-space: pre;
-                                border-radius: 0 !important;
-                            }
-                            </style>
-                            <textarea></textarea>
-                            `
-              });
-              let $textArea = $textAreaContainer.querySelector(
-                "textarea"
-              );
-              $textArea.value = PopsPanel.getValue("baidu-search-user-style", "");
-              liElement.appendChild($textAreaContainer);
-              domutils.on(
-                $textArea,
-                ["input", "propertychange"],
-                void 0,
-                utils.debounce(function() {
-                  PopsPanel.setValue("baidu-search-user-style", $textArea.value);
-                }, 100)
-              );
-              return liElement;
-            }
-          }
         ]
       }
     ]
@@ -1149,112 +1175,130 @@ match-attr##srcid##sp_purc_atom
     scrollToDefaultView: true,
     forms: [
       {
-        text: "百家号（baijiahao）👇",
-        type: "forms",
-        forms: []
-      },
-      {
-        text: "屏蔽",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch(
-            "【屏蔽】推荐文章",
-            "baijiahao_shield_recommended_article",
-            true
-          ),
-          UISwitch("【屏蔽】用户评论", "baijiahao_shield_user_comment", false),
-          UISwitch(
-            "【屏蔽】底部悬浮工具栏",
-            "baijiahao_shield_user_comment_input_box",
-            false
-          )
-        ]
-      },
-      {
-        text: "劫持/拦截",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "劫持-唤醒App",
-            "baijiahao_hijack_wakeup",
-            true,
-            void 0,
-            "阻止唤醒调用App"
-          ),
-          UISwitch(
-            "劫持-iframe唤醒App",
-            "baidu_baijiahao_hijack_iframe",
-            true,
-            void 0,
-            "阻止唤醒调用App"
-          ),
-          UISwitch("劫持-OpenBox函数", "baidu_baijiahao_hijack_openbox", true)
-        ]
-      },
-      {
-        text: "百家号（mbd）👇",
-        type: "forms",
-        forms: []
-      },
-      {
-        text: "屏蔽",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "【屏蔽】精彩评论",
-            "baidu_mbd_block_exciting_comments",
-            false
-          ),
-          UISwitch(
-            "【屏蔽】精彩推荐",
-            "baidu_mbd_block_exciting_recommendations",
-            false
-          ),
-          UISwitch(
-            "【屏蔽】底部工具栏",
-            "baidu_mbd_shield_bottom_toolbar",
-            false
-          )
-        ]
-      },
-      {
-        text: "功能",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "伪装成lite baiduboxapp",
-            "baidu_mbd_camouflage_lite_baiduboxapp",
-            true,
-            void 0,
-            "可以优化浏览体验"
-          )
-        ]
-      },
-      {
-        text: "劫持/拦截",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "拦截-唤醒App",
-            "baidu_mbd_hijack_wakeup",
-            true,
-            void 0,
-            "阻止唤醒调用App"
-          ),
-          UISwitch(
-            "拦截-iframe唤醒App",
-            "baidu_mbd_hijack_iframe",
-            true,
-            void 0,
-            "阻止唤醒调用App"
-          ),
-          UISwitch(
-            "劫持-BoxJSBefore函数",
-            "baidu_mbd_hijack_BoxJSBefore",
-            true,
-            void 0,
-            "阻止唤醒调用App"
-          )
+          {
+            text: "百家号",
+            description: "baijiahao.baidu.com",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "屏蔽",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】推荐文章",
+                    "baijiahao_shield_recommended_article",
+                    true
+                  ),
+                  UISwitch(
+                    "【屏蔽】用户评论",
+                    "baijiahao_shield_user_comment",
+                    false
+                  ),
+                  UISwitch(
+                    "【屏蔽】底部悬浮工具栏",
+                    "baijiahao_shield_user_comment_input_box",
+                    false
+                  )
+                ]
+              },
+              {
+                text: "劫持/拦截",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "劫持-唤醒App",
+                    "baijiahao_hijack_wakeup",
+                    true,
+                    void 0,
+                    "阻止唤醒调用App"
+                  ),
+                  UISwitch(
+                    "劫持-iframe唤醒App",
+                    "baidu_baijiahao_hijack_iframe",
+                    true,
+                    void 0,
+                    "阻止唤醒调用App"
+                  ),
+                  UISwitch(
+                    "劫持-OpenBox函数",
+                    "baidu_baijiahao_hijack_openbox",
+                    true
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "百家号",
+            type: "deepMenu",
+            description: "mbd.baidu.com",
+            forms: [
+              {
+                text: "屏蔽",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】精彩评论",
+                    "baidu_mbd_block_exciting_comments",
+                    false
+                  ),
+                  UISwitch(
+                    "【屏蔽】精彩推荐",
+                    "baidu_mbd_block_exciting_recommendations",
+                    false
+                  ),
+                  UISwitch(
+                    "【屏蔽】底部工具栏",
+                    "baidu_mbd_shield_bottom_toolbar",
+                    false
+                  )
+                ]
+              },
+              {
+                text: "功能",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "伪装成lite baiduboxapp",
+                    "baidu_mbd_camouflage_lite_baiduboxapp",
+                    true,
+                    void 0,
+                    "可以优化浏览体验"
+                  )
+                ]
+              },
+              {
+                text: "劫持/拦截",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "拦截-唤醒App",
+                    "baidu_mbd_hijack_wakeup",
+                    true,
+                    void 0,
+                    "阻止唤醒调用App"
+                  ),
+                  UISwitch(
+                    "拦截-iframe唤醒App",
+                    "baidu_mbd_hijack_iframe",
+                    true,
+                    void 0,
+                    "阻止唤醒调用App"
+                  ),
+                  UISwitch(
+                    "劫持-BoxJSBefore函数",
+                    "baidu_mbd_hijack_BoxJSBefore",
+                    true,
+                    void 0,
+                    "阻止唤醒调用App"
+                  )
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
@@ -1710,6 +1754,203 @@ match-attr##srcid##sp_purc_atom
     scrollToDefaultView: true,
     forms: [
       {
+        text: "",
+        type: "forms",
+        forms: [
+          {
+            text: "首页",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "功能",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "新标签页打开",
+                    "baidu_tieba_index_openANewTab",
+                    false,
+                    void 0,
+                    "新标签页打开帖子"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "话题热议",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "功能",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "重定向xx吧跳转",
+                    "baidu_tieba_topic_redirect_jump",
+                    true,
+                    void 0,
+                    "点击帖子直接跳转"
+                  ),
+                  UISwitch(
+                    "新标签页打开",
+                    "baidu_tieba_topic_openANewTab",
+                    false,
+                    void 0,
+                    "新标签页打开帖子"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "搜索综合",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "功能",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "新标签页打开",
+                    "baidu_tieba_hybrid_search_openANewTab",
+                    false,
+                    void 0,
+                    "新标签页打开帖子"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "吧内",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "功能",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "记住当前选择的看帖排序",
+                    "baidu_tieba_remember_user_post_sort",
+                    true,
+                    void 0,
+                    "记住选择的发布/回复"
+                  ),
+                  UISwitch(
+                    "过滤重复帖子",
+                    "baidu_tieba_filterDuplicatePosts",
+                    false,
+                    void 0,
+                    "过滤掉重复id的帖"
+                  ),
+                  UISwitch(
+                    "解除签到限制",
+                    "baidu_tieba_removeForumSignInLimit",
+                    true,
+                    void 0,
+                    "在登录情况下可点击签到"
+                  ),
+                  UISwitch(
+                    "新标签页打开",
+                    "baidu_tieba_openANewTab",
+                    false,
+                    void 0,
+                    "新标签页打开帖子"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "帖内",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "功能",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "楼中楼回复弹窗后退手势优化",
+                    "baidu_tieba_lzl_ban_global_back",
+                    false,
+                    function(event, enable) {
+                      if (enable) {
+                        alert(
+                          "开启后，当在手机浏览器中使用屏幕左滑回退网页操作或者点击浏览器的回退到上一页按钮，不会触发回退上一页操作，而是会关闭当前查看的楼中楼的弹窗。注：某些浏览器不适用"
+                        );
+                      }
+                    },
+                    "使浏览器后退变成关闭楼中楼弹窗"
+                  ),
+                  UISwitch(
+                    "新增滚动到顶部按钮",
+                    "baidu_tieba_add_scroll_top_button_in_forum",
+                    true,
+                    void 0,
+                    "向下滚动的距离>页面高度*2就会出现按钮"
+                  ),
+                  UISwitch(
+                    "优化查看评论",
+                    "baidu_tieba_optimize_see_comments",
+                    true,
+                    void 0,
+                    "可以查看更多的评论"
+                  ),
+                  UISwitch(
+                    "优化评论工具栏",
+                    "baidu_tieba_optimize_comments_toolbar",
+                    true,
+                    void 0,
+                    "可以进行评论区回复/楼中楼回复，需开启【优化查看评论】"
+                  ),
+                  UISwitch(
+                    "优化图片点击预览",
+                    "baidu_tieba_optimize_image_preview",
+                    true,
+                    void 0,
+                    "使用Viewer查看图片"
+                  ),
+                  UISwitch(
+                    "强制查看被屏蔽的帖子",
+                    "baidu_tieba_repairErrorThread",
+                    false,
+                    function(event, enable) {
+                      if (enable) {
+                        window.alert(
+                          "开启后，如果查看的帖子显示【贴子不存在或者已被删除】或【该帖子需要去app内查看哦】，且该帖子在PC端可以查看，那么该修复可以生效。"
+                        );
+                      }
+                    },
+                    "PC端可以查看帖子该功能才能正确生效"
+                  ),
+                  UISwitch(
+                    "点击楼主头像正确跳转主页",
+                    "baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",
+                    true,
+                    void 0,
+                    "点击头像正确跳转至用户主页"
+                  ),
+                  UISwitch(
+                    "屏蔽机器人",
+                    "baidu_tieba_shield_commnets_baodating",
+                    true,
+                    void 0,
+                    "屏蔽【贴吧包打听】机器人，回答的评论都是牛头不对马嘴的"
+                  ),
+                  UISwitch(
+                    "显示用户当前吧的等级头衔",
+                    "baidu_tieba_show_forum_level",
+                    true,
+                    void 0,
+                    "只对评论和楼中楼的用户进行显示处理"
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
         text: "账号功能",
         type: "forms",
         forms: [
@@ -1861,167 +2102,6 @@ match-attr##srcid##sp_purc_atom
         ]
       },
       {
-        text: "首页",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "新标签页打开",
-            "baidu_tieba_index_openANewTab",
-            false,
-            void 0,
-            "新标签页打开帖子"
-          )
-        ]
-      },
-      {
-        text: "话题热议",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "重定向xx吧跳转",
-            "baidu_tieba_topic_redirect_jump",
-            true,
-            void 0,
-            "点击帖子直接跳转"
-          ),
-          UISwitch(
-            "新标签页打开",
-            "baidu_tieba_topic_openANewTab",
-            false,
-            void 0,
-            "新标签页打开帖子"
-          )
-        ]
-      },
-      {
-        text: "搜索综合",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "新标签页打开",
-            "baidu_tieba_hybrid_search_openANewTab",
-            false,
-            void 0,
-            "新标签页打开帖子"
-          )
-        ]
-      },
-      {
-        text: "吧内功能",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "记住当前选择的看帖排序",
-            "baidu_tieba_remember_user_post_sort",
-            true,
-            void 0,
-            "记住选择的发布/回复"
-          ),
-          UISwitch(
-            "过滤重复帖子",
-            "baidu_tieba_filterDuplicatePosts",
-            false,
-            void 0,
-            "过滤掉重复id的帖"
-          ),
-          UISwitch(
-            "解除签到限制",
-            "baidu_tieba_removeForumSignInLimit",
-            true,
-            void 0,
-            "在登录情况下可点击签到"
-          ),
-          UISwitch(
-            "新标签页打开",
-            "baidu_tieba_openANewTab",
-            false,
-            void 0,
-            "新标签页打开帖子"
-          )
-        ]
-      },
-      {
-        text: "帖内功能",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "楼中楼回复弹窗后退手势优化",
-            "baidu_tieba_lzl_ban_global_back",
-            false,
-            function(event, enable) {
-              if (enable) {
-                alert(
-                  "开启后，当在手机浏览器中使用屏幕左滑回退网页操作或者点击浏览器的回退到上一页按钮，不会触发回退上一页操作，而是会关闭当前查看的楼中楼的弹窗。注：某些浏览器不适用"
-                );
-              }
-            },
-            "使浏览器后退变成关闭楼中楼弹窗"
-          ),
-          UISwitch(
-            "新增滚动到顶部按钮",
-            "baidu_tieba_add_scroll_top_button_in_forum",
-            true,
-            void 0,
-            "向下滚动的距离>页面高度*2就会出现按钮"
-          ),
-          UISwitch(
-            "优化查看评论",
-            "baidu_tieba_optimize_see_comments",
-            true,
-            void 0,
-            "可以查看更多的评论"
-          ),
-          UISwitch(
-            "优化评论工具栏",
-            "baidu_tieba_optimize_comments_toolbar",
-            true,
-            void 0,
-            "可以进行评论区回复/楼中楼回复，需开启【优化查看评论】"
-          ),
-          UISwitch(
-            "优化图片点击预览",
-            "baidu_tieba_optimize_image_preview",
-            true,
-            void 0,
-            "使用Viewer查看图片"
-          ),
-          UISwitch(
-            "强制查看被屏蔽的帖子",
-            "baidu_tieba_repairErrorThread",
-            false,
-            function(event, enable) {
-              if (enable) {
-                window.alert(
-                  "开启后，如果查看的帖子显示【贴子不存在或者已被删除】或【该帖子需要去app内查看哦】，且该帖子在PC端可以查看，那么该修复可以生效。"
-                );
-              }
-            },
-            "PC端可以查看帖子该功能才能正确生效"
-          ),
-          UISwitch(
-            "点击楼主头像正确跳转主页",
-            "baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",
-            true,
-            void 0,
-            "点击头像正确跳转至用户主页"
-          ),
-          UISwitch(
-            "屏蔽机器人",
-            "baidu_tieba_shield_commnets_baodating",
-            true,
-            void 0,
-            "屏蔽【贴吧包打听】机器人，回答的评论都是牛头不对马嘴的"
-          ),
-          UISwitch(
-            "显示用户当前吧的等级头衔",
-            "baidu_tieba_show_forum_level",
-            true,
-            void 0,
-            "只对评论和楼中楼的用户进行显示处理"
-          )
-        ]
-      },
-      {
         text: "屏蔽",
         type: "forms",
         forms: [
@@ -2111,6 +2191,30 @@ match-attr##srcid##sp_purc_atom
     scrollToDefaultView: true,
     forms: [
       {
+        text: "",
+        type: "forms",
+        forms: [
+          {
+            text: "他说",
+            description: "/tashuo",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "屏蔽",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】底部广告",
+                    "baidu_baike_tashuo_remove_bottom_ad",
+                    true
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
         text: "劫持Box",
         type: "forms",
         forms: [
@@ -2169,17 +2273,6 @@ match-attr##srcid##sp_purc_atom
             true,
             void 0,
             "Box.ios.invokeApp()置空"
-          )
-        ]
-      },
-      {
-        text: "他说(/tashuo)",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "【屏蔽】底部广告",
-            "baidu_baike_tashuo_remove_bottom_ad",
-            true
           )
         ]
       }
@@ -2497,14 +2590,26 @@ match-attr##srcid##sp_purc_atom
     scrollToDefaultView: true,
     forms: [
       {
-        text: "小程序",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch(
-            "【屏蔽】底部下拉菜单",
-            "mini_baidu_jiaoyu_shield_bottom_pull_down_menu",
-            false
-          )
+          {
+            text: "小程序",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "屏蔽",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】底部下拉菜单",
+                    "mini_baidu_jiaoyu_shield_bottom_pull_down_menu",
+                    false
+                  )
+                ]
+              }
+            ]
+          }
         ]
       },
       {
@@ -2572,67 +2677,77 @@ match-attr##srcid##sp_purc_atom
     scrollToDefaultView: true,
     forms: [
       {
-        text: "知了爱学（isite）👇",
-        type: "forms",
-        forms: []
-      },
-      {
-        text: "屏蔽",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch(
-            "【屏蔽】底部免费在线咨询",
-            "baidu_isite_wjz2tdly_shieldBottomBarRootContainer",
-            true
-          ),
-          UISwitch(
-            "【屏蔽】右侧悬浮按钮-查看更多",
-            "baidu_isite_wjz2tdly_shieldRightSeeMoreToolBar",
-            false
-          ),
-          UISwitch(
-            "【屏蔽】大家还在看",
-            "baidu_isite_wjz2tdly_shieldArticleBottom",
-            true
-          )
-        ]
-      },
-      {
-        text: "功能",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "自动展开全文",
-            "baidu_isite_wjz2tdly_autoExpandFullText",
-            true
-          )
-        ]
-      },
-      {
-        text: "知了爱学（aistudy）👇",
-        type: "forms",
-        forms: []
-      },
-      {
-        text: "屏蔽",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "【屏蔽】底部工具栏",
-            "baidu_ai_study_shieldBottomToolBar",
-            true
-          )
-        ]
-      },
-      {
-        text: "功能",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "自动展开全文",
-            "baidu_ai_study_autoExpandFullText",
-            true
-          )
+          {
+            text: "知了爱学",
+            description: "isite",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "屏蔽",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】底部免费在线咨询",
+                    "baidu_isite_wjz2tdly_shieldBottomBarRootContainer",
+                    true
+                  ),
+                  UISwitch(
+                    "【屏蔽】右侧悬浮按钮-查看更多",
+                    "baidu_isite_wjz2tdly_shieldRightSeeMoreToolBar",
+                    false
+                  ),
+                  UISwitch(
+                    "【屏蔽】大家还在看",
+                    "baidu_isite_wjz2tdly_shieldArticleBottom",
+                    true
+                  )
+                ]
+              },
+              {
+                text: "功能",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "自动展开全文",
+                    "baidu_isite_wjz2tdly_autoExpandFullText",
+                    true
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "知了爱学",
+            description: "aistudy",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "屏蔽",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】底部工具栏",
+                    "baidu_ai_study_shieldBottomToolBar",
+                    true
+                  )
+                ]
+              },
+              {
+                text: "功能",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "自动展开全文",
+                    "baidu_ai_study_autoExpandFullText",
+                    true
+                  )
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
@@ -3311,120 +3426,138 @@ match-attr##srcid##sp_purc_atom
     title: "通用",
     forms: [
       {
-        text: "Toast配置",
+        text: "",
         type: "forms",
         forms: [
-          UISelect(
-            "Toast位置",
-            "qmsg-config-position",
-            "bottom",
-            [
+          {
+            text: "Toast配置",
+            type: "deepMenu",
+            forms: [
               {
-                value: "topleft",
-                text: "左上角"
-              },
-              {
-                value: "top",
-                text: "顶部"
-              },
-              {
-                value: "topright",
-                text: "右上角"
-              },
-              {
-                value: "left",
-                text: "左边"
-              },
-              {
-                value: "center",
-                text: "中间"
-              },
-              {
-                value: "right",
-                text: "右边"
-              },
-              {
-                value: "bottomleft",
-                text: "左下角"
-              },
-              {
-                value: "bottom",
-                text: "底部"
-              },
-              {
-                value: "bottomright",
-                text: "右下角"
+                text: "",
+                type: "forms",
+                forms: [
+                  UISelect(
+                    "Toast位置",
+                    "qmsg-config-position",
+                    "bottom",
+                    [
+                      {
+                        value: "topleft",
+                        text: "左上角"
+                      },
+                      {
+                        value: "top",
+                        text: "顶部"
+                      },
+                      {
+                        value: "topright",
+                        text: "右上角"
+                      },
+                      {
+                        value: "left",
+                        text: "左边"
+                      },
+                      {
+                        value: "center",
+                        text: "中间"
+                      },
+                      {
+                        value: "right",
+                        text: "右边"
+                      },
+                      {
+                        value: "bottomleft",
+                        text: "左下角"
+                      },
+                      {
+                        value: "bottom",
+                        text: "底部"
+                      },
+                      {
+                        value: "bottomright",
+                        text: "右下角"
+                      }
+                    ],
+                    (event, isSelectValue, isSelectText) => {
+                      log.info("设置当前Qmsg弹出位置" + isSelectText);
+                    },
+                    "Toast显示在页面九宫格的位置"
+                  ),
+                  UISelect(
+                    "最多显示的数量",
+                    "qmsg-config-maxnums",
+                    3,
+                    [
+                      {
+                        value: 1,
+                        text: "1"
+                      },
+                      {
+                        value: 2,
+                        text: "2"
+                      },
+                      {
+                        value: 3,
+                        text: "3"
+                      },
+                      {
+                        value: 4,
+                        text: "4"
+                      },
+                      {
+                        value: 5,
+                        text: "5"
+                      }
+                    ],
+                    void 0,
+                    "限制Toast显示的数量"
+                  ),
+                  UISwitch(
+                    "逆序弹出",
+                    "qmsg-config-showreverse",
+                    false,
+                    void 0,
+                    "修改Toast弹出的顺序"
+                  )
+                ]
               }
-            ],
-            (event, isSelectValue, isSelectText) => {
-              log.info("设置当前Qmsg弹出位置" + isSelectText);
-            },
-            "Toast显示在页面九宫格的位置"
-          ),
-          UISelect(
-            "最多显示的数量",
-            "qmsg-config-maxnums",
-            3,
-            [
+            ]
+          },
+          {
+            text: "Cookie配置",
+            type: "deepMenu",
+            forms: [
               {
-                value: 1,
-                text: "1"
-              },
-              {
-                value: 2,
-                text: "2"
-              },
-              {
-                value: 3,
-                text: "3"
-              },
-              {
-                value: 4,
-                text: "4"
-              },
-              {
-                value: 5,
-                text: "5"
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "启用",
+                    "httpx-use-cookie-enable",
+                    false,
+                    void 0,
+                    "启用后，将根据下面的配置进行添加cookie"
+                  ),
+                  UISwitch(
+                    "使用document.cookie",
+                    "httpx-use-document-cookie",
+                    false,
+                    void 0,
+                    "自动根据请求的域名来获取对应的cookie"
+                  ),
+                  UITextArea(
+                    "tieba.baidu.com",
+                    "httpx-cookie-tieba.baidu.com",
+                    "",
+                    void 0,
+                    void 0,
+                    "Cookie格式：xxx=xxxx;xxx=xxxx"
+                  )
+                ]
               }
-            ],
-            void 0,
-            "限制Toast显示的数量"
-          ),
-          UISwitch(
-            "逆序弹出",
-            "qmsg-config-showreverse",
-            false,
-            void 0,
-            "修改Toast弹出的顺序"
-          )
-        ]
-      },
-      {
-        text: "Cookie配置",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "启用",
-            "httpx-use-cookie-enable",
-            false,
-            void 0,
-            "启用后，将根据下面的配置进行添加cookie"
-          ),
-          UISwitch(
-            "使用document.cookie",
-            "httpx-use-document-cookie",
-            false,
-            void 0,
-            "自动根据请求的域名来获取对应的cookie"
-          ),
-          UITextArea(
-            "tieba.baidu.com",
-            "httpx-cookie-tieba.baidu.com",
-            "",
-            void 0,
-            void 0,
-            "Cookie格式：xxx=xxxx;xxx=xxxx"
-          )
+            ]
+          }
         ]
       }
     ]
@@ -3541,6 +3674,16 @@ match-attr##srcid##sp_purc_atom
         }
         that.$data.data.set(key, defaultValue);
       }
+      function loopInitDefaultValue(configList) {
+        for (let index = 0; index < configList.length; index++) {
+          let configItem = configList[index];
+          initDefaultValue(configItem);
+          let childForms = configItem.forms;
+          if (childForms && Array.isArray(childForms)) {
+            loopInitDefaultValue(childForms);
+          }
+        }
+      }
       let contentConfigList = this.getPanelContentConfig();
       for (let index = 0; index < contentConfigList.length; index++) {
         let leftContentConfigItem = contentConfigList[index];
@@ -3548,16 +3691,8 @@ match-attr##srcid##sp_purc_atom
           continue;
         }
         let rightContentConfigList = leftContentConfigItem.forms;
-        for (let formItemIndex = 0; formItemIndex < rightContentConfigList.length; formItemIndex++) {
-          let rightContentConfigItem = rightContentConfigList[formItemIndex];
-          if (rightContentConfigItem.forms) {
-            let childFormConfigList = rightContentConfigItem.forms;
-            for (let formChildConfigIndex = 0; formChildConfigIndex < childFormConfigList.length; formChildConfigIndex++) {
-              initDefaultValue(childFormConfigList[formChildConfigIndex]);
-            }
-          } else {
-            initDefaultValue(rightContentConfigItem);
-          }
+        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+          loopInitDefaultValue(rightContentConfigList);
         }
       }
     },
@@ -3910,9 +4045,9 @@ match-attr##srcid##sp_purc_atom
         },
         zIndex: {
           get() {
-            let maxZIndex = Utils.getMaxZIndex(10);
-            let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(10).zIndex;
-            return Utils.getMaxValue(maxZIndex, popsMaxZIndex);
+            let maxZIndex = Utils.getMaxZIndex();
+            let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(maxZIndex).zIndex;
+            return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
           }
         }
       }
@@ -9560,7 +9695,8 @@ div[class^="new-summary-container_"] {\r
               style: "color: #6251B3;margin-top: 5px 0 0 10px;"
             }
           );
-          domutils.on(seeAllReplyElement, "click", function() {
+          domutils.on(seeAllReplyElement, "click", (event) => {
+            utils.preventEvent(event);
             lzlPostElement.click();
           });
           domutils.after(lzlPostElement, seeAllReplyElement);
@@ -9568,7 +9704,7 @@ div[class^="new-summary-container_"] {\r
         domutils.on(
           lzlPostElement,
           "click",
-          function(event) {
+          (event) => {
             utils.preventEvent(event);
             log.success(`点击查看全部回复`);
             TiebaComment.showReplyDialog(lzlPostElement);
@@ -9939,29 +10075,38 @@ div[class^="new-summary-container_"] {\r
         ".whitesev-reply-dialog-sheet-other-content"
       );
       dialogOhterContentElement.appendChild($ohterCommentFragment);
-      function popstateEvent() {
+      let isClosingDialog = false;
+      function popstateEvent(event) {
+        utils.preventEvent(event);
+        if (isClosingDialog) {
+          return;
+        }
         log.success("触发popstate事件");
-        resumeBack();
+        removePopStateEvent();
       }
-      function banBack() {
-        log.success("监听地址改变");
+      function setPopStateEvent() {
+        log.success("监听popstate事件");
         window.history.pushState({}, "", "#/seeLzlReply");
-        domutils.on(window, "popstate", popstateEvent);
+        domutils.on(window, "popstate", popstateEvent, {
+          capture: true
+        });
       }
-      async function resumeBack() {
-        var _a3, _b;
-        domutils.off(window, "popstate", popstateEvent);
-        log.success("浏览器地址后退，并关闭小窗");
+      async function removePopStateEvent() {
+        isClosingDialog = true;
+        log.success("location地址后退并关闭评论弹窗");
         closeDialogByUrlChange();
-        while (1) {
-          if (((_a3 = VueUtils.getVue(TiebaComment.vueRootView)) == null ? void 0 : _a3.$router.history.current.fullPath) === "/seeLzlReply") {
+        while (true) {
+          if (globalThis.location.hash.endsWith("seeLzlReply")) {
             log.info("后退！");
-            (_b = VueUtils.getVue(TiebaComment.vueRootView)) == null ? void 0 : _b.$router.back();
-            await utils.sleep(250);
+            globalThis.history.back();
+            await utils.sleep(150);
           } else {
-            return;
+            break;
           }
         }
+        log.success("停止popstate事件监听");
+        domutils.off(window, "popstate", popstateEvent, { capture: true });
+        isClosingDialog = false;
       }
       function closeDialog(event) {
         dialog.removeAttribute("data-on");
@@ -9970,7 +10115,7 @@ div[class^="new-summary-container_"] {\r
           log.success("关闭楼中楼回复弹窗_click");
           dialog.remove();
           if (PopsPanel.getValue("baidu_tieba_lzl_ban_global_back")) {
-            resumeBack();
+            removePopStateEvent();
           }
         });
       }
@@ -10190,7 +10335,7 @@ div[class^="new-summary-container_"] {\r
         );
         log.success(["成功获取Vue根元素", VueUtils.getVue(this.vueRootView)]);
         if (PopsPanel.getValue("baidu_tieba_lzl_ban_global_back")) {
-          banBack();
+          setPopStateEvent();
         }
       }, 0);
     },
@@ -10712,21 +10857,6 @@ div[class^="new-summary-container_"] {\r
       handlerCommentSuccess: null
     },
     init() {
-      addStyle(`
-		/* 由于lzl弹窗的z-index是99999，所以，回复框、toast、登录弹窗的z-index要大于99999 */
-		/* 底部回复框 */
-        .comment-box-wrap-lzl{
-            z-index: calc(99999 + 10) !important;
-        }
-		/* 登录弹窗 */
-		.login-wake-modal-mask{
-			z-index: calc(99999 + 20) !important;
-		}
-		/* 消息toast */
-		.tb-toast{
-			z-index: calc(99999 + 100) !important;
-		}
-        `);
       this.setGlobalContentClick();
       domutils.ready(() => {
         this.initLogin();
@@ -20311,6 +20441,21 @@ div[class^="new-summary-container_"] {\r
   const BaiduTieBa = {
     init() {
       addStyle(TieBaShieldCSS);
+      addStyle(`
+		/* 由于lzl弹窗的z-index是99999，所以，回复框、toast、登录弹窗的z-index要大于99999 */
+		/* 底部回复框 */
+        .comment-box-wrap-lzl{
+            z-index: calc(99999 + 10) !important;
+        }
+		/* 登录弹窗 */
+		.login-wake-modal-mask{
+			z-index: calc(99999 + 20) !important;
+		}
+		/* 消息toast */
+		.tb-toast{
+			z-index: calc(99999 + 100) !important;
+		}
+        `);
       log.info("插入CSS规则");
       PopsPanel.execMenu(
         "baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",
@@ -20433,15 +20578,19 @@ div[class^="new-summary-container_"] {\r
             icon: '<svg fill="#FF9900" t="1718599526156" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3362"><path d="M783.530667 910.961778l-252.017778-123.448889a38.001778 38.001778 0 0 1 33.28-68.266667l206.620444 101.319111 89.144889-610.247111-401.635555 481.678222v223.857778a37.944889 37.944889 0 0 1-75.832889 0v-236.316444c0-1.991111 0.113778-3.868444 0.455111-5.859556a38.968889 38.968889 0 0 1 8.533333-20.024889l378.424889-453.859555L163.84 514.389333l143.018667 74.126223c18.773333 9.898667 26.225778 32.824889 17.066666 51.768888a36.864 36.864 0 0 1-49.322666 17.066667L67.754667 549.717333a38.912 38.912 0 0 1-17.692445-18.887111 37.546667 37.546667 0 0 1 15.587556-50.744889L899.185778 47.786667a39.139556 39.139556 0 0 1 17.976889-4.323556 37.831111 37.831111 0 0 1 37.944889 31.004445 39.310222 39.310222 0 0 1-0.682667 18.318222L839.111111 882.062222a38.115556 38.115556 0 0 1-32.142222 32.199111 37.148444 37.148444 0 0 1-23.438222-3.299555z" p-id="3363"></path></svg>',
             text: "发帖",
             clickCallBack(event) {
+              var _a3;
               if (BaiduRouter.isTieBaPost() || BaiduRouter.isTieBaNei()) {
                 let $mobileViewport = document.querySelector(
                   ".tb-mobile-viewport"
                 );
                 if ($mobileViewport) {
-                  let mobileViewportVueObj = VueUtils.getVue($mobileViewport);
-                  if (mobileViewportVueObj && typeof mobileViewportVueObj.goPost === "function") {
-                    mobileViewportVueObj.goPost();
-                    return;
+                  let vueObj = VueUtils.getVue($mobileViewport);
+                  if (vueObj) {
+                    let goPost = (vueObj == null ? void 0 : vueObj.goPost) || ((_a3 = vueObj == null ? void 0 : vueObj.$parent) == null ? void 0 : _a3.goPost);
+                    if (typeof goPost === "function") {
+                      goPost();
+                      return;
+                    }
                   }
                 }
                 let $appView = document.querySelector(".app-view");
@@ -20452,8 +20601,10 @@ div[class^="new-summary-container_"] {\r
                     return;
                   }
                 }
+                log.error("未找到发帖函数");
                 Qmsg.error("未找到发帖函数");
               } else {
+                log.error("请在吧内|帖子内使用");
                 Qmsg.error("请在吧内|帖子内使用");
               }
             }
@@ -20545,8 +20696,9 @@ div[class^="new-summary-container_"] {\r
 							--user-info-font-color: #ffffff;
 						}
 						.pops-drawer-title{
-							background: url(https://api.isoyu.com/bing_images.php) no-repeat 0 0 / cover;
-							background-size: cover;
+							background: url(https://api.chongss.com/pc.php?category=landscape);
+							// background-size: cover;
+							background-size: 100%;
 							background-position: center;
 							background-repeat: no-repeat;
 						}
