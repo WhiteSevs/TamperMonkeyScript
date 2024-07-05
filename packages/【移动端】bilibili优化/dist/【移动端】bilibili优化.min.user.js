@@ -11,7 +11,7 @@
 // @match        *://live.bilibili.com/*
 // @match        *://www.bilibili.com/read/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/456485/1398647/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1405857/pops.js
 // @require      https://update.greasyfork.org/scripts/497907/1394170/QRCodeJS.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.9/dist/index.umd.js

@@ -140,6 +140,18 @@ const PopsPanel = {
 			}
 			that.$data.data.set(key, defaultValue);
 		}
+		/** 嵌套循环初始化默认值 */
+		function loopInitDefaultValue(configList: PopsPanelContentConfig["forms"]) {
+			for (let index = 0; index < configList.length; index++) {
+				let configItem = configList[index];
+				initDefaultValue(configItem);
+				let childForms = (configItem as any).forms;
+				if (childForms && Array.isArray(childForms)) {
+					/* 存在子配置forms */
+					loopInitDefaultValue(childForms);
+				}
+			}
+		}
 		let contentConfigList = this.getPanelContentConfig();
 		for (let index = 0; index < contentConfigList.length; index++) {
 			let leftContentConfigItem = contentConfigList[index];
@@ -147,29 +159,10 @@ const PopsPanel = {
 				/* 不存在forms */
 				continue;
 			}
+			// 循环左侧容器内存储的右侧配置项
 			let rightContentConfigList = leftContentConfigItem.forms;
-			for (
-				let formItemIndex = 0;
-				formItemIndex < rightContentConfigList.length;
-				formItemIndex++
-			) {
-				let rightContentConfigItem = rightContentConfigList[
-					formItemIndex
-				] as any;
-				if (rightContentConfigItem.forms) {
-					let childFormConfigList = rightContentConfigItem.forms;
-					/* 该项是右侧区域-容器项的子项的配置 */
-					for (
-						let formChildConfigIndex = 0;
-						formChildConfigIndex < childFormConfigList.length;
-						formChildConfigIndex++
-					) {
-						initDefaultValue(childFormConfigList[formChildConfigIndex]);
-					}
-				} else {
-					/* 该项是右侧区域-容器项的配置 */
-					initDefaultValue(rightContentConfigItem);
-				}
+			if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+				loopInitDefaultValue(rightContentConfigList);
 			}
 		}
 	},

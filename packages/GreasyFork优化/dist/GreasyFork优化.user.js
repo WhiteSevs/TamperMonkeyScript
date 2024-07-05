@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.6.27
+// @version            2024.7.5
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -11,9 +11,9 @@
 // @supportURL         https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match              *://greasyfork.org/*
 // @require            https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require            https://update.greasyfork.org/scripts/456485/1398647/pops.js
+// @require            https://update.greasyfork.org/scripts/456485/1405857/pops.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.8/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.9/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require            https://fastly.jsdelivr.net/npm/i18next@23.11.5/i18next.min.js
@@ -417,9 +417,9 @@
         },
         zIndex: {
           get() {
-            let maxZIndex = Utils.getMaxZIndex(10);
-            let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(10).zIndex;
-            return Utils.getMaxValue(maxZIndex, popsMaxZIndex);
+            let maxZIndex = Utils.getMaxZIndex();
+            let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(maxZIndex).zIndex;
+            return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
           }
         }
       }
@@ -3427,6 +3427,16 @@
         }
         that.$data.data.set(key, defaultValue);
       }
+      function loopInitDefaultValue(configList) {
+        for (let index = 0; index < configList.length; index++) {
+          let configItem = configList[index];
+          initDefaultValue(configItem);
+          let childForms = configItem.forms;
+          if (childForms && Array.isArray(childForms)) {
+            loopInitDefaultValue(childForms);
+          }
+        }
+      }
       let contentConfigList = this.getPanelContentConfig();
       for (let index = 0; index < contentConfigList.length; index++) {
         let leftContentConfigItem = contentConfigList[index];
@@ -3434,16 +3444,8 @@
           continue;
         }
         let rightContentConfigList = leftContentConfigItem.forms;
-        for (let formItemIndex = 0; formItemIndex < rightContentConfigList.length; formItemIndex++) {
-          let rightContentConfigItem = rightContentConfigList[formItemIndex];
-          if (rightContentConfigItem.forms) {
-            let childFormConfigList = rightContentConfigItem.forms;
-            for (let formChildConfigIndex = 0; formChildConfigIndex < childFormConfigList.length; formChildConfigIndex++) {
-              initDefaultValue(childFormConfigList[formChildConfigIndex]);
-            }
-          } else {
-            initDefaultValue(rightContentConfigItem);
-          }
+        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+          loopInitDefaultValue(rightContentConfigList);
         }
       }
     },

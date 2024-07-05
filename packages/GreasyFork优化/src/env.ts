@@ -75,9 +75,10 @@ Qmsg.config(
 			},
 			zIndex: {
 				get() {
-					let maxZIndex = Utils.getMaxZIndex(10);
-					let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(10).zIndex;
-					return Utils.getMaxValue(maxZIndex, popsMaxZIndex);
+					let maxZIndex = Utils.getMaxZIndex();
+					let popsMaxZIndex =
+						pops.config.Utils.getPopsMaxZIndex(maxZIndex).zIndex;
+					return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
 				},
 			},
 		}

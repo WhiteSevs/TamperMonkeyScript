@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.23.19
+// @version      2024.7.5
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://www.xiaohongshu.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/449471/1360565/Viewer.js
-// @require      https://update.greasyfork.org/scripts/456485/1398647/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1405857/pops.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
 // @connect      edith.xiaohongshu.com
 // @grant        GM_addStyle
@@ -83,9 +83,9 @@
         },
         zIndex: {
           get() {
-            let maxZIndex = Utils.getMaxZIndex(10);
-            let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(10).zIndex;
-            return Utils.getMaxValue(maxZIndex, popsMaxZIndex);
+            let maxZIndex = Utils.getMaxZIndex();
+            let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(maxZIndex).zIndex;
+            return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
           }
         }
       }
@@ -791,6 +791,16 @@
         }
         that.$data.data.set(key, defaultValue);
       }
+      function loopInitDefaultValue(configList) {
+        for (let index = 0; index < configList.length; index++) {
+          let configItem = configList[index];
+          initDefaultValue(configItem);
+          let childForms = configItem.forms;
+          if (childForms && Array.isArray(childForms)) {
+            loopInitDefaultValue(childForms);
+          }
+        }
+      }
       let contentConfigList = this.getPanelContentConfig().concat(
         this.getPCPanelContentConfig()
       );
@@ -800,16 +810,8 @@
           continue;
         }
         let rightContentConfigList = leftContentConfigItem.forms;
-        for (let formItemIndex = 0; formItemIndex < rightContentConfigList.length; formItemIndex++) {
-          let rightContentConfigItem = rightContentConfigList[formItemIndex];
-          if (rightContentConfigItem.forms) {
-            let childFormConfigList = rightContentConfigItem.forms;
-            for (let formChildConfigIndex = 0; formChildConfigIndex < childFormConfigList.length; formChildConfigIndex++) {
-              initDefaultValue(childFormConfigList[formChildConfigIndex]);
-            }
-          } else {
-            initDefaultValue(rightContentConfigItem);
-          }
+        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+          loopInitDefaultValue(rightContentConfigList);
         }
       }
     },
