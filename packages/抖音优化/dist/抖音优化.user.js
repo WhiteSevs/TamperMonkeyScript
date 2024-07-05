@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.5
+// @version      2024.7.5.9
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -1605,7 +1605,7 @@
       return window.location.hostname === "www.douyin.com" && window.location.pathname.startsWith("/search");
     }
   };
-  const MobileCSS = '/* 右侧工具栏放大 */\r\n.basePlayerContainer .positionBox {\r\n	bottom: 80px !important;\r\n	padding-right: 5px !important;\r\n	scale: unset !important;\r\n	transform: scale3d(1.12, 1.12, 1.12) !important;\r\n}\r\n/* 右侧工具栏的svg再放大 */\r\n.basePlayerContainer .positionBox svg {\r\n	transform: scale3d(1.12, 1.12, 1.12);\r\n}\r\n/* 重置关注按钮的scale */\r\n.basePlayerContainer\r\n	.positionBox\r\n	.dy-tip-container\r\n	div[data-e2e="feed-follow-icon"]\r\n	svg {\r\n	scale: unset !important;\r\n}\r\n/* 调整视频进度条的按钮大小 */\r\nxg-progress-btn,\r\nxg-progress-btn::before {\r\n	width: 20px !important;\r\n	height: 20px !important;\r\n}\r\n/* 调整视频进度条的按钮距离底部的位置 */\r\nxg-center-grid {\r\n	top: calc(-20px - 15px) !important;\r\n}\r\n/* 调整视频信息栏的bottom */\r\n.basePlayerContainer > div:has(#video-info-wrap) {\r\n	bottom: calc(48px + 15px) !important;\r\n}\r\n/* 设备处于横向方向，即宽度大于高度。 */\r\n@media screen and (orientation: landscape) {\r\n	/* 右侧工具栏放大 */\r\n	.basePlayerContainer .positionBox {\r\n		/*transform: scale(0.95) !important;\r\n		bottom: 42px !important;*/\r\n		padding-right: 10px !important;\r\n	}\r\n}\r\n/* 该设备是纵向的，即高度大于或等于宽度 */\r\n@media screen and (orientation: portrait) {\r\n	/* /video/xxx页面 */\r\n	/* 点赞、评论、分享偏移 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.basePlayerContainer\r\n		.positionBox {\r\n		padding-right: 30px !important;\r\n	}\r\n	/* 底部工具栏右侧的按钮 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.xgplayer.xgplayer-pc\r\n		.xg-right-grid {\r\n		margin-right: 35px !important;\r\n	}\r\n	/* 评论区全屏 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n		width: 100dvw !important;\r\n	}\r\n}\r\n\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#slidelist {\r\n		width: 100dvw;\r\n		height: 100dvh;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: 150px;\r\n		padding-right: 0;\r\n		max-width: unset;\r\n	}\r\n	/* 搜索框获取焦点时自动放大宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]:focus) {\r\n		width: 100dvw;\r\n	}\r\n	/* 去除设置min-width超出浏览器宽度的问题 */\r\n	body {\r\n		min-width: 100% !important;\r\n	}\r\n	/* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n	#douyin-right-container #douyin-header {\r\n		width: 100%;\r\n	}\r\n	/* 去除设置 */\r\n	#douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n		min-width: 100%;\r\n	}\r\n}\r\n';
+  const MobileCSS = '/* 右侧工具栏放大 */\r\n.basePlayerContainer .positionBox {\r\n	bottom: 80px !important;\r\n	padding-right: 5px !important;\r\n	scale: unset !important;\r\n	transform: scale3d(1.12, 1.12, 1.12) !important;\r\n}\r\n/* 右侧工具栏的svg再放大 */\r\n.basePlayerContainer .positionBox svg {\r\n	transform: scale3d(1.12, 1.12, 1.12);\r\n}\r\n/* 重置关注按钮的scale */\r\n.basePlayerContainer\r\n	.positionBox\r\n	.dy-tip-container\r\n	div[data-e2e="feed-follow-icon"]\r\n	svg {\r\n	scale: unset !important;\r\n}\r\n/* 禁止触发touch事件，因为会影响到按钮点击不到 */\r\nxg-outer,\r\nxg-inners {\r\n	pointer-events: none;\r\n}\r\n/* 设备处于横向方向，即宽度大于高度。 */\r\n@media screen and (orientation: landscape) {\r\n	/* 右侧工具栏放大 */\r\n	.basePlayerContainer .positionBox {\r\n		/*transform: scale(0.95) !important;\r\n		bottom: 42px !important;*/\r\n		padding-right: 10px !important;\r\n	}\r\n}\r\n/* 该设备是纵向的，即高度大于或等于宽度 */\r\n@media screen and (orientation: portrait) {\r\n	/* /video/xxx页面 */\r\n	/* 点赞、评论、分享偏移 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.basePlayerContainer\r\n		.positionBox {\r\n		padding-right: 30px !important;\r\n	}\r\n	/* 底部工具栏右侧的按钮 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.xgplayer.xgplayer-pc\r\n		.xg-right-grid {\r\n		margin-right: 35px !important;\r\n	}\r\n	/* 评论区全屏 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n		width: 100dvw !important;\r\n	}\r\n}\r\n\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#slidelist {\r\n		width: 100dvw;\r\n		height: 100dvh;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: 150px;\r\n		padding-right: 0;\r\n		max-width: unset;\r\n	}\r\n	/* 搜索框获取焦点时自动放大宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]:focus) {\r\n		width: 100dvw;\r\n	}\r\n	/* 去除设置min-width超出浏览器宽度的问题 */\r\n	body {\r\n		min-width: 100% !important;\r\n	}\r\n	/* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n	#douyin-right-container #douyin-header {\r\n		width: 100%;\r\n	}\r\n	/* 去除设置 */\r\n	#douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n		min-width: 100%;\r\n	}\r\n}\r\n';
   const DouYinVideoHideElement = {
     init() {
       PopsPanel.execMenu("shieldRightExpandCommentButton", () => {
@@ -1840,22 +1840,22 @@
       DouYinVideoHideElement.init();
       DouYinVideoShortcut.init();
       DouYinVideoComment.init();
-      PopsPanel.execMenu("shieldVideo", () => {
+      PopsPanel.execMenuOnce("shieldVideo", () => {
         DouYinVideoFilter.init();
       });
-      PopsPanel.execMenu("changeCommentToBottom", () => {
+      PopsPanel.execMenuOnce("changeCommentToBottom", () => {
         DouYinVideo.changeCommentToBottom();
       });
-      PopsPanel.execMenu("fullScreen", () => {
+      PopsPanel.execMenuOnce("fullScreen", () => {
         this.fullScreen();
       });
-      PopsPanel.execMenu("parseVideo", () => {
+      PopsPanel.execMenuOnce("parseVideo", () => {
         DouYinVideo.parseVideo();
       });
       PopsPanel.execMenu("autoEnterElementFullScreen", () => {
         this.autoEnterElementFullScreen();
       });
-      PopsPanel.execMenu("dy-video-doubleClickEnterElementFullScreen", () => {
+      PopsPanel.execMenuOnce("dy-video-doubleClickEnterElementFullScreen", () => {
         this.doubleClickEnterElementFullScreen();
       });
       PopsPanel.execMenu("dy-video-bgColor-enable", () => {
@@ -1870,7 +1870,7 @@
         DouYinVideo.chooseVideoDefinition(
           PopsPanel.getValue("chooseVideoDefinition")
         );
-        PopsPanel.execMenu("mobileMode", () => {
+        PopsPanel.execMenuOnce("mobileMode", () => {
           this.mobileMode();
         });
       });
@@ -2144,7 +2144,7 @@
               toClose: true
             }
           },
-          width: "50dvw",
+          width: utils.isPhone() ? "88dvw" : "50dvw",
           height: "50dvh",
           drag: true,
           dragLimit: true,
@@ -2211,6 +2211,36 @@
       DouYin.initialScale();
       DouYinUtils.addBlockCSS("img#douyin-temp-sidebar");
       addStyle(MobileCSS);
+      domUtils.on(
+        document,
+        "touchstart",
+        "xg-progress",
+        (event) => {
+          let $click = event.target;
+          let $xg_outer = $click.querySelector("xg-outer");
+          if ($xg_outer) {
+            $xg_outer.style.height = "6px";
+          }
+        },
+        {
+          capture: true
+        }
+      );
+      domUtils.on(
+        document,
+        "touchend",
+        "xg-progress",
+        (event) => {
+          let $click = event.target;
+          let $xg_outer = $click.querySelector("xg-outer");
+          if ($xg_outer) {
+            $xg_outer.style.height = "";
+          }
+        },
+        {
+          capture: true
+        }
+      );
       if (DouYinRouter.isSearch()) {
         PopsPanel.onceExec("douyin-search-mobileMode", () => {
           DouYinSearch.mobileMode();

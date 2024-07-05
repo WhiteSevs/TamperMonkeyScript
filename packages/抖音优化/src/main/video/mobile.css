@@ -17,19 +17,10 @@
 	svg {
 	scale: unset !important;
 }
-/* 调整视频进度条的按钮大小 */
-xg-progress-btn,
-xg-progress-btn::before {
-	width: 20px !important;
-	height: 20px !important;
-}
-/* 调整视频进度条的按钮距离底部的位置 */
-xg-center-grid {
-	top: calc(-20px - 15px) !important;
-}
-/* 调整视频信息栏的bottom */
-.basePlayerContainer > div:has(#video-info-wrap) {
-	bottom: calc(48px + 15px) !important;
+/* 禁止触发touch事件，因为会影响到按钮点击不到 */
+xg-outer,
+xg-inners {
+	pointer-events: none;
 }
 /* 设备处于横向方向，即宽度大于高度。 */
 @media screen and (orientation: landscape) {

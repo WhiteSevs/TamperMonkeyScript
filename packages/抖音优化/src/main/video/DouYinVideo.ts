@@ -19,22 +19,22 @@ export const DouYinVideo = {
 		DouYinVideoHideElement.init();
 		DouYinVideoShortcut.init();
 		DouYinVideoComment.init();
-		PopsPanel.execMenu("shieldVideo", () => {
+		PopsPanel.execMenuOnce("shieldVideo", () => {
 			DouYinVideoFilter.init();
 		});
-		PopsPanel.execMenu("changeCommentToBottom", () => {
+		PopsPanel.execMenuOnce("changeCommentToBottom", () => {
 			DouYinVideo.changeCommentToBottom();
 		});
-		PopsPanel.execMenu("fullScreen", () => {
+		PopsPanel.execMenuOnce("fullScreen", () => {
 			this.fullScreen();
 		});
-		PopsPanel.execMenu("parseVideo", () => {
+		PopsPanel.execMenuOnce("parseVideo", () => {
 			DouYinVideo.parseVideo();
 		});
 		PopsPanel.execMenu("autoEnterElementFullScreen", () => {
 			this.autoEnterElementFullScreen();
 		});
-		PopsPanel.execMenu("dy-video-doubleClickEnterElementFullScreen", () => {
+		PopsPanel.execMenuOnce("dy-video-doubleClickEnterElementFullScreen", () => {
 			this.doubleClickEnterElementFullScreen();
 		});
 		PopsPanel.execMenu("dy-video-bgColor-enable", () => {
@@ -49,7 +49,7 @@ export const DouYinVideo = {
 			DouYinVideo.chooseVideoDefinition(
 				PopsPanel.getValue("chooseVideoDefinition")
 			);
-			PopsPanel.execMenu("mobileMode", () => {
+			PopsPanel.execMenuOnce("mobileMode", () => {
 				this.mobileMode();
 			});
 		});
@@ -329,7 +329,7 @@ export const DouYinVideo = {
 						toClose: true,
 					},
 				},
-				width: "50dvw",
+				width: utils.isPhone() ? "88dvw" : "50dvw",
 				height: "50dvh",
 				drag: true,
 				dragLimit: true,
@@ -398,6 +398,38 @@ export const DouYinVideo = {
 		/* 屏蔽底部视频工具栏右侧的?帮助反馈按钮 */
 		DouYinUtils.addBlockCSS("img#douyin-temp-sidebar");
 		addStyle(MobileCSS);
+		// 让拖拽进度条的按钮拖拽时修改进度条高度
+		DOMUtils.on(
+			document,
+			"touchstart",
+			"xg-progress",
+			(event) => {
+				let $click = event.target as HTMLElement;
+				let $xg_outer = $click.querySelector<HTMLElement>("xg-outer");
+				if ($xg_outer) {
+					$xg_outer.style.height = "6px";
+				}
+			},
+			{
+				capture: true,
+			}
+		);
+		// 让拖拽进度条的按钮拖拽时修改进度条高度
+		DOMUtils.on(
+			document,
+			"touchend",
+			"xg-progress",
+			(event) => {
+				let $click = event.target as HTMLElement;
+				let $xg_outer = $click.querySelector<HTMLElement>("xg-outer");
+				if ($xg_outer) {
+					$xg_outer.style.height = "";
+				}
+			},
+			{
+				capture: true,
+			}
+		);
 		if (DouYinRouter.isSearch()) {
 			PopsPanel.onceExec("douyin-search-mobileMode", () => {
 				DouYinSearch.mobileMode();
