@@ -4039,14 +4039,27 @@ match-attr##srcid##sp_purc_atom
      * 添加<link>标签
      * @param url
      */
-    addLinkNode(url) {
-      let $link = document.createElement("link");
-      $link.rel = "stylesheet";
-      $link.type = "text/css";
-      $link.href = url;
-      domutils.ready(() => {
-        document.head.appendChild($link);
+    async addLinkNode(url) {
+      let getResp = await httpx.get(url, {
+        headers: {
+          "User-Agent": utils.getRandomPCUA()
+        }
       });
+      if (getResp.status && getResp.data.responseText) {
+        let $style = document.createElement("style");
+        $style.innerHTML = getResp.data.responseText;
+        domutils.ready(() => {
+          document.head.appendChild($style);
+        });
+      } else {
+        let $link = document.createElement("link");
+        $link.rel = "stylesheet";
+        $link.type = "text/css";
+        $link.href = url;
+        domutils.ready(() => {
+          document.head.appendChild($link);
+        });
+      }
     }
   };
   const GM_RESOURCE_MAP = {

@@ -1,4 +1,4 @@
-import { addStyle, DOMUtils, log, utils } from "@/env";
+import { addStyle, DOMUtils, httpx, log, utils } from "@/env";
 
 export const CommonUtils = {
 	/**
@@ -34,13 +34,26 @@ export const CommonUtils = {
 	 * 添加<link>标签
 	 * @param url
 	 */
-	addLinkNode(url: string) {
-		let $link = document.createElement("link");
-		$link.rel = "stylesheet";
-		$link.type = "text/css";
-		$link.href = url;
-		DOMUtils.ready(() => {
-			document.head.appendChild($link);
+	async addLinkNode(url: string) {
+		let getResp = await httpx.get(url, {
+			headers: {
+				"User-Agent": utils.getRandomPCUA(),
+			},
 		});
+		if (getResp.status && getResp.data.responseText) {
+			let $style = document.createElement("style");
+			$style.innerHTML = getResp.data.responseText;
+			DOMUtils.ready(() => {
+				document.head.appendChild($style);
+			});
+		} else {
+			let $link = document.createElement("link");
+			$link.rel = "stylesheet";
+			$link.type = "text/css";
+			$link.href = url;
+			DOMUtils.ready(() => {
+				document.head.appendChild($link);
+			});
+		}
 	},
 };
