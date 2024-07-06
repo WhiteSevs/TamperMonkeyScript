@@ -523,8 +523,8 @@ export const TiebaReply = {
 		DOMUtils.ready(() => {
 			utils.waitNode(".comment-box-wrap", 10000).then(($commentBoxWrap) => {
 				if (!$commentBoxWrap) {
-					log.error("启动失败，获取不到.comment-box-wrap元素");
-					Qmsg.error("启动失败，获取不到.comment-box-wrap元素");
+					log.error("获取不到评论框容器元素.comment-box-wrap");
+					Qmsg.error("获取不到评论框容器元素.comment-box-wrap");
 					return;
 				}
 				setTimeout(() => {
