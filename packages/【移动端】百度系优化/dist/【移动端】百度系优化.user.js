@@ -17944,7 +17944,9 @@ div[class^="new-summary-container_"] {\r
           CommonUtils.addLinkNode(GM_RESOURCE_MAP.Viewer.url);
         }
       }
-      function viewIMG(imgList = [], _index_ = 0) {
+      function viewIMG(imgList = [], imgIndex = 0) {
+        log.info(["当前查看图片的索引下标：" + imgIndex]);
+        log.info(["当前查看图片的列表信息：", imgList]);
         let viewerULNodeHTML = "";
         imgList.forEach((item) => {
           viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
@@ -17960,33 +17962,39 @@ div[class^="new-summary-container_"] {\r
             viewer.destroy();
           }
         });
-        _index_ = _index_ < 0 ? 0 : _index_;
-        viewer.view(_index_);
+        if (imgIndex < 0) {
+          imgIndex = 0;
+          log.warn("imgIndex小于0，重置为0");
+        } else if (imgIndex > imgList.length - 1) {
+          imgIndex = imgList.length - 1;
+          log.warn("imgIndex大于imgList最大下标，重置为imgList最大下标");
+        }
+        viewer.view(imgIndex);
         viewer.zoomTo(1);
         viewer.show();
+        log.success("预览图片");
       }
       domutils.on(
         document,
         "click",
         "img",
-        function(event) {
-          let clickElement = event.target;
-          let clickParentElement = clickElement.parentElement;
-          let imgSrc = clickElement.getAttribute("data-src") || clickElement.getAttribute("src");
-          if (clickParentElement.className === "viewer-canvas" || clickParentElement.hasAttribute("data-viewer-action")) {
+        (event) => {
+          let $click = event.target;
+          let $clickParent = $click.parentElement;
+          let imageUrl = $click.getAttribute("data-src") || $click.getAttribute("src");
+          if ($clickParent.className === "viewer-canvas" || $clickParent.hasAttribute("data-viewer-action")) {
+            log.info("点击的<img>属于Viewer内的元素， 不处理");
             return;
           }
-          if (imgSrc == null ? void 0 : imgSrc.match(/^http(s|):\/\/(tiebapic|imgsa).baidu.com\/forum/g)) {
+          if (imageUrl == null ? void 0 : imageUrl.match(/^http(s|):\/\/(tiebapic|imgsa).baidu.com\/forum/g)) {
             utils.preventEvent(event);
             log.info(`点击图片👇`);
-            log.info(clickElement);
-            if (clickParentElement.className === "img-box") {
-              let parentMain = clickElement.closest(
-                ".img-sudoku.main-img-sudoku"
-              );
+            log.info($click);
+            if ($clickParent.className === "img-box") {
+              let parentMain = $click.closest(".img-sudoku.main-img-sudoku");
               log.info(parentMain);
               if (!parentMain) {
-                viewIMG([imgSrc]);
+                viewIMG([imageUrl]);
                 return;
               }
               utils.preventEvent(event);
@@ -18018,11 +18026,11 @@ div[class^="new-summary-container_"] {\r
               }
               log.info("图片列表👇");
               log.info(lazyImgList);
-              viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
-            } else if (clickParentElement.className === "text-content") {
+              viewIMG(lazyImgList, lazyImgList.indexOf(imageUrl));
+            } else if ($clickParent.className === "text-content") {
               let lazyImgList = [];
-              log.info(clickParentElement);
-              clickParentElement.querySelectorAll("img.BDE_Image").forEach((item) => {
+              log.info($clickParent);
+              $clickParent.querySelectorAll("img.BDE_Image").forEach((item) => {
                 let _imgSrc_ = item.getAttribute("data-src") || item.src;
                 log.info(`获取图片: ${_imgSrc_}`);
                 let imgUrlInfo = new URL(_imgSrc_);
@@ -18041,11 +18049,14 @@ div[class^="new-summary-container_"] {\r
               });
               log.info("评论区图片列表👇");
               log.info(lazyImgList);
-              viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
+              viewIMG(lazyImgList, lazyImgList.indexOf(imageUrl));
             } else {
-              viewIMG([imgSrc]);
+              viewIMG([imageUrl]);
             }
           }
+        },
+        {
+          capture: true
         }
       );
       CommonUtils.addBlockCSS(
@@ -20798,7 +20809,7 @@ div[class^="new-summary-container_"] {\r
 						.pops-drawer-title{
 							background: url(https://api.chongss.com/pc.php?category=landscape);
 							// background-size: cover;
-							background-size: 100%;
+							background-size: 100% 100%;
 							background-position: center;
 							background-repeat: no-repeat;
 						}

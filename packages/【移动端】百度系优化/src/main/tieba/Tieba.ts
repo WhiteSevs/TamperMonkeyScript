@@ -313,7 +313,7 @@ const BaiduTieBa = {
 						.pops-drawer-title{
 							background: url(https://api.chongss.com/pc.php?category=landscape);
 							// background-size: cover;
-							background-size: 100%;
+							background-size: 100% 100%;
 							background-position: center;
 							background-repeat: no-repeat;
 						}

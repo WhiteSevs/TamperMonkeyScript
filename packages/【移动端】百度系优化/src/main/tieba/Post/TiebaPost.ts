@@ -81,10 +81,12 @@ const TiebaPost = {
 		}
 		/**
 		 * 查看图片
-		 * @param imgList
-		 * @param _index_
+		 * @param imgList 图片列表
+		 * @param imgIndex 当前查看图片的索引下标
 		 */
-		function viewIMG(imgList: string[] = [], _index_ = 0) {
+		function viewIMG(imgList: string[] = [], imgIndex = 0) {
+			log.info(["当前查看图片的索引下标：" + imgIndex]);
+			log.info(["当前查看图片的列表信息：", imgList]);
 			let viewerULNodeHTML = "";
 			imgList.forEach((item) => {
 				viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
@@ -100,39 +102,46 @@ const TiebaPost = {
 					viewer.destroy();
 				},
 			});
-			_index_ = _index_ < 0 ? 0 : _index_;
-			viewer.view(_index_);
+			if (imgIndex < 0) {
+				imgIndex = 0;
+				log.warn("imgIndex小于0，重置为0");
+			} else if (imgIndex > imgList.length - 1) {
+				imgIndex = imgList.length - 1;
+				log.warn("imgIndex大于imgList最大下标，重置为imgList最大下标");
+			}
+			viewer.view(imgIndex);
 			viewer.zoomTo(1);
 			viewer.show();
+			log.success("预览图片");
 		}
 		DOMUtils.on<MouseEvent | PointerEvent>(
 			document,
 			"click",
 			"img",
-			function (event) {
-				let clickElement = event.target as HTMLImageElement;
-				let clickParentElement = clickElement.parentElement as HTMLDivElement;
-				let imgSrc =
-					clickElement.getAttribute("data-src") ||
-					clickElement.getAttribute("src");
+			(event) => {
+				let $click = event.target as HTMLImageElement;
+				let $clickParent = $click.parentElement as HTMLDivElement;
+				let imageUrl =
+					$click.getAttribute("data-src") || $click.getAttribute("src");
 				if (
-					clickParentElement.className === "viewer-canvas" ||
-					clickParentElement.hasAttribute("data-viewer-action")
+					$clickParent.className === "viewer-canvas" ||
+					$clickParent.hasAttribute("data-viewer-action")
 				) {
+					log.info("点击的<img>属于Viewer内的元素， 不处理");
 					return;
 				}
-				if (imgSrc?.match(/^http(s|):\/\/(tiebapic|imgsa).baidu.com\/forum/g)) {
+				if (
+					imageUrl?.match(/^http(s|):\/\/(tiebapic|imgsa).baidu.com\/forum/g)
+				) {
 					utils.preventEvent(event);
 					log.info(`点击图片👇`);
-					log.info(clickElement);
-					if (clickParentElement.className === "img-box") {
+					log.info($click);
+					if ($clickParent.className === "img-box") {
 						/* 帖子主体内的图片 */
-						let parentMain = clickElement.closest(
-							".img-sudoku.main-img-sudoku"
-						);
+						let parentMain = $click.closest(".img-sudoku.main-img-sudoku");
 						log.info(parentMain);
 						if (!parentMain) {
-							viewIMG([imgSrc]);
+							viewIMG([imageUrl]);
 							return;
 						}
 						utils.preventEvent(event);
@@ -165,12 +174,12 @@ const TiebaPost = {
 
 						log.info("图片列表👇");
 						log.info(lazyImgList);
-						viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
-					} else if (clickParentElement.className === "text-content") {
+						viewIMG(lazyImgList, lazyImgList.indexOf(imageUrl));
+					} else if ($clickParent.className === "text-content") {
 						/* 评论区内的图片 */
 						let lazyImgList: string[] = [];
-						log.info(clickParentElement);
-						clickParentElement
+						log.info($clickParent);
+						$clickParent
 							.querySelectorAll<HTMLImageElement>("img.BDE_Image")
 							.forEach((item) => {
 								let _imgSrc_ =
@@ -192,12 +201,15 @@ const TiebaPost = {
 							});
 						log.info("评论区图片列表👇");
 						log.info(lazyImgList);
-						viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
+						viewIMG(lazyImgList, lazyImgList.indexOf(imageUrl));
 					} else {
 						/* 单个图片预览 */
-						viewIMG([imgSrc]);
+						viewIMG([imageUrl]);
 					}
 				}
+			},
+			{
+				capture: true,
 			}
 		);
 		CommonUtils.addBlockCSS(
