@@ -230,6 +230,13 @@ class LoadingView {
 		}
 	}
 	/**
+	 * 设置超文本
+	 * @param text 文本
+	 */
+	setHTML(text: string) {
+		this.getLoadingViewElement().innerHTML = text;
+	}
+	/**
 	 * 删除Loading元素
 	 */
 	destory() {

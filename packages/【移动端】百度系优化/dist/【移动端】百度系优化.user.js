@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.5
+// @version      2024.7.6
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -588,6 +588,13 @@
       } else {
         (_a3 = this.getIconElement()) == null ? void 0 : _a3.remove();
       }
+    }
+    /**
+     * 设置超文本
+     * @param text 文本
+     */
+    setHTML(text) {
+      this.getLoadingViewElement().innerHTML = text;
     }
     /**
      * 删除Loading元素
@@ -8600,10 +8607,10 @@ div[class^="new-summary-container_"] {\r
         }
       ]);
       Toolbar.updateEnvParam();
-      this.addStyle();
+      this.initCSS();
       this.setUserCommentHandler();
     },
-    addStyle() {
+    initCSS() {
       addStyle(`
 		/* 去除底部高度设定 */
 		.pb-page-wrapper{
@@ -9239,15 +9246,6 @@ div[class^="new-summary-container_"] {\r
      * @returns
      */
     scrollEvent(isNext, pageDOM, pageCommentList) {
-      if (!pageDOM || typeof pageDOM === "string" || !(pageCommentList == null ? void 0 : pageCommentList.commentList)) {
-        loadingView.setText(
-          typeof pageDOM === "string" ? pageDOM : "获取评论失败"
-        );
-        log.error(pageDOM);
-        log.error(pageCommentList);
-        TiebaComment.removeScrollListener();
-        return;
-      }
       log.info("成功获取评论和楼中楼评论");
       let comments = Array.from(
         pageDOM.querySelectorAll(".l_post.l_post_bright")
@@ -9316,10 +9314,23 @@ div[class^="new-summary-container_"] {\r
       let nextPageAllCommentUrl = TiebaUrlApi.getPost(
         `totalComment?t=${timeStamp}&tid=${TiebaComment.param_tid}&fid=${TiebaComment.param_forum_id}&pn=${TiebaComment.page}&see_lz=0${TiebaComment.extraSearchSignParams}`
       );
-      let pageDOM = await TiebaComment.getPageComment(nextPageUrl);
+      let pageCommentInfo = await TiebaComment.getPageComment(nextPageUrl);
+      if (!pageCommentInfo.success) {
+        loadingView.setHTML(
+          `<a href="${pageCommentInfo.data}">触发百度安全校验，点击前往验证</a>`
+        );
+        return;
+      }
+      let pageDOM = pageCommentInfo.data;
       let pageCommentList = await TiebaComment.getPageCommentList(
         nextPageAllCommentUrl
       );
+      if (pageCommentList == null || pageCommentList.commentList && !pageCommentList.commentList) {
+        loadingView.setText("获取评论失败");
+        log.error("获取评论失败");
+        TiebaComment.removeScrollListener();
+        return;
+      }
       TiebaComment.scrollEvent(true, pageDOM, pageCommentList);
     },
     /**
@@ -9341,10 +9352,22 @@ div[class^="new-summary-container_"] {\r
       let pageAllCommentUrl = TiebaUrlApi.getPost(
         `totalComment?t=${timeStamp}&tid=${TiebaComment.param_tid}&fid=${TiebaComment.param_forum_id}&pn=${TiebaComment.page}&see_lz=0${TiebaComment.extraSearchSignParams}`
       );
-      let pageDOM = await TiebaComment.getPageComment(pageUrl);
+      let pageCommentInfo = await TiebaComment.getPageComment(pageUrl);
+      if (!pageCommentInfo.success) {
+        loadingView.setHTML(
+          `<a href="${pageCommentInfo.data}">触发百度安全校验，点击前往验证</a>`
+        );
+        return;
+      }
+      let pageDOM = pageCommentInfo.data;
       let pageCommentList = await TiebaComment.getPageCommentList(
         pageAllCommentUrl
       );
+      if (pageCommentList == null || pageCommentList.commentList && !pageCommentList.commentList) {
+        loadingView.setText("评论数据获取失败");
+        log.error("评论数据获取失败");
+        return;
+      }
       TiebaComment.scrollEvent(false, pageDOM, pageCommentList);
     },
     /**
@@ -9353,8 +9376,7 @@ div[class^="new-summary-container_"] {\r
     setNextPageScrollListener() {
       TiebaComment.funcLock = new utils.LockFunction(
         TiebaComment.nextPageScrollEvent,
-        this,
-        void 0
+        this
       );
       document.addEventListener("scroll", TiebaComment.funcLock.run);
       utils.dispatchEvent(document, "scroll", { jsTrigger: true });
@@ -10441,23 +10463,42 @@ div[class^="new-summary-container_"] {\r
         if (pageCommentHTMLElement.title === "百度安全验证" || respData.finalUrl.startsWith("https://wappass.baidu.com")) {
           log.error("触发百度安全验证 👇" + respData.finalUrl);
           log.error(respData);
-          return "触发百度安全验证";
+          return {
+            success: false,
+            msg: "触发百度安全验证",
+            data: respData.finalUrl
+          };
         } else {
-          return pageCommentHTMLElement;
+          return {
+            success: true,
+            msg: "获取成功",
+            data: pageCommentHTMLElement
+          };
         }
       } else if (getResp.type === "onerror") {
         if (typeof respData.error === "string" && respData.error.match("wappass.baidu.com")) {
           let url2 = respData.error.match(/"(.*?)"/)[1];
           log.error("触发百度校验: " + url2);
-          let gotoBaiduWappass = confirm("触发百度安全验证，是否前往：" + url2);
-          if (gotoBaiduWappass) {
-            window.location.href = url2;
-          }
+          return {
+            success: false,
+            msg: "触发百度安全验证",
+            data: url2
+          };
         } else {
           log.error("获取评论数据失败 👇");
           log.error(respData);
+          return {
+            success: false,
+            msg: "获取评论数据失败",
+            data: null
+          };
         }
       }
+      return {
+        success: false,
+        msg: "未知状态",
+        data: null
+      };
     },
     /**
      * 获取第XX页的所有评论
@@ -10660,6 +10701,7 @@ div[class^="new-summary-container_"] {\r
      * 查看-正序
      */
     async mainPositive() {
+      log.info("查看-正序");
       TiebaComment.param_tid = TiebaCore.getCurrentForumPostTid();
       if (!TiebaComment.param_tid) {
         log.error("贴吧：未找到本页参数p");
@@ -10668,20 +10710,28 @@ div[class^="new-summary-container_"] {\r
       TiebaComment.param_forum_id = TiebaPageDataApi.getForumId();
       if (!TiebaComment.param_forum_id) {
         let recommendItemElement = await utils.waitNode(
-          ".recommend-item"
+          ".recommend-item",
+          5e3
         );
-        await utils.waitPropertyByInterval(
-          recommendItemElement,
-          () => {
-            return recommendItemElement.hasAttribute("data-banner-info");
-          },
-          250,
-          1e4
-        );
-        TiebaComment.param_forum_id = TiebaPageDataApi.getForumId();
-      }
-      if (!TiebaComment.param_forum_id) {
-        return log.error("贴吧：获取参数data-banner-info失败");
+        if (recommendItemElement) {
+          await utils.waitPropertyByInterval(
+            recommendItemElement,
+            () => {
+              return recommendItemElement.hasAttribute("data-banner-info");
+            },
+            250,
+            1e4
+          );
+          TiebaComment.param_forum_id = TiebaPageDataApi.getForumId();
+          if (!TiebaComment.param_forum_id) {
+            log.error("贴吧：获取参数data-banner-info失败");
+            return;
+          }
+        } else {
+          log.error("获取元素.recommend-item失败");
+          Qmsg.error("获取元素.recommend-item失败");
+          return;
+        }
       }
       let timeStamp = Date.now();
       TiebaComment.page = 1;
@@ -10693,17 +10743,17 @@ div[class^="new-summary-container_"] {\r
       let pageUrl = TiebaUrlApi.getPost(
         `${TiebaComment.param_tid}?pn=${TiebaComment.page}${TiebaComment.extraSearchSignParams}`
       );
-      let pageDOM = await TiebaComment.getPageComment(pageUrl);
-      let pageCommentList = await TiebaComment.getPageCommentList(url);
-      if (pageCommentList == null) {
-        loadingView.setText("获取评论失败");
-        log.error("评论数据获取undefined");
+      let pageCommentInfo = await TiebaComment.getPageComment(pageUrl);
+      if (!pageCommentInfo.success) {
+        loadingView.setHTML(
+          `<a href="${pageCommentInfo.data}">触发百度安全校验，点击前往验证</a>`
+        );
         return;
       }
-      if (!pageDOM || typeof pageDOM === "string" || !pageCommentList.commentList) {
-        loadingView.setText(
-          typeof pageDOM === "string" ? pageDOM : "获取评论失败"
-        );
+      let pageDOM = pageCommentInfo.data;
+      let pageCommentList = await TiebaComment.getPageCommentList(url);
+      if (pageCommentList == null || pageCommentList.commentList && !pageCommentList.commentList) {
+        loadingView.setText("评论数据获取失败");
         log.error("评论数据获取失败");
         return;
       }
@@ -10725,6 +10775,7 @@ div[class^="new-summary-container_"] {\r
         document.querySelectorAll(".post-item").forEach((ele) => ele.remove());
         comments.shift();
         TiebaComment.floor_num = 1;
+        console.log(comments);
         comments.forEach((element) => {
           TiebaComment.insertNewCommentInnerElement(
             TiebaComment.getNewCommentInnerElement(element, pageCommentList)
@@ -10749,20 +10800,28 @@ div[class^="new-summary-container_"] {\r
       TiebaComment.param_forum_id = TiebaPageDataApi.getForumId();
       if (!TiebaComment.param_forum_id) {
         let recommendItemElement = await utils.waitNode(
-          ".recommend-item"
+          ".recommend-item",
+          5e3
         );
-        await utils.waitPropertyByInterval(
-          recommendItemElement,
-          () => {
-            return recommendItemElement.hasAttribute("data-banner-info");
-          },
-          250,
-          1e4
-        );
-        TiebaComment.param_forum_id = TiebaPageDataApi.getForumId();
-      }
-      if (!TiebaComment.param_forum_id) {
-        return log.error("贴吧：获取参数data-banner-info失败");
+        if (recommendItemElement) {
+          await utils.waitPropertyByInterval(
+            recommendItemElement,
+            () => {
+              return recommendItemElement.hasAttribute("data-banner-info");
+            },
+            250,
+            1e4
+          );
+          TiebaComment.param_forum_id = TiebaPageDataApi.getForumId();
+          if (!TiebaComment.param_forum_id) {
+            log.error("贴吧：获取参数data-banner-info失败");
+            return;
+          }
+        } else {
+          log.error("获取元素.recommend-item失败");
+          Qmsg.error("获取元素.recommend-item失败");
+          return;
+        }
       }
       let timeStamp = Date.now();
       TiebaComment.page = 1;
@@ -10774,17 +10833,21 @@ div[class^="new-summary-container_"] {\r
       let pageUrl = TiebaUrlApi.getPost(
         `${TiebaComment.param_tid}?pn=${TiebaComment.page}${TiebaComment.extraSearchSignParams}`
       );
-      let pageDOM = await TiebaComment.getPageComment(pageUrl);
-      let pageCommentList = await TiebaComment.getPageCommentList(url);
-      if (pageCommentList == null) {
-        loadingView.setText("获取评论失败");
-        log.error("评论数据获取为undefined");
+      let pageCommentInfo = await TiebaComment.getPageComment(pageUrl);
+      if (!pageCommentInfo.success) {
+        loadingView.setHTML(
+          `<a href="${pageCommentInfo.data}">触发百度安全校验，点击前往验证</a>`
+        );
         return;
       }
-      if (!pageDOM || typeof pageDOM === "string" || !pageCommentList.commentList) {
-        loadingView.setText(
-          typeof pageDOM === "string" ? pageDOM : "获取评论失败"
-        );
+      let pageDOM = pageCommentInfo.data;
+      let pageCommentList = await TiebaComment.getPageCommentList(url);
+      if (pageCommentList == null) {
+        loadingView.setText("评论数据获取为undefined");
+        log.error("评论数据获取为undefined");
+        return;
+      } else if (!pageCommentList.commentList) {
+        loadingView.setText("评论数据获取失败");
         log.error("评论数据获取失败");
         return;
       }
@@ -18028,7 +18091,7 @@ div[class^="new-summary-container_"] {\r
      */
     repairErrorThread() {
       async function getPageInfo() {
-        var _a3;
+        var _a3, _b;
         let getResp = await httpx.get(window.location.href, {
           headers: {
             "User-Agent": utils.getRandomPCUA()
@@ -18080,14 +18143,18 @@ div[class^="new-summary-container_"] {\r
         }
         let time = ((_a3 = pageDOM.querySelector(
           "#j_p_postlist .post-tail-wrap span.tail-info:nth-child(6)"
-        )) == null ? void 0 : _a3.innerText) || "";
+        )) == null ? void 0 : _a3.innerText) || ((_b = field == null ? void 0 : field.content) == null ? void 0 : _b.date) || "";
         if (utils.isNotNull(time)) {
           time = utils.formatToTimeStamp(time) / 1e3;
         }
+        let content = pageDOM.querySelector(
+          '.d_post_content_firstfloor .d_post_content[id^="post_content_"]'
+        );
         return {
           field,
           PageData,
-          time
+          time,
+          content: content == null ? void 0 : content.innerHTML
         };
       }
       function getPostList(field, PageData, time) {
@@ -18193,16 +18260,16 @@ div[class^="new-summary-container_"] {\r
           /* PageData.forum.avatar */
           avatar: pageInfo.PageData.forum.avatar,
           /* PageData.forum.first_class */
-          first_dir: pageInfo.PageData.forum.first_class,
+          first_dir: pageInfo.PageData.forum.first_class || pageInfo.PageData.first_class,
           /* PageData.forum.id */
-          id: pageInfo.PageData.forum.id,
+          id: pageInfo.PageData.forum.id || pageInfo.PageData.forum.forum_id || pageInfo.PageData.forum.true_forum_id,
           is_exists: 1,
           is_forbidden: 0,
           is_forum_merged: 0,
           /* PageData.forum.name */
-          name: pageInfo.PageData.forum.name,
+          name: pageInfo.PageData.forum.name || pageInfo.PageData.forum.forum_name,
           /* PageData.forum.second_class */
-          second_dir: pageInfo.PageData.forum.second_class
+          second_dir: pageInfo.PageData.forum.second_class || pageInfo.PageData.second_class
         };
         appViewVue.postNum = 100;
         appViewVue.isErrorThread = false;
@@ -18212,7 +18279,7 @@ div[class^="new-summary-container_"] {\r
             document.querySelector(
               "div.app-view div.thread-main-wrapper .thread-text"
             ),
-            postList[0].content[0].text
+            postList[0].content[0].text || pageInfo.content
           );
           if (appViewVue.interactionNum && typeof ((_b = (_a3 = pageInfo == null ? void 0 : pageInfo.PageData) == null ? void 0 : _a3.thread) == null ? void 0 : _b.reply_num) === "number") {
             appViewVue.interactionNum.reply = pageInfo.PageData.thread.reply_num;

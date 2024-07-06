@@ -336,14 +336,20 @@ const TiebaPost = {
 			let time =
 				pageDOM.querySelector<HTMLSpanElement>(
 					"#j_p_postlist .post-tail-wrap span.tail-info:nth-child(6)"
-				)?.innerText || "";
+				)?.innerText ||
+				field?.content?.date ||
+				"";
 			if (utils.isNotNull(time)) {
 				time = (utils.formatToTimeStamp(time) / 1000) as unknown as string;
 			}
+			let content = pageDOM.querySelector<HTMLDivElement>(
+				'.d_post_content_firstfloor .d_post_content[id^="post_content_"]'
+			);
 			return {
 				field: field,
 				PageData: PageData,
 				time: time as unknown as number,
+				content: content?.innerHTML,
 			};
 		}
 		/**
@@ -443,6 +449,7 @@ const TiebaPost = {
 				);
 				appViewVue.postList = postList;
 				appViewVue.postAuthorId = postList[0].author.id;
+				// 设置帖子信息
 				appViewVue.thread = {
 					agree: {
 						agree_num: 0,
@@ -461,20 +468,29 @@ const TiebaPost = {
 					valid_post_num: 0,
 					works_info: {},
 				};
+				// 设置帖子的所在吧信息
 				appViewVue.forum = {
 					/* PageData.forum.avatar */
 					avatar: pageInfo.PageData.forum.avatar,
 					/* PageData.forum.first_class */
-					first_dir: pageInfo.PageData.forum.first_class,
+					first_dir:
+						pageInfo.PageData.forum.first_class ||
+						pageInfo.PageData.first_class,
 					/* PageData.forum.id */
-					id: pageInfo.PageData.forum.id,
+					id:
+						pageInfo.PageData.forum.id ||
+						pageInfo.PageData.forum.forum_id ||
+						pageInfo.PageData.forum.true_forum_id,
 					is_exists: 1,
 					is_forbidden: 0,
 					is_forum_merged: 0,
 					/* PageData.forum.name */
-					name: pageInfo.PageData.forum.name,
+					name:
+						pageInfo.PageData.forum.name || pageInfo.PageData.forum.forum_name,
 					/* PageData.forum.second_class */
-					second_dir: pageInfo.PageData.forum.second_class,
+					second_dir:
+						pageInfo.PageData.forum.second_class ||
+						pageInfo.PageData.second_class,
 				};
 				/* 固定一下值吧，没测出什么作用 */
 				appViewVue.postNum = 100;
@@ -486,7 +502,7 @@ const TiebaPost = {
 						document.querySelector<HTMLDivElement>(
 							"div.app-view div.thread-main-wrapper .thread-text"
 						)!,
-						postList[0].content[0].text
+						postList[0].content[0].text || pageInfo.content
 					);
 					if (
 						appViewVue.interactionNum &&
