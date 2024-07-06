@@ -35,21 +35,12 @@ export const CommonUtils = {
 	 * @param url
 	 */
 	async addLinkNode(url: string) {
-		let getResp = await httpx.get(url, {
-			headers: {
-				"User-Agent": utils.getRandomPCUA(),
-			},
+		let $link = document.createElement("link");
+		$link.rel = "stylesheet";
+		$link.type = "text/css";
+		$link.href = url;
+		DOMUtils.ready(() => {
+			document.head.appendChild($link);
 		});
-		if (getResp.status && getResp.data.responseText) {
-			addStyle(getResp.data.responseText);
-		} else {
-			let $link = document.createElement("link");
-			$link.rel = "stylesheet";
-			$link.type = "text/css";
-			$link.href = url;
-			DOMUtils.ready(() => {
-				document.head.appendChild($link);
-			});
-		}
 	},
 };

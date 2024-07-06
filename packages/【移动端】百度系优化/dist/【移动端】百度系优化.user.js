@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.6.13
+// @version      2024.7.6.14
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -4040,22 +4040,13 @@ match-attr##srcid##sp_purc_atom
      * @param url
      */
     async addLinkNode(url) {
-      let getResp = await httpx.get(url, {
-        headers: {
-          "User-Agent": utils.getRandomPCUA()
-        }
+      let $link = document.createElement("link");
+      $link.rel = "stylesheet";
+      $link.type = "text/css";
+      $link.href = url;
+      domutils.ready(() => {
+        document.head.appendChild($link);
       });
-      if (getResp.status && getResp.data.responseText) {
-        addStyle(getResp.data.responseText);
-      } else {
-        let $link = document.createElement("link");
-        $link.rel = "stylesheet";
-        $link.type = "text/css";
-        $link.href = url;
-        domutils.ready(() => {
-          document.head.appendChild($link);
-        });
-      }
     }
   };
   const GM_RESOURCE_MAP = {
@@ -17946,7 +17937,7 @@ div[class^="new-summary-container_"] {\r
      */
     optimizeImagePreview() {
       {
-        let viewerCSSText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(GM_RESOURCE_MAP.ElementPlus.keyName) : "";
+        let viewerCSSText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(GM_RESOURCE_MAP.Viewer.keyName) : "";
         if (typeof viewerCSSText === "string" && viewerCSSText) {
           addStyle(viewerCSSText);
         } else {

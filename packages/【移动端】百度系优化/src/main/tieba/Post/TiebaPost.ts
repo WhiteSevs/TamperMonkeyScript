@@ -71,7 +71,7 @@ const TiebaPost = {
 		} else {
 			let viewerCSSText =
 				typeof GM_getResourceText === "function"
-					? GM_getResourceText(GM_RESOURCE_MAP.ElementPlus.keyName)
+					? GM_getResourceText(GM_RESOURCE_MAP.Viewer.keyName)
 					: "";
 			if (typeof viewerCSSText === "string" && viewerCSSText) {
 				addStyle(viewerCSSText);
