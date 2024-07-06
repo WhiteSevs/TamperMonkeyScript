@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.6
+// @version      2024.7.6.13
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -4009,6 +4009,56 @@ match-attr##srcid##sp_purc_atom
       }
     }
   };
+  const CommonUtils = {
+    /**
+     * 添加屏蔽CSS
+     * @param args
+     * @example
+     * addBlockCSS("")
+     * addBlockCSS("","")
+     * addBlockCSS(["",""])
+     */
+    addBlockCSS(...args) {
+      let selectorList = [];
+      if (args.length === 0) {
+        return;
+      }
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+        return;
+      }
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    /**
+     * 添加<link>标签
+     * @param url
+     */
+    addLinkNode(url) {
+      let $link = document.createElement("link");
+      $link.rel = "stylesheet";
+      $link.type = "text/css";
+      $link.href = url;
+      domutils.ready(() => {
+        document.head.appendChild($link);
+      });
+    }
+  };
+  const GM_RESOURCE_MAP = {
+    ElementPlus: {
+      keyName: "ElementPlusResourceCSS",
+      url: "https://fastly.jsdelivr.net/npm/element-plus@latest/dist/index.min.css"
+    },
+    Viewer: {
+      keyName: "ViewerCSS",
+      url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css"
+    }
+  };
   const _SCRIPT_NAME_ = "【移动端】百度系优化";
   const utils = Utils.noConflict();
   const domutils = DOMUtils.noConflict();
@@ -4122,7 +4172,12 @@ match-attr##srcid##sp_purc_atom
       app.mount($mount);
     });
     {
-      addStyle(_GM_getResourceText("ElementPlusResourceCSS"));
+      let elementPlusCSSText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(GM_RESOURCE_MAP.ElementPlus.keyName) : "";
+      if (typeof elementPlusCSSText === "string" && elementPlusCSSText) {
+        addStyle(elementPlusCSSText);
+      } else {
+        CommonUtils.addLinkNode(GM_RESOURCE_MAP.ElementPlus.url);
+      }
     }
   };
   const SearchShieldCSS = `.c-container.na-ec-item,\r
@@ -4315,33 +4370,6 @@ div[class^="new-summary-container_"] {\r
 }\r
 `;
   const SearchHealthShieldCSS = '/* 右下角悬浮的健康直播间图标按钮 */\r\ndiv[class^="index_brandEntry"] {\r\n  display: none !important;\r\n}\r\n';
-  const CommonUtils = {
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args) {
-      let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
-      args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
-      });
-      addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
-    }
-  };
   const BaiduHeadlth = {
     init() {
       PopsPanel.execMenu("baidu_search_headlth_shield_other_info", () => {
@@ -17909,7 +17937,12 @@ div[class^="new-summary-container_"] {\r
      */
     optimizeImagePreview() {
       {
-        addStyle(_GM_getResourceText("ViewerCSS"));
+        let viewerCSSText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(GM_RESOURCE_MAP.ElementPlus.keyName) : "";
+        if (typeof viewerCSSText === "string" && viewerCSSText) {
+          addStyle(viewerCSSText);
+        } else {
+          CommonUtils.addLinkNode(GM_RESOURCE_MAP.Viewer.url);
+        }
       }
       function viewIMG(imgList = [], _index_ = 0) {
         let viewerULNodeHTML = "";

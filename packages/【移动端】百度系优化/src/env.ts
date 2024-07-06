@@ -16,6 +16,8 @@ import Utils from "@whitesev/utils";
 import DOMUtils from "@whitesev/domutils";
 import { HttpxCookieManager } from "./utils/HttpxCookieManager";
 import { PopsPanel } from "./setting/setting";
+import { CommonUtils } from "./utils/CommonUtils";
+import { GM_RESOURCE_MAP } from "./GM_Resource_Map";
 
 const _SCRIPT_NAME_ = "【移动端】百度系优化";
 const utils = Utils.noConflict();
@@ -168,7 +170,15 @@ const MountVue = async function (targetApp: any, plugin: any[] = []) {
 		let elementPlusCSS = await import("element-plus/dist/index.css?raw");
 		addStyle(elementPlusCSS.default);
 	} else {
-		addStyle(GM_getResourceText("ElementPlusResourceCSS"));
+		let elementPlusCSSText =
+			typeof GM_getResourceText === "function"
+				? GM_getResourceText(GM_RESOURCE_MAP.ElementPlus.keyName)
+				: "";
+		if (typeof elementPlusCSSText === "string" && elementPlusCSSText) {
+			addStyle(elementPlusCSSText);
+		} else {
+			CommonUtils.addLinkNode(GM_RESOURCE_MAP.ElementPlus.url);
+		}
 	}
 };
 

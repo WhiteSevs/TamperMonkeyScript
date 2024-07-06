@@ -13,6 +13,7 @@ import App from "./App.vue";
 import pinia from "./stores";
 import { VueUtils } from "@/utils/VueUtils";
 import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
+import { GM_RESOURCE_MAP } from "@/GM_Resource_Map";
 
 interface PostImg {
 	bsize: string;
@@ -68,7 +69,15 @@ const TiebaPost = {
 				addStyle(ViewerCSS.default);
 			});
 		} else {
-			addStyle(GM_getResourceText("ViewerCSS"));
+			let viewerCSSText =
+				typeof GM_getResourceText === "function"
+					? GM_getResourceText(GM_RESOURCE_MAP.ElementPlus.keyName)
+					: "";
+			if (typeof viewerCSSText === "string" && viewerCSSText) {
+				addStyle(viewerCSSText);
+			} else {
+				CommonUtils.addLinkNode(GM_RESOURCE_MAP.Viewer.url);
+			}
 		}
 		/**
 		 * 查看图片

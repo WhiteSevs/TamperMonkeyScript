@@ -1,4 +1,4 @@
-import { addStyle, log, utils } from "@/env";
+import { addStyle, DOMUtils, log, utils } from "@/env";
 
 export const CommonUtils = {
 	/**
@@ -29,5 +29,18 @@ export const CommonUtils = {
 			}
 		});
 		addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+	},
+	/**
+	 * 添加<link>标签
+	 * @param url
+	 */
+	addLinkNode(url: string) {
+		let $link = document.createElement("link");
+		$link.rel = "stylesheet";
+		$link.type = "text/css";
+		$link.href = url;
+		DOMUtils.ready(() => {
+			document.head.appendChild($link);
+		});
 	},
 };
