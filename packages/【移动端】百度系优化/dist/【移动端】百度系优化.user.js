@@ -4046,11 +4046,7 @@ match-attr##srcid##sp_purc_atom
         }
       });
       if (getResp.status && getResp.data.responseText) {
-        let $style = document.createElement("style");
-        $style.innerHTML = getResp.data.responseText;
-        domutils.ready(() => {
-          document.head.appendChild($style);
-        });
+        addStyle(getResp.data.responseText);
       } else {
         let $link = document.createElement("link");
         $link.rel = "stylesheet";
