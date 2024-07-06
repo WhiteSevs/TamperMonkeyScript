@@ -442,14 +442,30 @@ export const TiebaReply = {
 			}
 		);
 	},
+	/**
+	 * 将输入框的值设置到原输入框中
+	 * @param value 输入的内容
+	 * @returns
+	 */
 	setInputValue(value: string) {
 		let commentBoxVueObj = this.getCommentBoxWrapVue();
 		if (!commentBoxVueObj) {
 			return;
 		}
-		commentBoxVueObj.commentRef.value = value;
-		commentBoxVueObj.inputValue = value;
-		utils.dispatchEvent(commentBoxVueObj.commentRef, "input");
+		try {
+			commentBoxVueObj.inputValue = value;
+			if (
+				commentBoxVueObj.commentRef &&
+				commentBoxVueObj.commentRef instanceof HTMLInputElement
+			) {
+				// 不存在的话可能是因为显示该帖子回复必须是APP内，所以没有input实例
+				commentBoxVueObj.commentRef.value = value;
+				utils.dispatchEvent(commentBoxVueObj.commentRef, "input");
+			}
+		} catch (error) {
+			Qmsg.error("设置输入框值失败");
+			log.error(error);
+		}
 	},
 	sendMsgBefore(submitTouchStartEvent: TouchEvent) {
 		let commentBoxVueObj = this.getCommentBoxWrapVue();
