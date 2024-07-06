@@ -170,15 +170,7 @@ const MountVue = async function (targetApp: any, plugin: any[] = []) {
 		let elementPlusCSS = await import("element-plus/dist/index.css?raw");
 		addStyle(elementPlusCSS.default);
 	} else {
-		let elementPlusCSSText =
-			typeof GM_getResourceText === "function"
-				? GM_getResourceText(GM_RESOURCE_MAP.ElementPlus.keyName)
-				: "";
-		if (typeof elementPlusCSSText === "string" && elementPlusCSSText) {
-			addStyle(elementPlusCSSText);
-		} else {
-			CommonUtils.addLinkNode(GM_RESOURCE_MAP.ElementPlus.url);
-		}
+		CommonUtils.setGMResourceCSS(GM_RESOURCE_MAP.ElementPlus);
 	}
 };
 

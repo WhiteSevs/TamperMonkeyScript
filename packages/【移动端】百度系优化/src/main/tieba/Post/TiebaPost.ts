@@ -69,15 +69,7 @@ const TiebaPost = {
 				addStyle(ViewerCSS.default);
 			});
 		} else {
-			let viewerCSSText =
-				typeof GM_getResourceText === "function"
-					? GM_getResourceText(GM_RESOURCE_MAP.Viewer.keyName)
-					: "";
-			if (typeof viewerCSSText === "string" && viewerCSSText) {
-				addStyle(viewerCSSText);
-			} else {
-				CommonUtils.addLinkNode(GM_RESOURCE_MAP.Viewer.url);
-			}
+			CommonUtils.setGMResourceCSS(GM_RESOURCE_MAP.Viewer);
 		}
 		/**
 		 * 查看图片

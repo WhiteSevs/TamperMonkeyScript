@@ -1,4 +1,5 @@
 import { addStyle, DOMUtils, httpx, log, utils } from "@/env";
+import { GM_getResourceText } from "ViteGM";
 
 export const CommonUtils = {
 	/**
@@ -29,6 +30,21 @@ export const CommonUtils = {
 			}
 		});
 		addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+	},
+	/**
+	 * 设置GM_getResourceText的style内容
+	 * @param resourceMapData 资源数据
+	 */
+	setGMResourceCSS(resourceMapData: { keyName: string; url: string }) {
+		let cssText =
+			typeof GM_getResourceText === "function"
+				? GM_getResourceText(resourceMapData.keyName)
+				: "";
+		if (typeof cssText === "string" && cssText) {
+			addStyle(cssText);
+		} else {
+			CommonUtils.addLinkNode(resourceMapData.url);
+		}
 	},
 	/**
 	 * 添加<link>标签

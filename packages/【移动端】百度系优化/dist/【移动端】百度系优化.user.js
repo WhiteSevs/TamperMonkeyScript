@@ -4036,6 +4036,18 @@ match-attr##srcid##sp_purc_atom
       addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
     /**
+     * 设置GM_getResourceText的style内容
+     * @param resourceMapData 资源数据
+     */
+    setGMResourceCSS(resourceMapData) {
+      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+      if (typeof cssText === "string" && cssText) {
+        addStyle(cssText);
+      } else {
+        CommonUtils.addLinkNode(resourceMapData.url);
+      }
+    },
+    /**
      * 添加<link>标签
      * @param url
      */
@@ -4172,12 +4184,7 @@ match-attr##srcid##sp_purc_atom
       app.mount($mount);
     });
     {
-      let elementPlusCSSText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(GM_RESOURCE_MAP.ElementPlus.keyName) : "";
-      if (typeof elementPlusCSSText === "string" && elementPlusCSSText) {
-        addStyle(elementPlusCSSText);
-      } else {
-        CommonUtils.addLinkNode(GM_RESOURCE_MAP.ElementPlus.url);
-      }
+      CommonUtils.setGMResourceCSS(GM_RESOURCE_MAP.ElementPlus);
     }
   };
   const SearchShieldCSS = `.c-container.na-ec-item,\r
@@ -17937,12 +17944,7 @@ div[class^="new-summary-container_"] {\r
      */
     optimizeImagePreview() {
       {
-        let viewerCSSText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(GM_RESOURCE_MAP.Viewer.keyName) : "";
-        if (typeof viewerCSSText === "string" && viewerCSSText) {
-          addStyle(viewerCSSText);
-        } else {
-          CommonUtils.addLinkNode(GM_RESOURCE_MAP.Viewer.url);
-        }
+        CommonUtils.setGMResourceCSS(GM_RESOURCE_MAP.Viewer);
       }
       function viewIMG(imgList = [], imgIndex = 0) {
         log.info(["当前查看图片的索引下标：" + imgIndex]);
