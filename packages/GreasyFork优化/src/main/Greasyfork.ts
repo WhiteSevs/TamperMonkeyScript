@@ -23,7 +23,9 @@ import { GreasyforkCollection } from "./GreasyforkCollection";
 
 const Greasyfork = {
 	init() {
-		this.checkPage();
+		PopsPanel.execMenu("checkPage", () => {
+			this.checkPage();
+		});
 		GreasyforkBeautify.init();
 		if (GreasyforkRouter.isCodeStrict()) {
 			PopsPanel.execMenuOnce("fullScreenOptimization", () => {
@@ -46,10 +48,18 @@ const Greasyfork = {
 				});
 			}
 			GreasyforkMenu.handleLocalGotoCallBack();
-			Greasyfork.setFindCodeSearchBtn();
-			GreasyforkCollection.init();
-			Greasyfork.repairImgShow();
-			Greasyfork.scriptHomepageAddedTodaySUpdate();
+			PopsPanel.execMenuOnce("addFindReferenceButton", () => {
+				Greasyfork.setFindCodeSearchBtn();
+			});
+			PopsPanel.execMenuOnce("addCollectionButton", () => {
+				GreasyforkCollection.init();
+			});
+			PopsPanel.execMenuOnce("fixImageWidth", () => {
+				Greasyfork.fixImageWidth();
+			});
+			PopsPanel.execMenuOnce("scriptHomepageAddedTodaySUpdate", () => {
+				Greasyfork.scriptHomepageAddedTodaySUpdate();
+			});
 			Greasyfork.languageSelectorLocale();
 			PopsPanel.execMenuOnce("optimizeImageBrowsing", () => {
 				Greasyfork.optimizeImageBrowsing();
@@ -64,7 +74,9 @@ const Greasyfork = {
 			}
 			/* 不在/code页面添加Markdown复制按钮 */
 			if (!GreasyforkRouter.isCodeStrict()) {
-				Greasyfork.addMarkdownCopyButton();
+				PopsPanel.execMenuOnce("addMarkdownCopyButton", () => {
+					Greasyfork.addMarkdownCopyButton();
+				});
 			}
 		});
 	},
@@ -105,9 +117,9 @@ const Greasyfork = {
 			});
 	},
 	/**
-	 * 修复图片显示问题
+	 * 修复图片宽度显示问题
 	 */
-	repairImgShow() {
+	fixImageWidth() {
 		if (window.innerWidth < window.innerHeight) {
 			log.info("修复图片显示问题");
 			GM_addStyle(`
@@ -298,7 +310,7 @@ const Greasyfork = {
 			});
 	},
 	/**
-	 * 脚本首页新增今日更新
+	 * 脚本首页新增【今日检查】
 	 */
 	async scriptHomepageAddedTodaySUpdate() {
 		if (
@@ -307,7 +319,7 @@ const Greasyfork = {
 		) {
 			return;
 		}
-		log.info("脚本首页新增今日更新");
+		log.info("脚本首页新增【今日检查】");
 		let scriptStatsJSONInfo = await GreasyforkApi.getScriptStats(
 			GreasyforkApi.getScriptId() as string
 		);
@@ -867,11 +879,20 @@ const Greasyfork = {
 						0
 					) as string
 				);
-				if (checkPageTime && Date.now() - checkPageTime < 5 * 1000) {
-					/* 上次重载时间在5秒内的话就拒绝重载 */
+				let checkPageTimeout = PopsPanel.getValue(
+					"greasyfork-check-page-timeout",
+					5
+				);
+				let checkPageTimeoutStamp = checkPageTimeout * 1000;
+				if (
+					checkPageTime &&
+					Date.now() - checkPageTime < checkPageTimeoutStamp
+				) {
+					/* 上次重载时间在xx秒内的话就拒绝重载 */
 					Qmsg.error(
-						i18next.t("上次重载时间 {{time}}，5秒内拒绝反复重载", {
+						i18next.t("上次重载时间 {{time}}，{{timeout}}秒内拒绝反复重载", {
 							time: utils.formatTime(checkPageTime, "yyyy-MM-dd HH:mm:ss"),
+							timeout: checkPageTimeout,
 						})
 					);
 					return;

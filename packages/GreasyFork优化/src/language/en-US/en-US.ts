@@ -27,7 +27,6 @@ export const en_US_language = {
 
 	论坛: "Forum",
 	功能: "Function",
-	脚本配置: "Script Configuration",
 	过滤重复的评论: "Filter duplicate comments",
 	"过滤掉重复的评论数量(≥2)": "Filter out duplicate comments (≥ 2)",
 	"过滤脚本(id)": "Filter script (id)",
@@ -62,8 +61,6 @@ export const en_US_language = {
 
 	脚本列表: "Script List",
 
-	屏蔽: "Shield",
-	"规则(可正则)": "Rules (regularizable)",
 	"请输入屏蔽规则，每行一个": "Please enter a blocking rule, one per line",
 
 	请求admin内容失败: "Request for admin content failed",
@@ -139,8 +136,8 @@ export const en_US_language = {
 	同步成功: "Sync successful",
 	同步失败: "Sync failed",
 	该脚本未设置同步信息: "The script has not set synchronization information",
-	"上次重载时间 {{time}}，5秒内拒绝反复重载":
-		"Last reload time {{time}}, rejected repeated reloads within 5 seconds",
+	"上次重载时间 {{time}}，{{timeout}}秒内拒绝反复重载":
+		"Last reload time {{time}}, rejected repeated reloads within {{timeout}} seconds",
 
 	"名称：": "Name:",
 	"进度：": "Progress:",
@@ -183,8 +180,38 @@ export const en_US_language = {
 	其它错误: "Ohter Error",
 
 	启用: "Enable",
-	开启后下面的功能才会生效:
-		"The following functions will only take effect after being enabled",
+	开启后下面的过滤功能才会生效:
+		"The following filtering function will only take effect after it is enabled",
 	屏蔽脚本: "Block script",
 	点击查看规则: "Click to view rules",
+	过滤: "Filter",
+	代码同步: "Code synchronization",
+	美化: "Beautify",
+	修复代码行号显示: "Fix code line number display",
+	修复代码行数超过1k行号显示不全问题:
+		"Fix the problem that the code line number display is not complete when the number of lines exceeds 1k",
+	"添加【寻找引用】按钮": "Add the button to find references",
+	"在脚本栏添加按钮，一般用于搜索引用该库的相关脚本":
+		"Add a button to the script bar, generally used to search for scripts that reference this library",
+	"添加【收藏】按钮": "Add the button to collect",
+	"在脚本栏添加按钮，一般用于快捷收藏该脚本/库":
+		"Add a button to the script bar, generally used to quickly collect this script / library",
+	修复图片宽度显示问题:
+		" Fix the problem that the picture width display is not complete",
+	修复图片在移动端宽度超出浏览器宽度问题:
+		"Fix the problem that the picture width exceeds the browser width on mobile",
+	"添加【今日检查】信息块":
+		"Add the block of information of today's inspection",
+	"在脚本信息栏添加【今日检查】信息块":
+		"Add the block of information of today's inspection to the script information bar",
+	"给Markdown添加【复制】按钮": "Add the button to copy to Markdown",
+	"在Markdown内容右上角添加【复制】按钮，点击一键复制Markdown内容":
+		"Add the button to copy to the top right corner of the Markdown content, click to copy the Markdown content in one click",
+
+	检测页面加载: "Detect page loading",
+	"检测Greasyfork页面是否正常加载，如加载失败则自动刷新页面":
+		"Detect whether the Greasyfork page is loaded normally. If the loading fails, the page will be automatically refreshed",
+	检测间隔: "Detection interval",
+	"设置检测上次刷新页面的间隔时间，当距离上次刷新页面的时间超过设置的值，将不再刷新页面":
+		"Set the interval time for detecting the last refresh page. If the time since the last refresh page exceeds the set value, the page will no longer be refreshed",
 };

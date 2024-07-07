@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.7.7
+// @version            2024.7.7.17
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -74,7 +74,6 @@
     "源代码同步【库】": "源代码同步【库】",
     论坛: "论坛",
     功能: "功能",
-    脚本配置: "脚本配置",
     过滤重复的评论: "过滤重复的评论",
     "过滤掉重复的评论数量(≥2)": "过滤掉重复的评论数量(≥2)",
     "过滤脚本(id)": "过滤脚本(id)",
@@ -101,8 +100,6 @@
     "【F】键全屏、【Alt+Shift+F】键宽屏": "【F】键全屏、【Alt+Shift+F】键宽屏",
     库: "库",
     脚本列表: "脚本列表",
-    屏蔽: "屏蔽",
-    "规则(可正则)": "规则(可正则)",
     "请输入屏蔽规则，每行一个": "请输入屏蔽规则，每行一个",
     请求admin内容失败: "请求admin内容失败",
     解析admin的源代码同步表单失败: "解析admin的源代码同步表单失败",
@@ -166,7 +163,7 @@
     同步成功: "同步成功",
     同步失败: "同步失败",
     该脚本未设置同步信息: "该脚本未设置同步信息",
-    "上次重载时间 {{time}}，5秒内拒绝反复重载": "上次重载时间 {{time}}，5秒内拒绝反复重载",
+    "上次重载时间 {{time}}，{{timeout}}秒内拒绝反复重载": "上次重载时间 {{time}}，{{timeout}}秒内拒绝反复重载",
     "名称：": "名称：",
     "进度：": "进度：",
     "未获取到【脚本列表】": "未获取到【脚本列表】",
@@ -198,9 +195,28 @@
     该脚本已经在该收藏集中: "该脚本已经在该收藏集中",
     其它错误: "其它错误",
     启用: "启用",
-    开启后下面的功能才会生效: "开启后下面的功能才会生效",
+    开启后下面的过滤功能才会生效: "开启后下面的功能才会生效",
     屏蔽脚本: "屏蔽脚本",
-    点击查看规则: "点击查看规则"
+    点击查看规则: "点击查看规则",
+    过滤: "过滤",
+    代码同步: "代码同步",
+    美化: "美化",
+    修复代码行号显示: "修复代码行号显示",
+    修复代码行数超过1k行号显示不全问题: "修复代码行数超过1k行号显示不全问题",
+    "添加【寻找引用】按钮": "添加【寻找引用】按钮",
+    "在脚本栏添加按钮，一般用于搜索引用该库的相关脚本": "在脚本栏添加按钮，一般用于搜索引用该库的相关脚本",
+    "添加【收藏】按钮": "添加【收藏】按钮",
+    "在脚本栏添加按钮，一般用于快捷收藏该脚本/库": "在脚本栏添加按钮，一般用于快捷收藏该脚本/库",
+    修复图片宽度显示问题: "修复图片宽度显示问题",
+    修复图片在移动端宽度超出浏览器宽度问题: "修复图片在移动端宽度超出浏览器宽度问题",
+    "添加【今日检查】信息块": "添加【今日检查】信息块",
+    "在脚本信息栏添加【今日检查】信息块": "在脚本信息栏添加【今日检查】信息块",
+    "给Markdown添加【复制】按钮": "给Markdown添加【复制】按钮",
+    "在Markdown内容右上角添加【复制】按钮，点击一键复制Markdown内容": "在Markdown内容右上角添加【复制】按钮，点击一键复制Markdown内容",
+    检测页面加载: "检测页面加载",
+    "检测Greasyfork页面是否正常加载，如加载失败则自动刷新页面": "检测Greasyfork页面是否正常加载，如加载失败则自动刷新页面",
+    检测间隔: "检测间隔",
+    "设置检测上次刷新页面的间隔时间，当距离上次刷新页面的时间超过设置的值，将不再刷新页面": "设置检测上次刷新页面的间隔时间，当距离上次刷新页面的时间超过设置的值，将不再刷新页面"
   };
   const en_US_language = {
     GreasyFork优化: "GreasyFork Optimization",
@@ -228,7 +244,6 @@
     "源代码同步【库】": "Source code synchronization 【 Library 】",
     论坛: "Forum",
     功能: "Function",
-    脚本配置: "Script Configuration",
     过滤重复的评论: "Filter duplicate comments",
     "过滤掉重复的评论数量(≥2)": "Filter out duplicate comments (≥ 2)",
     "过滤脚本(id)": "Filter script (id)",
@@ -255,8 +270,6 @@
     "【F】键全屏、【Alt+Shift+F】键宽屏": "【F】 Key full screen, [Alt+Shift+F] key wide screen",
     库: "Library",
     脚本列表: "Script List",
-    屏蔽: "Shield",
-    "规则(可正则)": "Rules (regularizable)",
     "请输入屏蔽规则，每行一个": "Please enter a blocking rule, one per line",
     请求admin内容失败: "Request for admin content failed",
     解析admin的源代码同步表单失败: "Failed to parse the source code of admin and synchronize the form",
@@ -320,7 +333,7 @@
     同步成功: "Sync successful",
     同步失败: "Sync failed",
     该脚本未设置同步信息: "The script has not set synchronization information",
-    "上次重载时间 {{time}}，5秒内拒绝反复重载": "Last reload time {{time}}, rejected repeated reloads within 5 seconds",
+    "上次重载时间 {{time}}，{{timeout}}秒内拒绝反复重载": "Last reload time {{time}}, rejected repeated reloads within {{timeout}} seconds",
     "名称：": "Name:",
     "进度：": "Progress:",
     "未获取到【脚本列表】": "Unable to obtain [Script List]",
@@ -352,9 +365,28 @@
     该脚本已经在该收藏集中: "The script is already in this collection",
     其它错误: "Ohter Error",
     启用: "Enable",
-    开启后下面的功能才会生效: "The following functions will only take effect after being enabled",
+    开启后下面的过滤功能才会生效: "The following filtering function will only take effect after it is enabled",
     屏蔽脚本: "Block script",
-    点击查看规则: "Click to view rules"
+    点击查看规则: "Click to view rules",
+    过滤: "Filter",
+    代码同步: "Code synchronization",
+    美化: "Beautify",
+    修复代码行号显示: "Fix code line number display",
+    修复代码行数超过1k行号显示不全问题: "Fix the problem that the code line number display is not complete when the number of lines exceeds 1k",
+    "添加【寻找引用】按钮": "Add the button to find references",
+    "在脚本栏添加按钮，一般用于搜索引用该库的相关脚本": "Add a button to the script bar, generally used to search for scripts that reference this library",
+    "添加【收藏】按钮": "Add the button to collect",
+    "在脚本栏添加按钮，一般用于快捷收藏该脚本/库": "Add a button to the script bar, generally used to quickly collect this script / library",
+    修复图片宽度显示问题: " Fix the problem that the picture width display is not complete",
+    修复图片在移动端宽度超出浏览器宽度问题: "Fix the problem that the picture width exceeds the browser width on mobile",
+    "添加【今日检查】信息块": "Add the block of information of today's inspection",
+    "在脚本信息栏添加【今日检查】信息块": "Add the block of information of today's inspection to the script information bar",
+    "给Markdown添加【复制】按钮": "Add the button to copy to Markdown",
+    "在Markdown内容右上角添加【复制】按钮，点击一键复制Markdown内容": "Add the button to copy to the top right corner of the Markdown content, click to copy the Markdown content in one click",
+    检测页面加载: "Detect page loading",
+    "检测Greasyfork页面是否正常加载，如加载失败则自动刷新页面": "Detect whether the Greasyfork page is loaded normally. If the loading fails, the page will be automatically refreshed",
+    检测间隔: "Detection interval",
+    "设置检测上次刷新页面的间隔时间，当距离上次刷新页面的时间超过设置的值，将不再刷新页面": "Set the interval time for detecting the last refresh page. If the time since the last refresh page exceeds the set value, the page will no longer be refreshed"
   };
   const KEY = "GM_Panel";
   const ATTRIBUTE_KEY = "data-key";
@@ -1076,6 +1108,82 @@
     }
     return result;
   };
+  const GreasyforkShield = {
+    key: "gf-shield-rule",
+    init() {
+      let lockFunction = new utils.LockFunction(() => {
+        this.filter();
+      }, 50);
+      domUtils.ready(() => {
+        utils.mutationObserver(document.body, {
+          config: {
+            subtree: true,
+            childList: true
+          },
+          callback: () => {
+            lockFunction.run();
+          }
+        });
+        lockFunction.run();
+      });
+    },
+    filter() {
+      document.querySelectorAll("#browse-script-list > li").forEach(($scriptList) => {
+        let data = $scriptList.dataset;
+        let scriptDescription = $scriptList.querySelector(
+          ".script-description"
+        );
+        data["scriptDescription"] = (scriptDescription == null ? void 0 : scriptDescription.innerText) || (scriptDescription == null ? void 0 : scriptDescription.textContent) || "";
+        let scriptAuthors = utils.toJSON(data["scriptAuthors"]);
+        if (utils.isNotNull(scriptAuthors)) {
+          let scriptAuthorId = Object.keys(scriptAuthors)[0];
+          let scriptAuthorName = scriptAuthors[scriptAuthorId];
+          data["scriptAuthorId"] = scriptAuthorId;
+          data["scriptAuthorName"] = scriptAuthorName;
+        }
+        data["scriptRatingScore"] = parseFloat(
+          data["scriptRatingScore"]
+        );
+        let localValueSplit = this.getValue().split("\n");
+        for (const localRule of localValueSplit) {
+          let ruleSplit = localRule.split("##");
+          let ruleName = ruleSplit[0];
+          let ruleValue = ruleSplit[1];
+          if (ruleName === "scriptRatingScore") {
+            if (ruleValue.startsWith(">")) {
+              if (data["scriptRatingScore"] > parseFloat(ruleValue.slice(1))) {
+                log.info(["触发过滤规则", [localRule, data]]);
+                $scriptList.remove();
+                break;
+              }
+            } else if (ruleValue.startsWith("<")) {
+              if (data["scriptRatingScore"] < parseFloat(ruleValue.slice(1))) {
+                log.info(["触发过滤规则", [localRule, data]]);
+                $scriptList.remove();
+                break;
+              }
+            }
+          } else if (ruleName in data || ruleName === "scriptDescription") {
+            if (typeof ruleValue !== "string") {
+              continue;
+            }
+            let regexpRuleValue = new RegExp(ruleValue, "ig");
+            if (data[ruleName].match(regexpRuleValue)) {
+              log.info(["触发过滤规则", [localRule, data]]);
+              $scriptList.remove();
+              break;
+            }
+          }
+        }
+      });
+    },
+    setValue(value) {
+      PopsPanel.setValue(this.key, value);
+    },
+    getValue() {
+      return PopsPanel.getValue(this.key, "");
+    }
+  };
   const SettingUIGeneral = {
     id: "greasy-fork-panel-config-account",
     title: i18next.t("通用"),
@@ -1084,36 +1192,6 @@
         text: "",
         type: "forms",
         forms: [
-          {
-            text: i18next.t("账号/密码"),
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UIInput(
-                    i18next.t("账号"),
-                    "user",
-                    "",
-                    void 0,
-                    void 0,
-                    i18next.t("请输入账号")
-                  ),
-                  UIInput(
-                    i18next.t("密码"),
-                    "pwd",
-                    "",
-                    void 0,
-                    void 0,
-                    i18next.t("请输入密码"),
-                    false,
-                    true
-                  )
-                ]
-              }
-            ]
-          },
           {
             text: i18next.t("Toast配置"),
             type: "deepMenu",
@@ -1209,41 +1287,59 @@
               }
             ]
           },
+          UISelect(
+            i18next.t("语言"),
+            "setting-language",
+            "zh-CN",
+            [
+              {
+                value: "zh-CN",
+                text: "中文"
+              },
+              {
+                value: "en-US",
+                text: "English"
+              }
+            ],
+            (event, isSelectValue, isSelectText) => {
+              log.info("改变语言：" + isSelectText);
+              i18next.changeLanguage(isSelectValue);
+            }
+          )
+        ]
+      },
+      {
+        text: "",
+        type: "forms",
+        forms: [
           {
-            text: i18next.t("脚本配置"),
+            text: i18next.t("账号/密码"),
             type: "deepMenu",
             forms: [
               {
                 text: "",
                 type: "forms",
                 forms: [
-                  UISelect(
-                    i18next.t("语言"),
-                    "setting-language",
-                    "zh-CN",
-                    [
-                      {
-                        value: "zh-CN",
-                        text: "中文"
-                      },
-                      {
-                        value: "en-US",
-                        text: "English"
-                      }
-                    ],
-                    (event, isSelectValue, isSelectText) => {
-                      log.info("改变语言：" + isSelectText);
-                      i18next.changeLanguage(isSelectValue);
-                    }
+                  UIInput(
+                    i18next.t("账号"),
+                    "user",
+                    "",
+                    void 0,
+                    void 0,
+                    i18next.t("请输入账号")
+                  ),
+                  UIInput(
+                    i18next.t("密码"),
+                    "pwd",
+                    "",
+                    void 0,
+                    void 0,
+                    i18next.t("请输入密码"),
+                    false,
+                    true
                   )
                 ]
-              }
-            ]
-          },
-          {
-            text: i18next.t("功能"),
-            type: "deepMenu",
-            forms: [
+              },
               {
                 text: "",
                 type: "forms",
@@ -1277,7 +1373,171 @@
                         ).value = "";
                       }
                     }
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: i18next.t("功能"),
+            type: "deepMenu",
+            forms: [
+              {
+                text: i18next.t("功能"),
+                type: "forms",
+                forms: [
+                  UISelect(
+                    i18next.t("固定当前语言"),
+                    "language-selector-locale",
+                    "",
+                    function() {
+                      let result = [
+                        {
+                          value: "",
+                          text: i18next.t("无")
+                        }
+                      ];
+                      document.querySelectorAll(
+                        "select#language-selector-locale option"
+                      ).forEach((element) => {
+                        let value = element.getAttribute("value");
+                        if (value === "help") {
+                          return;
+                        }
+                        let text = (element.innerText || element.textContent).trim();
+                        result.push({
+                          value,
+                          text
+                        });
+                      });
+                      return result;
+                    }()
                   ),
+                  UISwitch(
+                    i18next.t("修复图片宽度显示问题"),
+                    "fixImageWidth",
+                    true,
+                    void 0,
+                    i18next.t("修复图片在移动端宽度超出浏览器宽度问题")
+                  ),
+                  UISwitch(
+                    i18next.t("优化图片浏览"),
+                    "optimizeImageBrowsing",
+                    true,
+                    void 0,
+                    i18next.t("使用Viewer浏览图片")
+                  ),
+                  UISwitch(
+                    i18next.t("覆盖图床图片跳转"),
+                    "overlayBedImageClickEvent",
+                    true,
+                    void 0,
+                    i18next.t("配合上面的【优化图片浏览】更优雅浏览图片")
+                  ),
+                  UISwitch(
+                    i18next.t("添加【寻找引用】按钮"),
+                    "addFindReferenceButton",
+                    true,
+                    void 0,
+                    i18next.t("在脚本栏添加按钮，一般用于搜索引用该库的相关脚本")
+                  ),
+                  UISwitch(
+                    i18next.t("添加【收藏】按钮"),
+                    "addCollectionButton",
+                    true,
+                    void 0,
+                    i18next.t("在脚本栏添加按钮，一般用于快捷收藏该脚本/库")
+                  ),
+                  UISwitch(
+                    i18next.t("添加【今日检查】信息块"),
+                    "scriptHomepageAddedTodaySUpdate",
+                    true,
+                    void 0,
+                    i18next.t("在脚本信息栏添加【今日检查】信息块")
+                  ),
+                  UISwitch(
+                    i18next.t("给Markdown添加【复制】按钮"),
+                    "addMarkdownCopyButton",
+                    true,
+                    void 0,
+                    i18next.t(
+                      "在Markdown内容右上角添加【复制】按钮，点击一键复制Markdown内容"
+                    )
+                  )
+                ]
+              },
+              {
+                text: i18next.t("检测页面加载"),
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    i18next.t("启用"),
+                    "checkPage",
+                    true,
+                    void 0,
+                    "检测Greasyfork页面是否正常加载，如加载失败则自动刷新页面"
+                  ),
+                  UISelect(
+                    i18next.t("检测间隔"),
+                    "greasyfork-check-page-timeout",
+                    5,
+                    (() => {
+                      let result = [];
+                      for (let index = 0; index < 5; index++) {
+                        result.push({
+                          value: index + 1,
+                          text: index + 1 + "s"
+                        });
+                      }
+                      return result;
+                    })(),
+                    void 0,
+                    i18next.t(
+                      "设置检测上次刷新页面的间隔时间，当距离上次刷新页面的时间超过设置的值，将不再刷新页面"
+                    )
+                  )
+                ]
+              },
+              {
+                text: i18next.t("美化"),
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    i18next.t("美化页面元素"),
+                    "beautifyPage",
+                    true,
+                    void 0,
+                    i18next.t("如button、input、textarea")
+                  ),
+                  UISwitch(
+                    i18next.t("美化历史版本页面"),
+                    "beautifyHistoryVersionPage",
+                    true,
+                    void 0,
+                    i18next.t("更直观的查看版本迭代")
+                  ),
+                  UISwitch(
+                    i18next.t("美化上传图片按钮"),
+                    "beautifyUploadImage",
+                    true,
+                    void 0,
+                    i18next.t("放大上传区域")
+                  ),
+                  UISwitch(
+                    i18next.t("美化Greasyfork Beautify脚本"),
+                    "beautifyGreasyforkBeautify",
+                    true,
+                    void 0,
+                    i18next.t(
+                      '需安装Greasyfork Beautify脚本，<a href="https://greasyfork.org/zh-CN/scripts/446849-greasyfork-beautify" target="_blank">🖐点我安装</a>'
+                    )
+                  )
+                ]
+              },
+              {
+                text: i18next.t("代码同步"),
+                type: "forms",
+                forms: [
                   UIButton(
                     i18next.t("源代码同步【脚本列表】"),
                     void 0,
@@ -1380,128 +1640,92 @@
                 ]
               }
             ]
+          },
+          {
+            text: i18next.t("屏蔽脚本"),
+            type: "deepMenu",
+            forms: [
+              {
+                text: `<a href="https://greasyfork.org/scripts/475722-greasyfork%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">${i18next.t(
+                "点击查看规则"
+              )}</a>`,
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    i18next.t("启用"),
+                    "greasyfork-shield-enable",
+                    true,
+                    void 0,
+                    i18next.t("开启后下面的功能才会生效")
+                  ),
+                  {
+                    type: "own",
+                    getLiElementCallBack(liElement) {
+                      let textareaDiv = domUtils.createElement(
+                        "div",
+                        {
+                          className: "pops-panel-textarea",
+                          innerHTML: `<textarea placeholder="${i18next.t(
+                          "请输入屏蔽规则，每行一个"
+                        )}" style="height:350px;"></textarea>`
+                        },
+                        {
+                          style: "width: 100%;"
+                        }
+                      );
+                      let textarea = textareaDiv.querySelector(
+                        "textarea"
+                      );
+                      textarea.value = GreasyforkShield.getValue();
+                      domUtils.on(
+                        textarea,
+                        ["input", "propertychange"],
+                        void 0,
+                        utils.debounce(function() {
+                          GreasyforkShield.setValue(textarea.value);
+                        }, 200)
+                      );
+                      liElement.appendChild(textareaDiv);
+                      return liElement;
+                    }
+                  }
+                ]
+              }
+            ]
           }
         ]
       }
     ]
   };
   const SettingUIOptimization = {
-    id: "greasy-fork-panel-config-optimization",
-    title: i18next.t("优化"),
+    id: "greasy-fork-panel-config-code",
+    title: i18next.t("代码"),
     forms: [
       {
         text: "",
         type: "forms",
         forms: [
-          {
-            text: i18next.t("功能"),
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISelect(
-                    i18next.t("固定当前语言"),
-                    "language-selector-locale",
-                    "",
-                    function() {
-                      let result = [
-                        {
-                          value: "",
-                          text: i18next.t("无")
-                        }
-                      ];
-                      document.querySelectorAll(
-                        "select#language-selector-locale option"
-                      ).forEach((element) => {
-                        let value = element.getAttribute("value");
-                        if (value === "help") {
-                          return;
-                        }
-                        let text = (element.innerText || element.textContent).trim();
-                        result.push({
-                          value,
-                          text
-                        });
-                      });
-                      return result;
-                    }()
-                  ),
-                  UISwitch(
-                    i18next.t("美化页面元素"),
-                    "beautifyPage",
-                    true,
-                    void 0,
-                    i18next.t("如button、input、textarea")
-                  ),
-                  UISwitch(
-                    i18next.t("美化历史版本页面"),
-                    "beautifyHistoryVersionPage",
-                    true,
-                    void 0,
-                    i18next.t("更直观的查看版本迭代")
-                  ),
-                  UISwitch(
-                    i18next.t("美化上传图片按钮"),
-                    "beautifyUploadImage",
-                    true,
-                    void 0,
-                    i18next.t("放大上传区域")
-                  ),
-                  UISwitch(
-                    i18next.t("优化图片浏览"),
-                    "optimizeImageBrowsing",
-                    true,
-                    void 0,
-                    i18next.t("使用Viewer浏览图片")
-                  ),
-                  UISwitch(
-                    i18next.t("覆盖图床图片跳转"),
-                    "overlayBedImageClickEvent",
-                    true,
-                    void 0,
-                    i18next.t("配合上面的【优化图片浏览】更优雅浏览图片")
-                  ),
-                  UISwitch(
-                    i18next.t("美化Greasyfork Beautify脚本"),
-                    "beautifyGreasyforkBeautify",
-                    true,
-                    void 0,
-                    i18next.t(
-                      '需安装Greasyfork Beautify脚本，<a href="https://greasyfork.org/zh-CN/scripts/446849-greasyfork-beautify" target="_blank">🖐点我安装</a>'
-                    )
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: i18next.t("代码"),
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    i18next.t("添加复制代码按钮"),
-                    "addCopyCodeButton",
-                    true,
-                    void 0,
-                    i18next.t("更优雅的复制")
-                  ),
-                  UISwitch(
-                    i18next.t("快捷键"),
-                    "fullScreenOptimization",
-                    true,
-                    void 0,
-                    i18next.t("【F】键全屏、【Alt+Shift+F】键宽屏")
-                  )
-                ]
-              }
-            ]
-          }
+          UISwitch(
+            i18next.t("添加复制代码按钮"),
+            "addCopyCodeButton",
+            true,
+            void 0,
+            i18next.t("更优雅的复制")
+          ),
+          UISwitch(
+            i18next.t("快捷键"),
+            "fullScreenOptimization",
+            true,
+            void 0,
+            i18next.t("【F】键全屏、【Alt+Shift+F】键宽屏")
+          ),
+          UISwitch(
+            i18next.t("修复代码行号显示"),
+            "code-repairCodeLineNumber",
+            true,
+            void 0,
+            i18next.t("修复代码行数超过1k行号显示不全问题")
+          )
         ]
       }
     ]
@@ -1511,292 +1735,175 @@
     title: i18next.t("论坛"),
     forms: [
       {
-        text: i18next.t("功能"),
-        type: "forms",
-        forms: [
-          UISwitch(
-            i18next.t("启用"),
-            "greasyfork-discussions-filter-enable",
-            true,
-            void 0,
-            i18next.t("开启后下面的功能才会生效")
-          ),
-          UISwitch(
-            i18next.t("过滤重复的评论"),
-            "greasyfork-discussions-filter-duplicate-comments",
-            false,
-            void 0,
-            i18next.t("过滤掉重复的评论数量(≥2)")
-          )
-        ]
-      },
-      {
         text: "",
         type: "forms",
         forms: [
           {
-            text: i18next.t("过滤脚本(id)"),
+            text: i18next.t("过滤"),
             type: "deepMenu",
             forms: [
               {
                 text: "",
                 type: "forms",
                 forms: [
+                  UISwitch(
+                    i18next.t("启用"),
+                    "greasyfork-discussions-filter-enable",
+                    true,
+                    void 0,
+                    i18next.t("开启后下面的过滤功能才会生效")
+                  ),
+                  UISwitch(
+                    i18next.t("过滤重复的评论"),
+                    "greasyfork-discussions-filter-duplicate-comments",
+                    false,
+                    void 0,
+                    i18next.t("过滤掉重复的评论数量(≥2)")
+                  )
+                ]
+              },
+              {
+                text: "",
+                type: "forms",
+                forms: [
                   {
-                    type: "own",
-                    getLiElementCallBack(liElement) {
-                      let textareaDiv = domUtils.createElement(
-                        "div",
-                        {
-                          className: "pops-panel-textarea",
-                          innerHTML: `
+                    text: i18next.t("过滤脚本(id)"),
+                    type: "deepMenu",
+                    forms: [
+                      {
+                        text: "",
+                        type: "forms",
+                        forms: [
+                          {
+                            type: "own",
+                            getLiElementCallBack(liElement) {
+                              let textareaDiv = domUtils.createElement(
+                                "div",
+                                {
+                                  className: "pops-panel-textarea",
+                                  innerHTML: `
+														<textarea placeholder="${i18next.t(
+                                  "请输入脚本id，每行一个"
+                                )}" style="height:150px;"></textarea>`
+                                },
+                                {
+                                  style: "width: 100%;"
+                                }
+                              );
+                              let textarea = textareaDiv.querySelector(
+                                "textarea"
+                              );
+                              const KEY2 = "greasyfork-discussions-filter-script";
+                              textarea.value = PopsPanel.getValue(KEY2, "");
+                              domUtils.on(
+                                textarea,
+                                ["input", "propertychange"],
+                                void 0,
+                                utils.debounce(function(event) {
+                                  PopsPanel.setValue(KEY2, textarea.value);
+                                }, 200)
+                              );
+                              liElement.appendChild(textareaDiv);
+                              return liElement;
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    text: i18next.t("过滤发布的用户(id)"),
+                    type: "deepMenu",
+                    forms: [
+                      {
+                        text: "",
+                        type: "forms",
+                        forms: [
+                          {
+                            type: "own",
+                            getLiElementCallBack(liElement) {
+                              let textareaDiv = domUtils.createElement(
+                                "div",
+                                {
+                                  className: "pops-panel-textarea",
+                                  innerHTML: `
+														<textarea placeholder="${i18next.t(
+                                  "请输入用户id，每行一个"
+                                )}" style="height:150px;"></textarea>`
+                                },
+                                {
+                                  style: "width: 100%;"
+                                }
+                              );
+                              let textarea = textareaDiv.querySelector(
+                                "textarea"
+                              );
+                              const KEY2 = "greasyfork-discussions-filter-post-user";
+                              textarea.value = PopsPanel.getValue(KEY2, "");
+                              domUtils.on(
+                                textarea,
+                                ["input", "propertychange"],
+                                void 0,
+                                utils.debounce(function(event) {
+                                  PopsPanel.setValue(KEY2, textarea.value);
+                                }, 200)
+                              );
+                              liElement.appendChild(textareaDiv);
+                              return liElement;
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    text: i18next.t("过滤回复的用户(id)"),
+                    type: "deepMenu",
+                    forms: [
+                      {
+                        text: "",
+                        type: "forms",
+                        forms: [
+                          {
+                            type: "own",
+                            getLiElementCallBack(liElement) {
+                              let textareaDiv = domUtils.createElement(
+                                "div",
+                                {
+                                  className: "pops-panel-textarea",
+                                  innerHTML: `
 												<textarea placeholder="${i18next.t(
-                          "请输入脚本id，每行一个"
-                        )}" style="height:150px;"></textarea>`
-                        },
-                        {
-                          style: "width: 100%;"
-                        }
-                      );
-                      let textarea = textareaDiv.querySelector(
-                        "textarea"
-                      );
-                      const KEY2 = "greasyfork-discussions-filter-script";
-                      textarea.value = PopsPanel.getValue(KEY2, "");
-                      domUtils.on(
-                        textarea,
-                        ["input", "propertychange"],
-                        void 0,
-                        utils.debounce(function(event) {
-                          PopsPanel.setValue(KEY2, textarea.value);
-                        }, 200)
-                      );
-                      liElement.appendChild(textareaDiv);
-                      return liElement;
-                    }
+                                  "请输入用户id，每行一个"
+                                )}" style="height:150px;"></textarea>`
+                                },
+                                {
+                                  style: "width: 100%;"
+                                }
+                              );
+                              let textarea = textareaDiv.querySelector(
+                                "textarea"
+                              );
+                              const KEY2 = "greasyfork-discussions-filter-reply-user";
+                              textarea.value = PopsPanel.getValue(KEY2, "");
+                              domUtils.on(
+                                textarea,
+                                ["input", "propertychange"],
+                                void 0,
+                                utils.debounce(function(event) {
+                                  PopsPanel.setValue(KEY2, textarea.value);
+                                }, 200)
+                              );
+                              liElement.appendChild(textareaDiv);
+                              return liElement;
+                            }
+                          }
+                        ]
+                      }
+                    ]
                   }
                 ]
               }
             ]
-          },
-          {
-            text: i18next.t("过滤发布的用户(id)"),
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  {
-                    type: "own",
-                    getLiElementCallBack(liElement) {
-                      let textareaDiv = domUtils.createElement(
-                        "div",
-                        {
-                          className: "pops-panel-textarea",
-                          innerHTML: `
-												<textarea placeholder="${i18next.t(
-                          "请输入用户id，每行一个"
-                        )}" style="height:150px;"></textarea>`
-                        },
-                        {
-                          style: "width: 100%;"
-                        }
-                      );
-                      let textarea = textareaDiv.querySelector(
-                        "textarea"
-                      );
-                      const KEY2 = "greasyfork-discussions-filter-post-user";
-                      textarea.value = PopsPanel.getValue(KEY2, "");
-                      domUtils.on(
-                        textarea,
-                        ["input", "propertychange"],
-                        void 0,
-                        utils.debounce(function(event) {
-                          PopsPanel.setValue(KEY2, textarea.value);
-                        }, 200)
-                      );
-                      liElement.appendChild(textareaDiv);
-                      return liElement;
-                    }
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            text: i18next.t("过滤回复的用户(id)"),
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  {
-                    type: "own",
-                    getLiElementCallBack(liElement) {
-                      let textareaDiv = domUtils.createElement(
-                        "div",
-                        {
-                          className: "pops-panel-textarea",
-                          innerHTML: `
-										<textarea placeholder="${i18next.t(
-                          "请输入用户id，每行一个"
-                        )}" style="height:150px;"></textarea>`
-                        },
-                        {
-                          style: "width: 100%;"
-                        }
-                      );
-                      let textarea = textareaDiv.querySelector(
-                        "textarea"
-                      );
-                      const KEY2 = "greasyfork-discussions-filter-reply-user";
-                      textarea.value = PopsPanel.getValue(KEY2, "");
-                      domUtils.on(
-                        textarea,
-                        ["input", "propertychange"],
-                        void 0,
-                        utils.debounce(function(event) {
-                          PopsPanel.setValue(KEY2, textarea.value);
-                        }, 200)
-                      );
-                      liElement.appendChild(textareaDiv);
-                      return liElement;
-                    }
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  };
-  const GreasyforkShield = {
-    key: "gf-shield-rule",
-    init() {
-      let lockFunction = new utils.LockFunction(() => {
-        this.filter();
-      }, 50);
-      domUtils.ready(() => {
-        utils.mutationObserver(document.body, {
-          config: {
-            subtree: true,
-            childList: true
-          },
-          callback: () => {
-            lockFunction.run();
-          }
-        });
-        lockFunction.run();
-      });
-    },
-    filter() {
-      document.querySelectorAll("#browse-script-list > li").forEach(($scriptList) => {
-        let data = $scriptList.dataset;
-        let scriptDescription = $scriptList.querySelector(
-          ".script-description"
-        );
-        data["scriptDescription"] = (scriptDescription == null ? void 0 : scriptDescription.innerText) || (scriptDescription == null ? void 0 : scriptDescription.textContent) || "";
-        let scriptAuthors = utils.toJSON(data["scriptAuthors"]);
-        if (utils.isNotNull(scriptAuthors)) {
-          let scriptAuthorId = Object.keys(scriptAuthors)[0];
-          let scriptAuthorName = scriptAuthors[scriptAuthorId];
-          data["scriptAuthorId"] = scriptAuthorId;
-          data["scriptAuthorName"] = scriptAuthorName;
-        }
-        data["scriptRatingScore"] = parseFloat(
-          data["scriptRatingScore"]
-        );
-        let localValueSplit = this.getValue().split("\n");
-        for (const localRule of localValueSplit) {
-          let ruleSplit = localRule.split("##");
-          let ruleName = ruleSplit[0];
-          let ruleValue = ruleSplit[1];
-          if (ruleName === "scriptRatingScore") {
-            if (ruleValue.startsWith(">")) {
-              if (data["scriptRatingScore"] > parseFloat(ruleValue.slice(1))) {
-                log.info(["触发过滤规则", [localRule, data]]);
-                $scriptList.remove();
-                break;
-              }
-            } else if (ruleValue.startsWith("<")) {
-              if (data["scriptRatingScore"] < parseFloat(ruleValue.slice(1))) {
-                log.info(["触发过滤规则", [localRule, data]]);
-                $scriptList.remove();
-                break;
-              }
-            }
-          } else if (ruleName in data || ruleName === "scriptDescription") {
-            if (typeof ruleValue !== "string") {
-              continue;
-            }
-            let regexpRuleValue = new RegExp(ruleValue, "ig");
-            if (data[ruleName].match(regexpRuleValue)) {
-              log.info(["触发过滤规则", [localRule, data]]);
-              $scriptList.remove();
-              break;
-            }
-          }
-        }
-      });
-    },
-    setValue(value) {
-      PopsPanel.setValue(this.key, value);
-    },
-    getValue() {
-      return PopsPanel.getValue(this.key, "");
-    }
-  };
-  const SettingUIShield = {
-    id: "greasy-fork-panel-config-shield",
-    title: i18next.t("屏蔽"),
-    headerTitle: i18next.t("屏蔽脚本"),
-    forms: [
-      {
-        text: i18next.t("规则(可正则)") + `<br><a href="https://greasyfork.org/zh-CN/scripts/475722-greasyfork%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">${i18next.t(
-        "点击查看规则"
-      )}</a>`,
-        type: "forms",
-        forms: [
-          UISwitch(
-            i18next.t("启用"),
-            "greasyfork-shield-enable",
-            true,
-            void 0,
-            i18next.t("开启后下面的功能才会生效")
-          ),
-          {
-            type: "own",
-            getLiElementCallBack(liElement) {
-              let textareaDiv = domUtils.createElement(
-                "div",
-                {
-                  className: "pops-panel-textarea",
-                  innerHTML: `<textarea placeholder="${i18next.t(
-                  "请输入屏蔽规则，每行一个"
-                )}" style="height:350px;"></textarea>`
-                },
-                {
-                  style: "width: 100%;"
-                }
-              );
-              let textarea = textareaDiv.querySelector(
-                "textarea"
-              );
-              textarea.value = GreasyforkShield.getValue();
-              domUtils.on(
-                textarea,
-                ["input", "propertychange"],
-                void 0,
-                utils.debounce(function() {
-                  GreasyforkShield.setValue(textarea.value);
-                }, 200)
-              );
-              liElement.appendChild(textareaDiv);
-              return liElement;
-            }
           }
         ]
       }
@@ -2026,7 +2133,9 @@
   };
   const GreasyforkCode = {
     init() {
-      this.repairCodeLineNumber();
+      PopsPanel.execMenuOnce("code-repairCodeLineNumber", () => {
+        this.repairCodeLineNumber();
+      });
     },
     /**
      * 修复代码的行号显示不够问题
@@ -2034,13 +2143,13 @@
      */
     repairCodeLineNumber() {
       log.info("修复代码的行号显示不够问题");
-      if (PopsPanel.getValue("beautifyGreasyforkBeautify")) {
+      PopsPanel.execMenuOnce("beautifyGreasyforkBeautify", () => {
         _GM_addStyle(`
-			.code-container pre code .marker{
-				padding-left: 6px;
-			}	
-			`);
-      }
+				.code-container pre code .marker{
+					padding-left: 6px;
+				}	
+				`);
+      });
       utils.waitNode(
         "#script-content div.code-container pre.prettyprint ol"
       ).then(($prettyPrintOL) => {
@@ -2610,7 +2719,9 @@
   };
   const Greasyfork = {
     init() {
-      this.checkPage();
+      PopsPanel.execMenu("checkPage", () => {
+        this.checkPage();
+      });
       GreasyforkBeautify.init();
       if (GreasyforkRouter.isCodeStrict()) {
         PopsPanel.execMenuOnce("fullScreenOptimization", () => {
@@ -2632,10 +2743,18 @@
           });
         }
         GreasyforkMenu.handleLocalGotoCallBack();
-        Greasyfork.setFindCodeSearchBtn();
-        GreasyforkCollection.init();
-        Greasyfork.repairImgShow();
-        Greasyfork.scriptHomepageAddedTodaySUpdate();
+        PopsPanel.execMenuOnce("addFindReferenceButton", () => {
+          Greasyfork.setFindCodeSearchBtn();
+        });
+        PopsPanel.execMenuOnce("addCollectionButton", () => {
+          GreasyforkCollection.init();
+        });
+        PopsPanel.execMenuOnce("fixImageWidth", () => {
+          Greasyfork.fixImageWidth();
+        });
+        PopsPanel.execMenuOnce("scriptHomepageAddedTodaySUpdate", () => {
+          Greasyfork.scriptHomepageAddedTodaySUpdate();
+        });
         Greasyfork.languageSelectorLocale();
         PopsPanel.execMenuOnce("optimizeImageBrowsing", () => {
           Greasyfork.optimizeImageBrowsing();
@@ -2649,7 +2768,9 @@
           });
         }
         if (!GreasyforkRouter.isCodeStrict()) {
-          Greasyfork.addMarkdownCopyButton();
+          PopsPanel.execMenuOnce("addMarkdownCopyButton", () => {
+            Greasyfork.addMarkdownCopyButton();
+          });
         }
       });
     },
@@ -2686,9 +2807,9 @@
       });
     },
     /**
-     * 修复图片显示问题
+     * 修复图片宽度显示问题
      */
-    repairImgShow() {
+    fixImageWidth() {
       if (window.innerWidth < window.innerHeight) {
         log.info("修复图片显示问题");
         _GM_addStyle(`
@@ -2843,13 +2964,13 @@
       });
     },
     /**
-     * 脚本首页新增今日更新
+     * 脚本首页新增【今日检查】
      */
     async scriptHomepageAddedTodaySUpdate() {
       if (!GreasyforkRouter.isScript() || !document.querySelector("#install-area")) {
         return;
       }
-      log.info("脚本首页新增今日更新");
+      log.info("脚本首页新增【今日检查】");
       let scriptStatsJSONInfo = await GreasyforkApi.getScriptStats(
         GreasyforkApi.getScriptId()
       );
@@ -3362,10 +3483,16 @@
               0
             )
           );
-          if (checkPageTime && Date.now() - checkPageTime < 5 * 1e3) {
+          let checkPageTimeout = PopsPanel.getValue(
+            "greasyfork-check-page-timeout",
+            5
+          );
+          let checkPageTimeoutStamp = checkPageTimeout * 1e3;
+          if (checkPageTime && Date.now() - checkPageTime < checkPageTimeoutStamp) {
             Qmsg.error(
-              i18next.t("上次重载时间 {{time}}，5秒内拒绝反复重载", {
-                time: utils.formatTime(checkPageTime, "yyyy-MM-dd HH:mm:ss")
+              i18next.t("上次重载时间 {{time}}，{{timeout}}秒内拒绝反复重载", {
+                time: utils.formatTime(checkPageTime, "yyyy-MM-dd HH:mm:ss"),
+                timeout: checkPageTimeout
               })
             );
             return;
@@ -3722,7 +3849,6 @@
         SettingUIGeneral,
         SettingUIOptimization,
         SettingUIDiscuessions,
-        SettingUIShield,
         SettingUIScriptList,
         SettingUIScriptLib
       ];

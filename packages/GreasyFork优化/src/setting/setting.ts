@@ -2,9 +2,8 @@ import { GM_Menu, SCRIPT_NAME, log, pops, utils } from "@/env";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, KEY } from "@/setting/config";
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
 import { SettingUIGeneral } from "./components/general";
-import { SettingUIOptimization } from "./components/optimization";
+import { SettingUIOptimization } from "./components/code";
 import { SettingUIDiscuessions } from "./components/discussions";
-import { SettingUIShield } from "./components/shield";
 import { SettingUIScriptList } from "./components/script-list";
 import { SettingUIScriptLib } from "./components/script-lib";
 import UIScriptListCSS from "@/main/UIScriptListCSS.css?raw";
@@ -369,7 +368,6 @@ const PopsPanel = {
 			SettingUIGeneral,
 			SettingUIOptimization,
 			SettingUIDiscuessions,
-			SettingUIShield,
 			SettingUIScriptList,
 			SettingUIScriptLib,
 		];

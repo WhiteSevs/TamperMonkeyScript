@@ -5,7 +5,9 @@ import i18next from "i18next";
 
 const GreasyforkCode = {
 	init() {
-		this.repairCodeLineNumber();
+		PopsPanel.execMenuOnce("code-repairCodeLineNumber", () => {
+			this.repairCodeLineNumber();
+		});
 	},
 
 	/**
@@ -14,15 +16,15 @@ const GreasyforkCode = {
 	 */
 	repairCodeLineNumber() {
 		log.info("修复代码的行号显示不够问题");
-		if (PopsPanel.getValue("beautifyGreasyforkBeautify")) {
+		PopsPanel.execMenuOnce("beautifyGreasyforkBeautify", () => {
 			/* 修复Greasyfork Beautify美化后的代码块 */
 			GM_addStyle(`
-			.code-container pre code .marker{
-				padding-left: 6px;
-			}	
-			`);
-		}
-		
+				.code-container pre code .marker{
+					padding-left: 6px;
+				}	
+				`);
+		});
+
 		utils
 			.waitNode<HTMLOListElement>(
 				"#script-content div.code-container pre.prettyprint ol"
