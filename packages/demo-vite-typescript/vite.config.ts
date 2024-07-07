@@ -72,7 +72,7 @@ export default defineConfig({
 				// 把GM api 挂载到unsafeWindow上
 				mountGmApi: false,
 				// dev时浏览器自动访问地址从而触发脚本管理器安装本脚本
-				open: true,
+				open: false,
 			},
 			build: {
 				// 自动申请权限，可以不用填上面的grant
@@ -135,11 +135,13 @@ export default defineConfig({
 		},
 	},
 	server: {
+		// 允许外部访问
 		host: "0.0.0.0",
 	},
 	build: {
 		/* 构建的.user.js是否压缩 */
 		minify: isMinify,
+		// 构建输出目录是否清空
 		emptyOutDir: isEmptyOutDir,
 	},
 });

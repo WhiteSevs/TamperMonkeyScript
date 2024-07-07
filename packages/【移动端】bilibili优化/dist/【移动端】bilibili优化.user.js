@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.5
+// @version      2024.7.7
 // @author       WhiteSevs
-// @description  bilibili(哔哩哔哩)优化，免登录等
+// @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
 // @icon         https://i0.hdslb.com/bfs/static/jinkela/long/images/512.png
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
@@ -311,194 +311,236 @@
     title: "通用",
     forms: [
       {
-        text: "功能",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch(
-            "监听路由-重载所有功能",
-            "bili-listenRouterChange",
-            true,
-            void 0,
-            "用于处理页面跳转(本页)时功能不生效问题"
-          ),
-          UISwitch(
-            "修复点击UP主正确进入空间",
-            "bili-repairEnterUserHome",
-            true,
-            void 0,
-            "可以修复点击UP主进入个人空间但是跳转404的问题"
-          ),
-          UISwitch(
-            "新标签页打开",
-            "bili-go-to-url-blank",
-            false,
-            void 0,
-            "通过开启【覆盖点击事件】相关的设置，通过新标签页打开链接"
-          )
-        ]
-      },
-      {
-        text: "变量设置",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "isLogin",
-            "bili-setLogin",
-            true,
-            void 0,
-            "$store.state.common.noCallApp=true<br>$store.state.common.userInfo.isLogin=true<br>$store.state.loginInfo.isLogin=true"
-          ),
-          UISwitch(
-            "isClient",
-            "bili-setIsClient",
-            true,
-            void 0,
-            "$store.state.video.isClient=true<br>$store.state.opus.isClient=true<br>$store.state.playlist.isClient=true<br>$store.state.ver.bili=true<br>$store.state.ver.biliVer=2333"
-          ),
-          UISwitch(
-            "tinyApp",
-            "bili-setTinyApp",
-            true,
-            void 0,
-            "$store.state.common.tinyApp=true"
-          )
-        ]
-      },
-      {
-        text: "劫持/拦截",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "覆盖.launch-app-btn openApp",
-            "bili-overrideLaunchAppBtn_Vue_openApp",
-            true,
-            void 0,
-            "覆盖.launch-app-btn元素上的openApp函数，可阻止点击唤醒/下载App"
-          ),
-          UISwitch(
-            "劫持setTimeout-autoOpenApp",
-            "bili-hookSetTimeout_autoOpenApp",
-            true,
-            void 0,
-            "阻止自动调用App"
-          )
-        ]
-      },
-      {
-        text: "Toast配置",
-        type: "forms",
-        forms: [
-          UISelect(
-            "Toast位置",
-            "qmsg-config-position",
-            "bottom",
-            [
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
               {
-                value: "topleft",
-                text: "左上角"
-              },
-              {
-                value: "top",
-                text: "顶部"
-              },
-              {
-                value: "topright",
-                text: "右上角"
-              },
-              {
-                value: "left",
-                text: "左边"
-              },
-              {
-                value: "center",
-                text: "中间"
-              },
-              {
-                value: "right",
-                text: "右边"
-              },
-              {
-                value: "bottomleft",
-                text: "左下角"
-              },
-              {
-                value: "bottom",
-                text: "底部"
-              },
-              {
-                value: "bottomright",
-                text: "右下角"
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "监听路由-重载所有功能",
+                    "bili-listenRouterChange",
+                    true,
+                    void 0,
+                    "用于处理页面跳转(本页)时功能不生效问题"
+                  ),
+                  UISwitch(
+                    "修复点击UP主正确进入空间",
+                    "bili-repairEnterUserHome",
+                    true,
+                    void 0,
+                    "可以修复点击UP主进入个人空间但是跳转404的问题"
+                  ),
+                  UISwitch(
+                    "新标签页打开",
+                    "bili-go-to-url-blank",
+                    false,
+                    void 0,
+                    "通过开启【覆盖点击事件】相关的设置，通过新标签页打开链接"
+                  )
+                ]
               }
-            ],
-            (event, isSelectValue, isSelectText) => {
-              log.info("设置当前Qmsg弹出位置" + isSelectText);
-            },
-            "Toast显示在页面九宫格的位置"
-          ),
-          UISelect(
-            "最多显示的数量",
-            "qmsg-config-maxnums",
-            3,
-            [
+            ]
+          },
+          {
+            text: "变量设置",
+            type: "deepMenu",
+            forms: [
               {
-                value: 1,
-                text: "1"
-              },
-              {
-                value: 2,
-                text: "2"
-              },
-              {
-                value: 3,
-                text: "3"
-              },
-              {
-                value: 4,
-                text: "4"
-              },
-              {
-                value: 5,
-                text: "5"
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "isLogin",
+                    "bili-setLogin",
+                    true,
+                    void 0,
+                    "$store.state.common.noCallApp=true<br>$store.state.common.userInfo.isLogin=true<br>$store.state.loginInfo.isLogin=true"
+                  ),
+                  UISwitch(
+                    "isClient",
+                    "bili-setIsClient",
+                    true,
+                    void 0,
+                    "$store.state.video.isClient=true<br>$store.state.opus.isClient=true<br>$store.state.playlist.isClient=true<br>$store.state.ver.bili=true<br>$store.state.ver.biliVer=2333"
+                  ),
+                  UISwitch(
+                    "tinyApp",
+                    "bili-setTinyApp",
+                    true,
+                    void 0,
+                    "$store.state.common.tinyApp=true"
+                  )
+                ]
               }
-            ],
-            void 0,
-            "限制Toast显示的数量"
-          ),
-          UISwitch(
-            "逆序弹出",
-            "qmsg-config-showreverse",
-            false,
-            void 0,
-            "修改Toast弹出的顺序"
-          )
+            ]
+          },
+          {
+            text: "劫持/拦截",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "覆盖.launch-app-btn openApp",
+                    "bili-overrideLaunchAppBtn_Vue_openApp",
+                    true,
+                    void 0,
+                    "覆盖.launch-app-btn元素上的openApp函数，可阻止点击唤醒/下载App"
+                  ),
+                  UISwitch(
+                    "劫持setTimeout-autoOpenApp",
+                    "bili-hookSetTimeout_autoOpenApp",
+                    true,
+                    void 0,
+                    "阻止自动调用App"
+                  )
+                ]
+              }
+            ]
+          }
         ]
       },
       {
-        text: "Cookie配置",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch(
-            "启用",
-            "httpx-use-cookie-enable",
-            false,
-            void 0,
-            "启用后，将根据下面的配置进行添加cookie"
-          ),
-          UISwitch(
-            "使用document.cookie",
-            "httpx-use-document-cookie",
-            false,
-            void 0,
-            "自动根据请求的域名来获取对应的cookie"
-          ),
-          UITextArea(
-            "bilibili.com",
-            "httpx-cookie-bilibili.com",
-            "",
-            void 0,
-            void 0,
-            "Cookie格式：xxx=xxxx;xxx=xxxx"
-          )
+          {
+            text: "Toast配置",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISelect(
+                    "Toast位置",
+                    "qmsg-config-position",
+                    "bottom",
+                    [
+                      {
+                        value: "topleft",
+                        text: "左上角"
+                      },
+                      {
+                        value: "top",
+                        text: "顶部"
+                      },
+                      {
+                        value: "topright",
+                        text: "右上角"
+                      },
+                      {
+                        value: "left",
+                        text: "左边"
+                      },
+                      {
+                        value: "center",
+                        text: "中间"
+                      },
+                      {
+                        value: "right",
+                        text: "右边"
+                      },
+                      {
+                        value: "bottomleft",
+                        text: "左下角"
+                      },
+                      {
+                        value: "bottom",
+                        text: "底部"
+                      },
+                      {
+                        value: "bottomright",
+                        text: "右下角"
+                      }
+                    ],
+                    (event, isSelectValue, isSelectText) => {
+                      log.info("设置当前Qmsg弹出位置" + isSelectText);
+                    },
+                    "Toast显示在页面九宫格的位置"
+                  ),
+                  UISelect(
+                    "最多显示的数量",
+                    "qmsg-config-maxnums",
+                    3,
+                    [
+                      {
+                        value: 1,
+                        text: "1"
+                      },
+                      {
+                        value: 2,
+                        text: "2"
+                      },
+                      {
+                        value: 3,
+                        text: "3"
+                      },
+                      {
+                        value: 4,
+                        text: "4"
+                      },
+                      {
+                        value: 5,
+                        text: "5"
+                      }
+                    ],
+                    void 0,
+                    "限制Toast显示的数量"
+                  ),
+                  UISwitch(
+                    "逆序弹出",
+                    "qmsg-config-showreverse",
+                    false,
+                    void 0,
+                    "修改Toast弹出的顺序"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "Cookie配置",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "启用",
+                    "httpx-use-cookie-enable",
+                    false,
+                    void 0,
+                    "启用后，将根据下面的配置进行添加cookie"
+                  ),
+                  UISwitch(
+                    "使用document.cookie",
+                    "httpx-use-document-cookie",
+                    false,
+                    void 0,
+                    "自动根据请求的域名来获取对应的cookie"
+                  ),
+                  UITextArea(
+                    "bilibili.com",
+                    "httpx-cookie-bilibili.com",
+                    "",
+                    void 0,
+                    void 0,
+                    "Cookie格式：xxx=xxxx;xxx=xxxx"
+                  )
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
@@ -584,117 +626,153 @@
     },
     forms: [
       {
-        text: "功能",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch(
-            "修复视频底部区域高度",
-            "bili-video-repairVideoBottomAreaHeight",
-            true,
-            void 0,
-            "添加margin-top"
-          ),
-          UISwitch(
-            "自动点击【继续在网页观看】",
-            "bili-video-autoClickContinueToWatchOnTheWebpage",
-            true,
-            void 0,
-            "可避免弹窗出现且自动点击后播放视频"
-          ),
-          UISwitch(
-            "美化显示",
-            "bili-video-beautify",
-            true,
-            void 0,
-            "调整底部推荐视频卡片样式类似哔哩哔哩App"
-          ),
-          UISwitch(
-            "手势返回关闭评论区",
-            "bili-video-gestureReturnToCloseCommentArea",
-            true,
-            void 0,
-            "当浏览器手势触发浏览器回退页面时，关闭评论区"
-          ),
-          UISwitch(
-            "initPlayer",
-            "bili-video-initPlayer",
-            true,
-            void 0,
-            "自动执行初始化播放器"
-          ),
-          UISwitch(
-            "强制本页刷新跳转",
-            "bili-video-forceThisPageToRefreshAndRedirect",
-            false,
-            void 0,
-            "用于解决跳转播放视频时，播放当前视频会有上一个播放视频的声音的情况"
-          )
-        ]
-      },
-      {
-        text: "变量设置",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "playBtnNoOpenApp",
-            "bili-video-setVideoPlayer",
-            true,
-            void 0,
-            "playBtnNoOpenApp=true<br>playBtnOpenApp=false<br>coverOpenApp=false"
-          ),
-          UISwitch(
-            "解锁充电限制",
-            "bili-video-unlockUpower",
-            false,
-            void 0,
-            "is_upower_exclusive=true<br>is_upower_play=false<br>is_upower_preview=false"
-          )
-        ]
-      },
-      {
-        text: "覆盖点击事件",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "相关视频",
-            "bili-video-cover-bottomRecommendVideo",
-            true,
-            void 0,
-            "点击下面的相关视频可正确跳转至该视频"
-          ),
-          UISwitch(
-            "选集",
-            "bili-video-cover-seasonNew",
-            true,
-            void 0,
-            "点击下面的选集列表内的视频可正确跳转至该视频"
-          )
-        ]
-      },
-      {
-        text: "网络拦截",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "解锁清晰度",
-            "bili-video-xhr-unlockQuality",
-            true,
-            void 0,
-            "最高清晰度为720P"
-          )
-        ]
-      },
-      {
-        text: "劫持/拦截",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "阻止调用App",
-            "bili-video-hook-callApp",
-            true,
-            void 0,
-            "处理函数: PlayerAgent"
-          )
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "修复视频底部区域高度",
+                    "bili-video-repairVideoBottomAreaHeight",
+                    true,
+                    void 0,
+                    "添加margin-top"
+                  ),
+                  UISwitch(
+                    "自动点击【继续在网页观看】",
+                    "bili-video-autoClickContinueToWatchOnTheWebpage",
+                    true,
+                    void 0,
+                    "可避免弹窗出现且自动点击后播放视频"
+                  ),
+                  UISwitch(
+                    "美化显示",
+                    "bili-video-beautify",
+                    true,
+                    void 0,
+                    "调整底部推荐视频卡片样式类似哔哩哔哩App"
+                  ),
+                  UISwitch(
+                    "手势返回关闭评论区",
+                    "bili-video-gestureReturnToCloseCommentArea",
+                    true,
+                    void 0,
+                    "当浏览器手势触发浏览器回退页面时，关闭评论区"
+                  ),
+                  UISwitch(
+                    "initPlayer",
+                    "bili-video-initPlayer",
+                    true,
+                    void 0,
+                    "自动执行初始化播放器"
+                  ),
+                  UISwitch(
+                    "强制本页刷新跳转",
+                    "bili-video-forceThisPageToRefreshAndRedirect",
+                    false,
+                    void 0,
+                    "用于解决跳转播放视频时，播放当前视频会有上一个播放视频的声音的情况"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "变量设置",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "playBtnNoOpenApp",
+                    "bili-video-setVideoPlayer",
+                    true,
+                    void 0,
+                    "playBtnNoOpenApp=true<br>playBtnOpenApp=false<br>coverOpenApp=false"
+                  ),
+                  UISwitch(
+                    "解锁充电限制",
+                    "bili-video-unlockUpower",
+                    false,
+                    void 0,
+                    "is_upower_exclusive=true<br>is_upower_play=false<br>is_upower_preview=false"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "覆盖点击事件",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "相关视频",
+                    "bili-video-cover-bottomRecommendVideo",
+                    true,
+                    void 0,
+                    "点击下面的相关视频可正确跳转至该视频"
+                  ),
+                  UISwitch(
+                    "选集",
+                    "bili-video-cover-seasonNew",
+                    true,
+                    void 0,
+                    "点击下面的选集列表内的视频可正确跳转至该视频"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "网络拦截",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "解锁清晰度",
+                    "bili-video-xhr-unlockQuality",
+                    true,
+                    void 0,
+                    "最高清晰度为720P"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "劫持/拦截",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "阻止调用App",
+                    "bili-video-hook-callApp",
+                    true,
+                    void 0,
+                    "处理函数: PlayerAgent"
+                  )
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
@@ -707,63 +785,99 @@
     },
     forms: [
       {
-        text: "变量设置",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch(
-            "pay",
-            "bili-bangumi-setPay",
-            true,
-            void 0,
-            "$store.state.userStat.pay=1<br>$store.state.mediaInfo.user_status.pay=1"
-          )
-        ]
-      },
-      {
-        text: "覆盖点击事件",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "【选集】",
-            "bili-bangumi-cover-clicl-event-chooseEp",
-            true,
-            void 0,
-            "让【选集】的视频列表可点击跳转"
-          ),
-          UISwitch(
-            "【其它】",
-            "bili-bangumi-cover-clicl-event-other",
-            true,
-            void 0,
-            "让【PV&其他】、【预告】、【主题曲】、【香境剧场】等的视频列表可点击跳转"
-          ),
-          UISwitch(
-            "【更多推荐】",
-            "bili-bangumi-cover-clicl-event-recommend",
-            true,
-            void 0,
-            "让【更多推荐】的视频列表可点击跳转"
-          )
-        ]
-      },
-      {
-        text: "网络拦截",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "解锁清晰度",
-            "bili-bangumi-xhr-unlockQuality",
-            true,
-            void 0,
-            "最高清晰度为720P"
-          )
-        ]
-      },
-      {
-        text: "劫持/拦截",
-        type: "forms",
-        forms: [
-          UISwitch("阻止调用App", "bili-bangumi-hook-callApp", true, void 0, "")
+          {
+            text: "变量设置",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "变量设置",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "pay",
+                    "bili-bangumi-setPay",
+                    true,
+                    void 0,
+                    "$store.state.userStat.pay=1<br>$store.state.mediaInfo.user_status.pay=1"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "覆盖点击事件",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【选集】",
+                    "bili-bangumi-cover-clicl-event-chooseEp",
+                    true,
+                    void 0,
+                    "让【选集】的视频列表可点击跳转"
+                  ),
+                  UISwitch(
+                    "【其它】",
+                    "bili-bangumi-cover-clicl-event-other",
+                    true,
+                    void 0,
+                    "让【PV&其他】、【预告】、【主题曲】、【香境剧场】等的视频列表可点击跳转"
+                  ),
+                  UISwitch(
+                    "【更多推荐】",
+                    "bili-bangumi-cover-clicl-event-recommend",
+                    true,
+                    void 0,
+                    "让【更多推荐】的视频列表可点击跳转"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "网络拦截",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "解锁清晰度",
+                    "bili-bangumi-xhr-unlockQuality",
+                    true,
+                    void 0,
+                    "最高清晰度为720P"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "劫持/拦截",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "阻止调用App",
+                    "bili-bangumi-hook-callApp",
+                    true,
+                    void 0,
+                    ""
+                  )
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
@@ -784,43 +898,61 @@
     },
     forms: [
       {
-        text: "屏蔽",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch(
-            "【屏蔽】聊天室",
-            "bili-live-block-chatRoom",
-            false,
-            void 0,
-            "直接不显示底部的聊天室"
-          ),
-          UISwitch(
-            "【屏蔽】xxx进入直播间",
-            "bili-live-block-brush-prompt",
-            false,
-            void 0,
-            "直接不显示底部的xxx进入直播间"
-          ),
-          UISwitch(
-            "【屏蔽】控制面板",
-            "bili-live-block-control-panel",
-            false,
-            void 0,
-            "屏蔽底部的发个弹幕、送礼"
-          )
-        ]
-      },
-      {
-        text: "劫持/拦截",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "阻止open-app-btn元素点击事件触发",
-            "bili-live-prevent-openAppBtn",
-            true,
-            void 0,
-            "开启后可不跳转至唤醒App页面"
-          )
+          {
+            text: "屏蔽",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】聊天室",
+                    "bili-live-block-chatRoom",
+                    false,
+                    void 0,
+                    "直接不显示底部的聊天室"
+                  ),
+                  UISwitch(
+                    "【屏蔽】xxx进入直播间",
+                    "bili-live-block-brush-prompt",
+                    false,
+                    void 0,
+                    "直接不显示底部的xxx进入直播间"
+                  ),
+                  UISwitch(
+                    "【屏蔽】控制面板",
+                    "bili-live-block-control-panel",
+                    false,
+                    void 0,
+                    "屏蔽底部的发个弹幕、送礼"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "劫持/拦截",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "阻止open-app-btn元素点击事件触发",
+                    "bili-live-prevent-openAppBtn",
+                    true,
+                    void 0,
+                    "开启后可不跳转至唤醒App页面"
+                  )
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
@@ -833,36 +965,54 @@
     },
     forms: [
       {
-        text: "功能",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch(
-            "自动展开阅读全文",
-            "bili-opus-automaticallyExpandToReadFullText",
-            true,
-            void 0,
-            "屏蔽【展开阅读全文】按钮并自动处理全文高度"
-          )
-        ]
-      },
-      {
-        text: "覆盖点击事件",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "话题",
-            "bili-opus-cover-topicJump",
-            true,
-            void 0,
-            "点击话题正确跳转"
-          ),
-          UISwitch(
-            "header用户",
-            "bili-opus-cover-header",
-            true,
-            void 0,
-            "点击内容上的发布本动态的用户正确跳转个人空间"
-          )
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "自动展开阅读全文",
+                    "bili-opus-automaticallyExpandToReadFullText",
+                    true,
+                    void 0,
+                    "屏蔽【展开阅读全文】按钮并自动处理全文高度"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "覆盖点击事件",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "话题",
+                    "bili-opus-cover-topicJump",
+                    true,
+                    void 0,
+                    "点击话题正确跳转"
+                  ),
+                  UISwitch(
+                    "header用户",
+                    "bili-opus-cover-header",
+                    true,
+                    void 0,
+                    "点击内容上的发布本动态的用户正确跳转个人空间"
+                  )
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
@@ -875,37 +1025,49 @@
     },
     forms: [
       {
-        text: "覆盖点击事件",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch(
-            "话题",
-            "bili-dynamic-cover-topicJump",
-            true,
-            void 0,
-            "点击话题正确跳转"
-          ),
-          UISwitch(
-            "header用户",
-            "bili-dynamic-cover-header",
-            true,
-            void 0,
-            "点击内容上的发布本动态的用户正确跳转个人空间"
-          ),
-          UISwitch(
-            "@用户",
-            "bili-dynamic-cover-atJump",
-            true,
-            void 0,
-            "点击@用户正确跳转个人空间"
-          ),
-          UISwitch(
-            "引用",
-            "bili-dynamic-cover-referenceJump",
-            true,
-            void 0,
-            "点击引用的视频|用户正确跳转"
-          )
+          {
+            text: "覆盖点击事件",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "话题",
+                    "bili-dynamic-cover-topicJump",
+                    true,
+                    void 0,
+                    "点击话题正确跳转"
+                  ),
+                  UISwitch(
+                    "header用户",
+                    "bili-dynamic-cover-header",
+                    true,
+                    void 0,
+                    "点击内容上的发布本动态的用户正确跳转个人空间"
+                  ),
+                  UISwitch(
+                    "@用户",
+                    "bili-dynamic-cover-atJump",
+                    true,
+                    void 0,
+                    "点击@用户正确跳转个人空间"
+                  ),
+                  UISwitch(
+                    "引用",
+                    "bili-dynamic-cover-referenceJump",
+                    true,
+                    void 0,
+                    "点击引用的视频|用户正确跳转"
+                  )
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
@@ -1446,58 +1608,76 @@
     title: "首页",
     forms: [
       {
-        text: "功能",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch(
-            "美化显示",
-            "bili-head-beautify",
-            true,
-            void 0,
-            "调整瀑布流视频卡片样式类似哔哩哔哩App"
-          ),
-          UISwitch(
-            "补充推荐视频信息",
-            "bili-head-supplementaryVideoStreamingInformation",
-            true,
-            void 0,
-            "给视频添加UP主名，当前视频总时长信息"
-          )
-        ]
-      },
-      {
-        text: "推荐",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "启用",
-            "bili-head-recommend-enable",
-            false,
-            void 0,
-            "添加【推荐】标签，数据来源为App端(如果填入了access_token的话)"
-          ),
-          UISwitch(
-            "显示【图文】",
-            "bili-head-recommend-push-graphic",
-            true,
-            void 0,
-            "加载App端推送的【图文】卡片"
-          ),
-          UIInput(
-            "access_token",
-            "bili-head-recommend-access_token",
-            BilibiliQrCodeLogin.getAccessToken(),
-            "填入access_token，即可获取推荐视频数据",
-            (event, value, valueAsNumber) => {
-              BilibiliQrCodeLogin.setAccessTokenInfo({
-                access_token: value,
-                expireAt: BilibiliQrCodeLogin.generateExpireAt()
-              });
-            },
-            void 0,
-            false,
-            true
-          )
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "美化显示",
+                    "bili-head-beautify",
+                    true,
+                    void 0,
+                    "调整瀑布流视频卡片样式类似哔哩哔哩App"
+                  ),
+                  UISwitch(
+                    "补充推荐视频信息",
+                    "bili-head-supplementaryVideoStreamingInformation",
+                    true,
+                    void 0,
+                    "给视频添加UP主名，当前视频总时长信息"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "推荐视频",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "启用",
+                    "bili-head-recommend-enable",
+                    false,
+                    void 0,
+                    "添加【推荐】标签，数据来源为App端(如果填入了access_token的话)"
+                  ),
+                  UISwitch(
+                    "显示【图文】",
+                    "bili-head-recommend-push-graphic",
+                    true,
+                    void 0,
+                    "加载App端推送的【图文】卡片"
+                  ),
+                  UIInput(
+                    "access_token",
+                    "bili-head-recommend-access_token",
+                    BilibiliQrCodeLogin.getAccessToken(),
+                    "填入access_token，即可获取推荐视频数据",
+                    (event, value, valueAsNumber) => {
+                      BilibiliQrCodeLogin.setAccessTokenInfo({
+                        access_token: value,
+                        expireAt: BilibiliQrCodeLogin.generateExpireAt()
+                      });
+                    },
+                    void 0,
+                    false,
+                    true
+                  )
+                ]
+              }
+            ]
+          }
         ]
       }
     ]

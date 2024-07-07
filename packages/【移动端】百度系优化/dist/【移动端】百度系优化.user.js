@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.6.20
+// @version      2024.7.7
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -867,6 +867,23 @@ match-attr##srcid##sp_purc_atom
         type: "forms",
         forms: [
           {
+            text: "主页",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "精简主页",
+                    "baidu_search_home_homepage_minification",
+                    true
+                  )
+                ]
+              }
+            ]
+          },
+          {
             text: "百度健康",
             type: "deepMenu",
             forms: [
@@ -883,6 +900,140 @@ match-attr##srcid##sp_purc_atom
                     "【屏蔽】底部工具栏",
                     "baidu_search_headlth_shield_bottom_toolbar",
                     true
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        text: "",
+        type: "forms",
+        forms: [
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "处理搜索结果",
+                    "baidu_search_handle_search_result",
+                    true,
+                    void 0,
+                    "将百度重定向链接替换为真实地址(存在就替换，不存在的话保持原样)"
+                  ),
+                  UISwitch(
+                    "重定向顶部的链接",
+                    "baidu_search_redirect_top_link",
+                    true,
+                    void 0,
+                    "如全部、视频、图片、贴吧、咨询..."
+                  ),
+                  UISwitch(
+                    "重构百度搜索",
+                    "baidu_search_refactoring_input_boxes",
+                    true,
+                    void 0,
+                    "重构顶部的输入框、百度一下按钮、搜索建议框，可不出现百度App提示"
+                  ),
+                  UISwitch(
+                    "自动点击翻页 => SearchCraft",
+                    "baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua",
+                    false,
+                    function(event, enable) {
+                      if (enable && PopsPanel.getValue(
+                        "baidu_search_automatically_expand_next_page"
+                      )) {
+                        let $click = event.target;
+                        let $shadowRoot = $click.getRootNode();
+                        let $checkbox = $shadowRoot.querySelector(
+                          `li[${PopsPanel.$data.attributeKeyName}="baidu_search_automatically_expand_next_page"] span.pops-panel-switch__core`
+                        );
+                        if (!$checkbox) {
+                          throw new Error("未找到互斥元素");
+                        }
+                        $checkbox.click();
+                      }
+                    },
+                    "userAgent包含SearchCraft时生效，与↓【自动翻页】功能冲突"
+                  ),
+                  UISwitch(
+                    "自动翻页",
+                    "baidu_search_automatically_expand_next_page",
+                    true,
+                    function(event, enable) {
+                      if (enable && PopsPanel.getValue(
+                        "baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"
+                      )) {
+                        let $click = event.target;
+                        let $shadowRoot = $click.getRootNode();
+                        let $checkbox = $shadowRoot.querySelector(
+                          `li[${PopsPanel.$data.attributeKeyName}="baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"] span.pops-panel-switch__core`
+                        );
+                        if (!$checkbox) {
+                          throw new Error("未找到互斥元素");
+                        }
+                        $checkbox.click();
+                      }
+                    },
+                    "与上面的【自动点击翻页】冲突"
+                  ),
+                  UISwitch(
+                    "同步地址",
+                    "baidu_search_sync_next_page_address",
+                    false,
+                    function(event, enable) {
+                      if (enable) {
+                        alert(
+                          "开启后，且开启【自动翻页】，当自动加载到第N页时，浏览器地址也会跟随改变，刷新网页就是当前加载的第N页"
+                        );
+                      }
+                    },
+                    "需启用【自动翻页】，浏览器地址栏会自动同步当前页面的Url"
+                  ),
+                  UISwitch(
+                    "【优化】大家还在搜",
+                    "baidu_search_refactor_everyone_is_still_searching",
+                    true,
+                    void 0,
+                    "正确新标签页打开，避免跳转至App下载页面"
+                  ),
+                  UISwitch(
+                    "新标签页打开",
+                    "baidu_search_hijack__onClick_to_blank",
+                    false,
+                    void 0,
+                    "需开启【劫持-_onClick函数】和【处理搜索结果】且能成功劫持到该函数才会生效，否则是提取article的URL链接信息跳转"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "屏蔽/禁止",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】大家还在搜",
+                    "baidu_search_blocking_everyone_is_still_searching",
+                    true,
+                    void 0,
+                    "用于补充下面自定义拦截规则的默认配置的【大家还在搜】"
+                  ),
+                  UISwitch(
+                    "【禁止】自动播放视频",
+                    "baidu-search-blockAutomaticVideoPlayback",
+                    true,
+                    void 0,
+                    "移除video-player元素，可能会导致某些第一个结果是智能卡片时，点击更多按钮无反应(webview/Safari)"
                   )
                 ]
               }
@@ -940,7 +1091,7 @@ match-attr##srcid##sp_purc_atom
             type: "deepMenu",
             forms: [
               {
-                text: "<a href='https://greasyfork.org/zh-CN/scripts/418349' target='_blank'>查看规则文档(在最下面)</><br><a href='javascript:;' class='baidu-search-shield-css-reset'>点击重置</a>",
+                text: "<a href='https://greasyfork.org/zh-CN/scripts/418349-%E7%A7%BB%E5%8A%A8%E7%AB%AF-%E7%99%BE%E5%BA%A6%E7%B3%BB%E4%BC%98%E5%8C%96#:~:text=%E5%A6%82%E4%BD%95%E8%87%AA%E5%AE%9A%E4%B9%89%E7%99%BE%E5%BA%A6%E6%90%9C%E7%B4%A2%E6%8B%A6%E6%88%AA%E8%A7%84%E5%88%99' target='_blank'>查看规则文档</><br><a href='javascript:;' class='baidu-search-shield-css-reset'>点击重置</a>",
                 type: "forms",
                 forms: [
                   UISwitch(
@@ -1057,117 +1208,6 @@ match-attr##srcid##sp_purc_atom
               }
             ]
           }
-        ]
-      },
-      {
-        text: "屏蔽/禁止",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "【屏蔽】大家还在搜",
-            "baidu_search_blocking_everyone_is_still_searching",
-            true,
-            void 0,
-            "用于补充下面自定义拦截规则的默认配置的【大家还在搜】"
-          ),
-          UISwitch(
-            "【禁止】自动播放视频",
-            "baidu-search-blockAutomaticVideoPlayback",
-            true,
-            void 0,
-            "移除video-player元素，可能会导致某些第一个结果是智能卡片时，点击更多按钮无反应(webview/Safari)"
-          )
-        ]
-      },
-      {
-        text: "功能",
-        type: "forms",
-        forms: [
-          UISwitch("精简主页", "baidu_search_home_homepage_minification", true),
-          UISwitch(
-            "处理搜索结果",
-            "baidu_search_handle_search_result",
-            true,
-            void 0,
-            "将百度重定向链接替换为真实地址(存在就替换，不存在的话保持原样)"
-          ),
-          UISwitch(
-            "重定向顶部的链接",
-            "baidu_search_redirect_top_link",
-            true,
-            void 0,
-            "如全部、视频、图片、贴吧、咨询..."
-          ),
-          UISwitch(
-            "重构百度搜索",
-            "baidu_search_refactoring_input_boxes",
-            true,
-            void 0,
-            "重构顶部的输入框、百度一下按钮、搜索建议框，可不出现百度App提示"
-          ),
-          UISwitch(
-            "自动点击翻页 => SearchCraft",
-            "baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua",
-            false,
-            function(event, enable) {
-              if (enable && PopsPanel.getValue("baidu_search_automatically_expand_next_page")) {
-                let checkboxCoreElement = document.querySelector(
-                  `li[${PopsPanel.$data.attributeKeyName}="baidu_search_automatically_expand_next_page"] span.pops-panel-switch__core`
-                );
-                if (!checkboxCoreElement) {
-                  throw new Error("未找到互斥元素");
-                }
-                checkboxCoreElement.click();
-              }
-            },
-            "userAgent包含SearchCraft时生效，与↓【自动翻页】功能冲突"
-          ),
-          UISwitch(
-            "自动翻页",
-            "baidu_search_automatically_expand_next_page",
-            true,
-            function(event, enable) {
-              if (enable && PopsPanel.getValue(
-                "baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"
-              )) {
-                let checkboxCoreElement = document.querySelector(
-                  `li[${PopsPanel.$data.attributeKeyName}="baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"] span.pops-panel-switch__core`
-                );
-                if (!checkboxCoreElement) {
-                  throw new Error("未找到互斥元素");
-                }
-                checkboxCoreElement.click();
-              }
-            },
-            "与上面的【自动点击翻页】冲突"
-          ),
-          UISwitch(
-            "同步地址",
-            "baidu_search_sync_next_page_address",
-            false,
-            function(event, enable) {
-              if (enable) {
-                alert(
-                  "开启后，且开启【自动翻页】，当自动加载到第N页时，浏览器地址也会跟随改变，刷新网页就是当前加载的第N页"
-                );
-              }
-            },
-            "需启用【自动翻页】，浏览器地址栏会自动同步当前页面的Url"
-          ),
-          UISwitch(
-            "【优化】大家还在搜",
-            "baidu_search_refactor_everyone_is_still_searching",
-            true,
-            void 0,
-            "正确新标签页打开，避免跳转至App下载页面"
-          ),
-          UISwitch(
-            "新标签页打开",
-            "baidu_search_hijack__onClick_to_blank",
-            false,
-            void 0,
-            "需开启【劫持-_onClick函数】和【处理搜索结果】且能成功劫持到该函数才会生效，否则是提取article的URL链接信息跳转"
-          )
         ]
       }
     ]
@@ -1958,187 +1998,225 @@ match-attr##srcid##sp_purc_atom
         ]
       },
       {
-        text: "账号功能",
+        text: "",
         type: "forms",
         forms: [
-          UIButton(
-            "签到所有关注的吧",
-            void 0,
-            "签到",
-            void 0,
-            void 0,
-            false,
-            "default",
-            async () => {
-              function getLoadingHTML(index, maxIndex, forumName, text, signText) {
-                return `
-                        <div>进度：${index}/${maxIndex}</div>
-                        <div>吧名：${forumName}</div>
-                        <div>信息：${text}</div>
-                        ${""}
-                        `;
-              }
-              Qmsg.info("正在获取所有关注吧");
-              let likeForumList = await TieBaApi.getUserAllLikeForum();
-              if (!likeForumList) {
-                return;
-              }
-              if (!likeForumList.length) {
-                Qmsg.error("该账号尚未关注帖子");
-                return;
-              }
-              let isStop = false;
-              let loading = Qmsg.loading(
-                getLoadingHTML(
-                  1,
-                  likeForumList.length,
-                  likeForumList[0].forum_name,
-                  "正在获取tbs"
-                ),
-                {
-                  showClose: true,
-                  onClose() {
-                    isStop = true;
-                  }
-                }
-              );
-              for (let index = 0; index < likeForumList.length; index++) {
-                if (isStop) {
-                  Qmsg.info("中断");
-                  return;
-                }
-                let likeForum = likeForumList[index];
-                loading.setHTML(
-                  getLoadingHTML(
-                    index + 1,
-                    likeForumList.length,
-                    likeForum.forum_name,
-                    "正在获取tbs"
+          {
+            text: "账号功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UIButton(
+                    "签到所有关注的吧",
+                    void 0,
+                    "签到",
+                    void 0,
+                    void 0,
+                    false,
+                    "default",
+                    async () => {
+                      function getLoadingHTML(index, maxIndex, forumName, text, signText) {
+                        return `
+							<div>进度：${index}/${maxIndex}</div>
+							<div>吧名：${forumName}</div>
+							<div>信息：${text}</div>
+							${""}
+							`;
+                      }
+                      Qmsg.info("正在获取所有关注吧");
+                      let likeForumList = await TieBaApi.getUserAllLikeForum();
+                      if (!likeForumList) {
+                        return;
+                      }
+                      if (!likeForumList.length) {
+                        Qmsg.error("该账号尚未关注帖子");
+                        return;
+                      }
+                      let isStop = false;
+                      let loading = Qmsg.loading(
+                        getLoadingHTML(
+                          1,
+                          likeForumList.length,
+                          likeForumList[0].forum_name,
+                          "正在获取tbs"
+                        ),
+                        {
+                          showClose: true,
+                          onClose() {
+                            isStop = true;
+                          }
+                        }
+                      );
+                      for (let index = 0; index < likeForumList.length; index++) {
+                        if (isStop) {
+                          Qmsg.info("中断");
+                          return;
+                        }
+                        let likeForum = likeForumList[index];
+                        loading.setHTML(
+                          getLoadingHTML(
+                            index + 1,
+                            likeForumList.length,
+                            likeForum.forum_name,
+                            "正在获取tbs"
+                          )
+                        );
+                        let tbs = await TieBaApi.getForumTbs(
+                          likeForum.forum_name
+                        );
+                        if (!tbs) {
+                          Qmsg.info("2秒后切换至下一个");
+                          await utils.sleep(2e3);
+                          continue;
+                        }
+                        Qmsg.success(`tbs ===> ${tbs}`);
+                        loading.setHTML(
+                          getLoadingHTML(
+                            index + 1,
+                            likeForumList.length,
+                            likeForum.forum_name,
+                            "发送签到请求..."
+                          )
+                        );
+                        let signResult = await TieBaApi.forumSign(
+                          likeForum.forum_name,
+                          tbs
+                        );
+                        if (!signResult) {
+                          Qmsg.info("2秒后切换至下一个");
+                          await utils.sleep(2e3);
+                          continue;
+                        }
+                        if (typeof signResult["data"] === "object") {
+                          loading.setHTML(
+                            getLoadingHTML(
+                              index + 1,
+                              likeForumList.length,
+                              likeForum.forum_name,
+                              `今日本吧第${signResult["data"]["finfo"]["current_rank_info"]["sign_count"]}个签到`
+                            )
+                          );
+                        } else {
+                          Qmsg.error(signResult["error"]);
+                        }
+                        Qmsg.info("2秒后切换至下一个");
+                        await utils.sleep(2e3);
+                      }
+                      Qmsg.success(`执行签到 ${likeForumList.length} 个贴吧完毕`);
+                      loading.close();
+                    }
                   )
-                );
-                let tbs = await TieBaApi.getForumTbs(likeForum.forum_name);
-                if (!tbs) {
-                  Qmsg.info("2秒后切换至下一个");
-                  await utils.sleep(2e3);
-                  continue;
-                }
-                Qmsg.success(`tbs ===> ${tbs}`);
-                loading.setHTML(
-                  getLoadingHTML(
-                    index + 1,
-                    likeForumList.length,
-                    likeForum.forum_name,
-                    "发送签到请求..."
-                  )
-                );
-                let signResult = await TieBaApi.forumSign(
-                  likeForum.forum_name,
-                  tbs
-                );
-                if (!signResult) {
-                  Qmsg.info("2秒后切换至下一个");
-                  await utils.sleep(2e3);
-                  continue;
-                }
-                if (typeof signResult["data"] === "object") {
-                  loading.setHTML(
-                    getLoadingHTML(
-                      index + 1,
-                      likeForumList.length,
-                      likeForum.forum_name,
-                      `今日本吧第${signResult["data"]["finfo"]["current_rank_info"]["sign_count"]}个签到`
-                    )
-                  );
-                } else {
-                  Qmsg.error(signResult["error"]);
-                }
-                Qmsg.info("2秒后切换至下一个");
-                await utils.sleep(2e3);
+                ]
               }
-              Qmsg.success(`执行签到 ${likeForumList.length} 个贴吧完毕`);
-              loading.close();
-            }
-          )
-        ]
-      },
-      {
-        text: "通用",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "检测骨架屏",
-            "baidu_tieba_checkSkeleton",
-            true,
-            void 0,
-            "当页面加载完毕后检测到还是骨架屏，将会自动刷新页面"
-          ),
-          UISwitch(
-            "自动重定向至主域名",
-            "baidu_tieba_autoJumpToMainHost",
-            false,
-            void 0,
-            "域名为nba.baidu.com、static.tieba.baidu.com...等时自动重定向至tieba.baidu.com"
-          )
-        ]
-      },
-      {
-        text: "搜索功能",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "启用",
-            "baidu_tieba_add_search",
-            true,
-            void 0,
-            "在贴内和吧内右上角添加搜索按钮"
-          ),
-          UISwitch(
-            "获取详细信息",
-            "baidu_tieba_search_opt_user_info",
-            true,
-            void 0,
-            "将搜索结果的【用户名/头像】替换成请求获取的【用户名/头像】"
-          ),
-          UISwitch(
-            "使用【搜索综合】",
-            "baidu_tieba_use_hybrid_search",
-            false,
-            void 0,
-            "使用贴吧移动端的搜索功能"
-          )
-        ]
-      },
-      {
-        text: "屏蔽",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "【屏蔽】评论输入框",
-            "baidu-tieba-blockCommentInput",
-            false,
-            void 0,
-            "屏蔽元素"
-          )
-        ]
-      },
-      {
-        text: "劫持/拦截",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "劫持-唤醒App",
-            "baidu_tieba_hijack_wake_up",
-            false,
-            void 0,
-            "阻止唤醒调用App"
-          ),
-          UISwitch(
-            "伪装客户端已调用",
-            "baidu_tieba_clientCallMasquerade",
-            true,
-            void 0,
-            "阻止弹窗"
-          )
+            ]
+          },
+          {
+            text: "通用",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "检测骨架屏",
+                    "baidu_tieba_checkSkeleton",
+                    true,
+                    void 0,
+                    "当页面加载完毕后检测到还是骨架屏，将会自动刷新页面"
+                  ),
+                  UISwitch(
+                    "自动重定向至主域名",
+                    "baidu_tieba_autoJumpToMainHost",
+                    false,
+                    void 0,
+                    "域名为nba.baidu.com、static.tieba.baidu.com...等时自动重定向至tieba.baidu.com"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "搜索功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "启用",
+                    "baidu_tieba_add_search",
+                    true,
+                    void 0,
+                    "在贴内和吧内右上角添加搜索按钮"
+                  ),
+                  UISwitch(
+                    "获取详细信息",
+                    "baidu_tieba_search_opt_user_info",
+                    true,
+                    void 0,
+                    "将搜索结果的【用户名/头像】替换成请求获取的【用户名/头像】"
+                  ),
+                  UISwitch(
+                    "使用【搜索综合】",
+                    "baidu_tieba_use_hybrid_search",
+                    false,
+                    void 0,
+                    "使用贴吧移动端的搜索功能"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "屏蔽",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】评论输入框",
+                    "baidu-tieba-blockCommentInput",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "劫持/拦截",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "劫持-唤醒App",
+                    "baidu_tieba_hijack_wake_up",
+                    false,
+                    void 0,
+                    "阻止唤醒调用App"
+                  ),
+                  UISwitch(
+                    "伪装客户端已调用",
+                    "baidu_tieba_clientCallMasquerade",
+                    true,
+                    void 0,
+                    "阻止弹窗"
+                  )
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
@@ -2222,65 +2300,77 @@ match-attr##srcid##sp_purc_atom
         ]
       },
       {
-        text: "劫持Box",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch(
-            "isBox",
-            "baidu-baike-Box-isBox",
-            true,
-            void 0,
-            "Box.isBox和Box.$isBox强制返回true"
-          ),
-          UISwitch(
-            "isLiteBox",
-            "baidu-baike-Box-isLiteBox",
-            false,
-            void 0,
-            "Box.isLiteBox和Box.$isLiteBox强制返回true"
-          ),
-          UISwitch(
-            "isInfoBox",
-            "baidu-baike-Box-isInfoBox",
-            false,
-            void 0,
-            "Box.isInfoBox和Box.$isInfoBox强制返回true"
-          ),
-          UISwitch(
-            "isIOS",
-            "baidu-baike-Box-isIOS",
-            false,
-            void 0,
-            "Box.isIOS和Box.$isIOS强制返回true"
-          ),
-          UISwitch(
-            "isAndroid",
-            "baidu-baike-Box-isAndroid",
-            false,
-            void 0,
-            "Box.isAndroid和Box.$isAndroid强制返回true"
-          ),
-          UISwitch(
-            "android.invokeApp",
-            "baidu-baike-Box-android.invokeApp",
-            true,
-            void 0,
-            "Box.android.invokeApp()置空"
-          ),
-          UISwitch(
-            "android.invokeLiteApp",
-            "baidu-baike-Box-android.invokeLiteApp",
-            true,
-            void 0,
-            "Box.android.invokeLiteApp()置空"
-          ),
-          UISwitch(
-            "ios.invokeApp",
-            "baidu-baike-Box-ios.invokeApp",
-            true,
-            void 0,
-            "Box.ios.invokeApp()置空"
-          )
+          {
+            text: "劫持",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "劫持Box",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "isBox",
+                    "baidu-baike-Box-isBox",
+                    true,
+                    void 0,
+                    "Box.isBox和Box.$isBox强制返回true"
+                  ),
+                  UISwitch(
+                    "isLiteBox",
+                    "baidu-baike-Box-isLiteBox",
+                    false,
+                    void 0,
+                    "Box.isLiteBox和Box.$isLiteBox强制返回true"
+                  ),
+                  UISwitch(
+                    "isInfoBox",
+                    "baidu-baike-Box-isInfoBox",
+                    false,
+                    void 0,
+                    "Box.isInfoBox和Box.$isInfoBox强制返回true"
+                  ),
+                  UISwitch(
+                    "isIOS",
+                    "baidu-baike-Box-isIOS",
+                    false,
+                    void 0,
+                    "Box.isIOS和Box.$isIOS强制返回true"
+                  ),
+                  UISwitch(
+                    "isAndroid",
+                    "baidu-baike-Box-isAndroid",
+                    false,
+                    void 0,
+                    "Box.isAndroid和Box.$isAndroid强制返回true"
+                  ),
+                  UISwitch(
+                    "android.invokeApp",
+                    "baidu-baike-Box-android.invokeApp",
+                    true,
+                    void 0,
+                    "Box.android.invokeApp()置空"
+                  ),
+                  UISwitch(
+                    "android.invokeLiteApp",
+                    "baidu-baike-Box-android.invokeLiteApp",
+                    true,
+                    void 0,
+                    "Box.android.invokeLiteApp()置空"
+                  ),
+                  UISwitch(
+                    "ios.invokeApp",
+                    "baidu-baike-Box-ios.invokeApp",
+                    true,
+                    void 0,
+                    "Box.ios.invokeApp()置空"
+                  )
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
@@ -2324,45 +2414,78 @@ match-attr##srcid##sp_purc_atom
     scrollToDefaultView: true,
     forms: [
       {
-        text: "屏蔽",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch(
-            "【屏蔽】底部推荐",
-            "baidu_fanyi_recommended_shielding_bottom",
-            true
-          ),
-          UISwitch(
-            "【屏蔽】底部其它",
-            "baidu_fanyi_other_shielding_bottom",
-            true
-          )
+          {
+            text: "App",
+            type: "deepMenu",
+            description: "fanyi-app",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】专栏信息",
+                    "baidu_fanyi_app_shield_column_information",
+                    false
+                  ),
+                  UISwitch(
+                    "【屏蔽】为你推荐",
+                    "baidu_fanyi_app_shield_recommended_for_you",
+                    false
+                  ),
+                  UISwitch(
+                    "【屏蔽】我要跟读",
+                    "baidu_fanyi_app_shield_i_need_to_follow_along",
+                    false
+                  )
+                ]
+              }
+            ]
+          }
         ]
       },
       {
-        text: "功能",
-        type: "forms",
-        forms: [UISwitch("自动聚焦输入框", "baidu_fanyi_auto_focus", true)]
-      },
-      {
-        text: "App（fanyi-app）",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch(
-            "【屏蔽】专栏信息",
-            "baidu_fanyi_app_shield_column_information",
-            false
-          ),
-          UISwitch(
-            "【屏蔽】为你推荐",
-            "baidu_fanyi_app_shield_recommended_for_you",
-            false
-          ),
-          UISwitch(
-            "【屏蔽】我要跟读",
-            "baidu_fanyi_app_shield_i_need_to_follow_along",
-            false
-          )
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch("自动聚焦输入框", "baidu_fanyi_auto_focus", true)
+                ]
+              }
+            ]
+          },
+          {
+            text: "屏蔽",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】底部推荐",
+                    "baidu_fanyi_recommended_shielding_bottom",
+                    true
+                  ),
+                  UISwitch(
+                    "【屏蔽】底部其它",
+                    "baidu_fanyi_other_shielding_bottom",
+                    true
+                  )
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
@@ -2620,56 +2743,78 @@ match-attr##srcid##sp_purc_atom
         ]
       },
       {
-        text: "屏蔽",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch(
-            "【屏蔽】本题试卷",
-            "baidu_easylearn_shield_this_question_paper",
-            false
-          ),
-          UISwitch(
-            "【屏蔽】本卷好题",
-            "baidu_easylearn_shield_good_questions_in_this_volume",
-            false
-          ),
-          UISwitch(
-            "【屏蔽】相关试卷",
-            "baidu_easylearn_shield_related_test_papers",
-            false
-          ),
-          UISwitch(
-            "【屏蔽】视频讲解",
-            "baidu_easylearn_shield_video_explanation",
-            false
-          ),
-          UISwitch(
-            "【屏蔽】学霸笔记",
-            "baidu_easylearn_shield_xueba_notes",
-            false
-          ),
-          UISwitch(
-            "【屏蔽】底部工具栏",
-            "baidu_easylearn_shield_bottom_toolbar",
-            false
-          )
-        ]
-      },
-      {
-        text: "功能",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "解锁顶部搜索框",
-            "baidu_easylearn_unlocking_top_search_input",
-            true
-          ),
-          UISwitch(
-            "解锁搜题上限",
-            "baidu_easylearn_unlocking_the_upper_limit_of_search_questions",
-            true
-          ),
-          UISwitch("自动显示答案", "baidu_easylearn_auto_show_answer", true)
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "解锁顶部搜索框",
+                    "baidu_easylearn_unlocking_top_search_input",
+                    true
+                  ),
+                  UISwitch(
+                    "解锁搜题上限",
+                    "baidu_easylearn_unlocking_the_upper_limit_of_search_questions",
+                    true
+                  ),
+                  UISwitch(
+                    "自动显示答案",
+                    "baidu_easylearn_auto_show_answer",
+                    true
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "屏蔽",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】本题试卷",
+                    "baidu_easylearn_shield_this_question_paper",
+                    false
+                  ),
+                  UISwitch(
+                    "【屏蔽】本卷好题",
+                    "baidu_easylearn_shield_good_questions_in_this_volume",
+                    false
+                  ),
+                  UISwitch(
+                    "【屏蔽】相关试卷",
+                    "baidu_easylearn_shield_related_test_papers",
+                    false
+                  ),
+                  UISwitch(
+                    "【屏蔽】视频讲解",
+                    "baidu_easylearn_shield_video_explanation",
+                    false
+                  ),
+                  UISwitch(
+                    "【屏蔽】学霸笔记",
+                    "baidu_easylearn_shield_xueba_notes",
+                    false
+                  ),
+                  UISwitch(
+                    "【屏蔽】底部工具栏",
+                    "baidu_easylearn_shield_bottom_toolbar",
+                    false
+                  )
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
@@ -9352,7 +9497,7 @@ div[class^="new-summary-container_"] {\r
       let pageCommentInfo = await TiebaComment.getPageComment(nextPageUrl);
       if (!pageCommentInfo.success) {
         loadingView.setHTML(
-          `<a href="${pageCommentInfo.data}">触发百度安全校验，点击前往验证</a>`
+          `<a href="${pageCommentInfo.data}" target="_blank">触发百度安全验证，点击前往验证</a>`
         );
         return;
       }
@@ -9390,7 +9535,7 @@ div[class^="new-summary-container_"] {\r
       let pageCommentInfo = await TiebaComment.getPageComment(pageUrl);
       if (!pageCommentInfo.success) {
         loadingView.setHTML(
-          `<a href="${pageCommentInfo.data}">触发百度安全校验，点击前往验证</a>`
+          `<a href="${pageCommentInfo.data}" target="_blank">触发百度安全验证，点击前往验证</a>`
         );
         return;
       }
@@ -10781,7 +10926,7 @@ div[class^="new-summary-container_"] {\r
       let pageCommentInfo = await TiebaComment.getPageComment(pageUrl);
       if (!pageCommentInfo.success) {
         loadingView.setHTML(
-          `<a href="${pageCommentInfo.data}">触发百度安全校验，点击前往验证</a>`
+          `<a href="${pageCommentInfo.data}" target="_blank">触发百度安全验证，点击前往验证</a>`
         );
         return;
       }
@@ -10871,7 +11016,7 @@ div[class^="new-summary-container_"] {\r
       let pageCommentInfo = await TiebaComment.getPageComment(pageUrl);
       if (!pageCommentInfo.success) {
         loadingView.setHTML(
-          `<a href="${pageCommentInfo.data}">触发百度安全校验，点击前往验证</a>`
+          `<a href="${pageCommentInfo.data}" target="_blank">触发百度安全验证，点击前往验证</a>`
         );
         return;
       }

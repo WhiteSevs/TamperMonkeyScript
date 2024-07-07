@@ -36,12 +36,12 @@ export default defineConfig({
 				license: "GPL-3.0-only",
 				require: await GetLib(["CoverUMD", "pops"]),
 				resource: {
-					// "ElementPlusResourceCSS": "https://cdn.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
+					// "ElementPlusResourceCSS": "https://fastly.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
 				},
 
 				icon: "https://www.csdn.net/favicon.ico",
 				description:
-					"支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转拦截的URL",
+					"支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等",
 				match: ["*://*.csdn.net/*"],
 				connect: [],
 				grant: [
@@ -59,7 +59,7 @@ export default defineConfig({
 			clientAlias: "ViteGM",
 			server: {
 				mountGmApi: false,
-				open: true,
+				open: false,
 			},
 			build: {
 				autoGrant: true,

@@ -68,11 +68,11 @@ export default defineConfig({
 				license: "GPL-3.0-only",
 				require: await GetLib(["CoverUMD", "pops", "QRCode"]),
 				resource: {
-					// "ElementPlusResourceCSS": "https://cdn.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
+					// "ElementPlusResourceCSS": "https://fastly.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
 				},
-
 				icon: "https://i0.hdslb.com/bfs/static/jinkela/long/images/512.png",
-				description: "bilibili(哔哩哔哩)优化，免登录等",
+				description:
+					"移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等",
 				match: [
 					"*://m.bilibili.com/*",
 					"*://live.bilibili.com/*",
@@ -101,7 +101,7 @@ export default defineConfig({
 			clientAlias: "ViteGM",
 			server: {
 				mountGmApi: false,
-				open: true,
+				open: false,
 			},
 			build: {
 				autoGrant: true,

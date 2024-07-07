@@ -49,7 +49,7 @@ export default defineConfig({
 				icon: "https://www.jianshu.com/favicon.ico",
 				// 脚本描述
 				description:
-					"支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转拦截的URL",
+					"支持手机端和PC端、屏蔽广告、优化浏览体验、重定向链接、全文居中、自动展开全文、允许复制文字、劫持唤醒/跳转App、自定义屏蔽元素等",
 				// 脚本运行域
 				match: ["*://*.jianshu.com/*", "*://*.jianshu.io/*"],
 				// GM_xmlhttpRequest允许访问的域
@@ -73,7 +73,7 @@ export default defineConfig({
 				// 把GM api 挂载到unsafeWindow上
 				mountGmApi: false,
 				// dev时浏览器自动访问地址从而触发脚本管理器安装本脚本
-				open: true,
+				open: false,
 			},
 			build: {
 				// 自动申请权限，可以不用填上面的grant
@@ -139,5 +139,8 @@ export default defineConfig({
 		/* 构建的.user.js是否压缩 */
 		minify: isMinify,
 		emptyOutDir: isEmptyOutDir,
+	},
+	server: {
+		host: "0.0.0.0",
 	},
 });

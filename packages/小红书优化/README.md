@@ -1,6 +1,4 @@
-## 😀【移动端】小红书优化
-
-## 菜单截图
+# 菜单截图
 
 ![https://s11.ax1x.com/2024/01/05/pix4zgf.png](https://s11.ax1x.com/2024/01/05/pix4zgf.png)
 ![https://s11.ax1x.com/2024/01/05/pix5Sv8.png](https://s11.ax1x.com/2024/01/05/pix5Sv8.png)

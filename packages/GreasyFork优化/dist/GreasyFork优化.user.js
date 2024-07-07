@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.7.5
+// @version            2024.7.7
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -199,7 +199,8 @@
     其它错误: "其它错误",
     启用: "启用",
     开启后下面的功能才会生效: "开启后下面的功能才会生效",
-    屏蔽脚本: "屏蔽脚本"
+    屏蔽脚本: "屏蔽脚本",
+    点击查看规则: "点击查看规则"
   };
   const en_US_language = {
     GreasyFork优化: "GreasyFork Optimization",
@@ -352,7 +353,8 @@
     其它错误: "Ohter Error",
     启用: "Enable",
     开启后下面的功能才会生效: "The following functions will only take effect after being enabled",
-    屏蔽脚本: "Block script"
+    屏蔽脚本: "Block script",
+    点击查看规则: "Click to view rules"
   };
   const KEY = "GM_Panel";
   const ATTRIBUTE_KEY = "data-key";
@@ -1079,276 +1081,306 @@
     title: i18next.t("通用"),
     forms: [
       {
-        text: i18next.t("账号/密码"),
+        text: "",
         type: "forms",
         forms: [
-          UIInput(
-            i18next.t("账号"),
-            "user",
-            "",
-            void 0,
-            void 0,
-            i18next.t("请输入账号")
-          ),
-          UIInput(
-            i18next.t("密码"),
-            "pwd",
-            "",
-            void 0,
-            void 0,
-            i18next.t("请输入密码"),
-            false,
-            true
-          )
-        ]
-      },
-      {
-        text: i18next.t("Toast配置"),
-        type: "forms",
-        forms: [
-          UISelect(
-            i18next.t("Toast位置"),
-            "qmsg-config-position",
-            "bottom",
-            [
+          {
+            text: i18next.t("账号/密码"),
+            type: "deepMenu",
+            forms: [
               {
-                value: "topleft",
-                text: i18next.t("左上角")
-              },
-              {
-                value: "top",
-                text: i18next.t("顶部")
-              },
-              {
-                value: "topright",
-                text: i18next.t("右上角")
-              },
-              {
-                value: "left",
-                text: i18next.t("左边")
-              },
-              {
-                value: "center",
-                text: i18next.t("中间")
-              },
-              {
-                value: "right",
-                text: i18next.t("右边")
-              },
-              {
-                value: "bottomleft",
-                text: i18next.t("左下角")
-              },
-              {
-                value: "bottom",
-                text: i18next.t("底部")
-              },
-              {
-                value: "bottomright",
-                text: i18next.t("右下角")
+                text: "",
+                type: "forms",
+                forms: [
+                  UIInput(
+                    i18next.t("账号"),
+                    "user",
+                    "",
+                    void 0,
+                    void 0,
+                    i18next.t("请输入账号")
+                  ),
+                  UIInput(
+                    i18next.t("密码"),
+                    "pwd",
+                    "",
+                    void 0,
+                    void 0,
+                    i18next.t("请输入密码"),
+                    false,
+                    true
+                  )
+                ]
               }
-            ],
-            (event, isSelectValue, isSelectText) => {
-              log.info("设置当前Qmsg弹出位置" + isSelectText);
-            },
-            i18next.t("Toast显示在页面九宫格的位置")
-          ),
-          UISelect(
-            i18next.t("最多显示的数量"),
-            "qmsg-config-maxnums",
-            3,
-            [
+            ]
+          },
+          {
+            text: i18next.t("Toast配置"),
+            type: "deepMenu",
+            forms: [
               {
-                value: 1,
-                text: "1"
-              },
-              {
-                value: 2,
-                text: "2"
-              },
-              {
-                value: 3,
-                text: "3"
-              },
-              {
-                value: 4,
-                text: "4"
-              },
-              {
-                value: 5,
-                text: "5"
+                text: "",
+                type: "forms",
+                forms: [
+                  UISelect(
+                    i18next.t("Toast位置"),
+                    "qmsg-config-position",
+                    "bottom",
+                    [
+                      {
+                        value: "topleft",
+                        text: i18next.t("左上角")
+                      },
+                      {
+                        value: "top",
+                        text: i18next.t("顶部")
+                      },
+                      {
+                        value: "topright",
+                        text: i18next.t("右上角")
+                      },
+                      {
+                        value: "left",
+                        text: i18next.t("左边")
+                      },
+                      {
+                        value: "center",
+                        text: i18next.t("中间")
+                      },
+                      {
+                        value: "right",
+                        text: i18next.t("右边")
+                      },
+                      {
+                        value: "bottomleft",
+                        text: i18next.t("左下角")
+                      },
+                      {
+                        value: "bottom",
+                        text: i18next.t("底部")
+                      },
+                      {
+                        value: "bottomright",
+                        text: i18next.t("右下角")
+                      }
+                    ],
+                    (event, isSelectValue, isSelectText) => {
+                      log.info("设置当前Qmsg弹出位置" + isSelectText);
+                    },
+                    i18next.t("Toast显示在页面九宫格的位置")
+                  ),
+                  UISelect(
+                    i18next.t("最多显示的数量"),
+                    "qmsg-config-maxnums",
+                    3,
+                    [
+                      {
+                        value: 1,
+                        text: "1"
+                      },
+                      {
+                        value: 2,
+                        text: "2"
+                      },
+                      {
+                        value: 3,
+                        text: "3"
+                      },
+                      {
+                        value: 4,
+                        text: "4"
+                      },
+                      {
+                        value: 5,
+                        text: "5"
+                      }
+                    ],
+                    void 0,
+                    i18next.t("限制Toast显示的数量")
+                  ),
+                  UISwitch(
+                    i18next.t("逆序弹出"),
+                    "qmsg-config-showreverse",
+                    false,
+                    void 0,
+                    i18next.t("修改Toast弹出的顺序")
+                  )
+                ]
               }
-            ],
-            void 0,
-            i18next.t("限制Toast显示的数量")
-          ),
-          UISwitch(
-            i18next.t("逆序弹出"),
-            "qmsg-config-showreverse",
-            false,
-            void 0,
-            i18next.t("修改Toast弹出的顺序")
-          )
-        ]
-      },
-      {
-        text: i18next.t("脚本配置"),
-        type: "forms",
-        forms: [
-          UISelect(
-            i18next.t("语言"),
-            "setting-language",
-            "zh-CN",
-            [
+            ]
+          },
+          {
+            text: i18next.t("脚本配置"),
+            type: "deepMenu",
+            forms: [
               {
-                value: "zh-CN",
-                text: "中文"
-              },
+                text: "",
+                type: "forms",
+                forms: [
+                  UISelect(
+                    i18next.t("语言"),
+                    "setting-language",
+                    "zh-CN",
+                    [
+                      {
+                        value: "zh-CN",
+                        text: "中文"
+                      },
+                      {
+                        value: "en-US",
+                        text: "English"
+                      }
+                    ],
+                    (event, isSelectValue, isSelectText) => {
+                      log.info("改变语言：" + isSelectText);
+                      i18next.changeLanguage(isSelectValue);
+                    }
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: i18next.t("功能"),
+            type: "deepMenu",
+            forms: [
               {
-                value: "en-US",
-                text: "English"
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    i18next.t("自动登录"),
+                    "autoLogin",
+                    true,
+                    void 0,
+                    i18next.t("自动登录当前保存的账号")
+                  ),
+                  UIButton(
+                    i18next.t("清空账号/密码"),
+                    void 0,
+                    i18next.t("点击清空"),
+                    void 0,
+                    void 0,
+                    false,
+                    "default",
+                    (event) => {
+                      if (confirm(i18next.t("确定清空账号和密码？"))) {
+                        PopsPanel.deleteValue("user");
+                        PopsPanel.deleteValue("pwd");
+                        Qmsg.success(i18next.t("已清空账号/密码"));
+                        let $shadowRoot = event.target.getRootNode();
+                        $shadowRoot.querySelector(
+                          `li[data-key="user"] .pops-panel-input input`
+                        ).value = "";
+                        $shadowRoot.querySelector(
+                          `li[data-key="pwd"] .pops-panel-input input`
+                        ).value = "";
+                      }
+                    }
+                  ),
+                  UIButton(
+                    i18next.t("源代码同步【脚本列表】"),
+                    void 0,
+                    i18next.t("一键同步"),
+                    void 0,
+                    void 0,
+                    false,
+                    "primary",
+                    (event) => {
+                      if (!GreasyforkRouter.isUserHome()) {
+                        PopsPanel.setValue(
+                          "goto_updateSettingsAndSynchronize_scriptList",
+                          true
+                        );
+                        if (GreasyforkMenu.getUserLinkElement()) {
+                          Qmsg.success(i18next.t("前往用户主页"));
+                          window.location.href = GreasyforkMenu.getUserLinkElement().href;
+                        } else {
+                          Qmsg.error(i18next.t("获取当前已登录的用户主页失败"));
+                        }
+                        return;
+                      }
+                      let scriptUrlList = [];
+                      document.querySelectorAll(
+                        "#user-script-list-section li a.script-link"
+                      ).forEach((item) => {
+                        scriptUrlList = scriptUrlList.concat(
+                          GreasyforkApi.getAdminUrl(item.href)
+                        );
+                      });
+                      GreasyforkMenu.updateScript(scriptUrlList);
+                    }
+                  ),
+                  UIButton(
+                    i18next.t("源代码同步【未上架的脚本】"),
+                    void 0,
+                    i18next.t("一键同步"),
+                    void 0,
+                    void 0,
+                    false,
+                    "primary",
+                    (event) => {
+                      if (!GreasyforkRouter.isUserHome()) {
+                        PopsPanel.setValue(
+                          "goto_updateSettingsAndSynchronize_unlistedScriptList",
+                          true
+                        );
+                        if (GreasyforkMenu.getUserLinkElement()) {
+                          Qmsg.success(i18next.t("前往用户主页"));
+                          window.location.href = GreasyforkMenu.getUserLinkElement().href;
+                        } else {
+                          Qmsg.error(i18next.t("获取当前已登录的用户主页失败"));
+                        }
+                        return;
+                      }
+                      let scriptUrlList = [];
+                      document.querySelectorAll(
+                        "#user-unlisted-script-list li a.script-link"
+                      ).forEach((item) => {
+                        scriptUrlList = scriptUrlList.concat(
+                          GreasyforkApi.getAdminUrl(item.href)
+                        );
+                      });
+                      GreasyforkMenu.updateScript(scriptUrlList);
+                    }
+                  ),
+                  UIButton(
+                    i18next.t("源代码同步【库】"),
+                    void 0,
+                    i18next.t("一键同步"),
+                    void 0,
+                    void 0,
+                    false,
+                    "primary",
+                    (event) => {
+                      if (!GreasyforkRouter.isUserHome()) {
+                        PopsPanel.setValue(
+                          "goto_updateSettingsAndSynchronize_libraryScriptList",
+                          true
+                        );
+                        if (GreasyforkMenu.getUserLinkElement()) {
+                          Qmsg.success(i18next.t("前往用户主页"));
+                          window.location.href = GreasyforkMenu.getUserLinkElement().href;
+                        } else {
+                          Qmsg.error(i18next.t("获取当前已登录的用户主页失败"));
+                        }
+                        return;
+                      }
+                      let scriptUrlList = [];
+                      document.querySelectorAll(
+                        "#user-library-script-list li a.script-link"
+                      ).forEach((item) => {
+                        scriptUrlList = scriptUrlList.concat(
+                          GreasyforkApi.getAdminUrl(item.href)
+                        );
+                      });
+                      GreasyforkMenu.updateScript(scriptUrlList);
+                    }
+                  )
+                ]
               }
-            ],
-            (event, isSelectValue, isSelectText) => {
-              log.info("改变语言：" + isSelectText);
-              i18next.changeLanguage(isSelectValue);
-            }
-          )
-        ]
-      },
-      {
-        text: i18next.t("功能"),
-        type: "forms",
-        forms: [
-          UISwitch(
-            i18next.t("自动登录"),
-            "autoLogin",
-            true,
-            void 0,
-            i18next.t("自动登录当前保存的账号")
-          ),
-          UIButton(
-            i18next.t("清空账号/密码"),
-            void 0,
-            i18next.t("点击清空"),
-            void 0,
-            void 0,
-            false,
-            "default",
-            (event) => {
-              if (confirm(i18next.t("确定清空账号和密码？"))) {
-                PopsPanel.deleteValue("user");
-                PopsPanel.deleteValue("pwd");
-                Qmsg.success(i18next.t("已清空账号/密码"));
-                let $shadowRoot = event.target.getRootNode();
-                $shadowRoot.querySelector(
-                  `li[data-key="user"] .pops-panel-input input`
-                ).value = "";
-                $shadowRoot.querySelector(
-                  `li[data-key="pwd"] .pops-panel-input input`
-                ).value = "";
-              }
-            }
-          ),
-          UIButton(
-            i18next.t("源代码同步【脚本列表】"),
-            void 0,
-            i18next.t("一键同步"),
-            void 0,
-            void 0,
-            false,
-            "primary",
-            (event) => {
-              if (!GreasyforkRouter.isUserHome()) {
-                PopsPanel.setValue(
-                  "goto_updateSettingsAndSynchronize_scriptList",
-                  true
-                );
-                if (GreasyforkMenu.getUserLinkElement()) {
-                  Qmsg.success(i18next.t("前往用户主页"));
-                  window.location.href = GreasyforkMenu.getUserLinkElement().href;
-                } else {
-                  Qmsg.error(i18next.t("获取当前已登录的用户主页失败"));
-                }
-                return;
-              }
-              let scriptUrlList = [];
-              document.querySelectorAll(
-                "#user-script-list-section li a.script-link"
-              ).forEach((item) => {
-                scriptUrlList = scriptUrlList.concat(
-                  GreasyforkApi.getAdminUrl(item.href)
-                );
-              });
-              GreasyforkMenu.updateScript(scriptUrlList);
-            }
-          ),
-          UIButton(
-            i18next.t("源代码同步【未上架的脚本】"),
-            void 0,
-            i18next.t("一键同步"),
-            void 0,
-            void 0,
-            false,
-            "primary",
-            (event) => {
-              if (!GreasyforkRouter.isUserHome()) {
-                PopsPanel.setValue(
-                  "goto_updateSettingsAndSynchronize_unlistedScriptList",
-                  true
-                );
-                if (GreasyforkMenu.getUserLinkElement()) {
-                  Qmsg.success(i18next.t("前往用户主页"));
-                  window.location.href = GreasyforkMenu.getUserLinkElement().href;
-                } else {
-                  Qmsg.error(i18next.t("获取当前已登录的用户主页失败"));
-                }
-                return;
-              }
-              let scriptUrlList = [];
-              document.querySelectorAll(
-                "#user-unlisted-script-list li a.script-link"
-              ).forEach((item) => {
-                scriptUrlList = scriptUrlList.concat(
-                  GreasyforkApi.getAdminUrl(item.href)
-                );
-              });
-              GreasyforkMenu.updateScript(scriptUrlList);
-            }
-          ),
-          UIButton(
-            i18next.t("源代码同步【库】"),
-            void 0,
-            i18next.t("一键同步"),
-            void 0,
-            void 0,
-            false,
-            "primary",
-            (event) => {
-              if (!GreasyforkRouter.isUserHome()) {
-                PopsPanel.setValue(
-                  "goto_updateSettingsAndSynchronize_libraryScriptList",
-                  true
-                );
-                if (GreasyforkMenu.getUserLinkElement()) {
-                  Qmsg.success(i18next.t("前往用户主页"));
-                  window.location.href = GreasyforkMenu.getUserLinkElement().href;
-                } else {
-                  Qmsg.error(i18next.t("获取当前已登录的用户主页失败"));
-                }
-                return;
-              }
-              let scriptUrlList = [];
-              document.querySelectorAll(
-                "#user-library-script-list li a.script-link"
-              ).forEach((item) => {
-                scriptUrlList = scriptUrlList.concat(
-                  GreasyforkApi.getAdminUrl(item.href)
-                );
-              });
-              GreasyforkMenu.updateScript(scriptUrlList);
-            }
-          )
+            ]
+          }
         ]
       }
     ]
@@ -1358,100 +1390,118 @@
     title: i18next.t("优化"),
     forms: [
       {
-        text: i18next.t("功能"),
+        text: "",
         type: "forms",
         forms: [
-          UISelect(
-            i18next.t("固定当前语言"),
-            "language-selector-locale",
-            "",
-            function() {
-              let result = [
-                {
-                  value: "",
-                  text: i18next.t("无")
-                }
-              ];
-              document.querySelectorAll(
-                "select#language-selector-locale option"
-              ).forEach((element) => {
-                let value = element.getAttribute("value");
-                if (value === "help") {
-                  return;
-                }
-                let text = (element.innerText || element.textContent).trim();
-                result.push({
-                  value,
-                  text
-                });
-              });
-              return result;
-            }()
-          ),
-          UISwitch(
-            i18next.t("美化页面元素"),
-            "beautifyPage",
-            true,
-            void 0,
-            i18next.t("如button、input、textarea")
-          ),
-          UISwitch(
-            i18next.t("美化历史版本页面"),
-            "beautifyHistoryVersionPage",
-            true,
-            void 0,
-            i18next.t("更直观的查看版本迭代")
-          ),
-          UISwitch(
-            i18next.t("美化上传图片按钮"),
-            "beautifyUploadImage",
-            true,
-            void 0,
-            i18next.t("放大上传区域")
-          ),
-          UISwitch(
-            i18next.t("优化图片浏览"),
-            "optimizeImageBrowsing",
-            true,
-            void 0,
-            i18next.t("使用Viewer浏览图片")
-          ),
-          UISwitch(
-            i18next.t("覆盖图床图片跳转"),
-            "overlayBedImageClickEvent",
-            true,
-            void 0,
-            i18next.t("配合上面的【优化图片浏览】更优雅浏览图片")
-          ),
-          UISwitch(
-            i18next.t("美化Greasyfork Beautify脚本"),
-            "beautifyGreasyforkBeautify",
-            true,
-            void 0,
-            i18next.t(
-              '需安装Greasyfork Beautify脚本，<a href="https://greasyfork.org/zh-CN/scripts/446849-greasyfork-beautify" target="_blank">🖐点我安装</a>'
-            )
-          )
-        ]
-      },
-      {
-        text: i18next.t("代码"),
-        type: "forms",
-        forms: [
-          UISwitch(
-            i18next.t("添加复制代码按钮"),
-            "addCopyCodeButton",
-            true,
-            void 0,
-            i18next.t("更优雅的复制")
-          ),
-          UISwitch(
-            i18next.t("快捷键"),
-            "fullScreenOptimization",
-            true,
-            void 0,
-            i18next.t("【F】键全屏、【Alt+Shift+F】键宽屏")
-          )
+          {
+            text: i18next.t("功能"),
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISelect(
+                    i18next.t("固定当前语言"),
+                    "language-selector-locale",
+                    "",
+                    function() {
+                      let result = [
+                        {
+                          value: "",
+                          text: i18next.t("无")
+                        }
+                      ];
+                      document.querySelectorAll(
+                        "select#language-selector-locale option"
+                      ).forEach((element) => {
+                        let value = element.getAttribute("value");
+                        if (value === "help") {
+                          return;
+                        }
+                        let text = (element.innerText || element.textContent).trim();
+                        result.push({
+                          value,
+                          text
+                        });
+                      });
+                      return result;
+                    }()
+                  ),
+                  UISwitch(
+                    i18next.t("美化页面元素"),
+                    "beautifyPage",
+                    true,
+                    void 0,
+                    i18next.t("如button、input、textarea")
+                  ),
+                  UISwitch(
+                    i18next.t("美化历史版本页面"),
+                    "beautifyHistoryVersionPage",
+                    true,
+                    void 0,
+                    i18next.t("更直观的查看版本迭代")
+                  ),
+                  UISwitch(
+                    i18next.t("美化上传图片按钮"),
+                    "beautifyUploadImage",
+                    true,
+                    void 0,
+                    i18next.t("放大上传区域")
+                  ),
+                  UISwitch(
+                    i18next.t("优化图片浏览"),
+                    "optimizeImageBrowsing",
+                    true,
+                    void 0,
+                    i18next.t("使用Viewer浏览图片")
+                  ),
+                  UISwitch(
+                    i18next.t("覆盖图床图片跳转"),
+                    "overlayBedImageClickEvent",
+                    true,
+                    void 0,
+                    i18next.t("配合上面的【优化图片浏览】更优雅浏览图片")
+                  ),
+                  UISwitch(
+                    i18next.t("美化Greasyfork Beautify脚本"),
+                    "beautifyGreasyforkBeautify",
+                    true,
+                    void 0,
+                    i18next.t(
+                      '需安装Greasyfork Beautify脚本，<a href="https://greasyfork.org/zh-CN/scripts/446849-greasyfork-beautify" target="_blank">🖐点我安装</a>'
+                    )
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: i18next.t("代码"),
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    i18next.t("添加复制代码按钮"),
+                    "addCopyCodeButton",
+                    true,
+                    void 0,
+                    i18next.t("更优雅的复制")
+                  ),
+                  UISwitch(
+                    i18next.t("快捷键"),
+                    "fullScreenOptimization",
+                    true,
+                    void 0,
+                    i18next.t("【F】键全屏、【Alt+Shift+F】键宽屏")
+                  )
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
@@ -1481,119 +1531,143 @@
         ]
       },
       {
-        text: i18next.t("过滤脚本(id)"),
+        text: "",
         type: "forms",
         forms: [
           {
-            type: "own",
-            getLiElementCallBack(liElement) {
-              let textareaDiv = domUtils.createElement(
-                "div",
-                {
-                  className: "pops-panel-textarea",
-                  innerHTML: `
-								<textarea placeholder="${i18next.t(
-                  "请输入脚本id，每行一个"
-                )}" style="height:150px;"></textarea>`
-                },
-                {
-                  style: "width: 100%;"
-                }
-              );
-              let textarea = textareaDiv.querySelector(
-                "textarea"
-              );
-              const KEY2 = "greasyfork-discussions-filter-script";
-              textarea.value = PopsPanel.getValue(KEY2, "");
-              domUtils.on(
-                textarea,
-                ["input", "propertychange"],
-                void 0,
-                utils.debounce(function(event) {
-                  PopsPanel.setValue(KEY2, textarea.value);
-                }, 200)
-              );
-              liElement.appendChild(textareaDiv);
-              return liElement;
-            }
-          }
-        ]
-      },
-      {
-        text: i18next.t("过滤发布的用户(id)"),
-        type: "forms",
-        forms: [
+            text: i18next.t("过滤脚本(id)"),
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  {
+                    type: "own",
+                    getLiElementCallBack(liElement) {
+                      let textareaDiv = domUtils.createElement(
+                        "div",
+                        {
+                          className: "pops-panel-textarea",
+                          innerHTML: `
+												<textarea placeholder="${i18next.t(
+                          "请输入脚本id，每行一个"
+                        )}" style="height:150px;"></textarea>`
+                        },
+                        {
+                          style: "width: 100%;"
+                        }
+                      );
+                      let textarea = textareaDiv.querySelector(
+                        "textarea"
+                      );
+                      const KEY2 = "greasyfork-discussions-filter-script";
+                      textarea.value = PopsPanel.getValue(KEY2, "");
+                      domUtils.on(
+                        textarea,
+                        ["input", "propertychange"],
+                        void 0,
+                        utils.debounce(function(event) {
+                          PopsPanel.setValue(KEY2, textarea.value);
+                        }, 200)
+                      );
+                      liElement.appendChild(textareaDiv);
+                      return liElement;
+                    }
+                  }
+                ]
+              }
+            ]
+          },
           {
-            type: "own",
-            getLiElementCallBack(liElement) {
-              let textareaDiv = domUtils.createElement(
-                "div",
-                {
-                  className: "pops-panel-textarea",
-                  innerHTML: `
-								<textarea placeholder="${i18next.t(
-                  "请输入用户id，每行一个"
-                )}" style="height:150px;"></textarea>`
-                },
-                {
-                  style: "width: 100%;"
-                }
-              );
-              let textarea = textareaDiv.querySelector(
-                "textarea"
-              );
-              const KEY2 = "greasyfork-discussions-filter-post-user";
-              textarea.value = PopsPanel.getValue(KEY2, "");
-              domUtils.on(
-                textarea,
-                ["input", "propertychange"],
-                void 0,
-                utils.debounce(function(event) {
-                  PopsPanel.setValue(KEY2, textarea.value);
-                }, 200)
-              );
-              liElement.appendChild(textareaDiv);
-              return liElement;
-            }
-          }
-        ]
-      },
-      {
-        text: i18next.t("过滤回复的用户(id)"),
-        type: "forms",
-        forms: [
+            text: i18next.t("过滤发布的用户(id)"),
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  {
+                    type: "own",
+                    getLiElementCallBack(liElement) {
+                      let textareaDiv = domUtils.createElement(
+                        "div",
+                        {
+                          className: "pops-panel-textarea",
+                          innerHTML: `
+												<textarea placeholder="${i18next.t(
+                          "请输入用户id，每行一个"
+                        )}" style="height:150px;"></textarea>`
+                        },
+                        {
+                          style: "width: 100%;"
+                        }
+                      );
+                      let textarea = textareaDiv.querySelector(
+                        "textarea"
+                      );
+                      const KEY2 = "greasyfork-discussions-filter-post-user";
+                      textarea.value = PopsPanel.getValue(KEY2, "");
+                      domUtils.on(
+                        textarea,
+                        ["input", "propertychange"],
+                        void 0,
+                        utils.debounce(function(event) {
+                          PopsPanel.setValue(KEY2, textarea.value);
+                        }, 200)
+                      );
+                      liElement.appendChild(textareaDiv);
+                      return liElement;
+                    }
+                  }
+                ]
+              }
+            ]
+          },
           {
-            type: "own",
-            getLiElementCallBack(liElement) {
-              let textareaDiv = domUtils.createElement(
-                "div",
-                {
-                  className: "pops-panel-textarea",
-                  innerHTML: `
-								<textarea placeholder="${i18next.t(
-                  "请输入用户id，每行一个"
-                )}" style="height:150px;"></textarea>`
-                },
-                {
-                  style: "width: 100%;"
-                }
-              );
-              let textarea = textareaDiv.querySelector(
-                "textarea"
-              );
-              const KEY2 = "greasyfork-discussions-filter-reply-user";
-              textarea.value = PopsPanel.getValue(KEY2, "");
-              domUtils.on(
-                textarea,
-                ["input", "propertychange"],
-                void 0,
-                utils.debounce(function(event) {
-                  PopsPanel.setValue(KEY2, textarea.value);
-                }, 200)
-              );
-              liElement.appendChild(textareaDiv);
-              return liElement;
-            }
+            text: i18next.t("过滤回复的用户(id)"),
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  {
+                    type: "own",
+                    getLiElementCallBack(liElement) {
+                      let textareaDiv = domUtils.createElement(
+                        "div",
+                        {
+                          className: "pops-panel-textarea",
+                          innerHTML: `
+										<textarea placeholder="${i18next.t(
+                          "请输入用户id，每行一个"
+                        )}" style="height:150px;"></textarea>`
+                        },
+                        {
+                          style: "width: 100%;"
+                        }
+                      );
+                      let textarea = textareaDiv.querySelector(
+                        "textarea"
+                      );
+                      const KEY2 = "greasyfork-discussions-filter-reply-user";
+                      textarea.value = PopsPanel.getValue(KEY2, "");
+                      domUtils.on(
+                        textarea,
+                        ["input", "propertychange"],
+                        void 0,
+                        utils.debounce(function(event) {
+                          PopsPanel.setValue(KEY2, textarea.value);
+                        }, 200)
+                      );
+                      liElement.appendChild(textareaDiv);
+                      return liElement;
+                    }
+                  }
+                ]
+              }
+            ]
           }
         ]
       }
@@ -1681,7 +1755,9 @@
     headerTitle: i18next.t("屏蔽脚本"),
     forms: [
       {
-        text: i18next.t("规则(可正则)"),
+        text: i18next.t("规则(可正则)") + `<br><a href="https://greasyfork.org/zh-CN/scripts/475722-greasyfork%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">${i18next.t(
+        "点击查看规则"
+      )}</a>`,
         type: "forms",
         forms: [
           UISwitch(

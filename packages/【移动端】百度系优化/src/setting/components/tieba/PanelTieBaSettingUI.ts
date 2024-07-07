@@ -212,202 +212,240 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 			],
 		},
 		{
-			text: "账号功能",
+			text: "",
 			type: "forms",
 			forms: [
-				UIButton(
-					"签到所有关注的吧",
-					void 0,
-					"签到",
-					void 0,
-					void 0,
-					false,
-					"default",
-					async () => {
-						/**
-						 * 获取提示内容
-						 * @param {number} index
-						 * @param {number} maxIndex
-						 * @param {string} forumName
-						 * @param {string} text
-						 * @param {?string} signText
-						 * @returns
-						 */
-						function getLoadingHTML(
-							index: number,
-							maxIndex: number,
-							forumName: string,
-							text?: string,
-							signText?: string
-						) {
-							return `
-                        <div>进度：${index}/${maxIndex}</div>
-                        <div>吧名：${forumName}</div>
-                        <div>信息：${text}</div>
-                        ${signText ? `签到：${signText}` : ""}
-                        `;
-						}
-						Qmsg.info("正在获取所有关注吧");
-						let likeForumList = await TieBaApi.getUserAllLikeForum();
-						if (!likeForumList) {
-							return;
-						}
-						if (!likeForumList.length) {
-							Qmsg.error("该账号尚未关注帖子");
-							return;
-						}
-						let isStop = false;
-						let loading = Qmsg.loading(
-							getLoadingHTML(
-								1,
-								likeForumList.length,
-								likeForumList[0].forum_name,
-								"正在获取tbs"
-							),
-							{
-								showClose: true,
-								onClose() {
-									isStop = true;
-								},
-							}
-						);
-						for (let index = 0; index < likeForumList.length; index++) {
-							if (isStop) {
-								Qmsg.info("中断");
-								return;
-							}
-							let likeForum = likeForumList[index];
-							loading.setHTML(
-								getLoadingHTML(
-									index + 1,
-									likeForumList.length,
-									likeForum.forum_name,
-									"正在获取tbs"
-								)
-							);
-							let tbs = await TieBaApi.getForumTbs(likeForum.forum_name);
-							if (!tbs) {
-								Qmsg.info("2秒后切换至下一个");
-								await utils.sleep(2000);
-								continue;
-							}
-							Qmsg.success(`tbs ===> ${tbs}`);
-							loading.setHTML(
-								getLoadingHTML(
-									index + 1,
-									likeForumList.length,
-									likeForum.forum_name,
-									"发送签到请求..."
-								)
-							);
-							let signResult = await TieBaApi.forumSign(
-								likeForum.forum_name,
-								tbs
-							);
-							if (!signResult) {
-								Qmsg.info("2秒后切换至下一个");
-								await utils.sleep(2000);
-								continue;
-							}
-							if (typeof signResult["data"] === "object") {
-								loading.setHTML(
-									getLoadingHTML(
-										index + 1,
-										likeForumList.length,
-										likeForum.forum_name,
-										`今日本吧第${signResult["data"]["finfo"]["current_rank_info"]["sign_count"]}个签到`
-									)
-								);
-							} else {
-								Qmsg.error(signResult["error"] as string);
-							}
-							Qmsg.info("2秒后切换至下一个");
-							await utils.sleep(2000);
-						}
-						Qmsg.success(`执行签到 ${likeForumList.length} 个贴吧完毕`);
-						loading.close();
-					}
-				),
-			],
-		},
-		{
-			text: "通用",
-			type: "forms",
-			forms: [
-				UISwitch(
-					"检测骨架屏",
-					"baidu_tieba_checkSkeleton",
-					true,
-					void 0,
-					"当页面加载完毕后检测到还是骨架屏，将会自动刷新页面"
-				),
-				UISwitch(
-					"自动重定向至主域名",
-					"baidu_tieba_autoJumpToMainHost",
-					false,
-					void 0,
-					"域名为nba.baidu.com、static.tieba.baidu.com...等时自动重定向至tieba.baidu.com"
-				),
-			],
-		},
-		{
-			text: "搜索功能",
-			type: "forms",
-			forms: [
-				UISwitch(
-					"启用",
-					"baidu_tieba_add_search",
-					true,
-					void 0,
-					"在贴内和吧内右上角添加搜索按钮"
-				),
-				UISwitch(
-					"获取详细信息",
-					"baidu_tieba_search_opt_user_info",
-					true,
-					void 0,
-					"将搜索结果的【用户名/头像】替换成请求获取的【用户名/头像】"
-				),
-				UISwitch(
-					"使用【搜索综合】",
-					"baidu_tieba_use_hybrid_search",
-					false,
-					void 0,
-					"使用贴吧移动端的搜索功能"
-				),
-			],
-		},
-		{
-			text: "屏蔽",
-			type: "forms",
-			forms: [
-				UISwitch(
-					"【屏蔽】评论输入框",
-					"baidu-tieba-blockCommentInput",
-					false,
-					void 0,
-					"屏蔽元素"
-				),
-			],
-		},
-		{
-			text: "劫持/拦截",
-			type: "forms",
-			forms: [
-				UISwitch(
-					"劫持-唤醒App",
-					"baidu_tieba_hijack_wake_up",
-					false,
-					void 0,
-					"阻止唤醒调用App"
-				),
-				UISwitch(
-					"伪装客户端已调用",
-					"baidu_tieba_clientCallMasquerade",
-					true,
-					void 0,
-					"阻止弹窗"
-				),
+				{
+					text: "账号功能",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UIButton(
+									"签到所有关注的吧",
+									void 0,
+									"签到",
+									void 0,
+									void 0,
+									false,
+									"default",
+									async () => {
+										/**
+										 * 获取提示内容
+										 * @param {number} index
+										 * @param {number} maxIndex
+										 * @param {string} forumName
+										 * @param {string} text
+										 * @param {?string} signText
+										 * @returns
+										 */
+										function getLoadingHTML(
+											index: number,
+											maxIndex: number,
+											forumName: string,
+											text?: string,
+											signText?: string
+										) {
+											return `
+							<div>进度：${index}/${maxIndex}</div>
+							<div>吧名：${forumName}</div>
+							<div>信息：${text}</div>
+							${signText ? `签到：${signText}` : ""}
+							`;
+										}
+										Qmsg.info("正在获取所有关注吧");
+										let likeForumList = await TieBaApi.getUserAllLikeForum();
+										if (!likeForumList) {
+											return;
+										}
+										if (!likeForumList.length) {
+											Qmsg.error("该账号尚未关注帖子");
+											return;
+										}
+										let isStop = false;
+										let loading = Qmsg.loading(
+											getLoadingHTML(
+												1,
+												likeForumList.length,
+												likeForumList[0].forum_name,
+												"正在获取tbs"
+											),
+											{
+												showClose: true,
+												onClose() {
+													isStop = true;
+												},
+											}
+										);
+										for (let index = 0; index < likeForumList.length; index++) {
+											if (isStop) {
+												Qmsg.info("中断");
+												return;
+											}
+											let likeForum = likeForumList[index];
+											loading.setHTML(
+												getLoadingHTML(
+													index + 1,
+													likeForumList.length,
+													likeForum.forum_name,
+													"正在获取tbs"
+												)
+											);
+											let tbs = await TieBaApi.getForumTbs(
+												likeForum.forum_name
+											);
+											if (!tbs) {
+												Qmsg.info("2秒后切换至下一个");
+												await utils.sleep(2000);
+												continue;
+											}
+											Qmsg.success(`tbs ===> ${tbs}`);
+											loading.setHTML(
+												getLoadingHTML(
+													index + 1,
+													likeForumList.length,
+													likeForum.forum_name,
+													"发送签到请求..."
+												)
+											);
+											let signResult = await TieBaApi.forumSign(
+												likeForum.forum_name,
+												tbs
+											);
+											if (!signResult) {
+												Qmsg.info("2秒后切换至下一个");
+												await utils.sleep(2000);
+												continue;
+											}
+											if (typeof signResult["data"] === "object") {
+												loading.setHTML(
+													getLoadingHTML(
+														index + 1,
+														likeForumList.length,
+														likeForum.forum_name,
+														`今日本吧第${signResult["data"]["finfo"]["current_rank_info"]["sign_count"]}个签到`
+													)
+												);
+											} else {
+												Qmsg.error(signResult["error"] as string);
+											}
+											Qmsg.info("2秒后切换至下一个");
+											await utils.sleep(2000);
+										}
+										Qmsg.success(`执行签到 ${likeForumList.length} 个贴吧完毕`);
+										loading.close();
+									}
+								),
+							],
+						},
+					],
+				},
+				{
+					text: "通用",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"检测骨架屏",
+									"baidu_tieba_checkSkeleton",
+									true,
+									void 0,
+									"当页面加载完毕后检测到还是骨架屏，将会自动刷新页面"
+								),
+								UISwitch(
+									"自动重定向至主域名",
+									"baidu_tieba_autoJumpToMainHost",
+									false,
+									void 0,
+									"域名为nba.baidu.com、static.tieba.baidu.com...等时自动重定向至tieba.baidu.com"
+								),
+							],
+						},
+					],
+				},
+				{
+					text: "搜索功能",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"启用",
+									"baidu_tieba_add_search",
+									true,
+									void 0,
+									"在贴内和吧内右上角添加搜索按钮"
+								),
+								UISwitch(
+									"获取详细信息",
+									"baidu_tieba_search_opt_user_info",
+									true,
+									void 0,
+									"将搜索结果的【用户名/头像】替换成请求获取的【用户名/头像】"
+								),
+								UISwitch(
+									"使用【搜索综合】",
+									"baidu_tieba_use_hybrid_search",
+									false,
+									void 0,
+									"使用贴吧移动端的搜索功能"
+								),
+							],
+						},
+					],
+				},
+				{
+					text: "屏蔽",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"【屏蔽】评论输入框",
+									"baidu-tieba-blockCommentInput",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+							],
+						},
+					],
+				},
+				{
+					text: "劫持/拦截",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"劫持-唤醒App",
+									"baidu_tieba_hijack_wake_up",
+									false,
+									void 0,
+									"阻止唤醒调用App"
+								),
+								UISwitch(
+									"伪装客户端已调用",
+									"baidu_tieba_clientCallMasquerade",
+									true,
+									void 0,
+									"阻止弹窗"
+								),
+							],
+						},
+					],
+				},
 			],
 		},
 	],

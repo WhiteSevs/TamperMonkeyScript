@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         简书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.5
+// @version      2024.7.7
 // @author       WhiteSevs
-// @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转拦截的URL
+// @description  支持手机端和PC端、屏蔽广告、优化浏览体验、重定向链接、全文居中、自动展开全文、允许复制文字、劫持唤醒/跳转App、自定义屏蔽元素等
 // @license      GPL-3.0-only
 // @icon         https://www.jianshu.com/favicon.ico
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
@@ -155,59 +155,87 @@
     title: "桌面端",
     forms: [
       {
-        text: "屏蔽",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch(
-            "【屏蔽】底部推荐阅读",
-            "JianShuShieldRecommendedReading",
-            false
-          ),
-          UISwitch("【屏蔽】评论区", "JianShuShieldUserComments", false),
-          UISwitch("【屏蔽】相关文章", "JianShuShieldRelatedArticles", false),
-          UISwitch(
-            "【屏蔽】客户端弹窗",
-            "jianshu-shieldClientDialog",
-            true,
-            void 0,
-            "弹出的【扫码安装简书客户端 畅享全文阅读体验】"
-          ),
-          UISwitch("【屏蔽】顶部导航栏", "jianshu-shieldTopNav", false),
-          UISwitch(
-            "【屏蔽】底部工具栏",
-            "jianshu-shieldBottomToolbar",
-            false,
-            void 0,
-            "屏蔽掉底部悬浮的评论输入框、评论、点赞..."
-          )
-        ]
-      },
-      {
-        text: "功能",
-        type: "forms",
-        forms: [
-          UISwitch("全文居中", "JianShuArticleCenter", true),
-          UISwitch("自动展开全文", "JianShuAutoExpandFullText", true),
-          UISwitch(
-            "重定向链接",
-            "JianShuAutoJumpRedirect_PC",
-            true,
-            void 0,
-            "自动跳转简书拦截的Url链接"
-          )
-        ]
-      },
-      {
-        text: "劫持/拦截",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "拦截-剪贴板",
-            "JianShuRemoveClipboardHijacking",
-            true,
-            void 0,
-            "去除禁止复制"
-          )
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch("全文居中", "JianShuArticleCenter", true),
+                  UISwitch("自动展开全文", "JianShuAutoExpandFullText", true),
+                  UISwitch(
+                    "重定向链接",
+                    "JianShuAutoJumpRedirect_PC",
+                    true,
+                    void 0,
+                    "自动跳转简书拦截的Url链接"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "屏蔽",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】底部推荐阅读",
+                    "JianShuShieldRecommendedReading",
+                    false
+                  ),
+                  UISwitch("【屏蔽】评论区", "JianShuShieldUserComments", false),
+                  UISwitch(
+                    "【屏蔽】相关文章",
+                    "JianShuShieldRelatedArticles",
+                    false
+                  ),
+                  UISwitch(
+                    "【屏蔽】客户端弹窗",
+                    "jianshu-shieldClientDialog",
+                    true,
+                    void 0,
+                    "弹出的【扫码安装简书客户端 畅享全文阅读体验】"
+                  ),
+                  UISwitch("【屏蔽】顶部导航栏", "jianshu-shieldTopNav", false),
+                  UISwitch(
+                    "【屏蔽】底部工具栏",
+                    "jianshu-shieldBottomToolbar",
+                    false,
+                    void 0,
+                    "屏蔽掉底部悬浮的评论输入框、评论、点赞..."
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "劫持/拦截",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "拦截-剪贴板",
+                    "JianShuRemoveClipboardHijacking",
+                    true,
+                    void 0,
+                    "去除禁止复制"
+                  )
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
@@ -217,49 +245,81 @@
     title: "移动端",
     forms: [
       {
-        text: "屏蔽",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch(
-            "【屏蔽】底部推荐阅读",
-            "JianShuremoveFooterRecommendRead",
-            false
-          ),
-          UISwitch("【屏蔽】评论区", "JianShuShieldUserCommentsMobile", false)
-        ]
-      },
-      {
-        text: "功能",
-        type: "forms",
-        forms: [
-          UISwitch("自动展开全文", "JianShuAutoExpandFullText_Mobile", true),
-          UISwitch(
-            "重定向链接",
-            "JianShuAutoJumpRedirect_Mobile",
-            true,
-            void 0,
-            "自动跳转简书拦截的Url链接"
-          )
-        ]
-      },
-      {
-        text: "劫持/拦截",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "拦截-剪贴板",
-            "JianShuRemoveClipboardHijacking_Mobile",
-            true,
-            void 0,
-            "去除禁止复制"
-          ),
-          UISwitch(
-            "劫持-唤醒/跳转App",
-            "JianShuHijackSchemeScriptLabel_Mobile",
-            true,
-            void 0,
-            "去除简书唤醒调用App"
-          )
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "自动展开全文",
+                    "JianShuAutoExpandFullText_Mobile",
+                    true
+                  ),
+                  UISwitch(
+                    "重定向链接",
+                    "JianShuAutoJumpRedirect_Mobile",
+                    true,
+                    void 0,
+                    "自动跳转简书拦截的Url链接"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "屏蔽",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】底部推荐阅读",
+                    "JianShuremoveFooterRecommendRead",
+                    false
+                  ),
+                  UISwitch(
+                    "【屏蔽】评论区",
+                    "JianShuShieldUserCommentsMobile",
+                    false
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "劫持/拦截",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "拦截-剪贴板",
+                    "JianShuRemoveClipboardHijacking_Mobile",
+                    true,
+                    void 0,
+                    "去除禁止复制"
+                  ),
+                  UISwitch(
+                    "劫持-唤醒/跳转App",
+                    "JianShuHijackSchemeScriptLabel_Mobile",
+                    true,
+                    void 0,
+                    "去除简书唤醒调用App"
+                  )
+                ]
+              }
+            ]
+          }
         ]
       }
     ]

@@ -9,7 +9,12 @@ const SettingUIShield: PopsPanelContentConfig = {
 	headerTitle: i18next.t("屏蔽脚本"),
 	forms: [
 		{
-			text: i18next.t("规则(可正则)"),
+			text:
+				i18next.t("规则(可正则)") +
+				"<br>" +
+				`<a href="https://greasyfork.org/zh-CN/scripts/475722-greasyfork%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">${i18next.t(
+					"点击查看规则"
+				)}</a>`,
 			type: "forms",
 			forms: [
 				UISwitch(

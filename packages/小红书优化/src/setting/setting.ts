@@ -1,12 +1,9 @@
 import { GM_Menu, SCRIPT_NAME, log, pops, utils } from "@/env";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, KEY } from "@/setting/config";
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
-import { MSettingUI_Shield } from "./m-components/m-shield";
 import { MSettingUI_Home } from "./m-components/m-home";
 import { MSettingUI_Notes } from "./m-components/m-note";
-import { MSettingUI_Other } from "./m-components/m-other";
 import { SettingUI_Common } from "./components/common";
-import { SettingUI_Shield } from "./components/shield";
 import { SettingUI_Article } from "./components/article";
 import type { UtilsDictionary } from "@whitesev/utils/dist/src/Dictionary";
 import { MSettingUI_Common } from "./m-components/m-common";
@@ -330,7 +327,7 @@ const PopsPanel = {
 		let { UIWidth, UIHeight } = this.getUISizeInfo();
 		pops.panel({
 			title: {
-				text: `${SCRIPT_NAME}-设置`,
+				text: `${SCRIPT_NAME}-移动端设置`,
 				position: "center",
 				html: false,
 				style: "",
@@ -399,10 +396,8 @@ const PopsPanel = {
 	getPanelContentConfig() {
 		let configList: PopsPanelContentConfig[] = [
 			MSettingUI_Common,
-			MSettingUI_Shield,
 			MSettingUI_Home,
 			MSettingUI_Notes,
-			MSettingUI_Other,
 		];
 		return configList;
 	},
@@ -413,7 +408,6 @@ const PopsPanel = {
 		let configList: PopsPanelContentConfig[] = [
 			SettingUI_Common,
 			SettingUI_Article,
-			SettingUI_Shield,
 		];
 		return configList;
 	},

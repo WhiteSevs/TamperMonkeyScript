@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.5.20
+// @version      2024.7.7
 // @author       WhiteSevs
-// @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，自定义视频清晰度(可1080p、2K、2K-60、4K-60)
+// @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
 // @icon         https://favicon.yandex.net/favicon/v2/https://m.weibo.cn/?size=32
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues

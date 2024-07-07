@@ -19,7 +19,7 @@
     "qmsg": "^1.1.2"
   },
   "devDependencies": {
-    "@types/node": "^20.14.9",
+    "@types/node": "^20.14.10",
     "typescript": "^5.5.3",
     "vite": "^5.3.3",
     "vite-plugin-monkey": "4.0.4"

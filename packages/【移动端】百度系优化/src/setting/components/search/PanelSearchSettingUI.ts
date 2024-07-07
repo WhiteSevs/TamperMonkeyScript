@@ -22,6 +22,23 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 			type: "forms",
 			forms: [
 				{
+					text: "主页",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"精简主页",
+									"baidu_search_home_homepage_minification",
+									true
+								),
+							],
+						},
+					],
+				},
+				{
 					text: "百度健康",
 					type: "deepMenu",
 					forms: [
@@ -38,6 +55,148 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 									"【屏蔽】底部工具栏",
 									"baidu_search_headlth_shield_bottom_toolbar",
 									true
+								),
+							],
+						},
+					],
+				},
+			],
+		},
+		{
+			text: "",
+			type: "forms",
+			forms: [
+				{
+					text: "功能",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"处理搜索结果",
+									"baidu_search_handle_search_result",
+									true,
+									void 0,
+									"将百度重定向链接替换为真实地址(存在就替换，不存在的话保持原样)"
+								),
+								UISwitch(
+									"重定向顶部的链接",
+									"baidu_search_redirect_top_link",
+									true,
+									void 0,
+									"如全部、视频、图片、贴吧、咨询..."
+								),
+								UISwitch(
+									"重构百度搜索",
+									"baidu_search_refactoring_input_boxes",
+									true,
+									void 0,
+									"重构顶部的输入框、百度一下按钮、搜索建议框，可不出现百度App提示"
+								),
+								UISwitch(
+									"自动点击翻页 => SearchCraft",
+									"baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua",
+									false,
+									function (event, enable) {
+										if (
+											enable &&
+											PopsPanel.getValue(
+												"baidu_search_automatically_expand_next_page"
+											)
+										) {
+											let $click = event.target as HTMLElement;
+											let $shadowRoot = $click.getRootNode() as ShadowRoot;
+											let $checkbox =
+												$shadowRoot.querySelector<HTMLSpanElement>(
+													`li[${PopsPanel.$data.attributeKeyName}="baidu_search_automatically_expand_next_page"] span.pops-panel-switch__core`
+												);
+											if (!$checkbox) {
+												throw new Error("未找到互斥元素");
+											}
+											$checkbox.click();
+										}
+									},
+									"userAgent包含SearchCraft时生效，与↓【自动翻页】功能冲突"
+								),
+								UISwitch(
+									"自动翻页",
+									"baidu_search_automatically_expand_next_page",
+									true,
+									function (event, enable) {
+										if (
+											enable &&
+											PopsPanel.getValue(
+												"baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"
+											)
+										) {
+											let $click = event.target as HTMLElement;
+											let $shadowRoot = $click.getRootNode() as ShadowRoot;
+											let $checkbox =
+												$shadowRoot.querySelector<HTMLSpanElement>(
+													`li[${PopsPanel.$data.attributeKeyName}="baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"] span.pops-panel-switch__core`
+												);
+											if (!$checkbox) {
+												throw new Error("未找到互斥元素");
+											}
+											$checkbox.click();
+										}
+									},
+									"与上面的【自动点击翻页】冲突"
+								),
+								UISwitch(
+									"同步地址",
+									"baidu_search_sync_next_page_address",
+									false,
+									function (event, enable) {
+										if (enable) {
+											alert(
+												"开启后，且开启【自动翻页】，当自动加载到第N页时，浏览器地址也会跟随改变，刷新网页就是当前加载的第N页"
+											);
+										}
+									},
+									"需启用【自动翻页】，浏览器地址栏会自动同步当前页面的Url"
+								),
+								UISwitch(
+									"【优化】大家还在搜",
+									"baidu_search_refactor_everyone_is_still_searching",
+									true,
+									void 0,
+									"正确新标签页打开，避免跳转至App下载页面"
+								),
+								UISwitch(
+									"新标签页打开",
+									"baidu_search_hijack__onClick_to_blank",
+									false,
+									void 0,
+									"需开启【劫持-_onClick函数】和【处理搜索结果】且能成功劫持到该函数才会生效，否则是提取article的URL链接信息跳转"
+								),
+							],
+						},
+					],
+				},
+				{
+					text: "屏蔽/禁止",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"【屏蔽】大家还在搜",
+									"baidu_search_blocking_everyone_is_still_searching",
+									true,
+									void 0,
+									"用于补充下面自定义拦截规则的默认配置的【大家还在搜】"
+								),
+								UISwitch(
+									"【禁止】自动播放视频",
+									"baidu-search-blockAutomaticVideoPlayback",
+									true,
+									void 0,
+									"移除video-player元素，可能会导致某些第一个结果是智能卡片时，点击更多按钮无反应(webview/Safari)"
 								),
 							],
 						},
@@ -95,7 +254,7 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 					type: "deepMenu",
 					forms: [
 						{
-							text: "<a href='https://greasyfork.org/zh-CN/scripts/418349' target='_blank'>查看规则文档(在最下面)</><br><a href='javascript:;' class='baidu-search-shield-css-reset'>点击重置</a>",
+							text: "<a href='https://greasyfork.org/zh-CN/scripts/418349-%E7%A7%BB%E5%8A%A8%E7%AB%AF-%E7%99%BE%E5%BA%A6%E7%B3%BB%E4%BC%98%E5%8C%96#:~:text=%E5%A6%82%E4%BD%95%E8%87%AA%E5%AE%9A%E4%B9%89%E7%99%BE%E5%BA%A6%E6%90%9C%E7%B4%A2%E6%8B%A6%E6%88%AA%E8%A7%84%E5%88%99' target='_blank'>查看规则文档</><br><a href='javascript:;' class='baidu-search-shield-css-reset'>点击重置</a>",
 							type: "forms",
 							forms: [
 								UISwitch(
@@ -216,123 +375,6 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 						},
 					],
 				},
-			],
-		},
-		{
-			text: "屏蔽/禁止",
-			type: "forms",
-			forms: [
-				UISwitch(
-					"【屏蔽】大家还在搜",
-					"baidu_search_blocking_everyone_is_still_searching",
-					true,
-					void 0,
-					"用于补充下面自定义拦截规则的默认配置的【大家还在搜】"
-				),
-				UISwitch(
-					"【禁止】自动播放视频",
-					"baidu-search-blockAutomaticVideoPlayback",
-					true,
-					void 0,
-					"移除video-player元素，可能会导致某些第一个结果是智能卡片时，点击更多按钮无反应(webview/Safari)"
-				),
-			],
-		},
-		{
-			text: "功能",
-			type: "forms",
-			forms: [
-				UISwitch("精简主页", "baidu_search_home_homepage_minification", true),
-				UISwitch(
-					"处理搜索结果",
-					"baidu_search_handle_search_result",
-					true,
-					void 0,
-					"将百度重定向链接替换为真实地址(存在就替换，不存在的话保持原样)"
-				),
-				UISwitch(
-					"重定向顶部的链接",
-					"baidu_search_redirect_top_link",
-					true,
-					void 0,
-					"如全部、视频、图片、贴吧、咨询..."
-				),
-				UISwitch(
-					"重构百度搜索",
-					"baidu_search_refactoring_input_boxes",
-					true,
-					void 0,
-					"重构顶部的输入框、百度一下按钮、搜索建议框，可不出现百度App提示"
-				),
-				UISwitch(
-					"自动点击翻页 => SearchCraft",
-					"baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua",
-					false,
-					function (event, enable) {
-						if (
-							enable &&
-							PopsPanel.getValue("baidu_search_automatically_expand_next_page")
-						) {
-							let checkboxCoreElement = document.querySelector(
-								`li[${PopsPanel.$data.attributeKeyName}="baidu_search_automatically_expand_next_page"] span.pops-panel-switch__core`
-							);
-							if (!checkboxCoreElement) {
-								throw new Error("未找到互斥元素");
-							}
-							(checkboxCoreElement as HTMLSpanElement).click();
-						}
-					},
-					"userAgent包含SearchCraft时生效，与↓【自动翻页】功能冲突"
-				),
-				UISwitch(
-					"自动翻页",
-					"baidu_search_automatically_expand_next_page",
-					true,
-					function (event, enable) {
-						if (
-							enable &&
-							PopsPanel.getValue(
-								"baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"
-							)
-						) {
-							let checkboxCoreElement = document.querySelector(
-								`li[${PopsPanel.$data.attributeKeyName}="baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"] span.pops-panel-switch__core`
-							);
-							if (!checkboxCoreElement) {
-								throw new Error("未找到互斥元素");
-							}
-							(checkboxCoreElement as HTMLSpanElement).click();
-						}
-					},
-					"与上面的【自动点击翻页】冲突"
-				),
-				UISwitch(
-					"同步地址",
-					"baidu_search_sync_next_page_address",
-					false,
-					function (event, enable) {
-						if (enable) {
-							alert(
-								"开启后，且开启【自动翻页】，当自动加载到第N页时，浏览器地址也会跟随改变，刷新网页就是当前加载的第N页"
-							);
-						}
-					},
-					"需启用【自动翻页】，浏览器地址栏会自动同步当前页面的Url"
-				),
-				UISwitch(
-					"【优化】大家还在搜",
-					"baidu_search_refactor_everyone_is_still_searching",
-					true,
-					void 0,
-					"正确新标签页打开，避免跳转至App下载页面"
-				),
-				UISwitch(
-					"新标签页打开",
-					"baidu_search_hijack__onClick_to_blank",
-					false,
-					void 0,
-					"需开启【劫持-_onClick函数】和【处理搜索结果】且能成功劫持到该函数才会生效，否则是提取article的URL链接信息跳转"
-				),
 			],
 		},
 	],

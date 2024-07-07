@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.5
+// @version      2024.7.7
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -151,54 +151,33 @@
     }
     return result;
   };
-  const MSettingUI_Shield = {
-    id: "little-red-book-panel-config-shield",
-    title: "屏蔽",
-    forms: [
-      {
-        text: "功能",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "【屏蔽】广告",
-            "little-red-book-shieldAd",
-            true,
-            void 0,
-            "如：App内打开"
-          ),
-          UISwitch(
-            "【屏蔽】底部搜索发现",
-            "little-red-book-shieldBottomSearchFind",
-            true,
-            void 0,
-            "建议开启"
-          ),
-          UISwitch(
-            "【屏蔽】底部工具栏",
-            "little-red-book-shieldBottomToorBar",
-            true,
-            void 0,
-            "建议开启"
-          )
-        ]
-      }
-    ]
-  };
   const MSettingUI_Home = {
     id: "little-red-book-panel-config-home",
     title: "主页",
     forms: [
       {
-        text: "劫持/拦截",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch(
-            "劫持点击事件",
-            "little-red-book-repariClick",
-            true,
-            void 0,
-            "可阻止点击跳转至下载页面"
-          )
+          {
+            text: "劫持/拦截",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "劫持点击事件",
+                    "little-red-book-repariClick",
+                    true,
+                    void 0,
+                    "可阻止点击跳转至下载页面"
+                  )
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
@@ -208,96 +187,107 @@
     title: "笔记",
     forms: [
       {
-        text: "功能",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch(
-            "优化评论浏览",
-            "little-red-book-optimizeCommentBrowsing",
-            true,
-            void 0,
-            "加载评论，未登录最多查看1页评论(注：楼中楼评论已失效，api无法获取楼中楼评论，需要请求头X-T、X-S、X-B3-Traceid)"
-          ),
-          UISwitch(
-            "优化图片浏览",
-            "little-red-book-optimizeImageBrowsing",
-            true,
-            void 0,
-            "更方便的浏览图片"
-          ),
-          UISwitch(
-            "允许复制",
-            "little-red-book-allowCopy",
-            true,
-            void 0,
-            "可以复制笔记的内容"
-          )
+          {
+            text: "视频笔记",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "优化视频描述",
+                    "little-red-book-optimizeVideoNoteDesc",
+                    true,
+                    void 0,
+                    "让视频描述可以滚动显示更多"
+                  ),
+                  UISwitch(
+                    "【屏蔽】作者热门笔记",
+                    "little-red-book-shieldAuthorHotNote",
+                    true,
+                    void 0,
+                    "建议开启"
+                  ),
+                  UISwitch(
+                    "【屏蔽】热门推荐",
+                    "little-red-book-shieldHotRecommendNote",
+                    true,
+                    void 0,
+                    "建议开启"
+                  )
+                ]
+              }
+            ]
+          }
         ]
       },
       {
-        text: "视频笔记",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch(
-            "优化视频描述",
-            "little-red-book-optimizeVideoNoteDesc",
-            true,
-            void 0,
-            "让视频描述可以滚动显示更多"
-          ),
-          UISwitch(
-            "【屏蔽】作者热门笔记",
-            "little-red-book-shieldAuthorHotNote",
-            true,
-            void 0,
-            "建议开启"
-          ),
-          UISwitch(
-            "【屏蔽】热门推荐",
-            "little-red-book-shieldHotRecommendNote",
-            true,
-            void 0,
-            "建议开启"
-          )
-        ]
-      },
-      {
-        text: "劫持/拦截",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "劫持webpack-弹窗",
-            "little-red-book-hijack-webpack-mask",
-            true,
-            void 0,
-            "如：打开App弹窗、登录弹窗"
-          ),
-          UISwitch(
-            "劫持webpack-唤醒App",
-            "little-red-book-hijack-webpack-scheme",
-            true,
-            void 0,
-            "禁止跳转商店小红书详情页/小红书"
-          )
-        ]
-      }
-    ]
-  };
-  const MSettingUI_Other = {
-    id: "little-red-book-panel-config-other",
-    title: "其它",
-    forms: [
-      {
-        text: "劫持/拦截",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "劫持Vue",
-            "little-red-book-hijack-vue",
-            false,
-            void 0,
-            "恢复__vue__属性"
-          )
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "优化评论浏览",
+                    "little-red-book-optimizeCommentBrowsing",
+                    true,
+                    void 0,
+                    "加载评论，未登录最多查看1页评论(注：楼中楼评论已失效，api无法获取楼中楼评论，需要请求头X-T、X-S、X-B3-Traceid)"
+                  ),
+                  UISwitch(
+                    "优化图片浏览",
+                    "little-red-book-optimizeImageBrowsing",
+                    true,
+                    void 0,
+                    "更方便的浏览图片"
+                  ),
+                  UISwitch(
+                    "允许复制",
+                    "little-red-book-allowCopy",
+                    true,
+                    void 0,
+                    "可以复制笔记的内容"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "劫持/拦截",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "劫持webpack-弹窗",
+                    "little-red-book-hijack-webpack-mask",
+                    true,
+                    void 0,
+                    "如：打开App弹窗、登录弹窗"
+                  ),
+                  UISwitch(
+                    "劫持webpack-唤醒App",
+                    "little-red-book-hijack-webpack-scheme",
+                    true,
+                    void 0,
+                    "禁止跳转商店小红书详情页/小红书"
+                  )
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
@@ -336,179 +326,215 @@
     title: "通用",
     forms: [
       {
-        text: "功能",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch(
-            "允许复制",
-            "pc-xhs-allowCopy",
-            true,
-            void 0,
-            "可以选择文字并复制"
-          ),
-          UISwitch(
-            "新标签页打开文章",
-            "pc-xhs-open-blank-article",
-            false,
-            void 0,
-            "点击文章不会在本页展开，会打开新标签页"
-          )
-        ]
-      },
-      {
-        text: "搜索",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "新标签页打开-搜索按钮",
-            "pc-xhs-search-open-blank-btn",
-            false,
-            void 0,
-            "点击右边的搜索按钮直接新标签页打开搜索内容"
-          ),
-          UISwitch(
-            "新标签页打开-回车键",
-            "pc-xhs-search-open-blank-keyboard-enter",
-            false,
-            void 0,
-            "按下回车键直接新标签页打开搜索内容"
-          )
-        ]
-      },
-      {
-        text: "劫持/拦截",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "劫持Vue",
-            "pc-xhs-hook-vue",
-            false,
-            void 0,
-            "恢复__vue__属性"
-          )
-        ]
-      },
-      {
-        text: "Toast配置",
-        type: "forms",
-        forms: [
-          UISelect(
-            "Toast位置",
-            "qmsg-config-position",
-            "bottom",
-            [
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
               {
-                value: "topleft",
-                text: "左上角"
-              },
-              {
-                value: "top",
-                text: "顶部"
-              },
-              {
-                value: "topright",
-                text: "右上角"
-              },
-              {
-                value: "left",
-                text: "左边"
-              },
-              {
-                value: "center",
-                text: "中间"
-              },
-              {
-                value: "right",
-                text: "右边"
-              },
-              {
-                value: "bottomleft",
-                text: "左下角"
-              },
-              {
-                value: "bottom",
-                text: "底部"
-              },
-              {
-                value: "bottomright",
-                text: "右下角"
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "允许复制",
+                    "pc-xhs-allowCopy",
+                    true,
+                    void 0,
+                    "可以选择文字并复制"
+                  ),
+                  UISwitch(
+                    "新标签页打开文章",
+                    "pc-xhs-open-blank-article",
+                    false,
+                    void 0,
+                    "点击文章不会在本页展开，会打开新标签页"
+                  )
+                ]
               }
-            ],
-            (event, isSelectValue, isSelectText) => {
-              log.info("设置当前Qmsg弹出位置" + isSelectText);
-            },
-            "Toast显示在页面九宫格的位置"
-          ),
-          UISelect(
-            "最多显示的数量",
-            "qmsg-config-maxnums",
-            3,
-            [
+            ]
+          },
+          {
+            text: "搜索",
+            type: "deepMenu",
+            forms: [
               {
-                value: 1,
-                text: "1"
-              },
-              {
-                value: 2,
-                text: "2"
-              },
-              {
-                value: 3,
-                text: "3"
-              },
-              {
-                value: 4,
-                text: "4"
-              },
-              {
-                value: 5,
-                text: "5"
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "新标签页打开-搜索按钮",
+                    "pc-xhs-search-open-blank-btn",
+                    false,
+                    void 0,
+                    "点击右边的搜索按钮直接新标签页打开搜索内容"
+                  ),
+                  UISwitch(
+                    "新标签页打开-回车键",
+                    "pc-xhs-search-open-blank-keyboard-enter",
+                    false,
+                    void 0,
+                    "按下回车键直接新标签页打开搜索内容"
+                  )
+                ]
               }
-            ],
-            void 0,
-            "限制Toast显示的数量"
-          ),
-          UISwitch(
-            "逆序弹出",
-            "qmsg-config-showreverse",
-            false,
-            void 0,
-            "修改Toast弹出的顺序"
-          )
-        ]
-      }
-    ]
-  };
-  const SettingUI_Shield = {
-    id: "xhs-panel-config-shield",
-    title: "屏蔽",
-    forms: [
-      {
-        text: "功能",
-        type: "forms",
-        forms: [
-          UISwitch("【屏蔽】广告", "pc-xhs-shieldAd", true, void 0, "屏蔽元素"),
-          UISwitch(
-            "【屏蔽】登录弹窗",
-            "pc-xhs-shield-login-dialog",
-            true,
-            void 0,
-            "屏蔽会自动弹出的登录弹窗"
-          ),
-          UISwitch(
-            "【屏蔽】选择文字弹出的搜索提示",
-            "pc-xhs-shield-select-text-search-position",
-            false,
-            void 0,
-            "屏蔽元素"
-          ),
-          UISwitch(
-            "【屏蔽】顶部工具栏",
-            "pc-xhs-shield-topToolbar",
-            false,
-            void 0,
-            "屏蔽元素"
-          )
+            ]
+          },
+          {
+            text: "屏蔽",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】广告",
+                    "pc-xhs-shieldAd",
+                    true,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】登录弹窗",
+                    "pc-xhs-shield-login-dialog",
+                    true,
+                    void 0,
+                    "屏蔽会自动弹出的登录弹窗"
+                  ),
+                  UISwitch(
+                    "【屏蔽】选择文字弹出的搜索提示",
+                    "pc-xhs-shield-select-text-search-position",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】顶部工具栏",
+                    "pc-xhs-shield-topToolbar",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "劫持/拦截",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "劫持Vue",
+                    "pc-xhs-hook-vue",
+                    false,
+                    void 0,
+                    "恢复__vue__属性"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "Toast配置",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISelect(
+                    "Toast位置",
+                    "qmsg-config-position",
+                    "bottom",
+                    [
+                      {
+                        value: "topleft",
+                        text: "左上角"
+                      },
+                      {
+                        value: "top",
+                        text: "顶部"
+                      },
+                      {
+                        value: "topright",
+                        text: "右上角"
+                      },
+                      {
+                        value: "left",
+                        text: "左边"
+                      },
+                      {
+                        value: "center",
+                        text: "中间"
+                      },
+                      {
+                        value: "right",
+                        text: "右边"
+                      },
+                      {
+                        value: "bottomleft",
+                        text: "左下角"
+                      },
+                      {
+                        value: "bottom",
+                        text: "底部"
+                      },
+                      {
+                        value: "bottomright",
+                        text: "右下角"
+                      }
+                    ],
+                    (event, isSelectValue, isSelectText) => {
+                      log.info("设置当前Qmsg弹出位置" + isSelectText);
+                    },
+                    "Toast显示在页面九宫格的位置"
+                  ),
+                  UISelect(
+                    "最多显示的数量",
+                    "qmsg-config-maxnums",
+                    3,
+                    [
+                      {
+                        value: 1,
+                        text: "1"
+                      },
+                      {
+                        value: 2,
+                        text: "2"
+                      },
+                      {
+                        value: 3,
+                        text: "3"
+                      },
+                      {
+                        value: 4,
+                        text: "4"
+                      },
+                      {
+                        value: 5,
+                        text: "5"
+                      }
+                    ],
+                    void 0,
+                    "限制Toast显示的数量"
+                  ),
+                  UISwitch(
+                    "逆序弹出",
+                    "qmsg-config-showreverse",
+                    false,
+                    void 0,
+                    "修改Toast弹出的顺序"
+                  )
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
@@ -551,35 +577,47 @@
     title: "笔记",
     forms: [
       {
-        text: "笔记宽屏",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch(
-            "启用",
-            "pc-xhs-article-fullWidth",
-            false,
-            void 0,
-            `让笔记占据宽屏，当页面可视宽度>=960px时才会触发该功能，当前页面可视宽度: ${window.innerWidth}px`
-          ),
-          UISlider(
-            "占据范围",
-            "pc-xhs-article-fullWidth-widthSize",
-            90,
-            30,
-            100,
-            (event, value) => {
-              let $noteContainer = document.querySelector("#noteContainer");
-              if (!$noteContainer) {
-                log.error("未找到笔记容器");
-                return;
+          {
+            text: "笔记宽屏",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "启用",
+                    "pc-xhs-article-fullWidth",
+                    false,
+                    void 0,
+                    `让笔记占据宽屏，当页面可视宽度>=960px时才会触发该功能，当前页面可视宽度: ${window.innerWidth}px`
+                  ),
+                  UISlider(
+                    "占据范围",
+                    "pc-xhs-article-fullWidth-widthSize",
+                    90,
+                    30,
+                    100,
+                    (event, value) => {
+                      let $noteContainer = document.querySelector("#noteContainer");
+                      if (!$noteContainer) {
+                        log.error("未找到笔记容器");
+                        return;
+                      }
+                      $noteContainer.style.width = `${value}dvw`;
+                    },
+                    (value) => {
+                      return `${value}%，默认：90%`;
+                    },
+                    "调整笔记页面占据的页面范围"
+                  )
+                ]
               }
-              $noteContainer.style.width = `${value}dvw`;
-            },
-            (value) => {
-              return `${value}%，默认：90%`;
-            },
-            "调整笔记页面占据的页面范围"
-          )
+            ]
+          }
         ]
       }
     ]
@@ -589,92 +627,162 @@
     title: "通用",
     forms: [
       {
-        text: "Toast配置",
+        text: "",
         type: "forms",
         forms: [
-          UISelect(
-            "Toast位置",
-            "qmsg-config-position",
-            "bottom",
-            [
+          {
+            text: "Toast配置",
+            type: "deepMenu",
+            forms: [
               {
-                value: "topleft",
-                text: "左上角"
-              },
-              {
-                value: "top",
-                text: "顶部"
-              },
-              {
-                value: "topright",
-                text: "右上角"
-              },
-              {
-                value: "left",
-                text: "左边"
-              },
-              {
-                value: "center",
-                text: "中间"
-              },
-              {
-                value: "right",
-                text: "右边"
-              },
-              {
-                value: "bottomleft",
-                text: "左下角"
-              },
-              {
-                value: "bottom",
-                text: "底部"
-              },
-              {
-                value: "bottomright",
-                text: "右下角"
+                text: "",
+                type: "forms",
+                forms: [
+                  UISelect(
+                    "Toast位置",
+                    "qmsg-config-position",
+                    "bottom",
+                    [
+                      {
+                        value: "topleft",
+                        text: "左上角"
+                      },
+                      {
+                        value: "top",
+                        text: "顶部"
+                      },
+                      {
+                        value: "topright",
+                        text: "右上角"
+                      },
+                      {
+                        value: "left",
+                        text: "左边"
+                      },
+                      {
+                        value: "center",
+                        text: "中间"
+                      },
+                      {
+                        value: "right",
+                        text: "右边"
+                      },
+                      {
+                        value: "bottomleft",
+                        text: "左下角"
+                      },
+                      {
+                        value: "bottom",
+                        text: "底部"
+                      },
+                      {
+                        value: "bottomright",
+                        text: "右下角"
+                      }
+                    ],
+                    (event, isSelectValue, isSelectText) => {
+                      log.info("设置当前Qmsg弹出位置" + isSelectText);
+                    },
+                    "Toast显示在页面九宫格的位置"
+                  ),
+                  UISelect(
+                    "最多显示的数量",
+                    "qmsg-config-maxnums",
+                    3,
+                    [
+                      {
+                        value: 1,
+                        text: "1"
+                      },
+                      {
+                        value: 2,
+                        text: "2"
+                      },
+                      {
+                        value: 3,
+                        text: "3"
+                      },
+                      {
+                        value: 4,
+                        text: "4"
+                      },
+                      {
+                        value: 5,
+                        text: "5"
+                      }
+                    ],
+                    void 0,
+                    "限制Toast显示的数量"
+                  ),
+                  UISwitch(
+                    "逆序弹出",
+                    "qmsg-config-showreverse",
+                    false,
+                    void 0,
+                    "修改Toast弹出的顺序"
+                  )
+                ]
               }
-            ],
-            (event, isSelectValue, isSelectText) => {
-              log.info("设置当前Qmsg弹出位置" + isSelectText);
-            },
-            "Toast显示在页面九宫格的位置"
-          ),
-          UISelect(
-            "最多显示的数量",
-            "qmsg-config-maxnums",
-            3,
-            [
+            ]
+          }
+        ]
+      },
+      {
+        text: "",
+        type: "forms",
+        forms: [
+          {
+            text: "屏蔽",
+            type: "deepMenu",
+            forms: [
               {
-                value: 1,
-                text: "1"
-              },
-              {
-                value: 2,
-                text: "2"
-              },
-              {
-                value: 3,
-                text: "3"
-              },
-              {
-                value: 4,
-                text: "4"
-              },
-              {
-                value: 5,
-                text: "5"
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】广告",
+                    "little-red-book-shieldAd",
+                    true,
+                    void 0,
+                    "如：App内打开"
+                  ),
+                  UISwitch(
+                    "【屏蔽】底部搜索发现",
+                    "little-red-book-shieldBottomSearchFind",
+                    true,
+                    void 0,
+                    "建议开启"
+                  ),
+                  UISwitch(
+                    "【屏蔽】底部工具栏",
+                    "little-red-book-shieldBottomToorBar",
+                    true,
+                    void 0,
+                    "建议开启"
+                  )
+                ]
               }
-            ],
-            void 0,
-            "限制Toast显示的数量"
-          ),
-          UISwitch(
-            "逆序弹出",
-            "qmsg-config-showreverse",
-            false,
-            void 0,
-            "修改Toast弹出的顺序"
-          )
+            ]
+          },
+          {
+            text: "劫持/拦截",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "劫持Vue",
+                    "little-red-book-hijack-vue",
+                    false,
+                    void 0,
+                    "恢复__vue__属性"
+                  )
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
@@ -959,7 +1067,7 @@
       let { UIWidth, UIHeight } = this.getUISizeInfo();
       pops.panel({
         title: {
-          text: `${SCRIPT_NAME}-设置`,
+          text: `${SCRIPT_NAME}-移动端设置`,
           position: "center",
           html: false,
           style: ""
@@ -1027,10 +1135,8 @@
     getPanelContentConfig() {
       let configList = [
         MSettingUI_Common,
-        MSettingUI_Shield,
         MSettingUI_Home,
-        MSettingUI_Notes,
-        MSettingUI_Other
+        MSettingUI_Notes
       ];
       return configList;
     },
@@ -1040,8 +1146,7 @@
     getPCPanelContentConfig() {
       let configList = [
         SettingUI_Common,
-        SettingUI_Article,
-        SettingUI_Shield
+        SettingUI_Article
       ];
       return configList;
     }

@@ -17,11 +17,6 @@
 	svg {
 	scale: unset !important;
 }
-/* 禁止触发touch事件，因为会影响到按钮点击不到 */
-xg-outer,
-xg-inners {
-	pointer-events: none;
-}
 /* 设备处于横向方向，即宽度大于高度。 */
 @media screen and (orientation: landscape) {
 	/* 右侧工具栏放大 */

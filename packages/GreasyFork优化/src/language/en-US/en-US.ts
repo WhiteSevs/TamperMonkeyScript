@@ -186,4 +186,5 @@ export const en_US_language = {
 	开启后下面的功能才会生效:
 		"The following functions will only take effect after being enabled",
 	屏蔽脚本: "Block script",
+	点击查看规则: "Click to view rules",
 };

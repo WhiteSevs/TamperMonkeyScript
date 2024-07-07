@@ -45,6 +45,11 @@ export const DouYinVideo = {
 				}
 			);
 		});
+		PopsPanel.execMenuOnce("repairProgressBar", () => {
+			PopsPanel.onceExec("repairProgressBar", () => {
+				this.repairVideoProgressBar();
+			});
+		});
 		DOMUtils.ready(() => {
 			DouYinVideo.chooseVideoDefinition(
 				PopsPanel.getValue("chooseVideoDefinition")
@@ -398,6 +403,27 @@ export const DouYinVideo = {
 		/* 屏蔽底部视频工具栏右侧的?帮助反馈按钮 */
 		DouYinUtils.addBlockCSS("img#douyin-temp-sidebar");
 		addStyle(MobileCSS);
+		PopsPanel.onceExec("repairProgressBar", () => {
+			this.repairVideoProgressBar();
+		});
+		if (DouYinRouter.isSearch()) {
+			PopsPanel.onceExec("douyin-search-mobileMode", () => {
+				DouYinSearch.mobileMode();
+			});
+		}
+	},
+	/**
+	 * 修复进度条按钮
+	 */
+	repairVideoProgressBar() {
+		log.info("修复进度条按钮");
+		addStyle(`
+		/* 禁止触发touch事件，因为会影响到按钮点击不到 */
+		xg-outer,
+		xg-inners {
+			pointer-events: none;
+		}	
+		`);
 		// 让拖拽进度条的按钮拖拽时修改进度条高度
 		DOMUtils.on(
 			document,
@@ -430,11 +456,6 @@ export const DouYinVideo = {
 				capture: true,
 			}
 		);
-		if (DouYinRouter.isSearch()) {
-			PopsPanel.onceExec("douyin-search-mobileMode", () => {
-				DouYinSearch.mobileMode();
-			});
-		}
 	},
 	/**
 	 * 修改视频背景颜色

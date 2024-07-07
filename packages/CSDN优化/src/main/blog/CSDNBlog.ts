@@ -23,12 +23,12 @@ const CSDNBlog = {
 		PopsPanel.execMenu("csdn-blog-autoExpandCodeContent", () => {
 			this.autoExpandCodeContent();
 		});
-		PopsPanel.execMenu("csdn-blog-blockComment", () => {
+		if (!PopsPanel.getValue("csdn-blog-comment-enable")) {
 			this.blockComment();
-		});
-		PopsPanel.execMenu("csdn-blog-shieldBottomRecommendArticle", () => {
+		}
+		if (!PopsPanel.getValue("csdn-blog-bottomRecommendArticleEnable")) {
 			this.shieldBottomRecommendArticle();
-		});
+		}
 		PopsPanel.execMenu("csdn-blog-shieldBottomSkillTree", () => {
 			this.shieldBottomSkillTree();
 		});
