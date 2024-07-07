@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.7
+// @version      2024.7.7.19
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @match        *://live.bilibili.com/*
 // @match        *://www.bilibili.com/read/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/456485/1405857/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1406779/pops.js
 // @require      https://update.greasyfork.org/scripts/497907/1394170/QRCodeJS.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.9/dist/index.umd.js

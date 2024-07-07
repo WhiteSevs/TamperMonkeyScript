@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.7
+// @version      2024.7.7.19
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @match        *://www.tieba.com/*
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/456485/1405857/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1406779/pops.js
 // @require      https://update.greasyfork.org/scripts/488179/1384528/showdown.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.4.31/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.8/lib/index.iife.min.js
