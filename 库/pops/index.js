@@ -11974,9 +11974,19 @@
 							});
 						}
 					},
-					/** 前往子菜单 */
-					gotoDeepMenu() {
-						PopsDOMUtils.cssHide(this.$ele.parentSection);
+					/**
+					 * 前往子菜单
+					 * @param {Event} event 点击事件
+					 * @param {HTMLLIElement} liElement 当前的<li>元素
+					 */
+					gotoDeepMenu(event, liElement) {
+						/** 当前所在的容器 @type {HTMLElement|null} */
+						let currentSection = liElement.closest(
+							"section.pops-panel-container"
+						);
+						if (currentSection) {
+							PopsDOMUtils.cssHide(currentSection);
+						}
 						// 子菜单的容器
 						let $deepMenuContainer = PopsDOMUtils.createElement("section", {
 							className: "pops-panel-container pops-panel-deepMenu-container",
@@ -12050,7 +12060,7 @@
 									return;
 								}
 							}
-							this.gotoDeepMenu();
+							this.gotoDeepMenu(event, liElement);
 						});
 					},
 				};
