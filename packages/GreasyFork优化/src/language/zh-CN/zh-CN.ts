@@ -192,6 +192,7 @@ export const zh_CN_language = {
 	"在Markdown内容右上角添加【复制】按钮，点击一键复制Markdown内容":
 		"在Markdown内容右上角添加【复制】按钮，点击一键复制Markdown内容",
 
+	开启后下面的功能才会生效: "开启后下面的功能才会生效",
 	检测页面加载: "检测页面加载",
 	"检测Greasyfork页面是否正常加载，如加载失败则自动刷新页面":
 		"检测Greasyfork页面是否正常加载，如加载失败则自动刷新页面",

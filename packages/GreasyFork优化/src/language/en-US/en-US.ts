@@ -208,6 +208,8 @@ export const en_US_language = {
 	"在Markdown内容右上角添加【复制】按钮，点击一键复制Markdown内容":
 		"Add the button to copy to the top right corner of the Markdown content, click to copy the Markdown content in one click",
 
+	开启后下面的功能才会生效:
+		"The following functions will only take effect after it is enabled",
 	检测页面加载: "Detect page loading",
 	"检测Greasyfork页面是否正常加载，如加载失败则自动刷新页面":
 		"Detect whether the Greasyfork page is loaded normally. If the loading fails, the page will be automatically refreshed",

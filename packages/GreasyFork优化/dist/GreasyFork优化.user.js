@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.7.7.17
+// @version            2024.7.7.19
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -11,7 +11,7 @@
 // @supportURL         https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match              *://greasyfork.org/*
 // @require            https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require            https://update.greasyfork.org/scripts/456485/1405857/pops.js
+// @require            https://update.greasyfork.org/scripts/456485/1406779/pops.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.9/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
@@ -213,6 +213,7 @@
     "在脚本信息栏添加【今日检查】信息块": "在脚本信息栏添加【今日检查】信息块",
     "给Markdown添加【复制】按钮": "给Markdown添加【复制】按钮",
     "在Markdown内容右上角添加【复制】按钮，点击一键复制Markdown内容": "在Markdown内容右上角添加【复制】按钮，点击一键复制Markdown内容",
+    开启后下面的功能才会生效: "开启后下面的功能才会生效",
     检测页面加载: "检测页面加载",
     "检测Greasyfork页面是否正常加载，如加载失败则自动刷新页面": "检测Greasyfork页面是否正常加载，如加载失败则自动刷新页面",
     检测间隔: "检测间隔",
@@ -383,6 +384,7 @@
     "在脚本信息栏添加【今日检查】信息块": "Add the block of information of today's inspection to the script information bar",
     "给Markdown添加【复制】按钮": "Add the button to copy to Markdown",
     "在Markdown内容右上角添加【复制】按钮，点击一键复制Markdown内容": "Add the button to copy to the top right corner of the Markdown content, click to copy the Markdown content in one click",
+    开启后下面的功能才会生效: "The following functions will only take effect after it is enabled",
     检测页面加载: "Detect page loading",
     "检测Greasyfork页面是否正常加载，如加载失败则自动刷新页面": "Detect whether the Greasyfork page is loaded normally. If the loading fails, the page will be automatically refreshed",
     检测间隔: "Detection interval",
@@ -1475,7 +1477,9 @@
                     "checkPage",
                     true,
                     void 0,
-                    "检测Greasyfork页面是否正常加载，如加载失败则自动刷新页面"
+                    i18next.t(
+                      "检测Greasyfork页面是否正常加载，如加载失败则自动刷新页面"
+                    )
                   ),
                   UISelect(
                     i18next.t("检测间隔"),
@@ -3477,7 +3481,7 @@
         if (document.body.firstElementChild && document.body.firstElementChild.localName === "p" && document.body.firstElementChild.innerText.includes(
           "We're down for maintenance. Check back again soon."
         )) {
-          let checkPageTime = parseInt(
+          let latestRefreshPageTime = parseInt(
             _GM_getValue(
               "greasyfork-check-page-time",
               0
@@ -3488,10 +3492,13 @@
             5
           );
           let checkPageTimeoutStamp = checkPageTimeout * 1e3;
-          if (checkPageTime && Date.now() - checkPageTime < checkPageTimeoutStamp) {
-            Qmsg.error(
+          if (latestRefreshPageTime && Date.now() - latestRefreshPageTime < checkPageTimeoutStamp) {
+            Qmsg.warning(
               i18next.t("上次重载时间 {{time}}，{{timeout}}秒内拒绝反复重载", {
-                time: utils.formatTime(checkPageTime, "yyyy-MM-dd HH:mm:ss"),
+                time: utils.formatTime(
+                  latestRefreshPageTime,
+                  "yyyy-MM-dd HH:mm:ss"
+                ),
                 timeout: checkPageTimeout
               })
             );

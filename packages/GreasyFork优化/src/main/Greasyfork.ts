@@ -873,7 +873,8 @@ const Greasyfork = {
 					"We're down for maintenance. Check back again soon."
 				)
 			) {
-				let checkPageTime = parseInt(
+				// 先获取上一次刷新页面的时间
+				let latestRefreshPageTime = parseInt(
 					GM_getValue<string | number>(
 						"greasyfork-check-page-time",
 						0
@@ -885,13 +886,16 @@ const Greasyfork = {
 				);
 				let checkPageTimeoutStamp = checkPageTimeout * 1000;
 				if (
-					checkPageTime &&
-					Date.now() - checkPageTime < checkPageTimeoutStamp
+					latestRefreshPageTime &&
+					Date.now() - latestRefreshPageTime < checkPageTimeoutStamp
 				) {
 					/* 上次重载时间在xx秒内的话就拒绝重载 */
-					Qmsg.error(
+					Qmsg.warning(
 						i18next.t("上次重载时间 {{time}}，{{timeout}}秒内拒绝反复重载", {
-							time: utils.formatTime(checkPageTime, "yyyy-MM-dd HH:mm:ss"),
+							time: utils.formatTime(
+								latestRefreshPageTime,
+								"yyyy-MM-dd HH:mm:ss"
+							),
 							timeout: checkPageTimeout,
 						})
 					);

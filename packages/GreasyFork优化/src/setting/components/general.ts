@@ -307,7 +307,9 @@ const SettingUIGeneral: PopsPanelContentConfig = {
 									"checkPage",
 									true,
 									void 0,
-									"检测Greasyfork页面是否正常加载，如加载失败则自动刷新页面"
+									i18next.t(
+										"检测Greasyfork页面是否正常加载，如加载失败则自动刷新页面"
+									)
 								),
 								UISelect<number>(
 									i18next.t("检测间隔"),
