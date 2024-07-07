@@ -1089,7 +1089,7 @@ const TiebaComment = {
 		let pageCommentInfo = await TiebaComment.getPageComment(nextPageUrl);
 		if (!pageCommentInfo.success) {
 			loadingView.setHTML(
-				`<a href="${pageCommentInfo.data}">触发百度安全校验，点击前往验证</a>`
+				`<a href="${pageCommentInfo.data}" target="_blank">触发百度安全验证，点击前往验证</a>`
 			);
 			return;
 		}
@@ -1131,7 +1131,7 @@ const TiebaComment = {
 		let pageCommentInfo = await TiebaComment.getPageComment(pageUrl);
 		if (!pageCommentInfo.success) {
 			loadingView.setHTML(
-				`<a href="${pageCommentInfo.data}">触发百度安全校验，点击前往验证</a>`
+				`<a href="${pageCommentInfo.data}" target="_blank">触发百度安全验证，点击前往验证</a>`
 			);
 			return;
 		}
@@ -2795,7 +2795,7 @@ const TiebaComment = {
 		let pageCommentInfo = await TiebaComment.getPageComment(pageUrl);
 		if (!pageCommentInfo.success) {
 			loadingView.setHTML(
-				`<a href="${pageCommentInfo.data}">触发百度安全校验，点击前往验证</a>`
+				`<a href="${pageCommentInfo.data}" target="_blank">触发百度安全验证，点击前往验证</a>`
 			);
 			return;
 		}
@@ -2890,7 +2890,7 @@ const TiebaComment = {
 		let pageCommentInfo = await TiebaComment.getPageComment(pageUrl);
 		if (!pageCommentInfo.success) {
 			loadingView.setHTML(
-				`<a href="${pageCommentInfo.data}">触发百度安全校验，点击前往验证</a>`
+				`<a href="${pageCommentInfo.data}" target="_blank">触发百度安全验证，点击前往验证</a>`
 			);
 			return;
 		}
