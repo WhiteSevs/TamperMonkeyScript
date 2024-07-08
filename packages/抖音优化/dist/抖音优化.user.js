@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.7.19
+// @version      2024.7.8
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -737,6 +737,9 @@
         DouYinLiveDanmuku.filterDanmu();
       });
       PopsPanel.execMenu("live-chooseQuality", (quality) => {
+        if (quality === "auto") {
+          return;
+        }
         this.chooseQuality(quality);
       });
       PopsPanel.execMenu("live-unlockImageQuality", () => {
@@ -3621,7 +3624,11 @@
       DouYinUtils.addBlockCSS(
         '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container',
         // 直播
-        '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container:has(a)'
+        '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container:has(a)',
+        // 直播
+        '#douyin-header pace-island[id^="island"] > div[class] span:has(a[download][href*="client"])',
+        /* 直播 更多 客户端 */
+        '.semi-portal-inner .semi-dropdown-content .semi-dropdown-item:has(a[download][href*="client"])'
       );
       if (DouYinRouter.isSearch()) {
         log.info("搜索-【屏蔽】客户端");
@@ -3637,6 +3644,8 @@
       log.info("【屏蔽】快捷访问");
       DouYinUtils.addBlockCSS(
         'header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(.quick-access-nav-icon)'
+        // 直播 更多里面的 快捷访问
+        // '.semi-portal-inner .semi-dropdown-content .semi-dropdown-item'
       );
       if (DouYinRouter.isSearch()) {
         log.info("搜索-【屏蔽】快捷访问");
@@ -3713,7 +3722,9 @@
       log.info("【屏蔽】壁纸");
       DouYinUtils.addBlockCSS(
         // 直播
-        '#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container:has(span.semi-icon)'
+        '#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container:has(span.semi-icon)',
+        // 直播
+        '#douyin-header pace-island[id^="island"] > div[class] span:has(.semi-icon)'
       );
     },
     /**

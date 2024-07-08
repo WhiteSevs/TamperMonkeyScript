@@ -79,6 +79,9 @@ export const DouYinLive = {
 			DouYinLiveDanmuku.filterDanmu();
 		});
 		PopsPanel.execMenu("live-chooseQuality", (quality) => {
+			if (quality === "auto") {
+				return;
+			}
 			this.chooseQuality(quality);
 		});
 		PopsPanel.execMenu("live-unlockImageQuality", () => {

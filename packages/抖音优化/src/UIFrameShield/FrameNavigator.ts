@@ -65,7 +65,11 @@ export const ShieldHeader = {
 		DouYinUtils.addBlockCSS(
 			'#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container',
 			// 直播
-			'#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container:has(a)'
+			'#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container:has(a)',
+			// 直播
+			'#douyin-header pace-island[id^="island"] > div[class] span:has(a[download][href*="client"])',
+			/* 直播 更多 客户端 */
+			'.semi-portal-inner .semi-dropdown-content .semi-dropdown-item:has(a[download][href*="client"])'
 		);
 		if (DouYinRouter.isSearch()) {
 			log.info("搜索-【屏蔽】客户端");
@@ -81,6 +85,8 @@ export const ShieldHeader = {
 		log.info("【屏蔽】快捷访问");
 		DouYinUtils.addBlockCSS(
 			'header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(.quick-access-nav-icon)'
+			// 直播 更多里面的 快捷访问
+			// '.semi-portal-inner .semi-dropdown-content .semi-dropdown-item'
 		);
 		if (DouYinRouter.isSearch()) {
 			log.info("搜索-【屏蔽】快捷访问");
@@ -157,7 +163,9 @@ export const ShieldHeader = {
 		log.info("【屏蔽】壁纸");
 		DouYinUtils.addBlockCSS(
 			// 直播
-			'#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container:has(span.semi-icon)'
+			'#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container:has(span.semi-icon)',
+			// 直播
+			'#douyin-header pace-island[id^="island"] > div[class] span:has(.semi-icon)'
 		);
 	},
 	/**
