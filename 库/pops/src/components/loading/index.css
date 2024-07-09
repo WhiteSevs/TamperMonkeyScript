@@ -1,0 +1,60 @@
+.pops[type-value="loading"] {
+	position: absolute;
+	top: 272.5px;
+	top: 50%;
+	left: 26px;
+	left: 50%;
+	display: flex;
+	overflow: hidden;
+	padding: 10px 15px;
+	max-width: 100%;
+	max-height: 100%;
+	min-width: 0;
+	min-height: 0;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	border-radius: 5px;
+	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));
+	box-shadow: 0 0 5px rgb(0 0 0 / 50%);
+	vertical-align: middle;
+	transition: all 0.35s;
+	transform: translate(-50%, -50%);
+	user-select: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	align-content: center;
+}
+.pops[type-value="loading"]:before {
+	float: left;
+	display: inline-block;
+	width: 2em;
+	height: 2em;
+	border: 0.3em solid rgba(100, 149, 237, 0.1);
+	border-top: 0.3em solid rgb(100, 149, 237, var(--pops-bd-opacity));
+	border-radius: 50%;
+	content: " ";
+	vertical-align: middle;
+	font-size: inherit;
+	animation: pops-anim-wait-rotate 1.2s linear infinite;
+}
+.pops[type-value="loading"] .pops-loading-content {
+	position: static;
+	top: 0;
+	bottom: 0;
+	float: left;
+	overflow: hidden;
+	width: auto;
+	font-size: inherit;
+	line-height: 2em;
+}
+.pops[type-value="loading"] .pops-loading-content p[pops] {
+	display: inline-block;
+	padding: 5px 0px;
+	color: rgb(51, 51, 51);
+	text-indent: 15px;
+	font-size: inherit;
+	text-align: center;
+}

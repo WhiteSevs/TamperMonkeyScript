@@ -1,0 +1,60 @@
+.pops[type-value] .pops-prompt-title {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+.pops[type-value="prompt"] .pops-prompt-title {
+	width: 100%;
+	height: var(--container-title-height);
+	border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));
+}
+.pops[type-value="prompt"] .pops-prompt-title p[pops] {
+	width: 100%;
+	overflow: hidden;
+	color: rgb(51, 51, 51);
+	text-indent: 15px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-weight: 500;
+	line-height: var(--container-title-height);
+}
+.pops[type-value="prompt"] .pops-prompt-content p[pops] {
+	padding: 5px 10px;
+	color: rgb(51, 51, 51);
+	text-indent: 15px;
+}
+.pops[type-value="prompt"] .pops-prompt-content {
+	width: 100%;
+	height: calc(
+		100% - var(--container-title-height) - var(--container-bottom-btn-height)
+	);
+	overflow: auto;
+	word-break: break-word;
+}
+.pops[type-value="prompt"] .pops-prompt-btn {
+	position: absolute;
+	bottom: 0;
+	display: flex;
+	padding: 10px 10px 10px 10px;
+	width: 100%;
+	height: var(--container-bottom-btn-height);
+	border-top: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));
+	text-align: right;
+	line-height: var(--container-bottom-btn-height);
+	align-items: center;
+}
+.pops[type-value="prompt"] input[pops] {
+	padding: 5px 10px;
+}
+.pops[type-value="prompt"] textarea[pops] {
+	padding: 5px 10px;
+	resize: none;
+}
+.pops[type-value="prompt"] input[pops],
+.pops[type-value="prompt"] textarea[pops] {
+	width: 100%;
+	height: 100%;
+	outline: 0;
+	border: 0;
+	color: rgb(51, 51, 51);
+}

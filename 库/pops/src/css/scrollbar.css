@@ -1,0 +1,18 @@
+/* firefox上暂不支持::-webkit-scrollbar */
+.pops ::-webkit-scrollbar {
+	width: 6px;
+	height: 0;
+}
+
+.pops ::-webkit-scrollbar-track {
+	width: 0;
+}
+.pops ::-webkit-scrollbar-thumb:hover {
+	background: rgb(178, 178, 178, var(--pops-bg-opacity));
+}
+.pops ::-webkit-scrollbar-thumb {
+	min-height: 28px;
+	border-radius: 2em;
+	background: rgb(204, 204, 204, var(--pops-bg-opacity));
+	background-clip: padding-box;
+}

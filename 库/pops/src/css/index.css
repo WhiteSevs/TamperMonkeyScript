@@ -1,0 +1,135 @@
+@charset "utf-8";
+* {
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	-webkit-tap-highlight-color: transparent;
+	/* 代替::-webkit-scrollbar */
+	scrollbar-width: thin;
+}
+.pops {
+	--pops-bg-opacity: 1;
+	--pops-bd-opacity: 1;
+	--pops-font-size: 16px;
+}
+.pops-mask {
+	--pops-mask-bg-opacity: 0.4;
+}
+.pops {
+	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));
+	border-radius: 4px;
+	border: 1px solid rgb(235, 238, 245, var(--pops-bd-opacity));
+	font-size: var(--pops-font-size);
+	box-shadow: 0 0 12px rgba(0, 0, 0, 0.12);
+	box-sizing: border-box;
+	overflow: hidden;
+	transition: all 0.35s;
+}
+.pops-anim {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+.pops-anim[anim=""] {
+	top: unset;
+	right: unset;
+	bottom: unset;
+	left: unset;
+	width: unset;
+	height: unset;
+	transition: none;
+}
+/* 底部图标动画和样式 */
+.pops i.pops-bottom-icon[is-loading="true"] {
+	animation: rotating 2s linear infinite;
+}
+.pops i.pops-bottom-icon {
+	height: 1em;
+	width: 1em;
+	line-height: 1em;
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+	fill: currentColor;
+	color: inherit;
+	font-size: inherit;
+}
+
+/* 遮罩层样式 */
+.pops-mask {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	border: 0;
+	border-radius: 0;
+	background-color: rgba(0, 0, 0, var(--pops-mask-bg-opacity));
+	box-shadow: none;
+	transition: none;
+}
+
+.pops-header-controls button.pops-header-control[type][data-header] {
+	float: right;
+	margin: 0 0;
+	outline: 0;
+	border: 0;
+	border-color: rgb(136, 136, 136, var(--pops-bd-opacity));
+	background-color: transparent;
+	color: #888;
+	cursor: pointer;
+}
+.pops-header-controls button.pops-header-control[type="max"],
+.pops-header-controls button.pops-header-control[type="mise"],
+.pops-header-controls button.pops-header-control[type="min"] {
+	position: relative;
+	float: right;
+	margin: 0 2px;
+	outline: 0 !important;
+	border: 0;
+	border-color: rgb(136, 136, 136, var(--pops-bd-opacity));
+	background-color: transparent;
+	color: rgb(136, 136, 136);
+	cursor: pointer;
+	transition: all 0.3s ease-in-out;
+}
+button.pops-header-control i {
+	color: rgb(144, 147, 153);
+	font-size: inherit;
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+	fill: currentColor;
+}
+button.pops-header-control svg {
+	height: 1.25em;
+	width: 1.25em;
+}
+button.pops-header-control {
+	right: 15px;
+	padding: 0;
+	border: none;
+	outline: 0;
+	background: 0 0;
+	cursor: pointer;
+	position: unset;
+	line-height: 1.15;
+}
+button.pops-header-control i:hover {
+	color: rgb(64, 158, 255);
+}
+.pops-header-controls[data-margin] button.pops-header-control {
+	margin: 0 6px;
+}
+.pops[type-value] .pops-header-controls {
+	display: flex;
+}

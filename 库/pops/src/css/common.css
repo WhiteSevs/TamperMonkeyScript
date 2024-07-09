@@ -1,0 +1,24 @@
+.pops-flex-items-center {
+	display: flex;
+	align-items: center;
+}
+.pops-flex-y-center {
+	display: flex;
+	justify-content: space-between;
+}
+.pops-flex-x-center {
+	display: flex;
+	align-content: center;
+}
+.pops-hide {
+	display: none;
+}
+.pops-hide-important {
+	display: none !important;
+}
+.pops-no-border {
+	border: 0;
+}
+.pops-no-border-important {
+	border: 0;
+}

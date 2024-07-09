@@ -1,7 +1,13 @@
-# 弹窗库
+# 部分注释文件
 
 ```js
-npm i @whitesev/pops
+https://raw.githubusercontent.com/WhiteSevs/TamperMonkeyScript/master/%E5%BA%93.ts/pops.d.ts
+```
+
+使用方式
+
+```js
+/// <reference path="本地路径/pops.d.ts" />
 ```
 
 ## pops.isPhone

@@ -1,0 +1,47 @@
+.pops[type-value="drawer"] {
+	position: fixed;
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	box-shadow: 0px 16px 48px 16px rgba(0, 0, 0, 0.08),
+		0px 12px 32px rgba(0, 0, 0, 0.12), 0px 8px 16px -8px rgba(0, 0, 0, 0.16);
+	overflow: hidden;
+	transition: all 0.3s;
+}
+.pops[type-value] .pops-drawer-title {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.pops[type-value="drawer"][direction="top"] {
+	width: 100%;
+	left: 0;
+	right: 0;
+	top: 0;
+}
+.pops[type-value="drawer"][direction="bottom"] {
+	width: 100%;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+.pops[type-value="drawer"][direction="left"] {
+	height: 100%;
+	top: 0;
+	bottom: 0;
+	left: 0;
+}
+.pops[type-value="drawer"][direction="right"] {
+	height: 100%;
+	top: 0;
+	bottom: 0;
+	right: 0;
+}
+.pops-drawer-content {
+	height: 100%;
+}
+.pops[type-value="drawer"] .pops-drawer-btn {
+	padding-top: 10px;
+	padding-bottom: 10px;
+}

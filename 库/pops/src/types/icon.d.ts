@@ -1,0 +1,32 @@
+/**
+ * 按钮svg图标
+ */
+export type PopsIcon =
+	| "min"
+	| "mise"
+	| "max"
+	| "close"
+	| "edit"
+	| "share"
+	| "delete"
+	| "search"
+	| "upload"
+	| "loading"
+	| "next"
+	| "prev"
+	| "eleme"
+	| "elemePlus"
+	| "chromeFilled"
+	| "cpu"
+	| "videoPlay"
+	| "videoPause"
+	| "headset"
+	| "monitor"
+	| "documentCopy"
+	| "picture"
+	| "circleClose"
+	| "view"
+	| "hide"
+	| "keyboard"
+	| "arrowRight"
+	| "arrowLeft";

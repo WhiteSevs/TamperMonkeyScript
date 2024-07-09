@@ -1,0 +1,50 @@
+.pops[position="top_left"] {
+	position: fixed;
+	top: 0;
+	left: 0;
+}
+.pops[position="top"] {
+	position: fixed;
+	top: 0;
+	left: 50%;
+	transform: translateX(-50%);
+}
+.pops[position="top_right"] {
+	position: fixed;
+	top: 0;
+	right: 0;
+}
+.pops[position="center_left"] {
+	position: fixed;
+	top: 50%;
+	left: 0;
+	transform: translateY(-50%);
+}
+.pops[position="center"] {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+.pops[position="center_right"] {
+	position: fixed;
+	top: 50%;
+	right: 0;
+	transform: translateY(-50%);
+}
+.pops[position="bottom_left"] {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+}
+.pops[position="bottom"] {
+	position: fixed;
+	bottom: 0;
+	left: 50%;
+	transform: translate(-50%, 0);
+}
+.pops[position="bottom_right"] {
+	position: fixed;
+	right: 0;
+	bottom: 0;
+}

@@ -1,0 +1,90 @@
+.pops[type-value="iframe"] {
+	--container-title-height: 55px;
+}
+.pops[type-value] .pops-iframe-title {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+.pops[type-value="iframe"] .pops-iframe-title {
+	width: calc(100% - 0px);
+	height: var(--container-title-height);
+	border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));
+}
+.pops[type-value="iframe"] .pops-iframe-title p[pops] {
+	width: 100%;
+	overflow: hidden;
+	color: rgb(51, 51, 51);
+	text-indent: 15px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-weight: 500;
+	line-height: var(--container-title-height);
+}
+.pops[type-value="iframe"] .pops-iframe-content p[pops] {
+	padding: 5px 10px;
+	color: #333;
+	text-indent: 15px;
+}
+.pops[type-value="iframe"] .pops-iframe-content {
+	width: 100%;
+	height: calc(100% - var(--container-title-height));
+	overflow: hidden;
+	word-break: break-word;
+}
+.pops-loading {
+	position: absolute;
+	top: 40px;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 5;
+	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));
+}
+.pops-loading:before {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	z-index: 3;
+	display: block;
+	margin: -20px 0 0 -20px;
+	padding: 20px;
+	border: 4px solid rgb(221, 221, 221, var(--pops-bd-opacity));
+	border-radius: 50%;
+	content: "";
+	border-top-color: transparent;
+	animation: pops-anim-wait-rotate 1.2s linear infinite;
+}
+.pops[type-value="iframe"].pops[type-module="min"] {
+	top: unset !important;
+	bottom: 0;
+	max-width: 200px;
+	max-height: 53px;
+	transform: none;
+}
+.pops[type-value="iframe"].pops[type-module="min"]
+	.pops-header-control[type="min"] {
+	display: none;
+}
+.pops[type-value="iframe"].pops[type-module="max"] {
+	top: unset !important;
+	left: unset !important;
+	width: 100% !important;
+	height: 100% !important;
+	transform: none;
+}
+.pops[type-value="iframe"] iframe[pops] {
+	width: calc(100% - 4px);
+	height: calc(100% - 4px);
+	border: 0;
+}
+.pops-iframe-content-global-loading {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 999999;
+	width: 0;
+	height: 4px;
+	background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));
+	animation: iframeLoadingChange 2s forwards;
+}

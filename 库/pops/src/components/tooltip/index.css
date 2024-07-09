@@ -1,0 +1,171 @@
+.pops-tip {
+	--tooltip-color: #4e4e4e;
+	--tooltip-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));
+	--tooltip-bd-radius: 2px;
+	--tooltip-font-size: 14px;
+	--tooltip-padding-top: 13px;
+	--tooltip-padding-right: 13px;
+	--tooltip-padding-bottom: 13px;
+	--tooltip-padding-left: 13px;
+
+	--tooltip-arrow--after-color: rgb(78, 78, 78);
+	--tooltip-arrow--after-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));
+	--tooltip-arrow--after-width: 12px;
+	--tooltip-arrow--after-height: 12px;
+
+	position: absolute;
+	padding: var(--tooltip-padding-top) var(--tooltip-padding-right)
+		var(--tooltip-padding-bottom) var(--tooltip-padding-left);
+	max-width: 400px;
+	max-height: 300px;
+	border-radius: var(--tooltip-bd-radius);
+	background-color: var(--tooltip-bg-color);
+	box-shadow: 0 1.5px 4px rgba(0, 0, 0, 0.24), 0 1.5px 6px rgba(0, 0, 0, 0.12);
+	color: var(--tooltip-color);
+	font-size: var(--tooltip-font-size);
+}
+/* github的样式 */
+.pops-tip.github-tooltip {
+	--tooltip-bg-opacity: 1;
+	--tooltip-color: rgb(255, 255, 255);
+	--tooltip-bg-color: rgb(36, 41, 47, var(--tooltip-bg-opacity));
+	--tooltip-bd-radius: 6px;
+	--tooltip-padding-top: 6px;
+	--tooltip-padding-right: 8px;
+	--tooltip-padding-bottom: 6px;
+	--tooltip-padding-left: 8px;
+
+	--tooltip-arrow--after-color: rgb(255, 255, 255);
+	--tooltip-arrow--after-bg-color: rgb(36, 41, 47, var(--tooltip-bg-opacity));
+	--tooltip-arrow--after-width: 8px;
+	--tooltip-arrow--after-height: 8px;
+}
+.pops-tip .pops-tip-arrow {
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	overflow: hidden;
+	width: 100%;
+	height: 12.5px;
+	transform: translateX(-50%);
+}
+
+.pops-tip .pops-tip-arrow::after {
+	position: absolute;
+	top: 0;
+	left: 50%;
+	width: var(--tooltip-arrow--after-width);
+	height: var(--tooltip-arrow--after-height);
+	background: var(--tooltip-arrow--after-bg-color);
+	color: var(--tooltip-arrow--after-color);
+	box-shadow: 0 1px 7px rgba(0, 0, 0, 0.24), 0 1px 7px rgba(0, 0, 0, 0.12);
+	content: "";
+	transform: translateX(-50%) translateY(-50%) rotate(45deg);
+}
+
+.pops-tip .pops-tip-arrow[data-position="bottom"] {
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	overflow: hidden;
+	width: 100%;
+	height: 12.5px;
+	transform: translateX(-50%);
+}
+
+.pops-tip .pops-tip-arrow[data-position="bottom"]:after {
+	position: absolute;
+	top: 0;
+	left: 50%;
+	width: var(--tooltip-arrow--after-width);
+	height: var(--tooltip-arrow--after-height);
+	background: var(--tooltip-arrow--after-bg-color);
+	box-shadow: 0 1px 7px rgba(0, 0, 0, 0.24), 0 1px 7px rgba(0, 0, 0, 0.12);
+	content: "";
+	transform: translateX(-50%) translateY(-50%) rotate(45deg);
+}
+
+.pops-tip .pops-tip-arrow[data-position="left"] {
+	top: 50%;
+	left: -12.5px;
+	width: 12.5px;
+	height: 50px;
+	transform: translateY(-50%);
+}
+
+.pops-tip .pops-tip-arrow[data-position="left"]:after {
+	position: absolute;
+	top: 50%;
+	left: 100%;
+	content: "";
+}
+
+.pops-tip .pops-tip-arrow[data-position="right"] {
+	top: 50%;
+	right: -12.5px;
+	left: auto;
+	width: 12.5px;
+	height: 50px;
+	transform: translateY(-50%);
+}
+
+.pops-tip .pops-tip-arrow[data-position="right"]:after {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	content: "";
+}
+
+.pops-tip .pops-tip-arrow[data-position="top"] {
+	top: -12.5px;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.pops-tip .pops-tip-arrow[data-position="top"]:after {
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	content: "";
+}
+
+.pops-tip[data-motion] {
+	-webkit-animation-duration: 0.25s;
+	animation-duration: 0.25s;
+	-webkit-animation-fill-mode: forwards;
+	animation-fill-mode: forwards;
+}
+.pops-tip[data-motion="fadeOutRight"] {
+	-webkit-animation-name: pops-motion-fadeOutRight;
+	animation-name: pops-motion-fadeOutRight;
+}
+.pops-tip[data-motion="fadeInTop"] {
+	-webkit-animation-name: pops-motion-fadeInTop;
+	animation-name: pops-motion-fadeInTop;
+	animation-timing-function: cubic-bezier(0.49, 0.49, 0.13, 1.3);
+}
+.pops-tip[data-motion="fadeOutTop"] {
+	-webkit-animation-name: pops-motion-fadeOutTop;
+	animation-name: pops-motion-fadeOutTop;
+	animation-timing-function: cubic-bezier(0.32, 0.37, 0.06, 0.87);
+}
+.pops-tip[data-motion="fadeInBottom"] {
+	-webkit-animation-name: pops-motion-fadeInBottom;
+	animation-name: pops-motion-fadeInBottom;
+}
+.pops-tip[data-motion="fadeOutBottom"] {
+	-webkit-animation-name: pops-motion-fadeOutBottom;
+	animation-name: pops-motion-fadeOutBottom;
+}
+.pops-tip[data-motion="fadeInLeft"] {
+	-webkit-animation-name: pops-motion-fadeInLeft;
+	animation-name: pops-motion-fadeInLeft;
+}
+.pops-tip[data-motion="fadeOutLeft"] {
+	-webkit-animation-name: pops-motion-fadeOutLeft;
+	animation-name: pops-motion-fadeOutLeft;
+}
+.pops-tip[data-motion="fadeInRight"] {
+	-webkit-animation-name: pops-motion-fadeInRight;
+	animation-name: pops-motion-fadeInRight;
+}

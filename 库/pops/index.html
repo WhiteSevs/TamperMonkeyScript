@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+		<script src="./dist//index.umd.js"></script>
+	</head>
+	<style>
+		* {
+			padding: 0;
+			margin: 0;
+		}
+		html,
+		body {
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+	<style>
+		.pops-container {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			overflow: auto;
+		}
+		.pops-inst {
+			height: 30px;
+			border: 1px solid #000;
+			padding: 4px;
+			border-radius: 4px;
+			margin: 10px 0;
+			cursor: pointer;
+		}
+	</style>
+	<body>
+		<div class="pops-container">
+			<div class="pops-inst" data-type="alert" onclick="pops.alert()">
+				pops.alert
+			</div>
+			<div class="pops-inst" data-type="confirm" onclick="pops.confirm()">
+				pops.confirm
+			</div>
+			<div class="pops-inst" data-type="drawer" onclick="pops.drawer()">
+				pops.drawer
+			</div>
+			<div class="pops-inst" data-type="folder" onclick="pops.folder()">
+				pops.folder
+			</div>
+			<div class="pops-inst" data-type="iframe" onclick="pops.iframe()">
+				pops.iframe
+			</div>
+			<div class="pops-inst" data-type="loading" onclick="pops.loading()">
+				pops.loading
+			</div>
+			<div class="pops-inst" data-type="panel" onclick="pops.panel()">
+				pops.panel
+			</div>
+			<div class="pops-inst" data-type="prompt" onclick="pops.prompt()">
+				pops.prompt
+			</div>
+			<div
+				class="pops-inst"
+				data-type="rightClickMenu"
+				onclick="pops.rightClickMenu({})">
+				pops.rightClickMenu
+			</div>
+			<div class="pops-inst" data-type="tooltip">pops.tooltip</div>
+		</div>
+	</body>
+	<script>
+		let $tooltip = document.querySelector(".pops-inst[data-type='tooltip']");
+		let position = ["left", "right", "bottom", "top"];
+		position.forEach((item) => {
+			pops.tooltip({
+				target: $tooltip,
+				position: item,
+			});
+		});
+	</script>
+</html>
