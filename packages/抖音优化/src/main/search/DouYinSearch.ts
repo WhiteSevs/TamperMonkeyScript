@@ -36,6 +36,36 @@ export const DouYinSearch = {
 	 */
 	disableClickToEnterFullScreen() {
 		log.info("搜索-禁止点击视频区域进入全屏");
+		// 这个是对应 图文视频
+		DOMUtils.on(
+			document,
+			"click",
+			".focusPanel",
+			(event) => {
+				utils.preventEvent(event);
+				let $click = event.target as HTMLElement;
+				let $parent = $click.parentElement?.parentElement as HTMLElement;
+				let $video = $parent.querySelector("video");
+				if ($video) {
+					if ($video.paused) {
+						log.info(".focusPanel：播放视频");
+						$video.play();
+					} else {
+						log.info(".focusPanel：视频暂停");
+						$video.pause();
+					}
+				} else {
+					log.error(".focusPanel未找到<video>标签");
+					Qmsg.error(".focusPanel未找到<video>标签", {
+						isHTML: false,
+					});
+				}
+			},
+			{
+				capture: true,
+			}
+		);
+		// 这个是对应 纯视频
 		DOMUtils.on(
 			document,
 			"click",
@@ -46,15 +76,15 @@ export const DouYinSearch = {
 				let $video = $click.querySelector("video");
 				if ($video) {
 					if ($video.paused) {
-						log.info("播放视频");
+						log.info("xg-video-container：播放视频");
 						$video.play();
 					} else {
-						log.info("视频暂停");
+						log.info("xg-video-container：视频暂停");
 						$video.pause();
 					}
 				} else {
-					log.error('"未找到<video>标签"');
-					Qmsg.error("未找到<video>标签", {
+					log.error("xg-video-container未找到<video>标签");
+					Qmsg.error("xg-video-container未找到<video>标签", {
 						isHTML: false,
 					});
 				}

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.13.20
+// @version      2024.7.13.21
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1724,6 +1724,35 @@
       domUtils.on(
         document,
         "click",
+        ".focusPanel",
+        (event) => {
+          var _a2;
+          utils.preventEvent(event);
+          let $click = event.target;
+          let $parent = (_a2 = $click.parentElement) == null ? void 0 : _a2.parentElement;
+          let $video = $parent.querySelector("video");
+          if ($video) {
+            if ($video.paused) {
+              log.info(".focusPanel：播放视频");
+              $video.play();
+            } else {
+              log.info(".focusPanel：视频暂停");
+              $video.pause();
+            }
+          } else {
+            log.error(".focusPanel未找到<video>标签");
+            Qmsg.error(".focusPanel未找到<video>标签", {
+              isHTML: false
+            });
+          }
+        },
+        {
+          capture: true
+        }
+      );
+      domUtils.on(
+        document,
+        "click",
         "xg-video-container",
         (event) => {
           utils.preventEvent(event);
@@ -1731,15 +1760,15 @@
           let $video = $click.querySelector("video");
           if ($video) {
             if ($video.paused) {
-              log.info("播放视频");
+              log.info("xg-video-container：播放视频");
               $video.play();
             } else {
-              log.info("视频暂停");
+              log.info("xg-video-container：视频暂停");
               $video.pause();
             }
           } else {
-            log.error('"未找到<video>标签"');
-            Qmsg.error("未找到<video>标签", {
+            log.error("xg-video-container未找到<video>标签");
+            Qmsg.error("xg-video-container未找到<video>标签", {
               isHTML: false
             });
           }
