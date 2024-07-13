@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.7.13
+// @version            2024.7.13.20
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -11,7 +11,7 @@
 // @supportURL         https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match              *://greasyfork.org/*
 // @require            https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require            https://fastly.jsdelivr.net/npm/qmsg@1.2.0/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.9/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@1.1.0/dist/index.umd.js
@@ -2953,15 +2953,14 @@
         let url = linkElement.getAttribute("href");
         linkElement.setAttribute("data-href", url);
         linkElement.removeAttribute("href");
-        domUtils.on(linkElement, "click", void 0, function(event) {
+        domUtils.on(linkElement, "click", () => {
           Qmsg.warning(
             `<div style="overflow-wrap: anywhere;">${i18next.t(
             "拦截跳转："
           )}<a href="${url}" target="_blank">${url}</a></div>`,
             {
               html: true,
-              timeout: 5e3,
-              zIndex: utils.getMaxZIndex()
+              zIndex: utils.getMaxZIndex() + 105
             }
           );
         });

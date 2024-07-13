@@ -19,7 +19,7 @@
 		"@whitesev/pops": "^1.1.0",
 		"@whitesev/utils": "^1.5.9",
 		"i18next": "^23.11.5",
-		"qmsg": "^1.2.0"
+		"qmsg": "^1.2.1"
 	},
 	"devDependencies": {
 		"@types/node": "^20.14.10",

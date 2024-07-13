@@ -295,15 +295,14 @@ const Greasyfork = {
 				let url = linkElement.getAttribute("href") as string;
 				linkElement.setAttribute("data-href", url);
 				linkElement.removeAttribute("href");
-				DOMUtils.on(linkElement, "click", undefined, function (event) {
+				DOMUtils.on(linkElement, "click", () => {
 					Qmsg.warning(
 						`<div style="overflow-wrap: anywhere;">${i18next.t(
 							"拦截跳转："
 						)}<a href="${url}" target="_blank">${url}</a></div>`,
 						{
 							html: true,
-							timeout: 5000,
-							zIndex: utils.getMaxZIndex(),
+							zIndex: utils.getMaxZIndex() + 105,
 						}
 					);
 				});
