@@ -9,6 +9,8 @@ import { SettingUIScriptLib } from "./components/script-lib";
 import UIScriptListCSS from "@/main/UIScriptListCSS.css?raw";
 import i18next from "i18next";
 import type { UtilsDictionary } from "@whitesev/utils/dist/src/Dictionary";
+import { PopsPanelContentConfig, PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 
 const __PopsPanel__ = {
 	data: null as any as UtilsDictionary<string, any>,

@@ -17,6 +17,7 @@ import { LanguageInit } from "./language/language";
 import i18next from "i18next";
 import { KEY } from "./setting/config";
 import { PopsPanel } from "./setting/setting";
+import pops from "@whitesev/pops";
 
 LanguageInit();
 const PanelData = GM_getValue(KEY, {}) as any;
@@ -24,8 +25,7 @@ const PanelData = GM_getValue(KEY, {}) as any;
 const _SCRIPT_NAME_ = i18next.t("GreasyFork优化");
 const utils = Utils.noConflict();
 const domUtils = DOMUtils.noConflict();
-const pops: typeof import("@pops/index") =
-	(monkeyWindow as any).pops || (unsafeWindow as any).pops;
+const __pops = pops;
 // const Viewer: typeof import("@库/Viewer") =
 // 	(monkeyWindow as any).Viewer || (unsafeWindow as any).Viewer;
 // const showdown: typeof import("@库/showdown") =
@@ -77,7 +77,7 @@ Qmsg.config(
 				get() {
 					let maxZIndex = Utils.getMaxZIndex();
 					let popsMaxZIndex =
-						pops.config.Utils.getPopsMaxZIndex(maxZIndex).zIndex;
+						pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
 					return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
 				},
 			},
@@ -131,7 +131,7 @@ const OriginPrototype = {
 export {
 	utils,
 	domUtils as DOMUtils,
-	pops,
+	__pops as pops,
 	log,
 	GM_Menu,
 	SCRIPT_NAME,

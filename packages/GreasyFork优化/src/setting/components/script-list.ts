@@ -1,4 +1,5 @@
 import { Greasyfork } from "@/main/Greasyfork";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import i18next from "i18next";
 
 const SettingUIScriptList: PopsPanelContentConfig = {

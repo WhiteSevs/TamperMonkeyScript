@@ -2,6 +2,7 @@ import { DOMUtils, utils } from "@/env";
 import { UISwitch } from "../common-components/ui-switch";
 import { PopsPanel } from "../setting";
 import i18next from "i18next";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 
 const SettingUIDiscuessions: PopsPanelContentConfig = {
 	id: "greasy-fork-panel-config-discussions",

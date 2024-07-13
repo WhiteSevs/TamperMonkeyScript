@@ -1,6 +1,7 @@
 import i18next from "i18next";
 import { UISelect } from "../common-components/ui-select";
 import { UISwitch } from "../common-components/ui-switch";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 
 const SettingUIOptimization: PopsPanelContentConfig = {
 	id: "greasy-fork-panel-config-code",

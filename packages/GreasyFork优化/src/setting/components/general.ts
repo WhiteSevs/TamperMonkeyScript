@@ -10,6 +10,7 @@ import i18next from "i18next";
 import { UISelect } from "../common-components/ui-select";
 import { DOMUtils, log, utils } from "@/env";
 import { GreasyforkShield } from "@/main/GreasyforkShield";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 
 const SettingUIGeneral: PopsPanelContentConfig = {
 	id: "greasy-fork-panel-config-account",

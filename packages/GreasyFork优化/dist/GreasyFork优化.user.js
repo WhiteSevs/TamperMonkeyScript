@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.7.7.19
+// @version            2024.7.13
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -11,10 +11,10 @@
 // @supportURL         https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match              *://greasyfork.org/*
 // @require            https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require            https://update.greasyfork.org/scripts/456485/1406779/pops.js
-// @require            https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/qmsg@1.2.0/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.9/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@1.1.0/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require            https://fastly.jsdelivr.net/npm/i18next@23.11.5/i18next.min.js
 // @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
@@ -34,7 +34,7 @@
 
 (t=>{function d(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let e=document.createElement("style");return e.setAttribute("type","text/css"),e.innerHTML=n,document.head?document.head.appendChild(e):document.body?document.body.appendChild(e):document.documentElement.childNodes.length===0?document.documentElement.appendChild(e):document.documentElement.insertBefore(e,document.documentElement.childNodes[0]),e}if(typeof GM_addStyle=="function"){GM_addStyle(t);return}d(t)})(" .whitesev-hide{display:none}.whitesev-hide-important{display:none!important} ");
 
-(function (Qmsg, DOMUtils, Utils, i18next, Viewer) {
+(function (Qmsg, DOMUtils, Utils, i18next, pops, Viewer) {
   'use strict';
 
   var _a;
@@ -415,7 +415,7 @@
   const _SCRIPT_NAME_ = i18next.t("GreasyFork优化");
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
-  const pops = _monkeyWindow.pops || _unsafeWindow.pops;
+  const __pops = pops;
   const log = new utils.Log(
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
@@ -454,7 +454,7 @@
         zIndex: {
           get() {
             let maxZIndex = Utils.getMaxZIndex();
-            let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(maxZIndex).zIndex;
+            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
             return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
           }
         }
@@ -2488,7 +2488,7 @@
             </li>
               `;
       });
-      let collectionDialog = pops.alert({
+      let collectionDialog = __pops.alert({
         title: {
           text: i18next.t("收藏集"),
           position: "center"
@@ -2508,7 +2508,7 @@
             enable: false
           }
         },
-        width: pops.isPhone() ? "92dvw" : "500px",
+        width: __pops.isPhone() ? "92dvw" : "500px",
         height: "auto",
         drag: true,
         only: true,
@@ -2624,7 +2624,7 @@
           }
           let alertElement = section.querySelector(".alert");
           if (alertElement) {
-            pops.alert({
+            __pops.alert({
               title: {
                 text: i18next.t("添加失败"),
                 position: "center"
@@ -2650,8 +2650,8 @@
                         `,
               drag: true,
               dragLimit: true,
-              width: pops.isPhone() ? "88vw" : "400px",
-              height: pops.isPhone() ? "50vh" : "300px"
+              width: __pops.isPhone() ? "88vw" : "400px",
+              height: __pops.isPhone() ? "50vh" : "300px"
             });
           } else {
             await GreasyforkApi.updateUserSetsInfo(userId, setsId, saveData);
@@ -3236,7 +3236,7 @@
           clipboardCopyElement.setAttribute("success", "true");
           octiconCopyElement.setAttribute("aria-hidden", "true");
           octiconCheckCopyElement.removeAttribute("aria-hidden");
-          let tooltip = pops.tooltip({
+          let tooltip = __pops.tooltip({
             target: clipboardCopyElement,
             content: i18next.t("✅ 复制成功!"),
             position: "left",
@@ -3327,7 +3327,7 @@
       let userLinkElement = GreasyforkMenu.getUserLinkElement();
       let userLink = userLinkElement.href;
       let userId = (_c = (_b = (_a2 = userLink == null ? void 0 : userLink.split("/")) == null ? void 0 : _a2.pop()) == null ? void 0 : _b.match(/([0-9]+)/)) == null ? void 0 : _c[0];
-      let loading = pops.loading({
+      let loading = __pops.loading({
         mask: {
           enable: true
         },
@@ -3401,7 +3401,7 @@
             "i",
             {
               className: "pops-bottom-icon",
-              innerHTML: pops.config.iconSVG.loading
+              innerHTML: __pops.config.iconSVG.loading
             },
             {
               "is-loading": true
@@ -3800,7 +3800,7 @@
      * 显示设置面板
      */
     showPanel() {
-      pops.panel({
+      __pops.panel({
         title: {
           text: i18next.t("{{SCRIPT_NAME}}-设置", { SCRIPT_NAME }),
           position: "center",
@@ -3865,4 +3865,4 @@
   PopsPanel.init();
   Greasyfork.init();
 
-})(Qmsg, DOMUtils, Utils, i18next, Viewer);
+})(Qmsg, DOMUtils, Utils, i18next, pops, Viewer);
