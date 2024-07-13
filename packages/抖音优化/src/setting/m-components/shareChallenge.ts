@@ -1,3 +1,4 @@
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { UISwitch } from "../common-components/ui-switch";
 
 export const MPanelShareChallengeConfig: PopsPanelContentConfig = {

@@ -4,6 +4,7 @@ import { DouYinDanmuFilter } from "@/main/Live/DouYinLiveDanmuku";
 import { PopsPanel } from "../setting";
 import { UISelect } from "../common-components/ui-select";
 import { VideoQualityMap } from "@/main/Live/DouYinLive";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 
 const PanelLiveConfig: PopsPanelContentConfig = {
 	id: "panel-config-live",
@@ -135,6 +136,59 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 					],
 				},
 				{
+					text: "过滤-弹幕",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"启用",
+									"live-danmu-shield-rule-enable",
+									false,
+									void 0,
+									"启用自定义的弹幕过滤规则"
+								),
+								{
+									type: "own",
+									getLiElementCallBack(liElement: HTMLLIElement) {
+										let textareaDiv = DOMUtils.createElement(
+											"div",
+											{
+												className: "pops-panel-textarea",
+												innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>`,
+											},
+											{
+												style: "width: 100%;",
+											}
+										);
+										let textarea = textareaDiv.querySelector(
+											"textarea"
+										) as HTMLTextAreaElement;
+										textarea.value = DouYinDanmuFilter.get();
+										DOMUtils.on(
+											textarea,
+											["input", "propertychange"],
+											utils.debounce(function () {
+												DouYinDanmuFilter.set(textarea.value);
+											}, 200)
+										);
+										liElement.appendChild(textareaDiv);
+										return liElement;
+									},
+								},
+							],
+						},
+					],
+				},
+			],
+		},
+		{
+			text: "",
+			type: "forms",
+			forms: [
+				{
 					text: "屏蔽-视频区域内",
 					type: "deepMenu",
 					forms: [
@@ -231,53 +285,6 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 									void 0,
 									"底部滚动播报的的xxx来了，xxx给主播点赞"
 								),
-							],
-						},
-					],
-				},
-				{
-					text: "过滤-弹幕",
-					type: "deepMenu",
-					forms: [
-						{
-							text: "",
-							type: "forms",
-							forms: [
-								UISwitch(
-									"启用",
-									"live-danmu-shield-rule-enable",
-									false,
-									void 0,
-									"启用自定义的弹幕过滤规则"
-								),
-								{
-									type: "own",
-									getLiElementCallBack(liElement: HTMLLIElement) {
-										let textareaDiv = DOMUtils.createElement(
-											"div",
-											{
-												className: "pops-panel-textarea",
-												innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>`,
-											},
-											{
-												style: "width: 100%;",
-											}
-										);
-										let textarea = textareaDiv.querySelector(
-											"textarea"
-										) as HTMLTextAreaElement;
-										textarea.value = DouYinDanmuFilter.get();
-										DOMUtils.on(
-											textarea,
-											["input", "propertychange"],
-											utils.debounce(function () {
-												DouYinDanmuFilter.set(textarea.value);
-											}, 200)
-										);
-										liElement.appendChild(textareaDiv);
-										return liElement;
-									},
-								},
 							],
 						},
 					],

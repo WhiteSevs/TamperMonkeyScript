@@ -2,17 +2,54 @@ import { PopsPanel } from "@/setting/setting";
 import { addStyle, log } from "@/env";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 
-export const DouYinVideoHideElement = {
+export const DouYinVideoBottomToolbarHideElement = {
 	init() {
-		PopsPanel.execMenu("shieldRightExpandCommentButton", () => {
-			this.shieldRightExpandCommentButton();
+		PopsPanel.execMenu("shieldBottomVideoToolBar", () => {
+			this.shieldBottomVideoToolBar();
 		});
-		PopsPanel.execMenu("shieldSearchFloatingBar", () => {
-			this.shieldSearchFloatingBar();
+		PopsPanel.execMenuOnce("dy-video-bottom-shieldVideoInfoWrap", () => {
+			this.shieldVideoInfoWrap();
 		});
-		PopsPanel.execMenu("shieldCloseFullScreenButton", () => {
-			this.shieldCloseFullScreenButton();
+		PopsPanel.execMenu("shieldBottomVideoToolbarDanmuContainer", () => {
+			this.shieldBottomVideoToolbarDanmuContainer();
 		});
+	},
+	/**
+	 * 【屏蔽】底部视频工具栏
+	 */ shieldBottomVideoToolBar() {
+		log.info("【屏蔽】底部视频工具栏");
+		DouYinUtils.addBlockCSS("xg-controls.xgplayer-controls");
+		// 修复底部工具栏因屏蔽导致的空白区域
+		addStyle(`
+	   #sliderVideo[data-e2e="feed-active-video"] div:has( > div > #video-info-wrap),
+	   div:has( > div > pace-island > #video-info-wrap ),
+	   xg-video-container.xg-video-container{
+		   bottom: 0 !important;
+	   }
+		 `);
+	},
+	/**
+	 * 【屏蔽】视频信息
+	 */
+	shieldVideoInfoWrap() {
+		log.info("【屏蔽】视频信息");
+		DouYinUtils.addBlockCSS("#video-info-wrap");
+	},
+	/**
+	 * 【屏蔽】底部视频工具栏的弹幕容器
+	 */
+	shieldBottomVideoToolbarDanmuContainer() {
+		log.info("【屏蔽】底部视频工具栏的弹幕容器");
+		DouYinUtils.addBlockCSS(
+			'xg-controls xg-inner-controls .danmakuContainer[data-e2e="danmaku-container"]'
+		);
+		// 弹幕
+		// .basePlayerContainer > div.danmu
+	},
+};
+
+export const DouYinVideoRightToolbarHideElement = {
+	init() {
 		PopsPanel.execMenu("shieldPlaySwitchButton", () => {
 			this.shieldPlaySwitchButton();
 		});
@@ -37,52 +74,6 @@ export const DouYinVideoHideElement = {
 		PopsPanel.execMenu("shieldMoreButton", () => {
 			this.shieldMoreButton();
 		});
-		PopsPanel.execMenu("shieldBottomVideoToolBar", () => {
-			this.shieldBottomVideoToolBar();
-		});
-		PopsPanel.execMenu("shieldBottomVideoToolbarDanmuContainer", () => {
-			this.shieldBottomVideoToolbarDanmuContainer();
-		});
-	},
-	/**
-	 * 【屏蔽】右侧的展开评论按钮
-	 */
-	shieldRightExpandCommentButton() {
-		log.info("【屏蔽】右侧的展开评论按钮");
-		DouYinUtils.addBlockCSS(
-			'#sliderVideo[data-e2e="feed-active-video"] > div > div > button[type="button"]',
-			'.playerContainer button[type=button] svg > g[filter] > path[d="M21.316 29.73a1.393 1.393 0 01-1.97 0l-5.056-5.055a1.393 1.393 0 010-1.97l.012-.011 5.044-5.045a1.393 1.393 0 011.97 1.97l-4.07 4.071 4.07 4.071a1.393 1.393 0 010 1.97z"]'
-		);
-		addStyle(`
-		.basePlayerContainer .positionBox{
-			padding-right: 20px !important;
-		}
-    	`);
-	},
-	/**
-	 * 左上角的鼠标的快捷搜索热点的悬浮栏
-	 * 【屏蔽】搜索悬浮栏
-	 */
-	shieldSearchFloatingBar() {
-		log.info("【屏蔽】搜索悬浮栏");
-		DouYinUtils.addBlockCSS(
-			'.slider-video div:has([data-e2e="searchbar-button"])',
-			'div:has(>div > svg[class] >  defs [d="M0 0h24v24H0z"]',
-			'div[data-e2e="feed-active-video"] + div:has(>div>div>div > input[data-e2e="searchbar-input"])',
-			/* 看相关页面的 */
-			"#slideMode + div",
-			/* 搜索页面的 */
-			'div:has(>div>div+input[data-e2e="searchbar-input"])'
-		);
-	},
-	/**
-	 * 【屏蔽】网页全屏关闭按钮
-	 */
-	shieldCloseFullScreenButton() {
-		log.info("【屏蔽】网页全屏关闭按钮");
-		DouYinUtils.addBlockCSS(
-			'#sliderVideo[data-e2e="feed-active-video"] div.slider-video > div:has(path[d="M17.448 17.448a1.886 1.886 0 01-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 11.552 14.78L6.332 9 .552 3.22A1.886 1.886 0 113.22.552L9 6.332l5.78-5.78a1.886 1.886 0 112.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 010 2.668z"])'
-		);
 	},
 	/**
 	 * 【屏蔽】切换播放
@@ -180,30 +171,59 @@ export const DouYinVideoHideElement = {
 			'.basePlayerContainer div[data-e2e="video-play-more"]'
 		);
 	},
-	/**
-	 * 【屏蔽】底部视频工具栏
-	 */
-	shieldBottomVideoToolBar() {
-		log.info("【屏蔽】底部视频工具栏");
-		DouYinUtils.addBlockCSS("xg-controls.xgplayer-controls");
-		// 修复底部工具栏因屏蔽导致的空白区域
-		addStyle(`
-		#sliderVideo[data-e2e="feed-active-video"] div:has( > div > #video-info-wrap),
-		div:has( > div > pace-island > #video-info-wrap ),
-		xg-video-container.xg-video-container{
-			bottom: 0 !important;
-		}
-  		`);
+};
+export const DouYinVideoHideElement = {
+	init() {
+		PopsPanel.execMenu("shieldRightExpandCommentButton", () => {
+			this.shieldRightExpandCommentButton();
+		});
+		PopsPanel.execMenu("shieldSearchFloatingBar", () => {
+			this.shieldSearchFloatingBar();
+		});
+		PopsPanel.execMenu("shieldCloseFullScreenButton", () => {
+			this.shieldCloseFullScreenButton();
+		});
+		DouYinVideoBottomToolbarHideElement.init();
+		DouYinVideoRightToolbarHideElement.init();
 	},
 	/**
-	 * 【屏蔽】底部视频工具栏的弹幕容器
+	 * 【屏蔽】右侧的展开评论按钮
 	 */
-	shieldBottomVideoToolbarDanmuContainer() {
-		log.info("【屏蔽】底部视频工具栏的弹幕容器");
+	shieldRightExpandCommentButton() {
+		log.info("【屏蔽】右侧的展开评论按钮");
 		DouYinUtils.addBlockCSS(
-			'xg-controls xg-inner-controls .danmakuContainer[data-e2e="danmaku-container"]'
+			'#sliderVideo[data-e2e="feed-active-video"] > div > div > button[type="button"]',
+			'.playerContainer button[type=button] svg > g[filter] > path[d="M21.316 29.73a1.393 1.393 0 01-1.97 0l-5.056-5.055a1.393 1.393 0 010-1.97l.012-.011 5.044-5.045a1.393 1.393 0 011.97 1.97l-4.07 4.071 4.07 4.071a1.393 1.393 0 010 1.97z"]'
 		);
-		// 弹幕
-		// .basePlayerContainer > div.danmu
+		addStyle(`
+		.basePlayerContainer .positionBox{
+			padding-right: 20px !important;
+		}
+    	`);
+	},
+	/**
+	 * 左上角的鼠标的快捷搜索热点的悬浮栏
+	 * 【屏蔽】搜索悬浮栏
+	 */
+	shieldSearchFloatingBar() {
+		log.info("【屏蔽】搜索悬浮栏");
+		DouYinUtils.addBlockCSS(
+			'.slider-video div:has([data-e2e="searchbar-button"])',
+			'div:has(>div > svg[class] >  defs [d="M0 0h24v24H0z"]',
+			'div[data-e2e="feed-active-video"] + div:has(>div>div>div > input[data-e2e="searchbar-input"])',
+			/* 看相关页面的 */
+			"#slideMode + div",
+			/* 搜索页面的 */
+			'div:has(>div>div+input[data-e2e="searchbar-input"])'
+		);
+	},
+	/**
+	 * 【屏蔽】网页全屏关闭按钮
+	 */
+	shieldCloseFullScreenButton() {
+		log.info("【屏蔽】网页全屏关闭按钮");
+		DouYinUtils.addBlockCSS(
+			'#sliderVideo[data-e2e="feed-active-video"] div.slider-video > div:has(path[d="M17.448 17.448a1.886 1.886 0 01-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 11.552 14.78L6.332 9 .552 3.22A1.886 1.886 0 113.22.552L9 6.332l5.78-5.78a1.886 1.886 0 112.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 010 2.668z"])'
+		);
 	},
 };

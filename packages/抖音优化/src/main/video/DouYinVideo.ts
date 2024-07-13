@@ -422,7 +422,7 @@ export const DouYinVideo = {
 		xg-outer,
 		xg-inners {
 			pointer-events: none;
-		}	
+		}
 		`);
 		// 让拖拽进度条的按钮拖拽时修改进度条高度
 		DOMUtils.on(

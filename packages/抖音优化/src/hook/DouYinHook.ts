@@ -8,7 +8,7 @@ export const DouYinHook = {
 	removeEnvCheck() {
 		log.info("移除环境检测");
 		let originalSetInterval = unsafeWindow.setInterval as any;
-		unsafeWindow.setInterval = function (callback, time) {
+		(unsafeWindow as any).setInterval = function (callback: any, time: any) {
 			let funcStr = callback.toString().trim();
 			if (funcStr.includes("debugger")) {
 				log.success(["拦截→", [funcStr]]);

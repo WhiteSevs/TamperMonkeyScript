@@ -51,7 +51,7 @@ export default defineConfig({
 					"unsafeWindow",
 				],
 				"run-at": "document-start",
-				require: await GetLib(["CoverUMD", "pops"]),
+				require: await GetLib(["CoverUMD"]),
 			},
 			clientAlias: "ViteGM",
 			server: {
@@ -69,6 +69,7 @@ export default defineConfig({
 						"DOMUtils",
 						"dist/index.umd.js"
 					),
+					"@whitesev/pops": cdn.jsdelivrFastly("pops", "dist/index.umd.js"),
 				},
 				cssSideEffects: () => {
 					return (cssText: string) => {

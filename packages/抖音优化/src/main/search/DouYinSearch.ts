@@ -1,13 +1,19 @@
 import { DOMUtils, addStyle, log, utils } from "@/env";
 import MobileCSS from "./mobile.css?raw";
 import { DouYinSearchHideElement } from "./DouYinSearchHideElement";
+import Qmsg from "qmsg";
+import { PopsPanel } from "@/setting/setting";
 
 export const DouYinSearch = {
 	init() {
 		DouYinSearchHideElement.init();
+		PopsPanel.execMenuOnce("dy-search-disableClickToEnterFullScreen", () => {
+			this.disableClickToEnterFullScreen();
+		});
 	},
 	/**
 	 * 手机模式
+	 * (由通用统一调用，勿放在本函数的init内)
 	 */
 	mobileMode() {
 		log.info("搜索-手机模式");
@@ -24,5 +30,38 @@ export const DouYinSearch = {
 						width: 100dvw !important;
 				}`);
 			});
+	},
+	/**
+	 * 禁止点击视频区域进入全屏
+	 */
+	disableClickToEnterFullScreen() {
+		log.info("搜索-禁止点击视频区域进入全屏");
+		DOMUtils.on(
+			document,
+			"click",
+			"xg-video-container",
+			(event) => {
+				utils.preventEvent(event);
+				let $click = event.target as HTMLElement;
+				let $video = $click.querySelector("video");
+				if ($video) {
+					if ($video.paused) {
+						log.info("播放视频");
+						$video.play();
+					} else {
+						log.info("视频暂停");
+						$video.pause();
+					}
+				} else {
+					log.error('"未找到<video>标签"');
+					Qmsg.error("未找到<video>标签", {
+						isHTML: false,
+					});
+				}
+			},
+			{
+				capture: true,
+			}
+		);
 	},
 };

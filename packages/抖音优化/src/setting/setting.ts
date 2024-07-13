@@ -11,6 +11,8 @@ import type { UtilsDictionary } from "@whitesev/utils/dist/src/Dictionary";
 import { MPanelShareNoteConfig } from "./m-components/shareNote";
 import { MPanelShareChallengeConfig } from "./m-components/shareChallenge";
 import { MPanelShareMusicConfig } from "./m-components/shareMusic";
+import { PopsPanelContentConfig, PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 
 interface PosPanelListenerData {
 	id: number;

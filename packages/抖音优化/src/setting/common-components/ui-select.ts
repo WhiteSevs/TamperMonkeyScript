@@ -1,5 +1,6 @@
 import { PopsPanel } from "@/setting/setting";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY } from "../config";
+import { PopsPanelSelectDetails } from "@whitesev/pops/dist/types/src/components/panel/selectType";
 
 const UISelect = function <T extends any>(
 	text: string,

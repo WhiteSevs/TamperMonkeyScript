@@ -17,6 +17,7 @@
 	},
 	"dependencies": {
 		"@whitesev/domutils": "^1.1.2",
+		"@whitesev/pops": "^1.0.1",
 		"@whitesev/utils": "^1.5.9",
 		"qmsg": "^1.1.2",
 		"vue": "^3.4.31"

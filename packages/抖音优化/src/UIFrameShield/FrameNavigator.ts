@@ -1,6 +1,6 @@
 import { PopsPanel } from "@/setting/setting";
 import { DouYinRouter } from "@/router/DouYinRouter";
-import { addStyle, log } from "@/env";
+import { addStyle, log, utils } from "@/env";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 
 /** 顶部屏蔽 */
@@ -41,17 +41,17 @@ export const ShieldHeader = {
 		});
 	},
 	/**
-	 * 【屏蔽】充砖石
+	 * 【屏蔽】充钻石
 	 */
 	shieldFillingBricksAndStones() {
-		log.info("【屏蔽】充砖石");
+		log.info("【屏蔽】充钻石");
 		DouYinUtils.addBlockCSS(
 			'#douyin-right-container pace-island[id^="island"] > div[class]:not([data-click]):has(div[data-e2e="something-button"]) > :has(path[d="M5.757 12.268a6.397 6.397 0 1112.793 0 6.397 6.397 0 01-12.793 0zm6.396-7.897a7.897 7.897 0 100 15.793 7.897 7.897 0 000-15.793zm2.127 3.52v-.497h-1.5v6.462h.001c0 .854-.685 1.536-1.517 1.536a1.527 1.527 0 01-1.517-1.536c0-.854.685-1.536 1.517-1.536v-1.5c-1.672 0-3.017 1.365-3.017 3.036 0 1.67 1.345 3.036 3.017 3.036s3.017-1.365 3.017-3.036h-.001v-3.228a3.184 3.184 0 001.715.498v-1.5a1.725 1.725 0 01-1.715-1.735z"])',
 			// 直播
 			'#douyin-header pace-island[id^="island"] > div[class]:not([data-click]):has(div[data-e2e="something-button"]) > :has(path[d="M5.757 12.268a6.397 6.397 0 1112.793 0 6.397 6.397 0 01-12.793 0zm6.396-7.897a7.897 7.897 0 100 15.793 7.897 7.897 0 000-15.793zm2.127 3.52v-.497h-1.5v6.462h.001c0 .854-.685 1.536-1.517 1.536a1.527 1.527 0 01-1.517-1.536c0-.854.685-1.536 1.517-1.536v-1.5c-1.672 0-3.017 1.365-3.017 3.036 0 1.67 1.345 3.036 3.017 3.036s3.017-1.365 3.017-3.036h-.001v-3.228a3.184 3.184 0 001.715.498v-1.5a1.725 1.725 0 01-1.715-1.735z"])'
 		);
 		if (DouYinRouter.isSearch()) {
-			log.info("搜索-【屏蔽】充砖石");
+			log.info("搜索-【屏蔽】充钻石");
 			DouYinUtils.addBlockCSS(
 				'div:has(>div>div>div>div[data-e2e="something-button"] path[d="M5.757 12.268a6.397 6.397 0 1112.793 0 6.397 6.397 0 01-12.793 0zm6.396-7.897a7.897 7.897 0 100 15.793 7.897 7.897 0 000-15.793zm2.127 3.52v-.497h-1.5v6.462h.001c0 .854-.685 1.536-1.517 1.536a1.527 1.527 0 01-1.517-1.536c0-.854.685-1.536 1.517-1.536v-1.5c-1.672 0-3.017 1.365-3.017 3.036 0 1.67 1.345 3.036 3.017 3.036s3.017-1.365 3.017-3.036h-.001v-3.228a3.184 3.184 0 001.715.498v-1.5a1.725 1.725 0 01-1.715-1.735z"])'
 			);
@@ -91,6 +91,29 @@ export const ShieldHeader = {
 		if (DouYinRouter.isSearch()) {
 			log.info("搜索-【屏蔽】快捷访问");
 			DouYinUtils.addBlockCSS("div:has(>div>div>.quick-access-nav-icon)");
+			utils.waitNode('li.semi-dropdown-item[role="menuitem"]').then(() => {
+				let observer = utils.mutationObserver(document.body, {
+					config: {
+						subtree: true,
+						childList: true,
+					},
+					callback() {
+						let isFind = false;
+						document
+							.querySelectorAll('li.semi-dropdown-item[role="menuitem"]')
+							.forEach(($ele) => {
+								if ($ele.textContent?.includes("快捷访问")) {
+									isFind = true;
+									log.success("搜索-更多-快捷访问 移除元素");
+									$ele.remove();
+								}
+							});
+						if (isFind) {
+							observer.disconnect();
+						}
+					},
+				});
+			});
 		}
 	},
 	/**
@@ -153,7 +176,11 @@ export const ShieldHeader = {
 			/* 右上角 私信 下载客户端，实时接收好友消息 */
 			'#douyin-header pace-island[id^="island_"] ul[class] li div[data-e2e="im-entry"]  div>div div div:has(a[download][href])',
 			/* 右上角 壁纸 下载客户端，使用壁纸 */
-			'#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container div:has(+ #wallpaper-modal)'
+			'#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container div:has(+ #wallpaper-modal)',
+			/* 搜索页 右上角 私信 下载客户端，实时接收好友消息 */
+			'div[id^="douyin-header-menu"] ul li div[data-e2e="im-entry"] div > div > div:has(>a[download*="douyin-downloader"])',
+			/* 搜索页 右上角 个人信息 客户端登录访问更便捷 [下载] */
+			'div[id^="douyin-header-menu"] ul > div:has(>a[download*="douyin-downloader"])'
 		);
 	},
 	/**
@@ -167,6 +194,12 @@ export const ShieldHeader = {
 			// 直播
 			'#douyin-header pace-island[id^="island"] > div[class] span:has(.semi-icon)'
 		);
+		if (DouYinRouter.isSearch()) {
+			// 搜索界面
+			DouYinUtils.addBlockCSS(
+				'div[id^="douyin-header-"] span[aria-describedby]:has(.semi-icon)'
+			);
+		}
 	},
 	/**
 	 * 【屏蔽】左侧导航栏

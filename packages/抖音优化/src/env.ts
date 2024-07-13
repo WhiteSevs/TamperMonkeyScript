@@ -12,13 +12,13 @@ import {
 import Qmsg from "qmsg";
 import Utils from "@whitesev/utils";
 import DOMUtils from "@whitesev/domutils";
+import pops from "@whitesev/pops";
 import { PopsPanel } from "./setting/setting";
 
 const _SCRIPT_NAME_ = "抖音优化";
 const utils = Utils.noConflict();
 let domUtils = DOMUtils.noConflict();
-const pops: typeof import("@库/pops") =
-	(monkeyWindow as any).pops || (unsafeWindow as any).pops;
+const __pops = pops;
 const console = (unsafeWindow as any).console || (monkeyWindow as any).console;
 const log = new utils.Log(GM_info, console);
 let SCRIPT_NAME = GM_info?.script?.name || _SCRIPT_NAME_;
@@ -89,11 +89,11 @@ const addStyle = utils.addStyle;
 export {
 	utils,
 	domUtils as DOMUtils,
-	pops,
 	console,
 	log,
 	GM_Menu,
 	SCRIPT_NAME,
 	httpx,
 	addStyle,
+	__pops as pops,
 };
