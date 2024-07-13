@@ -2,7 +2,7 @@ import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { pops } from "../../Pops";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
-import { PopsUIUtils } from "../../utils/PopsUIUtils";
+import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import type { PopsPromptDetails } from "./indexType";
 
@@ -275,7 +275,7 @@ export class PopsPrompt {
 		});
 		/* 拖拽 */
 		if (config.drag) {
-			PopsUIUtils.drag($pops!, {
+			PopsInstanceUtils.drag($pops!, {
 				dragElement: $title!,
 				limit: config.dragLimit,
 				extraDistance: config.dragExtraDistance,

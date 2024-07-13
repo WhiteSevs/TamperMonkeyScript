@@ -8,7 +8,7 @@ import type { PopsPanelDetails } from "../components/panel/indexType";
 import type { PopsPromptDetails } from "../components/prompt/indexType";
 import type { PopsLayerCommonConfig } from "../types/layer";
 import type { PopsLayerMode } from "../types/main";
-export declare const PopsUIUtils: {
+export declare const PopsInstanceUtils: {
     /**
      * 获取所有弹窗中的最大的z-index
      * @param defaultValue
@@ -27,9 +27,9 @@ export declare const PopsUIUtils: {
      * 删除配置中对应的对象
      * @param moreLayerConfigList 配置实例列表
      * @param  guid 唯一标识
-     * @param removeAll 是否全部删除
+     * @param isAll 是否全部删除
      */
-    configRemove(moreLayerConfigList: PopsLayerCommonConfig[][], guid: string, removeAll?: boolean): PopsLayerCommonConfig[][];
+    removeInstance(moreLayerConfigList: PopsLayerCommonConfig[][], guid: string, isAll?: boolean): PopsLayerCommonConfig[][];
     /**
      * 隐藏
      * @param popsType

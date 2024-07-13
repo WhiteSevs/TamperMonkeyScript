@@ -3,7 +3,7 @@ import { PopsHandler } from "../../handler/PopsHandler";
 import { pops } from "../../Pops";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsMathFloatUtils } from "../../utils/PopsMathUtils";
-import { PopsUIUtils } from "../../utils/PopsUIUtils";
+import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import type { PopsToolTipDetails } from "../tooltip/indexType";
 import type { PopsPanelButtonDetails } from "./buttonType";
@@ -2422,7 +2422,7 @@ export class PopsPanel {
 		});
 		/* 拖拽 */
 		if (config.drag) {
-			PopsUIUtils.drag($pops, {
+			PopsInstanceUtils.drag($pops, {
 				dragElement: $title,
 				limit: config.dragLimit,
 				extraDistance: config.dragExtraDistance,

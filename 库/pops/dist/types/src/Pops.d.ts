@@ -138,6 +138,35 @@ declare class Pops {
             preventEvent(event: Event): boolean;
             preventEvent(element: HTMLElement, eventNameList?: string | string[], capture?: boolean): boolean;
         };
+        /** pops创建的实例使用的工具类 */
+        InstanceUtils: {
+            getPopsMaxZIndex(defaultValue: number): {
+                zIndex: number;
+                animElement: HTMLDivElement;
+            };
+            getKeyFrames(sheet: CSSStyleSheet): {};
+            removeInstance(moreLayerConfigList: PopsLayerCommonConfig[][], guid: string, isAll?: boolean): PopsLayerCommonConfig[][];
+            hide(popsType: PopsLayerMode, layerConfigList: PopsLayerCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement, maskElement: HTMLElement): void;
+            show(popsType: PopsLayerMode, layerConfigList: PopsLayerCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement, maskElement: HTMLElement): void;
+            close(popsType: string, layerConfigList: PopsLayerCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement): void;
+            drag(moveElement: HTMLElement, options: {
+                dragElement: HTMLElement;
+                limit: boolean;
+                extraDistance: number;
+                container?: Window | typeof globalThis | HTMLElement;
+                moveCallBack?: (moveElement: HTMLElement, left: number, top: number) => void;
+                endCallBack?: (moveElement: HTMLElement, left: number, top: number) => void;
+                preventEvent?: (event: TouchEvent | PointerEvent) => boolean;
+            }): void;
+            sortElementListByProperty<T extends unknown, R>(getBeforeValueFun: (value: T) => R, getAfterValueFun: (value: T) => R, sortByDesc?: boolean): (after_obj: T, before_obj: T) => 1 | 0 | -1;
+        };
+        /** pops处理float类型使用的工具类 */
+        MathFloatUtils: {
+            isFloat(num: number): boolean;
+            add(number1: number, number2: number): number;
+            sub(number1: number, number2: number): string;
+            division(number1: number, number2: number): number;
+        };
     };
     constructor();
     init(): void;

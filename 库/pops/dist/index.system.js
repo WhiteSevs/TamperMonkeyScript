@@ -3,6 +3,8 @@ System.register('pops', [], (function (exports) {
     return {
         execute: (function () {
 
+            const SymbolEvents = Symbol("events_" + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1));
+
             const PopsCoreDefaultEnv = {
                 document: document,
                 window: window,
@@ -40,8 +42,6 @@ System.register('pops', [], (function (exports) {
                     defineProperty: Object.defineProperty,
                 },
             };
-
-            const SymbolEvents = Symbol("events_" + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1));
 
             // @ts-nocheck
 
@@ -2294,7 +2294,6 @@ System.register('pops', [], (function (exports) {
                     }
                 }
             }
-
             class PopsDOMUtils extends PopsDOMUtilsEvent {
                 /** 获取 animationend 在各个浏览器的兼容名 */
                 getAnimationEndNameList() {
@@ -2944,7 +2943,7 @@ System.register('pops', [], (function (exports) {
             }
             const popsDOMUtils = new PopsDOMUtils();
 
-            const PopsUIUtils = {
+            const PopsInstanceUtils = {
                 /**
                  * 获取所有弹窗中的最大的z-index
                  * @param defaultValue
@@ -2983,10 +2982,9 @@ System.register('pops', [], (function (exports) {
                  * 删除配置中对应的对象
                  * @param moreLayerConfigList 配置实例列表
                  * @param  guid 唯一标识
-                 * @param removeAll 是否全部删除
+                 * @param isAll 是否全部删除
                  */
-                configRemove(moreLayerConfigList, guid, removeAll = false) {
-                    /** @param item */
+                removeInstance(moreLayerConfigList, guid, isAll = false) {
                     function removeItem(item) {
                         item?.animElement?.remove();
                         item?.popsElement?.remove();
@@ -2997,7 +2995,7 @@ System.register('pops', [], (function (exports) {
                     moreLayerConfigList.forEach((layerConfigList) => {
                         //  layer[]
                         layerConfigList.forEach((layerConfigItem, index) => {
-                            if (removeAll || layerConfigItem["guid"] === guid) {
+                            if (isAll || layerConfigItem["guid"] === guid) {
                                 if (pops.config.animation.hasOwnProperty(layerConfigItem.animElement.getAttribute("anim"))) {
                                     layerConfigItem.animElement.style.width = "100%";
                                     layerConfigItem.animElement.style.height = "100%";
@@ -3164,7 +3162,7 @@ System.register('pops', [], (function (exports) {
                                 return;
                             }
                             popsDOMUtils.off(popsElement, popsDOMUtils.getTransitionEndNameList(), void 0, closeCallBack);
-                            PopsUIUtils.configRemove([layerConfigList], guid);
+                            PopsInstanceUtils.removeInstance([layerConfigList], guid);
                         }
                         /* 监听过渡结束 */
                         popsDOMUtils.on(popsElement, popsDOMUtils.getTransitionEndNameList(), closeCallBack);
@@ -3195,7 +3193,7 @@ System.register('pops', [], (function (exports) {
                         }, drawerConfig.closeDelay);
                     }
                     else {
-                        PopsUIUtils.configRemove([layerConfigList], guid);
+                        PopsInstanceUtils.removeInstance([layerConfigList], guid);
                     }
                 },
                 /**
@@ -3883,11 +3881,11 @@ System.register('pops', [], (function (exports) {
                         function originalRun() {
                             if (details.config.mask.clickEvent.toClose) {
                                 /* 关闭 */
-                                PopsUIUtils.close(details.type, targetLayer, details.guid, details.config, details.animElement);
+                                PopsInstanceUtils.close(details.type, targetLayer, details.guid, details.config, details.animElement);
                             }
                             else if (details.config.mask.clickEvent.toHide) {
                                 /* 隐藏 */
-                                PopsUIUtils.hide(details.type, targetLayer, details.guid, details.config, details.animElement, result.maskElement);
+                                PopsInstanceUtils.hide(details.type, targetLayer, details.guid, details.config, details.animElement, result.maskElement);
                             }
                         }
                         if (typeof details.config.mask.clickCallBack === "function") {
@@ -4059,13 +4057,13 @@ System.register('pops', [], (function (exports) {
                         mode: mode,
                         guid: guid,
                         close() {
-                            PopsUIUtils.close(mode, pops.config.layer[mode], guid, config, animElement);
+                            PopsInstanceUtils.close(mode, pops.config.layer[mode], guid, config, animElement);
                         },
                         hide() {
-                            PopsUIUtils.hide(mode, pops.config.layer[mode], guid, config, animElement, maskElement);
+                            PopsInstanceUtils.hide(mode, pops.config.layer[mode], guid, config, animElement, maskElement);
                         },
                         show() {
-                            PopsUIUtils.show(mode, pops.config.layer[mode], guid, config, animElement, maskElement);
+                            PopsInstanceUtils.show(mode, pops.config.layer[mode], guid, config, animElement, maskElement);
                         },
                     };
                 },
@@ -4087,13 +4085,13 @@ System.register('pops', [], (function (exports) {
                         mode: mode,
                         guid: guid,
                         close() {
-                            PopsUIUtils.close(mode, pops.config.layer[mode], guid, config, animElement);
+                            PopsInstanceUtils.close(mode, pops.config.layer[mode], guid, config, animElement);
                         },
                         hide() {
-                            PopsUIUtils.hide(mode, pops.config.layer[mode], guid, config, animElement, maskElement);
+                            PopsInstanceUtils.hide(mode, pops.config.layer[mode], guid, config, animElement, maskElement);
                         },
                         show() {
-                            PopsUIUtils.show(mode, pops.config.layer[mode], guid, config, animElement, maskElement);
+                            PopsInstanceUtils.show(mode, pops.config.layer[mode], guid, config, animElement, maskElement);
                         },
                     };
                 },
@@ -4193,10 +4191,10 @@ System.register('pops', [], (function (exports) {
                         if (type === "loading" ||
                             type === "tooltip" ||
                             type === "rightClickMenu") {
-                            PopsUIUtils.configRemove([pops.config.layer[type]], "", true);
+                            PopsInstanceUtils.removeInstance([pops.config.layer[type]], "", true);
                         }
                         else {
-                            PopsUIUtils.configRemove([
+                            PopsInstanceUtils.removeInstance([
                                 pops.config.layer.alert,
                                 pops.config.layer.confirm,
                                 pops.config.layer.prompt,
@@ -4209,7 +4207,7 @@ System.register('pops', [], (function (exports) {
                     }
                     else {
                         config.zIndex =
-                            PopsUIUtils.getPopsMaxZIndex(config.zIndex)["zIndex"] * 2;
+                            PopsInstanceUtils.getPopsMaxZIndex(config.zIndex)["zIndex"] * 2;
                     }
                     return config;
                 },
@@ -4366,7 +4364,7 @@ System.register('pops', [], (function (exports) {
                     });
                     /* 拖拽 */
                     if (config.drag) {
-                        PopsUIUtils.drag($pops, {
+                        PopsInstanceUtils.drag($pops, {
                             dragElement: $title,
                             limit: config.dragLimit,
                             extraDistance: config.dragExtraDistance,
@@ -4548,7 +4546,7 @@ System.register('pops', [], (function (exports) {
                     });
                     /* 拖拽 */
                     if (config.drag) {
-                        PopsUIUtils.drag($pops, {
+                        PopsInstanceUtils.drag($pops, {
                             dragElement: $title,
                             limit: config.dragLimit,
                             extraDistance: config.dragExtraDistance,
@@ -4743,7 +4741,7 @@ System.register('pops', [], (function (exports) {
                     });
                     /* 拖拽 */
                     if (config.drag) {
-                        PopsUIUtils.drag($pops, {
+                        PopsInstanceUtils.drag($pops, {
                             dragElement: $title,
                             limit: config.dragLimit,
                             extraDistance: config.dragExtraDistance,
@@ -5005,7 +5003,7 @@ System.register('pops', [], (function (exports) {
                     }
                     /* 拖拽 */
                     if (config.drag) {
-                        PopsUIUtils.drag($pops, {
+                        PopsInstanceUtils.drag($pops, {
                             dragElement: $title,
                             limit: config.dragLimit,
                             extraDistance: config.dragExtraDistance,
@@ -5071,7 +5069,7 @@ System.register('pops', [], (function (exports) {
                                 allMinElementList.push(item.popsElement);
                             }
                         });
-                        allMinElementList.sort(PopsUIUtils.sortElementListByProperty((obj) => {
+                        allMinElementList.sort(PopsInstanceUtils.sortElementListByProperty((obj) => {
                             return parseInt(getComputedStyle(obj).left);
                         }, (obj) => {
                             return parseInt(getComputedStyle(obj).left);
@@ -5087,7 +5085,7 @@ System.register('pops', [], (function (exports) {
                     });
                     /* 关闭按钮点击事件 */
                     popsDOMUtils.on(headerCloseBtnElement, "click", (event) => {
-                        PopsUIUtils.configRemove([pops.config.layer.iframe], guid, false);
+                        PopsInstanceUtils.removeInstance([pops.config.layer.iframe], guid, false);
                         setTimeout(() => {
                             let allIsMinElementList = [];
                             pops.config.layer.iframe.forEach((item) => {
@@ -5096,7 +5094,7 @@ System.register('pops', [], (function (exports) {
                                     allIsMinElementList.push(item.popsElement);
                                 }
                             });
-                            allIsMinElementList.sort(PopsUIUtils.sortElementListByProperty((obj) => {
+                            allIsMinElementList.sort(PopsInstanceUtils.sortElementListByProperty((obj) => {
                                 return parseInt(getComputedStyle(obj).left);
                             }, (obj) => {
                                 return parseInt(getComputedStyle(obj).left);
@@ -6531,7 +6529,7 @@ System.register('pops', [], (function (exports) {
                     }
                     /* 拖拽 */
                     if (config.drag) {
-                        PopsUIUtils.drag($pops, {
+                        PopsInstanceUtils.drag($pops, {
                             dragElement: $title,
                             limit: config.dragLimit,
                             extraDistance: config.dragExtraDistance,
@@ -8765,7 +8763,7 @@ System.register('pops', [], (function (exports) {
                     });
                     /* 拖拽 */
                     if (config.drag) {
-                        PopsUIUtils.drag($pops, {
+                        PopsInstanceUtils.drag($pops, {
                             dragElement: $title,
                             limit: config.dragLimit,
                             extraDistance: config.dragExtraDistance,
@@ -10012,6 +10010,10 @@ System.register('pops', [], (function (exports) {
                     Utils: popsUtils,
                     /** pops使用的DOM工具类 */
                     DOMUtils: popsDOMUtils,
+                    /** pops创建的实例使用的工具类 */
+                    InstanceUtils: PopsInstanceUtils,
+                    /** pops处理float类型使用的工具类 */
+                    MathFloatUtils: PopsMathFloatUtils,
                 };
                 constructor() { }
                 init() {
@@ -10022,7 +10024,7 @@ System.register('pops', [], (function (exports) {
                         animationStyle.innerHTML = this.config.cssText.anim;
                         popsDOMUtils.appendHead(animationStyle);
                         this.config.animation = null;
-                        this.config.animation = PopsUIUtils.getKeyFrames(animationStyle.sheet);
+                        this.config.animation = PopsInstanceUtils.getKeyFrames(animationStyle.sheet);
                         setTimeout(() => {
                             animationStyle.remove();
                         }, 50);

@@ -3,7 +3,7 @@ import { PopsHandler } from "../../handler/PopsHandler";
 import { pops } from "../../Pops";
 import type { PopsEventDetails } from "../../types/event";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
-import { PopsUIUtils } from "../../utils/PopsUIUtils";
+import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import type { PopsIframeDetails } from "./indexType";
 
@@ -231,7 +231,7 @@ export class PopsIframe {
 		}
 		/* 拖拽 */
 		if (config.drag) {
-			PopsUIUtils.drag($pops!, {
+			PopsInstanceUtils.drag($pops!, {
 				dragElement: $title!,
 				limit: config.dragLimit,
 				extraDistance: config.dragExtraDistance,
@@ -333,7 +333,7 @@ export class PopsIframe {
 					}
 				});
 				allMinElementList.sort(
-					PopsUIUtils.sortElementListByProperty<HTMLElement, number>(
+					PopsInstanceUtils.sortElementListByProperty<HTMLElement, number>(
 						(obj) => {
 							return parseInt(getComputedStyle(obj).left);
 						},
@@ -362,7 +362,7 @@ export class PopsIframe {
 			headerCloseBtnElement,
 			"click",
 			(event) => {
-				PopsUIUtils.configRemove([pops.config.layer.iframe], guid, false);
+				PopsInstanceUtils.removeInstance([pops.config.layer.iframe], guid, false);
 				setTimeout(() => {
 					let allIsMinElementList: HTMLElement[] = [];
 					pops.config.layer.iframe.forEach((item) => {
@@ -375,7 +375,7 @@ export class PopsIframe {
 					});
 
 					allIsMinElementList.sort(
-						PopsUIUtils.sortElementListByProperty(
+						PopsInstanceUtils.sortElementListByProperty(
 							(obj) => {
 								return parseInt(getComputedStyle(obj).left);
 							},

@@ -1,5 +1,5 @@
 import { popsDOMUtils } from "./utils/PopsDOMUtils";
-import { PopsUIUtils } from "./utils/PopsUIUtils";
+import { PopsInstanceUtils } from "./utils/PopsInstanceUtils";
 import { popsUtils } from "./utils/PopsUtils";
 import indexCSS from "./css/index.css";
 import ninePalaceGridPositionCSS from "./css/ninePalaceGridPosition.css";
@@ -74,6 +74,7 @@ import type {
 	PopsSearchSuggestionResult,
 } from "./components/searchSuggestion/indexType";
 import { PopsSearchSuggestion } from "./components/searchSuggestion";
+import { PopsMathFloatUtils } from "./utils/PopsMathUtils";
 
 class Pops {
 	/** 配置 */
@@ -175,6 +176,10 @@ class Pops {
 		Utils: popsUtils,
 		/** pops使用的DOM工具类 */
 		DOMUtils: popsDOMUtils,
+		/** pops创建的实例使用的工具类 */
+		InstanceUtils: PopsInstanceUtils,
+		/** pops处理float类型使用的工具类 */
+		MathFloatUtils: PopsMathFloatUtils,
 	};
 	constructor() {}
 	init() {
@@ -185,7 +190,9 @@ class Pops {
 			animationStyle.innerHTML = this.config.cssText.anim;
 			popsDOMUtils.appendHead(animationStyle);
 			this.config.animation = null as any;
-			this.config.animation = PopsUIUtils.getKeyFrames(animationStyle.sheet!);
+			this.config.animation = PopsInstanceUtils.getKeyFrames(
+				animationStyle.sheet!
+			);
 			setTimeout(() => {
 				animationStyle.remove();
 			}, 50);

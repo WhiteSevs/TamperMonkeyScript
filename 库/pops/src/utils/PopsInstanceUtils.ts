@@ -13,7 +13,7 @@ import { popsUtils } from "./PopsUtils";
 import { PopsCore } from "../Core";
 import { pops } from "../Pops";
 
-export const PopsUIUtils = {
+export const PopsInstanceUtils = {
 	/**
 	 * 获取所有弹窗中的最大的z-index
 	 * @param defaultValue
@@ -57,14 +57,13 @@ export const PopsUIUtils = {
 	 * 删除配置中对应的对象
 	 * @param moreLayerConfigList 配置实例列表
 	 * @param  guid 唯一标识
-	 * @param removeAll 是否全部删除
+	 * @param isAll 是否全部删除
 	 */
-	configRemove(
+	removeInstance(
 		moreLayerConfigList: PopsLayerCommonConfig[][],
 		guid: string,
-		removeAll = false
+		isAll = false
 	) {
-		/** @param item */
 		function removeItem(item: PopsLayerCommonConfig) {
 			item?.animElement?.remove();
 			item?.popsElement?.remove();
@@ -75,7 +74,7 @@ export const PopsUIUtils = {
 		moreLayerConfigList.forEach((layerConfigList) => {
 			//  layer[]
 			layerConfigList.forEach((layerConfigItem, index) => {
-				if (removeAll || layerConfigItem["guid"] === guid) {
+				if (isAll || layerConfigItem["guid"] === guid) {
 					if (
 						pops.config.animation.hasOwnProperty(
 							layerConfigItem.animElement.getAttribute("anim") as string
@@ -113,7 +112,6 @@ export const PopsUIUtils = {
 
 		return moreLayerConfigList;
 	},
-
 	/**
 	 * 隐藏
 	 * @param popsType
@@ -329,7 +327,7 @@ export const PopsUIUtils = {
 					void 0,
 					closeCallBack
 				);
-				PopsUIUtils.configRemove([layerConfigList], guid);
+				PopsInstanceUtils.removeInstance([layerConfigList], guid);
 			}
 			/* 监听过渡结束 */
 			popsDOMUtils.on(
@@ -365,7 +363,7 @@ export const PopsUIUtils = {
 				transitionendEvent();
 			}, drawerConfig.closeDelay);
 		} else {
-			PopsUIUtils.configRemove([layerConfigList], guid);
+			PopsInstanceUtils.removeInstance([layerConfigList], guid);
 		}
 	},
 	/**

@@ -12,7 +12,7 @@ import { PopsEventDetails, PopsHandlerEventDetails } from "../types/event";
 import { PopsLayerCommonConfig } from "../types/layer";
 import type { PopsLayerMode, PopsMode, PopsType } from "../types/main";
 import { popsDOMUtils } from "../utils/PopsDOMUtils";
-import { PopsUIUtils } from "../utils/PopsUIUtils";
+import { PopsInstanceUtils } from "../utils/PopsInstanceUtils";
 import { popsUtils } from "../utils/PopsUtils";
 
 export const PopsHandler = {
@@ -99,7 +99,7 @@ export const PopsHandler = {
 			function originalRun() {
 				if (details.config.mask!.clickEvent!.toClose) {
 					/* 关闭 */
-					PopsUIUtils.close(
+					PopsInstanceUtils.close(
 						details.type,
 						targetLayer,
 						details.guid,
@@ -108,7 +108,7 @@ export const PopsHandler = {
 					);
 				} else if (details.config.mask!.clickEvent!.toHide) {
 					/* 隐藏 */
-					PopsUIUtils.hide(
+					PopsInstanceUtils.hide(
 						details.type,
 						targetLayer,
 						details.guid,
@@ -379,7 +379,7 @@ export const PopsHandler = {
 			mode: mode,
 			guid: guid,
 			close() {
-				PopsUIUtils.close(
+				PopsInstanceUtils.close(
 					mode,
 					pops.config.layer[mode],
 					guid,
@@ -388,7 +388,7 @@ export const PopsHandler = {
 				);
 			},
 			hide() {
-				PopsUIUtils.hide(
+				PopsInstanceUtils.hide(
 					mode,
 					pops.config.layer[mode],
 					guid,
@@ -398,7 +398,7 @@ export const PopsHandler = {
 				);
 			},
 			show() {
-				PopsUIUtils.show(
+				PopsInstanceUtils.show(
 					mode,
 					pops.config.layer[mode],
 					guid,
@@ -442,7 +442,7 @@ export const PopsHandler = {
 			mode: mode,
 			guid: guid,
 			close() {
-				PopsUIUtils.close(
+				PopsInstanceUtils.close(
 					mode,
 					pops.config.layer[mode],
 					guid,
@@ -451,7 +451,7 @@ export const PopsHandler = {
 				);
 			},
 			hide() {
-				PopsUIUtils.hide(
+				PopsInstanceUtils.hide(
 					mode,
 					pops.config.layer[mode],
 					guid,
@@ -461,7 +461,7 @@ export const PopsHandler = {
 				);
 			},
 			show() {
-				PopsUIUtils.show(
+				PopsInstanceUtils.show(
 					mode,
 					pops.config.layer[mode],
 					guid,
@@ -612,9 +612,9 @@ export const PopsHandler = {
 				type === "tooltip" ||
 				type === "rightClickMenu"
 			) {
-				PopsUIUtils.configRemove([(pops.config.layer as any)[type]], "", true);
+				PopsInstanceUtils.removeInstance([(pops.config.layer as any)[type]], "", true);
 			} else {
-				PopsUIUtils.configRemove(
+				PopsInstanceUtils.removeInstance(
 					[
 						pops.config.layer.alert,
 						pops.config.layer.confirm,
@@ -630,7 +630,7 @@ export const PopsHandler = {
 			}
 		} else {
 			(config as any).zIndex =
-				PopsUIUtils.getPopsMaxZIndex((config as any).zIndex)["zIndex"] * 2;
+				PopsInstanceUtils.getPopsMaxZIndex((config as any).zIndex)["zIndex"] * 2;
 		}
 		return config;
 	},
