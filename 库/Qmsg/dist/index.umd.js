@@ -492,25 +492,39 @@
             if (this.setting.autoClose) {
                 /* 自动关闭 */
                 // 获取时间戳
-                this.timeId = setTimeout(function () {
-                    QmsgContext.close();
+                this.timeId = setTimeout(() => {
+                    this.close();
                 }, this.setting.timeout);
-                this.$Qmsg.addEventListener("mouseover", function () {
-                    /* 鼠标滑入，清除定时器，清除创建时间和结束时间 */
-                    QmsgContext.startTime = null;
-                    QmsgContext.endTime = null;
-                    clearTimeout(QmsgContext.timeId);
-                });
-                this.$Qmsg.addEventListener("mouseout", function () {
-                    /* 鼠标滑出，重启定时器 */
-                    if (QmsgContext.state !== "closing") {
-                        /* 状态为关闭则不重启定时器 */
-                        QmsgContext.startTime = new Date().getTime();
-                        QmsgContext.timeId = setTimeout(function () {
-                            QmsgContext.close();
-                        }, QmsgContext.setting.timeout);
+                let enterEvent = (event) => {
+                    /* 鼠标滑入，清除定时器，清除开始时间和结束时间 */
+                    this.startTime = null;
+                    this.endTime = null;
+                    clearTimeout(this.timeId);
+                    this.timeId = void 0;
+                };
+                let leaveEvent = (event) => {
+                    /* 鼠标滑出，重启定时器，创建新的开始时间和timeId */
+                    if (this.timeId != null) {
+                        // 似乎enterEvent函数未正确调用？
+                        console.warn("timeId is not null，mouseenter may be not first trigger");
+                        return;
                     }
+                    this.startTime = Date.now();
+                    this.timeId = setTimeout(() => {
+                        this.close();
+                    }, this.setting.timeout);
+                };
+                this.$Qmsg.addEventListener("touchstart", () => {
+                    // 由于移动端不支持mouseout且会触发mouseenter
+                    // 那么需要移除该监听
+                    this.$Qmsg.removeEventListener("mouseenter", enterEvent);
+                    this.$Qmsg.removeEventListener("mouseout", leaveEvent);
+                }, {
+                    capture: true,
+                    once: true,
                 });
+                this.$Qmsg.addEventListener("mouseenter", enterEvent);
+                this.$Qmsg.addEventListener("mouseout", leaveEvent);
             }
         }
         /**
@@ -812,7 +826,12 @@
                 },
             },
             addEvent() {
-                document.addEventListener("visibilitychange", QmsgEvent.visibilitychange.eventConfig.callback, QmsgEvent.visibilitychange.eventConfig.option);
+                if ("visibilityState" in document) {
+                    document.addEventListener("visibilitychange", QmsgEvent.visibilitychange.eventConfig.callback, QmsgEvent.visibilitychange.eventConfig.option);
+                }
+                else {
+                    console.error("visibilityState not support");
+                }
             },
             removeEvent() {
                 document.removeEventListener("visibilitychange", QmsgEvent.visibilitychange.eventConfig.callback, QmsgEvent.visibilitychange.eventConfig.option);

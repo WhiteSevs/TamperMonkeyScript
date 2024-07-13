@@ -161,11 +161,15 @@ const QmsgEvent = {
 			} as AddEventListenerOptions,
 		},
 		addEvent() {
-			document.addEventListener(
-				"visibilitychange",
-				QmsgEvent.visibilitychange.eventConfig.callback,
-				QmsgEvent.visibilitychange.eventConfig.option
-			);
+			if ("visibilityState" in document) {
+				document.addEventListener(
+					"visibilitychange",
+					QmsgEvent.visibilitychange.eventConfig.callback,
+					QmsgEvent.visibilitychange.eventConfig.option
+				);
+			} else {
+				console.error("visibilityState not support");
+			}
 		},
 		removeEvent() {
 			document.removeEventListener(
