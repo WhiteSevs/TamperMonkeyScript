@@ -44,7 +44,7 @@ export default defineConfig({
 				// 许可证
 				license: "GPL-3.0-only",
 				// 引用库
-				require: await GetLib(["CoverUMD", "pops"]),
+				require: await GetLib(["CoverUMD"]),
 				// 图标
 				icon: "",
 				// 脚本描述
@@ -87,6 +87,7 @@ export default defineConfig({
 						"DOMUtils",
 						"dist/index.umd.js"
 					),
+					"@whitesev/pops": cdn.jsdelivrFastly("pops", "dist/index.umd.js"),
 				},
 				// 样式添加到页面的自定义处理
 				cssSideEffects: () => {

@@ -1,3 +1,4 @@
+import { PopsPanelSliderDetails } from "@whitesev/pops/dist/types/src/components/panel/sliderType";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, KEY } from "../config";
 import { PopsPanel } from "../setting";
 

@@ -1,5 +1,6 @@
 import { PopsPanel } from "@/setting/setting";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY } from "../config";
+import { PopsPanelInputDetails } from "@whitesev/pops/dist/types/src/components/panel/inputType";
 
 /**
  * 获取输入框配置

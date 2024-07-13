@@ -18,10 +18,9 @@
 		"allowSyntheticDefaultImports": true,
 		"sourceMap": true,
 		"paths": {
-			"@/*": ["./src/*"],
-			"@pops/*": ["./../../库/pops/*"]
+			"@/*": ["./src/*"]
 		},
-		"types": ["./src/env.d.ts", "./../../库/pops/core.d.ts"]
+		"types": ["./src/env.d.ts"]
 	},
 	"include": ["src"],
 	"references": [

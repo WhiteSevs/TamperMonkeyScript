@@ -17,13 +17,13 @@ import Utils from "@whitesev/utils";
 import DOMUtils from "@whitesev/domutils";
 import { PopsPanel } from "./setting/setting";
 import { HttpxCookieManager } from "./utils/HttpxCookieManager";
+import pops from "@whitesev/pops";
 
 /* 脚本名 */
 const _SCRIPT_NAME_ = "Demo Script Name";
 const utils = Utils.noConflict();
 const domUtils = DOMUtils.noConflict();
-const pops: typeof import("@pops/index") =
-	(monkeyWindow as any).pops || (unsafeWindow as any).pops;
+const __pops = pops;
 // const Viewer: typeof import("@库/Viewer") = ((monkeyWindow as any).Viewer || (unsafeWindow as any).Viewer)
 // const showdown: typeof import("@库/showdown") = ((monkeyWindow as any).showdown || (unsafeWindow as any).showdown);
 const log = new utils.Log(
@@ -72,7 +72,7 @@ Qmsg.config(
 				get() {
 					let maxZIndex = Utils.getMaxZIndex();
 					let popsMaxZIndex =
-						pops.config.Utils.getPopsMaxZIndex(maxZIndex).zIndex;
+						pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
 					return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
 				},
 			},
@@ -173,7 +173,7 @@ const MountVue = async function (targetApp: any, router?: any) {
 export {
 	utils,
 	domUtils as DOMUtils,
-	pops,
+	__pops as pops,
 	log,
 	GM_Menu,
 	SCRIPT_NAME,

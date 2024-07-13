@@ -1,6 +1,7 @@
 import { log } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY } from "../config";
+import { PopsPanelSwitchDetails } from "@whitesev/pops/dist/types/src/components/panel/switchType";
 
 /**
  * 获取checkbox按钮配置
@@ -15,7 +16,7 @@ const UISwitch = function (
 	key: string,
 	defaultValue: boolean | undefined,
 	clickCallBack?:
-		| ((event: InputEvent, value: boolean) => boolean | void)
+		| ((event: MouseEvent | PointerEvent, value: boolean) => boolean | void)
 		| undefined,
 	description?: string | undefined
 ): PopsPanelSwitchDetails {
@@ -27,7 +28,7 @@ const UISwitch = function (
 		getValue() {
 			return Boolean(PopsPanel.getValue(key, defaultValue));
 		},
-		callback(event: InputEvent, value: boolean) {
+		callback(event: MouseEvent | PointerEvent, value: boolean) {
 			log.success(`${value ? "开启" : "关闭"} ${text}`);
 			if (typeof clickCallBack === "function") {
 				if (clickCallBack(event, value)) {

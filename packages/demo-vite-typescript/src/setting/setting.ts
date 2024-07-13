@@ -3,6 +3,11 @@ import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, KEY } from "@/setting/config";
 import type { UtilsDictionary } from "@whitesev/utils/dist/src/Dictionary";
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
 import { Component_Common } from "./components/common";
+import {
+	PopsPanelContentConfig,
+	PopsPanelFormsTotalDetails,
+} from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 
 const __PopsPanel__ = {
 	data: null as any as UtilsDictionary<string, any>,

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Demo Script Name
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.5
+// @version      2024.7.13
 // @author       WhiteSevs
 // @description
 // @license      GPL-3.0-only
@@ -9,10 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/456485/1405857/pops.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.1.0/dist/index.umd.js
 // @connect
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
@@ -27,7 +27,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (Qmsg, DOMUtils, Utils) {
+(function (Qmsg, DOMUtils, Utils, pops) {
   'use strict';
 
   var _a;
@@ -127,7 +127,7 @@
   const _SCRIPT_NAME_ = "Demo Script Name";
   const utils = Utils.noConflict();
   DOMUtils.noConflict();
-  const pops = _monkeyWindow.pops || _unsafeWindow.pops;
+  const __pops = pops;
   const log = new utils.Log(
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
@@ -166,7 +166,7 @@
         zIndex: {
           get() {
             let maxZIndex = Utils.getMaxZIndex();
-            let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(maxZIndex).zIndex;
+            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
             return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
           }
         }
@@ -652,7 +652,7 @@
      * 显示设置面板
      */
     showPanel() {
-      pops.panel({
+      __pops.panel({
         title: {
           text: `${SCRIPT_NAME}-设置`,
           position: "center",
@@ -707,4 +707,4 @@
   };
   PopsPanel.init();
 
-})(Qmsg, DOMUtils, Utils);
+})(Qmsg, DOMUtils, Utils, pops);
