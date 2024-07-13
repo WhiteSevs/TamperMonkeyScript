@@ -1,5 +1,5 @@
 import { QmsgOption } from "./Qmsg";
-export declare const QmsgStore: {
+export declare const QmsgConfig: {
     /** 声明插件名称 */
     PLUGIN_NAME: string;
     /** 命名空间，用于css和事件 */

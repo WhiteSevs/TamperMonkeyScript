@@ -1,8 +1,8 @@
 import { CompatibleProcessing } from "./CompatibleProcessing";
-import { QmsgStore } from "./QmsgStore";
+import { QmsgConfig } from "./QmsgConfig";
 import { QmsgIcon } from "./QmsgIcon";
-import { QmsgObj } from "./QmsgInstance";
-import { QmsgMsg } from "./QmsgMsg";
+import { QmsgInstanceStorage } from "./QmsgInstanceStorage";
+import { QmsgMsg } from "./QmsgInstance";
 import { QmsgUtils } from "./QmsgUtils";
 
 export type QmsgPosition =
@@ -32,7 +32,7 @@ export interface QmsgOption {
 	 */
 	autoClose?: boolean;
 	/**
-	 * 显示的内容
+	 * 显示的内容，默认使用innerText
 	 */
 	content?: string;
 	/**
@@ -124,20 +124,81 @@ export interface QmsgDetails extends Partial<QmsgOption> {}
 /* 执行兼容 */
 CompatibleProcessing();
 
+const QmsgEvent = {
+	visibilitychange: {
+		eventConfig: {
+			/**
+			 * 添加visibilitychange事件监听
+			 * 当页面切换时，如果切换前的页面存在Qmsg实例且未关闭，切换后，页面活跃度会降低，导致setTimeout/setInterval失效或丢失事件
+			 * 监听visibilitychange，判断切换回来时，如果当前时间-开始时间大于timeout，则关闭
+			 * 如果设置了动画，使用close，否则使用destroy
+			 */
+			callback() {
+				if (document.visibilityState === "visible") {
+					// 回到页面
+					for (
+						let index = 0;
+						index < QmsgInstanceStorage.QmsgList.length;
+						index++
+					) {
+						let QmsgInstance = QmsgInstanceStorage.QmsgList[index];
+						if (
+							QmsgInstance.instance.endTime == null &&
+							QmsgInstance.instance.startTime != null &&
+							Date.now() - QmsgInstance.instance.startTime >=
+								QmsgInstance.instance.getSetting().timeout
+						) {
+							// 超出时间，关闭
+							QmsgInstance.instance.close();
+						}
+					}
+				} else {
+					// 离开页面
+				}
+			},
+			option: {
+				capture: true,
+			} as AddEventListenerOptions,
+		},
+		addEvent() {
+			document.addEventListener(
+				"visibilitychange",
+				QmsgEvent.visibilitychange.eventConfig.callback,
+				QmsgEvent.visibilitychange.eventConfig.option
+			);
+		},
+		removeEvent() {
+			document.removeEventListener(
+				"visibilitychange",
+				QmsgEvent.visibilitychange.eventConfig.callback,
+				QmsgEvent.visibilitychange.eventConfig.option
+			);
+		},
+	},
+};
+
 class Qmsg {
-	/** 版本号 */
-	#version: string;
 	/** 数据 */
-	#data: typeof QmsgStore;
-	/** 图标svg */
-	#icons: typeof QmsgIcon;
-	/** 每个Qmsg实例 */
-	#obj: typeof QmsgObj;
+	$data: {
+		/** 版本号 */
+		version: string;
+		/** 数据 */
+		config: typeof QmsgConfig;
+		/** 图标svg */
+		icon: typeof QmsgIcon;
+		/** 每个Qmsg实例 */
+		instanceStorage: typeof QmsgInstanceStorage;
+	};
+	$eventUtils: typeof QmsgEvent;
 	constructor() {
-		this.#version = "2024.6.10";
-		this.#data = QmsgStore;
-		this.#icons = QmsgIcon;
-		this.#obj = QmsgObj;
+		this.$data = {
+			version: "2024.7.13",
+			config: QmsgConfig,
+			icon: QmsgIcon,
+			instanceStorage: QmsgInstanceStorage,
+		};
+		this.$eventUtils = QmsgEvent;
+		this.$eventUtils.visibilitychange.addEvent();
 	}
 	/**
 	 * 修改默认配置
@@ -146,8 +207,8 @@ class Qmsg {
 	config(option?: QmsgDetails) {
 		if (option == null) return;
 		if (typeof option !== "object") return;
-		(QmsgStore.INS_DEFAULT as any) = null;
-		(QmsgStore.INS_DEFAULT as any) = option;
+		(QmsgConfig.INS_DEFAULT as any) = null;
+		(QmsgConfig.INS_DEFAULT as any) = option;
 	}
 	/**
 	 * 信息Toast
@@ -262,14 +323,18 @@ class Qmsg {
 	 */
 
 	remove(uuid: string) {
-		QmsgObj.remove(uuid);
+		QmsgInstanceStorage.remove(uuid);
 	}
 	/**
 	 * 关闭当前Qmsg创建的所有的实例
 	 */
 	closeAll() {
-		for (let index = QmsgObj.QmsgList.length - 1; index >= 0; index--) {
-			let item = QmsgObj.QmsgList[index];
+		for (
+			let index = QmsgInstanceStorage.QmsgList.length - 1;
+			index >= 0;
+			index--
+		) {
+			let item = QmsgInstanceStorage.QmsgList[index];
 			item && item.instance && item.instance.close();
 		}
 	}

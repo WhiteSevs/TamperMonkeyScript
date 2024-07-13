@@ -1,7 +1,7 @@
 import { QmsgOption } from "./Qmsg";
-import { QmsgStore } from "./QmsgStore";
-import { QmsgObj } from "./QmsgInstance";
-import { QmsgMsg } from "./QmsgMsg";
+import { QmsgConfig } from "./QmsgConfig";
+import { QmsgInstanceStorage } from "./QmsgInstanceStorage";
+import { QmsgMsg } from "./QmsgInstance";
 
 export interface QmsgItemInfo {
 	config: string;
@@ -16,11 +16,19 @@ export const QmsgUtils = {
 	 * @returns
 	 */
 	getNameSpacify(...args: string[]) {
-		let result = QmsgStore.NAMESPACE;
+		let result = QmsgConfig.NAMESPACE;
 		for (let index = 0; index < args.length; ++index) {
 			result += "-" + args[index];
 		}
 		return result;
+	},
+	/**
+	 * 判断字符是否是数字
+	 * @param text 需要判断的字符串
+	 */
+	isNumber(text: string) {
+		let isNumberPattern = /^\d+$/;
+		return isNumberPattern.test(text);
 	},
 	/**
 	 * 获取唯一性的UUID
@@ -67,7 +75,7 @@ export const QmsgUtils = {
 		option = option || {};
 		let optionString = JSON.stringify(option);
 		/* 寻找已生成的实例是否存在配置相同的 */
-		let findQmsgItemInfo = QmsgObj.QmsgList.find((item) => {
+		let findQmsgItemInfo = QmsgInstanceStorage.QmsgList.find((item) => {
 			return item.config === optionString;
 		});
 		let QmsgInstance = findQmsgItemInfo?.instance;
@@ -79,15 +87,15 @@ export const QmsgUtils = {
 				config: optionString,
 				instance: new QmsgMsg(option, uuid),
 			};
-			QmsgObj.QmsgList.push(QmsgItemInfo);
-			let QmsgListLength = QmsgObj.QmsgList.length;
+			QmsgInstanceStorage.QmsgList.push(QmsgItemInfo);
+			let QmsgListLength = QmsgInstanceStorage.QmsgList.length;
 			let maxNums = QmsgItemInfo.instance.getSetting().maxNums;
 			/**
 			 * 关闭多余的消息
 			 */
 			if (QmsgListLength > maxNums) {
 				for (let index = 0; index < QmsgListLength - maxNums; index++) {
-					let item = QmsgObj.QmsgList[index];
+					let item = QmsgInstanceStorage.QmsgList[index];
 					item && item.instance.getSetting().autoClose && item.instance.close();
 				}
 			}

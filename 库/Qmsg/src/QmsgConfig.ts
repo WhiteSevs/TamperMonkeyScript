@@ -2,7 +2,7 @@ import { QmsgOption } from "./Qmsg";
 import { QmsgAnimation } from "./QmsgAnimation";
 import { QmsgUtils } from "./QmsgUtils";
 
-export const QmsgStore = {
+export const QmsgConfig = {
 	/** 声明插件名称 */
 	PLUGIN_NAME: "qmsg",
 	/** 命名空间，用于css和事件 */

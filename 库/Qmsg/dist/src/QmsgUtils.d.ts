@@ -1,5 +1,5 @@
 import { QmsgOption } from "./Qmsg";
-import { QmsgMsg } from "./QmsgMsg";
+import { QmsgMsg } from "./QmsgInstance";
 export interface QmsgItemInfo {
     config: string;
     instance: QmsgMsg;
@@ -12,6 +12,11 @@ export declare const QmsgUtils: {
      * @returns
      */
     getNameSpacify(...args: string[]): string;
+    /**
+     * 判断字符是否是数字
+     * @param text 需要判断的字符串
+     */
+    isNumber(text: string): boolean;
     /**
      * 获取唯一性的UUID
      * @returns

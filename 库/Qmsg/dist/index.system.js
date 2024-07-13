@@ -122,7 +122,7 @@ System.register('Qmsg', [], (function (exports) {
                 },
             };
 
-            const QmsgStore = {
+            const QmsgConfig = {
                 /** 声明插件名称 */
                 PLUGIN_NAME: "qmsg",
                 /** 命名空间，用于css和事件 */
@@ -167,17 +167,16 @@ System.register('Qmsg', [], (function (exports) {
                 loading: '<svg class="animate-turn" width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" fill-opacity=".01" d="M0 0h48v48H0z"/><path d="M4 24c0 11.046 8.954 20 20 20s20-8.954 20-20S35.046 4 24 4" stroke="#409eff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 24c0-6.627-5.373-12-12-12s-12 5.373-12 12 5.373 12 12 12" stroke="#409eff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
             };
 
-            const QmsgObj = {
+            const QmsgInstanceStorage = {
                 QmsgList: [],
                 /**
                  * 移除实例
                  * @param uuid
-                 * @returns
                  */
                 remove(uuid) {
-                    for (let index = 0; index < QmsgObj.QmsgList.length; index++) {
-                        if (QmsgObj.QmsgList[index].uuid === uuid) {
-                            QmsgObj.QmsgList.splice(index, 1);
+                    for (let index = 0; index < QmsgInstanceStorage.QmsgList.length; index++) {
+                        if (QmsgInstanceStorage.QmsgList[index].uuid === uuid) {
+                            QmsgInstanceStorage.QmsgList.splice(index, 1);
                             return;
                         }
                     }
@@ -252,7 +251,7 @@ System.register('Qmsg', [], (function (exports) {
                 getStyleElement() {
                     let cssResourceNode = document.createElement("style");
                     cssResourceNode.setAttribute("type", "text/css");
-                    cssResourceNode.setAttribute("data-type", QmsgStore.PLUGIN_NAME);
+                    cssResourceNode.setAttribute("data-type", QmsgConfig.PLUGIN_NAME);
                     cssResourceNode.innerHTML = this.css;
                     return cssResourceNode;
                 },
@@ -262,52 +261,48 @@ System.register('Qmsg', [], (function (exports) {
              * 每条消息的构造函数
              */
             class QmsgMsg {
-                option;
-                uuid;
                 /**
                  * setTimeout的id
                  */
-                #timerId;
+                timeId;
                 /**
                  * 启动时间
                  */
-                #startTime;
+                startTime;
                 /**
                  * 关闭时间
                  */
-                #endTime;
+                endTime;
                 /**
                  * Qmsg的配置
                  */
-                #setting;
+                setting;
                 /**
                  * uuid
                  */
-                #uuid;
+                uuid;
                 /**
                  * 当前动画状态
                  */
-                #state;
+                state;
                 /**
                  * 当前相同消息的数量
                  */
-                #repeatNum;
+                repeatNum;
                 /**
                  * 主元素
                  */
                 $Qmsg;
                 constructor(option, uuid) {
-                    this.option = option;
-                    this.uuid = uuid;
-                    this.#timerId = void 0;
-                    this.#startTime = null;
-                    this.#endTime = null;
+                    this.timeId = void 0;
+                    this.startTime = Date.now();
+                    this.endTime = null;
                     // this.#setting = Object.assign({}, QmsgStore.DEFAULT, this.option);
-                    this.#setting = QmsgUtils.toDynamicObject(QmsgStore.DEFAULT, option, QmsgStore.INS_DEFAULT);
-                    this.#uuid = uuid;
-                    this.#state = "opening";
+                    this.setting = QmsgUtils.toDynamicObject(QmsgConfig.DEFAULT, option, QmsgConfig.INS_DEFAULT);
+                    this.uuid = uuid;
+                    this.state = "opening";
                     this.$Qmsg = document.createElement("div");
-                    this.#repeatNum = 1;
+                    this.repeatNum = 1;
                     this.detectionType();
                     this.init();
                 }
@@ -316,70 +311,77 @@ System.register('Qmsg', [], (function (exports) {
                  * @returns
                  */
                 getSetting() {
-                    return this.#setting;
+                    return this.setting;
                 }
                 /**
                  * 获取当前相同的数量
                  * @returns
                  */
                 getRepeatNum() {
-                    return this.#repeatNum;
+                    return this.repeatNum;
                 }
                 /**
                  * 设置repeatNum值
+                 * @param num 重复的数量
                  */
                 setRepeatNum(num) {
-                    this.#repeatNum = num;
+                    this.repeatNum = num;
                 }
                 /**
                  * 设置repeatNum自增
                  */
                 setRepeatNumIncreasing() {
-                    this.#repeatNum++;
+                    this.repeatNum++;
                 }
                 /**
                  * 初始化元素
                  */
                 init() {
                     let QmsgContext = this;
-                    if (this.#setting.customClass &&
-                        typeof this.#setting.customClass === "string") {
+                    if (this.setting.customClass &&
+                        typeof this.setting.customClass === "string") {
                         /* 设置自定义类名 */
-                        this.$Qmsg.classList.add(this.#setting.customClass);
+                        this.$Qmsg.classList.add(this.setting.customClass);
                     }
-                    let $svg = QmsgIcon[this.#setting.type || "info"];
-                    let contentClassName = QmsgUtils.getNameSpacify("content-" + this.#setting.type || "info");
-                    if (this.#setting.showClose) {
+                    // 设置svg图标
+                    let $svg = QmsgIcon[this.setting.type || "info"];
+                    let contentClassName = QmsgUtils.getNameSpacify("content-" + this.setting.type || "info");
+                    if (this.setting.showClose) {
+                        // 显示 关闭图标
                         contentClassName += " " + QmsgUtils.getNameSpacify("content-with-close");
                     }
-                    let content = this.#setting.content || "";
+                    // 内容兼容处理
+                    let content = this.setting.content || "";
+                    // 关闭图标 自定义额外className
                     let extraCloseIconClassName = "";
+                    // 关闭图标svg
                     let $closeSvg = QmsgHeaderCloseIcon;
-                    if (this.#setting.showMoreContent) {
+                    if (this.setting.showMoreContent) {
+                        // 显示更多内容
                         contentClassName += "qmsg-show-more-content";
                         extraCloseIconClassName += "qmsg-show-more-content";
                     }
                     let $closeIcon = "";
-                    if (this.#setting.showClose) {
+                    if (this.setting.showClose) {
                         /* 显示右上角的关闭图标按钮 */
                         $closeIcon = `<i class="qmsg-icon qmsg-icon-close ${extraCloseIconClassName}">${$closeSvg}</i>`;
                     }
                     /* 内容 */
                     let $content = document.createElement("span");
-                    let $positionClassName = QmsgUtils.getNameSpacify("data-position", this.#setting.position.toLowerCase());
-                    if (this.#setting.html || this.#setting.isHTML) {
+                    let $positionClassName = QmsgUtils.getNameSpacify("data-position", this.setting.position.toLowerCase());
+                    if (this.setting.html || this.setting.isHTML) {
                         /* 内容是html */
                         $content.innerHTML = content;
                     }
                     else {
+                        // 内容是纯文本
                         $content.innerText = content;
                     }
-                    if (this.#setting.isLimitWidth) {
+                    if (this.setting.isLimitWidth) {
                         /* 限制宽度 */
-                        let limitWidthNum = this.#setting.limitWidthNum;
+                        let limitWidthNum = this.setting.limitWidthNum;
                         if (typeof limitWidthNum === "string") {
-                            let isNumberPattern = /^\d+$/;
-                            if (isNumberPattern.test(limitWidthNum)) {
+                            if (QmsgUtils.isNumber(limitWidthNum)) {
                                 limitWidthNum = limitWidthNum + "px";
                             }
                         }
@@ -389,17 +391,17 @@ System.register('Qmsg', [], (function (exports) {
                         $content.style.maxWidth = limitWidthNum;
                         $content.style.width = limitWidthNum;
                         /* 设置换行 */
-                        if (this.#setting.limitWidthWrap === "no-wrap") {
+                        if (this.setting.limitWidthWrap === "no-wrap") {
                             /* 禁止换行 */
                             $content.style.whiteSpace = "nowrap";
                         }
-                        else if (this.#setting.limitWidthWrap === "ellipsis") {
+                        else if (this.setting.limitWidthWrap === "ellipsis") {
                             /* 禁止换行且显示省略号 */
                             $content.style.whiteSpace = "nowrap";
                             $content.style.overflow = "hidden";
                             $content.style.textOverflow = "ellipsis";
                         }
-                        else if (this.#setting.limitWidthWrap === "wrap") {
+                        else if (this.setting.limitWidthWrap === "wrap") {
                             /* 允许换行 */
                             /* 默认的 */
                             $content.style.whiteSpace = "";
@@ -408,50 +410,53 @@ System.register('Qmsg', [], (function (exports) {
                     this.$Qmsg.innerHTML = `
         <div class="qmsg-content">
             <div class="${contentClassName}">
-            ${this.#setting.showIcon ? `<i class="qmsg-icon">${$svg}</i>` : ""}
+            ${this.setting.showIcon ? `<i class="qmsg-icon">${$svg}</i>` : ""}
                 ${$content.outerHTML}
                 ${$closeIcon}
             </div>
         </div>
         `;
                     this.$Qmsg.classList.add(QmsgUtils.getNameSpacify("item"));
-                    this.$Qmsg.setAttribute(QmsgUtils.getNameSpacify("uuid"), this.#uuid);
+                    this.$Qmsg.setAttribute(QmsgUtils.getNameSpacify("uuid"), this.uuid);
+                    // 获取页面中的shadowRoot的容器元素
                     let $shadowContainer = document.querySelector(".qmsg-shadow-container");
                     let $shadowRoot = $shadowContainer?.shadowRoot;
                     if (!$shadowContainer) {
+                        // 页面中不存在ShadowRoot容器元素
+                        // 添加新增的ShadowRoot容器元素
                         $shadowContainer = document.createElement("div");
                         $shadowContainer.className = "qmsg-shadow-container";
                         $shadowRoot = $shadowContainer.attachShadow({ mode: "open" });
                         let __$wrapper__ = document.createElement("div");
-                        __$wrapper__.classList.add(QmsgStore.NAMESPACE, QmsgUtils.getNameSpacify("wrapper"), QmsgUtils.getNameSpacify("is-initialized"));
+                        __$wrapper__.classList.add(QmsgConfig.NAMESPACE, QmsgUtils.getNameSpacify("wrapper"), QmsgUtils.getNameSpacify("is-initialized"));
                         __$wrapper__.classList.add($positionClassName);
                         $shadowRoot.appendChild(QmsgCSS.getStyleElement());
                         $shadowRoot.appendChild(__$wrapper__);
-                        if (this.#setting.style != null) {
+                        if (this.setting.style != null) {
                             let __$ownStyle__ = document.createElement("style");
                             __$ownStyle__.setAttribute("type", "text/css");
-                            __$ownStyle__.innerHTML = this.#setting.style;
+                            __$ownStyle__.innerHTML = this.setting.style;
                             $shadowRoot.appendChild(__$ownStyle__);
                         }
                         document.body.appendChild($shadowContainer);
                     }
                     if ($shadowRoot == null) {
-                        throw new TypeError(QmsgStore.PLUGIN_NAME + " $shadowRoot is null");
+                        throw new TypeError(QmsgConfig.PLUGIN_NAME + " $shadowRoot is null");
                     }
-                    let $wrapper = $shadowRoot.querySelector(`.${QmsgStore.NAMESPACE}.${$positionClassName}`);
+                    let $wrapper = $shadowRoot.querySelector(`.${QmsgConfig.NAMESPACE}.${$positionClassName}`);
                     if (!$wrapper) {
                         $wrapper = document.createElement("div");
-                        $wrapper.classList.add(QmsgStore.NAMESPACE, QmsgUtils.getNameSpacify("wrapper"), QmsgUtils.getNameSpacify("is-initialized"));
+                        $wrapper.classList.add(QmsgConfig.NAMESPACE, QmsgUtils.getNameSpacify("wrapper"), QmsgUtils.getNameSpacify("is-initialized"));
                         $wrapper.classList.add($positionClassName);
                         $shadowRoot.appendChild($wrapper);
                     }
-                    if (this.#setting.showReverse) {
+                    if (this.setting.showReverse) {
                         $wrapper.style.flexDirection = "column-reverse";
                     }
                     else {
                         $wrapper.style.flexDirection = "column";
                     }
-                    let zIndex = this.#setting.zIndex;
+                    let zIndex = this.setting.zIndex;
                     if (typeof zIndex === "function") {
                         zIndex = zIndex();
                     }
@@ -460,7 +465,7 @@ System.register('Qmsg', [], (function (exports) {
                     }
                     $wrapper.appendChild(this.$Qmsg);
                     this.setState(this.$Qmsg, "opening");
-                    if (this.#setting.showClose) {
+                    if (this.setting.showClose) {
                         /* 关闭按钮绑定点击事件 */
                         let $closeIcon = this.$Qmsg.querySelector(".qmsg-icon-close");
                         if ($closeIcon) {
@@ -469,40 +474,40 @@ System.register('Qmsg', [], (function (exports) {
                             });
                         }
                     }
+                    /* 监听动画完成 */
                     let animationendEvent = function (event) {
-                        /* 监听动画完成 */
                         let target = event.target, animationName = event.animationName;
                         if (animationName === QmsgAnimation.$state.closing) {
-                            QmsgContext.#endTime = new Date().getTime();
-                            clearTimeout(QmsgContext.#timerId);
+                            // 设置关闭时间
+                            QmsgContext.endTime = Date.now();
+                            clearTimeout(QmsgContext.timeId);
                             QmsgContext.destroy();
                         }
                         QmsgAnimation.setStyleAnimationName(target);
                     };
                     QmsgAnimation.$name.endNameList.forEach(function (animationendName) {
-                        // @ts-ignore
                         QmsgContext.$Qmsg.addEventListener(animationendName, animationendEvent);
                     });
-                    if (this.#setting.autoClose) {
+                    if (this.setting.autoClose) {
                         /* 自动关闭 */
-                        this.#startTime = new Date().getTime();
-                        this.#timerId = setTimeout(function () {
+                        // 获取时间戳
+                        this.timeId = setTimeout(function () {
                             QmsgContext.close();
-                        }, this.#setting.timeout);
+                        }, this.setting.timeout);
                         this.$Qmsg.addEventListener("mouseover", function () {
-                            /* 鼠标滑入，清除定时器 */
-                            QmsgContext.#startTime = null;
-                            QmsgContext.#endTime = null;
-                            clearTimeout(QmsgContext.#timerId);
+                            /* 鼠标滑入，清除定时器，清除创建时间和结束时间 */
+                            QmsgContext.startTime = null;
+                            QmsgContext.endTime = null;
+                            clearTimeout(QmsgContext.timeId);
                         });
                         this.$Qmsg.addEventListener("mouseout", function () {
                             /* 鼠标滑出，重启定时器 */
-                            if (QmsgContext.#state !== "closing") {
+                            if (QmsgContext.state !== "closing") {
                                 /* 状态为关闭则不重启定时器 */
-                                QmsgContext.#startTime = new Date().getTime();
-                                QmsgContext.#timerId = setTimeout(function () {
+                                QmsgContext.startTime = new Date().getTime();
+                                QmsgContext.timeId = setTimeout(function () {
                                     QmsgContext.close();
-                                }, QmsgContext.#setting.timeout);
+                                }, QmsgContext.setting.timeout);
                             }
                         });
                     }
@@ -513,30 +518,30 @@ System.register('Qmsg', [], (function (exports) {
                  * timeout必须在规定范围内
                  */
                 detectionType() {
-                    if (this.#setting.timeout != null &&
-                        typeof this.#setting.timeout === "string") {
-                        this.#setting.timeout = parseInt(this.#setting.timeout);
+                    if (this.setting.timeout != null &&
+                        typeof this.setting.timeout === "string") {
+                        this.setting.timeout = parseInt(this.setting.timeout);
                     }
-                    if (isNaN(this.#setting.timeout)) {
-                        this.#setting.timeout = QmsgStore.DEFAULT.timeout;
+                    if (isNaN(this.setting.timeout)) {
+                        this.setting.timeout = QmsgConfig.DEFAULT.timeout;
                     }
-                    if (!(this.#setting.timeout != null &&
-                        parseInt(this.#setting.timeout.toString()) >= 0 &&
-                        parseInt(this.#setting.timeout.toString()) <= Number.MAX_VALUE)) {
-                        this.#setting.timeout = QmsgStore.DEFAULT.timeout;
+                    if (!(this.setting.timeout != null &&
+                        parseInt(this.setting.timeout.toString()) >= 0 &&
+                        parseInt(this.setting.timeout.toString()) <= Number.MAX_VALUE)) {
+                        this.setting.timeout = QmsgConfig.DEFAULT.timeout;
                     }
-                    if (typeof this.#setting.zIndex === "function") {
-                        this.#setting.zIndex = this.#setting.zIndex();
+                    if (typeof this.setting.zIndex === "function") {
+                        this.setting.zIndex = this.setting.zIndex();
                     }
-                    if (this.#setting.zIndex != null &&
-                        typeof this.#setting.zIndex === "string") {
-                        this.#setting.zIndex = parseInt(this.#setting.zIndex);
+                    if (this.setting.zIndex != null &&
+                        typeof this.setting.zIndex === "string") {
+                        this.setting.zIndex = parseInt(this.setting.zIndex);
                     }
-                    if (isNaN(this.#setting.zIndex)) {
-                        this.#setting.zIndex =
-                            typeof QmsgStore.DEFAULT.zIndex === "function"
-                                ? QmsgStore.DEFAULT.zIndex()
-                                : QmsgStore.DEFAULT.zIndex;
+                    if (isNaN(this.setting.zIndex)) {
+                        this.setting.zIndex =
+                            typeof QmsgConfig.DEFAULT.zIndex === "function"
+                                ? QmsgConfig.DEFAULT.zIndex()
+                                : QmsgConfig.DEFAULT.zIndex;
                     }
                 }
                 /**
@@ -548,7 +553,7 @@ System.register('Qmsg', [], (function (exports) {
                 setState(element, state) {
                     if (!state || !QmsgAnimation.$state[state])
                         return;
-                    this.#state = state;
+                    this.state = state;
                     QmsgAnimation.setStyleAnimationName(element, QmsgAnimation.$state[state]);
                 }
                 /**
@@ -557,7 +562,7 @@ System.register('Qmsg', [], (function (exports) {
                 setMsgCount() {
                     let QmsgContext = this;
                     let countClassName = QmsgUtils.getNameSpacify("count");
-                    let wrapperClassName = `div.${QmsgUtils.getNameSpacify("data-position", this.#setting.position.toLowerCase())} [class^="qmsg-content-"]`;
+                    let wrapperClassName = `div.${QmsgUtils.getNameSpacify("data-position", this.setting.position.toLowerCase())} [class^="qmsg-content-"]`;
                     let $content = this.$Qmsg.querySelector(wrapperClassName);
                     if (!$content) {
                         throw new TypeError("$content is null");
@@ -572,11 +577,11 @@ System.register('Qmsg', [], (function (exports) {
                     QmsgAnimation.setStyleAnimationName($count);
                     QmsgAnimation.setStyleAnimationName($count, "MessageShake");
                     /* 重置定时器 */
-                    clearTimeout(this.#timerId);
-                    if (this.#setting.autoClose) {
-                        this.#timerId = setTimeout(function () {
+                    clearTimeout(this.timeId);
+                    if (this.setting.autoClose) {
+                        this.timeId = setTimeout(function () {
                             QmsgContext.close();
-                        }, this.#setting.timeout);
+                        }, this.setting.timeout);
                     }
                 }
                 /**
@@ -584,15 +589,15 @@ System.register('Qmsg', [], (function (exports) {
                  */
                 close() {
                     this.setState(this.$Qmsg, "closing");
-                    if (QmsgStore.CAN_ANIMATION) {
+                    if (QmsgConfig.CAN_ANIMATION) {
                         /* 支持动画 */
-                        QmsgObj.remove(this.#uuid);
+                        QmsgInstanceStorage.remove(this.uuid);
                     }
                     else {
                         /* 不支持动画 */
                         this.destroy();
                     }
-                    let onCloseCallBack = this.#setting.onClose;
+                    let onCloseCallBack = this.setting.onClose;
                     if (onCloseCallBack && typeof onCloseCallBack === "function") {
                         onCloseCallBack.call(this);
                     }
@@ -601,10 +606,10 @@ System.register('Qmsg', [], (function (exports) {
                  * 销毁Qmsg
                  */
                 destroy() {
-                    this.#endTime = new Date().getTime();
+                    this.endTime = Date.now();
                     this.$Qmsg.remove();
-                    clearTimeout(this.#timerId);
-                    QmsgObj.remove(this.uuid);
+                    clearTimeout(this.timeId);
+                    QmsgInstanceStorage.remove(this.uuid);
                 }
                 /**
                  * 设置内容文本
@@ -613,7 +618,7 @@ System.register('Qmsg', [], (function (exports) {
                     let $content = this.$Qmsg.querySelector("div[class^=qmsg-content-] > span");
                     if ($content) {
                         $content.innerText = text;
-                        this.#setting.content = text;
+                        this.setting.content = text;
                     }
                     else {
                         throw new TypeError("$content is null");
@@ -626,7 +631,7 @@ System.register('Qmsg', [], (function (exports) {
                     let $content = this.$Qmsg.querySelector("div[class^=qmsg-content-] > span");
                     if ($content) {
                         $content.innerHTML = text;
-                        this.#setting.content = text;
+                        this.setting.content = text;
                     }
                     else {
                         throw new TypeError("$content is null");
@@ -641,11 +646,19 @@ System.register('Qmsg', [], (function (exports) {
                  * @returns
                  */
                 getNameSpacify(...args) {
-                    let result = QmsgStore.NAMESPACE;
+                    let result = QmsgConfig.NAMESPACE;
                     for (let index = 0; index < args.length; ++index) {
                         result += "-" + args[index];
                     }
                     return result;
+                },
+                /**
+                 * 判断字符是否是数字
+                 * @param text 需要判断的字符串
+                 */
+                isNumber(text) {
+                    let isNumberPattern = /^\d+$/;
+                    return isNumberPattern.test(text);
                 },
                 /**
                  * 获取唯一性的UUID
@@ -688,7 +701,7 @@ System.register('Qmsg', [], (function (exports) {
                     option = option || {};
                     let optionString = JSON.stringify(option);
                     /* 寻找已生成的实例是否存在配置相同的 */
-                    let findQmsgItemInfo = QmsgObj.QmsgList.find((item) => {
+                    let findQmsgItemInfo = QmsgInstanceStorage.QmsgList.find((item) => {
                         return item.config === optionString;
                     });
                     let QmsgInstance = findQmsgItemInfo?.instance;
@@ -700,15 +713,15 @@ System.register('Qmsg', [], (function (exports) {
                             config: optionString,
                             instance: new QmsgMsg(option, uuid),
                         };
-                        QmsgObj.QmsgList.push(QmsgItemInfo);
-                        let QmsgListLength = QmsgObj.QmsgList.length;
+                        QmsgInstanceStorage.QmsgList.push(QmsgItemInfo);
+                        let QmsgListLength = QmsgInstanceStorage.QmsgList.length;
                         let maxNums = QmsgItemInfo.instance.getSetting().maxNums;
                         /**
                          * 关闭多余的消息
                          */
                         if (QmsgListLength > maxNums) {
                             for (let index = 0; index < QmsgListLength - maxNums; index++) {
-                                let item = QmsgObj.QmsgList[index];
+                                let item = QmsgInstanceStorage.QmsgList[index];
                                 item && item.instance.getSetting().autoClose && item.instance.close();
                             }
                         }
@@ -769,20 +782,55 @@ System.register('Qmsg', [], (function (exports) {
 
             /* 执行兼容 */
             CompatibleProcessing();
+            const QmsgEvent = {
+                visibilitychange: {
+                    eventConfig: {
+                        /**
+                         * 添加visibilitychange事件监听
+                         * 当页面切换时，如果切换前的页面存在Qmsg实例且未关闭，切换后，页面活跃度会降低，导致setTimeout/setInterval失效或丢失事件
+                         * 监听visibilitychange，判断切换回来时，如果当前时间-开始时间大于timeout，则关闭
+                         * 如果设置了动画，使用close，否则使用destroy
+                         */
+                        callback() {
+                            if (document.visibilityState === "visible") {
+                                // 回到页面
+                                for (let index = 0; index < QmsgInstanceStorage.QmsgList.length; index++) {
+                                    let QmsgInstance = QmsgInstanceStorage.QmsgList[index];
+                                    if (QmsgInstance.instance.endTime == null &&
+                                        QmsgInstance.instance.startTime != null &&
+                                        Date.now() - QmsgInstance.instance.startTime >=
+                                            QmsgInstance.instance.getSetting().timeout) {
+                                        // 超出时间，关闭
+                                        QmsgInstance.instance.close();
+                                    }
+                                }
+                            }
+                        },
+                        option: {
+                            capture: true,
+                        },
+                    },
+                    addEvent() {
+                        document.addEventListener("visibilitychange", QmsgEvent.visibilitychange.eventConfig.callback, QmsgEvent.visibilitychange.eventConfig.option);
+                    },
+                    removeEvent() {
+                        document.removeEventListener("visibilitychange", QmsgEvent.visibilitychange.eventConfig.callback, QmsgEvent.visibilitychange.eventConfig.option);
+                    },
+                },
+            };
             class Qmsg {
-                /** 版本号 */
-                #version;
                 /** 数据 */
-                #data;
-                /** 图标svg */
-                #icons;
-                /** 每个Qmsg实例 */
-                #obj;
+                $data;
+                $eventUtils;
                 constructor() {
-                    this.#version = "2024.6.10";
-                    this.#data = QmsgStore;
-                    this.#icons = QmsgIcon;
-                    this.#obj = QmsgObj;
+                    this.$data = {
+                        version: "2024.7.13",
+                        config: QmsgConfig,
+                        icon: QmsgIcon,
+                        instanceStorage: QmsgInstanceStorage,
+                    };
+                    this.$eventUtils = QmsgEvent;
+                    this.$eventUtils.visibilitychange.addEvent();
                 }
                 /**
                  * 修改默认配置
@@ -793,8 +841,8 @@ System.register('Qmsg', [], (function (exports) {
                         return;
                     if (typeof option !== "object")
                         return;
-                    QmsgStore.INS_DEFAULT = null;
-                    QmsgStore.INS_DEFAULT = option;
+                    QmsgConfig.INS_DEFAULT = null;
+                    QmsgConfig.INS_DEFAULT = option;
                 }
                 info(content, option) {
                     let params = QmsgUtils.mergeArgs(content, option);
@@ -827,14 +875,14 @@ System.register('Qmsg', [], (function (exports) {
                  * @param uuid
                  */
                 remove(uuid) {
-                    QmsgObj.remove(uuid);
+                    QmsgInstanceStorage.remove(uuid);
                 }
                 /**
                  * 关闭当前Qmsg创建的所有的实例
                  */
                 closeAll() {
-                    for (let index = QmsgObj.QmsgList.length - 1; index >= 0; index--) {
-                        let item = QmsgObj.QmsgList[index];
+                    for (let index = QmsgInstanceStorage.QmsgList.length - 1; index >= 0; index--) {
+                        let item = QmsgInstanceStorage.QmsgList[index];
                         item && item.instance && item.instance.close();
                     }
                 }
