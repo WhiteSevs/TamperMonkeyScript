@@ -2,6 +2,19 @@ import { defineConfig } from "vite";
 import monkey, { cdn, util } from "vite-plugin-monkey";
 import { ViteUtils, GetLib } from "./vite.utils";
 
+const pkg = require("./package.json") as {
+	name: string;
+	version: string;
+	scripts: {
+		[key: string]: string;
+	};
+	dependencies: {
+		[key: string]: string;
+	};
+	devDependencies: {
+		[key: string]: string;
+	};
+};
 const SCRIPT_NAME = "Demo Script Name";
 const Utils = new ViteUtils(__dirname);
 let FILE_NAME = SCRIPT_NAME + ".user.js";

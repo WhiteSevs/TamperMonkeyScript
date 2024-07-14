@@ -8,6 +8,19 @@ import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 
+const pkg = require("./package.json") as {
+	name: string;
+	version: string;
+	scripts: {
+		[key: string]: string;
+	};
+	dependencies: {
+		[key: string]: string;
+	};
+	devDependencies: {
+		[key: string]: string;
+	};
+};
 /* 脚本名 */
 const SCRIPT_NAME = "Demo Script Name";
 const Utils = new ViteUtils(__dirname);
@@ -105,8 +118,9 @@ export default defineConfig({
 
 				// 引用外部资源
 				resource: {
-					ElementPlusResourceCSS:
-						"https://fastly.jsdelivr.net/npm/element-plus@2.7.5/dist/index.min.css",
+					ElementPlusResourceCSS: `https://fastly.jsdelivr.net/npm/element-plus@${pkg.devDependencies[
+						"element-plus"
+					].replace(/^\^/, "")}/dist/index.min.css`,
 				},
 			},
 			clientAlias: "ViteGM",
