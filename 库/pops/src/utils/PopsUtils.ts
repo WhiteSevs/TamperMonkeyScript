@@ -92,6 +92,12 @@ class PopsUtils {
 	): T3 extends true ? T1 & T2 : T1;
 	assign(target = {}, source = {}, isAdd = false) {
 		let UtilsContext = this;
+		if (source == null) {
+			return target;
+		}
+		if (target == null) {
+			target = {};
+		}
 		if (Array.isArray(source)) {
 			let canTraverse = source.filter((item) => {
 				return typeof item === "object";
@@ -106,8 +112,9 @@ class PopsUtils {
 				let targetValue = (target as any)[targetKeyName];
 				let sourceValue = (source as any)[sourceKeyName];
 				if (
-					sourceKeyName in target &&
 					typeof sourceValue === "object" &&
+					sourceValue != null &&
+					sourceKeyName in target &&
 					!UtilsContext.isDOM(sourceValue)
 				) {
 					/* 源端的值是object类型，且不是元素节点 */
@@ -127,6 +134,7 @@ class PopsUtils {
 					let sourceValue = (source as any)[targetKeyName];
 					if (
 						typeof sourceValue === "object" &&
+						sourceValue != null &&
 						!UtilsContext.isDOM(sourceValue) &&
 						Object.keys(sourceValue).length
 					) {

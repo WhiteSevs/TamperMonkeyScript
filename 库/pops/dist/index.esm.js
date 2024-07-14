@@ -1489,6 +1489,12 @@ class PopsUtils {
     }
     assign(target = {}, source = {}, isAdd = false) {
         let UtilsContext = this;
+        if (source == null) {
+            return target;
+        }
+        if (target == null) {
+            target = {};
+        }
         if (Array.isArray(source)) {
             let canTraverse = source.filter((item) => {
                 return typeof item === "object";
@@ -1502,8 +1508,9 @@ class PopsUtils {
                 const targetKeyName = sourceKeyName;
                 let targetValue = target[targetKeyName];
                 let sourceValue = source[sourceKeyName];
-                if (sourceKeyName in target &&
-                    typeof sourceValue === "object" &&
+                if (typeof sourceValue === "object" &&
+                    sourceValue != null &&
+                    sourceKeyName in target &&
                     !UtilsContext.isDOM(sourceValue)) {
                     /* 源端的值是object类型，且不是元素节点 */
                     target[sourceKeyName] = UtilsContext.assign(targetValue, sourceValue, isAdd);
@@ -1518,6 +1525,7 @@ class PopsUtils {
                     let targetValue = target[targetKeyName];
                     let sourceValue = source[targetKeyName];
                     if (typeof sourceValue === "object" &&
+                        sourceValue != null &&
                         !UtilsContext.isDOM(sourceValue) &&
                         Object.keys(sourceValue).length) {
                         /* 源端的值是object类型，且不是元素节点 */
@@ -9915,7 +9923,7 @@ class Pops {
     /** 配置 */
     config = {
         /** 版本号 */
-        version: "2024.7.8",
+        version: "2024.7.14",
         cssText: {
             /** 主CSS */
             index: indexCSS,
