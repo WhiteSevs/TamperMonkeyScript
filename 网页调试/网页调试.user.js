@@ -30,11 +30,11 @@
 // @resource        Resource_erudaOutlinePlugin       https://fastly.jsdelivr.net/npm/eruda-outline-plugin
 // @resource        Resource_erudaPixel               https://fastly.jsdelivr.net/npm/eruda-pixel
 // @resource        Resource_vConsoleVueDevtools      https://fastly.jsdelivr.net/npm/vue-vconsole-devtools@1.0.9/dist/vue_plugin.min.js
-// @require         https://fastly.jsdelivr.net/npm/@whitesev/pops@1.1.0/dist/index.umd.js
+// @require         https://fastly.jsdelivr.net/npm/@whitesev/pops@1.2.0/dist/index.umd.js
 // @require         https://update.greasyfork.org/scripts/483694/1410566/Eruda-2.js
 // @require         https://update.greasyfork.org/scripts/483695/1360577/vConsole-2.js
 // @require         https://update.greasyfork.org/scripts/483696/1410567/PageSpy-2.js
-// @require         https://cdn.jsdelivr.net/npm/@whitesev/utils@1.5.9/dist/index.umd.min.js
+// @require         https://cdn.jsdelivr.net/npm/@whitesev/utils@1.6.0/dist/index.umd.min.js
 // ==/UserScript==
 
 (function () {
