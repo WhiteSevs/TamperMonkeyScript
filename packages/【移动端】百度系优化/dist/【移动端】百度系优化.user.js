@@ -11,13 +11,13 @@
 // @match        *://www.tieba.com/*
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/456485/1410583/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1410719/pops.js
 // @require      https://update.greasyfork.org/scripts/488179/1384528/showdown.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.4.31/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.8/lib/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/pinia@2.1.7/dist/pinia.iife.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-router@4.4.0/dist/vue-router.global.js
-// @require      https://update.greasyfork.org/scripts/495227/1378053/Element-Plus.js
+// @require      https://update.greasyfork.org/scripts/495227/1410728/Element-Plus.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.6.0/dist/index.umd.js
