@@ -20,9 +20,10 @@
 		"paths": {
 			"@/*": ["./src/*"]
 		},
-		"types": ["element-plus/global", "./src/env.d.ts"]
+		"types": ["element-plus/global"],
+		"typeRoots": ["types"]
 	},
-	"include": ["src"],
+	"include": ["src", "types"],
 	"references": [
 		{
 			"path": "./tsconfig.node.json"

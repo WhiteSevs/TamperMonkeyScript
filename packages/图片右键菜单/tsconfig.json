@@ -20,9 +20,9 @@
 		"paths": {
 			"@/*": ["./src/*"]
 		},
-		"typeRoots": ["./types"]
+		"typeRoots": ["types"]
 	},
-	"include": ["src"],
+	"include": ["src", "types"],
 	"references": [
 		{
 			"path": "./tsconfig.node.json"
