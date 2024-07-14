@@ -92,7 +92,7 @@ const TiebaSearchSuggestion = {
 	initSearchSuggestion() {
 		let that = this;
 		async function getData(inputValue: string) {
-			let result: PopsSearchSuggestionData[] = [];
+			let result: any[] = [];
 			log.success("搜索中...");
 			let suggestionData = await that.getSuggestion(inputValue);
 			if (utils.isNull(suggestionData)) {
@@ -102,7 +102,7 @@ const TiebaSearchSuggestion = {
 			result = suggestionData?.query_match.search_data || [];
 			return result;
 		}
-		this.$data.searchSuggestion = pops.searchSuggestion({
+		let searchSuggestion = pops.searchSuggestion({
 			selfDocument: document,
 			className: "WhiteSevsSearchSelect",
 			target: this.$ele.$searchInput,
@@ -173,12 +173,13 @@ const TiebaSearchSuggestion = {
 			}
 			`,
 		});
-		this.$data.searchSuggestion.init();
-		this.$data.searchSuggestion.setAllEvent();
+		this.$data.searchSuggestion = searchSuggestion;
+		searchSuggestion.init();
+		searchSuggestion.setAllEvent();
 		log.info("初始化默认搜索...");
 		getData("").then((result) => {
 			if (result.length) {
-				this.$data.searchSuggestion.update(result);
+				searchSuggestion.update(result);
 			}
 		});
 	},

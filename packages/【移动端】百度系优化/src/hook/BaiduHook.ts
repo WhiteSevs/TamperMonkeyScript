@@ -140,7 +140,7 @@ const BaiduHook = {
 		unsafeDefine.prototype.amd = {};
 		OriginPrototype.Object.defineProperty(unsafeWindow, "define", {
 			get() {
-				if(safeDefine == null){
+				if (safeDefine == null) {
 					return;
 				}
 				return unsafeDefine;
@@ -340,7 +340,7 @@ const BaiduHook = {
 			log.info("window.setTimeout hook新增劫持判断参数：" + matchStr);
 			return;
 		}
-		unsafeWindow.setTimeout = function (...args: any[]): any {
+		(unsafeWindow as any).setTimeout = function (...args: any[]): any {
 			let callBackString = args[0].toString();
 			if (callBackString.match(matchStr)) {
 				log.success(["劫持延迟函数", callBackString]);

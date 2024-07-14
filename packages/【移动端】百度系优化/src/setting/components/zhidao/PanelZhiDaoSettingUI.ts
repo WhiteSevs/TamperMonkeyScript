@@ -1,5 +1,6 @@
 import { BaiduRouter } from "@/router/BaiduRouter";
 import { UISwitch } from "@/setting/common-components/ui-switch";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 
 const PanelZhiDaoSettingUI: PopsPanelContentConfig = {
 	id: "baidu-panel-config-zhidao",

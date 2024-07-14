@@ -495,16 +495,18 @@ const BaiduResultItem = {
 		if (
 			PopsPanel.getValue("baidu_search_blocking_everyone_is_still_searching")
 		) {
-			let pageRelativeElement = document.querySelectorAll("#page-relative");
+			let pageRelativeElement =
+				document.querySelectorAll<HTMLDivElement>("#page-relative");
 			if (pageRelativeElement.length) {
 				log.success(
 					`删除广告位 ==> 末尾 大家都在搜 ${pageRelativeElement.length}个`
 				);
 				DOMUtils.remove(pageRelativeElement);
 			}
-			let centerRecommandWarpperElement = document.querySelectorAll(
-				".c-recomm-wrap.new-ux-recom-wrapper.c-bg-color-white.animation"
-			);
+			let centerRecommandWarpperElement =
+				document.querySelectorAll<HTMLDivElement>(
+					".c-recomm-wrap.new-ux-recom-wrapper.c-bg-color-white.animation"
+				);
 			if (centerRecommandWarpperElement.length) {
 				log.success(
 					`删除广告位 ==> 中间 大家都在搜 ${centerRecommandWarpperElement.length}个`
@@ -522,16 +524,20 @@ const BaiduResultItem = {
 			if (SearchResultEveryOneSearch.refactorEveryoneIsStillSearching) {
 				/* 重构大家都在搜 */
 				SearchResultEveryOneSearch.handleBottom(
-					Array.from(document.querySelectorAll("#page-relative"))
+					Array.from(
+						document.querySelectorAll<HTMLDivElement>("#page-relative")
+					)
 				);
 				SearchResultEveryOneSearch.handleCenter(
 					Array.from(
-						document.querySelectorAll('.c-result.result[tpl^="recommend_list"]')
+						document.querySelectorAll<HTMLDivElement>(
+							'.c-result.result[tpl^="recommend_list"]'
+						)
 					)
 				);
 			}
 		}
-		let popUpElement = document.querySelectorAll("#pop-up");
+		let popUpElement = document.querySelectorAll<HTMLDivElement>("#pop-up");
 		if (popUpElement.length) {
 			log.success(`删除 ==> 跳转百度app提示 ${popUpElement.length}个`);
 			DOMUtils.remove(popUpElement);

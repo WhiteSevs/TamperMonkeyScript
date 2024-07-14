@@ -21,13 +21,9 @@
 			"@库/*": ["./../../库/*"],
 			"@/*": ["./src/*"]
 		},
-		"types": [
-			"element-plus/global",
-			"./src/env.d.ts",
-			"./../../库/pops/core.d.ts"
-		]
+		"typeRoots": ["types"]
 	},
-	"include": ["src"],
+	"include": ["src", "types"],
 	"exclude": ["./../../库/showdown"],
 	"references": [
 		{

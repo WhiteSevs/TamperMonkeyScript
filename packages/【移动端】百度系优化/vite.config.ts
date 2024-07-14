@@ -8,6 +8,20 @@ import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import { ViteUtils, GetLib } from "./vite.utils";
 
+const pkg = require("./package.json") as {
+	name: string;
+	version: string;
+	scripts: {
+		[key: string]: string;
+	};
+	dependencies: {
+		[key: string]: string;
+	};
+	devDependencies: {
+		[key: string]: string;
+	};
+};
+
 const SCRIPT_NAME = "【移动端】百度系优化";
 const Utils = new ViteUtils(__dirname);
 let FILE_NAME = SCRIPT_NAME + ".user.js";
@@ -95,10 +109,12 @@ export default defineConfig({
 				],
 				require: await GetLib(["CoverUMD", "pops", "showdown"]),
 				resource: {
-					ElementPlusResourceCSS:
-						"https://fastly.jsdelivr.net/npm/element-plus@2.7.5/dist/index.min.css",
-					ViewerCSS:
-						"https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css",
+					ElementPlusResourceCSS: `https://fastly.jsdelivr.net/npm/element-plus@${pkg[
+						"devDependencies"
+					]["element-plus"].replace(/^\^/, "")}/dist/index.min.css`,
+					ViewerCSS: `https://fastly.jsdelivr.net/npm/viewerjs@${pkg[
+						"dependencies"
+					]["viewerjs"].replace(/^\^/, "")}/dist/viewer.min.css`,
 				},
 			},
 			clientAlias: "ViteGM",
@@ -141,6 +157,7 @@ export default defineConfig({
 						"dist/index.umd.js"
 					),
 					viewerjs: cdn.jsdelivrFastly("Viewer", "dist/viewer.min.js"),
+					"@whitesev/pops": cdn.jsdelivrFastly("pops", "dist/index.umd.js"),
 					// "@tiptap/vue-3": cdn.jsdelivrFastly(""),
 					// "@tiptap/starter-kit": cdn.jsdelivrFastly(""),
 					// "@tiptap/pm": cdn.jsdelivrFastly(""),

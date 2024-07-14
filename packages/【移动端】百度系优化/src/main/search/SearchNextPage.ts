@@ -12,6 +12,7 @@ import { PopsPanel } from "@/setting/setting";
 import { BaiduResultItem } from "./SearchResultItem";
 import { SearchResultEveryOneSearch } from "./SearchResultEveryOneSearch";
 import { CommonUtils } from "@/utils/CommonUtils";
+import { BaiduRouter } from "@/router/BaiduRouter";
 
 interface PageInfo {
 	pageNum: number;
@@ -40,20 +41,49 @@ const SearchNextPage = {
 	 * 观察器
 	 */
 	intersectionObserver: null as unknown as IntersectionObserver,
+	$el: {
+		/**
+		 * 结果项的容器元素
+		 */
+		get pageController() {
+			return (
+				document.querySelector<HTMLDivElement>("#page-controller") ||
+				document.querySelector<HTMLDivElement>("#page-bd") ||
+				// 问答页面的
+				// https://m.baidu.com/sf/vsearch?pd=wenda_tab&tn=vsearch&pn=10&from=0&word=%E9%B2%8D%E9%B1%BC&sa=vs_np&ms=1&rqid=
+				document.querySelector<HTMLElement>("b-superframe-body")
+			);
+		},
+		/**
+		 * 结果项元素，用来把结果元素一个个的添加到该元素内
+		 */
+		get results() {
+			return (
+				document.querySelector<HTMLElement>("#results")! ||
+				document.querySelector<HTMLElement>("b-superframe-body .sfa-results")
+			);
+		},
+	},
 	init() {
+		if (BaiduRouter.isSearchNote()) {
+			// 笔记页面，有页面本身的加载下一页功能
+			loadingView.hide();
+			log.warn(
+				"自动翻页：当前为笔记页面，禁用自动加载下一页功能，原因：该页面自带加载下一页功能"
+			);
+			return;
+		}
 		this.initPageLineCSS();
 		CommonUtils.addBlockCSS(
 			/* 隐藏分页控制器 */
 			"#page-controller"
 		);
 		loadingView.initLoadingView(true);
-		let $loadingViewPrev =
-			document.querySelector<HTMLDivElement>("#page-controller") ||
-			document.querySelector<HTMLDivElement>("#page-bd");
+		let $loadingViewPrev = this.$el.pageController;
 		if ($loadingViewPrev) {
 			DOMUtils.after($loadingViewPrev, loadingView.getLoadingViewElement());
 		} else {
-			log.error("未找到可以在后面插入加载中的元素");
+			log.error("自动翻页：未找到可以在后面插入加载中的元素");
 			return;
 		}
 		this.setNextPageLoadingObserver();
@@ -152,7 +182,7 @@ const SearchNextPage = {
 	 * @param pageNum
 	 */
 	parsePageNumToParamPn(pageNum: number | string) {
-		pageNum = parseInt(pageNum as string);
+		pageNum = parseInt(pageNum.toString());
 		if (isNaN(pageNum)) {
 			throw new TypeError("页码解析失败");
 		}
@@ -163,28 +193,32 @@ const SearchNextPage = {
 	 * 解析分页控制器的元素的下一页信息
 	 */
 	parseNextPageInfoWithPageController(
-		$pageController: Node
+		$doc: Document
 	): NextPageInfo | undefined {
+		let $nextPage = $doc.querySelector<HTMLAnchorElement>(".new-nextpage");
+		let $nextPageOnly =
+			$doc.querySelector<HTMLAnchorElement>(".new-nextpage-only");
 		let nextPageUrl =
-			($pageController as HTMLElement).querySelector<HTMLAnchorElement>(
-				".new-nextpage"
-			)?.href ||
-			($pageController as HTMLElement).querySelector<HTMLAnchorElement>(
-				".new-nextpage-only"
-			)?.href;
+			$nextPage?.getAttribute("href") ||
+			$nextPage?.getAttribute("data-sflink") ||
+			$nextPageOnly?.getAttribute("href") ||
+			$nextPageOnly?.getAttribute("data-sflink");
 		if (nextPageUrl) {
-			let param_pn_match = new URL(nextPageUrl).search.match(/[0-9]+/);
-			if (param_pn_match == null) {
+			nextPageUrl = CommonUtils.fixUrl(nextPageUrl);
+			let param_pn_match = new URL(nextPageUrl).searchParams;
+			if (!param_pn_match.has("pn")) {
 				log.warn("获取不到pn参数");
 				return;
 			}
-			let param_pn = parseInt(param_pn_match[0]);
+			let param_pn = parseInt(param_pn_match.get("pn")!.toString());
 			let pageNum = this.parseParamPnToPageNum(param_pn);
 			return {
 				pn: param_pn,
 				pageNum: pageNum,
 				nextPageUrl: this.fixNextPageUrl(nextPageUrl),
 			};
+		} else {
+			log.warn("未获取到下一页按钮元素链接");
 		}
 		return;
 	},
@@ -212,8 +246,13 @@ const SearchNextPage = {
 	getInitPageInfo(): PageInfo | undefined {
 		let initPageInfo = this.parseNextPageInfoWithPageController(document);
 		if (initPageInfo) {
-			initPageInfo.pageNum = initPageInfo.pageNum - 1;
-			initPageInfo.pn = initPageInfo.pn - 10;
+			// 因为获取到的是下一页的
+			// 所以要把下一页的参数减掉
+			if (initPageInfo.pageNum === 1) {
+				return initPageInfo;
+			}
+			initPageInfo.pageNum -= 1;
+			initPageInfo.pn -= 10;
 			return initPageInfo;
 		} else {
 			// 未获取到下一页的元素控制台，可能被其它脚本删除了，例如：AC-baidu-重定向...
@@ -275,7 +314,7 @@ const SearchNextPage = {
 	 * @param num 分页
 	 */
 	appendLineDriver(num: number) {
-		let currentResultsDOM = document.querySelector("#results") as HTMLElement;
+		let currentResultsDOM = SearchNextPage.$el.results;
 		currentResultsDOM.appendChild(SearchNextPage.getPageLineElement(num));
 	},
 	/**
@@ -293,8 +332,10 @@ const SearchNextPage = {
 			}
 			this.initPageInfo = null;
 			this.initPageInfo = pageInfo;
+			// 赋值当前页参数
 			this.pageInfo = null as any;
 			this.pageInfo = pageInfo;
+			// 赋值下一页参数
 			this.nextPageInfo = null as any;
 			this.nextPageInfo = {
 				pn: pageInfo.pn + 10,
@@ -324,47 +365,43 @@ const SearchNextPage = {
 		let respData = getResp.data;
 		if (getResp.status) {
 			log.success("响应的finalUrl: " + respData["finalUrl"]);
-			let nextPageHTMLNode = DOMUtils.parseHTML(
+			let nextPageDoc = DOMUtils.parseHTML(
 				respData.responseText,
 				true,
 				true
 			) as Document;
 			// 解析下一页的<script>标签内的数据，（获取某些项的真实链接）
 			let scriptAtomData = DOMUtils.createElement("div");
-			nextPageHTMLNode
-				.querySelectorAll("script[id^=atom-data]")
-				.forEach((item) => {
-					scriptAtomData.appendChild(item);
-				});
+			nextPageDoc.querySelectorAll("script[id^=atom-data]").forEach((item) => {
+				scriptAtomData.appendChild(item);
+			});
 			let nextPageScriptOriginUrlMap =
 				BaiduResultItem.parseScriptDOMOriginUrlMap(scriptAtomData);
 			BaiduResultItem.originURLMap.concat(nextPageScriptOriginUrlMap);
 			// 将下一页的样式插入到当前页面
-			nextPageHTMLNode
-				.querySelectorAll("style[data-vue-ssr-id]")
-				.forEach((item) => {
-					/* 插入vue打包的css需重新引入 */
-					let dataVueSsrId = "data-vue-ssr-id";
-					let dataVueSsrIdValue = item.getAttribute(dataVueSsrId) as string;
-					if (
-						utils.isNull(dataVueSsrIdValue) ||
-						!document.querySelector(
-							`style[data-vue-ssr-id="${dataVueSsrIdValue}"]`
-						)
-					) {
-						let cssDOM = addStyle(item.innerHTML);
-						cssDOM.setAttribute("data-vue-ssr-id", dataVueSsrIdValue);
-						log.info(["插入Vue的CSS", cssDOM]);
-					}
-				});
+			nextPageDoc.querySelectorAll("style[data-vue-ssr-id]").forEach((item) => {
+				/* 插入vue打包的css需重新引入 */
+				let dataVueSsrId = "data-vue-ssr-id";
+				let dataVueSsrIdValue = item.getAttribute(dataVueSsrId) as string;
+				if (
+					utils.isNull(dataVueSsrIdValue) ||
+					!document.querySelector(
+						`style[data-vue-ssr-id="${dataVueSsrIdValue}"]`
+					)
+				) {
+					let cssDOM = addStyle(item.innerHTML);
+					cssDOM.setAttribute("data-vue-ssr-id", dataVueSsrIdValue);
+					log.info(["插入Vue的CSS", cssDOM]);
+				}
+			});
 			// 解析下一页的搜索结果项
-			let searchResultDOM =
-				nextPageHTMLNode.querySelectorAll(".c-result.result");
+			let searchResultDOM = nextPageDoc.querySelectorAll(".c-result");
 			// 解析下一页的下一页地址的容器（用于判断是否需要请求下下一页）
 			let nextPageControllerDOM =
-				nextPageHTMLNode.querySelector<HTMLElement>("#page-controller");
+				nextPageDoc.querySelector<HTMLElement>("#page-controller") ||
+				nextPageDoc.querySelector<HTMLElement>(".vsearch-page-controller");
 			// 当前页面的搜索结果容器
-			let currentResultsDOM = document.querySelector("#results") as HTMLElement;
+			let currentResultsDOM = SearchNextPage.$el.results;
 			if (nextPageControllerDOM) {
 				/* 添加显示当前是第xx页的分割项 */
 				this.appendLineDriver(this.pageInfo.pageNum);
@@ -386,13 +423,15 @@ const SearchNextPage = {
 				/* 处理下一页的【大家还在搜】 */
 				if (SearchResultEveryOneSearch.refactorEveryoneIsStillSearching) {
 					SearchResultEveryOneSearch.handleBottom(
-						Array.from(nextPageHTMLNode.querySelectorAll("#page-relative"))
+						Array.from(nextPageDoc.querySelectorAll("#page-relative"))
 					);
 				}
 				// 解析下下一页的页码信息
 				let nextNextPageInfo =
-					this.parseNextPageInfoWithPageController(nextPageHTMLNode);
+					this.parseNextPageInfoWithPageController(nextPageDoc);
 				if (nextNextPageInfo) {
+					log.info(["请求的页信息：", this.nextPageInfo]);
+					log.info(["请求的页解析出的下一页信息：", nextNextPageInfo]);
 					if (nextNextPageInfo.pageNum > this.nextPageInfo.pageNum) {
 						let nextPageInfo = this.nextPageInfo;
 

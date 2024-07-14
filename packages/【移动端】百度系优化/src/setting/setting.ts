@@ -24,6 +24,9 @@ import { PanelAiStudySettingUI } from "./components/aistudy/PanelAiStudySettingU
 import { YiYanChat } from "@/main/yiyan/YiYanChat";
 import { PanelCommonSettingUI } from "./components/common/PanelCommonSettingUI";
 import type { UtilsDictionary } from "@whitesev/utils/dist/src/Dictionary";
+import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
+import { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 
 const __PopsPanel__ = {
 	data: null as any as UtilsDictionary<string, any>,

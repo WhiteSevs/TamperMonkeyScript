@@ -4,6 +4,7 @@ import { BaiduRouter } from "@/router/BaiduRouter";
 import { UIButton } from "@/setting/common-components/ui-button";
 import { UISwitch } from "@/setting/common-components/ui-switch";
 import Qmsg from "qmsg";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 
 const PanelTieBaSettingUI: PopsPanelContentConfig = {
 	id: "baidu-panel-config-tieba",

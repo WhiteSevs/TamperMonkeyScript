@@ -1,4 +1,5 @@
 import { DOMUtils, httpx, log, showdown, pops, utils } from "@/env";
+import { PopsCallResult } from "@whitesev/pops/dist/types/src/types/main";
 import Qmsg from "qmsg";
 
 const YiYanChat = {
@@ -53,6 +54,7 @@ const YiYanChat = {
 			}
 		);
 		if (!getResp.status) {
+			log.error(getResp);
 			return false;
 		}
 		try {
@@ -272,7 +274,7 @@ const YiYanChat = {
             }
             }
             `,
-		}) as PopsCallResult;
+		});
 		YiYanChat.loadCSS(
 			"https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown.min.css"
 		);

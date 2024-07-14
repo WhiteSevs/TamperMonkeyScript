@@ -59,4 +59,20 @@ export const CommonUtils = {
 			document.head.appendChild($link);
 		});
 	},
+	/**
+	 * 将url修复，例如只有search的链接/sss/xxx?sss=xxxx
+	 * @param url 需要修复的链接
+	 */
+	fixUrl(url: string) {
+		url = url.trim();
+		if (url.match(/^http(s|):\/\//i)) {
+			return url;
+		} else {
+			if (!url.startsWith("/")) {
+				url += "/";
+			}
+			url = window.location.origin + url;
+			return url;
+		}
+	},
 };

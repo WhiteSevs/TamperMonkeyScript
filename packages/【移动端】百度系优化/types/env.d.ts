@@ -1,4 +1,3 @@
-import type showdown from "showdown";
 /**
  * 空对象
  *

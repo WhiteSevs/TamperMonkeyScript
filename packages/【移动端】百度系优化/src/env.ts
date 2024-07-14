@@ -18,12 +18,12 @@ import { HttpxCookieManager } from "./utils/HttpxCookieManager";
 import { PopsPanel } from "./setting/setting";
 import { CommonUtils } from "./utils/CommonUtils";
 import { GM_RESOURCE_MAP } from "./GM_Resource_Map";
+import pops from "@whitesev/pops";
 
 const _SCRIPT_NAME_ = "【移动端】百度系优化";
 const utils = Utils.noConflict();
 const domutils = DOMUtils.noConflict();
-const pops: typeof import("@库/pops") =
-	(monkeyWindow as any).pops || (unsafeWindow as any).pops;
+const __pops = pops;
 const showdown: typeof import("@库/showdown") =
 	(monkeyWindow as any).showdown || (unsafeWindow as any).showdown;
 const log = new Utils.Log(
@@ -72,7 +72,7 @@ Qmsg.config(
 				get() {
 					let maxZIndex = Utils.getMaxZIndex();
 					let popsMaxZIndex =
-						pops.config.Utils.getPopsMaxZIndex(maxZIndex).zIndex;
+						pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
 					return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
 				},
 			},
@@ -177,7 +177,7 @@ const MountVue = async function (targetApp: any, plugin: any[] = []) {
 export {
 	utils,
 	domutils as DOMUtils,
-	pops,
+	__pops as pops,
 	log,
 	GM_Menu,
 	SCRIPT_NAME,

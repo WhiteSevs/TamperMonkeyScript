@@ -44,6 +44,22 @@ const BaiduRouter = {
 		);
 	},
 	/**
+	 * 百度搜索 笔记
+	 * /sf/vsearch?pd=note
+	 */
+	isSearchNote() {
+		let searchParams = new URLSearchParams(window.location.search);
+		return this.isSearch() && searchParams.has("pd", "note");
+	},
+	/**
+	 * 百度搜索 问答
+	 * /sf/vsearch?pd=wenda_tab
+	 */
+	isSearchWenDaTab() {
+		let searchParams = new URLSearchParams(window.location.search);
+		return this.isSearch() && searchParams.has("pd", "wenda_tab");
+	},
+	/**
 	 * 百家号
 	 * @returns
 	 */

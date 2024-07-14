@@ -4,6 +4,7 @@ import { BaiduRouter } from "@/router/BaiduRouter";
 import { PopsPanel } from "@/setting/setting";
 import { UISwitch } from "@/setting/common-components/ui-switch";
 import Qmsg from "qmsg";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 
 const PanelSearchSettingUI: PopsPanelContentConfig = {
 	id: "baidu-panel-config-search",
@@ -74,6 +75,13 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 							text: "",
 							type: "forms",
 							forms: [
+								UISwitch(
+									"禁止自动播放视频",
+									"baidu-search-blockAutomaticVideoPlayback",
+									true,
+									void 0,
+									"移除video-player元素，可能会导致某些第一个结果是智能卡片时，点击更多按钮无反应(webview/Safari)"
+								),
 								UISwitch(
 									"处理搜索结果",
 									"baidu_search_handle_search_result",
@@ -177,7 +185,7 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 					],
 				},
 				{
-					text: "屏蔽/禁止",
+					text: "屏蔽",
 					type: "deepMenu",
 					forms: [
 						{
@@ -192,11 +200,11 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 									"用于补充下面自定义拦截规则的默认配置的【大家还在搜】"
 								),
 								UISwitch(
-									"【禁止】自动播放视频",
-									"baidu-search-blockAutomaticVideoPlayback",
-									true,
+									"【屏蔽】精选笔记",
+									"baidu-search-blockNoteLead",
+									false,
 									void 0,
-									"移除video-player元素，可能会导致某些第一个结果是智能卡片时，点击更多按钮无反应(webview/Safari)"
+									"屏蔽 精选笔记 搜素结果"
 								),
 							],
 						},
