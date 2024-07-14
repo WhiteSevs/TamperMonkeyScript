@@ -1,18 +1,4 @@
 /**
- * config.data
- */
-export interface PopsSearchSuggestionData<T = any> {
-	/**
-	 * 存储的值
-	 */
-	value: T;
-	/**
-	 * li元素的html
-	 */
-	text: string;
-}
-
-/**
  * 搜索建议悬浮窗
  * pops.searchSuggestion
  */
@@ -32,7 +18,7 @@ export interface PopsSearchSuggestionDetails<T = any> {
 	/**
 	 * 数据
 	 */
-	data: PopsSearchSuggestionData<T>[];
+	data: T[];
 	/**
 	 * 右边的删除按钮图标
 	 */
@@ -47,7 +33,7 @@ export interface PopsSearchSuggestionDetails<T = any> {
 		callback?: (
 			event: MouseEvent | PointerEvent,
 			liElement: HTMLLIElement,
-			data: PopsSearchSuggestionData<T>
+			data: T
 		) => void;
 	};
 	/**
@@ -109,12 +95,12 @@ export interface PopsSearchSuggestionDetails<T = any> {
 	/**
 	 * 获取每一项的html
 	 */
-	getItemHTML: (item: PopsSearchSuggestionData<T>) => string;
+	getItemHTML: (item: T) => string;
 	/**
 	 * 当config.target触发input时自动调用该函数来获取数据
-	 * @param value 当前输入框的值
+	 * @param inputValue 当前输入框的值
 	 */
-	getData: (value: string) => Promise<any[]>;
+	getData: (inputValue: string) => Promise<T[]> | T[];
 	/**
 	 * 每一项的点击回调
 	 * @param event 触发的事件
@@ -124,7 +110,7 @@ export interface PopsSearchSuggestionDetails<T = any> {
 	itemClickCallBack?: (
 		event: MouseEvent | PointerEvent,
 		liElement: HTMLLIElement,
-		data: PopsSearchSuggestionData<T>
+		data: T
 	) => void;
 	/**
 	 * 键盘的上下键选择的回调
@@ -135,7 +121,7 @@ export interface PopsSearchSuggestionDetails<T = any> {
 	selectCallBack?: (
 		event: MouseEvent,
 		liElement: HTMLLIElement,
-		data: PopsSearchSuggestionData<T>
+		data: T
 	) => void;
 	/**
 	 * （可选）自定义style
@@ -166,16 +152,11 @@ export interface PopsSearchSuggestionResult<T = any> {
 	/**
 	 * 获取显示出搜索建议框的每一项的html
 	 */
-	getSearchItemLiElement: (
-		data: PopsSearchSuggestionData<T>,
-		index: number
-	) => HTMLElement;
+	getSearchItemLiElement: (data: T, index: number) => HTMLElement;
 	/**
 	 * 获取data-value值
 	 */
-	getItemDataValue: (
-		data: PopsSearchSuggestionData<T>
-	) => PopsSearchSuggestionData<T>;
+	getItemDataValue: (data: T) => T;
 	/**
 	 * 设置搜索建议框每一项的点击事件
 	 */
@@ -241,7 +222,7 @@ export interface PopsSearchSuggestionResult<T = any> {
 	/**
 	 * 更新页面显示的搜索结果
 	 */
-	update: (data: PopsSearchSuggestionData<T>) => void;
+	update: (data: T[]) => void;
 	/**
 	 * 清空当前的搜索结果并显示无结果
 	 */

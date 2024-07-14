@@ -2,10 +2,7 @@ import { PopsHandler } from "../../handler/PopsHandler";
 import { pops } from "../../Pops";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { popsUtils } from "../../utils/PopsUtils";
-import type {
-	PopsSearchSuggestionData,
-	PopsSearchSuggestionDetails,
-} from "./indexType";
+import type { PopsSearchSuggestionDetails } from "./indexType";
 
 export class PopsSearchSuggestion {
 	constructor(details: PopsSearchSuggestionDetails) {
@@ -209,7 +206,7 @@ export class PopsSearchSuggestion {
 			 * @param data 当前项的值
 			 * @param index 当前项的下标
 			 */
-			getSearchItemLiElement(data: PopsSearchSuggestionData, index: number) {
+			getSearchItemLiElement(data: any, index: number) {
 				return popsDOMUtils.createElement("li", {
 					className: `pops-${PopsType}-search-suggestion-hint-item pops-flex-items-center pops-flex-y-center`,
 					"data-index": index,
@@ -228,7 +225,7 @@ export class PopsSearchSuggestion {
 			 * 获取data-value值
 			 * @param data
 			 */
-			getItemDataValue(data: PopsSearchSuggestionData) {
+			getItemDataValue(data: any) {
 				return data;
 			},
 			/**
@@ -600,7 +597,7 @@ export class PopsSearchSuggestion {
 			 * 更新页面显示的搜索结果
 			 * @param data
 			 */
-			update(data: PopsSearchSuggestionData[] = []) {
+			update(data: any[] = []) {
 				if (!Array.isArray(data)) {
 					throw new TypeError("传入的数据不是数组");
 				}
