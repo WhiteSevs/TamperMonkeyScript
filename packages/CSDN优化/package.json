@@ -15,8 +15,9 @@
   },
   "dependencies": {
     "@whitesev/domutils": "^1.1.2",
+    "@whitesev/pops": "^1.1.0",
     "@whitesev/utils": "^1.5.9",
-    "qmsg": "^1.1.2"
+    "qmsg": "^1.2.1"
   },
   "devDependencies": {
     "@types/node": "^20.14.10",

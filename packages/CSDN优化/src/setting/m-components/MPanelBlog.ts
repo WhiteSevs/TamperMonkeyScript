@@ -2,6 +2,7 @@ import { DOMUtils } from "@/env";
 import { CSDNRouter } from "@/router/CSDNRouter";
 import { UISlider } from "@/setting/common-components/ui-slider";
 import { UISwitch } from "@/setting/common-components/ui-switch";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 
 const MSettingUIBlog: PopsPanelContentConfig = {
 	id: "m-panel-blog",

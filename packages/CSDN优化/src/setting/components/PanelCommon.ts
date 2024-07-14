@@ -2,6 +2,7 @@ import { log } from "@/env";
 import { UISwitch } from "../common-components/ui-switch";
 import { UITextArea } from "../common-components/ui-textarea";
 import { UISelect } from "../common-components/ui-select";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 
 export const SettingUICommon: PopsPanelContentConfig = {
 	id: "component-common",

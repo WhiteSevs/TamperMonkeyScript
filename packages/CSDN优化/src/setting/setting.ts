@@ -15,6 +15,11 @@ import { MSettingUIDownload } from "./m-components/MPanelDownload";
 import { SettingUICommon } from "./components/PanelCommon";
 import { MSettingUICommon } from "./m-components/MPanelCommon";
 import type { UtilsDictionary } from "@whitesev/utils/dist/src/Dictionary";
+import {
+	PopsPanelContentConfig,
+	PopsPanelFormsTotalDetails,
+} from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 
 type PopsPanelValueChangeCallBack = (
 	key: string,
