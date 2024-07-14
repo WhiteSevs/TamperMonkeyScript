@@ -20,9 +20,12 @@ export interface PopsRightClickMenuDataDetails {
      * @param clickEvent 点击菜单的click事件
      * @param contextMenuEvent 触发的contextmenu事件
      * @param liElement <li>元素
+     * @returns
+     * + true(默认) 关闭菜单
+     * + false 不关闭菜单
      *
      */
-    callback: (clickEvent: PointerEvent, contextMenuEvent: PointerEvent, liElement: HTMLLIElement) => boolean | void;
+    callback?: (clickEvent: PointerEvent, contextMenuEvent: PointerEvent, liElement: HTMLLIElement) => boolean | void | Promise<boolean | void>;
     /**
      * 子项配置
      */
@@ -35,7 +38,7 @@ export interface PopsRightClickMenuDetails {
     /**
      * 目标，默认为document.documentElement
      */
-    target?: HTMLElement | undefined;
+    target?: HTMLElement | typeof globalThis | Window | EventTarget | Node;
     /**
      * 目标的子元素选择器，默认为空
      */

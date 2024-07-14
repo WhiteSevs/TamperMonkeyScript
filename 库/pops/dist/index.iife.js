@@ -8965,11 +8965,13 @@ var pops = (function () {
                     popsDOMUtils.on(globalThis, "click touchstart", void 0, PopsContextMenu.windowCheckClickEvent, {
                         capture: true,
                     });
-                    const $shadowRoot = config.target.getRootNode();
-                    if ($shadowRoot instanceof ShadowRoot) {
-                        popsDOMUtils.on($shadowRoot, "click touchstart", void 0, PopsContextMenu.shadowRootCheckClickEvent, {
-                            capture: true,
-                        });
+                    if (config.target instanceof Node) {
+                        const $shadowRoot = config.target.getRootNode();
+                        if ($shadowRoot instanceof ShadowRoot) {
+                            popsDOMUtils.on($shadowRoot, "click touchstart", void 0, PopsContextMenu.shadowRootCheckClickEvent, {
+                                capture: true,
+                            });
+                        }
                     }
                 },
                 /**
@@ -8979,11 +8981,13 @@ var pops = (function () {
                     popsDOMUtils.off(globalThis, "click touchstart", void 0, PopsContextMenu.windowCheckClickEvent, {
                         capture: true,
                     });
-                    const $shadowRoot = config.target.getRootNode();
-                    if ($shadowRoot instanceof ShadowRoot) {
-                        popsDOMUtils.off($shadowRoot, "click touchstart", void 0, PopsContextMenu.windowCheckClickEvent, {
-                            capture: true,
-                        });
+                    if (config.target instanceof Node) {
+                        const $shadowRoot = config.target.getRootNode();
+                        if ($shadowRoot instanceof ShadowRoot) {
+                            popsDOMUtils.off($shadowRoot, "click touchstart", void 0, PopsContextMenu.windowCheckClickEvent, {
+                                capture: true,
+                            });
+                        }
                     }
                 },
                 /**
