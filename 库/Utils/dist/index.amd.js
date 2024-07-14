@@ -3463,13 +3463,20 @@ define((function () { 'use strict';
                     return source;
                 }
             }
+            if (source == null) {
+                return target;
+            }
+            if (target == null) {
+                target = {};
+            }
             if (isAdd) {
                 for (const sourceKeyName in source) {
                     const targetKeyName = sourceKeyName;
                     let targetValue = target[targetKeyName];
                     let sourceValue = source[sourceKeyName];
-                    if (sourceKeyName in target &&
-                        typeof sourceValue === "object" &&
+                    if (typeof sourceValue === "object" &&
+                        sourceValue != null &&
+                        sourceKeyName in target &&
                         !UtilsContext.isDOM(sourceValue)) {
                         /* 源端的值是object类型，且不是元素节点 */
                         target[sourceKeyName] = UtilsContext.assign(targetValue, sourceValue, isAdd);
@@ -3484,6 +3491,7 @@ define((function () { 'use strict';
                         let targetValue = target[targetKeyName];
                         let sourceValue = source[targetKeyName];
                         if (typeof sourceValue === "object" &&
+                            sourceValue != null &&
                             !UtilsContext.isDOM(sourceValue) &&
                             Object.keys(sourceValue).length) {
                             /* 源端的值是object类型，且不是元素节点 */

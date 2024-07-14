@@ -119,14 +119,21 @@ class Utils {
 				return source;
 			}
 		}
+		if (source == null) {
+			return target;
+		}
+		if (target == null) {
+			target = {};
+		}
 		if (isAdd) {
 			for (const sourceKeyName in source) {
 				const targetKeyName = sourceKeyName;
 				let targetValue = (target as any)[targetKeyName];
 				let sourceValue = (source as any)[sourceKeyName];
 				if (
-					sourceKeyName in target &&
 					typeof sourceValue === "object" &&
+					sourceValue != null &&
+					sourceKeyName in target &&
 					!UtilsContext.isDOM(sourceValue)
 				) {
 					/* 源端的值是object类型，且不是元素节点 */
@@ -146,6 +153,7 @@ class Utils {
 					let sourceValue = (source as any)[targetKeyName];
 					if (
 						typeof sourceValue === "object" &&
+						sourceValue != null &&
 						!UtilsContext.isDOM(sourceValue) &&
 						Object.keys(sourceValue).length
 					) {
