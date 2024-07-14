@@ -1,5 +1,5 @@
 declare class UtilsDictionary<K extends PropertyKey, V extends any> {
-    #private;
+    private items;
     constructor();
     /**
      * 检查是否有某一个键
