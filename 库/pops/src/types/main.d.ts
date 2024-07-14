@@ -88,3 +88,29 @@ export type PopsPanelFormsTotalDetails =
 	| PopsPanelButtonDetails
 	| PopsPanelDeepMenuDetails
 	| PopsPanelOwnDetails;
+
+/**
+ * pops.xxx的调用返回值
+ */
+export interface PopsCallResult {
+	/** 唯一标识id */
+	guid: string;
+	/** 影子元素 */
+	$shadowContainer: HTMLDivElement;
+	/** 影子元素的根节点 */
+	$shadowRoot: ShadowRoot;
+	/** 元素 */
+	element: HTMLDivElement;
+	/** 动画层元素 */
+	animElement: HTMLDivElement;
+	/** pops元素 */
+	popsElement: HTMLDivElement;
+	/** 遮罩层元素 */
+	maskElement?: HTMLDivElement;
+	/** 关闭弹窗 */
+	close(): void;
+	/** 隐藏弹窗 */
+	hide(): void;
+	/** 显示弹窗 */
+	show(): void;
+}
