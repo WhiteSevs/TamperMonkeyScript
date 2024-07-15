@@ -1,7 +1,7 @@
 import { Utils } from "./Utils";
 
 class UtilsDictionary<K extends PropertyKey, V extends any> {
-	private items: {
+	#items: {
 		[key: PropertyKey]: V;
 	} = {};
 	constructor() {}
@@ -10,7 +10,7 @@ class UtilsDictionary<K extends PropertyKey, V extends any> {
 	 * @param key 键
 	 */
 	has(key: K): boolean {
-		return this.items.hasOwnProperty(key as PropertyKey);
+		return this.#items.hasOwnProperty(key as PropertyKey);
 	}
 	/**
 	 * 检查已有的键中是否以xx开头
@@ -34,7 +34,7 @@ class UtilsDictionary<K extends PropertyKey, V extends any> {
 		let result = null;
 		for (const keyName of allKeys) {
 			if (keyName.startsWith(key as string)) {
-				result = (this.items as any)[keyName];
+				result = (this.#items as any)[keyName];
 				break;
 			}
 		}
@@ -49,7 +49,7 @@ class UtilsDictionary<K extends PropertyKey, V extends any> {
 		if (key === void 0) {
 			throw new Error("Utils.Dictionary().set 参数 key 不能为空");
 		}
-		(this.items as any)[key] = val;
+		(this.#items as any)[key] = val;
 	}
 	/**
 	 * 删除某一个键
@@ -57,7 +57,7 @@ class UtilsDictionary<K extends PropertyKey, V extends any> {
 	 */
 	delete(key: K): boolean {
 		if (this.has(key)) {
-			Reflect.deleteProperty(this.items, key as string);
+			Reflect.deleteProperty(this.#items, key as string);
 			return true;
 		}
 		return false;
@@ -85,8 +85,8 @@ class UtilsDictionary<K extends PropertyKey, V extends any> {
 	 * 清空字典
 	 */
 	clear() {
-		this.items = void 0 as any;
-		this.items = {};
+		this.#items = void 0 as any;
+		this.#items = {};
 	}
 	/**
 	 * 获取字典的长度
@@ -104,14 +104,14 @@ class UtilsDictionary<K extends PropertyKey, V extends any> {
 	 * 返回字典本身
 	 */
 	getItems() {
-		return this.items;
+		return this.#items;
 	}
 	/**
 	 * 合并另一个字典
 	 * @param data 需要合并的字典
 	 */
 	concat(data: UtilsDictionary<K, V>) {
-		this.items = Utils.assign(this.items, data.getItems());
+		this.#items = Utils.assign(this.#items, data.getItems());
 	}
 	forEach(
 		callbackfn: (value: V, key: K, dictionary: UtilsDictionary<K, V>) => void

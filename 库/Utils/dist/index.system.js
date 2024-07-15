@@ -3281,14 +3281,14 @@ System.register('Utils', [], (function (exports) {
             };
 
             class UtilsDictionary {
-                items = {};
+                #items = {};
                 constructor() { }
                 /**
                  * 检查是否有某一个键
                  * @param key 键
                  */
                 has(key) {
-                    return this.items.hasOwnProperty(key);
+                    return this.#items.hasOwnProperty(key);
                 }
                 /**
                  * 检查已有的键中是否以xx开头
@@ -3312,7 +3312,7 @@ System.register('Utils', [], (function (exports) {
                     let result = null;
                     for (const keyName of allKeys) {
                         if (keyName.startsWith(key)) {
-                            result = this.items[keyName];
+                            result = this.#items[keyName];
                             break;
                         }
                     }
@@ -3327,7 +3327,7 @@ System.register('Utils', [], (function (exports) {
                     if (key === void 0) {
                         throw new Error("Utils.Dictionary().set 参数 key 不能为空");
                     }
-                    this.items[key] = val;
+                    this.#items[key] = val;
                 }
                 /**
                  * 删除某一个键
@@ -3335,7 +3335,7 @@ System.register('Utils', [], (function (exports) {
                  */
                 delete(key) {
                     if (this.has(key)) {
-                        Reflect.deleteProperty(this.items, key);
+                        Reflect.deleteProperty(this.#items, key);
                         return true;
                     }
                     return false;
@@ -3363,8 +3363,8 @@ System.register('Utils', [], (function (exports) {
                  * 清空字典
                  */
                 clear() {
-                    this.items = void 0;
-                    this.items = {};
+                    this.#items = void 0;
+                    this.#items = {};
                 }
                 /**
                  * 获取字典的长度
@@ -3382,14 +3382,14 @@ System.register('Utils', [], (function (exports) {
                  * 返回字典本身
                  */
                 getItems() {
-                    return this.items;
+                    return this.#items;
                 }
                 /**
                  * 合并另一个字典
                  * @param data 需要合并的字典
                  */
                 concat(data) {
-                    this.items = utils.assign(this.items, data.getItems());
+                    this.#items = utils.assign(this.#items, data.getItems());
                 }
                 forEach(callbackfn) {
                     for (const key in this.getItems()) {
