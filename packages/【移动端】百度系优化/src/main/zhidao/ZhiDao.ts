@@ -8,20 +8,20 @@ const BaiduZhiDao = {
 		addStyle(ZhiDaoShieldCSS);
 		log.info("插入CSS规则");
 		this.removeAd();
-		PopsPanel.execMenu(
+		PopsPanel.execMenuOnce(
 			"baidu_zhidao_block_recommend_more_exciting_content",
 			() => {
-				this.blockRecommendMoreExcitingContent();
+				return this.blockRecommendMoreExcitingContent();
 			}
 		);
-		PopsPanel.execMenu("baidu_zhidao_block_other_answers", () => {
-			this.blockOtherAnswers();
+		PopsPanel.execMenuOnce("baidu_zhidao_block_other_answers", () => {
+			return this.blockOtherAnswers();
 		});
-		PopsPanel.execMenu("baidu_zhidao_block_related_issues", () => {
-			this.blockRelatedIssues();
+		PopsPanel.execMenuOnce("baidu_zhidao_block_related_issues", () => {
+			return this.blockRelatedIssues();
 		});
-		PopsPanel.execMenu("baidu_zhidao_shield_top_fixed_toolbar", () => {
-			this.shieldTopFloatToolBar();
+		PopsPanel.execMenuOnce("baidu_zhidao_shield_top_fixed_toolbar", () => {
+			return this.shieldTopFloatToolBar();
 		});
 	},
 	/**
@@ -38,7 +38,7 @@ const BaiduZhiDao = {
 	 */
 	blockRecommendMoreExcitingContent() {
 		log.info("屏蔽顶部悬浮工具栏");
-		CommonUtils.addBlockCSS(
+		return CommonUtils.addBlockCSS(
 			".feed-recommend-title",
 			"#feed-recommend",
 			".mm-content-box.mm-content-line.feed-recommend"
@@ -49,21 +49,24 @@ const BaiduZhiDao = {
 	 */
 	blockOtherAnswers() {
 		log.info("屏蔽其他回答");
-		CommonUtils.addBlockCSS(".replies-container + div");
+		return CommonUtils.addBlockCSS(".replies-container + div");
 	},
 	/**
 	 * 屏蔽相关问题
 	 */
 	blockRelatedIssues() {
 		log.info("屏蔽相关问题");
-		CommonUtils.addBlockCSS("div[id^=wahsd]", 'div[class^="w-question-list"]');
+		return CommonUtils.addBlockCSS(
+			"div[id^=wahsd]",
+			'div[class^="w-question-list"]'
+		);
 	},
 	/**
 	 * 屏蔽顶部悬浮工具栏
 	 */
 	shieldTopFloatToolBar() {
 		log.info("屏蔽顶部悬浮工具栏");
-		CommonUtils.addBlockCSS(
+		return CommonUtils.addBlockCSS(
 			".iknow-root-dom-element .question-answer-container .question-answer-layer.fixed"
 		);
 	},

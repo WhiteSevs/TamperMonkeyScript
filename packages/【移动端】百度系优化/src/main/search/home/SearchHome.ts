@@ -7,8 +7,8 @@ const BaiduSearchHome = {
 	init() {
 		addStyle(SearchHomeShieldCSS);
 		log.info("插入CSS规则");
-		PopsPanel.execMenu("baidu_search_home_homepage_minification", () => {
-			this.homepageMinification();
+		PopsPanel.execMenuOnce("baidu_search_home_homepage_minification", () => {
+			return this.homepageMinification();
 		});
 	},
 	/**
@@ -16,7 +16,7 @@ const BaiduSearchHome = {
 	 */
 	homepageMinification() {
 		log.info("插入精简主页CSS规则");
-		addStyle(SearchHomeMinificationShieldCSS);
+		return addStyle(SearchHomeMinificationShieldCSS);
 	},
 };
 

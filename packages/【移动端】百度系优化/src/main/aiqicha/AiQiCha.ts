@@ -9,11 +9,11 @@ const BaiduAiQiCha = {
 		addStyle(AiQiChaShieldCSS);
 		log.info("插入CSS规则");
 		this.camouflageBottomPopup();
-		PopsPanel.execMenu("baidu_aiqicha_shield_carousel", () => {
-			this.shieldCarousel();
+		PopsPanel.execMenuOnce("baidu_aiqicha_shield_carousel", () => {
+			return this.shieldCarousel();
 		});
-		PopsPanel.execMenu("baidu_aiqicha_shield_industry_host_news", () => {
-			this.shieldIndustryHostNews();
+		PopsPanel.execMenuOnce("baidu_aiqicha_shield_industry_host_news", () => {
+			return this.shieldIndustryHostNews();
 		});
 	},
 	/**
@@ -31,14 +31,14 @@ const BaiduAiQiCha = {
 	 */
 	shieldCarousel() {
 		log.info("屏蔽轮播图");
-		CommonUtils.addBlockCSS("div.index-banner-container.van-swipe");
+		return CommonUtils.addBlockCSS("div.index-banner-container.van-swipe");
 	},
 	/**
 	 * 屏蔽行业热点新闻
 	 */
 	shieldIndustryHostNews() {
 		log.info("屏蔽行业热点新闻");
-		CommonUtils.addBlockCSS(" div.hot-news");
+		return CommonUtils.addBlockCSS(" div.hot-news");
 	},
 };
 export { BaiduAiQiCha };

@@ -8,15 +8,18 @@ const BaiduFanYiApp = {
 		addStyle(FanYiAppShieldCSS);
 		log.info("插入CSS规则");
 		this.repairContentHeight();
-		PopsPanel.execMenu("baidu_fanyi_app_shield_column_information", () => {
-			this.shieldColumnInformation();
+		PopsPanel.execMenuOnce("baidu_fanyi_app_shield_column_information", () => {
+			return this.shieldColumnInformation();
 		});
-		PopsPanel.execMenu("baidu_fanyi_app_shield_recommended_for_you", () => {
-			this.shieldRecommendedForYou();
+		PopsPanel.execMenuOnce("baidu_fanyi_app_shield_recommended_for_you", () => {
+			return this.shieldRecommendedForYou();
 		});
-		PopsPanel.execMenu("baidu_fanyi_app_shield_i_need_to_follow_along", () => {
-			this.shieldINeedToFollowAlong();
-		});
+		PopsPanel.execMenuOnce(
+			"baidu_fanyi_app_shield_i_need_to_follow_along",
+			() => {
+				return this.shieldINeedToFollowAlong();
+			}
+		);
 	},
 	/**
 	 * 修复内容高度
@@ -32,21 +35,21 @@ const BaiduFanYiApp = {
 	 */
 	shieldColumnInformation() {
 		log.info("隐藏专栏信息");
-		CommonUtils.addBlockCSS("div.fanyi-zhuan-lan-wrapper");
+		return CommonUtils.addBlockCSS("div.fanyi-zhuan-lan-wrapper");
 	},
 	/**
 	 * 隐藏推荐
 	 */
 	shieldRecommendedForYou() {
 		log.info("隐藏推荐");
-		CommonUtils.addBlockCSS("#fr-section");
+		return CommonUtils.addBlockCSS("#fr-section");
 	},
 	/**
 	 * 隐藏需要跟随
 	 */
 	shieldINeedToFollowAlong() {
 		log.info("隐藏需要跟随");
-		CommonUtils.addBlockCSS(".cover-all .daily-bottom");
+		return CommonUtils.addBlockCSS(".cover-all .daily-bottom");
 	},
 };
 

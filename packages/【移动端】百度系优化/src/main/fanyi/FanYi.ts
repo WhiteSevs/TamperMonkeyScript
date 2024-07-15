@@ -7,13 +7,13 @@ const BaiduFanYi = {
 	init() {
 		addStyle(FanYiShieldCSS);
 		log.info("插入CSS规则");
-		PopsPanel.execMenu("baidu_fanyi_recommended_shielding_bottom", () => {
-			this.shieldRecommendBottom();
+		PopsPanel.execMenuOnce("baidu_fanyi_recommended_shielding_bottom", () => {
+			return this.shieldRecommendBottom();
 		});
-		PopsPanel.execMenu("baidu_fanyi_other_shielding_bottom", () => {
-			this.shieldBottom();
+		PopsPanel.execMenuOnce("baidu_fanyi_other_shielding_bottom", () => {
+			return this.shieldBottom();
 		});
-		PopsPanel.execMenu("baidu_fanyi_auto_focus", () => {
+		PopsPanel.execMenuOnce("baidu_fanyi_auto_focus", () => {
 			this.autoFocus();
 		});
 	},
@@ -22,14 +22,14 @@ const BaiduFanYi = {
 	 */
 	shieldRecommendBottom() {
 		log.info("屏蔽底部推荐");
-		CommonUtils.addBlockCSS("section.article.android-style");
+		return CommonUtils.addBlockCSS("section.article.android-style");
 	},
 	/**
 	 * 屏蔽底部
 	 */
 	shieldBottom() {
 		log.info("屏蔽底部");
-		CommonUtils.addBlockCSS(".trans-other-wrap.clearfix");
+		return CommonUtils.addBlockCSS(".trans-other-wrap.clearfix");
 	},
 	/**
 	 * 自动聚焦输入框

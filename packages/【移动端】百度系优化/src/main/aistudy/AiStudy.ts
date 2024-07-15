@@ -7,11 +7,11 @@ const BaiduAiStudy = {
 	init() {
 		addStyle(AiStudyShieldCSS);
 		log.info("插入CSS规则");
-		PopsPanel.execMenu("baidu_ai_study_shieldBottomToolBar", () => {
-			this.shieldBottomToolBar();
+		PopsPanel.execMenuOnce("baidu_ai_study_shieldBottomToolBar", () => {
+			return this.shieldBottomToolBar();
 		});
-		PopsPanel.execMenu("baidu_ai_study_autoExpandFullText", () => {
-			this.autoExpandFullText();
+		PopsPanel.execMenuOnce("baidu_ai_study_autoExpandFullText", () => {
+			return this.autoExpandFullText();
 		});
 	},
 	/**
@@ -19,7 +19,7 @@ const BaiduAiStudy = {
 	 */
 	shieldBottomToolBar() {
 		log.info("屏蔽底部工具栏");
-		CommonUtils.addBlockCSS(".gt-edu-h5-c-article-bottom");
+		return CommonUtils.addBlockCSS(".gt-edu-h5-c-article-bottom");
 	},
 	/**
 	 * 自动展开全文
@@ -27,14 +27,16 @@ const BaiduAiStudy = {
 	autoExpandFullText() {
 		log.info("自动展开全文");
 		/* 点击查看全文 */
-		CommonUtils.addBlockCSS(
-			".gt-edu-h5-c-article-content .content-wrapper .detail-wrapper .unfold-wrapper"
-		);
-		addStyle(`
-        .gt-edu-h5-c-article-content .content-wrapper .detail-wrapper{
-            max-height: unset !important;
-        }
-        `);
+		return [
+			CommonUtils.addBlockCSS(
+				".gt-edu-h5-c-article-content .content-wrapper .detail-wrapper .unfold-wrapper"
+			),
+			addStyle(`
+			.gt-edu-h5-c-article-content .content-wrapper .detail-wrapper{
+				max-height: unset !important;
+			}
+			`),
+		];
 	},
 };
 

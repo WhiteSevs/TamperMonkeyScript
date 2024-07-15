@@ -10,40 +10,43 @@ const BaiduEasyLearn = {
 	init() {
 		addStyle(EasyLearnShieldCSS);
 		log.info("插入CSS规则");
-		PopsPanel.execMenu("baidu_easylearn_shield_this_question_paper", () => {
-			this.shieldQuestionPaper();
+		PopsPanel.execMenuOnce("baidu_easylearn_shield_this_question_paper", () => {
+			return this.shieldQuestionPaper();
 		});
-		PopsPanel.execMenu(
+		PopsPanel.execMenuOnce(
 			"baidu_easylearn_shield_good_questions_in_this_volume",
 			() => {
-				this.shieldGoodQuestionsInThisVolume();
+				return this.shieldGoodQuestionsInThisVolume();
 			}
 		);
-		PopsPanel.execMenu("baidu_easylearn_shield_related_test_papers", () => {
-			this.shieldRelatedTestPapers();
+		PopsPanel.execMenuOnce("baidu_easylearn_shield_related_test_papers", () => {
+			return this.shieldRelatedTestPapers();
 		});
-		PopsPanel.execMenu("baidu_easylearn_shield_video_explanation", () => {
-			this.shieldVideoExplanation();
+		PopsPanel.execMenuOnce("baidu_easylearn_shield_video_explanation", () => {
+			return this.shieldVideoExplanation();
 		});
-		PopsPanel.execMenu("baidu_easylearn_shield_xueba_notes", () => {
-			this.shieldXuebaNotes();
+		PopsPanel.execMenuOnce("baidu_easylearn_shield_xueba_notes", () => {
+			return this.shieldXuebaNotes();
 		});
-		PopsPanel.execMenu("baidu_easylearn_shield_bottom_toolbar", () => {
-			this.shieldBottomToolbar();
+		PopsPanel.execMenuOnce("baidu_easylearn_shield_bottom_toolbar", () => {
+			return this.shieldBottomToolbar();
 		});
-		PopsPanel.execMenu(
+		PopsPanel.execMenuOnce(
 			"baidu_easylearn_unlocking_the_upper_limit_of_search_questions",
 			() => {
 				this.hijackUserSearchQuestCount();
 			}
 		);
-		PopsPanel.execMenu("baidu_easylearn_auto_show_answer", () => {
+		PopsPanel.execMenuOnce("baidu_easylearn_auto_show_answer", () => {
 			this.showAnswerContent();
 		});
 		DOMUtils.ready(() => {
-			PopsPanel.execMenu("baidu_easylearn_unlocking_top_search_input", () => {
-				this.allowUserSearchInput();
-			});
+			PopsPanel.execMenuOnce(
+				"baidu_easylearn_unlocking_top_search_input",
+				() => {
+					this.allowUserSearchInput();
+				}
+			);
 		});
 	},
 	/**
@@ -51,7 +54,7 @@ const BaiduEasyLearn = {
 	 */
 	shieldQuestionPaper() {
 		log.info("屏蔽题卷");
-		CommonUtils.addBlockCSS(
+		return CommonUtils.addBlockCSS(
 			".question-shijuan-wrap",
 			/* PC端 */
 			".question-cont .timu-wrap .doc-cont-v2 .left"
@@ -62,14 +65,14 @@ const BaiduEasyLearn = {
 	 */
 	shieldGoodQuestionsInThisVolume() {
 		log.info("屏蔽本卷好题");
-		CommonUtils.addBlockCSS(".exercise-questions-wrap");
+		return CommonUtils.addBlockCSS(".exercise-questions-wrap");
 	},
 	/**
 	 * 屏蔽本卷相关试卷
 	 */
 	shieldRelatedTestPapers() {
 		log.info("屏蔽本卷相关试卷");
-		CommonUtils.addBlockCSS(
+		return CommonUtils.addBlockCSS(
 			".related-papers-wrap",
 			/* PC端 */
 			".question-cont .timu-wrap .doc-cont-v2 .right"
@@ -80,7 +83,7 @@ const BaiduEasyLearn = {
 	 */
 	shieldVideoExplanation() {
 		log.info("屏蔽视频解析");
-		CommonUtils.addBlockCSS(
+		return CommonUtils.addBlockCSS(
 			".video-doc-compo",
 			/* PC端 */
 			".container #questionVideo"
@@ -91,14 +94,14 @@ const BaiduEasyLearn = {
 	 */
 	shieldXuebaNotes() {
 		log.info("屏蔽学霸");
-		CommonUtils.addBlockCSS(".note-list");
+		return CommonUtils.addBlockCSS(".note-list");
 	},
 	/**
 	 * 屏蔽底部工具栏
 	 */
 	shieldBottomToolbar() {
 		log.info("屏蔽底部工具栏");
-		CommonUtils.addBlockCSS(
+		return CommonUtils.addBlockCSS(
 			".question-bottom-bar",
 			"#app .bgk-question-detail .float-btm"
 		);

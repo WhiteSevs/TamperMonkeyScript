@@ -12,7 +12,7 @@ const BaiduRouter = {
 	},
 	/**
 	 * 百度搜索 - /bh
-	 * @returns
+	 * 百度健康
 	 */
 	isSearchBh() {
 		return Boolean(
@@ -20,8 +20,16 @@ const BaiduRouter = {
 		);
 	},
 	/**
+	 * 百度搜索 - /video/page
+	 * 视频页
+	 */
+	isSearchVideo() {
+		return Boolean(
+			this.isSearch() && window.location.pathname.startsWith("/video/page")
+		);
+	},
+	/**
 	 * 百度搜索主页
-	 * @returns
 	 */
 	isSearchHome() {
 		return Boolean(

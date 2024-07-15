@@ -29,7 +29,7 @@ export const CommonUtils = {
 				selectorList.push(selector);
 			}
 		});
-		addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+		return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
 	},
 	/**
 	 * 设置GM_getResourceText的style内容

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.14
+// @version      2024.7.15
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -11,16 +11,16 @@
 // @match        *://www.tieba.com/*
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/456485/1410583/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1410719/pops.js
 // @require      https://update.greasyfork.org/scripts/488179/1384528/showdown.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.4.31/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.8/lib/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/pinia@2.1.7/dist/pinia.iife.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-router@4.4.0/dist/vue-router.global.js
-// @require      https://update.greasyfork.org/scripts/495227/1378053/Element-Plus.js
+// @require      https://update.greasyfork.org/scripts/495227/1410728/Element-Plus.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.6.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.2.4/dist/index.umd.js
@@ -78,7 +78,7 @@
     },
     /**
      * 百度搜索 - /bh
-     * @returns
+     * 百度健康
      */
     isSearchBh() {
       return Boolean(
@@ -86,8 +86,16 @@
       );
     },
     /**
+     * 百度搜索 - /video/page
+     * 视频页
+     */
+    isSearchVideo() {
+      return Boolean(
+        this.isSearch() && window.location.pathname.startsWith("/video/page")
+      );
+    },
+    /**
      * 百度搜索主页
-     * @returns
      */
     isSearchHome() {
       return Boolean(
@@ -920,6 +928,38 @@ match-attr##srcid##sp_purc_atom
                     "【屏蔽】底部工具栏",
                     "baidu_search_headlth_shield_bottom_toolbar",
                     true
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "视频页",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "功能",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "自动跳转至原网页",
+                    "baidu-search-video-autoJumpToOriginUrl",
+                    false,
+                    void 0,
+                    "自动点击【原网页】进行跳转"
+                  )
+                ]
+              },
+              {
+                text: "屏蔽",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】底部推荐视频",
+                    "baidu-search-video-blockBottomRecommendVideo",
+                    false,
+                    void 0,
+                    "屏蔽元素"
                   )
                 ]
               }
@@ -3990,13 +4030,46 @@ match-attr##srcid##sp_purc_atom
         log.warn(`${key} 键不存在`);
         return;
       }
+      if (this.$data.oneSuccessExecMenu.has(key)) {
+        return;
+      }
+      this.$data.oneSuccessExecMenu.set(key, 1);
+      let resultStyleList = [];
+      let pushStyleNode = (style) => {
+        let __value = PopsPanel.getValue(key);
+        changeCallBack(__value, style);
+      };
+      let changeCallBack = (currentValue, resultStyle) => {
+        let resultList = [];
+        if (currentValue) {
+          let result = resultStyle ?? callback(currentValue, pushStyleNode);
+          if (result instanceof HTMLStyleElement) {
+            resultList = [result];
+          } else if (Array.isArray(result)) {
+            resultList = [
+              ...result.filter(
+                (item) => item != null && item instanceof HTMLStyleElement
+              )
+            ];
+          }
+        }
+        for (let index = 0; index < resultStyleList.length; index++) {
+          let $css = resultStyleList[index];
+          $css.remove();
+          resultStyleList.splice(index, 1);
+          index--;
+        }
+        resultStyleList = [...resultList];
+      };
+      this.addValueChangeListener(
+        key,
+        (__key, oldValue, newValue) => {
+          changeCallBack(newValue);
+        }
+      );
       let value = PopsPanel.getValue(key);
       if (value) {
-        if (this.$data.oneSuccessExecMenu.has(key)) {
-          return;
-        }
-        callback(value);
-        this.$data.oneSuccessExecMenu.set(key, 1);
+        changeCallBack(value);
       }
     },
     /**
@@ -4206,7 +4279,7 @@ match-attr##srcid##sp_purc_atom
           selectorList.push(selector);
         }
       });
-      addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
     /**
      * 设置GM_getResourceText的style内容
@@ -4568,10 +4641,12 @@ div[class^="new-summary-container_"] {\r
   const SearchHealthShieldCSS = '/* 右下角悬浮的健康直播间图标按钮 */\r\ndiv[class^="index_brandEntry"] {\r\n  display: none !important;\r\n}\r\n';
   const BaiduHeadlth = {
     init() {
-      PopsPanel.execMenu("baidu_search_headlth_shield_other_info", () => {
+      addStyle(SearchHealthShieldCSS);
+      log.info("插入CSS规则");
+      PopsPanel.execMenuOnce("baidu_search_headlth_shield_other_info", () => {
         this.shieldOtherInfo();
       });
-      PopsPanel.execMenu("baidu_search_headlth_shield_bottom_toolbar", () => {
+      PopsPanel.execMenuOnce("baidu_search_headlth_shield_bottom_toolbar", () => {
         this.shieldServiceButtonsRow();
       });
     },
@@ -4580,14 +4655,16 @@ div[class^="new-summary-container_"] {\r
      */
     shieldOtherInfo() {
       log.info("【屏蔽】底部其它信息");
-      CommonUtils.addBlockCSS('article[class] > div[class^="index_container"]');
+      return CommonUtils.addBlockCSS(
+        'article[class] > div[class^="index_container"]'
+      );
     },
     /**
      * 【屏蔽】底部工具栏
      */
     shieldServiceButtonsRow() {
       log.info("【屏蔽】底部工具栏");
-      CommonUtils.addBlockCSS(
+      return CommonUtils.addBlockCSS(
         'article[class] > div[class^="index_healthServiceButtonsRow"]'
       );
     }
@@ -6446,6 +6523,50 @@ div[class^="new-summary-container_"] {\r
       return true;
     }
   };
+  const BaiduSearchVideoBlockNode = {
+    init() {
+      PopsPanel.execMenuOnce(
+        "baidu-search-video-blockBottomRecommendVideo",
+        () => {
+          return this.blockBottomRecommendVideo();
+        }
+      );
+    },
+    /**
+     * 【屏蔽】底部推荐视频
+     */
+    blockBottomRecommendVideo() {
+      log.info("【屏蔽】底部推荐视频");
+      return CommonUtils.addBlockCSS(".short-mini-wrapper");
+    }
+  };
+  const BaiduSearchVideo = {
+    init() {
+      BaiduSearchVideoBlockNode.init();
+      PopsPanel.execMenuOnce("baidu-search-video-autoJumpToOriginUrl", () => {
+        this.autoJumpToOriginUrl();
+      });
+    },
+    /**
+     * 自动跳转至原网页
+     */
+    autoJumpToOriginUrl() {
+      utils.waitNode(".sfc-video-page-info-showurl", 1e4).then(($showUrl) => {
+        if (!$showUrl) {
+          log.error("未找到.sfc-video-page-info-showurl元素");
+          Qmsg.error("未找到.sfc-video-page-info-showurl元素");
+          return;
+        }
+        let url = $showUrl.getAttribute("data-url") || $showUrl.href;
+        if (utils.isNull(url)) {
+          log.error("获取原网页Url失败");
+          Qmsg.error("获取原网页Url失败");
+          return;
+        }
+        window.location.href = url;
+      });
+    }
+  };
   const UserCustomStyle = {
     /**
      * 获取用户自定义样式
@@ -6460,9 +6581,9 @@ div[class^="new-summary-container_"] {\r
       log.info("插入用户CSS规则");
       BaiduSearchRule.init();
       if (BaiduRouter.isSearchBh()) {
-        addStyle(SearchHealthShieldCSS);
-        log.info("插入CSS规则");
         BaiduHeadlth.init();
+      } else if (BaiduRouter.isSearchVideo()) {
+        BaiduSearchVideo.init();
       } else {
         BaiduSearchHook.init();
         addStyle(SearchShieldCSS);
@@ -6610,8 +6731,8 @@ div[class^="new-summary-container_"] {\r
     init() {
       addStyle(SearchHomeShieldCSS);
       log.info("插入CSS规则");
-      PopsPanel.execMenu("baidu_search_home_homepage_minification", () => {
-        this.homepageMinification();
+      PopsPanel.execMenuOnce("baidu_search_home_homepage_minification", () => {
+        return this.homepageMinification();
       });
     },
     /**
@@ -6619,7 +6740,7 @@ div[class^="new-summary-container_"] {\r
      */
     homepageMinification() {
       log.info("插入精简主页CSS规则");
-      addStyle(SearchHomeMinificationShieldCSS);
+      return addStyle(SearchHomeMinificationShieldCSS);
     }
   };
   const BaiJiaHaoShieldCSS = ".layer-wrap,\r\n.openImg,\r\n.oPadding,\r\n.bottomTTSStruct,\r\n.undefined,\r\n.headDeflectorContainer,\r\n.followSuper,\r\n#searchwordSdk,\r\ndiv#commentModule > div > div > span:nth-child(2),\r\n/* 顶部打开APP横幅 */\r\n#headDeflectorContainer,\r\n/* 展开全文 */\r\n.foldMaskWrapper {\r\n  display: none !important;\r\n}\r\nbody.scrollHide {\r\n  overflow: auto !important;\r\n}\r\n.mainContent,\r\n#mainContentContainer {\r\n  height: auto !important;\r\n}\r\n";
@@ -6650,14 +6771,14 @@ div[class^="new-summary-container_"] {\r
       addStyle(BaiJiaHaoShieldCSS);
       log.info("插入CSS规则");
       BaiJiaHaoHook.init();
-      PopsPanel.execMenu("baijiahao_shield_recommended_article", () => {
-        this.shieldRecommendArticle();
+      PopsPanel.execMenuOnce("baijiahao_shield_recommended_article", () => {
+        return this.shieldRecommendArticle();
       });
-      PopsPanel.execMenu("baijiahao_shield_user_comment", () => {
-        this.shieldUserComment();
+      PopsPanel.execMenuOnce("baijiahao_shield_user_comment", () => {
+        return this.shieldUserComment();
       });
-      PopsPanel.execMenu("baijiahao_shield_user_comment_input_box", () => {
-        this.shieldBottomToolBar();
+      PopsPanel.execMenuOnce("baijiahao_shield_user_comment_input_box", () => {
+        return this.shieldBottomToolBar();
       });
     },
     /**
@@ -6665,42 +6786,47 @@ div[class^="new-summary-container_"] {\r
      */
     shieldRecommendArticle() {
       log.info("【屏蔽】推荐文章");
-      CommonUtils.addBlockCSS(
-        ".infinite-scroll-component__outerdiv",
-        "div#page_wrapper > div > div:nth-child(5)",
-        "div:has(+ .infinite-scroll-component__outerdiv)",
-        /* 电脑端的左边的按钮-屏蔽 */
-        "#ssr-content > :last-child",
-        /* 电脑端的右边的推荐-屏蔽 */
-        "#ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(2)"
-      );
-      addStyle(`
-        /* 电脑端的文章居中 */
-        #ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) {
-            width: 55% !important;
-        }`);
-      CommonUtils.addBlockCSS(
-        '#page_wrapper > div.other > div[class=""]:nth-child(4)'
-      );
-      CommonUtils.addBlockCSS(
-        '#page_wrapper div.spider > div[class=""]:nth-child(4)',
-        'page_wrapper div.spider > div[class=""]:nth-child(5)'
-      );
-      CommonUtils.addBlockCSS('#page_wrapper .searchCraft > div[class=""]');
+      return [
+        CommonUtils.addBlockCSS(
+          ".infinite-scroll-component__outerdiv",
+          "div#page_wrapper > div > div:nth-child(5)",
+          "div:has(+ .infinite-scroll-component__outerdiv)",
+          /* 电脑端的左边的按钮-屏蔽 */
+          "#ssr-content > :last-child",
+          /* 电脑端的右边的推荐-屏蔽 */
+          "#ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(2)"
+        ),
+        addStyle(`
+			/* 电脑端的文章居中 */
+			#ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) {
+				width: 55% !important;
+			}`),
+        /* 某些情况下的CSS */
+        CommonUtils.addBlockCSS(
+          '#page_wrapper > div.other > div[class=""]:nth-child(4)'
+        ),
+        /* 简单UA&链接参数wfr=spide下的精彩推荐 */
+        CommonUtils.addBlockCSS(
+          '#page_wrapper div.spider > div[class=""]:nth-child(4)',
+          'page_wrapper div.spider > div[class=""]:nth-child(5)'
+        ),
+        /* Gecko的简单UA下的精彩推荐 */
+        CommonUtils.addBlockCSS('#page_wrapper .searchCraft > div[class=""]')
+      ];
     },
     /**
      * 【屏蔽】用户评论
      */
     shieldUserComment() {
       log.info("【屏蔽】用户评论");
-      CommonUtils.addBlockCSS("#commentModule");
+      return CommonUtils.addBlockCSS("#commentModule");
     },
     /**
      * 【屏蔽】底部悬浮工具栏
      */
     shieldBottomToolBar() {
       log.info("【屏蔽】底部悬浮工具栏");
-      CommonUtils.addBlockCSS("div#wise-invoke-interact-bar");
+      return CommonUtils.addBlockCSS("div#wise-invoke-interact-bar");
     }
   };
   const TieBaShieldCSS = ".tb-backflow-defensive,\r\n.fixed-nav-bar-defensive,\r\n.post-cut-guide,\r\n.ertiao-wrap-defensive,\r\n.feed-warp.gray-background,\r\n.pb-page-wrapper.app-view.transition-fade nav:first-child,\r\n.only-lz,\r\n.nav-bar-v2 .nav-bar-bottom,\r\n.more-image-desc,\r\n.fengchao-banner-defensive,\r\n.wake-app,\r\n.banner-wrapper-defensive,\r\n.open-app,\r\n.topic-share-page-v2 .bav-bar-top,\r\n/* 打开APP查看更多评论 */\r\n.cmt-large-cut-guide,\r\n/* 底部评论滚动栏 */\r\ndiv.diy-guide-wrapper,\r\n/* 底部评论滚动栏上面的空白 */\r\n.individuality,\r\n/* 吧内的广告 */\r\n.tb-threadlist__wrapper .tb-banner-wrapper-defensive,\r\n/* 首页-我的-底部的 年轻人的潮流文化社区 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .desc,\r\n/* 首页-我的-底部的 立即下载 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .download-btn {\r\n  display: none !important;\r\n}\r\nbody.tb-modal-open {\r\n  overflow: auto !important;\r\n}\r\n";
@@ -21211,36 +21337,36 @@ div[class^="new-summary-container_"] {\r
             margin-top: 56px !important;
         }
         `);
-      PopsPanel.execMenu("baidu_wenku_block_member_picks", () => {
-        this.shieldVipPicks();
+      PopsPanel.execMenuOnce("baidu_wenku_block_member_picks", () => {
+        return this.shieldVipPicks();
       });
-      PopsPanel.execMenu("baidu_wenku_blocking_app_featured", () => {
-        this.shieldAppPicks();
+      PopsPanel.execMenuOnce("baidu_wenku_blocking_app_featured", () => {
+        return this.shieldAppPicks();
       });
-      PopsPanel.execMenu("baidu_wenku_blocking_related_documents", () => {
-        this.shieldRelatedDocuments();
+      PopsPanel.execMenuOnce("baidu_wenku_blocking_related_documents", () => {
+        return this.shieldRelatedDocuments();
       });
-      PopsPanel.execMenu("baidu_wenku_blocking_bottom_toolbar", () => {
-        this.shieldBottomToolBar();
+      PopsPanel.execMenuOnce("baidu_wenku_blocking_bottom_toolbar", () => {
+        return this.shieldBottomToolBar();
       });
-      PopsPanel.execMenu("baidu_wenku_shield_next_btn", () => {
-        this.shieldNextArticleButton();
+      PopsPanel.execMenuOnce("baidu_wenku_shield_next_btn", () => {
+        return this.shieldNextArticleButton();
       });
-      PopsPanel.execMenu("baidu_wenku_blockDocumentAssistant", () => {
-        this.blockDocumentAssistant();
+      PopsPanel.execMenuOnce("baidu_wenku_blockDocumentAssistant", () => {
+        return this.blockDocumentAssistant();
       });
     },
     /** 屏蔽会员精选 */
     shieldVipPicks() {
       log.info("屏蔽会员精选");
-      CommonUtils.addBlockCSS(
+      return CommonUtils.addBlockCSS(
         'div[class*="vip-choice_"][data-ait-action="vipChoiceShow"]'
       );
     },
     /** 屏蔽APP精选 */
     shieldAppPicks() {
       log.info("屏蔽APP精选");
-      CommonUtils.addBlockCSS(
+      return CommonUtils.addBlockCSS(
         'div[class*="app-choice_"][data-ait-action="appChoiceNewShow"]',
         "div.folder-wrap.invite-clipboard[data-clipboard-text]"
       );
@@ -21248,7 +21374,7 @@ div[class^="new-summary-container_"] {\r
     /** 屏蔽相关文档 */
     shieldRelatedDocuments() {
       log.info("屏蔽相关文档");
-      CommonUtils.addBlockCSS(
+      return CommonUtils.addBlockCSS(
         "div.fold-page-conversion",
         "div.newrecom-list.invite-clipboard[data-clipboard-text]"
       );
@@ -21256,17 +21382,17 @@ div[class^="new-summary-container_"] {\r
     /** 屏蔽底部工具栏 */
     shieldBottomToolBar() {
       log.info("屏蔽底部工具栏");
-      CommonUtils.addBlockCSS("div.barbottom");
+      return CommonUtils.addBlockCSS("div.barbottom");
     },
     /** 屏蔽下一篇按钮 */
     shieldNextArticleButton() {
       log.info("屏蔽下一篇按钮");
-      CommonUtils.addBlockCSS("div.next-page-container");
+      return CommonUtils.addBlockCSS("div.next-page-container");
     },
     /** 【屏蔽】文档助手 */
     blockDocumentAssistant() {
       log.info("【屏蔽】文档助手");
-      CommonUtils.addBlockCSS(".ai-chat-wrap");
+      return CommonUtils.addBlockCSS(".ai-chat-wrap");
     }
   };
   const JingYanShieldCSS = ".article-feed-next,\r\n.wgt-rel-exp-feed,\r\n.article-feed-btn-fixed,\r\n.read-whole-mask.app,\r\n.asp-self-rander,\r\n.baobao-image-item,\r\n#wgt-ad-guess {\r\n  display: none !important;\r\n}\r\n.exp-content-container {\r\n  max-height: 100% !important;\r\n  overflow: auto !important;\r\n}\r\n";
@@ -21353,7 +21479,7 @@ div[class^="new-summary-container_"] {\r
     init() {
       addStyle(BaiKeTaShuoShieldCSS);
       log.info("插入CSS规则");
-      PopsPanel.execMenu("baidu_baike_tashuo_remove_bottom_ad", () => {
+      PopsPanel.execMenuOnce("baidu_baike_tashuo_remove_bottom_ad", () => {
         this.removeBottomAd();
       });
     },
@@ -21383,20 +21509,20 @@ div[class^="new-summary-container_"] {\r
       addStyle(ZhiDaoShieldCSS);
       log.info("插入CSS规则");
       this.removeAd();
-      PopsPanel.execMenu(
+      PopsPanel.execMenuOnce(
         "baidu_zhidao_block_recommend_more_exciting_content",
         () => {
-          this.blockRecommendMoreExcitingContent();
+          return this.blockRecommendMoreExcitingContent();
         }
       );
-      PopsPanel.execMenu("baidu_zhidao_block_other_answers", () => {
-        this.blockOtherAnswers();
+      PopsPanel.execMenuOnce("baidu_zhidao_block_other_answers", () => {
+        return this.blockOtherAnswers();
       });
-      PopsPanel.execMenu("baidu_zhidao_block_related_issues", () => {
-        this.blockRelatedIssues();
+      PopsPanel.execMenuOnce("baidu_zhidao_block_related_issues", () => {
+        return this.blockRelatedIssues();
       });
-      PopsPanel.execMenu("baidu_zhidao_shield_top_fixed_toolbar", () => {
-        this.shieldTopFloatToolBar();
+      PopsPanel.execMenuOnce("baidu_zhidao_shield_top_fixed_toolbar", () => {
+        return this.shieldTopFloatToolBar();
       });
     },
     /**
@@ -21413,7 +21539,7 @@ div[class^="new-summary-container_"] {\r
      */
     blockRecommendMoreExcitingContent() {
       log.info("屏蔽顶部悬浮工具栏");
-      CommonUtils.addBlockCSS(
+      return CommonUtils.addBlockCSS(
         ".feed-recommend-title",
         "#feed-recommend",
         ".mm-content-box.mm-content-line.feed-recommend"
@@ -21424,21 +21550,24 @@ div[class^="new-summary-container_"] {\r
      */
     blockOtherAnswers() {
       log.info("屏蔽其他回答");
-      CommonUtils.addBlockCSS(".replies-container + div");
+      return CommonUtils.addBlockCSS(".replies-container + div");
     },
     /**
      * 屏蔽相关问题
      */
     blockRelatedIssues() {
       log.info("屏蔽相关问题");
-      CommonUtils.addBlockCSS("div[id^=wahsd]", 'div[class^="w-question-list"]');
+      return CommonUtils.addBlockCSS(
+        "div[id^=wahsd]",
+        'div[class^="w-question-list"]'
+      );
     },
     /**
      * 屏蔽顶部悬浮工具栏
      */
     shieldTopFloatToolBar() {
       log.info("屏蔽顶部悬浮工具栏");
-      CommonUtils.addBlockCSS(
+      return CommonUtils.addBlockCSS(
         ".iknow-root-dom-element .question-answer-container .question-answer-layer.fixed"
       );
     }
@@ -21448,13 +21577,13 @@ div[class^="new-summary-container_"] {\r
     init() {
       addStyle(FanYiShieldCSS);
       log.info("插入CSS规则");
-      PopsPanel.execMenu("baidu_fanyi_recommended_shielding_bottom", () => {
-        this.shieldRecommendBottom();
+      PopsPanel.execMenuOnce("baidu_fanyi_recommended_shielding_bottom", () => {
+        return this.shieldRecommendBottom();
       });
-      PopsPanel.execMenu("baidu_fanyi_other_shielding_bottom", () => {
-        this.shieldBottom();
+      PopsPanel.execMenuOnce("baidu_fanyi_other_shielding_bottom", () => {
+        return this.shieldBottom();
       });
-      PopsPanel.execMenu("baidu_fanyi_auto_focus", () => {
+      PopsPanel.execMenuOnce("baidu_fanyi_auto_focus", () => {
         this.autoFocus();
       });
     },
@@ -21463,14 +21592,14 @@ div[class^="new-summary-container_"] {\r
      */
     shieldRecommendBottom() {
       log.info("屏蔽底部推荐");
-      CommonUtils.addBlockCSS("section.article.android-style");
+      return CommonUtils.addBlockCSS("section.article.android-style");
     },
     /**
      * 屏蔽底部
      */
     shieldBottom() {
       log.info("屏蔽底部");
-      CommonUtils.addBlockCSS(".trans-other-wrap.clearfix");
+      return CommonUtils.addBlockCSS(".trans-other-wrap.clearfix");
     },
     /**
      * 自动聚焦输入框
@@ -21490,15 +21619,18 @@ div[class^="new-summary-container_"] {\r
       addStyle(FanYiAppShieldCSS);
       log.info("插入CSS规则");
       this.repairContentHeight();
-      PopsPanel.execMenu("baidu_fanyi_app_shield_column_information", () => {
-        this.shieldColumnInformation();
+      PopsPanel.execMenuOnce("baidu_fanyi_app_shield_column_information", () => {
+        return this.shieldColumnInformation();
       });
-      PopsPanel.execMenu("baidu_fanyi_app_shield_recommended_for_you", () => {
-        this.shieldRecommendedForYou();
+      PopsPanel.execMenuOnce("baidu_fanyi_app_shield_recommended_for_you", () => {
+        return this.shieldRecommendedForYou();
       });
-      PopsPanel.execMenu("baidu_fanyi_app_shield_i_need_to_follow_along", () => {
-        this.shieldINeedToFollowAlong();
-      });
+      PopsPanel.execMenuOnce(
+        "baidu_fanyi_app_shield_i_need_to_follow_along",
+        () => {
+          return this.shieldINeedToFollowAlong();
+        }
+      );
     },
     /**
      * 修复内容高度
@@ -21514,21 +21646,21 @@ div[class^="new-summary-container_"] {\r
      */
     shieldColumnInformation() {
       log.info("隐藏专栏信息");
-      CommonUtils.addBlockCSS("div.fanyi-zhuan-lan-wrapper");
+      return CommonUtils.addBlockCSS("div.fanyi-zhuan-lan-wrapper");
     },
     /**
      * 隐藏推荐
      */
     shieldRecommendedForYou() {
       log.info("隐藏推荐");
-      CommonUtils.addBlockCSS("#fr-section");
+      return CommonUtils.addBlockCSS("#fr-section");
     },
     /**
      * 隐藏需要跟随
      */
     shieldINeedToFollowAlong() {
       log.info("隐藏需要跟随");
-      CommonUtils.addBlockCSS(".cover-all .daily-bottom");
+      return CommonUtils.addBlockCSS(".cover-all .daily-bottom");
     }
   };
   const ImageShieldCSS = "#boxBanner {\r\n  display: none !important;\r\n}\r\n";
@@ -21627,14 +21759,14 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
       addStyle(MbdShieldCSS);
       log.info("插入CSS规则");
       BaiduMbdHook.init();
-      PopsPanel.execMenu("baidu_mbd_block_exciting_comments", () => {
-        this.blockExcitingComments();
+      PopsPanel.execMenuOnce("baidu_mbd_block_exciting_comments", () => {
+        return this.blockExcitingComments();
       });
-      PopsPanel.execMenu("baidu_mbd_block_exciting_recommendations", () => {
-        this.blockExcitingRecommendations();
+      PopsPanel.execMenuOnce("baidu_mbd_block_exciting_recommendations", () => {
+        return this.blockExcitingRecommendations();
       });
-      PopsPanel.execMenu("baidu_mbd_shield_bottom_toolbar", () => {
-        this.shieldBottomToolbar();
+      PopsPanel.execMenuOnce("baidu_mbd_shield_bottom_toolbar", () => {
+        return this.shieldBottomToolbar();
       });
     },
     /**
@@ -21642,7 +21774,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
      */
     blockExcitingComments() {
       log.info("屏蔽最热评论");
-      CommonUtils.addBlockCSS(
+      return CommonUtils.addBlockCSS(
         "div#commentModule",
         "#comment",
         '#page_wrapper > div > div[class^="borderBottom-"]'
@@ -21653,26 +21785,28 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
      */
     blockExcitingRecommendations() {
       log.info("屏蔽最热推荐");
-      CommonUtils.addBlockCSS(
-        'div[class^="relateTitle"]',
-        ".infinite-scroll-component__outerdiv",
-        "div#fuseVideo + div[class]",
-        /* 精彩推荐的文字 */
-        "#content_wrapper + div + div",
-        /* 简单UA下精彩推荐的文字 */
-        "#page_wrapper .searchCraft #content_wrapper + div"
-      );
-      CommonUtils.addBlockCSS(
-        /* Gecko下的简单UA下精彩推荐 */
-        "#page_wrapper > div > div:nth-child(6)"
-      );
+      return [
+        CommonUtils.addBlockCSS(
+          'div[class^="relateTitle"]',
+          ".infinite-scroll-component__outerdiv",
+          "div#fuseVideo + div[class]",
+          /* 精彩推荐的文字 */
+          "#content_wrapper + div + div",
+          /* 简单UA下精彩推荐的文字 */
+          "#page_wrapper .searchCraft #content_wrapper + div"
+        ),
+        CommonUtils.addBlockCSS(
+          /* Gecko下的简单UA下精彩推荐 */
+          "#page_wrapper > div > div:nth-child(6)"
+        )
+      ];
     },
     /**
      * 屏蔽底部工具栏
      */
     shieldBottomToolbar() {
       log.info("屏蔽底部工具栏");
-      CommonUtils.addBlockCSS("div#wise-invoke-interact-bar");
+      return CommonUtils.addBlockCSS("div#wise-invoke-interact-bar");
     }
   };
   const XueShieldCSS = ".sc-dkcEsn,\r\n.sc-fHSyak,\r\n.sc-gikAfH,\r\nswan-view.strategy-institution-list,\r\nswan-view.strategy-wrapper,\r\n.swan-spider-tap,\r\n.booking,\r\n.head-bar,\r\n.head-bar-placeholder {\r\n  display: none !important;\r\n}\r\n.sc-cHGmPC {\r\n  width: auto !important;\r\n}\r\n";
@@ -21688,11 +21822,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
       addStyle(AiQiChaShieldCSS);
       log.info("插入CSS规则");
       this.camouflageBottomPopup();
-      PopsPanel.execMenu("baidu_aiqicha_shield_carousel", () => {
-        this.shieldCarousel();
+      PopsPanel.execMenuOnce("baidu_aiqicha_shield_carousel", () => {
+        return this.shieldCarousel();
       });
-      PopsPanel.execMenu("baidu_aiqicha_shield_industry_host_news", () => {
-        this.shieldIndustryHostNews();
+      PopsPanel.execMenuOnce("baidu_aiqicha_shield_industry_host_news", () => {
+        return this.shieldIndustryHostNews();
       });
     },
     /**
@@ -21710,14 +21844,14 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
      */
     shieldCarousel() {
       log.info("屏蔽轮播图");
-      CommonUtils.addBlockCSS("div.index-banner-container.van-swipe");
+      return CommonUtils.addBlockCSS("div.index-banner-container.van-swipe");
     },
     /**
      * 屏蔽行业热点新闻
      */
     shieldIndustryHostNews() {
       log.info("屏蔽行业热点新闻");
-      CommonUtils.addBlockCSS(" div.hot-news");
+      return CommonUtils.addBlockCSS(" div.hot-news");
     }
   };
   const PosShieldCSS = "html,\r\nbody {\r\n  display: none !important;\r\n}\r\n";
@@ -21741,14 +21875,14 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
       addStyle(HaoKanShieldCSS);
       log.info("插入CSS规则");
       BaiduHaoKanHook.init();
-      PopsPanel.execMenu("baidu_haokan_shield_may_also_like", () => {
-        this.shieldMayAlsoLike();
+      PopsPanel.execMenuOnce("baidu_haokan_shield_may_also_like", () => {
+        return this.shieldMayAlsoLike();
       });
-      PopsPanel.execMenu("baidu_haokan_shield_today_s_hot_list", () => {
-        this.shieldTodayHotList();
+      PopsPanel.execMenuOnce("baidu_haokan_shield_today_s_hot_list", () => {
+        return this.shieldTodayHotList();
       });
-      PopsPanel.execMenu("baidu_haokan_shield_right_video_action", () => {
-        this.shieldRightVideoAction();
+      PopsPanel.execMenuOnce("baidu_haokan_shield_right_video_action", () => {
+        return this.shieldRightVideoAction();
       });
       domutils.ready(() => {
         this.setPlayEvent();
@@ -21759,48 +21893,60 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
      */
     setPlayEvent() {
       let playBtn = document.querySelector(".play-btn");
+      let playerShade = document.querySelector(
+        ".video-player-shade"
+      );
       log.success("覆盖播放按钮的点击事件");
-      domutils.on(playBtn, "click", function() {
-        let currentPageSee = document.querySelector(
-          ".video-player .video-player-pause-btns .continue"
-        );
-        setTimeout(() => {
-          var _a3;
-          (_a3 = utils.getReactObj(currentPageSee)["reactEventHandlers"]) == null ? void 0 : _a3["onClick"]();
-          PopsPanel.execMenu(
-            "baidu_haokan_play_video_and_automatically_enter_full_screen",
-            () => {
-              if (utils.isFullscreenEnabled()) {
-                let videoElement = document.querySelector(
-                  "#video video.hplayer-video"
-                );
-                utils.enterFullScreen(videoElement);
-              }
-            }
+      domutils.on(
+        playBtn,
+        "click",
+        function(event) {
+          utils.preventEvent(event);
+          domutils.hide(playerShade);
+          let currentPageSee = document.querySelector(
+            ".video-player .video-player-pause-btns .continue"
           );
-        }, 0);
-      });
+          setTimeout(() => {
+            var _a3;
+            (_a3 = utils.getReactObj(currentPageSee)["reactEventHandlers"]) == null ? void 0 : _a3["onClick"]();
+            PopsPanel.execMenu(
+              "baidu_haokan_play_video_and_automatically_enter_full_screen",
+              () => {
+                if (utils.isFullscreenEnabled()) {
+                  let videoElement = document.querySelector(
+                    "#video video.hplayer-video"
+                  );
+                  utils.enterFullScreen(videoElement);
+                }
+              }
+            );
+          }, 0);
+        },
+        {
+          capture: true
+        }
+      );
     },
     /**
      * 屏蔽可能感兴趣
      */
     shieldMayAlsoLike() {
       log.info("屏蔽可能感兴趣");
-      CommonUtils.addBlockCSS("div.top-video-list-container");
+      return CommonUtils.addBlockCSS("div.top-video-list-container");
     },
     /**
      * 屏蔽今日热门
      */
     shieldTodayHotList() {
       log.info("屏蔽今日热门");
-      CommonUtils.addBlockCSS(".hot-rank-video");
+      return CommonUtils.addBlockCSS(".hot-rank-video");
     },
     /**
      * 屏蔽右侧视频操作
      */
     shieldRightVideoAction() {
       log.info("屏蔽右侧视频操作");
-      CommonUtils.addBlockCSS(".video-author-info-mask .new-video-action");
+      return CommonUtils.addBlockCSS(".video-author-info-mask .new-video-action");
     }
   };
   const BaiduGraphApi = {
@@ -22032,7 +22178,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
     init() {
       addStyle(YiYanShieldCSS);
       log.info("插入CSS规则");
-      PopsPanel.execMenu("baidu_yiyan_remove_ai_mask", () => {
+      PopsPanel.execMenuOnce("baidu_yiyan_remove_ai_mask", () => {
         BaiduYiYan.blockWaterMark();
       });
     },
@@ -22080,7 +22226,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
       addStyle(ChatShieldCSS);
       log.info("插入CSS规则");
       domutils.ready(() => {
-        PopsPanel.execMenu("baidu_chat_remove_ai_mask", () => {
+        PopsPanel.execMenuOnce("baidu_chat_remove_ai_mask", () => {
           this.removeAiMask();
         });
       });
@@ -22111,9 +22257,12 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
     init() {
       addStyle(MiniJiaoYuShieldCSS);
       log.info("插入CSS规则");
-      PopsPanel.execMenu("mini_baidu_jiaoyu_shield_bottom_pull_down_menu", () => {
-        this.shieldBottomPullDownMenu();
-      });
+      PopsPanel.execMenuOnce(
+        "mini_baidu_jiaoyu_shield_bottom_pull_down_menu",
+        () => {
+          this.shieldBottomPullDownMenu();
+        }
+      );
     },
     /**
      * 屏蔽底部下拉菜单
@@ -22159,40 +22308,43 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
     init() {
       addStyle(EasyLearnShieldCSS);
       log.info("插入CSS规则");
-      PopsPanel.execMenu("baidu_easylearn_shield_this_question_paper", () => {
-        this.shieldQuestionPaper();
+      PopsPanel.execMenuOnce("baidu_easylearn_shield_this_question_paper", () => {
+        return this.shieldQuestionPaper();
       });
-      PopsPanel.execMenu(
+      PopsPanel.execMenuOnce(
         "baidu_easylearn_shield_good_questions_in_this_volume",
         () => {
-          this.shieldGoodQuestionsInThisVolume();
+          return this.shieldGoodQuestionsInThisVolume();
         }
       );
-      PopsPanel.execMenu("baidu_easylearn_shield_related_test_papers", () => {
-        this.shieldRelatedTestPapers();
+      PopsPanel.execMenuOnce("baidu_easylearn_shield_related_test_papers", () => {
+        return this.shieldRelatedTestPapers();
       });
-      PopsPanel.execMenu("baidu_easylearn_shield_video_explanation", () => {
-        this.shieldVideoExplanation();
+      PopsPanel.execMenuOnce("baidu_easylearn_shield_video_explanation", () => {
+        return this.shieldVideoExplanation();
       });
-      PopsPanel.execMenu("baidu_easylearn_shield_xueba_notes", () => {
-        this.shieldXuebaNotes();
+      PopsPanel.execMenuOnce("baidu_easylearn_shield_xueba_notes", () => {
+        return this.shieldXuebaNotes();
       });
-      PopsPanel.execMenu("baidu_easylearn_shield_bottom_toolbar", () => {
-        this.shieldBottomToolbar();
+      PopsPanel.execMenuOnce("baidu_easylearn_shield_bottom_toolbar", () => {
+        return this.shieldBottomToolbar();
       });
-      PopsPanel.execMenu(
+      PopsPanel.execMenuOnce(
         "baidu_easylearn_unlocking_the_upper_limit_of_search_questions",
         () => {
           this.hijackUserSearchQuestCount();
         }
       );
-      PopsPanel.execMenu("baidu_easylearn_auto_show_answer", () => {
+      PopsPanel.execMenuOnce("baidu_easylearn_auto_show_answer", () => {
         this.showAnswerContent();
       });
       domutils.ready(() => {
-        PopsPanel.execMenu("baidu_easylearn_unlocking_top_search_input", () => {
-          this.allowUserSearchInput();
-        });
+        PopsPanel.execMenuOnce(
+          "baidu_easylearn_unlocking_top_search_input",
+          () => {
+            this.allowUserSearchInput();
+          }
+        );
       });
     },
     /**
@@ -22200,7 +22352,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
      */
     shieldQuestionPaper() {
       log.info("屏蔽题卷");
-      CommonUtils.addBlockCSS(
+      return CommonUtils.addBlockCSS(
         ".question-shijuan-wrap",
         /* PC端 */
         ".question-cont .timu-wrap .doc-cont-v2 .left"
@@ -22211,14 +22363,14 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
      */
     shieldGoodQuestionsInThisVolume() {
       log.info("屏蔽本卷好题");
-      CommonUtils.addBlockCSS(".exercise-questions-wrap");
+      return CommonUtils.addBlockCSS(".exercise-questions-wrap");
     },
     /**
      * 屏蔽本卷相关试卷
      */
     shieldRelatedTestPapers() {
       log.info("屏蔽本卷相关试卷");
-      CommonUtils.addBlockCSS(
+      return CommonUtils.addBlockCSS(
         ".related-papers-wrap",
         /* PC端 */
         ".question-cont .timu-wrap .doc-cont-v2 .right"
@@ -22229,7 +22381,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
      */
     shieldVideoExplanation() {
       log.info("屏蔽视频解析");
-      CommonUtils.addBlockCSS(
+      return CommonUtils.addBlockCSS(
         ".video-doc-compo",
         /* PC端 */
         ".container #questionVideo"
@@ -22240,14 +22392,14 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
      */
     shieldXuebaNotes() {
       log.info("屏蔽学霸");
-      CommonUtils.addBlockCSS(".note-list");
+      return CommonUtils.addBlockCSS(".note-list");
     },
     /**
      * 屏蔽底部工具栏
      */
     shieldBottomToolbar() {
       log.info("屏蔽底部工具栏");
-      CommonUtils.addBlockCSS(
+      return CommonUtils.addBlockCSS(
         ".question-bottom-bar",
         "#app .bgk-question-detail .float-btm"
       );
@@ -22371,11 +22523,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
     init() {
       addStyle(AiStudyShieldCSS);
       log.info("插入CSS规则");
-      PopsPanel.execMenu("baidu_ai_study_shieldBottomToolBar", () => {
-        this.shieldBottomToolBar();
+      PopsPanel.execMenuOnce("baidu_ai_study_shieldBottomToolBar", () => {
+        return this.shieldBottomToolBar();
       });
-      PopsPanel.execMenu("baidu_ai_study_autoExpandFullText", () => {
-        this.autoExpandFullText();
+      PopsPanel.execMenuOnce("baidu_ai_study_autoExpandFullText", () => {
+        return this.autoExpandFullText();
       });
     },
     /**
@@ -22383,21 +22535,23 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
      */
     shieldBottomToolBar() {
       log.info("屏蔽底部工具栏");
-      CommonUtils.addBlockCSS(".gt-edu-h5-c-article-bottom");
+      return CommonUtils.addBlockCSS(".gt-edu-h5-c-article-bottom");
     },
     /**
      * 自动展开全文
      */
     autoExpandFullText() {
       log.info("自动展开全文");
-      CommonUtils.addBlockCSS(
-        ".gt-edu-h5-c-article-content .content-wrapper .detail-wrapper .unfold-wrapper"
-      );
-      addStyle(`
-        .gt-edu-h5-c-article-content .content-wrapper .detail-wrapper{
-            max-height: unset !important;
-        }
-        `);
+      return [
+        CommonUtils.addBlockCSS(
+          ".gt-edu-h5-c-article-content .content-wrapper .detail-wrapper .unfold-wrapper"
+        ),
+        addStyle(`
+			.gt-edu-h5-c-article-content .content-wrapper .detail-wrapper{
+				max-height: unset !important;
+			}
+			`)
+      ];
     }
   };
   const ISiteShieldCSS = "/* 底部推荐广告项 */\r\n.gt-local-h5-advert-card-root-container {\r\n  display: none !important;\r\n}\r\n";
@@ -22405,20 +22559,23 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
     init() {
       addStyle(ISiteShieldCSS);
       log.info("插入CSS规则");
-      PopsPanel.execMenu(
+      PopsPanel.execMenuOnce(
         "baidu_isite_wjz2tdly_shieldBottomBarRootContainer",
         () => {
-          this.shieldBottomBarRootContainer();
+          return this.shieldBottomBarRootContainer();
         }
       );
-      PopsPanel.execMenu("baidu_isite_wjz2tdly_shieldRightSeeMoreToolBar", () => {
-        this.shieldRightSeeMoreToolBar();
+      PopsPanel.execMenuOnce(
+        "baidu_isite_wjz2tdly_shieldRightSeeMoreToolBar",
+        () => {
+          return this.shieldRightSeeMoreToolBar();
+        }
+      );
+      PopsPanel.execMenuOnce("baidu_isite_wjz2tdly_shieldArticleBottom", () => {
+        return this.shieldArticleBottom();
       });
-      PopsPanel.execMenu("baidu_isite_wjz2tdly_shieldArticleBottom", () => {
-        this.shieldArticleBottom();
-      });
-      PopsPanel.execMenu("baidu_isite_wjz2tdly_autoExpandFullText", () => {
-        this.autoExpandFullText();
+      PopsPanel.execMenuOnce("baidu_isite_wjz2tdly_autoExpandFullText", () => {
+        return this.autoExpandFullText();
       });
     },
     /**
@@ -22426,36 +22583,40 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
      */
     shieldBottomBarRootContainer() {
       log.info("屏蔽底部免费在线咨询");
-      CommonUtils.addBlockCSS(".gt-local-h5-article-bottom-bar-root-container");
+      return CommonUtils.addBlockCSS(
+        ".gt-local-h5-article-bottom-bar-root-container"
+      );
     },
     /**
      * 屏蔽右侧悬浮按钮-查看更多
      */
     shieldRightSeeMoreToolBar() {
       log.info("屏蔽右侧悬浮按钮-查看更多");
-      CommonUtils.addBlockCSS(".icon-article-list.icon-article-list-exp");
+      return CommonUtils.addBlockCSS(".icon-article-list.icon-article-list-exp");
     },
     /**
      * 屏蔽底部-大家还在看
      */
     shieldArticleBottom() {
       log.info("屏蔽底部-大家还在看");
-      CommonUtils.addBlockCSS(".article-bottom");
+      return CommonUtils.addBlockCSS(".article-bottom");
     },
     /**
      * 自动展开全文
      */
     autoExpandFullText() {
       log.info("自动展开全文");
-      CommonUtils.addBlockCSS(
-        /* 点击查看全文按钮 */
-        ".fold-wrapper"
-      );
-      addStyle(`
-        .gt-local-h5-article-detail-article-fold-exp{
-            max-height: unset !important;
-        }
-        `);
+      return [
+        CommonUtils.addBlockCSS(
+          /* 点击查看全文按钮 */
+          ".fold-wrapper"
+        ),
+        addStyle(`
+			.gt-local-h5-article-detail-article-fold-exp{
+				max-height: unset !important;
+			}
+			`)
+      ];
     }
   };
   const Baidu = {

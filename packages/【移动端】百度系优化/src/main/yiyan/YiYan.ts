@@ -7,7 +7,7 @@ const BaiduYiYan = {
 	init() {
 		addStyle(YiYanShieldCSS);
 		log.info("插入CSS规则");
-		PopsPanel.execMenu("baidu_yiyan_remove_ai_mask", () => {
+		PopsPanel.execMenuOnce("baidu_yiyan_remove_ai_mask", () => {
 			BaiduYiYan.blockWaterMark();
 		});
 	},

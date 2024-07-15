@@ -2,13 +2,13 @@ import { DOMUtils, log, utils, addStyle } from "@/env";
 import { BaiduRouter } from "@/router/BaiduRouter";
 import { PopsPanel } from "@/setting/setting";
 import SearchShieldCSS from "./shield.css?raw";
-import SearchHealthShieldCSS from "./shieldHealth.css?raw";
-import { BaiduHeadlth } from "./SearchHealth";
+import { BaiduHeadlth } from "./bh/SearchHealth";
 import { BaiduSearchHook } from "./SearchHook";
 import { BaiduResultItem } from "./SearchResultItem";
 import { SearchNextPage, SearchNextPage_SearchCraft } from "./SearchNextPage";
 import { SearchInputEvent } from "./SearchInput";
 import { BaiduSearchRule } from "./SearchRule";
+import { BaiduSearchVideo } from "./video/SearchVideo";
 
 /**
  * 处理百度搜索自定义的样式添加
@@ -29,9 +29,10 @@ const BaiduSearch = {
 		BaiduSearchRule.init();
 		if (BaiduRouter.isSearchBh()) {
 			/* 百度健康 */
-			addStyle(SearchHealthShieldCSS);
-			log.info("插入CSS规则");
 			BaiduHeadlth.init();
+		} else if (BaiduRouter.isSearchVideo()) {
+			// 视频页
+			BaiduSearchVideo.init();
 		} else {
 			BaiduSearchHook.init();
 			/* 默认的百度搜索 */

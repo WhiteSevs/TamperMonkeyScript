@@ -6,7 +6,7 @@ const BaiduBaiKeTaShuo = {
 	init() {
 		addStyle(BaiKeTaShuoShieldCSS);
 		log.info("插入CSS规则");
-		PopsPanel.execMenu("baidu_baike_tashuo_remove_bottom_ad", () => {
+		PopsPanel.execMenuOnce("baidu_baike_tashuo_remove_bottom_ad", () => {
 			this.removeBottomAd();
 		});
 	},

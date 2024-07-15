@@ -7,9 +7,12 @@ const BaiduMiniJiaoYu = {
 	init() {
 		addStyle(MiniJiaoYuShieldCSS);
 		log.info("插入CSS规则");
-		PopsPanel.execMenu("mini_baidu_jiaoyu_shield_bottom_pull_down_menu", () => {
-			this.shieldBottomPullDownMenu();
-		});
+		PopsPanel.execMenuOnce(
+			"mini_baidu_jiaoyu_shield_bottom_pull_down_menu",
+			() => {
+				this.shieldBottomPullDownMenu();
+			}
+		);
 	},
 	/**
 	 * 屏蔽底部下拉菜单

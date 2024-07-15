@@ -14,14 +14,14 @@ const BaiduMbd = {
 		addStyle(MbdShieldCSS);
 		log.info("插入CSS规则");
 		BaiduMbdHook.init();
-		PopsPanel.execMenu("baidu_mbd_block_exciting_comments", () => {
-			this.blockExcitingComments();
+		PopsPanel.execMenuOnce("baidu_mbd_block_exciting_comments", () => {
+			return this.blockExcitingComments();
 		});
-		PopsPanel.execMenu("baidu_mbd_block_exciting_recommendations", () => {
-			this.blockExcitingRecommendations();
+		PopsPanel.execMenuOnce("baidu_mbd_block_exciting_recommendations", () => {
+			return this.blockExcitingRecommendations();
 		});
-		PopsPanel.execMenu("baidu_mbd_shield_bottom_toolbar", () => {
-			this.shieldBottomToolbar();
+		PopsPanel.execMenuOnce("baidu_mbd_shield_bottom_toolbar", () => {
+			return this.shieldBottomToolbar();
 		});
 	},
 	/**
@@ -29,7 +29,7 @@ const BaiduMbd = {
 	 */
 	blockExcitingComments() {
 		log.info("屏蔽最热评论");
-		CommonUtils.addBlockCSS(
+		return CommonUtils.addBlockCSS(
 			"div#commentModule",
 			"#comment",
 			'#page_wrapper > div > div[class^="borderBottom-"]'
@@ -40,26 +40,28 @@ const BaiduMbd = {
 	 */
 	blockExcitingRecommendations() {
 		log.info("屏蔽最热推荐");
-		CommonUtils.addBlockCSS(
-			'div[class^="relateTitle"]',
-			".infinite-scroll-component__outerdiv",
-			"div#fuseVideo + div[class]",
-			/* 精彩推荐的文字 */
-			"#content_wrapper + div + div",
-			/* 简单UA下精彩推荐的文字 */
-			"#page_wrapper .searchCraft #content_wrapper + div"
-		);
-		CommonUtils.addBlockCSS(
-			/* Gecko下的简单UA下精彩推荐 */
-			"#page_wrapper > div > div:nth-child(6)"
-		);
+		return [
+			CommonUtils.addBlockCSS(
+				'div[class^="relateTitle"]',
+				".infinite-scroll-component__outerdiv",
+				"div#fuseVideo + div[class]",
+				/* 精彩推荐的文字 */
+				"#content_wrapper + div + div",
+				/* 简单UA下精彩推荐的文字 */
+				"#page_wrapper .searchCraft #content_wrapper + div"
+			),
+			CommonUtils.addBlockCSS(
+				/* Gecko下的简单UA下精彩推荐 */
+				"#page_wrapper > div > div:nth-child(6)"
+			),
+		];
 	},
 	/**
 	 * 屏蔽底部工具栏
 	 */
 	shieldBottomToolbar() {
 		log.info("屏蔽底部工具栏");
-		CommonUtils.addBlockCSS("div#wise-invoke-interact-bar");
+		return CommonUtils.addBlockCSS("div#wise-invoke-interact-bar");
 	},
 };
 

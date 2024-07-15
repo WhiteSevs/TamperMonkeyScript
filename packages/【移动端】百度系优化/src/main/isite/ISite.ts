@@ -7,20 +7,23 @@ const BaiduISite = {
 	init() {
 		addStyle(ISiteShieldCSS);
 		log.info("插入CSS规则");
-		PopsPanel.execMenu(
+		PopsPanel.execMenuOnce(
 			"baidu_isite_wjz2tdly_shieldBottomBarRootContainer",
 			() => {
-				this.shieldBottomBarRootContainer();
+				return this.shieldBottomBarRootContainer();
 			}
 		);
-		PopsPanel.execMenu("baidu_isite_wjz2tdly_shieldRightSeeMoreToolBar", () => {
-			this.shieldRightSeeMoreToolBar();
+		PopsPanel.execMenuOnce(
+			"baidu_isite_wjz2tdly_shieldRightSeeMoreToolBar",
+			() => {
+				return this.shieldRightSeeMoreToolBar();
+			}
+		);
+		PopsPanel.execMenuOnce("baidu_isite_wjz2tdly_shieldArticleBottom", () => {
+			return this.shieldArticleBottom();
 		});
-		PopsPanel.execMenu("baidu_isite_wjz2tdly_shieldArticleBottom", () => {
-			this.shieldArticleBottom();
-		});
-		PopsPanel.execMenu("baidu_isite_wjz2tdly_autoExpandFullText", () => {
-			this.autoExpandFullText();
+		PopsPanel.execMenuOnce("baidu_isite_wjz2tdly_autoExpandFullText", () => {
+			return this.autoExpandFullText();
 		});
 	},
 	/**
@@ -28,36 +31,40 @@ const BaiduISite = {
 	 */
 	shieldBottomBarRootContainer() {
 		log.info("屏蔽底部免费在线咨询");
-		CommonUtils.addBlockCSS(".gt-local-h5-article-bottom-bar-root-container");
+		return CommonUtils.addBlockCSS(
+			".gt-local-h5-article-bottom-bar-root-container"
+		);
 	},
 	/**
 	 * 屏蔽右侧悬浮按钮-查看更多
 	 */
 	shieldRightSeeMoreToolBar() {
 		log.info("屏蔽右侧悬浮按钮-查看更多");
-		CommonUtils.addBlockCSS(".icon-article-list.icon-article-list-exp");
+		return CommonUtils.addBlockCSS(".icon-article-list.icon-article-list-exp");
 	},
 	/**
 	 * 屏蔽底部-大家还在看
 	 */
 	shieldArticleBottom() {
 		log.info("屏蔽底部-大家还在看");
-		CommonUtils.addBlockCSS(".article-bottom");
+		return CommonUtils.addBlockCSS(".article-bottom");
 	},
 	/**
 	 * 自动展开全文
 	 */
 	autoExpandFullText() {
 		log.info("自动展开全文");
-		CommonUtils.addBlockCSS(
-			/* 点击查看全文按钮 */
-			".fold-wrapper"
-		);
-		addStyle(`
-        .gt-local-h5-article-detail-article-fold-exp{
-            max-height: unset !important;
-        }
-        `);
+		return [
+			CommonUtils.addBlockCSS(
+				/* 点击查看全文按钮 */
+				".fold-wrapper"
+			),
+			addStyle(`
+			.gt-local-h5-article-detail-article-fold-exp{
+				max-height: unset !important;
+			}
+			`),
+		];
 	},
 };
 

@@ -61,6 +61,38 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 						},
 					],
 				},
+				{
+					text: "视频页",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "功能",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"自动跳转至原网页",
+									"baidu-search-video-autoJumpToOriginUrl",
+									false,
+									void 0,
+									"自动点击【原网页】进行跳转"
+								),
+							],
+						},
+						{
+							text: "屏蔽",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"【屏蔽】底部推荐视频",
+									"baidu-search-video-blockBottomRecommendVideo",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+							],
+						},
+					],
+				},
 			],
 		},
 		{
