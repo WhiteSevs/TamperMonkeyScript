@@ -2,19 +2,47 @@ import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 
-const BilibiliLive = {
+// 屏蔽元素
+const BilibiliLiveBlockNode = {
 	init() {
-		PopsPanel.execMenuOnce("bili-live-prevent-openAppBtn", () => {
-			this.preventOpenAppBtn();
-		});
 		PopsPanel.execMenuOnce("bili-live-block-chatRoom", () => {
-			this.blockChatRoom();
+			return this.blockChatRoom();
 		});
 		PopsPanel.execMenuOnce("bili-live-block-brush-prompt", () => {
-			this.blockBrushPrompt();
+			return this.blockBrushPrompt();
 		});
 		PopsPanel.execMenuOnce("bili-live-block-control-panel", () => {
-			this.blockControlPanel();
+			return this.blockControlPanel();
+		});
+	},
+	/**
+	 * 屏蔽聊天室
+	 */
+	blockChatRoom() {
+		log.info("屏蔽聊天室");
+		return BilibiliUtils.addBlockCSS("#chat-items");
+	},
+	/**
+	 * 屏蔽xxx进入直播间
+	 */
+	blockBrushPrompt() {
+		log.info("屏蔽xxx进入直播间");
+		return BilibiliUtils.addBlockCSS("#brush-prompt");
+	},
+	/**
+	 * 屏蔽底部工具栏
+	 */
+	blockControlPanel() {
+		log.info("屏蔽底部工具栏");
+		return BilibiliUtils.addBlockCSS(".control-panel");
+	},
+};
+
+export const BilibiliLive = {
+	init() {
+		BilibiliLiveBlockNode.init();
+		PopsPanel.execMenuOnce("bili-live-prevent-openAppBtn", () => {
+			this.preventOpenAppBtn();
 		});
 	},
 	/**
@@ -47,27 +75,4 @@ const BilibiliLive = {
 			);
 		});
 	},
-	/**
-	 * 屏蔽聊天室
-	 */
-	blockChatRoom() {
-		log.info("屏蔽聊天室");
-		BilibiliUtils.addBlockCSS("#chat-items");
-	},
-	/**
-	 * 屏蔽xxx进入直播间
-	 */
-	blockBrushPrompt() {
-		log.info("屏蔽xxx进入直播间");
-		BilibiliUtils.addBlockCSS("#brush-prompt");
-	},
-	/**
-	 * 屏蔽底部工具栏
-	 */
-	blockControlPanel() {
-		log.info("屏蔽底部工具栏");
-		BilibiliUtils.addBlockCSS(".control-panel");
-	},
 };
-
-export { BilibiliLive };

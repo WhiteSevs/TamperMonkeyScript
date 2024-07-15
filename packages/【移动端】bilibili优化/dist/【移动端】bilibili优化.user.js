@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.7.19
+// @version      2024.7.15.13
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -11,11 +11,11 @@
 // @match        *://live.bilibili.com/*
 // @match        *://www.bilibili.com/read/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/456485/1406779/pops.js
 // @require      https://update.greasyfork.org/scripts/497907/1394170/QRCodeJS.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.5.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.2.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @connect      *
 // @connect      m.bilibili.com
@@ -37,7 +37,7 @@
 
 (a=>{function e(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let p=document.createElement("style");return p.setAttribute("type","text/css"),p.innerHTML=n,document.head?document.head.appendChild(p):document.body?document.body.appendChild(p):document.documentElement.childNodes.length===0?document.documentElement.appendChild(p):document.documentElement.insertBefore(p,document.documentElement.childNodes[0]),p}if(typeof GM_addStyle=="function"){GM_addStyle(a);return}e(a)})(" .m-video2-awaken-btn,.openapp-dialog,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#app .read-app-main bili-open-app{display:none!important} ");
 
-(function (Qmsg, Utils, DOMUtils, md5) {
+(function (Qmsg, Utils, DOMUtils, pops, md5) {
   'use strict';
 
   var _a;
@@ -142,7 +142,7 @@
   const _SCRIPT_NAME_ = "【移动端】bilibili优化";
   const utils = Utils.noConflict();
   const domutils = DOMUtils.noConflict();
-  const pops = _monkeyWindow.pops || _unsafeWindow.pops;
+  const __pops = pops;
   const QRCodeJS = _monkeyWindow.QRCode || _unsafeWindow.QRCode;
   const log = new utils.Log(
     _GM_info,
@@ -183,7 +183,7 @@
         zIndex: {
           get() {
             let maxZIndex = Utils.getMaxZIndex();
-            let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(maxZIndex).zIndex;
+            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
             return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
           }
         }
@@ -1309,7 +1309,7 @@
           selectorList.push(selector);
         }
       });
-      addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     }
   };
   function isWebApiSuccess(json) {
@@ -1433,7 +1433,7 @@
      * @param qrcodeInfo
      */
     async confirmScanQrcode(qrcodeInfo) {
-      let $alert = pops.alert({
+      let $alert = __pops.alert({
         title: {
           text: "请扫描二维码登录",
           position: "center",
@@ -1518,7 +1518,7 @@
           } else if (pollInfo.action === "wait") {
             if (pollInfo.message === "二维码已扫码未确认") {
               log.info("已扫码，等待确认...");
-              pops.loading({
+              __pops.loading({
                 parent: $biliQrcodeCanvas,
                 content: {
                   text: "已扫码，等待确认"
@@ -1938,13 +1938,46 @@
         log.warn(`${key} 键不存在`);
         return;
       }
+      if (this.$data.oneSuccessExecMenu.has(key)) {
+        return;
+      }
+      this.$data.oneSuccessExecMenu.set(key, 1);
+      let resultStyleList = [];
+      let pushStyleNode = (style) => {
+        let __value = PopsPanel.getValue(key);
+        changeCallBack(__value, style);
+      };
+      let changeCallBack = (currentValue, resultStyle) => {
+        let resultList = [];
+        if (currentValue) {
+          let result = resultStyle ?? callback(currentValue, pushStyleNode);
+          if (result instanceof HTMLStyleElement) {
+            resultList = [result];
+          } else if (Array.isArray(result)) {
+            resultList = [
+              ...result.filter(
+                (item) => item != null && item instanceof HTMLStyleElement
+              )
+            ];
+          }
+        }
+        for (let index = 0; index < resultStyleList.length; index++) {
+          let $css = resultStyleList[index];
+          $css.remove();
+          resultStyleList.splice(index, 1);
+          index--;
+        }
+        resultStyleList = [...resultList];
+      };
+      this.addValueChangeListener(
+        key,
+        (__key, oldValue, newValue) => {
+          changeCallBack(newValue);
+        }
+      );
       let value = PopsPanel.getValue(key);
       if (value) {
-        if (this.$data.oneSuccessExecMenu.has(key)) {
-          return;
-        }
-        callback(value);
-        this.$data.oneSuccessExecMenu.set(key, 1);
+        changeCallBack(value);
       }
     },
     /**
@@ -1965,7 +1998,7 @@
      * 显示设置面板
      */
     showPanel() {
-      pops.panel({
+      __pops.panel({
         title: {
           text: `${SCRIPT_NAME}-设置`,
           position: "center",
@@ -3015,19 +3048,45 @@
       });
     }
   };
-  const BilibiliLive = {
+  const BilibiliLiveBlockNode = {
     init() {
-      PopsPanel.execMenuOnce("bili-live-prevent-openAppBtn", () => {
-        this.preventOpenAppBtn();
-      });
       PopsPanel.execMenuOnce("bili-live-block-chatRoom", () => {
-        this.blockChatRoom();
+        return this.blockChatRoom();
       });
       PopsPanel.execMenuOnce("bili-live-block-brush-prompt", () => {
-        this.blockBrushPrompt();
+        return this.blockBrushPrompt();
       });
       PopsPanel.execMenuOnce("bili-live-block-control-panel", () => {
-        this.blockControlPanel();
+        return this.blockControlPanel();
+      });
+    },
+    /**
+     * 屏蔽聊天室
+     */
+    blockChatRoom() {
+      log.info("屏蔽聊天室");
+      return BilibiliUtils.addBlockCSS("#chat-items");
+    },
+    /**
+     * 屏蔽xxx进入直播间
+     */
+    blockBrushPrompt() {
+      log.info("屏蔽xxx进入直播间");
+      return BilibiliUtils.addBlockCSS("#brush-prompt");
+    },
+    /**
+     * 屏蔽底部工具栏
+     */
+    blockControlPanel() {
+      log.info("屏蔽底部工具栏");
+      return BilibiliUtils.addBlockCSS(".control-panel");
+    }
+  };
+  const BilibiliLive = {
+    init() {
+      BilibiliLiveBlockNode.init();
+      PopsPanel.execMenuOnce("bili-live-prevent-openAppBtn", () => {
+        this.preventOpenAppBtn();
       });
     },
     /**
@@ -3059,27 +3118,6 @@
           }
         );
       });
-    },
-    /**
-     * 屏蔽聊天室
-     */
-    blockChatRoom() {
-      log.info("屏蔽聊天室");
-      BilibiliUtils.addBlockCSS("#chat-items");
-    },
-    /**
-     * 屏蔽xxx进入直播间
-     */
-    blockBrushPrompt() {
-      log.info("屏蔽xxx进入直播间");
-      BilibiliUtils.addBlockCSS("#brush-prompt");
-    },
-    /**
-     * 屏蔽底部工具栏
-     */
-    blockControlPanel() {
-      log.info("屏蔽底部工具栏");
-      BilibiliUtils.addBlockCSS(".control-panel");
     }
   };
   const BilibiliOpus = {
@@ -4274,4 +4312,4 @@
   PopsPanel.init();
   Bilibili.init();
 
-})(Qmsg, Utils, DOMUtils, MD5);
+})(Qmsg, Utils, DOMUtils, pops, MD5);

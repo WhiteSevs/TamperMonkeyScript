@@ -1,5 +1,6 @@
 import { BilibiliRouter } from "@/router/BilibiliRouter";
 import { UISwitch } from "../common-components/ui-switch";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 
 export const SettingUIDynamic: PopsPanelContentConfig = {
 	id: "panel-dynamic",

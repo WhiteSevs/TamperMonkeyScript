@@ -278,7 +278,7 @@ export const BilibiliUtils = {
 				selectorList.push(selector);
 			}
 		});
-		addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+		return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
 	},
 };
 

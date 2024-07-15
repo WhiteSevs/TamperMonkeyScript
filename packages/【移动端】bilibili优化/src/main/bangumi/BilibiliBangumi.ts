@@ -57,7 +57,7 @@ const BilibiliBangumi = {
 	 */
 	hookCallApp() {
 		let oldSetTimeout = unsafeWindow.setTimeout;
-		unsafeWindow.setTimeout = function (...args: any[]): any {
+		(unsafeWindow as any).setTimeout = function (...args: any[]): any {
 			let callString = args[0].toString();
 			if (callString.includes("autoOpenApp")) {
 				log.success(["阻止唤醒App", args]);

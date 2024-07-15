@@ -3,6 +3,7 @@ import { UISwitch } from "../common-components/ui-switch";
 import { UITextArea } from "../common-components/ui-textarea";
 import { PopsPanel } from "../setting";
 import { UISelect } from "../common-components/ui-select";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 
 const SettingUICommon: PopsPanelContentConfig = {
 	id: "panel-common",

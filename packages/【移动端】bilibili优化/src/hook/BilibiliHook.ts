@@ -114,7 +114,7 @@ const BilibiliHook = {
 			log.info("window.setTimeout hook新增劫持判断参数：" + matchStr);
 			return;
 		}
-		unsafeWindow.setTimeout = function (...args: any[]): any {
+		(unsafeWindow as any).setTimeout = function (...args: any[]): any {
 			let callBackString = args[0].toString();
 			if (callBackString.match(matchStr)) {
 				log.success(["劫持setTimeout的函数", callBackString]);

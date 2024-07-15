@@ -3,7 +3,7 @@
 		"target": "ESNext",
 		"useDefineForClassFields": true,
 		"module": "ESNext",
-		"moduleResolution": "Node",
+		"moduleResolution": "Node10",
 		"strict": true,
 		"jsx": "preserve",
 		"resolveJsonModule": true,
@@ -21,13 +21,10 @@
 			"@库/*": ["./../../库/*"],
 			"@/*": ["./src/*"]
 		},
-		"types": [
-			"element-plus/global",
-			"./src/env.d.ts",
-			"./../../库/pops/core.d.ts"
-		]
+		//"types": ["element-plus/global"],
+		"typeRoots": ["types"]
 	},
-	"include": ["src"],
+	"include": ["src", "types"],
 	"references": [
 		{
 			"path": "./tsconfig.node.json"

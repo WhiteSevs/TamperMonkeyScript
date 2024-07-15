@@ -78,6 +78,7 @@ export const BilibiliVideoPlayUrlQN = {
 	"8K 超高清": 127,
 };
 
+// https://socialsisteryi.github.io/bilibili-API-collect/
 export const BilibiliNetworkHook = {
 	$flag: {
 		is_hook_video_playurl: false,

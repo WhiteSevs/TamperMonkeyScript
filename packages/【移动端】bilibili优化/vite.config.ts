@@ -66,7 +66,7 @@ export default defineConfig({
 				author: "WhiteSevs",
 				"run-at": "document-start",
 				license: "GPL-3.0-only",
-				require: await GetLib(["CoverUMD", "pops", "QRCode"]),
+				require: await GetLib(["CoverUMD", "QRCode"]),
 				resource: {
 					// "ElementPlusResourceCSS": "https://fastly.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
 				},
@@ -128,6 +128,7 @@ export default defineConfig({
 						"DOMUtils",
 						"dist/index.umd.js"
 					),
+					"@whitesev/pops": cdn.jsdelivrFastly("pops", "dist/index.umd.js"),
 					md5: cdn.jsdelivrFastly("MD5", "dist/md5.min.js"),
 				},
 				cssSideEffects: () => {

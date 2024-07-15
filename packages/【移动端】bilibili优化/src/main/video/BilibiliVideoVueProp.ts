@@ -69,8 +69,8 @@ export const BilibiliVideoVueProp = {
 						set(vueObj) {
 							that.$data.isInitPlayer = false;
 							function intervalCheck() {
-								let intervalId: number | undefined = void 0;
-								let timeoutId: number | undefined = void 0;
+								let intervalId: number | undefined | NodeJS.Timeout = void 0;
+								let timeoutId: number | undefined | NodeJS.Timeout = void 0;
 								let checkCount = 1;
 								let isSuccess = false;
 								let lockFunc = new utils.LockFunction(async () => {

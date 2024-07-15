@@ -17,12 +17,12 @@ import Utils from "@whitesev/utils";
 import DOMUtils from "@whitesev/domutils";
 import { HttpxCookieManager } from "./utils/HttpxCookieManager";
 import { PopsPanel } from "./setting/setting";
+import pops from "@whitesev/pops";
 
 const _SCRIPT_NAME_ = "【移动端】bilibili优化";
 const utils = Utils.noConflict();
 const domutils = DOMUtils.noConflict();
-const pops: typeof import("@库/pops") =
-	(monkeyWindow as any).pops || (unsafeWindow as any).pops;
+const __pops = pops;
 const QRCodeJS: typeof import("@库/QRCode/index.d.ts") =
 	(monkeyWindow as any).QRCode || (unsafeWindow as any).QRCode;
 
@@ -72,7 +72,7 @@ Qmsg.config(
 				get() {
 					let maxZIndex = Utils.getMaxZIndex();
 					let popsMaxZIndex =
-						pops.config.Utils.getPopsMaxZIndex(maxZIndex).zIndex;
+						pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
 					return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
 				},
 			},
@@ -174,7 +174,7 @@ const addStyle = utils.addStyle;
 export {
 	utils,
 	domutils as DOMUtils,
-	pops,
+	__pops as pops,
 	Qmsg,
 	log,
 	GM_Menu,
