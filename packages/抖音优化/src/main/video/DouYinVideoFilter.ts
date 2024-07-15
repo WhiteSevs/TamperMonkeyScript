@@ -12,21 +12,21 @@ interface DouYinShieldTagMap {
 	videoTag: string[];
 }
 
-const __DouYinVideoFilter__ = {
-	rule: null as any as UtilsDictionary<keyof DouYinShieldTagMap, RegExp>,
-};
-
 export const DouYinVideoFilter = {
 	key: "douyin-shield-rule",
 	$data: {
+		__rule: null as any as UtilsDictionary<keyof DouYinShieldTagMap, RegExp>,
+		/**
+		 * 解析出的规则
+		 */
 		get rule() {
-			if (__DouYinVideoFilter__.rule == null) {
-				__DouYinVideoFilter__.rule = new utils.Dictionary<
+			if (DouYinVideoFilter.$data.__rule == null) {
+				DouYinVideoFilter.$data.__rule = new utils.Dictionary<
 					keyof DouYinShieldTagMap,
 					RegExp
 				>();
 			}
-			return __DouYinVideoFilter__.rule;
+			return DouYinVideoFilter.$data.__rule;
 		},
 		/** 是否是首次加载视频 */
 		isFirstLoad: true,
@@ -158,7 +158,7 @@ export const DouYinVideoFilter = {
 						index--;
 					}
 				}
-			}, 150)
+			}, 50)
 		);
 	},
 	/**

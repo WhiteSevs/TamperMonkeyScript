@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.15
+// @version      2024.7.16
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -848,7 +848,7 @@
     autoEnterElementFullScreen() {
       log.info("自动进入网页全屏");
       utils.waitNode(
-        'xg-icon[classname] > div > div:has(path[d="M9.75 8.5a2 2 0 00-2 2v11a2 2 0 002 2h12.5a2 2 0 002-2v-11a2 2 0 00-2-2H9.75zM15 11.25h-3.75a1 1 0 00-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 01-1 1z"])'
+        'xg-icon[classname] > div > div:has(path[d="M9.75 8.5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12.5a2 2 0 0 0 2-2v-11a2 2 0 0 0-2-2H9.75zM15 11.25h-3.75a1 1 0 0 0-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 0 1-1 1z"])'
       ).then((element) => {
         element.click();
       });
@@ -1335,17 +1335,18 @@
       return document.querySelector("#root div[class*='-os']") || document.querySelector("#douyin-right-container");
     }
   };
-  const __DouYinVideoFilter__ = {
-    rule: null
-  };
   const DouYinVideoFilter = {
     key: "douyin-shield-rule",
     $data: {
+      __rule: null,
+      /**
+       * 解析出的规则
+       */
       get rule() {
-        if (__DouYinVideoFilter__.rule == null) {
-          __DouYinVideoFilter__.rule = new utils.Dictionary();
+        if (DouYinVideoFilter.$data.__rule == null) {
+          DouYinVideoFilter.$data.__rule = new utils.Dictionary();
         }
-        return __DouYinVideoFilter__.rule;
+        return DouYinVideoFilter.$data.__rule;
       },
       /** 是否是首次加载视频 */
       isFirstLoad: true
@@ -1460,7 +1461,7 @@
               index--;
             }
           }
-        }, 150)
+        }, 50)
       );
     },
     /**
@@ -2022,7 +2023,9 @@
           'div.dy-tip-container:has(path[d="M14 8a8 8 0 00-8 8v4a8 8 0 008 8h8a8 8 0 008-8v-4a8 8 0 00-8-8h-8zm8.5 10.866a1 1 0 000-1.732l-6-3.464a1 1 0 00-1.5.866v6.928a1 1 0 001.5.866l6-3.464z"])',
           'div.dy-tip-container:has(path[d=" M-4,-10 C-4,-10 4,-10 4,-10 C8.418000221252441,-10 12,-6.418000221252441 12,-2 C12,-2 12,2 12,2 C12,6.418000221252441 8.418000221252441,10 4,10 C4,10 -4,10 -4,10 C-8.418000221252441,10 -12,6.418000221252441 -12,2 C-12,2 -12,-2 -12,-2 C-12,-6.418000221252441 -8.418000221252441,-10 -4,-10z M4.5,0.8659999966621399 C5.166999816894531,0.48100000619888306 5.166999816894531,-0.48100000619888306 4.5,-0.8659999966621399 C4.5,-0.8659999966621399 -1.5,-4.329999923706055 -1.5,-4.329999923706055 C-2.1670000553131104,-4.715000152587891 -3,-4.234000205993652 -3,-3.4639999866485596 C-3,-3.4639999866485596 -3,3.4639999866485596 -3,3.4639999866485596 C-3,4.234000205993652 -2.1670000553131104,4.715000152587891 -1.5,4.329999923706055 C-1.5,4.329999923706055 4.5,0.8659999966621399 4.5,0.8659999966621399z"])',
           // 2024.7.2 新增其它的样式匹配
-          '.basePlayerContainer div[aria-describedby]:has(path[d="M14 8a8 8 0 00-8 8v4a8 8 0 008 8h8a8 8 0 008-8v-4a8 8 0 00-8-8h-8zm8.5 10.866a1 1 0 000-1.732l-6-3.464a1 1 0 00-1.5.866v6.928a1 1 0 001.5.866l6-3.464z"])'
+          '.basePlayerContainer div[aria-describedby]:has(path[d="M14 8a8 8 0 00-8 8v4a8 8 0 008 8h8a8 8 0 008-8v-4a8 8 0 00-8-8h-8zm8.5 10.866a1 1 0 000-1.732l-6-3.464a1 1 0 00-1.5.866v6.928a1 1 0 001.5.866l6-3.464z"])',
+          // 2024.7.15
+          '.basePlayerContainer div[aria-describedby]:has(path[d="M14 8a8 8 0 0 0-8 8v4a8 8 0 0 0 8 8h8a8 8 0 0 0 8-8v-4a8 8 0 0 0-8-8h-8zm8.5 10.866a1 1 0 0 0 0-1.732l-6-3.464a1 1 0 0 0-1.5.866v6.928a1 1 0 0 0 1.5.866l6-3.464z"])'
         )
       ];
     },
@@ -2125,7 +2128,7 @@
         PopsPanel.execMenuOnce(
           "dy-video-changeBackgroundColor",
           (value) => {
-            this.changeBackgroundColor(value);
+            return this.changeBackgroundColor(value);
           }
         );
       });
@@ -2166,14 +2169,27 @@
     },
     /**
      * 自动进入网页全屏
+     * @param [userKeyBoard=false] 是否使用键盘触发
      */
-    autoEnterElementFullScreen() {
-      utils.waitNode(
-        'xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon:has([d="M9.75 8.5a2 2 0 00-2 2v11a2 2 0 002 2h12.5a2 2 0 002-2v-11a2 2 0 00-2-2H9.75zM15 11.25h-3.75a1 1 0 00-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 01-1 1z"])'
-      ).then((element) => {
-        log.success("自动进入网页全屏");
-        element.click();
-      });
+    autoEnterElementFullScreen(userKeyBoard = false) {
+      if (userKeyBoard) {
+        let keydownEvent = new KeyboardEvent("keydown", {
+          bubbles: true,
+          cancelable: true,
+          key: "Y",
+          code: "KeyY",
+          keyCode: 89,
+          which: 89
+        });
+        document.dispatchEvent(keydownEvent);
+      } else {
+        utils.waitNode(
+          'xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon:has([d="M9.75 8.5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12.5a2 2 0 0 0 2-2v-11a2 2 0 0 0-2-2H9.75zM15 11.25h-3.75a1 1 0 0 0-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 0 1-1 1z"])'
+        ).then((element) => {
+          log.success("自动进入网页全屏");
+          element.click();
+        });
+      }
     },
     /**
      * 双击进入网页全屏
@@ -2190,7 +2206,7 @@
           () => {
             if (isDouble) {
               isDouble = false;
-              DouYinVideo.autoEnterElementFullScreen();
+              DouYinVideo.autoEnterElementFullScreen(true);
             } else {
               isDouble = true;
               setTimeout(() => {
@@ -2537,10 +2553,14 @@
      */
     changeBackgroundColor(color) {
       log.info("修改视频背景颜色");
-      addStyle(`
-		#sliderVideo > div{
-			background: ${color};
-		}	
+      return addStyle(`
+		#sliderVideo > div,
+		/* 推荐的直播间背景 */
+		xgmask,
+		/* 用户主页的视频 */
+		.basePlayerContainer .imgBackground{
+			background: ${color}  !important;
+		}
 		`);
     }
   };
@@ -3858,14 +3878,18 @@
         DouYinUtils.addBlockCSS(
           '#douyin-right-container pace-island[id^="island"] > div[class]:not([data-click]):has(div[data-e2e="something-button"]) > :has(path[d="M5.757 12.268a6.397 6.397 0 1112.793 0 6.397 6.397 0 01-12.793 0zm6.396-7.897a7.897 7.897 0 100 15.793 7.897 7.897 0 000-15.793zm2.127 3.52v-.497h-1.5v6.462h.001c0 .854-.685 1.536-1.517 1.536a1.527 1.527 0 01-1.517-1.536c0-.854.685-1.536 1.517-1.536v-1.5c-1.672 0-3.017 1.365-3.017 3.036 0 1.67 1.345 3.036 3.017 3.036s3.017-1.365 3.017-3.036h-.001v-3.228a3.184 3.184 0 001.715.498v-1.5a1.725 1.725 0 01-1.715-1.735z"])',
           // 直播
-          '#douyin-header pace-island[id^="island"] > div[class]:not([data-click]):has(div[data-e2e="something-button"]) > :has(path[d="M5.757 12.268a6.397 6.397 0 1112.793 0 6.397 6.397 0 01-12.793 0zm6.396-7.897a7.897 7.897 0 100 15.793 7.897 7.897 0 000-15.793zm2.127 3.52v-.497h-1.5v6.462h.001c0 .854-.685 1.536-1.517 1.536a1.527 1.527 0 01-1.517-1.536c0-.854.685-1.536 1.517-1.536v-1.5c-1.672 0-3.017 1.365-3.017 3.036 0 1.67 1.345 3.036 3.017 3.036s3.017-1.365 3.017-3.036h-.001v-3.228a3.184 3.184 0 001.715.498v-1.5a1.725 1.725 0 01-1.715-1.735z"])'
+          '#douyin-header pace-island[id^="island"] > div[class]:not([data-click]):has(div[data-e2e="something-button"]) > :has(path[d="M5.757 12.268a6.397 6.397 0 1112.793 0 6.397 6.397 0 01-12.793 0zm6.396-7.897a7.897 7.897 0 100 15.793 7.897 7.897 0 000-15.793zm2.127 3.52v-.497h-1.5v6.462h.001c0 .854-.685 1.536-1.517 1.536a1.527 1.527 0 01-1.517-1.536c0-.854.685-1.536 1.517-1.536v-1.5c-1.672 0-3.017 1.365-3.017 3.036 0 1.67 1.345 3.036 3.017 3.036s3.017-1.365 3.017-3.036h-.001v-3.228a3.184 3.184 0 001.715.498v-1.5a1.725 1.725 0 01-1.715-1.735z"])',
+          // 2024.7.15
+          'div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M5.757 12.268a6.397 6.397 0 1 1 12.793 0 6.397 6.397 0 0 1-12.793 0zm6.396-7.897a7.897 7.897 0 1 0 0 15.793 7.897 7.897 0 0 0 0-15.793zm2.127 3.52v-.497h-1.5v6.462h.001c0 .854-.685 1.536-1.517 1.536a1.527 1.527 0 0 1-1.517-1.536c0-.854.685-1.536 1.517-1.536v-1.5c-1.672 0-3.017 1.365-3.017 3.036 0 1.67 1.345 3.036 3.017 3.036s3.017-1.365 3.017-3.036h-.001v-3.228a3.184 3.184 0 0 0 1.715.498v-1.5a1.725 1.725 0 0 1-1.715-1.735z"])'
         )
       );
       if (DouYinRouter.isSearch()) {
         log.info("搜索-【屏蔽】充钻石");
         result.push(
           DouYinUtils.addBlockCSS(
-            'div:has(>div>div>div>div[data-e2e="something-button"] path[d="M5.757 12.268a6.397 6.397 0 1112.793 0 6.397 6.397 0 01-12.793 0zm6.396-7.897a7.897 7.897 0 100 15.793 7.897 7.897 0 000-15.793zm2.127 3.52v-.497h-1.5v6.462h.001c0 .854-.685 1.536-1.517 1.536a1.527 1.527 0 01-1.517-1.536c0-.854.685-1.536 1.517-1.536v-1.5c-1.672 0-3.017 1.365-3.017 3.036 0 1.67 1.345 3.036 3.017 3.036s3.017-1.365 3.017-3.036h-.001v-3.228a3.184 3.184 0 001.715.498v-1.5a1.725 1.725 0 01-1.715-1.735z"])'
+            'div:has(>div>div>div>div[data-e2e="something-button"] path[d="M5.757 12.268a6.397 6.397 0 1112.793 0 6.397 6.397 0 01-12.793 0zm6.396-7.897a7.897 7.897 0 100 15.793 7.897 7.897 0 000-15.793zm2.127 3.52v-.497h-1.5v6.462h.001c0 .854-.685 1.536-1.517 1.536a1.527 1.527 0 01-1.517-1.536c0-.854.685-1.536 1.517-1.536v-1.5c-1.672 0-3.017 1.365-3.017 3.036 0 1.67 1.345 3.036 3.017 3.036s3.017-1.365 3.017-3.036h-.001v-3.228a3.184 3.184 0 001.715.498v-1.5a1.725 1.725 0 01-1.715-1.735z"])',
+            // 2024.7.15
+            'div[id^="douyin-header-menu"] >  div > div > div:has(path[d="M5.757 12.268a6.397 6.397 0 1 1 12.793 0 6.397 6.397 0 0 1-12.793 0zm6.396-7.897a7.897 7.897 0 1 0 0 15.793 7.897 7.897 0 0 0 0-15.793zm2.127 3.52v-.497h-1.5v6.462h.001c0 .854-.685 1.536-1.517 1.536a1.527 1.527 0 0 1-1.517-1.536c0-.854.685-1.536 1.517-1.536v-1.5c-1.672 0-3.017 1.365-3.017 3.036 0 1.67 1.345 3.036 3.017 3.036s3.017-1.365 3.017-3.036h-.001v-3.228a3.184 3.184 0 0 0 1.715.498v-1.5a1.725 1.725 0 0 1-1.715-1.735z"])'
           )
         );
       }
@@ -3885,14 +3909,18 @@
           // 直播
           '#douyin-header pace-island[id^="island"] > div[class] span:has(a[download][href*="client"])',
           /* 直播 更多 客户端 */
-          '.semi-portal-inner .semi-dropdown-content .semi-dropdown-item:has(a[download][href*="client"])'
+          '.semi-portal-inner .semi-dropdown-content .semi-dropdown-item:has(a[download][href*="client"])',
+          // 2024.7.15
+          'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[download^="douyin-downloader"])'
         )
       );
       if (DouYinRouter.isSearch()) {
         log.info("搜索-【屏蔽】客户端");
         result.push(
           DouYinUtils.addBlockCSS(
-            'div:has(> div[data-e2e="something-button"] path[d="M18.404 19.018h-12v-1.5h12v1.5zM11.654 13.457v-8.19h1.5v8.19l3.22-3.22 1.06 1.061-4.5 4.5a.75.75 0 01-1.06 0l-4.5-4.5 1.06-1.06 3.22 3.22z"])'
+            'div:has(> div[data-e2e="something-button"] path[d="M18.404 19.018h-12v-1.5h12v1.5zM11.654 13.457v-8.19h1.5v8.19l3.22-3.22 1.06 1.061-4.5 4.5a.75.75 0 01-1.06 0l-4.5-4.5 1.06-1.06 3.22 3.22z"])',
+            // 2024.7.15
+            'div[id^="douyin-header-menu"] >  div > div > div:has(a[download^="douyin-downloader"])'
           )
         );
       }
@@ -3906,9 +3934,11 @@
       let result = [];
       result.push(
         DouYinUtils.addBlockCSS(
-          'header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(.quick-access-nav-icon)'
+          'header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(.quick-access-nav-icon)',
           // 直播 更多里面的 快捷访问
           // '.semi-portal-inner .semi-dropdown-content .semi-dropdown-item'
+          // 2024.7.15 更新规则
+          'div[id^="douyin-header-menu"] pace-island > div > div:has(.quick-access-nav-icon)'
         )
       );
       if (DouYinRouter.isSearch()) {
@@ -3957,7 +3987,11 @@
       if (DouYinRouter.isSearch()) {
         log.info("搜索-【屏蔽】通知");
         result.push(
-          DouYinUtils.addBlockCSS('ul:has( div>div[data-e2e="notice-entry"] )')
+          DouYinUtils.addBlockCSS(
+            'ul:has( div>div[data-e2e="notice-entry"] )',
+            // 2024.7.15
+            'div[id^="douyin-header-menu"] >  div > div > ul:has(path[d="M12.154 4.768a5.656 5.656 0 0 0-5.644 5.285l-.407 6.172h12.102l-.407-6.172a5.657 5.657 0 0 0-5.644-5.285zm-4.148 5.383a4.156 4.156 0 0 1 8.295 0l.302 4.574H7.705l.301-4.574z"])'
+          )
         );
       }
     },
@@ -3977,7 +4011,11 @@
       if (DouYinRouter.isSearch()) {
         log.info("搜索-【屏蔽】私信");
         result.push(
-          DouYinUtils.addBlockCSS('ul:has( div>div[data-e2e="im-entry"] )')
+          DouYinUtils.addBlockCSS(
+            'ul:has( div>div[data-e2e="im-entry"] )',
+            // 2024.7.15
+            'div[id^="douyin-header-menu"] >  div > div > ul:has([data-e2e="im-entry"])'
+          )
         );
       }
       return result.push;
@@ -3992,14 +4030,18 @@
         DouYinUtils.addBlockCSS(
           '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(ul[data-e2e="cooperate-list"])',
           // 直播
-          '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(ul[data-e2e="cooperate-list"])'
+          '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(ul[data-e2e="cooperate-list"])',
+          // 2024.7.15 更新规则
+          'div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M11.349 5.17h-.033c-1.068 0-1.915 0-2.598.054-.698.056-1.29.172-1.832.441a4.75 4.75 0 0 0-2.14 2.14c-.269.542-.386 1.134-.441 1.832-.055.683-.055 1.53-.055 2.599v.064c0 1.069 0 1.916.055 2.599.055.698.172 1.29.441 1.831a4.75 4.75 0 0 0 2.14 2.14c.542.27 1.134.386 1.832.442.683.055 1.53.055 2.598.055H12.684c1.068 0 1.915 0 2.598-.055.698-.056 1.29-.172 1.832-.442a4.75 4.75 0 0 0 2.14-2.14c.269-.541.386-1.133.441-1.831.055-.683.055-1.53.055-2.599v-.064c0-1.069 0-1.916-.055-2.599-.055-.698-.172-1.29-.441-1.832a4.75 4.75 0 0 0-2.14-2.14c-.542-.269-1.134-.385-1.832-.441-.683-.055-1.53-.055-2.598-.055h-1.335zM7.554 7.008c.299-.149.676-.241 1.284-.29.616-.05 1.403-.05 2.51-.05h1.303c1.108 0 1.895 0 2.511.05.608.049.985.141 1.284.29a3.25 3.25 0 0 1 1.464 1.464c.15.3.241.676.29 1.284.05.616.05 1.403.05 2.51 0 1.109 0 1.896-.05 2.512-.049.608-.14.985-.29 1.284a3.25 3.25 0 0 1-1.464 1.464c-.299.149-.676.241-1.284.29-.616.05-1.403.05-2.51.05h-1.303c-1.108 0-1.895 0-2.511-.05-.608-.049-.985-.141-1.284-.29a3.25 3.25 0 0 1-1.464-1.464c-.15-.3-.242-.676-.29-1.284-.05-.616-.05-1.403-.05-2.511s0-1.895.05-2.511c.048-.608.14-.985.29-1.284a3.25 3.25 0 0 1 1.464-1.464zm3.696 8.259v-2.25H9v-1.5h2.25v-2.25h1.5v2.25H15v1.5h-2.25v2.25h-1.5z"])'
         )
       );
       if (DouYinRouter.isSearch()) {
         log.info("搜索-【屏蔽】投稿");
         result.push(
           DouYinUtils.addBlockCSS(
-            'div:has(>div >div>div[data-e2e="something-button"] path[d="M11.349 5.17h-.033c-1.068 0-1.915 0-2.598.054-.698.056-1.29.172-1.832.441a4.75 4.75 0 00-2.14 2.14c-.269.542-.386 1.134-.441 1.832-.055.683-.055 1.53-.055 2.599v.064c0 1.069 0 1.916.055 2.599.055.698.172 1.29.441 1.831a4.75 4.75 0 002.14 2.14c.542.27 1.134.386 1.832.442.683.055 1.53.055 2.598.055H12.684c1.068 0 1.915 0 2.598-.055.698-.056 1.29-.172 1.832-.442a4.75 4.75 0 002.14-2.14c.269-.541.386-1.133.441-1.831.055-.683.055-1.53.055-2.599v-.064c0-1.069 0-1.916-.055-2.599-.055-.698-.172-1.29-.441-1.832a4.75 4.75 0 00-2.14-2.14c-.542-.269-1.134-.385-1.832-.441-.683-.055-1.53-.055-2.598-.055h-1.335zM7.554 7.008c.299-.149.676-.241 1.284-.29.616-.05 1.403-.05 2.51-.05h1.303c1.108 0 1.895 0 2.511.05.608.049.985.141 1.284.29a3.25 3.25 0 011.464 1.464c.15.3.241.676.29 1.284.05.616.05 1.403.05 2.51 0 1.109 0 1.896-.05 2.512-.049.608-.14.985-.29 1.284a3.25 3.25 0 01-1.464 1.464c-.299.149-.676.241-1.284.29-.616.05-1.403.05-2.51.05h-1.303c-1.108 0-1.895 0-2.511-.05-.608-.049-.985-.141-1.284-.29a3.25 3.25 0 01-1.464-1.464c-.15-.3-.242-.676-.29-1.284-.05-.616-.05-1.403-.05-2.511s0-1.895.05-2.511c.048-.608.14-.985.29-1.284a3.25 3.25 0 011.464-1.464zm3.696 8.259v-2.25H9v-1.5h2.25v-2.25h1.5v2.25H15v1.5h-2.25v2.25h-1.5z"])'
+            'div:has(>div >div>div[data-e2e="something-button"] path[d="M11.349 5.17h-.033c-1.068 0-1.915 0-2.598.054-.698.056-1.29.172-1.832.441a4.75 4.75 0 00-2.14 2.14c-.269.542-.386 1.134-.441 1.832-.055.683-.055 1.53-.055 2.599v.064c0 1.069 0 1.916.055 2.599.055.698.172 1.29.441 1.831a4.75 4.75 0 002.14 2.14c.542.27 1.134.386 1.832.442.683.055 1.53.055 2.598.055H12.684c1.068 0 1.915 0 2.598-.055.698-.056 1.29-.172 1.832-.442a4.75 4.75 0 002.14-2.14c.269-.541.386-1.133.441-1.831.055-.683.055-1.53.055-2.599v-.064c0-1.069 0-1.916-.055-2.599-.055-.698-.172-1.29-.441-1.832a4.75 4.75 0 00-2.14-2.14c-.542-.269-1.134-.385-1.832-.441-.683-.055-1.53-.055-2.598-.055h-1.335zM7.554 7.008c.299-.149.676-.241 1.284-.29.616-.05 1.403-.05 2.51-.05h1.303c1.108 0 1.895 0 2.511.05.608.049.985.141 1.284.29a3.25 3.25 0 011.464 1.464c.15.3.241.676.29 1.284.05.616.05 1.403.05 2.51 0 1.109 0 1.896-.05 2.512-.049.608-.14.985-.29 1.284a3.25 3.25 0 01-1.464 1.464c-.299.149-.676.241-1.284.29-.616.05-1.403.05-2.51.05h-1.303c-1.108 0-1.895 0-2.511-.05-.608-.049-.985-.141-1.284-.29a3.25 3.25 0 01-1.464-1.464c-.15-.3-.242-.676-.29-1.284-.05-.616-.05-1.403-.05-2.511s0-1.895.05-2.511c.048-.608.14-.985.29-1.284a3.25 3.25 0 011.464-1.464zm3.696 8.259v-2.25H9v-1.5h2.25v-2.25h1.5v2.25H15v1.5h-2.25v2.25h-1.5z"])',
+            // 2024.7.15
+            'div[id^="douyin-header-menu"] >  div > div > div:has(path[d="M11.349 5.17h-.033c-1.068 0-1.915 0-2.598.054-.698.056-1.29.172-1.832.441a4.75 4.75 0 0 0-2.14 2.14c-.269.542-.386 1.134-.441 1.832-.055.683-.055 1.53-.055 2.599v.064c0 1.069 0 1.916.055 2.599.055.698.172 1.29.441 1.831a4.75 4.75 0 0 0 2.14 2.14c.542.27 1.134.386 1.832.442.683.055 1.53.055 2.598.055H12.684c1.068 0 1.915 0 2.598-.055.698-.056 1.29-.172 1.832-.442a4.75 4.75 0 0 0 2.14-2.14c.269-.541.386-1.133.441-1.831.055-.683.055-1.53.055-2.599v-.064c0-1.069 0-1.916-.055-2.599-.055-.698-.172-1.29-.441-1.832a4.75 4.75 0 0 0-2.14-2.14c-.542-.269-1.134-.385-1.832-.441-.683-.055-1.53-.055-2.598-.055h-1.335zM7.554 7.008c.299-.149.676-.241 1.284-.29.616-.05 1.403-.05 2.51-.05h1.303c1.108 0 1.895 0 2.511.05.608.049.985.141 1.284.29a3.25 3.25 0 0 1 1.464 1.464c.15.3.241.676.29 1.284.05.616.05 1.403.05 2.51 0 1.109 0 1.896-.05 2.512-.049.608-.14.985-.29 1.284a3.25 3.25 0 0 1-1.464 1.464c-.299.149-.676.241-1.284.29-.616.05-1.403.05-2.51.05h-1.303c-1.108 0-1.895 0-2.511-.05-.608-.049-.985-.141-1.284-.29a3.25 3.25 0 0 1-1.464-1.464c-.15-.3-.242-.676-.29-1.284-.05-.616-.05-1.403-.05-2.511s0-1.895.05-2.511c.048-.608.14-.985.29-1.284a3.25 3.25 0 0 1 1.464-1.464zm3.696 8.259v-2.25H9v-1.5h2.25v-2.25h1.5v2.25H15v1.5h-2.25v2.25h-1.5z"])'
           )
         );
       }
@@ -4038,13 +4080,17 @@
           // 直播
           '#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container:has(span.semi-icon)',
           // 直播
-          '#douyin-header pace-island[id^="island"] > div[class] span:has(.semi-icon)'
+          '#douyin-header pace-island[id^="island"] > div[class] span:has(.semi-icon)',
+          // 2024.7.15
+          'div[id^="douyin-header-menu"] pace-island > div > div:has(span.semi-icon)'
         )
       );
       if (DouYinRouter.isSearch()) {
         result.push(
           DouYinUtils.addBlockCSS(
-            'div[id^="douyin-header-"] span[aria-describedby]:has(.semi-icon)'
+            'div[id^="douyin-header-"] span[aria-describedby]:has(.semi-icon)',
+            // 2024.7.15
+            'div[id^="douyin-header-menu"] >  div > div > div:has(span.semi-icon)'
           )
         );
       }

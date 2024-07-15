@@ -1,7 +1,7 @@
 import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { ShieldHeader } from "../UIFrameShield/FrameNavigator";
-import { ShieldSearch } from "../UIFrameShield/FrameSearch";
+import { ShieldHeader } from "./UIFrameShield/FrameNavigator";
+import { ShieldSearch } from "./UIFrameShield/FrameSearch";
 import { DouYinHook } from "../hook/DouYinHook";
 import { DouYinAccount } from "../account/DouYinAccount";
 import { DouYinVideo } from "./video/DouYinVideo";
