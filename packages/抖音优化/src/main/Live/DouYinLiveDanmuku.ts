@@ -71,13 +71,6 @@ export const DouYinDanmuFilter = {
 
 export const DouYinLiveDanmuku = {
 	/**
-	 * 屏蔽弹幕
-	 */
-	shieldDanmu() {
-		log.info("屏蔽弹幕");
-		DouYinUtils.addBlockCSS("xg-danmu.xgplayer-danmu");
-	},
-	/**
 	 * 弹幕过滤
 	 */
 	filterDanmu() {

@@ -38,6 +38,8 @@ export const DouYinUtils = {
 				selectorList.push(selector);
 			}
 		});
-		utils.addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+		return utils.addStyle(
+			`${selectorList.join(",\n")}{display: none !important;}`
+		);
 	},
 };

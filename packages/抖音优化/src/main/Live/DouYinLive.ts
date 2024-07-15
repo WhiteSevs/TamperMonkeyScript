@@ -5,6 +5,7 @@ import { DouYinLiveDanmuku } from "./DouYinLiveDanmuku";
 import Qmsg from "qmsg";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 import { ReactUtils } from "@/utils/ReactUtils";
+import { DouYinLiveHideElement } from "./DouYinLiveHideElement";
 
 export const VideoQualityMap: {
 	[key: string]: {
@@ -57,23 +58,9 @@ export const VideoQualityMap: {
  */
 export const DouYinLive = {
 	init() {
+		DouYinLiveHideElement.init();
 		PopsPanel.execMenu("live-autoEnterElementFullScreen", () => {
 			this.autoEnterElementFullScreen();
-		});
-		PopsPanel.execMenu("live-shieldGiftColumn", () => {
-			this.shieldGiftColumn();
-		});
-		PopsPanel.execMenu("live-shieldTopToolBarInfo", () => {
-			this.shieldTopToolBarInfo();
-		});
-		PopsPanel.execMenu("live-shieldGiftEffects", () => {
-			this.shieldGiftEffects();
-		});
-		PopsPanel.execMenu("live-shielYellowCar", () => {
-			this.shieldYellowCar();
-		});
-		PopsPanel.execMenu("live-shieldDanmuku", () => {
-			DouYinLiveDanmuku.shieldDanmu();
 		});
 		PopsPanel.execMenu("live-danmu-shield-rule-enable", () => {
 			DouYinLiveDanmuku.filterDanmu();
@@ -112,53 +99,6 @@ export const DouYinLive = {
 			.then((element) => {
 				element.click();
 			});
-	},
-	/**
-	 * 【屏蔽】底部的礼物栏
-	 */
-	shieldGiftColumn() {
-		log.info("屏蔽底部的礼物栏");
-		DouYinUtils.addBlockCSS(
-			'div[data-e2e="living-container"] >div> :last-child',
-			/* 全屏状态下的礼物栏 */
-			'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"])'
-		);
-		addStyle(`
-		/* 去除全屏状态下的礼物栏后，上面的工具栏bottom也去除 */
-		div[data-e2e="living-container"] xg-controls xg-inner-controls:has(+div div[data-e2e="gifts-container"]){
-			bottom: 0 !important;
-		}
-		`);
-	},
-	/**
-	 * 【屏蔽】顶栏信息
-	 * 包括直播作者、右侧的礼物展馆
-	 */
-	shieldTopToolBarInfo() {
-		log.info("【屏蔽】顶栏信息");
-		DouYinUtils.addBlockCSS(
-			'div[data-e2e="living-container"] > div > pace-island[id^="island_"]'
-		);
-	},
-	/**
-	 * 【屏蔽】礼物特效
-	 */
-	shieldGiftEffects() {
-		log.info("【屏蔽】礼物特效");
-		DouYinUtils.addBlockCSS(
-			// ↓该屏蔽会把连麦的用户也屏蔽了
-			// '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div>div)'
-			'.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div:not([class*="video_layout_container"])>div)'
-		);
-	},
-	/**
-	 * 【屏蔽】小黄车
-	 */
-	shieldYellowCar() {
-		log.info("【屏蔽】小黄车");
-		DouYinUtils.addBlockCSS(
-			'#living_room_player_container .basicPlayer  > div:has(div[data-e2e="yellowCart-container"])'
-		);
 	},
 	/**
 	 * 选择画质

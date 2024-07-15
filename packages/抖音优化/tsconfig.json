@@ -18,11 +18,11 @@
 		"noEmit": true,
 		"sourceMap": true,
 		"paths": {
-			"@库/*": ["./../../库/*"],
 			"@/*": ["./src/*"]
-		}
+		},
+		"typeRoots": ["types"]
 	},
-	"include": ["src"],
+	"include": ["src", "types"],
 	"references": [
 		{
 			"path": "./tsconfig.node.json"

@@ -4,17 +4,17 @@ import { DouYinUtils } from "@/utils/DouYinUtils";
 
 export const ShieldSearch = {
 	init() {
-		PopsPanel.execMenu("shieldSearch", () => {
-			this.shieldSearch();
+		PopsPanel.execMenuOnce("shieldSearch", () => {
+			return this.shieldSearch();
 		});
-		PopsPanel.execMenu("shieldSearchPlaceholder", () => {
-			this.shieldSearchPlaceholder();
+		PopsPanel.execMenuOnce("shieldSearchPlaceholder", () => {
+			return this.shieldSearchPlaceholder();
 		});
-		PopsPanel.execMenu("shieldSearchGuessYouWantToSearch", () => {
-			this.shieldSearchGuessYouWantToSearch();
+		PopsPanel.execMenuOnce("shieldSearchGuessYouWantToSearch", () => {
+			return this.shieldSearchGuessYouWantToSearch();
 		});
-		PopsPanel.execMenu("shieldSearchTiktokHotspot", () => {
-			this.shieldSearchTiktokHotspot();
+		PopsPanel.execMenuOnce("shieldSearchTiktokHotspot", () => {
+			return this.shieldSearchTiktokHotspot();
 		});
 	},
 	/**
@@ -22,7 +22,7 @@ export const ShieldSearch = {
 	 */
 	shieldSearch() {
 		log.info("【屏蔽】搜索框");
-		DouYinUtils.addBlockCSS(
+		return DouYinUtils.addBlockCSS(
 			'#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div:has(input[data-e2e="searchbar-input"])'
 		);
 	},
@@ -31,21 +31,26 @@ export const ShieldSearch = {
 	 */
 	shieldSearchPlaceholder() {
 		log.info("【屏蔽】搜索框的提示");
-		DouYinUtils.addBlockCSS(
-			'#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div div:has( + input[data-e2e="searchbar-input"])'
+		let result = [];
+		result.push(
+			DouYinUtils.addBlockCSS(
+				'#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div div:has( + input[data-e2e="searchbar-input"])'
+			)
 		);
-		addStyle(`
-		#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div input[data-e2e="searchbar-input"]::placeholder{
-			color: transparent;
-		}
-		`);
+		result.push(
+			addStyle(`
+			#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div input[data-e2e="searchbar-input"]::placeholder{
+				color: transparent;
+			}`)
+		);
+		return result;
 	},
 	/**
 	 * 【屏蔽】搜索-猜你想搜
 	 */
 	shieldSearchGuessYouWantToSearch() {
 		log.info("【屏蔽】搜索-猜你想搜");
-		DouYinUtils.addBlockCSS(
+		return DouYinUtils.addBlockCSS(
 			'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-guess-container"])',
 			'button[data-e2e="searchbar-button"] + div div[data-e2e="search-guess-container"]'
 		);
@@ -55,7 +60,7 @@ export const ShieldSearch = {
 	 */
 	shieldSearchTiktokHotspot() {
 		log.info("【屏蔽】搜索-抖音热点");
-		DouYinUtils.addBlockCSS(
+		return DouYinUtils.addBlockCSS(
 			'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-hot-container"])',
 			'button[data-e2e="searchbar-button"] + div div[data-e2e="search-hot-container"]'
 		);

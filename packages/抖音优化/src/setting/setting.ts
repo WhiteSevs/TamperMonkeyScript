@@ -11,13 +11,16 @@ import type { UtilsDictionary } from "@whitesev/utils/dist/src/Dictionary";
 import { MPanelShareNoteConfig } from "./m-components/shareNote";
 import { MPanelShareChallengeConfig } from "./m-components/shareChallenge";
 import { MPanelShareMusicConfig } from "./m-components/shareMusic";
-import { PopsPanelContentConfig, PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import {
+	PopsPanelContentConfig,
+	PopsPanelFormsTotalDetails,
+} from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 
 interface PosPanelListenerData {
 	id: number;
 	key: string;
-	callback: Function;
+	callback: (key: string, oldValue: any, newValue: any) => void;
 }
 const __PopsPanel__ = {
 	data: null as any as UtilsDictionary<string, any>,
@@ -269,6 +272,7 @@ const PopsPanel = {
 	 * 自动判断菜单是否启用，然后执行回调
 	 * @param key
 	 * @param callback 回调
+	 * @param valueChangeCallBack 开/关改变时的回调
 	 */
 	execMenu(key: string, callback: (value: any) => void) {
 		if (typeof key !== "string") {
@@ -288,7 +292,13 @@ const PopsPanel = {
 	 * @param key
 	 * @param callback 回调
 	 */
-	execMenuOnce(key: string, callback: (value: any) => void) {
+	execMenuOnce(
+		key: string,
+		callback: (
+			value: any,
+			pushStyleNode: (style: HTMLStyleElement | HTMLStyleElement[]) => void
+		) => any | any[]
+	) {
 		if (typeof key !== "string") {
 			throw new TypeError("key 必须是字符串");
 		}
@@ -296,13 +306,55 @@ const PopsPanel = {
 			log.warn(`${key} 键不存在`);
 			return;
 		}
-		let value = PopsPanel.getValue(key);
-		if (value) {
-			if (this.$data.oneSuccessExecMenu.has(key)) {
-				return;
+		if (this.$data.oneSuccessExecMenu.has(key)) {
+			// log.warn(`${key} 键已执行过，请勿重复执行`);
+			return;
+		}
+		this.$data.oneSuccessExecMenu.set(key, 1);
+
+		// 存储的<style>标签列表
+		let resultStyleList: HTMLStyleElement[] = [];
+		// 主动添加<style>标签的回调
+		let pushStyleNode = (style: HTMLStyleElement | HTMLStyleElement[]) => {
+			let __value = PopsPanel.getValue<boolean>(key);
+			changeCallBack(__value, style);
+		};
+		let changeCallBack = (
+			currentValue: boolean,
+			resultStyle?: HTMLStyleElement | HTMLStyleElement[]
+		) => {
+			let resultList: HTMLStyleElement[] = [];
+			if (currentValue) {
+				// 开
+				let result = resultStyle ?? callback(currentValue, pushStyleNode);
+				if (result instanceof HTMLStyleElement) {
+					resultList = [result];
+				} else if (Array.isArray(result)) {
+					resultList = [
+						...result.filter(
+							(item) => item != null && item instanceof HTMLStyleElement
+						),
+					];
+				}
 			}
-			callback(value);
-			this.$data.oneSuccessExecMenu.set(key, 1);
+			for (let index = 0; index < resultStyleList.length; index++) {
+				let $css = resultStyleList[index];
+				$css.remove();
+				resultStyleList.splice(index, 1);
+				index--;
+			}
+			resultStyleList = [...resultList];
+		};
+		let listenerId = this.addValueChangeListener(
+			key,
+			(__key, oldValue, newValue) => {
+				// 值改变
+				changeCallBack(newValue);
+			}
+		);
+		let value = PopsPanel.getValue<boolean>(key);
+		if (value) {
+			changeCallBack(value);
 		}
 	},
 	/**
@@ -314,6 +366,7 @@ const PopsPanel = {
 			throw new TypeError("key 必须是字符串");
 		}
 		if (this.$data.onceExec.has(key)) {
+			// log.warn(`${key} 键已执行（最多一次），请勿重复执行`);
 			return;
 		}
 		callback();
