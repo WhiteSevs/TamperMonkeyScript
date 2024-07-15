@@ -170,6 +170,8 @@ const MountVue = async function (targetApp: any, router?: any) {
 	}
 };
 
+const addStyle = utils.addStyle;
+
 export {
 	utils,
 	domUtils as DOMUtils,
@@ -183,4 +185,5 @@ export {
 	httpx,
 	MountVue,
 	VUE_ELE_NAME_ID,
+	addStyle,
 };
