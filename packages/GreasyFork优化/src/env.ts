@@ -128,6 +128,8 @@ const OriginPrototype = {
 	setTimeout: unsafeWindow.setTimeout,
 };
 
+const addStyle = utils.addStyle;
+
 export {
 	utils,
 	domUtils as DOMUtils,
@@ -139,4 +141,5 @@ export {
 	// Viewer,
 	// showdown,
 	httpx,
+	addStyle,
 };

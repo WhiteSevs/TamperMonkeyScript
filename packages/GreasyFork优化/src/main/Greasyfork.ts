@@ -12,14 +12,20 @@ import {
 import { GreasyforkBeautify } from "./beautify/GreasyforkBeautify";
 import { GreasyforkMenu } from "./GreasyforkMenu";
 import { GreasyforkRouter } from "@/router/GreasyforkRouter";
-import { GreasyforkCode } from "./Code/GreasyforkCode";
-import { GreasyforkAccount } from "./Account/GreasyforkAccount";
+import { GreasyforkScriptsCode } from "./navigator/scripts/code/GreasyforkScriptsCode";
+import { GreasyforkAccount } from "./GreasyforkAccount";
 import { GreasyforkShield } from "./GreasyforkShield";
 import Viewer from "viewerjs";
 import ViewerCSS from "viewerjs/dist/viewer.css?raw";
-import { GreasyforkForum } from "./Forum/GreasyforkForum";
+import { GreasyforkForum as GreasyforkDiscussions } from "./navigator/discussions/GreasyforkDiscussions";
 import i18next from "i18next";
-import { GreasyforkCollection } from "./GreasyforkCollection";
+import {
+	GreasyforkScripts,
+	GreasyforkScriptsCollectEvent,
+} from "./navigator/scripts/GreasyforkScripts";
+import { GreasyforkScriptsList } from "./navigator/scripts/GreasyforkScriptsList";
+import { CommonUtils } from "@/utils/CommonUtils";
+import { GreasyforkUsers } from "./navigator/users/GreasyforkUsers";
 
 const Greasyfork = {
 	init() {
@@ -27,38 +33,30 @@ const Greasyfork = {
 			this.checkPage();
 		});
 		GreasyforkBeautify.init();
-		if (GreasyforkRouter.isCodeStrict()) {
-			PopsPanel.execMenuOnce("fullScreenOptimization", () => {
-				this.fullScreenOptimization();
-			});
+		if (GreasyforkRouter.isScript()) {
+			GreasyforkScripts.init();
 		}
-		if (GreasyforkRouter.isCode()) {
-			GreasyforkCode.init();
+		if (
+			GreasyforkRouter.isScriptList() ||
+			GreasyforkRouter.isScriptLibraryList()
+		) {
+			GreasyforkScriptsList.init();
 		}
 		if (GreasyforkRouter.isDiscuessions()) {
-			GreasyforkForum.init();
+			GreasyforkDiscussions.init();
 		}
+		if (GreasyforkRouter.isUserHome()) {
+			GreasyforkUsers.init();
+		}
+		PopsPanel.execMenuOnce("scripts-addOperationPanelBtnWithNavigator", () => {
+			this.addOperationPanelBtnWithNavigator();
+		});
 		DOMUtils.ready(() => {
 			GreasyforkMenu.initEnv();
 			GreasyforkAccount.init();
-			if (GreasyforkRouter.isScriptList()) {
-				// 脚本页面
-				PopsPanel.execMenuOnce("greasyfork-shield-enable", () => {
-					GreasyforkShield.init();
-				});
-			}
 			GreasyforkMenu.handleLocalGotoCallBack();
-			PopsPanel.execMenuOnce("addFindReferenceButton", () => {
-				Greasyfork.setFindCodeSearchBtn();
-			});
-			PopsPanel.execMenuOnce("addCollectionButton", () => {
-				GreasyforkCollection.init();
-			});
 			PopsPanel.execMenuOnce("fixImageWidth", () => {
 				Greasyfork.fixImageWidth();
-			});
-			PopsPanel.execMenuOnce("scriptHomepageAddedTodaySUpdate", () => {
-				Greasyfork.scriptHomepageAddedTodaySUpdate();
 			});
 			Greasyfork.languageSelectorLocale();
 			PopsPanel.execMenuOnce("optimizeImageBrowsing", () => {
@@ -67,11 +65,6 @@ const Greasyfork = {
 			PopsPanel.execMenuOnce("overlayBedImageClickEvent", () => {
 				Greasyfork.overlayBedImageClickEvent();
 			});
-			if (GreasyforkRouter.isCodeStrict()) {
-				PopsPanel.execMenuOnce("addCopyCodeButton", () => {
-					Greasyfork.addCopyCodeButton();
-				});
-			}
 			/* 不在/code页面添加Markdown复制按钮 */
 			if (!GreasyforkRouter.isCodeStrict()) {
 				PopsPanel.execMenuOnce("addMarkdownCopyButton", () => {
@@ -79,42 +72,6 @@ const Greasyfork = {
 				});
 			}
 		});
-	},
-
-	/**
-	 * 设置代码搜索按钮(对于库)
-	 */
-	setFindCodeSearchBtn() {
-		log.info("设置代码搜索按钮(对于库)");
-		utils
-			.waitNode<HTMLSpanElement>("ul#script-links li.current span")
-			.then(() => {
-				let searchBtn = DOMUtils.createElement("li", {
-					innerHTML: `
-					<a href="javascript:;">
-						<span>${i18next.t("寻找引用")}</span>
-					</a>`,
-				});
-				DOMUtils.append(
-					document.querySelector<HTMLUListElement>(
-						"ul#script-links"
-					) as HTMLUListElement,
-					searchBtn
-				);
-				DOMUtils.on(searchBtn, "click", async function () {
-					let scriptIdMatch =
-						window.location.pathname.match(/scripts\/([\d]+)/i);
-					if (!scriptIdMatch) {
-						log.error([scriptIdMatch, window.location.pathname]);
-						Qmsg.error(i18next.t("获取脚本id失败"));
-						return;
-					}
-					let scriptId = scriptIdMatch[scriptIdMatch.length - 1];
-					window.location.href = GreasyforkApi.getCodeSearchUrl(
-						`greasyfork.org/scripts/${scriptId}`
-					);
-				});
-			});
 	},
 	/**
 	 * 修复图片宽度显示问题
@@ -307,159 +264,6 @@ const Greasyfork = {
 					);
 				});
 			});
-	},
-	/**
-	 * 脚本首页新增【今日检查】
-	 */
-	async scriptHomepageAddedTodaySUpdate() {
-		if (
-			!GreasyforkRouter.isScript() ||
-			!document.querySelector("#install-area")
-		) {
-			return;
-		}
-		log.info("脚本首页新增【今日检查】");
-		let scriptStatsJSONInfo = await GreasyforkApi.getScriptStats(
-			GreasyforkApi.getScriptId() as string
-		);
-		if (!scriptStatsJSONInfo) {
-			return;
-		}
-		let scriptStatsJSON = utils.toJSON(scriptStatsJSONInfo.responseText);
-		log.info(["统计信息", scriptStatsJSON]);
-		let todayStatsJSON =
-			scriptStatsJSON[utils.formatTime(undefined, "yyyy-MM-dd")];
-		if (!todayStatsJSON) {
-			log.error("今日份的统计信息不存在");
-			return;
-		}
-		let update_checks = todayStatsJSON["update_checks"];
-		log.info(["今日统计信息", todayStatsJSON]);
-		DOMUtils.after(
-			"dd.script-show-daily-installs",
-			DOMUtils.createElement("dt", {
-				className: "script-show-daily-update_checks",
-				innerHTML: `<span>${i18next.t("今日检查")}</span>`,
-			})
-		);
-		DOMUtils.after(
-			"dt.script-show-daily-update_checks",
-			DOMUtils.createElement("dd", {
-				className: "script-show-daily-update_checks",
-				innerHTML: "<span>" + update_checks + "</span>",
-			})
-		);
-	},
-	/**
-	 * 添加复制代码按钮
-	 */
-	addCopyCodeButton() {
-		log.info("添加复制代码按钮");
-		utils
-			.waitNode<HTMLDivElement>("div#script-content div.code-container")
-			.then(($codeContainer) => {
-				let copyButton = DOMUtils.createElement(
-					"button",
-					{
-						textContent: i18next.t("复制代码"),
-					},
-					{
-						style: "margin-bottom: 1em;",
-					}
-				);
-				DOMUtils.on(copyButton, "click", async function () {
-					let loading = Qmsg.loading(i18next.t("加载文件中..."));
-					let getResp = await httpx.get(
-						`https://greasyfork.org/zh-CN/scripts/${GreasyforkApi.getScriptId()}.json`,
-						{
-							fetch: true,
-							responseType: "json",
-						}
-					);
-					if (!getResp.status) {
-						loading.close();
-						return;
-					}
-					let respJSON = utils.toJSON(getResp.data.responseText);
-					let code_url = respJSON["code_url"];
-					log.success(["代码地址：", code_url]);
-					let scriptJS = await httpx.get(code_url);
-					if (!scriptJS.status) {
-						loading.close();
-						return;
-					}
-					loading.close();
-					utils.setClip(scriptJS.data.responseText);
-					Qmsg.success(i18next.t("复制成功"));
-				});
-				DOMUtils.before($codeContainer, copyButton);
-			});
-	},
-	/**
-	 * F11全屏，F键代码全屏
-	 */
-	fullScreenOptimization() {
-		log.info("F11全屏，F键代码全屏");
-		GM_addStyle(`
-        .code-wide-screen{
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          margin: 0;
-          padding: 0;
-          width: 100%;
-          height: 100%;
-          min-width: 100%;
-          min-height: 100%;
-          max-width: 100%;
-          max-height: 100%;
-          z-index: 10000;
-        }
-        `);
-		let isFullScreen = false;
-		DOMUtils.keydown(
-			window,
-			function (event) {
-				if (event.key.toLowerCase() === "f") {
-					let codeElement = document.querySelector<HTMLElement>(
-						"#script-content div.code-container code"
-					);
-					if (event.altKey && event.shiftKey) {
-						/* 宽屏 */
-						utils.preventEvent(event);
-						if (codeElement!.classList.contains("code-wide-screen")) {
-							/* 当前处于宽屏状态，退出宽屏 */
-							codeElement!.classList.remove("code-wide-screen");
-						} else {
-							/* 进入宽屏 */
-							codeElement!.classList.add("code-wide-screen");
-						}
-					} else if (
-						!event.altKey &&
-						!event.ctrlKey &&
-						!event.shiftKey &&
-						!event.metaKey
-					) {
-						/* 全屏 */
-						utils.preventEvent(event);
-						if (isFullScreen) {
-							/* 退出全屏 */
-							utils.exitFullScreen(codeElement as HTMLElement);
-							isFullScreen = false;
-						} else {
-							/* 进入全屏 */
-							utils.enterFullScreen(codeElement as HTMLElement);
-							isFullScreen = true;
-						}
-					}
-				}
-			},
-			{
-				capture: true,
-			}
-		);
 	},
 	/**
 	 * 在Markdown右上角添加复制按钮
@@ -902,6 +706,150 @@ const Greasyfork = {
 				}
 				GM_setValue("greasyfork-check-page-time", Date.now());
 				window.location.reload();
+			}
+		});
+	},
+	/**
+	 * 在顶部导航栏添加【操作面板】按钮
+	 */
+	addOperationPanelBtnWithNavigator() {
+		log.info("添加【操作面板】按钮");
+		// 隐藏右侧列表
+		CommonUtils.addBlockCSS(
+			".sidebarred .sidebar",
+			".sidebarred-main-content .open-sidebar"
+		);
+		GM_addStyle(`
+		.sidebarred .sidebarred-main-content{
+			max-width: 100%;
+		}	
+		`);
+		DOMUtils.ready(() => {
+			let $nav = document.querySelector<HTMLElement>("#site-nav nav");
+			let $subNav = document.querySelector<HTMLElement>(
+				"#site-nav .with-submenu nav"
+			);
+			// 右侧的过滤菜单
+			let $scriptsOptionGroups =
+				document.querySelector<HTMLDivElement>("#script-list-option-groups")! ||
+				document.querySelector<HTMLDivElement>(".list-option-groups")!;
+			if (!$scriptsOptionGroups) {
+				log.warn("不存在右侧面板元素#script-list-option-groups");
+				return;
+			}
+			$scriptsOptionGroups = $scriptsOptionGroups.cloneNode(
+				true
+			) as HTMLDivElement;
+			$scriptsOptionGroups.classList.add("option-panel-groups");
+			if (!$nav) {
+				log.error("元素#site-nav nav不存在");
+				return;
+			}
+			let $filterBtn = DOMUtils.createElement("li", {
+				className: "filter-scripts",
+				innerHTML: `
+                <a href="javascript:;">${i18next.t("操作面板")}</a>
+                `,
+			});
+			DOMUtils.on($filterBtn, "click", (event) => {
+				utils.preventEvent(event);
+				let $drawer = pops.drawer({
+					title: {
+						enable: false,
+					},
+					content: {
+						text: "",
+						html: true,
+					},
+					direction: "top",
+					size: "80%",
+					zIndex: utils.getMaxZIndex(100),
+					style: `
+                    .pops-drawer-content div:first-child{
+                        margin: 20px 0 0 0;
+                    }
+                    .option-panel-groups > div{
+                    
+                    }
+                    .option-panel-groups ul{
+                        margin: .5em 0 0;
+                        list-style-type: none;
+                        padding: 1em 0;
+                        box-shadow: 0 0 5px #ddd;
+                        border: 1px solid #BBBBBB;
+                        border-radius: 5px;
+                        background-color: #fff;
+                    }
+                    .option-panel-groups ul li{
+                    
+                    }
+                    li.list-current{
+                        border-left: 7px solid #800;
+                        box-shadow: inset 0 1px #0000001a, inset 0 -1px #0000001a;
+                        margin: 0 0 0 -4px;
+                        padding: .4em 1em .4em calc(1em - 3px);
+                        background: linear-gradient(#fff, #eee);
+                    }
+                    .list-option-group a {
+                        padding: .35em 1em;
+                        display: block;
+                    }
+                    .list-option-group {
+                        margin-bottom: 1em;
+                    }
+                    form.sidebar-search{
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                    }
+                    form.sidebar-search input[type="search"]{
+                        display: inline-flex;
+                        justify-content: center;
+                        align-items: center;
+                        line-height: 1;
+                        height: 32px;
+                        white-space: nowrap;
+                        cursor: text;
+                        text-align: center;
+                        box-sizing: border-box;
+                        outline: 0;
+                        transition: 0.1s;
+                        font-weight: 500;
+                        user-select: none;
+                        -webkit-user-select: none;
+                        -moz-user-select: none;
+                        -ms-user-select: none;
+                        vertical-align: middle;
+                        -webkit-appearance: none;
+                        appearance: none;
+                        background-color: transparent;
+                        border: 0;
+                        padding: 8px 8px;
+                        font-size: 14px;
+                        text-align: start;
+                        /* width: 100%; */
+                        // flex: 1;
+                        display: flex;
+                        align-items: center;
+                        border: 1px solid #dcdfe6;
+                        border-radius: 4px;
+                        background-color: #ffffff;
+                    }
+                    form.sidebar-search input[type="submit"]{
+                        width: 32px;
+                        height: 32px;
+                    }
+                    `,
+				});
+				let $drawerContent = $drawer.$shadowRoot.querySelector<HTMLDivElement>(
+					".pops-drawer-content"
+				)!;
+				$drawerContent.appendChild($scriptsOptionGroups);
+			});
+			if ($subNav && $subNav.children.length) {
+				$subNav.appendChild($filterBtn);
+			} else {
+				$nav.appendChild($filterBtn);
 			}
 		});
 	},

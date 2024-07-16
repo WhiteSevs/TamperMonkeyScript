@@ -1,0 +1,82 @@
+#language-selector {
+	display: none;
+}
+@media screen and (min-width: 600px) {
+	body {
+		--header-height: 50px;
+	}
+	header#main-header + div {
+		margin-top: calc(var(--header-height) + 35px);
+	}
+	header#main-header {
+		height: var(--header-height);
+		position: fixed;
+		top: 0;
+		width: 100%;
+		z-index: 55555;
+		padding: unset;
+		.width-constraint {
+			display: flex;
+			align-items: center;
+			gap: 20px;
+			padding: unset;
+		}
+
+		#site-name {
+			display: flex;
+			img {
+				width: calc(var(--header-height) - 5px);
+				height: calc(var(--header-height) - 5px);
+			}
+		}
+
+		/* 隐藏Greasyfork文字 */
+		#site-name-text {
+			display: none;
+		}
+
+		#site-nav {
+			display: flex;
+			flex-direction: row-reverse;
+			align-items: center;
+			flex: 1;
+			justify-content: space-between;
+			height: 100%;
+			nav a {
+				text-decoration: none;
+			}
+			nav li {
+				padding: 0 0.5em;
+				display: flex;
+				align-items: center;
+				height: var(--header-height);
+				min-width: 30px;
+				justify-content: center;
+			}
+			nav li:hover {
+				background: #5f0101;
+			}
+		}
+
+		#nav-user-info {
+			max-width: 150px;
+			.user-profile-link {
+				/*overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;*/
+			}
+			> span {
+				flex: 1;
+			}
+		}
+		#nav-user-info,
+		#nav-user-info + nav {
+			position: unset;
+			width: unset;
+			/* height: 100%; */
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+		}
+	}
+}

@@ -1,0 +1,21 @@
+.sidebarred-main-content {
+	max-width: unset;
+	flex: unset;
+}
+ol#browse-script-list {
+	display: flex;
+	flex-wrap: wrap;
+	border: none;
+	gap: 20px;
+	background: transparent;
+	box-shadow: none;
+}
+ol#browse-script-list .script-description {
+	overflow-wrap: anywhere;
+}
+ol#browse-script-list li {
+	border: 1px solid rgb(221, 221, 221);
+	border-radius: 5px;
+	flex: 1 1 45%;
+	box-shadow: rgb(221, 221, 221) 0px 0px 5px 2px;
+}

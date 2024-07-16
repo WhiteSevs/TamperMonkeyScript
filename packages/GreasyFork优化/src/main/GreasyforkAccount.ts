@@ -3,7 +3,7 @@ import { PopsPanel } from "@/setting/setting";
 import i18next from "i18next";
 import Qmsg from "qmsg";
 
-const GreasyforkAccount = {
+export const GreasyforkAccount = {
 	init() {
 		PopsPanel.execMenu("autoLogin", () => {
 			this.autoLogin();
@@ -75,5 +75,3 @@ const GreasyforkAccount = {
 			});
 	},
 };
-
-export { GreasyforkAccount };

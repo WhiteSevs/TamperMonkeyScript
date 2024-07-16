@@ -216,4 +216,29 @@ export const en_US_language = {
 	检测间隔: "Detection interval",
 	"设置检测上次刷新页面的间隔时间，当距离上次刷新页面的时间超过设置的值，将不再刷新页面":
 		"Set the interval time for detecting the last refresh page. If the time since the last refresh page exceeds the set value, the page will no longer be refreshed",
+	美化顶部导航栏: "Beautify the top navigation bar",
+	"可能会跟Greasyfork Beautify脚本有冲突":
+		"Possible conflict with Greasymfork Beautify script",
+	美化脚本列表: "Beautify Script List",
+	"双列显示且添加脚本卡片操作项（安装、收藏）":
+		"Double column display and add script card operation items (installation, bookmarking)",
+	操作面板: "Operation Panel",
+	"添加【操作面板】按钮": "Add [Operation Panel] button",
+	"在脚本列表页面时为顶部导航栏添加【操作面板】按钮":
+		"Add an 'Operation Panel' button to the top navigation bar on the script list page",
+	操作: "Operation",
+	安装此脚本: "Install this script",
+	脚本: "Scripts",
+	历史版本: "Historical version",
+	自定义已读颜色: "Customize read colors",
+	在讨论内生效: "Effective within the discussion",
+	用户: "Users",
+	控制台: "Console",
+	"迁移【控制台】到顶部导航栏": "Migration of Console to Top Navigation Bar",
+	"将【控制台】按钮移动到顶部导航栏，节省空间":
+		"Move the 'Console' button to the top navigation bar to save space",
+	添加额外的标签按钮: "Add additional label button",
+	"在版本下面添加【安装】、【查看代码】按钮":
+		"Add 【 Install 】 and 【 View Code 】 buttons under the version",
+	查看代码: "View Code",
 };

@@ -24,7 +24,7 @@ const GreasyforkRouter = {
 		return window.location.pathname.match(/\/.+\/users\/.+/gi);
 	},
 	/**
-	 * 脚本页面
+	 * 脚本页面(单个脚本的页面)
 	 */
 	isScript() {
 		return window.location.pathname.includes("/scripts/");
@@ -34,6 +34,12 @@ const GreasyforkRouter = {
 	 */
 	isScriptList() {
 		return window.location.pathname.endsWith("/scripts");
+	},
+	/**
+	 * 库列表页面
+	 */
+	isScriptLibraryList() {
+		return window.location.pathname.endsWith("/libraries");
 	},
 	/**
 	 * 讨论页面

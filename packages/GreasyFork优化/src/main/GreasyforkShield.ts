@@ -2,7 +2,7 @@ import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 
 // 脚本屏蔽
-const GreasyforkShield = {
+export const GreasyforkShield = {
 	key: "gf-shield-rule",
 	init() {
 		let lockFunction = new utils.LockFunction(() => {
@@ -90,5 +90,3 @@ const GreasyforkShield = {
 		return PopsPanel.getValue(this.key, "");
 	},
 };
-
-export { GreasyforkShield };

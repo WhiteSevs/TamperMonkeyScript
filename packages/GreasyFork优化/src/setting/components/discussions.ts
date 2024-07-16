@@ -1,13 +1,79 @@
-import { DOMUtils, utils } from "@/env";
+import { DOMUtils, log, utils } from "@/env";
 import { UISwitch } from "../common-components/ui-switch";
 import { PopsPanel } from "../setting";
 import i18next from "i18next";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { UIInput } from "../common-components/ui-input";
 
 const SettingUIDiscuessions: PopsPanelContentConfig = {
 	id: "greasy-fork-panel-config-discussions",
 	title: i18next.t("论坛"),
 	forms: [
+		{
+			text: "",
+			type: "forms",
+			forms: [
+				{
+					text: i18next.t("功能"),
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								{
+									type: "own",
+									attributes: {
+										"data-key": "discussions-readBgColor",
+										"data-default-value": "#e5e5e5",
+									},
+									getLiElementCallBack(liElement) {
+										let key = "discussions-readBgColor";
+										let $left = DOMUtils.createElement("div", {
+											className: "pops-panel-item-left-text",
+											innerHTML: `
+											<p class="pops-panel-item-left-main-text">${i18next.t("自定义已读颜色")}</p>
+											<p class="pops-panel-item-left-desc-text">${i18next.t("在讨论内生效")}</p>
+											`,
+										});
+										let $right = DOMUtils.createElement("div", {
+											className: "pops-panel-item-right",
+											innerHTML: `
+											<input type="color" class="pops-color-choose" />
+											`,
+										});
+										let $color =
+											$right.querySelector<HTMLInputElement>(
+												".pops-color-choose"
+											)!;
+										$color.value = PopsPanel.getValue(key);
+										let $style = DOMUtils.createElement("style");
+										DOMUtils.append(document.head, $style);
+										DOMUtils.on(
+											$color,
+											["input", "propertychange"],
+											(event) => {
+												log.info("选择颜色：" + $color.value);
+												$style.innerHTML = `
+												.discussion-read{
+													background: ${$color.value} !important;
+												}
+												`;
+												PopsPanel.setValue(key, $color.value);
+											}
+										);
+
+										liElement.appendChild($left);
+										liElement.appendChild($right);
+										return liElement;
+									},
+								},
+							],
+						},
+					],
+				},
+			],
+		},
 		{
 			text: "",
 			type: "forms",

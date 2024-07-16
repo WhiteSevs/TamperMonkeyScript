@@ -4,7 +4,7 @@ import { PopsPanel } from "@/setting/setting";
 import { GM_addStyle } from "ViteGM";
 import i18next from "i18next";
 
-const GreasyforkForumFilter = {
+export const GreasyforkDiscussionsFilter = {
 	init() {
 		log.info("论坛-过滤");
 		GM_addStyle(`
@@ -207,5 +207,3 @@ const GreasyforkForumFilter = {
 		});
 	},
 };
-
-export { GreasyforkForumFilter };

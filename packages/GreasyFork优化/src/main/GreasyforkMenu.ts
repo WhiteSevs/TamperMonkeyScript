@@ -5,7 +5,7 @@ import { PopsPanel } from "@/setting/setting";
 import i18next from "i18next";
 import Qmsg from "qmsg";
 
-const GreasyforkMenu = {
+export const GreasyforkMenu = {
 	/**
 	 * @class
 	 */
@@ -199,5 +199,3 @@ const GreasyforkMenu = {
 		}
 	},
 };
-
-export { GreasyforkMenu };

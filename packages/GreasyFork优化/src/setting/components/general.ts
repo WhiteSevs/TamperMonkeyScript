@@ -268,25 +268,11 @@ const SettingUIGeneral: PopsPanelContentConfig = {
 									i18next.t("配合上面的【优化图片浏览】更优雅浏览图片")
 								),
 								UISwitch(
-									i18next.t("添加【寻找引用】按钮"),
-									"addFindReferenceButton",
+									i18next.t("添加【操作面板】按钮"),
+									"scripts-addOperationPanelBtnWithNavigator",
 									true,
 									void 0,
-									i18next.t("在脚本栏添加按钮，一般用于搜索引用该库的相关脚本")
-								),
-								UISwitch(
-									i18next.t("添加【收藏】按钮"),
-									"addCollectionButton",
-									true,
-									void 0,
-									i18next.t("在脚本栏添加按钮，一般用于快捷收藏该脚本/库")
-								),
-								UISwitch(
-									i18next.t("添加【今日检查】信息块"),
-									"scriptHomepageAddedTodaySUpdate",
-									true,
-									void 0,
-									i18next.t("在脚本信息栏添加【今日检查】信息块")
+									i18next.t("在脚本列表页面时为顶部导航栏添加【操作面板】按钮")
 								),
 								UISwitch(
 									i18next.t("给Markdown添加【复制】按钮"),
@@ -332,42 +318,6 @@ const SettingUIGeneral: PopsPanelContentConfig = {
 									void 0,
 									i18next.t(
 										"设置检测上次刷新页面的间隔时间，当距离上次刷新页面的时间超过设置的值，将不再刷新页面"
-									)
-								),
-							],
-						},
-						{
-							text: i18next.t("美化"),
-							type: "forms",
-							forms: [
-								UISwitch(
-									i18next.t("美化页面元素"),
-									"beautifyPage",
-									true,
-									void 0,
-									i18next.t("如button、input、textarea")
-								),
-								UISwitch(
-									i18next.t("美化历史版本页面"),
-									"beautifyHistoryVersionPage",
-									true,
-									void 0,
-									i18next.t("更直观的查看版本迭代")
-								),
-								UISwitch(
-									i18next.t("美化上传图片按钮"),
-									"beautifyUploadImage",
-									true,
-									void 0,
-									i18next.t("放大上传区域")
-								),
-								UISwitch(
-									i18next.t("美化Greasyfork Beautify脚本"),
-									"beautifyGreasyforkBeautify",
-									true,
-									void 0,
-									i18next.t(
-										'需安装Greasyfork Beautify脚本，<a href="https://greasyfork.org/zh-CN/scripts/446849-greasyfork-beautify" target="_blank">🖐点我安装</a>'
 									)
 								),
 							],
@@ -483,6 +433,49 @@ const SettingUIGeneral: PopsPanelContentConfig = {
 											});
 										GreasyforkMenu.updateScript(scriptUrlList);
 									}
+								),
+							],
+						},
+					],
+				},
+
+				{
+					text: i18next.t("美化"),
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									i18next.t("美化页面元素"),
+									"beautifyPage",
+									true,
+									void 0,
+									i18next.t("如button、input、textarea")
+								),
+								UISwitch(
+									i18next.t("美化上传图片按钮"),
+									"beautifyUploadImage",
+									true,
+									void 0,
+									i18next.t("放大上传区域")
+								),
+								UISwitch(
+									i18next.t("美化顶部导航栏"),
+									"beautifyTopNavigationBar",
+									true,
+									void 0,
+									i18next.t("可能会跟Greasyfork Beautify脚本有冲突")
+								),
+								UISwitch(
+									i18next.t("美化Greasyfork Beautify脚本"),
+									"beautifyGreasyforkBeautify",
+									true,
+									void 0,
+									i18next.t(
+										'需安装Greasyfork Beautify脚本，<a href="https://greasyfork.org/zh-CN/scripts/446849-greasyfork-beautify" target="_blank">🖐点我安装</a>'
+									)
 								),
 							],
 						},

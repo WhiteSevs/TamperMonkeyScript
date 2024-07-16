@@ -1,9 +1,8 @@
 import { log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { GM_addStyle } from "ViteGM";
-import i18next from "i18next";
 
-const GreasyforkCode = {
+export const GreasyforkScriptsCode = {
 	init() {
 		PopsPanel.execMenuOnce("code-repairCodeLineNumber", () => {
 			this.repairCodeLineNumber();
@@ -43,5 +42,3 @@ const GreasyforkCode = {
 			});
 	},
 };
-
-export { GreasyforkCode };
