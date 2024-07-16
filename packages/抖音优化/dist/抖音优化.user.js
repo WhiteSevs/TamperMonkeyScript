@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.16.10
+// @version      2024.7.16.23
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -2080,28 +2080,44 @@
      */
     shieldSearchFloatingBar() {
       log.info("【屏蔽】搜索悬浮栏");
-      return [
+      let result = [];
+      result.push(
         DouYinUtils.addBlockCSS(
-          '.slider-video div:has([data-e2e="searchbar-button"])',
-          'div:has(>div > svg[class] >  defs [d="M0 0h24v24H0z"]',
-          'div[data-e2e="feed-active-video"] + div:has(>div>div>div > input[data-e2e="searchbar-input"])',
           /* 看相关页面的 */
           "#slideMode + div",
-          /* 搜索页面的 */
-          'div:has(>div>div+input[data-e2e="searchbar-input"])'
+          // 2024.7.16
+          '.playerContainer .slider-video>div>div:has([data-e2e="searchbar-button"])'
         )
-      ];
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(
+          DouYinUtils.addBlockCSS(
+            'div:has(>div>div+[data-e2e="searchbar-input"])'
+          )
+        );
+      }
+      return result;
     },
     /**
      * 【屏蔽】网页全屏关闭按钮
      */
     shieldCloseFullScreenButton() {
       log.info("【屏蔽】网页全屏关闭按钮");
-      return [
+      let result = [];
+      result.push(
         DouYinUtils.addBlockCSS(
-          '#sliderVideo[data-e2e="feed-active-video"] div.slider-video > div:has(path[d="M17.448 17.448a1.886 1.886 0 01-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 11.552 14.78L6.332 9 .552 3.22A1.886 1.886 0 113.22.552L9 6.332l5.78-5.78a1.886 1.886 0 112.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 010 2.668z"])'
+          // 2024.7.16
+          '.playerContainer .slider-video>div>div:has(path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
         )
-      ];
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(
+          DouYinUtils.addBlockCSS(
+            '#douyin-right-container div>div:has(>svg>path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
+          )
+        );
+      }
+      return result;
     }
   };
   const DouYinVideo = {
