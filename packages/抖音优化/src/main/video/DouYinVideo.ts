@@ -120,7 +120,7 @@ export const DouYinVideo = {
 				document,
 				"click",
 				selector,
-				() => {
+				(event) => {
 					if (isDouble) {
 						isDouble = false;
 						DouYinVideo.autoEnterElementFullScreen(true);
