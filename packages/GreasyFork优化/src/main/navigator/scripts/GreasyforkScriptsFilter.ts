@@ -34,6 +34,9 @@ export const GreasyforkScriptsFilter = {
 		);
 		return scriptList;
 	},
+	/**
+	 * 对页面进行过滤
+	 */
 	filter() {
 		this.getScriptElementList().forEach(($scriptList) => {
 			let data = parseScriptListInfo($scriptList);
@@ -68,9 +71,10 @@ export const GreasyforkScriptsFilter = {
 					if (typeof ruleValue !== "string") {
 						continue;
 					}
-					let regexpRuleValue = new RegExp(ruleValue, "ig");
-					if ((data as any)[ruleName].toString().match(regexpRuleValue)) {
-						log.info(["触发过滤规则", [localRule, data]]);
+					let ruleValueRegExp = new RegExp(ruleValue, "ig");
+					let scriptInfoString = String((data as any)[ruleName]);
+					if (scriptInfoString.match(ruleValueRegExp)) {
+						log.info(["触发过滤规则", localRule, data]);
 						$scriptList.remove();
 						break;
 					}

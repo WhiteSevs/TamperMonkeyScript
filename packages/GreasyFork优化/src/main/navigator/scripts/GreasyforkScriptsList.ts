@@ -41,6 +41,25 @@ export const parseScriptListInfo = ($scriptList: HTMLLIElement) => {
 			authorName: authorName,
 		});
 	});
+	// scriptAuthorName可能是空的
+	// scriptAuthorId可能是空的
+	if (
+		(info.scriptAuthorName == null || isNaN(info.scriptAuthorId)) &&
+		info.scriptAuthors.length
+	) {
+		info.scriptAuthorName = info.scriptAuthors[0].authorName;
+		info.scriptAuthorId = info.scriptAuthors[0].authorId;
+	}
+	// scriptDescription可能是空的
+	if (info.scriptDescription == null) {
+		let $description =
+			$scriptList.querySelector<HTMLSpanElement>(".script-description")! ||
+			$scriptList.querySelector<HTMLSpanElement>(".description")!;
+		if ($description) {
+			info.scriptDescription =
+				$description.innerText || $description.textContent!;
+		}
+	}
 	return info;
 };
 
