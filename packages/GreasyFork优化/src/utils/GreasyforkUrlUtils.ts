@@ -35,4 +35,11 @@ export const GreasyforkUrlUtils = {
 		}
 		return `https://greasyfork.org/scripts/${scriptId}/code?version=${scriptVersion}`;
 	},
+	/**
+	 * 获取脚本的信息
+	 * @param scriptId 脚本id
+	 */
+	getScriptInfoUrl(scriptId: string | number) {
+		return `https://greasyfork.org/scripts/${scriptId}.json`;
+	},
 };

@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.7.17.14
+// @version            2024.7.17.20
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -249,7 +249,10 @@
     "脚本名：{{text}}": "脚本名：{{text}}",
     "作者id：{{text}}": "作者id：{{text}}",
     "作者名：{{text}}": "作者名：{{text}}",
-    "作用域：脚本、脚本搜索、用户主页": "作用域：脚本、脚本搜索、用户主页"
+    "作用域：脚本、脚本搜索、用户主页": "作用域：脚本、脚本搜索、用户主页",
+    "更新到 {{version}} 版本": "更新到 {{version}} 版本",
+    "降级到 {{version}} 版本": "降级到 {{version}} 版本",
+    "重新安装 {{version}} 版本": "重新安装 {{version}} 版本"
   };
   const en_US_language = {
     GreasyFork优化: "GreasyFork Optimization",
@@ -453,7 +456,10 @@
     "脚本名：{{text}}": "Script Name: {{text}}",
     "作者id：{{text}}": "Author Id: {{text}}",
     "作者名：{{text}}": "Author Name: {{text}}",
-    "作用域：脚本、脚本搜索、用户主页": "Scope: Script, Script Search, User Homepage"
+    "作用域：脚本、脚本搜索、用户主页": "Scope: Script, Script Search, User Homepage",
+    "更新到 {{version}} 版本": "Update To {{version}} Version",
+    "降级到 {{version}} 版本": "Downgrade to {{version}} Version",
+    "重新安装 {{version}} 版本": "Reinstall {{version}} Version"
   };
   const KEY = "GM_Panel";
   const ATTRIBUTE_KEY = "data-key";
@@ -1314,6 +1320,13 @@
         scriptVersion = "";
       }
       return `https://greasyfork.org/scripts/${scriptId}/code?version=${scriptVersion}`;
+    },
+    /**
+     * 获取脚本的信息
+     * @param scriptId 脚本id
+     */
+    getScriptInfoUrl(scriptId) {
+      return `https://greasyfork.org/scripts/${scriptId}.json`;
     }
   };
   const GreasyforkVersions = {
@@ -1925,7 +1938,218 @@
       });
     }
   };
-  const beautifyCenterContentCSS = ".sidebarred-main-content {\r\n	max-width: unset;\r\n	flex: unset;\r\n}\r\nol.script-list {\r\n	display: flex;\r\n	flex-wrap: wrap;\r\n	border: none;\r\n	gap: 20px;\r\n	background: transparent;\r\n	box-shadow: none;\r\n}\r\nol.script-list .script-description {\r\n	overflow-wrap: anywhere;\r\n}\r\nol.script-list li {\r\n	border: 1px solid rgb(221, 221, 221);\r\n	border-radius: 5px;\r\n	flex: 1 1 45%;\r\n	box-shadow: rgb(221, 221, 221) 0px 0px 5px 2px;\r\n}\r\n\r\n.script-collect-btn {\r\n	color: #ffffff;\r\n	border-color: #409eff;\r\n	background-color: #409eff;\r\n}\r\n";
+  const beautifyCenterContentCSS = '.sidebarred-main-content {\r\n	max-width: unset;\r\n	flex: unset;\r\n}\r\nol.script-list {\r\n	display: flex;\r\n	flex-wrap: wrap;\r\n	border: none;\r\n	gap: 20px;\r\n	background: transparent;\r\n	box-shadow: none;\r\n}\r\nol.script-list .script-description {\r\n	overflow-wrap: anywhere;\r\n}\r\nol.script-list li {\r\n	border: 1px solid rgb(221, 221, 221);\r\n	border-radius: 5px;\r\n	flex: 1 1 45%;\r\n	box-shadow: rgb(221, 221, 221) 0px 0px 5px 2px;\r\n}\r\n/* 收藏按钮 */\r\n.script-collect-btn {\r\n	color: #ffffff;\r\n	border-color: #409eff;\r\n	background-color: #409eff;\r\n}\r\n/* 评分按钮 */\r\n.script-list-rating-score[data-position="right"] {\r\n	display: inline-block;\r\n	min-width: 1em;\r\n	text-align: center;\r\n	padding: 0 0.25em;\r\n	border: 1px solid #dddddd;\r\n	border-radius: 10px;\r\n	width: fit-content;\r\n}\r\n\r\n/* 加载圆圈动画 */\r\n.install-link.lum-lightbox-loader {\r\n	position: relative;\r\n	min-width: 4rem;\r\n	min-height: 1rem;\r\n}\r\n.install-link.lum-lightbox-loader::before {\r\n	margin-left: 1rem;\r\n}\r\n.install-link.lum-lightbox-loader::after {\r\n	margin-right: 1rem;\r\n}\r\n.install-link.lum-lightbox-loader::before,\r\n.install-link.lum-lightbox-loader::after {\r\n	width: 1em;\r\n	height: 1em;\r\n	margin-top: -0.5em;\r\n	border-radius: 1em;\r\n	background: hsla(0, 0%, 100%, 0.5);\r\n}\r\n';
+  const GreasyforkCheckVersion = {
+    /** 获取 TamperMonkey 暴露在window下的函数 */
+    getTampermonkey: () => {
+      var _a2;
+      return (_a2 = _unsafeWindow.external) == null ? void 0 : _a2.Tampermonkey;
+    },
+    /** 获取 Violentmonkey 暴露在window下的函数 */
+    getViolentmonkey: () => {
+      var _a2;
+      return (_a2 = _unsafeWindow.external) == null ? void 0 : _a2.Violentmonkey;
+    },
+    /** 获取 ScriptCat 暴露在window下的函数 */
+    getScriptCat: () => {
+      var _a2;
+      return (_a2 = _unsafeWindow.external) == null ? void 0 : _a2.Scriptcat;
+    },
+    /**
+     * 获取脚本容器启用状态
+     */
+    getScriptContainerStatus() {
+      var _a2, _b, _c;
+      let containerStatus = {
+        Tampermonkey: false,
+        Violentmonkey: false,
+        ScriptCat: false
+      };
+      if ((_a2 = _unsafeWindow.external) == null ? void 0 : _a2.Tampermonkey) {
+        containerStatus.Tampermonkey = true;
+      }
+      if ((_b = _unsafeWindow.external) == null ? void 0 : _b.Violentmonkey) {
+        containerStatus.Violentmonkey = true;
+      }
+      if ((_c = _unsafeWindow.external) == null ? void 0 : _c.Scriptcat) {
+        containerStatus.ScriptCat = true;
+      }
+      return containerStatus;
+    },
+    /**
+     * 获取脚本安装的版本号
+     * @param name 脚本名
+     * @param namespace 脚本命名空间
+     */
+    getInstalledVersion(name, namespace) {
+      return new Promise((resolve, reject) => {
+        const tm = this.getTampermonkey();
+        if (tm) {
+          tm.isInstalled(name, namespace, function(data) {
+            if (data.installed) {
+              resolve(data.version);
+            } else {
+              resolve(null);
+            }
+          });
+          return;
+        }
+        const vm = this.getViolentmonkey();
+        if (vm) {
+          vm.isInstalled(name, namespace).then(resolve);
+          return;
+        }
+        const scriptCat = this.getScriptCat();
+        if (scriptCat) {
+          scriptCat.isInstalled(name, namespace, function(data) {
+            if (data.installed) {
+              resolve(data.version);
+            } else {
+              resolve(null);
+            }
+          });
+          return;
+        }
+        reject(new TypeError("获取脚本容器暴露的external信息失败"));
+      });
+    },
+    /**
+     * https://developer.mozilla.org/en/docs/Toolkit_version_format
+     *
+     * 比较版本号
+     * @param a 版本号
+     * @param b 版本号
+     * @returns
+     * + -1 该版本号低
+     * + 0 该版本号和比较的版本号相同
+     * + 1 该版本号高
+     */
+    compareVersions(a, b) {
+      if (a === b) {
+        return 0;
+      }
+      const aParts = a.split(".");
+      const bParts = b.split(".");
+      for (let i = 0; i < aParts.length; i++) {
+        const result = this.compareVersionPart(aParts[i], bParts[i]);
+        if (result !== 0) {
+          return result;
+        }
+      }
+      return 0;
+    },
+    compareVersionPart(partA, partB) {
+      const partAParts = this.parseVersionPart(partA);
+      const partBParts = this.parseVersionPart(partB);
+      for (let i = 0; i < partAParts.length; i++) {
+        if (partAParts[i].length > 0 && partBParts[i].length === 0) {
+          return -1;
+        }
+        if (partAParts[i].length === 0 && partBParts[i].length > 0) {
+          return 1;
+        }
+        if (partAParts[i] > partBParts[i]) {
+          return 1;
+        }
+        if (partAParts[i] < partBParts[i]) {
+          return -1;
+        }
+      }
+      return 0;
+    },
+    // It goes number, string, number, string. If it doesn't exist, then
+    // 0 for numbers, empty string for strings.
+    parseVersionPart(part) {
+      if (!part) {
+        return [0, "", 0, ""];
+      }
+      const partParts = /([0-9]*)([^0-9]*)([0-9]*)([^0-9]*)/.exec(part);
+      return [
+        partParts[1] ? parseInt(partParts[1]) : 0,
+        partParts[2],
+        partParts[3] ? parseInt(partParts[3]) : 0,
+        partParts[4]
+      ];
+    },
+    /**
+     *
+     * @param installButton 安装按钮
+     * 必须属性
+     * + data-update-label 按钮升级的文字
+     * + data-downgrade-label 按钮降级的文字
+     * + data-reinstall-label 按钮重装的文字
+     * @param installedVersion 安装版本
+     * @param version 版本号
+     * @returns
+     */
+    handleInstallResult(installButton, installedVersion, version) {
+      if (installedVersion == null) {
+        return;
+      }
+      installButton.removeAttribute("data-ping-url");
+      switch (this.compareVersions(installedVersion, version)) {
+        case -1:
+          installButton.textContent = installButton.getAttribute("data-update-label");
+          break;
+        case 1:
+          installButton.textContent = installButton.getAttribute(
+            "data-downgrade-label"
+          );
+          break;
+        case 0:
+          installButton.textContent = installButton.getAttribute(
+            "data-reinstall-label"
+          );
+          break;
+      }
+    },
+    /**
+     * 检测js脚本的更新
+     * @param installButton 安装按钮
+     * 必须属性
+     * + data-script-name 脚本名
+     * + data-script-namespace 脚本命名空间
+     * + data-script-version 脚本当前版本号
+     * @param retry 重试
+     */
+    async checkForUpdatesJS(installButton, retry) {
+      const name = installButton.getAttribute("data-script-name");
+      const namespace = installButton.getAttribute("data-script-namespace");
+      const version = installButton.getAttribute("data-script-version");
+      try {
+        let installedVersion = await this.getInstalledVersion(name, namespace);
+        if (installedVersion == null) {
+          return false;
+        }
+        this.handleInstallResult(installButton, installedVersion, version);
+        return true;
+      } catch (error) {
+        if (retry) {
+          await utils.sleep(1e3);
+          try {
+            return await this.checkForUpdatesJS(installButton, false);
+          } catch (error2) {
+          }
+        }
+        return false;
+      }
+    },
+    /**
+     * 检测css脚本的更新
+     * @param installButton 安装按钮
+     * 必须属性
+     * + data-script-name 脚本名
+     * + data-script-namespace 脚本命名空间
+     */
+    checkForUpdatesCSS(installButton) {
+      const name = installButton.getAttribute("data-script-name");
+      const namespace = installButton.getAttribute("data-script-namespace");
+      postMessage(
+        { type: "style-version-query", name, namespace, url: location.href },
+        location.origin
+      );
+    }
+  };
   const parseScriptListInfo = ($scriptList) => {
     let dataset = $scriptList.dataset;
     const info = {
@@ -1973,14 +2197,50 @@
       log.info("美化脚本列表");
       let result = [];
       result.push(_GM_addStyle(beautifyCenterContentCSS));
-      DOMUtils.ready(() => {
+      DOMUtils.ready(async () => {
         let allScriptsList = GreasyforkScriptsFilter.getScriptElementList();
         allScriptsList.forEach(($scriptList) => {
+          if ($scriptList.querySelector(".script-list-operation")) {
+            return;
+          }
           let scriptInfo = parseScriptListInfo($scriptList);
           let $inlineStats = $scriptList.querySelector(
             ".inline-script-stats"
           );
           let code_url = scriptInfo.codeUrl;
+          let $ratingScoreLeft = DOMUtils.createElement("dt", {
+            className: "script-list-rating-score",
+            innerHTML: `<span>${i18next.t("评分")}</span>`
+          });
+          let $ratingScoreRight = DOMUtils.createElement(
+            "dd",
+            {
+              className: "script-list-rating-score",
+              innerHTML: `<span>${scriptInfo.scriptRatingScore}</span>`
+            },
+            {
+              "data-position": "right"
+            }
+          );
+          if (scriptInfo.scriptRatingScore < 60) {
+            $ratingScoreRight.classList.add("bad-rating-count");
+          } else {
+            $ratingScoreRight.classList.add("good-rating-count");
+          }
+          let $versionLeft = DOMUtils.createElement("dt", {
+            className: "script-list-version",
+            innerHTML: `<span>${i18next.t("版本")}</span>`
+          });
+          let $versionRight = DOMUtils.createElement(
+            "dd",
+            {
+              className: "script-list-version",
+              innerHTML: `<span>${scriptInfo.scriptVersion}</span>`
+            },
+            {
+              "data-position": "right"
+            }
+          );
           let $operationLeft = DOMUtils.createElement("dt", {
             className: "script-list-operation",
             innerHTML: `<span>${i18next.t("操作")}</span>`
@@ -1990,20 +2250,40 @@
             {
               className: "script-list-operation",
               innerHTML: `
-						<a 	class="install-link"
-							data-install-format="js"
+						<a
 							target="_blank"
-							href="${code_url}">${i18next.t("安装此脚本")}</a>
+							class="install-link"
+							data-install-format="js"
+							data-script-name="${scriptInfo.scriptName}"
+							data-script-namespace=""
+							data-script-version="${scriptInfo.scriptVersion}"
+							data-update-label="${i18next.t("更新到 {{version}} 版本", {
+              version: scriptInfo.scriptVersion
+            })}"
+							data-downgrade-label="${i18next.t("降级到 {{version}} 版本", {
+              version: scriptInfo.scriptVersion
+            })}"
+							data-reinstall-label="${i18next.t("重新安装 {{version}} 版本", {
+              version: scriptInfo.scriptVersion
+            })}"
+							href="${code_url}"></a>
 						<button class="script-collect-btn">${i18next.t("收藏")}</button>
 						`
             },
             {
+              "data-position": "right",
               style: "gap:10px;display: flex;flex-wrap: wrap;align-items: center;"
             }
           );
           let $collect = $operationRight.querySelector(
             ".script-collect-btn"
           );
+          let $installLink = $operationRight.querySelector(".install-link");
+          $installLink["data-script-info"] = scriptInfo;
+          $installLink.classList.add("lum-lightbox-loader");
+          if (scriptInfo.scriptType === "library") {
+            $installLink.remove();
+          }
           DOMUtils.on($collect, "click", (event) => {
             utils.preventEvent(event);
             GreasyforkScriptsCollectEvent(scriptInfo.scriptId);
@@ -2102,9 +2382,58 @@
             });
             $operationRight.appendChild($filter);
           }
+          $inlineStats.appendChild($ratingScoreLeft);
+          $inlineStats.appendChild($ratingScoreRight);
+          $inlineStats.appendChild($versionLeft);
+          $inlineStats.appendChild($versionRight);
           $inlineStats.appendChild($operationLeft);
           $inlineStats.appendChild($operationRight);
         });
+        let $installLinkList = Array.from(
+          document.querySelectorAll(
+            ".install-link[data-install-format=js]"
+          )
+        );
+        if (!GreasyforkCheckVersion.getScriptContainerStatus().Tampermonkey) {
+          $installLinkList.forEach(async ($installLink) => {
+            let result2 = await GreasyforkCheckVersion.checkForUpdatesJS(
+              $installLink,
+              true
+            );
+            $installLink.classList.remove("lum-lightbox-loader");
+            if (!result2) {
+              $installLink.textContent = i18next.t("安装此脚本");
+            }
+          });
+        } else {
+          for (let index = 0; index < $installLinkList.length; index++) {
+            let $installLink = $installLinkList[index];
+            let scriptInfo = $installLink["data-script-info"];
+            let getResp = await httpx.get(
+              GreasyforkUrlUtils.getScriptInfoUrl(scriptInfo.scriptId),
+              {
+                fetch: true
+              }
+            );
+            if (!getResp.status) {
+              $installLink.textContent = i18next.t("安装此脚本");
+              continue;
+            }
+            let data = utils.toJSON(
+              getResp.data.responseText
+            );
+            $installLink.setAttribute("data-script-namespace", data.namespace);
+            let result2 = await GreasyforkCheckVersion.checkForUpdatesJS(
+              $installLink,
+              true
+            );
+            $installLink.classList.remove("lum-lightbox-loader");
+            if (!result2) {
+              $installLink.textContent = i18next.t("安装此脚本");
+            }
+            await utils.sleep(150);
+          }
+        }
       });
       return result;
     }

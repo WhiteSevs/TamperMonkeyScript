@@ -1,4 +1,4 @@
-import { log, pops, utils } from "@/env";
+import { httpx, log, pops, utils } from "@/env";
 import { GreasyforkScriptsFilter } from "@/main/navigator/scripts/GreasyforkScriptsFilter";
 import { PopsPanel } from "@/setting/setting";
 import DOMUtils from "@whitesev/domutils";
@@ -7,86 +7,12 @@ import { GreasyforkScriptsCollectEvent } from "./GreasyforkScripts";
 import { GM_addStyle } from "ViteGM";
 import beautifyCenterContentCSS from "./beautifyCenterContent.css?raw";
 import Qmsg from "qmsg";
+import { GreasyforkCheckVersion } from "@/utils/GreasyforkCheckVersion";
+import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 
-export interface GreasyforkScriptsInfoDataset {
-	/** 脚本id */
-	scriptId: string;
-	/** 脚本名 */
-	scriptName: string;
-	/** 脚本发布作者也可能是联合作者 */
-	scriptAuthors: string;
-	/** 脚本日安装量 */
-	scriptDailyInstalls: string;
-	/** 脚本总安装量 */
-	scriptTotalInstalls: string;
-	/** 脚本评分 */
-	scriptRatingScore: string;
-	/** 脚本创建日期，例如：2024-1-1，只有年月日 */
-	scriptCreatedDate: string;
-	/** 脚本更新日期，例如：2024-1-1，只有年月日 */
-	scriptUpdatedDate: string;
-	/** 脚本类型 */
-	scriptType: "public";
-	/** 脚本版本号 */
-	scriptVersion: string;
-	/**  */
-	sensitive: "true" | "false";
-	/** 脚本语言，js脚本或者css脚本 */
-	scriptLanguage: "js" | "css";
-	/**  */
-	cssAvailableAsJs: "true" | "false";
-	/** 脚本代码链接 */
-	codeUrl: string;
-	/** 脚本描述 */
-	scriptDescription: string;
-	/** 脚本作者id */
-	scriptAuthorId: string;
-	/** 脚本作者名 */
-	scriptAuthorName: string;
-}
-
-export interface GreasyforkScriptsInfo {
-	/** 脚本id */
-	scriptId: number;
-	/** 脚本名 */
-	scriptName: string;
-	/** 脚本发布作者也可能是联合作者 */
-	scriptAuthors: {
-		authorId: number;
-		authorName: string;
-	}[];
-	/** 脚本日安装量 */
-	scriptDailyInstalls: number;
-	/** 脚本总安装量 */
-	scriptTotalInstalls: number;
-	/** 脚本评分 */
-	scriptRatingScore: number;
-	/** 脚本创建日期，例如：2024-1-1，只有年月日 */
-	scriptCreatedDate: Date;
-	/** 脚本更新日期，例如：2024-1-1，只有年月日 */
-	scriptUpdatedDate: Date;
-	/** 脚本类型 */
-	scriptType: "public";
-	/** 脚本版本号 */
-	scriptVersion: string;
-	/**  */
-	sensitive: boolean;
-	/** 脚本语言，js脚本或者css脚本 */
-	scriptLanguage: "js" | "css";
-	/**  */
-	cssAvailableAsJs: boolean;
-	/** 脚本代码链接 */
-	codeUrl: string;
-	/** 脚本描述 */
-	scriptDescription: string;
-	/** 脚本作者id */
-	scriptAuthorId: number;
-	/** 脚本作者名 */
-	scriptAuthorName: string;
-}
 /** 解析出<li>元素上存储的脚本信息 */
 export const parseScriptListInfo = ($scriptList: HTMLLIElement) => {
-	let dataset = $scriptList.dataset as any as GreasyforkScriptsInfoDataset;
+	let dataset = $scriptList.dataset as any as GreasyforkScriptListInfoDataset;
 	const info = {
 		scriptId: parseInt(dataset.scriptId),
 		scriptName: dataset.scriptName,
@@ -105,7 +31,7 @@ export const parseScriptListInfo = ($scriptList: HTMLLIElement) => {
 		scriptDescription: dataset.scriptDescription,
 		scriptAuthorId: parseInt(dataset.scriptAuthorId),
 		scriptAuthorName: dataset.scriptAuthorName,
-	} as GreasyforkScriptsInfo;
+	} as GreasyforkScriptListInfo;
 
 	let scriptAuthorsObj = utils.toJSON(dataset.scriptAuthors);
 	Object.keys(scriptAuthorsObj).forEach((authorId) => {
@@ -134,15 +60,57 @@ export const GreasyforkScriptsList = {
 		log.info("美化脚本列表");
 		let result = [];
 		result.push(GM_addStyle(beautifyCenterContentCSS));
-		DOMUtils.ready(() => {
+		DOMUtils.ready(async () => {
 			let allScriptsList = GreasyforkScriptsFilter.getScriptElementList();
 
 			allScriptsList.forEach(($scriptList) => {
+				if ($scriptList.querySelector(".script-list-operation")) {
+					return;
+				}
 				let scriptInfo = parseScriptListInfo($scriptList);
 				let $inlineStats = $scriptList.querySelector<HTMLElement>(
 					".inline-script-stats"
 				)!;
 				let code_url = scriptInfo.codeUrl;
+
+				// 评分
+				let $ratingScoreLeft = DOMUtils.createElement("dt", {
+					className: "script-list-rating-score",
+					innerHTML: `<span>${i18next.t("评分")}</span>`,
+				});
+				let $ratingScoreRight = DOMUtils.createElement(
+					"dd",
+					{
+						className: "script-list-rating-score",
+						innerHTML: `<span>${scriptInfo.scriptRatingScore}</span>`,
+					},
+					{
+						"data-position": "right",
+					}
+				);
+				if (scriptInfo.scriptRatingScore < 60) {
+					$ratingScoreRight.classList.add("bad-rating-count");
+				} else {
+					$ratingScoreRight.classList.add("good-rating-count");
+				}
+
+				// 版本
+				let $versionLeft = DOMUtils.createElement("dt", {
+					className: "script-list-version",
+					innerHTML: `<span>${i18next.t("版本")}</span>`,
+				});
+				let $versionRight = DOMUtils.createElement(
+					"dd",
+					{
+						className: "script-list-version",
+						innerHTML: `<span>${scriptInfo.scriptVersion}</span>`,
+					},
+					{
+						"data-position": "right",
+					}
+				);
+
+				// 操作
 				let $operationLeft = DOMUtils.createElement("dt", {
 					className: "script-list-operation",
 					innerHTML: `<span>${i18next.t("操作")}</span>`,
@@ -152,14 +120,28 @@ export const GreasyforkScriptsList = {
 					{
 						className: "script-list-operation",
 						innerHTML: `
-						<a 	class="install-link"
-							data-install-format="js"
+						<a
 							target="_blank"
-							href="${code_url}">${i18next.t("安装此脚本")}</a>
+							class="install-link"
+							data-install-format="js"
+							data-script-name="${scriptInfo.scriptName}"
+							data-script-namespace=""
+							data-script-version="${scriptInfo.scriptVersion}"
+							data-update-label="${i18next.t("更新到 {{version}} 版本", {
+								version: scriptInfo.scriptVersion,
+							})}"
+							data-downgrade-label="${i18next.t("降级到 {{version}} 版本", {
+								version: scriptInfo.scriptVersion,
+							})}"
+							data-reinstall-label="${i18next.t("重新安装 {{version}} 版本", {
+								version: scriptInfo.scriptVersion,
+							})}"
+							href="${code_url}"></a>
 						<button class="script-collect-btn">${i18next.t("收藏")}</button>
 						`,
 					},
 					{
+						"data-position": "right",
 						style:
 							"gap:10px;display: flex;flex-wrap: wrap;align-items: center;",
 					}
@@ -167,6 +149,19 @@ export const GreasyforkScriptsList = {
 				let $collect = $operationRight.querySelector<HTMLButtonElement>(
 					".script-collect-btn"
 				)!;
+
+				// 安装此脚本
+				let $installLink =
+					$operationRight.querySelector<HTMLAnchorElement>(".install-link")!;
+				// 存储数据
+				($installLink as any)["data-script-info"] = scriptInfo;
+				// 添加加载脚本已安装版本号加载中的样式
+				$installLink.classList.add("lum-lightbox-loader");
+				if (scriptInfo.scriptType === "library") {
+					// 当它是个库时，是不应该被安装的
+					$installLink.remove();
+				}
+
 				// 收藏按钮点击事件
 				DOMUtils.on($collect, "click", (event) => {
 					utils.preventEvent(event);
@@ -273,9 +268,64 @@ export const GreasyforkScriptsList = {
 					});
 					$operationRight.appendChild($filter);
 				}
+
+				$inlineStats.appendChild($ratingScoreLeft);
+				$inlineStats.appendChild($ratingScoreRight);
+				$inlineStats.appendChild($versionLeft);
+				$inlineStats.appendChild($versionRight);
 				$inlineStats.appendChild($operationLeft);
 				$inlineStats.appendChild($operationRight);
 			});
+
+			let $installLinkList = Array.from(
+				document.querySelectorAll<HTMLElement>(
+					".install-link[data-install-format=js]"
+				)
+			);
+			if (!GreasyforkCheckVersion.getScriptContainerStatus().Tampermonkey) {
+				// TamperMonkey可以不设置namespace从而获取到脚本的安装信息
+				$installLinkList.forEach(async ($installLink) => {
+					let result = await GreasyforkCheckVersion.checkForUpdatesJS(
+						$installLink,
+						true
+					);
+					$installLink.classList.remove("lum-lightbox-loader");
+					if (!result) {
+						$installLink.textContent = i18next.t("安装此脚本");
+					}
+				});
+			} else {
+				// 其它的需要网络请求json获取namespace
+				for (let index = 0; index < $installLinkList.length; index++) {
+					let $installLink = $installLinkList[index];
+					let scriptInfo = ($installLink as any)[
+						"data-script-info"
+					] as GreasyforkScriptListInfo;
+					let getResp = await httpx.get(
+						GreasyforkUrlUtils.getScriptInfoUrl(scriptInfo.scriptId),
+						{
+							fetch: true,
+						}
+					);
+					if (!getResp.status) {
+						$installLink.textContent = i18next.t("安装此脚本");
+						continue;
+					}
+					let data = utils.toJSON<GreasyforkScriptUrlInfo>(
+						getResp.data.responseText
+					);
+					$installLink.setAttribute("data-script-namespace", data.namespace);
+					let result = await GreasyforkCheckVersion.checkForUpdatesJS(
+						$installLink,
+						true
+					);
+					$installLink.classList.remove("lum-lightbox-loader");
+					if (!result) {
+						$installLink.textContent = i18next.t("安装此脚本");
+					}
+					await utils.sleep(150);
+				}
+			}
 		});
 		return result;
 	},

@@ -257,4 +257,7 @@ export const en_US_language = {
 	"作者名：{{text}}": "Author Name: {{text}}",
 	"作用域：脚本、脚本搜索、用户主页":
 		"Scope: Script, Script Search, User Homepage",
+	"更新到 {{version}} 版本": "Update To {{version}} Version",
+	"降级到 {{version}} 版本": "Downgrade to {{version}} Version",
+	"重新安装 {{version}} 版本": "Reinstall {{version}} Version",
 };

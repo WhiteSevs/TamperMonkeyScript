@@ -19,9 +19,40 @@ ol.script-list li {
 	flex: 1 1 45%;
 	box-shadow: rgb(221, 221, 221) 0px 0px 5px 2px;
 }
-
+/* 收藏按钮 */
 .script-collect-btn {
 	color: #ffffff;
 	border-color: #409eff;
 	background-color: #409eff;
+}
+/* 评分按钮 */
+.script-list-rating-score[data-position="right"] {
+	display: inline-block;
+	min-width: 1em;
+	text-align: center;
+	padding: 0 0.25em;
+	border: 1px solid #dddddd;
+	border-radius: 10px;
+	width: fit-content;
+}
+
+/* 加载圆圈动画 */
+.install-link.lum-lightbox-loader {
+	position: relative;
+	min-width: 4rem;
+	min-height: 1rem;
+}
+.install-link.lum-lightbox-loader::before {
+	margin-left: 1rem;
+}
+.install-link.lum-lightbox-loader::after {
+	margin-right: 1rem;
+}
+.install-link.lum-lightbox-loader::before,
+.install-link.lum-lightbox-loader::after {
+	width: 1em;
+	height: 1em;
+	margin-top: -0.5em;
+	border-radius: 1em;
+	background: hsla(0, 0%, 100%, 0.5);
 }

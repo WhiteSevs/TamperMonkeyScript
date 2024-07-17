@@ -237,4 +237,7 @@ export const zh_CN_language = {
 	"作者id：{{text}}": "作者id：{{text}}",
 	"作者名：{{text}}": "作者名：{{text}}",
 	"作用域：脚本、脚本搜索、用户主页": "作用域：脚本、脚本搜索、用户主页",
+	"更新到 {{version}} 版本": "更新到 {{version}} 版本",
+	"降级到 {{version}} 版本": "降级到 {{version}} 版本",
+	"重新安装 {{version}} 版本": "重新安装 {{version}} 版本",
 };
