@@ -282,7 +282,12 @@ export const GreasyforkScriptsList = {
 					".install-link[data-install-format=js]"
 				)
 			);
-			if (!GreasyforkCheckVersion.getScriptContainerStatus().Tampermonkey) {
+			let scriptContainerStatus =
+				GreasyforkCheckVersion.getScriptContainerStatus();
+			let hasScriptContainer = Object.values(scriptContainerStatus).filter(
+				Boolean
+			);
+			if (!scriptContainerStatus.Tampermonkey) {
 				// TamperMonkey可以不设置namespace从而获取到脚本的安装信息
 				$installLinkList.forEach(async ($installLink) => {
 					let result = await GreasyforkCheckVersion.checkForUpdatesJS(
@@ -294,7 +299,7 @@ export const GreasyforkScriptsList = {
 						$installLink.textContent = i18next.t("安装此脚本");
 					}
 				});
-			} else {
+			} else if (hasScriptContainer.length) {
 				// 其它的需要网络请求json获取namespace
 				for (let index = 0; index < $installLinkList.length; index++) {
 					let $installLink = $installLinkList[index];
@@ -325,6 +330,8 @@ export const GreasyforkScriptsList = {
 					}
 					await utils.sleep(150);
 				}
+			} else {
+				log.error("未知的脚本容器");
 			}
 		});
 		return result;

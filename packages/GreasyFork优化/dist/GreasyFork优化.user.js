@@ -2394,7 +2394,11 @@
             ".install-link[data-install-format=js]"
           )
         );
-        if (!GreasyforkCheckVersion.getScriptContainerStatus().Tampermonkey) {
+        let scriptContainerStatus = GreasyforkCheckVersion.getScriptContainerStatus();
+        let hasScriptContainer = Object.values(scriptContainerStatus).filter(
+          Boolean
+        );
+        if (!scriptContainerStatus.Tampermonkey) {
           $installLinkList.forEach(async ($installLink) => {
             let result2 = await GreasyforkCheckVersion.checkForUpdatesJS(
               $installLink,
@@ -2405,7 +2409,7 @@
               $installLink.textContent = i18next.t("安装此脚本");
             }
           });
-        } else {
+        } else if (hasScriptContainer.length) {
           for (let index = 0; index < $installLinkList.length; index++) {
             let $installLink = $installLinkList[index];
             let scriptInfo = $installLink["data-script-info"];
@@ -2433,6 +2437,8 @@
             }
             await utils.sleep(150);
           }
+        } else {
+          log.error("未知的脚本容器");
         }
       });
       return result;
