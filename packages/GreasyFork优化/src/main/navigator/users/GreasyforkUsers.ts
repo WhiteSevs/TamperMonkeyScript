@@ -2,11 +2,19 @@ import { DOMUtils, log, pops, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { CommonUtils } from "@/utils/CommonUtils";
 import i18next from "i18next";
+import { GreasyforkScriptsList } from "../scripts/GreasyforkScriptsList";
+import { GreasyforkScriptsFilter } from "../scripts/GreasyforkScriptsFilter";
 
 export const GreasyforkUsers = {
 	init() {
 		PopsPanel.execMenuOnce("users-changeConsoleToTopNavigator", () => {
 			this.changeConsoleToTopNavigator();
+		});
+		PopsPanel.execMenuOnce("gf-scripts-filter-enable", () => {
+			GreasyforkScriptsFilter.init();
+		});
+		PopsPanel.execMenuOnce("beautifyCenterContent", () => {
+			return GreasyforkScriptsList.beautifyCenterContent();
 		});
 	},
 	/**

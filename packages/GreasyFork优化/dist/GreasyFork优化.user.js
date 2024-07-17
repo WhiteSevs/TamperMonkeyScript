@@ -248,7 +248,8 @@
     "脚本id：{{text}}": "脚本id：{{text}}",
     "脚本名：{{text}}": "脚本名：{{text}}",
     "作者id：{{text}}": "作者id：{{text}}",
-    "作者名：{{text}}": "作者名：{{text}}"
+    "作者名：{{text}}": "作者名：{{text}}",
+    "作用域：脚本、脚本搜索、用户主页": "作用域：脚本、脚本搜索、用户主页"
   };
   const en_US_language = {
     GreasyFork优化: "GreasyFork Optimization",
@@ -451,7 +452,8 @@
     "脚本id：{{text}}": "Script Id: {{text}}",
     "脚本名：{{text}}": "Script Name: {{text}}",
     "作者id：{{text}}": "Author Id: {{text}}",
-    "作者名：{{text}}": "Author Name: {{text}}"
+    "作者名：{{text}}": "Author Name: {{text}}",
+    "作用域：脚本、脚本搜索、用户主页": "Scope: Script, Script Search, User Homepage"
   };
   const KEY = "GM_Panel";
   const ATTRIBUTE_KEY = "data-key";
@@ -1923,7 +1925,7 @@
       });
     }
   };
-  const beautifyCenterContentCSS = ".sidebarred-main-content {\r\n	max-width: unset;\r\n	flex: unset;\r\n}\r\nol#browse-script-list {\r\n	display: flex;\r\n	flex-wrap: wrap;\r\n	border: none;\r\n	gap: 20px;\r\n	background: transparent;\r\n	box-shadow: none;\r\n}\r\nol#browse-script-list .script-description {\r\n	overflow-wrap: anywhere;\r\n}\r\nol#browse-script-list li {\r\n	border: 1px solid rgb(221, 221, 221);\r\n	border-radius: 5px;\r\n	flex: 1 1 45%;\r\n	box-shadow: rgb(221, 221, 221) 0px 0px 5px 2px;\r\n}\r\n\r\n.script-collect-btn {\r\n	color: #ffffff;\r\n	border-color: #409eff;\r\n	background-color: #409eff;\r\n}\r\n";
+  const beautifyCenterContentCSS = ".sidebarred-main-content {\r\n	max-width: unset;\r\n	flex: unset;\r\n}\r\nol.script-list {\r\n	display: flex;\r\n	flex-wrap: wrap;\r\n	border: none;\r\n	gap: 20px;\r\n	background: transparent;\r\n	box-shadow: none;\r\n}\r\nol.script-list .script-description {\r\n	overflow-wrap: anywhere;\r\n}\r\nol.script-list li {\r\n	border: 1px solid rgb(221, 221, 221);\r\n	border-radius: 5px;\r\n	flex: 1 1 45%;\r\n	box-shadow: rgb(221, 221, 221) 0px 0px 5px 2px;\r\n}\r\n\r\n.script-collect-btn {\r\n	color: #ffffff;\r\n	border-color: #409eff;\r\n	background-color: #409eff;\r\n}\r\n";
   const parseScriptListInfo = ($scriptList) => {
     let dataset = $scriptList.dataset;
     const info = {
@@ -1972,7 +1974,8 @@
       let result = [];
       result.push(_GM_addStyle(beautifyCenterContentCSS));
       DOMUtils.ready(() => {
-        document.querySelectorAll("#browse-script-list li").forEach(($scriptList) => {
+        let allScriptsList = GreasyforkScriptsFilter.getScriptElementList();
+        allScriptsList.forEach(($scriptList) => {
           let scriptInfo = parseScriptListInfo($scriptList);
           let $inlineStats = $scriptList.querySelector(
             ".inline-script-stats"
@@ -2081,9 +2084,7 @@
                 );
                 $authorNameButton.setAttribute(
                   attr_filter_value,
-                  "^" + utils.parseStringToRegExpString(
-                    scriptAuthorInfo.authorName
-                  ) + "$"
+                  "^" + utils.parseStringToRegExpString(scriptAuthorInfo.authorName) + "$"
                 );
                 $content.appendChild($authorIdButton);
                 $content.appendChild($authorNameButton);
@@ -2129,8 +2130,18 @@
         lockFunction.run();
       });
     },
+    /**
+     * 获取脚本列表元素
+     */
+    getScriptElementList() {
+      let scriptList = [];
+      scriptList = scriptList.concat(
+        Array.from(document.querySelectorAll("ol.script-list li"))
+      );
+      return scriptList;
+    },
     filter() {
-      document.querySelectorAll("#browse-script-list > li").forEach(($scriptList) => {
+      this.getScriptElementList().forEach(($scriptList) => {
         let data = parseScriptListInfo($scriptList);
         let localValueSplit = this.getValue().split("\n");
         for (let index = 0; index < localValueSplit.length; index++) {
@@ -2835,7 +2846,7 @@
                     "gf-scripts-filter-enable",
                     true,
                     void 0,
-                    i18next.t("开启后下面的过滤功能才会生效")
+                    i18next.t("作用域：脚本、脚本搜索、用户主页")
                   ),
                   {
                     type: "own",
@@ -3754,6 +3765,12 @@
     init() {
       PopsPanel.execMenuOnce("users-changeConsoleToTopNavigator", () => {
         this.changeConsoleToTopNavigator();
+      });
+      PopsPanel.execMenuOnce("gf-scripts-filter-enable", () => {
+        GreasyforkScriptsFilter.init();
+      });
+      PopsPanel.execMenuOnce("beautifyCenterContent", () => {
+        return GreasyforkScriptsList.beautifyCenterContent();
       });
     },
     /**

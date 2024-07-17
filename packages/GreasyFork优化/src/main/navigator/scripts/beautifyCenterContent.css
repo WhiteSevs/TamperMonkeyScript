@@ -2,7 +2,7 @@
 	max-width: unset;
 	flex: unset;
 }
-ol#browse-script-list {
+ol.script-list {
 	display: flex;
 	flex-wrap: wrap;
 	border: none;
@@ -10,10 +10,10 @@ ol#browse-script-list {
 	background: transparent;
 	box-shadow: none;
 }
-ol#browse-script-list .script-description {
+ol.script-list .script-description {
 	overflow-wrap: anywhere;
 }
-ol#browse-script-list li {
+ol.script-list li {
 	border: 1px solid rgb(221, 221, 221);
 	border-radius: 5px;
 	flex: 1 1 45%;

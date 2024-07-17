@@ -255,4 +255,6 @@ export const en_US_language = {
 	"脚本名：{{text}}": "Script Name: {{text}}",
 	"作者id：{{text}}": "Author Id: {{text}}",
 	"作者名：{{text}}": "Author Name: {{text}}",
+	"作用域：脚本、脚本搜索、用户主页":
+		"Scope: Script, Script Search, User Homepage",
 };

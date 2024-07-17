@@ -152,7 +152,7 @@ export const SettingUIScripts: PopsPanelContentConfig = {
 									"gf-scripts-filter-enable",
 									true,
 									void 0,
-									i18next.t("开启后下面的过滤功能才会生效")
+									i18next.t("作用域：脚本、脚本搜索、用户主页")
 								),
 								{
 									type: "own",

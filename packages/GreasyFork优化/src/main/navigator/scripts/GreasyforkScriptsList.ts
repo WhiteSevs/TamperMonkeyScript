@@ -135,85 +135,85 @@ export const GreasyforkScriptsList = {
 		let result = [];
 		result.push(GM_addStyle(beautifyCenterContentCSS));
 		DOMUtils.ready(() => {
-			document
-				.querySelectorAll<HTMLLIElement>("#browse-script-list li")
-				.forEach(($scriptList) => {
-					let scriptInfo = parseScriptListInfo($scriptList);
-					let $inlineStats = $scriptList.querySelector<HTMLElement>(
-						".inline-script-stats"
-					)!;
-					let code_url = scriptInfo.codeUrl;
-					let $operationLeft = DOMUtils.createElement("dt", {
+			let allScriptsList = GreasyforkScriptsFilter.getScriptElementList();
+
+			allScriptsList.forEach(($scriptList) => {
+				let scriptInfo = parseScriptListInfo($scriptList);
+				let $inlineStats = $scriptList.querySelector<HTMLElement>(
+					".inline-script-stats"
+				)!;
+				let code_url = scriptInfo.codeUrl;
+				let $operationLeft = DOMUtils.createElement("dt", {
+					className: "script-list-operation",
+					innerHTML: `<span>${i18next.t("操作")}</span>`,
+				});
+				let $operationRight = DOMUtils.createElement(
+					"dd",
+					{
 						className: "script-list-operation",
-						innerHTML: `<span>${i18next.t("操作")}</span>`,
-					});
-					let $operationRight = DOMUtils.createElement(
-						"dd",
-						{
-							className: "script-list-operation",
-							innerHTML: `
+						innerHTML: `
 						<a 	class="install-link"
 							data-install-format="js"
 							target="_blank"
 							href="${code_url}">${i18next.t("安装此脚本")}</a>
 						<button class="script-collect-btn">${i18next.t("收藏")}</button>
 						`,
-						},
-						{
-							style:
-								"gap:10px;display: flex;flex-wrap: wrap;align-items: center;",
-						}
-					);
-					let $collect = $operationRight.querySelector<HTMLButtonElement>(
-						".script-collect-btn"
-					)!;
-					// 收藏按钮点击事件
-					DOMUtils.on($collect, "click", (event) => {
-						utils.preventEvent(event);
-						GreasyforkScriptsCollectEvent(scriptInfo.scriptId);
-					});
+					},
+					{
+						style:
+							"gap:10px;display: flex;flex-wrap: wrap;align-items: center;",
+					}
+				);
+				let $collect = $operationRight.querySelector<HTMLButtonElement>(
+					".script-collect-btn"
+				)!;
+				// 收藏按钮点击事件
+				DOMUtils.on($collect, "click", (event) => {
+					utils.preventEvent(event);
+					GreasyforkScriptsCollectEvent(scriptInfo.scriptId);
+				});
 
-					if (PopsPanel.getValue("gf-scripts-filter-enable")) {
-						let $filter = DOMUtils.createElement("button", {
-							className: "script-filter-btn",
-							innerHTML: i18next.t("过滤"),
-						});
-						// 过滤按钮点击事件
-						let attr_filter_key = "data-filter-key";
-						let attr_filter_value = "data-filter-value";
-						DOMUtils.on($filter, "click", (event) => {
-							utils.preventEvent(event);
-							let $dialog = pops.alert({
-								title: {
-									text: i18next.t("选择过滤的选项"),
-									position: "center",
-								},
-								content: {
-									text: `
+				if (PopsPanel.getValue("gf-scripts-filter-enable")) {
+					let $filter = DOMUtils.createElement("button", {
+						className: "script-filter-btn",
+						innerHTML: i18next.t("过滤"),
+					});
+					// 过滤按钮点击事件
+					let attr_filter_key = "data-filter-key";
+					let attr_filter_value = "data-filter-value";
+					DOMUtils.on($filter, "click", (event) => {
+						utils.preventEvent(event);
+						let $dialog = pops.alert({
+							title: {
+								text: i18next.t("选择过滤的选项"),
+								position: "center",
+							},
+							content: {
+								text: `
 									<button ${attr_filter_key}="scriptId" ${attr_filter_value}="^${
-										scriptInfo.scriptId
-									}$">${i18next.t("脚本id：{{text}}", {
-										text: scriptInfo.scriptId,
-									})}</button>
+									scriptInfo.scriptId
+								}$">${i18next.t("脚本id：{{text}}", {
+									text: scriptInfo.scriptId,
+								})}</button>
 									<button ${attr_filter_key}="scriptName" ${attr_filter_value}="^${utils.parseStringToRegExpString(
-										scriptInfo.scriptName
-									)}$">${i18next.t("脚本名：{{text}}", {
-										text: scriptInfo.scriptName,
-									})}</button>
+									scriptInfo.scriptName
+								)}$">${i18next.t("脚本名：{{text}}", {
+									text: scriptInfo.scriptName,
+								})}</button>
 									`,
-									html: true,
+								html: true,
+							},
+							mask: {
+								enable: true,
+								clickEvent: {
+									toClose: true,
 								},
-								mask: {
-									enable: true,
-									clickEvent: {
-										toClose: true,
-									},
-								},
-								width: "350px",
-								height: "300px",
-								drag: true,
-								dragLimit: true,
-								style: `
+							},
+							width: "350px",
+							height: "300px",
+							drag: true,
+							dragLimit: true,
+							style: `
 								.pops-alert-content{
 									display: flex;
 									flex-direction: column;
@@ -226,58 +226,56 @@ export const GreasyforkScriptsList = {
 									text-align: left;
 								}
 								`,
-							});
-							let $content = $dialog.$shadowRoot.querySelector<HTMLDivElement>(
-								".pops-alert-content"
-							)!;
-							scriptInfo.scriptAuthors.forEach((scriptAuthorInfo) => {
-								let $authorIdButton = DOMUtils.createElement("button", {
-									innerHTML: i18next.t("作者id：{{text}}", {
-										text: scriptAuthorInfo.authorId,
-									}),
-								});
-								$authorIdButton.setAttribute(attr_filter_key, "scriptAuthorId");
-								$authorIdButton.setAttribute(
-									attr_filter_value,
-									"^" + scriptAuthorInfo.authorId + "$"
-								);
-								let $authorNameButton = DOMUtils.createElement("button", {
-									innerHTML: i18next.t("作者名：{{text}}", {
-										text: scriptAuthorInfo.authorName,
-									}),
-								});
-								$authorNameButton.setAttribute(
-									attr_filter_key,
-									"scriptAuthorName"
-								);
-								$authorNameButton.setAttribute(
-									attr_filter_value,
-									"^" +
-										utils.parseStringToRegExpString(
-											scriptAuthorInfo.authorName
-										) +
-										"$"
-								);
-
-								$content.appendChild($authorIdButton);
-								$content.appendChild($authorNameButton);
-							});
-							DOMUtils.on($dialog.$shadowRoot, "click", "button", (event) => {
-								utils.preventEvent(event);
-								let $click = event.target as HTMLButtonElement;
-								let key = $click.getAttribute(attr_filter_key);
-								let value = $click.getAttribute(attr_filter_value);
-								GreasyforkScriptsFilter.addValue(`${key}##${value}`);
-								$dialog.close();
-								GreasyforkScriptsFilter.filter();
-								Qmsg.success(i18next.t("添加成功"));
-							});
 						});
-						$operationRight.appendChild($filter);
-					}
-					$inlineStats.appendChild($operationLeft);
-					$inlineStats.appendChild($operationRight);
-				});
+						let $content = $dialog.$shadowRoot.querySelector<HTMLDivElement>(
+							".pops-alert-content"
+						)!;
+						scriptInfo.scriptAuthors.forEach((scriptAuthorInfo) => {
+							let $authorIdButton = DOMUtils.createElement("button", {
+								innerHTML: i18next.t("作者id：{{text}}", {
+									text: scriptAuthorInfo.authorId,
+								}),
+							});
+							$authorIdButton.setAttribute(attr_filter_key, "scriptAuthorId");
+							$authorIdButton.setAttribute(
+								attr_filter_value,
+								"^" + scriptAuthorInfo.authorId + "$"
+							);
+							let $authorNameButton = DOMUtils.createElement("button", {
+								innerHTML: i18next.t("作者名：{{text}}", {
+									text: scriptAuthorInfo.authorName,
+								}),
+							});
+							$authorNameButton.setAttribute(
+								attr_filter_key,
+								"scriptAuthorName"
+							);
+							$authorNameButton.setAttribute(
+								attr_filter_value,
+								"^" +
+									utils.parseStringToRegExpString(scriptAuthorInfo.authorName) +
+									"$"
+							);
+
+							$content.appendChild($authorIdButton);
+							$content.appendChild($authorNameButton);
+						});
+						DOMUtils.on($dialog.$shadowRoot, "click", "button", (event) => {
+							utils.preventEvent(event);
+							let $click = event.target as HTMLButtonElement;
+							let key = $click.getAttribute(attr_filter_key);
+							let value = $click.getAttribute(attr_filter_value);
+							GreasyforkScriptsFilter.addValue(`${key}##${value}`);
+							$dialog.close();
+							GreasyforkScriptsFilter.filter();
+							Qmsg.success(i18next.t("添加成功"));
+						});
+					});
+					$operationRight.appendChild($filter);
+				}
+				$inlineStats.appendChild($operationLeft);
+				$inlineStats.appendChild($operationRight);
+			});
 		});
 		return result;
 	},

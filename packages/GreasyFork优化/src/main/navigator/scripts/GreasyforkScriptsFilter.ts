@@ -24,51 +24,59 @@ export const GreasyforkScriptsFilter = {
 			lockFunction.run();
 		});
 	},
+	/**
+	 * 获取脚本列表元素
+	 */
+	getScriptElementList() {
+		let scriptList: HTMLLIElement[] = [];
+		scriptList = scriptList.concat(
+			Array.from(document.querySelectorAll<HTMLLIElement>("ol.script-list li"))
+		);
+		return scriptList;
+	},
 	filter() {
-		document
-			.querySelectorAll<HTMLLIElement>("#browse-script-list > li")
-			.forEach(($scriptList) => {
-				let data = parseScriptListInfo($scriptList);
+		this.getScriptElementList().forEach(($scriptList) => {
+			let data = parseScriptListInfo($scriptList);
 
-				let localValueSplit = this.getValue().split("\n");
-				for (let index = 0; index < localValueSplit.length; index++) {
-					let localRule = localValueSplit[index];
-					let ruleSplit = localRule.split("##");
-					/** 规则名 */
-					let ruleName = ruleSplit[0];
-					/** 规则值 */
-					let ruleValue = ruleSplit[1];
-					if (ruleName === "scriptRatingScore") {
-						/* 评分 */
-						let userRatingScoreValue = parseFloat(ruleValue.slice(1));
-						if (ruleValue.startsWith(">")) {
-							/* 大于 */
-							if (data.scriptRatingScore > userRatingScoreValue) {
-								log.info(["触发过滤规则", [localRule, data]]);
-								$scriptList.remove();
-								break;
-							}
-						} else if (ruleValue.startsWith("<")) {
-							/* 小于 */
-							if (data.scriptRatingScore < userRatingScoreValue) {
-								log.info(["触发过滤规则", [localRule, data]]);
-								$scriptList.remove();
-								break;
-							}
+			let localValueSplit = this.getValue().split("\n");
+			for (let index = 0; index < localValueSplit.length; index++) {
+				let localRule = localValueSplit[index];
+				let ruleSplit = localRule.split("##");
+				/** 规则名 */
+				let ruleName = ruleSplit[0];
+				/** 规则值 */
+				let ruleValue = ruleSplit[1];
+				if (ruleName === "scriptRatingScore") {
+					/* 评分 */
+					let userRatingScoreValue = parseFloat(ruleValue.slice(1));
+					if (ruleValue.startsWith(">")) {
+						/* 大于 */
+						if (data.scriptRatingScore > userRatingScoreValue) {
+							log.info(["触发过滤规则", [localRule, data]]);
+							$scriptList.remove();
+							break;
 						}
-					} else if (ruleName in data || ruleName === "scriptDescription") {
-						if (typeof ruleValue !== "string") {
-							continue;
-						}
-						let regexpRuleValue = new RegExp(ruleValue, "ig");
-						if ((data as any)[ruleName].toString().match(regexpRuleValue)) {
+					} else if (ruleValue.startsWith("<")) {
+						/* 小于 */
+						if (data.scriptRatingScore < userRatingScoreValue) {
 							log.info(["触发过滤规则", [localRule, data]]);
 							$scriptList.remove();
 							break;
 						}
 					}
+				} else if (ruleName in data || ruleName === "scriptDescription") {
+					if (typeof ruleValue !== "string") {
+						continue;
+					}
+					let regexpRuleValue = new RegExp(ruleValue, "ig");
+					if ((data as any)[ruleName].toString().match(regexpRuleValue)) {
+						log.info(["触发过滤规则", [localRule, data]]);
+						$scriptList.remove();
+						break;
+					}
 				}
-			});
+			}
+		});
 	},
 	setValue(value: string) {
 		PopsPanel.setValue(this.key, value);
