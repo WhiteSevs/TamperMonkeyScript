@@ -10,24 +10,24 @@
 
 1. docker部署
 
-```js
-docker run -d --restart=always -p 6752:6752 --name="pageSpy" ghcr.io/huolalatech/page-spy-web:release
-```
+    ```js
+    docker run -d --restart=always -p 6752:6752 --name="pageSpy" ghcr.io/huolalatech/page-spy-web:release
+    ```
 
 2. Node部署
 
-```js
-yarn global add @huolala-tech/page-spy-api
+    ```js
+    yarn global add @huolala-tech/page-spy-api
 
-# 如果你使用 npm
+    # 如果你使用 npm
 
-npm install -g @huolala-tech/page-spy-api
-```
+    npm install -g @huolala-tech/page-spy-api
+    ```
 
 ## 信息
 
 - 最新版本：[![npm version](https://img.shields.io/npm/v/@huolala-tech/page-spy-browser?label=page-spy-browser)](https://www.npmjs.com/package/@huolala-tech/page-spy-browser)
-- 当前版本：`1.9.1`
+- 当前版本：`1.9.2`
 - 项目主页
 [https://github.com/HuolalaTech/page-spy-web](https://github.com/HuolalaTech/page-spy-web)
 - SDK地址
