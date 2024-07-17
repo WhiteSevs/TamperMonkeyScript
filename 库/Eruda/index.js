@@ -9,6 +9,12 @@ let initEruda = function (
 	currentWindow = globalThis || self
 ) {
 	/**
+	 * 修复console的覆盖问题，因为油猴中的window是Proxy的window
+	 */
+	var window = currentWindow;
+	var globalThis = currentWindow;
+	var console = currentWindow.console;
+	/**
 	 * Skipped minification because the original files appears to be already minified.
 	 * Original file: /npm/eruda@3.2.0/eruda.js
 	 *
