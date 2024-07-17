@@ -211,7 +211,10 @@ export const PopsPanel = {
 	 */
 	addValueChangeListener(
 		key: string,
-		callback: (key: string, oldValue: any, newValue: any) => void
+		callback: (key: string, oldValue: any, newValue: any) => void,
+		option?: {
+			immediate: boolean;
+		}
 	) {
 		let listenerId = Math.random();
 		this.$listener.listenData.set(key, {
@@ -219,6 +222,11 @@ export const PopsPanel = {
 			key,
 			callback,
 		});
+		if (option) {
+			if (option.immediate) {
+				callback(key, this.getValue(key), this.getValue(key));
+			}
+		}
 		return listenerId;
 	},
 	/**
