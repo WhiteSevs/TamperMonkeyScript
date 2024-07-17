@@ -615,6 +615,11 @@ html body kbd {\r
 		white-space: pre;\r
 	}\r
 }\r
+/* 强制换行 */\r
+code {\r
+	text-wrap: wrap !important;\r
+}\r
+\r
 .scrollbar-style::-webkit-scrollbar {\r
 	width: 8px;\r
 }\r

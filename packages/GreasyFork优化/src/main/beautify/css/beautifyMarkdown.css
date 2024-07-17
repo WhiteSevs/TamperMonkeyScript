@@ -332,6 +332,11 @@ html body kbd {
 		white-space: pre;
 	}
 }
+/* 强制换行 */
+code {
+	text-wrap: wrap !important;
+}
+
 .scrollbar-style::-webkit-scrollbar {
 	width: 8px;
 }
