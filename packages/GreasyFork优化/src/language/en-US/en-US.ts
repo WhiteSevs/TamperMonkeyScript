@@ -241,4 +241,18 @@ export const en_US_language = {
 	"在版本下面添加【安装】、【查看代码】按钮":
 		"Add 【 Install 】 and 【 View Code 】 buttons under the version",
 	查看代码: "View Code",
+	添加快捷操作按钮: "Add shortcut operation button",
+	"在每一行讨论的最后面添加【过滤】按钮，需开启过滤功能才会生效":
+		"Add a 'Filter' button at the end of each discussion line. The filtering function needs to be enabled for it to take effect",
+	选择需要过滤的选项: "Select the options that need to be filtered",
+	"确定{{type}}：{{filterId}}？": "Are you sure {{type}}：{{filterId}}？",
+	"该收藏集未包含：{{scriptId}}":
+		"This collection does not include:{{scriptId}}",
+	帮助文档: "Help document",
+	"请输入规则，每行一个": "Please enter a rule, one per line",
+	选择过滤的选项: "Select filtering options",
+	"脚本id：{{text}}": "Script Id: {{text}}",
+	"脚本名：{{text}}": "Script Name: {{text}}",
+	"作者id：{{text}}": "Author Id: {{text}}",
+	"作者名：{{text}}": "Author Name: {{text}}",
 };

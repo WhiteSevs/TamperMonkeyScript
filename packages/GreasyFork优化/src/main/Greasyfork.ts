@@ -12,17 +12,12 @@ import {
 import { GreasyforkBeautify } from "./beautify/GreasyforkBeautify";
 import { GreasyforkMenu } from "./GreasyforkMenu";
 import { GreasyforkRouter } from "@/router/GreasyforkRouter";
-import { GreasyforkScriptsCode } from "./navigator/scripts/code/GreasyforkScriptsCode";
 import { GreasyforkAccount } from "./GreasyforkAccount";
-import { GreasyforkShield } from "./GreasyforkShield";
 import Viewer from "viewerjs";
 import ViewerCSS from "viewerjs/dist/viewer.css?raw";
 import { GreasyforkForum as GreasyforkDiscussions } from "./navigator/discussions/GreasyforkDiscussions";
 import i18next from "i18next";
-import {
-	GreasyforkScripts,
-	GreasyforkScriptsCollectEvent,
-} from "./navigator/scripts/GreasyforkScripts";
+import { GreasyforkScripts } from "./navigator/scripts/GreasyforkScripts";
 import { GreasyforkScriptsList } from "./navigator/scripts/GreasyforkScriptsList";
 import { CommonUtils } from "@/utils/CommonUtils";
 import { GreasyforkUsers } from "./navigator/users/GreasyforkUsers";

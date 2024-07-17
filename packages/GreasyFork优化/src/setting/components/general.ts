@@ -9,7 +9,7 @@ import { GreasyforkRouter } from "@/router/GreasyforkRouter";
 import i18next from "i18next";
 import { UISelect } from "../common-components/ui-select";
 import { DOMUtils, log, utils } from "@/env";
-import { GreasyforkShield } from "@/main/GreasyforkShield";
+import { GreasyforkScriptsFilter } from "@/main/navigator/scripts/GreasyforkScriptsFilter";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 
 const SettingUIGeneral: PopsPanelContentConfig = {
@@ -516,13 +516,13 @@ const SettingUIGeneral: PopsPanelContentConfig = {
 										let textarea = textareaDiv.querySelector(
 											"textarea"
 										) as HTMLTextAreaElement;
-										textarea.value = GreasyforkShield.getValue();
+										textarea.value = GreasyforkScriptsFilter.getValue();
 										DOMUtils.on(
 											textarea,
 											["input", "propertychange"],
 											void 0,
 											utils.debounce(function () {
-												GreasyforkShield.setValue(textarea.value);
+												GreasyforkScriptsFilter.setValue(textarea.value);
 											}, 200)
 										);
 										liElement.appendChild(textareaDiv);

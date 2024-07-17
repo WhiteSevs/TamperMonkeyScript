@@ -1,10 +1,13 @@
 import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
+import { parseScriptListInfo } from "./GreasyforkScriptsList";
 
-// 脚本屏蔽
-export const GreasyforkShield = {
+/** 脚本过滤 */
+export const GreasyforkScriptsFilter = {
+	/** 存储的键 */
 	key: "gf-shield-rule",
 	init() {
+		log.info("脚本过滤");
 		let lockFunction = new utils.LockFunction(() => {
 			this.filter();
 		}, 50);
@@ -25,45 +28,29 @@ export const GreasyforkShield = {
 		document
 			.querySelectorAll<HTMLLIElement>("#browse-script-list > li")
 			.forEach(($scriptList) => {
-				let data = $scriptList.dataset;
-				let scriptDescription = $scriptList.querySelector<HTMLElement>(
-					".script-description"
-				);
-				data["scriptDescription"] =
-					scriptDescription?.innerText || scriptDescription?.textContent || "";
-				let scriptAuthors = utils.toJSON(data["scriptAuthors"] as string);
-				if (utils.isNotNull(scriptAuthors)) {
-					let scriptAuthorId = Object.keys(scriptAuthors)[0];
-					let scriptAuthorName = scriptAuthors[scriptAuthorId];
-					data["scriptAuthorId"] = scriptAuthorId;
-					data["scriptAuthorName"] = scriptAuthorName;
-				}
-				(data["scriptRatingScore"] as any) = parseFloat(
-					data["scriptRatingScore"] as string
-				);
+				let data = parseScriptListInfo($scriptList);
+
 				let localValueSplit = this.getValue().split("\n");
-				for (const localRule of localValueSplit) {
+				for (let index = 0; index < localValueSplit.length; index++) {
+					let localRule = localValueSplit[index];
 					let ruleSplit = localRule.split("##");
+					/** 规则名 */
 					let ruleName = ruleSplit[0];
+					/** 规则值 */
 					let ruleValue = ruleSplit[1];
 					if (ruleName === "scriptRatingScore") {
 						/* 评分 */
+						let userRatingScoreValue = parseFloat(ruleValue.slice(1));
 						if (ruleValue.startsWith(">")) {
 							/* 大于 */
-							if (
-								(data["scriptRatingScore"] as any) >
-								parseFloat(ruleValue.slice(1))
-							) {
+							if (data.scriptRatingScore > userRatingScoreValue) {
 								log.info(["触发过滤规则", [localRule, data]]);
 								$scriptList.remove();
 								break;
 							}
 						} else if (ruleValue.startsWith("<")) {
 							/* 小于 */
-							if (
-								(data["scriptRatingScore"] as any) <
-								parseFloat(ruleValue.slice(1))
-							) {
+							if (data.scriptRatingScore < userRatingScoreValue) {
 								log.info(["触发过滤规则", [localRule, data]]);
 								$scriptList.remove();
 								break;
@@ -74,7 +61,7 @@ export const GreasyforkShield = {
 							continue;
 						}
 						let regexpRuleValue = new RegExp(ruleValue, "ig");
-						if ((data as any)[ruleName].match(regexpRuleValue)) {
+						if ((data as any)[ruleName].toString().match(regexpRuleValue)) {
 							log.info(["触发过滤规则", [localRule, data]]);
 							$scriptList.remove();
 							break;
@@ -85,6 +72,14 @@ export const GreasyforkShield = {
 	},
 	setValue(value: string) {
 		PopsPanel.setValue(this.key, value);
+	},
+	addValue(value: string) {
+		let localValue = this.getValue();
+		if (localValue.trim() !== "") {
+			localValue += "\n";
+		}
+		localValue += value;
+		return this.setValue(localValue);
 	},
 	getValue() {
 		return PopsPanel.getValue(this.key, "");

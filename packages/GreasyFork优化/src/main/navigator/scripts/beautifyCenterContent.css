@@ -19,3 +19,9 @@ ol#browse-script-list li {
 	flex: 1 1 45%;
 	box-shadow: rgb(221, 221, 221) 0px 0px 5px 2px;
 }
+
+.script-collect-btn {
+	color: #ffffff;
+	border-color: #409eff;
+	background-color: #409eff;
+}

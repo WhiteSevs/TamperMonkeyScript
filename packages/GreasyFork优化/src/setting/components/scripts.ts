@@ -2,6 +2,9 @@ import i18next from "i18next";
 import { UISelect } from "../common-components/ui-select";
 import { UISwitch } from "../common-components/ui-switch";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { DOMUtils, utils } from "@/env";
+import { PopsPanel } from "../setting";
+import { GreasyforkScriptsFilter } from "@/main/navigator/scripts/GreasyforkScriptsFilter";
 
 export const SettingUIScripts: PopsPanelContentConfig = {
 	id: "greasy-fork-panel-config-scripts",
@@ -130,6 +133,65 @@ export const SettingUIScripts: PopsPanelContentConfig = {
 									void 0,
 									i18next.t("双列显示且添加脚本卡片操作项（安装、收藏）")
 								),
+							],
+						},
+					],
+				},
+				{
+					text: i18next.t("过滤"),
+					type: "deepMenu",
+					forms: [
+						{
+							text: `<a target="_blank" href="https://greasyfork.org/zh-CN/scripts/475722-greasyfork%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99">${i18next.t(
+								"帮助文档"
+							)}</a>`,
+							type: "forms",
+							forms: [
+								UISwitch(
+									i18next.t("启用"),
+									"gf-scripts-filter-enable",
+									true,
+									void 0,
+									i18next.t("开启后下面的过滤功能才会生效")
+								),
+								{
+									type: "own",
+									getLiElementCallBack(liElement) {
+										let textareaDiv = DOMUtils.createElement(
+											"div",
+											{
+												className: "pops-panel-textarea",
+												innerHTML: `
+												<textarea placeholder="${i18next.t(
+													"请输入规则，每行一个"
+												)}" style="height:150px;"></textarea>`,
+											},
+											{
+												style: "width: 100%;",
+											}
+										);
+										let textarea = textareaDiv.querySelector(
+											"textarea"
+										) as HTMLTextAreaElement;
+										textarea.value = PopsPanel.getValue(
+											GreasyforkScriptsFilter.key,
+											""
+										);
+										DOMUtils.on(
+											textarea,
+											["input", "propertychange"],
+											void 0,
+											utils.debounce(function (event) {
+												PopsPanel.setValue(
+													GreasyforkScriptsFilter.key,
+													textarea.value
+												);
+											}, 200)
+										);
+										liElement.appendChild(textareaDiv);
+										return liElement;
+									},
+								},
 							],
 						},
 					],

@@ -13,7 +13,9 @@ let userCollection: {
 	id: string;
 	name: string;
 }[] = [];
-export const GreasyforkScriptsCollectEvent = async function (scriptId: string) {
+export const GreasyforkScriptsCollectEvent = async function (
+	scriptId: string | number
+) {
 	log.info("当前脚本id：" + scriptId);
 	if (!GreasyforkMenu.isLogin) {
 		log.error("请先登录账号");
@@ -135,7 +137,7 @@ export const GreasyforkScriptsCollectEvent = async function (scriptId: string) {
 			for (const [key, value] of (formData as any).entries()) {
 				if (
 					key === "scripts-included[]" &&
-					JSON.stringify(value) == JSON.stringify(scriptId)
+					String(value).trim() === String(scriptId).trim()
 				) {
 					isCollect = true;
 					break;
@@ -149,9 +151,9 @@ export const GreasyforkScriptsCollectEvent = async function (scriptId: string) {
 				loading.close();
 				return;
 			}
-			editForm.set("add-script", scriptId);
+			editForm.set("add-script", scriptId.toString());
 			editForm.set("script-action", "i");
-			saveEditForm.append("scripts-included[]", scriptId);
+			saveEditForm.append("scripts-included[]", scriptId.toString());
 			saveEditForm.set("save", "1");
 			let addFormDataSearchParams = new URLSearchParams(editForm as any);
 			let saveFormDataSearchParams = new URLSearchParams(saveEditForm as any);
@@ -258,18 +260,28 @@ export const GreasyforkScriptsCollectEvent = async function (scriptId: string) {
 			}
 			let editForm = new FormData();
 			let saveEditForm = new FormData();
+			let isCollect = false;
 			for (const [key, value] of (formData as any).entries()) {
 				if (
-					key === "scripts-included[]" &&
-					JSON.stringify(value) == JSON.stringify(scriptId)
+					String(key).trim() === "scripts-included[]" &&
+					String(value).trim() === String(scriptId).trim()
 				) {
+					isCollect = true;
 					continue;
-				} else {
-					saveEditForm.append(key, value);
-					editForm.append(key, value);
 				}
+				saveEditForm.append(key, value);
+				editForm.append(key, value);
 			}
-			editForm.set("remove-scripts-included[]", scriptId);
+			if (!isCollect) {
+				Qmsg.warning(
+					i18next.t("该收藏集未包含：{{scriptId}}", {
+						scriptId: scriptId,
+					})
+				);
+				loading.close();
+				return;
+			}
+			editForm.set("remove-scripts-included[]", scriptId.toString());
 			editForm.set("remove-selected-scripts", "i");
 			editForm.delete("script-action");
 			saveEditForm.set("save", "1");
