@@ -23,7 +23,11 @@
 	"keywords": [
 		"typescript",
 		"pops",
-		"dialog"
+		"dialog",
+		"弹窗",
+		"TamperMonkey",
+		"VioletMonkey",
+		"ScriptCat"
 	],
 	"author": "WhiteSev",
 	"license": "MIT",
