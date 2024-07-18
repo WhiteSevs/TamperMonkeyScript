@@ -276,7 +276,13 @@ export const PopsPanel = {
 	 * @param key
 	 * @param callback 回调
 	 */
-	execMenuOnce(key: string, callback: (value: any) => void) {
+	execMenuOnce(
+		key: string,
+		callback: (
+			value: any,
+			pushStyleNode: (style: HTMLStyleElement | HTMLStyleElement[]) => void
+		) => any | any[]
+	) {
 		if (typeof key !== "string") {
 			throw new TypeError("key 必须是字符串");
 		}
@@ -284,13 +290,55 @@ export const PopsPanel = {
 			log.warn(`${key} 键不存在`);
 			return;
 		}
-		let value = PopsPanel.getValue(key);
-		if (value) {
-			if (this.$data.oneSuccessExecMenu.has(key)) {
-				return;
+		if (this.$data.oneSuccessExecMenu.has(key)) {
+			// log.warn(`${key} 键已执行过，请勿重复执行`);
+			return;
+		}
+		this.$data.oneSuccessExecMenu.set(key, 1);
+
+		// 存储的<style>标签列表
+		let resultStyleList: HTMLStyleElement[] = [];
+		// 主动添加<style>标签的回调
+		let pushStyleNode = (style: HTMLStyleElement | HTMLStyleElement[]) => {
+			let __value = PopsPanel.getValue<boolean>(key);
+			changeCallBack(__value, style);
+		};
+		let changeCallBack = (
+			currentValue: boolean,
+			resultStyle?: HTMLStyleElement | HTMLStyleElement[]
+		) => {
+			let resultList: HTMLStyleElement[] = [];
+			if (currentValue) {
+				// 开
+				let result = resultStyle ?? callback(currentValue, pushStyleNode);
+				if (result instanceof HTMLStyleElement) {
+					resultList = [result];
+				} else if (Array.isArray(result)) {
+					resultList = [
+						...result.filter(
+							(item) => item != null && item instanceof HTMLStyleElement
+						),
+					];
+				}
 			}
-			callback(value);
-			this.$data.oneSuccessExecMenu.set(key, 1);
+			for (let index = 0; index < resultStyleList.length; index++) {
+				let $css = resultStyleList[index];
+				$css.remove();
+				resultStyleList.splice(index, 1);
+				index--;
+			}
+			resultStyleList = [...resultList];
+		};
+		let listenerId = this.addValueChangeListener(
+			key,
+			(__key, oldValue, newValue) => {
+				// 值改变
+				changeCallBack(newValue);
+			}
+		);
+		let value = PopsPanel.getValue<boolean>(key);
+		if (value) {
+			changeCallBack(value);
 		}
 	},
 	/**

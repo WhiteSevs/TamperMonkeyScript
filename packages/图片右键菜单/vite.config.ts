@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import monkey, { cdn, util } from "vite-plugin-monkey";
 import { ViteUtils, GetLib } from "./vite.utils";
+import { repairMonkeyMountHead } from "./plugin/vite-plugin-repairMonkeyMount";
 
 const SCRIPT_NAME = "图片右键菜单";
 const Utils = new ViteUtils(__dirname);
@@ -26,6 +27,7 @@ if (process.argv.findIndex((i) => i.startsWith("build")) !== -1) {
 // https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [
+		repairMonkeyMountHead(),
 		monkey({
 			// 脚本入口
 			entry: "src/main.ts",

@@ -7,6 +7,7 @@ import IconsResolver from "unplugin-icons/dist/resolver";
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
+import { repairMonkeyMountHead } from "./plugin/vite-plugin-repairMonkeyMount";
 
 const pkg = require("./package.json") as {
 	name: string;
@@ -52,6 +53,8 @@ export default defineConfig({
 		AutoImport({
 			// 自动导入 Vue 相关函数，如：ref, reactive, toRef 等
 			imports: ["vue"],
+			// 生成的.d.ts文件的路径
+			dts: "./types/auto-imports.d.ts",
 			resolvers: [
 				// 自动导入 Element Plus 相关函数，如：ElMessage, ElMessageBox... (带样式)
 				ElementPlusResolver(),
@@ -62,6 +65,8 @@ export default defineConfig({
 			],
 		}),
 		Components({
+			// 生成的.d.ts文件的路径
+			dts: "./types/components.d.ts",
 			resolvers: [
 				// 自动注册图标组件
 				IconsResolver({
@@ -75,6 +80,7 @@ export default defineConfig({
 			// 自动安装图标库
 			autoInstall: true,
 		}),
+		repairMonkeyMountHead(),
 		monkey({
 			// 脚本入口
 			entry: "src/main.ts",

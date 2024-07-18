@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import monkey, { cdn, util } from "vite-plugin-monkey";
 import { ViteUtils, GetLib } from "./vite.utils";
+import { repairMonkeyMountHead } from "./plugin/vite-plugin-repairMonkeyMount";
 
 const SCRIPT_NAME = "简书优化";
 const Utils = new ViteUtils(__dirname);
@@ -26,6 +27,7 @@ if (process.argv.findIndex((i) => i.startsWith("build")) !== -1) {
 // https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [
+		repairMonkeyMountHead(),
 		monkey({
 			// 脚本入口
 			entry: "src/main.ts",
@@ -44,7 +46,7 @@ export default defineConfig({
 				// 许可证
 				license: "GPL-3.0-only",
 				// 引用库
-				require: await GetLib(["CoverUMD", "pops"]),
+				require: await GetLib(["CoverUMD"]),
 				// 图标
 				icon: "https://www.jianshu.com/favicon.ico",
 				// 脚本描述
@@ -88,6 +90,7 @@ export default defineConfig({
 						"DOMUtils",
 						"dist/index.umd.js"
 					),
+					"@whitesev/pops": cdn.jsdelivrFastly("pops", "dist/index.umd.js"),
 				},
 				// 样式添加到页面的自定义处理
 				cssSideEffects: () => {
@@ -132,7 +135,6 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			"@": Utils.getAbsolutePath("./src"),
-			"@pops": Utils.getAbsolutePath("./../../库/pops"),
 		},
 	},
 	build: {

@@ -18,12 +18,11 @@
 		"allowSyntheticDefaultImports": true,
 		"sourceMap": true,
 		"paths": {
-			"@/*": ["./src/*"],
-			"@pops/*": ["./../../库/pops/*"]
+			"@/*": ["./src/*"]
 		},
-		"types": ["./src/env.d.ts", "./../../库/pops/core.d.ts"]
+		"typeRoots": ["types"]
 	},
-	"include": ["src"],
+	"include": ["src", "types"],
 	"references": [
 		{
 			"path": "./tsconfig.node.json"

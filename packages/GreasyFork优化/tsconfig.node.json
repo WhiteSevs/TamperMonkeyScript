@@ -7,5 +7,5 @@
 		/* 上面是初始化默认的 */
 		"target": "ESNext"
 	},
-	"include": ["vite.config.ts", "vite.utils.ts"]
+	"include": ["vite.config.ts", "vite.utils.ts", "plugin/**/*"]
 }

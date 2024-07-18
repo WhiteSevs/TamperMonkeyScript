@@ -1,3 +1,4 @@
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 
 export const SettingUIDetail: PopsPanelContentConfig = {
 	id: "weibo-panel-config-detail",

@@ -16,12 +16,12 @@ import Qmsg from "qmsg";
 import Utils from "@whitesev/utils";
 import DOMUtils from "@whitesev/domutils";
 import { PopsPanel } from "./setting/setting";
+import pops from "@whitesev/pops";
 
 const _SCRIPT_NAME_ = "小红书优化";
 const utils = Utils.noConflict();
 const domutils = DOMUtils.noConflict();
-const pops: typeof import("@库/pops") =
-	(monkeyWindow as any).pops || (unsafeWindow as any).pops;
+const __pops = pops;
 const Viewer: typeof import("viewerjs").default =
 	(monkeyWindow as any).Viewer || (unsafeWindow as any).Viewer;
 const log = new utils.Log(
@@ -70,7 +70,7 @@ Qmsg.config(
 				get() {
 					let maxZIndex = Utils.getMaxZIndex();
 					let popsMaxZIndex =
-						pops.config.Utils.getPopsMaxZIndex(maxZIndex).zIndex;
+						pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
 					return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
 				},
 			},
@@ -165,7 +165,7 @@ const MountVue = async function (targetApp: any, router?: any) {
 export {
 	utils,
 	domutils as DOMUtils,
-	pops,
+	__pops as pops,
 	log,
 	GM_Menu,
 	SCRIPT_NAME,

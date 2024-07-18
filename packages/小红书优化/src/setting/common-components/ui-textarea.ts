@@ -1,5 +1,6 @@
 import { PopsPanel } from "@/setting/setting";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY } from "../config";
+import { PopsPanelTextAreaDetails } from "@whitesev/pops/dist/types/src/components/panel/textareaType";
 
 /**
  * 获取多行输入框配置

@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import monkey, { cdn } from "vite-plugin-monkey";
 import { ViteUtils, GetLib } from "./vite.utils";
+import { repairMonkeyMountHead } from "./plugin/vite-plugin-repairMonkeyMount";
 
 const _SCRIPT_NAME_ = "抖音优化";
 const Utils = new ViteUtils(__dirname);
@@ -26,6 +27,7 @@ if (process.argv.findIndex((i) => i.startsWith("build")) !== -1) {
 export default defineConfig({
 	plugins: [
 		vue(),
+		repairMonkeyMountHead(),
 		monkey({
 			entry: "src/main.ts",
 			userscript: {
@@ -112,7 +114,6 @@ export default defineConfig({
 	],
 	resolve: {
 		alias: {
-			"@库": Utils.getAbsolutePath("./../../库"),
 			"@": Utils.getAbsolutePath("./src"),
 		},
 	},

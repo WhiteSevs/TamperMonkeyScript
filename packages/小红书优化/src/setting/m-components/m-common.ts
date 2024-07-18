@@ -1,6 +1,7 @@
 import { log } from "@/env";
 import { UISelect } from "../common-components/ui-select";
 import { UISwitch } from "../common-components/ui-switch";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 
 export const MSettingUI_Common: PopsPanelContentConfig = {
 	id: "little-red-book-panel-config-common",

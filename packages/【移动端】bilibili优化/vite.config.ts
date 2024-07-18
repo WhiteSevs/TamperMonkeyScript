@@ -7,6 +7,7 @@ import IconsResolver from "unplugin-icons/dist/resolver";
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
+import { repairMonkeyMountHead } from "./plugin/vite-plugin-repairMonkeyMount";
 
 const SCRIPT_NAME = "【移动端】bilibili优化";
 const Utils = new ViteUtils(__dirname);
@@ -34,6 +35,8 @@ export default defineConfig({
 		AutoImport({
 			// 自动导入 Vue 相关函数，如：ref, reactive, toRef 等
 			imports: ["vue"],
+			// 生成的.d.ts文件的路径
+			dts: "./types/auto-imports.d.ts",
 			resolvers: [
 				// 自动导入 Element Plus 相关函数，如：ElMessage, ElMessageBox... (带样式)
 				ElementPlusResolver(),
@@ -44,6 +47,8 @@ export default defineConfig({
 			],
 		}),
 		Components({
+			// 生成的.d.ts文件的路径
+			dts: "./types/components.d.ts",
 			resolvers: [
 				// 自动注册图标组件
 				IconsResolver({
@@ -54,8 +59,10 @@ export default defineConfig({
 			],
 		}),
 		Icons({
+			// 自动安装图标库
 			autoInstall: true,
 		}),
+		repairMonkeyMountHead(),
 		monkey({
 			entry: "src/main.ts",
 			userscript: {
@@ -172,7 +179,6 @@ export default defineConfig({
 	],
 	resolve: {
 		alias: {
-			"@库": Utils.getAbsolutePath("./../../库"),
 			"@": Utils.getAbsolutePath("./src"),
 		},
 	},

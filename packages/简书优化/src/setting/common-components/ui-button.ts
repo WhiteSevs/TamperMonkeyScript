@@ -1,3 +1,7 @@
+import { PopsPanelButtonDetails } from "@whitesev/pops/dist/types/src/components/panel/buttonType";
+import { PopsButtonStyleType } from "@whitesev/pops/dist/types/src/types/button";
+import { PopsIcon } from "@whitesev/pops/dist/types/src/types/icon";
+
 /**
  * 获取button按钮配置
  * @param text 左边的文字

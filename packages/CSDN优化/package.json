@@ -15,14 +15,14 @@
   },
   "dependencies": {
     "@whitesev/domutils": "^1.1.2",
-    "@whitesev/pops": "^1.2.0",
-    "@whitesev/utils": "^1.6.0",
+    "@whitesev/pops": "^1.2.4",
+    "@whitesev/utils": "^1.6.1",
     "qmsg": "^1.2.1"
   },
   "devDependencies": {
-    "@types/node": "^20.14.10",
+    "@types/node": "^20.14.11",
     "typescript": "^5.5.3",
-    "vite": "^5.3.3",
+    "vite": "^5.3.4",
     "vite-plugin-monkey": "4.0.4"
   }
 }

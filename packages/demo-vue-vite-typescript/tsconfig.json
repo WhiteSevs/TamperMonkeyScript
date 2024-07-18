@@ -20,7 +20,6 @@
 		"paths": {
 			"@/*": ["./src/*"]
 		},
-		"types": ["element-plus/global"],
 		"typeRoots": ["types"]
 	},
 	"include": ["src", "types"],

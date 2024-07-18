@@ -1,6 +1,7 @@
 import { log } from "@/env";
 import { UISlider } from "../common-components/ui-slider";
 import { UISwitch } from "../common-components/ui-switch";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 
 const SettingUI_Article: PopsPanelContentConfig = {
 	id: "xhs-panel-config-article",

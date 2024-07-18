@@ -3,6 +3,7 @@ import { UISelect } from "../common-components/ui-select";
 import { UISwitch } from "../common-components/ui-switch";
 import { UITextArea } from "../common-components/ui-textarea";
 import { log } from "@/env";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 
 const SettingUICommon: PopsPanelContentConfig = {
 	id: "weibo-panel-config-currency",

@@ -14,13 +14,13 @@ import Qmsg from "qmsg";
 import DOMUtils from "@whitesev/domutils";
 import Utils from "@whitesev/utils";
 import { PopsPanel } from "./setting/setting";
+import pops from "@whitesev/pops";
 
 /* 脚本名 */
 const _SCRIPT_NAME_ = "简书优化";
 const utils = Utils.noConflict();
 const domUtils = DOMUtils.noConflict();
-const pops: typeof import("@pops/index") =
-	(monkeyWindow as any).pops || (unsafeWindow as any).pops;
+const __pops = pops;
 // const Viewer: typeof import("@库/Viewer") =
 // 	(monkeyWindow as any).Viewer || (unsafeWindow as any).Viewer;
 // const showdown: typeof import("@库/showdown") =
@@ -71,7 +71,7 @@ Qmsg.config(
 				get() {
 					let maxZIndex = Utils.getMaxZIndex();
 					let popsMaxZIndex =
-						pops.config.Utils.getPopsMaxZIndex(maxZIndex).zIndex;
+						pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
 					return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
 				},
 			},

@@ -14,7 +14,7 @@ import {
 import { DOMUtils, utils } from "@/env";
 import { onBeforeMount, onMounted, reactive, ref, watch } from "vue";
 import { TiebaHomeData, UserInfo } from "./data/TiebaHomeData";
-import { ElMessage, ElMessageBox, ElRow, TabsPaneContext } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import { TiebaRouter } from "./router";
 import Qmsg from "qmsg";
 
@@ -153,57 +153,27 @@ watch(
 						</el-col>
 						<el-col :span="12" style="padding: 0;">
 							<el-row :justify="'end'" style="flex-wrap: nowrap">
-								<el-button
-									class="user-handler-follow-btn"
-									color="#7558FE"
-									round
-									:icon="Plus"
-									v-if="!props.UserData.is_like"
-									@click="clickFollowBtnEvent"
-									>关注</el-button
-								>
-								<el-button
-									color="#7558FE"
-									class="user-handler-cancel-follow-btn"
-									plain
-									round
-									:icon="Check"
-									v-if="props.UserData.is_like"
-									@click="clickCancelFollowBtnEvent"
-									>取消关注</el-button
-								>
-								<el-button
-									color="#7558FE"
-									class="user-handler-private-message-btn"
-									:plain="!props.UserData.is_like"
-									round
-									:icon="Message"
-									@click="clickMessageBtnEvent"
-									>私信</el-button
-								>
+								<el-button class="user-handler-follow-btn" color="#7558FE" round :icon="Plus"
+									v-if="!props.UserData.is_like" @click="clickFollowBtnEvent">关注</el-button>
+								<el-button color="#7558FE" class="user-handler-cancel-follow-btn" plain round
+									:icon="Check" v-if="props.UserData.is_like"
+									@click="clickCancelFollowBtnEvent">取消关注</el-button>
+								<el-button color="#7558FE" class="user-handler-private-message-btn"
+									:plain="!props.UserData.is_like" round :icon="Message"
+									@click="clickMessageBtnEvent">私信</el-button>
 							</el-row>
 						</el-col>
 					</el-row>
 				</el-col>
 			</el-row>
-			<el-space
-				class="top-container"
-				:size="10"
-				direction="vertical"
-				alignment="stretch">
+			<el-space class="top-container" :size="10" direction="vertical" alignment="stretch">
 				<!-- 头像 关注 私信 -->
 				<!-- 用户名 等级 -->
 				<el-row>
-					<el-text
-						:size="'large'"
-						:class="'big-text'"
-						style="display: flex; align-items: center">
+					<el-text :size="'large'" :class="'big-text'" style="display: flex; align-items: center">
 						{{ props.UserData.showName }}
-						<el-avatar
-							:size="14"
-							v-if="props.UserData.otherData?.PanelUserInfo?.vipInfo?.icon_url"
-							:src="props.UserData.otherData?.PanelUserInfo?.vipInfo.icon_url"
-							shape="square"
+						<el-avatar :size="14" v-if="props.UserData.otherData?.PanelUserInfo?.vipInfo?.icon_url"
+							:src="props.UserData.otherData?.PanelUserInfo?.vipInfo.icon_url" shape="square"
 							style="margin: 0px 5px" />
 					</el-text>
 				</el-row>
@@ -214,8 +184,8 @@ watch(
 							props.UserData.sex == 0
 								? "保密"
 								: props.UserData.sex == 1
-								? "♂"
-								: "♀"
+									? "♂"
+									: "♀"
 						}}
 					</span>
 					<el-divider direction="vertical" border-style="dashed" />
@@ -227,12 +197,8 @@ watch(
 					</el-link>
 					<el-divider direction="vertical" border-style="dashed" />
 					<span> 吧龄{{ props.UserData.level }}年 </span>
-					<el-divider
-						v-if="utils.isNotNull(props.UserData.ip)"
-						direction="vertical"
-						border-style="dashed" />
-					<span
-						v-if="utils.isNotNull(props.UserData.ip)"
+					<el-divider v-if="utils.isNotNull(props.UserData.ip)" direction="vertical" border-style="dashed" />
+					<span v-if="utils.isNotNull(props.UserData.ip)"
 						style="display: flex; align-items: center; text-wrap: nowrap">
 						{{ props.UserData.ip?.location }}
 						<el-icon @click="clickIpHelpEvent">
@@ -241,10 +207,7 @@ watch(
 					</span>
 				</el-row>
 				<!-- 个性签名 -->
-				<el-row
-					:justify="'space-between'"
-					style="color: #909399"
-					@click="aboutUserEvent">
+				<el-row :justify="'space-between'" style="color: #909399" @click="aboutUserEvent">
 					<div>
 						{{
 							utils.isNull(props.UserData.personalSignature)
@@ -263,30 +226,18 @@ watch(
 				<el-row>
 					<el-space :size="25">
 						<el-col @click="clickReceivedLikesEvent">
-							<el-text
-								:size="'large'"
-								:class="'big-text'"
-								style="margin-right: 0.5rem"
-								>{{ props.UserData.postInfo?.receivedLikes }}</el-text
-							>
+							<el-text :size="'large'" :class="'big-text'" style="margin-right: 0.5rem">{{
+								props.UserData.postInfo?.receivedLikes }}</el-text>
 							<el-text :type="'info'">获赞</el-text>
 						</el-col>
 						<el-col @click="clickFollowEvent">
-							<el-text
-								:size="'large'"
-								:class="'big-text'"
-								style="margin-right: 0.5rem"
-								>{{ props.UserData.postInfo?.follow }}</el-text
-							>
+							<el-text :size="'large'" :class="'big-text'" style="margin-right: 0.5rem">{{
+								props.UserData.postInfo?.follow }}</el-text>
 							<el-text :type="'info'">关注</el-text>
 						</el-col>
 						<el-col @click="clickFansEvent">
-							<el-text
-								:size="'large'"
-								:class="'big-text'"
-								style="margin-right: 0.5rem"
-								>{{ props.UserData.postInfo?.fans }}</el-text
-							>
+							<el-text :size="'large'" :class="'big-text'" style="margin-right: 0.5rem">{{
+								props.UserData.postInfo?.fans }}</el-text>
 							<el-text :type="'info'">粉丝</el-text>
 						</el-col>
 					</el-space>
@@ -296,10 +247,7 @@ watch(
 				<el-row :justify="'space-between'" style="align-items: center">
 					<div>Ta的印记</div>
 					<div>
-						<el-avatar
-							:size="20"
-							:src="imprintSrc"
-							v-for="imprintSrc in props.UserData.imprint" />
+						<el-avatar :size="20" :src="imprintSrc" v-for="imprintSrc in props.UserData.imprint" />
 						<el-icon>
 							<ArrowRight />
 						</el-icon>
@@ -308,31 +256,21 @@ watch(
 				<el-divider style="margin: 0" />
 				<el-row>
 					<el-tabs v-model="activeName" class="user-info-tabs">
-						<el-tab-pane
-							:label="
-								'帖子' +
-								(props.UserData.postInfo?.post != null
-									? ' ' + props.UserData.postInfo?.post
-									: '')
-							"
-							name="帖子"></el-tab-pane>
-						<el-tab-pane
-							:label="
-								'关注的吧' +
-								(props.UserData.postInfo?.forum != null
-									? ' ' + props.UserData.postInfo?.forum
-									: '')
-							"
-							name="关注的吧"></el-tab-pane>
+						<el-tab-pane :label="'帖子' +
+							(props.UserData.postInfo?.post != null
+								? ' ' + props.UserData.postInfo?.post
+								: '')
+							" name="帖子"></el-tab-pane>
+						<el-tab-pane :label="'关注的吧' +
+							(props.UserData.postInfo?.forum != null
+								? ' ' + props.UserData.postInfo?.forum
+								: '')
+							" name="关注的吧"></el-tab-pane>
 					</el-tabs>
 				</el-row>
 			</el-space>
-			<Posts
-				v-if="activeName === '帖子' && loadStatus"
-				:UserData="props.UserData" />
-			<FollowForum
-				v-if="activeName === '关注的吧' && loadStatus"
-				:UserData="props.UserData" />
+			<Posts v-if="activeName === '帖子' && loadStatus" :UserData="props.UserData" />
+			<FollowForum v-if="activeName === '关注的吧' && loadStatus" :UserData="props.UserData" />
 		</el-main>
 	</el-container>
 </template>
@@ -380,7 +318,8 @@ watch(
 	background: #ffffff;
 	transform: translateY(100%);
 }
-.user-info-container{
+
+.user-info-container {
 	padding: 0px 10px;
 }
 </style>

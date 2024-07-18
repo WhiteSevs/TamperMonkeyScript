@@ -21,7 +21,6 @@
 			"@库/*": ["./../../库/*"],
 			"@/*": ["./src/*"]
 		},
-		//"types": ["element-plus/global"],
 		"typeRoots": ["types"]
 	},
 	"include": ["src", "types"],

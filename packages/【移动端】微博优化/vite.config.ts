@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import monkey, { cdn, util } from "vite-plugin-monkey";
 import { ViteUtils, GetLib } from "./vite.utils";
+import { repairMonkeyMountHead } from "./plugin/vite-plugin-repairMonkeyMount";
 
 const SCRIPT_NAME = "【移动端】微博优化";
 const Utils = new ViteUtils(__dirname);
@@ -26,6 +27,7 @@ let VERSION =
 // https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [
+		repairMonkeyMountHead(),
 		monkey({
 			entry: "src/main.ts",
 			userscript: {
@@ -36,7 +38,7 @@ export default defineConfig({
 				author: "WhiteSevs",
 				"run-at": "document-start",
 				license: "GPL-3.0-only",
-				require: await GetLib(["CoverUMD", "pops"]),
+				require: await GetLib(["CoverUMD"]),
 				resource: {
 					ElementPlusResourceCSS:
 						"https://fastly.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
@@ -78,6 +80,7 @@ export default defineConfig({
 						"DOMUtils",
 						"dist/index.umd.js"
 					),
+					"@whitesev/pops": cdn.jsdelivrFastly("pops", "dist/index.umd.js"),
 				},
 				cssSideEffects: () => {
 					return (cssText: string) => {
@@ -124,7 +127,6 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			"@": Utils.getAbsolutePath("./src"),
-			"@pops": Utils.getAbsolutePath("./../../库/pops"),
 		},
 	},
 	build: {
