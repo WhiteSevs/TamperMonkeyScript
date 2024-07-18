@@ -1563,11 +1563,13 @@ class Httpx {
          * @private
          */
         beforeRequestCallBack(details) {
-            if (!details.allowInterceptConfig) {
-                return details;
-            }
-            if (!details.allowInterceptConfig.beforeRequest) {
-                return details;
+            if (details.allowInterceptConfig) {
+                // 首先配置得存在，不然默认允许拦截
+                if (typeof details.allowInterceptConfig.beforeRequest === "boolean" &&
+                    !details.allowInterceptConfig.beforeRequest) {
+                    // 设置了禁止拦截
+                    return details;
+                }
             }
             for (let index = 0; index < this.$config.configList.length; index++) {
                 let item = this.$config.configList[index];
@@ -1630,11 +1632,14 @@ class Httpx {
          * @param details 请求的配置
          */
         successResponseCallBack(response, details) {
-            if (!details.allowInterceptConfig) {
-                return details;
-            }
-            if (!details.allowInterceptConfig.afterResponseSuccess) {
-                return details;
+            if (details.allowInterceptConfig) {
+                // 首先配置得存在，不然默认允许拦截
+                if (typeof details.allowInterceptConfig.afterResponseSuccess ===
+                    "boolean" &&
+                    !details.allowInterceptConfig.afterResponseSuccess) {
+                    // 设置了禁止拦截
+                    return details;
+                }
             }
             for (let index = 0; index < this.$config.configList.length; index++) {
                 let item = this.$config.configList[index];
@@ -1651,11 +1656,14 @@ class Httpx {
          * @param data 配置
          */
         errorResponseCallBack(data) {
-            if (!data.details.allowInterceptConfig) {
-                return data;
-            }
-            if (!data.details.allowInterceptConfig.afterResponseError) {
-                return data;
+            if (data.details.allowInterceptConfig) {
+                // 首先配置得存在，不然默认允许拦截
+                if (typeof data.details.allowInterceptConfig.afterResponseError ===
+                    "boolean" &&
+                    !data.details.allowInterceptConfig.afterResponseError) {
+                    // 设置了禁止拦截
+                    return data;
+                }
             }
             for (let index = 0; index < this.$config.configList.length; index++) {
                 let item = this.$config.configList[index];
