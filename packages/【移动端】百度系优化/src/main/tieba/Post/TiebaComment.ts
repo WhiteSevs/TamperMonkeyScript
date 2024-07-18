@@ -23,30 +23,9 @@ import { TiebaPost } from "./TiebaPost";
 import { VueUtils } from "@/utils/VueUtils";
 import { TiebaReply } from "./TiebaReply";
 import { dataType } from "element-plus/es/components/table-v2/src/common";
+import { FloorCommentData, LzlItemData, PageComment } from "../types/PostsType";
+import { CommentData } from "../types/CommentType";
 
-interface PageComment {
-	commentList: {
-		comment_info: {
-			show_nickname: string;
-			content: string;
-			user_id: string;
-			[key: string]: any;
-		}[];
-		[key: string]: any;
-	}[];
-	[key: string]: any;
-}
-
-interface CommentData {
-	userAvatar: string;
-	userHomeUrl: string;
-	userName: string;
-	userShowName: string;
-	userPortrait: string;
-	userPostId: number | string;
-	userReplyContent: string;
-	userReplyTime: string;
-}
 interface AffixOption {
 	/**
 	 * 偏移距离，默认0
@@ -837,7 +816,7 @@ const TiebaComment = {
 				let $textContent = $item.querySelector(
 					".text-content"
 				) as HTMLDivElement;
-				let data = ($item as any)["data-whitesev"];
+				let data = ($item as any)["data-whitesev"] as FloorCommentData;
 				log.info(["获取本条回复的数据", data]);
 				if (!data) {
 					Qmsg.error("获取本条回复的数据失败");
@@ -893,7 +872,7 @@ const TiebaComment = {
 				let $textContent = $item.querySelector(
 					".whitesev-reply-dialog-user-comment"
 				) as HTMLDivElement;
-				let data = ($item as any)["data-lzl-item"];
+				let data = ($item as any)["data-lzl-item"] as LzlItemData;
 				log.info(["获取本条楼中楼回复的数据", data]);
 				if (!data) {
 					Qmsg.error("获取本条回复的数据失败");
@@ -1485,7 +1464,7 @@ const TiebaComment = {
 					userCommentTime: userCommentTime,
 					userIpPosition: userIpPosition,
 					pageCommentList: pageCommentList,
-				},
+				} as FloorCommentData,
 			},
 			{
 				"data-v-74eb13e2": "",
@@ -1581,11 +1560,13 @@ const TiebaComment = {
 				}
 			}
 			if (addSeeAllReply) {
-				let lzlCommentNums = (newCommentDOM as any)["data-whitesev"][
-					"pageCommentList"
-				]["commentList"][(newCommentDOM as any)["data-whitesev"]["userPostId"]][
-					"comment_num"
-				];
+				let lzlItemData = (newCommentDOM as any)[
+					"data-whitesev"
+				] as FloorCommentData;
+				let lzlCommentNums =
+					lzlItemData["pageCommentList"]["commentList"][
+						lzlItemData["userPostId"]
+					]["comment_num"];
 				let seeAllReplyElement = DOMUtils.createElement(
 					"div",
 					{
@@ -1885,15 +1866,16 @@ const TiebaComment = {
 	 */
 	showReplyDialog(element: HTMLElement) {
 		let contentElement = element.closest("div.post-item") as any;
-		let data = {} as NestedObjectWithToString;
+		let data = {} as FloorCommentData;
 		if (contentElement && contentElement["data-whitesev"]) {
 			data = contentElement["data-whitesev"];
 		}
 		log.success(["data-whitesev数据", data]);
 		/* 当前评论数据信息JSON */
-		let currentCommentData = data["pageCommentList"]["commentList"][
-			data["userPostId"]
-		]["comment_info"] as NestedObjectWithToString;
+		let currentCommentData =
+			data["pageCommentList"]["commentList"][data["userPostId"]][
+				"comment_info"
+			];
 		log.success(["当前评论数据信息JSON", currentCommentData]);
 		/* 楼中楼评论的总共数量 */
 		let currentCommentListNum =
@@ -1909,7 +1891,7 @@ const TiebaComment = {
 		log.success(["本帖楼主的信息", landlordInfo]);
 
 		let $ohterCommentFragment = document.createDocumentFragment();
-		currentCommentData.forEach((item: any) => {
+		currentCommentData.forEach((item) => {
 			/* 根据user_id获取用户映射的信息 */
 			let itemUserInfo = userList[item["user_id"]];
 			/* 用户id值 */
@@ -1946,7 +1928,7 @@ const TiebaComment = {
 					if (
 						itemForumInfo["forum_list"] &&
 						Array.isArray(itemForumInfo["forum_list"]) &&
-						itemForumInfo["forum_list"].includes(TiebaData.forumName)
+						itemForumInfo["forum_list"].includes(TiebaData.forumName!)
 					) {
 						lzlUserForumLevel = itemForumLevel as unknown as number;
 					}
@@ -1967,7 +1949,7 @@ const TiebaComment = {
 				data: item,
 				userInfo: itemUserInfo,
 				portrait: userPortrait,
-			};
+			} as LzlItemData;
 			$ohterCommentFragment.appendChild($otherCommentItem);
 		});
 		log.success(["显示评论的弹窗", data]);
@@ -1994,7 +1976,7 @@ const TiebaComment = {
 										});"></div>
                     <div class="whitesev-reply-dialog-user-info">
                       <div class="whitesev-reply-dialog-user-username">${
-												data["userName"]
+												data["userShowName"] || data["userName"]
 											}</div>
                       ${
 												data["userForumLevel"] &&
@@ -2026,15 +2008,15 @@ const TiebaComment = {
             `,
 		});
 		(dialog as any)["data-whitesev"] = data;
-		let dialogTitleElement = dialog.querySelector(
+		let dialogTitleElement = dialog.querySelector<HTMLDivElement>(
 			".whitesev-reply-dialog-sheet-title"
-		) as HTMLDivElement;
-		let dialogContentElement = dialog.querySelector(
+		)!;
+		let dialogContentElement = dialog.querySelector<HTMLDivElement>(
 			".whitesev-reply-dialog-sheet-content"
-		) as HTMLDivElement;
-		let dialogOhterContentElement = dialog.querySelector(
+		)!;
+		let dialogOhterContentElement = dialog.querySelector<HTMLDivElement>(
 			".whitesev-reply-dialog-sheet-other-content"
-		) as HTMLDivElement;
+		)!;
 		dialogOhterContentElement.appendChild($ohterCommentFragment);
 
 		let isClosingDialog = false;
@@ -2183,7 +2165,7 @@ const TiebaComment = {
 			lzlLoadingView.show();
 			let replyInfo = await TiebaComment.getLzlCommentReply(
 				TiebaComment.param_tid,
-				data["userPostId"],
+				data["userPostId"].toString(),
 				lzlPage
 			);
 			log.success(["加载更多回复的数据", replyInfo]);
