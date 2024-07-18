@@ -1994,7 +1994,7 @@ const TiebaComment = {
 										});"></div>
                     <div class="whitesev-reply-dialog-user-info">
                       <div class="whitesev-reply-dialog-user-username">${
-												data["userName"]
+												data["userShowName"] || data["userName"]
 											}</div>
                       ${
 												data["userForumLevel"] &&
