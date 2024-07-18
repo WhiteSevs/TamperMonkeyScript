@@ -168,12 +168,19 @@ interface UserJSON {
 	tbs: string;
 }
 interface HomePostsInfo {
+	/** 帖子链接 */
 	url: string;
+	/** 帖子标题 */
 	title: string;
+	/** 帖子内容 */
 	content: string;
+	/** 吧名 */
 	forumName: string;
+	/** 发帖事件 */
 	createTime: string;
+	/** 回复数量 */
 	replyNum: number;
+	/** 媒体数据，一般是图片 */
 	mediaList: string[];
 }
 interface ChatUserInfo {

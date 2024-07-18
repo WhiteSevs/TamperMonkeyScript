@@ -2,15 +2,17 @@
 import { onBeforeMount, onMounted, reactive, ref, watch } from "vue";
 import { TiebaHomeData, UserInfo } from "./data/TiebaHomeData";
 import Qmsg from "qmsg";
+import { log } from "@/env";
 
 let UserData = ref<UserInfo>({});
 
 onMounted(async () => {
 	let userData = await TiebaHomeData.getUserData();
 	if (userData) {
-		console.log("用户信息", userData);
+		log.info(["用户信息", userData])
 		Object.assign(UserData.value, userData);
 	} else {
+		log.error("加载用户信息失败");
 		Qmsg.error("加载用户信息失败");
 	}
 });
