@@ -4,6 +4,7 @@
 @media screen and (min-width: 600px) {
 	body {
 		--header-height: 50px;
+		--el-gap: 20px;
 	}
 	header#main-header + div {
 		margin-top: calc(var(--header-height) + 35px);
@@ -15,19 +16,31 @@
 		width: 100%;
 		z-index: 55555;
 		padding: unset;
+		display: flex;
+		justify-content: space-around;
 		.width-constraint {
 			display: flex;
 			align-items: center;
-			gap: 20px;
+			gap: var(--el-gap);
 			padding: unset;
+			margin: unset;
+			max-width: unset;
 		}
-
+		a {
+			text-decoration: none;
+			text-wrap: nowrap;
+		}
+		.sign-out-link a {
+			text-decoration: underline;
+		}
 		#site-name {
 			display: flex;
-			img {
-				width: calc(var(--header-height) - 5px);
-				height: calc(var(--header-height) - 5px);
-			}
+			align-items: center;
+		}
+
+		#site-name img {
+			width: calc(var(--header-height) - 5px);
+			height: calc(var(--header-height) - 5px);
 		}
 
 		/* 隐藏Greasyfork文字 */
@@ -42,9 +55,8 @@
 			flex: 1;
 			justify-content: space-between;
 			height: 100%;
-			nav a {
-				text-decoration: none;
-			}
+			gap: var(--el-gap);
+
 			nav li {
 				padding: 0 0.5em;
 				display: flex;
@@ -53,6 +65,7 @@
 				min-width: 30px;
 				justify-content: center;
 			}
+
 			nav li:hover {
 				background: #5f0101;
 			}
@@ -60,11 +73,7 @@
 
 		#nav-user-info {
 			max-width: 150px;
-			.user-profile-link {
-				/*overflow: hidden;
-				white-space: nowrap;
-				text-overflow: ellipsis;*/
-			}
+
 			> span {
 				flex: 1;
 			}
@@ -73,9 +82,8 @@
 		#nav-user-info + nav {
 			position: unset;
 			width: unset;
-			/* height: 100%; */
 			display: flex;
-			flex-wrap: wrap;
+			flex-wrap: nowrap;
 			align-items: center;
 		}
 	}

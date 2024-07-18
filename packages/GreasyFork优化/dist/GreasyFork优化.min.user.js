@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.7.18
+// @version            2024.7.19
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -821,6 +821,7 @@ input.search-submit {\r
 @media screen and (min-width: 600px) {\r
 	body {\r
 		--header-height: 50px;\r
+		--el-gap: 20px;\r
 	}\r
 	header#main-header + div {\r
 		margin-top: calc(var(--header-height) + 35px);\r
@@ -832,19 +833,31 @@ input.search-submit {\r
 		width: 100%;\r
 		z-index: 55555;\r
 		padding: unset;\r
+		display: flex;\r
+		justify-content: space-around;\r
 		.width-constraint {\r
 			display: flex;\r
 			align-items: center;\r
-			gap: 20px;\r
+			gap: var(--el-gap);\r
 			padding: unset;\r
+			margin: unset;\r
+			max-width: unset;\r
 		}\r
-\r
+		a {\r
+			text-decoration: none;\r
+			text-wrap: nowrap;\r
+		}\r
+		.sign-out-link a {\r
+			text-decoration: underline;\r
+		}\r
 		#site-name {\r
 			display: flex;\r
-			img {\r
-				width: calc(var(--header-height) - 5px);\r
-				height: calc(var(--header-height) - 5px);\r
-			}\r
+			align-items: center;\r
+		}\r
+\r
+		#site-name img {\r
+			width: calc(var(--header-height) - 5px);\r
+			height: calc(var(--header-height) - 5px);\r
 		}\r
 \r
 		/* 隐藏Greasyfork文字 */\r
@@ -859,9 +872,8 @@ input.search-submit {\r
 			flex: 1;\r
 			justify-content: space-between;\r
 			height: 100%;\r
-			nav a {\r
-				text-decoration: none;\r
-			}\r
+			gap: var(--el-gap);\r
+\r
 			nav li {\r
 				padding: 0 0.5em;\r
 				display: flex;\r
@@ -870,6 +882,7 @@ input.search-submit {\r
 				min-width: 30px;\r
 				justify-content: center;\r
 			}\r
+\r
 			nav li:hover {\r
 				background: #5f0101;\r
 			}\r
@@ -877,11 +890,7 @@ input.search-submit {\r
 \r
 		#nav-user-info {\r
 			max-width: 150px;\r
-			.user-profile-link {\r
-				/*overflow: hidden;\r
-				white-space: nowrap;\r
-				text-overflow: ellipsis;*/\r
-			}\r
+\r
 			> span {\r
 				flex: 1;\r
 			}\r
@@ -890,9 +899,8 @@ input.search-submit {\r
 		#nav-user-info + nav {\r
 			position: unset;\r
 			width: unset;\r
-			/* height: 100%; */\r
 			display: flex;\r
-			flex-wrap: wrap;\r
+			flex-wrap: nowrap;\r
 			align-items: center;\r
 		}\r
 	}\r
