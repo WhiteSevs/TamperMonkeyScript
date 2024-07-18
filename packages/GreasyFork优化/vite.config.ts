@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
 import monkey, { cdn, util } from "vite-plugin-monkey";
-import { ViteUtils, GetLib } from "./vite.utils";
+import { ViteUtils, GetLib } from "./../../vite.utils";
 import { repairMonkeyMountHead } from "./plugin/vite-plugin-repairMonkeyMount";
 
 const SCRIPT_NAME = "GreasyFork优化";
@@ -16,6 +16,7 @@ const localizedConfig = {
 	},
 };
 const Utils = new ViteUtils(__dirname);
+const pkg = Utils.getPackageJSON();
 let FILE_NAME = SCRIPT_NAME + ".user.js";
 
 /* 是否压缩代码 */
@@ -55,8 +56,7 @@ export default defineConfig({
 				match: ["*://greasyfork.org/*"],
 				connect: ["greasyfork.org"],
 				resource: {
-					ViewerCSS:
-						"https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css",
+					ViewerCSS: `https://fastly.jsdelivr.net/npm/viewerjs@${pkg.dependencies["viewerjs"]}/dist/viewer.min.css`,
 				},
 				grant: [
 					"GM_addStyle",

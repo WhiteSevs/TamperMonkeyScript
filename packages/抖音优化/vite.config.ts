@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import monkey, { cdn } from "vite-plugin-monkey";
-import { ViteUtils, GetLib } from "./vite.utils";
+import { ViteUtils, GetLib } from "./../../vite.utils";
 import { repairMonkeyMountHead } from "./plugin/vite-plugin-repairMonkeyMount";
 
 const _SCRIPT_NAME_ = "抖音优化";

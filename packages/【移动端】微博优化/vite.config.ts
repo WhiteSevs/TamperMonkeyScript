@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
 import monkey, { cdn, util } from "vite-plugin-monkey";
-import { ViteUtils, GetLib } from "./vite.utils";
+import { ViteUtils, GetLib } from "./../../vite.utils";
 import { repairMonkeyMountHead } from "./plugin/vite-plugin-repairMonkeyMount";
 
 const SCRIPT_NAME = "【移动端】微博优化";

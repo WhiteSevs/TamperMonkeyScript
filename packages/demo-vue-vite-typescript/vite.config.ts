@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import monkey, { cdn, util } from "vite-plugin-monkey";
-import { GetLib, ViteUtils } from "./vite.utils";
+import { GetLib, ViteUtils } from "./../../vite.utils";
 import Icons from "unplugin-icons/dist/vite";
 import IconsResolver from "unplugin-icons/dist/resolver";
 import AutoImport from "unplugin-auto-import/vite";
@@ -9,22 +9,10 @@ import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import { repairMonkeyMountHead } from "./plugin/vite-plugin-repairMonkeyMount";
 
-const pkg = require("./package.json") as {
-	name: string;
-	version: string;
-	scripts: {
-		[key: string]: string;
-	};
-	dependencies: {
-		[key: string]: string;
-	};
-	devDependencies: {
-		[key: string]: string;
-	};
-};
 /* 脚本名 */
 const SCRIPT_NAME = "Demo Script Name";
 const Utils = new ViteUtils(__dirname);
+const pkg = Utils.getPackageJSON();
 let FILE_NAME = SCRIPT_NAME + ".user.js";
 
 /* 是否压缩代码 */
@@ -43,8 +31,6 @@ let VERSION = "0.0.1";
 if (process.argv.findIndex((i) => i.startsWith("build")) !== -1) {
 	VERSION = Utils.getScriptVersion(!isEmptyOutDir);
 }
-
-const ElementPlusUrl = await GetLib("Element-Plus");
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -124,9 +110,7 @@ export default defineConfig({
 
 				// 引用外部资源
 				resource: {
-					ElementPlusResourceCSS: `https://fastly.jsdelivr.net/npm/element-plus@${pkg.devDependencies[
-						"element-plus"
-					].replace(/^\^/, "")}/dist/index.min.css`,
+					ElementPlusResourceCSS: `https://fastly.jsdelivr.net/npm/element-plus@${pkg.devDependencies["element-plus"]}/dist/index.min.css`,
 				},
 			},
 			clientAlias: "ViteGM",
@@ -156,9 +140,9 @@ export default defineConfig({
 					),
 					"element-plus": [
 						"ElementPlus",
-						() => {
-							return ElementPlusUrl;
-						},
+						await (async () => {
+							return await GetLib("Element-Plus");
+						})(),
 					],
 					"@element-plus/icons-vue": cdn.jsdelivrFastly(
 						"ElementPlusIconsVue",

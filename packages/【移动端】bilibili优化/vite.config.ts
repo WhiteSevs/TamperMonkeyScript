@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import monkey, { cdn, util } from "vite-plugin-monkey";
-import { GetLib, ViteUtils } from "./vite.utils";
+import { GetLib, ViteUtils } from "./../../vite.utils";
 import Icons from "unplugin-icons/dist/vite";
 import IconsResolver from "unplugin-icons/dist/resolver";
 import AutoImport from "unplugin-auto-import/vite";

@@ -1,23 +1,11 @@
 import { defineConfig } from "vite";
 import monkey, { cdn, util } from "vite-plugin-monkey";
-import { ViteUtils, GetLib } from "./vite.utils";
+import { ViteUtils, GetLib } from "./../../vite.utils";
 import { repairMonkeyMountHead } from "./plugin/vite-plugin-repairMonkeyMount";
 
-const pkg = require("./package.json") as {
-	name: string;
-	version: string;
-	scripts: {
-		[key: string]: string;
-	};
-	dependencies: {
-		[key: string]: string;
-	};
-	devDependencies: {
-		[key: string]: string;
-	};
-};
 const SCRIPT_NAME = "Demo Script Name";
 const Utils = new ViteUtils(__dirname);
+const pkg = Utils.getPackageJSON();
 let FILE_NAME = SCRIPT_NAME + ".user.js";
 
 /* 是否压缩代码 */

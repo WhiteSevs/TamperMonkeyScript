@@ -1,39 +1,16 @@
 {
-  "name": "xiaohongshu-script",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vue-tsc --noEmit && vite --force",
-    "build": "vue-tsc --noEmit && vite build",
-    "build:min": "vue-tsc --noEmit && vite build --minify",
-    "build:all": "vue-tsc --noEmit && vite build && vite build --minify --no-empty-outDir",
-    "build:watch": "vue-tsc --noEmit && vite build --watch",
-    "build:no-cache": "pnpm store prune && vue-tsc --noEmit && vite build",
-    "preview": "vite preview --host 0.0.0.0",
-    "clear": "del .\\SCRIPT_VERSION.json && pnpm store prune"
-  },
-  "dependencies": {
-    "@element-plus/icons-vue": "^2.3.1",
-    "@whitesev/domutils": "^1.1.2",
-    "@whitesev/pops": "^1.2.4",
-    "@whitesev/utils": "^1.6.1",
-    "qmsg": "^1.2.1",
-    "viewerjs": "^1.11.6",
-    "vue": "^3.4.32",
-    "vue-router": "^4.4.0"
-  },
-  "devDependencies": {
-    "@types/node": "^20.14.11",
-    "@vitejs/plugin-vue": "^5.0.5",
-    "element-plus": "^2.7.7",
-    "typescript": "^5.5.3",
-    "unplugin-auto-import": "^0.18.0",
-    "unplugin-element-plus": "^0.8.0",
-    "unplugin-icons": "^0.19.0",
-    "unplugin-vue-components": "^0.27.3",
-    "vite": "^5.3.4",
-    "vite-plugin-monkey": "4.0.4",
-    "vue-tsc": "^2.0.26"
-  }
+	"name": "xiaohongshu-script",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vue-tsc --noEmit && vite --force",
+		"build": "vue-tsc --noEmit && vite build",
+		"build:min": "vue-tsc --noEmit && vite build --minify",
+		"build:all": "vue-tsc --noEmit && vite build && vite build --minify --no-empty-outDir",
+		"build:watch": "vue-tsc --noEmit && vite build --watch",
+		"build:no-cache": "pnpm store prune && vue-tsc --noEmit && vite build",
+		"preview": "vite preview --host 0.0.0.0",
+		"clear": "del .\\SCRIPT_VERSION.json && del .\\vite.config.ts.timestamp* && pnpm store prune"
+	}
 }

@@ -6,25 +6,12 @@ import IconsResolver from "unplugin-icons/dist/resolver";
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
-import { ViteUtils, GetLib } from "./vite.utils";
+import { ViteUtils, GetLib } from "./../../vite.utils";
 import { repairMonkeyMountHead } from "./plugin/vite-plugin-repairMonkeyMount";
-
-const pkg = require("./package.json") as {
-	name: string;
-	version: string;
-	scripts: {
-		[key: string]: string;
-	};
-	dependencies: {
-		[key: string]: string;
-	};
-	devDependencies: {
-		[key: string]: string;
-	};
-};
 
 const SCRIPT_NAME = "【移动端】百度系优化";
 const Utils = new ViteUtils(__dirname);
+const pkg = Utils.getPackageJSON();
 let FILE_NAME = SCRIPT_NAME + ".user.js";
 /* 是否压缩代码 */
 let isMinify = false;
@@ -114,12 +101,8 @@ export default defineConfig({
 				],
 				require: await GetLib(["CoverUMD", "showdown"]),
 				resource: {
-					ElementPlusResourceCSS: `https://fastly.jsdelivr.net/npm/element-plus@${pkg[
-						"devDependencies"
-					]["element-plus"].replace(/^\^/, "")}/dist/index.min.css`,
-					ViewerCSS: `https://fastly.jsdelivr.net/npm/viewerjs@${pkg[
-						"dependencies"
-					]["viewerjs"].replace(/^\^/, "")}/dist/viewer.min.css`,
+					ElementPlusResourceCSS: `https://fastly.jsdelivr.net/npm/element-plus@${pkg.devDependencies["element-plus"]}/dist/index.min.css`,
+					ViewerCSS: `https://fastly.jsdelivr.net/npm/viewerjs@${pkg.dependencies["viewerjs"]}/dist/viewer.min.css`,
 				},
 			},
 			clientAlias: "ViteGM",
@@ -145,12 +128,7 @@ export default defineConfig({
 						"VueRouter",
 						"dist/vue-router.global.js"
 					),
-					"element-plus": [
-						"ElementPlus",
-						() => {
-							return ElementPlusUrl;
-						},
-					],
+					"element-plus": ["ElementPlus", ElementPlusUrl],
 					"@element-plus/icons-vue": cdn.jsdelivrFastly(
 						"ElementPlusIconsVue",
 						"dist/index.iife.min.js"
