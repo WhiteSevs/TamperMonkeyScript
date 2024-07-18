@@ -6,9 +6,7 @@
 		--header-height: 50px;
 		--el-gap: 20px;
 	}
-	header#main-header + div {
-		margin-top: calc(var(--header-height) + 35px);
-	}
+
 	header#main-header {
 		height: var(--header-height);
 		position: fixed;
@@ -18,73 +16,82 @@
 		padding: unset;
 		display: flex;
 		justify-content: space-around;
-		.width-constraint {
-			display: flex;
-			align-items: center;
-			gap: var(--el-gap);
-			padding: unset;
-			margin: unset;
-			max-width: unset;
-		}
-		a {
-			text-decoration: none;
-			text-wrap: nowrap;
-		}
-		.sign-out-link a {
-			text-decoration: underline;
-		}
-		#site-name {
-			display: flex;
-			align-items: center;
-		}
+	}
 
-		#site-name img {
-			width: calc(var(--header-height) - 5px);
-			height: calc(var(--header-height) - 5px);
-		}
+	header#main-header + div {
+		margin-top: calc(var(--header-height) + 35px);
+	}
 
-		/* 隐藏Greasyfork文字 */
-		#site-name-text {
-			display: none;
-		}
+	header#main-header .width-constraint {
+		display: flex;
+		align-items: center;
+		gap: var(--el-gap);
+		padding: unset;
+		margin: unset;
+		max-width: unset;
+	}
 
-		#site-nav {
-			display: flex;
-			flex-direction: row-reverse;
-			align-items: center;
-			flex: 1;
-			justify-content: space-between;
-			height: 100%;
-			gap: var(--el-gap);
+	header#main-header a {
+		text-decoration: none;
+		text-wrap: nowrap;
+	}
 
-			nav li {
-				padding: 0 0.5em;
-				display: flex;
-				align-items: center;
-				height: var(--header-height);
-				min-width: 30px;
-				justify-content: center;
-			}
+	header#main-header .sign-out-link a {
+		text-decoration: underline;
+	}
 
-			nav li:hover {
-				background: #5f0101;
-			}
-		}
+	header#main-header #site-name {
+		display: flex;
+		align-items: center;
+	}
 
-		#nav-user-info {
-			max-width: 150px;
+	header#main-header #site-name img {
+		width: calc(var(--header-height) - 5px);
+		height: calc(var(--header-height) - 5px);
+	}
 
-			> span {
-				flex: 1;
-			}
-		}
-		#nav-user-info,
-		#nav-user-info + nav {
-			position: unset;
-			width: unset;
-			display: flex;
-			flex-wrap: nowrap;
-			align-items: center;
-		}
+	/* 隐藏Greasyfork文字 */
+	header#main-header #site-name-text {
+		display: none;
+	}
+
+	header#main-header #site-nav {
+		display: flex;
+		flex-direction: row-reverse;
+		align-items: center;
+		flex: 1;
+		justify-content: space-between;
+		height: 100%;
+		gap: var(--el-gap);
+	}
+
+	header#main-header #site-nav nav li {
+		padding: 0 0.5em;
+		display: flex;
+		align-items: center;
+		height: var(--header-height);
+		min-width: 30px;
+		justify-content: center;
+	}
+
+	header#main-header #site-nav nav li:hover {
+		background: #5f0101;
+	}
+
+	header#main-header #nav-user-info {
+		max-width: 150px;
+	}
+
+	header#main-header #nav-user-info > span {
+		flex: 1;
+	}
+
+	header#main-header #nav-user-info,
+	header#main-header #nav-user-info + nav {
+		position: unset;
+		width: unset;
+		display: flex;
+		flex-wrap: nowrap;
+		align-items: center;
 	}
 }
