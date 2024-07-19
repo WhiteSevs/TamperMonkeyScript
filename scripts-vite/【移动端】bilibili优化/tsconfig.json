@@ -18,7 +18,7 @@
 		"checkJs": true,
 		"sourceMap": true,
 		"paths": {
-			"@库/*": ["./../../库/*"],
+			"@lib/*": ["./../../lib/*"],
 			"@/*": ["./src/*"]
 		},
 		"typeRoots": ["types"]

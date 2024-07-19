@@ -23,7 +23,7 @@ const _SCRIPT_NAME_ = "【移动端】bilibili优化";
 const utils = Utils.noConflict();
 const domutils = DOMUtils.noConflict();
 const __pops = pops;
-const QRCodeJS: typeof import("@库/QRCode/index.d.ts") =
+const QRCodeJS: typeof import("@lib/QRCode/index.d.ts") =
 	(monkeyWindow as any).QRCode || (unsafeWindow as any).QRCode;
 
 const log = new utils.Log(

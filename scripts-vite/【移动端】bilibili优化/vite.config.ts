@@ -107,7 +107,7 @@ export default defineConfig({
 			},
 			clientAlias: "ViteGM",
 			server: {
-				mountGmApi: false,
+				mountGmApi: true,
 				open: false,
 			},
 			build: {

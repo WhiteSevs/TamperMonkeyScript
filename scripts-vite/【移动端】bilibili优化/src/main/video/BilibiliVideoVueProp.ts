@@ -74,14 +74,17 @@ export const BilibiliVideoVueProp = {
 								let checkCount = 1;
 								let isSuccess = false;
 								let lockFunc = new utils.LockFunction(async () => {
-									let $playerVideo = document.querySelector(
+									let $playerVideo = document.querySelector<HTMLVideoElement>(
 										"#bilibiliPlayer video"
 									);
-									if ($playerVideo) {
+									let $posterImg = document.querySelector<HTMLImageElement>(
+										"#bilibiliPlayer img.mplayer-poster"
+									);
+									if ($playerVideo && $posterImg && $posterImg.src !== "") {
 										isSuccess = true;
 										(unsafeWindow as any)?.player?.off("restart_call_app");
 										(unsafeWindow as any)?.player?.off("force_call_app_show");
-										log.success("<video>标签已成功初始化");
+										log.success("<video>标签和视频封面图已成功初始化");
 										return;
 									}
 									if ((unsafeWindow as any).BPlayerMobile == null) {

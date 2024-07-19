@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.18
+// @version      2024.7.19
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -10,12 +10,12 @@
 // @match        *://m.bilibili.com/*
 // @match        *://live.bilibili.com/*
 // @match        *://www.bilibili.com/read/*
-// @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/497907/1394170/QRCodeJS.js
+// @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
+// @require      https://update.greasyfork.org/scripts/497907/1413262/QRCodeJS.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.2.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.3.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @connect      *
 // @connect      m.bilibili.com
@@ -2341,11 +2341,14 @@
                   let $playerVideo = document.querySelector(
                     "#bilibiliPlayer video"
                   );
-                  if ($playerVideo) {
+                  let $posterImg = document.querySelector(
+                    "#bilibiliPlayer img.mplayer-poster"
+                  );
+                  if ($playerVideo && $posterImg && $posterImg.src !== "") {
                     isSuccess = true;
                     (_a2 = _unsafeWindow == null ? void 0 : _unsafeWindow.player) == null ? void 0 : _a2.off("restart_call_app");
                     (_b = _unsafeWindow == null ? void 0 : _unsafeWindow.player) == null ? void 0 : _b.off("force_call_app_show");
-                    log.success("<video>标签已成功初始化");
+                    log.success("<video>标签和视频封面图已成功初始化");
                     return;
                   }
                   if (_unsafeWindow.BPlayerMobile == null) {
