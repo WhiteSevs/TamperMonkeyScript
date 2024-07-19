@@ -1,107 +1,111 @@
+@charset "UTF-8";
 #app .video {
 	/* 下面的推荐视频卡片 */
-	.video-list .card-box {
-		--left-card-width: 33%;
-		--right-child-padding: 1.333vmin;
-		.v-card-toapp {
-			width: 100%;
-			border-bottom: 1px solid #b5b5b5;
-			padding-left: 0;
-			padding-right: 0;
-
-			> a {
-				display: flex;
-				flex-wrap: nowrap;
-				.card {
-					width: var(--left-card-width);
-					height: 80px;
-					flex: 0 auto;
-					.count {
-						background: transparent;
-						.left {
-							display: list-item;
-							span.item {
-								display: none;
-							}
-						}
-
-						.duration {
-							background: rgba(0, 0, 0, 0.4);
-							border-radius: 0.6vmin;
-							padding: 0px 0.5vmin;
-							right: 1vmin;
-							bottom: 1vmin;
-						}
-					}
-				}
-
-				.title {
-					flex: 1;
-					padding: var(--right-child-padding);
-					margin-top: 0;
-				}
-			}
-		}
-
-		/* 开启了bili-video-beautify */
-		.gm-right-container {
-			display: flex;
-			flex-direction: column;
-			width: calc(100% - var(--left-card-width));
-			> * {
-				padding: var(--right-child-padding);
-			}
-			.gm-up-name,
-			.left {
-				color: #999;
-				font-size: 3vmin;
-				transform-origin: left;
-				display: flex;
-				align-items: safe center;
-			}
-			.gm-up-name-text {
-				margin-left: 1vmin;
-			}
-			.num {
-				margin-right: 4vmin;
-			}
-		}
-
-		> a.v-card {
-			width: 100%;
-			border-bottom: 1px solid #b5b5b5;
-			padding-left: 0;
-			padding-right: 0;
-			display: flex;
-			flex-wrap: nowrap;
-			.card {
-				width: var(--left-card-width);
-				height: 100%;
-				flex: 0 auto;
-				.count {
-					background: transparent;
-					span {
-						display: none;
-					}
-					.duration {
-						background-color: rgba(0, 0, 0, 0.3);
-						border-radius: 4px;
-						color: #fff;
-						font-size: 12px;
-						height: 16px;
-						line-height: 16px;
-						margin-left: auto;
-						padding-left: 4px;
-						padding-right: 4px;
-					}
-				}
-			}
-
-			.title {
-				flex: 1;
-				padding: var(--right-child-padding);
-				margin-top: 0;
-			}
-		}
-	}
+}
+#app .video .video-list .card-box {
+	--left-card-width: 33%;
+	--right-child-padding: 1.333vmin;
+	/* 开启了bili-video-beautify */
+}
+#app .video .video-list .card-box .v-card-toapp {
+	width: 100%;
+	border-bottom: 1px solid #b5b5b5;
+	padding-left: 0;
+	padding-right: 0;
+}
+#app .video .video-list .card-box .v-card-toapp > a {
+	display: flex;
+	flex-wrap: nowrap;
+}
+#app .video .video-list .card-box .v-card-toapp > a .card {
+	width: var(--left-card-width);
+	height: 80px;
+	flex: 0 auto;
+}
+#app .video .video-list .card-box .v-card-toapp > a .card .count {
+	background: transparent;
+}
+#app .video .video-list .card-box .v-card-toapp > a .card .count .left {
+	display: list-item;
+}
+#app
+	.video
+	.video-list
+	.card-box
+	.v-card-toapp
+	> a
+	.card
+	.count
+	.left
+	span.item {
+	display: none;
+}
+#app .video .video-list .card-box .v-card-toapp > a .card .count .duration {
+	background: rgba(0, 0, 0, 0.4);
+	border-radius: 0.6vmin;
+	padding: 0px 0.5vmin;
+	right: 1vmin;
+	bottom: 1vmin;
+}
+#app .video .video-list .card-box .v-card-toapp > a .title {
+	flex: 1;
+	padding: var(--right-child-padding);
+	margin-top: 0;
+}
+#app .video .video-list .card-box .gm-right-container {
+	display: flex;
+	flex-direction: column;
+	width: calc(100% - var(--left-card-width));
+}
+#app .video .video-list .card-box .gm-right-container > * {
+	padding: var(--right-child-padding);
+}
+#app .video .video-list .card-box .gm-right-container .gm-up-name,
+#app .video .video-list .card-box .gm-right-container .left {
+	color: #999;
+	font-size: 3vmin;
+	transform-origin: left;
+	display: flex;
+	align-items: safe center;
+}
+#app .video .video-list .card-box .gm-right-container .gm-up-name-text {
+	margin-left: 1vmin;
+}
+#app .video .video-list .card-box .gm-right-container .num {
+	margin-right: 4vmin;
+}
+#app .video .video-list .card-box > a.v-card {
+	width: 100%;
+	border-bottom: 1px solid #b5b5b5;
+	padding-left: 0;
+	padding-right: 0;
+	display: flex;
+	flex-wrap: nowrap;
+}
+#app .video .video-list .card-box > a.v-card .card {
+	width: var(--left-card-width);
+	height: 100%;
+	flex: 0 auto;
+}
+#app .video .video-list .card-box > a.v-card .card .count {
+	background: transparent;
+}
+#app .video .video-list .card-box > a.v-card .card .count span {
+	display: none;
+}
+#app .video .video-list .card-box > a.v-card .card .count .duration {
+	background-color: rgba(0, 0, 0, 0.3);
+	border-radius: 4px;
+	color: #fff;
+	font-size: 12px;
+	height: 16px;
+	line-height: 16px;
+	margin-left: auto;
+	padding-left: 4px;
+	padding-right: 4px;
+}
+#app .video .video-list .card-box > a.v-card .title {
+	flex: 1;
+	padding: var(--right-child-padding);
+	margin-top: 0;
 }

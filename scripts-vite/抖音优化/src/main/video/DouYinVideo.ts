@@ -349,8 +349,8 @@ export const DouYinVideo = {
 						toClose: true,
 					},
 				},
-				width: utils.isPhone() ? "88dvw" : "50dvw",
-				height: "50dvh",
+				width: utils.isPhone() ? "88vw" : "50vw",
+				height: "50vh",
 				drag: true,
 				dragLimit: true,
 				style: `

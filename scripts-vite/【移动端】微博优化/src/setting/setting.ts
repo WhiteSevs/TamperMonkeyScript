@@ -400,7 +400,7 @@ const PopsPanel = {
 	 */
 	getWidth() {
 		if (window.outerWidth < 550) {
-			return "92dvw";
+			return "92vw";
 		} else {
 			return "550px";
 		}
@@ -410,7 +410,7 @@ const PopsPanel = {
 	 */
 	getHeight() {
 		if (window.outerHeight > 450) {
-			return "80dvh";
+			return "80vh";
 		} else {
 			return "450px";
 		}

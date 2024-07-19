@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         简书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.18
+// @version      2024.7.19
 // @author       WhiteSevs
 // @description  支持手机端和PC端、屏蔽广告、优化浏览体验、重定向链接、全文居中、自动展开全文、允许复制文字、劫持唤醒/跳转App、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -9,11 +9,11 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.jianshu.com/*
 // @match        *://*.jianshu.io/*
-// @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
+// @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.2.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.3.1/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
@@ -773,7 +773,7 @@
      */
     getWidth() {
       if (window.outerWidth < 550) {
-        return "92dvw";
+        return "92vw";
       } else {
         return "550px";
       }
@@ -783,7 +783,7 @@
      */
     getHeight() {
       if (window.outerHeight > 450) {
-        return "80dvh";
+        return "80vh";
       } else {
         return "450px";
       }

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.19
+// @version      2024.7.19.22
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -15,7 +15,7 @@
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.3.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @connect      *
 // @connect      m.bilibili.com
@@ -35,7 +35,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(a=>{function e(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let p=document.createElement("style");return p.setAttribute("type","text/css"),p.innerHTML=n,document.head?document.head.appendChild(p):document.body?document.body.appendChild(p):document.documentElement.childNodes.length===0?document.documentElement.appendChild(p):document.documentElement.insertBefore(p,document.documentElement.childNodes[0]),p}if(typeof GM_addStyle=="function"){GM_addStyle(a);return}e(a)})(" .m-video2-awaken-btn,.openapp-dialog,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#app .read-app-main bili-open-app{display:none!important} ");
+(a=>{function e(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let p=document.createElement("style");return p.setAttribute("type","text/css"),p.innerHTML=n,document.head?document.head.appendChild(p):document.body?document.body.appendChild(p):document.documentElement.childNodes.length===0?document.documentElement.appendChild(p):document.documentElement.insertBefore(p,document.documentElement.childNodes[0]),p}if(typeof GM_addStyle=="function"){GM_addStyle(a);return}e(a)})(' @charset "UTF-8";.m-video2-awaken-btn,.openapp-dialog,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#app .read-app-main bili-open-app{display:none!important} ');
 
 (function (Qmsg, Utils, DOMUtils, pops, md5) {
   'use strict';
@@ -2028,7 +2028,7 @@
      */
     getWidth() {
       if (window.outerWidth < 550) {
-        return "92dvw";
+        return "92vw";
       } else {
         return "550px";
       }
@@ -2038,7 +2038,7 @@
      */
     getHeight() {
       if (window.outerHeight > 450) {
-        return "80dvh";
+        return "80vh";
       } else {
         return "450px";
       }
@@ -2061,7 +2061,7 @@
       return configList;
     }
   };
-  const BilibiliBeautifyCSS = "/* 主页 */\r\n#app .m-head {\r\n	--bg-color: #f0f1f3;\r\n	--bg-rever-color: #ffffff;\r\n	--pd-width: 1.3333vmin;\r\n	--bd-circle: 1.3333vmin;\r\n	--card-height: 30vmin;\r\n	--icon-font-size: 3.2vmin;\r\n	--icon-text-font-size: 2.6vmin;\r\n	--icon-font-margin-right: 3vmin;\r\n	--title-font-size: 2.8vmin;\r\n\r\n	background-color: var(--bg-color);\r\n	.m-home {\r\n		background-color: var(--bg-color);\r\n	}\r\n	/* 美化视频卡片 */\r\n	.video-list .card-box {\r\n		.v-card {\r\n			background-color: var(--bg-rever-color);\r\n			padding: 0px;\r\n			margin: 0px;\r\n			width: calc(50% - var(--pd-width) / 2);\r\n			border-radius: var(--bd-circle);\r\n			margin-top: var(--pd-width);\r\n			display: grid;\r\n\r\n			/* 视频封面区域 */\r\n			.card {\r\n				background: var(--bg-rever-color);\r\n				border-radius: unset;\r\n				border-top-left-radius: var(--bd-circle);\r\n				border-top-right-radius: var(--bd-circle);\r\n				height: var(--card-height);\r\n\r\n				.count {\r\n					display: flex;\r\n					justify-content: safe flex-start;\r\n					padding-right: 0;\r\n\r\n					.iconfont {\r\n						font-size: var(--icon-text-font-size);\r\n					}\r\n\r\n					> span {\r\n						font-size: var(--icon-text-font-size);\r\n						margin-right: var(--icon-font-margin-right);\r\n					}\r\n				}\r\n			}\r\n			/* 视频标题区域 */\r\n			.title {\r\n				padding: 0;\r\n				margin: var(--pd-width);\r\n				font-size: var(--title-font-size);\r\n			}\r\n		}\r\n		/* 两列 => 左边的 */\r\n		.v-card:nth-child(2n-1) {\r\n			/*background-color: red;*/\r\n			margin-right: calc(var(--pd-width) / 2);\r\n		}\r\n		/* 两列 => 右边的 */\r\n		.v-card:nth-child(2n) {\r\n			/*background-color: rebeccapurple;*/\r\n			margin-left: calc(var(--pd-width) / 2);\r\n		}\r\n	}\r\n}\r\n";
+  const BilibiliBeautifyCSS = '@charset "UTF-8";\r\n/* 主页 */\r\n#app .m-head {\r\n	--bg-color: #f0f1f3;\r\n	--bg-rever-color: #ffffff;\r\n	--pd-width: 1.3333vmin;\r\n	--bd-circle: 1.3333vmin;\r\n	--card-height: 30vmin;\r\n	--icon-font-size: 3.2vmin;\r\n	--icon-text-font-size: 2.6vmin;\r\n	--icon-font-margin-right: 3vmin;\r\n	--title-font-size: 2.8vmin;\r\n	background-color: var(--bg-color);\r\n}\r\n#app .m-head .m-home {\r\n	background-color: var(--bg-color);\r\n}\r\n/* 美化视频卡片 */\r\n#app .m-head .video-list .card-box .v-card {\r\n	background-color: var(--bg-rever-color);\r\n	padding: 0px;\r\n	margin: 0px;\r\n	width: calc(50% - var(--pd-width) / 2);\r\n	border-radius: var(--bd-circle);\r\n	margin-top: var(--pd-width);\r\n	display: grid;\r\n	/* 视频封面区域 */\r\n}\r\n#app .m-head .video-list .card-box .v-card .card {\r\n	background: var(--bg-rever-color);\r\n	border-radius: unset;\r\n	border-top-left-radius: var(--bd-circle);\r\n	border-top-right-radius: var(--bd-circle);\r\n	height: var(--card-height);\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count {\r\n	display: flex;\r\n	justify-content: safe flex-start;\r\n	padding-right: 0;\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count .iconfont {\r\n	font-size: var(--icon-text-font-size);\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count > span {\r\n	font-size: var(--icon-text-font-size);\r\n	margin-right: var(--icon-font-margin-right);\r\n}\r\n/* 视频标题区域 */\r\n#app .m-head .video-list .card-box .v-card .title {\r\n	padding: 0;\r\n	margin: var(--pd-width);\r\n	font-size: var(--title-font-size);\r\n}\r\n/* 两列 => 左边的 */\r\n#app .m-head .video-list .card-box .v-card:nth-child(2n-1) {\r\n	/*background-color: red;*/\r\n	margin-right: calc(var(--pd-width) / 2);\r\n}\r\n/* 两列 => 右边的 */\r\n#app .m-head .video-list .card-box .v-card:nth-child(2n) {\r\n	/*background-color: rebeccapurple;*/\r\n	margin-left: calc(var(--pd-width) / 2);\r\n}\r\n';
   const BilibiliHook = {
     $isHook: {
       windowPlayerAgent: false,
@@ -2271,7 +2271,7 @@
       }
     }
   };
-  const BilibiliVideoBeautifyCSS = "#app .video {\r\n	/* 下面的推荐视频卡片 */\r\n	.video-list .card-box {\r\n		--left-card-width: 33%;\r\n		--right-child-padding: 1.333vmin;\r\n		.v-card-toapp {\r\n			width: 100%;\r\n			border-bottom: 1px solid #b5b5b5;\r\n			padding-left: 0;\r\n			padding-right: 0;\r\n\r\n			> a {\r\n				display: flex;\r\n				flex-wrap: nowrap;\r\n				.card {\r\n					width: var(--left-card-width);\r\n					height: 80px;\r\n					flex: 0 auto;\r\n					.count {\r\n						background: transparent;\r\n						.left {\r\n							display: list-item;\r\n							span.item {\r\n								display: none;\r\n							}\r\n						}\r\n\r\n						.duration {\r\n							background: rgba(0, 0, 0, 0.4);\r\n							border-radius: 0.6vmin;\r\n							padding: 0px 0.5vmin;\r\n							right: 1vmin;\r\n							bottom: 1vmin;\r\n						}\r\n					}\r\n				}\r\n\r\n				.title {\r\n					flex: 1;\r\n					padding: var(--right-child-padding);\r\n					margin-top: 0;\r\n				}\r\n			}\r\n		}\r\n\r\n		/* 开启了bili-video-beautify */\r\n		.gm-right-container {\r\n			display: flex;\r\n			flex-direction: column;\r\n			width: calc(100% - var(--left-card-width));\r\n			> * {\r\n				padding: var(--right-child-padding);\r\n			}\r\n			.gm-up-name,\r\n			.left {\r\n				color: #999;\r\n				font-size: 3vmin;\r\n				transform-origin: left;\r\n				display: flex;\r\n				align-items: safe center;\r\n			}\r\n			.gm-up-name-text {\r\n				margin-left: 1vmin;\r\n			}\r\n			.num {\r\n				margin-right: 4vmin;\r\n			}\r\n		}\r\n\r\n		> a.v-card {\r\n			width: 100%;\r\n			border-bottom: 1px solid #b5b5b5;\r\n			padding-left: 0;\r\n			padding-right: 0;\r\n			display: flex;\r\n			flex-wrap: nowrap;\r\n			.card {\r\n				width: var(--left-card-width);\r\n				height: 100%;\r\n				flex: 0 auto;\r\n				.count {\r\n					background: transparent;\r\n					span {\r\n						display: none;\r\n					}\r\n					.duration {\r\n						background-color: rgba(0, 0, 0, 0.3);\r\n						border-radius: 4px;\r\n						color: #fff;\r\n						font-size: 12px;\r\n						height: 16px;\r\n						line-height: 16px;\r\n						margin-left: auto;\r\n						padding-left: 4px;\r\n						padding-right: 4px;\r\n					}\r\n				}\r\n			}\r\n\r\n			.title {\r\n				flex: 1;\r\n				padding: var(--right-child-padding);\r\n				margin-top: 0;\r\n			}\r\n		}\r\n	}\r\n}\r\n";
+  const BilibiliVideoBeautifyCSS = '@charset "UTF-8";\r\n#app .video {\r\n	/* 下面的推荐视频卡片 */\r\n}\r\n#app .video .video-list .card-box {\r\n	--left-card-width: 33%;\r\n	--right-child-padding: 1.333vmin;\r\n	/* 开启了bili-video-beautify */\r\n}\r\n#app .video .video-list .card-box .v-card-toapp {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a {\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card {\r\n	width: var(--left-card-width);\r\n	height: 80px;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .left {\r\n	display: list-item;\r\n}\r\n#app\r\n	.video\r\n	.video-list\r\n	.card-box\r\n	.v-card-toapp\r\n	> a\r\n	.card\r\n	.count\r\n	.left\r\n	span.item {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .duration {\r\n	background: rgba(0, 0, 0, 0.4);\r\n	border-radius: 0.6vmin;\r\n	padding: 0px 0.5vmin;\r\n	right: 1vmin;\r\n	bottom: 1vmin;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .title {\r\n	flex: 1;\r\n	padding: var(--right-child-padding);\r\n	margin-top: 0;\r\n}\r\n#app .video .video-list .card-box .gm-right-container {\r\n	display: flex;\r\n	flex-direction: column;\r\n	width: calc(100% - var(--left-card-width));\r\n}\r\n#app .video .video-list .card-box .gm-right-container > * {\r\n	padding: var(--right-child-padding);\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name,\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	color: #999;\r\n	font-size: 3vmin;\r\n	transform-origin: left;\r\n	display: flex;\r\n	align-items: safe center;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name-text {\r\n	margin-left: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .num {\r\n	margin-right: 4vmin;\r\n}\r\n#app .video .video-list .card-box > a.v-card {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card {\r\n	width: var(--left-card-width);\r\n	height: 100%;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count span {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count .duration {\r\n	background-color: rgba(0, 0, 0, 0.3);\r\n	border-radius: 4px;\r\n	color: #fff;\r\n	font-size: 12px;\r\n	height: 16px;\r\n	line-height: 16px;\r\n	margin-left: auto;\r\n	padding-left: 4px;\r\n	padding-right: 4px;\r\n}\r\n#app .video .video-list .card-box > a.v-card .title {\r\n	flex: 1;\r\n	padding: var(--right-child-padding);\r\n	margin-top: 0;\r\n}\r\n';
   const BilibiliVideoVueProp = {
     $data: {
       isInitPlayer: false,
@@ -3364,7 +3364,7 @@
       );
     }
   };
-  const BilibiliRecommendCSS = '#app .m-head .m-recommend-view {\r\n	display: none;\r\n}\r\n#app .m-head .suspension .channel-menu:has(.recommend-tag.is-avtive) {\r\n	.v-switcher__header__anchor {\r\n		display: none !important;\r\n	}\r\n	a.v-switcher__header__tabs__item {\r\n		color: #505050 !important;\r\n	}\r\n	a.recommend-tag {\r\n		color: #fb7299 !important;\r\n	}\r\n	a.recommend-tag span:after {\r\n		content: " ";\r\n		position: relative;\r\n		background: #fb7299;\r\n		width: 30.4375px;\r\n		height: 0.53333vmin;\r\n		display: block;\r\n		bottom: 3px;\r\n	}\r\n}\r\n#app .m-head:has(.recommend-tag.is-avtive) {\r\n	.suspension + div {\r\n		display: none;\r\n	}\r\n	.m-recommend-view {\r\n		display: unset;\r\n	}\r\n}\r\n\r\n#app .m-head .m-recommend-view {\r\n	background-color: #f0f1f3;\r\n	.list-view {\r\n		.video-list-box {\r\n			.video-list {\r\n				padding: 0 1.33333vmin;\r\n				margin-bottom: 5.33333vmin;\r\n				.card-box {\r\n					display: -webkit-box;\r\n					display: -ms-flexbox;\r\n					display: flex;\r\n					-ms-flex-wrap: wrap;\r\n					flex-wrap: wrap;\r\n					.v-card {\r\n						.card {\r\n							position: relative;\r\n							.bfs-img-wrap {\r\n								position: absolute;\r\n								top: 0;\r\n								left: 0;\r\n								width: 100%;\r\n								height: 100%;\r\n								overflow: hidden;\r\n								.bfs-img.b-img {\r\n									position: relative;\r\n									width: 100%;\r\n									height: 100%;\r\n									overflow: hidden;\r\n									background: transparent;\r\n									picture.b-img__inner {\r\n										display: block;\r\n										width: 100%;\r\n										height: 100%;\r\n										img {\r\n											width: 100%;\r\n											height: 100%;\r\n											-o-object-fit: cover;\r\n											object-fit: cover;\r\n										}\r\n									}\r\n								}\r\n							}\r\n							.count {\r\n								position: absolute;\r\n								bottom: 0;\r\n								left: 0;\r\n								width: 100%;\r\n								font-size: 3.2vmin;\r\n								padding: 1.33333vmin 1.6vmin;\r\n								display: -webkit-box;\r\n								display: -ms-flexbox;\r\n								display: flex;\r\n								-webkit-box-pack: justify;\r\n								-ms-flex-pack: justify;\r\n								justify-content: space-between;\r\n								color: #fff;\r\n								background: linear-gradient(\r\n									0deg,\r\n									rgba(0, 0, 0, 0.85),\r\n									transparent\r\n								);\r\n							}\r\n						}\r\n						.title {\r\n							font-size: 3.2vmin;\r\n							color: #212121;\r\n							margin-top: 1.6vmin;\r\n							overflow: hidden;\r\n							text-overflow: ellipsis;\r\n							display: -webkit-box;\r\n							-webkit-line-clamp: 2;\r\n							-webkit-box-orient: vertical;\r\n						}\r\n						.gm-up-info {\r\n							.gm-up-name {\r\n								.gm-picture-text {\r\n									padding: 1px 4px;\r\n									border: 1px solid #fb7299;\r\n									color: #fb7299;\r\n									border-radius: 2px;\r\n									margin-right: 4px;\r\n									font-size: 2.0vmin;\r\n								}\r\n							}\r\n						}\r\n					}\r\n				}\r\n			}\r\n		}\r\n	}\r\n}\r\n';
+  const BilibiliRecommendCSS = '#app .m-head .m-recommend-view {\r\n	display: none;\r\n}\r\n\r\n#app\r\n	.m-head\r\n	.suspension\r\n	.channel-menu:has(.recommend-tag.is-avtive)\r\n	.v-switcher__header__anchor {\r\n	display: none !important;\r\n}\r\n#app\r\n	.m-head\r\n	.suspension\r\n	.channel-menu:has(.recommend-tag.is-avtive)\r\n	a.v-switcher__header__tabs__item {\r\n	color: #505050 !important;\r\n}\r\n#app\r\n	.m-head\r\n	.suspension\r\n	.channel-menu:has(.recommend-tag.is-avtive)\r\n	a.recommend-tag {\r\n	color: #fb7299 !important;\r\n}\r\n#app\r\n	.m-head\r\n	.suspension\r\n	.channel-menu:has(.recommend-tag.is-avtive)\r\n	a.recommend-tag\r\n	span:after {\r\n	content: " ";\r\n	position: relative;\r\n	background: #fb7299;\r\n	width: 30.4375px;\r\n	height: 0.53333vmin;\r\n	display: block;\r\n	bottom: 3px;\r\n}\r\n\r\n#app .m-head:has(.recommend-tag.is-avtive) .suspension + div {\r\n	display: none;\r\n}\r\n#app .m-head:has(.recommend-tag.is-avtive) .m-recommend-view {\r\n	display: unset;\r\n}\r\n\r\n#app .m-head .m-recommend-view {\r\n	background-color: #f0f1f3;\r\n}\r\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list {\r\n	padding: 0 1.33333vmin;\r\n	margin-bottom: 5.33333vmin;\r\n}\r\n#app\r\n	.m-head\r\n	.m-recommend-view\r\n	.list-view\r\n	.video-list-box\r\n	.video-list\r\n	.card-box {\r\n	display: -webkit-box;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	-ms-flex-wrap: wrap;\r\n	flex-wrap: wrap;\r\n}\r\n#app\r\n	.m-head\r\n	.m-recommend-view\r\n	.list-view\r\n	.video-list-box\r\n	.video-list\r\n	.card-box\r\n	.v-card\r\n	.card {\r\n	position: relative;\r\n}\r\n#app\r\n	.m-head\r\n	.m-recommend-view\r\n	.list-view\r\n	.video-list-box\r\n	.video-list\r\n	.card-box\r\n	.v-card\r\n	.card\r\n	.bfs-img-wrap {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	overflow: hidden;\r\n}\r\n#app\r\n	.m-head\r\n	.m-recommend-view\r\n	.list-view\r\n	.video-list-box\r\n	.video-list\r\n	.card-box\r\n	.v-card\r\n	.card\r\n	.bfs-img-wrap\r\n	.bfs-img.b-img {\r\n	position: relative;\r\n	width: 100%;\r\n	height: 100%;\r\n	overflow: hidden;\r\n	background: transparent;\r\n}\r\n#app\r\n	.m-head\r\n	.m-recommend-view\r\n	.list-view\r\n	.video-list-box\r\n	.video-list\r\n	.card-box\r\n	.v-card\r\n	.card\r\n	.bfs-img-wrap\r\n	.bfs-img.b-img\r\n	picture.b-img__inner {\r\n	display: block;\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n#app\r\n	.m-head\r\n	.m-recommend-view\r\n	.list-view\r\n	.video-list-box\r\n	.video-list\r\n	.card-box\r\n	.v-card\r\n	.card\r\n	.bfs-img-wrap\r\n	.bfs-img.b-img\r\n	picture.b-img__inner\r\n	img {\r\n	width: 100%;\r\n	height: 100%;\r\n	-o-object-fit: cover;\r\n	object-fit: cover;\r\n}\r\n#app\r\n	.m-head\r\n	.m-recommend-view\r\n	.list-view\r\n	.video-list-box\r\n	.video-list\r\n	.card-box\r\n	.v-card\r\n	.card\r\n	.count {\r\n	position: absolute;\r\n	bottom: 0;\r\n	left: 0;\r\n	width: 100%;\r\n	font-size: 3.2vmin;\r\n	padding: 1.33333vmin 1.6vmin;\r\n	display: -webkit-box;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	-webkit-box-pack: justify;\r\n	-ms-flex-pack: justify;\r\n	justify-content: space-between;\r\n	color: #fff;\r\n	background: linear-gradient(0deg, rgba(0, 0, 0, 0.85), transparent);\r\n}\r\n#app\r\n	.m-head\r\n	.m-recommend-view\r\n	.list-view\r\n	.video-list-box\r\n	.video-list\r\n	.card-box\r\n	.v-card\r\n	.title {\r\n	font-size: 3.2vmin;\r\n	color: #212121;\r\n	margin-top: 1.6vmin;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n}\r\n#app\r\n	.m-head\r\n	.m-recommend-view\r\n	.list-view\r\n	.video-list-box\r\n	.video-list\r\n	.card-box\r\n	.v-card\r\n	.gm-up-info\r\n	.gm-up-name\r\n	.gm-picture-text {\r\n	padding: 1px 4px;\r\n	border: 1px solid #fb7299;\r\n	color: #fb7299;\r\n	border-radius: 2px;\r\n	margin-right: 4px;\r\n	font-size: 2vmin;\r\n}\r\n';
   var XOR_CODE = 23442827791579n;
   var MAX_AID = 1n << 51n;
   var BASE = 58n;
@@ -3515,6 +3515,7 @@
       domutils.before($vSwitcher, $recommendTag);
       this.setScrollEvent();
       if (window.location.hash === "#/recommend/") {
+        log.info("当前hash为推荐视频，出动触发");
         $recommendTag.click();
       }
     },
@@ -3757,30 +3758,24 @@
     addVideoListUPInfo() {
       log.info("添加视频列表UP主信息");
       addStyle(`
-        ${BilibiliData.className.head}{
-            .video-list .card-box{
-                .gm-up-info{
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin: var(--pd-width);
-
-                    .gm-up-name{
-                        display: flex;
-                        align-items: center;
-                        font-size: 2.4vmin;
-                        color: #999A9E;
-    
-                        svg{
-                            margin-right: calc(var(--pd-width) / 2);
-                        }
-                    }
-                }
-            }
-            .gm-video-duration{
-                margin: 0 auto;
-            }
-        }
+		${BilibiliData.className.head} .video-list .card-box .gm-up-info {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin: var(--pd-width);
+		}
+		${BilibiliData.className.head} .video-list .card-box .gm-up-info .gm-up-name {
+			display: flex;
+			align-items: center;
+			font-size: 2.4vmin;
+			color: #999A9E;
+		}
+		${BilibiliData.className.head} .video-list .card-box .gm-up-info .gm-up-name svg {
+			margin-right: calc(var(--pd-width) / 2);
+		}
+		${BilibiliData.className.head} .gm-video-duration{
+			margin: 0 auto;
+		}
         `);
       utils.waitNode(
         BilibiliData.className.head + " .video-list .card-box"

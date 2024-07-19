@@ -17,7 +17,7 @@ export const DouYinSearchHideElement = {
 			DouYinUtils.addBlockCSS("#search-content-area > div > div:nth-child(2)"),
 			addStyle(`
 			#search-content-area > div > div:nth-child(1) > div:nth-child(1){
-				width: 100dvw;
+				width: 100vw;
 			}`),
 		];
 	},

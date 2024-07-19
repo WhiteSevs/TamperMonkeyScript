@@ -774,7 +774,7 @@ const TiebaComment = {
 								toClose: true,
 							},
 						},
-						width: "80dvw",
+						width: "80vw",
 						height: "180px",
 						zIndex: utils.getMaxZIndex(100),
 						style: `

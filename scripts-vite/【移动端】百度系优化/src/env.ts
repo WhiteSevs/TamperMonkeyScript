@@ -24,7 +24,7 @@ const _SCRIPT_NAME_ = "【移动端】百度系优化";
 const utils = Utils.noConflict();
 const domutils = DOMUtils.noConflict();
 const __pops = pops;
-const showdown: typeof import("@库/showdown") =
+const showdown: typeof import("@lib/showdown") =
 	(monkeyWindow as any).showdown || (unsafeWindow as any).showdown;
 const log = new Utils.Log(
 	GM_info,

@@ -281,105 +281,105 @@ defineExpose({
 	background: #fff;
 	display: flex;
 	align-items: center;
-	z-index: calc(99999 + 100);
+	z-index: 100099;
 	flex-flow: column;
+}
 
-	.full-toolbar-top-reply-user {
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		color: #adb5bd;
-		width: -webkit-fill-available;
-		width: -moz-available;
-		padding-left: 0.2rem;
-		padding-top: 0.06rem;
-	}
+#full-toolbar .full-toolbar-top-reply-user {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: #adb5bd;
+	width: -webkit-fill-available;
+	width: -moz-available;
+	padding-left: 0.2rem;
+	padding-top: 0.06rem;
+}
 
-	.full-toolbar-top-container {
-		display: flex;
-		align-items: end;
-		width: -moz-available;
-		width: -webkit-fill-available;
-		padding: 0.06rem 0.1rem;
-		height: 0.6rem;
+#full-toolbar .full-toolbar-top-container {
+	display: flex;
+	align-items: end;
+	width: -moz-available;
+	width: -webkit-fill-available;
+	padding: 0.06rem 0.1rem;
+	height: 0.6rem;
+}
 
-		.full-toolbar-top-left-container {
-			display: flex;
-			flex-direction: column;
-			flex: 1;
-			overflow: hidden;
-			margin: 0px 0.1rem;
-			height: 100%;
-		}
+#full-toolbar .full-toolbar-top-container .full-toolbar-top-left-container {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	overflow: hidden;
+	margin: 0px 0.1rem;
+	height: 100%;
+}
 
-		.full-toolbar-top-right-container {
-			flex: 0 auto;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: space-between;
-			height: 100%;
-		}
-	}
+#full-toolbar .full-toolbar-top-container .full-toolbar-top-right-container {
+	flex: 0 auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-between;
+	height: 100%;
+}
 
-	.full-toolbar-bottom-container {
-		margin: 0.06rem 0;
-		padding: 0px 0px 0.06rem 0px;
-		margin-right: auto;
+#full-toolbar .full-toolbar-bottom-container {
+	margin: 0.06rem 0;
+	padding: 0px 0px 0.06rem 0px;
+	margin-right: auto;
+}
 
-		.full-toolbar-emoji-btn,
-		.full-toolbar-panel-at-btn {
-			margin: 0px 20px;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-		}
-	}
+#full-toolbar .full-toolbar-bottom-container .full-toolbar-emoji-btn,
+#full-toolbar .full-toolbar-bottom-container .full-toolbar-panel-at-btn {
+	margin: 0px 20px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
 
-	.emoji-panel {
-		width: 100%;
-		height: 30dvh;
-		background-color: #efefef;
-		overflow: auto;
-	}
+#full-toolbar .emoji-panel {
+	width: 100%;
+	height: 30vh;
+	background-color: #efefef;
+	overflow: auto;
 }
 
 .emoji-panel-huaji {
 	padding: 0.03rem;
 	overflow-y: auto;
+}
 
-	.el-avatar {
-		margin: 16px;
-	}
+.emoji-panel-huaji .el-avatar {
+	margin: 16px;
 }
 </style>
 
 <style scoped>
-#full-toolbar:has(.full-toolbar-top-container[data-full="true"]) {
+#full-toolbar:has(.full-toolbar-top-container[data-full=true]) {
 	height: -moz-available;
 	height: 100%;
 	height: -webkit-fill-available;
+}
 
-	.full-toolbar-top-container,
-	#reply-editor {
-		height: -moz-available;
-		height: 100%;
-		height: -webkit-fill-available;
-	}
+#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container,
+#full-toolbar:has(.full-toolbar-top-container[data-full=true]) #reply-editor {
+	height: -moz-available;
+	height: 100%;
+	height: -webkit-fill-available;
+}
 
-	.full-toolbar-top-reply-user,
-	.full-toolbar-top-right-container {
-		display: none;
-	}
+#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-reply-user,
+#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-right-container {
+	display: none;
+}
 
-	.full-toolbar-top-container {
-		flex-direction: column;
-	}
+#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container {
+	flex-direction: column;
+}
 
-	.full-toolbar-top-left-container {
-		width: -webkit-fill-available;
-		width: -moz-available;
-	}
+#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-left-container {
+	width: -webkit-fill-available;
+	width: -moz-available;
 }
 
 .full-toolbar-top-nav-container {
@@ -393,10 +393,10 @@ defineExpose({
 </style>
 <style>
 #full-toolbar .full-toolbar-top-container {
-	max-height: calc(100dvh - 0.12rem - 40px);
+	max-height: calc(100vh - 0.12rem - 40px);
 }
 
 #full-toolbar[data-show-bottom-panel="true"] .full-toolbar-top-container {
-	max-height: calc(100dvh - 30dvh - 0.12rem - 40px);
+	max-height: calc(100vh - 30vh - 0.12rem - 40px);
 }
 </style>

@@ -22,30 +22,24 @@ export const BilibiliHead = {
 	addVideoListUPInfo() {
 		log.info("添加视频列表UP主信息");
 		addStyle(`
-        ${BilibiliData.className.head}{
-            .video-list .card-box{
-                .gm-up-info{
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin: var(--pd-width);
-
-                    .gm-up-name{
-                        display: flex;
-                        align-items: center;
-                        font-size: 2.4vmin;
-                        color: #999A9E;
-    
-                        svg{
-                            margin-right: calc(var(--pd-width) / 2);
-                        }
-                    }
-                }
-            }
-            .gm-video-duration{
-                margin: 0 auto;
-            }
-        }
+		${BilibiliData.className.head} .video-list .card-box .gm-up-info {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin: var(--pd-width);
+		}
+		${BilibiliData.className.head} .video-list .card-box .gm-up-info .gm-up-name {
+			display: flex;
+			align-items: center;
+			font-size: 2.4vmin;
+			color: #999A9E;
+		}
+		${BilibiliData.className.head} .video-list .card-box .gm-up-info .gm-up-name svg {
+			margin-right: calc(var(--pd-width) / 2);
+		}
+		${BilibiliData.className.head} .gm-video-duration{
+			margin: 0 auto;
+		}
         `);
 		utils
 			.waitNode<HTMLDivElement>(

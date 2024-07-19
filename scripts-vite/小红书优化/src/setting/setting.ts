@@ -429,8 +429,8 @@ const PopsPanel = {
 	 * 获取设置界面的宽高
 	 */
 	getUISizeInfo() {
-		let UIWidth = "92dvw";
-		let UIHeight = "80dvh";
+		let UIWidth = "92vw";
+		let UIHeight = "80vh";
 
 		if (window.outerWidth > 800) {
 			UIWidth = "650px";

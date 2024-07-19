@@ -158,7 +158,6 @@ section.pops-panel-container
 .pops[type-value="panel"].pops-panel-is-mobile {
 	width: 92%;
 	width: 92vw;
-	width: 92dvw;
 }
 .pops[type-value="panel"].pops-panel-is-mobile section.pops-panel-container {
 	padding: 10px 0px;

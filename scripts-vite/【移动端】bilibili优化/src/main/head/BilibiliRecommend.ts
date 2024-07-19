@@ -152,6 +152,7 @@ export const BilibiliRecommend = {
 		this.setScrollEvent();
 		// 如果hash值正好是设定的，那么，主动触发一下，因为可能是刷新的
 		if (window.location.hash === "#/recommend/") {
+			log.info("当前hash为推荐视频，出动触发");
 			$recommendTag.click();
 		}
 	},

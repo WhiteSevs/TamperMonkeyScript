@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.18
+// @version      2024.7.19
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -11,11 +11,11 @@
 // @match        http*://huati.weibo.cn/*
 // @match        http*://h5.video.weibo.com/*
 // @match        http*://card.weibo.com/*
-// @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
+// @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.2.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.3.1/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css
 // @connect      m.weibo.cn
 // @connect      www.weibo.com
@@ -1447,7 +1447,7 @@
      */
     getWidth() {
       if (window.outerWidth < 550) {
-        return "92dvw";
+        return "92vw";
       } else {
         return "550px";
       }
@@ -1457,7 +1457,7 @@
      */
     getHeight() {
       if (window.outerHeight > 450) {
-        return "80dvh";
+        return "80vh";
       } else {
         return "450px";
       }

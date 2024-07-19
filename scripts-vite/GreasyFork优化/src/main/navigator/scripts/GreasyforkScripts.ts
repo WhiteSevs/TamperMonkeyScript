@@ -80,7 +80,7 @@ export const GreasyforkScriptsCollectEvent = async function (
 				enable: false,
 			},
 		},
-		width: pops.isPhone() ? "92dvw" : "500px",
+		width: pops.isPhone() ? "92vw" : "500px",
 		height: "auto",
 		drag: true,
 		only: true,

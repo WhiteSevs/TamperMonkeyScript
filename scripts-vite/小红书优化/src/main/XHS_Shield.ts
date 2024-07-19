@@ -74,7 +74,7 @@ const XHS_Shield = {
         }
         .outer-link-container{
             margin-top: 0 !important;
-            height: 100dvh !important;
+            height: 100vh !important;
             padding: 30px 0;
         }
         #noteContainer{

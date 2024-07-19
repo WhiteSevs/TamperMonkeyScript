@@ -51,15 +51,15 @@
 		.leftContainer
 		> div
 		> div:has(.comment-mainContent[data-e2e="comment-list"]) {
-		width: 100dvw !important;
+		width: 100vw !important;
 	}
 }
 
 /* 调整视频列表的宽度 */
 @media screen and (max-width: 550px) {
 	#slidelist {
-		width: 100dvw;
-		height: 100dvh;
+		width: 100vw;
+		height: 100vh;
 	}
 	/* 调整顶部搜索框的宽度 */
 	#douyin-header
@@ -75,6 +75,7 @@
 		div[data-click="doubleClick"]
 		> div[data-click="doubleClick"]
 		> div:has(input[data-e2e="searchbar-input"]:focus) {
+		width: 100vw;
 		width: 100dvw;
 	}
 	/* 去除设置min-width超出浏览器宽度的问题 */

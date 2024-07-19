@@ -69,6 +69,8 @@ const ToolbarHandler = {
 </script>
 
 <style scoped>
+@charset "UTF-8";
+
 #small-toolbar {
 	position: fixed;
 	bottom: 0;
@@ -78,71 +80,72 @@ const ToolbarHandler = {
 	display: flex;
 	align-items: center;
 	z-index: 1000;
-
-	.icon {
-		width: 0.2rem;
-		height: 0.2rem;
-	}
-
-	#reply-editor {
-		flex: 1;
-	}
-
 	/* 小的工具栏 */
-	.small-editor-toolbar {
-		flex: 1;
-		margin: 10px 15px;
-		width: 100%;
-		font-size: 0.16rem;
-		line-height: 0.16rem;
-		display: flex;
-		align-items: center;
-		position: relative;
+}
 
-		.small-editor-toolbar-input {
-			width: 100%;
-			background: #e9e9e9;
-			border-radius: 0.06rem;
-			padding: 0.06rem 0.06rem;
-			border: 0;
-			outline: none;
-			font-size: 0.14rem;
-			line-height: 0.14rem;
-			cursor: default;
-		}
+#small-toolbar .icon {
+	width: 0.2rem;
+	height: 0.2rem;
+}
 
-		.small-editor-toolbar-emoji-btn {
-			position: absolute;
-			top: 50%;
-			right: 0.06rem;
-			transform: translateY(-50%);
-		}
+#small-toolbar #reply-editor {
+	flex: 1;
+}
 
-		.small-editor-toolbar-input:focus,
-		.small-editor-toolbar-input:visited,
-		.small-editor-toolbar-input:focus-within,
-		.small-editor-toolbar-input:focus-visible {
-			border: 0;
-			outline: none;
-		}
-	}
+#small-toolbar .small-editor-toolbar {
+	flex: 1;
+	margin: 10px 15px;
+	width: 100%;
+	font-size: 0.16rem;
+	line-height: 0.16rem;
+	display: flex;
+	align-items: center;
+	position: relative;
+}
 
-	.gm-reply-other-toolbar {
-		flex: 0 auto;
-		display: flex;
-		align-items: safe center;
+#small-toolbar .small-editor-toolbar .small-editor-toolbar-input {
+	width: 100%;
+	background: #e9e9e9;
+	border-radius: 0.06rem;
+	padding: 0.06rem 0.06rem;
+	border: 0;
+	outline: none;
+	font-size: 0.14rem;
+	line-height: 0.14rem;
+	cursor: default;
+}
 
-		.reply-comment-count,
-		.reply-good-count {
-			padding: 8px;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
+#small-toolbar .small-editor-toolbar .small-editor-toolbar-emoji-btn {
+	position: absolute;
+	top: 50%;
+	right: 0.06rem;
+	transform: translateY(-50%);
+}
 
-			p.text {
-				font-size: 0.1rem;
-			}
-		}
-	}
+#small-toolbar .small-editor-toolbar .small-editor-toolbar-input:focus,
+#small-toolbar .small-editor-toolbar .small-editor-toolbar-input:visited,
+#small-toolbar .small-editor-toolbar .small-editor-toolbar-input:focus-within,
+#small-toolbar .small-editor-toolbar .small-editor-toolbar-input:focus-visible {
+	border: 0;
+	outline: none;
+}
+
+#small-toolbar .gm-reply-other-toolbar {
+	flex: 0 auto;
+	display: flex;
+	align-items: safe center;
+}
+
+#small-toolbar .gm-reply-other-toolbar .reply-comment-count,
+#small-toolbar .gm-reply-other-toolbar .reply-good-count {
+	padding: 8px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+#small-toolbar .gm-reply-other-toolbar .reply-comment-count p.text,
+#small-toolbar .gm-reply-other-toolbar .reply-good-count p.text {
+	font-size: 0.1rem;
 }
 </style>

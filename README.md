@@ -37,3 +37,9 @@ pnpm run build:all
 // 替换成
 ![$1]($2)
 ```
+
+## 兼容事项
+
+* has的语法兼容性，[:has()兼容性查看 Chrome最低105](https://caniuse.com/css-has)
+* 优先使用`vw`或`vh`，`dvw`和`dvh`[兼容性查看 Chrome最低108，华为鸿蒙才90多](https://caniuse.com/mdn-css_types_length_viewport_percentage_units_dynamic)
+* CSS嵌套语法最好不要用，[Nesting兼容性查看 Chrome最低120](https://caniuse.com/css-nesting)

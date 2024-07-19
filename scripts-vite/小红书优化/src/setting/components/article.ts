@@ -39,7 +39,7 @@ const SettingUI_Article: PopsPanelContentConfig = {
 											log.error("未找到笔记容器");
 											return;
 										}
-										$noteContainer.style.width = `${value}dvw`;
+										$noteContainer.style.width = `${value}vw`;
 									},
 									(value) => {
 										return `${value}%，默认：90%`;

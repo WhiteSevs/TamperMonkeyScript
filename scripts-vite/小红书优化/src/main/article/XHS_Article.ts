@@ -106,14 +106,14 @@ const XHS_Article = {
 			padding-left: 0 !important;
 		}
 		.outer-link-container{
-			width: 100dvw !important;
+			width: 100vw !important;
 		}
 		/* 隐藏左侧工具栏 */
 		.main-container .side-bar{
 			display: none !important;
 		}
 		#noteContainer{
-			width: ${noteContainerWidth}dvw;
+			width: ${noteContainerWidth}vw;
 		}
 		`);
 	},
