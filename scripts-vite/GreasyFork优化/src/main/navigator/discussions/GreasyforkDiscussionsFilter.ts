@@ -4,7 +4,7 @@ import { PopsPanel } from "@/setting/setting";
 import { GM_addStyle } from "ViteGM";
 import i18next from "i18next";
 
-type DiscuessionsFilterRule = {
+export type DiscuessionsFilterRule = {
 	/** 脚本名 */
 	scriptName: string;
 	/** 脚本id */
@@ -166,7 +166,7 @@ export const GreasyforkDiscussionsFilter = {
 			/** 发布的用户id */
 			postUserId: GreasyforkApi.getUserId(
 				$listContainer.querySelector<HTMLAnchorElement>("a.user-link")!.href
-			),
+			)!,
 			/** 发布的时间 */
 			postTimeStamp: new Date(
 				$listContainer

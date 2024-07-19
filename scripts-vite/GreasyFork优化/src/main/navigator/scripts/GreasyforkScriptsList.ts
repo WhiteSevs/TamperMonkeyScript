@@ -235,7 +235,7 @@ export const GreasyforkScriptsList = {
 						utils.preventEvent(event);
 						let $dialog = pops.alert({
 							title: {
-								text: i18next.t("选择过滤的选项"),
+								text: i18next.t("选择需要过滤的选项"),
 								position: "center",
 							},
 							content: {
@@ -310,18 +310,23 @@ export const GreasyforkScriptsList = {
 							$content.appendChild($authorIdButton);
 							$content.appendChild($authorNameButton);
 						});
-						DOMUtils.on($dialog.$shadowRoot, "click", "button", (event) => {
-							utils.preventEvent(event);
-							let $click = event.target as HTMLButtonElement;
-							let key = $click.getAttribute(
-								attr_filter_key
-							)! as keyof ScriptFilterRule;
-							let value = $click.getAttribute(attr_filter_value)!;
-							GreasyforkScriptsFilter.addValue(key, value);
-							$dialog.close();
-							GreasyforkScriptsFilter.filter();
-							Qmsg.success(i18next.t("添加成功"));
-						});
+						DOMUtils.on(
+							$dialog.$shadowRoot,
+							"click",
+							`button[${attr_filter_key}]`,
+							(event) => {
+								utils.preventEvent(event);
+								let $click = event.target as HTMLButtonElement;
+								let key = $click.getAttribute(
+									attr_filter_key
+								)! as keyof ScriptFilterRule;
+								let value = $click.getAttribute(attr_filter_value)!;
+								GreasyforkScriptsFilter.addValue(key, value);
+								$dialog.close();
+								GreasyforkScriptsFilter.filter();
+								Qmsg.success(i18next.t("添加成功"));
+							}
+						);
 					});
 					$operationRight.appendChild($filter);
 				}

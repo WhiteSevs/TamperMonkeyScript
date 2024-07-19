@@ -83,12 +83,6 @@ const SettingUIDiscuessions: PopsPanelContentConfig = {
 						},
 					],
 				},
-			],
-		},
-		{
-			text: "",
-			type: "forms",
-			forms: [
 				{
 					text: i18next.t("过滤"),
 					type: "deepMenu",

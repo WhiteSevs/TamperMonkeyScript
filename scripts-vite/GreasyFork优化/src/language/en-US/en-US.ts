@@ -260,4 +260,5 @@ export const en_US_language = {
 	"更新到 {{version}} 版本": "Update To {{version}} Version",
 	"降级到 {{version}} 版本": "Downgrade to {{version}} Version",
 	"重新安装 {{version}} 版本": "Reinstall {{version}} Version",
+	"发布的用户id：{{text}}": "Published user ID: {{text}}",
 };

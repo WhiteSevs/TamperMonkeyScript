@@ -252,7 +252,8 @@
     "作用域：脚本、脚本搜索、用户主页": "作用域：脚本、脚本搜索、用户主页",
     "更新到 {{version}} 版本": "更新到 {{version}} 版本",
     "降级到 {{version}} 版本": "降级到 {{version}} 版本",
-    "重新安装 {{version}} 版本": "重新安装 {{version}} 版本"
+    "重新安装 {{version}} 版本": "重新安装 {{version}} 版本",
+    "发布的用户id：{{text}}": "发布的用户id：{{text}}"
   };
   const en_US_language = {
     GreasyFork优化: "GreasyFork Optimization",
@@ -459,7 +460,8 @@
     "作用域：脚本、脚本搜索、用户主页": "Scope: Script, Script Search, User Homepage",
     "更新到 {{version}} 版本": "Update To {{version}} Version",
     "降级到 {{version}} 版本": "Downgrade to {{version}} Version",
-    "重新安装 {{version}} 版本": "Reinstall {{version}} Version"
+    "重新安装 {{version}} 版本": "Reinstall {{version}} Version",
+    "发布的用户id：{{text}}": "Published user ID: {{text}}"
   };
   const KEY = "GM_Panel";
   const ATTRIBUTE_KEY = "data-key";
@@ -2789,7 +2791,7 @@
               utils.preventEvent(event);
               let $dialog = __pops.alert({
                 title: {
-                  text: i18next.t("选择过滤的选项"),
+                  text: i18next.t("选择需要过滤的选项"),
                   position: "center"
                 },
                 content: {
@@ -2859,18 +2861,23 @@
                 $content.appendChild($authorIdButton);
                 $content.appendChild($authorNameButton);
               });
-              DOMUtils.on($dialog.$shadowRoot, "click", "button", (event2) => {
-                utils.preventEvent(event2);
-                let $click = event2.target;
-                let key = $click.getAttribute(
-                  attr_filter_key
-                );
-                let value = $click.getAttribute(attr_filter_value);
-                GreasyforkScriptsFilter.addValue(key, value);
-                $dialog.close();
-                GreasyforkScriptsFilter.filter();
-                Qmsg.success(i18next.t("添加成功"));
-              });
+              DOMUtils.on(
+                $dialog.$shadowRoot,
+                "click",
+                `button[${attr_filter_key}]`,
+                (event2) => {
+                  utils.preventEvent(event2);
+                  let $click = event2.target;
+                  let key = $click.getAttribute(
+                    attr_filter_key
+                  );
+                  let value = $click.getAttribute(attr_filter_value);
+                  GreasyforkScriptsFilter.addValue(key, value);
+                  $dialog.close();
+                  GreasyforkScriptsFilter.filter();
+                  Qmsg.success(i18next.t("添加成功"));
+                }
+              );
             });
             $operationRight.appendChild($filter);
           }
@@ -3518,13 +3525,7 @@
                 ]
               }
             ]
-          }
-        ]
-      },
-      {
-        text: "",
-        type: "forms",
-        forms: [
+          },
           {
             text: i18next.t("过滤"),
             type: "deepMenu",
@@ -3909,7 +3910,9 @@
           const discussionInfo = GreasyforkDiscussionsFilter.parseDiscuessionListContainerInfo(
             $listContainer
           );
-          let $popsDialog = __pops.alert({
+          let attr_filter_key = "data-filter-key";
+          let attr_filter_value = "data-filter-value";
+          let $dialog = __pops.alert({
             title: {
               text: i18next.t("选择需要过滤的选项"),
               position: "center",
@@ -3917,17 +3920,19 @@
             },
             content: {
               text: `
-							<div class="choose-list">
-								<button class="choose-item" data-type="script-id">${i18next.t(
-              "过滤脚本(id)"
-            )}</button>
-								<button class="choose-item" data-type="user-id">${i18next.t(
-              "过滤发布的用户(id)"
-            )}</button>
-								${discussionInfo.replyUserId != null ? `<button class="choose-item" data-type="reply-user-id">${i18next.t(
-              "过滤回复的用户(id)"
-            )}</button>` : ""}
-							</div>
+								<button ${attr_filter_key}="scriptId" ${attr_filter_value}="^${discussionInfo.scriptId}$">${i18next.t("脚本id：{{text}}", {
+              text: discussionInfo.scriptId
+            })}</button>
+								<button ${attr_filter_key}="scriptName" ${attr_filter_value}="^${utils.parseStringToRegExpString(
+              discussionInfo.scriptName
+            )}$">${i18next.t("脚本名：{{text}}", {
+              text: discussionInfo.scriptName
+            })}</button>
+								<button ${attr_filter_key}="postUserId" ${attr_filter_value}="^${utils.parseStringToRegExpString(
+              discussionInfo.postUserId
+            )}$">${i18next.t("发布的用户id：{{text}}", {
+              text: discussionInfo.postUserId
+            })}</button>
 							`,
               html: true
             },
@@ -3942,77 +3947,50 @@
             width: "350px",
             height: "300px",
             style: `
-						.choose-list{
-						    display: flex;
+						.pops-alert-content{
+							display: flex;
 							flex-direction: column;
 							gap: 20px;
-							padding: 20px 10px;
+						}
+						.pops-alert-content button{
+							text-wrap: wrap;
+							padding: 8px;
+							height: auto;
+							text-align: left;
 						}
 						`
           });
+          let $content = $dialog.$shadowRoot.querySelector(
+            ".pops-alert-content"
+          );
+          if (discussionInfo.replyUserId != null) {
+            let $replyUserIdButton = domUtils.createElement("button", {
+              innerHTML: i18next.t("作者id：{{text}}", {
+                text: discussionInfo.replyUserId
+              })
+            });
+            $replyUserIdButton.setAttribute(attr_filter_key, "scriptAuthorId");
+            $replyUserIdButton.setAttribute(
+              attr_filter_value,
+              "^" + discussionInfo.replyUserId + "$"
+            );
+            $content.appendChild($replyUserIdButton);
+          }
           domUtils.on(
-            $popsDialog.$shadowRoot,
+            $dialog.$shadowRoot,
             "click",
-            "button[data-type]",
+            `button[${attr_filter_key}]`,
             (event2) => {
               utils.preventEvent(event2);
               let $click = event2.target;
-              let filterId = "";
-              let storageKey = "";
-              if ($click.dataset["type"] === "script-id") {
-                filterId = discussionInfo.scriptId;
-                storageKey = GreasyforkDiscussionsFilter.$data.FILTER_SCRIPT_KEY;
-              } else if ($click.dataset["type"] === "user-id") {
-                filterId = discussionInfo.postUserId;
-                storageKey = GreasyforkDiscussionsFilter.$data.FILTER_POST_USER_KEY;
-              } else if ($click.dataset["type"] === "reply-user-id") {
-                filterId = discussionInfo.replyUserId;
-                storageKey = GreasyforkDiscussionsFilter.$data.FILTER_REPLY_USER_KEY;
-              } else {
-                log.warn("未知data-type");
-              }
-              __pops.confirm({
-                title: {
-                  text: i18next.t("提示"),
-                  position: "center"
-                },
-                content: {
-                  text: i18next.t("确定{{type}}：{{filterId}}？", {
-                    type: $click.textContent,
-                    filterId
-                  }),
-                  html: true
-                },
-                mask: {
-                  enable: true,
-                  clickEvent: {
-                    toClose: true
-                  }
-                },
-                btn: {
-                  ok: {
-                    callback(eventDetails, event3) {
-                      if (utils.isNull(storageKey)) {
-                        log.error("存储的key是空的");
-                        return;
-                      }
-                      let value = PopsPanel.getValue(storageKey, "").trim();
-                      if (value !== "") {
-                        value += "\n";
-                      }
-                      value += filterId;
-                      PopsPanel.setValue(storageKey, value);
-                      eventDetails.close();
-                      $popsDialog.close();
-                      GreasyforkDiscussionsFilter.filter();
-                    }
-                  }
-                },
-                drag: true,
-                dragLimit: true,
-                width: "300px",
-                height: "200px"
-              });
+              let key = $click.getAttribute(
+                attr_filter_key
+              );
+              let value = $click.getAttribute(attr_filter_value);
+              GreasyforkDiscussionsFilter.addValue(key, value);
+              $dialog.close();
+              GreasyforkDiscussionsFilter.filter();
+              Qmsg.success(i18next.t("添加成功"));
             }
           );
         });

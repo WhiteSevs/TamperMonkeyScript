@@ -240,4 +240,5 @@ export const zh_CN_language = {
 	"更新到 {{version}} 版本": "更新到 {{version}} 版本",
 	"降级到 {{version}} 版本": "降级到 {{version}} 版本",
 	"重新安装 {{version}} 版本": "重新安装 {{version}} 版本",
+	"发布的用户id：{{text}}": "发布的用户id：{{text}}",
 };
