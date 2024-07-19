@@ -78,9 +78,6 @@ export const GreasyforkDiscussionsFilter = {
 		const SNIPPET_MAP = new Map<string, HTMLElement>();
 
 		this.getElementList().forEach(($listContainer, index) => {
-			if (!$listContainer.querySelector<HTMLAnchorElement>("a.script-link")) {
-				return;
-			}
 			const discussionInfo =
 				this.parseDiscuessionListContainerInfo($listContainer);
 			let localValueSplit = this.getValue().split("\n");
@@ -146,15 +143,18 @@ export const GreasyforkDiscussionsFilter = {
 	parseDiscuessionListContainerInfo($listContainer: HTMLElement) {
 		const info = {
 			/** 脚本名 */
-			scriptName:
-				$listContainer.querySelector<HTMLAnchorElement>("a.script-link")!
-					.innerText,
+			scriptName: $listContainer.querySelector<HTMLDivElement>(
+				".discussion-meta-item-script-name"
+			)!.innerText,
 			/** 脚本主页地址 */
-			scriptUrl:
-				$listContainer.querySelector<HTMLAnchorElement>("a.script-link")!.href,
+			scriptUrl: $listContainer.querySelector<HTMLAnchorElement>(
+				".discussion-meta-item-script-name a"
+			)?.href,
 			/** 脚本id */
 			scriptId: GreasyforkApi.getScriptId(
-				$listContainer.querySelector<HTMLAnchorElement>("a.script-link")!.href
+				$listContainer.querySelector<HTMLAnchorElement>(
+					".discussion-meta-item-script-name a"
+				)?.href
 			),
 			/** 发布的用户名 */
 			postUserName:

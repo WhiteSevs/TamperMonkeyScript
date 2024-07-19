@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.7.19.13
+// @version            2024.7.19.14
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -3285,9 +3285,6 @@
       this.transformOldRule();
       const SNIPPET_MAP = /* @__PURE__ */ new Map();
       this.getElementList().forEach(($listContainer, index) => {
-        if (!$listContainer.querySelector("a.script-link")) {
-          return;
-        }
         const discussionInfo = this.parseDiscuessionListContainerInfo($listContainer);
         let localValueSplit = this.getValue().split("\n");
         if (SNIPPET_MAP.has(discussionInfo.snippet) && PopsPanel.getValue("greasyfork-discussions-filter-duplicate-comments")) {
@@ -3341,15 +3338,21 @@
      * 解析出元素上的属性
      */
     parseDiscuessionListContainerInfo($listContainer) {
-      var _a2;
+      var _a2, _b, _c;
       const info = {
         /** 脚本名 */
-        scriptName: $listContainer.querySelector("a.script-link").innerText,
+        scriptName: $listContainer.querySelector(
+          ".discussion-meta-item-script-name"
+        ).innerText,
         /** 脚本主页地址 */
-        scriptUrl: $listContainer.querySelector("a.script-link").href,
+        scriptUrl: (_a2 = $listContainer.querySelector(
+          ".discussion-meta-item-script-name a"
+        )) == null ? void 0 : _a2.href,
         /** 脚本id */
         scriptId: GreasyforkApi.getScriptId(
-          $listContainer.querySelector("a.script-link").href
+          (_b = $listContainer.querySelector(
+            ".discussion-meta-item-script-name a"
+          )) == null ? void 0 : _b.href
         ),
         /** 发布的用户名 */
         postUserName: $listContainer.querySelector("a.user-link").innerText,
@@ -3389,9 +3392,9 @@
         ).href;
         info.replyUserId = GreasyforkApi.getUserId(info.replyUserHomeUrl);
         info.replyTimeStamp = new Date(
-          (_a2 = $listContainer.querySelector(
+          (_c = $listContainer.querySelector(
             ".discussion-meta-item .discussion-meta-item relative-time"
-          )) == null ? void 0 : _a2.getAttribute("datetime")
+          )) == null ? void 0 : _c.getAttribute("datetime")
         );
       }
       return info;
@@ -3887,8 +3890,10 @@
      */
     addShortcutOperationButton() {
       log.info("添加快捷操作按钮");
-      document.querySelectorAll(".discussion-list-container").forEach(($listContainer) => {
-        if (!$listContainer.querySelector("a.script-link")) {
+      GreasyforkDiscussionsFilter.getElementList().forEach(($listContainer) => {
+        if ($listContainer.querySelector(
+          ".discussion-filter-button"
+        )) {
           return;
         }
         let $listItem = $listContainer.querySelector(
@@ -3906,6 +3911,7 @@
         );
         $meta.appendChild($ownMetaItem);
         domUtils.on($button, "click", (event) => {
+          var _a2, _b, _c;
           utils.preventEvent(event);
           const discussionInfo = GreasyforkDiscussionsFilter.parseDiscuessionListContainerInfo(
             $listContainer
@@ -3963,6 +3969,15 @@
           let $content = $dialog.$shadowRoot.querySelector(
             ".pops-alert-content"
           );
+          if (discussionInfo.scriptId == null) {
+            (_a2 = $content.querySelector(`button[${attr_filter_key}="scriptId"]`)) == null ? void 0 : _a2.remove();
+          }
+          if (discussionInfo.scriptName == null) {
+            (_b = $content.querySelector(`button[${attr_filter_key}="scriptName"]`)) == null ? void 0 : _b.remove();
+          }
+          if (discussionInfo.postUserId == null) {
+            (_c = $content.querySelector(`button[${attr_filter_key}="postUserId"]`)) == null ? void 0 : _c.remove();
+          }
           if (discussionInfo.replyUserId != null) {
             let $replyUserIdButton = domUtils.createElement("button", {
               innerHTML: i18next.t("作者id：{{text}}", {
