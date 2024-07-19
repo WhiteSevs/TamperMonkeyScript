@@ -1,6 +1,7 @@
 # 油猴脚本
 
-脚本一般在`./packages`下
+单文件脚本在`./scripts`下
+Vite开发的脚本在`./scripts-vite`下
 
 ## 发布地址
 
