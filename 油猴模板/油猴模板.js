@@ -35,13 +35,13 @@
 			var unsafeWindow = globalThis || window || self;
 		}
 	}
-	/** @type {import("../库/pops/index")} */
+	/** @type {import("../lib/pops/index")} */
 	const pops = window.pops;
-	/** @type {import("../库/Qmsg/index").default} */
+	/** @type {import("../lib/Qmsg/index").default} */
 	const Qmsg = window.Qmsg;
-	/** @type {import("../库/Utils/index").default} */
+	/** @type {import("../lib/Utils/index").default} */
 	const utils = window.Utils.noConflict();
-	/**@type {import("../库/DOMUtils/index").default} */
+	/**@type {import("../lib/DOMUtils/index").default} */
 	const DOMUtils = window.DOMUtils.noConflict();
 
 	const log = new utils.Log(GM_info, unsafeWindow.console || console);

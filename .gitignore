@@ -3,14 +3,7 @@
 y
 y.pub
 .gitignore
-脚本一键同步.js
-分页.js
-分页.html
-蛋仔派对/蛋仔乐消除.js
-不同步库
-油猴模板-本地调试.js
 node_modules
 pnpm-lock.yaml
-packages/test-hook-network/*
-packages/test-hook-baidu/*
-分支同步.bat
+scripts-local
+*.bat
