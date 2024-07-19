@@ -428,8 +428,8 @@
 						toClose: true,
 					},
 				},
-				width: "92dvw",
-				height: "80dvh",
+				width: "92vw",
+				height: "80vh",
 				drag: true,
 				dragLimit: true,
 			});
