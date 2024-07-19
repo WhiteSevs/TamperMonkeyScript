@@ -7,7 +7,7 @@
 ## erdua
 
 - 最新版本：[![npm version](https://img.shields.io/npm/v/eruda/latest.svg)](https://www.npmjs.com/package/eruda)
-- 当前版本：`3.1.0`
+- 当前版本：`3.2.0`
 - 项目主页<br>[https://github.com/liriliri/eruda](https://github.com/liriliri/eruda)
 - 项目最新地址<br>[https://cdn.jsdelivr.net/npm/eruda](https://cdn.jsdelivr.net/npm/eruda)<br>[https://fastly.jsdelivr.net/npm/eruda](https://fastly.jsdelivr.net/npm/eruda)<br>[https://testingcf.jsdelivr.net/npm/eruda](https://testingcf.jsdelivr.net/npm/eruda)
 - 【插件】[eruda-monitor](https://github.com/liriliri/eruda-monitor): 展示页面的 fps 和内存信息
