@@ -4,7 +4,20 @@ import { PopsPanel } from "@/setting/setting";
 import { GM_addStyle } from "ViteGM";
 import i18next from "i18next";
 
+type DiscuessionsFilterRule = {
+	/** 脚本名 */
+	scriptName: string;
+	/** 脚本id */
+	scriptId: string;
+	/** 发布的用户id */
+	postUserId: string;
+	/** 回复的用户id */
+	replyUserId: string;
+};
+
 export const GreasyforkDiscussionsFilter = {
+	/** 存储的键 */
+	key: "gf-discuessions-filter-rule",
 	$data: {
 		/** 脚本 */
 		FILTER_SCRIPT_KEY: "greasyfork-discussions-filter-script",
@@ -31,7 +44,7 @@ export const GreasyforkDiscussionsFilter = {
         }
         `);
 		let lockFunction = new utils.LockFunction(() => {
-			this.filterDiscussions();
+			this.filter();
 		}, 50);
 		utils.mutationObserver(document.body, {
 			config: {
@@ -45,112 +58,93 @@ export const GreasyforkDiscussionsFilter = {
 		lockFunction.run();
 	},
 	/**
+	 * 获取反馈列表元素
+	 */
+	getElementList() {
+		let discussionsListContainer: HTMLDivElement[] = [];
+		discussionsListContainer = discussionsListContainer.concat(
+			Array.from(
+				document.querySelectorAll<HTMLDivElement>(".discussion-list-container")
+			)
+		);
+		return discussionsListContainer;
+	},
+	/**
 	 * 论坛-过滤
 	 */
-	filterDiscussions() {
-		const filterScript = PopsPanel.getValue(this.$data.FILTER_SCRIPT_KEY, "");
-		const filterPostUser = PopsPanel.getValue(
-			this.$data.FILTER_POST_USER_KEY,
-			""
-		);
-		const filterReplyUser = PopsPanel.getValue(
-			this.$data.FILTER_REPLY_USER_KEY,
-			""
-		);
-
-		const filterScriptList =
-			filterScript.trim() === "" ? [] : filterScript.split("\n");
-		const filterPostUserList =
-			filterPostUser.trim() === "" ? [] : filterPostUser.split("\n");
-		const filterReplyUserList =
-			filterReplyUser.trim() === "" ? [] : filterReplyUser.split("\n");
-
+	filter() {
+		this.transformOldRule();
+		// 存储的列表元素，用于判断该元素是否重复
 		const SNIPPET_MAP = new Map<string, HTMLElement>();
 
-		document
-			.querySelectorAll<HTMLDivElement>(".discussion-list-container")
-			.forEach(($listContainer, index) => {
-				if (!$listContainer.querySelector<HTMLAnchorElement>("a.script-link")) {
-					return;
-				}
-				const discussionInfo =
-					this.parseDiscussionListContainer($listContainer);
+		this.getElementList().forEach(($listContainer, index) => {
+			if (!$listContainer.querySelector<HTMLAnchorElement>("a.script-link")) {
+				return;
+			}
+			const discussionInfo =
+				this.parseDiscuessionListContainerInfo($listContainer);
+			let localValueSplit = this.getValue().split("\n");
 
-				if (
-					SNIPPET_MAP.has(discussionInfo.snippet) &&
-					PopsPanel.getValue("greasyfork-discussions-filter-duplicate-comments")
-				) {
-					// 过滤重复评论
-					let discussionTitleElement = SNIPPET_MAP.get(
-						discussionInfo.snippet
-					)!.querySelector("a.discussion-title") as HTMLAnchorElement;
-					discussionTitleElement.setAttribute("data-repeat-tip-show", "true");
-					let oldCount = 0;
+			if (
+				SNIPPET_MAP.has(discussionInfo.snippet) &&
+				PopsPanel.getValue("greasyfork-discussions-filter-duplicate-comments")
+			) {
+				// 过滤重复评论
+				let discussionTitleElement = SNIPPET_MAP.get(
+					discussionInfo.snippet
+				)!.querySelector("a.discussion-title") as HTMLAnchorElement;
+				discussionTitleElement.setAttribute("data-repeat-tip-show", "true");
+				let oldCount = 0;
 
-					if (discussionTitleElement.hasAttribute("data-repeat-count")) {
-						oldCount = parseInt(
-							discussionTitleElement.getAttribute("data-repeat-count") as string
-						);
-					}
-					oldCount++;
-					discussionTitleElement.setAttribute(
-						"data-repeat-count",
-						oldCount.toString()
+				if (discussionTitleElement.hasAttribute("data-repeat-count")) {
+					oldCount = parseInt(
+						discussionTitleElement.getAttribute("data-repeat-count") as string
 					);
-					discussionTitleElement.setAttribute(
-						"data-repeat-tip-show",
-						i18next.t("已过滤：{{oldCount}}", { oldCount })
-					);
-					log.success([
-						`过滤重复内容：${discussionInfo.snippet}`,
-						discussionInfo,
-					]);
-					$listContainer.remove();
-					return;
 				}
+				oldCount++;
+				discussionTitleElement.setAttribute(
+					"data-repeat-count",
+					oldCount.toString()
+				);
+				discussionTitleElement.setAttribute(
+					"data-repeat-tip-show",
+					i18next.t("已过滤：{{oldCount}}", { oldCount })
+				);
+				log.success([
+					`过滤重复内容：${discussionInfo.snippet}`,
+					discussionInfo,
+				]);
+				$listContainer.remove();
+				return;
+			}
 
-				SNIPPET_MAP.set(discussionInfo.snippet, $listContainer as HTMLElement);
-				for (const filterScriptId of filterScriptList) {
-					if (discussionInfo.scriptId === filterScriptId) {
-						log.success([
-							`过滤脚本id：${discussionInfo.scriptId}`,
-							discussionInfo,
-						]);
-						$listContainer.remove();
-						return;
-					}
-				}
-
-				for (const filterPostUserId of filterPostUserList) {
-					if (discussionInfo.postUserId === filterPostUserId) {
-						log.success([
-							`过滤发布用户id：${discussionInfo.postUserId}`,
-							discussionInfo,
-						]);
-						$listContainer.remove();
-						return;
-					}
-				}
-
-				if (discussionInfo.replyUserName) {
-					for (const filterReplyUserId of filterReplyUserList) {
-						if (discussionInfo.replyUserId === filterReplyUserId) {
-							log.success([
-								`过滤回复用户id：${discussionInfo.replyUserId}`,
-								discussionInfo,
-							]);
+			SNIPPET_MAP.set(discussionInfo.snippet, $listContainer as HTMLElement);
+			for (let index = 0; index < localValueSplit.length; index++) {
+				let localRule = localValueSplit[index];
+				let ruleSplit = localRule.split("##");
+				/** 规则名 */
+				let ruleName = ruleSplit[0] as keyof DiscuessionsFilterRule;
+				/** 规则值 */
+				let ruleValue = ruleSplit[1];
+				if (ruleName in discussionInfo) {
+					let ruleValueRegExp = new RegExp(ruleValue, "ig");
+					if (discussionInfo[ruleName] != null) {
+						let scriptInfoString = String(discussionInfo[ruleName]);
+						if (scriptInfoString.match(ruleValueRegExp)) {
+							log.info(["触发论坛过滤规则", localRule, discussionInfo]);
 							$listContainer.remove();
 							return;
 						}
 					}
 				}
-			});
+			}
+		});
 	},
 	/**
 	 * 解析出元素上的属性
 	 */
-	parseDiscussionListContainer($listContainer: HTMLElement) {
-		const discussionInfo = {
+	parseDiscuessionListContainerInfo($listContainer: HTMLElement) {
+		const info = {
 			/** 脚本名 */
 			scriptName:
 				$listContainer.querySelector<HTMLAnchorElement>("a.script-link")!
@@ -202,18 +196,14 @@ export const GreasyforkDiscussionsFilter = {
 			)
 		) {
 			// 回复的用户
-			discussionInfo.replyUserName =
-				$listContainer.querySelector<HTMLAnchorElement>(
-					".discussion-meta-item .discussion-meta-item a.user-link"
-				)!.innerText as string;
-			discussionInfo.replyUserHomeUrl =
-				$listContainer.querySelector<HTMLAnchorElement>(
-					".discussion-meta-item .discussion-meta-item a.user-link"
-				)!.href as string;
-			discussionInfo.replyUserId = GreasyforkApi.getUserId(
-				discussionInfo.replyUserHomeUrl
-			);
-			discussionInfo.replyTimeStamp = new Date(
+			info.replyUserName = $listContainer.querySelector<HTMLAnchorElement>(
+				".discussion-meta-item .discussion-meta-item a.user-link"
+			)!.innerText as string;
+			info.replyUserHomeUrl = $listContainer.querySelector<HTMLAnchorElement>(
+				".discussion-meta-item .discussion-meta-item a.user-link"
+			)!.href as string;
+			info.replyUserId = GreasyforkApi.getUserId(info.replyUserHomeUrl);
+			info.replyTimeStamp = new Date(
 				$listContainer
 					.querySelector<HTMLElement>(
 						".discussion-meta-item .discussion-meta-item relative-time"
@@ -221,6 +211,71 @@ export const GreasyforkDiscussionsFilter = {
 					?.getAttribute("datetime") as string
 			);
 		}
-		return discussionInfo;
+		return info;
+	},
+	/** 转换旧规则 @deprecated */
+	transformOldRule() {
+		if (Date.now() > new Date("2024-8-19").getTime()) {
+			// 超过30天不再转换旧规则
+			return;
+		}
+		/** 脚本 */
+		const FILTER_SCRIPT_KEY = "greasyfork-discussions-filter-script";
+		/** 发布用户 */
+		const FILTER_POST_USER_KEY = "greasyfork-discussions-filter-post-user";
+		/** 回复用户 */
+		const FILTER_REPLY_USER_KEY = "greasyfork-discussions-filter-reply-user";
+		const filterScript = PopsPanel.getValue(FILTER_SCRIPT_KEY, "");
+		const filterPostUser = PopsPanel.getValue(FILTER_POST_USER_KEY, "");
+		const filterReplyUser = PopsPanel.getValue(FILTER_REPLY_USER_KEY, "");
+		const filterScriptList =
+			filterScript.trim() === "" ? [] : filterScript.split("\n");
+		const filterPostUserList =
+			filterPostUser.trim() === "" ? [] : filterPostUser.split("\n");
+		const filterReplyUserList =
+			filterReplyUser.trim() === "" ? [] : filterReplyUser.split("\n");
+		filterScriptList.forEach((ruleValue) => {
+			this.addValue(
+				"scriptId",
+				utils.parseStringToRegExpString("^" + ruleValue + "$")
+			);
+		});
+		filterPostUserList.forEach((ruleValue) => {
+			this.addValue(
+				"postUserId",
+				utils.parseStringToRegExpString("^" + ruleValue + "$")
+			);
+		});
+		filterReplyUserList.forEach((ruleValue) => {
+			this.addValue(
+				"replyUserId",
+				utils.parseStringToRegExpString("^" + ruleValue + "$")
+			);
+		});
+		PopsPanel.deleteValue(FILTER_SCRIPT_KEY);
+		PopsPanel.deleteValue(FILTER_POST_USER_KEY);
+		PopsPanel.deleteValue(FILTER_REPLY_USER_KEY);
+	},
+	setValue(value: string) {
+		PopsPanel.setValue(this.key, value);
+	},
+	addValue(
+		key: keyof DiscuessionsFilterRule,
+		value: DiscuessionsFilterRule[keyof DiscuessionsFilterRule]
+	) {
+		let localValue = this.getValue();
+		if (localValue.trim() !== "") {
+			localValue += "\n";
+		}
+		if (utils.isNull(key)) {
+			return;
+		}
+		key = key.toString().trim() as keyof DiscuessionsFilterRule;
+		let rule = key + "##" + value;
+		localValue += rule;
+		this.setValue(localValue);
+	},
+	getValue() {
+		return PopsPanel.getValue(this.key, "");
 	},
 };

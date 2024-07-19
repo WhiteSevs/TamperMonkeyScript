@@ -4,6 +4,8 @@ import { PopsPanel } from "../setting";
 import i18next from "i18next";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { UIInput } from "../common-components/ui-input";
+import { GreasyforkDiscussionsFilter } from "@/main/navigator/discussions/GreasyforkDiscussionsFilter";
+import { text } from "stream/consumers";
 
 const SettingUIDiscuessions: PopsPanelContentConfig = {
 	id: "greasy-fork-panel-config-discussions",
@@ -92,7 +94,9 @@ const SettingUIDiscuessions: PopsPanelContentConfig = {
 					type: "deepMenu",
 					forms: [
 						{
-							text: "",
+							text: `<a target="_blank" href="https://greasyfork.org/zh-CN/scripts/475722-greasyfork%E4%BC%98%E5%8C%96#:~:text=%E8%AE%BA%E5%9D%9B%E8%BF%87%E6%BB%A4%E8%A7%84%E5%88%99">${i18next.t(
+								"帮助文档"
+							)}</a>`,
 							type: "forms",
 							forms: [
 								UISwitch(
@@ -109,150 +113,38 @@ const SettingUIDiscuessions: PopsPanelContentConfig = {
 									void 0,
 									i18next.t("过滤掉重复的评论数量(≥2)")
 								),
-							],
-						},
-
-						{
-							text: "",
-							type: "forms",
-							forms: [
 								{
-									text: i18next.t("过滤脚本(id)"),
-									type: "deepMenu",
-									forms: [
-										{
-											text: "",
-											type: "forms",
-											forms: [
-												{
-													type: "own",
-													getLiElementCallBack(liElement) {
-														let textareaDiv = DOMUtils.createElement(
-															"div",
-															{
-																className: "pops-panel-textarea",
-																innerHTML: `
-														<textarea placeholder="${i18next.t(
-															"请输入脚本id，每行一个"
-														)}" style="height:150px;"></textarea>`,
-															},
-															{
-																style: "width: 100%;",
-															}
-														);
-														let textarea = textareaDiv.querySelector(
-															"textarea"
-														) as HTMLTextAreaElement;
-														const KEY = "greasyfork-discussions-filter-script";
-														textarea.value = PopsPanel.getValue(KEY, "");
-														DOMUtils.on(
-															textarea,
-															["input", "propertychange"],
-															void 0,
-															utils.debounce(function (event) {
-																PopsPanel.setValue(KEY, textarea.value);
-															}, 200)
-														);
-														liElement.appendChild(textareaDiv);
-														return liElement;
-													},
-												},
-											],
-										},
-									],
-								},
-								{
-									text: i18next.t("过滤发布的用户(id)"),
-									type: "deepMenu",
-									forms: [
-										{
-											text: "",
-											type: "forms",
-											forms: [
-												{
-													type: "own",
-													getLiElementCallBack(liElement) {
-														let textareaDiv = DOMUtils.createElement(
-															"div",
-															{
-																className: "pops-panel-textarea",
-																innerHTML: `
-														<textarea placeholder="${i18next.t(
-															"请输入用户id，每行一个"
-														)}" style="height:150px;"></textarea>`,
-															},
-															{
-																style: "width: 100%;",
-															}
-														);
-														let textarea =
-															textareaDiv.querySelector<HTMLTextAreaElement>(
-																"textarea"
-															) as HTMLTextAreaElement;
-														const KEY =
-															"greasyfork-discussions-filter-post-user";
-														textarea.value = PopsPanel.getValue(KEY, "");
-														DOMUtils.on(
-															textarea,
-															["input", "propertychange"],
-															void 0,
-															utils.debounce(function (event) {
-																PopsPanel.setValue(KEY, textarea.value);
-															}, 200)
-														);
-														liElement.appendChild(textareaDiv);
-														return liElement;
-													},
-												},
-											],
-										},
-									],
-								},
-								{
-									text: i18next.t("过滤回复的用户(id)"),
-									type: "deepMenu",
-									forms: [
-										{
-											text: "",
-											type: "forms",
-											forms: [
-												{
-													type: "own",
-													getLiElementCallBack(liElement) {
-														let textareaDiv = DOMUtils.createElement(
-															"div",
-															{
-																className: "pops-panel-textarea",
-																innerHTML: `
-												<textarea placeholder="${i18next.t(
-													"请输入用户id，每行一个"
-												)}" style="height:150px;"></textarea>`,
-															},
-															{
-																style: "width: 100%;",
-															}
-														);
-														let textarea = textareaDiv.querySelector(
-															"textarea"
-														) as HTMLTextAreaElement;
-														const KEY =
-															"greasyfork-discussions-filter-reply-user";
-														textarea.value = PopsPanel.getValue(KEY, "");
-														DOMUtils.on(
-															textarea,
-															["input", "propertychange"],
-															void 0,
-															utils.debounce(function (event) {
-																PopsPanel.setValue(KEY, textarea.value);
-															}, 200)
-														);
-														liElement.appendChild(textareaDiv);
-														return liElement;
-													},
-												},
-											],
-										},
-									],
+									type: "own",
+									getLiElementCallBack(liElement) {
+										let textareaDiv = DOMUtils.createElement(
+											"div",
+											{
+												className: "pops-panel-textarea",
+												innerHTML: `
+										<textarea placeholder="${i18next.t(
+											"请输入规则，每行一个"
+										)}" style="height:200px;"></textarea>`,
+											},
+											{
+												style: "width: 100%;",
+											}
+										);
+										let $textarea =
+											textareaDiv.querySelector<HTMLTextAreaElement>(
+												"textarea"
+											)!;
+										$textarea.value = GreasyforkDiscussionsFilter.getValue();
+										DOMUtils.on(
+											$textarea,
+											["input", "propertychange"],
+											void 0,
+											utils.debounce(function (event) {
+												GreasyforkDiscussionsFilter.setValue($textarea.value);
+											}, 200)
+										);
+										liElement.appendChild(textareaDiv);
+										return liElement;
+									},
 								},
 							],
 						},

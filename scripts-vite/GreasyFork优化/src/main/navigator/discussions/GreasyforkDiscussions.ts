@@ -64,7 +64,7 @@ export const GreasyforkForum = {
 					utils.preventEvent(event);
 
 					const discussionInfo =
-						GreasyforkDiscussionsFilter.parseDiscussionListContainer(
+						GreasyforkDiscussionsFilter.parseDiscuessionListContainerInfo(
 							$listContainer
 						);
 					let $popsDialog = pops.alert({
@@ -172,7 +172,7 @@ export const GreasyforkForum = {
 											PopsPanel.setValue(storageKey, value);
 											eventDetails.close();
 											$popsDialog.close();
-											GreasyforkDiscussionsFilter.filterDiscussions();
+											GreasyforkDiscussionsFilter.filter();
 										},
 									},
 								},

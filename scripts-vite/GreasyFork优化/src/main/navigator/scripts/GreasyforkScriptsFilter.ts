@@ -2,6 +2,23 @@ import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { parseScriptListInfo } from "./GreasyforkScriptsList";
 
+export type ScriptFilterRule = {
+	/** 脚本代码链接 */
+	codeUrl: string;
+	/** 脚本id */
+	scriptId: string;
+	/** 脚本名 */
+	scriptName: string;
+	/** 脚本描述 */
+	scriptDescription: string;
+	/** 脚本作者id	 */
+	scriptAuthorId: string;
+	/** 脚本作者名	 */
+	scriptAuthorName: string;
+	/** 脚本评分 */
+	scriptRatingScore: string;
+};
+
 /** 脚本过滤 */
 export const GreasyforkScriptsFilter = {
 	/** 存储的键 */
@@ -27,7 +44,7 @@ export const GreasyforkScriptsFilter = {
 	/**
 	 * 获取脚本列表元素
 	 */
-	getScriptElementList() {
+	getElementList() {
 		let scriptList: HTMLLIElement[] = [];
 		scriptList = scriptList.concat(
 			Array.from(document.querySelectorAll<HTMLLIElement>("ol.script-list li"))
@@ -38,7 +55,7 @@ export const GreasyforkScriptsFilter = {
 	 * 对页面进行过滤
 	 */
 	filter() {
-		this.getScriptElementList().forEach(($scriptList) => {
+		this.getElementList().forEach(($scriptList) => {
 			let data = parseScriptListInfo($scriptList);
 
 			let localValueSplit = this.getValue().split("\n");
@@ -55,14 +72,14 @@ export const GreasyforkScriptsFilter = {
 					if (ruleValue.startsWith(">")) {
 						/* 大于 */
 						if (data.scriptRatingScore > userRatingScoreValue) {
-							log.info(["触发过滤规则", [localRule, data]]);
+							log.info(["触发脚本过滤规则", [localRule, data]]);
 							$scriptList.remove();
 							break;
 						}
 					} else if (ruleValue.startsWith("<")) {
 						/* 小于 */
 						if (data.scriptRatingScore < userRatingScoreValue) {
-							log.info(["触发过滤规则", [localRule, data]]);
+							log.info(["触发脚本过滤规则", [localRule, data]]);
 							$scriptList.remove();
 							break;
 						}
@@ -74,7 +91,7 @@ export const GreasyforkScriptsFilter = {
 					let ruleValueRegExp = new RegExp(ruleValue, "ig");
 					let scriptInfoString = String((data as any)[ruleName]);
 					if (scriptInfoString.match(ruleValueRegExp)) {
-						log.info(["触发过滤规则", localRule, data]);
+						log.info(["触发脚本过滤规则", localRule, data]);
 						$scriptList.remove();
 						break;
 					}
@@ -85,13 +102,21 @@ export const GreasyforkScriptsFilter = {
 	setValue(value: string) {
 		PopsPanel.setValue(this.key, value);
 	},
-	addValue(value: string) {
+	addValue(
+		key: keyof ScriptFilterRule,
+		value: ScriptFilterRule[keyof ScriptFilterRule]
+	) {
 		let localValue = this.getValue();
 		if (localValue.trim() !== "") {
 			localValue += "\n";
 		}
-		localValue += value;
-		return this.setValue(localValue);
+		if (utils.isNull(key)) {
+			return;
+		}
+		key = key.toString().trim() as any;
+		let rule = key + "##" + value;
+		localValue += rule;
+		this.setValue(localValue);
 	},
 	getValue() {
 		return PopsPanel.getValue(this.key, "");

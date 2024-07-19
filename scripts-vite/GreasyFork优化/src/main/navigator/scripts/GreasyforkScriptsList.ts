@@ -1,5 +1,8 @@
 import { httpx, log, pops, utils } from "@/env";
-import { GreasyforkScriptsFilter } from "@/main/navigator/scripts/GreasyforkScriptsFilter";
+import {
+	GreasyforkScriptsFilter,
+	ScriptFilterRule,
+} from "@/main/navigator/scripts/GreasyforkScriptsFilter";
 import { PopsPanel } from "@/setting/setting";
 import DOMUtils from "@whitesev/domutils";
 import i18next from "i18next";
@@ -80,7 +83,7 @@ export const GreasyforkScriptsList = {
 		let result = [];
 		result.push(GM_addStyle(beautifyCenterContentCSS));
 		DOMUtils.ready(async () => {
-			let allScriptsList = GreasyforkScriptsFilter.getScriptElementList();
+			let allScriptsList = GreasyforkScriptsFilter.getElementList();
 
 			allScriptsList.forEach(($scriptList) => {
 				if ($scriptList.querySelector(".script-list-operation")) {
@@ -310,9 +313,11 @@ export const GreasyforkScriptsList = {
 						DOMUtils.on($dialog.$shadowRoot, "click", "button", (event) => {
 							utils.preventEvent(event);
 							let $click = event.target as HTMLButtonElement;
-							let key = $click.getAttribute(attr_filter_key);
-							let value = $click.getAttribute(attr_filter_value);
-							GreasyforkScriptsFilter.addValue(`${key}##${value}`);
+							let key = $click.getAttribute(
+								attr_filter_key
+							)! as keyof ScriptFilterRule;
+							let value = $click.getAttribute(attr_filter_value)!;
+							GreasyforkScriptsFilter.addValue(key, value);
 							$dialog.close();
 							GreasyforkScriptsFilter.filter();
 							Qmsg.success(i18next.t("添加成功"));

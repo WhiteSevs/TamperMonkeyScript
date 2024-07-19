@@ -1,10 +1,12 @@
 import path from "path";
 import fs from "fs";
 
-let originDirName = __dirname;
+const originDirName = __dirname;
 export class ViteUtils {
-	/** 文件夹的路径 */
+	/** 文件夹的路径（调用者） */
 	dirName: string = originDirName;
+	/** vite.utils.ts所在的路径 */
+	originDirName: string = originDirName;
 	/**
 	 * 初始化
 	 * @param dirName 可以设置当前的路径
@@ -16,12 +18,12 @@ export class ViteUtils {
 	}
 	/** 获取vite.utils.ts的绝对路径 */
 	getViteUtilsPath() {
-		return path.resolve(originDirName);
+		return path.resolve(this.originDirName);
 	}
 	/** 获取package.json的信息 */
 	getPackageJSON() {
 		let pkgInfo = fs.readFileSync(
-			path.resolve(originDirName, "./package.json"),
+			path.resolve(this.originDirName, "./package.json"),
 			"utf-8"
 		);
 		let packageInfo = JSON.parse(pkgInfo) as {
@@ -86,6 +88,14 @@ export class ViteUtils {
 	 */
 	getAbsolutePath(pathName: string) {
 		let realPath = path.resolve(this.dirName, pathName);
+		return realPath;
+	}
+	/**
+	 * 获取文件的绝对路径(根据vite.utils.ts的路径)
+	 * @param pathName
+	 */
+	getOriginAbsolutePath(pathName: string) {
+		let realPath = path.resolve(this.originDirName, pathName);
 		return realPath;
 	}
 	/**
@@ -233,143 +243,135 @@ export class ViteUtils {
 
 export const viteUtils = new ViteUtils();
 
+/** 库映射信息 */
 const LIB_MAP = {
 	CoverUMD: {
 		localPath:
-			"file://" + viteUtils.getAbsolutePath("./../../库/CoverUMD/index.js"),
+			"file://" + viteUtils.getOriginAbsolutePath("./lib/CoverUMD/index.js"),
 		url: async () => {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(494167);
 		},
 	},
 	Viewer: {
-		localPath:
-			"file://" + viteUtils.getAbsolutePath("./../../库/Viewer/index.js"),
+		localPath: "file://" + viteUtils.getAbsolutePath("./lib/Viewer/index.js"),
 		url: async () => {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(449471);
 		},
 	},
 	Qmsg: {
 		localPath:
-			"file://" +
-			viteUtils.getAbsolutePath("./../../库/Qmsg/dist/index.umd.js"),
+			"file://" + viteUtils.getAbsolutePath("./lib/Qmsg/dist/index.umd.js"),
 		url: async () => {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(462234);
 		},
 	},
 	pops: {
-		localPath:
-			"file://" + viteUtils.getAbsolutePath("./../../库/pops/index.js"),
+		localPath: "file://" + viteUtils.getAbsolutePath("./lib/pops/index.js"),
 		url: async () => {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(456485);
 		},
 	},
 	Utils: {
-		localPath:
-			"file://" + viteUtils.getAbsolutePath("./../../库/Utils/index.js"),
+		localPath: "file://" + viteUtils.getAbsolutePath("./lib/Utils/index.js"),
 		url: async () => {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(455186);
 		},
 	},
 	DOMUtils: {
-		localPath:
-			"file://" + viteUtils.getAbsolutePath("./../../库/DOMUtils/index.js"),
+		localPath: "file://" + viteUtils.getAbsolutePath("./lib/DOMUtils/index.js"),
 		url: async () => {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(465772);
 		},
 	},
 	showdown: {
-		localPath:
-			"file://" + viteUtils.getAbsolutePath("./../../库/showdown/index.js"),
+		localPath: "file://" + viteUtils.getAbsolutePath("./lib/showdown/index.js"),
 		url: async () => {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(488179);
 		},
 	},
 	Xtiper: {
-		localPath:
-			"file://" + viteUtils.getAbsolutePath("./../../库/Xtiper/index.js"),
+		localPath: "file://" + viteUtils.getAbsolutePath("./lib/Xtiper/index.js"),
 		url: async () => {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(449512);
 		},
 	},
 	NZMsgBox: {
-		localPath:
-			"file://" + viteUtils.getAbsolutePath("./../../库/NZMsgBox/index.js"),
+		localPath: "file://" + viteUtils.getAbsolutePath("./lib/NZMsgBox/index.js"),
 		url: async () => {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(449562);
 		},
 	},
 	"js-watermark": {
 		localPath:
-			"file://" + viteUtils.getAbsolutePath("./../../库/js-watermark/index.js"),
+			"file://" + viteUtils.getAbsolutePath("./lib/js-watermark/index.js"),
 		url: async () => {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(452322);
 		},
 	},
 	GM_html2canvas: {
 		localPath:
-			"file://" + viteUtils.getAbsolutePath("./../../库/html2canvas/index.js"),
+			"file://" + viteUtils.getAbsolutePath("./lib/html2canvas/index.js"),
 		url: async () => {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(456607);
 		},
 	},
 	"JS-分页插件": {
 		localPath:
-			"file://" + viteUtils.getAbsolutePath("./../../库/DataPaging/index.js"),
+			"file://" + viteUtils.getAbsolutePath("./lib/DataPaging/index.js"),
 		url: async () => {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(465550);
 		},
 	},
 	Eruda: {
-		localPath:
-			"file://" + viteUtils.getAbsolutePath("./../../库/Eruda/index.js"),
+		localPath: "file://" + viteUtils.getAbsolutePath("./lib/Eruda/index.js"),
 		url: async () => {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(483694);
 		},
 	},
 	vConsole: {
-		localPath:
-			"file://" + viteUtils.getAbsolutePath("./../../库/VConsole/index.js"),
+		localPath: "file://" + viteUtils.getAbsolutePath("./lib/VConsole/index.js"),
 		url: async () => {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(483695);
 		},
 	},
 	PageSpy: {
-		localPath:
-			"file://" + viteUtils.getAbsolutePath("./../../库/PageSpy/index.js"),
+		localPath: "file://" + viteUtils.getAbsolutePath("./lib/PageSpy/index.js"),
 		url: async () => {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(483696);
 		},
 	},
 	Leaflet: {
-		localPath:
-			"file://" + viteUtils.getAbsolutePath("./../../库/leaflet/index.js"),
+		localPath: "file://" + viteUtils.getAbsolutePath("./lib/leaflet/index.js"),
 		url: async () => {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(483765);
 		},
 	},
 	"Crypto-JS": {
-		localPath:
-			"file://" + viteUtils.getAbsolutePath("./../../库/CryptoJS/index.js"),
+		localPath: "file://" + viteUtils.getAbsolutePath("./lib/CryptoJS/index.js"),
 		url: async () => {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(486152);
 		},
 	},
 	"Element-Plus": {
 		localPath:
-			"file://" + viteUtils.getAbsolutePath("./../../库/Element-Plus/index.js"),
+			"file://" + viteUtils.getAbsolutePath("./lib/Element-Plus/index.js"),
 		url: async () => {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(495227);
 		},
 	},
 	QRCode: {
 		localPath:
-			"file://" + viteUtils.getAbsolutePath("./../../库/QRCode/index.umd.js"),
+			"file://" + viteUtils.getAbsolutePath("./lib/QRCode/index.umd.js"),
 		url: async () => {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(497907);
 		},
 	},
 };
 
+/**
+ * 获取库的链接信息，server下是file://...，build下是https://...
+ * @param libName 库名|库名数组
+ */
 export async function GetLib(libName: keyof typeof LIB_MAP): Promise<string>;
 export async function GetLib(
 	libName: (keyof typeof LIB_MAP)[]

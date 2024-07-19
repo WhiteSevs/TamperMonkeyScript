@@ -142,7 +142,7 @@ export const SettingUIScripts: PopsPanelContentConfig = {
 					type: "deepMenu",
 					forms: [
 						{
-							text: `<a target="_blank" href="https://greasyfork.org/zh-CN/scripts/475722-greasyfork%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99">${i18next.t(
+							text: `<a target="_blank" href="https://greasyfork.org/zh-CN/scripts/475722-greasyfork%E4%BC%98%E5%8C%96#:~:text=%E8%84%9A%E6%9C%AC%E8%BF%87%E6%BB%A4%E8%A7%84%E5%88%99">${i18next.t(
 								"帮助文档"
 							)}</a>`,
 							type: "forms",
@@ -164,28 +164,23 @@ export const SettingUIScripts: PopsPanelContentConfig = {
 												innerHTML: `
 												<textarea placeholder="${i18next.t(
 													"请输入规则，每行一个"
-												)}" style="height:150px;"></textarea>`,
+												)}" style="height:200px;"></textarea>`,
 											},
 											{
 												style: "width: 100%;",
 											}
 										);
-										let textarea = textareaDiv.querySelector(
-											"textarea"
-										) as HTMLTextAreaElement;
-										textarea.value = PopsPanel.getValue(
-											GreasyforkScriptsFilter.key,
-											""
-										);
+										let $textarea =
+											textareaDiv.querySelector<HTMLTextAreaElement>(
+												"textarea"
+											)!;
+										$textarea.value = GreasyforkScriptsFilter.getValue();
 										DOMUtils.on(
-											textarea,
+											$textarea,
 											["input", "propertychange"],
 											void 0,
 											utils.debounce(function (event) {
-												PopsPanel.setValue(
-													GreasyforkScriptsFilter.key,
-													textarea.value
-												);
+												GreasyforkScriptsFilter.setValue($textarea.value);
 											}, 200)
 										);
 										liElement.appendChild(textareaDiv);
