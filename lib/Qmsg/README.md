@@ -1,5 +1,8 @@
 <font size="6">Message.js</font>
 
++ 最新版本：[![npm version](https://img.shields.io/npm/v/qmsg)](https://www.npmjs.com/package/qmsg)
+
+
 **插件描述：**
 一款优雅的原生JS页面消息提示插件，兼容性良好，无任何依赖。
 

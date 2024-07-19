@@ -1,5 +1,7 @@
 # 安装
 
++ 最新版本：[![npm version](https://img.shields.io/npm/v/@whitesev/utils)](https://www.npmjs.com/package/@whitesev/utils)
+
 ```node
 npm install @whitesev/utils
 // 或者

@@ -1,8 +1,9 @@
-## 将跨域改为通过GM_xmlhttpRequest获取
+# 将跨域改为通过GM_xmlhttpRequest获取
 
 ## 介绍
 
-+ 版本：`1.4.1`
++ 最新版本：[![npm version](https://img.shields.io/npm/v/html2canvas?label=html2canvas)](https://www.npmjs.com/package/html2canvas)
++ 当前版本：`1.4.1`
 + 文件地址：[https://html2canvas.hertzen.com/dist/html2canvas.js](https://html2canvas.hertzen.com/dist/html2canvas.js)
 + 项目地址：[https://html2canvas.hertzen.com/](https://html2canvas.hertzen.com/)
 
@@ -20,4 +21,4 @@ html2canvas(document.documentElement, options ).then( canvas =>{
 })
 ```
 
-# 如果是自己使用webview定义的GM_xmlhttpRequest，可在onload回调参数中新增一个`responseBase64`用于图片的base64获取
+## 如果是自己使用webview定义的GM_xmlhttpRequest，可在onload回调参数中新增一个`responseBase64`用于图片的base64获取

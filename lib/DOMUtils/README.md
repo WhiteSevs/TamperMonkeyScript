@@ -1,3 +1,7 @@
+# 版本
+
+- 最新版本：[![npm version](https://img.shields.io/npm/v/@whitesev/domutils/latest.svg)](https://www.npmjs.com/package/@whitesev/domutils)
+
 ## 使用
 
 ```npm

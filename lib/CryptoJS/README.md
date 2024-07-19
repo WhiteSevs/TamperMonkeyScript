@@ -1,4 +1,4 @@
-## Crypto-js
+# Crypto-js
 
 - 修改内容：修改注册到全局的方式
 - 最新版本：[![npm version](https://img.shields.io/npm/v/crypto-js/latest.svg)](https://www.npmjs.com/package/crypto-js)

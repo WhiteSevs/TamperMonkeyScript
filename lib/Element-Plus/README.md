@@ -7,6 +7,7 @@ var ElementPlus = (function(){
 })()
 ```
 
-## 当前版本
+## 版本
 
-`2.7.7`
+- 最新版本：[![npm version](https://img.shields.io/npm/v/element-plus/latest.svg)](https://www.npmjs.com/package/element-plus)
+- 当前版本：`2.7.7`

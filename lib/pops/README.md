@@ -1,8 +1,8 @@
 # 弹窗库
 
++ 最新版本：[![npm version](https://img.shields.io/npm/v/@whitesev/pops)](https://www.npmjs.com/package/@whitesev/pops)
+
 ```js
-npm i @whitesev/pops
-```
 
 ## pops.isPhone
 
