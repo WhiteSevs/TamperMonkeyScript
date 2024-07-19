@@ -3338,7 +3338,7 @@
      * 解析出元素上的属性
      */
     parseDiscuessionListContainerInfo($listContainer) {
-      var _a2, _b, _c;
+      var _a2, _b, _c, _d;
       const info = {
         /** 脚本名 */
         scriptName: $listContainer.querySelector(
@@ -3369,16 +3369,14 @@
         /** 发布的地址*/
         snippetUrl: $listContainer.querySelector("a.discussion-title").href,
         /** 发布的内容片段*/
-        snippet: $listContainer.querySelector(
-          "span.discussion-snippet"
-        ).innerText,
-        /** 回复的用户名*/
+        snippet: ((_c = $listContainer.querySelector("span.discussion-snippet")) == null ? void 0 : _c.innerText) || "",
+        /** （如果有）回复的用户名*/
         replyUserName: void 0,
-        /** 回复的用户主页地址*/
+        /** （如果有）回复的用户主页地址*/
         replyUserHomeUrl: void 0,
-        /** 回复的用户id*/
+        /** （如果有）回复的用户id*/
         replyUserId: void 0,
-        /** 回复的时间 */
+        /** （如果有）回复的时间 */
         replyTimeStamp: void 0
       };
       if ($listContainer.querySelector(
@@ -3392,9 +3390,9 @@
         ).href;
         info.replyUserId = GreasyforkApi.getUserId(info.replyUserHomeUrl);
         info.replyTimeStamp = new Date(
-          (_c = $listContainer.querySelector(
+          (_d = $listContainer.querySelector(
             ".discussion-meta-item .discussion-meta-item relative-time"
-          )) == null ? void 0 : _c.getAttribute("datetime")
+          )) == null ? void 0 : _d.getAttribute("datetime")
         );
       }
       return info;

@@ -178,16 +178,16 @@ export const GreasyforkDiscussionsFilter = {
 				$listContainer.querySelector<HTMLAnchorElement>("a.discussion-title")!
 					.href,
 			/** 发布的内容片段*/
-			snippet: $listContainer.querySelector<HTMLSpanElement>(
-				"span.discussion-snippet"
-			)!.innerText,
-			/** 回复的用户名*/
+			snippet:
+				$listContainer.querySelector<HTMLSpanElement>("span.discussion-snippet")
+					?.innerText || "",
+			/** （如果有）回复的用户名*/
 			replyUserName: void 0 as string | undefined,
-			/** 回复的用户主页地址*/
+			/** （如果有）回复的用户主页地址*/
 			replyUserHomeUrl: void 0 as string | undefined,
-			/** 回复的用户id*/
+			/** （如果有）回复的用户id*/
 			replyUserId: void 0 as string | undefined,
-			/** 回复的时间 */
+			/** （如果有）回复的时间 */
 			replyTimeStamp: void 0 as Date | undefined,
 		};
 		if (
