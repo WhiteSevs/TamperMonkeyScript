@@ -11,7 +11,7 @@ const TiebaHome = {
 	init() {
 		TiebaRouter.init();
 		MountVue(App, [TiebaRouter.router, ElementPlus]);
-		addStyle(`
+		addStyle(/*css*/ `
         #${VUE_ELE_NAME_ID}{
             z-index: 1000;
         }

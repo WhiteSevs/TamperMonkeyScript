@@ -22,7 +22,7 @@ const TiebaHybrid = {
 			/* 底部的百度贴吧app内打开 */
 			".tb-index-navbar div:has(.fix-nav-bar-bottom)"
 		);
-		addStyle(`
+		addStyle(/*css*/ `
           /* 把下面的内容往上移 */
           #app_container ul.navbar-box{
             top: 0px !important;

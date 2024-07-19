@@ -446,7 +446,7 @@ const BaiduResultItem = {
 	 * 添加CSDN的CSS
 	 */
 	addCSDNFlagCSS() {
-		addStyle(`
+		addStyle(/*css*/ `
         .csdn-flag-component-box{display:flex;margin:0;text-align:left;font-size:0;position:relative;width:260px;margin:5px 0}
         .csdn-flag-component-box a{display:inline-block;font-size:14px}
         .csdn-flag-component-box .praise {
@@ -483,7 +483,7 @@ const BaiduResultItem = {
 		if ($titleText) {
 			DOMUtils.append(
 				$titleText,
-				`<div class="csdn-flag-component-box"><a class="praise" href="javascript:;">CSDN下载</a></div>`
+				/*html*/ `<div class="csdn-flag-component-box"><a class="praise" href="javascript:;">CSDN下载</a></div>`
 			);
 			log.success("插入CSDN下载提示标题");
 		}

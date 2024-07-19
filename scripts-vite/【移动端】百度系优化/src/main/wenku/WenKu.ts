@@ -7,7 +7,7 @@ const BaiduWenKu = {
 	init() {
 		addStyle(WenKuShieldCSS);
 		log.info("插入CSS规则");
-		addStyle(`
+		addStyle(/*css*/ `
         /* 上面的工具栏会挡住标题栏 */
         #app-pre .top-card.top-card-top{
             margin-top: 56px !important;

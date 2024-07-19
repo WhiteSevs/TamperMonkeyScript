@@ -7,10 +7,10 @@ import { CommonUtils } from "@/utils/CommonUtils";
 const BaiduMbd = {
 	init() {
 		/* 
-      示例
-      https://mbd.baidu.com/newspage/data/landingsuper?isBdboxFrom=1&pageType=1&context=%7B%22nid%22%3A%22news_8924612668430208297%22,%22sourceFrom%22%3A%22bjh%22%7D
-      https://mbd.baidu.com/newspage/data/dtlandingshare?sourceFrom=share_ugc&nid=dt_5121203594593120342
-      */
+		示例
+		https://mbd.baidu.com/newspage/data/landingsuper?isBdboxFrom=1&pageType=1&context=%7B%22nid%22%3A%22news_8924612668430208297%22,%22sourceFrom%22%3A%22bjh%22%7D
+		https://mbd.baidu.com/newspage/data/dtlandingshare?sourceFrom=share_ugc&nid=dt_5121203594593120342
+		*/
 		addStyle(MbdShieldCSS);
 		log.info("插入CSS规则");
 		BaiduMbdHook.init();

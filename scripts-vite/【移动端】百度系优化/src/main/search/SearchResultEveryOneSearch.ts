@@ -28,9 +28,9 @@ const SearchResultEveryOneSearch = {
 				.querySelectorAll(".rw-list-container .rw-list-new")
 				.forEach((searchItemEle) => {
 					let searchText = searchItemEle?.textContent?.trim();
-					searchItemEle.innerHTML = `
+					searchItemEle.innerHTML = /*html*/ `
                         <a href="javascript:;" onclick="return false;" target="_self" class="whitesev-gm-refactor-everyone-searching">
-                        <span>${searchText}</span>
+                        	<span>${searchText}</span>
                         </a>`;
 					(searchItemEle as HTMLElement).style.setProperty(
 						"padding",
@@ -84,14 +84,14 @@ const SearchResultEveryOneSearch = {
 			}
 			innerBottomSmallElementList.forEach((item) => {
 				let searchText = item.textContent?.trim();
-				rwListContainerHTML += `
+				rwListContainerHTML += /*html*/ `
                 <div class="rw-list-new rw-list-new2" style="padding: 0.06rem;width: 49%;">
                     <a href="javascript:;" onclick="return false;" target="_self" class="whitesev-gm-refactor-everyone-searching">
                     <span>${searchText}</span>
                     </a>
                 </div>`;
 			});
-			recommendElement.innerHTML = `
+			recommendElement.innerHTML = /*html*/ `
                 <div m-service="relative" data-tpl="san" id="relativewords" class="se-relativewords c-container se-relativewords-new c-bg-color-white">
                 <div class="rw-little-title">
                     <div class="c-row">

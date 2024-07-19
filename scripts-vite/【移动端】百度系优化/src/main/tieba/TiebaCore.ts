@@ -142,31 +142,31 @@ const TiebaCore = {
 		let showScrollTopButton = function () {
 			isInsertButton = true;
 			let buttonElement = DOMUtils.parseHTML(
-				`
-            <div class="tb-totop whitesev-tb-totop">
-              <style>
-              .whitesev-tb-totop{
-                position: fixed;
-                right: .09rem;
-                bottom: 1rem;
-                z-index: 1000;
-              }
-              .whitesev-tb-totop .tb-totop__span{
-                display: inline-block;
-                width: .51rem;
-                height: .51rem;
-              }
-              .whitesev-tb-totop .tb-totop__svg{
-                width: 100%;
-                height: 100%;
-              }
-              </style>
-              <span class="tb-totop__span">
-                <svg class="tb-totop__svg">
-                  <use xlink:href="#icon_frs_top_50"></use>
-                </svg>
-              </span>
-            </div>`,
+				/*html*/ `
+				<div class="tb-totop whitesev-tb-totop">
+				<style>
+					.whitesev-tb-totop{
+						position: fixed;
+						right: .09rem;
+						bottom: 1rem;
+						z-index: 1000;
+					}
+					.whitesev-tb-totop .tb-totop__span{
+						display: inline-block;
+						width: .51rem;
+						height: .51rem;
+					}
+					.whitesev-tb-totop .tb-totop__svg{
+						width: 100%;
+						height: 100%;
+					}
+					</style>
+					<span class="tb-totop__span">
+						<svg class="tb-totop__svg">
+						<use xlink:href="#icon_frs_top_50"></use>
+						</svg>
+					</span>
+				</div>`,
 				true,
 				false
 			) as HTMLButtonElement;

@@ -59,7 +59,7 @@ const BaiduISite = {
 				/* 点击查看全文按钮 */
 				".fold-wrapper"
 			),
-			addStyle(`
+			addStyle(/*css*/ `
 			.gt-local-h5-article-detail-article-fold-exp{
 				max-height: unset !important;
 			}

@@ -31,7 +31,7 @@ const BaiduAiStudy = {
 			CommonUtils.addBlockCSS(
 				".gt-edu-h5-c-article-content .content-wrapper .detail-wrapper .unfold-wrapper"
 			),
-			addStyle(`
+			addStyle(/*css*/ `
 			.gt-edu-h5-c-article-content .content-wrapper .detail-wrapper{
 				max-height: unset !important;
 			}

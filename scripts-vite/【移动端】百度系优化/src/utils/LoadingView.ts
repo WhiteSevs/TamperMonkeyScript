@@ -25,11 +25,11 @@ class LoadingView {
 			withInClassName: "whitesev-load-view-icon-within",
 		};
 		this.loadingViewElement = void 0;
-		this.loadingViewHTML = `
+		this.loadingViewHTML = /*html*/ `
         <div class="${this.config.className}">
           <span class="${this.config.textClassName}">Loading...</span>
         </div>`.trim();
-		this.loadingViewIconHTML = `
+		this.loadingViewIconHTML = /*html*/ `
         <div class="${this.config.iconClassName}">
           <div class="${this.config.outSideClassName}"></div>
           <div class="${this.config.withInClassName}"></div>
@@ -44,7 +44,7 @@ class LoadingView {
 		if (this.isExistsCSS()) {
 			return;
 		}
-		let loadingViewCSSText = `
+		let loadingViewCSSText = /*css*/ `
       .${this.config.className}{
         margin: 0.08rem;
         background: #fff;

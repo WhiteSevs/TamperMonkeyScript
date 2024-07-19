@@ -74,7 +74,7 @@ function setAffix(option: Partial<AffixOption>) {
 			if (!$target) {
 				return;
 			}
-			addStyle(`
+			addStyle(/*css*/ `
 			.affix-container-top-fixed[data-target="${defaultOption.target}"]{
 				position: fixed;
 				top: ${defaultOption.offset}px;
@@ -323,7 +323,7 @@ const TiebaComment = {
 	},
 	initCSS() {
 		/* 此处是百度贴吧帖子的css，应对贴吧前端重新编译文件 */
-		addStyle(`
+		addStyle(/*css*/ `
 		/* 去除底部高度设定 */
 		.pb-page-wrapper{
 			margin-bottom: 0 !important;
@@ -551,7 +551,7 @@ const TiebaComment = {
 			background: #ffffff;
 		}
 		`);
-		addStyle(`
+		addStyle(/*css*/ `
 		.thread-text .BDE_Smiley {
 			width: .2rem;
 			height: .2rem;
@@ -570,13 +570,13 @@ const TiebaComment = {
 			color: #614FBC;
 		}`);
 		/* 隐藏百度贴吧精选帖子的底部空栏 */
-		addStyle(`
+		addStyle(/*css*/ `
 		body > div.main-page-wrap > div.app-view.transition-fade.pb-page-wrapper.mask-hidden > div.placeholder,
 		div.app-view.transition-fade.pb-page-wrapper.mask-hidden .post-item[data-track]{
 			display: none;
 		}`);
 		addStyle(this.getLevelCSS());
-		addStyle(`
+		addStyle(/*css*/ `
 		/* 更多的按钮 */
 		.user-comment-handler{
 			display: flex;
@@ -619,7 +619,7 @@ const TiebaComment = {
 					enable: false,
 				},
 				content: {
-					text: `
+					text: /*html*/ `
 					<div class="handler-container">
 						<div class="reply-content-info">
 							<div class="reply-content-name">${data.user}：</div>
@@ -657,7 +657,7 @@ const TiebaComment = {
 						toHide: false,
 					},
 				},
-				style: `
+				style: /*css*/ `
 				.pops[type-value="drawer"]{
 					height: unset !important;
 					max-height: 32%;
@@ -777,7 +777,7 @@ const TiebaComment = {
 						width: "80vw",
 						height: "180px",
 						zIndex: utils.getMaxZIndex(100),
-						style: `
+						style: /*css*/ `
 						.pops[type-value="confirm"]{
 							--container-title-height: 0;
 							--container-bottom-btn-height: 40px;
@@ -913,7 +913,7 @@ const TiebaComment = {
 	getLevelCSS() {
 		let colorConversion = new utils.ColorConversion();
 		let colorLightLevel = 0.7;
-		return `
+		return /*css*/ `
           .forum-level-container{
             display: flex;
             align-items: center;
@@ -1363,11 +1363,10 @@ const TiebaComment = {
 					let u_user_portrait = pageCommentList.userList[u_user_id]["portrait"];
 					let u_user_home_url = "/home/main?id=" + u_user_portrait;
 					if (builderId == u_user_id) {
-						u_user_name +=
-							'<svg data-v-5b60f30b="" class="landlord"><use xlink:href="#icon_landlord"></use></svg>';
+						u_user_name += /*html*/ `<svg data-v-5b60f30b="" class="landlord"><use xlink:href="#icon_landlord"></use></svg>`;
 					}
 					/* 每一项楼中楼的回复html */
-					let lzlCommentItemHTML = `
+					let lzlCommentItemHTML = /*html*/ `
 					<div data-v-5b60f30b="" class="lzl-post-item" style="">
 						<div data-v-5b60f30b="" class="text-box">
 							<span data-v-5b60f30b="" class="link username" data-home-url="${u_user_home_url}">${u_user_name}</span>
@@ -1382,7 +1381,7 @@ const TiebaComment = {
 		}
 
 		if (newUserCommentHTML) {
-			newUserCommentHTML = `
+			newUserCommentHTML = /*html*/ `
             <div data-v-5b60f30b="" data-v-74eb13e2="" class="lzl-post lzl-post" style="max-height: 2.35rem;overflow-y: hidden;">
               ${newUserCommentHTML}
             </div>
@@ -1392,7 +1391,7 @@ const TiebaComment = {
 			"div",
 			{
 				className: "post-item",
-				innerHTML: `
+				innerHTML: /*html*/ `
 				<div
 					data-v-188c0e84=""
 					data-v-74eb13e2=""
@@ -1571,7 +1570,7 @@ const TiebaComment = {
 					"div",
 					{
 						className: "whitesev-see-all-reply",
-						innerHTML: `查看全部${lzlCommentNums}条回复`,
+						innerHTML: /*html*/ `查看全部${lzlCommentNums}条回复`,
 					},
 					{
 						style: "color: #6251B3;margin-top: 5px 0 0 10px;",
@@ -1603,7 +1602,7 @@ const TiebaComment = {
 	 */
 	initReplyDialogCSS() {
 		log.success("初始化回复的弹窗");
-		addStyle(`
+		addStyle(/*css*/ `
 		/* 主 */
 		#whitesev-reply-dialog{
 			z-index: 99999;
@@ -1818,7 +1817,7 @@ const TiebaComment = {
 		let $otherCommentItem = document.createElement("div");
 		$otherCommentItem.className =
 			"whitesev-reply-dialog-sheet-other-content-item whitesev-reply-dialog-content-item";
-		$otherCommentItem.innerHTML = `
+		$otherCommentItem.innerHTML = /*html*/ `
 		<div class="whitesev-reply-dialog-user-line-wrapper" data-portrait="${
 			data.portrait
 		}">
@@ -1955,7 +1954,7 @@ const TiebaComment = {
 		log.success(["显示评论的弹窗", data]);
 		let dialog = DOMUtils.createElement("div", {
 			id: "whitesev-reply-dialog",
-			innerHTML: `
+			innerHTML: /*html*/ `
             <div class="whitesev-reply-dialog-bg"></div>
             <div class="whitesev-reply-dialog-sheet" style="height: ${
 							document.documentElement.clientHeight * 0.92
@@ -2198,7 +2197,7 @@ const TiebaComment = {
 						isLandlord = true;
 					}
 				}
-				commentHTML += `
+				commentHTML += /*html*/ `
               <div class="whitesev-reply-dialog-sheet-other-content-item" data-lazy-load-level="true" data-username="${
 								item["userName"]
 							}">
@@ -2279,7 +2278,7 @@ const TiebaComment = {
 								);
 								DOMUtils.append(
 									$userInfo as HTMLDivElement,
-									`
+									/*html*/ `
                                     <div class="forum-level-container">
                                         <span class="forum-level" data-level="${likeForumLevel}">Lv.${likeForumLevel}</span>
                                     </div>`
@@ -2567,7 +2566,7 @@ const TiebaComment = {
 			log.error("元素.reply-right-container不存在");
 			return;
 		}
-		addStyle(`
+		addStyle(/*css*/ `
           .white-only-lz{
             display: -webkit-flex;
             display: -ms-flexbox;
@@ -2632,7 +2631,7 @@ const TiebaComment = {
 			log.error("元素#replySwitch不存在");
 			return;
 		}
-		addStyle(`
+		addStyle(/*css*/ `
           .reply-right-container {
             display: flex;
             align-items: center;
@@ -2682,7 +2681,7 @@ const TiebaComment = {
 		});
 		let btnElement = DOMUtils.createElement("div", {
 			className: "btn-comment-reverse-pack",
-			innerHTML: `
+			innerHTML: /*html*/ `
               <span class="tab-item selected-tab-item" data-positive>正序</span>
               <span class="tab-item" data-reverse>倒序</span>`,
 		});

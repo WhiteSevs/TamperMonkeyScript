@@ -34,7 +34,7 @@ const BaiduBaiJiaHao = {
 				/* 电脑端的右边的推荐-屏蔽 */
 				"#ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(2)"
 			),
-			addStyle(`
+			addStyle(/*css*/ `
 			/* 电脑端的文章居中 */
 			#ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) {
 				width: 55% !important;

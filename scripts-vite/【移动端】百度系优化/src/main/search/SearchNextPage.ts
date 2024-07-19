@@ -488,7 +488,7 @@ const SearchNextPage = {
 	 */
 	initPageLineCSS() {
 		log.info("初始化页码的CSS");
-		addStyle(`
+		addStyle(/*css*/ `
         .whitesev-page-info{-webkit-tap-highlight-color:transparent}
         .whitesev-page-info .whitesev-new-pagenav{display:block;width:auto;color:#333;z-index:1;font-weight:700;text-decoration:none;position:relative;height:52px;line-height:52px}
         .whitesev-page-info .whitesev-new-pagenav{margin:.08rem;background:#fff;word-wrap:break-word;border:0;border-radius:.06rem;text-align:center;text-align:-webkit-center}
@@ -503,7 +503,7 @@ const SearchNextPage = {
 	getPageLineElement(pageText: string | number) {
 		return DOMUtils.createElement("div", {
 			className: "whitesev-page-info result-op",
-			innerHTML: `
+			innerHTML: /*html*/ `
             <div class="whitesev-new-pagenav">
                 <p>${pageText}</p>
             </div>`,

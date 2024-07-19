@@ -123,7 +123,7 @@ const YiYanChat = {
 			dragLimit: true,
 			width: "95vw",
 			height: "90vh",
-			style: `
+			style: /*css*/ `
             .pops{
             --container-title-height: 45px;
             --container-bottom-btn-height: 100px;
@@ -281,7 +281,7 @@ const YiYanChat = {
 		let $alertBtn = YiYanChat.dialogAlias.popsElement.querySelector(
 			".pops-alert-btn"
 		) as HTMLDivElement;
-		$alertBtn.innerHTML = `
+		$alertBtn.innerHTML = /*html*/ `
         <div class="ask-question">
             <textarea class="ask-question-input" placeholder="请输入问题"></textarea>
             <div class="gpt-btn-control">
@@ -519,7 +519,7 @@ const YiYanChat = {
 	getAskElement(queryText = "") {
 		let element = DOMUtils.createElement("div", {
 			className: "user-question",
-			innerHTML: `
+			innerHTML: /*html*/ `
         <div class="avatar-img">
           <img src="https://www.baidu.com/img/flexible/logo/bearicon_198.png"></img>
         </div>
@@ -534,7 +534,7 @@ const YiYanChat = {
 	getAnswerElement() {
 		let element = DOMUtils.createElement("div", {
 			className: "gpt-answer",
-			innerHTML: `
+			innerHTML: /*html*/ `
         <div class="avatar-img">
           <img src="data:image/png;base64,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"></img>
         </div>
@@ -627,7 +627,7 @@ const YiYanChat = {
 			let copyText = codeElement.innerText || codeElement.textContent;
 			let codeHeader = DOMUtils.createElement("div", {
 				className: "code-header",
-				innerHTML: `
+				innerHTML: /*html*/ `
           <span class="code-lang">${language}</span>
           <span class="code-copy">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 32 32">

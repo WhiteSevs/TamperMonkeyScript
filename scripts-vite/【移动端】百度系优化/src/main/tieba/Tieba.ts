@@ -141,7 +141,7 @@ const BaiduTieBa = {
 	 * 替换顶部左侧贴吧按钮为菜单按钮
 	 */
 	addTopLeftMenu() {
-		addStyle(`
+		addStyle(/*css*/ `
 		.logo-wrapper{
 			display: -webkit-box;
 			display: -webkit-flex;
@@ -156,7 +156,7 @@ const BaiduTieBa = {
 				if (!$ele) {
 					return;
 				}
-				$ele.outerHTML = `
+				$ele.outerHTML = /*html*/ `
 				<div class="logo-wrapper">
 					<svg t="1718595396255" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3147" width="24" height="24"><path d="M128 298.666667h768a42.666667 42.666667 0 0 0 0-85.333334H128a42.666667 42.666667 0 0 0 0 85.333334z m768 170.666666H128a42.666667 42.666667 0 0 0 0 85.333334h768a42.666667 42.666667 0 0 0 0-85.333334z m0 256H128a42.666667 42.666667 0 0 0 0 85.333334h768a42.666667 42.666667 0 0 0 0-85.333334z" p-id="3148"></path></svg>
 				</div>
@@ -257,7 +257,7 @@ const BaiduTieBa = {
 					let $drawer = pops.drawer({
 						title: {
 							enable: true,
-							text: `
+							text: /*html*/ `
 							<div class="tieba_account_exit">
 								<a href="javascript:;">
 									<span>
@@ -305,7 +305,7 @@ const BaiduTieBa = {
 								toClose: true,
 							},
 						},
-						style: `
+						style: /*css*/ `
 						.pops{
 							--avatar-size: 60px;
 							--user-info-font-color: #ffffff;
