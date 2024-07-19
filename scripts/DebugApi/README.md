@@ -46,7 +46,6 @@ CAT_fileStorage
 CAT_setProxy
 CAT_clearProxy
 CAT_click
-
 ```
 
 ## 暴露其它Api
