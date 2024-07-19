@@ -1,4 +1,4 @@
-## 全局变量
+# 全局变量
 
 ```js
 GM_bridge
@@ -36,6 +36,17 @@ GM_cookie
 
 ```js
 ChromeXt
+```
+
+## 暴露ScriptCat Api
+
+```js
+CAT_userConfig
+CAT_fileStorage
+CAT_setProxy
+CAT_clearProxy
+CAT_click
+
 ```
 
 ## 暴露其它Api
