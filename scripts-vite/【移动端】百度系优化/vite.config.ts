@@ -8,6 +8,7 @@ import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import { ViteUtils, GetLib } from "../../vite.utils";
 import { repairMonkeyMountHead } from "./../../vite-plugins/vite-plugin-repairMonkeyMount";
+import mkcert from "vite-plugin-mkcert";
 
 const SCRIPT_NAME = "【移动端】百度系优化";
 const Utils = new ViteUtils(__dirname);

@@ -2461,6 +2461,7 @@ const TiebaComment = {
 				"User-Agent": utils.getRandomPCUA(),
 				Referer: "tieba.baidu.com",
 			},
+			allowInterceptConfig: false,
 		};
 		let getResp = await httpx.get(getDetails);
 		let respData = getResp.data;
@@ -2529,6 +2530,7 @@ const TiebaComment = {
 				"User-Agent": utils.getRandomPCUA(),
 				Referer: "tieba.baidu.com",
 			},
+			allowInterceptConfig: false,
 		});
 		log.info(["获取楼中楼评论", getResp]);
 		let respData = getResp.data;

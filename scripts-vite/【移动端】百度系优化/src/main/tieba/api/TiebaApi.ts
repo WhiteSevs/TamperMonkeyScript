@@ -504,6 +504,7 @@ const TieBaApi = {
 					"User-Agent": utils.getRandomPCUA(),
 				},
 				responseType: "json",
+				allowInterceptConfig: false,
 			}
 		);
 		if (!getResp.status) {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.19
+// @version      2024.7.20
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -19,10 +19,10 @@
 // @require      https://update.greasyfork.org/scripts/495227/1413261/Element-Plus.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.9.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.3.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.4.0/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.7/dist/index.min.css
 // @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
 // @connect      www.baidu.com
@@ -408,11 +408,13 @@
         withInClassName: "whitesev-load-view-icon-within"
       };
       this.loadingViewElement = void 0;
-      this.loadingViewHTML = `
+      this.loadingViewHTML = /*html*/
+      `
         <div class="${this.config.className}">
           <span class="${this.config.textClassName}">Loading...</span>
         </div>`.trim();
-      this.loadingViewIconHTML = `
+      this.loadingViewIconHTML = /*html*/
+      `
         <div class="${this.config.iconClassName}">
           <div class="${this.config.outSideClassName}"></div>
           <div class="${this.config.withInClassName}"></div>
@@ -427,7 +429,9 @@
       if (this.isExistsCSS()) {
         return;
       }
-      let loadingViewCSSText = `
+      let loadingViewCSSText = (
+        /*css*/
+        `
       .${this.config.className}{
         margin: 0.08rem;
         background: #fff;
@@ -506,7 +510,8 @@
       @-ms-keyframes spinoffPulse{0%{-ms-transform:rotate(0)}
       100%{-ms-transform:rotate(360deg)}
       }
-      `;
+      `
+      );
       utils.addStyle(loadingViewCSSText);
     }
     /**
@@ -1739,7 +1744,8 @@ match-attr##srcid##sp_purc_atom
             Host: "tieba.baidu.com",
             "User-Agent": utils.getRandomPCUA()
           },
-          responseType: "json"
+          responseType: "json",
+          allowInterceptConfig: false
         }
       );
       if (!getResp.status) {
@@ -3087,7 +3093,9 @@ match-attr##srcid##sp_purc_atom
         dragLimit: true,
         width: "95vw",
         height: "90vh",
-        style: `
+        style: (
+          /*css*/
+          `
             .pops{
             --container-title-height: 45px;
             --container-bottom-btn-height: 100px;
@@ -3238,6 +3246,7 @@ match-attr##srcid##sp_purc_atom
             }
             }
             `
+        )
       });
       YiYanChat.loadCSS(
         "https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown.min.css"
@@ -3245,7 +3254,8 @@ match-attr##srcid##sp_purc_atom
       let $alertBtn = YiYanChat.dialogAlias.popsElement.querySelector(
         ".pops-alert-btn"
       );
-      $alertBtn.innerHTML = `
+      $alertBtn.innerHTML = /*html*/
+      `
         <div class="ask-question">
             <textarea class="ask-question-input" placeholder="请输入问题"></textarea>
             <div class="gpt-btn-control">
@@ -3447,12 +3457,15 @@ match-attr##srcid##sp_purc_atom
     getAskElement(queryText = "") {
       let element = domutils.createElement("div", {
         className: "user-question",
-        innerHTML: `
+        innerHTML: (
+          /*html*/
+          `
         <div class="avatar-img">
           <img src="https://www.baidu.com/img/flexible/logo/bearicon_198.png"></img>
         </div>
         <div class="ask-text">${queryText}</div>
         `
+        )
       });
       return element;
     },
@@ -3462,12 +3475,15 @@ match-attr##srcid##sp_purc_atom
     getAnswerElement() {
       let element = domutils.createElement("div", {
         className: "gpt-answer",
-        innerHTML: `
+        innerHTML: (
+          /*html*/
+          `
         <div class="avatar-img">
           <img src="data:image/png;base64,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"></img>
         </div>
         <div class="answer-text markdown-body typing"></div>
         `
+        )
       });
       return element;
     },
@@ -3545,7 +3561,9 @@ match-attr##srcid##sp_purc_atom
         let copyText = codeElement.innerText || codeElement.textContent;
         let codeHeader = domutils.createElement("div", {
           className: "code-header",
-          innerHTML: `
+          innerHTML: (
+            /*html*/
+            `
           <span class="code-lang">${language}</span>
           <span class="code-copy">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 32 32">
@@ -3554,6 +3572,7 @@ match-attr##srcid##sp_purc_atom
             <span class="code-copy-text">复制代码</span>
           </span>
           `
+          )
         });
         let codeCopyText = codeHeader.querySelector(
           ".code-copy-text"
@@ -5156,9 +5175,10 @@ div[class^="new-summary-container_"] {\r
         item.querySelectorAll(".rw-list-container .rw-list-new").forEach((searchItemEle) => {
           var _a4;
           let searchText = (_a4 = searchItemEle == null ? void 0 : searchItemEle.textContent) == null ? void 0 : _a4.trim();
-          searchItemEle.innerHTML = `
+          searchItemEle.innerHTML = /*html*/
+          `
                         <a href="javascript:;" onclick="return false;" target="_self" class="whitesev-gm-refactor-everyone-searching">
-                        <span>${searchText}</span>
+                        	<span>${searchText}</span>
                         </a>`;
           searchItemEle.style.setProperty(
             "padding",
@@ -5207,14 +5227,16 @@ div[class^="new-summary-container_"] {\r
         innerBottomSmallElementList.forEach((item) => {
           var _a3;
           let searchText = (_a3 = item.textContent) == null ? void 0 : _a3.trim();
-          rwListContainerHTML += `
+          rwListContainerHTML += /*html*/
+          `
                 <div class="rw-list-new rw-list-new2" style="padding: 0.06rem;width: 49%;">
                     <a href="javascript:;" onclick="return false;" target="_self" class="whitesev-gm-refactor-everyone-searching">
                     <span>${searchText}</span>
                     </a>
                 </div>`;
         });
-        recommendElement.innerHTML = `
+        recommendElement.innerHTML = /*html*/
+        `
                 <div m-service="relative" data-tpl="san" id="relativewords" class="se-relativewords c-container se-relativewords-new c-bg-color-white">
                 <div class="rw-little-title">
                     <div class="c-row">
@@ -5602,7 +5624,9 @@ div[class^="new-summary-container_"] {\r
      * 添加CSDN的CSS
      */
     addCSDNFlagCSS() {
-      addStyle(`
+      addStyle(
+        /*css*/
+        `
         .csdn-flag-component-box{display:flex;margin:0;text-align:left;font-size:0;position:relative;width:260px;margin:5px 0}
         .csdn-flag-component-box a{display:inline-block;font-size:14px}
         .csdn-flag-component-box .praise {
@@ -5625,7 +5649,8 @@ div[class^="new-summary-container_"] {\r
             background: #ff0505;
             border-radius: 5px;
             padding: 2px 4px;
-        }`);
+        }`
+      );
     },
     /**
      * 给元素添加【CSDN】下载标识
@@ -5639,6 +5664,7 @@ div[class^="new-summary-container_"] {\r
       if ($titleText) {
         domutils.append(
           $titleText,
+          /*html*/
           `<div class="csdn-flag-component-box"><a class="praise" href="javascript:;">CSDN下载</a></div>`
         );
         log.success("插入CSDN下载提示标题");
@@ -6156,7 +6182,8 @@ div[class^="new-summary-container_"] {\r
       loadingView.setText("Loading...", true);
       let getResp = await httpx.get({
         url: this.nextPageInfo.nextPageUrl,
-        fetch: true
+        fetch: true,
+        allowInterceptConfig: false
       });
       let respData = getResp.data;
       if (getResp.status) {
@@ -6259,13 +6286,16 @@ div[class^="new-summary-container_"] {\r
      */
     initPageLineCSS() {
       log.info("初始化页码的CSS");
-      addStyle(`
+      addStyle(
+        /*css*/
+        `
         .whitesev-page-info{-webkit-tap-highlight-color:transparent}
         .whitesev-page-info .whitesev-new-pagenav{display:block;width:auto;color:#333;z-index:1;font-weight:700;text-decoration:none;position:relative;height:52px;line-height:52px}
         .whitesev-page-info .whitesev-new-pagenav{margin:.08rem;background:#fff;word-wrap:break-word;border:0;border-radius:.06rem;text-align:center;text-align:-webkit-center}
         .whitesev-page-info p::before{content:"第";margin-right:10px}
         .whitesev-page-info p::after{content:"页";margin-left:10px}
-        `);
+        `
+      );
     },
     /**
      * 获取自定义页码元素
@@ -6274,10 +6304,13 @@ div[class^="new-summary-container_"] {\r
     getPageLineElement(pageText) {
       return domutils.createElement("div", {
         className: "whitesev-page-info result-op",
-        innerHTML: `
+        innerHTML: (
+          /*html*/
+          `
             <div class="whitesev-new-pagenav">
                 <p>${pageText}</p>
             </div>`
+        )
       });
     }
   };
@@ -6795,11 +6828,14 @@ div[class^="new-summary-container_"] {\r
           /* 电脑端的右边的推荐-屏蔽 */
           "#ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(2)"
         ),
-        addStyle(`
+        addStyle(
+          /*css*/
+          `
 			/* 电脑端的文章居中 */
 			#ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) {
 				width: 55% !important;
-			}`),
+			}`
+        ),
         /* 某些情况下的CSS */
         CommonUtils.addBlockCSS(
           '#page_wrapper > div.other > div[class=""]:nth-child(4)'
@@ -6882,7 +6918,9 @@ div[class^="new-summary-container_"] {\r
         /* 底部的百度贴吧app内打开 */
         ".tb-index-navbar div:has(.fix-nav-bar-bottom)"
       );
-      addStyle(`
+      addStyle(
+        /*css*/
+        `
           /* 把下面的内容往上移 */
           #app_container ul.navbar-box{
             top: 0px !important;
@@ -6891,7 +6929,8 @@ div[class^="new-summary-container_"] {\r
           #app_container .navbar-view{
             padding-top: 0px !important;
           } 
-		  `);
+		  `
+      );
     },
     /**
      * 新标签页打开
@@ -7196,31 +7235,32 @@ div[class^="new-summary-container_"] {\r
       let showScrollTopButton = function() {
         isInsertButton = true;
         let buttonElement = domutils.parseHTML(
+          /*html*/
           `
-            <div class="tb-totop whitesev-tb-totop">
-              <style>
-              .whitesev-tb-totop{
-                position: fixed;
-                right: .09rem;
-                bottom: 1rem;
-                z-index: 1000;
-              }
-              .whitesev-tb-totop .tb-totop__span{
-                display: inline-block;
-                width: .51rem;
-                height: .51rem;
-              }
-              .whitesev-tb-totop .tb-totop__svg{
-                width: 100%;
-                height: 100%;
-              }
-              </style>
-              <span class="tb-totop__span">
-                <svg class="tb-totop__svg">
-                  <use xlink:href="#icon_frs_top_50"></use>
-                </svg>
-              </span>
-            </div>`,
+				<div class="tb-totop whitesev-tb-totop">
+				<style>
+					.whitesev-tb-totop{
+						position: fixed;
+						right: .09rem;
+						bottom: 1rem;
+						z-index: 1000;
+					}
+					.whitesev-tb-totop .tb-totop__span{
+						display: inline-block;
+						width: .51rem;
+						height: .51rem;
+					}
+					.whitesev-tb-totop .tb-totop__svg{
+						width: 100%;
+						height: 100%;
+					}
+					</style>
+					<span class="tb-totop__span">
+						<svg class="tb-totop__svg">
+						<use xlink:href="#icon_frs_top_50"></use>
+						</svg>
+					</span>
+				</div>`,
           true,
           false
         );
@@ -7408,7 +7448,9 @@ div[class^="new-summary-container_"] {\r
         },
         getData,
         getItemHTML(item) {
-          return `
+          return (
+            /*html*/
+            `
 				<div class="forum_item">
 					<img class="forum_image" src="${item.fpic}">
 					<div class="forum_right">
@@ -7417,9 +7459,12 @@ div[class^="new-summary-container_"] {\r
 						<div class="forum_member">${item.member_num}</div>
 						<div class="forum_thread">${item.thread_num}</div>
 					</div>
-				</div>`;
+				</div>`
+          );
         },
-        style: `
+        style: (
+          /*css*/
+          `
 			.WhiteSevsSearchSelect .forum_item{
 				display: flex;
 				text-wrap: wrap;
@@ -7460,6 +7505,7 @@ div[class^="new-summary-container_"] {\r
 				background-position: 0 -26px;
 			}
 			`
+        )
       });
       this.$data.searchSuggestion = searchSuggestion;
       searchSuggestion.init();
@@ -7582,7 +7628,9 @@ div[class^="new-summary-container_"] {\r
         $oldMoreBtnDesc.outerHTML = '<div class="more-btn-desc">搜索</div>';
         let $newSearch = domutils.createElement("div", {
           id: "search",
-          innerHTML: `
+          innerHTML: (
+            /*html*/
+            `
 				<div id="nav-top-search">
 					<div class="nav-bar-wrapper">
 						<div class="nav-search-back">
@@ -7613,6 +7661,7 @@ div[class^="new-summary-container_"] {\r
 					</div>
 				</div>
 				`
+          )
         });
         document.body.appendChild($newSearch);
         domutils.hide($newSearch);
@@ -7721,15 +7770,20 @@ div[class^="new-summary-container_"] {\r
       });
     },
     addCSS() {
-      addStyle(`
+      addStyle(
+        /*css*/
+        `
 		.more-btn-desc{
 			margin-right: 10px;
 			font-size: .15rem;
 			font-weight: 700;
 			color: #614ec2;
 		}
-		`);
-      addStyle(`
+		`
+      );
+      addStyle(
+        /*css*/
+        `
 		#search{
 			--bg-color: #F5F6F8;
 			--ohter-bg-color: #F3F3F5;
@@ -7835,8 +7889,11 @@ div[class^="new-summary-container_"] {\r
 		.search-result-list .search_result:first-child{
 			margin-top: 0px;
 		}
-		`);
-      addStyle(`
+		`
+      );
+      addStyle(
+        /*css*/
+        `
 		.search-result-model .search-result-model-item[data-active]:after {
 			content: " ";
 			background: #7458FA;
@@ -7854,8 +7911,11 @@ div[class^="new-summary-container_"] {\r
 			align-items: center;
 			justify-content: center;
 		}
-		`);
-      addStyle(`
+		`
+      );
+      addStyle(
+        /*css*/
+        `
 		#search .search-result-content img.BDE_Smiley{
 			width: .2rem;
 			height: .2rem;
@@ -7882,8 +7942,11 @@ div[class^="new-summary-container_"] {\r
 			max-width: 100px;
 			max-height: 150px;
 		}
-        `);
-      addStyle(`
+        `
+      );
+      addStyle(
+        /*css*/
+        `
 		#search .search-result-media {
 			display: flex;
 			align-items: center;
@@ -7939,7 +8002,8 @@ div[class^="new-summary-container_"] {\r
 		#search span.search-result-bottom-toolbar-span::before{
 			content:"贴吧："   
 		}
-		`);
+		`
+      );
     },
     /**
      * 清空搜索结果
@@ -8166,7 +8230,9 @@ div[class^="new-summary-container_"] {\r
       });
       let resultElement = domutils.createElement("div", {
         className: "s_post search_result",
-        innerHTML: `
+        innerHTML: (
+          /*html*/
+          `
 		  <div class="search-result-media">
 			<div class="search-result-media-left">
 			  <img src="data:image/png;base64,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">
@@ -8188,6 +8254,7 @@ div[class^="new-summary-container_"] {\r
 			  <span class="search-result-bottom-toolbar-span">${data["forum"]}</span>
 		  </div>
 		  `
+        )
       });
       let userAvatarElement = resultElement.querySelector(
         ".search-result-media-left img"
@@ -8765,14 +8832,17 @@ div[class^="new-summary-container_"] {\r
       if (!$target) {
         return;
       }
-      addStyle(`
+      addStyle(
+        /*css*/
+        `
 			.affix-container-top-fixed[data-target="${defaultOption.target}"]{
 				position: fixed;
 				top: ${defaultOption.offset}px;
 				left: 0;
 				z-index: ${defaultOption["z-index"]};
 			}
-			`);
+			`
+      );
       let checkOffset = defaultOption.offset;
       let $affixLine = document.createElement("div");
       $affixLine.className = "affix-line";
@@ -8993,7 +9063,9 @@ div[class^="new-summary-container_"] {\r
       this.setUserCommentHandler();
     },
     initCSS() {
-      addStyle(`
+      addStyle(
+        /*css*/
+        `
 		/* 去除底部高度设定 */
 		.pb-page-wrapper{
 			margin-bottom: 0 !important;
@@ -9220,8 +9292,11 @@ div[class^="new-summary-container_"] {\r
 			width: -moz-available;
 			background: #ffffff;
 		}
-		`);
-      addStyle(`
+		`
+      );
+      addStyle(
+        /*css*/
+        `
 		.thread-text .BDE_Smiley {
 			width: .2rem;
 			height: .2rem;
@@ -9238,14 +9313,20 @@ div[class^="new-summary-container_"] {\r
 		.text-content .at{
 			font-weight: 600;
 			color: #614FBC;
-		}`);
-      addStyle(`
+		}`
+      );
+      addStyle(
+        /*css*/
+        `
 		body > div.main-page-wrap > div.app-view.transition-fade.pb-page-wrapper.mask-hidden > div.placeholder,
 		div.app-view.transition-fade.pb-page-wrapper.mask-hidden .post-item[data-track]{
 			display: none;
-		}`);
+		}`
+      );
       addStyle(this.getLevelCSS());
-      addStyle(`
+      addStyle(
+        /*css*/
+        `
 		/* 更多的按钮 */
 		.user-comment-handler{
 			display: flex;
@@ -9255,7 +9336,8 @@ div[class^="new-summary-container_"] {\r
 		    width: 0.16rem;
 		    height: 0.16rem;
 		}
-		`);
+		`
+      );
     },
     /**
      * 设置每条评论右边的更多按钮的事件
@@ -9281,7 +9363,9 @@ div[class^="new-summary-container_"] {\r
             enable: false
           },
           content: {
-            text: `
+            text: (
+              /*html*/
+              `
 					<div class="handler-container">
 						<div class="reply-content-info">
 							<div class="reply-content-name">${data.user}：</div>
@@ -9296,7 +9380,8 @@ div[class^="new-summary-container_"] {\r
 							</div>
 						</div>
 					</div>
-					`,
+					`
+            ),
             html: true
           },
           btn: {
@@ -9319,7 +9404,9 @@ div[class^="new-summary-container_"] {\r
               toHide: false
             }
           },
-          style: `
+          style: (
+            /*css*/
+            `
 				.pops[type-value="drawer"]{
 					height: unset !important;
 					max-height: 32%;
@@ -9376,6 +9463,7 @@ div[class^="new-summary-container_"] {\r
 					border-bottom: 0;
 				}
 				`
+          )
         });
         let $deleteBtn = $drawer.$shadowRoot.querySelector(".reply-tool-delete");
         if (TiebaComment.userInfo.value.id != null && TiebaComment.userInfo.value.id.toString() === data.userId.toString() || TiebaComment.userInfo.value.id != null && TiebaComment.userInfo.value.id.toString() === TiebaComment.postAuthorId.toString()) {
@@ -9429,7 +9517,9 @@ div[class^="new-summary-container_"] {\r
               width: "80vw",
               height: "180px",
               zIndex: utils.getMaxZIndex(100),
-              style: `
+              style: (
+                /*css*/
+                `
 						.pops[type-value="confirm"]{
 							--container-title-height: 0;
 							--container-bottom-btn-height: 40px;
@@ -9450,6 +9540,7 @@ div[class^="new-summary-container_"] {\r
 							color: #7557ff;
 						}
 						`
+              )
             });
           });
         } else {
@@ -9560,7 +9651,9 @@ div[class^="new-summary-container_"] {\r
     getLevelCSS() {
       let colorConversion = new utils.ColorConversion();
       let colorLightLevel = 0.7;
-      return `
+      return (
+        /*css*/
+        `
           .forum-level-container{
             display: flex;
             align-items: center;
@@ -9580,9 +9673,9 @@ div[class^="new-summary-container_"] {\r
           .forum-level[data-level="2"],
           .forum-level[data-level="3"]{
             background: ${colorConversion.getLightColor(
-      "#5dc7a0",
-      colorLightLevel
-    )};
+        "#5dc7a0",
+        colorLightLevel
+      )};
             color: #5dc7a0;
           }
           .forum-level[data-level="4"],
@@ -9592,9 +9685,9 @@ div[class^="new-summary-container_"] {\r
           .forum-level[data-level="8"],
           .forum-level[data-level="9"]{
             background: ${colorConversion.getLightColor(
-      "#6BA7FF",
-      colorLightLevel
-    )};
+        "#6BA7FF",
+        colorLightLevel
+      )};
             color: #6BA7FF;
           }
           .forum-level[data-level="10"],
@@ -9604,21 +9697,22 @@ div[class^="new-summary-container_"] {\r
           .forum-level[data-level="14"],
           .forum-level[data-level="15"]{
             background: ${colorConversion.getLightColor(
-      "#F9B341",
-      colorLightLevel
-    )};
+        "#F9B341",
+        colorLightLevel
+      )};
             color: #F9B341;
           }
           .forum-level[data-level="16"],
           .forum-level[data-level="17"],
           .forum-level[data-level="18"]{
             background: ${colorConversion.getLightColor(
-      "#FBA71A",
-      colorLightLevel
-    )};
+        "#FBA71A",
+        colorLightLevel
+      )};
             color: #FBA71A;
           }
-          `;
+          `
+      );
     },
     /**
      * 滚动事件
@@ -9924,9 +10018,12 @@ div[class^="new-summary-container_"] {\r
             let u_user_portrait = pageCommentList.userList[u_user_id]["portrait"];
             let u_user_home_url = "/home/main?id=" + u_user_portrait;
             if (builderId == u_user_id) {
-              u_user_name += '<svg data-v-5b60f30b="" class="landlord"><use xlink:href="#icon_landlord"></use></svg>';
+              u_user_name += /*html*/
+              `<svg data-v-5b60f30b="" class="landlord"><use xlink:href="#icon_landlord"></use></svg>`;
             }
-            let lzlCommentItemHTML = `
+            let lzlCommentItemHTML = (
+              /*html*/
+              `
 					<div data-v-5b60f30b="" class="lzl-post-item" style="">
 						<div data-v-5b60f30b="" class="text-box">
 							<span data-v-5b60f30b="" class="link username" data-home-url="${u_user_home_url}">${u_user_name}</span>
@@ -9934,13 +10031,15 @@ div[class^="new-summary-container_"] {\r
 								<span data-v-ab14b3fe="" class="text-content">${u_content}</span>
 							</div>
 						</div>
-					</div>`;
+					</div>`
+            );
             newUserCommentHTML += lzlCommentItemHTML;
           }
         );
       }
       if (newUserCommentHTML) {
-        newUserCommentHTML = `
+        newUserCommentHTML = /*html*/
+        `
             <div data-v-5b60f30b="" data-v-74eb13e2="" class="lzl-post lzl-post" style="max-height: 2.35rem;overflow-y: hidden;">
               ${newUserCommentHTML}
             </div>
@@ -9950,7 +10049,9 @@ div[class^="new-summary-container_"] {\r
         "div",
         {
           className: "post-item",
-          innerHTML: `
+          innerHTML: (
+            /*html*/
+            `
 				<div
 					data-v-188c0e84=""
 					data-v-74eb13e2=""
@@ -9996,7 +10097,8 @@ div[class^="new-summary-container_"] {\r
 					${newUserCommentHTML}
 					<div data-v-74eb13e2="" class="post-split-line"></div>
 				</div>
-              `,
+              `
+          ),
           "data-whitesev": {
             userId: user_id,
             userPostId: post_id,
@@ -10094,7 +10196,10 @@ div[class^="new-summary-container_"] {\r
             "div",
             {
               className: "whitesev-see-all-reply",
-              innerHTML: `查看全部${lzlCommentNums}条回复`
+              innerHTML: (
+                /*html*/
+                `查看全部${lzlCommentNums}条回复`
+              )
             },
             {
               style: "color: #6251B3;margin-top: 5px 0 0 10px;"
@@ -10125,7 +10230,9 @@ div[class^="new-summary-container_"] {\r
      */
     initReplyDialogCSS() {
       log.success("初始化回复的弹窗");
-      addStyle(`
+      addStyle(
+        /*css*/
+        `
 		/* 主 */
 		#whitesev-reply-dialog{
 			z-index: 99999;
@@ -10322,7 +10429,8 @@ div[class^="new-summary-container_"] {\r
 		.whitesev-see-all-reply{
 			padding-top: 10px;
 			padding-left: 10px;
-		}`);
+		}`
+      );
     },
     /**
      * 获取楼中楼评论的元素
@@ -10330,7 +10438,8 @@ div[class^="new-summary-container_"] {\r
     getLzlItemElement(data) {
       let $otherCommentItem = document.createElement("div");
       $otherCommentItem.className = "whitesev-reply-dialog-sheet-other-content-item whitesev-reply-dialog-content-item";
-      $otherCommentItem.innerHTML = `
+      $otherCommentItem.innerHTML = /*html*/
+      `
 		<div class="whitesev-reply-dialog-user-line-wrapper" data-portrait="${data.portrait}">
 			<div class="whitesev-reply-dialog-user-line" data-portrait="${data.portrait}">
 				<div class="whitesev-reply-dialog-avatar" style="background-image: url(${data.avatar});"></div>
@@ -10433,7 +10542,9 @@ div[class^="new-summary-container_"] {\r
       log.success(["显示评论的弹窗", data]);
       let dialog = domutils.createElement("div", {
         id: "whitesev-reply-dialog",
-        innerHTML: `
+        innerHTML: (
+          /*html*/
+          `
             <div class="whitesev-reply-dialog-bg"></div>
             <div class="whitesev-reply-dialog-sheet" style="height: ${document.documentElement.clientHeight * 0.92}px;">
               <div class="whitesev-reply-dialog-sheet-title">
@@ -10468,6 +10579,7 @@ div[class^="new-summary-container_"] {\r
               </div>
             </div>
             `
+        )
       });
       dialog["data-whitesev"] = data;
       let dialogTitleElement = dialog.querySelector(
@@ -10615,7 +10727,8 @@ div[class^="new-summary-container_"] {\r
               isLandlord = true;
             }
           }
-          commentHTML += `
+          commentHTML += /*html*/
+          `
               <div class="whitesev-reply-dialog-sheet-other-content-item" data-lazy-load-level="true" data-username="${item["userName"]}">
                 <div class="whitesev-reply-dialog-user-line" data-portrait="${item["userPortrait"]}">
                   <div class="whitesev-reply-dialog-avatar" style="background-image: url(${item["userAvatar"]});"></div>
@@ -10678,6 +10791,7 @@ div[class^="new-summary-container_"] {\r
                 );
                 domutils.append(
                   $userInfo,
+                  /*html*/
                   `
                                     <div class="forum-level-container">
                                         <span class="forum-level" data-level="${likeForumLevel}">Lv.${likeForumLevel}</span>
@@ -10832,7 +10946,8 @@ div[class^="new-summary-container_"] {\r
         headers: {
           "User-Agent": utils.getRandomPCUA(),
           Referer: "tieba.baidu.com"
-        }
+        },
+        allowInterceptConfig: false
       };
       let getResp = await httpx.get(getDetails);
       let respData = getResp.data;
@@ -10894,7 +11009,8 @@ div[class^="new-summary-container_"] {\r
           Accept: "application/json, text/javascript, */*; q=0.01",
           "User-Agent": utils.getRandomPCUA(),
           Referer: "tieba.baidu.com"
-        }
+        },
+        allowInterceptConfig: false
       });
       log.info(["获取楼中楼评论", getResp]);
       let respData = getResp.data;
@@ -10932,7 +11048,9 @@ div[class^="new-summary-container_"] {\r
         log.error("元素.reply-right-container不存在");
         return;
       }
-      addStyle(`
+      addStyle(
+        /*css*/
+        `
           .white-only-lz{
             display: -webkit-flex;
             display: -ms-flexbox;
@@ -10955,7 +11073,8 @@ div[class^="new-summary-container_"] {\r
           .white-only-lz-none {
             display: none;
           }
-          `);
+          `
+      );
       let onlyLzInnerElement = domutils.createElement("div", {
         className: "white-only-lz",
         textContent: "只看楼主"
@@ -10993,7 +11112,9 @@ div[class^="new-summary-container_"] {\r
         log.error("元素#replySwitch不存在");
         return;
       }
-      addStyle(`
+      addStyle(
+        /*css*/
+        `
           .reply-right-container {
             display: flex;
             align-items: center;
@@ -11037,15 +11158,19 @@ div[class^="new-summary-container_"] {\r
             background-color: #fff;
             color: #141414;
           }
-          `);
+          `
+      );
       let replyRightContainer = domutils.createElement("div", {
         className: "reply-right-container"
       });
       let btnElement = domutils.createElement("div", {
         className: "btn-comment-reverse-pack",
-        innerHTML: `
+        innerHTML: (
+          /*html*/
+          `
               <span class="tab-item selected-tab-item" data-positive>正序</span>
               <span class="tab-item" data-reverse>倒序</span>`
+        )
       });
       const positiveElement = btnElement.querySelector(
         ".tab-item[data-positive]"
@@ -20992,7 +21117,9 @@ div[class^="new-summary-container_"] {\r
     init() {
       TiebaRouter.init();
       MountVue(_sfc_main$9, [TiebaRouter.router, ElementPlus]);
-      addStyle(`
+      addStyle(
+        /*css*/
+        `
         #${VUE_ELE_NAME_ID}{
             z-index: 1000;
         }
@@ -21004,7 +21131,8 @@ div[class^="new-summary-container_"] {\r
         #${VUE_ELE_NAME_ID} ~ *{
             display: unset;
         }
-        `);
+        `
+      );
       addStyle(AppCSS);
     }
   };
@@ -21105,7 +21233,9 @@ div[class^="new-summary-container_"] {\r
      * 替换顶部左侧贴吧按钮为菜单按钮
      */
     addTopLeftMenu() {
-      addStyle(`
+      addStyle(
+        /*css*/
+        `
 		.logo-wrapper{
 			display: -webkit-box;
 			display: -webkit-flex;
@@ -21113,12 +21243,14 @@ div[class^="new-summary-container_"] {\r
 			display: flex;
 			margin-left: 0.13rem;
 		}	
-		`);
+		`
+      );
       utils.waitNode(".nav-bar-top .logo-wrapper", 1e4).then(($ele) => {
         if (!$ele) {
           return;
         }
-        $ele.outerHTML = `
+        $ele.outerHTML = /*html*/
+        `
 				<div class="logo-wrapper">
 					<svg t="1718595396255" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3147" width="24" height="24"><path d="M128 298.666667h768a42.666667 42.666667 0 0 0 0-85.333334H128a42.666667 42.666667 0 0 0 0 85.333334z m768 170.666666H128a42.666667 42.666667 0 0 0 0 85.333334h768a42.666667 42.666667 0 0 0 0-85.333334z m0 256H128a42.666667 42.666667 0 0 0 0 85.333334h768a42.666667 42.666667 0 0 0 0-85.333334z" p-id="3148"></path></svg>
 				</div>
@@ -21212,7 +21344,9 @@ div[class^="new-summary-container_"] {\r
           let $drawer = __pops.drawer({
             title: {
               enable: true,
-              text: `
+              text: (
+                /*html*/
+                `
 							<div class="tieba_account_exit">
 								<a href="javascript:;">
 									<span>
@@ -21231,7 +21365,8 @@ div[class^="new-summary-container_"] {\r
 								</p>
                                 <p class="tieba_user_nologin_tip_bottom">登录后更精彩...</p>
                             </a>
-							`,
+							`
+              ),
               html: true,
               style: ""
             },
@@ -21260,7 +21395,9 @@ div[class^="new-summary-container_"] {\r
                 toClose: true
               }
             },
-            style: `
+            style: (
+              /*css*/
+              `
 						.pops{
 							--avatar-size: 60px;
 							--user-info-font-color: #ffffff;
@@ -21353,6 +21490,7 @@ div[class^="new-summary-container_"] {\r
 							white-space: nowrap;
 						}
 						`
+            )
           });
           let isLogin = false;
           let $tieba_user = $drawer.$shadowRoot.querySelector(".tieba_user");
@@ -21423,12 +21561,15 @@ div[class^="new-summary-container_"] {\r
     init() {
       addStyle(WenKuShieldCSS);
       log.info("插入CSS规则");
-      addStyle(`
+      addStyle(
+        /*css*/
+        `
         /* 上面的工具栏会挡住标题栏 */
         #app-pre .top-card.top-card-top{
             margin-top: 56px !important;
         }
-        `);
+        `
+      );
       PopsPanel.execMenuOnce("baidu_wenku_block_member_picks", () => {
         return this.shieldVipPicks();
       });
@@ -22638,11 +22779,14 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
         CommonUtils.addBlockCSS(
           ".gt-edu-h5-c-article-content .content-wrapper .detail-wrapper .unfold-wrapper"
         ),
-        addStyle(`
+        addStyle(
+          /*css*/
+          `
 			.gt-edu-h5-c-article-content .content-wrapper .detail-wrapper{
 				max-height: unset !important;
 			}
-			`)
+			`
+        )
       ];
     }
   };
@@ -22703,11 +22847,14 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           /* 点击查看全文按钮 */
           ".fold-wrapper"
         ),
-        addStyle(`
+        addStyle(
+          /*css*/
+          `
 			.gt-local-h5-article-detail-article-fold-exp{
 				max-height: unset !important;
 			}
-			`)
+			`
+        )
       ];
     }
   };

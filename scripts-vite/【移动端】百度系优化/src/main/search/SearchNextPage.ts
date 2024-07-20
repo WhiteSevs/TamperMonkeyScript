@@ -361,6 +361,7 @@ const SearchNextPage = {
 		let getResp = await httpx.get({
 			url: this.nextPageInfo.nextPageUrl,
 			fetch: true,
+			allowInterceptConfig: false,
 		});
 		let respData = getResp.data;
 		if (getResp.status) {
