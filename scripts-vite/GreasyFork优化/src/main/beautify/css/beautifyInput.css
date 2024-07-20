@@ -1,4 +1,6 @@
-input {
+input[type="search"],
+input[type="text"],
+input[type="password"] {
 	justify-content: center;
 	align-items: center;
 	/* line-height: 1; */
@@ -27,10 +29,14 @@ input {
 	border: 1px solid #dcdfe6;
 	border-radius: 4px;
 }
-input:hover {
+input[type="search"]:hover,
+input[type="text"]:hover,
+input[type="password"]:hover {
 	box-shadow: 0 0 0 1px #c0c4cc;
 }
-input:focus {
+input[type="search"]:focus,
+input[type="text"]:focus,
+input[type="password"]:focus {
 	outline: 0;
 	border: 1px solid #409eff;
 	border-radius: 4px;
