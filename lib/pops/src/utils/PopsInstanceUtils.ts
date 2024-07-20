@@ -15,24 +15,43 @@ import { pops } from "../Pops";
 
 export const PopsInstanceUtils = {
 	/**
-	 * 获取所有弹窗中的最大的z-index
-	 * @param defaultValue
+	 * 获取pops所有弹窗中的最大的z-index
+	 * @param deviation
 	 */
-	getPopsMaxZIndex(defaultValue: number) {
-		let maxZIndex = 0;
-		let maxZIndexElement = null as any as HTMLDivElement;
+	getPopsMaxZIndex(deviation: number = 1) {
+		deviation = Number.isNaN(deviation) ? 1 : deviation;
+		// 最大值2147483647
+		let maxZIndex = Math.pow(2, 31) - 1;
+		// 比较值2000000000
+		let maxZIndexCompare = 2 * Math.pow(10, 9);
+		// 当前页面最大的z-index
+		let zIndex = 0;
+		// 当前的最大z-index的元素，调试使用
+		let maxZIndexNode = null as HTMLDivElement | null;
 
 		Object.keys(pops.config.layer).forEach((layerName) => {
 			let layerList = pops.config.layer[layerName as PopsLayerMode];
-			layerList.forEach((layer) => {
-				let itemZIndex = parseInt(getComputedStyle(layer.animElement).zIndex);
-				maxZIndexElement =
-					itemZIndex > maxZIndex ? layer.animElement : maxZIndexElement;
-				maxZIndex = itemZIndex > maxZIndex ? itemZIndex : maxZIndex;
-			});
+			for (let index = 0; index < layerList.length; index++) {
+				const layer = layerList[index];
+				let nodeStyle = window.getComputedStyle(layer.animElement);
+				/* 不对position为static和display为none的元素进行获取它们的z-index */
+				if (nodeStyle.position !== "static" && nodeStyle.display !== "none") {
+					let nodeZIndex = parseInt(nodeStyle.zIndex);
+					if (!isNaN(nodeZIndex)) {
+						if (nodeZIndex > zIndex) {
+							zIndex = nodeZIndex;
+							maxZIndexNode = layer.animElement;
+						}
+					}
+				}
+			}
 		});
-		maxZIndex = maxZIndex === 0 ? defaultValue : maxZIndex;
-		return { zIndex: maxZIndex, animElement: maxZIndexElement };
+		zIndex += deviation;
+		if (zIndex >= maxZIndexCompare) {
+			// 最好不要超过最大值
+			zIndex = maxZIndex;
+		}
+		return { zIndex: maxZIndex, animElement: maxZIndexNode };
 	},
 	/**
 	 * 获取CSS Rule

@@ -10,7 +10,12 @@ import { PopsCore } from "../Core";
 import { pops } from "../Pops";
 import { PopsEventDetails, PopsHandlerEventDetails } from "../types/event";
 import { PopsLayerCommonConfig } from "../types/layer";
-import type { PopsLayerMode, PopsMode, PopsType } from "../types/main";
+import type {
+	PopsAllDetails,
+	PopsLayerMode,
+	PopsMode,
+	PopsType,
+} from "../types/main";
 import { popsDOMUtils } from "../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../utils/PopsInstanceUtils";
 import { popsUtils } from "../utils/PopsUtils";
@@ -605,14 +610,21 @@ export const PopsHandler = {
 	 * @param type 当前弹窗类型
 	 * @param config 配置
 	 */
-	handleOnly<T extends any>(type: PopsMode, config: T): T {
-		if ((config as any).only) {
+	handleOnly<T extends Required<PopsAllDetails[keyof PopsAllDetails]>>(
+		type: PopsMode,
+		config: T
+	): T {
+		if (config.only) {
 			if (
 				type === "loading" ||
 				type === "tooltip" ||
 				type === "rightClickMenu"
 			) {
-				PopsInstanceUtils.removeInstance([(pops.config.layer as any)[type]], "", true);
+				PopsInstanceUtils.removeInstance(
+					[(pops.config.layer as any)[type]],
+					"",
+					true
+				);
 			} else {
 				PopsInstanceUtils.removeInstance(
 					[
@@ -629,8 +641,10 @@ export const PopsHandler = {
 				);
 			}
 		} else {
-			(config as any).zIndex =
-				PopsInstanceUtils.getPopsMaxZIndex((config as any).zIndex)["zIndex"] * 2;
+			const { zIndex: maxZIndex } = PopsInstanceUtils.getPopsMaxZIndex(
+				config.zIndex + 100
+			);
+			config.zIndex = maxZIndex;
 		}
 		return config;
 	},

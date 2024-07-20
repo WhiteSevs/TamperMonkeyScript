@@ -6,23 +6,43 @@ import type { PopsIframeDetails } from "../components/iframe/indexType";
 import type { PopsLoadingDetails } from "../components/loading/indexType";
 import type { PopsPanelDetails } from "../components/panel/indexType";
 import type { PopsPromptDetails } from "../components/prompt/indexType";
+import { PopsRightClickMenuDetails } from "../components/rightClickMenu/indexType";
+import { PopsToolTipDetails } from "../components/tooltip/indexType";
 
 export interface PopsUtilsOwnObject<V extends any> {
 	[key: string]: V | PopsUtilsOwnObject<V>;
 }
 
+/** pops的所有类型配置 10个 */
+export interface PopsAllDetails {
+	alert: PopsAlertDetails;
+	confirm: PopsConfirmDetails;
+	prompt: PopsPromptDetails;
+	loading: PopsLoadingDetails;
+	iframe: PopsIframeDetails;
+	tooltip: PopsToolTipDetails;
+	drawer: PopsDrawerDetails;
+	folder: PopsFolderDetails;
+	panel: PopsPanelDetails;
+	rightClickMenu: PopsRightClickMenuDetails;
+}
+
+/** pops的类型配置 8个 */
+export interface PopsTypeDetails {
+	alert: PopsAlertDetails;
+	confirm: PopsConfirmDetails;
+	prompt: PopsPromptDetails;
+	loading: PopsLoadingDetails;
+	iframe: PopsIframeDetails;
+	// tooltip: PopsToolTipDetails;
+	drawer: PopsDrawerDetails;
+	folder: PopsFolderDetails;
+	panel: PopsPanelDetails;
+	// rightClickMenu: PopsRightClickMenuDetails;
+}
+
 /** pops的类型 8个 */
-export type PopsType =
-	| "alert"
-	| "confirm"
-	| "prompt"
-	| "loading"
-	| "iframe"
-	// | "tooltip"
-	| "drawer"
-	| "folder"
-	| "panel";
-// | "rightClickMenu";
+export type PopsType = keyof PopsTypeDetails;
 
 /** pops所有的类型 10个 */
 export type PopsMode = PopsType | "tooltip" | "rightClickMenu";

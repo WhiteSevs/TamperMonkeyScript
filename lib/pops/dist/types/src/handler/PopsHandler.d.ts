@@ -8,7 +8,7 @@ import type { PopsPanelDetails } from "../components/panel/indexType";
 import type { PopsPromptDetails } from "../components/prompt/indexType";
 import { PopsEventDetails, PopsHandlerEventDetails } from "../types/event";
 import { PopsLayerCommonConfig } from "../types/layer";
-import type { PopsLayerMode, PopsMode, PopsType } from "../types/main";
+import type { PopsAllDetails, PopsLayerMode, PopsMode, PopsType } from "../types/main";
 export declare const PopsHandler: {
     /**
      * 创建shadow
@@ -212,7 +212,7 @@ export declare const PopsHandler: {
      * @param type 当前弹窗类型
      * @param config 配置
      */
-    handleOnly<T extends unknown>(type: PopsMode, config: T): T;
+    handleOnly<T extends Required<PopsAllDetails[keyof PopsAllDetails]>>(type: PopsMode, config: T): T;
     /**
      * 处理把已创建的元素保存到内部环境中
      * @param type 当前弹窗类型

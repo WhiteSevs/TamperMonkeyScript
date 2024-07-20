@@ -10,12 +10,12 @@ import type { PopsLayerCommonConfig } from "../types/layer";
 import type { PopsLayerMode } from "../types/main";
 export declare const PopsInstanceUtils: {
     /**
-     * 获取所有弹窗中的最大的z-index
-     * @param defaultValue
+     * 获取pops所有弹窗中的最大的z-index
+     * @param deviation
      */
-    getPopsMaxZIndex(defaultValue: number): {
+    getPopsMaxZIndex(deviation?: number): {
         zIndex: number;
-        animElement: HTMLDivElement;
+        animElement: HTMLDivElement | null;
     };
     /**
      * 获取CSS Rule

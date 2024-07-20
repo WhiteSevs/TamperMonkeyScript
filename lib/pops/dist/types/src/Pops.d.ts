@@ -140,9 +140,9 @@ declare class Pops {
         };
         /** pops创建的实例使用的工具类 */
         InstanceUtils: {
-            getPopsMaxZIndex(defaultValue: number): {
+            getPopsMaxZIndex(deviation?: number): {
                 zIndex: number;
-                animElement: HTMLDivElement;
+                animElement: HTMLDivElement | null;
             };
             getKeyFrames(sheet: CSSStyleSheet): {};
             removeInstance(moreLayerConfigList: PopsLayerCommonConfig[][], guid: string, isAll?: boolean): PopsLayerCommonConfig[][];
