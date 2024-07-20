@@ -985,7 +985,7 @@ export declare interface HttpxDetails {
      * 拒绝拦截配置
      * 如果设置了相关配置，那么intercept将不会生效
      */
-    allowInterceptConfig?: Partial<HttpxAllowInterceptConfig>;
+    allowInterceptConfig?: Partial<HttpxAllowInterceptConfig> | boolean;
     /**
      * 身份验证的用户名
      */

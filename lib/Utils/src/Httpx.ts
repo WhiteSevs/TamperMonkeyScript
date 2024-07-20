@@ -1082,7 +1082,7 @@ export declare interface HttpxDetails {
 	 * 拒绝拦截配置
 	 * 如果设置了相关配置，那么intercept将不会生效
 	 */
-	allowInterceptConfig?: Partial<HttpxAllowInterceptConfig>;
+	allowInterceptConfig?: Partial<HttpxAllowInterceptConfig> | boolean;
 	/**
 	 * 身份验证的用户名
 	 */
@@ -1246,14 +1246,25 @@ class Httpx {
 		 * @private
 		 */
 		beforeRequestCallBack(details: HttpxDetails) {
-			if (details.allowInterceptConfig) {
-				// 首先配置得存在，不然默认允许拦截
-				if (
-					typeof details.allowInterceptConfig.beforeRequest === "boolean" &&
-					!details.allowInterceptConfig.beforeRequest
-				) {
-					// 设置了禁止拦截
+			if (typeof details.allowInterceptConfig === "boolean") {
+				if (!details.allowInterceptConfig) {
+					// 不允许拦截
 					return details;
+				}
+			} else {
+				if (details.allowInterceptConfig != null) {
+					// 配置存在
+					// 细分处理是否拦截
+					if (
+						typeof details.allowInterceptConfig.beforeRequest === "boolean" &&
+						!details.allowInterceptConfig.beforeRequest
+					) {
+						// 设置了禁止拦截
+						return details;
+					}
+				} else {
+					// 配置不存在
+					// 默认允许拦截
 				}
 			}
 			for (let index = 0; index < this.$config.configList.length; index++) {
@@ -1329,15 +1340,26 @@ class Httpx {
 			response: HttpxAsyncResultData,
 			details: HttpxDetails
 		) {
-			if (details.allowInterceptConfig) {
-				// 首先配置得存在，不然默认允许拦截
-				if (
-					typeof details.allowInterceptConfig.afterResponseSuccess ===
-						"boolean" &&
-					!details.allowInterceptConfig.afterResponseSuccess
-				) {
-					// 设置了禁止拦截
+			if (typeof details.allowInterceptConfig === "boolean") {
+				if (!details.allowInterceptConfig) {
+					// 不允许拦截
 					return details;
+				}
+			} else {
+				if (details.allowInterceptConfig != null) {
+					// 配置存在
+					// 细分处理是否拦截
+					if (
+						typeof details.allowInterceptConfig.afterResponseSuccess ===
+							"boolean" &&
+						!details.allowInterceptConfig.afterResponseSuccess
+					) {
+						// 设置了禁止拦截
+						return details;
+					}
+				} else {
+					// 配置不存在
+					// 默认允许拦截
 				}
 			}
 			for (let index = 0; index < this.$config.configList.length; index++) {
@@ -1353,22 +1375,37 @@ class Httpx {
 		/**
 		 * 失败的回调
 		 * @param data 配置
+		 * @returns
+		 * 返回null|undefined就是拦截掉了
 		 */
-		errorResponseCallBack(data: {
-			type: "onerror" | "ontimeout" | "onabort";
-			error: Error;
-			response: any;
-			details: HttpxDetails;
-		}) {
-			if (data.details.allowInterceptConfig) {
-				// 首先配置得存在，不然默认允许拦截
-				if (
-					typeof data.details.allowInterceptConfig.afterResponseError ===
-						"boolean" &&
-					!data.details.allowInterceptConfig.afterResponseError
-				) {
-					// 设置了禁止拦截
+		errorResponseCallBack<
+			T extends {
+				type: "onerror" | "ontimeout" | "onabort";
+				error: Error;
+				response: any;
+				details: HttpxDetails;
+			}
+		>(data: T): T | null | undefined {
+			if (typeof data.details.allowInterceptConfig === "boolean") {
+				if (!data.details.allowInterceptConfig) {
+					// 不允许拦截
 					return data;
+				}
+			} else {
+				if (data.details.allowInterceptConfig != null) {
+					// 配置存在
+					// 细分处理是否拦截
+					if (
+						typeof data.details.allowInterceptConfig.afterResponseError ===
+							"boolean" &&
+						!data.details.allowInterceptConfig.afterResponseError
+					) {
+						// 设置了禁止拦截
+						return data;
+					}
+				} else {
+					// 配置不存在
+					// 默认允许拦截
 				}
 			}
 			for (let index = 0; index < this.$config.configList.length; index++) {
@@ -1442,13 +1479,15 @@ class Httpx {
 		/**
 		 * 获取请求配置
 		 * @param method 当前请求方法，默认get
-		 * @param resolve promise回调
 		 * @param details 请求配置
+		 * @param resolve promise回调
+		 * @param reject 抛出错误回调
 		 */
 		getDetails(
 			method: HttpxMethod,
-			resolve: (...rags: any[]) => void,
-			details: HttpxDetails
+			details: HttpxDetails,
+			resolve: (...args: any[]) => void,
+			reject: (...args: any[]) => void
 		) {
 			let that = this;
 			let result = <Required<HttpxDetails>>{
@@ -1477,12 +1516,27 @@ class Httpx {
 				fetch: details.fetch || this.context.#defaultDetails.fetch,
 				/* 对象使用深拷贝 */
 				fetchInit: Utils.deepClone(this.context.#defaultDetails.fetchInit),
+				allowInterceptConfig: {
+					beforeRequest: (
+						this.context.#defaultDetails
+							.allowInterceptConfig as HttpxAllowInterceptConfig
+					).beforeRequest,
+					afterResponseSuccess: (
+						this.context.#defaultDetails
+							.allowInterceptConfig as HttpxAllowInterceptConfig
+					).afterResponseSuccess,
+					afterResponseError: (
+						this.context.#defaultDetails
+							.allowInterceptConfig as HttpxAllowInterceptConfig
+					).afterResponseError,
+				},
 				user: details.user || this.context.#defaultDetails.user,
 				password: details.password || this.context.#defaultDetails.password,
 				onabort(...args) {
 					that.context.HttpxCallBack.onAbort(
 						details as Required<HttpxDetails>,
 						resolve,
+						reject,
 						args
 					);
 				},
@@ -1490,6 +1544,7 @@ class Httpx {
 					that.context.HttpxCallBack.onError(
 						details as Required<HttpxDetails>,
 						resolve,
+						reject,
 						args
 					);
 				},
@@ -1515,6 +1570,7 @@ class Httpx {
 					that.context.HttpxCallBack.onTimeout(
 						details as Required<HttpxDetails>,
 						resolve,
+						reject,
 						args
 					);
 				},
@@ -1522,10 +1578,38 @@ class Httpx {
 					that.context.HttpxCallBack.onLoad(
 						details as Required<HttpxDetails>,
 						resolve,
+						reject,
 						args
 					);
 				},
 			};
+			// 补全allowInterceptConfig参数
+			if (typeof details.allowInterceptConfig === "boolean") {
+				Object.keys(
+					result.allowInterceptConfig as HttpxAllowInterceptConfig
+				).forEach((keyName) => {
+					(result.allowInterceptConfig as any)[keyName] =
+						details.allowInterceptConfig;
+				});
+			} else {
+				if (
+					typeof details.allowInterceptConfig === "object" &&
+					details.allowInterceptConfig != null
+				) {
+					Object.keys(details.allowInterceptConfig).forEach((keyName) => {
+						let value = (details.allowInterceptConfig as any)[
+							keyName
+						] as boolean;
+						if (
+							keyName in
+								(result.allowInterceptConfig as HttpxAllowInterceptConfig) &&
+							typeof value === "boolean"
+						) {
+							(result.allowInterceptConfig as any)[keyName] = value;
+						}
+					});
+				}
+			}
 			if (typeof this.context.GM_Api.xmlHttpRequest !== "function") {
 				result.fetch = true;
 			}
@@ -1659,11 +1743,13 @@ class Httpx {
 		 * onabort请求被取消-触发
 		 * @param details 配置
 		 * @param resolve 回调
+		 * @param reject 抛出错误
 		 * @param argumentsList 参数列表
 		 */
 		onAbort(
 			details: Required<HttpxDetails>,
 			resolve: (...rags: any[]) => void,
+			reject: (...args: any[]) => void,
 			argumentsList: any
 		) {
 			if ("onabort" in details) {
@@ -1679,6 +1765,7 @@ class Httpx {
 					details: details,
 				}) == null
 			) {
+				// reject(new TypeError("response is intercept with onabort"));
 				return;
 			}
 			resolve({
@@ -1693,11 +1780,13 @@ class Httpx {
 		 * onerror请求异常-触发
 		 * @param details 配置
 		 * @param resolve 回调
+		 * @param reject 抛出错误
 		 * @param argumentsList 响应的参数列表
 		 */
 		onError(
 			details: Required<HttpxDetails>,
-			resolve: (...rags: any[]) => void,
+			resolve: (...args: any[]) => void,
+			reject: (...args: any[]) => void,
 			argumentsList: any
 		) {
 			if ("onerror" in details) {
@@ -1717,6 +1806,7 @@ class Httpx {
 					details: details,
 				}) == null
 			) {
+				// reject(new TypeError("response is intercept with onerror"));
 				return;
 			}
 			resolve({
@@ -1731,11 +1821,13 @@ class Httpx {
 		 * ontimeout请求超时-触发
 		 * @param details 配置
 		 * @param resolve 回调
+		 * @param reject 抛出错误
 		 * @param argumentsList 参数列表
 		 */
 		onTimeout(
 			details: Required<HttpxDetails>,
-			resolve: (...rags: any[]) => void,
+			resolve: (...args: any[]) => void,
+			reject: (...args: any[]) => void,
 			argumentsList: any
 		) {
 			if ("ontimeout" in details) {
@@ -1752,6 +1844,7 @@ class Httpx {
 					details: details,
 				}) == null
 			) {
+				// reject(new TypeError("response is intercept with ontimeout"));
 				return;
 			}
 			resolve({
@@ -1778,11 +1871,13 @@ class Httpx {
 		 * onload加载完毕-触发
 		 * @param details 请求的配置
 		 * @param resolve 回调
+		 * @param reject 抛出错误
 		 * @param argumentsList 参数列表
 		 */
 		onLoad(
 			details: Required<HttpxDetails>,
-			resolve: (...rags: any[]) => void,
+			resolve: (...args: any[]) => void,
+			reject: (...args: any[]) => void,
 			argumentsList: any
 		) {
 			/* X浏览器会因为设置了responseType导致不返回responseText */
@@ -1849,6 +1944,7 @@ class Httpx {
 						details
 					) == null
 				) {
+					// reject(new TypeError("response is intercept with onloada"));
 					return;
 				}
 				resolve({
@@ -1859,7 +1955,12 @@ class Httpx {
 					type: "onload",
 				});
 			} else {
-				this.context.HttpxCallBack.onError(details, resolve, argumentsList);
+				this.context.HttpxCallBack.onError(
+					details,
+					resolve,
+					reject,
+					argumentsList
+				);
 			}
 		},
 		/**
@@ -2227,11 +2328,12 @@ class Httpx {
 		let that = this;
 		let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
 
-		return new Promise((resolve) => {
+		return new Promise((resolve, reject) => {
 			let requestDetails = that.HttpxRequestDetails.getDetails(
-				"get" as any,
+				"GET",
+				details,
 				resolve,
-				details
+				reject
 			);
 			Reflect.deleteProperty(requestDetails, "onprogress");
 			(requestDetails as any) = that.HttpxRequestDetails.handle(requestDetails);
@@ -2261,11 +2363,12 @@ class Httpx {
 		let that = this;
 		let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
 
-		return new Promise((resolve) => {
+		return new Promise((resolve, reject) => {
 			let requestDetails = that.HttpxRequestDetails.getDetails(
-				"post" as any,
+				"POST",
+				details,
 				resolve,
-				details
+				reject
 			);
 			(requestDetails as any) = that.HttpxRequestDetails.handle(requestDetails);
 			that.HttpxRequest.request(requestDetails);
@@ -2294,11 +2397,12 @@ class Httpx {
 		let that = this;
 		let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
 
-		return new Promise((resolve) => {
+		return new Promise((resolve, reject) => {
 			let requestDetails = that.HttpxRequestDetails.getDetails(
-				"head" as any,
+				"HEAD",
+				details,
 				resolve,
-				details
+				reject
 			);
 			Reflect.deleteProperty(requestDetails, "onprogress");
 			(requestDetails as any) = that.HttpxRequestDetails.handle(requestDetails);
@@ -2329,11 +2433,12 @@ class Httpx {
 		let that = this;
 		let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
 
-		return new Promise((resolve) => {
+		return new Promise((resolve, reject) => {
 			let requestDetails = that.HttpxRequestDetails.getDetails(
-				"options" as any,
+				"OPTIONS",
+				details,
 				resolve,
-				details
+				reject
 			);
 			Reflect.deleteProperty(requestDetails, "onprogress");
 			(requestDetails as any) = that.HttpxRequestDetails.handle(requestDetails);
@@ -2366,11 +2471,12 @@ class Httpx {
 		let that = this;
 		let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
 
-		return new Promise((resolve) => {
+		return new Promise((resolve, reject) => {
 			let requestDetails = that.HttpxRequestDetails.getDetails(
-				"delete" as any,
+				"DELETE",
+				details,
 				resolve,
-				details
+				reject
 			);
 			Reflect.deleteProperty(requestDetails, "onprogress");
 			(requestDetails as any) = that.HttpxRequestDetails.handle(requestDetails);
@@ -2401,11 +2507,12 @@ class Httpx {
 		let that = this;
 		let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
 
-		return new Promise((resolve) => {
+		return new Promise((resolve, reject) => {
 			let requestDetails = that.HttpxRequestDetails.getDetails(
-				"put" as any,
+				"PUT",
+				details,
 				resolve,
-				details
+				reject
 			);
 			(requestDetails as any) = that.HttpxRequestDetails.handle(requestDetails);
 			that.HttpxRequest.request(requestDetails);
