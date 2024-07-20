@@ -42,6 +42,12 @@ const GreasyforkRouter = {
 		return window.location.pathname.endsWith("/libraries");
 	},
 	/**
+	 * 脚本代码搜索页面
+	 */
+	isScriptCodeSearch() {
+		return window.location.pathname.endsWith("/code-search");
+	},
+	/**
 	 * 讨论页面
 	 */
 	isDiscuessions() {

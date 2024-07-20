@@ -16,6 +16,7 @@ button {
 	font-weight: 500;
 	user-select: none;
 	vertical-align: middle;
+	appearance: none;
 	-webkit-appearance: none;
 	background-color: #ffffff;
 	border: 1px solid #dcdfe6;
@@ -42,6 +43,7 @@ input[type="url"] {
 	line-height: 32px;
 	box-sizing: border-box;
 	vertical-align: middle;
+	appearance: none;
 	-webkit-appearance: none;
 	/* color: #606266; */
 	padding: 0;

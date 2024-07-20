@@ -152,13 +152,13 @@ export const GreasyforkScriptsList = {
 				// 版本
 				let $versionLeft = DOMUtils.createElement("dt", {
 					className: "script-list-version",
-					innerHTML: `<span>${i18next.t("版本")}</span>`,
+					innerHTML: /*html*/ `<span>${i18next.t("版本")}</span>`,
 				});
 				let $versionRight = DOMUtils.createElement(
 					"dd",
 					{
 						className: "script-list-version",
-						innerHTML: `<span>${scriptInfo.scriptVersion}</span>`,
+						innerHTML: /*html*/ `<span>${scriptInfo.scriptVersion}</span>`,
 					},
 					{
 						"data-position": "right",
@@ -174,7 +174,7 @@ export const GreasyforkScriptsList = {
 					"dd",
 					{
 						className: "script-list-operation",
-						innerHTML: `
+						innerHTML: /*html*/ `
 						<a
 							target="_blank"
 							class="install-link"
@@ -239,7 +239,7 @@ export const GreasyforkScriptsList = {
 								position: "center",
 							},
 							content: {
-								text: `
+								text: /*html*/ `
 									<button ${attr_filter_key}="scriptId" ${attr_filter_value}="^${
 									scriptInfo.scriptId
 								}$">${i18next.t("脚本id：{{text}}", {
@@ -263,7 +263,7 @@ export const GreasyforkScriptsList = {
 							height: "300px",
 							drag: true,
 							dragLimit: true,
-							style: `
+							style: /*css*/ `
 								.pops-alert-content{
 									display: flex;
 									flex-direction: column;

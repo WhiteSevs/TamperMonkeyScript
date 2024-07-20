@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.7.19.22
+// @version            2024.7.20
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -974,6 +974,12 @@
       return window.location.pathname.endsWith("/libraries");
     },
     /**
+     * 脚本代码搜索页面
+     */
+    isScriptCodeSearch() {
+      return window.location.pathname.endsWith("/code-search");
+    },
+    /**
      * 讨论页面
      */
     isDiscuessions() {
@@ -1658,11 +1664,14 @@
     repairCodeLineNumber() {
       log.info("修复代码的行号显示不够问题");
       PopsPanel.execMenuOnce("beautifyGreasyforkBeautify", () => {
-        _GM_addStyle(`
+        _GM_addStyle(
+          /*css*/
+          `
 				.code-container pre code .marker{
 					padding-left: 6px;
 				}	
-				`);
+				`
+        );
       });
       utils.waitNode(
         "#script-content div.code-container pre.prettyprint ol"
@@ -1671,11 +1680,14 @@
           log.success(
             `当前代码行数${$prettyPrintOL.childElementCount}行，超过1000行，优化行号显示问题`
           );
-          _GM_addStyle(`
+          _GM_addStyle(
+            /*css*/
+            `
                     pre.prettyprint{
                         padding-left: 26px;
                     }
-					`);
+					`
+          );
         }
       });
     }
@@ -1834,7 +1846,9 @@
           });
           let tagElement = domUtils.createElement("div", {
             className: "script-tag",
-            innerHTML: `
+            innerHTML: (
+              /*html*/
+              `
                     <div class="script-tag-version">
                         <a href="${versionUrl}" class="flex-align-item-center">
                         <svg aria-label="Tag" role="img" height="16" viewBox="0 0 16 16" version="1.1" width="16">
@@ -1843,6 +1857,7 @@
                         <span>${versionNumber}</span>
                         </a>
                     </div>`
+            )
           });
           let boxBodyElement = domUtils.createElement("div", {
             className: "script-note-box-body",
@@ -1879,14 +1894,17 @@
           let codeUrl = GreasyforkUrlUtils.getCodeUrl(scriptId, scriptVersion);
           let $buttonTag = domUtils.createElement("div", {
             className: "scripts-tag-install",
-            innerHTML: `
+            innerHTML: (
+              /*html*/
+              `
 						<a class="script-btn-install install-link" data-install-format="js" target="_blank" href="${installUrl}">${i18next.t(
-            "安装此脚本"
-          )}</a>
+              "安装此脚本"
+            )}</a>
 						<a class="script-btn-see-code" target="_blank" href="${codeUrl}">${i18next.t(
-            "查看代码"
-          )}</a>
+              "查看代码"
+            )}</a>
 						`
+            )
           });
           domUtils.after($tagVersion, $buttonTag);
         });
@@ -1919,7 +1937,8 @@
     }
     let alertHTML = "";
     userCollection.forEach((userCollectInfo) => {
-      alertHTML += `
+      alertHTML += /*html*/
+      `
 		<li class="user-collect-item" data-id="${userCollectInfo.id}" data-name="${userCollectInfo.name}">
 			<div class="user-collect-name">${userCollectInfo.name}</div>
 			<div class="user-collect-btn-container">
@@ -1944,7 +1963,10 @@
       },
       content: {
         html: true,
-        text: `<ul>${alertHTML}</ul>`
+        text: (
+          /*html*/
+          `<ul>${alertHTML}</ul>`
+        )
       },
       mask: {
         enable: true,
@@ -1961,7 +1983,9 @@
       height: "auto",
       drag: true,
       only: true,
-      style: `
+      style: (
+        /*css*/
+        `
 		.pops{
 			--content-max-height: 400px;
 			max-height: var(--content-max-height);
@@ -1989,6 +2013,7 @@
 			display: flex;
 		}
 		`
+      )
     });
     domUtils.on(
       collectionDialog.$shadowRoot,
@@ -2085,7 +2110,9 @@
                 toClose: true
               }
             },
-            style: `
+            style: (
+              /*css*/
+              `
 					.pops-alert-content{
 						font-style: italic;
 						background-color: #ffc;
@@ -2093,7 +2120,8 @@
 						border-left: 6px solid #FFEB3B;
 						padding: .5em;
 					}
-					`,
+					`
+            ),
             drag: true,
             dragLimit: true,
             width: __pops.isPhone() ? "88vw" : "400px",
@@ -2231,7 +2259,9 @@
      */
     fullScreenOptimization() {
       log.info("F11全屏，F键代码全屏");
-      _GM_addStyle(`
+      _GM_addStyle(
+        /*css*/
+        `
         .code-wide-screen{
           position: absolute;
           top: 0;
@@ -2248,7 +2278,8 @@
           max-height: 100%;
           z-index: 10000;
         }
-        `);
+        `
+      );
       let isFullScreen = false;
       domUtils.keydown(
         _unsafeWindow,
@@ -2721,13 +2752,19 @@
           }
           let $versionLeft = DOMUtils.createElement("dt", {
             className: "script-list-version",
-            innerHTML: `<span>${i18next.t("版本")}</span>`
+            innerHTML: (
+              /*html*/
+              `<span>${i18next.t("版本")}</span>`
+            )
           });
           let $versionRight = DOMUtils.createElement(
             "dd",
             {
               className: "script-list-version",
-              innerHTML: `<span>${scriptInfo.scriptVersion}</span>`
+              innerHTML: (
+                /*html*/
+                `<span>${scriptInfo.scriptVersion}</span>`
+              )
             },
             {
               "data-position": "right"
@@ -2741,7 +2778,9 @@
             "dd",
             {
               className: "script-list-operation",
-              innerHTML: `
+              innerHTML: (
+                /*html*/
+                `
 						<a
 							target="_blank"
 							class="install-link"
@@ -2750,17 +2789,18 @@
 							data-script-namespace=""
 							data-script-version="${scriptInfo.scriptVersion}"
 							data-update-label="${i18next.t("更新到 {{version}} 版本", {
-              version: scriptInfo.scriptVersion
-            })}"
+                version: scriptInfo.scriptVersion
+              })}"
 							data-downgrade-label="${i18next.t("降级到 {{version}} 版本", {
-              version: scriptInfo.scriptVersion
-            })}"
+                version: scriptInfo.scriptVersion
+              })}"
 							data-reinstall-label="${i18next.t("重新安装 {{version}} 版本", {
-              version: scriptInfo.scriptVersion
-            })}"
+                version: scriptInfo.scriptVersion
+              })}"
 							href="${code_url}"></a>
 						<button class="script-collect-btn">${i18next.t("收藏")}</button>
 						`
+              )
             },
             {
               "data-position": "right",
@@ -2795,16 +2835,19 @@
                   position: "center"
                 },
                 content: {
-                  text: `
+                  text: (
+                    /*html*/
+                    `
 									<button ${attr_filter_key}="scriptId" ${attr_filter_value}="^${scriptInfo.scriptId}$">${i18next.t("脚本id：{{text}}", {
-                  text: scriptInfo.scriptId
-                })}</button>
+                    text: scriptInfo.scriptId
+                  })}</button>
 									<button ${attr_filter_key}="scriptName" ${attr_filter_value}="^${utils.parseStringToRegExpString(
-                  scriptInfo.scriptName
-                )}$">${i18next.t("脚本名：{{text}}", {
-                  text: scriptInfo.scriptName
-                })}</button>
-									`,
+                    scriptInfo.scriptName
+                  )}$">${i18next.t("脚本名：{{text}}", {
+                    text: scriptInfo.scriptName
+                  })}</button>
+									`
+                  ),
                   html: true
                 },
                 mask: {
@@ -2817,7 +2860,9 @@
                 height: "300px",
                 drag: true,
                 dragLimit: true,
-                style: `
+                style: (
+                  /*css*/
+                  `
 								.pops-alert-content{
 									display: flex;
 									flex-direction: column;
@@ -2830,6 +2875,7 @@
 									text-align: left;
 								}
 								`
+                )
               });
               let $content = $dialog.$shadowRoot.querySelector(
                 ".pops-alert-content"
@@ -3237,7 +3283,9 @@
     },
     init() {
       log.info("论坛-过滤");
-      _GM_addStyle(`
+      _GM_addStyle(
+        /*css*/
+        `
         .discussion-list-container {
           --discusstion-repeat-color: #ffa700;
         }
@@ -3251,7 +3299,8 @@
           font-weight: 800;
           font-size: 14px;
         }
-        `);
+        `
+      );
       let lockFunction = new utils.LockFunction(() => {
         this.filter();
       }, 50);
@@ -3592,9 +3641,10 @@
     ]
   };
   const beautifyMarkdownCSS = 'code {\r\n	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;\r\n	font-size: 0.85em;\r\n	color: #000;\r\n	background-color: #f0f0f0;\r\n	border-radius: 3px;\r\n	padding: 0.2em 0;\r\n}\r\ntable {\r\n	text-indent: initial;\r\n}\r\ntable {\r\n	margin: 10px 0 15px 0;\r\n	border-collapse: collapse;\r\n	border-spacing: 0;\r\n	display: block;\r\n	width: 100%;\r\n	overflow: auto;\r\n	word-break: normal;\r\n	word-break: keep-all;\r\n}\r\ncode,\r\npre {\r\n	color: #333;\r\n	background: 0 0;\r\n	font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;\r\n	text-align: left;\r\n	white-space: pre;\r\n	word-spacing: normal;\r\n	word-break: normal;\r\n	word-wrap: normal;\r\n	line-height: 1.4;\r\n	-moz-tab-size: 8;\r\n	-o-tab-size: 8;\r\n	tab-size: 8;\r\n	-webkit-hyphens: none;\r\n	-moz-hyphens: none;\r\n	-ms-hyphens: none;\r\n	hyphens: none;\r\n}\r\npre {\r\n	padding: 0.8em;\r\n	overflow: auto;\r\n	border-radius: 3px;\r\n	background: #f5f5f5;\r\n}\r\n:not(pre) > code {\r\n	padding: 0.1em;\r\n	border-radius: 0.3em;\r\n	white-space: normal;\r\n	background: #f5f5f5;\r\n}\r\nhtml body {\r\n	font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans,\r\n		sans-serif;\r\n	font-size: 16px;\r\n	line-height: 1.6;\r\n	color: #333;\r\n	background-color: #fff;\r\n	overflow: initial;\r\n	box-sizing: border-box;\r\n	word-wrap: break-word;\r\n}\r\nhtml body > :first-child {\r\n	margin-top: 0;\r\n}\r\nhtml body h1,\r\nhtml body h2,\r\nhtml body h3,\r\nhtml body h4,\r\nhtml body h5,\r\nhtml body h6 {\r\n	line-height: 1.2;\r\n	margin-top: 1em;\r\n	margin-bottom: 16px;\r\n	color: #000;\r\n}\r\nhtml body h1 {\r\n	font-size: 2.25em;\r\n	font-weight: 300;\r\n	padding-bottom: 0.3em;\r\n}\r\nhtml body h2 {\r\n	font-size: 1.75em;\r\n	font-weight: 400;\r\n	padding-bottom: 0.3em;\r\n}\r\nhtml body h3 {\r\n	font-size: 1.5em;\r\n	font-weight: 500;\r\n}\r\nhtml body h4 {\r\n	font-size: 1.25em;\r\n	font-weight: 600;\r\n}\r\nhtml body h5 {\r\n	font-size: 1.1em;\r\n	font-weight: 600;\r\n}\r\nhtml body h6 {\r\n	font-size: 1em;\r\n	font-weight: 600;\r\n}\r\nhtml body h1,\r\nhtml body h2,\r\nhtml body h3,\r\nhtml body h4,\r\nhtml body h5 {\r\n	font-weight: 600;\r\n}\r\nhtml body h5 {\r\n	font-size: 1em;\r\n}\r\nhtml body h6 {\r\n	color: #5c5c5c;\r\n}\r\nhtml body strong {\r\n	color: #000;\r\n}\r\nhtml body del {\r\n	color: #5c5c5c;\r\n}\r\nhtml body a:not([href]) {\r\n	color: inherit;\r\n}\r\nhtml body a {\r\n	text-decoration: underline;\r\n	text-underline-offset: 0.2rem;\r\n}\r\nhtml body a:hover {\r\n	color: #00a3f5;\r\n}\r\nhtml body img {\r\n	max-width: 100%;\r\n}\r\nhtml body > p {\r\n	margin-top: 0;\r\n	margin-bottom: 16px;\r\n	word-wrap: break-word;\r\n}\r\nhtml body > ol,\r\nhtml body > ul {\r\n	margin-bottom: 16px;\r\n}\r\nhtml body ol,\r\nhtml body ul {\r\n	padding-left: 2em;\r\n}\r\nhtml body ol.no-list,\r\nhtml body ul.no-list {\r\n	padding: 0;\r\n	list-style-type: none;\r\n}\r\nhtml body ol ol,\r\nhtml body ol ul,\r\nhtml body ul ol,\r\nhtml body ul ul {\r\n	margin-top: 0;\r\n	margin-bottom: 0;\r\n}\r\nhtml body li {\r\n	margin-bottom: 0;\r\n}\r\nhtml body li.task-list-item {\r\n	list-style: none;\r\n}\r\nhtml body li > p {\r\n	margin-top: 0;\r\n	margin-bottom: 0;\r\n}\r\nhtml body .task-list-item-checkbox {\r\n	margin: 0 0.2em 0.25em -1.8em;\r\n	vertical-align: middle;\r\n}\r\nhtml body .task-list-item-checkbox:hover {\r\n	cursor: pointer;\r\n}\r\nhtml body blockquote {\r\n	margin: 16px 0;\r\n	font-size: inherit;\r\n	padding: 0 15px;\r\n	color: #5c5c5c;\r\n	background-color: #f0f0f0;\r\n	border-left: 4px solid #d6d6d6 !important;\r\n}\r\nhtml body blockquote > :first-child {\r\n	margin-top: 0;\r\n}\r\nhtml body blockquote > :last-child {\r\n	margin-bottom: 0;\r\n}\r\nhtml body hr {\r\n	height: 4px;\r\n	margin: 32px 0;\r\n	background-color: #d6d6d6;\r\n	border: 0 none;\r\n}\r\nhtml body table {\r\n	margin: 10px 0 15px 0;\r\n	border-collapse: collapse;\r\n	border-spacing: 0;\r\n	display: block;\r\n	width: 100%;\r\n	overflow: auto;\r\n	word-break: normal;\r\n	word-break: keep-all;\r\n}\r\nhtml body table th {\r\n	font-weight: 700;\r\n	color: #000;\r\n}\r\nhtml body table td,\r\nhtml body table th {\r\n	border: 1px solid #d6d6d6;\r\n	padding: 6px 13px;\r\n}\r\nhtml body dl {\r\n	padding: 0;\r\n}\r\nhtml body dl dt {\r\n	padding: 0;\r\n	margin-top: 16px;\r\n	font-size: 1em;\r\n	font-style: italic;\r\n	font-weight: 700;\r\n}\r\nhtml body dl dd {\r\n	padding: 0 16px;\r\n	margin-bottom: 16px;\r\n}\r\nhtml body code {\r\n	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;\r\n	font-size: 0.85em;\r\n	color: #000;\r\n	background-color: #f0f0f0;\r\n	border-radius: 3px;\r\n	padding: 0.2em 0;\r\n}\r\nhtml body code::after,\r\nhtml body code::before {\r\n	letter-spacing: -0.2em;\r\n	content: "\\00a0";\r\n}\r\nhtml body pre > code {\r\n	padding: 0;\r\n	margin: 0;\r\n	word-break: normal;\r\n	white-space: pre;\r\n	background: 0 0;\r\n	border: 0;\r\n}\r\nhtml body .highlight {\r\n	margin-bottom: 16px;\r\n}\r\nhtml body .highlight pre,\r\nhtml body pre {\r\n	padding: 1em;\r\n	overflow: auto;\r\n	line-height: 1.45;\r\n	border: #d6d6d6;\r\n	border-radius: 3px;\r\n}\r\nhtml body .highlight pre {\r\n	margin-bottom: 0;\r\n	word-break: normal;\r\n}\r\nhtml body pre code,\r\nhtml body pre tt {\r\n	display: inline;\r\n	max-width: initial;\r\n	padding: 0;\r\n	margin: 0;\r\n	overflow: initial;\r\n	line-height: inherit;\r\n	word-wrap: normal;\r\n	background-color: transparent;\r\n	border: 0;\r\n}\r\nhtml body pre code:after,\r\nhtml body pre code:before,\r\nhtml body pre tt:after,\r\nhtml body pre tt:before {\r\n	content: normal;\r\n}\r\nhtml body blockquote,\r\nhtml body dl,\r\nhtml body ol,\r\nhtml body p,\r\nhtml body pre,\r\nhtml body ul {\r\n	margin-top: 0;\r\n	margin-bottom: 16px;\r\n}\r\nhtml body kbd {\r\n	color: #000;\r\n	border: 1px solid #d6d6d6;\r\n	border-bottom: 2px solid #c7c7c7;\r\n	padding: 2px 4px;\r\n	background-color: #f0f0f0;\r\n	border-radius: 3px;\r\n}\r\n@media print {\r\n	html body {\r\n		background-color: #fff;\r\n	}\r\n	html body h1,\r\n	html body h2,\r\n	html body h3,\r\n	html body h4,\r\n	html body h5,\r\n	html body h6 {\r\n		color: #000;\r\n		page-break-after: avoid;\r\n	}\r\n	html body blockquote {\r\n		color: #5c5c5c;\r\n	}\r\n	html body pre {\r\n		page-break-inside: avoid;\r\n	}\r\n	html body table {\r\n		display: table;\r\n	}\r\n	html body img {\r\n		display: block;\r\n		max-width: 100%;\r\n		max-height: 100%;\r\n	}\r\n	html body code,\r\n	html body pre {\r\n		word-wrap: break-word;\r\n		white-space: pre;\r\n	}\r\n}\r\n/* 强制换行 */\r\ncode {\r\n	text-wrap: wrap !important;\r\n}\r\n\r\n.scrollbar-style::-webkit-scrollbar {\r\n	width: 8px;\r\n}\r\n.scrollbar-style::-webkit-scrollbar-track {\r\n	border-radius: 10px;\r\n	background-color: transparent;\r\n}\r\n.scrollbar-style::-webkit-scrollbar-thumb {\r\n	border-radius: 5px;\r\n	background-color: rgba(150, 150, 150, 0.66);\r\n	border: 4px solid rgba(150, 150, 150, 0.66);\r\n	background-clip: content-box;\r\n}\r\n';
-  const beautifyButtonCSS = '/* 美化按钮 */\r\ninput[type="submit"],\r\nbutton {\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	line-height: 1;\r\n	height: 32px;\r\n	white-space: nowrap;\r\n	cursor: pointer;\r\n	/* color: #606266; */\r\n	text-align: center;\r\n	box-sizing: border-box;\r\n	outline: none;\r\n	transition: 0.1s;\r\n	font-weight: 500;\r\n	user-select: none;\r\n	vertical-align: middle;\r\n	-webkit-appearance: none;\r\n	background-color: #ffffff;\r\n	border: 1px solid #dcdfe6;\r\n	border-color: #dcdfe6;\r\n	padding: 8px 15px;\r\n	font-size: 14px;\r\n	border-radius: 4px;\r\n}\r\n\r\ninput[type="submit"]:hover,\r\ninput[type="submit"]:focus,\r\nbutton:hover,\r\nbutton:focus {\r\n	color: #409eff;\r\n	border-color: #c6e2ff;\r\n	background-color: #ecf5ff;\r\n	outline: none;\r\n}\r\n\r\ninput[type="url"] {\r\n	position: relative;\r\n	font-size: 14px;\r\n	display: inline-flex;\r\n	line-height: 32px;\r\n	box-sizing: border-box;\r\n	vertical-align: middle;\r\n	-webkit-appearance: none;\r\n	/* color: #606266; */\r\n	padding: 0;\r\n	outline: none;\r\n	border: none;\r\n	background: none;\r\n	flex-grow: 1;\r\n	align-items: center;\r\n	justify-content: center;\r\n	padding: 1px 11px;\r\n	background-color: #ffffff;\r\n	background-image: none;\r\n	border-radius: 4px;\r\n	cursor: text;\r\n	transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n	transform: translateZ(0);\r\n	box-shadow: 0 0 0 1px #dcdfe6 inset;\r\n\r\n	width: 100%;\r\n	width: -moz-available;\r\n	width: -webkit-fill-available;\r\n	width: fill-available;\r\n}\r\n\r\ninput[type="url"]::placeholder {\r\n	color: #a8abb2;\r\n}\r\n\r\ninput[type="url"]:hover {\r\n	box-shadow: 0 0 0 1px #c0c4cc inset;\r\n}\r\n\r\ninput[type="url"]:focus {\r\n	box-shadow: 0 0 0 1px #409eff inset;\r\n}\r\n';
+  const beautifyButtonCSS = '/* 美化按钮 */\r\ninput[type="submit"],\r\nbutton {\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	line-height: 1;\r\n	height: 32px;\r\n	white-space: nowrap;\r\n	cursor: pointer;\r\n	/* color: #606266; */\r\n	text-align: center;\r\n	box-sizing: border-box;\r\n	outline: none;\r\n	transition: 0.1s;\r\n	font-weight: 500;\r\n	user-select: none;\r\n	vertical-align: middle;\r\n	appearance: none;\r\n	-webkit-appearance: none;\r\n	background-color: #ffffff;\r\n	border: 1px solid #dcdfe6;\r\n	border-color: #dcdfe6;\r\n	padding: 8px 15px;\r\n	font-size: 14px;\r\n	border-radius: 4px;\r\n}\r\n\r\ninput[type="submit"]:hover,\r\ninput[type="submit"]:focus,\r\nbutton:hover,\r\nbutton:focus {\r\n	color: #409eff;\r\n	border-color: #c6e2ff;\r\n	background-color: #ecf5ff;\r\n	outline: none;\r\n}\r\n\r\ninput[type="url"] {\r\n	position: relative;\r\n	font-size: 14px;\r\n	display: inline-flex;\r\n	line-height: 32px;\r\n	box-sizing: border-box;\r\n	vertical-align: middle;\r\n	appearance: none;\r\n	-webkit-appearance: none;\r\n	/* color: #606266; */\r\n	padding: 0;\r\n	outline: none;\r\n	border: none;\r\n	background: none;\r\n	flex-grow: 1;\r\n	align-items: center;\r\n	justify-content: center;\r\n	padding: 1px 11px;\r\n	background-color: #ffffff;\r\n	background-image: none;\r\n	border-radius: 4px;\r\n	cursor: text;\r\n	transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n	transform: translateZ(0);\r\n	box-shadow: 0 0 0 1px #dcdfe6 inset;\r\n\r\n	width: 100%;\r\n	width: -moz-available;\r\n	width: -webkit-fill-available;\r\n	width: fill-available;\r\n}\r\n\r\ninput[type="url"]::placeholder {\r\n	color: #a8abb2;\r\n}\r\n\r\ninput[type="url"]:hover {\r\n	box-shadow: 0 0 0 1px #c0c4cc inset;\r\n}\r\n\r\ninput[type="url"]:focus {\r\n	box-shadow: 0 0 0 1px #409eff inset;\r\n}\r\n';
   const beautifyRadioCSS = 'label.radio-label {\r\n	font-weight: 500;\r\n	position: relative;\r\n	cursor: pointer;\r\n	display: inline-flex;\r\n	align-items: center;\r\n	white-space: normal;\r\n	outline: none;\r\n	font-size: 14px;\r\n	user-select: none;\r\n	margin-right: 32px;\r\n	height: 32px;\r\n	padding: 4px;\r\n	border-radius: 4px;\r\n	box-sizing: border-box;\r\n}\r\nlabel:has(input[type="radio"]:checked),\r\nlabel:has(input[type="radio"]:checked) a {\r\n	color: #409eff;\r\n}\r\nlabel.radio-label input[type="radio"] {\r\n	margin-right: 4px;\r\n	width: 14px;\r\n	height: 14px;\r\n}\r\nlabel.radio-label input[type="radio"]:checked {\r\n	-webkit-appearance: none;\r\n	-moz-appearance: none;\r\n	appearance: none;\r\n	border-radius: 50%;\r\n	width: 14px;\r\n	height: 14px;\r\n	outline: none;\r\n	border: 4px solid #409eff;\r\n	cursor: pointer;\r\n}\r\nlabel.radio-label input[type="radio"]:checked + span {\r\n	color: #409eff;\r\n}\r\n';
-  const beautifyTextAreaCSS = "textarea {\r\n	position: relative;\r\n	display: inline-block;\r\n	width: 100%;\r\n	vertical-align: bottom;\r\n	font-size: 14px;\r\n	position: relative;\r\n	display: block;\r\n	resize: vertical;\r\n	padding: 5px 11px;\r\n	line-height: 1.5;\r\n	box-sizing: border-box;\r\n	width: 100%;\r\n	font-size: inherit;\r\n	font-family: inherit;\r\n	/* color: #606266; */\r\n	background-color: #ffffff;\r\n	background-image: none;\r\n	-webkit-appearance: none;\r\n	box-shadow: 0 0 0 1px #dcdfe6 inset;\r\n	border-radius: 4px;\r\n	transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n	border: none;\r\n}\r\ntextarea:focus {\r\n	outline: none;\r\n	box-shadow: 0 0 0 1px #409eff inset;\r\n}\r\n";
+  const beautifyInputCSS = "input {\r\n	justify-content: center;\r\n	align-items: center;\r\n	/* line-height: 1; */\r\n	/* height: 32px; */\r\n	white-space: nowrap;\r\n	cursor: text;\r\n	text-align: center;\r\n	box-sizing: border-box;\r\n	outline: 0;\r\n	transition: 0.1s;\r\n	/* font-weight: 500; */\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	vertical-align: middle;\r\n	-webkit-appearance: none;\r\n	appearance: none;\r\n	background-color: transparent;\r\n	border: 0;\r\n	padding: 8px 8px;\r\n	/* font-size: 14px; */\r\n	text-align: start;\r\n	/* width: 100%; */\r\n	flex: 1;\r\n	border: 1px solid #dcdfe6;\r\n	border-radius: 4px;\r\n}\r\ninput:hover {\r\n	box-shadow: 0 0 0 1px #c0c4cc;\r\n}\r\ninput:focus {\r\n	outline: 0;\r\n	border: 1px solid #409eff;\r\n	border-radius: 4px;\r\n	box-shadow: none;\r\n}\r\n";
+  const beautifyTextAreaCSS = "textarea {\r\n	display: block;\r\n	position: relative;\r\n	/*vertical-align: bottom;*/\r\n	position: relative;\r\n	resize: vertical;\r\n	padding: 5px 11px;\r\n	line-height: 1.5;\r\n	box-sizing: border-box;\r\n	width: 100%;\r\n	font-size: inherit;\r\n	font-family: inherit;\r\n	/* color: #606266; */\r\n	background-color: #ffffff;\r\n	background-image: none;\r\n	appearance: none;\r\n	-webkit-appearance: none;\r\n	box-shadow: 0 0 0 1px #dcdfe6 inset;\r\n	border-radius: 4px;\r\n	transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n	border: none;\r\n}\r\ntextarea:focus {\r\n	outline: none;\r\n	box-shadow: 0 0 0 1px #409eff inset;\r\n}\r\n";
   const beautifyUploadImageCSS = '/* 隐藏 添加： */\r\nlabel[for="discussion_comments_attributes_0_attachments"],\r\nlabel[for="comment_attachments"] {\r\n	display: none;\r\n}\r\ninput[type="file"] {\r\n	width: 100%;\r\n	font-size: 20px;\r\n	background: #e2e2e2;\r\n	padding: 40px 0px;\r\n	border-radius: 10px;\r\n	text-align-last: center;\r\n}\r\n';
   const compatibleBeautifyCSS = "#main-header {\r\n	background-color: #670000 !important;\r\n	background-image: linear-gradient(#670000, #990000) !important;\r\n}\r\n#site-nav-vue {\r\n	flex-wrap: wrap;\r\n	justify-content: flex-end;\r\n}\r\n.open-sidebar {\r\n	border-width: 1px;\r\n	border-radius: 3px;\r\n	margin-right: 0;\r\n}\r\ninput.search-submit {\r\n	transform: translateY(-5%) !important;\r\n	margin-left: 10px;\r\n}\r\n#script-content code {\r\n	word-wrap: break-word;\r\n}\r\n.code-container ::selection {\r\n	background-color: #3d4556 !important;\r\n}\r\n";
   const beautifyTopNavigationBarCSS = "#language-selector {\r\n	display: none;\r\n}\r\n@media screen and (min-width: 600px) {\r\n	body {\r\n		--header-height: 50px;\r\n		--el-gap: 20px;\r\n	}\r\n\r\n	header#main-header {\r\n		height: var(--header-height);\r\n		position: fixed;\r\n		top: 0;\r\n		width: 100%;\r\n		z-index: 55555;\r\n		padding: unset;\r\n		display: flex;\r\n		justify-content: space-around;\r\n	}\r\n\r\n	header#main-header + div {\r\n		margin-top: calc(var(--header-height) + 35px);\r\n	}\r\n\r\n	header#main-header .width-constraint {\r\n		display: flex;\r\n		align-items: center;\r\n		gap: var(--el-gap);\r\n		padding: unset;\r\n		margin: unset;\r\n		max-width: unset;\r\n	}\r\n\r\n	header#main-header a {\r\n		text-decoration: none;\r\n		text-wrap: nowrap;\r\n	}\r\n\r\n	header#main-header .sign-out-link a {\r\n		text-decoration: underline;\r\n	}\r\n\r\n	header#main-header #site-name {\r\n		display: flex;\r\n		align-items: center;\r\n	}\r\n\r\n	header#main-header #site-name img {\r\n		width: calc(var(--header-height) - 5px);\r\n		height: calc(var(--header-height) - 5px);\r\n	}\r\n\r\n	/* 隐藏Greasyfork文字 */\r\n	header#main-header #site-name-text {\r\n		display: none;\r\n	}\r\n\r\n	header#main-header #site-nav {\r\n		display: flex;\r\n		flex-direction: row-reverse;\r\n		align-items: center;\r\n		flex: 1;\r\n		justify-content: space-between;\r\n		height: 100%;\r\n		gap: var(--el-gap);\r\n	}\r\n\r\n	header#main-header #site-nav nav li {\r\n		padding: 0 0.5em;\r\n		display: flex;\r\n		align-items: center;\r\n		height: var(--header-height);\r\n		min-width: 30px;\r\n		justify-content: center;\r\n	}\r\n\r\n	header#main-header #site-nav nav li:hover {\r\n		background: #5f0101;\r\n	}\r\n\r\n	header#main-header #nav-user-info {\r\n		max-width: 150px;\r\n	}\r\n\r\n	header#main-header #nav-user-info > span {\r\n		flex: 1;\r\n	}\r\n\r\n	header#main-header #nav-user-info,\r\n	header#main-header #nav-user-info + nav {\r\n		position: unset;\r\n		width: unset;\r\n		display: flex;\r\n		flex-wrap: nowrap;\r\n		align-items: center;\r\n	}\r\n}\r\n";
@@ -3622,13 +3672,17 @@
       result.push(_GM_addStyle(beautifyMarkdownCSS));
       result.push(_GM_addStyle(beautifyButtonCSS));
       result.push(_GM_addStyle(beautifyRadioCSS));
+      result.push(_GM_addStyle(beautifyInputCSS));
       result.push(_GM_addStyle(beautifyTextAreaCSS));
       result.push(
-        _GM_addStyle(`
+        _GM_addStyle(
+          /*css*/
+          `
 			p:has(input[type="submit"][name="update-and-sync"]){
 			  margin-top: 10px;
 			}
-			`)
+			`
+        )
       );
       domUtils.ready(function() {
         let markupChoiceELement = document.querySelector(
@@ -3644,11 +3698,14 @@
         }
         if (globalThis.location.pathname.endsWith("/admin") && !document.querySelector('input[type="submit"][name="update-only"]')) {
           result.push(
-            _GM_addStyle(`
+            _GM_addStyle(
+              /*css*/
+              `
 					.indented{
 						padding-left: unset;
 					}
-					`)
+					`
+            )
           );
         }
       });
@@ -3663,7 +3720,9 @@
       result.push(_GM_addStyle(compatibleBeautifyCSS));
       if (utils.isPhone()) {
         result.push(
-          _GM_addStyle(`
+          _GM_addStyle(
+            /*css*/
+            `
 				section#script-info,
 				section.text-content,
 				div.width-constraint table.text-content.log-table{
@@ -3675,14 +3734,18 @@
 				}
 				div.width-constraint div.sidebarred .sidebar{
 					top: 80px;
-				}`)
+				}`
+          )
         );
       } else {
         result.push(
-          _GM_addStyle(`
+          _GM_addStyle(
+            /*css*/
+            `
 				section#script-info{
 					margin-top: 10px;
-				}`)
+				}`
+          )
         );
       }
       return result;
@@ -3877,11 +3940,14 @@
     readBgColor() {
       log.info("设置已读背景颜色");
       let color = PopsPanel.getValue("discussions-readBgColor");
-      _GM_addStyle(`
+      _GM_addStyle(
+        /*css*/
+        `
         .discussion-read{
             background: ${color} !important;
         }
-        `);
+        `
+      );
     },
     /**
      * 添加快捷操作按钮
@@ -3923,21 +3989,24 @@
               html: false
             },
             content: {
-              text: `
+              text: (
+                /*html*/
+                `
 								<button ${attr_filter_key}="scriptId" ${attr_filter_value}="^${discussionInfo.scriptId}$">${i18next.t("脚本id：{{text}}", {
-              text: discussionInfo.scriptId
-            })}</button>
+                text: discussionInfo.scriptId
+              })}</button>
 								<button ${attr_filter_key}="scriptName" ${attr_filter_value}="^${utils.parseStringToRegExpString(
-              discussionInfo.scriptName
-            )}$">${i18next.t("脚本名：{{text}}", {
-              text: discussionInfo.scriptName
-            })}</button>
+                discussionInfo.scriptName
+              )}$">${i18next.t("脚本名：{{text}}", {
+                text: discussionInfo.scriptName
+              })}</button>
 								<button ${attr_filter_key}="postUserId" ${attr_filter_value}="^${utils.parseStringToRegExpString(
-              discussionInfo.postUserId
-            )}$">${i18next.t("发布的用户id：{{text}}", {
-              text: discussionInfo.postUserId
-            })}</button>
-							`,
+                discussionInfo.postUserId
+              )}$">${i18next.t("发布的用户id：{{text}}", {
+                text: discussionInfo.postUserId
+              })}</button>
+							`
+              ),
               html: true
             },
             mask: {
@@ -3950,7 +4019,9 @@
             dragLimit: true,
             width: "350px",
             height: "300px",
-            style: `
+            style: (
+              /*css*/
+              `
 						.pops-alert-content{
 							display: flex;
 							flex-direction: column;
@@ -3963,6 +4034,7 @@
 							text-align: left;
 						}
 						`
+            )
           });
           let $content = $dialog.$shadowRoot.querySelector(
             ".pops-alert-content"
@@ -4057,7 +4129,9 @@
             size: "auto",
             direction: "top",
             zIndex: utils.getMaxZIndex(100),
-            style: `
+            style: (
+              /*css*/
+              `
                     .text-content{
                         list-style-type: none;
                         box-shadow: rgb(221, 221, 221) 0px 0px 5px;
@@ -4079,6 +4153,7 @@
                         margin-top: 8px;
                     }
                     `
+            )
           });
           let $drawerContent = $drawer.$shadowRoot.querySelector(
             ".pops-drawer-content"
@@ -4098,7 +4173,7 @@
       if (GreasyforkRouter.isScript()) {
         GreasyforkScripts.init();
       }
-      if (GreasyforkRouter.isScriptList() || GreasyforkRouter.isScriptLibraryList()) {
+      if (GreasyforkRouter.isScriptList() || GreasyforkRouter.isScriptLibraryList() || GreasyforkRouter.isScriptCodeSearch()) {
         GreasyforkScriptsList.init();
       }
       if (GreasyforkRouter.isDiscuessions()) {
@@ -4137,12 +4212,15 @@
     fixImageWidth() {
       if (window.innerWidth < window.innerHeight) {
         log.info("修复图片显示问题");
-        _GM_addStyle(`
+        _GM_addStyle(
+          /*css*/
+          `
             img.lum-img{
                 width: 100% !important;
                 height: 100% !important;
             }
-          `);
+          `
+        );
       }
     },
     /**
@@ -4153,7 +4231,9 @@
       {
         _GM_addStyle(_GM_getResourceText("ViewerCSS"));
       }
-      _GM_addStyle(`
+      _GM_addStyle(
+        /*css*/
+        `
         @media (max-width: 460px) {
           .lum-lightbox-image-wrapper {
               display:flex;
@@ -4176,7 +4256,8 @@
               max-height:100%;
           }
         }
-        `);
+        `
+      );
       function viewIMG(imgList = [], _index_ = 0) {
         let viewerULNodeHTML = "";
         imgList.forEach((item) => {
@@ -4276,6 +4357,7 @@
         linkElement.removeAttribute("href");
         domUtils.on(linkElement, "click", () => {
           Qmsg.warning(
+            /*html*/
             `<div style="overflow-wrap: anywhere;">${i18next.t(
             "拦截跳转："
           )}<a href="${url}" target="_blank">${url}</a></div>`,
@@ -4292,14 +4374,19 @@
      */
     addMarkdownCopyButton() {
       log.info("在Markdown右上角添加复制按钮");
-      _GM_addStyle(`
+      _GM_addStyle(
+        /*css*/
+        `
         pre{
           position: relative;
           margin-bottom: 0px !important;
           width: 100%;
         }
-        `);
-      _GM_addStyle(`
+        `
+      );
+      _GM_addStyle(
+        /*css*/
+        `
         .snippet-clipboard-content{
           display: flex;
           justify-content: space-between;
@@ -4367,8 +4454,11 @@
           border-color: rgba(31, 35, 40, 0.15);
           transition: none;
         }
-        `);
-      _GM_addStyle(`
+        `
+      );
+      _GM_addStyle(
+        /*css*/
+        `
         .pops-tip.github-tooltip {
           border-radius: 6px;
           padding: 6px 8px;
@@ -4383,11 +4473,14 @@
           width: 8px;
           height: 8px;
         }
-        `);
+        `
+      );
       function getCopyElement() {
         let copyElement = domUtils.createElement("div", {
           className: "zeroclipboard-container",
-          innerHTML: `
+          innerHTML: (
+            /*html*/
+            `
 				<clipboard-copy class="js-clipboard-copy">
 				<svg height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon-copy">
 					<path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
@@ -4397,6 +4490,7 @@
 				</svg>
 				</clipboard-copy>
             `
+          )
         });
         let clipboardCopyElement = copyElement.querySelector(
           ".js-clipboard-copy"
@@ -4536,7 +4630,9 @@
       for (const scriptInfo of scriptList) {
         let liElement = domUtils.createElement("li", {
           className: "w-script-list-item",
-          innerHTML: `
+          innerHTML: (
+            /*html*/
+            `
 				<div class="w-script-info">
 				<div class="w-script-name">
 					<a href="${scriptInfo["url"]}" target="_blank">${scriptInfo["name"]}</a>
@@ -4552,24 +4648,28 @@
 				</div>
 				<div class="w-script-update-time">
 					<p>${i18next.t("更新：")}${utils.getDaysDifference(
-          new Date(scriptInfo["code_updated_at"]).getTime(),
-          void 0,
-          "auto"
-        )}前</p>
+            new Date(scriptInfo["code_updated_at"]).getTime(),
+            void 0,
+            "auto"
+          )}前</p>
 				</div>
 				</div>
             `
+          )
         });
         let scriptInfoElement = liElement.querySelector(
           ".w-script-info"
         );
         let buttonElement = domUtils.createElement("div", {
           className: "pops-panel-button",
-          innerHTML: `
+          innerHTML: (
+            /*html*/
+            `
 				<button type="primary" data-icon="" data-righticon="false">
 				<span>${i18next.t("同步代码")}</span>
 				</button>
 				`
+          )
         });
         if (scriptInfo["deleted"]) {
           liElement.classList.add("w-script-deleted");
@@ -4624,6 +4724,7 @@
               } else {
                 domUtils.append(
                   scriptInfoElement,
+                  /*html*/
                   `
 								<div class="w-script-sync-type">
 									<p>${i18next.t("同步方式：{{syncMode}}", {
@@ -4702,11 +4803,14 @@
         ".sidebarred .sidebar",
         ".sidebarred-main-content .open-sidebar"
       );
-      _GM_addStyle(`
+      _GM_addStyle(
+        /*css*/
+        `
 		.sidebarred .sidebarred-main-content{
 			max-width: 100%;
 		}	
-		`);
+		`
+      );
       domUtils.ready(() => {
         let $nav = document.querySelector("#site-nav nav");
         let $subNav = document.querySelector(
@@ -4744,7 +4848,9 @@
             direction: "top",
             size: "80%",
             zIndex: utils.getMaxZIndex(100),
-            style: `
+            style: (
+              /*css*/
+              `
                     .pops-drawer-content div:first-child{
                         margin: 20px 0 0 0;
                     }
@@ -4820,6 +4926,7 @@
                         height: 32px;
                     }
                     `
+            )
           });
           let $drawerContent = $drawer.$shadowRoot.querySelector(
             ".pops-drawer-content"

@@ -33,7 +33,8 @@ const Greasyfork = {
 		}
 		if (
 			GreasyforkRouter.isScriptList() ||
-			GreasyforkRouter.isScriptLibraryList()
+			GreasyforkRouter.isScriptLibraryList() ||
+			GreasyforkRouter.isScriptCodeSearch()
 		) {
 			GreasyforkScriptsList.init();
 		}
@@ -74,7 +75,7 @@ const Greasyfork = {
 	fixImageWidth() {
 		if (window.innerWidth < window.innerHeight) {
 			log.info("修复图片显示问题");
-			GM_addStyle(`
+			GM_addStyle(/*css*/ `
             img.lum-img{
                 width: 100% !important;
                 height: 100% !important;
@@ -92,7 +93,7 @@ const Greasyfork = {
 		} else {
 			GM_addStyle(GM_getResourceText("ViewerCSS"));
 		}
-		GM_addStyle(`
+		GM_addStyle(/*css*/ `
         @media (max-width: 460px) {
           .lum-lightbox-image-wrapper {
               display:flex;
@@ -249,7 +250,7 @@ const Greasyfork = {
 				linkElement.removeAttribute("href");
 				DOMUtils.on(linkElement, "click", () => {
 					Qmsg.warning(
-						`<div style="overflow-wrap: anywhere;">${i18next.t(
+						/*html*/ `<div style="overflow-wrap: anywhere;">${i18next.t(
 							"拦截跳转："
 						)}<a href="${url}" target="_blank">${url}</a></div>`,
 						{
@@ -265,14 +266,14 @@ const Greasyfork = {
 	 */
 	addMarkdownCopyButton() {
 		log.info("在Markdown右上角添加复制按钮");
-		GM_addStyle(`
+		GM_addStyle(/*css*/ `
         pre{
           position: relative;
           margin-bottom: 0px !important;
           width: 100%;
         }
         `);
-		GM_addStyle(`
+		GM_addStyle(/*css*/ `
         .snippet-clipboard-content{
           display: flex;
           justify-content: space-between;
@@ -341,7 +342,7 @@ const Greasyfork = {
           transition: none;
         }
         `);
-		GM_addStyle(`
+		GM_addStyle(/*css*/ `
         .pops-tip.github-tooltip {
           border-radius: 6px;
           padding: 6px 8px;
@@ -364,7 +365,7 @@ const Greasyfork = {
 		function getCopyElement() {
 			let copyElement = DOMUtils.createElement("div", {
 				className: "zeroclipboard-container",
-				innerHTML: `
+				innerHTML: /*html*/ `
 				<clipboard-copy class="js-clipboard-copy">
 				<svg height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon-copy">
 					<path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
@@ -531,7 +532,7 @@ const Greasyfork = {
 		for (const scriptInfo of scriptList) {
 			let liElement = DOMUtils.createElement("li", {
 				className: "w-script-list-item",
-				innerHTML: `
+				innerHTML: /*html*/ `
 				<div class="w-script-info">
 				<div class="w-script-name">
 					<a href="${scriptInfo["url"]}" target="_blank">${scriptInfo["name"]}</a>
@@ -560,7 +561,7 @@ const Greasyfork = {
 			) as HTMLElement;
 			let buttonElement = DOMUtils.createElement("div", {
 				className: "pops-panel-button",
-				innerHTML: `
+				innerHTML: /*html*/ `
 				<button type="primary" data-icon="" data-righticon="false">
 				<span>${i18next.t("同步代码")}</span>
 				</button>
@@ -625,7 +626,7 @@ const Greasyfork = {
 						} else {
 							DOMUtils.append(
 								scriptInfoElement,
-								`
+								/*html*/ `
 								<div class="w-script-sync-type">
 									<p>${i18next.t("同步方式：{{syncMode}}", {
 										syncMode,
@@ -714,7 +715,7 @@ const Greasyfork = {
 			".sidebarred .sidebar",
 			".sidebarred-main-content .open-sidebar"
 		);
-		GM_addStyle(`
+		GM_addStyle(/*css*/ `
 		.sidebarred .sidebarred-main-content{
 			max-width: 100%;
 		}	
@@ -759,7 +760,7 @@ const Greasyfork = {
 					direction: "top",
 					size: "80%",
 					zIndex: utils.getMaxZIndex(100),
-					style: `
+					style: /*css*/ `
                     .pops-drawer-content div:first-child{
                         margin: 20px 0 0 0;
                     }

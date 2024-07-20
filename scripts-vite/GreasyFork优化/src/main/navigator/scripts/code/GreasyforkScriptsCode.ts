@@ -17,7 +17,7 @@ export const GreasyforkScriptsCode = {
 		log.info("修复代码的行号显示不够问题");
 		PopsPanel.execMenuOnce("beautifyGreasyforkBeautify", () => {
 			/* 修复Greasyfork Beautify美化后的代码块 */
-			GM_addStyle(`
+			GM_addStyle(/*css*/ `
 				.code-container pre code .marker{
 					padding-left: 6px;
 				}	
@@ -33,7 +33,7 @@ export const GreasyforkScriptsCode = {
 					log.success(
 						`当前代码行数${$prettyPrintOL.childElementCount}行，超过1000行，优化行号显示问题`
 					);
-					GM_addStyle(`
+					GM_addStyle(/*css*/ `
                     pre.prettyprint{
                         padding-left: 26px;
                     }

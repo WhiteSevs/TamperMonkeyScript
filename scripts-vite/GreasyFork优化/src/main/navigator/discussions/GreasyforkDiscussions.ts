@@ -33,7 +33,7 @@ export const GreasyforkForum = {
 	readBgColor() {
 		log.info("设置已读背景颜色");
 		let color = PopsPanel.getValue("discussions-readBgColor");
-		GM_addStyle(`
+		GM_addStyle(/*css*/ `
         .discussion-read{
             background: ${color} !important;
         }
@@ -82,7 +82,7 @@ export const GreasyforkForum = {
 						html: false,
 					},
 					content: {
-						text: `
+						text: /*html*/ `
 								<button ${attr_filter_key}="scriptId" ${attr_filter_value}="^${
 							discussionInfo.scriptId
 						}$">${i18next.t("脚本id：{{text}}", {
@@ -111,7 +111,7 @@ export const GreasyforkForum = {
 					dragLimit: true,
 					width: "350px",
 					height: "300px",
-					style: `
+					style: /*css*/ `
 						.pops-alert-content{
 							display: flex;
 							flex-direction: column;

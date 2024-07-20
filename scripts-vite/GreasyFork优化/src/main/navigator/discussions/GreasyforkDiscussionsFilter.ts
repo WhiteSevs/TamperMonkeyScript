@@ -28,7 +28,7 @@ export const GreasyforkDiscussionsFilter = {
 	},
 	init() {
 		log.info("论坛-过滤");
-		GM_addStyle(`
+		GM_addStyle(/*css*/ `
         .discussion-list-container {
           --discusstion-repeat-color: #ffa700;
         }

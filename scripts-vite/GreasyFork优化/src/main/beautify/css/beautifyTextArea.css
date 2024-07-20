@@ -1,11 +1,8 @@
 textarea {
-	position: relative;
-	display: inline-block;
-	width: 100%;
-	vertical-align: bottom;
-	font-size: 14px;
-	position: relative;
 	display: block;
+	position: relative;
+	/*vertical-align: bottom;*/
+	position: relative;
 	resize: vertical;
 	padding: 5px 11px;
 	line-height: 1.5;
@@ -16,6 +13,7 @@ textarea {
 	/* color: #606266; */
 	background-color: #ffffff;
 	background-image: none;
+	appearance: none;
 	-webkit-appearance: none;
 	box-shadow: 0 0 0 1px #dcdfe6 inset;
 	border-radius: 4px;

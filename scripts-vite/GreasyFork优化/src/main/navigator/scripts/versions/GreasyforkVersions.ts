@@ -66,7 +66,7 @@ export const GreasyforkVersions = {
 				});
 				let tagElement = DOMUtils.createElement("div", {
 					className: "script-tag",
-					innerHTML: `
+					innerHTML: /*html*/ `
                     <div class="script-tag-version">
                         <a href="${versionUrl}" class="flex-align-item-center">
                         <svg aria-label="Tag" role="img" height="16" viewBox="0 0 16 16" version="1.1" width="16">
@@ -113,7 +113,7 @@ export const GreasyforkVersions = {
 					let codeUrl = GreasyforkUrlUtils.getCodeUrl(scriptId, scriptVersion);
 					let $buttonTag = DOMUtils.createElement("div", {
 						className: "scripts-tag-install",
-						innerHTML: `
+						innerHTML: /*html*/ `
 						<a class="script-btn-install install-link" data-install-format="js" target="_blank" href="${installUrl}">${i18next.t(
 							"安装此脚本"
 						)}</a>

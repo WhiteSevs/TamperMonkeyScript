@@ -3,19 +3,17 @@ import { GM_addStyle } from "ViteGM";
 import beautifyMarkdownCSS from "./css/beautifyMarkdown.css?raw";
 import beautifyButtonCSS from "./css/beautifyButton.css?raw";
 import beautifyRadioCSS from "./css/beautifyRadio.css?raw";
+import beautifyInputCSS from "./css/beautifyInput.css?raw";
 import beautifyTextAreaCSS from "./css/beautifyTextArea.css?raw";
 import notUseBeautifyCSS from "./css/notUseBeautify.css?raw";
 import beautifyUploadImageCSS from "./css/beautifyUploadImage.css?raw";
 import compatibleBeautifyCSS from "./css/compatibleBeautify.css?raw";
 import beautifyTopNavigationBarCSS from "./css/beautifyTopNavigationBar.css?raw";
 import { DOMUtils, log, utils } from "@/env";
-import Qmsg from "qmsg";
-import { GreasyforkRouter } from "@/router/GreasyforkRouter";
 import i18next from "i18next";
 import { CommonUtils } from "@/utils/CommonUtils";
-import { GreasyforkScriptsCollectEvent } from "../navigator/scripts/GreasyforkScripts";
 
-const GreasyforkBeautify = {
+export const GreasyforkBeautify = {
 	init() {
 		PopsPanel.execMenuOnce("beautifyPage", () => {
 			return this.beautifyPageElement();
@@ -40,9 +38,10 @@ const GreasyforkBeautify = {
 		result.push(GM_addStyle(beautifyMarkdownCSS));
 		result.push(GM_addStyle(beautifyButtonCSS));
 		result.push(GM_addStyle(beautifyRadioCSS));
+		result.push(GM_addStyle(beautifyInputCSS));
 		result.push(GM_addStyle(beautifyTextAreaCSS));
 		result.push(
-			GM_addStyle(`
+			GM_addStyle(/*css*/ `
 			p:has(input[type="submit"][name="update-and-sync"]){
 			  margin-top: 10px;
 			}
@@ -66,7 +65,7 @@ const GreasyforkBeautify = {
 				!document.querySelector('input[type="submit"][name="update-only"]')
 			) {
 				result.push(
-					GM_addStyle(`
+					GM_addStyle(/*css*/ `
 					.indented{
 						padding-left: unset;
 					}
@@ -87,7 +86,7 @@ const GreasyforkBeautify = {
 		if (utils.isPhone()) {
 			/* 移动端 */
 			result.push(
-				GM_addStyle(`
+				GM_addStyle(/*css*/ `
 				section#script-info,
 				section.text-content,
 				div.width-constraint table.text-content.log-table{
@@ -103,7 +102,7 @@ const GreasyforkBeautify = {
 			);
 		} else {
 			result.push(
-				GM_addStyle(`
+				GM_addStyle(/*css*/ `
 				section#script-info{
 					margin-top: 10px;
 				}`)
@@ -226,5 +225,3 @@ const GreasyforkBeautify = {
 		return result;
 	},
 };
-
-export { GreasyforkBeautify };

@@ -52,7 +52,7 @@ export const GreasyforkUsers = {
 					size: "auto",
 					direction: "top",
 					zIndex: utils.getMaxZIndex(100),
-					style: `
+					style: /*css*/ `
                     .text-content{
                         list-style-type: none;
                         box-shadow: rgb(221, 221, 221) 0px 0px 5px;

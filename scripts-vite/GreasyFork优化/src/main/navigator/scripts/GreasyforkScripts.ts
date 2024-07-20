@@ -40,7 +40,7 @@ export const GreasyforkScriptsCollectEvent = async function (
 	}
 	let alertHTML = "";
 	userCollection.forEach((userCollectInfo) => {
-		alertHTML += `
+		alertHTML += /*html*/ `
 		<li class="user-collect-item" data-id="${userCollectInfo.id}" data-name="${
 			userCollectInfo.name
 		}">
@@ -67,7 +67,7 @@ export const GreasyforkScriptsCollectEvent = async function (
 		},
 		content: {
 			html: true,
-			text: `<ul>${alertHTML}</ul>`,
+			text: /*html*/ `<ul>${alertHTML}</ul>`,
 		},
 		mask: {
 			enable: true,
@@ -84,7 +84,7 @@ export const GreasyforkScriptsCollectEvent = async function (
 		height: "auto",
 		drag: true,
 		only: true,
-		style: `
+		style: /*css*/ `
 		.pops{
 			--content-max-height: 400px;
 			max-height: var(--content-max-height);
@@ -220,7 +220,7 @@ export const GreasyforkScriptsCollectEvent = async function (
 							toClose: true,
 						},
 					},
-					style: `
+					style: /*css*/ `
 					.pops-alert-content{
 						font-style: italic;
 						background-color: #ffc;
@@ -380,7 +380,7 @@ export const GreasyforkScripts = {
 	 */
 	fullScreenOptimization() {
 		log.info("F11全屏，F键代码全屏");
-		GM_addStyle(`
+		GM_addStyle(/*css*/ `
         .code-wide-screen{
           position: absolute;
           top: 0;
