@@ -9,13 +9,13 @@ export const MDouYinShareNote = {
 	init() {
 		addStyle(blockCSS);
 		PopsPanel.execMenuOnce("m-dy-share-note-blockRecommend", () => {
-			this.blockRecommend();
+			return this.blockRecommend();
 		});
 		PopsPanel.execMenuOnce("m-dy-share-note-blockComment", () => {
-			this.blockComment();
+			return this.blockComment();
 		});
 		PopsPanel.execMenuOnce("m-dy-share-note-blockFooterToobar", () => {
-			this.blockFooterToobar();
+			return this.blockFooterToobar();
 		});
 		PopsPanel.execMenuOnce("m-dy-share-note-coverUser", () => {
 			this.coverUser();
@@ -41,21 +41,21 @@ export const MDouYinShareNote = {
 	 */
 	blockRecommend() {
 		log.info("【屏蔽】相关推荐");
-		DouYinUtils.addBlockCSS(".recommend-con");
+		return DouYinUtils.addBlockCSS(".recommend-con");
 	},
 	/**
 	 * 【屏蔽】评论
 	 */
 	blockComment() {
 		log.info("【屏蔽】评论");
-		DouYinUtils.addBlockCSS(".comment-con");
+		return DouYinUtils.addBlockCSS(".comment-con");
 	},
 	/**
 	 * 【屏蔽】底部工具栏
 	 */
 	blockFooterToobar() {
 		log.info("【屏蔽】底部工具栏");
-		DouYinUtils.addBlockCSS(".footer-con");
+		return DouYinUtils.addBlockCSS(".footer-con");
 	},
 	/**
 	 * 覆盖相关推荐的点击事件

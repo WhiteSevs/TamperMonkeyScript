@@ -15,7 +15,7 @@ export const DouYinSearchHideElement = {
 		log.info("【屏蔽】相关搜索");
 		return [
 			DouYinUtils.addBlockCSS("#search-content-area > div > div:nth-child(2)"),
-			addStyle(`
+			addStyle(/*css*/ `
 			#search-content-area > div > div:nth-child(1) > div:nth-child(1){
 				width: 100vw;
 			}`),

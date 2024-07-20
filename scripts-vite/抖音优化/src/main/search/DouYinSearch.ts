@@ -23,7 +23,7 @@ export const DouYinSearch = {
 			.waitNode<HTMLDivElement>("#relatedVideoCard")
 			.then(($relatedVideoCard) => {
 				log.info("评论区展开的className：" + $relatedVideoCard.className);
-				addStyle(`
+				addStyle(/*css*/ `
 				html[data-vertical-screen]
 					#sliderVideo[data-e2e="feed-active-video"]
 					#videoSideBar:has(#relatedVideoCard[class="${$relatedVideoCard.className}"]) {

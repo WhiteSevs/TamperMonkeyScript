@@ -38,7 +38,7 @@ export const ShieldSearch = {
 			)
 		);
 		result.push(
-			addStyle(`
+			addStyle(/*css*/ `
 			#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div input[data-e2e="searchbar-input"]::placeholder{
 				color: transparent;
 			}`)

@@ -323,7 +323,7 @@ export const ShieldHeader = {
 		log.info("【屏蔽】左侧导航栏");
 		return [
 			DouYinUtils.addBlockCSS("#douyin-navigation"),
-			addStyle(`
+			addStyle(/*css*/ `
 			/* 修复顶部导航栏的宽度 */
 			#douyin-header{
 				width: 100%;
@@ -337,10 +337,18 @@ export const ShieldHeader = {
 		log.info("【屏蔽】顶部导航栏");
 		let result = [];
 		result.push(DouYinUtils.addBlockCSS("#douyin-header"));
+		result.push(
+			addStyle(/*css*/ `
+			/* 修复视频的高度 */
+			#douyin-right-container{
+				padding-top: 0px !important;
+			}
+		`)
+		);
 		if (DouYinRouter.isSearch()) {
 			// 搜索页面
 			result.push(
-				addStyle(`
+				addStyle(/*css*/ `
 				/* 把搜索顶部的工具栏置顶 */
 				#search-content-area > div > div:nth-child(1) > div:nth-child(1){
 					top: 0;

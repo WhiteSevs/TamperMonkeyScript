@@ -26,7 +26,7 @@ export const DouYinVideo = {
 			DouYinVideo.changeCommentToBottom();
 		});
 		PopsPanel.execMenuOnce("fullScreen", () => {
-			this.fullScreen();
+			return this.fullScreen();
 		});
 		PopsPanel.execMenuOnce("parseVideo", () => {
 			DouYinVideo.parseVideo();
@@ -64,21 +64,27 @@ export const DouYinVideo = {
 	 */
 	fullScreen() {
 		log.info("全屏");
-		DouYinUtils.addBlockCSS(
-			/* 右侧工具栏 */
-			".slider-video .positionBox",
-			/* 中间底部的视频信息（描述、作者、话题等） */
-			"#video-info-wrap",
-			/* 中间底部的视频控制工具栏 */
-			"xg-controls.xgplayer-controls"
+		let result = [];
+		result.push(
+			DouYinUtils.addBlockCSS(
+				/* 右侧工具栏 */
+				".slider-video .positionBox",
+				/* 中间底部的视频信息（描述、作者、话题等） */
+				"#video-info-wrap",
+				/* 中间底部的视频控制工具栏 */
+				"xg-controls.xgplayer-controls"
+			)
 		);
-		DouYinVideoHideElement.shieldSearchFloatingBar();
-		addStyle(`
-        /* 视频全屏 */
-        xg-video-container.xg-video-container{
-            bottom: 0px !important;
-        }
-        `);
+		result.push(DouYinVideoHideElement.shieldSearchFloatingBar());
+		result.push(
+			addStyle(/*css*/ `
+			/* 视频全屏 */
+			xg-video-container.xg-video-container{
+				bottom: 0px !important;
+			}
+        `)
+		);
+		return result;
 	},
 	/**
 	 * 自动进入网页全屏
@@ -153,7 +159,7 @@ export const DouYinVideo = {
 		}
 		autoChangeCommentPosition();
 		/* 2024.5.27 dy更名videoSideBar=>videoSideCard */
-		addStyle(`
+		addStyle(/*css*/ `
 		html[${ATTRIBUTE_KEY}] #sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard,
 		html[${ATTRIBUTE_KEY}] #sliderVideo[data-e2e="feed-video"] #videoSideCard #relatedVideoCard{
 			display: none !important;
@@ -329,11 +335,11 @@ export const DouYinVideo = {
 		function showParseInfoDialog(srcList: string[]) {
 			let contentHTML = "";
 			srcList.forEach((url) => {
-				contentHTML += `
+				contentHTML += /*html*/ `
           		<div class="douyin-video-link-item"><a href="${url}" target="_blank">${url}</a></div>
             	`;
 			});
-			contentHTML = `<div class="douyin-video-link-container">${contentHTML}</div>`;
+			contentHTML = /*html*/ `<div class="douyin-video-link-container">${contentHTML}</div>`;
 			pops.alert({
 				title: {
 					text: "视频解析",
@@ -353,7 +359,7 @@ export const DouYinVideo = {
 				height: "50vh",
 				drag: true,
 				dragLimit: true,
-				style: `
+				style: /*css*/ `
                 .douyin-video-link-container{
 
                 }
@@ -432,7 +438,7 @@ export const DouYinVideo = {
 	 */
 	repairVideoProgressBar() {
 		log.info("修复进度条按钮");
-		addStyle(`
+		addStyle(/*css*/ `
 		/* 禁止触发touch事件，因为会影响到按钮点击不到 */
 		xg-outer,
 		xg-inners {
@@ -478,7 +484,7 @@ export const DouYinVideo = {
 	 */
 	changeBackgroundColor(color: string) {
 		log.info("修改视频背景颜色");
-		return addStyle(`
+		return addStyle(/*css*/ `
 		#sliderVideo > div,
 		/* 推荐的直播间背景 */
 		xgmask,
