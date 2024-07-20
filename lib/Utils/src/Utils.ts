@@ -52,7 +52,7 @@ class Utils {
 		UtilsCore.init(option);
 	}
 	/** 版本号 */
-	version = "2024.7.18";
+	version = "2024.7.20";
 
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
@@ -1220,21 +1220,34 @@ class Utils {
 	 **/
 	getMaxZIndex(deviation?: number): number;
 	getMaxZIndex(deviation = 1): number {
-		let nodeIndexList: number[] = [];
 		deviation = Number.isNaN(deviation) ? 1 : deviation;
-		document.querySelectorAll("*").forEach((element) => {
+		// 最大值2147483647
+		let maxZIndex = Math.pow(2, 31) - 1;
+		// 比较值2000000000
+		let maxZIndexCompare = 2 * Math.pow(10, 9);
+		// 当前页面最大的z-index
+		let zIndex = 0;
+		// 当前的最大z-index的元素，调试使用
+		let maxZIndexNode = null;
+		document.querySelectorAll("*").forEach((element, index) => {
 			let nodeStyle = window.getComputedStyle(element);
 			/* 不对position为static和display为none的元素进行获取它们的z-index */
 			if (nodeStyle.position !== "static" && nodeStyle.display !== "none") {
-				nodeIndexList = nodeIndexList.concat(parseInt(nodeStyle.zIndex));
+				let nodeZIndex = parseInt(nodeStyle.zIndex);
+				if (!isNaN(nodeZIndex)) {
+					if (nodeZIndex > zIndex) {
+						zIndex = nodeZIndex;
+						maxZIndexNode = element;
+					}
+				}
 			}
 		});
-		/* 过滤非Boolean类型 */
-		nodeIndexList = nodeIndexList.filter(Boolean);
-		let currentMaxZIndex = nodeIndexList.length
-			? Math.max(...nodeIndexList)
-			: 0;
-		return currentMaxZIndex + deviation;
+		zIndex += deviation;
+		if (zIndex >= maxZIndexCompare) {
+			// 最好不要超过最大值
+			zIndex = maxZIndex;
+		}
+		return zIndex;
 	}
 	/**
 	 * 获取最小值
