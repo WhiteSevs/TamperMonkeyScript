@@ -2778,7 +2778,7 @@ const TiebaComment = {
 		let pageCommentInfo = await TiebaComment.getPageComment(pageUrl);
 		if (!pageCommentInfo.success) {
 			loadingView.setHTML(
-				`<a href="${pageCommentInfo.data}" target="_blank">触发百度安全验证，点击前往验证</a>`
+				/*html*/ `<a href="${pageCommentInfo.data}" target="_blank">触发百度安全验证，点击前往验证</a>`
 			);
 			return;
 		}
@@ -2790,24 +2790,23 @@ const TiebaComment = {
 			(pageCommentList.commentList && !pageCommentList.commentList)
 		) {
 			loadingView.setText("评论数据获取失败");
-			log.error("评论数据获取失败");
+			log.error("正序：评论数据获取失败");
 			return;
 		}
-		log.info("成功获取第一页评论和楼中楼评论");
-		let jumpInputBrightDOM = pageDOM.querySelector(
-			".jump_input_bright"
-		) as HTMLElement;
+		log.info("正序：成功获取第一页评论和楼中楼评论");
+		let jumpInputBrightDOM =
+			pageDOM.querySelector<HTMLElement>(".jump_input_bright");
 		TiebaComment.maxPage = 1;
 		if (jumpInputBrightDOM) {
 			TiebaComment.maxPage = parseInt(
-				jumpInputBrightDOM.getAttribute("max-page") as string
+				jumpInputBrightDOM.getAttribute("max-page")!
 			);
 			TiebaComment.setNextPageScrollListener();
-			log.info("当前为多页，执行监听");
+			log.info("正序：当前为多页，执行监听");
 		} else {
 			let comments = Array.from(
-				pageDOM.querySelectorAll(".l_post.l_post_bright")
-			) as HTMLElement[];
+				pageDOM.querySelectorAll<HTMLElement>(".l_post.l_post_bright")
+			);
 			document.querySelectorAll(".post-item").forEach((ele) => ele.remove());
 			comments.shift();
 			TiebaComment.floor_num = 1;
@@ -2821,7 +2820,7 @@ const TiebaComment = {
 			loadingView.hide();
 		}
 		log.info(
-			`共 ${TiebaComment.maxPage} 页评论，当前所在 ${TiebaComment.page} 页`
+			`正序：共 ${TiebaComment.maxPage} 页评论，当前所在 ${TiebaComment.page} 页`
 		);
 	},
 	/**
@@ -2850,11 +2849,11 @@ const TiebaComment = {
 				);
 				TiebaComment.param_forum_id = TiebaPageDataApi.getForumId();
 				if (!TiebaComment.param_forum_id) {
-					log.error("贴吧：获取参数data-banner-info失败");
+					log.error("倒序：获取参数data-banner-info失败");
 					return;
 				}
 			} else {
-				log.error("获取元素.recommend-item失败");
+				log.error("倒序：获取元素.recommend-item失败");
 				Qmsg.error("获取元素.recommend-item失败");
 				return;
 			}
@@ -2873,7 +2872,7 @@ const TiebaComment = {
 		let pageCommentInfo = await TiebaComment.getPageComment(pageUrl);
 		if (!pageCommentInfo.success) {
 			loadingView.setHTML(
-				`<a href="${pageCommentInfo.data}" target="_blank">触发百度安全验证，点击前往验证</a>`
+				/*html*/ `<a href="${pageCommentInfo.data}" target="_blank">触发百度安全验证，点击前往验证</a>`
 			);
 			return;
 		}
@@ -2882,29 +2881,28 @@ const TiebaComment = {
 		let pageCommentList = await TiebaComment.getPageCommentList(url);
 		if (pageCommentList == null) {
 			loadingView.setText("评论数据获取为undefined");
-			log.error("评论数据获取为undefined");
+			log.error("倒序：评论数据获取为undefined");
 			return;
 		} else if (!pageCommentList.commentList) {
 			loadingView.setText("评论数据获取失败");
-			log.error("评论数据获取失败");
+			log.error("倒序：评论数据获取失败");
 			return;
 		}
-		log.info("成功获取第一页评论和楼中楼评论");
+		log.info("倒序：成功获取第一页评论和楼中楼评论");
 		TiebaComment.maxPage = 1;
-		let jumpInputBrightDOM = pageDOM.querySelector(
-			".jump_input_bright"
-		) as HTMLDivElement;
+		let jumpInputBrightDOM =
+			pageDOM.querySelector<HTMLDivElement>(".jump_input_bright");
 		if (jumpInputBrightDOM) {
 			TiebaComment.maxPage = parseInt(
-				jumpInputBrightDOM.getAttribute("max-page") as string
+				jumpInputBrightDOM.getAttribute("max-page")!
 			);
 			TiebaComment.page = TiebaComment.maxPage;
 			TiebaComment.setPrevPageScrollListener();
-			log.info("当前为多页");
+			log.info("倒序：当前为多页");
 		} else {
 			let comment = Array.from(
-				pageDOM.querySelectorAll(".l_post.l_post_bright")
-			) as HTMLElement[];
+				pageDOM.querySelectorAll<HTMLElement>(".l_post.l_post_bright")
+			);
 			TiebaComment.maxPage = 1;
 			document.querySelectorAll(".post-item").forEach((ele) => ele.remove());
 			comment.shift();
@@ -2920,7 +2918,7 @@ const TiebaComment = {
 			loadingView.hide();
 		}
 		log.info(
-			`共 ${TiebaComment.maxPage} 页评论，当前所在 ${TiebaComment.page} 页`
+			`倒序：共 ${TiebaComment.maxPage} 页评论，当前所在 ${TiebaComment.page} 页`
 		);
 	},
 };

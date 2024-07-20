@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.20
+// @version      2024.7.21
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -25,6 +25,7 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.4.0/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.7/dist/index.min.css
 // @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
+// @connect      *
 // @connect      www.baidu.com
 // @connect      m.baidu.com
 // @connect      tieba.baidu.com
@@ -32,6 +33,7 @@
 // @connect      baike.baidu.com
 // @connect      chat.baidu.com
 // @connect      chat-ws.baidu.com
+// @connect      wappass.baidu.com
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
@@ -11254,6 +11256,7 @@ div[class^="new-summary-container_"] {\r
       let pageCommentInfo = await TiebaComment.getPageComment(pageUrl);
       if (!pageCommentInfo.success) {
         loadingView.setHTML(
+          /*html*/
           `<a href="${pageCommentInfo.data}" target="_blank">触发百度安全验证，点击前往验证</a>`
         );
         return;
@@ -11262,20 +11265,18 @@ div[class^="new-summary-container_"] {\r
       let pageCommentList = await TiebaComment.getPageCommentList(url);
       if (pageCommentList == null || pageCommentList.commentList && !pageCommentList.commentList) {
         loadingView.setText("评论数据获取失败");
-        log.error("评论数据获取失败");
+        log.error("正序：评论数据获取失败");
         return;
       }
-      log.info("成功获取第一页评论和楼中楼评论");
-      let jumpInputBrightDOM = pageDOM.querySelector(
-        ".jump_input_bright"
-      );
+      log.info("正序：成功获取第一页评论和楼中楼评论");
+      let jumpInputBrightDOM = pageDOM.querySelector(".jump_input_bright");
       TiebaComment.maxPage = 1;
       if (jumpInputBrightDOM) {
         TiebaComment.maxPage = parseInt(
           jumpInputBrightDOM.getAttribute("max-page")
         );
         TiebaComment.setNextPageScrollListener();
-        log.info("当前为多页，执行监听");
+        log.info("正序：当前为多页，执行监听");
       } else {
         let comments = Array.from(
           pageDOM.querySelectorAll(".l_post.l_post_bright")
@@ -11293,7 +11294,7 @@ div[class^="new-summary-container_"] {\r
         loadingView.hide();
       }
       log.info(
-        `共 ${TiebaComment.maxPage} 页评论，当前所在 ${TiebaComment.page} 页`
+        `正序：共 ${TiebaComment.maxPage} 页评论，当前所在 ${TiebaComment.page} 页`
       );
     },
     /**
@@ -11322,11 +11323,11 @@ div[class^="new-summary-container_"] {\r
           );
           TiebaComment.param_forum_id = TiebaPageDataApi.getForumId();
           if (!TiebaComment.param_forum_id) {
-            log.error("贴吧：获取参数data-banner-info失败");
+            log.error("倒序：获取参数data-banner-info失败");
             return;
           }
         } else {
-          log.error("获取元素.recommend-item失败");
+          log.error("倒序：获取元素.recommend-item失败");
           Qmsg.error("获取元素.recommend-item失败");
           return;
         }
@@ -11344,6 +11345,7 @@ div[class^="new-summary-container_"] {\r
       let pageCommentInfo = await TiebaComment.getPageComment(pageUrl);
       if (!pageCommentInfo.success) {
         loadingView.setHTML(
+          /*html*/
           `<a href="${pageCommentInfo.data}" target="_blank">触发百度安全验证，点击前往验证</a>`
         );
         return;
@@ -11352,25 +11354,23 @@ div[class^="new-summary-container_"] {\r
       let pageCommentList = await TiebaComment.getPageCommentList(url);
       if (pageCommentList == null) {
         loadingView.setText("评论数据获取为undefined");
-        log.error("评论数据获取为undefined");
+        log.error("倒序：评论数据获取为undefined");
         return;
       } else if (!pageCommentList.commentList) {
         loadingView.setText("评论数据获取失败");
-        log.error("评论数据获取失败");
+        log.error("倒序：评论数据获取失败");
         return;
       }
-      log.info("成功获取第一页评论和楼中楼评论");
+      log.info("倒序：成功获取第一页评论和楼中楼评论");
       TiebaComment.maxPage = 1;
-      let jumpInputBrightDOM = pageDOM.querySelector(
-        ".jump_input_bright"
-      );
+      let jumpInputBrightDOM = pageDOM.querySelector(".jump_input_bright");
       if (jumpInputBrightDOM) {
         TiebaComment.maxPage = parseInt(
           jumpInputBrightDOM.getAttribute("max-page")
         );
         TiebaComment.page = TiebaComment.maxPage;
         TiebaComment.setPrevPageScrollListener();
-        log.info("当前为多页");
+        log.info("倒序：当前为多页");
       } else {
         let comment = Array.from(
           pageDOM.querySelectorAll(".l_post.l_post_bright")
@@ -11389,7 +11389,7 @@ div[class^="new-summary-container_"] {\r
         loadingView.hide();
       }
       log.info(
-        `共 ${TiebaComment.maxPage} 页评论，当前所在 ${TiebaComment.page} 页`
+        `倒序：共 ${TiebaComment.maxPage} 页评论，当前所在 ${TiebaComment.page} 页`
       );
     }
   };

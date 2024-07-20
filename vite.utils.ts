@@ -389,6 +389,7 @@ export async function GetLib(
 	}
 	const ResourceList: string[] = [];
 	if (process.env.NODE_ENV === "development") {
+		// if(false){
 		for (const needLibName of needLib) {
 			let item = LIB_MAP[needLibName];
 			if (item) {

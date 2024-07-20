@@ -81,6 +81,7 @@ export default defineConfig({
 					"*://uf9kyh.smartapps.cn/*",
 				],
 				connect: [
+					"*",
 					"www.baidu.com",
 					"m.baidu.com",
 					"tieba.baidu.com",
@@ -88,6 +89,7 @@ export default defineConfig({
 					"baike.baidu.com",
 					"chat.baidu.com",
 					"chat-ws.baidu.com",
+					"wappass.baidu.com",
 				],
 				grant: [
 					"GM_addStyle",
