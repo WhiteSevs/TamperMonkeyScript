@@ -20,6 +20,9 @@
 	"scripts": {
 		"build": "rollup --config"
 	},
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org/"
+	},
 	"keywords": [
 		"typescript",
 		"pops",
