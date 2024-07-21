@@ -9,6 +9,7 @@ import { SearchNextPage, SearchNextPage_SearchCraft } from "./SearchNextPage";
 import { SearchInputEvent } from "./SearchInput";
 import { BaiduSearchRule } from "./SearchRule";
 import { BaiduSearchVideo } from "./video/SearchVideo";
+import { BaiduSearchVSearch } from "./vsearch/VSearch";
 
 /**
  * 处理百度搜索自定义的样式添加
@@ -111,23 +112,8 @@ const BaiduSearch = {
 					SearchNextPage_SearchCraft.init();
 				}
 				if (BaiduRouter.isSearchVSearch()) {
-					utils
-						.waitNode<HTMLDivElement>("#realtime-container .c-infinite-scroll")
-						.then((element) => {
-							let replaceVSearchLinkLonkFunction = new utils.LockFunction(
-								BaiduResultItem.replaceVSearchLink,
-								600
-							);
-							utils.mutationObserver(element, {
-								config: {
-									subtree: true,
-									childList: true,
-								},
-								callback: () => {
-									replaceVSearchLinkLonkFunction.run();
-								},
-							});
-						});
+					// /sf/vsearch
+					BaiduSearchVSearch.init();
 				}
 			});
 		}

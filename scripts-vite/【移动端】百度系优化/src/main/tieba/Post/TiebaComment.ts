@@ -269,7 +269,7 @@ const TiebaComment = {
 			.then(() => {
 				DOMUtils.remove(".post-item");
 				TiebaComment.initReplyDialogCSS();
-				TiebaComment.mainPositive();
+				TiebaComment.initMainComment(false);
 				TiebaComment.insertReverseBtn();
 				TiebaComment.insertOnlyLZ();
 				utils
@@ -2554,9 +2554,13 @@ const TiebaComment = {
 			log.info("插入loading");
 			loadingView.initLoadingView();
 			loadingView.hide();
-			(document.querySelector(".main-page-wrap") as HTMLDivElement).appendChild(
-				loadingView.getLoadingViewElement()
-			);
+			let $mainPageWrap =
+				document.querySelector<HTMLDivElement>(".main-page-wrap");
+			if ($mainPageWrap) {
+				$mainPageWrap.appendChild(loadingView.getLoadingViewElement());
+			} else {
+				log.error("元素.main-page-wrap不存在，插入loading失败");
+			}
 		}
 	},
 	/**
@@ -2716,35 +2720,43 @@ const TiebaComment = {
 				reverseElement.classList.add("selected-tab-item");
 				positiveElement.classList.remove("selected-tab-item");
 				reverseElement.classList.add("selected-tab-item");
-				TiebaComment.mainReverse();
+				TiebaComment.initMainComment(true);
 				log.info("获取评论===>倒序");
 			} else {
 				/* 正序 */
 				positiveElement.classList.add("selected-tab-item");
 				reverseElement.classList.remove("selected-tab-item");
 				positiveElement.classList.add("selected-tab-item");
-				TiebaComment.mainPositive();
+				TiebaComment.initMainComment(false);
 				log.info("获取评论===>正序");
 			}
 		});
 	},
 	/**
-	 * 查看-正序
+	 * 查看 正序/倒序
+	 * @param [isReverse=false] 是否是倒序，默认false：正序
 	 */
-	async mainPositive() {
-		log.info("查看-正序");
+	async initMainComment(isReverse = false) {
+		let tag = isReverse ? "倒序: " : "正序: ";
+		log.info(tag + `查看内容`);
 		TiebaComment.param_tid = TiebaCore.getCurrentForumPostTid();
 		if (!TiebaComment.param_tid) {
-			log.error("贴吧：未找到本页参数p");
+			log.error(tag + "未找到本页参数p");
 			return;
 		}
 		TiebaComment.param_forum_id = TiebaPageDataApi.getForumId();
 		if (!TiebaComment.param_forum_id) {
+			log.warn(
+				tag + "param_forum_id参数不存在，尝试从其它地方获取，max-time: 5s"
+			);
 			let recommendItemElement = await utils.waitNode<HTMLDivElement>(
 				".recommend-item",
 				5000
 			);
 			if (recommendItemElement) {
+				log.info(
+					tag + "等待.recommend-item的data-banner-info属性，max-time: 10s"
+				);
 				await utils.waitPropertyByInterval(
 					recommendItemElement,
 					() => {
@@ -2753,64 +2765,103 @@ const TiebaComment = {
 					250,
 					10000
 				);
+				log.info(tag + "成功等待.recommend-item的data-banner-info属性");
 				TiebaComment.param_forum_id = TiebaPageDataApi.getForumId();
 				if (!TiebaComment.param_forum_id) {
-					log.error("贴吧：获取参数data-banner-info失败");
+					log.error(tag + "获取参数data-banner-info失败");
+					Qmsg.error("获取参数data-banner-info失败");
 					return;
 				}
+				log.info(
+					tag + "重新获取param_forum_id成功：" + TiebaComment.param_forum_id
+				);
 			} else {
-				log.error("获取元素.recommend-item失败");
+				log.error(tag + "获取元素.recommend-item失败");
 				Qmsg.error("获取元素.recommend-item失败");
 				return;
 			}
 		}
+		log.info(tag + "开始请求评论Api");
 
-		let timeStamp = Date.now();
-		TiebaComment.page = 1;
+		// 重置page页数为第一页
+		if (isReverse) {
+			TiebaComment.page = TiebaComment.maxPage;
+		} else {
+			TiebaComment.page = 1;
+		}
+		log.info(tag + "初始化当前页数：" + TiebaComment.page);
 		loadingView.setText("Loading...", true);
 		loadingView.show();
+		// 获取所有评论的接口
 		let url = TiebaUrlApi.getPost(
-			`totalComment?t=${timeStamp}&tid=${TiebaComment.param_tid}&fid=${TiebaComment.param_forum_id}&pn=${TiebaComment.page}&see_lz=0${TiebaComment.extraSearchSignParams}`
+			`totalComment?t=${Date.now()}&tid=${TiebaComment.param_tid}&fid=${
+				TiebaComment.param_forum_id
+			}&pn=${TiebaComment.page}&see_lz=0${TiebaComment.extraSearchSignParams}`
 		);
-		let pageUrl = TiebaUrlApi.getPost(
+		// 获取帖子链接，目的是解析页面的内容
+		let pcPageUrl = TiebaUrlApi.getPost(
 			`${TiebaComment.param_tid}?pn=${TiebaComment.page}${TiebaComment.extraSearchSignParams}`
 		);
-		let pageCommentInfo = await TiebaComment.getPageComment(pageUrl);
-		if (!pageCommentInfo.success) {
+		// 解析页面内容
+		let pcPageCommentInfo = await TiebaComment.getPageComment(pcPageUrl);
+		if (!pcPageCommentInfo.success) {
+			// 请求失败，触发验证
 			loadingView.setHTML(
-				/*html*/ `<a href="${pageCommentInfo.data}" target="_blank">触发百度安全验证，点击前往验证</a>`
+				/*html*/ `<a href="${pcPageCommentInfo.data}" target="_blank">触发百度安全验证，点击前往验证</a>`
 			);
 			return;
 		}
-		let pageDOM = pageCommentInfo.data as Document;
-
+		// PC页面的内容DOM
+		let $pcPageDoc = pcPageCommentInfo.data as Document;
+		// 获取评论列表JSON信息
 		let pageCommentList = await TiebaComment.getPageCommentList(url);
 		if (
 			pageCommentList == null ||
 			(pageCommentList.commentList && !pageCommentList.commentList)
 		) {
 			loadingView.setText("评论数据获取失败");
-			log.error("正序：评论数据获取失败");
+			log.error(tag + "评论数据获取失败");
 			return;
 		}
-		log.info("正序：成功获取第一页评论和楼中楼评论");
-		let jumpInputBrightDOM =
-			pageDOM.querySelector<HTMLElement>(".jump_input_bright");
+		log.info(tag + "成功获取第一页评论和楼中楼评论");
+		// 获取跳转xx页的按钮，解析出本帖的评论最大页
+		let $jumpInputBright =
+			$pcPageDoc.querySelector<HTMLElement>(".jump_input_bright");
+		// 初始化默认最大页为1
 		TiebaComment.maxPage = 1;
-		if (jumpInputBrightDOM) {
-			TiebaComment.maxPage = parseInt(
-				jumpInputBrightDOM.getAttribute("max-page")!
-			);
-			TiebaComment.setNextPageScrollListener();
-			log.info("正序：当前为多页，执行监听");
+		if ($jumpInputBright) {
+			// 多页评论
+			let maxPage = parseInt($jumpInputBright.getAttribute("max-page")!);
+			if (TiebaComment.maxPage <= 1 && maxPage > 1) {
+				TiebaComment.maxPage = maxPage;
+				log.info(tag + "设置解析出的最大页：" + TiebaComment.maxPage);
+			}
+			if (isReverse) {
+				TiebaComment.setPrevPageScrollListener();
+				log.info(tag + "当前为多页，设置滚动监听加载下一页");
+			} else {
+				TiebaComment.setNextPageScrollListener();
+				log.info(tag + "当前为多页，设置滚动监听加载上一页");
+			}
 		} else {
+			// 单页评论
 			let comments = Array.from(
-				pageDOM.querySelectorAll<HTMLElement>(".l_post.l_post_bright")
+				$pcPageDoc.querySelectorAll<HTMLElement>(".l_post.l_post_bright")
 			);
+			// 先把页面上的原有的评论移除
 			document.querySelectorAll(".post-item").forEach((ele) => ele.remove());
-			comments.shift();
+			// 移除第一个元素，因为第一个元素是楼主
+			if (TiebaComment.page == 1) {
+				// 如果是第一页，移除第一个元素，因为第一个是主内容
+				comments.shift();
+				log.info(tag + "当前为第1页，移除第一个，因为它是主内容");
+			}
+			// 初始化楼层数量
 			TiebaComment.floor_num = 1;
-			console.log(comments);
+			if (isReverse) {
+				// 倒序排列
+				comments.reverse();
+			}
 			comments.forEach((element) => {
 				TiebaComment.insertNewCommentInnerElement(
 					TiebaComment.getNewCommentInnerElement(element, pageCommentList)
@@ -2820,105 +2871,8 @@ const TiebaComment = {
 			loadingView.hide();
 		}
 		log.info(
-			`正序：共 ${TiebaComment.maxPage} 页评论，当前所在 ${TiebaComment.page} 页`
-		);
-	},
-	/**
-	 * 查看-倒序
-	 */
-	async mainReverse() {
-		TiebaComment.param_tid = TiebaCore.getCurrentForumPostTid();
-		if (!TiebaComment.param_tid) {
-			log.error("贴吧：未找到本页参数p");
-			return;
-		}
-		TiebaComment.param_forum_id = TiebaPageDataApi.getForumId();
-		if (!TiebaComment.param_forum_id) {
-			let recommendItemElement = await utils.waitNode<HTMLDivElement>(
-				".recommend-item",
-				5000
-			);
-			if (recommendItemElement) {
-				await utils.waitPropertyByInterval(
-					recommendItemElement,
-					() => {
-						return recommendItemElement.hasAttribute("data-banner-info");
-					},
-					250,
-					10000
-				);
-				TiebaComment.param_forum_id = TiebaPageDataApi.getForumId();
-				if (!TiebaComment.param_forum_id) {
-					log.error("倒序：获取参数data-banner-info失败");
-					return;
-				}
-			} else {
-				log.error("倒序：获取元素.recommend-item失败");
-				Qmsg.error("获取元素.recommend-item失败");
-				return;
-			}
-		}
-
-		let timeStamp = Date.now();
-		TiebaComment.page = 1;
-		loadingView.setText("Loading...", true);
-		loadingView.show();
-		let url = TiebaUrlApi.getPost(
-			`totalComment?t=${timeStamp}&tid=${TiebaComment.param_tid}&fid=${TiebaComment.param_forum_id}&pn=${TiebaComment.page}&see_lz=0${TiebaComment.extraSearchSignParams}`
-		);
-		let pageUrl = TiebaUrlApi.getPost(
-			`${TiebaComment.param_tid}?pn=${TiebaComment.page}${TiebaComment.extraSearchSignParams}`
-		);
-		let pageCommentInfo = await TiebaComment.getPageComment(pageUrl);
-		if (!pageCommentInfo.success) {
-			loadingView.setHTML(
-				/*html*/ `<a href="${pageCommentInfo.data}" target="_blank">触发百度安全验证，点击前往验证</a>`
-			);
-			return;
-		}
-		let pageDOM = pageCommentInfo.data as Document;
-
-		let pageCommentList = await TiebaComment.getPageCommentList(url);
-		if (pageCommentList == null) {
-			loadingView.setText("评论数据获取为undefined");
-			log.error("倒序：评论数据获取为undefined");
-			return;
-		} else if (!pageCommentList.commentList) {
-			loadingView.setText("评论数据获取失败");
-			log.error("倒序：评论数据获取失败");
-			return;
-		}
-		log.info("倒序：成功获取第一页评论和楼中楼评论");
-		TiebaComment.maxPage = 1;
-		let jumpInputBrightDOM =
-			pageDOM.querySelector<HTMLDivElement>(".jump_input_bright");
-		if (jumpInputBrightDOM) {
-			TiebaComment.maxPage = parseInt(
-				jumpInputBrightDOM.getAttribute("max-page")!
-			);
-			TiebaComment.page = TiebaComment.maxPage;
-			TiebaComment.setPrevPageScrollListener();
-			log.info("倒序：当前为多页");
-		} else {
-			let comment = Array.from(
-				pageDOM.querySelectorAll<HTMLElement>(".l_post.l_post_bright")
-			);
-			TiebaComment.maxPage = 1;
-			document.querySelectorAll(".post-item").forEach((ele) => ele.remove());
-			comment.shift();
-
-			TiebaComment.floor_num = 1;
-			comment.reverse();
-			comment.forEach((element) => {
-				TiebaComment.insertNewCommentInnerElement(
-					TiebaComment.getNewCommentInnerElement(element, pageCommentList)
-				);
-				TiebaComment.floor_num++;
-			});
-			loadingView.hide();
-		}
-		log.info(
-			`倒序：共 ${TiebaComment.maxPage} 页评论，当前所在 ${TiebaComment.page} 页`
+			tag +
+				`共 ${TiebaComment.maxPage} 页评论，当前所在 ${TiebaComment.page} 页`
 		);
 	},
 };

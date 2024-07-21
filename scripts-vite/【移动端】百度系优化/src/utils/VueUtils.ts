@@ -36,7 +36,7 @@ export const VueUtils = {
 	 */
 	waitVuePropToSet(
 		$target: HTMLElement | (() => HTMLElement | null) | string,
-		needSetList: WaitSetVuePropOption[]
+		needSetList: WaitSetVuePropOption[] | WaitSetVuePropOption
 	) {
 		function getTarget() {
 			let __target__ = null;
@@ -48,6 +48,10 @@ export const VueUtils = {
 				__target__ = $target;
 			}
 			return __target__;
+		}
+		if (!Array.isArray(needSetList)) {
+			this.waitVuePropToSet($target, [needSetList]);
+			return;
 		}
 		needSetList.forEach((needSetOption) => {
 			if (typeof needSetOption.msg === "string") {

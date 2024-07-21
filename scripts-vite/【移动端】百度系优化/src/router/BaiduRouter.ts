@@ -52,20 +52,31 @@ const BaiduRouter = {
 		);
 	},
 	/**
-	 * 百度搜索 笔记
-	 * /sf/vsearch?pd=note
+	 * 百度搜索其它卡片搜索结果页面
+	 * 图片
+	 * /sf/vsearch?pd=image_content
 	 */
-	isSearchNote() {
+	isSearchVSearch_image_content() {
 		let searchParams = new URLSearchParams(window.location.search);
-		return this.isSearch() && searchParams.has("pd", "note");
+		return this.isSearchVSearch() && searchParams.has("pd", "image_content");
 	},
 	/**
-	 * 百度搜索 问答
+	 * 百度搜索其它卡片搜索结果页面
+	 * 笔记
+	 * /sf/vsearch?pd=note
+	 */
+	isSearchVSearch_note() {
+		let searchParams = new URLSearchParams(window.location.search);
+		return this.isSearchVSearch() && searchParams.has("pd", "note");
+	},
+	/**
+	 * 百度搜索其它卡片搜索结果页面
+	 * 问答
 	 * /sf/vsearch?pd=wenda_tab
 	 */
 	isSearchWenDaTab() {
 		let searchParams = new URLSearchParams(window.location.search);
-		return this.isSearch() && searchParams.has("pd", "wenda_tab");
+		return this.isSearchVSearch() && searchParams.has("pd", "wenda_tab");
 	},
 	/**
 	 * 百家号

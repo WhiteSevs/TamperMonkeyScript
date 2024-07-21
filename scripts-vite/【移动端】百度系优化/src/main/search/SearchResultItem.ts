@@ -741,28 +741,6 @@ const BaiduResultItem = {
 			articleElement.setAttribute("rl-link-href", resultItemOriginURL);
 		}
 	},
-	/**
-	 * 替换链接-vsearch
-	 */
-	replaceVSearchLink() {
-		document
-			.querySelectorAll<HTMLDivElement>("#realtime-container  div:not([class])")
-			.forEach((element) => {
-				let linkElement = element.querySelector<HTMLAnchorElement>("a");
-				if (!linkElement) {
-					return;
-				}
-				if (linkElement.hasAttribute("data-sf-visited")) {
-					let dataSfVisited = linkElement.getAttribute(
-						"data-sf-visited"
-					) as string;
-					if (dataSfVisited !== linkElement.href) {
-						linkElement!.href = dataSfVisited;
-						log.success("替换链接  " + dataSfVisited);
-					}
-				}
-			});
-	},
 };
 
 export { BaiduResultItem };

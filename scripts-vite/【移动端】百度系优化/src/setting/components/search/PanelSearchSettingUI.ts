@@ -100,6 +100,53 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 			type: "forms",
 			forms: [
 				{
+					text: "图片",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "Vue属性",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"isBaiduBox",
+									"baidu_search_vsearch-isBaiduBox",
+									true,
+									void 0,
+									""
+								),
+							],
+						},
+					],
+				},
+				// {
+				// 	text: "问答",
+				// 	type: "deepMenu",
+				// 	forms: [
+				// 		{
+				// 			text: "",
+				// 			type: "forms",
+				// 			forms: [],
+				// 		},
+				// 	],
+				// },
+				// {
+				// 	text: "笔记",
+				// 	type: "deepMenu",
+				// 	forms: [
+				// 		{
+				// 			text: "",
+				// 			type: "forms",
+				// 			forms: [],
+				// 		},
+				// 	],
+				// },
+			],
+		},
+		{
+			text: "",
+			type: "forms",
+			forms: [
+				{
 					text: "功能",
 					type: "deepMenu",
 					forms: [

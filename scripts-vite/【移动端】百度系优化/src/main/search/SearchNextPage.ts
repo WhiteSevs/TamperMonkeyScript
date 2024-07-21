@@ -65,7 +65,7 @@ const SearchNextPage = {
 		},
 	},
 	init() {
-		if (BaiduRouter.isSearchNote()) {
+		if (BaiduRouter.isSearchVSearch_note()) {
 			// 笔记页面，有页面本身的加载下一页功能
 			loadingView.hide();
 			log.warn(

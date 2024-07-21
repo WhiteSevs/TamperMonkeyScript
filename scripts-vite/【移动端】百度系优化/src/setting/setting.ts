@@ -418,7 +418,7 @@ const PopsPanel = {
 	 * 获取设置面板的宽度
 	 */
 	getWidth() {
-		if (window.outerWidth < 550) {
+		if (window.innerWidth < 550) {
 			return "92vw";
 		} else {
 			return "550px";
@@ -428,7 +428,7 @@ const PopsPanel = {
 	 * 获取设置面板的高度
 	 */
 	getHeight() {
-		if (window.outerHeight > 450) {
+		if (window.innerHeight > 450) {
 			return "80vh";
 		} else {
 			return "450px";
