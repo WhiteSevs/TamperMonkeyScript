@@ -27,6 +27,13 @@ pnpm update --latest
 
 ```text
 pnpm run build:all
+
+```
+
+获取包依赖更新
+
+```text
+pnpm outdated
 ```
 
 ## Markdown替换图片正则
