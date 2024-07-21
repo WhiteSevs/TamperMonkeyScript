@@ -6,31 +6,34 @@ import { CSDNUtils } from "@/utils/CSDNUtils";
 const CSDNHuaWeiCloud = {
 	init() {
 		addStyle(ShieldCSS);
-		PopsPanel.execMenu(
+		PopsPanel.execMenuOnce(
 			"csdn-hua-wei-cloud-shieldCloudDeveloperTaskChallengeEvent",
 			() => {
-				this.shieldCloudDeveloperTaskChallengeEvent();
+				return this.shieldCloudDeveloperTaskChallengeEvent();
 			}
 		);
-		PopsPanel.execMenu("csdn-hua-wei-cloud-autoExpandContent", () => {
-			this.autoExpandContent();
+		PopsPanel.execMenuOnce("csdn-hua-wei-cloud-autoExpandContent", () => {
+			return this.autoExpandContent();
 		});
-		PopsPanel.execMenu("csdn-hua-wei-cloud-shieldLeftFloatingButton", () => {
-			this.shieldLeftFloatingButton();
+		PopsPanel.execMenuOnce(
+			"csdn-hua-wei-cloud-shieldLeftFloatingButton",
+			() => {
+				return this.shieldLeftFloatingButton();
+			}
+		);
+		PopsPanel.execMenuOnce("csdn-hua-wei-cloud-blockRightColumn", () => {
+			return this.blockRightColumn();
 		});
-		PopsPanel.execMenu("csdn-hua-wei-cloud-blockRightColumn", () => {
-			this.blockRightColumn();
-		});
-		PopsPanel.execMenu(
+		PopsPanel.execMenuOnce(
 			"csdn-hua-wei-cloud-blockRecommendedContentAtTheBottom",
 			() => {
-				this.blockRecommendedContentAtTheBottom();
+				return this.blockRecommendedContentAtTheBottom();
 			}
 		);
-		PopsPanel.execMenu(
+		PopsPanel.execMenuOnce(
 			"csdn-hua-wei-cloud-shieldTheBottomForMoreRecommendations",
 			() => {
-				this.shieldTheBottomForMoreRecommendations();
+				return this.shieldTheBottomForMoreRecommendations();
 			}
 		);
 	},
@@ -40,50 +43,51 @@ const CSDNHuaWeiCloud = {
 	autoExpandContent() {
 		log.info("自动展开全文");
 		/* 点击阅读全文 */
-		CSDNUtils.addBlockCSS("div.article-show-more");
-		addStyle(`
-        /* 自动展开全文 */
-        .main-content .user-article{
-            height: auto !important;
-            overflow: auto !important;
-        }
-        `);
+		return [
+			CSDNUtils.addBlockCSS("div.article-show-more"),
+			addStyle(`
+			/* 自动展开全文 */
+			.main-content .user-article{
+				height: auto !important;
+				overflow: auto !important;
+			}
+			`),
+		];
 	},
 	/**
 	 * 屏蔽云开发者任务挑战活动
 	 */
 	shieldCloudDeveloperTaskChallengeEvent() {
-		let GM_cookie = new utils.GM_Cookie();
-		GM_cookie.set({ name: "show_join_group_index", value: 1 });
-		log.info("设置Cookie 屏蔽云开发者任务挑战活动");
+		log.info("屏蔽云开发者任务挑战活动");
+		return CSDNUtils.addBlockCSS(".luck-draw-modal-warp");
 	},
 	/**
 	 * 屏蔽左侧悬浮按钮
 	 */
 	shieldLeftFloatingButton() {
 		log.info("屏蔽左侧悬浮按钮，包括当前阅读量、点赞按钮、评论按钮、分享按钮");
-		CSDNUtils.addBlockCSS("div.toolbar-wrapper.article-interact-bar");
+		return CSDNUtils.addBlockCSS("div.toolbar-wrapper.article-interact-bar");
 	},
 	/**
 	 * 屏蔽右侧栏
 	 */
 	blockRightColumn() {
 		log.info("屏蔽右侧栏，包括相关产品-活动日历-运营活动-热门标签");
-		CSDNUtils.addBlockCSS("div.page-home-right.dp-aside-right");
+		return CSDNUtils.addBlockCSS("div.page-home-right.dp-aside-right");
 	},
 	/**
 	 * 屏蔽底部推荐内容
 	 */
 	blockRecommendedContentAtTheBottom() {
 		log.info("屏蔽底部推荐内容");
-		CSDNUtils.addBlockCSS("div.recommend-card-box");
+		return CSDNUtils.addBlockCSS("div.recommend-card-box");
 	},
 	/**
 	 * 屏蔽底部更多推荐
 	 */
 	shieldTheBottomForMoreRecommendations() {
 		log.info("屏蔽底部更多推荐");
-		CSDNUtils.addBlockCSS("div.more-article");
+		return CSDNUtils.addBlockCSS("div.more-article");
 	},
 };
 

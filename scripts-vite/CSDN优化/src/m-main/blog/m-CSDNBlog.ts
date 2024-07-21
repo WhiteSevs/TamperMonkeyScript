@@ -5,38 +5,46 @@ import ShieldCSS from "./css/shield.css?raw";
 import MBlogCSS from "./css/blog.css?raw";
 import { CSDNUtils } from "@/utils/CSDNUtils";
 
-const M_CSDNBlog = {
+export const M_CSDNBlog = {
 	init() {
 		this.addCSS();
-		PopsPanel.execMenu("m-csdn-blog-shieldTopToolbar", () => {
-			this.shieldTopToolbar();
+		PopsPanel.execMenuOnce("m-csdn-blog-shieldTopToolbar", () => {
+			return this.shieldTopToolbar();
 		});
-		PopsPanel.execMenu("m-csdn-blog-notLimitCodePreMaxHeight", () => {
-			this.notLimitCodePreMaxHeight();
+		PopsPanel.execMenuOnce("m-csdn-blog-notLimitCodePreMaxHeight", () => {
+			return this.notLimitCodePreMaxHeight();
 		});
-		PopsPanel.execMenu("m-csdn-blog-notLimitCommentMaxHeight", () => {
-			this.notLimitCommentMaxHeight();
+		PopsPanel.execMenuOnce("m-csdn-blog-notLimitCommentMaxHeight", () => {
+			return this.notLimitCommentMaxHeight();
 		});
-		PopsPanel.execMenu("m-csdn-blog-allowSelectText", () => {
-			this.allowSelectText();
+		PopsPanel.execMenuOnce("m-csdn-blog-allowSelectText", () => {
+			return this.allowSelectText();
 		});
-		PopsPanel.execMenu("m-csdn-blog-autoExpandContent", () => {
-			this.autoExpandContent();
+		PopsPanel.execMenuOnce("m-csdn-blog-autoExpandContent", () => {
+			return this.autoExpandContent();
 		});
-		if (!PopsPanel.getValue("m-csdn-blog-bottomArticleEnable")) {
-			this.blockBottomArticle();
-		}
-		if (!PopsPanel.getValue("m-csdn-blog-comment-enable")) {
-			this.blockComment();
-		}
+		PopsPanel.execMenuOnce(
+			"m-csdn-blog-bottomArticleEnable",
+			() => {
+				return this.blockBottomArticle();
+			},
+			true
+		);
+		PopsPanel.execMenuOnce(
+			"m-csdn-blog-comment-enable",
+			() => {
+				return this.blockComment();
+			},
+			true
+		);
 		DOMUtils.ready(() => {
-			PopsPanel.execMenu("m-csdn-blog-removeAds", () => {
-				this.removeAds();
+			PopsPanel.execMenuOnce("m-csdn-blog-removeAds", () => {
+				return this.removeAds();
 			});
-			PopsPanel.execMenu("m-csdn-blog-refactoringRecommendation", () => {
+			PopsPanel.execMenuOnce("m-csdn-blog-refactoringRecommendation", () => {
 				this.refactoringRecommendation();
 			});
-			PopsPanel.execMenu("m-csdn-blog-unBlockCopy", () => {
+			PopsPanel.execMenuOnce("m-csdn-blog-unBlockCopy", () => {
 				CSDNBlog.unBlockCopy();
 			});
 		});
@@ -50,19 +58,21 @@ const M_CSDNBlog = {
 	 */
 	shieldTopToolbar() {
 		log.info("屏蔽顶部Toolbar");
-		CSDNUtils.addBlockCSS("#csdn-toolbar");
-		addStyle(`
-        /* 内容顶部要归位 */
-        body #main,
-        .margin_sides{
-          margin-top: unset !important;
-          padding-top: unset !important;
-        }
-        #article .article_title{
-          margin-top: .32rem !important;
-          padding-top: unset !important;
-        }
-        `);
+		return [
+			CSDNUtils.addBlockCSS("#csdn-toolbar"),
+			addStyle(/*css*/ `
+			/* 内容顶部要归位 */
+			body #main,
+			.margin_sides{
+			  margin-top: unset !important;
+			  padding-top: unset !important;
+			}
+			#article .article_title{
+			  margin-top: .32rem !important;
+			  padding-top: unset !important;
+			}
+			`),
+		];
 	},
 	/**
 	 * 重构底部推荐
@@ -168,14 +178,14 @@ const M_CSDNBlog = {
 	 */
 	blockBottomArticle() {
 		log.info("屏蔽底部文章");
-		CSDNUtils.addBlockCSS("#recommend");
+		return CSDNUtils.addBlockCSS("#recommend");
 	},
 	/**
 	 * 屏蔽评论
 	 */
 	blockComment() {
 		log.info("屏蔽评论");
-		CSDNUtils.addBlockCSS("#comment");
+		return CSDNUtils.addBlockCSS("#comment");
 	},
 	/**
 	 * 去除广告
@@ -200,7 +210,7 @@ const M_CSDNBlog = {
 	 */
 	notLimitCodePreMaxHeight() {
 		log.info("不限制代码块最大高度");
-		addStyle(`
+		return addStyle(/*css*/ `
         pre{
             max-height: unset !important;
         }
@@ -211,7 +221,7 @@ const M_CSDNBlog = {
 	 */
 	notLimitCommentMaxHeight() {
 		log.info("不限制评论区最大高度");
-		addStyle(`
+		return addStyle(/*css*/ `
         #comment{
           max-height: none !important;
         }
@@ -222,7 +232,7 @@ const M_CSDNBlog = {
 	 */
 	allowSelectText() {
 		log.info("允许选择文字");
-		addStyle(`
+		return addStyle(/*css*/ `
         #content_views,
         #content_views pre,
         #content_views pre code{
@@ -240,7 +250,7 @@ const M_CSDNBlog = {
 	 */
 	autoExpandContent() {
 		log.info("自动展开内容");
-		addStyle(`
+		return addStyle(/*css*/ `
         #content_views pre.set-code-hide,
         .article_content{
           height: 100% !important;
@@ -249,5 +259,3 @@ const M_CSDNBlog = {
         `);
 	},
 };
-
-export { M_CSDNBlog };

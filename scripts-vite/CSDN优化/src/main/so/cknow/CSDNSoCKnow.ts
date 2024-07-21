@@ -2,12 +2,12 @@ import ShieldCSS from "./css/shield.css?raw";
 import { addStyle, log } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 
-const CSDNSoCKnow = {
+export const CSDNSoCKnow = {
 	init() {
 		addStyle(ShieldCSS);
 		log.info("添加屏蔽CSS");
-		PopsPanel.execMenu("csdn-so-cknow-removeMaskCover", () => {
-			this.removeMaskCover();
+		PopsPanel.execMenuOnce("csdn-so-cknow-removeMaskCover", () => {
+			return this.removeMaskCover();
 		});
 	},
 	/**
@@ -15,7 +15,7 @@ const CSDNSoCKnow = {
 	 */
 	removeMaskCover() {
 		log.info("去除水印");
-		addStyle(`
+		return addStyle(/*css*/ `
         /* C知道水印 */
         div.username_mask_cover {
             background-image: none !important;
@@ -23,5 +23,3 @@ const CSDNSoCKnow = {
         `);
 	},
 };
-
-export { CSDNSoCKnow };

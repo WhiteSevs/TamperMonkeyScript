@@ -300,8 +300,9 @@ const PopsPanel = {
 	 * 自动判断菜单是否启用，然后执行回调
 	 * @param key
 	 * @param callback 回调
+	 * @param [isReverse=false] 逆反判断菜单启用
 	 */
-	execMenu(key: string, callback: (value: any) => void) {
+	execMenu(key: string, callback: (value: any) => void, isReverse = false) {
 		if (typeof key !== "string") {
 			throw new TypeError("key 必须是字符串");
 		}
@@ -310,6 +311,9 @@ const PopsPanel = {
 			return;
 		}
 		let value = PopsPanel.getValue(key);
+		if (isReverse) {
+			value = !value;
+		}
 		if (value) {
 			callback(value);
 		}
@@ -318,13 +322,15 @@ const PopsPanel = {
 	 * 自动判断菜单是否启用，然后执行回调，只会执行一次
 	 * @param key
 	 * @param callback 回调
+	 * @param [isReverse=false] 逆反判断菜单启用
 	 */
 	execMenuOnce(
 		key: string,
 		callback: (
 			value: any,
 			pushStyleNode: (style: HTMLStyleElement | HTMLStyleElement[]) => void
-		) => any | any[]
+		) => any | any[],
+		isReverse = false
 	) {
 		if (typeof key !== "string") {
 			throw new TypeError("key 必须是字符串");
@@ -376,10 +382,16 @@ const PopsPanel = {
 			key,
 			(__key, oldValue, newValue) => {
 				// 值改变
+				if (isReverse) {
+					newValue = !newValue;
+				}
 				changeCallBack(newValue);
 			}
 		);
 		let value = PopsPanel.getValue<boolean>(key);
+		if (isReverse) {
+			value = !value;
+		}
 		if (value) {
 			changeCallBack(value);
 		}

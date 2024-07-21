@@ -7,63 +7,71 @@ import { unsafeWindow } from "ViteGM";
 import { CSDNBlogRightToolBar } from "./CSDNBlogRightToolBar";
 import { CSDNUtils } from "@/utils/CSDNUtils";
 
-const CSDNBlog = {
+export const CSDNBlog = {
 	init() {
 		this.addCSS();
 		CSDNBlogRightToolBar.init();
-		PopsPanel.execMenu("csdn-blog-articleCenter", () => {
-			this.articleCenter();
+		PopsPanel.execMenuOnce("csdn-blog-articleCenter", () => {
+			return this.articleCenter();
 		});
-		PopsPanel.execMenu("csdn-blog-shieldLoginDialog", () => {
-			this.shieldLoginDialog();
+		PopsPanel.execMenuOnce("csdn-blog-shieldLoginDialog", () => {
+			return this.shieldLoginDialog();
 		});
-		PopsPanel.execMenu("csdn-blog-autoExpandContent", () => {
-			this.autoExpandContent();
+		PopsPanel.execMenuOnce("csdn-blog-autoExpandContent", () => {
+			return this.autoExpandContent();
 		});
-		PopsPanel.execMenu("csdn-blog-autoExpandCodeContent", () => {
-			this.autoExpandCodeContent();
+		PopsPanel.execMenuOnce("csdn-blog-autoExpandCodeContent", () => {
+			return this.autoExpandCodeContent();
 		});
-		if (!PopsPanel.getValue("csdn-blog-comment-enable")) {
-			this.blockComment();
-		}
-		if (!PopsPanel.getValue("csdn-blog-bottomRecommendArticleEnable")) {
-			this.shieldBottomRecommendArticle();
-		}
-		PopsPanel.execMenu("csdn-blog-shieldBottomSkillTree", () => {
-			this.shieldBottomSkillTree();
+		PopsPanel.execMenuOnce(
+			"csdn-blog-blockComment",
+			() => {
+				return this.blockComment();
+			},
+			true
+		);
+		PopsPanel.execMenuOnce(
+			"csdn-blog-bottomRecommendArticleEnable",
+			() => {
+				return this.shieldBottomRecommendArticle();
+			},
+			true
+		);
+		PopsPanel.execMenuOnce("csdn-blog-shieldBottomSkillTree", () => {
+			return this.shieldBottomSkillTree();
 		});
-		PopsPanel.execMenu("csdn-blog-shieldBottomFloatingToolbar", () => {
-			this.shieldBottomFloatingToolbar();
+		PopsPanel.execMenuOnce("csdn-blog-shieldBottomFloatingToolbar", () => {
+			return this.shieldBottomFloatingToolbar();
 		});
-		PopsPanel.execMenu("csdn-blog-shieldLeftBlogContainerAside", () => {
-			this.shieldLeftBlogContainerAside();
+		PopsPanel.execMenuOnce("csdn-blog-shieldLeftBlogContainerAside", () => {
+			return this.shieldLeftBlogContainerAside();
 		});
-		PopsPanel.execMenu("csdn-blog-shieldRightDirectoryInformation", () => {
-			this.shieldRightDirectoryInformation();
+		PopsPanel.execMenuOnce("csdn-blog-shieldRightDirectoryInformation", () => {
+			return this.shieldRightDirectoryInformation();
 		});
-		PopsPanel.execMenu("csdn-blog-shieldTopToolbar", () => {
-			this.shieldTopToolbar();
+		PopsPanel.execMenuOnce("csdn-blog-shieldTopToolbar", () => {
+			return this.shieldTopToolbar();
 		});
-		PopsPanel.execMenu("csdn-blog-shieldArticleSearchTip", () => {
-			this.shieldArticleSearchTip();
+		PopsPanel.execMenuOnce("csdn-blog-shieldArticleSearchTip", () => {
+			return this.shieldArticleSearchTip();
 		});
-		PopsPanel.execMenu("csdn-blog-allowSelectContent", () => {
-			this.allowSelectContent();
+		PopsPanel.execMenuOnce("csdn-blog-allowSelectContent", () => {
+			return this.allowSelectContent();
 		});
 		DOMUtils.ready(() => {
-			PopsPanel.execMenu("csdn-blog-removeClipboardHijacking", () => {
+			PopsPanel.execMenuOnce("csdn-blog-removeClipboardHijacking", () => {
 				this.removeClipboardHijacking();
 			});
 			PopsPanel.execMenuOnce("csdn-blog-unBlockCopy", () => {
 				this.unBlockCopy();
 			});
-			PopsPanel.execMenu("csdn-blog-identityCSDNDownload", () => {
+			PopsPanel.execMenuOnce("csdn-blog-identityCSDNDownload", () => {
 				this.identityCSDNDownload();
 			});
 			PopsPanel.execMenuOnce("csdn-blog-clickPreCodeAutomatically", () => {
 				this.clickPreCodeAutomatically();
 			});
-			PopsPanel.execMenu("csdn-blog-restoreComments", () => {
+			PopsPanel.execMenuOnce("csdn-blog-restoreComments", () => {
 				this.restoreComments();
 			});
 		});
@@ -73,15 +81,18 @@ const CSDNBlog = {
 	 */
 	addCSS() {
 		log.info("添加屏蔽CSS和功能CSS");
-		addStyle(BlogShieldCSS);
-		addStyle(BlogCSS);
+		return [addStyle(BlogShieldCSS), addStyle(BlogCSS)];
 	},
 	/**
 	 * 去除剪贴板劫持
 	 */
 	removeClipboardHijacking() {
 		log.info("去除剪贴板劫持");
-		document.querySelector<HTMLDivElement>(".article-copyright")?.remove();
+		let $article_copyright =
+			document.querySelector<HTMLDivElement>(".article-copyright");
+		if ($article_copyright) {
+			$article_copyright.remove();
+		}
 		if ((unsafeWindow as any).articleType) {
 			(unsafeWindow as any).articleType = 0;
 		}
@@ -257,38 +268,40 @@ const CSDNBlog = {
 	 */
 	articleCenter() {
 		log.info("全文居中");
-		addStyle(BlogArticleCenterCSS);
+		return addStyle(BlogArticleCenterCSS);
 	},
 	/**
 	 * 屏蔽登录弹窗
 	 */
 	shieldLoginDialog() {
 		log.info("屏蔽登录弹窗");
-		CSDNUtils.addBlockCSS(`.passport-login-container`);
+		return CSDNUtils.addBlockCSS(`.passport-login-container`);
 	},
 	/**
 	 * 自动展开代码块
 	 */
 	autoExpandCodeContent() {
 		log.info("自动展开代码块");
-		CSDNUtils.addBlockCSS("pre.set-code-hide .hide-preCode-box");
-		addStyle(`
-		pre.set-code-hide{
-			height: auto !important;
-		}
-		/* 自动展开代码块 */
-		.comment-list-box,
-		main div.blog-content-box pre {
-			max-height: none !important;
-		}
-        `);
+		return [
+			CSDNUtils.addBlockCSS("pre.set-code-hide .hide-preCode-box"),
+			addStyle(/*css*/ `
+			pre.set-code-hide{
+				height: auto !important;
+			}
+			/* 自动展开代码块 */
+			.comment-list-box,
+			main div.blog-content-box pre {
+				max-height: none !important;
+			}
+        `),
+		];
 	},
 	/**
 	 * 自动展开全文
 	 */
 	autoExpandContent() {
 		log.info("自动展开全文");
-		addStyle(`
+		return addStyle(/*css*/ `
 		/* 自动展开全文 */
 		#article_content,
 		.user-article.user-article-hide {
@@ -302,63 +315,63 @@ const CSDNBlog = {
 	 */
 	blockComment() {
 		log.info("屏蔽评论区");
-		CSDNUtils.addBlockCSS(`#pcCommentBox`);
+		return CSDNUtils.addBlockCSS(`#pcCommentBox`);
 	},
 	/**
 	 * 屏蔽底部推荐文章
 	 */
 	shieldBottomRecommendArticle() {
 		log.info("屏蔽底部推荐文章");
-		CSDNUtils.addBlockCSS(`main > div.recommend-box`);
+		return CSDNUtils.addBlockCSS(`main > div.recommend-box`);
 	},
 	/**
 	 * 屏蔽底部xx技能树
 	 */
 	shieldBottomSkillTree() {
 		log.info("屏蔽底部xx技能树");
-		CSDNUtils.addBlockCSS(`#treeSkill`);
+		return CSDNUtils.addBlockCSS(`#treeSkill`);
 	},
 	/**
 	 * 屏蔽底部悬浮工具栏
 	 */
 	shieldBottomFloatingToolbar() {
 		log.info("屏蔽底部悬浮工具栏");
-		CSDNUtils.addBlockCSS(`#toolBarBox`);
+		return CSDNUtils.addBlockCSS(`#toolBarBox`);
 	},
 	/**
 	 * 屏蔽左侧博客信息
 	 */
 	shieldLeftBlogContainerAside() {
 		log.info("【屏蔽】左侧博客信息");
-		CSDNUtils.addBlockCSS(`aside.blog_container_aside`);
+		return CSDNUtils.addBlockCSS(`aside.blog_container_aside`);
 	},
 	/**
 	 * 【屏蔽】右侧目录信息
 	 */
 	shieldRightDirectoryInformation() {
 		log.info("【屏蔽】右侧目录信息");
-		CSDNUtils.addBlockCSS("#rightAsideConcision", "#rightAside");
+		return CSDNUtils.addBlockCSS("#rightAsideConcision", "#rightAside");
 	},
 	/**
 	 * 屏蔽顶部Toolbar
 	 */
 	shieldTopToolbar() {
 		log.info("屏蔽顶部Toolbar");
-		CSDNUtils.addBlockCSS(`#toolbarBox`);
+		return CSDNUtils.addBlockCSS(`#toolbarBox`);
 	},
 	/**
 	 * 屏蔽文章内的选中搜索悬浮提示
 	 */
 	shieldArticleSearchTip() {
 		log.info("屏蔽文章内的选中搜索悬浮提示");
-		CSDNUtils.addBlockCSS(`#articleSearchTip`);
+		return CSDNUtils.addBlockCSS(`#articleSearchTip`);
 	},
 	/**
 	 * 允许选择内容
 	 */
 	allowSelectContent() {
 		log.info("允许选择内容");
-		addStyle(`
+		return addStyle(/*css*/ `
 		#content_views,
 		#content_views pre,
 		#content_views pre code {
@@ -367,5 +380,3 @@ const CSDNBlog = {
 		`);
 	},
 };
-
-export { CSDNBlog };

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.20
+// @version      2024.7.22
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -14,7 +14,6 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.4.0/dist/index.umd.js
 // @grant        GM_addStyle
-// @grant        GM_cookie
 // @grant        GM_deleteValue
 // @grant        GM_getValue
 // @grant        GM_info
@@ -890,6 +889,17 @@
             true
           )
         ]
+      },
+      {
+        text: "屏蔽",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "【屏蔽】底部加入社区",
+            "m-csdn-hua-wei-cloud-blockBottomJoinTheCommunity",
+            true
+          )
+        ]
       }
     ]
   };
@@ -1438,8 +1448,9 @@
      * 自动判断菜单是否启用，然后执行回调
      * @param key
      * @param callback 回调
+     * @param [isReverse=false] 逆反判断菜单启用
      */
-    execMenu(key, callback) {
+    execMenu(key, callback, isReverse = false) {
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
@@ -1448,6 +1459,9 @@
         return;
       }
       let value = PopsPanel.getValue(key);
+      if (isReverse) {
+        value = !value;
+      }
       if (value) {
         callback(value);
       }
@@ -1456,8 +1470,9 @@
      * 自动判断菜单是否启用，然后执行回调，只会执行一次
      * @param key
      * @param callback 回调
+     * @param [isReverse=false] 逆反判断菜单启用
      */
-    execMenuOnce(key, callback) {
+    execMenuOnce(key, callback, isReverse = false) {
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
@@ -1499,10 +1514,16 @@
       this.addValueChangeListener(
         key,
         (__key, oldValue, newValue) => {
+          if (isReverse) {
+            newValue = !newValue;
+          }
           changeCallBack(newValue);
         }
       );
       let value = PopsPanel.getValue(key);
+      if (isReverse) {
+        value = !value;
+      }
       if (value) {
         changeCallBack(value);
       }
@@ -1660,37 +1681,40 @@
           selectorList.push(selector);
         }
       });
-      addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     }
   };
   const CSDNHuaWeiCloud = {
     init() {
       addStyle(ShieldCSS$4);
-      PopsPanel.execMenu(
+      PopsPanel.execMenuOnce(
         "csdn-hua-wei-cloud-shieldCloudDeveloperTaskChallengeEvent",
         () => {
-          this.shieldCloudDeveloperTaskChallengeEvent();
+          return this.shieldCloudDeveloperTaskChallengeEvent();
         }
       );
-      PopsPanel.execMenu("csdn-hua-wei-cloud-autoExpandContent", () => {
-        this.autoExpandContent();
+      PopsPanel.execMenuOnce("csdn-hua-wei-cloud-autoExpandContent", () => {
+        return this.autoExpandContent();
       });
-      PopsPanel.execMenu("csdn-hua-wei-cloud-shieldLeftFloatingButton", () => {
-        this.shieldLeftFloatingButton();
+      PopsPanel.execMenuOnce(
+        "csdn-hua-wei-cloud-shieldLeftFloatingButton",
+        () => {
+          return this.shieldLeftFloatingButton();
+        }
+      );
+      PopsPanel.execMenuOnce("csdn-hua-wei-cloud-blockRightColumn", () => {
+        return this.blockRightColumn();
       });
-      PopsPanel.execMenu("csdn-hua-wei-cloud-blockRightColumn", () => {
-        this.blockRightColumn();
-      });
-      PopsPanel.execMenu(
+      PopsPanel.execMenuOnce(
         "csdn-hua-wei-cloud-blockRecommendedContentAtTheBottom",
         () => {
-          this.blockRecommendedContentAtTheBottom();
+          return this.blockRecommendedContentAtTheBottom();
         }
       );
-      PopsPanel.execMenu(
+      PopsPanel.execMenuOnce(
         "csdn-hua-wei-cloud-shieldTheBottomForMoreRecommendations",
         () => {
-          this.shieldTheBottomForMoreRecommendations();
+          return this.shieldTheBottomForMoreRecommendations();
         }
       );
     },
@@ -1699,50 +1723,51 @@
      */
     autoExpandContent() {
       log.info("自动展开全文");
-      CSDNUtils.addBlockCSS("div.article-show-more");
-      addStyle(`
-        /* 自动展开全文 */
-        .main-content .user-article{
-            height: auto !important;
-            overflow: auto !important;
-        }
-        `);
+      return [
+        CSDNUtils.addBlockCSS("div.article-show-more"),
+        addStyle(`
+			/* 自动展开全文 */
+			.main-content .user-article{
+				height: auto !important;
+				overflow: auto !important;
+			}
+			`)
+      ];
     },
     /**
      * 屏蔽云开发者任务挑战活动
      */
     shieldCloudDeveloperTaskChallengeEvent() {
-      let GM_cookie = new utils.GM_Cookie();
-      GM_cookie.set({ name: "show_join_group_index", value: 1 });
-      log.info("设置Cookie 屏蔽云开发者任务挑战活动");
+      log.info("屏蔽云开发者任务挑战活动");
+      return CSDNUtils.addBlockCSS(".luck-draw-modal-warp");
     },
     /**
      * 屏蔽左侧悬浮按钮
      */
     shieldLeftFloatingButton() {
       log.info("屏蔽左侧悬浮按钮，包括当前阅读量、点赞按钮、评论按钮、分享按钮");
-      CSDNUtils.addBlockCSS("div.toolbar-wrapper.article-interact-bar");
+      return CSDNUtils.addBlockCSS("div.toolbar-wrapper.article-interact-bar");
     },
     /**
      * 屏蔽右侧栏
      */
     blockRightColumn() {
       log.info("屏蔽右侧栏，包括相关产品-活动日历-运营活动-热门标签");
-      CSDNUtils.addBlockCSS("div.page-home-right.dp-aside-right");
+      return CSDNUtils.addBlockCSS("div.page-home-right.dp-aside-right");
     },
     /**
      * 屏蔽底部推荐内容
      */
     blockRecommendedContentAtTheBottom() {
       log.info("屏蔽底部推荐内容");
-      CSDNUtils.addBlockCSS("div.recommend-card-box");
+      return CSDNUtils.addBlockCSS("div.recommend-card-box");
     },
     /**
      * 屏蔽底部更多推荐
      */
     shieldTheBottomForMoreRecommendations() {
       log.info("屏蔽底部更多推荐");
-      CSDNUtils.addBlockCSS("div.more-article");
+      return CSDNUtils.addBlockCSS("div.more-article");
     }
   };
   const BlogShieldCSS = ".ecommend-item-box.recommend-recommend-box,\r\n.login-mark,\r\n.opt-box.text-center,\r\n.leftPop,\r\n#csdn-shop-window,\r\n.toolbar-advert,\r\n.hide-article-box,\r\n.user-desc.user-desc-fix,\r\n.recommend-card-box,\r\n.more-article,\r\n.article-show-more,\r\n#csdn-toolbar-profile-nologin,\r\n.guide-rr-first,\r\n#recommend-item-box-tow,\r\n/* 发文章得原力分图片提示 */\r\ndiv.csdn-toolbar-creative-mp,\r\n/* 阅读终点，创作起航，您可以撰写心得或摘录文章要点写篇博文。 */\r\n#toolBarBox div.write-guide-buttom-box,\r\n/* 觉得还不错? 一键收藏 */\r\nul.toolbox-list div.tool-active-list,\r\n/* 右边按钮组的最上面的创作话题 */\r\ndiv.csdn-side-toolbar .activity-swiper-box,\r\n.sidetool-writeguide-box .tip-box,\r\n/* 右下角的登录提示 */\r\n.passport-login-tip-container {\r\n  display: none !important;\r\n}\r\n\r\n\r\n";
@@ -1750,40 +1775,37 @@
   const BlogArticleCenterCSS = '#mainBox main {\r\n	width: inherit !important;\r\n}\r\n/* 当文章向下滚动时，触发左侧信息悬浮 */\r\naside.blog_container_aside[style*="position: fixed;"] {\r\n	display: none !important;\r\n}\r\n\r\n@media (min-width: 1320px) and (max-width: 1380px) {\r\n	.nodata .container {\r\n		width: 900px !important;\r\n	}\r\n\r\n	.nodata .container main {\r\n		width: 900px;\r\n	}\r\n\r\n	.nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n		width: 490px !important;\r\n	}\r\n\r\n	.nodata .container main .articleConDownSource {\r\n		width: 500px;\r\n	}\r\n}\r\n\r\n@media screen and (max-width: 1320px) {\r\n	.nodata .container {\r\n		width: 760px !important;\r\n	}\r\n\r\n	.nodata .container main {\r\n		width: 760px;\r\n	}\r\n\r\n	.nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n		width: 490px !important;\r\n	}\r\n\r\n	.nodata .container main .toolbox-list .tool-reward {\r\n		display: none;\r\n	}\r\n\r\n	.nodata\r\n		.container\r\n		main\r\n		.more-toolbox-new\r\n		.toolbox-left\r\n		.profile-box\r\n		.profile-name {\r\n		max-width: 128px;\r\n	}\r\n\r\n	.nodata .container main .articleConDownSource {\r\n		width: 420px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1380px) {\r\n	.nodata .container {\r\n		width: 1010px !important;\r\n	}\r\n\r\n	.nodata .container main {\r\n		width: 1010px;\r\n	}\r\n\r\n	.nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n		width: 490px !important;\r\n	}\r\n\r\n	.nodata .container main .articleConDownSource {\r\n		width: 560px;\r\n	}\r\n}\r\n\r\n@media (min-width: 1550px) and (max-width: 1700px) {\r\n	.nodata .container {\r\n		width: 820px !important;\r\n	}\r\n\r\n	.nodata .container main {\r\n		width: 820px;\r\n	}\r\n\r\n	.nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n		width: 690px !important;\r\n	}\r\n\r\n	.nodata .container main .articleConDownSource {\r\n		width: 500px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1700px) {\r\n	.nodata .container {\r\n		width: 1010px !important;\r\n	}\r\n\r\n	.nodata .container main {\r\n		width: 1010px;\r\n	}\r\n\r\n	.nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n		width: 690px !important;\r\n	}\r\n\r\n	.nodata .container main .articleConDownSource {\r\n		width: 560px;\r\n	}\r\n}\r\n';
   const CSDNBlogRightToolBar = {
     init() {
-      if (!PopsPanel.getValue("csdn-blog-rightToolbarEnable")) {
-        this.shieldRightToolbar();
-      }
+      PopsPanel.execMenuOnce(
+        "csdn-blog-rightToolbarEnable",
+        () => {
+          return this.shieldRightToolbar();
+        },
+        true
+      );
       PopsPanel.execMenuOnce("csdn-blog-rightToolbarCreativeCenter", () => {
-        this.shieldCreativeCenter();
+        return this.shieldCreativeCenter();
       });
       PopsPanel.execMenuOnce("csdn-blog-rightToolbarShowOrSidebar", () => {
-        this.shieldShowOrSidebar();
+        return this.shieldShowOrSidebar();
       });
       PopsPanel.execMenuOnce("csdn-blog-rightToolbarBeginnerGuidance", () => {
-        this.shieldBeginnerGuidance();
+        return this.shieldBeginnerGuidance();
       });
       PopsPanel.execMenuOnce("csdn-blog-rightToolbarCustomerService", () => {
-        this.shieldCustomerService();
+        return this.shieldCustomerService();
       });
       PopsPanel.execMenuOnce("csdn-blog-rightToolbarReport", () => {
-        this.shieldReport();
+        return this.shieldReport();
       });
       PopsPanel.execMenuOnce("csdn-blog-rightToolbarBackToTop", () => {
-        this.shieldBackToTop();
+        return this.shieldBackToTop();
       });
       this.initRightToolbarOffset();
       domutils.ready(() => {
-        PopsPanel.execMenu("csdn-blog-addGotoRecommandButton", () => {
+        PopsPanel.execMenuOnce("csdn-blog-addGotoRecommandButton", () => {
           this.addGotoRecommandButton();
         });
       });
-    },
-    /**
-     * 屏蔽右侧工具栏
-     */
-    shieldRightToolbar() {
-      log.info("屏蔽右侧工具栏");
-      CSDNUtils.addBlockCSS(`div.csdn-side-toolbar`);
     },
     /**
      * 【添加】前往评论按钮，在返回顶部的下面
@@ -1830,11 +1852,14 @@
      */
     initRightToolbarOffset() {
       log.info("初始化右侧工具栏的偏移（top、right）");
-      addStyle(`
+      addStyle(
+        /*css*/
+        `
         .csdn-side-toolbar{
           left: unset !important;
         }
-        `);
+        `
+      );
       utils.waitNode(".csdn-side-toolbar").then(($sideToolbar) => {
         domutils.css($sideToolbar, {
           top: parseInt(PopsPanel.getValue("csdn-blog-rightToolbarTopOffset")) + "px",
@@ -1843,39 +1868,50 @@
       });
     },
     /**
+     * 屏蔽右侧工具栏
+     */
+    shieldRightToolbar() {
+      log.info("屏蔽右侧工具栏");
+      return CSDNUtils.addBlockCSS(`div.csdn-side-toolbar`);
+    },
+    /**
      * 【屏蔽】创作中心
      */
     shieldCreativeCenter() {
       log.info("【屏蔽】创作中心");
-      CSDNUtils.addBlockCSS(".csdn-side-toolbar .sidetool-writeguide-box");
+      return CSDNUtils.addBlockCSS(".csdn-side-toolbar .sidetool-writeguide-box");
     },
     /**
      * 【屏蔽】显示/隐藏侧栏
      */
     shieldShowOrSidebar() {
       log.info("【屏蔽】显示/隐藏侧栏");
-      CSDNUtils.addBlockCSS(".csdn-side-toolbar a.sidecolumn");
+      return CSDNUtils.addBlockCSS(".csdn-side-toolbar a.sidecolumn");
     },
     /**
      * 【屏蔽】新手引导
      */
     shieldBeginnerGuidance() {
       log.info("【屏蔽】新手引导");
-      CSDNUtils.addBlockCSS('.csdn-side-toolbar a.option-box[data-type="guide"]');
+      return CSDNUtils.addBlockCSS(
+        '.csdn-side-toolbar a.option-box[data-type="guide"]'
+      );
     },
     /**
      * 【屏蔽】客服
      */
     shieldCustomerService() {
       log.info("【屏蔽】客服");
-      CSDNUtils.addBlockCSS('.csdn-side-toolbar a.option-box[data-type="cs"]');
+      return CSDNUtils.addBlockCSS(
+        '.csdn-side-toolbar a.option-box[data-type="cs"]'
+      );
     },
     /**
      * 【屏蔽】举报
      */
     shieldReport() {
       log.info("【屏蔽】举报");
-      CSDNUtils.addBlockCSS(
+      return CSDNUtils.addBlockCSS(
         '.csdn-side-toolbar a.option-box[data-type="report"]'
       );
     },
@@ -1884,66 +1920,76 @@
      */
     shieldBackToTop() {
       log.info("【屏蔽】返回顶部");
-      CSDNUtils.addBlockCSS('.csdn-side-toolbar a.option-box[data-type="gotop"]');
+      return CSDNUtils.addBlockCSS(
+        '.csdn-side-toolbar a.option-box[data-type="gotop"]'
+      );
     }
   };
   const CSDNBlog = {
     init() {
       this.addCSS();
       CSDNBlogRightToolBar.init();
-      PopsPanel.execMenu("csdn-blog-articleCenter", () => {
-        this.articleCenter();
+      PopsPanel.execMenuOnce("csdn-blog-articleCenter", () => {
+        return this.articleCenter();
       });
-      PopsPanel.execMenu("csdn-blog-shieldLoginDialog", () => {
-        this.shieldLoginDialog();
+      PopsPanel.execMenuOnce("csdn-blog-shieldLoginDialog", () => {
+        return this.shieldLoginDialog();
       });
-      PopsPanel.execMenu("csdn-blog-autoExpandContent", () => {
-        this.autoExpandContent();
+      PopsPanel.execMenuOnce("csdn-blog-autoExpandContent", () => {
+        return this.autoExpandContent();
       });
-      PopsPanel.execMenu("csdn-blog-autoExpandCodeContent", () => {
-        this.autoExpandCodeContent();
+      PopsPanel.execMenuOnce("csdn-blog-autoExpandCodeContent", () => {
+        return this.autoExpandCodeContent();
       });
-      if (!PopsPanel.getValue("csdn-blog-comment-enable")) {
-        this.blockComment();
-      }
-      if (!PopsPanel.getValue("csdn-blog-bottomRecommendArticleEnable")) {
-        this.shieldBottomRecommendArticle();
-      }
-      PopsPanel.execMenu("csdn-blog-shieldBottomSkillTree", () => {
-        this.shieldBottomSkillTree();
+      PopsPanel.execMenuOnce(
+        "csdn-blog-blockComment",
+        () => {
+          return this.blockComment();
+        },
+        true
+      );
+      PopsPanel.execMenuOnce(
+        "csdn-blog-bottomRecommendArticleEnable",
+        () => {
+          return this.shieldBottomRecommendArticle();
+        },
+        true
+      );
+      PopsPanel.execMenuOnce("csdn-blog-shieldBottomSkillTree", () => {
+        return this.shieldBottomSkillTree();
       });
-      PopsPanel.execMenu("csdn-blog-shieldBottomFloatingToolbar", () => {
-        this.shieldBottomFloatingToolbar();
+      PopsPanel.execMenuOnce("csdn-blog-shieldBottomFloatingToolbar", () => {
+        return this.shieldBottomFloatingToolbar();
       });
-      PopsPanel.execMenu("csdn-blog-shieldLeftBlogContainerAside", () => {
-        this.shieldLeftBlogContainerAside();
+      PopsPanel.execMenuOnce("csdn-blog-shieldLeftBlogContainerAside", () => {
+        return this.shieldLeftBlogContainerAside();
       });
-      PopsPanel.execMenu("csdn-blog-shieldRightDirectoryInformation", () => {
-        this.shieldRightDirectoryInformation();
+      PopsPanel.execMenuOnce("csdn-blog-shieldRightDirectoryInformation", () => {
+        return this.shieldRightDirectoryInformation();
       });
-      PopsPanel.execMenu("csdn-blog-shieldTopToolbar", () => {
-        this.shieldTopToolbar();
+      PopsPanel.execMenuOnce("csdn-blog-shieldTopToolbar", () => {
+        return this.shieldTopToolbar();
       });
-      PopsPanel.execMenu("csdn-blog-shieldArticleSearchTip", () => {
-        this.shieldArticleSearchTip();
+      PopsPanel.execMenuOnce("csdn-blog-shieldArticleSearchTip", () => {
+        return this.shieldArticleSearchTip();
       });
-      PopsPanel.execMenu("csdn-blog-allowSelectContent", () => {
-        this.allowSelectContent();
+      PopsPanel.execMenuOnce("csdn-blog-allowSelectContent", () => {
+        return this.allowSelectContent();
       });
       domutils.ready(() => {
-        PopsPanel.execMenu("csdn-blog-removeClipboardHijacking", () => {
+        PopsPanel.execMenuOnce("csdn-blog-removeClipboardHijacking", () => {
           this.removeClipboardHijacking();
         });
         PopsPanel.execMenuOnce("csdn-blog-unBlockCopy", () => {
           this.unBlockCopy();
         });
-        PopsPanel.execMenu("csdn-blog-identityCSDNDownload", () => {
+        PopsPanel.execMenuOnce("csdn-blog-identityCSDNDownload", () => {
           this.identityCSDNDownload();
         });
         PopsPanel.execMenuOnce("csdn-blog-clickPreCodeAutomatically", () => {
           this.clickPreCodeAutomatically();
         });
-        PopsPanel.execMenu("csdn-blog-restoreComments", () => {
+        PopsPanel.execMenuOnce("csdn-blog-restoreComments", () => {
           this.restoreComments();
         });
       });
@@ -1953,16 +1999,17 @@
      */
     addCSS() {
       log.info("添加屏蔽CSS和功能CSS");
-      addStyle(BlogShieldCSS);
-      addStyle(BlogCSS);
+      return [addStyle(BlogShieldCSS), addStyle(BlogCSS)];
     },
     /**
      * 去除剪贴板劫持
      */
     removeClipboardHijacking() {
-      var _a2;
       log.info("去除剪贴板劫持");
-      (_a2 = document.querySelector(".article-copyright")) == null ? void 0 : _a2.remove();
+      let $article_copyright = document.querySelector(".article-copyright");
+      if ($article_copyright) {
+        $article_copyright.remove();
+      }
       if (_unsafeWindow.articleType) {
         _unsafeWindow.articleType = 0;
       }
@@ -2112,114 +2159,125 @@
      */
     articleCenter() {
       log.info("全文居中");
-      addStyle(BlogArticleCenterCSS);
+      return addStyle(BlogArticleCenterCSS);
     },
     /**
      * 屏蔽登录弹窗
      */
     shieldLoginDialog() {
       log.info("屏蔽登录弹窗");
-      CSDNUtils.addBlockCSS(`.passport-login-container`);
+      return CSDNUtils.addBlockCSS(`.passport-login-container`);
     },
     /**
      * 自动展开代码块
      */
     autoExpandCodeContent() {
       log.info("自动展开代码块");
-      CSDNUtils.addBlockCSS("pre.set-code-hide .hide-preCode-box");
-      addStyle(`
-		pre.set-code-hide{
-			height: auto !important;
-		}
-		/* 自动展开代码块 */
-		.comment-list-box,
-		main div.blog-content-box pre {
-			max-height: none !important;
-		}
-        `);
+      return [
+        CSDNUtils.addBlockCSS("pre.set-code-hide .hide-preCode-box"),
+        addStyle(
+          /*css*/
+          `
+			pre.set-code-hide{
+				height: auto !important;
+			}
+			/* 自动展开代码块 */
+			.comment-list-box,
+			main div.blog-content-box pre {
+				max-height: none !important;
+			}
+        `
+        )
+      ];
     },
     /**
      * 自动展开全文
      */
     autoExpandContent() {
       log.info("自动展开全文");
-      addStyle(`
+      return addStyle(
+        /*css*/
+        `
 		/* 自动展开全文 */
 		#article_content,
 		.user-article.user-article-hide {
 			height: auto !important;
 			overflow: auto !important;
 		}
-        `);
+        `
+      );
     },
     /**
      * 屏蔽评论区
      */
     blockComment() {
       log.info("屏蔽评论区");
-      CSDNUtils.addBlockCSS(`#pcCommentBox`);
+      return CSDNUtils.addBlockCSS(`#pcCommentBox`);
     },
     /**
      * 屏蔽底部推荐文章
      */
     shieldBottomRecommendArticle() {
       log.info("屏蔽底部推荐文章");
-      CSDNUtils.addBlockCSS(`main > div.recommend-box`);
+      return CSDNUtils.addBlockCSS(`main > div.recommend-box`);
     },
     /**
      * 屏蔽底部xx技能树
      */
     shieldBottomSkillTree() {
       log.info("屏蔽底部xx技能树");
-      CSDNUtils.addBlockCSS(`#treeSkill`);
+      return CSDNUtils.addBlockCSS(`#treeSkill`);
     },
     /**
      * 屏蔽底部悬浮工具栏
      */
     shieldBottomFloatingToolbar() {
       log.info("屏蔽底部悬浮工具栏");
-      CSDNUtils.addBlockCSS(`#toolBarBox`);
+      return CSDNUtils.addBlockCSS(`#toolBarBox`);
     },
     /**
      * 屏蔽左侧博客信息
      */
     shieldLeftBlogContainerAside() {
       log.info("【屏蔽】左侧博客信息");
-      CSDNUtils.addBlockCSS(`aside.blog_container_aside`);
+      return CSDNUtils.addBlockCSS(`aside.blog_container_aside`);
     },
     /**
      * 【屏蔽】右侧目录信息
      */
     shieldRightDirectoryInformation() {
       log.info("【屏蔽】右侧目录信息");
-      CSDNUtils.addBlockCSS("#rightAsideConcision", "#rightAside");
+      return CSDNUtils.addBlockCSS("#rightAsideConcision", "#rightAside");
     },
     /**
      * 屏蔽顶部Toolbar
      */
     shieldTopToolbar() {
       log.info("屏蔽顶部Toolbar");
-      CSDNUtils.addBlockCSS(`#toolbarBox`);
+      return CSDNUtils.addBlockCSS(`#toolbarBox`);
     },
     /**
      * 屏蔽文章内的选中搜索悬浮提示
      */
     shieldArticleSearchTip() {
       log.info("屏蔽文章内的选中搜索悬浮提示");
-      CSDNUtils.addBlockCSS(`#articleSearchTip`);
+      return CSDNUtils.addBlockCSS(`#articleSearchTip`);
     },
     /**
      * 允许选择内容
      */
     allowSelectContent() {
       log.info("允许选择内容");
-      addStyle(`
+      return addStyle(
+        /*css*/
+        `
 		#content_views,
 		#content_views pre,
 		#content_views pre code {
 			user-select: text !important;
 		}
-		`);
+		`
+      );
     }
   };
   const WenkuCSS = "#chatgpt-article-detail\r\n  > div.layout-center\r\n  > div.main\r\n  > div.article-box\r\n  > div.cont.first-show.forbid {\r\n  max-height: unset !important;\r\n  height: auto !important;\r\n  overflow: auto !important;\r\n}\r\n\r\n.forbid {\r\n  user-select: text !important;\r\n}\r\n";
@@ -2228,14 +2286,14 @@
     init() {
       addStyle(WenkuCSS);
       addStyle(ShieldCSS$3);
-      PopsPanel.execMenu("csdn-wenku-shieldResourceRecommend", () => {
-        this.shieldResourceRecommend();
+      PopsPanel.execMenuOnce("csdn-wenku-shieldResourceRecommend", () => {
+        return this.shieldResourceRecommend();
       });
-      PopsPanel.execMenu("csdn-wenku-shieldRightUserInfo", () => {
-        this.shieldRightUserInfo();
+      PopsPanel.execMenuOnce("csdn-wenku-shieldRightUserInfo", () => {
+        return this.shieldRightUserInfo();
       });
-      PopsPanel.execMenu("csdn-wenku-shieldRightToolBar", () => {
-        this.shieldRightToolBar();
+      PopsPanel.execMenuOnce("csdn-wenku-shieldRightToolBar", () => {
+        return this.shieldRightToolBar();
       });
     },
     /**
@@ -2243,26 +2301,26 @@
      */
     shieldResourceRecommend() {
       log.info("【屏蔽】资源推荐");
-      CSDNUtils.addBlockCSS("#recommend");
+      return CSDNUtils.addBlockCSS("#recommend");
     },
     /**
      * 【屏蔽】右侧用户信息
      */
     shieldRightUserInfo() {
       log.info("【屏蔽】右侧用户信息");
-      CSDNUtils.addBlockCSS(".layout-right");
+      return CSDNUtils.addBlockCSS(".layout-right");
     },
     /**
      * 【屏蔽】右侧悬浮工具栏
      */
     shieldRightToolBar() {
       log.info("【屏蔽】右侧悬浮工具栏");
-      CSDNUtils.addBlockCSS(".csdn-side-toolbar");
+      return CSDNUtils.addBlockCSS(".csdn-side-toolbar");
     }
   };
   const CSDNLink = {
     init() {
-      PopsPanel.execMenu("csdn-link-jumpRedirect", () => {
+      PopsPanel.execMenuOnce("csdn-link-jumpRedirect", () => {
         this.jumpRedirect();
       });
     },
@@ -2301,7 +2359,7 @@
   };
   const M_CSDNLink = {
     init() {
-      PopsPanel.execMenu("m-csdn-link-jumpRedirect", () => {
+      PopsPanel.execMenuOnce("m-csdn-link-jumpRedirect", () => {
         CSDNLink.jumpRedirect();
       });
     }
@@ -2310,9 +2368,22 @@
   const M_CSDNHuaWeiCloud = {
     init() {
       addStyle(ShieldCSS$2);
-      PopsPanel.execMenu("m-csdn-hua-wei-cloud-autoExpandContent", () => {
-        CSDNHuaWeiCloud.autoExpandContent();
+      PopsPanel.execMenuOnce("m-csdn-hua-wei-cloud-autoExpandContent", () => {
+        return CSDNHuaWeiCloud.autoExpandContent();
       });
+      PopsPanel.execMenuOnce(
+        "m-csdn-hua-wei-cloud-blockBottomJoinTheCommunity",
+        () => {
+          return this.blockBottomJoinTheCommunity();
+        }
+      );
+    },
+    /**
+     * 【屏蔽】底部加入社区
+     */
+    blockBottomJoinTheCommunity() {
+      log.info("【屏蔽】底部加入社区");
+      return CSDNUtils.addBlockCSS(".user-desc");
     }
   };
   const ShieldCSS$1 = "#operate,.feed-Sign-span,\r\n.view_comment_box,\r\n.weixin-shadowbox.wap-shadowbox,\r\n.feed-Sign-span,\r\n.user-desc.user-desc-fix,\r\n.comment_read_more_box,\r\n#content_views pre.set-code-hide .hide-preCode-box,\r\n/* 登录弹窗 */\r\n.passport-login-container,\r\n.hljs-button[data-title='登录后复制'],\r\n.article-show-more,\r\n#treeSkill,\r\ndiv.btn_open_app_prompt_div,\r\ndiv.readall_box,\r\ndiv.aside-header-fixed,\r\ndiv.feed-Sign-weixin,\r\ndiv.ios-shadowbox {\r\n  display: none !important;\r\n}\r\n";
@@ -2320,35 +2391,43 @@
   const M_CSDNBlog = {
     init() {
       this.addCSS();
-      PopsPanel.execMenu("m-csdn-blog-shieldTopToolbar", () => {
-        this.shieldTopToolbar();
+      PopsPanel.execMenuOnce("m-csdn-blog-shieldTopToolbar", () => {
+        return this.shieldTopToolbar();
       });
-      PopsPanel.execMenu("m-csdn-blog-notLimitCodePreMaxHeight", () => {
-        this.notLimitCodePreMaxHeight();
+      PopsPanel.execMenuOnce("m-csdn-blog-notLimitCodePreMaxHeight", () => {
+        return this.notLimitCodePreMaxHeight();
       });
-      PopsPanel.execMenu("m-csdn-blog-notLimitCommentMaxHeight", () => {
-        this.notLimitCommentMaxHeight();
+      PopsPanel.execMenuOnce("m-csdn-blog-notLimitCommentMaxHeight", () => {
+        return this.notLimitCommentMaxHeight();
       });
-      PopsPanel.execMenu("m-csdn-blog-allowSelectText", () => {
-        this.allowSelectText();
+      PopsPanel.execMenuOnce("m-csdn-blog-allowSelectText", () => {
+        return this.allowSelectText();
       });
-      PopsPanel.execMenu("m-csdn-blog-autoExpandContent", () => {
-        this.autoExpandContent();
+      PopsPanel.execMenuOnce("m-csdn-blog-autoExpandContent", () => {
+        return this.autoExpandContent();
       });
-      if (!PopsPanel.getValue("m-csdn-blog-bottomArticleEnable")) {
-        this.blockBottomArticle();
-      }
-      if (!PopsPanel.getValue("m-csdn-blog-comment-enable")) {
-        this.blockComment();
-      }
+      PopsPanel.execMenuOnce(
+        "m-csdn-blog-bottomArticleEnable",
+        () => {
+          return this.blockBottomArticle();
+        },
+        true
+      );
+      PopsPanel.execMenuOnce(
+        "m-csdn-blog-comment-enable",
+        () => {
+          return this.blockComment();
+        },
+        true
+      );
       domutils.ready(() => {
-        PopsPanel.execMenu("m-csdn-blog-removeAds", () => {
-          this.removeAds();
+        PopsPanel.execMenuOnce("m-csdn-blog-removeAds", () => {
+          return this.removeAds();
         });
-        PopsPanel.execMenu("m-csdn-blog-refactoringRecommendation", () => {
+        PopsPanel.execMenuOnce("m-csdn-blog-refactoringRecommendation", () => {
           this.refactoringRecommendation();
         });
-        PopsPanel.execMenu("m-csdn-blog-unBlockCopy", () => {
+        PopsPanel.execMenuOnce("m-csdn-blog-unBlockCopy", () => {
           CSDNBlog.unBlockCopy();
         });
       });
@@ -2362,19 +2441,24 @@
      */
     shieldTopToolbar() {
       log.info("屏蔽顶部Toolbar");
-      CSDNUtils.addBlockCSS("#csdn-toolbar");
-      addStyle(`
-        /* 内容顶部要归位 */
-        body #main,
-        .margin_sides{
-          margin-top: unset !important;
-          padding-top: unset !important;
-        }
-        #article .article_title{
-          margin-top: .32rem !important;
-          padding-top: unset !important;
-        }
-        `);
+      return [
+        CSDNUtils.addBlockCSS("#csdn-toolbar"),
+        addStyle(
+          /*css*/
+          `
+			/* 内容顶部要归位 */
+			body #main,
+			.margin_sides{
+			  margin-top: unset !important;
+			  padding-top: unset !important;
+			}
+			#article .article_title{
+			  margin-top: .32rem !important;
+			  padding-top: unset !important;
+			}
+			`
+        )
+      ];
     },
     /**
      * 重构底部推荐
@@ -2452,14 +2536,14 @@
      */
     blockBottomArticle() {
       log.info("屏蔽底部文章");
-      CSDNUtils.addBlockCSS("#recommend");
+      return CSDNUtils.addBlockCSS("#recommend");
     },
     /**
      * 屏蔽评论
      */
     blockComment() {
       log.info("屏蔽评论");
-      CSDNUtils.addBlockCSS("#comment");
+      return CSDNUtils.addBlockCSS("#comment");
     },
     /**
      * 去除广告
@@ -2479,29 +2563,37 @@
      */
     notLimitCodePreMaxHeight() {
       log.info("不限制代码块最大高度");
-      addStyle(`
+      return addStyle(
+        /*css*/
+        `
         pre{
             max-height: unset !important;
         }
-        `);
+        `
+      );
     },
     /**
      * 不限制评论区最大高度
      */
     notLimitCommentMaxHeight() {
       log.info("不限制评论区最大高度");
-      addStyle(`
+      return addStyle(
+        /*css*/
+        `
         #comment{
           max-height: none !important;
         }
-      `);
+      `
+      );
     },
     /**
      * 允许选择文字
      */
     allowSelectText() {
       log.info("允许选择文字");
-      addStyle(`
+      return addStyle(
+        /*css*/
+        `
         #content_views,
         #content_views pre,
         #content_views pre code{
@@ -2512,20 +2604,24 @@
             -ms-user-select: text !important;
             user-select: text !important;
         }
-        `);
+        `
+      );
     },
     /**
      * 自动展开内容
      */
     autoExpandContent() {
       log.info("自动展开内容");
-      addStyle(`
+      return addStyle(
+        /*css*/
+        `
         #content_views pre.set-code-hide,
         .article_content{
           height: 100% !important;
           overflow: auto !important;
         }
-        `);
+        `
+      );
     }
   };
   const ShieldCSS = "/* 右下角的买一年送3个月的广告图标 */\r\n.blind_box {\r\n  display: none !important;\r\n}\r\n";
@@ -2547,13 +2643,13 @@
   const CSDNBlockCSS = "/* 右下角悬浮图标 买1年送3个月 */\r\n.page-container .blind_box,\r\n/* 底部工具栏右边的 开会员按钮（低至xx元/次） */\r\n.page-container .btn .ml-12,\r\n/* 登录弹窗 */\r\n.passport-login-container,\r\n/* 通用广告className匹配 */\r\n.ads {\r\n	display: none !important;\r\n}\r\n";
   const M_CSDNDownload = {
     init() {
-      PopsPanel.execMenu("m-csdn-download-removeAds", () => {
-        addStyle(CSDNBlockCSS);
+      PopsPanel.execMenuOnce("m-csdn-download-removeAds", () => {
+        return addStyle(CSDNBlockCSS);
       });
       PopsPanel.execMenuOnce(
         "m-csdn-download-automaticallyExpandResourceIntroduction",
         () => {
-          this.automaticallyExpandResourceIntroduction();
+          return this.automaticallyExpandResourceIntroduction();
         }
       );
     },
@@ -2562,13 +2658,18 @@
      */
     automaticallyExpandResourceIntroduction() {
       log.info("自动展开资源介绍");
-      CSDNUtils.addBlockCSS("label.unfold-font");
-      addStyle(`
-		.resource-desc{
-			max-height: unset !important;
-    		overflow: unset !important;
-		}
-		`);
+      return [
+        CSDNUtils.addBlockCSS("label.unfold-font"),
+        addStyle(
+          /*css*/
+          `
+			.resource-desc{
+				max-height: unset !important;
+				overflow: unset !important;
+			}
+			`
+        )
+      ];
     }
   };
   const M_CSDN = {

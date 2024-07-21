@@ -20,6 +20,17 @@ const MSettingUIHuaWeiCloud: PopsPanelContentConfig = {
 				),
 			],
 		},
+		{
+			text: "屏蔽",
+			type: "forms",
+			forms: [
+				UISwitch(
+					"【屏蔽】底部加入社区",
+					"m-csdn-hua-wei-cloud-blockBottomJoinTheCommunity",
+					true
+				),
+			],
+		},
 	],
 };
 

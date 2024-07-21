@@ -4,40 +4,37 @@ import { CSDNUtils } from "@/utils/CSDNUtils";
 
 const CSDNBlogRightToolBar = {
 	init() {
-		if (!PopsPanel.getValue("csdn-blog-rightToolbarEnable")) {
-			this.shieldRightToolbar();
-		}
+		PopsPanel.execMenuOnce(
+			"csdn-blog-rightToolbarEnable",
+			() => {
+				return this.shieldRightToolbar();
+			},
+			true
+		);
 		PopsPanel.execMenuOnce("csdn-blog-rightToolbarCreativeCenter", () => {
-			this.shieldCreativeCenter();
+			return this.shieldCreativeCenter();
 		});
 		PopsPanel.execMenuOnce("csdn-blog-rightToolbarShowOrSidebar", () => {
-			this.shieldShowOrSidebar();
+			return this.shieldShowOrSidebar();
 		});
 		PopsPanel.execMenuOnce("csdn-blog-rightToolbarBeginnerGuidance", () => {
-			this.shieldBeginnerGuidance();
+			return this.shieldBeginnerGuidance();
 		});
 		PopsPanel.execMenuOnce("csdn-blog-rightToolbarCustomerService", () => {
-			this.shieldCustomerService();
+			return this.shieldCustomerService();
 		});
 		PopsPanel.execMenuOnce("csdn-blog-rightToolbarReport", () => {
-			this.shieldReport();
+			return this.shieldReport();
 		});
 		PopsPanel.execMenuOnce("csdn-blog-rightToolbarBackToTop", () => {
-			this.shieldBackToTop();
+			return this.shieldBackToTop();
 		});
 		this.initRightToolbarOffset();
 		DOMUtils.ready(() => {
-			PopsPanel.execMenu("csdn-blog-addGotoRecommandButton", () => {
+			PopsPanel.execMenuOnce("csdn-blog-addGotoRecommandButton", () => {
 				this.addGotoRecommandButton();
 			});
 		});
-	},
-	/**
-	 * 屏蔽右侧工具栏
-	 */
-	shieldRightToolbar() {
-		log.info("屏蔽右侧工具栏");
-		CSDNUtils.addBlockCSS(`div.csdn-side-toolbar`);
 	},
 	/**
 	 * 【添加】前往评论按钮，在返回顶部的下面
@@ -88,7 +85,7 @@ const CSDNBlogRightToolBar = {
 	 */
 	initRightToolbarOffset() {
 		log.info("初始化右侧工具栏的偏移（top、right）");
-		addStyle(`
+		addStyle(/*css*/ `
         .csdn-side-toolbar{
           left: unset !important;
         }
@@ -107,39 +104,50 @@ const CSDNBlogRightToolBar = {
 			});
 	},
 	/**
+	 * 屏蔽右侧工具栏
+	 */
+	shieldRightToolbar() {
+		log.info("屏蔽右侧工具栏");
+		return CSDNUtils.addBlockCSS(`div.csdn-side-toolbar`);
+	},
+	/**
 	 * 【屏蔽】创作中心
 	 */
 	shieldCreativeCenter() {
 		log.info("【屏蔽】创作中心");
-		CSDNUtils.addBlockCSS(".csdn-side-toolbar .sidetool-writeguide-box");
+		return CSDNUtils.addBlockCSS(".csdn-side-toolbar .sidetool-writeguide-box");
 	},
 	/**
 	 * 【屏蔽】显示/隐藏侧栏
 	 */
 	shieldShowOrSidebar() {
 		log.info("【屏蔽】显示/隐藏侧栏");
-		CSDNUtils.addBlockCSS(".csdn-side-toolbar a.sidecolumn");
+		return CSDNUtils.addBlockCSS(".csdn-side-toolbar a.sidecolumn");
 	},
 	/**
 	 * 【屏蔽】新手引导
 	 */
 	shieldBeginnerGuidance() {
 		log.info("【屏蔽】新手引导");
-		CSDNUtils.addBlockCSS('.csdn-side-toolbar a.option-box[data-type="guide"]');
+		return CSDNUtils.addBlockCSS(
+			'.csdn-side-toolbar a.option-box[data-type="guide"]'
+		);
 	},
 	/**
 	 * 【屏蔽】客服
 	 */
 	shieldCustomerService() {
 		log.info("【屏蔽】客服");
-		CSDNUtils.addBlockCSS('.csdn-side-toolbar a.option-box[data-type="cs"]');
+		return CSDNUtils.addBlockCSS(
+			'.csdn-side-toolbar a.option-box[data-type="cs"]'
+		);
 	},
 	/**
 	 * 【屏蔽】举报
 	 */
 	shieldReport() {
 		log.info("【屏蔽】举报");
-		CSDNUtils.addBlockCSS(
+		return CSDNUtils.addBlockCSS(
 			'.csdn-side-toolbar a.option-box[data-type="report"]'
 		);
 	},
@@ -148,7 +156,9 @@ const CSDNBlogRightToolBar = {
 	 */
 	shieldBackToTop() {
 		log.info("【屏蔽】返回顶部");
-		CSDNUtils.addBlockCSS('.csdn-side-toolbar a.option-box[data-type="gotop"]');
+		return CSDNUtils.addBlockCSS(
+			'.csdn-side-toolbar a.option-box[data-type="gotop"]'
+		);
 	},
 };
 

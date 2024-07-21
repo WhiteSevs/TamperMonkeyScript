@@ -4,13 +4,13 @@ import { PopsPanel } from "@/setting/setting";
 import { CSDNUtils } from "@/utils/CSDNUtils";
 export const M_CSDNDownload = {
 	init() {
-		PopsPanel.execMenu("m-csdn-download-removeAds", () => {
-			addStyle(CSDNBlockCSS);
+		PopsPanel.execMenuOnce("m-csdn-download-removeAds", () => {
+			return addStyle(CSDNBlockCSS);
 		});
 		PopsPanel.execMenuOnce(
 			"m-csdn-download-automaticallyExpandResourceIntroduction",
 			() => {
-				this.automaticallyExpandResourceIntroduction();
+				return this.automaticallyExpandResourceIntroduction();
 			}
 		);
 	},
@@ -20,12 +20,14 @@ export const M_CSDNDownload = {
 	automaticallyExpandResourceIntroduction() {
 		log.info("自动展开资源介绍");
 		/* 屏蔽 展开全部 按钮 */
-		CSDNUtils.addBlockCSS("label.unfold-font");
-		addStyle(`
-		.resource-desc{
-			max-height: unset !important;
-    		overflow: unset !important;
-		}
-		`);
+		return [
+			CSDNUtils.addBlockCSS("label.unfold-font"),
+			addStyle(/*css*/ `
+			.resource-desc{
+				max-height: unset !important;
+				overflow: unset !important;
+			}
+			`),
+		];
 	},
 };

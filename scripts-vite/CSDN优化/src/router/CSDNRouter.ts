@@ -1,4 +1,4 @@
-const CSDNRouter = {
+export const CSDNRouter = {
 	/**
 	 * 判断是否是华为云联盟
 	 * + huaweicloud.csdn.net
@@ -55,5 +55,3 @@ const CSDNRouter = {
 		return window.location.hostname === "download.csdn.net";
 	},
 };
-
-export { CSDNRouter };
