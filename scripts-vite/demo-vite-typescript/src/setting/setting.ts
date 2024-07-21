@@ -9,50 +9,48 @@ import {
 } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 
-interface PosPanelListenerData {
+type PosPanelListenerData = {
 	id: number;
 	key: string;
 	callback: (key: string, oldValue: any, newValue: any) => void;
-}
-const __PopsPanel__ = {
-	data: null as any as UtilsDictionary<string, any>,
-	oneSuccessExecMenu: null as any as UtilsDictionary<string, number>,
-	onceExec: null as any as UtilsDictionary<string, number>,
-	listenData: null as any as UtilsDictionary<string, PosPanelListenerData>,
 };
 
 export const PopsPanel = {
 	/** 数据 */
 	$data: {
+		__data: null as any as UtilsDictionary<string, any>,
+		__oneSuccessExecMenu: null as any as UtilsDictionary<string, number>,
+		__onceExec: null as any as UtilsDictionary<string, number>,
+		__listenData: null as any as UtilsDictionary<string, PosPanelListenerData>,
 		/**
 		 * 菜单项的默认值
 		 */
 		get data() {
-			if (__PopsPanel__.data == null) {
-				__PopsPanel__.data = new utils.Dictionary<string, any>();
+			if (PopsPanel.$data.__data == null) {
+				PopsPanel.$data.__data = new utils.Dictionary<string, any>();
 			}
-			return __PopsPanel__.data;
+			return PopsPanel.$data.__data;
 		},
 		/**
 		 * 成功只执行了一次的项
 		 */
 		get oneSuccessExecMenu() {
-			if (__PopsPanel__.oneSuccessExecMenu == null) {
-				__PopsPanel__.oneSuccessExecMenu = new utils.Dictionary<
+			if (PopsPanel.$data.__oneSuccessExecMenu == null) {
+				PopsPanel.$data.__oneSuccessExecMenu = new utils.Dictionary<
 					string,
 					number
 				>();
 			}
-			return __PopsPanel__.oneSuccessExecMenu;
+			return PopsPanel.$data.__oneSuccessExecMenu;
 		},
 		/**
 		 * 成功只执行了一次的项
 		 */
 		get onceExec() {
-			if (__PopsPanel__.onceExec == null) {
-				__PopsPanel__.onceExec = new utils.Dictionary<string, number>();
+			if (PopsPanel.$data.__onceExec == null) {
+				PopsPanel.$data.__onceExec = new utils.Dictionary<string, number>();
 			}
-			return __PopsPanel__.onceExec;
+			return PopsPanel.$data.__onceExec;
 		},
 		/** 脚本名，一般用在设置的标题上 */
 		get scriptName() {
@@ -71,19 +69,20 @@ export const PopsPanel = {
 		 * 值改变的监听器
 		 */
 		get listenData() {
-			if (__PopsPanel__.listenData == null) {
-				__PopsPanel__.listenData = new utils.Dictionary<
+			if (PopsPanel.$data.__listenData == null) {
+				PopsPanel.$data.__listenData = new utils.Dictionary<
 					string,
 					PosPanelListenerData
 				>();
 			}
-			return __PopsPanel__.listenData;
+			return PopsPanel.$data.__listenData;
 		},
 	},
 	init() {
 		this.initPanelDefaultValue();
 		this.initExtensionsMenu();
 	},
+	/** 初始化进行注册油猴菜单 */
 	initExtensionsMenu() {
 		if (unsafeWindow.top !== unsafeWindow.self) {
 			/* 不允许在iframe内重复注册 */
@@ -104,7 +103,7 @@ export const PopsPanel = {
 			},
 		]);
 	},
-	/** 初始化本地设置默认的值 */
+	/** 初始化菜单项的默认值保存到本地数据中 */
 	initPanelDefaultValue() {
 		let that = this;
 		/**
@@ -259,8 +258,9 @@ export const PopsPanel = {
 	 * 自动判断菜单是否启用，然后执行回调
 	 * @param key
 	 * @param callback 回调
+	 * @param [isReverse=false] 逆反判断菜单启用
 	 */
-	execMenu(key: string, callback: (value: any) => void) {
+	execMenu(key: string, callback: (value: any) => void, isReverse = false) {
 		if (typeof key !== "string") {
 			throw new TypeError("key 必须是字符串");
 		}
@@ -269,6 +269,10 @@ export const PopsPanel = {
 			return;
 		}
 		let value = PopsPanel.getValue(key);
+		if (isReverse) {
+			// 逆反
+			value = !value;
+		}
 		if (value) {
 			callback(value);
 		}
@@ -277,13 +281,15 @@ export const PopsPanel = {
 	 * 自动判断菜单是否启用，然后执行回调，只会执行一次
 	 * @param key
 	 * @param callback 回调
+	 * @param [isReverse=false] 逆反判断菜单启用
 	 */
 	execMenuOnce(
 		key: string,
 		callback: (
 			value: any,
 			pushStyleNode: (style: HTMLStyleElement | HTMLStyleElement[]) => void
-		) => any | any[]
+		) => any | any[],
+		isReverse = false
 	) {
 		if (typeof key !== "string") {
 			throw new TypeError("key 必须是字符串");
@@ -305,6 +311,11 @@ export const PopsPanel = {
 			let __value = PopsPanel.getValue<boolean>(key);
 			changeCallBack(__value, style);
 		};
+		/**
+		 * 当值改变，触发该函数
+		 * @param currentValue 当前值
+		 * @param resultStyle （可选）函数返回的<style>标签或标签数组
+		 */
 		let changeCallBack = (
 			currentValue: boolean,
 			resultStyle?: HTMLStyleElement | HTMLStyleElement[]
@@ -331,21 +342,29 @@ export const PopsPanel = {
 			}
 			resultStyleList = [...resultList];
 		};
+		// 监听值改变
 		let listenerId = this.addValueChangeListener(
 			key,
 			(__key, oldValue, newValue) => {
 				// 值改变
+				if (isReverse) {
+					newValue = !newValue;
+				}
 				changeCallBack(newValue);
 			}
 		);
 		let value = PopsPanel.getValue<boolean>(key);
+		if (isReverse) {
+			// 逆反
+			value = !value;
+		}
 		if (value) {
 			changeCallBack(value);
 		}
 	},
 	/**
-	 * 根据key执行一次
-	 * @param key
+	 * 根据自定义key只执行一次
+	 * @param key 自定义key
 	 */
 	onceExec(key: string, callback: () => void) {
 		if (typeof key !== "string") {
@@ -383,14 +402,17 @@ export const PopsPanel = {
 			only: true,
 		});
 	},
+	/**
+	 * 判断是否是移动端
+	 */
 	isMobile() {
-		return window.outerWidth < 550;
+		return window.innerWidth < 550;
 	},
 	/**
 	 * 获取设置面板的宽度
 	 */
 	getWidth() {
-		if (window.outerWidth < 550) {
+		if (window.innerWidth < 550) {
 			return "92vw";
 		} else {
 			return "550px";
@@ -400,7 +422,7 @@ export const PopsPanel = {
 	 * 获取设置面板的高度
 	 */
 	getHeight() {
-		if (window.outerHeight > 450) {
+		if (window.innerHeight > 450) {
 			return "80vh";
 		} else {
 			return "450px";
