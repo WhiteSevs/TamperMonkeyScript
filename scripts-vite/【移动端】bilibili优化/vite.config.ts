@@ -7,7 +7,7 @@ import IconsResolver from "unplugin-icons/dist/resolver";
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
-import { repairMonkeyMountHead } from "./../../vite-plugins/vite-plugin-repairMonkeyMount";
+import mkcert from "vite-plugin-mkcert";
 
 const SCRIPT_NAME = "【移动端】bilibili优化";
 const Utils = new ViteUtils(__dirname);
@@ -31,6 +31,9 @@ if (process.argv.findIndex((i) => i.startsWith("build")) !== -1) {
 // https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [
+		mkcert({
+			force: true,
+		}),
 		vue(),
 		AutoImport({
 			// 自动导入 Vue 相关函数，如：ref, reactive, toRef 等
@@ -62,7 +65,6 @@ export default defineConfig({
 			// 自动安装图标库
 			autoInstall: true,
 		}),
-		repairMonkeyMountHead(),
 		monkey({
 			entry: "src/main.ts",
 			userscript: {

@@ -7,7 +7,6 @@ import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import { ViteUtils, GetLib } from "../../vite.utils";
-import { repairMonkeyMountHead } from "./../../vite-plugins/vite-plugin-repairMonkeyMount";
 import mkcert from "vite-plugin-mkcert";
 
 const SCRIPT_NAME = "【移动端】百度系优化";
@@ -32,6 +31,9 @@ let ElementPlusUrl = await GetLib("Element-Plus");
 // https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [
+		mkcert({
+			force: true,
+		}),
 		vue(),
 		AutoImport({
 			// 自动导入 Vue 相关函数，如：ref, reactive, toRef 等
@@ -61,7 +63,6 @@ export default defineConfig({
 		Icons({
 			autoInstall: true,
 		}),
-		repairMonkeyMountHead(),
 		monkey({
 			entry: "src/main.ts",
 			userscript: {

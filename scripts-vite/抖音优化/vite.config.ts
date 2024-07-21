@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import monkey, { cdn } from "vite-plugin-monkey";
 import { ViteUtils, GetLib } from "../../vite.utils";
-import { repairMonkeyMountHead } from "./../../vite-plugins/vite-plugin-repairMonkeyMount";
+import mkcert from "vite-plugin-mkcert";
 
 const _SCRIPT_NAME_ = "抖音优化";
 const Utils = new ViteUtils(__dirname);
@@ -26,8 +26,10 @@ if (process.argv.findIndex((i) => i.startsWith("build")) !== -1) {
 // https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [
+		mkcert({
+			force: true,
+		}),
 		vue(),
-		repairMonkeyMountHead(),
 		monkey({
 			entry: "src/main.ts",
 			userscript: {

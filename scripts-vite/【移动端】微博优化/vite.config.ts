@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import monkey, { cdn, util } from "vite-plugin-monkey";
 import { ViteUtils, GetLib } from "../../vite.utils";
-import { repairMonkeyMountHead } from "./../../vite-plugins/vite-plugin-repairMonkeyMount";
+import mkcert from "vite-plugin-mkcert";
 
 const SCRIPT_NAME = "【移动端】微博优化";
 const Utils = new ViteUtils(__dirname);
@@ -27,7 +27,9 @@ let VERSION =
 // https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [
-		repairMonkeyMountHead(),
+		mkcert({
+			force: true,
+		}),
 		monkey({
 			entry: "src/main.ts",
 			userscript: {

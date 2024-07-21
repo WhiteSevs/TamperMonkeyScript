@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import monkey, { cdn, util } from "vite-plugin-monkey";
 import { ViteUtils, GetLib } from "../../vite.utils";
-import { repairMonkeyMountHead } from "./../../vite-plugins/vite-plugin-repairMonkeyMount";
+import mkcert from "vite-plugin-mkcert";
 
 const SCRIPT_NAME = "CSDN优化";
 const Utils = new ViteUtils(__dirname);
@@ -25,7 +25,9 @@ if (process.argv.findIndex((i) => i.startsWith("build")) !== -1) {
 // https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [
-		repairMonkeyMountHead(),
+		mkcert({
+			force: true,
+		}),
 		monkey({
 			entry: "src/main.ts",
 			userscript: {
