@@ -6,8 +6,8 @@
 
 ## erdua
 
-- 最新版本：[![npm version](https://img.shields.io/npm/v/eruda/latest.svg)](https://www.npmjs.com/package/eruda)
-- 当前版本：`3.2.0`
+- 最新版本：[![npm version](https://img.shields.io/npm/v/eruda/latest.svg?label=eruda)](https://www.npmjs.com/package/eruda)
+- 当前版本：`3.2.1`
 - 项目主页<br>[https://github.com/liriliri/eruda](https://github.com/liriliri/eruda)
 - 项目最新地址<br>[https://cdn.jsdelivr.net/npm/eruda](https://cdn.jsdelivr.net/npm/eruda)<br>[https://fastly.jsdelivr.net/npm/eruda](https://fastly.jsdelivr.net/npm/eruda)<br>[https://testingcf.jsdelivr.net/npm/eruda](https://testingcf.jsdelivr.net/npm/eruda)
 - 【插件】[eruda-monitor](https://github.com/liriliri/eruda-monitor): 展示页面的 fps 和内存信息
@@ -30,7 +30,7 @@
 
 ## VConsole
 
-- 最新版本：[![npm version](https://img.shields.io/npm/v/vconsole/latest.svg)](https://www.npmjs.com/package/vconsole)
+- 最新版本：[![npm version](https://img.shields.io/npm/v/vconsole/latest.svg?label=vConsole)](https://www.npmjs.com/package/vconsole)
 - 当前版本：`3.15.1`
 - 项目主页<br>[https://github.com/Tencent/vConsole](https://github.com/Tencent/vConsole)
 - 项目最新地址<br>[https://cdn.jsdelivr.net/npm/vconsole](https://cdn.jsdelivr.net/npm/vconsole)<br>[https://fastly.jsdelivr.net/npm/vconsole](https://fastly.jsdelivr.net/npm/vconsole)<br>[https://testingcf.jsdelivr.net/npm/vconsole](https://testingcf.jsdelivr.net/npm/vconsole)

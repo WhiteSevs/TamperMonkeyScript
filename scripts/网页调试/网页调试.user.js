@@ -2,7 +2,7 @@
 // @name            网页调试
 // @namespace       https://greasyfork.org/zh-CN/scripts/475228
 // @supportURL      https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version         2024.7.17
+// @version         2024.7.22
 // @author          WhiteSevs
 // @description     内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @icon            data:image/png;base64,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
@@ -30,11 +30,11 @@
 // @resource        Resource_erudaOutlinePlugin       https://fastly.jsdelivr.net/npm/eruda-outline-plugin
 // @resource        Resource_erudaPixel               https://fastly.jsdelivr.net/npm/eruda-pixel
 // @resource        Resource_vConsoleVueDevtools      https://fastly.jsdelivr.net/npm/vue-vconsole-devtools@1.0.9/dist/vue_plugin.min.js
-// @require         https://update.greasyfork.org/scripts/483694/1412267/Eruda-2.js
+// @require         https://update.greasyfork.org/scripts/483694/1414798/Eruda-2.js
 // @require         https://update.greasyfork.org/scripts/483695/1360577/vConsole-2.js
 // @require         https://update.greasyfork.org/scripts/483696/1412242/PageSpy-2.js
-// @require         https://fastly.jsdelivr.net/npm/@whitesev/pops@1.2.4/dist/index.umd.js
-// @require         https://fastly.jsdelivr.net/npm/@whitesev/utils@1.6.1/dist/index.umd.min.js
+// @require         https://fastly.jsdelivr.net/npm/@whitesev/pops@1.4.0/dist/index.umd.js
+// @require         https://fastly.jsdelivr.net/npm/@whitesev/utils@1.9.2/dist/index.umd.min.js
 // ==/UserScript==
 
 (function () {
@@ -51,13 +51,9 @@
 	 */
 	let unsafeWin = unsafeWindow;
 	let console = unsafeWin.console;
-	/**
-	 * @type {import("../库/pops/index").default}
-	 */
+	/** @type {import("@whitesev/pops").default} */
 	const pops = window.pops || unsafeWin.pops;
-	/**
-	 * @type {import("../库/Utils/dist").default}
-	 */
+	/** @type {import("@whitesev/utils").default */
 	const utils = (window.Utils || unsafeWin.Utils).noConflict();
 	/**
 	 * 菜单对象
@@ -69,26 +65,85 @@
 		GM_unregisterMenuCommand,
 	});
 	/**
+	 * @typedef PosPanelListenerData
+	 * @property {number} id
+	 * @property {string} key
+	 * @property {(key: string, oldValue: any, newValue: any) => void} callback
+	 */
+	/**
 	 * 配置面板
 	 */
 	const PopsPanel = {
-		/**
-		 * 本地存储的总键名
-		 */
-		key: "GM_Panel",
-		/**
-		 * 属性attributes的data-key
-		 */
-		attributeDataKey_Name: "data-key",
-		/**
-		 * 属性attributes的data-default-value
-		 */
-		attributeDataDefaultValue_Name: "data-default-value",
-		/**
-		 * 初始化菜单
-		 */
-		initMenu() {
-			this.initLocalDefaultValue();
+		/** 数据 */
+		$data: {
+			/** @type {import("@whitesev/utils/dist/src/Dictionary").UtilsDictionary<string, any>} */
+			__data: null,
+			/** @type {import("@whitesev/utils/dist/src/Dictionary").UtilsDictionary<string, number>} */
+			__oneSuccessExecMenu: null,
+			/** @type {import("@whitesev/utils/dist/src/Dictionary").UtilsDictionary<string, number>} */
+			__onceExec: null,
+			/** @type {import("@whitesev/utils/dist/src/Dictionary").UtilsDictionary<string, PosPanelListenerData>} */
+			__listenData: null,
+			/**
+			 * 菜单项的默认值
+			 */
+			get data() {
+				if (PopsPanel.$data.__data == null) {
+					PopsPanel.$data.__data = new utils.Dictionary();
+				}
+				return PopsPanel.$data.__data;
+			},
+			/**
+			 * 成功只执行了一次的项
+			 */
+			get oneSuccessExecMenu() {
+				if (PopsPanel.$data.__oneSuccessExecMenu == null) {
+					PopsPanel.$data.__oneSuccessExecMenu = new utils.Dictionary();
+				}
+				return PopsPanel.$data.__oneSuccessExecMenu;
+			},
+			/**
+			 * 成功只执行了一次的项
+			 */
+			get onceExec() {
+				if (PopsPanel.$data.__onceExec == null) {
+					PopsPanel.$data.__onceExec = new utils.Dictionary();
+				}
+				return PopsPanel.$data.__onceExec;
+			},
+			/** 脚本名，一般用在设置的标题上 */
+			get scriptName() {
+				return SCRIPT_NAME;
+			},
+			/** 菜单项的总值在本地数据配置的键名 */
+			key: "GM_Panel",
+			/** 菜单项在attributes上配置的菜单键 */
+			attributeKeyName: "data-key",
+			/** 菜单项在attributes上配置的菜单默认值 */
+			attributeDefaultValueName: "data-default-value",
+		},
+		/** 监听器 */
+		$listener: {
+			/**
+			 * 值改变的监听器
+			 */
+			get listenData() {
+				if (PopsPanel.$data.__listenData == null) {
+					PopsPanel.$data.__listenData = new utils.Dictionary();
+				}
+				return PopsPanel.$data.__listenData;
+			},
+		},
+		init() {
+			this.initPanelDefaultValue();
+			this.initExtensionsMenu();
+		},
+		/** 判断是否是顶层窗口 */
+		isTopWindow() {
+			return unsafeWindow.window.self === unsafeWindow.window.top;
+		},
+		/** 初始化进行注册油猴菜单 */
+		initExtensionsMenu() {
 			if (!this.isTopWindow()) {
 				return;
 			}
@@ -107,64 +162,218 @@
 				},
 			]);
 		},
-		isTopWindow() {
-			return unsafeWindow.window.self === unsafeWindow.window.top;
-		},
 		/**
 		 * 初始化本地设置默认的值
 		 */
-		initLocalDefaultValue() {
-			let content = this.getContent();
-			content.forEach((item) => {
-				if (!item["forms"]) {
+		initPanelDefaultValue() {
+			let that = this;
+			function initDefaultValue(config) {
+				if (!config["attributes"]) {
 					return;
 				}
-				item.forms.forEach((__item__) => {
-					if (__item__.forms) {
-						__item__.forms.forEach((containerItem) => {
-							if (!containerItem.attributes) {
-								return;
-							}
-							let key = containerItem.attributes[this.attributeDataKey_Name];
-							let defaultValue =
-								containerItem.attributes[this.attributeDataDefaultValue_Name];
-							if (this.getValue(key) == null) {
-								this.setValue(key, defaultValue);
-							}
-						});
-					} else {
+				let key = config.attributes[that.$data.attributeKeyName];
+				let defaultValue =
+					config["attributes"][that.$data.attributeDefaultValueName];
+				if (key == null) {
+					console.warn(["请先配置键", config]);
+					return;
+				}
+				if (that.$data.data.has(key)) {
+					console.warn("请检查该key(已存在): " + key);
+				}
+				that.$data.data.set(key, defaultValue);
+			}
+			function loopInitDefaultValue(configList) {
+				for (let index = 0; index < configList.length; index++) {
+					let configItem = configList[index];
+					initDefaultValue(configItem);
+					let childForms = configItem.forms;
+					if (childForms && Array.isArray(childForms)) {
+						loopInitDefaultValue(childForms);
 					}
-				});
-			});
-		},
-		/**
-		 * 设置值
-		 * @param {string} key 键
-		 * @param {any} value 值
-		 */
-		setValue(key, value) {
-			let localValue = GM_getValue(this.key, {});
-			localValue[key] = value;
-			GM_setValue(this.key, localValue);
+				}
+			}
+			let contentConfigList = this.getPanelContentConfig();
+			for (let index = 0; index < contentConfigList.length; index++) {
+				let leftContentConfigItem = contentConfigList[index];
+				if (!leftContentConfigItem.forms) {
+					continue;
+				}
+				let rightContentConfigList = leftContentConfigItem.forms;
+				if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+					loopInitDefaultValue(rightContentConfigList);
+				}
+			}
 		},
 		/**
 		 * 获取值
-		 * @param {string} key 键
-		 * @param {any} defaultValue 默认值
-		 * @returns {any}
+		 * @param key 键
+		 * @param defaultValue 默认值
 		 */
 		getValue(key, defaultValue) {
-			let localValue = GM_getValue(this.key, {});
-			return localValue[key] ?? defaultValue;
+			let locaData = GM_getValue(this.$data.key, {});
+			let localValue = locaData[key];
+			if (localValue == null) {
+				if (this.$data.data.has(key)) {
+					return this.$data.data.get(key);
+				}
+				return defaultValue;
+			}
+			return localValue;
 		},
 		/**
 		 * 删除值
-		 * @param {string} key 键
+		 * @param key 键
 		 */
 		deleteValue(key) {
-			let localValue = GM_getValue(this.key, {});
-			delete localValue[key];
-			GM_setValue(this.key, localValue);
+			let locaData = GM_getValue(this.$data.key, {});
+			let oldValue = locaData[key];
+			Reflect.deleteProperty(locaData, key);
+			GM_setValue(this.$data.key, locaData);
+			if (this.$listener.listenData.has(key)) {
+				this.$listener.listenData.get(key).callback(key, oldValue, void 0);
+			}
+		},
+		/**
+		 * 监听调用setValue、deleteValue
+		 * @param key 需要监听的键
+		 * @param callback
+		 */
+		addValueChangeListener(key, callback, option) {
+			let listenerId = Math.random();
+			this.$listener.listenData.set(key, {
+				id: listenerId,
+				key,
+				callback,
+			});
+			if (option) {
+				if (option.immediate) {
+					callback(key, this.getValue(key), this.getValue(key));
+				}
+			}
+			return listenerId;
+		},
+		/**
+		 * 移除监听
+		 * @param listenerId 监听的id
+		 */
+		removeValueChangeListener(listenerId) {
+			let deleteKey = null;
+			for (const [key, value] of this.$listener.listenData.entries()) {
+				if (value.id === listenerId) {
+					deleteKey = key;
+					break;
+				}
+			}
+			if (typeof deleteKey === "string") {
+				this.$listener.listenData.delete(deleteKey);
+			} else {
+				console.warn("没有找到对应的监听器");
+			}
+		},
+		/**
+		 * 判断该键是否存在
+		 * @param key 键
+		 */
+		hasKey(key) {
+			let locaData = GM_getValue(this.$data.key, {});
+			return key in locaData;
+		},
+
+		/**
+		 * 自动判断菜单是否启用，然后执行回调
+		 * @param key
+		 * @param callback 回调
+		 * @param [isReverse=false] 逆反判断菜单启用
+		 */
+		execMenu(key, callback, isReverse = false) {
+			if (typeof key !== "string") {
+				throw new TypeError("key 必须是字符串");
+			}
+			if (!this.$data.data.has(key)) {
+				console.warn(`${key} 键不存在`);
+				return;
+			}
+			let value = PopsPanel.getValue(key);
+			if (isReverse) {
+				value = !value;
+			}
+			if (value) {
+				callback(value);
+			}
+		},
+		/**
+		 * 自动判断菜单是否启用，然后执行回调，只会执行一次
+		 * @param key
+		 * @param callback 回调
+		 * @param [isReverse=false] 逆反判断菜单启用
+		 */
+		execMenuOnce(key, callback, isReverse = false) {
+			if (typeof key !== "string") {
+				throw new TypeError("key 必须是字符串");
+			}
+			if (!this.$data.data.has(key)) {
+				console.warn(`${key} 键不存在`);
+				return;
+			}
+			if (this.$data.oneSuccessExecMenu.has(key)) {
+				return;
+			}
+			this.$data.oneSuccessExecMenu.set(key, 1);
+			let resultStyleList = [];
+			let pushStyleNode = (style) => {
+				let __value = PopsPanel.getValue(key);
+				changeCallBack(__value, style);
+			};
+			let changeCallBack = (currentValue, resultStyle) => {
+				let resultList = [];
+				if (currentValue) {
+					let result = resultStyle ?? callback(currentValue, pushStyleNode);
+					if (result instanceof HTMLStyleElement) {
+						resultList = [result];
+					} else if (Array.isArray(result)) {
+						resultList = [
+							...result.filter(
+								(item) => item != null && item instanceof HTMLStyleElement
+							),
+						];
+					}
+				}
+				for (let index = 0; index < resultStyleList.length; index++) {
+					let $css = resultStyleList[index];
+					$css.remove();
+					resultStyleList.splice(index, 1);
+					index--;
+				}
+				resultStyleList = [...resultList];
+			};
+			this.addValueChangeListener(key, (__key, oldValue, newValue) => {
+				if (isReverse) {
+					newValue = !newValue;
+				}
+				changeCallBack(newValue);
+			});
+			let value = PopsPanel.getValue(key);
+			if (isReverse) {
+				value = !value;
+			}
+			if (value) {
+				changeCallBack(value);
+			}
+		},
+		/**
+		 * 根据自定义key只执行一次
+		 * @param key 自定义key
+		 */
+		onceExec(key, callback) {
+			if (typeof key !== "string") {
+				throw new TypeError("key 必须是字符串");
+			}
+			if (this.$data.onceExec.has(key)) {
+				return;
+			}
+			callback();
+			this.$data.onceExec.set(key, 1);
 		},
 		/**
 		 * 显示设置面板
@@ -175,24 +384,51 @@
 					text: `${GM_info?.script?.name || "网页调试"}`,
 					position: "center",
 				},
-				content: this.getContent(),
+				content: this.getPanelContentConfig(),
 				mask: {
 					enable: true,
 					clickEvent: {
 						toClose: true,
+						toHide: false,
 					},
 				},
-				width: utils.isPhone() ? "92vw" : "650px",
-				height: utils.isPhone() ? "80vh" : "500px",
+				isMobile: this.isMobile(),
+				width: this.getWidth(),
+				height: this.getHeight(),
 				drag: true,
 				only: true,
 				zIndex: 200000000,
-				style: `
-        aside.pops-panel-aside{
-          width: 20%;
-        }
-        `,
+				style: /*css*/ `
+				aside.pops-panel-aside{
+					width: 20%;
+				}`,
 			});
+		},
+		/**
+		 * 判断是否是移动端
+		 */
+		isMobile() {
+			return window.innerWidth < 550;
+		},
+		/**
+		 * 获取设置面板的宽度
+		 */
+		getWidth() {
+			if (window.innerWidth < 550) {
+				return "92vw";
+			} else {
+				return "550px";
+			}
+		},
+		/**
+		 * 获取设置面板的高度
+		 */
+		getHeight() {
+			if (window.innerHeight > 450) {
+				return "80vh";
+			} else {
+				return "450px";
+			}
 		},
 		/**
 		 * 获取按钮配置
@@ -203,9 +439,7 @@
 		 * @param {string|undefined} description 描述
 		 */
 		getSwtichDetail(text, key, defaultValue, _callback_, description) {
-			/**
-			 * @type {PopsPanelSwitchDetails}
-			 */
+			/** @type {import("@whitesev/pops/dist/types/src/components/panel/switchType").PopsPanelSwitchDetails} */
 			let result = {
 				text: text,
 				type: "switch",
@@ -224,9 +458,50 @@
 					PopsPanel.setValue(key, Boolean(value));
 				},
 			};
-			result.attributes[this.attributeDataKey_Name] = key;
-			result.attributes[this.attributeDataDefaultValue_Name] =
+			result.attributes[this.$data.attributeKeyName] = key;
+			result.attributes[this.$data.attributeDefaultValueName] =
 				Boolean(defaultValue);
+			return result;
+		},
+		/**
+		 * 获取button按钮配置
+		 * @param {string} text 左边的文字
+		 * @param {string} [description] 左边的文字下面的描述
+		 * @param {string | (() => string)} buttonText 按钮的文字
+		 * @param {PopsIcon} [buttonIcon] 按钮图标
+		 * @param {boolean} [buttonIsRightIcon] 按钮是否在右边
+		 * @param {boolean} [buttonIconIsLoading] 按钮图标是否旋转
+		 * @param {import("@whitesev/pops/dist/types/src/types/button").PopsButtonStyleType} buttonType 按钮类型
+		 * @param {((event: MouseEvent | PointerEvent) => void)} [clickCallBack] 点击回调
+		 * @returns
+		 */
+		getButtonDetails(
+			text,
+			description = "",
+			buttonText,
+			buttonIcon,
+			buttonIsRightIcon,
+			buttonIconIsLoading,
+			buttonType,
+			clickCallBack
+		) {
+			/** @type {import("@whitesev/pops/dist/types/src/components/panel/buttonType").PopsPanelButtonDetails} */
+			let result = {
+				text: text,
+				type: "button",
+				description: description,
+				buttonIcon: buttonIcon,
+				buttonIsRightIcon: buttonIsRightIcon,
+				buttonIconIsLoading: buttonIconIsLoading,
+				buttonType: buttonType,
+				buttonText: buttonText,
+				callback(event) {
+					if (typeof clickCallBack === "function") {
+						clickCallBack(event);
+					}
+				},
+				afterAddToUListCallBack: void 0,
+			};
 			return result;
 		},
 		/**
@@ -247,13 +522,11 @@
 			_callback_,
 			description
 		) {
-			return {
+			/** @type {import("@whitesev/pops/dist/types/src/components/panel/inputType").PopsPanelInputDetails} */
+			let result = {
 				text: text,
 				type: "input",
-				attributes: {
-					"data-key": key,
-					"data-default-value": defaultValue,
-				},
+				attributes: {},
 				description: description,
 				getValue() {
 					let localValue = PopsPanel.getValue(key, defaultValue);
@@ -269,6 +542,10 @@
 				},
 				placeholder: placeholder,
 			};
+
+			result.attributes[this.$data.attributeKeyName] = key;
+			result.attributes[this.$data.attributeDefaultValueName] = defaultValue;
+			return result;
 		},
 		/**
 		 * 获取数字输入框配置
@@ -345,14 +622,12 @@
 			description,
 			selectCallBack
 		) {
-			return {
+			/** @type {import("@whitesev/pops/dist/types/src/components/panel/selectType").PopsPanelSelectDetails} */
+			let result = {
 				text: text,
 				type: "select",
 				description: description,
-				attributes: {
-					"data-key": key,
-					"data-default-value": defaultValue,
-				},
+				attributes: {},
 				getValue() {
 					return PopsPanel.getValue(key, defaultValue);
 				},
@@ -364,14 +639,16 @@
 				},
 				data: data,
 			};
+
+			result.attributes[this.$data.attributeKeyName] = key;
+			result.attributes[this.$data.attributeDefaultValueName] = defaultValue;
+			return result;
 		},
 		/**
 		 * 获取配置内容
 		 */
-		getContent() {
-			/**
-			 * @type {PopsPanelContentConfig[]}
-			 */
+		getPanelContentConfig() {
+			/** @type {import("@whitesev/pops/dist/types/src/components/panel/indexType").PopsPanelContentConfig[]} */
 			let content = [
 				{
 					id: "debug-panel-config-all",
@@ -428,24 +705,43 @@
 				{
 					id: "debug-panel-config-eruda",
 					title: "Eruda",
-					headerTitle:
-						"<a href='https://github.com/liriliri/eruda/blob/master/README_CN.md' target='_blank'>Eruda设置</a>",
+					headerTitle: `<a href='${ToolsConfig.eruda.settingDocUrl}' target='_blank'>Eruda设置</a>`,
 					forms: [
 						{
 							text: "功能",
 							type: "forms",
 							forms: [
+								this.getButtonDetails(
+									"当前版本",
+									"",
+									ToolsConfig.eruda.version,
+									void 0,
+									false,
+									false,
+									"primary",
+									(event) => {
+										utils.preventEvent(event);
+										window.open(ToolsConfig.eruda.homeUrl, "_blank");
+									}
+								),
 								{
-									text: "版本",
-									type: "button",
-									attributes: {
-										"data-key": "eruda-version",
-										"data-default-value": GlobalDebug.erudaVersion,
-									},
-									buttonType: "primary",
-									buttonText: GlobalDebug.erudaVersion,
-									callback(event) {
-										window.open("https://github.com/liriliri/eruda", "_blank");
+									type: "own",
+									getLiElementCallBack(liElement) {
+										let $left = document.createElement("div");
+										$left.className = "pops-panel-item-left-text";
+										$left.innerHTML = /*html*/ `
+											<p class="pops-panel-item-left-main-text">最新版本</p>
+										`;
+										let $right = document.createElement("div");
+										$right.className = "pops-panel-item-right-text";
+										$right.innerHTML = /*html*/ `
+										<a href="${ToolsConfig.eruda.homeUrl}" target="_blank">
+											<img src="https://img.shields.io/npm/v/eruda/latest.svg?label=eruda" alt="eruda">
+										</a>
+										`;
+										liElement.appendChild($left);
+										liElement.appendChild($right);
+										return liElement;
 									},
 								},
 								this.getSwtichDetail(
@@ -746,27 +1042,43 @@
 				{
 					id: "debug-panel-config-vconsole",
 					title: "vConsole",
-					headerTitle:
-						"<a href='https://github.com/Tencent/vConsole/blob/dev/README_CN.md' target='_blank'>vConsole设置</a>",
+					headerTitle: `<a href='${ToolsConfig.vConsole.settingDocUrl}' target='_blank'>vConsole设置</a>`,
 					forms: [
 						{
 							text: "功能",
 							type: "forms",
 							forms: [
+								this.getButtonDetails(
+									"当前版本",
+									"",
+									ToolsConfig.vConsole.version,
+									void 0,
+									false,
+									false,
+									"primary",
+									(event) => {
+										utils.preventEvent(event);
+										window.open(ToolsConfig.vConsole.homeUrl, "_blank");
+									}
+								),
 								{
-									text: "版本",
-									type: "button",
-									attributes: {
-										"data-key": "vconsole-version",
-										"data-default-value": GlobalDebug.vConsoleVersion,
-									},
-									buttonType: "primary",
-									buttonText: GlobalDebug.vConsoleVersion,
-									callback(event) {
-										window.open(
-											"https://github.com/Tencent/vConsole",
-											"_blank"
-										);
+									type: "own",
+									getLiElementCallBack(liElement) {
+										let $left = document.createElement("div");
+										$left.className = "pops-panel-item-left-text";
+										$left.innerHTML = /*html*/ `
+											<p class="pops-panel-item-left-main-text">最新版本</p>
+										`;
+										let $right = document.createElement("div");
+										$right.className = "pops-panel-item-right-text";
+										$right.innerHTML = /*html*/ `
+										<a href="${ToolsConfig.vConsole.homeUrl}" target="_blank">
+											<img src="https://img.shields.io/npm/v/vconsole/latest.svg?label=vConsole" alt="vConsole">
+										</a>
+										`;
+										liElement.appendChild($left);
+										liElement.appendChild($right);
+										return liElement;
 									},
 								},
 								this.getSwtichDetail(
@@ -989,8 +1301,7 @@
 				{
 					id: "debug-panel-config-pagespy",
 					title: "PageSpy",
-					headerTitle:
-						"<a href='https://github.com/HuolalaTech/page-spy-web/blob/main/README_ZH.md' target='_blank'>PageSpy设置</a>",
+					headerTitle: `<a href='${ToolsConfig.pageSpy.settingDocUrl}' target='_blank'>PageSpy设置</a>`,
 					forms: [
 						{
 							text: "功能",
@@ -1007,7 +1318,7 @@
 												text: "提示",
 											},
 											content: {
-												text: `下面默认配置的${GlobalDebug.pageSpyDefaultApi}是仅供测试使用的，其他人也可以看到你的调试信息，包括Cookie等信息，如果想用，请自己搭建一个调试端`,
+												text: `下面默认配置的${ToolsConfig.pageSpy.defaultConfig.api}是仅供测试使用的，其他人也可以看到你的调试信息，包括Cookie等信息，如果想用，请自己搭建一个调试端`,
 											},
 											btn: {
 												reverse: true,
@@ -1028,20 +1339,37 @@
 										});
 									},
 								},
+								this.getButtonDetails(
+									"当前版本",
+									"",
+									ToolsConfig.pageSpy.version,
+									void 0,
+									false,
+									false,
+									"primary",
+									(event) => {
+										utils.preventEvent(event);
+										window.open(ToolsConfig.pageSpy.homeUrl, "_blank");
+									}
+								),
 								{
-									text: "版本",
-									type: "button",
-									attributes: {
-										"data-key": "pagespy-version",
-										"data-default-value": GlobalDebug.pageSpyVersion,
-									},
-									buttonType: "primary",
-									buttonText: GlobalDebug.pageSpyVersion,
-									callback(event) {
-										window.open(
-											"https://github.com/HuolalaTech/page-spy-web",
-											"_blank"
-										);
+									type: "own",
+									getLiElementCallBack(liElement) {
+										let $left = document.createElement("div");
+										$left.className = "pops-panel-item-left-text";
+										$left.innerHTML = /*html*/ `
+											<p class="pops-panel-item-left-main-text">最新版本</p>
+										`;
+										let $right = document.createElement("div");
+										$right.className = "pops-panel-item-right-text";
+										$right.innerHTML = /*html*/ `
+										<a href="${ToolsConfig.pageSpy.homeUrl}" target="_blank">
+											<img src="https://img.shields.io/npm/v/@huolala-tech/page-spy-browser?label=page-spy-browser" alt="page-spy-browser">
+										</a>
+										`;
+										liElement.appendChild($left);
+										liElement.appendChild($right);
+										return liElement;
 									},
 								},
 								this.getSwtichDetail(
@@ -1060,7 +1388,7 @@
 								this.getInputDetail(
 									"api",
 									"pagespy-api",
-									GlobalDebug.pageSpyDefaultApi,
+									ToolsConfig.pageSpy.defaultConfig.api,
 									"",
 									function (event, value) {
 										PopsPanel.setValue("pagespy-api", value.trim());
@@ -1070,7 +1398,7 @@
 								this.getInputDetail(
 									"clientOrigin",
 									"pagespy-clientOrigin",
-									GlobalDebug.pageSpyDefaultCliennOrigin,
+									ToolsConfig.pageSpy.defaultConfig.cliennOrigin,
 									"",
 									function (event, value) {
 										PopsPanel.setValue("pagespy-clientOrigin", value.trim());
@@ -1142,8 +1470,7 @@
 				{
 					id: "debug-panel-config-chii",
 					title: "Chii",
-					headerTitle:
-						"<a href='https://github.com/liriliri/chii/blob/master/README_CN.md' target='_blank'>Chii设置</a>",
+					headerTitle: `<a href='${ToolsConfig.chii.settingDocUrl}' target='_blank'>Chii设置</a>`,
 					forms: [
 						{
 							text: "功能",
@@ -1160,7 +1487,7 @@
 									callback(event) {
 										let url = PopsPanel.getValue(
 											"chii-debug-url",
-											GlobalDebug.chiiUrl
+											ToolsConfig.chii.defaultConfig.url
 										);
 										window.open(url, "_blank");
 									},
@@ -1205,7 +1532,7 @@
 								this.getInputDetail(
 									"调试页面Url",
 									"chii-debug-url",
-									GlobalDebug.chiiUrl,
+									ToolsConfig.chii.defaultConfig.url,
 									"请输入链接Url",
 									void 0,
 									"配置【调试页面】的Url"
@@ -1213,7 +1540,7 @@
 								this.getInputDetail(
 									"来源js",
 									"chii-target-js",
-									GlobalDebug.chiiDetaultScriptJs,
+									ToolsConfig.chii.defaultConfig.scriptJs,
 									"请输入目标js文件",
 									void 0,
 									"用于注入页面来进行调试"
@@ -1565,29 +1892,29 @@
 					});
 
 					vConsoleStats.on("renderTab", (callback) => {
-						const statsHTML = `
-            <div class="vc-stats-buttons">
-              <div class="vc-button-container">
-                <button class="vc-stats-button" data-type="0">show FPS</button>
-                <div class="vc-description">
-                  <span>最后一秒渲染的帧。数字越高越好</span>
-                </div>
-              </div>
-              <div class="vc-button-container">
-                <button class="vc-stats-button" data-type="1">show MS</button>
-                <div class="vc-description">
-                  <span>渲染帧所需的毫秒数。数字越低越好</span>
-                </div>
-              </div>
-              <div class="vc-button-container">
-                <button class="vc-stats-button" data-type="2">show MB</button>
-                <div class="vc-description">
-                  <span>内存分配(MB)</span>
-                  <a class="vc-link" href="https://caniuse.com/mdn-api_performance_memory" target="_blank">performance.memory兼容性查看</a>
-                  <span>Chrome启用方式: --enable-precise-memory-info</span>
-                </div>
-              </div>
-            </div>`;
+						const statsHTML = /*html*/ `
+						<div class="vc-stats-buttons">
+							<div class="vc-button-container">
+								<button class="vc-stats-button" data-type="0">show FPS</button>
+								<div class="vc-description">
+								<span>最后一秒渲染的帧。数字越高越好</span>
+								</div>
+							</div>
+							<div class="vc-button-container">
+								<button class="vc-stats-button" data-type="1">show MS</button>
+								<div class="vc-description">
+								<span>渲染帧所需的毫秒数。数字越低越好</span>
+								</div>
+							</div>
+							<div class="vc-button-container">
+								<button class="vc-stats-button" data-type="2">show MB</button>
+								<div class="vc-description">
+								<span>内存分配(MB)</span>
+								<a class="vc-link" href="https://caniuse.com/mdn-api_performance_memory" target="_blank">performance.memory兼容性查看</a>
+								<span>Chrome启用方式: --enable-precise-memory-info</span>
+								</div>
+							</div>
+						</div>`;
 						callback(statsHTML);
 					});
 
@@ -1614,26 +1941,26 @@
 					}
 					const cssNode = document.createElement("style");
 					cssNode.setAttribute("type", "text/css");
-					cssNode.innerHTML = `
-          .vc-stats-button{
-              margin: 10px 10px;
-              background-color: #fbf9fe;
-              padding: 2px 4px;
-              cursor: pointer;
-              border-radius: 4px;
-              border: 1px solid;
-          }
-          .vc-button-container{
-            display: flex;
-            align-items: center;
-          }
-          .vc-description{
-            display: flex;
-            flex-direction: column;
-          }
-          .vc-description a.vc-link{
-            color: blue;
-          }`;
+					cssNode.innerHTML = /*css*/ `
+					.vc-stats-button{
+						margin: 10px 10px;
+						background-color: #fbf9fe;
+						padding: 2px 4px;
+						cursor: pointer;
+						border-radius: 4px;
+						border: 1px solid;
+					}
+					.vc-button-container{
+						display: flex;
+						align-items: center;
+					}
+					.vc-description{
+						display: flex;
+						flex-direction: column;
+					}
+					.vc-description a.vc-link{
+						color: blue;
+					}`;
 					target.appendChild(cssNode);
 				};
 				show = () => {
@@ -1696,8 +2023,7 @@
 						console.log("[vConsole-exportlog-plugin] -- load");
 					});
 					vConsoleExportLogs.on("renderTab", (callback) => {
-						const html = `<div class="vconsole-exportlog">
-            </div>`;
+						const html = /*html*/ `<div class="vconsole-exportlog"></div>`;
 						callback(html);
 					});
 					vConsoleExportLogs.on("addTool", (callback) => {
@@ -1755,34 +2081,76 @@
 		},
 	};
 
+	/** 全局调试工具的配置 */
+	const ToolsConfig = {
+		eruda: {
+			/** 版本号 */
+			version: "3.2.1",
+			/** 项目地址 */
+			homeUrl: "https://github.com/liriliri/eruda",
+			/** 项目最新的js文件地址 */
+			latestFileUrl: "https://cdn.jsdelivr.net/npm/eruda",
+			/** 设置文档 */
+			settingDocUrl: "https://github.com/liriliri/eruda/blob/master/README.md",
+		},
+		vConsole: {
+			/** 版本号 */
+			version: "3.15.1",
+			/** 项目地址 */
+			homeUrl: "https://github.com/Tencent/vConsole",
+			/** 项目最新的js文件地址 */
+			latestFileUrl: "https://cdn.jsdelivr.net/npm/vconsole",
+			/** 设置文档 */
+			settingDocUrl:
+				"https://github.com/Tencent/vConsole/blob/dev/README_CN.md",
+		},
+		pageSpy: {
+			/** 版本号 */
+			version: "1.9.2",
+			/** 项目地址 */
+			homeUrl: "https://github.com/HuolalaTech/page-spy-web",
+			/** 项目最新的js文件地址 */
+			latestFileUrl:
+				"https://github.com/HuolalaTech/page-spy/tree/main/packages/page-spy-browser",
+			/** 设置文档 */
+			settingDocUrl:
+				"https://github.com/HuolalaTech/page-spy-web/blob/main/README_ZH.md",
+			/** 默认配置 */
+			defaultConfig: {
+				api: "test.jikejishu.com",
+				cliennOrigin: "https://test.jikejishu.com",
+			},
+		},
+		chii: {
+			/** 项目地址 */
+			homeUrl: "https://github.com/liriliri/chii",
+			/** 设置文档 */
+			settingDocUrl:
+				"https://github.com/liriliri/chii/blob/master/README_CN.md",
+			/** 默认配置 */
+			defaultConfig: {
+				url: "https://chii.liriliri.io/",
+				scriptJs: "//chii.liriliri.io/target.js",
+			},
+		},
+	};
+
 	/**
 	 * 全局调试
 	 */
-	const GlobalDebug = {
+	const Tools = {
 		$data: {
 			/** 当前的调试工具是否已执行 */
 			isLoadDebugTool: false,
 			/** 当前已执行的调试工具名 */
 			loadDebugToolName: void 0,
+			/** 当前执行了调试工具的iframe @type {string[]} */
+			iframeUrlList: [],
 		},
 		$ele: {
-			/** 隐藏调试工具的style元素 */
+			/** 隐藏调试工具的style元素 @type {HTMLStyleElement|undefined} */
 			hideDebugToolCSSNode: void 0,
 		},
-		/** eruda版本号 */
-		erudaVersion: "3.2.0",
-		/** vConsole版本号 */
-		vConsoleVersion: "3.15.1",
-		/** PageSpy版本号 */
-		pageSpyVersion: "1.9.2",
-		pageSpyDefaultApi: "test.jikejishu.com",
-		pageSpyDefaultCliennOrigin: "https://test.jikejishu.com",
-		chiiUrl: "https://chii.liriliri.io/",
-		chiiDetaultScriptJs: "//chii.liriliri.io/target.js",
-		/**
-		 * @type {string[]}
-		 */
-		iframeUrlList: [],
 		/**
 		 * 处理当在iframe内加载时，是否允许执行，如果允许，那么把url添加到菜单中
 		 */
@@ -1793,7 +2161,7 @@
 			if (!PopsPanel.getValue("allowRunInIframe")) {
 				return false;
 			}
-			this.iframeUrlList.push(window.location.href);
+			this.$data.iframeUrlList.push(window.location.href);
 			top.console.log("iframe信息：" + window.location.href);
 			GM_Menu.add({
 				key: "iframeUrl",
@@ -1866,9 +2234,9 @@
 			 * @param {UtilsGMMenuClickCallBackData} data
 			 */
 			const changeMenu = (data) => {
-				if (GlobalDebug.$data.isLoadDebugTool) {
+				if (Tools.$data.isLoadDebugTool) {
 					/* 状态：已加载 */
-					if (GlobalDebug.$ele.hideDebugToolCSSNode) {
+					if (Tools.$ele.hideDebugToolCSSNode) {
 						/* 状态：已加载且添加了隐藏CSS */
 						/* 进行移除隐藏CSS */
 						/* 菜单状态：【隐藏调试工具】 */
@@ -1909,21 +2277,21 @@
 			let cssNode = document.createElement("style");
 			cssNode.setAttribute("type", "text/css");
 			cssNode.setAttribute("data-from", "hide-debug-tool");
-			cssNode.innerHTML = `
-        #eruda{
-          display: none !important;
-        }
-        #__vconsole{
-          display: none !important;
-        }
-        #__pageSpy{
-          display: none !important;
-        }
-        .__chobitsu-hide__ > iframe,
-        .__chobitsu-hide__:has(iframe){
-          display: none !important;
-        }
-        `;
+			cssNode.innerHTML = /*css*/ `
+			#eruda{
+				display: none !important;
+			}
+			#__vconsole{
+				display: none !important;
+			}
+			#__pageSpy{
+				display: none !important;
+			}
+			.__chobitsu-hide__ > iframe,
+			.__chobitsu-hide__:has(iframe){
+				display: none !important;
+			}
+        	`;
 			return cssNode;
 		},
 		/**
@@ -1982,12 +2350,12 @@
 			if (PopsPanel.getValue("eruda-panel-snippets")) {
 				inintPanelList.push("snippets");
 			}
-			GlobalDebug.erudaVersion = Eruda.version;
+			ToolsConfig.eruda.version = Eruda.version;
 			Eruda.init({
 				tool: inintPanelList,
 			});
 			console.log(`eruda当前版本：${Eruda.version}`);
-			console.log(`eruda项目地址：https://github.com/liriliri/eruda`);
+			console.log(`eruda项目地址：${ToolsConfig.eruda.homeUrl}`);
 			console.log("eruda的全局变量名: Eruda");
 			if (PopsPanel.getValue("eruda_plugin_Resource_erudaMonitor")) {
 				try {
@@ -2142,10 +2510,10 @@
 					defaultStorages: defaultStorages,
 				},
 			});
-			GlobalDebug.vConsoleVersion = vConsole.version;
+			ToolsConfig.vConsole.version = vConsole.version;
 			unsafeWindow.vConsole = vConsole;
 			console.log(`VConsole当前版本：${vConsole.version}`);
-			console.log(`VConsole项目地址：https://github.com/Tencent/vConsole`);
+			console.log(`VConsole项目地址：${ToolsConfig.vConsole.homeUrl}`);
 			console.log("VConsole的实例化的全局变量名: vConsole");
 			if (PopsPanel.getValue("vConsole_plugin_Resource_vConsole_Stats")) {
 				try {
@@ -2191,11 +2559,11 @@
 		pageSpy() {
 			let api = PopsPanel.getValue(
 				"pagespy-api",
-				GlobalDebug.pageSpyDefaultApi
+				ToolsConfig.pageSpy.defaultConfig.api
 			);
 			let clientOrigin = PopsPanel.getValue(
 				"pagespy-clientOrigin",
-				GlobalDebug.pageSpyDefaultCliennOrigin
+				ToolsConfig.pageSpy.defaultConfig.cliennOrigin
 			);
 			if (PopsPanel.getValue("pagespy-disable-run-in-debug-client")) {
 				if (window.location.hostname.includes(api)) {
@@ -2242,7 +2610,7 @@
 			});
 			unsafeWindow.$pageSpy = $pageSpy;
 			console.log($pageSpy);
-			GlobalDebug.pageSpyVersion = unsafeWindow.$pageSpy.version;
+			ToolsConfig.pageSpy.version = unsafeWindow.$pageSpy.version;
 			console.log("PageSpy全局变量：$pageSpy");
 			utils
 				.waitPropertyByInterval(
@@ -2295,7 +2663,10 @@
 				});
 		},
 		chii() {
-			let debugUrl = PopsPanel.getValue("chii-debug-url", this.chiiUrl);
+			let debugUrl = PopsPanel.getValue(
+				"chii-debug-url",
+				ToolsConfig.chii.defaultConfig.url
+			);
 			if (
 				window.location.href.startsWith(debugUrl) &&
 				PopsPanel.getValue("chii-disable-run-in-debug-url", true)
@@ -2323,7 +2694,7 @@
 			}
 			let scriptJsUrl = PopsPanel.getValue(
 				"chii-target-js",
-				this.chiiDetaultScriptJs
+				ToolsConfig.chii.defaultConfig.scriptJs
 			);
 			let scriptEmbedded = PopsPanel.getValue("chii-script-embedded", true);
 			let scriptNode = document.createElement("script");
@@ -2337,12 +2708,12 @@
 			);
 		},
 	};
-	PopsPanel.initMenu();
-	if (GlobalDebug.handleIframe()) {
+	PopsPanel.init();
+	if (Tools.handleIframe()) {
 		if (PopsPanel.getValue("autoLoadDebugTool")) {
-			GlobalDebug.runDebugTool();
+			Tools.runDebugTool();
 		} else {
-			GlobalDebug.addControlDebugToolScriptMenu();
+			Tools.addControlDebugToolScriptMenu();
 		}
 	}
 })();
