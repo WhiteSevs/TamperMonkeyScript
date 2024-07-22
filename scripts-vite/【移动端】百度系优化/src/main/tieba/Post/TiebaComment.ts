@@ -2525,6 +2525,7 @@ const TiebaComment = {
 	async getPageCommentList(url: string) {
 		let getResp = await httpx.get({
 			url: url,
+			responseType: "json",
 			headers: {
 				Accept: "application/json, text/javascript, */*; q=0.01",
 				"User-Agent": utils.getRandomPCUA(),
@@ -2534,14 +2535,14 @@ const TiebaComment = {
 		});
 		log.info(["获取楼中楼评论", getResp]);
 		let respData = getResp.data;
-		if (getResp.status) {
-			let data = utils.toJSON(respData.responseText);
+		let data = utils.toJSON(respData.responseText);
+		if (getResp.status && data["errno"] === 0) {
 			log.success(["帖子评论信息JSON", data]);
 			return {
 				commentList: data["data"]["comment_list"],
 				userList: data["data"]["user_list"],
 			};
-		} else if (getResp.type === "onerror") {
+		} else {
 			log.error("获取楼中楼评论数据失败 👇");
 			log.error(getResp);
 		}

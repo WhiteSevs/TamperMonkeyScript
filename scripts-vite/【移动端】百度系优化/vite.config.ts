@@ -31,9 +31,7 @@ let ElementPlusUrl = await GetLib("Element-Plus");
 // https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [
-		mkcert({
-			force: true,
-		}),
+		mkcert(),
 		vue(),
 		AutoImport({
 			// 自动导入 Vue 相关函数，如：ref, reactive, toRef 等
@@ -111,7 +109,7 @@ export default defineConfig({
 			},
 			clientAlias: "ViteGM",
 			server: {
-				mountGmApi: false,
+				mountGmApi: true,
 				open: false,
 			},
 			build: {

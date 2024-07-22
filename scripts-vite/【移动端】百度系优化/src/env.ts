@@ -114,7 +114,8 @@ httpx.interceptors.response.use(void 0, (data) => {
 httpx.config({
 	logDetails: DEBUG,
 });
-
+// @ts-ignore
+unsafeWindow.httpx = httpx;
 const OriginPrototype = {
 	Object: {
 		defineProperty: unsafeWindow.Object.defineProperty,
