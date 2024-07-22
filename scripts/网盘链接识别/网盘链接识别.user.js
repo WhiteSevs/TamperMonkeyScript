@@ -88,25 +88,23 @@
 
 (function () {
 	if (typeof unsafeWindow === "undefined") {
-		if (
-			typeof globalThis.unsafeWindow !== "undefined" &&
-			globalThis.unsafeWindow != null
-		) {
-			var unsafeWindow = globalThis.unsafeWindow;
-		} else {
-			var unsafeWindow = globalThis || window || self;
-		}
+		var unsafeWindow =
+			globalThis.unsafeWindow ||
+			window.unsafeWindow ||
+			globalThis ||
+			window ||
+			self;
 	}
-	/** @type {import("../库/CryptoJS/index")} */
+	/** @type {import("lib/CryptoJS/index")} */
 	const Cryptojs = CryptoJS ?? window.CryptoJS ?? unsafeWindow.CryptoJS;
-	/** @type {import("../库/Qmsg/index").default} */
+	/** @type {import("qmsg").default} */
 	const Qmsg = window.Qmsg;
-	/** @type {import("../库/pops/index")} */
+	/** @type {import("@whitesev/pops").default} */
 	const pops = window.pops;
 	const AnyTouch = pops.config.Utils.AnyTouch();
-	/** @type {import("../库/Utils/index").default} */
+	/** @type {import("@whitesev/utils").default} */
 	const utils = window.Utils.noConflict();
-	/** @type {import("../库/DOMUtils/index").default} */
+	/** @type {import("@whitesev/domutils").default} */
 	const DOMUtils = window.DOMUtils.noConflict();
 	const log = new utils.Log(GM_info, unsafeWindow.console || console);
 	const httpx = new utils.Httpx(GM_xmlhttpRequest);
@@ -255,12 +253,12 @@
 		isInit: false,
 		/**
 		 * 链接字典，识别规则->识别到的访问码|分享码|下标
-		 * @type {UtilsDictionaryConstructor<string,UtilsDictionaryConstructor<string,NetDiskDictData>>}
+		 * @type {import("@whitesev/utils/dist/src/Dictionary").UtilsDictionary<string,import("@whitesev/utils/dist/src/Dictionary").UtilsDictionary<string,NetDiskDictData>>}
 		 */
 		linkDict: void 0,
 		/**
 		 * （临时）链接字典
-		 * @type {UtilsDictionaryConstructor<string,UtilsDictionaryConstructor<string,NetiDiskHandleObject>>}
+		 * @type {import("@whitesev/utils/dist/src/Dictionary").UtilsDictionary<string,import("@whitesev/utils/dist/src/Dictionary").UtilsDictionary<string,NetiDiskHandleObject>>}
 		 */
 		tempLinkDict: void 0,
 		/**
@@ -3680,7 +3678,7 @@
 						let folder = json_data["text"];
 						/**
 						 * 弹出内容
-						 * @type {PopsFolderDataConfig[]}
+						 * @type {import("@whitesev/pops/dist/types/src/components/folder/indexType").PopsFolderDataConfig[]}
 						 */
 						let folderList = [];
 						log.info(`本链接一共${folder.length}个文件`);
@@ -4053,7 +4051,7 @@
 					let folderInfoList = [];
 					let tempFolderInfoList = [];
 					/**
-					 * @type {PopsFolderDataConfig[]}
+					 * @type {import("@whitesev/pops/dist/types/src/components/folder/indexType").PopsFolderDataConfig[]}
 					 */
 					let tempFolderFileInfoList = [];
 					infoList.forEach((item) => {
@@ -4771,7 +4769,7 @@
 					index = 0
 				) {
 					/**
-					 * @type {PopsFolderDataConfig[]}
+					 * @type {import("@whitesev/pops/dist/types/src/components/folder/indexType").PopsFolderDataConfig[]}
 					 */
 					let folderInfoList = [];
 					let tempFolderInfoList = [];
@@ -11939,7 +11937,7 @@
 						/* Scheme转发直链 */
 						if (item.isForward) {
 							/**
-							 * @type {PopsPanelFormsTotalDetails[]}
+							 * @type {import("@whitesev/pops/dist/types/src/components/panel/indexType").PopsPanelFormsTotalDetails[]}
 							 */
 							let functionFormsList = [
 								{
