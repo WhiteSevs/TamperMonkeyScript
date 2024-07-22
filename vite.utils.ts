@@ -388,8 +388,8 @@ export async function GetLib(
 		throw new TypeError("libName must be string or string[]");
 	}
 	const ResourceList: string[] = [];
-	if (process.env.NODE_ENV === "development") {
-		// if(false){
+	// if (process.env.NODE_ENV === "development") {
+	if (false) {
 		for (const needLibName of needLib) {
 			let item = LIB_MAP[needLibName];
 			if (item) {

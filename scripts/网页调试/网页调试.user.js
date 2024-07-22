@@ -206,6 +206,20 @@
 			}
 		},
 		/**
+		 * 设置值
+		 * @param key 键
+		 * @param value 值
+		 */
+		setValue(key, value) {
+			let locaData = GM_getValue(this.$data.key, {});
+			let oldValue = locaData[key];
+			locaData[key] = value;
+			GM_setValue(this.$data.key, locaData);
+			if (this.$listener.listenData.has(key)) {
+				this.$listener.listenData.get(key).callback(key, oldValue, value);
+			}
+		},
+		/**
 		 * 获取值
 		 * @param key 键
 		 * @param defaultValue 默认值
