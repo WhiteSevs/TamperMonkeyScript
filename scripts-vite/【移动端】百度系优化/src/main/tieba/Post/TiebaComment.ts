@@ -2863,12 +2863,18 @@ const TiebaComment = {
 				// 倒序排列
 				comments.reverse();
 			}
-			comments.forEach((element) => {
-				TiebaComment.insertNewCommentInnerElement(
-					TiebaComment.getNewCommentInnerElement(element, pageCommentList)
-				);
-				TiebaComment.floor_num++;
-			});
+			if (comments.length) {
+				comments.forEach((element) => {
+					let $newComment = TiebaComment.getNewCommentInnerElement(
+						element,
+						pageCommentList
+					);
+					TiebaComment.insertNewCommentInnerElement($newComment);
+					TiebaComment.floor_num++;
+				});
+			} else {
+				log.warn(tag + "解析出的评论列表是空的");
+			}
 			loadingView.hide();
 		}
 		log.info(

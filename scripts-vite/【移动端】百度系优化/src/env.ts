@@ -114,8 +114,7 @@ httpx.interceptors.response.use(void 0, (data) => {
 httpx.config({
 	logDetails: DEBUG,
 });
-// @ts-ignore
-unsafeWindow.httpx = httpx;
+
 const OriginPrototype = {
 	Object: {
 		defineProperty: unsafeWindow.Object.defineProperty,
@@ -174,6 +173,15 @@ const MountVue = async function (targetApp: any, plugin: any[] = []) {
 		CommonUtils.setGMResourceCSS(GM_RESOURCE_MAP.ElementPlus);
 	}
 };
+
+// 开发测试使用
+if (import.meta.env.DEV) {
+	// @ts-ignore
+	unsafeWindow.httpx = httpx;
+	httpx.config({
+		logDetails: true,
+	});
+}
 
 export {
 	utils,
