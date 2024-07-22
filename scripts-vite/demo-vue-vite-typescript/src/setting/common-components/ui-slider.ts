@@ -13,7 +13,7 @@ import { PopsPanel } from "../setting";
  * @param getToolTipContent （可选）获取tooltip内容
  * @param description （可选）左边的文字下面的描述
  */
-const UISlider = function (
+export const UISlider = function (
 	text: string,
 	key: string,
 	defaultValue: number,
@@ -58,5 +58,3 @@ const UISlider = function (
 	}
 	return result;
 };
-
-export { UISlider };

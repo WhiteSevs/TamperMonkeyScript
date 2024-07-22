@@ -14,7 +14,7 @@ import { PopsPanelInputDetails } from "@whitesev/pops/dist/types/src/components/
  * @param isPassword 是否是密码框
  * @returns
  */
-const UIInput = function (
+export const UIInput = function (
 	text: string,
 	key: string,
 	defaultValue: string,
@@ -57,5 +57,3 @@ const UIInput = function (
 	}
 	return result;
 };
-
-export { UIInput };

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Demo Script Name
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.20
+// @version      2024.7.22
 // @author       WhiteSevs
 // @description
 // @license      GPL-3.0-only
@@ -390,41 +390,39 @@
       }
     ]
   };
-  const __PopsPanel__ = {
-    data: null,
-    oneSuccessExecMenu: null,
-    onceExec: null,
-    listenData: null
-  };
   const PopsPanel = {
     /** 数据 */
     $data: {
+      __data: null,
+      __oneSuccessExecMenu: null,
+      __onceExec: null,
+      __listenData: null,
       /**
        * 菜单项的默认值
        */
       get data() {
-        if (__PopsPanel__.data == null) {
-          __PopsPanel__.data = new utils.Dictionary();
+        if (PopsPanel.$data.__data == null) {
+          PopsPanel.$data.__data = new utils.Dictionary();
         }
-        return __PopsPanel__.data;
+        return PopsPanel.$data.__data;
       },
       /**
        * 成功只执行了一次的项
        */
       get oneSuccessExecMenu() {
-        if (__PopsPanel__.oneSuccessExecMenu == null) {
-          __PopsPanel__.oneSuccessExecMenu = new utils.Dictionary();
+        if (PopsPanel.$data.__oneSuccessExecMenu == null) {
+          PopsPanel.$data.__oneSuccessExecMenu = new utils.Dictionary();
         }
-        return __PopsPanel__.oneSuccessExecMenu;
+        return PopsPanel.$data.__oneSuccessExecMenu;
       },
       /**
        * 成功只执行了一次的项
        */
       get onceExec() {
-        if (__PopsPanel__.onceExec == null) {
-          __PopsPanel__.onceExec = new utils.Dictionary();
+        if (PopsPanel.$data.__onceExec == null) {
+          PopsPanel.$data.__onceExec = new utils.Dictionary();
         }
-        return __PopsPanel__.onceExec;
+        return PopsPanel.$data.__onceExec;
       },
       /** 脚本名，一般用在设置的标题上 */
       get scriptName() {
@@ -443,16 +441,17 @@
        * 值改变的监听器
        */
       get listenData() {
-        if (__PopsPanel__.listenData == null) {
-          __PopsPanel__.listenData = new utils.Dictionary();
+        if (PopsPanel.$data.__listenData == null) {
+          PopsPanel.$data.__listenData = new utils.Dictionary();
         }
-        return __PopsPanel__.listenData;
+        return PopsPanel.$data.__listenData;
       }
     },
     init() {
       this.initPanelDefaultValue();
       this.initExtensionsMenu();
     },
+    /** 初始化进行注册油猴菜单 */
     initExtensionsMenu() {
       if (_unsafeWindow.top !== _unsafeWindow.self) {
         return;
@@ -472,7 +471,7 @@
         }
       ]);
     },
-    /** 初始化本地设置默认的值 */
+    /** 初始化菜单项的默认值保存到本地数据中 */
     initPanelDefaultValue() {
       let that = this;
       function initDefaultValue(config) {
@@ -604,8 +603,9 @@
      * 自动判断菜单是否启用，然后执行回调
      * @param key
      * @param callback 回调
+     * @param [isReverse=false] 逆反判断菜单启用
      */
-    execMenu(key, callback) {
+    execMenu(key, callback, isReverse = false) {
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
@@ -614,6 +614,9 @@
         return;
       }
       let value = PopsPanel.getValue(key);
+      if (isReverse) {
+        value = !value;
+      }
       if (value) {
         callback(value);
       }
@@ -622,8 +625,9 @@
      * 自动判断菜单是否启用，然后执行回调，只会执行一次
      * @param key
      * @param callback 回调
+     * @param [isReverse=false] 逆反判断菜单启用
      */
-    execMenuOnce(key, callback) {
+    execMenuOnce(key, callback, isReverse = false) {
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
@@ -665,17 +669,23 @@
       this.addValueChangeListener(
         key,
         (__key, oldValue, newValue) => {
+          if (isReverse) {
+            newValue = !newValue;
+          }
           changeCallBack(newValue);
         }
       );
       let value = PopsPanel.getValue(key);
+      if (isReverse) {
+        value = !value;
+      }
       if (value) {
         changeCallBack(value);
       }
     },
     /**
-     * 根据key执行一次
-     * @param key
+     * 根据自定义key只执行一次
+     * @param key 自定义key
      */
     onceExec(key, callback) {
       if (typeof key !== "string") {
@@ -713,14 +723,17 @@
         only: true
       });
     },
+    /**
+     * 判断是否是移动端
+     */
     isMobile() {
-      return window.outerWidth < 550;
+      return window.innerWidth < 550;
     },
     /**
      * 获取设置面板的宽度
      */
     getWidth() {
-      if (window.outerWidth < 550) {
+      if (window.innerWidth < 550) {
         return "92vw";
       } else {
         return "550px";
@@ -730,7 +743,7 @@
      * 获取设置面板的高度
      */
     getHeight() {
-      if (window.outerHeight > 450) {
+      if (window.innerHeight > 450) {
         return "80vh";
       } else {
         return "450px";

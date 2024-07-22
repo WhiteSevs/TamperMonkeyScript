@@ -14,7 +14,7 @@ import { PopsIcon } from "@whitesev/pops/dist/types/src/types/icon";
  * @param clickCallBack 点击回调
  * @returns
  */
-const UIButton = function (
+export const UIButton = function (
 	text: string,
 	description: string | undefined,
 	buttonText: string | (() => string),
@@ -42,5 +42,3 @@ const UIButton = function (
 	};
 	return result;
 };
-
-export { UIButton };

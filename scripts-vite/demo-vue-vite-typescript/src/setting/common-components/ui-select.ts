@@ -12,7 +12,7 @@ import { PopsPanelSelectDetails } from "@whitesev/pops/dist/types/src/components
  * @param description 左边的文字下面的描述
  * @returns
  */
-const UISelect = function <T extends any>(
+export const UISelect = function <T extends any>(
 	text: string,
 	key: string,
 	defaultValue: T,
@@ -66,5 +66,3 @@ const UISelect = function <T extends any>(
 	}
 	return result;
 };
-
-export { UISelect };
