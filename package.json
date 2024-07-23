@@ -19,28 +19,28 @@
 		"@types/md5": "^2.3.5",
 		"@whitesev/domutils": "^1.1.2",
 		"@whitesev/pops": "^1.4.0",
-		"@whitesev/utils": "^1.9.2",
+		"@whitesev/utils": "^1.9.3",
 		"i18next": "^23.12.2",
 		"md5": "^2.3.0",
 		"pinia": "^2.1.7",
 		"qmsg": "^1.2.1",
 		"viewerjs": "^1.11.6",
 		"vue": "^3.4.33",
-		"vue-demi": "^0.14.8",
+		"vue-demi": "^0.14.9",
 		"vue-router": "^4.4.0"
 	},
 	"devDependencies": {
 		"@types/node": "^20.14.11",
 		"@vitejs/plugin-vue": "^5.0.5",
 		"element-plus": "^2.7.7",
-		"typescript": "^5.5.3",
-		"unplugin-auto-import": "^0.18.0",
+		"typescript": "^5.5.4",
+		"unplugin-auto-import": "^0.18.1",
 		"unplugin-element-plus": "^0.8.0",
 		"unplugin-icons": "^0.19.0",
 		"unplugin-vue-components": "^0.27.3",
 		"vite": "^5.3.4",
 		"vite-plugin-mkcert": "^1.17.5",
-		"vite-plugin-monkey": "4.0.4",
-		"vue-tsc": "^2.0.26"
+		"vite-plugin-monkey": "4.0.6",
+		"vue-tsc": "^2.0.28"
 	}
 }
