@@ -1,6 +1,6 @@
 import { httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
-import { Api_getPdData } from "../apiType/TiebaPostApiType";
+import { Api_getPdData } from "../types/TiebaPostApiType";
 
 interface TiebaPostApubthreadDetails {
 	/**

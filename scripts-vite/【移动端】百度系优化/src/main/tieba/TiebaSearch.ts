@@ -1,11 +1,10 @@
 import { DOMUtils, addStyle, httpx, log, pops, utils } from "@/env";
-import { TiebaComment } from "./Post/TiebaComment";
 import { PopsPanel } from "@/setting/setting";
 import { TieBaApi, TiebaUrlApi } from "./api/TiebaApi";
-import { TiebaData } from "./Home/data";
 import { LoadingView } from "@/utils/LoadingView";
 import { TiebaCore } from "./TiebaCore";
 import Qmsg from "qmsg";
+import { TiebaBaNei } from "./BaNei/TiebaBaNei";
 
 interface SearchResultInfo {
 	url: string;
@@ -244,6 +243,10 @@ const TiebaSearch = {
 	},
 	$ele: {
 		/**
+		 * 页面重构后的搜索按钮
+		 */
+		$moreBtnDesc: null as any as HTMLDivElement,
+		/**
 		 * 搜索的容器
 		 */
 		$searchContainer: null as any as HTMLDivElement,
@@ -313,7 +316,7 @@ const TiebaSearch = {
 				</div>
 				<div class="search-result">
 					<div class="search-result-model" style="display: none;">
-						<div class="search-result-model-item" data-model="1" data-active="true">新帖在前</div>
+						<div class="search-result-model-item" data-model="1">新帖在前</div>
 						<div class="search-result-model-item" data-model="0">旧帖在前</div>
 						<div class="search-result-model-item" data-model="2">只看相关</div>
 						<div class="search-result-model-item" data-model="3">只看主题</div>
@@ -366,10 +369,17 @@ const TiebaSearch = {
 			this.$ele.$searchResultContainer.appendChild(
 				this.$context.loading.getLoadingViewElement()
 			);
+			// 设置搜索结果项
+			let $searchResultModelItem = this.$ele.$searchResultModel.querySelector(
+				`.search-result-model-item[data-model="${this.$data.searchModel}"]`
+			);
+			if ($searchResultModelItem) {
+				$searchResultModelItem.setAttribute("data-active", "true");
+			}
 			this, this.$context.loading.hide();
 			/* 用于判断是否已设置点击事件 */
 			let searchParams = new URLSearchParams(window.location.search);
-			let $moreBtnDesc = document.querySelector(
+			this.$ele.$moreBtnDesc = document.querySelector(
 				".more-btn-desc"
 			) as HTMLDivElement;
 			if (
@@ -377,14 +387,14 @@ const TiebaSearch = {
 				utils.isNotNull(searchParams.get("kw"))
 			) {
 				/* 吧内 -> 搜索帖子 */
-				DOMUtils.on($moreBtnDesc, "click", () => {
+				DOMUtils.on(this.$ele.$moreBtnDesc, "click", () => {
 					this.enterSeachMode();
 				});
 			} else if (
 				window.location.href.startsWith("https://tieba.baidu.com/p/")
 			) {
 				/* 帖子 -> 搜索帖子 */
-				DOMUtils.on($moreBtnDesc, "click", () => {
+				DOMUtils.on(this.$ele.$moreBtnDesc, "click", () => {
 					this.enterSeachMode();
 				});
 			} else {
@@ -453,6 +463,10 @@ const TiebaSearch = {
 					this.postsPageSearch();
 				}
 			);
+
+			PopsPanel.execMenuOnce("baidu_tieba-execByUrlSearchParams", () => {
+				this.execByUrlSearchParams();
+			});
 		});
 	},
 	addCSS() {
@@ -1221,6 +1235,61 @@ const TiebaSearch = {
 		} else {
 			log.error("搜索结果就1页，不设置scroll监听");
 		}
+	},
+
+	/**
+	 * 提供对外的搜索链接
+	 *
+	 * 判断方式为location.search中包含查询关键字gmsearch
+	 */
+	execByUrlSearchParams() {
+		let searchParams = new URLSearchParams(window.location.search);
+		// 获取查询关键字
+		const KEY_searchText = "gmsearch";
+		// 搜素类型关键字
+		const KEY_searchType = "gmsearchtype";
+		// 搜素结果类型
+		const KEY_searchModel = "gmsearchmodel";
+		if (!searchParams.has(KEY_searchText)) {
+			return;
+		}
+		// 获取查询内容
+		let searchText = searchParams.get(KEY_searchText)!;
+		log.info("存在搜索接口，查询内容：" + searchText);
+		this.$ele.$searchInput.value = searchText;
+		if (searchParams.has(KEY_searchType)) {
+			// 获取搜素类型
+			let searchType = searchParams.get(KEY_searchType)!;
+			if (["0", "1"].includes(searchType)) {
+				this.$ele.$select.selectedIndex = parseInt(searchType);
+				utils.dispatchEvent(this.$ele.$select, "change");
+			} else {
+				log.error(`未知searchParams的 ${KEY_searchType} 参数值：${searchType}`);
+			}
+		}
+		if (searchParams.has(KEY_searchModel)) {
+			// 获取搜素结果类型
+			let searchModel = searchParams.get(KEY_searchModel)!;
+			if (["0", "1", "2", "3"].includes(searchModel)) {
+				this.$data.searchModel = parseInt(searchModel);
+				// 设置搜索结果项
+				let $searchResultModelItem = this.$ele.$searchResultModel.querySelector(
+					`.search-result-model-item[data-model="${this.$data.searchModel}"]`
+				);
+				if ($searchResultModelItem) {
+					this.$ele.$searchResultModel
+						.querySelectorAll(".search-result-model-item")
+						.forEach((ele) => ele.removeAttribute("data-active"));
+					$searchResultModelItem.setAttribute("data-active", "true");
+				}
+			} else {
+				log.error(
+					`未知searchParams的 ${KEY_searchModel} 参数值：${searchModel}`
+				);
+			}
+		}
+		this.$ele.$moreBtnDesc.click();
+		this.$ele.$searchBtn.click();
 	},
 };
 

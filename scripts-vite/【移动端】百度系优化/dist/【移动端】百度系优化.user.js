@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.22.17
+// @version      2024.7.23
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -13,13 +13,13 @@
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/488179/1413254/showdown.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.4.33/dist/vue.global.prod.js
-// @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.8/lib/index.iife.min.js
+// @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.9/lib/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/pinia@2.1.7/dist/pinia.iife.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-router@4.4.0/dist/vue-router.global.js
 // @require      https://update.greasyfork.org/scripts/495227/1413261/Element-Plus.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.9.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.9.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.4.0/dist/index.umd.js
@@ -2303,6 +2303,24 @@ match-attr##srcid##sp_purc_atom
                     false,
                     void 0,
                     "使用贴吧移动端的搜索功能"
+                  ),
+                  UISwitch(
+                    "地址参数识别",
+                    "baidu_tieba-execByUrlSearchParams",
+                    false,
+                    (event, value) => {
+                      if (!value) {
+                        return;
+                      }
+                      let url = "https://greasyfork.org/zh-CN/scripts/418349-%E7%A7%BB%E5%8A%A8%E7%AB%AF-%E7%99%BE%E5%BA%A6%E7%B3%BB%E4%BC%98%E5%8C%96/discussions/252534";
+                      let isOk = globalThis.confirm(
+                        "帮助文档↓ 点击确定自动打开文档地址↓\n" + url
+                      );
+                      if (isOk) {
+                        window.open(url, "_blank");
+                      }
+                    },
+                    "开启后可在特定Url执行搜索功能"
                   )
                 ]
               }
@@ -7027,25 +7045,27 @@ div[class^="new-summary-container_"] {\r
      * 屏蔽广告
      */
     blockAds() {
-      CommonUtils.addBlockCSS(
-        /* 顶部横幅 */
-        ".tb-index-navbar .fix-nav-guide-bar",
-        /* 底部的百度贴吧app内打开 */
-        ".tb-index-navbar div:has(.fix-nav-bar-bottom)"
-      );
-      addStyle(
-        /*css*/
-        `
-          /* 把下面的内容往上移 */
-          #app_container ul.navbar-box{
-            top: 0px !important;
-          }
-          /* 把下面的内容往上移 */
-          #app_container .navbar-view{
-            padding-top: 0px !important;
-          } 
-		  `
-      );
+      return [
+        CommonUtils.addBlockCSS(
+          /* 顶部横幅 */
+          ".tb-index-navbar .fix-nav-guide-bar",
+          /* 底部的百度贴吧app内打开 */
+          ".tb-index-navbar div:has(.fix-nav-bar-bottom)"
+        ),
+        addStyle(
+          /*css*/
+          `
+			/* 把下面的内容往上移 */
+			#app_container ul.navbar-box{
+				top: 0px !important;
+			}
+			/* 把下面的内容往上移 */
+			#app_container .navbar-view{
+				padding-top: 0px !important;
+			} 
+		  	`
+        )
+      ];
     },
     /**
      * 新标签页打开
@@ -7079,16 +7099,16 @@ div[class^="new-summary-container_"] {\r
     vueRootView: null,
     init() {
       PopsPanel.execMenu("baidu_tieba_openANewTab", () => {
-        TiebaBaNei.openANewTab();
+        this.openANewTab();
       });
       PopsPanel.execMenu("baidu_tieba_remember_user_post_sort", () => {
-        TiebaBaNei.rememberPostSort();
+        this.rememberPostSort();
       });
       PopsPanel.execMenu("baidu_tieba_filterDuplicatePosts", () => {
-        TiebaBaNei.filterDuplicatePosts();
+        this.filterDuplicatePosts();
       });
       PopsPanel.execMenu("baidu_tieba_removeForumSignInLimit", () => {
-        TiebaBaNei.removeForumSignInLimit();
+        this.removeForumSignInLimit();
       });
     },
     /**
@@ -7692,6 +7712,10 @@ div[class^="new-summary-container_"] {\r
     },
     $ele: {
       /**
+       * 页面重构后的搜索按钮
+       */
+      $moreBtnDesc: null,
+      /**
        * 搜索的容器
        */
       $searchContainer: null,
@@ -7763,7 +7787,7 @@ div[class^="new-summary-container_"] {\r
 				</div>
 				<div class="search-result">
 					<div class="search-result-model" style="display: none;">
-						<div class="search-result-model-item" data-model="1" data-active="true">新帖在前</div>
+						<div class="search-result-model-item" data-model="1">新帖在前</div>
 						<div class="search-result-model-item" data-model="0">旧帖在前</div>
 						<div class="search-result-model-item" data-model="2">只看相关</div>
 						<div class="search-result-model-item" data-model="3">只看主题</div>
@@ -7814,17 +7838,23 @@ div[class^="new-summary-container_"] {\r
         this.$ele.$searchResultContainer.appendChild(
           this.$context.loading.getLoadingViewElement()
         );
+        let $searchResultModelItem = this.$ele.$searchResultModel.querySelector(
+          `.search-result-model-item[data-model="${this.$data.searchModel}"]`
+        );
+        if ($searchResultModelItem) {
+          $searchResultModelItem.setAttribute("data-active", "true");
+        }
         this.$context.loading.hide();
         let searchParams = new URLSearchParams(window.location.search);
-        let $moreBtnDesc = document.querySelector(
+        this.$ele.$moreBtnDesc = document.querySelector(
           ".more-btn-desc"
         );
         if (window.location.pathname === "/f" && utils.isNotNull(searchParams.get("kw"))) {
-          domutils.on($moreBtnDesc, "click", () => {
+          domutils.on(this.$ele.$moreBtnDesc, "click", () => {
             this.enterSeachMode();
           });
         } else if (window.location.href.startsWith("https://tieba.baidu.com/p/")) {
-          domutils.on($moreBtnDesc, "click", () => {
+          domutils.on(this.$ele.$moreBtnDesc, "click", () => {
             this.enterSeachMode();
           });
         } else {
@@ -7882,6 +7912,9 @@ div[class^="new-summary-container_"] {\r
             this.postsPageSearch();
           }
         );
+        PopsPanel.execMenuOnce("baidu_tieba-execByUrlSearchParams", () => {
+          this.execByUrlSearchParams();
+        });
       });
     },
     addCSS() {
@@ -8602,6 +8635,51 @@ div[class^="new-summary-container_"] {\r
       } else {
         log.error("搜索结果就1页，不设置scroll监听");
       }
+    },
+    /**
+     * 提供对外的搜索链接
+     *
+     * 判断方式为location.search中包含查询关键字gmsearch
+     */
+    execByUrlSearchParams() {
+      let searchParams = new URLSearchParams(window.location.search);
+      const KEY_searchText = "gmsearch";
+      const KEY_searchType = "gmsearchtype";
+      const KEY_searchModel = "gmsearchmodel";
+      if (!searchParams.has(KEY_searchText)) {
+        return;
+      }
+      let searchText = searchParams.get(KEY_searchText);
+      log.info("存在搜索接口，查询内容：" + searchText);
+      this.$ele.$searchInput.value = searchText;
+      if (searchParams.has(KEY_searchType)) {
+        let searchType = searchParams.get(KEY_searchType);
+        if (["0", "1"].includes(searchType)) {
+          this.$ele.$select.selectedIndex = parseInt(searchType);
+          utils.dispatchEvent(this.$ele.$select, "change");
+        } else {
+          log.error(`未知searchParams的 ${KEY_searchType} 参数值：${searchType}`);
+        }
+      }
+      if (searchParams.has(KEY_searchModel)) {
+        let searchModel = searchParams.get(KEY_searchModel);
+        if (["0", "1", "2", "3"].includes(searchModel)) {
+          this.$data.searchModel = parseInt(searchModel);
+          let $searchResultModelItem = this.$ele.$searchResultModel.querySelector(
+            `.search-result-model-item[data-model="${this.$data.searchModel}"]`
+          );
+          if ($searchResultModelItem) {
+            this.$ele.$searchResultModel.querySelectorAll(".search-result-model-item").forEach((ele) => ele.removeAttribute("data-active"));
+            $searchResultModelItem.setAttribute("data-active", "true");
+          }
+        } else {
+          log.error(
+            `未知searchParams的 ${KEY_searchModel} 参数值：${searchModel}`
+          );
+        }
+      }
+      this.$ele.$moreBtnDesc.click();
+      this.$ele.$searchBtn.click();
     }
   };
   const TiebaData = {

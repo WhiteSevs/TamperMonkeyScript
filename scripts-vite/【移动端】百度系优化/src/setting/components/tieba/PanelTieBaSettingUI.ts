@@ -398,6 +398,25 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 									void 0,
 									"使用贴吧移动端的搜索功能"
 								),
+								UISwitch(
+									"地址参数识别",
+									"baidu_tieba-execByUrlSearchParams",
+									false,
+									(event, value) => {
+										if (!value) {
+											return;
+										}
+										let url =
+											"https://greasyfork.org/zh-CN/scripts/418349-%E7%A7%BB%E5%8A%A8%E7%AB%AF-%E7%99%BE%E5%BA%A6%E7%B3%BB%E4%BC%98%E5%8C%96/discussions/252534";
+										let isOk = globalThis.confirm(
+											"帮助文档↓ 点击确定自动打开文档地址↓\n" + url
+										);
+										if (isOk) {
+											window.open(url, "_blank");
+										}
+									},
+									"开启后可在特定Url执行搜索功能"
+								),
 							],
 						},
 					],

@@ -51,16 +51,16 @@ const TiebaBaNei = {
 	vueRootView: null as unknown as Vue2Context,
 	init() {
 		PopsPanel.execMenu("baidu_tieba_openANewTab", () => {
-			TiebaBaNei.openANewTab();
+			this.openANewTab();
 		});
 		PopsPanel.execMenu("baidu_tieba_remember_user_post_sort", () => {
-			TiebaBaNei.rememberPostSort();
+			this.rememberPostSort();
 		});
 		PopsPanel.execMenu("baidu_tieba_filterDuplicatePosts", () => {
-			TiebaBaNei.filterDuplicatePosts();
+			this.filterDuplicatePosts();
 		});
 		PopsPanel.execMenu("baidu_tieba_removeForumSignInLimit", () => {
-			TiebaBaNei.removeForumSignInLimit();
+			this.removeForumSignInLimit();
 		});
 	},
 	/**
