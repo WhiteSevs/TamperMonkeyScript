@@ -1,16 +1,23 @@
 import { Utils } from "./Utils";
 
-class UtilsDictionary<K extends PropertyKey, V extends any> {
-	#items: {
-		[key: PropertyKey]: V;
+class UtilsDictionary<K, V> {
+	private items: {
+		// @ts-ignore
+		[key: K]: V;
 	} = {};
-	constructor() {}
+	constructor();
+	constructor(key: K, value: V);
+	constructor(key?: K, value?: V) {
+		if (key != null) {
+			this.set(key, value!);
+		}
+	}
 	/**
 	 * 检查是否有某一个键
 	 * @param key 键
 	 */
 	has(key: K): boolean {
-		return this.#items.hasOwnProperty(key as PropertyKey);
+		return Reflect.has(this.items, key as PropertyKey);
 	}
 	/**
 	 * 检查已有的键中是否以xx开头
@@ -19,7 +26,7 @@ class UtilsDictionary<K extends PropertyKey, V extends any> {
 	startsWith(key: K): boolean {
 		let allKeys = this.keys();
 		for (const keyName of allKeys) {
-			if (keyName.startsWith(key as string)) {
+			if (String(keyName).startsWith(String(key))) {
 				return true;
 			}
 		}
@@ -29,12 +36,12 @@ class UtilsDictionary<K extends PropertyKey, V extends any> {
 	 * 获取以xx开头的键的值
 	 * @param key 需要匹配的键
 	 */
-	getStartsWith(key: K): V {
+	getStartsWith(key: K): V | undefined {
 		let allKeys = this.keys();
-		let result = null;
+		let result: V | undefined = void 0;
 		for (const keyName of allKeys) {
-			if (keyName.startsWith(key as string)) {
-				result = (this.#items as any)[keyName];
+			if (String(keyName).startsWith(String(key))) {
+				result = this.get(keyName as K)!;
 				break;
 			}
 		}
@@ -49,7 +56,7 @@ class UtilsDictionary<K extends PropertyKey, V extends any> {
 		if (key === void 0) {
 			throw new Error("Utils.Dictionary().set 参数 key 不能为空");
 		}
-		(this.#items as any)[key] = val;
+		Reflect.set(this.items, key as PropertyKey, val);
 	}
 	/**
 	 * 删除某一个键
@@ -57,26 +64,27 @@ class UtilsDictionary<K extends PropertyKey, V extends any> {
 	 */
 	delete(key: K): boolean {
 		if (this.has(key)) {
-			Reflect.deleteProperty(this.#items, key as string);
-			return true;
+			return Reflect.deleteProperty(this.items, key as string);
 		}
 		return false;
 	}
 	/**
 	 * 获取某个键的值
+	 * https://github.com/microsoft/TypeScript/issues/9619
+	 * 微软到现在都没有修复has和get的联动
 	 * @param key 键
 	 */
-	get(key: K) {
-		return this.has(key) ? this.getItems()[key] : void 0;
+	get(key: K): V {
+		return Reflect.get(this.items, key as PropertyKey) as V;
 	}
 	/**
 	 * 返回字典中的所有值
 	 */
-	values() {
+	values(): V[] {
 		let resultList: V[] = [];
 		for (let prop in this.getItems()) {
 			if (this.has(prop as K)) {
-				resultList.push(this.getItems()[prop]);
+				resultList.push(this.get(prop as K)!);
 			}
 		}
 		return resultList;
@@ -85,33 +93,34 @@ class UtilsDictionary<K extends PropertyKey, V extends any> {
 	 * 清空字典
 	 */
 	clear() {
-		this.#items = void 0 as any;
-		this.#items = {};
+		this.items = null as any;
+		this.items = {};
 	}
 	/**
 	 * 获取字典的长度
 	 */
-	size() {
+	size(): number {
 		return Object.keys(this.getItems()).length;
 	}
 	/**
 	 * 获取字典所有的键
 	 */
-	keys() {
-		return Object.keys(this.getItems());
+	keys(): (string | symbol)[] {
+		return Reflect.ownKeys(this.items);
 	}
 	/**
 	 * 返回字典本身
 	 */
-	getItems() {
-		return this.#items;
+	getItems(): UtilsDictionary<K, V> {
+		// @ts-ignore
+		return this.items;
 	}
 	/**
 	 * 合并另一个字典
 	 * @param data 需要合并的字典
 	 */
 	concat(data: UtilsDictionary<K, V>) {
-		this.#items = Utils.assign(this.#items, data.getItems());
+		this.items = Utils.assign(this.items, data.getItems());
 	}
 	forEach(
 		callbackfn: (value: V, key: K, dictionary: UtilsDictionary<K, V>) => void
