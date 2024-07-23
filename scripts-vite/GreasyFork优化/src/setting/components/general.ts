@@ -11,6 +11,8 @@ import { UISelect } from "../common-components/ui-select";
 import { DOMUtils, log, utils } from "@/env";
 import { GreasyforkScriptsFilter } from "@/main/navigator/scripts/GreasyforkScriptsFilter";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { UIButtonShortCut } from "../common-components/ui-button-shortcut";
+import { GreasyforkShortCut } from "@/main/GreasyforkShortCut";
 
 const SettingUIGeneral: PopsPanelContentConfig = {
 	id: "greasy-fork-panel-config-account",
@@ -438,7 +440,6 @@ const SettingUIGeneral: PopsPanelContentConfig = {
 						},
 					],
 				},
-
 				{
 					text: i18next.t("美化"),
 					type: "deepMenu",
@@ -476,6 +477,33 @@ const SettingUIGeneral: PopsPanelContentConfig = {
 									i18next.t(
 										'需安装Greasyfork Beautify脚本，<a href="https://greasyfork.org/zh-CN/scripts/446849-greasyfork-beautify" target="_blank">🖐点我安装</a>'
 									)
+								),
+							],
+						},
+					],
+				},
+				{
+					type: "deepMenu",
+					text: i18next.t("自定义快捷键"),
+					forms: [
+						{
+							type: "forms",
+							text: "",
+							forms: [
+								UIButtonShortCut(
+									i18next.t("快捷键发表回复"),
+									i18next.t("在输入框内按下快捷发表回复，例如：{{key}}", {
+										key: "Ctrl + Enter",
+									}),
+									"gf-quickReply",
+									{
+										keyName: "Enter",
+										keyValue: "13",
+										ohterCodeList: ["ctrl"],
+									},
+									i18next.t("点击录入快捷键"),
+									void 0,
+									GreasyforkShortCut.shortCut
 								),
 							],
 						},

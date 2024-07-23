@@ -17,7 +17,7 @@ import { PopsIcon } from "@whitesev/pops/dist/types/src/types/icon";
 const UIButton = function (
 	text: string,
 	description: string | undefined,
-	buttonText: string,
+	buttonText: string | (() => string),
 	buttonIcon: PopsIcon | undefined,
 	buttonIsRightIcon: boolean | undefined,
 	buttonIconIsLoading: boolean | undefined,

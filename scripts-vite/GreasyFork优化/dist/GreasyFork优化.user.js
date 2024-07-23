@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.7.20.23
+// @version            2024.7.23
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -12,7 +12,7 @@
 // @match              *://greasyfork.org/*
 // @require            https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@1.9.2/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@1.9.3/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@1.4.0/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
@@ -37,6 +37,9 @@
 (function (Qmsg, DOMUtils, Utils, i18next, pops, Viewer) {
   'use strict';
 
+  var __defProp = Object.defineProperty;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var _a;
   var _GM_addStyle = /* @__PURE__ */ (() => typeof GM_addStyle != "undefined" ? GM_addStyle : void 0)();
   var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -253,7 +256,16 @@
     "更新到 {{version}} 版本": "更新到 {{version}} 版本",
     "降级到 {{version}} 版本": "降级到 {{version}} 版本",
     "重新安装 {{version}} 版本": "重新安装 {{version}} 版本",
-    "发布的用户id：{{text}}": "发布的用户id：{{text}}"
+    "发布的用户id：{{text}}": "发布的用户id：{{text}}",
+    自定义快捷键: "自定义快捷键",
+    点击录入快捷键: "点击录入快捷键",
+    快捷键发表回复: "快捷键发表回复",
+    "在输入框内按下快捷发表回复，例如：{{key}}": "在输入框内按下快捷发表回复，例如：{{key}}",
+    请先执行当前的录入操作: "请先执行当前的录入操作",
+    清空快捷键: "清空快捷键",
+    "请按下快捷键...": "请按下快捷键...",
+    成功录入: "成功录入",
+    "快捷键 {{key}} 已被 {{isUsedKey}} 占用": "快捷键 {{key}} 已被 {{isUsedKey}} 占用"
   };
   const en_US_language = {
     GreasyFork优化: "GreasyFork Optimization",
@@ -461,9 +473,19 @@
     "更新到 {{version}} 版本": "Update To {{version}} Version",
     "降级到 {{version}} 版本": "Downgrade to {{version}} Version",
     "重新安装 {{version}} 版本": "Reinstall {{version}} Version",
-    "发布的用户id：{{text}}": "Published user ID: {{text}}"
+    "发布的用户id：{{text}}": "Published user ID: {{text}}",
+    自定义快捷键: "Customize shortcut keys",
+    点击录入快捷键: "Click on the input shortcut key",
+    快捷键发表回复: "Shortcut key to post reply",
+    "在输入框内按下快捷发表回复，例如：{{key}}": "Press the shortcut to post a reply in the input box, for example: {{key}}",
+    请先执行当前的录入操作: "Please perform the current input operation first",
+    清空快捷键: "Clear shortcut keys",
+    "请按下快捷键...": "Please press the shortcut key...",
+    成功录入: "Successful entry",
+    "快捷键 {{key}} 已被 {{isUsedKey}} 占用": "The shortcut key {{key}} is already used by {{isUsedKey}}"
   };
   const KEY = "GM_Panel";
+  const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const LanguageInit = function() {
@@ -1196,6 +1218,370 @@
     }
     return result;
   };
+  const UIButtonShortCut = function(text, description, key, defaultValue, defaultButtonText, buttonType = "default", shortCut) {
+    let __defaultButtonText = typeof defaultButtonText === "function" ? defaultButtonText() : defaultButtonText;
+    if (typeof defaultValue === "object") {
+      shortCut.initConfig(key, defaultValue);
+    }
+    let getButtonText = () => {
+      return shortCut.getShowText(key, __defaultButtonText);
+    };
+    let result = UIButton(
+      text,
+      description,
+      getButtonText,
+      "keyboard",
+      false,
+      false,
+      buttonType,
+      async (event) => {
+        var _a2;
+        let $click = event.target;
+        let $btn = (_a2 = $click.closest(".pops-panel-button")) == null ? void 0 : _a2.querySelector("span");
+        if (shortCut.isWaitPress) {
+          Qmsg.warning(i18next.t("请先执行当前的录入操作"));
+          return;
+        }
+        if (shortCut.hasOptionValue(key)) {
+          shortCut.emptyOption(key);
+          Qmsg.success(i18next.t("清空快捷键"));
+        } else {
+          let loadingQmsg = Qmsg.loading(i18next.t("请按下快捷键..."), {
+            showClose: true
+          });
+          let {
+            status,
+            option,
+            key: isUsedKey
+          } = await shortCut.enterShortcutKeys(key);
+          loadingQmsg.close();
+          if (status) {
+            log.success(["成功录入快捷键", option]);
+            Qmsg.success(i18next.t("成功录入"));
+          } else {
+            Qmsg.error(
+              i18next.t(`快捷键 {{key}} 已被 {{isUsedKey}} 占用`, {
+                key: shortCut.translateKeyboardValueToButtonText(option),
+                isUsedKey
+              })
+            );
+          }
+        }
+        $btn.innerHTML = getButtonText();
+      }
+    );
+    result.attributes = {};
+    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
+      return false;
+    });
+    return result;
+  };
+  class ShortCut {
+    constructor(key) {
+      /** 存储的键 */
+      __publicField(this, "key", "short-cut");
+      /** 是否存在等待按下的按键 */
+      __publicField(this, "isWaitPress", false);
+      if (typeof key === "string") {
+        this.key = key;
+      }
+    }
+    /**
+     * 初始化配置默认值
+     */
+    initConfig(key, option) {
+      if (this.hasOption(key)) ;
+      else {
+        this.setOption(key, option);
+      }
+    }
+    /** 获取存储的键 */
+    getStorageKey() {
+      return this.key;
+    }
+    /**
+     * 获取本地存储的所有值
+     */
+    getLocalAllOptions() {
+      return _GM_getValue(this.key, []);
+    }
+    /**
+     * 判断是否存在该配置
+     * @param key 键
+     */
+    hasOption(key) {
+      let localOptions = this.getLocalAllOptions();
+      let findOption = localOptions.find((item) => item.key === key);
+      return !!findOption;
+    }
+    /**
+     * 判断是否存在该配置的value值
+     * @param key 键
+     */
+    hasOptionValue(key) {
+      if (this.hasOption(key)) {
+        let option = this.getOption(key);
+        return !((option == null ? void 0 : option.value) == null);
+      } else {
+        return false;
+      }
+    }
+    /**
+     * 获取配置
+     * @param key 键
+     * @param defaultValue 默认值
+     */
+    getOption(key, defaultValue) {
+      let localOptions = this.getLocalAllOptions();
+      let findOption = localOptions.find((item) => item.key === key);
+      return findOption ?? defaultValue;
+    }
+    /**
+     * 设置配置
+     * @param key 键
+     * @param value 配置
+     */
+    setOption(key, value) {
+      let localOptions = this.getLocalAllOptions();
+      let findIndex = localOptions.findIndex((item) => item.key === key);
+      if (findIndex == -1) {
+        localOptions.push({
+          key,
+          value
+        });
+      } else {
+        Reflect.set(localOptions[findIndex], "value", value);
+      }
+      _GM_setValue(this.key, localOptions);
+    }
+    /**
+     * 清空当前已有配置录入的值
+     * @param key
+     */
+    emptyOption(key) {
+      let result = false;
+      let localOptions = this.getLocalAllOptions();
+      let findIndex = localOptions.findIndex((item) => item.key === key);
+      if (findIndex !== -1) {
+        localOptions[findIndex].value = null;
+        result = true;
+      }
+      _GM_setValue(this.key, localOptions);
+      return result;
+    }
+    /**
+     * 删除配置
+     * @param key 键
+     */
+    deleteOption(key) {
+      let result = false;
+      let localValue = this.getLocalAllOptions();
+      let findValueIndex = localValue.findIndex((item) => item.key === key);
+      if (findValueIndex !== -1) {
+        localValue.splice(findValueIndex, 1);
+        result = true;
+      }
+      _GM_setValue(this.key, localValue);
+      return result;
+    }
+    /**
+     * 把配置的快捷键转成文字
+     * @param keyboardValue
+     * @returns
+     */
+    translateKeyboardValueToButtonText(keyboardValue) {
+      let result = "";
+      keyboardValue.ohterCodeList.forEach((ohterCodeKey) => {
+        result += utils.stringTitleToUpperCase(ohterCodeKey, true) + " + ";
+      });
+      result += keyboardValue.keyName;
+      return result;
+    }
+    /**
+     * 获取快捷键显示的文字
+     * @param key 本地存储的快捷键键名
+     * @param defaultShowText 默认显示的文字
+     */
+    getShowText(key, defaultShowText) {
+      if (this.hasOption(key)) {
+        let localOption = this.getOption(key);
+        if (localOption.value == null) {
+          return defaultShowText;
+        } else {
+          return this.translateKeyboardValueToButtonText(localOption.value);
+        }
+      } else {
+        return defaultShowText;
+      }
+    }
+    /**
+     * 录入快捷键
+     * @param key 本地存储的快捷键键名
+     */
+    async enterShortcutKeys(key) {
+      return new Promise((resolve) => {
+        this.isWaitPress = true;
+        let keyboardListener = utils.listenKeyboard(
+          window,
+          "keyup",
+          (keyName, keyValue, ohterCodeList) => {
+            let currentOption = {
+              keyName,
+              keyValue,
+              ohterCodeList
+            };
+            let shortcutJSONString = JSON.stringify(currentOption);
+            let allOptions = this.getLocalAllOptions();
+            for (let index = 0; index < allOptions.length; index++) {
+              let localValue = allOptions[index];
+              if (localValue.key === key) {
+                continue;
+              }
+              let isUsedByOtherOption = false;
+              if (localValue.value != null && shortcutJSONString === JSON.stringify(localValue.value)) {
+                isUsedByOtherOption = true;
+              }
+              if (isUsedByOtherOption) {
+                this.isWaitPress = false;
+                keyboardListener.removeListen();
+                resolve({
+                  status: false,
+                  key: localValue.key,
+                  option: currentOption
+                });
+                return;
+              }
+            }
+            this.setOption(key, currentOption);
+            this.isWaitPress = false;
+            keyboardListener.removeListen();
+            resolve({
+              status: true,
+              key,
+              option: currentOption
+            });
+          }
+        );
+      });
+    }
+    /**
+     * 初始化全局键盘监听
+     * @param shortCutOption 快捷键配置 一般是{ "键名": { callback: ()=>{}}}，键名是本地存储的自定义快捷键的键名
+     */
+    initGlobalKeyboardListener(shortCutOption) {
+      let localOptions = this.getLocalAllOptions();
+      if (!localOptions.length) {
+        log.warn("没有设置快捷键");
+        return;
+      }
+      let that = this;
+      function setListenKeyboard($ele, option) {
+        utils.listenKeyboard(
+          $ele,
+          "keydown",
+          (keyName, keyValue, ohterCodeList) => {
+            if (that.isWaitPress) {
+              return;
+            }
+            localOptions = that.getLocalAllOptions();
+            let findShortcutIndex = localOptions.findIndex((item) => {
+              let option2 = item.value;
+              let tempOption = {
+                keyName,
+                keyValue,
+                ohterCodeList
+              };
+              if (JSON.stringify(option2) === JSON.stringify(tempOption)) {
+                return item;
+              }
+            });
+            if (findShortcutIndex != -1) {
+              let findShortcut = localOptions[findShortcutIndex];
+              log.info(["调用快捷键", findShortcut]);
+              if (findShortcut.key in option) {
+                option[findShortcut.key].callback();
+              }
+            }
+          }
+        );
+      }
+      let WindowShortCutOption = {};
+      let ElementShortCutOption = {};
+      Object.keys(shortCutOption).forEach((localKey) => {
+        let option = shortCutOption[localKey];
+        if (option.target == null || typeof option.target === "string" && option.target === "") {
+          option.target = "window";
+        }
+        if (option.target === "window") {
+          Reflect.set(WindowShortCutOption, localKey, option);
+        } else {
+          Reflect.set(ElementShortCutOption, localKey, option);
+        }
+      });
+      setListenKeyboard(window, WindowShortCutOption);
+      domUtils.ready(() => {
+        Object.keys(ElementShortCutOption).forEach(async (localKey) => {
+          let option = ElementShortCutOption[localKey];
+          if (typeof option.target === "string") {
+            utils.waitNode(option.target, 1e4).then(($ele) => {
+              if (!$ele) {
+                return;
+              }
+              let __option = {};
+              Reflect.set(__option, localKey, option);
+              setListenKeyboard($ele, __option);
+            });
+          } else if (typeof option.target === "function") {
+            let target = await option.target();
+            if (target == null) {
+              return;
+            }
+            let __option = {};
+            Reflect.set(__option, localKey, option);
+            setListenKeyboard(target, __option);
+          } else {
+            let __option = {};
+            Reflect.set(__option, localKey, option);
+            setListenKeyboard(option.target, __option);
+          }
+        });
+      });
+    }
+  }
+  const GreasyforkShortCut = {
+    shortCut: new ShortCut(),
+    shortOption: {
+      "gf-quickReply": {
+        target: () => {
+          let $commentText = document.querySelector("#comment_text");
+          let $replyBtn = document.querySelector(
+            'input[name="commit"][type="submit"]'
+          );
+          if (!$commentText) {
+            log.error("页面不存在输入框");
+            return;
+          } else if (!$replyBtn) {
+            log.error("页面不存在【发表回复】按钮");
+            return;
+          }
+          return $commentText;
+        },
+        callback() {
+          let $replyBtn = document.querySelector(
+            'input[name="commit"][type="submit"]'
+          );
+          if (!$replyBtn) {
+            log.error("页面不存在【发表回复】按钮");
+            return;
+          }
+          $replyBtn.click();
+        }
+      }
+    },
+    init() {
+      this.shortCut.initGlobalKeyboardListener(this.shortOption);
+    }
+  };
   const SettingUIGeneral = {
     id: "greasy-fork-panel-config-account",
     title: i18next.t("通用"),
@@ -1642,6 +2028,33 @@
                     i18next.t(
                       '需安装Greasyfork Beautify脚本，<a href="https://greasyfork.org/zh-CN/scripts/446849-greasyfork-beautify" target="_blank">🖐点我安装</a>'
                     )
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            type: "deepMenu",
+            text: i18next.t("自定义快捷键"),
+            forms: [
+              {
+                type: "forms",
+                text: "",
+                forms: [
+                  UIButtonShortCut(
+                    i18next.t("快捷键发表回复"),
+                    i18next.t("在输入框内按下快捷发表回复，例如：{{key}}", {
+                      key: "Ctrl + Enter"
+                    }),
+                    "gf-quickReply",
+                    {
+                      keyName: "Enter",
+                      keyValue: "13",
+                      ohterCodeList: ["ctrl"]
+                    },
+                    i18next.t("点击录入快捷键"),
+                    void 0,
+                    GreasyforkShortCut.shortCut
                   )
                 ]
               }
@@ -3640,6 +4053,605 @@
       }
     ]
   };
+  const PopsPanelUISetting = {
+    /**
+     * 面板-脚本列表|库
+     * @param type
+     * @param event
+     * @param rightHeaderElement
+     * @param rightContainerElement
+     * @returns
+     */
+    async UIScriptList(type, event, rightHeaderElement, rightContainerElement) {
+      var _a2, _b, _c;
+      if (!GreasyforkMenu.isLogin) {
+        Qmsg.error(i18next.t("请先登录账号！"));
+        return;
+      }
+      let userLinkElement = GreasyforkMenu.getUserLinkElement();
+      let userLink = userLinkElement.href;
+      let userId = (_c = (_b = (_a2 = userLink == null ? void 0 : userLink.split("/")) == null ? void 0 : _a2.pop()) == null ? void 0 : _b.match(/([0-9]+)/)) == null ? void 0 : _c[0];
+      let loading = __pops.loading({
+        mask: {
+          enable: true
+        },
+        parent: rightContainerElement,
+        content: {
+          text: i18next.t("获取信息中，请稍后...")
+        },
+        addIndexCSS: false
+      });
+      let userInfo = await GreasyforkApi.getUserInfo(userId);
+      loading.close();
+      if (!userInfo) {
+        return;
+      }
+      log.info(userInfo);
+      let scriptList = type === "script-list" ? userInfo["scriptList"] : userInfo["scriptLibraryList"];
+      Qmsg.success(
+        i18next.t("获取成功，共 {{count}} 个", {
+          count: scriptList.length
+        })
+      );
+      for (const scriptInfo of scriptList) {
+        let liElement = domUtils.createElement("li", {
+          className: "w-script-list-item",
+          innerHTML: (
+            /*html*/
+            `
+				<div class="w-script-info">
+				<div class="w-script-name">
+					<a href="${scriptInfo["url"]}" target="_blank">${scriptInfo["name"]}</a>
+				</div>
+				<div class="w-script-fan-score">
+					<p>${i18next.t("评分：")}${scriptInfo["fan_score"]}</p>
+				</div>
+				<div class="w-script-locale">
+					<p>${i18next.t("语言：")}${scriptInfo["locale"]}</p>
+				</div>
+				<div class="w-script-version">
+					<p>${i18next.t("版本：")}${scriptInfo["version"]}</p>
+				</div>
+				<div class="w-script-update-time">
+					<p>${i18next.t("更新：")}${utils.getDaysDifference(
+            new Date(scriptInfo["code_updated_at"]).getTime(),
+            void 0,
+            "auto"
+          )}前</p>
+				</div>
+				</div>
+            `
+          )
+        });
+        let scriptInfoElement = liElement.querySelector(
+          ".w-script-info"
+        );
+        let buttonElement = domUtils.createElement("div", {
+          className: "pops-panel-button",
+          innerHTML: (
+            /*html*/
+            `
+				<button type="primary" data-icon="" data-righticon="false">
+				<span>${i18next.t("同步代码")}</span>
+				</button>
+				`
+          )
+        });
+        if (scriptInfo["deleted"]) {
+          liElement.classList.add("w-script-deleted");
+          buttonElement.querySelector("button").setAttribute("disabled", "true");
+        }
+        domUtils.on(buttonElement, "click", void 0, async function() {
+          log.success(["同步", scriptInfo]);
+          let btn = buttonElement.querySelector("button");
+          let span = buttonElement.querySelector(
+            "button span"
+          );
+          let iconElement = domUtils.createElement(
+            "i",
+            {
+              className: "pops-bottom-icon",
+              innerHTML: __pops.config.iconSVG.loading
+            },
+            {
+              "is-loading": true
+            }
+          );
+          btn.setAttribute("disabled", "true");
+          btn.setAttribute("data-icon", "true");
+          span.innerText = i18next.t("同步中...");
+          domUtils.before(span, iconElement);
+          let scriptId = scriptInfo == null ? void 0 : scriptInfo["id"];
+          let codeSyncFormData = await GreasyforkApi.getSourceCodeSyncFormData(
+            scriptId.toString()
+          );
+          if (codeSyncFormData) {
+            const SCRIPT_SYNC_TYPE_ID_FORMDATA_KEY = "script[script_sync_type_id]";
+            if (codeSyncFormData.has(SCRIPT_SYNC_TYPE_ID_FORMDATA_KEY)) {
+              let syncTypeId = codeSyncFormData.get(
+                SCRIPT_SYNC_TYPE_ID_FORMDATA_KEY
+              );
+              let syncMode = "";
+              if (syncTypeId.toString() === "1") {
+                syncMode = i18next.t("手动");
+              } else if (syncTypeId.toString() === "2") {
+                syncMode = i18next.t("自动");
+              } else if (syncTypeId.toString() === "3") {
+                syncMode = "webhook";
+              }
+              let oldSyncTypeElement = liElement.querySelector(
+                ".w-script-sync-type"
+              );
+              if (oldSyncTypeElement) {
+                oldSyncTypeElement.querySelector("p").innerText = i18next.t(
+                  "同步方式：{{syncMode}}",
+                  { syncMode }
+                );
+              } else {
+                domUtils.append(
+                  scriptInfoElement,
+                  /*html*/
+                  `
+								<div class="w-script-sync-type">
+									<p>${i18next.t("同步方式：{{syncMode}}", {
+                  syncMode
+                })}
+									</p>
+								</div>`
+                );
+              }
+              let syncUpdateResponse = await GreasyforkApi.sourceCodeSync(
+                scriptInfo["id"].toString(),
+                codeSyncFormData
+              );
+              if (syncUpdateResponse) {
+                Qmsg.success(i18next.t("同步成功"));
+              } else {
+                Qmsg.error(i18next.t("同步失败"));
+              }
+            } else {
+              Qmsg.error(i18next.t("该脚本未设置同步信息"));
+            }
+          }
+          btn.removeAttribute("disabled");
+          btn.removeAttribute("data-icon");
+          span.innerText = i18next.t("同步代码");
+          iconElement.remove();
+        });
+        liElement.appendChild(buttonElement);
+        rightContainerElement.appendChild(liElement);
+      }
+    }
+  };
+  const SettingUIScriptList = {
+    id: "greasy-fork-panel-config-script-list",
+    title: i18next.t("脚本列表"),
+    callback(event, rightHeaderElement, rightContainerElement) {
+      PopsPanelUISetting.UIScriptList(
+        "script-list",
+        event,
+        rightHeaderElement,
+        rightContainerElement
+      );
+    },
+    forms: []
+  };
+  const SettingUIScriptLib = {
+    id: "greasy-fork-panel-config-library",
+    title: i18next.t("库"),
+    callback(event, rightHeaderElement, rightContainerElement) {
+      PopsPanelUISetting.UIScriptList(
+        "script-library",
+        event,
+        rightHeaderElement,
+        rightContainerElement
+      );
+    },
+    forms: []
+  };
+  const UIScriptListCSS = '.w-script-list-item {\r\n	padding: 10px 0;\r\n	border-bottom: 1px solid #e5e5e5;\r\n	font-size: 16px;\r\n	text-align: left;\r\n}\r\n.w-script-version,\r\n.w-script-fan-score,\r\n.w-script-create-time,\r\n.w-script-update-time,\r\n.w-script-locale,\r\n.w-script-sync-type {\r\n	font-size: 14px;\r\n	color: #7c7c7c;\r\n}\r\n.w-script-fan-score {\r\n	margin-left: unset !important;\r\n	text-align: unset !important;\r\n	max-width: unset !important;\r\n}\r\n.w-script-deleted {\r\n	text-decoration: line-through;\r\n	font-style: italic;\r\n	color: red;\r\n}\r\n.w-script-deleted .w-script-name::before {\r\n	content: "【删除】";\r\n}\r\n\r\nli[data-key="user"] .pops-panel-input,\r\nli[data-key="pwd"] .pops-panel-input {\r\n	max-width: 200px;\r\n}\r\n';
+  const SettingUIUsers = {
+    id: "greasy-fork-panel-config-account",
+    title: i18next.t("用户"),
+    forms: [
+      {
+        text: "",
+        type: "forms",
+        forms: [
+          {
+            text: i18next.t("功能"),
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    i18next.t("迁移【控制台】到顶部导航栏"),
+                    "users-changeConsoleToTopNavigator",
+                    true,
+                    void 0,
+                    i18next.t("将【控制台】按钮移动到顶部导航栏，节省空间")
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  const __PopsPanel__ = {
+    data: null,
+    oneSuccessExecMenu: null,
+    onceExec: null,
+    listenData: null
+  };
+  const PopsPanel = {
+    /** 数据 */
+    $data: {
+      /**
+       * 菜单项的默认值
+       */
+      get data() {
+        if (__PopsPanel__.data == null) {
+          __PopsPanel__.data = new utils.Dictionary();
+        }
+        return __PopsPanel__.data;
+      },
+      /**
+       * 成功只执行了一次的项
+       */
+      get oneSuccessExecMenu() {
+        if (__PopsPanel__.oneSuccessExecMenu == null) {
+          __PopsPanel__.oneSuccessExecMenu = new utils.Dictionary();
+        }
+        return __PopsPanel__.oneSuccessExecMenu;
+      },
+      /**
+       * 成功只执行了一次的项
+       */
+      get onceExec() {
+        if (__PopsPanel__.onceExec == null) {
+          __PopsPanel__.onceExec = new utils.Dictionary();
+        }
+        return __PopsPanel__.onceExec;
+      },
+      /** 脚本名，一般用在设置的标题上 */
+      get scriptName() {
+        return SCRIPT_NAME;
+      },
+      /** 菜单项的总值在本地数据配置的键名 */
+      key: KEY,
+      /** 菜单项在attributes上配置的菜单键 */
+      attributeKeyName: ATTRIBUTE_KEY,
+      /** 菜单项在attributes上配置的菜单默认值 */
+      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+    },
+    /** 监听器 */
+    $listener: {
+      /**
+       * 值改变的监听器
+       */
+      get listenData() {
+        if (__PopsPanel__.listenData == null) {
+          __PopsPanel__.listenData = new utils.Dictionary();
+        }
+        return __PopsPanel__.listenData;
+      }
+    },
+    init() {
+      this.initPanelDefaultValue();
+      this.initExtensionsMenu();
+    },
+    initExtensionsMenu() {
+      if (_unsafeWindow.top !== _unsafeWindow.self) {
+        return;
+      }
+      GM_Menu.add([
+        {
+          key: "show_pops_panel_setting",
+          text: i18next.t("⚙ 设置"),
+          autoReload: false,
+          isStoreValue: false,
+          showText(text) {
+            return text;
+          },
+          callback: () => {
+            this.showPanel();
+          }
+        }
+      ]);
+    },
+    /** 初始化本地设置默认的值 */
+    initPanelDefaultValue() {
+      let that = this;
+      function initDefaultValue(config) {
+        if (!config.attributes) {
+          return;
+        }
+        let key = config.attributes[ATTRIBUTE_KEY];
+        let defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+        if (typeof __attr_init__ === "function") {
+          let __attr_result__ = __attr_init__();
+          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
+            return;
+          }
+        }
+        if (key == null) {
+          log.warn(["请先配置键", config]);
+          return;
+        }
+        if (that.$data.data.has(key)) {
+          log.warn("请检查该key(已存在): " + key);
+        }
+        that.$data.data.set(key, defaultValue);
+      }
+      function loopInitDefaultValue(configList) {
+        for (let index = 0; index < configList.length; index++) {
+          let configItem = configList[index];
+          initDefaultValue(configItem);
+          let childForms = configItem.forms;
+          if (childForms && Array.isArray(childForms)) {
+            loopInitDefaultValue(childForms);
+          }
+        }
+      }
+      let contentConfigList = this.getPanelContentConfig();
+      for (let index = 0; index < contentConfigList.length; index++) {
+        let leftContentConfigItem = contentConfigList[index];
+        if (!leftContentConfigItem.forms) {
+          continue;
+        }
+        let rightContentConfigList = leftContentConfigItem.forms;
+        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+          loopInitDefaultValue(rightContentConfigList);
+        }
+      }
+    },
+    /**
+     * 设置值
+     * @param key 键
+     * @param value 值
+     */
+    setValue(key, value) {
+      let locaData = _GM_getValue(KEY, {});
+      let oldValue = locaData[key];
+      locaData[key] = value;
+      _GM_setValue(KEY, locaData);
+      if (this.$listener.listenData.has(key)) {
+        this.$listener.listenData.get(key).callback(key, oldValue, value);
+      }
+    },
+    /**
+     * 获取值
+     * @param key 键
+     * @param defaultValue 默认值
+     */
+    getValue(key, defaultValue) {
+      let locaData = _GM_getValue(KEY, {});
+      let localValue = locaData[key];
+      if (localValue == null) {
+        if (this.$data.data.has(key)) {
+          return this.$data.data.get(key);
+        }
+        return defaultValue;
+      }
+      return localValue;
+    },
+    /**
+     * 删除值
+     * @param key 键
+     */
+    deleteValue(key) {
+      let locaData = _GM_getValue(KEY, {});
+      let oldValue = locaData[key];
+      Reflect.deleteProperty(locaData, key);
+      _GM_setValue(KEY, locaData);
+      if (this.$listener.listenData.has(key)) {
+        this.$listener.listenData.get(key).callback(key, oldValue, void 0);
+      }
+    },
+    /**
+     * 监听调用setValue、deleteValue
+     * @param key 需要监听的键
+     * @param callback
+     */
+    addValueChangeListener(key, callback, option) {
+      let listenerId = Math.random();
+      this.$listener.listenData.set(key, {
+        id: listenerId,
+        key,
+        callback
+      });
+      if (option) {
+        if (option.immediate) {
+          callback(key, this.getValue(key), this.getValue(key));
+        }
+      }
+      return listenerId;
+    },
+    /**
+     * 移除监听
+     * @param listenerId 监听的id
+     */
+    removeValueChangeListener(listenerId) {
+      let deleteKey = null;
+      for (const [key, value] of this.$listener.listenData.entries()) {
+        if (value.id === listenerId) {
+          deleteKey = key;
+          break;
+        }
+      }
+      if (typeof deleteKey === "string") {
+        this.$listener.listenData.delete(deleteKey);
+      } else {
+        console.warn("没有找到对应的监听器");
+      }
+    },
+    /**
+     * 判断该键是否存在
+     * @param key 键
+     */
+    hasKey(key) {
+      let locaData = _GM_getValue(KEY, {});
+      return key in locaData;
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调
+     * @param key
+     * @param callback 回调
+     */
+    execMenu(key, callback) {
+      if (typeof key !== "string") {
+        throw new TypeError("key 必须是字符串");
+      }
+      if (!this.$data.data.has(key)) {
+        log.warn(`${key} 键不存在`);
+        return;
+      }
+      let value = PopsPanel.getValue(key);
+      if (value) {
+        callback(value);
+      }
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调，只会执行一次
+     * @param key
+     * @param callback 回调
+     */
+    execMenuOnce(key, callback) {
+      if (typeof key !== "string") {
+        throw new TypeError("key 必须是字符串");
+      }
+      if (!this.$data.data.has(key)) {
+        log.warn(`${key} 键不存在`);
+        return;
+      }
+      if (this.$data.oneSuccessExecMenu.has(key)) {
+        return;
+      }
+      this.$data.oneSuccessExecMenu.set(key, 1);
+      let resultStyleList = [];
+      let pushStyleNode = (style) => {
+        let __value = PopsPanel.getValue(key);
+        changeCallBack(__value, style);
+      };
+      let changeCallBack = (currentValue, resultStyle) => {
+        let resultList = [];
+        if (currentValue) {
+          let result = resultStyle ?? callback(currentValue, pushStyleNode);
+          if (result instanceof HTMLStyleElement) {
+            resultList = [result];
+          } else if (Array.isArray(result)) {
+            resultList = [
+              ...result.filter(
+                (item) => item != null && item instanceof HTMLStyleElement
+              )
+            ];
+          }
+        }
+        for (let index = 0; index < resultStyleList.length; index++) {
+          let $css = resultStyleList[index];
+          $css.remove();
+          resultStyleList.splice(index, 1);
+          index--;
+        }
+        resultStyleList = [...resultList];
+      };
+      this.addValueChangeListener(
+        key,
+        (__key, oldValue, newValue) => {
+          changeCallBack(newValue);
+        }
+      );
+      let value = PopsPanel.getValue(key);
+      if (value) {
+        changeCallBack(value);
+      }
+    },
+    /**
+     * 根据key执行一次
+     * @param key
+     */
+    onceExec(key, callback) {
+      if (typeof key !== "string") {
+        throw new TypeError("key 必须是字符串");
+      }
+      if (this.$data.onceExec.has(key)) {
+        return;
+      }
+      callback();
+      this.$data.onceExec.set(key, 1);
+    },
+    /**
+     * 显示设置面板
+     */
+    showPanel() {
+      __pops.panel({
+        title: {
+          text: i18next.t("{{SCRIPT_NAME}}-设置", { SCRIPT_NAME }),
+          position: "center",
+          html: false,
+          style: ""
+        },
+        content: this.getPanelContentConfig(),
+        mask: {
+          enable: true,
+          clickEvent: {
+            toClose: true,
+            toHide: false
+          }
+        },
+        isMobile: this.isMobile(),
+        width: this.getWidth(),
+        height: this.getHeight(),
+        drag: true,
+        only: true,
+        style: `
+			${UIScriptListCSS}
+			`
+      });
+    },
+    isMobile() {
+      return window.outerWidth < 550;
+    },
+    /**
+     * 获取设置面板的宽度
+     */
+    getWidth() {
+      if (window.outerWidth < 550) {
+        return "92vw";
+      } else {
+        return "550px";
+      }
+    },
+    /**
+     * 获取设置面板的高度
+     */
+    getHeight() {
+      if (window.outerHeight > 450) {
+        return "80vh";
+      } else {
+        return "450px";
+      }
+    },
+    /**
+     * 获取配置内容
+     */
+    getPanelContentConfig() {
+      let configList = [
+        SettingUIGeneral,
+        SettingUIScripts,
+        SettingUIDiscuessions,
+        SettingUIUsers,
+        SettingUIScriptList,
+        SettingUIScriptLib
+      ];
+      return configList;
+    }
+  };
   const beautifyMarkdownCSS = 'code {\r\n	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;\r\n	font-size: 0.85em;\r\n	color: #000;\r\n	background-color: #f0f0f0;\r\n	border-radius: 3px;\r\n	padding: 0.2em 0;\r\n}\r\ntable {\r\n	text-indent: initial;\r\n}\r\ntable {\r\n	margin: 10px 0 15px 0;\r\n	border-collapse: collapse;\r\n	border-spacing: 0;\r\n	display: block;\r\n	width: 100%;\r\n	overflow: auto;\r\n	word-break: normal;\r\n	word-break: keep-all;\r\n}\r\ncode,\r\npre {\r\n	color: #333;\r\n	background: 0 0;\r\n	font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;\r\n	text-align: left;\r\n	white-space: pre;\r\n	word-spacing: normal;\r\n	word-break: normal;\r\n	word-wrap: normal;\r\n	line-height: 1.4;\r\n	-moz-tab-size: 8;\r\n	-o-tab-size: 8;\r\n	tab-size: 8;\r\n	-webkit-hyphens: none;\r\n	-moz-hyphens: none;\r\n	-ms-hyphens: none;\r\n	hyphens: none;\r\n}\r\npre {\r\n	padding: 0.8em;\r\n	overflow: auto;\r\n	border-radius: 3px;\r\n	background: #f5f5f5;\r\n}\r\n:not(pre) > code {\r\n	padding: 0.1em;\r\n	border-radius: 0.3em;\r\n	white-space: normal;\r\n	background: #f5f5f5;\r\n}\r\nhtml body {\r\n	font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans,\r\n		sans-serif;\r\n	font-size: 16px;\r\n	line-height: 1.6;\r\n	color: #333;\r\n	background-color: #fff;\r\n	overflow: initial;\r\n	box-sizing: border-box;\r\n	word-wrap: break-word;\r\n}\r\nhtml body > :first-child {\r\n	margin-top: 0;\r\n}\r\nhtml body h1,\r\nhtml body h2,\r\nhtml body h3,\r\nhtml body h4,\r\nhtml body h5,\r\nhtml body h6 {\r\n	line-height: 1.2;\r\n	margin-top: 1em;\r\n	margin-bottom: 16px;\r\n	color: #000;\r\n}\r\nhtml body h1 {\r\n	font-size: 2.25em;\r\n	font-weight: 300;\r\n	padding-bottom: 0.3em;\r\n}\r\nhtml body h2 {\r\n	font-size: 1.75em;\r\n	font-weight: 400;\r\n	padding-bottom: 0.3em;\r\n}\r\nhtml body h3 {\r\n	font-size: 1.5em;\r\n	font-weight: 500;\r\n}\r\nhtml body h4 {\r\n	font-size: 1.25em;\r\n	font-weight: 600;\r\n}\r\nhtml body h5 {\r\n	font-size: 1.1em;\r\n	font-weight: 600;\r\n}\r\nhtml body h6 {\r\n	font-size: 1em;\r\n	font-weight: 600;\r\n}\r\nhtml body h1,\r\nhtml body h2,\r\nhtml body h3,\r\nhtml body h4,\r\nhtml body h5 {\r\n	font-weight: 600;\r\n}\r\nhtml body h5 {\r\n	font-size: 1em;\r\n}\r\nhtml body h6 {\r\n	color: #5c5c5c;\r\n}\r\nhtml body strong {\r\n	color: #000;\r\n}\r\nhtml body del {\r\n	color: #5c5c5c;\r\n}\r\nhtml body a:not([href]) {\r\n	color: inherit;\r\n}\r\nhtml body a {\r\n	text-decoration: underline;\r\n	text-underline-offset: 0.2rem;\r\n}\r\nhtml body a:hover {\r\n	color: #00a3f5;\r\n}\r\nhtml body img {\r\n	max-width: 100%;\r\n}\r\nhtml body > p {\r\n	margin-top: 0;\r\n	margin-bottom: 16px;\r\n	word-wrap: break-word;\r\n}\r\nhtml body > ol,\r\nhtml body > ul {\r\n	margin-bottom: 16px;\r\n}\r\nhtml body ol,\r\nhtml body ul {\r\n	padding-left: 2em;\r\n}\r\nhtml body ol.no-list,\r\nhtml body ul.no-list {\r\n	padding: 0;\r\n	list-style-type: none;\r\n}\r\nhtml body ol ol,\r\nhtml body ol ul,\r\nhtml body ul ol,\r\nhtml body ul ul {\r\n	margin-top: 0;\r\n	margin-bottom: 0;\r\n}\r\nhtml body li {\r\n	margin-bottom: 0;\r\n}\r\nhtml body li.task-list-item {\r\n	list-style: none;\r\n}\r\nhtml body li > p {\r\n	margin-top: 0;\r\n	margin-bottom: 0;\r\n}\r\nhtml body .task-list-item-checkbox {\r\n	margin: 0 0.2em 0.25em -1.8em;\r\n	vertical-align: middle;\r\n}\r\nhtml body .task-list-item-checkbox:hover {\r\n	cursor: pointer;\r\n}\r\nhtml body blockquote {\r\n	margin: 16px 0;\r\n	font-size: inherit;\r\n	padding: 0 15px;\r\n	color: #5c5c5c;\r\n	background-color: #f0f0f0;\r\n	border-left: 4px solid #d6d6d6 !important;\r\n}\r\nhtml body blockquote > :first-child {\r\n	margin-top: 0;\r\n}\r\nhtml body blockquote > :last-child {\r\n	margin-bottom: 0;\r\n}\r\nhtml body hr {\r\n	height: 4px;\r\n	margin: 32px 0;\r\n	background-color: #d6d6d6;\r\n	border: 0 none;\r\n}\r\nhtml body table {\r\n	margin: 10px 0 15px 0;\r\n	border-collapse: collapse;\r\n	border-spacing: 0;\r\n	display: block;\r\n	width: 100%;\r\n	overflow: auto;\r\n	word-break: normal;\r\n	word-break: keep-all;\r\n}\r\nhtml body table th {\r\n	font-weight: 700;\r\n	color: #000;\r\n}\r\nhtml body table td,\r\nhtml body table th {\r\n	border: 1px solid #d6d6d6;\r\n	padding: 6px 13px;\r\n}\r\nhtml body dl {\r\n	padding: 0;\r\n}\r\nhtml body dl dt {\r\n	padding: 0;\r\n	margin-top: 16px;\r\n	font-size: 1em;\r\n	font-style: italic;\r\n	font-weight: 700;\r\n}\r\nhtml body dl dd {\r\n	padding: 0 16px;\r\n	margin-bottom: 16px;\r\n}\r\nhtml body code {\r\n	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;\r\n	font-size: 0.85em;\r\n	color: #000;\r\n	background-color: #f0f0f0;\r\n	border-radius: 3px;\r\n	padding: 0.2em 0;\r\n}\r\nhtml body code::after,\r\nhtml body code::before {\r\n	letter-spacing: -0.2em;\r\n	content: "\\00a0";\r\n}\r\nhtml body pre > code {\r\n	padding: 0;\r\n	margin: 0;\r\n	word-break: normal;\r\n	white-space: pre;\r\n	background: 0 0;\r\n	border: 0;\r\n}\r\nhtml body .highlight {\r\n	margin-bottom: 16px;\r\n}\r\nhtml body .highlight pre,\r\nhtml body pre {\r\n	padding: 1em;\r\n	overflow: auto;\r\n	line-height: 1.45;\r\n	border: #d6d6d6;\r\n	border-radius: 3px;\r\n}\r\nhtml body .highlight pre {\r\n	margin-bottom: 0;\r\n	word-break: normal;\r\n}\r\nhtml body pre code,\r\nhtml body pre tt {\r\n	display: inline;\r\n	max-width: initial;\r\n	padding: 0;\r\n	margin: 0;\r\n	overflow: initial;\r\n	line-height: inherit;\r\n	word-wrap: normal;\r\n	background-color: transparent;\r\n	border: 0;\r\n}\r\nhtml body pre code:after,\r\nhtml body pre code:before,\r\nhtml body pre tt:after,\r\nhtml body pre tt:before {\r\n	content: normal;\r\n}\r\nhtml body blockquote,\r\nhtml body dl,\r\nhtml body ol,\r\nhtml body p,\r\nhtml body pre,\r\nhtml body ul {\r\n	margin-top: 0;\r\n	margin-bottom: 16px;\r\n}\r\nhtml body kbd {\r\n	color: #000;\r\n	border: 1px solid #d6d6d6;\r\n	border-bottom: 2px solid #c7c7c7;\r\n	padding: 2px 4px;\r\n	background-color: #f0f0f0;\r\n	border-radius: 3px;\r\n}\r\n@media print {\r\n	html body {\r\n		background-color: #fff;\r\n	}\r\n	html body h1,\r\n	html body h2,\r\n	html body h3,\r\n	html body h4,\r\n	html body h5,\r\n	html body h6 {\r\n		color: #000;\r\n		page-break-after: avoid;\r\n	}\r\n	html body blockquote {\r\n		color: #5c5c5c;\r\n	}\r\n	html body pre {\r\n		page-break-inside: avoid;\r\n	}\r\n	html body table {\r\n		display: table;\r\n	}\r\n	html body img {\r\n		display: block;\r\n		max-width: 100%;\r\n		max-height: 100%;\r\n	}\r\n	html body code,\r\n	html body pre {\r\n		word-wrap: break-word;\r\n		white-space: pre;\r\n	}\r\n}\r\n/* 强制换行 */\r\ncode {\r\n	text-wrap: wrap !important;\r\n}\r\n\r\n.scrollbar-style::-webkit-scrollbar {\r\n	width: 8px;\r\n}\r\n.scrollbar-style::-webkit-scrollbar-track {\r\n	border-radius: 10px;\r\n	background-color: transparent;\r\n}\r\n.scrollbar-style::-webkit-scrollbar-thumb {\r\n	border-radius: 5px;\r\n	background-color: rgba(150, 150, 150, 0.66);\r\n	border: 4px solid rgba(150, 150, 150, 0.66);\r\n	background-clip: content-box;\r\n}\r\n';
   const beautifyButtonCSS = '/* 美化按钮 */\r\ninput[type="submit"],\r\nbutton {\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	line-height: 1;\r\n	height: 32px;\r\n	white-space: nowrap;\r\n	cursor: pointer;\r\n	/* color: #606266; */\r\n	text-align: center;\r\n	box-sizing: border-box;\r\n	outline: none;\r\n	transition: 0.1s;\r\n	font-weight: 500;\r\n	user-select: none;\r\n	vertical-align: middle;\r\n	appearance: none;\r\n	-webkit-appearance: none;\r\n	background-color: #ffffff;\r\n	border: 1px solid #dcdfe6;\r\n	border-color: #dcdfe6;\r\n	padding: 8px 15px;\r\n	font-size: 14px;\r\n	border-radius: 4px;\r\n}\r\n\r\ninput[type="submit"]:hover,\r\ninput[type="submit"]:focus,\r\nbutton:hover,\r\nbutton:focus {\r\n	color: #409eff;\r\n	border-color: #c6e2ff;\r\n	background-color: #ecf5ff;\r\n	outline: none;\r\n}\r\n\r\ninput[type="url"] {\r\n	position: relative;\r\n	font-size: 14px;\r\n	display: inline-flex;\r\n	line-height: 32px;\r\n	box-sizing: border-box;\r\n	vertical-align: middle;\r\n	appearance: none;\r\n	-webkit-appearance: none;\r\n	/* color: #606266; */\r\n	padding: 0;\r\n	outline: none;\r\n	border: none;\r\n	background: none;\r\n	flex-grow: 1;\r\n	align-items: center;\r\n	justify-content: center;\r\n	padding: 1px 11px;\r\n	background-color: #ffffff;\r\n	background-image: none;\r\n	border-radius: 4px;\r\n	cursor: text;\r\n	transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n	transform: translateZ(0);\r\n	box-shadow: 0 0 0 1px #dcdfe6 inset;\r\n\r\n	width: 100%;\r\n	width: -moz-available;\r\n	width: -webkit-fill-available;\r\n	width: fill-available;\r\n}\r\n\r\ninput[type="url"]::placeholder {\r\n	color: #a8abb2;\r\n}\r\n\r\ninput[type="url"]:hover {\r\n	box-shadow: 0 0 0 1px #c0c4cc inset;\r\n}\r\n\r\ninput[type="url"]:focus {\r\n	box-shadow: 0 0 0 1px #409eff inset;\r\n}\r\n';
   const beautifyRadioCSS = 'label.radio-label {\r\n	font-weight: 500;\r\n	position: relative;\r\n	cursor: pointer;\r\n	display: inline-flex;\r\n	align-items: center;\r\n	white-space: normal;\r\n	outline: none;\r\n	font-size: 14px;\r\n	user-select: none;\r\n	margin-right: 32px;\r\n	height: 32px;\r\n	padding: 4px;\r\n	border-radius: 4px;\r\n	box-sizing: border-box;\r\n}\r\nlabel:has(input[type="radio"]:checked),\r\nlabel:has(input[type="radio"]:checked) a {\r\n	color: #409eff;\r\n}\r\nlabel.radio-label input[type="radio"] {\r\n	margin-right: 4px;\r\n	width: 14px;\r\n	height: 14px;\r\n}\r\nlabel.radio-label input[type="radio"]:checked {\r\n	-webkit-appearance: none;\r\n	-moz-appearance: none;\r\n	appearance: none;\r\n	border-radius: 50%;\r\n	width: 14px;\r\n	height: 14px;\r\n	outline: none;\r\n	border: 4px solid #409eff;\r\n	cursor: pointer;\r\n}\r\nlabel.radio-label input[type="radio"]:checked + span {\r\n	color: #409eff;\r\n}\r\n';
@@ -4170,6 +5182,7 @@
         this.checkPage();
       });
       GreasyforkBeautify.init();
+      GreasyforkShortCut.init();
       if (GreasyforkRouter.isScript()) {
         GreasyforkScripts.init();
       }
@@ -4589,174 +5602,6 @@
       }
     },
     /**
-     * 面板-脚本列表|库
-     * @param type
-     * @param event
-     * @param rightHeaderElement
-     * @param rightContainerElement
-     * @returns
-     */
-    async UIScriptList(type, event, rightHeaderElement, rightContainerElement) {
-      var _a2, _b, _c;
-      if (!GreasyforkMenu.isLogin) {
-        Qmsg.error(i18next.t("请先登录账号！"));
-        return;
-      }
-      let userLinkElement = GreasyforkMenu.getUserLinkElement();
-      let userLink = userLinkElement.href;
-      let userId = (_c = (_b = (_a2 = userLink == null ? void 0 : userLink.split("/")) == null ? void 0 : _a2.pop()) == null ? void 0 : _b.match(/([0-9]+)/)) == null ? void 0 : _c[0];
-      let loading = __pops.loading({
-        mask: {
-          enable: true
-        },
-        parent: rightContainerElement,
-        content: {
-          text: i18next.t("获取信息中，请稍后...")
-        },
-        addIndexCSS: false
-      });
-      let userInfo = await GreasyforkApi.getUserInfo(userId);
-      loading.close();
-      if (!userInfo) {
-        return;
-      }
-      log.info(userInfo);
-      let scriptList = type === "script-list" ? userInfo["scriptList"] : userInfo["scriptLibraryList"];
-      Qmsg.success(
-        i18next.t("获取成功，共 {{count}} 个", {
-          count: scriptList.length
-        })
-      );
-      for (const scriptInfo of scriptList) {
-        let liElement = domUtils.createElement("li", {
-          className: "w-script-list-item",
-          innerHTML: (
-            /*html*/
-            `
-				<div class="w-script-info">
-				<div class="w-script-name">
-					<a href="${scriptInfo["url"]}" target="_blank">${scriptInfo["name"]}</a>
-				</div>
-				<div class="w-script-fan-score">
-					<p>${i18next.t("评分：")}${scriptInfo["fan_score"]}</p>
-				</div>
-				<div class="w-script-locale">
-					<p>${i18next.t("语言：")}${scriptInfo["locale"]}</p>
-				</div>
-				<div class="w-script-version">
-					<p>${i18next.t("版本：")}${scriptInfo["version"]}</p>
-				</div>
-				<div class="w-script-update-time">
-					<p>${i18next.t("更新：")}${utils.getDaysDifference(
-            new Date(scriptInfo["code_updated_at"]).getTime(),
-            void 0,
-            "auto"
-          )}前</p>
-				</div>
-				</div>
-            `
-          )
-        });
-        let scriptInfoElement = liElement.querySelector(
-          ".w-script-info"
-        );
-        let buttonElement = domUtils.createElement("div", {
-          className: "pops-panel-button",
-          innerHTML: (
-            /*html*/
-            `
-				<button type="primary" data-icon="" data-righticon="false">
-				<span>${i18next.t("同步代码")}</span>
-				</button>
-				`
-          )
-        });
-        if (scriptInfo["deleted"]) {
-          liElement.classList.add("w-script-deleted");
-          buttonElement.querySelector("button").setAttribute("disabled", "true");
-        }
-        domUtils.on(buttonElement, "click", void 0, async function() {
-          log.success(["同步", scriptInfo]);
-          let btn = buttonElement.querySelector("button");
-          let span = buttonElement.querySelector(
-            "button span"
-          );
-          let iconElement = domUtils.createElement(
-            "i",
-            {
-              className: "pops-bottom-icon",
-              innerHTML: __pops.config.iconSVG.loading
-            },
-            {
-              "is-loading": true
-            }
-          );
-          btn.setAttribute("disabled", "true");
-          btn.setAttribute("data-icon", "true");
-          span.innerText = i18next.t("同步中...");
-          domUtils.before(span, iconElement);
-          let scriptId = scriptInfo == null ? void 0 : scriptInfo["id"];
-          let codeSyncFormData = await GreasyforkApi.getSourceCodeSyncFormData(
-            scriptId.toString()
-          );
-          if (codeSyncFormData) {
-            const SCRIPT_SYNC_TYPE_ID_FORMDATA_KEY = "script[script_sync_type_id]";
-            if (codeSyncFormData.has(SCRIPT_SYNC_TYPE_ID_FORMDATA_KEY)) {
-              let syncTypeId = codeSyncFormData.get(
-                SCRIPT_SYNC_TYPE_ID_FORMDATA_KEY
-              );
-              let syncMode = "";
-              if (syncTypeId.toString() === "1") {
-                syncMode = i18next.t("手动");
-              } else if (syncTypeId.toString() === "2") {
-                syncMode = i18next.t("自动");
-              } else if (syncTypeId.toString() === "3") {
-                syncMode = "webhook";
-              }
-              let oldSyncTypeElement = liElement.querySelector(
-                ".w-script-sync-type"
-              );
-              if (oldSyncTypeElement) {
-                oldSyncTypeElement.querySelector("p").innerText = i18next.t(
-                  "同步方式：{{syncMode}}",
-                  { syncMode }
-                );
-              } else {
-                domUtils.append(
-                  scriptInfoElement,
-                  /*html*/
-                  `
-								<div class="w-script-sync-type">
-									<p>${i18next.t("同步方式：{{syncMode}}", {
-                  syncMode
-                })}
-									</p>
-								</div>`
-                );
-              }
-              let syncUpdateResponse = await GreasyforkApi.sourceCodeSync(
-                scriptInfo["id"].toString(),
-                codeSyncFormData
-              );
-              if (syncUpdateResponse) {
-                Qmsg.success(i18next.t("同步成功"));
-              } else {
-                Qmsg.error(i18next.t("同步失败"));
-              }
-            } else {
-              Qmsg.error(i18next.t("该脚本未设置同步信息"));
-            }
-          }
-          btn.removeAttribute("disabled");
-          btn.removeAttribute("data-icon");
-          span.innerText = i18next.t("同步代码");
-          iconElement.remove();
-        });
-        liElement.appendChild(buttonElement);
-        rightContainerElement.appendChild(liElement);
-      }
-    },
-    /**
      * 检测gf页面是否正确加载，有时候会出现
      * We're down for maintenance. Check back again soon.
      */
@@ -4939,428 +5784,6 @@
           $nav.appendChild($filterBtn);
         }
       });
-    }
-  };
-  const SettingUIScriptList = {
-    id: "greasy-fork-panel-config-script-list",
-    title: i18next.t("脚本列表"),
-    callback(event, rightHeaderElement, rightContainerElement) {
-      Greasyfork.UIScriptList(
-        "script-list",
-        event,
-        rightHeaderElement,
-        rightContainerElement
-      );
-    },
-    forms: []
-  };
-  const SettingUIScriptLib = {
-    id: "greasy-fork-panel-config-library",
-    title: i18next.t("库"),
-    callback(event, rightHeaderElement, rightContainerElement) {
-      Greasyfork.UIScriptList(
-        "script-library",
-        event,
-        rightHeaderElement,
-        rightContainerElement
-      );
-    },
-    forms: []
-  };
-  const UIScriptListCSS = '.w-script-list-item {\r\n	padding: 10px 0;\r\n	border-bottom: 1px solid #e5e5e5;\r\n	font-size: 16px;\r\n	text-align: left;\r\n}\r\n.w-script-version,\r\n.w-script-fan-score,\r\n.w-script-create-time,\r\n.w-script-update-time,\r\n.w-script-locale,\r\n.w-script-sync-type {\r\n	font-size: 14px;\r\n	color: #7c7c7c;\r\n}\r\n.w-script-fan-score {\r\n	margin-left: unset !important;\r\n	text-align: unset !important;\r\n	max-width: unset !important;\r\n}\r\n.w-script-deleted {\r\n	text-decoration: line-through;\r\n	font-style: italic;\r\n	color: red;\r\n}\r\n.w-script-deleted .w-script-name::before {\r\n	content: "【删除】";\r\n}\r\n\r\nli[data-key="user"] .pops-panel-input,\r\nli[data-key="pwd"] .pops-panel-input {\r\n	max-width: 200px;\r\n}\r\n';
-  const SettingUIUsers = {
-    id: "greasy-fork-panel-config-account",
-    title: i18next.t("用户"),
-    forms: [
-      {
-        text: "",
-        type: "forms",
-        forms: [
-          {
-            text: i18next.t("功能"),
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    i18next.t("迁移【控制台】到顶部导航栏"),
-                    "users-changeConsoleToTopNavigator",
-                    true,
-                    void 0,
-                    i18next.t("将【控制台】按钮移动到顶部导航栏，节省空间")
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  };
-  const __PopsPanel__ = {
-    data: null,
-    oneSuccessExecMenu: null,
-    onceExec: null,
-    listenData: null
-  };
-  const PopsPanel = {
-    /** 数据 */
-    $data: {
-      /**
-       * 菜单项的默认值
-       */
-      get data() {
-        if (__PopsPanel__.data == null) {
-          __PopsPanel__.data = new utils.Dictionary();
-        }
-        return __PopsPanel__.data;
-      },
-      /**
-       * 成功只执行了一次的项
-       */
-      get oneSuccessExecMenu() {
-        if (__PopsPanel__.oneSuccessExecMenu == null) {
-          __PopsPanel__.oneSuccessExecMenu = new utils.Dictionary();
-        }
-        return __PopsPanel__.oneSuccessExecMenu;
-      },
-      /**
-       * 成功只执行了一次的项
-       */
-      get onceExec() {
-        if (__PopsPanel__.onceExec == null) {
-          __PopsPanel__.onceExec = new utils.Dictionary();
-        }
-        return __PopsPanel__.onceExec;
-      },
-      /** 脚本名，一般用在设置的标题上 */
-      get scriptName() {
-        return SCRIPT_NAME;
-      },
-      /** 菜单项的总值在本地数据配置的键名 */
-      key: KEY,
-      /** 菜单项在attributes上配置的菜单键 */
-      attributeKeyName: ATTRIBUTE_KEY,
-      /** 菜单项在attributes上配置的菜单默认值 */
-      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
-    },
-    /** 监听器 */
-    $listener: {
-      /**
-       * 值改变的监听器
-       */
-      get listenData() {
-        if (__PopsPanel__.listenData == null) {
-          __PopsPanel__.listenData = new utils.Dictionary();
-        }
-        return __PopsPanel__.listenData;
-      }
-    },
-    init() {
-      this.initPanelDefaultValue();
-      this.initExtensionsMenu();
-    },
-    initExtensionsMenu() {
-      if (_unsafeWindow.top !== _unsafeWindow.self) {
-        return;
-      }
-      GM_Menu.add([
-        {
-          key: "show_pops_panel_setting",
-          text: i18next.t("⚙ 设置"),
-          autoReload: false,
-          isStoreValue: false,
-          showText(text) {
-            return text;
-          },
-          callback: () => {
-            this.showPanel();
-          }
-        }
-      ]);
-    },
-    /** 初始化本地设置默认的值 */
-    initPanelDefaultValue() {
-      let that = this;
-      function initDefaultValue(config) {
-        if (!config["attributes"]) {
-          return;
-        }
-        let key = config.attributes[ATTRIBUTE_KEY];
-        let defaultValue = config["attributes"][ATTRIBUTE_DEFAULT_VALUE];
-        if (key == null) {
-          log.warn(["请先配置键", config]);
-          return;
-        }
-        if (that.$data.data.has(key)) {
-          log.warn("请检查该key(已存在): " + key);
-        }
-        that.$data.data.set(key, defaultValue);
-      }
-      function loopInitDefaultValue(configList) {
-        for (let index = 0; index < configList.length; index++) {
-          let configItem = configList[index];
-          initDefaultValue(configItem);
-          let childForms = configItem.forms;
-          if (childForms && Array.isArray(childForms)) {
-            loopInitDefaultValue(childForms);
-          }
-        }
-      }
-      let contentConfigList = this.getPanelContentConfig();
-      for (let index = 0; index < contentConfigList.length; index++) {
-        let leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.forms) {
-          continue;
-        }
-        let rightContentConfigList = leftContentConfigItem.forms;
-        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
-          loopInitDefaultValue(rightContentConfigList);
-        }
-      }
-    },
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    setValue(key, value) {
-      let locaData = _GM_getValue(KEY, {});
-      let oldValue = locaData[key];
-      locaData[key] = value;
-      _GM_setValue(KEY, locaData);
-      if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, value);
-      }
-    },
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    getValue(key, defaultValue) {
-      let locaData = _GM_getValue(KEY, {});
-      let localValue = locaData[key];
-      if (localValue == null) {
-        if (this.$data.data.has(key)) {
-          return this.$data.data.get(key);
-        }
-        return defaultValue;
-      }
-      return localValue;
-    },
-    /**
-     * 删除值
-     * @param key 键
-     */
-    deleteValue(key) {
-      let locaData = _GM_getValue(KEY, {});
-      let oldValue = locaData[key];
-      Reflect.deleteProperty(locaData, key);
-      _GM_setValue(KEY, locaData);
-      if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, void 0);
-      }
-    },
-    /**
-     * 监听调用setValue、deleteValue
-     * @param key 需要监听的键
-     * @param callback
-     */
-    addValueChangeListener(key, callback, option) {
-      let listenerId = Math.random();
-      this.$listener.listenData.set(key, {
-        id: listenerId,
-        key,
-        callback
-      });
-      if (option) {
-        if (option.immediate) {
-          callback(key, this.getValue(key), this.getValue(key));
-        }
-      }
-      return listenerId;
-    },
-    /**
-     * 移除监听
-     * @param listenerId 监听的id
-     */
-    removeValueChangeListener(listenerId) {
-      let deleteKey = null;
-      for (const [key, value] of this.$listener.listenData.entries()) {
-        if (value.id === listenerId) {
-          deleteKey = key;
-          break;
-        }
-      }
-      if (typeof deleteKey === "string") {
-        this.$listener.listenData.delete(deleteKey);
-      } else {
-        console.warn("没有找到对应的监听器");
-      }
-    },
-    /**
-     * 判断该键是否存在
-     * @param key 键
-     */
-    hasKey(key) {
-      let locaData = _GM_getValue(KEY, {});
-      return key in locaData;
-    },
-    /**
-     * 自动判断菜单是否启用，然后执行回调
-     * @param key
-     * @param callback 回调
-     */
-    execMenu(key, callback) {
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
-      }
-      if (!this.$data.data.has(key)) {
-        log.warn(`${key} 键不存在`);
-        return;
-      }
-      let value = PopsPanel.getValue(key);
-      if (value) {
-        callback(value);
-      }
-    },
-    /**
-     * 自动判断菜单是否启用，然后执行回调，只会执行一次
-     * @param key
-     * @param callback 回调
-     */
-    execMenuOnce(key, callback) {
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
-      }
-      if (!this.$data.data.has(key)) {
-        log.warn(`${key} 键不存在`);
-        return;
-      }
-      if (this.$data.oneSuccessExecMenu.has(key)) {
-        return;
-      }
-      this.$data.oneSuccessExecMenu.set(key, 1);
-      let resultStyleList = [];
-      let pushStyleNode = (style) => {
-        let __value = PopsPanel.getValue(key);
-        changeCallBack(__value, style);
-      };
-      let changeCallBack = (currentValue, resultStyle) => {
-        let resultList = [];
-        if (currentValue) {
-          let result = resultStyle ?? callback(currentValue, pushStyleNode);
-          if (result instanceof HTMLStyleElement) {
-            resultList = [result];
-          } else if (Array.isArray(result)) {
-            resultList = [
-              ...result.filter(
-                (item) => item != null && item instanceof HTMLStyleElement
-              )
-            ];
-          }
-        }
-        for (let index = 0; index < resultStyleList.length; index++) {
-          let $css = resultStyleList[index];
-          $css.remove();
-          resultStyleList.splice(index, 1);
-          index--;
-        }
-        resultStyleList = [...resultList];
-      };
-      this.addValueChangeListener(
-        key,
-        (__key, oldValue, newValue) => {
-          changeCallBack(newValue);
-        }
-      );
-      let value = PopsPanel.getValue(key);
-      if (value) {
-        changeCallBack(value);
-      }
-    },
-    /**
-     * 根据key执行一次
-     * @param key
-     */
-    onceExec(key, callback) {
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
-      }
-      if (this.$data.onceExec.has(key)) {
-        return;
-      }
-      callback();
-      this.$data.onceExec.set(key, 1);
-    },
-    /**
-     * 显示设置面板
-     */
-    showPanel() {
-      __pops.panel({
-        title: {
-          text: i18next.t("{{SCRIPT_NAME}}-设置", { SCRIPT_NAME }),
-          position: "center",
-          html: false,
-          style: ""
-        },
-        content: this.getPanelContentConfig(),
-        mask: {
-          enable: true,
-          clickEvent: {
-            toClose: true,
-            toHide: false
-          }
-        },
-        isMobile: this.isMobile(),
-        width: this.getWidth(),
-        height: this.getHeight(),
-        drag: true,
-        only: true,
-        style: `
-			${UIScriptListCSS}
-			`
-      });
-    },
-    isMobile() {
-      return window.outerWidth < 550;
-    },
-    /**
-     * 获取设置面板的宽度
-     */
-    getWidth() {
-      if (window.outerWidth < 550) {
-        return "92vw";
-      } else {
-        return "550px";
-      }
-    },
-    /**
-     * 获取设置面板的高度
-     */
-    getHeight() {
-      if (window.outerHeight > 450) {
-        return "80vh";
-      } else {
-        return "450px";
-      }
-    },
-    /**
-     * 获取配置内容
-     */
-    getPanelContentConfig() {
-      let configList = [
-        SettingUIGeneral,
-        SettingUIScripts,
-        SettingUIDiscuessions,
-        SettingUIUsers,
-        SettingUIScriptList,
-        SettingUIScriptLib
-      ];
-      return configList;
     }
   };
   PopsPanel.init();

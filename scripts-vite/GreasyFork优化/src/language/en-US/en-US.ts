@@ -261,4 +261,15 @@ export const en_US_language = {
 	"降级到 {{version}} 版本": "Downgrade to {{version}} Version",
 	"重新安装 {{version}} 版本": "Reinstall {{version}} Version",
 	"发布的用户id：{{text}}": "Published user ID: {{text}}",
+	自定义快捷键: "Customize shortcut keys",
+	点击录入快捷键: "Click on the input shortcut key",
+	快捷键发表回复: "Shortcut key to post reply",
+	"在输入框内按下快捷发表回复，例如：{{key}}":
+		"Press the shortcut to post a reply in the input box, for example: {{key}}",
+	请先执行当前的录入操作: "Please perform the current input operation first",
+	清空快捷键: "Clear shortcut keys",
+	"请按下快捷键...": "Please press the shortcut key...",
+	成功录入: "Successful entry",
+	"快捷键 {{key}} 已被 {{isUsedKey}} 占用":
+		"The shortcut key {{key}} is already used by {{isUsedKey}}",
 };

@@ -1,5 +1,10 @@
 import { GM_Menu, SCRIPT_NAME, log, pops, utils } from "@/env";
-import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, KEY } from "@/setting/config";
+import {
+	ATTRIBUTE_DEFAULT_VALUE,
+	ATTRIBUTE_INIT,
+	ATTRIBUTE_KEY,
+	KEY,
+} from "@/setting/config";
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
 import { SettingUIGeneral } from "./components/general";
 import { SettingUIScripts } from "./components/scripts";
@@ -121,14 +126,22 @@ const PopsPanel = {
 		function initDefaultValue(
 			config: PopsPanelFormsTotalDetails | PopsPanelFormsDetails
 		) {
-			if (!config["attributes"]) {
+			if (!config.attributes) {
 				/* 必须配置attributes属性，用于存储菜单的键和默认值 */
 				return;
 			}
 			/* 获取键名 */
 			let key = config.attributes[ATTRIBUTE_KEY];
 			/* 获取默认值 */
-			let defaultValue = config["attributes"][ATTRIBUTE_DEFAULT_VALUE];
+			let defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+			/* 调用初始化方法，返回false则阻止默认行为 */
+			let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+			if (typeof __attr_init__ === "function") {
+				let __attr_result__ = __attr_init__();
+				if (typeof __attr_result__ === "boolean" && !__attr_result__) {
+					return;
+				}
+			}
 			if (key == null) {
 				log.warn(["请先配置键", config]);
 				return;
