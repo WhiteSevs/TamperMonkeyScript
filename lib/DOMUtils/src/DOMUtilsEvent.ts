@@ -833,9 +833,9 @@ class DOMUtilsEvent {
 		function checkDOMReadyState() {
 			try {
 				if (
-					document.readyState === "complete" ||
-					(document.readyState !== "loading" &&
-						!(document.documentElement as any).doScroll)
+					DOMUtilsCore.document.readyState === "complete" ||
+					(DOMUtilsCore.document.readyState !== "loading" &&
+						!(DOMUtilsCore.document.documentElement as any).doScroll)
 				) {
 					return true;
 				} else {

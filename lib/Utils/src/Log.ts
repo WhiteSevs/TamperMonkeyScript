@@ -1,4 +1,5 @@
 import type { AnyObject } from "./Utils";
+import { UtilsCore } from "./UtilsCore";
 
 /** Utils.Log的初始化配置 */
 declare interface UtilsLogOptions {
@@ -58,7 +59,7 @@ class Log {
 					};
 			  }
 			| string,
-		console: Console = globalThis.console
+		console: Console = UtilsCore.window.console
 	) {
 		if (typeof _GM_info_ === "string") {
 			this.tag = _GM_info_;

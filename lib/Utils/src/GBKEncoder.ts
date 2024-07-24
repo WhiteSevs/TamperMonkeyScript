@@ -1,4 +1,4 @@
-import { UtilsOwnObject, type AnyObject } from "./Utils";
+import { UtilsOwnObject } from "./Utils";
 
 class GBKEncoder {
 	#data: RegExpMatchArray = [] as any;
@@ -95,6 +95,7 @@ class GBKEncoder {
 	decode(str: string) {
 		var GBKMatcher = /%[0-9A-F]{2}%[0-9A-F]{2}/;
 		var UTFMatcher = /%[0-9A-F]{2}/;
+		// @ts-ignore
 		var gbk = true,
 			utf = true;
 		let that = this;

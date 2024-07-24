@@ -1,25 +1,28 @@
+import { UtilsCore } from "./UtilsCore";
+
 declare interface UtilsIDBOpenErrorResult {
 	code: number;
 	msg: string;
 	event: Event;
 }
-
 class indexedDB {
 	#dbName: string;
 	#storeName: string;
 	#dbVersion: number;
 	/* websql的版本号，由于ios的问题，版本号的写法不一样 */
+	// @ts-ignore
 	#slqVersion = "1";
 	/* 监听IndexDB */
 	#indexedDB =
-		window.indexedDB ||
-		(window as any).mozIndexedDB ||
-		(window as any).webkitIndexedDB ||
-		(window as any).msIndexedDB;
+		UtilsCore.window.indexedDB ||
+		(UtilsCore.window as any).mozIndexedDB ||
+		(UtilsCore.window as any).webkitIndexedDB ||
+		(UtilsCore.window as any).msIndexedDB;
 	/* 缓存数据库，避免同一个页面重复创建和销毁 */
 	#db: {
 		[key: string]: IDBDatabase;
 	} = {};
+	// @ts-ignore
 	#store: IDBObjectStore = null as any;
 	#errorCode = {
 		/* 错误码 */
@@ -158,6 +161,7 @@ class indexedDB {
 					let request = idbStore.put(inData);
 					request.onsuccess = function (event: Event) {
 						/* 保存成功有success 字段 */
+						// @ts-ignore
 						let target = event.target as IDBRequest;
 						resolve({
 							success: true,
@@ -168,6 +172,7 @@ class indexedDB {
 						});
 					};
 					request.onerror = function (event: Event) {
+						// @ts-ignore
 						let target = event.target as IDBRequest;
 						resolve({
 							success: false,
@@ -241,6 +246,7 @@ class indexedDB {
 						}
 					};
 					request.onerror = function (event: any) {
+						// @ts-ignore
 						let target = event.target as IDBRequest;
 						resolve({
 							success: false,
@@ -309,6 +315,7 @@ class indexedDB {
 						});
 					};
 					request.onerror = function (event: any) {
+						// @ts-ignore
 						let target = event.target as IDBRequest;
 						resolve({
 							success: false,
@@ -369,6 +376,7 @@ class indexedDB {
 						}
 					};
 					request.onerror = function (event: any) {
+						// @ts-ignore
 						let target = event.target as IDBRequest;
 						resolve({
 							success: false,

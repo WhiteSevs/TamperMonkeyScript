@@ -1,9 +1,9 @@
 export declare interface UtilsCoreOption {
 	document: Document;
-	window: Window | typeof globalThis;
-	globalThis: Window | typeof globalThis;
-	self: Window | typeof globalThis;
-	top: Window | typeof globalThis;
+	window: Window & typeof globalThis;
+	globalThis: typeof globalThis | Window;
+	self: Window & typeof globalThis;
+	top: Window;
 }
 
 const UtilsCoreDefaultEnv: UtilsCoreOption = {

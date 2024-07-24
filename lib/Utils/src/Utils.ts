@@ -67,23 +67,23 @@ class Utils {
 		if (typeof cssText !== "string") {
 			throw new Error("Utils.addStyle 参数cssText 必须为String类型");
 		}
-		let cssNode = document.createElement("style");
+		let cssNode = UtilsCore.document.createElement("style");
 		cssNode.setAttribute("type", "text/css");
 		cssNode.innerHTML = cssText;
-		if (document.head) {
+		if (UtilsCore.document.head) {
 			/* 插入head最后 */
-			document.head.appendChild(cssNode);
-		} else if (document.body) {
+			UtilsCore.document.head.appendChild(cssNode);
+		} else if (UtilsCore.document.body) {
 			/* 插入body后 */
-			document.body.appendChild(cssNode);
-		} else if (document.documentElement.childNodes.length === 0) {
+			UtilsCore.document.body.appendChild(cssNode);
+		} else if (UtilsCore.document.documentElement.childNodes.length === 0) {
 			/* 插入#html第一个元素后 */
-			document.documentElement.appendChild(cssNode);
+			UtilsCore.document.documentElement.appendChild(cssNode);
 		} else {
 			/* 插入head前面 */
-			document.documentElement.insertBefore(
+			UtilsCore.document.documentElement.insertBefore(
 				cssNode,
-				document.documentElement.childNodes[0]
+				UtilsCore.document.documentElement.childNodes[0]
 			);
 		}
 		return cssNode;
@@ -306,7 +306,8 @@ class Utils {
 		let elementPosYBottom = Number(
 			(element as HTMLElement).getBoundingClientRect().bottom
 		); /* 要检测的元素的相对屏幕的纵坐标最下边 */
-		let clickNodeHTML = (window.event as any).target.innerHTML as string;
+		let clickNodeHTML = (UtilsCore.window.event as any).target
+			.innerHTML as string;
 		if (
 			mouseClickPosX >= elementPosXLeft &&
 			mouseClickPosX <= elementPosXRight &&
@@ -560,21 +561,21 @@ class Utils {
 		}
 		if (isIFrame) {
 			/* 使用iframe */
-			const iframeElement = document.createElement("iframe");
+			const iframeElement = UtilsCore.document.createElement("iframe");
 			iframeElement.style.display = "none";
 			iframeElement.src = base64Data;
-			document.body.appendChild(iframeElement);
+			UtilsCore.document.body.appendChild(iframeElement);
 			setTimeout(() => {
 				iframeElement!.contentWindow!.document.execCommand(
 					"SaveAs",
 					true,
 					fileName
 				);
-				document.body.removeChild(iframeElement);
+				UtilsCore.document.body.removeChild(iframeElement);
 			}, 100);
 		} else {
 			/* 使用A标签 */
-			const linkElement = document.createElement("a");
+			const linkElement = UtilsCore.document.createElement("a");
 			linkElement.setAttribute("target", "_blank");
 			linkElement.download = fileName;
 			linkElement.href = base64Data;
@@ -604,7 +605,11 @@ class Utils {
 			/* CODE FOR BROWSERS THAT SUPPORT window.find */
 			let windowFind = (UtilsCore.self as any).find;
 			strFound = windowFind(str, caseSensitive, true, true, false);
-			if (strFound && self.getSelection && !self.getSelection()!.anchorNode) {
+			if (
+				strFound &&
+				UtilsCore.self.getSelection &&
+				!UtilsCore.self.getSelection()!.anchorNode
+			) {
 				strFound = windowFind(str, caseSensitive, true, true, false);
 			}
 			if (!strFound) {
@@ -1228,16 +1233,17 @@ class Utils {
 		// 当前页面最大的z-index
 		let zIndex = 0;
 		// 当前的最大z-index的元素，调试使用
+		// @ts-ignore
 		let maxZIndexNode = null;
-		document.querySelectorAll("*").forEach((element, index) => {
-			let nodeStyle = window.getComputedStyle(element);
+		UtilsCore.document.querySelectorAll("*").forEach(($ele, index) => {
+			let nodeStyle = UtilsCore.window.getComputedStyle($ele);
 			/* 不对position为static和display为none的元素进行获取它们的z-index */
 			if (nodeStyle.position !== "static" && nodeStyle.display !== "none") {
 				let nodeZIndex = parseInt(nodeStyle.zIndex);
 				if (!isNaN(nodeZIndex)) {
 					if (nodeZIndex > zIndex) {
 						zIndex = nodeZIndex;
-						maxZIndexNode = element;
+						maxZIndexNode = $ele;
 					}
 				}
 			}
@@ -1553,7 +1559,7 @@ class Utils {
 		if (url.trim() === "") {
 			throw new TypeError("url不能为空字符串或纯空格");
 		}
-		return `thunder://${globalThis.btoa("AA" + url + "ZZ")}`;
+		return `thunder://${UtilsCore.globalThis.btoa("AA" + url + "ZZ")}`;
 	}
 	/**
      * 对于GM_cookie的兼容写法，当无法使用GM_cookie时可以使用这个,但是并不完全兼容，有些写不出来且限制了httponly是无法访问的
@@ -1790,10 +1796,13 @@ class Utils {
 	 */
 	isNearBottom(nearValue?: number): boolean;
 	isNearBottom(nearValue: number = 50): boolean {
-		var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+		var scrollTop =
+			UtilsCore.window.pageYOffset ||
+			UtilsCore.document.documentElement.scrollTop;
 		var windowHeight =
-			window.innerHeight || document.documentElement.clientHeight;
-		var documentHeight = document.documentElement.scrollHeight;
+			UtilsCore.window.innerHeight ||
+			UtilsCore.document.documentElement.clientHeight;
+		var documentHeight = UtilsCore.document.documentElement.scrollHeight;
 		return scrollTop + windowHeight >= documentHeight - nearValue;
 	}
 	/**
@@ -2143,7 +2152,8 @@ class Utils {
 	 */
 	isThemeDark(): boolean;
 	isThemeDark(): boolean {
-		return globalThis.matchMedia("(prefers-color-scheme: dark)").matches;
+		return UtilsCore.globalThis.matchMedia("(prefers-color-scheme: dark)")
+			.matches;
 	}
 	/**
 	 * 判断元素是否在页面中可见
@@ -2172,16 +2182,18 @@ class Utils {
 		}
 		let result = true;
 		for (const domItem of needCheckDomList) {
-			let domDisplay = window.getComputedStyle(domItem);
+			let domDisplay = UtilsCore.window.getComputedStyle(domItem);
 			if (domDisplay.display === "none") {
 				result = false;
 			} else {
 				let domClientRect = domItem.getBoundingClientRect();
 				if (inView) {
 					let viewportWidth =
-						window.innerWidth || document.documentElement.clientWidth;
+						UtilsCore.window.innerWidth ||
+						UtilsCore.document.documentElement.clientWidth;
 					let viewportHeight =
-						window.innerHeight || document.documentElement.clientHeight;
+						UtilsCore.window.innerHeight ||
+						UtilsCore.document.documentElement.clientHeight;
 					result = !(
 						domClientRect.right < 0 ||
 						domClientRect.left > viewportWidth ||
@@ -2539,15 +2551,6 @@ class Utils {
 		}
 	): MutationObserver {
 		let UtilsContext = this;
-		if (
-			!(target instanceof Node) &&
-			!(target instanceof NodeList) &&
-			!UtilsContext.isJQuery(target)
-		) {
-			throw new Error(
-				"Utils.mutationObserver 参数 target 必须为 Node|NodeList|jQuery类型"
-			);
-		}
 
 		let default_obverser_config = {
 			/* 监听到元素有反馈，需执行的函数 */
@@ -2595,20 +2598,21 @@ class Utils {
 			observer_config
 		);
 		let windowMutationObserver =
-			window.MutationObserver ||
+			UtilsCore.window.MutationObserver ||
 			(UtilsCore.window as any).webkitMutationObserver ||
 			(UtilsCore.window as any).MozMutationObserver;
+		// 观察者对象
 		let mutationObserver = new windowMutationObserver(function (
 			mutations: MutationRecord[],
 			observer: MutationObserver
 		) {
-			observer_config?.callback(mutations, observer);
+			if (typeof observer_config.callback === "function") {
+				observer_config.callback(mutations, observer);
+			}
 		});
-		if (target instanceof Node) {
-			/* 传入的参数是节点元素 */
-			mutationObserver.observe(target, observer_config.config);
-		} else if (target instanceof NodeList) {
-			/* 传入的参数是节点元素数组 */
+
+		if (Array.isArray(target) || target instanceof NodeList) {
+			// 传入的是数组或者元素数组
 			target.forEach((item) => {
 				mutationObserver.observe(item, observer_config.config);
 			});
@@ -2618,12 +2622,13 @@ class Utils {
 				mutationObserver.observe(item, observer_config.config);
 			});
 		} else {
-			/* 未知 */
-			console.error("Utils.mutationObserver 未知参数", arguments);
+			mutationObserver.observe(target, observer_config.config);
 		}
 		if (observer_config.immediate) {
 			/* 主动触发一次 */
-			observer_config.callback([], mutationObserver);
+			if (typeof observer_config.callback === "function") {
+				observer_config.callback([], mutationObserver);
+			}
 		}
 		return mutationObserver;
 	}
@@ -3097,6 +3102,7 @@ class Utils {
 		EventTarget.prototype.addEventListener = function (...args) {
 			let type = args[0];
 			let callback = args[1];
+			// @ts-ignore
 			let options = args[2];
 			if (filter(type)) {
 				if (typeof callback === "function") {
@@ -3169,7 +3175,7 @@ class Utils {
 		startIndex?: number,
 		endIndex?: number
 	): void {
-		let range = document.createRange();
+		let range = UtilsCore.document.createRange();
 		range.selectNodeContents(element);
 		if (childTextNode) {
 			if (childTextNode.nodeType !== Node.TEXT_NODE) {
@@ -3181,7 +3187,7 @@ class Utils {
 			}
 		}
 
-		let selection = globalThis.getSelection();
+		let selection = UtilsCore.globalThis.getSelection();
 		if (selection) {
 			selection.removeAllRanges();
 			selection.addRange(range);
@@ -3260,6 +3266,7 @@ class Utils {
 			}
 			async init() {
 				let copyStatus = false;
+				// @ts-ignore
 				let requestPermissionStatus = await this.requestClipboardPermission();
 				if (
 					this.hasClipboard() &&
@@ -3302,15 +3309,15 @@ class Utils {
 			 */
 			copyTextByTextArea() {
 				try {
-					let copyElement = document.createElement("textarea");
+					let copyElement = UtilsCore.document.createElement("textarea");
 					copyElement.value = this.#copyData;
 					copyElement.setAttribute("type", "text");
 					copyElement.setAttribute("style", "opacity:0;position:absolute;");
 					copyElement.setAttribute("readonly", "readonly");
-					document.body.appendChild(copyElement);
+					UtilsCore.document.body.appendChild(copyElement);
 					copyElement.select();
-					document.execCommand("copy");
-					document.body.removeChild(copyElement);
+					UtilsCore.document.execCommand("copy");
+					UtilsCore.document.body.removeChild(copyElement);
 					return true;
 				} catch (error) {
 					console.error("复制失败，error👉", error);
@@ -3385,10 +3392,10 @@ class Utils {
 		}
 		return new Promise((resolve) => {
 			const utilsClipboard = new UtilsClipboard(resolve, data, textType);
-			if (document.hasFocus()) {
+			if (UtilsCore.document.hasFocus()) {
 				utilsClipboard.init();
 			} else {
-				window.addEventListener(
+				UtilsCore.window.addEventListener(
 					"focus",
 					() => {
 						utilsClipboard.init();
@@ -3466,7 +3473,7 @@ class Utils {
 			offSetY: number
 		) {
 			let win = unsafeWindow || window;
-			let mouseEvent = document.createEvent("MouseEvents");
+			let mouseEvent = UtilsCore.document.createEvent("MouseEvents");
 			mouseEvent.initMouseEvent(
 				eventName,
 				true,
@@ -3488,7 +3495,7 @@ class Utils {
 		}
 		let sliderElement =
 			typeof selector === "string"
-				? document.querySelector(selector)
+				? UtilsCore.document.querySelector(selector)
 				: selector;
 		if (
 			!(sliderElement instanceof Node) ||
@@ -3542,7 +3549,7 @@ class Utils {
 	 */
 	exitFullScreen(element?: HTMLElement): Promise<void>;
 	exitFullScreen(
-		element: HTMLElement = document.documentElement
+		element: HTMLElement = UtilsCore.document.documentElement
 	): Promise<void> {
 		if (UtilsCore.document.exitFullscreen) {
 			return UtilsCore.document.exitFullscreen();
@@ -4074,7 +4081,7 @@ class Utils {
 		// 选择器
 		let selector = args[0] as unknown as string | string[];
 		// 父元素（监听的元素）
-		let parent = UtilsCore.document as Node | Element | Document | HTMLElement;
+		let parent: Element = UtilsCore.document as any as Element;
 		// 超时时间
 		let timeout = 0;
 		if (typeof args[0] !== "string" && !Array.isArray(args[0])) {
@@ -4092,7 +4099,7 @@ class Utils {
 				secondParam instanceof Node
 			) {
 				// "div",document
-				parent = secondParam;
+				parent = secondParam as any as Element;
 			} else {
 				throw new TypeError("Utils.waitNode 第二个参数必须是number|Node");
 			}
@@ -4103,7 +4110,7 @@ class Utils {
 			// 第三个参数，timeout
 			let thirdParam = args[2];
 			if (typeof secondParam === "object" && secondParam instanceof Node) {
-				parent = secondParam;
+				parent = secondParam as any as Element;
 				if (typeof thirdParam === "number") {
 					timeout = thirdParam;
 				} else {
@@ -4120,7 +4127,7 @@ class Utils {
 				if (Array.isArray(selector)) {
 					let result: T[] = [];
 					for (let index = 0; index < selector.length; index++) {
-						let node = (parent as Element).querySelector(selector[index]);
+						let node = parent.querySelector(selector[index]);
 						if (node) {
 							result.push(node as any);
 						}
@@ -4129,15 +4136,10 @@ class Utils {
 						return result;
 					}
 				} else {
-					return (parent as Element).querySelector(selector);
+					return parent.querySelector(selector);
 				}
 			}
-			let node = getNode();
-			if (node) {
-				resolve(node as any as T);
-				return;
-			}
-			let observer = that.mutationObserver(parent, {
+			var observer = that.mutationObserver(parent, {
 				config: {
 					subtree: true,
 					childList: true,
@@ -4147,16 +4149,21 @@ class Utils {
 					let node = getNode();
 					if (node) {
 						// 取消观察器
-						observer.disconnect();
+						if (typeof observer?.disconnect === "function") {
+							observer.disconnect();
+						}
 						resolve(node as any as T);
 						return;
 					}
 				},
+				immediate: true,
 			});
 			if (timeout > 0) {
 				setTimeout(() => {
 					// 取消观察器
-					observer.disconnect();
+					if (typeof observer?.disconnect === "function") {
+						observer.disconnect();
+					}
 					resolve(null);
 				}, timeout);
 			}
@@ -4226,7 +4233,7 @@ class Utils {
 		// 选择器
 		let selectorList = args[0] as unknown as string[];
 		// 父元素（监听的元素）
-		let parent = UtilsCore.document as Node | Element | Document | HTMLElement;
+		let parent: Element = UtilsCore.document as any as Element;
 		// 超时时间
 		let timeout = 0;
 		if (typeof args[0] !== "object" && !Array.isArray(args[0])) {
@@ -4244,7 +4251,7 @@ class Utils {
 				secondParam instanceof Node
 			) {
 				// "div",document
-				parent = secondParam;
+				parent = secondParam as any as Element;
 			} else {
 				throw new TypeError("Utils.waitAnyNode 第二个参数必须是number|Node");
 			}
@@ -4255,7 +4262,7 @@ class Utils {
 			// 第三个参数，timeout
 			let thirdParam = args[2];
 			if (typeof secondParam === "object" && secondParam instanceof Node) {
-				parent = secondParam;
+				parent = secondParam as any as Element;
 				if (typeof thirdParam === "number") {
 					timeout = thirdParam;
 				} else {
@@ -4396,7 +4403,7 @@ class Utils {
 		// 选择器数组
 		let selector = args[0] as unknown as string | string[];
 		// 父元素（监听的元素）
-		let parent = UtilsCore.document as Node | Element | Document | HTMLElement;
+		let parent: Element = UtilsCore.document as any as Element;
 		// 超时时间
 		let timeout = 0;
 		if (typeof args[0] !== "string" && !Array.isArray(args[0])) {
@@ -4414,7 +4421,7 @@ class Utils {
 				secondParam instanceof Node
 			) {
 				// "div",document
-				parent = secondParam;
+				parent = secondParam as any as Element;
 			} else {
 				throw new TypeError("Utils.waitNodeList 第二个参数必须是number|Node");
 			}
@@ -4425,7 +4432,7 @@ class Utils {
 			// 第三个参数，timeout
 			let thirdParam = args[2];
 			if (typeof secondParam === "object" && secondParam instanceof Node) {
-				parent = secondParam;
+				parent = secondParam as any as Element;
 				if (typeof thirdParam === "number") {
 					timeout = thirdParam;
 				} else {
@@ -4459,12 +4466,7 @@ class Utils {
 					}
 				}
 			}
-			let nodeList = getNodeList();
-			if (nodeList) {
-				resolve(nodeList as T);
-				return;
-			}
-			let observer = that.mutationObserver(parent, {
+			var observer = that.mutationObserver(parent, {
 				config: {
 					subtree: true,
 					childList: true,
@@ -4474,16 +4476,21 @@ class Utils {
 					let node = getNodeList();
 					if (node) {
 						// 取消观察器
-						observer.disconnect();
+						try {
+							observer.disconnect();
+						} catch (error) {}
 						resolve(node as T);
 						return;
 					}
 				},
+				immediate: true,
 			});
 			if (timeout > 0) {
 				setTimeout(() => {
 					// 取消观察器
-					observer.disconnect();
+					if (typeof observer?.disconnect === "function") {
+						observer.disconnect();
+					}
 					resolve(null);
 				}, timeout);
 			}
@@ -4555,7 +4562,7 @@ class Utils {
 		// 选择器数组
 		let selectorList = args[0] as unknown as string[];
 		// 父元素（监听的元素）
-		let parent = UtilsCore.document as Node | Element | Document | HTMLElement;
+		let parent: Element = UtilsCore.document as any as Element;
 		// 超时时间
 		let timeout = 0;
 		if (!Array.isArray(args[0])) {
@@ -4573,7 +4580,7 @@ class Utils {
 				secondParam instanceof Node
 			) {
 				// "div",document
-				parent = secondParam;
+				parent = secondParam as any as Element;
 			} else {
 				throw new TypeError(
 					"Utils.waitAnyNodeList 第二个参数必须是number|Node"
@@ -4586,7 +4593,7 @@ class Utils {
 			// 第三个参数，timeout
 			let thirdParam = args[2];
 			if (typeof secondParam === "object" && secondParam instanceof Node) {
-				parent = secondParam;
+				parent = secondParam as any as Element;
 				if (typeof thirdParam === "number") {
 					timeout = thirdParam;
 				} else {

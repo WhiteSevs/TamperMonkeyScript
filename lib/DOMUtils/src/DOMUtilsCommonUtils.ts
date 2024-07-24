@@ -83,10 +83,7 @@ const DOMUtilsCommonUtils = {
 		if (target === DOMUtilsCore.self) {
 			return true;
 		}
-		if (
-			typeof (unsafeWindow as any) !== "undefined" &&
-			target === (unsafeWindow as any)
-		) {
+		if (typeof unsafeWindow !== "undefined" && target === unsafeWindow) {
 			return true;
 		}
 		if (target?.Math?.toString() !== "[object Math]") {

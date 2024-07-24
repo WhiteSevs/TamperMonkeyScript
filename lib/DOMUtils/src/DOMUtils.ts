@@ -1,13 +1,11 @@
 import { DOMUtilsCommonUtils } from "./DOMUtilsCommonUtils";
 import { DOMUtilsCore } from "./DOMUtilsCore";
 import type { DOMUtilsCoreOption } from "./DOMUtilsCore";
-import type { ParseHTMLReturnType } from "./global";
 import {
 	type DOMUtilsCreateElementAttributesMap,
-	type DOMUtils_EventType,
-	type DOMUtilsEventListenerOptionsAttribute,
 	DOMUtilsEvent,
 } from "./DOMUtilsEvent";
+import { ParseHTMLReturnType } from "./types/global";
 
 class DOMUtils extends DOMUtilsEvent {
 	constructor(option?: DOMUtilsCoreOption) {

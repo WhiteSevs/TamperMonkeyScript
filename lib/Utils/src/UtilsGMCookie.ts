@@ -1,4 +1,5 @@
 import { Utils } from "./Utils";
+import { UtilsCore } from "./UtilsCore";
 
 declare interface UtilsGMCookieResult {
 	/** 为 window.location.hostname */
@@ -61,7 +62,7 @@ class UtilsGMCookie {
 			throw new TypeError("Utils.GMCookie.get 参数cookieName 必须为字符串");
 		}
 
-		let cookies = document.cookie.split(";");
+		let cookies = UtilsCore.document.cookie.split(";");
 		let findValue: UtilsGMCookieResult | undefined = void 0;
 		for (const cookieItem of cookies) {
 			let item = cookieItem.trim();
@@ -71,7 +72,7 @@ class UtilsGMCookie {
 			let itemValue = decodeURIComponent(itemSplit.join(""));
 			if (itemName === cookieName) {
 				findValue = {
-					domain: globalThis.location.hostname,
+					domain: UtilsCore.globalThis.location.hostname,
 					expirationDate: null,
 					hostOnly: true,
 					httpOnly: false,
@@ -104,13 +105,13 @@ class UtilsGMCookie {
 		let resultData: UtilsGMCookieResult[] = [];
 		try {
 			let details: Partial<UtilsGMCookieListOptions> = {
-				url: globalThis.location.href,
-				domain: globalThis.location.hostname,
+				url: UtilsCore.globalThis.location.href,
+				domain: UtilsCore.globalThis.location.hostname,
 				name: "",
 				path: "/",
 			};
 			details = Utils.assign(details, paramDetails);
-			let cookies = document.cookie.split(";");
+			let cookies = UtilsCore.document.cookie.split(";");
 			cookies.forEach((item) => {
 				item = item.trim();
 				let itemSplit = item.split("=");
@@ -123,7 +124,7 @@ class UtilsGMCookie {
 						: new RegExp("^" + details.name, "g");
 				if (itemName.match(nameRegexp as RegExp)) {
 					resultData.push({
-						domain: globalThis.location.hostname,
+						domain: UtilsCore.globalThis.location.hostname,
 						expirationDate: null,
 						hostOnly: true,
 						httpOnly: false,
@@ -157,13 +158,13 @@ class UtilsGMCookie {
 		}
 		let resultData: UtilsGMCookieResult[] = [];
 		let details: Partial<UtilsGMCookieListOptions> = {
-			url: globalThis.location.href,
-			domain: globalThis.location.hostname,
+			url: UtilsCore.globalThis.location.href,
+			domain: UtilsCore.globalThis.location.hostname,
 			name: "",
 			path: "/",
 		};
 		details = Utils.assign(details, paramDetails);
-		let cookies = document.cookie.split(";");
+		let cookies = UtilsCore.document.cookie.split(";");
 		cookies.forEach((item) => {
 			item = item.trim();
 			let itemSplit = item.split("=");
@@ -176,7 +177,7 @@ class UtilsGMCookie {
 					: new RegExp("^" + details.name, "g");
 			if (itemName.match(nameRegexp as RegExp)) {
 				resultData.push({
-					domain: globalThis.location.hostname,
+					domain: UtilsCore.globalThis.location.hostname,
 					expirationDate: null,
 					hostOnly: true,
 					httpOnly: false,
@@ -202,10 +203,10 @@ class UtilsGMCookie {
 	) {
 		try {
 			let details: Partial<UtilsGMCookieSetOptions> = {
-				url: window.location.href,
+				url: UtilsCore.window.location.href,
 				name: "",
 				value: "",
-				domain: window.location.hostname,
+				domain: UtilsCore.window.location.hostname,
 				path: "/",
 				secure: true,
 				httpOnly: false,
@@ -225,7 +226,7 @@ class UtilsGMCookie {
 				";expires=" +
 				(new Date(life) as any).toGMTString() +
 				"; path=/";
-			document.cookie = cookieStr;
+			UtilsCore.document.cookie = cookieStr;
 			callback();
 		} catch (error: any) {
 			callback(error);
@@ -242,7 +243,7 @@ class UtilsGMCookie {
 	) {
 		try {
 			let details: Partial<UtilsGMCookieDeleteOptions> = {
-				url: window.location.href,
+				url: UtilsCore.window.location.href,
 				name: "",
 				// @ts-ignore
 				firstPartyDomain: "",
@@ -250,7 +251,7 @@ class UtilsGMCookie {
 			details = Utils.assign(details, paramDetails);
 			let cookieStr =
 				details.name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-			document.cookie = cookieStr;
+			UtilsCore.document.cookie = cookieStr;
 			callback();
 		} catch (error: any) {
 			callback(error);

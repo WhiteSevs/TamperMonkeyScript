@@ -1,4 +1,5 @@
 import { Utils } from "./Utils";
+import { UtilsCore } from "./UtilsCore";
 
 declare interface UtilsGMMenuClickCallBackData {
 	/** 菜单键名 */
@@ -230,6 +231,7 @@ class GMMenu {
 			);
 			/** 油猴菜单上显示的文本 */
 			let showText = menuOption.showText(menuOption.text, defaultEnable);
+			// @ts-ignore
 			const GMMenuOptions = {
 				/**
 				 * 菜单的id
@@ -282,7 +284,7 @@ class GMMenu {
 				}
 				/* 不刷新网页就刷新菜单 */
 				if (menuOption.autoReload) {
-					window.location.reload();
+					UtilsCore.window.location.reload();
 				} else {
 					that.context.update();
 				}
