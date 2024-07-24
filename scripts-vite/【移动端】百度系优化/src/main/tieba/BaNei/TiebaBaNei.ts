@@ -3,8 +3,8 @@ import { PopsPanel } from "@/setting/setting";
 import { TieBaApi, TiebaUrlApi } from "../api/TiebaApi";
 import { CommonUtils } from "@/utils/CommonUtils";
 import Qmsg from "qmsg";
-import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
 import { VueUtils } from "@/utils/VueUtils";
+import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
 
 interface BaNeiPostInfo {
 	abstract: [

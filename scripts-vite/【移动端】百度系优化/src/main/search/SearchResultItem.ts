@@ -2,7 +2,7 @@ import { DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { SearchResultEveryOneSearch } from "./SearchResultEveryOneSearch";
 import { BaiduSearchRule } from "./SearchRule";
-import type { UtilsDictionary } from "@whitesev/utils/dist/src/Dictionary";
+import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 
 const BaiduResultItem = {
 	originURLMap: null as unknown as UtilsDictionary<string, string>,

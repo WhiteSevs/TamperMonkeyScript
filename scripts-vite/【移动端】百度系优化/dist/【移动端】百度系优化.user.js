@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.23
+// @version      2024.7.24
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -19,8 +19,8 @@
 // @require      https://update.greasyfork.org/scripts/495227/1413261/Element-Plus.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.9.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.0.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.4.0/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.7/dist/index.min.css
@@ -2889,6 +2889,11 @@ match-attr##srcid##sp_purc_atom
                     "【屏蔽】底部下拉菜单",
                     "mini_baidu_jiaoyu_shield_bottom_pull_down_menu",
                     false
+                  ),
+                  UISwitch(
+                    "【屏蔽】大家还在搜",
+                    "mini_baidu_jiaoyu-blockEveryOneSearch",
+                    false
                   )
                 ]
               }
@@ -3946,7 +3951,7 @@ match-attr##srcid##sp_purc_atom
       this.initExtensionsMenu();
     },
     initExtensionsMenu() {
-      if (_unsafeWindow.top !== _unsafeWindow.self) {
+      if (!this.isTopWindow()) {
         return;
       }
       GM_Menu.add([
@@ -3975,6 +3980,10 @@ match-attr##srcid##sp_purc_atom
           }
         }
       ]);
+    },
+    /** 判断是否是顶层窗口 */
+    isTopWindow() {
+      return _unsafeWindow.top === _unsafeWindow.self;
     },
     /** 初始化本地设置默认的值 */
     initPanelDefaultValue() {
@@ -22632,44 +22641,79 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           this.shieldBottomPullDownMenu();
         }
       );
+      PopsPanel.execMenuOnce("mini_baidu_jiaoyu-blockEveryOneSearch", () => {
+        return this.blockEveryOneSearch();
+      });
     },
     /**
-     * 屏蔽底部下拉菜单
+     * 注入到iframe
+     * @param [iframeSelector="iframe.swan-web-iframe"] iframe选择器
+     * @param readyCallback 加载完毕的回调
+     */
+    injectIframe(iframeSelector = "iframe.swan-web-iframe", readyCallback) {
+      if (!PopsPanel.isTopWindow()) {
+        return;
+      }
+      domutils.ready(() => {
+        utils.waitNode(iframeSelector, 1e4).then(($iframe) => {
+          if (!$iframe) {
+            return;
+          }
+          console.log($iframe);
+          let iframe__document = $iframe.contentDocument;
+          let iframe__window = $iframe.contentWindow;
+          let iframe__globalThis = iframe__window;
+          let iframe__self = iframe__window;
+          let coreOption = {
+            document: iframe__document,
+            window: iframe__window,
+            globalThis: iframe__globalThis,
+            self: iframe__self,
+            top: _unsafeWindow.top
+          };
+          let iframeDOMUtils = domutils.createDOMUtils(coreOption);
+          let iframeUtils = utils.createUtils(coreOption);
+          if (typeof readyCallback === "function") {
+            readyCallback({
+              ...coreOption,
+              utils: iframeUtils,
+              DOMUtils: iframeDOMUtils
+            });
+          }
+        });
+      });
+    },
+    /**
+     * 【屏蔽】底部下拉菜单
      */
     shieldBottomPullDownMenu() {
-      log.info("屏蔽底部下拉菜单");
-      let hideCSS = `
+      let hideCSS = (
+        /*css*/
+        `
         #page_loft{
             display: none !important;
-        }`;
-      addStyle(hideCSS);
-      if (_unsafeWindow.top === _unsafeWindow.self) {
-        domutils.ready(function() {
-          utils.waitNode("iframe.swan-web-iframe").then((iframeElement) => {
-            let _document = iframeElement.contentDocument;
-            let _window = iframeElement.contentWindow;
-            let _globalThis = _window;
-            let _self = _window;
-            let iframeDOMUtils = domutils.createDOMUtils({
-              document: _document,
-              window: _window,
-              globalThis: _globalThis,
-              self: _self
-            });
-            let iframeUtils = utils.createUtils({
-              document: _document,
-              window: _window,
-              globalThis: _globalThis,
-              self: _self,
-              top: _unsafeWindow.top
-            });
-            iframeDOMUtils.ready(() => {
-              log.info("iframe => 注入CSS规则");
-              iframeUtils.addStyle(hideCSS);
-            });
-          });
-        });
-      }
+        }`
+      );
+      this.injectIframe(void 0, (iframeGlobal) => {
+        log.info("【屏蔽】底部下拉菜单");
+        iframeGlobal.utils.addStyle(hideCSS);
+      });
+    },
+    /**
+     * 【屏蔽】大家还在搜
+     */
+    blockEveryOneSearch() {
+      let hideCSS = (
+        /*css*/
+        `
+        swan-everyone-search-box{
+            display: none !important;
+        }`
+      );
+      this.injectIframe(void 0, (iframeGlobal) => {
+        log.info("【屏蔽】大家还在搜");
+        iframeGlobal.utils.addStyle(hideCSS);
+      });
     }
   };
   const EasyLearnShieldCSS = "/* 中间弹窗-限时专享福利 */\r\n#app .pre-unpaid-wrap,\r\n/* 底部工具栏上面-月考全胜 您有xx元体验卡 */\r\n.question-bottom-bar .vip-bar,\r\n/* 解析-免费查看答案及解析 */\r\n.question-analysis-new .see-more,\r\n/* 最底部-百度教育商务合作、产品代理销售或内容合作等*/\r\n.business-el-line,\r\n.business-el-line-background,\r\n/* 展开按钮 */\r\n.question-analysis-new .expand,\r\n/* 7日VIP限免 大学生免费领 */\r\n#app .bgk-question-detail .float-fixed {\r\n  display: none !important;\r\n}\r\n/* 显示答案及解析 */\r\n.ques-title.analysis-title + div {\r\n  display: unset !important;\r\n}\r\n.question-analysis-new .analysis-wrap,\r\n#analysis {\r\n  overflow: unset !important;\r\n  height: unset !important;\r\n  max-height: unset !important;\r\n}\r\n/* 电脑端 */\r\n/* 中间弹窗-限时专享福利 */\r\n.kaixue-dialog-mask,\r\n/* 解析-免费查看答案及解析 */\r\n.question-cont .mask,\r\n/* 底部-横幅畅享百万解题视频、 千万整本试题解析VIP全场免费下 */\r\n.vip-banner-cont {\r\n  display: none !important;\r\n}\r\n";

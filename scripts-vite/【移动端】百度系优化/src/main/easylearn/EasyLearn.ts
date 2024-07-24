@@ -3,8 +3,8 @@ import { DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { CommonUtils } from "@/utils/CommonUtils";
 import EasyLearnShieldCSS from "./shield.css?raw";
-import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
 import { VueUtils } from "@/utils/VueUtils";
+import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
 
 const BaiduEasyLearn = {
 	init() {

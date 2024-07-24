@@ -13,49 +13,86 @@ const BaiduMiniJiaoYu = {
 				this.shieldBottomPullDownMenu();
 			}
 		);
+		PopsPanel.execMenuOnce("mini_baidu_jiaoyu-blockEveryOneSearch", () => {
+			return this.blockEveryOneSearch();
+		});
 	},
 	/**
-	 * 屏蔽底部下拉菜单
+	 * 注入到iframe
+	 * @param [iframeSelector="iframe.swan-web-iframe"] iframe选择器
+	 * @param readyCallback 加载完毕的回调
+	 */
+	injectIframe(
+		iframeSelector = "iframe.swan-web-iframe",
+		readyCallback?: (iframeGlobal: {
+			document: Document;
+			window: Window | typeof globalThis;
+			globalThis: Window | typeof globalThis;
+			self: Window | typeof globalThis;
+			utils: typeof utils;
+			DOMUtils: typeof DOMUtils;
+		}) => void
+	) {
+		if (!PopsPanel.isTopWindow()) {
+			return;
+		}
+		DOMUtils.ready(() => {
+			utils
+				.waitNode<HTMLIFrameElement>(iframeSelector, 10000)
+				.then(($iframe) => {
+					if (!$iframe) {
+						return;
+					}
+					console.log($iframe);
+					let iframe__document = $iframe.contentDocument!;
+					let iframe__window = $iframe.contentWindow! as any as Window &
+						typeof globalThis;
+					let iframe__globalThis = iframe__window;
+					let iframe__self = iframe__window;
+					let coreOption = {
+						document: iframe__document,
+						window: iframe__window,
+						globalThis: iframe__globalThis,
+						self: iframe__self,
+						top: unsafeWindow.top!,
+					};
+					let iframeDOMUtils = DOMUtils.createDOMUtils(coreOption);
+					let iframeUtils = utils.createUtils(coreOption);
+					if (typeof readyCallback === "function") {
+						readyCallback({
+							...coreOption,
+							utils: iframeUtils,
+							DOMUtils: iframeDOMUtils,
+						});
+					}
+				});
+		});
+	},
+	/**
+	 * 【屏蔽】底部下拉菜单
 	 */
 	shieldBottomPullDownMenu() {
-		log.info("屏蔽底部下拉菜单");
-		let hideCSS = `
+		let hideCSS = /*css*/ `
         #page_loft{
             display: none !important;
         }`;
-		addStyle(hideCSS);
-		/* 同源iframe，注入CSS */
-		if (unsafeWindow.top === unsafeWindow.self) {
-			DOMUtils.ready(function () {
-				utils
-					.waitNode<HTMLIFrameElement>("iframe.swan-web-iframe")
-					.then((iframeElement) => {
-						let _document = (iframeElement as HTMLIFrameElement)
-							.contentDocument as Document;
-						let _window = (iframeElement as HTMLIFrameElement)
-							.contentWindow as Window & typeof globalThis;
-						let _globalThis = _window;
-						let _self = _window;
-						let iframeDOMUtils = DOMUtils.createDOMUtils({
-							document: _document,
-							window: _window,
-							globalThis: _globalThis,
-							self: _self,
-						});
-						let iframeUtils = utils.createUtils({
-							document: _document,
-							window: _window,
-							globalThis: _globalThis,
-							self: _self,
-							top: unsafeWindow.top as Window,
-						});
-						iframeDOMUtils.ready(() => {
-							log.info("iframe => 注入CSS规则");
-							iframeUtils.addStyle(hideCSS);
-						});
-					});
-			});
-		}
+		this.injectIframe(void 0, (iframeGlobal) => {
+			log.info("【屏蔽】底部下拉菜单");
+			iframeGlobal.utils.addStyle(hideCSS);
+		});
+	},
+	/**
+	 * 【屏蔽】大家还在搜
+	 */
+	blockEveryOneSearch() {
+		let hideCSS = /*css*/ `
+        swan-everyone-search-box{
+            display: none !important;
+        }`;
+		this.injectIframe(void 0, (iframeGlobal) => {
+			log.info("【屏蔽】大家还在搜");
+			iframeGlobal.utils.addStyle(hideCSS);
+		});
 	},
 };
 

@@ -23,10 +23,10 @@ import { PanelEasyLearnSettingUI } from "./components/easylearn/PanelEasyLearnSe
 import { PanelAiStudySettingUI } from "./components/aistudy/PanelAiStudySettingUI";
 import { YiYanChat } from "@/main/yiyan/YiYanChat";
 import { PanelCommonSettingUI } from "./components/common/PanelCommonSettingUI";
-import type { UtilsDictionary } from "@whitesev/utils/dist/src/Dictionary";
 import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 import { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 
 const __PopsPanel__ = {
 	data: null as any as UtilsDictionary<string, any>,
@@ -109,7 +109,7 @@ const PopsPanel = {
 		this.initExtensionsMenu();
 	},
 	initExtensionsMenu() {
-		if (unsafeWindow.top !== unsafeWindow.self) {
+		if (!this.isTopWindow()) {
 			/* 不允许在iframe内重复注册 */
 			return;
 		}
@@ -139,6 +139,10 @@ const PopsPanel = {
 				},
 			},
 		]);
+	},
+	/** 判断是否是顶层窗口 */
+	isTopWindow() {
+		return unsafeWindow.top === unsafeWindow.self;
 	},
 	/** 初始化本地设置默认的值 */
 	initPanelDefaultValue() {

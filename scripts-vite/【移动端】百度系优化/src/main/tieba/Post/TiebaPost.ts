@@ -7,13 +7,12 @@ import { TieBaApi } from "../api/TiebaApi";
 import { TiebaCore } from "../TiebaCore";
 import Qmsg from "qmsg";
 import Viewer from "viewerjs";
-import { GM_getResourceText } from "ViteGM";
 import { TiebaReply } from "./TiebaReply";
 import App from "./App.vue";
 import pinia from "./stores";
 import { VueUtils } from "@/utils/VueUtils";
-import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
 import { GM_RESOURCE_MAP } from "@/GM_Resource_Map";
+import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
 
 interface PostImg {
 	bsize: string;

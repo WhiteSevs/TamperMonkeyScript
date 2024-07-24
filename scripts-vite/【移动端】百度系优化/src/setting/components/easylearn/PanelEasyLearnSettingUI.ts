@@ -28,6 +28,11 @@ const PanelEasyLearnSettingUI: PopsPanelContentConfig = {
 									"mini_baidu_jiaoyu_shield_bottom_pull_down_menu",
 									false
 								),
+								UISwitch(
+									"【屏蔽】大家还在搜",
+									"mini_baidu_jiaoyu-blockEveryOneSearch",
+									false
+								),
 							],
 						},
 					],

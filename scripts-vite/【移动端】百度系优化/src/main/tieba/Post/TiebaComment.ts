@@ -12,7 +12,6 @@ import { PopsPanel } from "@/setting/setting";
 import { TiebaCore } from "../TiebaCore";
 import { TiebaData } from "../Home/data";
 import { LoadingView } from "@/utils/LoadingView";
-import type { HttpxDetails } from "@whitesev/utils/dist/src/Httpx";
 import { TiebaSearch } from "../TiebaSearch";
 import { ref } from "vue";
 import { Toolbar } from "./Toolbar";
@@ -25,6 +24,7 @@ import { TiebaReply } from "./TiebaReply";
 import { dataType } from "element-plus/es/components/table-v2/src/common";
 import { FloorCommentData, LzlItemData, PageComment } from "../types/PostsType";
 import { CommentData } from "../types/CommentType";
+import { HttpxDetails } from "@whitesev/utils/dist/types/src/Httpx";
 
 interface AffixOption {
 	/**
