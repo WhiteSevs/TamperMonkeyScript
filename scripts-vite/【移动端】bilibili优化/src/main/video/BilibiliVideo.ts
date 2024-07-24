@@ -5,8 +5,8 @@ import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliUrlUtils } from "@/utils/BilibiliUrlUtils";
 import { BilibiliData } from "@/data/BlibiliData";
 import BilibiliVideoBeautifyCSS from "./BilibiliVideoBeautify.css?raw";
-import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
 import { BilibiliVideoVueProp } from "./BilibiliVideoVueProp";
+import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
 
 const BilibiliVideo = {
 	$data: {
@@ -17,7 +17,7 @@ const BilibiliVideo = {
 		BilibiliVideoHook.init();
 		BilibiliVideoVueProp.init();
 		PopsPanel.execMenuOnce("bili-video-repairVideoBottomAreaHeight", () => {
-			this.repairVideoBottomAreaHeight();
+			return this.repairVideoBottomAreaHeight();
 		});
 		PopsPanel.execMenuOnce(
 			"bili-video-autoClickContinueToWatchOnTheWebpage",
@@ -67,7 +67,7 @@ const BilibiliVideo = {
 						let $upInfo = document.createElement("div");
 						let upName = vueObj?.info?.owner?.name;
 						$upInfo.className = "gm-up-name";
-						$upInfo.innerHTML = `
+						$upInfo.innerHTML = /*html*/ `
 						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
 							<path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
 							</path>
@@ -111,7 +111,7 @@ const BilibiliVideo = {
 
 						$count.appendChild($duration);
 						$upInfo.className = "gm-up-name";
-						$upInfo.innerHTML = `
+						$upInfo.innerHTML = /*html*/ `
 						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
 							<path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
 							</path>
@@ -175,7 +175,7 @@ const BilibiliVideo = {
 	 */
 	repairVideoBottomAreaHeight() {
 		log.info("修复视频底部区域高度");
-		addStyle(`
+		return addStyle(/*css*/ `
 		${BilibiliData.className.video} {
 			/* 修复视频区域底部的高度 */
 			.natural-module .fixed-module-margin {

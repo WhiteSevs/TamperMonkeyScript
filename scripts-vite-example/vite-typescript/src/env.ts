@@ -129,7 +129,7 @@ const OriginPrototype = {
 	setTimeout: unsafeWindow.setTimeout,
 };
 
-const addStyle = utils.addStyle;
+const addStyle = utils.addStyle.bind(utils);
 export {
 	utils,
 	domUtils as DOMUtils,

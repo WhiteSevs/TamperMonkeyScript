@@ -1,5 +1,5 @@
 import { log, utils } from "@/env";
-import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
+import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
 
 interface WaitSetVuePropOption {
 	/**

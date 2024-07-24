@@ -1,7 +1,6 @@
 import { XHSUrlApi } from "@/api/XHSUrlApi";
-import { DOMUtils, log, utils } from "@/env";
+import { addStyle, DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { GM_addStyle } from "ViteGM";
 import Qmsg from "qmsg";
 
 /**
@@ -29,8 +28,8 @@ const XHS_Article = {
 		) {
 			this.optimizationSearch();
 		}
-		PopsPanel.execMenu("pc-xhs-article-fullWidth", () => {
-			this.fullWidth();
+		PopsPanel.execMenuOnce("pc-xhs-article-fullWidth", () => {
+			return this.fullWidth();
 		});
 	},
 	/**
@@ -101,7 +100,7 @@ const XHS_Article = {
 			"pc-xhs-article-fullWidth-widthSize",
 			90
 		);
-		GM_addStyle(`
+		return addStyle(/*css*/ `
 		.main-container .main-content{
 			padding-left: 0 !important;
 		}

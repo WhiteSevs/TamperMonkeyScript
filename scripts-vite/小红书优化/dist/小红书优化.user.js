@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.20
+// @version      2024.7.24
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -11,12 +11,12 @@
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/449471/1413235/Viewer.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.9.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.0/dist/index.umd.js
 // @connect      edith.xiaohongshu.com
-// @grant        GM_addStyle
 // @grant        GM_deleteValue
+// @grant        GM_getResourceText
 // @grant        GM_getValue
 // @grant        GM_info
 // @grant        GM_registerMenuCommand
@@ -31,8 +31,8 @@
   'use strict';
 
   var _a;
-  var _GM_addStyle = /* @__PURE__ */ (() => typeof GM_addStyle != "undefined" ? GM_addStyle : void 0)();
   var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
+  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
   var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
@@ -127,6 +127,7 @@
     },
     setTimeout: _unsafeWindow.setTimeout
   });
+  const addStyle = utils.addStyle.bind(utils);
   const KEY = "GM_Panel";
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
@@ -1417,61 +1418,124 @@
       return data.data.sug_items;
     }
   };
+  const CommonUtils = {
+    /**
+     * 添加屏蔽CSS
+     * @param args
+     * @example
+     * addBlockCSS("")
+     * addBlockCSS("","")
+     * addBlockCSS(["",""])
+     */
+    addBlockCSS(...args) {
+      let selectorList = [];
+      if (args.length === 0) {
+        return;
+      }
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+        return;
+      }
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    /**
+     * 设置GM_getResourceText的style内容
+     * @param resourceMapData 资源数据
+     */
+    setGMResourceCSS(resourceMapData) {
+      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+      if (typeof cssText === "string" && cssText) {
+        addStyle(cssText);
+      } else {
+        CommonUtils.addLinkNode(resourceMapData.url);
+      }
+    },
+    /**
+     * 添加<link>标签
+     * @param url
+     */
+    async addLinkNode(url) {
+      let $link = document.createElement("link");
+      $link.rel = "stylesheet";
+      $link.type = "text/css";
+      $link.href = url;
+      domutils.ready(() => {
+        document.head.appendChild($link);
+      });
+      return $link;
+    },
+    /**
+     * 将url修复，例如只有search的链接/sss/xxx?sss=xxxx
+     * @param url 需要修复的链接
+     */
+    fixUrl(url) {
+      url = url.trim();
+      if (url.match(/^http(s|):\/\//i)) {
+        return url;
+      } else {
+        if (!url.startsWith("/")) {
+          url += "/";
+        }
+        url = window.location.origin + url;
+        return url;
+      }
+    }
+  };
   const MXHS_ArticleShield = {
     /**
      * 允许复制
      */
     allowCopy() {
       log.info("允许复制");
-      _GM_addStyle(`
+      return addStyle(
+        /*css*/
+        `
         *{
             -webkit-user-select: unset;
             user-select: unset;
         }
-        `);
+        `
+      );
     },
     /**
      * 屏蔽底部搜索发现
      */
     shieldBottomSearchFind() {
       log.info("屏蔽底部搜索发现");
-      _GM_addStyle(`
-        .hotlist-container,
+      return CommonUtils.addBlockCSS(
+        ".hotlist-container",
         /* 一大块空白区域 */
-        .safe-area-bottom.margin-placeholder{
-            display: none !important;
-        }
-        `);
+        ".safe-area-bottom.margin-placeholder"
+      );
     },
     /**
      * 屏蔽底部工具栏
      */
     shieldBottomToorBar() {
       log.info("屏蔽底部工具栏");
-      _GM_addStyle(`
-        .engage-bar-container{
-            display: none !important;
-        }`);
+      return CommonUtils.addBlockCSS(".engage-bar-container");
     },
     /**
      * 屏蔽视频笔记的作者热门笔记
      */
     shieldAuthorHotNote() {
       log.info("屏蔽视频笔记的作者热门笔记");
-      _GM_addStyle(`
-        .user-notes-box.user-notes-clo-layout-container{
-            display: none !important;
-        }`);
+      return CommonUtils.addBlockCSS(
+        ".user-notes-box.user-notes-clo-layout-container"
+      );
     },
     /**
      * 屏蔽视频笔记的热门推荐
      */
     shieldHotRecommendNote() {
       log.info("屏蔽视频笔记的热门推荐");
-      _GM_addStyle(`
-        #new-note-view-container .recommend-box{
-            display: none !important;
-        }`);
+      return CommonUtils.addBlockCSS("#new-note-view-container .recommend-box");
     }
   };
   const MXHS_VideoArticle = {
@@ -1482,7 +1546,9 @@
      */
     optimizeVideoNoteDesc() {
       log.info("优化视频笔记的描述（可滚动）");
-      _GM_addStyle(`
+      return addStyle(
+        /*css*/
+        `
     .author-box .author-desc-wrapper .author-desc{
       max-height: 70px !important;
       overflow: auto !important;
@@ -1490,7 +1556,8 @@
     /* 展开按钮 */
     .author-box .author-desc-wrapper .author-desc .author-desc-trigger{
       display: none !important;
-    }`);
+    }`
+      );
     }
   };
   const MXHS_Article = {
@@ -1499,23 +1566,23 @@
         log.info("劫持webpack");
         XHS_Hook.webpackChunkranchi();
       }
-      PopsPanel.execMenu("little-red-book-shieldBottomSearchFind", () => {
-        MXHS_ArticleShield.shieldBottomSearchFind();
+      PopsPanel.execMenuOnce("little-red-book-shieldBottomSearchFind", () => {
+        return MXHS_ArticleShield.shieldBottomSearchFind();
       });
-      PopsPanel.execMenu("little-red-book-shieldBottomToorBar", () => {
-        MXHS_ArticleShield.shieldBottomToorBar();
+      PopsPanel.execMenuOnce("little-red-book-shieldBottomToorBar", () => {
+        return MXHS_ArticleShield.shieldBottomToorBar();
       });
-      PopsPanel.execMenu("little-red-book-optimizeImageBrowsing", () => {
+      PopsPanel.execMenuOnce("little-red-book-optimizeImageBrowsing", () => {
         MXHS_Article.optimizeImageBrowsing();
       });
-      PopsPanel.execMenu("little-red-book-optimizeVideoNoteDesc", () => {
-        MXHS_VideoArticle.optimizeVideoNoteDesc();
+      PopsPanel.execMenuOnce("little-red-book-optimizeVideoNoteDesc", () => {
+        return MXHS_VideoArticle.optimizeVideoNoteDesc();
       });
-      PopsPanel.execMenu("little-red-book-shieldAuthorHotNote", () => {
-        MXHS_ArticleShield.shieldAuthorHotNote();
+      PopsPanel.execMenuOnce("little-red-book-shieldAuthorHotNote", () => {
+        return MXHS_ArticleShield.shieldAuthorHotNote();
       });
-      PopsPanel.execMenu("little-red-book-shieldHotRecommendNote", () => {
-        MXHS_ArticleShield.shieldHotRecommendNote();
+      PopsPanel.execMenuOnce("little-red-book-shieldHotRecommendNote", () => {
+        return MXHS_ArticleShield.shieldHotRecommendNote();
       });
       domutils.ready(function() {
         PopsPanel.execMenu("little-red-book-optimizeCommentBrowsing", () => {
@@ -1553,33 +1620,36 @@
          * @returns
          */
         getCommentHTML(data) {
-          return `
-            <div class="little-red-book-comments-avatar">
-                    <a target="_blank" href="/user/profile/${data.user_id}">
-                        <img src="${data.user_avatar}" crossorigin="anonymous">
-                    </a>
-              </div>
-              <div class="little-red-book-comments-content-wrapper">
-                <div class="little-red-book-comments-author-wrapper">
-                    <div class="little-red-book-comments-author">
-                        <a href="/user/profile/${data.user_id}" class="little-red-book-comments-author-name" target="_blank">
-                            ${data.user_nickname}
-                        </a>
-                    </div>
-                    <div class="little-red-book-comments-content">
-                        ${data.content}
-                    </div>
-                    <div class="little-red-book-comments-info">
-                        <div class="little-red-book-comments-info-date">
-                            <span class="little-red-book-comments-create-time">${utils.formatTime(
-          data.create_time
-        )}</span>
-                            <span class="little-red-book-comments-location">${data.ip_location}</span>
-                        </div>
-                    </div>
-                </div>
-              </div>
-            `;
+          return (
+            /*html*/
+            `
+				<div class="little-red-book-comments-avatar">
+						<a target="_blank" href="/user/profile/${data.user_id}">
+							<img src="${data.user_avatar}" crossorigin="anonymous">
+						</a>
+				</div>
+				<div class="little-red-book-comments-content-wrapper">
+					<div class="little-red-book-comments-author-wrapper">
+						<div class="little-red-book-comments-author">
+							<a href="/user/profile/${data.user_id}" class="little-red-book-comments-author-name" target="_blank">
+								${data.user_nickname}
+							</a>
+						</div>
+						<div class="little-red-book-comments-content">
+							${data.content}
+						</div>
+						<div class="little-red-book-comments-info">
+							<div class="little-red-book-comments-info-date">
+								<span class="little-red-book-comments-create-time">${utils.formatTime(
+            data.create_time
+          )}</span>
+								<span class="little-red-book-comments-location">${data.ip_location}</span>
+							</div>
+						</div>
+					</div>
+				</div>
+            `
+          );
         },
         /**
          * 获取内容元素
@@ -1602,18 +1672,21 @@
           content = Comments.converContent(content);
           let commentItemElement = domutils.createElement("div", {
             className: "little-red-book-comments-item",
-            innerHTML: `
-            <div class="little-red-book-comments-parent">
-              ${Comments.getCommentHTML({
-            user_id,
-            user_avatar,
-            user_nickname,
-            content,
-            create_time,
-            ip_location
-          })}
-            </div>
+            innerHTML: (
+              /*html*/
               `
+					<div class="little-red-book-comments-parent">
+					${Comments.getCommentHTML({
+              user_id,
+              user_avatar,
+              user_nickname,
+              content,
+              create_time,
+              ip_location
+            })}
+					</div>
+					`
+            )
           });
           if (sub_comment_has_more && Array.isArray(sub_comments)) {
             sub_comments.forEach((subCommentInfo) => {
@@ -1696,6 +1769,7 @@
             if (content.includes(emojiName)) {
               content = content.replaceAll(
                 emojiName,
+                /*html*/
                 `<img class="little-red-book-note-content-emoji" crossorigin="anonymous" src="${Comments.emojiMap[emojiName]}">`
               );
             }
@@ -1763,7 +1837,9 @@
         let loading = Qmsg.loading("获取评论中，请稍后...");
         let commentContainer = domutils.createElement("div", {
           className: "little-red-book-comments-container",
-          innerHTML: `
+          innerHTML: (
+            /*html*/
+            `
                 <style>
                     .little-red-book-comments-parent {
                         position: relative;
@@ -1869,6 +1945,7 @@
                     }
                 </style>
           `
+          )
         });
         Comments.commentContainer = commentContainer;
         Comments.init();
@@ -1954,7 +2031,7 @@
   const MXHS_Home = {
     init() {
       domutils.ready(() => {
-        PopsPanel.execMenu("little-red-book-repariClick", () => {
+        PopsPanel.execMenuOnce("little-red-book-repariClick", () => {
           MXHS_Home.repariClick();
         });
       });
@@ -2009,12 +2086,12 @@
         log.info("劫持页面的Vue");
         XHS_Hook.webPackVue();
       });
-      PopsPanel.execMenu("little-red-book-shieldAd", () => {
+      PopsPanel.execMenuOnce("little-red-book-shieldAd", () => {
         log.info("注入默认屏蔽CSS");
-        _GM_addStyle(MXiaoHongShuSheldCSS);
+        return addStyle(MXiaoHongShuSheldCSS);
       });
-      PopsPanel.execMenu("little-red-book-allowCopy", () => {
-        MXHS.allowCopy();
+      PopsPanel.execMenuOnce("little-red-book-allowCopy", () => {
+        return MXHS.allowCopy();
       });
       if (ScriptRouter.isNotePage()) {
         MXHS_Article.init();
@@ -2027,7 +2104,7 @@
      */
     allowCopy() {
       log.info("允许复制文字");
-      _GM_addStyle(`
+      return addStyle(`
         *{
             -webkit-user-select: unset;
             user-select: unset;
@@ -2038,17 +2115,17 @@
   const XHSShieldCSS = "";
   const XHS_Shield = {
     init() {
-      PopsPanel.execMenu("pc-xhs-shieldAd", () => {
-        _GM_addStyle(XHSShieldCSS);
+      PopsPanel.execMenuOnce("pc-xhs-shieldAd", () => {
+        return addStyle(XHSShieldCSS);
       });
-      PopsPanel.execMenu("pc-xhs-shield-select-text-search-position", () => {
-        this.shieldSelectTextVisibleSearchPosition();
+      PopsPanel.execMenuOnce("pc-xhs-shield-select-text-search-position", () => {
+        return this.shieldSelectTextVisibleSearchPosition();
       });
-      PopsPanel.execMenu("pc-xhs-shield-topToolbar", () => {
-        this.shieldTopToolbar();
+      PopsPanel.execMenuOnce("pc-xhs-shield-topToolbar", () => {
+        return this.shieldTopToolbar();
       });
       domutils.ready(() => {
-        PopsPanel.execMenu("pc-xhs-shield-login-dialog", () => {
+        PopsPanel.execMenuOnce("pc-xhs-shield-login-dialog", () => {
           this.shieldLoginContainer();
         });
       });
@@ -2058,12 +2135,7 @@
      */
     shieldLoginContainer() {
       log.info("添加屏蔽登录弹窗CSS，监听登录弹窗出现");
-      _GM_addStyle(`
-        /* 登录弹窗 */
-        .login-container{
-            display: none !important;
-        }
-        `);
+      CommonUtils.addBlockCSS(".login-container");
       utils.mutationObserver(document.body, {
         config: {
           subtree: true,
@@ -2085,34 +2157,33 @@
      */
     shieldSelectTextVisibleSearchPosition() {
       log.info("屏蔽选择文字弹出的搜索提示");
-      _GM_addStyle(`
-        .search-position{
-            display: none !important;
-        }
-        `);
+      return CommonUtils.addBlockCSS(".search-position");
     },
     /**
      * 【屏蔽】顶部工具栏
      */
     shieldTopToolbar() {
       log.info("【屏蔽】顶部工具栏");
-      _GM_addStyle(`
-        #headerContainer{
-            display: none !important;
-        }
-        /* 主内容去除padding */
-        #mfContainer{
-            padding-top: 0 !important;
-        }
-        .outer-link-container{
-            margin-top: 0 !important;
-            height: 100vh !important;
-            padding: 30px 0;
-        }
-        #noteContainer{
-            height: 100%;
-        }
-        `);
+      return [
+        CommonUtils.addBlockCSS("#headerContainer"),
+        addStyle(
+          /*css*/
+          `
+			/* 主内容去除padding */
+			#mfContainer{
+				padding-top: 0 !important;
+			}
+			.outer-link-container{
+				margin-top: 0 !important;
+				height: 100vh !important;
+				padding: 30px 0;
+			}
+			#noteContainer{
+				height: 100%;
+			}
+			`
+        )
+      ];
     }
   };
   const XHSUrlApi = {
@@ -2130,8 +2201,8 @@
       if (PopsPanel.getValue("pc-xhs-search-open-blank-btn") || PopsPanel.getValue("pc-xhs-search-open-blank-keyboard-enter")) {
         this.optimizationSearch();
       }
-      PopsPanel.execMenu("pc-xhs-article-fullWidth", () => {
-        this.fullWidth();
+      PopsPanel.execMenuOnce("pc-xhs-article-fullWidth", () => {
+        return this.fullWidth();
       });
     },
     /**
@@ -2194,7 +2265,9 @@
         "pc-xhs-article-fullWidth-widthSize",
         90
       );
-      _GM_addStyle(`
+      return addStyle(
+        /*css*/
+        `
 		.main-container .main-content{
 			padding-left: 0 !important;
 		}
@@ -2208,7 +2281,8 @@
 		#noteContainer{
 			width: ${noteContainerWidth}vw;
 		}
-		`);
+		`
+      );
     }
   };
   const XHS = {
@@ -2275,11 +2349,14 @@
       );
     }
   };
-  _GM_addStyle(`
+  addStyle(
+    /*css*/
+    `
 .qmsg svg.animate-turn {
     fill: none;
 }
-`);
+`
+  );
   PopsPanel.init();
   let isMobile = utils.isPhone();
   let CHANGE_ENV_SET_KEY = "change_env_set";

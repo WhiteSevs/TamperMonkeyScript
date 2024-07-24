@@ -5,13 +5,13 @@ import { MSettingUI_Home } from "./m-components/m-home";
 import { MSettingUI_Notes } from "./m-components/m-note";
 import { SettingUI_Common } from "./components/common";
 import { SettingUI_Article } from "./components/article";
-import type { UtilsDictionary } from "@whitesev/utils/dist/src/Dictionary";
 import { MSettingUI_Common } from "./m-components/m-common";
 import {
 	PopsPanelContentConfig,
 	PopsPanelFormsTotalDetails,
 } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
+import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 
 const __PopsPanel__ = {
 	data: null as any as UtilsDictionary<string, any>,

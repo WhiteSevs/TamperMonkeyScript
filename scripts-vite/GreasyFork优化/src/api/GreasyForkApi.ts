@@ -1,5 +1,5 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
-import type { HttpxAsyncResultData } from "@whitesev/utils/dist/src/Httpx";
+import { HttpxAsyncResultData } from "@whitesev/utils/dist/types/src/Httpx";
 import i18next from "i18next";
 import Qmsg from "qmsg";
 

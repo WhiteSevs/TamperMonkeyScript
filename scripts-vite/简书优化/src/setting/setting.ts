@@ -3,11 +3,11 @@ import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, KEY } from "@/setting/config";
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
 import { SettingUIPC } from "./components/pc";
 import { SettingUIMobile } from "./components/mobile";
-import type { UtilsDictionary } from "@whitesev/utils/dist/src/Dictionary";
 import { SettingUICommon } from "./components/common";
 import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 import { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 
 const __PopsPanel__ = {
 	data: null as any as UtilsDictionary<string, any>,

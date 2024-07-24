@@ -42,7 +42,7 @@ const WeiBo = {
 				addStyle(blockAdsCSS);
 			});
 			PopsPanel.execMenuOnce("weibo_shield_bottom_bar", () => {
-				this.shieldBottomBar();
+				return this.shieldBottomBar();
 			});
 			this.$data.weiBoUnlockQuality.lockVideoQuality();
 			DOMUtils.ready(() => {
@@ -85,7 +85,9 @@ const WeiBo = {
 	 */
 	shieldBottomBar() {
 		log.info("【屏蔽】底部工具栏");
-		CommonUtils.addBlockCSS("#app div.m-tab-bar.m-bar-panel.m-container-max");
+		return CommonUtils.addBlockCSS(
+			"#app div.m-tab-bar.m-bar-panel.m-container-max"
+		);
 	},
 	/**
 	 * 解锁微博视频高画质

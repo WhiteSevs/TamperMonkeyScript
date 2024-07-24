@@ -7,7 +7,6 @@ import { PanelVideoConfig } from "./components/video";
 import { PanelSearchConfig } from "./components/search";
 import { MPanelShareUserConfig } from "./m-components/shareUser";
 import { MPanelShareVideoConfig } from "./m-components/shareVideo";
-import type { UtilsDictionary } from "@whitesev/utils/dist/src/Dictionary";
 import { MPanelShareNoteConfig } from "./m-components/shareNote";
 import { MPanelShareChallengeConfig } from "./m-components/shareChallenge";
 import { MPanelShareMusicConfig } from "./m-components/shareMusic";
@@ -16,6 +15,7 @@ import {
 	PopsPanelFormsTotalDetails,
 } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
+import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 
 interface PosPanelListenerData {
 	id: number;

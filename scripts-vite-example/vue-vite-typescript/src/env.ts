@@ -170,7 +170,7 @@ const MountVue = async function (targetApp: any, router?: any) {
 	}
 };
 
-const addStyle = utils.addStyle;
+const addStyle = utils.addStyle.bind(utils);
 
 export {
 	utils,

@@ -5,7 +5,7 @@ import Qmsg from "qmsg";
 const MXHS_Home = {
 	init() {
 		DOMUtils.ready(() => {
-			PopsPanel.execMenu("little-red-book-repariClick", () => {
+			PopsPanel.execMenuOnce("little-red-book-repariClick", () => {
 				MXHS_Home.repariClick();
 			});
 		});

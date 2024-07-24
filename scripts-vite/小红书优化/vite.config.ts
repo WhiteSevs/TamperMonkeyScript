@@ -46,7 +46,6 @@ export default defineConfig({
 				match: ["*://www.xiaohongshu.com/*"],
 				connect: ["edith.xiaohongshu.com"],
 				grant: [
-					"GM_addStyle",
 					"GM_registerMenuCommand",
 					"GM_unregisterMenuCommand",
 					"GM_getValue",

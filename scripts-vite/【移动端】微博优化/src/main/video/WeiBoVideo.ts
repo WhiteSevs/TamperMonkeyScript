@@ -13,31 +13,31 @@ const WeiBoVideo = {
 			WeiBoVideoHook.init();
 		});
 		PopsPanel.execMenuOnce("weibo_video_shield_bottom_toolbar", () => {
-			this.shieldBottomToolBar();
+			return this.shieldBottomToolBar();
 		});
 		PopsPanel.execMenuOnce("weibo_video_shield_hot_comments", () => {
-			this.shieldHotComments();
+			return this.shieldHotComments();
 		});
 		PopsPanel.execMenuOnce("weibo_video_shield_recommend", () => {
-			this.shieldRecommend();
+			return this.shieldRecommend();
 		});
 	},
 	/** 【屏蔽】底部工具栏 */
 	shieldBottomToolBar() {
 		log.info("【屏蔽】底部工具栏");
-		CommonUtils.addBlockCSS(".woo-toolBar");
+		return CommonUtils.addBlockCSS(".woo-toolBar");
 	},
 	/** 【屏蔽】相关推荐 */
 	shieldRecommend() {
 		log.info("【屏蔽】相关推荐");
-		CommonUtils.addBlockCSS(
+		return CommonUtils.addBlockCSS(
 			'#app .woo-panel[class*="Playdetail_card_"]:nth-child(2)'
 		);
 	},
 	/** 【屏蔽】热门评论 */
 	shieldHotComments() {
 		log.info("【屏蔽】热门评论");
-		CommonUtils.addBlockCSS(
+		return CommonUtils.addBlockCSS(
 			'#app .woo-panel[class*="Playdetail_card_"]:nth-child(3)'
 		);
 	},

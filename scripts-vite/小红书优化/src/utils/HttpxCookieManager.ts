@@ -1,6 +1,6 @@
 import { log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import type { HttpxDetails } from "@whitesev/utils/dist/src/Httpx";
+import { HttpxDetails } from "@whitesev/utils/dist/types/src/Httpx";
 
 interface HttpxCookieManagerRule {
 	/** PopsPanel存储的键名 */

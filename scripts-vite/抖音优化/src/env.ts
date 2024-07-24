@@ -84,7 +84,7 @@ httpx.interceptors.response.use(void 0, (data) => {
 	return data;
 });
 
-const addStyle = utils.addStyle;
+const addStyle = utils.addStyle.bind(utils);
 
 export {
 	utils,

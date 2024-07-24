@@ -12,7 +12,7 @@ export const BilibiliOpus = {
 		PopsPanel.execMenuOnce(
 			"bili-opus-automaticallyExpandToReadFullText",
 			() => {
-				this.automaticallyExpandToReadFullText();
+				return this.automaticallyExpandToReadFullText();
 			}
 		);
 		PopsPanel.execMenuOnce("bili-opus-cover-header", () => {
@@ -54,13 +54,17 @@ export const BilibiliOpus = {
 	 */
 	automaticallyExpandToReadFullText() {
 		log.info("自动展开阅读全文");
-		BilibiliUtils.addBlockCSS(BilibiliData.className.opus + " .opus-read-more");
-		addStyle(`
-		${BilibiliData.className.opus} .opus-module-content{
-			overflow: unset !important;
-    		max-height: unset !important;
-		}
-		`);
+		return [
+			BilibiliUtils.addBlockCSS(
+				BilibiliData.className.opus + " .opus-read-more"
+			),
+			addStyle(/*css*/ `
+			${BilibiliData.className.opus} .opus-module-content{
+				overflow: unset !important;
+				max-height: unset !important;
+			}
+			`),
+		];
 	},
 	/**
 	 * 覆盖header点击事件

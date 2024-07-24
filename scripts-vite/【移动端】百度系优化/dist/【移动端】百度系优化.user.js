@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.24
+// @version      2024.7.24.22
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -19,10 +19,10 @@
 // @require      https://update.greasyfork.org/scripts/495227/1413261/Element-Plus.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.0.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.0/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.7/dist/index.min.css
 // @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
 // @connect      *
@@ -4533,7 +4533,7 @@ match-attr##srcid##sp_purc_atom
     },
     setTimeout: _unsafeWindow.setTimeout
   };
-  const addStyle = Utils.addStyle;
+  const addStyle = utils.addStyle.bind(utils);
   const VUE_ELE_NAME_ID = "vite-app";
   const MountVue = async function(targetApp, plugin = []) {
     DOMUtils.ready(async () => {
@@ -22659,7 +22659,6 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           if (!$iframe) {
             return;
           }
-          console.log($iframe);
           let iframe__document = $iframe.contentDocument;
           let iframe__window = $iframe.contentWindow;
           let iframe__globalThis = iframe__window;
@@ -22695,8 +22694,10 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
         }`
       );
       this.injectIframe(void 0, (iframeGlobal) => {
-        log.info("【屏蔽】底部下拉菜单");
-        iframeGlobal.utils.addStyle(hideCSS);
+        iframeGlobal.DOMUtils.ready(() => {
+          log.info("【屏蔽】底部下拉菜单");
+          iframeGlobal.utils.addStyle(hideCSS);
+        });
       });
     },
     /**
@@ -22711,8 +22712,10 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
         }`
       );
       this.injectIframe(void 0, (iframeGlobal) => {
-        log.info("【屏蔽】大家还在搜");
-        iframeGlobal.utils.addStyle(hideCSS);
+        iframeGlobal.DOMUtils.ready(() => {
+          log.info("【屏蔽】大家还在搜");
+          iframeGlobal.utils.addStyle(hideCSS);
+        });
       });
     }
   };

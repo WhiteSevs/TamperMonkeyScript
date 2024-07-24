@@ -6,7 +6,7 @@ import { BilibiliUtils } from "@/utils/BilibiliUtils";
 export const BilibiliReadMobile = {
 	init() {
 		PopsPanel.onceExec("bili-pc-read-mobile-autoExpand", () => {
-			this.autoExpand();
+			return this.autoExpand();
 		});
 	},
 	/**
@@ -14,14 +14,16 @@ export const BilibiliReadMobile = {
 	 */
 	autoExpand() {
 		log.info("自动展开");
-		addStyle(`
-        ${BilibiliPCData.className.read.mobile} .limit{
-            overflow: unset !important;
-            max-height: unset !important;
-        }`);
-		// 屏蔽 【展开阅读全文】
-		BilibiliUtils.addBlockCSS(
-			BilibiliPCData.className.read.mobile + " .read-more"
-		);
+		return [
+			addStyle(/*css*/ `
+			${BilibiliPCData.className.read.mobile} .limit{
+				overflow: unset !important;
+				max-height: unset !important;
+			}`),
+			// 屏蔽 【展开阅读全文】
+			BilibiliUtils.addBlockCSS(
+				BilibiliPCData.className.read.mobile + " .read-more"
+			),
+		];
 	},
 };

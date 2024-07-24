@@ -7,11 +7,11 @@ import { SettingUIVideo } from "./components/video";
 import { SettingUIU } from "./components/u";
 import { SettingUIDetail } from "./components/detail";
 import { SettingUISearch } from "./components/search";
-import type { UtilsDictionary } from "@whitesev/utils/dist/src/Dictionary";
 import { SettingUICardArticle } from "./components/card";
 import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 import { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 
 const __PopsPanel__ = {
 	data: null as any as UtilsDictionary<string, any>,

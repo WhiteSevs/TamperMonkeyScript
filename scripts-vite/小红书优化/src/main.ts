@@ -1,18 +1,12 @@
-import {
-	GM_addStyle,
-	GM_deleteValue,
-	GM_getValue,
-	GM_setValue,
-	unsafeWindow,
-} from "ViteGM";
+import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 import { PopsPanel } from "@/setting/setting";
 import { MXHS } from "./m-main/MXHS";
-import { GM_Menu, log, utils } from "./env";
+import { addStyle, GM_Menu, log, utils } from "./env";
 import { XHS } from "./main/XHS";
 import Qmsg from "qmsg";
 
 /* 修复一下Qmsg的loading图标问题 */
-GM_addStyle(`
+addStyle(/*css*/ `
 .qmsg svg.animate-turn {
     fill: none;
 }

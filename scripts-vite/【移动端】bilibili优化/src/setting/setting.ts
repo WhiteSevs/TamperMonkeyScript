@@ -12,12 +12,12 @@ import { SettingUITopicDetail } from "./components/TopicDetail";
 import { SettingUIHead } from "./components/Head";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliQrCodeLogin } from "@/account/BilibiliQrCodeLogin";
-import type { UtilsDictionary } from "@whitesev/utils/dist/src/Dictionary";
 import {
 	PopsPanelContentConfig,
 	PopsPanelFormsTotalDetails,
 } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
+import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 
 interface PosPanelListenerData {
 	id: number;

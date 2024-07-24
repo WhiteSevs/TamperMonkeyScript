@@ -1,6 +1,6 @@
 import { DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
+import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
 import Qmsg from "qmsg";
 
 /** 等待设置vue某个值的配置 */

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         简书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.20
+// @version      2024.7.24
 // @author       WhiteSevs
 // @description  支持手机端和PC端、屏蔽广告、优化浏览体验、重定向链接、全文居中、自动展开全文、允许复制文字、劫持唤醒/跳转App、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -11,10 +11,9 @@
 // @match        *://*.jianshu.io/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.9.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.4.0/dist/index.umd.js
-// @grant        GM_addStyle
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.0/dist/index.umd.js
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
 // @grant        GM_getValue
@@ -31,8 +30,8 @@
   'use strict';
 
   var _a;
-  var _GM_addStyle = /* @__PURE__ */ (() => typeof GM_addStyle != "undefined" ? GM_addStyle : void 0)();
   var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
+  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
   var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
@@ -43,7 +42,7 @@
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
   const _SCRIPT_NAME_ = "简书优化";
   const utils = Utils.noConflict();
-  DOMUtils.noConflict();
+  const domUtils = DOMUtils.noConflict();
   const log = new utils.Log(
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
@@ -125,6 +124,7 @@
     },
     setTimeout: _unsafeWindow.setTimeout
   });
+  const addStyle = utils.addStyle.bind(utils);
   const KEY = "GM_Panel";
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
@@ -857,6 +857,75 @@ footer > div > div {\r
       return window.location.pathname === "/go-wild";
     }
   };
+  const CommonUtils = {
+    /**
+     * 添加屏蔽CSS
+     * @param args
+     * @example
+     * addBlockCSS("")
+     * addBlockCSS("","")
+     * addBlockCSS(["",""])
+     */
+    addBlockCSS(...args) {
+      let selectorList = [];
+      if (args.length === 0) {
+        return;
+      }
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+        return;
+      }
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    /**
+     * 设置GM_getResourceText的style内容
+     * @param resourceMapData 资源数据
+     */
+    setGMResourceCSS(resourceMapData) {
+      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+      if (typeof cssText === "string" && cssText) {
+        addStyle(cssText);
+      } else {
+        CommonUtils.addLinkNode(resourceMapData.url);
+      }
+    },
+    /**
+     * 添加<link>标签
+     * @param url
+     */
+    async addLinkNode(url) {
+      let $link = document.createElement("link");
+      $link.rel = "stylesheet";
+      $link.type = "text/css";
+      $link.href = url;
+      domUtils.ready(() => {
+        document.head.appendChild($link);
+      });
+      return $link;
+    },
+    /**
+     * 将url修复，例如只有search的链接/sss/xxx?sss=xxxx
+     * @param url 需要修复的链接
+     */
+    fixUrl(url) {
+      url = url.trim();
+      if (url.match(/^http(s|):\/\//i)) {
+        return url;
+      } else {
+        if (!url.startsWith("/")) {
+          url += "/";
+        }
+        url = window.location.origin + url;
+        return url;
+      }
+    }
+  };
   const waitForElementToRemove = function(selectorText = "") {
     utils.waitNodeList(selectorText).then((nodeList) => {
       nodeList.forEach((item) => item.remove());
@@ -875,25 +944,25 @@ footer > div > div {\r
         this.autoExpandFullText();
       });
       PopsPanel.execMenu("JianShuArticleCenter", () => {
-        this.articleCenter();
+        return this.articleCenter();
       });
       PopsPanel.execMenu("JianShuShieldRelatedArticles", () => {
-        this.shieldRelatedArticles();
+        return this.shieldRelatedArticles();
       });
       PopsPanel.execMenu("jianshu-shieldClientDialog", () => {
         this.shieldClientDialog();
       });
-      PopsPanel.execMenu("JianShuShieldUserComments", () => {
-        this.shieldUserComments();
+      PopsPanel.execMenuOnce("JianShuShieldUserComments", () => {
+        return this.shieldUserComments();
       });
-      PopsPanel.execMenu("JianShuShieldRecommendedReading", () => {
-        this.shieldRecommendedReading();
+      PopsPanel.execMenuOnce("JianShuShieldRecommendedReading", () => {
+        return this.shieldRecommendedReading();
       });
-      PopsPanel.execMenu("jianshu-shieldTopNav", () => {
-        this.shieldTopNav();
+      PopsPanel.execMenuOnce("jianshu-shieldTopNav", () => {
+        return this.shieldTopNav();
       });
-      PopsPanel.execMenu("jianshu-shieldBottomToolbar", () => {
-        this.shieldBottomToolbar();
+      PopsPanel.execMenuOnce("jianshu-shieldBottomToolbar", () => {
+        return this.shieldBottomToolbar();
       });
     },
     /**
@@ -901,21 +970,28 @@ footer > div > div {\r
      */
     addCSS() {
       log.info("添加屏蔽CSS");
-      _GM_addStyle(ShieldCSS);
+      return addStyle(ShieldCSS);
     },
     /**
      * 全文居中
      */
     articleCenter() {
       log.info("全文居中");
-      _GM_addStyle(`
-        div[role=main] aside,
-        div._3Pnjry{
-          display: none !important;
-        }
-        div._gp-ck{
-          width: 100% !important;
-        }`);
+      let result = [];
+      result.push(
+        CommonUtils.addBlockCSS("div[role=main] aside", "div._3Pnjry"),
+        addStyle(
+          /*css*/
+          `
+			div[role=main] aside,
+			div._3Pnjry{
+				display: none !important;
+			}
+			div._gp-ck{
+				width: 100% !important;
+			}`
+        )
+      );
       waitForElementToRemove("div[role=main] aside");
       waitForElementToRemove("div._3Pnjry");
       utils.waitNodeList("div._gp-ck").then((nodeList) => {
@@ -923,6 +999,7 @@ footer > div > div {\r
           item.style["width"] = "100%";
         });
       });
+      return result;
     },
     /**
      * 去除剪贴板劫持
@@ -991,21 +1068,18 @@ footer > div > div {\r
      */
     shieldRelatedArticles() {
       log.info("屏蔽相关文章");
-      _GM_addStyle(`
-        div[role="main"] > div > section:nth-child(2){
-          display: none !important;
-        }
-        `);
+      return CommonUtils.addBlockCSS(
+        'div[role="main"] > div > section:nth-child(2)'
+      );
     },
     /**
      * 【屏蔽】客户端弹窗
      */
     shieldClientDialog() {
       log.info("【屏蔽】客户端弹窗");
-      _GM_addStyle(`
-        div:has(>div[class*="-mask"]:not([class*="-mask-hidden"]) + div[tabindex="-1"][role="dialog"]){
-            display: none !important;
-        }`);
+      CommonUtils.addBlockCSS(
+        'div:has(>div[class*="-mask"]:not([class*="-mask-hidden"]) + div[tabindex="-1"][role="dialog"])'
+      );
       utils.waitNode(
         `div[class*="-mask"]:not([class*="-mask-hidden"]) + div[tabindex="-1"][role="dialog"]`
       ).then((element) => {
@@ -1033,44 +1107,30 @@ footer > div > div {\r
      */
     shieldUserComments() {
       log.info("屏蔽评论区");
-      _GM_addStyle(`
-        div#note-page-comment{
-          display: none !important;
-        }
-        `);
+      return CommonUtils.addBlockCSS("div#note-page-comment");
     },
     /**
      * 屏蔽底部推荐阅读
      */
     shieldRecommendedReading() {
       log.info("屏蔽底部推荐阅读");
-      _GM_addStyle(`
-        div[role="main"] > div > section:last-child{
-          display: none !important;
-        }
-        `);
+      return CommonUtils.addBlockCSS(
+        'div[role="main"] > div > section:last-child'
+      );
     },
     /**
      * 【屏蔽】顶部导航栏
      */
     shieldTopNav() {
       log.info("【屏蔽】顶部导航栏");
-      _GM_addStyle(`
-        header{
-          display: none !important;
-        }
-        `);
+      return CommonUtils.addBlockCSS("header");
     },
     /**
      * 【屏蔽】底部工具栏
      */
     shieldBottomToolbar() {
       log.info("【屏蔽】底部工具栏");
-      _GM_addStyle(`
-        footer{
-          display: none !important;
-        }
-        `);
+      return CommonUtils.addBlockCSS("footer");
     }
   };
   const M_Jianshu = {
@@ -1088,11 +1148,11 @@ footer > div > div {\r
       PopsPanel.execMenu("JianShuAutoExpandFullText_Mobile", () => {
         Jianshu.autoExpandFullText();
       });
-      PopsPanel.execMenu("JianShuremoveFooterRecommendRead", () => {
-        this.removeFooterRecommendRead();
+      PopsPanel.execMenuOnce("JianShuremoveFooterRecommendRead", () => {
+        return this.removeFooterRecommendRead();
       });
       PopsPanel.execMenu("JianShuShieldUserCommentsMobile", () => {
-        this.shieldUserComments();
+        return this.shieldUserComments();
       });
     },
     /**
@@ -1106,10 +1166,7 @@ footer > div > div {\r
      */
     removeFooterRecommendRead() {
       log.info("屏蔽底部推荐阅读");
-      _GM_addStyle(`
-        #recommended-notes{
-          display: none !important;
-        }`);
+      return CommonUtils.addBlockCSS("#recommended-notes");
     },
     /**
      * 处理原型
@@ -1132,11 +1189,7 @@ footer > div > div {\r
      */
     shieldUserComments() {
       log.info("屏蔽评论区");
-      _GM_addStyle(`
-        #comment-main{
-          display: none !important;
-        }
-        `);
+      return CommonUtils.addBlockCSS("#comment-main");
     }
   };
   PopsPanel.init();

@@ -43,7 +43,6 @@ const BaiduMiniJiaoYu = {
 					if (!$iframe) {
 						return;
 					}
-					console.log($iframe);
 					let iframe__document = $iframe.contentDocument!;
 					let iframe__window = $iframe.contentWindow! as any as Window &
 						typeof globalThis;
@@ -77,8 +76,10 @@ const BaiduMiniJiaoYu = {
             display: none !important;
         }`;
 		this.injectIframe(void 0, (iframeGlobal) => {
-			log.info("【屏蔽】底部下拉菜单");
-			iframeGlobal.utils.addStyle(hideCSS);
+			iframeGlobal.DOMUtils.ready(() => {
+				log.info("【屏蔽】底部下拉菜单");
+				iframeGlobal.utils.addStyle(hideCSS);
+			});
 		});
 	},
 	/**
@@ -90,8 +91,10 @@ const BaiduMiniJiaoYu = {
             display: none !important;
         }`;
 		this.injectIframe(void 0, (iframeGlobal) => {
-			log.info("【屏蔽】大家还在搜");
-			iframeGlobal.utils.addStyle(hideCSS);
+			iframeGlobal.DOMUtils.ready(() => {
+				log.info("【屏蔽】大家还在搜");
+				iframeGlobal.utils.addStyle(hideCSS);
+			});
 		});
 	},
 };

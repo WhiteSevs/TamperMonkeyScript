@@ -1,6 +1,6 @@
 import { OriginPrototype, log, utils } from "@/env";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
-import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
+import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
 import { unsafeWindow } from "ViteGM";
 
 const BilibiliHook = {

@@ -60,7 +60,6 @@ export default defineConfig({
 				// connect: [""],
 				// GM api权限申请
 				grant: [
-					"GM_addStyle",
 					"GM_registerMenuCommand",
 					"GM_unregisterMenuCommand",
 					"GM_getValue",

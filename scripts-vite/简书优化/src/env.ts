@@ -7,8 +7,6 @@ import {
 	GM_registerMenuCommand,
 	GM_unregisterMenuCommand,
 	GM_xmlhttpRequest,
-	GM_addStyle,
-	GM_getResourceText,
 } from "ViteGM";
 import Qmsg from "qmsg";
 import DOMUtils from "@whitesev/domutils";
@@ -122,6 +120,8 @@ const OriginPrototype = {
 	setTimeout: unsafeWindow.setTimeout,
 };
 
+const addStyle = utils.addStyle.bind(utils);
+
 export {
 	utils,
 	domUtils as DOMUtils,
@@ -133,4 +133,5 @@ export {
 	// Viewer,
 	// showdown,
 	httpx,
+	addStyle,
 };

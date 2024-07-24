@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.20
+// @version      2024.7.24
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -13,9 +13,9 @@
 // @match        http*://card.weibo.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.9.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.0/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css
 // @connect      m.weibo.cn
 // @connect      www.weibo.com
@@ -226,7 +226,7 @@
     },
     setTimeout: _unsafeWindow.setTimeout
   });
-  const addStyle = utils.addStyle;
+  const addStyle = utils.addStyle.bind(utils);
   const KEY = "GM_Panel";
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
@@ -1896,31 +1896,31 @@
         WeiBoVideoHook.init();
       });
       PopsPanel.execMenuOnce("weibo_video_shield_bottom_toolbar", () => {
-        this.shieldBottomToolBar();
+        return this.shieldBottomToolBar();
       });
       PopsPanel.execMenuOnce("weibo_video_shield_hot_comments", () => {
-        this.shieldHotComments();
+        return this.shieldHotComments();
       });
       PopsPanel.execMenuOnce("weibo_video_shield_recommend", () => {
-        this.shieldRecommend();
+        return this.shieldRecommend();
       });
     },
     /** 【屏蔽】底部工具栏 */
     shieldBottomToolBar() {
       log.info("【屏蔽】底部工具栏");
-      CommonUtils.addBlockCSS(".woo-toolBar");
+      return CommonUtils.addBlockCSS(".woo-toolBar");
     },
     /** 【屏蔽】相关推荐 */
     shieldRecommend() {
       log.info("【屏蔽】相关推荐");
-      CommonUtils.addBlockCSS(
+      return CommonUtils.addBlockCSS(
         '#app .woo-panel[class*="Playdetail_card_"]:nth-child(2)'
       );
     },
     /** 【屏蔽】热门评论 */
     shieldHotComments() {
       log.info("【屏蔽】热门评论");
-      CommonUtils.addBlockCSS(
+      return CommonUtils.addBlockCSS(
         '#app .woo-panel[class*="Playdetail_card_"]:nth-child(3)'
       );
     }
@@ -1928,10 +1928,10 @@
   const WeiBoCardArticle = {
     init() {
       PopsPanel.execMenuOnce("card_weibo_com__autoExpandFullArticle", () => {
-        this.autoExpandFullArticle();
+        return this.autoExpandFullArticle();
       });
       PopsPanel.execMenuOnce("card_weibo_com__blockComment", () => {
-        this.blockComment();
+        return this.blockComment();
       });
       PopsPanel.execMenuOnce("card_weibo_com__repairArticleUserHomeJump", () => {
         this.repairArticleUserHomeJump();
@@ -1942,21 +1942,26 @@
      */
     autoExpandFullArticle() {
       log.info("自动展开全文");
-      addStyle(`
-        .m-container-max .f-art,
-        .m-container-max .art-con-new{
-            height: unset !important;
-            overflow: unset !important;
-        }    
-        `);
-      CommonUtils.addBlockCSS(".m-container-max .f-art-opt");
+      return [
+        addStyle(
+          /*css*/
+          `
+			.m-container-max .f-art,
+			.m-container-max .art-con-new{
+				height: unset !important;
+				overflow: unset !important;
+			}    
+			`
+        ),
+        CommonUtils.addBlockCSS(".m-container-max .f-art-opt")
+      ];
     },
     /**
      * 屏蔽评论
      */
     blockComment() {
       log.info("【屏蔽】评论");
-      CommonUtils.addBlockCSS(".m-container-max .m-panel1");
+      return CommonUtils.addBlockCSS(".m-container-max .m-panel1");
     },
     /**
      * 修复文章用户主页跳转
@@ -2013,7 +2018,7 @@
           addStyle(blockAdsCSS);
         });
         PopsPanel.execMenuOnce("weibo_shield_bottom_bar", () => {
-          this.shieldBottomBar();
+          return this.shieldBottomBar();
         });
         this.$data.weiBoUnlockQuality.lockVideoQuality();
         domUtils.ready(() => {
@@ -2050,7 +2055,9 @@
      */
     shieldBottomBar() {
       log.info("【屏蔽】底部工具栏");
-      CommonUtils.addBlockCSS("#app div.m-tab-bar.m-bar-panel.m-container-max");
+      return CommonUtils.addBlockCSS(
+        "#app div.m-tab-bar.m-bar-panel.m-container-max"
+      );
     },
     /**
      * 解锁微博视频高画质

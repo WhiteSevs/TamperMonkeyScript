@@ -129,7 +129,7 @@ const OriginPrototype = {
 	setTimeout: unsafeWindow.setTimeout,
 };
 
-const addStyle = Utils.addStyle;
+const addStyle = utils.addStyle.bind(utils);
 
 const VUE_ELE_NAME_ID = "vite-app";
 /**

@@ -1,6 +1,5 @@
 import { BilibiliData } from "@/data/BlibiliData";
 import { DOMUtils, Qmsg, log, utils } from "@/env";
-import { BilibiliHook } from "@/hook/BilibiliHook";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliUrlUtils } from "@/utils/BilibiliUrlUtils";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";

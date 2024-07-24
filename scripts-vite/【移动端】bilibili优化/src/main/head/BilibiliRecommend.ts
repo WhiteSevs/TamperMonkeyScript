@@ -93,7 +93,7 @@ export const BilibiliRecommend = {
 		);
 		let $recommendView = DOMUtils.createElement("div", {
 			className: "m-recommend-view",
-			innerHTML: `
+			innerHTML: /*html*/ `
             <div class="list-view">
                 <div class="video-list-box">
                     <div class="video-list">
@@ -102,7 +102,9 @@ export const BilibiliRecommend = {
                         </div>
                     </div>
                 </div>
-                <div class="list-view__shim" style="z-index:-1;user-select:none;pointer-events:none;background:transparent;left:0;bottom:0;width:100%;height:200px;"></div>
+                <div class="list-view__shim">
+
+				</div>
             </div>
             `,
 		});
@@ -122,6 +124,7 @@ export const BilibiliRecommend = {
 			".list-view__shim"
 		) as HTMLDivElement;
 
+		this.$ele.$listViewShim.style.cssText = `z-index:-1;user-select:none;pointer-events:none;background:transparent;left:0;bottom:0;width:100%;height:200px;`;
 		let $myHead = document.querySelector<HTMLDivElement>("#app .m-head");
 		if ($myHead) {
 			$myHead.appendChild($recommendView);

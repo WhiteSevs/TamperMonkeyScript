@@ -1,7 +1,7 @@
 import { log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
-import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
+import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
 
 export const BilibiliVueProp = {
 	init() {

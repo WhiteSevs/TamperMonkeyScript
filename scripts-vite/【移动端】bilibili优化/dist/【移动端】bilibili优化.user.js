@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.20
+// @version      2024.7.24
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,9 +13,9 @@
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/497907/1413262/QRCodeJS.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.9.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @connect      *
 // @connect      m.bilibili.com
@@ -230,7 +230,7 @@
     },
     setTimeout: _unsafeWindow.setTimeout
   };
-  const addStyle = utils.addStyle;
+  const addStyle = utils.addStyle.bind(utils);
   const KEY = "GM_Panel";
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
@@ -1441,7 +1441,10 @@
           style: ""
         },
         content: {
-          text: `<div id="bili-qrcode-canvas"></div>`,
+          text: (
+            /*html*/
+            `<div id="bili-qrcode-canvas"></div>`
+          ),
           html: true
         },
         btn: {
@@ -1468,7 +1471,9 @@
         height: "365px",
         drag: true,
         dragLimit: true,
-        style: `
+        style: (
+          /*css*/
+          `
             #bili-qrcode-canvas{
                 display: flex;
                 align-items: center;
@@ -1477,6 +1482,7 @@
                 height: 100%;
             }
             `
+        )
       });
       let $biliQrcodeCanvas = $alert.$shadowRoot.querySelector(
         "#bili-qrcode-canvas"
@@ -2479,7 +2485,7 @@
       BilibiliVideoHook.init();
       BilibiliVideoVueProp.init();
       PopsPanel.execMenuOnce("bili-video-repairVideoBottomAreaHeight", () => {
-        this.repairVideoBottomAreaHeight();
+        return this.repairVideoBottomAreaHeight();
       });
       PopsPanel.execMenuOnce(
         "bili-video-autoClickContinueToWatchOnTheWebpage",
@@ -2526,7 +2532,8 @@
             let $upInfo = document.createElement("div");
             let upName = (_b = (_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.owner) == null ? void 0 : _b.name;
             $upInfo.className = "gm-up-name";
-            $upInfo.innerHTML = `
+            $upInfo.innerHTML = /*html*/
+            `
 						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
 							<path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
 							</path>
@@ -2560,7 +2567,8 @@
             let upName = (_c = (_b = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _b.owner) == null ? void 0 : _c.name;
             $count.appendChild($duration);
             $upInfo.className = "gm-up-name";
-            $upInfo.innerHTML = `
+            $upInfo.innerHTML = /*html*/
+            `
 						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
 							<path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
 							</path>
@@ -2611,7 +2619,9 @@
      */
     repairVideoBottomAreaHeight() {
       log.info("修复视频底部区域高度");
-      addStyle(`
+      return addStyle(
+        /*css*/
+        `
 		${BilibiliData.className.video} {
 			/* 修复视频区域底部的高度 */
 			.natural-module .fixed-module-margin {
@@ -2633,7 +2643,8 @@
 				}
 			}
 		}
-		`);
+		`
+      );
     },
     /**
      * 自动点击【继续在网页观看】
@@ -3131,7 +3142,7 @@
       PopsPanel.execMenuOnce(
         "bili-opus-automaticallyExpandToReadFullText",
         () => {
-          this.automaticallyExpandToReadFullText();
+          return this.automaticallyExpandToReadFullText();
         }
       );
       PopsPanel.execMenuOnce("bili-opus-cover-header", () => {
@@ -3174,13 +3185,20 @@
      */
     automaticallyExpandToReadFullText() {
       log.info("自动展开阅读全文");
-      BilibiliUtils.addBlockCSS(BilibiliData.className.opus + " .opus-read-more");
-      addStyle(`
-		${BilibiliData.className.opus} .opus-module-content{
-			overflow: unset !important;
-    		max-height: unset !important;
-		}
-		`);
+      return [
+        BilibiliUtils.addBlockCSS(
+          BilibiliData.className.opus + " .opus-read-more"
+        ),
+        addStyle(
+          /*css*/
+          `
+			${BilibiliData.className.opus} .opus-module-content{
+				overflow: unset !important;
+				max-height: unset !important;
+			}
+			`
+        )
+      ];
     },
     /**
      * 覆盖header点击事件
@@ -3460,7 +3478,9 @@
       );
       let $recommendView = domutils.createElement("div", {
         className: "m-recommend-view",
-        innerHTML: `
+        innerHTML: (
+          /*html*/
+          `
             <div class="list-view">
                 <div class="video-list-box">
                     <div class="video-list">
@@ -3469,9 +3489,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="list-view__shim" style="z-index:-1;user-select:none;pointer-events:none;background:transparent;left:0;bottom:0;width:100%;height:200px;"></div>
+                <div class="list-view__shim">
+
+				</div>
             </div>
             `
+        )
       });
       this.$ele.$listView = $recommendView.querySelector(
         ".list-view"
@@ -3488,6 +3511,7 @@
       this.$ele.$listViewShim = $recommendView.querySelector(
         ".list-view__shim"
       );
+      this.$ele.$listViewShim.style.cssText = `z-index:-1;user-select:none;pointer-events:none;background:transparent;left:0;bottom:0;width:100%;height:200px;`;
       let $myHead = document.querySelector("#app .m-head");
       if ($myHead) {
         $myHead.appendChild($recommendView);
@@ -3757,7 +3781,9 @@
      */
     addVideoListUPInfo() {
       log.info("添加视频列表UP主信息");
-      addStyle(`
+      addStyle(
+        /*css*/
+        `
 		${BilibiliData.className.head} .video-list .card-box .gm-up-info {
 			display: flex;
 			justify-content: space-between;
@@ -3776,7 +3802,8 @@
 		${BilibiliData.className.head} .gm-video-duration{
 			margin: 0 auto;
 		}
-        `);
+        `
+      );
       utils.waitNode(
         BilibiliData.className.head + " .video-list .card-box"
       ).then(() => {
@@ -3790,7 +3817,8 @@
             let duration = (_e = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _e.duration;
             if (upName && !$vcard.querySelector(".gm-up-info")) {
               let $upInfo = document.createElement("div");
-              $upInfo.innerHTML = `
+              $upInfo.innerHTML = /*html*/
+              `
                                     <div class="gm-up-name">
                                         <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
                                             <path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
@@ -3999,7 +4027,7 @@
   const BilibiliReadMobile = {
     init() {
       PopsPanel.onceExec("bili-pc-read-mobile-autoExpand", () => {
-        this.autoExpand();
+        return this.autoExpand();
       });
     },
     /**
@@ -4007,14 +4035,20 @@
      */
     autoExpand() {
       log.info("自动展开");
-      addStyle(`
-        ${BilibiliPCData.className.read.mobile} .limit{
-            overflow: unset !important;
-            max-height: unset !important;
-        }`);
-      BilibiliUtils.addBlockCSS(
-        BilibiliPCData.className.read.mobile + " .read-more"
-      );
+      return [
+        addStyle(
+          /*css*/
+          `
+			${BilibiliPCData.className.read.mobile} .limit{
+				overflow: unset !important;
+				max-height: unset !important;
+			}`
+        ),
+        // 屏蔽 【展开阅读全文】
+        BilibiliUtils.addBlockCSS(
+          BilibiliPCData.className.read.mobile + " .read-more"
+        )
+      ];
     }
   };
   let _ajaxHooker_ = null;

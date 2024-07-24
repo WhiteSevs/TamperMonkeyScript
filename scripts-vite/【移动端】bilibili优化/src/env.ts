@@ -169,7 +169,7 @@ const MountVue = async function (targetApp: any, router?: any) {
 		GM_addStyle(GM_getResourceText("ElementPlusResourceCSS"));
 	}
 };
-const addStyle = utils.addStyle;
+const addStyle = utils.addStyle.bind(utils);
 
 export {
 	utils,

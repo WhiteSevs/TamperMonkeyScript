@@ -12,12 +12,11 @@ import { BilibiliTopicDetail } from "./topic-detail/BilibiliTopicDetail";
 import { BilibiliDynamic } from "./dynamic/BilibiliDynamic";
 import { BilibiliHook } from "@/hook/BilibiliHook";
 import { BilibiliHead } from "./head/BilibiliHead";
-import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliVueProp } from "./BilibiliVueProp";
-import { unsafeWindow } from "ViteGM";
 import { BilibiliReadMobile } from "./read/mobile/BilibiliReadMobile";
 import { BilibiliNetworkHook } from "@/hook/BilibiliNetworkHook";
+import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
 
 const Bilibili = {
 	init() {

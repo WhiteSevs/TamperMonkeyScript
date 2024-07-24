@@ -2,7 +2,7 @@ import { GM_getValue, GM_setValue } from "ViteGM";
 import { log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { DouYinElement } from "@/utils/DouYinElement";
-import type { UtilsDictionary } from "@whitesev/utils/dist/src/Dictionary";
+import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 
 interface DouYinShieldTagMap {
 	nickname?: string;

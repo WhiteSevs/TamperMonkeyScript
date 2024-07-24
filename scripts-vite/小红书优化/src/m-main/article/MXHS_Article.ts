@@ -24,23 +24,23 @@ const MXHS_Article = {
 			log.info("劫持webpack");
 			XHS_Hook.webpackChunkranchi();
 		}
-		PopsPanel.execMenu("little-red-book-shieldBottomSearchFind", () => {
-			MXHS_ArticleShield.shieldBottomSearchFind();
+		PopsPanel.execMenuOnce("little-red-book-shieldBottomSearchFind", () => {
+			return MXHS_ArticleShield.shieldBottomSearchFind();
 		});
-		PopsPanel.execMenu("little-red-book-shieldBottomToorBar", () => {
-			MXHS_ArticleShield.shieldBottomToorBar();
+		PopsPanel.execMenuOnce("little-red-book-shieldBottomToorBar", () => {
+			return MXHS_ArticleShield.shieldBottomToorBar();
 		});
-		PopsPanel.execMenu("little-red-book-optimizeImageBrowsing", () => {
+		PopsPanel.execMenuOnce("little-red-book-optimizeImageBrowsing", () => {
 			MXHS_Article.optimizeImageBrowsing();
 		});
-		PopsPanel.execMenu("little-red-book-optimizeVideoNoteDesc", () => {
-			MXHS_VideoArticle.optimizeVideoNoteDesc();
+		PopsPanel.execMenuOnce("little-red-book-optimizeVideoNoteDesc", () => {
+			return MXHS_VideoArticle.optimizeVideoNoteDesc();
 		});
-		PopsPanel.execMenu("little-red-book-shieldAuthorHotNote", () => {
-			MXHS_ArticleShield.shieldAuthorHotNote();
+		PopsPanel.execMenuOnce("little-red-book-shieldAuthorHotNote", () => {
+			return MXHS_ArticleShield.shieldAuthorHotNote();
 		});
-		PopsPanel.execMenu("little-red-book-shieldHotRecommendNote", () => {
-			MXHS_ArticleShield.shieldHotRecommendNote();
+		PopsPanel.execMenuOnce("little-red-book-shieldHotRecommendNote", () => {
+			return MXHS_ArticleShield.shieldHotRecommendNote();
 		});
 		DOMUtils.ready(function () {
 			PopsPanel.execMenu("little-red-book-optimizeCommentBrowsing", () => {
@@ -94,36 +94,34 @@ const MXHS_Article = {
 			 * @returns
 			 */
 			getCommentHTML(data: CommentDataInfo) {
-				return `
-            <div class="little-red-book-comments-avatar">
-                    <a target="_blank" href="/user/profile/${data.user_id}">
-                        <img src="${data.user_avatar}" crossorigin="anonymous">
-                    </a>
-              </div>
-              <div class="little-red-book-comments-content-wrapper">
-                <div class="little-red-book-comments-author-wrapper">
-                    <div class="little-red-book-comments-author">
-                        <a href="/user/profile/${
-													data.user_id
-												}" class="little-red-book-comments-author-name" target="_blank">
-                            ${data.user_nickname}
-                        </a>
-                    </div>
-                    <div class="little-red-book-comments-content">
-                        ${data.content}
-                    </div>
-                    <div class="little-red-book-comments-info">
-                        <div class="little-red-book-comments-info-date">
-                            <span class="little-red-book-comments-create-time">${utils.formatTime(
-															data.create_time
-														)}</span>
-                            <span class="little-red-book-comments-location">${
-															data.ip_location
-														}</span>
-                        </div>
-                    </div>
-                </div>
-              </div>
+				return /*html*/ `
+				<div class="little-red-book-comments-avatar">
+						<a target="_blank" href="/user/profile/${data.user_id}">
+							<img src="${data.user_avatar}" crossorigin="anonymous">
+						</a>
+				</div>
+				<div class="little-red-book-comments-content-wrapper">
+					<div class="little-red-book-comments-author-wrapper">
+						<div class="little-red-book-comments-author">
+							<a href="/user/profile/${
+								data.user_id
+							}" class="little-red-book-comments-author-name" target="_blank">
+								${data.user_nickname}
+							</a>
+						</div>
+						<div class="little-red-book-comments-content">
+							${data.content}
+						</div>
+						<div class="little-red-book-comments-info">
+							<div class="little-red-book-comments-info-date">
+								<span class="little-red-book-comments-create-time">${utils.formatTime(
+									data.create_time
+								)}</span>
+								<span class="little-red-book-comments-location">${data.ip_location}</span>
+							</div>
+						</div>
+					</div>
+				</div>
             `;
 			},
 			/**
@@ -160,18 +158,18 @@ const MXHS_Article = {
 				/* 创建元素 */
 				let commentItemElement = DOMUtils.createElement("div", {
 					className: "little-red-book-comments-item",
-					innerHTML: `
-            <div class="little-red-book-comments-parent">
-              ${Comments.getCommentHTML({
-								user_id: user_id,
-								user_avatar: user_avatar,
-								user_nickname: user_nickname,
-								content: content,
-								create_time: create_time,
-								ip_location: ip_location,
-							})}
-            </div>
-              `,
+					innerHTML: /*html*/ `
+					<div class="little-red-book-comments-parent">
+					${Comments.getCommentHTML({
+						user_id: user_id,
+						user_avatar: user_avatar,
+						user_nickname: user_nickname,
+						content: content,
+						create_time: create_time,
+						ip_location: ip_location,
+					})}
+					</div>
+					`,
 				});
 
 				/* 判断是否存在楼中楼回复 */
@@ -264,7 +262,7 @@ const MXHS_Article = {
 					if (content.includes(emojiName)) {
 						content = content.replaceAll(
 							emojiName,
-							`<img class="little-red-book-note-content-emoji" crossorigin="anonymous" src="${Comments.emojiMap[emojiName]}">`
+							/*html*/ `<img class="little-red-book-note-content-emoji" crossorigin="anonymous" src="${Comments.emojiMap[emojiName]}">`
 						);
 					}
 				});
@@ -334,7 +332,7 @@ const MXHS_Article = {
 			let loading = Qmsg.loading("获取评论中，请稍后...");
 			let commentContainer = DOMUtils.createElement("div", {
 				className: "little-red-book-comments-container",
-				innerHTML: `
+				innerHTML: /*html*/ `
                 <style>
                     .little-red-book-comments-parent {
                         position: relative;

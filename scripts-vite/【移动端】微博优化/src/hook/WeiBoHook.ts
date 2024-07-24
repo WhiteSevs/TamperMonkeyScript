@@ -1,11 +1,11 @@
 import { log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import type { AnyObject, Vue2Context } from "@whitesev/utils/dist/src/Utils";
 import { unsafeWindow } from "ViteGM";
 import { WeiBoNetWorkHook } from "./WeiBoNetWorkHook";
 import { VueUtils } from "@/utils/VueUtils";
 import Qmsg from "qmsg";
 import { WeiBo } from "@/main/WeiBo";
+import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
 
 const WeiBoHook = {
 	/**
@@ -25,7 +25,7 @@ const WeiBoHook = {
 				return originApply.call(this, ...args);
 			}
 			const ApiPath = args[1][0] as string;
-			const ApiSearchParams = args[1]?.[1]?.["params"] as AnyObject;
+			const ApiSearchParams = args[1]?.[1]?.["params"] as any;
 			if (
 				ApiPath === "api/attitudes/create" &&
 				PopsPanel.getValue("weibo_apply_attitudes_create")

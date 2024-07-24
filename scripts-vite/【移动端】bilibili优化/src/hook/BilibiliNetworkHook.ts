@@ -1,6 +1,6 @@
 import { log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import type { UtilsAjaxHookResult } from "@whitesev/utils/dist/src/AjaxHookerType";
+import { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/AjaxHookerType";
 
 let _ajaxHooker_ = null as any as UtilsAjaxHookResult;
 

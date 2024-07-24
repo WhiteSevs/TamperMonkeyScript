@@ -33,7 +33,7 @@ export const BilibiliQrCodeLogin = {
 				style: "",
 			},
 			content: {
-				text: `<div id="bili-qrcode-canvas"></div>`,
+				text: /*html*/ `<div id="bili-qrcode-canvas"></div>`,
 				html: true,
 			},
 			btn: {
@@ -60,7 +60,7 @@ export const BilibiliQrCodeLogin = {
 			height: "365px",
 			drag: true,
 			dragLimit: true,
-			style: `
+			style: /*css*/ `
             #bili-qrcode-canvas{
                 display: flex;
                 align-items: center;

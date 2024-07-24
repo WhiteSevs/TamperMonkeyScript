@@ -5,10 +5,10 @@ import { CommonUtils } from "@/utils/CommonUtils";
 export const WeiBoCardArticle = {
 	init() {
 		PopsPanel.execMenuOnce("card_weibo_com__autoExpandFullArticle", () => {
-			this.autoExpandFullArticle();
+			return this.autoExpandFullArticle();
 		});
 		PopsPanel.execMenuOnce("card_weibo_com__blockComment", () => {
-			this.blockComment();
+			return this.blockComment();
 		});
 		PopsPanel.execMenuOnce("card_weibo_com__repairArticleUserHomeJump", () => {
 			this.repairArticleUserHomeJump();
@@ -19,21 +19,23 @@ export const WeiBoCardArticle = {
 	 */
 	autoExpandFullArticle() {
 		log.info("自动展开全文");
-		addStyle(`
-        .m-container-max .f-art,
-        .m-container-max .art-con-new{
-            height: unset !important;
-            overflow: unset !important;
-        }    
-        `);
-		CommonUtils.addBlockCSS(".m-container-max .f-art-opt");
+		return [
+			addStyle(/*css*/ `
+			.m-container-max .f-art,
+			.m-container-max .art-con-new{
+				height: unset !important;
+				overflow: unset !important;
+			}    
+			`),
+			CommonUtils.addBlockCSS(".m-container-max .f-art-opt"),
+		];
 	},
 	/**
 	 * 屏蔽评论
 	 */
 	blockComment() {
 		log.info("【屏蔽】评论");
-		CommonUtils.addBlockCSS(".m-container-max .m-panel1");
+		return CommonUtils.addBlockCSS(".m-container-max .m-panel1");
 	},
 	/**
 	 * 修复文章用户主页跳转

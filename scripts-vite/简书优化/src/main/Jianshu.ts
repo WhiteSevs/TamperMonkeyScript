@@ -1,8 +1,8 @@
-import { GM_addStyle } from "ViteGM";
 import ShieldCSS from "./shield.css?raw";
 import { PopsPanel } from "@/setting/setting";
-import { log, utils } from "@/env";
+import { addStyle, log, utils } from "@/env";
 import { JianshuRouter } from "@/router/JianshuRouter";
+import { CommonUtils } from "@/utils/CommonUtils";
 
 /**
  * 移除元素（未出现也可以等待出现）
@@ -26,25 +26,25 @@ const Jianshu = {
 			this.autoExpandFullText();
 		});
 		PopsPanel.execMenu("JianShuArticleCenter", () => {
-			this.articleCenter();
+			return this.articleCenter();
 		});
 		PopsPanel.execMenu("JianShuShieldRelatedArticles", () => {
-			this.shieldRelatedArticles();
+			return this.shieldRelatedArticles();
 		});
 		PopsPanel.execMenu("jianshu-shieldClientDialog", () => {
 			this.shieldClientDialog();
 		});
-		PopsPanel.execMenu("JianShuShieldUserComments", () => {
-			this.shieldUserComments();
+		PopsPanel.execMenuOnce("JianShuShieldUserComments", () => {
+			return this.shieldUserComments();
 		});
-		PopsPanel.execMenu("JianShuShieldRecommendedReading", () => {
-			this.shieldRecommendedReading();
+		PopsPanel.execMenuOnce("JianShuShieldRecommendedReading", () => {
+			return this.shieldRecommendedReading();
 		});
-		PopsPanel.execMenu("jianshu-shieldTopNav", () => {
-			this.shieldTopNav();
+		PopsPanel.execMenuOnce("jianshu-shieldTopNav", () => {
+			return this.shieldTopNav();
 		});
-		PopsPanel.execMenu("jianshu-shieldBottomToolbar", () => {
-			this.shieldBottomToolbar();
+		PopsPanel.execMenuOnce("jianshu-shieldBottomToolbar", () => {
+			return this.shieldBottomToolbar();
 		});
 	},
 	/**
@@ -52,21 +52,25 @@ const Jianshu = {
 	 */
 	addCSS() {
 		log.info("添加屏蔽CSS");
-		GM_addStyle(ShieldCSS);
+		return addStyle(ShieldCSS);
 	},
 	/**
 	 * 全文居中
 	 */
 	articleCenter() {
 		log.info("全文居中");
-		GM_addStyle(`
-        div[role=main] aside,
-        div._3Pnjry{
-          display: none !important;
-        }
-        div._gp-ck{
-          width: 100% !important;
-        }`);
+		let result = [];
+		result.push(
+			CommonUtils.addBlockCSS("div[role=main] aside", "div._3Pnjry"),
+			addStyle(/*css*/ `
+			div[role=main] aside,
+			div._3Pnjry{
+				display: none !important;
+			}
+			div._gp-ck{
+				width: 100% !important;
+			}`)
+		);
 		waitForElementToRemove("div[role=main] aside");
 		waitForElementToRemove("div._3Pnjry");
 		utils
@@ -76,6 +80,7 @@ const Jianshu = {
 					item.style["width"] = "100%";
 				});
 			});
+		return result;
 	},
 	/**
 	 * 去除剪贴板劫持
@@ -152,21 +157,18 @@ const Jianshu = {
 	 */
 	shieldRelatedArticles() {
 		log.info("屏蔽相关文章");
-		GM_addStyle(`
-        div[role="main"] > div > section:nth-child(2){
-          display: none !important;
-        }
-        `);
+		return CommonUtils.addBlockCSS(
+			'div[role="main"] > div > section:nth-child(2)'
+		);
 	},
 	/**
 	 * 【屏蔽】客户端弹窗
 	 */
 	shieldClientDialog() {
 		log.info("【屏蔽】客户端弹窗");
-		GM_addStyle(`
-        div:has(>div[class*="-mask"]:not([class*="-mask-hidden"]) + div[tabindex="-1"][role="dialog"]){
-            display: none !important;
-        }`);
+		CommonUtils.addBlockCSS(
+			'div:has(>div[class*="-mask"]:not([class*="-mask-hidden"]) + div[tabindex="-1"][role="dialog"])'
+		);
 		utils
 			.waitNode<HTMLDivElement>(
 				`div[class*="-mask"]:not([class*="-mask-hidden"]) + div[tabindex="-1"][role="dialog"]`
@@ -198,44 +200,30 @@ const Jianshu = {
 	 */
 	shieldUserComments() {
 		log.info("屏蔽评论区");
-		GM_addStyle(`
-        div#note-page-comment{
-          display: none !important;
-        }
-        `);
+		return CommonUtils.addBlockCSS("div#note-page-comment");
 	},
 	/**
 	 * 屏蔽底部推荐阅读
 	 */
 	shieldRecommendedReading() {
 		log.info("屏蔽底部推荐阅读");
-		GM_addStyle(`
-        div[role="main"] > div > section:last-child{
-          display: none !important;
-        }
-        `);
+		return CommonUtils.addBlockCSS(
+			'div[role="main"] > div > section:last-child'
+		);
 	},
 	/**
 	 * 【屏蔽】顶部导航栏
 	 */
 	shieldTopNav() {
 		log.info("【屏蔽】顶部导航栏");
-		GM_addStyle(`
-        header{
-          display: none !important;
-        }
-        `);
+		return CommonUtils.addBlockCSS("header");
 	},
 	/**
 	 * 【屏蔽】底部工具栏
 	 */
 	shieldBottomToolbar() {
 		log.info("【屏蔽】底部工具栏");
-		GM_addStyle(`
-        footer{
-          display: none !important;
-        }
-        `);
+		return CommonUtils.addBlockCSS("footer");
 	},
 };
 

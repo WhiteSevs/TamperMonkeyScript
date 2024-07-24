@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.22.20
+// @version      2024.7.24
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*.douyin.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.9.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.0/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
 // @grant        GM_getValue
@@ -34,7 +34,7 @@
   var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
   var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
   var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
-  var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value) : member.set(obj, value), value);
+  var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), member.set(obj, value), value);
   var _key, _isWaitPress, _a;
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
@@ -3878,7 +3878,7 @@
     }
     return data;
   });
-  const addStyle = utils.addStyle;
+  const addStyle = utils.addStyle.bind(utils);
   const ShieldHeader = {
     init() {
       PopsPanel.execMenuOnce("shieldClientTip", () => {

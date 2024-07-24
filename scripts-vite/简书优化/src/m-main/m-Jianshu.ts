@@ -1,7 +1,8 @@
-import { log } from "@/env";
+import { addStyle, log } from "@/env";
 import { Jianshu } from "@/main/Jianshu";
 import { PopsPanel } from "@/setting/setting";
-import { GM_addStyle, unsafeWindow } from "ViteGM";
+import { CommonUtils } from "@/utils/CommonUtils";
+import { unsafeWindow } from "ViteGM";
 
 const M_Jianshu = {
 	init() {
@@ -19,11 +20,11 @@ const M_Jianshu = {
 		PopsPanel.execMenu("JianShuAutoExpandFullText_Mobile", () => {
 			Jianshu.autoExpandFullText();
 		});
-		PopsPanel.execMenu("JianShuremoveFooterRecommendRead", () => {
-			this.removeFooterRecommendRead();
+		PopsPanel.execMenuOnce("JianShuremoveFooterRecommendRead", () => {
+			return this.removeFooterRecommendRead();
 		});
 		PopsPanel.execMenu("JianShuShieldUserCommentsMobile", () => {
-			this.shieldUserComments();
+			return this.shieldUserComments();
 		});
 	},
 	/**
@@ -37,10 +38,7 @@ const M_Jianshu = {
 	 */
 	removeFooterRecommendRead() {
 		log.info("屏蔽底部推荐阅读");
-		GM_addStyle(`
-        #recommended-notes{
-          display: none !important;
-        }`);
+		return CommonUtils.addBlockCSS("#recommended-notes");
 	},
 	/**
 	 * 处理原型
@@ -69,11 +67,7 @@ const M_Jianshu = {
 	 */
 	shieldUserComments() {
 		log.info("屏蔽评论区");
-		GM_addStyle(`
-        #comment-main{
-          display: none !important;
-        }
-        `);
+		return CommonUtils.addBlockCSS("#comment-main");
 	},
 };
 

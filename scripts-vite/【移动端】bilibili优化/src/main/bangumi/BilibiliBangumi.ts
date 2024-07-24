@@ -4,8 +4,8 @@ import { unsafeWindow } from "ViteGM";
 import { Qmsg } from "@/env";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliData } from "@/data/BlibiliData";
-import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
 import { BilibiliBangumiVueProp } from "./BilibiliBangumiVueProp";
+import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
 
 const BilibiliOpenApp = {
 	getUrl($ele: HTMLElement | null | Element) {

@@ -1,6 +1,6 @@
 import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { GM_addStyle, unsafeWindow } from "ViteGM";
+import { unsafeWindow } from "ViteGM";
 import { XHS_Shield } from "./XHS_Shield";
 import { XHS_Hook } from "@/hook/hook";
 import { XHS_Article } from "./article/XHS_Article";

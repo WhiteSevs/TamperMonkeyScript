@@ -5,7 +5,6 @@ import {
 	ATTRIBUTE_KEY,
 	KEY,
 } from "@/setting/config";
-import type { UtilsDictionary } from "@whitesev/utils/dist/src/Dictionary";
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
 import { Component_Common } from "./components/common";
 import {
@@ -13,6 +12,7 @@ import {
 	PopsPanelFormsTotalDetails,
 } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
+import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 
 type PosPanelListenerData = {
 	id: number;

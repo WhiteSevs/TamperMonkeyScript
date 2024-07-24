@@ -13,13 +13,13 @@ import { SettingUIScriptList } from "./components/script-list";
 import { SettingUIScriptLib } from "./components/script-lib";
 import UIScriptListCSS from "@/main/UIScriptListCSS.css?raw";
 import i18next from "i18next";
-import type { UtilsDictionary } from "@whitesev/utils/dist/src/Dictionary";
 import {
 	PopsPanelContentConfig,
 	PopsPanelFormsTotalDetails,
 } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 import { SettingUIUsers } from "./components/users";
+import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 
 interface PosPanelListenerData {
 	id: number;
