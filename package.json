@@ -11,15 +11,16 @@
 		"build:min": "pnpm recursive run build:min",
 		"build:all": "pnpm recursive run build:all",
 		"build:no-cache": "pnpm recursive run build:no-cache",
-		"clear": "pnpm recursive run clear"
+		"clear": "pnpm recursive run clear",
+		"update": "pnpm update --latest"
 	},
 	"dependencies": {
 		"@element-plus/icons-vue": "^2.3.1",
 		"@mgdn/bvid": "^0.3.0",
 		"@types/md5": "^2.3.5",
-		"@whitesev/domutils": "^1.1.2",
+		"@whitesev/domutils": "^1.1.5",
 		"@whitesev/pops": "^1.4.0",
-		"@whitesev/utils": "^1.9.3",
+		"@whitesev/utils": "^2.0.0",
 		"i18next": "^23.12.2",
 		"md5": "^2.3.0",
 		"pinia": "^2.1.7",
@@ -30,8 +31,8 @@
 		"vue-router": "^4.4.0"
 	},
 	"devDependencies": {
-		"@types/node": "^20.14.11",
-		"@vitejs/plugin-vue": "^5.0.5",
+		"@types/node": "^20.14.12",
+		"@vitejs/plugin-vue": "^5.1.0",
 		"element-plus": "^2.7.7",
 		"typescript": "^5.5.4",
 		"unplugin-auto-import": "^0.18.1",
