@@ -10,9 +10,9 @@ import { Log } from "./Log";
 import { Progress } from "./Progress";
 import { UtilsDictionary } from "./Dictionary";
 import type { DOMUtils_EventType } from "./Event";
-import type { UtilsCoreOption } from "./UtilsCore";
 import type { Vue2Object } from "./VueObject";
 import type { UtilsAjaxHookResult } from "./AjaxHookerType";
+import { type UtilsWindowApiOption } from "./UtilsWindowApi";
 export declare var unsafeWindow: Window & typeof globalThis;
 export type JSTypeMap = {
     string: string;
@@ -38,7 +38,8 @@ export declare interface AnyObject {
 export declare interface Vue2Context extends Vue2Object {
 }
 declare class Utils {
-    constructor(option?: UtilsCoreOption);
+    private windowApi;
+    constructor(option?: UtilsWindowApiOption);
     /** 版本号 */
     version: string;
     /**
@@ -1099,7 +1100,7 @@ declare class Utils {
      * let utils = Utils.noConflict();
      * > ...
      */
-    noConflict: () => Utils;
+    noConflict(): Utils;
     /**
      * 恢复/释放该对象内的为function，让它无效/有效
      * @param needReleaseObject 需要操作的对象
@@ -1730,7 +1731,7 @@ declare class Utils {
      * @param option
      * @returns
      */
-    createUtils(option?: UtilsCoreOption): Utils;
+    createUtils(option?: UtilsWindowApiOption): Utils;
     /**
      * 将对象转换为FormData
      * @param data 待转换的对象

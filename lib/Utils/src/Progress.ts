@@ -1,5 +1,4 @@
 import { Utils } from "./Utils";
-import { UtilsCore } from "./UtilsCore";
 
 declare interface ProgressParamConfig {
 	/** canvas元素节点 */
@@ -91,17 +90,12 @@ class Progress {
 		/* 元素高度 */
 		this.#height = this.#config.canvasNode.height;
 		/* 清除锯齿 */
-		if (UtilsCore.window.devicePixelRatio) {
+		if (window.devicePixelRatio) {
 			this.#config.canvasNode.style.width = this.#width + "px";
 			this.#config.canvasNode.style.height = this.#height + "px";
-			this.#config.canvasNode.height =
-				this.#height * UtilsCore.window.devicePixelRatio;
-			this.#config.canvasNode.width =
-				this.#width * UtilsCore.window.devicePixelRatio;
-			this.#ctx.scale(
-				UtilsCore.window.devicePixelRatio,
-				UtilsCore.window.devicePixelRatio
-			);
+			this.#config.canvasNode.height = this.#height * window.devicePixelRatio;
+			this.#config.canvasNode.width = this.#width * window.devicePixelRatio;
+			this.#ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
 		}
 		/* 设置线宽 */
 		this.#ctx.lineWidth = this.#config.lineWidth;

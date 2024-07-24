@@ -1,6 +1,5 @@
 import { ColorConversion } from "./ColorConversion";
 import { GBKEncoder } from "./GBKEncoder";
-import { UtilsCore } from "./UtilsCore";
 import { UtilsGMCookie } from "./UtilsGMCookie";
 import { AjaxHooker } from "./ajaxHooker/ajaxHooker.js";
 import { GMMenu } from "./UtilsGMMenu";
@@ -13,10 +12,10 @@ import { Progress } from "./Progress";
 import { TryCatch } from "./TryCatch";
 import { UtilsDictionary } from "./Dictionary";
 import type { DOMUtils_EventType } from "./Event";
-import type { UtilsCoreOption } from "./UtilsCore";
 import type { Vue2Object } from "./VueObject";
 import type { UtilsAjaxHookResult } from "./AjaxHookerType";
 import { GenerateUUID } from "./UtilsCommon";
+import { WindowApi, type UtilsWindowApiOption } from "./WindowApi";
 
 export declare var unsafeWindow: Window & typeof globalThis;
 
@@ -48,11 +47,12 @@ export declare interface AnyObject {
 export declare interface Vue2Context extends Vue2Object {}
 
 class Utils {
-	constructor(option?: UtilsCoreOption) {
-		UtilsCore.init(option);
+	private windowApi: WindowApi;
+	constructor(option?: UtilsWindowApiOption) {
+		this.windowApi = new WindowApi(option);
 	}
 	/** 版本号 */
-	version = "2024.7.20";
+	version = "2024.7.24";
 
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
@@ -67,23 +67,25 @@ class Utils {
 		if (typeof cssText !== "string") {
 			throw new Error("Utils.addStyle 参数cssText 必须为String类型");
 		}
-		let cssNode = UtilsCore.document.createElement("style");
+		let cssNode = this.windowApi.document.createElement("style");
 		cssNode.setAttribute("type", "text/css");
 		cssNode.innerHTML = cssText;
-		if (UtilsCore.document.head) {
+		if (this.windowApi.document.head) {
 			/* 插入head最后 */
-			UtilsCore.document.head.appendChild(cssNode);
-		} else if (UtilsCore.document.body) {
+			this.windowApi.document.head.appendChild(cssNode);
+		} else if (this.windowApi.document.body) {
 			/* 插入body后 */
-			UtilsCore.document.body.appendChild(cssNode);
-		} else if (UtilsCore.document.documentElement.childNodes.length === 0) {
+			this.windowApi.document.body.appendChild(cssNode);
+		} else if (
+			this.windowApi.document.documentElement.childNodes.length === 0
+		) {
 			/* 插入#html第一个元素后 */
-			UtilsCore.document.documentElement.appendChild(cssNode);
+			this.windowApi.document.documentElement.appendChild(cssNode);
 		} else {
 			/* 插入head前面 */
-			UtilsCore.document.documentElement.insertBefore(
+			this.windowApi.document.documentElement.insertBefore(
 				cssNode,
-				UtilsCore.document.documentElement.childNodes[0]
+				this.windowApi.document.documentElement.childNodes[0]
 			);
 		}
 		return cssNode;
@@ -306,7 +308,7 @@ class Utils {
 		let elementPosYBottom = Number(
 			(element as HTMLElement).getBoundingClientRect().bottom
 		); /* 要检测的元素的相对屏幕的纵坐标最下边 */
-		let clickNodeHTML = (UtilsCore.window.event as any).target
+		let clickNodeHTML = (this.windowApi.window.event as any).target
 			.innerHTML as string;
 		if (
 			mouseClickPosX >= elementPosXLeft &&
@@ -561,21 +563,21 @@ class Utils {
 		}
 		if (isIFrame) {
 			/* 使用iframe */
-			const iframeElement = UtilsCore.document.createElement("iframe");
+			const iframeElement = this.windowApi.document.createElement("iframe");
 			iframeElement.style.display = "none";
 			iframeElement.src = base64Data;
-			UtilsCore.document.body.appendChild(iframeElement);
+			this.windowApi.document.body.appendChild(iframeElement);
 			setTimeout(() => {
 				iframeElement!.contentWindow!.document.execCommand(
 					"SaveAs",
 					true,
 					fileName
 				);
-				UtilsCore.document.body.removeChild(iframeElement);
+				this.windowApi.document.body.removeChild(iframeElement);
 			}, 100);
 		} else {
 			/* 使用A标签 */
-			const linkElement = UtilsCore.document.createElement("a");
+			const linkElement = this.windowApi.document.createElement("a");
 			linkElement.setAttribute("target", "_blank");
 			linkElement.download = fileName;
 			linkElement.href = base64Data;
@@ -601,14 +603,14 @@ class Utils {
 	findWebPageVisibleText(str = "", caseSensitive = false) {
 		let TRange = null;
 		let strFound;
-		if ((UtilsCore.globalThis as any).find) {
+		if ((this.windowApi.globalThis as any).find) {
 			/* CODE FOR BROWSERS THAT SUPPORT window.find */
-			let windowFind = (UtilsCore.self as any).find;
+			let windowFind = (this.windowApi.self as any).find;
 			strFound = windowFind(str, caseSensitive, true, true, false);
 			if (
 				strFound &&
-				UtilsCore.self.getSelection &&
-				!UtilsCore.self.getSelection()!.anchorNode
+				this.windowApi.self.getSelection &&
+				!this.windowApi.self.getSelection()!.anchorNode
 			) {
 				strFound = windowFind(str, caseSensitive, true, true, false);
 			}
@@ -625,7 +627,7 @@ class Utils {
 				if (strFound) TRange.select();
 			}
 			if (TRange == null || strFound == 0) {
-				TRange = (UtilsCore.self.document.body as any).createTextRange();
+				TRange = (this.windowApi.self.document.body as any).createTextRange();
 				strFound = TRange.findText(str);
 				if (strFound) TRange.select();
 			}
@@ -1235,8 +1237,8 @@ class Utils {
 		// 当前的最大z-index的元素，调试使用
 		// @ts-ignore
 		let maxZIndexNode = null;
-		UtilsCore.document.querySelectorAll("*").forEach(($ele, index) => {
-			let nodeStyle = UtilsCore.window.getComputedStyle($ele);
+		this.windowApi.document.querySelectorAll("*").forEach(($ele, index) => {
+			let nodeStyle = this.windowApi.window.getComputedStyle($ele);
 			/* 不对position为static和display为none的元素进行获取它们的z-index */
 			if (nodeStyle.position !== "static" && nodeStyle.display !== "none") {
 				let nodeZIndex = parseInt(nodeStyle.zIndex);
@@ -1559,7 +1561,7 @@ class Utils {
 		if (url.trim() === "") {
 			throw new TypeError("url不能为空字符串或纯空格");
 		}
-		return `thunder://${UtilsCore.globalThis.btoa("AA" + url + "ZZ")}`;
+		return `thunder://${this.windowApi.globalThis.btoa("AA" + url + "ZZ")}`;
 	}
 	/**
      * 对于GM_cookie的兼容写法，当无法使用GM_cookie时可以使用这个,但是并不完全兼容，有些写不出来且限制了httponly是无法访问的
@@ -1797,12 +1799,12 @@ class Utils {
 	isNearBottom(nearValue?: number): boolean;
 	isNearBottom(nearValue: number = 50): boolean {
 		var scrollTop =
-			UtilsCore.window.pageYOffset ||
-			UtilsCore.document.documentElement.scrollTop;
+			this.windowApi.window.pageYOffset ||
+			this.windowApi.document.documentElement.scrollTop;
 		var windowHeight =
-			UtilsCore.window.innerHeight ||
-			UtilsCore.document.documentElement.clientHeight;
-		var documentHeight = UtilsCore.document.documentElement.scrollHeight;
+			this.windowApi.window.innerHeight ||
+			this.windowApi.document.documentElement.clientHeight;
+		var documentHeight = this.windowApi.document.documentElement.scrollHeight;
 		return scrollTop + windowHeight >= documentHeight - nearValue;
 	}
 	/**
@@ -1825,10 +1827,10 @@ class Utils {
 	isFullscreenEnabled(): boolean;
 	isFullscreenEnabled(): boolean {
 		return !!(
-			(UtilsCore.document as any).fullscreenEnabled ||
-			(UtilsCore.document as any).webkitFullScreenEnabled ||
-			(UtilsCore.document as any).mozFullScreenEnabled ||
-			(UtilsCore.document as any).msFullScreenEnabled
+			(this.windowApi.document as any).fullscreenEnabled ||
+			(this.windowApi.document as any).webkitFullScreenEnabled ||
+			(this.windowApi.document as any).mozFullScreenEnabled ||
+			(this.windowApi.document as any).msFullScreenEnabled
 		);
 	}
 	/**
@@ -2152,7 +2154,7 @@ class Utils {
 	 */
 	isThemeDark(): boolean;
 	isThemeDark(): boolean {
-		return UtilsCore.globalThis.matchMedia("(prefers-color-scheme: dark)")
+		return this.windowApi.globalThis.matchMedia("(prefers-color-scheme: dark)")
 			.matches;
 	}
 	/**
@@ -2182,18 +2184,18 @@ class Utils {
 		}
 		let result = true;
 		for (const domItem of needCheckDomList) {
-			let domDisplay = UtilsCore.window.getComputedStyle(domItem);
+			let domDisplay = this.windowApi.window.getComputedStyle(domItem);
 			if (domDisplay.display === "none") {
 				result = false;
 			} else {
 				let domClientRect = domItem.getBoundingClientRect();
 				if (inView) {
 					let viewportWidth =
-						UtilsCore.window.innerWidth ||
-						UtilsCore.document.documentElement.clientWidth;
+						this.windowApi.window.innerWidth ||
+						this.windowApi.document.documentElement.clientWidth;
 					let viewportHeight =
-						UtilsCore.window.innerHeight ||
-						UtilsCore.document.documentElement.clientHeight;
+						this.windowApi.window.innerHeight ||
+						this.windowApi.document.documentElement.clientHeight;
 					result = !(
 						domClientRect.right < 0 ||
 						domClientRect.left > viewportWidth ||
@@ -2225,10 +2227,10 @@ class Utils {
 	isWebView_Via(): boolean {
 		let result = true;
 		let UtilsContext = this;
-		if (typeof (UtilsCore.top.window as any).via === "object") {
-			for (const key in Object.values((UtilsCore.top.window as any).via)) {
-				if (Reflect.has((UtilsCore.top.window as any).via, key)) {
-					let objValueFunc = (UtilsCore.top.window as any).via[key];
+		if (typeof (this.windowApi.top.window as any).via === "object") {
+			for (const key in Object.values((this.windowApi.top.window as any).via)) {
+				if (Reflect.has((this.windowApi.top.window as any).via, key)) {
+					let objValueFunc = (this.windowApi.top.window as any).via[key];
 					if (
 						typeof objValueFunc === "function" &&
 						UtilsContext.isNativeFunc(objValueFunc)
@@ -2258,10 +2260,12 @@ class Utils {
 	isWebView_X(): boolean {
 		let result = true;
 		let UtilsContext = this;
-		if (typeof (UtilsCore.top.window as any).mbrowser === "object") {
-			for (const key in Object.values((UtilsCore.top.window as any).mbrowser)) {
-				if (Reflect.has((UtilsCore.top.window as any).mbrowser, key)) {
-					let objValueFunc = (UtilsCore.top.window as any).mbrowser[key];
+		if (typeof (this.windowApi.top.window as any).mbrowser === "object") {
+			for (const key in Object.values(
+				(this.windowApi.top.window as any).mbrowser
+			)) {
+				if (Reflect.has((this.windowApi.top.window as any).mbrowser, key)) {
+					let objValueFunc = (this.windowApi.top.window as any).mbrowser[key];
 					if (
 						typeof objValueFunc === "function" &&
 						UtilsContext.isNativeFunc(objValueFunc)
@@ -2598,9 +2602,9 @@ class Utils {
 			observer_config
 		);
 		let windowMutationObserver =
-			UtilsCore.window.MutationObserver ||
-			(UtilsCore.window as any).webkitMutationObserver ||
-			(UtilsCore.window as any).MozMutationObserver;
+			this.windowApi.window.MutationObserver ||
+			(this.windowApi.window as any).webkitMutationObserver ||
+			(this.windowApi.window as any).MozMutationObserver;
 		// 观察者对象
 		let mutationObserver = new windowMutationObserver(function (
 			mutations: MutationRecord[],
@@ -2638,13 +2642,13 @@ class Utils {
 	 * let utils = Utils.noConflict();
 	 * > ...
 	 */
-	noConflict = function () {
-		if ((UtilsCore.window as any).Utils) {
-			Reflect.deleteProperty(UtilsCore.window as any, "Utils");
+	noConflict() {
+		if ((this.windowApi.window as any).Utils) {
+			Reflect.deleteProperty(this.windowApi.window as any, "Utils");
 		}
-		(UtilsCore.window as any).Utils = utils;
+		(this.windowApi.window as any).Utils = utils;
 		return utils;
-	};
+	}
 	/**
      * 恢复/释放该对象内的为function，让它无效/有效
      * @param needReleaseObject 需要操作的对象
@@ -2710,11 +2714,14 @@ class Utils {
 		 * 释放所有
 		 */
 		function releaseAll() {
-			if (typeof (UtilsCore.window as any)[needReleaseKey] !== "undefined") {
+			if (
+				typeof (UtilsContext.windowApi.window as any)[needReleaseKey] !==
+				"undefined"
+			) {
 				/* 已存在 */
 				return;
 			}
-			(UtilsCore.window as any)[needReleaseKey] =
+			(UtilsContext.windowApi.window as any)[needReleaseKey] =
 				UtilsContext.deepClone(needReleaseObject);
 			Object.values(needReleaseObject).forEach((value) => {
 				if (typeof value === "function") {
@@ -2730,14 +2737,15 @@ class Utils {
 				Object.values(needReleaseObject).forEach((value) => {
 					if (typeof value === "function") {
 						if (
-							typeof (UtilsCore.window as any)[needReleaseKey] === "undefined"
+							typeof (UtilsContext.windowApi.window as any)[needReleaseKey] ===
+							"undefined"
 						) {
-							(UtilsCore.window as any)[needReleaseKey] = {};
+							(UtilsContext.windowApi.window as any)[needReleaseKey] = {};
 						}
 						if (item === value.name) {
-							(UtilsCore.window as any)[needReleaseKey][value.name] = (
-								needReleaseObject as any
-							)[value.name];
+							(UtilsContext.windowApi.window as any)[needReleaseKey][
+								value.name
+							] = (needReleaseObject as any)[value.name];
 							(needReleaseObject as any)[value.name] = () => {};
 						}
 					}
@@ -2748,36 +2756,46 @@ class Utils {
 		 * 恢复所有
 		 */
 		function recoveryAll() {
-			if (typeof (UtilsCore.window as any)[needReleaseKey] === "undefined") {
+			if (
+				typeof (UtilsContext.windowApi.window as any)[needReleaseKey] ===
+				"undefined"
+			) {
 				/* 未存在 */
 				return;
 			}
 			Object.assign(
 				needReleaseObject,
-				(UtilsCore.window as any)[needReleaseKey]
+				(UtilsContext.windowApi.window as any)[needReleaseKey]
 			);
-			Reflect.deleteProperty(UtilsCore.window as any, "needReleaseKey");
+			Reflect.deleteProperty(
+				UtilsContext.windowApi.window as any,
+				"needReleaseKey"
+			);
 		}
 
 		/**
 		 * 恢复单个
 		 */
 		function recoveryOne() {
-			if (typeof (UtilsCore.window as any)[needReleaseKey] === "undefined") {
+			if (
+				typeof (UtilsContext.windowApi.window as any)[needReleaseKey] ===
+				"undefined"
+			) {
 				/* 未存在 */
 				return;
 			}
 			Array.from(functionNameList).forEach((item) => {
-				if ((UtilsCore.window as any)[needReleaseKey][item]) {
-					(needReleaseObject as any)[item] = (UtilsCore.window as any)[
-						needReleaseKey
-					][item];
+				if ((UtilsContext.windowApi.window as any)[needReleaseKey][item]) {
+					(needReleaseObject as any)[item] = (
+						UtilsContext.windowApi.window as any
+					)[needReleaseKey][item];
 					Reflect.deleteProperty(
-						(UtilsCore.window as any)[needReleaseKey],
+						(UtilsContext.windowApi.window as any)[needReleaseKey],
 						item
 					);
 					if (
-						Object.keys((UtilsCore.window as any)[needReleaseKey]).length === 0
+						Object.keys((UtilsContext.windowApi.window as any)[needReleaseKey])
+							.length === 0
 					) {
 						Reflect.deleteProperty(window, needReleaseKey);
 					}
@@ -3175,7 +3193,7 @@ class Utils {
 		startIndex?: number,
 		endIndex?: number
 	): void {
-		let range = UtilsCore.document.createRange();
+		let range = this.windowApi.document.createRange();
 		range.selectNodeContents(element);
 		if (childTextNode) {
 			if (childTextNode.nodeType !== Node.TEXT_NODE) {
@@ -3187,7 +3205,7 @@ class Utils {
 			}
 		}
 
-		let selection = UtilsCore.globalThis.getSelection();
+		let selection = this.windowApi.globalThis.getSelection();
 		if (selection) {
 			selection.removeAllRanges();
 			selection.addRange(range);
@@ -3251,6 +3269,7 @@ class Utils {
 		} else {
 			textType = "text/plain";
 		}
+		let UtilsContext = this;
 		class UtilsClipboard {
 			#resolve;
 			#copyData;
@@ -3309,15 +3328,16 @@ class Utils {
 			 */
 			copyTextByTextArea() {
 				try {
-					let copyElement = UtilsCore.document.createElement("textarea");
+					let copyElement =
+						UtilsContext.windowApi.document.createElement("textarea");
 					copyElement.value = this.#copyData;
 					copyElement.setAttribute("type", "text");
 					copyElement.setAttribute("style", "opacity:0;position:absolute;");
 					copyElement.setAttribute("readonly", "readonly");
-					UtilsCore.document.body.appendChild(copyElement);
+					UtilsContext.windowApi.document.body.appendChild(copyElement);
 					copyElement.select();
-					UtilsCore.document.execCommand("copy");
-					UtilsCore.document.body.removeChild(copyElement);
+					UtilsContext.windowApi.document.execCommand("copy");
+					UtilsContext.windowApi.document.body.removeChild(copyElement);
 					return true;
 				} catch (error) {
 					console.error("复制失败，error👉", error);
@@ -3392,10 +3412,10 @@ class Utils {
 		}
 		return new Promise((resolve) => {
 			const utilsClipboard = new UtilsClipboard(resolve, data, textType);
-			if (UtilsCore.document.hasFocus()) {
+			if (UtilsContext.windowApi.document.hasFocus()) {
 				utilsClipboard.init();
 			} else {
-				UtilsCore.window.addEventListener(
+				UtilsContext.windowApi.window.addEventListener(
 					"focus",
 					() => {
 						utilsClipboard.init();
@@ -3465,15 +3485,17 @@ class Utils {
 	dragSlider(selector: string | Element | Node, offsetX?: number): void;
 	dragSlider(
 		selector: string | Element | Node,
-		offsetX: number = UtilsCore.window.innerWidth
+		offsetX: number = this.windowApi.window.innerWidth
 	): void {
+		let UtilsContext = this;
 		function initMouseEvent(
 			eventName: string,
 			offSetX: number,
 			offSetY: number
 		) {
 			let win = unsafeWindow || window;
-			let mouseEvent = UtilsCore.document.createEvent("MouseEvents");
+			let mouseEvent =
+				UtilsContext.windowApi.document.createEvent("MouseEvents");
 			mouseEvent.initMouseEvent(
 				eventName,
 				true,
@@ -3495,7 +3517,7 @@ class Utils {
 		}
 		let sliderElement =
 			typeof selector === "string"
-				? UtilsCore.document.querySelector(selector)
+				? this.windowApi.document.querySelector(selector)
 				: selector;
 		if (
 			!(sliderElement instanceof Node) ||
@@ -3522,7 +3544,7 @@ class Utils {
 	 */
 	enterFullScreen(element: HTMLElement, options?: FullscreenOptions): void;
 	enterFullScreen(
-		element: HTMLElement = UtilsCore.document.documentElement,
+		element: HTMLElement = this.windowApi.document.documentElement,
 		options?: FullscreenOptions
 	): void {
 		try {
@@ -3549,16 +3571,16 @@ class Utils {
 	 */
 	exitFullScreen(element?: HTMLElement): Promise<void>;
 	exitFullScreen(
-		element: HTMLElement = UtilsCore.document.documentElement
+		element: HTMLElement = this.windowApi.document.documentElement
 	): Promise<void> {
-		if (UtilsCore.document.exitFullscreen) {
-			return UtilsCore.document.exitFullscreen();
-		} else if ((UtilsCore.document as any).msExitFullscreen) {
-			return (UtilsCore.document as any).msExitFullscreen();
-		} else if ((UtilsCore.document as any).mozCancelFullScreen) {
-			return (UtilsCore.document as any).mozCancelFullScreen();
-		} else if ((UtilsCore.document as any).webkitCancelFullScreen) {
-			return (UtilsCore.document as any).webkitCancelFullScreen();
+		if (this.windowApi.document.exitFullscreen) {
+			return this.windowApi.document.exitFullscreen();
+		} else if ((this.windowApi.document as any).msExitFullscreen) {
+			return (this.windowApi.document as any).msExitFullscreen();
+		} else if ((this.windowApi.document as any).mozCancelFullScreen) {
+			return (this.windowApi.document as any).mozCancelFullScreen();
+		} else if ((this.windowApi.document as any).webkitCancelFullScreen) {
+			return (this.windowApi.document as any).webkitCancelFullScreen();
 		} else {
 			return new Promise((resolve, reject) => {
 				reject(new TypeError("该浏览器不支持全屏API"));
@@ -3830,7 +3852,9 @@ class Utils {
 				UtilsContext.tryCatch()
 					.error(() => {
 						try {
-							result = (UtilsCore.window as any).eval("(" + data + ")");
+							result = (UtilsContext.windowApi.window as any).eval(
+								"(" + data + ")"
+							);
 						} catch (error2: any) {
 							if (typeof errorCallBack === "function") {
 								errorCallBack(error2);
@@ -4077,11 +4101,11 @@ class Utils {
 	waitNode<T extends Element | Element[]>(...args: any[]): Promise<T | null> {
 		// 过滤掉undefined
 		args = args.filter((arg) => arg !== void 0);
-		let that = this;
+		let UtilsContext = this;
 		// 选择器
 		let selector = args[0] as unknown as string | string[];
 		// 父元素（监听的元素）
-		let parent: Element = UtilsCore.document as any as Element;
+		let parent: Element = UtilsContext.windowApi.document as any as Element;
 		// 超时时间
 		let timeout = 0;
 		if (typeof args[0] !== "string" && !Array.isArray(args[0])) {
@@ -4139,7 +4163,7 @@ class Utils {
 					return parent.querySelector(selector);
 				}
 			}
-			var observer = that.mutationObserver(parent, {
+			var observer = UtilsContext.mutationObserver(parent, {
 				config: {
 					subtree: true,
 					childList: true,
@@ -4229,11 +4253,11 @@ class Utils {
 	waitAnyNode<T extends Element>(...args: any[]): Promise<T | null> {
 		// 过滤掉undefined
 		args = args.filter((arg) => arg !== void 0);
-		let that = this;
+		let UtilsContext = this;
 		// 选择器
 		let selectorList = args[0] as unknown as string[];
 		// 父元素（监听的元素）
-		let parent: Element = UtilsCore.document as any as Element;
+		let parent: Element = UtilsContext.windowApi.document as any as Element;
 		// 超时时间
 		let timeout = 0;
 		if (typeof args[0] !== "object" && !Array.isArray(args[0])) {
@@ -4275,7 +4299,7 @@ class Utils {
 			throw new TypeError("Utils.waitAnyNode 参数个数错误");
 		}
 		let promiseList = selectorList.map((selector) => {
-			return that.waitNode<T>(selector, parent, timeout);
+			return UtilsContext.waitNode<T>(selector, parent, timeout);
 		});
 		return Promise.any(promiseList);
 	}
@@ -4399,11 +4423,11 @@ class Utils {
 	): Promise<T | null> {
 		// 过滤掉undefined
 		args = args.filter((arg) => arg !== void 0);
-		let that = this;
+		let UtilsContext = this;
 		// 选择器数组
 		let selector = args[0] as unknown as string | string[];
 		// 父元素（监听的元素）
-		let parent: Element = UtilsCore.document as any as Element;
+		let parent: Element = UtilsContext.windowApi.document as any as Element;
 		// 超时时间
 		let timeout = 0;
 		if (typeof args[0] !== "string" && !Array.isArray(args[0])) {
@@ -4466,7 +4490,7 @@ class Utils {
 					}
 				}
 			}
-			var observer = that.mutationObserver(parent, {
+			var observer = UtilsContext.mutationObserver(parent, {
 				config: {
 					subtree: true,
 					childList: true,
@@ -4558,11 +4582,11 @@ class Utils {
 	): Promise<NodeListOf<T> | null> {
 		// 过滤掉undefined
 		args = args.filter((arg) => arg !== void 0);
-		let that = this;
+		let UtilsContext = this;
 		// 选择器数组
 		let selectorList = args[0] as unknown as string[];
 		// 父元素（监听的元素）
-		let parent: Element = UtilsCore.document as any as Element;
+		let parent: Element = UtilsContext.windowApi.document as any as Element;
 		// 超时时间
 		let timeout = 0;
 		if (!Array.isArray(args[0])) {
@@ -4607,7 +4631,11 @@ class Utils {
 		}
 
 		let promiseList = selectorList.map((selector) => {
-			return that.waitNodeList<NodeListOf<T>>(selector, parent, timeout);
+			return UtilsContext.waitNodeList<NodeListOf<T>>(
+				selector,
+				parent,
+				timeout
+			);
 		});
 		return Promise.any(promiseList);
 	}
@@ -4858,7 +4886,7 @@ class Utils {
 	 * @param option
 	 * @returns
 	 */
-	createUtils(option?: UtilsCoreOption) {
+	createUtils(option?: UtilsWindowApiOption) {
 		return new Utils(option);
 	}
 
@@ -4916,11 +4944,11 @@ class Utils {
 		if (text.startsWith("//")) {
 			/* //www.baidu.com/xxxxxxx */
 			/* 没有protocol，加上 */
-			text = UtilsCore.globalThis.location.protocol + text;
+			text = this.windowApi.globalThis.location.protocol + text;
 		} else if (text.startsWith("/")) {
 			/* /xxx/info?xxx=xxx */
 			/* 没有Origin，加上 */
-			text = UtilsCore.globalThis.location.origin + text;
+			text = this.windowApi.globalThis.location.origin + text;
 		}
 		return new URL(text);
 	}

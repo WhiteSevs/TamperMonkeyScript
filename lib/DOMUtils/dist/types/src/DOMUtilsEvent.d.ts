@@ -1,3 +1,4 @@
+import { UtilsWindowApiOption } from "./WindowApi";
 export type DOMUtilsEventObject<T extends Node> = Event & {
     target: T;
 };
@@ -199,7 +200,9 @@ export declare interface DOMUtilsEventListenerOptionsAttribute {
     selector?: string;
 }
 export declare type DOMUtilsElementEventType = HTMLElement | string | NodeList | (HTMLElement | Window | Document | Element | typeof globalThis)[] | Window | Document | Element | null | typeof globalThis | ShadowRoot | EventTarget | ChildNode | Node;
-declare class DOMUtilsEvent {
+export declare class DOMUtilsEvent {
+    windowApi: UtilsWindowApiOption;
+    constructor(windowApiOption?: UtilsWindowApiOption);
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
@@ -506,4 +509,3 @@ declare class DOMUtilsEvent {
      */
     keypress(target: HTMLElement | Window | typeof globalThis | string, handler: (event: DOMUtils_Event["keypress"]) => void, option?: boolean | AddEventListenerOptions): void;
 }
-export { DOMUtilsEvent };

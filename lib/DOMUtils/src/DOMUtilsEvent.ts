@@ -1,7 +1,7 @@
 import { DOMUtilsCommonUtils } from "./DOMUtilsCommonUtils";
-import { DOMUtilsCore } from "./DOMUtilsCore";
 import { DOMUtilsData } from "./DOMUtilsData";
 import { OriginPrototype } from "./DOMUtilsOriginPrototype";
+import { UtilsWindowApiOption, WindowApi } from "./WindowApi";
 
 export type DOMUtilsEventObject<T extends Node> = Event & {
 	target: T;
@@ -242,7 +242,11 @@ export declare type DOMUtilsElementEventType =
 	| ChildNode
 	| Node;
 
-class DOMUtilsEvent {
+export class DOMUtilsEvent {
+	windowApi: UtilsWindowApiOption;
+	constructor(windowApiOption?: UtilsWindowApiOption) {
+		this.windowApi = new WindowApi(windowApiOption);
+	}
 	/**
 	 * 绑定事件
 	 * @param element 需要绑定的元素|元素数组|window
@@ -404,7 +408,7 @@ class DOMUtilsEvent {
 		let DOMUtilsContext = this;
 		let args = arguments;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelectorAll(element);
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -459,7 +463,7 @@ class DOMUtilsEvent {
 				if (_selector_) {
 					/* 存在自定义子元素选择器 */
 					let totalParent = DOMUtilsCommonUtils.isWin(elementItem)
-						? DOMUtilsCore.document.documentElement
+						? DOMUtilsContext.windowApi.document.documentElement
 						: elementItem;
 					if (target.matches(_selector_)) {
 						/* 当前目标可以被selector所匹配到 */
@@ -658,10 +662,10 @@ class DOMUtilsEvent {
 			}
 			return option;
 		}
-
+		let DOMUtilsContext = this;
 		let args = arguments;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelectorAll(element);
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -768,8 +772,9 @@ class DOMUtilsEvent {
 		element: DOMUtilsElementEventType,
 		eventType?: DOMUtils_EventType | DOMUtils_EventType[] | string
 	) {
+		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelectorAll(element);
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -827,15 +832,17 @@ class DOMUtilsEvent {
 		if (typeof callback !== "function") {
 			return;
 		}
+		let DOMUtilsContext = this;
 		/**
 		 * 检测文档是否加载完毕
 		 */
 		function checkDOMReadyState() {
 			try {
 				if (
-					DOMUtilsCore.document.readyState === "complete" ||
-					(DOMUtilsCore.document.readyState !== "loading" &&
-						!(DOMUtilsCore.document.documentElement as any).doScroll)
+					DOMUtilsContext.windowApi.document.readyState === "complete" ||
+					(DOMUtilsContext.windowApi.document.readyState !== "loading" &&
+						!(DOMUtilsContext.windowApi.document.documentElement as any)
+							.doScroll)
 				) {
 					return true;
 				} else {
@@ -855,12 +862,12 @@ class DOMUtilsEvent {
 
 		let targetList = [
 			{
-				target: DOMUtilsCore.document,
+				target: DOMUtilsContext.windowApi.document,
 				eventType: "DOMContentLoaded",
 				callback: completed,
 			},
 			{
-				target: DOMUtilsCore.window,
+				target: DOMUtilsContext.windowApi.window,
 				eventType: "load",
 				callback: completed,
 			},
@@ -951,8 +958,11 @@ class DOMUtilsEvent {
 		details?: object,
 		useDispatchToTriggerEvent: boolean = true
 	) {
+		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -1019,7 +1029,9 @@ class DOMUtilsEvent {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -1057,7 +1069,9 @@ class DOMUtilsEvent {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -1100,7 +1114,9 @@ class DOMUtilsEvent {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -1137,7 +1153,9 @@ class DOMUtilsEvent {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -1170,7 +1188,9 @@ class DOMUtilsEvent {
 			return;
 		}
 		if (typeof target === "string") {
-			target = DOMUtilsCore.document.querySelector(target) as HTMLElement;
+			target = DOMUtilsContext.windowApi.document.querySelector(
+				target
+			) as HTMLElement;
 		}
 		DOMUtilsContext.on(target, "keyup", null, handler, option);
 	}
@@ -1199,7 +1219,9 @@ class DOMUtilsEvent {
 			return;
 		}
 		if (typeof target === "string") {
-			target = DOMUtilsCore.document.querySelector(target) as HTMLElement;
+			target = DOMUtilsContext.windowApi.document.querySelector(
+				target
+			) as HTMLElement;
 		}
 		DOMUtilsContext.on(target, "keydown", null, handler, option);
 	}
@@ -1228,10 +1250,10 @@ class DOMUtilsEvent {
 			return;
 		}
 		if (typeof target === "string") {
-			target = DOMUtilsCore.document.querySelector(target) as HTMLElement;
+			target = DOMUtilsContext.windowApi.document.querySelector(
+				target
+			) as HTMLElement;
 		}
 		DOMUtilsContext.on(target, "keypress", null, handler, option);
 	}
 }
-
-export { DOMUtilsEvent };

@@ -1,8 +1,8 @@
-import type { DOMUtilsCoreOption } from "./DOMUtilsCore";
 import { type DOMUtilsCreateElementAttributesMap, DOMUtilsEvent } from "./DOMUtilsEvent";
 import { ParseHTMLReturnType } from "./types/global";
+import { type UtilsWindowApiOption } from "./WindowApi";
 declare class DOMUtils extends DOMUtilsEvent {
-    constructor(option?: DOMUtilsCoreOption);
+    constructor(option?: UtilsWindowApiOption);
     /** 版本号 */
     version: string;
     /**
@@ -589,7 +589,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * @param option
      * @returns
      */
-    createDOMUtils(option?: DOMUtilsCoreOption): DOMUtils;
+    createDOMUtils(option?: UtilsWindowApiOption): DOMUtils;
     /**
      * 获取文字的位置信息
      * @param $input 输入框

@@ -1,7 +1,11 @@
-import { DOMUtilsCore } from "./DOMUtilsCore";
+import { UtilsWindowApiOption } from "./WindowApi";
 
 /** 通用工具类 */
 const DOMUtilsCommonUtils = {
+	windowApi: {
+		window: window,
+		document: document,
+	} as UtilsWindowApiOption,
 	/**
 	 * 判断元素是否已显示或已连接
 	 * @param element
@@ -19,7 +23,7 @@ const DOMUtilsCommonUtils = {
 			"style",
 			"visibility: hidden !important;display:block !important;"
 		);
-		DOMUtilsCore.document.documentElement.appendChild(dupNode);
+		this.windowApi.document.documentElement.appendChild(dupNode);
 		return {
 			/**
 			 * 恢复修改的style
@@ -74,13 +78,13 @@ const DOMUtilsCommonUtils = {
 		if (target === self) {
 			return true;
 		}
-		if (target === DOMUtilsCore.globalThis) {
+		if (target === globalThis) {
 			return true;
 		}
-		if (target === DOMUtilsCore.window) {
+		if (target === window) {
 			return true;
 		}
-		if (target === DOMUtilsCore.self) {
+		if (target === self) {
 			return true;
 		}
 		if (typeof unsafeWindow !== "undefined" && target === unsafeWindow) {

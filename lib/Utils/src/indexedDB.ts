@@ -1,5 +1,3 @@
-import { UtilsCore } from "./UtilsCore";
-
 declare interface UtilsIDBOpenErrorResult {
 	code: number;
 	msg: string;
@@ -14,10 +12,10 @@ class indexedDB {
 	#slqVersion = "1";
 	/* 监听IndexDB */
 	#indexedDB =
-		UtilsCore.window.indexedDB ||
-		(UtilsCore.window as any).mozIndexedDB ||
-		(UtilsCore.window as any).webkitIndexedDB ||
-		(UtilsCore.window as any).msIndexedDB;
+		window.indexedDB ||
+		(window as any).mozIndexedDB ||
+		(window as any).webkitIndexedDB ||
+		(window as any).msIndexedDB;
 	/* 缓存数据库，避免同一个页面重复创建和销毁 */
 	#db: {
 		[key: string]: IDBDatabase;

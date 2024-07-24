@@ -45,7 +45,13 @@ declare interface UtilsGMCookieDeleteOptions {
     /** 需要检索的Cookie的名字 */
     name: string;
 }
+interface WindowApiOption {
+    window: Window & typeof globalThis;
+    document: Document;
+}
 declare class UtilsGMCookie {
+    private windowApi;
+    constructor(windowApiOption?: WindowApiOption);
     /**
      * 获取单个cookie
      * @param cookieName cookie名

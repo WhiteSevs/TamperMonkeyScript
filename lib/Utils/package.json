@@ -1,13 +1,14 @@
 {
 	"name": "@whitesev/utils",
-	"version": "2.0.0",
+	"version": "2.1.0",
 	"description": "一个常用的工具库",
 	"main": "dist/index.cjs.js",
-	"module": "dist/node/index.esm.js",
+	"module": "dist/index.esm.js",
 	"types": "dist/types/index.d.ts",
 	"jsdelivr": "dist/index.umd.js",
 	"exports": {
 		"./package.json": "./package.json",
+		"./dist/*": "./dist/*",
 		".": {
 			"import": "./dist/index.esm.js",
 			"require": "./dist/index.cjs.js",
@@ -15,7 +16,8 @@
 		}
 	},
 	"files": [
-		"dist"
+		"dist",
+		"src"
 	],
 	"scripts": {
 		"build": "rollup --config"

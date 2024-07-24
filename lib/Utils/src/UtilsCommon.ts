@@ -1,11 +1,9 @@
-import { UtilsCore } from "./UtilsCore";
-
 /**
  * 生成uuid
  */
 export const GenerateUUID = function () {
-	if (typeof UtilsCore.globalThis?.crypto?.randomUUID === "function") {
-		return UtilsCore.globalThis.crypto.randomUUID();
+	if (typeof window?.crypto?.randomUUID === "function") {
+		return window.crypto.randomUUID();
 	} else {
 		return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
 			/[xy]/g,

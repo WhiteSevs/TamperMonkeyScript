@@ -1,5 +1,7 @@
+import { UtilsWindowApiOption } from "./WindowApi";
 /** 通用工具类 */
 declare const DOMUtilsCommonUtils: {
+    windowApi: UtilsWindowApiOption;
     /**
      * 判断元素是否已显示或已连接
      * @param element

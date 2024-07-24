@@ -1,19 +1,17 @@
 import { DOMUtilsCommonUtils } from "./DOMUtilsCommonUtils";
-import { DOMUtilsCore } from "./DOMUtilsCore";
-import type { DOMUtilsCoreOption } from "./DOMUtilsCore";
 import {
 	type DOMUtilsCreateElementAttributesMap,
 	DOMUtilsEvent,
 } from "./DOMUtilsEvent";
 import { ParseHTMLReturnType } from "./types/global";
+import { type UtilsWindowApiOption } from "./WindowApi";
 
 class DOMUtils extends DOMUtilsEvent {
-	constructor(option?: DOMUtilsCoreOption) {
-		DOMUtilsCore.init(option);
-		super();
+	constructor(option?: UtilsWindowApiOption) {
+		super(option);
 	}
 	/** 版本号 */
-	version = "2024.6.21";
+	version = "2024.7.24";
 	/**
 	 * 获取元素的属性值
 	 * @param element 目标元素
@@ -41,8 +39,11 @@ class DOMUtils extends DOMUtilsEvent {
 		attrValue: string
 	): void;
 	attr(element: HTMLElement | string, attrName: string, attrValue?: string) {
+		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -85,7 +86,8 @@ class DOMUtils extends DOMUtilsEvent {
 		/** 自定义属性 */
 		attributes?: DOMUtilsCreateElementAttributesMap
 	): HTMLElementTagNameMap[K] {
-		let tempElement = DOMUtilsCore.document.createElement(tagName);
+		let DOMUtilsContext = this;
+		let tempElement = DOMUtilsContext.windowApi.document.createElement(tagName);
 		if (typeof property === "string") {
 			tempElement.innerHTML = property;
 			return tempElement;
@@ -197,6 +199,7 @@ class DOMUtils extends DOMUtilsEvent {
 			  },
 		value?: string | number
 	) {
+		let DOMUtilsContext = this;
 		/**
 		 * 把纯数字没有px的加上
 		 */
@@ -223,7 +226,9 @@ class DOMUtils extends DOMUtilsEvent {
 			return propertyValue;
 		}
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -285,8 +290,11 @@ class DOMUtils extends DOMUtilsEvent {
 		text: string | HTMLElement | Element
 	): void;
 	text(element: HTMLElement | string, text?: string | HTMLElement | Element) {
+		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -333,8 +341,11 @@ class DOMUtils extends DOMUtilsEvent {
 	 * */
 	html(element: HTMLElement | string): string;
 	html(element: HTMLElement | string, html?: string | HTMLElement | Element) {
+		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -423,8 +434,9 @@ class DOMUtils extends DOMUtilsEvent {
 	 * */
 	val(element: HTMLInputElement): boolean | string;
 	val(element: HTMLInputElement | string, value?: string | boolean) {
+		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(
+			element = DOMUtilsContext.windowApi.document.querySelector(
 				element
 			) as HTMLInputElement;
 		}
@@ -480,11 +492,14 @@ class DOMUtils extends DOMUtilsEvent {
 		propValue: T
 	): void;
 	prop(element: HTMLElement | string, propName: string, propValue?: any) {
+		let DOMUtilsContext = this;
 		if (element == null) {
 			return;
 		}
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (propValue == null) {
 			return (element as any)[propName];
@@ -502,8 +517,11 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.removeAttr("a.xx","data-value")
 	 * */
 	removeAttr(element: HTMLElement | string, attrName: string) {
+		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -520,8 +538,11 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.removeClass("a.xx","xx")
 	 */
 	removeClass(element: HTMLElement | string, className: string) {
+		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -541,8 +562,11 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.removeProp("a.xx","href")
 	 * */
 	removeProp(element: HTMLElement | string, propName: string) {
+		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -564,7 +588,9 @@ class DOMUtils extends DOMUtilsEvent {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -590,8 +616,11 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.addClass("a.xx","_vue_")
 	 * */
 	addClass(element: HTMLElement | string, className: string) {
+		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -615,8 +644,11 @@ class DOMUtils extends DOMUtilsEvent {
 			| (HTMLElement | string | Element)[]
 			| NodeList
 	) {
+		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -630,7 +662,8 @@ class DOMUtils extends DOMUtilsEvent {
 		}
 		if (Array.isArray(content) || content instanceof NodeList) {
 			/* 数组 */
-			let fragment = DOMUtilsCore.document.createDocumentFragment();
+			let fragment =
+				DOMUtilsContext.windowApi.document.createDocumentFragment();
 			content.forEach((ele) => {
 				if (typeof ele === "string") {
 					ele = this.parseHTML(ele, true, false);
@@ -652,8 +685,11 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.prepend("a.xx","'<b class="xx"></b>")
 	 * */
 	prepend(element: HTMLElement | string, content: HTMLElement | string) {
+		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -674,8 +710,11 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.after("a.xx","'<b class="xx"></b>")
 	 * */
 	after(element: HTMLElement | string, content: HTMLElement | string) {
+		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -696,8 +735,11 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.before("a.xx","'<b class="xx"></b>")
 	 * */
 	before(element: HTMLElement | string, content: HTMLElement | string) {
+		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -720,7 +762,7 @@ class DOMUtils extends DOMUtilsEvent {
 	remove(target: HTMLElement | string | NodeList | HTMLElement[]) {
 		let DOMUtilsContext = this;
 		if (typeof target === "string") {
-			target = DOMUtilsCore.document.querySelectorAll(
+			target = DOMUtilsContext.windowApi.document.querySelectorAll(
 				target
 			) as NodeListOf<HTMLElement>;
 		}
@@ -745,8 +787,11 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.empty("a.xx")
 	 * */
 	empty(element: HTMLElement | string) {
+		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -763,8 +808,11 @@ class DOMUtils extends DOMUtilsEvent {
 	 * > 0
 	 */
 	offset(element: HTMLElement | string) {
+		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -772,9 +820,9 @@ class DOMUtils extends DOMUtilsEvent {
 		let rect = element.getBoundingClientRect();
 		return {
 			/** y轴偏移 */
-			top: rect.top + DOMUtilsCore.globalThis.scrollY,
+			top: rect.top + DOMUtilsContext.windowApi.globalThis.scrollY,
 			/** x轴偏移 */
-			left: rect.left + DOMUtilsCore.globalThis.scrollX,
+			left: rect.left + DOMUtilsContext.windowApi.globalThis.scrollX,
 		};
 	}
 	/**
@@ -805,13 +853,16 @@ class DOMUtils extends DOMUtilsEvent {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
 		}
 		if (DOMUtilsCommonUtils.isWin(element)) {
-			return DOMUtilsCore.window.document.documentElement.clientWidth;
+			return DOMUtilsContext.windowApi.window.document.documentElement
+				.clientWidth;
 		}
 		if ((element as HTMLElement).nodeType === 9) {
 			/* Document文档节点 */
@@ -907,10 +958,13 @@ class DOMUtils extends DOMUtilsEvent {
 	) {
 		let DOMUtilsContext = this;
 		if (DOMUtilsCommonUtils.isWin(element)) {
-			return DOMUtilsCore.window.document.documentElement.clientHeight;
+			return DOMUtilsContext.windowApi.window.document.documentElement
+				.clientHeight;
 		}
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			// @ts-ignore
@@ -1005,10 +1059,12 @@ class DOMUtils extends DOMUtilsEvent {
 	) {
 		let DOMUtilsContext = this;
 		if (DOMUtilsCommonUtils.isWin(element)) {
-			return DOMUtilsCore.window.innerWidth;
+			return DOMUtilsContext.windowApi.window.innerWidth;
 		}
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			// @ts-ignore
@@ -1048,10 +1104,12 @@ class DOMUtils extends DOMUtilsEvent {
 	): number {
 		let DOMUtilsContext = this;
 		if (DOMUtilsCommonUtils.isWin(element)) {
-			return DOMUtilsCore.window.innerHeight;
+			return DOMUtilsContext.windowApi.window.innerHeight;
 		}
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			// @ts-ignore
@@ -1091,8 +1149,11 @@ class DOMUtils extends DOMUtilsEvent {
 		duration: number = 1000,
 		callback: (() => void) | undefined | null = null
 	) {
+		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -1147,15 +1208,18 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.wrap(document.querySelector("a.xx"),"<div></div>")
 	 */
 	wrap(element: HTMLElement | string | Node, wrapperHTML: string) {
+		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
 		}
 		element = element as HTMLElement;
 		// 创建一个新的div元素，并将wrapperHTML作为其innerHTML
-		let wrapper = DOMUtilsCore.document.createElement("div");
+		let wrapper = DOMUtilsContext.windowApi.document.createElement("div");
 		wrapper.innerHTML = wrapperHTML;
 
 		let wrapperFirstChild = wrapper.firstChild as HTMLElement;
@@ -1180,8 +1244,11 @@ class DOMUtils extends DOMUtilsEvent {
 	 */
 	prev(element: HTMLElement | string): HTMLElement;
 	prev(element: HTMLElement | string) {
+		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -1201,8 +1268,11 @@ class DOMUtils extends DOMUtilsEvent {
 	 */
 	next(element: HTMLElement | string): HTMLElement;
 	next(element: HTMLElement | string) {
+		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -1215,10 +1285,11 @@ class DOMUtils extends DOMUtilsEvent {
 	 * let DOMUtils = window.DOMUtils.noConflict()
 	 */
 	noConflict() {
-		if ((DOMUtilsCore.window as any).DOMUtils) {
+		let DOMUtilsContext = this;
+		if ((DOMUtilsContext.windowApi.window as any).DOMUtils) {
 			DOMUtilsCommonUtils.delete(window, "DOMUtils");
 		}
-		(DOMUtilsCore.window as any).DOMUtils = this;
+		(DOMUtilsContext.windowApi.window as any).DOMUtils = this;
 		return this;
 	}
 	/**
@@ -1233,8 +1304,11 @@ class DOMUtils extends DOMUtilsEvent {
 	 */
 	siblings(element: HTMLElement | string): HTMLElement[];
 	siblings(element: HTMLElement | string) {
+		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -1279,7 +1353,9 @@ class DOMUtils extends DOMUtilsEvent {
 	parent(element: HTMLElement | NodeList | string | HTMLElement[]) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -1329,6 +1405,7 @@ class DOMUtils extends DOMUtilsEvent {
 		isComplete?: T2
 	): ParseHTMLReturnType<T1, T2>;
 	parseHTML(html: string, useParser = false, isComplete = false) {
+		let DOMUtilsContext = this;
 		function parseHTMLByDOMParser() {
 			let parser = new DOMParser();
 			if (isComplete) {
@@ -1338,7 +1415,7 @@ class DOMUtils extends DOMUtilsEvent {
 			}
 		}
 		function parseHTMLByCreateDom() {
-			let tempDIV = DOMUtilsCore.document.createElement("div");
+			let tempDIV = DOMUtilsContext.windowApi.document.createElement("div");
 			tempDIV.innerHTML = html;
 			if (isComplete) {
 				return tempDIV;
@@ -1367,7 +1444,7 @@ class DOMUtils extends DOMUtilsEvent {
 			return;
 		}
 		if (typeof target === "string") {
-			target = DOMUtilsCore.document.querySelectorAll(target);
+			target = DOMUtilsContext.windowApi.document.querySelectorAll(target);
 		}
 		if (target instanceof NodeList || target instanceof Array) {
 			target = target as HTMLElement[];
@@ -1398,7 +1475,7 @@ class DOMUtils extends DOMUtilsEvent {
 			return;
 		}
 		if (typeof target === "string") {
-			target = DOMUtilsCore.document.querySelectorAll(target);
+			target = DOMUtilsContext.windowApi.document.querySelectorAll(target);
 		}
 		if (target instanceof NodeList || target instanceof Array) {
 			target = target as HTMLElement[];
@@ -1436,8 +1513,11 @@ class DOMUtils extends DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
+		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		element = element as HTMLElement;
 		element.style.opacity = "0";
@@ -1450,15 +1530,15 @@ class DOMUtils extends DOMUtilsEvent {
 			element = element as HTMLElement;
 			element.style.opacity = Math.min(progress / duration, 1).toString();
 			if (progress < duration) {
-				DOMUtilsCore.window.requestAnimationFrame(step);
+				DOMUtilsContext.windowApi.window.requestAnimationFrame(step);
 			} else {
 				if (callback && typeof callback === "function") {
 					callback();
 				}
-				DOMUtilsCore.window.cancelAnimationFrame(timer);
+				DOMUtilsContext.windowApi.window.cancelAnimationFrame(timer);
 			}
 		}
-		timer = DOMUtilsCore.window.requestAnimationFrame(step);
+		timer = DOMUtilsContext.windowApi.window.requestAnimationFrame(step);
 	}
 	/**
 	 * 淡出元素
@@ -1479,11 +1559,14 @@ class DOMUtils extends DOMUtilsEvent {
 		duration: number = 400,
 		callback?: () => void
 	) {
+		let DOMUtilsContext = this;
 		if (element == null) {
 			return;
 		}
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		element = element as HTMLElement;
 		element.style.opacity = "1";
@@ -1495,16 +1578,16 @@ class DOMUtils extends DOMUtilsEvent {
 			element = element as HTMLElement;
 			element.style.opacity = Math.max(1 - progress / duration, 0).toString();
 			if (progress < duration) {
-				DOMUtilsCore.window.requestAnimationFrame(step);
+				DOMUtilsContext.windowApi.window.requestAnimationFrame(step);
 			} else {
 				element.style.display = "none";
 				if (typeof callback === "function") {
 					callback();
 				}
-				DOMUtilsCore.window.cancelAnimationFrame(timer);
+				DOMUtilsContext.windowApi.window.cancelAnimationFrame(timer);
 			}
 		}
-		timer = DOMUtilsCore.window.requestAnimationFrame(step);
+		timer = DOMUtilsContext.windowApi.window.requestAnimationFrame(step);
 	}
 	/**
 	 * 切换元素的显示和隐藏状态
@@ -1517,7 +1600,9 @@ class DOMUtils extends DOMUtilsEvent {
 	toggle(element: HTMLElement | string) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelector(
+				element
+			) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -1533,7 +1618,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * @param option
 	 * @returns
 	 */
-	createDOMUtils(option?: DOMUtilsCoreOption) {
+	createDOMUtils(option?: UtilsWindowApiOption) {
 		return new DOMUtils(option);
 	}
 	/**
@@ -1549,6 +1634,7 @@ class DOMUtils extends DOMUtilsEvent {
 		selectionStart?: number | string,
 		selectionEnd?: number | string
 	): DOMRect {
+		let DOMUtilsContext = this;
 		// Basic parameter validation
 		if (!$input || !("value" in $input)) return $input;
 		if (selectionStart == null) {
@@ -1625,7 +1711,7 @@ class DOMUtils extends DOMUtilsEvent {
 		// 不能为空，不然获取不到高度
 		let text = $input.value || "G",
 			textLen = text.length,
-			fakeClone = DOMUtilsCore.document.createElement("div");
+			fakeClone = DOMUtilsContext.windowApi.document.createElement("div");
 		if (selectionStart > 0) appendPart(0, selectionStart);
 		var fakeRange = appendPart(selectionStart, selectionEnd);
 		if (textLen > selectionEnd) appendPart(selectionEnd, textLen);
@@ -1639,7 +1725,7 @@ class DOMUtils extends DOMUtilsEvent {
 		fakeClone.style.left = leftPos + "px";
 		fakeClone.style.width = width + "px";
 		fakeClone.style.height = height + "px";
-		DOMUtilsCore.document.body.appendChild(fakeClone);
+		DOMUtilsContext.windowApi.document.body.appendChild(fakeClone);
 		var returnValue = fakeRange.getBoundingClientRect(); //Get rect
 
 		fakeClone?.parentNode?.removeChild(fakeClone); //Remove temp
@@ -1653,7 +1739,7 @@ class DOMUtils extends DOMUtilsEvent {
 		 * @returns
 		 */
 		function appendPart(start: number, end: number) {
-			var span = DOMUtilsCore.document.createElement("span");
+			var span = DOMUtilsContext.windowApi.document.createElement("span");
 			span.style.cssText = cssDefaultStyles; //Force styles to prevent unexpected results
 			span.textContent = text.substring(start, end);
 			fakeClone.appendChild(span);
@@ -1661,10 +1747,10 @@ class DOMUtils extends DOMUtilsEvent {
 		}
 		// Computing offset position
 		function getInputOffset() {
-			let body = DOMUtilsCore.document.body,
-				win = DOMUtilsCore.document.defaultView!,
-				docElem = DOMUtilsCore.document.documentElement,
-				$box = DOMUtilsCore.document.createElement("div");
+			let body = DOMUtilsContext.windowApi.document.body,
+				win = DOMUtilsContext.windowApi.document.defaultView!,
+				docElem = DOMUtilsContext.windowApi.document.documentElement,
+				$box = DOMUtilsContext.windowApi.document.createElement("div");
 			$box.style.paddingLeft = $box.style.width = "1px";
 			body.appendChild($box);
 			var isBoxModel = $box.offsetWidth == 2;
@@ -1692,7 +1778,7 @@ class DOMUtils extends DOMUtilsEvent {
 		 * @returns
 		 */
 		function getInputCSS(prop: string, isNumber: boolean) {
-			var val = DOMUtilsCore.document
+			var val = DOMUtilsContext.windowApi.document
 				.defaultView!.getComputedStyle($input, null)
 				.getPropertyValue(prop);
 			return isNumber ? parseFloat(val) : val;

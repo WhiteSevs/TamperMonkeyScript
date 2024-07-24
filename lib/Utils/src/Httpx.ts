@@ -1,6 +1,5 @@
 import { AnyObject, Utils } from "./Utils";
 import { GenerateUUID } from "./UtilsCommon";
-import { UtilsCore } from "./UtilsCore";
 
 /**
  * 状态码
@@ -1681,12 +1680,11 @@ class Httpx {
 				new URL(details.url);
 			} catch (error) {
 				if (details.url.startsWith("//")) {
-					details.url = UtilsCore.globalThis.location.protocol + details.url;
+					details.url = window.location.protocol + details.url;
 				} else if (details.url.startsWith("/")) {
-					details.url = UtilsCore.globalThis.location.origin + details.url;
+					details.url = window.location.origin + details.url;
 				} else {
-					details.url =
-						UtilsCore.globalThis.location.origin + "/" + details.url;
+					details.url = window.location.origin + "/" + details.url;
 				}
 			}
 			return details;

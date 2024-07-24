@@ -1,5 +1,4 @@
 import { Utils } from "./Utils";
-import { UtilsCore } from "./UtilsCore";
 
 declare interface UtilsGMMenuClickCallBackData {
 	/** 菜单键名 */
@@ -284,7 +283,7 @@ class GMMenu {
 				}
 				/* 不刷新网页就刷新菜单 */
 				if (menuOption.autoReload) {
-					UtilsCore.window.location.reload();
+					window.location.reload();
 				} else {
 					that.context.update();
 				}

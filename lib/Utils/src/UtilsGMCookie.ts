@@ -1,5 +1,4 @@
 import { Utils } from "./Utils";
-import { UtilsCore } from "./UtilsCore";
 
 declare interface UtilsGMCookieResult {
 	/** 为 window.location.hostname */
@@ -52,7 +51,21 @@ declare interface UtilsGMCookieDeleteOptions {
 	name: string;
 }
 
+interface WindowApiOption {
+	window: Window & typeof globalThis;
+	document: Document;
+}
+
 class UtilsGMCookie {
+	private windowApi = {
+		window: window,
+		document: document,
+	};
+	constructor(windowApiOption?: WindowApiOption) {
+		if (windowApiOption) {
+			this.windowApi = Object.assign({}, windowApiOption);
+		}
+	}
 	/**
 	 * 获取单个cookie
 	 * @param cookieName cookie名
@@ -62,7 +75,7 @@ class UtilsGMCookie {
 			throw new TypeError("Utils.GMCookie.get 参数cookieName 必须为字符串");
 		}
 
-		let cookies = UtilsCore.document.cookie.split(";");
+		let cookies = this.windowApi.document.cookie.split(";");
 		let findValue: UtilsGMCookieResult | undefined = void 0;
 		for (const cookieItem of cookies) {
 			let item = cookieItem.trim();
@@ -72,7 +85,7 @@ class UtilsGMCookie {
 			let itemValue = decodeURIComponent(itemSplit.join(""));
 			if (itemName === cookieName) {
 				findValue = {
-					domain: UtilsCore.globalThis.location.hostname,
+					domain: this.windowApi.window.location.hostname,
 					expirationDate: null,
 					hostOnly: true,
 					httpOnly: false,
@@ -105,13 +118,13 @@ class UtilsGMCookie {
 		let resultData: UtilsGMCookieResult[] = [];
 		try {
 			let details: Partial<UtilsGMCookieListOptions> = {
-				url: UtilsCore.globalThis.location.href,
-				domain: UtilsCore.globalThis.location.hostname,
+				url: this.windowApi.window.location.href,
+				domain: this.windowApi.window.location.hostname,
 				name: "",
 				path: "/",
 			};
 			details = Utils.assign(details, paramDetails);
-			let cookies = UtilsCore.document.cookie.split(";");
+			let cookies = this.windowApi.document.cookie.split(";");
 			cookies.forEach((item) => {
 				item = item.trim();
 				let itemSplit = item.split("=");
@@ -124,7 +137,7 @@ class UtilsGMCookie {
 						: new RegExp("^" + details.name, "g");
 				if (itemName.match(nameRegexp as RegExp)) {
 					resultData.push({
-						domain: UtilsCore.globalThis.location.hostname,
+						domain: this.windowApi.window.location.hostname,
 						expirationDate: null,
 						hostOnly: true,
 						httpOnly: false,
@@ -158,13 +171,13 @@ class UtilsGMCookie {
 		}
 		let resultData: UtilsGMCookieResult[] = [];
 		let details: Partial<UtilsGMCookieListOptions> = {
-			url: UtilsCore.globalThis.location.href,
-			domain: UtilsCore.globalThis.location.hostname,
+			url: this.windowApi.window.location.href,
+			domain: this.windowApi.window.location.hostname,
 			name: "",
 			path: "/",
 		};
 		details = Utils.assign(details, paramDetails);
-		let cookies = UtilsCore.document.cookie.split(";");
+		let cookies = this.windowApi.document.cookie.split(";");
 		cookies.forEach((item) => {
 			item = item.trim();
 			let itemSplit = item.split("=");
@@ -177,7 +190,7 @@ class UtilsGMCookie {
 					: new RegExp("^" + details.name, "g");
 			if (itemName.match(nameRegexp as RegExp)) {
 				resultData.push({
-					domain: UtilsCore.globalThis.location.hostname,
+					domain: this.windowApi.window.location.hostname,
 					expirationDate: null,
 					hostOnly: true,
 					httpOnly: false,
@@ -203,10 +216,10 @@ class UtilsGMCookie {
 	) {
 		try {
 			let details: Partial<UtilsGMCookieSetOptions> = {
-				url: UtilsCore.window.location.href,
+				url: this.windowApi.window.location.href,
 				name: "",
 				value: "",
-				domain: UtilsCore.window.location.hostname,
+				domain: this.windowApi.window.location.hostname,
 				path: "/",
 				secure: true,
 				httpOnly: false,
@@ -226,7 +239,7 @@ class UtilsGMCookie {
 				";expires=" +
 				(new Date(life) as any).toGMTString() +
 				"; path=/";
-			UtilsCore.document.cookie = cookieStr;
+			this.windowApi.document.cookie = cookieStr;
 			callback();
 		} catch (error: any) {
 			callback(error);
@@ -243,7 +256,7 @@ class UtilsGMCookie {
 	) {
 		try {
 			let details: Partial<UtilsGMCookieDeleteOptions> = {
-				url: UtilsCore.window.location.href,
+				url: this.windowApi.window.location.href,
 				name: "",
 				// @ts-ignore
 				firstPartyDomain: "",
@@ -251,7 +264,7 @@ class UtilsGMCookie {
 			details = Utils.assign(details, paramDetails);
 			let cookieStr =
 				details.name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-			UtilsCore.document.cookie = cookieStr;
+			this.windowApi.document.cookie = cookieStr;
 			callback();
 		} catch (error: any) {
 			callback(error);
