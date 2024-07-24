@@ -77,7 +77,7 @@ export class ViteUtils {
 		replaceVersionList.forEach((item) => {
 			Object.keys(item).forEach((key) => {
 				let version = item[key];
-				item[key] = version.replace(/^\^/, "");
+				item[key] = version.replace(/^(\^|~|>|<|=|~|!)/, "");
 			});
 		});
 		return packageInfo;
