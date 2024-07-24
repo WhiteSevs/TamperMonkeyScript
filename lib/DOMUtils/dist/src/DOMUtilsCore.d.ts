@@ -1,14 +1,15 @@
 export interface DOMUtilsCoreOption {
     document: Document;
-    window: Window;
-    globalThis: typeof globalThis;
-    self: typeof globalThis;
+    window: Window | typeof globalThis;
+    globalThis: Window | typeof globalThis;
+    self: Window | typeof globalThis;
+    top: Window | typeof globalThis;
 }
 declare const DOMUtilsCore: {
     init(option?: DOMUtilsCoreOption): void;
     readonly document: Document;
-    readonly window: Window;
-    readonly globalThis: typeof globalThis;
-    readonly self: typeof globalThis;
+    readonly window: typeof globalThis | Window;
+    readonly globalThis: typeof globalThis | Window;
+    readonly self: typeof globalThis | Window;
 };
 export { DOMUtilsCore };

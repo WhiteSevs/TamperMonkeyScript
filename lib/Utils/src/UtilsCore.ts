@@ -1,9 +1,9 @@
 export declare interface UtilsCoreOption {
 	document: Document;
-	window: Window;
-	globalThis: typeof globalThis;
-	self: typeof globalThis;
-	top: Window;
+	window: Window | typeof globalThis;
+	globalThis: Window | typeof globalThis;
+	self: Window | typeof globalThis;
+	top: Window | typeof globalThis;
 }
 
 const UtilsCoreDefaultEnv: UtilsCoreOption = {
@@ -11,14 +11,14 @@ const UtilsCoreDefaultEnv: UtilsCoreOption = {
 	window: window,
 	globalThis: globalThis,
 	self: self,
-	top: top as Window,
+	top: top!,
 };
 const UtilsCoreEnv: UtilsCoreOption = {
 	document: document,
 	window: window,
 	globalThis: globalThis,
 	self: self,
-	top: top as Window,
+	top: top!,
 };
 const UtilsCore = {
 	init(option?: UtilsCoreOption) {

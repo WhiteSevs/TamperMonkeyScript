@@ -1,22 +1,25 @@
+export interface DOMUtilsCoreOption {
+	document: Document;
+	window: Window | typeof globalThis;
+	globalThis: Window | typeof globalThis;
+	self: Window | typeof globalThis;
+	top: Window | typeof globalThis;
+}
+
 const DOMUtilsCoreDefaultEnv: DOMUtilsCoreOption = {
 	document: document,
 	window: window,
 	globalThis: globalThis,
 	self: self,
+	top: top!,
 };
 const DOMUtilsCoreEnv: DOMUtilsCoreOption = {
 	document: document,
 	window: window,
 	globalThis: globalThis,
 	self: self,
+	top: top!,
 };
-
-export interface DOMUtilsCoreOption {
-	document: Document;
-	window: Window;
-	globalThis: typeof globalThis;
-	self: typeof globalThis;
-}
 
 const DOMUtilsCore = {
 	init(option?: DOMUtilsCoreOption) {
