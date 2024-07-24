@@ -141,7 +141,11 @@ export default defineConfig({
 	},
 	server: {
 		// 允许外部访问
-		host: "0.0.0.0",
+		host: "::",
+	},
+	optimizeDeps: {
+		// 无论deps是否发生变化，都要强制dep预优化。
+		force: true,
 	},
 	build: {
 		/* 构建的.user.js是否压缩 */

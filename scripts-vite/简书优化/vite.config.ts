@@ -139,12 +139,15 @@ export default defineConfig({
 			"@": Utils.getAbsolutePath("./src"),
 		},
 	},
+	server: {
+		host: "::",
+	},
+	optimizeDeps: {
+		force: true,
+	},
 	build: {
 		/* 构建的.user.js是否压缩 */
 		minify: isMinify,
 		emptyOutDir: isEmptyOutDir,
-	},
-	server: {
-		host: "0.0.0.0",
 	},
 });
