@@ -42,7 +42,7 @@
   log.config({
     autoClearConsole: false,
   });
-  const GM_addStyle = utils.addStyle;
+  const GM_addStyle = utils.addStyle.bind(utils);
   /**
    * 菜单
    */
