@@ -1,12 +1,13 @@
 {
 	"name": "@whitesev/pops",
-	"version": "1.4.0",
+	"version": "1.5.0",
 	"description": "弹窗库",
 	"main": "dist/index.cjs.js",
-	"module": "dist/node/index.esm.js",
+	"module": "dist/index.esm.js",
 	"types": "dist/types/index.d.ts",
 	"jsdelivr": "dist/index.umd.js",
 	"exports": {
+		"./dist/*": "./dist/*",
 		"./package.json": "./package.json",
 		".": {
 			"import": "./dist/index.esm.js",
@@ -15,7 +16,8 @@
 		}
 	},
 	"files": [
-		"dist"
+		"dist",
+		"src"
 	],
 	"scripts": {
 		"build": "rollup --config"
