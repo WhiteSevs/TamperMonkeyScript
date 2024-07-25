@@ -1,2 +1,3 @@
 packages:
   - "scripts-vite/*"
+  - "scripts-vite-example/*"
