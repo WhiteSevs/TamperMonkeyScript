@@ -1,19 +1,19 @@
 // ==UserScript==
 // @name         Demo Script Name
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.24
+// @version      2024.7.25
 // @author       WhiteSevs
 // @description
 // @license      GPL-3.0-only
 // @icon
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @match
+// @match        *://*/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.0/dist/index.umd.js
-// @connect
+// @connect      *
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
@@ -26,6 +26,8 @@
 // @grant        unsafeWindow
 // @run-at       document-start
 // ==/UserScript==
+
+(d=>{if(typeof GM_addStyle=="function"){GM_addStyle(d);return}function t(n){let e=document.createElement("style");return e.innerHTML=n,document.head?document.head.appendChild(e):document.documentElement.appendChild(e),e}t(d)})(" html,body{padding:0;margin:0} ");
 
 (function (Qmsg, DOMUtils, Utils, pops) {
   'use strict';
