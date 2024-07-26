@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.24.22
+// @version      2024.7.26
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -6390,6 +6390,10 @@ div[class^="new-summary-container_"] {\r
      * 观察器
      */
     intersectionObserver: null,
+    $data: {
+      /** 更多结果的CSS选择器 */
+      moreResultSelector: ".infinite-load-wrap .se-infiniteload-text"
+    },
     init() {
       let isSearchCraft = navigator.userAgent.includes("SearchCraft");
       log.success(
@@ -6400,13 +6404,18 @@ div[class^="new-summary-container_"] {\r
       }
     },
     /**
+     * 获取【更多结果】按钮
+     */
+    getMoreResultBtn() {
+      return document.querySelector(
+        this.$data.moreResultSelector
+      );
+    },
+    /**
      * 设置滚动事件
      */
     setNextPageInterSectionObserver() {
       let isLoadingNextPage = false;
-      let nextPageElement = document.querySelector(
-        ".infinite-load-wrap .se-infiniteload-text"
-      );
       if (typeof IntersectionObserver === "undefined") {
         log.success("SearchCraft监听滚动: scroll");
         domutils.on(
@@ -6421,10 +6430,7 @@ div[class^="new-summary-container_"] {\r
               return;
             }
             isLoadingNextPage = true;
-            nextPageElement = document.querySelector(
-              ".infinite-load-wrap .se-infiniteload-text"
-            );
-            await this.scrollEvent(nextPageElement);
+            await this.scrollEvent();
             await utils.sleep(150);
             isLoadingNextPage = false;
           },
@@ -6435,18 +6441,24 @@ div[class^="new-summary-container_"] {\r
           }
         );
       } else {
-        log.success("SearchCraft监听滚动: IntersectionObserver");
-        this.intersectionObserver = new IntersectionObserver(
-          async (entries) => {
-            if (!isLoadingNextPage && entries[0].isIntersecting) {
-              isLoadingNextPage = true;
-              await this.scrollEvent(entries[0].target);
-              isLoadingNextPage = false;
-            }
-          },
-          { threshold: 0 }
-        );
-        this.intersectionObserver.observe(nextPageElement);
+        utils.waitNode(this.$data.moreResultSelector, 1e4).then(($moreResult) => {
+          if (!$moreResult) {
+            log.error("SearchCraft监听滚动失败：【更多结果】按钮");
+            return;
+          }
+          log.success("SearchCraft监听滚动: IntersectionObserver");
+          this.intersectionObserver = new IntersectionObserver(
+            async (entries) => {
+              if (!isLoadingNextPage && entries[0].isIntersecting) {
+                isLoadingNextPage = true;
+                await this.scrollEvent();
+                isLoadingNextPage = false;
+              }
+            },
+            { threshold: 0 }
+          );
+          this.intersectionObserver.observe($moreResult);
+        });
       }
     },
     /**
@@ -6476,15 +6488,16 @@ div[class^="new-summary-container_"] {\r
     },
     /**
      * 滚动事件
-     * @async
+     * @param $nextPage 下一页按钮
      */
-    async scrollEvent(nextPageElement) {
-      let elementText = nextPageElement.textContent || nextPageElement.innerText;
-      if (elementText.includes("更多结果")) {
+    async scrollEvent() {
+      let $moreResult = this.getMoreResultBtn();
+      let moreResultStr = $moreResult.innerText;
+      if (moreResultStr.includes("更多结果")) {
         log.success("点击【更多结果】");
-        nextPageElement.click();
+        $moreResult.click();
         await utils.sleep(500);
-      } else if (elementText.includes("到底了 没有更多内容了")) {
+      } else if (moreResultStr.includes("到底了 没有更多内容了")) {
         log.error("到底了 没有更多内容了，移除滚动监听");
         SearchNextPage_SearchCraft.removeNextPageInterSectionObserver();
       }

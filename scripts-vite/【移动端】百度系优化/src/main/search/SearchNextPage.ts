@@ -520,6 +520,10 @@ const SearchNextPage_SearchCraft = {
 	 * 观察器
 	 */
 	intersectionObserver: null as unknown as IntersectionObserver,
+	$data: {
+		/** 更多结果的CSS选择器 */
+		moreResultSelector: ".infinite-load-wrap .se-infiniteload-text",
+	},
 	init() {
 		let isSearchCraft = navigator.userAgent.includes("SearchCraft");
 		log.success(
@@ -534,13 +538,18 @@ const SearchNextPage_SearchCraft = {
 		}
 	},
 	/**
+	 * 获取【更多结果】按钮
+	 */
+	getMoreResultBtn(): HTMLElement | null {
+		return document.querySelector<HTMLDivElement>(
+			this.$data.moreResultSelector
+		);
+	},
+	/**
 	 * 设置滚动事件
 	 */
 	setNextPageInterSectionObserver() {
 		let isLoadingNextPage = false;
-		let nextPageElement = document.querySelector(
-			".infinite-load-wrap .se-infiniteload-text"
-		);
 		if (typeof IntersectionObserver === "undefined") {
 			log.success("SearchCraft监听滚动: scroll");
 			DOMUtils.on(
@@ -555,10 +564,7 @@ const SearchNextPage_SearchCraft = {
 						return;
 					}
 					isLoadingNextPage = true;
-					nextPageElement = document.querySelector(
-						".infinite-load-wrap .se-infiniteload-text"
-					);
-					await this.scrollEvent(nextPageElement as HTMLDivElement);
+					await this.scrollEvent();
 					await utils.sleep(150);
 					isLoadingNextPage = false;
 				},
@@ -569,18 +575,26 @@ const SearchNextPage_SearchCraft = {
 				}
 			);
 		} else {
-			log.success("SearchCraft监听滚动: IntersectionObserver");
-			this.intersectionObserver = new IntersectionObserver(
-				async (entries) => {
-					if (!isLoadingNextPage && entries[0].isIntersecting) {
-						isLoadingNextPage = true;
-						await this.scrollEvent(entries[0].target as HTMLDivElement);
-						isLoadingNextPage = false;
+			utils
+				.waitNode(this.$data.moreResultSelector, 10000)
+				.then(($moreResult) => {
+					if (!$moreResult) {
+						log.error("SearchCraft监听滚动失败：【更多结果】按钮");
+						return;
 					}
-				},
-				{ threshold: 0 }
-			);
-			this.intersectionObserver.observe(nextPageElement as HTMLElement);
+					log.success("SearchCraft监听滚动: IntersectionObserver");
+					this.intersectionObserver = new IntersectionObserver(
+						async (entries) => {
+							if (!isLoadingNextPage && entries[0].isIntersecting) {
+								isLoadingNextPage = true;
+								await this.scrollEvent();
+								isLoadingNextPage = false;
+							}
+						},
+						{ threshold: 0 }
+					);
+					this.intersectionObserver.observe($moreResult);
+				});
 		}
 	},
 	/**
@@ -610,15 +624,16 @@ const SearchNextPage_SearchCraft = {
 	},
 	/**
 	 * 滚动事件
-	 * @async
+	 * @param $nextPage 下一页按钮
 	 */
-	async scrollEvent(nextPageElement: HTMLElement) {
-		let elementText = nextPageElement.textContent || nextPageElement.innerText;
-		if (elementText.includes("更多结果")) {
+	async scrollEvent() {
+		let $moreResult = this.getMoreResultBtn()!;
+		let moreResultStr = $moreResult.innerText!;
+		if (moreResultStr.includes("更多结果")) {
 			log.success("点击【更多结果】");
-			nextPageElement.click();
+			$moreResult.click();
 			await utils.sleep(500);
-		} else if (elementText.includes("到底了 没有更多内容了")) {
+		} else if (moreResultStr.includes("到底了 没有更多内容了")) {
 			log.error("到底了 没有更多内容了，移除滚动监听");
 			SearchNextPage_SearchCraft.removeNextPageInterSectionObserver();
 		}
