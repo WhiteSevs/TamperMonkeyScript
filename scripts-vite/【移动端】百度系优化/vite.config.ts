@@ -113,6 +113,8 @@ export default defineConfig({
 				open: false,
 			},
 			build: {
+				metaFileName: true,
+				metaLocalFileName: true,
 				autoGrant: true,
 				externalResource: {
 					"element-plus/dist/index.css": cdn.jsdelivrFastly(),
