@@ -1,4 +1,4 @@
-import { BaiduSearchRule } from "@/main/search/SearchRule";
+import { BaiduSearchBlockRule } from "@/main/search/SearchBlockRule";
 import { DOMUtils, utils } from "@/env";
 import { BaiduRouter } from "@/router/BaiduRouter";
 import { PopsPanel } from "@/setting/setting";
@@ -157,7 +157,7 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 								UISwitch(
 									"禁止自动播放视频",
 									"baidu-search-blockAutomaticVideoPlayback",
-									true,
+									false,
 									void 0,
 									"移除video-player元素，可能会导致某些第一个结果是智能卡片时，点击更多按钮无反应(webview/Safari)"
 								),
@@ -359,7 +359,7 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 												"a.baidu-search-shield-css-reset"
 											) as HTMLAnchorElement;
 										DOMUtils.on($searchShield, "click", void 0, () => {
-											BaiduSearchRule.clearLocalRule();
+											BaiduSearchBlockRule.clearLocalRule();
 											let $textArea =
 												rightContainerOptions.ulElement.querySelector(
 													"textarea"
@@ -390,7 +390,7 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 											"textarea"
 										) as HTMLTextAreaElement;
 										/* 自定义规则 */
-										let customRule = BaiduSearchRule.getLocalRule();
+										let customRule = BaiduSearchBlockRule.getLocalRule();
 										$textArea!.value = customRule;
 										liElement.appendChild($textAreaContainer);
 										DOMUtils.on(
@@ -398,7 +398,7 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 											["input", "propertychange"],
 											void 0,
 											utils.debounce(function () {
-												BaiduSearchRule.setLocalRule($textArea.value);
+												BaiduSearchBlockRule.setLocalRule($textArea.value);
 											}, 100)
 										);
 										return liElement;

@@ -9,8 +9,8 @@ import {
 	utils,
 } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { BaiduResultItem } from "./SearchResultItem";
-import { SearchResultEveryOneSearch } from "./SearchResultEveryOneSearch";
+import { BaiduHandleResultItem } from "./SearchHandleResultItem";
+import { SearchHandleResultEveryOneSearch } from "./SearchHandleResultEveryOneSearch";
 import { CommonUtils } from "@/utils/CommonUtils";
 import { BaiduRouter } from "@/router/BaiduRouter";
 
@@ -377,8 +377,8 @@ const SearchNextPage = {
 				scriptAtomData.appendChild(item);
 			});
 			let nextPageScriptOriginUrlMap =
-				BaiduResultItem.parseScriptDOMOriginUrlMap(scriptAtomData);
-			BaiduResultItem.originURLMap.concat(nextPageScriptOriginUrlMap);
+				BaiduHandleResultItem.parseScriptDOMOriginUrlMap(scriptAtomData);
+			BaiduHandleResultItem.originURLMap.concat(nextPageScriptOriginUrlMap);
 			// 将下一页的样式插入到当前页面
 			nextPageDoc.querySelectorAll("style[data-vue-ssr-id]").forEach((item) => {
 				/* 插入vue打包的css需重新引入 */
@@ -422,8 +422,8 @@ const SearchNextPage = {
 					);
 				}
 				/* 处理下一页的【大家还在搜】 */
-				if (SearchResultEveryOneSearch.refactorEveryoneIsStillSearching) {
-					SearchResultEveryOneSearch.handleBottom(
+				if (SearchHandleResultEveryOneSearch.refactorEveryoneIsStillSearching) {
+					SearchHandleResultEveryOneSearch.handleBottom(
 						Array.from(nextPageDoc.querySelectorAll("#page-relative"))
 					);
 				}
@@ -640,4 +640,4 @@ const SearchNextPage_SearchCraft = {
 	},
 };
 
-export { SearchNextPage as SearchNextPage, SearchNextPage_SearchCraft };
+export { SearchNextPage, SearchNextPage_SearchCraft };

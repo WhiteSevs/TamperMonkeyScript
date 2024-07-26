@@ -1,7 +1,7 @@
 import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 
-const SearchResultEveryOneSearch = {
+export const SearchHandleResultEveryOneSearch = {
 	/**
 	 * 是否重构大家都在搜
 	 */
@@ -120,5 +120,3 @@ const SearchResultEveryOneSearch = {
 		});
 	},
 };
-
-export { SearchResultEveryOneSearch };

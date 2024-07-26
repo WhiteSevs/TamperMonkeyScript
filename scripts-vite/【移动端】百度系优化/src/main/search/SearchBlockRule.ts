@@ -16,7 +16,7 @@ interface BaiduSearchRuleConfig extends BaiDuSearchRuleDetail {
 }
 
 /** 百度搜索自定义拦截规则 */
-const BaiduSearchRule = {
+export const BaiduSearchBlockRule = {
 	defaultRule: `
 // 百度健康
 match-href##expert.baidu.com
@@ -212,5 +212,3 @@ match-attr##srcid##sp_purc_atom
 		}
 	},
 };
-
-export { BaiduSearchRule };

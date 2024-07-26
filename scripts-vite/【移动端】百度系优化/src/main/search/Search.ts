@@ -4,10 +4,10 @@ import { PopsPanel } from "@/setting/setting";
 import SearchShieldCSS from "./shield.css?raw";
 import { BaiduHeadlth } from "./bh/SearchHealth";
 import { BaiduSearchHook } from "./SearchHook";
-import { BaiduResultItem } from "./SearchResultItem";
+import { BaiduHandleResultItem } from "./SearchHandleResultItem";
 import { SearchNextPage, SearchNextPage_SearchCraft } from "./SearchNextPage";
 import { SearchInputEvent } from "./SearchInput";
-import { BaiduSearchRule } from "./SearchRule";
+import { BaiduSearchBlockRule } from "./SearchBlockRule";
 import { BaiduSearchVideo } from "./video/SearchVideo";
 import { BaiduSearchVSearch } from "./vsearch/VSearch";
 
@@ -27,7 +27,7 @@ const BaiduSearch = {
 	async init() {
 		addStyle(UserCustomStyle.getUserStyle());
 		log.info("插入用户CSS规则");
-		BaiduSearchRule.init();
+		BaiduSearchBlockRule.init();
 		if (BaiduRouter.isSearchBh()) {
 			/* 百度健康 */
 			BaiduHeadlth.init();
@@ -44,8 +44,8 @@ const BaiduSearch = {
 			});
 			DOMUtils.ready(function () {
 				/* 解析真实地址 from <script> */
-				BaiduResultItem.originURLMap =
-					BaiduResultItem.parseScriptDOMOriginUrlMap(document);
+				BaiduHandleResultItem.originURLMap =
+					BaiduHandleResultItem.parseScriptDOMOriginUrlMap(document);
 				/* 处理搜索结果 */
 				let baidu_search_handle_search_result_enable = PopsPanel.getValue(
 					"baidu_search_handle_search_result"
@@ -53,13 +53,13 @@ const BaiduSearch = {
 				if (baidu_search_handle_search_result_enable) {
 					let searchUpdateRealLink = new utils.LockFunction(async () => {
 						try {
-							await BaiduResultItem.replaceLink();
+							await BaiduHandleResultItem.replaceLink();
 						} catch (error) {
 							log.error(["替换为真实链接失败", error]);
 						}
 					}, 600);
 					let removeAdsLockFunction = new utils.LockFunction(
-						BaiduResultItem.removeAds,
+						BaiduHandleResultItem.removeAds,
 						600
 					);
 					utils
@@ -95,9 +95,9 @@ const BaiduSearch = {
 						nodeList.forEach((item) => item.remove());
 					});
 				PopsPanel.execMenu("baidu_search_redirect_top_link", () => {
-					BaiduResultItem.redirectTopLink();
+					BaiduHandleResultItem.redirectTopLink();
 				});
-				BaiduResultItem.replaceScriptBaiDuTip();
+				BaiduHandleResultItem.replaceScriptBaiDuTip();
 				PopsPanel.execMenu("baidu_search_refactoring_input_boxes", () => {
 					SearchInputEvent.init();
 				});
