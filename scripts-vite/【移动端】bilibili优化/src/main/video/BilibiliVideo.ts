@@ -39,10 +39,10 @@ const BilibiliVideo = {
 		});
 	},
 	/**
-	 * 美化
+	 * 美化显示
 	 */
 	beautify() {
-		log.info("美化");
+		log.info("美化显示");
 		/* 先添加美化CSS */
 		if (!this.$data.isAddBeautifyCSS) {
 			this.$data.isAddBeautifyCSS = true;
@@ -59,13 +59,40 @@ const BilibiliVideo = {
 					log.error("$cardBox is null");
 					return;
 				}
-				function handleVCardTopApp($vCard: HTMLDivElement) {
-					let $title = $vCard.querySelector<HTMLElement>(".title");
-					let $left = $vCard.querySelector<HTMLDivElement>(".count .left");
+				/**
+				 * 未设置isLogin的视频卡片
+				 * @param $vCard
+				 */
+				function handleVCardToApp($vCard: HTMLDivElement) {
+					// 标题
+					let $originTitle = $vCard.querySelector<HTMLElement>(".title");
+					// 左边的播放量信息
+					let $originLeft =
+						$vCard.querySelector<HTMLDivElement>(".count .left");
+					// 是否已经处理过
+					let isHandled = Boolean($vCard.querySelector(".gm-right-container"));
 					let vueObj = BilibiliUtils.getVue($vCard);
-					if ($title && $left && !$vCard.querySelector(".gm-right-container")) {
+					if ($originTitle && $originLeft && vueObj && !isHandled) {
+						let upName: string | null = vueObj?.info?.owner?.name;
+						if (upName == null) {
+							log.error("美化显示-handleVCardToApp：获取up主名字失败");
+							return;
+						}
+						let $originCount = $vCard.querySelector<HTMLDivElement>(".count");
+						let $title = $originTitle.cloneNode(true) as HTMLElement;
+						let $left = $originLeft.cloneNode(true) as HTMLElement;
+						// 隐藏元素，不能直接修改元素的位置，回答导致页面初始化时appendChild异常
+						DOMUtils.hide($originTitle);
+						if ($originCount) {
+							DOMUtils.hide($originCount);
+						}
+						// 视频封面右上角的App文字
+						let $isOpenAppWeakened =
+							$vCard.querySelector<HTMLDivElement>(".open-app.weakened");
+						if ($isOpenAppWeakened) {
+							DOMUtils.hide($isOpenAppWeakened);
+						}
 						let $upInfo = document.createElement("div");
-						let upName = vueObj?.info?.owner?.name;
 						$upInfo.className = "gm-up-name";
 						$upInfo.innerHTML = /*html*/ `
 						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
@@ -74,11 +101,13 @@ const BilibiliVideo = {
 						</svg>
 						<span class="gm-up-name-text">${upName}</span>
 						`;
+						// 右侧容器
 						let $rightContainer = document.createElement("div");
+						// 右侧下面的容器
 						let $rightBottom = document.createElement("div");
 						$rightContainer.className = "gm-right-container";
 						$rightBottom.className = "gm-right-bottom";
-						DOMUtils.after($title, $rightContainer);
+						DOMUtils.after($originTitle, $rightContainer);
 						/* 标题 */
 						$rightContainer.appendChild($title);
 
@@ -90,26 +119,39 @@ const BilibiliVideo = {
 						$rightBottom.appendChild($left);
 					}
 				}
+				/**
+				 * 设置了isLogin的视频卡片
+				 * @param $vCard
+				 */
 				function handleVCard($vCard: HTMLDivElement) {
-					let $title = $vCard.querySelector<HTMLElement>(".title");
-					let $count = $vCard.querySelector<HTMLDivElement>(".count");
+					let $originTitle = $vCard.querySelector<HTMLElement>(".title");
+					let $originCount = $vCard.querySelector<HTMLDivElement>(".count");
+					// 是否已经处理过
+					let isHandled = Boolean($vCard.querySelector(".gm-right-container"));
 					let vueObj = BilibiliUtils.getVue($vCard);
-					if (
-						$title &&
-						$count &&
-						!$vCard.querySelector(".gm-right-container")
-					) {
+					if ($originTitle && $originCount && vueObj && !isHandled) {
 						/* 这个里面没有播放时长，自己添加一个 */
 						let duration = vueObj?.info?.duration;
+						if (duration == null) {
+							log.error("美化显示-handleVCard：获取视频时长失败");
+							return;
+						}
+						let upName = vueObj?.info?.owner?.name;
+						if (upName == null) {
+							log.error("美化显示-handleVCard：获取up主名字失败");
+							return;
+						}
+						let $cloneTitle = $originTitle.cloneNode(true) as HTMLElement;
+						let $cloneCount = $originCount.cloneNode(true) as HTMLDivElement;
+						DOMUtils.hide($originTitle);
+						DOMUtils.hide($originCount);
 						let $duration = document.createElement("div");
 						$duration.className = "duration";
+						// 转换显示时长
 						$duration.innerText = BilibiliUtils.parseDuration(duration);
-						let $cloneCount = $count.cloneNode(true) as HTMLDivElement;
 						$cloneCount.className = "left";
 						let $upInfo = document.createElement("div");
-						let upName = vueObj?.info?.owner?.name;
-
-						$count.appendChild($duration);
+						$cloneCount.appendChild($duration);
 						$upInfo.className = "gm-up-name";
 						$upInfo.innerHTML = /*html*/ `
 						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
@@ -122,9 +164,9 @@ const BilibiliVideo = {
 						let $rightBottom = document.createElement("div");
 						$rightContainer.className = "gm-right-container";
 						$rightBottom.className = "gm-right-bottom";
-						DOMUtils.after($title, $rightContainer);
+						DOMUtils.after($originTitle, $rightContainer);
 						/* 标题 */
-						$rightContainer.appendChild($title);
+						$rightContainer.appendChild($cloneTitle);
 
 						/* 底部内容 */
 						$rightContainer.appendChild($rightBottom);
@@ -135,39 +177,40 @@ const BilibiliVideo = {
 					}
 				}
 				let lockFunc = new utils.LockFunction(() => {
+					let $vCardList = document.querySelectorAll<HTMLDivElement>(
+						BilibiliData.className.video +
+							" .bottom-tab .list-view .card-box .v-card-toapp"
+					);
+					let $vCardList_isLogon = document.querySelectorAll<HTMLDivElement>(
+						BilibiliData.className.video +
+							" .bottom-tab .list-view .card-box>a.v-card"
+					);
 					/* isLogin不生效的情况下 */
-					document
-						.querySelectorAll<HTMLDivElement>(
-							BilibiliData.className.video +
-								" .bottom-tab .list-view .card-box .v-card-toapp"
-						)
-						.forEach((_$vCard_) => {
-							handleVCardTopApp(_$vCard_);
-						});
+					$vCardList.forEach((_$vCard_) => {
+						handleVCardToApp(_$vCard_);
+					});
 					/* isLogin生效 */
-					document
-						.querySelectorAll<HTMLDivElement>(
-							BilibiliData.className.video +
-								" .bottom-tab .list-view .card-box>a.v-card"
-						)
-						.forEach((_$vCard_) => {
-							handleVCard(_$vCard_);
-						});
+					$vCardList_isLogon.forEach((_$vCard_) => {
+						handleVCard(_$vCard_);
+					});
 				}, 25);
-				utils.mutationObserver(
-					document.querySelector(BilibiliData.className.video) as any,
-					{
+				let $videoRoot = document.querySelector<HTMLElement>(
+					BilibiliData.className.video
+				);
+				if ($videoRoot) {
+					utils.mutationObserver($videoRoot, {
 						config: {
 							subtree: true,
+							attributes: true,
 							childList: true,
 						},
 						callback() {
-							setTimeout(() => {
-								lockFunc.run();
-							}, 0);
+							lockFunc.run();
 						},
-					}
-				);
+					});
+				} else {
+					log.error("未找到视频根节点");
+				}
 			});
 	},
 	/**

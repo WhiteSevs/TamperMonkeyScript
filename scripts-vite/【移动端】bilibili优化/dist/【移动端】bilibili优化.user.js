@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.24
+// @version      2024.7.27
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -2277,7 +2277,7 @@
       }
     }
   };
-  const BilibiliVideoBeautifyCSS = '@charset "UTF-8";\r\n#app .video {\r\n	/* 下面的推荐视频卡片 */\r\n}\r\n#app .video .video-list .card-box {\r\n	--left-card-width: 33%;\r\n	--right-child-padding: 1.333vmin;\r\n	/* 开启了bili-video-beautify */\r\n}\r\n#app .video .video-list .card-box .v-card-toapp {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a {\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card {\r\n	width: var(--left-card-width);\r\n	height: 80px;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .left {\r\n	display: list-item;\r\n}\r\n#app\r\n	.video\r\n	.video-list\r\n	.card-box\r\n	.v-card-toapp\r\n	> a\r\n	.card\r\n	.count\r\n	.left\r\n	span.item {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .duration {\r\n	background: rgba(0, 0, 0, 0.4);\r\n	border-radius: 0.6vmin;\r\n	padding: 0px 0.5vmin;\r\n	right: 1vmin;\r\n	bottom: 1vmin;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .title {\r\n	flex: 1;\r\n	padding: var(--right-child-padding);\r\n	margin-top: 0;\r\n}\r\n#app .video .video-list .card-box .gm-right-container {\r\n	display: flex;\r\n	flex-direction: column;\r\n	width: calc(100% - var(--left-card-width));\r\n}\r\n#app .video .video-list .card-box .gm-right-container > * {\r\n	padding: var(--right-child-padding);\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name,\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	color: #999;\r\n	font-size: 3vmin;\r\n	transform-origin: left;\r\n	display: flex;\r\n	align-items: safe center;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name-text {\r\n	margin-left: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .num {\r\n	margin-right: 4vmin;\r\n}\r\n#app .video .video-list .card-box > a.v-card {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card {\r\n	width: var(--left-card-width);\r\n	height: 100%;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count span {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count .duration {\r\n	background-color: rgba(0, 0, 0, 0.3);\r\n	border-radius: 4px;\r\n	color: #fff;\r\n	font-size: 12px;\r\n	height: 16px;\r\n	line-height: 16px;\r\n	margin-left: auto;\r\n	padding-left: 4px;\r\n	padding-right: 4px;\r\n}\r\n#app .video .video-list .card-box > a.v-card .title {\r\n	flex: 1;\r\n	padding: var(--right-child-padding);\r\n	margin-top: 0;\r\n}\r\n';
+  const BilibiliVideoBeautifyCSS = '@charset "UTF-8";\r\n#app .video {\r\n	/* 下面的推荐视频卡片 */\r\n}\r\n#app .video .video-list .card-box {\r\n	--left-card-width: 33%;\r\n	--right-child-padding: 1.333vmin;\r\n	/* 开启了bili-video-beautify */\r\n}\r\n#app .video .video-list .card-box .v-card-toapp {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a {\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n	gap: var(--right-child-padding);\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card {\r\n	width: var(--left-card-width);\r\n	height: 80px;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .left {\r\n	display: list-item;\r\n}\r\n#app\r\n	.video\r\n	.video-list\r\n	.card-box\r\n	.v-card-toapp\r\n	> a\r\n	.card\r\n	.count\r\n	.left\r\n	span.item {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .duration {\r\n	background: rgba(0, 0, 0, 0.4);\r\n	border-radius: 0.6vmin;\r\n	padding: 0px 0.5vmin;\r\n	right: 1vmin;\r\n	bottom: 1vmin;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .title {\r\n	flex: 1;\r\n	/*padding: var(--right-child-padding);*/\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n#app .video .video-list .card-box .gm-right-container {\r\n	display: flex;\r\n	flex-direction: column;\r\n	width: calc(100% - var(--left-card-width));\r\n}\r\n#app .video .video-list .card-box .gm-right-container > * {\r\n	padding: var(--right-child-padding);\r\n	padding-bottom: 0;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name,\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	color: #999;\r\n	font-size: 3vmin;\r\n	transform-origin: left;\r\n	display: flex;\r\n	align-items: safe center;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name-text {\r\n	margin-left: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .num {\r\n	margin-right: 4vmin;\r\n}\r\n#app .video .video-list .card-box > a.v-card {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card {\r\n	width: var(--left-card-width);\r\n	height: 100%;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count span {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count .duration {\r\n	background-color: rgba(0, 0, 0, 0.3);\r\n	border-radius: 4px;\r\n	color: #fff;\r\n	font-size: 12px;\r\n	height: 16px;\r\n	line-height: 16px;\r\n	margin-left: auto;\r\n	padding-left: 4px;\r\n	padding-right: 4px;\r\n}\r\n#app .video .video-list .card-box > a.v-card .title {\r\n	flex: 1;\r\n	/*padding: var(--right-child-padding);*/\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n';
   const BilibiliVideoVueProp = {
     $data: {
       isInitPlayer: false,
@@ -2507,10 +2507,10 @@
       });
     },
     /**
-     * 美化
+     * 美化显示
      */
     beautify() {
-      log.info("美化");
+      log.info("美化显示");
       if (!this.$data.isAddBeautifyCSS) {
         this.$data.isAddBeautifyCSS = true;
         addStyle(BilibiliVideoBeautifyCSS);
@@ -2523,14 +2523,30 @@
           log.error("$cardBox is null");
           return;
         }
-        function handleVCardTopApp($vCard) {
+        function handleVCardToApp($vCard) {
           var _a2, _b;
-          let $title = $vCard.querySelector(".title");
-          let $left = $vCard.querySelector(".count .left");
+          let $originTitle = $vCard.querySelector(".title");
+          let $originLeft = $vCard.querySelector(".count .left");
+          let isHandled = Boolean($vCard.querySelector(".gm-right-container"));
           let vueObj = BilibiliUtils.getVue($vCard);
-          if ($title && $left && !$vCard.querySelector(".gm-right-container")) {
-            let $upInfo = document.createElement("div");
+          if ($originTitle && $originLeft && vueObj && !isHandled) {
             let upName = (_b = (_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.owner) == null ? void 0 : _b.name;
+            if (upName == null) {
+              log.error("美化显示-handleVCardToApp：获取up主名字失败");
+              return;
+            }
+            let $originCount = $vCard.querySelector(".count");
+            let $title = $originTitle.cloneNode(true);
+            let $left = $originLeft.cloneNode(true);
+            domutils.hide($originTitle);
+            if ($originCount) {
+              domutils.hide($originCount);
+            }
+            let $isOpenAppWeakened = $vCard.querySelector(".open-app.weakened");
+            if ($isOpenAppWeakened) {
+              domutils.hide($isOpenAppWeakened);
+            }
+            let $upInfo = document.createElement("div");
             $upInfo.className = "gm-up-name";
             $upInfo.innerHTML = /*html*/
             `
@@ -2544,7 +2560,7 @@
             let $rightBottom = document.createElement("div");
             $rightContainer.className = "gm-right-container";
             $rightBottom.className = "gm-right-bottom";
-            domutils.after($title, $rightContainer);
+            domutils.after($originTitle, $rightContainer);
             $rightContainer.appendChild($title);
             $rightContainer.appendChild($rightBottom);
             $rightBottom.appendChild($upInfo);
@@ -2553,19 +2569,31 @@
         }
         function handleVCard($vCard) {
           var _a2, _b, _c;
-          let $title = $vCard.querySelector(".title");
-          let $count = $vCard.querySelector(".count");
+          let $originTitle = $vCard.querySelector(".title");
+          let $originCount = $vCard.querySelector(".count");
+          let isHandled = Boolean($vCard.querySelector(".gm-right-container"));
           let vueObj = BilibiliUtils.getVue($vCard);
-          if ($title && $count && !$vCard.querySelector(".gm-right-container")) {
+          if ($originTitle && $originCount && vueObj && !isHandled) {
             let duration = (_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.duration;
+            if (duration == null) {
+              log.error("美化显示-handleVCard：获取视频时长失败");
+              return;
+            }
+            let upName = (_c = (_b = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _b.owner) == null ? void 0 : _c.name;
+            if (upName == null) {
+              log.error("美化显示-handleVCard：获取up主名字失败");
+              return;
+            }
+            let $cloneTitle = $originTitle.cloneNode(true);
+            let $cloneCount = $originCount.cloneNode(true);
+            domutils.hide($originTitle);
+            domutils.hide($originCount);
             let $duration = document.createElement("div");
             $duration.className = "duration";
             $duration.innerText = BilibiliUtils.parseDuration(duration);
-            let $cloneCount = $count.cloneNode(true);
             $cloneCount.className = "left";
             let $upInfo = document.createElement("div");
-            let upName = (_c = (_b = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _b.owner) == null ? void 0 : _c.name;
-            $count.appendChild($duration);
+            $cloneCount.appendChild($duration);
             $upInfo.className = "gm-up-name";
             $upInfo.innerHTML = /*html*/
             `
@@ -2579,39 +2607,44 @@
             let $rightBottom = document.createElement("div");
             $rightContainer.className = "gm-right-container";
             $rightBottom.className = "gm-right-bottom";
-            domutils.after($title, $rightContainer);
-            $rightContainer.appendChild($title);
+            domutils.after($originTitle, $rightContainer);
+            $rightContainer.appendChild($cloneTitle);
             $rightContainer.appendChild($rightBottom);
             $rightBottom.appendChild($upInfo);
             $rightBottom.appendChild($cloneCount);
           }
         }
         let lockFunc = new utils.LockFunction(() => {
-          document.querySelectorAll(
+          let $vCardList = document.querySelectorAll(
             BilibiliData.className.video + " .bottom-tab .list-view .card-box .v-card-toapp"
-          ).forEach((_$vCard_) => {
-            handleVCardTopApp(_$vCard_);
-          });
-          document.querySelectorAll(
+          );
+          let $vCardList_isLogon = document.querySelectorAll(
             BilibiliData.className.video + " .bottom-tab .list-view .card-box>a.v-card"
-          ).forEach((_$vCard_) => {
+          );
+          $vCardList.forEach((_$vCard_) => {
+            handleVCardToApp(_$vCard_);
+          });
+          $vCardList_isLogon.forEach((_$vCard_) => {
             handleVCard(_$vCard_);
           });
         }, 25);
-        utils.mutationObserver(
-          document.querySelector(BilibiliData.className.video),
-          {
+        let $videoRoot = document.querySelector(
+          BilibiliData.className.video
+        );
+        if ($videoRoot) {
+          utils.mutationObserver($videoRoot, {
             config: {
               subtree: true,
+              attributes: true,
               childList: true
             },
             callback() {
-              setTimeout(() => {
-                lockFunc.run();
-              }, 0);
+              lockFunc.run();
             }
-          }
-        );
+          });
+        } else {
+          log.error("未找到视频根节点");
+        }
       });
     },
     /**
