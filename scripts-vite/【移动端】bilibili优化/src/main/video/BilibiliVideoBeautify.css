@@ -51,6 +51,7 @@
 #app .video .video-list .card-box .v-card-toapp > a .title {
 	flex: 1;
 	/*padding: var(--right-child-padding);*/
+	padding-top: 0;
 	margin-top: 0;
 	display: -webkit-box;
 	-webkit-line-clamp: 2;
@@ -66,13 +67,22 @@
 	padding: var(--right-child-padding);
 	padding-bottom: 0;
 }
+#app .video .video-list .card-box .gm-right-container .left {
+	gap: 1rem;
+}
+#app .video .video-list .card-box .gm-right-container .left span {
+	display: flex;
+	align-items: safe center;
+	gap: 1vmin;
+}
 #app .video .video-list .card-box .gm-right-container .gm-up-name,
 #app .video .video-list .card-box .gm-right-container .left {
 	color: #999;
 	font-size: 3vmin;
 	transform-origin: left;
 	display: flex;
-	align-items: safe center;
+	/*align-items: safe center;*/
+	align-items: safe flex-end;
 }
 #app .video .video-list .card-box .gm-right-container .gm-up-name-text {
 	margin-left: 1vmin;
@@ -113,6 +123,7 @@
 #app .video .video-list .card-box > a.v-card .title {
 	flex: 1;
 	/*padding: var(--right-child-padding);*/
+	padding-top: 0;
 	margin-top: 0;
 	display: -webkit-box;
 	-webkit-line-clamp: 2;

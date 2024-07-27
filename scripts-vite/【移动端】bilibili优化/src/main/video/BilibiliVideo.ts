@@ -144,14 +144,13 @@ const BilibiliVideo = {
 						let $cloneTitle = $originTitle.cloneNode(true) as HTMLElement;
 						let $cloneCount = $originCount.cloneNode(true) as HTMLDivElement;
 						DOMUtils.hide($originTitle);
-						DOMUtils.hide($originCount);
 						let $duration = document.createElement("div");
 						$duration.className = "duration";
 						// 转换显示时长
 						$duration.innerText = BilibiliUtils.parseDuration(duration);
 						$cloneCount.className = "left";
 						let $upInfo = document.createElement("div");
-						$cloneCount.appendChild($duration);
+						$originCount.appendChild($duration);
 						$upInfo.className = "gm-up-name";
 						$upInfo.innerHTML = /*html*/ `
 						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
