@@ -83,7 +83,8 @@
 	}
 
 	header#main-header #nav-user-info > span {
-		flex: 1;
+		/*flex: 1;*/
+		flex: 1 0 auto;
 	}
 
 	header#main-header #nav-user-info,
