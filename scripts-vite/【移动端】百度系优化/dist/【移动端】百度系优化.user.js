@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.28
+// @version      2024.7.28.22
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -1373,6 +1373,11 @@ match-attr##srcid##sp_purc_atom
                   UISwitch(
                     "劫持-OpenBox函数",
                     "baidu_baijiahao_hijack_openbox",
+                    true
+                  ),
+                  UISwitch(
+                    "劫持-openContentBox函数",
+                    "baidu_baijiahao_hijack_openContentBox",
                     true
                   )
                 ]
@@ -4756,10 +4761,12 @@ div[class^="new-summary-container_"] {\r
       windowOpenBox: false,
       windowWebpackJsonp_tieba: false,
       windowWebpackJsonp_haokan: false,
+      window_openContentBox: false,
       functionCall_baijiahao_map: false
     },
     $data: {
       functionApply: [],
+      functionCall: [],
       elementAppendChild: [],
       setTimeout: [],
       windowDefine: []
@@ -4771,11 +4778,11 @@ div[class^="new-summary-container_"] {\r
     functionApply(mode) {
       this.$data.functionApply.push(mode);
       if (this.$data.functionApply.length > 1) {
-        log.info("Function.apply hook新增劫持参数：" + mode);
+        log.info("Function.property.apply hook新增劫持参数：" + mode);
         return;
       }
       let that = this;
-      log.info("初始化Function.apply hook");
+      log.info("初始化Function.property.apply hook");
       _unsafeWindow.Function.prototype.apply = function(...args) {
         if (that.$data.functionApply.includes("copy")) {
           try {
@@ -4803,6 +4810,66 @@ div[class^="new-summary-container_"] {\r
           }
         }
         return OriginPrototype.Function.apply.call(this, ...args);
+      };
+    },
+    /**
+     * 统一管理call的劫持，防止套娃
+     * + 百家号(baijiahao.baidu.com)
+     * + 百度地图(map.baidu.com)
+     * @param mode 劫持的类型
+     */
+    functionCall(mode) {
+      this.$data.functionCall.push(mode);
+      if (this.$data.functionCall.length > 1) {
+        log.info("Function.property.call hook新增劫持参数：" + mode);
+        return;
+      }
+      log.info("初始化Function.property.call hook");
+      let originCall = _unsafeWindow.Function.prototype.call;
+      _unsafeWindow.Function.prototype.call = function(...args) {
+        var _a3, _b, _c, _d, _e;
+        let result = originCall.apply(this, args);
+        if (mode === "baijiahao_invoke") {
+          if (args.length === 4 && typeof ((_a3 = args[1]) == null ? void 0 : _a3["exports"]) === "object" && "execCopy" in ((_b = args[1]) == null ? void 0 : _b["exports"]) && "invokeApp" in ((_c = args[1]) == null ? void 0 : _c["exports"]) && "invokeMarket" in ((_d = args[1]) == null ? void 0 : _d["exports"]) && "invokeTpApp" in ((_e = args[1]) == null ? void 0 : _e["exports"])) {
+            args[1]["exports"]["execCopy"] = function(...args2) {
+              return new Promise((resolve) => {
+                log.success(["阻止调用execCopy", args2]);
+                resolve(null);
+              });
+            };
+            args[1]["exports"]["invokeApp"] = function(...args2) {
+              return new Promise((resolve) => {
+                log.success(["阻止调用invokeApp", args2]);
+                resolve(null);
+              });
+            };
+            args[1]["exports"]["invokeMarket"] = function(...args2) {
+              return new Promise((resolve) => {
+                log.success(["阻止调用invokeMarket", args2]);
+                resolve(null);
+              });
+            };
+            args[1]["exports"]["invokeTpApp"] = function(...args2) {
+              return new Promise((resolve) => {
+                log.success(["阻止调用invokeTpApp", args2]);
+                resolve(null);
+              });
+            };
+          } else if (args.length === 2 && args[0] === void 0 && args[1] != null && "arg" in args[1] && "delegate" in args[1] && "done" in args[1] && "method" in args[1] && "next" in args[1] && "prev" in args[1]) {
+            log.success(["修改参数", args[1]]);
+            args[1]["method"] = "return";
+            args[1]["next"] = "end";
+            args[1]["prev"] = 24;
+          }
+        } else if (mode === "map") {
+          if (args.length === 2 && args[0] === void 0 && args[1] != null && "arg" in args[1] && "delegate" in args[1] && "done" in args[1] && "method" in args[1] && "next" in args[1] && "prev" in args[1]) {
+            log.success(["修改参数", args[1]]);
+            args[1]["method"] = "return";
+            args[1]["next"] = "end";
+            args[1]["prev"] = 24;
+          }
+        }
+        return result;
       };
     },
     /**
@@ -5028,6 +5095,39 @@ div[class^="new-summary-container_"] {\r
       };
     },
     /**
+     * 劫持webpack
+     * @param webpackName 当前全局变量的webpack名
+     * @param mainCoreData 需要劫持的webpack的顶部core，例如：(window.webpackJsonp = window.webpackJsonp || []).push([["core:0"],{}])
+     * @param checkCallBack 如果mainCoreData匹配上，则调用此回调函数
+     */
+    windowWebPack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
+      let originObject = void 0;
+      OriginPrototype.Object.defineProperty(_unsafeWindow, webpackName, {
+        get() {
+          return originObject;
+        },
+        set(newValue) {
+          log.success("成功劫持webpack，当前webpack名：" + webpackName);
+          originObject = newValue;
+          const originPush = originObject.push;
+          originObject.push = function(...args) {
+            let _mainCoreData = args[0][0];
+            if (mainCoreData == _mainCoreData || Array.isArray(mainCoreData) && Array.isArray(_mainCoreData) && JSON.stringify(mainCoreData) === JSON.stringify(_mainCoreData)) {
+              Object.keys(args[0][1]).forEach((keyName) => {
+                let originSwitchFunc = args[0][1][keyName];
+                args[0][1][keyName] = function(..._args) {
+                  let result = originSwitchFunc.call(this, ..._args);
+                  _args[0] = checkCallBack(_args[0]);
+                  return result;
+                };
+              });
+            }
+            return originPush.call(this, ...args);
+          };
+        }
+      });
+    },
+    /**
      * 劫持百度贴吧的window.webpackJsonp
      * 当前 "core:67"
      * + 百度贴吧(tieba.baidu.com)
@@ -5074,39 +5174,6 @@ div[class^="new-summary-container_"] {\r
       );
     },
     /**
-     * 劫持webpack
-     * @param webpackName 当前全局变量的webpack名
-     * @param mainCoreData 需要劫持的webpack的顶部core，例如：(window.webpackJsonp = window.webpackJsonp || []).push([["core:0"],{}])
-     * @param checkCallBack 如果mainCoreData匹配上，则调用此回调函数
-     */
-    windowWebPack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
-      let originObject = void 0;
-      OriginPrototype.Object.defineProperty(_unsafeWindow, webpackName, {
-        get() {
-          return originObject;
-        },
-        set(newValue) {
-          log.success("成功劫持webpack，当前webpack名：" + webpackName);
-          originObject = newValue;
-          const originPush = originObject.push;
-          originObject.push = function(...args) {
-            let _mainCoreData = args[0][0];
-            if (mainCoreData == _mainCoreData || Array.isArray(mainCoreData) && Array.isArray(_mainCoreData) && JSON.stringify(mainCoreData) === JSON.stringify(_mainCoreData)) {
-              Object.keys(args[0][1]).forEach((keyName) => {
-                let originSwitchFunc = args[0][1][keyName];
-                args[0][1][keyName] = function(..._args) {
-                  let result = originSwitchFunc.call(this, ..._args);
-                  _args[0] = checkCallBack(_args[0]);
-                  return result;
-                };
-              });
-            }
-            return originPush.call(this, ...args);
-          };
-        }
-      });
-    },
-    /**
      * 劫持百度好看视频的window.webpackJsonp
      * + 百度好看视频(haokan.baidu.com)
      *
@@ -5140,28 +5207,6 @@ div[class^="new-summary-container_"] {\r
       );
     },
     /**
-     * 劫持百家号和百度地图的Function的call
-     * + 百家号(baijiahao.baidu.com)
-     * + 百度地图(map.baidu.com)
-     * Function.property.call
-     */
-    functionCall_baijiahao_map() {
-      if (this.$isHook.functionCall_baijiahao_map) {
-        return;
-      }
-      this.$isHook.functionCall_baijiahao_map = true;
-      _unsafeWindow.Function.prototype.call = function(...args) {
-        if (args.length === 2 && args[0] === void 0 && args[1] != null && "arg" in args[1] && "delegate" in args[1] && "done" in args[1] && "method" in args[1] && "next" in args[1] && "prev" in args[1]) {
-          log.success(["修改参数", args[1]]);
-          args[1]["method"] = "return";
-          args[1]["next"] = "end";
-          args[1]["prev"] = 24;
-        }
-        let result = OriginPrototype.Function.call.apply(this, args);
-        return result;
-      };
-    },
-    /**
      * 劫持window下的BoxJSBefore对象调用，它的所有的属性都是函数
      * + 百家号(mbd.baidu.com)
      *
@@ -5179,6 +5224,30 @@ div[class^="new-summary-container_"] {\r
             {
               get(target, name, receiver) {
                 log.success("劫持BoxJSBefore调用：" + name);
+              }
+            }
+          );
+        }
+      });
+    },
+    /**
+     * 劫持window下的openContentBox对象调用，它的所有的属性都是函数
+     * + 百家号(baijiahao.baidu.com)
+     *
+     * window.openContentBox
+     */
+    window_openContentBox() {
+      if (this.$isHook.window_openContentBox) {
+        return;
+      }
+      this.$isHook.window_openContentBox = true;
+      OriginPrototype.Object.defineProperty(_unsafeWindow, "BoxJSBefore", {
+        get() {
+          return new Proxy(
+            {},
+            {
+              get(target, name, receiver) {
+                log.success("劫持openContentBox调用：" + name);
               }
             }
           );
@@ -6905,8 +6974,8 @@ div[class^="new-summary-container_"] {\r
   const BaiJiaHaoHook = {
     init() {
       PopsPanel.execMenu("baijiahao_hijack_wakeup", () => {
-        log.success("hook: Function.call");
-        BaiduHook.functionCall_baijiahao_map();
+        log.success("hook: Function.property.call");
+        BaiduHook.functionCall("baijiahao_invoke");
       });
       PopsPanel.execMenu("baidu_baijiahao_hijack_iframe", () => {
         log.success("hook: Element.append");
@@ -6921,6 +6990,10 @@ div[class^="new-summary-container_"] {\r
       PopsPanel.execMenu("baidu_baijiahao_hijack_openbox", () => {
         log.success("hook: window.Box");
         BaiduHook.windowOpenBox();
+      });
+      PopsPanel.execMenu("baidu_baijiahao_hijack_openContentBox", () => {
+        log.success("hook: window.openContentBox");
+        BaiduHook.window_openContentBox();
       });
     }
   };
@@ -22106,8 +22179,8 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
         );
       });
       PopsPanel.execMenu("baidu_mbd_hijack_wakeup", () => {
-        log.info("hook: Function.call");
-        BaiduHook.functionCall_baijiahao_map();
+        log.info("hook: Function.property.call");
+        BaiduHook.functionCall("map");
       });
       PopsPanel.execMenu("baidu_mbd_hijack_BoxJSBefore", () => {
         log.info("hook: window.BoxJSBefore");

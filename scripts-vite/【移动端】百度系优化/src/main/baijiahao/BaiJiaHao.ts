@@ -4,7 +4,7 @@ import BaiJiaHaoShieldCSS from "./shield.css?raw";
 import { BaiJiaHaoHook } from "./BaiJiaHaoHook";
 import { CommonUtils } from "@/utils/CommonUtils";
 
-const BaiduBaiJiaHao = {
+export const BaiduBaiJiaHao = {
 	init() {
 		addStyle(BaiJiaHaoShieldCSS);
 		log.info("插入CSS规则");
@@ -67,5 +67,3 @@ const BaiduBaiJiaHao = {
 		return CommonUtils.addBlockCSS("div#wise-invoke-interact-bar");
 	},
 };
-
-export { BaiduBaiJiaHao };

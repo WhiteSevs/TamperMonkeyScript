@@ -19,8 +19,8 @@ const BaiduMbdHook = {
 			);
 		});
 		PopsPanel.execMenu("baidu_mbd_hijack_wakeup", () => {
-			log.info("hook: Function.call");
-			BaiduHook.functionCall_baijiahao_map();
+			log.info("hook: Function.property.call");
+			BaiduHook.functionCall("map");
 		});
 		PopsPanel.execMenu("baidu_mbd_hijack_BoxJSBefore", () => {
 			log.info("hook: window.BoxJSBefore");

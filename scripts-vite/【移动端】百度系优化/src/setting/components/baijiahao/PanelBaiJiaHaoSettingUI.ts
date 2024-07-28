@@ -64,6 +64,11 @@ const PanelBaiJiaHaoSettingUI: PopsPanelContentConfig = {
 									"baidu_baijiahao_hijack_openbox",
 									true
 								),
+								UISwitch(
+									"劫持-openContentBox函数",
+									"baidu_baijiahao_hijack_openContentBox",
+									true
+								),
 							],
 						},
 					],
