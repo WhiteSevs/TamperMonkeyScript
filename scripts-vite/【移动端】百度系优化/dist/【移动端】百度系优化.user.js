@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.26
+// @version      2024.7.28
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -68,7 +68,6 @@
   const BaiduRouter = {
     /**
      * 百度搜索
-     * @returns
      */
     isSearch() {
       return Boolean(
@@ -144,7 +143,6 @@
     },
     /**
      * 百家号
-     * @returns
      */
     isBaiJiaHao() {
       return Boolean(
@@ -153,18 +151,16 @@
     },
     /**
      * 贴吧
-     * @returns
      */
     isTieBa() {
       return Boolean(
         window.location.href.match(
-          /^http(s|):\/\/(tieba.baidu|www.tieba|ala.baidu|static.tieba.baidu|nba.baidu).com/g
+          /^http(s|):\/\/(tieba.baidu|www.tieba|ala.baidu|static.tieba.baidu|nba.baidu|fexclick.baidu).com/g
         )
       );
     },
     /**
      * 贴吧 - 帖子
-     * @returns
      */
     isTieBaPost() {
       return Boolean(
@@ -173,7 +169,6 @@
     },
     /**
      * 贴吧 - 热帖
-     * @returns
      */
     isTieBaNewTopic() {
       return Boolean(
@@ -182,7 +177,6 @@
     },
     /**
      * 贴吧 - 搜索结果界面
-     * @returns
      */
     isTieBaHybrid() {
       return Boolean(
@@ -191,14 +185,12 @@
     },
     /**
      * 贴吧 - 吧内
-     * @returns
      */
     isTieBaNei() {
       return Boolean(this.isTieBa() && window.location.pathname === "/f");
     },
     /**
      * 贴吧 - 首页
-     * @returns
      */
     isTieBaIndex() {
       return Boolean(
@@ -215,7 +207,6 @@
     },
     /**
      * 百度文库
-     * @returns
      */
     isWenKu() {
       return Boolean(
@@ -224,7 +215,6 @@
     },
     /**
      * 百度经验
-     * @returns
      */
     isJingYan() {
       return Boolean(
@@ -233,7 +223,6 @@
     },
     /**
      * 百度百科
-     * @returns
      */
     isBaiKe() {
       return Boolean(
@@ -242,7 +231,6 @@
     },
     /**
      * 百度百科 - 他说
-     * @returns
      */
     isBaiKeTaShuo() {
       return Boolean(
@@ -251,7 +239,6 @@
     },
     /**
      * 百度知道
-     * @returns
      */
     isZhiDao() {
       return Boolean(
@@ -260,7 +247,6 @@
     },
     /**
      * 百度翻译
-     * @returns
      */
     isFanYi() {
       return Boolean(
@@ -269,7 +255,6 @@
     },
     /**
      * 百度翻译 - App
-     * @returns
      */
     isFanYiApp() {
       return Boolean(
@@ -278,7 +263,6 @@
     },
     /**
      * 百度图片
-     * @returns
      */
     isImage() {
       return Boolean(
@@ -287,28 +271,24 @@
     },
     /**
      * 百度地图
-     * @returns
      */
     isMap() {
       return Boolean(window.location.href.match(/^http(s|):\/\/map.baidu.com/g));
     },
     /**
      *
-     * @returns
      */
     isMbd() {
       return Boolean(window.location.href.match(/^http(s|):\/\/mbd.baidu.com/g));
     },
     /**
      * 百度好学
-     * @returns
      */
     isXue() {
       return Boolean(window.location.href.match(/^http(s|):\/\/xue.baidu.com/g));
     },
     /**
      * 爱企查
-     * @returns
      */
     isAiQiCha() {
       return Boolean(
@@ -317,14 +297,12 @@
     },
     /**
      * 百度网盟
-     * @returns
      */
     isPos() {
       return Boolean(window.location.href.match(/^http(s|):\/\/pos.baidu.com/g));
     },
     /**
      * 好看视频
-     * @returns
      */
     isHaoKan() {
       return Boolean(
@@ -333,7 +311,6 @@
     },
     /**
      * 百度图片搜索
-     * @returns
      */
     isGraph() {
       return Boolean(
@@ -342,14 +319,12 @@
     },
     /**
      * 百度网盘
-     * @returns
      */
     isPan() {
       return Boolean(window.location.href.match(/^http(s|):\/\/pan.baidu.com/g));
     },
     /**
      * 文心一言
-     * @returns
      */
     isYiYan() {
       return Boolean(
@@ -358,14 +333,12 @@
     },
     /**
      * 搜索AI伙伴
-     * @returns
      */
     isChat() {
       return Boolean(window.location.href.match(/^http(s|):\/\/chat.baidu.com/g));
     },
     /**
      * 百度教育
-     * @returns
      */
     isMiniJiaoYu() {
       return Boolean(
@@ -374,7 +347,6 @@
     },
     /**
      * 百度教育
-     * @returns
      */
     isEasyLearn() {
       return Boolean(
@@ -383,7 +355,6 @@
     },
     /**
      * 百度基木鱼
-     * @returns
      */
     isISite() {
       return Boolean(
@@ -394,7 +365,6 @@
     },
     /**
      * 百度爱学
-     * @returns
      */
     isAiStudy() {
       return Boolean(
@@ -21298,7 +21268,9 @@ div[class^="new-summary-container_"] {\r
   const BaiduTieBa = {
     init() {
       addStyle(TieBaShieldCSS);
-      addStyle(`
+      addStyle(
+        /*css*/
+        `
 		/* 由于lzl弹窗的z-index是99999，所以，回复框、toast、登录弹窗的z-index要大于99999 */
 		/* 底部回复框 */
         .comment-box-wrap-lzl{
@@ -21312,7 +21284,8 @@ div[class^="new-summary-container_"] {\r
 		.tb-toast{
 			z-index: calc(99999 + 100) !important;
 		}
-        `);
+        `
+      );
       log.info("插入CSS规则");
       PopsPanel.execMenu(
         "baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",

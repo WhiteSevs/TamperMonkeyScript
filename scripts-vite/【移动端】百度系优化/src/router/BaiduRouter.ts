@@ -1,7 +1,6 @@
 const BaiduRouter = {
 	/**
 	 * 百度搜索
-	 * @returns
 	 */
 	isSearch() {
 		return Boolean(
@@ -80,7 +79,6 @@ const BaiduRouter = {
 	},
 	/**
 	 * 百家号
-	 * @returns
 	 */
 	isBaiJiaHao() {
 		return Boolean(
@@ -89,18 +87,16 @@ const BaiduRouter = {
 	},
 	/**
 	 * 贴吧
-	 * @returns
 	 */
 	isTieBa() {
 		return Boolean(
 			window.location.href.match(
-				/^http(s|):\/\/(tieba.baidu|www.tieba|ala.baidu|static.tieba.baidu|nba.baidu).com/g
+				/^http(s|):\/\/(tieba.baidu|www.tieba|ala.baidu|static.tieba.baidu|nba.baidu|fexclick.baidu).com/g
 			)
 		);
 	},
 	/**
 	 * 贴吧 - 帖子
-	 * @returns
 	 */
 	isTieBaPost() {
 		return Boolean(
@@ -109,7 +105,6 @@ const BaiduRouter = {
 	},
 	/**
 	 * 贴吧 - 热帖
-	 * @returns
 	 */
 	isTieBaNewTopic() {
 		return Boolean(
@@ -119,7 +114,6 @@ const BaiduRouter = {
 	},
 	/**
 	 * 贴吧 - 搜索结果界面
-	 * @returns
 	 */
 	isTieBaHybrid() {
 		return Boolean(
@@ -128,14 +122,12 @@ const BaiduRouter = {
 	},
 	/**
 	 * 贴吧 - 吧内
-	 * @returns
 	 */
 	isTieBaNei() {
 		return Boolean(this.isTieBa() && window.location.pathname === "/f");
 	},
 	/**
 	 * 贴吧 - 首页
-	 * @returns
 	 */
 	isTieBaIndex() {
 		return Boolean(
@@ -152,7 +144,6 @@ const BaiduRouter = {
 	},
 	/**
 	 * 百度文库
-	 * @returns
 	 */
 	isWenKu() {
 		return Boolean(
@@ -161,7 +152,6 @@ const BaiduRouter = {
 	},
 	/**
 	 * 百度经验
-	 * @returns
 	 */
 	isJingYan() {
 		return Boolean(
@@ -170,7 +160,6 @@ const BaiduRouter = {
 	},
 	/**
 	 * 百度百科
-	 * @returns
 	 */
 	isBaiKe() {
 		return Boolean(
@@ -179,7 +168,6 @@ const BaiduRouter = {
 	},
 	/**
 	 * 百度百科 - 他说
-	 * @returns
 	 */
 	isBaiKeTaShuo() {
 		return Boolean(
@@ -188,7 +176,6 @@ const BaiduRouter = {
 	},
 	/**
 	 * 百度知道
-	 * @returns
 	 */
 	isZhiDao() {
 		return Boolean(
@@ -197,7 +184,6 @@ const BaiduRouter = {
 	},
 	/**
 	 * 百度翻译
-	 * @returns
 	 */
 	isFanYi() {
 		return Boolean(
@@ -206,7 +192,6 @@ const BaiduRouter = {
 	},
 	/**
 	 * 百度翻译 - App
-	 * @returns
 	 */
 	isFanYiApp() {
 		return Boolean(
@@ -215,7 +200,6 @@ const BaiduRouter = {
 	},
 	/**
 	 * 百度图片
-	 * @returns
 	 */
 	isImage() {
 		return Boolean(
@@ -224,28 +208,24 @@ const BaiduRouter = {
 	},
 	/**
 	 * 百度地图
-	 * @returns
 	 */
 	isMap() {
 		return Boolean(window.location.href.match(/^http(s|):\/\/map.baidu.com/g));
 	},
 	/**
 	 *
-	 * @returns
 	 */
 	isMbd() {
 		return Boolean(window.location.href.match(/^http(s|):\/\/mbd.baidu.com/g));
 	},
 	/**
 	 * 百度好学
-	 * @returns
 	 */
 	isXue() {
 		return Boolean(window.location.href.match(/^http(s|):\/\/xue.baidu.com/g));
 	},
 	/**
 	 * 爱企查
-	 * @returns
 	 */
 	isAiQiCha() {
 		return Boolean(
@@ -254,14 +234,12 @@ const BaiduRouter = {
 	},
 	/**
 	 * 百度网盟
-	 * @returns
 	 */
 	isPos() {
 		return Boolean(window.location.href.match(/^http(s|):\/\/pos.baidu.com/g));
 	},
 	/**
 	 * 好看视频
-	 * @returns
 	 */
 	isHaoKan() {
 		return Boolean(
@@ -270,7 +248,6 @@ const BaiduRouter = {
 	},
 	/**
 	 * 百度图片搜索
-	 * @returns
 	 */
 	isGraph() {
 		return Boolean(
@@ -279,14 +256,12 @@ const BaiduRouter = {
 	},
 	/**
 	 * 百度网盘
-	 * @returns
 	 */
 	isPan() {
 		return Boolean(window.location.href.match(/^http(s|):\/\/pan.baidu.com/g));
 	},
 	/**
 	 * 文心一言
-	 * @returns
 	 */
 	isYiYan() {
 		return Boolean(
@@ -295,14 +270,12 @@ const BaiduRouter = {
 	},
 	/**
 	 * 搜索AI伙伴
-	 * @returns
 	 */
 	isChat() {
 		return Boolean(window.location.href.match(/^http(s|):\/\/chat.baidu.com/g));
 	},
 	/**
 	 * 百度教育
-	 * @returns
 	 */
 	isMiniJiaoYu() {
 		return Boolean(
@@ -311,7 +284,6 @@ const BaiduRouter = {
 	},
 	/**
 	 * 百度教育
-	 * @returns
 	 */
 	isEasyLearn() {
 		return Boolean(
@@ -320,7 +292,6 @@ const BaiduRouter = {
 	},
 	/**
 	 * 百度基木鱼
-	 * @returns
 	 */
 	isISite() {
 		return Boolean(
@@ -331,7 +302,6 @@ const BaiduRouter = {
 	},
 	/**
 	 * 百度爱学
-	 * @returns
 	 */
 	isAiStudy() {
 		return Boolean(
