@@ -42,7 +42,7 @@ export default defineConfig({
 					"视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等",
 				author: "WhiteSevs",
 				license: "GPL-3.0-only",
-				match: ["*://*.douyin.com/*"],
+				match: ["*://*.douyin.com/*", "*://*.iesdouyin.com/*"],
 				grant: [
 					"GM_addStyle",
 					"GM_registerMenuCommand",
@@ -59,10 +59,12 @@ export default defineConfig({
 			},
 			clientAlias: "ViteGM",
 			server: {
-				mountGmApi: false,
+				mountGmApi: true,
 				open: false,
 			},
 			build: {
+				metaFileName: true,
+				metaLocalFileName: true,
 				autoGrant: true,
 				fileName: FILE_NAME,
 				externalGlobals: {
@@ -74,42 +76,6 @@ export default defineConfig({
 						"dist/index.umd.js"
 					),
 					"@whitesev/pops": cdn.jsdelivrFastly("pops", "dist/index.umd.js"),
-				},
-				cssSideEffects: () => {
-					return (cssText: string) => {
-						function addStyle(cssText: string) {
-							if (typeof cssText !== "string") {
-								throw new TypeError("cssText must be a string");
-							}
-							let cssNode = document.createElement("style");
-							cssNode.setAttribute("type", "text/css");
-							cssNode.innerHTML = cssText;
-							if (document.head) {
-								/* 插入head最后 */
-								document.head.appendChild(cssNode);
-							} else if (document.body) {
-								/* 插入body后 */
-								document.body.appendChild(cssNode);
-							} else if (document.documentElement.childNodes.length === 0) {
-								/* 插入#html第一个元素后 */
-								document.documentElement.appendChild(cssNode);
-							} else {
-								/* 插入head前面 */
-								document.documentElement.insertBefore(
-									cssNode,
-									document.documentElement.childNodes[0]
-								);
-							}
-							return cssNode;
-						}
-						// @ts-ignore
-						if (typeof GM_addStyle == "function") {
-							// @ts-ignore
-							GM_addStyle(cssText);
-							return;
-						}
-						addStyle(cssText);
-					};
 				},
 			},
 		}),

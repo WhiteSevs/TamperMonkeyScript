@@ -3,7 +3,10 @@ export const MDouYinRouter = {
 	 * 是否是移动端抖音
 	 */
 	isMDouYin() {
-		return window.location.host === "m.douyin.com";
+		return (
+			window.location.hostname === "m.douyin.com" ||
+			window.location.hostname === "www.iesdouyin.com"
+		);
 	},
 	/**
 	 * 用户主页
