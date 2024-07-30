@@ -30,15 +30,48 @@ export const ShieldHeader = {
 		PopsPanel.execMenuOnce("shieldWallpaper", () => {
 			return this.shieldWallpaper();
 		});
-		PopsPanel.execMenuOnce("shieldLeftNavigator", () => {
-			return this.shieldLeftNavigator();
-		});
-		PopsPanel.execMenuOnce("shieldTopNavigator", () => {
-			return this.shieldTopNavigator();
-		});
 		PopsPanel.execMenuOnce("shieldBottomQuestionButton", () => {
 			return this.shieldBottomQuestionButton();
 		});
+		let shieldLeftNavigator = PopsPanel.getValue("shieldLeftNavigator");
+		let shieldTopNavigator = PopsPanel.getValue("shieldTopNavigator");
+		if (DouYinRouter.isSearch()) {
+			let search_shieldLeftNavigator = PopsPanel.getValue(
+				"search-shieldLeftNavigator"
+			);
+			if (search_shieldLeftNavigator == 1) {
+				// 开
+				shieldLeftNavigator = true;
+			} else if (search_shieldLeftNavigator == 0) {
+				// 关
+				shieldLeftNavigator = false;
+			} else {
+				// 默认
+			}
+
+			let search_shieldTopNavigator = PopsPanel.getValue(
+				"search-shieldTopNavigator"
+			);
+			if (search_shieldTopNavigator == 1) {
+				// 开
+				shieldTopNavigator = true;
+			} else if (search_shieldTopNavigator == 0) {
+				// 关
+				shieldTopNavigator = false;
+			} else {
+				// 默认|关
+			}
+		}
+		if (shieldLeftNavigator) {
+			PopsPanel.onceExec("shieldLeftNavigator", () => {
+				return this.shieldLeftNavigator();
+			});
+		}
+		if (shieldTopNavigator) {
+			PopsPanel.onceExec("shieldTopNavigator", () => {
+				return this.shieldTopNavigator();
+			});
+		}
 	},
 	/**
 	 * 【屏蔽】充钻石
@@ -321,14 +354,16 @@ export const ShieldHeader = {
 	 */
 	shieldLeftNavigator() {
 		log.info("【屏蔽】左侧导航栏");
-		return [
-			DouYinUtils.addBlockCSS("#douyin-navigation"),
+		let result = [];
+		result.push(DouYinUtils.addBlockCSS("#douyin-navigation"));
+		result.push(
 			addStyle(/*css*/ `
 			/* 修复顶部导航栏的宽度 */
 			#douyin-header{
 				width: 100%;
-			}`),
-		];
+			}`)
+		);
+		return result;
 	},
 	/**
 	 * 【屏蔽】顶部导航栏

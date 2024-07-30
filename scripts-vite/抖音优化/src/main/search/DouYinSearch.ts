@@ -21,42 +21,48 @@ export const DouYinSearch = {
 		result.push(addStyle(MobileCSS));
 		result.push(
 			addStyle(/*css*/ `
-			div#search-body-container {
-				display: flex;
+			@media screen and (max-width: 550px){
+				div#search-body-container {
+					display: flex;
+				}
+				div#search-body-container #component-Navigation {
+					flex: 0;
+				}
+				div#search-body-container #douyin-right-container {
+					flex: 1 auto;
+				}
+				div#search-body-container #douyin-right-container #search-content-area > div {
+					width: 100% !important;
+				}
+				div#search-body-container #douyin-right-container #search-content-area > div > div > div {
+					width: 100% !important;
+					margin-left: 0px;
+					margin-right: 0px;
+					padding-left: 0px;
+					padding-right: 0px;
+				}
+				/* 上面的搜索结果筛选 */
+				#search-content-area > div >div> div:first-child > div:first-child > div:last-child{
+					overflow: auto;
+					text-wrap: nowrap;
+					height: auto;
+				}
+				/* 视频右侧的TA的作品↓ */
+				#searchSideCard{
+					width: unset !important;
+				}
+				#searchSideCard > div{
+					padding: 0px !important;
+				}
+				#searchSideCard > div:has(>div+svg),
+				#searchSideCard ul[data-e2e="scroll-list"]{
+					padding: 0px 10px !important;
+				}
+				#searchSideCard ul[data-e2e="scroll-list"] .video-playing-item > div{
+					width: auto;
+				}
+				/* 视频右侧的TA的作品↑ */
 			}
-			div#search-body-container #component-Navigation {
-				flex: 0;
-			}
-			div#search-body-container #douyin-right-container {
-				flex: 1 auto;
-			}
-			div#search-body-container #douyin-right-container #search-content-area > div {
-				width: 100% !important;
-			}
-			div#search-body-container #douyin-right-container #search-content-area > div > div > div {
-				width: 100% !important;
-				margin-left: 0px;
-				margin-right: 0px;
-				padding-left: 0px;
-				padding-right: 0px;
-			}
-			/* 上面的搜索结果筛选 */
-			#search-content-area > div >div> div:first-child > div:first-child > div:last-child{
-				overflow: auto;
-    			text-wrap: nowrap;
-			}
-			/* 视频右侧的TA的作品↓ */
-			#searchSideCard{
-				width: unset !important;
-			}
-			#searchSideCard > div{
-				padding: 0px !important;
-			}
-			#searchSideCard > div:has(>div+svg),
-			#searchSideCard ul[data-e2e="scroll-list"]{
-				padding: 0px 10px !important;
-			}
-			/* 视频右侧的TA的作品↑ */
 		`)
 		);
 		/* 评论区展开才会出现 */

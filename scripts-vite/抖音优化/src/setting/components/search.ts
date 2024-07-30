@@ -1,5 +1,6 @@
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { UISwitch } from "../common-components/ui-switch";
+import { UISelect } from "../common-components/ui-select";
 
 const PanelSearchConfig: PopsPanelContentConfig = {
 	id: "panel-config-search",
@@ -48,6 +49,60 @@ const PanelSearchConfig: PopsPanelContentConfig = {
 									false,
 									void 0,
 									"屏蔽右边的相关搜索"
+								),
+							],
+						},
+					],
+				},
+				{
+					text: "屏蔽-主框架",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISelect(
+									"【屏蔽】左侧导航栏",
+									"search-shieldLeftNavigator",
+									-1,
+									[
+										{
+											text: "跟随主设置",
+											value: -1,
+										},
+										{
+											text: "是",
+											value: 1,
+										},
+										{
+											text: "否",
+											value: 0,
+										},
+									],
+									void 0,
+									"屏蔽元素"
+								),
+								UISelect(
+									"【屏蔽】顶部导航栏",
+									"search-shieldTopNavigator",
+									-1,
+									[
+										{
+											text: "跟随主设置",
+											value: -1,
+										},
+										{
+											text: "是",
+											value: 1,
+										},
+										{
+											text: "否",
+											value: 0,
+										},
+									],
+									void 0,
+									"屏蔽元素"
 								),
 							],
 						},

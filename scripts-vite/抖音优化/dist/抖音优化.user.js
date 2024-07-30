@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.30
+// @version      2024.7.30.23
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1748,42 +1748,48 @@
         addStyle(
           /*css*/
           `
-			div#search-body-container {
-				display: flex;
+			@media screen and (max-width: 550px){
+				div#search-body-container {
+					display: flex;
+				}
+				div#search-body-container #component-Navigation {
+					flex: 0;
+				}
+				div#search-body-container #douyin-right-container {
+					flex: 1 auto;
+				}
+				div#search-body-container #douyin-right-container #search-content-area > div {
+					width: 100% !important;
+				}
+				div#search-body-container #douyin-right-container #search-content-area > div > div > div {
+					width: 100% !important;
+					margin-left: 0px;
+					margin-right: 0px;
+					padding-left: 0px;
+					padding-right: 0px;
+				}
+				/* 上面的搜索结果筛选 */
+				#search-content-area > div >div> div:first-child > div:first-child > div:last-child{
+					overflow: auto;
+					text-wrap: nowrap;
+					height: auto;
+				}
+				/* 视频右侧的TA的作品↓ */
+				#searchSideCard{
+					width: unset !important;
+				}
+				#searchSideCard > div{
+					padding: 0px !important;
+				}
+				#searchSideCard > div:has(>div+svg),
+				#searchSideCard ul[data-e2e="scroll-list"]{
+					padding: 0px 10px !important;
+				}
+				#searchSideCard ul[data-e2e="scroll-list"] .video-playing-item > div{
+					width: auto;
+				}
+				/* 视频右侧的TA的作品↑ */
 			}
-			div#search-body-container #component-Navigation {
-				flex: 0;
-			}
-			div#search-body-container #douyin-right-container {
-				flex: 1 auto;
-			}
-			div#search-body-container #douyin-right-container #search-content-area > div {
-				width: 100% !important;
-			}
-			div#search-body-container #douyin-right-container #search-content-area > div > div > div {
-				width: 100% !important;
-				margin-left: 0px;
-				margin-right: 0px;
-				padding-left: 0px;
-				padding-right: 0px;
-			}
-			/* 上面的搜索结果筛选 */
-			#search-content-area > div >div> div:first-child > div:first-child > div:last-child{
-				overflow: auto;
-    			text-wrap: nowrap;
-			}
-			/* 视频右侧的TA的作品↓ */
-			#searchSideCard{
-				width: unset !important;
-			}
-			#searchSideCard > div{
-				padding: 0px !important;
-			}
-			#searchSideCard > div:has(>div+svg),
-			#searchSideCard ul[data-e2e="scroll-list"]{
-				padding: 0px 10px !important;
-			}
-			/* 视频右侧的TA的作品↑ */
 		`
         )
       );
@@ -3222,6 +3228,60 @@
                 ]
               }
             ]
+          },
+          {
+            text: "屏蔽-主框架",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISelect(
+                    "【屏蔽】左侧导航栏",
+                    "search-shieldLeftNavigator",
+                    -1,
+                    [
+                      {
+                        text: "跟随主设置",
+                        value: -1
+                      },
+                      {
+                        text: "是",
+                        value: 1
+                      },
+                      {
+                        text: "否",
+                        value: 0
+                      }
+                    ],
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISelect(
+                    "【屏蔽】顶部导航栏",
+                    "search-shieldTopNavigator",
+                    -1,
+                    [
+                      {
+                        text: "跟随主设置",
+                        value: -1
+                      },
+                      {
+                        text: "是",
+                        value: 1
+                      },
+                      {
+                        text: "否",
+                        value: 0
+                      }
+                    ],
+                    void 0,
+                    "屏蔽元素"
+                  )
+                ]
+              }
+            ]
           }
         ]
       }
@@ -3973,15 +4033,39 @@
       PopsPanel.execMenuOnce("shieldWallpaper", () => {
         return this.shieldWallpaper();
       });
-      PopsPanel.execMenuOnce("shieldLeftNavigator", () => {
-        return this.shieldLeftNavigator();
-      });
-      PopsPanel.execMenuOnce("shieldTopNavigator", () => {
-        return this.shieldTopNavigator();
-      });
       PopsPanel.execMenuOnce("shieldBottomQuestionButton", () => {
         return this.shieldBottomQuestionButton();
       });
+      let shieldLeftNavigator = PopsPanel.getValue("shieldLeftNavigator");
+      let shieldTopNavigator = PopsPanel.getValue("shieldTopNavigator");
+      if (DouYinRouter.isSearch()) {
+        let search_shieldLeftNavigator = PopsPanel.getValue(
+          "search-shieldLeftNavigator"
+        );
+        if (search_shieldLeftNavigator == 1) {
+          shieldLeftNavigator = true;
+        } else if (search_shieldLeftNavigator == 0) {
+          shieldLeftNavigator = false;
+        } else ;
+        let search_shieldTopNavigator = PopsPanel.getValue(
+          "search-shieldTopNavigator"
+        );
+        if (search_shieldTopNavigator == 1) {
+          shieldTopNavigator = true;
+        } else if (search_shieldTopNavigator == 0) {
+          shieldTopNavigator = false;
+        } else ;
+      }
+      if (shieldLeftNavigator) {
+        PopsPanel.onceExec("shieldLeftNavigator", () => {
+          return this.shieldLeftNavigator();
+        });
+      }
+      if (shieldTopNavigator) {
+        PopsPanel.onceExec("shieldTopNavigator", () => {
+          return this.shieldTopNavigator();
+        });
+      }
     },
     /**
      * 【屏蔽】充钻石
@@ -4247,8 +4331,9 @@
      */
     shieldLeftNavigator() {
       log.info("【屏蔽】左侧导航栏");
-      return [
-        DouYinUtils.addBlockCSS("#douyin-navigation"),
+      let result = [];
+      result.push(DouYinUtils.addBlockCSS("#douyin-navigation"));
+      result.push(
         addStyle(
           /*css*/
           `
@@ -4257,7 +4342,8 @@
 				width: 100%;
 			}`
         )
-      ];
+      );
+      return result;
     },
     /**
      * 【屏蔽】顶部导航栏
