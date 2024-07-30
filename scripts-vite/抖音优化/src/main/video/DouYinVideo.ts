@@ -56,6 +56,9 @@ export const DouYinVideo = {
 			);
 			PopsPanel.execMenuOnce("mobileMode", () => {
 				this.mobileMode();
+				if (DouYinRouter.isSearch()) {
+					DouYinSearch.mobileMode();
+				}
 			});
 		});
 	},
@@ -420,18 +423,16 @@ export const DouYinVideo = {
 	 */
 	mobileMode() {
 		log.info("启用手机模式");
+		let result: HTMLStyleElement[] = [];
 		DouYin.initialScale();
 		/* 屏蔽底部视频工具栏右侧的?帮助反馈按钮 */
-		DouYinUtils.addBlockCSS("img#douyin-temp-sidebar");
-		addStyle(MobileCSS);
+		result.push(
+			DouYinUtils.addBlockCSS("img#douyin-temp-sidebar")!,
+			addStyle(MobileCSS)
+		);
 		PopsPanel.onceExec("repairProgressBar", () => {
 			this.repairVideoProgressBar();
 		});
-		if (DouYinRouter.isSearch()) {
-			PopsPanel.onceExec("douyin-search-mobileMode", () => {
-				DouYinSearch.mobileMode();
-			});
-		}
 	},
 	/**
 	 * 修复进度条按钮

@@ -274,7 +274,8 @@ export const DouYinVideoHideElement = {
 			/* 搜索页面的 */
 			result.push(
 				DouYinUtils.addBlockCSS(
-					'div:has(>div>div+[data-e2e="searchbar-input"])'
+					// 2024.7.30
+					'#douyin-right-container> div>div>div> div:has( div> input[data-e2e="searchbar-input"])'
 				)
 			);
 		}

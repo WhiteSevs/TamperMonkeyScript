@@ -17,18 +17,44 @@ export const DouYinSearch = {
 	 */
 	mobileMode() {
 		log.info("搜索-手机模式");
-		addStyle(MobileCSS);
+		let result: HTMLStyleElement[] = [];
+		result.push(addStyle(MobileCSS));
+		result.push(
+			addStyle(/*css*/ `
+			div#search-body-container {
+				display: flex;
+			}
+			div#search-body-container #component-Navigation {
+				flex: 0;
+			}
+			div#search-body-container #douyin-right-container {
+				flex: 1 auto;
+			}
+			div#search-body-container #douyin-right-container #search-content-area > div {
+				width: 100% !important;
+			}
+			div#search-body-container #douyin-right-container #search-content-area > div > div > div {
+				width: 100% !important;
+				margin-left: 0px;
+				margin-right: 0px;
+				padding-left: 0px;
+				padding-right: 0px;
+			}
+		`)
+		);
 		/* 评论区展开才会出现 */
 		utils
 			.waitNode<HTMLDivElement>("#relatedVideoCard")
 			.then(($relatedVideoCard) => {
 				log.info("评论区展开的className：" + $relatedVideoCard.className);
-				addStyle(/*css*/ `
-				html[data-vertical-screen]
-					#sliderVideo[data-e2e="feed-active-video"]
-					#videoSideBar:has(#relatedVideoCard[class="${$relatedVideoCard.className}"]) {
-						width: 100vw !important;
-				}`);
+				result.push(
+					addStyle(/*css*/ `
+					html[data-vertical-screen]
+						#sliderVideo[data-e2e="feed-active-video"]
+						#videoSideBar:has(#relatedVideoCard[class="${$relatedVideoCard.className}"]) {
+							width: 100vw !important;
+					}`)
+				);
 			});
 	},
 	/**

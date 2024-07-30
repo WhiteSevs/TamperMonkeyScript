@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.28
+// @version      2024.7.30
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1742,17 +1742,46 @@
      */
     mobileMode() {
       log.info("搜索-手机模式");
-      addStyle(MobileCSS$1);
-      utils.waitNode("#relatedVideoCard").then(($relatedVideoCard) => {
-        log.info("评论区展开的className：" + $relatedVideoCard.className);
+      let result = [];
+      result.push(addStyle(MobileCSS$1));
+      result.push(
         addStyle(
           /*css*/
           `
-				html[data-vertical-screen]
-					#sliderVideo[data-e2e="feed-active-video"]
-					#videoSideBar:has(#relatedVideoCard[class="${$relatedVideoCard.className}"]) {
-						width: 100vw !important;
-				}`
+			div#search-body-container {
+				display: flex;
+			}
+			div#search-body-container #component-Navigation {
+				flex: 0;
+			}
+			div#search-body-container #douyin-right-container {
+				flex: 1 auto;
+			}
+			div#search-body-container #douyin-right-container #search-content-area > div {
+				width: 100% !important;
+			}
+			div#search-body-container #douyin-right-container #search-content-area > div > div > div {
+				width: 100% !important;
+				margin-left: 0px;
+				margin-right: 0px;
+				padding-left: 0px;
+				padding-right: 0px;
+			}
+		`
+        )
+      );
+      utils.waitNode("#relatedVideoCard").then(($relatedVideoCard) => {
+        log.info("评论区展开的className：" + $relatedVideoCard.className);
+        result.push(
+          addStyle(
+            /*css*/
+            `
+					html[data-vertical-screen]
+						#sliderVideo[data-e2e="feed-active-video"]
+						#videoSideBar:has(#relatedVideoCard[class="${$relatedVideoCard.className}"]) {
+							width: 100vw !important;
+					}`
+          )
         );
       });
     },
@@ -2099,7 +2128,8 @@
       if (DouYinRouter.isSearch()) {
         result.push(
           DouYinUtils.addBlockCSS(
-            'div:has(>div>div+[data-e2e="searchbar-input"])'
+            // 2024.7.30
+            '#douyin-right-container> div>div>div> div:has( div> input[data-e2e="searchbar-input"])'
           )
         );
       }
@@ -2168,6 +2198,9 @@
         );
         PopsPanel.execMenuOnce("mobileMode", () => {
           this.mobileMode();
+          if (DouYinRouter.isSearch()) {
+            DouYinSearch.mobileMode();
+          }
         });
       });
     },
@@ -2534,17 +2567,15 @@
      */
     mobileMode() {
       log.info("启用手机模式");
+      let result = [];
       DouYin.initialScale();
-      DouYinUtils.addBlockCSS("img#douyin-temp-sidebar");
-      addStyle(MobileCSS);
+      result.push(
+        DouYinUtils.addBlockCSS("img#douyin-temp-sidebar"),
+        addStyle(MobileCSS)
+      );
       PopsPanel.onceExec("repairProgressBar", () => {
         this.repairVideoProgressBar();
       });
-      if (DouYinRouter.isSearch()) {
-        PopsPanel.onceExec("douyin-search-mobileMode", () => {
-          DouYinSearch.mobileMode();
-        });
-      }
     },
     /**
      * 修复进度条按钮
@@ -3670,14 +3701,33 @@
       }
       this.$data.oneSuccessExecMenu.set(key, 1);
       let resultStyleList = [];
-      let pushStyleNode = (style) => {
+      let dynamicPushStyleNode = ($style) => {
         let __value = PopsPanel.getValue(key);
-        changeCallBack(__value, style);
+        let dynamicResultList = [];
+        if ($style instanceof HTMLStyleElement) {
+          dynamicResultList = [$style];
+        } else if (Array.isArray($style)) {
+          dynamicResultList = [
+            ...$style.filter(
+              (item) => item != null && item instanceof HTMLStyleElement
+            )
+          ];
+        }
+        if (__value) {
+          resultStyleList = resultStyleList.concat(dynamicResultList);
+        } else {
+          for (let index = 0; index < dynamicResultList.length; index++) {
+            let $css = dynamicResultList[index];
+            $css.remove();
+            dynamicResultList.splice(index, 1);
+            index--;
+          }
+        }
       };
-      let changeCallBack = (currentValue, resultStyle) => {
+      let changeCallBack = (currentValue) => {
         let resultList = [];
         if (currentValue) {
-          let result = resultStyle ?? callback(currentValue, pushStyleNode);
+          let result = callback(currentValue, dynamicPushStyleNode);
           if (result instanceof HTMLStyleElement) {
             resultList = [result];
           } else if (Array.isArray(result)) {

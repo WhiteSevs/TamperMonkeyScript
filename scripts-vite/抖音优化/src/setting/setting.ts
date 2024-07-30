@@ -315,18 +315,36 @@ const PopsPanel = {
 		// 存储的<style>标签列表
 		let resultStyleList: HTMLStyleElement[] = [];
 		// 主动添加<style>标签的回调
-		let pushStyleNode = (style: HTMLStyleElement | HTMLStyleElement[]) => {
-			let __value = PopsPanel.getValue<boolean>(key);
-			changeCallBack(__value, style);
-		};
-		let changeCallBack = (
-			currentValue: boolean,
-			resultStyle?: HTMLStyleElement | HTMLStyleElement[]
+		let dynamicPushStyleNode = (
+			$style: HTMLStyleElement | HTMLStyleElement[]
 		) => {
+			let __value = PopsPanel.getValue<boolean>(key);
+			let dynamicResultList: HTMLStyleElement[] = [];
+			if ($style instanceof HTMLStyleElement) {
+				dynamicResultList = [$style];
+			} else if (Array.isArray($style)) {
+				dynamicResultList = [
+					...$style.filter(
+						(item) => item != null && item instanceof HTMLStyleElement
+					),
+				];
+			}
+			if (__value) {
+				resultStyleList = resultStyleList.concat(dynamicResultList);
+			} else {
+				for (let index = 0; index < dynamicResultList.length; index++) {
+					let $css = dynamicResultList[index];
+					$css.remove();
+					dynamicResultList.splice(index, 1);
+					index--;
+				}
+			}
+		};
+		let changeCallBack = (currentValue: boolean) => {
 			let resultList: HTMLStyleElement[] = [];
 			if (currentValue) {
 				// 开
-				let result = resultStyle ?? callback(currentValue, pushStyleNode);
+				let result = callback(currentValue, dynamicPushStyleNode);
 				if (result instanceof HTMLStyleElement) {
 					resultList = [result];
 				} else if (Array.isArray(result)) {
