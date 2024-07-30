@@ -40,6 +40,23 @@ export const DouYinSearch = {
 				padding-left: 0px;
 				padding-right: 0px;
 			}
+			/* 上面的搜索结果筛选 */
+			#search-content-area > div >div> div:first-child > div:first-child > div:last-child{
+				overflow: auto;
+    			text-wrap: nowrap;
+			}
+			/* 视频右侧的TA的作品↓ */
+			#searchSideCard{
+				width: unset !important;
+			}
+			#searchSideCard > div{
+				padding: 0px !important;
+			}
+			#searchSideCard > div:has(>div+svg),
+			#searchSideCard ul[data-e2e="scroll-list"]{
+				padding: 0px 10px !important;
+			}
+			/* 视频右侧的TA的作品↑ */
 		`)
 		);
 		/* 评论区展开才会出现 */
