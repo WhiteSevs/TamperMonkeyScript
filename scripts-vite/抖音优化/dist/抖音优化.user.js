@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.30.23
+// @version      2024.7.31
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1312,8 +1312,12 @@
     watchVideDataListChange(callback) {
       let $os = null;
       domUtils.ready(() => {
-        utils.waitNode("#slidelist").then(($slidelist) => {
-          utils.mutationObserver($slidelist, {
+        utils.waitAnyNode([
+          "#slidelist",
+          // 搜索页面的↓搜索结果列表
+          '#search-content-area ul[data-e2e="scroll-list"]'
+        ]).then(($ele) => {
+          utils.mutationObserver($ele, {
             config: {
               childList: true,
               subtree: true
@@ -1367,7 +1371,7 @@
       let firstLoadEndVideoId = null;
       DouYinElement.watchVideDataListChange(
         utils.debounce((osElement) => {
-          var _a2, _b, _c, _d, _e;
+          var _a2;
           let $videoList = document.querySelector(
             '#slidelist div[data-e2e="slideList"]'
           );
@@ -1380,90 +1384,101 @@
             log.error(["元素上不存在reactFiber属性", $videoList]);
             return;
           }
-          let videoDataList = reactFiber == null ? void 0 : reactFiber.return.memoizedProps.data;
-          if (!videoDataList.length) {
+          let awemeInfoList = reactFiber == null ? void 0 : reactFiber.return.memoizedProps.data;
+          if (!awemeInfoList.length) {
             return;
           }
           if (this.$data.isFirstLoad) {
-            let endVideo = videoDataList[videoDataList.length - 1];
+            let endAwemeInfo = awemeInfoList[awemeInfoList.length - 1];
             if (firstLoadEndVideoId == null) {
-              firstLoadEndVideoId = endVideo.awemeId;
+              firstLoadEndVideoId = endAwemeInfo.awemeId;
             }
-            if (firstLoadEndVideoId === endVideo.awemeId) {
+            if (firstLoadEndVideoId === endAwemeInfo.awemeId) {
               return;
             }
             this.$data.isFirstLoad = false;
           }
-          for (let index = 0; index < videoDataList.length; index++) {
-            let videoData = videoDataList[index];
-            let videoInfoTag = this.getVideoInfoTagMap(videoData);
-            let flag = false;
-            if (!flag) {
-              if (typeof videoData["cellRoom"] === "object" && PopsPanel.getValue("shieldVideo-live")) {
-                log.success("屏蔽直播: because cellRoom is not null");
-                flag = true;
-              }
-            }
-            if (!flag) {
-              if (PopsPanel.getValue("shieldVideo-ads")) {
-                if (videoData["isAds"]) {
-                  flag = true;
-                  log.success("屏蔽广告: because isAds is true");
-                } else if (typeof videoData["rawAdData"] === "string" && utils.isNotNull(videoData["rawAdData"])) {
-                  flag = true;
-                  log.success("屏蔽广告: because rawAdData is not null");
-                } else if ((_c = (_b = videoData["webRawData"]) == null ? void 0 : _b["brandAd"]) == null ? void 0 : _c["is_ad"]) {
-                  flag = true;
-                  log.success(
-                    "屏蔽广告: because webRawData.brandAd.is_ad is true"
-                  );
-                } else if ((_e = (_d = videoData["webRawData"]) == null ? void 0 : _d["insertInfo"]) == null ? void 0 : _e["is_ad"]) {
-                  flag = true;
-                  log.success(
-                    "屏蔽广告: because webRawData.insertInfo.is_ad is true"
-                  );
-                }
-              }
-            }
-            if (!flag) {
-              for (const [ruleKey, ruleValue] of this.$data.rule.entries()) {
-                if (!(ruleKey in videoInfoTag)) {
-                  continue;
-                }
-                let tagValue = videoInfoTag[ruleKey];
-                if (tagValue != null) {
-                  if (typeof tagValue === "string") {
-                    flag = Boolean(tagValue.match(ruleValue));
-                    if (flag) {
-                      log.success([
-                        "自定义屏蔽: " + ruleKey + "  " + ruleValue,
-                        videoInfoTag
-                      ]);
-                      break;
-                    }
-                  } else if (typeof tagValue === "object" && Array.isArray(tagValue)) {
-                    let findValue = tagValue.find(
-                      (tagValueItem) => Boolean(tagValueItem.match(ruleValue))
-                    );
-                    if (findValue) {
-                      flag = true;
-                      log.success([
-                        "自定义屏蔽: " + ruleKey + "  " + ruleValue,
-                        videoInfoTag
-                      ]);
-                      break;
-                    }
-                  }
-                }
-              }
-            }
+          for (let index = 0; index < awemeInfoList.length; index++) {
+            let awemeInfo = awemeInfoList[index];
+            let flag = this.checkAwemeInfo(awemeInfo);
             if (flag) {
-              videoDataList.splice(index, 1);
+              awemeInfoList.splice(index, 1);
               index--;
             }
           }
         }, 50)
       );
+    },
+    /**
+     * 检测视频是否可以屏蔽
+     * @param awemeInfo
+     */
+    checkAwemeInfo(awemeInfo) {
+      var _a2, _b, _c, _d;
+      let videoInfoTag = this.getVideoInfoTagMap(awemeInfo);
+      let flag_blockLiveVideo = PopsPanel.getValue("shieldVideo-live");
+      let flag_blockAdsVideo = PopsPanel.getValue("shieldVideo-ads");
+      let flag = false;
+      if (!flag) {
+        if (typeof awemeInfo["cellRoom"] === "object" && flag_blockLiveVideo) {
+          log.success("过滤器-屏蔽直播: because cellRoom is not null");
+          flag = true;
+        }
+      }
+      if (!flag) {
+        if (flag_blockAdsVideo) {
+          if (awemeInfo["isAds"]) {
+            flag = true;
+            log.success("过滤器-屏蔽广告: because isAds is true");
+          } else if (typeof awemeInfo["rawAdData"] === "string" && utils.isNotNull(awemeInfo["rawAdData"])) {
+            flag = true;
+            log.success("过滤器-屏蔽广告: because rawAdData is not null");
+          } else if ((_b = (_a2 = awemeInfo["webRawData"]) == null ? void 0 : _a2["brandAd"]) == null ? void 0 : _b["is_ad"]) {
+            flag = true;
+            log.success(
+              "过滤器-屏蔽广告: because webRawData.brandAd.is_ad is true"
+            );
+          } else if ((_d = (_c = awemeInfo["webRawData"]) == null ? void 0 : _c["insertInfo"]) == null ? void 0 : _d["is_ad"]) {
+            flag = true;
+            log.success(
+              "过滤器-屏蔽广告: because webRawData.insertInfo.is_ad is true"
+            );
+          }
+        }
+      }
+      if (!flag) {
+        for (const [ruleKey, ruleValue] of this.$data.rule.entries()) {
+          if (!(ruleKey in videoInfoTag)) {
+            continue;
+          }
+          let tagValue = videoInfoTag[ruleKey];
+          if (tagValue != null) {
+            if (typeof tagValue === "string") {
+              flag = Boolean(tagValue.match(ruleValue));
+              if (flag) {
+                log.success([
+                  "过滤器-自定义屏蔽: " + ruleKey + "  " + ruleValue,
+                  videoInfoTag
+                ]);
+                break;
+              }
+            } else if (typeof tagValue === "object" && Array.isArray(tagValue)) {
+              let findValue = tagValue.find(
+                (tagValueItem) => Boolean(tagValueItem.match(ruleValue))
+              );
+              if (findValue) {
+                flag = true;
+                log.success([
+                  "过滤器-自定义屏蔽: " + ruleKey + "  " + ruleValue,
+                  videoInfoTag
+                ]);
+                break;
+              }
+            }
+          }
+        }
+      }
+      return flag;
     },
     /**
      * 获取视频各个信息的字典
@@ -1729,9 +1744,212 @@
       ];
     }
   };
+  const DouYinSearchFilter = {
+    key: "douyin-search-shield-rule",
+    $data: {
+      __rule: null,
+      /**
+       * 解析出的规则
+       */
+      get rule() {
+        if (DouYinSearchFilter.$data.__rule == null) {
+          DouYinSearchFilter.$data.__rule = new utils.Dictionary();
+        }
+        return DouYinSearchFilter.$data.__rule;
+      }
+    },
+    /**
+     * authorInfo.nickname:string    作者
+     * authorInfo.uid:string         作者id
+     * desc:string                   视频描述
+     * shareInfo.shareLinkDesc:string       xxx复制链接到抖音App的识别码
+     * shareInfo.shareUrl:string            网页直接看的视频链接
+     * textExtra[{hashtagName: ""},...]     话题
+     * videoTag[{tagName: ""},...]          视频标签
+     */
+    init() {
+      this.parseRule();
+      log.info(["当前自定义视频拦截规则: ", this.$data.rule.getItems()]);
+      DouYinElement.watchVideDataListChange(
+        utils.debounce((osElement) => {
+          var _a2, _b, _c, _d;
+          let $searchContentAreaScrollList = Array.from(
+            document.querySelectorAll(
+              '#search-content-area ul[data-e2e="scroll-list"] li'
+            )
+          );
+          if (!$searchContentAreaScrollList.length) {
+            log.error("未获取到视频列表元素");
+            return;
+          }
+          for (let index = 0; index < $searchContentAreaScrollList.length; index++) {
+            const $searchContentAreaScrollItem = $searchContentAreaScrollList[index];
+            let reactProps = (_a2 = utils.getReactObj(
+              $searchContentAreaScrollItem
+            )) == null ? void 0 : _a2.reactProps;
+            if (reactProps == null) {
+              log.error([
+                "元素上不存在reactProps属性",
+                $searchContentAreaScrollItem
+              ]);
+              return;
+            }
+            let awemeInfo = (_d = (_c = (_b = reactProps == null ? void 0 : reactProps.children) == null ? void 0 : _b.props) == null ? void 0 : _c.data) == null ? void 0 : _d.awemeInfo;
+            if (awemeInfo == null) {
+              log.error([
+                "元素上不存在awemeInfo属性",
+                $searchContentAreaScrollItem
+              ]);
+              return;
+            }
+            let flag = this.checkAwemeInfo(awemeInfo);
+            if (flag) {
+              $searchContentAreaScrollItem.remove();
+              index--;
+            }
+          }
+        }, 50)
+      );
+    },
+    /**
+     * 检测视频是否可以屏蔽
+     * @param awemeInfo
+     */
+    checkAwemeInfo(awemeInfo) {
+      var _a2, _b, _c, _d;
+      let videoInfoTag = this.getVideoInfoTagMap(awemeInfo);
+      let flag_blockLiveVideo = PopsPanel.getValue("search-shieldVideo-live");
+      let flag_blockAdsVideo = PopsPanel.getValue("search-shieldVideo-ads");
+      let flag = false;
+      if (!flag) {
+        if (typeof awemeInfo["cellRoom"] === "object" && flag_blockLiveVideo) {
+          log.success("过滤器-屏蔽直播: because cellRoom is not null");
+          flag = true;
+        }
+      }
+      if (!flag) {
+        if (flag_blockAdsVideo) {
+          if (awemeInfo["isAds"]) {
+            flag = true;
+            log.success("过滤器-屏蔽广告: because isAds is true");
+          } else if (typeof awemeInfo["rawAdData"] === "string" && utils.isNotNull(awemeInfo["rawAdData"])) {
+            flag = true;
+            log.success("过滤器-屏蔽广告: because rawAdData is not null");
+          } else if ((_b = (_a2 = awemeInfo["webRawData"]) == null ? void 0 : _a2["brandAd"]) == null ? void 0 : _b["is_ad"]) {
+            flag = true;
+            log.success(
+              "过滤器-屏蔽广告: because webRawData.brandAd.is_ad is true"
+            );
+          } else if ((_d = (_c = awemeInfo["webRawData"]) == null ? void 0 : _c["insertInfo"]) == null ? void 0 : _d["is_ad"]) {
+            flag = true;
+            log.success(
+              "过滤器-屏蔽广告: because webRawData.insertInfo.is_ad is true"
+            );
+          }
+        }
+      }
+      if (!flag) {
+        for (const [ruleKey, ruleValue] of this.$data.rule.entries()) {
+          if (!(ruleKey in videoInfoTag)) {
+            continue;
+          }
+          let tagValue = videoInfoTag[ruleKey];
+          if (tagValue != null) {
+            if (typeof tagValue === "string") {
+              flag = Boolean(tagValue.match(ruleValue));
+              if (flag) {
+                log.success([
+                  "过滤器-自定义屏蔽: " + ruleKey + "  " + ruleValue,
+                  videoInfoTag
+                ]);
+                break;
+              }
+            } else if (typeof tagValue === "object" && Array.isArray(tagValue)) {
+              let findValue = tagValue.find(
+                (tagValueItem) => Boolean(tagValueItem.match(ruleValue))
+              );
+              if (findValue) {
+                flag = true;
+                log.success([
+                  "过滤器-自定义屏蔽: " + ruleKey + "  " + ruleValue,
+                  videoInfoTag
+                ]);
+                break;
+              }
+            }
+          }
+        }
+      }
+      return flag;
+    },
+    /**
+     * 获取视频各个信息的字典
+     */
+    getVideoInfoTagMap(data) {
+      var _a2, _b, _c, _d, _e, _f;
+      let nickname = (_b = (_a2 = data == null ? void 0 : data["authorInfo"]) == null ? void 0 : _a2["nickname"]) == null ? void 0 : _b.toString();
+      let uid = (_d = (_c = data == null ? void 0 : data["authorInfo"]) == null ? void 0 : _c["uid"]) == null ? void 0 : _d.toString();
+      let desc = (_e = data == null ? void 0 : data["desc"]) == null ? void 0 : _e.toString();
+      let textExtra = [];
+      if (typeof (data == null ? void 0 : data["textExtra"]) === "object" && Array.isArray(data == null ? void 0 : data["textExtra"])) {
+        (_f = data == null ? void 0 : data["textExtra"]) == null ? void 0 : _f.forEach((item) => {
+          textExtra.push(item["hashtagName"]);
+        });
+      }
+      let videoTag = [];
+      if (typeof (data == null ? void 0 : data["videoTag"]) === "object" && Array.isArray(data == null ? void 0 : data["videoTag"])) {
+        data == null ? void 0 : data["videoTag"].forEach((item) => {
+          videoTag.push(item["tagName"]);
+        });
+      }
+      return {
+        nickname,
+        uid,
+        desc,
+        textExtra,
+        videoTag
+      };
+    },
+    /**
+     * 解析规则
+     */
+    parseRule() {
+      let localRule = this.get().trim();
+      let localRuleSplit = localRule.split("\n");
+      localRuleSplit.forEach((item) => {
+        if (utils.isNull(item)) {
+          return;
+        }
+        let trimItem = item.trim();
+        let itemSplit = trimItem.split("##");
+        if (itemSplit.length < 2) {
+          return;
+        }
+        let keyName = itemSplit[0];
+        itemSplit.shift();
+        let keyValue = itemSplit.join("");
+        try {
+          let regExpKeyValue = new RegExp(keyValue, "g");
+          this.$data.rule.set(keyName, regExpKeyValue);
+        } catch (error) {
+          log.error(["自定义视频过滤规则-正则解析错误：" + error]);
+          log.error("错误的规则：" + item);
+        }
+      });
+    },
+    set(value) {
+      _GM_setValue(this.key, value);
+    },
+    get() {
+      return _GM_getValue(this.key, "");
+    }
+  };
   const DouYinSearch = {
     init() {
       DouYinSearchHideElement.init();
+      PopsPanel.execMenuOnce("search-shieldVideo", () => {
+        DouYinSearchFilter.init();
+      });
       PopsPanel.execMenuOnce("dy-search-disableClickToEnterFullScreen", () => {
         this.disableClickToEnterFullScreen();
       });
@@ -2196,9 +2414,12 @@
       PopsPanel.execMenuOnce("parseVideo", () => {
         DouYinVideo.parseVideo();
       });
-      PopsPanel.execMenu("autoEnterElementFullScreen", () => {
-        this.autoEnterElementFullScreen();
-      });
+      if (DouYinRouter.isSearch()) ;
+      else {
+        PopsPanel.execMenu("autoEnterElementFullScreen", () => {
+          this.autoEnterElementFullScreen();
+        });
+      }
       PopsPanel.execMenuOnce("dy-video-doubleClickEnterElementFullScreen", () => {
         this.doubleClickEnterElementFullScreen();
       });
@@ -2774,16 +2995,22 @@
                     getLiElementCallBack(liElement) {
                       let $left = domUtils.createElement("div", {
                         className: "pops-panel-item-left-text",
-                        innerHTML: `
-							<p class="pops-panel-item-left-main-text">视频背景颜色</p>
-							<p class="pops-panel-item-left-desc-text">自定义视频背景颜色，包括评论区</p>
-							`
+                        innerHTML: (
+                          /*html*/
+                          `
+											<p class="pops-panel-item-left-main-text">视频背景颜色</p>
+											<p class="pops-panel-item-left-desc-text">自定义视频背景颜色，包括评论区</p>
+											`
+                        )
                       });
                       let $right = domUtils.createElement("div", {
                         className: "pops-panel-item-right",
-                        innerHTML: `
-						    <input type="color" class="pops-color-choose" />
-						    `
+                        innerHTML: (
+                          /*html*/
+                          `
+											<input type="color" class="pops-color-choose" />
+											`
+                        )
                       });
                       let $color = $right.querySelector(
                         ".pops-color-choose"
@@ -2798,11 +3025,12 @@
                         ["input", "propertychange"],
                         (event) => {
                           log.info("选择颜色：" + $color.value);
-                          $style.innerHTML = `
-							#sliderVideo > div{
-								background: ${$color.value};
-							}
-							`;
+                          $style.innerHTML = /*css*/
+                          `
+												#sliderVideo > div{
+													background: ${$color.value};
+												}
+												`;
                           PopsPanel.setValue(
                             "dy-video-changeBackgroundColor",
                             $color.value
@@ -3200,6 +3428,70 @@
                     void 0,
                     "禁止点击视频区域时会触发自动进入全屏功能"
                   )
+                ]
+              }
+            ]
+          },
+          {
+            text: "过滤-搜索结果",
+            type: "deepMenu",
+            forms: [
+              {
+                text: '<a href="https://greasyfork.org/zh-CN/scripts/494643-%E6%8A%96%E9%9F%B3%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "启用",
+                    "search-shieldVideo",
+                    true,
+                    void 0,
+                    "开启后可启用下面的屏蔽功能"
+                  ),
+                  UISwitch(
+                    "【屏蔽】直播",
+                    "search-shieldVideo-live",
+                    true,
+                    void 0,
+                    "过滤掉直播"
+                  ),
+                  UISwitch(
+                    "【屏蔽】广告",
+                    "search-shieldVideo-ads",
+                    true,
+                    void 0,
+                    "过滤掉广告"
+                  ),
+                  {
+                    type: "own",
+                    getLiElementCallBack(liElement) {
+                      let textareaDiv = domUtils.createElement(
+                        "div",
+                        {
+                          className: "pops-panel-textarea",
+                          innerHTML: (
+                            /*html*/
+                            `<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>`
+                          )
+                        },
+                        {
+                          style: "width: 100%;"
+                        }
+                      );
+                      let textarea = textareaDiv.querySelector(
+                        "textarea"
+                      );
+                      textarea.value = DouYinSearchFilter.get();
+                      domUtils.on(
+                        textarea,
+                        ["input", "propertychange"],
+                        utils.debounce(function() {
+                          DouYinSearchFilter.set(textarea.value);
+                        }, 200)
+                      );
+                      liElement.appendChild(textareaDiv);
+                      return liElement;
+                    }
+                  }
                 ]
               }
             ]
@@ -3927,8 +4219,8 @@
       let configList = [
         PanelCommonConfig,
         PanelVideoConfig,
-        PanelLiveConfig,
-        PanelSearchConfig
+        PanelSearchConfig,
+        PanelLiveConfig
       ];
       return configList;
     },

@@ -8,24 +8,30 @@ export const DouYinElement = {
 	watchVideDataListChange(callback: (osElement: HTMLDivElement) => void) {
 		let $os = null as HTMLDivElement | null;
 		DOMUtils.ready(() => {
-			utils.waitNode<HTMLDivElement>("#slidelist").then(($slidelist) => {
-				utils.mutationObserver($slidelist, {
-					config: {
-						childList: true,
-						subtree: true,
-					},
-					callback: () => {
-						if (!$os) {
-							$os = this.getOSElement();
-						}
-						if (!$os) {
-							log.error("watchVideDataListChange：获取osElement失败");
-							return;
-						}
-						callback($os);
-					},
+			utils
+				.waitAnyNode<HTMLDivElement>([
+					"#slidelist",
+					// 搜索页面的↓搜索结果列表
+					'#search-content-area ul[data-e2e="scroll-list"]',
+				])
+				.then(($ele) => {
+					utils.mutationObserver($ele, {
+						config: {
+							childList: true,
+							subtree: true,
+						},
+						callback: () => {
+							if (!$os) {
+								$os = this.getOSElement();
+							}
+							if (!$os) {
+								log.error("watchVideDataListChange：获取osElement失败");
+								return;
+							}
+							callback($os);
+						},
+					});
 				});
-			});
 		});
 	},
 	getOSElement() {

@@ -31,9 +31,12 @@ export const DouYinVideo = {
 		PopsPanel.execMenuOnce("parseVideo", () => {
 			DouYinVideo.parseVideo();
 		});
-		PopsPanel.execMenu("autoEnterElementFullScreen", () => {
-			this.autoEnterElementFullScreen();
-		});
+		if (DouYinRouter.isSearch()) {
+		} else {
+			PopsPanel.execMenu("autoEnterElementFullScreen", () => {
+				this.autoEnterElementFullScreen();
+			});
+		}
 		PopsPanel.execMenuOnce("dy-video-doubleClickEnterElementFullScreen", () => {
 			this.doubleClickEnterElementFullScreen();
 		});

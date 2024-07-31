@@ -1,35 +1,26 @@
-import { GM_getValue, GM_setValue } from "ViteGM";
-import { log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
-import { DouYinElement } from "@/utils/DouYinElement";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
+import { DouYinShieldTagMap } from "../video/DouYinVideoFilter";
+import { log, utils } from "@/env";
+import { GM_getValue, GM_setValue } from "ViteGM";
+import { DouYinElement } from "@/utils/DouYinElement";
+import { PopsPanel } from "@/setting/setting";
 
-export interface DouYinShieldTagMap {
-	nickname?: string;
-	uid?: string;
-	desc?: string;
-	textExtra: string[];
-	videoTag: string[];
-}
-
-export const DouYinVideoFilter = {
-	key: "douyin-shield-rule",
+export const DouYinSearchFilter = {
+	key: "douyin-search-shield-rule",
 	$data: {
 		__rule: null as any as UtilsDictionary<keyof DouYinShieldTagMap, RegExp>,
 		/**
 		 * 解析出的规则
 		 */
 		get rule() {
-			if (DouYinVideoFilter.$data.__rule == null) {
-				DouYinVideoFilter.$data.__rule = new utils.Dictionary<
+			if (DouYinSearchFilter.$data.__rule == null) {
+				DouYinSearchFilter.$data.__rule = new utils.Dictionary<
 					keyof DouYinShieldTagMap,
 					RegExp
 				>();
 			}
-			return DouYinVideoFilter.$data.__rule;
+			return DouYinSearchFilter.$data.__rule;
 		},
-		/** 是否是首次加载视频 */
-		isFirstLoad: true,
 	},
 	/**
 	 * authorInfo.nickname:string    作者
@@ -43,61 +34,63 @@ export const DouYinVideoFilter = {
 	init() {
 		this.parseRule();
 		log.info(["当前自定义视频拦截规则: ", this.$data.rule.getItems()]);
-		let firstLoadEndVideoId: any = null;
 		DouYinElement.watchVideDataListChange(
 			utils.debounce((osElement) => {
-				/* 视频列表元素 */
-				let $videoList = document.querySelector<HTMLDivElement>(
-					'#slidelist div[data-e2e="slideList"]'
+				let $searchContentAreaScrollList = Array.from(
+					document.querySelectorAll<HTMLLIElement>(
+						'#search-content-area ul[data-e2e="scroll-list"] li'
+					)
 				);
-				if (!$videoList) {
+				if (!$searchContentAreaScrollList.length) {
 					log.error("未获取到视频列表元素");
 					return;
 				}
 
-				// 视频列表
-				let reactFiber = utils.getReactObj($videoList)?.reactFiber;
-				if (reactFiber == null) {
-					log.error(["元素上不存在reactFiber属性", $videoList]);
-					return;
-				}
-				let awemeInfoList: any[] = reactFiber?.return.memoizedProps.data;
-				if (!awemeInfoList.length) {
-					/* Empty video data list */
-					return;
-				}
-				if (this.$data.isFirstLoad) {
-					let endAwemeInfo = awemeInfoList[awemeInfoList.length - 1];
-					if (firstLoadEndVideoId == null) {
-						/* 首次加载，先赋值 */
-						firstLoadEndVideoId = endAwemeInfo.awemeId as string;
-					}
-					if (firstLoadEndVideoId === endAwemeInfo.awemeId) {
-						/* 仍是首次加载的视频列表 */
+				// 搜索页面的视频列表
+				for (
+					let index = 0;
+					index < $searchContentAreaScrollList.length;
+					index++
+				) {
+					const $searchContentAreaScrollItem =
+						$searchContentAreaScrollList[index];
+					let reactProps = utils.getReactObj(
+						$searchContentAreaScrollItem
+					)?.reactProps;
+					if (reactProps == null) {
+						log.error([
+							"元素上不存在reactProps属性",
+							$searchContentAreaScrollItem,
+						]);
 						return;
 					}
-					/* 不是首次加载了 */
-					this.$data.isFirstLoad = false;
-				}
-				for (let index = 0; index < awemeInfoList.length; index++) {
-					let awemeInfo = awemeInfoList[index];
+					let awemeInfo = reactProps?.children?.props?.data?.awemeInfo;
+					if (awemeInfo == null) {
+						log.error([
+							"元素上不存在awemeInfo属性",
+							$searchContentAreaScrollItem,
+						]);
+						return;
+					}
+
 					let flag = this.checkAwemeInfo(awemeInfo);
 					if (flag) {
-						awemeInfoList.splice(index, 1);
+						$searchContentAreaScrollItem.remove();
 						index--;
 					}
 				}
 			}, 50)
 		);
 	},
+
 	/**
 	 * 检测视频是否可以屏蔽
 	 * @param awemeInfo
 	 */
 	checkAwemeInfo(awemeInfo: any): boolean {
 		let videoInfoTag = this.getVideoInfoTagMap(awemeInfo);
-		let flag_blockLiveVideo = PopsPanel.getValue("shieldVideo-live");
-		let flag_blockAdsVideo = PopsPanel.getValue("shieldVideo-ads");
+		let flag_blockLiveVideo = PopsPanel.getValue("search-shieldVideo-live");
+		let flag_blockAdsVideo = PopsPanel.getValue("search-shieldVideo-ads");
 		let flag = false;
 		if (!flag) {
 			if (typeof awemeInfo["cellRoom"] === "object" && flag_blockLiveVideo) {

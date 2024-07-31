@@ -469,8 +469,8 @@ const PopsPanel = {
 		let configList: PopsPanelContentConfig[] = [
 			PanelCommonConfig,
 			PanelVideoConfig,
-			PanelLiveConfig,
 			PanelSearchConfig,
+			PanelLiveConfig,
 		];
 		return configList;
 	},

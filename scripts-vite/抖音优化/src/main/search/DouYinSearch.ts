@@ -3,10 +3,14 @@ import MobileCSS from "./mobile.css?raw";
 import { DouYinSearchHideElement } from "./DouYinSearchHideElement";
 import Qmsg from "qmsg";
 import { PopsPanel } from "@/setting/setting";
+import { DouYinSearchFilter } from "./DouYinSearchFilter";
 
 export const DouYinSearch = {
 	init() {
 		DouYinSearchHideElement.init();
+		PopsPanel.execMenuOnce("search-shieldVideo", () => {
+			DouYinSearchFilter.init();
+		});
 		PopsPanel.execMenuOnce("dy-search-disableClickToEnterFullScreen", () => {
 			this.disableClickToEnterFullScreen();
 		});

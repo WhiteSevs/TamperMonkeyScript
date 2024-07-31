@@ -66,16 +66,16 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									getLiElementCallBack(liElement) {
 										let $left = DOMUtils.createElement("div", {
 											className: "pops-panel-item-left-text",
-											innerHTML: `
-							<p class="pops-panel-item-left-main-text">视频背景颜色</p>
-							<p class="pops-panel-item-left-desc-text">自定义视频背景颜色，包括评论区</p>
-							`,
+											innerHTML: /*html*/ `
+											<p class="pops-panel-item-left-main-text">视频背景颜色</p>
+											<p class="pops-panel-item-left-desc-text">自定义视频背景颜色，包括评论区</p>
+											`,
 										});
 										let $right = DOMUtils.createElement("div", {
 											className: "pops-panel-item-right",
-											innerHTML: `
-						    <input type="color" class="pops-color-choose" />
-						    `,
+											innerHTML: /*html*/ `
+											<input type="color" class="pops-color-choose" />
+											`,
 										});
 										let $color =
 											$right.querySelector<HTMLInputElement>(
@@ -91,11 +91,11 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 											["input", "propertychange"],
 											(event) => {
 												log.info("选择颜色：" + $color.value);
-												$style.innerHTML = `
-							#sliderVideo > div{
-								background: ${$color.value};
-							}
-							`;
+												$style.innerHTML = /*css*/ `
+												#sliderVideo > div{
+													background: ${$color.value};
+												}
+												`;
 												PopsPanel.setValue(
 													"dy-video-changeBackgroundColor",
 													$color.value
