@@ -2386,16 +2386,6 @@ match-attr##srcid##sp_purc_atom
       }
     ]
   };
-  const PanelJingYanSettingUI = {
-    id: "baidu-panel-config-jingyan",
-    title: "经验",
-    headerTitle: "百度经验<br />jingyan.baidu.com",
-    isDefault() {
-      return BaiduRouter.isJingYan();
-    },
-    scrollToDefaultView: true,
-    forms: []
-  };
   const PanelBaiKeSettingUI = {
     id: "baidu-panel-config-baike",
     title: "百科",
@@ -2620,16 +2610,6 @@ match-attr##srcid##sp_purc_atom
       }
     ]
   };
-  const PanelImageSettingUI = {
-    id: "baidu-panel-config-image",
-    title: "图片",
-    headerTitle: "百度经验<br />image.baidu.com",
-    isDefault() {
-      return BaiduRouter.isJingYan();
-    },
-    scrollToDefaultView: true,
-    forms: []
-  };
   const PanelMapSettingUI = {
     id: "baidu-panel-config-map",
     title: "地图",
@@ -2654,16 +2634,6 @@ match-attr##srcid##sp_purc_atom
       }
     ]
   };
-  const PanelXueSettingUI = {
-    id: "baidu-panel-config-xue",
-    title: "知了好学",
-    headerTitle: "知了好学<br />xue.baidu.com",
-    isDefault() {
-      return BaiduRouter.isJingYan();
-    },
-    scrollToDefaultView: true,
-    forms: []
-  };
   const PanelAiQiChaSettingUI = {
     id: "baidu-panel-config-aiqicha",
     title: "爱企查",
@@ -2686,16 +2656,6 @@ match-attr##srcid##sp_purc_atom
         ]
       }
     ]
-  };
-  const PanelPosSettingUI = {
-    id: "baidu-panel-config-pos",
-    title: "网盟",
-    headerTitle: "百度网盟推广<br />pos.baidu.com",
-    isDefault() {
-      return BaiduRouter.isPos();
-    },
-    scrollToDefaultView: true,
-    forms: []
   };
   const PanelHaoKanSettingUI = {
     id: "baidu-panel-config-haokan",
@@ -2793,16 +2753,6 @@ match-attr##srcid##sp_purc_atom
         ]
       }
     ]
-  };
-  const PanelPanSettingUI = {
-    id: "baidu-panel-config-pan",
-    title: "网盘",
-    headerTitle: "百度网盘<br />pan.baidu.com",
-    isDefault() {
-      return BaiduRouter.isPan();
-    },
-    scrollToDefaultView: true,
-    forms: []
   };
   const PanelYiYanSettingUI = {
     id: "baidu-panel-config-yiyan",
@@ -4230,18 +4180,18 @@ match-attr##srcid##sp_purc_atom
         PanelBaiJiaHaoSettingUI,
         PanelTieBaSettingUI,
         PanelWenKuSettingUI,
-        PanelJingYanSettingUI,
+        // PanelJingYanSettingUI,
         PanelBaiKeSettingUI,
         PanelZhiDaoSettingUI,
         PanelFanYiSettingUI,
-        PanelImageSettingUI,
+        // PanelImageSettingUI,
         PanelMapSettingUI,
-        PanelXueSettingUI,
+        // PanelXueSettingUI,
         PanelAiQiChaSettingUI,
-        PanelPosSettingUI,
+        // PanelPosSettingUI,
         PanelHaoKanSettingUI,
         PanelGraphSettingUI,
-        PanelPanSettingUI,
+        // PanelPanSettingUI,
         PanelYiYanSettingUI,
         PanelChatSettingUI,
         PanelEasyLearnSettingUI,
