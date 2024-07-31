@@ -11,10 +11,10 @@ const BaiduHeadlth = {
 		addStyle(SearchHealthShieldCSS);
 		log.info("插入CSS规则");
 		PopsPanel.execMenuOnce("baidu_search_headlth_shield_other_info", () => {
-			this.shieldOtherInfo();
+			return this.shieldOtherInfo();
 		});
 		PopsPanel.execMenuOnce("baidu_search_headlth_shield_bottom_toolbar", () => {
-			this.shieldServiceButtonsRow();
+			return this.shieldServiceButtonsRow();
 		});
 	},
 	/**
@@ -23,7 +23,9 @@ const BaiduHeadlth = {
 	shieldOtherInfo() {
 		log.info("【屏蔽】底部其它信息");
 		return CommonUtils.addBlockCSS(
-			'article[class] > div[class^="index_container"]'
+			'article[class] > div[class^="index_container"]',
+			// 2024.7.31 https://m.baidu.com/bh/m/detail/ar_5737243699133678027
+			'#main > div[class^="index_container"]'
 		);
 	},
 	/**
@@ -32,7 +34,9 @@ const BaiduHeadlth = {
 	shieldServiceButtonsRow() {
 		log.info("【屏蔽】底部工具栏");
 		return CommonUtils.addBlockCSS(
-			'article[class] > div[class^="index_healthServiceButtonsRow"]'
+			'article[class] > div[class^="index_healthServiceButtonsRow"]',
+			// 2024.7.31 https://m.baidu.com/bh/m/detail/ar_5737243699133678027
+			'#main > div[class^="index_interactWrap"]'
 		);
 	},
 };

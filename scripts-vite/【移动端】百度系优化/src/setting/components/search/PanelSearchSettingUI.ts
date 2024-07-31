@@ -42,6 +42,7 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 				{
 					text: "百度健康",
 					type: "deepMenu",
+					headerTitle: "百度健康（/bh）",
 					forms: [
 						{
 							text: "百度健康(快速问医生)",
