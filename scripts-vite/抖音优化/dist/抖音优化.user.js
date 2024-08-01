@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.31
+// @version      2024.8.1
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -2772,32 +2772,63 @@
         "click",
         'div[data-e2e="video-share-container"] div[data-inuser="false"] button + div',
         function(event) {
-          var _a2;
+          var _a2, _b;
           let clickElement = event.target;
           let rectFiber = (_a2 = utils.getReactObj(
             clickElement.parentElement
           )) == null ? void 0 : _a2.reactFiber;
           if (!rectFiber) {
+            log.error("获取rectFiber属性失败");
             Qmsg.error("获取rectFiber属性失败");
             return;
           }
           try {
-            let playTotalAddr = [];
-            let playAddr = rectFiber.return.memoizedProps.awemeInfo.video.playAddr;
-            let playAddrH265 = rectFiber.return.memoizedProps.awemeInfo.video.playAddrH265;
+            let awemeInfo = rectFiber.return.memoizedProps.awemeInfo;
+            if (!awemeInfo) {
+              log.error("获取awemeInfo属性失败");
+              Qmsg.error("获取awemeInfo属性失败");
+              return;
+            }
+            let videoDownloadUrlList = [];
+            let playAddr = awemeInfo.video.playAddr;
+            let playAddrH265 = awemeInfo.video.playAddrH265;
+            let download = (_b = awemeInfo == null ? void 0 : awemeInfo.download) == null ? void 0 : _b.urlList;
             if (playAddr != null && Array.isArray(playAddr)) {
-              playTotalAddr = playTotalAddr.concat(playAddr);
+              videoDownloadUrlList = videoDownloadUrlList.concat(
+                playAddr.map((item) => item.src)
+              );
             }
             if (playAddrH265 != null && Array.isArray(playAddrH265)) {
-              playTotalAddr = playTotalAddr.concat(playAddrH265);
+              videoDownloadUrlList = videoDownloadUrlList.concat(
+                playAddrH265.map((item) => item.src)
+              );
             }
-            if (!playTotalAddr.length) {
+            if (download != null && Array.isArray(download)) {
+              videoDownloadUrlList = videoDownloadUrlList.concat(download);
+            }
+            if (!videoDownloadUrlList.length) {
+              log.error("未获取到视频的有效链接信息");
               Qmsg.error("未获取到视频的有效链接信息");
               return;
             }
-            let videoInfo = playTotalAddr.map((item) => item.src);
-            showParseInfoDialog(videoInfo);
+            let uniqueVideoDownloadUrlList = [...new Set(videoDownloadUrlList)];
+            if (uniqueVideoDownloadUrlList.length != videoDownloadUrlList.length) {
+              log.info("去重前视频链接数量: " + videoDownloadUrlList.length);
+              log.info(
+                "去重后视频链接数量: " + uniqueVideoDownloadUrlList.length
+              );
+            }
+            uniqueVideoDownloadUrlList = uniqueVideoDownloadUrlList.map(
+              (item) => {
+                if (item.startsWith("http:")) {
+                  item = item.replace("http:", "");
+                }
+                return item;
+              }
+            );
+            showParseInfoDialog(uniqueVideoDownloadUrlList);
           } catch (error) {
+            log.error(["解析视频失败", error]);
             Qmsg.error("解析视频失败");
           }
         },

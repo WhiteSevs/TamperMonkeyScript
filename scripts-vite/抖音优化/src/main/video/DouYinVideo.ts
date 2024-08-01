@@ -338,6 +338,10 @@ export const DouYinVideo = {
 	 */
 	parseVideo() {
 		log.info("让下载按钮变成解析视频");
+		/**
+		 * 显示弹窗
+		 * @param srcList 资源列表
+		 */
 		function showParseInfoDialog(srcList: string[]) {
 			let contentHTML = "";
 			srcList.forEach((url) => {
@@ -391,28 +395,67 @@ export const DouYinVideo = {
 					clickElement.parentElement as HTMLElement
 				)?.reactFiber;
 				if (!rectFiber) {
+					log.error("获取rectFiber属性失败");
 					Qmsg.error("获取rectFiber属性失败");
 					return;
 				}
 				try {
-					let playTotalAddr: { src: string }[] = [];
-					let playAddr =
-						rectFiber.return.memoizedProps.awemeInfo.video.playAddr;
-					let playAddrH265 =
-						rectFiber.return.memoizedProps.awemeInfo.video.playAddrH265;
+					let awemeInfo = rectFiber.return.memoizedProps.awemeInfo;
+					if (!awemeInfo) {
+						log.error("获取awemeInfo属性失败");
+						Qmsg.error("获取awemeInfo属性失败");
+						return;
+					}
+					// 全部的下载地址
+					let videoDownloadUrlList: string[] = [];
+					// 播放地址
+					let playAddr = awemeInfo.video.playAddr as { src: string }[] | null;
+					// 播放地址
+					let playAddrH265 = awemeInfo.video.playAddrH265 as
+						| { src: string }[]
+						| null;
+					// 本身存在的下载地址
+					let download = awemeInfo?.download?.urlList as string[] | null;
 					if (playAddr != null && Array.isArray(playAddr)) {
-						playTotalAddr = playTotalAddr.concat(playAddr);
+						videoDownloadUrlList = videoDownloadUrlList.concat(
+							playAddr.map((item) => item.src)
+						);
 					}
 					if (playAddrH265 != null && Array.isArray(playAddrH265)) {
-						playTotalAddr = playTotalAddr.concat(playAddrH265);
+						videoDownloadUrlList = videoDownloadUrlList.concat(
+							playAddrH265.map((item) => item.src)
+						);
 					}
-					if (!playTotalAddr.length) {
+					if (download != null && Array.isArray(download)) {
+						videoDownloadUrlList = videoDownloadUrlList.concat(download);
+					}
+					if (!videoDownloadUrlList.length) {
+						log.error("未获取到视频的有效链接信息");
 						Qmsg.error("未获取到视频的有效链接信息");
 						return;
 					}
-					let videoInfo = playTotalAddr.map((item) => item.src);
-					showParseInfoDialog(videoInfo);
+					// 去重
+					let uniqueVideoDownloadUrlList = [...new Set(videoDownloadUrlList)];
+					if (
+						uniqueVideoDownloadUrlList.length != videoDownloadUrlList.length
+					) {
+						log.info("去重前视频链接数量: " + videoDownloadUrlList.length);
+						log.info(
+							"去重后视频链接数量: " + uniqueVideoDownloadUrlList.length
+						);
+					}
+					// 处理一下http的protocol，如果是http的话，点击会跳转到播放而不是下载
+					uniqueVideoDownloadUrlList = uniqueVideoDownloadUrlList.map(
+						(item) => {
+							if (item.startsWith("http:")) {
+								item = item.replace("http:", "");
+							}
+							return item;
+						}
+					);
+					showParseInfoDialog(uniqueVideoDownloadUrlList);
 				} catch (error) {
+					log.error(["解析视频失败", error]);
 					Qmsg.error("解析视频失败");
 				}
 			},
