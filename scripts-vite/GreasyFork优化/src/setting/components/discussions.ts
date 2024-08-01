@@ -7,7 +7,7 @@ import { UIInput } from "../common-components/ui-input";
 import { GreasyforkDiscussionsFilter } from "@/main/navigator/discussions/GreasyforkDiscussionsFilter";
 import { text } from "stream/consumers";
 
-const SettingUIDiscuessions: PopsPanelContentConfig = {
+export const SettingUIDiscuessions: PopsPanelContentConfig = {
 	id: "greasy-fork-panel-config-discussions",
 	title: i18next.t("论坛"),
 	forms: [
@@ -148,5 +148,3 @@ const SettingUIDiscuessions: PopsPanelContentConfig = {
 		},
 	],
 };
-
-export { SettingUIDiscuessions };

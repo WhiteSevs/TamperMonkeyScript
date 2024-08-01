@@ -75,10 +75,12 @@ export default defineConfig({
 			},
 			clientAlias: "ViteGM",
 			server: {
-				mountGmApi: false,
+				mountGmApi: true,
 				open: false,
 			},
 			build: {
+				metaFileName: true,
+				metaLocalFileName: true,
 				autoGrant: true,
 				fileName: FILE_NAME,
 				externalGlobals: {

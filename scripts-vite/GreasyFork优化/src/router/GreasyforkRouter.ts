@@ -18,9 +18,9 @@ const GreasyforkRouter = {
 		return window.location.pathname.endsWith("/versions");
 	},
 	/**
-	 * 用户主页
+	 * 用户
 	 */
-	isUserHome() {
+	isUsers() {
 		return window.location.pathname.match(/\/.+\/users\/.+/gi);
 	},
 	/**
@@ -52,6 +52,14 @@ const GreasyforkRouter = {
 	 */
 	isDiscuessions() {
 		return window.location.pathname.endsWith("/discussions");
+	},
+	/**
+	 * 私聊用户页面
+	 */
+	isConversations() {
+		return (
+			this.isUsers() && window.location.pathname.includes("/conversations")
+		);
 	},
 };
 

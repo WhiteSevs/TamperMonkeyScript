@@ -1,0 +1,38 @@
+section.text-content {
+	/*height: calc(100vh - 100px);*/
+	/*overflow-y: auto;
+	overflow-x: hidden;*/
+	background: #eaf0ff;
+}
+
+.comment .user-content {
+	border: 1px solid transparent;
+	background: #fff;
+	max-width: 70%;
+	border-radius: 10px;
+	width: fit-content;
+}
+
+.comment .comment-meta-spacer {
+	flex: unset;
+	margin-left: 15px;
+}
+.comment:not(:has(.report-link)) .comment-meta-spacer {
+	flex: unset;
+	margin-left: unset;
+	margin-right: 10px;
+}
+.comment:not(:has(.report-link)) {
+	display: flex;
+	align-items: flex-end;
+	flex-direction: column;
+}
+
+.comment:not(:has(.report-link)) .comment-meta {
+	display: flex;
+	flex-direction: row-reverse;
+}
+.comment:not(:has(.report-link)) .comment-meta-item {
+	margin-left: 0px;
+	margin-right: 15px;
+}

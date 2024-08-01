@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.7.28
+// @version            2024.8.1
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -265,7 +265,10 @@
     清空快捷键: "清空快捷键",
     "请按下快捷键...": "请按下快捷键...",
     成功录入: "成功录入",
-    "快捷键 {{key}} 已被 {{isUsedKey}} 占用": "快捷键 {{key}} 已被 {{isUsedKey}} 占用"
+    "快捷键 {{key}} 已被 {{isUsedKey}} 占用": "快捷键 {{key}} 已被 {{isUsedKey}} 占用",
+    私聊: "私聊",
+    美化私聊页面: "美化私聊页面",
+    美化为左右对话模式: "美化为左右对话模式"
   };
   const en_US_language = {
     GreasyFork优化: "GreasyFork Optimization",
@@ -482,7 +485,10 @@
     清空快捷键: "Clear shortcut keys",
     "请按下快捷键...": "Please press the shortcut key...",
     成功录入: "Successful entry",
-    "快捷键 {{key}} 已被 {{isUsedKey}} 占用": "The shortcut key {{key}} is already used by {{isUsedKey}}"
+    "快捷键 {{key}} 已被 {{isUsedKey}} 占用": "The shortcut key {{key}} is already used by {{isUsedKey}}",
+    私聊: "Private Chat",
+    美化私聊页面: "Beautify the private chat page",
+    美化为左右对话模式: "Beautify as a left-right dialogue mode"
   };
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
@@ -972,9 +978,9 @@
       return window.location.pathname.endsWith("/versions");
     },
     /**
-     * 用户主页
+     * 用户
      */
-    isUserHome() {
+    isUsers() {
       return window.location.pathname.match(/\/.+\/users\/.+/gi);
     },
     /**
@@ -1006,6 +1012,12 @@
      */
     isDiscuessions() {
       return window.location.pathname.endsWith("/discussions");
+    },
+    /**
+     * 私聊用户页面
+     */
+    isConversations() {
+      return this.isUsers() && window.location.pathname.includes("/conversations");
     }
   };
   const GreasyforkMenu = {
@@ -1112,7 +1124,7 @@
     handleLocalGotoCallBack() {
       if (PopsPanel.getValue("goto_updateSettingsAndSynchronize_scriptList")) {
         PopsPanel.deleteValue("goto_updateSettingsAndSynchronize_scriptList");
-        if (!GreasyforkRouter.isUserHome()) {
+        if (!GreasyforkRouter.isUsers()) {
           PopsPanel.setValue(
             "goto_updateSettingsAndSynchronize_scriptList",
             true
@@ -1138,7 +1150,7 @@
         PopsPanel.deleteValue(
           "goto_updateSettingsAndSynchronize_unlistedScriptList"
         );
-        if (!GreasyforkRouter.isUserHome()) {
+        if (!GreasyforkRouter.isUsers()) {
           PopsPanel.setValue(
             "goto_updateSettingsAndSynchronize_unlistedScriptList",
             true
@@ -1164,7 +1176,7 @@
         PopsPanel.deleteValue(
           "goto_updateSettingsAndSynchronize_libraryScriptList"
         );
-        if (!GreasyforkRouter.isUserHome()) {
+        if (!GreasyforkRouter.isUsers()) {
           PopsPanel.setValue(
             "goto_updateSettingsAndSynchronize_libraryScriptList",
             true
@@ -1897,7 +1909,7 @@
                     false,
                     "primary",
                     (event) => {
-                      if (!GreasyforkRouter.isUserHome()) {
+                      if (!GreasyforkRouter.isUsers()) {
                         PopsPanel.setValue(
                           "goto_updateSettingsAndSynchronize_scriptList",
                           true
@@ -1930,7 +1942,7 @@
                     false,
                     "primary",
                     (event) => {
-                      if (!GreasyforkRouter.isUserHome()) {
+                      if (!GreasyforkRouter.isUsers()) {
                         PopsPanel.setValue(
                           "goto_updateSettingsAndSynchronize_unlistedScriptList",
                           true
@@ -1963,7 +1975,7 @@
                     false,
                     "primary",
                     (event) => {
-                      if (!GreasyforkRouter.isUserHome()) {
+                      if (!GreasyforkRouter.isUsers()) {
                         PopsPanel.setValue(
                           "goto_updateSettingsAndSynchronize_libraryScriptList",
                           true
@@ -3107,7 +3119,7 @@
     beautifyCenterContent() {
       log.info("美化脚本列表");
       let result = [];
-      result.push(_GM_addStyle(beautifyCenterContentCSS));
+      result.push(addStyle(beautifyCenterContentCSS));
       DOMUtils.ready(async () => {
         let allScriptsList = GreasyforkScriptsFilter.getElementList();
         allScriptsList.forEach(($scriptList) => {
@@ -4276,6 +4288,25 @@
                 ]
               }
             ]
+          },
+          {
+            text: i18next.t("美化"),
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    i18next.t("美化私聊页面"),
+                    "conversations-beautifyDialogBox",
+                    true,
+                    void 0,
+                    i18next.t("美化为左右对话模式")
+                  )
+                ]
+              }
+            ]
           }
         ]
       }
@@ -5176,6 +5207,22 @@
       });
     }
   };
+  const beautifyContentCSS = "section.text-content {\r\n	/*height: calc(100vh - 100px);*/\r\n	/*overflow-y: auto;\r\n	overflow-x: hidden;*/\r\n	background: #eaf0ff;\r\n}\r\n\r\n.comment .user-content {\r\n	border: 1px solid transparent;\r\n	background: #fff;\r\n	max-width: 70%;\r\n	border-radius: 10px;\r\n	width: fit-content;\r\n}\r\n\r\n.comment .comment-meta-spacer {\r\n	flex: unset;\r\n	margin-left: 15px;\r\n}\r\n.comment:not(:has(.report-link)) .comment-meta-spacer {\r\n	flex: unset;\r\n	margin-left: unset;\r\n	margin-right: 10px;\r\n}\r\n.comment:not(:has(.report-link)) {\r\n	display: flex;\r\n	align-items: flex-end;\r\n	flex-direction: column;\r\n}\r\n\r\n.comment:not(:has(.report-link)) .comment-meta {\r\n	display: flex;\r\n	flex-direction: row-reverse;\r\n}\r\n.comment:not(:has(.report-link)) .comment-meta-item {\r\n	margin-left: 0px;\r\n	margin-right: 15px;\r\n}";
+  const GreasyforkConversations = {
+    init() {
+      PopsPanel.execMenuOnce("conversations-beautifyDialogBox", () => {
+        return this.beautifyDialogBox();
+      });
+    },
+    /**
+     * 美化对话框
+     */
+    beautifyDialogBox() {
+      log.info("美化对话框");
+      let result = [];
+      result.push(addStyle(beautifyContentCSS));
+    }
+  };
   const Greasyfork = {
     init() {
       PopsPanel.execMenu("checkPage", () => {
@@ -5192,8 +5239,11 @@
       if (GreasyforkRouter.isDiscuessions()) {
         GreasyforkForum.init();
       }
-      if (GreasyforkRouter.isUserHome()) {
+      if (GreasyforkRouter.isUsers()) {
         GreasyforkUsers.init();
+        if (GreasyforkRouter.isConversations()) {
+          GreasyforkConversations.init();
+        }
       }
       PopsPanel.execMenuOnce("scripts-addOperationPanelBtnWithNavigator", () => {
         this.addOperationPanelBtnWithNavigator();

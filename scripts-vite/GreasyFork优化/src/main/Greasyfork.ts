@@ -22,6 +22,7 @@ import { GreasyforkScriptsList } from "./navigator/scripts/GreasyforkScriptsList
 import { CommonUtils } from "@/utils/CommonUtils";
 import { GreasyforkUsers } from "./navigator/users/GreasyforkUsers";
 import { GreasyforkShortCut } from "./GreasyforkShortCut";
+import { GreasyforkConversations } from "./navigator/users/conversations/GreasyforkConversations";
 
 const Greasyfork = {
 	init() {
@@ -43,8 +44,11 @@ const Greasyfork = {
 		if (GreasyforkRouter.isDiscuessions()) {
 			GreasyforkDiscussions.init();
 		}
-		if (GreasyforkRouter.isUserHome()) {
+		if (GreasyforkRouter.isUsers()) {
 			GreasyforkUsers.init();
+			if (GreasyforkRouter.isConversations()) {
+				GreasyforkConversations.init();
+			}
 		}
 		PopsPanel.execMenuOnce("scripts-addOperationPanelBtnWithNavigator", () => {
 			this.addOperationPanelBtnWithNavigator();

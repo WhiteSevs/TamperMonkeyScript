@@ -1,4 +1,4 @@
-import { httpx, log, pops, utils } from "@/env";
+import { addStyle, httpx, log, pops, utils } from "@/env";
 import {
 	GreasyforkScriptsFilter,
 	ScriptFilterRule,
@@ -81,7 +81,7 @@ export const GreasyforkScriptsList = {
 	beautifyCenterContent() {
 		log.info("美化脚本列表");
 		let result = [];
-		result.push(GM_addStyle(beautifyCenterContentCSS));
+		result.push(addStyle(beautifyCenterContentCSS));
 		DOMUtils.ready(async () => {
 			let allScriptsList = GreasyforkScriptsFilter.getElementList();
 

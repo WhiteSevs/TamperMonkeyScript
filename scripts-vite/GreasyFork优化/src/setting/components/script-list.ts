@@ -3,7 +3,7 @@ import { PopsPanelUISetting } from "@/main/ui-setting/PopsPanelUISetting";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import i18next from "i18next";
 
-const SettingUIScriptList: PopsPanelContentConfig = {
+export const SettingUIScriptList: PopsPanelContentConfig = {
 	id: "greasy-fork-panel-config-script-list",
 	title: i18next.t("脚本列表"),
 	callback(event, rightHeaderElement, rightContainerElement) {
@@ -16,5 +16,3 @@ const SettingUIScriptList: PopsPanelContentConfig = {
 	},
 	forms: [],
 };
-
-export { SettingUIScriptList };

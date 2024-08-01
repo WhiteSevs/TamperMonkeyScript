@@ -272,4 +272,7 @@ export const en_US_language = {
 	成功录入: "Successful entry",
 	"快捷键 {{key}} 已被 {{isUsedKey}} 占用":
 		"The shortcut key {{key}} is already used by {{isUsedKey}}",
+	私聊: "Private Chat",
+	美化私聊页面: "Beautify the private chat page",
+	美化为左右对话模式: "Beautify as a left-right dialogue mode",
 };

@@ -14,7 +14,7 @@ import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components
 import { UIButtonShortCut } from "../common-components/ui-button-shortcut";
 import { GreasyforkShortCut } from "@/main/GreasyforkShortCut";
 
-const SettingUIGeneral: PopsPanelContentConfig = {
+export const SettingUIGeneral: PopsPanelContentConfig = {
 	id: "greasy-fork-panel-config-account",
 	title: i18next.t("通用"),
 	forms: [
@@ -337,7 +337,7 @@ const SettingUIGeneral: PopsPanelContentConfig = {
 									false,
 									"primary",
 									(event) => {
-										if (!GreasyforkRouter.isUserHome()) {
+										if (!GreasyforkRouter.isUsers()) {
 											PopsPanel.setValue(
 												"goto_updateSettingsAndSynchronize_scriptList",
 												true
@@ -373,7 +373,7 @@ const SettingUIGeneral: PopsPanelContentConfig = {
 									false,
 									"primary",
 									(event) => {
-										if (!GreasyforkRouter.isUserHome()) {
+										if (!GreasyforkRouter.isUsers()) {
 											PopsPanel.setValue(
 												"goto_updateSettingsAndSynchronize_unlistedScriptList",
 												true
@@ -409,7 +409,7 @@ const SettingUIGeneral: PopsPanelContentConfig = {
 									false,
 									"primary",
 									(event) => {
-										if (!GreasyforkRouter.isUserHome()) {
+										if (!GreasyforkRouter.isUsers()) {
 											PopsPanel.setValue(
 												"goto_updateSettingsAndSynchronize_libraryScriptList",
 												true
@@ -513,5 +513,3 @@ const SettingUIGeneral: PopsPanelContentConfig = {
 		},
 	],
 };
-
-export { SettingUIGeneral };

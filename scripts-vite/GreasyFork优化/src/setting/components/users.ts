@@ -29,6 +29,25 @@ export const SettingUIUsers: PopsPanelContentConfig = {
 						},
 					],
 				},
+				{
+					text: i18next.t("美化"),
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									i18next.t("美化私聊页面"),
+									"conversations-beautifyDialogBox",
+									true,
+									void 0,
+									i18next.t("美化为左右对话模式")
+								),
+							],
+						},
+					],
+				},
 			],
 		},
 	],

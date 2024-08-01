@@ -109,7 +109,7 @@ export const GreasyforkMenu = {
 	handleLocalGotoCallBack() {
 		if (PopsPanel.getValue("goto_updateSettingsAndSynchronize_scriptList")) {
 			PopsPanel.deleteValue("goto_updateSettingsAndSynchronize_scriptList");
-			if (!GreasyforkRouter.isUserHome()) {
+			if (!GreasyforkRouter.isUsers()) {
 				/* 当前不在用户主页 */
 				PopsPanel.setValue(
 					"goto_updateSettingsAndSynchronize_scriptList",
@@ -140,7 +140,7 @@ export const GreasyforkMenu = {
 			PopsPanel.deleteValue(
 				"goto_updateSettingsAndSynchronize_unlistedScriptList"
 			);
-			if (!GreasyforkRouter.isUserHome()) {
+			if (!GreasyforkRouter.isUsers()) {
 				/* 当前不在用户主页 */
 				PopsPanel.setValue(
 					"goto_updateSettingsAndSynchronize_unlistedScriptList",
@@ -171,7 +171,7 @@ export const GreasyforkMenu = {
 			PopsPanel.deleteValue(
 				"goto_updateSettingsAndSynchronize_libraryScriptList"
 			);
-			if (!GreasyforkRouter.isUserHome()) {
+			if (!GreasyforkRouter.isUsers()) {
 				/* 当前不在用户主页 */
 				PopsPanel.setValue(
 					"goto_updateSettingsAndSynchronize_libraryScriptList",
