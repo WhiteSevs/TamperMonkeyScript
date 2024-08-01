@@ -1,7 +1,7 @@
 import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { ShieldHeader } from "./UIFrameShield/FrameNavigator";
-import { ShieldSearch } from "./UIFrameShield/FrameSearch";
+import { BlockTopNavigator } from "./block-frame/blockTopNavigator";
+import { BlockSearchFrame } from "./block-frame/blockSearchFrame";
 import { DouYinHook } from "../hook/DouYinHook";
 import { DouYinAccount } from "../account/DouYinAccount";
 import { DouYinVideo } from "./video/DouYinVideo";
@@ -9,6 +9,7 @@ import { DouYinRouter } from "@/router/DouYinRouter";
 import { DouYinLive } from "./Live/DouYinLive";
 import { DouYinRedirect } from "./DouYinRedirect";
 import { DouYinSearch } from "./search/DouYinSearch";
+import { BlockLeftNavigator } from "./block-frame/blockLeftNavigator";
 
 export const DouYin = {
 	init() {
@@ -28,8 +29,9 @@ export const DouYin = {
 		PopsPanel.execMenu("dy-apple-removeMetaAppleItunesApp", () => {
 			this.removeMetaAppleItunesApp();
 		});
-		ShieldHeader.init();
-		ShieldSearch.init();
+		BlockLeftNavigator.init();
+		BlockTopNavigator.init();
+		BlockSearchFrame.init();
 		if (DouYinRouter.isLive()) {
 			log.info("Router: 直播");
 			DouYinLive.init();

@@ -27,6 +27,27 @@ const PanelSearchConfig: PopsPanelContentConfig = {
 									void 0,
 									"禁止点击视频区域时会触发自动进入全屏功能"
 								),
+								UISelect(
+									"自动进入网页全屏",
+									"search-autoEnterElementFullScreen",
+									-1,
+									[
+										{
+											text: "跟随主设置",
+											value: -1,
+										},
+										{
+											text: "是",
+											value: 1,
+										},
+										{
+											text: "否",
+											value: 0,
+										},
+									],
+									void 0,
+									"网页加载完毕后自动点击网页全屏按钮进入全屏"
+								),
 							],
 						},
 					],

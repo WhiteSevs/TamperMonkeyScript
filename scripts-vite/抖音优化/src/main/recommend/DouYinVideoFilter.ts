@@ -44,13 +44,19 @@ export const DouYinVideoFilter = {
 		this.parseRule();
 		log.info(["当前自定义视频拦截规则: ", this.$data.rule.getItems()]);
 		let firstLoadEndVideoId: any = null;
+		let errorFind = 0;
 		DouYinElement.watchVideDataListChange(
-			utils.debounce((osElement) => {
+			utils.debounce((osElement, observer) => {
 				/* 视频列表元素 */
 				let $videoList = document.querySelector<HTMLDivElement>(
 					'#slidelist div[data-e2e="slideList"]'
 				);
 				if (!$videoList) {
+					errorFind++;
+					if (errorFind >= 50) {
+						observer.disconnect();
+						log.error("未获取到视频列表元素次数超过50次, 停止监听");
+					}
 					log.error("未获取到视频列表元素");
 					return;
 				}

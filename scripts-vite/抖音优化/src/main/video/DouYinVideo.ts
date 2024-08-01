@@ -10,7 +10,7 @@ import { DouYin } from "../DouYin";
 import { DouYinVideoHideElement } from "./DouYinVideoHideElement";
 import { DouYinVideoShortcut } from "./DouYinVideoShortCut";
 import { DouYinVideoComment } from "./DouYinVideoComment";
-import { DouYinVideoFilter } from "./DouYinVideoFilter";
+import { DouYinVideoFilter } from "../recommend/DouYinVideoFilter";
 
 export type VideoRate = "0.75" | "1" | "1.25" | "1.5" | "1.75" | "2" | "3";
 
@@ -19,9 +19,11 @@ export const DouYinVideo = {
 		DouYinVideoHideElement.init();
 		DouYinVideoShortcut.init();
 		DouYinVideoComment.init();
-		PopsPanel.execMenuOnce("shieldVideo", () => {
-			DouYinVideoFilter.init();
-		});
+		if (!DouYinRouter.isSearch()) {
+			PopsPanel.execMenuOnce("shieldVideo", () => {
+				DouYinVideoFilter.init();
+			});
+		}
 		PopsPanel.execMenuOnce("changeCommentToBottom", () => {
 			DouYinVideo.changeCommentToBottom();
 		});
@@ -31,12 +33,28 @@ export const DouYinVideo = {
 		PopsPanel.execMenuOnce("parseVideo", () => {
 			DouYinVideo.parseVideo();
 		});
-		if (DouYinRouter.isSearch()) {
-		} else {
-			PopsPanel.execMenu("autoEnterElementFullScreen", () => {
+		PopsPanel.execInheritMenuOnce(
+			"autoEnterElementFullScreen",
+			"search-autoEnterElementFullScreen",
+			() => {
 				this.autoEnterElementFullScreen();
-			});
-		}
+			},
+			(mainValue, childValue) => {
+				if (DouYinRouter.isSearch()) {
+					if (mainValue) {
+						if (childValue == 1) {
+							// 开
+							return true;
+						} else if (childValue == 0) {
+							// 关
+							return false;
+						} else {
+							// 默认
+						}
+					}
+				}
+			}
+		);
 		PopsPanel.execMenuOnce("dy-video-doubleClickEnterElementFullScreen", () => {
 			this.doubleClickEnterElementFullScreen();
 		});

@@ -1,0 +1,78 @@
+import { DOMUtils, utils } from "@/env";
+import { DouYinVideoFilter } from "@/main/recommend/DouYinVideoFilter";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { UISwitch } from "../common-components/ui-switch";
+
+export const PanelRecommendVideoConfig: PopsPanelContentConfig = {
+	id: "panel-config-recommend-video",
+	title: "推荐",
+	forms: [
+		{
+			type: "forms",
+			text: "",
+			forms: [
+				{
+					text: "过滤-推荐视频",
+					type: "deepMenu",
+					forms: [
+						{
+							text: '<a href="https://greasyfork.org/zh-CN/scripts/494643-%E6%8A%96%E9%9F%B3%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
+							type: "forms",
+							forms: [
+								UISwitch(
+									"启用",
+									"shieldVideo",
+									true,
+									void 0,
+									"开启后可启用下面的屏蔽功能"
+								),
+								UISwitch(
+									"【屏蔽】直播",
+									"shieldVideo-live",
+									true,
+									void 0,
+									"过滤掉直播"
+								),
+								UISwitch(
+									"【屏蔽】广告",
+									"shieldVideo-ads",
+									true,
+									void 0,
+									"过滤掉广告"
+								),
+								{
+									type: "own",
+									getLiElementCallBack(liElement: HTMLLIElement) {
+										let textareaDiv = DOMUtils.createElement(
+											"div",
+											{
+												className: "pops-panel-textarea",
+												innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>`,
+											},
+											{
+												style: "width: 100%;",
+											}
+										);
+										let textarea = textareaDiv.querySelector(
+											"textarea"
+										) as HTMLTextAreaElement;
+										textarea.value = DouYinVideoFilter.get();
+										DOMUtils.on(
+											textarea,
+											["input", "propertychange"],
+											utils.debounce(function () {
+												DouYinVideoFilter.set(textarea.value);
+											}, 200)
+										);
+										liElement.appendChild(textareaDiv);
+										return liElement;
+									},
+								},
+							],
+						},
+					],
+				},
+			],
+		},
+	],
+};

@@ -198,13 +198,151 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 					],
 				},
 				{
-					text: "屏蔽-主框架",
+					text: "屏蔽-左侧导航栏",
 					type: "deepMenu",
 					forms: [
 						{
 							text: "",
 							type: "forms",
 							forms: [
+								UISwitch(
+									"【屏蔽】左侧导航栏",
+									"shieldLeftNavigator",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
+									"【屏蔽】首页",
+									"shieldLeftNavigator-tab-home",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
+									"【屏蔽】推荐",
+									"shieldLeftNavigator-tab-recommend",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
+									"【屏蔽】关注",
+									"shieldLeftNavigator-tab-follow",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
+									"【屏蔽】朋友",
+									"shieldLeftNavigator-tab-friend",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
+									"【屏蔽】我的",
+									"shieldLeftNavigator-tab-user_self",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
+									"【屏蔽】喜欢",
+									"shieldLeftNavigator-tab-user_self_like",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
+									"【屏蔽】收藏",
+									"shieldLeftNavigator-tab-user_self_collection",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
+									"【屏蔽】观看历史",
+									"shieldLeftNavigator-tab-user_self_record",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
+									"【屏蔽】看奥运",
+									"shieldLeftNavigator-tab-olympics",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
+									"【屏蔽】直播",
+									"shieldLeftNavigator-tab-live",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
+									"【屏蔽】放映厅",
+									"shieldLeftNavigator-tab-vs",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
+									"【屏蔽】知识",
+									"shieldLeftNavigator-tab-channel_300203",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
+									"【屏蔽】游戏",
+									"shieldLeftNavigator-tab-channel_300205",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
+									"【屏蔽】二次元",
+									"shieldLeftNavigator-tab-channel_300206",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
+									"【屏蔽】音乐",
+									"shieldLeftNavigator-tab-channel_300209",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
+									"【屏蔽】美食",
+									"shieldLeftNavigator-tab-channel_300204",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+							],
+						},
+					],
+				},
+				{
+					text: "屏蔽-顶部导航栏",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"【屏蔽】顶部导航栏",
+									"shieldTopNavigator",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
 								UISwitch(
 									"【屏蔽】客户端提示",
 									"shieldClientTip",
@@ -257,20 +395,6 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 								UISwitch(
 									"【屏蔽】壁纸",
 									"shieldWallpaper",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】左侧导航栏",
-									"shieldLeftNavigator",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】顶部导航栏",
-									"shieldTopNavigator",
 									false,
 									void 0,
 									"屏蔽元素"

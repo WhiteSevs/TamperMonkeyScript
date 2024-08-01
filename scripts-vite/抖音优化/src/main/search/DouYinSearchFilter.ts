@@ -1,5 +1,5 @@
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
-import { DouYinShieldTagMap } from "../video/DouYinVideoFilter";
+import { DouYinShieldTagMap } from "../recommend/DouYinVideoFilter";
 import { log, utils } from "@/env";
 import { GM_getValue, GM_setValue } from "ViteGM";
 import { DouYinElement } from "@/utils/DouYinElement";
@@ -42,7 +42,7 @@ export const DouYinSearchFilter = {
 					)
 				);
 				if (!$searchContentAreaScrollList.length) {
-					log.error("未获取到视频列表元素");
+					log.error("未获取到搜索视频列表元素");
 					return;
 				}
 

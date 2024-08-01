@@ -3,8 +3,8 @@ import { DouYinRouter } from "@/router/DouYinRouter";
 import { addStyle, log, utils } from "@/env";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 
-/** 顶部屏蔽 */
-export const ShieldHeader = {
+/** 顶部导航栏屏蔽 */
+export const BlockTopNavigator = {
 	init() {
 		PopsPanel.execMenuOnce("shieldClientTip", () => {
 			return this.shieldClientTip();
@@ -33,45 +33,77 @@ export const ShieldHeader = {
 		PopsPanel.execMenuOnce("shieldBottomQuestionButton", () => {
 			return this.shieldBottomQuestionButton();
 		});
-		let shieldLeftNavigator = PopsPanel.getValue("shieldLeftNavigator");
-		let shieldTopNavigator = PopsPanel.getValue("shieldTopNavigator");
-		if (DouYinRouter.isSearch()) {
-			let search_shieldLeftNavigator = PopsPanel.getValue(
-				"search-shieldLeftNavigator"
-			);
-			if (search_shieldLeftNavigator == 1) {
-				// 开
-				shieldLeftNavigator = true;
-			} else if (search_shieldLeftNavigator == 0) {
-				// 关
-				shieldLeftNavigator = false;
-			} else {
-				// 默认
-			}
 
-			let search_shieldTopNavigator = PopsPanel.getValue(
+		let blockNavFn = () => {
+			let shieldTopNavigator =
+				PopsPanel.getValue<boolean>("shieldTopNavigator");
+			let search_shieldTopNavigator = PopsPanel.getValue<number>(
 				"search-shieldTopNavigator"
 			);
-			if (search_shieldTopNavigator == 1) {
-				// 开
-				shieldTopNavigator = true;
-			} else if (search_shieldTopNavigator == 0) {
-				// 关
-				shieldTopNavigator = false;
-			} else {
-				// 默认|关
+			if (DouYinRouter.isSearch()) {
+				if (search_shieldTopNavigator == 1) {
+					// 开
+					shieldTopNavigator = true;
+				} else if (search_shieldTopNavigator == 0) {
+					// 关
+					shieldTopNavigator = false;
+				} else {
+					// 默认
+				}
 			}
-		}
-		if (shieldLeftNavigator) {
-			PopsPanel.onceExec("shieldLeftNavigator", () => {
-				return this.shieldLeftNavigator();
-			});
-		}
-		if (shieldTopNavigator) {
-			PopsPanel.onceExec("shieldTopNavigator", () => {
+			return shieldTopNavigator;
+		};
+		PopsPanel.execMenuOnce(
+			"shieldTopNavigator",
+			() => {
 				return this.shieldTopNavigator();
-			});
+			},
+			(): boolean => {
+				return blockNavFn();
+			},
+			() => {
+				return blockNavFn();
+			}
+		);
+		PopsPanel.execMenuOnce(
+			"search-shieldTopNavigator",
+			() => {},
+			() => {
+				return false;
+			},
+			() => {
+				PopsPanel.triggerMenuValueChange("shieldTopNavigator");
+				return false;
+			}
+		);
+	},
+	/**
+	 * 【屏蔽】顶部导航栏
+	 */
+	shieldTopNavigator() {
+		log.info("【屏蔽】顶部导航栏");
+		let result = [];
+		result.push(DouYinUtils.addBlockCSS("#douyin-header"));
+		result.push(
+			addStyle(/*css*/ `
+			/* 修复视频的高度 */
+			#douyin-right-container{
+				padding-top: 0px !important;
+			}
+		`)
+		);
+		if (DouYinRouter.isSearch()) {
+			// 搜索页面
+			result.push(
+				addStyle(/*css*/ `
+				/* 把搜索顶部的工具栏置顶 */
+				#search-content-area > div > div:nth-child(1) > div:nth-child(1){
+					top: 0;
+				}`)
+			);
 		}
+
+		return result;
 	},
 	/**
 	 * 【屏蔽】充钻石
@@ -347,50 +379,6 @@ export const ShieldHeader = {
 				)
 			);
 		}
-		return result;
-	},
-	/**
-	 * 【屏蔽】左侧导航栏
-	 */
-	shieldLeftNavigator() {
-		log.info("【屏蔽】左侧导航栏");
-		let result = [];
-		result.push(DouYinUtils.addBlockCSS("#douyin-navigation"));
-		result.push(
-			addStyle(/*css*/ `
-			/* 修复顶部导航栏的宽度 */
-			#douyin-header{
-				width: 100%;
-			}`)
-		);
-		return result;
-	},
-	/**
-	 * 【屏蔽】顶部导航栏
-	 */
-	shieldTopNavigator() {
-		log.info("【屏蔽】顶部导航栏");
-		let result = [];
-		result.push(DouYinUtils.addBlockCSS("#douyin-header"));
-		result.push(
-			addStyle(/*css*/ `
-			/* 修复视频的高度 */
-			#douyin-right-container{
-				padding-top: 0px !important;
-			}
-		`)
-		);
-		if (DouYinRouter.isSearch()) {
-			// 搜索页面
-			result.push(
-				addStyle(/*css*/ `
-				/* 把搜索顶部的工具栏置顶 */
-				#search-content-area > div > div:nth-child(1) > div:nth-child(1){
-					top: 0;
-				}`)
-			);
-		}
-
 		return result;
 	},
 	/**

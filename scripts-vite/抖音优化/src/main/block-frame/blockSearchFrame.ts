@@ -2,7 +2,7 @@ import { PopsPanel } from "@/setting/setting";
 import { addStyle, log } from "@/env";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 
-export const ShieldSearch = {
+export const BlockSearchFrame = {
 	init() {
 		PopsPanel.execMenuOnce("shieldSearch", () => {
 			return this.shieldSearch();

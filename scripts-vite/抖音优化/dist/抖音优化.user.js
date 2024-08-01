@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.1
+// @version      2024.8.1.12
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -293,13 +293,151 @@
             ]
           },
           {
-            text: "屏蔽-主框架",
+            text: "屏蔽-左侧导航栏",
             type: "deepMenu",
             forms: [
               {
                 text: "",
                 type: "forms",
                 forms: [
+                  UISwitch(
+                    "【屏蔽】左侧导航栏",
+                    "shieldLeftNavigator",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】首页",
+                    "shieldLeftNavigator-tab-home",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】推荐",
+                    "shieldLeftNavigator-tab-recommend",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】关注",
+                    "shieldLeftNavigator-tab-follow",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】朋友",
+                    "shieldLeftNavigator-tab-friend",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】我的",
+                    "shieldLeftNavigator-tab-user_self",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】喜欢",
+                    "shieldLeftNavigator-tab-user_self_like",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】收藏",
+                    "shieldLeftNavigator-tab-user_self_collection",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】观看历史",
+                    "shieldLeftNavigator-tab-user_self_record",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】看奥运",
+                    "shieldLeftNavigator-tab-olympics",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】直播",
+                    "shieldLeftNavigator-tab-live",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】放映厅",
+                    "shieldLeftNavigator-tab-vs",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】知识",
+                    "shieldLeftNavigator-tab-channel_300203",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】游戏",
+                    "shieldLeftNavigator-tab-channel_300205",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】二次元",
+                    "shieldLeftNavigator-tab-channel_300206",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】音乐",
+                    "shieldLeftNavigator-tab-channel_300209",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】美食",
+                    "shieldLeftNavigator-tab-channel_300204",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "屏蔽-顶部导航栏",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】顶部导航栏",
+                    "shieldTopNavigator",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
                   UISwitch(
                     "【屏蔽】客户端提示",
                     "shieldClientTip",
@@ -352,20 +490,6 @@
                   UISwitch(
                     "【屏蔽】壁纸",
                     "shieldWallpaper",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】左侧导航栏",
-                    "shieldLeftNavigator",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】顶部导航栏",
-                    "shieldTopNavigator",
                     false,
                     void 0,
                     "屏蔽元素"
@@ -1304,244 +1428,6 @@
       }
     ]
   };
-  const DouYinElement = {
-    /**
-     * 观察 #slidelist的加载每条视频
-     * @param callback
-     */
-    watchVideDataListChange(callback) {
-      let $os = null;
-      domUtils.ready(() => {
-        utils.waitAnyNode([
-          "#slidelist",
-          // 搜索页面的↓搜索结果列表
-          '#search-content-area ul[data-e2e="scroll-list"]'
-        ]).then(($ele) => {
-          utils.mutationObserver($ele, {
-            config: {
-              childList: true,
-              subtree: true
-            },
-            callback: () => {
-              if (!$os) {
-                $os = this.getOSElement();
-              }
-              if (!$os) {
-                log.error("watchVideDataListChange：获取osElement失败");
-                return;
-              }
-              callback($os);
-            }
-          });
-        });
-      });
-    },
-    getOSElement() {
-      return document.querySelector("#root div[class*='-os']") || document.querySelector("#douyin-right-container");
-    }
-  };
-  const DouYinVideoFilter = {
-    key: "douyin-shield-rule",
-    $data: {
-      __rule: null,
-      /**
-       * 解析出的规则
-       */
-      get rule() {
-        if (DouYinVideoFilter.$data.__rule == null) {
-          DouYinVideoFilter.$data.__rule = new utils.Dictionary();
-        }
-        return DouYinVideoFilter.$data.__rule;
-      },
-      /** 是否是首次加载视频 */
-      isFirstLoad: true
-    },
-    /**
-     * authorInfo.nickname:string    作者
-     * authorInfo.uid:string         作者id
-     * desc:string                   视频描述
-     * shareInfo.shareLinkDesc:string       xxx复制链接到抖音App的识别码
-     * shareInfo.shareUrl:string            网页直接看的视频链接
-     * textExtra[{hashtagName: ""},...]     话题
-     * videoTag[{tagName: ""},...]          视频标签
-     */
-    init() {
-      this.parseRule();
-      log.info(["当前自定义视频拦截规则: ", this.$data.rule.getItems()]);
-      let firstLoadEndVideoId = null;
-      DouYinElement.watchVideDataListChange(
-        utils.debounce((osElement) => {
-          var _a2;
-          let $videoList = document.querySelector(
-            '#slidelist div[data-e2e="slideList"]'
-          );
-          if (!$videoList) {
-            log.error("未获取到视频列表元素");
-            return;
-          }
-          let reactFiber = (_a2 = utils.getReactObj($videoList)) == null ? void 0 : _a2.reactFiber;
-          if (reactFiber == null) {
-            log.error(["元素上不存在reactFiber属性", $videoList]);
-            return;
-          }
-          let awemeInfoList = reactFiber == null ? void 0 : reactFiber.return.memoizedProps.data;
-          if (!awemeInfoList.length) {
-            return;
-          }
-          if (this.$data.isFirstLoad) {
-            let endAwemeInfo = awemeInfoList[awemeInfoList.length - 1];
-            if (firstLoadEndVideoId == null) {
-              firstLoadEndVideoId = endAwemeInfo.awemeId;
-            }
-            if (firstLoadEndVideoId === endAwemeInfo.awemeId) {
-              return;
-            }
-            this.$data.isFirstLoad = false;
-          }
-          for (let index = 0; index < awemeInfoList.length; index++) {
-            let awemeInfo = awemeInfoList[index];
-            let flag = this.checkAwemeInfo(awemeInfo);
-            if (flag) {
-              awemeInfoList.splice(index, 1);
-              index--;
-            }
-          }
-        }, 50)
-      );
-    },
-    /**
-     * 检测视频是否可以屏蔽
-     * @param awemeInfo
-     */
-    checkAwemeInfo(awemeInfo) {
-      var _a2, _b, _c, _d;
-      let videoInfoTag = this.getVideoInfoTagMap(awemeInfo);
-      let flag_blockLiveVideo = PopsPanel.getValue("shieldVideo-live");
-      let flag_blockAdsVideo = PopsPanel.getValue("shieldVideo-ads");
-      let flag = false;
-      if (!flag) {
-        if (typeof awemeInfo["cellRoom"] === "object" && flag_blockLiveVideo) {
-          log.success("过滤器-屏蔽直播: because cellRoom is not null");
-          flag = true;
-        }
-      }
-      if (!flag) {
-        if (flag_blockAdsVideo) {
-          if (awemeInfo["isAds"]) {
-            flag = true;
-            log.success("过滤器-屏蔽广告: because isAds is true");
-          } else if (typeof awemeInfo["rawAdData"] === "string" && utils.isNotNull(awemeInfo["rawAdData"])) {
-            flag = true;
-            log.success("过滤器-屏蔽广告: because rawAdData is not null");
-          } else if ((_b = (_a2 = awemeInfo["webRawData"]) == null ? void 0 : _a2["brandAd"]) == null ? void 0 : _b["is_ad"]) {
-            flag = true;
-            log.success(
-              "过滤器-屏蔽广告: because webRawData.brandAd.is_ad is true"
-            );
-          } else if ((_d = (_c = awemeInfo["webRawData"]) == null ? void 0 : _c["insertInfo"]) == null ? void 0 : _d["is_ad"]) {
-            flag = true;
-            log.success(
-              "过滤器-屏蔽广告: because webRawData.insertInfo.is_ad is true"
-            );
-          }
-        }
-      }
-      if (!flag) {
-        for (const [ruleKey, ruleValue] of this.$data.rule.entries()) {
-          if (!(ruleKey in videoInfoTag)) {
-            continue;
-          }
-          let tagValue = videoInfoTag[ruleKey];
-          if (tagValue != null) {
-            if (typeof tagValue === "string") {
-              flag = Boolean(tagValue.match(ruleValue));
-              if (flag) {
-                log.success([
-                  "过滤器-自定义屏蔽: " + ruleKey + "  " + ruleValue,
-                  videoInfoTag
-                ]);
-                break;
-              }
-            } else if (typeof tagValue === "object" && Array.isArray(tagValue)) {
-              let findValue = tagValue.find(
-                (tagValueItem) => Boolean(tagValueItem.match(ruleValue))
-              );
-              if (findValue) {
-                flag = true;
-                log.success([
-                  "过滤器-自定义屏蔽: " + ruleKey + "  " + ruleValue,
-                  videoInfoTag
-                ]);
-                break;
-              }
-            }
-          }
-        }
-      }
-      return flag;
-    },
-    /**
-     * 获取视频各个信息的字典
-     */
-    getVideoInfoTagMap(data) {
-      var _a2, _b, _c, _d, _e, _f;
-      let nickname = (_b = (_a2 = data == null ? void 0 : data["authorInfo"]) == null ? void 0 : _a2["nickname"]) == null ? void 0 : _b.toString();
-      let uid = (_d = (_c = data == null ? void 0 : data["authorInfo"]) == null ? void 0 : _c["uid"]) == null ? void 0 : _d.toString();
-      let desc = (_e = data == null ? void 0 : data["desc"]) == null ? void 0 : _e.toString();
-      let textExtra = [];
-      if (typeof (data == null ? void 0 : data["textExtra"]) === "object" && Array.isArray(data == null ? void 0 : data["textExtra"])) {
-        (_f = data == null ? void 0 : data["textExtra"]) == null ? void 0 : _f.forEach((item) => {
-          textExtra.push(item["hashtagName"]);
-        });
-      }
-      let videoTag = [];
-      if (typeof (data == null ? void 0 : data["videoTag"]) === "object" && Array.isArray(data == null ? void 0 : data["videoTag"])) {
-        data == null ? void 0 : data["videoTag"].forEach((item) => {
-          videoTag.push(item["tagName"]);
-        });
-      }
-      return {
-        nickname,
-        uid,
-        desc,
-        textExtra,
-        videoTag
-      };
-    },
-    /**
-     * 解析规则
-     */
-    parseRule() {
-      let localRule = this.get().trim();
-      let localRuleSplit = localRule.split("\n");
-      localRuleSplit.forEach((item) => {
-        if (utils.isNull(item)) {
-          return;
-        }
-        let trimItem = item.trim();
-        let itemSplit = trimItem.split("##");
-        if (itemSplit.length < 2) {
-          return;
-        }
-        let keyName = itemSplit[0];
-        itemSplit.shift();
-        let keyValue = itemSplit.join("");
-        try {
-          let regExpKeyValue = new RegExp(keyValue, "g");
-          this.$data.rule.set(keyName, regExpKeyValue);
-        } catch (error) {
-          log.error(["自定义视频过滤规则-正则解析错误：" + error]);
-          log.error("错误的规则：" + item);
-        }
-      });
-    },
-    set(value) {
-      _GM_setValue(this.key, value);
-    },
-    get() {
-      return _GM_getValue(this.key, "");
-    }
-  };
   const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack) {
     let result = {
       text,
@@ -1744,6 +1630,42 @@
       ];
     }
   };
+  const DouYinElement = {
+    /**
+     * 观察 #slidelist的加载每条视频
+     * @param callback
+     */
+    watchVideDataListChange(callback) {
+      let $os = null;
+      domUtils.ready(() => {
+        utils.waitAnyNode([
+          "#slidelist",
+          // 搜索页面的↓搜索结果列表
+          '#search-content-area ul[data-e2e="scroll-list"]'
+        ]).then(($ele) => {
+          utils.mutationObserver($ele, {
+            config: {
+              childList: true,
+              subtree: true
+            },
+            callback: (mutations, observer) => {
+              if (!$os) {
+                $os = this.getOSElement();
+              }
+              if (!$os) {
+                log.error("watchVideDataListChange：获取osElement失败");
+                return;
+              }
+              callback($os, observer);
+            }
+          });
+        });
+      });
+    },
+    getOSElement() {
+      return document.querySelector("#root div[class*='-os']") || document.querySelector("#douyin-right-container");
+    }
+  };
   const DouYinSearchFilter = {
     key: "douyin-search-shield-rule",
     $data: {
@@ -1779,7 +1701,7 @@
             )
           );
           if (!$searchContentAreaScrollList.length) {
-            log.error("未获取到视频列表元素");
+            log.error("未获取到搜索视频列表元素");
             return;
           }
           for (let index = 0; index < $searchContentAreaScrollList.length; index++) {
@@ -2398,13 +2320,223 @@
       return result;
     }
   };
+  const DouYinVideoFilter = {
+    key: "douyin-shield-rule",
+    $data: {
+      __rule: null,
+      /**
+       * 解析出的规则
+       */
+      get rule() {
+        if (DouYinVideoFilter.$data.__rule == null) {
+          DouYinVideoFilter.$data.__rule = new utils.Dictionary();
+        }
+        return DouYinVideoFilter.$data.__rule;
+      },
+      /** 是否是首次加载视频 */
+      isFirstLoad: true
+    },
+    /**
+     * authorInfo.nickname:string    作者
+     * authorInfo.uid:string         作者id
+     * desc:string                   视频描述
+     * shareInfo.shareLinkDesc:string       xxx复制链接到抖音App的识别码
+     * shareInfo.shareUrl:string            网页直接看的视频链接
+     * textExtra[{hashtagName: ""},...]     话题
+     * videoTag[{tagName: ""},...]          视频标签
+     */
+    init() {
+      this.parseRule();
+      log.info(["当前自定义视频拦截规则: ", this.$data.rule.getItems()]);
+      let firstLoadEndVideoId = null;
+      let errorFind = 0;
+      DouYinElement.watchVideDataListChange(
+        utils.debounce((osElement, observer) => {
+          var _a2;
+          let $videoList = document.querySelector(
+            '#slidelist div[data-e2e="slideList"]'
+          );
+          if (!$videoList) {
+            errorFind++;
+            if (errorFind >= 50) {
+              observer.disconnect();
+              log.error("未获取到视频列表元素次数超过50次, 停止监听");
+            }
+            log.error("未获取到视频列表元素");
+            return;
+          }
+          let reactFiber = (_a2 = utils.getReactObj($videoList)) == null ? void 0 : _a2.reactFiber;
+          if (reactFiber == null) {
+            log.error(["元素上不存在reactFiber属性", $videoList]);
+            return;
+          }
+          let awemeInfoList = reactFiber == null ? void 0 : reactFiber.return.memoizedProps.data;
+          if (!awemeInfoList.length) {
+            return;
+          }
+          if (this.$data.isFirstLoad) {
+            let endAwemeInfo = awemeInfoList[awemeInfoList.length - 1];
+            if (firstLoadEndVideoId == null) {
+              firstLoadEndVideoId = endAwemeInfo.awemeId;
+            }
+            if (firstLoadEndVideoId === endAwemeInfo.awemeId) {
+              return;
+            }
+            this.$data.isFirstLoad = false;
+          }
+          for (let index = 0; index < awemeInfoList.length; index++) {
+            let awemeInfo = awemeInfoList[index];
+            let flag = this.checkAwemeInfo(awemeInfo);
+            if (flag) {
+              awemeInfoList.splice(index, 1);
+              index--;
+            }
+          }
+        }, 50)
+      );
+    },
+    /**
+     * 检测视频是否可以屏蔽
+     * @param awemeInfo
+     */
+    checkAwemeInfo(awemeInfo) {
+      var _a2, _b, _c, _d;
+      let videoInfoTag = this.getVideoInfoTagMap(awemeInfo);
+      let flag_blockLiveVideo = PopsPanel.getValue("shieldVideo-live");
+      let flag_blockAdsVideo = PopsPanel.getValue("shieldVideo-ads");
+      let flag = false;
+      if (!flag) {
+        if (typeof awemeInfo["cellRoom"] === "object" && flag_blockLiveVideo) {
+          log.success("过滤器-屏蔽直播: because cellRoom is not null");
+          flag = true;
+        }
+      }
+      if (!flag) {
+        if (flag_blockAdsVideo) {
+          if (awemeInfo["isAds"]) {
+            flag = true;
+            log.success("过滤器-屏蔽广告: because isAds is true");
+          } else if (typeof awemeInfo["rawAdData"] === "string" && utils.isNotNull(awemeInfo["rawAdData"])) {
+            flag = true;
+            log.success("过滤器-屏蔽广告: because rawAdData is not null");
+          } else if ((_b = (_a2 = awemeInfo["webRawData"]) == null ? void 0 : _a2["brandAd"]) == null ? void 0 : _b["is_ad"]) {
+            flag = true;
+            log.success(
+              "过滤器-屏蔽广告: because webRawData.brandAd.is_ad is true"
+            );
+          } else if ((_d = (_c = awemeInfo["webRawData"]) == null ? void 0 : _c["insertInfo"]) == null ? void 0 : _d["is_ad"]) {
+            flag = true;
+            log.success(
+              "过滤器-屏蔽广告: because webRawData.insertInfo.is_ad is true"
+            );
+          }
+        }
+      }
+      if (!flag) {
+        for (const [ruleKey, ruleValue] of this.$data.rule.entries()) {
+          if (!(ruleKey in videoInfoTag)) {
+            continue;
+          }
+          let tagValue = videoInfoTag[ruleKey];
+          if (tagValue != null) {
+            if (typeof tagValue === "string") {
+              flag = Boolean(tagValue.match(ruleValue));
+              if (flag) {
+                log.success([
+                  "过滤器-自定义屏蔽: " + ruleKey + "  " + ruleValue,
+                  videoInfoTag
+                ]);
+                break;
+              }
+            } else if (typeof tagValue === "object" && Array.isArray(tagValue)) {
+              let findValue = tagValue.find(
+                (tagValueItem) => Boolean(tagValueItem.match(ruleValue))
+              );
+              if (findValue) {
+                flag = true;
+                log.success([
+                  "过滤器-自定义屏蔽: " + ruleKey + "  " + ruleValue,
+                  videoInfoTag
+                ]);
+                break;
+              }
+            }
+          }
+        }
+      }
+      return flag;
+    },
+    /**
+     * 获取视频各个信息的字典
+     */
+    getVideoInfoTagMap(data) {
+      var _a2, _b, _c, _d, _e, _f;
+      let nickname = (_b = (_a2 = data == null ? void 0 : data["authorInfo"]) == null ? void 0 : _a2["nickname"]) == null ? void 0 : _b.toString();
+      let uid = (_d = (_c = data == null ? void 0 : data["authorInfo"]) == null ? void 0 : _c["uid"]) == null ? void 0 : _d.toString();
+      let desc = (_e = data == null ? void 0 : data["desc"]) == null ? void 0 : _e.toString();
+      let textExtra = [];
+      if (typeof (data == null ? void 0 : data["textExtra"]) === "object" && Array.isArray(data == null ? void 0 : data["textExtra"])) {
+        (_f = data == null ? void 0 : data["textExtra"]) == null ? void 0 : _f.forEach((item) => {
+          textExtra.push(item["hashtagName"]);
+        });
+      }
+      let videoTag = [];
+      if (typeof (data == null ? void 0 : data["videoTag"]) === "object" && Array.isArray(data == null ? void 0 : data["videoTag"])) {
+        data == null ? void 0 : data["videoTag"].forEach((item) => {
+          videoTag.push(item["tagName"]);
+        });
+      }
+      return {
+        nickname,
+        uid,
+        desc,
+        textExtra,
+        videoTag
+      };
+    },
+    /**
+     * 解析规则
+     */
+    parseRule() {
+      let localRule = this.get().trim();
+      let localRuleSplit = localRule.split("\n");
+      localRuleSplit.forEach((item) => {
+        if (utils.isNull(item)) {
+          return;
+        }
+        let trimItem = item.trim();
+        let itemSplit = trimItem.split("##");
+        if (itemSplit.length < 2) {
+          return;
+        }
+        let keyName = itemSplit[0];
+        itemSplit.shift();
+        let keyValue = itemSplit.join("");
+        try {
+          let regExpKeyValue = new RegExp(keyValue, "g");
+          this.$data.rule.set(keyName, regExpKeyValue);
+        } catch (error) {
+          log.error(["自定义视频过滤规则-正则解析错误：" + error]);
+          log.error("错误的规则：" + item);
+        }
+      });
+    },
+    set(value) {
+      _GM_setValue(this.key, value);
+    },
+    get() {
+      return _GM_getValue(this.key, "");
+    }
+  };
   const DouYinVideo = {
     init() {
       DouYinVideoHideElement.init();
       DouYinVideoShortcut.init();
-      PopsPanel.execMenuOnce("shieldVideo", () => {
-        DouYinVideoFilter.init();
-      });
+      if (!DouYinRouter.isSearch()) {
+        PopsPanel.execMenuOnce("shieldVideo", () => {
+          DouYinVideoFilter.init();
+        });
+      }
       PopsPanel.execMenuOnce("changeCommentToBottom", () => {
         DouYinVideo.changeCommentToBottom();
       });
@@ -2414,12 +2546,24 @@
       PopsPanel.execMenuOnce("parseVideo", () => {
         DouYinVideo.parseVideo();
       });
-      if (DouYinRouter.isSearch()) ;
-      else {
-        PopsPanel.execMenu("autoEnterElementFullScreen", () => {
+      PopsPanel.execInheritMenuOnce(
+        "autoEnterElementFullScreen",
+        "search-autoEnterElementFullScreen",
+        () => {
           this.autoEnterElementFullScreen();
-        });
-      }
+        },
+        (mainValue, childValue) => {
+          if (DouYinRouter.isSearch()) {
+            if (mainValue) {
+              if (childValue == 1) {
+                return true;
+              } else if (childValue == 0) {
+                return false;
+              } else ;
+            }
+          }
+        }
+      );
       PopsPanel.execMenuOnce("dy-video-doubleClickEnterElementFullScreen", () => {
         this.doubleClickEnterElementFullScreen();
       });
@@ -3078,7 +3222,7 @@
             ]
           },
           {
-            text: "视频",
+            text: "播放器",
             type: "deepMenu",
             forms: [
               {
@@ -3213,67 +3357,6 @@
                       );
                     }
                   )
-                ]
-              }
-            ]
-          },
-          {
-            text: "过滤-视频",
-            type: "deepMenu",
-            forms: [
-              {
-                text: '<a href="https://greasyfork.org/zh-CN/scripts/494643-%E6%8A%96%E9%9F%B3%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "启用",
-                    "shieldVideo",
-                    true,
-                    void 0,
-                    "开启后可启用下面的屏蔽功能"
-                  ),
-                  UISwitch(
-                    "【屏蔽】直播",
-                    "shieldVideo-live",
-                    true,
-                    void 0,
-                    "过滤掉直播"
-                  ),
-                  UISwitch(
-                    "【屏蔽】广告",
-                    "shieldVideo-ads",
-                    true,
-                    void 0,
-                    "过滤掉广告"
-                  ),
-                  {
-                    type: "own",
-                    getLiElementCallBack(liElement) {
-                      let textareaDiv = domUtils.createElement(
-                        "div",
-                        {
-                          className: "pops-panel-textarea",
-                          innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>`
-                        },
-                        {
-                          style: "width: 100%;"
-                        }
-                      );
-                      let textarea = textareaDiv.querySelector(
-                        "textarea"
-                      );
-                      textarea.value = DouYinVideoFilter.get();
-                      domUtils.on(
-                        textarea,
-                        ["input", "propertychange"],
-                        utils.debounce(function() {
-                          DouYinVideoFilter.set(textarea.value);
-                        }, 200)
-                      );
-                      liElement.appendChild(textareaDiv);
-                      return liElement;
-                    }
-                  }
                 ]
               }
             ]
@@ -3458,6 +3541,27 @@
                     false,
                     void 0,
                     "禁止点击视频区域时会触发自动进入全屏功能"
+                  ),
+                  UISelect(
+                    "自动进入网页全屏",
+                    "search-autoEnterElementFullScreen",
+                    -1,
+                    [
+                      {
+                        text: "跟随主设置",
+                        value: -1
+                      },
+                      {
+                        text: "是",
+                        value: 1
+                      },
+                      {
+                        text: "否",
+                        value: 0
+                      }
+                    ],
+                    void 0,
+                    "网页加载完毕后自动点击网页全屏按钮进入全屏"
                   )
                 ]
               }
@@ -3845,6 +3949,79 @@
       }
     ]
   };
+  const PanelRecommendVideoConfig = {
+    id: "panel-config-recommend-video",
+    title: "推荐",
+    forms: [
+      {
+        type: "forms",
+        text: "",
+        forms: [
+          {
+            text: "过滤-推荐视频",
+            type: "deepMenu",
+            forms: [
+              {
+                text: '<a href="https://greasyfork.org/zh-CN/scripts/494643-%E6%8A%96%E9%9F%B3%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "启用",
+                    "shieldVideo",
+                    true,
+                    void 0,
+                    "开启后可启用下面的屏蔽功能"
+                  ),
+                  UISwitch(
+                    "【屏蔽】直播",
+                    "shieldVideo-live",
+                    true,
+                    void 0,
+                    "过滤掉直播"
+                  ),
+                  UISwitch(
+                    "【屏蔽】广告",
+                    "shieldVideo-ads",
+                    true,
+                    void 0,
+                    "过滤掉广告"
+                  ),
+                  {
+                    type: "own",
+                    getLiElementCallBack(liElement) {
+                      let textareaDiv = domUtils.createElement(
+                        "div",
+                        {
+                          className: "pops-panel-textarea",
+                          innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>`
+                        },
+                        {
+                          style: "width: 100%;"
+                        }
+                      );
+                      let textarea = textareaDiv.querySelector(
+                        "textarea"
+                      );
+                      textarea.value = DouYinVideoFilter.get();
+                      domUtils.on(
+                        textarea,
+                        ["input", "propertychange"],
+                        utils.debounce(function() {
+                          DouYinVideoFilter.set(textarea.value);
+                        }, 200)
+                      );
+                      liElement.appendChild(textareaDiv);
+                      return liElement;
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
   const __PopsPanel__ = {
     data: null,
     oneSuccessExecMenu: null,
@@ -4057,6 +4234,29 @@
       }
     },
     /**
+     * 主动触发菜单值改变的回调
+     * @param key 菜单键
+     * @param newValue 想要触发的新值，默认使用当前值
+     * @param oldValue 想要触发的旧值，默认使用当前值
+     */
+    triggerMenuValueChange(key, newValue, oldValue) {
+      if (this.$listener.listenData.has(key)) {
+        let listenData = this.$listener.listenData.get(key);
+        if (typeof listenData.callback === "function") {
+          let value = this.getValue(key);
+          let __newValue = value;
+          let __oldValue = value;
+          if (typeof newValue !== "undefined" && arguments.length > 1) {
+            __newValue = newValue;
+          }
+          if (typeof oldValue !== "undefined" && arguments.length > 2) {
+            __oldValue = oldValue;
+          }
+          listenData.callback(key, __oldValue, __newValue);
+        }
+      }
+    },
+    /**
      * 判断该键是否存在
      * @param key 键
      */
@@ -4068,7 +4268,6 @@
      * 自动判断菜单是否启用，然后执行回调
      * @param key
      * @param callback 回调
-     * @param valueChangeCallBack 开/关改变时的回调
      */
     execMenu(key, callback) {
       if (typeof key !== "string") {
@@ -4087,8 +4286,10 @@
      * 自动判断菜单是否启用，然后执行回调，只会执行一次
      * @param key
      * @param callback 回调
+     * @param getValueFn 自定义处理获取当前值，值true是启用
+     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用
      */
-    execMenuOnce(key, callback) {
+    execMenuOnce(key, callback, getValueFn, handleValueChangeFn) {
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
@@ -4100,9 +4301,12 @@
         return;
       }
       this.$data.oneSuccessExecMenu.set(key, 1);
+      let __getValue = () => {
+        return typeof getValueFn === "function" ? getValueFn() : PopsPanel.getValue(key);
+      };
       let resultStyleList = [];
       let dynamicPushStyleNode = ($style) => {
-        let __value = PopsPanel.getValue(key);
+        let __value = __getValue();
         let dynamicResultList = [];
         if ($style instanceof HTMLStyleElement) {
           dynamicResultList = [$style];
@@ -4149,13 +4353,58 @@
       this.addValueChangeListener(
         key,
         (__key, oldValue, newValue) => {
-          changeCallBack(newValue);
+          let __newValue = newValue;
+          if (typeof handleValueChangeFn === "function") {
+            __newValue = handleValueChangeFn(__key, newValue, oldValue);
+          }
+          changeCallBack(__newValue);
         }
       );
-      let value = PopsPanel.getValue(key);
+      let value = __getValue();
       if (value) {
         changeCallBack(value);
       }
+    },
+    /**
+     * 父子菜单联动，自动判断菜单是否启用，然后执行回调，只会执行一次
+     * @param key 菜单键
+     * @param childKey 子菜单键
+     * @param callback 回调
+     * @param replaceValueFn 用于修改mainValue，返回undefined则不做处理
+     */
+    execInheritMenuOnce(key, childKey, callback, replaceValueFn) {
+      let that = this;
+      const handleInheritValue = (key2, childKey2) => {
+        let mainValue = that.getValue(key2);
+        let childValue = that.getValue(childKey2);
+        if (typeof replaceValueFn === "function") {
+          let changedMainValue = replaceValueFn(mainValue, childValue);
+          if (changedMainValue !== void 0) {
+            return changedMainValue;
+          }
+        }
+        return mainValue;
+      };
+      this.execMenuOnce(
+        key,
+        callback,
+        () => {
+          return handleInheritValue(key, childKey);
+        },
+        () => {
+          return handleInheritValue(key, childKey);
+        }
+      );
+      this.execMenuOnce(
+        childKey,
+        () => {
+        },
+        () => false,
+        () => {
+          this.triggerMenuValueChange(key);
+          return false;
+        }
+      );
     },
     /**
      * 根据key执行一次
@@ -4250,6 +4499,7 @@
       let configList = [
         PanelCommonConfig,
         PanelVideoConfig,
+        PanelRecommendVideoConfig,
         PanelSearchConfig,
         PanelLiveConfig
       ];
@@ -4330,7 +4580,7 @@
     return data;
   });
   const addStyle = utils.addStyle.bind(utils);
-  const ShieldHeader = {
+  const BlockTopNavigator = {
     init() {
       PopsPanel.execMenuOnce("shieldClientTip", () => {
         return this.shieldClientTip();
@@ -4359,36 +4609,76 @@
       PopsPanel.execMenuOnce("shieldBottomQuestionButton", () => {
         return this.shieldBottomQuestionButton();
       });
-      let shieldLeftNavigator = PopsPanel.getValue("shieldLeftNavigator");
-      let shieldTopNavigator = PopsPanel.getValue("shieldTopNavigator");
-      if (DouYinRouter.isSearch()) {
-        let search_shieldLeftNavigator = PopsPanel.getValue(
-          "search-shieldLeftNavigator"
-        );
-        if (search_shieldLeftNavigator == 1) {
-          shieldLeftNavigator = true;
-        } else if (search_shieldLeftNavigator == 0) {
-          shieldLeftNavigator = false;
-        } else ;
+      let blockNavFn = () => {
+        let shieldTopNavigator = PopsPanel.getValue("shieldTopNavigator");
         let search_shieldTopNavigator = PopsPanel.getValue(
           "search-shieldTopNavigator"
         );
-        if (search_shieldTopNavigator == 1) {
-          shieldTopNavigator = true;
-        } else if (search_shieldTopNavigator == 0) {
-          shieldTopNavigator = false;
-        } else ;
-      }
-      if (shieldLeftNavigator) {
-        PopsPanel.onceExec("shieldLeftNavigator", () => {
-          return this.shieldLeftNavigator();
-        });
-      }
-      if (shieldTopNavigator) {
-        PopsPanel.onceExec("shieldTopNavigator", () => {
+        if (DouYinRouter.isSearch()) {
+          if (search_shieldTopNavigator == 1) {
+            shieldTopNavigator = true;
+          } else if (search_shieldTopNavigator == 0) {
+            shieldTopNavigator = false;
+          } else ;
+        }
+        return shieldTopNavigator;
+      };
+      PopsPanel.execMenuOnce(
+        "shieldTopNavigator",
+        () => {
           return this.shieldTopNavigator();
-        });
+        },
+        () => {
+          return blockNavFn();
+        },
+        () => {
+          return blockNavFn();
+        }
+      );
+      PopsPanel.execMenuOnce(
+        "search-shieldTopNavigator",
+        () => {
+        },
+        () => {
+          return false;
+        },
+        () => {
+          PopsPanel.triggerMenuValueChange("shieldTopNavigator");
+          return false;
+        }
+      );
+    },
+    /**
+     * 【屏蔽】顶部导航栏
+     */
+    shieldTopNavigator() {
+      log.info("【屏蔽】顶部导航栏");
+      let result = [];
+      result.push(DouYinUtils.addBlockCSS("#douyin-header"));
+      result.push(
+        addStyle(
+          /*css*/
+          `
+			/* 修复视频的高度 */
+			#douyin-right-container{
+				padding-top: 0px !important;
+			}
+		`
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(
+          addStyle(
+            /*css*/
+            `
+				/* 把搜索顶部的工具栏置顶 */
+				#search-content-area > div > div:nth-child(1) > div:nth-child(1){
+					top: 0;
+				}`
+          )
+        );
       }
+      return result;
     },
     /**
      * 【屏蔽】充钻石
@@ -4650,57 +4940,6 @@
       return result;
     },
     /**
-     * 【屏蔽】左侧导航栏
-     */
-    shieldLeftNavigator() {
-      log.info("【屏蔽】左侧导航栏");
-      let result = [];
-      result.push(DouYinUtils.addBlockCSS("#douyin-navigation"));
-      result.push(
-        addStyle(
-          /*css*/
-          `
-			/* 修复顶部导航栏的宽度 */
-			#douyin-header{
-				width: 100%;
-			}`
-        )
-      );
-      return result;
-    },
-    /**
-     * 【屏蔽】顶部导航栏
-     */
-    shieldTopNavigator() {
-      log.info("【屏蔽】顶部导航栏");
-      let result = [];
-      result.push(DouYinUtils.addBlockCSS("#douyin-header"));
-      result.push(
-        addStyle(
-          /*css*/
-          `
-			/* 修复视频的高度 */
-			#douyin-right-container{
-				padding-top: 0px !important;
-			}
-		`
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(
-          addStyle(
-            /*css*/
-            `
-				/* 把搜索顶部的工具栏置顶 */
-				#search-content-area > div > div:nth-child(1) > div:nth-child(1){
-					top: 0;
-				}`
-          )
-        );
-      }
-      return result;
-    },
-    /**
      * 屏蔽底部问题按钮
      */
     shieldBottomQuestionButton() {
@@ -4712,7 +4951,7 @@
       ]);
     }
   };
-  const ShieldSearch = {
+  const BlockSearchFrame = {
     init() {
       PopsPanel.execMenuOnce("shieldSearch", () => {
         return this.shieldSearch();
@@ -4963,6 +5202,242 @@
       }
     }
   };
+  const BlockLeftNavigator = {
+    init() {
+      PopsPanel.execInheritMenuOnce(
+        "shieldLeftNavigator",
+        "search-shieldLeftNavigator",
+        () => {
+          return this.shieldLeftNavigator();
+        },
+        (mainValue, childValue) => {
+          if (DouYinRouter.isSearch()) {
+            if (mainValue) {
+              if (childValue == 1) {
+                return true;
+              } else if (childValue == 0) {
+                return false;
+              } else ;
+            }
+          }
+        }
+      );
+      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-home", () => {
+        return this.block_tab_home();
+      });
+      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-recommend", () => {
+        return this.block_tab_recommend();
+      });
+      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-follow", () => {
+        return this.block_tab_follow();
+      });
+      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-friend", () => {
+        return this.block_tab_friend();
+      });
+      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-user_self", () => {
+        return this.block_tab_user_self();
+      });
+      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-user_self_like", () => {
+        return this.block_tab_user_self_like();
+      });
+      PopsPanel.execMenuOnce(
+        "shieldLeftNavigator-tab-user_self_collection",
+        () => {
+          return this.block_tab_user_self_collection();
+        }
+      );
+      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-user_self_record", () => {
+        return this.block_tab_user_self_record();
+      });
+      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-olympics", () => {
+        return this.block_tab_olympics();
+      });
+      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-live", () => {
+        return this.block_tab_live();
+      });
+      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-vs", () => {
+        return this.block_tab_vs();
+      });
+      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-channel_300203", () => {
+        return this.block_tab_channel_300203();
+      });
+      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-channel_300205", () => {
+        return this.block_tab_channel_300205();
+      });
+      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-channel_300206", () => {
+        return this.block_tab_channel_300206();
+      });
+      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-channel_300209", () => {
+        return this.block_tab_channel_300209();
+      });
+      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-channel_300204", () => {
+        return this.block_tab_channel_300204();
+      });
+    },
+    /**
+     * 【屏蔽】左侧导航栏
+     */
+    shieldLeftNavigator() {
+      log.info("【屏蔽】左侧导航栏");
+      let result = [];
+      result.push(DouYinUtils.addBlockCSS("#douyin-navigation"));
+      result.push(
+        addStyle(
+          /*css*/
+          `
+			/* 修复顶部导航栏的宽度 */
+			#douyin-header{
+				width: 100%;
+			}`
+        )
+      );
+      return result;
+    },
+    /**
+     * 【屏蔽】首页
+     */
+    block_tab_home() {
+      log.info("【屏蔽】首页");
+      return DouYinUtils.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-discover)'
+      );
+    },
+    /**
+     * 【屏蔽】推荐
+     */
+    block_tab_recommend() {
+      log.info("【屏蔽】推荐");
+      return DouYinUtils.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-recommend)'
+      );
+    },
+    /**
+     * 【屏蔽】关注
+     */
+    block_tab_follow() {
+      log.info("【屏蔽】关注");
+      return DouYinUtils.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-follow)'
+      );
+    },
+    /**
+     * 【屏蔽】朋友
+     */
+    block_tab_friend() {
+      log.info("【屏蔽】朋友");
+      return DouYinUtils.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-friend)'
+      );
+    },
+    /**
+     * 【屏蔽】我的
+     */
+    block_tab_user_self() {
+      log.info("【屏蔽】我的");
+      return DouYinUtils.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self)'
+      );
+    },
+    /**
+     * 【屏蔽】喜欢
+     */
+    block_tab_user_self_like() {
+      log.info("【屏蔽】喜欢");
+      return DouYinUtils.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self_like)'
+      );
+    },
+    /**
+     * 【屏蔽】收藏
+     */
+    block_tab_user_self_collection() {
+      log.info("【屏蔽】收藏");
+      return DouYinUtils.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self_collection)'
+      );
+    },
+    /**
+     * 【屏蔽】观看历史
+     */
+    block_tab_user_self_record() {
+      log.info("【屏蔽】观看历史");
+      return DouYinUtils.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self_record)'
+      );
+    },
+    /**
+     * 【屏蔽】看奥运
+     */
+    block_tab_olympics() {
+      log.info("【屏蔽】看奥运");
+      return DouYinUtils.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-olympics)'
+      );
+    },
+    /**
+     * 【屏蔽】直播
+     */
+    block_tab_live() {
+      log.info("【屏蔽】直播");
+      return DouYinUtils.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-live)'
+      );
+    },
+    /**
+     * 【屏蔽】放映厅
+     */
+    block_tab_vs() {
+      log.info("【屏蔽】放映厅");
+      return DouYinUtils.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-vs)'
+      );
+    },
+    /**
+     * 【屏蔽】知识
+     */
+    block_tab_channel_300203() {
+      log.info("【屏蔽】知识");
+      return DouYinUtils.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300203)'
+      );
+    },
+    /**
+     * 【屏蔽】游戏
+     */
+    block_tab_channel_300205() {
+      log.info("【屏蔽】游戏");
+      return DouYinUtils.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300205)'
+      );
+    },
+    /**
+     * 【屏蔽】二次元
+     */
+    block_tab_channel_300206() {
+      log.info("【屏蔽】二次元");
+      return DouYinUtils.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300206)'
+      );
+    },
+    /**
+     * 【屏蔽】音乐
+     */
+    block_tab_channel_300209() {
+      log.info("【屏蔽】音乐");
+      return DouYinUtils.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300209)'
+      );
+    },
+    /**
+     * 【屏蔽】美食
+     */
+    block_tab_channel_300204() {
+      log.info("【屏蔽】美食");
+      return DouYinUtils.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300204)'
+      );
+    }
+  };
   const DouYin = {
     init() {
       DouYinRedirect.init();
@@ -4981,8 +5456,9 @@
       PopsPanel.execMenu("dy-apple-removeMetaAppleItunesApp", () => {
         this.removeMetaAppleItunesApp();
       });
-      ShieldHeader.init();
-      ShieldSearch.init();
+      BlockLeftNavigator.init();
+      BlockTopNavigator.init();
+      BlockSearchFrame.init();
       if (DouYinRouter.isLive()) {
         log.info("Router: 直播");
         DouYinLive.init();

@@ -5,7 +5,9 @@ export const DouYinElement = {
 	 * 观察 #slidelist的加载每条视频
 	 * @param callback
 	 */
-	watchVideDataListChange(callback: (osElement: HTMLDivElement) => void) {
+	watchVideDataListChange(
+		callback: (osElement: HTMLDivElement, observer: MutationObserver) => void
+	) {
 		let $os = null as HTMLDivElement | null;
 		DOMUtils.ready(() => {
 			utils
@@ -20,7 +22,7 @@ export const DouYinElement = {
 							childList: true,
 							subtree: true,
 						},
-						callback: () => {
+						callback: (mutations, observer) => {
 							if (!$os) {
 								$os = this.getOSElement();
 							}
@@ -28,7 +30,7 @@ export const DouYinElement = {
 								log.error("watchVideDataListChange：获取osElement失败");
 								return;
 							}
-							callback($os);
+							callback($os, observer);
 						},
 					});
 				});
