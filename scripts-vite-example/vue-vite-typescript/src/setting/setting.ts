@@ -260,6 +260,31 @@ export const PopsPanel = {
 		}
 	},
 	/**
+	 * 主动触发菜单值改变的回调
+	 * @param key 菜单键
+	 * @param newValue 想要触发的新值，默认使用当前值
+	 * @param oldValue 想要触发的旧值，默认使用当前值
+	 */
+	triggerMenuValueChange(key: string, newValue?: any, oldValue?: any) {
+		if (this.$listener.listenData.has(key)) {
+			let listenData = this.$listener.listenData.get(key)!;
+			if (typeof listenData.callback === "function") {
+				let value = this.getValue(key);
+				let __newValue = value;
+				let __oldValue = value;
+				if (typeof newValue !== "undefined" && arguments.length > 1) {
+					// 传入参数大于1个且不为undefined时生效
+					__newValue = newValue;
+				}
+				if (typeof oldValue !== "undefined" && arguments.length > 2) {
+					// 传入参数大于2个且不为undefined时生效
+					__oldValue = oldValue;
+				}
+				listenData.callback(key, __oldValue, __newValue);
+			}
+		}
+	},
+	/**
 	 * 判断该键是否存在
 	 * @param key 键
 	 */
@@ -294,7 +319,8 @@ export const PopsPanel = {
 	 * 自动判断菜单是否启用，然后执行回调，只会执行一次
 	 * @param key
 	 * @param callback 回调
-	 * @param [isReverse=false] 逆反判断菜单启用
+	 * @param getValueFn 自定义处理获取当前值，值true是启用
+	 * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用
 	 */
 	execMenuOnce(
 		key: string,
@@ -302,7 +328,8 @@ export const PopsPanel = {
 			value: any,
 			pushStyleNode: (style: HTMLStyleElement | HTMLStyleElement[]) => void
 		) => any | any[],
-		isReverse = false
+		getValueFn?: () => boolean,
+		handleValueChangeFn?: (key: string, newValue: any, oldValue: any) => boolean
 	) {
 		if (typeof key !== "string") {
 			throw new TypeError("key 必须是字符串");
@@ -317,26 +344,45 @@ export const PopsPanel = {
 		}
 		this.$data.oneSuccessExecMenu.set(key, 1);
 
+		let __getValue = () => {
+			return typeof getValueFn === "function"
+				? getValueFn()
+				: PopsPanel.getValue<boolean>(key);
+		};
+
 		// 存储的<style>标签列表
 		let resultStyleList: HTMLStyleElement[] = [];
 		// 主动添加<style>标签的回调
-		let pushStyleNode = (style: HTMLStyleElement | HTMLStyleElement[]) => {
-			let __value = PopsPanel.getValue<boolean>(key);
-			changeCallBack(__value, style);
-		};
-		/**
-		 * 当值改变，触发该函数
-		 * @param currentValue 当前值
-		 * @param resultStyle （可选）函数返回的<style>标签或标签数组
-		 */
-		let changeCallBack = (
-			currentValue: boolean,
-			resultStyle?: HTMLStyleElement | HTMLStyleElement[]
+		let dynamicPushStyleNode = (
+			$style: HTMLStyleElement | HTMLStyleElement[]
 		) => {
+			let __value = __getValue();
+			let dynamicResultList: HTMLStyleElement[] = [];
+			if ($style instanceof HTMLStyleElement) {
+				dynamicResultList = [$style];
+			} else if (Array.isArray($style)) {
+				dynamicResultList = [
+					...$style.filter(
+						(item) => item != null && item instanceof HTMLStyleElement
+					),
+				];
+			}
+			if (__value) {
+				resultStyleList = resultStyleList.concat(dynamicResultList);
+			} else {
+				for (let index = 0; index < dynamicResultList.length; index++) {
+					let $css = dynamicResultList[index];
+					$css.remove();
+					dynamicResultList.splice(index, 1);
+					index--;
+				}
+			}
+		};
+		let changeCallBack = (currentValue: boolean) => {
 			let resultList: HTMLStyleElement[] = [];
 			if (currentValue) {
 				// 开
-				let result = resultStyle ?? callback(currentValue, pushStyleNode);
+				let result = callback(currentValue, dynamicPushStyleNode);
 				if (result instanceof HTMLStyleElement) {
 					resultList = [result];
 				} else if (Array.isArray(result)) {
@@ -355,25 +401,74 @@ export const PopsPanel = {
 			}
 			resultStyleList = [...resultList];
 		};
-		// 监听值改变
 		let listenerId = this.addValueChangeListener(
 			key,
 			(__key, oldValue, newValue) => {
 				// 值改变
-				if (isReverse) {
-					newValue = !newValue;
+				let __newValue = newValue;
+				if (typeof handleValueChangeFn === "function") {
+					__newValue = handleValueChangeFn(__key, newValue, oldValue);
 				}
-				changeCallBack(newValue);
+				changeCallBack(__newValue);
 			}
 		);
-		let value = PopsPanel.getValue<boolean>(key);
-		if (isReverse) {
-			// 逆反
-			value = !value;
-		}
+		let value = __getValue();
 		if (value) {
 			changeCallBack(value);
 		}
+	},
+	/**
+	 * 父子菜单联动，自动判断菜单是否启用，然后执行回调，只会执行一次
+	 * @param key 菜单键
+	 * @param childKey 子菜单键
+	 * @param callback 回调
+	 * @param replaceValueFn 用于修改mainValue，返回undefined则不做处理
+	 */
+	execInheritMenuOnce(
+		key: string,
+		childKey: string,
+		callback: (
+			value: any,
+			pushStyleNode: (style: HTMLStyleElement | HTMLStyleElement[]) => void
+		) => any | any[],
+		replaceValueFn?: (mainValue: any, childValue: any) => any
+	) {
+		let that = this;
+		/**
+		 * 处理子父值的关联获取
+		 * @param key 父键
+		 * @param childKey 子键
+		 */
+		const handleInheritValue = (key: string, childKey: string) => {
+			let mainValue = that.getValue<boolean>(key);
+			let childValue = that.getValue<number>(childKey);
+			if (typeof replaceValueFn === "function") {
+				let changedMainValue = replaceValueFn(mainValue, childValue);
+				if (changedMainValue !== void 0) {
+					return changedMainValue;
+				}
+			}
+			return mainValue;
+		};
+		this.execMenuOnce(
+			key,
+			callback,
+			() => {
+				return handleInheritValue(key, childKey);
+			},
+			() => {
+				return handleInheritValue(key, childKey);
+			}
+		);
+		this.execMenuOnce(
+			childKey,
+			() => {},
+			() => false,
+			() => {
+				this.triggerMenuValueChange(key);
+				return false;
+			}
+		);
 	},
 	/**
 	 * 根据自定义key只执行一次
