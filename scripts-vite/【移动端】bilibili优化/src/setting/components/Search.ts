@@ -8,7 +8,33 @@ const SettingUISearch: PopsPanelContentConfig = {
 	isDefault() {
 		return BilibiliRouter.isSearch();
 	},
-	forms: [],
+	forms: [
+		{
+			type: "forms",
+			text: "",
+			forms: [
+				{
+					type: "deepMenu",
+					text: "覆盖点击事件",
+					forms: [
+						{
+							type: "forms",
+							text: "",
+							forms: [
+								UISwitch(
+									"取消",
+									"bili-search-cover-cancel",
+									false,
+									void 0,
+									"点击取消按钮回退至上一页"
+								),
+							],
+						},
+					],
+				},
+			],
+		},
+	],
 };
 
 export { SettingUISearch };

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.27
+// @version      2024.8.3
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -245,6 +245,11 @@
       },
       callback(event, value) {
         log.success(`${value ? "开启" : "关闭"} ${text}`);
+        if (typeof clickCallBack === "function") {
+          if (clickCallBack(event, value)) {
+            return;
+          }
+        }
         PopsPanel.setValue(key, Boolean(value));
       },
       afterAddToUListCallBack: void 0
@@ -306,6 +311,431 @@
     }
     return result;
   };
+  const UISlider = function(text, key, defaultValue, min, max, step, changeCallBack, getToolTipContent, description) {
+    let result = {
+      text,
+      type: "slider",
+      description,
+      attributes: {},
+      getValue() {
+        return PopsPanel.getValue(key, defaultValue);
+      },
+      getToolTipContent(value) {
+        if (typeof getToolTipContent === "function") {
+          return getToolTipContent(value);
+        } else {
+          return `${value}`;
+        }
+      },
+      callback(event, value) {
+        if (typeof changeCallBack === "function") {
+          if (changeCallBack(event, value)) {
+            return;
+          }
+        }
+        PopsPanel.setValue(key, value);
+      },
+      min,
+      max,
+      step
+    };
+    if (result.attributes) {
+      result.attributes[ATTRIBUTE_KEY] = key;
+      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
+    }
+    return result;
+  };
+  const BilibiliPlayer = {
+    get player() {
+      return _unsafeWindow.player;
+    },
+    init() {
+      BilibiliDanmaku.init();
+      let videoSpeed = PopsPanel.getValue("bili-video-speed");
+      this.setVideoSpeed(videoSpeed);
+    },
+    async playerPromise() {
+      await utils.waitPropertyByInterval(
+        _unsafeWindow,
+        () => {
+          var _a2, _b;
+          return typeof BilibiliPlayer.player === "object" && typeof ((_a2 = BilibiliPlayer.player) == null ? void 0 : _a2.playerPromise) === "object" && ((_b = BilibiliPlayer.player) == null ? void 0 : _b.playerPromise) != null;
+        },
+        250,
+        1e4
+      );
+      let playerPromise = await BilibiliPlayer.player.playerPromise;
+      return playerPromise;
+    },
+    /**
+     * 设置视频播放倍速
+     * @param value 倍速值
+     */
+    setVideoSpeed(value) {
+      this.playerPromise().then(async (playerPromise) => {
+        await utils.waitPropertyByInterval(
+          async () => {
+            playerPromise = await BilibiliPlayer.playerPromise();
+            return playerPromise;
+          },
+          () => {
+            return typeof playerPromise.video != null && playerPromise.video instanceof HTMLVideoElement;
+          },
+          250,
+          1e4
+        );
+        playerPromise.video.playbackRate = value;
+        log.success(`设置视频播放倍速: ${value}`);
+        BilibiliDanmaku.DanmakuCoreConfig().then(async (config) => {
+          config.videoSpeed = value;
+          log.success(`设置弹幕配置的视频播放倍速: ${value}`);
+        });
+      });
+    }
+  };
+  const BilibiliDanmakuFilter = {
+    key: "bili-danmaku-filter",
+    /** 弹幕类型 */
+    mode: {
+      6: "从左往右",
+      5: "顶部",
+      4: "底部",
+      1: "从右往左"
+    },
+    $player: {
+      async danmakuArray() {
+        var _a2, _b;
+        await utils.waitPropertyByInterval(
+          _unsafeWindow,
+          () => {
+            var _a3;
+            return typeof BilibiliPlayer.player === "object" && typeof ((_a3 = BilibiliPlayer.player) == null ? void 0 : _a3.playerPromise) === "object";
+          },
+          250,
+          1e4
+        );
+        let playerPromise = await BilibiliPlayer.playerPromise();
+        await utils.waitPropertyByInterval(
+          async () => {
+            playerPromise = await BilibiliPlayer.playerPromise();
+          },
+          () => {
+            var _a3, _b2, _c, _d, _e, _f;
+            return typeof ((_b2 = (_a3 = playerPromise == null ? void 0 : playerPromise.danmaku) == null ? void 0 : _a3.danmakuCore) == null ? void 0 : _b2.danmakuArray) === "object" && ((_d = (_c = playerPromise == null ? void 0 : playerPromise.danmaku) == null ? void 0 : _c.danmakuCore) == null ? void 0 : _d.danmakuArray) != null && Array.isArray((_f = (_e = playerPromise == null ? void 0 : playerPromise.danmaku) == null ? void 0 : _e.danmakuCore) == null ? void 0 : _f.danmakuArray);
+          },
+          250,
+          1e4
+        );
+        let danmakuArray = (_b = (_a2 = playerPromise == null ? void 0 : playerPromise.danmaku) == null ? void 0 : _a2.danmakuCore) == null ? void 0 : _b.danmakuArray;
+        return danmakuArray;
+      },
+      async danmakuFilter() {
+        var _a2, _b, _c;
+        await utils.waitPropertyByInterval(
+          _unsafeWindow,
+          () => {
+            var _a3;
+            return typeof BilibiliPlayer.player === "object" && typeof ((_a3 = BilibiliPlayer.player) == null ? void 0 : _a3.playerPromise) === "object";
+          },
+          250,
+          1e4
+        );
+        let playerPromise = await BilibiliPlayer.playerPromise();
+        await utils.waitPropertyByInterval(
+          async () => {
+            playerPromise = await BilibiliPlayer.playerPromise();
+          },
+          () => {
+            var _a3, _b2, _c2;
+            return typeof ((_c2 = (_b2 = (_a3 = playerPromise == null ? void 0 : playerPromise.danmaku) == null ? void 0 : _a3.danmakuCore) == null ? void 0 : _b2.config) == null ? void 0 : _c2.danmakuFilter) === "function";
+          },
+          250,
+          1e4
+        );
+        let danmakuFilter = (_c = (_b = (_a2 = playerPromise == null ? void 0 : playerPromise.danmaku) == null ? void 0 : _a2.danmakuCore) == null ? void 0 : _b.config) == null ? void 0 : _c.danmakuFilter;
+        return danmakuFilter;
+      }
+    },
+    $data: {
+      danmakuArray: []
+    },
+    $fn: {
+      updateDanmakuArray: new utils.LockFunction(async () => {
+        BilibiliDanmakuFilter.$data.danmakuArray = await BilibiliDanmakuFilter.$player.danmakuArray();
+      }, 250)
+    },
+    async init() {
+      let totalRule = this.parseRule();
+      let danmakuFilter = await this.$player.danmakuFilter();
+      let that = this;
+      if (typeof danmakuFilter == "function") {
+        let playerPromise = await BilibiliPlayer.playerPromise();
+        playerPromise.danmaku.danmakuCore.config.danmakuFilter = function(danmaConfig) {
+          let isFilter = that.filter(danmaConfig, totalRule);
+          return isFilter;
+        };
+      }
+    },
+    /** 更新弹幕列表 */
+    updateDanmakuArray() {
+      this.$fn.updateDanmakuArray.run();
+    },
+    /**
+     * 判断是否需要过滤
+     * @param danmaConfig
+     * @param totalRule
+     * @param danmakuArray
+     * @returns
+     */
+    filter(danmaConfig, totalRule) {
+      this.updateDanmakuArray();
+      let filterFlag = false;
+      if (!filterFlag) {
+        if (PopsPanel.getValue("bili-danmaku-filter-type-roll")) {
+          if (danmaConfig.mode === 1 || danmaConfig.mode === 6) {
+            filterFlag = true;
+          }
+        }
+      }
+      if (!filterFlag) {
+        if (PopsPanel.getValue("bili-danmaku-filter-type-top")) {
+          if (danmaConfig.mode === 5 || danmaConfig.mode === 1 || danmaConfig.mode === 6) {
+            filterFlag = true;
+          }
+        }
+      }
+      if (!filterFlag) {
+        if (PopsPanel.getValue("bili-danmaku-filter-type-bottom")) {
+          if (danmaConfig.mode === 4) {
+            filterFlag = true;
+          }
+        }
+      }
+      if (!filterFlag) {
+        if (PopsPanel.getValue("bili-danmaku-filter-type-colour")) {
+          if (danmaConfig.color !== 16777215) {
+            filterFlag = true;
+          }
+        }
+      }
+      if (!filterFlag) {
+        if (PopsPanel.getValue("bili-danmaku-filter-type-repeat")) {
+          let findIndex = this.$data.danmakuArray.findIndex(
+            (__danmaConfig__, __index__) => {
+              return danmaConfig.text === __danmaConfig__.text && danmaConfig != __danmaConfig__;
+            }
+          );
+          if (findIndex != -1) {
+            filterFlag = true;
+            console.log("重复：" + findIndex);
+          }
+        }
+      }
+      if (!filterFlag) {
+        if (PopsPanel.getValue("bili-danmaku-filter")) {
+          for (let ruleIndex = 0; ruleIndex < totalRule.length; ruleIndex++) {
+            const rule = totalRule[ruleIndex];
+            if (typeof danmaConfig.text === "string" && danmaConfig.text.match(rule)) {
+              filterFlag = true;
+              break;
+            }
+          }
+        }
+      }
+      return filterFlag;
+    },
+    parseRule() {
+      let localRule = this.getValue();
+      let rule = [];
+      localRule.split("\n").forEach((ruleItemStr) => {
+        let ruleItem = ruleItemStr.trim();
+        let regExpRule = new RegExp(
+          utils.parseStringToRegExpString(ruleItem),
+          "ig"
+        );
+        rule.push(regExpRule);
+      });
+      return rule;
+    },
+    getValue() {
+      return _GM_getValue(this.key, "");
+    },
+    setValue(value = "") {
+      _GM_setValue(this.key, value);
+    }
+  };
+  const BilibiliDanmaku = {
+    /** 弹幕字体 */
+    fontFamily: [
+      {
+        text: "黑体",
+        value: "SimHei, 'Microsoft JhengHei'"
+      },
+      {
+        text: "宋体",
+        value: "SimSun"
+      },
+      {
+        text: "新宋体",
+        value: "NSimSun"
+      },
+      {
+        text: "仿宋",
+        value: "FangSong"
+      },
+      {
+        text: "微软雅黑",
+        value: "'Microsoft YaHei'"
+      },
+      {
+        text: "微软雅黑 Light",
+        value: "'Microsoft Yahei UI Light'"
+      },
+      {
+        text: "Noto Sans DemiLight",
+        value: "'Noto Sans CJK SC DemiLight'"
+      },
+      {
+        text: "'Noto Sans CJK SC Regular'",
+        value: "'Noto Sans CJK SC Regular'"
+      }
+    ],
+    init() {
+      BilibiliDanmakuFilter.init();
+      let opacity = PopsPanel.getValue("bili-danmaku-opacity");
+      let area = PopsPanel.getValue("bili-danmaku-area");
+      let fontSize = PopsPanel.getValue("bili-danmaku-fontSize");
+      let duration = PopsPanel.getValue("bili-danmaku-duration");
+      let bold = PopsPanel.getValue("bili-danmaku-bold");
+      let fullScreenSync = PopsPanel.getValue(
+        "bili-danmaku-fullScreenSync"
+      );
+      let speedSync = PopsPanel.getValue("bili-danmaku-speedSync");
+      let fontFamily = PopsPanel.getValue("bili-danmaku-fontFamily");
+      this.setOpacity(opacity);
+      this.setArea(area);
+      this.setFontSize(fontSize);
+      this.setDuration(duration);
+      this.setBold(bold);
+      this.setFullScreenSync(fullScreenSync);
+      this.setSpeedSync(speedSync);
+      this.setFontFamily(fontFamily);
+    },
+    async DanmakuCoreConfig() {
+      let playerPromise = await BilibiliPlayer.playerPromise();
+      await utils.waitPropertyByInterval(
+        playerPromise,
+        () => {
+          var _a2, _b, _c, _d;
+          return typeof ((_b = (_a2 = playerPromise == null ? void 0 : playerPromise.danmaku) == null ? void 0 : _a2.danmakuCore) == null ? void 0 : _b.config) === "object" && ((_d = (_c = playerPromise == null ? void 0 : playerPromise.danmaku) == null ? void 0 : _c.danmakuCore) == null ? void 0 : _d.config) != null;
+        },
+        250,
+        1e4
+      );
+      return playerPromise.danmaku.danmakuCore.config;
+    },
+    /**
+     * 设置 不透明度
+     * @param value
+     */
+    setOpacity(value) {
+      this.DanmakuCoreConfig().then((config) => {
+        config.opacity = value;
+        log.success(`设置-弹幕不透明度: ${value}`);
+      });
+    },
+    /**
+     * 设置 显示区域
+     * @param value
+     */
+    setArea(value) {
+      let areaMapping = {
+        25: "1/4屏",
+        50: "半屏",
+        75: "3/4屏",
+        100: "全屏"
+      };
+      this.DanmakuCoreConfig().then((config) => {
+        config.danmakuArea = value;
+        log.success(`设置-显示区域: ${value} => ${areaMapping[value]}`);
+      });
+    },
+    /**
+     * 设置 字体大小
+     * @param value
+     */
+    setFontSize(value) {
+      this.DanmakuCoreConfig().then((config) => {
+        config.fontSize = value;
+        log.success(`设置-字体大小: ${value}`);
+      });
+    },
+    /**
+     * 设置 持续时间（弹幕速度）
+     * @param value
+     */
+    setDuration(value) {
+      this.DanmakuCoreConfig().then((config) => {
+        config.duration = value;
+        log.success(`设置-持续时间（弹幕速度）: ${value}`);
+      });
+    },
+    /**
+     * 设置 粗体
+     * @param value
+     */
+    setBold(value) {
+      this.DanmakuCoreConfig().then((config) => {
+        config.bold = value;
+        log.success(`设置-粗体: ${value}`);
+      });
+    },
+    /**
+     * 弹幕随屏幕缩放
+     * @param value
+     */
+    setFullScreenSync(value) {
+      this.DanmakuCoreConfig().then((config) => {
+        config.fullScreenSync = value;
+        log.success(`设置-弹幕随屏幕缩放: ${value}`);
+      });
+    },
+    /**
+     * 弹幕速度同步播放倍数
+     * @param value
+     */
+    setSpeedSync(value) {
+      this.DanmakuCoreConfig().then(async (config) => {
+        let playerPromise = await BilibiliPlayer.playerPromise();
+        await utils.waitPropertyByInterval(
+          async () => {
+            playerPromise = await BilibiliPlayer.playerPromise();
+            return playerPromise;
+          },
+          () => {
+            return typeof playerPromise.video === "object" && playerPromise.video != null && playerPromise.video instanceof HTMLVideoElement;
+          },
+          250,
+          1e4
+        );
+        let videoSpeed = playerPromise.video.playbackRate;
+        config.videoSpeed = videoSpeed;
+        config.speedSync = value;
+        log.success(`设置-当前视频播放倍速: ${videoSpeed}`);
+        log.success(`设置-弹幕速度同步播放倍数: ${value}`);
+      });
+    },
+    /**
+     * 弹幕字体
+     * @param value
+     */
+    setFontFamily(value) {
+      this.DanmakuCoreConfig().then((config) => {
+        config.fontFamily = value;
+        log.success(`设置-弹幕字体: ${value}`);
+      });
+    }
+  };
   const SettingUICommon = {
     id: "panel-common",
     title: "通用",
@@ -342,7 +772,225 @@
                     false,
                     void 0,
                     "通过开启【覆盖点击事件】相关的设置，通过新标签页打开链接"
+                  ),
+                  UISelect(
+                    "倍速",
+                    "bili-video-speed",
+                    1,
+                    [
+                      {
+                        text: "2.0X",
+                        value: 2
+                      },
+                      {
+                        text: "1.5X",
+                        value: 1.5
+                      },
+                      {
+                        text: "1.25X",
+                        value: 1.25
+                      },
+                      {
+                        text: "1.0X",
+                        value: 1
+                      },
+                      {
+                        text: "0.75X",
+                        value: 0.75
+                      },
+                      {
+                        text: "0.25X",
+                        value: 0.25
+                      }
+                    ],
+                    (_, isSelectValue) => {
+                      BilibiliPlayer.setVideoSpeed(isSelectValue);
+                    }
                   )
+                ]
+              }
+            ]
+          },
+          {
+            type: "deepMenu",
+            text: "弹幕",
+            forms: [
+              {
+                text: "弹幕设置",
+                type: "forms",
+                forms: [
+                  UISlider(
+                    "不透明度",
+                    "bili-danmaku-opacity",
+                    0.75,
+                    0.2,
+                    1,
+                    0.01,
+                    (event, value) => {
+                      BilibiliDanmaku.setOpacity(value);
+                    },
+                    (value) => {
+                      return `${parseInt((value * 100).toString())}%`;
+                    }
+                  ),
+                  UISelect(
+                    "显示区域",
+                    "bili-danmaku-area",
+                    25,
+                    [
+                      {
+                        text: "1/4屏",
+                        value: 25
+                      },
+                      {
+                        text: "半屏",
+                        value: 50
+                      },
+                      {
+                        text: "3/4屏",
+                        value: 75
+                      },
+                      {
+                        text: "全屏",
+                        value: 100
+                      }
+                    ],
+                    (event, isSelectValue, isSelectText) => {
+                      BilibiliDanmaku.setArea(isSelectValue);
+                    }
+                  ),
+                  UISlider(
+                    "字体大小",
+                    "bili-danmaku-fontSize",
+                    0.7,
+                    0.2,
+                    2,
+                    0.1,
+                    (event, value) => {
+                      BilibiliDanmaku.setFontSize(value);
+                    },
+                    (value) => {
+                      return `${parseInt((value * 100).toString())}%`;
+                    }
+                  ),
+                  UISelect(
+                    "弹幕速度",
+                    "bili-danmaku-duration",
+                    6,
+                    [
+                      {
+                        text: "极慢",
+                        value: 10
+                      },
+                      {
+                        text: "较慢",
+                        value: 8
+                      },
+                      {
+                        text: "适中",
+                        value: 6
+                      },
+                      {
+                        text: "较快",
+                        value: 4
+                      },
+                      {
+                        text: "极快",
+                        value: 2
+                      }
+                    ],
+                    (event, isSelectValue, isSelectText) => {
+                      BilibiliDanmaku.setDuration(isSelectValue);
+                    }
+                  ),
+                  UISwitch(
+                    "弹幕随屏幕缩放",
+                    "bili-danmaku-fullScreenSync",
+                    false,
+                    (event, value) => {
+                      BilibiliDanmaku.setFullScreenSync(value);
+                    }
+                  ),
+                  UISwitch(
+                    "弹幕速度同步播放倍数",
+                    "bili-danmaku-speedSync",
+                    true,
+                    (event, value) => {
+                      BilibiliDanmaku.setSpeedSync(value);
+                    }
+                  )
+                ]
+              },
+              {
+                type: "forms",
+                text: "",
+                forms: [
+                  UISelect(
+                    "弹幕字体",
+                    "bili-danmaku-fontFamily",
+                    (() => {
+                      let findItem = BilibiliDanmaku.fontFamily.find(
+                        (item) => item.text === "黑体"
+                      );
+                      return findItem.value;
+                    })(),
+                    BilibiliDanmaku.fontFamily,
+                    (event, isSelectValue, isSelectText) => {
+                      BilibiliDanmaku.setFontFamily(isSelectValue);
+                    }
+                  ),
+                  UISwitch("粗体", "bili-danmaku-bold", true, (event, value) => {
+                    BilibiliDanmaku.setBold(value);
+                  })
+                ]
+              },
+              {
+                text: "按类型屏蔽",
+                type: "forms",
+                forms: [
+                  UISwitch("滚动", "bili-danmaku-filter-type-roll", false),
+                  UISwitch("顶部", "bili-danmaku-filter-type-top", false),
+                  UISwitch("底部", "bili-danmaku-filter-type-bottom", false),
+                  UISwitch("彩色", "bili-danmaku-filter-type-colour", false),
+                  UISwitch("重复", "bili-danmaku-filter-type-repeat", false),
+                  // UISwitch("高级", "bili-danmaku-filter-type-senior", false),
+                  UISwitch(
+                    "屏蔽词",
+                    "bili-danmaku-filter",
+                    false,
+                    void 0,
+                    "开启后可使用↓自定义的规则过滤弹幕"
+                  ),
+                  {
+                    type: "own",
+                    getLiElementCallBack(liElement) {
+                      let textareaDiv = domutils.createElement(
+                        "div",
+                        {
+                          className: "pops-panel-textarea",
+                          innerHTML: `
+												<textarea placeholder="请输入规则，每行一个，可正则" style="height:200px;"></textarea>`
+                        },
+                        {
+                          style: "width: 100%;"
+                        }
+                      );
+                      let $textarea = textareaDiv.querySelector(
+                        "textarea"
+                      );
+                      $textarea.value = BilibiliDanmakuFilter.getValue();
+                      domutils.on(
+                        $textarea,
+                        ["input", "propertychange"],
+                        void 0,
+                        utils.debounce(function(event) {
+                          BilibiliDanmakuFilter.setValue($textarea.value);
+                        }, 200)
+                      );
+                      liElement.appendChild(textareaDiv);
+                      return liElement;
+                    }
+                  }
                 ]
               }
             ]
@@ -888,7 +1536,33 @@
     isDefault() {
       return BilibiliRouter.isSearch();
     },
-    forms: []
+    forms: [
+      {
+        type: "forms",
+        text: "",
+        forms: [
+          {
+            type: "deepMenu",
+            text: "覆盖点击事件",
+            forms: [
+              {
+                type: "forms",
+                text: "",
+                forms: [
+                  UISwitch(
+                    "取消",
+                    "bili-search-cover-cancel",
+                    false,
+                    void 0,
+                    "点击取消按钮回退至上一页"
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
   };
   const SettingUILive = {
     id: "panel-live",
@@ -1071,14 +1745,6 @@
         ]
       }
     ]
-  };
-  const SettingUITopicDetail = {
-    id: "panel-topic-detail",
-    title: "话题",
-    isDefault() {
-      return BilibiliRouter.isTopicDetail();
-    },
-    forms: []
   };
   const TVKeyInfo = {
     appkey: "4409e2ce8ffd12b8",
@@ -2060,7 +2726,7 @@
         SettingUIOpus,
         SettingUIDynamic,
         SettingUIBangumi,
-        SettingUITopicDetail,
+        // SettingUITopicDetail,
         SettingUISearch,
         SettingUILive
       ];
@@ -2352,9 +3018,11 @@
                   );
                   if ($playerVideo && $posterImg && $posterImg.src !== "") {
                     isSuccess = true;
-                    (_a2 = _unsafeWindow == null ? void 0 : _unsafeWindow.player) == null ? void 0 : _a2.off("restart_call_app");
-                    (_b = _unsafeWindow == null ? void 0 : _unsafeWindow.player) == null ? void 0 : _b.off("force_call_app_show");
+                    (_a2 = BilibiliPlayer.player) == null ? void 0 : _a2.off("restart_call_app");
+                    (_b = BilibiliPlayer.player) == null ? void 0 : _b.off("force_call_app_show");
                     log.success("<video>标签和视频封面图已成功初始化");
+                    await utils.sleep(500);
+                    BilibiliDanmaku.init();
                     return;
                   }
                   if (_unsafeWindow.BPlayerMobile == null) {
@@ -2368,8 +3036,8 @@
                     "第 " + checkCount + " 次未检测到视频，调用初始化视频函数 initPlayer()"
                   );
                   await utils.sleep(300);
-                  (_c = _unsafeWindow == null ? void 0 : _unsafeWindow.player) == null ? void 0 : _c.off("restart_call_app");
-                  (_d = _unsafeWindow == null ? void 0 : _unsafeWindow.player) == null ? void 0 : _d.off("force_call_app_show");
+                  (_c = BilibiliPlayer.player) == null ? void 0 : _c.off("restart_call_app");
+                  (_d = BilibiliPlayer.player) == null ? void 0 : _d.off("force_call_app_show");
                   checkCount++;
                 });
                 intervalId = setInterval(async () => {
@@ -3092,6 +3760,30 @@
           }
         );
       });
+    }
+  };
+  const BilibiliSearch = {
+    init() {
+      PopsPanel.execMenuOnce("bili-search-cover-cancel", () => {
+        this.coverCancel();
+      });
+    },
+    /**
+     * 覆盖【取消】按钮的点击事件
+     */
+    coverCancel() {
+      log.info("覆盖【取消】按钮的点击事件");
+      domutils.on(
+        document,
+        "click",
+        "a.cancel",
+        (event) => {
+          log.info(`点击取消按钮`);
+          utils.preventEvent(event);
+          window.history.back();
+        },
+        { capture: true }
+      );
     }
   };
   const BilibiliLiveBlockNode = {
@@ -4300,6 +4992,7 @@
         BilibiliBangumi.init();
       } else if (BilibiliRouter.isSearch()) {
         log.info("Router: 搜索");
+        BilibiliSearch.init();
       } else if (BilibiliRouter.isLive()) {
         log.info("Router: 直播");
         BilibiliLive.init();
@@ -4311,6 +5004,9 @@
       } else {
         log.error("该Router暂未适配，可能是首页之类：" + window.location.href);
       }
+      domutils.ready(() => {
+        BilibiliPlayer.init();
+      });
     },
     /**
      * 监听路由变化

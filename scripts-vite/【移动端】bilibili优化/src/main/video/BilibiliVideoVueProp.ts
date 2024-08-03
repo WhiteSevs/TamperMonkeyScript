@@ -3,6 +3,8 @@ import { log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { unsafeWindow } from "ViteGM";
+import { BilibiliPlayer } from "../BilibiliPlayer";
+import { BilibiliDanmaku } from "../BilibiliDanmaku";
 
 export const BilibiliVideoVueProp = {
 	$data: {
@@ -81,9 +83,11 @@ export const BilibiliVideoVueProp = {
 									);
 									if ($playerVideo && $posterImg && $posterImg.src !== "") {
 										isSuccess = true;
-										(unsafeWindow as any)?.player?.off("restart_call_app");
-										(unsafeWindow as any)?.player?.off("force_call_app_show");
+										BilibiliPlayer!.player?.off("restart_call_app");
+										BilibiliPlayer!.player?.off("force_call_app_show");
 										log.success("<video>标签和视频封面图已成功初始化");
+										await utils.sleep(500);
+										BilibiliDanmaku.init();
 										return;
 									}
 									if ((unsafeWindow as any).BPlayerMobile == null) {
@@ -100,8 +104,8 @@ export const BilibiliVideoVueProp = {
 											" 次未检测到视频，调用初始化视频函数 initPlayer()"
 									);
 									await utils.sleep(300);
-									(unsafeWindow as any)?.player?.off("restart_call_app");
-									(unsafeWindow as any)?.player?.off("force_call_app_show");
+									BilibiliPlayer!.player?.off("restart_call_app");
+									BilibiliPlayer!.player?.off("force_call_app_show");
 									checkCount++;
 								});
 								intervalId = setInterval(async () => {

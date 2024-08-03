@@ -438,7 +438,7 @@ const PopsPanel = {
 			SettingUIOpus,
 			SettingUIDynamic,
 			SettingUIBangumi,
-			SettingUITopicDetail,
+			// SettingUITopicDetail,
 			SettingUISearch,
 			SettingUILive,
 		];

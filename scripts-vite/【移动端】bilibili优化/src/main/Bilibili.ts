@@ -2,7 +2,7 @@ import "./block.css";
 import BilibiliBeautifyCSS from "./BilibiliBeautify.css?raw";
 import { BilibiliPCRouter, BilibiliRouter } from "@/router/BilibiliRouter";
 import { BilibiliVideo } from "./video/BilibiliVideo";
-import { addStyle, log, utils } from "@/env";
+import { addStyle, DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliBangumi } from "./bangumi/BilibiliBangumi";
 import { BilibiliSearch } from "./search/BilibiliSearch";
@@ -17,6 +17,8 @@ import { BilibiliVueProp } from "./BilibiliVueProp";
 import { BilibiliReadMobile } from "./read/mobile/BilibiliReadMobile";
 import { BilibiliNetworkHook } from "@/hook/BilibiliNetworkHook";
 import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
+import { BilibiliPlayer } from "./BilibiliPlayer";
+import { BilibiliDanmaku } from "./BilibiliDanmaku";
 
 const Bilibili = {
 	init() {
@@ -38,6 +40,7 @@ const Bilibili = {
 			log.info("添加美化CSS");
 			addStyle(BilibiliBeautifyCSS);
 		});
+
 		if (BilibiliRouter.isVideo()) {
 			log.info("Router: 视频稿件");
 			BilibiliVideo.init();
@@ -68,6 +71,10 @@ const Bilibili = {
 		} else {
 			log.error("该Router暂未适配，可能是首页之类：" + window.location.href);
 		}
+
+		DOMUtils.ready(() => {
+			BilibiliPlayer.init();
+		});
 	},
 	/**
 	 * 监听路由变化
