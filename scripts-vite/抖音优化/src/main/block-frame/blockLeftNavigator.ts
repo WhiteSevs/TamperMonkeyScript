@@ -13,16 +13,14 @@ export const BlockLeftNavigator = {
 			},
 			(mainValue, childValue) => {
 				if (DouYinRouter.isSearch()) {
-					if (mainValue) {
-						if (childValue == 1) {
-							// 开
-							return true;
-						} else if (childValue == 0) {
-							// 关
-							return false;
-						} else {
-							// 默认
-						}
+					if (childValue == 1) {
+						// 开
+						return true;
+					} else if (childValue == 0) {
+						// 关
+						return false;
+					} else {
+						// 跟随主设置
 					}
 				}
 			}

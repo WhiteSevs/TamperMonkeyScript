@@ -6,6 +6,26 @@ import { DouYinUtils } from "@/utils/DouYinUtils";
 /** 顶部导航栏屏蔽 */
 export const BlockTopNavigator = {
 	init() {
+		PopsPanel.execInheritMenuOnce(
+			"shieldTopNavigator",
+			"search-shieldTopNavigator",
+			() => {
+				return this.shieldTopNavigator();
+			},
+			(mainValue, childValue) => {
+				if (DouYinRouter.isSearch()) {
+					if (childValue == 1) {
+						// 开
+						return true;
+					} else if (childValue == 0) {
+						// 关
+						return false;
+					} else {
+						// 跟随主设置
+					}
+				}
+			}
+		);
 		PopsPanel.execMenuOnce("shieldClientTip", () => {
 			return this.shieldClientTip();
 		});
@@ -33,49 +53,6 @@ export const BlockTopNavigator = {
 		PopsPanel.execMenuOnce("shieldBottomQuestionButton", () => {
 			return this.shieldBottomQuestionButton();
 		});
-
-		let blockNavFn = () => {
-			let shieldTopNavigator =
-				PopsPanel.getValue<boolean>("shieldTopNavigator");
-			let search_shieldTopNavigator = PopsPanel.getValue<number>(
-				"search-shieldTopNavigator"
-			);
-			if (DouYinRouter.isSearch()) {
-				if (search_shieldTopNavigator == 1) {
-					// 开
-					shieldTopNavigator = true;
-				} else if (search_shieldTopNavigator == 0) {
-					// 关
-					shieldTopNavigator = false;
-				} else {
-					// 默认
-				}
-			}
-			return shieldTopNavigator;
-		};
-		PopsPanel.execMenuOnce(
-			"shieldTopNavigator",
-			() => {
-				return this.shieldTopNavigator();
-			},
-			(): boolean => {
-				return blockNavFn();
-			},
-			() => {
-				return blockNavFn();
-			}
-		);
-		PopsPanel.execMenuOnce(
-			"search-shieldTopNavigator",
-			() => {},
-			() => {
-				return false;
-			},
-			() => {
-				PopsPanel.triggerMenuValueChange("shieldTopNavigator");
-				return false;
-			}
-		);
 	},
 	/**
 	 * 【屏蔽】顶部导航栏

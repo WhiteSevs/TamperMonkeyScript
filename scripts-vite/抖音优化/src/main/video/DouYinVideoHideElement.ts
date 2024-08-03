@@ -52,7 +52,7 @@ export const DouYinVideoBottomToolbarHideElement = {
 		return [
 			DouYinUtils.addBlockCSS("xg-controls.xgplayer-controls"),
 			// 修复底部工具栏因屏蔽导致的空白区域
-			addStyle(`
+			addStyle(/*css*/ `
 			#sliderVideo[data-e2e="feed-active-video"] div:has( > div > #video-info-wrap),
 			div:has( > div > pace-island > #video-info-wrap ),
 			xg-video-container.xg-video-container{
@@ -121,7 +121,7 @@ export const DouYinVideoRightToolbarHideElement = {
 				/* 全屏下的右侧的切换播放 */
 				".xgplayer-playswitch"
 			),
-			addStyle(`
+			addStyle(/*css*/ `
 			div[data-e2e="slideList"]{
 				/* 修复屏蔽后的视频宽度占据 */
 				padding: 0px !important;
@@ -249,7 +249,7 @@ export const DouYinVideoHideElement = {
 				'#sliderVideo[data-e2e="feed-active-video"] > div > div > button[type="button"]',
 				'.playerContainer button[type=button] svg > g[filter] > path[d="M21.316 29.73a1.393 1.393 0 01-1.97 0l-5.056-5.055a1.393 1.393 0 010-1.97l.012-.011 5.044-5.045a1.393 1.393 0 011.97 1.97l-4.07 4.071 4.07 4.071a1.393 1.393 0 010 1.97z"]'
 			),
-			addStyle(`
+			addStyle(/*css*/ `
 			.basePlayerContainer .positionBox{
 				padding-right: 20px !important;
 			}`),
