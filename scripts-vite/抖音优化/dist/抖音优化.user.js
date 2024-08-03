@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.1.12
+// @version      2024.8.3
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -2073,12 +2073,15 @@
       return [
         DouYinUtils.addBlockCSS("xg-controls.xgplayer-controls"),
         // 修复底部工具栏因屏蔽导致的空白区域
-        addStyle(`
+        addStyle(
+          /*css*/
+          `
 			#sliderVideo[data-e2e="feed-active-video"] div:has( > div > #video-info-wrap),
 			div:has( > div > pace-island > #video-info-wrap ),
 			xg-video-container.xg-video-container{
 				bottom: 0 !important;
-			}`)
+			}`
+        )
       ];
     },
     /**
@@ -2139,12 +2142,15 @@
           /* 全屏下的右侧的切换播放 */
           ".xgplayer-playswitch"
         ),
-        addStyle(`
+        addStyle(
+          /*css*/
+          `
 			div[data-e2e="slideList"]{
 				/* 修复屏蔽后的视频宽度占据 */
 				padding: 0px !important;
 			}
-			`)
+			`
+        )
       ];
     },
     /**
@@ -2267,10 +2273,13 @@
           '#sliderVideo[data-e2e="feed-active-video"] > div > div > button[type="button"]',
           '.playerContainer button[type=button] svg > g[filter] > path[d="M21.316 29.73a1.393 1.393 0 01-1.97 0l-5.056-5.055a1.393 1.393 0 010-1.97l.012-.011 5.044-5.045a1.393 1.393 0 011.97 1.97l-4.07 4.071 4.07 4.071a1.393 1.393 0 010 1.97z"]'
         ),
-        addStyle(`
+        addStyle(
+          /*css*/
+          `
 			.basePlayerContainer .positionBox{
 				padding-right: 20px !important;
-			}`)
+			}`
+        )
       ];
     },
     /**
@@ -4582,6 +4591,22 @@
   const addStyle = utils.addStyle.bind(utils);
   const BlockTopNavigator = {
     init() {
+      PopsPanel.execInheritMenuOnce(
+        "shieldTopNavigator",
+        "search-shieldTopNavigator",
+        () => {
+          return this.shieldTopNavigator();
+        },
+        (mainValue, childValue) => {
+          if (DouYinRouter.isSearch()) {
+            if (childValue == 1) {
+              return true;
+            } else if (childValue == 0) {
+              return false;
+            } else ;
+          }
+        }
+      );
       PopsPanel.execMenuOnce("shieldClientTip", () => {
         return this.shieldClientTip();
       });
@@ -4609,44 +4634,6 @@
       PopsPanel.execMenuOnce("shieldBottomQuestionButton", () => {
         return this.shieldBottomQuestionButton();
       });
-      let blockNavFn = () => {
-        let shieldTopNavigator = PopsPanel.getValue("shieldTopNavigator");
-        let search_shieldTopNavigator = PopsPanel.getValue(
-          "search-shieldTopNavigator"
-        );
-        if (DouYinRouter.isSearch()) {
-          if (search_shieldTopNavigator == 1) {
-            shieldTopNavigator = true;
-          } else if (search_shieldTopNavigator == 0) {
-            shieldTopNavigator = false;
-          } else ;
-        }
-        return shieldTopNavigator;
-      };
-      PopsPanel.execMenuOnce(
-        "shieldTopNavigator",
-        () => {
-          return this.shieldTopNavigator();
-        },
-        () => {
-          return blockNavFn();
-        },
-        () => {
-          return blockNavFn();
-        }
-      );
-      PopsPanel.execMenuOnce(
-        "search-shieldTopNavigator",
-        () => {
-        },
-        () => {
-          return false;
-        },
-        () => {
-          PopsPanel.triggerMenuValueChange("shieldTopNavigator");
-          return false;
-        }
-      );
     },
     /**
      * 【屏蔽】顶部导航栏
@@ -5212,13 +5199,11 @@
         },
         (mainValue, childValue) => {
           if (DouYinRouter.isSearch()) {
-            if (mainValue) {
-              if (childValue == 1) {
-                return true;
-              } else if (childValue == 0) {
-                return false;
-              } else ;
-            }
+            if (childValue == 1) {
+              return true;
+            } else if (childValue == 0) {
+              return false;
+            } else ;
           }
         }
       );
