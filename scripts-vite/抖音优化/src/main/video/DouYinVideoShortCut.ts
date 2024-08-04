@@ -1,6 +1,6 @@
 import { unsafeWindow } from "ViteGM";
 import { log } from "@/env";
-import { ShortCut, ShortCutMap } from "@/utils/ShortCut";
+import { ShortCut, ShortCutOption } from "@/utils/ShortCut";
 import { DouYinVideo, VideoRate } from "./DouYinVideo";
 
 export const DouYinVideoShortcut = {
@@ -11,9 +11,10 @@ export const DouYinVideoShortcut = {
 	init() {
 		this.shortCut.initGlobalKeyboardListener(this.getShortCutMap());
 	},
-	getShortCutMap(): ShortCutMap {
+	getShortCutMap(): ShortCutOption {
 		return {
 			"dy-video-rate-low": {
+				target: "window",
 				callback() {
 					log.info("调用倍速 => 小");
 					let currentRate =
@@ -33,6 +34,7 @@ export const DouYinVideoShortcut = {
 				},
 			},
 			"dy-video-rate-up": {
+				target: "window",
 				callback() {
 					log.info("调用倍速 => 大");
 					let currentRate =

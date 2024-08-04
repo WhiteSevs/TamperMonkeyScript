@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Demo Script Name
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.4
+// @version      2024.8.4.13
 // @author       WhiteSevs
 // @description
 // @license      GPL-3.0-only

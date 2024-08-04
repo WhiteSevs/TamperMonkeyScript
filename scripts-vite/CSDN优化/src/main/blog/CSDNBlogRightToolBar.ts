@@ -9,7 +9,12 @@ const CSDNBlogRightToolBar = {
 			() => {
 				return this.shieldRightToolbar();
 			},
-			true
+			(_, value) => {
+				return !value;
+			},
+			(_, newValue) => {
+				return !newValue;
+			}
 		);
 		PopsPanel.execMenuOnce("csdn-blog-rightToolbarCreativeCenter", () => {
 			return this.shieldCreativeCenter();

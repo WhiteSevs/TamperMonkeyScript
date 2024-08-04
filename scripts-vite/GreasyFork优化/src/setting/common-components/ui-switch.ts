@@ -11,7 +11,7 @@ import { PopsPanelSwitchDetails } from "@whitesev/pops/dist/types/src/components
  * @param clickCallBack （可选）点击回调
  * @param description （可选）左边的文字下面的描述
  */
-const UISwitch = function (
+export const UISwitch = function (
 	text: string,
 	key: string,
 	defaultValue: boolean | undefined,
@@ -45,5 +45,3 @@ const UISwitch = function (
 	}
 	return result;
 };
-
-export { UISwitch };

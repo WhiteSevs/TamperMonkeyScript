@@ -88,9 +88,13 @@ export const PopsPanel = {
 		this.initPanelDefaultValue();
 		this.initExtensionsMenu();
 	},
+	/** 判断是否是顶层窗口 */
+	isTopWindow() {
+		return unsafeWindow.top === unsafeWindow.self;
+	},
 	/** 初始化进行注册油猴菜单 */
 	initExtensionsMenu() {
-		if (unsafeWindow.top !== unsafeWindow.self) {
+		if (!this.isTopWindow()) {
 			/* 不允许在iframe内重复注册 */
 			return;
 		}
@@ -335,8 +339,8 @@ export const PopsPanel = {
 	 * 自动判断菜单是否启用，然后执行回调，只会执行一次
 	 * @param key
 	 * @param callback 回调
-	 * @param getValueFn 自定义处理获取当前值，值true是启用
-	 * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用
+	 * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
+	 * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
 	 */
 	execMenuOnce(
 		key: string,
@@ -344,7 +348,7 @@ export const PopsPanel = {
 			value: any,
 			pushStyleNode: (style: HTMLStyleElement | HTMLStyleElement[]) => void
 		) => any | any[],
-		getValueFn?: () => boolean,
+		getValueFn?: (key: string, value: any) => boolean,
 		handleValueChangeFn?: (key: string, newValue: any, oldValue: any) => boolean
 	) {
 		if (typeof key !== "string") {
@@ -361,9 +365,10 @@ export const PopsPanel = {
 		this.$data.oneSuccessExecMenu.set(key, 1);
 
 		let __getValue = () => {
+			let localValue = PopsPanel.getValue<boolean>(key);
 			return typeof getValueFn === "function"
-				? getValueFn()
-				: PopsPanel.getValue<boolean>(key);
+				? getValueFn(key, localValue)
+				: localValue;
 		};
 
 		// 存储的<style>标签列表

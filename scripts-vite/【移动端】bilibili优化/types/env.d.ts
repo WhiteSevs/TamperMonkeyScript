@@ -11,6 +11,8 @@ type NestedObjectWithToString = {
 	toString(): any;
 };
 
+declare type IPromise<T> = Promise<T> | T;
+
 interface Player {
 	buvid: string;
 	config: any;

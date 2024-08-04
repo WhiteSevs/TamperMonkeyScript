@@ -2,7 +2,13 @@ import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
 import { GM_Menu, log, pops, SCRIPT_NAME, utils } from "@/env";
 import { PanelCommonConfig } from "./components/common";
 import { PanelLiveConfig } from "./components/live";
-import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, KEY } from "./config";
+import {
+	ATTRIBUTE_DEFAULT_VALUE,
+	ATTRIBUTE_INIT,
+	ATTRIBUTE_INIT_MORE_VALUE,
+	ATTRIBUTE_KEY,
+	KEY,
+} from "./config";
 import { PanelVideoConfig } from "./components/video";
 import { PanelSearchConfig } from "./components/search";
 import { MPanelShareUserConfig } from "./m-components/shareUser";
@@ -18,49 +24,47 @@ import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { PanelRecommendVideoConfig } from "./components/recommend";
 
-interface PosPanelListenerData {
+type PosPanelListenerData = {
 	id: number;
 	key: string;
 	callback: (key: string, oldValue: any, newValue: any) => void;
-}
-const __PopsPanel__ = {
-	data: null as any as UtilsDictionary<string, any>,
-	oneSuccessExecMenu: null as any as UtilsDictionary<string, number>,
-	onceExec: null as any as UtilsDictionary<string, number>,
-	listenData: null as any as UtilsDictionary<string, PosPanelListenerData>,
 };
 const PopsPanel = {
 	/** 数据 */
 	$data: {
+		__data: null as any as UtilsDictionary<string, any>,
+		__oneSuccessExecMenu: null as any as UtilsDictionary<string, number>,
+		__onceExec: null as any as UtilsDictionary<string, number>,
+		__listenData: null as any as UtilsDictionary<string, PosPanelListenerData>,
 		/**
 		 * 菜单项的默认值
 		 */
 		get data() {
-			if (__PopsPanel__.data == null) {
-				__PopsPanel__.data = new utils.Dictionary<string, any>();
+			if (PopsPanel.$data.__data == null) {
+				PopsPanel.$data.__data = new utils.Dictionary<string, any>();
 			}
-			return __PopsPanel__.data;
+			return PopsPanel.$data.__data;
 		},
 		/**
 		 * 成功只执行了一次的项
 		 */
 		get oneSuccessExecMenu() {
-			if (__PopsPanel__.oneSuccessExecMenu == null) {
-				__PopsPanel__.oneSuccessExecMenu = new utils.Dictionary<
+			if (PopsPanel.$data.__oneSuccessExecMenu == null) {
+				PopsPanel.$data.__oneSuccessExecMenu = new utils.Dictionary<
 					string,
 					number
 				>();
 			}
-			return __PopsPanel__.oneSuccessExecMenu;
+			return PopsPanel.$data.__oneSuccessExecMenu;
 		},
 		/**
 		 * 成功只执行了一次的项
 		 */
 		get onceExec() {
-			if (__PopsPanel__.onceExec == null) {
-				__PopsPanel__.onceExec = new utils.Dictionary<string, number>();
+			if (PopsPanel.$data.__onceExec == null) {
+				PopsPanel.$data.__onceExec = new utils.Dictionary<string, number>();
 			}
-			return __PopsPanel__.onceExec;
+			return PopsPanel.$data.__onceExec;
 		},
 		/** 脚本名，一般用在设置的标题上 */
 		get scriptName() {
@@ -79,21 +83,25 @@ const PopsPanel = {
 		 * 值改变的监听器
 		 */
 		get listenData() {
-			if (__PopsPanel__.listenData == null) {
-				__PopsPanel__.listenData = new utils.Dictionary<
+			if (PopsPanel.$data.__listenData == null) {
+				PopsPanel.$data.__listenData = new utils.Dictionary<
 					string,
 					PosPanelListenerData
 				>();
 			}
-			return __PopsPanel__.listenData;
+			return PopsPanel.$data.__listenData;
 		},
 	},
 	init() {
 		this.initPanelDefaultValue();
 		this.initExtensionsMenu();
 	},
+	/** 判断是否是顶层窗口 */
+	isTopWindow() {
+		return unsafeWindow.top === unsafeWindow.self;
+	},
 	initExtensionsMenu() {
-		if (unsafeWindow.top !== unsafeWindow.self) {
+		if (!this.isTopWindow()) {
 			/* 不允许在iframe内重复注册 */
 			return;
 		}
@@ -124,7 +132,7 @@ const PopsPanel = {
 			},
 		]);
 	},
-	/** 初始化本地设置默认的值 */
+	/** 初始化菜单项的默认值保存到本地数据中 */
 	initPanelDefaultValue() {
 		let that = this;
 		/**
@@ -134,23 +142,46 @@ const PopsPanel = {
 		function initDefaultValue(
 			config: PopsPanelFormsTotalDetails | PopsPanelFormsDetails
 		) {
-			if (!config["attributes"]) {
+			if (!config.attributes) {
 				/* 必须配置attributes属性，用于存储菜单的键和默认值 */
 				return;
 			}
+			/* 初始化配置对象，每个是需要配置的键值对 */
+			let needInitConfig = {} as { [key: string]: any };
 			/* 获取键名 */
 			let key = config.attributes[ATTRIBUTE_KEY];
-			/* 获取默认值 */
-			let defaultValue = config["attributes"][ATTRIBUTE_DEFAULT_VALUE];
-			if (key == null) {
-				console.warn("请先配置键", config);
+			if (key != null) {
+				needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+			}
+
+			/* 调用初始化方法，返回false则阻止默认行为 */
+			let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+			if (typeof __attr_init__ === "function") {
+				let __attr_result__ = __attr_init__();
+				if (typeof __attr_result__ === "boolean" && !__attr_result__) {
+					return;
+				}
+			}
+			/* 待初始化默认值的配置项 */
+			let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+			if (initMoreValue && typeof initMoreValue === "object") {
+				/* 覆盖进去 */
+				Object.assign(needInitConfig, initMoreValue);
+			}
+			let needInitConfigList = Object.keys(needInitConfig);
+			if (!needInitConfigList.length) {
+				log.warn(["请先配置键", config]);
 				return;
 			}
-			/* 存储到内存中 */
-			if (that.$data.data.has(key)) {
-				console.warn("请检查该key(已存在): " + key);
-			}
-			that.$data.data.set(key, defaultValue);
+			// 循环初始化默认值
+			needInitConfigList.forEach((__key) => {
+				let __defaultValue = needInitConfig[__key];
+				/* 存储到内存中 */
+				if (that.$data.data.has(__key)) {
+					log.warn("请检查该key(已存在): " + __key);
+				}
+				that.$data.data.set(__key, __defaultValue);
+			});
 		}
 		/** 嵌套循环初始化默认值 */
 		function loopInitDefaultValue(configList: PopsPanelContentConfig["forms"]) {
@@ -164,9 +195,7 @@ const PopsPanel = {
 				}
 			}
 		}
-		let contentConfigList = this.getPanelContentConfig().concat(
-			this.getMPanelContentConfig()
-		);
+		let contentConfigList = this.getPanelContentConfig();
 		for (let index = 0; index < contentConfigList.length; index++) {
 			let leftContentConfigItem = contentConfigList[index];
 			if (!leftContentConfigItem.forms) {
@@ -296,8 +325,9 @@ const PopsPanel = {
 	 * 自动判断菜单是否启用，然后执行回调
 	 * @param key
 	 * @param callback 回调
+	 * @param [isReverse=false] 逆反判断菜单启用
 	 */
-	execMenu(key: string, callback: (value: any) => void) {
+	execMenu(key: string, callback: (value: any) => void, isReverse = false) {
 		if (typeof key !== "string") {
 			throw new TypeError("key 必须是字符串");
 		}
@@ -306,6 +336,10 @@ const PopsPanel = {
 			return;
 		}
 		let value = PopsPanel.getValue(key);
+		if (isReverse) {
+			// 逆反
+			value = !value;
+		}
 		if (value) {
 			callback(value);
 		}
@@ -314,8 +348,8 @@ const PopsPanel = {
 	 * 自动判断菜单是否启用，然后执行回调，只会执行一次
 	 * @param key
 	 * @param callback 回调
-	 * @param getValueFn 自定义处理获取当前值，值true是启用
-	 * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用
+	 * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
+	 * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
 	 */
 	execMenuOnce(
 		key: string,
@@ -323,7 +357,7 @@ const PopsPanel = {
 			value: any,
 			pushStyleNode: (style: HTMLStyleElement | HTMLStyleElement[]) => void
 		) => any | any[],
-		getValueFn?: () => boolean,
+		getValueFn?: (key: string, value: any) => boolean,
 		handleValueChangeFn?: (key: string, newValue: any, oldValue: any) => boolean
 	) {
 		if (typeof key !== "string") {
@@ -340,9 +374,10 @@ const PopsPanel = {
 		this.$data.oneSuccessExecMenu.set(key, 1);
 
 		let __getValue = () => {
+			let localValue = PopsPanel.getValue<boolean>(key);
 			return typeof getValueFn === "function"
-				? getValueFn()
-				: PopsPanel.getValue<boolean>(key);
+				? getValueFn(key, localValue)
+				: localValue;
 		};
 
 		// 存储的<style>标签列表
@@ -525,7 +560,7 @@ const PopsPanel = {
 					toHide: false,
 				},
 			},
-			isMobile: true,
+			isMobile: this.isMobile(),
 			width: this.getWidth(),
 			height: this.getHeight(),
 			drag: true,
@@ -533,10 +568,16 @@ const PopsPanel = {
 		});
 	},
 	/**
+	 * 判断是否是移动端
+	 */
+	isMobile() {
+		return window.innerWidth < 550;
+	},
+	/**
 	 * 获取设置面板的宽度
 	 */
 	getWidth() {
-		if (window.outerWidth < 550) {
+		if (window.innerWidth < 550) {
 			return "92vw";
 		} else {
 			return "550px";
@@ -546,7 +587,7 @@ const PopsPanel = {
 	 * 获取设置面板的高度
 	 */
 	getHeight() {
-		if (window.outerHeight < 450) {
+		if (window.innerHeight > 450) {
 			return "80vh";
 		} else {
 			return "450px";

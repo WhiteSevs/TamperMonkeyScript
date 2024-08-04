@@ -26,49 +26,47 @@ import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { SettingUISpace } from "./components/Space";
 
-interface PosPanelListenerData {
+type PosPanelListenerData = {
 	id: number;
 	key: string;
 	callback: (key: string, oldValue: any, newValue: any) => void;
-}
-const __PopsPanel__ = {
-	data: null as any as UtilsDictionary<string, any>,
-	oneSuccessExecMenu: null as any as UtilsDictionary<string, number>,
-	onceExec: null as any as UtilsDictionary<string, number>,
-	listenData: null as any as UtilsDictionary<string, PosPanelListenerData>,
 };
-const PopsPanel = {
+export const PopsPanel = {
 	/** 数据 */
 	$data: {
+		__data: null as any as UtilsDictionary<string, any>,
+		__oneSuccessExecMenu: null as any as UtilsDictionary<string, number>,
+		__onceExec: null as any as UtilsDictionary<string, number>,
+		__listenData: null as any as UtilsDictionary<string, PosPanelListenerData>,
 		/**
 		 * 菜单项的默认值
 		 */
 		get data() {
-			if (__PopsPanel__.data == null) {
-				__PopsPanel__.data = new utils.Dictionary<string, any>();
+			if (PopsPanel.$data.__data == null) {
+				PopsPanel.$data.__data = new utils.Dictionary<string, any>();
 			}
-			return __PopsPanel__.data;
+			return PopsPanel.$data.__data;
 		},
 		/**
 		 * 成功只执行了一次的项
 		 */
 		get oneSuccessExecMenu() {
-			if (__PopsPanel__.oneSuccessExecMenu == null) {
-				__PopsPanel__.oneSuccessExecMenu = new utils.Dictionary<
+			if (PopsPanel.$data.__oneSuccessExecMenu == null) {
+				PopsPanel.$data.__oneSuccessExecMenu = new utils.Dictionary<
 					string,
 					number
 				>();
 			}
-			return __PopsPanel__.oneSuccessExecMenu;
+			return PopsPanel.$data.__oneSuccessExecMenu;
 		},
 		/**
 		 * 成功只执行了一次的项
 		 */
 		get onceExec() {
-			if (__PopsPanel__.onceExec == null) {
-				__PopsPanel__.onceExec = new utils.Dictionary<string, number>();
+			if (PopsPanel.$data.__onceExec == null) {
+				PopsPanel.$data.__onceExec = new utils.Dictionary<string, number>();
 			}
-			return __PopsPanel__.onceExec;
+			return PopsPanel.$data.__onceExec;
 		},
 		/** 脚本名，一般用在设置的标题上 */
 		get scriptName() {
@@ -87,21 +85,25 @@ const PopsPanel = {
 		 * 值改变的监听器
 		 */
 		get listenData() {
-			if (__PopsPanel__.listenData == null) {
-				__PopsPanel__.listenData = new utils.Dictionary<
+			if (PopsPanel.$data.__listenData == null) {
+				PopsPanel.$data.__listenData = new utils.Dictionary<
 					string,
 					PosPanelListenerData
 				>();
 			}
-			return __PopsPanel__.listenData;
+			return PopsPanel.$data.__listenData;
 		},
 	},
 	init() {
 		this.initPanelDefaultValue();
 		this.initExtensionsMenu();
 	},
+	/** 判断是否是顶层窗口 */
+	isTopWindow() {
+		return unsafeWindow.top === unsafeWindow.self;
+	},
 	initExtensionsMenu() {
-		if (unsafeWindow.top !== unsafeWindow.self) {
+		if (!this.isTopWindow()) {
 			/* 不允许在iframe内重复注册 */
 			return;
 		}
@@ -299,6 +301,31 @@ const PopsPanel = {
 		this.$listener.listenData.delete(deleteKey);
 	},
 	/**
+	 * 主动触发菜单值改变的回调
+	 * @param key 菜单键
+	 * @param newValue 想要触发的新值，默认使用当前值
+	 * @param oldValue 想要触发的旧值，默认使用当前值
+	 */
+	triggerMenuValueChange(key: string, newValue?: any, oldValue?: any) {
+		if (this.$listener.listenData.has(key)) {
+			let listenData = this.$listener.listenData.get(key)!;
+			if (typeof listenData.callback === "function") {
+				let value = this.getValue(key);
+				let __newValue = value;
+				let __oldValue = value;
+				if (typeof newValue !== "undefined" && arguments.length > 1) {
+					// 传入参数大于1个且不为undefined时生效
+					__newValue = newValue;
+				}
+				if (typeof oldValue !== "undefined" && arguments.length > 2) {
+					// 传入参数大于2个且不为undefined时生效
+					__oldValue = oldValue;
+				}
+				listenData.callback(key, __oldValue, __newValue);
+			}
+		}
+	},
+	/**
 	 * 判断该键是否存在
 	 * @param key 键
 	 */
@@ -328,13 +355,17 @@ const PopsPanel = {
 	 * 自动判断菜单是否启用，然后执行回调，只会执行一次
 	 * @param key
 	 * @param callback 回调
+	 * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
+	 * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
 	 */
 	execMenuOnce(
 		key: string,
 		callback: (
 			value: any,
 			pushStyleNode: (style: HTMLStyleElement | HTMLStyleElement[]) => void
-		) => any | any[]
+		) => any | any[],
+		getValueFn?: (key: string, value: any) => boolean,
+		handleValueChangeFn?: (key: string, newValue: any, oldValue: any) => boolean
 	) {
 		if (typeof key !== "string") {
 			throw new TypeError("key 必须是字符串");
@@ -349,21 +380,46 @@ const PopsPanel = {
 		}
 		this.$data.oneSuccessExecMenu.set(key, 1);
 
+		let __getValue = () => {
+			let localValue = PopsPanel.getValue<boolean>(key);
+			return typeof getValueFn === "function"
+				? getValueFn(key, localValue)
+				: localValue;
+		};
+
 		// 存储的<style>标签列表
 		let resultStyleList: HTMLStyleElement[] = [];
 		// 主动添加<style>标签的回调
-		let pushStyleNode = (style: HTMLStyleElement | HTMLStyleElement[]) => {
-			let __value = PopsPanel.getValue<boolean>(key);
-			changeCallBack(__value, style);
-		};
-		let changeCallBack = (
-			currentValue: boolean,
-			resultStyle?: HTMLStyleElement | HTMLStyleElement[]
+		let dynamicPushStyleNode = (
+			$style: HTMLStyleElement | HTMLStyleElement[]
 		) => {
+			let __value = __getValue();
+			let dynamicResultList: HTMLStyleElement[] = [];
+			if ($style instanceof HTMLStyleElement) {
+				dynamicResultList = [$style];
+			} else if (Array.isArray($style)) {
+				dynamicResultList = [
+					...$style.filter(
+						(item) => item != null && item instanceof HTMLStyleElement
+					),
+				];
+			}
+			if (__value) {
+				resultStyleList = resultStyleList.concat(dynamicResultList);
+			} else {
+				for (let index = 0; index < dynamicResultList.length; index++) {
+					let $css = dynamicResultList[index];
+					$css.remove();
+					dynamicResultList.splice(index, 1);
+					index--;
+				}
+			}
+		};
+		let changeCallBack = (currentValue: boolean) => {
 			let resultList: HTMLStyleElement[] = [];
 			if (currentValue) {
 				// 开
-				let result = resultStyle ?? callback(currentValue, pushStyleNode);
+				let result = callback(currentValue, dynamicPushStyleNode);
 				if (result instanceof HTMLStyleElement) {
 					resultList = [result];
 				} else if (Array.isArray(result)) {
@@ -386,13 +442,70 @@ const PopsPanel = {
 			key,
 			(__key, oldValue, newValue) => {
 				// 值改变
-				changeCallBack(newValue);
+				let __newValue = newValue;
+				if (typeof handleValueChangeFn === "function") {
+					__newValue = handleValueChangeFn(__key, newValue, oldValue);
+				}
+				changeCallBack(__newValue);
 			}
 		);
-		let value = PopsPanel.getValue<boolean>(key);
+		let value = __getValue();
 		if (value) {
 			changeCallBack(value);
 		}
+	},
+	/**
+	 * 父子菜单联动，自动判断菜单是否启用，然后执行回调，只会执行一次
+	 * @param key 菜单键
+	 * @param childKey 子菜单键
+	 * @param callback 回调
+	 * @param replaceValueFn 用于修改mainValue，返回undefined则不做处理
+	 */
+	execInheritMenuOnce(
+		key: string,
+		childKey: string,
+		callback: (
+			value: any,
+			pushStyleNode: (style: HTMLStyleElement | HTMLStyleElement[]) => void
+		) => any | any[],
+		replaceValueFn?: (mainValue: any, childValue: any) => any
+	) {
+		let that = this;
+		/**
+		 * 处理子父值的关联获取
+		 * @param key 父键
+		 * @param childKey 子键
+		 */
+		const handleInheritValue = (key: string, childKey: string) => {
+			let mainValue = that.getValue<boolean>(key);
+			let childValue = that.getValue<number>(childKey);
+			if (typeof replaceValueFn === "function") {
+				let changedMainValue = replaceValueFn(mainValue, childValue);
+				if (changedMainValue !== void 0) {
+					return changedMainValue;
+				}
+			}
+			return mainValue;
+		};
+		this.execMenuOnce(
+			key,
+			callback,
+			() => {
+				return handleInheritValue(key, childKey);
+			},
+			() => {
+				return handleInheritValue(key, childKey);
+			}
+		);
+		this.execMenuOnce(
+			childKey,
+			() => {},
+			() => false,
+			() => {
+				this.triggerMenuValueChange(key);
+				return false;
+			}
+		);
 	},
 	/**
 	 * 根据key执行一次
@@ -434,14 +547,17 @@ const PopsPanel = {
 			only: true,
 		});
 	},
+	/**
+	 * 判断是否是移动端
+	 */
 	isMobile() {
-		return window.outerWidth < 550;
+		return window.innerWidth < 550;
 	},
 	/**
 	 * 获取设置面板的宽度
 	 */
 	getWidth() {
-		if (window.outerWidth < 550) {
+		if (window.innerWidth < 550) {
 			return "92vw";
 		} else {
 			return "550px";
@@ -451,7 +567,7 @@ const PopsPanel = {
 	 * 获取设置面板的高度
 	 */
 	getHeight() {
-		if (window.outerHeight > 450) {
+		if (window.innerHeight > 450) {
 			return "80vh";
 		} else {
 			return "450px";
@@ -476,5 +592,3 @@ const PopsPanel = {
 		return configList;
 	},
 };
-
-export { PopsPanel };

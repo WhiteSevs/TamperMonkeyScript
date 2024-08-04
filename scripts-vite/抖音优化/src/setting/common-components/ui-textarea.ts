@@ -11,7 +11,6 @@ import { PopsPanelTextAreaDetails } from "@whitesev/pops/dist/types/src/componen
  * @param changeCallBack 输入框内容改变时的回调
  * @param placeholder 输入框的默认提示内容
  * @param disabled 是否禁用
- * @returns
  */
 export const UITextArea = function (
 	text: string,

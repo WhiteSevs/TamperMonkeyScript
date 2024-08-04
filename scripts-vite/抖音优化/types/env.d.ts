@@ -10,3 +10,5 @@ type NestedObjectWithToString = {
 	[key: string]: any | NestedObjectWithToString;
 	toString(): any;
 };
+
+declare type IPromise<T> = Promise<T> | T;

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.4
+// @version      2024.8.4.13
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -3096,41 +3096,39 @@
       }
     ]
   };
-  const __PopsPanel__ = {
-    data: null,
-    oneSuccessExecMenu: null,
-    onceExec: null,
-    listenData: null
-  };
   const PopsPanel = {
     /** 数据 */
     $data: {
+      __data: null,
+      __oneSuccessExecMenu: null,
+      __onceExec: null,
+      __listenData: null,
       /**
        * 菜单项的默认值
        */
       get data() {
-        if (__PopsPanel__.data == null) {
-          __PopsPanel__.data = new utils.Dictionary();
+        if (PopsPanel.$data.__data == null) {
+          PopsPanel.$data.__data = new utils.Dictionary();
         }
-        return __PopsPanel__.data;
+        return PopsPanel.$data.__data;
       },
       /**
        * 成功只执行了一次的项
        */
       get oneSuccessExecMenu() {
-        if (__PopsPanel__.oneSuccessExecMenu == null) {
-          __PopsPanel__.oneSuccessExecMenu = new utils.Dictionary();
+        if (PopsPanel.$data.__oneSuccessExecMenu == null) {
+          PopsPanel.$data.__oneSuccessExecMenu = new utils.Dictionary();
         }
-        return __PopsPanel__.oneSuccessExecMenu;
+        return PopsPanel.$data.__oneSuccessExecMenu;
       },
       /**
        * 成功只执行了一次的项
        */
       get onceExec() {
-        if (__PopsPanel__.onceExec == null) {
-          __PopsPanel__.onceExec = new utils.Dictionary();
+        if (PopsPanel.$data.__onceExec == null) {
+          PopsPanel.$data.__onceExec = new utils.Dictionary();
         }
-        return __PopsPanel__.onceExec;
+        return PopsPanel.$data.__onceExec;
       },
       /** 脚本名，一般用在设置的标题上 */
       get scriptName() {
@@ -3149,18 +3147,22 @@
        * 值改变的监听器
        */
       get listenData() {
-        if (__PopsPanel__.listenData == null) {
-          __PopsPanel__.listenData = new utils.Dictionary();
+        if (PopsPanel.$data.__listenData == null) {
+          PopsPanel.$data.__listenData = new utils.Dictionary();
         }
-        return __PopsPanel__.listenData;
+        return PopsPanel.$data.__listenData;
       }
     },
     init() {
       this.initPanelDefaultValue();
       this.initExtensionsMenu();
     },
+    /** 判断是否是顶层窗口 */
+    isTopWindow() {
+      return _unsafeWindow.top === _unsafeWindow.self;
+    },
     initExtensionsMenu() {
-      if (_unsafeWindow.top !== _unsafeWindow.self) {
+      if (!this.isTopWindow()) {
         return;
       }
       GM_Menu.add([
@@ -3332,6 +3334,29 @@
       this.$listener.listenData.delete(deleteKey);
     },
     /**
+     * 主动触发菜单值改变的回调
+     * @param key 菜单键
+     * @param newValue 想要触发的新值，默认使用当前值
+     * @param oldValue 想要触发的旧值，默认使用当前值
+     */
+    triggerMenuValueChange(key, newValue, oldValue) {
+      if (this.$listener.listenData.has(key)) {
+        let listenData = this.$listener.listenData.get(key);
+        if (typeof listenData.callback === "function") {
+          let value = this.getValue(key);
+          let __newValue = value;
+          let __oldValue = value;
+          if (typeof newValue !== "undefined" && arguments.length > 1) {
+            __newValue = newValue;
+          }
+          if (typeof oldValue !== "undefined" && arguments.length > 2) {
+            __oldValue = oldValue;
+          }
+          listenData.callback(key, __oldValue, __newValue);
+        }
+      }
+    },
+    /**
      * 判断该键是否存在
      * @param key 键
      */
@@ -3361,8 +3386,10 @@
      * 自动判断菜单是否启用，然后执行回调，只会执行一次
      * @param key
      * @param callback 回调
+     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
+     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
      */
-    execMenuOnce(key, callback) {
+    execMenuOnce(key, callback, getValueFn, handleValueChangeFn) {
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
@@ -3374,15 +3401,38 @@
         return;
       }
       this.$data.oneSuccessExecMenu.set(key, 1);
-      let resultStyleList = [];
-      let pushStyleNode = (style) => {
-        let __value = PopsPanel.getValue(key);
-        changeCallBack(__value, style);
+      let __getValue = () => {
+        let localValue = PopsPanel.getValue(key);
+        return typeof getValueFn === "function" ? getValueFn(key, localValue) : localValue;
       };
-      let changeCallBack = (currentValue, resultStyle) => {
+      let resultStyleList = [];
+      let dynamicPushStyleNode = ($style) => {
+        let __value = __getValue();
+        let dynamicResultList = [];
+        if ($style instanceof HTMLStyleElement) {
+          dynamicResultList = [$style];
+        } else if (Array.isArray($style)) {
+          dynamicResultList = [
+            ...$style.filter(
+              (item) => item != null && item instanceof HTMLStyleElement
+            )
+          ];
+        }
+        if (__value) {
+          resultStyleList = resultStyleList.concat(dynamicResultList);
+        } else {
+          for (let index = 0; index < dynamicResultList.length; index++) {
+            let $css = dynamicResultList[index];
+            $css.remove();
+            dynamicResultList.splice(index, 1);
+            index--;
+          }
+        }
+      };
+      let changeCallBack = (currentValue) => {
         let resultList = [];
         if (currentValue) {
-          let result = resultStyle ?? callback(currentValue, pushStyleNode);
+          let result = callback(currentValue, dynamicPushStyleNode);
           if (result instanceof HTMLStyleElement) {
             resultList = [result];
           } else if (Array.isArray(result)) {
@@ -3404,13 +3454,58 @@
       this.addValueChangeListener(
         key,
         (__key, oldValue, newValue) => {
-          changeCallBack(newValue);
+          let __newValue = newValue;
+          if (typeof handleValueChangeFn === "function") {
+            __newValue = handleValueChangeFn(__key, newValue, oldValue);
+          }
+          changeCallBack(__newValue);
         }
       );
-      let value = PopsPanel.getValue(key);
+      let value = __getValue();
       if (value) {
         changeCallBack(value);
       }
+    },
+    /**
+     * 父子菜单联动，自动判断菜单是否启用，然后执行回调，只会执行一次
+     * @param key 菜单键
+     * @param childKey 子菜单键
+     * @param callback 回调
+     * @param replaceValueFn 用于修改mainValue，返回undefined则不做处理
+     */
+    execInheritMenuOnce(key, childKey, callback, replaceValueFn) {
+      let that = this;
+      const handleInheritValue = (key2, childKey2) => {
+        let mainValue = that.getValue(key2);
+        let childValue = that.getValue(childKey2);
+        if (typeof replaceValueFn === "function") {
+          let changedMainValue = replaceValueFn(mainValue, childValue);
+          if (changedMainValue !== void 0) {
+            return changedMainValue;
+          }
+        }
+        return mainValue;
+      };
+      this.execMenuOnce(
+        key,
+        callback,
+        () => {
+          return handleInheritValue(key, childKey);
+        },
+        () => {
+          return handleInheritValue(key, childKey);
+        }
+      );
+      this.execMenuOnce(
+        childKey,
+        () => {
+        },
+        () => false,
+        () => {
+          this.triggerMenuValueChange(key);
+          return false;
+        }
+      );
     },
     /**
      * 根据key执行一次
@@ -3452,14 +3547,17 @@
         only: true
       });
     },
+    /**
+     * 判断是否是移动端
+     */
     isMobile() {
-      return window.outerWidth < 550;
+      return window.innerWidth < 550;
     },
     /**
      * 获取设置面板的宽度
      */
     getWidth() {
-      if (window.outerWidth < 550) {
+      if (window.innerWidth < 550) {
         return "92vw";
       } else {
         return "550px";
@@ -3469,7 +3567,7 @@
      * 获取设置面板的高度
      */
     getHeight() {
-      if (window.outerHeight > 450) {
+      if (window.innerHeight > 450) {
         return "80vh";
       } else {
         return "450px";

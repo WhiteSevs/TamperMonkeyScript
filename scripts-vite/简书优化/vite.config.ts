@@ -79,6 +79,8 @@ export default defineConfig({
 				open: false,
 			},
 			build: {
+				metaFileName: true,
+				metaLocalFileName: true,
 				// 自动申请权限，可以不用填上面的grant
 				autoGrant: true,
 				// 输出文件名
@@ -92,43 +94,6 @@ export default defineConfig({
 						"dist/index.umd.js"
 					),
 					"@whitesev/pops": cdn.jsdelivrFastly("pops", "dist/index.umd.js"),
-				},
-				// 样式添加到页面的自定义处理
-				cssSideEffects: () => {
-					return (cssText: string) => {
-						function addStyle(cssText: string) {
-							if (typeof cssText !== "string") {
-								throw new TypeError("cssText must be a string");
-							}
-							let cssNode = document.createElement("style");
-							cssNode.setAttribute("type", "text/css");
-							cssNode.innerHTML = cssText;
-							if (document.head) {
-								/* 插入head最后 */
-								document.head.appendChild(cssNode);
-							} else if (document.body) {
-								/* 插入body后 */
-								document.body.appendChild(cssNode);
-							} else if (document.documentElement.childNodes.length === 0) {
-								/* 插入#html第一个元素后 */
-								document.documentElement.appendChild(cssNode);
-							} else {
-								/* 插入head前面 */
-								document.documentElement.insertBefore(
-									cssNode,
-									document.documentElement.childNodes[0]
-								);
-							}
-							return cssNode;
-						}
-						// @ts-ignore
-						if (typeof GM_addStyle == "function") {
-							// @ts-ignore
-							GM_addStyle(cssText);
-							return;
-						}
-						addStyle(cssText);
-					};
 				},
 			},
 		}),

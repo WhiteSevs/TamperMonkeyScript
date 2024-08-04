@@ -213,13 +213,15 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 										let spanElement = $click
 											.closest(".pops-panel-button")
 											?.querySelector("span") as HTMLSpanElement;
-										DouYinVideoShortcut.shortCut.inputShortCut(
-											"dy-video-rate-low",
-											"点击录入快捷键",
-											(showText) => {
-												spanElement.innerHTML = showText;
-											}
-										);
+										DouYinVideoShortcut.shortCut
+											.enterShortcutKeys("dy-video-rate-low")
+											.then((enterResult) => {
+												spanElement.innerText =
+													DouYinVideoShortcut.shortCut.getShowText(
+														enterResult.key,
+														"点击录入快捷键"
+													);
+											});
 									}
 								),
 								UIButton(
@@ -240,13 +242,15 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 										let spanElement = $click
 											.closest(".pops-panel-button")
 											?.querySelector("span") as HTMLSpanElement;
-										DouYinVideoShortcut.shortCut.inputShortCut(
-											"dy-video-rate-up",
-											"点击录入快捷键",
-											(showText) => {
-												spanElement.innerHTML = showText;
-											}
-										);
+										DouYinVideoShortcut.shortCut
+											.enterShortcutKeys("dy-video-rate-up")
+											.then((enterResult) => {
+												spanElement.innerText =
+													DouYinVideoShortcut.shortCut.getShowText(
+														enterResult.key,
+														"点击录入快捷键"
+													);
+											});
 									}
 								),
 							],

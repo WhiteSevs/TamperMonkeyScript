@@ -2,7 +2,16 @@ import { PopsPanel } from "@/setting/setting";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY } from "../config";
 import { PopsPanelSelectDetails } from "@whitesev/pops/dist/types/src/components/panel/selectType";
 
-const UISelect = function <T extends any>(
+/**
+ * 下拉列表
+ * @param text 左边的文字
+ * @param key 键
+ * @param defaultValue 默认值
+ * @param data 下拉列表的数据
+ * @param callback 选择列表的某一项的回调
+ * @param description 左边的文字下面的描述
+ */
+export const UISelect = function <T extends any>(
 	text: string,
 	key: string,
 	defaultValue: T,
@@ -56,5 +65,3 @@ const UISelect = function <T extends any>(
 	}
 	return result;
 };
-
-export { UISelect };

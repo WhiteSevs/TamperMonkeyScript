@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.3
+// @version      2024.8.4
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -29,14 +29,10 @@
 (function (Qmsg, Utils, DOMUtils, pops) {
   'use strict';
 
-  var __typeError = (msg) => {
-    throw TypeError(msg);
-  };
-  var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
-  var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
-  var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
-  var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), member.set(obj, value), value);
-  var _key, _isWaitPress, _a;
+  var __defProp = Object.defineProperty;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+  var _a;
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
   var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
@@ -46,8 +42,10 @@
   var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
   const KEY = "GM_Panel";
+  const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
+  const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const UISelect = function(text, key, defaultValue, data, callback, description) {
     let selectData = [];
     if (typeof data === "function") {
@@ -1449,163 +1447,276 @@
   };
   class ShortCut {
     constructor(key) {
-      __privateAdd(this, _key, "short-cut");
-      __privateAdd(this, _isWaitPress, false);
+      /** 存储的键 */
+      __publicField(this, "key", "short-cut");
+      /** 是否存在等待按下的按键 */
+      __publicField(this, "isWaitPress", false);
       if (typeof key === "string") {
-        __privateSet(this, _key, key);
+        this.key = key;
       }
     }
-    getValue(key, defaultValue) {
-      let localValue = _GM_getValue(__privateGet(this, _key), []);
-      if (key) {
-        let findValue = localValue.find((item) => item.key === key);
-        return findValue ?? defaultValue;
+    /**
+     * 初始化配置默认值
+     */
+    initConfig(key, option) {
+      if (this.hasOption(key)) ;
+      else {
+        this.setOption(key, option);
+      }
+    }
+    /** 获取存储的键 */
+    getStorageKey() {
+      return this.key;
+    }
+    /**
+     * 获取本地存储的所有值
+     */
+    getLocalAllOptions() {
+      return _GM_getValue(this.key, []);
+    }
+    /**
+     * 判断是否存在该配置
+     * @param key 键
+     */
+    hasOption(key) {
+      let localOptions = this.getLocalAllOptions();
+      let findOption = localOptions.find((item) => item.key === key);
+      return !!findOption;
+    }
+    /**
+     * 判断是否存在该配置的value值
+     * @param key 键
+     */
+    hasOptionValue(key) {
+      if (this.hasOption(key)) {
+        let option = this.getOption(key);
+        return !((option == null ? void 0 : option.value) == null);
       } else {
-        return localValue;
+        return false;
       }
     }
     /**
-     * 设置值
+     * 获取配置
      * @param key 键
+     * @param defaultValue 默认值
      */
-    setValue(key, keyName, keyValue, ohterCodeList) {
-      let localValue = _GM_getValue(__privateGet(this, _key), []);
-      localValue.push({
-        key,
-        value: {
-          keyName,
-          keyValue,
-          ohterCodeList
-        }
-      });
-      _GM_setValue(__privateGet(this, _key), localValue);
+    getOption(key, defaultValue) {
+      let localOptions = this.getLocalAllOptions();
+      let findOption = localOptions.find((item) => item.key === key);
+      return findOption ?? defaultValue;
     }
     /**
-     * 删除值
+     * 设置配置
+     * @param key 键
+     * @param value 配置
+     */
+    setOption(key, value) {
+      let localOptions = this.getLocalAllOptions();
+      let findIndex = localOptions.findIndex((item) => item.key === key);
+      if (findIndex == -1) {
+        localOptions.push({
+          key,
+          value
+        });
+      } else {
+        Reflect.set(localOptions[findIndex], "value", value);
+      }
+      _GM_setValue(this.key, localOptions);
+    }
+    /**
+     * 清空当前已有配置录入的值
+     * @param key
+     */
+    emptyOption(key) {
+      let result = false;
+      let localOptions = this.getLocalAllOptions();
+      let findIndex = localOptions.findIndex((item) => item.key === key);
+      if (findIndex !== -1) {
+        localOptions[findIndex].value = null;
+        result = true;
+      }
+      _GM_setValue(this.key, localOptions);
+      return result;
+    }
+    /**
+     * 删除配置
      * @param key 键
      */
-    deleteValue(key) {
+    deleteOption(key) {
       let result = false;
-      let localValue = _GM_getValue(__privateGet(this, _key), []);
-      let findValueIndex = localValue.findIndex((item) => item["key"] === key);
+      let localValue = this.getLocalAllOptions();
+      let findValueIndex = localValue.findIndex((item) => item.key === key);
       if (findValueIndex !== -1) {
         localValue.splice(findValueIndex, 1);
         result = true;
       }
-      _GM_setValue(__privateGet(this, _key), localValue);
+      _GM_setValue(this.key, localValue);
+      return result;
+    }
+    /**
+     * 把配置的快捷键转成文字
+     * @param keyboardValue
+     * @returns
+     */
+    translateKeyboardValueToButtonText(keyboardValue) {
+      let result = "";
+      keyboardValue.ohterCodeList.forEach((ohterCodeKey) => {
+        result += utils.stringTitleToUpperCase(ohterCodeKey, true) + " + ";
+      });
+      result += keyboardValue.keyName;
       return result;
     }
     /**
      * 获取快捷键显示的文字
-     * @param key
-     * @param defaultValue
+     * @param key 本地存储的快捷键键名
+     * @param defaultShowText 默认显示的文字
      */
-    getShowText(key, defaultValue) {
-      let localValue = this.getValue(key);
-      if (localValue) {
-        let result = "";
-        localValue.value.ohterCodeList.forEach((ohterCodeKey) => {
-          if (localValue.key === key) {
-            result += utils.stringTitleToUpperCase(ohterCodeKey, true) + " + ";
-          }
-        });
-        result += localValue.value.keyName;
-        return result;
+    getShowText(key, defaultShowText) {
+      if (this.hasOption(key)) {
+        let localOption = this.getOption(key);
+        if (localOption.value == null) {
+          return defaultShowText;
+        } else {
+          return this.translateKeyboardValueToButtonText(localOption.value);
+        }
       } else {
-        return defaultValue;
+        return defaultShowText;
       }
     }
     /**
      * 录入快捷键
+     * @param key 本地存储的快捷键键名
      */
-    inputShortCut(key, defaultValue, callback) {
-      let localValue = this.getValue(key) ?? defaultValue;
-      if (localValue === defaultValue) {
-        let loadingQmsg = Qmsg.loading("请按下快捷键...", {
-          showClose: true,
-          onClose() {
-            keyboardListener.removeListen();
-          }
-        });
-        __privateSet(this, _isWaitPress, true);
+    async enterShortcutKeys(key) {
+      return new Promise((resolve) => {
+        this.isWaitPress = true;
         let keyboardListener = utils.listenKeyboard(
           window,
           "keyup",
           (keyName, keyValue, ohterCodeList) => {
-            let shortcutJSONString = JSON.stringify({
-              keyName,
-              keyValue,
-              ohterCodeList
-            });
-            let allDetails = this.getValue();
-            for (let index = 0; index < allDetails.length; index++) {
-              if (shortcutJSONString === JSON.stringify(allDetails[index]["value"])) {
-                Qmsg.error(
-                  `快捷键 ${this.getShowText(
-                  allDetails[index]["key"],
-                  keyName
-                )} 已被占用`
-                );
-                __privateSet(this, _isWaitPress, false);
-                loadingQmsg.close();
-                return;
-              }
-            }
-            this.setValue(key, keyName, keyValue, ohterCodeList);
-            if (typeof callback === "function") {
-              callback(this.getShowText(key, defaultValue));
-            }
-            __privateSet(this, _isWaitPress, false);
-            loadingQmsg.close();
-          }
-        );
-      } else {
-        this.deleteValue(key);
-      }
-      if (typeof callback === "function") {
-        callback(this.getShowText(key, defaultValue));
-      }
-    }
-    /**
-     * 初始化全局键盘监听
-     */
-    initGlobalKeyboardListener(shortCutMap) {
-      let localValue = this.getValue();
-      if (!localValue.length) {
-        return;
-      }
-      utils.listenKeyboard(
-        window,
-        "keydown",
-        (keyName, keyValue, ohterCodeList) => {
-          if (__privateGet(this, _isWaitPress)) {
-            return;
-          }
-          localValue = this.getValue();
-          let findShortcutIndex = localValue.findIndex((item) => {
-            let itemValue = item["value"];
-            let tempValue = {
+            let currentOption = {
               keyName,
               keyValue,
               ohterCodeList
             };
-            if (JSON.stringify(itemValue) === JSON.stringify(tempValue)) {
-              return item;
+            let shortcutJSONString = JSON.stringify(currentOption);
+            let allOptions = this.getLocalAllOptions();
+            for (let index = 0; index < allOptions.length; index++) {
+              let localValue = allOptions[index];
+              if (localValue.key === key) {
+                continue;
+              }
+              let isUsedByOtherOption = false;
+              if (localValue.value != null && shortcutJSONString === JSON.stringify(localValue.value)) {
+                isUsedByOtherOption = true;
+              }
+              if (isUsedByOtherOption) {
+                this.isWaitPress = false;
+                keyboardListener.removeListen();
+                resolve({
+                  status: false,
+                  key: localValue.key,
+                  option: currentOption
+                });
+                return;
+              }
             }
-          });
-          if (findShortcutIndex != -1) {
-            let findShortcut = localValue[findShortcutIndex];
-            log.info(["调用快捷键", findShortcut]);
-            if (findShortcut.key in shortCutMap) {
-              shortCutMap[findShortcut.key].callback();
+            this.setOption(key, currentOption);
+            this.isWaitPress = false;
+            keyboardListener.removeListen();
+            resolve({
+              status: true,
+              key,
+              option: currentOption
+            });
+          }
+        );
+      });
+    }
+    /**
+     * 初始化全局键盘监听
+     * @param shortCutOption 快捷键配置 一般是{ "键名": { callback: ()=>{}}}，键名是本地存储的自定义快捷键的键名
+     */
+    initGlobalKeyboardListener(shortCutOption) {
+      let localOptions = this.getLocalAllOptions();
+      if (!localOptions.length) {
+        log.warn("没有设置快捷键");
+        return;
+      }
+      let that = this;
+      function setListenKeyboard($ele, option) {
+        utils.listenKeyboard(
+          $ele,
+          "keydown",
+          (keyName, keyValue, ohterCodeList) => {
+            if (that.isWaitPress) {
+              return;
+            }
+            localOptions = that.getLocalAllOptions();
+            let findShortcutIndex = localOptions.findIndex((item) => {
+              let option2 = item.value;
+              let tempOption = {
+                keyName,
+                keyValue,
+                ohterCodeList
+              };
+              if (JSON.stringify(option2) === JSON.stringify(tempOption)) {
+                return item;
+              }
+            });
+            if (findShortcutIndex != -1) {
+              let findShortcut = localOptions[findShortcutIndex];
+              log.info(["调用快捷键", findShortcut]);
+              if (findShortcut.key in option) {
+                option[findShortcut.key].callback();
+              }
             }
           }
+        );
+      }
+      let WindowShortCutOption = {};
+      let ElementShortCutOption = {};
+      Object.keys(shortCutOption).forEach((localKey) => {
+        let option = shortCutOption[localKey];
+        if (option.target == null || typeof option.target === "string" && option.target === "") {
+          option.target = "window";
         }
-      );
+        if (option.target === "window") {
+          Reflect.set(WindowShortCutOption, localKey, option);
+        } else {
+          Reflect.set(ElementShortCutOption, localKey, option);
+        }
+      });
+      setListenKeyboard(window, WindowShortCutOption);
+      domUtils.ready(() => {
+        Object.keys(ElementShortCutOption).forEach(async (localKey) => {
+          let option = ElementShortCutOption[localKey];
+          if (typeof option.target === "string") {
+            utils.waitNode(option.target, 1e4).then(($ele) => {
+              if (!$ele) {
+                return;
+              }
+              let __option = {};
+              Reflect.set(__option, localKey, option);
+              setListenKeyboard($ele, __option);
+            });
+          } else if (typeof option.target === "function") {
+            let target = await option.target();
+            if (target == null) {
+              return;
+            }
+            let __option = {};
+            Reflect.set(__option, localKey, option);
+            setListenKeyboard(target, __option);
+          } else {
+            let __option = {};
+            Reflect.set(__option, localKey, option);
+            setListenKeyboard(option.target, __option);
+          }
+        });
+      });
     }
   }
-  _key = new WeakMap();
-  _isWaitPress = new WeakMap();
   const MobileCSS$1 = '/* 去除顶部的padding距离 */\r\n#douyin-right-container {\r\n	padding-top: 0;\r\n}\r\n/* 放大放大顶部的综合、视频、用户等header的宽度 */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) {\r\n	width: 100vw;\r\n}\r\n/* 放大顶部的综合、视频、用户等header */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) > div {\r\n	transform: scale(0.8);\r\n}\r\n/* 视频宽度 */\r\nul[data-e2e="scroll-list"] {\r\n	padding: 0px 10px;\r\n}\r\n#sliderVideo {\r\n	width: -webkit-fill-available;\r\n}\r\n/* 距离是顶部导航栏的高度 */\r\n#search-content-area {\r\n	margin-top: 65px;\r\n}\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#sliderVideo {\r\n		width: 100%;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#component-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: -webkit-fill-available;\r\n		padding-right: 0;\r\n	}\r\n}\r\n';
   const DouYinSearchHideElement = {
     init() {
@@ -3082,6 +3193,7 @@
     getShortCutMap() {
       return {
         "dy-video-rate-low": {
+          target: "window",
           callback() {
             log.info("调用倍速 => 小");
             let currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
@@ -3100,6 +3212,7 @@
           }
         },
         "dy-video-rate-up": {
+          target: "window",
           callback() {
             log.info("调用倍速 => 大");
             let currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
@@ -3331,13 +3444,12 @@
                       var _a2;
                       let $click = event.target;
                       let spanElement = (_a2 = $click.closest(".pops-panel-button")) == null ? void 0 : _a2.querySelector("span");
-                      DouYinVideoShortcut.shortCut.inputShortCut(
-                        "dy-video-rate-low",
-                        "点击录入快捷键",
-                        (showText) => {
-                          spanElement.innerHTML = showText;
-                        }
-                      );
+                      DouYinVideoShortcut.shortCut.enterShortcutKeys("dy-video-rate-low").then((enterResult) => {
+                        spanElement.innerText = DouYinVideoShortcut.shortCut.getShowText(
+                          enterResult.key,
+                          "点击录入快捷键"
+                        );
+                      });
                     }
                   ),
                   UIButton(
@@ -3357,13 +3469,12 @@
                       var _a2;
                       let $click = event.target;
                       let spanElement = (_a2 = $click.closest(".pops-panel-button")) == null ? void 0 : _a2.querySelector("span");
-                      DouYinVideoShortcut.shortCut.inputShortCut(
-                        "dy-video-rate-up",
-                        "点击录入快捷键",
-                        (showText) => {
-                          spanElement.innerHTML = showText;
-                        }
-                      );
+                      DouYinVideoShortcut.shortCut.enterShortcutKeys("dy-video-rate-up").then((enterResult) => {
+                        spanElement.innerText = DouYinVideoShortcut.shortCut.getShowText(
+                          enterResult.key,
+                          "点击录入快捷键"
+                        );
+                      });
                     }
                   )
                 ]
@@ -4031,41 +4142,39 @@
       }
     ]
   };
-  const __PopsPanel__ = {
-    data: null,
-    oneSuccessExecMenu: null,
-    onceExec: null,
-    listenData: null
-  };
   const PopsPanel = {
     /** 数据 */
     $data: {
+      __data: null,
+      __oneSuccessExecMenu: null,
+      __onceExec: null,
+      __listenData: null,
       /**
        * 菜单项的默认值
        */
       get data() {
-        if (__PopsPanel__.data == null) {
-          __PopsPanel__.data = new utils.Dictionary();
+        if (PopsPanel.$data.__data == null) {
+          PopsPanel.$data.__data = new utils.Dictionary();
         }
-        return __PopsPanel__.data;
+        return PopsPanel.$data.__data;
       },
       /**
        * 成功只执行了一次的项
        */
       get oneSuccessExecMenu() {
-        if (__PopsPanel__.oneSuccessExecMenu == null) {
-          __PopsPanel__.oneSuccessExecMenu = new utils.Dictionary();
+        if (PopsPanel.$data.__oneSuccessExecMenu == null) {
+          PopsPanel.$data.__oneSuccessExecMenu = new utils.Dictionary();
         }
-        return __PopsPanel__.oneSuccessExecMenu;
+        return PopsPanel.$data.__oneSuccessExecMenu;
       },
       /**
        * 成功只执行了一次的项
        */
       get onceExec() {
-        if (__PopsPanel__.onceExec == null) {
-          __PopsPanel__.onceExec = new utils.Dictionary();
+        if (PopsPanel.$data.__onceExec == null) {
+          PopsPanel.$data.__onceExec = new utils.Dictionary();
         }
-        return __PopsPanel__.onceExec;
+        return PopsPanel.$data.__onceExec;
       },
       /** 脚本名，一般用在设置的标题上 */
       get scriptName() {
@@ -4084,18 +4193,22 @@
        * 值改变的监听器
        */
       get listenData() {
-        if (__PopsPanel__.listenData == null) {
-          __PopsPanel__.listenData = new utils.Dictionary();
+        if (PopsPanel.$data.__listenData == null) {
+          PopsPanel.$data.__listenData = new utils.Dictionary();
         }
-        return __PopsPanel__.listenData;
+        return PopsPanel.$data.__listenData;
       }
     },
     init() {
       this.initPanelDefaultValue();
       this.initExtensionsMenu();
     },
+    /** 判断是否是顶层窗口 */
+    isTopWindow() {
+      return _unsafeWindow.top === _unsafeWindow.self;
+    },
     initExtensionsMenu() {
-      if (_unsafeWindow.top !== _unsafeWindow.self) {
+      if (!this.isTopWindow()) {
         return;
       }
       GM_Menu.add([
@@ -4125,23 +4238,41 @@
         }
       ]);
     },
-    /** 初始化本地设置默认的值 */
+    /** 初始化菜单项的默认值保存到本地数据中 */
     initPanelDefaultValue() {
       let that = this;
       function initDefaultValue(config) {
-        if (!config["attributes"]) {
+        if (!config.attributes) {
           return;
         }
+        let needInitConfig = {};
         let key = config.attributes[ATTRIBUTE_KEY];
-        let defaultValue = config["attributes"][ATTRIBUTE_DEFAULT_VALUE];
-        if (key == null) {
-          console.warn("请先配置键", config);
+        if (key != null) {
+          needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+        }
+        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+        if (typeof __attr_init__ === "function") {
+          let __attr_result__ = __attr_init__();
+          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
+            return;
+          }
+        }
+        let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        if (initMoreValue && typeof initMoreValue === "object") {
+          Object.assign(needInitConfig, initMoreValue);
+        }
+        let needInitConfigList = Object.keys(needInitConfig);
+        if (!needInitConfigList.length) {
+          log.warn(["请先配置键", config]);
           return;
         }
-        if (that.$data.data.has(key)) {
-          console.warn("请检查该key(已存在): " + key);
-        }
-        that.$data.data.set(key, defaultValue);
+        needInitConfigList.forEach((__key) => {
+          let __defaultValue = needInitConfig[__key];
+          if (that.$data.data.has(__key)) {
+            log.warn("请检查该key(已存在): " + __key);
+          }
+          that.$data.data.set(__key, __defaultValue);
+        });
       }
       function loopInitDefaultValue(configList) {
         for (let index = 0; index < configList.length; index++) {
@@ -4153,9 +4284,7 @@
           }
         }
       }
-      let contentConfigList = this.getPanelContentConfig().concat(
-        this.getMPanelContentConfig()
-      );
+      let contentConfigList = this.getPanelContentConfig();
       for (let index = 0; index < contentConfigList.length; index++) {
         let leftContentConfigItem = contentConfigList[index];
         if (!leftContentConfigItem.forms) {
@@ -4277,8 +4406,9 @@
      * 自动判断菜单是否启用，然后执行回调
      * @param key
      * @param callback 回调
+     * @param [isReverse=false] 逆反判断菜单启用
      */
-    execMenu(key, callback) {
+    execMenu(key, callback, isReverse = false) {
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
@@ -4287,6 +4417,9 @@
         return;
       }
       let value = PopsPanel.getValue(key);
+      if (isReverse) {
+        value = !value;
+      }
       if (value) {
         callback(value);
       }
@@ -4295,8 +4428,8 @@
      * 自动判断菜单是否启用，然后执行回调，只会执行一次
      * @param key
      * @param callback 回调
-     * @param getValueFn 自定义处理获取当前值，值true是启用
-     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用
+     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
+     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
      */
     execMenuOnce(key, callback, getValueFn, handleValueChangeFn) {
       if (typeof key !== "string") {
@@ -4311,7 +4444,8 @@
       }
       this.$data.oneSuccessExecMenu.set(key, 1);
       let __getValue = () => {
-        return typeof getValueFn === "function" ? getValueFn() : PopsPanel.getValue(key);
+        let localValue = PopsPanel.getValue(key);
+        return typeof getValueFn === "function" ? getValueFn(key, localValue) : localValue;
       };
       let resultStyleList = [];
       let dynamicPushStyleNode = ($style) => {
@@ -4474,7 +4608,7 @@
             toHide: false
           }
         },
-        isMobile: true,
+        isMobile: this.isMobile(),
         width: this.getWidth(),
         height: this.getHeight(),
         drag: true,
@@ -4482,10 +4616,16 @@
       });
     },
     /**
+     * 判断是否是移动端
+     */
+    isMobile() {
+      return window.innerWidth < 550;
+    },
+    /**
      * 获取设置面板的宽度
      */
     getWidth() {
-      if (window.outerWidth < 550) {
+      if (window.innerWidth < 550) {
         return "92vw";
       } else {
         return "550px";
@@ -4495,7 +4635,7 @@
      * 获取设置面板的高度
      */
     getHeight() {
-      if (window.outerHeight < 450) {
+      if (window.innerHeight > 450) {
         return "80vh";
       } else {
         return "450px";

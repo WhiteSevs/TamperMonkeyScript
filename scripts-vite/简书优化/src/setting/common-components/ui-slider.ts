@@ -12,8 +12,9 @@ import { PopsPanel } from "../setting";
  * @param changeCallBack （可选）点击回调
  * @param getToolTipContent （可选）获取tooltip内容
  * @param description （可选）左边的文字下面的描述
+ * @param step （可选）间隔
  */
-const UISlider = function (
+export const UISlider = function (
 	text: string,
 	key: string,
 	defaultValue: number,
@@ -23,7 +24,8 @@ const UISlider = function (
 		| ((event: InputEvent, value: number) => boolean | void)
 		| void,
 	getToolTipContent?: (value: number) => string,
-	description?: string | undefined
+	description?: string | undefined,
+	step?: number
 ): PopsPanelSliderDetails {
 	let result: PopsPanelSliderDetails = {
 		text: text,
@@ -50,6 +52,7 @@ const UISlider = function (
 		},
 		min: min,
 		max: max,
+		step: step,
 	};
 
 	if (result.attributes) {
@@ -58,5 +61,3 @@ const UISlider = function (
 	}
 	return result;
 };
-
-export { UISlider };

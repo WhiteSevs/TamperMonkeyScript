@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Demo Script Name
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.4
+// @version      2024.8.4.13
 // @author       WhiteSevs
 // @description
 // @license      GPL-3.0-only
@@ -455,9 +455,13 @@
       this.initPanelDefaultValue();
       this.initExtensionsMenu();
     },
+    /** 判断是否是顶层窗口 */
+    isTopWindow() {
+      return _unsafeWindow.top === _unsafeWindow.self;
+    },
     /** 初始化进行注册油猴菜单 */
     initExtensionsMenu() {
-      if (_unsafeWindow.top !== _unsafeWindow.self) {
+      if (!this.isTopWindow()) {
         return;
       }
       GM_Menu.add([
@@ -670,8 +674,8 @@
      * 自动判断菜单是否启用，然后执行回调，只会执行一次
      * @param key
      * @param callback 回调
-     * @param getValueFn 自定义处理获取当前值，值true是启用
-     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用
+     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
+     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
      */
     execMenuOnce(key, callback, getValueFn, handleValueChangeFn) {
       if (typeof key !== "string") {
@@ -686,7 +690,8 @@
       }
       this.$data.oneSuccessExecMenu.set(key, 1);
       let __getValue = () => {
-        return typeof getValueFn === "function" ? getValueFn() : PopsPanel.getValue(key);
+        let localValue = PopsPanel.getValue(key);
+        return typeof getValueFn === "function" ? getValueFn(key, localValue) : localValue;
       };
       let resultStyleList = [];
       let dynamicPushStyleNode = ($style) => {

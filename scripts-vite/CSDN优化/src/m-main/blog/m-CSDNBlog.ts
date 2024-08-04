@@ -23,19 +23,20 @@ export const M_CSDNBlog = {
 		PopsPanel.execMenuOnce("m-csdn-blog-autoExpandContent", () => {
 			return this.autoExpandContent();
 		});
-		PopsPanel.execMenuOnce(
-			"m-csdn-blog-bottomArticleEnable",
-			() => {
-				return this.blockBottomArticle();
-			},
-			true
-		);
+		PopsPanel.execMenuOnce("m-csdn-blog-bottomArticleEnable", () => {
+			return this.blockBottomArticle();
+		});
 		PopsPanel.execMenuOnce(
 			"m-csdn-blog-comment-enable",
 			() => {
 				return this.blockComment();
 			},
-			true
+			(_, value) => {
+				return !value;
+			},
+			(_, newValue) => {
+				return !newValue;
+			}
 		);
 		DOMUtils.ready(() => {
 			PopsPanel.execMenuOnce("m-csdn-blog-removeAds", () => {

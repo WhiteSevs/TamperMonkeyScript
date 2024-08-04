@@ -28,14 +28,24 @@ export const CSDNBlog = {
 			() => {
 				return this.blockComment();
 			},
-			true
+			(_, value) => {
+				return !value;
+			},
+			(_, newValue) => {
+				return !newValue;
+			}
 		);
 		PopsPanel.execMenuOnce(
 			"csdn-blog-bottomRecommendArticleEnable",
 			() => {
 				return this.shieldBottomRecommendArticle();
 			},
-			true
+			(_, value) => {
+				return !value;
+			},
+			(_, newValue) => {
+				return !newValue;
+			}
 		);
 		PopsPanel.execMenuOnce("csdn-blog-shieldBottomSkillTree", () => {
 			return this.shieldBottomSkillTree();

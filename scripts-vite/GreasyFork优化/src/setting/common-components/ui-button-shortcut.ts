@@ -3,8 +3,8 @@ import { UIButton } from "./ui-button";
 import { ATTRIBUTE_INIT } from "../config";
 import { ShortCut, ShortCutKeyboardOption } from "@/utils/ShortCut";
 import Qmsg from "qmsg";
-import i18next from "i18next";
 import { log } from "@/env";
+import i18next from "i18next";
 
 /**
  * 获取录入快捷键配置

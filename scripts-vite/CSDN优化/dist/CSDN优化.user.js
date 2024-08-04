@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.24
+// @version      2024.8.4
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -125,8 +125,10 @@
   });
   const addStyle = utils.addStyle.bind(utils);
   const KEY = "GM_Panel";
+  const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
+  const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const CSDNRouter = {
     /**
      * 判断是否是华为云联盟
@@ -180,7 +182,7 @@
       return window.location.hostname === "download.csdn.net";
     }
   };
-  const UISlider = function(text, key, defaultValue, min, max, changeCallBack, getToolTipContent, description) {
+  const UISlider = function(text, key, defaultValue, min, max, changeCallBack, getToolTipContent, description, step) {
     let result = {
       text,
       type: "slider",
@@ -205,7 +207,8 @@
         PopsPanel.setValue(key, value);
       },
       min,
-      max
+      max,
+      step
     };
     if (result.attributes) {
       result.attributes[ATTRIBUTE_KEY] = key;
@@ -1213,41 +1216,39 @@
       // },
     ]
   };
-  const __PopsPanel__ = {
-    data: null,
-    oneSuccessExecMenu: null,
-    onceExec: null,
-    listenData: null
-  };
   const PopsPanel = {
     /** 数据 */
     $data: {
+      __data: null,
+      __oneSuccessExecMenu: null,
+      __onceExec: null,
+      __listenData: null,
       /**
        * 菜单项的默认值
        */
       get data() {
-        if (__PopsPanel__.data == null) {
-          __PopsPanel__.data = new utils.Dictionary();
+        if (PopsPanel.$data.__data == null) {
+          PopsPanel.$data.__data = new utils.Dictionary();
         }
-        return __PopsPanel__.data;
+        return PopsPanel.$data.__data;
       },
       /**
        * 成功只执行了一次的项
        */
       get oneSuccessExecMenu() {
-        if (__PopsPanel__.oneSuccessExecMenu == null) {
-          __PopsPanel__.oneSuccessExecMenu = new utils.Dictionary();
+        if (PopsPanel.$data.__oneSuccessExecMenu == null) {
+          PopsPanel.$data.__oneSuccessExecMenu = new utils.Dictionary();
         }
-        return __PopsPanel__.oneSuccessExecMenu;
+        return PopsPanel.$data.__oneSuccessExecMenu;
       },
       /**
        * 成功只执行了一次的项
        */
       get onceExec() {
-        if (__PopsPanel__.onceExec == null) {
-          __PopsPanel__.onceExec = new utils.Dictionary();
+        if (PopsPanel.$data.__onceExec == null) {
+          PopsPanel.$data.__onceExec = new utils.Dictionary();
         }
-        return __PopsPanel__.onceExec;
+        return PopsPanel.$data.__onceExec;
       },
       /** 脚本名，一般用在设置的标题上 */
       get scriptName() {
@@ -1266,10 +1267,10 @@
        * 值改变的监听器
        */
       get listenData() {
-        if (__PopsPanel__.listenData == null) {
-          __PopsPanel__.listenData = new utils.Dictionary();
+        if (PopsPanel.$data.__listenData == null) {
+          PopsPanel.$data.__listenData = new utils.Dictionary();
         }
-        return __PopsPanel__.listenData;
+        return PopsPanel.$data.__listenData;
       }
     },
     init() {
@@ -1319,23 +1320,41 @@
         }
       ]);
     },
-    /** 初始化本地设置默认的值 */
+    /** 初始化菜单项的默认值保存到本地数据中 */
     initPanelDefaultValue() {
       let that = this;
       function initDefaultValue(config) {
-        if (!config["attributes"]) {
+        if (!config.attributes) {
           return;
         }
+        let needInitConfig = {};
         let key = config.attributes[ATTRIBUTE_KEY];
-        let defaultValue = config["attributes"][ATTRIBUTE_DEFAULT_VALUE];
-        if (key == null) {
+        if (key != null) {
+          needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+        }
+        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+        if (typeof __attr_init__ === "function") {
+          let __attr_result__ = __attr_init__();
+          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
+            return;
+          }
+        }
+        let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        if (initMoreValue && typeof initMoreValue === "object") {
+          Object.assign(needInitConfig, initMoreValue);
+        }
+        let needInitConfigList = Object.keys(needInitConfig);
+        if (!needInitConfigList.length) {
           log.warn(["请先配置键", config]);
           return;
         }
-        if (that.$data.data.has(key)) {
-          log.warn("请检查该key(已存在): " + key);
-        }
-        that.$data.data.set(key, defaultValue);
+        needInitConfigList.forEach((__key) => {
+          let __defaultValue = needInitConfig[__key];
+          if (that.$data.data.has(__key)) {
+            log.warn("请检查该key(已存在): " + __key);
+          }
+          that.$data.data.set(__key, __defaultValue);
+        });
       }
       function loopInitDefaultValue(configList) {
         for (let index = 0; index < configList.length; index++) {
@@ -1347,9 +1366,7 @@
           }
         }
       }
-      let contentConfigList = this.getPanelContentConfig().concat(
-        this.getMPanelContentConfig()
-      );
+      let contentConfigList = this.getPanelContentConfig();
       for (let index = 0; index < contentConfigList.length; index++) {
         let leftContentConfigItem = contentConfigList[index];
         if (!leftContentConfigItem.forms) {
@@ -1374,14 +1391,6 @@
       if (this.$listener.listenData.has(key)) {
         this.$listener.listenData.get(key).callback(key, oldValue, value);
       }
-    },
-    /**
-     * 判断该键是否存在
-     * @param key 键
-     */
-    hasKey(key) {
-      let locaData = _GM_getValue(KEY, {});
-      return key in locaData;
     },
     /**
      * 获取值
@@ -1417,13 +1426,18 @@
      * @param key 需要监听的键
      * @param callback
      */
-    addValueChangeListener(key, callback) {
+    addValueChangeListener(key, callback, option) {
       let listenerId = Math.random();
       this.$listener.listenData.set(key, {
         id: listenerId,
         key,
         callback
       });
+      if (option) {
+        if (option.immediate) {
+          callback(key, this.getValue(key), this.getValue(key));
+        }
+      }
       return listenerId;
     },
     /**
@@ -1443,6 +1457,37 @@
       } else {
         console.warn("没有找到对应的监听器");
       }
+    },
+    /**
+     * 主动触发菜单值改变的回调
+     * @param key 菜单键
+     * @param newValue 想要触发的新值，默认使用当前值
+     * @param oldValue 想要触发的旧值，默认使用当前值
+     */
+    triggerMenuValueChange(key, newValue, oldValue) {
+      if (this.$listener.listenData.has(key)) {
+        let listenData = this.$listener.listenData.get(key);
+        if (typeof listenData.callback === "function") {
+          let value = this.getValue(key);
+          let __newValue = value;
+          let __oldValue = value;
+          if (typeof newValue !== "undefined" && arguments.length > 1) {
+            __newValue = newValue;
+          }
+          if (typeof oldValue !== "undefined" && arguments.length > 2) {
+            __oldValue = oldValue;
+          }
+          listenData.callback(key, __oldValue, __newValue);
+        }
+      }
+    },
+    /**
+     * 判断该键是否存在
+     * @param key 键
+     */
+    hasKey(key) {
+      let locaData = _GM_getValue(KEY, {});
+      return key in locaData;
     },
     /**
      * 自动判断菜单是否启用，然后执行回调
@@ -1470,9 +1515,10 @@
      * 自动判断菜单是否启用，然后执行回调，只会执行一次
      * @param key
      * @param callback 回调
-     * @param [isReverse=false] 逆反判断菜单启用
+     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
+     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
      */
-    execMenuOnce(key, callback, isReverse = false) {
+    execMenuOnce(key, callback, getValueFn, handleValueChangeFn) {
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
@@ -1484,15 +1530,38 @@
         return;
       }
       this.$data.oneSuccessExecMenu.set(key, 1);
-      let resultStyleList = [];
-      let pushStyleNode = (style) => {
-        let __value = PopsPanel.getValue(key);
-        changeCallBack(__value, style);
+      let __getValue = () => {
+        let localValue = PopsPanel.getValue(key);
+        return typeof getValueFn === "function" ? getValueFn(key, localValue) : localValue;
       };
-      let changeCallBack = (currentValue, resultStyle) => {
+      let resultStyleList = [];
+      let dynamicPushStyleNode = ($style) => {
+        let __value = __getValue();
+        let dynamicResultList = [];
+        if ($style instanceof HTMLStyleElement) {
+          dynamicResultList = [$style];
+        } else if (Array.isArray($style)) {
+          dynamicResultList = [
+            ...$style.filter(
+              (item) => item != null && item instanceof HTMLStyleElement
+            )
+          ];
+        }
+        if (__value) {
+          resultStyleList = resultStyleList.concat(dynamicResultList);
+        } else {
+          for (let index = 0; index < dynamicResultList.length; index++) {
+            let $css = dynamicResultList[index];
+            $css.remove();
+            dynamicResultList.splice(index, 1);
+            index--;
+          }
+        }
+      };
+      let changeCallBack = (currentValue) => {
         let resultList = [];
         if (currentValue) {
-          let result = resultStyle ?? callback(currentValue, pushStyleNode);
+          let result = callback(currentValue, dynamicPushStyleNode);
           if (result instanceof HTMLStyleElement) {
             resultList = [result];
           } else if (Array.isArray(result)) {
@@ -1514,19 +1583,58 @@
       this.addValueChangeListener(
         key,
         (__key, oldValue, newValue) => {
-          if (isReverse) {
-            newValue = !newValue;
+          let __newValue = newValue;
+          if (typeof handleValueChangeFn === "function") {
+            __newValue = handleValueChangeFn(__key, newValue, oldValue);
           }
-          changeCallBack(newValue);
+          changeCallBack(__newValue);
         }
       );
-      let value = PopsPanel.getValue(key);
-      if (isReverse) {
-        value = !value;
-      }
+      let value = __getValue();
       if (value) {
         changeCallBack(value);
       }
+    },
+    /**
+     * 父子菜单联动，自动判断菜单是否启用，然后执行回调，只会执行一次
+     * @param key 菜单键
+     * @param childKey 子菜单键
+     * @param callback 回调
+     * @param replaceValueFn 用于修改mainValue，返回undefined则不做处理
+     */
+    execInheritMenuOnce(key, childKey, callback, replaceValueFn) {
+      let that = this;
+      const handleInheritValue = (key2, childKey2) => {
+        let mainValue = that.getValue(key2);
+        let childValue = that.getValue(childKey2);
+        if (typeof replaceValueFn === "function") {
+          let changedMainValue = replaceValueFn(mainValue, childValue);
+          if (changedMainValue !== void 0) {
+            return changedMainValue;
+          }
+        }
+        return mainValue;
+      };
+      this.execMenuOnce(
+        key,
+        callback,
+        () => {
+          return handleInheritValue(key, childKey);
+        },
+        () => {
+          return handleInheritValue(key, childKey);
+        }
+      );
+      this.execMenuOnce(
+        childKey,
+        () => {
+        },
+        () => false,
+        () => {
+          this.triggerMenuValueChange(key);
+          return false;
+        }
+      );
     },
     /**
      * 根据key执行一次
@@ -1594,24 +1702,27 @@
         only: true
       });
     },
+    /**
+     * 判断是否是移动端
+     */
     isMobile() {
-      return window.outerWidth < 550;
+      return window.innerWidth < 550;
     },
     /**
      * 获取设置面板的宽度
      */
     getWidth() {
-      if (window.outerWidth < 800) {
+      if (window.innerWidth < 550) {
         return "92vw";
       } else {
-        return "800px";
+        return "550px";
       }
     },
     /**
      * 获取设置面板的高度
      */
     getHeight() {
-      if (window.outerHeight > 450) {
+      if (window.innerHeight > 450) {
         return "80vh";
       } else {
         return "450px";
@@ -1780,7 +1891,12 @@
         () => {
           return this.shieldRightToolbar();
         },
-        true
+        (_, value) => {
+          return !value;
+        },
+        (_, newValue) => {
+          return !newValue;
+        }
       );
       PopsPanel.execMenuOnce("csdn-blog-rightToolbarCreativeCenter", () => {
         return this.shieldCreativeCenter();
@@ -1946,14 +2062,24 @@
         () => {
           return this.blockComment();
         },
-        true
+        (_, value) => {
+          return !value;
+        },
+        (_, newValue) => {
+          return !newValue;
+        }
       );
       PopsPanel.execMenuOnce(
         "csdn-blog-bottomRecommendArticleEnable",
         () => {
           return this.shieldBottomRecommendArticle();
         },
-        true
+        (_, value) => {
+          return !value;
+        },
+        (_, newValue) => {
+          return !newValue;
+        }
       );
       PopsPanel.execMenuOnce("csdn-blog-shieldBottomSkillTree", () => {
         return this.shieldBottomSkillTree();
@@ -2406,19 +2532,20 @@
       PopsPanel.execMenuOnce("m-csdn-blog-autoExpandContent", () => {
         return this.autoExpandContent();
       });
-      PopsPanel.execMenuOnce(
-        "m-csdn-blog-bottomArticleEnable",
-        () => {
-          return this.blockBottomArticle();
-        },
-        true
-      );
+      PopsPanel.execMenuOnce("m-csdn-blog-bottomArticleEnable", () => {
+        return this.blockBottomArticle();
+      });
       PopsPanel.execMenuOnce(
         "m-csdn-blog-comment-enable",
         () => {
           return this.blockComment();
         },
-        true
+        (_, value) => {
+          return !value;
+        },
+        (_, newValue) => {
+          return !newValue;
+        }
       );
       domutils.ready(() => {
         PopsPanel.execMenuOnce("m-csdn-blog-removeAds", () => {
