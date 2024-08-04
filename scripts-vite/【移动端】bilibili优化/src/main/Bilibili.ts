@@ -18,12 +18,22 @@ import { BilibiliReadMobile } from "./read/mobile/BilibiliReadMobile";
 import { BilibiliNetworkHook } from "@/hook/BilibiliNetworkHook";
 import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
 import { BilibiliPlayer } from "./BilibiliPlayer";
-import { BilibiliDanmaku } from "./BilibiliDanmaku";
+import "./common.css";
+import { BilibiliSpace } from "./space/BilibiliSpace";
 
 const Bilibili = {
 	init() {
 		BilibiliNetworkHook.init();
 		BilibiliVueProp.init();
+		PopsPanel.execMenuOnce("bili-allowCopy", () => {
+			return addStyle(/*css*/ `
+				.v-drawer{
+					-webkit-user-select: unset !important;
+					-moz-user-select: unset !important;
+					user-select: unset !important;
+				}
+			`);
+		});
 		PopsPanel.onceExec("listenRouterChange", () => {
 			this.listenRouterChange();
 		});
@@ -68,12 +78,60 @@ const Bilibili = {
 		} else if (BilibiliRouter.isHead()) {
 			log.info("Router: 首页之类的");
 			BilibiliHead.init();
+		} else if (BilibiliRouter.isSpace()) {
+			log.info("Router: 个人空间");
+			BilibiliSpace.init();
 		} else {
 			log.error("该Router暂未适配，可能是首页之类：" + window.location.href);
 		}
 
 		DOMUtils.ready(() => {
-			BilibiliPlayer.init();
+			// 番剧页面没有player，而是BiliH5Player
+			// 但是在.player-wrapper属性上
+			// 需要点击播放才会有player属性生成
+			if (BilibiliRouter.isBangumi()) {
+				let isInitPlayer = false;
+				BilibiliUtils.waitVuePropToSet(
+					() => document.querySelector<HTMLDivElement>(".player-wrapper"),
+					[
+						{
+							msg: "等待获取.player-wrapper上的$0.__vue__.player.player.on_video_play",
+							check(vueObj) {
+								return (
+									typeof vueObj?.player?.player?.on_video_play == "function"
+								);
+							},
+							set(vueObj) {
+								log.success(
+									`成功覆盖.player-wrapper上的$0.__vue__.player.player.on_video_play`
+								);
+								let originFn = vueObj?.player?.player?.on_video_play;
+								if (originFn.prototype.isHook) {
+									log.warn("函数on_video_play已被hook，取消覆盖");
+								}
+								let on_video_play = function (
+									this: any,
+									$video: HTMLVideoElement
+								) {
+									if (!isInitPlayer) {
+										isInitPlayer = true;
+										BilibiliPlayer.$player.parseBiliH5PlayerToPlayer(
+											vueObj.player
+										);
+										BilibiliPlayer.init();
+									}
+									return originFn.apply(this, arguments);
+								};
+								on_video_play.prototype.isHook = true;
+								vueObj.player.player.on_video_play = on_video_play;
+							},
+						},
+					]
+				);
+			} else if (BilibiliRouter.isVideo()) {
+				// 视频页面
+				BilibiliPlayer.init();
+			}
 		});
 	},
 	/**
@@ -84,7 +142,7 @@ const Bilibili = {
 			let check = function (vueObj: Vue2Context) {
 				return typeof vueObj?.$router?.afterEach === "function";
 			};
-			utils.waitVueByInterval($app, check).then((result) => {
+			utils.waitVueByInterval($app, check).then(() => {
 				let vueObj = BilibiliUtils.getVue($app);
 				if (vueObj == null) {
 					return;
@@ -104,9 +162,12 @@ const Bilibili = {
 									from,
 								},
 							]);
-							if (to.name === "space") {
-								window.location.href = to.fullPath;
-								return;
+							if (PopsPanel.getValue("bili-repairVueRouter404")) {
+								if (to.name === "space") {
+									// 修复空间跳转404
+									window.location.href = to.fullPath;
+									return;
+								}
 							}
 							if (
 								to.fullPath.startsWith("/video") &&

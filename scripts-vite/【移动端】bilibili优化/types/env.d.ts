@@ -11,6 +11,95 @@ type NestedObjectWithToString = {
 	toString(): any;
 };
 
+interface Player {
+	buvid: string;
+	config: any;
+	container: HTMLDivElement;
+	controller: any;
+	createdTime: number;
+	danmaku: {
+		danmakuCore: {
+			animate: number;
+			animateRange: number;
+			animateTime: number;
+			config: DanmakuCoreConfig;
+			container: HTMLDivElement;
+			danmakuArray: DanmaConfig[];
+			densityList: any;
+			deviceFps: number;
+			deviceFpsList: any[];
+			dmTrack: any;
+			fps: number;
+			fpsCount: number;
+			fpsList: any[];
+			fpsStart: boolean;
+			fpsTimer: number;
+			lastTime: number;
+			manager: any;
+			outDmidList: any[];
+			pauseTime: number;
+			paused: boolean;
+			startTime: number;
+			time: number;
+			timeLine: DanmaConfig[];
+			timeZero: number;
+			visualArray: any[];
+			wordReseted: boolean;
+			wordTimer: number;
+		};
+		loadPb: any;
+		player: Window.player;
+		realsocket: any;
+	};
+	destroyed: boolean;
+	events: {
+		events: { [key: string]: Function[] }[];
+	};
+	firstClickArea: string;
+	forcePanel: any;
+	freezePause: boolean;
+	iframe: null;
+	initialized: boolean;
+	isPlayed: boolean;
+	metadataloadedTimer: number;
+	observer: MutationObserver;
+	perf: any;
+	postered: true;
+	prefix: string;
+	reloadTime: number;
+	retryTime: number;
+	savedCurrentTime: number;
+	seekLoad: boolean;
+	session: string;
+	size: number;
+	state: {
+		video_state: number;
+		danmaku: boolean;
+		mode: number;
+		video_type: number;
+	};
+	subtitle: null;
+	template: {
+		[key: string]: HTMLElement;
+	};
+	timerChecker: number;
+	track: any;
+	user: any;
+	video: HTMLVideoElement;
+	videoQuality: number;
+	videoSeeking: number;
+	videoSeekingRelay: boolean;
+	VideoInfo: {
+		video_type: "ugc" | string;
+		avid: number;
+		cid: number;
+		bvid: string;
+		epid: null;
+		ssid: null;
+	};
+	[key: string]: any;
+}
+
 interface Window {
 	player?: {
 		destroy: () => void;
@@ -38,94 +127,7 @@ interface Window {
 		pause: () => void;
 		/** 播放 */
 		play: () => void;
-		playerPromise: Promise<{
-			buvid: string;
-			config: any;
-			container: HTMLDivElement;
-			controller: any;
-			createdTime: number;
-			danmaku: {
-				danmakuCore: {
-					animate: number;
-					animateRange: number;
-					animateTime: number;
-					config: DanmakuCoreConfig;
-					container: HTMLDivElement;
-					danmakuArray: DanmaConfig[];
-					densityList: any;
-					deviceFps: number;
-					deviceFpsList: any[];
-					dmTrack: any;
-					fps: number;
-					fpsCount: number;
-					fpsList: any[];
-					fpsStart: boolean;
-					fpsTimer: number;
-					lastTime: number;
-					manager: any;
-					outDmidList: any[];
-					pauseTime: number;
-					paused: boolean;
-					startTime: number;
-					time: number;
-					timeLine: DanmaConfig[];
-					timeZero: number;
-					visualArray: any[];
-					wordReseted: boolean;
-					wordTimer: number;
-				};
-				loadPb: any;
-				player: Window.player;
-				realsocket: any;
-			};
-			destroyed: boolean;
-			events: {
-				events: { [key: string]: Function[] }[];
-			};
-			firstClickArea: string;
-			forcePanel: any;
-			freezePause: boolean;
-			iframe: null;
-			initialized: boolean;
-			isPlayed: boolean;
-			metadataloadedTimer: number;
-			observer: MutationObserver;
-			perf: any;
-			postered: true;
-			prefix: string;
-			reloadTime: number;
-			retryTime: number;
-			savedCurrentTime: number;
-			seekLoad: boolean;
-			session: string;
-			size: number;
-			state: {
-				video_state: number;
-				danmaku: boolean;
-				mode: number;
-				video_type: number;
-			};
-			subtitle: null;
-			template: {
-				[key: string]: HTMLElement;
-			};
-			timerChecker: number;
-			track: any;
-			user: any;
-			video: HTMLVideoElement;
-			videoQuality: number;
-			videoSeeking: number;
-			videoSeekingRelay: boolean;
-			VideoInfo: {
-				video_type: "ugc" | string;
-				avid: number;
-				cid: number;
-				bvid: string;
-				epid: null;
-				ssid: null;
-			};
-			[key: string]: any;
-		}>;
+		playerPromise: Promise<Player>;
 		/** 重载 */
 		reload: () => void;
 		resetTest: () => void;

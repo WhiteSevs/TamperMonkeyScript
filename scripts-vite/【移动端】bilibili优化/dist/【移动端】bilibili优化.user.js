@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.3
+// @version      2024.8.4
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -35,7 +35,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(a=>{function e(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let p=document.createElement("style");return p.setAttribute("type","text/css"),p.innerHTML=n,document.head?document.head.appendChild(p):document.body?document.body.appendChild(p):document.documentElement.childNodes.length===0?document.documentElement.appendChild(p):document.documentElement.insertBefore(p,document.documentElement.childNodes[0]),p}if(typeof GM_addStyle=="function"){GM_addStyle(a);return}e(a)})(' @charset "UTF-8";.m-video2-awaken-btn,.openapp-dialog,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#app .read-app-main bili-open-app{display:none!important} ');
+(a=>{function e(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let p=document.createElement("style");return p.setAttribute("type","text/css"),p.innerHTML=n,document.head?document.head.appendChild(p):document.body?document.body.appendChild(p):document.documentElement.childNodes.length===0?document.documentElement.appendChild(p):document.documentElement.insertBefore(p,document.documentElement.childNodes[0]),p}if(typeof GM_addStyle=="function"){GM_addStyle(a);return}e(a)})(' @charset "UTF-8";.m-video2-awaken-btn,.openapp-dialog,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#app .read-app-main bili-open-app{display:none!important}html{--bili-color: #fb7299;--bili-color-rgb: 251, 114, 153} ');
 
 (function (Qmsg, Utils, DOMUtils, pops, md5) {
   'use strict';
@@ -232,8 +232,10 @@
   };
   const addStyle = utils.addStyle.bind(utils);
   const KEY = "GM_Panel";
+  const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
+  const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const UISwitch = function(text, key, defaultValue, clickCallBack, description) {
     let result = {
       text,
@@ -345,52 +347,588 @@
     }
     return result;
   };
+  let _ajaxHooker_ = null;
+  const XhrHook = {
+    get ajaxHooker() {
+      if (_ajaxHooker_ == null) {
+        log.info("启用ajaxHooker拦截网络");
+        _ajaxHooker_ = utils.ajaxHooker();
+      }
+      return _ajaxHooker_;
+    }
+  };
+  const BilibiliVideoPlayUrlQN = {
+    /**
+     * 仅mp4方式支持
+     */
+    "240P 极速": 6,
+    "360P 流畅": 16,
+    "480P 清晰": 32,
+    /**
+     * web端默认值
+     *
+     * B站前端需要登录才能选择，但是直接发送请求可以不登录就拿到720P的取流地址
+     *
+     * 无720P时则为720P60
+     */
+    "720P 高清": 64,
+    /**
+     * 需要认证登录账号
+     */
+    "720P60 高帧率": 74,
+    /**
+     * TV端与APP端默认值
+     *
+     * 需要认证登录账号
+     */
+    "1080P 高清": 80,
+    /**
+     * 大多情况需求认证大会员账号
+     */
+    "1080P+ 高码率": 112,
+    /**
+     * 大多情况需求认证大会员账号
+     */
+    "1080P60 高帧率": 116,
+    /**
+     * 需要fnval&128=128且fourk=1
+     *
+     * 大多情况需求认证大会员账号
+     */
+    "4K 超清": 120,
+    /**
+     * 仅支持dash方式
+     *
+     * 需要fnval&64=64
+     *
+     */
+    "HDR 真彩色": 125,
+    /**
+     * 仅支持dash方式
+     *
+     * 需要fnval&512=512
+     *
+     * 大多情况需求认证大会员账号
+     */
+    杜比视界: 126,
+    /**
+     * 仅支持dash方式
+     *
+     * 需要fnval&1024=1024
+     *
+     * 大多情况需求认证大会员账号
+     */
+    "8K 超高清": 127
+  };
+  const BilibiliNetworkHook = {
+    $flag: {
+      is_hook_video_playurl: false,
+      is_hook_bangumi_html5: false
+    },
+    init() {
+      PopsPanel.execMenuOnce("bili-video-xhr-unlockQuality", () => {
+        this.hook_video_playurl();
+      });
+      PopsPanel.execMenuOnce("bili-bangumi-xhr-unlockQuality", () => {
+        this.hook_bangumi_html5();
+      });
+    },
+    /**
+     * 视频播放地址获取
+     *
+     * + //api.bilibili.com/x/player/wbi/playurl
+     * + //api.bilibili.com/x/player/playurl
+     *
+     */
+    hook_video_playurl() {
+      if (this.$flag.is_hook_video_playurl) {
+        return;
+      }
+      this.$flag.is_hook_video_playurl = true;
+      XhrHook.ajaxHooker.hook((request) => {
+        if (request.url.includes("//api.bilibili.com/x/player/wbi/playurl") || request.url.includes("//api.bilibili.com/x/player/playurl")) {
+          if (request.url.startsWith("//")) {
+            request.url = window.location.protocol + request.url;
+          }
+          let playUrl = new URL(request.url);
+          playUrl.searchParams.set("platform", "html5");
+          playUrl.searchParams.set(
+            "qn",
+            BilibiliVideoPlayUrlQN["1080P60 高帧率"].toString()
+          );
+          playUrl.searchParams.set("high_quality", "1");
+          playUrl.searchParams.set("fnver", "0");
+          playUrl.searchParams.set("fourk", "1");
+          request.url = playUrl.toString();
+          request.response = (res) => {
+            let data2 = utils.toJSON(res.responseText);
+            log.info("当前解锁的quality值：" + data2["data"]["quality"]);
+            if (data2["data"]["quality"] && data2["data"]["support_formats"]) {
+              let findValue = data2["data"]["support_formats"].find(
+                (item) => {
+                  return item["quality"] == data2["data"]["quality"];
+                }
+              );
+              if (findValue) {
+                log.info(
+                  "当前已解锁的画质：" + findValue["new_description"] || findValue["display_desc"]
+                );
+              }
+            }
+          };
+        }
+      });
+    },
+    /**
+     * 番剧播放地址获取
+     *
+     * + //api.bilibili.com/pgc/player/web/playurl/html5
+     *
+     */
+    hook_bangumi_html5() {
+      if (this.$flag.is_hook_bangumi_html5) {
+        return;
+      }
+      this.$flag.is_hook_bangumi_html5 = true;
+      XhrHook.ajaxHooker.hook((request) => {
+        if (request.url.includes("//api.bilibili.com/pgc/player/web/playurl/html5")) {
+          if (request.url.startsWith("//")) {
+            request.url = window.location.protocol + request.url;
+          }
+          let playUrl = new URL(request.url);
+          playUrl.pathname = "/pgc/player/web/playurl";
+          playUrl.searchParams.delete("bsource");
+          playUrl.searchParams.set(
+            "qn",
+            BilibiliVideoPlayUrlQN["1080P60 高帧率"].toString()
+          );
+          playUrl.searchParams.set("fnval", "1");
+          playUrl.searchParams.set("fnver", "0");
+          playUrl.searchParams.set("fourk", "1");
+          playUrl.searchParams.set("from_client", "BROWSER");
+          playUrl.searchParams.set("drm_tech_type", "2");
+          request.url = playUrl.toString();
+          request.response = (res) => {
+            let data2 = utils.toJSON(res.responseText);
+            let result = data2["result"];
+            log.info("当前解锁的quality值：" + result["quality"]);
+            if (result["quality"] && result["support_formats"]) {
+              let findValue = result["support_formats"].find((item) => {
+                return item["quality"] == result["quality"];
+              });
+              if (findValue) {
+                log.info(
+                  "当前已解锁的画质：" + findValue["new_description"] || findValue["display_desc"]
+                );
+              }
+            }
+          };
+        }
+      });
+    }
+  };
+  const BilibiliPlayerUI = {
+    $flag: {
+      /** 是否已经添加CSS */
+      isInitCSS: false,
+      /** 是否已经覆盖mplayer */
+      isCoverMPlayer: false
+    },
+    $el: {
+      /** 播放器右边菜单 */
+      get $mplayerRight() {
+        return document.querySelector(".mplayer-right");
+      }
+    },
+    /** 右侧面板菜单 */
+    $mPlayerRight: {
+      /** 显示右侧菜单 */
+      showMPlayerRight() {
+        BilibiliPlayerUI.$el.$mplayerRight.style.cssText = "--mplayer-right-transform: -var(--mplayer-right-w);";
+      },
+      /** 隐藏右侧菜单 */
+      hideMPlayerRight() {
+        BilibiliPlayerUI.$el.$mplayerRight.style.cssText = "";
+      },
+      /** 清空右侧菜单 */
+      clearMPlayerRight() {
+        BilibiliPlayerUI.$el.$mplayerRight.innerHTML = "";
+      },
+      /** 设置某个项访问状态 */
+      setActive($el) {
+        $el.classList.add("gf-mplayer-right-item-active");
+      },
+      /** 清空某个项访问状态 */
+      clearActive($el) {
+        $el.classList.remove("gf-mplayer-right-item-active");
+      },
+      /** 清空所有项的访问状态 */
+      clearAllActive() {
+        BilibiliPlayerUI.$el.$mplayerRight.querySelectorAll(".gf-mplayer-right-item-active").forEach(
+          (item) => item.classList.remove("gf-mplayer-right-item-active")
+        );
+      },
+      /** 创建一个项 */
+      createMPlayerItem(text) {
+        return domutils.createElement("div", {
+          className: "gf-mplayer-right-item",
+          innerHTML: text ?? ""
+        });
+      }
+    },
+    init() {
+      if (!this.$flag.isInitCSS) {
+        this.$flag.isInitCSS = true;
+        addStyle(
+          /*css*/
+          `
+			.mplayer-right {
+				--mplayer-right-w: 8em;
+				--mplayer-right-transform: var(--mplayer-right-w);
+				background: #181212;
+				width: var(--mplayer-right-w);
+				opacity: 0.9 !important;
+				visibility: visible !important;
+				color: #ffffff;
+				-webkit-transform: translateX(var(--mplayer-right-transform)) !important;
+				transform: translateX(var(--mplayer-right-transform)) !important;
+				z-index: 1000;
+				overflow-y: auto;
+				display: block;
+				align-content: center;
+			}
+			.gf-mplayer-right-item{
+				width: 100%;
+				text-align: center;
+				align-content: center;
+				padding: 2em 0px;
+			}
+			.gf-mplayer-right-item-active {
+				color: var(--bili-color);
+			}
+			`
+        );
+      }
+      PopsPanel.execMenuOnce("bili-coverSpeedBtn", () => {
+        this.coverMPlayer();
+        this.coverSpeedBtn();
+      });
+      PopsPanel.execMenuOnce("bili-coverQuality", () => {
+        this.coverMPlayer();
+        this.coverQuality();
+      });
+    },
+    /**
+     * 设置.mplayer全局点击监听，用于取消.mplayer-right
+     */
+    coverMPlayer() {
+      if (this.$flag.isCoverMPlayer) {
+        return;
+      }
+      this.$flag.isCoverMPlayer = true;
+      domutils.on(
+        document,
+        "click",
+        (event) => {
+          var _a2, _b, _c;
+          let $click = event.target;
+          if (((_a2 = this.$el) == null ? void 0 : _a2.$mplayerRight) && !((_c = (_b = this.$el) == null ? void 0 : _b.$mplayerRight) == null ? void 0 : _c.contains($click))) {
+            this.$mPlayerRight.hideMPlayerRight();
+          }
+        },
+        { capture: true }
+      );
+    },
+    /**
+     * 覆盖【倍速】按钮
+     */
+    coverSpeedBtn() {
+      domutils.on(
+        document,
+        "click",
+        ".mplayer-control-btn-speed",
+        async (event) => {
+          utils.preventEvent(event);
+          log.info("点击【倍速】");
+          this.$mPlayerRight.hideMPlayerRight();
+          this.$mPlayerRight.clearMPlayerRight();
+          let speedList = [
+            {
+              text: "5.0X",
+              value: 5
+            },
+            {
+              text: "3.0X",
+              value: 3
+            },
+            {
+              text: "2.0X",
+              value: 2
+            },
+            {
+              text: "1.5X",
+              value: 1.5
+            },
+            {
+              text: "1.25X",
+              value: 1.25
+            },
+            {
+              text: "1.0X",
+              value: 1
+            },
+            {
+              text: "0.75X",
+              value: 0.75
+            },
+            {
+              text: "0.5X",
+              value: 0.5
+            },
+            {
+              text: "0.25X",
+              value: 0.25
+            }
+          ];
+          let videoBackRate = await BilibiliPlayer.getVideoPlayBackRate();
+          speedList.forEach((item) => {
+            let $mplayerItem = this.$mPlayerRight.createMPlayerItem(item.text);
+            if (videoBackRate == item.value) {
+              this.$mPlayerRight.setActive($mplayerItem);
+            }
+            domutils.on($mplayerItem, "click", async (__event__) => {
+              utils.preventEvent(__event__);
+              await BilibiliPlayer.setVideoSpeed(item.value);
+              this.$mPlayerRight.clearAllActive();
+              this.$mPlayerRight.setActive($mplayerItem);
+              this.$mPlayerRight.hideMPlayerRight();
+            });
+            this.$el.$mplayerRight.appendChild($mplayerItem);
+          });
+          this.$mPlayerRight.showMPlayerRight();
+        },
+        {
+          capture: true
+        }
+      );
+    },
+    /**
+     * 覆盖【清晰度】按钮
+     */
+    coverQuality() {
+      domutils.on(
+        document,
+        "click",
+        ".mplayer-control-btn-quality",
+        async (event) => {
+          utils.preventEvent(event);
+          log.info("点击【清晰度】");
+          this.$mPlayerRight.hideMPlayerRight();
+          this.$mPlayerRight.clearMPlayerRight();
+          let playerPromise = await BilibiliPlayer.$player.playerPromise();
+          let playerQuality = playerPromise.videoQuality;
+          let qualityMap = {};
+          Object.keys(BilibiliVideoPlayUrlQN).forEach((qualityName) => {
+            let qualityValue = BilibiliVideoPlayUrlQN[qualityName];
+            qualityMap[qualityValue] = qualityName;
+          });
+          let playerQualityText = qualityMap[playerQuality];
+          let $mplayerItem = this.$mPlayerRight.createMPlayerItem(playerQualityText);
+          this.$mPlayerRight.setActive($mplayerItem);
+          this.$el.$mplayerRight.appendChild($mplayerItem);
+          this.$mPlayerRight.showMPlayerRight();
+        },
+        {
+          capture: true
+        }
+      );
+    }
+  };
   const BilibiliPlayer = {
+    /** 获取player对象 */
     get player() {
       return _unsafeWindow.player;
+    },
+    $player: {
+      /** 获取player的异步结果 */
+      async playerPromise() {
+        await utils.waitPropertyByInterval(
+          _unsafeWindow,
+          () => {
+            var _a2, _b;
+            return typeof BilibiliPlayer.player === "object" && typeof ((_a2 = BilibiliPlayer.player) == null ? void 0 : _a2.playerPromise) === "object" && ((_b = BilibiliPlayer.player) == null ? void 0 : _b.playerPromise) != null;
+          },
+          250,
+          1e4
+        );
+        let playerPromise = await BilibiliPlayer.player.playerPromise;
+        return playerPromise;
+      },
+      /** 将番剧页面的h5 player转为player对象 */
+      parseBiliH5PlayerToPlayer($h5Player) {
+        let $player = $h5Player.player;
+        let options = $h5Player.options;
+        let player = {
+          container: $player["elem"],
+          config: options,
+          danmaku: $player["danmaku"],
+          video: $player["video"],
+          videoQuality: options["qn"],
+          // @ts-ignore
+          VideoInfo: {
+            avid: options["aid"],
+            bvid: options["bvid"],
+            cid: options["cid"],
+            video_type: options["video_type"]
+          }
+        };
+        let winPlayer = {
+          playerPromise: new Promise((resolve) => {
+            resolve(player);
+          })
+        };
+        _unsafeWindow.player = winPlayer;
+      }
     },
     init() {
       BilibiliDanmaku.init();
       let videoSpeed = PopsPanel.getValue("bili-video-speed");
       this.setVideoSpeed(videoSpeed);
-    },
-    async playerPromise() {
-      await utils.waitPropertyByInterval(
-        _unsafeWindow,
-        () => {
-          var _a2, _b;
-          return typeof BilibiliPlayer.player === "object" && typeof ((_a2 = BilibiliPlayer.player) == null ? void 0 : _a2.playerPromise) === "object" && ((_b = BilibiliPlayer.player) == null ? void 0 : _b.playerPromise) != null;
-        },
-        250,
-        1e4
-      );
-      let playerPromise = await BilibiliPlayer.player.playerPromise;
-      return playerPromise;
+      BilibiliPlayerUI.init();
     },
     /**
      * 设置视频播放倍速
      * @param value 倍速值
      */
-    setVideoSpeed(value) {
-      this.playerPromise().then(async (playerPromise) => {
-        await utils.waitPropertyByInterval(
-          async () => {
-            playerPromise = await BilibiliPlayer.playerPromise();
-            return playerPromise;
-          },
-          () => {
-            return typeof playerPromise.video != null && playerPromise.video instanceof HTMLVideoElement;
-          },
-          250,
-          1e4
-        );
-        playerPromise.video.playbackRate = value;
-        log.success(`设置视频播放倍速: ${value}`);
-        BilibiliDanmaku.DanmakuCoreConfig().then(async (config) => {
+    async setVideoSpeed(value) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          let playerPromise = await this.$player.playerPromise();
+          await utils.waitPropertyByInterval(
+            async () => {
+              playerPromise = await BilibiliPlayer.$player.playerPromise();
+              return playerPromise;
+            },
+            () => {
+              return typeof playerPromise.video != null && playerPromise.video instanceof HTMLVideoElement;
+            },
+            250,
+            1e4
+          );
+          playerPromise.video.playbackRate = value;
+          log.success(`设置视频播放倍速: ${value}`);
+          let config = await BilibiliDanmaku.DanmakuCoreConfig();
           config.videoSpeed = value;
           log.success(`设置弹幕配置的视频播放倍速: ${value}`);
-        });
+          resolve(true);
+        } catch (error) {
+          reject(error);
+        }
       });
+    },
+    /**
+     * 获取视频播放倍速
+     */
+    async getVideoPlayBackRate() {
+      return new Promise(async (resolve, reject) => {
+        try {
+          let playerPromise = await this.$player.playerPromise();
+          await utils.waitPropertyByInterval(
+            async () => {
+              playerPromise = await BilibiliPlayer.$player.playerPromise();
+              return playerPromise;
+            },
+            () => {
+              return typeof playerPromise.video != null && playerPromise.video instanceof HTMLVideoElement;
+            },
+            250,
+            1e4
+          );
+          resolve(playerPromise.video.playbackRate);
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
+  };
+  const BilibiliRouter = {
+    /**
+     * 视频页面
+     * + /video/
+     */
+    isVideo() {
+      return window.location.pathname.startsWith("/video/");
+    },
+    /**
+     * 番剧
+     * + /banggumi/
+     */
+    isBangumi() {
+      return window.location.pathname.startsWith("/bangumi/");
+    },
+    /**
+     * 搜索
+     * + /search
+     */
+    isSearch() {
+      return window.location.pathname.startsWith("/search");
+    },
+    /**
+     * 直播
+     * + live.bilibili.com
+     */
+    isLive() {
+      return window.location.hostname === "live.bilibili.com";
+    },
+    /**
+     * 专栏稿件
+     * + /opus
+     */
+    isOpus() {
+      return window.location.pathname.startsWith("/opus");
+    },
+    /**
+     * 话题
+     * + /topic-detail
+     */
+    isTopicDetail() {
+      return window.location.pathname.startsWith("/topic-detail");
+    },
+    /**
+     * 动态
+     * + /dynamic
+     */
+    isDynamic() {
+      return window.location.pathname.startsWith("/dynamic");
+    },
+    /**
+     * 首页
+     * + /
+     * + /channel
+     */
+    isHead() {
+      return window.location.pathname === "/" || window.location.pathname.startsWith("/channel");
+    },
+    /**
+     * 个人空间
+     * + /space
+     */
+    isSpace() {
+      return window.location.pathname.startsWith("/space");
+    }
+  };
+  const BilibiliPCRouter = {
+    /**
+     * 桌面端
+     */
+    isPC() {
+      return window.location.hostname === "www.bilibili.com";
+    },
+    /**
+     * 应该是动态？
+     */
+    isReadMobile() {
+      return this.isPC() && window.location.pathname.startsWith("/read/mobile");
     }
   };
   const BilibiliDanmakuFilter = {
@@ -414,10 +952,10 @@
           250,
           1e4
         );
-        let playerPromise = await BilibiliPlayer.playerPromise();
+        let playerPromise = await BilibiliPlayer.$player.playerPromise();
         await utils.waitPropertyByInterval(
           async () => {
-            playerPromise = await BilibiliPlayer.playerPromise();
+            playerPromise = await BilibiliPlayer.$player.playerPromise();
           },
           () => {
             var _a3, _b2, _c, _d, _e, _f;
@@ -440,10 +978,10 @@
           250,
           1e4
         );
-        let playerPromise = await BilibiliPlayer.playerPromise();
+        let playerPromise = await BilibiliPlayer.$player.playerPromise();
         await utils.waitPropertyByInterval(
           async () => {
-            playerPromise = await BilibiliPlayer.playerPromise();
+            playerPromise = await BilibiliPlayer.$player.playerPromise();
           },
           () => {
             var _a3, _b2, _c2;
@@ -469,11 +1007,29 @@
       let danmakuFilter = await this.$player.danmakuFilter();
       let that = this;
       if (typeof danmakuFilter == "function") {
-        let playerPromise = await BilibiliPlayer.playerPromise();
-        playerPromise.danmaku.danmakuCore.config.danmakuFilter = function(danmaConfig) {
-          let isFilter = that.filter(danmaConfig, totalRule);
+        let playerPromise = await BilibiliPlayer.$player.playerPromise();
+        await utils.waitPropertyByInterval(
+          async () => {
+            playerPromise = await BilibiliPlayer.$player.playerPromise();
+          },
+          () => {
+            var _a2, _b, _c;
+            return typeof ((_c = (_b = (_a2 = playerPromise == null ? void 0 : playerPromise.danmaku) == null ? void 0 : _a2.danmakuCore) == null ? void 0 : _b.config) == null ? void 0 : _c.danmakuFilter) === "function";
+          },
+          250,
+          1e4
+        );
+        let isBangumi = BilibiliRouter.isBangumi();
+        let ownFilter = function(danmaConfig) {
+          let isFilter = false;
+          isFilter = that.filter(danmaConfig, totalRule);
+          if (isBangumi) {
+            isFilter = !isFilter;
+          }
           return isFilter;
         };
+        playerPromise.danmaku.danmakuCore.config.danmakuFilter = ownFilter;
+        log.success(`成功覆盖danmakuFilter`);
       }
     },
     /** 更新弹幕列表 */
@@ -622,9 +1178,12 @@
       this.setFontFamily(fontFamily);
     },
     async DanmakuCoreConfig() {
-      let playerPromise = await BilibiliPlayer.playerPromise();
+      let playerPromise = await BilibiliPlayer.$player.playerPromise();
       await utils.waitPropertyByInterval(
-        playerPromise,
+        async () => {
+          playerPromise = await BilibiliPlayer.$player.playerPromise();
+          return playerPromise;
+        },
         () => {
           var _a2, _b, _c, _d;
           return typeof ((_b = (_a2 = playerPromise == null ? void 0 : playerPromise.danmaku) == null ? void 0 : _a2.danmakuCore) == null ? void 0 : _b.config) === "object" && ((_d = (_c = playerPromise == null ? void 0 : playerPromise.danmaku) == null ? void 0 : _c.danmakuCore) == null ? void 0 : _d.config) != null;
@@ -640,8 +1199,12 @@
      */
     setOpacity(value) {
       this.DanmakuCoreConfig().then((config) => {
-        config.opacity = value;
-        log.success(`设置-弹幕不透明度: ${value}`);
+        if ("opacity" in config) {
+          config.opacity = value;
+          log.success(`设置-弹幕不透明度: ${value}`);
+        } else {
+          log.error("设置-弹幕不透明度失败, 不存在 opacity 属性");
+        }
       });
     },
     /**
@@ -656,8 +1219,12 @@
         100: "全屏"
       };
       this.DanmakuCoreConfig().then((config) => {
-        config.danmakuArea = value;
-        log.success(`设置-显示区域: ${value} => ${areaMapping[value]}`);
+        if ("danmakuArea" in config) {
+          config.danmakuArea = value;
+          log.success(`设置-显示区域: ${value} => ${areaMapping[value]}`);
+        } else {
+          log.error("设置-显示区域失败, 不存在 danmakuArea 属性");
+        }
       });
     },
     /**
@@ -666,8 +1233,12 @@
      */
     setFontSize(value) {
       this.DanmakuCoreConfig().then((config) => {
-        config.fontSize = value;
-        log.success(`设置-字体大小: ${value}`);
+        if ("fontSize" in config) {
+          config.fontSize = value;
+          log.success(`设置-字体大小: ${value}`);
+        } else {
+          log.error("设置-字体大小失败, 不存在 fontSize 属性");
+        }
       });
     },
     /**
@@ -676,8 +1247,12 @@
      */
     setDuration(value) {
       this.DanmakuCoreConfig().then((config) => {
-        config.duration = value;
-        log.success(`设置-持续时间（弹幕速度）: ${value}`);
+        if ("duration" in config) {
+          config.duration = value;
+          log.success(`设置-持续时间（弹幕速度）: ${value}`);
+        } else {
+          log.error("设置-持续时间（弹幕速度）失败, 不存在 duration 属性");
+        }
       });
     },
     /**
@@ -686,8 +1261,12 @@
      */
     setBold(value) {
       this.DanmakuCoreConfig().then((config) => {
-        config.bold = value;
-        log.success(`设置-粗体: ${value}`);
+        if ("bold" in config) {
+          config.bold = value;
+          log.success(`设置-粗体: ${value}`);
+        } else {
+          log.error("设置-粗体失败, 不存在 bold 属性");
+        }
       });
     },
     /**
@@ -696,8 +1275,26 @@
      */
     setFullScreenSync(value) {
       this.DanmakuCoreConfig().then((config) => {
-        config.fullScreenSync = value;
-        log.success(`设置-弹幕随屏幕缩放: ${value}`);
+        if ("fullScreenSync" in config) {
+          config.fullScreenSync = value;
+          log.success(`设置-弹幕随屏幕缩放: ${value}`);
+        } else {
+          log.error("设置-弹幕随屏幕缩放失败, 不存在 fullScreenSync 属性");
+        }
+      });
+    },
+    /**
+     * 弹幕字体
+     * @param value
+     */
+    setFontFamily(value) {
+      this.DanmakuCoreConfig().then((config) => {
+        if ("fontFamily" in config) {
+          config.fontFamily = value;
+          log.success(`设置-弹幕字体: ${value}`);
+        } else {
+          log.error("设置-弹幕字体失败, 不存在 fontFamily 属性");
+        }
       });
     },
     /**
@@ -706,10 +1303,10 @@
      */
     setSpeedSync(value) {
       this.DanmakuCoreConfig().then(async (config) => {
-        let playerPromise = await BilibiliPlayer.playerPromise();
+        let playerPromise = await BilibiliPlayer.$player.playerPromise();
         await utils.waitPropertyByInterval(
           async () => {
-            playerPromise = await BilibiliPlayer.playerPromise();
+            playerPromise = await BilibiliPlayer.$player.playerPromise();
             return playerPromise;
           },
           () => {
@@ -719,22 +1316,44 @@
           1e4
         );
         let videoSpeed = playerPromise.video.playbackRate;
-        config.videoSpeed = videoSpeed;
-        config.speedSync = value;
-        log.success(`设置-当前视频播放倍速: ${videoSpeed}`);
-        log.success(`设置-弹幕速度同步播放倍数: ${value}`);
-      });
-    },
-    /**
-     * 弹幕字体
-     * @param value
-     */
-    setFontFamily(value) {
-      this.DanmakuCoreConfig().then((config) => {
-        config.fontFamily = value;
-        log.success(`设置-弹幕字体: ${value}`);
+        if ("videoSpeed" in config) {
+          config.videoSpeed = videoSpeed;
+          log.success(`设置-当前视频播放倍速: ${videoSpeed}`);
+        } else {
+          log.error("设置-弹幕速度同步播放倍数失败, 不存在 videoSpeed 属性");
+        }
+        if ("speedSync" in config) {
+          config.speedSync = value;
+          log.success(`设置-弹幕速度同步播放倍数: ${value}`);
+        } else {
+          log.error("设置-弹幕速度同步播放倍数失败, 不存在 speedSync 属性");
+        }
       });
     }
+  };
+  const UIOwn = function(getLiElementCallBack, initConfig, props, afterAddToUListCallBack) {
+    let result = {
+      attributes: {},
+      type: "own",
+      props,
+      getLiElementCallBack,
+      afterAddToUListCallBack
+    };
+    if (result.attributes) {
+      result.attributes[ATTRIBUTE_INIT] = () => {
+        if (initConfig) {
+          Object.keys(initConfig).forEach((key) => {
+            let defaultValue = initConfig[key];
+            if (PopsPanel.$data.data.has(key)) {
+              log.warn("请检查该key(已存在): " + key);
+            }
+            PopsPanel.$data.data.set(key, defaultValue);
+          });
+        }
+        return false;
+      };
+    }
+    return result;
   };
   const SettingUICommon = {
     id: "panel-common",
@@ -760,11 +1379,11 @@
                     "用于处理页面跳转(本页)时功能不生效问题"
                   ),
                   UISwitch(
-                    "修复点击UP主正确进入空间",
-                    "bili-repairEnterUserHome",
+                    "修复VueRouter跳转404问题",
+                    "bili-repairVueRouter404",
                     true,
                     void 0,
-                    "可以修复点击UP主进入个人空间但是跳转404的问题"
+                    "例如：点击UP主正确进入空间"
                   ),
                   UISwitch(
                     "新标签页打开",
@@ -773,39 +1392,26 @@
                     void 0,
                     "通过开启【覆盖点击事件】相关的设置，通过新标签页打开链接"
                   ),
-                  UISelect(
-                    "倍速",
-                    "bili-video-speed",
-                    1,
-                    [
-                      {
-                        text: "2.0X",
-                        value: 2
-                      },
-                      {
-                        text: "1.5X",
-                        value: 1.5
-                      },
-                      {
-                        text: "1.25X",
-                        value: 1.25
-                      },
-                      {
-                        text: "1.0X",
-                        value: 1
-                      },
-                      {
-                        text: "0.75X",
-                        value: 0.75
-                      },
-                      {
-                        text: "0.25X",
-                        value: 0.25
-                      }
-                    ],
-                    (_, isSelectValue) => {
-                      BilibiliPlayer.setVideoSpeed(isSelectValue);
-                    }
+                  UISwitch(
+                    "允许复制",
+                    "bili-allowCopy",
+                    true,
+                    void 0,
+                    "一般用于处理楼层的回复弹窗内无法选中复制问题"
+                  ),
+                  UISwitch(
+                    "修复【倍速】按钮",
+                    "bili-coverSpeedBtn",
+                    true,
+                    void 0,
+                    "可以自行选择视频倍速"
+                  ),
+                  UISwitch(
+                    "修复【清晰度】按钮",
+                    "bili-coverQuality",
+                    true,
+                    void 0,
+                    "可查看当前视频的清晰度"
                   )
                 ]
               }
@@ -948,12 +1554,189 @@
                 text: "按类型屏蔽",
                 type: "forms",
                 forms: [
-                  UISwitch("滚动", "bili-danmaku-filter-type-roll", false),
-                  UISwitch("顶部", "bili-danmaku-filter-type-top", false),
-                  UISwitch("底部", "bili-danmaku-filter-type-bottom", false),
-                  UISwitch("彩色", "bili-danmaku-filter-type-colour", false),
-                  UISwitch("重复", "bili-danmaku-filter-type-repeat", false),
-                  // UISwitch("高级", "bili-danmaku-filter-type-senior", false),
+                  UIOwn(
+                    (liElement) => {
+                      let $dmSetting = domutils.createElement("div", {
+                        className: "bpx-player-dm-setting-left-block-content",
+                        innerHTML: (
+                          /*html*/
+                          `
+											<style>
+												.bpx-player-dm-setting-left-block-content{
+													display: flex;
+													gap: 20px;
+													overflow-x: auto;
+													align-items: center;
+													flex-wrap: wrap;
+													text-wrap: nowrap;
+												}
+												.bpx-player-block-filter-type{
+													display: flex;
+													flex-direction: column;
+													max-width: unset !important;
+													margin-left: 0px !important;
+													text-align: center !important;
+												}
+												.bpx-player-block-filter-image{
+
+												}
+												..bpx-player-block-filter-image svg{
+													enable-background: new 0 0 28 28;
+												}
+												.bpx-player-block-filter-label{
+
+												}
+
+												/* 图标状态 */
+												.bpx-player-block-filter-type .bpx-player-block-filter-image-enable{
+													display: none;
+													fill: var(--bili-color, #00a1d6);
+													color: var(--bili-color, #00a1d6);
+												}
+												.bpx-player-block-filter-type[data-value="true"] .bpx-player-block-filter-label{
+													color: var(--bili-color, #00a1d6);
+												}
+												.bpx-player-block-filter-type[data-value="true"] .bpx-player-block-filter-image{
+													display: none;
+												}
+												.bpx-player-block-filter-type[data-value="true"] .bpx-player-block-filter-image-enable{
+													display: unset;
+												}
+											</style>
+											<div class="bpx-player-block-filter-type bpx-player-block-repeat" data-key="bili-danmaku-filter-type-repeat" data-type="repeat">
+												<span class="bpx-player-block-filter-image">
+													<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" data-pointer="none" viewBox="0 0 28 28">
+													<path d="M23 3L5 3C4.86899 3 4.74037 3.00716 4.61 3.02C4.47963 3.03284 4.34849 3.05444 4.22 3.08C4.09151 3.10556 3.96537 3.13197 3.84 3.17C3.71464 3.20803 3.59103 3.24987 3.47 3.3C3.34897 3.35013 3.22554 3.40825 3.11 3.47C2.99447 3.53176 2.88893 3.59722 2.78 3.67C2.67107 3.74279 2.56127 3.82689 2.46 3.91C2.35873 3.99311 2.26263 4.07737 2.17 4.17C2.07737 4.26263 1.99311 4.35873 1.91 4.46C1.82689 4.56127 1.74279 4.67107 1.67 4.78C1.59722 4.88893 1.53175 4.99447 1.47 5.11C1.40824 5.22554 1.35013 5.34897 1.3 5.47C1.24987 5.59103 1.20803 5.71464 1.17 5.84C1.13197 5.96537 1.10556 6.09151 1.08 6.22C1.05444 6.34849 1.03284 6.47963 1.02 6.61C1.00716 6.74037 1 6.86899 1 7L1 21C1 21.131 1.00716 21.2596 1.02 21.39C1.03284 21.5203 1.05444 21.6515 1.08 21.78C1.10556 21.9085 1.13197 22.0347 1.17 22.16C1.20803 22.2854 1.24987 22.409 1.3 22.53C1.35013 22.6511 1.40825 22.7745 1.47 22.89C1.53176 23.0055 1.59722 23.1111 1.67 23.22C1.74279 23.3289 1.82689 23.4387 1.91 23.54C1.99311 23.6413 2.07737 23.7374 2.17 23.83C2.26263 23.9227 2.35873 24.0069 2.46 24.09C2.56127 24.1731 2.67107 24.2572 2.78 24.33C2.88893 24.4027 2.99447 24.4682 3.11 24.53C3.22554 24.5917 3.34897 24.6499 3.47 24.7C3.59103 24.7501 3.71464 24.7919 3.84 24.83C3.96537 24.868 4.09151 24.8945 4.22 24.92C4.34849 24.9456 4.47963 24.9672 4.61 24.98C4.74037 24.9929 4.86899 25 5 25L23 25C23.131 25 23.2596 24.9929 23.39 24.98C23.5203 24.9672 23.6515 24.9456 23.78 24.92C23.9085 24.8945 24.0347 24.868 24.16 24.83C24.2854 24.7919 24.409 24.7501 24.53 24.7C24.6511 24.6499 24.7745 24.5917 24.89 24.53C25.0055 24.4682 25.1111 24.4027 25.22 24.33C25.3289 24.2572 25.4387 24.1731 25.54 24.09C25.6413 24.0069 25.7374 23.9227 25.83 23.83C25.9227 23.7374 26.0069 23.6413 26.09 23.54C26.1731 23.4387 26.2572 23.3289 26.33 23.22C26.4028 23.1111 26.4683 23.0055 26.53 22.89C26.5917 22.7745 26.6499 22.6511 26.7 22.53C26.7501 22.409 26.7919 22.2854 26.83 22.16C26.868 22.0347 26.8945 21.9085 26.92 21.78C26.9456 21.6515 26.9672 21.5203 26.98 21.39C26.9929 21.2596 27 21.131 27 21L27 7C27 6.86899 26.9929 6.74037 26.98 6.61C26.9672 6.47963 26.9456 6.34849 26.92 6.22C26.8945 6.09151 26.868 5.96537 26.83 5.84C26.7919 5.71464 26.7501 5.59103 26.7 5.47C26.6499 5.34897 26.5917 5.22554 26.53 5.11C26.4683 4.99447 26.4028 4.88893 26.33 4.78C26.2572 4.67107 26.1731 4.56127 26.09 4.46C26.0069 4.35873 25.9227 4.26263 25.83 4.17C25.7374 4.07737 25.6413 3.99311 25.54 3.91C25.4387 3.82689 25.3289 3.74278 25.22 3.67C25.1111 3.59722 25.0055 3.53176 24.89 3.47C24.7745 3.40825 24.6511 3.35013 24.53 3.3C24.409 3.24987 24.2854 3.20803 24.16 3.17C24.0347 3.13197 23.9085 3.10556 23.78 3.08C23.6515 3.05444 23.5203 3.03284 23.39 3.02C23.2596 3.00716 23.131 3 23 3ZM13 11L19 11C19.0657 11 19.1356 11.0072 19.2 11.02C19.2644 11.0328 19.3193 11.0549 19.38 11.08C19.4407 11.1051 19.5054 11.1335 19.56 11.17C19.6146 11.2065 19.6636 11.2436 19.71 11.29C19.7564 11.3364 19.7935 11.3854 19.83 11.44C19.8665 11.4946 19.8949 11.5593 19.92 11.62C19.9451 11.6807 19.9672 11.7356 19.98 11.8C19.9928 11.8644 20 11.9343 20 12C20 12.0657 19.9928 12.1356 19.98 12.2C19.9672 12.2644 19.9451 12.3193 19.92 12.38C19.8949 12.4407 19.8665 12.5054 19.83 12.56C19.7935 12.6146 19.7564 12.6636 19.71 12.71C19.6636 12.7564 19.6146 12.7935 19.56 12.83C19.5054 12.8665 19.4407 12.8949 19.38 12.92C19.3193 12.9451 19.2644 12.9672 19.2 12.98C19.1356 12.9928 19.0657 13 19 13L13 13C12.9343 13 12.8644 12.9928 12.8 12.98C12.7356 12.9672 12.6807 12.9451 12.62 12.92C12.5593 12.8949 12.4946 12.8665 12.44 12.83C12.3854 12.7935 12.3364 12.7564 12.29 12.71C12.2435 12.6636 12.2065 12.6146 12.17 12.56C12.1335 12.5054 12.1051 12.4407 12.08 12.38C12.0549 12.3193 12.0328 12.2644 12.02 12.2C12.0072 12.1356 12 12.0657 12 12C12 11.9343 12.0072 11.8644 12.02 11.8C12.0328 11.7356 12.0549 11.6807 12.08 11.62C12.1051 11.5593 12.1335 11.4946 12.17 11.44C12.2065 11.3854 12.2435 11.3364 12.29 11.29C12.3364 11.2436 12.3854 11.2065 12.44 11.17C12.4946 11.1335 12.5593 11.1051 12.62 11.08C12.6807 11.0549 12.7356 11.0328 12.8 11.02C12.8644 11.0072 12.9343 11 13 11ZM9 13L7 13L7 11L9 11L9 13ZM9 17L7 17L7 15L9 15L9 17ZM19 17L13 17C12.9343 17 12.8644 16.9928 12.8 16.98C12.7356 16.9672 12.6807 16.9451 12.62 16.92C12.5593 16.8949 12.4946 16.8665 12.44 16.83C12.3854 16.7935 12.3364 16.7564 12.29 16.71C12.2435 16.6636 12.2065 16.6146 12.17 16.56C12.1335 16.5054 12.1051 16.4407 12.08 16.38C12.0549 16.3193 12.0328 16.2644 12.02 16.2C12.0072 16.1356 12 16.0657 12 16C12 15.9343 12.0072 15.8644 12.02 15.8C12.0328 15.7356 12.0549 15.6807 12.08 15.62C12.1051 15.5593 12.1335 15.4946 12.17 15.44C12.2065 15.3854 12.2435 15.3364 12.29 15.29C12.3364 15.2435 12.3854 15.2065 12.44 15.17C12.4946 15.1335 12.5593 15.1051 12.62 15.08C12.6807 15.0549 12.7356 15.0328 12.8 15.02C12.8644 15.0072 12.9343 15 13 15L19 15C19.0657 15 19.1356 15.0072 19.2 15.02C19.2644 15.0328 19.3193 15.0549 19.38 15.08C19.4407 15.1051 19.5054 15.1335 19.56 15.17C19.6146 15.2065 19.6636 15.2435 19.71 15.29C19.7564 15.3364 19.7935 15.3854 19.83 15.44C19.8665 15.4946 19.8949 15.5593 19.92 15.62C19.9451 15.6807 19.9672 15.7356 19.98 15.8C19.9928 15.8644 20 15.9343 20 16C20 16.0657 19.9928 16.1356 19.98 16.2C19.9672 16.2644 19.9451 16.3193 19.92 16.38C19.8949 16.4407 19.8665 16.5054 19.83 16.56C19.7935 16.6146 19.7564 16.6636 19.71 16.71C19.6636 16.7564 19.6146 16.7935 19.56 16.83C19.5054 16.8665 19.4407 16.8949 19.38 16.92C19.3193 16.9451 19.2644 16.9672 19.2 16.98C19.1356 16.9928 19.0657 17 19 17Z"></path>
+													</svg>
+												</span>
+												<span class="bpx-player-block-filter-image-enable">
+													<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" data-pointer="none" viewBox="0 0 28 28">
+														<g clip-path="url(#clip-path-UVHcF64rhIOX1dnvvwfXL)">
+															<path d="M23 15C24.487 15 25.866 15.469 27 16.26L27 7C27 6.86899 26.9929 6.74037 26.98 6.61C26.9672 6.47963 26.9456 6.34849 26.92 6.22C26.8945 6.09151 26.868 5.96537 26.83 5.84C26.7919 5.71464 26.7501 5.59103 26.7 5.47C26.6499 5.34897 26.5917 5.22554 26.53 5.11C26.4683 4.99447 26.4028 4.88893 26.33 4.78C26.2572 4.67107 26.1731 4.56127 26.09 4.46C26.0069 4.35873 25.9227 4.26263 25.83 4.17C25.7374 4.07737 25.6413 3.99311 25.54 3.91C25.4387 3.82689 25.3289 3.74278 25.22 3.67C25.1111 3.59722 25.0055 3.53176 24.89 3.47C24.7745 3.40825 24.6511 3.35013 24.53 3.3C24.409 3.24987 24.2854 3.20803 24.16 3.17C24.0347 3.13197 23.9085 3.10556 23.78 3.08C23.6515 3.05444 23.5203 3.03284 23.39 3.02C23.2596 3.00716 23.131 3 23 3L5 3C4.86899 3 4.74037 3.00716 4.61 3.02C4.47963 3.03284 4.34849 3.05444 4.22 3.08C4.09151 3.10556 3.96537 3.13197 3.84 3.17C3.71464 3.20803 3.59103 3.24987 3.47 3.3C3.34897 3.35013 3.22554 3.40825 3.11 3.47C2.99447 3.53176 2.88893 3.59722 2.78 3.67C2.67107 3.74279 2.56127 3.82689 2.46 3.91C2.35873 3.99311 2.26263 4.07737 2.17 4.17C2.07737 4.26263 1.99311 4.35873 1.91 4.46C1.82689 4.56127 1.74279 4.67107 1.67 4.78C1.59722 4.88893 1.53175 4.99447 1.47 5.11C1.40824 5.22554 1.35013 5.34897 1.3 5.47C1.24987 5.59103 1.20803 5.71464 1.17 5.84C1.13197 5.96537 1.10556 6.09151 1.08 6.22C1.05444 6.34849 1.03284 6.47963 1.02 6.61C1.00716 6.74037 1 6.86899 1 7L1 21C1 21.131 1.00716 21.2596 1.02 21.39C1.03284 21.5203 1.05444 21.6515 1.08 21.78C1.10556 21.9085 1.13197 22.0347 1.17 22.16C1.20803 22.2854 1.24987 22.409 1.3 22.53C1.35013 22.6511 1.40825 22.7745 1.47 22.89C1.53176 23.0055 1.59722 23.1111 1.67 23.22C1.74279 23.3289 1.82689 23.4387 1.91 23.54C1.99311 23.6413 2.07737 23.7374 2.17 23.83C2.26263 23.9227 2.35873 24.0069 2.46 24.09C2.56127 24.1731 2.67107 24.2572 2.78 24.33C2.88893 24.4027 2.99447 24.4682 3.11 24.53C3.22554 24.5917 3.34897 24.6499 3.47 24.7C3.59103 24.7501 3.71464 24.7919 3.84 24.83C3.96537 24.868 4.09151 24.8945 4.22 24.92C4.34849 24.9456 4.47963 24.9672 4.61 24.98C4.74037 24.9929 4.86899 25 5 25L16.67 25C16.6071 24.8673 16.5545 24.7364 16.5 24.6C16.4455 24.4636 16.3958 24.3196 16.35 24.18C16.3042 24.0404 16.2569 23.9021 16.22 23.76C16.1831 23.6178 16.1579 23.4742 16.13 23.33C16.1021 23.1857 16.0788 23.0457 16.06 22.9C16.0413 22.7543 16.01 22.6066 16.01 22.46C16.01 22.3134 16 22.1669 16 22.02C16 21.8731 16.01 21.7266 16.01 21.58C16.01 21.4333 16.0319 21.2857 16.05 21.14C16.0681 20.9942 16.0927 20.8443 16.12 20.7C16.1472 20.5557 16.1837 20.4124 16.22 20.27C16.2563 20.1277 16.2949 19.9898 16.34 19.85C16.3851 19.7102 16.4362 19.5667 16.49 19.43C16.5439 19.2933 16.5977 19.163 16.66 19.03C16.7223 18.897 16.7895 18.7689 16.86 18.64C16.9306 18.5111 17.0015 18.3841 17.08 18.26C17.1585 18.1359 17.2439 18.0089 17.33 17.89C17.4162 17.771 17.5065 17.6533 17.6 17.54C17.6935 17.4267 17.7895 17.3172 17.89 17.21C17.9904 17.1029 18.093 17.0007 18.2 16.9C18.3069 16.7993 18.4169 16.7038 18.53 16.61C18.6431 16.5163 18.7612 16.4264 18.88 16.34C18.9988 16.2535 19.1161 16.1688 19.24 16.09C19.364 16.0112 19.4913 15.9409 19.62 15.87C19.7487 15.7992 19.8771 15.7327 20.01 15.67C20.1429 15.6074 20.2835 15.5441 20.42 15.49C20.5565 15.4359 20.6903 15.3854 20.83 15.34C20.9697 15.2945 21.1177 15.2565 21.26 15.22C21.4023 15.1834 21.5457 15.1475 21.69 15.12C21.8343 15.0925 21.9743 15.0784 22.12 15.06C22.2657 15.0416 22.4134 15.01 22.56 15.01C22.7067 15.01 22.8531 15 23 15ZM13 11L19 11C19.0657 11 19.1356 11.0072 19.2 11.02C19.2644 11.0328 19.3193 11.0549 19.38 11.08C19.4407 11.1051 19.5054 11.1335 19.56 11.17C19.6146 11.2065 19.6636 11.2436 19.71 11.29C19.7564 11.3364 19.7935 11.3854 19.83 11.44C19.8665 11.4946 19.8949 11.5593 19.92 11.62C19.9451 11.6807 19.9672 11.7356 19.98 11.8C19.9928 11.8644 20 11.9343 20 12C20 12.0657 19.9928 12.1356 19.98 12.2C19.9672 12.2644 19.9451 12.3193 19.92 12.38C19.8949 12.4407 19.8665 12.5054 19.83 12.56C19.7935 12.6146 19.7564 12.6636 19.71 12.71C19.6636 12.7564 19.6146 12.7935 19.56 12.83C19.5054 12.8665 19.4407 12.8949 19.38 12.92C19.3193 12.9451 19.2644 12.9672 19.2 12.98C19.1356 12.9928 19.0657 13 19 13L13 13C12.9343 13 12.8644 12.9928 12.8 12.98C12.7356 12.9672 12.6807 12.9451 12.62 12.92C12.5593 12.8949 12.4946 12.8665 12.44 12.83C12.3854 12.7935 12.3364 12.7564 12.29 12.71C12.2435 12.6636 12.2065 12.6146 12.17 12.56C12.1335 12.5054 12.1051 12.4407 12.08 12.38C12.0549 12.3193 12.0328 12.2644 12.02 12.2C12.0072 12.1356 12 12.0657 12 12C12 11.9343 12.0072 11.8644 12.02 11.8C12.0328 11.7356 12.0549 11.6807 12.08 11.62C12.1051 11.5593 12.1335 11.4946 12.17 11.44C12.2065 11.3854 12.2435 11.3364 12.29 11.29C12.3364 11.2436 12.3854 11.2065 12.44 11.17C12.4946 11.1335 12.5593 11.1051 12.62 11.08C12.6807 11.0549 12.7356 11.0328 12.8 11.02C12.8644 11.0072 12.9343 11 13 11ZM9 13L7 13L7 11L9 11L9 13ZM9 17L7 17L7 15L9 15L9 17ZM12 16C12 15.9343 12.0072 15.8644 12.02 15.8C12.0328 15.7356 12.0549 15.6807 12.08 15.62C12.1051 15.5593 12.1335 15.4946 12.17 15.44C12.2065 15.3854 12.2435 15.3364 12.29 15.29C12.3364 15.2435 12.3854 15.2065 12.44 15.17C12.4946 15.1335 12.5593 15.1051 12.62 15.08C12.6807 15.0549 12.7356 15.0328 12.8 15.02C12.8644 15.0072 12.9343 15 13 15L17 15C17.0657 15 17.1356 15.0072 17.2 15.02C17.2644 15.0328 17.3193 15.0549 17.38 15.08C17.4407 15.1051 17.5054 15.1335 17.56 15.17C17.6146 15.2065 17.6636 15.2435 17.71 15.29C17.7564 15.3364 17.7935 15.3854 17.83 15.44C17.8665 15.4946 17.8949 15.5593 17.92 15.62C17.9451 15.6807 17.9672 15.7356 17.98 15.8C17.9928 15.8644 18 15.9343 18 16C18 16.0657 17.9928 16.1356 17.98 16.2C17.9672 16.2644 17.9451 16.3193 17.92 16.38C17.8949 16.4407 17.8665 16.5054 17.83 16.56C17.7935 16.6146 17.7564 16.6636 17.71 16.71C17.6636 16.7564 17.6146 16.7935 17.56 16.83C17.5054 16.8665 17.4407 16.8949 17.38 16.92C17.3193 16.9451 17.2644 16.9672 17.2 16.98C17.1356 16.9928 17.0657 17 17 17L13 17C12.9343 17 12.8644 16.9928 12.8 16.98C12.7356 16.9672 12.6807 16.9451 12.62 16.92C12.5593 16.8949 12.4946 16.8665 12.44 16.83C12.3854 16.7935 12.3364 16.7564 12.29 16.71C12.2435 16.6636 12.2065 16.6146 12.17 16.56C12.1335 16.5054 12.1051 16.4407 12.08 16.38C12.0549 16.3193 12.0328 16.2644 12.02 16.2C12.0072 16.1356 12 16.0657 12 16Z">
+															</path>
+															<path d="M26.6292 18.2151C26.5713 18.1572 26.5121 18.1007 26.4514 18.0458C26.3907 17.9908 26.3288 17.9374 26.2655 17.8854C26.2022 17.8335 26.1377 17.7831 26.072 17.7343C26.0062 17.6856 25.9393 17.6385 25.8712 17.593C25.8032 17.5475 25.734 17.5037 25.6638 17.4616C25.5936 17.4195 25.5224 17.3792 25.4502 17.3407C25.378 17.302 25.3049 17.2652 25.2309 17.2302C25.1569 17.1952 25.082 17.1621 25.0064 17.1308C24.9308 17.0994 24.8544 17.0699 24.7773 17.0423C24.7003 17.0148 24.6226 16.9891 24.5442 16.9654C24.4658 16.9416 24.3869 16.9197 24.3076 16.8999C24.2281 16.88 24.1483 16.8621 24.068 16.846C23.9877 16.8301 23.9071 16.8161 23.8261 16.8041C23.7451 16.7921 23.6639 16.7821 23.5825 16.774C23.501 16.766 23.4193 16.76 23.3375 16.756C23.2558 16.752 23.174 16.75 23.0921 16.75C23.0103 16.75 22.9285 16.752 22.8467 16.756C22.765 16.76 22.6833 16.766 22.6018 16.774C22.5204 16.7821 22.4392 16.7921 22.3582 16.8041C22.2772 16.8161 22.1965 16.8301 22.1163 16.846C22.036 16.8621 21.9561 16.88 21.8767 16.8999C21.7973 16.9197 21.7185 16.9416 21.6401 16.9654C21.5617 16.9891 21.484 17.0148 21.407 17.0423C21.3299 17.0699 21.2535 17.0994 21.1779 17.1308C21.1022 17.1621 21.0274 17.1952 20.9535 17.2302C20.8794 17.2652 20.8063 17.302 20.7341 17.3407C20.6619 17.3792 20.5907 17.4195 20.5205 17.4616C20.4503 17.5037 20.3811 17.5475 20.3131 17.593C20.245 17.6385 20.1781 17.6856 20.1123 17.7343C20.0465 17.7831 19.982 17.8335 19.9188 17.8854C19.8555 17.9374 19.7935 17.9908 19.7328 18.0458C19.6722 18.1007 19.613 18.1572 19.5551 18.2151C19.4972 18.273 19.4407 18.3322 19.3858 18.3928C19.3308 18.4535 19.2774 18.5155 19.2254 18.5788C19.1735 18.642 19.1231 18.7065 19.0743 18.7723C19.0256 18.8381 18.9785 18.905 18.933 18.9731C18.8875 19.0411 18.8437 19.1103 18.8016 19.1805C18.7595 19.2507 18.7192 19.3219 18.6807 19.3941C18.642 19.4663 18.6052 19.5394 18.5702 19.6135C18.5352 19.6874 18.5021 19.7622 18.4708 19.8379C18.4394 19.9135 18.4099 19.9899 18.3823 20.067C18.3548 20.144 18.3291 20.2217 18.3054 20.3001C18.2816 20.3785 18.2597 20.4573 18.2399 20.5367C18.22 20.6161 18.2021 20.696 18.186 20.7763C18.1701 20.8565 18.1561 20.9372 18.1441 21.0182C18.1321 21.0992 18.1221 21.1804 18.114 21.2618C18.106 21.3433 18.1 21.425 18.096 21.5067C18.092 21.5885 18.09 21.6703 18.09 21.7521C18.09 21.834 18.092 21.9158 18.096 21.9975C18.1 22.0793 18.106 22.161 18.114 22.2425C18.1221 22.3239 18.1321 22.4051 18.1441 22.4861C18.1561 22.5671 18.1701 22.6477 18.186 22.728C18.2021 22.8083 18.22 22.8881 18.2399 22.9676C18.2597 23.047 18.2816 23.1259 18.3054 23.2042C18.3291 23.2826 18.3548 23.3603 18.3823 23.4373C18.4099 23.5144 18.4394 23.5908 18.4708 23.6664C18.5021 23.742 18.5352 23.8169 18.5702 23.8909C18.6052 23.9649 18.642 24.038 18.6807 24.1102C18.7192 24.1824 18.7595 24.2536 18.8016 24.3238C18.8437 24.394 18.8875 24.4632 18.933 24.5312C18.9785 24.5993 19.0256 24.6662 19.0743 24.732C19.1231 24.7977 19.1735 24.8622 19.2254 24.9255C19.2774 24.9888 19.3308 25.0507 19.3858 25.1114C19.4407 25.1721 19.4972 25.2313 19.5551 25.2892C19.6129 25.3475 19.6721 25.4044 19.7326 25.4598C19.7932 25.5152 19.8551 25.569 19.9184 25.6214C19.9816 25.6737 20.0461 25.7245 20.1119 25.7736C20.1776 25.8228 20.2445 25.8703 20.3126 25.9162C20.3807 25.9621 20.4499 26.0063 20.5201 26.0488C20.5904 26.0912 20.6617 26.1319 20.7339 26.1708C20.8062 26.2098 20.8794 26.247 20.9535 26.2824C21.0275 26.3177 21.1024 26.3512 21.1782 26.3829C21.2539 26.4145 21.3304 26.4443 21.4076 26.4723C21.4848 26.5001 21.5627 26.5261 21.6412 26.5502C21.7197 26.5743 21.7987 26.5964 21.8783 26.6165C21.9579 26.6367 22.0379 26.6549 22.1183 26.6711C22.1988 26.6874 22.2796 26.7017 22.3608 26.714C22.442 26.7262 22.5234 26.7365 22.6051 26.7447C22.6868 26.7529 22.7686 26.7592 22.8506 26.7634C22.9326 26.7676 23.0146 26.7698 23.0967 26.77C23.1788 26.7702 23.2609 26.7684 23.3429 26.7645C23.4249 26.7606 23.5068 26.7548 23.5885 26.7469C23.6702 26.739 23.7516 26.7291 23.8329 26.7172C23.9141 26.7053 23.995 26.6914 24.0755 26.6755C24.156 26.6597 24.2362 26.6418 24.3159 26.6219C24.3955 26.6021 24.4746 26.5803 24.5532 26.5566C24.6318 26.5329 24.7098 26.5073 24.7871 26.4797C24.8645 26.4521 24.9411 26.4227 25.0169 26.3913C25.0928 26.36 25.1679 26.3269 25.2421 26.2918C25.3164 26.2568 25.3898 26.2199 25.4622 26.1813C25.5346 26.1427 25.6061 26.1023 25.6765 26.0601C25.7469 26.0179 25.8163 25.9741 25.8846 25.9285C25.9529 25.883 26.02 25.8357 26.086 25.7868C26.1519 25.738 26.2166 25.6875 26.2801 25.6355C26.3436 25.5834 26.4057 25.5298 26.4665 25.4747C26.5274 25.4196 26.5868 25.363 26.6449 25.3049C26.703 25.2468 26.7596 25.1874 26.8147 25.1265C26.8698 25.0657 26.9234 25.0036 26.9755 24.9401C27.0275 24.8766 27.078 24.8119 27.1268 24.746C27.1757 24.68 27.223 24.6129 27.2685 24.5446C27.3141 24.4763 27.3579 24.4069 27.4002 24.3365C27.4423 24.2661 27.4827 24.1946 27.5213 24.1222C27.5599 24.0498 27.5968 23.9764 27.6318 23.9021C27.6669 23.8279 27.7 23.7528 27.7313 23.6769C27.7627 23.6011 27.7921 23.5245 27.8197 23.4471C27.8473 23.3698 27.8729 23.2918 27.8966 23.2132C27.9203 23.1346 27.9421 23.0555 27.9619 22.9759C27.9818 22.8962 27.9997 22.8161 28.0155 22.7356C28.0314 22.655 28.0453 22.5741 28.0572 22.4929C28.0691 22.4116 28.079 22.3302 28.0869 22.2485C28.0948 22.1668 28.1006 22.0849 28.1045 22.0029C28.1084 21.9209 28.1102 21.8388 28.11 21.7567C28.1098 21.6746 28.1076 21.5926 28.1034 21.5106C28.0992 21.4286 28.0929 21.3468 28.0847 21.2651C28.0765 21.1834 28.0662 21.102 28.054 21.0208C28.0417 20.9396 28.0274 20.8588 28.0111 20.7783C27.9949 20.6979 27.9767 20.6179 27.9565 20.5383C27.9364 20.4587 27.9143 20.3797 27.8902 20.3012C27.8661 20.2227 27.8401 20.1448 27.8123 20.0676C27.7843 19.9904 27.7545 19.9139 27.7229 19.8382C27.6912 19.7624 27.6577 19.6875 27.6224 19.6135C27.587 19.5394 27.5498 19.4662 27.5108 19.3939C27.4719 19.3217 27.4312 19.2504 27.3888 19.1801C27.3463 19.1099 27.3021 19.0407 27.2562 18.9726C27.2103 18.9045 27.1628 18.8376 27.1136 18.7719C27.0645 18.7061 27.0137 18.6416 26.9614 18.5784C26.909 18.5151 26.8552 18.4532 26.7998 18.3926C26.7444 18.3321 26.6875 18.2729 26.6292 18.2151ZM20.9697 23.8746C20.8606 23.7655 20.7605 23.6488 20.6694 23.5242C20.5782 23.3997 20.4972 23.2689 20.4262 23.132C20.3553 22.9949 20.2954 22.8532 20.2463 22.707C20.1972 22.5607 20.1596 22.4116 20.1334 22.2596C20.1073 22.1075 20.0931 21.9543 20.0906 21.8001C20.0881 21.6458 20.0975 21.4922 20.1187 21.3394C20.1399 21.1866 20.1727 21.0363 20.2171 20.8886C20.2615 20.7408 20.3169 20.5973 20.3834 20.4581L24.3862 24.4609C24.247 24.5274 24.1035 24.5828 23.9557 24.6272C23.808 24.6716 23.6577 24.7044 23.5049 24.7256C23.3521 24.7468 23.1985 24.7562 23.0442 24.7537C22.8899 24.7512 22.7368 24.7369 22.5847 24.7109C22.4327 24.6847 22.2836 24.6471 22.1373 24.598C21.991 24.5489 21.8494 24.4889 21.7123 24.418C21.5753 24.3471 21.4446 24.266 21.32 24.1749C21.1955 24.0838 21.0787 23.9837 20.9697 23.8746ZM25.8009 23.0472L21.7981 19.0444C21.9373 18.9781 22.0807 18.9229 22.2285 18.8788C22.3762 18.8345 22.5265 18.8019 22.6793 18.7808C22.832 18.7598 22.9855 18.7506 23.1397 18.7532C23.2938 18.7557 23.4469 18.7701 23.5989 18.7963C23.7508 18.8225 23.8998 18.8601 24.046 18.9092C24.1922 18.9583 24.3337 19.0183 24.4707 19.0892C24.6076 19.1602 24.7382 19.2412 24.8626 19.3323C24.9871 19.4233 25.1038 19.5233 25.2129 19.6324C25.3219 19.7414 25.422 19.8582 25.513 19.9826C25.6041 20.107 25.6851 20.2377 25.756 20.3746C25.8269 20.5116 25.887 20.6531 25.9361 20.7993C25.9852 20.9454 26.0228 21.0945 26.049 21.2464C26.0752 21.3984 26.0896 21.5515 26.0921 21.7056C26.0947 21.8598 26.0855 22.0133 26.0645 22.166C26.0434 22.3188 26.0107 22.4691 25.9665 22.6168C25.9224 22.7646 25.8672 22.908 25.8009 23.0472Z">
+															</path>
+														</g>
+													</svg>
+												</span>
+												<span class="bpx-player-block-filter-label">重复</span>
+											</div>
+											<div class="bpx-player-block-filter-type bpx-player-block-roll" data-key="bili-danmaku-filter-type-roll" data-type="roll">
+												<span class="bpx-player-block-filter-image">
+													<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" data-pointer="none" viewBox="0 0 28 28">
+														<path d="M23 3H5a4 4 0 0 0-4 4v14a4 4 0 0 0 4 4h18a4 4 0 0 0 4-4V7a4 4 0 0 0-4-4zM11 9h6a1 1 0 0 1 0 2h-6a1 1 0 0 1 0-2zm-3 2H6V9h2v2zm4 4h-2v-2h2v2zm9 0h-6a1 1 0 0 1 0-2h6a1 1 0 0 1 0 2z"></path>
+													</svg>
+												</span>
+												<span class="bpx-player-block-filter-image-enable">
+													<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" data-pointer="none" style="enable-background:new 0 0 28 28" viewBox="0 0 28 28">
+														<path d="M23 15c1.487 0 2.866.464 4 1.255V7a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v14a4 4 0 0 0 4 4h11.674A7 7 0 0 1 23 15zM11 9h6a1 1 0 0 1 0 2h-6a1 1 0 0 1 0-2zm-3 2H6V9h2v2zm4 4h-2v-2h2v2zm2-1a1 1 0 0 1 1-1h1a1 1 0 0 1 0 2h-1a1 1 0 0 1-1-1z"></path>
+														<path d="M26.536 18.464a5 5 0 0 0-7.071 0 5 5 0 0 0 0 7.071 5 5 0 1 0 7.071-7.071zm-5.657 5.657a3 3 0 0 1-.586-3.415l4.001 4.001a3 3 0 0 1-3.415-.586zm4.829-.827-4.001-4.001a3.002 3.002 0 0 1 4.001 4.001z"></path>
+													</svg>
+												</span>
+												<span class="bpx-player-block-filter-label">滚动</span>
+											</div>
+											<div class="bpx-player-block-filter-type bpx-player-block-top" data-key="bili-danmaku-filter-type-top" data-type="top">
+												<span class="bpx-player-block-filter-image">
+													<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" data-pointer="none" viewBox="0 0 28 28">
+														<path d="M23 3H5a4 4 0 0 0-4 4v14a4 4 0 0 0 4 4h18a4 4 0 0 0 4-4V7a4 4 0 0 0-4-4zM9 9H7V7h2v2zm4 0h-2V7h2v2zm4 0h-2V7h2v2zm4 0h-2V7h2v2z"></path>
+													</svg>
+												</span>
+												<span class="bpx-player-block-filter-image-enable">
+													<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" data-pointer="none" style="enable-background:new 0 0 28 28" viewBox="0 0 28 28">
+														<path d="M23 15c1.487 0 2.866.464 4 1.255V7a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v14a4 4 0 0 0 4 4h11.674A7 7 0 0 1 23 15zm-4-8h2v2h-2V7zM9 9H7V7h2v2zm4 0h-2V7h2v2zm2-2h2v2h-2V7z"></path>
+														<path d="M26.536 18.464a5 5 0 0 0-7.071 0 5 5 0 0 0 0 7.071 5 5 0 1 0 7.071-7.071zm-5.657 5.657a3 3 0 0 1-.586-3.415l4.001 4.001a3 3 0 0 1-3.415-.586zm4.829-.827-4.001-4.001a3.002 3.002 0 0 1 4.001 4.001z"></path>
+													</svg>
+												</span>
+												<span class="bpx-player-block-filter-label">顶部</span>
+											</div>
+											<div class="bpx-player-block-filter-type bpx-player-block-bottom" data-key="bili-danmaku-filter-type-bottom" data-type="bottom">
+												<span class="bpx-player-block-filter-image">
+													<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" data-pointer="none" viewBox="0 0 28 28">
+														<path d="M23 3H5a4 4 0 0 0-4 4v14a4 4 0 0 0 4 4h18a4 4 0 0 0 4-4V7a4 4 0 0 0-4-4zM9 21H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z"></path>
+													</svg>
+												</span>
+												<span class="bpx-player-block-filter-image-enable">
+													<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" data-pointer="none" style="enable-background:new 0 0 28 28" viewBox="0 0 28 28">
+														<path d="M23 15c1.487 0 2.866.464 4 1.255V7a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v14a4 4 0 0 0 4 4h11.674A7 7 0 0 1 23 15zM9 21H7v-2h2v2zm4 0h-2v-2h2v2z"></path>
+														<path d="M26.536 18.464a5 5 0 0 0-7.071 0 5 5 0 0 0 0 7.071 5 5 0 1 0 7.071-7.071zm-5.657 5.657a3 3 0 0 1-.586-3.415l4.001 4.001a3 3 0 0 1-3.415-.586zm4.829-.827-4.001-4.001a3.002 3.002 0 0 1 4.001 4.001z"></path>
+													</svg>
+												</span>
+												<span class="bpx-player-block-filter-label">底部</span>
+											</div>
+											<div class="bpx-player-block-filter-type bpx-player-block-colour" data-key="bili-danmaku-filter-type-colour" data-type="colour">
+												<span class="bpx-player-block-filter-image">
+													<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" data-pointer="none" viewBox="0 0 28 28">
+														<path d="M17.365 11.118c0-.612-.535-1.147-1.147-1.147s-1.147.535-1.147 1.147c0 .611.535 1.147 1.147 1.147s1.147-.536 1.147-1.147zM12.93 9.665c-.764 0-1.376.611-1.376 1.3 0 .689.612 1.301 1.376 1.301s1.376-.612 1.376-1.301-.612-1.3-1.376-1.3zM9.794 11.883c-.764 0-1.376.612-1.376 1.3 0 .689.612 1.3 1.376 1.3s1.376-.611 1.376-1.3c.001-.688-.611-1.3-1.376-1.3zM10.023 15.171c-.612 0-1.147.536-1.147 1.148 0 .611.535 1.146 1.147 1.146s1.147-.535 1.147-1.146c.001-.612-.535-1.148-1.147-1.148zM17.823 12.953c-.611 0-1.147.535-1.147 1.147s.536 1.147 1.147 1.147c.612 0 1.148-.535 1.148-1.147s-.536-1.147-1.148-1.147z"></path>
+														<path d="M23.177 3H4.824C2.683 3 1 4.833 1 7.167v13.665C1 23.167 2.683 25 4.824 25h18.353C25.318 25 27 23.167 27 20.833V7.167C27 4.833 25.318 3 23.177 3zm-3.442 13.624c-1.987.612-4.129-.154-5.046.764-.918.918 1.529 1.606 0 2.219-1.988.84-7.341-.535-8.182-4.053-.841-3.441 2.905-6.5 5.888-7.035 2.906-.535 6.041.841 8.181 2.982 2.065 2.141.765 4.74-.841 5.123z"></path>
+													</svg>
+												</span>
+												<span class="bpx-player-block-filter-image-enable">
+													<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" data-pointer="none" style="enable-background:new 0 0 28 28" viewBox="0 0 28 28">
+														<path d="M17.823 15.247c.612 0 1.148-.535 1.148-1.147s-.536-1.147-1.148-1.147c-.611 0-1.147.535-1.147 1.147s.536 1.147 1.147 1.147zM17.365 11.118c0-.612-.535-1.147-1.147-1.147s-1.147.535-1.147 1.147c0 .611.535 1.147 1.147 1.147s1.147-.536 1.147-1.147z"></path>
+														<path d="M18.235 16.872c-1.483.086-2.859-.172-3.546.516-.918.918 1.529 1.606 0 2.219-1.988.84-7.341-.535-8.182-4.053-.841-3.441 2.905-6.5 5.888-7.035 2.906-.535 6.041.841 8.181 2.982 1.208 1.253 1.265 2.663.782 3.694A6.938 6.938 0 0 1 23 15c1.487 0 2.866.464 4 1.255V7.167C27 4.833 25.318 3 23.177 3H4.824C2.683 3 1 4.833 1 7.167v13.665C1 23.167 2.683 25 4.824 25h11.85A6.97 6.97 0 0 1 16 22c0-2.025.86-3.85 2.235-5.128z"></path><path d="M8.876 16.319c0 .611.535 1.146 1.147 1.146s1.147-.535 1.147-1.146c0-.612-.535-1.148-1.147-1.148s-1.147.536-1.147 1.148zM9.794 11.883c-.764 0-1.376.612-1.376 1.3 0 .689.612 1.3 1.376 1.3s1.376-.611 1.376-1.3c.001-.688-.611-1.3-1.376-1.3zM11.553 10.965c0 .689.612 1.301 1.376 1.301s1.376-.612 1.376-1.301-.612-1.3-1.376-1.3-1.376.611-1.376 1.3zM26.536 18.464a5 5 0 0 0-7.071 0 5 5 0 0 0 0 7.071 5 5 0 1 0 7.071-7.071zm-5.657 5.657a3 3 0 0 1-.586-3.415l4.001 4.001a3 3 0 0 1-3.415-.586zm4.829-.827-4.001-4.001a3.002 3.002 0 0 1 4.001 4.001z"></path>
+													</svg>
+												</span>
+												<span class="bpx-player-block-filter-label">彩色</span>
+											</div>
+											<!-- <div class="bpx-player-block-filter-type bpx-player-block-senior" data-key="bili-danmaku-filter-type-senior" data-type="senior">
+												<span class="bpx-player-block-filter-image">
+													<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" data-pointer="none" viewBox="0 0 28 28">
+														<path d="M23 3H5a4 4 0 0 0-4 4v14a4 4 0 0 0 4 4h18a4 4 0 0 0 4-4V7a4 4 0 0 0-4-4zM7.849 11.669l.447-.828.492.782.894.184-.536.736.134.966-.85-.321-.804.414.045-.967L7 11.946l.849-.277zm3.352 7.101-1.43-.506L8.43 19v-1.565L7.357 16.33l1.43-.506.67-1.381.894 1.289 1.475.23-.894 1.289.269 1.519zm7.95-3.9-2.816-.69-2.458 1.565-.223-2.946-2.145-1.933 2.637-1.151L15.263 7l1.877 2.255 2.86.23-1.52 2.531.671 2.854z"></path>
+													</svg>
+												</span>
+												<span class="bpx-player-block-filter-image">
+													<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" data-pointer="none" style="enable-background:new 0 0 28 28" viewBox="0 0 28 28">
+														<path d="M23 15c1.487 0 2.866.464 4 1.255V7a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v14a4 4 0 0 0 4 4h11.674A7 7 0 0 1 23 15zM7.849 11.669l.447-.828.492.782.894.184-.536.736.134.966-.85-.321-.804.414.045-.967L7 11.946l.849-.277zm3.352 7.101-1.43-.506L8.43 19v-1.565L7.357 16.33l1.43-.506.67-1.381.894 1.289 1.475.23-.894 1.289.269 1.519zm2.453-5.971-2.145-1.933 2.637-1.151L15.263 7l1.877 2.255 2.86.23-1.52 2.531.67 2.854-2.816-.69-2.458 1.565-.222-2.946z"></path>
+														<path d="M26.536 18.464a5 5 0 0 0-7.071 0 5 5 0 0 0 0 7.071 5 5 0 1 0 7.071-7.071zm-5.657 5.657a3 3 0 0 1-.586-3.415l4.001 4.001a3 3 0 0 1-3.415-.586zm4.829-.827-4.001-4.001a3.002 3.002 0 0 1 4.001 4.001z"></path>
+													</svg>
+												</span>
+												<span class="bpx-player-block-filter-label">高级</span>
+											</div>	 -->
+											`
+                        )
+                      });
+                      $dmSetting.querySelectorAll(
+                        ".bpx-player-block-filter-type"
+                      ).forEach(($filterItem) => {
+                        let $label = $filterItem.querySelector(
+                          ".bpx-player-block-filter-label"
+                        );
+                        let key = $filterItem.getAttribute("data-key");
+                        let value = PopsPanel.getValue(key);
+                        $filterItem.setAttribute("data-value", String(value));
+                        domutils.on($filterItem, "click", (event) => {
+                          utils.preventEvent(event);
+                          let __value = PopsPanel.getValue(key);
+                          let switchValue = !__value;
+                          if (__value) {
+                            $filterItem.setAttribute(
+                              "data-value",
+                              String(switchValue)
+                            );
+                          } else {
+                            $filterItem.setAttribute(
+                              "data-value",
+                              String(switchValue)
+                            );
+                          }
+                          log.success(
+                            `${$label.innerText} ${switchValue ? "开启" : "关闭"}`
+                          );
+                          PopsPanel.setValue(key, switchValue);
+                        });
+                      });
+                      liElement.appendChild($dmSetting);
+                      return liElement;
+                    },
+                    {
+                      "bili-danmaku-filter-type-repeat": false,
+                      "bili-danmaku-filter-type-roll": false,
+                      "bili-danmaku-filter-type-top": false,
+                      "bili-danmaku-filter-type-bottom": false,
+                      "bili-danmaku-filter-type-colour": false
+                      // "bili-danmaku-filter-type-senior": false,
+                    }
+                  ),
                   UISwitch(
                     "屏蔽词",
                     "bili-danmaku-filter",
@@ -961,36 +1744,34 @@
                     void 0,
                     "开启后可使用↓自定义的规则过滤弹幕"
                   ),
-                  {
-                    type: "own",
-                    getLiElementCallBack(liElement) {
-                      let textareaDiv = domutils.createElement(
-                        "div",
-                        {
-                          className: "pops-panel-textarea",
-                          innerHTML: `
+                  UIOwn((liElement) => {
+                    let textareaDiv = domutils.createElement(
+                      "div",
+                      {
+                        className: "pops-panel-textarea",
+                        innerHTML: (
+                          /*html*/
+                          `
 												<textarea placeholder="请输入规则，每行一个，可正则" style="height:200px;"></textarea>`
-                        },
-                        {
-                          style: "width: 100%;"
-                        }
-                      );
-                      let $textarea = textareaDiv.querySelector(
-                        "textarea"
-                      );
-                      $textarea.value = BilibiliDanmakuFilter.getValue();
-                      domutils.on(
-                        $textarea,
-                        ["input", "propertychange"],
-                        void 0,
-                        utils.debounce(function(event) {
-                          BilibiliDanmakuFilter.setValue($textarea.value);
-                        }, 200)
-                      );
-                      liElement.appendChild(textareaDiv);
-                      return liElement;
-                    }
-                  }
+                        )
+                      },
+                      {
+                        style: "width: 100%;"
+                      }
+                    );
+                    let $textarea = textareaDiv.querySelector("textarea");
+                    $textarea.value = BilibiliDanmakuFilter.getValue();
+                    domutils.on(
+                      $textarea,
+                      ["input", "propertychange"],
+                      void 0,
+                      utils.debounce(function(event) {
+                        BilibiliDanmakuFilter.setValue($textarea.value);
+                      }, 200)
+                    );
+                    liElement.appendChild(textareaDiv);
+                    return liElement;
+                  })
                 ]
               }
             ]
@@ -1192,79 +1973,6 @@
         ]
       }
     ]
-  };
-  const BilibiliRouter = {
-    /**
-     * 判断当前路径
-     * + /video/
-     */
-    isVideo() {
-      return window.location.pathname.startsWith("/video/");
-    },
-    /**
-     * 判断当前路径
-     * + /banggumi/
-     */
-    isBangumi() {
-      return window.location.pathname.startsWith("/bangumi/");
-    },
-    /**
-     * 判断当前路径
-     * + /search
-     */
-    isSearch() {
-      return window.location.pathname.startsWith("/search");
-    },
-    /**
-     * 判断当前路径
-     * + live.bilibili.com
-     */
-    isLive() {
-      return window.location.hostname === "live.bilibili.com";
-    },
-    /**
-     * 判断当前路径
-     * + /opus
-     */
-    isOpus() {
-      return window.location.pathname.startsWith("/opus");
-    },
-    /**
-     * 判断当前路径
-     * + /topic-detail
-     */
-    isTopicDetail() {
-      return window.location.pathname.startsWith("/topic-detail");
-    },
-    /**
-     * 判断当前路径
-     * + /dynamic
-     */
-    isDynamic() {
-      return window.location.pathname.startsWith("/dynamic");
-    },
-    /**
-     * 判断当前路径
-     * + /
-     * + /channel
-     */
-    isHead() {
-      return window.location.pathname === "/" || window.location.pathname.startsWith("/channel");
-    }
-  };
-  const BilibiliPCRouter = {
-    /**
-     * 桌面端
-     */
-    isPC() {
-      return window.location.hostname === "www.bilibili.com";
-    },
-    /**
-     * 应该是动态？
-     */
-    isReadMobile() {
-      return this.isPC() && window.location.pathname.startsWith("/read/mobile");
-    }
   };
   const SettingUIVideo = {
     id: "panel-video",
@@ -2354,6 +3062,40 @@
       }
     ]
   };
+  const SettingUISpace = {
+    id: "panel-space",
+    title: "个人空间",
+    isDefault() {
+      return BilibiliRouter.isSpace();
+    },
+    forms: [
+      {
+        text: "",
+        type: "forms",
+        forms: [
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "修复正确跳转",
+                    "bili-space-repairRealJump",
+                    true,
+                    void 0,
+                    "修复视频|动态的正确跳转，避免跳转404"
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
   const __PopsPanel__ = {
     data: null,
     oneSuccessExecMenu: null,
@@ -2464,19 +3206,37 @@
     initPanelDefaultValue() {
       let that = this;
       function initDefaultValue(config) {
-        if (!config["attributes"]) {
+        if (!config.attributes) {
           return;
         }
+        let needInitConfig = {};
         let key = config.attributes[ATTRIBUTE_KEY];
-        let defaultValue = config["attributes"][ATTRIBUTE_DEFAULT_VALUE];
-        if (key == null) {
+        if (key != null) {
+          needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+        }
+        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+        if (typeof __attr_init__ === "function") {
+          let __attr_result__ = __attr_init__();
+          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
+            return;
+          }
+        }
+        let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        if (initMoreValue && typeof initMoreValue === "object") {
+          Object.assign(needInitConfig, initMoreValue);
+        }
+        let needInitConfigList = Object.keys(needInitConfig);
+        if (!needInitConfigList.length) {
           log.warn(["请先配置键", config]);
           return;
         }
-        if (that.$data.data.has(key)) {
-          log.warn("请检查该key(已存在): " + key);
-        }
-        that.$data.data.set(key, defaultValue);
+        needInitConfigList.forEach((__key) => {
+          let __defaultValue = needInitConfig[__key];
+          if (that.$data.data.has(__key)) {
+            log.warn("请检查该key(已存在): " + __key);
+          }
+          that.$data.data.set(__key, __defaultValue);
+        });
       }
       function loopInitDefaultValue(configList) {
         for (let index = 0; index < configList.length; index++) {
@@ -2728,6 +3488,7 @@
         SettingUIBangumi,
         // SettingUITopicDetail,
         SettingUISearch,
+        SettingUISpace,
         SettingUILive
       ];
       return configList;
@@ -2905,17 +3666,17 @@
     },
     /**
      * 获取用户个人空间动态链接-dynamic
-     * @param userId 用户id
+     * @param id 该动态的id
      */
-    getUserSpaceDynamicUrl(userId) {
-      return `https://m.bilibili.com/dynamic/${userId}`;
+    getUserSpaceDynamicUrl(id) {
+      return `https://m.bilibili.com/dynamic/${id}`;
     },
     /**
      * 获取用户个人空间动态链接-opus
-     * @param userId 用户id
+     * @param id 该动态的id
      */
-    getUserSpaceOpusUrl(userId) {
-      return `https://m.bilibili.com/opus/${userId}`;
+    getUserSpaceOpusUrl(id) {
+      return `https://m.bilibili.com/opus/${id}`;
     },
     /**
      * 获取视频链接
@@ -3021,7 +3782,7 @@
                     (_a2 = BilibiliPlayer.player) == null ? void 0 : _a2.off("restart_call_app");
                     (_b = BilibiliPlayer.player) == null ? void 0 : _b.off("force_call_app_show");
                     log.success("<video>标签和视频封面图已成功初始化");
-                    await utils.sleep(500);
+                    await utils.sleep(1e3);
                     BilibiliDanmaku.init();
                     return;
                   }
@@ -4775,190 +5536,52 @@
       ];
     }
   };
-  let _ajaxHooker_ = null;
-  const XhrHook = {
-    get ajaxHooker() {
-      if (_ajaxHooker_ == null) {
-        log.info("启用ajaxHooker拦截网络");
-        _ajaxHooker_ = utils.ajaxHooker();
-      }
-      return _ajaxHooker_;
-    }
-  };
-  const BilibiliVideoPlayUrlQN = {
-    /**
-     * 仅mp4方式支持
-     */
-    "240P 极速": 6,
-    "360P 流畅": 16,
-    "480P 清晰": 32,
-    /**
-     * web端默认值
-     *
-     * B站前端需要登录才能选择，但是直接发送请求可以不登录就拿到720P的取流地址
-     *
-     * 无720P时则为720P60
-     */
-    "720P 高清": 64,
-    /**
-     * 需要认证登录账号
-     */
-    "720P60 高帧率": 74,
-    /**
-     * TV端与APP端默认值
-     *
-     * 需要认证登录账号
-     */
-    "1080P 高清": 80,
-    /**
-     * 大多情况需求认证大会员账号
-     */
-    "1080P+ 高码率": 112,
-    /**
-     * 大多情况需求认证大会员账号
-     */
-    "1080P60 高帧率": 116,
-    /**
-     * 需要fnval&128=128且fourk=1
-     *
-     * 大多情况需求认证大会员账号
-     */
-    "4K 超清": 120,
-    /**
-     * 仅支持dash方式
-     *
-     * 需要fnval&64=64
-     *
-     */
-    "HDR 真彩色": 125,
-    /**
-     * 仅支持dash方式
-     *
-     * 需要fnval&512=512
-     *
-     * 大多情况需求认证大会员账号
-     */
-    杜比视界: 126,
-    /**
-     * 仅支持dash方式
-     *
-     * 需要fnval&1024=1024
-     *
-     * 大多情况需求认证大会员账号
-     */
-    "8K 超高清": 127
-  };
-  const BilibiliNetworkHook = {
-    $flag: {
-      is_hook_video_playurl: false,
-      is_hook_bangumi_html5: false
-    },
+  const BilibiliSpace = {
     init() {
-      PopsPanel.execMenuOnce("bili-video-xhr-unlockQuality", () => {
-        this.hook_video_playurl();
-      });
-      PopsPanel.execMenuOnce("bili-bangumi-xhr-unlockQuality", () => {
-        this.hook_bangumi_html5();
+      PopsPanel.execMenuOnce("bili-space-repairRealJump", () => {
+        this.repairRealJump();
       });
     },
     /**
-     * 视频播放地址获取
-     *
-     * + //api.bilibili.com/x/player/wbi/playurl
-     * + //api.bilibili.com/x/player/playurl
-     *
+     * 修复视频|动态的正确跳转
      */
-    hook_video_playurl() {
-      if (this.$flag.is_hook_video_playurl) {
-        return;
-      }
-      this.$flag.is_hook_video_playurl = true;
-      XhrHook.ajaxHooker.hook((request) => {
-        if (request.url.includes("//api.bilibili.com/x/player/wbi/playurl") || request.url.includes("//api.bilibili.com/x/player/playurl")) {
-          if (request.url.startsWith("//")) {
-            request.url = window.location.protocol + request.url;
+    repairRealJump() {
+      domutils.on(
+        document,
+        "click",
+        (event) => {
+          let $click = event.target;
+          let $forwardingCard = $click.closest(".main .forwardingCard") || $click.matches(".main .forwardingCard") && $click;
+          if ($forwardingCard) {
+            utils.preventEvent(event);
+            let dynamicId = $forwardingCard.getAttribute("id");
+            log.info(`获取的动态id为：${dynamicId}`);
+            let url = BilibiliUrlUtils.getUserSpaceDynamicUrl(dynamicId);
+            BilibiliUtils.goToUrl(url);
           }
-          let playUrl = new URL(request.url);
-          playUrl.searchParams.set("platform", "html5");
-          playUrl.searchParams.set(
-            "qn",
-            BilibiliVideoPlayUrlQN["1080P60 高帧率"].toString()
-          );
-          playUrl.searchParams.set("high_quality", "1");
-          playUrl.searchParams.set("fnver", "0");
-          playUrl.searchParams.set("fourk", "1");
-          request.url = playUrl.toString();
-          request.response = (res) => {
-            let data2 = utils.toJSON(res.responseText);
-            log.info("当前解锁的quality值：" + data2["data"]["quality"]);
-            if (data2["data"]["quality"] && data2["data"]["support_formats"]) {
-              let findValue = data2["data"]["support_formats"].find(
-                (item) => {
-                  return item["quality"] == data2["data"]["quality"];
-                }
-              );
-              if (findValue) {
-                log.info(
-                  "当前已解锁的画质：" + findValue["new_description"] || findValue["display_desc"]
-                );
-              }
-            }
-          };
+        },
+        {
+          capture: true
         }
-      });
-    },
-    /**
-     * 番剧播放地址获取
-     *
-     * + //api.bilibili.com/pgc/player/web/playurl/html5
-     *
-     */
-    hook_bangumi_html5() {
-      if (this.$flag.is_hook_bangumi_html5) {
-        return;
-      }
-      this.$flag.is_hook_bangumi_html5 = true;
-      XhrHook.ajaxHooker.hook((request) => {
-        if (request.url.includes("//api.bilibili.com/pgc/player/web/playurl/html5")) {
-          if (request.url.startsWith("//")) {
-            request.url = window.location.protocol + request.url;
-          }
-          let playUrl = new URL(request.url);
-          playUrl.pathname = "/pgc/player/web/playurl";
-          playUrl.searchParams.delete("bsource");
-          playUrl.searchParams.set(
-            "qn",
-            BilibiliVideoPlayUrlQN["1080P60 高帧率"].toString()
-          );
-          playUrl.searchParams.set("fnval", "1");
-          playUrl.searchParams.set("fnver", "0");
-          playUrl.searchParams.set("fourk", "1");
-          playUrl.searchParams.set("from_client", "BROWSER");
-          playUrl.searchParams.set("drm_tech_type", "2");
-          request.url = playUrl.toString();
-          request.response = (res) => {
-            let data2 = utils.toJSON(res.responseText);
-            let result = data2["result"];
-            log.info("当前解锁的quality值：" + result["quality"]);
-            if (result["quality"] && result["support_formats"]) {
-              let findValue = result["support_formats"].find((item) => {
-                return item["quality"] == result["quality"];
-              });
-              if (findValue) {
-                log.info(
-                  "当前已解锁的画质：" + findValue["new_description"] || findValue["display_desc"]
-                );
-              }
-            }
-          };
-        }
-      });
+      );
     }
   };
   const Bilibili = {
     init() {
       BilibiliNetworkHook.init();
       BilibiliVueProp.init();
+      PopsPanel.execMenuOnce("bili-allowCopy", () => {
+        return addStyle(
+          /*css*/
+          `
+				.v-drawer{
+					-webkit-user-select: unset !important;
+					-moz-user-select: unset !important;
+					user-select: unset !important;
+				}
+			`
+        );
+      });
       PopsPanel.onceExec("listenRouterChange", () => {
         this.listenRouterChange();
       });
@@ -5001,11 +5624,52 @@
       } else if (BilibiliRouter.isHead()) {
         log.info("Router: 首页之类的");
         BilibiliHead.init();
+      } else if (BilibiliRouter.isSpace()) {
+        log.info("Router: 个人空间");
+        BilibiliSpace.init();
       } else {
         log.error("该Router暂未适配，可能是首页之类：" + window.location.href);
       }
       domutils.ready(() => {
-        BilibiliPlayer.init();
+        if (BilibiliRouter.isBangumi()) {
+          let isInitPlayer = false;
+          BilibiliUtils.waitVuePropToSet(
+            () => document.querySelector(".player-wrapper"),
+            [
+              {
+                msg: "等待获取.player-wrapper上的$0.__vue__.player.player.on_video_play",
+                check(vueObj) {
+                  var _a2, _b;
+                  return typeof ((_b = (_a2 = vueObj == null ? void 0 : vueObj.player) == null ? void 0 : _a2.player) == null ? void 0 : _b.on_video_play) == "function";
+                },
+                set(vueObj) {
+                  var _a2, _b;
+                  log.success(
+                    `成功覆盖.player-wrapper上的$0.__vue__.player.player.on_video_play`
+                  );
+                  let originFn = (_b = (_a2 = vueObj == null ? void 0 : vueObj.player) == null ? void 0 : _a2.player) == null ? void 0 : _b.on_video_play;
+                  if (originFn.prototype.isHook) {
+                    log.warn("函数on_video_play已被hook，取消覆盖");
+                  }
+                  let on_video_play = function($video) {
+                    if (!isInitPlayer) {
+                      isInitPlayer = true;
+                      BilibiliPlayer.$player.parseBiliH5PlayerToPlayer(
+                        vueObj.player
+                      );
+                      BilibiliPlayer.init();
+                    }
+                    return originFn.apply(this, arguments);
+                  };
+                  on_video_play.prototype.isHook = true;
+                  vueObj.player.player.on_video_play = on_video_play;
+                }
+              }
+            ]
+          );
+        } else if (BilibiliRouter.isVideo()) {
+          BilibiliPlayer.init();
+        }
       });
     },
     /**
@@ -5017,7 +5681,7 @@
           var _a2;
           return typeof ((_a2 = vueObj == null ? void 0 : vueObj.$router) == null ? void 0 : _a2.afterEach) === "function";
         };
-        utils.waitVueByInterval($app, check).then((result) => {
+        utils.waitVueByInterval($app, check).then(() => {
           let vueObj = BilibiliUtils.getVue($app);
           if (vueObj == null) {
             return;
@@ -5033,9 +5697,11 @@
                     from
                   }
                 ]);
-                if (to.name === "space") {
-                  window.location.href = to.fullPath;
-                  return;
+                if (PopsPanel.getValue("bili-repairVueRouter404")) {
+                  if (to.name === "space") {
+                    window.location.href = to.fullPath;
+                    return;
+                  }
                 }
                 if (to.fullPath.startsWith("/video") && from.fullPath.startsWith("/video") && PopsPanel.getValue(
                   "bili-video-forceThisPageToRefreshAndRedirect"
@@ -5071,5 +5737,30 @@
   };
   PopsPanel.init();
   Bilibili.init();
+  __pops.config.cssText.index += /*css*/
+`
+/* bilibili颜色 #FB7299 */
+.pops{
+    --bili-color: #FB7299;
+    --bili-color-rgb: 251, 114, 153;
+}
+`  ;
+  __pops.config.cssText.panelCSS += /*css*/
+`
+
+.pops-slider{
+    --pops-slider-main-bg-color: var(--bili-color);
+    --pops-slider-color-primary: var(--bili-color);
+}
+aside.pops-panel-aside .pops-is-visited, aside.pops-panel-aside ul li:hover{
+    color: rgb(var(--bili-color-rgb));
+    background: rgba(var(--bili-color-rgb), 0.1);
+}
+/* switch的 */
+.pops-panel-switch.pops-panel-switch-is-checked span.pops-panel-switch__core{
+    border-color: rgb(var(--bili-color-rgb),var(--pops-bd-opacity));
+    background-color: rgb(var(--bili-color-rgb),var(--pops-bg-opacity));
+}
+`  ;
 
 })(Qmsg, Utils, DOMUtils, pops, MD5);

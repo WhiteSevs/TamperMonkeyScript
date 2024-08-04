@@ -1,55 +1,55 @@
 export const BilibiliRouter = {
 	/**
-	 * 判断当前路径
+	 * 视频页面
 	 * + /video/
 	 */
 	isVideo() {
 		return window.location.pathname.startsWith("/video/");
 	},
 	/**
-	 * 判断当前路径
+	 * 番剧
 	 * + /banggumi/
 	 */
 	isBangumi() {
 		return window.location.pathname.startsWith("/bangumi/");
 	},
 	/**
-	 * 判断当前路径
+	 * 搜索
 	 * + /search
 	 */
 	isSearch() {
 		return window.location.pathname.startsWith("/search");
 	},
 	/**
-	 * 判断当前路径
+	 * 直播
 	 * + live.bilibili.com
 	 */
 	isLive() {
 		return window.location.hostname === "live.bilibili.com";
 	},
 	/**
-	 * 判断当前路径
+	 * 专栏稿件
 	 * + /opus
 	 */
 	isOpus() {
 		return window.location.pathname.startsWith("/opus");
 	},
 	/**
-	 * 判断当前路径
+	 * 话题
 	 * + /topic-detail
 	 */
 	isTopicDetail() {
 		return window.location.pathname.startsWith("/topic-detail");
 	},
 	/**
-	 * 判断当前路径
+	 * 动态
 	 * + /dynamic
 	 */
 	isDynamic() {
 		return window.location.pathname.startsWith("/dynamic");
 	},
 	/**
-	 * 判断当前路径
+	 * 首页
 	 * + /
 	 * + /channel
 	 */
@@ -58,6 +58,13 @@ export const BilibiliRouter = {
 			window.location.pathname === "/" ||
 			window.location.pathname.startsWith("/channel")
 		);
+	},
+	/**
+	 * 个人空间
+	 * + /space
+	 */
+	isSpace() {
+		return window.location.pathname.startsWith("/space");
 	},
 };
 

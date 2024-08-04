@@ -86,7 +86,7 @@ export const BilibiliVideoVueProp = {
 										BilibiliPlayer!.player?.off("restart_call_app");
 										BilibiliPlayer!.player?.off("force_call_app_show");
 										log.success("<video>标签和视频封面图已成功初始化");
-										await utils.sleep(500);
+										await utils.sleep(1000);
 										BilibiliDanmaku.init();
 										return;
 									}

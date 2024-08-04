@@ -18,17 +18,64 @@ declare type DanmaConfig = {
 	 * + 红色 15138834
 	 */
 	color: number;
+	/**
+	 * 发送日期时间戳
+	 */
 	date: number;
 	class: number;
 	pool: number;
 	uid: string;
 	uhash: string;
+	/**
+	 * 弹幕id
+	 */
 	dmid: string;
 	/** 弹幕文字 */
 	text: string;
 	renderAs: number;
 	/** 是否已显示 */
 	showed: boolean;
+};
+
+/** 番剧的单个弹幕的配置 */
+declare type BangumiDanmaConfig = {
+	/**
+	 * 边框
+	 */
+	border: boolean;
+	/**
+	 * 边框颜色
+	 */
+	borderColor: number;
+	class: number;
+	/**
+	 * 颜色
+	 * + 白色 16777215
+	 * + 红色 15138834
+	 */
+	color: number;
+	/**
+	 * 发送日期时间戳
+	 */
+	date: number;
+	/**
+	 * 弹幕id
+	 */
+	dmid: string;
+	/**
+	 * 类型
+	 * + 1 顶部-从右往左
+	 * + 4 底部
+	 * + 5 顶部-固定不动
+	 * + 6 顶部-从左往右
+	 */
+	mode: 1 | 4 | 5 | 6;
+	on: boolean;
+	size: number;
+	stime: number;
+	text: string;
+	uid: string;
+	vDanmaku: boolean;
 };
 
 /** 弹幕配置 */

@@ -2,6 +2,7 @@ import { BilibiliPlayer } from "./BilibiliPlayer";
 import { PopsPanel } from "@/setting/setting";
 import { log, utils } from "@/env";
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
+import { BilibiliRouter } from "@/router/BilibiliRouter";
 
 /** 弹幕过滤器 */
 export const BilibiliDanmakuFilter = {
@@ -26,10 +27,10 @@ export const BilibiliDanmakuFilter = {
 				250,
 				10000
 			);
-			let playerPromise = await BilibiliPlayer.playerPromise();
+			let playerPromise = await BilibiliPlayer.$player.playerPromise();
 			await utils.waitPropertyByInterval(
 				async () => {
-					playerPromise = await BilibiliPlayer.playerPromise();
+					playerPromise = await BilibiliPlayer.$player.playerPromise();
 				},
 				() => {
 					return (
@@ -58,10 +59,10 @@ export const BilibiliDanmakuFilter = {
 				250,
 				10000
 			);
-			let playerPromise = await BilibiliPlayer.playerPromise();
+			let playerPromise = await BilibiliPlayer.$player.playerPromise();
 			await utils.waitPropertyByInterval(
 				async () => {
-					playerPromise = await BilibiliPlayer.playerPromise();
+					playerPromise = await BilibiliPlayer.$player.playerPromise();
 				},
 				() => {
 					return (
@@ -92,12 +93,35 @@ export const BilibiliDanmakuFilter = {
 		let danmakuFilter = await this.$player.danmakuFilter();
 		let that = this;
 		if (typeof danmakuFilter == "function") {
-			let playerPromise = await BilibiliPlayer.playerPromise();
+			let playerPromise = await BilibiliPlayer.$player.playerPromise();
+			await utils.waitPropertyByInterval(
+				async () => {
+					playerPromise = await BilibiliPlayer.$player.playerPromise();
+				},
+				() => {
+					return (
+						typeof playerPromise?.danmaku?.danmakuCore?.config
+							?.danmakuFilter === "function"
+					);
+				},
+				250,
+				10000
+			);
+			let isBangumi = BilibiliRouter.isBangumi();
+			let ownFilter = function (
+				danmaConfig: DanmaConfig | BangumiDanmaConfig
+			): boolean {
+				let isFilter = false;
+				isFilter = that.filter(danmaConfig as DanmaConfig, totalRule);
+				if (isBangumi) {
+					// 番剧页面中，true是不过滤，false是过滤
+					isFilter = !isFilter;
+				}
+				return isFilter;
+			};
 			(playerPromise.danmaku.danmakuCore.config.danmakuFilter as any) =
-				function (danmaConfig: DanmaConfig) {
-					let isFilter = that.filter(danmaConfig, totalRule);
-					return isFilter;
-				};
+				ownFilter;
+			log.success(`成功覆盖danmakuFilter`);
 		}
 	},
 	/** 更新弹幕列表 */
@@ -274,9 +298,12 @@ export const BilibiliDanmaku = {
 		this.setFontFamily(fontFamily);
 	},
 	async DanmakuCoreConfig() {
-		let playerPromise = await BilibiliPlayer.playerPromise();
+		let playerPromise = await BilibiliPlayer.$player.playerPromise();
 		await utils.waitPropertyByInterval(
-			playerPromise,
+			async () => {
+				playerPromise = await BilibiliPlayer.$player.playerPromise();
+				return playerPromise;
+			},
 			() => {
 				return (
 					typeof playerPromise?.danmaku?.danmakuCore?.config === "object" &&
@@ -294,8 +321,12 @@ export const BilibiliDanmaku = {
 	 */
 	setOpacity(value: number) {
 		this.DanmakuCoreConfig().then((config) => {
-			config.opacity = value;
-			log.success(`设置-弹幕不透明度: ${value}`);
+			if ("opacity" in config) {
+				config.opacity = value;
+				log.success(`设置-弹幕不透明度: ${value}`);
+			} else {
+				log.error("设置-弹幕不透明度失败, 不存在 opacity 属性");
+			}
 		});
 	},
 	/**
@@ -312,8 +343,12 @@ export const BilibiliDanmaku = {
 			[key: string]: string;
 		};
 		this.DanmakuCoreConfig().then((config) => {
-			config.danmakuArea = value;
-			log.success(`设置-显示区域: ${value} => ${areaMapping[value]}`);
+			if ("danmakuArea" in config) {
+				config.danmakuArea = value;
+				log.success(`设置-显示区域: ${value} => ${areaMapping[value]}`);
+			} else {
+				log.error("设置-显示区域失败, 不存在 danmakuArea 属性");
+			}
 		});
 	},
 	/**
@@ -322,8 +357,12 @@ export const BilibiliDanmaku = {
 	 */
 	setFontSize(value: number) {
 		this.DanmakuCoreConfig().then((config) => {
-			config.fontSize = value;
-			log.success(`设置-字体大小: ${value}`);
+			if ("fontSize" in config) {
+				config.fontSize = value;
+				log.success(`设置-字体大小: ${value}`);
+			} else {
+				log.error("设置-字体大小失败, 不存在 fontSize 属性");
+			}
 		});
 	},
 	/**
@@ -332,8 +371,12 @@ export const BilibiliDanmaku = {
 	 */
 	setDuration(value: number) {
 		this.DanmakuCoreConfig().then((config) => {
-			config.duration = value;
-			log.success(`设置-持续时间（弹幕速度）: ${value}`);
+			if ("duration" in config) {
+				config.duration = value;
+				log.success(`设置-持续时间（弹幕速度）: ${value}`);
+			} else {
+				log.error("设置-持续时间（弹幕速度）失败, 不存在 duration 属性");
+			}
 		});
 	},
 	/**
@@ -342,8 +385,12 @@ export const BilibiliDanmaku = {
 	 */
 	setBold(value: boolean) {
 		this.DanmakuCoreConfig().then((config) => {
-			config.bold = value;
-			log.success(`设置-粗体: ${value}`);
+			if ("bold" in config) {
+				config.bold = value;
+				log.success(`设置-粗体: ${value}`);
+			} else {
+				log.error("设置-粗体失败, 不存在 bold 属性");
+			}
 		});
 	},
 	/**
@@ -352,8 +399,26 @@ export const BilibiliDanmaku = {
 	 */
 	setFullScreenSync(value: boolean) {
 		this.DanmakuCoreConfig().then((config) => {
-			config.fullScreenSync = value;
-			log.success(`设置-弹幕随屏幕缩放: ${value}`);
+			if ("fullScreenSync" in config) {
+				config.fullScreenSync = value;
+				log.success(`设置-弹幕随屏幕缩放: ${value}`);
+			} else {
+				log.error("设置-弹幕随屏幕缩放失败, 不存在 fullScreenSync 属性");
+			}
+		});
+	},
+	/**
+	 * 弹幕字体
+	 * @param value
+	 */
+	setFontFamily(value: string) {
+		this.DanmakuCoreConfig().then((config) => {
+			if ("fontFamily" in config) {
+				config.fontFamily = value;
+				log.success(`设置-弹幕字体: ${value}`);
+			} else {
+				log.error("设置-弹幕字体失败, 不存在 fontFamily 属性");
+			}
 		});
 	},
 	/**
@@ -362,10 +427,10 @@ export const BilibiliDanmaku = {
 	 */
 	setSpeedSync(value: boolean) {
 		this.DanmakuCoreConfig().then(async (config) => {
-			let playerPromise = await BilibiliPlayer.playerPromise();
+			let playerPromise = await BilibiliPlayer.$player.playerPromise();
 			await utils.waitPropertyByInterval(
 				async () => {
-					playerPromise = await BilibiliPlayer.playerPromise();
+					playerPromise = await BilibiliPlayer.$player.playerPromise();
 					return playerPromise;
 				},
 				() => {
@@ -379,20 +444,18 @@ export const BilibiliDanmaku = {
 				10000
 			);
 			let videoSpeed = playerPromise.video.playbackRate;
-			config.videoSpeed = videoSpeed;
-			config.speedSync = value;
-			log.success(`设置-当前视频播放倍速: ${videoSpeed}`);
-			log.success(`设置-弹幕速度同步播放倍数: ${value}`);
-		});
-	},
-	/**
-	 * 弹幕字体
-	 * @param value
-	 */
-	setFontFamily(value: string) {
-		this.DanmakuCoreConfig().then((config) => {
-			config.fontFamily = value;
-			log.success(`设置-弹幕字体: ${value}`);
+			if ("videoSpeed" in config) {
+				config.videoSpeed = videoSpeed;
+				log.success(`设置-当前视频播放倍速: ${videoSpeed}`);
+			} else {
+				log.error("设置-弹幕速度同步播放倍数失败, 不存在 videoSpeed 属性");
+			}
+			if ("speedSync" in config) {
+				config.speedSync = value;
+				log.success(`设置-弹幕速度同步播放倍数: ${value}`);
+			} else {
+				log.error("设置-弹幕速度同步播放倍数失败, 不存在 speedSync 属性");
+			}
 		});
 	},
 };

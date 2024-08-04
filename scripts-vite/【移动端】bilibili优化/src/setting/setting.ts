@@ -1,5 +1,11 @@
 import { GM_Menu, SCRIPT_NAME, log, pops, utils } from "@/env";
-import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, KEY } from "@/setting/config";
+import {
+	ATTRIBUTE_DEFAULT_VALUE,
+	ATTRIBUTE_INIT,
+	ATTRIBUTE_INIT_MORE_VALUE,
+	ATTRIBUTE_KEY,
+	KEY,
+} from "@/setting/config";
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
 import { SettingUICommon } from "./components/Common";
 import { SettingUIVideo } from "./components/Video";
@@ -18,6 +24,7 @@ import {
 } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
+import { SettingUISpace } from "./components/Space";
 
 interface PosPanelListenerData {
 	id: number;
@@ -147,23 +154,46 @@ const PopsPanel = {
 		function initDefaultValue(
 			config: PopsPanelFormsTotalDetails | PopsPanelFormsDetails
 		) {
-			if (!config["attributes"]) {
+			if (!config.attributes) {
 				/* 必须配置attributes属性，用于存储菜单的键和默认值 */
 				return;
 			}
+			/* 初始化配置对象，每个是需要配置的键值对 */
+			let needInitConfig = {} as { [key: string]: any };
 			/* 获取键名 */
 			let key = config.attributes[ATTRIBUTE_KEY];
-			/* 获取默认值 */
-			let defaultValue = config["attributes"][ATTRIBUTE_DEFAULT_VALUE];
-			if (key == null) {
+			if (key != null) {
+				needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+			}
+
+			/* 调用初始化方法，返回false则阻止默认行为 */
+			let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+			if (typeof __attr_init__ === "function") {
+				let __attr_result__ = __attr_init__();
+				if (typeof __attr_result__ === "boolean" && !__attr_result__) {
+					return;
+				}
+			}
+			/* 待初始化默认值的配置项 */
+			let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+			if (initMoreValue && typeof initMoreValue === "object") {
+				/* 覆盖进去 */
+				Object.assign(needInitConfig, initMoreValue);
+			}
+			let needInitConfigList = Object.keys(needInitConfig);
+			if (!needInitConfigList.length) {
 				log.warn(["请先配置键", config]);
 				return;
 			}
-			/* 存储到内存中 */
-			if (that.$data.data.has(key)) {
-				log.warn("请检查该key(已存在): " + key);
-			}
-			that.$data.data.set(key, defaultValue);
+			// 循环初始化默认值
+			needInitConfigList.forEach((__key) => {
+				let __defaultValue = needInitConfig[__key];
+				/* 存储到内存中 */
+				if (that.$data.data.has(__key)) {
+					log.warn("请检查该key(已存在): " + __key);
+				}
+				that.$data.data.set(__key, __defaultValue);
+			});
 		}
 		/** 嵌套循环初始化默认值 */
 		function loopInitDefaultValue(configList: PopsPanelContentConfig["forms"]) {
@@ -440,6 +470,7 @@ const PopsPanel = {
 			SettingUIBangumi,
 			// SettingUITopicDetail,
 			SettingUISearch,
+			SettingUISpace,
 			SettingUILive,
 		];
 		return configList;

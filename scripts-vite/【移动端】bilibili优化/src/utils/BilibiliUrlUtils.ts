@@ -8,17 +8,17 @@ export const BilibiliUrlUtils = {
 	},
 	/**
 	 * 获取用户个人空间动态链接-dynamic
-	 * @param userId 用户id
+	 * @param id 该动态的id
 	 */
-	getUserSpaceDynamicUrl(userId: string) {
-		return `https://m.bilibili.com/dynamic/${userId}`;
+	getUserSpaceDynamicUrl(id: string) {
+		return `https://m.bilibili.com/dynamic/${id}`;
 	},
 	/**
 	 * 获取用户个人空间动态链接-opus
-	 * @param userId 用户id
+	 * @param id 该动态的id
 	 */
-	getUserSpaceOpusUrl(userId: string) {
-		return `https://m.bilibili.com/opus/${userId}`;
+	getUserSpaceOpusUrl(id: string) {
+		return `https://m.bilibili.com/opus/${id}`;
 	},
 	/**
 	 * 获取视频链接
