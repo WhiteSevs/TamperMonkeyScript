@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Demo Script Name
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.7.25
+// @version      2024.8.4
 // @author       WhiteSevs
 // @description
 // @license      GPL-3.0-only
@@ -220,6 +220,7 @@
   const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
+  const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const UISwitch = function(text, key, defaultValue, clickCallBack, description) {
     let result = {
       text,
@@ -481,8 +482,11 @@
         if (!config.attributes) {
           return;
         }
+        let needInitConfig = {};
         let key = config.attributes[ATTRIBUTE_KEY];
-        let defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+        if (key != null) {
+          needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+        }
         let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
         if (typeof __attr_init__ === "function") {
           let __attr_result__ = __attr_init__();
@@ -490,14 +494,22 @@
             return;
           }
         }
-        if (key == null) {
+        let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        if (initMoreValue && typeof initMoreValue === "object") {
+          Object.assign(needInitConfig, initMoreValue);
+        }
+        let needInitConfigList = Object.keys(needInitConfig);
+        if (!needInitConfigList.length) {
           log.warn(["请先配置键", config]);
           return;
         }
-        if (that.$data.data.has(key)) {
-          log.warn("请检查该key(已存在): " + key);
-        }
-        that.$data.data.set(key, defaultValue);
+        needInitConfigList.forEach((__key) => {
+          let __defaultValue = needInitConfig[__key];
+          if (that.$data.data.has(__key)) {
+            log.warn("请检查该key(已存在): " + __key);
+          }
+          that.$data.data.set(__key, __defaultValue);
+        });
       }
       function loopInitDefaultValue(configList) {
         for (let index = 0; index < configList.length; index++) {
@@ -602,6 +614,29 @@
       }
     },
     /**
+     * 主动触发菜单值改变的回调
+     * @param key 菜单键
+     * @param newValue 想要触发的新值，默认使用当前值
+     * @param oldValue 想要触发的旧值，默认使用当前值
+     */
+    triggerMenuValueChange(key, newValue, oldValue) {
+      if (this.$listener.listenData.has(key)) {
+        let listenData = this.$listener.listenData.get(key);
+        if (typeof listenData.callback === "function") {
+          let value = this.getValue(key);
+          let __newValue = value;
+          let __oldValue = value;
+          if (typeof newValue !== "undefined" && arguments.length > 1) {
+            __newValue = newValue;
+          }
+          if (typeof oldValue !== "undefined" && arguments.length > 2) {
+            __oldValue = oldValue;
+          }
+          listenData.callback(key, __oldValue, __newValue);
+        }
+      }
+    },
+    /**
      * 判断该键是否存在
      * @param key 键
      */
@@ -635,9 +670,10 @@
      * 自动判断菜单是否启用，然后执行回调，只会执行一次
      * @param key
      * @param callback 回调
-     * @param [isReverse=false] 逆反判断菜单启用
+     * @param getValueFn 自定义处理获取当前值，值true是启用
+     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用
      */
-    execMenuOnce(key, callback, isReverse = false) {
+    execMenuOnce(key, callback, getValueFn, handleValueChangeFn) {
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
@@ -649,15 +685,37 @@
         return;
       }
       this.$data.oneSuccessExecMenu.set(key, 1);
-      let resultStyleList = [];
-      let pushStyleNode = (style) => {
-        let __value = PopsPanel.getValue(key);
-        changeCallBack(__value, style);
+      let __getValue = () => {
+        return typeof getValueFn === "function" ? getValueFn() : PopsPanel.getValue(key);
       };
-      let changeCallBack = (currentValue, resultStyle) => {
+      let resultStyleList = [];
+      let dynamicPushStyleNode = ($style) => {
+        let __value = __getValue();
+        let dynamicResultList = [];
+        if ($style instanceof HTMLStyleElement) {
+          dynamicResultList = [$style];
+        } else if (Array.isArray($style)) {
+          dynamicResultList = [
+            ...$style.filter(
+              (item) => item != null && item instanceof HTMLStyleElement
+            )
+          ];
+        }
+        if (__value) {
+          resultStyleList = resultStyleList.concat(dynamicResultList);
+        } else {
+          for (let index = 0; index < dynamicResultList.length; index++) {
+            let $css = dynamicResultList[index];
+            $css.remove();
+            dynamicResultList.splice(index, 1);
+            index--;
+          }
+        }
+      };
+      let changeCallBack = (currentValue) => {
         let resultList = [];
         if (currentValue) {
-          let result = resultStyle ?? callback(currentValue, pushStyleNode);
+          let result = callback(currentValue, dynamicPushStyleNode);
           if (result instanceof HTMLStyleElement) {
             resultList = [result];
           } else if (Array.isArray(result)) {
@@ -679,19 +737,58 @@
       this.addValueChangeListener(
         key,
         (__key, oldValue, newValue) => {
-          if (isReverse) {
-            newValue = !newValue;
+          let __newValue = newValue;
+          if (typeof handleValueChangeFn === "function") {
+            __newValue = handleValueChangeFn(__key, newValue, oldValue);
           }
-          changeCallBack(newValue);
+          changeCallBack(__newValue);
         }
       );
-      let value = PopsPanel.getValue(key);
-      if (isReverse) {
-        value = !value;
-      }
+      let value = __getValue();
       if (value) {
         changeCallBack(value);
       }
+    },
+    /**
+     * 父子菜单联动，自动判断菜单是否启用，然后执行回调，只会执行一次
+     * @param key 菜单键
+     * @param childKey 子菜单键
+     * @param callback 回调
+     * @param replaceValueFn 用于修改mainValue，返回undefined则不做处理
+     */
+    execInheritMenuOnce(key, childKey, callback, replaceValueFn) {
+      let that = this;
+      const handleInheritValue = (key2, childKey2) => {
+        let mainValue = that.getValue(key2);
+        let childValue = that.getValue(childKey2);
+        if (typeof replaceValueFn === "function") {
+          let changedMainValue = replaceValueFn(mainValue, childValue);
+          if (changedMainValue !== void 0) {
+            return changedMainValue;
+          }
+        }
+        return mainValue;
+      };
+      this.execMenuOnce(
+        key,
+        callback,
+        () => {
+          return handleInheritValue(key, childKey);
+        },
+        () => {
+          return handleInheritValue(key, childKey);
+        }
+      );
+      this.execMenuOnce(
+        childKey,
+        () => {
+        },
+        () => false,
+        () => {
+          this.triggerMenuValueChange(key);
+          return false;
+        }
+      );
     },
     /**
      * 根据自定义key只执行一次

@@ -12,7 +12,6 @@ import { PopsPanelInputDetails } from "@whitesev/pops/dist/types/src/components/
  * @param placeholder 输入框的默认提示内容
  * @param isNumber 是否是数字框
  * @param isPassword 是否是密码框
- * @returns
  */
 export const UIInput = function (
 	text: string,

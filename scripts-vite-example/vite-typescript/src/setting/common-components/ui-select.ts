@@ -10,7 +10,6 @@ import { PopsPanelSelectDetails } from "@whitesev/pops/dist/types/src/components
  * @param data 下拉列表的数据
  * @param callback 选择列表的某一项的回调
  * @param description 左边的文字下面的描述
- * @returns
  */
 export const UISelect = function <T extends any>(
 	text: string,
