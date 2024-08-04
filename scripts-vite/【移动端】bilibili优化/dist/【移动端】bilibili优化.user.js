@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.4.13
+// @version      2024.8.4.15
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -586,7 +586,7 @@
 				--mplayer-right-w: 8em;
 				--mplayer-right-transform: var(--mplayer-right-w);
 				background: #181212;
-				width: var(--mplayer-right-w);
+				width: var(--mplayer-right-w) !important;
 				opacity: 0.9 !important;
 				visibility: visible !important;
 				color: #ffffff;
@@ -601,7 +601,7 @@
 				width: 100%;
 				text-align: center;
 				align-content: center;
-				padding: 2em 0px;
+				padding: 1em 0px;
 			}
 			.gf-mplayer-right-item-active {
 				color: var(--bili-color);
@@ -691,10 +691,12 @@
             }
           ];
           let videoBackRate = await BilibiliPlayer.getVideoPlayBackRate();
+          let $isActive = void 0;
           speedList.forEach((item) => {
             let $mplayerItem = this.$mPlayerRight.createMPlayerItem(item.text);
             if (videoBackRate == item.value) {
               this.$mPlayerRight.setActive($mplayerItem);
+              $isActive = $mplayerItem;
             }
             domutils.on($mplayerItem, "click", async (__event__) => {
               utils.preventEvent(__event__);
@@ -705,6 +707,11 @@
             });
             this.$el.$mplayerRight.appendChild($mplayerItem);
           });
+          if ($isActive) {
+            $isActive.scrollIntoView({
+              block: "center"
+            });
+          }
           this.$mPlayerRight.showMPlayerRight();
         },
         {

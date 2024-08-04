@@ -64,7 +64,7 @@ export const BilibiliPlayerUI = {
 				--mplayer-right-w: 8em;
 				--mplayer-right-transform: var(--mplayer-right-w);
 				background: #181212;
-				width: var(--mplayer-right-w);
+				width: var(--mplayer-right-w) !important;
 				opacity: 0.9 !important;
 				visibility: visible !important;
 				color: #ffffff;
@@ -79,7 +79,7 @@ export const BilibiliPlayerUI = {
 				width: 100%;
 				text-align: center;
 				align-content: center;
-				padding: 2em 0px;
+				padding: 1em 0px;
 			}
 			.gf-mplayer-right-item-active {
 				color: var(--bili-color);
@@ -175,11 +175,13 @@ export const BilibiliPlayerUI = {
 				];
 				let videoBackRate = await BilibiliPlayer.getVideoPlayBackRate();
 				// 循环添加到页面中
+				let $isActive: undefined | HTMLDivElement = void 0;
 				speedList.forEach((item) => {
 					let $mplayerItem = this.$mPlayerRight.createMPlayerItem(item.text);
 					if (videoBackRate == item.value) {
 						// 倍速相同，设置选中
 						this.$mPlayerRight.setActive($mplayerItem);
+						$isActive = $mplayerItem;
 					}
 					DOMUtils.on($mplayerItem, "click", async (__event__) => {
 						utils.preventEvent(__event__);
@@ -191,6 +193,12 @@ export const BilibiliPlayerUI = {
 					});
 					this.$el.$mplayerRight.appendChild($mplayerItem);
 				});
+				if ($isActive) {
+					// 居中
+					($isActive as HTMLDivElement).scrollIntoView({
+						block: "center",
+					});
+				}
 				this.$mPlayerRight.showMPlayerRight();
 			},
 			{
