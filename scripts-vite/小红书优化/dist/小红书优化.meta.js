@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.4
+// @version      2024.8.4.23
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/449471/1413235/Viewer.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.0/dist/index.umd.js
 // @connect      edith.xiaohongshu.com

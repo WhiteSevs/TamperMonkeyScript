@@ -191,7 +191,9 @@ export const PopsPanel = {
 				}
 			}
 		}
-		let contentConfigList = this.getPanelContentConfig();
+		let contentConfigList = this.getPanelContentConfig().concat(
+			this.getPCPanelContentConfig()
+		);
 		for (let index = 0; index < contentConfigList.length; index++) {
 			let leftContentConfigItem = contentConfigList[index];
 			if (!leftContentConfigItem.forms) {
