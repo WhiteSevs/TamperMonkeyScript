@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.4.23
+// @version      2024.8.5
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -883,6 +883,9 @@
         this.coverMPlayer();
         this.coverQuality();
       });
+      PopsPanel.onceExec("bili-repairPlayerToastCloseBtn", () => {
+        this.repairPlayerToastCloseBtn();
+      });
     },
     /**
      * 设置.mplayer全局点击监听，用于取消.mplayer-right
@@ -1057,21 +1060,24 @@
               }
               let url = videoInfo.durl[0].url;
               if (playerPromise.video && playerPromise.video instanceof HTMLVideoElement) {
-                playerPromise.video.src = url;
-                setTimeout(() => {
-                  playerPromise.video.play();
-                }, 500);
-                log.success(`已成功切换至${item.text}`);
-                BilibiliPlayerToast.toast(`已成功切换至${item.text}`);
-                BilibiliPlayer.$data.videoQuality.forEach((globalQualityItem) => {
-                  if (globalQualityItem.quality == item.quality) {
-                    globalQualityItem.isActive = true;
-                  } else {
-                    globalQualityItem.isActive = false;
-                  }
-                });
-                this.$mPlayerRight.clearAllActive();
-                this.$mPlayerRight.switchActive($mplayerItem);
+                let setVideoUrlStatus = await BilibiliPlayer.setVideoUrl(url);
+                if (setVideoUrlStatus) {
+                  log.success(`已成功切换至${item.text}`);
+                  BilibiliPlayer.$data.videoQuality.forEach(
+                    (globalQualityItem) => {
+                      if (globalQualityItem.quality == item.quality) {
+                        globalQualityItem.isActive = true;
+                      } else {
+                        globalQualityItem.isActive = false;
+                      }
+                    }
+                  );
+                  this.$mPlayerRight.switchActive($mplayerItem);
+                  BilibiliPlayerToast.toast(`已成功切换至${item.text}`);
+                } else {
+                  log.error("切换画质失败，未成功设置video的src");
+                  BilibiliPlayerToast.toast("切换画质失败，未成功设置video的src");
+                }
               } else {
                 log.error("切换画质失败，未获取到video");
                 BilibiliPlayerToast.toast("切换画质失败，未获取到video");
@@ -1090,6 +1096,22 @@
         },
         {
           capture: true
+        }
+      );
+    },
+    /**
+     * 修复toast的关闭按钮点击无效的问题
+     */
+    repairPlayerToastCloseBtn() {
+      domutils.on(
+        document,
+        "click",
+        ".mplayer-toast.mplayer-show .mplayer-toast-close",
+        (event) => {
+          let $mplayerShow = event.target.closest(
+            ".mplayer-show"
+          );
+          $mplayerShow.classList.remove("mplayer-show");
         }
       );
     }
@@ -1242,6 +1264,32 @@
           };
         }
       }).filter((item) => item != null);
+    },
+    /**
+     * 设置视频地址
+     * @param url 视频地址
+     * @returns
+     * + true 设置成功
+     * + false 设置失败
+     */
+    async setVideoUrl(url) {
+      try {
+        let playerPromise = await BilibiliPlayer.$player.playerPromise();
+        if (playerPromise.video && playerPromise.video instanceof HTMLVideoElement) {
+          playerPromise.video.src = url;
+          await utils.sleep(1e3);
+          playerPromise.video.play();
+          if (playerPromise.video.paused) {
+            playerPromise.video.play();
+          }
+          return true;
+        } else {
+          return false;
+        }
+      } catch (error) {
+        log.error(error);
+        return false;
+      }
     }
   };
   const BilibiliDanmakuFilter = {

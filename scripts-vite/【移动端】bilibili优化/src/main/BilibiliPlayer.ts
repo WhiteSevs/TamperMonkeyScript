@@ -101,6 +101,9 @@ export const BilibiliPlayerUI = {
 			this.coverMPlayer();
 			this.coverQuality();
 		});
+		PopsPanel.onceExec("bili-repairPlayerToastCloseBtn", () => {
+			this.repairPlayerToastCloseBtn();
+		});
 	},
 	/**
 	 * 设置.mplayer全局点击监听，用于取消.mplayer-right
@@ -314,22 +317,24 @@ export const BilibiliPlayerUI = {
 							playerPromise.video instanceof HTMLVideoElement
 						) {
 							// 设置视频地址
-							playerPromise.video.src = url;
-							setTimeout(() => {
-								// 执行播放，不然页面会处于缓冲中...
-								playerPromise.video.play();
-							}, 500);
-							log.success(`已成功切换至${item.text}`);
-							BilibiliPlayerToast.toast(`已成功切换至${item.text}`);
-							BilibiliPlayer.$data.videoQuality.forEach((globalQualityItem) => {
-								if (globalQualityItem.quality == item.quality) {
-									globalQualityItem.isActive = true;
-								} else {
-									globalQualityItem.isActive = false;
-								}
-							});
-							this.$mPlayerRight.clearAllActive();
-							this.$mPlayerRight.switchActive($mplayerItem);
+							let setVideoUrlStatus = await BilibiliPlayer.setVideoUrl(url);
+							if (setVideoUrlStatus) {
+								log.success(`已成功切换至${item.text}`);
+								BilibiliPlayer.$data.videoQuality.forEach(
+									(globalQualityItem) => {
+										if (globalQualityItem.quality == item.quality) {
+											globalQualityItem.isActive = true;
+										} else {
+											globalQualityItem.isActive = false;
+										}
+									}
+								);
+								this.$mPlayerRight.switchActive($mplayerItem);
+								BilibiliPlayerToast.toast(`已成功切换至${item.text}`);
+							} else {
+								log.error("切换画质失败，未成功设置video的src");
+								BilibiliPlayerToast.toast("切换画质失败，未成功设置video的src");
+							}
 						} else {
 							log.error("切换画质失败，未获取到video");
 							BilibiliPlayerToast.toast("切换画质失败，未获取到video");
@@ -353,6 +358,22 @@ export const BilibiliPlayerUI = {
 			},
 			{
 				capture: true,
+			}
+		);
+	},
+	/**
+	 * 修复toast的关闭按钮点击无效的问题
+	 */
+	repairPlayerToastCloseBtn() {
+		DOMUtils.on(
+			document,
+			"click",
+			".mplayer-toast.mplayer-show .mplayer-toast-close",
+			(event) => {
+				let $mplayerShow = (event.target as HTMLDivElement).closest(
+					".mplayer-show"
+				)!;
+				$mplayerShow.classList.remove("mplayer-show");
 			}
 		);
 	},
@@ -537,5 +558,36 @@ export const BilibiliPlayer = {
 				}
 			})
 			.filter((item) => item != null);
+	},
+	/**
+	 * 设置视频地址
+	 * @param url 视频地址
+	 * @returns
+	 * + true 设置成功
+	 * + false 设置失败
+	 */
+	async setVideoUrl(url: string): Promise<boolean> {
+		try {
+			let playerPromise = await BilibiliPlayer.$player.playerPromise();
+			if (
+				playerPromise.video &&
+				playerPromise.video instanceof HTMLVideoElement
+			) {
+				playerPromise.video.src = url;
+				await utils.sleep(1000);
+				// 执行播放，不然页面会处于缓冲中...
+				playerPromise.video.play();
+				if (playerPromise.video.paused) {
+					// 意外暂停？play again
+					playerPromise.video.play();
+				}
+				return true;
+			} else {
+				return false;
+			}
+		} catch (error) {
+			log.error(error);
+			return false;
+		}
 	},
 };
