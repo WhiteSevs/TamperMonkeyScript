@@ -8,7 +8,7 @@ export type UtilsWindowApiOption = {
     self: Window & typeof globalThis;
     top: Window;
 };
-export declare class UtilsWindowApi {
+export declare class WindowApi {
     /** 默认的配置 */
     private defaultApi;
     /** 使用的配置 */

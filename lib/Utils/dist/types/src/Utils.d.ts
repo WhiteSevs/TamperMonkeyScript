@@ -12,7 +12,7 @@ import { UtilsDictionary } from "./Dictionary";
 import type { DOMUtils_EventType } from "./Event";
 import type { Vue2Object } from "./VueObject";
 import type { UtilsAjaxHookResult } from "./AjaxHookerType";
-import { type UtilsWindowApiOption } from "./UtilsWindowApi";
+import { type UtilsWindowApiOption } from "./WindowApi";
 export declare var unsafeWindow: Window & typeof globalThis;
 export type JSTypeMap = {
     string: string;
@@ -1361,7 +1361,7 @@ declare class Utils {
      * Utils.sortListByProperty([{"time":"2022-1-1"},{"time":"2022-2-2"}],(item)=>{return item["time"]},false)
      * > [{time: '2022-1-1'},{time: '2022-2-2'}]
      **/
-    sortListByProperty<T extends any[] | NodeList>(data: T, getPropertyValueFunc: string | ((value: T) => any), sortByDesc?: boolean): T;
+    sortListByProperty<T extends any>(data: T[], getPropertyValueFunc: string | ((value: T) => any), sortByDesc?: boolean): T[];
     /**
      * 字符串转正则，用于把字符串中不规范的字符进行转义
      * @param targetString 需要进行转换的字符串

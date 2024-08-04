@@ -3602,16 +3602,16 @@ class Utils {
 	 * Utils.sortListByProperty([{"time":"2022-1-1"},{"time":"2022-2-2"}],(item)=>{return item["time"]},false)
 	 * > [{time: '2022-1-1'},{time: '2022-2-2'}]
 	 **/
-	sortListByProperty<T extends any[] | NodeList>(
-		data: T,
+	sortListByProperty<T extends any>(
+		data: T[],
 		getPropertyValueFunc: string | ((value: T) => any),
 		sortByDesc?: boolean
-	): T;
-	sortListByProperty<T extends any[] | NodeList>(
-		data: T,
+	): T[];
+	sortListByProperty<T extends any>(
+		data: T[],
 		getPropertyValueFunc: string | ((value: T) => any),
 		sortByDesc: boolean = true
-	): T {
+	): T[] {
 		let UtilsContext = this;
 		if (
 			typeof getPropertyValueFunc !== "function" &&
@@ -3702,7 +3702,10 @@ class Utils {
 		}
 		if (Array.isArray(data)) {
 			data.sort(sortFunc);
-		} else if (data instanceof NodeList || UtilsContext.isJQuery(data)) {
+		} else if (
+			(data as any) instanceof NodeList ||
+			UtilsContext.isJQuery(data)
+		) {
 			sortNodeFunc(data as any, getDataFunc as any);
 			result = (getDataFunc as any)();
 		} else {
