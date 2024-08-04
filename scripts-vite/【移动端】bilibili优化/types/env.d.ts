@@ -15,7 +15,12 @@ declare type IPromise<T> = Promise<T> | T;
 
 interface Player {
 	buvid: string;
-	config: any;
+	config: {
+		aid: number;
+		bvid: string;
+		cid: number;
+		[key: string]: any;
+	};
 	container: HTMLDivElement;
 	controller: any;
 	createdTime: number;

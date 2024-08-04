@@ -1,8 +1,10 @@
-import { addStyle, DOMUtils, log, utils } from "@/env";
+import { addStyle, DOMUtils, httpx, log, utils } from "@/env";
 import { unsafeWindow } from "ViteGM";
 import { BilibiliDanmaku } from "./BilibiliDanmaku";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliVideoPlayUrlQN } from "@/hook/BilibiliNetworkHook";
+import { BilibiliApi_Video } from "@/api/BilibiliApi_Video";
+import { BilibiliPlayerToast } from "./BilibiliPlayerToast";
 
 export const BilibiliPlayerUI = {
 	$flag: {
@@ -35,6 +37,11 @@ export const BilibiliPlayerUI = {
 		/** 设置某个项访问状态 */
 		setActive($el: HTMLElement) {
 			$el.classList.add("gf-mplayer-right-item-active");
+		},
+		/** 切换某个项访问状态，并清空其它的访问状态 */
+		switchActive($el: HTMLElement) {
+			this.clearAllActive();
+			this.setActive($el);
 		},
 		/** 清空某个项访问状态 */
 		clearActive($el: HTMLElement) {
@@ -180,20 +187,20 @@ export const BilibiliPlayerUI = {
 					let $mplayerItem = this.$mPlayerRight.createMPlayerItem(item.text);
 					if (videoBackRate == item.value) {
 						// 倍速相同，设置选中
-						this.$mPlayerRight.setActive($mplayerItem);
 						$isActive = $mplayerItem;
 					}
 					DOMUtils.on($mplayerItem, "click", async (__event__) => {
 						utils.preventEvent(__event__);
 						await BilibiliPlayer.setVideoSpeed(item.value);
 						// 先清空访问状态
-						this.$mPlayerRight.clearAllActive();
-						this.$mPlayerRight.setActive($mplayerItem);
+						this.$mPlayerRight.switchActive($mplayerItem);
 						this.$mPlayerRight.hideMPlayerRight();
 					});
 					this.$el.$mplayerRight.appendChild($mplayerItem);
 				});
 				if ($isActive) {
+					// 选中
+					this.$mPlayerRight.switchActive($isActive);
 					// 居中
 					($isActive as HTMLDivElement).scrollIntoView({
 						block: "center",
@@ -221,23 +228,127 @@ export const BilibiliPlayerUI = {
 				this.$mPlayerRight.hideMPlayerRight();
 				// 清空内容
 				this.$mPlayerRight.clearMPlayerRight();
-				let playerPromise = await BilibiliPlayer.$player.playerPromise();
-				// 获取当前视频的清晰度
-				let playerQuality = playerPromise.videoQuality;
-				let qualityMap = {} as { [key: string]: string };
-				Object.keys(BilibiliVideoPlayUrlQN).forEach((qualityName) => {
-					// @ts-ignore
-					let qualityValue = BilibiliVideoPlayUrlQN[qualityName];
-					qualityMap[qualityValue] = qualityName;
+
+				// 清晰度
+				let qualityInfoList = [] as {
+					text: string;
+					quality: number;
+					isActive: boolean;
+				}[];
+				if (!BilibiliPlayer.$data.videoQuality.length) {
+					// 未请求到清晰度信息
+					let playerPromise = await BilibiliPlayer.$player.playerPromise();
+					// 获取当前视频的清晰度
+					let playerQuality = playerPromise.videoQuality;
+					Object.keys(BilibiliVideoPlayUrlQN).forEach((qualityName) => {
+						// @ts-ignore
+						let qualityValue = BilibiliVideoPlayUrlQN[qualityName];
+						qualityInfoList.push({
+							text: qualityName,
+							quality: qualityValue,
+							isActive: playerQuality == qualityValue,
+						});
+					});
+				} else {
+					qualityInfoList = [...BilibiliPlayer.$data.videoQuality];
+				}
+				// 排序 画质高的为第一个，降序
+				utils.sortListByProperty(qualityInfoList, (value) => {
+					return value.quality;
 				});
-				// 获取清晰度的值对应的文字
-				let playerQualityText = qualityMap[playerQuality];
-				// 创建一个项添加进面板中
-				let $mplayerItem =
-					this.$mPlayerRight.createMPlayerItem(playerQualityText);
-				// 设置选中
-				this.$mPlayerRight.setActive($mplayerItem);
-				this.$el.$mplayerRight.appendChild($mplayerItem);
+				// 循环添加到页面中
+				let $isActive: undefined | HTMLDivElement = void 0;
+				qualityInfoList.forEach((item) => {
+					let $mplayerItem = this.$mPlayerRight.createMPlayerItem(item.text);
+					if (item.isActive) {
+						// 设置选中
+						$isActive = $mplayerItem;
+					}
+					DOMUtils.on($mplayerItem, "click", async (__event__) => {
+						utils.preventEvent(__event__);
+
+						BilibiliPlayerToast.toast("切换中，请稍后");
+						let playerPromise = await BilibiliPlayer.$player.playerPromise();
+						let bvid = playerPromise.config.bvid;
+						let cid = playerPromise.config.cid;
+						if (!bvid) {
+							BilibiliPlayerToast.toast("获取bvid失败");
+							return;
+						}
+						let videoInfo = await BilibiliApi_Video.playUrl({
+							bvid: bvid,
+							cid: cid,
+							qn: item.quality,
+						});
+						if (!videoInfo) {
+							BilibiliPlayerToast.toast("获取视频信息失败");
+							log.error("获取视频信息失败");
+							return;
+						}
+						log.success(["切换清晰度-成功获取当前视频的具体信息", videoInfo]);
+						// 当前请求获取到的画质
+						// 那么durl列表中（一般只有一个）的链接就是当前画质的链接
+						let quality = videoInfo.quality;
+						if (
+							!(
+								videoInfo.durl &&
+								Array.isArray(videoInfo.durl) &&
+								videoInfo.durl.length > 0
+							)
+						) {
+							log.error("请求的视频信息内没有视频地址url");
+							BilibiliPlayerToast.toast("请求的视频信息内没有视频地址url");
+							return;
+						}
+						if (quality != item.quality) {
+							log.error(
+								`切换画质失败，请求到的画质和切换的画质不同，切换的: ${item.quality}，请求到的: ${quality}`
+							);
+							BilibiliPlayerToast.toast("切换画质失败，画质不同");
+							return;
+						}
+						let url = videoInfo.durl[0].url;
+						// 请求到的和切换的画质相同，判定为请求成功
+						if (
+							playerPromise.video &&
+							playerPromise.video instanceof HTMLVideoElement
+						) {
+							// 设置视频地址
+							playerPromise.video.src = url;
+							setTimeout(() => {
+								// 执行播放，不然页面会处于缓冲中...
+								playerPromise.video.play();
+							}, 500);
+							log.success(`已成功切换至${item.text}`);
+							BilibiliPlayerToast.toast(`已成功切换至${item.text}`);
+							BilibiliPlayer.$data.videoQuality.forEach((globalQualityItem) => {
+								if (globalQualityItem.quality == item.quality) {
+									globalQualityItem.isActive = true;
+								} else {
+									globalQualityItem.isActive = false;
+								}
+							});
+							this.$mPlayerRight.clearAllActive();
+							this.$mPlayerRight.switchActive($mplayerItem);
+						} else {
+							log.error("切换画质失败，未获取到video");
+							BilibiliPlayerToast.toast("切换画质失败，未获取到video");
+						}
+
+						// 已成功切换至${item.text}
+						this.$mPlayerRight.hideMPlayerRight();
+					});
+					this.$el.$mplayerRight.appendChild($mplayerItem);
+				});
+
+				if ($isActive) {
+					// 选中
+					this.$mPlayerRight.switchActive($isActive);
+					// 居中
+					($isActive as HTMLDivElement).scrollIntoView({
+						block: "center",
+					});
+				}
 				this.$mPlayerRight.showMPlayerRight();
 			},
 			{
@@ -297,11 +408,25 @@ export const BilibiliPlayer = {
 			unsafeWindow.player = winPlayer;
 		},
 	},
+	$data: {
+		/** 视频清晰度信息 */
+		videoQuality: <
+			{
+				/** 显示的文字 */
+				text: string;
+				/** 画质值 */
+				quality: number;
+				/** 当前播放的视频画质是否是这个 */
+				isActive: boolean;
+			}[]
+		>[],
+	},
 	init() {
+		this.$data.videoQuality = [];
 		BilibiliDanmaku.init();
-		let videoSpeed = PopsPanel.getValue<number>("bili-video-speed");
-		this.setVideoSpeed(videoSpeed);
+		this.setVideoSpeed(1);
 		BilibiliPlayerUI.init();
+		this.generateVideoInfo();
 	},
 	/**
 	 * 设置视频播放倍速
@@ -364,5 +489,53 @@ export const BilibiliPlayer = {
 				reject(error);
 			}
 		});
+	},
+	/**
+	 * 根据avid或者bvid获取视频的播放地址信息
+	 *
+	 * 一般用来给清晰度按钮使用
+	 */
+	async generateVideoInfo() {
+		let playerPromise = await this.$player.playerPromise();
+		let bvid = playerPromise.config.bvid;
+		let cid = playerPromise.config.cid;
+		if (!bvid) {
+			log.error("获取bvid失败");
+			return;
+		}
+		let videoInfo = await BilibiliApi_Video.playUrl({
+			bvid: bvid,
+			cid: cid,
+		});
+		if (!videoInfo) {
+			return;
+		}
+		log.success(["成功获取当前视频的具体信息", videoInfo]);
+		// 当前请求获取到的画质
+		// 那么durl列表中（一般只有一个）的链接就是当前画质的链接
+		let quality = videoInfo.quality;
+		if (
+			videoInfo.durl == null ||
+			(Array.isArray(videoInfo.durl) && !videoInfo.durl.length)
+		) {
+			log.error("意外情况，获取到的视频地址信息是空的");
+			return;
+		}
+		// 视频地址
+		let url = videoInfo.durl[0].url;
+		// 当前视频支持的画质，不过这里的话最高只能解锁720p
+		// 也就是quality最大值是64
+		let support_formats = videoInfo.support_formats;
+		this.$data.videoQuality = support_formats
+			.map((item) => {
+				if (item.quality <= BilibiliVideoPlayUrlQN["720P 高清"]) {
+					return {
+						text: item.new_description,
+						quality: item.quality,
+						isActive: false,
+					};
+				}
+			})
+			.filter((item) => item != null);
 	},
 };

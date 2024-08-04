@@ -1,6 +1,9 @@
 import { log, utils } from "@/env";
+import { BilibiliPlayer } from "@/main/BilibiliPlayer";
+import { BilibiliRouter } from "@/router/BilibiliRouter";
 import { PopsPanel } from "@/setting/setting";
 import { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/AjaxHookerType";
+import { BilibiliPlayerToast } from "../main/BilibiliPlayerToast";
 
 let _ajaxHooker_ = null as any as UtilsAjaxHookResult;
 
@@ -17,9 +20,18 @@ const XhrHook = {
 export const BilibiliVideoPlayUrlQN = {
 	/**
 	 * 仅mp4方式支持
+	 * + 6
 	 */
 	"240P 极速": 6,
+	/**
+	 * 仅mp4方式支持
+	 * + 16
+	 */
 	"360P 流畅": 16,
+	/**
+	 * 仅mp4方式支持
+	 * + 32
+	 */
 	"480P 清晰": 32,
 	/**
 	 * web端默认值
@@ -27,37 +39,43 @@ export const BilibiliVideoPlayUrlQN = {
 	 * B站前端需要登录才能选择，但是直接发送请求可以不登录就拿到720P的取流地址
 	 *
 	 * 无720P时则为720P60
+	 * + 64
 	 */
 	"720P 高清": 64,
 	/**
 	 * 需要认证登录账号
+	 * + 74
 	 */
 	"720P60 高帧率": 74,
 	/**
 	 * TV端与APP端默认值
 	 *
 	 * 需要认证登录账号
+	 * + 80
 	 */
 	"1080P 高清": 80,
 	/**
 	 * 大多情况需求认证大会员账号
+	 * + 112
 	 */
 	"1080P+ 高码率": 112,
 	/**
 	 * 大多情况需求认证大会员账号
+	 * + 116
 	 */
 	"1080P60 高帧率": 116,
 	/**
 	 * 需要fnval&128=128且fourk=1
 	 *
 	 * 大多情况需求认证大会员账号
+	 * + 120
 	 */
 	"4K 超清": 120,
 	/**
 	 * 仅支持dash方式
 	 *
 	 * 需要fnval&64=64
-	 *
+	 * + 125
 	 */
 	"HDR 真彩色": 125,
 	/**
@@ -66,6 +84,7 @@ export const BilibiliVideoPlayUrlQN = {
 	 * 需要fnval&512=512
 	 *
 	 * 大多情况需求认证大会员账号
+	 * + 126
 	 */
 	杜比视界: 126,
 	/**
@@ -74,6 +93,7 @@ export const BilibiliVideoPlayUrlQN = {
 	 * 需要fnval&1024=1024
 	 *
 	 * 大多情况需求认证大会员账号
+	 * + 127
 	 */
 	"8K 超高清": 127,
 };
@@ -85,12 +105,15 @@ export const BilibiliNetworkHook = {
 		is_hook_bangumi_html5: false,
 	},
 	init() {
-		PopsPanel.execMenuOnce("bili-video-xhr-unlockQuality", () => {
-			this.hook_video_playurl();
-		});
-		PopsPanel.execMenuOnce("bili-bangumi-xhr-unlockQuality", () => {
-			this.hook_bangumi_html5();
-		});
+		if (BilibiliRouter.isVideo()) {
+			PopsPanel.execMenuOnce("bili-video-xhr-unlockQuality", () => {
+				this.hook_video_playurl();
+			});
+		} else if (BilibiliRouter.isBangumi()) {
+			PopsPanel.execMenuOnce("bili-bangumi-xhr-unlockQuality", () => {
+				this.hook_bangumi_html5();
+			});
+		}
 	},
 	/**
 	 * 视频播放地址获取
@@ -106,8 +129,8 @@ export const BilibiliNetworkHook = {
 		this.$flag.is_hook_video_playurl = true;
 		XhrHook.ajaxHooker.hook((request) => {
 			if (
-				request.url.includes("//api.bilibili.com/x/player/wbi/playurl") ||
-				request.url.includes("//api.bilibili.com/x/player/playurl")
+				request.url.includes("//api.bilibili.com/x/player/wbi/playurl")
+				// || request.url.includes("//api.bilibili.com/x/player/playurl")
 			) {
 				if (request.url.startsWith("//")) {
 					request.url = window.location.protocol + request.url;
@@ -129,18 +152,26 @@ export const BilibiliNetworkHook = {
 				request.url = playUrl.toString();
 				request.response = (res) => {
 					let data = utils.toJSON(res.responseText);
-					log.info("当前解锁的quality值：" + data["data"]["quality"]);
-					if (data["data"]["quality"] && data["data"]["support_formats"]) {
-						let findValue = data["data"]["support_formats"].find(
-							(item: any) => {
-								return item["quality"] == data["data"]["quality"];
+					let unlockQuality = data?.["data"]?.["quality"];
+					let support_formats = data?.["data"]?.["support_formats"];
+					log.info("当前解锁的quality值：" + unlockQuality);
+					if (unlockQuality) {
+						// 设置当前的画质
+						BilibiliPlayer.$data.videoQuality.forEach((item) => {
+							if (item.quality == unlockQuality) {
+								item.isActive = true;
 							}
-						);
+						});
+					}
+					if (unlockQuality && support_formats) {
+						let findValue = support_formats.find((item: any) => {
+							return item["quality"] == unlockQuality;
+						});
 						if (findValue) {
-							log.info(
-								"当前已解锁的画质：" + findValue["new_description"] ||
-									findValue["display_desc"]
-							);
+							let qualityText =
+								findValue["new_description"] || findValue["display_desc"];
+							log.info("成功解锁画质 " + qualityText);
+							BilibiliPlayerToast.toast(`成功解锁画质 ${qualityText}`);
 						}
 					}
 				};

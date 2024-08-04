@@ -171,6 +171,15 @@ const MountVue = async function (targetApp: any, router?: any) {
 };
 const addStyle = utils.addStyle.bind(utils);
 
+if (import.meta.hot) {
+	Reflect.set(unsafeWindow, "httpx", httpx);
+	Object.defineProperty(unsafeWindow, "PopsPanel", {
+		get() {
+			return PopsPanel;
+		},
+	});
+}
+
 export {
 	utils,
 	domutils as DOMUtils,
