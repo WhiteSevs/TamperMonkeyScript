@@ -22,11 +22,14 @@ declare class indexedDB {
      * @param key 数据key
      * @param value 数据值
      */
-    save(key: string, value: any): Promise<{
+    save<T extends any>(key: string, value: T): Promise<{
         success: boolean;
         code: number;
         msg: string;
-        event?: Event;
+        event?: {
+            srcElement: IDBRequest<T>;
+            target: IDBRequest<T>;
+        } & Event;
     }>;
     /**
      * 根据key获取值
@@ -37,8 +40,14 @@ declare class indexedDB {
         code: number;
         msg: string;
         data: T;
-        event?: Event;
-        result?: any;
+        event?: {
+            srcElement: IDBRequest<T>;
+            target: IDBRequest<T>;
+        } & Event;
+        result?: {
+            key: string;
+            value: T;
+        };
     }>;
     /**
      * 正则获取数据
@@ -49,7 +58,10 @@ declare class indexedDB {
         code: number;
         msg: string;
         data: T[];
-        event?: Event;
+        event?: {
+            srcElement: IDBRequest<T>;
+            target: IDBRequest<T>;
+        } & Event;
     }>;
     /**
      * 删除数据
@@ -59,7 +71,10 @@ declare class indexedDB {
         success: boolean;
         code: number;
         msg: string;
-        event?: Event;
+        event?: {
+            srcElement: IDBRequest;
+            target: IDBRequest;
+        } & Event;
     }>;
     /**
      * 删除所有数据

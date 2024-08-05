@@ -130,15 +130,18 @@ class indexedDB {
 	 * @param key 数据key
 	 * @param value 数据值
 	 */
-	async save(
+	async save<T extends any>(
 		key: string,
-		value: any
+		value: T
 	): Promise<{
 		success: boolean;
 		code: number;
 		msg: string;
 
-		event?: Event;
+		event?: {
+			srcElement: IDBRequest<T>;
+			target: IDBRequest<T>;
+		} & Event;
 	}> {
 		let that = this;
 		return new Promise((resolve) => {
@@ -157,10 +160,8 @@ class indexedDB {
 				} else {
 					idbStore = idbStore as IDBObjectStore;
 					let request = idbStore.put(inData);
-					request.onsuccess = function (event: Event) {
+					request.onsuccess = function (event: any) {
 						/* 保存成功有success 字段 */
-						// @ts-ignore
-						let target = event.target as IDBRequest;
 						resolve({
 							success: true,
 							code: that.#errorCode.success.code,
@@ -169,9 +170,7 @@ class indexedDB {
 							event: event,
 						});
 					};
-					request.onerror = function (event: Event) {
-						// @ts-ignore
-						let target = event.target as IDBRequest;
+					request.onerror = function (event: any) {
 						resolve({
 							success: false,
 
@@ -197,13 +196,19 @@ class indexedDB {
 		msg: string;
 		data: T;
 
-		event?: Event;
-		result?: any;
+		event?: {
+			srcElement: IDBRequest<T>;
+			target: IDBRequest<T>;
+		} & Event;
+		result?: {
+			key: string;
+			value: T;
+		};
 	}> {
 		let that = this;
 		return new Promise((resolve) => {
-			let dbName = that.#dbName;
-			that.open(function (idbStore, success) {
+			let dbName = this.#dbName;
+			this.open(function (idbStore, success) {
 				/* 判断返回的数据中是否有error字段 */
 				if (!success) {
 					resolve({
@@ -272,7 +277,10 @@ class indexedDB {
 		msg: string;
 		data: T[];
 
-		event?: Event;
+		event?: {
+			srcElement: IDBRequest<T>;
+			target: IDBRequest<T>;
+		} & Event;
 	}> {
 		let list: T[] = [];
 		let that = this;
@@ -338,7 +346,10 @@ class indexedDB {
 		code: number;
 		msg: string;
 
-		event?: Event;
+		event?: {
+			srcElement: IDBRequest;
+			target: IDBRequest;
+		} & Event;
 	}> {
 		let that = this;
 		return new Promise((resolve) => {
