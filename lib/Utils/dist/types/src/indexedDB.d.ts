@@ -32,6 +32,19 @@ declare class indexedDB {
         } & Event;
     }>;
     /**
+     * 判断是否存在该数据
+     * @param key 数据key
+     */
+    has(key: string): Promise<{
+        success: boolean;
+        code: number;
+        msg: string;
+        event?: {
+            srcElement: IDBRequest;
+            target: IDBRequest;
+        } & Event;
+    }>;
+    /**
      * 根据key获取值
      * @param key 数据key
      */
@@ -51,9 +64,9 @@ declare class indexedDB {
     }>;
     /**
      * 正则获取数据
-     * @param key 数据键
+     * @param key 数据key，可以是正则
      */
-    regexpGet<T extends any>(key: string): Promise<{
+    regexpGet<T extends any>(key: string | RegExp): Promise<{
         success: boolean;
         code: number;
         msg: string;
@@ -65,7 +78,7 @@ declare class indexedDB {
     }>;
     /**
      * 删除数据
-     * @param {string} key 数据键
+     * @param key 数据key
      */
     delete(key: string): Promise<{
         success: boolean;

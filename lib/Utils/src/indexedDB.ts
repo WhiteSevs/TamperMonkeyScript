@@ -185,6 +185,55 @@ class indexedDB {
 	}
 
 	/**
+	 * 判断是否存在该数据
+	 * @param key 数据key
+	 */
+	async has(key: string): Promise<{
+		success: boolean;
+		code: number;
+		msg: string;
+		event?: {
+			srcElement: IDBRequest;
+			target: IDBRequest;
+		} & Event;
+	}> {
+		let that = this;
+		return new Promise((resolve) => {
+			let dbName = this.#dbName;
+			this.open(function (idbStore, success) {
+				/* 判断返回的数据中是否有error字段 */
+				if (!success) {
+					resolve({
+						success: false,
+						code: that.#errorCode.get.code,
+						msg: that.#errorCode.get.msg,
+					});
+				} else {
+					idbStore = idbStore as IDBObjectStore;
+					let request = idbStore.get(key);
+					request.onsuccess = function (event: any) {
+						/* result 返回的是 {key: string, value: any} */
+						/* 键值对存储 */
+						resolve({
+							success: true,
+							code: that.#errorCode.success.code,
+							msg: that.#errorCode.success.msg,
+							event: event,
+						});
+					};
+					request.onerror = function (event: any) {
+						resolve({
+							success: false,
+							code: that.#errorCode.get.code,
+							msg: that.#errorCode.get.msg,
+							event: event,
+						});
+					};
+				}
+			}, dbName);
+		});
+	}
+	/**
 	 * 根据key获取值
 	 * @param key 数据key
 	 */
@@ -222,10 +271,15 @@ class indexedDB {
 					let request = idbStore.get(key);
 					request.onsuccess = function (event: any) {
 						let target = event.target as IDBRequest;
-						let result = target.result;
+						let result = target.result as
+							| {
+									key: string;
+									value: T;
+							  }
+							| undefined;
 						/* result 返回的是 {key: string, value: any} */
 						/* 键值对存储 */
-						let data: T = result ? result.value : void 0;
+						let data = result ? result.value : void 0;
 						if (data) {
 							resolve({
 								success: true,
@@ -267,10 +321,10 @@ class indexedDB {
 
 	/**
 	 * 正则获取数据
-	 * @param key 数据键
+	 * @param key 数据key，可以是正则
 	 */
 	async regexpGet<T extends any>(
-		key: string
+		key: string | RegExp
 	): Promise<{
 		success: boolean;
 		code: number;
@@ -300,14 +354,18 @@ class indexedDB {
 					idbStore = idbStore as IDBObjectStore;
 					let request = idbStore.getAll();
 					request.onsuccess = function (event: any) {
-						let target = event.target as IDBRequest;
+						let target = event.target as IDBRequest<
+							{ key: string; value: T }[]
+						>;
 						let result = target.result;
 						if (result.length !== 0) {
-							result.forEach((item: any, index: any) => {
-								if (item["key"].match(key)) {
-									let concatList = item["value"];
-									concatList["key"] = item["key"];
-									list = [...list, concatList];
+							result.forEach((dataItem, index) => {
+								// 当前项的key
+								let __key = dataItem["key"];
+								// 当前项的value
+								let __value = dataItem["value"];
+								if (__key.match(key)) {
+									list = list.concat(__value);
 								}
 							});
 						}
@@ -339,7 +397,7 @@ class indexedDB {
 
 	/**
 	 * 删除数据
-	 * @param {string} key 数据键
+	 * @param key 数据key
 	 */
 	async delete(key: string): Promise<{
 		success: boolean;
