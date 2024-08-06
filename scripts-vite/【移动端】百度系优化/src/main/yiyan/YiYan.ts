@@ -78,10 +78,11 @@ const BaiduYiYan = {
 		}
 		// 获取查询内容
 		let searchText = searchParams.get(KEY_searchText)!;
-		let decodeSearchText = searchParams.get(KEY_decodeSearchText);
+		// 是否对查询关键字进行解码
+		let decodeSearchText = searchParams.get(KEY_decodeSearchText)!;
 		if (decodeSearchText) {
 			// 解码
-			searchText = decodeURIComponent(decodeSearchText);
+			searchText = decodeURIComponent(searchText);
 		}
 		log.info("存在搜索接口，查询内容：" + searchText);
 		// this.$ele.$searchInput.value = searchText;
@@ -127,6 +128,40 @@ const BaiduYiYan = {
 							log.success(`点击提问按钮`);
 						},
 					});
+				}
+			},
+			overTimeCallBack() {
+				$loading.close();
+			},
+		});
+		ReactUtils.waitReactPropsToSet("#eb_model_footer", "reactProps", {
+			msg: "等待元素#eb_model_footer",
+			check(reactInstance) {
+				return (
+					typeof reactInstance?.children?.[2]?.props?.children?.[2]?.props
+						?.children?.[0]?.props?.setText === "function"
+				);
+			},
+			set(reactInstance) {
+				$loading.close();
+				let props =
+					reactInstance?.children?.[2]?.props?.children?.[2]?.props
+						?.children?.[0]?.props;
+				let setText: Function = props.setText;
+				let isLogin: boolean = props.userInfo.isLogin;
+				setText(searchText);
+				if (!isLogin) {
+					log.error("先登录才可以提问");
+					Qmsg.error("先登录才可以提问");
+					return;
+				}
+				let $sendBtn = document.querySelector<HTMLSpanElement>(
+					`#eb_model_footer div:has(+footer) span:has(svg[preserveAspectRatio])`
+				);
+				if ($sendBtn) {
+					$sendBtn.click();
+				} else {
+					log.error("未找到发送按钮");
 				}
 			},
 			overTimeCallBack() {

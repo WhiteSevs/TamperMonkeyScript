@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.6
+// @version      2024.8.6.23
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -22885,7 +22885,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
       let searchText = searchParams.get(KEY_searchText);
       let decodeSearchText = searchParams.get(KEY_decodeSearchText);
       if (decodeSearchText) {
-        searchText = decodeURIComponent(decodeSearchText);
+        searchText = decodeURIComponent(searchText);
       }
       log.info("存在搜索接口，查询内容：" + searchText);
       let $loading = Qmsg.loading("等待编辑框加载完成...", {
@@ -22922,6 +22922,37 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                 log.success(`点击提问按钮`);
               }
             });
+          }
+        },
+        overTimeCallBack() {
+          $loading.close();
+        }
+      });
+      ReactUtils.waitReactPropsToSet("#eb_model_footer", "reactProps", {
+        msg: "等待元素#eb_model_footer",
+        check(reactInstance) {
+          var _a3, _b, _c, _d, _e, _f, _g, _h, _i;
+          return typeof ((_i = (_h = (_g = (_f = (_e = (_d = (_c = (_b = (_a3 = reactInstance == null ? void 0 : reactInstance.children) == null ? void 0 : _a3[2]) == null ? void 0 : _b.props) == null ? void 0 : _c.children) == null ? void 0 : _d[2]) == null ? void 0 : _e.props) == null ? void 0 : _f.children) == null ? void 0 : _g[0]) == null ? void 0 : _h.props) == null ? void 0 : _i.setText) === "function";
+        },
+        set(reactInstance) {
+          var _a3, _b, _c, _d, _e, _f, _g, _h;
+          $loading.close();
+          let props = (_h = (_g = (_f = (_e = (_d = (_c = (_b = (_a3 = reactInstance == null ? void 0 : reactInstance.children) == null ? void 0 : _a3[2]) == null ? void 0 : _b.props) == null ? void 0 : _c.children) == null ? void 0 : _d[2]) == null ? void 0 : _e.props) == null ? void 0 : _f.children) == null ? void 0 : _g[0]) == null ? void 0 : _h.props;
+          let setText = props.setText;
+          let isLogin = props.userInfo.isLogin;
+          setText(searchText);
+          if (!isLogin) {
+            log.error("先登录才可以提问");
+            Qmsg.error("先登录才可以提问");
+            return;
+          }
+          let $sendBtn = document.querySelector(
+            `#eb_model_footer div:has(+footer) span:has(svg[preserveAspectRatio])`
+          );
+          if ($sendBtn) {
+            $sendBtn.click();
+          } else {
+            log.error("未找到发送按钮");
           }
         },
         overTimeCallBack() {
