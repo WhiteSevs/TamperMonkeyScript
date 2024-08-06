@@ -338,17 +338,32 @@ export const PopsPanel = {
 	 * @param key
 	 * @param callback 回调
 	 */
-	execMenu(key: string, callback: (value: any) => void) {
-		if (typeof key !== "string") {
-			throw new TypeError("key 必须是字符串");
+	execMenu(key: string | string[], callback: (value: any) => void) {
+		if (
+			!(
+				typeof key === "string" ||
+				(typeof key === "object" && Array.isArray(key))
+			)
+		) {
+			throw new TypeError("key 必须是字符串或者字符串数组");
 		}
-		if (!this.$data.data.has(key)) {
-			log.warn(`${key} 键不存在`);
-			return;
+		let runKeyList = [];
+		if (typeof key === "object" && Array.isArray(key)) {
+			runKeyList = [...key];
+		} else {
+			runKeyList.push(key);
 		}
-		let value = PopsPanel.getValue(key);
-		if (value) {
-			callback(value);
+		let runValue = void 0;
+		for (let index = 0; index < runKeyList.length; index++) {
+			const runKey = runKeyList[index];
+			if (!this.$data.data.has(runKey)) {
+				log.warn(`${key} 键不存在`);
+				return;
+			}
+			runValue = PopsPanel.getValue(runKey);
+		}
+		if (runValue) {
+			callback(runValue);
 		}
 	},
 	/**

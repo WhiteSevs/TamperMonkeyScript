@@ -1,43 +1,63 @@
 import { httpx, utils } from "@/env";
 import { BilibiliVideoPlayUrlQN } from "@/hook/BilibiliNetworkHook";
 
+type BilibliPlayUrlCommonConfig = {
+	cid: string | number;
+	/** 画质 */
+	qn?: number;
+	/** 视频清晰度选择 */
+	high_quality?: number;
+	fnval?: number;
+	/** 固定0 */
+	fnver?: number;
+	/** 是否允许 4K 视频 */
+	fourk?: number;
+	/** 该值用于移动端html5播放，如果删除，虽然通过其它办法可以获取到，但是无法播放，因为源会鉴权referer为www.bilibili.com */
+	setPlatformHTML5?: boolean;
+};
+
 export const BilibiliApi_Video = {
 	/**
 	 * 获取视频播放地址，avid或bvid必须给一个
 	 * + /x/player/playurl
+	 * @param config
+	 * @param extraParams 额外参数，一般用于hook network参数内的判断
 	 */
 	async playUrl(
 		config:
-			| {
+			| (BilibliPlayUrlCommonConfig & {
+					/** 视频的av号 */
 					avid: string;
-					cid: string | number;
-					qn?: number;
-					fnval?: number;
-					fnver?: number;
-					fourk?: number;
-			  }
-			| {
+			  })
+			| (BilibliPlayUrlCommonConfig & {
+					/** 视频的bv号 */
 					bvid: string;
-					cid: string | number;
-					qn?: number;
-					fnval?: number;
-					fnver?: number;
-					fourk?: number;
-			  }
+			  }),
+		extraParams?: any
 	) {
 		let getData = {
 			cid: config.cid,
 			qn: config.qn ?? BilibiliVideoPlayUrlQN["1080P60 高帧率"],
+			high_quality: config.high_quality ?? 1,
 			fnval: config.fnval ?? 1,
+			// 固定0
 			fnver: config.fnver ?? 0,
+			// 是否允许 4K 视频
 			fourk: config.fourk ?? 1,
 		};
+		if (config.setPlatformHTML5) {
+			// 该值是用来请求可以在移动端播放的链接的
+			Reflect.set(getData, "platform", "html5");
+		}
 		if ("avid" in config) {
 			Reflect.set(getData, "avid", config.avid);
 		} else if ("bvid" in config) {
 			Reflect.set(getData, "bvid", config.bvid);
 		} else {
 			throw new TypeError("avid or bvid must give one");
+		}
+		if (typeof extraParams === "object") {
+			Object.assign(getData, extraParams);
 		}
 		let getResp = await httpx.get(
 			"https://api.bilibili.com/x/player/playurl?" +

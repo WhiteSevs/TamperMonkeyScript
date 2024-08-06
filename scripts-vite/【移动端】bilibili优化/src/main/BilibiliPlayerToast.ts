@@ -1,4 +1,4 @@
-import { addStyle, DOMUtils, utils } from "@/env";
+import { addStyle, DOMUtils, log, utils } from "@/env";
 import { unsafeWindow } from "ViteGM";
 
 type BilibiliPlayerToastConfig = {
@@ -20,6 +20,10 @@ const BilibiliPlayerToast = {
 	$flag: {
 		isInitCSS: false,
 	},
+	$data: {
+		/** 让Toast显示的className */
+		showClassName: "mplayer-show",
+	},
 	toast(config: BilibiliPlayerToastConfig | string) {
 		if (typeof config === "string") {
 			config = {
@@ -35,11 +39,10 @@ const BilibiliPlayerToast = {
             }
             `);
 		}
-		let showClassName = "mplayer-show";
 		let $toast = DOMUtils.createElement(
 			"div",
 			{
-				className: "mplayer-toast" + " " + showClassName,
+				className: "mplayer-toast" + " " + this.$data.showClassName,
 			},
 			{
 				"data-from": "gm",
@@ -84,6 +87,67 @@ const BilibiliPlayerToast = {
 		// 插入的父元素
 		let $parent =
 			config.parent ?? (document.querySelector(".mplayer") as HTMLDivElement);
+		this.setTransitionendEvent($toast);
+		let timeout =
+			typeof config.timeout === "number" && !isNaN(config.timeout)
+				? config.timeout
+				: 3500;
+		if ($parent) {
+			// 获取页面的所有的toast
+			let pageToastList = Array.from(
+				document.querySelectorAll<HTMLDivElement>(
+					`.mplayer-toast[data-from="gm"]`
+				)
+			);
+			// 主动给页面中的原来的toast添加动画监听结束事件
+			Array.from(
+				document.querySelectorAll<HTMLDivElement>(
+					`.mplayer-toast:not([data-from="gm"])`
+				)
+			).forEach(($ele) => {
+				if (!$ele.classList.contains(this.$data.showClassName)) {
+					$ele.remove();
+					return;
+				}
+				this.setTransitionendEvent($ele);
+			});
+			if (pageToastList.length > 1) {
+				// >1 ==> 2、3、4...个
+				for (let index = 0; index <= pageToastList.length - 1 - 1; index++) {
+					// 只保留一个
+					const $ele = pageToastList[index];
+					$ele.classList.remove(this.$data.showClassName);
+					pageToastList.splice(index, 1);
+					index--;
+				}
+			}
+			if (pageToastList.length) {
+				if (pageToastList.length > 1) {
+					log.warn("意外情况。pageToastList内不止一个");
+				}
+				// 只有一个了
+				// 上移
+				const $ele = pageToastList[0];
+				// toast高度是48px，padding是12px，计算出bottom需要36px（48px-36px）
+				let bottom = 46 + 46 * 1;
+				$ele.setAttribute("data-transition", "move");
+				$ele.style.bottom = bottom + "px";
+				Reflect.set($ele, "__nextToast", $toast);
+			} else {
+				$parent.appendChild($toast);
+			}
+		} else {
+			throw new TypeError("toast parent is null");
+		}
+		setTimeout(() => {
+			$toast.classList.remove(this.$data.showClassName);
+		}, timeout);
+		return $toast;
+	},
+	/**
+	 * 监听过渡结束
+	 */
+	setTransitionendEvent($toast: HTMLDivElement) {
 		// 事件名称列表
 		let animationEndNameList = [
 			"webkitTransitionEnd",
@@ -92,54 +156,34 @@ const BilibiliPlayerToast = {
 			"otransitionend",
 			"transitionend",
 		];
-		DOMUtils.on($toast, animationEndNameList as any, function (event) {
-			if ($toast.hasAttribute("data-stop-remove")) {
-				// 移动的
-				$toast.removeAttribute("data-stop-remove");
-				return;
-			}
-			$parent.removeChild($toast);
-			$toast?.remove();
-		});
-		if ($parent) {
-			// 获取页面的所有的toast
-			let pageToastList = Array.from(
-				document.querySelectorAll<HTMLDivElement>(".mplayer-toast")
-			);
-			if (pageToastList.length > 1) {
-				for (let index = 0; index < pageToastList.length - 2; index++) {
-					// 删掉只有一个
-					pageToastList[index].classList.remove(showClassName);
-					pageToastList.splice(0, 1);
-					index--;
+		let that = this;
+		DOMUtils.on(
+			$toast,
+			animationEndNameList as any,
+			function (event) {
+				let $nextToast = Reflect.get($toast, "__nextToast");
+				let dataTransition = $toast.getAttribute("data-transition");
+				if ($nextToast) {
+					DOMUtils.after($toast, $nextToast);
 				}
-			}
-			if (pageToastList.length) {
-				// 只有一个了
-				// 上移
-				let multiple = pageToastList.length;
-				for (let index = 0; index < pageToastList.length; index++) {
-					const $ele = pageToastList[index];
-					// toast高度是48px，padding是12px，计算出bottom需要36px（48px-36px）
-					let bottom = 48 + 48 * multiple;
-					$ele.setAttribute("data-stop-remove", "true");
-					$ele.style.bottom = bottom + "px";
-					multiple--;
+				if (!$toast.classList.contains(that.$data.showClassName)) {
+					// 不显示了，移除元素
+					$toast.remove();
+					return;
 				}
+				if (dataTransition === "move") {
+					// 移动的
+					$toast.removeAttribute("data-transition");
+					return;
+				}
+			},
+			{
+				capture: true,
 			}
-			$parent.appendChild($toast);
-		} else {
-			throw new TypeError("toast parent is null");
-		}
-		let timeout =
-			typeof config.timeout === "number" && !isNaN(config.timeout)
-				? config.timeout
-				: 3500;
-		setTimeout(() => {
-			$toast.classList.remove(showClassName);
-		}, timeout);
+		);
 	},
 };
-// @ts-ignore
-unsafeWindow.BilibiliPlayerToast = BilibiliPlayerToast;
+if (import.meta.hot) {
+	Reflect.set(unsafeWindow, "BilibiliPlayerToast", BilibiliPlayerToast);
+}
 export { BilibiliPlayerToast };

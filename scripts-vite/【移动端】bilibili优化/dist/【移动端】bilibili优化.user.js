@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.5
+// @version      2024.8.6
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/497907/1413262/QRCodeJS.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
@@ -431,6 +431,10 @@
     $flag: {
       isInitCSS: false
     },
+    $data: {
+      /** 让Toast显示的className */
+      showClassName: "mplayer-show"
+    },
     toast(config) {
       if (typeof config === "string") {
         config = {
@@ -449,11 +453,10 @@
             `
         );
       }
-      let showClassName = "mplayer-show";
       let $toast = domutils.createElement(
         "div",
         {
-          className: "mplayer-toast " + showClassName
+          className: "mplayer-toast " + this.$data.showClassName
         },
         {
           "data-from": "gm"
@@ -496,6 +499,57 @@
         $toast.appendChild($jump);
       }
       let $parent = config.parent ?? document.querySelector(".mplayer");
+      this.setTransitionendEvent($toast);
+      let timeout = typeof config.timeout === "number" && !isNaN(config.timeout) ? config.timeout : 3500;
+      if ($parent) {
+        let pageToastList = Array.from(
+          document.querySelectorAll(
+            `.mplayer-toast[data-from="gm"]`
+          )
+        );
+        Array.from(
+          document.querySelectorAll(
+            `.mplayer-toast:not([data-from="gm"])`
+          )
+        ).forEach(($ele) => {
+          if (!$ele.classList.contains(this.$data.showClassName)) {
+            $ele.remove();
+            return;
+          }
+          this.setTransitionendEvent($ele);
+        });
+        if (pageToastList.length > 1) {
+          for (let index = 0; index <= pageToastList.length - 1 - 1; index++) {
+            const $ele = pageToastList[index];
+            $ele.classList.remove(this.$data.showClassName);
+            pageToastList.splice(index, 1);
+            index--;
+          }
+        }
+        if (pageToastList.length) {
+          if (pageToastList.length > 1) {
+            log.warn("意外情况。pageToastList内不止一个");
+          }
+          const $ele = pageToastList[0];
+          let bottom = 46 + 46 * 1;
+          $ele.setAttribute("data-transition", "move");
+          $ele.style.bottom = bottom + "px";
+          Reflect.set($ele, "__nextToast", $toast);
+        } else {
+          $parent.appendChild($toast);
+        }
+      } else {
+        throw new TypeError("toast parent is null");
+      }
+      setTimeout(() => {
+        $toast.classList.remove(this.$data.showClassName);
+      }, timeout);
+      return $toast;
+    },
+    /**
+     * 监听过渡结束
+     */
+    setTransitionendEvent($toast) {
       let animationEndNameList = [
         "webkitTransitionEnd",
         "mozTransitionEnd",
@@ -503,46 +557,31 @@
         "otransitionend",
         "transitionend"
       ];
-      domutils.on($toast, animationEndNameList, function(event) {
-        if ($toast.hasAttribute("data-stop-remove")) {
-          $toast.removeAttribute("data-stop-remove");
-          return;
-        }
-        $parent.removeChild($toast);
-        $toast == null ? void 0 : $toast.remove();
-      });
-      if ($parent) {
-        let pageToastList = Array.from(
-          document.querySelectorAll(".mplayer-toast")
-        );
-        if (pageToastList.length > 1) {
-          for (let index = 0; index < pageToastList.length - 2; index++) {
-            pageToastList[index].classList.remove(showClassName);
-            pageToastList.splice(0, 1);
-            index--;
+      let that = this;
+      domutils.on(
+        $toast,
+        animationEndNameList,
+        function(event) {
+          let $nextToast = Reflect.get($toast, "__nextToast");
+          let dataTransition = $toast.getAttribute("data-transition");
+          if ($nextToast) {
+            domutils.after($toast, $nextToast);
           }
-        }
-        if (pageToastList.length) {
-          let multiple = pageToastList.length;
-          for (let index = 0; index < pageToastList.length; index++) {
-            const $ele = pageToastList[index];
-            let bottom = 48 + 48 * multiple;
-            $ele.setAttribute("data-stop-remove", "true");
-            $ele.style.bottom = bottom + "px";
-            multiple--;
+          if (!$toast.classList.contains(that.$data.showClassName)) {
+            $toast.remove();
+            return;
           }
+          if (dataTransition === "move") {
+            $toast.removeAttribute("data-transition");
+            return;
+          }
+        },
+        {
+          capture: true
         }
-        $parent.appendChild($toast);
-      } else {
-        throw new TypeError("toast parent is null");
-      }
-      let timeout = typeof config.timeout === "number" && !isNaN(config.timeout) ? config.timeout : 3500;
-      setTimeout(() => {
-        $toast.classList.remove(showClassName);
-      }, timeout);
+      );
     }
   };
-  _unsafeWindow.BilibiliPlayerToast = BilibiliPlayerToast;
   let _ajaxHooker_ = null;
   const XhrHook = {
     get ajaxHooker() {
@@ -633,6 +672,14 @@
      */
     "8K 超高清": 127
   };
+  const BilibiliVideoPlayUrlQN_Value = {};
+  Object.keys(BilibiliVideoPlayUrlQN).forEach((text) => {
+    Reflect.set(
+      BilibiliVideoPlayUrlQN_Value,
+      BilibiliVideoPlayUrlQN[text],
+      text
+    );
+  });
   const BilibiliNetworkHook = {
     $flag: {
       is_hook_video_playurl: false,
@@ -675,6 +722,10 @@
           playUrl.searchParams.set("high_quality", "1");
           playUrl.searchParams.set("fnver", "0");
           playUrl.searchParams.set("fourk", "1");
+          if (playUrl.searchParams.has("__t")) {
+            playUrl.searchParams.delete("__t");
+            return;
+          }
           request.url = playUrl.toString();
           request.response = (res) => {
             var _a2, _b;
@@ -755,21 +806,32 @@
     /**
      * 获取视频播放地址，avid或bvid必须给一个
      * + /x/player/playurl
+     * @param config
+     * @param extraParams 额外参数，一般用于hook network参数内的判断
      */
-    async playUrl(config) {
+    async playUrl(config, extraParams) {
       let getData = {
         cid: config.cid,
         qn: config.qn ?? BilibiliVideoPlayUrlQN["1080P60 高帧率"],
+        high_quality: config.high_quality ?? 1,
         fnval: config.fnval ?? 1,
+        // 固定0
         fnver: config.fnver ?? 0,
+        // 是否允许 4K 视频
         fourk: config.fourk ?? 1
       };
+      if (config.setPlatformHTML5) {
+        Reflect.set(getData, "platform", "html5");
+      }
       if ("avid" in config) {
         Reflect.set(getData, "avid", config.avid);
       } else if ("bvid" in config) {
         Reflect.set(getData, "bvid", config.bvid);
       } else {
         throw new TypeError("avid or bvid must give one");
+      }
+      if (typeof extraParams === "object") {
+        Object.assign(getData, extraParams);
       }
       let getResp = await httpx.get(
         "https://api.bilibili.com/x/player/playurl?" + utils.toSearchParamsStr(getData),
@@ -803,13 +865,29 @@
     },
     /** 右侧面板菜单 */
     $mPlayerRight: {
+      /** 被访问状态的className */
+      __activeClassName: "gf-mplayer-right-item-active",
+      /** 每一个项的className */
+      __itemClassName: "gf-mplayer-right-item",
+      /** 显示右侧菜单的className */
+      __showMPlayerRightClassName: "gf-mplayer-right-show",
       /** 显示右侧菜单 */
-      showMPlayerRight() {
-        BilibiliPlayerUI.$el.$mplayerRight.style.cssText = "--mplayer-right-transform: -var(--mplayer-right-w);";
+      showMPlayerRight(delayTime = 50) {
+        if (delayTime > 0) {
+          setTimeout(() => {
+            this.showMPlayerRight(0);
+          }, 50);
+          return;
+        }
+        BilibiliPlayerUI.$el.$mplayerRight.classList.add(
+          this.__showMPlayerRightClassName
+        );
       },
       /** 隐藏右侧菜单 */
       hideMPlayerRight() {
-        BilibiliPlayerUI.$el.$mplayerRight.style.cssText = "";
+        BilibiliPlayerUI.$el.$mplayerRight.classList.remove(
+          this.__showMPlayerRightClassName
+        );
       },
       /** 清空右侧菜单 */
       clearMPlayerRight() {
@@ -817,27 +895,29 @@
       },
       /** 设置某个项访问状态 */
       setActive($el) {
-        $el.classList.add("gf-mplayer-right-item-active");
+        $el.classList.add(this.__activeClassName);
       },
       /** 切换某个项访问状态，并清空其它的访问状态 */
       switchActive($el) {
         this.clearAllActive();
         this.setActive($el);
       },
+      /** 判断该项是否是访问状态 */
+      isActive($el) {
+        return $el.classList.contains(this.__activeClassName);
+      },
       /** 清空某个项访问状态 */
       clearActive($el) {
-        $el.classList.remove("gf-mplayer-right-item-active");
+        $el.classList.remove(this.__activeClassName);
       },
       /** 清空所有项的访问状态 */
       clearAllActive() {
-        BilibiliPlayerUI.$el.$mplayerRight.querySelectorAll(".gf-mplayer-right-item-active").forEach(
-          (item) => item.classList.remove("gf-mplayer-right-item-active")
-        );
+        BilibiliPlayerUI.$el.$mplayerRight.querySelectorAll("." + this.__activeClassName).forEach((item) => item.classList.remove(this.__activeClassName));
       },
       /** 创建一个项 */
       createMPlayerItem(text) {
         return domutils.createElement("div", {
-          className: "gf-mplayer-right-item",
+          className: this.__itemClassName,
           innerHTML: text ?? ""
         });
       }
@@ -850,18 +930,27 @@
           `
 			.mplayer-right {
 				--mplayer-right-w: 8em;
-				--mplayer-right-transform: var(--mplayer-right-w);
+				--mplayer-right-deviation: var(--mplayer-right-w);
 				background: #181212;
 				width: var(--mplayer-right-w) !important;
 				opacity: 0.9 !important;
 				visibility: visible !important;
 				color: #ffffff;
-				-webkit-transform: translateX(var(--mplayer-right-transform)) !important;
-				transform: translateX(var(--mplayer-right-transform)) !important;
+				-webkit-transform: translateX(8em) !important;
+				transform: translateX(8em) !important;
 				z-index: 1000;
 				overflow-y: auto;
 				display: block;
 				align-content: center;
+				position: absolute;
+				transition: transform .4s;
+				top: 0;
+				bottom: 0;
+				right: 0;
+			}
+			.gf-mplayer-right-show{
+				-webkit-transform: translateX(0) !important;
+				transform: translateX(0) !important;
 			}
 			.gf-mplayer-right-item{
 				width: 100%;
@@ -989,115 +1078,153 @@
     },
     /**
      * 覆盖【清晰度】按钮
+     * @param initChooseQuality 是否初始化选择清晰度
      */
-    coverQuality() {
-      domutils.on(
-        document,
-        "click",
-        ".mplayer-control-btn-quality",
-        async (event) => {
-          utils.preventEvent(event);
-          log.info("点击【清晰度】");
-          this.$mPlayerRight.hideMPlayerRight();
-          this.$mPlayerRight.clearMPlayerRight();
-          let qualityInfoList = [];
-          if (!BilibiliPlayer.$data.videoQuality.length) {
-            let playerPromise = await BilibiliPlayer.$player.playerPromise();
-            let playerQuality = playerPromise.videoQuality;
-            Object.keys(BilibiliVideoPlayUrlQN).forEach((qualityName) => {
-              let qualityValue = BilibiliVideoPlayUrlQN[qualityName];
-              qualityInfoList.push({
-                text: qualityName,
-                quality: qualityValue,
-                isActive: playerQuality == qualityValue
-              });
-            });
-          } else {
-            qualityInfoList = [...BilibiliPlayer.$data.videoQuality];
-          }
-          utils.sortListByProperty(qualityInfoList, (value) => {
-            return value.quality;
-          });
-          let $isActive = void 0;
-          qualityInfoList.forEach((item) => {
-            let $mplayerItem = this.$mPlayerRight.createMPlayerItem(item.text);
-            if (item.isActive) {
-              $isActive = $mplayerItem;
-            }
-            domutils.on($mplayerItem, "click", async (__event__) => {
-              utils.preventEvent(__event__);
-              BilibiliPlayerToast.toast("切换中，请稍后");
-              let playerPromise = await BilibiliPlayer.$player.playerPromise();
-              let bvid = playerPromise.config.bvid;
-              let cid = playerPromise.config.cid;
-              if (!bvid) {
-                BilibiliPlayerToast.toast("获取bvid失败");
-                return;
-              }
-              let videoInfo = await BilibiliApi_Video.playUrl({
-                bvid,
-                cid,
-                qn: item.quality
-              });
-              if (!videoInfo) {
-                BilibiliPlayerToast.toast("获取视频信息失败");
-                log.error("获取视频信息失败");
-                return;
-              }
-              log.success(["切换清晰度-成功获取当前视频的具体信息", videoInfo]);
-              let quality = videoInfo.quality;
-              if (!(videoInfo.durl && Array.isArray(videoInfo.durl) && videoInfo.durl.length > 0)) {
-                log.error("请求的视频信息内没有视频地址url");
-                BilibiliPlayerToast.toast("请求的视频信息内没有视频地址url");
-                return;
-              }
-              if (quality != item.quality) {
-                log.error(
-                  `切换画质失败，请求到的画质和切换的画质不同，切换的: ${item.quality}，请求到的: ${quality}`
-                );
-                BilibiliPlayerToast.toast("切换画质失败，画质不同");
-                return;
-              }
-              let url = videoInfo.durl[0].url;
-              if (playerPromise.video && playerPromise.video instanceof HTMLVideoElement) {
-                let setVideoUrlStatus = await BilibiliPlayer.setVideoUrl(url);
-                if (setVideoUrlStatus) {
-                  log.success(`已成功切换至${item.text}`);
-                  BilibiliPlayer.$data.videoQuality.forEach(
-                    (globalQualityItem) => {
-                      if (globalQualityItem.quality == item.quality) {
-                        globalQualityItem.isActive = true;
-                      } else {
-                        globalQualityItem.isActive = false;
-                      }
-                    }
-                  );
-                  this.$mPlayerRight.switchActive($mplayerItem);
-                  BilibiliPlayerToast.toast(`已成功切换至${item.text}`);
-                } else {
-                  log.error("切换画质失败，未成功设置video的src");
-                  BilibiliPlayerToast.toast("切换画质失败，未成功设置video的src");
-                }
-              } else {
-                log.error("切换画质失败，未获取到video");
-                BilibiliPlayerToast.toast("切换画质失败，未获取到video");
-              }
-              this.$mPlayerRight.hideMPlayerRight();
-            });
-            this.$el.$mplayerRight.appendChild($mplayerItem);
-          });
-          if ($isActive) {
-            this.$mPlayerRight.switchActive($isActive);
-            $isActive.scrollIntoView({
-              block: "center"
-            });
-          }
-          this.$mPlayerRight.showMPlayerRight();
-        },
-        {
-          capture: true
+    coverQuality(initChooseQuality) {
+      const userChooseVideoQuality_KEY = "userChooseVideoQuality";
+      let qualityItemClickEvent = async (itemData, $mplayerItem) => {
+        if ($mplayerItem && this.$mPlayerRight.isActive($mplayerItem)) {
+          log.info(`该项已选中，无需重复点击`);
+          return;
         }
-      );
+        BilibiliPlayerToast.toast("切换中，请稍后");
+        let playerPromise = await BilibiliPlayer.$player.playerPromise();
+        let bvid = playerPromise.config.bvid;
+        let cid = playerPromise.config.cid;
+        if (!bvid) {
+          BilibiliPlayerToast.toast("获取bvid失败");
+          return;
+        }
+        let videoInfo = await BilibiliApi_Video.playUrl(
+          {
+            bvid,
+            cid,
+            qn: itemData.quality,
+            setPlatformHTML5: true
+          },
+          {
+            __t: Date.now()
+          }
+        );
+        if (!videoInfo) {
+          BilibiliPlayerToast.toast("获取视频信息失败");
+          log.error("获取视频信息失败");
+          return;
+        }
+        log.success(["切换清晰度-成功获取当前视频的具体信息", videoInfo]);
+        let quality = videoInfo.quality;
+        if (!(videoInfo.durl && Array.isArray(videoInfo.durl) && videoInfo.durl.length > 0)) {
+          log.error("请求的视频信息内没有视频地址url");
+          BilibiliPlayerToast.toast("请求的视频信息内没有视频地址url");
+          return;
+        }
+        if (quality != itemData.quality) {
+          log.error(
+            `切换画质失败，请求到的画质和切换的画质不同，切换的: ${itemData.quality}，请求到的: ${quality}`
+          );
+          BilibiliPlayerToast.toast("切换画质失败，画质不同");
+          return;
+        }
+        let url = videoInfo.durl[0].url;
+        if (playerPromise.video && playerPromise.video instanceof HTMLVideoElement) {
+          let setVideoUrlStatus = await BilibiliPlayer.setVideoUrl(url);
+          if (setVideoUrlStatus.success) {
+            log.success(`已成功切换至 ${itemData.text}`);
+            BilibiliPlayer.$data.videoQuality.forEach((globalQualityItem) => {
+              if (globalQualityItem.quality == itemData.quality) {
+                globalQualityItem.isActive = true;
+              } else {
+                globalQualityItem.isActive = false;
+              }
+            });
+            if ($mplayerItem) {
+              this.$mPlayerRight.switchActive($mplayerItem);
+            }
+            BilibiliPlayerToast.toast(`已成功切换至 ${itemData.text}`);
+            _GM_setValue(userChooseVideoQuality_KEY, quality);
+            BilibiliDanmaku.init();
+          } else {
+            log.error("切换画质失败，未成功设置video的src");
+            BilibiliPlayerToast.toast("切换画质失败，" + setVideoUrlStatus.msg);
+          }
+        } else {
+          log.error("切换画质失败，未获取到video");
+          BilibiliPlayerToast.toast("切换画质失败，未获取到video");
+        }
+        this.$mPlayerRight.hideMPlayerRight();
+      };
+      let qualityBtnEvent = async (event) => {
+        log.info("点击【清晰度】");
+        this.$mPlayerRight.hideMPlayerRight();
+        this.$mPlayerRight.clearMPlayerRight();
+        let qualityInfoList = [];
+        if (!BilibiliPlayer.$data.videoQuality.length) {
+          let playerPromise = await BilibiliPlayer.$player.playerPromise();
+          let playerQuality = playerPromise.videoQuality;
+          Object.keys(BilibiliVideoPlayUrlQN).forEach((qualityName) => {
+            let qualityValue = BilibiliVideoPlayUrlQN[qualityName];
+            qualityInfoList.push({
+              text: qualityName,
+              quality: qualityValue,
+              isActive: playerQuality == qualityValue
+            });
+          });
+        } else {
+          qualityInfoList = [...BilibiliPlayer.$data.videoQuality];
+        }
+        utils.sortListByProperty(qualityInfoList, (value) => {
+          return value.quality;
+        });
+        let $isActive = void 0;
+        qualityInfoList.forEach((item) => {
+          let $mplayerItem = this.$mPlayerRight.createMPlayerItem(item.text);
+          if (item.isActive) {
+            $isActive = $mplayerItem;
+          }
+          domutils.on($mplayerItem, "click", async (__event__) => {
+            utils.preventEvent(__event__);
+            qualityItemClickEvent(item, $mplayerItem);
+          });
+          this.$el.$mplayerRight.appendChild($mplayerItem);
+        });
+        if ($isActive) {
+          this.$mPlayerRight.switchActive($isActive);
+          $isActive.scrollIntoView({
+            block: "center"
+          });
+        }
+        this.$mPlayerRight.showMPlayerRight();
+      };
+      if (initChooseQuality) {
+        let userChooseVideoQuality = _GM_getValue(
+          userChooseVideoQuality_KEY
+        );
+        if (userChooseVideoQuality) {
+          let findIndex = BilibiliPlayer.$data.videoQuality.findIndex(
+            (item) => item.quality == userChooseVideoQuality && !item.isActive
+          );
+          if (findIndex != -1) {
+            qualityItemClickEvent({
+              text: BilibiliVideoPlayUrlQN_Value[userChooseVideoQuality],
+              quality: userChooseVideoQuality,
+              isActive: true
+            });
+          }
+        }
+      } else {
+        domutils.on(
+          document,
+          "click",
+          ".mplayer-control-btn-quality",
+          async (event) => {
+            utils.preventEvent(event);
+            qualityBtnEvent();
+          },
+          {
+            capture: true
+          }
+        );
+      }
     },
     /**
      * 修复toast的关闭按钮点击无效的问题
@@ -1274,21 +1401,49 @@
      */
     async setVideoUrl(url) {
       try {
+        let getResp = await httpx.head(url, {
+          fetch: true,
+          fetchInit: {
+            credentials: "same-origin"
+          },
+          allowInterceptConfig: false
+        });
+        if (!getResp.status) {
+          return {
+            success: false,
+            msg: "测试视频地址连接失败，状态码：" + getResp.data.status
+          };
+        }
         let playerPromise = await BilibiliPlayer.$player.playerPromise();
         if (playerPromise.video && playerPromise.video instanceof HTMLVideoElement) {
+          let originVideoTime = playerPromise.video.currentTime;
           playerPromise.video.src = url;
-          await utils.sleep(1e3);
-          playerPromise.video.play();
-          if (playerPromise.video.paused) {
+          playerPromise.video.currentTime = originVideoTime;
+          await utils.sleep(500);
+          try {
             playerPromise.video.play();
+            if (playerPromise.video.paused) {
+              playerPromise.video.play();
+            }
+          } catch (error) {
+            log.error(error);
           }
-          return true;
+          return {
+            success: true,
+            msg: "设置成功"
+          };
         } else {
-          return false;
+          return {
+            success: false,
+            msg: "不存在video元素"
+          };
         }
       } catch (error) {
         log.error(error);
-        return false;
+        return {
+          success: false,
+          msg: error.toString()
+        };
       }
     }
   };
@@ -1773,6 +1928,13 @@
                     true,
                     void 0,
                     "可查看当前视频的清晰度"
+                  ),
+                  UISwitch(
+                    "记住选择的清晰度",
+                    "bili-rememberUserChooseQuality",
+                    true,
+                    void 0,
+                    "需开启 - 修复【清晰度】按钮"
                   )
                 ]
               }
@@ -3731,16 +3893,26 @@
      * @param callback 回调
      */
     execMenu(key, callback) {
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
+      if (!(typeof key === "string" || typeof key === "object" && Array.isArray(key))) {
+        throw new TypeError("key 必须是字符串或者字符串数组");
       }
-      if (!this.$data.data.has(key)) {
-        log.warn(`${key} 键不存在`);
-        return;
+      let runKeyList = [];
+      if (typeof key === "object" && Array.isArray(key)) {
+        runKeyList = [...key];
+      } else {
+        runKeyList.push(key);
       }
-      let value = PopsPanel.getValue(key);
-      if (value) {
-        callback(value);
+      let runValue = void 0;
+      for (let index = 0; index < runKeyList.length; index++) {
+        const runKey = runKeyList[index];
+        if (!this.$data.data.has(runKey)) {
+          log.warn(`${key} 键不存在`);
+          return;
+        }
+        runValue = PopsPanel.getValue(runKey);
+      }
+      if (runValue) {
+        callback(runValue);
       }
     },
     /**
@@ -4163,7 +4335,7 @@
       }
     }
   };
-  const BilibiliVideoBeautifyCSS = '@charset "UTF-8";\r\n#app .video {\r\n	/* 下面的推荐视频卡片 */\r\n}\r\n#app .video .video-list .card-box {\r\n	--left-card-width: 33%;\r\n	--right-child-padding: 1.333vmin;\r\n	/* 开启了bili-video-beautify */\r\n}\r\n#app .video .video-list .card-box .v-card-toapp {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a {\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n	gap: var(--right-child-padding);\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card {\r\n	width: var(--left-card-width);\r\n	height: 80px;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .left {\r\n	display: list-item;\r\n}\r\n#app\r\n	.video\r\n	.video-list\r\n	.card-box\r\n	.v-card-toapp\r\n	> a\r\n	.card\r\n	.count\r\n	.left\r\n	span.item {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .duration {\r\n	background: rgba(0, 0, 0, 0.4);\r\n	border-radius: 0.6vmin;\r\n	padding: 0px 0.5vmin;\r\n	right: 1vmin;\r\n	bottom: 1vmin;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .title {\r\n	flex: 1;\r\n	/*padding: var(--right-child-padding);*/\r\n	padding-top: 0;\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n#app .video .video-list .card-box .gm-right-container {\r\n	display: flex;\r\n	flex-direction: column;\r\n	width: calc(100% - var(--left-card-width));\r\n}\r\n#app .video .video-list .card-box .gm-right-container > * {\r\n	padding: var(--right-child-padding);\r\n	padding-bottom: 0;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	gap: 1rem;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .left span {\r\n	display: flex;\r\n	align-items: safe center;\r\n	gap: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name,\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	color: #999;\r\n	font-size: 3vmin;\r\n	transform-origin: left;\r\n	display: flex;\r\n	/*align-items: safe center;*/\r\n	align-items: safe flex-end;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name-text {\r\n	margin-left: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .num {\r\n	margin-right: 4vmin;\r\n}\r\n#app .video .video-list .card-box > a.v-card {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card {\r\n	width: var(--left-card-width);\r\n	height: 100%;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count span {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count .duration {\r\n	background-color: rgba(0, 0, 0, 0.3);\r\n	border-radius: 4px;\r\n	color: #fff;\r\n	font-size: 12px;\r\n	height: 16px;\r\n	line-height: 16px;\r\n	margin-left: auto;\r\n	padding-left: 4px;\r\n	padding-right: 4px;\r\n}\r\n#app .video .video-list .card-box > a.v-card .title {\r\n	flex: 1;\r\n	/*padding: var(--right-child-padding);*/\r\n	padding-top: 0;\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n';
+  const BilibiliVideoBeautifyCSS = '@charset "UTF-8";\r\n#app .video {\r\n	/* 下面的推荐视频卡片 */\r\n}\r\n#app .video .video-list .card-box {\r\n	--left-card-width: 33%;\r\n	--right-child-padding: 1.333vmin;\r\n	/* 开启了bili-video-beautify */\r\n}\r\n#app .video .video-list .card-box .v-card-toapp {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a {\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n	gap: var(--right-child-padding);\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card {\r\n	width: var(--left-card-width);\r\n	height: 80px;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .left {\r\n	display: list-item;\r\n}\r\n#app\r\n	.video\r\n	.video-list\r\n	.card-box\r\n	.v-card-toapp\r\n	> a\r\n	.card\r\n	.count\r\n	.left\r\n	span.item {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .duration {\r\n	background: rgba(0, 0, 0, 0.4);\r\n	border-radius: 0.6vmin;\r\n	padding: 0px 0.5vmin;\r\n	right: 1vmin;\r\n	bottom: 1vmin;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .title {\r\n	flex: 1;\r\n	/*padding: var(--right-child-padding);*/\r\n	padding-top: 0;\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n#app .video .video-list .card-box .gm-right-container {\r\n	display: flex;\r\n	flex-direction: column;\r\n	width: calc(100% - var(--left-card-width));\r\n}\r\n#app .video .video-list .card-box .gm-right-container > * {\r\n	padding: var(--right-child-padding);\r\n	padding-bottom: 0;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	gap: 1rem;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .left span {\r\n	display: flex;\r\n	align-items: safe center;\r\n	gap: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name,\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	color: #999;\r\n	font-size: 3vmin;\r\n	transform-origin: left;\r\n	display: flex;\r\n	/*align-items: safe center;*/\r\n	align-items: safe flex-end;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name svg{\r\n	width: 3vmin;\r\n	height: 3vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name-text {\r\n	margin-left: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .num {\r\n	margin-right: 4vmin;\r\n}\r\n#app .video .video-list .card-box > a.v-card {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card {\r\n	width: var(--left-card-width);\r\n	height: 100%;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count span {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count .duration {\r\n	background-color: rgba(0, 0, 0, 0.3);\r\n	border-radius: 4px;\r\n	color: #fff;\r\n	font-size: 12px;\r\n	height: 16px;\r\n	line-height: 16px;\r\n	margin-left: auto;\r\n	padding-left: 4px;\r\n	padding-right: 4px;\r\n}\r\n#app .video .video-list .card-box > a.v-card .title {\r\n	flex: 1;\r\n	/*padding: var(--right-child-padding);*/\r\n	padding-top: 0;\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n';
   const BilibiliVideoVueProp = {
     $data: {
       isInitPlayer: false,
@@ -4195,7 +4367,8 @@
           return;
         }
         await utils.sleep(300);
-        BilibiliUtils.waitVuePropToSet(".m-video-player", [
+        let playerClassName = "m-video-player";
+        BilibiliUtils.waitVuePropToSet("." + playerClassName, [
           {
             msg: "等待设置参数 fullScreenCallApp",
             check(vueObj) {
@@ -4242,6 +4415,12 @@
                     (_b = BilibiliPlayer.player) == null ? void 0 : _b.off("force_call_app_show");
                     log.success("<video>标签和视频封面图已成功初始化");
                     await utils.sleep(1e3);
+                    PopsPanel.execMenu(
+                      ["bili-coverQuality", "bili-rememberUserChooseQuality"],
+                      () => {
+                        BilibiliPlayerUI.coverQuality(true);
+                      }
+                    );
                     BilibiliDanmaku.init();
                     return;
                   }
@@ -4250,8 +4429,19 @@
                     await BilibiliUtils.loadScript(
                       "https://s1.hdslb.com/bfs/static/player/main/html5/mplayer.js?v=2862592"
                     );
+                    await utils.sleep(300);
                   }
-                  vueObj.initPlayer(true);
+                  try {
+                    vueObj.initPlayer(true);
+                  } catch (error) {
+                    log.error(error);
+                    try {
+                      log.info(`强制重载player播放器失败，使用普通调用`);
+                      vueObj.initPlayer();
+                    } catch (error2) {
+                      log.error(error2);
+                    }
+                  }
                   log.success(
                     "第 " + checkCount + " 次未检测到视频，调用初始化视频函数 initPlayer()"
                   );
@@ -4268,9 +4458,9 @@
                   }
                 }, 600);
                 timeoutId = setTimeout(() => {
-                  log.warn("检测视频超时3s，取消检测");
+                  log.warn("检测视频超时5s，取消检测");
                   clearInterval(intervalId);
-                }, 3e3);
+                }, 5e3);
               }
               intervalCheck();
             }
@@ -4315,6 +4505,7 @@
           },
           set(vueObj) {
             vueObj.info.is_upower_preview = false;
+            BilibiliVideoVueProp.initPlayer();
             log.success("成功设置属性  __vue__.info.is_upower_preview=false");
           }
         }
@@ -4484,7 +4675,7 @@
             $upInfo.className = "gm-up-name";
             $upInfo.innerHTML = /*html*/
             `
-						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
 							<path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
 							</path>
 						</svg>
@@ -5683,7 +5874,7 @@
                 <p class="title">${title}</p>
                 <div class="gm-up-info">
                     <div class="gm-up-name">
-                        <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+                        <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
                             <path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
                             </path>
                         </svg>
@@ -5737,11 +5928,13 @@
 		${BilibiliData.className.head} .video-list .card-box .gm-up-info .gm-up-name {
 			display: flex;
 			align-items: center;
-			font-size: 2.4vmin;
+			font-size: 3vmin;
 			color: #999A9E;
 		}
 		${BilibiliData.className.head} .video-list .card-box .gm-up-info .gm-up-name svg {
 			margin-right: calc(var(--pd-width) / 2);
+			width: 3vmin;
+			height: 3vmin;
 		}
 		${BilibiliData.className.head} .gm-video-duration{
 			margin: 0 auto;

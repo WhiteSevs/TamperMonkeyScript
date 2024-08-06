@@ -1,8 +1,11 @@
 import { addStyle, DOMUtils, httpx, log, utils } from "@/env";
-import { unsafeWindow } from "ViteGM";
+import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
 import { BilibiliDanmaku } from "./BilibiliDanmaku";
 import { PopsPanel } from "@/setting/setting";
-import { BilibiliVideoPlayUrlQN } from "@/hook/BilibiliNetworkHook";
+import {
+	BilibiliVideoPlayUrlQN,
+	BilibiliVideoPlayUrlQN_Value,
+} from "@/hook/BilibiliNetworkHook";
 import { BilibiliApi_Video } from "@/api/BilibiliApi_Video";
 import { BilibiliPlayerToast } from "./BilibiliPlayerToast";
 
@@ -21,14 +24,29 @@ export const BilibiliPlayerUI = {
 	},
 	/** 右侧面板菜单 */
 	$mPlayerRight: {
+		/** 被访问状态的className */
+		__activeClassName: "gf-mplayer-right-item-active",
+		/** 每一个项的className */
+		__itemClassName: "gf-mplayer-right-item",
+		/** 显示右侧菜单的className */
+		__showMPlayerRightClassName: "gf-mplayer-right-show",
 		/** 显示右侧菜单 */
-		showMPlayerRight() {
-			BilibiliPlayerUI.$el.$mplayerRight.style.cssText =
-				"--mplayer-right-transform: -var(--mplayer-right-w);";
+		showMPlayerRight(delayTime = 50) {
+			if (delayTime > 0) {
+				setTimeout(() => {
+					this.showMPlayerRight(0);
+				}, 50);
+				return;
+			}
+			BilibiliPlayerUI.$el.$mplayerRight.classList.add(
+				this.__showMPlayerRightClassName
+			);
 		},
 		/** 隐藏右侧菜单 */
 		hideMPlayerRight() {
-			BilibiliPlayerUI.$el.$mplayerRight.style.cssText = "";
+			BilibiliPlayerUI.$el.$mplayerRight.classList.remove(
+				this.__showMPlayerRightClassName
+			);
 		},
 		/** 清空右侧菜单 */
 		clearMPlayerRight() {
@@ -36,29 +54,31 @@ export const BilibiliPlayerUI = {
 		},
 		/** 设置某个项访问状态 */
 		setActive($el: HTMLElement) {
-			$el.classList.add("gf-mplayer-right-item-active");
+			$el.classList.add(this.__activeClassName);
 		},
 		/** 切换某个项访问状态，并清空其它的访问状态 */
 		switchActive($el: HTMLElement) {
 			this.clearAllActive();
 			this.setActive($el);
 		},
+		/** 判断该项是否是访问状态 */
+		isActive($el: HTMLElement) {
+			return $el.classList.contains(this.__activeClassName);
+		},
 		/** 清空某个项访问状态 */
 		clearActive($el: HTMLElement) {
-			$el.classList.remove("gf-mplayer-right-item-active");
+			$el.classList.remove(this.__activeClassName);
 		},
 		/** 清空所有项的访问状态 */
 		clearAllActive() {
 			BilibiliPlayerUI.$el.$mplayerRight
-				.querySelectorAll(".gf-mplayer-right-item-active")
-				.forEach((item) =>
-					item.classList.remove("gf-mplayer-right-item-active")
-				);
+				.querySelectorAll("." + this.__activeClassName)
+				.forEach((item) => item.classList.remove(this.__activeClassName));
 		},
 		/** 创建一个项 */
 		createMPlayerItem(text?: string) {
 			return DOMUtils.createElement("div", {
-				className: "gf-mplayer-right-item",
+				className: this.__itemClassName,
 				innerHTML: text ?? "",
 			});
 		},
@@ -69,18 +89,27 @@ export const BilibiliPlayerUI = {
 			addStyle(/*css*/ `
 			.mplayer-right {
 				--mplayer-right-w: 8em;
-				--mplayer-right-transform: var(--mplayer-right-w);
+				--mplayer-right-deviation: var(--mplayer-right-w);
 				background: #181212;
 				width: var(--mplayer-right-w) !important;
 				opacity: 0.9 !important;
 				visibility: visible !important;
 				color: #ffffff;
-				-webkit-transform: translateX(var(--mplayer-right-transform)) !important;
-				transform: translateX(var(--mplayer-right-transform)) !important;
+				-webkit-transform: translateX(8em) !important;
+				transform: translateX(8em) !important;
 				z-index: 1000;
 				overflow-y: auto;
 				display: block;
 				align-content: center;
+				position: absolute;
+				transition: transform .4s;
+				top: 0;
+				bottom: 0;
+				right: 0;
+			}
+			.gf-mplayer-right-show{
+				-webkit-transform: translateX(0) !important;
+				transform: translateX(0) !important;
 			}
 			.gf-mplayer-right-item{
 				width: 100%;
@@ -218,148 +247,205 @@ export const BilibiliPlayerUI = {
 	},
 	/**
 	 * 覆盖【清晰度】按钮
+	 * @param initChooseQuality 是否初始化选择清晰度
 	 */
-	coverQuality() {
-		DOMUtils.on(
-			document,
-			"click",
-			".mplayer-control-btn-quality",
-			async (event) => {
-				utils.preventEvent(event);
-				log.info("点击【清晰度】");
-				// 隐藏右侧面板
-				this.$mPlayerRight.hideMPlayerRight();
-				// 清空内容
-				this.$mPlayerRight.clearMPlayerRight();
+	coverQuality(initChooseQuality?: boolean) {
+		const userChooseVideoQuality_KEY = "userChooseVideoQuality";
 
-				// 清晰度
-				let qualityInfoList = [] as {
-					text: string;
-					quality: number;
-					isActive: boolean;
-				}[];
-				if (!BilibiliPlayer.$data.videoQuality.length) {
-					// 未请求到清晰度信息
-					let playerPromise = await BilibiliPlayer.$player.playerPromise();
-					// 获取当前视频的清晰度
-					let playerQuality = playerPromise.videoQuality;
-					Object.keys(BilibiliVideoPlayUrlQN).forEach((qualityName) => {
-						// @ts-ignore
-						let qualityValue = BilibiliVideoPlayUrlQN[qualityName];
-						qualityInfoList.push({
-							text: qualityName,
-							quality: qualityValue,
-							isActive: playerQuality == qualityValue,
-						});
-					});
-				} else {
-					qualityInfoList = [...BilibiliPlayer.$data.videoQuality];
-				}
-				// 排序 画质高的为第一个，降序
-				utils.sortListByProperty(qualityInfoList, (value) => {
-					return value.quality;
-				});
-				// 循环添加到页面中
-				let $isActive: undefined | HTMLDivElement = void 0;
-				qualityInfoList.forEach((item) => {
-					let $mplayerItem = this.$mPlayerRight.createMPlayerItem(item.text);
-					if (item.isActive) {
-						// 设置选中
-						$isActive = $mplayerItem;
-					}
-					DOMUtils.on($mplayerItem, "click", async (__event__) => {
-						utils.preventEvent(__event__);
-
-						BilibiliPlayerToast.toast("切换中，请稍后");
-						let playerPromise = await BilibiliPlayer.$player.playerPromise();
-						let bvid = playerPromise.config.bvid;
-						let cid = playerPromise.config.cid;
-						if (!bvid) {
-							BilibiliPlayerToast.toast("获取bvid失败");
-							return;
-						}
-						let videoInfo = await BilibiliApi_Video.playUrl({
-							bvid: bvid,
-							cid: cid,
-							qn: item.quality,
-						});
-						if (!videoInfo) {
-							BilibiliPlayerToast.toast("获取视频信息失败");
-							log.error("获取视频信息失败");
-							return;
-						}
-						log.success(["切换清晰度-成功获取当前视频的具体信息", videoInfo]);
-						// 当前请求获取到的画质
-						// 那么durl列表中（一般只有一个）的链接就是当前画质的链接
-						let quality = videoInfo.quality;
-						if (
-							!(
-								videoInfo.durl &&
-								Array.isArray(videoInfo.durl) &&
-								videoInfo.durl.length > 0
-							)
-						) {
-							log.error("请求的视频信息内没有视频地址url");
-							BilibiliPlayerToast.toast("请求的视频信息内没有视频地址url");
-							return;
-						}
-						if (quality != item.quality) {
-							log.error(
-								`切换画质失败，请求到的画质和切换的画质不同，切换的: ${item.quality}，请求到的: ${quality}`
-							);
-							BilibiliPlayerToast.toast("切换画质失败，画质不同");
-							return;
-						}
-						let url = videoInfo.durl[0].url;
-						// 请求到的和切换的画质相同，判定为请求成功
-						if (
-							playerPromise.video &&
-							playerPromise.video instanceof HTMLVideoElement
-						) {
-							// 设置视频地址
-							let setVideoUrlStatus = await BilibiliPlayer.setVideoUrl(url);
-							if (setVideoUrlStatus) {
-								log.success(`已成功切换至${item.text}`);
-								BilibiliPlayer.$data.videoQuality.forEach(
-									(globalQualityItem) => {
-										if (globalQualityItem.quality == item.quality) {
-											globalQualityItem.isActive = true;
-										} else {
-											globalQualityItem.isActive = false;
-										}
-									}
-								);
-								this.$mPlayerRight.switchActive($mplayerItem);
-								BilibiliPlayerToast.toast(`已成功切换至${item.text}`);
-							} else {
-								log.error("切换画质失败，未成功设置video的src");
-								BilibiliPlayerToast.toast("切换画质失败，未成功设置video的src");
-							}
-						} else {
-							log.error("切换画质失败，未获取到video");
-							BilibiliPlayerToast.toast("切换画质失败，未获取到video");
-						}
-
-						// 已成功切换至${item.text}
-						this.$mPlayerRight.hideMPlayerRight();
-					});
-					this.$el.$mplayerRight.appendChild($mplayerItem);
-				});
-
-				if ($isActive) {
-					// 选中
-					this.$mPlayerRight.switchActive($isActive);
-					// 居中
-					($isActive as HTMLDivElement).scrollIntoView({
-						block: "center",
-					});
-				}
-				this.$mPlayerRight.showMPlayerRight();
+		/**
+		 * 选择某个清晰度的点击事件
+		 * @param event
+		 */
+		let qualityItemClickEvent = async (
+			itemData: {
+				text: string;
+				quality: number;
+				isActive: boolean;
 			},
-			{
-				capture: true,
+			$mplayerItem?: HTMLDivElement
+		) => {
+			if ($mplayerItem && this.$mPlayerRight.isActive($mplayerItem)) {
+				log.info(`该项已选中，无需重复点击`);
+				return;
 			}
-		);
+			BilibiliPlayerToast.toast("切换中，请稍后");
+			let playerPromise = await BilibiliPlayer.$player.playerPromise();
+			let bvid = playerPromise.config.bvid;
+			let cid = playerPromise.config.cid;
+			if (!bvid) {
+				BilibiliPlayerToast.toast("获取bvid失败");
+				return;
+			}
+			let videoInfo = await BilibiliApi_Video.playUrl(
+				{
+					bvid: bvid,
+					cid: cid,
+					qn: itemData.quality,
+					setPlatformHTML5: true,
+				},
+				{
+					__t: Date.now(),
+				}
+			);
+			if (!videoInfo) {
+				BilibiliPlayerToast.toast("获取视频信息失败");
+				log.error("获取视频信息失败");
+				return;
+			}
+			log.success(["切换清晰度-成功获取当前视频的具体信息", videoInfo]);
+			// 当前请求获取到的画质
+			// 那么durl列表中（一般只有一个）的链接就是当前画质的链接
+			let quality = videoInfo.quality;
+			if (
+				!(
+					videoInfo.durl &&
+					Array.isArray(videoInfo.durl) &&
+					videoInfo.durl.length > 0
+				)
+			) {
+				log.error("请求的视频信息内没有视频地址url");
+				BilibiliPlayerToast.toast("请求的视频信息内没有视频地址url");
+				return;
+			}
+			if (quality != itemData.quality) {
+				log.error(
+					`切换画质失败，请求到的画质和切换的画质不同，切换的: ${itemData.quality}，请求到的: ${quality}`
+				);
+				BilibiliPlayerToast.toast("切换画质失败，画质不同");
+				return;
+			}
+			let url = videoInfo.durl[0].url;
+			// 请求到的和切换的画质相同，判定为请求成功
+			if (
+				playerPromise.video &&
+				playerPromise.video instanceof HTMLVideoElement
+			) {
+				// 设置视频地址
+				let setVideoUrlStatus = await BilibiliPlayer.setVideoUrl(url);
+				if (setVideoUrlStatus.success) {
+					log.success(`已成功切换至 ${itemData.text}`);
+					BilibiliPlayer.$data.videoQuality.forEach((globalQualityItem) => {
+						if (globalQualityItem.quality == itemData.quality) {
+							globalQualityItem.isActive = true;
+						} else {
+							globalQualityItem.isActive = false;
+						}
+					});
+					if ($mplayerItem) {
+						this.$mPlayerRight.switchActive($mplayerItem);
+					}
+					BilibiliPlayerToast.toast(`已成功切换至 ${itemData.text}`);
+					GM_setValue(userChooseVideoQuality_KEY, quality);
+					// 设置一下弹幕参数
+					BilibiliDanmaku.init();
+				} else {
+					log.error("切换画质失败，未成功设置video的src");
+					BilibiliPlayerToast.toast("切换画质失败，" + setVideoUrlStatus.msg);
+				}
+			} else {
+				log.error("切换画质失败，未获取到video");
+				BilibiliPlayerToast.toast("切换画质失败，未获取到video");
+			}
+
+			// 已成功切换至${item.text}
+			this.$mPlayerRight.hideMPlayerRight();
+		};
+		/**
+		 * 清晰度按钮的点击事件
+		 * @param event
+		 */
+		let qualityBtnEvent = async (event: MouseEvent | PointerEvent) => {
+			log.info("点击【清晰度】");
+			// 隐藏右侧面板
+			this.$mPlayerRight.hideMPlayerRight();
+			// 清空内容
+			this.$mPlayerRight.clearMPlayerRight();
+
+			// 清晰度
+			let qualityInfoList = [] as {
+				text: string;
+				quality: number;
+				isActive: boolean;
+			}[];
+			if (!BilibiliPlayer.$data.videoQuality.length) {
+				// 未请求到清晰度信息
+				let playerPromise = await BilibiliPlayer.$player.playerPromise();
+				// 获取当前视频的清晰度
+				let playerQuality = playerPromise.videoQuality;
+				Object.keys(BilibiliVideoPlayUrlQN).forEach((qualityName) => {
+					// @ts-ignore
+					let qualityValue = BilibiliVideoPlayUrlQN[qualityName];
+					qualityInfoList.push({
+						text: qualityName,
+						quality: qualityValue,
+						isActive: playerQuality == qualityValue,
+					});
+				});
+			} else {
+				qualityInfoList = [...BilibiliPlayer.$data.videoQuality];
+			}
+			// 排序 画质高的为第一个，降序
+			utils.sortListByProperty(qualityInfoList, (value) => {
+				return value.quality;
+			});
+			// 循环添加到页面中
+			let $isActive: undefined | HTMLDivElement = void 0;
+			qualityInfoList.forEach((item) => {
+				let $mplayerItem = this.$mPlayerRight.createMPlayerItem(item.text);
+				if (item.isActive) {
+					// 设置选中
+					$isActive = $mplayerItem;
+				}
+				DOMUtils.on($mplayerItem, "click", async (__event__) => {
+					utils.preventEvent(__event__);
+					qualityItemClickEvent(item, $mplayerItem);
+				});
+				this.$el.$mplayerRight.appendChild($mplayerItem);
+			});
+
+			if ($isActive) {
+				// 选中
+				this.$mPlayerRight.switchActive($isActive);
+				// 居中
+				($isActive as HTMLDivElement).scrollIntoView({
+					block: "center",
+				});
+			}
+			this.$mPlayerRight.showMPlayerRight();
+		};
+
+		if (initChooseQuality) {
+			/** 用户选择的清晰度 */
+			let userChooseVideoQuality = GM_getValue<number>(
+				userChooseVideoQuality_KEY
+			);
+			if (userChooseVideoQuality) {
+				// 主动切换
+				let findIndex = BilibiliPlayer.$data.videoQuality.findIndex(
+					(item) => item.quality == userChooseVideoQuality && !item.isActive
+				);
+				if (findIndex != -1) {
+					qualityItemClickEvent({
+						text: BilibiliVideoPlayUrlQN_Value[userChooseVideoQuality],
+						quality: userChooseVideoQuality,
+						isActive: true,
+					});
+				}
+			}
+		} else {
+			DOMUtils.on(
+				document,
+				"click",
+				".mplayer-control-btn-quality",
+				async (event) => {
+					utils.preventEvent(event);
+					qualityBtnEvent(event);
+				},
+				{
+					capture: true,
+				}
+			);
+		}
 	},
 	/**
 	 * 修复toast的关闭按钮点击无效的问题
@@ -566,28 +652,62 @@ export const BilibiliPlayer = {
 	 * + true 设置成功
 	 * + false 设置失败
 	 */
-	async setVideoUrl(url: string): Promise<boolean> {
+	async setVideoUrl(url: string): Promise<{
+		success: boolean;
+		msg: string;
+	}> {
 		try {
+			let getResp = await httpx.head(url, {
+				fetch: true,
+				fetchInit: {
+					credentials: "same-origin",
+				},
+				allowInterceptConfig: false,
+			});
+			if (!getResp.status) {
+				return {
+					success: false,
+					msg: "测试视频地址连接失败，状态码：" + getResp.data.status,
+				};
+			}
 			let playerPromise = await BilibiliPlayer.$player.playerPromise();
 			if (
 				playerPromise.video &&
 				playerPromise.video instanceof HTMLVideoElement
 			) {
+				// 同步进度
+				let originVideoTime = playerPromise.video.currentTime;
 				playerPromise.video.src = url;
-				await utils.sleep(1000);
+				playerPromise.video.currentTime = originVideoTime;
+				await utils.sleep(500);
 				// 执行播放，不然页面会处于缓冲中...
-				playerPromise.video.play();
-				if (playerPromise.video.paused) {
-					// 意外暂停？play again
+				try {
 					playerPromise.video.play();
+					if (playerPromise.video.paused) {
+						// 意外暂停？play again
+						playerPromise.video.play();
+					}
+				} catch (error) {
+					// 非用户点击播放的情况下调用播放会报错
+					// DOMException: play() can only be initiated by a user gesture.
+					log.error(error);
 				}
-				return true;
+				return {
+					success: true,
+					msg: "设置成功",
+				};
 			} else {
-				return false;
+				return {
+					success: false,
+					msg: "不存在video元素",
+				};
 			}
-		} catch (error) {
+		} catch (error: any) {
 			log.error(error);
-			return false;
+			return {
+				success: false,
+				msg: error.toString(),
+			};
 		}
 	},
 };

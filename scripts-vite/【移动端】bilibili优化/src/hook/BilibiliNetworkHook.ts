@@ -98,6 +98,18 @@ export const BilibiliVideoPlayUrlQN = {
 	"8K 超高清": 127,
 };
 
+const BilibiliVideoPlayUrlQN_Value = {} as {
+	[key: number]: string;
+};
+Object.keys(BilibiliVideoPlayUrlQN).forEach((text) => {
+	Reflect.set(
+		BilibiliVideoPlayUrlQN_Value,
+		(BilibiliVideoPlayUrlQN as any)[text],
+		text
+	);
+});
+export { BilibiliVideoPlayUrlQN_Value };
+
 // https://socialsisteryi.github.io/bilibili-API-collect/
 export const BilibiliNetworkHook = {
 	$flag: {
@@ -149,6 +161,11 @@ export const BilibiliNetworkHook = {
 				playUrl.searchParams.set("fnver", "0");
 				// 是否允许 4K 视频
 				playUrl.searchParams.set("fourk", "1");
+				if (playUrl.searchParams.has("__t")) {
+					// 自己的主动请求，不做修改
+					playUrl.searchParams.delete("__t");
+					return;
+				}
 				request.url = playUrl.toString();
 				request.response = (res) => {
 					let data = utils.toJSON(res.responseText);

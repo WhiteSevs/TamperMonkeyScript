@@ -3,7 +3,7 @@ import { log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { unsafeWindow } from "ViteGM";
-import { BilibiliPlayer } from "../BilibiliPlayer";
+import { BilibiliPlayer, BilibiliPlayerUI } from "../BilibiliPlayer";
 import { BilibiliDanmaku } from "../BilibiliDanmaku";
 
 export const BilibiliVideoVueProp = {
@@ -40,8 +40,8 @@ export const BilibiliVideoVueProp = {
 					return;
 				}
 				await utils.sleep(300);
-
-				BilibiliUtils.waitVuePropToSet(".m-video-player", [
+				let playerClassName = "m-video-player";
+				BilibiliUtils.waitVuePropToSet("." + playerClassName, [
 					{
 						msg: "等待设置参数 fullScreenCallApp",
 						check(vueObj) {
@@ -87,6 +87,12 @@ export const BilibiliVideoVueProp = {
 										BilibiliPlayer!.player?.off("force_call_app_show");
 										log.success("<video>标签和视频封面图已成功初始化");
 										await utils.sleep(1000);
+										PopsPanel.execMenu(
+											["bili-coverQuality", "bili-rememberUserChooseQuality"],
+											() => {
+												BilibiliPlayerUI.coverQuality(true);
+											}
+										);
 										BilibiliDanmaku.init();
 										return;
 									}
@@ -96,8 +102,19 @@ export const BilibiliVideoVueProp = {
 										await BilibiliUtils.loadScript(
 											"https://s1.hdslb.com/bfs/static/player/main/html5/mplayer.js?v=2862592"
 										);
+										await utils.sleep(300);
 									}
-									vueObj.initPlayer(true);
+									try {
+										vueObj.initPlayer(true);
+									} catch (error) {
+										log.error(error);
+										try {
+											log.info(`强制重载player播放器失败，使用普通调用`);
+											vueObj.initPlayer();
+										} catch (error) {
+											log.error(error);
+										}
+									}
 									log.success(
 										"第 " +
 											checkCount +
@@ -116,9 +133,9 @@ export const BilibiliVideoVueProp = {
 									}
 								}, 600);
 								timeoutId = setTimeout(() => {
-									log.warn("检测视频超时3s，取消检测");
+									log.warn("检测视频超时5s，取消检测");
 									clearInterval(intervalId);
-								}, 3000);
+								}, 5000);
 							}
 							intervalCheck();
 						},
@@ -161,6 +178,7 @@ export const BilibiliVideoVueProp = {
 				},
 				set(vueObj) {
 					vueObj.info.is_upower_preview = false;
+					BilibiliVideoVueProp.initPlayer();
 					log.success("成功设置属性  __vue__.info.is_upower_preview=false");
 				},
 			},

@@ -31,11 +31,13 @@ export const BilibiliHead = {
 		${BilibiliData.className.head} .video-list .card-box .gm-up-info .gm-up-name {
 			display: flex;
 			align-items: center;
-			font-size: 2.4vmin;
+			font-size: 3vmin;
 			color: #999A9E;
 		}
 		${BilibiliData.className.head} .video-list .card-box .gm-up-info .gm-up-name svg {
 			margin-right: calc(var(--pd-width) / 2);
+			width: 3vmin;
+			height: 3vmin;
 		}
 		${BilibiliData.className.head} .gm-video-duration{
 			margin: 0 auto;

@@ -66,6 +66,13 @@ const SettingUICommon: PopsPanelContentConfig = {
 									void 0,
 									"可查看当前视频的清晰度"
 								),
+								UISwitch(
+									"记住选择的清晰度",
+									"bili-rememberUserChooseQuality",
+									true,
+									void 0,
+									"需开启 - 修复【清晰度】按钮"
+								),
 							],
 						},
 					],
