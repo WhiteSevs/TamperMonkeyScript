@@ -1,7 +1,10 @@
 declare interface UtilsIDBOpenErrorResult {
 	code: number;
 	msg: string;
-	event: Event;
+	event: {
+		srcElement: IDBRequest;
+		target: IDBRequest;
+	} & Event;
 }
 class indexedDB {
 	#dbName: string;
@@ -22,22 +25,22 @@ class indexedDB {
 	} = {};
 	// @ts-ignore
 	#store: IDBObjectStore = null as any;
-	#errorCode = {
-		/* 错误码 */
-		success: {
+	/** 状态码 */
+	#statusCode = {
+		operationSuccess: {
 			code: 200,
 			msg: "操作成功",
 		},
-		error: {
+		operationFailed: {
 			code: 401,
 			msg: "操作失败",
 		},
-		open: { code: 91001, msg: "打开数据库失败" },
-		save: { code: 91002, msg: "保存数据失败" },
-		get: { code: 91003, msg: "获取数据失败" },
-		delete: { code: 91004, msg: "删除数据失败" },
-		deleteAll: { code: 91005, msg: "清空数据库失败" },
-		regexpGet: { code: 91006, msg: "正则获取数据失败" },
+		openFailed: { code: 91001, msg: "打开数据库失败" },
+		saveFailed: { code: 91002, msg: "保存数据失败" },
+		getFailed: { code: 91003, msg: "获取数据失败" },
+		deleteFailed: { code: 91004, msg: "删除数据失败" },
+		deleteAllFailed: { code: 91005, msg: "清空数据库失败" },
+		regexpGetFailed: { code: 91006, msg: "正则获取数据失败" },
 	};
 	/**
 	 * @param dbName 数据存储名，默认为：default_db
@@ -55,7 +58,6 @@ class indexedDB {
 		if (!this.#indexedDB) {
 			alert("很抱歉，您的浏览器不支持indexedDB");
 			throw new TypeError("很抱歉，您的浏览器不支持indexedDB");
-			return;
 		}
 	}
 	/**
@@ -80,8 +82,9 @@ class indexedDB {
 	 */
 	private open(
 		callback: (
-			idbStore: IDBObjectStore | UtilsIDBOpenErrorResult,
-			success: boolean
+			/** 数据库实例 */
+			idbStore: IDBObjectStore | null,
+			error?: UtilsIDBOpenErrorResult
 		) => void,
 		dbName: string
 	) {
@@ -91,15 +94,12 @@ class indexedDB {
 		if (!that.#db[dbName]) {
 			/* 如果缓存中没有，则进行数据库的创建或打开，提高效率 */
 			let request = that.#indexedDB.open(dbName, that.#dbVersion);
-			request.onerror = function (event: Event) {
-				callback(
-					{
-						code: that.#errorCode.open.code,
-						msg: that.#errorCode.open.msg,
-						event: event,
-					},
-					false
-				);
+			request.onerror = function (event: any) {
+				callback(null, {
+					code: that.#statusCode.openFailed.code,
+					msg: that.#statusCode.openFailed.msg,
+					event: event,
+				});
 			};
 			request.onsuccess = function (event: Event) {
 				if (!that.#db[dbName]) {
@@ -107,7 +107,7 @@ class indexedDB {
 					that.#db[dbName] = target.result;
 				}
 				let store = that.createStore(dbName);
-				callback(store, true);
+				callback(store);
 			};
 			request.onupgradeneeded = function (event: Event) {
 				let target = event.target as IDBRequest;
@@ -116,13 +116,13 @@ class indexedDB {
 					keyPath: "key",
 				});
 				store.transaction.oncomplete = function (event: Event) {
-					callback(store, true);
+					callback(store);
 				};
 			};
 		} else {
 			/* 如果缓存中已经打开了数据库，就直接使用 */
-			let store = that.createStore(dbName);
-			callback(store, true);
+			let store = this.createStore(dbName);
+			callback(store);
 		}
 	}
 	/**
@@ -134,10 +134,13 @@ class indexedDB {
 		key: string,
 		value: T
 	): Promise<{
+		/** 本操作是否成功 */
 		success: boolean;
+		/** 状态码 */
 		code: number;
+		/** 状态码对应的消息 */
 		msg: string;
-
+		/** 执行操作触发的事件，如果是在open阶段失败的话该值为空 */
 		event?: {
 			srcElement: IDBRequest<T>;
 			target: IDBRequest<T>;
@@ -145,37 +148,34 @@ class indexedDB {
 	}> {
 		let that = this;
 		return new Promise((resolve) => {
-			let dbName = that.#dbName;
+			let dbName = this.#dbName;
 			let inData = {
 				key: key,
 				value: value,
 			};
-			that.open(function (idbStore, success) {
-				if (!success) {
+			this.open(function (idbStore) {
+				if (idbStore == null) {
 					resolve({
 						success: false,
-						code: that.#errorCode.save.code,
-						msg: that.#errorCode.save.msg,
+						code: that.#statusCode.saveFailed.code,
+						msg: that.#statusCode.saveFailed.msg,
 					});
 				} else {
-					idbStore = idbStore as IDBObjectStore;
 					let request = idbStore.put(inData);
 					request.onsuccess = function (event: any) {
 						/* 保存成功有success 字段 */
 						resolve({
 							success: true,
-							code: that.#errorCode.success.code,
-							msg: that.#errorCode.success.msg,
-
+							code: that.#statusCode.operationSuccess.code,
+							msg: that.#statusCode.operationSuccess.msg,
 							event: event,
 						});
 					};
 					request.onerror = function (event: any) {
 						resolve({
 							success: false,
-
-							code: that.#errorCode.save.code,
-							msg: that.#errorCode.save.msg,
+							code: that.#statusCode.saveFailed.code,
+							msg: that.#statusCode.saveFailed.msg,
 							event: event,
 						});
 					};
@@ -189,9 +189,13 @@ class indexedDB {
 	 * @param key 数据key
 	 */
 	async has(key: string): Promise<{
+		/** 本操作是否成功 */
 		success: boolean;
+		/** 状态码 */
 		code: number;
+		/** 状态码对应的消息 */
 		msg: string;
+		/** 执行操作触发的事件，如果是在open阶段失败的话该值为空 */
 		event?: {
 			srcElement: IDBRequest;
 			target: IDBRequest;
@@ -200,32 +204,31 @@ class indexedDB {
 		let that = this;
 		return new Promise((resolve) => {
 			let dbName = this.#dbName;
-			this.open(function (idbStore, success) {
+			this.open(function (idbStore) {
 				/* 判断返回的数据中是否有error字段 */
-				if (!success) {
+				if (idbStore == null) {
 					resolve({
 						success: false,
-						code: that.#errorCode.get.code,
-						msg: that.#errorCode.get.msg,
+						code: that.#statusCode.getFailed.code,
+						msg: that.#statusCode.getFailed.msg,
 					});
 				} else {
-					idbStore = idbStore as IDBObjectStore;
 					let request = idbStore.get(key);
 					request.onsuccess = function (event: any) {
 						/* result 返回的是 {key: string, value: any} */
 						/* 键值对存储 */
 						resolve({
 							success: true,
-							code: that.#errorCode.success.code,
-							msg: that.#errorCode.success.msg,
+							code: that.#statusCode.operationSuccess.code,
+							msg: that.#statusCode.operationSuccess.msg,
 							event: event,
 						});
 					};
 					request.onerror = function (event: any) {
 						resolve({
 							success: false,
-							code: that.#errorCode.get.code,
-							msg: that.#errorCode.get.msg,
+							code: that.#statusCode.getFailed.code,
+							msg: that.#statusCode.getFailed.msg,
 							event: event,
 						});
 					};
@@ -240,15 +243,20 @@ class indexedDB {
 	async get<T extends any>(
 		key: string
 	): Promise<{
+		/** 本操作是否成功 */
 		success: boolean;
+		/** 状态码 */
 		code: number;
+		/** 状态码对应的消息 */
 		msg: string;
+		/** 获取的数据 */
 		data: T;
-
+		/** 执行操作触发的事件，如果是在open阶段失败的话该值为空 */
 		event?: {
 			srcElement: IDBRequest<T>;
 			target: IDBRequest<T>;
 		} & Event;
+		/** 获取的结果，里面的数据提取为data */
 		result?: {
 			key: string;
 			value: T;
@@ -257,17 +265,16 @@ class indexedDB {
 		let that = this;
 		return new Promise((resolve) => {
 			let dbName = this.#dbName;
-			this.open(function (idbStore, success) {
+			this.open(function (idbStore) {
 				/* 判断返回的数据中是否有error字段 */
-				if (!success) {
+				if (idbStore == null) {
 					resolve({
 						success: false,
-						code: that.#errorCode.get.code,
-						msg: that.#errorCode.get.msg,
+						code: that.#statusCode.getFailed.code,
+						msg: that.#statusCode.getFailed.msg,
 						data: void 0 as any,
 					});
 				} else {
-					idbStore = idbStore as IDBObjectStore;
 					let request = idbStore.get(key);
 					request.onsuccess = function (event: any) {
 						let target = event.target as IDBRequest;
@@ -283,8 +290,8 @@ class indexedDB {
 						if (data) {
 							resolve({
 								success: true,
-								code: that.#errorCode.success.code,
-								msg: that.#errorCode.success.msg,
+								code: that.#statusCode.operationSuccess.code,
+								msg: that.#statusCode.operationSuccess.msg,
 								data: data,
 
 								event: event,
@@ -293,8 +300,8 @@ class indexedDB {
 						} else {
 							resolve({
 								success: false,
-								code: that.#errorCode.error.code,
-								msg: that.#errorCode.error.msg,
+								code: that.#statusCode.operationFailed.code,
+								msg: that.#statusCode.operationFailed.msg,
 								data: void 0 as any,
 
 								event: event,
@@ -303,12 +310,10 @@ class indexedDB {
 						}
 					};
 					request.onerror = function (event: any) {
-						// @ts-ignore
-						let target = event.target as IDBRequest;
 						resolve({
 							success: false,
-							code: that.#errorCode.get.code,
-							msg: that.#errorCode.get.msg,
+							code: that.#statusCode.getFailed.code,
+							msg: that.#statusCode.getFailed.msg,
 							data: void 0 as any,
 
 							event: event,
@@ -326,11 +331,16 @@ class indexedDB {
 	async regexpGet<T extends any>(
 		key: string | RegExp
 	): Promise<{
+		/** 本操作是否成功 */
 		success: boolean;
+		/** 状态码 */
 		code: number;
+		/** 状态码对应的消息 */
 		msg: string;
+		/** 获取到的数据列表 */
 		data: T[];
 
+		/** 执行操作触发的事件，如果是在open阶段失败的话该值为空 */
 		event?: {
 			srcElement: IDBRequest<T>;
 			target: IDBRequest<T>;
@@ -341,17 +351,16 @@ class indexedDB {
 		return new Promise((resolve) => {
 			/* 正则查询 */
 			let dbName = that.#dbName;
-			that.open(function (idbStore, success) {
+			this.open(function (idbStore) {
 				/* 判断返回的数据中是否有error字段 */
-				if (!success) {
+				if (idbStore == null) {
 					resolve({
 						success: false,
-						code: that.#errorCode.regexpGet.code,
-						msg: that.#errorCode.regexpGet.msg,
+						code: that.#statusCode.regexpGetFailed.code,
+						msg: that.#statusCode.regexpGetFailed.msg,
 						data: [],
 					});
 				} else {
-					idbStore = idbStore as IDBObjectStore;
 					let request = idbStore.getAll();
 					request.onsuccess = function (event: any) {
 						let target = event.target as IDBRequest<
@@ -371,20 +380,18 @@ class indexedDB {
 						}
 						resolve({
 							success: true,
-							code: that.#errorCode.success.code,
-							msg: that.#errorCode.success.msg,
+							code: that.#statusCode.operationSuccess.code,
+							msg: that.#statusCode.operationSuccess.msg,
 							data: list,
 
 							event: event,
 						});
 					};
 					request.onerror = function (event: any) {
-						// @ts-ignore
-						let target = event.target as IDBRequest;
 						resolve({
 							success: false,
-							code: that.#errorCode.get.code,
-							msg: that.#errorCode.get.msg,
+							code: that.#statusCode.getFailed.code,
+							msg: that.#statusCode.getFailed.msg,
 							data: [],
 
 							event: event,
@@ -400,10 +407,13 @@ class indexedDB {
 	 * @param key 数据key
 	 */
 	async delete(key: string): Promise<{
+		/** 本操作是否成功 */
 		success: boolean;
+		/** 状态码 */
 		code: number;
+		/** 状态码对应的消息 */
 		msg: string;
-
+		/** 执行操作触发的事件，如果是在open阶段失败的话该值为空 */
 		event?: {
 			srcElement: IDBRequest;
 			target: IDBRequest;
@@ -413,43 +423,29 @@ class indexedDB {
 		return new Promise((resolve) => {
 			/* 根据key删除某条数据 */
 			let dbName = that.#dbName;
-			that.open(function (idbStore, success) {
-				if (!success) {
+			this.open(function (idbStore) {
+				if (idbStore == null) {
 					resolve({
 						success: false,
-						code: that.#errorCode.delete.code,
-						msg: that.#errorCode.delete.msg,
+						code: that.#statusCode.deleteFailed.code,
+						msg: that.#statusCode.deleteFailed.msg,
 					});
 				} else {
-					idbStore = idbStore as IDBObjectStore;
-					let request = idbStore.get(key);
+					// 删除键
+					let request = idbStore.delete(key);
 					request.onsuccess = function (event: any) {
-						let target = event.target as IDBRequest;
-						let recode = target.result;
-						if (recode) {
-							/* 成功 */
-							request = (idbStore as IDBObjectStore).delete(key);
-							resolve({
-								success: true,
-								code: that.#errorCode.success.code,
-								msg: that.#errorCode.success.msg,
-							});
-						} else {
-							resolve({
-								success: false,
-								code: that.#errorCode.error.code,
-								msg: that.#errorCode.error.msg,
-							});
-						}
+						resolve({
+							success: true,
+							code: that.#statusCode.operationSuccess.code,
+							msg: that.#statusCode.operationSuccess.msg,
+							event: event,
+						});
 					};
 					request.onerror = function (event: any) {
-						// @ts-ignore
-						let target = event.target as IDBRequest;
 						resolve({
 							success: false,
-							code: that.#errorCode.delete.code,
-							msg: that.#errorCode.delete.msg,
-
+							code: that.#statusCode.deleteFailed.code,
+							msg: that.#statusCode.deleteFailed.msg,
 							event: event,
 						});
 					};
@@ -462,29 +458,48 @@ class indexedDB {
 	 * 删除所有数据
 	 */
 	async deleteAll(): Promise<{
+		/** 本操作是否成功 */
 		success: boolean;
+		/** 状态码 */
 		code: number;
+		/** 状态码对应的消息 */
 		msg: string;
+		/** 执行操作触发的事件，如果是在open阶段失败的话该值为空 */
+		event?: {
+			srcElement: IDBRequest;
+			target: IDBRequest;
+		} & Event;
 	}> {
 		let that = this;
 		return new Promise((resolve) => {
 			/* 清空数据库 */
 			let dbName = that.#dbName;
-			that.open(function (idbStore, success) {
-				if (!success) {
+			this.open(function (idbStore) {
+				if (idbStore == null) {
 					resolve({
 						success: false,
-						code: that.#errorCode.deleteAll.code,
-						msg: that.#errorCode.deleteAll.msg,
+						code: that.#statusCode.deleteAllFailed.code,
+						msg: that.#statusCode.deleteAllFailed.msg,
 					});
 				} else {
-					idbStore = idbStore as IDBObjectStore;
-					idbStore.clear();
-					resolve({
-						success: true,
-						code: that.#errorCode.success.code,
-						msg: that.#errorCode.success.msg,
-					});
+					// 清空
+					let operateResult = idbStore.clear();
+					operateResult.onsuccess = function (event: any) {
+						resolve({
+							success: true,
+							code: that.#statusCode.operationSuccess.code,
+							msg: that.#statusCode.operationSuccess.msg,
+							event: event,
+						});
+					};
+					operateResult.onerror = function (event: any) {
+						resolve({
+							success: false,
+							code: that.#statusCode.deleteAllFailed.code,
+							msg: that.#statusCode.deleteAllFailed.msg,
+							event: event,
+						});
+					};
 				}
 			}, dbName);
 		});

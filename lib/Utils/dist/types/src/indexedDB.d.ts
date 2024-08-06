@@ -23,9 +23,13 @@ declare class indexedDB {
      * @param value 数据值
      */
     save<T extends any>(key: string, value: T): Promise<{
+        /** 本操作是否成功 */
         success: boolean;
+        /** 状态码 */
         code: number;
+        /** 状态码对应的消息 */
         msg: string;
+        /** 执行操作触发的事件，如果是在open阶段失败的话该值为空 */
         event?: {
             srcElement: IDBRequest<T>;
             target: IDBRequest<T>;
@@ -36,9 +40,13 @@ declare class indexedDB {
      * @param key 数据key
      */
     has(key: string): Promise<{
+        /** 本操作是否成功 */
         success: boolean;
+        /** 状态码 */
         code: number;
+        /** 状态码对应的消息 */
         msg: string;
+        /** 执行操作触发的事件，如果是在open阶段失败的话该值为空 */
         event?: {
             srcElement: IDBRequest;
             target: IDBRequest;
@@ -49,14 +57,20 @@ declare class indexedDB {
      * @param key 数据key
      */
     get<T extends any>(key: string): Promise<{
+        /** 本操作是否成功 */
         success: boolean;
+        /** 状态码 */
         code: number;
+        /** 状态码对应的消息 */
         msg: string;
+        /** 获取的数据 */
         data: T;
+        /** 执行操作触发的事件，如果是在open阶段失败的话该值为空 */
         event?: {
             srcElement: IDBRequest<T>;
             target: IDBRequest<T>;
         } & Event;
+        /** 获取的结果，里面的数据提取为data */
         result?: {
             key: string;
             value: T;
@@ -67,10 +81,15 @@ declare class indexedDB {
      * @param key 数据key，可以是正则
      */
     regexpGet<T extends any>(key: string | RegExp): Promise<{
+        /** 本操作是否成功 */
         success: boolean;
+        /** 状态码 */
         code: number;
+        /** 状态码对应的消息 */
         msg: string;
+        /** 获取到的数据列表 */
         data: T[];
+        /** 执行操作触发的事件，如果是在open阶段失败的话该值为空 */
         event?: {
             srcElement: IDBRequest<T>;
             target: IDBRequest<T>;
@@ -81,9 +100,13 @@ declare class indexedDB {
      * @param key 数据key
      */
     delete(key: string): Promise<{
+        /** 本操作是否成功 */
         success: boolean;
+        /** 状态码 */
         code: number;
+        /** 状态码对应的消息 */
         msg: string;
+        /** 执行操作触发的事件，如果是在open阶段失败的话该值为空 */
         event?: {
             srcElement: IDBRequest;
             target: IDBRequest;
@@ -93,9 +116,17 @@ declare class indexedDB {
      * 删除所有数据
      */
     deleteAll(): Promise<{
+        /** 本操作是否成功 */
         success: boolean;
+        /** 状态码 */
         code: number;
+        /** 状态码对应的消息 */
         msg: string;
+        /** 执行操作触发的事件，如果是在open阶段失败的话该值为空 */
+        event?: {
+            srcElement: IDBRequest;
+            target: IDBRequest;
+        } & Event;
     }>;
 }
 export { indexedDB };
