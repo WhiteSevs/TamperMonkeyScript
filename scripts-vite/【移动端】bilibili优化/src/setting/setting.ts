@@ -337,8 +337,13 @@ export const PopsPanel = {
 	 * 自动判断菜单是否启用，然后执行回调
 	 * @param key
 	 * @param callback 回调
+	 * @param [isReverse=false] 逆反判断菜单启用
 	 */
-	execMenu(key: string | string[], callback: (value: any) => void) {
+	execMenu(
+		key: string | string[],
+		callback: (value: any) => void,
+		isReverse = false
+	) {
 		if (
 			!(
 				typeof key === "string" ||
@@ -353,17 +358,25 @@ export const PopsPanel = {
 		} else {
 			runKeyList.push(key);
 		}
-		let runValue = void 0;
+		let value = void 0;
 		for (let index = 0; index < runKeyList.length; index++) {
 			const runKey = runKeyList[index];
 			if (!this.$data.data.has(runKey)) {
 				log.warn(`${key} 键不存在`);
 				return;
 			}
-			runValue = PopsPanel.getValue(runKey);
+			let runValue = PopsPanel.getValue(runKey);
+			if (isReverse) {
+				// 逆反赋值
+				runValue = !runValue;
+			}
+			if (!runValue) {
+				break;
+			}
+			value = runValue as any;
 		}
-		if (runValue) {
-			callback(runValue);
+		if (value) {
+			callback(value);
 		}
 	},
 	/**

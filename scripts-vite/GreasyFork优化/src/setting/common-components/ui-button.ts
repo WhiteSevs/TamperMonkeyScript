@@ -14,6 +14,7 @@ import { PopsIcon } from "@whitesev/pops/dist/types/src/types/icon";
  * @param buttonIconIsLoading 按钮图标是否旋转
  * @param buttonType 按钮类型
  * @param clickCallBack 点击回调
+ * @param afterAddToUListCallBack 在添加到元素后触发该回调
  */
 export const UIButton = function (
 	text: string,

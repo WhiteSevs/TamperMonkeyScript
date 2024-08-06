@@ -322,16 +322,44 @@ const PopsPanel = {
 	 * 自动判断菜单是否启用，然后执行回调
 	 * @param key
 	 * @param callback 回调
+	 * @param [isReverse=false] 逆反判断菜单启用
 	 */
-	execMenu(key: string, callback: (value: any) => void) {
-		if (typeof key !== "string") {
-			throw new TypeError("key 必须是字符串");
+	execMenu(
+		key: string | string[],
+		callback: (value: any) => void,
+		isReverse = false
+	) {
+		if (
+			!(
+				typeof key === "string" ||
+				(typeof key === "object" && Array.isArray(key))
+			)
+		) {
+			throw new TypeError("key 必须是字符串或者字符串数组");
 		}
-		if (!this.$data.data.has(key)) {
-			log.warn(`${key} 键不存在`);
-			return;
+		let runKeyList = [];
+		if (typeof key === "object" && Array.isArray(key)) {
+			runKeyList = [...key];
+		} else {
+			runKeyList.push(key);
 		}
-		let value = PopsPanel.getValue(key);
+		let value = void 0;
+		for (let index = 0; index < runKeyList.length; index++) {
+			const runKey = runKeyList[index];
+			if (!this.$data.data.has(runKey)) {
+				log.warn(`${key} 键不存在`);
+				return;
+			}
+			let runValue = PopsPanel.getValue(runKey);
+			if (isReverse) {
+				// 逆反赋值
+				runValue = !runValue;
+			}
+			if (!runValue) {
+				break;
+			}
+			value = runValue as any;
+		}
 		if (value) {
 			callback(value);
 		}

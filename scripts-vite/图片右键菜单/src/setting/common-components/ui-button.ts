@@ -1,4 +1,6 @@
 import { PopsPanelButtonDetails } from "@whitesev/pops/dist/types/src/components/panel/buttonType";
+import { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/commonType";
+import { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { PopsButtonStyleType } from "@whitesev/pops/dist/types/src/types/button";
 import { PopsIcon } from "@whitesev/pops/dist/types/src/types/icon";
 
@@ -12,6 +14,7 @@ import { PopsIcon } from "@whitesev/pops/dist/types/src/types/icon";
  * @param buttonIconIsLoading 按钮图标是否旋转
  * @param buttonType 按钮类型
  * @param clickCallBack 点击回调
+ * @param afterAddToUListCallBack 在添加到元素后触发该回调
  */
 export const UIButton = function (
 	text: string,
@@ -21,7 +24,13 @@ export const UIButton = function (
 	buttonIsRightIcon: boolean | undefined,
 	buttonIconIsLoading: boolean | undefined,
 	buttonType: PopsButtonStyleType,
-	clickCallBack?: ((event: MouseEvent | PointerEvent) => void) | undefined
+	clickCallBack?: ((event: MouseEvent | PointerEvent) => void) | undefined,
+	afterAddToUListCallBack?:
+		| ((
+				formConfig: PopsPanelFormsTotalDetails,
+				container: PopsPanelRightAsideContainerOptions
+		  ) => void)
+		| undefined
 ): PopsPanelButtonDetails {
 	let result: PopsPanelButtonDetails = {
 		text: text,
@@ -37,7 +46,7 @@ export const UIButton = function (
 				clickCallBack(event);
 			}
 		},
-		afterAddToUListCallBack: void 0,
+		afterAddToUListCallBack: afterAddToUListCallBack,
 	};
 	return result;
 };
