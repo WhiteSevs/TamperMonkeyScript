@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.4
+// @version      2024.8.6
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -19,10 +19,10 @@
 // @require      https://update.greasyfork.org/scripts/495227/1413261/Element-Plus.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.1/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.7/dist/index.min.css
 // @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
 // @connect      *
@@ -1886,7 +1886,7 @@ match-attr##srcid##sp_purc_atom
       }
     }
   };
-  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack) {
+  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack) {
     let result = {
       text,
       type: "button",
@@ -1901,7 +1901,7 @@ match-attr##srcid##sp_purc_atom
           clickCallBack(event);
         }
       },
-      afterAddToUListCallBack: void 0
+      afterAddToUListCallBack
     };
     return result;
   };
@@ -2766,10 +2766,56 @@ match-attr##srcid##sp_purc_atom
     scrollToDefaultView: true,
     forms: [
       {
-        text: "屏蔽",
         type: "forms",
+        text: "",
         forms: [
-          UISwitch("【屏蔽】文字/图片水印", "baidu_yiyan_remove_ai_mask", true)
+          {
+            type: "deepMenu",
+            text: "功能",
+            forms: [
+              {
+                type: "forms",
+                text: "",
+                forms: [
+                  UISwitch(
+                    "地址参数识别",
+                    "baidu_yiyan-execByUrlSearchParams",
+                    false,
+                    (event, value) => {
+                      if (!value) {
+                        return;
+                      }
+                      let url = "https://greasyfork.org/zh-CN/scripts/418349-%E7%A7%BB%E5%8A%A8%E7%AB%AF-%E7%99%BE%E5%BA%A6%E7%B3%BB%E4%BC%98%E5%8C%96/discussions/254331";
+                      let isOk = globalThis.confirm(
+                        "帮助文档↓ 点击确定自动打开文档地址↓\n" + url
+                      );
+                      if (isOk) {
+                        window.open(url, "_blank");
+                      }
+                    },
+                    "开启后可在特定Url执行搜索功能"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            type: "deepMenu",
+            text: "屏蔽",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】文字/图片水印",
+                    "baidu_yiyan_remove_ai_mask",
+                    true
+                  )
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
@@ -4082,16 +4128,30 @@ match-attr##srcid##sp_purc_atom
      * @param [isReverse=false] 逆反判断菜单启用
      */
     execMenu(key, callback, isReverse = false) {
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
+      if (!(typeof key === "string" || typeof key === "object" && Array.isArray(key))) {
+        throw new TypeError("key 必须是字符串或者字符串数组");
       }
-      if (!this.$data.data.has(key)) {
-        log.warn(`${key} 键不存在`);
-        return;
+      let runKeyList = [];
+      if (typeof key === "object" && Array.isArray(key)) {
+        runKeyList = [...key];
+      } else {
+        runKeyList.push(key);
       }
-      let value = PopsPanel.getValue(key);
-      if (isReverse) {
-        value = !value;
+      let value = void 0;
+      for (let index = 0; index < runKeyList.length; index++) {
+        const runKey = runKeyList[index];
+        if (!this.$data.data.has(runKey)) {
+          log.warn(`${key} 键不存在`);
+          return;
+        }
+        let runValue = PopsPanel.getValue(runKey);
+        if (isReverse) {
+          runValue = !runValue;
+        }
+        if (!runValue) {
+          break;
+        }
+        value = runValue;
       }
       if (value) {
         callback(value);
@@ -22682,12 +22742,95 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
     }
   };
   const YiYanShieldCSS = "";
+  const ReactUtils = {
+    /**
+     * 等待react某个属性并进行设置
+     */
+    async waitReactPropsToSet($target, propName, needSetList) {
+      if (!Array.isArray(needSetList)) {
+        this.waitReactPropsToSet($target, propName, [needSetList]);
+        return;
+      }
+      function getTarget() {
+        let __target__ = null;
+        if (typeof $target === "string") {
+          __target__ = document.querySelector($target);
+        } else if (typeof $target === "function") {
+          __target__ = $target();
+        } else if ($target instanceof HTMLElement) {
+          __target__ = $target;
+        }
+        return __target__;
+      }
+      if (typeof $target === "string") {
+        let $ele = await utils.waitNode($target, 1e4);
+        if (!$ele) {
+          return;
+        }
+      }
+      needSetList.forEach((needSetOption) => {
+        if (typeof needSetOption.msg === "string") {
+          log.info(needSetOption.msg);
+        }
+        function checkObj() {
+          let target = getTarget();
+          if (target == null) {
+            return false;
+          }
+          let targetObj = utils.getReactObj(target);
+          if (targetObj == null) {
+            return false;
+          }
+          let targetObjProp = targetObj[propName];
+          if (targetObjProp == null) {
+            return false;
+          }
+          let needOwnCheck = needSetOption.check(targetObjProp);
+          return Boolean(needOwnCheck);
+        }
+        utils.waitPropertyByInterval(
+          () => {
+            return getTarget();
+          },
+          checkObj,
+          250,
+          1e4
+        ).then(() => {
+          let target = getTarget();
+          if (target == null) {
+            if (typeof needSetOption.overTimeCallBack === "function") {
+              needSetOption.overTimeCallBack();
+            }
+            return;
+          }
+          let targetObj = utils.getReactObj(target);
+          if (targetObj == null) {
+            if (typeof needSetOption.overTimeCallBack === "function") {
+              needSetOption.overTimeCallBack();
+            }
+            return;
+          }
+          let targetObjProp = targetObj[propName];
+          if (targetObjProp == null) {
+            if (typeof needSetOption.overTimeCallBack === "function") {
+              needSetOption.overTimeCallBack();
+            }
+            return;
+          }
+          needSetOption.set(targetObjProp);
+        });
+      });
+    }
+  };
   const BaiduYiYan = {
     init() {
       addStyle(YiYanShieldCSS);
       log.info("插入CSS规则");
       PopsPanel.execMenuOnce("baidu_yiyan_remove_ai_mask", () => {
-        BaiduYiYan.blockWaterMark();
+        this.blockWaterMark();
+      });
+      PopsPanel.execMenu("baidu_yiyan-execByUrlSearchParams", () => {
+        this.execByUrlSearchParams();
       });
     },
     /**
@@ -22699,7 +22842,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
       log.info("hook: Element.attachShadow");
       let oldShadow = _unsafeWindow.Element.prototype.attachShadow;
       _unsafeWindow.Element.prototype.attachShadow = function(...args) {
-        const shadowRoot = oldShadow.call(this, args);
+        const shadowRoot = oldShadow.call(this, ...args);
         this._shadowRoot = shadowRoot;
         shadowRoot.appendChild(
           domutils.createElement(
@@ -22726,6 +22869,65 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
         }
         return oldAppendChild.call(this, element);
       };
+    },
+    /**
+     * 提供对外的搜索链接
+     *
+     * 判断方式为location.search中包含查询关键字gmsearch
+     */
+    execByUrlSearchParams() {
+      let searchParams = new URLSearchParams(window.location.search);
+      const KEY_searchText = "gmsearch";
+      const KEY_decodeSearchText = "gmdecode";
+      if (!searchParams.has(KEY_searchText)) {
+        return;
+      }
+      let searchText = searchParams.get(KEY_searchText);
+      let decodeSearchText = searchParams.get(KEY_decodeSearchText);
+      if (decodeSearchText) {
+        searchText = decodeURIComponent(decodeSearchText);
+      }
+      log.info("存在搜索接口，查询内容：" + searchText);
+      let $loading = Qmsg.loading("等待编辑框加载完成...", {
+        showClose: true
+      });
+      ReactUtils.waitReactPropsToSet("#dialogueFooter", "reactProps", {
+        msg: "等待元素#dialogueFooter",
+        check(reactInstance) {
+          var _a3, _b;
+          return typeof ((_b = (_a3 = reactInstance == null ? void 0 : reactInstance.children) == null ? void 0 : _a3.props) == null ? void 0 : _b.setText) === "function";
+        },
+        set(reactInstance) {
+          $loading.close();
+          let props = reactInstance.children.props;
+          let setText = props.setText;
+          let isLogin = props.userInfo.isLogin;
+          setText(searchText);
+          if (!isLogin) {
+            log.error("先登录才可以提问");
+            Qmsg.error("先登录才可以提问");
+            return;
+          }
+          let current = props.areaRef.current;
+          if (current instanceof HTMLElement) {
+            ReactUtils.waitReactPropsToSet(current, "reactProps", {
+              msg: "等待提问按钮元素",
+              check(reactInstance2) {
+                var _a3, _b, _c;
+                return typeof ((_c = (_b = (_a3 = reactInstance2 == null ? void 0 : reactInstance2.children) == null ? void 0 : _a3[3]) == null ? void 0 : _b.props) == null ? void 0 : _c.onClick) === "function";
+              },
+              set(reactInstance2) {
+                let onClick = reactInstance2.children[3].props.onClick;
+                onClick({ type: 10 });
+                log.success(`点击提问按钮`);
+              }
+            });
+          }
+        },
+        overTimeCallBack() {
+          $loading.close();
+        }
+      });
     }
   };
   const ChatShieldCSS = "";
@@ -23176,106 +23378,85 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
       if (BaiduRouter.isSearch()) {
         log.success("Router: 百度搜索");
         BaiduSearch.init();
-      }
-      if (BaiduRouter.isSearchHome()) {
-        log.success("Router: 百度搜索-主页");
-        BaiduSearchHome.init();
-      }
-      if (BaiduRouter.isBaiJiaHao()) {
+        if (BaiduRouter.isSearchHome()) {
+          log.success("Router: 百度搜索-主页");
+          BaiduSearchHome.init();
+        }
+      } else if (BaiduRouter.isBaiJiaHao()) {
         log.success("Router: 百家号");
         BaiduBaiJiaHao.init();
-      }
-      if (BaiduRouter.isTieBa()) {
+      } else if (BaiduRouter.isTieBa()) {
         log.success("Router: 贴吧");
         BaiduTieBa.init();
-      }
-      if (BaiduRouter.isWenKu()) {
+      } else if (BaiduRouter.isWenKu()) {
         log.success("Router: 百度文库");
         BaiduWenKu.init();
-      }
-      if (BaiduRouter.isJingYan()) {
+      } else if (BaiduRouter.isJingYan()) {
         log.success("Router: 百度经验");
         BaiduJingYan.init();
-      }
-      if (BaiduRouter.isBaiKe()) {
+      } else if (BaiduRouter.isBaiKe()) {
         log.success("Router: 百度百科");
         BaiduBaiKe.init();
         if (BaiduRouter.isBaiKeTaShuo()) {
           log.success("Router: 百度百科-他说");
           BaiduBaiKeTaShuo.init();
         }
-      }
-      if (BaiduRouter.isZhiDao()) {
+      } else if (BaiduRouter.isZhiDao()) {
         log.success("Router: 百度知道");
         BaiduZhiDao.init();
-      }
-      if (BaiduRouter.isFanYi()) {
+      } else if (BaiduRouter.isFanYi()) {
         log.success("Router: 百度翻译");
         BaiduFanYi.init();
-      }
-      if (BaiduRouter.isFanYiApp()) {
+      } else if (BaiduRouter.isFanYiApp()) {
         log.success("Router: 百度翻译-App");
         BaiduFanYiApp.init();
-      }
-      if (BaiduRouter.isImage()) {
+      } else if (BaiduRouter.isImage()) {
         log.success("Router: 百度图片");
         BaiduImage.init();
-      }
-      if (BaiduRouter.isMap()) {
+      } else if (BaiduRouter.isMap()) {
         log.success("Router: 百度地图");
         BaiduMap.init();
-      }
-      if (BaiduRouter.isMbd()) {
+      } else if (BaiduRouter.isMbd()) {
         log.success("Router: mbd");
         BaiduMbd.init();
-      }
-      if (BaiduRouter.isXue()) {
+      } else if (BaiduRouter.isXue()) {
         log.success("Router: 百度好学");
         BaiduXue.init();
-      }
-      if (BaiduRouter.isAiQiCha()) {
+      } else if (BaiduRouter.isAiQiCha()) {
         log.success("Router: 百度爱企查");
         BaiduAiQiCha.init();
-      }
-      if (BaiduRouter.isPos()) {
+      } else if (BaiduRouter.isPos()) {
         log.success("Router: 网盟");
         BaiduPos.init();
-      }
-      if (BaiduRouter.isHaoKan()) {
+      } else if (BaiduRouter.isHaoKan()) {
         log.success("Router: 好看视频");
         BaiduHaoKan.init();
-      }
-      if (BaiduRouter.isGraph()) {
+      } else if (BaiduRouter.isGraph()) {
         log.success("Router: 百度识图");
         BaiduGraph.init();
-      }
-      if (BaiduRouter.isPan()) {
+      } else if (BaiduRouter.isPan()) {
         log.success("Router: 百度网盘");
         BaiduPan.init();
-      }
-      if (BaiduRouter.isYiYan()) {
+      } else if (BaiduRouter.isYiYan()) {
         log.success("Router: 文心一言");
         BaiduYiYan.init();
-      }
-      if (BaiduRouter.isChat()) {
+      } else if (BaiduRouter.isChat()) {
         log.success("Router: chat");
         BaiduChat.init();
-      }
-      if (BaiduRouter.isMiniJiaoYu()) {
+      } else if (BaiduRouter.isMiniJiaoYu()) {
         log.success("Router: 小程序-百度教育");
         BaiduMiniJiaoYu.init();
-      }
-      if (BaiduRouter.isEasyLearn()) {
+      } else if (BaiduRouter.isEasyLearn()) {
         log.success("Router: 百度教育");
         BaiduEasyLearn.init();
-      }
-      if (BaiduRouter.isAiStudy()) {
+      } else if (BaiduRouter.isAiStudy()) {
         log.success("Router: 百度爱学");
         BaiduAiStudy.init();
-      }
-      if (BaiduRouter.isISite()) {
+      } else if (BaiduRouter.isISite()) {
         log.success("Router: 百度基木鱼");
         BaiduISite.init();
+      } else {
+        log.error("该Router暂未适配，请联系开发者：" + window.location.href);
       }
     }
   };

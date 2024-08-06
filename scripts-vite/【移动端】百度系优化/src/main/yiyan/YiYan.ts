@@ -2,13 +2,18 @@ import { unsafeWindow } from "ViteGM";
 import { DOMUtils, addStyle, log } from "@/env";
 import YiYanShieldCSS from "./shield.css?raw";
 import { PopsPanel } from "@/setting/setting";
+import { ReactUtils } from "../../utils/ReactUtils";
+import Qmsg from "qmsg";
 
 const BaiduYiYan = {
 	init() {
 		addStyle(YiYanShieldCSS);
 		log.info("插入CSS规则");
 		PopsPanel.execMenuOnce("baidu_yiyan_remove_ai_mask", () => {
-			BaiduYiYan.blockWaterMark();
+			this.blockWaterMark();
+		});
+		PopsPanel.execMenu("baidu_yiyan-execByUrlSearchParams", () => {
+			this.execByUrlSearchParams();
 		});
 	},
 	/**
@@ -19,9 +24,13 @@ const BaiduYiYan = {
 	blockWaterMark() {
 		log.info("hook: Element.attachShadow");
 		let oldShadow = unsafeWindow.Element.prototype.attachShadow;
-		unsafeWindow.Element.prototype.attachShadow = function (...args: any) {
-			const shadowRoot = oldShadow.call(this, args);
-			(this as any)._shadowRoot = shadowRoot;
+		unsafeWindow.Element.prototype.attachShadow = function (
+			this: any,
+			...args: any[]
+		) {
+			// @ts-ignore
+			const shadowRoot = oldShadow.call(this, ...args);
+			this._shadowRoot = shadowRoot;
 			shadowRoot.appendChild(
 				DOMUtils.createElement(
 					"style",
@@ -51,6 +60,79 @@ const BaiduYiYan = {
 			}
 			return oldAppendChild.call(this, element) as T;
 		};
+	},
+	/**
+	 * 提供对外的搜索链接
+	 *
+	 * 判断方式为location.search中包含查询关键字gmsearch
+	 */
+	execByUrlSearchParams() {
+		let searchParams = new URLSearchParams(window.location.search);
+		// 获取查询关键字
+		const KEY_searchText = "gmsearch";
+		// 是否对查询关键字进行解码
+		const KEY_decodeSearchText = "gmdecode";
+		if (!searchParams.has(KEY_searchText)) {
+			// 不存在搜索文字
+			return;
+		}
+		// 获取查询内容
+		let searchText = searchParams.get(KEY_searchText)!;
+		let decodeSearchText = searchParams.get(KEY_decodeSearchText);
+		if (decodeSearchText) {
+			// 解码
+			searchText = decodeURIComponent(decodeSearchText);
+		}
+		log.info("存在搜索接口，查询内容：" + searchText);
+		// this.$ele.$searchInput.value = searchText;
+		let $loading = Qmsg.loading("等待编辑框加载完成...", {
+			showClose: true,
+		});
+		ReactUtils.waitReactPropsToSet("#dialogueFooter", "reactProps", {
+			msg: "等待元素#dialogueFooter",
+			check(reactInstance) {
+				return typeof reactInstance?.children?.props?.setText === "function";
+			},
+			set(reactInstance) {
+				$loading.close();
+				let props = reactInstance.children.props;
+				// let onChange =
+				// 	reactInstance.return.return.return.memoizedProps.onChange;
+				// onChange(searchText);
+				// let changeInput = props.changeInput;
+				// changeInput({ demo: {}, e: searchText });
+				let setText: Function = props.setText;
+				// send没有用
+				// let send: Function = props.send;
+				let isLogin: boolean = props.userInfo.isLogin;
+				setText(searchText);
+				if (!isLogin) {
+					log.error("先登录才可以提问");
+					Qmsg.error("先登录才可以提问");
+					return;
+				}
+				let current = props.areaRef.current;
+				if (current instanceof HTMLElement) {
+					ReactUtils.waitReactPropsToSet(current, "reactProps", {
+						msg: "等待提问按钮元素",
+						check(reactInstance) {
+							return (
+								typeof reactInstance?.children?.[3]?.props?.onClick ===
+								"function"
+							);
+						},
+						set(reactInstance) {
+							let onClick: Function = reactInstance.children[3].props.onClick;
+							onClick({ type: 10 });
+							log.success(`点击提问按钮`);
+						},
+					});
+				}
+			},
+			overTimeCallBack() {
+				$loading.close();
+			},
+		});
 	},
 };
 
