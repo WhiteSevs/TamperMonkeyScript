@@ -273,6 +273,27 @@ export const en_US_language = {
 	"快捷键 {{key}} 已被 {{isUsedKey}} 占用":
 		"The shortcut key {{key}} is already used by {{isUsedKey}}",
 	私聊: "Private Chat",
-	美化私聊页面: "Beautify the private chat page",
+	美化私信页面: "Beautify the private message page",
 	美化为左右对话模式: "Beautify as a left-right dialogue mode",
+	"最后回复：": "Final response:",
+	进入: "Enter",
+	记住回复内容: "Remember the reply content",
+	"监听表单内的textarea内容改变并存储到indexDB中，提交表单将清除保存的数据，误刷新页面时可动态恢复":
+		"Monitor changes to the textarea content in the form and store it in the index database. Submitting the form will clear the saved data, and dynamic recovery can be achieved when the page is accidentally refreshed",
+	表单: "Forms",
+	自动清理空间: "Automatically clear space",
+	不清理: "Not cleaning",
+	"{{value}} 天": "{{value}} day",
+	"{{value}} 周": "{{value}} weeks",
+	"{{value}} 个月": "{{value}} months",
+	半年: "half a year",
+	计算中: "In the process of calculation",
+	根据设置的间隔时间自动清理保存的回复内容:
+		"Automatically clean up saved reply content according to the set interval time",
+	"数据占用空间：{{size}}": "Data occupancy space: {{size}}",
+	当前存储的数据所占用的空间大小:
+		"The size of the space occupied by the currently stored data",
+	清空: "Clear",
+	清理成功: "Cleanup successful",
+	清理失败: "Cleaning failed",
 };

@@ -104,54 +104,6 @@ interface GreasyForkUserInfo {
 
 const GreasyforkApi = {
 	/**
-	 * 获取代码搜索地址
-	 * @param url
-	 */
-	getCodeSearchUrl(url: string) {
-		return "https://greasyfork.org/zh-CN/scripts/code-search?c=" + url;
-	},
-	/**
-	 * 获取管理地址
-	 * @param url
-	 */
-	getAdminUrl(url: string) {
-		return url + "/admin";
-	},
-	/**
-	 * 从字符串中提取Id
-	 * @param text
-	 */
-	getScriptId(text?: string) {
-		return (text || window.location.pathname)?.match(
-			/\/scripts\/([\d]+)/i
-		)?.[1];
-	},
-	/**
-	 * 从字符串中提取用户id
-	 * @param text
-	 */
-	getUserId(text?: string) {
-		return (text || window.location.pathname).match(/\/users\/([\d]+)/i)?.[1];
-	},
-	/**
-	 * 从字符串中提取脚本名
-	 * @param text
-	 */
-	getScriptName(text?: string) {
-		let pathname = window.location.pathname;
-		if (text != null) {
-			pathname = new URL(text).pathname;
-		}
-		pathname = decodeURIComponent(pathname);
-		let pathnameSplit = pathname.split("/");
-		for (const name of pathnameSplit) {
-			let nameMatch = name.match(/[\d]+/);
-			if (nameMatch && nameMatch.length) {
-				return nameMatch[1];
-			}
-		}
-	},
-	/**
 	 * 获取需要切换语言的Url
 	 */
 	getSwitchLanguageUrl(localeLanguage = "zh-CN") {

@@ -8,6 +8,7 @@ import Qmsg from "qmsg";
 import { GreasyforkScriptsCode } from "./code/GreasyforkScriptsCode";
 import { GM_addStyle, unsafeWindow } from "ViteGM";
 import { GreasyforkVersions } from "./versions/GreasyforkVersions";
+import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 
 let userCollection: {
 	id: string;
@@ -22,7 +23,7 @@ export const GreasyforkScriptsCollectEvent = async function (
 		Qmsg.error(i18next.t("请先登录账号"));
 		return;
 	}
-	let userId = GreasyforkApi.getUserId(
+	let userId = GreasyforkUrlUtils.getUserId(
 		GreasyforkMenu.getUserLinkElement()!.href
 	);
 	if (userId == null) {
@@ -470,7 +471,7 @@ export const GreasyforkScripts = {
 						return;
 					}
 					let scriptId = scriptIdMatch[scriptIdMatch.length - 1];
-					window.location.href = GreasyforkApi.getCodeSearchUrl(
+					window.location.href = GreasyforkUrlUtils.getCodeSearchUrl(
 						`greasyfork.org/scripts/${scriptId}`
 					);
 				});
@@ -485,7 +486,7 @@ export const GreasyforkScripts = {
 		}
 		log.info("脚本首页新增【今日检查】");
 		let scriptStatsJSONInfo = await GreasyforkApi.getScriptStats(
-			GreasyforkApi.getScriptId() as string
+			GreasyforkUrlUtils.getScriptId() as string
 		);
 		if (!scriptStatsJSONInfo) {
 			return;
@@ -535,7 +536,7 @@ export const GreasyforkScripts = {
 				DOMUtils.on(copyButton, "click", async function () {
 					let loading = Qmsg.loading(i18next.t("加载文件中..."));
 					let getResp = await httpx.get(
-						`https://greasyfork.org/zh-CN/scripts/${GreasyforkApi.getScriptId()}.json`,
+						`https://greasyfork.org/zh-CN/scripts/${GreasyforkUrlUtils.getScriptId()}.json`,
 						{
 							fetch: true,
 							responseType: "json",

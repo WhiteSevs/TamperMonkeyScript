@@ -8,7 +8,7 @@ export const GreasyforkShortCut = {
 		"gf-quickReply": {
 			target: () => {
 				let $commentText =
-					document.querySelector<HTMLButtonElement>("#comment_text");
+					document.querySelector<HTMLButtonElement>("form textarea");
 				let $replyBtn = document.querySelector<HTMLButtonElement>(
 					'input[name="commit"][type="submit"]'
 				);

@@ -23,6 +23,7 @@ import { CommonUtils } from "@/utils/CommonUtils";
 import { GreasyforkUsers } from "./navigator/users/GreasyforkUsers";
 import { GreasyforkShortCut } from "./GreasyforkShortCut";
 import { GreasyforkConversations } from "./navigator/users/conversations/GreasyforkConversations";
+import { GreasyforkRememberFormTextArea } from "./GreasyforkRememberFormTextArea";
 
 const Greasyfork = {
 	init() {
@@ -46,7 +47,7 @@ const Greasyfork = {
 		}
 		if (GreasyforkRouter.isUsers()) {
 			GreasyforkUsers.init();
-			if (GreasyforkRouter.isConversations()) {
+			if (GreasyforkRouter.isUsersConversations()) {
 				GreasyforkConversations.init();
 			}
 		}
@@ -56,6 +57,7 @@ const Greasyfork = {
 		DOMUtils.ready(() => {
 			GreasyforkMenu.initEnv();
 			GreasyforkAccount.init();
+			GreasyforkRememberFormTextArea.init();
 			GreasyforkMenu.handleLocalGotoCallBack();
 			PopsPanel.execMenuOnce("fixImageWidth", () => {
 				Greasyfork.fixImageWidth();
@@ -250,11 +252,15 @@ const Greasyfork = {
 		document
 			.querySelectorAll<HTMLImageElement>(".user-content a>img")
 			.forEach((imgElement) => {
-				let linkElement = imgElement.parentElement as HTMLAnchorElement;
-				let url = linkElement.getAttribute("href") as string;
-				linkElement.setAttribute("data-href", url);
-				linkElement.removeAttribute("href");
-				DOMUtils.on(linkElement, "click", () => {
+				let $link = imgElement.parentElement as HTMLAnchorElement;
+				let url = $link.getAttribute("href")!;
+				$link.setAttribute("data-href", url);
+				$link.removeAttribute("href");
+				if (url.startsWith("/rails/active_storage/blobs/redirect")) {
+					log.info(`该图片是上传到Greasyfork的图片，拦截默认行为，不做提示`);
+					return;
+				}
+				DOMUtils.on($link, "click", () => {
 					Qmsg.warning(
 						/*html*/ `<div style="overflow-wrap: anywhere;">${i18next.t(
 							"拦截跳转："

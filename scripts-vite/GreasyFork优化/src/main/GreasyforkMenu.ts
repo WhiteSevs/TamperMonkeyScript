@@ -2,6 +2,7 @@ import { GreasyforkApi } from "@/api/GreasyForkApi";
 import { GM_Menu, log, utils } from "@/env";
 import { GreasyforkRouter } from "@/router/GreasyforkRouter";
 import { PopsPanel } from "@/setting/setting";
+import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 import i18next from "i18next";
 import Qmsg from "qmsg";
 
@@ -49,7 +50,9 @@ export const GreasyforkMenu = {
 			Qmsg.error(i18next.t("未获取到【脚本列表】"));
 		} else {
 			let loading = Qmsg.loading(
-				getLoadingHTML(GreasyforkApi.getScriptName(scriptUrlList[0]) as string),
+				getLoadingHTML(
+					GreasyforkUrlUtils.getScriptName(scriptUrlList[0]) as string
+				),
 				{
 					html: true,
 				}
@@ -58,9 +61,9 @@ export const GreasyforkMenu = {
 			let failedNums = 0;
 			for (let index = 0; index < scriptUrlList.length; index++) {
 				let scriptUrl = scriptUrlList[index];
-				let scriptId = GreasyforkApi.getScriptId(scriptUrl) as string;
+				let scriptId = GreasyforkUrlUtils.getScriptId(scriptUrl) as string;
 				log.success("更新：" + scriptUrl);
-				let scriptName = GreasyforkApi.getScriptName(scriptUrl) as string;
+				let scriptName = GreasyforkUrlUtils.getScriptName(scriptUrl) as string;
 				loading.setHTML(getLoadingHTML(scriptName, index + 1));
 				let codeSyncFormData = await GreasyforkApi.getSourceCodeSyncFormData(
 					scriptId
@@ -130,7 +133,7 @@ export const GreasyforkMenu = {
 				)
 				.forEach((item) => {
 					scriptUrlList = scriptUrlList.concat(
-						GreasyforkApi.getAdminUrl(item.href)
+						GreasyforkUrlUtils.getAdminUrl(item.href)
 					);
 				});
 			GreasyforkMenu.updateScript(scriptUrlList);
@@ -161,7 +164,7 @@ export const GreasyforkMenu = {
 				)
 				.forEach((item) => {
 					scriptUrlList = scriptUrlList.concat(
-						GreasyforkApi.getAdminUrl(item.href)
+						GreasyforkUrlUtils.getAdminUrl(item.href)
 					);
 				});
 			GreasyforkMenu.updateScript(scriptUrlList);
@@ -192,7 +195,7 @@ export const GreasyforkMenu = {
 				)
 				.forEach((item) => {
 					scriptUrlList = scriptUrlList.concat(
-						GreasyforkApi.getAdminUrl(item.href)
+						GreasyforkUrlUtils.getAdminUrl(item.href)
 					);
 				});
 			GreasyforkMenu.updateScript(scriptUrlList);

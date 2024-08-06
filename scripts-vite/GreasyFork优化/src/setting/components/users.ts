@@ -38,11 +38,17 @@ export const SettingUIUsers: PopsPanelContentConfig = {
 							type: "forms",
 							forms: [
 								UISwitch(
-									i18next.t("美化私聊页面"),
+									i18next.t("美化私信页面"),
 									"conversations-beautifyDialogBox",
 									true,
 									void 0,
 									i18next.t("美化为左右对话模式")
+								),
+								UISwitch(
+									i18next.t("美化私信列表"),
+									"conversations-beautifyPrivateMessageList",
+									true,
+									void 0
 								),
 							],
 						},

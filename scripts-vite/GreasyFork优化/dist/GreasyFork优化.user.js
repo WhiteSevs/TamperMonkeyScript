@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.8.4
+// @version            2024.8.6
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -12,9 +12,9 @@
 // @match              *://greasyfork.org/*
 // @require            https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.0/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.4/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.0/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.0/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.1/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require            https://fastly.jsdelivr.net/npm/i18next@23.12.2/i18next.min.js
 // @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
@@ -267,8 +267,26 @@
     成功录入: "成功录入",
     "快捷键 {{key}} 已被 {{isUsedKey}} 占用": "快捷键 {{key}} 已被 {{isUsedKey}} 占用",
     私聊: "私聊",
-    美化私聊页面: "美化私聊页面",
-    美化为左右对话模式: "美化为左右对话模式"
+    美化私信页面: "美化私信页面",
+    美化为左右对话模式: "美化为左右对话模式",
+    "最后回复：": "最后回复：",
+    进入: "进入",
+    记住回复内容: "记住回复内容",
+    "监听表单内的textarea内容改变并存储到indexDB中，提交表单将清除保存的数据，误刷新页面时可动态恢复": "监听表单内的textarea内容改变并存储到indexDB中，提交表单将清除保存的数据，误刷新页面时可动态恢复",
+    表单: "表单",
+    自动清理空间: "自动清理空间",
+    不清理: "不清理",
+    "{{value}} 天": "{{value}} 天",
+    "{{value}} 周": "{{value}} 周",
+    "{{value}} 个月": "{{value}} 个月",
+    半年: "半年",
+    计算中: "计算中",
+    根据设置的间隔时间自动清理保存的回复内容: "根据设置的间隔时间自动清理保存的回复内容",
+    "数据占用空间：{{size}}": "数据占用空间：{{size}}",
+    当前存储的数据所占用的空间大小: "当前存储的数据所占用的空间大小",
+    清空: "清空",
+    清理成功: "清理成功",
+    清理失败: "清理失败"
   };
   const en_US_language = {
     GreasyFork优化: "GreasyFork Optimization",
@@ -487,8 +505,26 @@
     成功录入: "Successful entry",
     "快捷键 {{key}} 已被 {{isUsedKey}} 占用": "The shortcut key {{key}} is already used by {{isUsedKey}}",
     私聊: "Private Chat",
-    美化私聊页面: "Beautify the private chat page",
-    美化为左右对话模式: "Beautify as a left-right dialogue mode"
+    美化私信页面: "Beautify the private message page",
+    美化为左右对话模式: "Beautify as a left-right dialogue mode",
+    "最后回复：": "Final response:",
+    进入: "Enter",
+    记住回复内容: "Remember the reply content",
+    "监听表单内的textarea内容改变并存储到indexDB中，提交表单将清除保存的数据，误刷新页面时可动态恢复": "Monitor changes to the textarea content in the form and store it in the index database. Submitting the form will clear the saved data, and dynamic recovery can be achieved when the page is accidentally refreshed",
+    表单: "Forms",
+    自动清理空间: "Automatically clear space",
+    不清理: "Not cleaning",
+    "{{value}} 天": "{{value}} day",
+    "{{value}} 周": "{{value}} weeks",
+    "{{value}} 个月": "{{value}} months",
+    半年: "half a year",
+    计算中: "In the process of calculation",
+    根据设置的间隔时间自动清理保存的回复内容: "Automatically clean up saved reply content according to the set interval time",
+    "数据占用空间：{{size}}": "Data occupancy space: {{size}}",
+    当前存储的数据所占用的空间大小: "The size of the space occupied by the currently stored data",
+    清空: "Clear",
+    清理成功: "Cleanup successful",
+    清理失败: "Cleaning failed"
   };
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
@@ -600,7 +636,7 @@
     setTimeout: _unsafeWindow.setTimeout
   });
   const addStyle = utils.addStyle.bind(utils);
-  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack) {
+  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack) {
     let result = {
       text,
       type: "button",
@@ -615,7 +651,7 @@
           clickCallBack(event);
         }
       },
-      afterAddToUListCallBack: void 0
+      afterAddToUListCallBack
     };
     return result;
   };
@@ -664,56 +700,6 @@
     return result;
   };
   const GreasyforkApi = {
-    /**
-     * 获取代码搜索地址
-     * @param url
-     */
-    getCodeSearchUrl(url) {
-      return "https://greasyfork.org/zh-CN/scripts/code-search?c=" + url;
-    },
-    /**
-     * 获取管理地址
-     * @param url
-     */
-    getAdminUrl(url) {
-      return url + "/admin";
-    },
-    /**
-     * 从字符串中提取Id
-     * @param text
-     */
-    getScriptId(text) {
-      var _a2, _b;
-      return (_b = (_a2 = text || window.location.pathname) == null ? void 0 : _a2.match(
-        /\/scripts\/([\d]+)/i
-      )) == null ? void 0 : _b[1];
-    },
-    /**
-     * 从字符串中提取用户id
-     * @param text
-     */
-    getUserId(text) {
-      var _a2;
-      return (_a2 = (text || window.location.pathname).match(/\/users\/([\d]+)/i)) == null ? void 0 : _a2[1];
-    },
-    /**
-     * 从字符串中提取脚本名
-     * @param text
-     */
-    getScriptName(text) {
-      let pathname = window.location.pathname;
-      if (text != null) {
-        pathname = new URL(text).pathname;
-      }
-      pathname = decodeURIComponent(pathname);
-      let pathnameSplit = pathname.split("/");
-      for (const name of pathnameSplit) {
-        let nameMatch = name.match(/[\d]+/);
-        if (nameMatch && nameMatch.length) {
-          return nameMatch[1];
-        }
-      }
-    },
     /**
      * 获取需要切换语言的Url
      */
@@ -964,61 +950,172 @@
      */
     isCode() {
       var _a2;
-      return (_a2 = window.location.pathname.split("/")) == null ? void 0 : _a2.includes("code");
+      return Boolean((_a2 = window.location.pathname.split("/")) == null ? void 0 : _a2.includes("code"));
     },
     /**
      * （严格比较）代码页面
      */
     isCodeStrict() {
-      return window.location.pathname.endsWith("/code");
+      return Boolean(window.location.pathname.endsWith("/code"));
     },
     /**
      * 版本页面
      */
     isVersion() {
-      return window.location.pathname.endsWith("/versions");
+      return Boolean(window.location.pathname.endsWith("/versions"));
     },
     /**
      * 用户
      */
     isUsers() {
-      return window.location.pathname.match(/\/.+\/users\/.+/gi);
+      return Boolean(window.location.pathname.match(/\/.+\/users\/.+/gi));
+    },
+    /**
+     * 私聊用户页面，可能是全部私信页面，也可能是某个用户的私信页面
+     */
+    isUsersConversations() {
+      return this.isUsers() && Boolean(window.location.pathname.includes("/conversations"));
+    },
+    /**
+     * 私聊xxx用户页面
+     */
+    isUsersConversationsWithSomeUser() {
+      return this.isUsersConversations() && Boolean(window.location.pathname.match(/\/conversations\/[\d]+/));
     },
     /**
      * 脚本页面(单个脚本的页面)
      */
     isScript() {
-      return window.location.pathname.includes("/scripts/");
+      return Boolean(window.location.pathname.includes("/scripts/"));
     },
     /**
      * 脚本列表页面
      */
     isScriptList() {
-      return window.location.pathname.endsWith("/scripts");
+      return Boolean(window.location.pathname.endsWith("/scripts"));
     },
     /**
      * 库列表页面
      */
     isScriptLibraryList() {
-      return window.location.pathname.endsWith("/libraries");
+      return Boolean(window.location.pathname.endsWith("/libraries"));
     },
     /**
      * 脚本代码搜索页面
      */
     isScriptCodeSearch() {
-      return window.location.pathname.endsWith("/code-search");
+      return Boolean(window.location.pathname.endsWith("/code-search"));
     },
     /**
      * 讨论页面
      */
     isDiscuessions() {
-      return window.location.pathname.endsWith("/discussions");
+      return Boolean(window.location.pathname.endsWith("/discussions"));
+    }
+  };
+  const GreasyforkUrlUtils = {
+    /**
+     * 获取脚本安装的链接
+     * @param scriptId
+     * @param scriptVersion
+     * @param scriptName
+     * @returns
+     */
+    getInstallUrl(scriptId, scriptVersion, scriptName) {
+      if (utils.isNotNull(scriptName)) {
+        scriptName = "/" + scriptName;
+      } else {
+        scriptName = "";
+      }
+      return `https://update.greasyfork.org/scripts/${scriptId}/${scriptVersion}${scriptName}.user.js`;
     },
     /**
-     * 私聊用户页面
+     * 获取脚本的代码页面链接
+     * @param scriptId
+     * @param scriptVersion
+     * @returns
      */
-    isConversations() {
-      return this.isUsers() && window.location.pathname.includes("/conversations");
+    getCodeUrl(scriptId, scriptVersion) {
+      if (utils.isNull(scriptVersion)) {
+        scriptVersion = "";
+      }
+      return `https://greasyfork.org/scripts/${scriptId}/code?version=${scriptVersion}`;
+    },
+    /**
+     * 获取代码搜索地址
+     * @param url
+     */
+    getCodeSearchUrl(url) {
+      return "https://greasyfork.org/zh-CN/scripts/code-search?c=" + url;
+    },
+    /**
+     * 获取脚本的信息
+     * @param scriptId 脚本id
+     */
+    getScriptInfoUrl(scriptId) {
+      return `https://greasyfork.org/scripts/${scriptId}.json`;
+    },
+    /**
+     * 获取管理地址
+     * @param url
+     */
+    getAdminUrl(url) {
+      return url + "/admin";
+    },
+    /**
+     * 从字符串中提取Id
+     * @param text
+     * @default window.location.pathname
+     */
+    getScriptId(text) {
+      var _a2, _b;
+      return (_b = (_a2 = text || window.location.pathname) == null ? void 0 : _a2.match(
+        /\/scripts\/([\d]+)/i
+      )) == null ? void 0 : _b[1];
+    },
+    /**
+     * 从字符串中提取用户id
+     * @param text
+     * @default window.location.pathname
+     */
+    getUserId(text) {
+      var _a2;
+      return (_a2 = (text || window.location.pathname).match(/\/users\/([\d]+)/i)) == null ? void 0 : _a2[1];
+    },
+    /**
+     * 从字符串中提取脚本名
+     * @param text
+     */
+    getScriptName(text) {
+      let pathname = window.location.pathname;
+      if (text != null) {
+        pathname = new URL(text).pathname;
+      }
+      pathname = decodeURIComponent(pathname);
+      let pathnameSplit = pathname.split("/");
+      for (const name of pathnameSplit) {
+        let nameMatch = name.match(/[\d]+/);
+        if (nameMatch && nameMatch.length) {
+          return nameMatch[1];
+        }
+      }
+    },
+    /**
+     * 获取需要切换语言的Url
+     * @default "zh-CN"
+     */
+    getSwitchLanguageUrl(localeLanguage = "zh-CN") {
+      let url = window.location.origin;
+      let urlSplit = window.location.pathname.split("/");
+      urlSplit[1] = localeLanguage;
+      url = url + urlSplit.join("/");
+      url += window.location.search;
+      if (window.location.search === "") {
+        url += "?locale_override=1";
+      } else if (!window.location.search.includes("locale_override=1")) {
+        url += "&locale_override=1";
+      }
+      return url;
     }
   };
   const GreasyforkMenu = {
@@ -1065,7 +1162,9 @@
         Qmsg.error(i18next.t("未获取到【脚本列表】"));
       } else {
         let loading = Qmsg.loading(
-          getLoadingHTML(GreasyforkApi.getScriptName(scriptUrlList[0])),
+          getLoadingHTML(
+            GreasyforkUrlUtils.getScriptName(scriptUrlList[0])
+          ),
           {
             html: true
           }
@@ -1074,9 +1173,9 @@
         let failedNums = 0;
         for (let index = 0; index < scriptUrlList.length; index++) {
           let scriptUrl = scriptUrlList[index];
-          let scriptId = GreasyforkApi.getScriptId(scriptUrl);
+          let scriptId = GreasyforkUrlUtils.getScriptId(scriptUrl);
           log.success("更新：" + scriptUrl);
-          let scriptName = GreasyforkApi.getScriptName(scriptUrl);
+          let scriptName = GreasyforkUrlUtils.getScriptName(scriptUrl);
           loading.setHTML(getLoadingHTML(scriptName, index + 1));
           let codeSyncFormData = await GreasyforkApi.getSourceCodeSyncFormData(
             scriptId
@@ -1143,7 +1242,7 @@
           "#user-script-list-section li a.script-link"
         ).forEach((item) => {
           scriptUrlList = scriptUrlList.concat(
-            GreasyforkApi.getAdminUrl(item.href)
+            GreasyforkUrlUtils.getAdminUrl(item.href)
           );
         });
         GreasyforkMenu.updateScript(scriptUrlList);
@@ -1169,7 +1268,7 @@
           "#user-unlisted-script-list li a.script-link"
         ).forEach((item) => {
           scriptUrlList = scriptUrlList.concat(
-            GreasyforkApi.getAdminUrl(item.href)
+            GreasyforkUrlUtils.getAdminUrl(item.href)
           );
         });
         GreasyforkMenu.updateScript(scriptUrlList);
@@ -1195,7 +1294,7 @@
           "#user-library-script-list li a.script-link"
         ).forEach((item) => {
           scriptUrlList = scriptUrlList.concat(
-            GreasyforkApi.getAdminUrl(item.href)
+            GreasyforkUrlUtils.getAdminUrl(item.href)
           );
         });
         GreasyforkMenu.updateScript(scriptUrlList);
@@ -1566,7 +1665,7 @@
     shortOption: {
       "gf-quickReply": {
         target: () => {
-          let $commentText = document.querySelector("#comment_text");
+          let $commentText = document.querySelector("form textarea");
           let $replyBtn = document.querySelector(
             'input[name="commit"][type="submit"]'
           );
@@ -1593,6 +1692,180 @@
     },
     init() {
       this.shortCut.initGlobalKeyboardListener(this.shortOption);
+    }
+  };
+  const GreasyforkRememberFormTextArea = {
+    $data: {
+      DB_KEY: "data"
+    },
+    init() {
+      PopsPanel.execMenuOnce("rememberReplyContent", () => {
+        this.rememberReplyContent();
+      });
+      PopsPanel.execMenu("gf-autoClearRememberReplayContent", (value) => {
+        this.autoClearRememberReplayContent(value);
+      });
+    },
+    /**
+     * 获取数据库连接对象
+     */
+    getDB() {
+      const dbName = "reply_record";
+      const storeName = "textarea_text";
+      const dbVersion = 2;
+      let db = new utils.indexedDB(dbName, storeName, dbVersion);
+      return db;
+    },
+    /**
+     * 记住回复内容
+     */
+    rememberReplyContent() {
+      const TAG = "记住回复内容 -- ";
+      let $formList = document.querySelectorAll("form");
+      if (!$formList.length) {
+        log.warn(TAG + "不存在表单");
+        return;
+      }
+      $formList.forEach(async ($form) => {
+        let $textarea = $form.querySelector("textarea");
+        let $replySubmit = $form.querySelector(`input[type="submit"]`);
+        if (!$textarea) {
+          return;
+        }
+        if (!$replySubmit) {
+          return;
+        }
+        log.success(`开始监听 --- 记住回复内容`);
+        let db = this.getDB();
+        let delyClear_rememberReplyContent_url = _GM_getValue(
+          "delyClear_rememberReplyContent_url"
+        );
+        if (delyClear_rememberReplyContent_url) {
+          db.get(this.$data.DB_KEY).then(
+            (result) => {
+              if (!result.success) {
+                return;
+              }
+              let localDataIndex = result.data.findIndex((item) => {
+                return item.url === window.location.href;
+              });
+              if (localDataIndex == -1) {
+                return;
+              }
+              result.data.splice(localDataIndex, 1);
+              db.save(this.$data.DB_KEY, result.data).then((result2) => {
+                if (result2.success) ;
+                else {
+                  log.error(["清除失败", result2]);
+                }
+              });
+            }
+          );
+        }
+        db.get(this.$data.DB_KEY).then((result) => {
+          console.log(result);
+          if (!result.success) {
+            return;
+          }
+          let localDataIndex = result.data.findIndex((item) => {
+            return item.url === window.location.href;
+          });
+          if (localDataIndex == -1) {
+            return;
+          }
+          $textarea.value = result.data[localDataIndex].text;
+        });
+        domUtils.on(
+          $textarea,
+          ["propertychange", "input"],
+          utils.debounce((event) => {
+            let data = {
+              url: window.location.href,
+              text: $textarea.value,
+              time: Date.now()
+            };
+            db.get(this.$data.DB_KEY).then(
+              (result) => {
+                if (!result.success && result.event && result.event.type !== "success") {
+                  log.warn(result);
+                  return;
+                }
+                if (result.data == null) {
+                  result.data = [];
+                }
+                let localDataIndex = result.data.findIndex((item) => {
+                  return item.url === data.url;
+                });
+                if (localDataIndex !== -1) {
+                  if (utils.isNull(data.text)) {
+                    result.data.splice(localDataIndex, 1);
+                  } else {
+                    result.data[localDataIndex] = utils.assign(
+                      result.data[localDataIndex],
+                      data
+                    );
+                  }
+                } else {
+                  result.data = result.data.concat(data);
+                }
+                db.save(this.$data.DB_KEY, result.data).then((result2) => {
+                  if (result2.success) ;
+                  else {
+                    log.error(["保存失败", result2]);
+                  }
+                });
+              }
+            );
+          }, 25)
+        );
+        domUtils.on(
+          $form,
+          "submit",
+          (event) => {
+            log.info(`提交表单，清空数据库`);
+            _GM_setValue(
+              "delyClear_rememberReplyContent_url",
+              window.location.href
+            );
+          },
+          {
+            capture: true
+          }
+        );
+      });
+    },
+    /**
+     * 自动清理空间
+     * @param intervalDay 间隔天数
+     */
+    autoClearRememberReplayContent(intervalDay) {
+      const KEY2 = "gf-last-time-autoClearRememberReplayContent";
+      let lastClearTime = _GM_getValue(KEY2);
+      let intervalTime = intervalDay * 24 * 60 * 60 * 1e3;
+      if (lastClearTime) {
+        if (Date.now() - lastClearTime > intervalTime) {
+          _GM_setValue(KEY2, Date.now());
+        } else {
+          return;
+        }
+      }
+      _GM_setValue(KEY2, Date.now());
+    },
+    /**
+     * 获取所有的记住的回复内容
+     */
+    async getAllRememberReplyContent() {
+      let db = this.getDB();
+      let result = await db.get(this.$data.DB_KEY);
+      return result.data ?? [];
+    },
+    /**
+     * 清空所有的记住的回复内容
+     */
+    async clearAllRememberReplyContent() {
+      let db = this.getDB();
+      let result = await db.delete(this.$data.DB_KEY);
+      return result.success;
     }
   };
   const SettingUIGeneral = {
@@ -1928,7 +2201,7 @@
                         "#user-script-list-section li a.script-link"
                       ).forEach((item) => {
                         scriptUrlList = scriptUrlList.concat(
-                          GreasyforkApi.getAdminUrl(item.href)
+                          GreasyforkUrlUtils.getAdminUrl(item.href)
                         );
                       });
                       GreasyforkMenu.updateScript(scriptUrlList);
@@ -1961,7 +2234,7 @@
                         "#user-unlisted-script-list li a.script-link"
                       ).forEach((item) => {
                         scriptUrlList = scriptUrlList.concat(
-                          GreasyforkApi.getAdminUrl(item.href)
+                          GreasyforkUrlUtils.getAdminUrl(item.href)
                         );
                       });
                       GreasyforkMenu.updateScript(scriptUrlList);
@@ -1994,10 +2267,117 @@
                         "#user-library-script-list li a.script-link"
                       ).forEach((item) => {
                         scriptUrlList = scriptUrlList.concat(
-                          GreasyforkApi.getAdminUrl(item.href)
+                          GreasyforkUrlUtils.getAdminUrl(item.href)
                         );
                       });
                       GreasyforkMenu.updateScript(scriptUrlList);
+                    }
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            type: "deepMenu",
+            text: i18next.t("表单"),
+            forms: [
+              {
+                type: "forms",
+                text: "",
+                forms: [
+                  UISwitch(
+                    i18next.t("记住回复内容"),
+                    "rememberReplyContent",
+                    true,
+                    void 0,
+                    i18next.t(
+                      "监听表单内的textarea内容改变并存储到indexDB中，提交表单将清除保存的数据，误刷新页面时可动态恢复"
+                    )
+                  ),
+                  UISelect(
+                    i18next.t("自动清理空间"),
+                    "gf-autoClearRememberReplayContent",
+                    7,
+                    [
+                      {
+                        text: i18next.t("不清理"),
+                        value: -1
+                      },
+                      {
+                        text: i18next.t("{{value}} 天", {
+                          value: 1
+                        }),
+                        value: 1
+                      },
+                      {
+                        text: i18next.t("{{value}} 周", {
+                          value: 1
+                        }),
+                        value: 7
+                      },
+                      {
+                        text: i18next.t("{{value}} 个月", {
+                          value: 1
+                        }),
+                        value: 30
+                      },
+                      {
+                        text: i18next.t("{{value}} 个月", {
+                          value: 2
+                        }),
+                        value: 60
+                      },
+                      {
+                        text: i18next.t("{{value}} 个月", {
+                          value: 3
+                        }),
+                        value: 90
+                      },
+                      {
+                        text: i18next.t("半年"),
+                        value: 180
+                      }
+                    ],
+                    void 0,
+                    i18next.t("根据设置的间隔时间自动清理保存的回复内容")
+                  ),
+                  UIButton(
+                    i18next.t(`数据占用空间：{{size}}`, {
+                      size: i18next.t("计算中")
+                    }),
+                    i18next.t("当前存储的数据所占用的空间大小"),
+                    i18next.t("清空"),
+                    void 0,
+                    void 0,
+                    void 0,
+                    "default",
+                    async () => {
+                      let isClear = await GreasyforkRememberFormTextArea.clearAllRememberReplyContent();
+                      if (isClear) {
+                        Qmsg.success(i18next.t("清理成功"));
+                      } else {
+                        Qmsg.error(i18next.t("清理失败"));
+                      }
+                    },
+                    async (formConfig, container) => {
+                      let $leftTopText = container.ulElement.querySelector(
+                        'li[data-key="gf-autoClearRememberReplayContent"]+li .pops-panel-item-left-main-text'
+                      );
+                      let allText = await GreasyforkRememberFormTextArea.getAllRememberReplyContent();
+                      let showSize = "";
+                      if (allText.length) {
+                        showSize = utils.getTextStorageSize(
+                          JSON.stringify(allText)
+                        );
+                      } else {
+                        showSize = utils.getTextStorageSize("");
+                      }
+                      $leftTopText.innerText = i18next.t(
+                        `数据占用空间：{{size}}`,
+                        {
+                          size: showSize
+                        }
+                      );
                     }
                   )
                 ]
@@ -2188,42 +2568,6 @@
       }
     }
   };
-  const GreasyforkUrlUtils = {
-    /**
-     * 获取脚本安装的链接
-     * @param scriptId
-     * @param scriptVersion
-     * @param scriptName
-     * @returns
-     */
-    getInstallUrl(scriptId, scriptVersion, scriptName) {
-      if (utils.isNotNull(scriptName)) {
-        scriptName = "/" + scriptName;
-      } else {
-        scriptName = "";
-      }
-      return `https://update.greasyfork.org/scripts/${scriptId}/${scriptVersion}${scriptName}.user.js`;
-    },
-    /**
-     * 获取脚本的代码页面链接
-     * @param scriptId
-     * @param scriptVersion
-     * @returns
-     */
-    getCodeUrl(scriptId, scriptVersion) {
-      if (utils.isNull(scriptVersion)) {
-        scriptVersion = "";
-      }
-      return `https://greasyfork.org/scripts/${scriptId}/code?version=${scriptVersion}`;
-    },
-    /**
-     * 获取脚本的信息
-     * @param scriptId 脚本id
-     */
-    getScriptInfoUrl(scriptId) {
-      return `https://greasyfork.org/scripts/${scriptId}.json`;
-    }
-  };
   const GreasyforkVersions = {
     init() {
       PopsPanel.execMenuOnce("beautifyHistoryVersionPage", () => {
@@ -2345,7 +2689,7 @@
       Qmsg.error(i18next.t("请先登录账号"));
       return;
     }
-    let userId = GreasyforkApi.getUserId(
+    let userId = GreasyforkUrlUtils.getUserId(
       GreasyforkMenu.getUserLinkElement().href
     );
     if (userId == null) {
@@ -2764,7 +3108,7 @@
             return;
           }
           let scriptId = scriptIdMatch[scriptIdMatch.length - 1];
-          window.location.href = GreasyforkApi.getCodeSearchUrl(
+          window.location.href = GreasyforkUrlUtils.getCodeSearchUrl(
             `greasyfork.org/scripts/${scriptId}`
           );
         });
@@ -2779,7 +3123,7 @@
       }
       log.info("脚本首页新增【今日检查】");
       let scriptStatsJSONInfo = await GreasyforkApi.getScriptStats(
-        GreasyforkApi.getScriptId()
+        GreasyforkUrlUtils.getScriptId()
       );
       if (!scriptStatsJSONInfo) {
         return;
@@ -2826,7 +3170,7 @@
         domUtils.on(copyButton, "click", async function() {
           let loading = Qmsg.loading(i18next.t("加载文件中..."));
           let getResp = await httpx.get(
-            `https://greasyfork.org/zh-CN/scripts/${GreasyforkApi.getScriptId()}.json`,
+            `https://greasyfork.org/zh-CN/scripts/${GreasyforkUrlUtils.getScriptId()}.json`,
             {
               fetch: true,
               responseType: "json"
@@ -3824,7 +4168,7 @@
           ".discussion-meta-item-script-name a"
         )) == null ? void 0 : _a2.href,
         /** 脚本id */
-        scriptId: GreasyforkApi.getScriptId(
+        scriptId: GreasyforkUrlUtils.getScriptId(
           (_b = $listContainer.querySelector(
             ".discussion-meta-item-script-name a"
           )) == null ? void 0 : _b.href
@@ -3834,7 +4178,7 @@
         /** 发布的用户主页地址 */
         postUserHomeUrl: $listContainer.querySelector("a.user-link").href,
         /** 发布的用户id */
-        postUserId: GreasyforkApi.getUserId(
+        postUserId: GreasyforkUrlUtils.getUserId(
           $listContainer.querySelector("a.user-link").href
         ),
         /** 发布的时间 */
@@ -3863,7 +4207,7 @@
         info.replyUserHomeUrl = $listContainer.querySelector(
           ".discussion-meta-item .discussion-meta-item a.user-link"
         ).href;
-        info.replyUserId = GreasyforkApi.getUserId(info.replyUserHomeUrl);
+        info.replyUserId = GreasyforkUrlUtils.getUserId(info.replyUserHomeUrl);
         info.replyTimeStamp = new Date(
           (_d = $listContainer.querySelector(
             ".discussion-meta-item .discussion-meta-item relative-time"
@@ -4299,11 +4643,16 @@
                 type: "forms",
                 forms: [
                   UISwitch(
-                    i18next.t("美化私聊页面"),
+                    i18next.t("美化私信页面"),
                     "conversations-beautifyDialogBox",
                     true,
                     void 0,
                     i18next.t("美化为左右对话模式")
+                  ),
+                  UISwitch(
+                    i18next.t("美化私信列表"),
+                    "conversations-beautifyPrivateMessageList",
+                    true
                   )
                 ]
               }
@@ -5320,6 +5669,11 @@
       PopsPanel.execMenuOnce("conversations-beautifyDialogBox", () => {
         return this.beautifyDialogBox();
       });
+      domUtils.ready(() => {
+        PopsPanel.execMenuOnce("conversations-beautifyPrivateMessageList", () => {
+          this.beautifyPrivateMessageList();
+        });
+      });
     },
     /**
      * 美化对话框
@@ -5328,6 +5682,69 @@
       log.info("美化对话框");
       let result = [];
       result.push(addStyle(beautifyContentCSS));
+    },
+    /**
+     * 美化私信列表
+     */
+    beautifyPrivateMessageList() {
+      log.info(`美化私信列表`);
+      addStyle(
+        /*css*/
+        `
+		.user-conversations-item{
+			list-style: none;
+			border: 1px solid #bfbfbf;
+			border-radius: 4px;
+			display: flex;
+			gap: 10px;
+			flex-direction: column;
+			padding: 4px 20px;
+			margin: 10px 0px;
+		}
+		.user-conversations-item .user-link-container{
+
+		}
+		.user-conversations-item .user-link-container .user-latest-send-time{
+			float: right;
+		}
+		.user-conversations-item .enter-coversations{
+			float: right;
+		}
+		`
+      );
+      document.querySelectorAll("section.text-content ul li").forEach(($li) => {
+        var _a2;
+        let $user = $li.querySelector(
+          'a[href*="conversations"]'
+        );
+        let chatUrl = $user.href;
+        let userName = (_a2 = $user.textContent) == null ? void 0 : _a2.split(" ")[1];
+        let $latestMsgUser = $li.querySelector("a.user-link");
+        let latestSendMsgUser = null;
+        let latestSendMsgUserHomeUrl = null;
+        let latestSendMsgTimeText = null;
+        if ($latestMsgUser) {
+          latestSendMsgUser = $latestMsgUser.textContent;
+          latestSendMsgUserHomeUrl = $latestMsgUser.href;
+          let $relativeTime = $li.querySelector("relative-time");
+          new Date($relativeTime.getAttribute("datetime"));
+          latestSendMsgTimeText = $relativeTime.shadowRoot.textContent;
+        }
+        $li.classList.add("user-conversations-item");
+        GreasyforkUrlUtils.getUserId();
+        $li.innerHTML = /*html*/
+        `
+			<div class="user-link-container">
+				<a class="user-link" href="${chatUrl}">${userName}</a>
+				<span class="user-latest-send-time">${latestSendMsgTimeText}</span>
+			</div>
+			<div class="latest-send-user-container">
+				${i18next.t("最后回复：")}
+				<a href="${latestSendMsgUserHomeUrl}">${latestSendMsgUser}</a>
+				<a class="enter-coversations" href="${chatUrl}">${i18next.t("进入")}</a>
+			</div>
+			`;
+      });
     }
   };
   const Greasyfork = {
@@ -5348,7 +5765,7 @@
       }
       if (GreasyforkRouter.isUsers()) {
         GreasyforkUsers.init();
-        if (GreasyforkRouter.isConversations()) {
+        if (GreasyforkRouter.isUsersConversations()) {
           GreasyforkConversations.init();
         }
       }
@@ -5358,6 +5775,7 @@
       domUtils.ready(() => {
         GreasyforkMenu.initEnv();
         GreasyforkAccount.init();
+        GreasyforkRememberFormTextArea.init();
         GreasyforkMenu.handleLocalGotoCallBack();
         PopsPanel.execMenuOnce("fixImageWidth", () => {
           Greasyfork.fixImageWidth();
@@ -5521,11 +5939,15 @@
     overlayBedImageClickEvent() {
       log.info("覆盖图床图片的parentElement的a标签");
       document.querySelectorAll(".user-content a>img").forEach((imgElement) => {
-        let linkElement = imgElement.parentElement;
-        let url = linkElement.getAttribute("href");
-        linkElement.setAttribute("data-href", url);
-        linkElement.removeAttribute("href");
-        domUtils.on(linkElement, "click", () => {
+        let $link = imgElement.parentElement;
+        let url = $link.getAttribute("href");
+        $link.setAttribute("data-href", url);
+        $link.removeAttribute("href");
+        if (url.startsWith("/rails/active_storage/blobs/redirect")) {
+          log.info(`该图片是上传到Greasyfork的图片，拦截默认行为，不做提示`);
+          return;
+        }
+        domUtils.on($link, "click", () => {
           Qmsg.warning(
             /*html*/
             `<div style="overflow-wrap: anywhere;">${i18next.t(

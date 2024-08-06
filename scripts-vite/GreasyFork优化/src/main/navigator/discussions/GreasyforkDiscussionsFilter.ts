@@ -1,6 +1,7 @@
 import { GreasyforkApi } from "@/api/GreasyForkApi";
 import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
+import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 import { GM_addStyle } from "ViteGM";
 import i18next from "i18next";
 
@@ -151,7 +152,7 @@ export const GreasyforkDiscussionsFilter = {
 				".discussion-meta-item-script-name a"
 			)?.href,
 			/** 脚本id */
-			scriptId: GreasyforkApi.getScriptId(
+			scriptId: GreasyforkUrlUtils.getScriptId(
 				$listContainer.querySelector<HTMLAnchorElement>(
 					".discussion-meta-item-script-name a"
 				)?.href
@@ -164,7 +165,7 @@ export const GreasyforkDiscussionsFilter = {
 			postUserHomeUrl:
 				$listContainer.querySelector<HTMLAnchorElement>("a.user-link")!.href,
 			/** 发布的用户id */
-			postUserId: GreasyforkApi.getUserId(
+			postUserId: GreasyforkUrlUtils.getUserId(
 				$listContainer.querySelector<HTMLAnchorElement>("a.user-link")!.href
 			)!,
 			/** 发布的时间 */
@@ -202,7 +203,7 @@ export const GreasyforkDiscussionsFilter = {
 			info.replyUserHomeUrl = $listContainer.querySelector<HTMLAnchorElement>(
 				".discussion-meta-item .discussion-meta-item a.user-link"
 			)!.href as string;
-			info.replyUserId = GreasyforkApi.getUserId(info.replyUserHomeUrl);
+			info.replyUserId = GreasyforkUrlUtils.getUserId(info.replyUserHomeUrl);
 			info.replyTimeStamp = new Date(
 				$listContainer
 					.querySelector<HTMLElement>(

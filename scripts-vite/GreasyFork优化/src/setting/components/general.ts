@@ -4,15 +4,15 @@ import { UIInput } from "../common-components/ui-input";
 import { UISwitch } from "../common-components/ui-switch";
 import { PopsPanel } from "../setting";
 import { GreasyforkMenu } from "@/main/GreasyforkMenu";
-import { GreasyforkApi } from "@/api/GreasyForkApi";
 import { GreasyforkRouter } from "@/router/GreasyforkRouter";
 import i18next from "i18next";
 import { UISelect } from "../common-components/ui-select";
-import { DOMUtils, log, utils } from "@/env";
-import { GreasyforkScriptsFilter } from "@/main/navigator/scripts/GreasyforkScriptsFilter";
+import { log, utils } from "@/env";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { UIButtonShortCut } from "../common-components/ui-button-shortcut";
 import { GreasyforkShortCut } from "@/main/GreasyforkShortCut";
+import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
+import { GreasyforkRememberFormTextArea } from "@/main/GreasyforkRememberFormTextArea";
 
 export const SettingUIGeneral: PopsPanelContentConfig = {
 	id: "greasy-fork-panel-config-account",
@@ -358,7 +358,7 @@ export const SettingUIGeneral: PopsPanelContentConfig = {
 											)
 											.forEach((item) => {
 												scriptUrlList = scriptUrlList.concat(
-													GreasyforkApi.getAdminUrl(item.href)
+													GreasyforkUrlUtils.getAdminUrl(item.href)
 												);
 											});
 										GreasyforkMenu.updateScript(scriptUrlList);
@@ -394,7 +394,7 @@ export const SettingUIGeneral: PopsPanelContentConfig = {
 											)
 											.forEach((item) => {
 												scriptUrlList = scriptUrlList.concat(
-													GreasyforkApi.getAdminUrl(item.href)
+													GreasyforkUrlUtils.getAdminUrl(item.href)
 												);
 											});
 										GreasyforkMenu.updateScript(scriptUrlList);
@@ -430,10 +430,120 @@ export const SettingUIGeneral: PopsPanelContentConfig = {
 											)
 											.forEach((item) => {
 												scriptUrlList = scriptUrlList.concat(
-													GreasyforkApi.getAdminUrl(item.href)
+													GreasyforkUrlUtils.getAdminUrl(item.href)
 												);
 											});
 										GreasyforkMenu.updateScript(scriptUrlList);
+									}
+								),
+							],
+						},
+					],
+				},
+				{
+					type: "deepMenu",
+					text: i18next.t("表单"),
+					forms: [
+						{
+							type: "forms",
+							text: "",
+							forms: [
+								UISwitch(
+									i18next.t("记住回复内容"),
+									"rememberReplyContent",
+									true,
+									void 0,
+									i18next.t(
+										"监听表单内的textarea内容改变并存储到indexDB中，提交表单将清除保存的数据，误刷新页面时可动态恢复"
+									)
+								),
+								UISelect(
+									i18next.t("自动清理空间"),
+									"gf-autoClearRememberReplayContent",
+									7,
+									[
+										{
+											text: i18next.t("不清理"),
+											value: -1,
+										},
+										{
+											text: i18next.t("{{value}} 天", {
+												value: 1,
+											}),
+											value: 1,
+										},
+										{
+											text: i18next.t("{{value}} 周", {
+												value: 1,
+											}),
+											value: 7,
+										},
+										{
+											text: i18next.t("{{value}} 个月", {
+												value: 1,
+											}),
+											value: 30,
+										},
+										{
+											text: i18next.t("{{value}} 个月", {
+												value: 2,
+											}),
+											value: 60,
+										},
+										{
+											text: i18next.t("{{value}} 个月", {
+												value: 3,
+											}),
+											value: 90,
+										},
+										{
+											text: i18next.t("半年"),
+											value: 180,
+										},
+									],
+									void 0,
+									i18next.t("根据设置的间隔时间自动清理保存的回复内容")
+								),
+								UIButton(
+									i18next.t(`数据占用空间：{{size}}`, {
+										size: i18next.t("计算中"),
+									}),
+									i18next.t("当前存储的数据所占用的空间大小"),
+									i18next.t("清空"),
+									void 0,
+									void 0,
+									void 0,
+									"default",
+									async () => {
+										let isClear =
+											await GreasyforkRememberFormTextArea.clearAllRememberReplyContent();
+										if (isClear) {
+											Qmsg.success(i18next.t("清理成功"));
+										} else {
+											Qmsg.error(i18next.t("清理失败"));
+										}
+									},
+									async (formConfig, container) => {
+										let $leftTopText =
+											container.ulElement.querySelector<HTMLDivElement>(
+												'li[data-key="gf-autoClearRememberReplayContent"]+li .pops-panel-item-left-main-text'
+											)!;
+										let allText =
+											await GreasyforkRememberFormTextArea.getAllRememberReplyContent();
+										let showSize = "";
+										if (allText.length) {
+											showSize = utils.getTextStorageSize<true>(
+												JSON.stringify(allText)
+											);
+										} else {
+											showSize = utils.getTextStorageSize<true>("");
+										}
+										$leftTopText.innerText = i18next.t(
+											`数据占用空间：{{size}}`,
+											{
+												size: showSize,
+											}
+										);
 									}
 								),
 							],
