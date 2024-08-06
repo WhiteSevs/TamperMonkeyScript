@@ -109,6 +109,7 @@ section.pops-panel-container > ul li {
 	justify-content: space-between;
 	align-items: center;
 	margin: 10px 20px;
+	gap: 1rem;
 }
 section.pops-panel-container li.pops-panel-forms-container-item {
 	display: block;
@@ -138,12 +139,12 @@ section.pops-panel-container .pops-panel-forms-container-item > div {
 	text-align: left;
 }
 /* 主文字 */
-section.pops-panel-container
+/*section.pops-panel-container
 	.pops-panel-forms-container-item
 	.pops-panel-item-left-text
 	.pops-panel-item-left-main-text {
-	/* line-height: 2; */
-}
+	line-height: 2;
+}*/
 /* 描述文字 */
 section.pops-panel-container
 	.pops-panel-forms-container-item
