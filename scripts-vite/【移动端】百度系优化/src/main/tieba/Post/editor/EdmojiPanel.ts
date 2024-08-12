@@ -7,9 +7,15 @@ export const EmojiPanel = {
 			this.createImageList();
 		}
 	},
+	/**
+	 * 获取图片列表
+	 */
 	getImageList() {
 		return this.$data.imageUrlList;
 	},
+	/**
+	 * 生成图片列表
+	 */
 	createImageList() {
 		/* 图片地址 */
 		let imageTemplateUrl = "//tb2.bdstatic.com/tb/editor/images/face/i_f";

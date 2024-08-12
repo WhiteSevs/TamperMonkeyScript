@@ -1,6 +1,7 @@
 import { httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
 import { Api_getPdData } from "../types/TiebaPostApiType";
+import { CommonUtils } from "@/utils/CommonUtils";
 
 interface TiebaPostApubthreadDetails {
 	/**
@@ -38,6 +39,9 @@ export const TiebaPostApi = {
 	async apubthread(details: TiebaPostApubthreadDetails) {
 		let api = "https://tieba.baidu.com/mo/q/apubthread";
 		let data = {
+			/**
+			 * 回复的内容
+			 */
 			co: details.content,
 			fid: details.fid,
 			/**
@@ -45,10 +49,17 @@ export const TiebaPostApi = {
 			 */
 			src: 1,
 			pid: details.pid,
+			/**
+			 * 帖子id
+			 */
 			z: details.tid,
+			/**
+			 * 当前吧名
+			 */
 			word: details.forumName,
 			/**
 			 * 客户端
+			 * "pc_web" | "wap_smart" | "mini_program"
 			 */
 			client_type: "wap_smart",
 			tbs: details.tbs,
@@ -211,6 +222,7 @@ export const TiebaPostApi = {
 	},
 	/**
 	 * 上传图片
+	 * @param imageFile 图片文件
 	 */
 	async cooluploadpic(imageFile: File) {
 		let postData = {
@@ -244,5 +256,86 @@ export const TiebaPostApi = {
 			upload_img_url: data["data"]["upload_img_url"] as string,
 			view_img_url_auth: data["data"]["view_img_url_auth"] as string,
 		};
+	},
+	/**
+	 * 上传图片(PC端)
+	 * @param searchParamsData 查询参数
+	 */
+	async uploadphotos(searchParamsData: {
+		/** tbs值 */
+		tbs: string;
+		fid: string | number;
+		picWaterType?: number;
+		imageFile: File;
+	}) {
+		// 水印类型，这里是无水印
+		const picWaterType = searchParamsData.picWaterType ?? 1039999;
+		const postFormData = new FormData();
+		postFormData.set("file", searchParamsData.imageFile);
+		let url = `https://uploadphotos.baidu.com/upload/pic?tbs=${searchParamsData.tbs}&fid=${searchParamsData.fid}&picWaterType=${picWaterType}`;
+		let postResp = await httpx.post(url, {
+			data: postFormData,
+			headers: {
+				Accept: "*/*",
+				Host: "uploadphotos.baidu.com",
+				Origin: "https://tieba.baidu.com",
+				Referer: "https://tieba.baidu.com/",
+			},
+		});
+		if (!postResp.status) {
+			return;
+		}
+		let result = utils.toJSON(postResp.data.responseText);
+		if (result.no !== 0) {
+			log.error("上传图片失败");
+			Qmsg.error("上传图片失败");
+			return;
+		}
+		let info = result["info"] as {
+			cur_time: null;
+			err_no: 0;
+			full_datalen: number;
+			full_sign0: null;
+			full_sign1: null;
+			/** 完整图片的高度 */
+			fullpic_height: number;
+			/** 完整图片的宽度 */
+			fullpic_width: number;
+			/** 图片域名，例如："tiebapic.baidu.com" */
+			host: string;
+			/** 图片地址 */
+			pic_ab_url_auth: string;
+			/** 图片描述，例如：image_emoticon22 */
+			pic_desc: string;
+			/** 图片id */
+			pic_id: string;
+			/** 加密后的图片id */
+			pic_id_encode: string;
+			/** 图片类型 */
+			pic_type: 4;
+			/** 可以直接在浏览器查看的图片链接，后面带查询参数tbpicau */
+			pic_url_auth: string;
+			/** 需要校验Referer */
+			pic_url_no_auth: string;
+			/** 带水印的图片地址 */
+			pic_water: string;
+		};
+		if (typeof info.pic_ab_url_auth === "string") {
+			// 转https
+			info.pic_ab_url_auth = CommonUtils.fixHttps(info.pic_ab_url_auth);
+		}
+		if (typeof info.pic_url_auth === "string") {
+			// 转https
+			info.pic_url_auth = CommonUtils.fixHttps(info.pic_url_auth);
+		}
+		if (typeof info.pic_url_auth === "string") {
+			// 转https
+			info.pic_url_auth = CommonUtils.fixHttps(info.pic_url_auth);
+		}
+		if (typeof info.pic_water === "string") {
+			// 转https
+			info.pic_water = CommonUtils.fixHttps(info.pic_water);
+		}
+		return info;
 	},
 };

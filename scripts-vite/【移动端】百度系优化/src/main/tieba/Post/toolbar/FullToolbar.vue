@@ -91,6 +91,7 @@ import Tiptap from "../editor/Tiptap.vue";
 import useToolbarStore from "../stores/ToolbarStore";
 import useToolbarStateStore from "../stores/ToolbarStateStore";
 import { useTiptapStore } from "../stores/tiptapStore";
+import { TiebaPostApi } from "../../api/TiebaPostApi";
 
 // 全局数据管理
 const toolbarStore = useToolbarStore();

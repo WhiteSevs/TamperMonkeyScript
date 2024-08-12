@@ -2588,7 +2588,8 @@ const TiebaComment = {
             border-radius: .14rem;
             font-size: .13rem;
             color: #614ec2;
-            margin-right: 16px;
+            /* margin-right: 16px; */
+			margin-left: 16px;
           }
           .white-only-lz-qx:before {
             content: "取消";
@@ -2643,6 +2644,8 @@ const TiebaComment = {
             display: flex;
             align-items: center;
             flex-direction: row-reverse;
+			flex: 1;
+    		justify-content: space-between;
           }
           .btn-comment-reverse-pack{
             -webkit-box-sizing: border-box;

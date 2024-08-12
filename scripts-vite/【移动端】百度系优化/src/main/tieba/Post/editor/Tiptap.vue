@@ -103,9 +103,10 @@ const EditorTools = {
 		let $parseNode = document.createElement("div");
 		$parseNode.innerHTML = contentHTML;
 		let $parseContent = $parseNode.firstChild?.cloneNode(true) as HTMLElement;
-		let content = "";
+		let contentList: string[] = [];
 		/* 遍历每一行 */
-		$parseNode.querySelectorAll<HTMLElement>("& > *").forEach(($line) => {
+		let $parseList = Array.from($parseNode.querySelectorAll<HTMLElement>("& > *"))
+		$parseList.forEach(($line, index) => {
 			if ($line.className === "is-empty") {
 				/* 末尾的placeholder */
 				return;
@@ -115,13 +116,16 @@ const EditorTools = {
 				.forEach(($img) => {
 					$img.outerHTML = `[emotion pic_type=1 width=30 height=30]${$img.src.replace(/^http(s|):/g, "")}[/emotion]`;
 				});
-			content += $line.innerText;
-			content += "\n";
+			contentList.push($line.innerText)
 		});
-		return {
+		// 数组转字符串
+		let content = contentList.join("\n");
+		let parseData = {
 			text: content,
 			html: $parseContent.innerHTML,
 		};
+		log.info(["Editor: 解析的内容 => ", parseData])
+		return parseData
 	},
 	/**
 	 * 清空内容

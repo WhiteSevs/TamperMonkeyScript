@@ -75,4 +75,21 @@ export const CommonUtils = {
 			return url;
 		}
 	},
+	/**
+	 * http转https
+	 * @param url 需要修复的链接
+	 */
+	fixHttps(url: string) {
+		if (url.startsWith("https://")) {
+			// 已经是https
+			return url;
+		}
+		if (!url.startsWith("http://")) {
+			// 不是http链接
+			return url;
+		}
+		let urlObj = new URL(url);
+		urlObj.protocol = "https:";
+		return urlObj.toString();
+	},
 };
