@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.8.6
+// @version            2024.8.8
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -42,6 +42,7 @@
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var _a;
   var _GM_addStyle = /* @__PURE__ */ (() => typeof GM_addStyle != "undefined" ? GM_addStyle : void 0)();
+  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
   var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
@@ -1737,25 +1738,29 @@
         }
         log.success(`开始监听 --- 记住回复内容`);
         let db = this.getDB();
+        const delyClear_rememberReplyContent_url_KEY = "delyClear_rememberReplyContent_url";
         let delyClear_rememberReplyContent_url = _GM_getValue(
-          "delyClear_rememberReplyContent_url"
+          delyClear_rememberReplyContent_url_KEY
         );
         if (delyClear_rememberReplyContent_url) {
           db.get(this.$data.DB_KEY).then(
             (result) => {
               if (!result.success) {
+                _GM_deleteValue(delyClear_rememberReplyContent_url_KEY);
                 return;
               }
               let localDataIndex = result.data.findIndex((item) => {
                 return item.url === window.location.href;
               });
               if (localDataIndex == -1) {
+                _GM_deleteValue(delyClear_rememberReplyContent_url_KEY);
                 return;
               }
               result.data.splice(localDataIndex, 1);
               db.save(this.$data.DB_KEY, result.data).then((result2) => {
-                if (result2.success) ;
-                else {
+                if (result2.success) {
+                  _GM_deleteValue(delyClear_rememberReplyContent_url_KEY);
+                } else {
                   log.error(["清除失败", result2]);
                 }
               });
@@ -4919,16 +4924,34 @@
      * 自动判断菜单是否启用，然后执行回调
      * @param key
      * @param callback 回调
+     * @param [isReverse=false] 逆反判断菜单启用
      */
-    execMenu(key, callback) {
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
+    execMenu(key, callback, isReverse = false) {
+      if (!(typeof key === "string" || typeof key === "object" && Array.isArray(key))) {
+        throw new TypeError("key 必须是字符串或者字符串数组");
       }
-      if (!this.$data.data.has(key)) {
-        log.warn(`${key} 键不存在`);
-        return;
+      let runKeyList = [];
+      if (typeof key === "object" && Array.isArray(key)) {
+        runKeyList = [...key];
+      } else {
+        runKeyList.push(key);
       }
-      let value = PopsPanel.getValue(key);
+      let value = void 0;
+      for (let index = 0; index < runKeyList.length; index++) {
+        const runKey = runKeyList[index];
+        if (!this.$data.data.has(runKey)) {
+          log.warn(`${key} 键不存在`);
+          return;
+        }
+        let runValue = PopsPanel.getValue(runKey);
+        if (isReverse) {
+          runValue = !runValue;
+        }
+        if (!runValue) {
+          break;
+        }
+        value = runValue;
+      }
       if (value) {
         callback(value);
       }

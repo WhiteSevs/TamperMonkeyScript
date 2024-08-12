@@ -1,6 +1,6 @@
 import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { GM_getValue, GM_setValue } from "ViteGM";
+import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 
 type IndexedDBReplaceRecordData = {
 	/** 当前url */
@@ -61,8 +61,10 @@ export const GreasyforkRememberFormTextArea = {
 			log.success(`开始监听 --- 记住回复内容`);
 			let db = this.getDB();
 
+			const delyClear_rememberReplyContent_url_KEY =
+				"delyClear_rememberReplyContent_url";
 			let delyClear_rememberReplyContent_url = GM_getValue(
-				"delyClear_rememberReplyContent_url"
+				delyClear_rememberReplyContent_url_KEY
 			);
 			if (delyClear_rememberReplyContent_url) {
 				// 清空数据
@@ -70,18 +72,21 @@ export const GreasyforkRememberFormTextArea = {
 					(result) => {
 						if (!result.success) {
 							// 数据库是空的
+							GM_deleteValue(delyClear_rememberReplyContent_url_KEY);
 							return;
 						}
 						let localDataIndex = result.data.findIndex((item) => {
 							return item.url === window.location.href;
 						});
 						if (localDataIndex == -1) {
+							GM_deleteValue(delyClear_rememberReplyContent_url_KEY);
 							return;
 						}
 						result.data.splice(localDataIndex, 1);
 						db.save(this.$data.DB_KEY, result.data).then((result) => {
 							if (result.success) {
 								// 成功清除
+								GM_deleteValue(delyClear_rememberReplyContent_url_KEY);
 							} else {
 								log.error(["清除失败", result]);
 							}
