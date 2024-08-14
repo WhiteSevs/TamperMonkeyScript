@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.14
+// @version      2024.8.14.18
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -904,7 +904,7 @@
       log.info("【屏蔽】小黄车");
       return [
         DouYinUtils.addBlockCSS(
-          '#living_room_player_container .basicPlayer  > div:has(div[data-e2e="yellowCart-container"])'
+          'div[id^="living_room_player_container"] .basicPlayer  > div:has(div[data-e2e="yellowCart-container"])'
         )
       ];
     }
@@ -1134,7 +1134,7 @@
     changeBackgroundColor(color) {
       log.info("修改视频背景颜色");
       addStyle(`
-		#living_room_player_container > div,
+		div[id^="living_room_player_container"] > div,
 		#chatroom > div{
 			background: ${color};
 		}	
@@ -1248,7 +1248,7 @@
                         (event) => {
                           log.info("选择颜色：" + $color.value);
                           $style.innerHTML = `
-											#living_room_player_container > div,
+											div[id^="living_room_player_container"] > div,
 											#chatroom > div{
 												background: ${$color.value};
 											}

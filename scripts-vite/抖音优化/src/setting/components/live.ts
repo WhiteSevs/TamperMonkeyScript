@@ -114,7 +114,7 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 											(event) => {
 												log.info("选择颜色：" + $color.value);
 												$style.innerHTML = `
-											#living_room_player_container > div,
+											div[id^="living_room_player_container"] > div,
 											#chatroom > div{
 												background: ${$color.value};
 											}

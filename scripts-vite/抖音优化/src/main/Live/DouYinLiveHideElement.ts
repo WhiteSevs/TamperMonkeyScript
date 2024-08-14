@@ -180,7 +180,7 @@ export const DouYinLiveHideElement = {
 		log.info("【屏蔽】小黄车");
 		return [
 			DouYinUtils.addBlockCSS(
-				'#living_room_player_container .basicPlayer  > div:has(div[data-e2e="yellowCart-container"])'
+				'div[id^="living_room_player_container"] .basicPlayer  > div:has(div[data-e2e="yellowCart-container"])'
 			),
 		];
 	},

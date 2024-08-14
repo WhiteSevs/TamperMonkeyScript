@@ -277,7 +277,7 @@ export const DouYinLive = {
 	changeBackgroundColor(color: string) {
 		log.info("修改视频背景颜色");
 		addStyle(`
-		#living_room_player_container > div,
+		div[id^="living_room_player_container"] > div,
 		#chatroom > div{
 			background: ${color};
 		}	
