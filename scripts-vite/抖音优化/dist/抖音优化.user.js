@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.12
+// @version      2024.8.14
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -3053,20 +3053,29 @@
               Qmsg.error("获取awemeInfo属性失败");
               return;
             }
+            log.info([`解析的awemeInfo: `, awemeInfo]);
             let videoDownloadUrlList = [];
             let playAddr = awemeInfo.video.playAddr;
-            let playAddrH265 = awemeInfo.video.playAddrH265;
-            let download = (_b = awemeInfo == null ? void 0 : awemeInfo.download) == null ? void 0 : _b.urlList;
             if (playAddr != null && Array.isArray(playAddr)) {
               videoDownloadUrlList = videoDownloadUrlList.concat(
                 playAddr.map((item) => item.src)
               );
             }
+            let playAddrH265 = awemeInfo.video.playAddrH265;
             if (playAddrH265 != null && Array.isArray(playAddrH265)) {
               videoDownloadUrlList = videoDownloadUrlList.concat(
                 playAddrH265.map((item) => item.src)
               );
             }
+            let playApi = awemeInfo.video.playApi;
+            if (typeof playApi === "string") {
+              videoDownloadUrlList.push(playApi);
+            }
+            let playApiH265 = awemeInfo.video.playApiH265;
+            if (typeof playApiH265 === "string") {
+              videoDownloadUrlList.push(playApiH265);
+            }
+            let download = (_b = awemeInfo == null ? void 0 : awemeInfo.download) == null ? void 0 : _b.urlList;
             if (download != null && Array.isArray(download)) {
               videoDownloadUrlList = videoDownloadUrlList.concat(download);
             }

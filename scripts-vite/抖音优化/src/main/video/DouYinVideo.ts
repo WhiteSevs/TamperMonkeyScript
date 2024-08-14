@@ -424,26 +424,38 @@ export const DouYinVideo = {
 						Qmsg.error("获取awemeInfo属性失败");
 						return;
 					}
-					// 全部的下载地址
+					log.info([`解析的awemeInfo: `, awemeInfo]);
+					// 收集到的全部的下载地址
 					let videoDownloadUrlList: string[] = [];
-					// 播放地址
+
+					// video.playAddr
 					let playAddr = awemeInfo.video.playAddr as { src: string }[] | null;
-					// 播放地址
-					let playAddrH265 = awemeInfo.video.playAddrH265 as
-						| { src: string }[]
-						| null;
-					// 本身存在的下载地址
-					let download = awemeInfo?.download?.urlList as string[] | null;
 					if (playAddr != null && Array.isArray(playAddr)) {
 						videoDownloadUrlList = videoDownloadUrlList.concat(
 							playAddr.map((item) => item.src)
 						);
 					}
+					// video.playAddrH265
+					let playAddrH265 = awemeInfo.video.playAddrH265 as
+						| { src: string }[]
+						| null;
 					if (playAddrH265 != null && Array.isArray(playAddrH265)) {
 						videoDownloadUrlList = videoDownloadUrlList.concat(
 							playAddrH265.map((item) => item.src)
 						);
 					}
+					// video.playApi
+					let playApi = awemeInfo.video.playApi as string | null;
+					if (typeof playApi === "string") {
+						videoDownloadUrlList.push(playApi);
+					}
+					// video.playApiH265
+					let playApiH265 = awemeInfo.video.playApiH265 as string | null;
+					if (typeof playApiH265 === "string") {
+						videoDownloadUrlList.push(playApiH265);
+					}
+					// download.urlList
+					let download = awemeInfo?.download?.urlList as string[] | null;
 					if (download != null && Array.isArray(download)) {
 						videoDownloadUrlList = videoDownloadUrlList.concat(download);
 					}
