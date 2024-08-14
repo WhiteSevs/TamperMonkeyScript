@@ -193,16 +193,34 @@ export const DouYinLive = {
 	 */
 	waitToRemovePauseDialog() {
 		log.info("监听【长时间无操作，已暂停播放】弹窗");
-		function deepFindFunction(target: any, propName: string, funcName: string) {
-			let targetValue = target[propName];
-			if (typeof targetValue === "object") {
-				if (typeof targetValue[funcName] === "function") {
-					return targetValue[funcName];
-				} else {
-					return deepFindFunction(targetValue, propName, funcName);
-				}
+		/**
+		 * 深度获取对象属性
+		 * @param obj 待获取的对象
+		 * @param getPropertiesCallBack 获取属性的回调
+		 */
+		function getObjectPropertiesInDepth(
+			obj: any,
+			getPropertiesCallBack: (obj: any) => {
+				isFind: boolean;
+				data: any;
 			}
+		): any {
+			if (obj == null) {
+				return;
+			}
+			let targetValue = getPropertiesCallBack(obj);
+			if (targetValue?.isFind) {
+				return targetValue?.data;
+			}
+			return getObjectPropertiesInDepth(targetValue, getPropertiesCallBack);
 		}
+		/**
+		 * 检测并关闭弹窗
+		 * @param $ele
+		 * @param from
+		 * + "1" 检测来源
+		 * + "2" 检测来源
+		 */
 		function checkDialogToClose($ele: HTMLElement, from: string) {
 			if (
 				$ele.innerText.includes("长时间无操作") &&
@@ -212,14 +230,33 @@ export const DouYinLive = {
 				Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
 				let $rect = utils.getReactObj($ele);
 				if (typeof $rect.reactContainer === "object") {
-					let onClose =
-						deepFindFunction($rect.reactContainer, "child", "onClose") ||
+					let closeDialogFn =
+						getObjectPropertiesInDepth($rect.reactContainer, (obj) => {
+							if (typeof obj["onClose"] === "function") {
+								return {
+									isFind: true,
+									data: obj["onClose"],
+								};
+							} else if (
+								typeof obj?.["memoizedProps"]?.["onMaskClick"] === "function"
+							) {
+								return {
+									isFind: true,
+									data: obj?.["memoizedProps"]?.["onMaskClick"],
+								};
+							} else {
+								return {
+									isFind: false,
+									data: obj["child"],
+								};
+							}
+						}) ||
 						$rect?.reactContainer?.memoizedState?.element?.props?.children
 							?.props?.onClose;
-					if (typeof onClose === "function") {
-						log.success(`检测${from}：调用onClose关闭弹窗`);
-						Qmsg.success("调用onClose关闭弹窗");
-						onClose();
+					if (typeof closeDialogFn === "function") {
+						log.success(`检测${from}：调用函数关闭弹窗`);
+						Qmsg.success(`检测${from}：调用函数关闭弹窗`);
+						closeDialogFn();
 					}
 				}
 			}

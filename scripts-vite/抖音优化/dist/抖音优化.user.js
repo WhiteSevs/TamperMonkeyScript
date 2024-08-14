@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.14.18
+// @version      2024.8.14.21
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1061,15 +1061,15 @@
      */
     waitToRemovePauseDialog() {
       log.info("监听【长时间无操作，已暂停播放】弹窗");
-      function deepFindFunction(target, propName, funcName) {
-        let targetValue = target[propName];
-        if (typeof targetValue === "object") {
-          if (typeof targetValue[funcName] === "function") {
-            return targetValue[funcName];
-          } else {
-            return deepFindFunction(targetValue, propName, funcName);
-          }
+      function getObjectPropertiesInDepth(obj, getPropertiesCallBack) {
+        if (obj == null) {
+          return;
         }
+        let targetValue = getPropertiesCallBack(obj);
+        if (targetValue == null ? void 0 : targetValue.isFind) {
+          return targetValue == null ? void 0 : targetValue.data;
+        }
+        return getObjectPropertiesInDepth(targetValue, getPropertiesCallBack);
       }
       function checkDialogToClose($ele, from) {
         var _a2, _b, _c, _d, _e, _f;
@@ -1078,11 +1078,29 @@
           Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
           let $rect = utils.getReactObj($ele);
           if (typeof $rect.reactContainer === "object") {
-            let onClose = deepFindFunction($rect.reactContainer, "child", "onClose") || ((_f = (_e = (_d = (_c = (_b = (_a2 = $rect == null ? void 0 : $rect.reactContainer) == null ? void 0 : _a2.memoizedState) == null ? void 0 : _b.element) == null ? void 0 : _c.props) == null ? void 0 : _d.children) == null ? void 0 : _e.props) == null ? void 0 : _f.onClose);
-            if (typeof onClose === "function") {
-              log.success(`检测${from}：调用onClose关闭弹窗`);
-              Qmsg.success("调用onClose关闭弹窗");
-              onClose();
+            let closeDialogFn = getObjectPropertiesInDepth($rect.reactContainer, (obj) => {
+              var _a3, _b2;
+              if (typeof obj["onClose"] === "function") {
+                return {
+                  isFind: true,
+                  data: obj["onClose"]
+                };
+              } else if (typeof ((_a3 = obj == null ? void 0 : obj["memoizedProps"]) == null ? void 0 : _a3["onMaskClick"]) === "function") {
+                return {
+                  isFind: true,
+                  data: (_b2 = obj == null ? void 0 : obj["memoizedProps"]) == null ? void 0 : _b2["onMaskClick"]
+                };
+              } else {
+                return {
+                  isFind: false,
+                  data: obj["child"]
+                };
+              }
+            }) || ((_f = (_e = (_d = (_c = (_b = (_a2 = $rect == null ? void 0 : $rect.reactContainer) == null ? void 0 : _a2.memoizedState) == null ? void 0 : _b.element) == null ? void 0 : _c.props) == null ? void 0 : _d.children) == null ? void 0 : _e.props) == null ? void 0 : _f.onClose);
+            if (typeof closeDialogFn === "function") {
+              log.success(`检测${from}：调用函数关闭弹窗`);
+              Qmsg.success(`检测${from}：调用函数关闭弹窗`);
+              closeDialogFn();
             }
           }
         }
