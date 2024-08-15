@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.6
+// @version      2024.8.15
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,9 +13,9 @@
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/497907/1413262/QRCodeJS.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @connect      *
 // @connect      m.bilibili.com
@@ -3891,8 +3891,9 @@
      * 自动判断菜单是否启用，然后执行回调
      * @param key
      * @param callback 回调
+     * @param [isReverse=false] 逆反判断菜单启用
      */
-    execMenu(key, callback) {
+    execMenu(key, callback, isReverse = false) {
       if (!(typeof key === "string" || typeof key === "object" && Array.isArray(key))) {
         throw new TypeError("key 必须是字符串或者字符串数组");
       }
@@ -3902,17 +3903,24 @@
       } else {
         runKeyList.push(key);
       }
-      let runValue = void 0;
+      let value = void 0;
       for (let index = 0; index < runKeyList.length; index++) {
         const runKey = runKeyList[index];
         if (!this.$data.data.has(runKey)) {
           log.warn(`${key} 键不存在`);
           return;
         }
-        runValue = PopsPanel.getValue(runKey);
+        let runValue = PopsPanel.getValue(runKey);
+        if (isReverse) {
+          runValue = !runValue;
+        }
+        if (!runValue) {
+          break;
+        }
+        value = runValue;
       }
-      if (runValue) {
-        callback(runValue);
+      if (value) {
+        callback(value);
       }
     },
     /**

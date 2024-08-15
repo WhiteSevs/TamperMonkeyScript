@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Demo Script Name
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.4.13
+// @version      2024.8.15
 // @author       WhiteSevs
 // @description
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.2/dist/index.umd.js
 // @connect      *
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
@@ -655,16 +655,30 @@
      * @param [isReverse=false] 逆反判断菜单启用
      */
     execMenu(key, callback, isReverse = false) {
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
+      if (!(typeof key === "string" || typeof key === "object" && Array.isArray(key))) {
+        throw new TypeError("key 必须是字符串或者字符串数组");
       }
-      if (!this.$data.data.has(key)) {
-        log.warn(`${key} 键不存在`);
-        return;
+      let runKeyList = [];
+      if (typeof key === "object" && Array.isArray(key)) {
+        runKeyList = [...key];
+      } else {
+        runKeyList.push(key);
       }
-      let value = PopsPanel.getValue(key);
-      if (isReverse) {
-        value = !value;
+      let value = void 0;
+      for (let index = 0; index < runKeyList.length; index++) {
+        const runKey = runKeyList[index];
+        if (!this.$data.data.has(runKey)) {
+          log.warn(`${key} 键不存在`);
+          return;
+        }
+        let runValue = PopsPanel.getValue(runKey);
+        if (isReverse) {
+          runValue = !runValue;
+        }
+        if (!runValue) {
+          break;
+        }
+        value = runValue;
       }
       if (value) {
         callback(value);

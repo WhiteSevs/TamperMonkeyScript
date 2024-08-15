@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.4
+// @version      2024.8.15
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -13,9 +13,9 @@
 // @match        http*://card.weibo.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.2/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css
 // @connect      m.weibo.cn
 // @connect      www.weibo.com
@@ -1369,16 +1369,34 @@
      * 自动判断菜单是否启用，然后执行回调
      * @param key
      * @param callback 回调
+     * @param [isReverse=false] 逆反判断菜单启用
      */
-    execMenu(key, callback) {
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
+    execMenu(key, callback, isReverse = false) {
+      if (!(typeof key === "string" || typeof key === "object" && Array.isArray(key))) {
+        throw new TypeError("key 必须是字符串或者字符串数组");
       }
-      if (!this.$data.data.has(key)) {
-        log.warn(`${key} 键不存在`);
-        return;
+      let runKeyList = [];
+      if (typeof key === "object" && Array.isArray(key)) {
+        runKeyList = [...key];
+      } else {
+        runKeyList.push(key);
       }
-      let value = PopsPanel.getValue(key);
+      let value = void 0;
+      for (let index = 0; index < runKeyList.length; index++) {
+        const runKey = runKeyList[index];
+        if (!this.$data.data.has(runKey)) {
+          log.warn(`${key} 键不存在`);
+          return;
+        }
+        let runValue = PopsPanel.getValue(runKey);
+        if (isReverse) {
+          runValue = !runValue;
+        }
+        if (!runValue) {
+          break;
+        }
+        value = runValue;
+      }
       if (value) {
         callback(value);
       }
