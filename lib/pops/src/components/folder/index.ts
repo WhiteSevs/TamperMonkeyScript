@@ -268,7 +268,7 @@ export class PopsFolder {
                             <div class="text-ellip content flex-a-i-center">
                                 <span>文件名</span>
                                 <div class="pops-folder-list-table__sort" data-sort="fileName">
-                                <div class="pops-folder-icon-arrow">
+                                <div class="pops-folder-icon-arrow" data-sort="按文件名排序">
                                     <svg
                                     viewBox="0 0 1024 1024"
                                     xmlns="http://www.w3.org/2000/svg">
@@ -287,7 +287,7 @@ export class PopsFolder {
                             <div class="text-ellip content flex-a-i-center">
                                 <span>修改时间</span>
                                 <div class="pops-folder-list-table__sort" data-sort="latestTime">
-                                <div class="pops-folder-icon-arrow">
+                                <div class="pops-folder-icon-arrow" title="按修改时间排序">
                                     <svg
                                     viewBox="0 0 1024 1024"
                                     xmlns="http://www.w3.org/2000/svg">
@@ -306,7 +306,7 @@ export class PopsFolder {
                             <div class="text-ellip content flex-a-i-center">
                                 <span>大小</span>
                                 <div class="pops-folder-list-table__sort" data-sort="fileSize">
-                                <div class="pops-folder-icon-arrow">
+                                <div class="pops-folder-icon-arrow" title="按大小排序">
                                     <svg
                                     viewBox="0 0 1024 1024"
                                     xmlns="http://www.w3.org/2000/svg">

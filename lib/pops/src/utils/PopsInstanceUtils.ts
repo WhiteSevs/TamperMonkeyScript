@@ -22,8 +22,7 @@ export const PopsInstanceUtils = {
 		deviation = Number.isNaN(deviation) ? 1 : deviation;
 		// 最大值2147483647
 		let maxZIndex = Math.pow(2, 31) - 1;
-		// 比较值2000000000
-		let maxZIndexCompare = 2 * Math.pow(10, 9);
+
 		// 当前页面最大的z-index
 		let zIndex = 0;
 		// 当前的最大z-index的元素，调试使用
@@ -47,11 +46,13 @@ export const PopsInstanceUtils = {
 			}
 		});
 		zIndex += deviation;
+		// 用于比较的值2000000000，大于该值就取该值
+		let maxZIndexCompare = 2 * Math.pow(10, 9);
 		if (zIndex >= maxZIndexCompare) {
 			// 最好不要超过最大值
 			zIndex = maxZIndex;
 		}
-		return { zIndex: maxZIndex, animElement: maxZIndexNode };
+		return { zIndex: zIndex, animElement: maxZIndexNode };
 	},
 	/**
 	 * 获取CSS Rule
