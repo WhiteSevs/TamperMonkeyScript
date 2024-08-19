@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.15
+// @version      2024.8.19
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -909,6 +909,119 @@
       ];
     }
   };
+  const DouYinLivePlayerInstance = {
+    $data: {
+      playerInstance: null
+    },
+    $el: {
+      $playerIns: null
+    },
+    /**
+     * 添加油猴菜单
+     */
+    initMenu() {
+      GM_Menu.add({
+        key: "live-parsePlayerInstance",
+        text: "⚙ PlayerInstance",
+        autoReload: false,
+        showText(text, enable) {
+          return text;
+        },
+        callback: () => {
+          let $playerIns = document.querySelector(
+            `[id^="living_room_player_container"]`
+          );
+          if (!$playerIns) {
+            log.error("获取playerInstance所在的元素失败");
+            Qmsg.error("获取playerInstance所在的元素失败");
+            return;
+          }
+          this.$el.$playerIns = $playerIns;
+          let playerInstance = this.parseElementPlayerIns(this.$el.$playerIns);
+          if (playerInstance == null) {
+            log.error("获取playerInstance失败");
+            log.error("获取playerInstance失败");
+            return;
+          }
+          this.$data.playerInstance = playerInstance;
+          this.showParseDialog();
+        }
+      });
+    },
+    /**
+     * 解析元素上的播放器实例
+     */
+    parseElementPlayerIns($ele) {
+      var _a2, _b, _c, _d;
+      let react = utils.getReactObj($ele);
+      return (_d = (_c = (_b = (_a2 = react == null ? void 0 : react.reactFiber) == null ? void 0 : _a2.child) == null ? void 0 : _b.child) == null ? void 0 : _c.memoizedProps) == null ? void 0 : _d.playerInstance;
+    },
+    /**
+     * 显示解析的信息弹窗
+     */
+    showParseDialog() {
+      var _a2, _b, _c, _d;
+      log.info(["解析的信息：", this.$data.playerInstance]);
+      let blobSrc = ((_a2 = this.$data.playerInstance) == null ? void 0 : _a2.url) || ((_b = this.$data.playerInstance) == null ? void 0 : _b.src);
+      let pushSrc = (_c = this.$data.playerInstance) == null ? void 0 : _c.config.url;
+      __pops.alert({
+        title: {
+          text: "解析信息",
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+                <div class="live-dy-parse-container">
+                    <div class="live-dy-parse-item">
+                        <div class="live-dy-parse-item-name">推流地址：</div>
+                        <a class="live-dy-parse-item-value" href="${pushSrc}" target="_blank">${pushSrc}
+                        </a>
+                    </div>
+                    <div class="live-dy-parse-item">
+                        <div class="live-dy-parse-item-name">blob地址：</div>
+                        <a class="live-dy-parse-item-value" href="${blobSrc}" target="_blank">${blobSrc}
+                        </a>
+                    </div>
+                    <div class="live-dy-parse-item">
+                        <div class="live-dy-parse-item-name">播放器版本：</div>
+                        <div class="live-dy-parse-item-value">${(_d = this.$data.playerInstance) == null ? void 0 : _d.version}
+                        </div>
+                    </div>
+                </div>
+                `
+          ),
+          html: true
+        },
+        mask: {
+          enable: false
+        },
+        width: window.innerWidth > 550 ? "550px" : "88wv",
+        height: window.innerHeight > 550 ? "550px" : "70vh",
+        style: (
+          /*css*/
+          `
+            .live-dy-parse-container{
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .live-dy-parse-item{
+                display: flex;
+                flex-wrap: wrap;
+                border: 1px solid #919191;
+                border-left: 0px;
+                border-right: 0px;
+                width: 100%;
+                background: #0af9ee;
+                padding: 5px 5px;
+            }
+            `
+        )
+      });
+    }
+  };
   const VideoQualityMap = {
     auto: {
       label: "自动",
@@ -964,6 +1077,9 @@
           this.changeBackgroundColor(value);
         });
       });
+      PopsPanel.execMenuOnce("live-parsePlayerInstance", () => {
+        DouYinLivePlayerInstance.initMenu();
+      });
     },
     /**
      * 自动进入网页全屏
@@ -987,8 +1103,8 @@
         [
           {
             check(reactObj) {
-              var _a2, _b, _c, _d;
-              return typeof ((_d = (_c = (_b = (_a2 = reactObj == null ? void 0 : reactObj.children) == null ? void 0 : _a2.props) == null ? void 0 : _b.children) == null ? void 0 : _c.props) == null ? void 0 : _d.qualityHandler) === "object";
+              var _a2, _b, _c, _d, _e, _f, _g, _h, _i;
+              return typeof ((_d = (_c = (_b = (_a2 = reactObj == null ? void 0 : reactObj.children) == null ? void 0 : _a2.props) == null ? void 0 : _b.children) == null ? void 0 : _c.props) == null ? void 0 : _d.qualityHandler) === "object" && typeof ((_i = (_h = (_g = (_f = (_e = reactObj == null ? void 0 : reactObj.children) == null ? void 0 : _e.props) == null ? void 0 : _f.children) == null ? void 0 : _g.props) == null ? void 0 : _h.qualityHandler) == null ? void 0 : _i.getCurrentQualityList) === "function";
             },
             set(reactObj) {
               let qualityHandler = reactObj.children.props.children.props.qualityHandler;
@@ -1218,6 +1334,13 @@
                     false,
                     void 0,
                     "暂停直播播放"
+                  ),
+                  UISwitch(
+                    "解析直播信息",
+                    "live-parsePlayerInstance",
+                    false,
+                    void 0,
+                    "开启后将在油猴菜单中新增菜单【⚙ PlayerInstance】，可解析当前的直播信息"
                   )
                 ]
               },

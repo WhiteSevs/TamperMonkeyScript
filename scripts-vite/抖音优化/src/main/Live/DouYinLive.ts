@@ -1,4 +1,4 @@
-import { DOMUtils, addStyle, log, utils } from "@/env";
+import { DOMUtils, GM_Menu, addStyle, log, pops, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { DouYinLiveChatRoom } from "./DouYinLiveChatRoom";
 import { DouYinLiveDanmuku } from "./DouYinLiveDanmuku";
@@ -6,6 +6,7 @@ import Qmsg from "qmsg";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 import { ReactUtils } from "@/utils/ReactUtils";
 import { DouYinLiveHideElement } from "./DouYinLiveHideElement";
+import { DouYinLivePlayerInstance } from "./DouYinLivePlayerInstance";
 
 export const VideoQualityMap: {
 	[key: string]: {
@@ -85,6 +86,9 @@ export const DouYinLive = {
 				this.changeBackgroundColor(value);
 			});
 		});
+		PopsPanel.execMenuOnce("live-parsePlayerInstance", () => {
+			DouYinLivePlayerInstance.initMenu();
+		});
 		DouYinLiveChatRoom.init();
 	},
 	/**
@@ -113,7 +117,9 @@ export const DouYinLive = {
 					check(reactObj) {
 						return (
 							typeof reactObj?.children?.props?.children?.props
-								?.qualityHandler === "object"
+								?.qualityHandler === "object" &&
+							typeof reactObj?.children?.props?.children?.props?.qualityHandler
+								?.getCurrentQualityList === "function"
 						);
 					},
 					set(reactObj) {
