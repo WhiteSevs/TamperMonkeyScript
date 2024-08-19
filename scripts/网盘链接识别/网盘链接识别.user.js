@@ -97,7 +97,7 @@
 			self;
 	}
 	/** 是否是调试模式 */
-	const isDebug = true;
+	const isDebug = false;
 	/** @type {import("lib/CryptoJS/index")} */
 	const Cryptojs = CryptoJS ?? window.CryptoJS ?? unsafeWindow.CryptoJS;
 	/** @type {import("qmsg").default} */
