@@ -1696,7 +1696,7 @@
     }
   };
   const GreasyforkRememberFormTextArea = {
-    $data: {
+    $key: {
       DB_KEY: "data"
     },
     init() {
@@ -1720,7 +1720,7 @@
     /**
      * 记住回复内容
      */
-    rememberReplyContent() {
+    async rememberReplyContent() {
       const TAG = "记住回复内容 -- ";
       let $formList = document.querySelectorAll("form");
       if (!$formList.length) {
@@ -1728,32 +1728,10 @@
         return;
       }
       let db = this.getDB();
-      const delyClear_rememberReplyContent_url_KEY = "delyClear_rememberReplyContent_url";
-      let delyClear_rememberReplyContent_url = _GM_getValue(
-        delyClear_rememberReplyContent_url_KEY
-      );
-      if (delyClear_rememberReplyContent_url) {
-        db.get(this.$data.DB_KEY).then((result) => {
-          if (!result.success) {
-            _GM_deleteValue(delyClear_rememberReplyContent_url_KEY);
-            return;
-          }
-          let localDataIndex = result.data.findIndex((item) => {
-            return this.checkUrlIsSame(window.location.href, item.url);
-          });
-          if (localDataIndex == -1) {
-            _GM_deleteValue(delyClear_rememberReplyContent_url_KEY);
-            return;
-          }
-          result.data.splice(localDataIndex, 1);
-          db.save(this.$data.DB_KEY, result.data).then((result2) => {
-            if (result2.success) {
-              _GM_deleteValue(delyClear_rememberReplyContent_url_KEY);
-            } else {
-              log.error(["清除失败", result2]);
-            }
-          });
-        });
+      try {
+        await this.clearRelayHistoryRememberContentText(db);
+      } catch (error) {
+        log.error(error);
       }
       $formList.forEach(async ($form) => {
         let $textarea = $form.querySelector("textarea");
@@ -1765,7 +1743,7 @@
           return;
         }
         log.success([`开始监听form --- 记住回复内容`, $form]);
-        db.get(this.$data.DB_KEY).then((result) => {
+        db.get(this.$key.DB_KEY).then((result) => {
           if (!result.success) {
             return;
           }
@@ -1788,7 +1766,7 @@
               text: $textarea.value,
               time: Date.now()
             };
-            db.get(this.$data.DB_KEY).then(
+            db.get(this.$key.DB_KEY).then(
               (result) => {
                 if (!result.success && result.event && result.event.type !== "success") {
                   log.warn(result);
@@ -1812,7 +1790,7 @@
                 } else {
                   result.data = result.data.concat(data);
                 }
-                db.save(this.$data.DB_KEY, result.data).then((result2) => {
+                db.save(this.$key.DB_KEY, result.data).then((result2) => {
                   if (result2.success) ;
                   else {
                     log.error(["保存失败", result2]);
@@ -1837,6 +1815,35 @@
           }
         );
       });
+    },
+    /**
+     * 清理历史记住的回复内容
+     * @param db indexeddb对象
+     */
+    async clearRelayHistoryRememberContentText(db) {
+      const KEY2 = "delyClear_rememberReplyContent_url";
+      let delyClear_rememberReplyContent_url = _GM_getValue(KEY2);
+      if (delyClear_rememberReplyContent_url) {
+        let result = await db.get(this.$key.DB_KEY);
+        if (!result.success) {
+          _GM_deleteValue(KEY2);
+          return;
+        }
+        let localDataIndex = result.data.findIndex((item) => {
+          return this.checkUrlIsSame(window.location.href, item.url);
+        });
+        if (localDataIndex == -1) {
+          _GM_deleteValue(KEY2);
+          return;
+        }
+        result.data.splice(localDataIndex, 1);
+        let saveResult = await db.save(this.$key.DB_KEY, result.data);
+        if (saveResult.success) {
+          _GM_deleteValue(KEY2);
+        } else {
+          log.error(["清除失败", result]);
+        }
+      }
     },
     /**
      * 检测两个url是否相同（不包括hash值）
@@ -1870,7 +1877,7 @@
      */
     async getAllRememberReplyContent() {
       let db = this.getDB();
-      let result = await db.get(this.$data.DB_KEY);
+      let result = await db.get(this.$key.DB_KEY);
       return result.data ?? [];
     },
     /**
@@ -1878,7 +1885,7 @@
      */
     async clearAllRememberReplyContent() {
       let db = this.getDB();
-      let result = await db.delete(this.$data.DB_KEY);
+      let result = await db.delete(this.$key.DB_KEY);
       return result.success;
     }
   };
