@@ -15,7 +15,11 @@ export const GreasyforkRememberFormTextArea = {
 	$key: {
 		DB_KEY: "data",
 	},
+	$data: {
+		db: null as any as indexedDB,
+	},
 	init() {
+		this.$data.db = this.getDB();
 		PopsPanel.execMenuOnce("rememberReplyContent", () => {
 			this.rememberReplyContent();
 		});
@@ -30,8 +34,7 @@ export const GreasyforkRememberFormTextArea = {
 		const dbName = "reply_record";
 		const storeName = "textarea_text";
 		const dbVersion = 2;
-		let db = new utils.indexedDB(dbName, storeName, dbVersion);
-		return db;
+		return new utils.indexedDB(dbName, storeName, dbVersion);
 	},
 	/**
 	 * 记住回复内容
@@ -44,9 +47,8 @@ export const GreasyforkRememberFormTextArea = {
 			log.warn(TAG + "不存在表单");
 			return;
 		}
-		let db = this.getDB();
 		try {
-			await this.clearRelayHistoryRememberContentText(db);
+			await this.clearRelayHistoryRememberContentText();
 		} catch (error) {
 			log.error(error);
 		}
@@ -67,21 +69,23 @@ export const GreasyforkRememberFormTextArea = {
 			}
 			log.success([`开始监听form --- 记住回复内容`, $form]);
 			// 将indexeDB中的数据放入textarea中
-			db.get<IndexedDBReplaceRecordData[]>(this.$key.DB_KEY).then((result) => {
-				if (!result.success) {
-					// 数据库是空的
-					return;
-				}
-				let localDataIndex = result.data.findIndex((item) => {
-					return this.checkUrlIsSame(window.location.href, item.url);
+			this.$data.db
+				.get<IndexedDBReplaceRecordData[]>(this.$key.DB_KEY)
+				.then((result) => {
+					if (!result.success) {
+						// 数据库是空的
+						return;
+					}
+					let localDataIndex = result.data.findIndex((item) => {
+						return this.checkUrlIsSame(window.location.href, item.url);
+					});
+					if (localDataIndex == -1) {
+						return;
+					}
+					let historyInputText = result.data[localDataIndex].text;
+					log.success("填入历史输入内容：" + historyInputText);
+					$textarea.value = historyInputText;
 				});
-				if (localDataIndex == -1) {
-					return;
-				}
-				let historyInputText = result.data[localDataIndex].text;
-				log.success("填入历史输入内容：" + historyInputText);
-				$textarea.value = historyInputText;
-			});
 
 			// 监听内容改变
 			DOMUtils.on(
@@ -93,8 +97,9 @@ export const GreasyforkRememberFormTextArea = {
 						text: $textarea.value,
 						time: Date.now(),
 					};
-					db.get<IndexedDBReplaceRecordData[]>(this.$key.DB_KEY).then(
-						(result) => {
+					this.$data.db
+						.get<IndexedDBReplaceRecordData[]>(this.$key.DB_KEY)
+						.then((result) => {
 							if (
 								!result.success &&
 								result.event &&
@@ -124,15 +129,16 @@ export const GreasyforkRememberFormTextArea = {
 							} else {
 								result.data = result.data.concat(data);
 							}
-							db.save(this.$key.DB_KEY, result.data).then((result) => {
-								if (result.success) {
-									// 成功保存
-								} else {
-									log.error(["保存失败", result]);
-								}
-							});
-						}
-					);
+							this.$data.db
+								.save(this.$key.DB_KEY, result.data)
+								.then((result) => {
+									if (result.success) {
+										// 成功保存
+									} else {
+										log.error(["保存失败", result]);
+									}
+								});
+						});
 				}, 25)
 			);
 
@@ -155,15 +161,16 @@ export const GreasyforkRememberFormTextArea = {
 	},
 	/**
 	 * 清理历史记住的回复内容
-	 * @param db indexeddb对象
 	 */
-	async clearRelayHistoryRememberContentText(db: indexedDB) {
+	async clearRelayHistoryRememberContentText() {
 		const KEY = "delyClear_rememberReplyContent_url";
 		// 需要清理的url
 		let delyClear_rememberReplyContent_url = GM_getValue<string | null>(KEY);
 		if (delyClear_rememberReplyContent_url) {
 			// 清空数据
-			let result = await db.get<IndexedDBReplaceRecordData[]>(this.$key.DB_KEY);
+			let result = await this.$data.db.get<IndexedDBReplaceRecordData[]>(
+				this.$key.DB_KEY
+			);
 			if (!result.success) {
 				// 数据库是空的
 				GM_deleteValue(KEY);
@@ -178,7 +185,7 @@ export const GreasyforkRememberFormTextArea = {
 				return;
 			}
 			result.data.splice(localDataIndex, 1);
-			let saveResult = await db.save(this.$key.DB_KEY, result.data);
+			let saveResult = await this.$data.db.save(this.$key.DB_KEY, result.data);
 			if (saveResult.success) {
 				// 成功清除
 				GM_deleteValue(KEY);
@@ -222,16 +229,16 @@ export const GreasyforkRememberFormTextArea = {
 	 * 获取所有的记住的回复内容
 	 */
 	async getAllRememberReplyContent() {
-		let db = this.getDB();
-		let result = await db.get<IndexedDBReplaceRecordData[]>(this.$key.DB_KEY);
+		let result = await this.$data.db.get<IndexedDBReplaceRecordData[]>(
+			this.$key.DB_KEY
+		);
 		return result.data ?? [];
 	},
 	/**
 	 * 清空所有的记住的回复内容
 	 */
 	async clearAllRememberReplyContent() {
-		let db = this.getDB();
-		let result = await db.delete(this.$key.DB_KEY);
+		let result = await this.$data.db.delete(this.$key.DB_KEY);
 		return result.success;
 	},
 };

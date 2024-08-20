@@ -1699,7 +1699,11 @@
     $key: {
       DB_KEY: "data"
     },
+    $data: {
+      db: null
+    },
     init() {
+      this.$data.db = this.getDB();
       PopsPanel.execMenuOnce("rememberReplyContent", () => {
         this.rememberReplyContent();
       });
@@ -1714,8 +1718,7 @@
       const dbName = "reply_record";
       const storeName = "textarea_text";
       const dbVersion = 2;
-      let db = new utils.indexedDB(dbName, storeName, dbVersion);
-      return db;
+      return new utils.indexedDB(dbName, storeName, dbVersion);
     },
     /**
      * 记住回复内容
@@ -1727,9 +1730,8 @@
         log.warn(TAG + "不存在表单");
         return;
       }
-      let db = this.getDB();
       try {
-        await this.clearRelayHistoryRememberContentText(db);
+        await this.clearRelayHistoryRememberContentText();
       } catch (error) {
         log.error(error);
       }
@@ -1743,7 +1745,7 @@
           return;
         }
         log.success([`开始监听form --- 记住回复内容`, $form]);
-        db.get(this.$key.DB_KEY).then((result) => {
+        this.$data.db.get(this.$key.DB_KEY).then((result) => {
           if (!result.success) {
             return;
           }
@@ -1766,38 +1768,36 @@
               text: $textarea.value,
               time: Date.now()
             };
-            db.get(this.$key.DB_KEY).then(
-              (result) => {
-                if (!result.success && result.event && result.event.type !== "success") {
-                  log.warn(result);
-                  return;
-                }
-                if (result.data == null) {
-                  result.data = [];
-                }
-                let localDataIndex = result.data.findIndex((item) => {
-                  return this.checkUrlIsSame(window.location.href, item.url);
-                });
-                if (localDataIndex !== -1) {
-                  if (utils.isNull(data.text)) {
-                    result.data.splice(localDataIndex, 1);
-                  } else {
-                    result.data[localDataIndex] = utils.assign(
-                      result.data[localDataIndex],
-                      data
-                    );
-                  }
-                } else {
-                  result.data = result.data.concat(data);
-                }
-                db.save(this.$key.DB_KEY, result.data).then((result2) => {
-                  if (result2.success) ;
-                  else {
-                    log.error(["保存失败", result2]);
-                  }
-                });
+            this.$data.db.get(this.$key.DB_KEY).then((result) => {
+              if (!result.success && result.event && result.event.type !== "success") {
+                log.warn(result);
+                return;
               }
-            );
+              if (result.data == null) {
+                result.data = [];
+              }
+              let localDataIndex = result.data.findIndex((item) => {
+                return this.checkUrlIsSame(window.location.href, item.url);
+              });
+              if (localDataIndex !== -1) {
+                if (utils.isNull(data.text)) {
+                  result.data.splice(localDataIndex, 1);
+                } else {
+                  result.data[localDataIndex] = utils.assign(
+                    result.data[localDataIndex],
+                    data
+                  );
+                }
+              } else {
+                result.data = result.data.concat(data);
+              }
+              this.$data.db.save(this.$key.DB_KEY, result.data).then((result2) => {
+                if (result2.success) ;
+                else {
+                  log.error(["保存失败", result2]);
+                }
+              });
+            });
           }, 25)
         );
         domUtils.on(
@@ -1818,13 +1818,14 @@
     },
     /**
      * 清理历史记住的回复内容
-     * @param db indexeddb对象
      */
-    async clearRelayHistoryRememberContentText(db) {
+    async clearRelayHistoryRememberContentText() {
       const KEY2 = "delyClear_rememberReplyContent_url";
       let delyClear_rememberReplyContent_url = _GM_getValue(KEY2);
       if (delyClear_rememberReplyContent_url) {
-        let result = await db.get(this.$key.DB_KEY);
+        let result = await this.$data.db.get(
+          this.$key.DB_KEY
+        );
         if (!result.success) {
           _GM_deleteValue(KEY2);
           return;
@@ -1837,7 +1838,7 @@
           return;
         }
         result.data.splice(localDataIndex, 1);
-        let saveResult = await db.save(this.$key.DB_KEY, result.data);
+        let saveResult = await this.$data.db.save(this.$key.DB_KEY, result.data);
         if (saveResult.success) {
           _GM_deleteValue(KEY2);
         } else {
@@ -1876,16 +1877,16 @@
      * 获取所有的记住的回复内容
      */
     async getAllRememberReplyContent() {
-      let db = this.getDB();
-      let result = await db.get(this.$key.DB_KEY);
+      let result = await this.$data.db.get(
+        this.$key.DB_KEY
+      );
       return result.data ?? [];
     },
     /**
      * 清空所有的记住的回复内容
      */
     async clearAllRememberReplyContent() {
-      let db = this.getDB();
-      let result = await db.delete(this.$key.DB_KEY);
+      let result = await this.$data.db.delete(this.$key.DB_KEY);
       return result.success;
     }
   };
