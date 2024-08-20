@@ -43,6 +43,40 @@ export const GreasyforkRememberFormTextArea = {
 			log.warn(TAG + "不存在表单");
 			return;
 		}
+		let db = this.getDB();
+
+		const delyClear_rememberReplyContent_url_KEY =
+			"delyClear_rememberReplyContent_url";
+		let delyClear_rememberReplyContent_url = GM_getValue(
+			delyClear_rememberReplyContent_url_KEY
+		);
+		if (delyClear_rememberReplyContent_url) {
+			// 清空数据
+			db.get<IndexedDBReplaceRecordData[]>(this.$data.DB_KEY).then((result) => {
+				if (!result.success) {
+					// 数据库是空的
+					GM_deleteValue(delyClear_rememberReplyContent_url_KEY);
+					return;
+				}
+				let localDataIndex = result.data.findIndex((item) => {
+					return this.checkUrlIsSame(window.location.href, item.url);
+				});
+				if (localDataIndex == -1) {
+					// 不存在该数据
+					GM_deleteValue(delyClear_rememberReplyContent_url_KEY);
+					return;
+				}
+				result.data.splice(localDataIndex, 1);
+				db.save(this.$data.DB_KEY, result.data).then((result) => {
+					if (result.success) {
+						// 成功清除
+						GM_deleteValue(delyClear_rememberReplyContent_url_KEY);
+					} else {
+						log.error(["清除失败", result]);
+					}
+				});
+			});
+		}
 		$formList.forEach(async ($form) => {
 			// 输入框
 			let $textarea = $form.querySelector<HTMLTextAreaElement>("textarea");
@@ -58,56 +92,22 @@ export const GreasyforkRememberFormTextArea = {
 				// 不存在发表回复按钮
 				return;
 			}
-			log.success(`开始监听 --- 记住回复内容`);
-			let db = this.getDB();
-
-			const delyClear_rememberReplyContent_url_KEY =
-				"delyClear_rememberReplyContent_url";
-			let delyClear_rememberReplyContent_url = GM_getValue(
-				delyClear_rememberReplyContent_url_KEY
-			);
-			if (delyClear_rememberReplyContent_url) {
-				// 清空数据
-				db.get<IndexedDBReplaceRecordData[]>(this.$data.DB_KEY).then(
-					(result) => {
-						if (!result.success) {
-							// 数据库是空的
-							GM_deleteValue(delyClear_rememberReplyContent_url_KEY);
-							return;
-						}
-						let localDataIndex = result.data.findIndex((item) => {
-							return item.url === window.location.href;
-						});
-						if (localDataIndex == -1) {
-							GM_deleteValue(delyClear_rememberReplyContent_url_KEY);
-							return;
-						}
-						result.data.splice(localDataIndex, 1);
-						db.save(this.$data.DB_KEY, result.data).then((result) => {
-							if (result.success) {
-								// 成功清除
-								GM_deleteValue(delyClear_rememberReplyContent_url_KEY);
-							} else {
-								log.error(["清除失败", result]);
-							}
-						});
-					}
-				);
-			}
+			log.success([`开始监听form --- 记住回复内容`, $form]);
 			// 将indexeDB中的数据放入textarea中
 			db.get<IndexedDBReplaceRecordData[]>(this.$data.DB_KEY).then((result) => {
-				console.log(result);
 				if (!result.success) {
 					// 数据库是空的
 					return;
 				}
 				let localDataIndex = result.data.findIndex((item) => {
-					return item.url === window.location.href;
+					return this.checkUrlIsSame(window.location.href, item.url);
 				});
 				if (localDataIndex == -1) {
 					return;
 				}
-				$textarea.value = result.data[localDataIndex].text;
+				let historyInputText = result.data[localDataIndex].text;
+				log.success("填入历史输入内容：" + historyInputText);
+				$textarea.value = historyInputText;
 			});
 
 			// 监听内容改变
@@ -135,7 +135,7 @@ export const GreasyforkRememberFormTextArea = {
 								result.data = [];
 							}
 							let localDataIndex = result.data.findIndex((item) => {
-								return item.url === data.url;
+								return this.checkUrlIsSame(window.location.href, item.url);
 							});
 							if (localDataIndex !== -1) {
 								// 本地已有该数据
@@ -179,6 +179,18 @@ export const GreasyforkRememberFormTextArea = {
 				}
 			);
 		});
+	},
+	/**
+	 * 检测两个url是否相同（不包括hash值）
+	 * @param url1
+	 * @param url2
+	 */
+	checkUrlIsSame(url1: string, url2: string) {
+		let url1Obj = new URL(url1);
+		let url2Obj = new URL(url2);
+		return (
+			url1Obj.origin === url2Obj.origin && url1Obj.pathname === url2Obj.pathname
+		);
 	},
 	/**
 	 * 自动清理空间

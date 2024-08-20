@@ -200,27 +200,6 @@ export const DouYinLive = {
 	waitToRemovePauseDialog() {
 		log.info("监听【长时间无操作，已暂停播放】弹窗");
 		/**
-		 * 深度获取对象属性
-		 * @param obj 待获取的对象
-		 * @param getPropertiesCallBack 获取属性的回调
-		 */
-		function getObjectPropertiesInDepth(
-			obj: any,
-			getPropertiesCallBack: (obj: any) => {
-				isFind: boolean;
-				data: any;
-			}
-		): any {
-			if (obj == null) {
-				return;
-			}
-			let targetValue = getPropertiesCallBack(obj);
-			if (targetValue?.isFind) {
-				return targetValue?.data;
-			}
-			return getObjectPropertiesInDepth(targetValue, getPropertiesCallBack);
-		}
-		/**
 		 * 检测并关闭弹窗
 		 * @param $ele
 		 * @param from
@@ -237,26 +216,36 @@ export const DouYinLive = {
 				let $rect = utils.getReactObj($ele);
 				if (typeof $rect.reactContainer === "object") {
 					let closeDialogFn =
-						getObjectPropertiesInDepth($rect.reactContainer, (obj) => {
-							if (typeof obj["onClose"] === "function") {
-								return {
-									isFind: true,
-									data: obj["onClose"],
-								};
-							} else if (
-								typeof obj?.["memoizedProps"]?.["onMaskClick"] === "function"
-							) {
-								return {
-									isFind: true,
-									data: obj?.["memoizedProps"]?.["onMaskClick"],
-								};
-							} else {
-								return {
-									isFind: false,
-									data: obj["child"],
-								};
+						DouYinUtils.getObjectPropertiesInDepth(
+							$rect.reactContainer,
+							(obj) => {
+								if (typeof obj["onClose"] === "function") {
+									return {
+										isFind: true,
+										data: obj["onClose"],
+									};
+								} else if (
+									typeof obj?.["memoizedProps"]?.["onMaskClick"] === "function"
+								) {
+									return {
+										isFind: true,
+										data: obj?.["memoizedProps"]?.["onMaskClick"],
+									};
+								} else if (
+									typeof obj?.["memoizedProps"]?.["onClose"] === "function"
+								) {
+									return {
+										isFind: true,
+										data: obj?.["memoizedProps"]?.["onClose"],
+									};
+								} else {
+									return {
+										isFind: false,
+										data: obj["child"],
+									};
+								}
 							}
-						}) ||
+						) ||
 						$rect?.reactContainer?.memoizedState?.element?.props?.children
 							?.props?.onClose;
 					if (typeof closeDialogFn === "function") {

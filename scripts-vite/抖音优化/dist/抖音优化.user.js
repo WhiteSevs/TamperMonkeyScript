@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.19
+// @version      2024.8.20
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -624,6 +624,60 @@
       });
     }
   };
+  const DouYinUtils = {
+    /**
+     * 判断是否是竖屏
+     *
+     * window.screen.orientation.type
+     * + landscape-primary 横屏
+     * + portrait-primary 竖屏
+     */
+    isVerticalScreen() {
+      return !window.screen.orientation.type.includes("landscape");
+    },
+    /**
+     * 添加屏蔽CSS
+     * @param args
+     * @example
+     * addBlockCSS("")
+     * addBlockCSS("","")
+     * addBlockCSS(["",""])
+     */
+    addBlockCSS(...args) {
+      let selectorList = [];
+      if (args.length === 0) {
+        return;
+      }
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+        return;
+      }
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      return utils.addStyle(
+        `${selectorList.join(",\n")}{display: none !important;}`
+      );
+    },
+    /**
+     * 深度获取对象属性
+     * @param obj 待获取的对象
+     * @param getPropertiesCallBack 获取属性的回调
+     */
+    getObjectPropertiesInDepth(obj, getPropertiesCallBack) {
+      if (obj == null) {
+        return;
+      }
+      let value = getPropertiesCallBack(obj);
+      if (typeof (value == null ? void 0 : value.isFind) === "boolean" && value.isFind) {
+        return value == null ? void 0 : value.data;
+      }
+      return this.getObjectPropertiesInDepth(value.data, getPropertiesCallBack);
+    }
+  };
   const ReactUtils = {
     /**
      * 等待react某个属性并进行设置
@@ -689,45 +743,6 @@
           needSetOption.set(targetObjProp);
         });
       });
-    }
-  };
-  const DouYinUtils = {
-    /**
-     * 判断是否是竖屏
-     *
-     * window.screen.orientation.type
-     * + landscape-primary 横屏
-     * + portrait-primary 竖屏
-     */
-    isVerticalScreen() {
-      return !window.screen.orientation.type.includes("landscape");
-    },
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args) {
-      let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
-      args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
-      });
-      return utils.addStyle(
-        `${selectorList.join(",\n")}{display: none !important;}`
-      );
     }
   };
   const DouYinLiveChatRoomHideElement = {
@@ -1177,16 +1192,6 @@
      */
     waitToRemovePauseDialog() {
       log.info("监听【长时间无操作，已暂停播放】弹窗");
-      function getObjectPropertiesInDepth(obj, getPropertiesCallBack) {
-        if (obj == null) {
-          return;
-        }
-        let targetValue = getPropertiesCallBack(obj);
-        if (targetValue == null ? void 0 : targetValue.isFind) {
-          return targetValue == null ? void 0 : targetValue.data;
-        }
-        return getObjectPropertiesInDepth(targetValue, getPropertiesCallBack);
-      }
       function checkDialogToClose($ele, from) {
         var _a2, _b, _c, _d, _e, _f;
         if ($ele.innerText.includes("长时间无操作") && $ele.innerText.includes("暂停播放")) {
@@ -1194,25 +1199,33 @@
           Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
           let $rect = utils.getReactObj($ele);
           if (typeof $rect.reactContainer === "object") {
-            let closeDialogFn = getObjectPropertiesInDepth($rect.reactContainer, (obj) => {
-              var _a3, _b2;
-              if (typeof obj["onClose"] === "function") {
-                return {
-                  isFind: true,
-                  data: obj["onClose"]
-                };
-              } else if (typeof ((_a3 = obj == null ? void 0 : obj["memoizedProps"]) == null ? void 0 : _a3["onMaskClick"]) === "function") {
-                return {
-                  isFind: true,
-                  data: (_b2 = obj == null ? void 0 : obj["memoizedProps"]) == null ? void 0 : _b2["onMaskClick"]
-                };
-              } else {
-                return {
-                  isFind: false,
-                  data: obj["child"]
-                };
+            let closeDialogFn = DouYinUtils.getObjectPropertiesInDepth(
+              $rect.reactContainer,
+              (obj) => {
+                var _a3, _b2, _c2, _d2;
+                if (typeof obj["onClose"] === "function") {
+                  return {
+                    isFind: true,
+                    data: obj["onClose"]
+                  };
+                } else if (typeof ((_a3 = obj == null ? void 0 : obj["memoizedProps"]) == null ? void 0 : _a3["onMaskClick"]) === "function") {
+                  return {
+                    isFind: true,
+                    data: (_b2 = obj == null ? void 0 : obj["memoizedProps"]) == null ? void 0 : _b2["onMaskClick"]
+                  };
+                } else if (typeof ((_c2 = obj == null ? void 0 : obj["memoizedProps"]) == null ? void 0 : _c2["onClose"]) === "function") {
+                  return {
+                    isFind: true,
+                    data: (_d2 = obj == null ? void 0 : obj["memoizedProps"]) == null ? void 0 : _d2["onClose"]
+                  };
+                } else {
+                  return {
+                    isFind: false,
+                    data: obj["child"]
+                  };
+                }
               }
-            }) || ((_f = (_e = (_d = (_c = (_b = (_a2 = $rect == null ? void 0 : $rect.reactContainer) == null ? void 0 : _a2.memoizedState) == null ? void 0 : _b.element) == null ? void 0 : _c.props) == null ? void 0 : _d.children) == null ? void 0 : _e.props) == null ? void 0 : _f.onClose);
+            ) || ((_f = (_e = (_d = (_c = (_b = (_a2 = $rect == null ? void 0 : $rect.reactContainer) == null ? void 0 : _a2.memoizedState) == null ? void 0 : _b.element) == null ? void 0 : _c.props) == null ? void 0 : _d.children) == null ? void 0 : _e.props) == null ? void 0 : _f.onClose);
             if (typeof closeDialogFn === "function") {
               log.success(`检测${from}：调用函数关闭弹窗`);
               Qmsg.success(`检测${from}：调用函数关闭弹窗`);

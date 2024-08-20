@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.8.15
+// @version            2024.8.20
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -1727,6 +1727,34 @@
         log.warn(TAG + "不存在表单");
         return;
       }
+      let db = this.getDB();
+      const delyClear_rememberReplyContent_url_KEY = "delyClear_rememberReplyContent_url";
+      let delyClear_rememberReplyContent_url = _GM_getValue(
+        delyClear_rememberReplyContent_url_KEY
+      );
+      if (delyClear_rememberReplyContent_url) {
+        db.get(this.$data.DB_KEY).then((result) => {
+          if (!result.success) {
+            _GM_deleteValue(delyClear_rememberReplyContent_url_KEY);
+            return;
+          }
+          let localDataIndex = result.data.findIndex((item) => {
+            return this.checkUrlIsSame(window.location.href, item.url);
+          });
+          if (localDataIndex == -1) {
+            _GM_deleteValue(delyClear_rememberReplyContent_url_KEY);
+            return;
+          }
+          result.data.splice(localDataIndex, 1);
+          db.save(this.$data.DB_KEY, result.data).then((result2) => {
+            if (result2.success) {
+              _GM_deleteValue(delyClear_rememberReplyContent_url_KEY);
+            } else {
+              log.error(["清除失败", result2]);
+            }
+          });
+        });
+      }
       $formList.forEach(async ($form) => {
         let $textarea = $form.querySelector("textarea");
         let $replySubmit = $form.querySelector(`input[type="submit"]`);
@@ -1736,49 +1764,20 @@
         if (!$replySubmit) {
           return;
         }
-        log.success(`开始监听 --- 记住回复内容`);
-        let db = this.getDB();
-        const delyClear_rememberReplyContent_url_KEY = "delyClear_rememberReplyContent_url";
-        let delyClear_rememberReplyContent_url = _GM_getValue(
-          delyClear_rememberReplyContent_url_KEY
-        );
-        if (delyClear_rememberReplyContent_url) {
-          db.get(this.$data.DB_KEY).then(
-            (result) => {
-              if (!result.success) {
-                _GM_deleteValue(delyClear_rememberReplyContent_url_KEY);
-                return;
-              }
-              let localDataIndex = result.data.findIndex((item) => {
-                return item.url === window.location.href;
-              });
-              if (localDataIndex == -1) {
-                _GM_deleteValue(delyClear_rememberReplyContent_url_KEY);
-                return;
-              }
-              result.data.splice(localDataIndex, 1);
-              db.save(this.$data.DB_KEY, result.data).then((result2) => {
-                if (result2.success) {
-                  _GM_deleteValue(delyClear_rememberReplyContent_url_KEY);
-                } else {
-                  log.error(["清除失败", result2]);
-                }
-              });
-            }
-          );
-        }
+        log.success([`开始监听form --- 记住回复内容`, $form]);
         db.get(this.$data.DB_KEY).then((result) => {
-          console.log(result);
           if (!result.success) {
             return;
           }
           let localDataIndex = result.data.findIndex((item) => {
-            return item.url === window.location.href;
+            return this.checkUrlIsSame(window.location.href, item.url);
           });
           if (localDataIndex == -1) {
             return;
           }
-          $textarea.value = result.data[localDataIndex].text;
+          let historyInputText = result.data[localDataIndex].text;
+          log.success("填入历史输入内容：" + historyInputText);
+          $textarea.value = historyInputText;
         });
         domUtils.on(
           $textarea,
@@ -1799,7 +1798,7 @@
                   result.data = [];
                 }
                 let localDataIndex = result.data.findIndex((item) => {
-                  return item.url === data.url;
+                  return this.checkUrlIsSame(window.location.href, item.url);
                 });
                 if (localDataIndex !== -1) {
                   if (utils.isNull(data.text)) {
@@ -1838,6 +1837,16 @@
           }
         );
       });
+    },
+    /**
+     * 检测两个url是否相同（不包括hash值）
+     * @param url1
+     * @param url2
+     */
+    checkUrlIsSame(url1, url2) {
+      let url1Obj = new URL(url1);
+      let url2Obj = new URL(url2);
+      return url1Obj.origin === url2Obj.origin && url1Obj.pathname === url2Obj.pathname;
     },
     /**
      * 自动清理空间
