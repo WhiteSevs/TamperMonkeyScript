@@ -48,6 +48,27 @@ const PanelSearchConfig: PopsPanelContentConfig = {
 									void 0,
 									"网页加载完毕后自动点击网页全屏按钮进入全屏"
 								),
+								UISelect(
+									"搜索结果-视频-显示样式",
+									"live-setSearchResultFilterWithVideoStyle",
+									"",
+									[
+										{
+											text: "默认",
+											value: "",
+										},
+										{
+											text: "单列",
+											value: "one",
+										},
+										{
+											text: "双列",
+											value: "double",
+										},
+									],
+									void 0,
+									"自定义搜索结果，按视频筛选的结果项的显示样式"
+								),
 							],
 						},
 					],

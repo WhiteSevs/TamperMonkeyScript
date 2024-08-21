@@ -83,7 +83,7 @@ export const DouYinLive = {
 		});
 		PopsPanel.execMenu("live-bgColor-enable", () => {
 			PopsPanel.execMenuOnce("live-changeBackgroundColor", (value: string) => {
-				this.changeBackgroundColor(value);
+				return this.changeBackgroundColor(value);
 			});
 		});
 		PopsPanel.execMenuOnce("live-parsePlayerInstance", () => {
@@ -308,7 +308,7 @@ export const DouYinLive = {
 	 */
 	changeBackgroundColor(color: string) {
 		log.info("修改视频背景颜色");
-		addStyle(`
+		return addStyle(/*css*/ `
 		div[id^="living_room_player_container"] > div,
 		#chatroom > div{
 			background: ${color};

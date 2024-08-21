@@ -117,10 +117,10 @@ export const DouYinAccount = {
 					typeof reactProps?.children?.[1]?.props?.userInfo?.isLogin ===
 					"boolean"
 				) {
-					reactProps.children[1].props.userInfo.isLogin = true;
+					Reflect.set(reactProps.children[1].props.userInfo, "isLogin", true);
 				}
 				if (typeof reactProps?.children?.[1]?.props?.isClient === "boolean") {
-					reactProps.children[1].props.isClient = true;
+					Reflect.set(reactProps.children[1].props, "isClient", true);
 				}
 			}
 			utils

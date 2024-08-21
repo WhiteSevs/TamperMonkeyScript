@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.20
+// @version      2024.8.21
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1089,7 +1089,7 @@
       });
       PopsPanel.execMenu("live-bgColor-enable", () => {
         PopsPanel.execMenuOnce("live-changeBackgroundColor", (value) => {
-          this.changeBackgroundColor(value);
+          return this.changeBackgroundColor(value);
         });
       });
       PopsPanel.execMenuOnce("live-parsePlayerInstance", () => {
@@ -1280,12 +1280,15 @@
      */
     changeBackgroundColor(color) {
       log.info("修改视频背景颜色");
-      addStyle(`
+      return addStyle(
+        /*css*/
+        `
 		div[id^="living_room_player_container"] > div,
 		#chatroom > div{
 			background: ${color};
 		}	
-		`);
+		`
+      );
     }
   };
   const PanelLiveConfig = {
@@ -2140,6 +2143,12 @@
       PopsPanel.execMenuOnce("dy-search-disableClickToEnterFullScreen", () => {
         this.disableClickToEnterFullScreen();
       });
+      PopsPanel.execMenuOnce(
+        "live-setSearchResultFilterWithVideoStyle",
+        (value) => {
+          return this.setSearchResultFilterWithVideoStyle(value);
+        }
+      );
     },
     /**
      * 手机模式
@@ -2194,6 +2203,13 @@
 					width: auto;
 				}
 				/* 视频右侧的TA的作品↑ */
+				/* 悬浮的筛选 */
+				#douyin-right-container #douyin-header{
+        			background-color: var(--color-bg-b0);
+				}
+				xg-right-grid{
+					margin: auto !important;
+				}
 			}
 		`
         )
@@ -2274,6 +2290,36 @@
           capture: true
         }
       );
+    },
+    /**
+     * 设置搜索结果-按视频过滤的显示样式
+     * @param lineMode 单列/双列
+     */
+    setSearchResultFilterWithVideoStyle(lineMode = "one") {
+      log.info(`设置搜索结果-按视频过滤的显示样式：${lineMode}`);
+      if (lineMode === "one") {
+        return addStyle(
+          /*css*/
+          `
+			@media screen and (max-width: 800px){
+				.search-horizontal-new-layout ul[data-e2e="scroll-list"] li{
+					width: calc(100% - 21px);
+				}
+			}
+			`
+        );
+      } else if (lineMode === "double") {
+        return addStyle(
+          /*css*/
+          `	
+			@media screen and (max-width: 800px){
+				.search-horizontal-new-layout ul[data-e2e="scroll-list"] li{
+					width: calc(50% - 21px);
+				}
+			}
+			`
+        );
+      }
     }
   };
   const DouYinRouter = {
@@ -3845,6 +3891,27 @@
                     ],
                     void 0,
                     "网页加载完毕后自动点击网页全屏按钮进入全屏"
+                  ),
+                  UISelect(
+                    "搜索结果-视频-显示样式",
+                    "live-setSearchResultFilterWithVideoStyle",
+                    "",
+                    [
+                      {
+                        text: "默认",
+                        value: ""
+                      },
+                      {
+                        text: "单列",
+                        value: "one"
+                      },
+                      {
+                        text: "双列",
+                        value: "double"
+                      }
+                    ],
+                    void 0,
+                    "自定义搜索结果，按视频筛选的结果项的显示样式"
                   )
                 ]
               }
@@ -5440,10 +5507,10 @@
           $react == null ? void 0 : $react.reactFiber;
           let reactProps = $react == null ? void 0 : $react.reactProps;
           if (typeof ((_d = (_c = (_b = (_a2 = reactProps == null ? void 0 : reactProps.children) == null ? void 0 : _a2[1]) == null ? void 0 : _b.props) == null ? void 0 : _c.userInfo) == null ? void 0 : _d.isLogin) === "boolean") {
-            reactProps.children[1].props.userInfo.isLogin = true;
+            Reflect.set(reactProps.children[1].props.userInfo, "isLogin", true);
           }
           if (typeof ((_g = (_f = (_e = reactProps == null ? void 0 : reactProps.children) == null ? void 0 : _e[1]) == null ? void 0 : _f.props) == null ? void 0 : _g.isClient) === "boolean") {
-            reactProps.children[1].props.isClient = true;
+            Reflect.set(reactProps.children[1].props, "isClient", true);
           }
         };
         log.info("伪装登录：search");

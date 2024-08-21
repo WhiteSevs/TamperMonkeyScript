@@ -14,6 +14,12 @@ export const DouYinSearch = {
 		PopsPanel.execMenuOnce("dy-search-disableClickToEnterFullScreen", () => {
 			this.disableClickToEnterFullScreen();
 		});
+		PopsPanel.execMenuOnce(
+			"live-setSearchResultFilterWithVideoStyle",
+			(value) => {
+				return this.setSearchResultFilterWithVideoStyle(value);
+			}
+		);
 	},
 	/**
 	 * 手机模式
@@ -66,6 +72,13 @@ export const DouYinSearch = {
 					width: auto;
 				}
 				/* 视频右侧的TA的作品↑ */
+				/* 悬浮的筛选 */
+				#douyin-right-container #douyin-header{
+        			background-color: var(--color-bg-b0);
+				}
+				xg-right-grid{
+					margin: auto !important;
+				}
 			}
 		`)
 		);
@@ -146,5 +159,29 @@ export const DouYinSearch = {
 				capture: true,
 			}
 		);
+	},
+	/**
+	 * 设置搜索结果-按视频过滤的显示样式
+	 * @param lineMode 单列/双列
+	 */
+	setSearchResultFilterWithVideoStyle(lineMode: "one" | "double" = "one") {
+		log.info(`设置搜索结果-按视频过滤的显示样式：${lineMode}`);
+		if (lineMode === "one") {
+			return addStyle(/*css*/ `
+			@media screen and (max-width: 800px){
+				.search-horizontal-new-layout ul[data-e2e="scroll-list"] li{
+					width: calc(100% - 21px);
+				}
+			}
+			`);
+		} else if (lineMode === "double") {
+			return addStyle(/*css*/ `	
+			@media screen and (max-width: 800px){
+				.search-horizontal-new-layout ul[data-e2e="scroll-list"] li{
+					width: calc(50% - 21px);
+				}
+			}
+			`);
+		}
 	},
 };
