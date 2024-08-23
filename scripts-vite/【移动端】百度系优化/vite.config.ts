@@ -77,6 +77,7 @@ export default defineConfig({
 				match: [
 					"*://*.baidu.com/*",
 					"*://www.tieba.com/*",
+					"*://jump2.bdimg.com/*",
 					"*://uf9kyh.smartapps.cn/*",
 				],
 				connect: [

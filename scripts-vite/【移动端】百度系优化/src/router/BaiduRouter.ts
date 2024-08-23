@@ -91,8 +91,9 @@ const BaiduRouter = {
 	isTieBa() {
 		return Boolean(
 			window.location.href.match(
-				/^http(s|):\/\/(tieba.baidu|www.tieba|ala.baidu|static.tieba.baidu|nba.baidu|fexclick.baidu).com/g
-			)
+				/^http(s|):\/\/(tieba|ala|static.tieba|nba|fexclick).baidu.com/g
+			) ||
+				window.location.href.match(/^http(s|):\/\/(www.tieba|jump2.bdimg).com/g)
 		);
 	},
 	/**
