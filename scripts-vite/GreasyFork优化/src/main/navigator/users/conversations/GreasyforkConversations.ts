@@ -73,7 +73,8 @@ export const GreasyforkConversations = {
 				latestSendMsgUserHomeUrl = $latestMsgUser.href;
 				let $relativeTime = $li.querySelector<HTMLElement>("relative-time")!;
 				latestSendMsgTime = new Date($relativeTime.getAttribute("datetime")!);
-				latestSendMsgTimeText = $relativeTime.shadowRoot!.textContent;
+				latestSendMsgTimeText =
+					$relativeTime.shadowRoot!.lastChild!.textContent;
 			}
 			$li.classList.add("user-conversations-item");
 			let currentLoginUserId = GreasyforkUrlUtils.getUserId();

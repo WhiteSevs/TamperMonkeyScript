@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.8.20
+// @version            2024.8.27
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -1158,7 +1158,7 @@ input.search-submit {\r
 		.user-conversations-item .enter-coversations{
 			float: right;
 		}
-		`),document.querySelectorAll("section.text-content ul li").forEach(e=>{var c;let t=e.querySelector('a[href*="conversations"]'),r=t.href,i=(c=t.textContent)==null?void 0:c.split(" ")[1],o=e.querySelector("a.user-link"),a=null,s=null,l=null;if(o){a=o.textContent,s=o.href;let u=e.querySelector("relative-time");new Date(u.getAttribute("datetime")),l=u.shadowRoot.textContent;}e.classList.add("user-conversations-item"),E.getUserId(),e.innerHTML=`
+		`),document.querySelectorAll("section.text-content ul li").forEach(e=>{var c;let t=e.querySelector('a[href*="conversations"]'),r=t.href,i=(c=t.textContent)==null?void 0:c.split(" ")[1],o=e.querySelector("a.user-link"),a=null,s=null,l=null;if(o){a=o.textContent,s=o.href;let u=e.querySelector("relative-time");new Date(u.getAttribute("datetime")),l=u.shadowRoot.lastChild.textContent;}e.classList.add("user-conversations-item"),E.getUserId(),e.innerHTML=`
 			<div class="user-link-container">
 				<a class="user-link" href="${r}">${i}</a>
 				<span class="user-latest-send-time">${l}</span>
