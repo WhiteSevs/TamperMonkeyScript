@@ -18,7 +18,7 @@
 		justify-content: space-around;
 	}
 
-	header#main-header + div {
+	body > .width-constraint {
 		margin-top: calc(var(--header-height) + 35px);
 	}
 
