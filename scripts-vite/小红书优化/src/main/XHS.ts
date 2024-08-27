@@ -5,6 +5,7 @@ import { XHS_Shield } from "./XHS_Shield";
 import { XHS_Hook } from "@/hook/hook";
 import { XHS_Article } from "./article/XHS_Article";
 import Qmsg from "qmsg";
+import { ScriptRouter } from "@/router/router";
 
 const XHS = {
 	init() {
@@ -18,7 +19,10 @@ const XHS = {
 			XHS.openBlankArticle();
 		});
 		XHS_Shield.init();
-		XHS_Article.init();
+		if (ScriptRouter.isArticle()) {
+			log.info("Router: 笔记页面");
+			XHS_Article.init();
+		}
 	},
 	/**
 	 * 允许复制

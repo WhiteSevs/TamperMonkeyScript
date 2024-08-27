@@ -19,10 +19,10 @@ const MXHS = {
 		PopsPanel.execMenuOnce("little-red-book-allowCopy", () => {
 			return MXHS.allowCopy();
 		});
-		if (ScriptRouter.isNotePage()) {
+		if (ScriptRouter.isArticle()) {
 			/* 笔记页面 */
 			MXHS_Article.init();
-		} else if (ScriptRouter.isUserHomePage()) {
+		} else if (ScriptRouter.isUserHome()) {
 			/* 用户主页 */
 			MXHS_Home.init();
 		}

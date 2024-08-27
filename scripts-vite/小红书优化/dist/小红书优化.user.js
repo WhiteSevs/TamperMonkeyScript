@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.15
+// @version      2024.8.27
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -1300,7 +1300,7 @@
      * 获取设置面板的高度
      */
     getHeight() {
-      if (window.innerHeight > 450) {
+      if (window.innerHeight < 450) {
         return "80vh";
       } else {
         return "450px";
@@ -1429,25 +1429,25 @@
     /**
      * 判断是否是笔记页面
      */
-    isNotePage() {
-      return globalThis.location.pathname.startsWith("/discovery/item/");
+    isArticle() {
+      return globalThis.location.pathname.startsWith("/discovery/item/") || globalThis.location.pathname.startsWith("/explore/");
     },
     /**
      * 判断是否是用户主页页面
      */
-    isUserHomePage() {
+    isUserHome() {
       return globalThis.location.pathname.startsWith("/user/profile/");
     },
     /**
      * 判断是否是主页
      */
-    isHomePage() {
+    isHome() {
       return globalThis.location.href === "https://www.xiaohongshu.com/" || globalThis.location.href === "https://www.xiaohongshu.com";
     },
     /**
      * 判断是否是搜索页面
      */
-    isSearchPage() {
+    isSearch() {
       return globalThis.location.pathname.startsWith("/search_result/");
     }
   };
@@ -2236,9 +2236,9 @@
       PopsPanel.execMenuOnce("little-red-book-allowCopy", () => {
         return MXHS.allowCopy();
       });
-      if (ScriptRouter.isNotePage()) {
+      if (ScriptRouter.isArticle()) {
         MXHS_Article.init();
-      } else if (ScriptRouter.isUserHomePage()) {
+      } else if (ScriptRouter.isUserHome()) {
         MXHS_Home.init();
       }
     },
@@ -2440,7 +2440,10 @@
         XHS.openBlankArticle();
       });
       XHS_Shield.init();
-      XHS_Article.init();
+      if (ScriptRouter.isArticle()) {
+        log.info("Router: 笔记页面");
+        XHS_Article.init();
+      }
     },
     /**
      * 允许复制
