@@ -35,7 +35,13 @@ ol.script-list li {
 	border-radius: 10px;
 	width: fit-content;
 }
-
+/* 安装按钮 */
+.install-link {
+	border-radius: 0.25rem 0.25rem 0.25rem 0.25rem;
+}
+.install-link:has(+ .install-help-link) {
+	border-radius: 0.25rem 0 0 0.25rem;
+}
 /* 加载圆圈动画 */
 .install-link.lum-lightbox-loader {
 	position: relative;

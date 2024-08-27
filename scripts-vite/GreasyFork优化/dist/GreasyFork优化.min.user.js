@@ -217,7 +217,13 @@ ol.script-list li {\r
 	border-radius: 10px;\r
 	width: fit-content;\r
 }\r
-\r
+/* 安装按钮 */\r
+.install-link {\r
+	border-radius: 0.25rem 0.25rem 0.25rem 0.25rem;\r
+}\r
+.install-link:has(+ .install-help-link) {\r
+	border-radius: 0.25rem 0 0 0.25rem;\r
+}\r
 /* 加载圆圈动画 */\r
 .install-link.lum-lightbox-loader {\r
 	position: relative;\r
