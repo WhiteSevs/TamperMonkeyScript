@@ -950,6 +950,7 @@ declare class Utils {
      * @param target 需要监听的对象，可以是全局Window或者某个元素
      * @param eventName 事件名，默认keypress
      * @param callback 自己定义的回调事件，参数1为当前的key，参数2为组合按键，数组类型，包含ctrl、shift、alt和meta（win键或mac的cmd键）
+     * @param options 监听事件的配置
      * @example
         Utils.listenKeyboard(window,(keyName,keyValue,otherKey,event)=>{
             if(keyName === "Enter"){
@@ -1006,7 +1007,7 @@ declare class Utils {
       搜索		170
       收藏		171
      **/
-    listenKeyboard(target: Window | Node | HTMLElement | typeof globalThis, eventName: "keyup" | "keypress" | "keydown", callback: (keyName: string, keyValue: string, otherCodeList: string[], event: KeyboardEvent) => void): {
+    listenKeyboard(target: Window | Node | HTMLElement | typeof globalThis, eventName: "keyup" | "keypress" | "keydown", callback: (keyName: string, keyValue: string, otherCodeList: string[], event: KeyboardEvent) => void, options?: AddEventListenerOptions | boolean): {
         removeListen(): void;
     };
     /**
