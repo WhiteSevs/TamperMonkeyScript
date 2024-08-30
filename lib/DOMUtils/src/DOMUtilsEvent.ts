@@ -1353,7 +1353,7 @@ export class DOMUtilsEvent {
 				callback(keyName, keyValue.toString(), otherCodeList, event);
 			}
 		};
-		this.on(target, eventName, keyboardEventCallBack as any, options);
+		this.on(target, eventName, keyboardEventCallBack, options);
 		return {
 			removeListen: () => {
 				this.off(target, eventName, keyboardEventCallBack, options);
