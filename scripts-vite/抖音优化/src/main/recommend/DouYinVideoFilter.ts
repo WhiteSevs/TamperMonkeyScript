@@ -28,8 +28,6 @@ export const DouYinVideoFilter = {
 			}
 			return DouYinVideoFilter.$data.__rule;
 		},
-		/** 是否是首次加载视频 */
-		isFirstLoad: true,
 	},
 	/**
 	 * authorInfo.nickname:string    作者
@@ -43,8 +41,7 @@ export const DouYinVideoFilter = {
 	init() {
 		this.parseRule();
 		log.info(["当前自定义视频拦截规则: ", this.$data.rule.getItems()]);
-		let firstLoadEndVideoId: any = null;
-		let errorFind = 0;
+		let errorFindCount = 0;
 		DouYinElement.watchVideDataListChange(
 			utils.debounce((osElement, observer) => {
 				/* 视频列表元素 */
@@ -52,8 +49,8 @@ export const DouYinVideoFilter = {
 					'#slidelist div[data-e2e="slideList"]'
 				);
 				if (!$videoList) {
-					errorFind++;
-					if (errorFind >= 50) {
+					errorFindCount++;
+					if (errorFindCount >= 50) {
 						observer.disconnect();
 						log.error("未获取到视频列表元素次数超过50次, 停止监听");
 					}
@@ -61,34 +58,27 @@ export const DouYinVideoFilter = {
 					return;
 				}
 
-				// 视频列表
 				let reactFiber = utils.getReactObj($videoList)?.reactFiber;
 				if (reactFiber == null) {
 					log.error(["元素上不存在reactFiber属性", $videoList]);
 					return;
 				}
+				// 视频列表
 				let awemeInfoList: any[] = reactFiber?.return.memoizedProps.data;
 				if (!awemeInfoList.length) {
 					/* Empty video data list */
 					return;
 				}
-				if (this.$data.isFirstLoad) {
-					let endAwemeInfo = awemeInfoList[awemeInfoList.length - 1];
-					if (firstLoadEndVideoId == null) {
-						/* 首次加载，先赋值 */
-						firstLoadEndVideoId = endAwemeInfo.awemeId as string;
-					}
-					if (firstLoadEndVideoId === endAwemeInfo.awemeId) {
-						/* 仍是首次加载的视频列表 */
-						return;
-					}
-					/* 不是首次加载了 */
-					this.$data.isFirstLoad = false;
-				}
 				for (let index = 0; index < awemeInfoList.length; index++) {
 					let awemeInfo = awemeInfoList[index];
 					let flag = this.checkAwemeInfo(awemeInfo);
 					if (flag) {
+						if (awemeInfoList.length === 1) {
+							log.warn(
+								"检测到视频列表只剩最后一个，删除的话无法触发更新，暂不删除"
+							);
+							break;
+						}
 						awemeInfoList.splice(index, 1);
 						index--;
 					}
@@ -102,17 +92,17 @@ export const DouYinVideoFilter = {
 	 */
 	checkAwemeInfo(awemeInfo: any): boolean {
 		let videoInfoTag = this.getVideoInfoTagMap(awemeInfo);
-		let flag_blockLiveVideo = PopsPanel.getValue("shieldVideo-live");
-		let flag_blockAdsVideo = PopsPanel.getValue("shieldVideo-ads");
+		const isBlockLiveVideo = PopsPanel.getValue("shieldVideo-live");
+		const isBlockAdsVideo = PopsPanel.getValue("shieldVideo-ads");
 		let flag = false;
 		if (!flag) {
-			if (typeof awemeInfo["cellRoom"] === "object" && flag_blockLiveVideo) {
+			if (typeof awemeInfo["cellRoom"] === "object" && isBlockLiveVideo) {
 				log.success("过滤器-屏蔽直播: because cellRoom is not null");
 				flag = true;
 			}
 		}
 		if (!flag) {
-			if (flag_blockAdsVideo) {
+			if (isBlockAdsVideo) {
 				if (awemeInfo["isAds"]) {
 					flag = true;
 					log.success("过滤器-屏蔽广告: because isAds is true");

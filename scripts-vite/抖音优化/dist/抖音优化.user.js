@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.21
+// @version      2024.8.30
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1911,6 +1911,7 @@
           // 搜索页面的↓搜索结果列表
           '#search-content-area ul[data-e2e="scroll-list"]'
         ]).then(($ele) => {
+          log.info(`启用观察器观察加载的视频`);
           utils.mutationObserver($ele, {
             config: {
               childList: true,
@@ -1925,7 +1926,8 @@
                 return;
               }
               callback($os, observer);
-            }
+            },
+            immediate: true
           });
         });
       });
@@ -2652,9 +2654,7 @@
           DouYinVideoFilter.$data.__rule = new utils.Dictionary();
         }
         return DouYinVideoFilter.$data.__rule;
-      },
-      /** 是否是首次加载视频 */
-      isFirstLoad: true
+      }
     },
     /**
      * authorInfo.nickname:string    作者
@@ -2668,8 +2668,7 @@
     init() {
       this.parseRule();
       log.info(["当前自定义视频拦截规则: ", this.$data.rule.getItems()]);
-      let firstLoadEndVideoId = null;
-      let errorFind = 0;
+      let errorFindCount = 0;
       DouYinElement.watchVideDataListChange(
         utils.debounce((osElement, observer) => {
           var _a2;
@@ -2677,8 +2676,8 @@
             '#slidelist div[data-e2e="slideList"]'
           );
           if (!$videoList) {
-            errorFind++;
-            if (errorFind >= 50) {
+            errorFindCount++;
+            if (errorFindCount >= 50) {
               observer.disconnect();
               log.error("未获取到视频列表元素次数超过50次, 停止监听");
             }
@@ -2694,20 +2693,16 @@
           if (!awemeInfoList.length) {
             return;
           }
-          if (this.$data.isFirstLoad) {
-            let endAwemeInfo = awemeInfoList[awemeInfoList.length - 1];
-            if (firstLoadEndVideoId == null) {
-              firstLoadEndVideoId = endAwemeInfo.awemeId;
-            }
-            if (firstLoadEndVideoId === endAwemeInfo.awemeId) {
-              return;
-            }
-            this.$data.isFirstLoad = false;
-          }
           for (let index = 0; index < awemeInfoList.length; index++) {
             let awemeInfo = awemeInfoList[index];
             let flag = this.checkAwemeInfo(awemeInfo);
             if (flag) {
+              if (awemeInfoList.length === 1) {
+                log.warn(
+                  "检测到视频列表只剩最后一个，删除的话无法触发更新，暂不删除"
+                );
+                break;
+              }
               awemeInfoList.splice(index, 1);
               index--;
             }
@@ -2722,17 +2717,17 @@
     checkAwemeInfo(awemeInfo) {
       var _a2, _b, _c, _d;
       let videoInfoTag = this.getVideoInfoTagMap(awemeInfo);
-      let flag_blockLiveVideo = PopsPanel.getValue("shieldVideo-live");
-      let flag_blockAdsVideo = PopsPanel.getValue("shieldVideo-ads");
+      const isBlockLiveVideo = PopsPanel.getValue("shieldVideo-live");
+      const isBlockAdsVideo = PopsPanel.getValue("shieldVideo-ads");
       let flag = false;
       if (!flag) {
-        if (typeof awemeInfo["cellRoom"] === "object" && flag_blockLiveVideo) {
+        if (typeof awemeInfo["cellRoom"] === "object" && isBlockLiveVideo) {
           log.success("过滤器-屏蔽直播: because cellRoom is not null");
           flag = true;
         }
       }
       if (!flag) {
-        if (flag_blockAdsVideo) {
+        if (isBlockAdsVideo) {
           if (awemeInfo["isAds"]) {
             flag = true;
             log.success("过滤器-屏蔽广告: because isAds is true");

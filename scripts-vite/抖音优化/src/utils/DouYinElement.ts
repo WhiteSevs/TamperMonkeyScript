@@ -17,6 +17,7 @@ export const DouYinElement = {
 					'#search-content-area ul[data-e2e="scroll-list"]',
 				])
 				.then(($ele) => {
+					log.info(`启用观察器观察加载的视频`);
 					utils.mutationObserver($ele, {
 						config: {
 							childList: true,
@@ -32,6 +33,7 @@ export const DouYinElement = {
 							}
 							callback($os, observer);
 						},
+						immediate: true,
 					});
 				});
 		});
