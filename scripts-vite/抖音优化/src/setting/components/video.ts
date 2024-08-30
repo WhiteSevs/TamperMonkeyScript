@@ -5,6 +5,8 @@ import { UIButton } from "../common-components/ui-button";
 import { DouYinVideoShortcut } from "@/main/video/DouYinVideoShortCut";
 import { PopsPanel } from "../setting";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import Qmsg from "qmsg";
+import { UIButtonShortCut } from "../common-components/ui-button-shortcut";
 
 const PanelVideoConfig: PopsPanelContentConfig = {
 	id: "panel-config-video",
@@ -195,63 +197,32 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 							text: "",
 							type: "forms",
 							forms: [
-								UIButton(
+								UIButtonShortCut(
 									"倍速 -> 小",
 									"视频倍速变小",
-									() => {
-										return DouYinVideoShortcut.shortCut.getShowText(
-											"dy-video-rate-low",
-											"点击录入快捷键"
-										);
-									},
-									"keyboard",
-									false,
-									false,
-									"default",
-									(event) => {
-										let $click = event.target as HTMLDivElement;
-										let spanElement = $click
-											.closest(".pops-panel-button")
-											?.querySelector("span") as HTMLSpanElement;
-										DouYinVideoShortcut.shortCut
-											.enterShortcutKeys("dy-video-rate-low")
-											.then((enterResult) => {
-												spanElement.innerText =
-													DouYinVideoShortcut.shortCut.getShowText(
-														enterResult.key,
-														"点击录入快捷键"
-													);
-											});
-									}
+									"dy-video-rate-low",
+									void 0,
+									"点击录入快捷键",
+									void 0,
+									DouYinVideoShortcut.shortCut
 								),
-								UIButton(
+								UIButtonShortCut(
 									"倍速 -> 大",
 									"视频倍速变大",
-									() => {
-										return DouYinVideoShortcut.shortCut.getShowText(
-											"dy-video-rate-up",
-											"点击录入快捷键"
-										);
-									},
-									"keyboard",
-									false,
-									false,
-									"default",
-									(event) => {
-										let $click = event.target as HTMLDivElement;
-										let spanElement = $click
-											.closest(".pops-panel-button")
-											?.querySelector("span") as HTMLSpanElement;
-										DouYinVideoShortcut.shortCut
-											.enterShortcutKeys("dy-video-rate-up")
-											.then((enterResult) => {
-												spanElement.innerText =
-													DouYinVideoShortcut.shortCut.getShowText(
-														enterResult.key,
-														"点击录入快捷键"
-													);
-											});
-									}
+									"dy-video-rate-up",
+									void 0,
+									"点击录入快捷键",
+									void 0,
+									DouYinVideoShortcut.shortCut
+								),
+								UIButtonShortCut(
+									"沉浸模式",
+									"移除右侧工具栏、底部信息栏等",
+									"dy-video-shortcut-immersionMode",
+									void 0,
+									"点击录入快捷键",
+									void 0,
+									DouYinVideoShortcut.shortCut
 								),
 							],
 						},

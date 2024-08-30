@@ -11,8 +11,8 @@
 // @match        *://*.iesdouyin.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.2/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
@@ -1583,25 +1583,6 @@
       }
     ]
   };
-  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack) {
-    let result = {
-      text,
-      type: "button",
-      description,
-      buttonIcon,
-      buttonIsRightIcon,
-      buttonIconIsLoading,
-      buttonType,
-      buttonText,
-      callback(event) {
-        if (typeof clickCallBack === "function") {
-          clickCallBack(event);
-        }
-      },
-      afterAddToUListCallBack
-    };
-    return result;
-  };
   class ShortCut {
     constructor(key) {
       /** 存储的键 */
@@ -1720,7 +1701,7 @@
       keyboardValue.ohterCodeList.forEach((ohterCodeKey) => {
         result += utils.stringTitleToUpperCase(ohterCodeKey, true) + " + ";
       });
-      result += keyboardValue.keyName;
+      result += utils.stringTitleToUpperCase(keyboardValue.keyName);
       return result;
     }
     /**
@@ -1747,24 +1728,25 @@
     async enterShortcutKeys(key) {
       return new Promise((resolve) => {
         this.isWaitPress = true;
-        let keyboardListener = utils.listenKeyboard(
+        let keyboardListener = domUtils.listenKeyboard(
           window,
           "keyup",
           (keyName, keyValue, ohterCodeList) => {
-            let currentOption = {
+            const currentOption = {
               keyName,
               keyValue,
               ohterCodeList
             };
-            let shortcutJSONString = JSON.stringify(currentOption);
-            let allOptions = this.getLocalAllOptions();
+            const shortcutJSONString = JSON.stringify(currentOption);
+            const allOptions = this.getLocalAllOptions();
             for (let index = 0; index < allOptions.length; index++) {
               let localValue = allOptions[index];
               if (localValue.key === key) {
                 continue;
               }
+              const localShortCutJSONString = JSON.stringify(localValue.value);
               let isUsedByOtherOption = false;
-              if (localValue.value != null && shortcutJSONString === JSON.stringify(localValue.value)) {
+              if (localValue.value != null && shortcutJSONString === localShortCutJSONString) {
                 isUsedByOtherOption = true;
               }
               if (isUsedByOtherOption) {
@@ -1802,7 +1784,7 @@
       }
       let that = this;
       function setListenKeyboard($ele, option) {
-        utils.listenKeyboard(
+        domUtils.listenKeyboard(
           $ele,
           "keydown",
           (keyName, keyValue, ohterCodeList) => {
@@ -2908,7 +2890,7 @@
       });
     },
     /**
-     * 全屏
+     * 全屏（沉浸模式）
      */
     fullScreen() {
       log.info("全屏");
@@ -3399,7 +3381,7 @@
         "dy-video-rate-low": {
           target: "window",
           callback() {
-            log.info("调用倍速 => 小");
+            log.info("快捷键 ==> 调用倍速：小");
             let currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
             let findIndex = DouYinVideoShortcut.$data.rateMap.findIndex(
               (rate) => {
@@ -3407,18 +3389,18 @@
               }
             );
             if (findIndex === 0) {
-              log.warn("已是最小倍速: " + currentRate);
+              log.warn("快捷键 ==> 已是最小倍速: " + currentRate);
               return;
             }
             let prevRate = DouYinVideoShortcut.$data.rateMap[findIndex - 1];
-            log.info("设置倍速: " + prevRate);
+            log.info("快捷键 ==> 设置倍速: " + prevRate);
             DouYinVideo.chooseVideoRate(prevRate);
           }
         },
         "dy-video-rate-up": {
           target: "window",
           callback() {
-            log.info("调用倍速 => 大");
+            log.info("快捷键 ==> 调用倍速：大");
             let currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
             let findIndex = DouYinVideoShortcut.$data.rateMap.findIndex(
               (rate) => {
@@ -3426,16 +3408,100 @@
               }
             );
             if (findIndex === DouYinVideoShortcut.$data.rateMap.length - 1) {
-              log.warn("已是最大倍速: " + currentRate);
+              log.warn("快捷键 ==> 已是最大倍速: " + currentRate);
               return;
             }
             let nextRate = DouYinVideoShortcut.$data.rateMap[findIndex + 1];
-            log.info("设置倍速: " + nextRate);
+            log.info("快捷键 ==> 设置倍速: " + nextRate);
             DouYinVideo.chooseVideoRate(nextRate);
+          }
+        },
+        "dy-video-shortcut-immersionMode": {
+          target: "window",
+          callback() {
+            log.info("快捷键 ==> 沉浸模式");
+            let value = PopsPanel.getValue("fullScreen");
+            PopsPanel.setValue("fullScreen", !value);
+            PopsPanel.execMenuOnce("fullScreen", () => {
+              return DouYinVideo.fullScreen();
+            });
           }
         }
       };
     }
+  };
+  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack) {
+    let result = {
+      text,
+      type: "button",
+      description,
+      buttonIcon,
+      buttonIsRightIcon,
+      buttonIconIsLoading,
+      buttonType,
+      buttonText,
+      callback(event) {
+        if (typeof clickCallBack === "function") {
+          clickCallBack(event);
+        }
+      },
+      afterAddToUListCallBack
+    };
+    return result;
+  };
+  const UIButtonShortCut = function(text, description, key, defaultValue, defaultButtonText, buttonType = "default", shortCut) {
+    let __defaultButtonText = defaultButtonText;
+    let getButtonText = () => {
+      return shortCut.getShowText(key, __defaultButtonText);
+    };
+    let result = UIButton(
+      text,
+      description,
+      getButtonText,
+      "keyboard",
+      false,
+      false,
+      buttonType,
+      async (event) => {
+        var _a2;
+        let $click = event.target;
+        let $btn = (_a2 = $click.closest(".pops-panel-button")) == null ? void 0 : _a2.querySelector("span");
+        if (shortCut.isWaitPress) {
+          Qmsg.warning("请先执行当前的录入操作");
+          return;
+        }
+        if (shortCut.hasOptionValue(key)) {
+          shortCut.emptyOption(key);
+          Qmsg.success("清空快捷键");
+        } else {
+          let loadingQmsg = Qmsg.loading("请按下快捷键...", {
+            showClose: true
+          });
+          let {
+            status,
+            option,
+            key: isUsedKey
+          } = await shortCut.enterShortcutKeys(key);
+          loadingQmsg.close();
+          if (status) {
+            log.success(["成功录入快捷键", option]);
+            Qmsg.success("成功录入");
+          } else {
+            Qmsg.error(
+              `快捷键 ${shortCut.translateKeyboardValueToButtonText(
+              option
+            )} 已被 ${isUsedKey} 占用`
+            );
+          }
+        }
+        $btn.innerHTML = getButtonText();
+      }
+    );
+    result.attributes = {};
+    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
+      return false;
+    });
+    return result;
   };
   const PanelVideoConfig = {
     id: "panel-config-video",
@@ -3631,55 +3697,32 @@
                 text: "",
                 type: "forms",
                 forms: [
-                  UIButton(
+                  UIButtonShortCut(
                     "倍速 -> 小",
                     "视频倍速变小",
-                    () => {
-                      return DouYinVideoShortcut.shortCut.getShowText(
-                        "dy-video-rate-low",
-                        "点击录入快捷键"
-                      );
-                    },
-                    "keyboard",
-                    false,
-                    false,
-                    "default",
-                    (event) => {
-                      var _a2;
-                      let $click = event.target;
-                      let spanElement = (_a2 = $click.closest(".pops-panel-button")) == null ? void 0 : _a2.querySelector("span");
-                      DouYinVideoShortcut.shortCut.enterShortcutKeys("dy-video-rate-low").then((enterResult) => {
-                        spanElement.innerText = DouYinVideoShortcut.shortCut.getShowText(
-                          enterResult.key,
-                          "点击录入快捷键"
-                        );
-                      });
-                    }
+                    "dy-video-rate-low",
+                    void 0,
+                    "点击录入快捷键",
+                    void 0,
+                    DouYinVideoShortcut.shortCut
                   ),
-                  UIButton(
+                  UIButtonShortCut(
                     "倍速 -> 大",
                     "视频倍速变大",
-                    () => {
-                      return DouYinVideoShortcut.shortCut.getShowText(
-                        "dy-video-rate-up",
-                        "点击录入快捷键"
-                      );
-                    },
-                    "keyboard",
-                    false,
-                    false,
-                    "default",
-                    (event) => {
-                      var _a2;
-                      let $click = event.target;
-                      let spanElement = (_a2 = $click.closest(".pops-panel-button")) == null ? void 0 : _a2.querySelector("span");
-                      DouYinVideoShortcut.shortCut.enterShortcutKeys("dy-video-rate-up").then((enterResult) => {
-                        spanElement.innerText = DouYinVideoShortcut.shortCut.getShowText(
-                          enterResult.key,
-                          "点击录入快捷键"
-                        );
-                      });
-                    }
+                    "dy-video-rate-up",
+                    void 0,
+                    "点击录入快捷键",
+                    void 0,
+                    DouYinVideoShortcut.shortCut
+                  ),
+                  UIButtonShortCut(
+                    "沉浸模式",
+                    "移除右侧工具栏、底部信息栏等",
+                    "dy-video-shortcut-immersionMode",
+                    void 0,
+                    "点击录入快捷键",
+                    void 0,
+                    DouYinVideoShortcut.shortCut
                   )
                 ]
               }

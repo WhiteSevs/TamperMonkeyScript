@@ -84,7 +84,7 @@ export const DouYinVideo = {
 		});
 	},
 	/**
-	 * 全屏
+	 * 全屏（沉浸模式）
 	 */
 	fullScreen() {
 		log.info("全屏");
