@@ -571,7 +571,7 @@ export declare class DOMUtilsEvent {
       搜索		170
       收藏		171
      **/
-    listenKeyboard(target: Window | Node | HTMLElement | typeof globalThis, eventName: ("keyup" | "keypress" | "keydown") | undefined, callback: (keyName: string, keyValue: string, otherCodeList: string[], event: KeyboardEvent) => void, options?: AddEventListenerOptions | boolean): {
+    listenKeyboard(target: Window | Node | HTMLElement | typeof globalThis, eventName: ("keyup" | "keypress" | "keydown") | undefined, callback: (keyName: string, keyValue: number, otherCodeList: string[], event: KeyboardEvent) => void, options?: AddEventListenerOptions | boolean): {
         removeListen(): void;
     };
 }

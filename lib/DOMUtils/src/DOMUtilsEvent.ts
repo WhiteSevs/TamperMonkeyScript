@@ -1325,7 +1325,7 @@ export class DOMUtilsEvent {
 		eventName: "keyup" | "keypress" | "keydown" = "keypress",
 		callback: (
 			keyName: string,
-			keyValue: string,
+			keyValue: number,
 			otherCodeList: string[],
 			event: KeyboardEvent
 		) => void,
@@ -1334,9 +1334,12 @@ export class DOMUtilsEvent {
 		removeListen(): void;
 	} {
 		let keyboardEventCallBack = function (event: KeyboardEvent) {
+			/** 键名 */
 			let keyName = event.key || event.code;
+			/** 键值 */
 			let keyValue = event.charCode || event.keyCode || event.which;
-			let otherCodeList = [];
+			/** 组合键列表 */
+			let otherCodeList: string[] = [];
 			if (event.ctrlKey) {
 				otherCodeList.push("ctrl");
 			}
@@ -1350,7 +1353,7 @@ export class DOMUtilsEvent {
 				otherCodeList.push("shift");
 			}
 			if (typeof callback === "function") {
-				callback(keyName, keyValue.toString(), otherCodeList, event);
+				callback(keyName, keyValue, otherCodeList, event);
 			}
 		};
 		this.on(target, eventName, keyboardEventCallBack, options);
