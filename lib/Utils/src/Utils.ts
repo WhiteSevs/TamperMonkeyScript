@@ -2425,7 +2425,7 @@ class Utils {
 		target.addEventListener(eventName, keyEvent as any, options);
 		return {
 			removeListen() {
-				target.removeEventListener(eventName, keyEvent as any);
+				target.removeEventListener(eventName, keyEvent as any, options);
 			},
 		};
 	}

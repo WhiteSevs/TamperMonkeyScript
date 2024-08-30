@@ -1256,4 +1256,108 @@ export class DOMUtilsEvent {
 		}
 		DOMUtilsContext.on(target, "keypress", null, handler, option);
 	}
+
+	/**
+     * 监听某个元素键盘按键事件或window全局按键事件
+     * 按下有值的键时触发，按下Ctrl\Alt\Shift\Meta是无值键。按下先触发keydown事件，再触发keypress事件。
+     * @param target 需要监听的对象，可以是全局Window或者某个元素
+     * @param eventName 事件名，默认keypress
+     * @param callback 自己定义的回调事件，参数1为当前的key，参数2为组合按键，数组类型，包含ctrl、shift、alt和meta（win键或mac的cmd键）
+	 * @param options 监听事件的配置
+     * @example 
+        Utils.listenKeyboard(window,(keyName,keyValue,otherKey,event)=>{
+            if(keyName === "Enter"){
+                console.log("回车按键的值是："+keyValue)
+            }
+            if(otherKey.indexOf("ctrl") && keyName === "Enter" ){
+                console.log("Ctrl和回车键");
+          }
+        })
+     * @example
+    字母和数字键的键码值(keyCode)
+      按键	键码	按键	键码	按键	键码	按键	键码
+      A	65	J	74	S	83	1	49
+      B	66	K	75	T	84	2	50
+      C	67	L	76	U	85	3	51
+      D	68	M	77	V	86	4	52
+      E	69	N	78	W	87	5	53
+      F	70	O	79	X	88	6	54
+      G	71	P	80	Y	89	7	55
+      H	72	Q	81	Z	90	8	56
+      I	73	R	82	0	48	9	57
+  
+      数字键盘上的键的键码值(keyCode)	
+      功能键键码值(keyCode)
+      按键	键码	按键  	键码	按键	键码	按键	键码
+      0	96	8	104	F1	112	F7	118
+      1	97	9	105	F2	113	F8	119
+      2	98	*	106	F3	114	F9	120
+      3	99	+	107	F4	115	F10	121
+      4	100	Enter	108	F5	116	F11	122
+      5	101	-	109	F6	117	F12	123
+      6	102	.	110	 	 	 	 
+      7	103	/	111	 	 
+      
+      控制键键码值(keyCode)
+      按键		键码	按键		键码	按键		键码	按键		键码
+      BackSpace	8	Esc		27	→		39	-_		189
+      Tab		9	Spacebar	32	↓		40	.>		190
+      Clear		12	Page Up		33	Insert		45	/?		191
+      Enter		13	Page Down	34	Delete		46	`~		192
+      Shift		16	End		35	Num Lock	144	[{		219
+      Control		17	Home		36	;:		186	\|		220
+      Alt		18	←		37	=+		187	]}		221
+      Cape Lock	20	↑		38	,<		188	'"		222
+  
+      多媒体键码值(keyCode)
+      按键		键码
+      音量加		175
+      音量减		174
+      停止		179
+      静音		173
+      浏览器		172
+      邮件		180
+      搜索		170
+      收藏		171
+     **/
+	listenKeyboard(
+		target: Window | Node | HTMLElement | typeof globalThis,
+		eventName: "keyup" | "keypress" | "keydown" = "keypress",
+		callback: (
+			keyName: string,
+			keyValue: string,
+			otherCodeList: string[],
+			event: KeyboardEvent
+		) => void,
+		options?: AddEventListenerOptions | boolean
+	): {
+		removeListen(): void;
+	} {
+		let keyboardEventCallBack = function (event: KeyboardEvent) {
+			let keyName = event.key || event.code;
+			let keyValue = event.charCode || event.keyCode || event.which;
+			let otherCodeList = [];
+			if (event.ctrlKey) {
+				otherCodeList.push("ctrl");
+			}
+			if (event.altKey) {
+				otherCodeList.push("alt");
+			}
+			if (event.metaKey) {
+				otherCodeList.push("meta");
+			}
+			if (event.shiftKey) {
+				otherCodeList.push("shift");
+			}
+			if (typeof callback === "function") {
+				callback(keyName, keyValue.toString(), otherCodeList, event);
+			}
+		};
+		this.on(target, eventName, keyboardEventCallBack as any, options);
+		return {
+			removeListen: () => {
+				this.off(target, eventName, keyboardEventCallBack, options);
+			},
+		};
+	}
 }
