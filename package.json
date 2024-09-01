@@ -20,7 +20,7 @@
 		"@types/md5": "^2.3.5",
 		"@whitesev/domutils": "^1.3.2",
 		"@whitesev/pops": "^1.5.2",
-		"@whitesev/utils": "^2.2.0",
+		"@whitesev/utils": "^2.2.1",
 		"i18next": "^23.12.2",
 		"md5": "^2.3.0",
 		"pinia": "^2.1.7",
