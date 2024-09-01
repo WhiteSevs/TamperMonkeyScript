@@ -66,9 +66,19 @@ const TiebaCore = {
 				"1"
 			);
 		});
+		let masqueradeParamsList2 = ["auto_slient_wake_"];
+		masqueradeParamsList2.forEach((masqueradeParam) => {
+			window.localStorage.setItem(
+				masqueradeParam + utils.formatTime(void 0, "yyyy-MM-dd"),
+				JSON.stringify({
+					type: "number",
+					data: 1,
+				})
+			);
+		});
 		for (let index = 0; index < window.localStorage.length; index++) {
 			let keyName = window.localStorage.key(index) as string;
-			masqueradeParamsList.forEach((item) => {
+			[...masqueradeParamsList, ...masqueradeParamsList2].forEach((item) => {
 				if (
 					keyName.startsWith(item) &&
 					!keyName.endsWith(utils.formatTime(void 0, "yyyy-MM-dd"))

@@ -383,7 +383,7 @@ const YiYanChat = {
 			$content.appendChild(askContainer);
 			YiYanChat.scrollToContentContainerEnd();
 		}
-		utils.listenKeyboard(
+		DOMUtils.listenKeyboard(
 			$textArea,
 			"keydown",
 			function (keyName, keyValue, otherCodeList) {

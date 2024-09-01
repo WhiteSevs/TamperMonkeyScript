@@ -5,6 +5,7 @@ import { TiebaPost } from "./TiebaPost";
 import { TiebaComment } from "./TiebaComment";
 import { ref } from "vue";
 import { VueUtils } from "@/utils/VueUtils";
+import { TiebaUniAppPost } from "../uni-app-post/TiebaUniAppPost";
 
 interface TiebaVueCurrentReplyObj {
 	/**
@@ -522,6 +523,9 @@ export const TiebaReply = {
 	waitCommentBoxWrap(callback: Function) {
 		DOMUtils.ready(() => {
 			utils.waitNode(".comment-box-wrap", 10000).then(($commentBoxWrap) => {
+				if (TiebaUniAppPost.isUniApp()) {
+					return;
+				}
 				if (!$commentBoxWrap) {
 					log.error("获取不到评论框容器元素.comment-box-wrap");
 					Qmsg.error("获取不到评论框容器元素.comment-box-wrap");

@@ -1,5 +1,6 @@
 import { DOMUtils, addStyle, log, pops, utils } from "@/env";
 import TieBaShieldCSS from "./shield.css?raw";
+import UniTieBaShieldCSS from "./uni-app-shield.css?raw";
 import { PopsPanel } from "@/setting/setting";
 import { BaiduRouter } from "@/router/BaiduRouter";
 import { BaiduHook } from "@/hook/BaiduHook";
@@ -14,6 +15,7 @@ import { TiebaHome } from "./Home/TiebaHome";
 import { TieBaApi, TiebaUrlApi } from "./api/TiebaApi";
 import Qmsg from "qmsg";
 import { VueUtils } from "@/utils/VueUtils";
+import { TiebaUniAppPost } from "./uni-app-post/TiebaUniAppPost";
 
 /**
  * 百度贴吧
@@ -39,6 +41,7 @@ import { VueUtils } from "@/utils/VueUtils";
 const BaiduTieBa = {
 	init() {
 		addStyle(TieBaShieldCSS);
+		addStyle(UniTieBaShieldCSS);
 		addStyle(/*css*/ `
 		/* 由于lzl弹窗的z-index是99999，所以，回复框、toast、登录弹窗的z-index要大于99999 */
 		/* 底部回复框 */
@@ -81,6 +84,7 @@ const BaiduTieBa = {
 			/* 帖子 */
 			log.success("Router: 帖子");
 			TiebaPost.init();
+			TiebaUniAppPost.init();
 		} else if (BaiduRouter.isTieBaNewTopic()) {
 			/* 话题热议 */
 			log.success("Router: 话题热议");

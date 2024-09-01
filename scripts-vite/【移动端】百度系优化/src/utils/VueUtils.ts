@@ -18,7 +18,7 @@ interface WaitSetVuePropOption {
 
 export const VueUtils = {
 	/**
-	 * 获取vue实例
+	 * 获取vue2实例
 	 * @param element
 	 * @returns
 	 */
@@ -30,7 +30,17 @@ export const VueUtils = {
 			(element as NestedObjectWithToString)["__Ivue__"] ||
 			(element as NestedObjectWithToString)["__IVue__"]) as Vue2Context;
 	},
-
+	/**
+	 * 获取vue3实例
+	 * @param element
+	 * @returns
+	 */
+	getVue3(element: Element | null | EventTarget) {
+		if (element == null) {
+			return;
+		}
+		return (element as any)["__vueParentComponent"];
+	},
 	/**
 	 * 等待vue属性并进行设置
 	 */

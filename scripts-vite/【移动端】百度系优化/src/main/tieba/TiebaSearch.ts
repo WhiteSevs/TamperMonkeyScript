@@ -38,7 +38,7 @@ const TiebaSearchSuggestion = {
 		DOMUtils.on(TiebaSearch.$ele.$searchBtn, "click", () => {
 			this.frontPageSeach();
 		});
-		utils.listenKeyboard(this.$ele.$searchInput, "keypress", (keyName) => {
+		DOMUtils.listenKeyboard(this.$ele.$searchInput, "keypress", (keyName) => {
 			if (keyName !== "Enter") {
 				return;
 			}
@@ -419,7 +419,7 @@ const TiebaSearch = {
 			DOMUtils.on(this.$ele.$searchBtn, "click", () => {
 				searchEvent();
 			});
-			utils.listenKeyboard(this.$ele.$searchInput, "keypress", (keyName) => {
+			DOMUtils.listenKeyboard(this.$ele.$searchInput, "keypress", (keyName) => {
 				if (keyName !== "Enter") {
 					return;
 				}

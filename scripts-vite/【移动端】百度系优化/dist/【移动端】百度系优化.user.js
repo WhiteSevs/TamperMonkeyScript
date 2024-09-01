@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.23
+// @version      2024.9.1
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -20,8 +20,8 @@
 // @require      https://update.greasyfork.org/scripts/495227/1413261/Element-Plus.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.2/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.7/dist/index.min.css
@@ -1462,7 +1462,7 @@ match-attr##srcid##sp_purc_atom
   };
   const VueUtils = {
     /**
-     * 获取vue实例
+     * 获取vue2实例
      * @param element
      * @returns
      */
@@ -1471,6 +1471,17 @@ match-attr##srcid##sp_purc_atom
         return;
       }
       return element["__vue__"] || element["__Ivue__"] || element["__IVue__"];
+    },
+    /**
+     * 获取vue3实例
+     * @param element
+     * @returns
+     */
+    getVue3(element) {
+      if (element == null) {
+        return;
+      }
+      return element["__vueParentComponent"];
     },
     /**
      * 等待vue属性并进行设置
@@ -1811,6 +1822,12 @@ match-attr##srcid##sp_purc_atom
       return `https://gss0.bdstatic.com/${authorImgId}/sys/portrait/item/${portrait}`;
     },
     /**
+     * 根据tb|portrait获取用户主页地址
+     */
+    getUserHome(tb) {
+      return `https://tieba.baidu.com/home/main?id=${tb}`;
+    },
+    /**
      * 根据tid/pid获取帖子链接
      * @param id
      */
@@ -2105,6 +2122,46 @@ match-attr##srcid##sp_purc_atom
                     true,
                     void 0,
                     "只对评论和楼中楼的用户进行显示处理"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "帖内(uni-app)",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "功能",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "阻止.wake-up的点击事件",
+                    "baidu-tieba-uni-app-post-preventWakeApp",
+                    true,
+                    void 0,
+                    "阻止点击唤醒App"
+                  ),
+                  UISwitch(
+                    "覆盖【打开App查看更多评论】",
+                    "baidu-tieba-uni-app-post-overloadLoadMore",
+                    true,
+                    void 0,
+                    "该文字可直接点击并加载更多评论且新增滚动自动加载更多评论"
+                  ),
+                  UISwitch(
+                    "修复帖内主内容的图片列表中的推荐帖子跳转",
+                    "baidu-tieba-uni-app-post-repairPicGuideThreadWrapper",
+                    true,
+                    void 0,
+                    "帖内主内容的图片右滑到最后一个时会出现推荐帖子，点击会正常跳转到该帖"
+                  ),
+                  UISwitch(
+                    "修复点击进入用户主页",
+                    "baidu-tieba-uni-app-post-repairClickToUserHome",
+                    true,
+                    void 0,
+                    "包括用户头像、用户名"
                   )
                 ]
               }
@@ -3412,7 +3469,7 @@ match-attr##srcid##sp_purc_atom
         $content.appendChild(askContainer);
         YiYanChat.scrollToContentContainerEnd();
       }
-      utils.listenKeyboard(
+      domutils.listenKeyboard(
         $textArea,
         "keydown",
         function(keyName, keyValue, otherCodeList) {
@@ -7209,7 +7266,8 @@ div[class^="new-summary-container_"] {\r
       return CommonUtils.addBlockCSS("div#wise-invoke-interact-bar");
     }
   };
-  const TieBaShieldCSS = ".tb-backflow-defensive,\r\n.fixed-nav-bar-defensive,\r\n.post-cut-guide,\r\n.ertiao-wrap-defensive,\r\n.feed-warp.gray-background,\r\n.pb-page-wrapper.app-view.transition-fade nav:first-child,\r\n.only-lz,\r\n.nav-bar-v2 .nav-bar-bottom,\r\n.more-image-desc,\r\n.fengchao-banner-defensive,\r\n.wake-app,\r\n.banner-wrapper-defensive,\r\n.open-app,\r\n.topic-share-page-v2 .bav-bar-top,\r\n/* 打开APP查看更多评论 */\r\n.cmt-large-cut-guide,\r\n/* 底部评论滚动栏 */\r\ndiv.diy-guide-wrapper,\r\n/* 底部评论滚动栏上面的空白 */\r\n.individuality,\r\n/* 吧内的广告 */\r\n.tb-threadlist__wrapper .tb-banner-wrapper-defensive,\r\n/* 首页-我的-底部的 年轻人的潮流文化社区 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .desc,\r\n/* 首页-我的-底部的 立即下载 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .download-btn {\r\n  display: none !important;\r\n}\r\nbody.tb-modal-open {\r\n  overflow: auto !important;\r\n}\r\n";
+  const TieBaShieldCSS = ".tb-backflow-defensive,\r\n.fixed-nav-bar-defensive,\r\n.post-cut-guide,\r\n.ertiao-wrap-defensive,\r\n.feed-warp.gray-background,\r\n.pb-page-wrapper.app-view.transition-fade nav:first-child,\r\n.only-lz,\r\n.nav-bar-v2 .nav-bar-bottom,\r\n.more-image-desc,\r\n.fengchao-banner-defensive,\r\n/*.wake-app,*/\r\n.banner-wrapper-defensive,\r\n.open-app,\r\n.topic-share-page-v2 .bav-bar-top,\r\n/* 打开APP查看更多评论 */\r\n.cmt-large-cut-guide,\r\n/* 底部评论滚动栏 */\r\ndiv.diy-guide-wrapper,\r\n/* 底部评论滚动栏上面的空白 */\r\n.individuality,\r\n/* 吧内的广告 */\r\n.tb-threadlist__wrapper .tb-banner-wrapper-defensive,\r\n/* 首页-我的-底部的 年轻人的潮流文化社区 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .desc,\r\n/* 首页-我的-底部的 立即下载 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .download-btn {\r\n  display: none !important;\r\n}\r\nbody.tb-modal-open {\r\n  overflow: auto !important;\r\n}\r\n";
+  const UniTieBaShieldCSS = "/* 热门推荐、相关推荐 */\r\nuni-app .recom-layout-container,\r\n/* 热门推荐、相关推荐 */\r\nuni-app #pbRecomContainer,\r\n/* 猜你还想搜（标题） */\r\nuni-app .guess-title,\r\n/* 猜你还想搜 */\r\nuni-app .guess-container,\r\n/* 底部工具栏 来贴吧畅享精彩内容 */\r\nuni-app .operation-chat,\r\n/* 图片右滑最后一个 来贴吧畅享精彩内容 */\r\nuni-app .pic-popup-guide-title,\r\n/* 图片右滑最后一个 下面的按钮 打开APP */\r\nuni-app .operate-group .wake-app:has(.external-btn-class),\r\n/* 顶部右上角的 App内查看 */\r\nuni-app .operate-btn-wake {\r\n	display: none !important;\r\n}\r\n\r\n/* 评论内容高度 */\r\nuni-app .swiper-content {\r\n	max-height: unset !important;\r\n}\r\n";
   const TiebaTopic = {
     init() {
       PopsPanel.execMenu("baidu_tieba_topic_redirect_jump", () => {
@@ -7512,9 +7570,19 @@ div[class^="new-summary-container_"] {\r
           "1"
         );
       });
+      let masqueradeParamsList2 = ["auto_slient_wake_"];
+      masqueradeParamsList2.forEach((masqueradeParam) => {
+        window.localStorage.setItem(
+          masqueradeParam + utils.formatTime(void 0, "yyyy-MM-dd"),
+          JSON.stringify({
+            type: "number",
+            data: 1
+          })
+        );
+      });
       for (let index = 0; index < window.localStorage.length; index++) {
         let keyName = window.localStorage.key(index);
-        masqueradeParamsList.forEach((item) => {
+        [...masqueradeParamsList, ...masqueradeParamsList2].forEach((item) => {
           if (keyName.startsWith(item) && !keyName.endsWith(utils.formatTime(void 0, "yyyy-MM-dd"))) {
             log.success("删除过期键 ===> " + keyName);
             window.localStorage.removeItem(keyName);
@@ -7717,7 +7785,7 @@ div[class^="new-summary-container_"] {\r
       domutils.on(TiebaSearch.$ele.$searchBtn, "click", () => {
         this.frontPageSeach();
       });
-      utils.listenKeyboard(this.$ele.$searchInput, "keypress", (keyName) => {
+      domutils.listenKeyboard(this.$ele.$searchInput, "keypress", (keyName) => {
         if (keyName !== "Enter") {
           return;
         }
@@ -8086,7 +8154,7 @@ div[class^="new-summary-container_"] {\r
         domutils.on(this.$ele.$searchBtn, "click", () => {
           searchEvent();
         });
-        utils.listenKeyboard(this.$ele.$searchInput, "keypress", (keyName) => {
+        domutils.listenKeyboard(this.$ele.$searchInput, "keypress", (keyName) => {
           if (keyName !== "Enter") {
             return;
           }
@@ -11797,6 +11865,176 @@ div[class^="new-summary-container_"] {\r
       );
     }
   };
+  const TiebaUniAppPost = {
+    init() {
+      utils.waitNode("uni-app", 1e4).then(($uniApp) => {
+        if (!$uniApp) {
+          return;
+        }
+        log.info(`uni-app ===> 本页面为uni-app页面`);
+        PopsPanel.execMenuOnce(
+          "baidu-tieba-uni-app-post-overloadLoadMore",
+          () => {
+            this.overloadLoadMore();
+          }
+        );
+        PopsPanel.execMenuOnce(
+          "baidu-tieba-uni-app-post-repairPicGuideThreadWrapper",
+          () => {
+            this.repairPicGuideThreadWrapper();
+          }
+        );
+        PopsPanel.execMenuOnce(
+          "baidu-tieba-uni-app-post-repairClickToUserHome",
+          () => {
+            this.repairClickToUserHome();
+          }
+        );
+        PopsPanel.execMenuOnce("baidu-tieba-uni-app-post-preventWakeApp", () => {
+          this.preventWakeApp();
+        });
+      });
+    },
+    /**
+     * 判断页面是否是uni-app
+     */
+    isUniApp() {
+      return Boolean(document.querySelector("uni-app"));
+    },
+    /**
+     * 覆盖页面的加载更多按钮，可实现加载更多评论
+     */
+    overloadLoadMore() {
+      domutils.on(
+        document,
+        "click",
+        "uni-app .load-more",
+        (event) => {
+          var _a3;
+          let $loadMore = event.target;
+          utils.preventEvent(event);
+          let $vueIns = VueUtils.getVue3($loadMore);
+          if (typeof ((_a3 = $vueIns == null ? void 0 : $vueIns.attrs) == null ? void 0 : _a3.onHandleClick) === "function") {
+            log.success(`uni-app ===> 加载更多评论`);
+            $vueIns.attrs.onHandleClick();
+          }
+        },
+        {
+          capture: true
+        }
+      );
+      domutils.on(
+        document,
+        "scroll",
+        void 0,
+        async () => {
+          let $loadMore = document.querySelector("uni-app .load-more");
+          if ($loadMore && utils.isVisible($loadMore, true)) {
+            $loadMore.click();
+          }
+        },
+        {
+          capture: true,
+          passive: true,
+          once: false
+        }
+      );
+    },
+    /**
+     * 修复图片导航列表跳转
+     */
+    repairPicGuideThreadWrapper() {
+      domutils.on(
+        document,
+        "click",
+        ".pic-popup-guide-thread-wrapper .thread-guide-item-wake",
+        (event) => {
+          var _a3, _b, _c;
+          utils.preventEvent(event);
+          let $click = event.target;
+          let $vueIns = VueUtils.getVue3($click);
+          if (typeof ((_c = (_b = (_a3 = $vueIns == null ? void 0 : $vueIns.props) == null ? void 0 : _a3.config) == null ? void 0 : _b.param) == null ? void 0 : _c.tid) === "number") {
+            let tid = $vueIns.props.config.param.tid;
+            let url = TiebaUrlApi.getPost(tid);
+            window.open(url, "_blank");
+          } else {
+            log.error(["获取tid失败", $click]);
+            Qmsg.error("获取tid失败");
+          }
+        },
+        {
+          capture: true
+        }
+      );
+    },
+    /**
+     * 修复点击进入用户主页（包括用户头像、用户名）
+     */
+    repairClickToUserHome() {
+      domutils.on(
+        document,
+        "click",
+        ".player-line-left",
+        (event) => {
+          var _a3, _b;
+          utils.preventEvent(event);
+          let $click = event.target;
+          let $vueIns = VueUtils.getVue3($click);
+          if (typeof ((_b = (_a3 = $vueIns == null ? void 0 : $vueIns.props) == null ? void 0 : _a3.playerInfo) == null ? void 0 : _b.portrait) === "string") {
+            let portrait = $vueIns.props.playerInfo.portrait;
+            let url = TiebaUrlApi.getUserHome(portrait);
+            window.open(url, "_blank");
+          } else {
+            log.error(["获取portrait失败", $click]);
+            Qmsg.error("获取portrait失败");
+          }
+        },
+        {
+          capture: true
+        }
+      );
+    },
+    /**
+     * 阻止唤醒app
+     */
+    preventWakeApp() {
+      domutils.on(
+        document,
+        "click",
+        "uni-app .wake-app",
+        (event) => {
+          let $wakeUp = event.target;
+          let ignoreClassNameList = [
+            /* 加载更多（打开App查看更多评论 ） */
+            ".load-more",
+            /* 评论内容 */
+            ".comment-content",
+            /* 图片导航推荐帖子 */
+            ".pic-popup-guide-thread-wrapper .thread-guide-item-wake",
+            /* 用户信息区域 */
+            ".player-line-left",
+            /* 回复输入框区域 */
+            ".pb-reply-textarea-wrapper"
+          ];
+          if ($wakeUp.classList) {
+            for (let index = 0; index < ignoreClassNameList.length; index++) {
+              const ignoreClassName = ignoreClassNameList[index];
+              if ($wakeUp.classList.contains(ignoreClassName)) {
+                return;
+              }
+              if ($wakeUp.closest(ignoreClassName)) {
+                return;
+              }
+            }
+          }
+          utils.preventEvent(event);
+        },
+        {
+          capture: true
+        }
+      );
+    }
+  };
   const TiebaReply = {
     $data: {
       /**
@@ -12118,6 +12356,9 @@ div[class^="new-summary-container_"] {\r
     waitCommentBoxWrap(callback) {
       domutils.ready(() => {
         utils.waitNode(".comment-box-wrap", 1e4).then(($commentBoxWrap) => {
+          if (TiebaUniAppPost.isUniApp()) {
+            return;
+          }
           if (!$commentBoxWrap) {
             log.error("获取不到评论框容器元素.comment-box-wrap");
             Qmsg.error("获取不到评论框容器元素.comment-box-wrap");
@@ -21552,6 +21793,7 @@ div[class^="new-summary-container_"] {\r
   const BaiduTieBa = {
     init() {
       addStyle(TieBaShieldCSS);
+      addStyle(UniTieBaShieldCSS);
       addStyle(
         /*css*/
         `
@@ -21595,6 +21837,7 @@ div[class^="new-summary-container_"] {\r
       } else if (BaiduRouter.isTieBaPost()) {
         log.success("Router: 帖子");
         TiebaPost.init();
+        TiebaUniAppPost.init();
       } else if (BaiduRouter.isTieBaNewTopic()) {
         log.success("Router: 话题热议");
         TiebaTopic.init();

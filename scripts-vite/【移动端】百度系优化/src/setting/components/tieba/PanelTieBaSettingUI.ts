@@ -210,6 +210,46 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 						},
 					],
 				},
+				{
+					text: "帖内(uni-app)",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "功能",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"阻止.wake-up的点击事件",
+									"baidu-tieba-uni-app-post-preventWakeApp",
+									true,
+									void 0,
+									"阻止点击唤醒App"
+								),
+								UISwitch(
+									"覆盖【打开App查看更多评论】",
+									"baidu-tieba-uni-app-post-overloadLoadMore",
+									true,
+									void 0,
+									"该文字可直接点击并加载更多评论且新增滚动自动加载更多评论"
+								),
+								UISwitch(
+									"修复帖内主内容的图片列表中的推荐帖子跳转",
+									"baidu-tieba-uni-app-post-repairPicGuideThreadWrapper",
+									true,
+									void 0,
+									"帖内主内容的图片右滑到最后一个时会出现推荐帖子，点击会正常跳转到该帖"
+								),
+								UISwitch(
+									"修复点击进入用户主页",
+									"baidu-tieba-uni-app-post-repairClickToUserHome",
+									true,
+									void 0,
+									"包括用户头像、用户名"
+								),
+							],
+						},
+					],
+				},
 			],
 		},
 		{

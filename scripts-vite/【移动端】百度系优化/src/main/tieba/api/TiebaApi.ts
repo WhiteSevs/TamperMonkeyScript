@@ -532,6 +532,12 @@ const TiebaUrlApi = {
 		return `https://gss0.bdstatic.com/${authorImgId}/sys/portrait/item/${portrait}`;
 	},
 	/**
+	 * 根据tb|portrait获取用户主页地址
+	 */
+	getUserHome(tb: string) {
+		return `https://tieba.baidu.com/home/main?id=${tb}`;
+	},
+	/**
 	 * 根据tid/pid获取帖子链接
 	 * @param id
 	 */
