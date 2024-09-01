@@ -914,7 +914,7 @@ declare class Utils {
      * Utils.isVisible(document.documentElement)
      * > true
      */
-    isVisible(element: HTMLElement[] | NodeList, inView?: boolean): boolean;
+    isVisible(element: HTMLElement | HTMLElement[] | Element | NodeList, inView?: boolean): boolean;
     /**
      * 判断是否是Via浏览器环境
      * @returns

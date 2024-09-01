@@ -52,7 +52,7 @@ class Utils {
 		this.windowApi = new WindowApi(option);
 	}
 	/** 版本号 */
-	version = "2024.8.30";
+	version = "2024.9.1";
 
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
@@ -2170,9 +2170,8 @@ class Utils {
 	 * Utils.isVisible(document.documentElement)
 	 * > true
 	 */
-	isVisible(element: HTMLElement[] | NodeList, inView?: boolean): boolean;
 	isVisible(
-		element: HTMLElement[] | NodeList,
+		element: HTMLElement | HTMLElement[] | Element | NodeList,
 		inView: boolean = false
 	): boolean {
 		let needCheckDomList = [];
