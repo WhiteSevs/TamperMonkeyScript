@@ -246,6 +246,20 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 									void 0,
 									"包括用户头像、用户名"
 								),
+								UISwitch(
+									"记住评论排序",
+									"baidu-tieba-uni-app-post-rememberChooseSeeCommentSort",
+									true,
+									void 0,
+									"记住当前选择评论的排序，如热门、正序、倒序"
+								),
+								UISwitch(
+									"评论去重",
+									"baidu-tieba-uni-app-post-filterDuplicateComments",
+									true,
+									void 0,
+									"加载评论时会有重复的评论出现，启用该功能可过滤掉"
+								),
 							],
 						},
 					],

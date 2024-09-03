@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.9.1
+// @version      2024.9.3
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -2162,6 +2162,20 @@ match-attr##srcid##sp_purc_atom
                     true,
                     void 0,
                     "包括用户头像、用户名"
+                  ),
+                  UISwitch(
+                    "记住评论排序",
+                    "baidu-tieba-uni-app-post-rememberChooseSeeCommentSort",
+                    true,
+                    void 0,
+                    "记住当前选择评论的排序，如热门、正序、倒序"
+                  ),
+                  UISwitch(
+                    "评论去重",
+                    "baidu-tieba-uni-app-post-filterDuplicateComments",
+                    true,
+                    void 0,
+                    "加载评论时会有重复的评论出现，启用该功能可过滤掉"
                   )
                 ]
               }
@@ -11893,6 +11907,20 @@ div[class^="new-summary-container_"] {\r
         PopsPanel.execMenuOnce("baidu-tieba-uni-app-post-preventWakeApp", () => {
           this.preventWakeApp();
         });
+        domutils.ready(() => {
+          PopsPanel.execMenuOnce(
+            "baidu-tieba-uni-app-post-rememberChooseSeeCommentSort",
+            () => {
+              this.rememberChooseSeeCommentSort();
+            }
+          );
+          PopsPanel.execMenuOnce(
+            "baidu-tieba-uni-app-post-filterDuplicateComments",
+            () => {
+              this.filterDuplicateComments();
+            }
+          );
+        });
       });
     },
     /**
@@ -12033,6 +12061,92 @@ div[class^="new-summary-container_"] {\r
           capture: true
         }
       );
+    },
+    /**
+     * 记住评论排序
+     */
+    rememberChooseSeeCommentSort() {
+      const KEY2 = "baidu-tieba-uni-app-post-choose-see-comment-sort";
+      domutils.on(
+        document,
+        "click",
+        "uni-view.reply-top .switch-tab .tab-item",
+        (event) => {
+          const $click = event.target;
+          const chooseSortText = $click.textContent.trim();
+          _GM_setValue(KEY2, chooseSortText);
+          log.info(`切换评论排序：${chooseSortText}`);
+        }
+      );
+      utils.waitNode("uni-view.reply-top .switch-tab .tab-item", 1e4).then(($tabItem) => {
+        if (!$tabItem) {
+          return;
+        }
+        const chooseSortText = _GM_getValue(KEY2);
+        if (!chooseSortText) {
+          return;
+        }
+        const $tabItemList = Array.from(
+          document.querySelectorAll(
+            "uni-view.reply-top .switch-tab .tab-item"
+          )
+        );
+        for (let index = 0; index < $tabItemList.length; index++) {
+          const $item = $tabItemList[index];
+          if ($item.textContent.trim() === chooseSortText) {
+            log.success(`当前评论排序：${chooseSortText}`);
+            setTimeout(() => {
+              $item.click();
+            }, 1500);
+            break;
+          }
+        }
+      });
+    },
+    /**
+     * 评论去重
+     */
+    filterDuplicateComments() {
+      utils.waitNode("uni-view#tab-list", 1e4).then(($tabList) => {
+        if (!$tabList) {
+          return;
+        }
+        log.info(`启用观察器观察评论内容改变以进行去重`);
+        utils.mutationObserver($tabList, {
+          config: {
+            subtree: true,
+            childList: true
+          },
+          callback(mutations, observer) {
+            var _a3, _b, _c, _d, _e, _f;
+            const $pbCommentItemContainerList = Array.from(
+              document.querySelectorAll(
+                ".pb-comment-item-container"
+              )
+            );
+            const commentIdList = [];
+            for (let index = 0; index < $pbCommentItemContainerList.length; index++) {
+              const $pbCommentItemContainer = $pbCommentItemContainerList[index];
+              const $vueIns = VueUtils.getVue3($pbCommentItemContainer);
+              const commentId = (_b = (_a3 = $vueIns == null ? void 0 : $vueIns.props) == null ? void 0 : _a3.commentData) == null ? void 0 : _b.id;
+              const content = (_d = (_c = $vueIns == null ? void 0 : $vueIns.props) == null ? void 0 : _c.commentData) == null ? void 0 : _d.content;
+              const floor = (_f = (_e = $vueIns == null ? void 0 : $vueIns.props) == null ? void 0 : _e.commentData) == null ? void 0 : _f.floor;
+              if (typeof commentId === "number") {
+                if (commentIdList.includes(commentId)) {
+                  log.warn(
+                    `删除重复楼层${floor}，id: ${commentId}，内容：` + JSON.stringify(content)
+                  );
+                  $pbCommentItemContainer.remove();
+                  $pbCommentItemContainerList.splice(index, 1);
+                  index--;
+                } else {
+                  commentIdList.push(commentId);
+                }
+              }
+            }
+          }
+        });
+      });
     }
   };
   const TiebaReply = {

@@ -3,6 +3,7 @@ import { VueUtils } from "@/utils/VueUtils";
 import Qmsg from "qmsg";
 import { TiebaUrlApi } from "../api/TiebaApi";
 import { PopsPanel } from "@/setting/setting";
+import { GM_getValue, GM_setValue } from "ViteGM";
 
 export const TiebaUniAppPost = {
 	init() {
@@ -31,6 +32,20 @@ export const TiebaUniAppPost = {
 			);
 			PopsPanel.execMenuOnce("baidu-tieba-uni-app-post-preventWakeApp", () => {
 				this.preventWakeApp();
+			});
+			DOMUtils.ready(() => {
+				PopsPanel.execMenuOnce(
+					"baidu-tieba-uni-app-post-rememberChooseSeeCommentSort",
+					() => {
+						this.rememberChooseSeeCommentSort();
+					}
+				);
+				PopsPanel.execMenuOnce(
+					"baidu-tieba-uni-app-post-filterDuplicateComments",
+					() => {
+						this.filterDuplicateComments();
+					}
+				);
 			});
 		});
 	},
@@ -173,5 +188,97 @@ export const TiebaUniAppPost = {
 				capture: true,
 			}
 		);
+	},
+	/**
+	 * 记住评论排序
+	 */
+	rememberChooseSeeCommentSort() {
+		const KEY = "baidu-tieba-uni-app-post-choose-see-comment-sort";
+		DOMUtils.on(
+			document,
+			"click",
+			"uni-view.reply-top .switch-tab .tab-item",
+			(event) => {
+				const $click = event.target as HTMLDivElement;
+				const chooseSortText = $click.textContent!.trim();
+				GM_setValue(KEY, chooseSortText);
+				log.info(`切换评论排序：${chooseSortText}`);
+			}
+		);
+		utils
+			.waitNode("uni-view.reply-top .switch-tab .tab-item", 10000)
+			.then(($tabItem) => {
+				if (!$tabItem) {
+					return;
+				}
+				const chooseSortText = GM_getValue(KEY);
+				if (!chooseSortText) {
+					return;
+				}
+				const $tabItemList = Array.from(
+					document.querySelectorAll<HTMLDivElement>(
+						"uni-view.reply-top .switch-tab .tab-item"
+					)
+				);
+				for (let index = 0; index < $tabItemList.length; index++) {
+					const $item = $tabItemList[index];
+					if ($item.textContent!.trim() === chooseSortText) {
+						log.success(`当前评论排序：${chooseSortText}`);
+						setTimeout(() => {
+							$item.click();
+						}, 1500);
+						break;
+					}
+				}
+			});
+	},
+	/**
+	 * 评论去重
+	 */
+	filterDuplicateComments() {
+		utils.waitNode("uni-view#tab-list", 10000).then(($tabList) => {
+			if (!$tabList) {
+				return;
+			}
+			log.info(`启用观察器观察评论内容改变以进行去重`);
+			utils.mutationObserver($tabList, {
+				config: {
+					subtree: true,
+					childList: true,
+				},
+				callback(mutations, observer) {
+					const $pbCommentItemContainerList = Array.from(
+						document.querySelectorAll<HTMLDivElement>(
+							".pb-comment-item-container"
+						)
+					);
+					const commentIdList: number[] = [];
+					for (
+						let index = 0;
+						index < $pbCommentItemContainerList.length;
+						index++
+					) {
+						const $pbCommentItemContainer = $pbCommentItemContainerList[index];
+						const $vueIns = VueUtils.getVue3($pbCommentItemContainer);
+						const commentId = $vueIns?.props?.commentData?.id;
+						const content = $vueIns?.props?.commentData?.content;
+						const floor = $vueIns?.props?.commentData?.floor;
+						if (typeof commentId === "number") {
+							if (commentIdList.includes(commentId)) {
+								log.warn(
+									`删除重复楼层${floor}，id: ${commentId}，内容：` +
+										JSON.stringify(content)
+								);
+								$pbCommentItemContainer.remove();
+								$pbCommentItemContainerList.splice(index, 1);
+								index--;
+							} else {
+								commentIdList.push(commentId);
+							}
+						}
+					}
+				},
+			});
+		});
 	},
 };
