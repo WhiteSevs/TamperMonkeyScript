@@ -173,7 +173,12 @@ const TiebaCore = {
 					</style>
 					<span class="tb-totop__span">
 						<svg class="tb-totop__svg">
-						<use xlink:href="#icon_frs_top_50"></use>
+							<g id="icon_frs_top_50_页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+								<g id="icon_frs_top_50_编组" transform="translate(-1.000000, -1.000000)">
+									<rect id="icon_frs_top_50_矩形" stroke="#979797" stroke-width="0.5" fill="#FFFFFF" opacity="0.384175037" transform="translate(26.000000, 26.000000) rotate(45.000000) translate(-26.000000, -26.000000) " x="8.25" y="8.25" width="35.5" height="35.5" rx="8"></rect>
+									<polyline id="icon_frs_top_50_路径" stroke="#141414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(26.000000, 28.000000) rotate(-45.000000) translate(-26.000000, -28.000000) " points="21 23 30.2928932 23.7071068 31 33"></polyline>
+								</g>
+							</g>
 						</svg>
 					</span>
 				</div>`,

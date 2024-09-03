@@ -1,4 +1,4 @@
-import { DOMUtils, log, utils } from "@/env";
+import { addStyle, DOMUtils, log, utils } from "@/env";
 import { VueUtils } from "@/utils/VueUtils";
 import Qmsg from "qmsg";
 import { TiebaUrlApi } from "../api/TiebaApi";
@@ -32,6 +32,21 @@ export const TiebaUniAppPost = {
 			);
 			PopsPanel.execMenuOnce("baidu-tieba-uni-app-post-preventWakeApp", () => {
 				this.preventWakeApp();
+			});
+
+			PopsPanel.execMenu("baidu_tieba_add_scroll_top_button_in_forum", () => {
+				// 修复按钮的样式
+				addStyle(/*css*/ `
+					.whitesev-tb-totop{
+						right: 9px !important;
+						bottom: 100px !important;
+					}
+					.whitesev-tb-totop .tb-totop__span{
+						width: 51px !important;
+						height:  51px !important;
+					}
+					
+				`);
 			});
 			DOMUtils.ready(() => {
 				PopsPanel.execMenuOnce(
@@ -79,14 +94,13 @@ export const TiebaUniAppPost = {
 		DOMUtils.on(
 			document,
 			"scroll",
-			void 0,
-			async () => {
+			utils.debounce(async () => {
 				let $loadMore =
 					document.querySelector<HTMLDivElement>("uni-app .load-more");
 				if ($loadMore && utils.isVisible($loadMore, true)) {
 					$loadMore.click();
 				}
-			},
+			}),
 			{
 				capture: true,
 				passive: true,
