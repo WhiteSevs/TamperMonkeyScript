@@ -236,14 +236,21 @@ export const TiebaUniAppPost = {
 				);
 				for (let index = 0; index < $tabItemList.length; index++) {
 					const $item = $tabItemList[index];
-					if ($item.textContent!.trim() === chooseSortText) {
+					const tabSortText = $item.textContent!.trim();
+					if (tabSortText === chooseSortText) {
 						log.success(`当前评论排序：${chooseSortText}`);
-						setTimeout(() => {
-							$item.click();
-						}, 1500);
+						if ($item.classList.contains("tab-item-active")) {
+							// 如果当前已经是该排序，那么不需要点击
+							log.info(`当前评论排序与预期一致`);
+						} else {
+							setTimeout(() => {
+								$item.click();
+							}, 1500);
+						}
 						break;
 					}
 				}
+				// 如果选择热门，但是帖子没有该选项，那么就是默认正序，不做处理
 			});
 	},
 	/**

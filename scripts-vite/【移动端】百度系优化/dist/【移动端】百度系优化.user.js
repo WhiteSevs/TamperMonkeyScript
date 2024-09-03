@@ -12113,11 +12113,16 @@ div[class^="new-summary-container_"] {\r
         );
         for (let index = 0; index < $tabItemList.length; index++) {
           const $item = $tabItemList[index];
-          if ($item.textContent.trim() === chooseSortText) {
+          const tabSortText = $item.textContent.trim();
+          if (tabSortText === chooseSortText) {
             log.success(`当前评论排序：${chooseSortText}`);
-            setTimeout(() => {
-              $item.click();
-            }, 1500);
+            if ($item.classList.contains("tab-item-active")) {
+              log.info(`当前评论排序与预期一致`);
+            } else {
+              setTimeout(() => {
+                $item.click();
+              }, 1500);
+            }
             break;
           }
         }
