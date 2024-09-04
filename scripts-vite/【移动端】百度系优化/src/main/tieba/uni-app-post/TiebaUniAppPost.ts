@@ -243,9 +243,12 @@ export const TiebaUniAppPost = {
 							// 如果当前已经是该排序，那么不需要点击
 							log.info(`当前评论排序与预期一致`);
 						} else {
-							setTimeout(() => {
-								$item.click();
-							}, 1500);
+							utils.mutationVisible($item, (entries, observer) => {
+								observer.disconnect();
+								setTimeout(() => {
+									$item.click();
+								}, 250);
+							});
 						}
 						break;
 					}
