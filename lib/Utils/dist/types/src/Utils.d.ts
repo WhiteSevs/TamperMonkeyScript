@@ -1030,6 +1030,17 @@ declare class Utils {
         callback: MutationCallback;
     }): MutationObserver;
     /**
+     * 使用观察器观察元素出现在视图内，出现的话触发回调
+     * @param target 目标元素
+     * @param callback 触发的回调
+     * @param options 观察器配置
+     * @example
+     * Utils.mutationVisible(document.querySelector("div.xxxx"),(entries,observer)=>{
+     *     console.log("该元素出现在视图内");
+     * }))
+     */
+    mutationVisible(target: Element | Element[], callback: (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => void, options?: IntersectionObserverInit): void;
+    /**
      * 去除全局window下的Utils，返回控制权
      * @example
      * let utils = Utils.noConflict();

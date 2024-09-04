@@ -2520,6 +2520,51 @@ class Utils {
 		return mutationObserver;
 	}
 	/**
+	 * 使用观察器观察元素出现在视图内，出现的话触发回调
+	 * @param target 目标元素
+	 * @param callback 触发的回调
+	 * @param options 观察器配置
+	 * @example
+	 * Utils.mutationVisible(document.querySelector("div.xxxx"),(entries,observer)=>{
+	 *     console.log("该元素出现在视图内");
+	 * }))
+	 */
+	mutationVisible(
+		target: Element | Element[],
+		callback: (
+			entries: IntersectionObserverEntry[],
+			observer: IntersectionObserver
+		) => void,
+		options?: IntersectionObserverInit
+	) {
+		if (typeof IntersectionObserver === "undefined") {
+			throw new TypeError("IntersectionObserver is not defined");
+		}
+		if (target == null) {
+			throw new TypeError("mutatuinVisible target is null");
+		}
+		let defaultOptions: IntersectionObserverInit = {
+			root: null,
+			rootMargin: "0px 0px 0px 0px",
+			threshold: [0.01, 0.99],
+		};
+		defaultOptions = this.assign(defaultOptions, options || {});
+		let intersectionObserver = new IntersectionObserver((entries, observer) => {
+			if (entries[0].isIntersecting) {
+				if (typeof callback === "function") {
+					callback(entries, observer);
+				}
+			}
+		}, defaultOptions);
+		if (Array.isArray(target)) {
+			target.forEach((item) => {
+				intersectionObserver.observe(item);
+			});
+		} else {
+			intersectionObserver.observe(target);
+		}
+	}
+	/**
 	 * 去除全局window下的Utils，返回控制权
 	 * @example
 	 * let utils = Utils.noConflict();
