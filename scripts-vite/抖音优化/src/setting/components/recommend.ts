@@ -1,5 +1,5 @@
 import { DOMUtils, utils } from "@/env";
-import { DouYinVideoFilter } from "@/main/recommend/DouYinVideoFilter";
+import { DouYinRecommendVideoFilter } from "@/main/recommend/DouYinRecommendVideoFilter";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { UISwitch } from "../common-components/ui-switch";
 
@@ -56,12 +56,12 @@ export const PanelRecommendVideoConfig: PopsPanelContentConfig = {
 										let textarea = textareaDiv.querySelector(
 											"textarea"
 										) as HTMLTextAreaElement;
-										textarea.value = DouYinVideoFilter.get();
+										textarea.value = DouYinRecommendVideoFilter.get();
 										DOMUtils.on(
 											textarea,
 											["input", "propertychange"],
 											utils.debounce(function () {
-												DouYinVideoFilter.set(textarea.value);
+												DouYinRecommendVideoFilter.set(textarea.value);
 											}, 200)
 										);
 										liElement.appendChild(textareaDiv);

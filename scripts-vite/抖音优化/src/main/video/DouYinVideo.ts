@@ -10,7 +10,7 @@ import { DouYin } from "../DouYin";
 import { DouYinVideoHideElement } from "./DouYinVideoHideElement";
 import { DouYinVideoShortcut } from "./DouYinVideoShortCut";
 import { DouYinVideoComment } from "./DouYinVideoComment";
-import { DouYinVideoFilter } from "../recommend/DouYinVideoFilter";
+import { DouYinRecommendVideoFilter } from "../recommend/DouYinRecommendVideoFilter";
 
 export type VideoRate = "0.75" | "1" | "1.25" | "1.5" | "1.75" | "2" | "3";
 
@@ -21,7 +21,7 @@ export const DouYinVideo = {
 		DouYinVideoComment.init();
 		if (!DouYinRouter.isSearch()) {
 			PopsPanel.execMenuOnce("shieldVideo", () => {
-				DouYinVideoFilter.init();
+				DouYinRecommendVideoFilter.init();
 			});
 		}
 		PopsPanel.execMenuOnce("changeCommentToBottom", () => {

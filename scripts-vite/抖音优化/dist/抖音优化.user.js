@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.30
+// @version      2024.9.4
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @match        *://*.iesdouyin.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.2/dist/index.umd.js
 // @grant        GM_addStyle
@@ -1918,32 +1918,287 @@
       return document.querySelector("#root div[class*='-os']") || document.querySelector("#douyin-right-container");
     }
   };
-  const DouYinSearchFilter = {
-    key: "douyin-search-shield-rule",
-    $data: {
-      __rule: null,
-      /**
-       * 解析出的规则
-       */
-      get rule() {
-        if (DouYinSearchFilter.$data.__rule == null) {
-          DouYinSearchFilter.$data.__rule = new utils.Dictionary();
-        }
-        return DouYinSearchFilter.$data.__rule;
-      }
-    },
+  class DouYinVideoFilter {
+    constructor(config) {
+      /** 存储的键 */
+      __publicField(this, "key");
+      __publicField(this, "$data", {
+        __rule: null,
+        /**
+         * 解析出的规则
+         */
+        get rule() {
+          if (this.__rule == null) {
+            this.__rule = new utils.Dictionary();
+          }
+          return this.__rule;
+        },
+        /**
+         * 多组规则
+         */
+        moreRule: []
+      });
+      __publicField(this, "$flag", {
+        /** 是否屏蔽在直播 */
+        isBlockLiveVideo: false,
+        /** 是否屏蔽广告 */
+        isBlockAdsVideo: false
+      });
+      this.key = config.key;
+      this.$flag.isBlockLiveVideo = Boolean(config.isBlockLiveVideo);
+      this.$flag.isBlockAdsVideo = Boolean(config.isBlockAdsVideo);
+      this.initLocalRule();
+    }
     /**
-     * authorInfo.nickname:string    作者
-     * authorInfo.uid:string         作者id
-     * desc:string                   视频描述
-     * shareInfo.shareLinkDesc:string       xxx复制链接到抖音App的识别码
-     * shareInfo.shareUrl:string            网页直接看的视频链接
-     * textExtra[{hashtagName: ""},...]     话题
-     * videoTag[{tagName: ""},...]          视频标签
+     * 检测视频是否可以屏蔽，可以屏蔽返回true
+     * @param awemeInfo 视频信息结构
      */
+    checkAwemeInfoIsFilter(awemeInfo) {
+      var _a2, _b, _c, _d;
+      let videoInfoTag = this.getVideoInfoTagMap(awemeInfo);
+      let flag = false;
+      if (!flag) {
+        if (typeof awemeInfo["cellRoom"] === "object" && this.$flag.isBlockLiveVideo) {
+          log.success("过滤器-屏蔽直播: because cellRoom is not null");
+          flag = true;
+        }
+      }
+      if (!flag) {
+        if (this.$flag.isBlockAdsVideo) {
+          if (awemeInfo["isAds"]) {
+            flag = true;
+            log.success("过滤器-屏蔽广告: because isAds is true");
+          } else if (typeof awemeInfo["rawAdData"] === "string" && utils.isNotNull(awemeInfo["rawAdData"])) {
+            flag = true;
+            log.success("过滤器-屏蔽广告: because rawAdData is not null");
+          } else if ((_b = (_a2 = awemeInfo["webRawData"]) == null ? void 0 : _a2["brandAd"]) == null ? void 0 : _b["is_ad"]) {
+            flag = true;
+            log.success(
+              "过滤器-屏蔽广告: because webRawData.brandAd.is_ad is true"
+            );
+          } else if ((_d = (_c = awemeInfo["webRawData"]) == null ? void 0 : _c["insertInfo"]) == null ? void 0 : _d["is_ad"]) {
+            flag = true;
+            log.success(
+              "过滤器-屏蔽广告: because webRawData.insertInfo.is_ad is true"
+            );
+          }
+        }
+      }
+      function checkOwnRule(details) {
+        if (details.videoInfoValue == null) {
+          return false;
+        }
+        if (details.ruleValue == null) {
+          return false;
+        }
+        if (typeof details.videoInfoValue === "string") {
+          if (Boolean(details.videoInfoValue.match(details.ruleValue))) {
+            return true;
+          }
+        } else if (typeof details.videoInfoValue === "object" && Array.isArray(details.videoInfoValue)) {
+          let findValue = details.videoInfoValue.find(
+            (tagValueItem) => Boolean(tagValueItem.match(details.ruleValue))
+          );
+          if (findValue) {
+            return true;
+          }
+        } else if (typeof details.videoInfoValue === "number" && typeof details.ruleValue === "string") {
+          let compareNumberMatch = details.ruleValue.match(/(\d+)/);
+          if (!compareNumberMatch) {
+            log.warn(["过滤器-解析比较大小的数字失败: ", details]);
+            return false;
+          }
+          let compareNumber = Number(compareNumberMatch[1]);
+          if (details.ruleValue.startsWith(">")) {
+            if (details.ruleValue.startsWith(">=") && details.videoInfoValue >= compareNumber) {
+              return true;
+            } else if (details.videoInfoValue > compareNumber) {
+              return true;
+            }
+          } else if (details.ruleValue.startsWith("<")) {
+            if (details.ruleValue.startsWith("<=") && details.videoInfoValue <= compareNumber) {
+              return true;
+            } else if (details.videoInfoValue < compareNumber) {
+              return true;
+            }
+          } else if (details.ruleKey.startsWith("=")) {
+            if (details.videoInfoValue === compareNumber) {
+              return true;
+            }
+          } else {
+            log.warn(["过滤器-自定义屏蔽-未经允许的比较符号: ", details]);
+            return false;
+          }
+        }
+        return false;
+      }
+      if (!flag) {
+        for (const [ruleKey, ruleValue] of this.$data.rule.entries()) {
+          if (!(ruleKey in videoInfoTag)) {
+            continue;
+          }
+          let tagKey = ruleKey;
+          let tagValue = videoInfoTag[tagKey];
+          let details = {
+            videoInfoKey: tagKey,
+            videoInfoValue: tagValue,
+            ruleKey,
+            ruleValue
+          };
+          let checkFlag = checkOwnRule(details);
+          if (checkFlag) {
+            flag = true;
+            log.success(["过滤器-自定义屏蔽: ", details]);
+            break;
+          }
+        }
+      }
+      if (!flag) {
+        for (const rule of this.$data.moreRule) {
+          let moreRuleFlag = true;
+          for (const [ruleKey, ruleValue] of Object.entries(rule)) {
+            if (!(ruleKey in videoInfoTag)) {
+              moreRuleFlag = false;
+              break;
+            }
+            let tagKey = ruleKey;
+            let tagValue = videoInfoTag[tagKey];
+            let details = {
+              videoInfoKey: tagKey,
+              videoInfoValue: tagValue,
+              ruleKey,
+              ruleValue
+            };
+            let checkFlag = checkOwnRule(details);
+            if (!checkFlag) {
+              moreRuleFlag = false;
+              break;
+            }
+          }
+          if (moreRuleFlag) {
+            flag = true;
+            log.success([
+              "多组过滤器-自定义屏蔽: ",
+              rule,
+              this.getVideoInfoTagMap(awemeInfo)
+            ]);
+            break;
+          }
+        }
+      }
+      return flag;
+    }
+    /**
+     * 获取视频各个信息的字典
+     */
+    getVideoInfoTagMap(data) {
+      var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j;
+      let nickname = (_b = (_a2 = data == null ? void 0 : data["authorInfo"]) == null ? void 0 : _a2["nickname"]) == null ? void 0 : _b.toString();
+      let uid = (_d = (_c = data == null ? void 0 : data["authorInfo"]) == null ? void 0 : _c["uid"]) == null ? void 0 : _d.toString();
+      let desc = (_e = data == null ? void 0 : data["desc"]) == null ? void 0 : _e.toString();
+      let collectCount = (_f = data == null ? void 0 : data["stats"]) == null ? void 0 : _f["collectCount"];
+      let commentCount = (_g = data == null ? void 0 : data["stats"]) == null ? void 0 : _g["commentCount"];
+      let diggCount = (_h = data == null ? void 0 : data["stats"]) == null ? void 0 : _h["diggCount"];
+      let shareCount = (_i = data == null ? void 0 : data["stats"]) == null ? void 0 : _i["shareCount"];
+      let textExtra = [];
+      if (typeof (data == null ? void 0 : data["textExtra"]) === "object" && Array.isArray(data == null ? void 0 : data["textExtra"])) {
+        (_j = data == null ? void 0 : data["textExtra"]) == null ? void 0 : _j.forEach((item) => {
+          textExtra.push(item["hashtagName"]);
+        });
+      }
+      let videoTag = [];
+      if (typeof (data == null ? void 0 : data["videoTag"]) === "object" && Array.isArray(data == null ? void 0 : data["videoTag"])) {
+        data == null ? void 0 : data["videoTag"].forEach((item) => {
+          videoTag.push(item["tagName"]);
+        });
+      }
+      return {
+        nickname,
+        uid,
+        desc,
+        textExtra,
+        videoTag,
+        collectCount,
+        commentCount,
+        diggCount,
+        shareCount
+      };
+    }
+    /**
+     * 解析并初始化自定义规则
+     */
+    initLocalRule() {
+      let localRule = this.get().trim();
+      let localRuleSplit = localRule.split("\n");
+      localRuleSplit.forEach((item) => {
+        if (utils.isNull(item)) {
+          return;
+        }
+        let trimItem = item.trim();
+        let itemSplit = trimItem.split("##");
+        if (itemSplit.length < 2) {
+          return;
+        }
+        let keyName = itemSplit[0];
+        itemSplit.shift();
+        if (keyName === "more") {
+          let keyValue = itemSplit.join("##");
+          let moreItemSplit = keyValue.split("##");
+          let moreRule = {};
+          for (let index = 0; index < moreItemSplit.length; index += 2) {
+            let ruleKey = moreItemSplit[index];
+            let ruleValue = moreItemSplit[index + 1];
+            try {
+              if (ruleValue.match(/^>|<|=/g)) {
+                Reflect.set(moreRule, ruleKey, ruleValue.trim());
+              } else {
+                let regExpKeyValue = new RegExp(ruleValue, "g");
+                Reflect.set(moreRule, ruleKey, regExpKeyValue);
+              }
+            } catch (error) {
+              log.error(["多组-自定义视频过滤规则-正则解析错误：" + error]);
+              log.error("多组-错误的规则：" + item);
+            }
+          }
+          this.$data.moreRule.push(moreRule);
+        } else {
+          let keyValue = itemSplit.join("");
+          try {
+            if (keyValue.match(/^>|<|=/g)) {
+              this.$data.rule.set(keyName, keyValue.trim());
+            } else {
+              let regExpKeyValue = new RegExp(keyValue, "g");
+              this.$data.rule.set(keyName, regExpKeyValue);
+            }
+          } catch (error) {
+            log.error(["自定义视频过滤规则-正则解析错误：" + error]);
+            log.error("错误的规则：" + item);
+          }
+        }
+      });
+    }
+    set(value) {
+      _GM_setValue(this.key, value);
+    }
+    get() {
+      return _GM_getValue(this.key, "");
+    }
+  }
+  const DouYinSearchFilter = {
+    douyinSearchFilter: null,
     init() {
-      this.parseRule();
-      log.info(["当前自定义视频拦截规则: ", this.$data.rule.getItems()]);
+      const KEY2 = "douyin-search-shield-rule";
+      const isBlockLiveVideo = PopsPanel.getValue(
+        "search-shieldVideo-live"
+      );
+      const isBlockAdsVideo = PopsPanel.getValue(
+        "search-shieldVideo-ads"
+      );
+      this.douyinSearchFilter = new DouYinVideoFilter({
+        key: KEY2,
+        isBlockLiveVideo,
+        isBlockAdsVideo
+      });
       DouYinElement.watchVideDataListChange(
         utils.debounce((osElement) => {
           var _a2, _b, _c, _d;
@@ -1976,7 +2231,7 @@
               ]);
               return;
             }
-            let flag = this.checkAwemeInfo(awemeInfo);
+            let flag = this.douyinSearchFilter.checkAwemeInfoIsFilter(awemeInfo);
             if (flag) {
               $searchContentAreaScrollItem.remove();
               index--;
@@ -1985,137 +2240,11 @@
         }, 50)
       );
     },
-    /**
-     * 检测视频是否可以屏蔽
-     * @param awemeInfo
-     */
-    checkAwemeInfo(awemeInfo) {
-      var _a2, _b, _c, _d;
-      let videoInfoTag = this.getVideoInfoTagMap(awemeInfo);
-      let flag_blockLiveVideo = PopsPanel.getValue("search-shieldVideo-live");
-      let flag_blockAdsVideo = PopsPanel.getValue("search-shieldVideo-ads");
-      let flag = false;
-      if (!flag) {
-        if (typeof awemeInfo["cellRoom"] === "object" && flag_blockLiveVideo) {
-          log.success("过滤器-屏蔽直播: because cellRoom is not null");
-          flag = true;
-        }
-      }
-      if (!flag) {
-        if (flag_blockAdsVideo) {
-          if (awemeInfo["isAds"]) {
-            flag = true;
-            log.success("过滤器-屏蔽广告: because isAds is true");
-          } else if (typeof awemeInfo["rawAdData"] === "string" && utils.isNotNull(awemeInfo["rawAdData"])) {
-            flag = true;
-            log.success("过滤器-屏蔽广告: because rawAdData is not null");
-          } else if ((_b = (_a2 = awemeInfo["webRawData"]) == null ? void 0 : _a2["brandAd"]) == null ? void 0 : _b["is_ad"]) {
-            flag = true;
-            log.success(
-              "过滤器-屏蔽广告: because webRawData.brandAd.is_ad is true"
-            );
-          } else if ((_d = (_c = awemeInfo["webRawData"]) == null ? void 0 : _c["insertInfo"]) == null ? void 0 : _d["is_ad"]) {
-            flag = true;
-            log.success(
-              "过滤器-屏蔽广告: because webRawData.insertInfo.is_ad is true"
-            );
-          }
-        }
-      }
-      if (!flag) {
-        for (const [ruleKey, ruleValue] of this.$data.rule.entries()) {
-          if (!(ruleKey in videoInfoTag)) {
-            continue;
-          }
-          let tagValue = videoInfoTag[ruleKey];
-          if (tagValue != null) {
-            if (typeof tagValue === "string") {
-              flag = Boolean(tagValue.match(ruleValue));
-              if (flag) {
-                log.success([
-                  "过滤器-自定义屏蔽: " + ruleKey + "  " + ruleValue,
-                  videoInfoTag
-                ]);
-                break;
-              }
-            } else if (typeof tagValue === "object" && Array.isArray(tagValue)) {
-              let findValue = tagValue.find(
-                (tagValueItem) => Boolean(tagValueItem.match(ruleValue))
-              );
-              if (findValue) {
-                flag = true;
-                log.success([
-                  "过滤器-自定义屏蔽: " + ruleKey + "  " + ruleValue,
-                  videoInfoTag
-                ]);
-                break;
-              }
-            }
-          }
-        }
-      }
-      return flag;
-    },
-    /**
-     * 获取视频各个信息的字典
-     */
-    getVideoInfoTagMap(data) {
-      var _a2, _b, _c, _d, _e, _f;
-      let nickname = (_b = (_a2 = data == null ? void 0 : data["authorInfo"]) == null ? void 0 : _a2["nickname"]) == null ? void 0 : _b.toString();
-      let uid = (_d = (_c = data == null ? void 0 : data["authorInfo"]) == null ? void 0 : _c["uid"]) == null ? void 0 : _d.toString();
-      let desc = (_e = data == null ? void 0 : data["desc"]) == null ? void 0 : _e.toString();
-      let textExtra = [];
-      if (typeof (data == null ? void 0 : data["textExtra"]) === "object" && Array.isArray(data == null ? void 0 : data["textExtra"])) {
-        (_f = data == null ? void 0 : data["textExtra"]) == null ? void 0 : _f.forEach((item) => {
-          textExtra.push(item["hashtagName"]);
-        });
-      }
-      let videoTag = [];
-      if (typeof (data == null ? void 0 : data["videoTag"]) === "object" && Array.isArray(data == null ? void 0 : data["videoTag"])) {
-        data == null ? void 0 : data["videoTag"].forEach((item) => {
-          videoTag.push(item["tagName"]);
-        });
-      }
-      return {
-        nickname,
-        uid,
-        desc,
-        textExtra,
-        videoTag
-      };
-    },
-    /**
-     * 解析规则
-     */
-    parseRule() {
-      let localRule = this.get().trim();
-      let localRuleSplit = localRule.split("\n");
-      localRuleSplit.forEach((item) => {
-        if (utils.isNull(item)) {
-          return;
-        }
-        let trimItem = item.trim();
-        let itemSplit = trimItem.split("##");
-        if (itemSplit.length < 2) {
-          return;
-        }
-        let keyName = itemSplit[0];
-        itemSplit.shift();
-        let keyValue = itemSplit.join("");
-        try {
-          let regExpKeyValue = new RegExp(keyValue, "g");
-          this.$data.rule.set(keyName, regExpKeyValue);
-        } catch (error) {
-          log.error(["自定义视频过滤规则-正则解析错误：" + error]);
-          log.error("错误的规则：" + item);
-        }
-      });
+    get() {
+      return this.douyinSearchFilter.get();
     },
     set(value) {
-      _GM_setValue(this.key, value);
-    },
-    get() {
-      return _GM_getValue(this.key, "");
+      this.douyinSearchFilter.set(value);
     }
   };
   const DouYinSearch = {
@@ -2624,33 +2753,18 @@
       return result;
     }
   };
-  const DouYinVideoFilter = {
-    key: "douyin-shield-rule",
-    $data: {
-      __rule: null,
-      /**
-       * 解析出的规则
-       */
-      get rule() {
-        if (DouYinVideoFilter.$data.__rule == null) {
-          DouYinVideoFilter.$data.__rule = new utils.Dictionary();
-        }
-        return DouYinVideoFilter.$data.__rule;
-      }
-    },
-    /**
-     * authorInfo.nickname:string    作者
-     * authorInfo.uid:string         作者id
-     * desc:string                   视频描述
-     * shareInfo.shareLinkDesc:string       xxx复制链接到抖音App的识别码
-     * shareInfo.shareUrl:string            网页直接看的视频链接
-     * textExtra[{hashtagName: ""},...]     话题
-     * videoTag[{tagName: ""},...]          视频标签
-     */
+  const DouYinRecommendVideoFilter = {
+    douyinRecommendVideoFilter: null,
     init() {
-      this.parseRule();
-      log.info(["当前自定义视频拦截规则: ", this.$data.rule.getItems()]);
       let errorFindCount = 0;
+      const KEY2 = "douyin-shield-rule";
+      const isBlockLiveVideo = PopsPanel.getValue("shieldVideo-live");
+      const isBlockAdsVideo = PopsPanel.getValue("shieldVideo-ads");
+      this.douyinRecommendVideoFilter = new DouYinVideoFilter({
+        key: KEY2,
+        isBlockLiveVideo,
+        isBlockAdsVideo
+      });
       DouYinElement.watchVideDataListChange(
         utils.debounce((osElement, observer) => {
           var _a2;
@@ -2677,7 +2791,7 @@
           }
           for (let index = 0; index < awemeInfoList.length; index++) {
             let awemeInfo = awemeInfoList[index];
-            let flag = this.checkAwemeInfo(awemeInfo);
+            let flag = this.douyinRecommendVideoFilter.checkAwemeInfoIsFilter(awemeInfo);
             if (flag) {
               if (awemeInfoList.length === 1) {
                 log.warn(
@@ -2692,137 +2806,11 @@
         }, 50)
       );
     },
-    /**
-     * 检测视频是否可以屏蔽
-     * @param awemeInfo
-     */
-    checkAwemeInfo(awemeInfo) {
-      var _a2, _b, _c, _d;
-      let videoInfoTag = this.getVideoInfoTagMap(awemeInfo);
-      const isBlockLiveVideo = PopsPanel.getValue("shieldVideo-live");
-      const isBlockAdsVideo = PopsPanel.getValue("shieldVideo-ads");
-      let flag = false;
-      if (!flag) {
-        if (typeof awemeInfo["cellRoom"] === "object" && isBlockLiveVideo) {
-          log.success("过滤器-屏蔽直播: because cellRoom is not null");
-          flag = true;
-        }
-      }
-      if (!flag) {
-        if (isBlockAdsVideo) {
-          if (awemeInfo["isAds"]) {
-            flag = true;
-            log.success("过滤器-屏蔽广告: because isAds is true");
-          } else if (typeof awemeInfo["rawAdData"] === "string" && utils.isNotNull(awemeInfo["rawAdData"])) {
-            flag = true;
-            log.success("过滤器-屏蔽广告: because rawAdData is not null");
-          } else if ((_b = (_a2 = awemeInfo["webRawData"]) == null ? void 0 : _a2["brandAd"]) == null ? void 0 : _b["is_ad"]) {
-            flag = true;
-            log.success(
-              "过滤器-屏蔽广告: because webRawData.brandAd.is_ad is true"
-            );
-          } else if ((_d = (_c = awemeInfo["webRawData"]) == null ? void 0 : _c["insertInfo"]) == null ? void 0 : _d["is_ad"]) {
-            flag = true;
-            log.success(
-              "过滤器-屏蔽广告: because webRawData.insertInfo.is_ad is true"
-            );
-          }
-        }
-      }
-      if (!flag) {
-        for (const [ruleKey, ruleValue] of this.$data.rule.entries()) {
-          if (!(ruleKey in videoInfoTag)) {
-            continue;
-          }
-          let tagValue = videoInfoTag[ruleKey];
-          if (tagValue != null) {
-            if (typeof tagValue === "string") {
-              flag = Boolean(tagValue.match(ruleValue));
-              if (flag) {
-                log.success([
-                  "过滤器-自定义屏蔽: " + ruleKey + "  " + ruleValue,
-                  videoInfoTag
-                ]);
-                break;
-              }
-            } else if (typeof tagValue === "object" && Array.isArray(tagValue)) {
-              let findValue = tagValue.find(
-                (tagValueItem) => Boolean(tagValueItem.match(ruleValue))
-              );
-              if (findValue) {
-                flag = true;
-                log.success([
-                  "过滤器-自定义屏蔽: " + ruleKey + "  " + ruleValue,
-                  videoInfoTag
-                ]);
-                break;
-              }
-            }
-          }
-        }
-      }
-      return flag;
-    },
-    /**
-     * 获取视频各个信息的字典
-     */
-    getVideoInfoTagMap(data) {
-      var _a2, _b, _c, _d, _e, _f;
-      let nickname = (_b = (_a2 = data == null ? void 0 : data["authorInfo"]) == null ? void 0 : _a2["nickname"]) == null ? void 0 : _b.toString();
-      let uid = (_d = (_c = data == null ? void 0 : data["authorInfo"]) == null ? void 0 : _c["uid"]) == null ? void 0 : _d.toString();
-      let desc = (_e = data == null ? void 0 : data["desc"]) == null ? void 0 : _e.toString();
-      let textExtra = [];
-      if (typeof (data == null ? void 0 : data["textExtra"]) === "object" && Array.isArray(data == null ? void 0 : data["textExtra"])) {
-        (_f = data == null ? void 0 : data["textExtra"]) == null ? void 0 : _f.forEach((item) => {
-          textExtra.push(item["hashtagName"]);
-        });
-      }
-      let videoTag = [];
-      if (typeof (data == null ? void 0 : data["videoTag"]) === "object" && Array.isArray(data == null ? void 0 : data["videoTag"])) {
-        data == null ? void 0 : data["videoTag"].forEach((item) => {
-          videoTag.push(item["tagName"]);
-        });
-      }
-      return {
-        nickname,
-        uid,
-        desc,
-        textExtra,
-        videoTag
-      };
-    },
-    /**
-     * 解析规则
-     */
-    parseRule() {
-      let localRule = this.get().trim();
-      let localRuleSplit = localRule.split("\n");
-      localRuleSplit.forEach((item) => {
-        if (utils.isNull(item)) {
-          return;
-        }
-        let trimItem = item.trim();
-        let itemSplit = trimItem.split("##");
-        if (itemSplit.length < 2) {
-          return;
-        }
-        let keyName = itemSplit[0];
-        itemSplit.shift();
-        let keyValue = itemSplit.join("");
-        try {
-          let regExpKeyValue = new RegExp(keyValue, "g");
-          this.$data.rule.set(keyName, regExpKeyValue);
-        } catch (error) {
-          log.error(["自定义视频过滤规则-正则解析错误：" + error]);
-          log.error("错误的规则：" + item);
-        }
-      });
+    get() {
+      return this.douyinRecommendVideoFilter.get();
     },
     set(value) {
-      _GM_setValue(this.key, value);
-    },
-    get() {
-      return _GM_getValue(this.key, "");
+      return this.douyinRecommendVideoFilter.set(value);
     }
   };
   const DouYinVideo = {
@@ -2831,7 +2819,7 @@
       DouYinVideoShortcut.init();
       if (!DouYinRouter.isSearch()) {
         PopsPanel.execMenuOnce("shieldVideo", () => {
-          DouYinVideoFilter.init();
+          DouYinRecommendVideoFilter.init();
         });
       }
       PopsPanel.execMenuOnce("changeCommentToBottom", () => {
@@ -4390,12 +4378,12 @@
                       let textarea = textareaDiv.querySelector(
                         "textarea"
                       );
-                      textarea.value = DouYinVideoFilter.get();
+                      textarea.value = DouYinRecommendVideoFilter.get();
                       domUtils.on(
                         textarea,
                         ["input", "propertychange"],
                         utils.debounce(function() {
-                          DouYinVideoFilter.set(textarea.value);
+                          DouYinRecommendVideoFilter.set(textarea.value);
                         }, 200)
                       );
                       liElement.appendChild(textareaDiv);
