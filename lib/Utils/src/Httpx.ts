@@ -1223,6 +1223,13 @@ export declare interface HttpxHookErrorData {
 	response: any;
 }
 
+export type HttpxPromise<T> = Promise<T> & {
+	/**
+	 * 用于取消发送的请求，并执行resolve返回abort
+	 */
+	abort(): void;
+};
+
 class Httpx {
 	private GM_Api = {
 		xmlHttpRequest: null as any,
@@ -2014,10 +2021,10 @@ class Httpx {
 			if (details.fetch) {
 				const { fetchDetails, fetchRequestInit, abortController } =
 					this.context.HttpxRequestDetails.handleFetchDetail(details);
-				this.fetch(fetchDetails, fetchRequestInit, abortController);
+				return this.fetch(fetchDetails, fetchRequestInit, abortController);
 			} else {
 				Reflect.deleteProperty(details, "fetchInit");
-				this.xmlHttpRequest(details);
+				return this.xmlHttpRequest(details);
 			}
 		},
 		/**
@@ -2025,7 +2032,7 @@ class Httpx {
 		 * @param details
 		 */
 		xmlHttpRequest(details: Required<HttpxDetails>) {
-			this.context.GM_Api.xmlHttpRequest(details);
+			return this.context.GM_Api.xmlHttpRequest(details);
 		},
 		/**
 		 * 使用fetch发送请求
@@ -2195,6 +2202,10 @@ class Httpx {
 	 * 当前使用请求时，输出请求的配置
 	 */
 	#LOG_DETAILS = false;
+	/**
+	 * 实例化，可传入GM_xmlhttpRequest，未传入则使用window.fetch
+	 * @param __xmlHttpRequest__
+	 */
 	constructor(__xmlHttpRequest__?: any) {
 		if (typeof __xmlHttpRequest__ !== "function") {
 			console.warn(
@@ -2306,44 +2317,68 @@ class Httpx {
 	}
 	/**
 	 * GET 请求
-	 * @param details 配置
-	 */
-	async get<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
-	/**
-	 * GET 请求
 	 * @param url 网址
 	 * @param details 配置
 	 */
 	async get<T extends HttpxDetails>(
 		url: string,
-		details: T
-	): Promise<HttpxAsyncResult<T>>;
+		details: T // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<T>>;
 	/**
 	 * GET 请求
+	 * @param details 配置
+	 */
+	async get<T extends HttpxDetails>(
+		details: T // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<T>>;
+	/**
+	 * GET 请求
+	 * @param url 网址
+	 * @param details 配置
 	 */
 	async get(
-		...args: (HttpxDetails | string)[]
-	): Promise<HttpxAsyncResult<HttpxDetails>> {
-		let that = this;
+		...args: (HttpxDetails | string)[] // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<HttpxDetails>> {
 		let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
-
-		return new Promise((resolve, reject) => {
-			let requestDetails = that.HttpxRequestDetails.getDetails(
-				"GET",
-				details,
-				resolve,
-				reject
-			);
-			Reflect.deleteProperty(requestDetails, "onprogress");
-			(requestDetails as any) = that.HttpxRequestDetails.handle(requestDetails);
-			that.HttpxRequest.request(requestDetails);
+		let abortFn: Function | null = null;
+		const promise = new Promise<HttpxAsyncResult<HttpxDetails>>(
+			(resolve, reject) => {
+				let requestDetails = this.HttpxRequestDetails.getDetails(
+					"GET",
+					details,
+					resolve,
+					reject
+				);
+				Reflect.deleteProperty(requestDetails, "onprogress");
+				// @ts-ignore
+				requestDetails = this.HttpxRequestDetails.handle(requestDetails);
+				const requestResult = this.HttpxRequest.request(requestDetails);
+				if (
+					requestResult != null &&
+					typeof requestResult.abort === "function"
+				) {
+					abortFn = requestResult.abort;
+				}
+			}
+		);
+		Object.defineProperty(promise, "abort", {
+			value: () => {
+				return () => {
+					if (typeof abortFn === "function") {
+						abortFn();
+					}
+				};
+			},
 		});
+		return promise;
 	}
 	/**
 	 * POST 请求
 	 * @param details 配置
 	 */
-	async post<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
+	async post<T extends HttpxDetails>(
+		details: T // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<T>>;
 	/**
 	 * POST 请求
 	 * @param url 网址
@@ -2351,33 +2386,53 @@ class Httpx {
 	 */
 	async post<T extends HttpxDetails>(
 		url: string,
-		details: T
-	): Promise<HttpxAsyncResult<T>>;
+		details: T // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<T>>;
 	/**
 	 * POST 请求
 	 */
 	async post(
-		...args: (HttpxDetails | string)[]
-	): Promise<HttpxAsyncResult<HttpxDetails>> {
-		let that = this;
+		...args: (HttpxDetails | string)[] // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<HttpxDetails>> {
 		let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
-
-		return new Promise((resolve, reject) => {
-			let requestDetails = that.HttpxRequestDetails.getDetails(
-				"POST",
-				details,
-				resolve,
-				reject
-			);
-			(requestDetails as any) = that.HttpxRequestDetails.handle(requestDetails);
-			that.HttpxRequest.request(requestDetails);
+		let abortFn: Function | null = null;
+		const promise = new Promise<HttpxAsyncResult<HttpxDetails>>(
+			(resolve, reject) => {
+				let requestDetails = this.HttpxRequestDetails.getDetails(
+					"POST",
+					details,
+					resolve,
+					reject
+				);
+				// @ts-ignore
+				requestDetails = this.HttpxRequestDetails.handle(requestDetails);
+				const requestResult = this.HttpxRequest.request(requestDetails);
+				if (
+					requestResult != null &&
+					typeof requestResult.abort === "function"
+				) {
+					abortFn = requestResult.abort;
+				}
+			}
+		);
+		Object.defineProperty(promise, "abort", {
+			value: () => {
+				return () => {
+					if (typeof abortFn === "function") {
+						abortFn();
+					}
+				};
+			},
 		});
+		return promise;
 	}
 	/**
 	 * HEAD 请求
 	 * @param details 配置
 	 */
-	async head<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
+	async head<T extends HttpxDetails>(
+		details: T // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<T>>;
 	/**
 	 * HEAD 请求
 	 * @param url 网址
@@ -2385,35 +2440,58 @@ class Httpx {
 	 */
 	async head<T extends HttpxDetails>(
 		url: string,
-		details: T
-	): Promise<HttpxAsyncResult<T>>;
+		details: T // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<T>>;
 	/**
 	 * HEAD 请求
 	 */
 	async head(
-		...args: (HttpxDetails | string)[]
-	): Promise<HttpxAsyncResult<HttpxDetails>> {
-		let that = this;
+		...args: (HttpxDetails | string)[] // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<HttpxDetails>> {
 		let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
+		let abortFn: Function | null = null;
 
-		return new Promise((resolve, reject) => {
-			let requestDetails = that.HttpxRequestDetails.getDetails(
-				"HEAD",
-				details,
-				resolve,
-				reject
-			);
-			Reflect.deleteProperty(requestDetails, "onprogress");
-			(requestDetails as any) = that.HttpxRequestDetails.handle(requestDetails);
-			that.HttpxRequest.request(requestDetails);
+		const promise = new Promise<HttpxAsyncResult<HttpxDetails>>(
+			(resolve, reject) => {
+				let requestDetails = this.HttpxRequestDetails.getDetails(
+					"HEAD",
+					details,
+					resolve,
+					reject
+				);
+				Reflect.deleteProperty(requestDetails, "onprogress");
+				// @ts-ignore
+				requestDetails = this.HttpxRequestDetails.handle(requestDetails);
+				const requestResult = this.HttpxRequest.request(requestDetails);
+				if (
+					requestResult != null &&
+					typeof requestResult.abort === "function"
+				) {
+					abortFn = requestResult.abort;
+				}
+			}
+		);
+
+		Object.defineProperty(promise, "abort", {
+			value: () => {
+				return () => {
+					if (typeof abortFn === "function") {
+						abortFn();
+					}
+				};
+			},
 		});
+
+		return promise;
 	}
 
 	/**
 	 * OPTIONS 请求
 	 * @param details 配置
 	 */
-	options<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
+	options<T extends HttpxDetails>(
+		details: T // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<T>>;
 	/**
 	 * OPTIONS 请求
 	 * @param url 网址
@@ -2421,28 +2499,46 @@ class Httpx {
 	 */
 	options<T extends HttpxDetails>(
 		url: string,
-		details: T
-	): Promise<HttpxAsyncResult<T>>;
+		details: T // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<T>>;
 	/**
 	 * OPTIONS 请求
 	 */
 	async options(
-		...args: (HttpxDetails | string)[]
-	): Promise<HttpxAsyncResult<HttpxDetails>> {
-		let that = this;
+		...args: (HttpxDetails | string)[] // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<HttpxDetails>> {
 		let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
-
-		return new Promise((resolve, reject) => {
-			let requestDetails = that.HttpxRequestDetails.getDetails(
-				"OPTIONS",
-				details,
-				resolve,
-				reject
-			);
-			Reflect.deleteProperty(requestDetails, "onprogress");
-			(requestDetails as any) = that.HttpxRequestDetails.handle(requestDetails);
-			that.HttpxRequest.request(requestDetails);
+		let abortFn: Function | null = null;
+		const promise = new Promise<HttpxAsyncResult<HttpxDetails>>(
+			(resolve, reject) => {
+				let requestDetails = this.HttpxRequestDetails.getDetails(
+					"OPTIONS",
+					details,
+					resolve,
+					reject
+				);
+				Reflect.deleteProperty(requestDetails, "onprogress");
+				// @ts-ignore
+				requestDetails = this.HttpxRequestDetails.handle(requestDetails);
+				const requestResult = this.HttpxRequest.request(requestDetails);
+				if (
+					requestResult != null &&
+					typeof requestResult.abort === "function"
+				) {
+					abortFn = requestResult.abort;
+				}
+			}
+		);
+		Object.defineProperty(promise, "abort", {
+			value: () => {
+				return () => {
+					if (typeof abortFn === "function") {
+						abortFn();
+					}
+				};
+			},
 		});
+		return promise;
 	}
 
 	/**
@@ -2450,8 +2546,8 @@ class Httpx {
 	 * @param details 配置
 	 */
 	async delete<T extends HttpxDetails>(
-		details: T
-	): Promise<HttpxAsyncResult<T>>;
+		details: T // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<T>>;
 	/**
 	 * DELETE 请求
 	 * @param url 网址
@@ -2459,35 +2555,56 @@ class Httpx {
 	 */
 	async delete<T extends HttpxDetails>(
 		url: string,
-		details: T
-	): Promise<HttpxAsyncResult<T>>;
+		details: T // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<T>>;
 	/**
 	 * DELETE 请求
 	 */
 	async delete(
-		...args: (HttpxDetails | string)[]
-	): Promise<HttpxAsyncResult<HttpxDetails>> {
-		let that = this;
+		...args: (HttpxDetails | string)[] // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<HttpxDetails>> {
 		let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
+		let abortFn: Function | null = null;
+		const promise = new Promise<HttpxAsyncResult<HttpxDetails>>(
+			(resolve, reject) => {
+				let requestDetails = this.HttpxRequestDetails.getDetails(
+					"DELETE",
+					details,
+					resolve,
+					reject
+				);
+				Reflect.deleteProperty(requestDetails, "onprogress");
+				// @ts-ignore
+				requestDetails = this.HttpxRequestDetails.handle(requestDetails);
+				const requestResult = this.HttpxRequest.request(requestDetails);
+				if (
+					requestResult != null &&
+					typeof requestResult.abort === "function"
+				) {
+					abortFn = requestResult.abort;
+				}
+			}
+		);
 
-		return new Promise((resolve, reject) => {
-			let requestDetails = that.HttpxRequestDetails.getDetails(
-				"DELETE",
-				details,
-				resolve,
-				reject
-			);
-			Reflect.deleteProperty(requestDetails, "onprogress");
-			(requestDetails as any) = that.HttpxRequestDetails.handle(requestDetails);
-			that.HttpxRequest.request(requestDetails);
+		Object.defineProperty(promise, "abort", {
+			value: () => {
+				return () => {
+					if (typeof abortFn === "function") {
+						abortFn();
+					}
+				};
+			},
 		});
+		return promise;
 	}
 
 	/**
 	 * PUT 请求
 	 * @param details 配置
 	 */
-	async put<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
+	async put<T extends HttpxDetails>(
+		details: T // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<T>>;
 	/**
 	 * PUT 请求
 	 * @param url 网址
@@ -2495,27 +2612,45 @@ class Httpx {
 	 */
 	async put<T extends HttpxDetails>(
 		url: string,
-		details: T
-	): Promise<HttpxAsyncResult<T>>;
+		details: T // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<T>>;
 	/**
 	 * PUT 请求
 	 */
 	async put(
-		...args: (HttpxDetails | string)[]
-	): Promise<HttpxAsyncResult<HttpxDetails>> {
-		let that = this;
+		...args: (HttpxDetails | string)[] // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<HttpxDetails>> {
 		let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
-
-		return new Promise((resolve, reject) => {
-			let requestDetails = that.HttpxRequestDetails.getDetails(
-				"PUT",
-				details,
-				resolve,
-				reject
-			);
-			(requestDetails as any) = that.HttpxRequestDetails.handle(requestDetails);
-			that.HttpxRequest.request(requestDetails);
+		let abortFn: Function | null = null;
+		const promise = new Promise<HttpxAsyncResult<HttpxDetails>>(
+			(resolve, reject) => {
+				let requestDetails = this.HttpxRequestDetails.getDetails(
+					"PUT",
+					details,
+					resolve,
+					reject
+				);
+				// @ts-ignore
+				requestDetails = this.HttpxRequestDetails.handle(requestDetails);
+				const requestResult = this.HttpxRequest.request(requestDetails);
+				if (
+					requestResult != null &&
+					typeof requestResult.abort === "function"
+				) {
+					abortFn = requestResult.abort;
+				}
+			}
+		);
+		Object.defineProperty(promise, "abort", {
+			value: () => {
+				return () => {
+					if (typeof abortFn === "function") {
+						abortFn();
+					}
+				};
+			},
 		});
+		return promise;
 	}
 }
 

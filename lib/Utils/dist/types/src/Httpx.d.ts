@@ -1124,6 +1124,12 @@ export declare interface HttpxHookErrorData {
     error: Error;
     response: any;
 }
+export type HttpxPromise<T> = Promise<T> & {
+    /**
+     * 用于取消发送的请求，并执行resolve返回abort
+     */
+    abort(): void;
+};
 declare class Httpx {
     #private;
     private GM_Api;
@@ -1132,6 +1138,10 @@ declare class Httpx {
     private HttpxRequestDetails;
     private HttpxCallBack;
     private HttpxRequest;
+    /**
+     * 实例化，可传入GM_xmlhttpRequest，未传入则使用window.fetch
+     * @param __xmlHttpRequest__
+     */
     constructor(__xmlHttpRequest__?: any);
     /**
      * 覆盖全局配置
@@ -1195,69 +1205,69 @@ declare class Httpx {
     setXMLHttpRequest(httpRequest: any): void;
     /**
      * GET 请求
+     * @param url 网址
      * @param details 配置
      */
-    get<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
+    get<T extends HttpxDetails>(url: string, details: T): HttpxPromise<HttpxAsyncResult<T>>;
     /**
      * GET 请求
-     * @param url 网址
      * @param details 配置
      */
-    get<T extends HttpxDetails>(url: string, details: T): Promise<HttpxAsyncResult<T>>;
+    get<T extends HttpxDetails>(details: T): HttpxPromise<HttpxAsyncResult<T>>;
     /**
      * POST 请求
      * @param details 配置
      */
-    post<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
+    post<T extends HttpxDetails>(details: T): HttpxPromise<HttpxAsyncResult<T>>;
     /**
      * POST 请求
      * @param url 网址
      * @param details 配置
      */
-    post<T extends HttpxDetails>(url: string, details: T): Promise<HttpxAsyncResult<T>>;
+    post<T extends HttpxDetails>(url: string, details: T): HttpxPromise<HttpxAsyncResult<T>>;
     /**
      * HEAD 请求
      * @param details 配置
      */
-    head<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
+    head<T extends HttpxDetails>(details: T): HttpxPromise<HttpxAsyncResult<T>>;
     /**
      * HEAD 请求
      * @param url 网址
      * @param details 配置
      */
-    head<T extends HttpxDetails>(url: string, details: T): Promise<HttpxAsyncResult<T>>;
+    head<T extends HttpxDetails>(url: string, details: T): HttpxPromise<HttpxAsyncResult<T>>;
     /**
      * OPTIONS 请求
      * @param details 配置
      */
-    options<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
+    options<T extends HttpxDetails>(details: T): HttpxPromise<HttpxAsyncResult<T>>;
     /**
      * OPTIONS 请求
      * @param url 网址
      * @param details 配置
      */
-    options<T extends HttpxDetails>(url: string, details: T): Promise<HttpxAsyncResult<T>>;
+    options<T extends HttpxDetails>(url: string, details: T): HttpxPromise<HttpxAsyncResult<T>>;
     /**
      * DELETE 请求
      * @param details 配置
      */
-    delete<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
+    delete<T extends HttpxDetails>(details: T): HttpxPromise<HttpxAsyncResult<T>>;
     /**
      * DELETE 请求
      * @param url 网址
      * @param details 配置
      */
-    delete<T extends HttpxDetails>(url: string, details: T): Promise<HttpxAsyncResult<T>>;
+    delete<T extends HttpxDetails>(url: string, details: T): HttpxPromise<HttpxAsyncResult<T>>;
     /**
      * PUT 请求
      * @param details 配置
      */
-    put<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
+    put<T extends HttpxDetails>(details: T): HttpxPromise<HttpxAsyncResult<T>>;
     /**
      * PUT 请求
      * @param url 网址
      * @param details 配置
      */
-    put<T extends HttpxDetails>(url: string, details: T): Promise<HttpxAsyncResult<T>>;
+    put<T extends HttpxDetails>(url: string, details: T): HttpxPromise<HttpxAsyncResult<T>>;
 }
 export { Httpx };

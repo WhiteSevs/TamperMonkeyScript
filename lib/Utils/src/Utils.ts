@@ -52,7 +52,7 @@ class Utils {
 		this.windowApi = new WindowApi(option);
 	}
 	/** 版本号 */
-	version = "2024.9.1";
+	version = "2024.9.4";
 
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
@@ -864,6 +864,12 @@ class Utils {
 			| "yyyy-MM-dd"
 			| "yyyyMMdd"
 			| "HH:mm:ss"
+			| "yyyy"
+			| "MM"
+			| "dd"
+			| "HH"
+			| "mm"
+			| "ss"
 	): string;
 	formatTime(text = new Date(), formatType = "yyyy-MM-dd HH:mm:ss") {
 		let time = text == null ? new Date() : new Date(text);

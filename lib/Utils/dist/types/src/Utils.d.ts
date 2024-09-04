@@ -320,7 +320,7 @@ declare class Utils {
      * Utils.formatTime()
      * > '2023-1-1 00:00:00'
      **/
-    formatTime(text?: string | number | Date, formatType?: "yyyy-MM-dd HH:mm:ss" | "yyyy/MM/dd HH:mm:ss" | "yyyy_MM_dd_HH_mm_ss" | "yyyy年MM月dd日 HH时mm分ss秒" | "yyyy年MM月dd日 hh:mm:ss" | "yyyy年MM月dd日 HH:mm:ss" | "yyyy-MM-dd" | "yyyyMMdd" | "HH:mm:ss"): string;
+    formatTime(text?: string | number | Date, formatType?: "yyyy-MM-dd HH:mm:ss" | "yyyy/MM/dd HH:mm:ss" | "yyyy_MM_dd_HH_mm_ss" | "yyyy年MM月dd日 HH时mm分ss秒" | "yyyy年MM月dd日 hh:mm:ss" | "yyyy年MM月dd日 HH:mm:ss" | "yyyy-MM-dd" | "yyyyMMdd" | "HH:mm:ss" | "yyyy" | "MM" | "dd" | "HH" | "mm" | "ss"): string;
     /**
      * 字符串格式的时间转时间戳
      * @param text	字符串格式的时间，例如：
