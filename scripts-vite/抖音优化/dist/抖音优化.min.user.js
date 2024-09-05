@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.9.4
+// @version      2024.9.5
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -307,7 +307,7 @@ ul[data-e2e="scroll-list"] {\r
 			xg-video-container.xg-video-container{
 				bottom: 0px !important;
 			}
-        `)),e},autoEnterElementFullScreen(e=!1){if(e){let t=new KeyboardEvent("keydown",{bubbles:!0,cancelable:!0,key:"Y",code:"KeyY",keyCode:89,which:89});document.dispatchEvent(t);}else v.waitNode('xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon:has([d="M9.75 8.5a2 2 0 00-2 2v11a2 2 0 002 2h12.5a2 2 0 002-2v-11a2 2 0 00-2-2H9.75zM15 11.25h-3.75a1 1 0 00-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 01-1 1z"])').then(t=>{n.success("自动进入网页全屏"),t.click();});},doubleClickEnterElementFullScreen(){let e=!1;n.info("注册双击进入网页全屏事件"),[".newVideoPlayer","#sliderVideo"].forEach(i=>{y.on(document,"click",i,r=>{e?(e=!1,O.autoEnterElementFullScreen(!0)):(e=!0,setTimeout(()=>{e=!1;},250));});});},changeCommentToBottom(){n.info("评论区修改为底部");let e="data-vertical-screen";function t(){m.isVerticalScreen()?(n.success("自动判断: 竖屏"),document.documentElement.setAttribute(e,"true")):(n.success("自动判断: 横屏"),document.documentElement.removeAttribute(e));}t(),S(`
+        `)),e},autoEnterElementFullScreen(e=!1){if(e){let t=new KeyboardEvent("keydown",{bubbles:!0,cancelable:!0,key:"Y",code:"KeyY",keyCode:89,which:89});document.dispatchEvent(t);}else v.waitNode('xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon:has([d="M9.75 8.5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12.5a2 2 0 0 0 2-2v-11a2 2 0 0 0-2-2H9.75zM15 11.25h-3.75a1 1 0 0 0-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 0 1-1 1z"])').then(t=>{n.success("自动进入网页全屏"),t.click();});},doubleClickEnterElementFullScreen(){let e=!1;n.info("注册双击进入网页全屏事件"),[".newVideoPlayer","#sliderVideo"].forEach(i=>{y.on(document,"click",i,r=>{e?(e=!1,O.autoEnterElementFullScreen(!0)):(e=!0,setTimeout(()=>{e=!1;},250));});});},changeCommentToBottom(){n.info("评论区修改为底部");let e="data-vertical-screen";function t(){m.isVerticalScreen()?(n.success("自动判断: 竖屏"),document.documentElement.setAttribute(e,"true")):(n.success("自动判断: 横屏"),document.documentElement.removeAttribute(e));}t(),S(`
 		html[${e}] #sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard,
 		html[${e}] #sliderVideo[data-e2e="feed-video"] #videoSideCard #relatedVideoCard{
 			display: none !important;
