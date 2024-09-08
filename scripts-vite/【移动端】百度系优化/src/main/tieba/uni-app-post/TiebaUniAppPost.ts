@@ -34,20 +34,21 @@ export const TiebaUniAppPost = {
 				this.preventWakeApp();
 			});
 
-			PopsPanel.execMenu("baidu_tieba_add_scroll_top_button_in_forum", () => {
-				// 修复按钮的样式
-				addStyle(/*css*/ `
-					.whitesev-tb-totop{
-						right: 9px !important;
-						bottom: 100px !important;
-					}
-					.whitesev-tb-totop .tb-totop__span{
-						width: 51px !important;
-						height:  51px !important;
-					}
-					
-				`);
-			});
+			PopsPanel.execMenuOnce(
+				"baidu-tieba-uni-app-post-addScrollTopButtonInForum",
+				(value) => {
+					return this.addScrollTopButton(value);
+				}
+			);
+			PopsPanel.execMenuOnce(
+				"baidu-tieba-uni-app-post-addScrollTopButtonInForum",
+				(value) => {
+					return this.addScrollTopButton(value);
+				},
+				(key, value) => {
+					return !!value;
+				}
+			);
 			DOMUtils.ready(() => {
 				PopsPanel.execMenuOnce(
 					"baidu-tieba-uni-app-post-rememberChooseSeeCommentSort",
@@ -59,6 +60,12 @@ export const TiebaUniAppPost = {
 					"baidu-tieba-uni-app-post-filterDuplicateComments",
 					() => {
 						this.filterDuplicateComments();
+					}
+				);
+				PopsPanel.execMenuOnce(
+					"baidu-tieba-uni-app-post-optimizationLzlPostBackGestureReturn",
+					() => {
+						this.optimizationLzlPostBackGestureReturn();
 					}
 				);
 			});
@@ -85,6 +92,8 @@ export const TiebaUniAppPost = {
 				if (typeof $vueIns?.attrs?.onHandleClick === "function") {
 					log.success(`uni-app ===> 加载更多评论`);
 					$vueIns.attrs.onHandleClick();
+				} else {
+					log.warn("uni-app ==> 点击加载更多失败");
 				}
 			},
 			{
@@ -97,8 +106,14 @@ export const TiebaUniAppPost = {
 			utils.debounce(async () => {
 				let $loadMore =
 					document.querySelector<HTMLDivElement>("uni-app .load-more");
-				if ($loadMore && utils.isVisible($loadMore, true)) {
-					$loadMore.click();
+				if ($loadMore) {
+					if (utils.isVisible($loadMore, true)) {
+						$loadMore.click();
+					} else {
+						// 按钮不可见
+					}
+				} else {
+					// 按钮不存在
 				}
 			}),
 			{
@@ -107,6 +122,35 @@ export const TiebaUniAppPost = {
 				once: false,
 			}
 		);
+		// 主动触发一次滚动事件
+		utils.dispatchEvent(document, "scroll");
+	},
+
+	/**
+	 * 添加滚动到顶部按钮
+	 */
+	addScrollTopButton(enable: boolean) {
+		if (enable) {
+			// 修复按钮的样式
+			return addStyle(/*css*/ `
+				.whitesev-tb-totop{
+					display: unset !important;
+					right: 9px !important;
+					bottom: 100px !important;
+				}
+				.whitesev-tb-totop .tb-totop__span{
+					width: 51px !important;
+					height:  51px !important;
+				}
+			`);
+		} else {
+			// 隐藏按钮
+			return addStyle(/*css*/ `
+				.whitesev-tb-totop{
+					display: none;
+				}
+			`);
+		}
 	},
 	/**
 	 * 修复图片导航列表跳转
@@ -303,6 +347,86 @@ export const TiebaUniAppPost = {
 					}
 				},
 			});
+		});
+	},
+	/**
+	 * 楼中楼回复弹窗后退手势优化
+	 */
+	optimizationLzlPostBackGestureReturn() {
+		let isClosingDialog = false;
+		/**
+		 * 设置浏览器历史地址
+		 * @param event
+		 */
+		function popstateEvent(event: Event) {
+			utils.preventEvent(event);
+			if (isClosingDialog) {
+				return;
+			}
+			log.success("触发popstate事件");
+			removePopStateEvent();
+		}
+
+		/**
+		 * 设置popstate事件
+		 */
+		function setPopStateEvent() {
+			/* 监听地址改变 */
+			log.success("监听popstate事件");
+			window.history.pushState({}, "", "#/seeLzlReply");
+			DOMUtils.on(window, "popstate", popstateEvent, {
+				capture: true,
+			});
+		}
+
+		/**
+		 * 允许浏览器后退并关闭小窗
+		 */
+		async function removePopStateEvent() {
+			isClosingDialog = true;
+			log.success("location地址后退并关闭评论弹窗");
+			closeDialogByUrlChange();
+			while (true) {
+				if (globalThis.location.hash.endsWith("seeLzlReply")) {
+					log.info("后退！");
+					globalThis.history.back();
+					// VueUtils.getVue(TiebaComment.vueRootView)?.$router.back();
+					await utils.sleep(150);
+				} else {
+					break;
+				}
+			}
+			log.success("停止popstate事件监听");
+			DOMUtils.off(window, "popstate", popstateEvent, { capture: true });
+			isClosingDialog = false;
+		}
+		function closeDialogByUrlChange() {
+			let $lzlCloseIcon =
+				document.querySelector<HTMLElement>(".lzl-close-icon");
+			if ($lzlCloseIcon) {
+				$lzlCloseIcon.dispatchEvent(
+					new CustomEvent("click", {
+						detail: {
+							from: "urlchange",
+						},
+					})
+				);
+			} else {
+				log.warn(`未找到关闭楼中楼回复弹窗的按钮`);
+			}
+		}
+		DOMUtils.on(document, "click", ".lzl-wrapper", (event) => {
+			log.info(`点击楼中楼回复`);
+			setPopStateEvent();
+		});
+		DOMUtils.on(document, "click", ".lzl-close-icon", (event) => {
+			log.info(`点击关闭楼中楼回复弹窗`);
+			let detail = event.detail;
+			// @ts-ignore
+			if (detail.from === "urlchange") {
+				return;
+			}
+			removePopStateEvent();
 		});
 	},
 };

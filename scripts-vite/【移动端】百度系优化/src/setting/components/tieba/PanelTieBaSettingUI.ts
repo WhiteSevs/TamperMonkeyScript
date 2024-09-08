@@ -260,6 +260,26 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 									void 0,
 									"加载评论时会有重复的评论出现，启用该功能可过滤掉"
 								),
+								UISwitch(
+									"楼中楼回复弹窗后退手势优化",
+									"baidu-tieba-uni-app-post-optimizationLzlPostBackGestureReturn",
+									false,
+									function (event, enable) {
+										if (enable) {
+											alert(
+												"开启后，当在手机浏览器中使用屏幕左滑回退网页操作或者点击浏览器的回退到上一页按钮，不会触发回退上一页操作，而是会关闭当前查看的楼中楼的弹窗。注：某些浏览器不适用"
+											);
+										}
+									},
+									"使浏览器后退变成关闭楼中楼弹窗"
+								),
+								UISwitch(
+									"新增滚动到顶部按钮",
+									"baidu-tieba-uni-app-post-addScrollTopButtonInForum",
+									true,
+									void 0,
+									"向下滚动的距离>页面高度*2就会出现按钮"
+								),
 							],
 						},
 					],

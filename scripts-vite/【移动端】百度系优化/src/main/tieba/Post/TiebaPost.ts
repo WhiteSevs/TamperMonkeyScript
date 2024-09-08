@@ -31,11 +31,11 @@ const TiebaPost = {
 	init() {
 		PopsPanel.execMenu("baidu_tieba_repairErrorThread", () => {
 			log.success("强制查看-帖子不存在|帖子已被删除|该帖子需要去app内查看哦");
-			TiebaPost.repairErrorThread();
+			this.repairErrorThread();
 		});
 		PopsPanel.execMenu("baidu_tieba_optimize_image_preview", () => {
 			log.success("优化图片预览");
-			TiebaPost.optimizeImagePreview();
+			this.optimizeImagePreview();
 		});
 		PopsPanel.execMenuOnce("baidu_tieba_lzl_ban_global_back", () => {
 			this.overrideVueRouterMatch();
@@ -105,6 +105,15 @@ const TiebaPost = {
 			viewer.show();
 			log.success("预览图片");
 		}
+		/**
+		 * 获取<img>标签的src资源
+		 * @param $img
+		 */
+		function getImageSrc($img: HTMLImageElement): string {
+			let imgUrl =
+				$img.getAttribute("data-src") || $img.getAttribute("src") || $img.src;
+			return imgUrl;
+		}
 		DOMUtils.on<MouseEvent | PointerEvent>(
 			document,
 			"click",
@@ -112,8 +121,7 @@ const TiebaPost = {
 			(event) => {
 				let $click = event.target as HTMLImageElement;
 				let $clickParent = $click.parentElement as HTMLDivElement;
-				let imageUrl =
-					$click.getAttribute("data-src") || $click.getAttribute("src");
+				let imageUrl = getImageSrc($click);
 				if (
 					$clickParent.className === "viewer-canvas" ||
 					$clickParent.hasAttribute("data-viewer-action")
@@ -129,13 +137,12 @@ const TiebaPost = {
 					log.info($click);
 					if ($clickParent.className === "img-box") {
 						/* 帖子主体内的图片 */
-						let parentMain = $click.closest(".img-sudoku.main-img-sudoku");
-						log.info(parentMain);
-						if (!parentMain) {
+						let $imgSudoKu = $click.closest(".img-sudoku.main-img-sudoku");
+						log.info($imgSudoKu);
+						if (!$imgSudoKu) {
 							viewIMG([imageUrl]);
 							return;
 						}
-						utils.preventEvent(event);
 						let lazyImgList: string[] = [];
 						if (TiebaPost.mainPostImgList.length) {
 							TiebaPost.mainPostImgList.forEach((item) => {
@@ -143,23 +150,23 @@ const TiebaPost = {
 							});
 						} else {
 							Array.from(
-								parentMain.querySelectorAll<HTMLImageElement>("img.img")
-							).forEach((item) => {
-								let _imgSrc_ = item.getAttribute("data-src") || item.src;
-								log.info(`获取图片: ${_imgSrc_}`);
-								let imgUrlInfo = new URL(_imgSrc_);
+								$imgSudoKu.querySelectorAll<HTMLImageElement>("img.img")
+							).forEach(($img) => {
+								let imgSrc = getImageSrc($img);
+								log.info(`获取图片: ${imgSrc}`);
+								let imgUrlInfo = new URL(imgSrc);
 								if (imgUrlInfo.pathname.startsWith("/forum/")) {
 									let picName = imgUrlInfo.pathname.split("/").pop() as string;
 									let picIdSplit = picName.split(".");
 									if (picIdSplit) {
 										let picId = picIdSplit[0];
 										if (TiebaData.imageMap.has(picId)) {
-											_imgSrc_ = TiebaData.imageMap.get(picId) as string;
-											log.success(["替换成高清图片", _imgSrc_]);
+											imgSrc = TiebaData.imageMap.get(picId) as string;
+											log.success(["替换成高清图片", imgSrc]);
 										}
 									}
 								}
-								lazyImgList.push(_imgSrc_);
+								lazyImgList.push(imgSrc);
 							});
 						}
 
@@ -172,27 +179,48 @@ const TiebaPost = {
 						log.info($clickParent);
 						$clickParent
 							.querySelectorAll<HTMLImageElement>("img.BDE_Image")
-							.forEach((item) => {
-								let _imgSrc_ =
-									item.getAttribute("data-src") || (item.src as string);
-								log.info(`获取图片: ${_imgSrc_}`);
-								let imgUrlInfo = new URL(_imgSrc_);
+							.forEach(($img) => {
+								let imgSrc = getImageSrc($img);
+								log.info(`获取图片: ${imgSrc}`);
+								let imgUrlInfo = new URL(imgSrc);
 								if (imgUrlInfo.pathname.startsWith("/forum/")) {
 									let picName = imgUrlInfo.pathname.split("/").pop();
 									let picIdSplit = picName?.split(".");
 									if (picIdSplit) {
 										let picId = picIdSplit[0];
 										if (TiebaData.imageMap.has(picId)) {
-											_imgSrc_ = TiebaData.imageMap.get(picId) as string;
-											log.success(["替换成高清图片", _imgSrc_]);
+											imgSrc = TiebaData.imageMap.get(picId) as string;
+											log.success(["替换成高清图片", imgSrc]);
 										}
 									}
 								}
-								lazyImgList.push(_imgSrc_);
+								lazyImgList.push(imgSrc);
 							});
 						log.info("评论区图片列表👇");
 						log.info(lazyImgList);
 						viewIMG(lazyImgList, lazyImgList.indexOf(imageUrl));
+					} else if (
+						$clickParent.classList.contains("pb-image") &&
+						$clickParent.localName === "uni-image"
+					) {
+						// uni-app的帖子主内容的图片
+						log.info($clickParent);
+						let $slideFrame = $click.closest<HTMLDivElement>(
+							".uni-swiper-slide-frame"
+						)!;
+						if ($slideFrame) {
+							let lazyImgList: string[] = [];
+							$slideFrame.querySelectorAll("img").forEach(($img) => {
+								let imgSrc = getImageSrc($img);
+								log.info(`获取图片: ${imgSrc}`);
+								lazyImgList.push(imgSrc);
+							});
+							viewIMG(lazyImgList, lazyImgList.indexOf(imageUrl));
+						} else {
+							// 帖子详情页的图片
+							log.warn("获取多组图片失败，采用查看单张图片");
+							viewIMG([imageUrl]);
+						}
 					} else {
 						/* 单个图片预览 */
 						viewIMG([imageUrl]);

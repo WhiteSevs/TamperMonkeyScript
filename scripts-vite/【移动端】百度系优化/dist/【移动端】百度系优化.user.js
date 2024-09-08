@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.9.4
+// @version      2024.9.8
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -2176,6 +2176,26 @@ match-attr##srcid##sp_purc_atom
                     true,
                     void 0,
                     "加载评论时会有重复的评论出现，启用该功能可过滤掉"
+                  ),
+                  UISwitch(
+                    "楼中楼回复弹窗后退手势优化",
+                    "baidu-tieba-uni-app-post-optimizationLzlPostBackGestureReturn",
+                    false,
+                    function(event, enable) {
+                      if (enable) {
+                        alert(
+                          "开启后，当在手机浏览器中使用屏幕左滑回退网页操作或者点击浏览器的回退到上一页按钮，不会触发回退上一页操作，而是会关闭当前查看的楼中楼的弹窗。注：某些浏览器不适用"
+                        );
+                      }
+                    },
+                    "使浏览器后退变成关闭楼中楼弹窗"
+                  ),
+                  UISwitch(
+                    "新增滚动到顶部按钮",
+                    "baidu-tieba-uni-app-post-addScrollTopButtonInForum",
+                    true,
+                    void 0,
+                    "向下滚动的距离>页面高度*2就会出现按钮"
                   )
                 ]
               }
@@ -11912,22 +11932,21 @@ div[class^="new-summary-container_"] {\r
         PopsPanel.execMenuOnce("baidu-tieba-uni-app-post-preventWakeApp", () => {
           this.preventWakeApp();
         });
-        PopsPanel.execMenu("baidu_tieba_add_scroll_top_button_in_forum", () => {
-          addStyle(
-            /*css*/
-            `
-					.whitesev-tb-totop{
-						right: 9px !important;
-						bottom: 100px !important;
-					}
-					.whitesev-tb-totop .tb-totop__span{
-						width: 51px !important;
-						height:  51px !important;
-					}
-					
-				`
-          );
-        });
+        PopsPanel.execMenuOnce(
+          "baidu-tieba-uni-app-post-addScrollTopButtonInForum",
+          (value) => {
+            return this.addScrollTopButton(value);
+          }
+        );
+        PopsPanel.execMenuOnce(
+          "baidu-tieba-uni-app-post-addScrollTopButtonInForum",
+          (value) => {
+            return this.addScrollTopButton(value);
+          },
+          (key, value) => {
+            return !!value;
+          }
+        );
         domutils.ready(() => {
           PopsPanel.execMenuOnce(
             "baidu-tieba-uni-app-post-rememberChooseSeeCommentSort",
@@ -11939,6 +11958,12 @@ div[class^="new-summary-container_"] {\r
             "baidu-tieba-uni-app-post-filterDuplicateComments",
             () => {
               this.filterDuplicateComments();
+            }
+          );
+          PopsPanel.execMenuOnce(
+            "baidu-tieba-uni-app-post-optimizationLzlPostBackGestureReturn",
+            () => {
+              this.optimizationLzlPostBackGestureReturn();
             }
           );
         });
@@ -11966,6 +11991,8 @@ div[class^="new-summary-container_"] {\r
           if (typeof ((_a3 = $vueIns == null ? void 0 : $vueIns.attrs) == null ? void 0 : _a3.onHandleClick) === "function") {
             log.success(`uni-app ===> 加载更多评论`);
             $vueIns.attrs.onHandleClick();
+          } else {
+            log.warn("uni-app ==> 点击加载更多失败");
           }
         },
         {
@@ -11977,8 +12004,10 @@ div[class^="new-summary-container_"] {\r
         "scroll",
         utils.debounce(async () => {
           let $loadMore = document.querySelector("uni-app .load-more");
-          if ($loadMore && utils.isVisible($loadMore, true)) {
-            $loadMore.click();
+          if ($loadMore) {
+            if (utils.isVisible($loadMore, true)) {
+              $loadMore.click();
+            }
           }
         }),
         {
@@ -11987,6 +12016,37 @@ div[class^="new-summary-container_"] {\r
           once: false
         }
       );
+      utils.dispatchEvent(document, "scroll");
+    },
+    /**
+     * 添加滚动到顶部按钮
+     */
+    addScrollTopButton(enable) {
+      if (enable) {
+        return addStyle(
+          /*css*/
+          `
+				.whitesev-tb-totop{
+					display: unset !important;
+					right: 9px !important;
+					bottom: 100px !important;
+				}
+				.whitesev-tb-totop .tb-totop__span{
+					width: 51px !important;
+					height:  51px !important;
+				}
+			`
+        );
+      } else {
+        return addStyle(
+          /*css*/
+          `
+				.whitesev-tb-totop{
+					display: none;
+				}
+			`
+        );
+      }
     },
     /**
      * 修复图片导航列表跳转
@@ -12174,6 +12234,70 @@ div[class^="new-summary-container_"] {\r
             }
           }
         });
+      });
+    },
+    /**
+     * 楼中楼回复弹窗后退手势优化
+     */
+    optimizationLzlPostBackGestureReturn() {
+      let isClosingDialog = false;
+      function popstateEvent(event) {
+        utils.preventEvent(event);
+        if (isClosingDialog) {
+          return;
+        }
+        log.success("触发popstate事件");
+        removePopStateEvent();
+      }
+      function setPopStateEvent() {
+        log.success("监听popstate事件");
+        window.history.pushState({}, "", "#/seeLzlReply");
+        domutils.on(window, "popstate", popstateEvent, {
+          capture: true
+        });
+      }
+      async function removePopStateEvent() {
+        isClosingDialog = true;
+        log.success("location地址后退并关闭评论弹窗");
+        closeDialogByUrlChange();
+        while (true) {
+          if (globalThis.location.hash.endsWith("seeLzlReply")) {
+            log.info("后退！");
+            globalThis.history.back();
+            await utils.sleep(150);
+          } else {
+            break;
+          }
+        }
+        log.success("停止popstate事件监听");
+        domutils.off(window, "popstate", popstateEvent, { capture: true });
+        isClosingDialog = false;
+      }
+      function closeDialogByUrlChange() {
+        let $lzlCloseIcon = document.querySelector(".lzl-close-icon");
+        if ($lzlCloseIcon) {
+          $lzlCloseIcon.dispatchEvent(
+            new CustomEvent("click", {
+              detail: {
+                from: "urlchange"
+              }
+            })
+          );
+        } else {
+          log.warn(`未找到关闭楼中楼回复弹窗的按钮`);
+        }
+      }
+      domutils.on(document, "click", ".lzl-wrapper", (event) => {
+        log.info(`点击楼中楼回复`);
+        setPopStateEvent();
+      });
+      domutils.on(document, "click", ".lzl-close-icon", (event) => {
+        log.info(`点击关闭楼中楼回复弹窗`);
+        let detail = event.detail;
+        if (detail.from === "urlchange") {
+          return;
+        }
+        removePopStateEvent();
       });
     }
   };
@@ -19199,11 +19323,11 @@ div[class^="new-summary-container_"] {\r
     init() {
       PopsPanel.execMenu("baidu_tieba_repairErrorThread", () => {
         log.success("强制查看-帖子不存在|帖子已被删除|该帖子需要去app内查看哦");
-        TiebaPost.repairErrorThread();
+        this.repairErrorThread();
       });
       PopsPanel.execMenu("baidu_tieba_optimize_image_preview", () => {
         log.success("优化图片预览");
-        TiebaPost.optimizeImagePreview();
+        this.optimizeImagePreview();
       });
       PopsPanel.execMenuOnce("baidu_tieba_lzl_ban_global_back", () => {
         this.overrideVueRouterMatch();
@@ -19262,6 +19386,10 @@ div[class^="new-summary-container_"] {\r
         viewer.show();
         log.success("预览图片");
       }
+      function getImageSrc($img) {
+        let imgUrl = $img.getAttribute("data-src") || $img.getAttribute("src") || $img.src;
+        return imgUrl;
+      }
       domutils.on(
         document,
         "click",
@@ -19269,7 +19397,7 @@ div[class^="new-summary-container_"] {\r
         (event) => {
           let $click = event.target;
           let $clickParent = $click.parentElement;
-          let imageUrl = $click.getAttribute("data-src") || $click.getAttribute("src");
+          let imageUrl = getImageSrc($click);
           if ($clickParent.className === "viewer-canvas" || $clickParent.hasAttribute("data-viewer-action")) {
             log.info("点击的<img>属于Viewer内的元素， 不处理");
             return;
@@ -19279,13 +19407,12 @@ div[class^="new-summary-container_"] {\r
             log.info(`点击图片👇`);
             log.info($click);
             if ($clickParent.className === "img-box") {
-              let parentMain = $click.closest(".img-sudoku.main-img-sudoku");
-              log.info(parentMain);
-              if (!parentMain) {
+              let $imgSudoKu = $click.closest(".img-sudoku.main-img-sudoku");
+              log.info($imgSudoKu);
+              if (!$imgSudoKu) {
                 viewIMG([imageUrl]);
                 return;
               }
-              utils.preventEvent(event);
               let lazyImgList = [];
               if (TiebaPost.mainPostImgList.length) {
                 TiebaPost.mainPostImgList.forEach((item) => {
@@ -19293,23 +19420,23 @@ div[class^="new-summary-container_"] {\r
                 });
               } else {
                 Array.from(
-                  parentMain.querySelectorAll("img.img")
-                ).forEach((item) => {
-                  let _imgSrc_ = item.getAttribute("data-src") || item.src;
-                  log.info(`获取图片: ${_imgSrc_}`);
-                  let imgUrlInfo = new URL(_imgSrc_);
+                  $imgSudoKu.querySelectorAll("img.img")
+                ).forEach(($img) => {
+                  let imgSrc = getImageSrc($img);
+                  log.info(`获取图片: ${imgSrc}`);
+                  let imgUrlInfo = new URL(imgSrc);
                   if (imgUrlInfo.pathname.startsWith("/forum/")) {
                     let picName = imgUrlInfo.pathname.split("/").pop();
                     let picIdSplit = picName.split(".");
                     if (picIdSplit) {
                       let picId = picIdSplit[0];
                       if (TiebaData.imageMap.has(picId)) {
-                        _imgSrc_ = TiebaData.imageMap.get(picId);
-                        log.success(["替换成高清图片", _imgSrc_]);
+                        imgSrc = TiebaData.imageMap.get(picId);
+                        log.success(["替换成高清图片", imgSrc]);
                       }
                     }
                   }
-                  lazyImgList.push(_imgSrc_);
+                  lazyImgList.push(imgSrc);
                 });
               }
               log.info("图片列表👇");
@@ -19318,26 +19445,43 @@ div[class^="new-summary-container_"] {\r
             } else if ($clickParent.className === "text-content") {
               let lazyImgList = [];
               log.info($clickParent);
-              $clickParent.querySelectorAll("img.BDE_Image").forEach((item) => {
-                let _imgSrc_ = item.getAttribute("data-src") || item.src;
-                log.info(`获取图片: ${_imgSrc_}`);
-                let imgUrlInfo = new URL(_imgSrc_);
+              $clickParent.querySelectorAll("img.BDE_Image").forEach(($img) => {
+                let imgSrc = getImageSrc($img);
+                log.info(`获取图片: ${imgSrc}`);
+                let imgUrlInfo = new URL(imgSrc);
                 if (imgUrlInfo.pathname.startsWith("/forum/")) {
                   let picName = imgUrlInfo.pathname.split("/").pop();
                   let picIdSplit = picName == null ? void 0 : picName.split(".");
                   if (picIdSplit) {
                     let picId = picIdSplit[0];
                     if (TiebaData.imageMap.has(picId)) {
-                      _imgSrc_ = TiebaData.imageMap.get(picId);
-                      log.success(["替换成高清图片", _imgSrc_]);
+                      imgSrc = TiebaData.imageMap.get(picId);
+                      log.success(["替换成高清图片", imgSrc]);
                     }
                   }
                 }
-                lazyImgList.push(_imgSrc_);
+                lazyImgList.push(imgSrc);
               });
               log.info("评论区图片列表👇");
               log.info(lazyImgList);
               viewIMG(lazyImgList, lazyImgList.indexOf(imageUrl));
+            } else if ($clickParent.classList.contains("pb-image") && $clickParent.localName === "uni-image") {
+              log.info($clickParent);
+              let $slideFrame = $click.closest(
+                ".uni-swiper-slide-frame"
+              );
+              if ($slideFrame) {
+                let lazyImgList = [];
+                $slideFrame.querySelectorAll("img").forEach(($img) => {
+                  let imgSrc = getImageSrc($img);
+                  log.info(`获取图片: ${imgSrc}`);
+                  lazyImgList.push(imgSrc);
+                });
+                viewIMG(lazyImgList, lazyImgList.indexOf(imageUrl));
+              } else {
+                log.warn("获取多组图片失败，采用查看单张图片");
+                viewIMG([imageUrl]);
+              }
             } else {
               viewIMG([imageUrl]);
             }
