@@ -117,7 +117,20 @@ const TiebaCore = {
 
 		let appView = VueUtils.getVue(document.querySelector(".app-view"))?.forum
 			?.name;
-		return tbMobileViewport || mainPageWrap || tbForum || appView;
+
+		let $uniAppPostNavBarForumName = document.querySelector<HTMLDivElement>(
+			"uni-app .nav-bar .forum-name"
+		);
+		let uniAppPostNavBarForumName =
+			$uniAppPostNavBarForumName?.textContent || "";
+		uniAppPostNavBarForumName = uniAppPostNavBarForumName.replace(/吧$/g, "");
+		return (
+			tbMobileViewport ||
+			mainPageWrap ||
+			tbForum ||
+			appView ||
+			uniAppPostNavBarForumName
+		);
 	},
 	/**
 	 * 获取当前的贴吧的id

@@ -68,6 +68,7 @@ export const TiebaUniAppPost = {
 						this.optimizationLzlPostBackGestureReturn();
 					}
 				);
+				this.repairSearch();
 			});
 		});
 	},
@@ -428,5 +429,75 @@ export const TiebaUniAppPost = {
 			}
 			removePopStateEvent();
 		});
+	},
+	/**
+	 * 修复搜索功能
+	 */
+	repairSearch() {
+		utils
+			.waitNode(".nav-bar .nav-bar-forum-info", 10000)
+			.then(($navBarForumInfo) => {
+				if (!$navBarForumInfo) {
+					return;
+				}
+				let $navBar = $navBarForumInfo.closest<HTMLDivElement>(".nav-bar")!;
+				let $moreBtnDesc = DOMUtils.createElement("div", {
+					className: "more-btn-desc",
+					innerText: "搜索",
+				});
+				$navBar.appendChild($moreBtnDesc);
+				addStyle(/*css*/ `
+				.nav-bar .more-btn-desc{
+					font-size: 15px;
+				}
+				#search .nav-bar-wrapper{
+					height: 48px;
+				}
+				#search .nav-bar-wrapper svg{
+					width: 16px;
+					height: 16px;
+				}
+				#search .nav-search-btn{
+					font-size: 15px;
+				}
+				#search .search-result{
+					top: 48px;
+				}
+				#search .search-result-model{
+					top: 48px;
+					height: 32px;
+				}
+				#search .search-result-model .search-result-model-item[data-active]:after{
+					width: 20px;
+    				margin: 0 5px 0px;
+				}
+				#search .search-result-from-info{
+					margin-top: 32px;
+				}
+				#search .search-result-media-left{
+					padding-right: 8px !important;
+				}
+				#search .search-result-media-left img{
+					width: 35px !important;;
+    				height: 35px !important;;
+				}
+				#search .search-result-media-body-author-name{
+					margin-top: 2px !important;
+					font-size: 16px !important;
+					line-height: 15px !important;
+				}
+				#search .search-result-media-body-time{
+					margin-top: 6px !important;
+					font-size: 12px !important;
+					line-height: 12px !important;
+				}
+				#search .search-result-title, #search .search-result-content, #search .search-result-bottom-toolbar{
+					margin-top: 8px !important;
+				}
+				#search h1.search-result-title-h1{
+					font-size: 16px !important;
+				}
+				`);
+			});
 	},
 };
