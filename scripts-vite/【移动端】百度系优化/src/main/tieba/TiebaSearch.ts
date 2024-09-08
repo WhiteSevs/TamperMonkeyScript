@@ -5,6 +5,7 @@ import { LoadingView } from "@/utils/LoadingView";
 import { TiebaCore } from "./TiebaCore";
 import Qmsg from "qmsg";
 import { TiebaBaNei } from "./BaNei/TiebaBaNei";
+import { CommonUtils } from "@/utils/CommonUtils";
 
 interface SearchResultInfo {
 	url: string;
@@ -982,7 +983,17 @@ const TiebaSearch = {
 		splitText.forEach((text) => {
 			data["title"] = data["title"].replaceAll(text, "<em>" + text + "</em>");
 		});
-		let resultElement = DOMUtils.createElement("div", {
+
+		let postUrlObj = new URL(CommonUtils.fixUrl(data["url"]));
+		/** 帖子链接地址 */
+		// 这里处理是因为新版uni-app帖子后面如果多了个定位评论的锚点参数，那么会导致白屏
+		let postUrl = postUrlObj.origin + postUrlObj.pathname;
+		/** 发帖人的个人空间地址 */
+		let authorHomeUrl = data["authorHomeUrl"];
+		/** 帖子的来源吧名 */
+		let postForum = data["forum"]!;
+
+		let $resultElement = DOMUtils.createElement("div", {
 			className: "s_post search_result",
 			innerHTML: /*html*/ `
 		  <div class="search-result-media">
@@ -1007,25 +1018,26 @@ const TiebaSearch = {
 		  </div>
 		  `,
 		});
-		let userAvatarElement = resultElement.querySelector(
+		$resultElement.setAttribute("data-url", data["url"]);
+		let $userAvatarElement = $resultElement.querySelector(
 			".search-result-media-left img"
 		) as HTMLImageElement;
-		let userNameElement = resultElement.querySelector(
+		let $userNameElement = $resultElement.querySelector(
 			".search-result-media-body-author-name"
 		) as HTMLElement;
-		let mediaElement = resultElement.querySelector(
+		let $mediaElement = $resultElement.querySelector(
 			".search-result-media"
 		) as HTMLElement;
-		let titleElement = resultElement.querySelector(
+		let $titleElement = $resultElement.querySelector(
 			".search-result-title"
 		) as HTMLElement;
-		let contentElement = resultElement.querySelector(
+		let $contentElement = $resultElement.querySelector(
 			".search-result-content"
 		) as HTMLElement;
-		let contentSpanElement = resultElement.querySelector(
+		let $contentSpanElement = $resultElement.querySelector(
 			".search-result-content-span"
 		) as HTMLSpanElement;
-		let bottomToolBarElement = resultElement.querySelector(
+		let $bottomToolBarElement = $resultElement.querySelector(
 			".search-result-bottom-toolbar"
 		) as HTMLElement;
 		/* 获取用户信息，替换用户头像 */
@@ -1036,22 +1048,23 @@ const TiebaSearch = {
 				if (!userHomeInfo) {
 					return;
 				}
-				userAvatarElement.src = TiebaUrlApi.getUserAvatar(
+				$userAvatarElement.src = TiebaUrlApi.getUserAvatar(
 					userHomeInfo["portrait"]
 				);
-				userNameElement.innerText = userHomeInfo["show_nickname"];
+				$userNameElement.innerText = userHomeInfo["show_nickname"];
 			});
 		}
 
-		let eleList = [
-			{ element: mediaElement, url: data["authorHomeUrl"] },
-			{ element: [titleElement, contentElement], url: data["url"] },
+		let nodeAnchorIterator = [
+			{ element: $mediaElement, url: authorHomeUrl },
+			{ element: [$titleElement, $contentElement], url: postUrl },
 			{
-				element: bottomToolBarElement,
-				url: `https://tieba.baidu.com/f?kw=${data["forum"]}`,
+				element: $bottomToolBarElement,
+				url: TiebaUrlApi.getForum(postForum),
 			},
 		];
-		eleList.forEach((item) => {
+		/* 对元素进行点击链接跳转处理 */
+		nodeAnchorIterator.forEach((item) => {
 			DOMUtils.on(
 				item.element,
 				"click",
@@ -1066,8 +1079,8 @@ const TiebaSearch = {
 		});
 
 		// 解析图片链接
-		let repetitiveImageList = <string[]>[];
-		resultElement
+		let repetitiveImageList: string[] = [];
+		$resultElement
 			.querySelectorAll<HTMLImageElement>(
 				".search-result-content img.BDE_Image"
 			)
@@ -1089,18 +1102,18 @@ const TiebaSearch = {
 		let imageContainerElement = DOMUtils.createElement("div", {
 			className: "BDE_Image_container",
 		});
-		(data["media"] as string[]).forEach((mediaSrc) => {
+		data["media"].forEach((mediaUrl) => {
 			DOMUtils.append(
 				imageContainerElement,
 				DOMUtils.createElement("img", {
 					className: "BDE_Image",
-					src: mediaSrc,
+					src: mediaUrl,
 				})
 			);
 		});
-		contentSpanElement.appendChild(imageContainerElement);
+		$contentSpanElement.appendChild(imageContainerElement);
 		/* 对贴吧表情进行处理，搜索到的表情是http的，换成https */
-		resultElement
+		$resultElement
 			.querySelectorAll<HTMLImageElement>(
 				".search-result-content img.BDE_Smiley"
 			)
@@ -1111,7 +1124,7 @@ const TiebaSearch = {
 				let imagePathName = new URL($BDE_Smiley.src).pathname;
 				$BDE_Smiley.src = TiebaUrlApi.getImageSmiley(imagePathName);
 			});
-		return resultElement;
+		return $resultElement;
 	},
 	/**
 	 * 添加滚动事件

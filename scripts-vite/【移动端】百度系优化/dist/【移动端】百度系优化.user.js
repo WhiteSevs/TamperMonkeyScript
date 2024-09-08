@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.9.8.14
+// @version      2024.9.8.15
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -4609,7 +4609,7 @@ match-attr##srcid##sp_purc_atom
       });
     },
     /**
-     * 将url修复，例如只有search的链接/sss/xxx?sss=xxxx
+     * 将url修复，例如只有search的链接/sss/xxx?sss=xxxx修复为https://xxx.xxx.xxx/sss/xxx?sss=xxxx
      * @param url 需要修复的链接
      */
     fixUrl(url) {
@@ -8712,7 +8712,11 @@ div[class^="new-summary-container_"] {\r
       splitText.forEach((text) => {
         data["title"] = data["title"].replaceAll(text, "<em>" + text + "</em>");
       });
-      let resultElement = domutils.createElement("div", {
+      let postUrlObj = new URL(CommonUtils.fixUrl(data["url"]));
+      let postUrl = postUrlObj.origin + postUrlObj.pathname;
+      let authorHomeUrl = data["authorHomeUrl"];
+      let postForum = data["forum"];
+      let $resultElement = domutils.createElement("div", {
         className: "s_post search_result",
         innerHTML: (
           /*html*/
@@ -8740,25 +8744,26 @@ div[class^="new-summary-container_"] {\r
 		  `
         )
       });
-      let userAvatarElement = resultElement.querySelector(
+      $resultElement.setAttribute("data-url", data["url"]);
+      let $userAvatarElement = $resultElement.querySelector(
         ".search-result-media-left img"
       );
-      let userNameElement = resultElement.querySelector(
+      let $userNameElement = $resultElement.querySelector(
         ".search-result-media-body-author-name"
       );
-      let mediaElement = resultElement.querySelector(
+      let $mediaElement = $resultElement.querySelector(
         ".search-result-media"
       );
-      let titleElement = resultElement.querySelector(
+      let $titleElement = $resultElement.querySelector(
         ".search-result-title"
       );
-      let contentElement = resultElement.querySelector(
+      let $contentElement = $resultElement.querySelector(
         ".search-result-content"
       );
-      let contentSpanElement = resultElement.querySelector(
+      let $contentSpanElement = $resultElement.querySelector(
         ".search-result-content-span"
       );
-      let bottomToolBarElement = resultElement.querySelector(
+      let $bottomToolBarElement = $resultElement.querySelector(
         ".search-result-bottom-toolbar"
       );
       if (PopsPanel.getValue("baidu_tieba_search_opt_user_info")) {
@@ -8768,21 +8773,21 @@ div[class^="new-summary-container_"] {\r
           if (!userHomeInfo) {
             return;
           }
-          userAvatarElement.src = TiebaUrlApi.getUserAvatar(
+          $userAvatarElement.src = TiebaUrlApi.getUserAvatar(
             userHomeInfo["portrait"]
           );
-          userNameElement.innerText = userHomeInfo["show_nickname"];
+          $userNameElement.innerText = userHomeInfo["show_nickname"];
         });
       }
-      let eleList = [
-        { element: mediaElement, url: data["authorHomeUrl"] },
-        { element: [titleElement, contentElement], url: data["url"] },
+      let nodeAnchorIterator = [
+        { element: $mediaElement, url: authorHomeUrl },
+        { element: [$titleElement, $contentElement], url: postUrl },
         {
-          element: bottomToolBarElement,
-          url: `https://tieba.baidu.com/f?kw=${data["forum"]}`
+          element: $bottomToolBarElement,
+          url: TiebaUrlApi.getForum(postForum)
         }
       ];
-      eleList.forEach((item) => {
+      nodeAnchorIterator.forEach((item) => {
         domutils.on(
           item.element,
           "click",
@@ -8795,7 +8800,7 @@ div[class^="new-summary-container_"] {\r
           }
         );
       });
-      resultElement.querySelectorAll(
+      $resultElement.querySelectorAll(
         ".search-result-content img.BDE_Image"
       ).forEach(($BDE_Image) => {
         let originalImageIndex = data["media"].findIndex(
@@ -8812,17 +8817,17 @@ div[class^="new-summary-container_"] {\r
       let imageContainerElement = domutils.createElement("div", {
         className: "BDE_Image_container"
       });
-      data["media"].forEach((mediaSrc) => {
+      data["media"].forEach((mediaUrl) => {
         domutils.append(
           imageContainerElement,
           domutils.createElement("img", {
             className: "BDE_Image",
-            src: mediaSrc
+            src: mediaUrl
           })
         );
       });
-      contentSpanElement.appendChild(imageContainerElement);
-      resultElement.querySelectorAll(
+      $contentSpanElement.appendChild(imageContainerElement);
+      $resultElement.querySelectorAll(
         ".search-result-content img.BDE_Smiley"
       ).forEach(($BDE_Smiley) => {
         if (!$BDE_Smiley.src.startsWith("http://static.tieba.baidu.com")) {
@@ -8831,7 +8836,7 @@ div[class^="new-summary-container_"] {\r
         let imagePathName = new URL($BDE_Smiley.src).pathname;
         $BDE_Smiley.src = TiebaUrlApi.getImageSmiley(imagePathName);
       });
-      return resultElement;
+      return $resultElement;
     },
     /**
      * 添加滚动事件
