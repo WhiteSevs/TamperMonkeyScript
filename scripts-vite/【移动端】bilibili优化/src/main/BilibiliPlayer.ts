@@ -534,6 +534,9 @@ export const BilibiliPlayer = {
 		this.setVideoSpeed(1);
 		BilibiliPlayerUI.init();
 		this.generateVideoInfo();
+		PopsPanel.execMenu("bili-video-playerAutoPlayVideo", () => {
+			this.autoPlay();
+		});
 	},
 	/**
 	 * 设置视频播放倍速
@@ -565,6 +568,22 @@ export const BilibiliPlayer = {
 				config.videoSpeed = value;
 				log.success(`设置弹幕配置的视频播放倍速: ${value}`);
 				resolve(true);
+			} catch (error) {
+				reject(error);
+			}
+		});
+	},
+	/**
+	 * 自动播放
+	 */
+	async autoPlay() {
+		return new Promise(async (resolve, reject) => {
+			try {
+				let playerPromise = await this.$player.playerPromise();
+				setTimeout(() => {
+					log.success("player：自动播放视频");
+					BilibiliPlayer.player?.play();
+				}, 500);
 			} catch (error) {
 				reject(error);
 			}

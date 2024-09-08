@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.15
+// @version      2024.9.8
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,8 +13,8 @@
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/497907/1413262/QRCodeJS.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @connect      *
@@ -35,7 +35,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(a=>{function e(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let p=document.createElement("style");return p.setAttribute("type","text/css"),p.innerHTML=n,document.head?document.head.appendChild(p):document.body?document.body.appendChild(p):document.documentElement.childNodes.length===0?document.documentElement.appendChild(p):document.documentElement.insertBefore(p,document.documentElement.childNodes[0]),p}if(typeof GM_addStyle=="function"){GM_addStyle(a);return}e(a)})(' @charset "UTF-8";.m-video2-awaken-btn,.openapp-dialog,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#app .read-app-main bili-open-app{display:none!important}html{--bili-color: #fb7299;--bili-color-rgb: 251, 114, 153} ');
+(a=>{function e(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let p=document.createElement("style");return p.setAttribute("type","text/css"),p.innerHTML=n,document.head?document.head.appendChild(p):document.body?document.body.appendChild(p):document.documentElement.childNodes.length===0?document.documentElement.appendChild(p):document.documentElement.insertBefore(p,document.documentElement.childNodes[0]),p}if(typeof GM_addStyle=="function"){GM_addStyle(a);return}e(a)})(' @charset "UTF-8";.m-video2-awaken-btn,.openapp-dialog,.icon-config,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#app .read-app-main bili-open-app{display:none!important}html{--bili-color: #fb7299;--bili-color-rgb: 251, 114, 153} ');
 
 (function (Qmsg, Utils, DOMUtils, pops, md5) {
   'use strict';
@@ -1299,6 +1299,9 @@
       this.setVideoSpeed(1);
       BilibiliPlayerUI.init();
       this.generateVideoInfo();
+      PopsPanel.execMenu("bili-video-playerAutoPlayVideo", () => {
+        this.autoPlay();
+      });
     },
     /**
      * 设置视频播放倍速
@@ -1325,6 +1328,23 @@
           config.videoSpeed = value;
           log.success(`设置弹幕配置的视频播放倍速: ${value}`);
           resolve(true);
+        } catch (error) {
+          reject(error);
+        }
+      });
+    },
+    /**
+     * 自动播放
+     */
+    async autoPlay() {
+      return new Promise(async (resolve, reject) => {
+        try {
+          let playerPromise = await this.$player.playerPromise();
+          setTimeout(() => {
+            var _a2;
+            log.success("player：自动播放视频");
+            (_a2 = BilibiliPlayer.player) == null ? void 0 : _a2.play();
+          }, 500);
         } catch (error) {
           reject(error);
         }
@@ -2545,6 +2565,13 @@
                     "当浏览器手势触发浏览器回退页面时，关闭评论区"
                   ),
                   UISwitch(
+                    "强制本页刷新跳转",
+                    "bili-video-forceThisPageToRefreshAndRedirect",
+                    false,
+                    void 0,
+                    "用于解决跳转播放视频时，播放当前视频会有上一个播放视频的声音的情况"
+                  ),
+                  UISwitch(
                     "initPlayer",
                     "bili-video-initPlayer",
                     true,
@@ -2552,11 +2579,11 @@
                     "自动执行初始化播放器"
                   ),
                   UISwitch(
-                    "强制本页刷新跳转",
-                    "bili-video-forceThisPageToRefreshAndRedirect",
-                    false,
+                    "自动播放视频",
+                    "bili-video-playerAutoPlayVideo",
+                    true,
                     void 0,
-                    "用于解决跳转播放视频时，播放当前视频会有上一个播放视频的声音的情况"
+                    "需开启【initPlayer】"
                   )
                 ]
               }
@@ -4429,13 +4456,13 @@
                         BilibiliPlayerUI.coverQuality(true);
                       }
                     );
-                    BilibiliDanmaku.init();
+                    BilibiliPlayer.init();
                     return;
                   }
                   if (_unsafeWindow.BPlayerMobile == null) {
                     log.error("未加载player播放器，主动引入script标签");
                     await BilibiliUtils.loadScript(
-                      "https://s1.hdslb.com/bfs/static/player/main/html5/mplayer.js?v=2862592"
+                      "https://s1.hdslb.com/bfs/static/player/main/html5/mplayer.js?v=2876316"
                     );
                     await utils.sleep(300);
                   }

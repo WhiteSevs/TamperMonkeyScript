@@ -2,7 +2,9 @@
 /* ------ 全局匹配 ------ */
 /* 视频标题上面的 打开App，流畅又高清 */
 .m-video2-awaken-btn,
-.openapp-dialog {
+.openapp-dialog,
+/* 顶部右上角的设置图标按钮（开启tinyApp功能后出现） */
+.icon-config {
 	display: none !important;
 }
 

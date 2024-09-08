@@ -93,14 +93,14 @@ export const BilibiliVideoVueProp = {
 												BilibiliPlayerUI.coverQuality(true);
 											}
 										);
-										BilibiliDanmaku.init();
+										BilibiliPlayer.init();
 										return;
 									}
 									if ((unsafeWindow as any).BPlayerMobile == null) {
 										/* 未加载player播放器，主动引入script标签 */
 										log.error("未加载player播放器，主动引入script标签");
 										await BilibiliUtils.loadScript(
-											"https://s1.hdslb.com/bfs/static/player/main/html5/mplayer.js?v=2862592"
+											"https://s1.hdslb.com/bfs/static/player/main/html5/mplayer.js?v=2876316"
 										);
 										await utils.sleep(300);
 									}

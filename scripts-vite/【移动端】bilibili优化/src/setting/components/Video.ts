@@ -50,6 +50,13 @@ const SettingUIVideo: PopsPanelContentConfig = {
 									"当浏览器手势触发浏览器回退页面时，关闭评论区"
 								),
 								UISwitch(
+									"强制本页刷新跳转",
+									"bili-video-forceThisPageToRefreshAndRedirect",
+									false,
+									void 0,
+									"用于解决跳转播放视频时，播放当前视频会有上一个播放视频的声音的情况"
+								),
+								UISwitch(
 									"initPlayer",
 									"bili-video-initPlayer",
 									true,
@@ -57,11 +64,11 @@ const SettingUIVideo: PopsPanelContentConfig = {
 									"自动执行初始化播放器"
 								),
 								UISwitch(
-									"强制本页刷新跳转",
-									"bili-video-forceThisPageToRefreshAndRedirect",
-									false,
+									"自动播放视频",
+									"bili-video-playerAutoPlayVideo",
+									true,
 									void 0,
-									"用于解决跳转播放视频时，播放当前视频会有上一个播放视频的声音的情况"
+									"需开启【initPlayer】"
 								),
 							],
 						},
