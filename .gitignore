@@ -9,3 +9,4 @@ scripts-local
 *.bat
 vite.config.ts.timestamp*
 /**/*.meta.local.user.js
+scripts-vite/油猴Api测试/*
