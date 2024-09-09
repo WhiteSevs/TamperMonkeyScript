@@ -80,7 +80,7 @@ class Pops {
 	/** 配置 */
 	config = {
 		/** 版本号 */
-		version: "2024.8.15",
+		version: "2024.9.9",
 		cssText: {
 			/** 主CSS */
 			index: indexCSS,

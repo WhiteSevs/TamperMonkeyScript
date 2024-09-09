@@ -448,11 +448,13 @@ export class PopsFolder {
 		 * @param fileName
 		 * @param latestTime
 		 * @param [fileSize="-"]
+		 * @param isFolder
 		 */
 		function createFolderRowElement(
 			fileName: string,
-			latestTime = "-",
-			fileSize = "-"
+			latestTime: string | number = "-",
+			fileSize: string | number = "-",
+			isFolder: boolean = false
 		) {
 			let origin_fileName = fileName;
 			let origin_latestTime = latestTime;
@@ -467,7 +469,7 @@ export class PopsFolder {
 			let fileFormatSize = popsDOMUtils.createElement("td");
 			let fileType = "";
 			let fileIcon = Folder_ICON.folder;
-			if (arguments.length === 1) {
+			if (isFolder) {
 				/* 文件夹 */
 				latestTime = "";
 				fileSize = "";
@@ -523,6 +525,7 @@ export class PopsFolder {
 				fileName: origin_fileName,
 				latestTime: origin_latestTime,
 				fileSize: origin_fileSize,
+				isFolder: isFolder,
 			};
 
 			(fileNameElement as any)["__value__"] = __value__;
@@ -547,8 +550,9 @@ export class PopsFolder {
 		 */
 		function createMobileFolderRowElement(
 			fileName: string,
-			latestTime = "-",
-			fileSize = "-"
+			latestTime: number | string = "-",
+			fileSize: number | string = "-",
+			isFolder: boolean = false
 		) {
 			let origin_fileName = fileName;
 			let origin_latestTime = latestTime;
@@ -559,7 +563,7 @@ export class PopsFolder {
 			let fileNameElement = popsDOMUtils.createElement("td");
 			let fileType = "";
 			let fileIcon = Folder_ICON.folder;
-			if (arguments.length === 1) {
+			if (isFolder) {
 				/* 文件夹 */
 				latestTime = "";
 				fileSize = "";
@@ -603,6 +607,7 @@ export class PopsFolder {
 				fileName: origin_fileName,
 				latestTime: origin_latestTime,
 				fileSize: origin_fileSize,
+				isFolder: isFolder,
 			};
 
 			(fileNameElement as any)["__value__"] = __value__;
@@ -833,34 +838,28 @@ export class PopsFolder {
 		}
 		/**
 		 * 对配置进行排序
-		 * @param _config_
+		 * @param folderDataConfigList
 		 * @param sortName 比较的属性，默认fileName
 		 * @param isDesc 是否降序，默认false（升序）
 		 */
 		function sortFolderConfig(
-			_config_: PopsFolderDataConfig[],
+			folderDataConfigList: PopsFolderDataConfig[],
 			sortName: "fileName" | "fileSize" | "latestTime" = "fileName",
 			isDesc = false
 		) {
-			_config_.sort((a, b) => {
-				let beforeVal = a[sortName];
-				let afterVal = b[sortName];
-				if (sortName === "fileName") {
-					/* 文件名，进行字符串转换 */
-					beforeVal = beforeVal.toString();
-					afterVal = afterVal.toString();
-				} else if (sortName === "fileSize") {
-					/* 文件大小，进行Float转换 */
-
-					beforeVal = parseFloat(beforeVal as string);
-
-					afterVal = parseFloat(afterVal as string);
-				} else if (sortName === "latestTime") {
-					/* 文件时间 */
-					beforeVal = new Date(beforeVal).getTime();
-					afterVal = new Date(afterVal).getTime();
-				}
-				if (typeof beforeVal === "string" && typeof afterVal === "string") {
+			console.log(folderDataConfigList, sortName, isDesc);
+			if (sortName === "fileName") {
+				// 如果是以文件名排序，文件夹优先放前面
+				let onlyFolderDataConfigList = folderDataConfigList.filter((value) => {
+					return value.isFolder;
+				});
+				let onlyFileDataConfigList = folderDataConfigList.filter((value) => {
+					return !value.isFolder;
+				});
+				// 文件夹排序
+				onlyFolderDataConfigList.sort((leftConfig, rightConfig) => {
+					let beforeVal = leftConfig[sortName].toString();
+					let afterVal = rightConfig[sortName].toString();
 					let compareVal = beforeVal.localeCompare(afterVal);
 					if (isDesc) {
 						/* 降序 */
@@ -871,7 +870,42 @@ export class PopsFolder {
 						}
 					}
 					return compareVal;
+				});
+				// 文件名排序
+				onlyFileDataConfigList.sort((leftConfig, rightConfig) => {
+					let beforeVal = leftConfig[sortName].toString();
+					let afterVal = rightConfig[sortName].toString();
+					let compareVal = beforeVal.localeCompare(afterVal);
+					if (isDesc) {
+						/* 降序 */
+						if (compareVal > 0) {
+							compareVal = -1;
+						} else if (compareVal < 0) {
+							compareVal = 1;
+						}
+					}
+					return compareVal;
+				});
+				if (isDesc) {
+					// 降序，文件夹在下面
+					return [...onlyFileDataConfigList, ...onlyFolderDataConfigList];
 				} else {
+					// 升序，文件夹在上面
+					return [...onlyFolderDataConfigList, ...onlyFileDataConfigList];
+				}
+			} else {
+				folderDataConfigList.sort((beforeConfig, afterConfig) => {
+					let beforeVal = beforeConfig[sortName];
+					let afterVal = afterConfig[sortName];
+					if (sortName === "fileSize") {
+						/* 文件大小，进行Float转换 */
+						beforeVal = parseFloat(beforeVal.toString());
+						afterVal = parseFloat(afterVal.toString());
+					} else if (sortName === "latestTime") {
+						/* 文件时间 */
+						beforeVal = new Date(beforeVal).getTime();
+						afterVal = new Date(afterVal).getTime();
+					}
 					if (beforeVal > afterVal) {
 						if (isDesc) {
 							/* 降序 */
@@ -889,9 +923,9 @@ export class PopsFolder {
 					} else {
 						return 0;
 					}
-				}
-			});
-			return _config_;
+				});
+				return folderDataConfigList;
+			}
 		}
 		/**
 		 * 添加元素
@@ -902,8 +936,8 @@ export class PopsFolder {
 			_config_.forEach((item) => {
 				if (item["isFolder"]) {
 					let { folderELement, fileNameElement } = pops.isPhone()
-						? createMobileFolderRowElement(item["fileName"])
-						: createFolderRowElement(item["fileName"]);
+						? createMobileFolderRowElement(item["fileName"], "", "", true)
+						: createFolderRowElement(item["fileName"], "", "", true);
 
 					popsDOMUtils.on<MouseEvent | PointerEvent>(
 						fileNameElement,
@@ -918,13 +952,15 @@ export class PopsFolder {
 					let { folderELement, fileNameElement } = pops.isPhone()
 						? createMobileFolderRowElement(
 								item["fileName"],
-								(item as any)["latestTime"],
-								(item as any)["fileSize"]
+								item.latestTime,
+								item.fileSize,
+								false
 						  )
 						: createFolderRowElement(
 								item["fileName"],
-								(item as any)["latestTime"],
-								(item as any)["fileSize"]
+								item.latestTime,
+								item.fileSize,
+								false
 						  );
 					setFileClickEvent(fileNameElement, item);
 
@@ -990,7 +1026,6 @@ export class PopsFolder {
 		 * @param {PointerEvent} target
 		 * @param {HTMLElement} event
 		 * @param {string} sortName
-		 * @returns
 		 */
 		function arrowSortClickEvent(
 			target: HTMLDivElement,
@@ -1029,7 +1064,7 @@ export class PopsFolder {
 				childrenList.push(__value__);
 			});
 			let sortedConfigList = sortFolderConfig(
-				childrenList as any,
+				childrenList,
 				config.sort.name,
 				config.sort.isDesc
 			);
