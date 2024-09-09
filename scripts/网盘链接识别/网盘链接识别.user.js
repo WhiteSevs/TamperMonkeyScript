@@ -81,8 +81,8 @@
 // @require      https://update.greasyfork.org/scripts/456470/1320377/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js
 // @require      https://update.greasyfork.org/scripts/465550/1360573/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.2/dist/index.umd.js
 // @require      https://update.greasyfork.org/scripts/486152/1360580/Crypto-JS.js
 // ==/UserScript==
@@ -5130,6 +5130,7 @@
 				 */
 				this.accessCode = "";
 				this.code = {
+					5113: "您今日下载流量已超出10GB限制，购买VIP会员即可体验无限流量下载",
 					5103: "分享码错误或者分享地址错误",
 					5104: "分享已过期",
 					"-1000": "获取出错",
@@ -8666,6 +8667,10 @@
 	const NetDiskWorker = {
 		/** 是否正在匹配中 */
 		isHandleMatch: false,
+		/** 触发匹配，但是处于匹配中，计数器保存匹配数，等待完成匹配后再执行一次匹配 */
+		delayNotMatchCount: 0,
+		/** 主动触发监听DOM变化的事件 */
+		dispatchMonitorDOMChange: false,
 		/** worker的Blob链接 */
 		blobUrl: "",
 		/** @type {Worker} */
@@ -9054,6 +9059,10 @@
 		matchingEndCallBack(isNow) {
 			if (isNow) {
 				NetDiskWorker.isHandleMatch = false;
+				if (NetDiskWorker.delayNotMatchCount > 0) {
+					NetDiskWorker.delayNotMatchCount = 0;
+					NetDiskWorker.dispatchMonitorDOMChange = true;
+				}
 			} else {
 				const delaytime =
 					parseFloat(
@@ -9070,11 +9079,20 @@
 		monitorDOMChange() {
 			NetDiskWorker.initWorkerBlobLink();
 			NetDiskWorker.initWorker();
-			/**
-			 * 设置-判定为添加元素才进行匹配
-			 * @type {boolean}
-			 */
-			const isAddedNodesToMatch = GM_getValue("isAddedNodesToMatch");
+			/** 设置-判定为添加元素才进行匹配 @type {boolean} */
+			const isAddedNodeToMatch = GM_getValue("isAddedNodesToMatch");
+			/** 读取剪贴板内容 @type {boolean} */
+			const readClipboard = GM_getValue("readClipboard", false);
+			/** 匹配文本范围 @type {string} */
+			const matchTextRangeLowerCase = GM_getValue(
+				"pageMatchRange",
+				"all"
+			).toLowerCase();
+			/** 是否是首次加载，首次加载时，优先进行当前网址和剪贴板的匹配，然后才是页面内容匹配，防止页面内容匹配时间过长影响体验 */
+			let isFirstLoad = true;
+			/** 是否是首次加载页面文本，该项需要匹配范围为all，那么会分批次匹配，优先innerText，然后innerHTML */
+			let isFirstLoadPageText = true;
+			let isFirstLoadPageHTML = true;
 			/**
 			 * 观察者的事件
 			 * @param {?MutationRecord[]} mutations
@@ -9082,44 +9100,44 @@
 			async function observeEvent(mutations) {
 				if (NetDiskWorker.isHandleMatch) {
 					/* 当前正在处理规则匹配字符串中 */
+					NetDiskWorker.delayNotMatchCount++;
 					return;
 				}
-				if (isAddedNodesToMatch && mutations && mutations.length) {
+				if (isAddedNodeToMatch && mutations && mutations.length) {
 					// 设定为添加元素才匹配且观察器检测到改变的元素
 					/** 判断是否存在添加的元素 */
-					let hasAddNodes = false;
-					for (const mutation of mutations) {
+					let hasAddedNode = false;
+					for (let index = 0; index < mutations.length; index++) {
+						const mutation = mutations[index];
 						if (
 							mutation.addedNodes &&
 							mutation.addedNodes instanceof NodeList
 						) {
 							if (mutation.addedNodes.length) {
-								hasAddNodes = true;
+								hasAddedNode = true;
 								break;
 							}
 						}
 					}
-					if (!hasAddNodes) {
+					if (!hasAddedNode) {
 						return;
 					}
 				}
 				NetDiskWorker.isHandleMatch = true;
 				/** 开始时间 */
 				const startTime = Date.now();
-				/** 读取剪贴板内容 */
-				let readClipboard = GM_getValue("readClipboard", false);
 				if (readClipboard) {
-					NetDisk.clipboardText = await NetDisk.getClipboardText();
+					try {
+						NetDisk.clipboardText = await NetDisk.getClipboardText();
+					} catch (error) {
+						// 获取剪贴板内容失败
+					}
 				}
 				if (typeof NetDisk.clipboardText !== "string") {
 					NetDisk.clipboardText = "";
 				}
-				let matchTextRangeLowerCase = GM_getValue(
-					"pageMatchRange",
-					"all"
-				).toLowerCase();
 				/** @type {string[]} */
-				let matchTextList = [];
+				const matchTextList = [];
 
 				/* 剪贴板内容 */
 				if (NetDisk.clipboardText.trim() !== "") {
@@ -9127,11 +9145,62 @@
 				}
 				/* 当前的网页链接 */
 				if (NetDisk.allowMatchLocationHref) {
-					let decodeUrl = window.location.href;
+					const decodeUrl = window.location.href;
 					try {
 						decodeUrl = decodeURIComponent(decodeUrl);
-					} catch (error) {}
+					} catch (error) {
+						// 当前url解码失败
+					}
 					matchTextList.push(decodeUrl);
+				}
+
+				if (isFirstLoad) {
+					// 首次加载
+					isFirstLoad = false;
+					/* 发送消息 */
+					NetDiskWorker.postMessage({
+						textList: matchTextList,
+						matchTextRange: matchTextRangeLowerCase,
+						regular: NetDisk.regular,
+						startTime: startTime,
+						from: "FirstLoad-DOMChange",
+					});
+					return;
+				}
+				if (matchTextRangeLowerCase === "all") {
+					if (isFirstLoadPageText) {
+						// 首次加载text
+						isFirstLoadPageText = false;
+						let pageText = NetDisk.ignoreStrRemove(
+							document.documentElement.innerText
+						);
+						matchTextList.push(pageText);
+						NetDiskWorker.postMessage({
+							textList: matchTextList,
+							matchTextRange: matchTextRangeLowerCase,
+							regular: NetDisk.regular,
+							startTime: startTime,
+							from: "FirstLoad-Text-DOMChange",
+						});
+						return;
+					}
+					if (isFirstLoadPageHTML) {
+						// 首次加载html
+						isFirstLoadPageHTML = false;
+						let pageHTML = NetDisk.ignoreStrRemove(
+							document.documentElement.innerHTML,
+							true
+						);
+						matchTextList.push(pageHTML);
+						NetDiskWorker.postMessage({
+							textList: matchTextList,
+							matchTextRange: matchTextRangeLowerCase,
+							regular: NetDisk.regular,
+							startTime: startTime,
+							from: "FirstLoad-HTML-DOMChange",
+						});
+						return;
+					}
 				}
 				/* innerText和innerHTML */
 				if (matchTextRangeLowerCase === "all") {
@@ -9187,6 +9256,20 @@
 						"mutationObserver-subtree",
 						NetDiskData.default_mutationObserver_subtree
 					),
+				},
+			});
+
+			/* 动态监听是否主动触发监听器 */
+			let dispatchMonitorDOMChange = NetDiskWorker.dispatchMonitorDOMChange;
+			Object.defineProperty(NetDiskWorker, "dispatchMonitorDOMChange", {
+				set: function (value) {
+					dispatchMonitorDOMChange = value;
+					if (value) {
+						observeEvent([]);
+					}
+				},
+				get: function () {
+					return dispatchMonitorDOMChange;
 				},
 			});
 		},
