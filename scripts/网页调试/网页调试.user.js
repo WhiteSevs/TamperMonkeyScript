@@ -1494,6 +1494,35 @@
 										},
 									],
 								},
+								this.getSwtichDetail(
+									"offline",
+									"pagespy-offline",
+									false,
+									void 0,
+									`是否进入 "离线模式"，具体表现为 PageSpy 不会创建房间、建立 WebSocket 连接。`
+								),
+								this.getSwtichDetail(
+									"serializeData",
+									"pagespy-serializeData",
+									false,
+									void 0,
+									`是否允许 SDK 在收集离线日志时，序列化非基本类型的数据，序列化的目的是方便在回放时查看`
+								),
+								this.getSwtichDetail(
+									"useSecret",
+									"pagespy-useSecret",
+									false,
+									void 0,
+									`是否启用权限认证功能。启用后，SDK 会生成 6 位数的随机 “密钥”；调试端进入房间时要求输入对应的密钥`
+								),
+								this.getInputDetail(
+									"messageCapacity",
+									"pagespy-messageCapacity",
+									1000,
+									"调试端进入房间后可以看到之前的数据量的大小",
+									void 0,
+									`指定 SDK 在本地最多缓存多少条数据记录`
+								),
 							],
 						},
 					],
@@ -2647,6 +2676,25 @@
 				//     - true：SDK 将通过 ["https://", "wss://"] 访问 PageSpy 服务
 				//     - false：SDK 将通过 ["http://", "ws://"] 访问 PageSpy 服务
 				enableSSL: PopsPanel.getValue("pagespy-enableSSL", true),
+
+				// 在 PageSpy@1.7.4 支持离线回放功能后，客户端集成的 SDK 可以不用和调试端建立连接，
+				// 通过 DataHarborPlugin 收集数据、导出离线日志，成为新的使用方式。
+				// 默认值 false。用户设置为其他值时，会进入 "离线模式"，具体表现为 PageSpy 不会创建房间、建立 WebSocket 连接。
+				// 仅适用浏览器环境的 SDK
+				offline: PopsPanel.getValue("pagespy-offline", false),
+
+				// PageSpy 内置的插件都是开箱即用的，你可以手动指定禁用哪些插件
+				// disabledPlugins: [],
+
+				// 是否允许 SDK 在收集离线日志时，序列化非基本类型的数据，序列化的目的是方便在回放时查看
+				serializeData: PopsPanel.getValue("pagespy-serializeData", false),
+
+				// 是否启用权限认证功能。启用后，SDK 会生成 6 位数的随机 “密钥”；调试端进入房间时要求输入对应的密钥
+				useSecret: PopsPanel.getValue("pagespy-useSecret", false),
+
+				// SDK 在调试端进入房间之前会在内存中缓存数据，以便于调试端进入房间后可以看到之前的数据。
+				// 但数据体积会越来越大，因此可以指定 SDK 在本地最多缓存多少条数据记录。
+				messageCapacity: PopsPanel.getValue("pagespy-messageCapacity", 1000),
 			});
 			unsafeWindow.$pageSpy = $pageSpy;
 			console.log($pageSpy);
