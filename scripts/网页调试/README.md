@@ -7,7 +7,7 @@
 ## erdua
 
 - 最新版本：[![npm version](https://img.shields.io/npm/v/eruda/latest.svg?label=eruda)](https://www.npmjs.com/package/eruda)
-- 当前版本：`3.2.3`
+- 当前版本：`3.3.0`
 - 项目主页<br>[https://github.com/liriliri/eruda](https://github.com/liriliri/eruda)
 - 项目最新地址<br>[https://cdn.jsdelivr.net/npm/eruda](https://cdn.jsdelivr.net/npm/eruda)<br>[https://fastly.jsdelivr.net/npm/eruda](https://fastly.jsdelivr.net/npm/eruda)<br>[https://testingcf.jsdelivr.net/npm/eruda](https://testingcf.jsdelivr.net/npm/eruda)
 - 【插件】[eruda-monitor](https://github.com/liriliri/eruda-monitor): 展示页面的 fps 和内存信息
@@ -20,6 +20,7 @@
 - 【插件】[eruda-touches](https://github.com/liriliri/eruda-orientation)：可视化屏幕 Touch 事件触发（该插件可能无效）
 - 【插件】[eruda-outline-plugin](https://github.com/pomelo-chuan/eruda-outline-plugin)：给页面的元素添加边框
 - 【插件】[eruda-pixel](https://github.com/Faithree/eruda-pixel)：这是一个高精度的UI恢复辅助工具，致力于让前端开发人员头疼和崩溃。设计师检查工具。
+- 【插件】[eruda-vue](https://github.com/liriliri/eruda-vue)：可以直接在移动端查看调试Vue.js应用
 
 注意：页面中如果存在`CSP策略`，插件将无法加载。
 使用以下方式可禁用`CSP`
@@ -43,7 +44,7 @@
 🎈注意：默认配置的`test.jikejishu.com`是测试使用，别人也可以看得到你的调试信息，包括Cookie，如果可以请自己部署一个调试服务器
 
 - 最新版本：[![npm version](https://img.shields.io/npm/v/@huolala-tech/page-spy-browser?label=page-spy-browser)](https://www.npmjs.com/package/@huolala-tech/page-spy-browser)
-- 当前版本：`1.9.5`
+- 当前版本：`1.9.9`
 - 项目主页<br>[https://github.com/HuolalaTech/page-spy-web](https://github.com/HuolalaTech/page-spy-web)
 - SDK地址<br>[https://github.com/HuolalaTech/page-spy/tree/main/packages/page-spy-browser](https://github.com/HuolalaTech/page-spy/tree/main/packages/page-spy-browser)
 - 项目最新地址<br>[https://cdn.jsdelivr.net/npm/@huolala-tech/page-spy-browser](https://cdn.jsdelivr.net/npm/@huolala-tech/page-spy-browser)<br>[https://fastly.jsdelivr.net/npm/@huolala-tech/page-spy-browser](https://fastly.jsdelivr.net/npm/@huolala-tech/page-spy-browser)<br>[https://testingcf.jsdelivr.net/npm/@huolala-tech/page-spy-browser](https://testingcf.jsdelivr.net/npm/@huolala-tech/page-spy-browser)
