@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.9.8
+// @version      2024.9.9
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -15,7 +15,7 @@
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @connect      *
 // @connect      m.bilibili.com
@@ -35,7 +35,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(a=>{function e(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let p=document.createElement("style");return p.setAttribute("type","text/css"),p.innerHTML=n,document.head?document.head.appendChild(p):document.body?document.body.appendChild(p):document.documentElement.childNodes.length===0?document.documentElement.appendChild(p):document.documentElement.insertBefore(p,document.documentElement.childNodes[0]),p}if(typeof GM_addStyle=="function"){GM_addStyle(a);return}e(a)})(' @charset "UTF-8";.m-video2-awaken-btn,.openapp-dialog,.icon-config,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#app .read-app-main bili-open-app{display:none!important}html{--bili-color: #fb7299;--bili-color-rgb: 251, 114, 153} ');
+(a=>{function e(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let p=document.createElement("style");return p.setAttribute("type","text/css"),p.innerHTML=n,document.head?document.head.appendChild(p):document.body?document.body.appendChild(p):document.documentElement.childNodes.length===0?document.documentElement.appendChild(p):document.documentElement.insertBefore(p,document.documentElement.childNodes[0]),p}if(typeof GM_addStyle=="function"){GM_addStyle(a);return}e(a)})(' @charset "UTF-8";.m-video2-awaken-btn,.openapp-dialog,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#app .read-app-main bili-open-app{display:none!important}html{--bili-color: #fb7299;--bili-color-rgb: 251, 114, 153} ');
 
 (function (Qmsg, Utils, DOMUtils, pops, md5) {
   'use strict';
@@ -848,6 +848,56 @@
         return;
       }
       return data2["data"];
+    },
+    /**
+     * 点赞视频（web端）
+     * @param config
+     */
+    async like(config) {
+      var _a2;
+      let getData = {
+        like: config.like,
+        csrf: ((_a2 = GMCookie.get("bili_jct")) == null ? void 0 : _a2.value) || ""
+      };
+      if ("avid" in config) {
+        Reflect.set(getData, "avid", config.avid);
+      } else if ("bvid" in config) {
+        Reflect.set(getData, "bvid", config.bvid);
+      } else {
+        throw new TypeError("avid or bvid must give one");
+      }
+      let getResp = await httpx.get(
+        "https://api.bilibili.com/x/web-interface/archive/like?" + utils.toSearchParamsStr(getData),
+        {
+          fetch: true
+        }
+      );
+      if (!getResp.status) {
+        return false;
+      }
+      let data2 = utils.toJSON(getResp.data.responseText);
+      const code = data2["code"];
+      if (code === 0) {
+        return true;
+      }
+      if (code === -101) {
+        Qmsg.error("账号未登录");
+      } else if (code === -111) {
+        Qmsg.error("csrf校验失败");
+      } else if (code === -400) {
+        Qmsg.error("请求错误");
+      } else if (code === -403) {
+        Qmsg.error("账号异常");
+      } else if (code === 10003) {
+        Qmsg.error("不存在该稿件");
+      } else if (code === 65004) {
+        Qmsg.error("取消点赞失败");
+      } else if (code === 65006) {
+        Qmsg.warning("重复点赞");
+      } else {
+        Qmsg.error("未知错误：" + data2["message"]);
+      }
+      return false;
     }
   };
   const BilibiliPlayerUI = {
@@ -3037,6 +3087,10 @@
           __target__ = $target;
         }
         return __target__;
+      }
+      if (!Array.isArray(needSetList)) {
+        this.waitVuePropToSet($target, [needSetList]);
+        return;
       }
       needSetList.forEach((needSetOption) => {
         if (typeof needSetOption.msg === "string") {
@@ -6042,6 +6096,9 @@
       });
       PopsPanel.execMenu("bili-setTinyApp", () => {
         this.setTinyApp();
+        domutils.ready(() => {
+          Bilibili.reconfigurationTinyAppSettingButton();
+        });
       });
     },
     /**
@@ -6417,6 +6474,95 @@
                 });
               }
             );
+          }
+        });
+      });
+    },
+    /**
+     * 重构tinyApp右上角的设置按钮图标，改为用户头像什么的
+     */
+    reconfigurationTinyAppSettingButton() {
+      addStyle(
+        /*css*/
+        `
+		.nav-bar .right{
+			display: -webkit-box;
+			display: -ms-flexbox;
+			display: flex;
+			-webkit-box-align: center;
+			-ms-flex-align: center;
+			align-items: center;
+		}
+		.gm-face{
+			width: 6.4vmin;
+			height: 6.4vmin;
+			display: -webkit-box;
+			display: -ms-flexbox;
+			display: flex;
+			-webkit-box-pack: center;
+			-ms-flex-pack: center;
+			justify-content: center;
+			-webkit-box-align: center;
+			-ms-flex-align: center;
+			align-items: center;
+			margin-right: 3.2vmin;
+			border-radius: 3.2vmin;
+			overflow: hidden;
+		}
+		.gm-face-avatar{
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+		}
+		.gm-face-avatar img{
+			width: 100%;
+			height: 100%;
+			-o-object-fit: cover;
+			object-fit: cover;
+		}
+		`
+      );
+      utils.waitNode(".nav-bar .icon-config", 1e4).then(($iconConfig) => {
+        if (!$iconConfig) {
+          return;
+        }
+        $iconConfig.outerHTML = `
+			<div class="gm-face">
+				<div class="gm-face-avatar">
+					<img src="https://i0.hdslb.com/bfs/face/member/noface.jpg@48w_48h_1c.webp">
+				</div>
+			</div>
+			`;
+        let isLogin = false;
+        let uid = null;
+        let $gmFace = document.querySelector(".gm-face");
+        let $img = $gmFace.querySelector("img");
+        BilibiliUtils.waitVuePropToSet("#app", [
+          {
+            check(vueObj) {
+              var _a2, _b, _c, _d;
+              return typeof ((_d = (_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.userInfo) == null ? void 0 : _d.isLogin) === "boolean";
+            },
+            set(vueObj) {
+              var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p;
+              isLogin = (_d = (_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.userInfo) == null ? void 0 : _d.isLogin;
+              uid = (_h = (_g = (_f = (_e = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _e.state) == null ? void 0 : _f.common) == null ? void 0 : _g.userInfo) == null ? void 0 : _h.mid;
+              (_l = (_k = (_j = (_i = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _i.state) == null ? void 0 : _j.common) == null ? void 0 : _k.userInfo) == null ? void 0 : _l.uname;
+              $img.src = (_p = (_o = (_n = (_m = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _m.state) == null ? void 0 : _n.common) == null ? void 0 : _o.userInfo) == null ? void 0 : _p.face;
+            }
+          }
+        ]);
+        domutils.on($gmFace, "click", (event) => {
+          utils.preventEvent(event);
+          if (isLogin) {
+            if (uid != null) {
+              let url = BilibiliUrlUtils.getUserSpaceUrl(uid);
+              BilibiliUtils.goToUrl(url, false);
+            } else {
+              Qmsg.error("获取用户id失败");
+            }
+          } else {
+            BilibiliUtils.goToLogin(window.location.href);
           }
         });
       });

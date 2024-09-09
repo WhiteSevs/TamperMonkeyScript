@@ -1,7 +1,8 @@
-import { log, utils } from "@/env";
+import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
+import { Bilibili } from "./Bilibili";
 
 export const BilibiliVueProp = {
 	init() {
@@ -13,6 +14,9 @@ export const BilibiliVueProp = {
 		});
 		PopsPanel.execMenu("bili-setTinyApp", () => {
 			this.setTinyApp();
+			DOMUtils.ready(() => {
+				Bilibili.reconfigurationTinyAppSettingButton();
+			});
 		});
 	},
 

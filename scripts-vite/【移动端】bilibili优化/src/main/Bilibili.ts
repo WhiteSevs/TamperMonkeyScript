@@ -2,7 +2,7 @@ import "./block.css";
 import BilibiliBeautifyCSS from "./BilibiliBeautify.css?raw";
 import { BilibiliPCRouter, BilibiliRouter } from "@/router/BilibiliRouter";
 import { BilibiliVideo } from "./video/BilibiliVideo";
-import { addStyle, DOMUtils, log, utils } from "@/env";
+import { addStyle, DOMUtils, log, Qmsg, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliBangumi } from "./bangumi/BilibiliBangumi";
 import { BilibiliSearch } from "./search/BilibiliSearch";
@@ -20,6 +20,7 @@ import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
 import { BilibiliPlayer } from "./BilibiliPlayer";
 import "./common.css";
 import { BilibiliSpace } from "./space/BilibiliSpace";
+import { BilibiliUrlUtils } from "@/utils/BilibiliUrlUtils";
 
 const Bilibili = {
 	init() {
@@ -203,6 +204,96 @@ const Bilibili = {
 							});
 						}
 					);
+				}
+			});
+		});
+	},
+	/**
+	 * 重构tinyApp右上角的设置按钮图标，改为用户头像什么的
+	 */
+	reconfigurationTinyAppSettingButton() {
+		addStyle(/*css*/ `
+		.nav-bar .right{
+			display: -webkit-box;
+			display: -ms-flexbox;
+			display: flex;
+			-webkit-box-align: center;
+			-ms-flex-align: center;
+			align-items: center;
+		}
+		.gm-face{
+			width: 6.4vmin;
+			height: 6.4vmin;
+			display: -webkit-box;
+			display: -ms-flexbox;
+			display: flex;
+			-webkit-box-pack: center;
+			-ms-flex-pack: center;
+			justify-content: center;
+			-webkit-box-align: center;
+			-ms-flex-align: center;
+			align-items: center;
+			margin-right: 3.2vmin;
+			border-radius: 3.2vmin;
+			overflow: hidden;
+		}
+		.gm-face-avatar{
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+		}
+		.gm-face-avatar img{
+			width: 100%;
+			height: 100%;
+			-o-object-fit: cover;
+			object-fit: cover;
+		}
+		`);
+		utils.waitNode(".nav-bar .icon-config", 10000).then(($iconConfig) => {
+			if (!$iconConfig) {
+				return;
+			}
+			$iconConfig.outerHTML = `
+			<div class="gm-face">
+				<div class="gm-face-avatar">
+					<img src="https://i0.hdslb.com/bfs/face/member/noface.jpg@48w_48h_1c.webp">
+				</div>
+			</div>
+			`;
+			let isLogin = false;
+			let uid: null | string = null;
+			let userName: null | string = null;
+			let $gmFace = document.querySelector<HTMLDivElement>(".gm-face")!;
+			let $img = $gmFace.querySelector<HTMLImageElement>("img")!;
+			BilibiliUtils.waitVuePropToSet("#app", [
+				{
+					check(vueObj) {
+						return (
+							typeof vueObj?.$store?.state?.common?.userInfo?.isLogin ===
+							"boolean"
+						);
+					},
+					set(vueObj) {
+						isLogin = vueObj?.$store?.state?.common?.userInfo?.isLogin;
+						uid = vueObj?.$store?.state?.common?.userInfo?.mid;
+						userName = vueObj?.$store?.state?.common?.userInfo?.uname;
+						$img.src = vueObj?.$store?.state?.common?.userInfo?.face;
+					},
+				},
+			]);
+			DOMUtils.on($gmFace, "click", (event) => {
+				utils.preventEvent(event);
+				if (isLogin) {
+					// 前往个人空间
+					if (uid != null) {
+						let url = BilibiliUrlUtils.getUserSpaceUrl(uid);
+						BilibiliUtils.goToUrl(url, false);
+					} else {
+						Qmsg.error("获取用户id失败");
+					}
+				} else {
+					// 前往登录
+					BilibiliUtils.goToLogin(window.location.href);
 				}
 			});
 		});

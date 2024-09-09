@@ -1,4 +1,4 @@
-import { httpx, utils } from "@/env";
+import { GMCookie, httpx, Qmsg, utils } from "@/env";
 import { BilibiliVideoPlayUrlQN } from "@/hook/BilibiliNetworkHook";
 
 type BilibliPlayUrlCommonConfig = {
@@ -105,5 +105,57 @@ export const BilibiliApi_Video = {
 			}[];
 			[key: string]: any;
 		};
+	},
+	/**
+	 * 点赞视频（web端）
+	 * @param config
+	 */
+	async like(
+		config: { aid: number; like: 1 | 2 } | { bvid: string; like: 1 | 2 }
+	) {
+		let getData = {
+			like: config.like,
+			csrf: GMCookie.get("bili_jct")?.value || "",
+		};
+		if ("avid" in config) {
+			Reflect.set(getData, "avid", config.avid);
+		} else if ("bvid" in config) {
+			Reflect.set(getData, "bvid", config.bvid);
+		} else {
+			throw new TypeError("avid or bvid must give one");
+		}
+		let getResp = await httpx.get(
+			"https://api.bilibili.com/x/web-interface/archive/like?" +
+				utils.toSearchParamsStr(getData),
+			{
+				fetch: true,
+			}
+		);
+		if (!getResp.status) {
+			return false;
+		}
+		let data = utils.toJSON(getResp.data.responseText);
+		const code = data["code"];
+		if (code === 0) {
+			return true;
+		}
+		if (code === -101) {
+			Qmsg.error("账号未登录");
+		} else if (code === -111) {
+			Qmsg.error("csrf校验失败");
+		} else if (code === -400) {
+			Qmsg.error("请求错误");
+		} else if (code === -403) {
+			Qmsg.error("账号异常");
+		} else if (code === 10003) {
+			Qmsg.error("不存在该稿件");
+		} else if (code === 65004) {
+			Qmsg.error("取消点赞失败");
+		} else if (code === 65006) {
+			Qmsg.warning("重复点赞");
+		} else {
+			Qmsg.error("未知错误：" + data["message"]);
+		}
+		return false;
 	},
 };
