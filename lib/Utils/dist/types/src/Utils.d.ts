@@ -431,6 +431,20 @@ declare class Utils {
      */
     getMaxValue(val: UtilsOwnObject<number>, handler: (key: any, value: any) => number): number;
     /**
+     * 获取页面中最大的z-index的元素信息
+     * @param deviation 获取最大的z-index值的偏移，默认是+1
+     * @example
+     * Utils.getMaxZIndexNodeInfo();
+     * > {
+     *   node: ...,
+     *   zIndex: 1001
+     * }
+     **/
+    getMaxZIndexNodeInfo(deviation?: number): {
+        node: Element;
+        zIndex: number;
+    };
+    /**
      * 获取页面中最大的z-index
      * @param deviation 获取最大的z-index值的偏移，默认是+1
      * @example
