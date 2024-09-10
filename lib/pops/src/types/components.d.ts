@@ -170,7 +170,7 @@ export interface PopsCommonConfig {
 	/**
 	 * z-index显示层级，默认10000
 	 */
-	zIndex?: number;
+	zIndex?: number | (() => number);
 	/**
 	 * 遮罩层
 	 */

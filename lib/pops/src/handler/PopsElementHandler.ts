@@ -24,6 +24,9 @@ export const PopsElementHandler = {
 	 */
 	getMaskHTML(guid: string, zIndex: number = 101, style = ""): string {
 		zIndex = zIndex - 100;
+		if (style.startsWith(";")) {
+			style = style.replace(";", "");
+		}
 		return `<div class="pops-mask" data-guid="${guid}" style="z-index:${zIndex};${style}"></div>`;
 	},
 	/**
@@ -33,21 +36,23 @@ export const PopsElementHandler = {
 	 * @param config
 	 * @param html
 	 * @param bottomBtnHTML
+	 * @param zIndex
 	 */
 	getAnimHTML(
 		guid: string,
 		type: PopsTypeSupportAnim,
 		config: PopsSupportAnim[keyof PopsSupportAnim],
 		html = "",
-		bottomBtnHTML = ""
+		bottomBtnHTML = "",
+		zIndex: number
 	) {
 		let __config = config as PopsAlertDetails;
 		let popsAnimStyle = "";
 		let popsStyle = "";
 		let popsPosition = __config.position || "";
 		if (config.zIndex != null) {
-			popsAnimStyle += `z-index: ${config.zIndex};`;
-			popsStyle += `z-index: ${config.zIndex};`;
+			popsAnimStyle += `z-index: ${zIndex};`;
+			popsStyle += `z-index: ${zIndex};`;
 		}
 		if (__config.width != null) {
 			popsStyle += `width: ${__config.width};`;
@@ -56,26 +61,27 @@ export const PopsElementHandler = {
 			popsStyle += `height: ${__config.height};`;
 		}
 		let hasBottomBtn = bottomBtnHTML.trim() === "" ? false : true;
-		return `<div 
-                    class="pops-anim"
-                    anim="${__config.animation || ""}"
-                    style="${popsAnimStyle};"
-                    data-guid="${guid}">
+		return /*html*/ `
+		<div 
+			class="pops-anim"
+			anim="${__config.animation || ""}"
+			style="${popsAnimStyle};"
+			data-guid="${guid}">
             ${
 							config.style != null
 								? `<style tyle="text/css">${config.style}</style>`
 								: ""
 						}
-                    <div
-                        class="pops ${config.class || ""}"
-                        data-bottom-btn="${hasBottomBtn}"
-                        type-value="${type}"
-                        style="${popsStyle}"
-                        position="${popsPosition}"
-                        data-guid="${guid}">
-                        ${html}
-                    </div>
-                </div>`;
+			<div
+				class="pops ${config.class || ""}"
+				data-bottom-btn="${hasBottomBtn}"
+				type-value="${type}"
+				style="${popsStyle}"
+				position="${popsPosition}"
+				data-guid="${guid}">
+				${html}
+			</div>
+		</div>`;
 	},
 	/**
 	 * 获取顶部按钮层HTML

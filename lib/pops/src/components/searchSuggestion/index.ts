@@ -144,7 +144,7 @@ export class PopsSearchSuggestion {
 							}
 							ul.pops-${PopsType}-search-suggestion-hint{
 								position: ${config.isAbsolute ? "absolute" : "fixed"};
-								z-index: ${config.zIndex};
+								z-index: ${PopsHandler.handleZIndex(config.zIndex)};
 								width: 0;
 								left: 0;
 								max-height: ${config.maxHeight};

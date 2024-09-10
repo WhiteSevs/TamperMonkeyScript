@@ -37,7 +37,11 @@ export class PopsLoading {
 		const PopsType = "loading";
 
 		config = PopsHandler.handleOnly(PopsType, config);
-		let maskHTML = PopsElementHandler.getMaskHTML(guid, config.zIndex);
+
+		// 先把z-index提取出来
+		let zIndex = PopsHandler.handleZIndex(config.zIndex);
+		let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
+
 		let { contentPStyle } = PopsElementHandler.getContentStyle(
 			"loading",
 			config
@@ -46,7 +50,7 @@ export class PopsLoading {
 			guid,
 			PopsType,
 			config,
-			`
+			/*html*/ `
             <div class="pops-loading-content">
                 ${
 									config.addIndexCSS
@@ -64,7 +68,8 @@ export class PopsLoading {
             <p pops style="${contentPStyle}">${config.content.text}</p>
             </div>
             `,
-			""
+			"",
+			zIndex
 		);
 
 		/**

@@ -75,7 +75,7 @@ export interface PopsSearchSuggestionDetails<T = any> {
 	/**
 	 * 层级，默认10000
 	 */
-	zIndex?: 10000;
+	zIndex?: number | (() => number);
 	/**
 	 * 搜索中的提示
 	 */

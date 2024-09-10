@@ -62,7 +62,7 @@ export interface PopsRightClickMenuDetails {
     /**
      * 弹窗的显示层级，默认10000
      */
-    zIndex?: number;
+    zIndex?: number | (() => number);
     /**
      * 是否阻止默认contextmenu事件
      */

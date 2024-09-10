@@ -83,7 +83,9 @@ export class PopsAlert {
 		const PopsType: PopsMode = "alert";
 		config = PopsHandler.handleOnly(PopsType, config);
 
-		let maskHTML = PopsElementHandler.getMaskHTML(guid, config.zIndex);
+		// 先把z-index提取出来
+		let zIndex = PopsHandler.handleZIndex(config.zIndex);
+		let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
 		let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(PopsType, config);
 		let bottomBtnHTML = PopsElementHandler.getBottomBtnHTML(PopsType, config);
 		let { headerStyle, headerPStyle } = PopsElementHandler.getHeaderStyle(
@@ -98,7 +100,7 @@ export class PopsAlert {
 			guid,
 			PopsType,
 			config,
-			`
+			/*html*/ `
 			<div 
 				class="pops-alert-title"
 				style="text-align: ${config.title.position};
@@ -118,7 +120,8 @@ export class PopsAlert {
 				}
 			</div>
 			${bottomBtnHTML}`,
-			bottomBtnHTML
+			bottomBtnHTML,
+			zIndex
 		);
 		/**
 		 * 弹窗的主元素，包括动画层

@@ -130,8 +130,10 @@ class PopsUtils {
 		} else {
 			for (const targetKeyName in target) {
 				if (targetKeyName in source) {
-					let targetValue = (target as any)[targetKeyName];
-					let sourceValue = (source as any)[targetKeyName];
+					// @ts-ignore
+					let targetValue = target[targetKeyName];
+					// @ts-ignore
+					let sourceValue = source[targetKeyName];
 					if (
 						typeof sourceValue === "object" &&
 						sourceValue != null &&
@@ -139,7 +141,8 @@ class PopsUtils {
 						Object.keys(sourceValue).length
 					) {
 						/* 源端的值是object类型，且不是元素节点 */
-						(target as any)[targetKeyName] = UtilsContext.assign(
+						// @ts-ignore
+						target[targetKeyName] = UtilsContext.assign(
 							targetValue,
 							sourceValue,
 							isAdd
@@ -147,7 +150,8 @@ class PopsUtils {
 						continue;
 					}
 					/* 直接赋值 */
-					(target as any)[targetKeyName] = sourceValue;
+					// @ts-ignore
+					target[targetKeyName] = sourceValue;
 				}
 			}
 		}

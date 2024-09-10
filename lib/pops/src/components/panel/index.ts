@@ -346,7 +346,11 @@ export class PopsPanel {
 		let guid = popsUtils.getRandomGUID();
 		const PopsType = "panel";
 		config = PopsHandler.handleOnly(PopsType, config);
-		let maskHTML = PopsElementHandler.getMaskHTML(guid, config.zIndex);
+
+		// 先把z-index提取出来
+		let zIndex = PopsHandler.handleZIndex(config.zIndex);
+		let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
+
 		let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(PopsType, config);
 		let { headerStyle, headerPStyle } = PopsElementHandler.getHeaderStyle(
 			PopsType,
@@ -357,7 +361,7 @@ export class PopsPanel {
 			guid,
 			PopsType,
 			config,
-			`
+			/*html*/ `
 			<div 
 				class="pops-${PopsType}-title"
 				style="text-align: ${config.title.position};
@@ -378,7 +382,8 @@ export class PopsPanel {
 					<ul></ul>
 				</section>
 			</div>`,
-			""
+			"",
+			zIndex
 		);
 		/**
 		 * 弹窗的主元素，包括动画层

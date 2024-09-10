@@ -208,6 +208,11 @@ export declare const PopsHandler: {
         text: string;
     }, event: MouseEvent | PointerEvent) => void): void;
     /**
+     * 把配置的z-index配置转为数字
+     * @param zIndex
+     */
+    handleZIndex(zIndex: number | (() => number)): number;
+    /**
      * 处理config.only
      * @param type 当前弹窗类型
      * @param config 配置

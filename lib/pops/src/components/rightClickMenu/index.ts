@@ -355,7 +355,7 @@ export class PopsRightClickMenu {
 			 * @param isChildren 是否是rightClickMenu的某一项的子菜单
 			 */
 			getMenuContainerElement(zIndex: number, isChildren: boolean) {
-				let menuElement = popsUtils.parseTextToDOM(`
+				let menuElement = popsUtils.parseTextToDOM(/*html*/ `
 				<div class="pops-${PopsType}" ${isChildren ? 'is-children="true"' : ""}>
 				<style type="text/css" data-from="pops-${PopsType}">
 				.pops-${PopsType} *{
@@ -444,6 +444,12 @@ export class PopsRightClickMenu {
 				return menuElement;
 			},
 			/**
+			 * 动态获取配的z-index
+			 */
+			getMenuZIndex() {
+				return PopsHandler.handleZIndex(config.zIndex);
+			},
+			/**
 			 * 获取left、top偏移
 			 * @param menuElement 菜单元素
 			 * @param x
@@ -483,7 +489,10 @@ export class PopsRightClickMenu {
 				menuEvent: PointerEvent,
 				_config_: PopsRightClickMenuDataDetails[]
 			) {
-				let menuElement = this.getMenuContainerElement(config.zIndex, false);
+				let menuElement = this.getMenuContainerElement(
+					this.getMenuZIndex(),
+					false
+				);
 				(menuElement as any)["__menuData__"] = {
 					child: [],
 				};
@@ -539,7 +548,10 @@ export class PopsRightClickMenu {
 				rootElement: HTMLDivElement,
 				targetLiElement: HTMLLIElement
 			) {
-				let menuElement = this.getMenuContainerElement(config.zIndex, true);
+				let menuElement = this.getMenuContainerElement(
+					this.getMenuZIndex(),
+					true
+				);
 				(menuElement as any)["__menuData__"] = {
 					parent: targetLiElement,
 					root: rootElement,

@@ -69,7 +69,9 @@ export class PopsTooltip {
 			}
 			_toolTipElement_.setAttribute("data-guid", guid);
 
-			_toolTipElement_.style.zIndex = config.zIndex.toString();
+			_toolTipElement_.style.zIndex = PopsHandler.handleZIndex(
+				config.zIndex
+			).toString();
 			_toolTipElement_.innerHTML = `<div style="text-align: center;">${getContent()}</div>`;
 			/* 箭头元素 */
 			let _toolTipArrowHTML_ = '<div class="pops-tip-arrow"></div>';

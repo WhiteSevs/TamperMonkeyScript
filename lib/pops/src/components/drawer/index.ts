@@ -112,7 +112,9 @@ export class PopsDrawer {
 
 		config = PopsHandler.handleOnly(PopsType, config);
 
-		let maskHTML = PopsElementHandler.getMaskHTML(guid, config.zIndex);
+		// 先把z-index提取出来
+		let zIndex = PopsHandler.handleZIndex(config.zIndex);
+		let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
 
 		let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(PopsType, config);
 		let bottomBtnHTML = PopsElementHandler.getBottomBtnHTML(PopsType, config);
@@ -128,7 +130,7 @@ export class PopsDrawer {
 			guid,
 			PopsType,
 			config,
-			`
+			/*html*/ `
             ${
 							config.title.enable
 								? `
@@ -159,7 +161,8 @@ export class PopsDrawer {
 
             ${bottomBtnHTML}
             `,
-			bottomBtnHTML
+			bottomBtnHTML,
+			zIndex
 		);
 		/**
 		 * 弹窗的主元素，包括动画层

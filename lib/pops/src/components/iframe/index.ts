@@ -87,12 +87,11 @@ export class PopsIframe {
 			config.animation != null && (config as any).animation != ""
 				? "position:absolute;"
 				: "";
-		let maskHTML = PopsElementHandler.getMaskHTML(
-			guid,
 
-			config.zIndex,
-			maskExtraStyle
-		);
+		// 先把z-index提取出来
+		let zIndex = PopsHandler.handleZIndex(config.zIndex);
+		let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex, maskExtraStyle);
+
 		let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(PopsType, config);
 		let iframeLoadingHTML = '<div class="pops-loading"></div>';
 		let titleText =
@@ -105,7 +104,7 @@ export class PopsIframe {
 			guid,
 			PopsType,
 			config,
-			`
+			/*html*/ `
             <div 
                 class="pops-iframe-title"
                 style="text-align: ${config.title.position};${headerStyle}"
@@ -131,7 +130,8 @@ export class PopsIframe {
                 </div>
                 ${config.loading.enable ? iframeLoadingHTML : ""}
             `,
-			""
+			"",
+			zIndex
 		);
 		/**
 		 * 弹窗的主元素，包括动画层
@@ -362,7 +362,11 @@ export class PopsIframe {
 			headerCloseBtnElement,
 			"click",
 			(event) => {
-				PopsInstanceUtils.removeInstance([pops.config.layer.iframe], guid, false);
+				PopsInstanceUtils.removeInstance(
+					[pops.config.layer.iframe],
+					guid,
+					false
+				);
 				setTimeout(() => {
 					let allIsMinElementList: HTMLElement[] = [];
 					pops.config.layer.iframe.forEach((item) => {

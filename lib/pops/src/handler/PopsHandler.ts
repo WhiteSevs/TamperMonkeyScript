@@ -606,6 +606,17 @@ export const PopsHandler = {
 		);
 	},
 	/**
+	 * 把配置的z-index配置转为数字
+	 * @param zIndex
+	 */
+	handleZIndex(zIndex: number | (() => number)): number {
+		if (typeof zIndex === "function") {
+			return zIndex();
+		} else {
+			return zIndex;
+		}
+	},
+	/**
 	 * 处理config.only
 	 * @param type 当前弹窗类型
 	 * @param config 配置
@@ -641,10 +652,22 @@ export const PopsHandler = {
 				);
 			}
 		} else {
-			const { zIndex: maxZIndex } = PopsInstanceUtils.getPopsMaxZIndex(
-				config.zIndex + 100
-			);
-			config.zIndex = maxZIndex;
+			// 对配置进行处理
+			// 选择配置的z-index和已有的pops实例的最大z-index值
+			if (typeof config.zIndex === "function") {
+				let originZIndexFn = config.zIndex;
+				config.zIndex = () => {
+					const { zIndex: maxZIndex } = PopsInstanceUtils.getPopsMaxZIndex(
+						PopsHandler.handleZIndex(originZIndexFn) + 100
+					);
+					return maxZIndex;
+				};
+			}else{
+				const { zIndex: maxZIndex } = PopsInstanceUtils.getPopsMaxZIndex(
+					PopsHandler.handleZIndex(config.zIndex) + 100
+				);
+				config.zIndex = maxZIndex;
+			}
 		}
 		return config;
 	},

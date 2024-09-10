@@ -123,7 +123,9 @@ export class PopsPrompt {
 
 		config = PopsHandler.handleOnly(PopsType, config);
 
-		let maskHTML = PopsElementHandler.getMaskHTML(guid, config.zIndex);
+		// 先把z-index提取出来
+		let zIndex = PopsHandler.handleZIndex(config.zIndex);
+		let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
 
 		let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(PopsType, config);
 		let bottomBtnHTML = PopsElementHandler.getBottomBtnHTML(PopsType, config);
@@ -139,7 +141,7 @@ export class PopsPrompt {
 			guid,
 			PopsType,
 			config,
-			`
+			/*html*/ `
             <div class="pops-prompt-title" style="text-align: ${
 							config.title.position
 						};${headerStyle}">
@@ -163,9 +165,10 @@ export class PopsPrompt {
 								  '">'
 						}
             </div>
-        ${bottomBtnHTML}
+        	${bottomBtnHTML}
             `,
-			bottomBtnHTML
+			bottomBtnHTML,
+			zIndex
 		);
 		/**
 		 * 弹窗的主元素，包括动画层

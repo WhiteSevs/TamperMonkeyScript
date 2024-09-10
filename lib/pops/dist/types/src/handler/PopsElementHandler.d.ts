@@ -14,8 +14,9 @@ export declare const PopsElementHandler: {
      * @param config
      * @param html
      * @param bottomBtnHTML
+     * @param zIndex
      */
-    getAnimHTML(guid: string, type: PopsTypeSupportAnim, config: PopsSupportAnim[keyof PopsSupportAnim], html?: string, bottomBtnHTML?: string): string;
+    getAnimHTML(guid: string, type: PopsTypeSupportAnim, config: PopsSupportAnim[keyof PopsSupportAnim], html: string | undefined, bottomBtnHTML: string | undefined, zIndex: number): string;
     /**
      * 获取顶部按钮层HTML
      * @param type

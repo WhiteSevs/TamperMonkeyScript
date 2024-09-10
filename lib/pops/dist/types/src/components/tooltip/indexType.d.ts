@@ -39,7 +39,7 @@ export interface PopsToolTipDetails {
     /**
      * z-index，默认10000
      */
-    zIndex?: number;
+    zIndex?: number | (() => number);
     /**
      * 是否唯一，默认false
      */
