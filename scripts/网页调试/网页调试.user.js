@@ -2,7 +2,7 @@
 // @name            网页调试
 // @namespace       https://greasyfork.org/zh-CN/scripts/475228
 // @supportURL      https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version         2024.9.9
+// @version         2024.9.10
 // @author          WhiteSevs
 // @description     内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @icon            data:image/png;base64,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
@@ -18,24 +18,24 @@
 // @grant           GM_deleteValue
 // @grant           GM_setClipboard
 // @grant           GM_getResourceText
-// @resource        Resource_erudaMonitor             https://fastly.jsdelivr.net/npm/eruda-monitor
-// @resource        Resource_erudaFeatures            https://fastly.jsdelivr.net/npm/eruda-features
-// @resource        Resource_erudaTiming              https://fastly.jsdelivr.net/npm/eruda-timing
-// @resource        Resource_erudaCode                https://fastly.jsdelivr.net/npm/eruda-code
-// @resource        Resource_erudaBenchmark           https://fastly.jsdelivr.net/npm/eruda-benchmark
-// @resource        Resource_Leaflet                  https://update.greasyfork.org/scripts/483765/1360579/Leaflet.js
-// @resource        Resource_erudaGeolocation         https://fastly.jsdelivr.net/gh/WhiteSevs/eruda-geolocation/eruda-geolocation.js
-// @resource        Resource_erudaOrientation         https://fastly.jsdelivr.net/gh/WhiteSevs/eruda-orientation/eruda-orientation.js
-// @resource        Resource_erudaTouches             https://fastly.jsdelivr.net/npm/eruda-touches
-// @resource        Resource_erudaOutlinePlugin       https://fastly.jsdelivr.net/npm/eruda-outline-plugin
-// @resource        Resource_erudaPixel               https://fastly.jsdelivr.net/npm/eruda-pixel
-// @resource        Resource_erudaVue                 https://fastly.jsdelivr.net/npm/eruda-vue
-// @resource        Resource_vConsoleVueDevtools      https://fastly.jsdelivr.net/npm/vue-vconsole-devtools@1.0.9/dist/vue_plugin.min.js
+// @require         https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require         https://update.greasyfork.org/scripts/483694/1444455/Eruda-2.js
 // @require         https://update.greasyfork.org/scripts/483695/1360577/vConsole-2.js
 // @require         https://update.greasyfork.org/scripts/483696/1444454/PageSpy-2.js
 // @require         https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.1/dist/index.umd.js
 // @require         https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.4/dist/index.umd.min.js
+// @resource        Resource_erudaMonitor             https://fastly.jsdelivr.net/npm/eruda-monitor@1.0.2
+// @resource        Resource_erudaFeatures            https://fastly.jsdelivr.net/npm/eruda-features@2.1.0
+// @resource        Resource_erudaTiming              https://fastly.jsdelivr.net/npm/eruda-timing@2.0.1
+// @resource        Resource_erudaCode                https://fastly.jsdelivr.net/npm/eruda-code@2.2.0
+// @resource        Resource_erudaBenchmark           https://fastly.jsdelivr.net/npm/eruda-benchmark@2.0.1
+// @resource        Resource_erudaGeolocation         https://fastly.jsdelivr.net/gh/WhiteSevs/eruda-geolocation@master/eruda-geolocation.js
+// @resource        Resource_erudaOrientation         https://fastly.jsdelivr.net/npm/eruda-orientation@2.1.1
+// @resource        Resource_erudaVue                 https://fastly.jsdelivr.net/npm/eruda-vue@1.1.1
+// @resource        Resource_erudaTouches             https://fastly.jsdelivr.net/npm/eruda-touches@2.1.0
+// @resource        Resource_erudaOutlinePlugin       https://fastly.jsdelivr.net/npm/eruda-outline-plugin@0.0.5
+// @resource        Resource_erudaPixel               https://fastly.jsdelivr.net/npm/eruda-pixel@1.0.13
+// @resource        Resource_vConsoleVueDevtools      https://fastly.jsdelivr.net/npm/vue-vconsole-devtools@1.0.9/dist/vue_plugin.min.js
 // ==/UserScript==
 
 (function () {
@@ -416,7 +416,13 @@
 				style: /*css*/ `
 				aside.pops-panel-aside{
 					width: 20%;
-				}`,
+				}
+				.plugin-anchor{
+					text-decoration: none;
+					display: inline-flex;
+    				vertical-align: text-bottom;
+				}
+				`,
 			});
 		},
 		/**
@@ -990,39 +996,84 @@
 							type: "forms",
 							forms: [
 								this.getSwtichDetail(
-									"eruda-monitor",
+									/*html*/ `
+									<a class="plugin-anchor" href="https://github.com/liriliri/eruda-monitor" target="_blank">
+										<img src="https://img.shields.io/npm/v/eruda-monitor/latest.svg?label=">
+									</a>
+									eruda-monitor
+									`,
 									"eruda_plugin_Resource_erudaMonitor",
 									false,
 									void 0,
-									"展示页面的 fps 和内存信息"
+									/*html*/ `
+									v1.0.2
+									<br>
+									展示页面的 fps 和内存信息
+									`
 								),
 								this.getSwtichDetail(
-									"eruda-features",
+									/*html*/ `
+									<a class="plugin-anchor" href="https://github.com/liriliri/eruda-features" target="_blank">
+										<img src="https://img.shields.io/npm/v/eruda-features/latest.svg?label=">
+									</a>
+									eruda-features
+									`,
 									"eruda_plugin_Resource_erudaFeatures",
 									false,
 									void 0,
-									"浏览器特性检测"
+									/*html*/ `
+									v2.1.0
+									<br>
+									浏览器特性检测
+									`
 								),
 								this.getSwtichDetail(
-									"eruda-timing",
+									/*html*/ `
+									<a class="plugin-anchor" href="https://github.com/liriliri/eruda-timing" target="_blank">
+										<img src="https://img.shields.io/npm/v/eruda-timing/latest.svg?label=">
+									</a>
+									eruda-timing
+									`,
 									"eruda_plugin_Resource_erudaTiming",
 									false,
 									void 0,
-									"展示性能资源数据"
+									/*html*/ `
+									v2.0.1
+									<br>
+									展示性能资源数据
+									`
 								),
 								this.getSwtichDetail(
-									"eruda-code",
+									/*html*/ `
+									<a class="plugin-anchor" href="https://github.com/liriliri/eruda-code" target="_blank">
+										<img src="https://img.shields.io/npm/v/eruda-code/latest.svg?label=">
+									</a>
+									eruda-code
+									`,
 									"eruda_plugin_Resource_erudaCode",
 									false,
 									void 0,
-									"运行 JavaScript 代码"
+									/*html*/ `
+									v2.2.0
+									<br>
+									运行 JavaScript 代码
+									`
 								),
 								this.getSwtichDetail(
-									"eruda-benchmark",
+									/*html*/ `
+									<a class="plugin-anchor" href="https://github.com/liriliri/eruda-benchmark" target="_blank">
+										<img src="https://img.shields.io/npm/v/eruda-benchmark/latest.svg?label=">
+									</a>
+									eruda-benchmark
+									`,
 									"eruda_plugin_Resource_erudaBenchmark",
 									false,
 									void 0,
-									"运行 JavaScript 性能测试"
+									/*html*/ `
+									v2.0.1
+									<br>
+									运行 JavaScript 性能测试
+									`
 								),
 								this.getSwtichDetail(
 									"eruda-geolocation",
@@ -1032,39 +1083,83 @@
 									"测试地理位置接口"
 								),
 								this.getSwtichDetail(
-									"eruda-orientation",
+									/*html*/ `
+									<a class="plugin-anchor" href="https://github.com/liriliri/eruda-orientation" target="_blank">
+										<img src="https://img.shields.io/npm/v/eruda-orientation/latest.svg?label=">
+									</a>
+									eruda-orientation
+									`,
 									"eruda_plugin_Resource_erudaOrientation",
 									false,
 									void 0,
-									"测试重力感应接口"
+									/*html*/ `
+									v2.1.1
+									<br>
+									测试重力感应接口
+									`
 								),
 								this.getSwtichDetail(
-									"eruda-touches",
-									"eruda_plugin_Resource_erudaTouches",
-									false,
-									void 0,
-									"(暂时无效)可视化屏幕 Touch 事件触发"
-								),
-								this.getSwtichDetail(
-									"eruda-outline-plugin",
-									"eruda_plugin_Resource_erudaOutlinePlugin",
-									false,
-									void 0,
-									"给页面的元素添加边框"
-								),
-								this.getSwtichDetail(
-									"eruda-pixel",
-									"eruda_plugin_Resource_erudaPixel",
-									false,
-									void 0,
-									"高精度的UI恢复辅助工具"
-								),
-								this.getSwtichDetail(
-									"eruda-vue",
+									/*html*/ `
+									<a class="plugin-anchor" href="https://github.com/liriliri/eruda-vue" target="_blank">
+										<img src="https://img.shields.io/npm/v/eruda-vue/latest.svg?label=">
+									</a>
+									eruda-vue
+									`,
 									"eruda_plugin_Resource_erudaVue",
 									false,
 									void 0,
-									"Vue调试工具"
+									/*html*/ `
+									v1.1.1
+									<br>
+									Vue调试工具
+									`
+								),
+								this.getSwtichDetail(
+									/*html*/ `
+									<a class="plugin-anchor" href="https://github.com/liriliri/eruda-touches" target="_blank">
+										<img src="https://img.shields.io/npm/v/eruda-touches/latest.svg?label=">
+									</a>
+									eruda-touches
+									`,
+									"eruda_plugin_Resource_erudaTouches",
+									false,
+									void 0,
+									/*html*/ `
+									v2.1.0
+									<br>
+									可视化屏幕 Touch 事件触发
+									`
+								),
+								this.getSwtichDetail(
+									/*html*/ `
+									<a class="plugin-anchor" href="https://github.com/pomelo-chuan/eruda-outline-plugin" target="_blank">
+										<img src="https://img.shields.io/npm/v/eruda-outline-plugin/latest.svg?label=">
+									</a>
+									eruda-outline-plugin
+									`,
+									"eruda_plugin_Resource_erudaOutlinePlugin",
+									false,
+									void 0,
+									/*html*/ `
+									v0.0.5
+									<br>
+									给页面的元素添加边框`
+								),
+								this.getSwtichDetail(
+									/*html*/ `
+									<a class="plugin-anchor" href="https://github.com/Faithree/eruda-pixel" target="_blank">
+										<img src="https://img.shields.io/npm/v/eruda-pixel/latest.svg?label=">
+									</a>
+									eruda-pixel
+									`,
+									"eruda_plugin_Resource_erudaPixel",
+									false,
+									void 0,
+									/*html*/ `
+									v1.0.13
+									<br>
+									高精度的UI恢复辅助工具
+									`
 								),
 							],
 						},
@@ -1319,11 +1414,20 @@
 									"使用该插件可以复制或下载console中打印的log"
 								),
 								this.getSwtichDetail(
-									"vconsole-vue-devtools-plugin",
+									/*html*/ `
+									<a class="plugin-anchor" href="https://github.com/Zippowxk/vue-vconsole-devtools" target="_blank">
+										<img src="https://img.shields.io/npm/v/vue-vconsole-devtools/latest.svg?label=">
+									</a>
+									vue-vconsole-devtools
+									`,
 									"vConsole_plugin_Resource_vConsoleVueDevtools",
 									false,
 									void 0,
-									"Vue-vConsole-devtools 是一款vConsole插件，把Vue.js官方调试工具vue-devtools移植到移动端，可以直接在移动端查看调试Vue.js应用"
+									/*html*/ `
+									v1.0.9
+									<br>
+									Vue-vConsole-devtools 是一款vConsole插件，把Vue.js官方调试工具vue-devtools移植到移动端，可以直接在移动端查看调试Vue.js应用
+									`
 								),
 							],
 						},
@@ -2141,6 +2245,23 @@
 		},
 	};
 
+	/**
+	 * 执行插件代码
+	 * @param {string|(string[])} args
+	 */
+	const evalPlugin = (...args) => {
+		const coverCMD = `
+		try{let exports=void 0}catch(error){console.warn(error)}
+		try{let module=void 0}catch(error){console.warn(error)}
+		try{let define=void 0}catch(error){console.warn(error)}
+		`;
+		if (args.length === 0) {
+			return;
+		}
+		const codeText = args.join("\n");
+		return unsafeWin.eval(coverCMD + "\n" + codeText);
+	};
+
 	/** 全局调试工具的配置 */
 	const ToolsConfig = {
 		eruda: {
@@ -2419,7 +2540,7 @@
 			console.log("eruda的全局变量名: Eruda");
 			if (PopsPanel.getValue("eruda_plugin_Resource_erudaMonitor")) {
 				try {
-					unsafeWin.eval(GM_getResourceText("Resource_erudaMonitor"));
+					evalPlugin(GM_getResourceText("Resource_erudaMonitor"));
 					Eruda.add(erudaMonitor);
 				} catch (error) {
 					console.error("插件【eruda-monitor】加载失败，原因：", error);
@@ -2427,7 +2548,7 @@
 			}
 			if (PopsPanel.getValue("eruda_plugin_Resource_erudaFeatures")) {
 				try {
-					unsafeWin.eval(GM_getResourceText("Resource_erudaFeatures"));
+					evalPlugin(GM_getResourceText("Resource_erudaFeatures"));
 					Eruda.add(erudaFeatures);
 				} catch (error) {
 					console.error("插件【eruda-features】加载失败，原因：", error);
@@ -2435,7 +2556,7 @@
 			}
 			if (PopsPanel.getValue("eruda_plugin_Resource_erudaTiming")) {
 				try {
-					unsafeWin.eval(GM_getResourceText("Resource_erudaTiming"));
+					evalPlugin(GM_getResourceText("Resource_erudaTiming"));
 					Eruda.add(erudaTiming);
 				} catch (error) {
 					console.error("插件【eruda-timing】加载失败，原因：", error);
@@ -2443,7 +2564,7 @@
 			}
 			if (PopsPanel.getValue("eruda_plugin_Resource_erudaCode")) {
 				try {
-					unsafeWin.eval(GM_getResourceText("Resource_erudaCode"));
+					evalPlugin(GM_getResourceText("Resource_erudaCode"));
 					Eruda.add(erudaCode);
 				} catch (error) {
 					console.error("插件【eruda-code】加载失败，原因：", error);
@@ -2451,7 +2572,7 @@
 			}
 			if (PopsPanel.getValue("eruda_plugin_Resource_erudaBenchmark")) {
 				try {
-					unsafeWin.eval(GM_getResourceText("Resource_erudaBenchmark"));
+					evalPlugin(GM_getResourceText("Resource_erudaBenchmark"));
 					Eruda.add(erudaBenchmark);
 				} catch (error) {
 					console.error("插件【eruda-benchmark】加载失败，原因：", error);
@@ -2459,8 +2580,7 @@
 			}
 			if (PopsPanel.getValue("eruda_plugin_Resource_erudaGeolocation")) {
 				try {
-					unsafeWin.eval(GM_getResourceText("Resource_Leaflet"));
-					unsafeWin.eval(GM_getResourceText("Resource_erudaGeolocation"));
+					evalPlugin(GM_getResourceText("Resource_erudaGeolocation"));
 					Eruda.add(erudaGeolocation);
 				} catch (error) {
 					console.error("插件【eruda-geolocation】加载失败，原因：", error);
@@ -2468,7 +2588,7 @@
 			}
 			if (PopsPanel.getValue("eruda_plugin_Resource_erudaOrientation")) {
 				try {
-					unsafeWin.eval(GM_getResourceText("Resource_erudaOrientation"));
+					evalPlugin(GM_getResourceText("Resource_erudaOrientation"));
 					Eruda.add(erudaOrientation);
 				} catch (error) {
 					console.error("插件【eruda-orientation】加载失败，原因：", error);
@@ -2476,7 +2596,7 @@
 			}
 			if (PopsPanel.getValue("eruda_plugin_Resource_erudaTouches")) {
 				try {
-					unsafeWin.eval(GM_getResourceText("Resource_erudaTouches"));
+					evalPlugin(GM_getResourceText("Resource_erudaTouches"));
 					Eruda.add(erudaTouches);
 				} catch (error) {
 					console.error("插件【eruda-touches】加载失败，原因：", error);
@@ -2484,7 +2604,7 @@
 			}
 			if (PopsPanel.getValue("eruda_plugin_Resource_erudaOutlinePlugin")) {
 				try {
-					unsafeWin.eval(GM_getResourceText("Resource_erudaOutlinePlugin"));
+					evalPlugin(GM_getResourceText("Resource_erudaOutlinePlugin"));
 					Eruda.add(erudaOutlinePlugin);
 				} catch (error) {
 					console.error("插件【eruda-outline-plugin】加载失败，原因：", error);
@@ -2492,7 +2612,7 @@
 			}
 			if (PopsPanel.getValue("eruda_plugin_Resource_erudaPixel")) {
 				try {
-					unsafeWin.eval(GM_getResourceText("Resource_erudaPixel"));
+					evalPlugin(GM_getResourceText("Resource_erudaPixel"));
 					Eruda.add(erudaPixel);
 				} catch (error) {
 					console.error("插件【eruda-pixel】加载失败，原因：", error);
@@ -2500,7 +2620,7 @@
 			}
 			if (PopsPanel.getValue("eruda_plugin_Resource_erudaVue")) {
 				try {
-					unsafeWin.eval(GM_getResourceText("Resource_erudaVue"));
+					evalPlugin(GM_getResourceText("Resource_erudaVue"));
 					Eruda.add(erudaVue);
 				} catch (error) {
 					console.error("插件【eruda-vue】加载失败，原因：", error);
@@ -2603,7 +2723,7 @@
 			}
 			if (PopsPanel.getValue("vConsole_plugin_Resource_vConsoleVueDevtools")) {
 				try {
-					unsafeWin.eval(GM_getResourceText("Resource_vConsoleVueDevtools"));
+					evalPlugin(GM_getResourceText("Resource_vConsoleVueDevtools"));
 					const Devtools = unsafeWin.vueVconsoleDevtools;
 					Devtools.initPlugin(vConsole);
 				} catch (error) {
