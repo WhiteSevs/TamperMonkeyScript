@@ -34,6 +34,20 @@ interface TiebaPostApubthreadDetails {
 
 export const TiebaPostApi = {
 	/**
+	 * 传入用户id或portrait判断是否是贴吧机器人（贴吧包打听）
+	 */
+	isRobot(config: { id?: number | string; portrait?: string }) {
+		if (
+			config.id != null &&
+			(typeof config.id === "number" || typeof config.id === "string")
+		) {
+			return config.id.toString() === "6421022725";
+		} else if (config.portrait != null && typeof config.portrait === "string") {
+			return config.portrait.includes("tb.1.4c46bb61.pOGb2yswbMUBKOIUpteLvg");
+		}
+		return false;
+	},
+	/**
 	 * 评论帖子
 	 */
 	async apubthread(details: TiebaPostApubthreadDetails) {

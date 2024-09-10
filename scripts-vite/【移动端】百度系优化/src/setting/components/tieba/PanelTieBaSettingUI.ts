@@ -280,6 +280,13 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 									void 0,
 									"向下滚动的距离>页面高度*2就会出现按钮"
 								),
+								UISwitch(
+									"屏蔽机器人",
+									"baidu-tieba-uni-app-post-blockTieBaRobot",
+									true,
+									void 0,
+									"屏蔽【贴吧包打听】机器人，回答的评论都是牛头不对马嘴的"
+								),
 							],
 						},
 					],

@@ -1343,11 +1343,11 @@ const TiebaComment = {
 		}
 		if (PopsPanel.getValue("baidu_tieba_shield_commnets_baodating")) {
 			/* 屏蔽贴吧包打听 */
-			if (user_id != null && user_id.toString() === "6421022725") {
-				return;
-			} else if (
-				userPortrait != null &&
-				userPortrait.toString().includes("tb.1.4c46bb61.pOGb2yswbMUBKOIUpteLvg")
+			if (
+				TiebaPostApi.isRobot({
+					id: user_id,
+					portrait: userPortrait,
+				})
 			) {
 				return;
 			}

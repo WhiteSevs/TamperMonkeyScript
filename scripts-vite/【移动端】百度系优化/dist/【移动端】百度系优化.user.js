@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.9.8.15
+// @version      2024.9.10
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -20,10 +20,10 @@
 // @require      https://update.greasyfork.org/scripts/495227/1413261/Element-Plus.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.4/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.7/dist/index.min.css
 // @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
 // @connect      *
@@ -2196,6 +2196,13 @@ match-attr##srcid##sp_purc_atom
                     true,
                     void 0,
                     "向下滚动的距离>页面高度*2就会出现按钮"
+                  ),
+                  UISwitch(
+                    "屏蔽机器人",
+                    "baidu-tieba-uni-app-post-blockTieBaRobot",
+                    true,
+                    void 0,
+                    "屏蔽【贴吧包打听】机器人，回答的评论都是牛头不对马嘴的"
                   )
                 ]
               }
@@ -9175,6 +9182,17 @@ div[class^="new-summary-container_"] {\r
   };
   const TiebaPostApi = {
     /**
+     * 传入用户id或portrait判断是否是贴吧机器人（贴吧包打听）
+     */
+    isRobot(config) {
+      if (config.id != null && (typeof config.id === "number" || typeof config.id === "string")) {
+        return config.id.toString() === "6421022725";
+      } else if (config.portrait != null && typeof config.portrait === "string") {
+        return config.portrait.includes("tb.1.4c46bb61.pOGb2yswbMUBKOIUpteLvg");
+      }
+      return false;
+    },
+    /**
      * 评论帖子
      */
     async apubthread(details) {
@@ -10588,9 +10606,10 @@ div[class^="new-summary-container_"] {\r
         }
       }
       if (PopsPanel.getValue("baidu_tieba_shield_commnets_baodating")) {
-        if (user_id != null && user_id.toString() === "6421022725") {
-          return;
-        } else if (userPortrait != null && userPortrait.toString().includes("tb.1.4c46bb61.pOGb2yswbMUBKOIUpteLvg")) {
+        if (TiebaPostApi.isRobot({
+          id: user_id,
+          portrait: userPortrait
+        })) {
           return;
         }
       }
@@ -11926,6 +11945,65 @@ div[class^="new-summary-container_"] {\r
       );
     }
   };
+  const TiebaUniAppComment = {
+    $data: {
+      watchCommentCallBack: []
+    },
+    init() {
+    },
+    /**
+     * 观察评论动态加载（包含楼中楼评论）
+     * @param callback 回调
+     */
+    watchComment(callback) {
+      this.$data.watchCommentCallBack.push(callback);
+      if (this.$data.watchCommentCallBack.length > 1) {
+        return;
+      }
+      utils.waitNode("uni-view#tab-list", 1e4).then(($tabList) => {
+        if (!$tabList) {
+          return;
+        }
+        utils.mutationObserver($tabList, {
+          config: {
+            subtree: true,
+            childList: true
+          },
+          immediate: true,
+          callback: (mutations, observer) => {
+            var _a3;
+            const $pbCommentItemContainerList = Array.from(
+              document.querySelectorAll(
+                ".pb-comment-item-container"
+              )
+            );
+            let commentContainerInfoList = [];
+            for (let index = 0; index < $pbCommentItemContainerList.length; index++) {
+              const $pbCommentItemContainer = $pbCommentItemContainerList[index];
+              const $vueIns = VueUtils.getVue3($pbCommentItemContainer);
+              commentContainerInfoList.push({
+                data: (_a3 = $vueIns == null ? void 0 : $vueIns.props) == null ? void 0 : _a3.commentData,
+                remove() {
+                  $pbCommentItemContainer.remove();
+                  index--;
+                }
+              });
+            }
+            for (let index = 0; index < this.$data.watchCommentCallBack.length; index++) {
+              const watchCommentCallBack = this.$data.watchCommentCallBack[index];
+              if (typeof watchCommentCallBack === "function") {
+                watchCommentCallBack(commentContainerInfoList, () => {
+                  this.$data.watchCommentCallBack.splice(index, 1);
+                  index--;
+                  observer.disconnect();
+                });
+              }
+            }
+          }
+        });
+      });
+    }
+  };
   const TiebaUniAppPost = {
     init() {
       utils.waitNode("uni-app", 1e4).then(($uniApp) => {
@@ -11933,6 +12011,20 @@ div[class^="new-summary-container_"] {\r
           return;
         }
         log.info(`uni-app ===> 本页面为uni-app页面`);
+        addStyle(
+          /*css*/
+          `
+			/* 加载评论失败的弹窗 */
+			.swiper-content .tb-error-page{
+				background: rgba(0, 0, 0, 0.7);
+				color: #ffffff;
+				z-index: 10000;
+			}
+			.swiper-content .tb-error-page .error-icon{
+				margin: 0;
+			}
+			`
+        );
         PopsPanel.execMenuOnce(
           "baidu-tieba-uni-app-post-overloadLoadMore",
           () => {
@@ -11983,6 +12075,12 @@ div[class^="new-summary-container_"] {\r
             }
           );
           PopsPanel.execMenuOnce(
+            "baidu-tieba-uni-app-post-blockTieBaRobot",
+            () => {
+              this.blockTieBaRobot();
+            }
+          );
+          PopsPanel.execMenuOnce(
             "baidu-tieba-uni-app-post-optimizationLzlPostBackGestureReturn",
             () => {
               this.optimizationLzlPostBackGestureReturn();
@@ -12002,6 +12100,7 @@ div[class^="new-summary-container_"] {\r
      * 覆盖页面的加载更多按钮，可实现加载更多评论
      */
     overloadLoadMore() {
+      log.info(`uni-app ===> 覆盖页面的加载更多按钮，可实现加载更多评论`);
       domutils.on(
         document,
         "click",
@@ -12046,6 +12145,7 @@ div[class^="new-summary-container_"] {\r
      */
     addScrollTopButton(enable) {
       if (enable) {
+        log.info(`uni-app ===> 添加滚动到顶部按钮`);
         return addStyle(
           /*css*/
           `
@@ -12075,6 +12175,7 @@ div[class^="new-summary-container_"] {\r
      * 修复图片导航列表跳转
      */
     repairPicGuideThreadWrapper() {
+      log.info(`uni-app ===> 修复图片导航列表跳转`);
       domutils.on(
         document,
         "click",
@@ -12102,6 +12203,7 @@ div[class^="new-summary-container_"] {\r
      * 修复点击进入用户主页（包括用户头像、用户名）
      */
     repairClickToUserHome() {
+      log.info(`uni-app ===> 修复点击进入用户主页（包括用户头像、用户名）`);
       domutils.on(
         document,
         "click",
@@ -12129,6 +12231,7 @@ div[class^="new-summary-container_"] {\r
      * 阻止唤醒app
      */
     preventWakeApp() {
+      log.info(`uni-app ===> 阻止唤醒app`);
       domutils.on(
         document,
         "click",
@@ -12169,6 +12272,7 @@ div[class^="new-summary-container_"] {\r
      * 记住评论排序
      */
     rememberChooseSeeCommentSort() {
+      log.info(`uni-app ===> 记住评论排序`);
       const KEY2 = "baidu-tieba-uni-app-post-choose-see-comment-sort";
       domutils.on(
         document,
@@ -12202,12 +12306,20 @@ div[class^="new-summary-container_"] {\r
             if ($item.classList.contains("tab-item-active")) {
               log.info(`当前评论排序与预期一致`);
             } else {
-              utils.mutationVisible($item, (entries, observer) => {
-                observer.disconnect();
-                setTimeout(() => {
-                  $item.click();
-                }, 250);
-              });
+              utils.mutationVisible(
+                $item,
+                (entries, observer) => {
+                  observer.disconnect();
+                  setTimeout(() => {
+                    utils.waitNode(".pb-comment-item-container").then(() => {
+                      $item.click();
+                    });
+                  }, 150);
+                },
+                {
+                  rootMargin: "-10px 0px 0px 0px"
+                }
+              );
             }
             break;
           }
@@ -12218,51 +12330,51 @@ div[class^="new-summary-container_"] {\r
      * 评论去重
      */
     filterDuplicateComments() {
-      utils.waitNode("uni-view#tab-list", 1e4).then(($tabList) => {
-        if (!$tabList) {
-          return;
-        }
-        log.info(`启用观察器观察评论内容改变以进行去重`);
-        utils.mutationObserver($tabList, {
-          config: {
-            subtree: true,
-            childList: true
-          },
-          callback(mutations, observer) {
-            var _a3, _b, _c, _d, _e, _f;
-            const $pbCommentItemContainerList = Array.from(
-              document.querySelectorAll(
-                ".pb-comment-item-container"
-              )
-            );
-            const commentIdList = [];
-            for (let index = 0; index < $pbCommentItemContainerList.length; index++) {
-              const $pbCommentItemContainer = $pbCommentItemContainerList[index];
-              const $vueIns = VueUtils.getVue3($pbCommentItemContainer);
-              const commentId = (_b = (_a3 = $vueIns == null ? void 0 : $vueIns.props) == null ? void 0 : _a3.commentData) == null ? void 0 : _b.id;
-              const content = (_d = (_c = $vueIns == null ? void 0 : $vueIns.props) == null ? void 0 : _c.commentData) == null ? void 0 : _d.content;
-              const floor = (_f = (_e = $vueIns == null ? void 0 : $vueIns.props) == null ? void 0 : _e.commentData) == null ? void 0 : _f.floor;
-              if (typeof commentId === "number") {
-                if (commentIdList.includes(commentId)) {
-                  log.warn(
-                    `删除重复楼层${floor}，id: ${commentId}，内容：` + JSON.stringify(content)
-                  );
-                  $pbCommentItemContainer.remove();
-                  $pbCommentItemContainerList.splice(index, 1);
-                  index--;
-                } else {
-                  commentIdList.push(commentId);
-                }
-              }
+      log.info(`uni-app ===> 评论去重`);
+      TiebaUniAppComment.watchComment((commentContainerInfoList, observer) => {
+        const commentIdList = [];
+        for (let index = 0; index < commentContainerInfoList.length; index++) {
+          const commentContainerInfo = commentContainerInfoList[index];
+          const commentId = commentContainerInfo.data.id;
+          const content = commentContainerInfo.data.content;
+          const floor = commentContainerInfo.data.floor;
+          if (typeof commentId === "number") {
+            if (commentIdList.includes(commentId)) {
+              log.warn(
+                `删除重复楼层${floor}，id: ${commentId}，内容：` + JSON.stringify(content)
+              );
+              commentContainerInfo.remove();
+            } else {
+              commentIdList.push(commentId);
             }
           }
-        });
+        }
+      });
+    },
+    /**
+     * 屏蔽贴吧机器人（贴吧包打听）
+     */
+    blockTieBaRobot() {
+      log.info(`uni-app ===> 屏蔽贴吧机器人（贴吧包打听）`);
+      TiebaUniAppComment.watchComment((commentContainerInfoList, observer) => {
+        var _a3, _b, _c, _d;
+        for (let index = 0; index < commentContainerInfoList.length; index++) {
+          const commentContainerInfo = commentContainerInfoList[index];
+          const author_id = commentContainerInfo.data.author_id || ((_b = (_a3 = commentContainerInfo.data) == null ? void 0 : _a3.author) == null ? void 0 : _b.id);
+          const portrait = (_d = (_c = commentContainerInfo.data) == null ? void 0 : _c.author) == null ? void 0 : _d.portrait;
+          const content = commentContainerInfo.data.content;
+          if (TiebaPostApi.isRobot({ id: author_id, portrait })) {
+            log.warn(`删除贴吧机器人评论内容：` + JSON.stringify(content));
+            commentContainerInfo.remove();
+          }
+        }
       });
     },
     /**
      * 楼中楼回复弹窗后退手势优化
      */
     optimizationLzlPostBackGestureReturn() {
+      log.info(`uni-app ===> 楼中楼回复弹窗后退手势优化`);
       let isClosingDialog = false;
       function popstateEvent(event) {
         utils.preventEvent(event);
@@ -12327,6 +12439,7 @@ div[class^="new-summary-container_"] {\r
      * 修复搜索功能
      */
     repairSearch() {
+      log.info(`uni-app ===> 修复搜索功能`);
       utils.waitNode(".nav-bar .nav-bar-forum-info", 1e4).then(($navBarForumInfo) => {
         if (!$navBarForumInfo) {
           return;

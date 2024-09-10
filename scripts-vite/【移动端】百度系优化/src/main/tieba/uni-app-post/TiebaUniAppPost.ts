@@ -4,6 +4,8 @@ import Qmsg from "qmsg";
 import { TiebaUrlApi } from "../api/TiebaApi";
 import { PopsPanel } from "@/setting/setting";
 import { GM_getValue, GM_setValue } from "ViteGM";
+import { TiebaUniAppComment } from "./TiebaUniAppComment";
+import { TiebaPostApi } from "../api/TiebaPostApi";
 
 export const TiebaUniAppPost = {
 	init() {
@@ -12,6 +14,17 @@ export const TiebaUniAppPost = {
 				return;
 			}
 			log.info(`uni-app ===> 本页面为uni-app页面`);
+			addStyle(/*css*/ `
+			/* 加载评论失败的弹窗 */
+			.swiper-content .tb-error-page{
+				background: rgba(0, 0, 0, 0.7);
+				color: #ffffff;
+				z-index: 10000;
+			}
+			.swiper-content .tb-error-page .error-icon{
+				margin: 0;
+			}
+			`);
 			PopsPanel.execMenuOnce(
 				"baidu-tieba-uni-app-post-overloadLoadMore",
 				() => {
@@ -63,6 +76,12 @@ export const TiebaUniAppPost = {
 					}
 				);
 				PopsPanel.execMenuOnce(
+					"baidu-tieba-uni-app-post-blockTieBaRobot",
+					() => {
+						this.blockTieBaRobot();
+					}
+				);
+				PopsPanel.execMenuOnce(
 					"baidu-tieba-uni-app-post-optimizationLzlPostBackGestureReturn",
 					() => {
 						this.optimizationLzlPostBackGestureReturn();
@@ -82,6 +101,7 @@ export const TiebaUniAppPost = {
 	 * 覆盖页面的加载更多按钮，可实现加载更多评论
 	 */
 	overloadLoadMore() {
+		log.info(`uni-app ===> 覆盖页面的加载更多按钮，可实现加载更多评论`);
 		DOMUtils.on(
 			document,
 			"click",
@@ -132,6 +152,7 @@ export const TiebaUniAppPost = {
 	 */
 	addScrollTopButton(enable: boolean) {
 		if (enable) {
+			log.info(`uni-app ===> 添加滚动到顶部按钮`);
 			// 修复按钮的样式
 			return addStyle(/*css*/ `
 				.whitesev-tb-totop{
@@ -157,6 +178,7 @@ export const TiebaUniAppPost = {
 	 * 修复图片导航列表跳转
 	 */
 	repairPicGuideThreadWrapper() {
+		log.info(`uni-app ===> 修复图片导航列表跳转`);
 		DOMUtils.on(
 			document,
 			"click",
@@ -183,6 +205,7 @@ export const TiebaUniAppPost = {
 	 * 修复点击进入用户主页（包括用户头像、用户名）
 	 */
 	repairClickToUserHome() {
+		log.info(`uni-app ===> 修复点击进入用户主页（包括用户头像、用户名）`);
 		DOMUtils.on(
 			document,
 			"click",
@@ -209,6 +232,7 @@ export const TiebaUniAppPost = {
 	 * 阻止唤醒app
 	 */
 	preventWakeApp() {
+		log.info(`uni-app ===> 阻止唤醒app`);
 		DOMUtils.on(
 			document,
 			"click",
@@ -252,6 +276,7 @@ export const TiebaUniAppPost = {
 	 * 记住评论排序
 	 */
 	rememberChooseSeeCommentSort() {
+		log.info(`uni-app ===> 记住评论排序`);
 		const KEY = "baidu-tieba-uni-app-post-choose-see-comment-sort";
 		DOMUtils.on(
 			document,
@@ -288,12 +313,24 @@ export const TiebaUniAppPost = {
 							// 如果当前已经是该排序，那么不需要点击
 							log.info(`当前评论排序与预期一致`);
 						} else {
-							utils.mutationVisible($item, (entries, observer) => {
-								observer.disconnect();
-								setTimeout(() => {
-									$item.click();
-								}, 250);
-							});
+							utils.mutationVisible(
+								$item,
+								(entries, observer) => {
+									observer.disconnect();
+									setTimeout(() => {
+										// 可能会出现这种情况
+										// 打开帖子页面排序按钮就可以直接看到
+										// 但是评论还没有加载出来
+										// 需要评论加载出来之后再点击
+										utils.waitNode(".pb-comment-item-container").then(() => {
+											$item.click();
+										});
+									}, 150);
+								},
+								{
+									rootMargin: "-10px 0px 0px 0px",
+								}
+							);
 						}
 						break;
 					}
@@ -305,55 +342,58 @@ export const TiebaUniAppPost = {
 	 * 评论去重
 	 */
 	filterDuplicateComments() {
-		utils.waitNode("uni-view#tab-list", 10000).then(($tabList) => {
-			if (!$tabList) {
-				return;
-			}
-			log.info(`启用观察器观察评论内容改变以进行去重`);
-			utils.mutationObserver($tabList, {
-				config: {
-					subtree: true,
-					childList: true,
-				},
-				callback(mutations, observer) {
-					const $pbCommentItemContainerList = Array.from(
-						document.querySelectorAll<HTMLDivElement>(
-							".pb-comment-item-container"
-						)
-					);
-					const commentIdList: number[] = [];
-					for (
-						let index = 0;
-						index < $pbCommentItemContainerList.length;
-						index++
-					) {
-						const $pbCommentItemContainer = $pbCommentItemContainerList[index];
-						const $vueIns = VueUtils.getVue3($pbCommentItemContainer);
-						const commentId = $vueIns?.props?.commentData?.id;
-						const content = $vueIns?.props?.commentData?.content;
-						const floor = $vueIns?.props?.commentData?.floor;
-						if (typeof commentId === "number") {
-							if (commentIdList.includes(commentId)) {
-								log.warn(
-									`删除重复楼层${floor}，id: ${commentId}，内容：` +
-										JSON.stringify(content)
-								);
-								$pbCommentItemContainer.remove();
-								$pbCommentItemContainerList.splice(index, 1);
-								index--;
-							} else {
-								commentIdList.push(commentId);
-							}
-						}
+		log.info(`uni-app ===> 评论去重`);
+		TiebaUniAppComment.watchComment((commentContainerInfoList, observer) => {
+			const commentIdList: number[] = [];
+			for (let index = 0; index < commentContainerInfoList.length; index++) {
+				const commentContainerInfo = commentContainerInfoList[index];
+				// 评论id
+				const commentId = commentContainerInfo.data.id;
+				// 评论内容
+				const content = commentContainerInfo.data.content;
+				// 楼层
+				const floor = commentContainerInfo.data.floor;
+				if (typeof commentId === "number") {
+					if (commentIdList.includes(commentId)) {
+						log.warn(
+							`删除重复楼层${floor}，id: ${commentId}，内容：` +
+								JSON.stringify(content)
+						);
+						commentContainerInfo.remove();
+					} else {
+						commentIdList.push(commentId);
 					}
-				},
-			});
+				}
+			}
+		});
+	},
+	/**
+	 * 屏蔽贴吧机器人（贴吧包打听）
+	 */
+	blockTieBaRobot() {
+		log.info(`uni-app ===> 屏蔽贴吧机器人（贴吧包打听）`);
+		TiebaUniAppComment.watchComment((commentContainerInfoList, observer) => {
+			for (let index = 0; index < commentContainerInfoList.length; index++) {
+				const commentContainerInfo = commentContainerInfoList[index];
+				// 发帖人id
+				const author_id =
+					commentContainerInfo.data.author_id ||
+					commentContainerInfo.data?.author?.id;
+				const portrait = commentContainerInfo.data?.author?.portrait;
+				// 评论内容
+				const content = commentContainerInfo.data.content;
+				if (TiebaPostApi.isRobot({ id: author_id, portrait })) {
+					log.warn(`删除贴吧机器人评论内容：` + JSON.stringify(content));
+					commentContainerInfo.remove();
+				}
+			}
 		});
 	},
 	/**
 	 * 楼中楼回复弹窗后退手势优化
 	 */
 	optimizationLzlPostBackGestureReturn() {
+		log.info(`uni-app ===> 楼中楼回复弹窗后退手势优化`);
 		let isClosingDialog = false;
 		/**
 		 * 设置浏览器历史地址
@@ -434,6 +474,7 @@ export const TiebaUniAppPost = {
 	 * 修复搜索功能
 	 */
 	repairSearch() {
+		log.info(`uni-app ===> 修复搜索功能`);
 		utils
 			.waitNode(".nav-bar .nav-bar-forum-info", 10000)
 			.then(($navBarForumInfo) => {
