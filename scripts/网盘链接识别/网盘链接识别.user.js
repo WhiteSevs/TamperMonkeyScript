@@ -9333,7 +9333,7 @@
 			}
 		},
 		getCSS() {
-			return /*css*/`
+			return /*css*/ `
 			.pops[type-value=confirm] .pops-confirm-content{
 				overflow: hidden;
 			}
@@ -10727,25 +10727,25 @@
 					{
 						id: "whitesevSuspensionId",
 						className: "whitesevSuspension",
-						innerHTML: `
-            <style type="text/css">
+						innerHTML: /*html*/ `
+						<style type="text/css">
 
-            ${this.getCSS()}
+						${this.getCSS()}
 
-            </style>
-            <div class="whitesevSuspensionMain">
-              <div class="whitesevSuspensionFloor">
-                <div class="netdisk"></div>
-              </div>
-            </div>
-            `,
+						</style>
+						<div class="whitesevSuspensionMain">
+						<div class="whitesevSuspensionFloor">
+							<div class="netdisk"></div>
+						</div>
+						</div>
+						`,
 					},
 					{
 						style: `
-            width: ${NetDiskUI.size}px;
-            height: ${NetDiskUI.size}px;
-            opacity: ${NetDiskUI.opacity}
-          `,
+							width: ${NetDiskUI.size}px;
+							height: ${NetDiskUI.size}px;
+							opacity: ${NetDiskUI.opacity}
+						`,
 					}
 				);
 				$shadowRoot.appendChild(this.suspensionNode);
@@ -12749,43 +12749,43 @@
 				return /*css*/ `
 					.whitesevSuspension{
 						top: 0;
-						position:fixed;
-						right:10px;
+						position: fixed;
+						right: 10px;
 						border-radius: 12px;
-						z-index:4000;
+						z-index: ${utils.getMaxValue(4000, utils.getMaxZIndex())};
 					}
 					.whitesevSuspension .whitesevSuspensionMain{
-						background:#fff;
-						border:1px solid #f2f2f2;
-						box-shadow:0 0 15px #e4e4e4;
-						box-sizing:border-box;
+						background: #fff;
+						border: 1px solid #f2f2f2;
+						box-shadow: 0 0 15px #e4e4e4;
+						box-sizing: border-box;
 						border-radius: inherit;
 						height: inherit;
 						width: inherit;
 					}
 					.whitesevSuspension .whitesevSuspensionFloor{
-						border-bottom:1px solid #f2f2f2;
-						position:relative;
-						box-sizing:border-box;
+						border-bottom: 1px solid #f2f2f2;
+						position: relative;
+						box-sizing: border-box;
 						border-radius: inherit;
 						height: inherit;
 						width: inherit;
 					}
 					.whitesevSuspension .whitesevSuspensionFloor .netdisk{
-						background-position:center center;
-						background-size:115% 115%;
-						background-repeat:no-repeat;
-						display:flex;
-						align-items:center;
-						justify-content:center;
+						background-position: center center;
+						background-size: 115% 115%;
+						background-repeat: no-repeat;
+						display: flex;
+						align-items: center;
+						justify-content: center;
 						border-radius: inherit;
 						height: inherit;
 						width: inherit;
 					}
 					.whitesevSuspension .whitesevSuspensionFloor .netdisk:hover{
-						transition:all 300ms linear;
-						background-color:#e4e4e4;
-						transform:scale(1.1);
+						transition: all 300ms linear;
+						background-color: #e4e4e4;
+						transform: scale(1.1);
 					}
 					.whitesevPop-content p[pop]{
 						height: 100%;
@@ -12889,7 +12889,7 @@
 				}
 			},
 			getCSS() {
-				return /*css*/`
+				return /*css*/ `
 				.netdisk-url-box{
 					border-bottom: 1px solid #e4e6eb;
 				}
@@ -12897,11 +12897,11 @@
 				.netdisk-icon{display:contents}
 				.netdisk-icon .netdisk-icon-img{
 					cursor: pointer;
-					width:28px;
-					height:28px;
-					min-width:28px;
-					min-height:28px;
-					font-size:0.8em;
+					width: 28px;
+					height: 28px;
+					min-width: 28px;
+					min-height: 28px;
+					font-size: 0.8em;
 					margin: 0px 10px;
 				}
 				.netdisk-url-div .netdisk-icon,
@@ -13074,7 +13074,7 @@
 									"button",
 									{
 										className: "pops-header-control",
-										innerHTML: /*html*/`
+										innerHTML: /*html*/ `
 										<i class="pops-icon">
 										<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
 											<path fill="currentColor" d="M618.496 425.984h167.936c12.288 0 20.48 8.192 20.48 20.48s-8.192 20.48-20.48 20.48h-219.136c-12.288 0-20.48-8.192-20.48-20.48v-2.048-206.848c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v163.84l210.944-198.656c8.192-8.192 20.48-8.192 28.672 0s8.192 20.48 0 28.672l-208.896 194.56z m-192.512 172.032h-167.936c-12.288 0-20.48-8.192-20.48-20.48s8.192-20.48 20.48-20.48h219.136c12.288 0 20.48 8.192 20.48 20.48v208.896c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-163.84l-210.944 198.656c-8.192 8.192-20.48 8.192-28.672 0s-8.192-20.48 0-28.672l208.896-194.56z m516.096-24.576c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-389.12c0-34.816-26.624-61.44-61.44-61.44h-655.36c-34.816 0-61.44 26.624-61.44 61.44v655.36c0 34.816 26.624 61.44 61.44 61.44h655.36c34.816 0 61.44-26.624 61.44-61.44v-94.208c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v94.208c0 57.344-45.056 102.4-102.4 102.4h-655.36c-57.344 0-102.4-45.056-102.4-102.4v-655.36c0-57.344 45.056-102.4 102.4-102.4h655.36c57.344 0 102.4 45.056 102.4 102.4v389.12z">
@@ -13135,15 +13135,15 @@
 							},
 							zIndex: utils.getMaxZIndex(),
 							class: "whitesevPop",
-							style: /*css*/`
+							style: /*css*/ `
 							${this.getCSS()}
 
 							.pops {
 								--container-title-height: 35px;
 								--content-max-height: ${GM_getValue(
-													"netdisk-ui-small-window-max-height",
-													NetDiskData.defaultSmallWindowMaxHeight
-												)}px;
+									"netdisk-ui-small-window-max-height",
+									NetDiskData.defaultSmallWindowMaxHeight
+								)}px;
 								--netdisk-line-space: 8px;
 								--netdisk-icon-size: 24px;
 							}
@@ -13430,14 +13430,14 @@
 					data: data,
 					isAnimation: false,
 					className: className,
-					zIndex: ()=>{
+					zIndex: () => {
 						let maxZIndex = utils.getMaxZIndex();
 						let popsMaxZIndex =
 							pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
 						let zIndex = utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
 						return zIndex;
-					}
-				}
+					},
+				};
 				pops.rightClickMenu(detail);
 			},
 			/**
