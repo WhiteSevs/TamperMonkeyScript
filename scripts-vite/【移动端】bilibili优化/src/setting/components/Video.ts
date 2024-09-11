@@ -70,6 +70,13 @@ const SettingUIVideo: PopsPanelContentConfig = {
 									void 0,
 									"需开启【initPlayer】"
 								),
+								UISwitch(
+									"检测【自动播放视频】是否静音",
+									"bili-video-playerAutoPlayVideoCheckMute",
+									false,
+									void 0,
+									"需开启【自动播放视频】"
+								),
 							],
 						},
 					],
