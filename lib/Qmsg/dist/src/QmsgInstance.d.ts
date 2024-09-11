@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import { QmsgOption } from "./Qmsg";
 import { QmsgAnimationState } from "./QmsgAnimation";
 /**
