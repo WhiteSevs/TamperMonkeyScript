@@ -23,7 +23,7 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.5/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.7/dist/index.min.css
 // @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
 // @connect      *
@@ -156,7 +156,7 @@
     isTieBa() {
       return Boolean(
         window.location.href.match(
-          /^http(s|):\/\/(tieba|ala|static.tieba|nba|fexclick).baidu.com/g
+          /^http(s|):\/\/(tieba|ala|static.tieba|nba|fexclick|youhua).baidu.com/g
         ) || window.location.href.match(/^http(s|):\/\/(www.tieba|jump2.bdimg).com/g)
       );
     },
@@ -22672,7 +22672,7 @@ div[class^="new-summary-container_"] {\r
 							--user-info-font-color: #ffffff;
 						}
 						.pops-drawer-title{
-							background: url(https://api.chongss.com/pc.php?category=landscape);
+							background: url(https://api.chongss.com/pc.php?category=bing);
 							// background-size: cover;
 							background-size: 100% 100%;
 							background-position: center;

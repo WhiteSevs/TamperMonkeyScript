@@ -321,7 +321,7 @@ const BaiduTieBa = {
 							--user-info-font-color: #ffffff;
 						}
 						.pops-drawer-title{
-							background: url(https://api.chongss.com/pc.php?category=landscape);
+							background: url(https://api.chongss.com/pc.php?category=bing);
 							// background-size: cover;
 							background-size: 100% 100%;
 							background-position: center;
