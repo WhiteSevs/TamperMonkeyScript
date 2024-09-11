@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.9.11
+// @version      2024.9.11.23
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @match        *://www.bilibili.com/read/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/497907/1413262/QRCodeJS.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.5/dist/index.umd.js
@@ -512,9 +512,22 @@
             `.mplayer-toast:not([data-from="gm"])`
           )
         ).forEach(($ele) => {
+          var _a2;
           if (!$ele.classList.contains(this.$data.showClassName)) {
             $ele.remove();
             return;
+          }
+          if ((_a2 = $ele.textContent) == null ? void 0 : _a2.includes("记忆你上次看到")) {
+            setTimeout(() => {
+              let $close = $ele.querySelector(
+                ".mplayer-toast-close"
+              );
+              if ($close) {
+                $close.click();
+              } else {
+                $ele.remove();
+              }
+            }, 3e3);
           }
           this.setTransitionendEvent($ele);
         });
@@ -547,16 +560,22 @@
       return $toast;
     },
     /**
-     * 监听过渡结束
+     * 获取事件名称列表
      */
-    setTransitionendEvent($toast) {
-      let animationEndNameList = [
+    getTransitionendEventNameList() {
+      return [
         "webkitTransitionEnd",
         "mozTransitionEnd",
         "MSTransitionEnd",
         "otransitionend",
         "transitionend"
       ];
+    },
+    /**
+     * 监听过渡结束
+     */
+    setTransitionendEvent($toast) {
+      let animationEndNameList = this.getTransitionendEventNameList();
       let that = this;
       domutils.on(
         $toast,
@@ -734,11 +753,7 @@
             let support_formats = (_b = data2 == null ? void 0 : data2["data"]) == null ? void 0 : _b["support_formats"];
             log.info("当前解锁的quality值：" + unlockQuality);
             if (unlockQuality) {
-              BilibiliPlayer.$data.videoQuality.forEach((item) => {
-                if (item.quality == unlockQuality) {
-                  item.isActive = true;
-                }
-              });
+              BilibiliPlayer.initVideoQualityInfo(unlockQuality);
             }
             if (unlockQuality && support_formats) {
               let findValue = support_formats.find((item) => {
@@ -1222,6 +1237,7 @@
         } else {
           qualityInfoList = [...BilibiliPlayer.$data.videoQuality];
         }
+        console.log(`获取当前视频的清晰度: `, qualityInfoList);
         utils.sortListByProperty(qualityInfoList, (value) => {
           return value.quality;
         });
@@ -1242,6 +1258,8 @@
           $isActive.scrollIntoView({
             block: "center"
           });
+        } else {
+          log.warn(`意外情况，没有一个选中的清晰度`);
         }
         this.$mPlayerRight.showMPlayerRight();
       };
@@ -1341,16 +1359,33 @@
     },
     $data: {
       /** 视频清晰度信息 */
-      videoQuality: []
+      videoQuality: [],
+      /**
+       * 劫持网络请求解锁的值
+       */
+      hookUnlockQuality: 0
     },
     init() {
       this.$data.videoQuality = [];
+      this.$data.hookUnlockQuality = 0;
       BilibiliDanmaku.init();
       this.setVideoSpeed(1);
       BilibiliPlayerUI.init();
       this.generateVideoInfo();
       PopsPanel.execMenu("bili-video-playerAutoPlayVideo", () => {
         this.autoPlay();
+      });
+      this.mutatuinCloseOriginToast();
+    },
+    /**
+     * 对视频画质清晰度初始化
+     */
+    initVideoQualityInfo(quality) {
+      this.$data.hookUnlockQuality = quality;
+      this.$data.videoQuality.forEach((item) => {
+        if (item.quality == quality) {
+          item.isActive = true;
+        }
       });
     },
     /**
@@ -1388,13 +1423,66 @@
      */
     async autoPlay() {
       return new Promise(async (resolve, reject) => {
+        var _a2, _b;
         try {
           let playerPromise = await this.$player.playerPromise();
-          setTimeout(() => {
-            var _a2;
-            log.success("player：自动播放视频");
-            (_a2 = BilibiliPlayer.player) == null ? void 0 : _a2.play();
-          }, 500);
+          await utils.sleep(500);
+          log.success("player：自动播放视频");
+          (_a2 = BilibiliPlayer.player) == null ? void 0 : _a2.play();
+          await utils.sleep(500);
+          let isMute = await ((_b = BilibiliPlayer.player) == null ? void 0 : _b.isMute());
+          if (isMute) {
+            log.warn(`当前静音状态，Qmsg提示让用户自行选择是否取消静音`);
+            let $toast = Qmsg.info(
+              /*html*/
+              `
+						<div class="mplayer-unable-video-mute">
+							<div class="mplayer-unable-video-mute-icon">
+								<svg viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+									<path d="M652.569422 94.472586a25.86878 25.86878 0 0 1 17.409787-6.491785 26.262221 26.262221 0 0 1 26.163861 26.262221V529.22546l78.688303 78.688303V114.243022a104.950524 104.950524 0 0 0-173.99951-78.688303L388.176725 221.259114l55.770334 55.770335zM1012.470048 956.798025l-944.259635-944.259634-1.967207-1.967208a39.344151 39.344151 0 1 0-53.704767 57.639182l189.73717 189.63881A157.376606 157.376606 0 0 0 92.800508 407.553671v219.146924a157.376606 157.376606 0 0 0 157.376606 148.13073H355.127637l245.900947 214.917427 6.196704 5.11474a104.950524 104.950524 0 0 0 167.802806-84.098124v-80.360429l181.9667 182.065061a39.344151 39.344151 0 0 0 55.671974-55.671975z m-316.326978-46.032657v4.426217a26.557302 26.557302 0 0 1-6.098343 12.88521 26.163861 26.163861 0 0 1-36.983503 2.459009l-245.900946-214.917427-6.393425-5.11474a78.688303 78.688303 0 0 0-45.442495-14.360615H242.701725a78.688303 78.688303 0 0 1-71.212914-78.688303v-217.376436a78.688303 78.688303 0 0 1 78.688303-71.212915h23.114689l422.949627 422.949628z"></path>
+								</svg>
+							</div>
+							<div class="mplayer-unable-video-mute-text">
+								点击取消静音
+							</div>
+						</div>
+						`,
+              {
+                isHTML: true,
+                style: (
+                  /*css*/
+                  `
+							.qmsg.qmsg-wrapper{
+								top: 50px;
+							}
+							.mplayer-unable-video-mute{
+								display: flex;
+								align-items: center;
+								gap: 10px;
+							}
+							.mplayer-unable-video-mute .mplayer-unable-video-mute-icon svg{
+								width: 16px;
+								height: 16px;
+							}
+							`
+                ),
+                showClose: true,
+                showIcon: false,
+                timeout: 4e3,
+                position: "topleft"
+              }
+            );
+            let $videoMute = $toast.$Qmsg.querySelector(
+              ".mplayer-unable-video-mute"
+            );
+            domutils.on($videoMute, "click", (event) => {
+              var _a3;
+              log.info(`设置静音状态：${!isMute}`);
+              (_a3 = BilibiliPlayer.player) == null ? void 0 : _a3.setMute(!isMute);
+              $toast.close();
+            });
+          } else {
+          }
         } catch (error) {
           reject(error);
         }
@@ -1445,7 +1533,7 @@
         return;
       }
       log.success(["成功获取当前视频的具体信息", videoInfo]);
-      videoInfo.quality;
+      let quality = videoInfo.quality;
       if (videoInfo.durl == null || Array.isArray(videoInfo.durl) && !videoInfo.durl.length) {
         log.error("意外情况，获取到的视频地址信息是空的");
         return;
@@ -1461,6 +1549,7 @@
           };
         }
       }).filter((item) => item != null);
+      this.initVideoQualityInfo(quality);
     },
     /**
      * 设置视频地址
@@ -1515,6 +1604,46 @@
           msg: error.toString()
         };
       }
+    },
+    /**
+     * 观察器监听播放器的记忆你上次看到xx 跳转
+     * 不知道是什么问题它不会自动关闭，且点击跳转无法应
+     * 那我们主动关闭它
+     */
+    mutatuinCloseOriginToast() {
+      let mutationObserver = utils.mutationObserver(document.documentElement, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        immediate: true,
+        callback: () => {
+          document.querySelectorAll(
+            `.mplayer-toast:not([data-from="gm"])`
+          ).forEach(($ele) => {
+            var _a2;
+            if ($ele.hasAttribute("data-is-delay-close")) {
+              return;
+            }
+            if ((_a2 = $ele.textContent) == null ? void 0 : _a2.includes("记忆你上次看到")) {
+              $ele.setAttribute("data-is-delay-close", "true");
+              setTimeout(() => {
+                let $close = $ele.querySelector(
+                  ".mplayer-toast-close"
+                );
+                if ($close) {
+                  $close.click();
+                } else {
+                  $ele.remove();
+                }
+              }, 3e3);
+            }
+          });
+        }
+      });
+      setTimeout(() => {
+        mutationObserver.disconnect();
+      }, 1e4);
     }
   };
   const BilibiliDanmakuFilter = {
@@ -2631,7 +2760,7 @@
                   UISwitch(
                     "自动播放视频",
                     "bili-video-playerAutoPlayVideo",
-                    true,
+                    false,
                     void 0,
                     "需开启【initPlayer】"
                   )

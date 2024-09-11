@@ -169,16 +169,15 @@ export const BilibiliNetworkHook = {
 				request.url = playUrl.toString();
 				request.response = (res) => {
 					let data = utils.toJSON(res.responseText);
-					let unlockQuality = data?.["data"]?.["quality"];
-					let support_formats = data?.["data"]?.["support_formats"];
+					let unlockQuality: number = data?.["data"]?.["quality"];
+					let support_formats: {
+						quality: number;
+						new_description: string;
+						display_desc: string;
+					}[] = data?.["data"]?.["support_formats"];
 					log.info("当前解锁的quality值：" + unlockQuality);
 					if (unlockQuality) {
-						// 设置当前的画质
-						BilibiliPlayer.$data.videoQuality.forEach((item) => {
-							if (item.quality == unlockQuality) {
-								item.isActive = true;
-							}
-						});
+						BilibiliPlayer.initVideoQualityInfo(unlockQuality);
 					}
 					if (unlockQuality && support_formats) {
 						let findValue = support_formats.find((item: any) => {

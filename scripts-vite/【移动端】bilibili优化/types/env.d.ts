@@ -139,7 +139,7 @@ interface Window {
 		reload: () => void;
 		resetTest: () => void;
 		seek: () => void;
-		/** 静音 */
-		setMute: () => void;
+		/** 设置静音状态 */
+		setMute: (mute?: boolean) => void;
 	};
 }

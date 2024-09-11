@@ -3,7 +3,7 @@
 		"target": "ESNext",
 		"useDefineForClassFields": true,
 		"module": "ESNext",
-		"moduleResolution": "Node10",
+		"moduleResolution": "Node",
 		"strict": true,
 		"jsx": "preserve",
 		"resolveJsonModule": true,

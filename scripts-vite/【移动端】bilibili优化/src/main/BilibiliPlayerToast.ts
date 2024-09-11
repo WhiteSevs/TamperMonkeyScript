@@ -109,6 +109,19 @@ const BilibiliPlayerToast = {
 					$ele.remove();
 					return;
 				}
+				if ($ele.textContent?.includes("记忆你上次看到")) {
+					// 主动添加延迟关闭Toast
+					setTimeout(() => {
+						let $close = $ele.querySelector<HTMLElement>(
+							".mplayer-toast-close"
+						);
+						if ($close) {
+							$close.click();
+						} else {
+							$ele.remove();
+						}
+					}, 3000);
+				}
 				this.setTransitionendEvent($ele);
 			});
 			if (pageToastList.length > 1) {
@@ -145,17 +158,23 @@ const BilibiliPlayerToast = {
 		return $toast;
 	},
 	/**
-	 * 监听过渡结束
+	 * 获取事件名称列表
 	 */
-	setTransitionendEvent($toast: HTMLDivElement) {
-		// 事件名称列表
-		let animationEndNameList = [
+	getTransitionendEventNameList() {
+		return [
 			"webkitTransitionEnd",
 			"mozTransitionEnd",
 			"MSTransitionEnd",
 			"otransitionend",
 			"transitionend",
 		];
+	},
+	/**
+	 * 监听过渡结束
+	 */
+	setTransitionendEvent($toast: HTMLDivElement) {
+		// 事件名称列表
+		let animationEndNameList = this.getTransitionendEventNameList();
 		let that = this;
 		DOMUtils.on(
 			$toast,
