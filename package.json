@@ -19,7 +19,7 @@
 		"@mgdn/bvid": "^0.3.0",
 		"@types/md5": "^2.3.5",
 		"@whitesev/domutils": "^1.3.2",
-		"@whitesev/pops": "^1.5.4",
+		"@whitesev/pops": "^1.5.5",
 		"@whitesev/utils": "^2.2.6",
 		"i18next": "^23.12.2",
 		"md5": "^2.3.0",
