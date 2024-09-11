@@ -25,6 +25,7 @@ export const TiebaUniAppPost = {
 				margin: 0;
 			}
 			`);
+			this.mutationRemoveWakeUpBtn();
 			PopsPanel.execMenuOnce(
 				"baidu-tieba-uni-app-post-overloadLoadMore",
 				() => {
@@ -62,6 +63,12 @@ export const TiebaUniAppPost = {
 					return !!value;
 				}
 			);
+			PopsPanel.execMenuOnce(
+				"baidu-tieba-uni-app-post-repairAnchorLink",
+				() => {
+					this.repairAnchorLink();
+				}
+			);
 			DOMUtils.ready(() => {
 				PopsPanel.execMenuOnce(
 					"baidu-tieba-uni-app-post-rememberChooseSeeCommentSort",
@@ -96,6 +103,23 @@ export const TiebaUniAppPost = {
 	 */
 	isUniApp() {
 		return Boolean(document.querySelector("uni-app"));
+	},
+	/**
+	 * 动态加载移除唤醒按钮，会影响页面点击，比如超链接点击无反应
+	 */
+	mutationRemoveWakeUpBtn() {
+		utils.mutationObserver(document.documentElement, {
+			config: {
+				subtree: true,
+				childList: true,
+			},
+			immediate: true,
+			callback() {
+				document
+					.querySelectorAll(".wake-app-btn")
+					.forEach(($ele) => $ele.remove());
+			},
+		});
 	},
 	/**
 	 * 覆盖页面的加载更多按钮，可实现加载更多评论
@@ -322,10 +346,8 @@ export const TiebaUniAppPost = {
 										// 打开帖子页面排序按钮就可以直接看到
 										// 但是评论还没有加载出来
 										// 需要评论加载出来之后再点击
-										utils.waitNode(".pb-comment-item-container").then(() => {
-											$item.click();
-										});
-									}, 150);
+										$item.click();
+									}, 1250);
 								},
 								{
 									rootMargin: "-10px 0px 0px 0px",
@@ -540,5 +562,48 @@ export const TiebaUniAppPost = {
 				}
 				`);
 			});
+	},
+	/**
+	 * 修复超链接跳转
+	 */
+	repairAnchorLink() {
+		DOMUtils.on(
+			document,
+			"click",
+			(event) => {
+				let $click = event.composedPath()[0] as HTMLElement;
+				if ($click.nodeType === Node.ELEMENT_NODE && $click.classList) {
+					if ($click.classList.contains("pb-link")) {
+						utils.preventEvent(event);
+						let vueIns = VueUtils.getVue3($click);
+						let link: string | null = vueIns?.props?.content?.link;
+						if (typeof link === "string") {
+							log.info(`点击超链接：` + link);
+							window.open(link, "_blank");
+						} else {
+							log.error("获取链接失败");
+							log.error([$click, vueIns]);
+							Qmsg.error("获取链接失败");
+						}
+					} else if ($click.classList.contains("pb-at")) {
+						utils.preventEvent(event);
+						let vueIns = VueUtils.getVue3($click);
+						let un: string | null = vueIns?.props?.content?.text;
+						let type: number | null = vueIns?.props?.content?.type;
+						if (un == null) {
+							log.error("获取用户un失败");
+							Qmsg.error("获取用户un失败");
+							return;
+						}
+						un = un.replace("@", "");
+						let userHomeUrl = TiebaUrlApi.getUserHomeByUN(un);
+						window.open(userHomeUrl, "_blank");
+					}
+				}
+			},
+			{
+				capture: true,
+			}
+		);
 	},
 };

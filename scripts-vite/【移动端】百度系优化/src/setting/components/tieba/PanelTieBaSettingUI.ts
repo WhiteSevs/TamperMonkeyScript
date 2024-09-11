@@ -287,6 +287,13 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 									void 0,
 									"屏蔽【贴吧包打听】机器人，回答的评论都是牛头不对马嘴的"
 								),
+								UISwitch(
+									"修复超链接跳转",
+									"baidu-tieba-uni-app-post-repairAnchorLink",
+									true,
+									void 0,
+									"可修复蓝色的超链接点击不能跳转网页的问题"
+								),
 							],
 						},
 					],
@@ -445,6 +452,13 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 									false,
 									void 0,
 									"域名为nba.baidu.com、static.tieba.baidu.com...等时自动重定向至tieba.baidu.com"
+								),
+								UISwitch(
+									"自动跳转链接",
+									"baidu-tieba-checkUrl-autoJumpUrl",
+									true,
+									void 0,
+									"在链接验证页面自动跳转链接"
 								),
 							],
 						},

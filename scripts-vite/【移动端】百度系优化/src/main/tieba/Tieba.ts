@@ -16,6 +16,7 @@ import { TieBaApi, TiebaUrlApi } from "./api/TiebaApi";
 import Qmsg from "qmsg";
 import { VueUtils } from "@/utils/VueUtils";
 import { TiebaUniAppPost } from "./uni-app-post/TiebaUniAppPost";
+import { TiebaCheckUrl } from "./CheckUrl/TiebaCheckUrl";
 
 /**
  * 百度贴吧
@@ -101,6 +102,11 @@ const BaiduTieBa = {
 			/* 主页 */
 			log.success("Router: 用户主页");
 			TiebaHome.init();
+			return;
+		} else if (BaiduRouter.isTieBaCheckUrl()) {
+			/* 验证链接中间页 */
+			log.success(`Router: 验证链接中间页`);
+			TiebaCheckUrl.init();
 			return;
 		} else {
 			log.error("Router: 未知");

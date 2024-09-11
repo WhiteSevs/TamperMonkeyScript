@@ -122,6 +122,14 @@ const BaiduRouter = {
 		);
 	},
 	/**
+	 * 贴吧 - 中转链接验证页面
+	 */
+	isTieBaCheckUrl() {
+		return Boolean(
+			this.isTieBa() && window.location.pathname.startsWith("/mo/q/checkurl")
+		);
+	},
+	/**
 	 * 贴吧 - 吧内
 	 */
 	isTieBaNei() {

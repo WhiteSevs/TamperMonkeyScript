@@ -538,6 +538,12 @@ const TiebaUrlApi = {
 		return `https://tieba.baidu.com/home/main?id=${tb}`;
 	},
 	/**
+	 * 根据(un|userName)获取用户主页地址
+	 */
+	getUserHomeByUN(un: string) {
+		return `https://tieba.baidu.com/home/main?un=${un}`;
+	},
+	/**
 	 * 根据tid/pid获取帖子链接
 	 * @param id
 	 */
