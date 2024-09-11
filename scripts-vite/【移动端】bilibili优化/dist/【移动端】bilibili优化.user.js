@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.9.9
+// @version      2024.9.11
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,9 +13,9 @@
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/497907/1413262/QRCodeJS.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @connect      *
 // @connect      m.bilibili.com
@@ -6529,7 +6529,7 @@
         $iconConfig.outerHTML = `
 			<div class="gm-face">
 				<div class="gm-face-avatar">
-					<img src="https://i0.hdslb.com/bfs/face/member/noface.jpg@48w_48h_1c.webp">
+					<img src="http://i0.hdslb.com/bfs/face/member/noface.jpg">
 				</div>
 			</div>
 			`;
@@ -6546,9 +6546,16 @@
             set(vueObj) {
               var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p;
               isLogin = (_d = (_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.userInfo) == null ? void 0 : _d.isLogin;
-              uid = (_h = (_g = (_f = (_e = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _e.state) == null ? void 0 : _f.common) == null ? void 0 : _g.userInfo) == null ? void 0 : _h.mid;
-              (_l = (_k = (_j = (_i = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _i.state) == null ? void 0 : _j.common) == null ? void 0 : _k.userInfo) == null ? void 0 : _l.uname;
-              $img.src = (_p = (_o = (_n = (_m = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _m.state) == null ? void 0 : _n.common) == null ? void 0 : _o.userInfo) == null ? void 0 : _p.face;
+              if (isLogin) {
+                uid = (_h = (_g = (_f = (_e = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _e.state) == null ? void 0 : _f.common) == null ? void 0 : _g.userInfo) == null ? void 0 : _h.mid;
+                if (uid == null) {
+                  log.warn(`当前是脚本设置的isLogin但其实未登录账号`);
+                  isLogin = false;
+                  return;
+                }
+                (_l = (_k = (_j = (_i = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _i.state) == null ? void 0 : _j.common) == null ? void 0 : _k.userInfo) == null ? void 0 : _l.uname;
+                $img.src = ((_p = (_o = (_n = (_m = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _m.state) == null ? void 0 : _n.common) == null ? void 0 : _o.userInfo) == null ? void 0 : _p.face) || $img.src;
+              }
             }
           }
         ]);

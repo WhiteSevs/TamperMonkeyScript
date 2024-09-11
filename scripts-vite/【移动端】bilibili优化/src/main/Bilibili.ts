@@ -256,12 +256,15 @@ const Bilibili = {
 			$iconConfig.outerHTML = `
 			<div class="gm-face">
 				<div class="gm-face-avatar">
-					<img src="https://i0.hdslb.com/bfs/face/member/noface.jpg@48w_48h_1c.webp">
+					<img src="http://i0.hdslb.com/bfs/face/member/noface.jpg">
 				</div>
 			</div>
 			`;
+			/** 是否已登录 */
 			let isLogin = false;
+			/** 当前已登录账号的uid */
 			let uid: null | string = null;
+			/** 当前已登录账号的用户名 */
 			let userName: null | string = null;
 			let $gmFace = document.querySelector<HTMLDivElement>(".gm-face")!;
 			let $img = $gmFace.querySelector<HTMLImageElement>("img")!;
@@ -275,9 +278,17 @@ const Bilibili = {
 					},
 					set(vueObj) {
 						isLogin = vueObj?.$store?.state?.common?.userInfo?.isLogin;
-						uid = vueObj?.$store?.state?.common?.userInfo?.mid;
-						userName = vueObj?.$store?.state?.common?.userInfo?.uname;
-						$img.src = vueObj?.$store?.state?.common?.userInfo?.face;
+						if (isLogin) {
+							uid = vueObj?.$store?.state?.common?.userInfo?.mid;
+							if (uid == null) {
+								log.warn(`当前是脚本设置的isLogin但其实未登录账号`);
+								isLogin = false;
+								return;
+							}
+							userName = vueObj?.$store?.state?.common?.userInfo?.uname;
+							$img.src =
+								vueObj?.$store?.state?.common?.userInfo?.face || $img.src;
+						}
 					},
 				},
 			]);

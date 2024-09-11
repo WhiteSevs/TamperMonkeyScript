@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.9.9
+// @version      2024.9.11
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,9 +13,9 @@
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/497907/1413262/QRCodeJS.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @connect      *
 // @connect      m.bilibili.com
@@ -838,10 +838,10 @@
 		`),c.waitNode(".nav-bar .icon-config",1e4).then(e=>{if(!e)return;e.outerHTML=`
 			<div class="gm-face">
 				<div class="gm-face-avatar">
-					<img src="https://i0.hdslb.com/bfs/face/member/noface.jpg@48w_48h_1c.webp">
+					<img src="http://i0.hdslb.com/bfs/face/member/noface.jpg">
 				</div>
 			</div>
-			`;let t=!1,i=null,r=document.querySelector(".gm-face"),a=r.querySelector("img");v.waitVuePropToSet("#app",[{check(n){var l,s,d,u;return typeof((u=(d=(s=(l=n==null?void 0:n.$store)==null?void 0:l.state)==null?void 0:s.common)==null?void 0:d.userInfo)==null?void 0:u.isLogin)=="boolean"},set(n){var l,s,d,u,m,y,C,_,P,R,T,S,V,A,I,ie;t=(u=(d=(s=(l=n==null?void 0:n.$store)==null?void 0:l.state)==null?void 0:s.common)==null?void 0:d.userInfo)==null?void 0:u.isLogin,i=(_=(C=(y=(m=n==null?void 0:n.$store)==null?void 0:m.state)==null?void 0:y.common)==null?void 0:C.userInfo)==null?void 0:_.mid,(S=(T=(R=(P=n==null?void 0:n.$store)==null?void 0:P.state)==null?void 0:R.common)==null?void 0:T.userInfo)==null||S.uname,a.src=(ie=(I=(A=(V=n==null?void 0:n.$store)==null?void 0:V.state)==null?void 0:A.common)==null?void 0:I.userInfo)==null?void 0:ie.face;}}]),f.on(r,"click",n=>{if(c.preventEvent(n),t)if(i!=null){let l=W.getUserSpaceUrl(i);v.goToUrl(l,!1);}else b.error("获取用户id失败");else v.goToLogin(window.location.href);});});}};p.init();te.init();X.config.cssText.index+=`
+			`;let t=!1,i=null,r=document.querySelector(".gm-face"),a=r.querySelector("img");v.waitVuePropToSet("#app",[{check(n){var l,s,d,u;return typeof((u=(d=(s=(l=n==null?void 0:n.$store)==null?void 0:l.state)==null?void 0:s.common)==null?void 0:d.userInfo)==null?void 0:u.isLogin)=="boolean"},set(n){var l,s,d,u,m,y,C,_,P,R,T,S,V,A,I,ie;if(t=(u=(d=(s=(l=n==null?void 0:n.$store)==null?void 0:l.state)==null?void 0:s.common)==null?void 0:d.userInfo)==null?void 0:u.isLogin,t){if(i=(_=(C=(y=(m=n==null?void 0:n.$store)==null?void 0:m.state)==null?void 0:y.common)==null?void 0:C.userInfo)==null?void 0:_.mid,i==null){o.warn("当前是脚本设置的isLogin但其实未登录账号"),t=!1;return}(S=(T=(R=(P=n==null?void 0:n.$store)==null?void 0:P.state)==null?void 0:R.common)==null?void 0:T.userInfo)==null||S.uname,a.src=((ie=(I=(A=(V=n==null?void 0:n.$store)==null?void 0:V.state)==null?void 0:A.common)==null?void 0:I.userInfo)==null?void 0:ie.face)||a.src;}}}]),f.on(r,"click",n=>{if(c.preventEvent(n),t)if(i!=null){let l=W.getUserSpaceUrl(i);v.goToUrl(l,!1);}else b.error("获取用户id失败");else v.goToLogin(window.location.href);});});}};p.init();te.init();X.config.cssText.index+=`
 /* bilibili颜色 #FB7299 */
 .pops{
     --bili-color: #FB7299;
