@@ -109,7 +109,7 @@ section.pops-panel-container > ul li {
 	justify-content: space-between;
 	align-items: center;
 	margin: 10px 20px;
-	gap: 1rem;
+	gap: 10px;
 }
 section.pops-panel-container li.pops-panel-forms-container-item {
 	display: block;
