@@ -612,7 +612,7 @@ export const BilibiliPlayer = {
 				PopsPanel.execMenu(
 					"bili-video-playerAutoPlayVideoCheckMute",
 					async () => {
-						await utils.sleep(500);
+						await utils.sleep(150);
 						let isMute = await BilibiliPlayer.player?.isMute();
 						if (isMute) {
 							// 静音
@@ -633,22 +633,22 @@ export const BilibiliPlayer = {
 								{
 									isHTML: true,
 									style: /*css*/ `
-								.qmsg.qmsg-wrapper{
-									top: 50px;
-								}
-								.mplayer-unable-video-mute{
-									display: flex;
-									align-items: center;
-									gap: 10px;
-								}
-								.mplayer-unable-video-mute .mplayer-unable-video-mute-icon svg{
-									width: 16px;
-									height: 16px;
-								}
-								`,
+									.qmsg.qmsg-wrapper{
+										top: 50px;
+									}
+									.mplayer-unable-video-mute{
+										display: flex;
+										align-items: center;
+										gap: 10px;
+									}
+									.mplayer-unable-video-mute .mplayer-unable-video-mute-icon svg{
+										width: 16px;
+										height: 16px;
+									}
+									`,
 									showClose: true,
 									showIcon: false,
-									timeout: 4000,
+									timeout: 5000,
 									position: "topleft",
 								}
 							);

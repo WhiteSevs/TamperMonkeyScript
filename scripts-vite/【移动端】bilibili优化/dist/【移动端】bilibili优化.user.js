@@ -1433,7 +1433,7 @@
             "bili-video-playerAutoPlayVideoCheckMute",
             async () => {
               var _a3;
-              await utils.sleep(500);
+              await utils.sleep(150);
               let isMute = await ((_a3 = BilibiliPlayer.player) == null ? void 0 : _a3.isMute());
               if (isMute) {
                 log.warn(`当前静音状态，Qmsg提示让用户自行选择是否取消静音`);
@@ -1456,23 +1456,23 @@
                     style: (
                       /*css*/
                       `
-								.qmsg.qmsg-wrapper{
-									top: 50px;
-								}
-								.mplayer-unable-video-mute{
-									display: flex;
-									align-items: center;
-									gap: 10px;
-								}
-								.mplayer-unable-video-mute .mplayer-unable-video-mute-icon svg{
-									width: 16px;
-									height: 16px;
-								}
-								`
+									.qmsg.qmsg-wrapper{
+										top: 50px;
+									}
+									.mplayer-unable-video-mute{
+										display: flex;
+										align-items: center;
+										gap: 10px;
+									}
+									.mplayer-unable-video-mute .mplayer-unable-video-mute-icon svg{
+										width: 16px;
+										height: 16px;
+									}
+									`
                     ),
                     showClose: true,
                     showIcon: false,
-                    timeout: 4e3,
+                    timeout: 5e3,
                     position: "topleft"
                   }
                 );
