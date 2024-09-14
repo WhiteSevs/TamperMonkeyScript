@@ -3,7 +3,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @icon         data:image/png;base64,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
-// @version      2024.9.10
+// @version      2024.9.14
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -80,8 +80,8 @@
 // @exclude      /^http(s|):\/\/.*\.youtube\.com\/.*$/
 // @require      https://update.greasyfork.org/scripts/456470/1320377/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js
 // @require      https://update.greasyfork.org/scripts/465550/1360573/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.2/dist/index.umd.js
 // @require      https://update.greasyfork.org/scripts/486152/1360580/Crypto-JS.js
@@ -3432,6 +3432,7 @@
 									"lanzou",
 									that.netDiskIndex,
 									that.shareCode,
+									that.accessCode,
 									(userInputAccessCode) => {
 										that.init(
 											that.netDiskIndex,
@@ -3581,7 +3582,16 @@
 					} else {
 						sign = sign[sign.length - 1];
 					}
-					let postData = `action=downprocess&signs=${ajaxdata}&sign=${sign}&websign=${ciucjdsdc}&ves=1&websignkey=${aihidcms}`;
+
+					let postData = {
+						action: "downprocess",
+						signs: ajaxdata,
+						sign: sign,
+						websign: ciucjdsdc,
+						websignkey: aihidcms,
+						ves: 1,
+						kd: 1,
+					};
 					log.success("请求的路径参数：" + ajaxUrl);
 					log.success("ajaxm.php的请求参数-> " + postData);
 					let postResp = await httpx.post({
@@ -3592,7 +3602,7 @@
 							Referer: that.router.default(that.shareCode),
 							"User-Agent": utils.getRandomPCUA(),
 						},
-						data: postData,
+						data: utils.toSearchParamsStr(postData),
 					});
 					if (!postResp.status) {
 						return;
@@ -3610,6 +3620,7 @@
 							"lanzou",
 							that.netDiskIndex,
 							that.shareCode,
+							that.accessCode,
 							(userInputAccessCode) => {
 								that.init(
 									that.netDiskIndex,
@@ -3744,6 +3755,7 @@
 							"lanzou",
 							that.netDiskIndex,
 							that.shareCode,
+							that.accessCode,
 							(userInputAccessCode) => {
 								that.init(
 									that.netDiskIndex,
@@ -4431,6 +4443,7 @@
 							"tianyiyun",
 							that.netDiskIndex,
 							that.shareCode,
+							that.accessCode,
 							(userInputAccessCode) => {
 								that.init(
 									that.netDiskIndex,
@@ -5262,6 +5275,7 @@
 								"_123pan",
 								that.netDiskIndex,
 								that.shareCode,
+								that.accessCode,
 								(userInputAccessCode) => {
 									that.init(
 										that.netDiskIndex,
@@ -5324,6 +5338,7 @@
 							"_123pan",
 							that.netDiskIndex,
 							that.shareCode,
+							that.accessCode,
 							(userInputAccessCode) => {
 								that.init(
 									that.netDiskIndex,
@@ -5943,6 +5958,7 @@
 								"jianguoyun",
 								that.netDiskIndex,
 								that.shareCode,
+								that.accessCode,
 								(userInputAccessCode) => {
 									that.init(
 										that.netDiskIndex,
@@ -5960,6 +5976,7 @@
 								"jianguoyun",
 								that.netDiskIndex,
 								that.shareCode,
+								that.accessCode,
 								(userInputAccessCode) => {
 									that.init(
 										that.netDiskIndex,
@@ -6003,6 +6020,7 @@
 							"jianguoyun",
 							that.netDiskIndex,
 							that.shareCode,
+							that.accessCode,
 							(userInputAccessCode) => {
 								that.init(
 									that.netDiskIndex,
@@ -6298,6 +6316,7 @@
 								"nainiu",
 								that.netDiskIndex,
 								that.shareCode,
+								that.accessCode,
 								(userInputAccessCode) => {
 									that.init(
 										that.netDiskIndex,
@@ -8835,6 +8854,7 @@
 		},
 		/**
 		 * Worker的onmessage
+		 * 这里的this指向会被修改
 		 * @param {MessageEvent<NetDiskWorkerCallBackOptions>} event
 		 */
 		onMessage(event) {
@@ -8850,8 +8870,12 @@
 					`成功匹配${data.data.length}个，用时${Date.now() - data.startTime}ms`
 				);
 			}
-			if (event.data.options.from === "PasteText") {
-				NetDiskUI.matchPasteText.matchEndCallBack(data);
+			if (data.options.from === "PasteText") {
+				NetDiskUI.matchPasteText.workerMatchEndCallBack(data);
+			}
+			if (data.options.from.startsWith("FirstLoad")) {
+				// 依次执行所有的首次加载
+				NetDiskWorker.delayNotMatchCount++;
 			}
 			NetDiskWorker.successCallBack(data);
 		},
@@ -9092,6 +9116,7 @@
 			let isFirstLoad = true;
 			/** 是否是首次加载页面文本，该项需要匹配范围为all，那么会分批次匹配，优先innerText，然后innerHTML */
 			let isFirstLoadPageText = true;
+			/** 是否是首次加载页面文本，该项需要匹配范围为all，那么会分批次匹配，优先innerText，然后innerHTML */
 			let isFirstLoadPageHTML = true;
 			/**
 			 * 观察者的事件
@@ -9099,7 +9124,7 @@
 			 */
 			async function observeEvent(mutations) {
 				if (NetDiskWorker.isHandleMatch) {
-					/* 当前正在处理规则匹配字符串中 */
+					/* 判断当前是否正在处理规则匹配字符串中 */
 					NetDiskWorker.delayNotMatchCount++;
 					return;
 				}
@@ -9153,19 +9178,20 @@
 					}
 					matchTextList.push(decodeUrl);
 				}
-
 				if (isFirstLoad) {
 					// 首次加载
 					isFirstLoad = false;
 					/* 发送消息 */
-					NetDiskWorker.postMessage({
-						textList: matchTextList,
-						matchTextRange: matchTextRangeLowerCase,
-						regular: NetDisk.regular,
-						startTime: startTime,
-						from: "FirstLoad-DOMChange",
-					});
-					return;
+					if (matchTextList.length) {
+						NetDiskWorker.postMessage({
+							textList: matchTextList,
+							matchTextRange: matchTextRangeLowerCase,
+							regular: NetDisk.regular,
+							startTime: startTime,
+							from: "FirstLoad-DOMChange",
+						});
+						return;
+					}
 				}
 				if (matchTextRangeLowerCase === "all") {
 					if (isFirstLoadPageText) {
@@ -9238,8 +9264,6 @@
 			}
 			utils.mutationObserver(document.documentElement, {
 				callback: observeEvent,
-				/* 主动触发一次，因为有的页面上没触发mutationObserver */
-				immediate: true,
 				config: {
 					/* 子节点的变动（新增、删除或者更改） */
 					childList: GM_getValue(
@@ -9265,13 +9289,18 @@
 				set: function (value) {
 					dispatchMonitorDOMChange = value;
 					if (value) {
-						observeEvent([]);
+						observeEvent([
+							{
+								addedNodes: [document.documentElement],
+							},
+						]);
 					}
 				},
 				get: function () {
 					return dispatchMonitorDOMChange;
 				},
 			});
+			this.dispatchMonitorDOMChange = true;
 		},
 	};
 
@@ -13864,14 +13893,16 @@
 		 * @param {string} [title="密码错误"] 标题
 		 * @param {string} [netDiskName=""] 网盘名称
 		 * @param {number} netDiskIndex 网盘名称索引下标
-		 * @param {string} shareCode
-		 * @param {Function} [okCallBack=()=>{}]
+		 * @param {string} shareCode 分享码
+		 * @param {string} accessCode 访问码
+		 * @param {(userInputAccessCode: string)=>void} [okCallBack=()=>{}]
 		 */
 		newAccessCodeView(
 			title = "密码错误",
 			netDiskName = "",
 			netDiskIndex,
 			shareCode,
+			accessCode,
 			okCallBack = () => {}
 		) {
 			const accessCodeConfirm = NetDiskPops.prompt(
@@ -13936,6 +13967,13 @@
 					content: {
 						placeholder: "请重新输入密码",
 						focus: true,
+						select: true,
+						text:
+							accessCode == null
+								? ""
+								: typeof accessCode === "string"
+								? accessCode
+								: "",
 					},
 				},
 				NetDiskUI.popsStyle.inputNewAccessCodeView
@@ -13948,9 +13986,14 @@
 				"keypress",
 				(keyName) => {
 					if (keyName === "Enter") {
-						accessCodeConfirm.$shadowRoot
-							.querySelector(".pops-prompt-btn-ok")
-							?.click();
+						const $ok = accessCodeConfirm.$shadowRoot.querySelector(
+							".pops-prompt-btn-ok"
+						);
+						if ($ok) {
+							$ok.click();
+						} else {
+							throw new TypeError("确定按钮不存在");
+						}
 					}
 				}
 			);
@@ -15283,10 +15326,10 @@
 			`;
 			},
 			/**
-			 *
+			 * Worker匹配完毕后执行的回调函数
 			 * @param {NetDiskWorkerCallBackOptions} data
 			 */
-			matchEndCallBack(data) {
+			workerMatchEndCallBack(data) {
 				if (data.data.length) {
 					Qmsg.success(
 						`成功匹配${data.data.length}个，用时${
@@ -15386,9 +15429,9 @@
 				{
 					text: "修改访问码",
 					callback: function (event, contextMenuEvent) {
-						let linkElement = contextMenuEvent.target;
+						let $link = contextMenuEvent.target;
 						const { netDiskName, netDiskIndex, shareCode, accessCode } =
-							NetDiskUI.getElementNetDiskLinkData(linkElement);
+							NetDiskUI.getElementNetDiskLinkData($link);
 						function newAccessCodeByHistoryViewCallBack(userInputAccessCode) {
 							let currentTime = new Date().getTime();
 							let data = GM_getValue(NetDiskUI.netDiskHistoryMatch.storageKey);
@@ -15411,15 +15454,12 @@
 							});
 							if (editFlag) {
 								GM_setValue(NetDiskUI.netDiskHistoryMatch.storageKey, data);
-								linkElement
+								$link
 									.closest("li")
 									.querySelector(
 										".netdiskrecord-update-time"
 									).lastChild.textContent = utils.formatTime(currentTime);
-								linkElement.setAttribute(
-									"data-accesscode",
-									userInputAccessCode
-								);
+								$link.setAttribute("data-accesscode", userInputAccessCode);
 								Qmsg.success(
 									/*html*/ `
 									<div style="text-align: left;">旧: ${accessCode}</div>
@@ -15463,6 +15503,7 @@
 							netDiskName,
 							netDiskIndex,
 							shareCode,
+							accessCode,
 							(userInputAccessCode) => {
 								if (isHistoryView) {
 									newAccessCodeByHistoryViewCallBack(userInputAccessCode);
