@@ -4,15 +4,18 @@
 export interface PopsMaskDetails {
 	/**
 	 * 是否启用遮罩层，默认false
+	 * @default false
 	 */
 	enable?: boolean;
 	clickEvent?: {
 		/**
 		 * 点击遮罩层是否触发关闭事件
+		 * @default false
 		 */
 		toClose?: boolean;
 		/**
 		 * 点击遮罩层是否触发隐藏事件
+		 * @default false
 		 */
 		toHide?: boolean;
 	};

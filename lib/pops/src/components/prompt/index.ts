@@ -27,6 +27,7 @@ export class PopsPrompt {
 			},
 			content: {
 				text: "",
+				select: false,
 				password: false,
 				row: false,
 				focus: true,
@@ -288,9 +289,12 @@ export class PopsPrompt {
 		}
 		/* 设置自动获取焦点 */
 		if (config.content.focus) {
-			$input?.focus();
+			$input.focus();
 		}
-
+		/* 设置自动选中所有文字 */
+		if (config.content.select) {
+			$input.select();
+		}
 		return PopsHandler.handleResultDetails(eventDetails);
 	}
 }

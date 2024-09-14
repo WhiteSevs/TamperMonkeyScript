@@ -22,10 +22,12 @@ export interface PopsTitleConfig {
 		text?: string;
 		/**
 		 * 文字的位置
+		 * @default "left"
 		 */
 		position?: PopsTextAlign;
 		/**
 		 * 文字是否是html
+		 * @default false
 		 */
 		html?: boolean;
 		/**
@@ -46,6 +48,7 @@ export interface PopsContentConfig {
 		text?: string;
 		/**
 		 * 文字是否是html
+		 * @default false
 		 */
 		html?: boolean;
 		/**
@@ -60,7 +63,8 @@ export interface PopsContentConfig {
 export interface PopsButtonConfig {
 	btn?: {
 		/**
-		 * 按钮的位置，默认left
+		 * 按钮的位置
+		 * @default "flex-end"
 		 */
 		position?: PopsJustifyContent;
 		/**
@@ -76,14 +80,17 @@ export interface PopsMoreButtonConfig<T = {}> {
 	btn?: PopsButtonConfig["btn"] & {
 		/**
 		 * 是否合并按钮
+		 * @default false
 		 */
 		merge?: boolean;
 		/**
 		 * 是否对合并的按钮逆反
+		 * @default false
 		 */
 		mergeReverse?: boolean;
 		/**
 		 * 是否逆反
+		 * @default false
 		 */
 		reverse?: boolean;
 		/**
@@ -106,14 +113,17 @@ export interface PopsMoreButtonConfig<T = {}> {
 export interface PopsDragConfig {
 	/**
 	 *  是否可以按钮标题栏进行拖拽，默认false
+	 * @default false
 	 */
 	drag?: boolean;
 	/**
 	 * 是否限制拖拽在浏览器窗口内移动，默认true
+	 * @default true
 	 */
 	dragLimit?: boolean;
 	/**
 	 * 当启用dragLimit时，该参数为弹窗在窗口中的距离边际的距离，默认为3(px)
+	 * @default 3
 	 */
 	dragExtraDistance?: number;
 	/**
@@ -149,26 +159,32 @@ export interface PopsCommonConfig {
 	class?: string;
 	/**
 	 * 是否是唯一的，默认false
+	 * @default false
 	 */
 	only?: boolean;
 	/**
 	 *  宽度，默认350px
+	 * @default 350
 	 */
 	width: string;
 	/**
 	 *  高度，默认200px
+	 * @default 200
 	 */
 	height: string;
 	/**
 	 * 位置，默认center
+	 * @default "center"
 	 */
 	position?: PopsPosition;
 	/**
 	 * 动画，默认pops-anim-fadein-zoom
+	 * @default "pops-anim-fadein-zoom"
 	 */
 	animation?: PopsAnimation;
 	/**
 	 * z-index显示层级，默认10000
+	 * @default 10000
 	 */
 	zIndex?: number | (() => number);
 	/**
@@ -179,6 +195,7 @@ export interface PopsCommonConfig {
 	 * 是否禁用页面滚动，默认false
 	 *
 	 * 暂时不会生效
+	 * @default false
 	 */
 	forbiddenScroll?: boolean;
 	/**
