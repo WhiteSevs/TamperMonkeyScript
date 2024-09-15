@@ -778,7 +778,9 @@ export class PopsFolder {
 					if (typeof _config_.clickEvent === "function") {
 						let downloadInfo = await _config_.clickEvent(event, _config_)!;
 						if (
+							downloadInfo != null &&
 							typeof downloadInfo === "object" &&
+							!Array.isArray(downloadInfo) &&
 							typeof downloadInfo.url === "string" &&
 							downloadInfo.url.trim() !== ""
 						) {
@@ -851,7 +853,6 @@ export class PopsFolder {
 			sortName: "fileName" | "fileSize" | "latestTime" = "fileName",
 			isDesc = false
 		) {
-			console.log(folderDataConfigList, sortName, isDesc);
 			if (sortName === "fileName") {
 				// 如果是以文件名排序，文件夹优先放前面
 				let onlyFolderDataConfigList = folderDataConfigList.filter((value) => {

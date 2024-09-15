@@ -10,9 +10,9 @@ export interface PopsFolderDataConfig {
     /**
      * 文件大小，如果是文件夹的话，为0
      */
-    fileSize: number;
+    fileSize: number | string;
     /**
-     * 文件类型，如果是文件夹，为空
+     * 文件类型，如果是文件夹，填入空字符串
      */
     fileType: string;
     /**
@@ -34,11 +34,11 @@ export interface PopsFolderDataConfig {
     /**
      * 点击事件
      */
-    clickEvent: (event: MouseEvent | PointerEvent, config: PopsFolderDataConfig) => Promise<{
+    clickEvent?: (event: MouseEvent | PointerEvent, config: PopsFolderDataConfig) => Promise<{
         autoDownload: boolean;
         url: string;
         mode: "a" | "aBlank" | "iframe" | "open" | "openBlank";
-    }> | null;
+    } | null | undefined | void | PopsFolderDataConfig[]> | null | undefined | void | PopsFolderDataConfig[];
 }
 /**
  * pops.folder
@@ -59,7 +59,7 @@ export interface PopsFolderDetails extends PopsTitleConfig, PopsDragConfig, Pops
         /**
          * 触发排序的回调，如果返回true，则中止内部的排序
          */
-        callback: (targert: HTMLElement, event: PointerEvent | MouseEvent, sortName: "fileName" | "fileSize" | "latestTime", sortDesc: boolean) => boolean;
+        callback?: (targert: HTMLElement, event: PointerEvent | MouseEvent, sortName: "fileName" | "fileSize" | "latestTime", sortDesc: boolean) => boolean | undefined | void;
     };
     /**
      * 文件夹信息

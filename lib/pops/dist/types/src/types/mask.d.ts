@@ -25,7 +25,7 @@ export interface PopsMaskDetails {
 	 * @param config 配置信息
 	 */
 	clickCallBack?: (
-		originalRun: (originalRun: Function) => void,
+		originalRun: () => void,
 		config:
 			| PopsAlertDetails
 			| PopsDrawerDetails
