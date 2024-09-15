@@ -2106,7 +2106,7 @@ class Utils {
 	 * Utils.isNotNull("123");
 	 * > true
 	 */
-	isNotNull<T>(value: T | null): value is T;
+	isNotNull<T>(value: T | null | undefined): value is T;
 	isNotNull(...args: any[]): boolean;
 	isNotNull(...args: any[]): boolean {
 		let UtilsContext = this;
@@ -2157,7 +2157,7 @@ class Utils {
       Utils.isNull(false,[123]);
       > false
      **/
-	isNull<T>(value: T | null): value is null;
+	isNull<T>(value: T | undefined | null): value is null | undefined;
 	isNull(...args: any[]): boolean;
 	isNull(...args: any[]): boolean {
 		let result = true;
@@ -3911,7 +3911,9 @@ class Utils {
 	/**
 	 * 将UrlSearchParams格式的字符串转为对象
 	 */
-	searchParamStrToObj<T extends any>(searhParamsStr?: string | null | undefined): T {
+	searchParamStrToObj<T extends any>(
+		searhParamsStr?: string | null | undefined
+	): T {
 		if (typeof searhParamsStr !== "string") {
 			// @ts-ignore
 			return {};

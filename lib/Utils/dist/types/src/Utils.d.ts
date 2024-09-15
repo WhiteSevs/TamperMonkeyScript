@@ -863,7 +863,7 @@ declare class Utils {
      * Utils.isNotNull("123");
      * > true
      */
-    isNotNull<T>(value: T | null): value is T;
+    isNotNull<T>(value: T | null | undefined): value is T;
     isNotNull(...args: any[]): boolean;
     /**
      * 判断对象或数据是否为空
@@ -910,7 +910,7 @@ declare class Utils {
       Utils.isNull(false,[123]);
       > false
      **/
-    isNull<T>(value: T | null): value is null;
+    isNull<T>(value: T | undefined | null): value is null | undefined;
     isNull(...args: any[]): boolean;
     /**
      * 判断浏览器主题是否是暗黑|深色模式
