@@ -1358,7 +1358,7 @@ declare class Utils {
      * Utils.toJSON("{123:123}")
      * > {123:123}
      */
-    toJSON<T extends any>(data: string | null, errorCallBack?: (error: Error) => void): T;
+    toJSON<T = any>(data: string | null, errorCallBack?: (error: Error) => void): T;
     /**
      * 对象转为UrlSearchParams格式的字符串
      * @param obj 目标对象，可以是对象组成的数组

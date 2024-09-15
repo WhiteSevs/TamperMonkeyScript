@@ -3812,11 +3812,11 @@ class Utils {
 	 * Utils.toJSON("{123:123}")
 	 * > {123:123}
 	 */
-	toJSON<T extends any>(
+	toJSON<T = any>(
 		data: string | null,
 		errorCallBack?: (error: Error) => void
 	): T;
-	toJSON<T extends any>(
+	toJSON<T = any>(
 		data: string | null,
 		errorCallBack?: (error: Error) => void
 	): T {
