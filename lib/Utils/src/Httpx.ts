@@ -102,6 +102,7 @@ export type HttpxResponseMap = {
 	stream: ReadableStream<string>;
 	document: Document;
 	undefined: string;
+	html: string;
 };
 
 /**
@@ -2322,7 +2323,7 @@ class Httpx {
 	 */
 	async get<T extends HttpxDetails>(
 		url: string,
-		details: T // @ts-ignore
+		details?: T // @ts-ignore
 	): HttpxPromise<HttpxAsyncResult<T>>;
 	/**
 	 * GET 请求
@@ -2386,7 +2387,7 @@ class Httpx {
 	 */
 	async post<T extends HttpxDetails>(
 		url: string,
-		details: T // @ts-ignore
+		details?: T // @ts-ignore
 	): HttpxPromise<HttpxAsyncResult<T>>;
 	/**
 	 * POST 请求
@@ -2440,7 +2441,7 @@ class Httpx {
 	 */
 	async head<T extends HttpxDetails>(
 		url: string,
-		details: T // @ts-ignore
+		details?: T // @ts-ignore
 	): HttpxPromise<HttpxAsyncResult<T>>;
 	/**
 	 * HEAD 请求
@@ -2499,7 +2500,7 @@ class Httpx {
 	 */
 	options<T extends HttpxDetails>(
 		url: string,
-		details: T // @ts-ignore
+		details?: T // @ts-ignore
 	): HttpxPromise<HttpxAsyncResult<T>>;
 	/**
 	 * OPTIONS 请求
@@ -2555,7 +2556,7 @@ class Httpx {
 	 */
 	async delete<T extends HttpxDetails>(
 		url: string,
-		details: T // @ts-ignore
+		details?: T // @ts-ignore
 	): HttpxPromise<HttpxAsyncResult<T>>;
 	/**
 	 * DELETE 请求
@@ -2612,7 +2613,7 @@ class Httpx {
 	 */
 	async put<T extends HttpxDetails>(
 		url: string,
-		details: T // @ts-ignore
+		details?: T // @ts-ignore
 	): HttpxPromise<HttpxAsyncResult<T>>;
 	/**
 	 * PUT 请求

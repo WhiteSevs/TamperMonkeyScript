@@ -724,6 +724,7 @@ class Utils {
 	 * Utils.formatByteToSize("812304",false);
 	 * > 793.27
 	 **/
+	formatByteToSize(byteSize: number | string): number;
 	formatByteToSize<T extends boolean>(
 		byteSize: number | string,
 		addType?: T
@@ -3158,13 +3159,13 @@ class Utils {
 	 */
 	selectElementText(
 		element: HTMLElement | Element | Node,
-		childTextNode: ChildNode,
+		childTextNode?: ChildNode,
 		startIndex?: number,
 		endIndex?: number
 	): void;
 	selectElementText(
 		element: HTMLElement | Element | Node,
-		childTextNode: ChildNode,
+		childTextNode?: ChildNode,
 		startIndex?: number,
 		endIndex?: number
 	): void {
@@ -3811,16 +3812,16 @@ class Utils {
 	 * Utils.toJSON("{123:123}")
 	 * > {123:123}
 	 */
-	toJSON<T extends AnyObject>(
+	toJSON<T extends any>(
 		data: string | null,
 		errorCallBack?: (error: Error) => void
 	): T;
-	toJSON<T extends AnyObject>(
+	toJSON<T extends any>(
 		data: string | null,
 		errorCallBack?: (error: Error) => void
 	): T {
 		let UtilsContext = this;
-		let result: AnyObject = {};
+		let result: any = {};
 		if (typeof data === "object") {
 			return data as any;
 		}
@@ -3869,9 +3870,26 @@ class Utils {
 	/**
 	 * 对象转为UrlSearchParams格式的字符串
 	 * @param obj 目标对象，可以是对象组成的数组
+	 * @param addPrefix 是否添加前缀?
+	 * @example
+	 * Utils.toSearchParamsStr({
+	 *   "test": 1,
+	 *   "test2": 2
+	 * })
+	 * > test=1&test2=2
+	 * @example
+	 * Utils.toSearchParamsStr([{
+	 *   "test": 1,
+	 *   "test2": 2
+	 * },
+	 * {
+	 *   "test3": 3
+	 * }
+	 * ])
+	 * > test=1&test2=2&test3=3
 	 */
-	toSearchParamsStr(obj: object | object[]): string;
-	toSearchParamsStr(obj: object | object[]): string {
+	toSearchParamsStr(obj: object | object[], addPrefix?: boolean): string;
+	toSearchParamsStr(obj: object | object[], addPrefix?: boolean): string {
 		let UtilsContext = this;
 		let searhParamsStr = "";
 		if (Array.isArray(obj)) {
@@ -3885,7 +3903,21 @@ class Utils {
 		} else {
 			searhParamsStr = new URLSearchParams(Object.entries(obj)).toString();
 		}
+		if (addPrefix && !searhParamsStr.startsWith("?")) {
+			searhParamsStr = "?" + searhParamsStr;
+		}
 		return searhParamsStr;
+	}
+	/**
+	 * 将UrlSearchParams格式的字符串转为对象
+	 */
+	searchParamStrToObj<T extends any>(searhParamsStr?: string | null | undefined): T {
+		if (typeof searhParamsStr !== "string") {
+			// @ts-ignore
+			return {};
+		}
+		// @ts-ignore
+		return Object.fromEntries(new URLSearchParams(searhParamsStr));
 	}
 	/**
 	 * 提供一个封装了 try-catch 的函数，可以执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。

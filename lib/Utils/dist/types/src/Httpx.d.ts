@@ -19,6 +19,7 @@ export type HttpxResponseMap = {
     stream: ReadableStream<string>;
     document: Document;
     undefined: string;
+    html: string;
 };
 /**
  * headers的配置
@@ -1208,7 +1209,7 @@ declare class Httpx {
      * @param url 网址
      * @param details 配置
      */
-    get<T extends HttpxDetails>(url: string, details: T): HttpxPromise<HttpxAsyncResult<T>>;
+    get<T extends HttpxDetails>(url: string, details?: T): HttpxPromise<HttpxAsyncResult<T>>;
     /**
      * GET 请求
      * @param details 配置
@@ -1224,7 +1225,7 @@ declare class Httpx {
      * @param url 网址
      * @param details 配置
      */
-    post<T extends HttpxDetails>(url: string, details: T): HttpxPromise<HttpxAsyncResult<T>>;
+    post<T extends HttpxDetails>(url: string, details?: T): HttpxPromise<HttpxAsyncResult<T>>;
     /**
      * HEAD 请求
      * @param details 配置
@@ -1235,7 +1236,7 @@ declare class Httpx {
      * @param url 网址
      * @param details 配置
      */
-    head<T extends HttpxDetails>(url: string, details: T): HttpxPromise<HttpxAsyncResult<T>>;
+    head<T extends HttpxDetails>(url: string, details?: T): HttpxPromise<HttpxAsyncResult<T>>;
     /**
      * OPTIONS 请求
      * @param details 配置
@@ -1246,7 +1247,7 @@ declare class Httpx {
      * @param url 网址
      * @param details 配置
      */
-    options<T extends HttpxDetails>(url: string, details: T): HttpxPromise<HttpxAsyncResult<T>>;
+    options<T extends HttpxDetails>(url: string, details?: T): HttpxPromise<HttpxAsyncResult<T>>;
     /**
      * DELETE 请求
      * @param details 配置
@@ -1257,7 +1258,7 @@ declare class Httpx {
      * @param url 网址
      * @param details 配置
      */
-    delete<T extends HttpxDetails>(url: string, details: T): HttpxPromise<HttpxAsyncResult<T>>;
+    delete<T extends HttpxDetails>(url: string, details?: T): HttpxPromise<HttpxAsyncResult<T>>;
     /**
      * PUT 请求
      * @param details 配置
@@ -1268,6 +1269,6 @@ declare class Httpx {
      * @param url 网址
      * @param details 配置
      */
-    put<T extends HttpxDetails>(url: string, details: T): HttpxPromise<HttpxAsyncResult<T>>;
+    put<T extends HttpxDetails>(url: string, details?: T): HttpxPromise<HttpxAsyncResult<T>>;
 }
 export { Httpx };

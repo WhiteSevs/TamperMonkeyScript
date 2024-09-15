@@ -254,6 +254,7 @@ declare class Utils {
      * Utils.formatByteToSize("812304",false);
      * > 793.27
      **/
+    formatByteToSize(byteSize: number | string): number;
     formatByteToSize<T extends boolean>(byteSize: number | string, addType?: T): T extends true ? string : number;
     /**
      * 应用场景: 当你想要获取数组形式的元素时，它可能是其它的选择器，那么需要按照先后顺序填入参数
@@ -1235,7 +1236,7 @@ declare class Utils {
      * @param startIndex （可选）开始坐标，可为空
      * @param endIndex （可选）结束坐标，可为空
      */
-    selectElementText(element: HTMLElement | Element | Node, childTextNode: ChildNode, startIndex?: number, endIndex?: number): void;
+    selectElementText(element: HTMLElement | Element | Node, childTextNode?: ChildNode, startIndex?: number, endIndex?: number): void;
     /**
      * 复制到剪贴板
      * @param data 需要复制到剪贴板的文本
@@ -1357,12 +1358,33 @@ declare class Utils {
      * Utils.toJSON("{123:123}")
      * > {123:123}
      */
-    toJSON<T extends AnyObject>(data: string | null, errorCallBack?: (error: Error) => void): T;
+    toJSON<T extends any>(data: string | null, errorCallBack?: (error: Error) => void): T;
     /**
      * 对象转为UrlSearchParams格式的字符串
      * @param obj 目标对象，可以是对象组成的数组
+     * @param addPrefix 是否添加前缀?
+     * @example
+     * Utils.toSearchParamsStr({
+     *   "test": 1,
+     *   "test2": 2
+     * })
+     * > test=1&test2=2
+     * @example
+     * Utils.toSearchParamsStr([{
+     *   "test": 1,
+     *   "test2": 2
+     * },
+     * {
+     *   "test3": 3
+     * }
+     * ])
+     * > test=1&test2=2&test3=3
      */
-    toSearchParamsStr(obj: object | object[]): string;
+    toSearchParamsStr(obj: object | object[], addPrefix?: boolean): string;
+    /**
+     * 将UrlSearchParams格式的字符串转为对象
+     */
+    searchParamStrToObj<T extends any>(searhParamsStr?: string | null | undefined): T;
     /**
      * 提供一个封装了 try-catch 的函数，可以执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
      * @example
