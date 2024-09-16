@@ -631,11 +631,10 @@ export const PopsHandler = {
 				type === "tooltip" ||
 				type === "rightClickMenu"
 			) {
-				PopsInstanceUtils.removeInstance(
-					[(pops.config.layer as any)[type]],
-					"",
-					true
-				);
+				let layer = pops.config.layer[type as keyof typeof pops.config.layer];
+				if (layer) {
+					PopsInstanceUtils.removeInstance([layer], "", true);
+				}
 			} else {
 				PopsInstanceUtils.removeInstance(
 					[
@@ -662,7 +661,7 @@ export const PopsHandler = {
 					);
 					return maxZIndex;
 				};
-			}else{
+			} else {
 				const { zIndex: maxZIndex } = PopsInstanceUtils.getPopsMaxZIndex(
 					PopsHandler.handleZIndex(config.zIndex) + 100
 				);

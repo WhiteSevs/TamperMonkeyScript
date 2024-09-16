@@ -80,7 +80,7 @@ class Pops {
 	/** 配置 */
 	config = {
 		/** 版本号 */
-		version: "2024.9.14",
+		version: "2024.9.16",
 		cssText: {
 			/** 主CSS */
 			index: indexCSS,
@@ -163,6 +163,7 @@ class Pops {
 			drawer: [],
 			folder: [],
 			panel: [],
+			rightClickMenu: [],
 		} as any as {
 			[key in PopsLayerMode]: PopsLayerCommonConfig[];
 		},

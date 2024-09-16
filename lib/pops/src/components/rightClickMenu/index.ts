@@ -255,13 +255,24 @@ export class PopsRightClickMenu {
 				if (config.preventDefault) {
 					popsDOMUtils.preventEvent(event);
 				}
+				PopsHandler.handleOnly(PopsType, config);
 				if (PopsContextMenu.rootElement) {
 					PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
 				}
-				PopsContextMenu.rootElement = PopsContextMenu.showMenu(
-					event,
-					config.data
-				);
+				let rootElement = PopsContextMenu.showMenu(event, config.data);
+				PopsContextMenu.rootElement = rootElement;
+				if (config.only) {
+					PopsHandler.handlePush(PopsType, {
+						$shadowRoot: $shadowRoot,
+						$shadowContainer: $shadowContainer,
+						guid: guid,
+						animElement: rootElement as HTMLDivElement,
+						popsElement: rootElement as HTMLDivElement,
+						beforeRemoveCallBack(layerCommonConfig) {
+							PopsContextMenu.closeAllMenu(layerCommonConfig.popsElement);
+						},
+					});
+				}
 			},
 			/**
 			 * 添加contextmenu事件
@@ -337,6 +348,9 @@ export class PopsRightClickMenu {
 			 * @param rootElement
 			 */
 			closeAllMenu(rootElement: HTMLElement) {
+				if (rootElement == null) {
+					return;
+				}
 				if ((rootElement as any)?.["__menuData__"]?.root) {
 					rootElement = (rootElement as any)?.["__menuData__"]?.root;
 				}
@@ -725,7 +739,9 @@ export class PopsRightClickMenu {
 			},
 		};
 
+		// 添加右键菜单事件
 		PopsContextMenu.addContextMenuEvent(config.target, config.targetSelector!);
+		// 添加全局点击检测
 		PopsContextMenu.addWindowCheckClickListener();
 
 		return {

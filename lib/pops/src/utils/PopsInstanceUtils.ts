@@ -84,17 +84,27 @@ export const PopsInstanceUtils = {
 		guid: string,
 		isAll = false
 	) {
-		function removeItem(item: PopsLayerCommonConfig) {
-			item?.animElement?.remove();
-			item?.popsElement?.remove();
-			item?.maskElement?.remove();
-			item?.$shadowContainer?.remove();
+		/**
+		 * 移除元素实例
+		 * @param layerCommonConfig
+		 */
+		function removeItem(layerCommonConfig: PopsLayerCommonConfig) {
+			if (typeof layerCommonConfig.beforeRemoveCallBack === "function") {
+				// 调用移除签的回调
+				layerCommonConfig.beforeRemoveCallBack(layerCommonConfig);
+			}
+			layerCommonConfig?.animElement?.remove();
+			layerCommonConfig?.popsElement?.remove();
+			layerCommonConfig?.maskElement?.remove();
+			layerCommonConfig?.$shadowContainer?.remove();
 		}
 		// [ layer[], layer[],...]
 		moreLayerConfigList.forEach((layerConfigList) => {
 			//  layer[]
 			layerConfigList.forEach((layerConfigItem, index) => {
+				// 移除全部或者guid相同
 				if (isAll || layerConfigItem["guid"] === guid) {
+					// 判断是否有动画
 					if (
 						pops.config.animation.hasOwnProperty(
 							layerConfigItem.animElement.getAttribute("anim") as string

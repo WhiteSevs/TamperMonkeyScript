@@ -48,7 +48,7 @@ export type PopsType = keyof PopsTypeDetails;
 export type PopsMode = PopsType | "tooltip" | "rightClickMenu";
 
 /** 存储实例的类型 9个 */
-export type PopsLayerMode = PopsType | "tooltip";
+export type PopsLayerMode = PopsType | "tooltip" | "rightClickMenu";
 
 /** pops弹窗支持动画元素的配置 */
 export interface PopsSupportAnim {
