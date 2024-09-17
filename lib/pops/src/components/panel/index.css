@@ -715,6 +715,12 @@ section.pops-panel-container
 }
 /* select的CSS */
 
+/* select-multiple的CSS */
+.pops-panel-select-multiple select {
+	height: auto;
+}
+/* select-multiple的CSS */
+
 /* deepMenu的css */
 .pops-panel-deepMenu-nav-item {
 	cursor: pointer;

@@ -21,6 +21,7 @@ import type { PopsPanelSelectDetails } from "./selectType";
 import type { PopsPanelSliderDetails } from "./sliderType";
 import type { PopsPanelSwitchDetails } from "./switchType";
 import type { PopsPanelTextAreaDetails } from "./textareaType";
+import { PopsPanelSelectMultipleDetails } from "./selectMultipleType";
 
 export class PopsPanel {
 	constructor(details: PopsPanelDetails) {
@@ -608,9 +609,9 @@ export class PopsPanel {
 				/* 左边底部的描述的文字 */
 				let leftDescriptionText = "";
 				if (Boolean(formConfig.description)) {
-					leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+					leftDescriptionText = /*html*/ `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
 				}
-				liElement.innerHTML = `
+				liElement.innerHTML = /*html*/ `
 				<div class="pops-panel-item-left-text">
 					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
 					${leftDescriptionText}
@@ -1714,7 +1715,6 @@ export class PopsPanel {
 			 * 获取中间容器的元素<li>
 			 * type ==> select
 			 * @param formConfig
-			 * @returns
 			 */
 			getSectionContainerItem_select(formConfig: PopsPanelSelectDetails<any>) {
 				let liElement = document.createElement("li");
@@ -1727,9 +1727,9 @@ export class PopsPanel {
 				/* 左边底部的描述的文字 */
 				let leftDescriptionText = "";
 				if (Boolean(formConfig.description)) {
-					leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+					leftDescriptionText = /*html*/ `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
 				}
-				liElement.innerHTML = `
+				liElement.innerHTML = /*html*/ `
 				<div class="pops-panel-item-left-text">
 					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
 				${leftDescriptionText}
@@ -1841,14 +1841,208 @@ export class PopsPanel {
 				};
 
 				PopsPanelSelect.init();
-				(liElement as any)["data-select"] = PopsPanelSelect;
+				Reflect.set(liElement, "data-select", PopsPanelSelect);
+				return liElement;
+			},
+			/**
+			 * 获取中间容器的元素<li>
+			 * type ==> select-multiple
+			 * @param formConfig
+			 */
+			getSectionContainerItem_select_multiple(
+				formConfig: PopsPanelSelectMultipleDetails<any>
+			) {
+				let liElement = document.createElement("li");
+				Reflect.set(liElement, "__formConfig__", formConfig);
+				if (formConfig.className) {
+					liElement.className = formConfig.className;
+				}
+				this.addElementAttributes(liElement, formConfig.attributes);
+				this.setElementProps(liElement, formConfig.props);
+				/* 左边底部的描述的文字 */
+				let leftDescriptionText = "";
+				if (Boolean(formConfig.description)) {
+					leftDescriptionText = /*html*/ `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+				}
+				liElement.innerHTML = /*html*/ `
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+				${leftDescriptionText}
+				</div>
+				<div class="pops-panel-select-multiple pops-panel-select">
+					<select multiple="true"></select>
+				</div>
+				`;
+
+				const PopsPanelSelectMultiple = {
+					[Symbol.toStringTag]: "PopsPanelSelectMultiple",
+					$ele: {
+						panelSelect: liElement.querySelector<HTMLDivElement>(
+							".pops-panel-select-multiple"
+						)!,
+						select: liElement.querySelector<HTMLSelectElement>(
+							".pops-panel-select-multiple select"
+						)!,
+					},
+					$eleKey: {
+						disable: "__disable__",
+						value: "__value__",
+					},
+					$data: {
+						defaultValue: formConfig.getValue(),
+					},
+					init() {
+						this.initOption();
+						this.setChangeEvent();
+						this.setClickEvent();
+						if (formConfig.disabled) {
+							this.disable();
+						}
+					},
+					/** 禁用 */
+					disable() {
+						this.$ele.select.setAttribute("disabled", "true");
+						this.$ele.panelSelect.classList.add("pops-panel-select-disable");
+					},
+					/** 取消禁用 */
+					notDisable() {
+						this.$ele.select.removeAttribute("disabled");
+						this.$ele.panelSelect.classList.remove("pops-panel-select-disable");
+					},
+					/** 判断是否禁用 */
+					isDisabled() {
+						return (
+							this.$ele.select.hasAttribute("disabled") ||
+							this.$ele.panelSelect.classList.contains(
+								"pops-panel-select-disable"
+							)
+						);
+					},
+					/** 初始化配置 */
+					initOption() {
+						formConfig.data.forEach((dataItem) => {
+							// 初始化默认选中
+							let optionElement = document.createElement("option");
+							this.setNodeValue(
+								optionElement,
+								this.$eleKey.value,
+								dataItem.value
+							);
+							this.setNodeValue(
+								optionElement,
+								this.$eleKey.disable,
+								dataItem.disable
+							);
+							if (dataItem.value === this.$data.defaultValue) {
+								optionElement.setAttribute("selected", "true");
+							}
+							optionElement.innerText = dataItem.text;
+							this.$ele.select.appendChild(optionElement);
+						});
+					},
+					/**
+					 * 给option元素设置属性
+					 * @param $ele
+					 * @param key
+					 * @param value
+					 */
+					setNodeValue($ele: HTMLElement, key: string, value: any) {
+						Reflect.set($ele, key, value);
+					},
+					/**
+					 * 获取option元素上设置的属性
+					 * @param $ele
+					 * @param value
+					 * @param key
+					 */
+					getNodeValue($ele: HTMLElement, key: string) {
+						return Reflect.get($ele, key);
+					},
+					/** 检测所有option并设置禁用状态 */
+					setSelectOptionsDisableStatus() {
+						if (this.$ele.select.options && this.$ele.select.options.length) {
+							Array.from(this.$ele.select.options).forEach((optionItem) => {
+								this.setOptionDisableStatus(optionItem);
+							});
+						}
+					},
+					/** 设置禁用状态 */
+					setOptionDisableStatus(optionElement: HTMLOptionElement) {
+						let disable = false;
+						let optionDisableAttr = this.getNodeValue(
+							optionElement,
+							this.$eleKey.disable
+						);
+						if (optionDisableAttr === "function") {
+							let value = this.getNodeValue(optionElement, this.$eleKey.value);
+							disable = Boolean(optionDisableAttr(value));
+						}
+						if (disable) {
+							optionElement.setAttribute("disabled", "true");
+						} else {
+							optionElement.removeAttribute("disabled");
+						}
+					},
+					/** 获取option上的信息 */
+					getSelectOptionInfo($option: HTMLOptionElement) {
+						let optionValue = this.getNodeValue($option, this.$eleKey.value);
+						let optionText = $option.innerText || $option.textContent!;
+						return {
+							value: optionValue,
+							text: optionText,
+							$option: $option,
+						};
+					},
+					/** 获取选中信息 */
+					getSelectInfoList($select: HTMLSelectElement) {
+						let selectedInfo: {
+							value: any;
+							text: string;
+							$option: HTMLOptionElement;
+						}[] = [];
+						Array.from($select.selectedOptions).forEach(($selectedOption) => {
+							selectedInfo.push(this.getSelectOptionInfo($selectedOption));
+						});
+						return selectedInfo;
+					},
+					/**
+					 * 监听选择内容改变
+					 */
+					setChangeEvent() {
+						popsDOMUtils.on(this.$ele.select, "change", void 0, (event) => {
+							this.setSelectOptionsDisableStatus();
+							if (typeof formConfig.callback === "function") {
+								formConfig.callback(
+									event as any,
+									this.getSelectInfoList(this.$ele.select)
+								);
+							}
+						});
+					},
+					/**
+					 * 监听点击事件
+					 */
+					setClickEvent() {
+						popsDOMUtils.on(this.$ele.select, "click", void 0, (event) => {
+							this.setSelectOptionsDisableStatus();
+							if (typeof formConfig.clickCallBack === "function") {
+								formConfig.clickCallBack(
+									event,
+									this.getSelectInfoList(this.$ele.select)
+								);
+							}
+						});
+					},
+				};
+
+				PopsPanelSelectMultiple.init();
+				Reflect.set(liElement, "data-select", PopsPanelSelectMultiple);
 				return liElement;
 			},
 			/**
 			 * 获取中间容器的元素<li>
 			 * type ==> button
 			 * @param formConfig
-			 * @returns
 			 */
 			getSectionContainerItem_button(formConfig: PopsPanelButtonDetails) {
 				let liElement = document.createElement("li");
@@ -2258,6 +2452,10 @@ export class PopsPanel {
 				} else if (formType === "select") {
 					return this.getSectionContainerItem_select(
 						formConfig as PopsPanelSelectDetails
+					);
+				} else if (formType === "select-multiple") {
+					return this.getSectionContainerItem_select_multiple(
+						formConfig as PopsPanelSelectMultipleDetails
 					);
 				} else if (formType === "button") {
 					return this.getSectionContainerItem_button(
