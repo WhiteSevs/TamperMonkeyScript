@@ -366,6 +366,16 @@ const LIB_MAP = {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(497907);
 		},
 	},
+	"网盘链接识别-图标库": {
+		localPath:
+			"file://" +
+			viteUtils.getAbsolutePath(
+				"./scripts-vite/网盘链接识别/网盘链接识别-图标.js"
+			),
+		url: async () => {
+			return await viteUtils.getGreasyForkLibLatestVersionUrl(456470);
+		},
+	},
 };
 
 /**
