@@ -1748,6 +1748,10 @@ export class PopsPanel {
 							".pops-panel-select select"
 						)!,
 					},
+					$eleKey: {
+						disable: "__disable__",
+						value: "__value__",
+					},
 					$data: {
 						defaultValue: formConfig.getValue(),
 					},
@@ -1758,6 +1762,24 @@ export class PopsPanel {
 						if (formConfig.disabled) {
 							this.disable();
 						}
+					},
+					/**
+					 * 给option元素设置属性
+					 * @param $ele
+					 * @param key
+					 * @param value
+					 */
+					setNodeValue($ele: HTMLElement, key: string, value: any) {
+						Reflect.set($ele, key, value);
+					},
+					/**
+					 * 获取option元素上设置的属性
+					 * @param $ele
+					 * @param value
+					 * @param key
+					 */
+					getNodeValue($ele: HTMLElement, key: string) {
+						return Reflect.get($ele, key);
 					},
 					disable() {
 						this.$ele.select.setAttribute("disabled", "true");
@@ -1777,9 +1799,18 @@ export class PopsPanel {
 					},
 					initOption() {
 						formConfig.data.forEach((dataItem) => {
+							// 初始化默认选中
 							let optionElement = document.createElement("option");
-							(optionElement as any)["__value__"] = dataItem.value;
-							(optionElement as any)["__disable__"] = dataItem.disable;
+							this.setNodeValue(
+								optionElement,
+								this.$eleKey.value,
+								dataItem.value
+							);
+							this.setNodeValue(
+								optionElement,
+								this.$eleKey.disable,
+								dataItem.disable
+							);
 							if (dataItem.value === this.$data.defaultValue) {
 								optionElement.setAttribute("selected", "true");
 							}
@@ -1787,6 +1818,7 @@ export class PopsPanel {
 							this.$ele.select.appendChild(optionElement);
 						});
 					},
+					/** 检测所有option并设置禁用状态 */
 					setSelectOptionsDisableStatus() {
 						if (this.$ele.select.options && this.$ele.select.options.length) {
 							Array.from(this.$ele.select.options).forEach((optionItem) => {
@@ -1794,17 +1826,32 @@ export class PopsPanel {
 							});
 						}
 					},
+					/** 设置禁用状态 */
 					setOptionDisableStatus(optionElement: HTMLOptionElement) {
-						if (typeof (optionElement as any)["__disable__"] === "function") {
-							let disableStatus = (optionElement as any)["__disable__"](
-								(optionElement as any)["__value__"]
-							);
-							if (disableStatus) {
-								optionElement.setAttribute("disabled", "true");
-							} else {
-								optionElement.removeAttribute("disabled");
-							}
+						let disable = false;
+						let optionDisableAttr = this.getNodeValue(
+							optionElement,
+							this.$eleKey.disable
+						);
+						if (optionDisableAttr === "function") {
+							let value = this.getNodeValue(optionElement, this.$eleKey.value);
+							disable = Boolean(optionDisableAttr(value));
 						}
+						if (disable) {
+							optionElement.setAttribute("disabled", "true");
+						} else {
+							optionElement.removeAttribute("disabled");
+						}
+					},
+					/** 获取option上的信息 */
+					getSelectOptionInfo($option: HTMLOptionElement) {
+						let optionValue = this.getNodeValue($option, this.$eleKey.value);
+						let optionText = $option.innerText || $option.textContent!;
+						return {
+							value: optionValue,
+							text: optionText,
+							$option: $option,
+						};
 					},
 					/**
 					 * 监听选择内容改变
@@ -1813,16 +1860,14 @@ export class PopsPanel {
 						popsDOMUtils.on(this.$ele.select, "change", void 0, (event) => {
 							this.setSelectOptionsDisableStatus();
 							if (typeof formConfig.callback === "function") {
-								let isSelectedElement = (event as any).target[
+								let $isSelectedElement = (event as any).target[
 									(event as any).target.selectedIndex
 								] as HTMLOptionElement;
-								let isSelectedValue = (isSelectedElement as any)["__value__"];
-								let isSelectedText =
-									isSelectedElement.innerText || isSelectedElement.textContent!;
+								let selectInfo = this.getSelectOptionInfo($isSelectedElement);
 								formConfig.callback(
 									event as any,
-									isSelectedValue,
-									isSelectedText
+									selectInfo.value,
+									selectInfo.text
 								);
 							}
 						});
@@ -1899,6 +1944,24 @@ export class PopsPanel {
 							this.disable();
 						}
 					},
+					/**
+					 * 给option元素设置属性
+					 * @param $ele
+					 * @param key
+					 * @param value
+					 */
+					setNodeValue($ele: HTMLElement, key: string, value: any) {
+						Reflect.set($ele, key, value);
+					},
+					/**
+					 * 获取option元素上设置的属性
+					 * @param $ele
+					 * @param value
+					 * @param key
+					 */
+					getNodeValue($ele: HTMLElement, key: string) {
+						return Reflect.get($ele, key);
+					},
 					/** 禁用 */
 					disable() {
 						this.$ele.select.setAttribute("disabled", "true");
@@ -1933,30 +1996,13 @@ export class PopsPanel {
 								this.$eleKey.disable,
 								dataItem.disable
 							);
-							if (dataItem.value === this.$data.defaultValue) {
+
+							if (this.$data.defaultValue.includes(dataItem.value)) {
 								optionElement.setAttribute("selected", "true");
 							}
 							optionElement.innerText = dataItem.text;
 							this.$ele.select.appendChild(optionElement);
 						});
-					},
-					/**
-					 * 给option元素设置属性
-					 * @param $ele
-					 * @param key
-					 * @param value
-					 */
-					setNodeValue($ele: HTMLElement, key: string, value: any) {
-						Reflect.set($ele, key, value);
-					},
-					/**
-					 * 获取option元素上设置的属性
-					 * @param $ele
-					 * @param value
-					 * @param key
-					 */
-					getNodeValue($ele: HTMLElement, key: string) {
-						return Reflect.get($ele, key);
 					},
 					/** 检测所有option并设置禁用状态 */
 					setSelectOptionsDisableStatus() {
