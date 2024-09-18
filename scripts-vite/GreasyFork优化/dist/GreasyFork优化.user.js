@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.8.27.13
+// @version            2024.9.18
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -11,10 +11,10 @@
 // @supportURL         https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match              *://greasyfork.org/*
 // @require            https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require            https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.4/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.0/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.2/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/qmsg@1.2.2/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.9/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.2/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@1.6.4/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require            https://fastly.jsdelivr.net/npm/i18next@23.12.2/i18next.min.js
 // @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
@@ -1534,7 +1534,7 @@
     async enterShortcutKeys(key) {
       return new Promise((resolve) => {
         this.isWaitPress = true;
-        let keyboardListener = utils.listenKeyboard(
+        let keyboardListener = domUtils.listenKeyboard(
           window,
           "keyup",
           (keyName, keyValue, ohterCodeList) => {
@@ -1589,7 +1589,7 @@
       }
       let that = this;
       function setListenKeyboard($ele, option) {
-        utils.listenKeyboard(
+        domUtils.listenKeyboard(
           $ele,
           "keydown",
           (keyName, keyValue, ohterCodeList) => {
@@ -3781,6 +3781,37 @@
       return result;
     }
   };
+  const GreasyforkElementUtils = {
+    /**
+     * 获取当前登录用户id
+     */
+    getCurrentLoginUserId() {
+      let $anchor = document.querySelector(
+        "#nav-user-info .user-profile-link a"
+      );
+      if (!$anchor) {
+        return;
+      }
+      let userId = GreasyforkUrlUtils.getUserId($anchor.href);
+      if (userId == null) {
+        return;
+      }
+      return userId;
+    }
+  };
+  const GreasyforkUtils = {
+    /**
+     * 判断是否是当前已登录账户的主页
+     */
+    isCurrentLoginUserHome() {
+      let currentLoginUserId = GreasyforkElementUtils.getCurrentLoginUserId();
+      if (currentLoginUserId != null && GreasyforkRouter.isUsers() && window.location.pathname.includes("/" + currentLoginUserId)) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  };
   const GreasyforkScriptsFilter = {
     /** 存储的键 */
     key: "gf-shield-rule",
@@ -3790,6 +3821,10 @@
         this.filter();
       }, 50);
       domUtils.ready(() => {
+        if (GreasyforkUtils.isCurrentLoginUserHome()) {
+          log.warn("当前在已登录的账户主页下，禁用脚本过滤");
+          return;
+        }
         utils.mutationObserver(document.body, {
           config: {
             subtree: true,

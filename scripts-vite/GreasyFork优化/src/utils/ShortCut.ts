@@ -202,7 +202,7 @@ export class ShortCut {
 	}> {
 		return new Promise((resolve) => {
 			this.isWaitPress = true;
-			let keyboardListener = utils.listenKeyboard(
+			let keyboardListener = DOMUtils.listenKeyboard(
 				window,
 				"keyup",
 				(keyName, keyValue, ohterCodeList) => {
@@ -264,7 +264,7 @@ export class ShortCut {
 		}
 		let that = this;
 		function setListenKeyboard($ele: Element | Window, option: ShortCutOption) {
-			utils.listenKeyboard(
+			DOMUtils.listenKeyboard(
 				$ele,
 				"keydown",
 				(keyName, keyValue, ohterCodeList) => {

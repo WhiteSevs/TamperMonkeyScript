@@ -1,6 +1,9 @@
 import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { parseScriptListInfo } from "./GreasyforkScriptsList";
+import { GreasyforkElementUtils } from "@/utils/GreasyforkElementUtils";
+import { GreasyforkRouter } from "@/router/GreasyforkRouter";
+import { GreasyforkUtils } from "@/utils/GreasyforkUtils";
 
 export type ScriptFilterRule = {
 	/** 脚本代码链接 */
@@ -29,6 +32,10 @@ export const GreasyforkScriptsFilter = {
 			this.filter();
 		}, 50);
 		DOMUtils.ready(() => {
+			if (GreasyforkUtils.isCurrentLoginUserHome()) {
+				log.warn("当前在已登录的账户主页下，禁用脚本过滤");
+				return;
+			}
 			utils.mutationObserver(document.body, {
 				config: {
 					subtree: true,

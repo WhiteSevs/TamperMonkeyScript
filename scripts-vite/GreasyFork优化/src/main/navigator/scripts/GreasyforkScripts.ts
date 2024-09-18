@@ -9,6 +9,7 @@ import { GreasyforkScriptsCode } from "./code/GreasyforkScriptsCode";
 import { GM_addStyle, unsafeWindow } from "ViteGM";
 import { GreasyforkVersions } from "./versions/GreasyforkVersions";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
+import { GreasyforkUtils } from "@/utils/GreasyforkUtils";
 
 let userCollection: {
 	id: string;

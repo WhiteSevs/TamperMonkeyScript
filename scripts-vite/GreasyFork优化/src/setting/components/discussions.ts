@@ -3,9 +3,7 @@ import { UISwitch } from "../common-components/ui-switch";
 import { PopsPanel } from "../setting";
 import i18next from "i18next";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UIInput } from "../common-components/ui-input";
 import { GreasyforkDiscussionsFilter } from "@/main/navigator/discussions/GreasyforkDiscussionsFilter";
-import { text } from "stream/consumers";
 
 export const SettingUIDiscuessions: PopsPanelContentConfig = {
 	id: "greasy-fork-panel-config-discussions",
