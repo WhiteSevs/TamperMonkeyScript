@@ -2,6 +2,7 @@ import { GM_getValue, GM_setValue } from "ViteGM";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY } from "../config";
 import { PopsPanelSelectMultipleDetails } from "@whitesev/pops/dist/types/src/components/panel/selectMultipleType";
 import { log } from "@/env";
+import type { PopsAlertDetails } from "@whitesev/pops/dist/types/src/components/alert/indexType";
 
 /**
  * 下拉列表-多选
@@ -11,6 +12,7 @@ import { log } from "@/env";
  * @param data 下拉列表的数据
  * @param callback 选择列表的某一项的回调
  * @param description 左边的文字下面的描述
+ * @param selectConfirmDialogDetails 弹窗配置
  */
 export const UISelectMultiple = function <T>(
 	text: string,
@@ -28,14 +30,14 @@ export const UISelectMultiple = function <T>(
 				disable?(value: T): boolean;
 		  }[]),
 	callback?: (
-		event: PointerEvent | TouchEvent,
-		isSelectedInfo: {
+		selectInfo: {
 			value: T;
 			text: string;
-			$option: HTMLOptionElement;
 		}[]
 	) => void,
-	description?: string
+	description?: string,
+	placeholder = "请至少选择一个选项",
+	selectConfirmDialogDetails?: Partial<PopsAlertDetails>
 ): PopsPanelSelectMultipleDetails<T> {
 	let selectData: {
 		value: T;
@@ -51,19 +53,21 @@ export const UISelectMultiple = function <T>(
 		text: text,
 		type: "select-multiple",
 		description: description,
+		placeholder: placeholder,
 		attributes: {} as { [key: string]: any },
 		getValue() {
 			return GM_getValue(key, defaultValue);
 		},
-		callback(event, isSelectedInfoList) {
+		selectConfirmDialogDetails: selectConfirmDialogDetails,
+		callback(selectInfo) {
 			let saveValue: T[] = [];
-			isSelectedInfoList.forEach((selectedInfo) => {
+			selectInfo.forEach((selectedInfo) => {
 				saveValue.push(selectedInfo.value);
 			});
 			GM_setValue(key, saveValue);
 			log.info([`多选-选择：`, saveValue]);
 			if (typeof callback === "function") {
-				callback(event, isSelectedInfoList);
+				callback(selectInfo);
 			}
 		},
 		data: selectData,

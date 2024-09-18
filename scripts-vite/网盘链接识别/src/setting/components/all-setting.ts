@@ -560,7 +560,11 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 										},
 									],
 									void 0,
-									"执行的文本匹配规则"
+									"执行的文本匹配规则",
+									void 0,
+									{
+										height: "auto",
+									}
 								),
 								UISwitch(
 									"深入ShadowRoot获取匹配文本",
