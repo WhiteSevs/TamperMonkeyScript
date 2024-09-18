@@ -16,6 +16,7 @@ import tooltipCSS from "./components/tooltip/index.css";
 import drawerCSS from "./components/drawer/index.css";
 import folderCSS from "./components/folder/index.css";
 import panelCSS from "./components/panel/index.css";
+import rightClickMenuCSS from "./components/rightClickMenu/index.css";
 import SVG_min from "./svg/min.svg";
 import SVG_mise from "./svg/mise.svg";
 import SVG_max from "./svg/max.svg";
@@ -75,12 +76,13 @@ import type {
 } from "./components/searchSuggestion/indexType";
 import { PopsSearchSuggestion } from "./components/searchSuggestion";
 import { PopsMathFloatUtils } from "./utils/PopsMathUtils";
+import { PanelHandleContentDetails } from "./components/panel/PanelHandleContentDetails";
 
 class Pops {
 	/** 配置 */
 	config = {
 		/** 版本号 */
-		version: "2024.9.16",
+		version: "2024.9.18",
 		cssText: {
 			/** 主CSS */
 			index: indexCSS,
@@ -112,6 +114,8 @@ class Pops {
 			folderCSS: folderCSS,
 			/** pops.folder */
 			panelCSS: panelCSS,
+			/** pops.rightClickMenu */
+			rightClickMenu: rightClickMenuCSS,
 		},
 		/** icon图标的svg代码 */
 		iconSVG: {
@@ -164,7 +168,7 @@ class Pops {
 			folder: [],
 			panel: [],
 			rightClickMenu: [],
-		} as any as {
+		} as {
 			[key in PopsLayerMode]: PopsLayerCommonConfig[];
 		},
 		/** 禁止滚动 */
@@ -181,6 +185,8 @@ class Pops {
 		InstanceUtils: PopsInstanceUtils,
 		/** pops处理float类型使用的工具类 */
 		MathFloatUtils: PopsMathFloatUtils,
+		/** pops.panel中用于处理各个类型的工具 */
+		panelHandleContentUtils: PanelHandleContentDetails,
 	};
 	constructor() {}
 	init() {

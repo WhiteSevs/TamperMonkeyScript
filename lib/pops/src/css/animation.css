@@ -58,6 +58,28 @@
 		width: 75%;
 	}
 }
+
+@keyframes searchSelectFalIn {
+	from {
+		opacity: 0;
+		display:none;
+	}
+	to {
+		display:block;
+		opacity: 1;
+	}
+}
+@keyframes searchSelectFalOut {
+	from {
+		display:block;
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+		display:none;
+	}
+}
+
 @keyframes pops-anim-wait-rotate {
 	form {
 		transform: rotate(0);

@@ -347,6 +347,7 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
      * 获取元素的宽度
      * @param element 要获取宽度的元素
      * @param isShow 是否已进行isShow，避免爆堆栈
+     * @param parent 用于判断是否已显示的父元素载体
      * @returns 元素的宽度，单位为像素
      * @example
      * // 获取元素a.xx的宽度
@@ -361,11 +362,12 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
      * DOMUtils.width(document.querySelector("a.xx"),200)
      * DOMUtils.width("a.xx",200)
      */
-    width(element: HTMLElement | string | Window | Document | typeof globalThis, isShow?: boolean): number;
+    width(element: HTMLElement | string | Window | Document | typeof globalThis, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
     /**
      * 获取元素的高度
      * @param element 要获取高度的元素
      * @param isShow 是否已进行isShow，避免爆堆栈
+     * @param parent 用于判断是否已显示的父元素载体
      * @returns 元素的高度，单位为像素
      * @example
      * // 获取元素a.xx的高度
@@ -380,12 +382,13 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
      * DOMUtils.height(document.querySelector("a.xx"),200)
      * DOMUtils.height("a.xx",200)
      */
-    height(element: HTMLElement | string | Window | Document | typeof globalThis, isShow?: boolean): number;
+    height(element: HTMLElement | string | Window | Document | typeof globalThis, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
     /**
      * 获取元素的外部宽度（包括边框和外边距）
-     * @param {HTMLElement|string} element 要获取外部宽度的元素
-     * @param {boolean} [isShow=false] 是否已进行isShow，避免爆堆栈
-     * @returns {number} 元素的外部宽度，单位为像素
+     * @param element 要获取外部宽度的元素
+     * @param 是否已进行isShow，避免爆堆栈
+     * @param parent 用于判断是否已显示的父元素载体
+     * @returns 元素的外部宽度，单位为像素
      * @example
      * // 获取元素a.xx的外部宽度
      * DOMUtils.outerWidth(document.querySelector("a.xx"))
@@ -395,12 +398,13 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
      * DOMUtils.outerWidth(window)
      * > 400
      */
-    outerWidth(element: HTMLElement | string | Window | Document, isShow?: boolean): number;
+    outerWidth(element: HTMLElement | string | Window | Document, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
     /**
      * 获取元素的外部高度（包括边框和外边距）
-     * @param {HTMLElement|string} element 要获取外部高度的元素
-     * @param {boolean} [isShow=false] 是否已进行isShow，避免爆堆栈
-     * @returns {number} 元素的外部高度，单位为像素
+     * @param element 要获取外部高度的元素
+     * @param isShow 是否已进行isShow，避免爆堆栈
+     * @param parent 用于判断是否已显示的父元素载体
+     * @returns 元素的外部高度，单位为像素
      * @example
      * // 获取元素a.xx的外部高度
      * DOMUtils.outerHeight(document.querySelector("a.xx"))
@@ -410,7 +414,7 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
      * DOMUtils.outerHeight(window)
      * > 700
      */
-    outerHeight(element: HTMLElement | string | Window, isShow?: boolean): number;
+    outerHeight(element: HTMLElement | string | Window, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
     /**
      * 添加className
      * @param element 目标元素
@@ -510,7 +514,7 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
     tagName: K, 
     /** 属性 */
     property?: ({
-        [P in keyof HTMLElementTagNameMap[K]]?: HTMLElementTagNameMap[K][P];
+        [P in keyof HTMLElementTagNameMap[K]]?: HTMLElementTagNameMap[K][P] extends string | boolean | number ? HTMLElementTagNameMap[K][P] : never;
     } & {
         [key: string]: any;
     }) | string, 
@@ -525,7 +529,7 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
      * + true 不删除临时节点元素
      * + false 删除临时节点元素
      */
-    getTextBoundingRect(input: HTMLInputElement, selectionStart: number | string, selectionEnd: number | string, debug: boolean): DOMRect;
+    getTextBoundingRect(input: HTMLInputElement | HTMLTextAreaElement, selectionStart: number | string, selectionEnd: number | string, debug: boolean): DOMRect;
     /**
      * 使用className来隐藏元素
      * @param ele
@@ -593,8 +597,13 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
     /**
      * 用于显示元素并获取它的高度宽度等其它属性
      * @param element
+     * @param parent 父元素
      */
-    showElement(element: HTMLElement): {
+    showElement(element: HTMLElement, parent?: HTMLElement | ShadowRoot): {
+        /**
+         * 强制显示的克隆的元素
+         */
+        cloneNode: HTMLElement;
         /**
          * 恢复修改的style
          */
@@ -606,6 +615,26 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
      * @param styleName style名
      */
     getStyleValue(element: HTMLElement | CSSStyleDeclaration, styleName: string): number;
+    /**
+     * 在元素前面添加兄弟元素或HTML字符串
+     * @param element 目标元素
+     * @param content 兄弟元素或HTML字符串
+     * @example
+     * // 元素a.xx前面添加一个元素
+     * DOMUtils.before(document.querySelector("a.xx"),document.querySelector("b.xx"))
+     * DOMUtils.before("a.xx","'<b class="xx"></b>")
+     * */
+    before(element: HTMLElement | Element | string, content: HTMLElement | string): void;
+    /**
+     * 在元素后面添加兄弟元素或HTML字符串
+     * @param element 目标元素
+     * @param content 兄弟元素或HTML字符串
+     * @example
+     * // 元素a.xx后面添加一个元素
+     * DOMUtils.after(document.querySelector("a.xx"),document.querySelector("b.xx"))
+     * DOMUtils.after("a.xx","'<b class="xx"></b>")
+     * */
+    after(element: HTMLElement | Element | string, content: HTMLElement | string): void;
 }
 declare const popsDOMUtils: PopsDOMUtils;
 export { popsDOMUtils };

@@ -4,6 +4,7 @@ import { pops } from "../../Pops";
 import type { PopsIcon } from "../../types/icon";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { popsUtils } from "../../utils/PopsUtils";
+import { rightClickMenuConfig as PopsRightClickMenuConfig } from "./config";
 import type {
 	PopsRightClickMenuDataDetails,
 	PopsRightClickMenuDetails,
@@ -16,123 +17,11 @@ export class PopsRightClickMenu {
 			pops.config.cssText.index,
 			pops.config.cssText.anim,
 			pops.config.cssText.common,
+			pops.config.cssText.rightClickMenu,
 		]);
 
-		let config: Required<PopsRightClickMenuDetails> = {
-			target: document.documentElement,
-			targetSelector: null,
-			data: [
-				{
-					icon: pops.config.iconSVG.search,
-					iconIsLoading: false,
-					text: "搜索",
-					callback(clickEvent, contextMenuEvent, liElement) {
-						console.log("点击：" + this.text, [
-							clickEvent,
-							contextMenuEvent,
-							liElement,
-						]);
-					},
-				},
-				{
-					icon: pops.config.iconSVG.documentCopy,
-					iconIsLoading: false,
-					text: "复制",
-					callback(clickEvent, contextMenuEvent, liElement) {
-						console.log("点击：" + this.text, [
-							clickEvent,
-							contextMenuEvent,
-							liElement,
-						]);
-					},
-				},
-				{
-					icon: pops.config.iconSVG.delete,
-					text: "删除",
-					iconIsLoading: false,
-					callback(clickEvent, contextMenuEvent, liElement) {
-						console.log("点击：" + this.text, [
-							clickEvent,
-							contextMenuEvent,
-							liElement,
-						]);
-					},
-				},
-				{
-					icon: pops.config.iconSVG.loading,
-					iconIsLoading: true,
-					text: "加载",
-					callback(clickEvent, contextMenuEvent, liElement) {
-						console.log("点击：" + this.text, [
-							clickEvent,
-							contextMenuEvent,
-							liElement,
-						]);
-						return false;
-					},
-				},
-				{
-					icon: pops.config.iconSVG.elemePlus,
-					iconIsLoading: true,
-					text: "饿了么",
-					callback(clickEvent, contextMenuEvent, liElement) {
-						console.log("点击：" + this.text, [
-							clickEvent,
-							contextMenuEvent,
-							liElement,
-						]);
-						return false;
-					},
-					item: [
-						{
-							icon: "",
-							iconIsLoading: false,
-							text: "处理文件",
-							callback(clickEvent, contextMenuEvent, liElement) {
-								console.log("点击：" + this.text, [
-									clickEvent,
-									contextMenuEvent,
-									liElement,
-								]);
-							},
-						},
-						{
-							icon: "",
-							iconIsLoading: false,
-							text: "其它处理",
-							callback(clickEvent, contextMenuEvent, liElement) {
-								console.log("点击：" + this.text, [
-									clickEvent,
-									contextMenuEvent,
-									liElement,
-								]);
-							},
-							item: [
-								{
-									icon: pops.config.iconSVG.view,
-									iconIsLoading: false,
-									text: "查看",
-									callback(clickEvent, contextMenuEvent, liElement) {
-										console.log("点击：" + this.text, [
-											clickEvent,
-											contextMenuEvent,
-											liElement,
-										]);
-									},
-								},
-							],
-						},
-					],
-				},
-			],
-			className: "",
-			isAnimation: true,
-			only: false,
-			zIndex: 10000,
-			preventDefault: true,
-			style: null,
-			beforeAppendToPageCallBack() {},
-		};
+		let config: Required<PopsRightClickMenuDetails> =
+			PopsRightClickMenuConfig();
 		config = popsUtils.assign(config, details);
 		if (config.target == null) {
 			throw "config.target 不能为空";
@@ -369,93 +258,20 @@ export class PopsRightClickMenu {
 			 * @param isChildren 是否是rightClickMenu的某一项的子菜单
 			 */
 			getMenuContainerElement(zIndex: number, isChildren: boolean) {
-				let menuElement = popsUtils.parseTextToDOM(/*html*/ `
-				<div class="pops-${PopsType}" ${isChildren ? 'is-children="true"' : ""}>
-				<style type="text/css" data-from="pops-${PopsType}">
-				.pops-${PopsType} *{
-					-webkit-box-sizing: border-box;
-					box-sizing: border-box;
-					margin: 0;
-					padding: 0;
-					-webkit-tap-highlight-color: transparent;
-					scrollbar-width: thin;
+				let $menu = popsDOMUtils.createElement("div", {
+					className: `pops-${PopsType}`,
+					innerHTML: /*html*/ `
+					<ul></ul>
+					`,
+				});
+				if (isChildren) {
+					$menu.setAttribute("is-children", "true");
 				}
-				.pops-${PopsType}{
-					position: fixed;
-					z-index: ${zIndex};
-					text-align: center;
-					border-radius: 3px;
-					font-size: 16px;
-					font-weight: 500;
-					background: #fff;
-					box-shadow: 0px 1px 6px 1px #cacaca;
-				}
-				.pops-${PopsType}-anim-grid{
-					display: grid;
-					transition: 0.3s;
-					grid-template-rows: 0fr;
-				}
-				.pops-${PopsType}-anim-show{
-					grid-template-rows: 1fr;
-				}
-				.pops-${PopsType}-is-visited{
-					background: #dfdfdf;
-				}
-				i.pops-${PopsType}-icon {
-					height: 1em;
-					width: 1em;
-					line-height: 1em;
-					display: inline-flex;
-					justify-content: center;
-					align-items: center;
-					position: relative;
-					fill: currentColor;
-					color: inherit;
-					font-size: inherit;
-					margin-right: 6px;
-				}
-				i.pops-${PopsType}-icon[is-loading="true"]{
-					animation: rotating 2s linear infinite;
-				}
-				.pops-${PopsType} li:hover{background:#dfdfdf;cursor:pointer}
-				.pops-${PopsType} ul{
-					margin: 0;
-					padding: 0;
-					display: flex;
-					flex-direction: column;
-					align-items: flex-start;
-					justify-content: center;
-					overflow: hidden;
-				}
-				.pops-${PopsType} ul li {
-					padding: 5px 10px;
-					margin: 2.5px 5px;
-					border-radius: 3px;
-					display: flex;
-					width: -webkit-fill-available;
-					width: -moz-available;
-					text-align: left;
-					user-select: none;
-					-webkit-user-select: none;
-					-moz-user-select: none;
-					-ms-user-select: none;
-					align-items: center;
-				}
-				.pops-${PopsType} ul li:first-child{
-					margin-top: 5px;
-				}
-				.pops-${PopsType} ul li:last-child{
-					margin-bottom: 5px;
-				}
-				</style>
-				<ul></ul>
-				</div>
-				`);
 				/* 添加动画 */
 				if (config.isAnimation) {
-					popsDOMUtils.addClassName(menuElement, `pops-${PopsType}-anim-grid`);
+					popsDOMUtils.addClassName($menu, `pops-${PopsType}-anim-grid`);
 				}
-				return menuElement;
+				return $menu;
 			},
 			/**
 			 * 动态获取配的z-index
@@ -470,14 +286,22 @@ export class PopsRightClickMenu {
 			 * @param y
 			 */
 			getOffset(menuElement: HTMLElement, x: number, y: number) {
+				let menuElementWidth = popsDOMUtils.width(
+					menuElement,
+					void 0,
+					$shadowRoot
+				);
+				let menuElementHeight = popsDOMUtils.height(
+					menuElement,
+					void 0,
+					$shadowRoot
+				);
 				/* left最大偏移 */
 				let maxLeftOffset =
-					popsDOMUtils.width(globalThis) - popsDOMUtils.width(menuElement) - 1;
+					popsDOMUtils.width(globalThis) - menuElementWidth - 1;
 				/* top最大偏移 */
 				let maxTopOffset =
-					popsDOMUtils.height(globalThis) -
-					popsDOMUtils.height(menuElement) -
-					8;
+					popsDOMUtils.height(globalThis) - menuElementHeight - 8;
 
 				let currentLeftOffset = x;
 				let currentTopOffset = y;

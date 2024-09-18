@@ -14,9 +14,9 @@
 		"module": "ESNext",
 		// 指定 TypeScript 如何从给定的模块说明符查找文件。
 		"moduleResolution": "Node",
-		//"module": "AMD",
-		//"moduleResolution": "Bundler",
-		//"resolveJsonModule": true,
+		// "module": "AMD",
+		// "moduleResolution": "Bundler",
+		// "resolveJsonModule": true,
 		// 启用严格模式
 		"strict": true,
 		// 当类型检查时，考虑null and undefined.
@@ -39,8 +39,10 @@
 		"typeRoots": ["./src/types"],
 		// 当未读取局部变量时启用错误报告。
 		"noUnusedLocals": true,
-		//未读取函数参数时引发错误
-		"noUnusedParameters": false
+		// 未读取函数参数时引发错误
+		"noUnusedParameters": false,
+		// 删除未使用的导入
+		"importsNotUsedAsValues": "remove"
 	},
 	// 包含src下的所有文件
 	"include": ["src/**/*", "index.ts"]

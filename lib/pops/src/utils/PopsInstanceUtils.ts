@@ -15,6 +15,86 @@ import { pops } from "../Pops";
 
 export const PopsInstanceUtils = {
 	/**
+	 * 获取页面中最大的z-index的元素信息
+	 * @param deviation 获取最大的z-index值的偏移，默认是+1
+	 * @example
+	 * Utils.getMaxZIndexNodeInfo();
+	 * > {
+	 *   node: ...,
+	 *   zIndex: 1001
+	 * }
+	 **/
+	getMaxZIndexNodeInfo(deviation = 1): {
+		node: Element;
+		zIndex: number;
+	} {
+		deviation = Number.isNaN(deviation) ? 1 : deviation;
+		// 最大值2147483647
+		const maxZIndex = Math.pow(2, 31) - 1;
+		// 比较值2000000000
+		const maxZIndexCompare = 2 * Math.pow(10, 9);
+		// 当前页面最大的z-index
+		let zIndex = 0;
+		// 当前的最大z-index的元素，调试使用
+		// @ts-ignore
+		let maxZIndexNode: Element = null;
+		/**
+		 * 元素是否可见
+		 * @param $css
+		 */
+		function isVisibleNode($css: CSSStyleDeclaration): boolean {
+			return $css.position !== "static" && $css.display !== "none";
+		}
+		/**
+		 * 查询元素的z-index
+		 * 并比较值是否是已获取的最大值
+		 * @param $ele
+		 */
+		function queryMaxZIndex($ele: Element) {
+			/** 元素的样式 */
+			const nodeStyle = PopsCore.window.getComputedStyle($ele);
+			/* 不对position为static和display为none的元素进行获取它们的z-index */
+			if (isVisibleNode(nodeStyle)) {
+				let nodeZIndex = parseInt(nodeStyle.zIndex);
+				if (!isNaN(nodeZIndex)) {
+					if (nodeZIndex > zIndex) {
+						// 赋值到全局
+						zIndex = nodeZIndex;
+						maxZIndexNode = $ele;
+					}
+				}
+				// 判断shadowRoot
+				if ($ele.shadowRoot != null && $ele instanceof ShadowRoot) {
+					$ele.shadowRoot.querySelectorAll("*").forEach(($shadowEle) => {
+						queryMaxZIndex($shadowEle);
+					});
+				}
+			}
+		}
+		PopsCore.document.querySelectorAll("*").forEach(($ele, index) => {
+			queryMaxZIndex($ele);
+		});
+		zIndex += deviation;
+		if (zIndex >= maxZIndexCompare) {
+			// 最好不要超过最大值
+			zIndex = maxZIndex;
+		}
+		return {
+			node: maxZIndexNode,
+			zIndex: zIndex,
+		};
+	},
+	/**
+	 * 获取页面中最大的z-index
+	 * @param deviation 获取最大的z-index值的偏移，默认是+1
+	 * @example
+	 * Utils.getMaxZIndex();
+	 * > 1001
+	 **/
+	getMaxZIndex(deviation = 1): number {
+		return this.getMaxZIndexNodeInfo(deviation).zIndex;
+	},
+	/**
 	 * 获取pops所有弹窗中的最大的z-index
 	 * @param deviation
 	 */

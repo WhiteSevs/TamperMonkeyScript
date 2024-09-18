@@ -1125,6 +1125,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 	 * 获取元素的宽度
 	 * @param element 要获取宽度的元素
 	 * @param isShow 是否已进行isShow，避免爆堆栈
+	 * @param parent 用于判断是否已显示的父元素载体
 	 * @returns 元素的宽度，单位为像素
 	 * @example
 	 * // 获取元素a.xx的宽度
@@ -1141,11 +1142,13 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 	 */
 	width(
 		element: HTMLElement | string | Window | Document | typeof globalThis,
-		isShow?: boolean
+		isShow?: boolean,
+		parent?: HTMLElement | ShadowRoot
 	): number;
 	width(
 		element: HTMLElement | string | Window | Document | typeof globalThis,
-		isShow: boolean = false
+		isShow: boolean = false,
+		parent?: HTMLElement | ShadowRoot
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
@@ -1205,8 +1208,8 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 		} else {
 			/* 未显示 */
 			element = element as HTMLElement;
-			let { recovery } = popsDOMUtils.showElement(element);
-			let width = DOMUtilsContext.width(element, true);
+			let { cloneNode, recovery } = popsDOMUtils.showElement(element, parent);
+			let width = DOMUtilsContext.width(cloneNode, true, parent);
 			recovery();
 			return width;
 		}
@@ -1216,6 +1219,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 	 * 获取元素的高度
 	 * @param element 要获取高度的元素
 	 * @param isShow 是否已进行isShow，避免爆堆栈
+	 * @param parent 用于判断是否已显示的父元素载体
 	 * @returns 元素的高度，单位为像素
 	 * @example
 	 * // 获取元素a.xx的高度
@@ -1232,11 +1236,13 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 	 */
 	height(
 		element: HTMLElement | string | Window | Document | typeof globalThis,
-		isShow?: boolean
+		isShow?: boolean,
+		parent?: HTMLElement | ShadowRoot
 	): number;
 	height(
 		element: HTMLElement | string | Window | Document | typeof globalThis,
-		isShow: boolean = false
+		isShow: boolean = false,
+		parent?: HTMLElement | ShadowRoot
 	) {
 		let DOMUtilsContext = this;
 		if (popsUtils.isWin(element)) {
@@ -1299,17 +1305,18 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 		} else {
 			/* 未显示 */
 			element = element as HTMLElement;
-			let { recovery } = popsDOMUtils.showElement(element);
-			let height = DOMUtilsContext.height(element, true);
+			let { cloneNode, recovery } = popsDOMUtils.showElement(element, parent);
+			let height = DOMUtilsContext.height(cloneNode, true, parent);
 			recovery();
 			return height;
 		}
 	}
 	/**
 	 * 获取元素的外部宽度（包括边框和外边距）
-	 * @param {HTMLElement|string} element 要获取外部宽度的元素
-	 * @param {boolean} [isShow=false] 是否已进行isShow，避免爆堆栈
-	 * @returns {number} 元素的外部宽度，单位为像素
+	 * @param element 要获取外部宽度的元素
+	 * @param 是否已进行isShow，避免爆堆栈
+	 * @param parent 用于判断是否已显示的父元素载体
+	 * @returns 元素的外部宽度，单位为像素
 	 * @example
 	 * // 获取元素a.xx的外部宽度
 	 * DOMUtils.outerWidth(document.querySelector("a.xx"))
@@ -1321,11 +1328,13 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 	 */
 	outerWidth(
 		element: HTMLElement | string | Window | Document,
-		isShow?: boolean
+		isShow?: boolean,
+		parent?: HTMLElement | ShadowRoot
 	): number;
 	outerWidth(
 		element: HTMLElement | string | Window | Document,
-		isShow: boolean = false
+		isShow: boolean = false,
+		parent?: HTMLElement | ShadowRoot
 	) {
 		let DOMUtilsContext = this;
 		if (popsUtils.isWin(element)) {
@@ -1344,17 +1353,18 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 			let marginRight = popsDOMUtils.getStyleValue(style, "marginRight");
 			return element.offsetWidth + marginLeft + marginRight;
 		} else {
-			let { recovery } = popsDOMUtils.showElement(element);
-			let outerWidth = DOMUtilsContext.outerWidth(element, true);
+			let { cloneNode, recovery } = popsDOMUtils.showElement(element, parent);
+			let outerWidth = DOMUtilsContext.outerWidth(cloneNode, true, parent);
 			recovery();
 			return outerWidth;
 		}
 	}
 	/**
 	 * 获取元素的外部高度（包括边框和外边距）
-	 * @param {HTMLElement|string} element 要获取外部高度的元素
-	 * @param {boolean} [isShow=false] 是否已进行isShow，避免爆堆栈
-	 * @returns {number} 元素的外部高度，单位为像素
+	 * @param element 要获取外部高度的元素
+	 * @param isShow 是否已进行isShow，避免爆堆栈
+	 * @param parent 用于判断是否已显示的父元素载体
+	 * @returns 元素的外部高度，单位为像素
 	 * @example
 	 * // 获取元素a.xx的外部高度
 	 * DOMUtils.outerHeight(document.querySelector("a.xx"))
@@ -1364,10 +1374,15 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 	 * DOMUtils.outerHeight(window)
 	 * > 700
 	 */
-	outerHeight(element: HTMLElement | string | Window, isShow?: boolean): number;
 	outerHeight(
 		element: HTMLElement | string | Window,
-		isShow: boolean = false
+		isShow?: boolean,
+		parent?: HTMLElement | ShadowRoot
+	): number;
+	outerHeight(
+		element: HTMLElement | string | Window,
+		isShow: boolean = false,
+		parent?: HTMLElement | ShadowRoot
 	): number {
 		let DOMUtilsContext = this;
 		if (popsUtils.isWin(element)) {
@@ -1387,8 +1402,8 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 			let marginBottom = popsDOMUtils.getStyleValue(style, "marginBottom");
 			return element.offsetHeight + marginTop + marginBottom;
 		} else {
-			let { recovery } = popsDOMUtils.showElement(element);
-			let outerHeight = DOMUtilsContext.outerHeight(element, true);
+			let { cloneNode, recovery } = popsDOMUtils.showElement(element, parent);
+			let outerHeight = DOMUtilsContext.outerHeight(cloneNode, true, parent);
 			recovery();
 			return outerHeight;
 		}
@@ -1602,7 +1617,12 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 		/** 属性 */
 		property?:
 			| ({
-					[P in keyof HTMLElementTagNameMap[K]]?: HTMLElementTagNameMap[K][P];
+					[P in keyof HTMLElementTagNameMap[K]]?: HTMLElementTagNameMap[K][P] extends
+						| string
+						| boolean
+						| number
+						? HTMLElementTagNameMap[K][P]
+						: never;
 			  } & {
 					[key: string]: any;
 			  })
@@ -1649,7 +1669,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 	 * + false 删除临时节点元素
 	 */
 	getTextBoundingRect(
-		input: HTMLInputElement,
+		input: HTMLInputElement | HTMLTextAreaElement,
 		selectionStart: number | string,
 		selectionEnd: number | string,
 		debug: boolean
@@ -1965,20 +1985,29 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 	/**
 	 * 用于显示元素并获取它的高度宽度等其它属性
 	 * @param element
+	 * @param parent 父元素
 	 */
-	showElement(element: HTMLElement) {
-		let dupNode = element.cloneNode(true) as HTMLElement;
-		dupNode.setAttribute(
+	showElement(
+		element: HTMLElement,
+		parent: HTMLElement | ShadowRoot = PopsCore.document.documentElement
+	) {
+		/** 克隆元素 */
+		let cloneNode = element.cloneNode(true) as HTMLElement;
+		cloneNode.setAttribute(
 			"style",
 			"visibility: hidden !important;display:block !important;"
 		);
-		PopsCore.document.documentElement.appendChild(dupNode);
+		parent.appendChild(cloneNode);
 		return {
+			/**
+			 * 强制显示的克隆的元素
+			 */
+			cloneNode: cloneNode,
 			/**
 			 * 恢复修改的style
 			 */
 			recovery() {
-				dupNode.remove();
+				cloneNode.remove();
 			},
 		};
 	}
@@ -2005,6 +2034,56 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 			return 0;
 		} else {
 			return value;
+		}
+	}
+	/**
+	 * 在元素前面添加兄弟元素或HTML字符串
+	 * @param element 目标元素
+	 * @param content 兄弟元素或HTML字符串
+	 * @example
+	 * // 元素a.xx前面添加一个元素
+	 * DOMUtils.before(document.querySelector("a.xx"),document.querySelector("b.xx"))
+	 * DOMUtils.before("a.xx","'<b class="xx"></b>")
+	 * */
+	before(
+		element: HTMLElement | Element | string,
+		content: HTMLElement | string
+	) {
+		if (typeof element === "string") {
+			element = PopsCore.document.querySelector(element) as HTMLElement;
+		}
+		if (element == null) {
+			return;
+		}
+		if (typeof content === "string") {
+			element.insertAdjacentHTML("beforebegin", content);
+		} else {
+			element!.parentElement!.insertBefore(content, element);
+		}
+	}
+	/**
+	 * 在元素后面添加兄弟元素或HTML字符串
+	 * @param element 目标元素
+	 * @param content 兄弟元素或HTML字符串
+	 * @example
+	 * // 元素a.xx后面添加一个元素
+	 * DOMUtils.after(document.querySelector("a.xx"),document.querySelector("b.xx"))
+	 * DOMUtils.after("a.xx","'<b class="xx"></b>")
+	 * */
+	after(
+		element: HTMLElement | Element | string,
+		content: HTMLElement | string
+	) {
+		if (typeof element === "string") {
+			element = PopsCore.document.querySelector(element) as HTMLElement;
+		}
+		if (element == null) {
+			return;
+		}
+		if (typeof content === "string") {
+			element.insertAdjacentHTML("afterend", content);
+		} else {
+			element!.parentElement!.insertBefore(content, element.nextSibling);
 		}
 	}
 }

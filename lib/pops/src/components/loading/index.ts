@@ -3,35 +3,12 @@ import { PopsHandler } from "../../handler/PopsHandler";
 import { pops } from "../../Pops";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { popsUtils } from "../../utils/PopsUtils";
+import { PopsLoadingConfig } from "./config";
 import type { PopsLoadingDetails } from "./indexType";
 
 export class PopsLoading {
 	constructor(details: PopsLoadingDetails) {
-		let config: Required<PopsLoadingDetails> = {
-			parent: document.body,
-			content: {
-				text: "加载中...",
-				icon: "loading",
-				style: "",
-			},
-			class: "",
-			only: false,
-			zIndex: 10000,
-			mask: {
-				enable: false,
-				clickEvent: {
-					toClose: false,
-					toHide: false,
-				},
-
-				clickCallBack: void 0,
-			},
-			animation: "pops-anim-fadein-zoom",
-			forbiddenScroll: false,
-
-			style: null,
-			addIndexCSS: true,
-		};
+		let config: Required<PopsLoadingDetails> = PopsLoadingConfig;
 		config = popsUtils.assign(config, details);
 		let guid = popsUtils.getRandomGUID();
 		const PopsType = "loading";

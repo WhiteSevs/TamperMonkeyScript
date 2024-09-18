@@ -661,7 +661,7 @@ section.pops-panel-container
 /* textarea的CSS */
 .pops-panel-textarea textarea {
 	width: 100%;
-	vertical-align: bottom;
+	/*vertical-align: bottom;*/
 	position: relative;
 	display: block;
 	resize: none;
@@ -715,11 +715,197 @@ section.pops-panel-container
 }
 /* select的CSS */
 
-/* select-multiple的CSS */
-.pops-panel-select-multiple select {
-	height: auto;
+/* select-multiple的CSS*/
+.pops-panel-select-multiple {
+	--el-border-radius-base: 4px;
+	--el-fill-color-blank: #ffffff;
+	--el-transition-duration: 0.3s;
+	--el-border-color: #dcdfe6;
+	--el-text-color-placeholder: #a8abb2;
+	--color: inherit;
+	--el-select-input-color: #a8abb2;
+	--el-select-input-font-size: 14px;
+	--el-text-color-regular: #606266;
+	--el-color-info: #909399;
+	--el-color-info-light-9: #f4f4f5;
+	--el-color-info-light-8: #e9e9eb;
+	--el-color-primary-light-9: #ecf5ff;
+	--el-color-primary-light-8: #d9ecff;
+	--el-color-primary: #409eff;
+	--el-color-white: #ffffff;
+	width: 200px;
+	/* 左侧内容*/
+	/* 左侧内容*/
+	/* 右侧箭头图标*/
+	/* 右侧箭头图标*/
+	/* tag*/
 }
-/* select-multiple的CSS */
+.pops-panel-select-multiple .el-select__wrapper {
+	display: flex;
+	align-items: center;
+	position: relative;
+	box-sizing: border-box;
+	cursor: pointer;
+	text-align: left;
+	font-size: 14px;
+	padding: 4px 12px;
+	gap: 6px;
+	min-height: 32px;
+	line-height: 24px;
+	border-radius: var(--el-border-radius-base);
+	background-color: var(--el-fill-color-blank);
+	transition: var(--el-transition-duration);
+	transform: translateZ(0);
+	box-shadow: 0 0 0 1px var(--el-border-color) inset;
+}
+.pops-panel-select-multiple .el-select__wrapper.is-focused {
+	box-shadow: 0 0 0 1px var(--el-color-primary) inset;
+}
+.pops-panel-select-multiple .el-select__selection {
+	position: relative;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	flex: 1;
+	min-width: 0;
+	gap: 6px;
+}
+.pops-panel-select-multiple .el-select__selected-item {
+	display: flex;
+	flex-wrap: wrap;
+	-webkit-user-select: none;
+	user-select: none;
+}
+.pops-panel-select-multiple
+	.el-select__selected-item.el-select__choose_tag
+	.el-tag {
+	max-width: 200px;
+}
+.pops-panel-select-multiple .el-select__input-wrapper {
+	max-width: 100%;
+}
+.pops-panel-select-multiple .el-select__selection.is-near {
+	margin-left: -8px;
+}
+.pops-panel-select-multiple .el-select__placeholder {
+	position: absolute;
+	display: block;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: var(--el-input-text-color, var(--el-text-color-regular));
+}
+.pops-panel-select-multiple .el-select__placeholder.is-transparent {
+	-webkit-user-select: none;
+	user-select: none;
+	color: var(--el-text-color-placeholder);
+}
+.pops-panel-select-multiple .el-select__prefix,
+.pops-panel-select-multiple .el-select__suffix {
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+	gap: 6px;
+	color: var(--el-input-icon-color, var(--el-text-color-placeholder));
+}
+.pops-panel-select-multiple .el-icon {
+	--color: inherit;
+	height: 1em;
+	width: 1em;
+	line-height: 1em;
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+	fill: currentColor;
+	color: var(--color);
+	font-size: inherit;
+}
+.pops-panel-select-multiple .el-icon svg {
+	height: 1em;
+	width: 1em;
+}
+.pops-panel-select-multiple .el-select__caret {
+	color: var(--el-select-input-color);
+	font-size: var(--el-select-input-font-size);
+	transition: var(--el-transition-duration);
+	transform: rotate(0);
+	cursor: pointer;
+}
+.pops-panel-select-multiple .el-tag {
+	--el-tag-font-size: 12px;
+	--el-tag-border-radius: 4px;
+	--el-tag-border-radius-rounded: 9999px;
+}
+.pops-panel-select-multiple .el-tag {
+	background-color: var(--el-tag-bg-color);
+	border-color: var(--el-tag-border-color);
+	color: var(--el-tag-text-color);
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	vertical-align: middle;
+	height: 24px;
+	padding: 0 9px;
+	font-size: var(--el-tag-font-size);
+	line-height: 1;
+	border-width: 1px;
+	border-style: solid;
+	border-radius: var(--el-tag-border-radius);
+	box-sizing: border-box;
+	white-space: nowrap;
+	--el-icon-size: 14px;
+	--el-tag-bg-color: var(--el-color-primary-light-9);
+	--el-tag-border-color: var(--el-color-primary-light-8);
+	--el-tag-hover-color: var(--el-color-primary);
+}
+.pops-panel-select-multiple .el-select__selection .el-tag {
+	cursor: pointer;
+	border-color: transparent;
+}
+.pops-panel-select-multiple .el-tag.el-tag--info {
+	--el-tag-bg-color: var(--el-color-info-light-9);
+	--el-tag-border-color: var(--el-color-info-light-8);
+	--el-tag-hover-color: var(--el-color-info);
+}
+.pops-panel-select-multiple .el-tag.el-tag--info {
+	--el-tag-text-color: var(--el-color-info);
+}
+.pops-panel-select-multiple .el-tag.is-closable {
+	padding-right: 5px;
+}
+.pops-panel-select-multiple .el-select__selection .el-tag .el-tag__content {
+	min-width: 0;
+}
+.pops-panel-select-multiple .el-tag .el-tag__close {
+	flex-shrink: 0;
+	color: var(--el-tag-text-color);
+}
+.pops-panel-select-multiple .el-tag .el-tag__close:hover {
+	color: var(--el-color-white);
+	background-color: var(--el-tag-hover-color);
+}
+.pops-panel-select-multiple .el-tag .el-icon {
+	border-radius: 50%;
+	cursor: pointer;
+	font-size: calc(var(--el-icon-size) - 2px);
+	height: var(--el-icon-size);
+	width: var(--el-icon-size);
+}
+.pops-panel-select-multiple .el-tag .el-tag__close {
+	margin-left: 6px;
+}
+.pops-panel-select-multiple .el-select__tags-text {
+	display: block;
+	line-height: normal;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+/* select-multiple的CSS*/
 
 /* deepMenu的css */
 .pops-panel-deepMenu-nav-item {

@@ -1,0 +1,78 @@
+.pops-rightClickMenu * {
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	-webkit-tap-highlight-color: transparent;
+	scrollbar-width: thin;
+}
+.pops-rightClickMenu {
+	position: fixed;
+	z-index: 111430;
+	text-align: center;
+	border-radius: 3px;
+	font-size: 16px;
+	font-weight: 500;
+	background: #fff;
+	box-shadow: 0px 1px 6px 1px #cacaca;
+}
+.pops-rightClickMenu-anim-grid {
+	display: grid;
+	transition: 0.3s;
+	grid-template-rows: 0fr;
+}
+.pops-rightClickMenu-anim-show {
+	grid-template-rows: 1fr;
+}
+.pops-rightClickMenu-is-visited {
+	background: #dfdfdf;
+}
+i.pops-rightClickMenu-icon {
+	height: 1em;
+	width: 1em;
+	line-height: 1em;
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+	fill: currentColor;
+	color: inherit;
+	font-size: inherit;
+	margin-right: 6px;
+}
+i.pops-rightClickMenu-icon[is-loading="true"] {
+	animation: rotating 2s linear infinite;
+}
+.pops-rightClickMenu li:hover {
+	background: #dfdfdf;
+	cursor: pointer;
+}
+.pops-rightClickMenu ul {
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: center;
+	overflow: hidden;
+}
+.pops-rightClickMenu ul li {
+	padding: 5px 10px;
+	margin: 2.5px 5px;
+	border-radius: 3px;
+	display: flex;
+	width: -webkit-fill-available;
+	width: -moz-available;
+	text-align: left;
+	user-select: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	align-items: center;
+}
+.pops-rightClickMenu ul li:first-child {
+	margin-top: 5px;
+}
+.pops-rightClickMenu ul li:last-child {
+	margin-bottom: 5px;
+}

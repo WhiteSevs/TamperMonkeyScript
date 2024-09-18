@@ -1,6 +1,6 @@
 {
 	"name": "@whitesev/pops",
-	"version": "1.6.0",
+	"version": "1.6.1",
 	"description": "弹窗库",
 	"main": "dist/index.cjs.js",
 	"module": "dist/index.esm.js",
@@ -20,6 +20,7 @@
 		"src"
 	],
 	"scripts": {
+		"dev": "rollup --config --watch",
 		"build": "rollup --config",
 		"build:all": "rollup --config"
 	},
@@ -46,6 +47,8 @@
 	},
 	"devDependencies": {
 		"rollup-plugin-import-css": "^3.5.0",
+		"rollup-plugin-livereload": "^2.0.5",
+		"rollup-plugin-serve": "^1.1.1",
 		"typescript": "^5.4.5"
 	}
 }

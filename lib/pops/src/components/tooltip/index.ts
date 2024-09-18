@@ -2,6 +2,7 @@ import { PopsHandler } from "../../handler/PopsHandler";
 import { pops } from "../../Pops";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { popsUtils } from "../../utils/PopsUtils";
+import { PopsTooltipConfig } from "./config";
 import type { PopsToolTipDetails, PopsTooltipPosition } from "./indexType";
 
 export class PopsTooltip {
@@ -14,33 +15,7 @@ export class PopsTooltip {
 			pops.config.cssText.tooltipCSS,
 		]);
 
-		let config: Required<PopsToolTipDetails> = {
-			// @ts-ignore
-			target: null,
-			content: "默认文字",
-
-			position: "top",
-			className: "",
-			alwaysShow: false,
-			triggerShowEventName: "mouseenter touchstart",
-			triggerCloseEventName: "mouseleave touchend",
-			zIndex: 10000,
-			only: false,
-			eventOption: {
-				passive: false,
-				capture: true,
-				once: false,
-			},
-			showBeforeCallBack() {},
-			showAfterCallBack() {},
-			closeBeforeCallBack() {},
-			closeAfterCallBack() {},
-			arrowDistance: 12.5,
-			otherDistance: 0,
-
-			style: "",
-			beforeAppendToPageCallBack() {},
-		};
+		let config: Required<PopsToolTipDetails> = PopsTooltipConfig;
 		config = popsUtils.assign(config, details);
 		if (!(config.target instanceof HTMLElement)) {
 			throw "config.target 必须是HTMLElement类型";
