@@ -1498,6 +1498,7 @@ export const PanelHandleContentDetails = {
         `;
 
 		const PopsPanelSelectMultiple = {
+			[Symbol.toStringTag]: "PopsPanelSelectMultiple",
 			$el: {
 				/** 容器 */
 				$container: void 0 as any as HTMLElement,
@@ -1838,7 +1839,7 @@ export const PanelHandleContentDetails = {
 					}
 					let { style, ...userConfirmDetails } =
 						formConfig.selectConfirmDialogDetails || {};
-					let confirmDetails = Object.assign(
+					let confirmDetails =popsUtils.assign(
 						{
 							title: {
 								text: "请勾选需要选择的选项",
@@ -1859,6 +1860,7 @@ export const PanelHandleContentDetails = {
 									callback(details, event) {
 										that.$data.selectInfo = [...selectedInfo];
 										that.updateSelectTagItem();
+										details.close();
 									},
 								},
 							},
@@ -2043,7 +2045,7 @@ export const PanelHandleContentDetails = {
 		};
 
 		PopsPanelSelectMultiple.init();
-		Reflect.set(liElement, "data-select", PopsPanelSelectMultiple);
+		Reflect.set(liElement, "data-select-multiple", PopsPanelSelectMultiple);
 		return liElement;
 	},
 	/**
