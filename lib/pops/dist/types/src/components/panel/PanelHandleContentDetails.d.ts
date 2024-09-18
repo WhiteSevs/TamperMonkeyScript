@@ -9,7 +9,7 @@ import type { PopsPanelSelectDetails } from "./selectType";
 import type { PopsPanelSliderDetails } from "./sliderType";
 import type { PopsPanelSwitchDetails } from "./switchType";
 import type { PopsPanelTextAreaDetails } from "./textareaType";
-export declare const PanelHandleContentDetails: {
+export declare const PanelHandleContentDetails: () => {
     /**
      * 左侧的ul容器
      */

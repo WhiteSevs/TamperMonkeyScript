@@ -178,7 +178,7 @@ declare class Pops {
             division(number1: number, number2: number): number;
         };
         /** pops.panel中用于处理各个类型的工具 */
-        panelHandleContentUtils: {
+        panelHandleContentUtils: () => {
             asideULElement: HTMLUListElement;
             sectionContainerHeaderULElement: HTMLUListElement;
             sectionContainerULElement: HTMLUListElement;

@@ -135,11 +135,11 @@ export class PopsPanel {
 		if ($mask != null) {
 			$anim.after($mask);
 		}
-
+		let panelHandleContentDetails = PanelHandleContentDetails();
 		/**
 		 * 处理内部配置
 		 */
-		PanelHandleContentDetails.init({
+		panelHandleContentDetails.init({
 			config: config,
 			$el: {
 				$content: $content,
