@@ -4,9 +4,7 @@ import { pops } from "../../Pops";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
-import type {
-	PopsPanelDetails,
-} from "./indexType";
+import type { PopsPanelDetails } from "./indexType";
 import { PopsPanelConfig } from "./config";
 import { PanelHandleContentDetails } from "./PanelHandleContentDetails";
 
@@ -23,7 +21,7 @@ export class PopsPanel {
 			pops.config.cssText.panelCSS,
 		]);
 
-		let config: Required<PopsPanelDetails> = PopsPanelConfig;
+		let config: Required<PopsPanelDetails> = PopsPanelConfig();
 		config = popsUtils.assign(config, details);
 		if (details && Array.isArray(details.content)) {
 			config.content = details.content;

@@ -1,8 +1,8 @@
 import { pops } from "../../Pops";
 import type { PopsRightClickMenuDetails } from "./indexType";
 
-export const rightClickMenuConfig = () => {
-	let config: Required<PopsRightClickMenuDetails> = {
+export const rightClickMenuConfig = (): Required<PopsRightClickMenuDetails> => {
+	return {
 		target: document.documentElement,
 		targetSelector: null,
 		data: [
@@ -117,6 +117,4 @@ export const rightClickMenuConfig = () => {
 		style: null,
 		beforeAppendToPageCallBack() {},
 	};
-
-	return config;
 };

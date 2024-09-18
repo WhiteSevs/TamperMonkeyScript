@@ -15,7 +15,7 @@ export class PopsTooltip {
 			pops.config.cssText.tooltipCSS,
 		]);
 
-		let config: Required<PopsToolTipDetails> = PopsTooltipConfig;
+		let config: Required<PopsToolTipDetails> = PopsTooltipConfig();
 		config = popsUtils.assign(config, details);
 		if (!(config.target instanceof HTMLElement)) {
 			throw "config.target 必须是HTMLElement类型";

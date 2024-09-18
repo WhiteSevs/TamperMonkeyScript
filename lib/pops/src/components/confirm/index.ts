@@ -19,7 +19,7 @@ export class PopsConfirm {
 			pops.config.cssText.common,
 			pops.config.cssText.confirmCSS,
 		]);
-		let config: Required<PopsConfirmDetails> = PopsConfirmConfig;
+		let config: Required<PopsConfirmDetails> = PopsConfirmConfig();
 		config = popsUtils.assign(config, details);
 		let guid = popsUtils.getRandomGUID();
 		// 设置当前类型

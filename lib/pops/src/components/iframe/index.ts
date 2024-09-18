@@ -20,7 +20,7 @@ export class PopsIframe {
 			pops.config.cssText.iframeCSS,
 		]);
 
-		let config: Required<PopsIframeDetails> = PopsIframeConfig;
+		let config: Required<PopsIframeDetails> = PopsIframeConfig();
 		config = popsUtils.assign(config, details);
 		if (config.url == null) {
 			throw "config.url不能为空";

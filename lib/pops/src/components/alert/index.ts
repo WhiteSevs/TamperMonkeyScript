@@ -21,7 +21,7 @@ export class PopsAlert {
 			pops.config.cssText.alertCSS,
 		]);
 
-		let config: Required<PopsAlertDetails> = PopsAlertConfig;
+		let config: Required<PopsAlertDetails> = PopsAlertConfig();
 		config = popsUtils.assign(config, details);
 		let guid = popsUtils.getRandomGUID();
 		// 设置当前类型

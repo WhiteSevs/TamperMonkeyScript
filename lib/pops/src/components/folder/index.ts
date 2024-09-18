@@ -21,7 +21,7 @@ export class PopsFolder {
 			pops.config.cssText.folderCSS,
 		]);
 
-		let config: Required<PopsFolderDetails> = PopsFolderConfig;
+		let config: Required<PopsFolderDetails> = PopsFolderConfig();
 
 		/* 办公几件套 */
 		(Folder_ICON as any).docx = Folder_ICON.doc;

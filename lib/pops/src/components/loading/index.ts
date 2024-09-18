@@ -8,7 +8,7 @@ import type { PopsLoadingDetails } from "./indexType";
 
 export class PopsLoading {
 	constructor(details: PopsLoadingDetails) {
-		let config: Required<PopsLoadingDetails> = PopsLoadingConfig;
+		let config: Required<PopsLoadingDetails> = PopsLoadingConfig();
 		config = popsUtils.assign(config, details);
 		let guid = popsUtils.getRandomGUID();
 		const PopsType = "loading";

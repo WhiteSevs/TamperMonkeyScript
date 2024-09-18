@@ -19,7 +19,7 @@ export class PopsPrompt {
 			pops.config.cssText.common,
 			pops.config.cssText.promptCSS,
 		]);
-		let config: Required<PopsPromptDetails> = PopsPromptConfig;
+		let config: Required<PopsPromptDetails> = PopsPromptConfig();
 		config = popsUtils.assign(config, details);
 		let guid = popsUtils.getRandomGUID();
 		const PopsType = "prompt";

@@ -15,7 +15,7 @@ export class PopsSearchSuggestion {
 		]);
 
 		let config: Required<PopsSearchSuggestionDetails> =
-			PopsSearchSuggestionConfig;
+			PopsSearchSuggestionConfig();
 		config = popsUtils.assign(config, details);
 		if (config.target == null) {
 			throw new TypeError("config.target 不能为空");
