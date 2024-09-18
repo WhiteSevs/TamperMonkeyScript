@@ -1507,7 +1507,7 @@
       keyboardValue.ohterCodeList.forEach((ohterCodeKey) => {
         result += utils.stringTitleToUpperCase(ohterCodeKey, true) + " + ";
       });
-      result += keyboardValue.keyName;
+      result += utils.stringTitleToUpperCase(keyboardValue.keyName);
       return result;
     }
     /**
@@ -1538,20 +1538,21 @@
           window,
           "keyup",
           (keyName, keyValue, ohterCodeList) => {
-            let currentOption = {
+            const currentOption = {
               keyName,
               keyValue,
               ohterCodeList
             };
-            let shortcutJSONString = JSON.stringify(currentOption);
-            let allOptions = this.getLocalAllOptions();
+            const shortcutJSONString = JSON.stringify(currentOption);
+            const allOptions = this.getLocalAllOptions();
             for (let index = 0; index < allOptions.length; index++) {
               let localValue = allOptions[index];
               if (localValue.key === key) {
                 continue;
               }
+              const localShortCutJSONString = JSON.stringify(localValue.value);
               let isUsedByOtherOption = false;
-              if (localValue.value != null && shortcutJSONString === JSON.stringify(localValue.value)) {
+              if (localValue.value != null && shortcutJSONString === localShortCutJSONString) {
                 isUsedByOtherOption = true;
               }
               if (isUsedByOtherOption) {
@@ -1677,6 +1678,7 @@
             log.error("页面不存在【发表回复】按钮");
             return;
           }
+          log.success("监听快捷键：gf-quickReply");
           return $commentText;
         },
         callback() {

@@ -1,6 +1,5 @@
 import { GM_getValue, GM_setValue } from "ViteGM";
 import { DOMUtils, log, utils } from "@/env";
-import Qmsg from "qmsg";
 
 /** 本地存储快捷键的键配置 */
 export type ShortCutKeyboardOption = {
@@ -169,7 +168,7 @@ export class ShortCut {
 		keyboardValue.ohterCodeList.forEach((ohterCodeKey) => {
 			result += utils.stringTitleToUpperCase(ohterCodeKey, true) + " + ";
 		});
-		result += keyboardValue.keyName;
+		result += utils.stringTitleToUpperCase(keyboardValue.keyName);
 		return result;
 	}
 	/**
@@ -206,24 +205,25 @@ export class ShortCut {
 				window,
 				"keyup",
 				(keyName, keyValue, ohterCodeList) => {
-					let currentOption = {
+					const currentOption: ShortCutKeyboardOption = {
 						keyName: keyName,
 						keyValue: keyValue,
 						ohterCodeList: ohterCodeList,
-					} as ShortCutKeyboardOption;
-					let shortcutJSONString = JSON.stringify(currentOption);
-					let allOptions = this.getLocalAllOptions();
+					};
+					const shortcutJSONString = JSON.stringify(currentOption);
+					const allOptions = this.getLocalAllOptions();
 					for (let index = 0; index < allOptions.length; index++) {
 						let localValue = allOptions[index];
 						if (localValue.key === key) {
 							// 同一个配置的就不做判断了
 							continue;
 						}
+						const localShortCutJSONString = JSON.stringify(localValue.value);
 						// 是否被其它快捷键占用
 						let isUsedByOtherOption = false;
 						if (
 							localValue.value != null &&
-							shortcutJSONString === JSON.stringify(localValue.value)
+							shortcutJSONString === localShortCutJSONString
 						) {
 							// .value不为null且相同
 							isUsedByOtherOption = true;

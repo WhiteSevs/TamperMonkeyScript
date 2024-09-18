@@ -19,6 +19,7 @@ export const GreasyforkShortCut = {
 					log.error("页面不存在【发表回复】按钮");
 					return;
 				}
+				log.success("监听快捷键：" + "gf-quickReply");
 				return $commentText;
 			},
 			callback() {
