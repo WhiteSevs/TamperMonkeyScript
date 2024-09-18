@@ -3322,7 +3322,6 @@ class Utils {
 			}
 			/**
 			 * 申请剪贴板权限
-			 * @returns {Promise<boolean>}
 			 */
 			requestClipboardPermission() {
 				return new Promise((resolve, reject) => {
@@ -3335,16 +3334,13 @@ class Utils {
 							.then((permissionStatus) => {
 								resolve(true);
 							})
-							.catch(
-								/** @param {TypeError} error */
-								(error) => {
-									console.error([
-										"申请剪贴板权限失败，尝试直接写入👉",
-										error.message ?? error.name ?? error.stack,
-									]);
-									resolve(false);
-								}
-							);
+							.catch((error: TypeError) => {
+								console.error([
+									"申请剪贴板权限失败，尝试直接写入👉",
+									error.message ?? error.name ?? error.stack,
+								]);
+								resolve(false);
+							});
 					} else {
 						resolve(false);
 					}
