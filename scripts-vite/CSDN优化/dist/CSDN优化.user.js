@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.15
+// @version      2024.9.19
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -9,10 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.csdn.net/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.6.4/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
 // @grant        GM_getValue
@@ -2468,15 +2468,22 @@
     },
     /**
      * 去除CSDN拦截其它网址的url并自动跳转
+     * @example
+     * https://link.csdn.net/?target=https%3A%2F%2Fjaist.dl.sourceforge.net%2Fproject%2Fportecle%2Fv1.11%2Fportecle-1.11.zip
      */
     jumpRedirect() {
-      if (window.location.hostname === "link.csdn.net" && window.location.search.startsWith("?target")) {
-        window.stop();
-        let search = window.location.search.replace(/^\?target=/gi, "");
-        search = decodeURIComponent(search);
-        let newURL = search;
-        log.success(`跳转链接 ${newURL}`);
-        window.location.href = newURL;
+      try {
+        let urlSearchParams = new URLSearchParams(window.location.search);
+        if (urlSearchParams.has("target")) {
+          let target = urlSearchParams.get("target");
+          let jumpUrl = decodeURIComponent(target);
+          log.success(`跳转链接：${jumpUrl}`);
+          window.location.href = jumpUrl;
+        } else {
+          log.error("解析跳转的链接失败，原因：搜索参数中没有target参数");
+        }
+      } catch (error) {
+        Qmsg.error("跳转链接失败：" + error.message);
       }
     }
   };
