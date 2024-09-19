@@ -2474,8 +2474,9 @@
     jumpRedirect() {
       try {
         let urlSearchParams = new URLSearchParams(window.location.search);
-        if (urlSearchParams.has("target")) {
-          let target = urlSearchParams.get("target");
+        const URL_KEY = "target";
+        if (urlSearchParams.has(URL_KEY)) {
+          let target = urlSearchParams.get(URL_KEY);
           let jumpUrl = decodeURIComponent(target);
           log.success(`跳转链接：${jumpUrl}`);
           window.location.href = jumpUrl;
