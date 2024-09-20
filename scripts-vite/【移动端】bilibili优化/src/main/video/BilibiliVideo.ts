@@ -435,6 +435,26 @@ const BilibiliVideo = {
 				});
 		});
 	},
+	/**
+	 * 进入全屏
+	 */
+	enterVideoFullScreen() {
+		utils
+			.waitNode<HTMLElement>(".mplayer-btn-widescreen", 5000)
+			.then(($btnWideScreen) => {
+				if (!$btnWideScreen) {
+					log.error("获取全屏按钮失败");
+					Qmsg.error("获取全屏按钮失败");
+					return;
+				}
+				if ($btnWideScreen.closest(".mplayer-wide")) {
+					log.warn("当前的全屏按钮是【退出全屏】，不点击");
+					return;
+				}
+				log.info(`进入全屏`);
+				$btnWideScreen.click();
+			});
+	},
 };
 
 export { BilibiliVideo };

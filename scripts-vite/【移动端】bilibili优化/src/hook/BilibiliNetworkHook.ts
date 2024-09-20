@@ -1,9 +1,9 @@
 import { log, utils } from "@/env";
-import { BilibiliPlayer } from "@/main/BilibiliPlayer";
+import { BilibiliPlayer } from "@/player/BilibiliPlayer";
+import { BilibiliPlayerToast } from "@/player/BilibiliPlayerToast";
 import { BilibiliRouter } from "@/router/BilibiliRouter";
 import { PopsPanel } from "@/setting/setting";
 import { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/AjaxHookerType";
-import { BilibiliPlayerToast } from "../main/BilibiliPlayerToast";
 
 let _ajaxHooker_ = null as any as UtilsAjaxHookResult;
 

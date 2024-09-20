@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.9.11.23
+// @version      2024.9.20
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,9 +13,9 @@
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/497907/1413262/QRCodeJS.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.6.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @connect      *
 // @connect      m.bilibili.com
@@ -347,6 +347,300 @@
     }
     return result;
   };
+  const UIOwn = function(getLiElementCallBack, initConfig, props, afterAddToUListCallBack) {
+    let result = {
+      attributes: {},
+      type: "own",
+      props,
+      getLiElementCallBack,
+      afterAddToUListCallBack
+    };
+    if (result.attributes) {
+      result.attributes[ATTRIBUTE_INIT] = () => {
+        if (initConfig) {
+          Object.keys(initConfig).forEach((key) => {
+            let defaultValue = initConfig[key];
+            if (PopsPanel.$data.data.has(key)) {
+              log.warn("请检查该key(已存在): " + key);
+            }
+            PopsPanel.$data.data.set(key, defaultValue);
+          });
+        }
+        return false;
+      };
+    }
+    return result;
+  };
+  const BilibiliPlayerToast = {
+    $flag: {
+      isInitCSS: false
+    },
+    $data: {
+      /** 默认的toast的className */
+      originToast: "mplayer-toast",
+      /** 让Toast显示的className */
+      showClassName: "mplayer-show",
+      /** 自定义的toast的class，避免和页面原有的toast冲突 */
+      prefix: "mplayer-toast-gm"
+    },
+    $el: {
+      get $mplayer() {
+        return document.querySelector(".mplayer");
+      }
+    },
+    /**
+     * 弹出吐司
+     * @param config
+     */
+    toast(config) {
+      if (typeof config === "string") {
+        config = {
+          text: config
+        };
+      }
+      this.initCSS();
+      let $parent = config.parent ?? this.$el.$mplayer;
+      if (!$parent) {
+        throw new TypeError("toast parent is null");
+      }
+      this.mutationMPlayerOriginToast($parent);
+      let $toast = domutils.createElement("div", {
+        "data-from": "gm"
+      });
+      domutils.addClass($toast, this.$data.prefix);
+      domutils.addClass($toast, this.$data.showClassName);
+      if (config.showCloseBtn) {
+        let $closeBtn = domutils.createElement("div", {
+          className: this.$data.prefix + "-close",
+          innerHTML: (
+            /*html*/
+            `
+                    <span class="bp-svgicon">
+                        <svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4.47 4.47a.75.75 0 011.06 0l5.541 5.54 5.54-5.54a.75.75 0 011.061 1.06l-5.54 5.541 5.54 5.54a.75.75 0 01.073.977l-.073.084a.75.75 0 01-1.06 0l-5.541-5.54-5.54 5.54a.75.75 0 01-1.061-1.06l5.54-5.541-5.54-5.54a.75.75 0 01-.073-.977z" fill="#FEFEFE" fill-rule="evenodd">
+                            </path>
+                        </svg>
+                    </span>
+                `
+          )
+        });
+        $toast.appendChild($closeBtn);
+      }
+      let $text = domutils.createElement("span", {
+        className: this.$data.prefix + "-text",
+        innerText: config.text
+      });
+      $toast.appendChild($text);
+      if (typeof config.timeText === "string" && config.timeText.trim() != "") {
+        let $time = domutils.createElement("span", {
+          className: this.$data.prefix + "-time",
+          innerText: config.timeText
+        });
+        $toast.appendChild($time);
+      }
+      if (typeof config.jumpText === "string" && config.jumpText.trim() != "") {
+        let $jump = domutils.createElement("span", {
+          className: this.$data.prefix + "-jump",
+          innerText: config.jumpText
+        });
+        $toast.appendChild($jump);
+        domutils.on($jump, "click", (event) => {
+          if (typeof config.jumpClickCallback === "function") {
+            utils.preventEvent(event);
+            config.jumpClickCallback(event);
+          }
+        });
+      }
+      this.setTransitionendEvent($toast);
+      let timeout = typeof config.timeout === "number" && !isNaN(config.timeout) ? config.timeout : 3500;
+      Array.from(
+        document.querySelectorAll(`.mplayer-toast`)
+      ).forEach(($mplayerOriginToast) => {
+        var _a2;
+        if ($mplayerOriginToast.hasAttribute("data-is-set-transitionend")) {
+          return;
+        }
+        $mplayerOriginToast.setAttribute("data-is-set-transitionend", "true");
+        if ((_a2 = $mplayerOriginToast.textContent) == null ? void 0 : _a2.includes("记忆你上次看到")) {
+          setTimeout(() => {
+            let $close = $mplayerOriginToast.querySelector(
+              ".mplayer-toast-close"
+            );
+            if ($close) {
+              $close.click();
+            } else {
+              $mplayerOriginToast.remove();
+            }
+          }, 3e3);
+        }
+        this.setTransitionendEvent($mplayerOriginToast);
+      });
+      $parent.appendChild($toast);
+      setTimeout(() => {
+        this.closeToast($toast);
+      }, timeout);
+      return {
+        $toast,
+        close: () => {
+          this.closeToast($toast);
+        }
+      };
+    },
+    /**
+     * 初始化css
+     */
+    initCSS() {
+      if (this.$flag.isInitCSS) {
+        return;
+      }
+      this.$flag.isInitCSS = true;
+      addStyle(
+        /*css*/
+        `
+		.${this.$data.prefix}.mplayer-show {
+			opacity: 1;
+			visibility: visible;
+			z-index: 40;
+		}
+
+		.mplayer-toast, .${this.$data.prefix} {
+			-webkit-transition-property: opacity, bottom;
+			transition-property: opacity, bottom;
+		}
+
+		.${this.$data.prefix} {
+			background-color: rgba(0, 0, 0, .8);
+			border-radius: 4px;
+			bottom: 48px;
+			color: #fafafa;
+			font-size: 12px;
+			left: 8px;
+			line-height: 24px;
+			opacity: 0;
+			overflow: hidden;
+			padding: 6px 8px;
+			position: absolute;
+			text-align: center;
+			-webkit-transition: opacity .3s;
+			transition: opacity .3s;
+			visibility: hidden;
+			z-index: 4;
+		}
+
+		.${this.$data.prefix}-close {
+			fill: #fff;
+			float: left;
+			height: 14px;
+			margin-right: 4px;
+			position: relative;
+			top: 1px;
+			width: 26px;
+		}
+
+		.${this.$data.prefix}-jump {
+			color: #f25d8e;
+			margin: 0 8px 0 16px;
+			text-decoration: none;
+		}
+
+		`
+      );
+    },
+    /**
+     * 观察mplayer
+     * 用于关闭页面自己的toast
+     * 动态更新自己的toast位置
+     */
+    mutationMPlayerOriginToast($parent) {
+      let $mplayer = this.$el.$mplayer;
+      if (!$mplayer) {
+        return;
+      }
+      if ($mplayer.hasAttribute("data-mutation")) {
+        return;
+      }
+      log.success(`添加观察器，动态更新toast的位置`);
+      $mplayer.setAttribute("data-mutation", "gm");
+      utils.mutationObserver($mplayer, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        immediate: true,
+        callback: () => {
+          this.updatePageToastBottom();
+        }
+      });
+    },
+    /**
+     * 更新页面上的bottom的位置
+     */
+    updatePageToastBottom() {
+      let pageToastList = Array.from(
+        document.querySelectorAll(`.${this.$data.prefix}`)
+      ).concat(
+        Array.from(
+          document.querySelectorAll(
+            ".".concat(this.$data.originToast).concat(".").concat(this.$data.showClassName)
+          )
+        )
+      );
+      if (pageToastList.length) {
+        let count = pageToastList.length - 1;
+        const toastHeight = 46;
+        pageToastList.forEach(($pageToast, index) => {
+          let bottom = toastHeight + toastHeight * (count - index);
+          $pageToast.setAttribute("data-transition", "move");
+          $pageToast.style.bottom = bottom + "px";
+        });
+      }
+    },
+    /**
+     * 关闭吐司
+     */
+    closeToast($ele) {
+      $ele.classList.remove(this.$data.showClassName);
+    },
+    /**
+     * 获取事件名称列表
+     * @private
+     */
+    getTransitionendEventNameList() {
+      return [
+        "webkitTransitionEnd",
+        "mozTransitionEnd",
+        "MSTransitionEnd",
+        "otransitionend",
+        "transitionend"
+      ];
+    },
+    /**
+     * 监听过渡结束
+     * @private
+     */
+    setTransitionendEvent($toast) {
+      let that = this;
+      let animationEndNameList = this.getTransitionendEventNameList();
+      domutils.on(
+        $toast,
+        animationEndNameList,
+        function(event) {
+          let dataTransition = $toast.getAttribute("data-transition");
+          if (!$toast.classList.contains(that.$data.showClassName)) {
+            $toast.remove();
+            return;
+          }
+          if (dataTransition === "move") {
+            $toast.removeAttribute("data-transition");
+            return;
+          }
+        },
+        {
+          capture: true
+        }
+      );
+    }
+  };
   const BilibiliRouter = {
     /**
      * 视频页面
@@ -425,180 +719,6 @@
      */
     isReadMobile() {
       return this.isPC() && window.location.pathname.startsWith("/read/mobile");
-    }
-  };
-  const BilibiliPlayerToast = {
-    $flag: {
-      isInitCSS: false
-    },
-    $data: {
-      /** 让Toast显示的className */
-      showClassName: "mplayer-show"
-    },
-    toast(config) {
-      if (typeof config === "string") {
-        config = {
-          text: config
-        };
-      }
-      if (!this.$flag.isInitCSS) {
-        this.$flag.isInitCSS = true;
-        addStyle(
-          /*css*/
-          `
-            .mplayer-toast{
-                -webkit-transition-property: opacity, bottom;
-                transition-property: opacity, bottom;
-            }
-            `
-        );
-      }
-      let $toast = domutils.createElement(
-        "div",
-        {
-          className: "mplayer-toast " + this.$data.showClassName
-        },
-        {
-          "data-from": "gm"
-        }
-      );
-      if (config.showCloseBtn) {
-        let $closeBtn = domutils.createElement("div", {
-          className: "mplayer-toast-close",
-          innerHTML: (
-            /*html*/
-            `
-                    <span class="bp-svgicon">
-                        <svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4.47 4.47a.75.75 0 011.06 0l5.541 5.54 5.54-5.54a.75.75 0 011.061 1.06l-5.54 5.541 5.54 5.54a.75.75 0 01.073.977l-.073.084a.75.75 0 01-1.06 0l-5.541-5.54-5.54 5.54a.75.75 0 01-1.061-1.06l5.54-5.541-5.54-5.54a.75.75 0 01-.073-.977z" fill="#FEFEFE" fill-rule="evenodd">
-                            </path>
-                        </svg>
-                    </span>
-                `
-          )
-        });
-        $toast.appendChild($closeBtn);
-      }
-      let $text = domutils.createElement("span", {
-        className: "mplayer-toast-text",
-        innerText: config.text
-      });
-      $toast.appendChild($text);
-      if (typeof config.timeText === "string" && config.timeText.trim() != "") {
-        let $time = domutils.createElement("span", {
-          className: "mplayer-toast-time",
-          innerText: config.timeText
-        });
-        $toast.appendChild($time);
-      }
-      if (typeof config.jumpText === "string" && config.jumpText.trim() != "") {
-        let $jump = domutils.createElement("span", {
-          className: "mplayer-toast-jump",
-          innerText: config.jumpText
-        });
-        $toast.appendChild($jump);
-      }
-      let $parent = config.parent ?? document.querySelector(".mplayer");
-      this.setTransitionendEvent($toast);
-      let timeout = typeof config.timeout === "number" && !isNaN(config.timeout) ? config.timeout : 3500;
-      if ($parent) {
-        let pageToastList = Array.from(
-          document.querySelectorAll(
-            `.mplayer-toast[data-from="gm"]`
-          )
-        );
-        Array.from(
-          document.querySelectorAll(
-            `.mplayer-toast:not([data-from="gm"])`
-          )
-        ).forEach(($ele) => {
-          var _a2;
-          if (!$ele.classList.contains(this.$data.showClassName)) {
-            $ele.remove();
-            return;
-          }
-          if ((_a2 = $ele.textContent) == null ? void 0 : _a2.includes("记忆你上次看到")) {
-            setTimeout(() => {
-              let $close = $ele.querySelector(
-                ".mplayer-toast-close"
-              );
-              if ($close) {
-                $close.click();
-              } else {
-                $ele.remove();
-              }
-            }, 3e3);
-          }
-          this.setTransitionendEvent($ele);
-        });
-        if (pageToastList.length > 1) {
-          for (let index = 0; index <= pageToastList.length - 1 - 1; index++) {
-            const $ele = pageToastList[index];
-            $ele.classList.remove(this.$data.showClassName);
-            pageToastList.splice(index, 1);
-            index--;
-          }
-        }
-        if (pageToastList.length) {
-          if (pageToastList.length > 1) {
-            log.warn("意外情况。pageToastList内不止一个");
-          }
-          const $ele = pageToastList[0];
-          let bottom = 46 + 46 * 1;
-          $ele.setAttribute("data-transition", "move");
-          $ele.style.bottom = bottom + "px";
-          Reflect.set($ele, "__nextToast", $toast);
-        } else {
-          $parent.appendChild($toast);
-        }
-      } else {
-        throw new TypeError("toast parent is null");
-      }
-      setTimeout(() => {
-        $toast.classList.remove(this.$data.showClassName);
-      }, timeout);
-      return $toast;
-    },
-    /**
-     * 获取事件名称列表
-     */
-    getTransitionendEventNameList() {
-      return [
-        "webkitTransitionEnd",
-        "mozTransitionEnd",
-        "MSTransitionEnd",
-        "otransitionend",
-        "transitionend"
-      ];
-    },
-    /**
-     * 监听过渡结束
-     */
-    setTransitionendEvent($toast) {
-      let animationEndNameList = this.getTransitionendEventNameList();
-      let that = this;
-      domutils.on(
-        $toast,
-        animationEndNameList,
-        function(event) {
-          let $nextToast = Reflect.get($toast, "__nextToast");
-          let dataTransition = $toast.getAttribute("data-transition");
-          if ($nextToast) {
-            domutils.after($toast, $nextToast);
-          }
-          if (!$toast.classList.contains(that.$data.showClassName)) {
-            $toast.remove();
-            return;
-          }
-          if (dataTransition === "move") {
-            $toast.removeAttribute("data-transition");
-            return;
-          }
-        },
-        {
-          capture: true
-        }
-      );
     }
   };
   let _ajaxHooker_ = null;
@@ -913,6 +1033,1055 @@
         Qmsg.error("未知错误：" + data2["message"]);
       }
       return false;
+    }
+  };
+  const BilibiliUtils = {
+    /**
+     * 获取元素上的__vue__属性
+     * @param element
+     * @returns
+     */
+    getVue(element) {
+      return element == null ? void 0 : element.__vue__;
+    },
+    /**
+     * 等待vue属性并进行设置
+     */
+    waitVuePropToSet($target, needSetList) {
+      function getTarget() {
+        let __target__ = null;
+        if (typeof $target === "string") {
+          __target__ = document.querySelector($target);
+        } else if (typeof $target === "function") {
+          __target__ = $target();
+        } else if ($target instanceof HTMLElement) {
+          __target__ = $target;
+        }
+        return __target__;
+      }
+      if (!Array.isArray(needSetList)) {
+        this.waitVuePropToSet($target, [needSetList]);
+        return;
+      }
+      needSetList.forEach((needSetOption) => {
+        if (typeof needSetOption.msg === "string") {
+          log.info(needSetOption.msg);
+        }
+        function checkVue() {
+          let target = getTarget();
+          if (target == null) {
+            return false;
+          }
+          let vueObj = BilibiliUtils.getVue(target);
+          if (vueObj == null) {
+            return false;
+          }
+          let needOwnCheck = needSetOption.check(vueObj);
+          return Boolean(needOwnCheck);
+        }
+        utils.waitVueByInterval(
+          () => {
+            return getTarget();
+          },
+          checkVue,
+          250,
+          1e4
+        ).then((result) => {
+          if (!result) {
+            return;
+          }
+          let target = getTarget();
+          let vueObj = BilibiliUtils.getVue(target);
+          if (vueObj == null) {
+            return;
+          }
+          needSetOption.set(vueObj);
+        });
+      });
+    },
+    /**
+     * 前往网址
+     * @param path
+     * @param [useRouter=false] 是否强制使用Router
+     */
+    goToUrl(path, useRouter = false) {
+      let $app = document.querySelector("#app");
+      if ($app == null) {
+        Qmsg.error("跳转Url: 获取根元素#app失败");
+        log.error("跳转Url: 获取根元素#app失败：" + path);
+        return;
+      }
+      let vueObj = BilibiliUtils.getVue($app);
+      if (vueObj == null) {
+        log.error("获取#app的vue属性失败");
+        Qmsg.error("获取#app的vue属性失败");
+        return;
+      }
+      let $router = vueObj.$router;
+      let isGoToUrlBlank = PopsPanel.getValue("bili-go-to-url-blank");
+      log.info("即将跳转URL：" + path);
+      if (useRouter) {
+        isGoToUrlBlank = false;
+      }
+      if (isGoToUrlBlank) {
+        window.open(path, "_blank");
+      } else {
+        if (path.startsWith("http") || path.startsWith("//")) {
+          if (path.startsWith("//")) {
+            path = window.location.protocol + path;
+          }
+          let urlObj = new URL(path);
+          if (urlObj.origin === window.location.origin) {
+            path = urlObj.pathname + urlObj.search + urlObj.hash;
+          } else {
+            log.info("不同域名，直接本页打开，不用Router：" + path);
+            window.location.href = path;
+            return;
+          }
+        }
+        log.info("$router push跳转Url：" + path);
+        $router.push(path);
+      }
+    },
+    /**
+     * 前往登录
+     */
+    goToLogin(fromUrl = "") {
+      window.open(
+        `https://passport.bilibili.com/h5-app/passport/login?gourl=${encodeURIComponent(
+        fromUrl
+      )}`
+      );
+    },
+    /**
+     * 转换时长为显示的时长
+     *
+     * + 30 => 0:30
+     * + 120 => 2:00
+     * + 14400 => 4:00:00
+     * @param duration 秒
+     */
+    parseDuration(duration) {
+      if (typeof duration !== "number") {
+        duration = parseInt(duration);
+      }
+      if (isNaN(duration)) {
+        return duration.toString();
+      }
+      function zeroPadding(num) {
+        if (num < 10) {
+          return `0${num}`;
+        } else {
+          return num;
+        }
+      }
+      if (duration < 60) {
+        return `0:${zeroPadding(duration)}`;
+      } else if (duration >= 60 && duration < 3600) {
+        return `${Math.floor(duration / 60)}:${zeroPadding(duration % 60)}`;
+      } else {
+        return `${Math.floor(duration / 3600)}:${zeroPadding(
+        Math.floor(duration / 60) % 60
+      )}:${zeroPadding(duration % 60)}`;
+      }
+    },
+    /**
+     * 手势返回
+     */
+    hookGestureReturnByVueRouter(option) {
+      function popstateEvent() {
+        log.success("触发popstate事件");
+        resumeBack(true);
+      }
+      function banBack() {
+        log.success("监听地址改变");
+        option.vueObj.$router.history.push(option.hash);
+        domutils.on(window, "popstate", popstateEvent);
+      }
+      async function resumeBack(isFromPopState = false) {
+        domutils.off(window, "popstate", popstateEvent);
+        let callbackResult = option.callback(isFromPopState);
+        if (callbackResult) {
+          return;
+        }
+        while (1) {
+          if (option.vueObj.$router.history.current.hash === option.hash) {
+            log.info("后退！");
+            option.vueObj.$router.back();
+            await utils.sleep(250);
+          } else {
+            return;
+          }
+        }
+      }
+      banBack();
+      return {
+        resumeBack
+      };
+    },
+    /**
+     * 加载<script>标签到页面
+     */
+    loadScript(src) {
+      let $script = document.createElement("script");
+      $script.src = src;
+      document.head.appendChild($script);
+      return new Promise((resolve) => {
+        $script.onload = function() {
+          log.success("script标签加载完毕：" + src);
+          setTimeout(() => {
+            resolve(true);
+          }, 100);
+        };
+      });
+    },
+    /**
+     * 添加屏蔽CSS
+     * @param args
+     * @example
+     * addBlockCSS("")
+     * addBlockCSS("","")
+     * addBlockCSS(["",""])
+     */
+    addBlockCSS(...args) {
+      let selectorList = [];
+      if (args.length === 0) {
+        return;
+      }
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+        return;
+      }
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    }
+  };
+  function isWebApiSuccess(json) {
+    return (json == null ? void 0 : json.code) === 0 && ((json == null ? void 0 : json.message) === "0" || (json == null ? void 0 : json.message) === "success");
+  }
+  const BilibiliHook = {
+    $isHook: {
+      windowPlayerAgent: false,
+      hookWebpackJsonp_openApp: false,
+      overRideLaunchAppBtn_Vue_openApp: false
+    },
+    $data: {
+      setTimeout: []
+    },
+    /**
+     * 劫持webpack
+     * @param webpackName 当前全局变量的webpack名
+     * @param mainCoreData 需要劫持的webpack的顶部core，例如：(window.webpackJsonp = window.webpackJsonp || []).push([["core:0"],{}])
+     * @param checkCallBack 如果mainCoreData匹配上，则调用此回调函数
+     */
+    windowWebPack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
+      let originObject = void 0;
+      OriginPrototype.Object.defineProperty(_unsafeWindow, webpackName, {
+        get() {
+          return originObject;
+        },
+        set(newValue) {
+          log.success("成功劫持webpack，当前webpack名：" + webpackName);
+          originObject = newValue;
+          const originPush = originObject.push;
+          originObject.push = function(...args) {
+            let _mainCoreData = args[0][0];
+            if (mainCoreData == _mainCoreData || Array.isArray(mainCoreData) && Array.isArray(_mainCoreData) && JSON.stringify(mainCoreData) === JSON.stringify(_mainCoreData)) {
+              Object.keys(args[0][1]).forEach((keyName) => {
+                let originSwitchFunc = args[0][1][keyName];
+                args[0][1][keyName] = function(..._args) {
+                  let result = originSwitchFunc.call(this, ..._args);
+                  _args[0] = checkCallBack(_args[0]);
+                  return result;
+                };
+              });
+            }
+            return originPush.call(this, ...args);
+          };
+        }
+      });
+    },
+    /**
+     * window.PlayerAgent
+     */
+    windowPlayerAgent() {
+      if (this.$isHook.windowPlayerAgent) {
+        return;
+      }
+      this.$isHook.windowPlayerAgent = true;
+      let PlayerAgent = void 0;
+      OriginPrototype.Object.defineProperty(_unsafeWindow, "PlayerAgent", {
+        get() {
+          return new Proxy(
+            {},
+            {
+              get(target, key) {
+                if (key === "openApp") {
+                  return function(...args) {
+                    let data2 = args[0];
+                    log.info(["调用PlayerAgent.openApp", data2]);
+                    if (data2["event"] === "fullScreen") {
+                      let $wideScreen = document.querySelector(
+                        ".mplayer-btn-widescreen"
+                      );
+                      if ($wideScreen) {
+                        $wideScreen.click();
+                      } else {
+                        log.warn(
+                          "主动再次点击全屏按钮失败，原因：未获取到.mplayer-btn-widescreen元素"
+                        );
+                      }
+                    }
+                  };
+                } else {
+                  return PlayerAgent[key];
+                }
+              }
+            }
+          );
+        },
+        set(v) {
+          PlayerAgent = v;
+        }
+      });
+    },
+    /**
+     * 劫持全局setTimeout
+     * + 视频页面/video
+     *
+     * window.setTimeout
+     * @param matchStr 需要进行匹配的函数字符串
+     */
+    setTimeout(matchStr) {
+      this.$data.setTimeout.push(matchStr);
+      if (this.$data.setTimeout.length > 1) {
+        log.info("window.setTimeout hook新增劫持判断参数：" + matchStr);
+        return;
+      }
+      _unsafeWindow.setTimeout = function(...args) {
+        let callBackString = args[0].toString();
+        if (callBackString.match(matchStr)) {
+          log.success(["劫持setTimeout的函数", callBackString]);
+          return;
+        }
+        return OriginPrototype.setTimeout.apply(this, args);
+      };
+    },
+    /**
+     * 覆盖元素.launch-app-btn上的openApp
+     *
+     * 页面上有很多
+     */
+    overRideLaunchAppBtn_Vue_openApp() {
+      if (this.$isHook.overRideLaunchAppBtn_Vue_openApp) {
+        return;
+      }
+      this.$isHook.overRideLaunchAppBtn_Vue_openApp = true;
+      function overrideOpenApp(vueObj) {
+        if (typeof vueObj.openApp !== "function") {
+          return;
+        }
+        let openAppStr = vueObj.openApp.toString();
+        if (openAppStr.includes("阻止唤醒App")) {
+          return;
+        }
+        vueObj.openApp = function(...args) {
+          log.success(["openApp：阻止唤醒App", args]);
+        };
+      }
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true,
+          attributes: true
+        },
+        callback() {
+          document.querySelectorAll(".launch-app-btn").forEach(($launchAppBtn) => {
+            let vueObj = BilibiliUtils.getVue($launchAppBtn);
+            if (!vueObj) {
+              return;
+            }
+            overrideOpenApp(vueObj);
+            if (vueObj.$children && vueObj.$children.length) {
+              vueObj.$children.forEach(($child) => {
+                overrideOpenApp($child);
+              });
+            }
+          });
+        }
+      });
+    }
+  };
+  const BilibiliVideoHook = {
+    init() {
+      PopsPanel.execMenuOnce("bili-video-hook-callApp", () => {
+        log.info("hook window.PlayerAgent");
+        BilibiliHook.windowPlayerAgent();
+      });
+    }
+  };
+  const BilibiliUrlUtils = {
+    /**
+     * 获取用户个人空间链接
+     * @param userId 用户id
+     */
+    getUserSpaceUrl(userId) {
+      return `https://m.bilibili.com/space/${userId}`;
+    },
+    /**
+     * 获取用户个人空间动态链接-dynamic
+     * @param id 该动态的id
+     */
+    getUserSpaceDynamicUrl(id) {
+      return `https://m.bilibili.com/dynamic/${id}`;
+    },
+    /**
+     * 获取用户个人空间动态链接-opus
+     * @param id 该动态的id
+     */
+    getUserSpaceOpusUrl(id) {
+      return `https://m.bilibili.com/opus/${id}`;
+    },
+    /**
+     * 获取视频链接
+     * @param id bv/av号
+     */
+    getVideoUrl(id) {
+      return `https://m.bilibili.com/video/${id}`;
+    }
+  };
+  const BilibiliData = {
+    className: {
+      bangumi: "#app.main-container",
+      dynamic: "#app .m-dynamic",
+      opus: "#app .m-opus",
+      search: "#app .m-search",
+      "topic-detail": "#app .topic-detail",
+      video: "#app .video",
+      head: "#app .m-head"
+    }
+  };
+  const BilibiliPCData = {
+    className: {
+      read: {
+        mobile: "#app .read-app-main"
+      }
+    }
+  };
+  const BilibiliVideoBeautifyCSS = '@charset "UTF-8";\r\n#app .video {\r\n	/* 下面的推荐视频卡片 */\r\n}\r\n#app .video .video-list .card-box {\r\n	--left-card-width: 33%;\r\n	--right-child-padding: 1.333vmin;\r\n	/* 开启了bili-video-beautify */\r\n}\r\n#app .video .video-list .card-box .v-card-toapp {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a {\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n	gap: var(--right-child-padding);\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card {\r\n	width: var(--left-card-width);\r\n	height: 80px;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .left {\r\n	display: list-item;\r\n}\r\n#app\r\n	.video\r\n	.video-list\r\n	.card-box\r\n	.v-card-toapp\r\n	> a\r\n	.card\r\n	.count\r\n	.left\r\n	span.item {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .duration {\r\n	background: rgba(0, 0, 0, 0.4);\r\n	border-radius: 0.6vmin;\r\n	padding: 0px 0.5vmin;\r\n	right: 1vmin;\r\n	bottom: 1vmin;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .title {\r\n	flex: 1;\r\n	/*padding: var(--right-child-padding);*/\r\n	padding-top: 0;\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n#app .video .video-list .card-box .gm-right-container {\r\n	display: flex;\r\n	flex-direction: column;\r\n	width: calc(100% - var(--left-card-width));\r\n}\r\n#app .video .video-list .card-box .gm-right-container > * {\r\n	padding: var(--right-child-padding);\r\n	padding-bottom: 0;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	gap: 1rem;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .left span {\r\n	display: flex;\r\n	align-items: safe center;\r\n	gap: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name,\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	color: #999;\r\n	font-size: 3vmin;\r\n	transform-origin: left;\r\n	display: flex;\r\n	/*align-items: safe center;*/\r\n	align-items: safe flex-end;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name svg{\r\n	width: 3vmin;\r\n	height: 3vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name-text {\r\n	margin-left: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .num {\r\n	margin-right: 4vmin;\r\n}\r\n#app .video .video-list .card-box > a.v-card {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card {\r\n	width: var(--left-card-width);\r\n	height: 100%;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count span {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count .duration {\r\n	background-color: rgba(0, 0, 0, 0.3);\r\n	border-radius: 4px;\r\n	color: #fff;\r\n	font-size: 12px;\r\n	height: 16px;\r\n	line-height: 16px;\r\n	margin-left: auto;\r\n	padding-left: 4px;\r\n	padding-right: 4px;\r\n}\r\n#app .video .video-list .card-box > a.v-card .title {\r\n	flex: 1;\r\n	/*padding: var(--right-child-padding);*/\r\n	padding-top: 0;\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n';
+  const BilibiliVideoVueProp = {
+    $data: {
+      isInitPlayer: false,
+      isUnlockUpower: false
+    },
+    init() {
+      PopsPanel.execMenu("bili-video-initPlayer", () => {
+        this.initPlayer();
+      });
+      PopsPanel.execMenu("bili-video-setVideoPlayer", () => {
+        this.setVideoPlayer();
+      });
+      PopsPanel.execMenu("bili-video-unlockUpower", () => {
+        this.unlockUpower();
+      });
+    },
+    /**
+     * 设置了某些vue属性后，会导致视频不出现播放按钮
+     */
+    initPlayer() {
+      if (this.$data.isInitPlayer) {
+        return;
+      }
+      this.$data.isInitPlayer = true;
+      let that = this;
+      utils.waitNode("#bilibiliPlayer", 3e3).then(async ($bilibiliPlayer) => {
+        if (!$bilibiliPlayer) {
+          that.$data.isInitPlayer = false;
+          return;
+        }
+        await utils.sleep(300);
+        let playerClassName = "m-video-player";
+        BilibiliUtils.waitVuePropToSet("." + playerClassName, [
+          {
+            msg: "等待设置参数 fullScreenCallApp",
+            check(vueObj) {
+              return typeof (vueObj == null ? void 0 : vueObj.fullScreenCallApp) === "boolean";
+            },
+            set(vueObj) {
+              vueObj.fullScreenCallApp = false;
+              log.success("成功设置参数 fullScreenCallApp=false");
+            }
+          },
+          {
+            msg: "等待设置参数 gameMode",
+            check(vueObj) {
+              return typeof (vueObj == null ? void 0 : vueObj.gameMode) === "boolean";
+            },
+            set(vueObj) {
+              vueObj.gameMode = true;
+              log.success("成功设置参数 gameMode=true");
+            }
+          },
+          {
+            msg: "等待获取函数 initPlayer()",
+            check(vueObj) {
+              return typeof (vueObj == null ? void 0 : vueObj.initPlayer) === "function";
+            },
+            set(vueObj) {
+              that.$data.isInitPlayer = false;
+              function intervalCheck() {
+                let intervalId = void 0;
+                let timeoutId = void 0;
+                let checkCount = 1;
+                let isSuccess = false;
+                let lockFunc = new utils.LockFunction(async () => {
+                  var _a2, _b, _c, _d;
+                  let $playerVideo = document.querySelector(
+                    "#bilibiliPlayer video"
+                  );
+                  let $posterImg = document.querySelector(
+                    "#bilibiliPlayer img.mplayer-poster"
+                  );
+                  if ($playerVideo && $posterImg && $posterImg.src !== "") {
+                    isSuccess = true;
+                    (_a2 = BilibiliPlayer.player) == null ? void 0 : _a2.off("restart_call_app");
+                    (_b = BilibiliPlayer.player) == null ? void 0 : _b.off("force_call_app_show");
+                    log.success("<video>标签和视频封面图已成功初始化");
+                    await utils.sleep(1e3);
+                    PopsPanel.execMenu(
+                      ["bili-coverQuality", "bili-rememberUserChooseQuality"],
+                      () => {
+                        BilibiliPlayerUI.coverQuality(true);
+                      }
+                    );
+                    BilibiliPlayer.init();
+                    return;
+                  }
+                  if (_unsafeWindow.BPlayerMobile == null) {
+                    log.error("未加载player播放器，主动引入script标签");
+                    await BilibiliUtils.loadScript(
+                      "https://s1.hdslb.com/bfs/static/player/main/html5/mplayer.js?v=2876316"
+                    );
+                    await utils.sleep(300);
+                  }
+                  try {
+                    vueObj.initPlayer(true);
+                  } catch (error) {
+                    log.error(error);
+                    try {
+                      log.info(`强制重载player播放器失败，使用普通调用`);
+                      vueObj.initPlayer();
+                    } catch (error2) {
+                      log.error(error2);
+                    }
+                  }
+                  log.success(
+                    "第 " + checkCount + " 次未检测到视频，调用初始化视频函数 initPlayer()"
+                  );
+                  await utils.sleep(300);
+                  (_c = BilibiliPlayer.player) == null ? void 0 : _c.off("restart_call_app");
+                  (_d = BilibiliPlayer.player) == null ? void 0 : _d.off("force_call_app_show");
+                  checkCount++;
+                });
+                intervalId = setInterval(async () => {
+                  await lockFunc.run();
+                  if (isSuccess) {
+                    clearTimeout(timeoutId);
+                    clearInterval(intervalId);
+                  }
+                }, 600);
+                timeoutId = setTimeout(() => {
+                  log.warn("检测视频超时5s，取消检测");
+                  clearInterval(intervalId);
+                }, 5e3);
+              }
+              intervalCheck();
+            }
+          }
+        ]);
+      });
+    },
+    /**
+     * + __vue__.info.is_upower_exclusive=false
+     * + __vue__.info.is_upower_play=false
+     * + __vue__.info.is_upower_preview=false
+     */
+    unlockUpower() {
+      BilibiliUtils.waitVuePropToSet(BilibiliData.className.video, [
+        {
+          msg: "设置属性 __vue__.info.is_upower_exclusive",
+          check(vueObj) {
+            var _a2;
+            return typeof ((_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.is_upower_exclusive) === "boolean";
+          },
+          set(vueObj) {
+            vueObj.info.is_upower_exclusive = false;
+            log.success("成功设置属性  __vue__.info.is_upower_exclusive=false");
+          }
+        },
+        {
+          msg: "设置属性 __vue__.info.is_upower_play",
+          check(vueObj) {
+            var _a2;
+            return typeof ((_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.is_upower_play) === "boolean";
+          },
+          set(vueObj) {
+            vueObj.info.is_upower_play = false;
+            log.success("成功设置属性  __vue__.info.is_upower_play=false");
+          }
+        },
+        {
+          msg: "设置属性 __vue__.info.is_upower_preview",
+          check(vueObj) {
+            var _a2;
+            return typeof ((_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.is_upower_preview) === "boolean";
+          },
+          set(vueObj) {
+            vueObj.info.is_upower_preview = false;
+            BilibiliVideoVueProp.initPlayer();
+            log.success("成功设置属性  __vue__.info.is_upower_preview=false");
+          }
+        }
+      ]);
+    },
+    /**
+     * 修改视频播放器设置参数
+     *
+     * + __vue__.playBtnNoOpenApp: `true`
+     * + __vue__.playBtnOpenApp: `false`
+     * + __vue__.coverOpenApp: `false`
+     */
+    setVideoPlayer() {
+      BilibiliUtils.waitVuePropToSet(
+        BilibiliData.className.video + " .m-video-player",
+        [
+          {
+            msg: "设置参数 playBtnNoOpenApp",
+            check(vueObj) {
+              return typeof vueObj.playBtnNoOpenApp === "boolean";
+            },
+            set(vueObj) {
+              vueObj.playBtnNoOpenApp = true;
+              log.success("成功设置参数 playBtnNoOpenApp=true");
+            }
+          },
+          {
+            msg: "设置参数 playBtnOpenApp",
+            check(vueObj) {
+              return typeof vueObj.playBtnOpenApp === "boolean";
+            },
+            set(vueObj) {
+              vueObj.playBtnOpenApp = false;
+              log.success("成功设置参数 playBtnOpenApp=false");
+            }
+          },
+          {
+            msg: "设置参数 coverOpenApp",
+            check(vueObj) {
+              return typeof vueObj.coverOpenApp === "boolean";
+            },
+            set(vueObj) {
+              vueObj.coverOpenApp = false;
+              log.success("成功设置参数 coverOpenApp=false");
+            }
+          }
+        ]
+      );
+    }
+  };
+  const BilibiliVideo = {
+    $data: {
+      isAddBeautifyCSS: false
+    },
+    init() {
+      BilibiliVideoHook.init();
+      BilibiliVideoVueProp.init();
+      PopsPanel.execMenuOnce("bili-video-repairVideoBottomAreaHeight", () => {
+        return this.repairVideoBottomAreaHeight();
+      });
+      PopsPanel.execMenuOnce(
+        "bili-video-autoClickContinueToWatchOnTheWebpage",
+        () => {
+          this.autoClickContinueToWatchOnTheWebpage();
+        }
+      );
+      PopsPanel.execMenu("bili-video-beautify", () => {
+        this.beautify();
+      });
+      PopsPanel.execMenuOnce("bili-video-cover-bottomRecommendVideo", () => {
+        this.coverBottomRecommendVideo();
+      });
+      PopsPanel.execMenuOnce("bili-video-gestureReturnToCloseCommentArea", () => {
+        this.gestureReturnToCloseCommentArea();
+      });
+      PopsPanel.execMenuOnce("bili-video-cover-seasonNew", () => {
+        this.coverSeasonNew();
+      });
+    },
+    /**
+     * 美化显示
+     */
+    beautify() {
+      log.info("美化显示");
+      if (!this.$data.isAddBeautifyCSS) {
+        this.$data.isAddBeautifyCSS = true;
+        addStyle(BilibiliVideoBeautifyCSS);
+      }
+      utils.waitNode(
+        BilibiliData.className.video + " .bottom-tab .list-view .card-box",
+        1e4
+      ).then(($cardBox) => {
+        if (!$cardBox) {
+          log.error("$cardBox is null");
+          return;
+        }
+        function handleVCardToApp($vCard) {
+          var _a2, _b;
+          let $originTitle = $vCard.querySelector(".title");
+          let $originLeft = $vCard.querySelector(".count .left");
+          let isHandled = Boolean($vCard.querySelector(".gm-right-container"));
+          let vueObj = BilibiliUtils.getVue($vCard);
+          if ($originTitle && $originLeft && vueObj && !isHandled) {
+            let upName = (_b = (_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.owner) == null ? void 0 : _b.name;
+            if (upName == null) {
+              log.error("美化显示-handleVCardToApp：获取up主名字失败");
+              return;
+            }
+            let $originCount = $vCard.querySelector(".count");
+            let $title = $originTitle.cloneNode(true);
+            let $left = $originLeft.cloneNode(true);
+            domutils.hide($originTitle);
+            if ($originCount) {
+              domutils.hide($originCount);
+            }
+            let $isOpenAppWeakened = $vCard.querySelector(".open-app.weakened");
+            if ($isOpenAppWeakened) {
+              domutils.hide($isOpenAppWeakened);
+            }
+            let $upInfo = document.createElement("div");
+            $upInfo.className = "gm-up-name";
+            $upInfo.innerHTML = /*html*/
+            `
+						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+							<path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
+							</path>
+						</svg>
+						<span class="gm-up-name-text">${upName}</span>
+						`;
+            let $rightContainer = document.createElement("div");
+            let $rightBottom = document.createElement("div");
+            $rightContainer.className = "gm-right-container";
+            $rightBottom.className = "gm-right-bottom";
+            domutils.after($originTitle, $rightContainer);
+            $rightContainer.appendChild($title);
+            $rightContainer.appendChild($rightBottom);
+            $rightBottom.appendChild($upInfo);
+            $rightBottom.appendChild($left);
+          }
+        }
+        function handleVCard($vCard) {
+          var _a2, _b, _c;
+          let $originTitle = $vCard.querySelector(".title");
+          let $originCount = $vCard.querySelector(".count");
+          let isHandled = Boolean($vCard.querySelector(".gm-right-container"));
+          let vueObj = BilibiliUtils.getVue($vCard);
+          if ($originTitle && $originCount && vueObj && !isHandled) {
+            let duration = (_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.duration;
+            if (duration == null) {
+              log.error("美化显示-handleVCard：获取视频时长失败");
+              return;
+            }
+            let upName = (_c = (_b = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _b.owner) == null ? void 0 : _c.name;
+            if (upName == null) {
+              log.error("美化显示-handleVCard：获取up主名字失败");
+              return;
+            }
+            let $cloneTitle = $originTitle.cloneNode(true);
+            let $cloneCount = $originCount.cloneNode(true);
+            domutils.hide($originTitle);
+            let $duration = document.createElement("div");
+            $duration.className = "duration";
+            $duration.innerText = BilibiliUtils.parseDuration(duration);
+            $cloneCount.className = "left";
+            let $upInfo = document.createElement("div");
+            $originCount.appendChild($duration);
+            $upInfo.className = "gm-up-name";
+            $upInfo.innerHTML = /*html*/
+            `
+						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
+							</path>
+						</svg>
+						<span class="gm-up-name-text">${upName}</span>
+						`;
+            let $rightContainer = document.createElement("div");
+            let $rightBottom = document.createElement("div");
+            $rightContainer.className = "gm-right-container";
+            $rightBottom.className = "gm-right-bottom";
+            domutils.after($originTitle, $rightContainer);
+            $rightContainer.appendChild($cloneTitle);
+            $rightContainer.appendChild($rightBottom);
+            $rightBottom.appendChild($upInfo);
+            $rightBottom.appendChild($cloneCount);
+          }
+        }
+        let lockFunc = new utils.LockFunction(() => {
+          let $vCardList = document.querySelectorAll(
+            BilibiliData.className.video + " .bottom-tab .list-view .card-box .v-card-toapp"
+          );
+          let $vCardList_isLogon = document.querySelectorAll(
+            BilibiliData.className.video + " .bottom-tab .list-view .card-box>a.v-card"
+          );
+          $vCardList.forEach((_$vCard_) => {
+            handleVCardToApp(_$vCard_);
+          });
+          $vCardList_isLogon.forEach((_$vCard_) => {
+            handleVCard(_$vCard_);
+          });
+        }, 25);
+        let $videoRoot = document.querySelector(
+          BilibiliData.className.video
+        );
+        if ($videoRoot) {
+          utils.mutationObserver($videoRoot, {
+            config: {
+              subtree: true,
+              attributes: true,
+              childList: true
+            },
+            callback() {
+              lockFunc.run();
+            }
+          });
+        } else {
+          log.error("未找到视频根节点");
+        }
+      });
+    },
+    /**
+     * 修复视频底部区域高度
+     */
+    repairVideoBottomAreaHeight() {
+      log.info("修复视频底部区域高度");
+      return addStyle(
+        /*css*/
+        `
+		${BilibiliData.className.video} {
+			/* 修复视频区域底部的高度 */
+			.natural-module .fixed-module-margin {
+				margin-top: 55.13333vmin;
+			}
+			/* 点击播放视频后的 */
+			.m-video-new:has(> div > .m-video-player) {
+				margin-top: 75vmin;
+			}
+			/* 未播放视频状态下的 */
+			.m-video-new:has(> div[style*="display:none"] > .m-video-player) {
+				margin-top: unset;
+			}
+		}
+		html.tiny-app{
+			${BilibiliData.className.video}{
+				.m-video-info-new{
+					margin-top: 72vmin;
+				}
+			}
+		}
+		`
+      );
+    },
+    /**
+     * 自动点击【继续在网页观看】
+     */
+    autoClickContinueToWatchOnTheWebpage() {
+      domutils.on(
+        document,
+        "click",
+        BilibiliData.className.video + " .main-info .btn",
+        function() {
+          log.info("触发点击【立即播放】，自动等待弹窗出现");
+          utils.waitNode(".to-see", 1e4).then(($toSee) => {
+            if (!$toSee) {
+              log.error("弹窗按钮【继续在网页观看】10秒内未出现，取消等待");
+              return;
+            }
+            log.success("自动点击 继续在网页观看");
+            $toSee.click();
+          });
+        }
+      );
+    },
+    /**
+     * 覆盖视频标题区域的点击事件
+     */
+    coverBottomRecommendVideo() {
+      log.info("覆盖 相关视频 点击事件");
+      domutils.on(
+        document,
+        "click",
+        BilibiliData.className.video + " .list-view .card-box .launch-app-btn",
+        function(event) {
+          let $click = event.target;
+          let vueObj = BilibiliUtils.getVue($click);
+          if (!vueObj) {
+            Qmsg.error("获取相关视频的__vue__失败");
+            return;
+          }
+          let bvid = vueObj.bvid;
+          if (utils.isNull(bvid)) {
+            if (vueObj.$children && vueObj.$children[0] && utils.isNotNull(vueObj.$children[0].bvid)) {
+              bvid = vueObj.$children[0].bvid;
+            } else {
+              Qmsg.error("获取相关视频的bvid失败");
+              return;
+            }
+          }
+          log.info("相关视频的bvid: " + bvid);
+          BilibiliUtils.goToUrl(BilibiliUrlUtils.getVideoUrl(bvid));
+          utils.preventEvent(event);
+        },
+        {
+          capture: true
+        }
+      );
+    },
+    /**
+     * 覆盖选集视频列表的点击事件
+     */
+    coverSeasonNew() {
+      log.info("覆盖 选集视频列表 点击事件");
+      function ClickCallBack(event) {
+        let $click = event.target;
+        let vueObj = BilibiliUtils.getVue($click);
+        if (!vueObj) {
+          Qmsg.error("获取选集视频的目标视频的__vue__失败");
+          return;
+        }
+        let bvid = vueObj.bvid;
+        if (utils.isNull(bvid)) {
+          Qmsg.error("获取相关视频的bvid失败");
+          return;
+        }
+        log.info("相关视频的bvid: " + bvid);
+        BilibiliUtils.goToUrl(BilibiliUrlUtils.getVideoUrl(bvid));
+        utils.preventEvent(event);
+      }
+      domutils.on(
+        document,
+        "click",
+        BilibiliData.className.video + " .m-video-season-new .video-card .launch-app-btn",
+        ClickCallBack,
+        {
+          capture: true
+        }
+      );
+      domutils.on(
+        document,
+        "click",
+        BilibiliData.className.video + " .m-video-season-panel .season-video-item .launch-app-btn",
+        ClickCallBack,
+        {
+          capture: true
+        }
+      );
+    },
+    /**
+     * 手势返回关闭评论区
+     */
+    gestureReturnToCloseCommentArea() {
+      log.info("手势返回关闭评论区，全局监听document点击.sub-reply-preview");
+      utils.waitNode("#app").then(($app) => {
+        utils.waitVueByInterval(
+          $app,
+          () => {
+            var _a2, _b;
+            let vueObj = BilibiliUtils.getVue($app);
+            if (vueObj == null) {
+              return false;
+            }
+            return typeof ((_b = (_a2 = vueObj == null ? void 0 : vueObj.$router) == null ? void 0 : _a2.options) == null ? void 0 : _b.scrollBehavior) != null;
+          },
+          250,
+          1e4
+        ).then((result) => {
+          let appVue = BilibiliUtils.getVue($app);
+          if (!appVue) {
+            log.error("获取#app的vue属性失败");
+            return;
+          }
+          let oldScrollBehavior = appVue.$router.options.scrollBehavior;
+          appVue.$router.options.scrollBehavior = function(to, from, scrollInfo) {
+            if (to["hash"] === "#/seeCommentReply") {
+              log.info("当前操作为打开评论区，scrollBehavior返回null");
+              return null;
+            } else if (to["hash"] === "" && from["hash"] === "#/seeCommentReply") {
+              log.info("当前操作为关闭评论区，scrollBehavior返回null");
+              return null;
+            }
+            return oldScrollBehavior.call(this, ...arguments);
+          };
+        });
+      });
+      domutils.on(document, "click", ".sub-reply-preview", function(event) {
+        let $app = document.querySelector("#app");
+        let appVue = BilibiliUtils.getVue($app);
+        if (!appVue) {
+          log.error("获取#app元素失败");
+          return;
+        }
+        let hookGestureReturnByVueRouter = BilibiliUtils.hookGestureReturnByVueRouter({
+          vueObj: appVue,
+          hash: "#/seeCommentReply",
+          callback(isFromPopState) {
+            if (!isFromPopState) {
+              return false;
+            }
+            let $dialogCloseIcon = document.querySelector(".dialog-close-icon");
+            if ($dialogCloseIcon) {
+              $dialogCloseIcon.click();
+            } else {
+              log.error("评论区关闭失败，原因：元素dialog-close-icon获取失败");
+            }
+            return true;
+          }
+        });
+        utils.waitNode(".dialog-close-icon").then(($dialogCloseIcon) => {
+          domutils.on(
+            $dialogCloseIcon,
+            "click",
+            function() {
+              hookGestureReturnByVueRouter.resumeBack(false);
+            },
+            {
+              capture: true,
+              once: true
+            }
+          );
+        });
+      });
+    },
+    /**
+     * 进入全屏
+     */
+    enterVideoFullScreen() {
+      utils.waitNode(".mplayer-btn-widescreen", 5e3).then(($btnWideScreen) => {
+        if (!$btnWideScreen) {
+          log.error("获取全屏按钮失败");
+          Qmsg.error("获取全屏按钮失败");
+          return;
+        }
+        if ($btnWideScreen.closest(".mplayer-wide")) {
+          log.warn("当前的全屏按钮是【退出全屏】，不点击");
+          return;
+        }
+        log.info(`进入全屏`);
+        $btnWideScreen.click();
+      });
     }
   };
   const BilibiliPlayerUI = {
@@ -1368,7 +2537,6 @@
     init() {
       this.$data.videoQuality = [];
       this.$data.hookUnlockQuality = 0;
-      BilibiliDanmaku.init();
       this.setVideoSpeed(1);
       BilibiliPlayerUI.init();
       this.generateVideoInfo();
@@ -1376,6 +2544,9 @@
         this.autoPlay();
       });
       this.mutatuinCloseOriginToast();
+      setTimeout(() => {
+        BilibiliDanmaku.init();
+      }, 500);
     },
     /**
      * 对视频画质清晰度初始化
@@ -1437,58 +2608,26 @@
               let isMute = await ((_a3 = BilibiliPlayer.player) == null ? void 0 : _a3.isMute());
               if (isMute) {
                 log.warn(`当前静音状态，Qmsg提示让用户自行选择是否取消静音`);
-                let $toast = Qmsg.info(
-                  /*html*/
-                  `
-							<div class="mplayer-unable-video-mute">
-								<div class="mplayer-unable-video-mute-icon">
-									<svg viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
-										<path d="M652.569422 94.472586a25.86878 25.86878 0 0 1 17.409787-6.491785 26.262221 26.262221 0 0 1 26.163861 26.262221V529.22546l78.688303 78.688303V114.243022a104.950524 104.950524 0 0 0-173.99951-78.688303L388.176725 221.259114l55.770334 55.770335zM1012.470048 956.798025l-944.259635-944.259634-1.967207-1.967208a39.344151 39.344151 0 1 0-53.704767 57.639182l189.73717 189.63881A157.376606 157.376606 0 0 0 92.800508 407.553671v219.146924a157.376606 157.376606 0 0 0 157.376606 148.13073H355.127637l245.900947 214.917427 6.196704 5.11474a104.950524 104.950524 0 0 0 167.802806-84.098124v-80.360429l181.9667 182.065061a39.344151 39.344151 0 0 0 55.671974-55.671975z m-316.326978-46.032657v4.426217a26.557302 26.557302 0 0 1-6.098343 12.88521 26.163861 26.163861 0 0 1-36.983503 2.459009l-245.900946-214.917427-6.393425-5.11474a78.688303 78.688303 0 0 0-45.442495-14.360615H242.701725a78.688303 78.688303 0 0 1-71.212914-78.688303v-217.376436a78.688303 78.688303 0 0 1 78.688303-71.212915h23.114689l422.949627 422.949628z"></path>
-									</svg>
-								</div>
-								<div class="mplayer-unable-video-mute-text">
-									点击取消静音
-								</div>
-							</div>
-							`,
-                  {
-                    isHTML: true,
-                    style: (
-                      /*css*/
-                      `
-									.qmsg.qmsg-wrapper{
-										top: 50px;
-									}
-									.mplayer-unable-video-mute{
-										display: flex;
-										align-items: center;
-										gap: 10px;
-									}
-									.mplayer-unable-video-mute .mplayer-unable-video-mute-icon svg{
-										width: 16px;
-										height: 16px;
-									}
-									`
-                    ),
-                    showClose: true,
-                    showIcon: false,
-                    timeout: 5e3,
-                    position: "topleft"
+                let $toast = BilibiliPlayerToast.toast({
+                  text: "当前视频为静音状态",
+                  jumpText: "取消静音",
+                  timeout: 8e3,
+                  showCloseBtn: true,
+                  jumpClickCallback(event) {
+                    var _a4;
+                    log.info(`设置静音状态：${!isMute}`);
+                    (_a4 = BilibiliPlayer.player) == null ? void 0 : _a4.setMute(!isMute);
+                    $toast.close();
                   }
-                );
-                let $videoMute = $toast.$Qmsg.querySelector(
-                  ".mplayer-unable-video-mute"
-                );
-                domutils.on($videoMute, "click", (event) => {
-                  var _a4;
-                  log.info(`设置静音状态：${!isMute}`);
-                  (_a4 = BilibiliPlayer.player) == null ? void 0 : _a4.setMute(!isMute);
-                  $toast.close();
                 });
               } else {
               }
             }
           );
+          await utils.sleep(500);
+          PopsPanel.execMenu("bili-video-playerAutoPlayVideoFullScreen", () => {
+            BilibiliVideo.enterVideoFullScreen();
+          });
         } catch (error) {
           reject(error);
         }
@@ -1723,6 +2862,7 @@
         BilibiliDanmakuFilter.$data.danmakuArray = await BilibiliDanmakuFilter.$player.danmakuArray();
       }, 250)
     },
+    /** 初始化弹幕过滤器 */
     async init() {
       let totalRule = this.parseRule();
       let danmakuFilter = await this.$player.danmakuFilter();
@@ -1749,7 +2889,11 @@
           }
           return isFilter;
         };
-        playerPromise.danmaku.danmakuCore.config.danmakuFilter = ownFilter;
+        Reflect.set(
+          playerPromise.danmaku.danmakuCore.config,
+          "danmakuFilter",
+          ownFilter
+        );
         log.success(`成功覆盖danmakuFilter`);
       }
     },
@@ -1762,7 +2906,6 @@
      * @param danmaConfig
      * @param totalRule
      * @param danmakuArray
-     * @returns
      */
     filter(danmaConfig, totalRule) {
       this.updateDanmakuArray();
@@ -1804,7 +2947,6 @@
           );
           if (findIndex != -1) {
             filterFlag = true;
-            console.log("重复：" + findIndex);
           }
         }
       }
@@ -1821,6 +2963,7 @@
       }
       return filterFlag;
     },
+    /** 解析规则 */
     parseRule() {
       let localRule = this.getValue();
       let rule = [];
@@ -1877,6 +3020,7 @@
         value: "'Noto Sans CJK SC Regular'"
       }
     ],
+    /** 初始化 */
     init() {
       BilibiliDanmakuFilter.init();
       let opacity = PopsPanel.getValue("bili-danmaku-opacity");
@@ -2051,30 +3195,6 @@
         }
       });
     }
-  };
-  const UIOwn = function(getLiElementCallBack, initConfig, props, afterAddToUListCallBack) {
-    let result = {
-      attributes: {},
-      type: "own",
-      props,
-      getLiElementCallBack,
-      afterAddToUListCallBack
-    };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_INIT] = () => {
-        if (initConfig) {
-          Object.keys(initConfig).forEach((key) => {
-            let defaultValue = initConfig[key];
-            if (PopsPanel.$data.data.has(key)) {
-              log.warn("请检查该key(已存在): " + key);
-            }
-            PopsPanel.$data.data.set(key, defaultValue);
-          });
-        }
-        return false;
-      };
-    }
-    return result;
   };
   const SettingUICommon = {
     id: "panel-common",
@@ -2762,17 +3882,30 @@
                     true,
                     void 0,
                     "自动执行初始化播放器"
-                  ),
+                  )
+                ]
+              },
+              {
+                text: "自动播放视频",
+                type: "forms",
+                forms: [
                   UISwitch(
-                    "自动播放视频",
+                    "启用",
                     "bili-video-playerAutoPlayVideo",
                     false,
                     void 0,
                     "需开启【initPlayer】"
                   ),
                   UISwitch(
-                    "检测【自动播放视频】是否静音",
+                    "检测是否静音",
                     "bili-video-playerAutoPlayVideoCheckMute",
+                    false,
+                    void 0,
+                    "需开启【自动播放视频】"
+                  ),
+                  UISwitch(
+                    "自动进入全屏",
+                    "bili-video-playerAutoPlayVideoFullScreen",
                     false,
                     void 0,
                     "需开启【自动播放视频】"
@@ -3205,235 +4338,6 @@
     const searchParams = new URLSearchParams(params);
     searchParams.sort();
     return md5(searchParams.toString() + appsec);
-  }
-  const BilibiliUtils = {
-    /**
-     * 获取元素上的__vue__属性
-     * @param element
-     * @returns
-     */
-    getVue(element) {
-      return element == null ? void 0 : element.__vue__;
-    },
-    /**
-     * 等待vue属性并进行设置
-     */
-    waitVuePropToSet($target, needSetList) {
-      function getTarget() {
-        let __target__ = null;
-        if (typeof $target === "string") {
-          __target__ = document.querySelector($target);
-        } else if (typeof $target === "function") {
-          __target__ = $target();
-        } else if ($target instanceof HTMLElement) {
-          __target__ = $target;
-        }
-        return __target__;
-      }
-      if (!Array.isArray(needSetList)) {
-        this.waitVuePropToSet($target, [needSetList]);
-        return;
-      }
-      needSetList.forEach((needSetOption) => {
-        if (typeof needSetOption.msg === "string") {
-          log.info(needSetOption.msg);
-        }
-        function checkVue() {
-          let target = getTarget();
-          if (target == null) {
-            return false;
-          }
-          let vueObj = BilibiliUtils.getVue(target);
-          if (vueObj == null) {
-            return false;
-          }
-          let needOwnCheck = needSetOption.check(vueObj);
-          return Boolean(needOwnCheck);
-        }
-        utils.waitVueByInterval(
-          () => {
-            return getTarget();
-          },
-          checkVue,
-          250,
-          1e4
-        ).then((result) => {
-          if (!result) {
-            return;
-          }
-          let target = getTarget();
-          let vueObj = BilibiliUtils.getVue(target);
-          if (vueObj == null) {
-            return;
-          }
-          needSetOption.set(vueObj);
-        });
-      });
-    },
-    /**
-     * 前往网址
-     * @param path
-     * @param [useRouter=false] 是否强制使用Router
-     */
-    goToUrl(path, useRouter = false) {
-      let $app = document.querySelector("#app");
-      if ($app == null) {
-        Qmsg.error("跳转Url: 获取根元素#app失败");
-        log.error("跳转Url: 获取根元素#app失败：" + path);
-        return;
-      }
-      let vueObj = BilibiliUtils.getVue($app);
-      if (vueObj == null) {
-        log.error("获取#app的vue属性失败");
-        Qmsg.error("获取#app的vue属性失败");
-        return;
-      }
-      let $router = vueObj.$router;
-      let isGoToUrlBlank = PopsPanel.getValue("bili-go-to-url-blank");
-      log.info("即将跳转URL：" + path);
-      if (useRouter) {
-        isGoToUrlBlank = false;
-      }
-      if (isGoToUrlBlank) {
-        window.open(path, "_blank");
-      } else {
-        if (path.startsWith("http") || path.startsWith("//")) {
-          if (path.startsWith("//")) {
-            path = window.location.protocol + path;
-          }
-          let urlObj = new URL(path);
-          if (urlObj.origin === window.location.origin) {
-            path = urlObj.pathname + urlObj.search + urlObj.hash;
-          } else {
-            log.info("不同域名，直接本页打开，不用Router：" + path);
-            window.location.href = path;
-            return;
-          }
-        }
-        log.info("$router push跳转Url：" + path);
-        $router.push(path);
-      }
-    },
-    /**
-     * 前往登录
-     */
-    goToLogin(fromUrl = "") {
-      window.open(
-        `https://passport.bilibili.com/h5-app/passport/login?gourl=${encodeURIComponent(
-        fromUrl
-      )}`
-      );
-    },
-    /**
-     * 转换时长为显示的时长
-     *
-     * + 30 => 0:30
-     * + 120 => 2:00
-     * + 14400 => 4:00:00
-     * @param duration 秒
-     */
-    parseDuration(duration) {
-      if (typeof duration !== "number") {
-        duration = parseInt(duration);
-      }
-      if (isNaN(duration)) {
-        return duration.toString();
-      }
-      function zeroPadding(num) {
-        if (num < 10) {
-          return `0${num}`;
-        } else {
-          return num;
-        }
-      }
-      if (duration < 60) {
-        return `0:${zeroPadding(duration)}`;
-      } else if (duration >= 60 && duration < 3600) {
-        return `${Math.floor(duration / 60)}:${zeroPadding(duration % 60)}`;
-      } else {
-        return `${Math.floor(duration / 3600)}:${zeroPadding(
-        Math.floor(duration / 60) % 60
-      )}:${zeroPadding(duration % 60)}`;
-      }
-    },
-    /**
-     * 手势返回
-     */
-    hookGestureReturnByVueRouter(option) {
-      function popstateEvent() {
-        log.success("触发popstate事件");
-        resumeBack(true);
-      }
-      function banBack() {
-        log.success("监听地址改变");
-        option.vueObj.$router.history.push(option.hash);
-        domutils.on(window, "popstate", popstateEvent);
-      }
-      async function resumeBack(isFromPopState = false) {
-        domutils.off(window, "popstate", popstateEvent);
-        let callbackResult = option.callback(isFromPopState);
-        if (callbackResult) {
-          return;
-        }
-        while (1) {
-          if (option.vueObj.$router.history.current.hash === option.hash) {
-            log.info("后退！");
-            option.vueObj.$router.back();
-            await utils.sleep(250);
-          } else {
-            return;
-          }
-        }
-      }
-      banBack();
-      return {
-        resumeBack
-      };
-    },
-    /**
-     * 加载<script>标签到页面
-     */
-    loadScript(src) {
-      let $script = document.createElement("script");
-      $script.src = src;
-      document.head.appendChild($script);
-      return new Promise((resolve) => {
-        $script.onload = function() {
-          log.success("script标签加载完毕：" + src);
-          setTimeout(() => {
-            resolve(true);
-          }, 100);
-        };
-      });
-    },
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args) {
-      let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
-      args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
-      });
-      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
-    }
-  };
-  function isWebApiSuccess(json) {
-    return (json == null ? void 0 : json.code) === 0 && ((json == null ? void 0 : json.message) === "0" || (json == null ? void 0 : json.message) === "success");
   }
   const BilibiliApi_Login = {
     /**
@@ -4357,808 +5261,6 @@
     }
   };
   const BilibiliBeautifyCSS = '@charset "UTF-8";\r\n/* 主页 */\r\n#app .m-head {\r\n	--bg-color: #f0f1f3;\r\n	--bg-rever-color: #ffffff;\r\n	--pd-width: 1.3333vmin;\r\n	--bd-circle: 1.3333vmin;\r\n	--card-height: 30vmin;\r\n	--icon-font-size: 3.2vmin;\r\n	--icon-text-font-size: 2.6vmin;\r\n	--icon-font-margin-right: 3vmin;\r\n	--title-font-size: 2.8vmin;\r\n	background-color: var(--bg-color);\r\n}\r\n#app .m-head .m-home {\r\n	background-color: var(--bg-color);\r\n}\r\n/* 美化视频卡片 */\r\n#app .m-head .video-list .card-box .v-card {\r\n	background-color: var(--bg-rever-color);\r\n	padding: 0px;\r\n	margin: 0px;\r\n	width: calc(50% - var(--pd-width) / 2);\r\n	border-radius: var(--bd-circle);\r\n	margin-top: var(--pd-width);\r\n	display: grid;\r\n	/* 视频封面区域 */\r\n}\r\n#app .m-head .video-list .card-box .v-card .card {\r\n	background: var(--bg-rever-color);\r\n	border-radius: unset;\r\n	border-top-left-radius: var(--bd-circle);\r\n	border-top-right-radius: var(--bd-circle);\r\n	height: var(--card-height);\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count {\r\n	display: flex;\r\n	justify-content: safe flex-start;\r\n	padding-right: 0;\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count .iconfont {\r\n	font-size: var(--icon-text-font-size);\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count > span {\r\n	font-size: var(--icon-text-font-size);\r\n	margin-right: var(--icon-font-margin-right);\r\n}\r\n/* 视频标题区域 */\r\n#app .m-head .video-list .card-box .v-card .title {\r\n	padding: 0;\r\n	margin: var(--pd-width);\r\n	font-size: var(--title-font-size);\r\n}\r\n/* 两列 => 左边的 */\r\n#app .m-head .video-list .card-box .v-card:nth-child(2n-1) {\r\n	/*background-color: red;*/\r\n	margin-right: calc(var(--pd-width) / 2);\r\n}\r\n/* 两列 => 右边的 */\r\n#app .m-head .video-list .card-box .v-card:nth-child(2n) {\r\n	/*background-color: rebeccapurple;*/\r\n	margin-left: calc(var(--pd-width) / 2);\r\n}\r\n';
-  const BilibiliHook = {
-    $isHook: {
-      windowPlayerAgent: false,
-      hookWebpackJsonp_openApp: false,
-      overRideLaunchAppBtn_Vue_openApp: false
-    },
-    $data: {
-      setTimeout: []
-    },
-    /**
-     * 劫持webpack
-     * @param webpackName 当前全局变量的webpack名
-     * @param mainCoreData 需要劫持的webpack的顶部core，例如：(window.webpackJsonp = window.webpackJsonp || []).push([["core:0"],{}])
-     * @param checkCallBack 如果mainCoreData匹配上，则调用此回调函数
-     */
-    windowWebPack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
-      let originObject = void 0;
-      OriginPrototype.Object.defineProperty(_unsafeWindow, webpackName, {
-        get() {
-          return originObject;
-        },
-        set(newValue) {
-          log.success("成功劫持webpack，当前webpack名：" + webpackName);
-          originObject = newValue;
-          const originPush = originObject.push;
-          originObject.push = function(...args) {
-            let _mainCoreData = args[0][0];
-            if (mainCoreData == _mainCoreData || Array.isArray(mainCoreData) && Array.isArray(_mainCoreData) && JSON.stringify(mainCoreData) === JSON.stringify(_mainCoreData)) {
-              Object.keys(args[0][1]).forEach((keyName) => {
-                let originSwitchFunc = args[0][1][keyName];
-                args[0][1][keyName] = function(..._args) {
-                  let result = originSwitchFunc.call(this, ..._args);
-                  _args[0] = checkCallBack(_args[0]);
-                  return result;
-                };
-              });
-            }
-            return originPush.call(this, ...args);
-          };
-        }
-      });
-    },
-    /**
-     * window.PlayerAgent
-     */
-    windowPlayerAgent() {
-      if (this.$isHook.windowPlayerAgent) {
-        return;
-      }
-      this.$isHook.windowPlayerAgent = true;
-      let PlayerAgent = void 0;
-      OriginPrototype.Object.defineProperty(_unsafeWindow, "PlayerAgent", {
-        get() {
-          return new Proxy(
-            {},
-            {
-              get(target, key) {
-                if (key === "openApp") {
-                  return function(...args) {
-                    let data2 = args[0];
-                    log.info(["调用PlayerAgent.openApp", data2]);
-                    if (data2["event"] === "fullScreen") {
-                      let $wideScreen = document.querySelector(
-                        ".mplayer-btn-widescreen"
-                      );
-                      if ($wideScreen) {
-                        $wideScreen.click();
-                      } else {
-                        log.warn(
-                          "主动再次点击全屏按钮失败，原因：未获取到.mplayer-btn-widescreen元素"
-                        );
-                      }
-                    }
-                  };
-                } else {
-                  return PlayerAgent[key];
-                }
-              }
-            }
-          );
-        },
-        set(v) {
-          PlayerAgent = v;
-        }
-      });
-    },
-    /**
-     * 劫持全局setTimeout
-     * + 视频页面/video
-     *
-     * window.setTimeout
-     * @param matchStr 需要进行匹配的函数字符串
-     */
-    setTimeout(matchStr) {
-      this.$data.setTimeout.push(matchStr);
-      if (this.$data.setTimeout.length > 1) {
-        log.info("window.setTimeout hook新增劫持判断参数：" + matchStr);
-        return;
-      }
-      _unsafeWindow.setTimeout = function(...args) {
-        let callBackString = args[0].toString();
-        if (callBackString.match(matchStr)) {
-          log.success(["劫持setTimeout的函数", callBackString]);
-          return;
-        }
-        return OriginPrototype.setTimeout.apply(this, args);
-      };
-    },
-    /**
-     * 覆盖元素.launch-app-btn上的openApp
-     *
-     * 页面上有很多
-     */
-    overRideLaunchAppBtn_Vue_openApp() {
-      if (this.$isHook.overRideLaunchAppBtn_Vue_openApp) {
-        return;
-      }
-      this.$isHook.overRideLaunchAppBtn_Vue_openApp = true;
-      function overrideOpenApp(vueObj) {
-        if (typeof vueObj.openApp !== "function") {
-          return;
-        }
-        let openAppStr = vueObj.openApp.toString();
-        if (openAppStr.includes("阻止唤醒App")) {
-          return;
-        }
-        vueObj.openApp = function(...args) {
-          log.success(["openApp：阻止唤醒App", args]);
-        };
-      }
-      utils.mutationObserver(document, {
-        config: {
-          subtree: true,
-          childList: true,
-          attributes: true
-        },
-        callback() {
-          document.querySelectorAll(".launch-app-btn").forEach(($launchAppBtn) => {
-            let vueObj = BilibiliUtils.getVue($launchAppBtn);
-            if (!vueObj) {
-              return;
-            }
-            overrideOpenApp(vueObj);
-            if (vueObj.$children && vueObj.$children.length) {
-              vueObj.$children.forEach(($child) => {
-                overrideOpenApp($child);
-              });
-            }
-          });
-        }
-      });
-    }
-  };
-  const BilibiliVideoHook = {
-    init() {
-      PopsPanel.execMenuOnce("bili-video-hook-callApp", () => {
-        log.info("hook window.PlayerAgent");
-        BilibiliHook.windowPlayerAgent();
-      });
-    }
-  };
-  const BilibiliUrlUtils = {
-    /**
-     * 获取用户个人空间链接
-     * @param userId 用户id
-     */
-    getUserSpaceUrl(userId) {
-      return `https://m.bilibili.com/space/${userId}`;
-    },
-    /**
-     * 获取用户个人空间动态链接-dynamic
-     * @param id 该动态的id
-     */
-    getUserSpaceDynamicUrl(id) {
-      return `https://m.bilibili.com/dynamic/${id}`;
-    },
-    /**
-     * 获取用户个人空间动态链接-opus
-     * @param id 该动态的id
-     */
-    getUserSpaceOpusUrl(id) {
-      return `https://m.bilibili.com/opus/${id}`;
-    },
-    /**
-     * 获取视频链接
-     * @param id bv/av号
-     */
-    getVideoUrl(id) {
-      return `https://m.bilibili.com/video/${id}`;
-    }
-  };
-  const BilibiliData = {
-    className: {
-      bangumi: "#app.main-container",
-      dynamic: "#app .m-dynamic",
-      opus: "#app .m-opus",
-      search: "#app .m-search",
-      "topic-detail": "#app .topic-detail",
-      video: "#app .video",
-      head: "#app .m-head"
-    }
-  };
-  const BilibiliPCData = {
-    className: {
-      read: {
-        mobile: "#app .read-app-main"
-      }
-    }
-  };
-  const BilibiliVideoBeautifyCSS = '@charset "UTF-8";\r\n#app .video {\r\n	/* 下面的推荐视频卡片 */\r\n}\r\n#app .video .video-list .card-box {\r\n	--left-card-width: 33%;\r\n	--right-child-padding: 1.333vmin;\r\n	/* 开启了bili-video-beautify */\r\n}\r\n#app .video .video-list .card-box .v-card-toapp {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a {\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n	gap: var(--right-child-padding);\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card {\r\n	width: var(--left-card-width);\r\n	height: 80px;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .left {\r\n	display: list-item;\r\n}\r\n#app\r\n	.video\r\n	.video-list\r\n	.card-box\r\n	.v-card-toapp\r\n	> a\r\n	.card\r\n	.count\r\n	.left\r\n	span.item {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .duration {\r\n	background: rgba(0, 0, 0, 0.4);\r\n	border-radius: 0.6vmin;\r\n	padding: 0px 0.5vmin;\r\n	right: 1vmin;\r\n	bottom: 1vmin;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .title {\r\n	flex: 1;\r\n	/*padding: var(--right-child-padding);*/\r\n	padding-top: 0;\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n#app .video .video-list .card-box .gm-right-container {\r\n	display: flex;\r\n	flex-direction: column;\r\n	width: calc(100% - var(--left-card-width));\r\n}\r\n#app .video .video-list .card-box .gm-right-container > * {\r\n	padding: var(--right-child-padding);\r\n	padding-bottom: 0;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	gap: 1rem;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .left span {\r\n	display: flex;\r\n	align-items: safe center;\r\n	gap: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name,\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	color: #999;\r\n	font-size: 3vmin;\r\n	transform-origin: left;\r\n	display: flex;\r\n	/*align-items: safe center;*/\r\n	align-items: safe flex-end;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name svg{\r\n	width: 3vmin;\r\n	height: 3vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name-text {\r\n	margin-left: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .num {\r\n	margin-right: 4vmin;\r\n}\r\n#app .video .video-list .card-box > a.v-card {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card {\r\n	width: var(--left-card-width);\r\n	height: 100%;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count span {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count .duration {\r\n	background-color: rgba(0, 0, 0, 0.3);\r\n	border-radius: 4px;\r\n	color: #fff;\r\n	font-size: 12px;\r\n	height: 16px;\r\n	line-height: 16px;\r\n	margin-left: auto;\r\n	padding-left: 4px;\r\n	padding-right: 4px;\r\n}\r\n#app .video .video-list .card-box > a.v-card .title {\r\n	flex: 1;\r\n	/*padding: var(--right-child-padding);*/\r\n	padding-top: 0;\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n';
-  const BilibiliVideoVueProp = {
-    $data: {
-      isInitPlayer: false,
-      isUnlockUpower: false
-    },
-    init() {
-      PopsPanel.execMenu("bili-video-initPlayer", () => {
-        this.initPlayer();
-      });
-      PopsPanel.execMenu("bili-video-setVideoPlayer", () => {
-        this.setVideoPlayer();
-      });
-      PopsPanel.execMenu("bili-video-unlockUpower", () => {
-        this.unlockUpower();
-      });
-    },
-    /**
-     * 设置了某些vue属性后，会导致视频不出现播放按钮
-     */
-    initPlayer() {
-      if (this.$data.isInitPlayer) {
-        return;
-      }
-      this.$data.isInitPlayer = true;
-      let that = this;
-      utils.waitNode("#bilibiliPlayer", 3e3).then(async ($bilibiliPlayer) => {
-        if (!$bilibiliPlayer) {
-          that.$data.isInitPlayer = false;
-          return;
-        }
-        await utils.sleep(300);
-        let playerClassName = "m-video-player";
-        BilibiliUtils.waitVuePropToSet("." + playerClassName, [
-          {
-            msg: "等待设置参数 fullScreenCallApp",
-            check(vueObj) {
-              return typeof (vueObj == null ? void 0 : vueObj.fullScreenCallApp) === "boolean";
-            },
-            set(vueObj) {
-              vueObj.fullScreenCallApp = false;
-              log.success("成功设置参数 fullScreenCallApp=false");
-            }
-          },
-          {
-            msg: "等待设置参数 gameMode",
-            check(vueObj) {
-              return typeof (vueObj == null ? void 0 : vueObj.gameMode) === "boolean";
-            },
-            set(vueObj) {
-              vueObj.gameMode = true;
-              log.success("成功设置参数 gameMode=true");
-            }
-          },
-          {
-            msg: "等待获取函数 initPlayer()",
-            check(vueObj) {
-              return typeof (vueObj == null ? void 0 : vueObj.initPlayer) === "function";
-            },
-            set(vueObj) {
-              that.$data.isInitPlayer = false;
-              function intervalCheck() {
-                let intervalId = void 0;
-                let timeoutId = void 0;
-                let checkCount = 1;
-                let isSuccess = false;
-                let lockFunc = new utils.LockFunction(async () => {
-                  var _a2, _b, _c, _d;
-                  let $playerVideo = document.querySelector(
-                    "#bilibiliPlayer video"
-                  );
-                  let $posterImg = document.querySelector(
-                    "#bilibiliPlayer img.mplayer-poster"
-                  );
-                  if ($playerVideo && $posterImg && $posterImg.src !== "") {
-                    isSuccess = true;
-                    (_a2 = BilibiliPlayer.player) == null ? void 0 : _a2.off("restart_call_app");
-                    (_b = BilibiliPlayer.player) == null ? void 0 : _b.off("force_call_app_show");
-                    log.success("<video>标签和视频封面图已成功初始化");
-                    await utils.sleep(1e3);
-                    PopsPanel.execMenu(
-                      ["bili-coverQuality", "bili-rememberUserChooseQuality"],
-                      () => {
-                        BilibiliPlayerUI.coverQuality(true);
-                      }
-                    );
-                    BilibiliPlayer.init();
-                    return;
-                  }
-                  if (_unsafeWindow.BPlayerMobile == null) {
-                    log.error("未加载player播放器，主动引入script标签");
-                    await BilibiliUtils.loadScript(
-                      "https://s1.hdslb.com/bfs/static/player/main/html5/mplayer.js?v=2876316"
-                    );
-                    await utils.sleep(300);
-                  }
-                  try {
-                    vueObj.initPlayer(true);
-                  } catch (error) {
-                    log.error(error);
-                    try {
-                      log.info(`强制重载player播放器失败，使用普通调用`);
-                      vueObj.initPlayer();
-                    } catch (error2) {
-                      log.error(error2);
-                    }
-                  }
-                  log.success(
-                    "第 " + checkCount + " 次未检测到视频，调用初始化视频函数 initPlayer()"
-                  );
-                  await utils.sleep(300);
-                  (_c = BilibiliPlayer.player) == null ? void 0 : _c.off("restart_call_app");
-                  (_d = BilibiliPlayer.player) == null ? void 0 : _d.off("force_call_app_show");
-                  checkCount++;
-                });
-                intervalId = setInterval(async () => {
-                  await lockFunc.run();
-                  if (isSuccess) {
-                    clearTimeout(timeoutId);
-                    clearInterval(intervalId);
-                  }
-                }, 600);
-                timeoutId = setTimeout(() => {
-                  log.warn("检测视频超时5s，取消检测");
-                  clearInterval(intervalId);
-                }, 5e3);
-              }
-              intervalCheck();
-            }
-          }
-        ]);
-      });
-    },
-    /**
-     * + __vue__.info.is_upower_exclusive=false
-     * + __vue__.info.is_upower_play=false
-     * + __vue__.info.is_upower_preview=false
-     */
-    unlockUpower() {
-      BilibiliUtils.waitVuePropToSet(BilibiliData.className.video, [
-        {
-          msg: "设置属性 __vue__.info.is_upower_exclusive",
-          check(vueObj) {
-            var _a2;
-            return typeof ((_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.is_upower_exclusive) === "boolean";
-          },
-          set(vueObj) {
-            vueObj.info.is_upower_exclusive = false;
-            log.success("成功设置属性  __vue__.info.is_upower_exclusive=false");
-          }
-        },
-        {
-          msg: "设置属性 __vue__.info.is_upower_play",
-          check(vueObj) {
-            var _a2;
-            return typeof ((_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.is_upower_play) === "boolean";
-          },
-          set(vueObj) {
-            vueObj.info.is_upower_play = false;
-            log.success("成功设置属性  __vue__.info.is_upower_play=false");
-          }
-        },
-        {
-          msg: "设置属性 __vue__.info.is_upower_preview",
-          check(vueObj) {
-            var _a2;
-            return typeof ((_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.is_upower_preview) === "boolean";
-          },
-          set(vueObj) {
-            vueObj.info.is_upower_preview = false;
-            BilibiliVideoVueProp.initPlayer();
-            log.success("成功设置属性  __vue__.info.is_upower_preview=false");
-          }
-        }
-      ]);
-    },
-    /**
-     * 修改视频播放器设置参数
-     *
-     * + __vue__.playBtnNoOpenApp: `true`
-     * + __vue__.playBtnOpenApp: `false`
-     * + __vue__.coverOpenApp: `false`
-     */
-    setVideoPlayer() {
-      BilibiliUtils.waitVuePropToSet(
-        BilibiliData.className.video + " .m-video-player",
-        [
-          {
-            msg: "设置参数 playBtnNoOpenApp",
-            check(vueObj) {
-              return typeof vueObj.playBtnNoOpenApp === "boolean";
-            },
-            set(vueObj) {
-              vueObj.playBtnNoOpenApp = true;
-              log.success("成功设置参数 playBtnNoOpenApp=true");
-            }
-          },
-          {
-            msg: "设置参数 playBtnOpenApp",
-            check(vueObj) {
-              return typeof vueObj.playBtnOpenApp === "boolean";
-            },
-            set(vueObj) {
-              vueObj.playBtnOpenApp = false;
-              log.success("成功设置参数 playBtnOpenApp=false");
-            }
-          },
-          {
-            msg: "设置参数 coverOpenApp",
-            check(vueObj) {
-              return typeof vueObj.coverOpenApp === "boolean";
-            },
-            set(vueObj) {
-              vueObj.coverOpenApp = false;
-              log.success("成功设置参数 coverOpenApp=false");
-            }
-          }
-        ]
-      );
-    }
-  };
-  const BilibiliVideo = {
-    $data: {
-      isAddBeautifyCSS: false
-    },
-    init() {
-      BilibiliVideoHook.init();
-      BilibiliVideoVueProp.init();
-      PopsPanel.execMenuOnce("bili-video-repairVideoBottomAreaHeight", () => {
-        return this.repairVideoBottomAreaHeight();
-      });
-      PopsPanel.execMenuOnce(
-        "bili-video-autoClickContinueToWatchOnTheWebpage",
-        () => {
-          this.autoClickContinueToWatchOnTheWebpage();
-        }
-      );
-      PopsPanel.execMenu("bili-video-beautify", () => {
-        this.beautify();
-      });
-      PopsPanel.execMenuOnce("bili-video-cover-bottomRecommendVideo", () => {
-        this.coverBottomRecommendVideo();
-      });
-      PopsPanel.execMenuOnce("bili-video-gestureReturnToCloseCommentArea", () => {
-        this.gestureReturnToCloseCommentArea();
-      });
-      PopsPanel.execMenuOnce("bili-video-cover-seasonNew", () => {
-        this.coverSeasonNew();
-      });
-    },
-    /**
-     * 美化显示
-     */
-    beautify() {
-      log.info("美化显示");
-      if (!this.$data.isAddBeautifyCSS) {
-        this.$data.isAddBeautifyCSS = true;
-        addStyle(BilibiliVideoBeautifyCSS);
-      }
-      utils.waitNode(
-        BilibiliData.className.video + " .bottom-tab .list-view .card-box",
-        1e4
-      ).then(($cardBox) => {
-        if (!$cardBox) {
-          log.error("$cardBox is null");
-          return;
-        }
-        function handleVCardToApp($vCard) {
-          var _a2, _b;
-          let $originTitle = $vCard.querySelector(".title");
-          let $originLeft = $vCard.querySelector(".count .left");
-          let isHandled = Boolean($vCard.querySelector(".gm-right-container"));
-          let vueObj = BilibiliUtils.getVue($vCard);
-          if ($originTitle && $originLeft && vueObj && !isHandled) {
-            let upName = (_b = (_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.owner) == null ? void 0 : _b.name;
-            if (upName == null) {
-              log.error("美化显示-handleVCardToApp：获取up主名字失败");
-              return;
-            }
-            let $originCount = $vCard.querySelector(".count");
-            let $title = $originTitle.cloneNode(true);
-            let $left = $originLeft.cloneNode(true);
-            domutils.hide($originTitle);
-            if ($originCount) {
-              domutils.hide($originCount);
-            }
-            let $isOpenAppWeakened = $vCard.querySelector(".open-app.weakened");
-            if ($isOpenAppWeakened) {
-              domutils.hide($isOpenAppWeakened);
-            }
-            let $upInfo = document.createElement("div");
-            $upInfo.className = "gm-up-name";
-            $upInfo.innerHTML = /*html*/
-            `
-						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-							<path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
-							</path>
-						</svg>
-						<span class="gm-up-name-text">${upName}</span>
-						`;
-            let $rightContainer = document.createElement("div");
-            let $rightBottom = document.createElement("div");
-            $rightContainer.className = "gm-right-container";
-            $rightBottom.className = "gm-right-bottom";
-            domutils.after($originTitle, $rightContainer);
-            $rightContainer.appendChild($title);
-            $rightContainer.appendChild($rightBottom);
-            $rightBottom.appendChild($upInfo);
-            $rightBottom.appendChild($left);
-          }
-        }
-        function handleVCard($vCard) {
-          var _a2, _b, _c;
-          let $originTitle = $vCard.querySelector(".title");
-          let $originCount = $vCard.querySelector(".count");
-          let isHandled = Boolean($vCard.querySelector(".gm-right-container"));
-          let vueObj = BilibiliUtils.getVue($vCard);
-          if ($originTitle && $originCount && vueObj && !isHandled) {
-            let duration = (_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.duration;
-            if (duration == null) {
-              log.error("美化显示-handleVCard：获取视频时长失败");
-              return;
-            }
-            let upName = (_c = (_b = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _b.owner) == null ? void 0 : _c.name;
-            if (upName == null) {
-              log.error("美化显示-handleVCard：获取up主名字失败");
-              return;
-            }
-            let $cloneTitle = $originTitle.cloneNode(true);
-            let $cloneCount = $originCount.cloneNode(true);
-            domutils.hide($originTitle);
-            let $duration = document.createElement("div");
-            $duration.className = "duration";
-            $duration.innerText = BilibiliUtils.parseDuration(duration);
-            $cloneCount.className = "left";
-            let $upInfo = document.createElement("div");
-            $originCount.appendChild($duration);
-            $upInfo.className = "gm-up-name";
-            $upInfo.innerHTML = /*html*/
-            `
-						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
-							<path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
-							</path>
-						</svg>
-						<span class="gm-up-name-text">${upName}</span>
-						`;
-            let $rightContainer = document.createElement("div");
-            let $rightBottom = document.createElement("div");
-            $rightContainer.className = "gm-right-container";
-            $rightBottom.className = "gm-right-bottom";
-            domutils.after($originTitle, $rightContainer);
-            $rightContainer.appendChild($cloneTitle);
-            $rightContainer.appendChild($rightBottom);
-            $rightBottom.appendChild($upInfo);
-            $rightBottom.appendChild($cloneCount);
-          }
-        }
-        let lockFunc = new utils.LockFunction(() => {
-          let $vCardList = document.querySelectorAll(
-            BilibiliData.className.video + " .bottom-tab .list-view .card-box .v-card-toapp"
-          );
-          let $vCardList_isLogon = document.querySelectorAll(
-            BilibiliData.className.video + " .bottom-tab .list-view .card-box>a.v-card"
-          );
-          $vCardList.forEach((_$vCard_) => {
-            handleVCardToApp(_$vCard_);
-          });
-          $vCardList_isLogon.forEach((_$vCard_) => {
-            handleVCard(_$vCard_);
-          });
-        }, 25);
-        let $videoRoot = document.querySelector(
-          BilibiliData.className.video
-        );
-        if ($videoRoot) {
-          utils.mutationObserver($videoRoot, {
-            config: {
-              subtree: true,
-              attributes: true,
-              childList: true
-            },
-            callback() {
-              lockFunc.run();
-            }
-          });
-        } else {
-          log.error("未找到视频根节点");
-        }
-      });
-    },
-    /**
-     * 修复视频底部区域高度
-     */
-    repairVideoBottomAreaHeight() {
-      log.info("修复视频底部区域高度");
-      return addStyle(
-        /*css*/
-        `
-		${BilibiliData.className.video} {
-			/* 修复视频区域底部的高度 */
-			.natural-module .fixed-module-margin {
-				margin-top: 55.13333vmin;
-			}
-			/* 点击播放视频后的 */
-			.m-video-new:has(> div > .m-video-player) {
-				margin-top: 75vmin;
-			}
-			/* 未播放视频状态下的 */
-			.m-video-new:has(> div[style*="display:none"] > .m-video-player) {
-				margin-top: unset;
-			}
-		}
-		html.tiny-app{
-			${BilibiliData.className.video}{
-				.m-video-info-new{
-					margin-top: 72vmin;
-				}
-			}
-		}
-		`
-      );
-    },
-    /**
-     * 自动点击【继续在网页观看】
-     */
-    autoClickContinueToWatchOnTheWebpage() {
-      domutils.on(
-        document,
-        "click",
-        BilibiliData.className.video + " .main-info .btn",
-        function() {
-          log.info("触发点击【立即播放】，自动等待弹窗出现");
-          utils.waitNode(".to-see", 1e4).then(($toSee) => {
-            if (!$toSee) {
-              log.error("弹窗按钮【继续在网页观看】10秒内未出现，取消等待");
-              return;
-            }
-            log.success("自动点击 继续在网页观看");
-            $toSee.click();
-          });
-        }
-      );
-    },
-    /**
-     * 覆盖视频标题区域的点击事件
-     */
-    coverBottomRecommendVideo() {
-      log.info("覆盖 相关视频 点击事件");
-      domutils.on(
-        document,
-        "click",
-        BilibiliData.className.video + " .list-view .card-box .launch-app-btn",
-        function(event) {
-          let $click = event.target;
-          let vueObj = BilibiliUtils.getVue($click);
-          if (!vueObj) {
-            Qmsg.error("获取相关视频的__vue__失败");
-            return;
-          }
-          let bvid = vueObj.bvid;
-          if (utils.isNull(bvid)) {
-            if (vueObj.$children && vueObj.$children[0] && utils.isNotNull(vueObj.$children[0].bvid)) {
-              bvid = vueObj.$children[0].bvid;
-            } else {
-              Qmsg.error("获取相关视频的bvid失败");
-              return;
-            }
-          }
-          log.info("相关视频的bvid: " + bvid);
-          BilibiliUtils.goToUrl(BilibiliUrlUtils.getVideoUrl(bvid));
-          utils.preventEvent(event);
-        },
-        {
-          capture: true
-        }
-      );
-    },
-    /**
-     * 覆盖选集视频列表的点击事件
-     */
-    coverSeasonNew() {
-      log.info("覆盖 选集视频列表 点击事件");
-      function ClickCallBack(event) {
-        let $click = event.target;
-        let vueObj = BilibiliUtils.getVue($click);
-        if (!vueObj) {
-          Qmsg.error("获取选集视频的目标视频的__vue__失败");
-          return;
-        }
-        let bvid = vueObj.bvid;
-        if (utils.isNull(bvid)) {
-          Qmsg.error("获取相关视频的bvid失败");
-          return;
-        }
-        log.info("相关视频的bvid: " + bvid);
-        BilibiliUtils.goToUrl(BilibiliUrlUtils.getVideoUrl(bvid));
-        utils.preventEvent(event);
-      }
-      domutils.on(
-        document,
-        "click",
-        BilibiliData.className.video + " .m-video-season-new .video-card .launch-app-btn",
-        ClickCallBack,
-        {
-          capture: true
-        }
-      );
-      domutils.on(
-        document,
-        "click",
-        BilibiliData.className.video + " .m-video-season-panel .season-video-item .launch-app-btn",
-        ClickCallBack,
-        {
-          capture: true
-        }
-      );
-    },
-    /**
-     * 手势返回关闭评论区
-     */
-    gestureReturnToCloseCommentArea() {
-      log.info("手势返回关闭评论区，全局监听document点击.sub-reply-preview");
-      utils.waitNode("#app").then(($app) => {
-        utils.waitVueByInterval(
-          $app,
-          () => {
-            var _a2, _b;
-            let vueObj = BilibiliUtils.getVue($app);
-            if (vueObj == null) {
-              return false;
-            }
-            return typeof ((_b = (_a2 = vueObj == null ? void 0 : vueObj.$router) == null ? void 0 : _a2.options) == null ? void 0 : _b.scrollBehavior) != null;
-          },
-          250,
-          1e4
-        ).then((result) => {
-          let appVue = BilibiliUtils.getVue($app);
-          if (!appVue) {
-            log.error("获取#app的vue属性失败");
-            return;
-          }
-          let oldScrollBehavior = appVue.$router.options.scrollBehavior;
-          appVue.$router.options.scrollBehavior = function(to, from, scrollInfo) {
-            if (to["hash"] === "#/seeCommentReply") {
-              log.info("当前操作为打开评论区，scrollBehavior返回null");
-              return null;
-            } else if (to["hash"] === "" && from["hash"] === "#/seeCommentReply") {
-              log.info("当前操作为关闭评论区，scrollBehavior返回null");
-              return null;
-            }
-            return oldScrollBehavior.call(this, ...arguments);
-          };
-        });
-      });
-      domutils.on(document, "click", ".sub-reply-preview", function(event) {
-        let $app = document.querySelector("#app");
-        let appVue = BilibiliUtils.getVue($app);
-        if (!appVue) {
-          log.error("获取#app元素失败");
-          return;
-        }
-        let hookGestureReturnByVueRouter = BilibiliUtils.hookGestureReturnByVueRouter({
-          vueObj: appVue,
-          hash: "#/seeCommentReply",
-          callback(isFromPopState) {
-            if (!isFromPopState) {
-              return false;
-            }
-            let $dialogCloseIcon = document.querySelector(".dialog-close-icon");
-            if ($dialogCloseIcon) {
-              $dialogCloseIcon.click();
-            } else {
-              log.error("评论区关闭失败，原因：元素dialog-close-icon获取失败");
-            }
-            return true;
-          }
-        });
-        utils.waitNode(".dialog-close-icon").then(($dialogCloseIcon) => {
-          domutils.on(
-            $dialogCloseIcon,
-            "click",
-            function() {
-              hookGestureReturnByVueRouter.resumeBack(false);
-            },
-            {
-              capture: true,
-              once: true
-            }
-          );
-        });
-      });
-    }
-  };
   const BilibiliBangumiVueProp = {
     init() {
       PopsPanel.execMenu("bili-bangumi-setPay", () => {

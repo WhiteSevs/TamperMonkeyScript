@@ -5,8 +5,9 @@ import { PopsPanel } from "../setting";
 import { UISelect } from "../common-components/ui-select";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { UISlider } from "../common-components/ui-slider";
-import { BilibiliDanmaku, BilibiliDanmakuFilter } from "@/main/BilibiliDanmaku";
 import { UIOwn } from "../common-components/ui-own";
+import { BilibiliDanmaku } from "@/player/BilibiliDanmaku";
+import { BilibiliDanmakuFilter } from "@/player/BilibiliDanmakuFilter";
 
 const SettingUICommon: PopsPanelContentConfig = {
 	id: "panel-common",

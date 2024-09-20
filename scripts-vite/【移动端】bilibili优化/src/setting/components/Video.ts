@@ -63,16 +63,29 @@ const SettingUIVideo: PopsPanelContentConfig = {
 									void 0,
 									"自动执行初始化播放器"
 								),
+							],
+						},
+						{
+							text: "自动播放视频",
+							type: "forms",
+							forms: [
 								UISwitch(
-									"自动播放视频",
+									"启用",
 									"bili-video-playerAutoPlayVideo",
 									false,
 									void 0,
 									"需开启【initPlayer】"
 								),
 								UISwitch(
-									"检测【自动播放视频】是否静音",
+									"检测是否静音",
 									"bili-video-playerAutoPlayVideoCheckMute",
+									false,
+									void 0,
+									"需开启【自动播放视频】"
+								),
+								UISwitch(
+									"自动进入全屏",
+									"bili-video-playerAutoPlayVideoFullScreen",
 									false,
 									void 0,
 									"需开启【自动播放视频】"

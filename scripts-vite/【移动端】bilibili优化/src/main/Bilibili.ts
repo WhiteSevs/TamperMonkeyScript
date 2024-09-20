@@ -17,7 +17,7 @@ import { BilibiliVueProp } from "./BilibiliVueProp";
 import { BilibiliReadMobile } from "./read/mobile/BilibiliReadMobile";
 import { BilibiliNetworkHook } from "@/hook/BilibiliNetworkHook";
 import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
-import { BilibiliPlayer } from "./BilibiliPlayer";
+import { BilibiliPlayer } from "../player/BilibiliPlayer";
 import "./common.css";
 import { BilibiliSpace } from "./space/BilibiliSpace";
 import { BilibiliUrlUtils } from "@/utils/BilibiliUrlUtils";

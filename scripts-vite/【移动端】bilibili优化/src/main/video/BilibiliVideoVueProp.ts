@@ -1,10 +1,9 @@
 import { BilibiliData } from "@/data/BlibiliData";
 import { log, utils } from "@/env";
+import { BilibiliPlayer, BilibiliPlayerUI } from "@/player/BilibiliPlayer";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { unsafeWindow } from "ViteGM";
-import { BilibiliPlayer, BilibiliPlayerUI } from "../BilibiliPlayer";
-import { BilibiliDanmaku } from "../BilibiliDanmaku";
 
 export const BilibiliVideoVueProp = {
 	$data: {

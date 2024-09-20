@@ -8,6 +8,7 @@ import {
 } from "@/hook/BilibiliNetworkHook";
 import { BilibiliApi_Video } from "@/api/BilibiliApi_Video";
 import { BilibiliPlayerToast } from "./BilibiliPlayerToast";
+import { BilibiliVideo } from "../main/video/BilibiliVideo";
 
 export const BilibiliPlayerUI = {
 	$flag: {
@@ -543,7 +544,6 @@ export const BilibiliPlayer = {
 		this.$data.videoQuality = [];
 		this.$data.hookUnlockQuality = 0;
 
-		BilibiliDanmaku.init();
 		this.setVideoSpeed(1);
 		BilibiliPlayerUI.init();
 		this.generateVideoInfo();
@@ -551,6 +551,10 @@ export const BilibiliPlayer = {
 			this.autoPlay();
 		});
 		this.mutatuinCloseOriginToast();
+		setTimeout(() => {
+			// 延迟一下再覆盖弹幕设置
+			BilibiliDanmaku.init();
+		}, 500);
 	},
 	/**
 	 * 对视频画质清晰度初始化
@@ -602,7 +606,7 @@ export const BilibiliPlayer = {
 	/**
 	 * 自动播放
 	 */
-	async autoPlay() {
+	async autoPlay(): Promise<void> {
 		return new Promise(async (resolve, reject) => {
 			try {
 				let playerPromise = await this.$player.playerPromise();
@@ -617,54 +621,27 @@ export const BilibiliPlayer = {
 						if (isMute) {
 							// 静音
 							log.warn(`当前静音状态，Qmsg提示让用户自行选择是否取消静音`);
-							let $toast = Qmsg.info(
-								/*html*/ `
-							<div class="mplayer-unable-video-mute">
-								<div class="mplayer-unable-video-mute-icon">
-									<svg viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
-										<path d="M652.569422 94.472586a25.86878 25.86878 0 0 1 17.409787-6.491785 26.262221 26.262221 0 0 1 26.163861 26.262221V529.22546l78.688303 78.688303V114.243022a104.950524 104.950524 0 0 0-173.99951-78.688303L388.176725 221.259114l55.770334 55.770335zM1012.470048 956.798025l-944.259635-944.259634-1.967207-1.967208a39.344151 39.344151 0 1 0-53.704767 57.639182l189.73717 189.63881A157.376606 157.376606 0 0 0 92.800508 407.553671v219.146924a157.376606 157.376606 0 0 0 157.376606 148.13073H355.127637l245.900947 214.917427 6.196704 5.11474a104.950524 104.950524 0 0 0 167.802806-84.098124v-80.360429l181.9667 182.065061a39.344151 39.344151 0 0 0 55.671974-55.671975z m-316.326978-46.032657v4.426217a26.557302 26.557302 0 0 1-6.098343 12.88521 26.163861 26.163861 0 0 1-36.983503 2.459009l-245.900946-214.917427-6.393425-5.11474a78.688303 78.688303 0 0 0-45.442495-14.360615H242.701725a78.688303 78.688303 0 0 1-71.212914-78.688303v-217.376436a78.688303 78.688303 0 0 1 78.688303-71.212915h23.114689l422.949627 422.949628z"></path>
-									</svg>
-								</div>
-								<div class="mplayer-unable-video-mute-text">
-									点击取消静音
-								</div>
-							</div>
-							`,
-								{
-									isHTML: true,
-									style: /*css*/ `
-									.qmsg.qmsg-wrapper{
-										top: 50px;
-									}
-									.mplayer-unable-video-mute{
-										display: flex;
-										align-items: center;
-										gap: 10px;
-									}
-									.mplayer-unable-video-mute .mplayer-unable-video-mute-icon svg{
-										width: 16px;
-										height: 16px;
-									}
-									`,
-									showClose: true,
-									showIcon: false,
-									timeout: 5000,
-									position: "topleft",
-								}
-							);
-							let $videoMute = $toast.$Qmsg.querySelector<HTMLDivElement>(
-								".mplayer-unable-video-mute"
-							)!;
-							DOMUtils.on($videoMute, "click", (event) => {
-								log.info(`设置静音状态：${!isMute}`);
-								BilibiliPlayer.player?.setMute(!isMute);
-								$toast.close();
+							let $toast = BilibiliPlayerToast.toast({
+								text: "当前视频为静音状态",
+								jumpText: "取消静音",
+								timeout: 8000,
+								showCloseBtn: true,
+								jumpClickCallback(event) {
+									log.info(`设置静音状态：${!isMute}`);
+									BilibiliPlayer.player?.setMute(!isMute);
+									$toast.close();
+								},
 							});
 						} else {
 							// 非静音
 						}
 					}
 				);
+				await utils.sleep(500);
+				PopsPanel.execMenu("bili-video-playerAutoPlayVideoFullScreen", () => {
+					// 自动进入全屏
+					BilibiliVideo.enterVideoFullScreen();
+				});
 			} catch (error) {
 				reject(error);
 			}
