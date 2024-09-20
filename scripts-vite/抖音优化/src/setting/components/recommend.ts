@@ -2,6 +2,8 @@ import { DOMUtils, utils } from "@/env";
 import { DouYinRecommendVideoFilter } from "@/main/recommend/DouYinRecommendVideoFilter";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { UISwitch } from "../common-components/ui-switch";
+import { UIButton } from "../common-components/ui-button";
+import { DouYinRecommendVideoFilterDebug } from "@/main/recommend/DouYinRecommendVideoFilterDebug";
 
 export const PanelRecommendVideoConfig: PopsPanelContentConfig = {
 	id: "panel-config-recommend-video",
@@ -19,6 +21,18 @@ export const PanelRecommendVideoConfig: PopsPanelContentConfig = {
 							text: '<a href="https://greasyfork.org/zh-CN/scripts/494643-%E6%8A%96%E9%9F%B3%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
 							type: "forms",
 							forms: [
+								UIButton(
+									"调试规则",
+									"测试自定义规则对当前正在播放的视频是否生效",
+									"调试",
+									void 0,
+									false,
+									false,
+									"primary",
+									() => {
+										DouYinRecommendVideoFilterDebug.init();
+									}
+								),
 								UISwitch(
 									"启用",
 									"shieldVideo",

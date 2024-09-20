@@ -1,24 +1,32 @@
-import { DouYinVideoAwemeInfo } from "../recommend/DouYinRecommendVideoFilter";
 import { log, utils } from "@/env";
 import { DouYinElement } from "@/utils/DouYinElement";
 import { PopsPanel } from "@/setting/setting";
-import { DouYinVideoFilter } from "../DouYinVideoFilter";
+import {
+	DouYinVideoFilter,
+	type DouYinVideoAwemeInfo,
+} from "../DouYinVideoFilter";
 
 export const DouYinSearchFilter = {
-	douyinSearchFilter: null as any as DouYinVideoFilter,
+	__videoFilter: null as any as DouYinVideoFilter,
+	get videoFilter() {
+		if (this.__videoFilter == null) {
+			const KEY = "douyin-search-shield-rule";
+			const isBlockLiveVideo = PopsPanel.getValue<boolean>(
+				"search-shieldVideo-live"
+			);
+			const isBlockAdsVideo = PopsPanel.getValue<boolean>(
+				"search-shieldVideo-ads"
+			);
+			this.__videoFilter = new DouYinVideoFilter({
+				key: KEY,
+				isBlockLiveVideo: isBlockLiveVideo,
+				isBlockAdsVideo: isBlockAdsVideo,
+			});
+		}
+
+		return this.__videoFilter;
+	},
 	init() {
-		const KEY = "douyin-search-shield-rule";
-		const isBlockLiveVideo = PopsPanel.getValue<boolean>(
-			"search-shieldVideo-live"
-		);
-		const isBlockAdsVideo = PopsPanel.getValue<boolean>(
-			"search-shieldVideo-ads"
-		);
-		this.douyinSearchFilter = new DouYinVideoFilter({
-			key: KEY,
-			isBlockLiveVideo: isBlockLiveVideo,
-			isBlockAdsVideo: isBlockAdsVideo,
-		});
 		DouYinElement.watchVideDataListChange(
 			utils.debounce((osElement) => {
 				let $searchContentAreaScrollList = Array.from(
@@ -59,7 +67,7 @@ export const DouYinSearchFilter = {
 						return;
 					}
 
-					let flag = this.douyinSearchFilter.checkAwemeInfoIsFilter(awemeInfo);
+					let flag = this.videoFilter.checkAwemeInfoIsFilter(awemeInfo);
 					if (flag) {
 						$searchContentAreaScrollItem.remove();
 						index--;
@@ -69,9 +77,9 @@ export const DouYinSearchFilter = {
 		);
 	},
 	get() {
-		return this.douyinSearchFilter.get();
+		return this.videoFilter.get();
 	},
 	set(value: string) {
-		this.douyinSearchFilter.set(value);
+		this.videoFilter.set(value);
 	},
 };

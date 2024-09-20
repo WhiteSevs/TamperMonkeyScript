@@ -1,6 +1,6 @@
 import { log, utils } from "@/env";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
-import { GM_getValue, GM_setValue } from "ViteGM";
+import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 
 export interface DouYinShieldTagMap {
 	/** 作者名 */
@@ -23,6 +23,7 @@ export interface DouYinShieldTagMap {
 	shareCount: number;
 }
 
+/** 抖音视频的awemeInfo对象信息 */
 export type DouYinVideoAwemeInfo = {
 	/** 创作者信息 */
 	authorInfo: {
@@ -362,6 +363,8 @@ export class DouYinVideoFilter {
 	initLocalRule() {
 		let localRule = this.get().trim();
 		let localRuleSplit = localRule.split("\n");
+		this.$data.rule.clear();
+		this.$data.moreRule = [];
 		localRuleSplit.forEach((item) => {
 			if (utils.isNull(item)) {
 				return;
@@ -418,10 +421,35 @@ export class DouYinVideoFilter {
 			}
 		});
 	}
+	/**
+	 * 更新规则
+	 */
+	updateRule(ruleText: string) {
+		ruleText = ruleText.trim();
+		if (ruleText == "") {
+			return;
+		}
+		let localRule = this.get().trim();
+		localRule = localRule + "\n" + ruleText;
+		this.set(localRule);
+		this.initLocalRule();
+	}
 	set(value: string) {
 		GM_setValue(this.key, value);
 	}
 	get() {
 		return GM_getValue(this.key, "");
+	}
+	/**
+	 * 清空存储的值
+	 */
+	clear() {
+		this.set("");
+	}
+	/**
+	 * 销毁存储的值
+	 */
+	destory() {
+		GM_deleteValue(this.key);
 	}
 }

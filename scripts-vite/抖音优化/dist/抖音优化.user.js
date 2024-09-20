@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.9.5
+// @version      2024.9.20
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,10 +10,10 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.6.4/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
 // @grant        GM_getValue
@@ -33,6 +33,7 @@
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var _a;
+  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
   var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
@@ -2130,6 +2131,8 @@
     initLocalRule() {
       let localRule = this.get().trim();
       let localRuleSplit = localRule.split("\n");
+      this.$data.rule.clear();
+      this.$data.moreRule = [];
       localRuleSplit.forEach((item) => {
         if (utils.isNull(item)) {
           return;
@@ -2177,28 +2180,58 @@
         }
       });
     }
+    /**
+     * 更新规则
+     */
+    updateRule(ruleText) {
+      ruleText = ruleText.trim();
+      if (ruleText == "") {
+        return;
+      }
+      let localRule = this.get().trim();
+      localRule = localRule + "\n" + ruleText;
+      this.set(localRule);
+      this.initLocalRule();
+    }
     set(value) {
       _GM_setValue(this.key, value);
     }
     get() {
       return _GM_getValue(this.key, "");
     }
+    /**
+     * 清空存储的值
+     */
+    clear() {
+      this.set("");
+    }
+    /**
+     * 销毁存储的值
+     */
+    destory() {
+      _GM_deleteValue(this.key);
+    }
   }
   const DouYinSearchFilter = {
-    douyinSearchFilter: null,
+    __videoFilter: null,
+    get videoFilter() {
+      if (this.__videoFilter == null) {
+        const KEY2 = "douyin-search-shield-rule";
+        const isBlockLiveVideo = PopsPanel.getValue(
+          "search-shieldVideo-live"
+        );
+        const isBlockAdsVideo = PopsPanel.getValue(
+          "search-shieldVideo-ads"
+        );
+        this.__videoFilter = new DouYinVideoFilter({
+          key: KEY2,
+          isBlockLiveVideo,
+          isBlockAdsVideo
+        });
+      }
+      return this.__videoFilter;
+    },
     init() {
-      const KEY2 = "douyin-search-shield-rule";
-      const isBlockLiveVideo = PopsPanel.getValue(
-        "search-shieldVideo-live"
-      );
-      const isBlockAdsVideo = PopsPanel.getValue(
-        "search-shieldVideo-ads"
-      );
-      this.douyinSearchFilter = new DouYinVideoFilter({
-        key: KEY2,
-        isBlockLiveVideo,
-        isBlockAdsVideo
-      });
       DouYinElement.watchVideDataListChange(
         utils.debounce((osElement) => {
           var _a2, _b, _c, _d;
@@ -2231,7 +2264,7 @@
               ]);
               return;
             }
-            let flag = this.douyinSearchFilter.checkAwemeInfoIsFilter(awemeInfo);
+            let flag = this.videoFilter.checkAwemeInfoIsFilter(awemeInfo);
             if (flag) {
               $searchContentAreaScrollItem.remove();
               index--;
@@ -2241,10 +2274,10 @@
       );
     },
     get() {
-      return this.douyinSearchFilter.get();
+      return this.videoFilter.get();
     },
     set(value) {
-      this.douyinSearchFilter.set(value);
+      this.videoFilter.set(value);
     }
   };
   const DouYinSearch = {
@@ -2754,22 +2787,27 @@
     }
   };
   const DouYinRecommendVideoFilter = {
-    douyinRecommendVideoFilter: null,
+    __videoFilter: null,
+    get videoFilter() {
+      if (this.__videoFilter == null) {
+        const KEY2 = "douyin-shield-rule";
+        const isBlockLiveVideo = PopsPanel.getValue("shieldVideo-live");
+        const isBlockAdsVideo = PopsPanel.getValue("shieldVideo-ads");
+        this.__videoFilter = new DouYinVideoFilter({
+          key: KEY2,
+          isBlockLiveVideo,
+          isBlockAdsVideo
+        });
+      }
+      return this.__videoFilter;
+    },
     init() {
       let errorFindCount = 0;
-      const KEY2 = "douyin-shield-rule";
-      const isBlockLiveVideo = PopsPanel.getValue("shieldVideo-live");
-      const isBlockAdsVideo = PopsPanel.getValue("shieldVideo-ads");
-      this.douyinRecommendVideoFilter = new DouYinVideoFilter({
-        key: KEY2,
-        isBlockLiveVideo,
-        isBlockAdsVideo
-      });
       DouYinElement.watchVideDataListChange(
         utils.debounce((osElement, observer) => {
           var _a2;
           let $videoList = document.querySelector(
-            '#slidelist div[data-e2e="slideList"]'
+            `#slidelist div[data-e2e="slideList"]`
           );
           if (!$videoList) {
             errorFindCount++;
@@ -2791,7 +2829,7 @@
           }
           for (let index = 0; index < awemeInfoList.length; index++) {
             let awemeInfo = awemeInfoList[index];
-            let flag = this.douyinRecommendVideoFilter.checkAwemeInfoIsFilter(awemeInfo);
+            let flag = this.videoFilter.checkAwemeInfoIsFilter(awemeInfo);
             if (flag) {
               if (awemeInfoList.length === 1) {
                 log.warn(
@@ -2807,10 +2845,10 @@
       );
     },
     get() {
-      return this.douyinRecommendVideoFilter.get();
+      return this.videoFilter.get();
     },
     set(value) {
-      return this.douyinRecommendVideoFilter.set(value);
+      return this.videoFilter.set(value);
     }
   };
   const DouYinVideo = {
@@ -4325,6 +4363,132 @@
       }
     ]
   };
+  const DouYinRecommendVideo = {
+    /**
+     * 获取当前播放的视频信息
+     */
+    getCurrentActiveVideoInfo() {
+      var _a2, _b;
+      let $currentActiveVideo = document.querySelector(
+        `#sliderVideo[data-e2e="feed-active-video"] .basePlayerContainer`
+      );
+      if (!$currentActiveVideo) {
+        log.error("未获取到当前播放的视频信息");
+        return;
+      }
+      let { reactFiber } = utils.getReactObj($currentActiveVideo);
+      if (reactFiber == null) {
+        return;
+      }
+      let awemeInfo = (_b = (_a2 = reactFiber == null ? void 0 : reactFiber.return) == null ? void 0 : _a2.memoizedProps) == null ? void 0 : _b.awemeInfo;
+      return awemeInfo;
+    }
+  };
+  const DouYinRecommendVideoFilterDebug = {
+    init() {
+      let currentActiveVideoInfo = DouYinRecommendVideo.getCurrentActiveVideoInfo();
+      if (currentActiveVideoInfo == null) {
+        Qmsg.error("获取当前播放的视频信息失败，详情请看控制台");
+        return;
+      }
+      this.show(currentActiveVideoInfo);
+    },
+    /**
+     * 显示调试面板
+     */
+    show(awemeInfo) {
+      log.info(awemeInfo);
+      const KEY2 = "temp-debug-recommend-video-filter-rule";
+      let videoFilter = new DouYinVideoFilter({
+        key: KEY2
+      });
+      videoFilter.clear();
+      let choose = window.prompt(
+        `请输入需要执行的操作：
+1. 获取当前视频的信息字典
+2. 调试自定义规则`,
+        "1"
+      );
+      if (choose === "1") {
+        let videoInfoJSON = JSON.stringify(
+          videoFilter.getVideoInfoTagMap(awemeInfo),
+          null,
+          4
+        );
+        let $confirm = __pops.confirm({
+          title: {
+            text: "视频信息",
+            position: "center"
+          },
+          content: {
+            text: (
+              /*html*/
+              `
+                    <div class="video-info">
+                        <p class="copy-video-info-tip">是否复制以下信息到剪贴板？</p>
+                        <textarea class="video-info-json" disabled="true"></textarea>
+                    </div>
+                    `
+            ),
+            html: true
+          },
+          btn: {
+            ok: {
+              text: "复制",
+              callback: function() {
+                utils.setClip(videoInfoJSON);
+              }
+            }
+          },
+          mask: {
+            enable: true,
+            clickEvent: {
+              toClose: true
+            }
+          },
+          width: "300px",
+          height: "400px",
+          drag: true,
+          dragLimit: true,
+          style: (
+            /*css*/
+            `
+                .video-info-json{
+                    width: 100%;
+                    height: 200px;
+                }
+                `
+          )
+        });
+        $confirm.$shadowRoot.querySelector(
+          ".copy-video-info-tip"
+        );
+        let $videoInfoJSON = $confirm.$shadowRoot.querySelector(
+          ".video-info-json"
+        );
+        $videoInfoJSON.value = videoInfoJSON;
+        $videoInfoJSON.readOnly = true;
+      } else if (choose === "2") {
+        let rule = window.prompt("请输入要调试的规则(单条规则)");
+        if (utils.isNotNull(rule)) {
+          videoFilter.updateRule(rule);
+          log.info([
+            "过滤器-视频信息tag字典：",
+            videoFilter.getVideoInfoTagMap(awemeInfo)
+          ]);
+          let flag = videoFilter.checkAwemeInfoIsFilter(awemeInfo);
+          if (flag) {
+            Qmsg.success("当前视频符合该屏蔽规则");
+          } else {
+            Qmsg.error("当前视频不符合该屏蔽规则");
+          }
+        }
+      } else {
+        log.error("输入有误：" + choose);
+      }
+      videoFilter.destory();
+    }
+  };
   const PanelRecommendVideoConfig = {
     id: "panel-config-recommend-video",
     title: "推荐",
@@ -4341,6 +4505,18 @@
                 text: '<a href="https://greasyfork.org/zh-CN/scripts/494643-%E6%8A%96%E9%9F%B3%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
                 type: "forms",
                 forms: [
+                  UIButton(
+                    "调试规则",
+                    "测试自定义规则对当前正在播放的视频是否生效",
+                    "调试",
+                    void 0,
+                    false,
+                    false,
+                    "primary",
+                    () => {
+                      DouYinRecommendVideoFilterDebug.init();
+                    }
+                  ),
                   UISwitch(
                     "启用",
                     "shieldVideo",
