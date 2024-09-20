@@ -73,11 +73,21 @@ declare interface NetDiskUserCustomRuleContext {
  */
 declare interface NetDiskUserCustomRuleRegexp {
 	/**
-	 * 当设置中匹配类型为文本/全部，使用该规则
+	 * 当设置中匹配类型为文本，使用该规则
+	 * 
+	 * 以下是可使用的替换的参数
+	 * 
+	 * + `{#matchRange-text-before#}`替换为setting配置的`innerTextAccessCodeBeforeMaxRange`
+	 * + `{#matchRange-text-after#}`替换为setting配置的`innerTextAccessCodeAfterMaxRange`
 	 */
 	link_innerText: string;
 	/**
-	 * 当设置中匹配类型为超文本/全部，使用该规则
+	 * 当设置中匹配类型为超文本，使用该规则
+	 * 
+	 * 以下是可使用的替换的参数
+	 * 
+	 * + `{#matchRange-html-before#}`替换为setting配置的`innerHTMLAccessCodeBeforeMaxRange`
+	 * + `{#matchRange-html-after#}`替换为setting配置的`innerHTMLAccessCodeAfterMaxRange`
 	 */
 	link_innerHTML: string;
 	/**

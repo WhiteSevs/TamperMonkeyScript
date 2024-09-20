@@ -5,24 +5,24 @@ import { NetDiskAutoFillAccessCode } from "../../auto-fill-accesscode/NetDiskAut
 import { NetDiskAuthorization } from "../../authorization/NetDiskAuthorization";
 import { NetDiskCheckLinkValidity } from "../../check-valid/NetDiskCheckLinkValidity";
 import { NetDiskParse } from "../../parse/NetDiskParse";
-import { NetDiskRequire } from "../../NetDiskRequire";
-import {
-	NetDiskLocalData,
-	NetDiskLocalDataKey,
-} from "../../data/NetDiskLocalData";
-import { NetDiskPops } from "../../pops/NetDiskPops";
+import { NetDiskRequire } from "./NetDiskRequire";
+import { NetDiskRuleData } from "../../data/NetDiskRuleData";
 import { NetDiskUI } from "../../ui/NetDiskUI";
-import { NetDiskUserRuleDebug } from "./NetDiskUserRuleDebug";
 import { NetDiskRuleConfig } from "../NetDiskRule";
+import { NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
+import { NetDiskRuleDataKEY } from "@/main/data/NetDiskRuleDataKey";
+import { StorageUtils } from "@/utils/StorageUtils";
+import { NetDiskRuleUtils } from "../NetDiskRuleUtils";
 import {
-	NetDiskLinkClickMode,
-	NetDiskLinkClickModeUtils,
-} from "@/main/link-click-mode/NetDiskLinkClickMode";
+	NetDiskUserRuleReplaceParam_matchRange_html,
+	NetDiskUserRuleReplaceParam_matchRange_text,
+} from "./NetDiskUserRuleReplaceParam";
 
 /** 网盘-自定义规则 */
 export const NetDiskUserRule = {
 	key: "userRule",
-	dataKey: "userRuleData",
+	/** 用户规则上下文存储的数据 */
+	userRuleContextDataKey: "userRuleContextData",
 	$data: {
 		userRule: new utils.Dictionary<string, NetDiskRuleConfig>(),
 	},
@@ -30,59 +30,11 @@ export const NetDiskUserRule = {
 	 * 初始化
 	 */
 	init() {
-		// 初始化数据键
-		if (typeof GM_getValue(this.dataKey) !== "object") {
-			GM_setValue(this.dataKey, {});
-		}
 		// 先把本地规则进行转换
 		let userRule = this.parseRule(this.getAllRule());
 		userRule.forEach((item) => {
 			this.$data.userRule.set(item.setting.key, item);
 		});
-	},
-	getCSS() {
-		return /*css*/ `
-        .pops[type-value=confirm] .pops-confirm-content{
-            overflow: hidden;
-        }
-        /* textarea美化 */
-        .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea{
-            width: 100%;
-            height: 100%;
-            border: none;
-            outline: none;
-            padding: 0;
-            margin: 0;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            background-image: none;
-            background-color: transparent;
-
-            display: inline-block;
-            resize: vertical;
-            padding: 5px 15px;
-            line-height: 1.5;
-            box-sizing: border-box;
-            border: 1px solid #dcdfe6;
-            transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
-            appearance: none;
-            resize: none;
-        }
-        /* 获得焦点 */
-        .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea:focus{
-            outline: none;
-            border-color: #3677f0;
-        }
-        /* 提示文字 */
-        .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea::placeholder {
-            color: #c0c4cc;
-        }
-        /* 鼠标hover */
-        .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea:hover {
-            border-color: #c0c4cc;
-        }
-          `;
 	},
 	/**
 	 * 把输入的规则字符串解析为规则对象
@@ -237,143 +189,12 @@ export const NetDiskUserRule = {
 		}
 	},
 	/**
-	 * 添加/编辑规则
-	 * @param isEdit
-	 * @param ruleKey 当isEdit为true时，传入该值
-	 */
-	showUI(isEdit: boolean, ruleKey?: string) {
-		const that = this;
-		let titleText = "添加";
-		if (isEdit) {
-			titleText = "编辑";
-		}
-		titleText += "自定义规则";
-		let $ruleInput = null as any as HTMLTextAreaElement;
-
-		/**
-		 * 保存按钮的回调
-		 */
-		function saveCallBack(event: any, isDebug: boolean) {
-			let ruleText = $ruleInput.value.trim();
-			let parseRuleResult = that.parseRuleStrToRule(ruleText);
-			if (parseRuleResult.success) {
-				let userRule = parseRuleResult.data!;
-				if (isEdit) {
-					that.setRule(ruleKey!, userRule);
-				} else {
-					that.addRule(userRule);
-				}
-				Qmsg.success("保存成功");
-			} else {
-				Qmsg.error(parseRuleResult.msg);
-			}
-		}
-		/**
-		 * 调试按钮的回调
-		 * @param {PopsBtnCallBackEvent} event
-		 */
-		function debugCallBack(event: any) {
-			let ruleText = $ruleInput.value.trim();
-			let parseRuleResult = that.parseRuleStrToRule(ruleText);
-			if (parseRuleResult.success) {
-				let userRule = parseRuleResult.data!;
-				NetDiskUserRuleDebug.showUI(userRule);
-			} else {
-				Qmsg.error(parseRuleResult.msg);
-			}
-		}
-		/**
-		 * 格式化按钮的回调
-		 */
-		function formatCallBack(event: any) {
-			try {
-				let ruleJSON = JSON.parse($ruleInput.value);
-				let ruleJSONString = NetDiskUserRule.getFormatRule(ruleJSON);
-				$ruleInput.value = ruleJSONString;
-				Qmsg.success("格式化成功");
-			} catch (error: any) {
-				log.error(error);
-				Qmsg.error(error.message, {
-					html: true,
-					timeout: 3500,
-				});
-			}
-		}
-		let dialog = NetDiskPops.confirm(
-			{
-				title: {
-					text: titleText,
-					position: "center",
-				},
-				content: {
-					text: /*html*/ `<textarea class="netdisk-custom-rules" placeholder="请输入自定义规则"></textarea>`,
-					html: true,
-				},
-				btn: {
-					merge: true,
-					mergeReverse: false,
-					reverse: false,
-					position: "space-between",
-					ok: {
-						text: "保存",
-						callback: (eventDetails, event) => {
-							saveCallBack(event, false);
-						},
-					},
-					cancel: {
-						text: "调试",
-						callback: (eventDetails, event) => {
-							debugCallBack(event);
-						},
-					},
-					other: {
-						enable: true,
-						text: "格式化",
-						type: "xiaomi-primary",
-						callback: (eventDetails, event) => {
-							formatCallBack(event);
-						},
-					},
-				},
-				class: "whitesevPopNetDiskCustomRules",
-				style: this.getCSS(),
-			},
-			NetDiskUI.popsStyle.customRulesView
-		);
-		$ruleInput =
-			dialog.$shadowRoot.querySelector<HTMLTextAreaElement>("textarea")!;
-		if (isEdit) {
-			let rule = this.getRule(ruleKey!)!;
-			$ruleInput.value = this.getFormatRule(rule);
-		} else {
-			$ruleInput.value = this.getTemplateRule();
-		}
-	},
-	/**
 	 * 上下文环境
 	 * @param rule
 	 */
 	getBindContext(rule: NetDiskUserCustomRule) {
-		function setValue(key: string, value: any) {
-			let localData = GM_getValue(NetDiskUserRule.dataKey);
-			// @ts-ignore
-			let ruleData = localData[rule.key];
-			ruleData[key] = value;
-			GM_setValue(NetDiskUserRule.dataKey, localData);
-		}
-		function getValue(key: string, defaultValue?: any) {
-			let localData = GM_getValue(NetDiskUserRule.dataKey);
-			// @ts-ignore
-			let ruleData = localData[rule.key];
-			return ruleData[key] ?? defaultValue;
-		}
-		function deleteValue(key: string) {
-			let localData = GM_getValue(NetDiskUserRule.dataKey);
-			// @ts-ignore
-			let ruleData = localData[rule.key];
-			Reflect.deleteProperty(ruleData, key);
-			GM_setValue(NetDiskUserRule.dataKey, localData);
-		}
+		let storageUtils = new StorageUtils(NetDiskUserRule.userRuleContextDataKey);
+
 		return {
 			rule: rule,
 			NetDiskRequire: NetDiskRequire,
@@ -387,9 +208,9 @@ export const NetDiskUserRule = {
 			log: log,
 			Qmsg: Qmsg,
 			pops: pops,
-			setValue: setValue,
-			getValue: getValue,
-			deleteValue: deleteValue,
+			setValue: storageUtils.set.bind(storageUtils),
+			getValue: storageUtils.get.bind(storageUtils),
+			deleteValue: storageUtils.delete.bind(storageUtils),
 		};
 	},
 	/**
@@ -398,13 +219,20 @@ export const NetDiskUserRule = {
 	 */
 	parseRule(localRule: NetDiskUserCustomRule[]): NetDiskRuleConfig[] {
 		/**
+		 * 这里是第1步骤的处理函数
+		 *
 		 * 规则转换
-		 * 这里是把字符串转为正则
+		 *
+		 * 把字符串类型的转为正则
+		 * @param ruleKey 规则键
+		 * @param userRuleConfig 用户规则配置
+		 * @param ruleRegExp 用户的匹配规则
 		 */
 		function parseUserRuleToScriptRule(
+			ruleKey: string,
 			userRuleConfig: NetDiskUserCustomRule,
 			ruleRegExp: NetDiskUserCustomRuleRegexp
-		): NetDiskRegularOption {
+		): NetDiskMatchRuleOption {
 			const {
 				shareCode,
 				shareCodeNeedRemoveStr,
@@ -417,16 +245,20 @@ export const NetDiskUserRule = {
 			} = ruleRegExp;
 			// 这里的值需要获取最新的，而不是配置默认值
 			let netDiskRegularOption = {
-				enable: NetDiskLocalData.function.enable(
-					userRuleConfig.key,
-					Boolean(userRuleConfig.setting.enable)
-				),
-				checkLinkValidity: NetDiskLocalData.function.checkLinkValidity(
-					userRuleConfig.key,
-					Boolean(userRuleConfig.setting.checkLinkValidity)
-				),
 				...otherRuleParams,
-			} as NetDiskRegularOption;
+			} as NetDiskMatchRuleOption;
+			// 处理link_innerText
+			// 处理link_innerHTML
+			// 把某些关键字参数替换为规定的数值
+			netDiskRegularOption.link_innerText = NetDiskRuleUtils.replaceParam(
+				netDiskRegularOption.link_innerText,
+				NetDiskUserRuleReplaceParam_matchRange_text(ruleKey)
+			);
+			netDiskRegularOption.link_innerHTML = NetDiskRuleUtils.replaceParam(
+				netDiskRegularOption.link_innerText,
+				NetDiskUserRuleReplaceParam_matchRange_html(ruleKey)
+			);
+
 			if (typeof shareCode === "string") {
 				netDiskRegularOption.shareCode = new RegExp(shareCode, "ig");
 			}
@@ -465,6 +297,7 @@ export const NetDiskUserRule = {
 		}
 
 		let netDiskRuleConfigList: NetDiskRuleConfig[] = [];
+		// 遍历传入的规则
 		for (const userRuleItemConfig of localRule) {
 			// 得配置全初始项
 			let netDiskRuleConfig = {
@@ -494,12 +327,12 @@ export const NetDiskUserRule = {
 			if (Array.isArray(userRuleList)) {
 				userRuleList.forEach((userRuleItem) => {
 					netDiskRuleConfig.rule.push(
-						parseUserRuleToScriptRule(userRuleItemConfig, userRuleItem)
+						parseUserRuleToScriptRule(ruleKey, userRuleItemConfig, userRuleItem)
 					);
 				});
 			} else {
 				netDiskRuleConfig.rule.push(
-					parseUserRuleToScriptRule(userRuleItemConfig, userRuleList)
+					parseUserRuleToScriptRule(ruleKey, userRuleItemConfig, userRuleList)
 				);
 			}
 
@@ -508,7 +341,7 @@ export const NetDiskUserRule = {
 				// 其它的规则，也就是界面设置的规则
 				/* 是否启用，初始化默认值 */
 				this.initDefaultValue(
-					NetDiskLocalDataKey.template.function.enable(ruleKey),
+					NetDiskRuleDataKEY.function.enable(ruleKey),
 					Boolean(userRuleItemConfig.setting.enable)
 				);
 				// 添加默认值
@@ -518,7 +351,7 @@ export const NetDiskUserRule = {
 				if (typeof userRuleItemConfig.setting["isBlank"] === "boolean") {
 					/* 新标签页打开（旧） */
 					this.initDefaultValue(
-						NetDiskLocalDataKey.template.function.linkClickMode(ruleKey),
+						NetDiskRuleDataKEY.function.linkClickMode(ruleKey),
 						"openBlank"
 					);
 					netDiskRuleConfig.setting!.configurationInterface!.function!.linkClickMode =
@@ -532,7 +365,7 @@ export const NetDiskUserRule = {
 				) {
 					/* 点击动作 */
 					this.initDefaultValue(
-						NetDiskLocalDataKey.template.function.linkClickMode(ruleKey),
+						NetDiskRuleDataKEY.function.linkClickMode(ruleKey),
 						userRuleItemConfig.setting.linkClickMode
 					);
 					netDiskRuleConfig.setting!.configurationInterface!.function!.linkClickMode =
@@ -566,7 +399,7 @@ export const NetDiskUserRule = {
 				) {
 					/* 跳转时复制访问码 */
 					this.initDefaultValue(
-						NetDiskLocalDataKey.template.linkClickMode_openBlank.openBlankWithCopyAccessCode(
+						NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankWithCopyAccessCode(
 							ruleKey
 						),
 						Boolean(userRuleItemConfig.setting["openBlankWithCopyAccessCode"])
@@ -579,7 +412,7 @@ export const NetDiskUserRule = {
 				) {
 					/* 用于验证链接有效性 */
 					this.initDefaultValue(
-						NetDiskLocalDataKey.template.function.checkLinkValidity(ruleKey),
+						NetDiskRuleDataKEY.function.checkLinkValidity(ruleKey),
 						Boolean(userRuleItemConfig.setting["checkLinkValidity"])
 					);
 					netDiskRuleConfig.setting!.configurationInterface!.function!.checkLinkValidity =
@@ -588,7 +421,7 @@ export const NetDiskUserRule = {
 				if (typeof userRuleItemConfig.setting["isForward"] === "boolean") {
 					/* 直接进行scheme转发链接 */
 					this.initDefaultValue(
-						NetDiskLocalDataKey.template.schemeUri.enable(ruleKey),
+						NetDiskRuleDataKEY.schemeUri.enable(ruleKey),
 						Boolean(userRuleItemConfig.setting["isForward"])
 					);
 					netDiskRuleConfig.setting!.configurationInterface!.schemeUri!.enable =
@@ -597,7 +430,7 @@ export const NetDiskUserRule = {
 				if (typeof userRuleItemConfig.setting["schemeUri"] === "string") {
 					/* scheme转发的字符串格式 */
 					this.initDefaultValue(
-						NetDiskLocalDataKey.template.schemeUri.uri(ruleKey),
+						NetDiskRuleDataKEY.schemeUri.uri(ruleKey),
 						userRuleItemConfig.setting["schemeUri"]
 					);
 					netDiskRuleConfig.setting!.configurationInterface!.schemeUri!.uri =
@@ -610,7 +443,7 @@ export const NetDiskUserRule = {
 				) {
 					/* text-提取码间隔前的字符长度 */
 					this.initDefaultValue(
-						NetDiskLocalDataKey.template.matchRange_text.before(ruleKey),
+						NetDiskRuleDataKEY.matchRange_text.before(ruleKey),
 						userRuleItemConfig.setting["innerTextAccessCodeBeforeMaxRange"]
 					);
 					netDiskRuleConfig.setting!.configurationInterface!.matchRange_text!.before =
@@ -623,7 +456,7 @@ export const NetDiskUserRule = {
 				) {
 					/* text-提取码间隔后的字符长度 */
 					this.initDefaultValue(
-						NetDiskLocalDataKey.template.matchRange_text.after(ruleKey),
+						NetDiskRuleDataKEY.matchRange_text.after(ruleKey),
 						userRuleItemConfig.setting["innerTextAccessCodeAfterMaxRange"]
 					);
 					netDiskRuleConfig.setting!.configurationInterface!.matchRange_text!.after =
@@ -636,7 +469,7 @@ export const NetDiskUserRule = {
 				) {
 					/* html-提取码间隔前的字符长度 */
 					this.initDefaultValue(
-						NetDiskLocalDataKey.template.matchRange_html.before(ruleKey),
+						NetDiskRuleDataKEY.matchRange_html.before(ruleKey),
 						userRuleItemConfig.setting["innerHTMLAccessCodeBeforeMaxRange"]
 					);
 					netDiskRuleConfig.setting!.configurationInterface!.matchRange_html!.before =
@@ -649,7 +482,7 @@ export const NetDiskUserRule = {
 				) {
 					/* html-提取码间隔后的字符长度 */
 					this.initDefaultValue(
-						NetDiskLocalDataKey.template.matchRange_html.after(ruleKey),
+						NetDiskRuleDataKEY.matchRange_html.after(ruleKey),
 						userRuleItemConfig.setting["innerHTMLAccessCodeAfterMaxRange"]
 					);
 					netDiskRuleConfig.setting!.configurationInterface!.matchRange_html!.after =
@@ -755,7 +588,6 @@ export const NetDiskUserRule = {
 	},
 	/**
 	 * 获取模板规则
-	 * @returns
 	 */
 	getTemplateRule(): string {
 		let templateRule = <NetDiskUserCustomRule>{
@@ -783,7 +615,7 @@ export const NetDiskUserRule = {
 	},
 	/**
 	 * 添加规则
-	 * @param {NetDiskUserCustomRule} userRule
+	 * @param userRule
 	 */
 	addRule(userRule: NetDiskUserCustomRule) {
 		let localRule = this.getAllRule();
@@ -860,7 +692,7 @@ export const NetDiskUserRule = {
 	},
 	/**
 	 * 获取格式化后的规则
-	 * @param {?NetDiskUserCustomRule} rule
+	 * @param rule
 	 */
 	getFormatRule(rule?: NetDiskUserCustomRule) {
 		return JSON.stringify(rule || this.getAllRule(), void 0, 4);

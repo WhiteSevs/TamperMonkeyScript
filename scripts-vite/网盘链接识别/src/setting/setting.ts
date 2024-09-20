@@ -18,6 +18,7 @@ import { NetDiskView_setting } from "@/main/ui/view/NetDiskView_setting";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskUserRule } from "@/main/rule/user-rule/NetDiskUserRule";
 import { NetDiskRule } from "@/main/rule/NetDiskRule";
+import { NetDiskUserRuleUI } from "@/main/rule/user-rule/NetDiskUserRuleUI";
 
 type PosPanelListenerData = {
 	id: number;
@@ -150,7 +151,7 @@ export const PopsPanel = {
 					return text;
 				},
 				callback() {
-					NetDiskUserRule.showUI(false);
+					NetDiskUserRuleUI.show(false);
 				},
 			},
 			{

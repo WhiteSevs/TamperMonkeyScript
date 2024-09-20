@@ -3,8 +3,8 @@ import { NetDiskParse } from "../parse/NetDiskParse";
 import Qmsg from "qmsg";
 import { NetDiskAutoFillAccessCode } from "../auto-fill-accesscode/NetDiskAutoFillAccessCode";
 import { NetDiskFilterScheme } from "../scheme/NetDiskFilterScheme";
-import { NetDiskLocalData } from "../data/NetDiskLocalData";
-import { NetDiskConfig } from "../data/NetDiskData";
+import { NetDiskRuleData } from "../data/NetDiskRuleData";
+import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import { NetDisk } from "../NetDisk";
 import { NetDiskRuleUtils } from "../rule/NetDiskRuleUtils";
 
@@ -59,7 +59,7 @@ export const NetDiskLinkClickModeUtils = {
 		shareCode: string,
 		accessCode: string
 	) {
-		let regularOption = NetDisk.regular[netDiskName][netDiskIndex];
+		let regularOption = NetDisk.matchRule[netDiskName][netDiskIndex];
 		let blankUrl = regularOption.blank;
 		if (shareCode) {
 			blankUrl = NetDiskRuleUtils.replaceParam(blankUrl, {
@@ -104,7 +104,7 @@ export const NetDiskLinkClickModeUtils = {
 		shareCode: string,
 		accessCode: string
 	) {
-		let regularOption = NetDisk.regular[netDiskName][netDiskIndex];
+		let regularOption = NetDisk.matchRule[netDiskName][netDiskIndex];
 		let copyUrl = regularOption["copyUrl"];
 		if (shareCode) {
 			copyUrl = NetDiskRuleUtils.replaceParam(copyUrl, {
@@ -142,7 +142,7 @@ export const NetDiskLinkClickModeUtils = {
 	 * @param userAgent 用户代理字符串
 	 */
 	async getRedirectFinalUrl(url: string, userAgent: string) {
-		if (!NetDiskConfig.function.getTheDirectLinkAfterRedirection.value) {
+		if (!NetDiskGlobalData.function.getTheDirectLinkAfterRedirection.value) {
 			return url;
 		}
 		Qmsg.success("获取重定向后的直链");
@@ -249,7 +249,7 @@ export const NetDiskLinkClickMode = {
 			?.setAttribute("content", "no-referrer");
 		if (
 			utils.isNotNull(accessCode) &&
-			NetDiskLocalData.linkClickMode_openBlank.openBlankWithCopyAccessCode(
+			NetDiskRuleData.linkClickMode_openBlank.openBlankWithCopyAccessCode(
 				netDiskName
 			)
 		) {

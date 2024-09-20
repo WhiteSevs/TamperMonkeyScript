@@ -13,7 +13,7 @@ import DOMUtils from "@whitesev/domutils";
 import Utils from "@whitesev/utils";
 import { HttpxCookieManager } from "./utils/HttpxCookieManager";
 import pops from "@whitesev/pops";
-import { NetDiskConfig } from "./main/data/NetDiskData";
+import { NetDiskGlobalData } from "./main/data/NetDiskGlobalData";
 
 /* 脚本名 */
 const _SCRIPT_NAME_ = "网盘链接识别";
@@ -54,17 +54,17 @@ Qmsg.config(
 		{
 			position: {
 				get() {
-					return NetDiskConfig.toast.position.value;
+					return NetDiskGlobalData.toast.position.value;
 				},
 			},
 			maxNums: {
 				get() {
-					return NetDiskConfig.toast.maxnums.value;
+					return NetDiskGlobalData.toast.maxnums.value;
 				},
 			},
 			showReverse: {
 				get() {
-					return NetDiskConfig.toast.showreverse.value;
+					return NetDiskGlobalData.toast.showreverse.value;
 				},
 			},
 			zIndex: {

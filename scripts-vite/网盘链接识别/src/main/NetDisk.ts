@@ -1,10 +1,10 @@
-import { NetDiskConfig } from "./data/NetDiskData";
+import { NetDiskGlobalData } from "./data/NetDiskGlobalData";
 import { log, utils } from "@/env";
 import Qmsg from "qmsg";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { NetDiskUI } from "./ui/NetDiskUI";
 import { NetDiskRuleUtils } from "./rule/NetDiskRuleUtils";
-import { NetDiskRuleConfig } from "./rule/NetDiskRule";
+import { NetDiskRuleConfig, type NetDiskRuleSetting } from "./rule/NetDiskRule";
 
 export const NetDisk = {
 	$flag: {},
@@ -51,7 +51,11 @@ export const NetDisk = {
 	noAccessCodeRegExp:
 		/( |提取码:|\n密码：{#accessCode#}|{#accessCode#}|{#encodeURI-accessCode#}|{#encodeURIComponent-accessCode#}|{#decodeURI-accessCode#}|{#encodeURIComponent-accessCode#}|\?pwd=|&pwd=)/gi,
 	/** 各个网盘规则的匹配规则 */
-	regular: {} as NetDiskRegular,
+	matchRule: {} as NetDiskMatchRule,
+	/** 各个网盘规则的设置项 */
+	ruleSetting: {} as {
+		[key: string]: NetDiskRuleSetting;
+	},
 	/** 各个网盘规则 */
 	rule: [] as NetDiskRuleConfig[],
 	/**
@@ -64,7 +68,7 @@ export const NetDisk = {
 	 * 初始化字典
 	 */
 	initLinkDict() {
-		Object.keys(this.regular).forEach((netDiskName) => {
+		Object.keys(this.matchRule).forEach((netDiskName) => {
 			this.linkDict.set(netDiskName, new utils.Dictionary());
 			this.tempLinkDict.set(netDiskName, new utils.Dictionary());
 		});
@@ -107,7 +111,7 @@ export const NetDisk = {
 		matchText: string
 	) {
 		/* 当前执行的规则 */
-		let netDiskMatchRegular = NetDisk.regular[netDiskName][netDiskIndex];
+		let netDiskMatchRegular = NetDisk.matchRule[netDiskName][netDiskIndex];
 		let shareCodeMatch = matchText
 			.match(netDiskMatchRegular.shareCode)
 			?.filter((item) => utils.isNotNull(item));
@@ -147,10 +151,10 @@ export const NetDisk = {
 		/* %E7%BD%91%E7%9B%98 => 网盘 */
 		shareCode = decodeURI(shareCode);
 		if (
-			NetDiskConfig.aboutShareCode.excludeIdenticalSharedCodes.value &&
+			NetDiskGlobalData.aboutShareCode.excludeIdenticalSharedCodes.value &&
 			utils.isSameChars(
 				shareCode,
-				NetDiskConfig.aboutShareCode.excludeIdenticalSharedCodesCoefficient
+				NetDiskGlobalData.aboutShareCode.excludeIdenticalSharedCodesCoefficient
 					.value
 			)
 		) {
@@ -176,7 +180,7 @@ export const NetDisk = {
 		matchText: string
 	): string {
 		/* 当前执行正则匹配的规则 */
-		let netDiskMatchRegular = this.regular[netDiskName][netDiskIndex];
+		let netDiskMatchRegular = this.matchRule[netDiskName][netDiskIndex];
 		let accessCode = "";
 		if (!netDiskMatchRegular.checkAccessCode) {
 			/* 不存在匹配提取码的正则 */
@@ -276,7 +280,7 @@ export const NetDisk = {
 		accessCode: string,
 		matchText?: string
 	) {
-		let netDiskMatchRegular = NetDisk.regular[netDiskName][netDiskIndex];
+		let netDiskMatchRegular = NetDisk.matchRule[netDiskName][netDiskIndex];
 		if (netDiskMatchRegular == void 0) {
 			Qmsg.error("BUG: 获取uiLink规则失败");
 			log.error([

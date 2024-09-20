@@ -3,6 +3,7 @@ import { ShortCut, type ShortCutOption } from "@/utils/ShortCut";
 import { NetDiskUI } from "../ui/NetDiskUI";
 import { NetDiskUserRule } from "../rule/user-rule/NetDiskUserRule";
 import { NetDiskView_setting } from "../ui/view/NetDiskView_setting";
+import { NetDiskUserRuleUI } from "../rule/user-rule/NetDiskUserRuleUI";
 
 export const NetDiskShortcut = {
 	shortCut: new ShortCut("GM_shortcut"),
@@ -36,7 +37,7 @@ export const NetDiskShortcut = {
 				target: "window",
 				callback: () => {
 					log.info("【打开】⚙ 用户自定义规则");
-					NetDiskUserRule.showUI(false);
+					NetDiskUserRuleUI.show(false);
 				},
 			},
 			"netdisk-keyboard-open-proactively-recognize-text": {

@@ -17,6 +17,7 @@ import {
 	NetDiskLinkClickMode,
 	NetDiskLinkClickModeUtils,
 } from "../link-click-mode/NetDiskLinkClickMode";
+import { NetDiskUserRuleUI } from "../rule/user-rule/NetDiskUserRuleUI";
 
 /** 弹窗UI界面 */
 export const NetDiskUI = {
@@ -146,7 +147,7 @@ export const NetDiskUI = {
 				text: "自定义规则",
 				callback() {
 					log.info("打开-自定义规则");
-					NetDiskUserRule.showUI(false);
+					NetDiskUserRuleUI.show(false);
 				},
 			},
 			{

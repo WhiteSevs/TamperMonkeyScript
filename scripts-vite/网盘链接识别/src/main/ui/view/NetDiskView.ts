@@ -3,7 +3,7 @@ import { NetDisk } from "../../NetDisk";
 import { NetDiskPops } from "../../pops/NetDiskPops";
 import { NetDiskUI } from "../NetDiskUI";
 import { DOMUtils, log, pops, utils } from "@/env";
-import { GenerateNetDiskConfig, NetDiskConfig } from "../../data/NetDiskData";
+import { NetDiskGlobalData } from "../../data/NetDiskGlobalData";
 import { NetDiskCheckLinkValidity } from "../../check-valid/NetDiskCheckLinkValidity";
 import {
 	PopsRightClickMenuDataDetails,
@@ -11,19 +11,20 @@ import {
 } from "@whitesev/pops/dist/types/src/components/rightClickMenu/indexType";
 import Qmsg from "qmsg";
 import { NetDiskSuspensionConfig } from "../NetDiskSuspension";
-import { NetDiskLocalData } from "@/main/data/NetDiskLocalData";
 import {
 	NetDiskLinkClickMode,
 	NetDiskLinkClickModeUtils,
 } from "@/main/link-click-mode/NetDiskLinkClickMode";
+import { GenerateData } from "@/main/data/NetDiskDataUtils";
+import { NetDiskRuleData } from "@/main/data/NetDiskRuleData";
 
 const NetDiskViewConfig = {
 	view: {
-		"netdisl-small-window-shrink-status": GenerateNetDiskConfig(
+		"netdisl-small-window-shrink-status": GenerateData(
 			"netdisl-small-window-shrink-status",
 			false
 		),
-		"netdisk-ui-small-window-position": GenerateNetDiskConfig<{
+		"netdisk-ui-small-window-position": GenerateData<{
 			left: number;
 			top: number;
 		} | null>("netdisk-ui-small-window-position", null),
@@ -152,7 +153,7 @@ export const NetDiskView = {
             </div>`;
 
 		if (
-			NetDiskConfig.function["netdisk-behavior-mode"].value
+			NetDiskGlobalData.function["netdisk-behavior-mode"].value
 				.toLowerCase()
 				.includes("smallwindow")
 		) {
@@ -173,7 +174,7 @@ export const NetDiskView = {
 						close: {
 							callback(event) {
 								if (
-									NetDiskConfig.function["netdisk-behavior-mode"].value
+									NetDiskGlobalData.function["netdisk-behavior-mode"].value
 										.toLowerCase()
 										.includes("suspension")
 								) {
@@ -297,7 +298,7 @@ export const NetDiskView = {
                     .pops {
                         --container-title-height: 35px;
                         --content-max-height: ${
-													NetDiskConfig.smallWindow[
+													NetDiskGlobalData.smallWindow[
 														"netdisk-ui-small-window-max-height"
 													].value
 												}px;
@@ -566,7 +567,7 @@ export const NetDiskView = {
 			// 解析数据
 			const { netDiskName, netDiskIndex, shareCode, accessCode } =
 				NetDiskView.praseElementAttributeRuleInfo($click);
-			let linkClickMode = NetDiskLocalData.function.linkClickMode(netDiskName);
+			let linkClickMode = NetDiskRuleData.function.linkClickMode(netDiskName);
 			if (linkClickMode === "copy") {
 				// 复制
 				NetDiskLinkClickMode.copy(
@@ -584,7 +585,7 @@ export const NetDiskView = {
 					accessCode
 				);
 				let isSchemeForward =
-					NetDiskLocalData.schemeUri.isForwardBlankLink(netDiskName);
+					NetDiskRuleData.schemeUri.isForwardBlankLink(netDiskName);
 				if (isSchemeForward) {
 					// 用scheme处理的进行新标签打开
 					NetDiskLinkClickMode.openBlankWithScheme(
@@ -620,10 +621,10 @@ export const NetDiskView = {
 	},
 	/**
 	 * 注册右键菜单
-	 * @param {HTMLElement|Window} target
-	 * @param {?string} selector
-	 * @param {{text:string,callback:Function}[]} showTextList 右键菜单的内容
-	 * @param {string} className className属性
+	 * @param target
+	 * @param selector
+	 * @param showTextList 右键菜单的内容
+	 * @param className className属性
 	 */
 	registerContextMenu(
 		target: HTMLElement | (Window & typeof globalThis) | ShadowRoot,
@@ -657,11 +658,11 @@ export const NetDiskView = {
 	},
 	/**
 	 * 添加新的链接
-	 * @param {string} netDiskName 网盘名称
-	 * @param {number} netDiskIndex 网盘名称索引下标
-	 * @param {string} shareCode 分享码
-	 * @param {string} accessCode 访问码
-	 * @param {string} matchText 匹配到的文本
+	 * @param netDiskName 网盘名称
+	 * @param netDiskIndex 网盘名称索引下标
+	 * @param shareCode 分享码
+	 * @param accessCode 访问码
+	 * @param matchText 匹配到的文本
 	 */
 	addLinkView(
 		netDiskName: string,
@@ -702,9 +703,12 @@ export const NetDiskView = {
 				".netdisk-url-box-all"
 			)!;
 		DOMUtils.append($urlBoxAll, insertDOM);
+		/* 按顺序来，最后一个 */
+		let $urlBox = $urlBoxAll.children[
+			$urlBoxAll.children.length - 1
+		] as HTMLElement;
 		NetDiskCheckLinkValidity.check(
-			// @ts-ignore
-			$urlBoxAll.children[$urlBoxAll.children.length - 1],
+			$urlBox,
 			netDiskName,
 			netDiskIndex,
 			shareCode,
@@ -713,11 +717,11 @@ export const NetDiskView = {
 	},
 	/**
 	 * 修改已存在的view
-	 * @param {string} netDiskName 网盘名称
-	 * @param {number} netDiskIndex 网盘名称索引下标
-	 * @param {string} shareCode 分享码
-	 * @param {string} accessCode 访问码
-	 * @param {string} matchText 匹配到的文本
+	 * @param netDiskName 网盘名称
+	 * @param netDiskIndex 网盘名称索引下标
+	 * @param shareCode 分享码
+	 * @param accessCode 访问码
+	 * @param matchText 匹配到的文本
 	 */
 	changeLinkView(
 		netDiskName: string,
@@ -755,16 +759,10 @@ export const NetDiskView = {
 	/**
 	 * 设置点击图标按钮导航至该网盘链接所在网页中位置
 	 */
-	registerIconGotoPagePosition(target: any) {
-		/**
-		 * @type {?Generator<HTMLElement, void, any>}
-		 */
+	registerIconGotoPagePosition(targetElement: ShadowRoot | Document) {
 		let findGenerator:
 			| Generator<HTMLElement | ChildNode, void, any>
 			| undefined = void 0;
-		/**
-		 * @type {?IteratorResult<HTMLElement, void>}
-		 */
 		let iterator: IteratorResult<HTMLElement | ChildNode, void> | undefined =
 			void 0;
 		/**
@@ -772,14 +770,14 @@ export const NetDiskView = {
 		 */
 		let prevSearchShareCode: string | undefined = void 0;
 		DOMUtils.on(
-			target,
+			targetElement,
 			"click",
 			".whitesevPop .netdisk-icon .netdisk-icon-img",
 			function (event) {
 				let $click = event.target as HTMLElement;
 				let dataSharecode = $click.getAttribute("data-sharecode")!;
 				if (
-					!NetDiskConfig.smallIconNavgiator[
+					!NetDiskGlobalData.smallIconNavgiator[
 						"pops-netdisk-icon-click-event-find-sharecode"
 					].value
 				) {
@@ -822,7 +820,7 @@ export const NetDiskView = {
 							inline: "nearest",
 						});
 						if (
-							NetDiskConfig.smallIconNavgiator[
+							NetDiskGlobalData.smallIconNavgiator[
 								"pops-netdisk-icon-click-event-find-sharecode-with-select"
 							].value
 						) {
@@ -869,7 +867,7 @@ export const NetDiskView = {
 					) {
 						/* #text元素且可见 */
 						if (
-							NetDiskConfig.smallIconNavgiator[
+							NetDiskGlobalData.smallIconNavgiator[
 								"pops-netdisk-icon-click-event-find-sharecode-with-select"
 							].value
 						) {
@@ -949,7 +947,7 @@ export const NetDiskView = {
 				if (iterator.done) {
 					/* 循环查找 */
 					if (
-						!NetDiskConfig.smallIconNavgiator[
+						!NetDiskGlobalData.smallIconNavgiator[
 							"pops-netdisk-icon-click-event-loop-find-sharecode"
 						].value
 					) {

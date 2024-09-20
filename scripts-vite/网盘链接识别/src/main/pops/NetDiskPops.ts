@@ -10,7 +10,7 @@ import { PopsAlertDetails } from "@whitesev/pops/dist/types/src/components/alert
 import { PopsPromptDetails } from "@whitesev/pops/dist/types/src/components/prompt/indexType";
 import { PopsAnimation } from "@whitesev/pops/dist/types/src/types/animation";
 import { PopsPanel } from "@/setting/setting";
-import { NetDiskConfig } from "../data/NetDiskData";
+import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import { PopsRightClickMenuDetails } from "@whitesev/pops/dist/types/src/components/rightClickMenu/indexType";
 
 export type PopsSizeConfig = {
@@ -72,7 +72,7 @@ export const NetDiskPops = {
 	loading(details: NetDiskPopsDetails<PopsLoadingDetails>) {
 		if (typeof details["animation"] === "undefined") {
 			// @ts-ignore
-			details["animation"] = NetDiskConfig.pops.popsAnimation.value;
+			details["animation"] = NetDiskGlobalData.pops.popsAnimation.value;
 		}
 		if (typeof details["forbiddenScroll"] === "undefined") {
 			details["forbiddenScroll"] = NetDiskUI.defaultForbiddenScroll;
@@ -103,12 +103,12 @@ export const NetDiskPops = {
 		details = this.handleDetails(details, sizeConfig);
 		// @ts-ignore
 		details["sort"] = {
-			name: NetDiskConfig.popsFolder["pops-folder-sort-name"].value,
-			isDesc: NetDiskConfig.popsFolder["pops-folder-sort-is-desc"].value,
+			name: NetDiskGlobalData.popsFolder["pops-folder-sort-name"].value,
+			isDesc: NetDiskGlobalData.popsFolder["pops-folder-sort-is-desc"].value,
 			// @ts-ignore
 			callback(target, event, sortName, sortDesc) {
-				NetDiskConfig.popsFolder["pops-folder-sort-name"].value = sortName;
-				NetDiskConfig.popsFolder["pops-folder-sort-is-desc"].value = sortDesc;
+				NetDiskGlobalData.popsFolder["pops-folder-sort-name"].value = sortName;
+				NetDiskGlobalData.popsFolder["pops-folder-sort-is-desc"].value = sortDesc;
 			},
 		};
 		// @ts-ignore
@@ -153,9 +153,9 @@ export const NetDiskPops = {
 	) {
 		details = Object.assign(
 			{
-				animation: NetDiskConfig.pops.popsAnimation.value,
-				drag: NetDiskConfig.pops.pcDrag.value,
-				dragLimit: NetDiskConfig.pops.pcDragLimit.value,
+				animation: NetDiskGlobalData.pops.popsAnimation.value,
+				drag: NetDiskGlobalData.pops.pcDrag.value,
+				dragLimit: NetDiskGlobalData.pops.pcDragLimit.value,
 				forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
 			},
 			details
@@ -180,10 +180,10 @@ export const NetDiskPops = {
 		}
 		if (typeof details.mask.clickEvent.toClose !== "boolean") {
 			details.mask.clickEvent.toClose =
-				NetDiskConfig.pops.clickMaskToCloseDialog.value;
+				NetDiskGlobalData.pops.clickMaskToCloseDialog.value;
 		}
 		// 亚克力效果
-		if (NetDiskConfig.pops.popsAcrylic.value) {
+		if (NetDiskGlobalData.pops.popsAcrylic.value) {
 			let acrylicCSS = /*css*/ `
             .pops {
                 --acrylic-opacity: 0.7;

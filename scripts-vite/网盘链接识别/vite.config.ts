@@ -166,6 +166,9 @@ export default defineConfig({
 					),
 					"@whitesev/pops": cdn.jsdelivrFastly("pops", "dist/index.umd.js"),
 				},
+				externalResource: {
+					
+				}
 			},
 		}),
 	],

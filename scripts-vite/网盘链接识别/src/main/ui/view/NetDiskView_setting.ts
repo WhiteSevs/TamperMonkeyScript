@@ -6,6 +6,7 @@ import { NetDiskUserRule } from "@/main/rule/user-rule/NetDiskUserRule";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { GM_info } from "ViteGM";
 import { NetDiskRule } from "@/main/rule/NetDiskRule";
+import { NetDiskUserRuleUI } from "@/main/rule/user-rule/NetDiskUserRuleUI";
 
 export const NetDiskView_setting = {
 	show() {
@@ -56,6 +57,11 @@ export const NetDiskView_setting = {
 					width: 1.2em;
 					height: 1.2em;
 				}
+				/* 控件被禁用的颜色 */
+				aside.pops-panel-aside li[data-key][data-function-enable="false"]{
+					color: #a8abb2;
+					filter: grayscale(100%);
+				}
 				`,
 			},
 			NetDiskUI.popsStyle.settingView
@@ -68,7 +74,7 @@ export const NetDiskView_setting = {
 				let $click = event.target as HTMLElement;
 				let ruleKey = $click.getAttribute("data-key")!;
 				let ruleName = $click.getAttribute("data-type")!;
-				NetDiskUserRule.showUI(true, ruleKey);
+				NetDiskUserRuleUI.show(true, ruleKey);
 			}
 		);
 

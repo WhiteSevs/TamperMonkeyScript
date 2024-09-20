@@ -20,7 +20,7 @@ declare interface NetDiskCheckLinkValidityOption {
 	 */
 	accessCode: string;
 }
-declare interface NetDiskCheckLinkValidityStatus {
+declare interface NetDiskCheckLinkValidityStatusObj {
 	/**
 	 * 状态码
 	 */
@@ -47,7 +47,7 @@ declare interface NetDiskCheckLinkValidityEntranceObj {
 		netDiskIndex: number,
 		shareCode: string,
 		accessCode: string
-	) => IPromise<NetDiskCheckLinkValidityStatus>;
+	) => IPromise<NetDiskCheckLinkValidityStatusObj>;
 }
 
 declare interface NetDiskCheckLinkValidityEntrance {

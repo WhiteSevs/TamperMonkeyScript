@@ -1,18 +1,18 @@
 import { log, utils } from "@/env";
 import { NetDisk } from "../NetDisk";
-import { NetDiskConfig } from "../data/NetDiskData";
+import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import { NetDiskRuleUtils } from "../rule/NetDiskRuleUtils";
 
 export const NetDiskDebug = {
 	/**
 	 * 对传入的url进行处理，返回shareCode
 	 * @param {string} matchText 正在进行匹配的文本
-	 * @param {NetDiskRegularOption} regular 当前执行的规则
+	 * @param {NetDiskMatchRuleOption} regular 当前执行的规则
 	 * @param {(logData: NetDiskDebugLogData)=>void} logCallBack 日志回调
 	 */
 	handleShareCode(
 		matchText: string,
-		regular: NetDiskRegularOption,
+		regular: NetDiskMatchRuleOption,
 		logCallBack: (logData: NetDiskDebugLogData) => void
 	) {
 		let shareCodeMatch = matchText
@@ -86,10 +86,10 @@ export const NetDiskDebug = {
 			msg: ["对shareCode进行解码: " + shareCode],
 		});
 		if (
-			NetDiskConfig.aboutShareCode.excludeIdenticalSharedCodes.value &&
+			NetDiskGlobalData.aboutShareCode.excludeIdenticalSharedCodes.value &&
 			utils.isSameChars(
 				shareCode,
-				NetDiskConfig.aboutShareCode.excludeIdenticalSharedCodesCoefficient
+				NetDiskGlobalData.aboutShareCode.excludeIdenticalSharedCodesCoefficient
 					.value
 			)
 		) {
@@ -117,12 +117,12 @@ export const NetDiskDebug = {
 	/**
 	 * 对传入的url进行处理，返回accessCode
 	 * @param {string} matchText 正在进行匹配的文本
-	 * @param {NetDiskRegularOption} regular 当前执行的规则
+	 * @param {NetDiskMatchRuleOption} regular 当前执行的规则
 	 * @param {(logData: NetDiskDebugLogData)=>void} logCallBack 日志回调
 	 */
 	handleAccessCode(
 		matchText: string,
-		regular: NetDiskRegularOption,
+		regular: NetDiskMatchRuleOption,
 		logCallBack: (logData: NetDiskDebugLogData) => void
 	) {
 		let accessCode = "";
@@ -232,14 +232,14 @@ export const NetDiskDebug = {
 	/**
 	 * 获取在弹窗中显示出的链接
 	 * @param {string} matchText 匹配到的文本
-	 * @param {NetDiskRegularOption} regular 当前执行的规则
+	 * @param {NetDiskMatchRuleOption} regular 当前执行的规则
 	 * @param {string} shareCode 分享码
 	 * @param {string} accessCode 访问码
 	 * @param {(logData: NetDiskDebugLogData)=>void} logCallBack 日志回调
 	 */
 	handleLinkShow(
 		matchText: string,
-		regular: NetDiskRegularOption,
+		regular: NetDiskMatchRuleOption,
 		shareCode: string,
 		accessCode: string,
 		logCallBack: (logData: NetDiskDebugLogData) => void
@@ -314,14 +314,14 @@ export const NetDiskDebug = {
 	/**
 	 * 获取新标签页打开的URL
 	 * @param {string} matchText 匹配到的文本
-	 * @param {NetDiskRegularOption} regular 当前执行的规则
+	 * @param {NetDiskMatchRuleOption} regular 当前执行的规则
 	 * @param {string} shareCode 分享码
 	 * @param {string} accessCode 访问码
 	 * @param {(logData: NetDiskDebugLogData)=>void} logCallBack 日志回调
 	 */
 	handleBlank(
 		matchText: string,
-		regular: NetDiskRegularOption,
+		regular: NetDiskMatchRuleOption,
 		shareCode: string,
 		accessCode: string,
 		logCallBack: (logData: NetDiskDebugLogData) => void
@@ -395,14 +395,14 @@ export const NetDiskDebug = {
 	/**
 	 * 获取复制到剪贴板的字符串
 	 * @param {string} matchText 匹配到的文本
-	 * @param {NetDiskRegularOption} regular 当前执行的规则
+	 * @param {NetDiskMatchRuleOption} regular 当前执行的规则
 	 * @param {string} shareCode 分享码
 	 * @param {string} accessCode 访问码
 	 * @param {(logData: NetDiskDebugLogData)=>void} logCallBack 日志回调
 	 */
 	handleCopyUrl(
 		matchText: string,
-		regular: NetDiskRegularOption,
+		regular: NetDiskMatchRuleOption,
 		shareCode: string,
 		accessCode: string,
 		logCallBack: (logData: NetDiskDebugLogData) => void

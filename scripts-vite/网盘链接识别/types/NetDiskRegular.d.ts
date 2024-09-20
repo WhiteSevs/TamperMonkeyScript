@@ -1,15 +1,23 @@
 /**
  * 网盘匹配规则配置
  */
-declare interface NetDiskRegularOption {
-	/** 是否启用 */
-	enable: boolean;
+declare interface NetDiskMatchRuleOption {
 	/**
-	 * 正则字符串：使用innerText进行匹配
+	 * 当设置中匹配类型为文本，使用该规则
+	 * 
+	 * 以下是可使用的替换的参数
+	 * 
+	 * + `{#matchRange-text-before#}`替换为setting配置的`innerTextAccessCodeBeforeMaxRange`
+	 * + `{#matchRange-text-after#}`替换为setting配置的`innerTextAccessCodeAfterMaxRange`
 	 */
 	link_innerText: string;
 	/**
-	 * 正则字符串：使用innerHTML进行匹配
+	 * 当设置中匹配类型为超文本，使用该规则
+	 * 
+	 * 以下是可使用的替换的参数
+	 * 
+	 * + `{#matchRange-html-before#}`替换为setting配置的`innerHTMLAccessCodeBeforeMaxRange`
+	 * + `{#matchRange-html-after#}`替换为setting配置的`innerHTMLAccessCodeAfterMaxRange`
 	 */
 	link_innerHTML: string;
 	/**
@@ -59,14 +67,10 @@ declare interface NetDiskRegularOption {
 	 * 用于复制到剪贴板的链接
 	 */
 	copyUrl: string;
-	/**
-	 * （可选）用于验证链接有效性
-	 */
-	checkLinkValidity?: boolean;
 }
 /**
  * 网盘匹配规则
  */
-declare interface NetDiskRegular {
-	[key: string]: NetDiskRegularOption[];
+declare interface NetDiskMatchRule {
+	[key: string]: NetDiskMatchRuleOption[];
 }

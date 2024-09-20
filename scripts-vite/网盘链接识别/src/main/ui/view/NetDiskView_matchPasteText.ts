@@ -3,7 +3,7 @@ import { NetDiskUI } from "../NetDiskUI";
 import { NetDiskWorker } from "@/main/worker/NetDiskWorker";
 import { NetDisk } from "@/main/NetDisk";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
-import { NetDiskConfig } from "@/main/data/NetDiskData";
+import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
 import { NetDiskRuleUtils } from "@/main/rule/NetDiskRuleUtils";
 
 export const NetDiskView_matchPasteText = {
@@ -33,8 +33,8 @@ export const NetDiskView_matchPasteText = {
 								inputText = NetDiskRuleUtils.replaceChinese(inputText);
 								NetDiskWorker.postMessage({
 									textList: [inputText],
-									matchTextRange: NetDiskConfig.match.pageMatchRange.value,
-									regular: NetDisk.regular,
+									matchTextRange: NetDiskGlobalData.match.pageMatchRange.value,
+									regular: NetDisk.matchRule,
 									startTime: Date.now(),
 									from: "PasteText",
 								});

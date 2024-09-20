@@ -232,9 +232,9 @@ export const NetDiskUserRuleDebug = {
 				/** 选择的规则 */
 				let selectRegularOption = (
 					that.$el.$select.selectedOptions[netDiskIndex] as any
-				)["data-value"] as NetDiskRegularOption;
+				)["data-value"] as NetDiskMatchRuleOption;
 				log.info(["当前选中的规则: ", selectRegularOption]);
-				let testCustomRule = <NetDiskRegular>{};
+				let testCustomRule = <NetDiskMatchRule>{};
 				testCustomRule[ruleJSON.key] = [selectRegularOption];
 				let matchTextList: string[] = [];
 				NetDiskWorker.handleRegularMatch(

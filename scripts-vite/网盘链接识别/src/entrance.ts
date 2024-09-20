@@ -31,4 +31,5 @@ DOMUtils.ready(() => {
 	NetDiskAuthorization.init();
 	// 初始化匹配处理
 	NetDiskWorker.init();
+	console.log(NetDisk);
 });

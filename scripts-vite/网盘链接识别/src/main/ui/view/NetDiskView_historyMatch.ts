@@ -3,7 +3,7 @@ import { GM_getValue, GM_setValue } from "ViteGM";
 import { NetDiskUI } from "../NetDiskUI";
 import { NetDisk } from "@/main/NetDisk";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
-import { NetDiskConfig } from "@/main/data/NetDiskData";
+import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
 import { NetDiskView } from "./NetDiskView";
 
 export const NetDiskView_historyMatch = {
@@ -551,7 +551,7 @@ export const NetDiskView_historyMatch = {
 	 */
 	orderNetDiskHistoryMatchData(data: NetDiskHistoryDataOption[]) {
 		let localOrder =
-			NetDiskConfig.historyMatch["netdisk-history-match-ordering-rule"].value;
+			NetDiskGlobalData.historyMatch["netdisk-history-match-ordering-rule"].value;
 		let isDesc = localOrder.indexOf("降序") !== -1 ? true : false; /* 降序 */
 		let orderField =
 			localOrder.indexOf("记录时间") !== -1
@@ -582,7 +582,7 @@ export const NetDiskView_historyMatch = {
 		accessCode: string,
 		matchText: string
 	) {
-		if (!NetDiskConfig.historyMatch.saveMatchNetDisk.value) {
+		if (!NetDiskGlobalData.historyMatch.saveMatchNetDisk.value) {
 			return;
 		}
 		let localData = this.getNetDiskHistoryMatchData();

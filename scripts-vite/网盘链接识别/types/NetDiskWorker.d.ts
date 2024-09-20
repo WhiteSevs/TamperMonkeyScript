@@ -13,7 +13,7 @@ declare interface NetDiskWorkerOptions {
 	/**
 	 * 匹配的规则
 	 */
-	regular: NetDiskRegular;
+	regular: NetDiskMatchRule;
 	/**
 	 * 开始时间
 	 */

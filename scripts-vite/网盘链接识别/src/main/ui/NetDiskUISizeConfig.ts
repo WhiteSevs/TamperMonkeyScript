@@ -1,5 +1,5 @@
 import { PopsSizeConfig } from "../pops/NetDiskPops";
-import { NetDiskConfig } from "../data/NetDiskData";
+import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 
 export const NetDiskUISizeConfig = <
 	{
@@ -77,12 +77,12 @@ export const NetDiskUISizeConfig = <
 	mainViewSmallWindow: {
 		PC: {
 			width:
-				NetDiskConfig.smallWindow["netdisk-ui-small-window-width"].value + "px",
+				NetDiskGlobalData.smallWindow["netdisk-ui-small-window-width"].value + "px",
 			height: "auto",
 		},
 		Mobile: {
 			width:
-				NetDiskConfig.smallWindow["netdisk-ui-small-window-width"].value + "px",
+				NetDiskGlobalData.smallWindow["netdisk-ui-small-window-width"].value + "px",
 			height: "auto",
 		},
 	},

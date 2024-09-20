@@ -1,6 +1,6 @@
 import { utils } from "@/env";
 import { NetDisk } from "../NetDisk";
-import { NetDiskLocalData } from "../data/NetDiskLocalData";
+import { NetDiskRuleData } from "../data/NetDiskRuleData";
 import { NetDiskRuleUtils } from "../rule/NetDiskRuleUtils";
 
 /** 网盘-直链进行Scheme过滤 */
@@ -15,12 +15,12 @@ export const NetDiskFilterScheme = {
 	 */
 	parseDataToSchemeUri(name: string, intentData: string): string {
 		/** 是否启用 */
-		let isEnable = NetDiskLocalData.schemeUri.enable(name);
+		let isEnable = NetDiskRuleData.schemeUri.enable(name);
 		if (!isEnable) {
 			return intentData;
 		}
 		/** 转发的scheme */
-		let schemeUri = NetDiskLocalData.schemeUri.uri(name);
+		let schemeUri = NetDiskRuleData.schemeUri.uri(name);
 		if (utils.isNull(schemeUri)) {
 			schemeUri = this.getSchemeUri(this.getIDMSchemeUriOption(intentData));
 		}
@@ -39,7 +39,7 @@ export const NetDiskFilterScheme = {
 	 * @returns
 	 */
 	isForwardDownloadLink(key: string) {
-		return NetDiskLocalData.schemeUri.isForwardLinearChain(key);
+		return NetDiskRuleData.schemeUri.isForwardLinearChain(key);
 	},
 	/**
 	 * 是否转发跳转链接
@@ -47,7 +47,7 @@ export const NetDiskFilterScheme = {
 	 * @returns
 	 */
 	isForwardBlankLink(key: string) {
-		return NetDiskLocalData.schemeUri.isForwardBlankLink(key);
+		return NetDiskRuleData.schemeUri.isForwardBlankLink(key);
 	},
 	/**
 	 * 获取转发的uri链接

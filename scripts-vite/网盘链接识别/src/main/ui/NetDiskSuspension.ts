@@ -2,22 +2,23 @@ import { AnyTouch, DOMUtils, utils } from "@/env";
 import { unsafeWindow } from "ViteGM";
 import { NetDiskUI } from "./NetDiskUI";
 import { NetDiskView_setting } from "./view/NetDiskView_setting";
-import { GenerateNetDiskConfig, NetDiskConfig } from "../data/NetDiskData";
+import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
+import { GenerateData } from "../data/NetDiskDataUtils";
 
 export const NetDiskSuspensionConfig = {
 	position: {
-		suspensionX: GenerateNetDiskConfig(
+		suspensionX: GenerateData(
 			"suspensionX",
-			DOMUtils.width(window) - NetDiskConfig.suspension.size.value
+			DOMUtils.width(window) - NetDiskGlobalData.suspension.size.value
 		),
-		suspensionY: GenerateNetDiskConfig(
+		suspensionY: GenerateData(
 			"suspensionY",
-			(DOMUtils.height(window) - NetDiskConfig.suspension.size.value) / 2
+			(DOMUtils.height(window) - NetDiskGlobalData.suspension.size.value) / 2
 		),
-		isRight: GenerateNetDiskConfig("isRight", false),
+		isRight: GenerateData("isRight", false),
 	},
 	mode: {
-		current_suspension_smallwindow_mode: GenerateNetDiskConfig(
+		current_suspension_smallwindow_mode: GenerateData(
 			"current_suspension_smallwindow_mode",
 			"suspension" as "smallwindow" | "suspension"
 		),
@@ -66,21 +67,21 @@ export const NetDiskSuspension = {
 	 * 创建UI界面
 	 */
 	createUI() {
-		if (NetDiskConfig.suspension.size.value < 15) {
+		if (NetDiskGlobalData.suspension.size.value < 15) {
 			/* 大小不能小于 15px */
-			NetDiskConfig.suspension.size.value = 15;
+			NetDiskGlobalData.suspension.size.value = 15;
 		}
-		if (NetDiskConfig.suspension.size.value > 250) {
+		if (NetDiskGlobalData.suspension.size.value > 250) {
 			/* 大小不能大于 250px */
-			NetDiskConfig.suspension.size.value = 250;
+			NetDiskGlobalData.suspension.size.value = 250;
 		}
-		if (NetDiskConfig.suspension.opacity.value < 0.1) {
+		if (NetDiskGlobalData.suspension.opacity.value < 0.1) {
 			/* 透明度不能小于 0.1 */
-			NetDiskConfig.suspension.opacity.value = 0.1;
+			NetDiskGlobalData.suspension.opacity.value = 0.1;
 		}
-		if (NetDiskConfig.suspension.opacity.value > 1.0) {
+		if (NetDiskGlobalData.suspension.opacity.value > 1.0) {
 			/* 透明度不能大于 1.0 */
-			NetDiskConfig.suspension.opacity.value = 1.0;
+			NetDiskGlobalData.suspension.opacity.value = 1.0;
 		}
 		let $shadowContainer = DOMUtils.createElement("div", {
 			className: "whitesev-suspension-shadow-container",
@@ -106,9 +107,9 @@ export const NetDiskSuspension = {
 			},
 			{
 				style: `
-                    width: ${NetDiskConfig.suspension.size.value}px;
-                    height: ${NetDiskConfig.suspension.size.value}px;
-                    opacity: ${NetDiskConfig.suspension.opacity.value}
+                    width: ${NetDiskGlobalData.suspension.size.value}px;
+                    height: ${NetDiskGlobalData.suspension.size.value}px;
+                    opacity: ${NetDiskGlobalData.suspension.opacity.value}
                 `,
 			}
 		);
@@ -149,9 +150,11 @@ export const NetDiskSuspension = {
 			if (event.phase === "move") {
 				/* 悬浮按钮大小不能超过250px */
 				/* left偏移最大值 */
-				let maxLeftOffset = DOMUtils.width(window) - NetDiskConfig.suspension.size.value;
+				let maxLeftOffset =
+					DOMUtils.width(window) - NetDiskGlobalData.suspension.size.value;
 				/* top偏移的最大值 */
-				let maxTopOffset = DOMUtils.height(window) - NetDiskConfig.suspension.size.value;
+				let maxTopOffset =
+					DOMUtils.height(window) - NetDiskGlobalData.suspension.size.value;
 				/* 当前移动的left偏移 */
 				let currentSuspensionLeftOffset = event.x - clickElementLeftOffset;
 				/* 当前移动的top偏移 */
@@ -197,13 +200,14 @@ export const NetDiskSuspension = {
 					DOMUtils.css(needDragElement, "left")
 				);
 				if (
-					NetDiskConfig.suspension["suspended-button-adsorption-edge"].value
+					NetDiskGlobalData.suspension["suspended-button-adsorption-edge"].value
 				) {
 					let setCSSLeft = 0;
 					/* 判断悬浮按钮是否在右边区域 */
 					if (currentSuspensionLeftOffset >= DOMUtils.width(window) / 2) {
 						/* 设置悬浮按钮的left偏移 */
-						setCSSLeft = DOMUtils.width(window) - NetDiskConfig.suspension.size.value;
+						setCSSLeft =
+							DOMUtils.width(window) - NetDiskGlobalData.suspension.size.value;
 						if (NetDiskUI.suspension.isTopWindow()) {
 							NetDiskSuspensionConfig.position.isRight.value = true;
 						}
@@ -236,7 +240,7 @@ export const NetDiskSuspension = {
 				netDiskLinkViewTimer = setTimeout(() => {
 					isDouble = false;
 					if (
-						NetDiskConfig.function["netdisk-behavior-mode"].value.includes(
+						NetDiskGlobalData.function["netdisk-behavior-mode"].value.includes(
 							"smallwindow"
 						)
 					) {
@@ -281,16 +285,20 @@ export const NetDiskSuspension = {
 	 */
 	setSuspensionPosition() {
 		/* 最大的left偏移*/
-		let maxLeftOffset = DOMUtils.width(window) - NetDiskConfig.suspension.size.value;
+		let maxLeftOffset =
+			DOMUtils.width(window) - NetDiskGlobalData.suspension.size.value;
 		/* 最大的top偏移 */
-		let maxTopOffset = DOMUtils.height(window) - NetDiskConfig.suspension.size.value;
+		let maxTopOffset =
+			DOMUtils.height(window) - NetDiskGlobalData.suspension.size.value;
 		/* 用户自己拖动设置的悬浮按钮left偏移 */
 		let userSetLeftOffset = NetDiskSuspensionConfig.position.suspensionX.value;
 
 		/* 用户自己拖动设置的悬浮按钮top偏移 */
 		let userSetTopOffset = NetDiskSuspensionConfig.position.suspensionY.value;
 
-		if (NetDiskConfig.suspension["suspended-button-adsorption-edge"].value) {
+		if (
+			NetDiskGlobalData.suspension["suspended-button-adsorption-edge"].value
+		) {
 			/* 如果isRight为true，悬浮按钮放到最右边，否则最左边 */
 			if (NetDiskSuspensionConfig.position.isRight.value) {
 				userSetLeftOffset = maxLeftOffset;
@@ -398,11 +406,11 @@ export const NetDiskSuspension = {
 					setTimeout(() => {
 						startSwitch(
 							parseInt(
-								NetDiskConfig.suspension["randbg-time"].value.toString()
+								NetDiskGlobalData.suspension["randbg-time"].value.toString()
 							),
 							currentBackgroundSrc
 						);
-					}, parseInt(NetDiskConfig.suspension["randbg-show-time"].value.toString()));
+					}, parseInt(NetDiskGlobalData.suspension["randbg-show-time"].value.toString()));
 				});
 			});
 		}
@@ -419,7 +427,7 @@ export const NetDiskSuspension = {
 		});
 		if (
 			currentList.length < 2 ||
-			NetDiskConfig.suspension["randbg-time"].value <= 0
+			NetDiskGlobalData.suspension["randbg-time"].value <= 0
 		) {
 			/* 只有一个的话或淡入/淡出的时间<=0 就不进行背景切换 */
 			return;
@@ -428,7 +436,7 @@ export const NetDiskSuspension = {
 
 		startSwitch(
 			parseInt(
-				NetDiskConfig.suspension["randbg-time"].value.toString().toString()
+				NetDiskGlobalData.suspension["randbg-time"].value.toString().toString()
 			),
 			randBgSrc
 		);

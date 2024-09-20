@@ -1,17 +1,17 @@
 import { log, utils } from "@/env";
 import { GM_getValue, GM_setValue } from "ViteGM";
-import { NetDiskAutoFillAccessCode_baidu } from "./NetDiskAutoFillAccessCode_baidu";
-import { NetDiskAutoFillAccessCode_lanzou } from "./NetDiskAutoFillAccessCode_lanzou";
-import { NetDiskAutoFillAccessCode_tianyiyun } from "./NetDiskAutoFillAccessCode_tianyiyun";
-import { NetDiskAutoFillAccessCode_hecaiyun } from "./NetDiskAutoFillAccessCode_hecaiyun";
-import { NetDiskAutoFillAccessCode_aliyun } from "./NetDiskAutoFillAccessCode_aliyun";
-import { NetDiskAutoFillAccessCode_123pan } from "./NetDiskAutoFillAccessCode_123pan";
-import { NetDiskAutoFillAccessCode_weiyun } from "./NetDiskAutoFillAccessCode_weiyun";
-import { NetDiskAutoFillAccessCode_xunlei } from "./NetDiskAutoFillAccessCode_xunlei";
-import { NetDiskAutoFillAccessCode_115pan } from "./NetDiskAutoFillAccessCode_115pan";
-import { NetDiskAutoFillAccessCode_kuake } from "./NetDiskAutoFillAccessCode_kuake";
-import { NetDiskAutoFillAccessCode_chengtong } from "./NetDiskAutoFillAccessCode_chengtong";
-import { NetDiskConfig } from "../data/NetDiskData";
+import { NetDiskAutoFillAccessCode_baidu } from "../rule/netdisk/baidu/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_lanzou } from "../rule/netdisk/lanzou/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_tianyiyun } from "../rule/netdisk/tianyiyun/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_hecaiyun } from "../rule/netdisk/hecaiyun/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_aliyun } from "../rule/netdisk/aliyun/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_123pan } from "../rule/netdisk/123pan/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_weiyun } from "../rule/netdisk/weiyun/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_xunlei } from "../rule/netdisk/xunlei/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_kuake } from "../rule/netdisk/kuake/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_chengtong } from "../rule/netdisk/chengtong/autoFillAccessCode";
+import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
+import { NetDiskAutoFillAccessCode_115pan } from "../rule/netdisk/115pan/autoFillAccessCode";
 
 /** 网盘-自动填入访问码 */
 export const NetDiskAutoFillAccessCode = {
@@ -25,7 +25,7 @@ export const NetDiskAutoFillAccessCode = {
 		/**
 		 * 自动输入访问码是否开启
 		 */
-		enable: NetDiskConfig.function.autoFillAccessCode.value,
+		enable: NetDiskGlobalData.function.autoFillAccessCode.value,
 	},
 	/**
 	 * 初始化

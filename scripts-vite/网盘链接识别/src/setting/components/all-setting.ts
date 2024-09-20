@@ -2,7 +2,7 @@ import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/compo
 import { UISelect } from "../common-components/ui-select";
 import { UISwitch } from "../common-components/ui-switch";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
-import { NetDiskConfig } from "@/main/data/NetDiskData";
+import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
 import { UISlider } from "../common-components/ui-slider";
 import { DOMUtils } from "@/env";
 import Qmsg from "qmsg";
@@ -31,8 +31,8 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 							forms: [
 								UISelect(
 									"位置",
-									NetDiskConfig.toast.position.KEY,
-									NetDiskConfig.toast.position.default,
+									NetDiskGlobalData.toast.position.KEY,
+									NetDiskGlobalData.toast.position.default,
 									[
 										{
 											value: "topleft",
@@ -72,12 +72,12 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 										},
 									],
 									void 0,
-									`Toast显示在九宫格的位置，默认: ${NetDiskConfig.toast.position.default}`
+									`Toast显示在九宫格的位置，默认: ${NetDiskGlobalData.toast.position.default}`
 								),
 								UISelect(
 									"同时最多显示的数量",
-									NetDiskConfig.toast.maxnums.KEY,
-									NetDiskConfig.toast.maxnums.default,
+									NetDiskGlobalData.toast.maxnums.KEY,
+									NetDiskGlobalData.toast.maxnums.default,
 									[
 										{
 											value: 1,
@@ -101,12 +101,12 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 										},
 									],
 									void 0,
-									`默认: ${NetDiskConfig.toast.showreverse.default}`
+									`默认: ${NetDiskGlobalData.toast.showreverse.default}`
 								),
 								UISwitch(
 									"逆序弹出",
-									NetDiskConfig.toast.showreverse.KEY,
-									NetDiskConfig.toast.showreverse.value,
+									NetDiskGlobalData.toast.showreverse.KEY,
+									NetDiskGlobalData.toast.showreverse.value,
 									void 0,
 									"默认是自上往下显示Toast，逆序则是自下往上显示Toast"
 								),
@@ -125,8 +125,8 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 							forms: [
 								UISelect(
 									"动画",
-									NetDiskConfig.pops.popsAnimation.KEY,
-									NetDiskConfig.pops.popsAnimation.default,
+									NetDiskGlobalData.pops.popsAnimation.KEY,
+									NetDiskGlobalData.pops.popsAnimation.default,
 									[
 										{
 											value: "",
@@ -194,33 +194,33 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 										},
 									],
 									void 0,
-									`显示/关闭的动画效果，默认: ${NetDiskConfig.pops.popsAnimation.default}`
+									`显示/关闭的动画效果，默认: ${NetDiskGlobalData.pops.popsAnimation.default}`
 								),
 								UISwitch(
 									"点击弹窗遮罩层关闭弹窗",
-									NetDiskConfig.pops.clickMaskToCloseDialog.KEY,
-									NetDiskConfig.pops.clickMaskToCloseDialog.default,
+									NetDiskGlobalData.pops.clickMaskToCloseDialog.KEY,
+									NetDiskGlobalData.pops.clickMaskToCloseDialog.default,
 									void 0,
 									"点击遮罩层触发关闭弹窗事件"
 								),
 								UISwitch(
 									"窗口拖拽",
-									NetDiskConfig.pops.pcDrag.KEY,
-									NetDiskConfig.pops.pcDrag.default,
+									NetDiskGlobalData.pops.pcDrag.KEY,
+									NetDiskGlobalData.pops.pcDrag.default,
 									void 0,
 									"长按标题栏可拖拽移动弹窗"
 								),
 								UISwitch(
 									"限制拖拽距离",
-									NetDiskConfig.pops.pcDragLimit.KEY,
-									NetDiskConfig.pops.pcDragLimit.default,
+									NetDiskGlobalData.pops.pcDragLimit.KEY,
+									NetDiskGlobalData.pops.pcDragLimit.default,
 									void 0,
 									"只能在浏览器的可视窗口内拖动"
 								),
 								UISwitch(
 									"亚克力效果",
-									NetDiskConfig.pops.popsAcrylic.KEY,
-									NetDiskConfig.pops.popsAcrylic.default,
+									NetDiskGlobalData.pops.popsAcrylic.KEY,
+									NetDiskGlobalData.pops.popsAcrylic.default,
 									void 0,
 									""
 								),
@@ -239,8 +239,8 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 							forms: [
 								UISelect(
 									"排序名",
-									NetDiskConfig.popsFolder["pops-folder-sort-name"].KEY,
-									NetDiskConfig.popsFolder["pops-folder-sort-name"].default,
+									NetDiskGlobalData.popsFolder["pops-folder-sort-name"].KEY,
+									NetDiskGlobalData.popsFolder["pops-folder-sort-name"].default,
 									[
 										{
 											value: "fileName",
@@ -260,8 +260,8 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 								),
 								UISelect(
 									"排序规则",
-									NetDiskConfig.popsFolder["pops-folder-sort-is-desc"].KEY,
-									NetDiskConfig.popsFolder["pops-folder-sort-is-desc"].default,
+									NetDiskGlobalData.popsFolder["pops-folder-sort-is-desc"].KEY,
+									NetDiskGlobalData.popsFolder["pops-folder-sort-is-desc"].default,
 									[
 										{
 											value: false,
@@ -289,10 +289,10 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 							forms: [
 								UISwitch(
 									"点击定位分享码",
-									NetDiskConfig.smallIconNavgiator[
+									NetDiskGlobalData.smallIconNavgiator[
 										"pops-netdisk-icon-click-event-find-sharecode"
 									].KEY,
-									NetDiskConfig.smallIconNavgiator[
+									NetDiskGlobalData.smallIconNavgiator[
 										"pops-netdisk-icon-click-event-find-sharecode"
 									].default,
 									void 0,
@@ -300,10 +300,10 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 								),
 								UISwitch(
 									"选中分享码",
-									NetDiskConfig.smallIconNavgiator[
+									NetDiskGlobalData.smallIconNavgiator[
 										"pops-netdisk-icon-click-event-find-sharecode-with-select"
 									].KEY,
-									NetDiskConfig.smallIconNavgiator[
+									NetDiskGlobalData.smallIconNavgiator[
 										"pops-netdisk-icon-click-event-find-sharecode-with-select"
 									].default,
 									void 0,
@@ -311,10 +311,10 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 								),
 								UISwitch(
 									"循环定位",
-									NetDiskConfig.smallIconNavgiator[
+									NetDiskGlobalData.smallIconNavgiator[
 										"pops-netdisk-icon-click-event-loop-find-sharecode"
 									].KEY,
-									NetDiskConfig.smallIconNavgiator[
+									NetDiskGlobalData.smallIconNavgiator[
 										"pops-netdisk-icon-click-event-loop-find-sharecode"
 									].default,
 									void 0,
@@ -334,18 +334,18 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 							forms: [
 								UISlider(
 									"大小",
-									NetDiskConfig.suspension.size.KEY,
-									NetDiskConfig.suspension.size.default,
+									NetDiskGlobalData.suspension.size.KEY,
+									NetDiskGlobalData.suspension.size.default,
 									15,
 									250,
 									(event, value) => {
-										NetDiskConfig.suspension.size.value = parseInt(
+										NetDiskGlobalData.suspension.size.value = parseInt(
 											value.toString()
 										);
 										if (NetDiskUI.suspension.isShow) {
 											DOMUtils.css(NetDiskUI.suspension.suspensionNode, {
-												width: NetDiskConfig.suspension.size.value,
-												height: NetDiskConfig.suspension.size.value,
+												width: NetDiskGlobalData.suspension.size.value,
+												height: NetDiskGlobalData.suspension.size.value,
 											});
 											NetDiskUI.suspension.setSuspensionPosition();
 										}
@@ -354,33 +354,33 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 										return `${value}px`;
 									},
 									"悬浮按钮的大小，默认: " +
-										NetDiskConfig.suspension.size.default
+										NetDiskGlobalData.suspension.size.default
 								),
 								UISlider(
 									"透明度",
-									NetDiskConfig.suspension.opacity.KEY,
-									NetDiskConfig.suspension.opacity.default,
+									NetDiskGlobalData.suspension.opacity.KEY,
+									NetDiskGlobalData.suspension.opacity.default,
 									0.1,
 									1,
 									(event, value) => {
-										NetDiskConfig.suspension.opacity.value = parseFloat(
+										NetDiskGlobalData.suspension.opacity.value = parseFloat(
 											value.toString()
 										);
 										if (NetDiskUI.suspension.isShow) {
 											DOMUtils.css(NetDiskUI.suspension.suspensionNode, {
-												opacity: NetDiskConfig.suspension.opacity.value,
+												opacity: NetDiskGlobalData.suspension.opacity.value,
 											});
 										}
 									},
 									void 0,
 									"值越小越透明，默认: " +
-										NetDiskConfig.suspension.opacity.default,
+										NetDiskGlobalData.suspension.opacity.default,
 									0.1
 								),
 								UISlider(
 									"背景轮播时间",
-									NetDiskConfig.suspension["randbg-time"].KEY,
-									NetDiskConfig.suspension["randbg-time"].default,
+									NetDiskGlobalData.suspension["randbg-time"].KEY,
+									NetDiskGlobalData.suspension["randbg-time"].default,
 									0,
 									10000,
 									void 0,
@@ -388,14 +388,14 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 										return `${value}ms`;
 									},
 									"淡入/淡出的时间，默认: " +
-										NetDiskConfig.suspension["randbg-time"].default +
+										NetDiskGlobalData.suspension["randbg-time"].default +
 										"ms",
 									100
 								),
 								UISlider(
 									"背景显示时间",
-									NetDiskConfig.suspension["randbg-show-time"].KEY,
-									NetDiskConfig.suspension["randbg-show-time"].default,
+									NetDiskGlobalData.suspension["randbg-show-time"].KEY,
+									NetDiskGlobalData.suspension["randbg-show-time"].default,
 									0,
 									10000,
 									void 0,
@@ -407,9 +407,9 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 								),
 								UISwitch(
 									"吸附边缘",
-									NetDiskConfig.suspension["suspended-button-adsorption-edge"]
+									NetDiskGlobalData.suspension["suspended-button-adsorption-edge"]
 										.KEY,
-									NetDiskConfig.suspension["suspended-button-adsorption-edge"]
+									NetDiskGlobalData.suspension["suspended-button-adsorption-edge"]
 										.default,
 									void 0,
 									"移动悬浮按钮松开后自动吸附边缘"
@@ -429,9 +429,9 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 							forms: [
 								UISlider(
 									"宽度",
-									NetDiskConfig.smallWindow["netdisk-ui-small-window-width"]
+									NetDiskGlobalData.smallWindow["netdisk-ui-small-window-width"]
 										.KEY,
-									NetDiskConfig.smallWindow["netdisk-ui-small-window-width"]
+									NetDiskGlobalData.smallWindow["netdisk-ui-small-window-width"]
 										.default,
 									50,
 									DOMUtils.width(window),
@@ -444,10 +444,10 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 								),
 								UISlider(
 									"高度",
-									NetDiskConfig.smallWindow[
+									NetDiskGlobalData.smallWindow[
 										"netdisk-ui-small-window-max-height"
 									].KEY,
-									NetDiskConfig.smallWindow[
+									NetDiskGlobalData.smallWindow[
 										"netdisk-ui-small-window-max-height"
 									].default,
 									50,
@@ -457,7 +457,7 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 										return `${value}px`;
 									},
 									"设置小窗最大高度(px)，默认: " +
-										NetDiskConfig.smallWindow[
+										NetDiskGlobalData.smallWindow[
 											"netdisk-ui-small-window-max-height"
 										].default,
 									1
@@ -477,10 +477,10 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 							forms: [
 								UISelect(
 									"排序规则",
-									NetDiskConfig.historyMatch[
+									NetDiskGlobalData.historyMatch[
 										"netdisk-history-match-ordering-rule"
 									].KEY,
-									NetDiskConfig.historyMatch[
+									NetDiskGlobalData.historyMatch[
 										"netdisk-history-match-ordering-rule"
 									].default,
 									[
@@ -526,8 +526,8 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 								),
 								UISwitch(
 									"保存匹配记录",
-									NetDiskConfig.historyMatch.saveMatchNetDisk.KEY,
-									NetDiskConfig.historyMatch.saveMatchNetDisk.default,
+									NetDiskGlobalData.historyMatch.saveMatchNetDisk.KEY,
+									NetDiskGlobalData.historyMatch.saveMatchNetDisk.default,
 									void 0,
 									"将匹配到的链接信息进行本地存储，可点击【油猴菜单-⚙ 历史匹配记录】进行查看"
 								),
@@ -547,8 +547,8 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 									ExtractElementType<NetDiskWorkerOptions["matchTextRange"]>
 								>(
 									"匹配规则类型",
-									NetDiskConfig.match.pageMatchRange.KEY,
-									NetDiskConfig.match.pageMatchRange.default,
+									NetDiskGlobalData.match.pageMatchRange.KEY,
+									NetDiskGlobalData.match.pageMatchRange.default,
 									[
 										{
 											value: "innerText",
@@ -568,36 +568,36 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 								),
 								UISwitch(
 									"深入ShadowRoot获取匹配文本",
-									NetDiskConfig.match.depthQueryWithShadowRoot.KEY,
-									NetDiskConfig.match.depthQueryWithShadowRoot.default,
+									NetDiskGlobalData.match.depthQueryWithShadowRoot.KEY,
+									NetDiskGlobalData.match.depthQueryWithShadowRoot.default,
 									void 0,
 									"遍历ShadowRoot，获取匹配的内容"
 								),
 								UISwitch(
 									"匹配剪贴板",
-									NetDiskConfig.match.readClipboard.KEY,
-									NetDiskConfig.match.readClipboard.default,
+									NetDiskGlobalData.match.readClipboard.KEY,
+									NetDiskGlobalData.match.readClipboard.default,
 									void 0,
 									"Api兼容性查看：<a href='https://caniuse.com/mdn-api_permissions_permission_clipboard-read' target='_blank'>读取剪贴板权限申请</a>、<a href='https://caniuse.com/mdn-api_clipboard_readtext' target='_blank'>直接读取剪贴板</a>"
 								),
 								UISwitch(
 									"匹配当前URL",
-									NetDiskConfig.match.allowMatchLocationHref.KEY,
-									NetDiskConfig.match.allowMatchLocationHref.default,
+									NetDiskGlobalData.match.allowMatchLocationHref.KEY,
+									NetDiskGlobalData.match.allowMatchLocationHref.default,
 									void 0,
 									"提取window.location.href进行匹配"
 								),
 								UISwitch(
 									"匹配input标签的内容",
-									NetDiskConfig.match.toBeMatchedWithInputElementValue.KEY,
-									NetDiskConfig.match.toBeMatchedWithInputElementValue.default,
+									NetDiskGlobalData.match.toBeMatchedWithInputElementValue.KEY,
+									NetDiskGlobalData.match.toBeMatchedWithInputElementValue.default,
 									void 0,
 									"提取页面中的&lt;input&gt;的内容进行匹配"
 								),
 								UISwitch(
 									"匹配textarea标签的内容",
-									NetDiskConfig.match.toBeMatchedTextAreaElementValue.KEY,
-									NetDiskConfig.match.toBeMatchedTextAreaElementValue.default,
+									NetDiskGlobalData.match.toBeMatchedTextAreaElementValue.KEY,
+									NetDiskGlobalData.match.toBeMatchedTextAreaElementValue.default,
 									void 0,
 									"提取页面中的&lt;textarea&gt;的内容进行匹配"
 								),
@@ -609,8 +609,8 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 							forms: [
 								UISlider(
 									"匹配间隔",
-									NetDiskConfig.match.delaytime.KEY,
-									NetDiskConfig.match.delaytime.default,
+									NetDiskGlobalData.match.delaytime.KEY,
+									NetDiskGlobalData.match.delaytime.default,
 									0.0,
 									5.0,
 									void 0,
@@ -622,29 +622,29 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 								),
 								UISwitch(
 									"添加元素时进行匹配",
-									NetDiskConfig.match.isAddedNodesToMatch.KEY,
-									NetDiskConfig.match.isAddedNodesToMatch.default,
+									NetDiskGlobalData.match.isAddedNodesToMatch.KEY,
+									NetDiskGlobalData.match.isAddedNodesToMatch.default,
 									void 0,
 									"当监听到页面添加元素时才进行匹配文本"
 								),
 								UISwitch(
 									"观察器：childList",
-									NetDiskConfig.match["mutationObserver-childList"].KEY,
-									NetDiskConfig.match["mutationObserver-childList"].default,
+									NetDiskGlobalData.match["mutationObserver-childList"].KEY,
+									NetDiskGlobalData.match["mutationObserver-childList"].default,
 									void 0,
 									"子节点的变动（新增、删除或者更改）"
 								),
 								UISwitch(
 									"观察器：characterData",
-									NetDiskConfig.match["mutationObserver-characterData"].KEY,
-									NetDiskConfig.match["mutationObserver-characterData"].default,
+									NetDiskGlobalData.match["mutationObserver-characterData"].KEY,
+									NetDiskGlobalData.match["mutationObserver-characterData"].default,
 									void 0,
 									"节点内容或节点文本的变动"
 								),
 								UISwitch(
 									"观察器：subtree",
-									NetDiskConfig.match["mutationObserver-subtree"].KEY,
-									NetDiskConfig.match["mutationObserver-subtree"].default,
+									NetDiskGlobalData.match["mutationObserver-subtree"].KEY,
+									NetDiskGlobalData.match["mutationObserver-subtree"].default,
 									void 0,
 									"是否将观察器应用于该节点的所有后代节点"
 								),
@@ -663,8 +663,8 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 							forms: [
 								UISelect(
 									"行为模式",
-									NetDiskConfig.function["netdisk-behavior-mode"].KEY,
-									NetDiskConfig.function["netdisk-behavior-mode"].default,
+									NetDiskGlobalData.function["netdisk-behavior-mode"].KEY,
+									NetDiskGlobalData.function["netdisk-behavior-mode"].default,
 									[
 										{
 											text: "悬浮按钮+小窗",
@@ -684,15 +684,15 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 								),
 								UISwitch(
 									"自动输入访问码",
-									NetDiskConfig.function.autoFillAccessCode.KEY,
-									NetDiskConfig.function.autoFillAccessCode.default,
+									NetDiskGlobalData.function.autoFillAccessCode.KEY,
+									NetDiskGlobalData.function.autoFillAccessCode.default,
 									void 0,
 									"通过主动点击链接跳转时，会自动输入网盘访问码"
 								),
 								UISwitch(
 									"获取重定向后的直链",
-									NetDiskConfig.function.getTheDirectLinkAfterRedirection.KEY,
-									NetDiskConfig.function.getTheDirectLinkAfterRedirection
+									NetDiskGlobalData.function.getTheDirectLinkAfterRedirection.KEY,
+									NetDiskGlobalData.function.getTheDirectLinkAfterRedirection
 										.default,
 									void 0,
 									"对获取的链接再进行一次重定向获取链接"
@@ -712,17 +712,17 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 							forms: [
 								UISwitch(
 									"排除分享码",
-									NetDiskConfig.aboutShareCode.excludeIdenticalSharedCodes.KEY,
-									NetDiskConfig.aboutShareCode.excludeIdenticalSharedCodes
+									NetDiskGlobalData.aboutShareCode.excludeIdenticalSharedCodes.KEY,
+									NetDiskGlobalData.aboutShareCode.excludeIdenticalSharedCodes
 										.default,
 									void 0,
 									"启用后会根据【相同系数】排除掉匹配到的分享码"
 								),
 								UISlider(
 									"相同系数",
-									NetDiskConfig.aboutShareCode
+									NetDiskGlobalData.aboutShareCode
 										.excludeIdenticalSharedCodesCoefficient.KEY,
-									NetDiskConfig.aboutShareCode
+									NetDiskGlobalData.aboutShareCode
 										.excludeIdenticalSharedCodesCoefficient.default,
 									0,
 									1,

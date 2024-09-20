@@ -1,13 +1,13 @@
-import { NetDiskParse_Baidu } from "./NetDiskParse_Baidu";
-import { NetDiskParse_Lanzou } from "./NetDiskParse_Lanzou";
-import { NetDiskParse_Lanzouyx } from "./NetDiskParse_Lanzouyx";
-import { NetDiskParse_Tianyiyun } from "./NetDiskParse_Tianyiyun";
-import { NetDiskParse_Wenshushu } from "./NetDiskParse_Wenshushu";
-import { NetDiskParse_123pan } from "./NetDiskParse_123pan";
-import { NetDiskParse_Jianguoyun } from "./NetDiskParse_Jianguoyun";
-import { NetDiskParse_nainiu } from "./NetDiskParse_nainiu";
-import { NetDiskParse_UC } from "./NetDiskParse_UC";
-import { NetDiskParse_Aliyun } from "./NetDiskParse_Aliyun";
+import { NetDiskParse_123pan } from "../rule/netdisk/123pan/parse";
+import { NetDiskParse_Aliyun } from "../rule/netdisk/aliyun/parse";
+import { NetDiskParse_Baidu } from "../rule/netdisk/baidu/parse";
+import { NetDiskParse_Jianguoyun } from "../rule/netdisk/jianguoyun/parse";
+import { NetDiskParse_Lanzou } from "../rule/netdisk/lanzou/parse";
+import { NetDiskParse_Lanzouyx } from "../rule/netdisk/lanzouyx/parse";
+import { NetDiskParse_nainiu } from "../rule/netdisk/nainiu/parse";
+import { NetDiskParse_Tianyiyun } from "../rule/netdisk/tianyiyun/parse";
+import { NetDiskParse_UC } from "../rule/netdisk/uc/parse";
+import { NetDiskParse_Wenshushu } from "../rule/netdisk/wenshushu/parse";
 
 /** 网盘-直链解析 */
 export const NetDiskParse = {

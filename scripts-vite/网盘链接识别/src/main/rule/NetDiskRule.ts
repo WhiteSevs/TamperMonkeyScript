@@ -3,33 +3,27 @@ import type {
 	PopsPanelContentConfig,
 	PopsPanelFormsTotalDetails,
 } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { NetDiskRule_baidu } from "./NetDiskRule_baidu";
-import { NetDiskRule_lanzou } from "./NetDiskRule_lanzou";
-import { NetDiskRule_lanzouyx } from "./NetDiskRule_lanzouyx";
-import { NetDiskRule_tianyiyun } from "./NetDiskRule_tianyiyun";
-import { NetDiskRule_hecaiyun } from "./NetDiskRule_hecaiyun";
-import { NetDiskRule_aliyun } from "./NetDiskRule_aliyun";
-import { NetDiskRule_wenshushu } from "./NetDiskRule_wenshushu";
-import { NetDiskRule_nainiu } from "./NetDiskRule_nainiu";
-import { NetDiskRule_123pan } from "./NetDiskRule_123pan";
-import { NetDiskRule_weiyun } from "./NetDiskRule_weiyun";
-import { NetDiskRule_xunlei } from "./NetDiskRule_xunlei";
-import { NetDiskRule_115pan } from "./NetDiskRule_115pan";
-import { NetDiskRule_chengtong } from "./NetDiskRule_chengtong";
-import { NetDiskRule_kuake } from "./NetDiskRule_kuake";
-import { NetDiskRule_magnet } from "./NetDiskRule_magnet";
-import { NetDiskRule_jianguoyun } from "./NetDiskRule_jianguoyun";
-import { NetDiskRule_onedrive } from "./NetDiskRule_onedrive";
-import { NetDiskRule_uc } from "./NetDiskRule_uc";
+import { NetDiskRule_baidu } from "./netdisk/baidu/rule";
+import { NetDiskRule_lanzou } from "./netdisk/lanzou/rule";
+import { NetDiskRule_lanzouyx } from "./netdisk/lanzouyx/rule";
+import { NetDiskRule_tianyiyun } from "./netdisk/tianyiyun/rule";
+import { NetDiskRule_hecaiyun } from "./netdisk/hecaiyun/rule";
+import { NetDiskRule_aliyun } from "./netdisk/aliyun/rule";
+import { NetDiskRule_wenshushu } from "./netdisk/wenshushu/rule";
+import { NetDiskRule_nainiu } from "./netdisk/nainiu/rule";
+import { NetDiskRule_123pan } from "./netdisk/123pan/rule";
+import { NetDiskRule_weiyun } from "./netdisk/weiyun/rule";
+import { NetDiskRule_xunlei } from "./netdisk/xunlei/rule";
+import { NetDiskRule_chengtong } from "./netdisk/chengtong/rule";
+import { NetDiskRule_kuake } from "./netdisk/kuake/rule";
+import { NetDiskRule_magnet } from "./netdisk/magnet/rule";
+import { NetDiskRule_jianguoyun } from "./netdisk/jianguoyun/rule";
+import { NetDiskRule_onedrive } from "./netdisk/onedrive/rule";
+import { NetDiskRule_uc } from "./netdisk/uc/rule";
 import { NetDisk } from "../NetDisk";
 import { NetDiskUserRule } from "./user-rule/NetDiskUserRule";
 import { UISlider } from "@/setting/common-components/ui-slider";
 import { UISwitch } from "@/setting/common-components/ui-switch";
-import {
-	NetDiskLocalData,
-	NetDiskLocalDataKey,
-} from "../data/NetDiskLocalData";
-import { setTransitionHooks } from "vue";
 import { UIInput } from "@/setting/common-components/ui-input";
 import { NetDiskUI } from "../ui/NetDiskUI";
 import { pops } from "@/env";
@@ -39,6 +33,14 @@ import {
 	NetDiskRuleSettingConfigurationInterface_linkClickMode_extend,
 	NetDiskRuleSettingConfigurationInterface_linkClickMode_all,
 } from "../link-click-mode/NetDiskLinkClickMode";
+import { NetDiskRuleDataKEY } from "../data/NetDiskRuleDataKey";
+import { NetDiskRuleData } from "../data/NetDiskRuleData";
+import { NetDiskRuleUtils } from "./NetDiskRuleUtils";
+import {
+	NetDiskUserRuleReplaceParam_matchRange_html,
+	NetDiskUserRuleReplaceParam_matchRange_text,
+} from "./user-rule/NetDiskUserRuleReplaceParam";
+import { NetDiskRule_115pan } from "./netdisk/115pan/rule";
 
 export type NetDiskRuleSettingConfigurationInterface_MatchRange = {
 	/** 间隔前 */
@@ -99,14 +101,16 @@ export type NetDiskRuleSetting = {
 
 export type NetDiskRuleConfig = {
 	/** 规则 */
-	rule: NetDiskRegularOption[];
-	/** 设置 */
-	setting: NetDiskRuleSetting;
+	rule: NetDiskMatchRuleOption[];
 	/** 是否是用户规则 */
 	isUserRule?: boolean;
+	/** 设置 */
+	setting: NetDiskRuleSetting;
 };
 
 export const NetDiskRule = {
+	/** 规则存储的数据 */
+	dataKey: "ruleData",
 	$data: {
 		/** 规则的配置界面信息 */
 		ruleContent: <PopsPanelContentConfig[]>[],
@@ -144,6 +148,8 @@ export const NetDiskRule = {
 		// 用户规则
 		let userRuleList: NetDiskRuleConfig[] =
 			NetDiskUserRule.getNetDiskRuleConfig();
+
+		// 遍历所有的规则、生成pops界面的配置
 		[...defaultRuleList, ...userRuleList].forEach((netDiskRuleConfig) => {
 			if (typeof netDiskRuleConfig.setting.key !== "string") {
 				throw new TypeError("规则未设置key");
@@ -159,10 +165,10 @@ export const NetDiskRule = {
 			const netDiskRule = netDiskRuleConfig.rule;
 
 			// 添加规则
-			if (Reflect.has(NetDisk.regular, ruleKey)) {
+			if (Reflect.has(NetDisk.matchRule, ruleKey)) {
 				/* 如果规则已存在(已内置)，自定义规则先放在前面匹配 */
 				/* 即用户自定义的规则优先级最高 */
-				let commonRule = NetDisk.regular[ruleKey];
+				let commonRule = NetDisk.matchRule[ruleKey];
 				if (netDiskRuleConfig.isUserRule) {
 					// 是用户规则，放在最前面
 					commonRule = [...netDiskRule, ...commonRule];
@@ -176,13 +182,18 @@ export const NetDiskRule = {
 				findValue!.rule = commonRule;
 			} else {
 				// 不存在，直接新增新的
-				Reflect.set(NetDisk.regular, ruleKey, netDiskRuleConfig.rule);
+				Reflect.set(NetDisk.matchRule, ruleKey, netDiskRuleConfig.rule);
 				NetDisk.rule.push(netDiskRuleConfig);
 			}
+			// 添加设置值
+			Reflect.set(NetDisk.ruleSetting, ruleKey, netDiskRuleConfig.setting);
 
-			let viewConfig = this.parseRuleToViewConfig(netDiskRuleConfig);
+			// 对配置的匹配规则解析某些值
+			netDiskRuleConfig.rule = this.parseRuleMatchRule(netDiskRuleConfig);
+			// 对配置进行解析出panel视图的配置
+			let viewConfig = this.parseRuleSetting(netDiskRuleConfig);
 
-			// 左侧显示的文字
+			/** 左侧显示的文字 */
 			let asideTitle = netDiskRuleConfig.setting.name;
 			if (NetDiskUI.src.hasIcon(ruleKey)) {
 				// 添加图标
@@ -208,10 +219,11 @@ export const NetDiskRule = {
 
 			let headerTitleText = ruleName;
 			if (netDiskRuleConfig.isUserRule) {
-				// 用户自定义的规则
+				// 如果是用户自定义的规则，那么在头部添加修改、删除按钮图标
 				headerTitleText += /*html*/ `<div class="netdisk-custom-rule-edit" data-key="${ruleKey}" data-type="${netDiskRuleConfig.setting.name}">${pops.config.iconSVG.edit}</div>`;
 				headerTitleText += /*html*/ `<div class="netdisk-custom-rule-delete" data-key="${ruleKey}" data-type="${netDiskRuleConfig.setting.name}">${pops.config.iconSVG.delete}</div>`;
 			}
+			// 存储解析完毕的配置
 			this.$data.ruleContent.push({
 				id: "netdisk-panel-config-" + ruleKey,
 				title: asideTitle,
@@ -220,22 +232,74 @@ export const NetDiskRule = {
 					"data-key": ruleKey,
 				},
 				forms: viewConfig,
+				afterRender: (data) => {
+					data.$asideLiElement.setAttribute(
+						"data-function-enable",
+						NetDiskRuleData.function.enable(ruleKey, true).toString()
+					);
+				},
 			});
 		});
 	},
 	/**
-	 * 转换规则为视图配置
+	 * 解析规则的匹配规则
+	 *
+	 * 解析以下内容
+	 *
+	 * 1. 替换字符串类型的内部关键字
 	 */
-	parseRuleToViewConfig(netDiskRule: {
-		rule: NetDiskRegularOption[];
+	parseRuleMatchRule(netDiskRuleConfig: {
+		rule: NetDiskMatchRuleOption[];
+		setting: NetDiskRuleSetting;
+		isUserRule?: boolean;
+	}) {
+		// 旧的匹配规则
+		let netDiskMatchRule = netDiskRuleConfig.rule;
+		// 新的匹配规则
+		let netDiskMatchRuleHandler = <NetDiskMatchRuleOption[]>[];
+		//  网盘键
+		let ruleKey = netDiskRuleConfig.setting.key;
+
+		for (let index = 0; index < netDiskMatchRule.length; index++) {
+			const netDiskMatchRuleOption = netDiskMatchRule[index];
+			// 处理innerText
+			if (typeof netDiskMatchRuleOption.link_innerText === "string") {
+				netDiskMatchRuleOption.link_innerText = NetDiskRuleUtils.replaceParam(
+					netDiskMatchRuleOption.link_innerText,
+					NetDiskUserRuleReplaceParam_matchRange_text(ruleKey)
+				);
+			}
+			// 处理innerHTML
+			if (typeof netDiskMatchRuleOption.link_innerHTML === "string") {
+				netDiskMatchRuleOption.link_innerHTML = NetDiskRuleUtils.replaceParam(
+					netDiskMatchRuleOption.link_innerHTML,
+					NetDiskUserRuleReplaceParam_matchRange_html(ruleKey)
+				);
+			}
+			netDiskMatchRuleHandler.push(netDiskMatchRuleOption);
+		}
+
+		return netDiskMatchRuleHandler;
+	},
+	/**
+	 * 解析规则的设置项
+	 *
+	 * 解析出以下内容：
+	 *
+	 * 1. 视图配置
+	 * 2. 获取设置的最新的值并进行覆盖
+	 * @param netDiskRuleConfig 规则配置
+	 */
+	parseRuleSetting(netDiskRuleConfig: {
+		rule: NetDiskMatchRuleOption[];
 		setting: NetDiskRuleSetting;
 		isUserRule?: boolean;
 	}): (PopsPanelFormsDetails | PopsPanelFormsTotalDetails)[] {
 		// 处理配置项信息
 		let formConfigList: (PopsPanelFormsDetails | PopsPanelFormsTotalDetails)[] =
 			[];
-		const settingConfig = netDiskRule.setting.configurationInterface;
-		const ruleKey = netDiskRule.setting.key;
+		const settingConfig = netDiskRuleConfig.setting.configurationInterface;
+		const ruleKey = netDiskRuleConfig.setting.key;
 		if (settingConfig == null) {
 			// 没有配置信息
 			return [];
@@ -250,7 +314,7 @@ export const NetDiskRule = {
 				matchRange_text_form.push(
 					UISlider(
 						"间隔前",
-						NetDiskLocalDataKey.template.matchRange_text.before(ruleKey),
+						NetDiskRuleDataKEY.matchRange_text.before(ruleKey),
 						default_value,
 						0,
 						100,
@@ -259,6 +323,10 @@ export const NetDiskRule = {
 						"提取码间隔前的字符长度"
 					)
 				);
+
+				// 覆盖默认值
+				settingConfig.matchRange_text.before =
+					NetDiskRuleData.matchRange_text.before(ruleKey);
 			}
 			if ("after" in settingConfig.matchRange_text) {
 				const default_value =
@@ -268,7 +336,7 @@ export const NetDiskRule = {
 				matchRange_text_form.push(
 					UISlider(
 						"间隔后",
-						NetDiskLocalDataKey.template.matchRange_text.after(ruleKey),
+						NetDiskRuleDataKEY.matchRange_text.after(ruleKey),
 						default_value,
 						0,
 						100,
@@ -277,6 +345,9 @@ export const NetDiskRule = {
 						"提取码间隔后的字符长度"
 					)
 				);
+				// 覆盖默认值
+				settingConfig.matchRange_text.after =
+					NetDiskRuleData.matchRange_text.after(ruleKey);
 			}
 			if (matchRange_text_form.length) {
 				formConfigList.push({
@@ -297,7 +368,7 @@ export const NetDiskRule = {
 				matchRange_html_form.push(
 					UISlider(
 						"间隔前",
-						NetDiskLocalDataKey.template.matchRange_html.before(ruleKey),
+						NetDiskRuleDataKEY.matchRange_html.before(ruleKey),
 						default_value,
 						0,
 						100,
@@ -306,6 +377,9 @@ export const NetDiskRule = {
 						"提取码间隔前的字符长度"
 					)
 				);
+				// 覆盖默认值
+				settingConfig.matchRange_html.before =
+					NetDiskRuleData.matchRange_html.before(ruleKey);
 			}
 			if ("after" in settingConfig.matchRange_html) {
 				const default_value =
@@ -316,7 +390,7 @@ export const NetDiskRule = {
 				matchRange_html_form.push(
 					UISlider(
 						"间隔后",
-						NetDiskLocalDataKey.template.matchRange_html.after(ruleKey),
+						NetDiskRuleDataKEY.matchRange_html.after(ruleKey),
 						default_value,
 						0,
 						100,
@@ -325,6 +399,9 @@ export const NetDiskRule = {
 						"提取码间隔后的字符长度"
 					)
 				);
+				// 覆盖默认值
+				settingConfig.matchRange_html.after =
+					NetDiskRuleData.matchRange_html.after(ruleKey);
 			}
 			if (matchRange_html_form.length) {
 				formConfigList.push({
@@ -345,12 +422,30 @@ export const NetDiskRule = {
 				function_form.push(
 					UISwitch(
 						"启用",
-						NetDiskLocalDataKey.template.function.enable(ruleKey),
+						NetDiskRuleDataKEY.function.enable(ruleKey),
 						default_value,
-						void 0,
+						(event, value) => {
+							/** 启用状态的属性名 */
+							const notUnableAttrName = "data-function-enable";
+							let $click = event.target as HTMLElement;
+							let $shadowRoot = $click.getRootNode() as ShadowRoot;
+							let $currentPanelAside = $shadowRoot.querySelector<HTMLElement>(
+								`.pops-panel-aside li[data-key="${ruleKey}"]`
+							);
+							if (!$currentPanelAside) {
+								return;
+							}
+							$currentPanelAside.setAttribute(
+								notUnableAttrName,
+								value.toString()
+							);
+						},
 						"开启可允许匹配该规则"
 					)
 				);
+				// 覆盖配置
+				settingConfig.function.enable =
+					NetDiskRuleData.function.enable(ruleKey);
 			}
 			if ("linkClickMode" in settingConfig.function) {
 				let default_value: NetDiskRuleSettingConfigurationInterface_linkClickMode_all =
@@ -390,13 +485,16 @@ export const NetDiskRule = {
 				function_form.push(
 					UISelect(
 						"点击动作",
-						NetDiskLocalDataKey.template.function.linkClickMode(ruleKey),
+						NetDiskRuleDataKEY.function.linkClickMode(ruleKey),
 						default_value,
 						data,
 						void 0,
 						"点击匹配到的链接的执行的动作"
 					)
 				);
+				// 覆盖默认值
+				settingConfig.function.linkClickMode =
+					NetDiskRuleData.function.linkClickMode(ruleKey);
 			}
 			if ("checkLinkValidity" in settingConfig.function) {
 				const default_value =
@@ -406,12 +504,15 @@ export const NetDiskRule = {
 				function_form.push(
 					UISwitch(
 						"验证链接有效性",
-						NetDiskLocalDataKey.template.function.checkLinkValidity(ruleKey),
+						NetDiskRuleDataKEY.function.checkLinkValidity(ruleKey),
 						default_value,
 						void 0,
 						"自动请求链接，判断该链接是否有效，在大/小窗内显示验证结果图标"
 					)
 				);
+				// 覆盖默认值
+				settingConfig.function.checkLinkValidity =
+					NetDiskRuleData.function.checkLinkValidity(ruleKey);
 			}
 
 			if (function_form.length) {
@@ -436,7 +537,7 @@ export const NetDiskRule = {
 				linkClickMode_openBlank_form.push(
 					UISwitch(
 						"跳转时复制访问码",
-						NetDiskLocalDataKey.template.linkClickMode_openBlank.openBlankWithCopyAccessCode(
+						NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankWithCopyAccessCode(
 							ruleKey
 						),
 						default_value,
@@ -444,6 +545,11 @@ export const NetDiskRule = {
 						"当点击动作是【新标签页打开】时且存在访问码，那就会复制访问码到剪贴板"
 					)
 				);
+				// 覆盖默认值
+				settingConfig.linkClickMode_openBlank.openBlankWithCopyAccessCode =
+					NetDiskRuleData.linkClickMode_openBlank.openBlankWithCopyAccessCode(
+						ruleKey
+					);
 			}
 			if (linkClickMode_openBlank_form.length) {
 				formConfigList.push({
@@ -463,12 +569,15 @@ export const NetDiskRule = {
 				schemeUri_form.push(
 					UISwitch(
 						"启用",
-						NetDiskLocalDataKey.template.schemeUri.enable(ruleKey),
+						NetDiskRuleDataKEY.schemeUri.enable(ruleKey),
 						default_value,
 						void 0,
 						"开启后可进行scheme uri转发"
 					)
 				);
+				// 覆盖默认值
+				settingConfig.schemeUri.enable =
+					NetDiskRuleData.schemeUri.enable(ruleKey);
 			}
 			if ("isForwardBlankLink" in settingConfig.schemeUri) {
 				const default_value =
@@ -478,12 +587,15 @@ export const NetDiskRule = {
 				schemeUri_form.push(
 					UISwitch(
 						"转发直链",
-						NetDiskLocalDataKey.template.schemeUri.isForwardBlankLink(ruleKey),
+						NetDiskRuleDataKEY.schemeUri.isForwardBlankLink(ruleKey),
 						default_value,
 						void 0,
 						"对解析的直链进行scheme转换"
 					)
 				);
+				// 覆盖默认值
+				settingConfig.schemeUri.isForwardBlankLink =
+					NetDiskRuleData.schemeUri.isForwardBlankLink(ruleKey);
 			}
 			if ("isForwardLinearChain" in settingConfig.schemeUri) {
 				const default_value =
@@ -493,12 +605,15 @@ export const NetDiskRule = {
 				schemeUri_form.push(
 					UISwitch(
 						"转发新标签页链接",
-						NetDiskLocalDataKey.template.schemeUri.isForwardBlankLink(ruleKey),
+						NetDiskRuleDataKEY.schemeUri.isForwardBlankLink(ruleKey),
 						default_value,
 						void 0,
 						"对新标签页打开的链接进行scheme转换"
 					)
 				);
+				// 覆盖默认值
+				settingConfig.schemeUri.isForwardLinearChain =
+					NetDiskRuleData.schemeUri.isForwardLinearChain(ruleKey);
 			}
 			if ("uri" in settingConfig.schemeUri) {
 				const default_value =
@@ -508,13 +623,15 @@ export const NetDiskRule = {
 				schemeUri_form.push(
 					UIInput(
 						"Uri链接",
-						NetDiskLocalDataKey.template.schemeUri.uri(ruleKey),
+						NetDiskRuleDataKEY.schemeUri.uri(ruleKey),
 						default_value,
 						"自定义的Scheme的Uri链接",
 						void 0,
 						"jumpwsv://go?package=xx&activity=xx&intentAction=xx&intentData=xx&intentExtra=xx"
 					)
 				);
+				// 覆盖默认值
+				settingConfig.schemeUri.uri = NetDiskRuleData.schemeUri.uri(ruleKey);
 			}
 			if (schemeUri_form.length) {
 				formConfigList.push({
