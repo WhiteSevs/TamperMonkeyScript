@@ -16,6 +16,7 @@ import type { Vue2Object } from "./VueObject";
 import type { UtilsAjaxHookResult } from "./AjaxHookerType";
 import { GenerateUUID } from "./UtilsCommon";
 import { WindowApi, type UtilsWindowApiOption } from "./WindowApi";
+import { Vue } from "./Vue";
 
 export declare var unsafeWindow: Window & typeof globalThis;
 
@@ -4966,6 +4967,10 @@ class Utils {
 	 * Utils.generateUUID()
 	 */
 	generateUUID = GenerateUUID;
+	/**
+	 * 自定义的动态响应对象
+	 */
+	Vue = Vue;
 }
 
 let utils = new Utils();

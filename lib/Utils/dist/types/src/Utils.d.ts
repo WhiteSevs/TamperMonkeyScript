@@ -13,6 +13,7 @@ import type { DOMUtils_EventType } from "./Event";
 import type { Vue2Object } from "./VueObject";
 import type { UtilsAjaxHookResult } from "./AjaxHookerType";
 import { type UtilsWindowApiOption } from "./WindowApi";
+import { Vue } from "./Vue";
 export declare var unsafeWindow: Window & typeof globalThis;
 export type JSTypeMap = {
     string: string;
@@ -1742,6 +1743,10 @@ declare class Utils {
      * Utils.generateUUID()
      */
     generateUUID: () => string;
+    /**
+     * 自定义的动态响应对象
+     */
+    Vue: typeof Vue;
 }
 declare let utils: Utils;
 export { utils as Utils };
