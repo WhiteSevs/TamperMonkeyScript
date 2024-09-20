@@ -35,7 +35,11 @@ export interface PopsPanelContentConfig {
 	 */
 	id: string;
 	/**
-	 * 左侧的标题
+	 * 元素的className
+	 */
+	className?: string | string[];
+	/**
+	 * 左侧的标题，可以是html格式
 	 */
 	title: string;
 	/**
@@ -74,6 +78,17 @@ export interface PopsPanelContentConfig {
 		rightHeaderElement: HTMLUListElement,
 		rightContainerElement: HTMLUListElement
 	) => void;
+	/**
+	 * 左侧容器添加到panel后的回调
+	 * @param rightHeaderElement
+	 * @param rightContainerElement
+	 */
+	afterRender?: (data: {
+		/** 容器配置 */
+		asideConfig: PopsPanelContentConfig;
+		/** 左侧容器的元素 */
+		$asideLiElement: HTMLLIElement;
+	}) => void;
 }
 
 /**

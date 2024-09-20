@@ -38,11 +38,21 @@ export const PanelHandleContentDetails = () => {
 		 * 右侧主内容的ul容器
 		 */
 		sectionContainerULElement: null as any as HTMLUListElement,
+		/**
+		 * 元素
+		 */
 		$el: {
+			/** 内容 */
 			$content: null as any as HTMLDivElement,
+			/** 左侧容器 */
 			$contentAside: null as any as HTMLDivElement,
+			/** 右侧容器 */
 			$contentSectionContainer: null as any as HTMLDivElement,
 		},
+		/**
+		 * 初始化
+		 * @param details
+		 */
 		init(details: {
 			config: Required<PopsPanelDetails>;
 			$el: {
@@ -68,42 +78,52 @@ export const PanelHandleContentDetails = () => {
 					"ul"
 				)[1];
 			/**
-			 * 默认点击的左侧容器
+			 * 默认点击的左侧容器项
 			 */
-			let asideDefaultItemElement: HTMLLIElement | null = null;
+			let $asideDefaultItemElement: HTMLLIElement | null = null;
+			/** 是否滚动到默认位置（第一个项） */
 			let isScrollToDefaultView = false;
-			details.config.content.forEach((asideItem) => {
-				let asideLiElement = this.getAsideItem(asideItem);
-				this.setAsideItemClickEvent(asideLiElement, asideItem);
-				this.asideULElement.appendChild(asideLiElement);
-				if (asideDefaultItemElement == null) {
+			details.config.content.forEach((asideItemConfig) => {
+				let $asideLiElement = this.createAsideItem(asideItemConfig);
+				this.setAsideItemClickEvent($asideLiElement, asideItemConfig);
+				this.asideULElement.appendChild($asideLiElement);
+				if ($asideDefaultItemElement == null) {
 					let flag = false;
-					if (typeof asideItem.isDefault === "function") {
-						flag = Boolean(asideItem.isDefault());
+					if (typeof asideItemConfig.isDefault === "function") {
+						flag = Boolean(asideItemConfig.isDefault());
 					} else {
-						flag = Boolean(asideItem.isDefault);
+						flag = Boolean(asideItemConfig.isDefault);
 					}
 					if (flag) {
-						asideDefaultItemElement = asideLiElement;
-						isScrollToDefaultView = Boolean(asideItem.scrollToDefaultView);
+						$asideDefaultItemElement = $asideLiElement;
+						isScrollToDefaultView = Boolean(
+							asideItemConfig.scrollToDefaultView
+						);
 					}
+				}
+				if (typeof asideItemConfig.afterRender === "function") {
+					// 执行渲染完毕的回调
+					asideItemConfig.afterRender({
+						asideConfig: asideItemConfig,
+						$asideLiElement: $asideLiElement,
+					});
 				}
 			});
 
 			/* 点击左侧列表 */
 			if (
-				asideDefaultItemElement == null &&
+				$asideDefaultItemElement == null &&
 				this.asideULElement.children.length
 			) {
 				/* 默认第一个 */
-				asideDefaultItemElement = this.asideULElement
+				$asideDefaultItemElement = this.asideULElement
 					.children[0] as HTMLLIElement;
 			}
-			if (asideDefaultItemElement) {
+			if ($asideDefaultItemElement) {
 				/* 点击选择的那一项 */
-				asideDefaultItemElement.click();
+				$asideDefaultItemElement.click();
 				if (isScrollToDefaultView) {
-					asideDefaultItemElement?.scrollIntoView();
+					$asideDefaultItemElement?.scrollIntoView();
 				}
 			} else {
 				console.error("pops.panel：左侧容器没有项");
@@ -141,13 +161,13 @@ export const PanelHandleContentDetails = () => {
 		 * @param element
 		 * @param attributes
 		 */
-		addElementAttributes(element: HTMLElement, attributes?: any) {
+		setElementAttributes(element: HTMLElement, attributes?: any) {
 			if (attributes == null) {
 				return;
 			}
 			if (Array.isArray(attributes)) {
 				attributes.forEach((attrObject) => {
-					this.addElementAttributes(element, attrObject);
+					this.setElementAttributes(element, attrObject);
 				});
 			} else {
 				Object.keys(attributes).forEach((attributeName) => {
@@ -169,30 +189,56 @@ export const PanelHandleContentDetails = () => {
 			});
 		},
 		/**
-		 * 获取左侧容器元素<li>
+		 * 为元素设置classname
+		 * @param element
+		 * @param className
+		 */
+		setElementClassName(
+			element: HTMLElement,
+			className?: string | string[] | (() => string | string[])
+		) {
+			if (className == null) {
+				return;
+			}
+			if (typeof className === "function") {
+				className = className();
+			}
+			if (typeof className === "string") {
+				let splitClassName = className.split(" ");
+				splitClassName.forEach((classNameStr) => {
+					element.classList.add(classNameStr);
+				});
+			} else if (Array.isArray(className)) {
+				className.forEach((classNameStr) => {
+					this.setElementClassName(element, classNameStr);
+				});
+			}
+		},
+		/**
+		 * 创建左侧容器元素<li>
 		 * @param  asideConfig
 		 */
-		getAsideItem(asideConfig: PopsPanelContentConfig) {
+		createAsideItem(asideConfig: PopsPanelContentConfig) {
 			let liElement = document.createElement("li");
 			liElement.id = asideConfig.id;
 			(liElement as any)["__forms__"] = asideConfig.forms;
 			liElement.innerHTML = asideConfig.title;
-			this.addElementAttributes(liElement, asideConfig.attributes);
+			/* 处理className */
+			this.setElementClassName(liElement, asideConfig.className);
+			this.setElementAttributes(liElement, asideConfig.attributes);
 			this.setElementProps(liElement, asideConfig.props);
 			return liElement;
 		},
 		/**
-		 * 获取中间容器的元素<li>
+		 * 创建中间容器的元素<li>
 		 * type ==> switch
 		 * @param formConfig
 		 */
-		getSectionContainerItem_switch(formConfig: PopsPanelSwitchDetails) {
+		createSectionContainerItem_switch(formConfig: PopsPanelSwitchDetails) {
 			let liElement = document.createElement("li");
 			(liElement as any)["__formConfig__"] = formConfig;
-			if (formConfig.className) {
-				liElement.className = formConfig.className;
-			}
-			this.addElementAttributes(liElement, formConfig.attributes);
+			this.setElementClassName(liElement, formConfig.className);
+			this.setElementAttributes(liElement, formConfig.attributes);
 			this.setElementProps(liElement, formConfig.props);
 			/* 左边底部的描述的文字 */
 			let leftDescriptionText = "";
@@ -307,13 +353,11 @@ export const PanelHandleContentDetails = () => {
 		 * type ==> slider
 		 * @param formConfig
 		 */
-		getSectionContainerItem_slider(formConfig: PopsPanelSliderDetails) {
+		createSectionContainerItem_slider(formConfig: PopsPanelSliderDetails) {
 			let liElement = document.createElement("li");
 			(liElement as any)["__formConfig__"] = formConfig;
-			if (formConfig.className) {
-				liElement.className = formConfig.className;
-			}
-			this.addElementAttributes(liElement, formConfig.attributes);
+			this.setElementClassName(liElement, formConfig.className);
+			this.setElementAttributes(liElement, formConfig.attributes);
 			this.setElementProps(liElement, formConfig.props);
 			/* 左边底部的描述的文字 */
 			let leftDescriptionText = "";
@@ -383,13 +427,11 @@ export const PanelHandleContentDetails = () => {
 		 * type ==> slider
 		 * @param formConfig
 		 */
-		getSectionContainerItem_slider_new(formConfig: PopsPanelSliderDetails) {
+		createSectionContainerItem_slider_new(formConfig: PopsPanelSliderDetails) {
 			let liElement = document.createElement("li");
 			(liElement as any)["__formConfig__"] = formConfig;
-			if (formConfig.className) {
-				liElement.className = formConfig.className;
-			}
-			this.addElementAttributes(liElement, formConfig.attributes);
+			this.setElementClassName(liElement, formConfig.className);
+			this.setElementAttributes(liElement, formConfig.attributes);
 			this.setElementProps(liElement, formConfig.props);
 			/* 左边底部的描述的文字 */
 			let leftDescriptionText = "";
@@ -981,13 +1023,11 @@ export const PanelHandleContentDetails = () => {
 		 * type ==> input
 		 * @param formConfig
 		 */
-		getSectionContainerItem_input(formConfig: PopsPanelInputDetails) {
+		createSectionContainerItem_input(formConfig: PopsPanelInputDetails) {
 			let liElement = document.createElement("li");
 			(liElement as any)["__formConfig__"] = formConfig;
-			if (formConfig.className) {
-				liElement.className = formConfig.className;
-			}
-			this.addElementAttributes(liElement, formConfig.attributes);
+			this.setElementClassName(liElement, formConfig.className);
+			this.setElementAttributes(liElement, formConfig.attributes);
 			this.setElementProps(liElement, formConfig.props);
 			let inputType = "text";
 			if (formConfig.isPassword) {
@@ -1199,13 +1239,11 @@ export const PanelHandleContentDetails = () => {
 		 * type ==> textarea
 		 * @param formConfig
 		 */
-		getSectionContainerItem_textarea(formConfig: PopsPanelTextAreaDetails) {
+		createSectionContainerItem_textarea(formConfig: PopsPanelTextAreaDetails) {
 			let liElement = document.createElement("li");
 			(liElement as any)["__formConfig__"] = formConfig;
-			if (formConfig.className) {
-				liElement.className = formConfig.className;
-			}
-			this.addElementAttributes(liElement, formConfig.attributes);
+			this.setElementClassName(liElement, formConfig.className);
+			this.setElementAttributes(liElement, formConfig.attributes);
 			this.setElementProps(liElement, formConfig.props);
 
 			/* 左边底部的描述的文字 */
@@ -1293,13 +1331,11 @@ export const PanelHandleContentDetails = () => {
 		 * type ==> select
 		 * @param formConfig
 		 */
-		getSectionContainerItem_select(formConfig: PopsPanelSelectDetails<any>) {
+		createSectionContainerItem_select(formConfig: PopsPanelSelectDetails<any>) {
 			let liElement = document.createElement("li");
 			(liElement as any)["__formConfig__"] = formConfig;
-			if (formConfig.className) {
-				liElement.className = formConfig.className;
-			}
-			this.addElementAttributes(liElement, formConfig.attributes);
+			this.setElementClassName(liElement, formConfig.className);
+			this.setElementAttributes(liElement, formConfig.attributes);
 			this.setElementProps(liElement, formConfig.props);
 			/* 左边底部的描述的文字 */
 			let leftDescriptionText = "";
@@ -1471,15 +1507,13 @@ export const PanelHandleContentDetails = () => {
 		 * type ==> select-multiple
 		 * @param formConfig
 		 */
-		getSectionContainerItem_select_multiple_new(
+		createSectionContainerItem_select_multiple_new(
 			formConfig: PopsPanelSelectMultipleDetails<any>
 		) {
 			let liElement = document.createElement("li");
 			Reflect.set(liElement, "__formConfig__", formConfig);
-			if (formConfig.className) {
-				liElement.className = formConfig.className;
-			}
-			this.addElementAttributes(liElement, formConfig.attributes);
+			this.setElementClassName(liElement, formConfig.className);
+			this.setElementAttributes(liElement, formConfig.attributes);
 			this.setElementProps(liElement, formConfig.props);
 			/* 左边底部的描述的文字 */
 			let leftDescriptionText = "";
@@ -2070,13 +2104,11 @@ export const PanelHandleContentDetails = () => {
 		 * type ==> button
 		 * @param formConfig
 		 */
-		getSectionContainerItem_button(formConfig: PopsPanelButtonDetails) {
+		createSectionContainerItem_button(formConfig: PopsPanelButtonDetails) {
 			let liElement = document.createElement("li");
 			(liElement as any)["__formConfig__"] = formConfig;
-			if (formConfig.className) {
-				liElement.className = formConfig.className;
-			}
-			this.addElementAttributes(liElement, formConfig.attributes);
+			this.setElementClassName(liElement, formConfig.className);
+			this.setElementAttributes(liElement, formConfig.attributes);
 			this.setElementProps(liElement, formConfig.props);
 
 			/* 左边底部的描述的文字 */
@@ -2229,16 +2261,14 @@ export const PanelHandleContentDetails = () => {
 		 * 获取深层容器的元素<li>
 		 * @param formConfig
 		 */
-		getSectionContainerItem_deepMenu(formConfig: PopsPanelDeepMenuDetails) {
+		createSectionContainerItem_deepMenu(formConfig: PopsPanelDeepMenuDetails) {
 			let that = this;
 			let liElement = document.createElement("li");
 			liElement.classList.add("pops-panel-deepMenu-nav-item");
 			(liElement as any)["__formConfig__"] = formConfig;
-			if (formConfig.className) {
-				liElement.classList.add(formConfig.className);
-			}
+			this.setElementClassName(liElement, formConfig.className);
 			// 设置属性
-			this.addElementAttributes(liElement, formConfig.attributes);
+			this.setElementAttributes(liElement, formConfig.attributes);
 			// 设置元素上的属性
 			this.setElementProps(liElement, formConfig.props);
 
@@ -2305,13 +2335,12 @@ export const PanelHandleContentDetails = () => {
 						formHeaderDivElement.innerHTML = formItemConfig["text"];
 						/* 加进容器内 */
 						formContainerListElement.appendChild(formHeaderDivElement);
-						if (formItemConfig.className) {
-							popsDOMUtils.addClassName(
-								formContainerListElement,
-								formItemConfig.className
-							);
-						}
-						that.addElementAttributes(
+
+						that.setElementClassName(
+							formContainerListElement,
+							formItemConfig.className
+						);
+						that.setElementAttributes(
 							formContainerListElement,
 							formItemConfig.attributes
 						);
@@ -2436,7 +2465,7 @@ export const PanelHandleContentDetails = () => {
 		 * type ===> own
 		 * @param formConfig
 		 */
-		getSectionContainerItem_own(formConfig: PopsPanelOwnDetails) {
+		createSectionContainerItem_own(formConfig: PopsPanelOwnDetails) {
 			let liElement = document.createElement("li");
 			(liElement as any)["__formConfig__"] = formConfig;
 			if (formConfig.className) {
@@ -2449,44 +2478,44 @@ export const PanelHandleContentDetails = () => {
 		 * 获取中间容器的元素<li>
 		 * @param formConfig
 		 */
-		getSectionContainerItem(formConfig: PopsPanelFormsTotalDetails) {
+		createSectionContainerItem(formConfig: PopsPanelFormsTotalDetails) {
 			/** 配置项的类型 */
 			let formType = formConfig["type"];
 
 			if (formType === "switch") {
-				return this.getSectionContainerItem_switch(
+				return this.createSectionContainerItem_switch(
 					formConfig as PopsPanelSwitchDetails
 				);
 			} else if (formType === "slider") {
-				return this.getSectionContainerItem_slider_new(
+				return this.createSectionContainerItem_slider_new(
 					formConfig as PopsPanelSliderDetails
 				);
 			} else if (formType === "input") {
-				return this.getSectionContainerItem_input(
+				return this.createSectionContainerItem_input(
 					formConfig as PopsPanelInputDetails
 				);
 			} else if (formType === "textarea") {
-				return this.getSectionContainerItem_textarea(
+				return this.createSectionContainerItem_textarea(
 					formConfig as PopsPanelTextAreaDetails
 				);
 			} else if (formType === "select") {
-				return this.getSectionContainerItem_select(
+				return this.createSectionContainerItem_select(
 					formConfig as PopsPanelSelectDetails
 				);
 			} else if (formType === "select-multiple") {
-				return this.getSectionContainerItem_select_multiple_new(
+				return this.createSectionContainerItem_select_multiple_new(
 					formConfig as PopsPanelSelectMultipleDetails
 				);
 			} else if (formType === "button") {
-				return this.getSectionContainerItem_button(
+				return this.createSectionContainerItem_button(
 					formConfig as PopsPanelButtonDetails
 				);
 			} else if (formType === "deepMenu") {
-				return this.getSectionContainerItem_deepMenu(
+				return this.createSectionContainerItem_deepMenu(
 					formConfig as PopsPanelDeepMenuDetails
 				);
 			} else if (formType === "own") {
-				return this.getSectionContainerItem_own(
+				return this.createSectionContainerItem_own(
 					formConfig as PopsPanelOwnDetails
 				);
 			} else {
@@ -2514,13 +2543,12 @@ export const PanelHandleContentDetails = () => {
 				formHeaderDivElement.innerHTML = __formConfig_forms["text"];
 				/* 加进容器内 */
 				formContainerListElement.appendChild(formHeaderDivElement);
-				if (__formConfig_forms.className) {
-					popsDOMUtils.addClassName(
-						formContainerListElement,
-						__formConfig_forms.className
-					);
-				}
-				that.addElementAttributes(
+
+				that.setElementClassName(
+					formContainerListElement,
+					formConfig.className
+				);
+				that.setElementAttributes(
 					formContainerListElement,
 					formConfig.attributes
 				);
@@ -2551,7 +2579,7 @@ export const PanelHandleContentDetails = () => {
 			formConfig: PopsPanelFormsTotalDetails,
 			containerOptions: PopsPanelRightAsideContainerOptions
 		) {
-			let itemLiElement = this.getSectionContainerItem(formConfig);
+			let itemLiElement = this.createSectionContainerItem(formConfig);
 			if (itemLiElement) {
 				containerOptions["ulElement"].appendChild(itemLiElement);
 			}
