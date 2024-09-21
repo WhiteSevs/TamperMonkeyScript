@@ -1136,6 +1136,19 @@
       }
     ]
   };
+  const SettingUISearch = {
+    id: "weibo-panel-config-u",
+    title: "搜索",
+    forms: [
+      {
+        text: "功能",
+        type: "forms",
+        forms: [
+          UISwitch("自动聚焦搜索框", "weibo-search-autoFocusSearchInput", void 0)
+        ]
+      }
+    ]
+  };
   const SettingUICardArticle = {
     id: "weibo-panel-config-card-article",
     title: "头条文章",
@@ -1670,7 +1683,7 @@
       let configList = [
         SettingUICommon,
         // SettingUIU,
-        // SettingUISearch,
+        SettingUISearch,
         // SettingUIDetail,
         SettingUIHuaTi,
         SettingUIVideo,
@@ -2211,6 +2224,46 @@
       );
     }
   };
+  const WeiBoSearch = {
+    init() {
+      domUtils.ready(() => {
+        PopsPanel.execMenu("weibo-search-autoFocusSearchInput", () => {
+          this.autoFocusSearchInput();
+        });
+      });
+    },
+    /**
+     * 自动聚焦搜索框
+     */
+    autoFocusSearchInput() {
+      log.info(`自动聚焦搜索框`);
+      utils.waitNode(`.ntop-nav input[type="search"]`).then(($input) => {
+        if (!$input) {
+          log.error("未找到搜索框");
+          Qmsg.error("未找到搜索框");
+          return;
+        }
+        let searchParams = new URLSearchParams(window.location.search);
+        if (!searchParams.has("containerid")) {
+          log.warn("不存在containerid参数");
+          return;
+        }
+        let containeridSearchParams = new URLSearchParams(
+          searchParams.get("containerid")
+        );
+        if (containeridSearchParams.has("q")) {
+          log.warn("containerid参数中存在q参数，是搜索结果页面");
+          return;
+        }
+        log.success(
+          "containerid参数中不存在q参数，所以是主搜索页面，聚焦输入框"
+        );
+        setTimeout(() => {
+          $input.focus();
+        }, 250);
+      });
+    }
+  };
   const WeiBoCardArticle = {
     init() {
       PopsPanel.execMenuOnce("card_weibo_com__autoExpandFullArticle", () => {
@@ -2318,6 +2371,7 @@
           log.info("Router: 移动端微博主页");
         } else if (WeiBoRouter.isMWeiBo_search()) {
           log.info("Router: 移动端微博搜索");
+          WeiBoSearch.init();
         } else {
           log.error("Router: 未适配的移动端微博链接 => " + window.location.href);
         }

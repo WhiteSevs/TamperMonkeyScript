@@ -598,7 +598,7 @@ const PopsPanel = {
 		let configList: PopsPanelContentConfig[] = [
 			SettingUICommon,
 			// SettingUIU,
-			// SettingUISearch,
+			SettingUISearch,
 			// SettingUIDetail,
 			SettingUIHuaTi,
 			SettingUIVideo,
