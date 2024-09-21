@@ -1,4 +1,3 @@
-import type { AnyObject } from "./Utils";
 
 /** Utils.Log的初始化配置 */
 declare interface UtilsLogOptions {
@@ -245,7 +244,7 @@ class Log {
 	 * @example
 	 * log.table([{"名字":"example","值":"123"},{"名字":"example2","值":"345"}])
 	 */
-	table(msg: AnyObject[], color = this.#details.infoColor, otherStyle = "") {
+	table(msg: any[], color = this.#details.infoColor, otherStyle = "") {
 		if (this.#disable) return;
 		this.checkClearConsole();
 		let stack = new Error()!.stack!.split("\n");

@@ -1,4 +1,4 @@
-import { AnyObject, Utils } from "./Utils";
+import { Utils } from "./Utils";
 import { GenerateUUID } from "./UtilsCommon";
 
 /**
@@ -98,7 +98,7 @@ export type HttpxResponseCallBackType =
 export type HttpxResponseMap = {
 	arraybuffer: ArrayBuffer;
 	blob: Blob;
-	json: AnyObject;
+	json: any;
 	stream: ReadableStream<string>;
 	document: Document;
 	undefined: string;
@@ -1062,7 +1062,7 @@ export declare interface HttpxDetails {
 	/**
 	 * 将该对象添加到响应的属性中，可为空
 	 */
-	context?: AnyObject;
+	context?: any;
 	/**
 	 * 重写mimeType，可为空
 	 */

@@ -547,12 +547,12 @@ declare class Utils {
      * Utils.getReactObj(document.querySelector("input"))?.reactProps?.onChange({target:{value:"123"}});
      */
     getReactObj(element: HTMLElement | Element): {
-        reactFiber?: AnyObject;
-        reactProps?: AnyObject;
-        reactEvents?: AnyObject;
-        reactEventHandlers?: AnyObject;
-        reactInternalInstance?: AnyObject;
-        reactContainer?: AnyObject;
+        reactFiber?: any;
+        reactProps?: any;
+        reactEvents?: any;
+        reactEventHandlers?: any;
+        reactInternalInstance?: any;
+        reactContainer?: any;
     };
     /**
      * 获取对象上的Symbol属性，如果没设置keyName，那么返回一个对象，对象是所有遍历到的Symbol对象
@@ -959,7 +959,7 @@ declare class Utils {
      * Utils.parseObjectToArray({"工具类":"jsonToArray","return","Array"});
      * > ['jsonToArray', 'Array']
      **/
-    parseObjectToArray(target: AnyObject): any;
+    parseObjectToArray(target: any): any;
     /**
      * 自动锁对象，用于循环判断运行的函数，在循环外new后使用，注意，如果函数内部存在异步操作，需要使用await
      * @example
@@ -1661,7 +1661,7 @@ declare class Utils {
      * > "test success set"
      *
      */
-    waitProperty<T extends any>(checkObj: AnyObject | (() => AnyObject), checkPropertyName: string): Promise<T>;
+    waitProperty<T extends any>(checkObj: any | (() => any), checkPropertyName: string): Promise<T>;
     /**
      * 在规定时间内等待对象上的属性出现
      * @param checkObj 检查的对象
@@ -1672,7 +1672,7 @@ declare class Utils {
      * await Utils.waitPropertyByInterval(window,"test");
      * console.log("test success set");
      */
-    waitPropertyByInterval<T extends any>(checkObj: AnyObject | (() => AnyObject), checkPropertyName: string | ((obj: any) => boolean), intervalTimer?: number, maxTime?: number): Promise<T>;
+    waitPropertyByInterval<T extends any>(checkObj: any | (() => any), checkPropertyName: string | ((obj: any) => boolean), intervalTimer?: number, maxTime?: number): Promise<T>;
     /**
      * 在规定时间内等待元素上的__vue__属性或者__vue__属性上的某个值出现出现
      * @param element 目标元素
@@ -1708,7 +1708,7 @@ declare class Utils {
      * console.log(window.test);
      * > 111;
      */
-    watchObject(target: AnyObject, propertyName: string, getCallBack: (value: any) => void, setCallBack: (value: any) => void): void;
+    watchObject(target: any, propertyName: string, getCallBack: (value: any) => void, setCallBack: (value: any) => void): void;
     /**
      * 创建一个新的Utils实例
      * @param option

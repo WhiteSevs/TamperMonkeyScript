@@ -1,4 +1,3 @@
-import type { AnyObject } from "./Utils";
 /** Utils.Log的初始化配置 */
 declare interface UtilsLogOptions {
     /** 是否输出Tag，false的话其它的颜色也不输出，默认为true */
@@ -83,7 +82,7 @@ declare class Log {
      * @example
      * log.table([{"名字":"example","值":"123"},{"名字":"example2","值":"345"}])
      */
-    table(msg: AnyObject[], color?: string, otherStyle?: string): void;
+    table(msg: any[], color?: string, otherStyle?: string): void;
     /**
      * 配置Log对象的颜色
      * @param paramDetails 配置信息

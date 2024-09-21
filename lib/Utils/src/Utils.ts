@@ -1516,12 +1516,12 @@ class Utils {
 	 * Utils.getReactObj(document.querySelector("input"))?.reactProps?.onChange({target:{value:"123"}});
 	 */
 	getReactObj(element: HTMLElement | Element): {
-		reactFiber?: AnyObject;
-		reactProps?: AnyObject;
-		reactEvents?: AnyObject;
-		reactEventHandlers?: AnyObject;
-		reactInternalInstance?: AnyObject;
-		reactContainer?: AnyObject;
+		reactFiber?: any;
+		reactProps?: any;
+		reactEvents?: any;
+		reactEventHandlers?: any;
+		reactInternalInstance?: any;
+		reactContainer?: any;
 	} {
 		let result = {};
 		Object.keys(element).forEach((domPropsName) => {
@@ -2344,8 +2344,8 @@ class Utils {
 	 * Utils.parseObjectToArray({"工具类":"jsonToArray","return","Array"});
 	 * > ['jsonToArray', 'Array']
 	 **/
-	parseObjectToArray(target: AnyObject): any;
-	parseObjectToArray(target: AnyObject): any {
+	parseObjectToArray(target: any): any;
+	parseObjectToArray(target: any): any {
 		if (typeof target !== "object") {
 			throw new Error(
 				"Utils.parseObjectToArray 参数 target 必须为 object 类型"
@@ -4662,11 +4662,11 @@ class Utils {
 	 *
 	 */
 	waitProperty<T extends any>(
-		checkObj: AnyObject | (() => AnyObject),
+		checkObj: any | (() => any),
 		checkPropertyName: string
 	): Promise<T>;
 	waitProperty<T extends any>(
-		checkObj: AnyObject | (() => AnyObject),
+		checkObj: any | (() => any),
 		checkPropertyName: string
 	): Promise<T> {
 		return new Promise((resolve) => {
@@ -4700,13 +4700,13 @@ class Utils {
 	 * console.log("test success set");
 	 */
 	waitPropertyByInterval<T extends any>(
-		checkObj: AnyObject | (() => AnyObject),
+		checkObj: any | (() => any),
 		checkPropertyName: string | ((obj: any) => boolean),
 		intervalTimer?: number,
 		maxTime?: number
 	): Promise<T>;
 	waitPropertyByInterval<T extends any>(
-		checkObj: AnyObject | (() => AnyObject),
+		checkObj: any | (() => any),
 		checkPropertyName: string | ((obj: any) => boolean),
 		intervalTimer: number = 250,
 		maxTime: number = -1
@@ -4836,13 +4836,13 @@ class Utils {
 	 * > 111;
 	 */
 	watchObject(
-		target: AnyObject,
+		target: any,
 		propertyName: string,
 		getCallBack: (value: any) => void,
 		setCallBack: (value: any) => void
 	): void;
 	watchObject(
-		target: AnyObject,
+		target: any,
 		propertyName: string,
 		getCallBack: (value: any) => void,
 		setCallBack: (value: any) => void

@@ -1,4 +1,3 @@
-import { AnyObject } from "./Utils";
 /**
  * 状态码
  * + https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status
@@ -15,7 +14,7 @@ export type HttpxResponseCallBackType = "onload" | "onerror" | "ontimeout" | "on
 export type HttpxResponseMap = {
     arraybuffer: ArrayBuffer;
     blob: Blob;
-    json: AnyObject;
+    json: any;
     stream: ReadableStream<string>;
     document: Document;
     undefined: string;
@@ -965,7 +964,7 @@ export declare interface HttpxDetails {
     /**
      * 将该对象添加到响应的属性中，可为空
      */
-    context?: AnyObject;
+    context?: any;
     /**
      * 重写mimeType，可为空
      */

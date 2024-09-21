@@ -33,7 +33,8 @@
 		// 当未读取局部变量时启用错误报告。
 		"noUnusedLocals": true,
 		//未读取函数参数时引发错误
-		"noUnusedParameters": false
+		"noUnusedParameters": false,
+		"importsNotUsedAsValues": "remove"
 	},
 	// 包含src下的所有文件
 	"include": ["src/**/*", "index.ts"]

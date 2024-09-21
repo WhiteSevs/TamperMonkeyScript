@@ -1,49 +1,48 @@
-import type { AnyObject } from "./Utils";
-export declare interface Vue2Object extends AnyObject {
-    $attrs: AnyObject;
+export declare interface Vue2Object {
+    $attrs: any;
     $children: Vue2Object[];
     $createElement: (...args: any[]) => any;
     $el: HTMLElement;
-    $listeners: AnyObject;
-    $options: AnyObject;
+    $listeners: any;
+    $options: any;
     $parent: Vue2Object;
-    $refs: AnyObject;
+    $refs: any;
     $root: Vue2Object;
-    $scopedSlots: AnyObject;
-    $slots: AnyObject;
-    $store: AnyObject;
-    $vnode: AnyObject;
-    _data: AnyObject;
+    $scopedSlots: any;
+    $slots: any;
+    $store: any;
+    $vnode: any;
+    _data: any;
     _directInactive: boolean;
-    _events: AnyObject;
+    _events: any;
     _hasHookEvent: boolean;
     _isBeingDestroyed: boolean;
     _isDestroyed: boolean;
     _isMounted: boolean;
     _isVue: boolean;
-    $data: AnyObject;
+    $data: any;
     $isServer: boolean;
-    $props: AnyObject;
-    $route: AnyObject & {
+    $props: any;
+    $route: any & {
         fullPath: string;
         hash: string;
-        matched: AnyObject[];
-        meta: AnyObject;
+        matched: any[];
+        meta: any;
         name: string;
-        params: AnyObject;
+        params: any;
         path: string;
-        query: AnyObject;
+        query: any;
     };
-    $router: AnyObject & {
+    $router: any & {
         afterHooks: Function[];
         app: Vue2Object;
         apps: Vue2Object[];
         beforeHooks: Function[];
         fallback: boolean;
-        history: AnyObject & {
+        history: any & {
             base: string;
-            current: AnyObject;
-            listeners: AnyObject[];
+            current: any;
+            listeners: any[];
             router: Vue2Object["$router"];
             /**
              *
@@ -58,16 +57,16 @@ export declare interface Vue2Object extends AnyObject {
              * @param data 可选的 HistoryState 以关联该导航记录
              * @returns
              */
-            push: (to: string, data?: AnyObject) => void;
+            push: (to: string, data?: any) => void;
             /**
              *
              * @param to 要设置的地址
              * @param data 可选的 HistoryState 以关联该导航记录
              * @returns
              */
-            replace: (to: string, data?: AnyObject) => void;
+            replace: (to: string, data?: any) => void;
         };
-        matcher: AnyObject & {
+        matcher: any & {
             addRoute: (...args: any[]) => any;
             addRoutes: (...args: any[]) => any;
             getRoutes: () => any;
@@ -75,7 +74,7 @@ export declare interface Vue2Object extends AnyObject {
         };
         mode: string;
         resolveHooks: ((...args: any[]) => any)[];
-        currentRoute: AnyObject;
+        currentRoute: any;
         beforeEach: (callback: ((
         /** 即将要进入的目标 路由对象 */
         to: Vue2Object["$route"], 
@@ -99,11 +98,12 @@ export declare interface Vue2Object extends AnyObject {
         /** 移除上一个添加的监听 */
          | (() => void)) => void;
     };
-    $ssrContext: AnyObject;
+    $ssrContext: any;
     $watch: (key: string | string[] | (() => any), handler: (this: any, newVal: any, oldVal: any) => void, options?: {
         immediate?: boolean;
         deep?: boolean;
     }) => void;
+    [key: string]: any;
 }
 export declare interface HTMLVue2DivElement extends HTMLDivElement {
     __vue__: Vue2Object;
