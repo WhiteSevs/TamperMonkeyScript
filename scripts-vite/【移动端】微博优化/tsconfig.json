@@ -17,6 +17,7 @@
 		"checkJs": true,
 		"allowSyntheticDefaultImports": true,
 		"sourceMap": true,
+		"importsNotUsedAsValues": "remove",
 		"paths": {
 			"@/*": ["./src/*"]
 		},

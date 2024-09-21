@@ -6,6 +6,7 @@ import { VueUtils } from "@/utils/VueUtils";
 import Qmsg from "qmsg";
 import { WeiBo } from "@/main/WeiBo";
 import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
+import { CommonUtils } from "@/utils/CommonUtils";
 
 const WeiBoHook = {
 	/**
@@ -161,55 +162,67 @@ const WeiBoHook = {
 	 */
 	hookNetWork() {
 		WeiBoNetWorkHook.ajaxHooker.hook(function (request) {
-			log.info(["ajaxHookr: ", request.url]);
+			/** 请求的Url */
+			let requestUrl = CommonUtils.fixUrl(request.url);
+			log.info(["ajaxHookr: ", requestUrl]);
 			if (
-				request.url.startsWith("https://m.weibo.cn/api/config") &&
+				requestUrl.startsWith("https://m.weibo.cn/api/config") &&
 				PopsPanel.getValue("weibo_request_api_config")
 			) {
 				/**
 				 * 重构响应
-				 * @param _request_
+				 * @param originResponse
 				 */
-				request.response = function (_request_) {
-					let data = utils.toJSON(_request_.responseText);
-					data.data.preferQuickapp = 0;
-					data.data.login = true;
-					data.data.uid = "";
-					Reflect.deleteProperty(data.data, "loginUrl");
-					Reflect.deleteProperty(data.data, "wx_callback");
-					Reflect.deleteProperty(data.data, "wx_authorize");
-					Reflect.deleteProperty(data.data, "passport_login_url");
-					log.success("伪装已登录");
-					_request_.responseText = JSON.stringify(data);
+				request.response = function (originResponse) {
+					let originResponseData = utils.toJSON(originResponse.responseText);
+					if (!originResponseData.data.login) {
+						log.error("由于未登录，伪装为已登录状态");
+						originResponseData.data.login = true;
+						originResponseData.data.uid = "";
+						originResponseData.preferQuickapp = 0;
+						Reflect.deleteProperty(originResponseData.data, "loginUrl");
+						Reflect.deleteProperty(originResponseData.data, "wx_callback");
+						Reflect.deleteProperty(originResponseData.data, "wx_authorize");
+						Reflect.deleteProperty(
+							originResponseData.data,
+							"passport_login_url"
+						);
+						originResponse.responseText = JSON.stringify(originResponseData);
+					}
 				};
 			} else if (
-				request.url.startsWith("https://m.weibo.cn/comments/hot") &&
+				requestUrl.startsWith("https://m.weibo.cn/comments/hot") &&
 				PopsPanel.getValue("weibo_request_comments_hot")
 			) {
 				/**
 				 * 重构响应
-				 * @param _request_
+				 * @param originResponse
 				 */
-				request.response = function (_request_) {
-					let data = utils.toJSON(_request_.responseText);
-					if (data.ok !== 1) {
-						log.error(["由于尚未登录，获取不到更多评论数据", data]);
-						data = {
+				request.response = function (originResponse) {
+					let originResponseData = utils.toJSON(originResponse.responseText);
+					if (originResponseData.ok !== 1) {
+						log.error([
+							"由于尚未登录，获取不到更多评论数据",
+							originResponseData,
+						]);
+						originResponseData = {
 							ok: 1,
 						};
+						originResponse.responseText = JSON.stringify(originResponseData);
 					}
-					_request_.responseText = JSON.stringify(data);
 				};
 			} else if (
-				request.url.startsWith("https://m.weibo.cn/status/push?") &&
+				requestUrl.startsWith("https://m.weibo.cn/status/push?") &&
 				PopsPanel.getValue("weibo_request_status_push")
 			) {
 				/**
 				 * 重构响应
 				 */
-				request.response = function (_request_) {
-					let data = utils.toJSON(_request_.responseText);
-					(_request_ as any).json = {};
+				request.response = function (originResponse) {
+					let originResponseData = utils.toJSON(originResponse.responseText);
+					Reflect.set(originResponse, "json", {});
+					log.info([`重构/status/push响应`, originResponseData]);
+					originResponse.responseText = JSON.stringify(originResponseData);
 				};
 			}
 		});

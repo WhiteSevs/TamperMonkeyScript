@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.8.15
+// @version      2024.9.21
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -12,16 +12,17 @@
 // @match        http*://h5.video.weibo.com/*
 // @match        http*://card.weibo.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.1.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.6.4/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css
 // @connect      m.weibo.cn
 // @connect      www.weibo.com
 // @connect      passport.weibo.com
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
+// @grant        GM_getResourceText
 // @grant        GM_getValue
 // @grant        GM_info
 // @grant        GM_registerMenuCommand
@@ -39,6 +40,7 @@
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var _a;
+  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
   var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
@@ -672,300 +674,358 @@
     title: "通用",
     forms: [
       {
-        text: "功能",
+        text: "",
         type: "forms",
         forms: [
-          UISelect(
-            "视频清晰度",
-            "weibo-common-lockVideoQuality",
-            "",
-            [
+          {
+            type: "deepMenu",
+            text: "Toast配置",
+            forms: [
               {
-                value: "",
-                text: "自动"
-              },
-              ...(() => {
-                let result = [];
-                Object.keys(VideoQualityMap).forEach((name) => {
-                  let value = VideoQualityMap[name];
-                  result.push({
-                    value: value.name,
-                    text: name
-                  });
-                });
-                return result;
-              })()
-            ],
-            void 0,
-            "设置视频清晰度，默认自动，其它的清晰度将自动被删除(强制固定选择的清晰度)"
-          ),
-          UISwitch(
-            "解锁更多清晰度",
-            "weibo-common-unlockVideoHigherQuality",
-            true,
-            void 0,
-            "自动请求PC端的视频清晰度，如果请求成功，将解锁更多的清晰度，如1080p、2K、2K-60、4K-60"
-          )
-        ]
-      },
-      {
-        text: "屏蔽",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "【屏蔽】广告",
-            "weibo_remove_ads",
-            true,
-            void 0,
-            "包括【登录/注册按钮】、【小程序横幅推荐】"
-          ),
-          UISwitch(
-            "【屏蔽】底部工具栏",
-            "weibo_shield_bottom_bar",
-            false,
-            void 0,
-            "屏蔽聊天/关注按钮"
-          )
-        ]
-      },
-      {
-        text: "拦截跳转",
-        type: "forms",
-        forms: [
-          UISwitch("api/attitudes/create", "weibo_apply_attitudes_create", true),
-          UISwitch(
-            "点赞",
-            "weibo_apply_likes_update",
-            true,
-            void 0,
-            "未登录时，拦截点赞跳转登录"
-          ),
-          UISwitch(
-            "评论",
-            "weibo_apply_comments_create",
-            true,
-            void 0,
-            "未登录时，拦截评论跳转登录"
-          ),
-          UISwitch(
-            "关注",
-            "weibo_apply_friendships_create",
-            true,
-            void 0,
-            "未登录时，拦截关注跳转登录"
-          ),
-          UISwitch(
-            "转发",
-            "weibo_apply_statuses_repostTimeline",
-            true,
-            void 0,
-            "未登录时，拦截查看转发数据"
-          ),
-          UISwitch(
-            "回复",
-            "weibo_apply_comments_reply",
-            true,
-            void 0,
-            "未登录时，拦截回复跳转登录"
-          ),
-          UISwitch(
-            "优化跳转主页",
-            "weibo_apply_profile_info",
-            true,
-            void 0,
-            "未登录时，正确跳转至用户主页"
-          ),
-          UISwitch(
-            "下拉加载更多评论",
-            "weibo_apply_comments_hotflow",
-            true,
-            void 0,
-            "未登录时，拦截下拉加载更多评论跳转登录"
-          ),
-          UISwitch(
-            "楼中楼下拉加载更多评论",
-            "weibo_apply_comments_hotFlowChild",
-            true,
-            void 0,
-            "未登录时，拦截下拉加载更多评论跳转登录"
-          )
-        ]
-      },
-      {
-        text: "网络请求(不一定能劫持到)",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "/api/config",
-            "weibo_request_api_config",
-            true,
-            void 0,
-            "Api为获取用户数据，未登录时伪装为已登录"
-          ),
-          UISwitch(
-            "/comments/hot",
-            "weibo_request_comments_hot",
-            true,
-            void 0,
-            "Api为获取评论数据，未登录时伪装为成功获取评论数据"
-          ),
-          UISwitch(
-            "/status/push",
-            "weibo_request_status_push",
-            true,
-            void 0,
-            "Api为获取顶部的热点新闻信息流"
-          )
-        ]
-      },
-      {
-        text: "Router路由",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "监听路由改变",
-            "weibo-listenRouterChange",
-            true,
-            void 0,
-            "监听路由改变，动态加载功能"
-          ),
-          UISwitch(
-            "修复用户主页正确跳转",
-            "weibo_router_profile_to_user_home",
-            true,
-            void 0,
-            "可以正确跳转至用户主页"
-          )
-        ]
-      },
-      {
-        text: "函数禁用",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "navigator.serviceWorker.register",
-            "weibo_hijack_navigator_service_worker_register",
-            true,
-            void 0,
-            "禁止注册serviceWorker"
-          )
-        ]
-      },
-      {
-        text: "Toast配置",
-        type: "forms",
-        forms: [
-          UISelect(
-            "Toast位置",
-            "qmsg-config-position",
-            "bottom",
-            [
-              {
-                value: "topleft",
-                text: "左上角"
-              },
-              {
-                value: "top",
-                text: "顶部"
-              },
-              {
-                value: "topright",
-                text: "右上角"
-              },
-              {
-                value: "left",
-                text: "左边"
-              },
-              {
-                value: "center",
-                text: "中间"
-              },
-              {
-                value: "right",
-                text: "右边"
-              },
-              {
-                value: "bottomleft",
-                text: "左下角"
-              },
-              {
-                value: "bottom",
-                text: "底部"
-              },
-              {
-                value: "bottomright",
-                text: "右下角"
+                text: "",
+                type: "forms",
+                forms: [
+                  UISelect(
+                    "Toast位置",
+                    "qmsg-config-position",
+                    "bottom",
+                    [
+                      {
+                        value: "topleft",
+                        text: "左上角"
+                      },
+                      {
+                        value: "top",
+                        text: "顶部"
+                      },
+                      {
+                        value: "topright",
+                        text: "右上角"
+                      },
+                      {
+                        value: "left",
+                        text: "左边"
+                      },
+                      {
+                        value: "center",
+                        text: "中间"
+                      },
+                      {
+                        value: "right",
+                        text: "右边"
+                      },
+                      {
+                        value: "bottomleft",
+                        text: "左下角"
+                      },
+                      {
+                        value: "bottom",
+                        text: "底部"
+                      },
+                      {
+                        value: "bottomright",
+                        text: "右下角"
+                      }
+                    ],
+                    (event, isSelectValue, isSelectText) => {
+                      log.info("设置当前Qmsg弹出位置" + isSelectText);
+                    },
+                    "Toast显示在页面九宫格的位置"
+                  ),
+                  UISelect(
+                    "最多显示的数量",
+                    "qmsg-config-maxnums",
+                    3,
+                    [
+                      {
+                        value: 1,
+                        text: "1"
+                      },
+                      {
+                        value: 2,
+                        text: "2"
+                      },
+                      {
+                        value: 3,
+                        text: "3"
+                      },
+                      {
+                        value: 4,
+                        text: "4"
+                      },
+                      {
+                        value: 5,
+                        text: "5"
+                      }
+                    ],
+                    void 0,
+                    "限制Toast显示的数量"
+                  ),
+                  UISwitch(
+                    "逆序弹出",
+                    "qmsg-config-showreverse",
+                    false,
+                    void 0,
+                    "修改Toast弹出的顺序"
+                  )
+                ]
               }
-            ],
-            (event, isSelectValue, isSelectText) => {
-              log.info("设置当前Qmsg弹出位置" + isSelectText);
-            },
-            "Toast显示在页面九宫格的位置"
-          ),
-          UISelect(
-            "最多显示的数量",
-            "qmsg-config-maxnums",
-            3,
-            [
+            ]
+          },
+          {
+            type: "deepMenu",
+            text: "Cookie配置",
+            forms: [
               {
-                value: 1,
-                text: "1"
-              },
-              {
-                value: 2,
-                text: "2"
-              },
-              {
-                value: 3,
-                text: "3"
-              },
-              {
-                value: 4,
-                text: "4"
-              },
-              {
-                value: 5,
-                text: "5"
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "启用",
+                    "httpx-use-cookie-enable",
+                    false,
+                    void 0,
+                    "启用后，将根据下面的配置进行添加cookie"
+                  ),
+                  UISwitch(
+                    "使用document.cookie",
+                    "httpx-use-document-cookie",
+                    false,
+                    void 0,
+                    "自动根据请求的域名来获取对应的cookie"
+                  ),
+                  UITextArea(
+                    "weibo.com",
+                    "httpx-cookie-weibo.com",
+                    "",
+                    void 0,
+                    void 0,
+                    "Cookie格式：xxx=xxxx;xxx=xxxx"
+                  )
+                ]
               }
-            ],
-            void 0,
-            "限制Toast显示的数量"
-          ),
-          UISwitch(
-            "逆序弹出",
-            "qmsg-config-showreverse",
-            false,
-            void 0,
-            "修改Toast弹出的顺序"
-          )
+            ]
+          }
         ]
       },
       {
-        text: "Cookie配置",
         type: "forms",
+        text: "",
         forms: [
-          UISwitch(
-            "启用",
-            "httpx-use-cookie-enable",
-            false,
-            void 0,
-            "启用后，将根据下面的配置进行添加cookie"
-          ),
-          UISwitch(
-            "使用document.cookie",
-            "httpx-use-document-cookie",
-            false,
-            void 0,
-            "自动根据请求的域名来获取对应的cookie"
-          ),
-          UITextArea(
-            "weibo.com",
-            "httpx-cookie-weibo.com",
-            "",
-            void 0,
-            void 0,
-            "Cookie格式：xxx=xxxx;xxx=xxxx"
-          )
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISelect(
+                    "视频清晰度",
+                    "weibo-common-lockVideoQuality",
+                    "",
+                    [
+                      {
+                        value: "",
+                        text: "自动"
+                      },
+                      ...(() => {
+                        let result = [];
+                        Object.keys(VideoQualityMap).forEach((name) => {
+                          let value = VideoQualityMap[name];
+                          result.push({
+                            value: value.name,
+                            text: name
+                          });
+                        });
+                        return result;
+                      })()
+                    ],
+                    void 0,
+                    "设置视频清晰度，默认自动，其它的清晰度将自动被删除(强制固定选择的清晰度)"
+                  ),
+                  UISwitch(
+                    "解锁更多清晰度",
+                    "weibo-common-unlockVideoHigherQuality",
+                    true,
+                    void 0,
+                    "自动请求PC端的视频清晰度，如果请求成功，将解锁更多的清晰度，如1080p、2K、2K-60、4K-60"
+                  )
+                ]
+              },
+              {
+                text: "函数禁用",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "navigator.serviceWorker.register",
+                    "weibo_hijack_navigator_service_worker_register",
+                    true,
+                    void 0,
+                    "禁止注册serviceWorker"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "屏蔽",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】广告",
+                    "weibo_remove_ads",
+                    true,
+                    void 0,
+                    "包括【登录/注册按钮】、【小程序横幅推荐】"
+                  ),
+                  UISwitch(
+                    "【屏蔽】底部工具栏",
+                    "weibo_shield_bottom_bar",
+                    false,
+                    void 0,
+                    "屏蔽聊天/关注按钮"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "拦截跳转",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "注意：已登录的情况下请关闭下面的功能",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "api/attitudes/create",
+                    "weibo_apply_attitudes_create",
+                    true
+                  ),
+                  UISwitch(
+                    "点赞",
+                    "weibo_apply_likes_update",
+                    true,
+                    void 0,
+                    "未登录时，拦截点赞跳转登录"
+                  ),
+                  UISwitch(
+                    "评论",
+                    "weibo_apply_comments_create",
+                    true,
+                    void 0,
+                    "未登录时，拦截评论跳转登录"
+                  ),
+                  UISwitch(
+                    "关注",
+                    "weibo_apply_friendships_create",
+                    true,
+                    void 0,
+                    "未登录时，拦截关注跳转登录"
+                  ),
+                  UISwitch(
+                    "转发",
+                    "weibo_apply_statuses_repostTimeline",
+                    true,
+                    void 0,
+                    "未登录时，拦截查看转发数据"
+                  ),
+                  UISwitch(
+                    "回复",
+                    "weibo_apply_comments_reply",
+                    true,
+                    void 0,
+                    "未登录时，拦截回复跳转登录"
+                  ),
+                  UISwitch(
+                    "优化跳转主页",
+                    "weibo_apply_profile_info",
+                    true,
+                    void 0,
+                    "未登录时，正确跳转至用户主页"
+                  ),
+                  UISwitch(
+                    "下拉加载更多评论",
+                    "weibo_apply_comments_hotflow",
+                    true,
+                    void 0,
+                    "未登录时，拦截下拉加载更多评论跳转登录"
+                  ),
+                  UISwitch(
+                    "楼中楼下拉加载更多评论",
+                    "weibo_apply_comments_hotFlowChild",
+                    true,
+                    void 0,
+                    "未登录时，拦截下拉加载更多评论跳转登录"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "网络请求",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "/api/config",
+                    "weibo_request_api_config",
+                    true,
+                    void 0,
+                    "Api为获取用户数据，未登录时伪装为已登录"
+                  ),
+                  UISwitch(
+                    "/comments/hot",
+                    "weibo_request_comments_hot",
+                    true,
+                    void 0,
+                    "Api为获取评论数据，未登录时伪装为成功获取评论数据"
+                  ),
+                  UISwitch(
+                    "/status/push",
+                    "weibo_request_status_push",
+                    true,
+                    void 0,
+                    "Api为获取顶部的热点新闻信息流，这里是直接清空json"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "Vue-Router路由",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "监听路由改变",
+                    "weibo-listenRouterChange",
+                    true,
+                    void 0,
+                    "监听路由改变，动态加载功能"
+                  ),
+                  UISwitch(
+                    "修复用户主页正确跳转",
+                    "weibo_router_profile_to_user_home",
+                    true,
+                    void 0,
+                    "可以正确跳转至用户主页"
+                  )
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
@@ -1631,6 +1691,107 @@
       return _ajaxHooker_;
     }
   };
+  const CommonUtils = {
+    /**
+     * 添加屏蔽CSS
+     * @param args
+     * @example
+     * addBlockCSS("")
+     * addBlockCSS("","")
+     * addBlockCSS(["",""])
+     */
+    addBlockCSS(...args) {
+      let selectorList = [];
+      if (args.length === 0) {
+        return;
+      }
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+        return;
+      }
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    /**
+     * 设置GM_getResourceText的style内容
+     * @param resourceMapData 资源数据
+     */
+    setGMResourceCSS(resourceMapData) {
+      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+      if (typeof cssText === "string" && cssText) {
+        addStyle(cssText);
+      } else {
+        CommonUtils.addLinkNode(resourceMapData.url);
+      }
+    },
+    /**
+     * 添加<link>标签
+     * @param url
+     */
+    async addLinkNode(url) {
+      let $link = document.createElement("link");
+      $link.rel = "stylesheet";
+      $link.type = "text/css";
+      $link.href = url;
+      domUtils.ready(() => {
+        document.head.appendChild($link);
+      });
+    },
+    /**
+     * 将url修复，例如只有search的链接修复为
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：`/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`//xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     */
+    fixUrl(url) {
+      url = url.trim();
+      if (url.match(/^http(s|):\/\//i)) {
+        return url;
+      } else {
+        if (!url.startsWith("/")) {
+          url += "/";
+        }
+        url = window.location.origin + url;
+        return url;
+      }
+    },
+    /**
+     * http转https
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：
+     * 修复后：
+     * @example
+     * 修复前：
+     * 修复后：
+     */
+    fixHttps(url) {
+      if (url.startsWith("https://")) {
+        return url;
+      }
+      if (!url.startsWith("http://")) {
+        return url;
+      }
+      let urlObj = new URL(url);
+      urlObj.protocol = "https:";
+      return urlObj.toString();
+    }
+  };
   const WeiBoHook = {
     /**
      * 劫持Function.prototype.apply;
@@ -1746,35 +1907,46 @@
      */
     hookNetWork() {
       WeiBoNetWorkHook.ajaxHooker.hook(function(request) {
-        log.info(["ajaxHookr: ", request.url]);
-        if (request.url.startsWith("https://m.weibo.cn/api/config") && PopsPanel.getValue("weibo_request_api_config")) {
-          request.response = function(_request_) {
-            let data = utils.toJSON(_request_.responseText);
-            data.data.preferQuickapp = 0;
-            data.data.login = true;
-            data.data.uid = "";
-            Reflect.deleteProperty(data.data, "loginUrl");
-            Reflect.deleteProperty(data.data, "wx_callback");
-            Reflect.deleteProperty(data.data, "wx_authorize");
-            Reflect.deleteProperty(data.data, "passport_login_url");
-            log.success("伪装已登录");
-            _request_.responseText = JSON.stringify(data);
+        let requestUrl = CommonUtils.fixUrl(request.url);
+        log.info(["ajaxHookr: ", requestUrl]);
+        if (requestUrl.startsWith("https://m.weibo.cn/api/config") && PopsPanel.getValue("weibo_request_api_config")) {
+          request.response = function(originResponse) {
+            let originResponseData = utils.toJSON(originResponse.responseText);
+            if (!originResponseData.data.login) {
+              log.error("由于未登录，伪装为已登录状态");
+              originResponseData.data.login = true;
+              originResponseData.data.uid = "";
+              originResponseData.preferQuickapp = 0;
+              Reflect.deleteProperty(originResponseData.data, "loginUrl");
+              Reflect.deleteProperty(originResponseData.data, "wx_callback");
+              Reflect.deleteProperty(originResponseData.data, "wx_authorize");
+              Reflect.deleteProperty(
+                originResponseData.data,
+                "passport_login_url"
+              );
+              originResponse.responseText = JSON.stringify(originResponseData);
+            }
           };
-        } else if (request.url.startsWith("https://m.weibo.cn/comments/hot") && PopsPanel.getValue("weibo_request_comments_hot")) {
-          request.response = function(_request_) {
-            let data = utils.toJSON(_request_.responseText);
-            if (data.ok !== 1) {
-              log.error(["由于尚未登录，获取不到更多评论数据", data]);
-              data = {
+        } else if (requestUrl.startsWith("https://m.weibo.cn/comments/hot") && PopsPanel.getValue("weibo_request_comments_hot")) {
+          request.response = function(originResponse) {
+            let originResponseData = utils.toJSON(originResponse.responseText);
+            if (originResponseData.ok !== 1) {
+              log.error([
+                "由于尚未登录，获取不到更多评论数据",
+                originResponseData
+              ]);
+              originResponseData = {
                 ok: 1
               };
+              originResponse.responseText = JSON.stringify(originResponseData);
             }
-            _request_.responseText = JSON.stringify(data);
           };
-        } else if (request.url.startsWith("https://m.weibo.cn/status/push?") && PopsPanel.getValue("weibo_request_status_push")) {
-          request.response = function(_request_) {
-            utils.toJSON(_request_.responseText);
-            _request_.json = {};
+        } else if (requestUrl.startsWith("https://m.weibo.cn/status/push?") && PopsPanel.getValue("weibo_request_status_push")) {
+          request.response = function(originResponse) {
+            let originResponseData = utils.toJSON(originResponse.responseText);
+            Reflect.set(originResponse, "json", {});
+            log.info([`重构/status/push响应`, originResponseData]);
+            originResponse.responseText = JSON.stringify(originResponseData);
           };
         }
       });
@@ -2004,33 +2176,6 @@
       });
     }
   };
-  const CommonUtils = {
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args) {
-      let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
-      args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
-      });
-      addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
-    }
-  };
   const WeiBoVideo = {
     init() {
       PopsPanel.onceExec("weibo-video-init-hook", () => {
@@ -2156,7 +2301,7 @@
           WeiBoHook.hookVueRouter();
         });
         PopsPanel.execMenuOnce("weibo_remove_ads", () => {
-          addStyle(blockAdsCSS);
+          return addStyle(blockAdsCSS);
         });
         PopsPanel.execMenuOnce("weibo_shield_bottom_bar", () => {
           return this.shieldBottomBar();
@@ -2174,7 +2319,7 @@
         } else if (WeiBoRouter.isMWeiBo_search()) {
           log.info("Router: 移动端微博搜索");
         } else {
-          log.error("Router: 未适配移动端微博 => " + window.location.href);
+          log.error("Router: 未适配的移动端微博链接 => " + window.location.href);
         }
       } else if (WeiBoRouter.isVideo()) {
         log.info("Router: 视频页");

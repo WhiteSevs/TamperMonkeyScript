@@ -39,7 +39,7 @@ const WeiBo = {
 			});
 			PopsPanel.execMenuOnce("weibo_remove_ads", () => {
 				// 屏蔽 广告
-				addStyle(blockAdsCSS);
+				return addStyle(blockAdsCSS);
 			});
 			PopsPanel.execMenuOnce("weibo_shield_bottom_bar", () => {
 				return this.shieldBottomBar();
@@ -60,7 +60,7 @@ const WeiBo = {
 				log.info("Router: 移动端微博搜索");
 				WeiBoSearch.init();
 			} else {
-				log.error("Router: 未适配移动端微博 => " + window.location.href);
+				log.error("Router: 未适配的移动端微博链接 => " + window.location.href);
 			}
 		} else if (WeiBoRouter.isVideo()) {
 			// 视频页
