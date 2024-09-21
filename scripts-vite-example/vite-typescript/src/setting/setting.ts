@@ -316,12 +316,14 @@ export const PopsPanel = {
 	 * 自动判断菜单是否启用，然后执行回调
 	 * @param key
 	 * @param callback 回调
-	 * @param [isReverse=false] 逆反判断菜单启用
+	 * @param isReverse 逆反判断菜单启用
+	 * @param checkEnableCallBack 自定义检测菜单的值，可自行决定是否强制启用菜单，true是启用菜单，false是不启用菜单
 	 */
 	execMenu(
 		key: string | string[],
 		callback: (value: any) => void,
-		isReverse = false
+		isReverse = false,
+		checkEnableCallBack?: (key: string, value: any) => boolean
 	) {
 		if (
 			!(
@@ -349,6 +351,13 @@ export const PopsPanel = {
 				// 逆反赋值
 				runValue = !runValue;
 			}
+			// 调用检测回调
+			if (typeof checkEnableCallBack === "function") {
+				let checkResult = checkEnableCallBack(runKey, runValue);
+				if (typeof checkResult === "boolean") {
+					runValue = checkResult;
+				}
+			}
 			if (!runValue) {
 				break;
 			}
@@ -364,6 +373,7 @@ export const PopsPanel = {
 	 * @param callback 回调
 	 * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
 	 * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
+	 * @param checkEnableCallBack 自定义检测菜单的值，可自行决定是否强制启用菜单，true是启用菜单，false是不启用菜单
 	 */
 	execMenuOnce(
 		key: string,
@@ -372,7 +382,12 @@ export const PopsPanel = {
 			pushStyleNode: (style: HTMLStyleElement | HTMLStyleElement[]) => void
 		) => any | any[],
 		getValueFn?: (key: string, value: any) => boolean,
-		handleValueChangeFn?: (key: string, newValue: any, oldValue: any) => boolean
+		handleValueChangeFn?: (
+			key: string,
+			newValue: any,
+			oldValue: any
+		) => boolean,
+		checkEnableCallBack?: (key: string, value: any) => boolean
 	) {
 		if (typeof key !== "string") {
 			throw new TypeError("key 必须是字符串");
@@ -422,11 +437,21 @@ export const PopsPanel = {
 				}
 			}
 		};
+		/**
+		 * 检测菜单项的值是否启用
+		 * @param currentValue
+		 */
+		let checkMenuEnableCallBack = (currentValue: any) => {
+			return typeof checkEnableCallBack === "function"
+				? checkEnableCallBack(key, currentValue)
+				: currentValue;
+		};
 		let changeCallBack = (currentValue: boolean) => {
 			let resultList: HTMLStyleElement[] = [];
-			if (currentValue) {
+			if (checkMenuEnableCallBack(currentValue)) {
 				// 开
 				let result = callback(currentValue, dynamicPushStyleNode);
+				// 返回值是style元素或style元素数组，添加到列表中，用于动态更新
 				if (result instanceof HTMLStyleElement) {
 					resultList = [result];
 				} else if (Array.isArray(result)) {
@@ -437,14 +462,17 @@ export const PopsPanel = {
 					];
 				}
 			}
+			// 移除旧的<style>标签
 			for (let index = 0; index < resultStyleList.length; index++) {
 				let $css = resultStyleList[index];
 				$css.remove();
 				resultStyleList.splice(index, 1);
 				index--;
 			}
+			// 更新新的标签
 			resultStyleList = [...resultList];
 		};
+		// 监听值改变
 		let listenerId = this.addValueChangeListener(
 			key,
 			(__key, oldValue, newValue) => {
@@ -453,6 +481,7 @@ export const PopsPanel = {
 				if (typeof handleValueChangeFn === "function") {
 					__newValue = handleValueChangeFn(__key, newValue, oldValue);
 				}
+				// 调用值改变的回调
 				changeCallBack(__newValue);
 			}
 		);
@@ -488,7 +517,7 @@ export const PopsPanel = {
 			let childValue = that.getValue<number>(childKey);
 			if (typeof replaceValueFn === "function") {
 				let changedMainValue = replaceValueFn(mainValue, childValue);
-				if (changedMainValue !== void 0) {
+				if (changedMainValue != null) {
 					return changedMainValue;
 				}
 			}
