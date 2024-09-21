@@ -3,6 +3,7 @@ import { DOMUtils, Qmsg, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliUrlUtils } from "@/utils/BilibiliUrlUtils";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
+import { VueUtils } from "@/utils/VueUtils";
 
 export const BilibiliDynamic = {
 	init() {
@@ -31,7 +32,7 @@ export const BilibiliDynamic = {
 			function (event) {
 				utils.preventEvent(event);
 				let $click = event.target as HTMLDivElement;
-				let vueObj = BilibiliUtils.getVue($click);
+				let vueObj = VueUtils.getVue($click);
 				if (!vueObj) {
 					Qmsg.error("获取vue属性失败");
 					return;
@@ -60,7 +61,7 @@ export const BilibiliDynamic = {
 			function (event) {
 				utils.preventEvent(event);
 				let $click = event.target as HTMLDivElement;
-				let vueObj = BilibiliUtils.getVue($click);
+				let vueObj = VueUtils.getVue($click);
 				if (!vueObj) {
 					Qmsg.error("获取vue属性失败");
 					return;
@@ -93,7 +94,7 @@ export const BilibiliDynamic = {
 				let $click = event.target as HTMLDivElement;
 				let oid =
 					$click.getAttribute("data-oid") ||
-					BilibiliUtils.getVue($click)?.$props?.rid;
+					VueUtils.getVue($click)?.$props?.rid;
 				if (utils.isNull(oid)) {
 					Qmsg.error("获取data-oid或rid失败");
 					return;
@@ -139,7 +140,7 @@ export const BilibiliDynamic = {
 			function (event) {
 				utils.preventEvent(event);
 				let $click = event.target as HTMLDivElement;
-				let vueObj = BilibiliUtils.getVue($click);
+				let vueObj = VueUtils.getVue($click);
 				if (!vueObj) {
 					Qmsg.error("获取vue属性失败");
 					return;

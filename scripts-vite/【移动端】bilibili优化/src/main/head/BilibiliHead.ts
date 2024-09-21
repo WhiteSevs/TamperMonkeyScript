@@ -3,6 +3,7 @@ import { DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliRecommend } from "./BilibiliRecommend";
+import { VueUtils } from "@/utils/VueUtils";
 
 export const BilibiliHead = {
 	init() {
@@ -54,7 +55,7 @@ export const BilibiliHead = {
 							BilibiliData.className.head + " .video-list .card-box .v-card"
 						)
 						.forEach(($vcard) => {
-							let vueObj = BilibiliUtils.getVue($vcard);
+							let vueObj = VueUtils.getVue($vcard);
 							let upName = (vueObj?.info?.author?.name ||
 								vueObj?.info?.owner?.name) as string | undefined;
 							let duration = vueObj?.info?.duration as

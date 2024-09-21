@@ -21,6 +21,7 @@ import { BilibiliPlayer } from "../player/BilibiliPlayer";
 import "./common.css";
 import { BilibiliSpace } from "./space/BilibiliSpace";
 import { BilibiliUrlUtils } from "@/utils/BilibiliUrlUtils";
+import { VueUtils } from "@/utils/VueUtils";
 
 const Bilibili = {
 	init() {
@@ -92,21 +93,21 @@ const Bilibili = {
 			// 需要点击播放才会有player属性生成
 			if (BilibiliRouter.isBangumi()) {
 				let isInitPlayer = false;
-				BilibiliUtils.waitVuePropToSet(
+				VueUtils.waitVuePropToSet(
 					() => document.querySelector<HTMLDivElement>(".player-wrapper"),
 					[
 						{
 							msg: "等待获取.player-wrapper上的$0.__vue__.player.player.on_video_play",
-							check(vueObj) {
+							check(vueIns) {
 								return (
-									typeof vueObj?.player?.player?.on_video_play == "function"
+									typeof vueIns?.player?.player?.on_video_play == "function"
 								);
 							},
-							set(vueObj) {
+							set(vueIns) {
 								log.success(
 									`成功覆盖.player-wrapper上的$0.__vue__.player.player.on_video_play`
 								);
-								let originFn = vueObj?.player?.player?.on_video_play;
+								let originFn = vueIns?.player?.player?.on_video_play;
 								if (originFn.prototype.isHook) {
 									log.warn("函数on_video_play已被hook，取消覆盖");
 								}
@@ -117,14 +118,14 @@ const Bilibili = {
 									if (!isInitPlayer) {
 										isInitPlayer = true;
 										BilibiliPlayer.$player.parseBiliH5PlayerToPlayer(
-											vueObj.player
+											vueIns.player
 										);
 										BilibiliPlayer.init();
 									}
 									return originFn.apply(this, arguments);
 								};
 								on_video_play.prototype.isHook = true;
-								vueObj.player.player.on_video_play = on_video_play;
+								vueIns.player.player.on_video_play = on_video_play;
 							},
 						},
 					]
@@ -144,7 +145,7 @@ const Bilibili = {
 				return typeof vueObj?.$router?.afterEach === "function";
 			};
 			utils.waitVueByInterval($app, check).then(() => {
-				let vueObj = BilibiliUtils.getVue($app);
+				let vueObj = VueUtils.getVue($app);
 				if (vueObj == null) {
 					return;
 				}
@@ -268,26 +269,26 @@ const Bilibili = {
 			let userName: null | string = null;
 			let $gmFace = document.querySelector<HTMLDivElement>(".gm-face")!;
 			let $img = $gmFace.querySelector<HTMLImageElement>("img")!;
-			BilibiliUtils.waitVuePropToSet("#app", [
+			VueUtils.waitVuePropToSet("#app", [
 				{
-					check(vueObj) {
+					check(vueIns) {
 						return (
-							typeof vueObj?.$store?.state?.common?.userInfo?.isLogin ===
+							typeof vueIns?.$store?.state?.common?.userInfo?.isLogin ===
 							"boolean"
 						);
 					},
-					set(vueObj) {
-						isLogin = vueObj?.$store?.state?.common?.userInfo?.isLogin;
+					set(vueIns) {
+						isLogin = vueIns?.$store?.state?.common?.userInfo?.isLogin;
 						if (isLogin) {
-							uid = vueObj?.$store?.state?.common?.userInfo?.mid;
+							uid = vueIns?.$store?.state?.common?.userInfo?.mid;
 							if (uid == null) {
 								log.warn(`当前是脚本设置的isLogin但其实未登录账号`);
 								isLogin = false;
 								return;
 							}
-							userName = vueObj?.$store?.state?.common?.userInfo?.uname;
+							userName = vueIns?.$store?.state?.common?.userInfo?.uname;
 							$img.src =
-								vueObj?.$store?.state?.common?.userInfo?.face || $img.src;
+								vueIns?.$store?.state?.common?.userInfo?.face || $img.src;
 						}
 					},
 				},

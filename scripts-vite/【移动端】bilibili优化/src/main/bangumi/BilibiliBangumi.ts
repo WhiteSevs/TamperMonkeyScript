@@ -6,6 +6,7 @@ import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliData } from "@/data/BlibiliData";
 import { BilibiliBangumiVueProp } from "./BilibiliBangumiVueProp";
 import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
+import { VueUtils } from "@/utils/VueUtils";
 
 const BilibiliOpenApp = {
 	getUrl($ele: HTMLElement | null | Element) {
@@ -74,17 +75,17 @@ const BilibiliBangumi = {
 	 * + $store.state.mediaInfo.user_status.pay 1
 	 */
 	setPay() {
-		BilibiliUtils.waitVuePropToSet("#app", [
+		VueUtils.waitVuePropToSet("#app", [
 			{
 				msg: "设置参数 $store.state.userStat.pay",
-				check(vueObj: Vue2Context) {
+				check(vueIns: Vue2Context) {
 					return (
-						typeof typeof vueObj?.$store?.state?.userStat?.pay === "number"
+						typeof typeof vueIns?.$store?.state?.userStat?.pay === "number"
 					);
 				},
-				set(vueObj: Vue2Context) {
+				set(vueIns: Vue2Context) {
 					log.success("成功设置参数 $store.state.userStat.pay=1");
-					vueObj.$store.state.userStat.pay = 1;
+					vueIns.$store.state.userStat.pay = 1;
 				},
 			},
 			{

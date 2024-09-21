@@ -87,6 +87,19 @@ const SettingUICommon: PopsPanelContentConfig = {
 							type: "forms",
 							forms: [
 								UISlider(
+									"顶部距离",
+									"bili-danmaku-container-top",
+									0,
+									0,
+									100,
+									1,
+									void 0,
+									(value) => {
+										return `${value}px`;
+									},
+									"设置弹幕容器距离顶部的距离"
+								),
+								UISlider(
 									"不透明度",
 									"bili-danmaku-opacity",
 									0.75,

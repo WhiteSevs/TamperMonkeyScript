@@ -7,6 +7,7 @@ import { BilibiliData } from "@/data/BlibiliData";
 import BilibiliVideoBeautifyCSS from "./BilibiliVideoBeautify.css?raw";
 import { BilibiliVideoVueProp } from "./BilibiliVideoVueProp";
 import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
+import { VueUtils } from "@/utils/VueUtils";
 
 const BilibiliVideo = {
 	$data: {
@@ -36,6 +37,14 @@ const BilibiliVideo = {
 		});
 		PopsPanel.execMenuOnce("bili-video-cover-seasonNew", () => {
 			this.coverSeasonNew();
+		});
+		DOMUtils.ready(() => {
+			PopsPanel.execMenuOnce("bili-video-optimizationScroll", () => {
+				this.optimizationScroll();
+			});
+			PopsPanel.execMenu("bili-video-disableSwipeTab", () => {
+				this.disableSwipeTab();
+			});
 		});
 	},
 	/**
@@ -71,7 +80,7 @@ const BilibiliVideo = {
 						$vCard.querySelector<HTMLDivElement>(".count .left");
 					// 是否已经处理过
 					let isHandled = Boolean($vCard.querySelector(".gm-right-container"));
-					let vueObj = BilibiliUtils.getVue($vCard);
+					let vueObj = VueUtils.getVue($vCard);
 					if ($originTitle && $originLeft && vueObj && !isHandled) {
 						let upName: string | null = vueObj?.info?.owner?.name;
 						if (upName == null) {
@@ -128,7 +137,7 @@ const BilibiliVideo = {
 					let $originCount = $vCard.querySelector<HTMLDivElement>(".count");
 					// 是否已经处理过
 					let isHandled = Boolean($vCard.querySelector(".gm-right-container"));
-					let vueObj = BilibiliUtils.getVue($vCard);
+					let vueObj = VueUtils.getVue($vCard);
 					if ($originTitle && $originCount && vueObj && !isHandled) {
 						/* 这个里面没有播放时长，自己添加一个 */
 						let duration = vueObj?.info?.duration;
@@ -273,7 +282,7 @@ const BilibiliVideo = {
 			BilibiliData.className.video + " .list-view .card-box .launch-app-btn",
 			function (event) {
 				let $click = event.target as HTMLDivElement;
-				let vueObj = BilibiliUtils.getVue($click);
+				let vueObj = VueUtils.getVue($click);
 				if (!vueObj) {
 					Qmsg.error("获取相关视频的__vue__失败");
 					return;
@@ -307,7 +316,7 @@ const BilibiliVideo = {
 		log.info("覆盖 选集视频列表 点击事件");
 		function ClickCallBack(event: PointerEvent | MouseEvent) {
 			let $click = event.target as HTMLDivElement;
-			let vueObj = BilibiliUtils.getVue($click);
+			let vueObj = VueUtils.getVue($click);
 			if (!vueObj) {
 				Qmsg.error("获取选集视频的目标视频的__vue__失败");
 				return;
@@ -353,7 +362,7 @@ const BilibiliVideo = {
 				.waitVueByInterval(
 					$app,
 					() => {
-						let vueObj = BilibiliUtils.getVue($app as HTMLDivElement);
+						let vueObj = VueUtils.getVue($app as HTMLDivElement);
 						if (vueObj == null) {
 							return false;
 						}
@@ -363,7 +372,7 @@ const BilibiliVideo = {
 					10000
 				)
 				.then((result) => {
-					let appVue = BilibiliUtils.getVue($app as HTMLDivElement);
+					let appVue = VueUtils.getVue($app as HTMLDivElement);
 					if (!appVue) {
 						log.error("获取#app的vue属性失败");
 						return;
@@ -395,7 +404,7 @@ const BilibiliVideo = {
 		});
 		DOMUtils.on(document, "click", ".sub-reply-preview", function (event) {
 			let $app = document.querySelector<HTMLDivElement>("#app");
-			let appVue = BilibiliUtils.getVue($app as HTMLDivElement);
+			let appVue = VueUtils.getVue($app as HTMLDivElement);
 			if (!appVue) {
 				log.error("获取#app元素失败");
 				return;
@@ -454,6 +463,157 @@ const BilibiliVideo = {
 				log.info(`进入全屏`);
 				$btnWideScreen.click();
 			});
+	},
+	/**
+	 * 优化滚动显示view
+	 */
+	optimizationScroll() {
+		/**
+		 * 顶部导航栏
+		 */
+		let $mNavBar: HTMLElement | null = null;
+		/** 视频主内容 */
+		let $mVideoPlayer: HTMLElement | null = null;
+		let $mVideoInfoNew: HTMLElement | null = null;
+		/**
+		 * 底部tab
+		 */
+		let $bottomTab: HTMLElement | null = null;
+		/**
+		 * 底部tab的affix
+		 */
+		let $bottomTabVAffix: HTMLElement | null = null;
+
+		/** 最大高度 */
+		let videoPlayerMaxHeight = 0;
+		/** 最大padding-top */
+		let videoPlayerMaxPaddingTop = 0;
+
+		/**
+		 * 判断元是否为空或者在不在页面中
+		 */
+		function checkNodeIsNull<T extends Node>(
+			checkNode: T | null
+		): checkNode is null {
+			return !document.contains(checkNode);
+		}
+		DOMUtils.on(
+			document,
+			"scroll",
+			(event) => {
+				if (checkNodeIsNull($mVideoPlayer)) {
+					$mVideoPlayer = document.querySelector(".m-video-player");
+					if (checkNodeIsNull($mVideoPlayer)) {
+						return;
+					}
+					if (videoPlayerMaxHeight == 0) {
+						const videoPlayerRect = $mVideoPlayer.getBoundingClientRect();
+						videoPlayerMaxHeight = videoPlayerRect.height;
+						videoPlayerMaxPaddingTop = videoPlayerRect.top;
+						log.info(`视频区域的最大高度为 ${videoPlayerMaxHeight}px`);
+						log.info(`视频区域的最大top为 ${videoPlayerMaxPaddingTop}px`);
+					}
+				}
+				if (checkNodeIsNull($mVideoInfoNew)) {
+					$mVideoInfoNew = document.querySelector(".m-video-info-new");
+					if (checkNodeIsNull($mVideoInfoNew)) {
+						return;
+					}
+				}
+				if (checkNodeIsNull($mNavBar)) {
+					$mNavBar = document.querySelector(".m-navbar");
+					if (checkNodeIsNull($mNavBar)) {
+						return;
+					}
+				}
+				if (checkNodeIsNull($bottomTab)) {
+					$bottomTab = document.querySelector(".bottom-tab");
+					if (checkNodeIsNull($bottomTab)) {
+						return;
+					}
+				}
+				if (checkNodeIsNull($bottomTabVAffix)) {
+					$bottomTabVAffix = document.querySelector(".bottom-tab .v-affix");
+					if (checkNodeIsNull($bottomTabVAffix)) {
+						return;
+					}
+				}
+
+				// 自动根据video-info的top距离来设置视频的padding-top值
+				let videoInfoNewTop = $mVideoInfoNew.getBoundingClientRect().top;
+				if (videoInfoNewTop >= 0) {
+					if (videoInfoNewTop <= videoPlayerMaxHeight) {
+						$mVideoPlayer.style.paddingTop = videoInfoNewTop + "px";
+					} else {
+						$mVideoPlayer.style.paddingTop = "";
+					}
+				} else {
+					$mVideoPlayer.style.paddingTop = "0px";
+				}
+
+				// 计算顶部导航栏和底部tab的距离
+				// 也就是底部tab的top距离-导航栏的高度
+				let navbarHeight = DOMUtils.height($mNavBar);
+				let bottomTabTop = $bottomTab.getBoundingClientRect().top;
+
+				if (bottomTabTop < navbarHeight) {
+					// 超出上方|被覆盖在导航栏下面了
+					// 固定底部的tab
+					if ($bottomTabVAffix.hasAttribute("data-is-fixed")) {
+					} else {
+						$bottomTabVAffix.style.cssText = `position: fixed;left: 0px;top: ${navbarHeight}px;z-index: 10000;width: 100%;`;
+						$bottomTabVAffix.setAttribute("data-is-fixed", "true");
+					}
+				} else {
+					// 还在显示区域|在导航栏下面
+					// 取消固定tab
+					$bottomTabVAffix.style.cssText = "";
+					$bottomTabVAffix.removeAttribute("data-is-fixed");
+				}
+			},
+			{
+				passive: true,
+			}
+		);
+	},
+	/**
+	 * 禁止滑动切换tab
+	 */
+	disableSwipeTab() {
+		log.info(`禁止滑动切换tab`);
+		VueUtils.waitVuePropToSet(".m-video-bottom-tab", {
+			msg: "等待tab的vue属性touchstart、touchmove、touchend事件，_bindEvents函数",
+			check(vueInstance) {
+				return (
+					vueInstance?.slider?.el instanceof HTMLElement &&
+					typeof vueInstance?.slider?.events?.touchstart === "function" &&
+					typeof vueInstance?.slider?.events?.touchmove === "function" &&
+					typeof vueInstance?.slider?.events?.touchend === "function" &&
+					typeof vueInstance?.slider?._bindEvents === "function"
+				);
+			},
+			set(vueInstance) {
+				/** 绑定函数的目标元素 */
+				let $bindTarget = vueInstance.slider.el;
+				$bindTarget.removeEventListener(
+					"touchstart",
+					vueInstance.slider.events.touchstart
+				);
+				$bindTarget.removeEventListener(
+					"touchmove",
+					vueInstance.slider.events.touchmove
+				);
+				$bindTarget.removeEventListener(
+					"touchend",
+					vueInstance.slider.events.touchend
+				);
+				vueInstance.slider._bindEvents = () => {};
+
+				log.success(
+					`成功禁用滑动，清除touchstart、touchmove、touchend事件，覆盖_bindEvents函数`
+				);
+			},
+		});
 	},
 };
 

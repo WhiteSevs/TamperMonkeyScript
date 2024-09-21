@@ -546,7 +546,7 @@ export const BilibiliPlayer = {
 
 		this.setVideoSpeed(1);
 		BilibiliPlayerUI.init();
-		this.generateVideoInfo();
+		this.initPlayerVideoInfo();
 		PopsPanel.execMenu("bili-video-playerAutoPlayVideo", () => {
 			this.autoPlay();
 		});
@@ -675,11 +675,11 @@ export const BilibiliPlayer = {
 		});
 	},
 	/**
-	 * 根据avid或者bvid获取视频的播放地址信息
+	 * 根据avid或者bvid初始化视频的播放地址信息
 	 *
 	 * 一般用来给清晰度按钮使用
 	 */
-	async generateVideoInfo() {
+	async initPlayerVideoInfo() {
 		let playerPromise = await this.$player.playerPromise();
 		let bvid = playerPromise.config.bvid;
 		let cid = playerPromise.config.cid;

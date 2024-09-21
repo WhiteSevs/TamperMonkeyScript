@@ -1,5 +1,5 @@
 import { PopsPanel } from "@/setting/setting";
-import { log, utils } from "@/env";
+import { addStyle, log, utils } from "@/env";
 import { BilibiliDanmakuFilter } from "./BilibiliDanmakuFilter";
 import { BilibiliPlayer } from "./BilibiliPlayer";
 
@@ -55,6 +55,16 @@ export const BilibiliDanmaku = {
 		let speedSync = PopsPanel.getValue<boolean>("bili-danmaku-speedSync");
 		let fontFamily = PopsPanel.getValue<string>("bili-danmaku-fontFamily");
 
+		PopsPanel.execMenuOnce(
+			"bili-danmaku-container-top",
+			(value) => {
+				return this.setContainerTop(value);
+			},
+			void 0,
+			void 0,
+			() => true
+		);
+
 		this.setOpacity(opacity);
 		this.setArea(area);
 		this.setFontSize(fontSize);
@@ -81,6 +91,22 @@ export const BilibiliDanmaku = {
 			10000
 		);
 		return playerPromise.danmaku.danmakuCore.config;
+	},
+	/**
+	 * 设置弹幕容器距离顶部的距离
+	 * @param topPx
+	 */
+	setContainerTop(topPx: string | number) {
+		let containerTopPx = parseInt(topPx.toString());
+		if (isNaN(containerTopPx)) {
+			return;
+		}
+		log.success(`设置弹幕容器距离顶部的距离: ${topPx}`);
+		return addStyle(/*css*/ `
+		.mplayer-danmaku-container{
+			top: ${containerTopPx}px !important;
+		}
+		`);
 	},
 	/**
 	 * 设置 不透明度

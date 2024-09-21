@@ -3,6 +3,7 @@ import { DOMUtils, Qmsg, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliUrlUtils } from "@/utils/BilibiliUrlUtils";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
+import { VueUtils } from "@/utils/VueUtils";
 
 export const BilibiliOpus = {
 	init() {
@@ -30,7 +31,7 @@ export const BilibiliOpus = {
 			BilibiliData.className.opus + " .launch-app-btn.opus-module-topic",
 			function (event) {
 				let $click = event.target as HTMLDivElement;
-				let vueObj = BilibiliUtils.getVue($click);
+				let vueObj = VueUtils.getVue($click);
 				if (!vueObj) {
 					Qmsg.error("获取话题的__vue__失败");
 					return;
@@ -78,7 +79,7 @@ export const BilibiliOpus = {
 			function (event) {
 				utils.preventEvent(event);
 				let $click = event.target as HTMLDivElement;
-				let vueObj = BilibiliUtils.getVue($click);
+				let vueObj = VueUtils.getVue($click);
 				if (!vueObj) {
 					Qmsg.error("获取vue属性失败");
 					return;

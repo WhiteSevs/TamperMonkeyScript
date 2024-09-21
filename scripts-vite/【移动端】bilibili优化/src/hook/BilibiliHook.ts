@@ -1,5 +1,6 @@
 import { OriginPrototype, log, utils } from "@/env";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
+import { VueUtils } from "@/utils/VueUtils";
 import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
 import { unsafeWindow } from "ViteGM";
 
@@ -158,7 +159,7 @@ const BilibiliHook = {
 				document
 					.querySelectorAll<HTMLDivElement>(".launch-app-btn")
 					.forEach(($launchAppBtn) => {
-						let vueObj = BilibiliUtils.getVue($launchAppBtn);
+						let vueObj = VueUtils.getVue($launchAppBtn);
 						if (!vueObj) {
 							/* 不存在__vue__属性 */
 							return;

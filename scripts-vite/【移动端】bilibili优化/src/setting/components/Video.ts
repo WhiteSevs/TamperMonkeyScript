@@ -92,6 +92,26 @@ const SettingUIVideo: PopsPanelContentConfig = {
 								),
 							],
 						},
+						{
+							type: "forms",
+							text: "底部Tab",
+							forms: [
+								UISwitch(
+									"滚动固钉Tab",
+									"bili-video-optimizationScroll",
+									true,
+									void 0,
+									"向下滚动时，自动跳转视频区域大小且对Tab进行吸附处理"
+								),
+								UISwitch(
+									"禁止滑动切换Tab",
+									"bili-video-disableSwipeTab",
+									false,
+									void 0,
+									"禁止左右滑动切换Tab"
+								),
+							],
+						},
 					],
 				},
 				{

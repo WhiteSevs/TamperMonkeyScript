@@ -3,6 +3,7 @@ import { PopsPanel } from "@/setting/setting";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
 import { Bilibili } from "./Bilibili";
+import { VueUtils } from "@/utils/VueUtils";
 
 export const BilibiliVueProp = {
 	init() {
@@ -48,15 +49,15 @@ export const BilibiliVueProp = {
 			);
 		}
 
-		BilibiliUtils.waitVuePropToSet("#app", [
+		VueUtils.waitVuePropToSet("#app", [
 			{
 				msg: "设置参数 $store.state.common.noCallApp",
-				check(vueObj: Vue2Context) {
-					return typeof vueObj?.$store?.state?.common?.noCallApp === "boolean";
+				check(vueIns: Vue2Context) {
+					return typeof vueIns?.$store?.state?.common?.noCallApp === "boolean";
 				},
-				set(vueObj: Vue2Context) {
+				set(vueIns: Vue2Context) {
 					log.success("成功设置参数 $store.state.common.noCallApp=true");
-					vueObj.$store.state.common.noCallApp = true;
+					vueIns.$store.state.common.noCallApp = true;
 				},
 			},
 			{
@@ -94,17 +95,17 @@ export const BilibiliVueProp = {
 	 * + $store.state.ver.biliVer 2333333
 	 */
 	setIsClient() {
-		BilibiliUtils.waitVuePropToSet("#app", [
+		VueUtils.waitVuePropToSet("#app", [
 			{
 				msg: "设置参数 $store.state.video.isClient",
-				check(vueObj: Vue2Context) {
+				check(vueIns: Vue2Context) {
 					return (
-						typeof typeof vueObj?.$store?.state?.video?.isClient === "boolean"
+						typeof typeof vueIns?.$store?.state?.video?.isClient === "boolean"
 					);
 				},
-				set(vueObj: Vue2Context) {
+				set(vueIns: Vue2Context) {
 					log.success("成功设置参数 $store.state.video.isClient=true");
-					vueObj.$store.state.video.isClient = true;
+					vueIns.$store.state.video.isClient = true;
 				},
 			},
 			{
@@ -155,14 +156,14 @@ export const BilibiliVueProp = {
 	 * + __vue__.$store.state.common.tinyApp `true`
 	 */
 	setTinyApp() {
-		BilibiliUtils.waitVuePropToSet("#app", [
+		VueUtils.waitVuePropToSet("#app", [
 			{
 				msg: "设置参数 $store.state.common.tinyApp",
-				check(vueObj) {
-					return typeof vueObj?.$store?.state?.common?.tinyApp === "boolean";
+				check(vueIns) {
+					return typeof vueIns?.$store?.state?.common?.tinyApp === "boolean";
 				},
-				set(vueObj) {
-					vueObj.$store.state.common.tinyApp = true;
+				set(vueIns) {
+					vueIns.$store.state.common.tinyApp = true;
 					log.success("成功设置参数 $store.state.common.tinyApp=true");
 				},
 			},

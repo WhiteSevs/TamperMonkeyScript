@@ -2,103 +2,22 @@ import { DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
 import Qmsg from "qmsg";
+import { VueUtils } from "./VueUtils";
 
-interface WaitSetVuePropOption {
-	/**
-	 * 在检测前输出日志
-	 */
-	msg?: string;
-	/**
-	 * 检测属性的函数
-	 */
-	check(vueObj: Vue2Context): boolean;
-	/**
-	 * 进行设置
-	 */
-	set(vueObj: Vue2Context): void;
-}
 export const BilibiliUtils = {
-	/**
-	 * 获取元素上的__vue__属性
-	 * @param element
-	 * @returns
-	 */
-	getVue(element: HTMLElement | Node | Element) {
-		return (element as any)?.__vue__ as Vue2Context | null;
-	},
-	/**
-	 * 等待vue属性并进行设置
-	 */
-	waitVuePropToSet(
-		$target: HTMLElement | (() => HTMLElement | null) | string,
-		needSetList: WaitSetVuePropOption[] | WaitSetVuePropOption
-	) {
-		function getTarget() {
-			let __target__ = null;
-			if (typeof $target === "string") {
-				__target__ = document.querySelector($target);
-			} else if (typeof $target === "function") {
-				__target__ = $target();
-			} else if ($target instanceof HTMLElement) {
-				__target__ = $target;
-			}
-			return __target__;
-		}
-		if (!Array.isArray(needSetList)) {
-			this.waitVuePropToSet($target, [needSetList]);
-			return;
-		}
-		needSetList.forEach((needSetOption) => {
-			if (typeof needSetOption.msg === "string") {
-				log.info(needSetOption.msg);
-			}
-			function checkVue() {
-				let target = getTarget();
-				if (target == null) {
-					return false;
-				}
-				let vueObj = BilibiliUtils.getVue(target);
-				if (vueObj == null) {
-					return false;
-				}
-				let needOwnCheck = needSetOption.check(vueObj);
-				return Boolean(needOwnCheck);
-			}
-			utils
-				.waitVueByInterval(
-					() => {
-						return getTarget();
-					},
-					checkVue,
-					250,
-					10000
-				)
-				.then((result) => {
-					if (!result) {
-						return;
-					}
-					let target = getTarget();
-					let vueObj = BilibiliUtils.getVue(target as HTMLElement);
-					if (vueObj == null) {
-						return;
-					}
-					needSetOption.set(vueObj);
-				});
-		});
-	},
 	/**
 	 * 前往网址
 	 * @param path
 	 * @param [useRouter=false] 是否强制使用Router
 	 */
-	goToUrl(path: string, useRouter = false) {
+	goToUrl(path: string, useRouter: boolean = false) {
 		let $app = document.querySelector<HTMLDivElement>("#app");
 		if ($app == null) {
 			Qmsg.error("跳转Url: 获取根元素#app失败");
 			log.error("跳转Url: 获取根元素#app失败：" + path);
 			return;
 		}
-		let vueObj = BilibiliUtils.getVue($app);
+		let vueObj = VueUtils.getVue($app);
 		if (vueObj == null) {
 			log.error("获取#app的vue属性失败");
 			Qmsg.error("获取#app的vue属性失败");

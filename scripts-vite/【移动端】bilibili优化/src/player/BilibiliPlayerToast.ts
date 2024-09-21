@@ -60,7 +60,7 @@ export const BilibiliPlayerToast = {
 		DOMUtils.addClass($toast, this.$data.showClassName);
 
 		if (config.showCloseBtn) {
-			// 添加关闭按钮
+			// 添加关闭图标按钮
 			let $closeBtn = DOMUtils.createElement("div", {
 				className: this.$data.prefix + "-close",
 				innerHTML: /*html*/ `
@@ -73,6 +73,10 @@ export const BilibiliPlayerToast = {
                 `,
 			});
 			$toast.appendChild($closeBtn);
+			DOMUtils.on($closeBtn, "click", (event) => {
+				utils.preventEvent(event);
+				this.closeToast($toast);
+			});
 		}
 		let $text = DOMUtils.createElement("span", {
 			className: this.$data.prefix + "-text",

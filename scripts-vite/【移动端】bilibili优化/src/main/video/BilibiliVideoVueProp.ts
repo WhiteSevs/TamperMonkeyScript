@@ -3,6 +3,7 @@ import { log, utils } from "@/env";
 import { BilibiliPlayer, BilibiliPlayerUI } from "@/player/BilibiliPlayer";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
+import { VueUtils } from "@/utils/VueUtils";
 import { unsafeWindow } from "ViteGM";
 
 export const BilibiliVideoVueProp = {
@@ -40,14 +41,14 @@ export const BilibiliVideoVueProp = {
 				}
 				await utils.sleep(300);
 				let playerClassName = "m-video-player";
-				BilibiliUtils.waitVuePropToSet("." + playerClassName, [
+				VueUtils.waitVuePropToSet("." + playerClassName, [
 					{
 						msg: "等待设置参数 fullScreenCallApp",
-						check(vueObj) {
-							return typeof vueObj?.fullScreenCallApp === "boolean";
+						check(vueIns) {
+							return typeof vueIns?.fullScreenCallApp === "boolean";
 						},
-						set(vueObj) {
-							vueObj.fullScreenCallApp = false;
+						set(vueIns) {
+							vueIns.fullScreenCallApp = false;
 							log.success("成功设置参数 fullScreenCallApp=false");
 						},
 					},
@@ -149,14 +150,14 @@ export const BilibiliVideoVueProp = {
 	 * + __vue__.info.is_upower_preview=false
 	 */
 	unlockUpower() {
-		BilibiliUtils.waitVuePropToSet(BilibiliData.className.video, [
+		VueUtils.waitVuePropToSet(BilibiliData.className.video, [
 			{
 				msg: "设置属性 __vue__.info.is_upower_exclusive",
-				check(vueObj) {
-					return typeof vueObj?.info?.is_upower_exclusive === "boolean";
+				check(vueIns) {
+					return typeof vueIns?.info?.is_upower_exclusive === "boolean";
 				},
-				set(vueObj) {
-					vueObj.info.is_upower_exclusive = false;
+				set(vueIns) {
+					vueIns.info.is_upower_exclusive = false;
 					log.success("成功设置属性  __vue__.info.is_upower_exclusive=false");
 				},
 			},
@@ -192,16 +193,16 @@ export const BilibiliVideoVueProp = {
 	 * + __vue__.coverOpenApp: `false`
 	 */
 	setVideoPlayer() {
-		BilibiliUtils.waitVuePropToSet(
+		VueUtils.waitVuePropToSet(
 			BilibiliData.className.video + " .m-video-player",
 			[
 				{
 					msg: "设置参数 playBtnNoOpenApp",
-					check(vueObj) {
-						return typeof vueObj.playBtnNoOpenApp === "boolean";
+					check(vueIns) {
+						return typeof vueIns.playBtnNoOpenApp === "boolean";
 					},
-					set(vueObj) {
-						vueObj.playBtnNoOpenApp = true;
+					set(vueIns) {
+						vueIns.playBtnNoOpenApp = true;
 						log.success("成功设置参数 playBtnNoOpenApp=true");
 					},
 				},
