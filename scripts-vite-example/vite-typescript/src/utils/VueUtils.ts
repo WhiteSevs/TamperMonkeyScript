@@ -16,7 +16,7 @@ type VueWaitSetOption = {
 	/**
 	 * 进行设置
 	 */
-	set(vueObj: Vue2Context): void;
+	set(vueInstance: Vue2Context): void;
 };
 export const VueUtils = {
 	/**
