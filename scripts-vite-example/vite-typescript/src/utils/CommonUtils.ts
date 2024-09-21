@@ -10,7 +10,7 @@ export const CommonUtils = {
 	 * addBlockCSS("","")
 	 * addBlockCSS(["",""])
 	 */
-	addBlockCSS(...args: (string | string[])[]): HTMLStyleElement | void {
+	addBlockCSS(...args: (string | string[])[]) {
 		let selectorList: string[] = [];
 		if (args.length === 0) {
 			return;
@@ -29,7 +29,7 @@ export const CommonUtils = {
 				selectorList.push(selector);
 			}
 		});
-		return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+		addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
 	},
 	/**
 	 * 设置GM_getResourceText的style内容
@@ -50,7 +50,7 @@ export const CommonUtils = {
 	 * 添加<link>标签
 	 * @param url
 	 */
-	async addLinkNode(url: string): Promise<HTMLLinkElement> {
+	async addLinkNode(url: string) {
 		let $link = document.createElement("link");
 		$link.rel = "stylesheet";
 		$link.type = "text/css";
@@ -58,13 +58,24 @@ export const CommonUtils = {
 		DOMUtils.ready(() => {
 			document.head.appendChild($link);
 		});
-		return $link;
 	},
 	/**
-	 * 将url修复，例如只有search的链接/sss/xxx?sss=xxxx
+	 * 将url修复，例如只有search的链接修复为
 	 * @param url 需要修复的链接
+	 * @example
+	 * 修复前：`/xxx/xxx?ss=ssss`
+	 * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+	 * @example
+	 * 修复前：`//xxx/xxx?ss=ssss`
+	 * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+	 * @example
+	 * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+	 * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+	 * @example
+	 * 修复前：`xxx/xxx?ss=ssss`
+	 * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
 	 */
-	fixUrl(url: string): string {
+	fixUrl(url: string) {
 		url = url.trim();
 		if (url.match(/^http(s|):\/\//i)) {
 			return url;
@@ -75,5 +86,28 @@ export const CommonUtils = {
 			url = window.location.origin + url;
 			return url;
 		}
+	},
+	/**
+	 * http转https
+	 * @param url 需要修复的链接
+	 * @example
+	 * 修复前：
+	 * 修复后：
+	 * @example
+	 * 修复前：
+	 * 修复后：
+	 */
+	fixHttps(url: string) {
+		if (url.startsWith("https://")) {
+			// 已经是https
+			return url;
+		}
+		if (!url.startsWith("http://")) {
+			// 不是http链接
+			return url;
+		}
+		let urlObj = new URL(url);
+		urlObj.protocol = "https:";
+		return urlObj.toString();
 	},
 };
