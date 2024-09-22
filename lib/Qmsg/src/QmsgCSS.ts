@@ -63,7 +63,6 @@ export const QmsgCSS = {
       }`,
 	/**
 	 * 获取CSS元素
-	 * @returns
 	 */
 	getStyleElement() {
 		let cssResourceNode = document.createElement("style");

@@ -134,7 +134,7 @@ export class QmsgMsg {
 			/* 内容是html */
 			$content.innerHTML = content;
 		} else {
-			// 内容是纯文本
+			/* 内容是纯文本 */
 			$content.innerText = content;
 		}
 		if (this.setting.isLimitWidth) {
@@ -174,6 +174,10 @@ export class QmsgMsg {
             </div>
         </div>
         `;
+		/** 内容容器 */
+		let $contentContainer =
+			this.$Qmsg.querySelector<HTMLDivElement>(".qmsg-content")!;
+
 		this.$Qmsg.classList.add(QmsgUtils.getNameSpacify("item"));
 		this.$Qmsg.setAttribute(QmsgUtils.getNameSpacify("uuid"), this.uuid);
 		// 获取页面中的shadowRoot的容器元素
@@ -203,7 +207,7 @@ export class QmsgMsg {
 				__$ownStyle__.setAttribute("type", "text/css");
 				__$ownStyle__.setAttribute("data-id", this.uuid);
 				__$ownStyle__.innerHTML = this.setting.style;
-				this.$Qmsg.appendChild(__$ownStyle__);
+				$contentContainer.insertAdjacentElement("afterend", __$ownStyle__);
 			}
 			document.body.appendChild($shadowContainer);
 		}
