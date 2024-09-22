@@ -63,6 +63,13 @@ const SettingUIVideo: PopsPanelContentConfig = {
 									void 0,
 									"自动执行初始化播放器"
 								),
+								UISwitch(
+									"检测是否静音",
+									"bili-video-playerAutoPlayVideoCheckMute",
+									false,
+									void 0,
+									"在播放视频时自动检测视频是否静音，有的话弹出Toast"
+								),
 							],
 						},
 						{
@@ -75,13 +82,6 @@ const SettingUIVideo: PopsPanelContentConfig = {
 									false,
 									void 0,
 									"需开启【initPlayer】"
-								),
-								UISwitch(
-									"检测是否静音",
-									"bili-video-playerAutoPlayVideoCheckMute",
-									false,
-									void 0,
-									"需开启【自动播放视频】"
 								),
 								UISwitch(
 									"自动进入全屏",
