@@ -21,6 +21,10 @@ export interface DouYinShieldTagMap {
 	diggCount: number;
 	/** 分享数量 */
 	shareCount: number;
+	/** 是否是直播 */
+	isLive: boolean;
+	/** 是否是广告 */
+	isAds: boolean;
 }
 
 /** 抖音视频的awemeInfo对象信息 */
@@ -37,7 +41,59 @@ export type DouYinVideoAwemeInfo = {
 	/** 视频id */
 	awemeId: string;
 	/** 直播间信息（如果存在） */
-	cellRoom: undefined | object;
+	cellRoom:
+		| undefined
+		| {
+				/** 直播数据 */
+				rawdata: {
+					id_str: string;
+					/** 直播间所有者信息 */
+					owner: {
+						/** 头像信息 */
+						avatar_thumb: {
+							/** 头像链接，但是这个链接参数有问题，需补充路径，即/aweme/ */
+							uri: string;
+							/** 头像链接数组，建议这个，包含完整的https:... */
+							url_list: string[];
+						};
+						/** 用户id？可能是 */
+						id_str: string;
+						sec_uid: string;
+						/** 直播间id（房间号） */
+						web_rid: string;
+						/** 用户名 */
+						nickname: string;
+					};
+					/** 直播间标题 */
+					title: string;
+					/** 直播间人数 */
+					user_count: number;
+					/** 直播间状态 */
+					stats: {
+						/** 人数总数量（简称人气值） */
+						total_user_str: string;
+						/** 在线观众人数 */
+						user_count_str: string;
+					};
+					/** 推流信息 */
+					stream_url: {
+						extra: {
+							width: number;
+							height: number;
+						};
+						/** 推流地址字典 */
+						flv_pull_url: {
+							[key: string]: string;
+						};
+						/** 推流地址 */
+						hls_pull_url: string;
+						/** 推流地址字典 */
+						hls_pull_url_map: {
+							[key: string]: string;
+						};
+					};
+				};
+		  };
 	/** 视频创建时间 */
 	createTime: number;
 	/** 视频描述 */
@@ -81,6 +137,17 @@ export type DouYinVideoAwemeInfo = {
 			is_ad?: boolean;
 		};
 	};
+};
+
+type CheckRuleDetail = {
+	/** 视频信息的键（awemeInfo） */
+	videoInfoKey: string;
+	/** 视频信息的值（awemeInfo） */
+	videoInfoValue: any;
+	/** 自定义规则的键 */
+	ruleKey: string;
+	/** 自定义规则的值 */
+	ruleValue: RegExp | string | undefined | null;
 };
 export class DouYinVideoFilter {
 	/** 存储的键 */
@@ -132,132 +199,115 @@ export class DouYinVideoFilter {
 		this.initLocalRule();
 	}
 	/**
+	 * 根据视频信息，判断是否需要屏蔽
+	 */
+	checkFilterWithRule(details: CheckRuleDetail): boolean {
+		if (details.videoInfoValue == null) {
+			// awemeInfo的值为空
+			return false;
+		}
+		if (details.ruleValue == null) {
+			// 自定义规则的值为空
+			return false;
+		}
+		if (typeof details.videoInfoValue === "string") {
+			/* awemeInfo的值是字符串 */
+			/* 使用自定义规则的值进行匹配 */
+			if (Boolean(details.videoInfoValue.match(details.ruleValue))) {
+				return true;
+			}
+		} else if (
+			typeof details.videoInfoValue === "object" &&
+			Array.isArray(details.videoInfoValue)
+		) {
+			/* awemeInfo的值是字符串数组 */
+			/* 使用自定义规则的值进行遍历匹配 */
+			let findValue = details.videoInfoValue.find((awemeInfoDictValue) =>
+				Boolean(awemeInfoDictValue.match(details.ruleValue))
+			);
+			if (findValue) {
+				return true;
+			}
+		} else if (
+			typeof details.videoInfoValue === "number" &&
+			typeof details.ruleValue === "string"
+		) {
+			/* awemeInfo的值是数字，用于比较 */
+			/* 自定义规则的值是数字，用于比较 */
+			let compareNumberMatch = details.ruleValue.match(/(\d+)/);
+			if (!compareNumberMatch) {
+				log.warn(["过滤器-解析比较大小的数字失败: ", details]);
+				return false;
+			}
+			let compareNumber = Number(compareNumberMatch[1]);
+			// tag的值是数字，用于比较
+			if (details.ruleValue.startsWith(">")) {
+				if (
+					details.ruleValue.startsWith(">=") &&
+					details.videoInfoValue >= compareNumber
+				) {
+					return true;
+				} else if (details.videoInfoValue > compareNumber) {
+					return true;
+				}
+			} else if (details.ruleValue.startsWith("<")) {
+				if (
+					details.ruleValue.startsWith("<=") &&
+					details.videoInfoValue <= compareNumber
+				) {
+					return true;
+				} else if (details.videoInfoValue < compareNumber) {
+					return true;
+				}
+			} else if (details.ruleKey.startsWith("=")) {
+				if (details.videoInfoValue === compareNumber) {
+					return true;
+				}
+			} else {
+				// 未经允许的比较符号
+				log.warn(["过滤器-自定义屏蔽-未经允许的比较符号: ", details]);
+				return false;
+			}
+		}
+		return false;
+	}
+	/**
 	 * 检测视频是否可以屏蔽，可以屏蔽返回true
 	 * @param awemeInfo 视频信息结构
 	 */
 	checkAwemeInfoIsFilter(awemeInfo: DouYinVideoAwemeInfo): boolean {
-		let videoInfoTag = this.getVideoInfoTagMap(awemeInfo);
+		let awemeInfoTagDict = this.getAwemeInfoDictData(awemeInfo, true);
 		let flag = false;
 		if (!flag) {
-			if (
-				typeof awemeInfo["cellRoom"] === "object" &&
-				this.$flag.isBlockLiveVideo
-			) {
-				log.success("过滤器-屏蔽直播: because cellRoom is not null");
+			if (this.$flag.isBlockLiveVideo && awemeInfoTagDict.isLive) {
+				log.success("过滤器-屏蔽直播");
 				flag = true;
 			}
 		}
 		if (!flag) {
-			if (this.$flag.isBlockAdsVideo) {
-				if (awemeInfo["isAds"]) {
-					flag = true;
-					log.success("过滤器-屏蔽广告: because isAds is true");
-				} else if (
-					typeof awemeInfo["rawAdData"] === "string" &&
-					utils.isNotNull(awemeInfo["rawAdData"])
-				) {
-					flag = true;
-					log.success("过滤器-屏蔽广告: because rawAdData is not null");
-				} else if (awemeInfo["webRawData"]?.["brandAd"]?.["is_ad"]) {
-					flag = true;
-					log.success(
-						"过滤器-屏蔽广告: because webRawData.brandAd.is_ad is true"
-					);
-				} else if (awemeInfo["webRawData"]?.["insertInfo"]?.["is_ad"]) {
-					flag = true;
-					log.success(
-						"过滤器-屏蔽广告: because webRawData.insertInfo.is_ad is true"
-					);
-				}
+			if (this.$flag.isBlockAdsVideo && awemeInfoTagDict.isAds) {
+				log.success("过滤器-屏蔽广告");
+				flag = true;
 			}
-		}
-		function checkOwnRule(details: {
-			videoInfoKey: string;
-			videoInfoValue: any;
-			ruleKey: string;
-			ruleValue: RegExp | string | undefined | null;
-		}): boolean {
-			if (details.videoInfoValue == null) {
-				return false;
-			}
-			if (details.ruleValue == null) {
-				return false;
-			}
-			if (typeof details.videoInfoValue === "string") {
-				/* tag的值是字符串 */
-				if (Boolean(details.videoInfoValue.match(details.ruleValue))) {
-					return true;
-				}
-			} else if (
-				typeof details.videoInfoValue === "object" &&
-				Array.isArray(details.videoInfoValue)
-			) {
-				/* tag的值是字符串数组 */
-				let findValue = details.videoInfoValue.find((tagValueItem) =>
-					Boolean(tagValueItem.match(details.ruleValue))
-				);
-				if (findValue) {
-					return true;
-				}
-			} else if (
-				typeof details.videoInfoValue === "number" &&
-				typeof details.ruleValue === "string"
-			) {
-				/* tag的值是数字，用于比较 */
-				let compareNumberMatch = details.ruleValue.match(/(\d+)/);
-				if (!compareNumberMatch) {
-					log.warn(["过滤器-解析比较大小的数字失败: ", details]);
-					return false;
-				}
-				let compareNumber = Number(compareNumberMatch[1]);
-				// tag的值是数字，用于比较
-				if (details.ruleValue.startsWith(">")) {
-					if (
-						details.ruleValue.startsWith(">=") &&
-						details.videoInfoValue >= compareNumber
-					) {
-						return true;
-					} else if (details.videoInfoValue > compareNumber) {
-						return true;
-					}
-				} else if (details.ruleValue.startsWith("<")) {
-					if (
-						details.ruleValue.startsWith("<=") &&
-						details.videoInfoValue <= compareNumber
-					) {
-						return true;
-					} else if (details.videoInfoValue < compareNumber) {
-						return true;
-					}
-				} else if (details.ruleKey.startsWith("=")) {
-					if (details.videoInfoValue === compareNumber) {
-						return true;
-					}
-				} else {
-					// 未经允许的比较符号
-					log.warn(["过滤器-自定义屏蔽-未经允许的比较符号: ", details]);
-					return false;
-				}
-			}
-			return false;
 		}
 		/* 遍历自定义规则 */
 		if (!flag) {
 			for (const [ruleKey, ruleValue] of this.$data.rule.entries()) {
-				if (!((ruleKey as keyof DouYinShieldTagMap) in videoInfoTag)) {
+				if (!Reflect.has(awemeInfoTagDict, ruleKey)) {
 					continue;
 				}
 				/** 解析出的标签的名字 */
-				let tagKey = ruleKey as keyof DouYinShieldTagMap;
+				let tagKey = ruleKey;
 				/** 解析出的标签的值 */
-				let tagValue = videoInfoTag[tagKey];
+				let tagValue = awemeInfoTagDict[tagKey];
+				/** 配置 */
 				let details = {
 					videoInfoKey: tagKey,
 					videoInfoValue: tagValue,
 					ruleKey: ruleKey,
 					ruleValue: ruleValue,
-				};
-				let checkFlag = checkOwnRule(details);
+				} as CheckRuleDetail;
+				let checkFlag = this.checkFilterWithRule(details);
 				if (checkFlag) {
 					flag = true;
 					log.success(["过滤器-自定义屏蔽: ", details]);
@@ -273,14 +323,14 @@ export class DouYinVideoFilter {
 				for (const [ruleKey, ruleValue] of Object.entries(rule)) {
 					// 判断该规则中的key是否存在于视频信息中
 					// 只要有一个不在，那就该条规则不成立
-					if (!((ruleKey as keyof DouYinShieldTagMap) in videoInfoTag)) {
+					if (!Reflect.has(awemeInfoTagDict, ruleKey)) {
 						moreRuleFlag = false;
 						break;
 					}
 					/** 解析出的标签的名字 */
 					let tagKey = ruleKey as keyof DouYinShieldTagMap;
 					/** 解析出的标签的值 */
-					let tagValue = videoInfoTag[tagKey];
+					let tagValue = awemeInfoTagDict[tagKey];
 
 					let details = {
 						videoInfoKey: tagKey,
@@ -288,7 +338,7 @@ export class DouYinVideoFilter {
 						ruleKey: ruleKey,
 						ruleValue: ruleValue,
 					};
-					let checkFlag = checkOwnRule(details);
+					let checkFlag = this.checkFilterWithRule(details);
 					if (!checkFlag) {
 						// 只要有一个不在，那就该条规则不成立
 						moreRuleFlag = false;
@@ -300,7 +350,7 @@ export class DouYinVideoFilter {
 					log.success([
 						"多组过滤器-自定义屏蔽: ",
 						rule,
-						this.getVideoInfoTagMap(awemeInfo),
+						this.getAwemeInfoDictData(awemeInfo),
 					]);
 					break;
 				}
@@ -309,41 +359,82 @@ export class DouYinVideoFilter {
 		return flag;
 	}
 	/**
-	 * 获取视频各个信息的字典
+	 * 解析awemeInfo转为规则过滤的字典
+	 * @param awemeInfo
+	 * @param showLog 是否显示日志输出
 	 */
-	getVideoInfoTagMap(data: DouYinVideoAwemeInfo): DouYinShieldTagMap {
+	getAwemeInfoDictData(
+		awemeInfo: DouYinVideoAwemeInfo,
+		showLog: boolean = false
+	): DouYinShieldTagMap {
 		/** 视频作者名字 */
-		let nickname: string = data?.["authorInfo"]?.["nickname"]?.toString();
+		let nickname: string = awemeInfo?.["authorInfo"]?.["nickname"]?.toString();
 		/** 视频作者uid */
-		let uid: string = data?.["authorInfo"]?.["uid"]?.toString();
+		let uid: string = awemeInfo?.["authorInfo"]?.["uid"]?.toString();
 		/** 视频描述 */
-		let desc: string = data?.["desc"]?.toString();
+		let desc: string = awemeInfo?.["desc"]?.toString();
 		/** 收藏数量 */
-		let collectCount: number = data?.["stats"]?.["collectCount"];
+		let collectCount: number = awemeInfo?.["stats"]?.["collectCount"];
 		/** 评论数量 */
-		let commentCount: number = data?.["stats"]?.["commentCount"];
+		let commentCount: number = awemeInfo?.["stats"]?.["commentCount"];
 		/** 点赞数量 */
-		let diggCount: number = data?.["stats"]?.["diggCount"];
+		let diggCount: number = awemeInfo?.["stats"]?.["diggCount"];
 		/** 分享数量 */
-		let shareCount: number = data?.["stats"]?.["shareCount"];
+		let shareCount: number = awemeInfo?.["stats"]?.["shareCount"];
 		/** 视频标签 */
 		let textExtra: string[] = [];
+		/** 是否是直播间 */
+		let isLive: boolean = false;
+		/** 是否是广告 */
+		let isAds: boolean = false;
 		if (
-			typeof data?.["textExtra"] === "object" &&
-			Array.isArray(data?.["textExtra"])
+			typeof awemeInfo?.["textExtra"] === "object" &&
+			Array.isArray(awemeInfo?.["textExtra"])
 		) {
-			data?.["textExtra"]?.forEach((item) => {
+			awemeInfo?.["textExtra"]?.forEach((item) => {
 				textExtra.push(item["hashtagName"]);
 			});
 		}
 		let videoTag: string[] = [];
 		if (
-			typeof data?.["videoTag"] === "object" &&
-			Array.isArray(data?.["videoTag"])
+			typeof awemeInfo?.["videoTag"] === "object" &&
+			Array.isArray(awemeInfo?.["videoTag"])
 		) {
-			data?.["videoTag"].forEach((item) => {
+			awemeInfo?.["videoTag"].forEach((item) => {
 				videoTag.push(item["tagName"]);
 			});
+		}
+
+		if (typeof awemeInfo["cellRoom"] === "object") {
+			isLive = true;
+			if (showLog) {
+				log.success("直播间：cellRoom is not null");
+			}
+		}
+
+		if (awemeInfo["isAds"]) {
+			isAds = true;
+			if (showLog) {
+				log.success("广告：isAds is true");
+			}
+		} else if (
+			typeof awemeInfo["rawAdData"] === "string" &&
+			utils.isNotNull(awemeInfo["rawAdData"])
+		) {
+			isAds = true;
+			if (showLog) {
+				log.success("广告：rawAdData is not null");
+			}
+		} else if (awemeInfo["webRawData"]?.["brandAd"]?.["is_ad"]) {
+			isAds = true;
+			if (showLog) {
+				log.success("广告：webRawData.brandAd.is_ad is true");
+			}
+		} else if (awemeInfo["webRawData"]?.["insertInfo"]?.["is_ad"]) {
+			isAds = true;
+			if (showLog) {
+				log.success("广告：webRawData.insertInfo.is_ad is true");
+			}
 		}
 		return {
 			nickname,
@@ -355,6 +446,8 @@ export class DouYinVideoFilter {
 			commentCount,
 			diggCount,
 			shareCount,
+			isLive,
+			isAds,
 		};
 	}
 	/**

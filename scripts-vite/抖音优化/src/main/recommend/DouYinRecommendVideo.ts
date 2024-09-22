@@ -22,4 +22,27 @@ export const DouYinRecommendVideo = {
 
 		return awemeInfo;
 	},
+	/**
+	 * 获取当前所有视频的信息
+	 */
+	getAllVideoAwemeInfo() {
+		/* 视频列表元素 */
+		let $videoList = document.querySelector<HTMLDivElement>(
+			`#slidelist div[data-e2e="slideList"]`
+		);
+		if ($videoList == null) {
+			log.error("未获取到视频列表元素");
+			return [];
+		}
+		let reactFiber = utils.getReactObj($videoList)?.reactFiber;
+		if (reactFiber == null) {
+			log.error(["元素上不存在reactFiber属性", $videoList]);
+			return [];
+		}
+		// 视频列表
+		let awemeInfoList = reactFiber?.return.memoizedProps
+			.data as DouYinVideoAwemeInfo[];
+
+		return awemeInfoList;
+	},
 };

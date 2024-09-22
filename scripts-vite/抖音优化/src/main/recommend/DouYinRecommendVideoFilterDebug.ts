@@ -2,25 +2,19 @@ import Qmsg from "qmsg";
 import { DouYinRecommendVideo } from "./DouYinRecommendVideo";
 import {
 	DouYinVideoFilter,
+	type DouYinShieldTagMap,
 	type DouYinVideoAwemeInfo,
 } from "../DouYinVideoFilter";
-import { log, pops, utils } from "@/env";
+import { DOMUtils, log, pops, utils } from "@/env";
 
 export const DouYinRecommendVideoFilterDebug = {
 	init() {
-		let currentActiveVideoInfo =
-			DouYinRecommendVideo.getCurrentActiveVideoInfo();
-		if (currentActiveVideoInfo == null) {
-			Qmsg.error("获取当前播放的视频信息失败，详情请看控制台");
-			return;
-		}
-		this.show(currentActiveVideoInfo);
+		this.show();
 	},
 	/**
 	 * 显示调试面板
 	 */
-	show(awemeInfo: DouYinVideoAwemeInfo) {
-		log.info(awemeInfo);
+	show() {
 		const KEY = "temp-debug-recommend-video-filter-rule";
 		let videoFilter = new DouYinVideoFilter({
 			key: KEY,
@@ -29,15 +23,37 @@ export const DouYinRecommendVideoFilterDebug = {
 		let choose = window.prompt(
 			`请输入需要执行的操作：
 1. 获取当前视频的信息字典
-2. 调试自定义规则`,
+2. 获取所有视频的信息字典
+3. 调试自定义规则`,
 			"1"
 		);
-		if (choose === "1") {
-			let videoInfoJSON = JSON.stringify(
-				videoFilter.getVideoInfoTagMap(awemeInfo),
-				null,
-				4
-			);
+		let awemeInfo: DouYinVideoAwemeInfo | undefined = void 0;
+		if (choose === "1" || choose === "3") {
+			awemeInfo = DouYinRecommendVideo.getCurrentActiveVideoInfo();
+			if (awemeInfo == null) {
+				Qmsg.error("获取当前播放的视频信息失败，详情请看控制台");
+				return;
+			}
+			log.info(["当前视频awemeInfo信息：", awemeInfo]);
+		}
+		if (choose === "1" || choose === "2") {
+			let videoInfoJSON = "";
+			if (choose === "1") {
+				videoInfoJSON = JSON.stringify(
+					videoFilter.getAwemeInfoDictData(awemeInfo!),
+					null,
+					4
+				);
+			} else if (choose === "2") {
+				let allAwemeInfoList = DouYinRecommendVideo.getAllVideoAwemeInfo();
+				let allAwemeDictInfoList: DouYinShieldTagMap[] = [];
+				allAwemeInfoList.forEach((awemeInfo) => {
+					allAwemeDictInfoList.push(videoFilter.getAwemeInfoDictData(awemeInfo));
+				});
+				log.info(["全部的awemeInfo信息↓", allAwemeInfoList]);
+				log.info(["解析出全部的awemeInfo的字典信息↓", allAwemeDictInfoList]);
+				videoInfoJSON = JSON.stringify(allAwemeDictInfoList, null, 4);
+			}
 			let $confirm = pops.confirm({
 				title: {
 					text: "视频信息",
@@ -66,14 +82,14 @@ export const DouYinRecommendVideoFilterDebug = {
 						toClose: true,
 					},
 				},
-				width: "300px",
-				height: "400px",
+				width: window.innerWidth > 500 ? "50vw" : "400px",
+				height: window.innerHeight > 500 ? "60vh" : "400px",
 				drag: true,
 				dragLimit: true,
 				style: /*css*/ `
                 .video-info-json{
                     width: 100%;
-                    height: 200px;
+                    height: ${window.innerHeight > 500 ? "55vh" : "300px"};
                 }
                 `,
 			});
@@ -86,17 +102,39 @@ export const DouYinRecommendVideoFilterDebug = {
 				)!;
 			$videoInfoJSON.value = videoInfoJSON;
 			$videoInfoJSON.readOnly = true;
-		} else if (choose === "2") {
+		} else if (choose === "3") {
 			let rule = window.prompt("请输入要调试的规则(单条规则)");
 			if (utils.isNotNull(rule)) {
 				videoFilter.updateRule(rule);
 				log.info([
 					"过滤器-视频信息tag字典：",
-					videoFilter.getVideoInfoTagMap(awemeInfo),
+					videoFilter.getAwemeInfoDictData(awemeInfo!),
 				]);
-				let flag = videoFilter.checkAwemeInfoIsFilter(awemeInfo);
+				let flag = videoFilter.checkAwemeInfoIsFilter(awemeInfo!);
 				if (flag) {
-					Qmsg.success("当前视频符合该屏蔽规则");
+					let $qmsg = Qmsg.success(
+						/*html*/ `
+						<div class="dy-tip-text">当前视频符合该屏蔽规则，是否复制该规则？</div>
+						<a class="dy-tip-copy" href="javascript:;">复制</a>
+						`,
+						{
+							timeout: 5000,
+							isHTML: true,
+							customClass: "dy-video-filter-debug-rule-tip",
+							style: /*css*/ `
+							.dy-video-filter-debug-rule-tip{
+								display: flex;
+							}
+							`,
+						}
+					);
+					let $copy = $qmsg.$Qmsg.querySelector<HTMLAnchorElement>(
+						".dy-video-filter-debug-rule-tip .dy-tip-copy"
+					);
+					DOMUtils.on($copy, "click", (event) => {
+						utils.preventEvent(event);
+						utils.setClip(rule);
+					});
 				} else {
 					Qmsg.error("当前视频不符合该屏蔽规则");
 				}

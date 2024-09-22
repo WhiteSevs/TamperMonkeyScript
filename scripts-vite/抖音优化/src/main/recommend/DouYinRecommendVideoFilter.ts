@@ -5,6 +5,7 @@ import {
 	DouYinVideoFilter,
 	type DouYinVideoAwemeInfo,
 } from "../DouYinVideoFilter";
+import { DouYinRecommendVideo } from "./DouYinRecommendVideo";
 
 export interface DouYinShieldTagMap {
 	nickname?: string;
@@ -38,30 +39,14 @@ export const DouYinRecommendVideoFilter = {
 		let errorFindCount = 0;
 		DouYinElement.watchVideDataListChange(
 			utils.debounce((osElement, observer) => {
-				/* 视频列表元素 */
-				let $videoList = document.querySelector<HTMLDivElement>(
-					`#slidelist div[data-e2e="slideList"]`
-				);
-				if (!$videoList) {
+				let awemeInfoList = DouYinRecommendVideo.getAllVideoAwemeInfo();
+				if (!awemeInfoList.length) {
 					errorFindCount++;
 					if (errorFindCount >= 50) {
 						observer.disconnect();
 						log.error("未获取到视频列表元素次数超过50次, 停止监听");
 					}
 					log.error("未获取到视频列表元素");
-					return;
-				}
-
-				let reactFiber = utils.getReactObj($videoList)?.reactFiber;
-				if (reactFiber == null) {
-					log.error(["元素上不存在reactFiber属性", $videoList]);
-					return;
-				}
-				// 视频列表
-				let awemeInfoList: any[] = reactFiber?.return.memoizedProps
-					.data as DouYinVideoAwemeInfo[];
-				if (!awemeInfoList.length) {
-					/* Empty video data list */
 					return;
 				}
 				for (let index = 0; index < awemeInfoList.length; index++) {
