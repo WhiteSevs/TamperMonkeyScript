@@ -20,7 +20,6 @@ import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
 import { BilibiliPlayer } from "../player/BilibiliPlayer";
 import "./common.css";
 import { BilibiliSpace } from "./space/BilibiliSpace";
-import { BilibiliUrlUtils } from "@/utils/BilibiliUrlUtils";
 import { VueUtils } from "@/utils/VueUtils";
 
 const Bilibili = {
@@ -205,107 +204,6 @@ const Bilibili = {
 							});
 						}
 					);
-				}
-			});
-		});
-	},
-	/**
-	 * 重构tinyApp右上角的设置按钮图标，改为用户头像什么的
-	 */
-	reconfigurationTinyAppSettingButton() {
-		addStyle(/*css*/ `
-		.nav-bar .right{
-			display: -webkit-box;
-			display: -ms-flexbox;
-			display: flex;
-			-webkit-box-align: center;
-			-ms-flex-align: center;
-			align-items: center;
-		}
-		.gm-face{
-			width: 6.4vmin;
-			height: 6.4vmin;
-			display: -webkit-box;
-			display: -ms-flexbox;
-			display: flex;
-			-webkit-box-pack: center;
-			-ms-flex-pack: center;
-			justify-content: center;
-			-webkit-box-align: center;
-			-ms-flex-align: center;
-			align-items: center;
-			margin-right: 3.2vmin;
-			border-radius: 3.2vmin;
-			overflow: hidden;
-		}
-		.gm-face-avatar{
-			width: 100%;
-			height: 100%;
-			overflow: hidden;
-		}
-		.gm-face-avatar img{
-			width: 100%;
-			height: 100%;
-			-o-object-fit: cover;
-			object-fit: cover;
-		}
-		`);
-		utils.waitNode(".nav-bar .icon-config", 10000).then(($iconConfig) => {
-			if (!$iconConfig) {
-				return;
-			}
-			$iconConfig.outerHTML = `
-			<div class="gm-face">
-				<div class="gm-face-avatar">
-					<img src="http://i0.hdslb.com/bfs/face/member/noface.jpg">
-				</div>
-			</div>
-			`;
-			/** 是否已登录 */
-			let isLogin = false;
-			/** 当前已登录账号的uid */
-			let uid: null | string = null;
-			/** 当前已登录账号的用户名 */
-			let userName: null | string = null;
-			let $gmFace = document.querySelector<HTMLDivElement>(".gm-face")!;
-			let $img = $gmFace.querySelector<HTMLImageElement>("img")!;
-			VueUtils.waitVuePropToSet("#app", [
-				{
-					check(vueIns) {
-						return (
-							typeof vueIns?.$store?.state?.common?.userInfo?.isLogin ===
-							"boolean"
-						);
-					},
-					set(vueIns) {
-						isLogin = vueIns?.$store?.state?.common?.userInfo?.isLogin;
-						if (isLogin) {
-							uid = vueIns?.$store?.state?.common?.userInfo?.mid;
-							if (uid == null) {
-								log.warn(`当前是脚本设置的isLogin但其实未登录账号`);
-								isLogin = false;
-								return;
-							}
-							userName = vueIns?.$store?.state?.common?.userInfo?.uname;
-							$img.src =
-								vueIns?.$store?.state?.common?.userInfo?.face || $img.src;
-						}
-					},
-				},
-			]);
-			DOMUtils.on($gmFace, "click", (event) => {
-				utils.preventEvent(event);
-				if (isLogin) {
-					// 前往个人空间
-					if (uid != null) {
-						let url = BilibiliUrlUtils.getUserSpaceUrl(uid);
-						BilibiliUtils.goToUrl(url, false);
-					} else {
-						Qmsg.error("获取用户id失败");
-					}
-				} else {
-					// 前往登录
-					BilibiliUtils.goToLogin(window.location.href);
 				}
 			});
 		});

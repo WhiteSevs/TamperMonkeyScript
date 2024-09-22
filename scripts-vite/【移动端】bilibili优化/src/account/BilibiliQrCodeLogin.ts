@@ -1,5 +1,5 @@
 import { Qmsg, log, pops, QRCodeJS, utils } from "@/env";
-import { BilibiliApi_Login } from "../api/BilibiliApi_Login";
+import { BilibiliLoginApi } from "../api/BilibiliLoginApi";
 import { GM_getValue, GM_setValue } from "ViteGM";
 
 export const BilibiliQrCodeLogin = {
@@ -16,7 +16,7 @@ export const BilibiliQrCodeLogin = {
 	 */
 	getQRCodeInfo: async function () {
 		log.info("正在申请二维码...");
-		let qrcodeInfo = await BilibiliApi_Login.getQrCodeInfo();
+		let qrcodeInfo = await BilibiliLoginApi.getQrCodeInfo();
 		log.info(["获取到二维码信息", qrcodeInfo]);
 		return qrcodeInfo;
 	},
@@ -91,7 +91,7 @@ export const BilibiliQrCodeLogin = {
 				break;
 			}
 			log.info("正在等待扫码登录...");
-			let pollInfo = await BilibiliApi_Login.poll(qrcodeInfo.auth_code);
+			let pollInfo = await BilibiliLoginApi.poll(qrcodeInfo.auth_code);
 			if (pollInfo?.success) {
 				this.setAccessTokenInfo({
 					access_token: pollInfo.accessKey,

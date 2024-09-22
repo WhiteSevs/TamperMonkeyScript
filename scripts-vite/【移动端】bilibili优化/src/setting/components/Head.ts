@@ -27,6 +27,13 @@ export const SettingUIHead: PopsPanelContentConfig = {
 									"调整瀑布流视频卡片样式类似哔哩哔哩App"
 								),
 								UISwitch(
+									"美化顶部NavBar",
+									"bili-beautifyTopNavBar",
+									true,
+									void 0,
+									"类似哔哩哔哩App的样式"
+								),
+								UISwitch(
 									"补充推荐视频信息",
 									"bili-head-supplementaryVideoStreamingInformation",
 									true,

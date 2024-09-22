@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.9.21
+// @version      2024.9.22
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -941,7 +941,7 @@
       });
     }
   };
-  const BilibiliApi_Video = {
+  const BilibiliVideoApi = {
     /**
      * 获取视频播放地址，avid或bvid必须给一个
      * + /x/player/playurl
@@ -1508,9 +1508,6 @@
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     }
   };
-  function isWebApiSuccess(json) {
-    return (json == null ? void 0 : json.code) === 0 && ((json == null ? void 0 : json.message) === "0" || (json == null ? void 0 : json.message) === "success");
-  }
   const BilibiliUrlUtils = {
     /**
      * 获取用户个人空间链接
@@ -1782,6 +1779,7 @@
   };
   const BilibiliVideo = {
     $data: {
+      /** 是否已添加美化CSS */
       isAddBeautifyCSS: false
     },
     init() {
@@ -2539,7 +2537,7 @@
           BilibiliPlayerToast.toast("获取bvid失败");
           return;
         }
-        let videoInfo = await BilibiliApi_Video.playUrl(
+        let videoInfo = await BilibiliVideoApi.playUrl(
           {
             bvid,
             cid,
@@ -2753,6 +2751,9 @@
       PopsPanel.execMenu("bili-video-playerAutoPlayVideo", () => {
         this.autoPlay();
       });
+      PopsPanel.execMenu("bili-video-playerAutoPlayVideoCheckMute", () => {
+        this.listenVideoMuteState();
+      });
       this.mutatuinCloseOriginToast();
       setTimeout(() => {
         BilibiliDanmaku.init();
@@ -2768,6 +2769,58 @@
           item.isActive = true;
         }
       });
+    },
+    /**
+     * 监听视频静音状态
+     *
+     * 如果静音了，toast一下
+     */
+    async listenVideoMuteState() {
+      let playerPromise = await this.$player.playerPromise();
+      let $video = playerPromise.video;
+      const attrKey = "data-is-listen-mute";
+      if (!($video instanceof HTMLVideoElement)) {
+        log.error("player.playerPromise中video不是HTMLVideoElement");
+        return;
+      }
+      if ($video.hasAttribute(attrKey)) {
+        return;
+      }
+      $video.setAttribute(attrKey, "true");
+      log.success(`添加video的play事件监听，视频播放检测静音状态`);
+      function checkVideoMuted() {
+        let isMute = $video.muted;
+        if ($video.muted) {
+          log.warn(`当前静音状态，Qmsg提示让用户自行选择是否取消静音`);
+          let $toast = BilibiliPlayerToast.toast({
+            text: "当前视频为静音状态",
+            jumpText: "取消静音",
+            timeout: 8e3,
+            showCloseBtn: true,
+            jumpClickCallback(event) {
+              var _a2;
+              log.info(`设置静音状态：${!isMute}`);
+              (_a2 = BilibiliPlayer.player) == null ? void 0 : _a2.setMute(!isMute);
+              $toast.close();
+            }
+          });
+        } else {
+          log.info(`当前视频非静音状态`);
+        }
+      }
+      domutils.on(
+        $video,
+        "play",
+        async (event) => {
+          await utils.sleep(500);
+          checkVideoMuted();
+          $video.removeAttribute(attrKey);
+        },
+        {
+          once: true
+        }
+      );
+      checkVideoMuted();
     },
     /**
      * 设置视频播放倍速
@@ -2810,30 +2863,6 @@
           await utils.sleep(500);
           log.success("player：自动播放视频");
           (_a2 = BilibiliPlayer.player) == null ? void 0 : _a2.play();
-          PopsPanel.execMenu(
-            "bili-video-playerAutoPlayVideoCheckMute",
-            async () => {
-              var _a3;
-              await utils.sleep(150);
-              let isMute = await ((_a3 = BilibiliPlayer.player) == null ? void 0 : _a3.isMute());
-              if (isMute) {
-                log.warn(`当前静音状态，Qmsg提示让用户自行选择是否取消静音`);
-                let $toast = BilibiliPlayerToast.toast({
-                  text: "当前视频为静音状态",
-                  jumpText: "取消静音",
-                  timeout: 8e3,
-                  showCloseBtn: true,
-                  jumpClickCallback(event) {
-                    var _a4;
-                    log.info(`设置静音状态：${!isMute}`);
-                    (_a4 = BilibiliPlayer.player) == null ? void 0 : _a4.setMute(!isMute);
-                    $toast.close();
-                  }
-                });
-              } else {
-              }
-            }
-          );
           await utils.sleep(500);
           PopsPanel.execMenu("bili-video-playerAutoPlayVideoFullScreen", () => {
             BilibiliVideo.enterVideoFullScreen();
@@ -2880,7 +2909,7 @@
         log.error("获取bvid失败");
         return;
       }
-      let videoInfo = await BilibiliApi_Video.playUrl({
+      let videoInfo = await BilibiliVideoApi.playUrl({
         bvid,
         cid
       });
@@ -4397,6 +4426,25 @@
         forms: [
           {
             type: "deepMenu",
+            text: "功能",
+            forms: [
+              {
+                type: "forms",
+                text: "",
+                forms: [
+                  UISwitch(
+                    "搜索框自动获取焦点",
+                    "bili-search-inputAutoFocus",
+                    false,
+                    void 0,
+                    ""
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            type: "deepMenu",
             text: "覆盖点击事件",
             forms: [
               {
@@ -4610,7 +4658,15 @@
     searchParams.sort();
     return md5(searchParams.toString() + appsec);
   }
-  const BilibiliApi_Login = {
+  const BilibiliApiCheck = {
+    /**
+     * check json has {code: 0, message: "0"}
+     */
+    isWebApiSuccess(json) {
+      return (json == null ? void 0 : json.code) === 0 && ((json == null ? void 0 : json.message) === "0" || (json == null ? void 0 : json.message) === "success");
+    }
+  };
+  const BilibiliLoginApi = {
     /**
      * 获取登录二维码信息（TV端）
      * https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/login/login_action/QR.md#%E7%94%B3%E8%AF%B7%E4%BA%8C%E7%BB%B4%E7%A0%81(TV%E7%AB%AF)
@@ -4684,7 +4740,7 @@
         "86039": "二维码尚未确认",
         "86090": "二维码已扫码未确认"
       };
-      if (!isWebApiSuccess(json)) {
+      if (!BilibiliApiCheck.isWebApiSuccess(json)) {
         const code = json.code.toString();
         const message = json.message || msgMap[code] || "未知错误";
         if (code === "86038") {
@@ -4719,7 +4775,7 @@
      */
     getQRCodeInfo: async function() {
       log.info("正在申请二维码...");
-      let qrcodeInfo = await BilibiliApi_Login.getQrCodeInfo();
+      let qrcodeInfo = await BilibiliLoginApi.getQrCodeInfo();
       log.info(["获取到二维码信息", qrcodeInfo]);
       return qrcodeInfo;
     },
@@ -4797,7 +4853,7 @@
           break;
         }
         log.info("正在等待扫码登录...");
-        let pollInfo = await BilibiliApi_Login.poll(qrcodeInfo.auth_code);
+        let pollInfo = await BilibiliLoginApi.poll(qrcodeInfo.auth_code);
         if (pollInfo == null ? void 0 : pollInfo.success) {
           this.setAccessTokenInfo({
             access_token: pollInfo.accessKey,
@@ -4926,6 +4982,13 @@
                     true,
                     void 0,
                     "调整瀑布流视频卡片样式类似哔哩哔哩App"
+                  ),
+                  UISwitch(
+                    "美化顶部NavBar",
+                    "bili-beautifyTopNavBar",
+                    true,
+                    void 0,
+                    "类似哔哩哔哩App的样式"
                   ),
                   UISwitch(
                     "补充推荐视频信息",
@@ -5793,6 +5856,11 @@
       PopsPanel.execMenuOnce("bili-search-cover-cancel", () => {
         this.coverCancel();
       });
+      domutils.ready(() => {
+        PopsPanel.execMenu("bili-search-inputAutoFocus", () => {
+          this.inputAutoFocus();
+        });
+      });
     },
     /**
      * 覆盖【取消】按钮的点击事件
@@ -5810,6 +5878,27 @@
         },
         { capture: true }
       );
+    },
+    /**
+     * 输入框自动获取焦点
+     */
+    inputAutoFocus() {
+      let searchParams = new URLSearchParams(window.location.search);
+      if (searchParams.has("keyword")) {
+        log.warn(`当前在搜索结果页面，不执行输入框自动获取焦点`);
+        return;
+      }
+      log.info(`输入框自动获取焦点`);
+      utils.waitNode(
+        `.m-search .m-search-search-bar input[type="search"]`,
+        1e4
+      ).then(($input) => {
+        if (!$input) {
+          log.error("获取输入框失败");
+          return;
+        }
+        $input.focus();
+      });
     }
   };
   const BilibiliLiveBlockNode = {
@@ -6379,7 +6468,7 @@
       let data2 = utils.toJSON(
         getResp.data.responseText
       );
-      if (!isWebApiSuccess(data2)) {
+      if (!BilibiliApiCheck.isWebApiSuccess(data2)) {
         Qmsg.error(data2["message"]);
         return;
       }
@@ -6464,7 +6553,9 @@
         {
           className: "v-card",
           href: url,
-          innerHTML: `
+          innerHTML: (
+            /*html*/
+            `
                 <div class="card">
                     <div class="bfs-img-wrap">
                         <div class="bfs-img b-img">
@@ -6503,6 +6594,7 @@
                     </div>
                 </div>
                 `
+          )
         },
         {
           "data-aid": aid,
@@ -6514,7 +6606,45 @@
       return $vCard;
     }
   };
+  const BilibiliSearchApi = {
+    /**
+     * 获取输入框的placeholder的热点关键词
+     */
+    async getSearchInputPlaceholder() {
+      let getResponse = await httpx.get(
+        "https://api.bilibili.com/x/web-interface/wbi/search/default",
+        {
+          fetch: true,
+          headers: {
+            accept: "application/json, text/plain, */*",
+            "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+            "cache-control": "no-cache",
+            pragma: "no-cache",
+            "sec-ch-ua": '""',
+            "sec-ch-ua-mobile": "?1",
+            "sec-ch-ua-platform": '""',
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-site"
+          },
+          allowInterceptConfig: false
+        }
+      );
+      if (!getResponse.status) {
+        return;
+      }
+      let responseData = utils.toJSON(getResponse.data.responseText);
+      if (!BilibiliApiCheck.isWebApiSuccess(responseData)) {
+        return;
+      }
+      return responseData.data;
+    }
+  };
   const BilibiliHead = {
+    $flag: {
+      isInit_reconfigurationTinyAppSettingButton: false,
+      isInit_beautifyTopNavBar_css: false
+    },
     init() {
       PopsPanel.execMenuOnce(
         "bili-head-supplementaryVideoStreamingInformation",
@@ -6610,6 +6740,199 @@
           }
         });
       });
+    },
+    /**
+     * 重构tinyApp右上角的设置按钮图标，改为用户头像什么的
+     */
+    async reconfigurationTinyAppSettingButton() {
+      log.info(`重构tinyApp右上角的设置按钮图标`);
+      if (!this.$flag.isInit_reconfigurationTinyAppSettingButton) {
+        this.$flag.isInit_reconfigurationTinyAppSettingButton = true;
+        addStyle(
+          /*css*/
+          `
+			.nav-bar .right{
+				display: -webkit-box;
+				display: -ms-flexbox;
+				display: flex;
+				-webkit-box-align: center;
+				-ms-flex-align: center;
+				align-items: center;
+			}
+			.gm-face{
+				width: 6.4vmin;
+				height: 6.4vmin;
+				display: -webkit-box;
+				display: -ms-flexbox;
+				display: flex;
+				-webkit-box-pack: center;
+				-ms-flex-pack: center;
+				justify-content: center;
+				-webkit-box-align: center;
+				-ms-flex-align: center;
+				align-items: center;
+				margin-right: 3.2vmin;
+				border-radius: 3.2vmin;
+				overflow: hidden;
+			}
+			.gm-face-avatar{
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+			}
+			.gm-face-avatar img{
+				width: 100%;
+				height: 100%;
+				-o-object-fit: cover;
+				object-fit: cover;
+			}
+			`
+        );
+      }
+      let $iconConfig = await utils.waitNode(".nav-bar .icon-config", 1e4);
+      if (!$iconConfig) {
+        log.error("未找到设置按钮图标，无法重构");
+        return;
+      }
+      $iconConfig.outerHTML = /*html*/
+      `
+		<div class="gm-face">
+			<div class="gm-face-avatar">
+				<img src="http://i0.hdslb.com/bfs/face/member/noface.jpg">
+			</div>
+		</div>
+		`;
+      let isLogin = false;
+      let uid = null;
+      let $gmFace = document.querySelector(".gm-face");
+      let $img = $gmFace.querySelector("img");
+      VueUtils.waitVuePropToSet("#app", [
+        {
+          check(vueIns) {
+            var _a2, _b, _c, _d;
+            return typeof ((_d = (_c = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.userInfo) == null ? void 0 : _d.isLogin) === "boolean";
+          },
+          set(vueIns) {
+            var _a2, _b, _c;
+            let userInfo = (_c = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.userInfo;
+            isLogin = userInfo == null ? void 0 : userInfo.isLogin;
+            if (isLogin) {
+              uid = userInfo == null ? void 0 : userInfo.mid;
+              if (uid == null) {
+                log.warn(`当前是脚本设置的isLogin但其实未登录账号`);
+                isLogin = false;
+                return;
+              }
+              userInfo == null ? void 0 : userInfo.uname;
+              $img.src = (userInfo == null ? void 0 : userInfo.face) || $img.src;
+            } else {
+              log.warn(`经检测，Bilibili尚未登录账号`);
+            }
+          }
+        }
+      ]);
+      domutils.on($gmFace, "click", (event) => {
+        utils.preventEvent(event);
+        if (isLogin) {
+          if (uid != null) {
+            let url = BilibiliUrlUtils.getUserSpaceUrl(uid);
+            BilibiliUtils.goToUrl(url, false);
+          } else {
+            Qmsg.error("获取用户id失败");
+          }
+        } else {
+          BilibiliUtils.goToLogin(window.location.href);
+        }
+      });
+    },
+    /**
+     * 美化顶部navbar
+     */
+    beautifyTopNavBar() {
+      log.info(`美化顶部navbar`);
+      if (!this.$flag.isInit_beautifyTopNavBar_css) {
+        this.$flag.isInit_beautifyTopNavBar_css = true;
+        addStyle(
+          /*css*/
+          `
+			/* 隐藏logo */
+			.m-head .m-navbar .logo,
+			/* 隐藏原有的搜索图标 */
+			.m-head .m-navbar .icon-search{
+				display: none !important;
+			}
+			/* 设置右侧的宽度撑开、逆反 */
+			.m-head .m-navbar .right{
+				width: 100%;
+				display: flex;
+				flex-direction: row-reverse;
+				justify-content: flex-end;
+			}
+			/* 头像 */
+			.m-head .m-navbar .gm-face{
+				flex: 0 auto;
+				margin-top: 1.86667vmin;
+			}
+			/* 新的输入框 */
+			.m-head .m-navbar .gm-input-area{
+				flex: 1;
+				margin-top: 1.86667vmin;
+				height: 8vmin;
+				line-height: 8vmin;
+				padding: 0 3.2vmin;
+				background: #f4f4f4;
+				border-radius: 4.53333vmin;
+				display: flex;
+			}
+			/* 输入框前面的搜索图标 */
+			.m-head .m-navbar .gm-input-area .ic_search_tab{
+				color: #a0a0a0;
+				vertical-align: middle;
+				font-size: 4.33333vmin;
+			}
+			/* 输入框内容 */
+			.m-head .m-navbar .gm-input-area input[type="search"]{
+				font-size: 3.46667vmin;
+				color: #505050;
+				border: none;
+				background: transparent;
+				width: 61.33333vmin;
+				user-select: none !important;!i;!;
+				padding-left: 2.122vmin;
+				pointer-events: none;
+			}
+			`
+        );
+      }
+      utils.waitNode(".m-head .m-navbar .icon-search", 1e4).then(async ($iconSearch) => {
+        if (!$iconSearch) {
+          return;
+        }
+        if ($iconSearch.parentElement.querySelector(".gm-input-area")) {
+          return;
+        }
+        let $inputAreaContainer = domutils.createElement("div", {
+          className: "gm-input-area",
+          innerHTML: (
+            /*html*/
+            `
+						<i class="iconfont ic_search_tab"></i>
+						<input type="search" placeholder="" readonly="" disabled="">
+					`
+          )
+        });
+        let $input = $inputAreaContainer.querySelector("input");
+        domutils.on($inputAreaContainer, "click", (event) => {
+          utils.preventEvent(event);
+          BilibiliUtils.goToUrl("/search", true);
+        });
+        domutils.after($iconSearch, $inputAreaContainer);
+        let hotWordInfo = await BilibiliSearchApi.getSearchInputPlaceholder();
+        if (hotWordInfo != null) {
+          log.info([`热点信息：`, hotWordInfo]);
+          $input.placeholder = hotWordInfo.show_name || hotWordInfo.name;
+        }
+      });
     }
   };
   const BilibiliVueProp = {
@@ -6623,7 +6946,11 @@
       PopsPanel.execMenu("bili-setTinyApp", () => {
         this.setTinyApp();
         domutils.ready(() => {
-          Bilibili.reconfigurationTinyAppSettingButton();
+          BilibiliHead.reconfigurationTinyAppSettingButton().then(() => {
+            PopsPanel.execMenu("bili-beautifyTopNavBar", () => {
+              BilibiliHead.beautifyTopNavBar();
+            });
+          });
         });
       });
     },
@@ -7000,102 +7327,6 @@
                 });
               }
             );
-          }
-        });
-      });
-    },
-    /**
-     * 重构tinyApp右上角的设置按钮图标，改为用户头像什么的
-     */
-    reconfigurationTinyAppSettingButton() {
-      addStyle(
-        /*css*/
-        `
-		.nav-bar .right{
-			display: -webkit-box;
-			display: -ms-flexbox;
-			display: flex;
-			-webkit-box-align: center;
-			-ms-flex-align: center;
-			align-items: center;
-		}
-		.gm-face{
-			width: 6.4vmin;
-			height: 6.4vmin;
-			display: -webkit-box;
-			display: -ms-flexbox;
-			display: flex;
-			-webkit-box-pack: center;
-			-ms-flex-pack: center;
-			justify-content: center;
-			-webkit-box-align: center;
-			-ms-flex-align: center;
-			align-items: center;
-			margin-right: 3.2vmin;
-			border-radius: 3.2vmin;
-			overflow: hidden;
-		}
-		.gm-face-avatar{
-			width: 100%;
-			height: 100%;
-			overflow: hidden;
-		}
-		.gm-face-avatar img{
-			width: 100%;
-			height: 100%;
-			-o-object-fit: cover;
-			object-fit: cover;
-		}
-		`
-      );
-      utils.waitNode(".nav-bar .icon-config", 1e4).then(($iconConfig) => {
-        if (!$iconConfig) {
-          return;
-        }
-        $iconConfig.outerHTML = `
-			<div class="gm-face">
-				<div class="gm-face-avatar">
-					<img src="http://i0.hdslb.com/bfs/face/member/noface.jpg">
-				</div>
-			</div>
-			`;
-        let isLogin = false;
-        let uid = null;
-        let $gmFace = document.querySelector(".gm-face");
-        let $img = $gmFace.querySelector("img");
-        VueUtils.waitVuePropToSet("#app", [
-          {
-            check(vueIns) {
-              var _a2, _b, _c, _d;
-              return typeof ((_d = (_c = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.userInfo) == null ? void 0 : _d.isLogin) === "boolean";
-            },
-            set(vueIns) {
-              var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p;
-              isLogin = (_d = (_c = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.userInfo) == null ? void 0 : _d.isLogin;
-              if (isLogin) {
-                uid = (_h = (_g = (_f = (_e = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _e.state) == null ? void 0 : _f.common) == null ? void 0 : _g.userInfo) == null ? void 0 : _h.mid;
-                if (uid == null) {
-                  log.warn(`当前是脚本设置的isLogin但其实未登录账号`);
-                  isLogin = false;
-                  return;
-                }
-                (_l = (_k = (_j = (_i = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _i.state) == null ? void 0 : _j.common) == null ? void 0 : _k.userInfo) == null ? void 0 : _l.uname;
-                $img.src = ((_p = (_o = (_n = (_m = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _m.state) == null ? void 0 : _n.common) == null ? void 0 : _o.userInfo) == null ? void 0 : _p.face) || $img.src;
-              }
-            }
-          }
-        ]);
-        domutils.on($gmFace, "click", (event) => {
-          utils.preventEvent(event);
-          if (isLogin) {
-            if (uid != null) {
-              let url = BilibiliUrlUtils.getUserSpaceUrl(uid);
-              BilibiliUtils.goToUrl(url, false);
-            } else {
-              Qmsg.error("获取用户id失败");
-            }
-          } else {
-            BilibiliUtils.goToLogin(window.location.href);
           }
         });
       });

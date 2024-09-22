@@ -204,12 +204,3 @@ export const BilibiliUtils = {
 		return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
 	},
 };
-
-/**
- * check json has {code: 0, message: "0"}
- */
-export function isWebApiSuccess(json: any) {
-	return (
-		json?.code === 0 && (json?.message === "0" || json?.message === "success")
-	);
-}

@@ -1,11 +1,17 @@
 import { BilibiliData } from "@/data/BlibiliData";
-import { DOMUtils, addStyle, log, utils } from "@/env";
+import { DOMUtils, Qmsg, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliRecommend } from "./BilibiliRecommend";
 import { VueUtils } from "@/utils/VueUtils";
+import { BilibiliSearchApi } from "@/api/BilibiliSearchApi";
+import { BilibiliUrlUtils } from "@/utils/BilibiliUrlUtils";
 
 export const BilibiliHead = {
+	$flag: {
+		isInit_reconfigurationTinyAppSettingButton: false,
+		isInit_beautifyTopNavBar_css: false,
+	},
 	init() {
 		PopsPanel.execMenuOnce(
 			"bili-head-supplementaryVideoStreamingInformation",
@@ -111,6 +117,204 @@ export const BilibiliHead = {
 						lockFunc.run();
 					},
 				});
+			});
+	},
+	/**
+	 * 重构tinyApp右上角的设置按钮图标，改为用户头像什么的
+	 */
+	async reconfigurationTinyAppSettingButton() {
+		log.info(`重构tinyApp右上角的设置按钮图标`);
+		if (!this.$flag.isInit_reconfigurationTinyAppSettingButton) {
+			this.$flag.isInit_reconfigurationTinyAppSettingButton = true;
+			addStyle(/*css*/ `
+			.nav-bar .right{
+				display: -webkit-box;
+				display: -ms-flexbox;
+				display: flex;
+				-webkit-box-align: center;
+				-ms-flex-align: center;
+				align-items: center;
+			}
+			.gm-face{
+				width: 6.4vmin;
+				height: 6.4vmin;
+				display: -webkit-box;
+				display: -ms-flexbox;
+				display: flex;
+				-webkit-box-pack: center;
+				-ms-flex-pack: center;
+				justify-content: center;
+				-webkit-box-align: center;
+				-ms-flex-align: center;
+				align-items: center;
+				margin-right: 3.2vmin;
+				border-radius: 3.2vmin;
+				overflow: hidden;
+			}
+			.gm-face-avatar{
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+			}
+			.gm-face-avatar img{
+				width: 100%;
+				height: 100%;
+				-o-object-fit: cover;
+				object-fit: cover;
+			}
+			`);
+		}
+		let $iconConfig = await utils.waitNode(".nav-bar .icon-config", 10000);
+		if (!$iconConfig) {
+			log.error("未找到设置按钮图标，无法重构");
+			return;
+		}
+		$iconConfig.outerHTML = /*html*/ `
+		<div class="gm-face">
+			<div class="gm-face-avatar">
+				<img src="http://i0.hdslb.com/bfs/face/member/noface.jpg">
+			</div>
+		</div>
+		`;
+		/** 是否已登录 */
+		let isLogin = false;
+		/** 当前已登录账号的uid */
+		let uid: number | null | string = null;
+		/** 当前已登录账号的用户名 */
+		let userName: null | string = null;
+		/** 头像元素 */
+		let $gmFace = document.querySelector<HTMLDivElement>(".gm-face")!;
+		/** 头像图片元素 */
+		let $img = $gmFace.querySelector<HTMLImageElement>("img")!;
+		VueUtils.waitVuePropToSet("#app", [
+			{
+				check(vueIns) {
+					return (
+						typeof vueIns?.$store?.state?.common?.userInfo?.isLogin ===
+						"boolean"
+					);
+				},
+				set(vueIns) {
+					let userInfo = vueIns?.$store?.state?.common
+						?.userInfo as BilibiliUserInfoType;
+					isLogin = userInfo?.isLogin;
+					if (isLogin) {
+						uid = userInfo?.mid;
+						if (uid == null) {
+							log.warn(`当前是脚本设置的isLogin但其实未登录账号`);
+							isLogin = false;
+							return;
+						}
+						userName = userInfo?.uname;
+						$img.src = userInfo?.face || $img.src;
+					} else {
+						log.warn(`经检测，Bilibili尚未登录账号`);
+					}
+				},
+			},
+		]);
+		DOMUtils.on($gmFace, "click", (event) => {
+			utils.preventEvent(event);
+			if (isLogin) {
+				// 前往个人空间
+				if (uid != null) {
+					let url = BilibiliUrlUtils.getUserSpaceUrl(uid);
+					BilibiliUtils.goToUrl(url, false);
+				} else {
+					Qmsg.error("获取用户id失败");
+				}
+			} else {
+				// 前往登录
+				BilibiliUtils.goToLogin(window.location.href);
+			}
+		});
+	},
+	/**
+	 * 美化顶部navbar
+	 */
+	beautifyTopNavBar() {
+		log.info(`美化顶部navbar`);
+		if (!this.$flag.isInit_beautifyTopNavBar_css) {
+			this.$flag.isInit_beautifyTopNavBar_css = true;
+			addStyle(/*css*/ `
+			/* 隐藏logo */
+			.m-head .m-navbar .logo,
+			/* 隐藏原有的搜索图标 */
+			.m-head .m-navbar .icon-search{
+				display: none !important;
+			}
+			/* 设置右侧的宽度撑开、逆反 */
+			.m-head .m-navbar .right{
+				width: 100%;
+				display: flex;
+				flex-direction: row-reverse;
+				justify-content: flex-end;
+			}
+			/* 头像 */
+			.m-head .m-navbar .gm-face{
+				flex: 0 auto;
+				margin-top: 1.86667vmin;
+			}
+			/* 新的输入框 */
+			.m-head .m-navbar .gm-input-area{
+				flex: 1;
+				margin-top: 1.86667vmin;
+				height: 8vmin;
+				line-height: 8vmin;
+				padding: 0 3.2vmin;
+				background: #f4f4f4;
+				border-radius: 4.53333vmin;
+				display: flex;
+			}
+			/* 输入框前面的搜索图标 */
+			.m-head .m-navbar .gm-input-area .ic_search_tab{
+				color: #a0a0a0;
+				vertical-align: middle;
+				font-size: 4.33333vmin;
+			}
+			/* 输入框内容 */
+			.m-head .m-navbar .gm-input-area input[type="search"]{
+				font-size: 3.46667vmin;
+				color: #505050;
+				border: none;
+				background: transparent;
+				width: 61.33333vmin;
+				user-select: none !important;!i;!;
+				padding-left: 2.122vmin;
+				pointer-events: none;
+			}
+			`);
+		}
+		utils
+			.waitNode<HTMLElement>(".m-head .m-navbar .icon-search", 10000)
+			.then(async ($iconSearch) => {
+				if (!$iconSearch) {
+					return;
+				}
+				if ($iconSearch.parentElement!.querySelector(".gm-input-area")) {
+					return;
+				}
+				// 创建一个新的输入框
+				let $inputAreaContainer = DOMUtils.createElement("div", {
+					className: "gm-input-area",
+					innerHTML: /*html*/ `
+						<i class="iconfont ic_search_tab"></i>
+						<input type="search" placeholder="" readonly="" disabled="">
+					`,
+				});
+				let $input = $inputAreaContainer.querySelector("input")!;
+				DOMUtils.on($inputAreaContainer, "click", (event) => {
+					utils.preventEvent(event);
+					BilibiliUtils.goToUrl("/search", true);
+				});
+				DOMUtils.after($iconSearch, $inputAreaContainer);
+
+				// 获取热点词
+				let hotWordInfo = await BilibiliSearchApi.getSearchInputPlaceholder();
+				if (hotWordInfo != null) {
+					log.info([`热点信息：`, hotWordInfo]);
+					$input.placeholder = hotWordInfo.show_name || hotWordInfo.name;
+				}
 			});
 	},
 };

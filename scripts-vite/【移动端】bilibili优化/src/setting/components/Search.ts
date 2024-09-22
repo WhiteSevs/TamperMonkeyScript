@@ -15,6 +15,25 @@ const SettingUISearch: PopsPanelContentConfig = {
 			forms: [
 				{
 					type: "deepMenu",
+					text: "功能",
+					forms: [
+						{
+							type: "forms",
+							text: "",
+							forms: [
+								UISwitch(
+									"搜索框自动获取焦点",
+									"bili-search-inputAutoFocus",
+									false,
+									void 0,
+									""
+								),
+							],
+						},
+					],
+				},
+				{
+					type: "deepMenu",
 					text: "覆盖点击事件",
 					forms: [
 						{

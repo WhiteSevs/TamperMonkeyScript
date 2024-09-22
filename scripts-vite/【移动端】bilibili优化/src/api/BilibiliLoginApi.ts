@@ -1,9 +1,9 @@
 import { TVKeyInfo } from "@/common/config";
 import { appSign } from "@/common/sign";
 import { httpx, utils, GMCookie, Qmsg, log } from "@/env";
-import { isWebApiSuccess } from "@/utils/BilibiliUtils";
+import { BilibiliApiCheck } from "./BilibiliApiCheck";
 
-export const BilibiliApi_Login = {
+export const BilibiliLoginApi = {
 	/**
 	 * 获取登录二维码信息（TV端）
 	 * https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/login/login_action/QR.md#%E7%94%B3%E8%AF%B7%E4%BA%8C%E7%BB%B4%E7%A0%81(TV%E7%AB%AF)
@@ -83,7 +83,7 @@ export const BilibiliApi_Login = {
 			"86090": "二维码已扫码未确认",
 		};
 
-		if (!isWebApiSuccess(json)) {
+		if (!BilibiliApiCheck.isWebApiSuccess(json)) {
 			const code = json.code.toString();
 			const message = json.message || msgMap[code] || "未知错误";
 

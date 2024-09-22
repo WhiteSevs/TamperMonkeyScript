@@ -6,7 +6,7 @@ import {
 	BilibiliVideoPlayUrlQN,
 	BilibiliVideoPlayUrlQN_Value,
 } from "@/hook/BilibiliNetworkHook";
-import { BilibiliApi_Video } from "@/api/BilibiliApi_Video";
+import { BilibiliVideoApi } from "@/api/BilibiliVideoApi";
 import { BilibiliPlayerToast } from "./BilibiliPlayerToast";
 import { BilibiliVideo } from "../main/video/BilibiliVideo";
 
@@ -277,7 +277,7 @@ export const BilibiliPlayerUI = {
 				BilibiliPlayerToast.toast("获取bvid失败");
 				return;
 			}
-			let videoInfo = await BilibiliApi_Video.playUrl(
+			let videoInfo = await BilibiliVideoApi.playUrl(
 				{
 					bvid: bvid,
 					cid: cid,
@@ -550,6 +550,9 @@ export const BilibiliPlayer = {
 		PopsPanel.execMenu("bili-video-playerAutoPlayVideo", () => {
 			this.autoPlay();
 		});
+		PopsPanel.execMenu("bili-video-playerAutoPlayVideoCheckMute", () => {
+			this.listenVideoMuteState();
+		});
 		this.mutatuinCloseOriginToast();
 		setTimeout(() => {
 			// 延迟一下再覆盖弹幕设置
@@ -567,6 +570,63 @@ export const BilibiliPlayer = {
 				item.isActive = true;
 			}
 		});
+	},
+	/**
+	 * 监听视频静音状态
+	 *
+	 * 如果静音了，toast一下
+	 */
+	async listenVideoMuteState() {
+		let playerPromise = await this.$player.playerPromise();
+		let $video = playerPromise.video;
+		const attrKey = "data-is-listen-mute";
+		if (!($video instanceof HTMLVideoElement)) {
+			log.error("player.playerPromise中video不是HTMLVideoElement");
+			return;
+		}
+		if ($video.hasAttribute(attrKey)) {
+			return;
+		}
+		$video.setAttribute(attrKey, "true");
+		log.success(`添加video的play事件监听，视频播放检测静音状态`);
+
+		/**
+		 * 视频静音检测
+		 */
+		function checkVideoMuted() {
+			let isMute = $video.muted;
+			if ($video.muted) {
+				// 当前静音状态
+				log.warn(`当前静音状态，Qmsg提示让用户自行选择是否取消静音`);
+				let $toast = BilibiliPlayerToast.toast({
+					text: "当前视频为静音状态",
+					jumpText: "取消静音",
+					timeout: 8000,
+					showCloseBtn: true,
+					jumpClickCallback(event) {
+						log.info(`设置静音状态：${!isMute}`);
+						BilibiliPlayer.player?.setMute(!isMute);
+						$toast.close();
+					},
+				});
+			} else {
+				// 非静音
+				log.info(`当前视频非静音状态`);
+			}
+		}
+		DOMUtils.on(
+			$video,
+			"play",
+			async (event) => {
+				await utils.sleep(500);
+				checkVideoMuted();
+				$video.removeAttribute(attrKey);
+			},
+			{
+				once: true,
+			}
+		);
+		checkVideoMuted();
 	},
 	/**
 	 * 设置视频播放倍速
@@ -613,30 +673,6 @@ export const BilibiliPlayer = {
 				await utils.sleep(500);
 				log.success("player：自动播放视频");
 				BilibiliPlayer.player?.play();
-				PopsPanel.execMenu(
-					"bili-video-playerAutoPlayVideoCheckMute",
-					async () => {
-						await utils.sleep(150);
-						let isMute = await BilibiliPlayer.player?.isMute();
-						if (isMute) {
-							// 静音
-							log.warn(`当前静音状态，Qmsg提示让用户自行选择是否取消静音`);
-							let $toast = BilibiliPlayerToast.toast({
-								text: "当前视频为静音状态",
-								jumpText: "取消静音",
-								timeout: 8000,
-								showCloseBtn: true,
-								jumpClickCallback(event) {
-									log.info(`设置静音状态：${!isMute}`);
-									BilibiliPlayer.player?.setMute(!isMute);
-									$toast.close();
-								},
-							});
-						} else {
-							// 非静音
-						}
-					}
-				);
 				await utils.sleep(500);
 				PopsPanel.execMenu("bili-video-playerAutoPlayVideoFullScreen", () => {
 					// 自动进入全屏
@@ -687,7 +723,7 @@ export const BilibiliPlayer = {
 			log.error("获取bvid失败");
 			return;
 		}
-		let videoInfo = await BilibiliApi_Video.playUrl({
+		let videoInfo = await BilibiliVideoApi.playUrl({
 			bvid: bvid,
 			cid: cid,
 		});

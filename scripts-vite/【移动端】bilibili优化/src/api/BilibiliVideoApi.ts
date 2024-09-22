@@ -16,7 +16,7 @@ type BilibliPlayUrlCommonConfig = {
 	setPlatformHTML5?: boolean;
 };
 
-export const BilibiliApi_Video = {
+export const BilibiliVideoApi = {
 	/**
 	 * 获取视频播放地址，avid或bvid必须给一个
 	 * + /x/player/playurl

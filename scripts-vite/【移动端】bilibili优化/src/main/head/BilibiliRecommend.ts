@@ -1,12 +1,12 @@
 import { BilibiliQrCodeLogin } from "@/account/BilibiliQrCodeLogin";
 import { TVKeyInfo } from "@/common/config";
-import { BilibiliData } from "@/data/BlibiliData";
 import { DOMUtils, Qmsg, addStyle, httpx, log, utils } from "@/env";
-import { BilibiliUtils, isWebApiSuccess } from "@/utils/BilibiliUtils";
+import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import BilibiliRecommendCSS from "./BilibiliRecommend.css?raw";
 import { android } from "@/define/BilibiliRecommendDefine";
 import { av2bv } from "@mgdn/bvid";
 import { PopsPanel } from "@/setting/setting";
+import { BilibiliApiCheck } from "@/api/BilibiliApiCheck";
 
 /**
  * 修复图片（http转换为https）
@@ -248,7 +248,7 @@ export const BilibiliRecommend = {
 		let data = utils.toJSON<android.AppRecommendJson>(
 			getResp.data.responseText
 		);
-		if (!isWebApiSuccess(data)) {
+		if (!BilibiliApiCheck.isWebApiSuccess(data)) {
 			Qmsg.error(data["message"]);
 			return;
 		}
@@ -333,7 +333,7 @@ export const BilibiliRecommend = {
 			{
 				className: "v-card",
 				href: url,
-				innerHTML: `
+				innerHTML: /*html*/ `
                 <div class="card">
                     <div class="bfs-img-wrap">
                         <div class="bfs-img b-img">

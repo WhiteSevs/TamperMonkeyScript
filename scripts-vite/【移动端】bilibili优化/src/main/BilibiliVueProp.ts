@@ -4,6 +4,7 @@ import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
 import { Bilibili } from "./Bilibili";
 import { VueUtils } from "@/utils/VueUtils";
+import { BilibiliHead } from "./head/BilibiliHead";
 
 export const BilibiliVueProp = {
 	init() {
@@ -16,7 +17,11 @@ export const BilibiliVueProp = {
 		PopsPanel.execMenu("bili-setTinyApp", () => {
 			this.setTinyApp();
 			DOMUtils.ready(() => {
-				Bilibili.reconfigurationTinyAppSettingButton();
+				BilibiliHead.reconfigurationTinyAppSettingButton().then(() => {
+					PopsPanel.execMenu("bili-beautifyTopNavBar", () => {
+						BilibiliHead.beautifyTopNavBar();
+					});
+				});
 			});
 		});
 	},

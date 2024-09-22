@@ -11,6 +11,7 @@ import { VueUtils } from "@/utils/VueUtils";
 
 const BilibiliVideo = {
 	$data: {
+		/** 是否已添加美化CSS */
 		isAddBeautifyCSS: false,
 	},
 	init() {
