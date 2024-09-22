@@ -22,7 +22,7 @@ const SettingUIVideo: PopsPanelContentConfig = {
 							type: "forms",
 							forms: [
 								UISwitch(
-									"修复视频底部区域高度",
+									"调整视频底部区域高度",
 									"bili-video-repairVideoBottomAreaHeight",
 									true,
 									void 0,
@@ -36,7 +36,7 @@ const SettingUIVideo: PopsPanelContentConfig = {
 									"可避免弹窗出现且自动点击后播放视频"
 								),
 								UISwitch(
-									"美化显示",
+									"美化底部推荐视频",
 									"bili-video-beautify",
 									true,
 									void 0,
