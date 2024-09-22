@@ -382,7 +382,6 @@ const TieBaApi = {
 	 * /sign/add
 	 * @param forumName 吧名
 	 * @param tbs 应该是用户token
-	 * @returns
 	 */
 	async forumSign(forumName: string, tbs: string) {
 		log.success(["发送签到请求→", forumName, tbs]);
@@ -484,7 +483,6 @@ const TieBaApi = {
 	 * @param alt
 	 * @param next
 	 * @param prev
-	 * @returns
 	 */
 	async getPictureGuide(
 		forumName: string,

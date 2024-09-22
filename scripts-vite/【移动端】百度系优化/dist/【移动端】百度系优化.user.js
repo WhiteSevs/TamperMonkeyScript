@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.9.11
+// @version      2024.9.22
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -19,11 +19,11 @@
 // @require      https://fastly.jsdelivr.net/npm/vue-router@4.4.0/dist/vue-router.global.js
 // @require      https://update.greasyfork.org/scripts/495227/1413261/Element-Plus.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.5.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.6.4/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.7/dist/index.min.css
 // @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
 // @connect      *
@@ -1706,7 +1706,6 @@ match-attr##srcid##sp_purc_atom
      * /sign/add
      * @param forumName 吧名
      * @param tbs 应该是用户token
-     * @returns
      */
     async forumSign(forumName, tbs) {
       log.success(["发送签到请求→", forumName, tbs]);
@@ -1795,7 +1794,6 @@ match-attr##srcid##sp_purc_atom
      * @param alt
      * @param next
      * @param prev
-     * @returns
      */
     async getPictureGuide(forumName, tid, see_lz = 0, from_page = 0, alt = "jview", next = 1e3, prev = 1e3) {
       let getResp = await httpx.get(
@@ -1936,6 +1934,157 @@ match-attr##srcid##sp_purc_atom
       afterAddToUListCallBack
     };
     return result;
+  };
+  const CommonUtils = {
+    /**
+     * 添加屏蔽CSS
+     * @param args
+     * @example
+     * addBlockCSS("")
+     * addBlockCSS("","")
+     * addBlockCSS(["",""])
+     */
+    addBlockCSS(...args) {
+      let selectorList = [];
+      if (args.length === 0) {
+        return;
+      }
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+        return;
+      }
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    /**
+     * 设置GM_getResourceText的style内容
+     * @param resourceMapData 资源数据
+     */
+    setGMResourceCSS(resourceMapData) {
+      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+      if (typeof cssText === "string" && cssText) {
+        addStyle(cssText);
+      } else {
+        CommonUtils.addLinkNode(resourceMapData.url);
+      }
+    },
+    /**
+     * 添加<link>标签
+     * @param url
+     */
+    async addLinkNode(url) {
+      let $link = document.createElement("link");
+      $link.rel = "stylesheet";
+      $link.type = "text/css";
+      $link.href = url;
+      domutils.ready(() => {
+        document.head.appendChild($link);
+      });
+    },
+    /**
+     * 将url修复，例如只有search的链接/sss/xxx?sss=xxxx修复为https://xxx.xxx.xxx/sss/xxx?sss=xxxx
+     * @param url 需要修复的链接
+     */
+    fixUrl(url) {
+      url = url.trim();
+      if (url.match(/^http(s|):\/\//i)) {
+        return url;
+      } else {
+        if (!url.startsWith("/")) {
+          url += "/";
+        }
+        url = window.location.origin + url;
+        return url;
+      }
+    },
+    /**
+     * http转https
+     * @param url 需要修复的链接
+     */
+    fixHttps(url) {
+      if (url.startsWith("https://")) {
+        return url;
+      }
+      if (!url.startsWith("http://")) {
+        return url;
+      }
+      let urlObj = new URL(url);
+      urlObj.protocol = "https:";
+      return urlObj.toString();
+    }
+  };
+  const TiebaPCApi = {
+    /**
+     * 获取用户所有关注的吧
+     */
+    async getUserAllLinkForum() {
+      let result = [];
+      let gbkEncoder = new utils.GBKEncoder();
+      let page = 1;
+      while (true) {
+        let searchParamsData = {
+          v: Date.now(),
+          pn: page
+        };
+        let url = `https://tieba.baidu.com/f/like/mylike?${utils.toSearchParamsStr(
+        searchParamsData
+      )}`;
+        let getResponse = await httpx.get(url, {
+          fetch: true
+        });
+        if (!getResponse.status) {
+          break;
+        }
+        let doc = domutils.parseHTML(getResponse.data.responseText, true, true);
+        let linkForumInfoList = Array.from(
+          doc.querySelectorAll(".forum_table span[balvname]")
+        ).map((item) => {
+          let forumName = item.getAttribute("balvname");
+          let forumId = item.getAttribute("balvid");
+          let tbs = item.getAttribute("tbs");
+          if (forumName == null) {
+            return;
+          }
+          if (forumId == null) {
+            return;
+          }
+          if (tbs == null) {
+            return;
+          }
+          forumName = gbkEncoder.decode(forumName);
+          return {
+            forumName,
+            forumId,
+            tbs
+          };
+        }).filter((item) => item != null);
+        result = result.concat(linkForumInfoList);
+        let $nextPage = Array.from(
+          doc.querySelectorAll("#j_pagebar .pagination a[href]")
+        ).find(($anchor) => {
+          return $anchor.innerText.includes("下一页");
+        });
+        if ($nextPage == null) {
+          break;
+        } else {
+          let nextPageUrl = CommonUtils.fixUrl($nextPage.href);
+          let nextPageUrlObj = new URL(nextPageUrl);
+          let nextPagePn = new URLSearchParams(nextPageUrlObj.search);
+          if (nextPagePn.has("pn")) {
+            page = parseInt(nextPagePn.get("pn"));
+          } else {
+            break;
+          }
+        }
+        await utils.sleep(500);
+      }
+      return result;
+    }
   };
   const PanelTieBaSettingUI = {
     id: "baidu-panel-config-tieba",
@@ -2252,16 +2401,16 @@ match-attr##srcid##sp_purc_atom
                     false,
                     "default",
                     async () => {
-                      function getLoadingHTML(index, maxIndex, forumName, text, signText) {
+                      function getSignInfoHTML(index, maxIndex, forumName, text, signText) {
                         return `
-							<div>进度：${index}/${maxIndex}</div>
-							<div>吧名：${forumName}</div>
-							<div>信息：${text}</div>
-							${""}
-							`;
+											<div class="tieba-sign-info-text">进度：${index}/${maxIndex}</div>
+											<div class="tieba-sign-info-text">吧名：${forumName}</div>
+											<div class="tieba-sign-info-text">信息：${text}</div>
+											${""}
+											`;
                       }
                       Qmsg.info("正在获取所有关注吧");
-                      let likeForumList = await TieBaApi.getUserAllLikeForum();
+                      let likeForumList = await TiebaPCApi.getUserAllLinkForum();
                       if (!likeForumList) {
                         return;
                       }
@@ -2271,14 +2420,29 @@ match-attr##srcid##sp_purc_atom
                       }
                       let isStop = false;
                       let loading = Qmsg.loading(
-                        getLoadingHTML(
+                        getSignInfoHTML(
                           1,
                           likeForumList.length,
-                          likeForumList[0].forum_name,
-                          "正在获取tbs"
+                          likeForumList[0].forumName,
+                          "正在执行签到"
                         ),
                         {
                           showClose: true,
+                          isHTML: true,
+                          style: (
+                            /*css*/
+                            `
+												.qmsg-content-loading > span{
+													text-align: left;
+												}
+												.qmsg-content-loading .tieba-sign-info-text{
+													overflow: hidden;
+													white-space: nowrap;
+													text-overflow: ellipsis;
+													max-width: 65vw;
+												}
+												`
+                          ),
                           onClose() {
                             isStop = true;
                           }
@@ -2289,35 +2453,18 @@ match-attr##srcid##sp_purc_atom
                           Qmsg.info("中断");
                           return;
                         }
-                        let likeForum = likeForumList[index];
+                        let linkForumInfo = likeForumList[index];
                         loading.setHTML(
-                          getLoadingHTML(
+                          getSignInfoHTML(
                             index + 1,
                             likeForumList.length,
-                            likeForum.forum_name,
-                            "正在获取tbs"
-                          )
-                        );
-                        let tbs = await TieBaApi.getForumTbs(
-                          likeForum.forum_name
-                        );
-                        if (!tbs) {
-                          Qmsg.info("2秒后切换至下一个");
-                          await utils.sleep(2e3);
-                          continue;
-                        }
-                        Qmsg.success(`tbs ===> ${tbs}`);
-                        loading.setHTML(
-                          getLoadingHTML(
-                            index + 1,
-                            likeForumList.length,
-                            likeForum.forum_name,
+                            linkForumInfo.forumName,
                             "发送签到请求..."
                           )
                         );
                         let signResult = await TieBaApi.forumSign(
-                          likeForum.forum_name,
-                          tbs
+                          linkForumInfo.forumName,
+                          linkForumInfo.tbs
                         );
                         if (!signResult) {
                           Qmsg.info("2秒后切换至下一个");
@@ -2326,10 +2473,10 @@ match-attr##srcid##sp_purc_atom
                         }
                         if (typeof signResult["data"] === "object") {
                           loading.setHTML(
-                            getLoadingHTML(
+                            getSignInfoHTML(
                               index + 1,
                               likeForumList.length,
-                              likeForum.forum_name,
+                              linkForumInfo.forumName,
                               `今日本吧第${signResult["data"]["finfo"]["current_rank_info"]["sign_count"]}个签到`
                             )
                           );
@@ -4590,89 +4737,6 @@ match-attr##srcid##sp_purc_atom
       if (details.headers && details.headers.Cookie != null && utils.isNull(details.headers.Cookie)) {
         delete details.headers.Cookie;
       }
-    }
-  };
-  const CommonUtils = {
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args) {
-      let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
-      args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
-      });
-      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
-    },
-    /**
-     * 设置GM_getResourceText的style内容
-     * @param resourceMapData 资源数据
-     */
-    setGMResourceCSS(resourceMapData) {
-      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
-      if (typeof cssText === "string" && cssText) {
-        addStyle(cssText);
-      } else {
-        CommonUtils.addLinkNode(resourceMapData.url);
-      }
-    },
-    /**
-     * 添加<link>标签
-     * @param url
-     */
-    async addLinkNode(url) {
-      let $link = document.createElement("link");
-      $link.rel = "stylesheet";
-      $link.type = "text/css";
-      $link.href = url;
-      domutils.ready(() => {
-        document.head.appendChild($link);
-      });
-    },
-    /**
-     * 将url修复，例如只有search的链接/sss/xxx?sss=xxxx修复为https://xxx.xxx.xxx/sss/xxx?sss=xxxx
-     * @param url 需要修复的链接
-     */
-    fixUrl(url) {
-      url = url.trim();
-      if (url.match(/^http(s|):\/\//i)) {
-        return url;
-      } else {
-        if (!url.startsWith("/")) {
-          url += "/";
-        }
-        url = window.location.origin + url;
-        return url;
-      }
-    },
-    /**
-     * http转https
-     * @param url 需要修复的链接
-     */
-    fixHttps(url) {
-      if (url.startsWith("https://")) {
-        return url;
-      }
-      if (!url.startsWith("http://")) {
-        return url;
-      }
-      let urlObj = new URL(url);
-      urlObj.protocol = "https:";
-      return urlObj.toString();
     }
   };
   const GM_RESOURCE_MAP = {

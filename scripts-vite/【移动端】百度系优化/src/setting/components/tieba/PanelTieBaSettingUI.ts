@@ -5,6 +5,7 @@ import { UIButton } from "@/setting/common-components/ui-button";
 import { UISwitch } from "@/setting/common-components/ui-switch";
 import Qmsg from "qmsg";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { TiebaPCApi } from "@/main/tieba/api/TiebaPCApi";
 
 const PanelTieBaSettingUI: PopsPanelContentConfig = {
 	id: "baidu-panel-config-tieba",
@@ -323,14 +324,13 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 									async () => {
 										/**
 										 * 获取提示内容
-										 * @param {number} index
-										 * @param {number} maxIndex
-										 * @param {string} forumName
-										 * @param {string} text
-										 * @param {?string} signText
-										 * @returns
+										 * @param index
+										 * @param maxIndex
+										 * @param forumName
+										 * @param text
+										 * @param signText
 										 */
-										function getLoadingHTML(
+										function getSignInfoHTML(
 											index: number,
 											maxIndex: number,
 											forumName: string,
@@ -338,14 +338,14 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 											signText?: string
 										) {
 											return `
-							<div>进度：${index}/${maxIndex}</div>
-							<div>吧名：${forumName}</div>
-							<div>信息：${text}</div>
-							${signText ? `签到：${signText}` : ""}
-							`;
+											<div class="tieba-sign-info-text">进度：${index}/${maxIndex}</div>
+											<div class="tieba-sign-info-text">吧名：${forumName}</div>
+											<div class="tieba-sign-info-text">信息：${text}</div>
+											${signText ? `签到：${signText}` : ""}
+											`;
 										}
 										Qmsg.info("正在获取所有关注吧");
-										let likeForumList = await TieBaApi.getUserAllLikeForum();
+										let likeForumList = await TiebaPCApi.getUserAllLinkForum();
 										if (!likeForumList) {
 											return;
 										}
@@ -355,14 +355,26 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 										}
 										let isStop = false;
 										let loading = Qmsg.loading(
-											getLoadingHTML(
+											getSignInfoHTML(
 												1,
 												likeForumList.length,
-												likeForumList[0].forum_name,
-												"正在获取tbs"
+												likeForumList[0].forumName,
+												"正在执行签到"
 											),
 											{
 												showClose: true,
+												isHTML: true,
+												style: /*css*/ `
+												.qmsg-content-loading > span{
+													text-align: left;
+												}
+												.qmsg-content-loading .tieba-sign-info-text{
+													overflow: hidden;
+													white-space: nowrap;
+													text-overflow: ellipsis;
+													max-width: 65vw;
+												}
+												`,
 												onClose() {
 													isStop = true;
 												},
@@ -373,35 +385,18 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 												Qmsg.info("中断");
 												return;
 											}
-											let likeForum = likeForumList[index];
+											let linkForumInfo = likeForumList[index];
 											loading.setHTML(
-												getLoadingHTML(
+												getSignInfoHTML(
 													index + 1,
 													likeForumList.length,
-													likeForum.forum_name,
-													"正在获取tbs"
-												)
-											);
-											let tbs = await TieBaApi.getForumTbs(
-												likeForum.forum_name
-											);
-											if (!tbs) {
-												Qmsg.info("2秒后切换至下一个");
-												await utils.sleep(2000);
-												continue;
-											}
-											Qmsg.success(`tbs ===> ${tbs}`);
-											loading.setHTML(
-												getLoadingHTML(
-													index + 1,
-													likeForumList.length,
-													likeForum.forum_name,
+													linkForumInfo.forumName,
 													"发送签到请求..."
 												)
 											);
 											let signResult = await TieBaApi.forumSign(
-												likeForum.forum_name,
-												tbs
+												linkForumInfo.forumName,
+												linkForumInfo.tbs
 											);
 											if (!signResult) {
 												Qmsg.info("2秒后切换至下一个");
@@ -410,10 +405,10 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 											}
 											if (typeof signResult["data"] === "object") {
 												loading.setHTML(
-													getLoadingHTML(
+													getSignInfoHTML(
 														index + 1,
 														likeForumList.length,
-														likeForum.forum_name,
+														linkForumInfo.forumName,
 														`今日本吧第${signResult["data"]["finfo"]["current_rank_info"]["sign_count"]}个签到`
 													)
 												);
