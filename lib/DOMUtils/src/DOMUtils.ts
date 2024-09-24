@@ -11,7 +11,7 @@ class DOMUtils extends DOMUtilsEvent {
 		super(option);
 	}
 	/** 版本号 */
-	version = "2024.8.30";
+	version = "2024.9.23";
 	/**
 	 * 获取元素的属性值
 	 * @param element 目标元素
@@ -697,7 +697,12 @@ class DOMUtils extends DOMUtilsEvent {
 		if (typeof content === "string") {
 			element.insertAdjacentHTML("afterbegin", content);
 		} else {
-			element.insertBefore(content, element.firstChild);
+			let $firstChild = element.firstChild;
+			if ($firstChild == null) {
+				element.prepend(content);
+			} else {
+				element.insertBefore(content, element.firstChild);
+			}
 		}
 	}
 	/**
@@ -722,7 +727,14 @@ class DOMUtils extends DOMUtilsEvent {
 		if (typeof content === "string") {
 			element.insertAdjacentHTML("afterend", content);
 		} else {
-			element!.parentElement!.insertBefore(content, element.nextSibling);
+			let $parent = element.parentElement;
+			let $nextSlibling = element.nextSibling;
+			if (!$parent || $nextSlibling) {
+				// 任意一个不行
+				element.after(content);
+			} else {
+				element!.parentElement!.insertBefore(content, element.nextSibling);
+			}
 		}
 	}
 	/**
@@ -747,7 +759,12 @@ class DOMUtils extends DOMUtilsEvent {
 		if (typeof content === "string") {
 			element.insertAdjacentHTML("beforebegin", content);
 		} else {
-			element!.parentElement!.insertBefore(content, element);
+			let $parent = element.parentElement;
+			if (!$parent) {
+				element.before(content);
+			} else {
+				$parent.insertBefore(content, element);
+			}
 		}
 	}
 	/**
