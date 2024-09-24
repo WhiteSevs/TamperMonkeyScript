@@ -27,6 +27,12 @@ export const TiebaUniAppPost = {
 			`);
 			this.mutationRemoveWakeUpBtn();
 			PopsPanel.execMenuOnce(
+				"baidu-tieba-uni-app-post-allow-user-select",
+				() => {
+					return this.allowUserSelect();
+				}
+			);
+			PopsPanel.execMenuOnce(
 				"baidu-tieba-uni-app-post-overloadLoadMore",
 				() => {
 					this.overloadLoadMore();
@@ -103,6 +109,18 @@ export const TiebaUniAppPost = {
 	 */
 	isUniApp() {
 		return Boolean(document.querySelector("uni-app"));
+	},
+	/**
+	 * 允许用户选择文字
+	 */
+	allowUserSelect() {
+		return addStyle(/*css*/ `
+		html,body{
+			-webkit-user-select: unset !important;
+			-moz-user-select: unset !important;
+			user-select: unset !important;
+		}
+		`);
 	},
 	/**
 	 * 动态加载移除唤醒按钮，会影响页面点击，比如超链接点击无反应

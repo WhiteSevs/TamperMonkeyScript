@@ -295,6 +295,13 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 									void 0,
 									"可修复蓝色的超链接点击不能跳转网页的问题"
 								),
+								UISwitch(
+									"解除长按选中文字的限制",
+									"baidu-tieba-uni-app-post-allow-user-select",
+									true,
+									void 0,
+									"允许长按选择文字"
+								),
 							],
 						},
 					],
