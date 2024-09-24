@@ -27,7 +27,7 @@
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.6.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.0/dist/index.umd.js
 // @connect      *
 // @connect      lanzoub.com
 // @connect      lanzouc.com
@@ -12208,11 +12208,24 @@
   const indexCSS$4 = ".whitesevSuspension {\r\n	top: 0;\r\n	position: fixed;\r\n	right: 10px;\r\n	border-radius: 12px;\r\n}\r\n.whitesevSuspension .whitesevSuspensionMain {\r\n	background: #fff;\r\n	border: 1px solid #f2f2f2;\r\n	box-shadow: 0 0 15px #e4e4e4;\r\n	box-sizing: border-box;\r\n	border-radius: inherit;\r\n	height: inherit;\r\n	width: inherit;\r\n}\r\n.whitesevSuspension .whitesevSuspensionFloor {\r\n	border-bottom: 1px solid #f2f2f2;\r\n	position: relative;\r\n	box-sizing: border-box;\r\n	border-radius: inherit;\r\n	height: inherit;\r\n	width: inherit;\r\n}\r\n.whitesevSuspension .whitesevSuspensionFloor .netdisk {\r\n	background-position: center center;\r\n	background-size: 115% 115%;\r\n	background-repeat: no-repeat;\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	border-radius: inherit;\r\n	height: inherit;\r\n	width: inherit;\r\n}\r\n.whitesevSuspension .whitesevSuspensionFloor .netdisk:hover {\r\n	transition: all 300ms linear;\r\n	background-color: #e4e4e4;\r\n	transform: scale(1.1);\r\n}\r\n.whitesevPop-content p[pop] {\r\n	height: 100%;\r\n}\r\n";
   const NetDiskSuspensionConfig = {
     position: {
+      /** 悬浮按钮位置的x坐标 */
       suspensionX: GenerateData("suspensionX", DOMUtils.width(window) - 50),
+      /** 悬浮按钮位置的y坐标 */
       suspensionY: GenerateData(
         "suspensionY",
         (DOMUtils.height(window) - 50) / 2
       ),
+      /** 悬浮按钮所在位置的最大x */
+      suspensionMaxX: GenerateData(
+        "susponsionMax-x",
+        DOMUtils.width(window) - 50
+      ),
+      /** 悬浮按钮所在位置的最小y */
+      suspensionMaxY: GenerateData(
+        "suspensionMax-y",
+        DOMUtils.height(window) - 50
+      ),
+      /** 悬浮按钮是否在右边 */
       isRight: GenerateData("isRight", false)
     },
     mode: {
@@ -12347,10 +12360,10 @@
           currentSuspensionTopOffset = currentSuspensionTopOffset > maxTopOffset ? maxTopOffset : currentSuspensionTopOffset;
           currentSuspensionLeftOffset = currentSuspensionLeftOffset < 0 ? 0 : currentSuspensionLeftOffset;
           currentSuspensionTopOffset = currentSuspensionTopOffset < 0 ? 0 : currentSuspensionTopOffset;
-          if (NetDiskUI.suspension.isTopWindow()) {
-            NetDiskSuspensionConfig.position.suspensionX.value = currentSuspensionLeftOffset;
-            NetDiskSuspensionConfig.position.suspensionY.value = currentSuspensionTopOffset;
-          }
+          NetDiskSuspension.saveSuspensionPosition({
+            x: currentSuspensionLeftOffset,
+            y: currentSuspensionTopOffset
+          });
           DOMUtils.css(needDragElement, {
             left: currentSuspensionLeftOffset + "px",
             top: currentSuspensionTopOffset + "px"
@@ -12376,9 +12389,9 @@
                 NetDiskSuspensionConfig.position.isRight.value = false;
               }
             }
-            if (NetDiskUI.suspension.isTopWindow()) {
-              NetDiskSuspensionConfig.position.suspensionX.value = setCSSLeft;
-            }
+            NetDiskSuspension.saveSuspensionPosition({
+              x: setCSSLeft
+            });
             DOMUtils.css(needDragElement, {
               left: setCSSLeft + "px"
             });
@@ -12411,6 +12424,26 @@
       NetDiskUI.setGlobalRightClickMenu(needDragElement);
     },
     /**
+     * 保存悬浮按钮位置
+     * @param position
+     */
+    saveSuspensionPosition(position) {
+      if (!NetDiskUI.suspension.isTopWindow()) {
+        return;
+      }
+      if (position == null) {
+        return;
+      }
+      if (typeof position.x === "number") {
+        NetDiskSuspensionConfig.position.suspensionX.value = position.x;
+      }
+      if (typeof position.y === "number") {
+        NetDiskSuspensionConfig.position.suspensionY.value = position.y;
+      }
+      NetDiskSuspensionConfig.position.suspensionMaxX.value = NetDiskSuspensionConfig.position.suspensionMaxX.default;
+      NetDiskSuspensionConfig.position.suspensionMaxY.value = NetDiskSuspensionConfig.position.suspensionMaxY.default;
+    },
+    /**
      * 设置window的resize事件监听，来重新设置悬浮按钮的位置
      */
     setResizeEventListener() {
@@ -12432,29 +12465,82 @@
      * 设置悬浮按钮位置
      */
     setSuspensionPosition() {
-      let maxLeftOffset = DOMUtils.width(window) - NetDiskGlobalData.suspension.size.value;
-      let maxTopOffset = DOMUtils.height(window) - NetDiskGlobalData.suspension.size.value;
-      let userSetLeftOffset = NetDiskSuspensionConfig.position.suspensionX.value;
-      let userSetTopOffset = NetDiskSuspensionConfig.position.suspensionY.value;
+      const MAX_X = DOMUtils.width(window) - NetDiskGlobalData.suspension.size.value;
+      const MAX_Y = DOMUtils.height(window) - NetDiskGlobalData.suspension.size.value;
+      const LAST_MAX_X = NetDiskSuspensionConfig.position.suspensionMaxX.value;
+      const LAST_MAX_Y = NetDiskSuspensionConfig.position.suspensionMaxY.value;
+      NetDiskSuspensionConfig.position.suspensionMaxX.default = MAX_X;
+      NetDiskSuspensionConfig.position.suspensionMaxY.default = MAX_Y;
+      let suspension_X = NetDiskSuspensionConfig.position.suspensionX.value;
+      let suspension_Y = NetDiskSuspensionConfig.position.suspensionY.value;
+      if (MAX_X !== LAST_MAX_X) {
+        log.warn(`当前页面最大x和上次记录的不一致`);
+        let percent_X = suspension_X / LAST_MAX_X;
+        let recalculate_suspension_X = MAX_X * percent_X;
+        let old_position_X = suspension_X;
+        suspension_X = recalculate_suspension_X;
+        log.table([
+          {
+            介绍: "上次记录的值",
+            X: old_position_X,
+            MAX_X: LAST_MAX_X,
+            percent: percent_X
+          },
+          {
+            介绍: "当前页面的值",
+            X: suspension_X,
+            MAX_X
+          }
+        ]);
+      }
+      if (MAX_Y !== LAST_MAX_Y) {
+        log.warn(`当前页面最大y和上次记录的不一致`);
+        let percent_Y = suspension_Y / LAST_MAX_Y;
+        let recalculate_suspension_Y = MAX_Y * percent_Y;
+        let old_position_Y = suspension_Y;
+        suspension_Y = recalculate_suspension_Y;
+        log.table([
+          {
+            介绍: "上次记录的值",
+            Y: old_position_Y,
+            MAX_Y: LAST_MAX_Y,
+            percent: percent_Y
+          },
+          {
+            介绍: "当前页面的值",
+            Y: suspension_Y,
+            MAX_Y
+          }
+        ]);
+      }
+      if (suspension_X > MAX_X) {
+        log.warn("left超出最大值，重置为最大值");
+        suspension_X = MAX_X;
+      } else if (suspension_X < 0) {
+        log.warn(`left超出最小值，重置为0`);
+        suspension_X = 0;
+      }
+      if (suspension_Y > MAX_Y) {
+        log.warn("top超出最大值，重置为最大值");
+        suspension_Y = MAX_Y;
+      } else if (suspension_Y < 0) {
+        log.warn(`top超出最小值，重置为0`);
+        suspension_Y = 0;
+      }
       if (NetDiskGlobalData.suspension["suspended-button-adsorption-edge"].value) {
         if (NetDiskSuspensionConfig.position.isRight.value) {
-          userSetLeftOffset = maxLeftOffset;
+          suspension_X = MAX_X;
         } else {
-          userSetLeftOffset = 0;
-        }
-        if (userSetTopOffset > maxTopOffset) {
-          userSetTopOffset = maxTopOffset;
-        } else if (userSetTopOffset < 0) {
-          userSetTopOffset = 0;
-        }
-        if (NetDiskUI.suspension.isTopWindow()) {
-          NetDiskSuspensionConfig.position.suspensionX.value = userSetLeftOffset;
-          NetDiskSuspensionConfig.position.suspensionY.value = userSetTopOffset;
+          suspension_X = 0;
         }
       }
+      NetDiskSuspension.saveSuspensionPosition({
+        x: suspension_X,
+        y: suspension_Y
+      });
       DOMUtils.css(NetDiskUI.suspension.suspensionNode, {
-        left: userSetLeftOffset + "px",
-        top: userSetTopOffset + "px"
+        left: suspension_X + "px",
+        top: suspension_Y + "px"
       });
     },
     /**
@@ -16385,7 +16471,6 @@
     NetDiskAutoFillAccessCode.init();
     NetDiskAuthorization.init();
     NetDiskWorker.init();
-    console.log(NetDisk);
   });
 
 })(Qmsg, DOMUtils, Utils, pops);

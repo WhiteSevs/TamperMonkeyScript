@@ -1,4 +1,4 @@
-import { AnyTouch, utils } from "@/env";
+import { AnyTouch, log, utils } from "@/env";
 import { unsafeWindow } from "ViteGM";
 import { NetDiskUI } from "../../ui/NetDiskUI";
 import { NetDiskGlobalSettingView } from "../global-setting/NetDiskGlobalSettingView";
@@ -9,11 +9,24 @@ import DOMUtils from "@whitesev/domutils";
 
 export const NetDiskSuspensionConfig = {
 	position: {
+		/** 悬浮按钮位置的x坐标 */
 		suspensionX: GenerateData("suspensionX", DOMUtils.width(window) - 50),
+		/** 悬浮按钮位置的y坐标 */
 		suspensionY: GenerateData(
 			"suspensionY",
 			(DOMUtils.height(window) - 50) / 2
 		),
+		/** 悬浮按钮所在位置的最大x */
+		suspensionMaxX: GenerateData(
+			"susponsionMax-x",
+			DOMUtils.width(window) - 50
+		),
+		/** 悬浮按钮所在位置的最小y */
+		suspensionMaxY: GenerateData(
+			"suspensionMax-y",
+			DOMUtils.height(window) - 50
+		),
+		/** 悬浮按钮是否在右边 */
 		isRight: GenerateData("isRight", false),
 	},
 	mode: {
@@ -177,12 +190,10 @@ export const NetDiskSuspension = {
 				/* 不允许小于0 */
 				currentSuspensionTopOffset =
 					currentSuspensionTopOffset < 0 ? 0 : currentSuspensionTopOffset;
-				if (NetDiskUI.suspension.isTopWindow()) {
-					NetDiskSuspensionConfig.position.suspensionX.value =
-						currentSuspensionLeftOffset;
-					NetDiskSuspensionConfig.position.suspensionY.value =
-						currentSuspensionTopOffset;
-				}
+				NetDiskSuspension.saveSuspensionPosition({
+					x: currentSuspensionLeftOffset,
+					y: currentSuspensionTopOffset,
+				});
 				DOMUtils.css(needDragElement, {
 					left: currentSuspensionLeftOffset + "px",
 					top: currentSuspensionTopOffset + "px",
@@ -218,9 +229,9 @@ export const NetDiskSuspension = {
 							NetDiskSuspensionConfig.position.isRight.value = false;
 						}
 					}
-					if (NetDiskUI.suspension.isTopWindow()) {
-						NetDiskSuspensionConfig.position.suspensionX.value = setCSSLeft;
-					}
+					NetDiskSuspension.saveSuspensionPosition({
+						x: setCSSLeft,
+					});
 					DOMUtils.css(needDragElement, {
 						left: setCSSLeft + "px",
 					});
@@ -258,6 +269,29 @@ export const NetDiskSuspension = {
 		NetDiskUI.setGlobalRightClickMenu(needDragElement);
 	},
 	/**
+	 * 保存悬浮按钮位置
+	 * @param position
+	 */
+	saveSuspensionPosition(position: { x?: number; y?: number }) {
+		if (!NetDiskUI.suspension.isTopWindow()) {
+			// 必须在顶部窗口才可以保存位置
+			return;
+		}
+		if (position == null) {
+			return;
+		}
+		if (typeof position.x === "number") {
+			NetDiskSuspensionConfig.position.suspensionX.value = position.x;
+		}
+		if (typeof position.y === "number") {
+			NetDiskSuspensionConfig.position.suspensionY.value = position.y;
+		}
+		NetDiskSuspensionConfig.position.suspensionMaxX.value =
+			NetDiskSuspensionConfig.position.suspensionMaxX.default;
+		NetDiskSuspensionConfig.position.suspensionMaxY.value =
+			NetDiskSuspensionConfig.position.suspensionMaxY.default;
+	},
+	/**
 	 * 设置window的resize事件监听，来重新设置悬浮按钮的位置
 	 */
 	setResizeEventListener() {
@@ -286,44 +320,116 @@ export const NetDiskSuspension = {
 	 * 设置悬浮按钮位置
 	 */
 	setSuspensionPosition() {
-		/* 最大的left偏移*/
-		let maxLeftOffset =
+		/** 最大的left偏移*/
+		const MAX_X =
 			DOMUtils.width(window) - NetDiskGlobalData.suspension.size.value;
-		/* 最大的top偏移 */
-		let maxTopOffset =
+		/** 最大的top偏移 */
+		const MAX_Y =
 			DOMUtils.height(window) - NetDiskGlobalData.suspension.size.value;
+
+		/** 上次页面的最大left偏移 */
+		const LAST_MAX_X = NetDiskSuspensionConfig.position.suspensionMaxX.value;
+		/** 上次页面的最大top偏移 */
+		const LAST_MAX_Y = NetDiskSuspensionConfig.position.suspensionMaxY.value;
+
+		// 把上面的配置的默认值重新设置一下，不能为50
+		NetDiskSuspensionConfig.position.suspensionMaxX.default = MAX_X;
+		NetDiskSuspensionConfig.position.suspensionMaxY.default = MAX_Y;
 		/* 用户自己拖动设置的悬浮按钮left偏移 */
-		let userSetLeftOffset = NetDiskSuspensionConfig.position.suspensionX.value;
+		let suspension_X = NetDiskSuspensionConfig.position.suspensionX.value;
 
 		/* 用户自己拖动设置的悬浮按钮top偏移 */
-		let userSetTopOffset = NetDiskSuspensionConfig.position.suspensionY.value;
+		let suspension_Y = NetDiskSuspensionConfig.position.suspensionY.value;
+
+		// 根据上一次移动的位置，判断上次的最大坐标是否和当前页面的最大坐标一致
+		// 如果不一致，再根据百分比计算出当前页面的位置
+		// 然后判断是否超出最大值
+		// 超出最大值，则使用默认值
+		if (MAX_X !== LAST_MAX_X) {
+			log.warn(`当前页面最大x和上次记录的不一致`);
+			// 当前页面和上次的页面x坐标不一致
+			// 计算出百分比
+			let percent_X = suspension_X / LAST_MAX_X;
+			// 再计算值
+			let recalculate_suspension_X = MAX_X * percent_X;
+			let old_position_X = suspension_X;
+			suspension_X = recalculate_suspension_X;
+			log.table([
+				{
+					介绍: "上次记录的值",
+					X: old_position_X,
+					MAX_X: LAST_MAX_X,
+					percent: percent_X,
+				},
+				{
+					介绍: "当前页面的值",
+					X: suspension_X,
+					MAX_X: MAX_X,
+				},
+			]);
+		}
+		if (MAX_Y !== LAST_MAX_Y) {
+			log.warn(`当前页面最大y和上次记录的不一致`);
+			// 当前页面和上次的页面y坐标不一致
+			// 计算出百分比
+			let percent_Y = suspension_Y / LAST_MAX_Y;
+			// 再计算值
+			let recalculate_suspension_Y = MAX_Y * percent_Y;
+			let old_position_Y = suspension_Y;
+			suspension_Y = recalculate_suspension_Y;
+			log.table([
+				{
+					介绍: "上次记录的值",
+					Y: old_position_Y,
+					MAX_Y: LAST_MAX_Y,
+					percent: percent_Y,
+				},
+				{
+					介绍: "当前页面的值",
+					Y: suspension_Y,
+					MAX_Y: MAX_Y,
+				},
+			]);
+		}
+		if (suspension_X > MAX_X) {
+			log.warn("left超出最大值，重置为最大值");
+			/* 如果用户设置的left偏移为正的，那么是超出边界，归位设置为最大值 */
+			suspension_X = MAX_X;
+		} else if (suspension_X < 0) {
+			log.warn(`left超出最小值，重置为0`);
+			/* 如果用户设置的left偏移为负的，那么是超出边界，归位设置为0 */
+			suspension_X = 0;
+		}
+		if (suspension_Y > MAX_Y) {
+			log.warn("top超出最大值，重置为最大值");
+			/* 如果用户设置的top偏移为正的，那么是超出边界，归位设置为最大值 */
+			suspension_Y = MAX_Y;
+		} else if (suspension_Y < 0) {
+			log.warn(`top超出最小值，重置为0`);
+			/* 如果用户设置的top偏移为负的，那么是超出边界，归位设置为0 */
+			suspension_Y = 0;
+		}
 
 		if (
 			NetDiskGlobalData.suspension["suspended-button-adsorption-edge"].value
 		) {
+			// 吸附边缘，只需要该x坐标
 			/* 如果isRight为true，悬浮按钮放到最右边，否则最左边 */
 			if (NetDiskSuspensionConfig.position.isRight.value) {
-				userSetLeftOffset = maxLeftOffset;
+				suspension_X = MAX_X;
 			} else {
-				userSetLeftOffset = 0;
-			}
-			/* 如果用户设置的top偏移超出最大的top偏移，那么设置用户的偏移为默认的最大top偏移 */
-			if (userSetTopOffset > maxTopOffset) {
-				userSetTopOffset = maxTopOffset;
-			} else if (userSetTopOffset < 0) {
-				/* 如果用户设置的top偏移为负的，那么是超出边界，归位设置为0 */
-				userSetTopOffset = 0;
-			}
-
-			if (NetDiskUI.suspension.isTopWindow()) {
-				/* 当前窗口是顶部窗口，才可以保存移动的值 */
-				NetDiskSuspensionConfig.position.suspensionX.value = userSetLeftOffset;
-				NetDiskSuspensionConfig.position.suspensionY.value = userSetTopOffset;
+				suspension_X = 0;
 			}
 		}
+
+		// 再保存处理的值
+		NetDiskSuspension.saveSuspensionPosition({
+			x: suspension_X,
+			y: suspension_Y,
+		});
 		DOMUtils.css(NetDiskUI.suspension.suspensionNode, {
-			left: userSetLeftOffset + "px",
-			top: userSetTopOffset + "px",
+			left: suspension_X + "px",
+			top: suspension_Y + "px",
 		});
 	},
 	/**
