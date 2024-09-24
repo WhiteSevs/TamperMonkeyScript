@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
-// @description  更新日志: 修复isFinding不存在导致报错问题
-// @version      2024.6.20
+// @description  更新日志: 调整PC端功能在油猴菜单中设置
+// @version      2024.9.24
 // @author       WhiteSevs
 // @run-at       document-start
 // @match        *://bbs.binmt.cc/*
@@ -52,24 +52,24 @@
 	}
 	const console = unsafeWindow.console;
 	/**
-	 * @type {import("../库/Utils@deprecated/index.js")}
+	 * @type {import("./../../lib/Utils").default}
 	 */
 	const utils = (window.Utils || Utils).noConflict();
 	let $jq = null;
 	/**
-	 * @type {import("../库/any-touch/index.umd")}
+	 * @type {import("./../../lib/AnyTouch/index.umd.js")}
 	 */
 	let AnyTouch = window.AnyTouch;
 	/**
-	 * @type {import("../库/Viewer/index")}
+	 * @type {import("./../../lib/Viewer/index")}
 	 */
 	let Viewer = window.Viewer;
 	/**
-	 * @type {import("../库/js-watermark/index")}
+	 * @type {import("./../../lib/js-watermark/index")}
 	 */
 	let Watermark = window.Watermark;
 	/**
-	 * @type {import("../库/Xtiper/index")}
+	 * @type {import("./../../lib/Xtiper/index")}
 	 */
 	let xtip = window.xtip;
 
@@ -1270,19 +1270,87 @@
 	 * PC端的方法
 	 */
 	const pc = {
+		$data: {
+			/**
+			 * @type {import("../../lib/Utils/dist/types/src/UtilsGMMenu.js").GMMenu}
+			 */
+			menu: null,
+		},
 		main() {
+			this.$data.menu = new utils.GM_Menu({
+				data: [
+					{
+						key: "pc-autoSignIn",
+						text: "自动签到",
+					},
+					{
+						key: "pc-latestReleaseForumPost",
+						text: "导航栏-新增最新发表",
+					},
+					{
+						key: "pc-guideOptimization",
+						text: "导读-页面美化",
+					},
+					{
+						key: "pc-detectUserOnlineStatus",
+						text: "帖子-探测用户在线状态",
+					},
+					{
+						key: "pc-postBrowsingOptimization",
+						text: "帖子-页面美化",
+					},
+					{
+						key: "pc-post-attachmentClickReminder",
+						text: "帖子-附件点击提醒",
+					},
+					{
+						key: "pc-post-collectionForumPost",
+						text: "帖子-右侧悬浮工具栏-新增收藏按钮",
+					},
+					{
+						key: "pc-post-optimizationImageView",
+						text: "帖子-图片查看优化",
+					},
+					{
+						key: "pc-post-loadNextComments",
+						text: "帖子-自动加载下一页",
+					},
+					{
+						key: "pc-post-quickReply",
+						text: "帖子-右侧工具栏-快捷回复",
+					},
+					{
+						key: "pc-post-showUserLevel",
+						text: "帖子-用户信息-显示用户等级",
+					},
+					{
+						key: "pc-identifyLinks",
+						text: "帖子-链接文字转超链接",
+					},
+				],
+				GM_getValue,
+				GM_setValue,
+				GM_registerMenuCommand,
+				GM_unregisterMenuCommand,
+			});
 			/* 电脑版函数按顺序加载 */
 			/* 禁止自动执行的函数(这些函数在其它地方调用) */
-			const notRunFunc = ["main"];
-			Object.keys(pc).forEach((key) => {
-				if (typeof pc[key] !== "function" || notRunFunc.indexOf(key) != -1) {
+			const notRunFuncNameList = ["main"];
+			Object.keys(pc).forEach((funcName) => {
+				if (typeof pc[funcName] !== "function") {
 					return;
 				}
-				utils.tryCatch().run(pc[key], this);
+				if (notRunFuncNameList.includes(funcName)) {
+					return;
+				}
+				// pc[funcName]()
+				utils.tryCatch().run(pc[funcName], pc);
 			});
 		},
+		/**
+		 * 兼容PC端 popups的toast
+		 */
 		initPopups() {
-			/* 兼容PC端 popups的toast */
 			popups.toast = (text) => {
 				if (typeof text == "string") {
 					xtips.toast(text);
@@ -1297,10 +1365,12 @@
 		 * 附件点击提醒
 		 */
 		attachmentClickReminder() {
+			if (!this.$data.menu.getEnable("pc-post-attachmentClickReminder")) {
+				return;
+			}
 			if (!window.location.href.match(DOM_CONFIG.urlRegexp.forumPost)) {
 				return;
 			}
-
 			/**
 			 * 处理元素内的a标签的点击
 			 * @param {HTMLElement} item
@@ -1366,8 +1436,10 @@
 				});
 			});
 		},
+		/**
+		 * 右侧工具栏-悬浮按钮-添加收藏帖子功能
+		 */
 		collectionForumPost() {
-			/* 悬浮按钮-添加收藏帖子功能 */
 			if (!window.location.href.match(DOM_CONFIG.urlRegexp.forumPost)) {
 				return;
 			}
@@ -1394,22 +1466,21 @@
 			`;
 			old_Suspended.insertBefore(new_collect, old_Suspended.children[0]);
 		},
+		/**
+		 * 探测用户在线状态
+		 */
 		detectUserOnlineStatus() {
-			/* 探测用户在线状态 */
-			if (
-				!window.location.href.match(DOM_CONFIG.urlRegexp.forumPostPC) ||
-				!GM_getValue("detectUserOnlineStatus", false)
-			) {
+			if (!this.$data.menu.getEnable("pc-detectUserOnlineStatus")) {
+				return;
+			}
+			if (!window.location.href.match(DOM_CONFIG.urlRegexp.forumPostPC)) {
 				return;
 			}
 			console.log("探测用户在线状态");
 			var quanju = [];
 			var cishu = 0;
-			for (
-				var favatar = document.getElementsByClassName("pls favatar"), index = 0;
-				index < favatar.length;
-				index++
-			) {
+			var favatar = document.querySelectorAll(".pls.favatar");
+			for (var index = 0; index < favatar.length; index++) {
 				var sendMessage = favatar[index].getElementsByClassName("comiis_o cl");
 				if (sendMessage.length !== 0) {
 					var sendmessageurl = sendMessage[0].getElementsByTagName("a")[1].href;
@@ -1438,24 +1509,27 @@
 				}
 			}
 		},
+		/**
+		 * 导读浏览优化
+		 */
 		guideOptimization() {
-			/* 导读浏览优化 */
+			if (!this.$data.menu.getEnable("pc-guideOptimization")) {
+				return;
+			}
 			if (!window.location.href.match(DOM_CONFIG.urlRegexp.forumGuideUrl)) {
 				return;
 			}
-			if (!GM_getValue("guideOptimization", false)) {
-				return;
-			}
-			GM_addStyle(`table>tbody[id^=normal]>tr{display:none}
-      .xst{font-size:15px}
-      td.author_img{width:50px;padding:15px 0}
-      td.author_img img{width:40px;height:40px;border-radius:50%}
-      .list_author{margin-top:2px;color:#999;font-size:12px}
-      .bankuai_tu_by a{color:#999!important}
-      .bankuai_tu_by img{height:16px;margin:1px 1px 0 0;vertical-align:top}
-      tbody a:hover{text-decoration:none;color:#3498db}
-      .byg_th_align em+a{margin-right:5px}
-      `);
+			GM_addStyle(`
+			table>tbody[id^=normal]>tr{display:none}
+			.xst{font-size:15px}
+			td.author_img{width:50px;padding:15px 0}
+			td.author_img img{width:40px;height:40px;border-radius:50%}
+			.list_author{margin-top:2px;color:#999;font-size:12px}
+			.bankuai_tu_by a{color:#999!important}
+			.bankuai_tu_by img{height:16px;margin:1px 1px 0 0;vertical-align:top}
+			tbody a:hover{text-decoration:none;color:#3498db}
+			.byg_th_align em+a{margin-right:5px}
+			`);
 			let forumList = $jq(".bm_c table tbody");
 			forumList.each((index, item) => {
 				let tableNode = $jq(item);
@@ -1513,8 +1587,13 @@
 				tableNode.html(newListNode);
 			});
 		},
+		/**
+		 * 贴内图片查看优化
+		 */
 		imageViewingOptimizationInThePost() {
-			/* 贴内图片查看优化 */
+			if (!this.$data.menu.getEnable("pc-post-collectionForumPost")) {
+				return;
+			}
 			if (!window.location.href.match(DOM_CONFIG.urlRegexp.forumPost)) {
 				return;
 			}
@@ -1600,8 +1679,13 @@
 				});
 			});
 		},
+		/**
+		 * 最新发表
+		 */
 		latestReleaseForumPost() {
-			/* 最新发表 */
+			if (!this.$data.menu.getEnable("pc-latestReleaseForumPost")) {
+				return;
+			}
 			var latestReleaseNode = $jq(
 				`<li id="latest_publication"><a href="https://bbs.binmt.cc/forum.php?mod=guide&view=newthread" hidefocus="true" title="最新发表">最新发表</a></li>`
 			);
@@ -1623,6 +1707,9 @@
 		 * 加载下一页评论
 		 */
 		loadNextComments() {
+			if (!this.$data.menu.getEnable("pc-post-loadNextComments")) {
+				return;
+			}
 			if (!window.location.href.match(DOM_CONFIG.urlRegexp.forumPost)) {
 				return;
 			}
@@ -1715,48 +1802,26 @@
 			};
 			$jq(document).on("scroll", scrollEvent);
 		},
-		loadPCMenu() {
-			/* 注册PC端油猴菜单 */
-			new utils.GM_Menu({
-				data: [
-					{
-						key: "detectUserOnlineStatus",
-						text: "探测用户在线状态",
-					},
-					{
-						key: "postBrowsingOptimization",
-						text: "帖子浏览优化",
-					},
-					{
-						key: "guideOptimization",
-						text: "导读浏览优化",
-					},
-				],
-				GM_getValue,
-				GM_setValue,
-				GM_registerMenuCommand,
-				GM_unregisterMenuCommand,
-			});
-		},
 		/**
 		 * 帖子浏览优化
 		 */
 		postBrowsingOptimization() {
+			if (!this.$data.menu.getEnable("pc-postBrowsingOptimization")) {
+				return;
+			}
 			if (!window.location.href.match(DOM_CONFIG.urlRegexp.forumPost)) {
 				return;
 			}
-			if (!GM_getValue("postBrowsingOptimization", false)) {
-				return;
-			}
 			let optimizationCSS = `
-          .pls .avatar img,
-          .avtm img{
-            border-radius: 10%;
-          }
-          .pls .avatar img{
-            width: 90px;
-          }
-          `; /* 优化的CSS */
+			.pls .avatar img,
+			.avtm img{
+				border-radius: 10%;
+			}
+			.pls .avatar img{
+				width: 90px;
+			}
+			`;
+			/* 优化的CSS */
 			GM_addStyle(optimizationCSS);
 			document.querySelectorAll("#postlist .comiis_vrx").forEach((item) => {
 				let leftTdNode = item.querySelector(
@@ -1778,13 +1843,14 @@
 				}
 			});
 			GM_addStyle(`
-      .hljs{text-align:left}
-      .hljs ol{margin:0 0 0 10px;padding:10px 10px}
-      .hljs li{padding-left:10px;list-style-type:decimal-leading-zero;font-family:Monaco,Consolas,'Lucida Console','Courier New',serif;font-size:12px;line-height:1.8em}
-      .hljs li:hover{background:#2c313c}
-      .hljs li::marker{unicode-bidi:isolate;font-variant-numeric:tabular-nums;text-transform:none;text-indent:0!important;text-align:start!important;text-align-last:start!important}
-      .hljs em[onclick^=copycode]{color:#fff;background:#246fff;margin:5px 10px;border-radius:3px;padding:0 5px;cursor:pointer;height:32px;line-height:32px;display:inline-flex}
-      .hljs .code-select-language{height:32px;line-height:32px;font-size:14px;border:1px solid #5c5c5c;border-radius:5px;text-align:center;outline:0}`);
+			.hljs{text-align:left}
+			.hljs ol{margin:0 0 0 10px;padding:10px 10px}
+			.hljs li{padding-left:10px;list-style-type:decimal-leading-zero;font-family:Monaco,Consolas,'Lucida Console','Courier New',serif;font-size:12px;line-height:1.8em}
+			.hljs li:hover{background:#2c313c}
+			.hljs li::marker{unicode-bidi:isolate;font-variant-numeric:tabular-nums;text-transform:none;text-indent:0!important;text-align:start!important;text-align-last:start!important}
+			.hljs em[onclick^=copycode]{color:#fff;background:#246fff;margin:5px 10px;border-radius:3px;padding:0 5px;cursor:pointer;height:32px;line-height:32px;display:inline-flex}
+			.hljs .code-select-language{height:32px;line-height:32px;font-size:14px;border:1px solid #5c5c5c;border-radius:5px;text-align:center;outline:0}
+			`);
 			$jq(document.head).append(
 				$jq(
 					`<link rel="stylesheet" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-d/highlight.js/11.4.0/styles/github-dark.min.css">`
@@ -1863,8 +1929,13 @@
 				},
 			});
 		},
+		/**
+		 * 快捷回复
+		 */
 		quickReply() {
-			/* 快捷回复 */
+			if (!this.$data.menu.getEnable("pc-post-quickReply")) {
+				return;
+			}
 			if (!window.location.href.match(DOM_CONFIG.urlRegexp.forumPost)) {
 				return;
 			}
@@ -1877,8 +1948,10 @@
 					);
 				};
 		},
+		/**
+		 * 修复电脑版未加载的js资源
+		 */
 		async repairPCNoLoadResource() {
-			/* 修复电脑版未加载的js资源 */
 			await GM_asyncLoadScriptNode(
 				"https://cdn-bbs.mt2.cn/static/js/smilies.js?x6L",
 				false
@@ -1888,8 +1961,13 @@
 				false
 			);
 		},
+		/**
+		 * 显示用户具体等级
+		 */
 		showUserLevel() {
-			/* 显示用户具体等级 */
+			if (!this.$data.menu.getEnable("pc-post-showUserLevel")) {
+				return;
+			}
 			document.querySelectorAll(".pls.favatar").forEach((userAvatarItem) => {
 				let userLevel = "0级";
 				let userInfo = userAvatarItem.querySelector("tr");
@@ -1935,10 +2013,16 @@
 				userInfo.appendChild(userLevelText);
 			});
 		},
+		/**
+		 * 执行手机端函数
+		 */
 		runMobileFunc() {
-			/* 执行手机端函数 */
-			utils.tryCatch().run(mobileRepeatFunc.identifyLinks, mobileRepeatFunc);
-			utils.tryCatch().run(mobile.autoSignIn, mobile);
+			if (this.$data.menu.getEnable("pc-identifyLinks")) {
+				utils.tryCatch().run(mobileRepeatFunc.identifyLinks, mobileRepeatFunc);
+			}
+			if (this.$data.menu.getEnable("pc-autoSignIn")) {
+				utils.tryCatch().run(mobile.autoSignIn, mobile);
+			}
 		},
 	};
 
