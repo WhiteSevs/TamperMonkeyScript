@@ -110,7 +110,7 @@ declare class Pops {
             appendHead($ele: HTMLElement): void;
             appendBody($ele: HTMLElement): void;
             isShow(element: HTMLElement): boolean;
-            showElement(element: HTMLElement, parent?: HTMLElement | ShadowRoot): {
+            showElement($ele: HTMLElement, ownParent?: Node): {
                 cloneNode: HTMLElement;
                 recovery(): void;
             };

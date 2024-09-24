@@ -259,6 +259,7 @@ export class PopsSearchSuggestion {
 					capture: true,
 				}
 			) {
+				/* 必须是input或者textarea才有input事件 */
 				if (
 					!(
 						config.inputTarget instanceof HTMLInputElement ||
@@ -544,7 +545,24 @@ export class PopsSearchSuggestion {
 				}
 				// 文档最大宽度
 				let documentWidth = popsDOMUtils.width(document);
-				if (config.position === "top") {
+
+				let position = config.position;
+				if (config.position === "auto") {
+					// 需目标高度+搜索建议框高度大于文档高度，则显示在上面
+					let targetBottom = targetRect.bottom;
+					let searchSuggestionContainerHeight = popsDOMUtils.height(
+						SearchSuggestion.$el.$hintULContainer
+					);
+					if (targetBottom + searchSuggestionContainerHeight > documentHeight) {
+						// 在上面
+						position = "top";
+					} else {
+						// 在下面
+						position = "bottom";
+						SearchSuggestion.$el.$hintULContainer.removeAttribute("data-top");
+					}
+				}
+				if (position === "top") {
 					if (config.positionTopToReverse) {
 						SearchSuggestion.$el.$hintULContainer.setAttribute(
 							"data-top-reverse",
@@ -555,7 +573,7 @@ export class PopsSearchSuggestion {
 					SearchSuggestion.$el.$hintULContainer.style.top = "";
 					SearchSuggestion.$el.$hintULContainer.style.bottom =
 						documentHeight - targetRect.top + config.topDistance + "px";
-				} else if (config.position === "bottom") {
+				} else if (position === "bottom") {
 					// 在下面
 					SearchSuggestion.$el.$hintULContainer.removeAttribute(
 						"data-top-reverse"
@@ -563,31 +581,6 @@ export class PopsSearchSuggestion {
 					SearchSuggestion.$el.$hintULContainer.style.bottom = "";
 					SearchSuggestion.$el.$hintULContainer.style.top =
 						targetRect.height + targetRect.top + config.topDistance + "px";
-				} else if (config.position === "auto") {
-					// 自动判断
-					if (
-						targetRect.bottom +
-							popsDOMUtils.height(SearchSuggestion.$el.$hintULContainer) >
-						documentHeight
-					) {
-						if (config.positionTopToReverse) {
-							SearchSuggestion.$el.$hintULContainer.setAttribute(
-								"data-top-reverse",
-								"true"
-							);
-						}
-						// 超出浏览器高度了，自动转换为上面去
-						SearchSuggestion.$el.$hintULContainer.style.top = "";
-						SearchSuggestion.$el.$hintULContainer.style.bottom =
-							documentHeight - targetRect.top + config.topDistance + "px";
-					} else {
-						SearchSuggestion.$el.$hintULContainer.removeAttribute("data-top");
-						SearchSuggestion.$el.$hintULContainer.style.bottom = "";
-						SearchSuggestion.$el.$hintULContainer.style.top =
-							targetRect.height + targetRect.top + config.topDistance + "px";
-					}
-				} else {
-					throw new TypeError("未知设置的位置" + config.position);
 				}
 				let hintUIWidth = popsDOMUtils.width(
 					SearchSuggestion.$el.$hintULContainer

@@ -1984,30 +1984,42 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 	}
 	/**
 	 * 用于显示元素并获取它的高度宽度等其它属性
-	 * @param element
+	 * @param $ele
 	 * @param parent 父元素
 	 */
-	showElement(
-		element: HTMLElement,
-		parent: HTMLElement | ShadowRoot = PopsCore.document.documentElement
-	) {
+	showElement($ele: HTMLElement, ownParent?: Node) {
 		/** 克隆元素 */
-		let cloneNode = element.cloneNode(true) as HTMLElement;
-		cloneNode.setAttribute(
+		let $cloneNode = $ele.cloneNode(true) as HTMLElement;
+		$cloneNode.setAttribute(
 			"style",
 			"visibility: hidden !important;display:block !important;"
 		);
-		parent.appendChild(cloneNode);
+		let $parent: Node = PopsCore.document.documentElement;
+		// 这里需要的是先获取元素的父节点，把元素同样添加到父节点中
+		let $root = $ele.getRootNode();
+		if (ownParent == null) {
+			if ($root == $ele) {
+				// 未添加到任意节点中，那么直接添加到页面中去
+				$parent = PopsCore.document.documentElement;
+			} else {
+				// 添加到父节点中
+				$parent = $root;
+			}
+		} else {
+			// 自定义的父节点
+			$parent = ownParent;
+		}
+		$parent.appendChild($cloneNode);
 		return {
 			/**
 			 * 强制显示的克隆的元素
 			 */
-			cloneNode: cloneNode,
+			cloneNode: $cloneNode,
 			/**
 			 * 恢复修改的style
 			 */
 			recovery() {
-				cloneNode.remove();
+				$cloneNode.remove();
 			},
 		};
 	}

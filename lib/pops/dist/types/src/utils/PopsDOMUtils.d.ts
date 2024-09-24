@@ -596,10 +596,10 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
     isShow(element: HTMLElement): boolean;
     /**
      * 用于显示元素并获取它的高度宽度等其它属性
-     * @param element
+     * @param $ele
      * @param parent 父元素
      */
-    showElement(element: HTMLElement, parent?: HTMLElement | ShadowRoot): {
+    showElement($ele: HTMLElement, ownParent?: Node): {
         /**
          * 强制显示的克隆的元素
          */

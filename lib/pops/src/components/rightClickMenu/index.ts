@@ -286,16 +286,8 @@ export class PopsRightClickMenu {
 			 * @param y
 			 */
 			getOffset(menuElement: HTMLElement, x: number, y: number) {
-				let menuElementWidth = popsDOMUtils.width(
-					menuElement,
-					void 0,
-					$shadowRoot
-				);
-				let menuElementHeight = popsDOMUtils.height(
-					menuElement,
-					void 0,
-					$shadowRoot
-				);
+				let menuElementWidth = popsDOMUtils.width(menuElement);
+				let menuElementHeight = popsDOMUtils.height(menuElement);
 				/* left最大偏移 */
 				let maxLeftOffset =
 					popsDOMUtils.width(globalThis) - menuElementWidth - 1;
