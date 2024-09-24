@@ -16,7 +16,9 @@ export interface PopsPanelOwnDetails extends PopsPanelCommonDetails {
 	/**
 	 * （可选）自定义属性
 	 */
-	props?: HTMLElement;
+	props?: {
+		[K in keyof HTMLElement]?: HTMLElement[K];
+	};
 	/**
 	 * 类型
 	 */

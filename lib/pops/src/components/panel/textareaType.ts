@@ -11,11 +11,15 @@ export interface PopsPanelTextAreaDetails extends PopsPanelCommonDetails {
 	/**
 	 * （可选）自定义元素属性
 	 */
-	attributes?: any;
+	attributes?: {
+		[key: string]: any;
+	};
 	/**
 	 * （可选）自定义属性
 	 */
-	props?: HTMLElement;
+	props?: {
+		[K in keyof HTMLElement]?: HTMLElement[K];
+	};
 	/**
 	 * 显示在左边的文字
 	 */

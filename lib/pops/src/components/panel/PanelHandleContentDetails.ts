@@ -185,7 +185,7 @@ export const PanelHandleContentDetails = () => {
 				return;
 			}
 			Object.keys(props).forEach((propName) => {
-				(element as any)[propName] = props[propName];
+				Reflect.set(element, propName, props[propName]);
 			});
 		},
 		/**
