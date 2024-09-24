@@ -19,13 +19,14 @@ export const NetDiskAutoFillAccessCode = {
 	$data: {
 		/**
 		 * 当前的网盘数据
-		 * @type {?NetDiskAutoFillAccessCodeOption}
 		 */
 		netDiskInfo: null as any as NetDiskAutoFillAccessCodeOption,
 		/**
 		 * 自动输入访问码是否开启
 		 */
-		enable: NetDiskGlobalData.function.autoFillAccessCode.value,
+		get enable() {
+			return NetDiskGlobalData.function.autoFillAccessCode.value;
+		},
 	},
 	/**
 	 * 初始化

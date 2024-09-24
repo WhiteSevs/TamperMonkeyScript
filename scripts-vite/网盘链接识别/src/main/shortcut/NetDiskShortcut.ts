@@ -1,8 +1,7 @@
 import { log } from "@/env";
 import { ShortCut, type ShortCutOption } from "@/utils/ShortCut";
 import { NetDiskUI } from "../ui/NetDiskUI";
-import { NetDiskUserRule } from "../rule/user-rule/NetDiskUserRule";
-import { NetDiskView_setting } from "../ui/view/NetDiskView_setting";
+import { NetDiskGlobalSettingView } from "../view/global-setting/NetDiskGlobalSettingView";
 import { NetDiskUserRuleUI } from "../rule/user-rule/NetDiskUserRuleUI";
 
 export const NetDiskShortcut = {
@@ -16,7 +15,7 @@ export const NetDiskShortcut = {
 				target: "window",
 				callback: () => {
 					log.info(`【打开】⚙ 设置`);
-					NetDiskView_setting.show();
+					NetDiskGlobalSettingView.show();
 				},
 			},
 			"netdisk-keyboard-open-history-matching-records": {
@@ -24,13 +23,6 @@ export const NetDiskShortcut = {
 				callback: () => {
 					log.info("【打开】⚙ 历史匹配记录");
 					NetDiskUI.netDiskHistoryMatch.show();
-				},
-			},
-			"netdisk-keyboard-open-accesscode-rule": {
-				target: "window",
-				callback: () => {
-					log.info("【打开】⚙ 访问码规则");
-					NetDiskUI.accessCodeRule.show();
 				},
 			},
 			"netdisk-keyboard-open-user-rule": {

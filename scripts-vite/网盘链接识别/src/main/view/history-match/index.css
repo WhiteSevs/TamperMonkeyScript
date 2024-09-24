@@ -1,0 +1,130 @@
+.whitesevPopNetDiskHistoryMatch .pops-confirm-content ul {
+}
+.whitesevPopNetDiskHistoryMatch .pops-confirm-content li {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	border-radius: 10px;
+	box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%),
+		0 1.3px 2.5px rgb(0 0 0 / 10%), 0 2.2px 4.5px rgb(0 0 0 / 12%),
+		0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);
+	margin: 20px 10px;
+	padding: 10px;
+}
+.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search {
+	height: 11%;
+}
+.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-table {
+	height: calc(85% - 40px);
+	overflow: auto;
+}
+.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-page {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-top: 10px;
+}
+.whitesevPopNetDiskHistoryMatch
+	.pops-confirm-content
+	.netdiskrecord-search
+	input {
+	border: none;
+	border-bottom: 1px solid #000000;
+	padding: 0px 5px;
+	line-height: 28px;
+	width: -moz-available;
+	width: -webkit-fill-available;
+	width: fill-available;
+	margin: 5px 5px 0px 5px;
+	background: none;
+}
+.whitesevPopNetDiskHistoryMatch
+	.pops-confirm-content
+	.netdiskrecord-search
+	input:focus-visible {
+	outline: none;
+	border-bottom: 1px solid #0009ff;
+}
+.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link {
+}
+.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link a {
+	color: #ff4848;
+	font-size: 0.8em;
+	border: none;
+	word-break: break-word;
+}
+.whitesevPopNetDiskHistoryMatch
+	.pops-confirm-content
+	.netdiskrecord-link
+	a[isvisited="true"] {
+	color: #8b8888;
+}
+.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon {
+}
+.whitesevPopNetDiskHistoryMatch
+	.pops-confirm-content
+	.netdiskrecord-icon
+	.netdisk-icon-img {
+	width: 28px;
+	height: 28px;
+	min-width: 28px;
+	min-height: 28px;
+	font-size: 0.8em;
+	border-radius: 10px;
+	box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%),
+		0 1.3px 2.5px rgb(0 0 0 / 10%), 0 2.2px 4.5px rgb(0 0 0 / 12%),
+		0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);
+}
+.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url {
+	color: #000;
+}
+.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url {
+	color: #000;
+}
+.whitesevPopNetDiskHistoryMatch
+	.pops-confirm-content
+	.netdiskrecord-functions
+	button.btn-delete {
+	background: #263cf3;
+	color: #fff;
+}
+.whitesevPopNetDiskHistoryMatch
+	.pops-confirm-content
+	.netdiskrecord-functions
+	button.btn-delete:active {
+	background: #6e7be8;
+}
+.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link,
+.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon,
+.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url,
+.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url,
+.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time,
+.whitesevPopNetDiskHistoryMatch
+	.pops-confirm-content
+	.netdiskrecord-update-time,
+.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url-title,
+.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions {
+	display: flex;
+	margin: 5px 0px;
+}
+.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link p,
+.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon p,
+.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url p,
+.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url p,
+.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time p,
+.whitesevPopNetDiskHistoryMatch
+	.pops-confirm-content
+	.netdiskrecord-update-time
+	p,
+.whitesevPopNetDiskHistoryMatch
+	.pops-confirm-content
+	.netdiskrecord-url-title
+	p,
+.whitesevPopNetDiskHistoryMatch
+	.pops-confirm-content
+	.netdiskrecord-functions
+	p {
+	min-width: 80px;
+	max-width: 80px;
+	align-self: center;
+}

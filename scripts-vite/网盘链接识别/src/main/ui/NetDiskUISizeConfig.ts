@@ -1,11 +1,6 @@
-import { PopsSizeConfig } from "../pops/NetDiskPops";
 import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 
-export const NetDiskUISizeConfig = <
-	{
-		[key: string]: PopsSizeConfig;
-	}
->{
+export const NetDiskUISizeConfig = {
 	/**
 	 * 天翼云需要登录的提示
 	 */
@@ -76,13 +71,21 @@ export const NetDiskUISizeConfig = <
 	 */
 	mainViewSmallWindow: {
 		PC: {
-			width:
-				NetDiskGlobalData.smallWindow["netdisk-ui-small-window-width"].value + "px",
+			get width() {
+				return (
+					NetDiskGlobalData.smallWindow["netdisk-ui-small-window-width"].value +
+					"px"
+				);
+			},
 			height: "auto",
 		},
 		Mobile: {
-			width:
-				NetDiskGlobalData.smallWindow["netdisk-ui-small-window-width"].value + "px",
+			get width() {
+				return (
+					NetDiskGlobalData.smallWindow["netdisk-ui-small-window-width"].value +
+					"px"
+				);
+			},
 			height: "auto",
 		},
 	},
@@ -201,6 +204,32 @@ export const NetDiskUISizeConfig = <
 		Mobile: {
 			width: "70vw",
 			height: "45vh",
+		},
+	},
+	/**
+	 * 网站规则弹窗
+	 */
+	websiteRuleView: {
+		PC: {
+			width: "45vw",
+			height: "65vh",
+		},
+		Mobile: {
+			width: "88vw",
+			height: "60vh",
+		},
+	},
+	/**
+	 * 添加|编辑网站规则弹窗
+	 */
+	websiteEditRuleView: {
+		PC: {
+			width: "45vw",
+			height: "65vh",
+		},
+		Mobile: {
+			width: "88vw",
+			height: "60vh",
 		},
 	},
 };

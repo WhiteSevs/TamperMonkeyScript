@@ -261,7 +261,8 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 								UISelect(
 									"排序规则",
 									NetDiskGlobalData.popsFolder["pops-folder-sort-is-desc"].KEY,
-									NetDiskGlobalData.popsFolder["pops-folder-sort-is-desc"].default,
+									NetDiskGlobalData.popsFolder["pops-folder-sort-is-desc"]
+										.default,
 									[
 										{
 											value: false,
@@ -407,10 +408,12 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 								),
 								UISwitch(
 									"吸附边缘",
-									NetDiskGlobalData.suspension["suspended-button-adsorption-edge"]
-										.KEY,
-									NetDiskGlobalData.suspension["suspended-button-adsorption-edge"]
-										.default,
+									NetDiskGlobalData.suspension[
+										"suspended-button-adsorption-edge"
+									].KEY,
+									NetDiskGlobalData.suspension[
+										"suspended-button-adsorption-edge"
+									].default,
 									void 0,
 									"移动悬浮按钮松开后自动吸附边缘"
 								),
@@ -590,14 +593,16 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 								UISwitch(
 									"匹配input标签的内容",
 									NetDiskGlobalData.match.toBeMatchedWithInputElementValue.KEY,
-									NetDiskGlobalData.match.toBeMatchedWithInputElementValue.default,
+									NetDiskGlobalData.match.toBeMatchedWithInputElementValue
+										.default,
 									void 0,
 									"提取页面中的&lt;input&gt;的内容进行匹配"
 								),
 								UISwitch(
 									"匹配textarea标签的内容",
 									NetDiskGlobalData.match.toBeMatchedTextAreaElementValue.KEY,
-									NetDiskGlobalData.match.toBeMatchedTextAreaElementValue.default,
+									NetDiskGlobalData.match.toBeMatchedTextAreaElementValue
+										.default,
 									void 0,
 									"提取页面中的&lt;textarea&gt;的内容进行匹配"
 								),
@@ -637,7 +642,8 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 								UISwitch(
 									"观察器：characterData",
 									NetDiskGlobalData.match["mutationObserver-characterData"].KEY,
-									NetDiskGlobalData.match["mutationObserver-characterData"].default,
+									NetDiskGlobalData.match["mutationObserver-characterData"]
+										.default,
 									void 0,
 									"节点内容或节点文本的变动"
 								),
@@ -691,7 +697,8 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 								),
 								UISwitch(
 									"获取重定向后的直链",
-									NetDiskGlobalData.function.getTheDirectLinkAfterRedirection.KEY,
+									NetDiskGlobalData.function.getTheDirectLinkAfterRedirection
+										.KEY,
 									NetDiskGlobalData.function.getTheDirectLinkAfterRedirection
 										.default,
 									void 0,
@@ -712,7 +719,8 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 							forms: [
 								UISwitch(
 									"排除分享码",
-									NetDiskGlobalData.aboutShareCode.excludeIdenticalSharedCodes.KEY,
+									NetDiskGlobalData.aboutShareCode.excludeIdenticalSharedCodes
+										.KEY,
 									NetDiskGlobalData.aboutShareCode.excludeIdenticalSharedCodes
 										.default,
 									void 0,
@@ -774,7 +782,7 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 									NetDiskShortcut.shortCut
 								),
 								UIButtonShortCut(
-									"【打开】⚙ 用户自定义规则",
+									"【打开】⚙ 自定义规则",
 									"",
 									"netdisk-keyboard-open-user-rule",
 									void 0,
@@ -783,7 +791,16 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 									NetDiskShortcut.shortCut
 								),
 								UIButtonShortCut(
-									"【打开】⚙ 主动识别文本",
+									"【打开】⚙ 网站规则",
+									"",
+									"netdisk-keyboard-website-rule",
+									void 0,
+									"暂无快捷键",
+									"default",
+									NetDiskShortcut.shortCut
+								),
+								UIButtonShortCut(
+									"【打开】⚙ 识别文本",
 									"",
 									"netdisk-keyboard-open-proactively-recognize-text",
 									void 0,

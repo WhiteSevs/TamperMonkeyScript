@@ -5,12 +5,11 @@ export const NetDiskRule_chengtong: NetDiskRuleConfig = {
 	rule: <NetDiskMatchRuleOption[]>[
 		/* d */
 		{
-			link_innerText: `(ct.ghpym.com|pan.jc-box.com|download.jamcz.com)/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
-			link_innerHTML: `(ct.ghpym.com|pan.jc-box.com|download.jamcz.com)/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
+			link_innerText: `(pan.jc-box.com|download.jamcz.com)/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
+			link_innerHTML: `(pan.jc-box.com|download.jamcz.com)/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
 			shareCode:
-				/(ct.ghpym.com|pan.jc-box.com|download.jamcz.com)\/d\/([0-9a-zA-Z\-_]{8,26})/gi,
-			shareCodeNeedRemoveStr:
-				/(ct.ghpym.com|pan.jc-box.com|download.jamcz.com)\/d\//gi,
+				/(pan.jc-box.com|download.jamcz.com)\/d\/([0-9a-zA-Z\-_]{8,26})/gi,
+			shareCodeNeedRemoveStr: /(pan.jc-box.com|download.jamcz.com)\/d\//gi,
 			checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
 			accessCode: /([0-9a-zA-Z]{4,6})/gi,
 			paramMatch: /([a-zA-Z0-9\.]+)\/d\//i,

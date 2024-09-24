@@ -1,16 +1,26 @@
 import { log } from "@/env";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
-import { NetDiskUI } from "../NetDiskUI";
+import { NetDiskUI } from "../../ui/NetDiskUI";
 import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/indexType";
+import indexCSS from "./index.css?raw";
 
+/** 单文件配置 */
 type NetDiskOneFileDetails = {
+	// 文件标题
 	title: string;
+	// 文件名
 	fileName: string;
+	// 文件类型（可选）
 	fileType?: string;
+	// 文件大小（可选），可以是字符串或数字形式
 	fileSize?: string | number;
+	// 文件下载链接
 	downloadUrl: string;
+	// 文件上传时间（可选），可以是字符串或数字形式
 	fileUploadTime?: string | number;
+	// 文件最新时间（可选），可以是字符串或数字形式
 	fileLatestTime?: string | number;
+	// 点击回调函数（可选），参数为当前文件的详细信息
 	clickCallBack?: (_fileDetails_: {
 		title: string;
 		fileName: string;
@@ -22,20 +32,7 @@ type NetDiskOneFileDetails = {
 	}) => void;
 };
 
-export const NetDiskView_static = {
-	getCSS() {
-		return /*css*/ `
-        .pops-folder-list .list-name-text{
-            max-width: 300px;
-        }
-        .netdisk-static-link-onefile .pops-folder-list .list-name-text{
-            max-width: 220px;
-        }
-        .netdisk-static-link-onefile .pops-mobile-folder-content .pops-folder-list .list-name-text{
-            max-width: unset;
-        }
-        `;
-	},
+export const NetDiskLinearChainDialogView = {
 	/**
 	 * 单文件直链弹窗
 	 * @param fileDetails 配置
@@ -86,7 +83,7 @@ export const NetDiskView_static = {
 					},
 				},
 				class: "netdisk-static-link-onefile",
-				style: this.getCSS(),
+				style: indexCSS,
 			},
 			NetDiskUI.popsStyle.oneFileStaticView
 		);
@@ -96,10 +93,7 @@ export const NetDiskView_static = {
 	 * @param title 标题
 	 * @param folderInfoList文件夹信息
 	 */
-	moreFile(
-		title: string,
-		folderInfoList: PopsFolderDataConfig[] = []
-	) {
+	moreFile(title: string, folderInfoList: PopsFolderDataConfig[] = []) {
 		log.success(["文件解析信息", folderInfoList]);
 		NetDiskPops.folder(
 			{
@@ -107,7 +101,7 @@ export const NetDiskView_static = {
 					text: title,
 				},
 				folder: folderInfoList,
-				style: this.getCSS(),
+				style: indexCSS,
 			},
 			NetDiskUI.popsStyle.moreFileStaticView
 		);

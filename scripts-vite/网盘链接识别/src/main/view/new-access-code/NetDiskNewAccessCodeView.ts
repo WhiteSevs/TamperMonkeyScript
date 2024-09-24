@@ -1,6 +1,6 @@
 import { NetDisk } from "@/main/NetDisk";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
-import { NetDiskUI } from "../NetDiskUI";
+import { NetDiskUI } from "../../ui/NetDiskUI";
 import { DOMUtils, log } from "@/env";
 
 /**
@@ -12,7 +12,7 @@ import { DOMUtils, log } from "@/env";
  * @param accessCode 访问码
  * @param okCallBack
  */
-export const NetDiskView_newAccessCode = function (
+export const NetDiskNewAccessCodeView = function (
 	title: string = "密码错误",
 	netDiskName: string = "",
 	netDiskIndex: number,

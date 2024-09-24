@@ -15,7 +15,6 @@ export const NetDiskRule_aliyun: NetDiskRuleConfig = {
 			blank: "https://www.aliyundrive.com/s/{#shareCode#}",
 			copyUrl:
 				"https://www.aliyundrive.com/s/{#shareCode#}\n密码：{#accessCode#}",
-			checkLinkValidity: NetDiskRuleData.function.checkLinkValidity("aliyun"),
 		},
 		{
 			link_innerText: `aliyundrive.com/t/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,

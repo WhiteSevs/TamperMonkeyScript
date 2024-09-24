@@ -4,20 +4,19 @@ import Qmsg from "qmsg";
 import { log, utils } from "@/env";
 import { NetDisk } from "../NetDisk";
 import { NetDiskUISizeConfig } from "./NetDiskUISizeConfig";
-import { NetDiskSuspension } from "./NetDiskSuspension";
-import { NetDiskView_setting } from "./view/NetDiskView_setting";
-import { NetDiskView } from "./view/NetDiskView";
-import { NetDiskView_static } from "./view/NetDiskView_static";
-import { NetDiskView_newAccessCode } from "./view/NetDiskView_newAccessCode";
-import { NetDiskView_historyMatch } from "./view/NetDiskView_historyMatch";
-import { NetDiskView_accessCodeRule } from "./view/NetDiskView_accessCodeRule";
-import { NetDiskView_matchPasteText } from "./view/NetDiskView_matchPasteText";
-import { NetDiskUserRule } from "../rule/user-rule/NetDiskUserRule";
+import { NetDiskSuspension } from "../view/suspension/NetDiskSuspensionView";
+import { NetDiskGlobalSettingView } from "../view/global-setting/NetDiskGlobalSettingView";
+import { NetDiskView } from "../view/index/NetDiskView";
+import { NetDiskLinearChainDialogView } from "../view/linear-chain-dialog/NetDiskLinearChainDialogView";
+import { NetDiskNewAccessCodeView } from "../view/new-access-code/NetDiskNewAccessCodeView";
+import { NetDiskMatchPasteText } from "../view/match-paste-text/NetDiskMatchPasteTextView";
 import {
 	NetDiskLinkClickMode,
 	NetDiskLinkClickModeUtils,
 } from "../link-click-mode/NetDiskLinkClickMode";
 import { NetDiskUserRuleUI } from "../rule/user-rule/NetDiskUserRuleUI";
+import { NetDiskHistoryMatchView } from "../view/history-match/NetDiskHistoryMatchView";
+import { WebsiteRuleView } from "../view/website-rule/WebsiteRuleView";
 
 /** 弹窗UI界面 */
 export const NetDiskUI = {
@@ -99,23 +98,25 @@ export const NetDiskUI = {
 	/**
 	 * 显示直链的弹窗
 	 */
-	staticView: NetDiskView_static,
+	staticView: NetDiskLinearChainDialogView,
 	/**
 	 * 需要重新输入新密码的弹窗
 	 */
-	newAccessCodeView: NetDiskView_newAccessCode,
+	newAccessCodeView: NetDiskNewAccessCodeView,
 	/**
 	 * 网盘历史匹配到的记录弹窗
 	 */
-	netDiskHistoryMatch: NetDiskView_historyMatch,
-	/**
-	 * 自定义访问码规则，用于设置某个网站下的某个网盘链接的固定访问码
-	 */
-	accessCodeRule: NetDiskView_accessCodeRule,
+	netDiskHistoryMatch: NetDiskHistoryMatchView,
 	/**
 	 * 主动识别文本
 	 */
-	matchPasteText: NetDiskView_matchPasteText,
+	matchPasteText: NetDiskMatchPasteText,
+	/**
+	 * 网站规则
+	 */
+	get websiteRule() {
+		return WebsiteRuleView;
+	},
 	/**
 	 * 设置标题的右键菜单
 	 * @param element
@@ -126,7 +127,7 @@ export const NetDiskUI = {
 				text: "设置",
 				callback() {
 					log.info("打开-设置");
-					NetDiskView_setting.show();
+					NetDiskGlobalSettingView.show();
 				},
 			},
 			{
@@ -137,17 +138,17 @@ export const NetDiskUI = {
 				},
 			},
 			{
-				text: "访问码规则",
-				callback() {
-					log.info("打开-访问码规则");
-					NetDiskUI.accessCodeRule.show();
-				},
-			},
-			{
 				text: "自定义规则",
 				callback() {
 					log.info("打开-自定义规则");
 					NetDiskUserRuleUI.show(false);
+				},
+			},
+			{
+				text: "网站规则",
+				callback() {
+					log.info("打开-网站规则");
+					WebsiteRuleView.show();
 				},
 			},
 			{

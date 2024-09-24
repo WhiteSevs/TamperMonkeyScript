@@ -5,20 +5,23 @@ import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { NetDiskUI } from "./ui/NetDiskUI";
 import { NetDiskRuleUtils } from "./rule/NetDiskRuleUtils";
 import { NetDiskRuleConfig, type NetDiskRuleSetting } from "./rule/NetDiskRule";
+import Utils from "@whitesev/utils";
+import { WebsiteRule } from "./website-rule/WebsiteRule";
+import { WebsiteRuleDataKey } from "./data/NetDiskRuleDataKey";
 
 export const NetDisk = {
 	$flag: {},
 	/**
 	 * 链接字典，识别规则->识别到的访问码|分享码|下标
 	 */
-	linkDict: new utils.Dictionary<
+	linkDict: new Utils.Dictionary<
 		string,
 		UtilsDictionary<string, NetDiskDictData>
 	>(),
 	/**
 	 * （临时）链接字典
 	 */
-	tempLinkDict: new utils.Dictionary<
+	tempLinkDict: new Utils.Dictionary<
 		string,
 		UtilsDictionary<string, NetiDiskHandleObject>
 	>(),
@@ -237,32 +240,28 @@ export const NetDisk = {
 		accessCode: string,
 		matchText: string
 	): string {
-		let regularList = NetDiskUI.accessCodeRule.getValue();
+		let matchedUrlRuleList = WebsiteRule.getUrlMatchedRule();
 		let result = accessCode;
-		let currentUrl = window.location.href;
-		/* 先遍历本地的自定义的访问码规则 */
-		for (
-			let regularIndex = 0;
-			regularIndex < regularList.length;
-			regularIndex++
-		) {
-			let rule = regularList[regularIndex];
-			let urlRegexp = new RegExp(rule.urlRegexp, "i");
-			/* 如果网址匹配成功则进行下一步 */
-			if (!currentUrl.match(urlRegexp)) {
-				continue;
-			}
-			/* 循环遍历自定义的访问码规则的网盘信息 */
-			for (let index = 0; index < rule.netdisk.length; index++) {
-				let netDiskRegular = rule.netdisk[index];
-				/* 自定义规则的value(也就是网盘的字母名)和参数netDiskName相同，则直接返回设定的值 */
-				if (netDiskRegular.value === netDiskName) {
-					log.success(`使用自定义规则中的提取码 ${netDiskName} ${result}`);
-					return rule.accessCode;
-				}
+
+		for (let index = 0; index < matchedUrlRuleList.length; index++) {
+			const rule = matchedUrlRuleList[index];
+			let ruleData = WebsiteRule.getRuleData(rule);
+			/** 自定义的访问码 */
+			let customAccessCode = Reflect.get(
+				ruleData,
+				WebsiteRuleDataKey.features.customAccessCode(netDiskName)
+			);
+			/** 是否启用 */
+			let customAccessCodeEnable = Reflect.get(
+				ruleData,
+				WebsiteRuleDataKey.features.customAccessCodeEnable(netDiskName)
+			);
+			if (customAccessCodeEnable && typeof customAccessCode === "string") {
+				result = customAccessCode;
+				log.success(`使用自定义网站规则中的提取码 ${netDiskName} ${result}`);
+				break;
 			}
 		}
-		/* 不存在 */
 		return result;
 	},
 	/**

@@ -17,14 +17,21 @@ import {
 	NetDiskUserRuleReplaceParam_matchRange_html,
 	NetDiskUserRuleReplaceParam_matchRange_text,
 } from "./NetDiskUserRuleReplaceParam";
+import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 
 /** 网盘-自定义规则 */
 export const NetDiskUserRule = {
-	key: "userRule",
+	KEY: "userRule",
 	/** 用户规则上下文存储的数据 */
 	userRuleContextDataKey: "userRuleContextData",
 	$data: {
-		userRule: new utils.Dictionary<string, NetDiskRuleConfig>(),
+		__userRule: null as any as UtilsDictionary<string, NetDiskRuleConfig>,
+		get userRule() {
+			if (this.__userRule == null) {
+				this.__userRule = new utils.Dictionary<string, NetDiskRuleConfig>();
+			}
+			return this.__userRule;
+		},
 	},
 	/**
 	 * 初始化
@@ -620,7 +627,7 @@ export const NetDiskUserRule = {
 	addRule(userRule: NetDiskUserCustomRule) {
 		let localRule = this.getAllRule();
 		localRule.push(userRule);
-		GM_setValue(NetDiskUserRule.key, localRule);
+		GM_setValue(NetDiskUserRule.KEY, localRule);
 	},
 	/**
 	 * 设置规则到本地
@@ -632,7 +639,7 @@ export const NetDiskUserRule = {
 		userRule: NetDiskUserCustomRule[] | NetDiskUserCustomRule
 	) {
 		if (Array.isArray(userRule)) {
-			GM_setValue(NetDiskUserRule.key, userRule);
+			GM_setValue(NetDiskUserRule.KEY, userRule);
 		} else {
 			let localRule = this.getAllRule();
 			let findRuleIndex = localRule.findIndex(
@@ -669,14 +676,14 @@ export const NetDiskUserRule = {
 	 * 清空规则
 	 */
 	clearRule() {
-		GM_deleteValue(NetDiskUserRule.key);
+		GM_deleteValue(NetDiskUserRule.KEY);
 	},
 	/**
 	 * 获取本地所有的规则
 	 */
 	getAllRule() {
 		let result = GM_getValue<(NetDiskUserCustomRule | NetDiskUserCustomRule)[]>(
-			NetDiskUserRule.key,
+			NetDiskUserRule.KEY,
 			[]
 		);
 		return result;
@@ -687,7 +694,7 @@ export const NetDiskUserRule = {
 	getRule(key: string) {
 		let localRule = GM_getValue<
 			(NetDiskUserCustomRule | NetDiskUserCustomRule)[]
-		>(NetDiskUserRule.key, []);
+		>(NetDiskUserRule.KEY, []);
 		return localRule.find((item) => item.key === key);
 	},
 	/**

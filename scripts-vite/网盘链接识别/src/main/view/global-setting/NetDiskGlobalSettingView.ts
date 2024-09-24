@@ -1,5 +1,5 @@
 import { DOMUtils, log, SCRIPT_NAME } from "@/env";
-import { NetDiskUI } from "../NetDiskUI";
+import { NetDiskUI } from "../../ui/NetDiskUI";
 import Qmsg from "qmsg";
 import { PopsPanel } from "@/setting/setting";
 import { NetDiskUserRule } from "@/main/rule/user-rule/NetDiskUserRule";
@@ -7,8 +7,9 @@ import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { GM_info } from "ViteGM";
 import { NetDiskRule } from "@/main/rule/NetDiskRule";
 import { NetDiskUserRuleUI } from "@/main/rule/user-rule/NetDiskUserRuleUI";
+import indexCSS from "./index.css?raw";
 
-export const NetDiskView_setting = {
+export const NetDiskGlobalSettingView = {
 	show() {
 		if (NetDiskUI.Alias.settingAlias) {
 			log.error("设置界面已存在");
@@ -20,7 +21,7 @@ export const NetDiskView_setting = {
 		// 规则的设置
 		let ruleContent = NetDiskRule.getRulePanelContent();
 		content = content.concat(ruleContent);
-		NetDiskUI.Alias.settingAlias = NetDiskPops.panel(
+		let $panel = NetDiskPops.panel(
 			{
 				title: {
 					text: `${GM_info?.script?.name || SCRIPT_NAME}-设置`,
@@ -45,29 +46,20 @@ export const NetDiskView_setting = {
 					},
 				},
 				class: "whitesevPopSetting",
-				style: /*css*/ `
-				div[class^="netdisk-custom-rule-"]{
-					display: flex;
-					align-items: center;
-					margin-left: 10px;
-					cursor: pointer;
-				}
-				div[class^="netdisk-custom-rule-"] svg,
-				div[class^="netdisk-custom-rule-"] svg{
-					width: 1.2em;
-					height: 1.2em;
-				}
-				/* 控件被禁用的颜色 */
-				aside.pops-panel-aside li[data-key][data-function-enable="false"]{
-					color: #a8abb2;
-					filter: grayscale(100%);
-				}
-				`,
+				style: indexCSS,
 			},
 			NetDiskUI.popsStyle.settingView
 		);
+		NetDiskUI.Alias.settingAlias = $panel;
+		this.setRuleHeaderControlsClickEvent($panel.$shadowRoot);
+	},
+	showPanel(details = {}) {},
+	/**
+	 * 设置自定义规则顶部的编辑|删除的点击事件
+	 */
+	setRuleHeaderControlsClickEvent($shadowRoot: ShadowRoot) {
 		DOMUtils.on(
-			NetDiskUI.Alias.settingAlias.$shadowRoot,
+			$shadowRoot,
 			"click",
 			".netdisk-custom-rule-edit",
 			function (event) {
@@ -79,7 +71,7 @@ export const NetDiskView_setting = {
 		);
 
 		DOMUtils.on(
-			NetDiskUI.Alias.settingAlias.$shadowRoot,
+			$shadowRoot,
 			"click",
 			".netdisk-custom-rule-delete",
 			function (event) {

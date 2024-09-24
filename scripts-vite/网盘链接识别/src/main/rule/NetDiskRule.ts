@@ -127,7 +127,7 @@ export const NetDiskRule = {
 		// 默认的规则
 		let defaultRuleList: NetDiskRuleConfig[] = [
 			NetDiskRule_baidu,
-			NetDiskRule_lanzou,
+			NetDiskRule_lanzou(),
 			NetDiskRule_lanzouyx,
 			NetDiskRule_tianyiyun,
 			NetDiskRule_hecaiyun,
@@ -303,113 +303,6 @@ export const NetDiskRule = {
 		if (settingConfig == null) {
 			// 没有配置信息
 			return [];
-		}
-		if (settingConfig.matchRange_text) {
-			let matchRange_text_form: PopsPanelFormsTotalDetails[] = [];
-			if ("before" in settingConfig.matchRange_text) {
-				const default_value =
-					typeof settingConfig.matchRange_text.before === "number"
-						? settingConfig.matchRange_text.before
-						: 0;
-				matchRange_text_form.push(
-					UISlider(
-						"间隔前",
-						NetDiskRuleDataKEY.matchRange_text.before(ruleKey),
-						default_value,
-						0,
-						100,
-						void 0,
-						void 0,
-						"提取码间隔前的字符长度"
-					)
-				);
-
-				// 覆盖默认值
-				settingConfig.matchRange_text.before =
-					NetDiskRuleData.matchRange_text.before(ruleKey);
-			}
-			if ("after" in settingConfig.matchRange_text) {
-				const default_value =
-					typeof settingConfig.matchRange_text.after === "number"
-						? settingConfig.matchRange_text.after
-						: 0;
-				matchRange_text_form.push(
-					UISlider(
-						"间隔后",
-						NetDiskRuleDataKEY.matchRange_text.after(ruleKey),
-						default_value,
-						0,
-						100,
-						void 0,
-						void 0,
-						"提取码间隔后的字符长度"
-					)
-				);
-				// 覆盖默认值
-				settingConfig.matchRange_text.after =
-					NetDiskRuleData.matchRange_text.after(ruleKey);
-			}
-			if (matchRange_text_form.length) {
-				formConfigList.push({
-					text: "提取码文本匹配Text",
-					type: "forms",
-					forms: matchRange_text_form,
-				});
-			}
-		}
-		if (settingConfig.matchRange_html) {
-			let matchRange_html_form: PopsPanelFormsTotalDetails[] = [];
-			if ("before" in settingConfig.matchRange_html) {
-				const default_value =
-					typeof settingConfig.matchRange_html.before === "number"
-						? settingConfig.matchRange_html.before
-						: 0;
-
-				matchRange_html_form.push(
-					UISlider(
-						"间隔前",
-						NetDiskRuleDataKEY.matchRange_html.before(ruleKey),
-						default_value,
-						0,
-						100,
-						void 0,
-						void 0,
-						"提取码间隔前的字符长度"
-					)
-				);
-				// 覆盖默认值
-				settingConfig.matchRange_html.before =
-					NetDiskRuleData.matchRange_html.before(ruleKey);
-			}
-			if ("after" in settingConfig.matchRange_html) {
-				const default_value =
-					typeof settingConfig.matchRange_html.after === "number"
-						? settingConfig.matchRange_html.after
-						: 0;
-
-				matchRange_html_form.push(
-					UISlider(
-						"间隔后",
-						NetDiskRuleDataKEY.matchRange_html.after(ruleKey),
-						default_value,
-						0,
-						100,
-						void 0,
-						void 0,
-						"提取码间隔后的字符长度"
-					)
-				);
-				// 覆盖默认值
-				settingConfig.matchRange_html.after =
-					NetDiskRuleData.matchRange_html.after(ruleKey);
-			}
-			if (matchRange_html_form.length) {
-				formConfigList.push({
-					text: "提取码文本匹配HTML",
-					type: "forms",
-					forms: matchRange_html_form,
-				});
-			}
 		}
 		if (settingConfig.function) {
 			// 功能
@@ -638,6 +531,114 @@ export const NetDiskRule = {
 					text: "Scheme Uri转发",
 					type: "forms",
 					forms: schemeUri_form,
+				});
+			}
+		}
+		
+		if (settingConfig.matchRange_text) {
+			let matchRange_text_form: PopsPanelFormsTotalDetails[] = [];
+			if ("before" in settingConfig.matchRange_text) {
+				const default_value =
+					typeof settingConfig.matchRange_text.before === "number"
+						? settingConfig.matchRange_text.before
+						: 0;
+				matchRange_text_form.push(
+					UISlider(
+						"间隔前",
+						NetDiskRuleDataKEY.matchRange_text.before(ruleKey),
+						default_value,
+						0,
+						100,
+						void 0,
+						void 0,
+						"提取码间隔前的字符长度"
+					)
+				);
+
+				// 覆盖默认值
+				settingConfig.matchRange_text.before =
+					NetDiskRuleData.matchRange_text.before(ruleKey);
+			}
+			if ("after" in settingConfig.matchRange_text) {
+				const default_value =
+					typeof settingConfig.matchRange_text.after === "number"
+						? settingConfig.matchRange_text.after
+						: 0;
+				matchRange_text_form.push(
+					UISlider(
+						"间隔后",
+						NetDiskRuleDataKEY.matchRange_text.after(ruleKey),
+						default_value,
+						0,
+						100,
+						void 0,
+						void 0,
+						"提取码间隔后的字符长度"
+					)
+				);
+				// 覆盖默认值
+				settingConfig.matchRange_text.after =
+					NetDiskRuleData.matchRange_text.after(ruleKey);
+			}
+			if (matchRange_text_form.length) {
+				formConfigList.push({
+					text: "提取码文本匹配Text",
+					type: "forms",
+					forms: matchRange_text_form,
+				});
+			}
+		}
+		if (settingConfig.matchRange_html) {
+			let matchRange_html_form: PopsPanelFormsTotalDetails[] = [];
+			if ("before" in settingConfig.matchRange_html) {
+				const default_value =
+					typeof settingConfig.matchRange_html.before === "number"
+						? settingConfig.matchRange_html.before
+						: 0;
+
+				matchRange_html_form.push(
+					UISlider(
+						"间隔前",
+						NetDiskRuleDataKEY.matchRange_html.before(ruleKey),
+						default_value,
+						0,
+						100,
+						void 0,
+						void 0,
+						"提取码间隔前的字符长度"
+					)
+				);
+				// 覆盖默认值
+				settingConfig.matchRange_html.before =
+					NetDiskRuleData.matchRange_html.before(ruleKey);
+			}
+			if ("after" in settingConfig.matchRange_html) {
+				const default_value =
+					typeof settingConfig.matchRange_html.after === "number"
+						? settingConfig.matchRange_html.after
+						: 0;
+
+				matchRange_html_form.push(
+					UISlider(
+						"间隔后",
+						NetDiskRuleDataKEY.matchRange_html.after(ruleKey),
+						default_value,
+						0,
+						100,
+						void 0,
+						void 0,
+						"提取码间隔后的字符长度"
+					)
+				);
+				// 覆盖默认值
+				settingConfig.matchRange_html.after =
+					NetDiskRuleData.matchRange_html.after(ruleKey);
+			}
+			if (matchRange_html_form.length) {
+				formConfigList.push({
+					text: "提取码文本匹配HTML",
+					type: "forms",
+					forms: matchRange_html_form,
 				});
 			}
 		}

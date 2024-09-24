@@ -1,12 +1,13 @@
 import Qmsg from "qmsg";
-import { NetDiskUI } from "../NetDiskUI";
+import { NetDiskUI } from "../../ui/NetDiskUI";
 import { NetDiskWorker } from "@/main/worker/NetDiskWorker";
 import { NetDisk } from "@/main/NetDisk";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
 import { NetDiskRuleUtils } from "@/main/rule/NetDiskRuleUtils";
+import indexCSS from "./index.css?raw";
 
-export const NetDiskView_matchPasteText = {
+export const NetDiskMatchPasteText = {
 	show() {
 		let popsConfirm = NetDiskPops.confirm(
 			{
@@ -34,6 +35,7 @@ export const NetDiskView_matchPasteText = {
 								NetDiskWorker.postMessage({
 									textList: [inputText],
 									matchTextRange: NetDiskGlobalData.match.pageMatchRange.value,
+									// 剪贴板匹配的话直接使用全部规则来进行匹配
 									regular: NetDisk.matchRule,
 									startTime: Date.now(),
 									from: "PasteText",
@@ -43,7 +45,7 @@ export const NetDiskView_matchPasteText = {
 					},
 				},
 				class: "whitesevPopNetDiskMatchPasteText",
-				style: this.getCSS(),
+				style: indexCSS,
 			},
 			NetDiskUI.popsStyle.matchPasteTextView
 		);
@@ -51,44 +53,9 @@ export const NetDiskView_matchPasteText = {
 			.querySelector<HTMLTextAreaElement>("textarea")!
 			.focus();
 	},
-	getCSS() {
-		return /*css*/ `
-		.pops[type-value=confirm] .pops-confirm-content{
-			overflow: hidden;
-		}
-		.netdisk-match-paste-text {
-			--textarea-bd-color: #dcdfe6;
-			display: inline-block;
-			resize: vertical;
-			padding: 5px 15px;
-			line-height: 1.5;
-			box-sizing: border-box;
-			color: #606266;
-			border: 1px solid var(--textarea-bd-color);
-			border-radius: 4px;
-			transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
-			outline: none;
-			margin: 0;
-			-webkit-appearance: none;
-			-moz-appearance: none;
-			appearance: none;
-			background: none;
-			width: 100%;
-			height: 100%;
-			appearance: none;
-			resize: none;
-		}
-		.netdisk-match-paste-text:hover{
-			--textarea-bd-color: #c0c4cc;
-		}
-		.netdisk-match-paste-text:focus{
-			--textarea-bd-color: #3677f0;
-		}
-		`;
-	},
 	/**
 	 * Worker匹配完毕后执行的回调函数
-	 * @param {NetDiskWorkerCallBackOptions} data
+	 * @param data
 	 */
 	workerMatchEndCallBack(data: NetDiskWorkerCallBackOptions) {
 		if (data.data.length) {

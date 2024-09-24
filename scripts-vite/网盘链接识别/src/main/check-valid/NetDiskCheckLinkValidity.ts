@@ -16,8 +16,10 @@ import { NetDiskCheckLinkValidity_kuake } from "../rule/netdisk/kuake/checkLinkV
 import { NetDiskCheckLinkValidity_jianguoyun } from "../rule/netdisk/jianguoyun/checkLinkValidity";
 import { NetDiskCheckLinkValidity_onedrive } from "../rule/netdisk/onedrive/checkLinkValidity";
 import { NetDiskCheckLinkValidity_uc } from "../rule/netdisk/uc/checkLinkValidity";
-import { NetDiskView } from "../ui/view/NetDiskView";
+import { NetDiskView } from "../view/index/NetDiskView";
 import { NetDiskCheckLinkValidity_115pan } from "../rule/netdisk/115pan/checkLinkValidity";
+import { NetDiskRuleData } from "../data/NetDiskRuleData";
+import { NetDiskRuleDataKEY } from "../data/NetDiskRuleDataKey";
 
 /**
  * 校验码状态
@@ -203,10 +205,7 @@ export const NetDiskCheckLinkValidity = {
 		}
 		// 网盘键
 		let netDiskName = checkInfo.netDiskName;
-		if (
-			!NetDisk.ruleSetting[netDiskName].configurationInterface?.function
-				?.checkLinkValidity
-		) {
+		if (!NetDiskRuleData.function.checkLinkValidity(netDiskName)) {
 			log.error(["未开启checkLinkValidity功能", checkInfo]);
 			return;
 		}

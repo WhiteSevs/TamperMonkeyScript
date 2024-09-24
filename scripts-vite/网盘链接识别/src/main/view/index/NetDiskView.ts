@@ -1,7 +1,6 @@
-import { GM_getValue } from "ViteGM";
 import { NetDisk } from "../../NetDisk";
 import { NetDiskPops } from "../../pops/NetDiskPops";
-import { NetDiskUI } from "../NetDiskUI";
+import { NetDiskUI } from "../../ui/NetDiskUI";
 import { DOMUtils, log, pops, utils } from "@/env";
 import { NetDiskGlobalData } from "../../data/NetDiskGlobalData";
 import { NetDiskCheckLinkValidity } from "../../check-valid/NetDiskCheckLinkValidity";
@@ -10,26 +9,14 @@ import {
 	PopsRightClickMenuDetails,
 } from "@whitesev/pops/dist/types/src/components/rightClickMenu/indexType";
 import Qmsg from "qmsg";
-import { NetDiskSuspensionConfig } from "../NetDiskSuspension";
+import { NetDiskSuspensionConfig } from "../suspension/NetDiskSuspensionView";
 import {
 	NetDiskLinkClickMode,
 	NetDiskLinkClickModeUtils,
 } from "@/main/link-click-mode/NetDiskLinkClickMode";
-import { GenerateData } from "@/main/data/NetDiskDataUtils";
 import { NetDiskRuleData } from "@/main/data/NetDiskRuleData";
-
-const NetDiskViewConfig = {
-	view: {
-		"netdisl-small-window-shrink-status": GenerateData(
-			"netdisl-small-window-shrink-status",
-			false
-		),
-		"netdisk-ui-small-window-position": GenerateData<{
-			left: number;
-			top: number;
-		} | null>("netdisk-ui-small-window-position", null),
-	},
-};
+import indexCSS from "./index.css?raw";
+import { GenerateData } from "@/main/data/NetDiskGenerateDataUtils";
 
 export const NetDiskView = {
 	show() {
@@ -40,88 +27,22 @@ export const NetDiskView = {
 			NetDiskUI.Alias.uiLinkAlias.show();
 		}
 	},
-	getCSS() {
-		return /*css*/ `
-        .netdisk-url-box{
-            border-bottom: 1px solid #e4e6eb;
-        }
-        .netdisk-url-div{display:flex;align-items:center;width:100%;padding:5px 0px 5px 0px}
-        .netdisk-icon{display:contents}
-        .netdisk-icon .netdisk-icon-img{
-            cursor: pointer;
-            width: 28px;
-            height: 28px;
-            min-width: 28px;
-            min-height: 28px;
-            font-size: 0.8em;
-            margin: 0px 10px;
-        }
-        .netdisk-url-div .netdisk-icon,
-        .netdisk-url-div .netdisk-status{
-            flex: 0 0 auto;
-        }
-        .netdisk-url-div .netdisk-url{
-            flex: 1;
-        }
-        .netdisk-icon .netdisk-icon-img{
-            border-radius: 10px;
-            box-shadow: 0 .3px .6px rgb(0 0 0 / 6%),0 .7px 1.3px rgb(0 0 0 / 8%),0 1.3px 2.5px rgb(0 0 0 / 10%),0 2.2px 4.5px rgb(0 0 0 / 12%),0 4.2px 8.4px rgb(0 0 0 / 14%),0 10px 20px rgb(0 0 0 / 20%)
-        }
-        .netdisk-status[data-check-failed]{
-            padding: 5px 5px;
-        }
-        .netdisk-url{padding:5px 5px;}
-        .netdisk-url a {
-            color: #ff4848!important;
-            min-height: 28px;
-            overflow-x: hidden;
-            overflow-y: auto;
-            font-size: 0.8em;
-            border: none;
-            display: flex;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-            padding: 0px;
-            word-break: break-word;
-            text-align: left;
-        }
-        .netdisk-status{
-            display: none;
-        }
-        .netdisk-status[data-check-valid]{
-            display: flex;
-            align-items: center;
-            width: 15px;
-            height: 15px;
-        }
-        .netdisk-status[data-check-valid="failed"]{
-            color: red;
-        }
-        .netdisk-status[data-check-valid="error"]{
-            cursor: pointer;
-        }
-        .netdisk-status[data-check-valid="success"]{
-            color: green;
-        }
-        .netdisk-status[data-check-valid="loading"] svg{
-            animation: rotating 2s linear infinite;
-        }
-        .netdisk-url-box:has(.netdisk-status[data-check-valid="failed"]){
-            text-decoration: line-through;
-        }
-        .whitesevPop-whitesevPopSetting :focus-visible{outline-offset:0;outline:0}
-        .netdisk-url a[isvisited=true]{color:#8b8888!important}
-        .netdisk-url a:active{box-shadow:0 0 0 1px #616161 inset}
-        .netdisk-url a:focus-visible{outline:0}
-        .whitesevPop-content p[pop]{text-indent:0}
-        .whitesevPop-button[type=primary]{border-color:#2d8cf0;background-color:#2d8cf0}
-        `;
-	},
 	/**
 	 * 创建视图
 	 */
 	createView() {
+		const NetDiskViewConfig = {
+			view: {
+				"netdisl-small-window-shrink-status": GenerateData(
+					"netdisl-small-window-shrink-status",
+					false
+				),
+				"netdisk-ui-small-window-position": GenerateData<{
+					left: number;
+					top: number;
+				} | null>("netdisk-ui-small-window-position", null),
+			},
+		};
 		let viewAddHTML = "";
 		NetDiskUI.isMatchedNetDiskIconMap.forEach((netDiskName) => {
 			let netDiskDict = NetDisk.linkDict.get(netDiskName);
@@ -147,7 +68,7 @@ export const NetDiskView = {
 					);
 			});
 		});
-		let viewHTML = `
+		let viewHTML = /*html*/ `
             <div class="netdisk-url-box-all">
                 ${viewAddHTML}
             </div>`;
@@ -293,15 +214,11 @@ export const NetDiskView = {
 					},
 					class: "whitesevPop",
 					style: /*css*/ `
-                    ${this.getCSS()}
+                    ${indexCSS}
 
                     .pops {
                         --container-title-height: 35px;
-                        --content-max-height: ${
-													NetDiskGlobalData.smallWindow[
-														"netdisk-ui-small-window-max-height"
-													].value
-												}px;
+                        --content-max-height: ${NetDiskGlobalData.smallWindow["netdisk-ui-small-window-max-height"].value}px;
                         --netdisk-line-space: 8px;
                         --netdisk-icon-size: 24px;
                     }
@@ -405,7 +322,7 @@ export const NetDiskView = {
 					},
 					class: "whitesevPop",
 					style: `
-                    ${this.getCSS()}
+                    ${indexCSS}
 
                     .pops {
                         max-height: ${pops.isPhone() ? "50vh" : "60vh"};

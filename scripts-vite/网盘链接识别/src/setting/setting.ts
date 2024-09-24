@@ -14,11 +14,10 @@ import {
 import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { PanelUI_allSetting } from "./components/all-setting";
-import { NetDiskView_setting } from "@/main/ui/view/NetDiskView_setting";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
-import { NetDiskUserRule } from "@/main/rule/user-rule/NetDiskUserRule";
 import { NetDiskRule } from "@/main/rule/NetDiskRule";
 import { NetDiskUserRuleUI } from "@/main/rule/user-rule/NetDiskUserRuleUI";
+import { NetDiskGlobalSettingView } from "@/main/view/global-setting/NetDiskGlobalSettingView";
 
 type PosPanelListenerData = {
 	id: number;
@@ -115,7 +114,7 @@ export const PopsPanel = {
 					return text;
 				},
 				callback: () => {
-					NetDiskView_setting.show();
+					NetDiskGlobalSettingView.show();
 				},
 			},
 			{
@@ -131,20 +130,20 @@ export const PopsPanel = {
 				},
 			},
 			{
-				key: "showAccessCodeRule",
-				text: "⚙ 访问码规则",
+				key: "websiteRule",
+				text: "⚙ 网站规则",
 				autoReload: false,
 				isStoreValue: false,
 				showText(text) {
 					return text;
 				},
 				callback() {
-					NetDiskUI.accessCodeRule.show();
+					NetDiskUI.websiteRule.show();
 				},
 			},
 			{
 				key: "showUserRule",
-				text: "⚙ 用户自定义规则",
+				text: "⚙ 自定义规则",
 				autoReload: false,
 				isStoreValue: false,
 				showText(text) {
@@ -156,7 +155,7 @@ export const PopsPanel = {
 			},
 			{
 				key: "showMatchPasteText",
-				text: "⚙ 主动识别文本",
+				text: "⚙ 识别文本",
 				autoReload: false,
 				isStoreValue: false,
 				showText(text) {
@@ -180,6 +179,10 @@ export const PopsPanel = {
 		) {
 			if (!config.attributes) {
 				/* 必须配置attributes属性，用于存储菜单的键和默认值 */
+				return;
+			}
+			if (config.type === "button") {
+				// 某些类型不需要初始化默认值
 				return;
 			}
 			/* 初始化配置对象，每个是需要配置的键值对 */

@@ -1,12 +1,13 @@
 import { isDebug, log, utils } from "@/env";
 import { NetDisk } from "../NetDisk";
-import { GM_getValue } from "ViteGM";
 import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import { NetDiskUI } from "../ui/NetDiskUI";
-import { NetDiskSuspensionConfig } from "../ui/NetDiskSuspension";
+import { NetDiskSuspensionConfig } from "../view/suspension/NetDiskSuspensionView";
 import { CommonUtils } from "@/utils/CommonUtils";
 import { NetDiskRuleUtils } from "../rule/NetDiskRuleUtils";
 import { NetDiskWorkerUtils } from "./NetDiskWorkerUtils";
+import { NetDiskRuleData } from "../data/NetDiskRuleData";
+import { NetDiskRuleDataKEY } from "../data/NetDiskRuleDataKey";
 
 /** Woker */
 export const NetDiskWorker = {
@@ -466,23 +467,26 @@ export const NetDiskWorker = {
 		let depthAcquisitionWithShadowRoot =
 			NetDiskGlobalData.match.depthQueryWithShadowRoot.value;
 
-		/** 执行匹配的规则 */
+		/** 过滤出执行匹配的规则 */
 		const matchRegular = {} as NetDiskMatchRule;
+		/* 循环 */
 		NetDisk.rule.forEach((item) => {
 			// 网盘键
 			let netDiskName = item.setting.key;
 			// 启用状态
-			let netDiskRuleEnable =
-				item.setting.configurationInterface?.function?.enable;
-			if (netDiskRuleEnable) {
-				if (matchRegular[netDiskName]) {
-					matchRegular[netDiskName] = [
-						...matchRegular[netDiskName],
-						...item.rule,
-					];
-				} else {
-					matchRegular[netDiskName] = item.rule;
-				}
+			let netDiskRuleEnable = NetDiskRuleData.function.enable(netDiskName);
+			if (!netDiskRuleEnable) {
+				return;
+			}
+			if (Reflect.has(matchRegular, netDiskName)) {
+				// 已有规则、追加
+				matchRegular[netDiskName] = [
+					...matchRegular[netDiskName],
+					...item.rule,
+				];
+			} else {
+				// 设置规则
+				Reflect.set(matchRegular, netDiskName, item.rule);
 			}
 		});
 		/**

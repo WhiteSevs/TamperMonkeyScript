@@ -1,4 +1,4 @@
-import { GM_getValue, GM_setValue } from "ViteGM";
+import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 
 export class StorageUtils {
 	/** 存储的键名 */
@@ -68,6 +68,13 @@ export class StorageUtils {
 		return Reflect.get(localValue, key) ?? defaultValue;
 	}
 	/**
+	 * 获取所有值
+	 */
+	getAll() {
+		let localValue = this.getLocalValue();
+		return localValue;
+	}
+	/**
 	 * 删除值
 	 * @param key 键
 	 */
@@ -98,5 +105,11 @@ export class StorageUtils {
 		return Reflect.ownKeys(localValue).map((key) =>
 			Reflect.get(localValue, key)
 		);
+	}
+	/**
+	 * 清空所有值
+	 */
+	clear() {
+		GM_deleteValue(this.storageKey);
 	}
 }

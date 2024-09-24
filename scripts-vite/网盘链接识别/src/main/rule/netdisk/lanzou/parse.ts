@@ -5,6 +5,7 @@ import { NetDiskParseObject } from "../../../parse/NetDiskParseObject";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
+import { GeneratePanelData } from "@/main/data/NetDiskDataUtils";
 
 export const NetDiskParse_Lanzou_Config = {
 	/* 蓝奏云默认域名 */
@@ -12,9 +13,11 @@ export const NetDiskParse_Lanzou_Config = {
 	/** 菜单配置项的键名 */
 	MENU_KEY: "lanzou-host-name",
 	get hostname() {
-		return GM_getValue<string>(this.MENU_KEY, this.DEFAULT_HOST_NAME);
+		let generateData = GeneratePanelData(this.MENU_KEY, this.DEFAULT_HOST_NAME);
+		return generateData.value;
 	},
 };
+
 /**
  * 蓝奏云
  * 流程：判断是否是多文件

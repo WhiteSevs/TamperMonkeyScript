@@ -36,6 +36,8 @@ export const UIButton = function (
 		text: text,
 		type: "button",
 		description: description,
+		attributes: {},
+		props: {},
 		buttonIcon: buttonIcon,
 		buttonIsRightIcon: buttonIsRightIcon,
 		buttonIconIsLoading: buttonIconIsLoading,

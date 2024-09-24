@@ -1,9 +1,9 @@
-import { GM_getValue } from "ViteGM";
 import {
 	NetDiskRuleSettingConfigurationInterface_linkClickMode,
 	NetDiskRuleSettingConfigurationInterface_linkClickMode_extend,
 } from "../link-click-mode/NetDiskLinkClickMode";
 import { NetDiskRuleDataKEY } from "./NetDiskRuleDataKey";
+import { GeneratePanelData } from "./NetDiskDataUtils";
 
 /**
  * 规则的数据
@@ -17,12 +17,11 @@ export const NetDiskRuleData = {
 		 * @param defaultValue 默认值: 20
 		 */
 		before(key: string, defaultValue: number = 20) {
-			return parseInt(
-				GM_getValue<number>(
-					NetDiskRuleDataKEY.matchRange_text.before(key),
-					defaultValue
-				).toString()
+			const panelData = GeneratePanelData(
+				NetDiskRuleDataKEY.matchRange_text.before(key),
+				defaultValue
 			);
+			return parseInt(panelData.value.toString());
 		},
 		/**
 		 * 提取码间隔后的字符长度
@@ -30,12 +29,11 @@ export const NetDiskRuleData = {
 		 * @param defaultValue 默认值: 10
 		 */
 		after(key: string, defaultValue: number = 10) {
-			return parseInt(
-				GM_getValue<number>(
-					NetDiskRuleDataKEY.matchRange_text.after(key),
-					defaultValue
-				).toString()
+			const panelData = GeneratePanelData(
+				NetDiskRuleDataKEY.matchRange_text.after(key),
+				defaultValue
 			);
+			return parseInt(panelData.value.toString());
 		},
 	},
 	/** innerHTML的提取码间隔 */
@@ -46,12 +44,11 @@ export const NetDiskRuleData = {
 		 * @param defaultValue 默认值: 100
 		 */
 		before(key: string, defaultValue: number = 100) {
-			return parseInt(
-				GM_getValue<number>(
-					NetDiskRuleDataKEY.matchRange_html.before(key),
-					defaultValue
-				).toString()
+			const panelData = GeneratePanelData(
+				NetDiskRuleDataKEY.matchRange_html.before(key),
+				defaultValue
 			);
+			return parseInt(panelData.value.toString());
 		},
 		/**
 		 * 提取码间隔后的字符长度
@@ -59,12 +56,11 @@ export const NetDiskRuleData = {
 		 * @param defaultValue 默认值: 15
 		 */
 		after(key: string, defaultValue: number = 15) {
-			return parseInt(
-				GM_getValue<number>(
-					NetDiskRuleDataKEY.matchRange_html.after(key),
-					defaultValue
-				).toString()
+			const panelData = GeneratePanelData(
+				NetDiskRuleDataKEY.matchRange_html.after(key),
+				defaultValue
 			);
+			return parseInt(panelData.value.toString());
 		},
 	},
 	/** 功能 */
@@ -75,9 +71,11 @@ export const NetDiskRuleData = {
 		 * @param defaultValue
 		 */
 		enable(key: string, defaultValue: boolean = true) {
-			return Boolean(
-				GM_getValue(NetDiskRuleDataKEY.function.enable(key), defaultValue)
+			const panelData = GeneratePanelData(
+				NetDiskRuleDataKEY.function.enable(key),
+				defaultValue
 			);
+			return Boolean(panelData.value);
 		},
 		/**
 		 * 点击动作
@@ -88,10 +86,11 @@ export const NetDiskRuleData = {
 			key: string,
 			defaultValue: NetDiskRuleSettingConfigurationInterface_linkClickMode = "copy"
 		) {
-			return GM_getValue(
+			const panelData = GeneratePanelData(
 				NetDiskRuleDataKEY.function.linkClickMode(key),
 				defaultValue
-			) as
+			);
+			return panelData.value as
 				| NetDiskRuleSettingConfigurationInterface_linkClickMode
 				| NetDiskRuleSettingConfigurationInterface_linkClickMode_extend;
 		},
@@ -101,12 +100,11 @@ export const NetDiskRuleData = {
 		 * @param defaultValue
 		 */
 		checkLinkValidity(key: string, defaultValue: boolean = false) {
-			return Boolean(
-				GM_getValue(
-					NetDiskRuleDataKEY.function.checkLinkValidity(key),
-					defaultValue
-				)
+			const panelData = GeneratePanelData(
+				NetDiskRuleDataKEY.function.checkLinkValidity(key),
+				defaultValue
 			);
+			return Boolean(panelData.value);
 		},
 	},
 	linkClickMode_openBlank: {
@@ -116,14 +114,13 @@ export const NetDiskRuleData = {
 		 * @param defaultValue
 		 */
 		openBlankWithCopyAccessCode(key: string, defaultValue: boolean = false) {
-			return Boolean(
-				GM_getValue(
-					NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankWithCopyAccessCode(
-						key
-					),
-					defaultValue
-				)
+			const panelData = GeneratePanelData(
+				NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankWithCopyAccessCode(
+					key
+				),
+				defaultValue
 			);
+			return Boolean(panelData.value);
 		},
 	},
 	schemeUri: {
@@ -133,9 +130,11 @@ export const NetDiskRuleData = {
 		 * @param defaultValue
 		 */
 		enable(key: string, defaultValue: boolean = false) {
-			return Boolean(
-				GM_getValue(NetDiskRuleDataKEY.schemeUri.enable(key), defaultValue)
+			const panelData = GeneratePanelData(
+				NetDiskRuleDataKEY.schemeUri.enable(key),
+				defaultValue
 			);
+			return Boolean(panelData.value);
 		},
 		/**
 		 * 转发直链（解析出的链接）
@@ -143,12 +142,11 @@ export const NetDiskRuleData = {
 		 * @param defaultValue
 		 */
 		isForwardLinearChain(key: string, defaultValue: boolean = false) {
-			return Boolean(
-				GM_getValue(
-					NetDiskRuleDataKEY.schemeUri.isForwardLinearChain(key),
-					defaultValue
-				)
+			const panelData = GeneratePanelData(
+				NetDiskRuleDataKEY.schemeUri.isForwardLinearChain(key),
+				defaultValue
 			);
+			return Boolean(panelData.value);
 		},
 		/**
 		 * 转发新标签页链接
@@ -156,12 +154,11 @@ export const NetDiskRuleData = {
 		 * @param defaultValue
 		 */
 		isForwardBlankLink(key: string, defaultValue: boolean = false) {
-			return Boolean(
-				GM_getValue(
-					NetDiskRuleDataKEY.schemeUri.isForwardBlankLink(key),
-					defaultValue
-				)
+			const panelData = GeneratePanelData(
+				NetDiskRuleDataKEY.schemeUri.isForwardBlankLink(key),
+				defaultValue
 			);
+			return Boolean(panelData.value);
 		},
 		/**
 		 * Uri链接
@@ -169,7 +166,11 @@ export const NetDiskRuleData = {
 		 * @param defaultValue
 		 */
 		uri(key: string, defaultValue: string = "") {
-			return GM_getValue(NetDiskRuleDataKEY.schemeUri.uri(key), defaultValue);
+			const panelData = GeneratePanelData(
+				NetDiskRuleDataKEY.schemeUri.uri(key),
+				defaultValue
+			);
+			return panelData.value;
 		},
 	},
 };

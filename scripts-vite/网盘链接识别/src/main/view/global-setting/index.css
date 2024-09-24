@@ -1,0 +1,16 @@
+div[class^="netdisk-custom-rule-"] {
+	display: flex;
+	align-items: center;
+	margin-left: 10px;
+	cursor: pointer;
+}
+div[class^="netdisk-custom-rule-"] svg,
+div[class^="netdisk-custom-rule-"] svg {
+	width: 1.2em;
+	height: 1.2em;
+}
+/* 控件被禁用的颜色 */
+aside.pops-panel-aside li[data-key][data-function-enable="false"] {
+	color: #a8abb2;
+	filter: grayscale(100%);
+}

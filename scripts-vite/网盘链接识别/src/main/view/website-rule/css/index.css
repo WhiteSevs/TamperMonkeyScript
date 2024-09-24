@@ -1,0 +1,45 @@
+/* 容器 */
+.website-rule-container {
+}
+/* 每一条规则 */
+.website-rule-item {
+	display: flex;
+	align-items: center;
+	line-height: 1;
+	font-size: 16px;
+	padding: 4px 4px;
+	gap: 6px;
+}
+/* 规则名 */
+.website-rule-item .website-rule-name {
+	flex: 1;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+/* 操作按钮 */
+.website-rule-item .website-controls {
+	display: flex;
+	align-items: center;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+	gap: 8px;
+	padding: 0px 4px;
+}
+/* 编辑和删除按钮 */
+.website-rule-item .website-rule-edit,
+.website-rule-item .website-rule-delete {
+	width: 16px;
+	height: 16px;
+	cursor: pointer;
+}
+/* 启用按钮 */
+.website-rule-item .website-rule-enable {
+}
+/* 编辑按钮 */
+.website-rule-item .website-rule-edit {
+}
+/* 删除按钮 */
+.website-rule-item .website-rule-delete {
+}

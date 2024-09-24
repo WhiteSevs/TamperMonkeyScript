@@ -1,19 +1,18 @@
-import { AnyTouch, DOMUtils, utils } from "@/env";
+import { AnyTouch, utils } from "@/env";
 import { unsafeWindow } from "ViteGM";
-import { NetDiskUI } from "./NetDiskUI";
-import { NetDiskView_setting } from "./view/NetDiskView_setting";
-import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
-import { GenerateData } from "../data/NetDiskDataUtils";
+import { NetDiskUI } from "../../ui/NetDiskUI";
+import { NetDiskGlobalSettingView } from "../global-setting/NetDiskGlobalSettingView";
+import { NetDiskGlobalData } from "../../data/NetDiskGlobalData";
+import indexCSS from "./index.css?raw";
+import { GenerateData } from "@/main/data/NetDiskGenerateDataUtils";
+import DOMUtils from "@whitesev/domutils";
 
 export const NetDiskSuspensionConfig = {
 	position: {
-		suspensionX: GenerateData(
-			"suspensionX",
-			DOMUtils.width(window) - NetDiskGlobalData.suspension.size.value
-		),
+		suspensionX: GenerateData("suspensionX", DOMUtils.width(window) - 50),
 		suspensionY: GenerateData(
 			"suspensionY",
-			(DOMUtils.height(window) - NetDiskGlobalData.suspension.size.value) / 2
+			(DOMUtils.height(window) - 50) / 2
 		),
 		isRight: GenerateData("isRight", false),
 	},
@@ -94,8 +93,12 @@ export const NetDiskSuspension = {
 				className: "whitesevSuspension",
 				innerHTML: /*html*/ `
                 <style type="text/css">
+				/* 动态生成z-index */
+				.whitesevSuspension{
+					z-index: ${utils.getMaxValue(4000, utils.getMaxZIndex(10))};;
+				}
 
-                ${this.getCSS()}
+				${indexCSS}
 
                 </style>
                 <div class="whitesevSuspensionMain">
@@ -123,7 +126,6 @@ export const NetDiskSuspension = {
 		let that = this;
 		let needDragElement = NetDiskUI.suspension.suspensionNode;
 		let dragNode = new AnyTouch(needDragElement);
-		/** @type {?number[]} */
 		let netDiskLinkViewTimer: number | undefined = void 0;
 		let moveFlag = false;
 		/* 是否是双击 */
@@ -235,7 +237,7 @@ export const NetDiskSuspension = {
 			if (isDouble) {
 				isDouble = false;
 				/* 判定为双击 */
-				NetDiskView_setting.show();
+				NetDiskGlobalSettingView.show();
 			} else {
 				netDiskLinkViewTimer = setTimeout(() => {
 					isDouble = false;
@@ -323,53 +325,6 @@ export const NetDiskSuspension = {
 			left: userSetLeftOffset + "px",
 			top: userSetTopOffset + "px",
 		});
-	},
-	getCSS() {
-		return /*css*/ `
-            .whitesevSuspension{
-                top: 0;
-                position: fixed;
-                right: 10px;
-                border-radius: 12px;
-                z-index: ${utils.getMaxValue(4000, utils.getMaxZIndex(10))};
-            }
-            .whitesevSuspension .whitesevSuspensionMain{
-                background: #fff;
-                border: 1px solid #f2f2f2;
-                box-shadow: 0 0 15px #e4e4e4;
-                box-sizing: border-box;
-                border-radius: inherit;
-                height: inherit;
-                width: inherit;
-            }
-            .whitesevSuspension .whitesevSuspensionFloor{
-                border-bottom: 1px solid #f2f2f2;
-                position: relative;
-                box-sizing: border-box;
-                border-radius: inherit;
-                height: inherit;
-                width: inherit;
-            }
-            .whitesevSuspension .whitesevSuspensionFloor .netdisk{
-                background-position: center center;
-                background-size: 115% 115%;
-                background-repeat: no-repeat;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: inherit;
-                height: inherit;
-                width: inherit;
-            }
-            .whitesevSuspension .whitesevSuspensionFloor .netdisk:hover{
-                transition: all 300ms linear;
-                background-color: #e4e4e4;
-                transform: scale(1.1);
-            }
-            .whitesevPop-content p[pop]{
-                height: 100%;
-            }
-        `;
 	},
 	/**
 	 * 悬浮按钮背景轮播 效果为淡入淡出

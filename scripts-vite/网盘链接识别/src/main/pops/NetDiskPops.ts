@@ -17,16 +17,16 @@ export type PopsSizeConfig = {
 	/** PC端 */
 	PC: {
 		/** 宽度，不建议使用dvw或dvh，因为这个api有点新 */
-		width: string;
+		width: string | (() => string);
 		/** 高度，不建议使用dvw或dvh，因为这个api有点新 */
-		height: string;
+		height: string | (() => string);
 	};
 	/** 移动端 */
 	Mobile: {
 		/** 宽度，不建议使用dvw或dvh，因为这个api有点新 */
-		width: string;
+		width: string | (() => string);
 		/** 高度，不建议使用dvw或dvh，因为这个api有点新 */
-		height: string;
+		height: string | (() => string);
 	};
 };
 
@@ -108,7 +108,8 @@ export const NetDiskPops = {
 			// @ts-ignore
 			callback(target, event, sortName, sortDesc) {
 				NetDiskGlobalData.popsFolder["pops-folder-sort-name"].value = sortName;
-				NetDiskGlobalData.popsFolder["pops-folder-sort-is-desc"].value = sortDesc;
+				NetDiskGlobalData.popsFolder["pops-folder-sort-is-desc"].value =
+					sortDesc;
 			},
 		};
 		// @ts-ignore
@@ -138,19 +139,7 @@ export const NetDiskPops = {
 	 * @param details
 	 * @param sizeConfig 大小配置
 	 */
-	handleDetails(
-		details: any,
-		sizeConfig?: {
-			PC: {
-				width: string;
-				height: string;
-			};
-			Mobile: {
-				width: string;
-				height: string;
-			};
-		}
-	) {
+	handleDetails(details: any, sizeConfig?: PopsSizeConfig) {
 		details = Object.assign(
 			{
 				animation: NetDiskGlobalData.pops.popsAnimation.value,
@@ -161,12 +150,31 @@ export const NetDiskPops = {
 			details
 		);
 		if (sizeConfig != null) {
-			details.width = pops.isPhone()
-				? sizeConfig.Mobile.width
-				: sizeConfig.PC.width;
-			details.height = pops.isPhone()
-				? sizeConfig.Mobile.height
-				: sizeConfig.PC.height;
+			if (pops.isPhone()) {
+				// 移动端
+				let popsWidth =
+					typeof sizeConfig.Mobile.width === "function"
+						? sizeConfig.Mobile.width()
+						: sizeConfig.Mobile.width;
+				let popsHeight =
+					typeof sizeConfig.Mobile.height === "function"
+						? sizeConfig.Mobile.height()
+						: sizeConfig.Mobile.height;
+				details.width = popsWidth;
+				details.height = popsHeight;
+			} else {
+				// PC端
+				let popsWidth =
+					typeof sizeConfig.PC.width === "function"
+						? sizeConfig.PC.width()
+						: sizeConfig.PC.width;
+				let popsHeight =
+					typeof sizeConfig.PC.height === "function"
+						? sizeConfig.PC.height()
+						: sizeConfig.PC.height;
+				details.width = popsWidth;
+				details.height = popsHeight;
+			}
 		}
 		// 设置遮罩层
 		if (details.mask == null) {

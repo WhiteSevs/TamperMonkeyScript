@@ -1,5 +1,9 @@
 import { log } from "@/env";
-import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY } from "../config";
+import {
+	ATTRIBUTE_DEFAULT_VALUE,
+	ATTRIBUTE_KEY,
+	PROPS_STORAGE_API,
+} from "../config";
 import { PopsPanelSwitchDetails } from "@whitesev/pops/dist/types/src/components/panel/switchType";
 import { GM_getValue, GM_setValue } from "ViteGM";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/components/panel/indexType";
@@ -28,29 +32,41 @@ export const UISwitch = function (
 				container: PopsPanelRightAsideContainerOptions
 		  ) => void)
 		| undefined
-): PopsPanelSwitchDetails {
+) {
 	let result: PopsPanelSwitchDetails = {
 		text: text,
 		type: "switch",
 		description: description,
-		attributes: {} as { [key: string]: any },
+		attributes: {},
+		props: {},
 		getValue() {
-			return Boolean(GM_getValue(key, defaultValue));
+			return Boolean(
+				(this.props as any)[PROPS_STORAGE_API].get(key, defaultValue)
+			);
 		},
-		callback(event: MouseEvent | PointerEvent, value: boolean) {
+		callback(event: MouseEvent | PointerEvent, __value: boolean) {
+			let value = Boolean(__value);
 			log.success(`${value ? "开启" : "关闭"} ${text}`);
 			if (typeof clickCallBack === "function") {
 				if (clickCallBack(event, value)) {
 					return;
 				}
 			}
-			GM_setValue(key, Boolean(value));
+			(this.props as any)[PROPS_STORAGE_API].set(key, value);
 		},
 		afterAddToUListCallBack: afterAddToUListCallBack,
 	};
-	if (result.attributes) {
-		result.attributes[ATTRIBUTE_KEY] = key;
-		result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
-	}
+
+	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
+	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+	Reflect.set(result.props!, PROPS_STORAGE_API, {
+		get<T>(key: string, defaultValue: T) {
+			return GM_getValue(key, defaultValue);
+		},
+		set(key: string, value: any) {
+			GM_setValue(key, value);
+		},
+	});
+
 	return result;
 };

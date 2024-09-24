@@ -1,5 +1,10 @@
 import { PopsPanelSliderDetails } from "@whitesev/pops/dist/types/src/components/panel/sliderType";
-import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, KEY } from "../config";
+import {
+	ATTRIBUTE_DEFAULT_VALUE,
+	ATTRIBUTE_KEY,
+	KEY,
+	PROPS_STORAGE_API,
+} from "../config";
 import { GM_getValue, GM_setValue } from "ViteGM";
 
 /**
@@ -31,9 +36,10 @@ export const UISlider = function (
 		text: text,
 		type: "slider",
 		description: description,
-		attributes: {} as { [key: string]: any },
+		attributes: {},
+		props: {},
 		getValue() {
-			return GM_getValue(key, defaultValue);
+			return (this.props as any)[PROPS_STORAGE_API].get(key, defaultValue);
 		},
 		getToolTipContent(value) {
 			if (typeof getToolTipContent === "function") {
@@ -48,16 +54,22 @@ export const UISlider = function (
 					return;
 				}
 			}
-			GM_setValue(key, value);
+			(this.props as any)[PROPS_STORAGE_API].set(key, value);
 		},
 		min: min,
 		max: max,
 		step: step,
 	};
 
-	if (result.attributes) {
-		result.attributes[ATTRIBUTE_KEY] = key;
-		result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
-	}
+	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
+	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+	Reflect.set(result.props!, PROPS_STORAGE_API, {
+		get<T>(key: string, defaultValue: T) {
+			return GM_getValue(key, defaultValue);
+		},
+		set(key: string, value: any) {
+			GM_setValue(key, value);
+		},
+	});
 	return result;
 };

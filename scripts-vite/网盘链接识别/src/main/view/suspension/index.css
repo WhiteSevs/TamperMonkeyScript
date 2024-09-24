@@ -1,0 +1,42 @@
+.whitesevSuspension {
+	top: 0;
+	position: fixed;
+	right: 10px;
+	border-radius: 12px;
+}
+.whitesevSuspension .whitesevSuspensionMain {
+	background: #fff;
+	border: 1px solid #f2f2f2;
+	box-shadow: 0 0 15px #e4e4e4;
+	box-sizing: border-box;
+	border-radius: inherit;
+	height: inherit;
+	width: inherit;
+}
+.whitesevSuspension .whitesevSuspensionFloor {
+	border-bottom: 1px solid #f2f2f2;
+	position: relative;
+	box-sizing: border-box;
+	border-radius: inherit;
+	height: inherit;
+	width: inherit;
+}
+.whitesevSuspension .whitesevSuspensionFloor .netdisk {
+	background-position: center center;
+	background-size: 115% 115%;
+	background-repeat: no-repeat;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: inherit;
+	height: inherit;
+	width: inherit;
+}
+.whitesevSuspension .whitesevSuspensionFloor .netdisk:hover {
+	transition: all 300ms linear;
+	background-color: #e4e4e4;
+	transform: scale(1.1);
+}
+.whitesevPop-content p[pop] {
+	height: 100%;
+}

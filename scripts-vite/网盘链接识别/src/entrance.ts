@@ -8,12 +8,15 @@ import { NetDiskAutoFillAccessCode } from "./main/auto-fill-accesscode/NetDiskAu
 import { NetDiskAuthorization } from "./main/authorization/NetDiskAuthorization";
 import { NetDiskWorker } from "./main/worker/NetDiskWorker";
 import { NetDiskUserRule } from "./main/rule/user-rule/NetDiskUserRule";
+import { WebsiteRule } from "./main/website-rule/WebsiteRule";
 
 Object.assign(
 	NetDiskUI.src.icon,
 	// @ts-ignore
 	typeof RESOURCE_ICON === "undefined" ? {} : RESOURCE_ICON
 );
+// 初始化网站规则
+WebsiteRule.init();
 // 初始化用户规则
 NetDiskUserRule.init();
 // 初始化规则
