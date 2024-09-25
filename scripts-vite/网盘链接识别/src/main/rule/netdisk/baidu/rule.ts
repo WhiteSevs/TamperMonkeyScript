@@ -44,7 +44,11 @@ export const NetDiskRule_baidu: NetDiskRuleConfig = {
 			},
 			function: {
 				enable: true,
-				linkClickMode: "openBlank",
+				linkClickMode: {
+					openBlank: {
+						default: true,
+					},
+				},
 				checkLinkValidity: true,
 			},
 			linkClickMode_openBlank: {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2024.9.24
+// @version      2024.9.25
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -308,6 +308,34 @@
   }
   const NetDiskRuleUtils = {
     /**
+     * 获取点击动作的默认值
+     */
+    getDefaultLinkClickMode() {
+      let data = {
+        copy: {
+          default: false,
+          enable: true,
+          text: "复制到剪贴板"
+        },
+        openBlank: {
+          default: false,
+          enable: true,
+          text: "新窗口打开"
+        },
+        parseFile: {
+          default: false,
+          enable: false,
+          text: "文件解析"
+        },
+        own: {
+          default: false,
+          enable: false,
+          text: "自定义动作"
+        }
+      };
+      return data;
+    },
+    /**
      * 参数替换，区分大小写
      *
      * 例如
@@ -526,8 +554,6 @@
       enable: (key) => `${key}-enable`,
       checkLinkValidity: (key) => `${key}-check-link-valid`,
       linkClickMode: (key) => `${key}-click-mode`
-      // openBlank: (key: string) => `${key}-open-blank`,
-      // parseFile: (key: string) => `${key}-parse-file`,
     },
     /** 点击动作 新标签页打开 */
     linkClickMode_openBlank: {
@@ -1838,8 +1864,14 @@
         },
         function: {
           enable: true,
-          linkClickMode: "openBlank",
-          linkClickMode_extend: ["parseFile"],
+          linkClickMode: {
+            openBlank: {
+              default: true
+            },
+            parseFile: {
+              enable: true
+            }
+          },
           checkLinkValidity: true
         },
         linkClickMode_openBlank: {
@@ -4240,9 +4272,9 @@
     }
     /**
      * 入口
-     * @param {number} netDiskIndex
-     * @param {string} shareCode
-     * @param {string} accessCode
+     * @param netDiskIndex
+     * @param shareCode
+     * @param accessCode
      */
     async init(netDiskIndex, shareCode, accessCode) {
       var _a2, _b, _c, _d;
@@ -6344,25 +6376,6 @@
   };
   const NetDiskLinkClickModeUtils = {
     /**
-     * 判断是否是允许的点击动作
-     * @param modeText 点击动作
-     */
-    isAllowMode(modeText) {
-      let mode = [
-        "copy",
-        "openBlank"
-      ];
-      return mode.includes(modeText);
-    },
-    /**
-     * 判断是否是允许的扩展点击动作
-     * @param modeText 点击动作
-     */
-    isAllowExtendMode(modeText) {
-      let extend_mode = ["parseFile"];
-      return extend_mode.includes(modeText);
-    },
-    /**
      * 获取用于跳转的url
      * @param netDiskName
      * @param netDiskIndex
@@ -8342,26 +8355,26 @@
     requiredFileMap: /* @__PURE__ */ new Map(),
     /**
      * 网络加载文件
-     * @param path
+     * @param url 网络文件路径
      * @param options
      */
-    async file(path, options) {
-      if (utils.isNull(path)) {
-        log.error(["NetDiskRequire.file的参数path为空", path]);
+    async file(url, options) {
+      if (utils.isNull(url)) {
+        log.error(["NetDiskRequire.file的参数path为空", url]);
         return false;
       }
-      if (this.requiredFileMap.has(path)) {
-        log.warn(["NetDiskRequire.file的参数path已引入过", path]);
+      if (this.requiredFileMap.has(url)) {
+        log.warn(["NetDiskRequire.file的参数path已引入过", url]);
         return true;
       }
-      let getResp = await httpx.get(path, options);
+      let getResp = await httpx.get(url, options);
       if (!getResp.status) {
         return false;
       }
       let jsText = getResp.data.responseText;
-      let count = this.requiredFileMap.get(path);
-      this.requiredFileMap.set(path, count++);
-      log.info(["加载js文件", path]);
+      let count = this.requiredFileMap.get(url);
+      this.requiredFileMap.set(url, count++);
+      log.info(["加载js文件", url]);
       _unsafeWindow.eval(
         `
 		let exports = void 0;
@@ -8370,6 +8383,7 @@
 		` + jsText
       );
       await utils.sleep(300);
+      return true;
     }
   };
   const NetDiskUserRuleReplaceParam_matchRange_text = (key) => {
@@ -8672,29 +8686,38 @@
               NetDiskRuleDataKEY.function.linkClickMode(ruleKey),
               "openBlank"
             );
-            netDiskRuleConfig.setting.configurationInterface.function.linkClickMode = "openBlank";
+            netDiskRuleConfig.setting.configurationInterface.function.linkClickMode = {
+              openBlank: {
+                default: true,
+                enable: true
+              }
+            };
           }
-          if (typeof userRuleItemConfig.setting.linkClickMode === "string" && NetDiskLinkClickModeUtils.isAllowMode(
-            userRuleItemConfig.setting.linkClickMode
-          )) {
+          if (typeof userRuleItemConfig.setting.linkClickMode === "object") {
+            let data = utils.assign(
+              NetDiskRuleUtils.getDefaultLinkClickMode(),
+              userRuleItemConfig.setting.linkClickMode || {}
+            );
+            let default_value = null;
+            let selectData = Object.keys(data).map((keyName) => {
+              let itemData = data[keyName];
+              if (!itemData.enable) {
+                return;
+              }
+              if (itemData.default) {
+                default_value = keyName;
+              }
+              return {
+                value: keyName,
+                text: itemData.text
+              };
+            }).filter((item) => item != null);
+            if (default_value == null) {
+              default_value = selectData[0].value;
+            }
             this.initDefaultValue(
               NetDiskRuleDataKEY.function.linkClickMode(ruleKey),
-              userRuleItemConfig.setting.linkClickMode
-            );
-            netDiskRuleConfig.setting.configurationInterface.function.linkClickMode = "openBlank";
-          }
-          if (typeof userRuleItemConfig.setting.linkClickMode_extend === "object" && Array.isArray(userRuleItemConfig.setting.linkClickMode_extend)) {
-            userRuleItemConfig.setting.linkClickMode_extend.forEach(
-              (extendMode) => {
-                if (NetDiskLinkClickModeUtils.isAllowExtendMode(extendMode)) {
-                  if (netDiskRuleConfig.setting.configurationInterface.function.linkClickMode_extend == null) {
-                    netDiskRuleConfig.setting.configurationInterface.function.linkClickMode_extend = [];
-                  }
-                  netDiskRuleConfig.setting.configurationInterface.function.linkClickMode_extend.push(
-                    extendMode
-                  );
-                }
-              }
+              default_value
             );
           }
           if (typeof userRuleItemConfig.setting["openBlankWithCopyAccessCode"] === "boolean") {
@@ -8988,7 +9011,11 @@
         },
         function: {
           enable: true,
-          linkClickMode: "openBlank",
+          linkClickMode: {
+            openBlank: {
+              default: true
+            }
+          },
           checkLinkValidity: true
         },
         linkClickMode_openBlank: {
@@ -9121,8 +9148,14 @@
           },
           function: {
             enable: true,
-            linkClickMode: "openBlank",
-            linkClickMode_extend: ["parseFile"],
+            linkClickMode: {
+              openBlank: {
+                default: true
+              },
+              parseFile: {
+                enable: true
+              }
+            },
             checkLinkValidity: true
           },
           linkClickMode_openBlank: {
@@ -9184,8 +9217,14 @@
         },
         function: {
           enable: true,
-          linkClickMode: "openBlank",
-          linkClickMode_extend: ["parseFile"],
+          linkClickMode: {
+            openBlank: {
+              default: true
+            },
+            parseFile: {
+              enable: true
+            }
+          },
           checkLinkValidity: true
         },
         linkClickMode_openBlank: {
@@ -9230,8 +9269,14 @@
         },
         function: {
           enable: true,
-          linkClickMode: "openBlank",
-          linkClickMode_extend: ["parseFile"],
+          linkClickMode: {
+            openBlank: {
+              default: true
+            },
+            parseFile: {
+              enable: true
+            }
+          },
           checkLinkValidity: true
         },
         linkClickMode_openBlank: {
@@ -9287,7 +9332,11 @@
         },
         function: {
           enable: true,
-          linkClickMode: "openBlank",
+          linkClickMode: {
+            openBlank: {
+              default: true
+            }
+          },
           checkLinkValidity: true
         },
         linkClickMode_openBlank: {
@@ -9353,8 +9402,14 @@
         },
         function: {
           enable: true,
-          linkClickMode: "openBlank",
-          linkClickMode_extend: ["parseFile"],
+          linkClickMode: {
+            openBlank: {
+              default: true
+            },
+            parseFile: {
+              enable: true
+            }
+          },
           checkLinkValidity: true
         },
         linkClickMode_openBlank: {
@@ -9410,8 +9465,14 @@
         },
         function: {
           enable: true,
-          linkClickMode: "openBlank",
-          linkClickMode_extend: ["parseFile"],
+          linkClickMode: {
+            openBlank: {
+              default: true
+            },
+            parseFile: {
+              enable: true
+            }
+          },
           checkLinkValidity: true
         },
         linkClickMode_openBlank: {
@@ -9456,8 +9517,14 @@
         },
         function: {
           enable: true,
-          linkClickMode: "openBlank",
-          linkClickMode_extend: ["parseFile"],
+          linkClickMode: {
+            openBlank: {
+              default: true
+            },
+            parseFile: {
+              enable: true
+            }
+          },
           checkLinkValidity: true
         },
         linkClickMode_openBlank: {
@@ -9502,7 +9569,11 @@
         },
         function: {
           enable: true,
-          linkClickMode: "openBlank",
+          linkClickMode: {
+            openBlank: {
+              default: true
+            }
+          },
           checkLinkValidity: true
         },
         linkClickMode_openBlank: {
@@ -9546,8 +9617,14 @@
         },
         function: {
           enable: true,
-          linkClickMode: "openBlank",
-          linkClickMode_extend: ["parseFile"],
+          linkClickMode: {
+            openBlank: {
+              default: true
+            },
+            parseFile: {
+              enable: true
+            }
+          },
           checkLinkValidity: true
         },
         linkClickMode_openBlank: {
@@ -9666,7 +9743,11 @@
         },
         function: {
           enable: true,
-          linkClickMode: "openBlank",
+          linkClickMode: {
+            openBlank: {
+              default: true
+            }
+          },
           checkLinkValidity: true
         },
         linkClickMode_openBlank: {
@@ -9710,7 +9791,11 @@
         },
         function: {
           enable: true,
-          linkClickMode: "openBlank",
+          linkClickMode: {
+            openBlank: {
+              default: true
+            }
+          },
           checkLinkValidity: true
         },
         linkClickMode_openBlank: {
@@ -9746,7 +9831,11 @@
       configurationInterface: {
         function: {
           enable: true,
-          linkClickMode: "openBlank"
+          linkClickMode: {
+            openBlank: {
+              default: true
+            }
+          }
         },
         schemeUri: {
           enable: false,
@@ -9786,8 +9875,14 @@
         },
         function: {
           enable: true,
-          linkClickMode: "openBlank",
-          linkClickMode_extend: ["parseFile"],
+          linkClickMode: {
+            openBlank: {
+              default: true
+            },
+            parseFile: {
+              enable: true
+            }
+          },
           checkLinkValidity: true
         },
         linkClickMode_openBlank: {
@@ -9833,7 +9928,11 @@
         },
         function: {
           enable: true,
-          linkClickMode: "openBlank",
+          linkClickMode: {
+            openBlank: {
+              default: true
+            }
+          },
           checkLinkValidity: true
         },
         linkClickMode_openBlank: {
@@ -9877,8 +9976,14 @@
         },
         function: {
           enable: true,
-          linkClickMode: "openBlank",
-          linkClickMode_extend: ["parseFile"],
+          linkClickMode: {
+            openBlank: {
+              default: true
+            },
+            parseFile: {
+              enable: true
+            }
+          },
           checkLinkValidity: true
         },
         linkClickMode_openBlank: {
@@ -10035,7 +10140,11 @@
         },
         function: {
           enable: true,
-          linkClickMode: "openBlank",
+          linkClickMode: {
+            openBlank: {
+              default: true
+            }
+          },
           checkLinkValidity: true
         },
         linkClickMode_openBlank: {
@@ -10236,41 +10345,45 @@
           settingConfig.function.enable = NetDiskRuleData.function.enable(ruleKey);
         }
         if ("linkClickMode" in settingConfig.function) {
-          let default_value = typeof settingConfig.function.linkClickMode === "string" ? settingConfig.function.linkClickMode : "copy";
-          let data = [
-            {
-              value: "copy",
-              text: "复制到剪贴板"
-            },
-            {
-              value: "openBlank",
-              text: "新标签页打开"
+          let data = utils.assign(
+            NetDiskRuleUtils.getDefaultLinkClickMode(),
+            settingConfig.function.linkClickMode || {}
+          );
+          let default_value = null;
+          let selectData = Object.keys(data).map((keyName) => {
+            let itemData = data[keyName];
+            if (!itemData.enable) {
+              return;
             }
-          ];
-          let extendData = {
-            parseFile: "文件解析"
-          };
-          if (settingConfig.function.linkClickMode_extend && Array.isArray(settingConfig.function.linkClickMode_extend)) {
-            settingConfig.function.linkClickMode_extend.forEach((extendName) => {
-              if (extendName in extendData) {
-                data.push({
-                  value: extendName,
-                  text: extendData[extendName]
-                });
-              }
-            });
+            if (itemData.default) {
+              default_value = keyName;
+            }
+            return {
+              value: keyName,
+              text: itemData.text
+            };
+          }).filter((item) => item != null);
+          if (default_value == null) {
+            default_value = selectData[0].value;
           }
           function_form.push(
             UISelect(
               "点击动作",
               NetDiskRuleDataKEY.function.linkClickMode(ruleKey),
               default_value,
-              data,
+              selectData,
               void 0,
               "点击匹配到的链接的执行的动作"
             )
           );
-          settingConfig.function.linkClickMode = NetDiskRuleData.function.linkClickMode(ruleKey);
+          for (const linkClickModeKey in settingConfig.function.linkClickMode) {
+            const linkClickModeItem = settingConfig.function.linkClickMode[linkClickModeKey];
+            if (linkClickModeKey === NetDiskRuleData.function.linkClickMode(ruleKey)) {
+              linkClickModeItem.default = true;
+            } else {
+              linkClickModeItem.default = false;
+            }
+          }
         }
         if ("checkLinkValidity" in settingConfig.function) {
           const default_value = typeof settingConfig.function.checkLinkValidity === "boolean" ? settingConfig.function.checkLinkValidity : true;

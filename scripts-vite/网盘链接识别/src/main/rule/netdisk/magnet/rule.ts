@@ -22,7 +22,11 @@ export const NetDiskRule_magnet: NetDiskRuleConfig = {
 		configurationInterface: {
 			function: {
 				enable: true,
-				linkClickMode: "openBlank",
+				linkClickMode: {
+					openBlank: {
+						default: true,
+					},
+				},
 			},
 			schemeUri: {
 				enable: false,

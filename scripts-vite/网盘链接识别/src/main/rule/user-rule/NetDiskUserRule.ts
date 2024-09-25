@@ -6,10 +6,12 @@ import { NetDiskAuthorization } from "../../authorization/NetDiskAuthorization";
 import { NetDiskCheckLinkValidity } from "../../check-valid/NetDiskCheckLinkValidity";
 import { NetDiskParse } from "../../parse/NetDiskParse";
 import { NetDiskRequire } from "./NetDiskRequire";
-import { NetDiskRuleData } from "../../data/NetDiskRuleData";
 import { NetDiskUI } from "../../ui/NetDiskUI";
 import { NetDiskRuleConfig } from "../NetDiskRule";
-import { NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
+import {
+	NetDiskLinkClickModeUtils,
+	type NetDiskRuleSettingConfigurationInterface_linkClickMode,
+} from "@/main/link-click-mode/NetDiskLinkClickMode";
 import { NetDiskRuleDataKEY } from "@/main/data/NetDiskRuleDataKey";
 import { StorageUtils } from "@/utils/StorageUtils";
 import { NetDiskRuleUtils } from "../NetDiskRuleUtils";
@@ -362,42 +364,44 @@ export const NetDiskUserRule = {
 						"openBlank"
 					);
 					netDiskRuleConfig.setting!.configurationInterface!.function!.linkClickMode =
-						"openBlank";
+						{
+							openBlank: {
+								default: true,
+								enable: true,
+							},
+						};
 				}
-				if (
-					typeof userRuleItemConfig.setting.linkClickMode === "string" &&
-					NetDiskLinkClickModeUtils.isAllowMode(
-						userRuleItemConfig.setting.linkClickMode
-					)
-				) {
-					/* 点击动作 */
+				if (typeof userRuleItemConfig.setting.linkClickMode === "object") {
+					// 点击动作
+					let data = utils.assign(
+						NetDiskRuleUtils.getDefaultLinkClickMode(),
+						userRuleItemConfig.setting.linkClickMode || {}
+					);
+					let default_value: null | NetDiskRuleSettingConfigurationInterface_linkClickMode =
+						null;
+					let selectData = Object.keys(data)
+						.map((keyName) => {
+							let itemData = data[keyName as keyof typeof data];
+							if (!itemData.enable) {
+								return;
+							}
+							if (itemData.default) {
+								default_value = keyName as keyof typeof data;
+							}
+							return {
+								value: keyName,
+								text: itemData.text!,
+							};
+						})
+						.filter((item) => item != null);
+					if (default_value == null) {
+						// 直接取可选菜单的第一个值
+						default_value = selectData[0]
+							.value as NetDiskRuleSettingConfigurationInterface_linkClickMode;
+					}
 					this.initDefaultValue(
 						NetDiskRuleDataKEY.function.linkClickMode(ruleKey),
-						userRuleItemConfig.setting.linkClickMode
-					);
-					netDiskRuleConfig.setting!.configurationInterface!.function!.linkClickMode =
-						"openBlank";
-				}
-				if (
-					typeof userRuleItemConfig.setting.linkClickMode_extend === "object" &&
-					Array.isArray(userRuleItemConfig.setting.linkClickMode_extend)
-				) {
-					userRuleItemConfig.setting.linkClickMode_extend.forEach(
-						(extendMode) => {
-							if (NetDiskLinkClickModeUtils.isAllowExtendMode(extendMode)) {
-								// 判断是否初始化数组
-								if (
-									netDiskRuleConfig.setting!.configurationInterface!.function!
-										.linkClickMode_extend == null
-								) {
-									netDiskRuleConfig.setting!.configurationInterface!.function!.linkClickMode_extend =
-										[];
-								}
-								netDiskRuleConfig.setting!.configurationInterface!.function!.linkClickMode_extend.push(
-									extendMode
-								);
-							}
-						}
+						default_value
 					);
 				}
 				if (

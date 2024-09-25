@@ -1,9 +1,40 @@
 import { log, utils } from "@/env";
+import type { NetDiskRuleSettingConfigurationInterface_Function } from "./NetDiskRule";
 
 /**
  * 规则的工具
  */
 export const NetDiskRuleUtils = {
+	/**
+	 * 获取点击动作的默认值
+	 */
+	getDefaultLinkClickMode() {
+		let data: Required<
+			NetDiskRuleSettingConfigurationInterface_Function["linkClickMode"]
+		> = {
+			copy: {
+				default: false,
+				enable: true,
+				text: "复制到剪贴板",
+			},
+			openBlank: {
+				default: false,
+				enable: true,
+				text: "新窗口打开",
+			},
+			parseFile: {
+				default: false,
+				enable: false,
+				text: "文件解析",
+			},
+			own: {
+				default: false,
+				enable: false,
+				text: "自定义动作",
+			},
+		};
+		return data;
+	},
 	/**
 	 * 参数替换，区分大小写
 	 *

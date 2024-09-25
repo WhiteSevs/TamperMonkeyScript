@@ -7,26 +7,26 @@ export const NetDiskRequire = {
 	requiredFileMap: new Map<string, number>(),
 	/**
 	 * 网络加载文件
-	 * @param path
+	 * @param url 网络文件路径
 	 * @param options
 	 */
-	async file(path: string, options: HttpxDetails) {
-		if (utils.isNull(path)) {
-			log.error(["NetDiskRequire.file的参数path为空", path]);
+	async file(url: string, options?: HttpxDetails) {
+		if (utils.isNull(url)) {
+			log.error(["NetDiskRequire.file的参数path为空", url]);
 			return false;
 		}
-		if (this.requiredFileMap.has(path)) {
-			log.warn(["NetDiskRequire.file的参数path已引入过", path]);
+		if (this.requiredFileMap.has(url)) {
+			log.warn(["NetDiskRequire.file的参数path已引入过", url]);
 			return true;
 		}
-		let getResp = await httpx.get(path, options);
+		let getResp = await httpx.get(url, options);
 		if (!getResp.status) {
 			return false;
 		}
 		let jsText = getResp.data.responseText;
-		let count = this.requiredFileMap.get(path)!;
-		this.requiredFileMap.set(path, count++);
-		log.info(["加载js文件", path]);
+		let count = this.requiredFileMap.get(url)!;
+		this.requiredFileMap.set(url, count++);
+		log.info(["加载js文件", url]);
 		unsafeWindow.eval(
 			`
 		let exports = void 0;
@@ -35,5 +35,6 @@ export const NetDiskRequire = {
 		` + jsText
 		);
 		await utils.sleep(300);
+		return true;
 	},
 };

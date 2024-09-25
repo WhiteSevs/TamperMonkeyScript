@@ -1,6 +1,6 @@
 /**
  * 上下文环境api
- * 
+ *
  * 通过this.xxx访问
  */
 declare interface NetDiskUserCustomRuleContext {
@@ -74,18 +74,18 @@ declare interface NetDiskUserCustomRuleContext {
 declare interface NetDiskUserCustomRuleRegexp {
 	/**
 	 * 当设置中匹配类型为文本，使用该规则
-	 * 
+	 *
 	 * 以下是可使用的替换的参数
-	 * 
+	 *
 	 * + `{#matchRange-text-before#}`替换为setting配置的`innerTextAccessCodeBeforeMaxRange`
 	 * + `{#matchRange-text-after#}`替换为setting配置的`innerTextAccessCodeAfterMaxRange`
 	 */
 	link_innerText: string;
 	/**
 	 * 当设置中匹配类型为超文本，使用该规则
-	 * 
+	 *
 	 * 以下是可使用的替换的参数
-	 * 
+	 *
 	 * + `{#matchRange-html-before#}`替换为setting配置的`innerHTMLAccessCodeBeforeMaxRange`
 	 * + `{#matchRange-html-after#}`替换为setting配置的`innerHTMLAccessCodeAfterMaxRange`
 	 */
@@ -220,14 +220,17 @@ declare interface NetDiskUserCustomRuleSetting {
 	/**
 	 * 点击动作
 	 * 【功能】-【点击动作】
-	 * @default "copy"
 	 */
-	linkClickMode: "copy" | "openBlank" | "parseFile";
-	/**
-	 * 点击动作-扩展（在linkClickMode基础上扩展显示出来的）
-	 * 如果linkClickMode设置了parseFile，但是linkClickMode_extend中没有扩展它，那就不会显示
-	 */
-	linkClickMode_extend: "parseFile"[];
+	linkClickMode: {
+		[key in "copy" | "openBlank" | "parseFile" | "own"]?: {
+			/** 是否是默认值 */
+			default: boolean;
+			/** 是否启用 */
+			enable: boolean;
+			/** 显示文字 */
+			text: string;
+		};
+	};
 	/**
 	 * 通过新标签页打开时，复制访问码
 	 *

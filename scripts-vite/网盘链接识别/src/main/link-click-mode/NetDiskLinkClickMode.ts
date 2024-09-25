@@ -8,44 +8,14 @@ import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import { NetDisk } from "../NetDisk";
 import { NetDiskRuleUtils } from "../rule/NetDiskRuleUtils";
 
+/** 点击动作 */
 export type NetDiskRuleSettingConfigurationInterface_linkClickMode =
 	| "copy"
-	| "openBlank";
-
-export type NetDiskRuleSettingConfigurationInterface_linkClickMode_extend =
-	| "parseFile";
-
-export type NetDiskRuleSettingConfigurationInterface_linkClickMode_all =
-	| NetDiskRuleSettingConfigurationInterface_linkClickMode
-	| NetDiskRuleSettingConfigurationInterface_linkClickMode_extend;
+	| "openBlank"
+	| "parseFile"
+	| "own";
 
 export const NetDiskLinkClickModeUtils = {
-	/**
-	 * 判断是否是允许的点击动作
-	 * @param modeText 点击动作
-	 */
-	isAllowMode(
-		modeText: string | NetDiskRuleSettingConfigurationInterface_linkClickMode
-	) {
-		let mode: NetDiskRuleSettingConfigurationInterface_linkClickMode[] = [
-			"copy",
-			"openBlank",
-		];
-		return mode.includes(modeText as any);
-	},
-	/**
-	 * 判断是否是允许的扩展点击动作
-	 * @param modeText 点击动作
-	 */
-	isAllowExtendMode(
-		modeText:
-			| string
-			| NetDiskRuleSettingConfigurationInterface_linkClickMode_extend
-	) {
-		let extend_mode: NetDiskRuleSettingConfigurationInterface_linkClickMode_extend[] =
-			["parseFile"];
-		return extend_mode.includes(modeText as any);
-	},
 	/**
 	 * 获取用于跳转的url
 	 * @param netDiskName

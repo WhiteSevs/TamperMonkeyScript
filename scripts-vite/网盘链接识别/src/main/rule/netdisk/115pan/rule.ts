@@ -30,7 +30,11 @@ export const NetDiskRule_115pan: NetDiskRuleConfig = {
 			},
 			function: {
 				enable: true,
-				linkClickMode: "openBlank",
+				linkClickMode: {
+					openBlank: {
+						default: true,
+					},
+				},
 				checkLinkValidity: true,
 			},
 			linkClickMode_openBlank: {

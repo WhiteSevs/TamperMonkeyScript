@@ -43,7 +43,11 @@ export const NetDiskRule_hecaiyun: NetDiskRuleConfig = {
 			},
 			function: {
 				enable: true,
-				linkClickMode: "openBlank",
+				linkClickMode: {
+					openBlank: {
+						default: true,
+					},
+				},
 				checkLinkValidity: true,
 			},
 			linkClickMode_openBlank: {

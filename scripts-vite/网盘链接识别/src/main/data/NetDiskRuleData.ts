@@ -1,7 +1,4 @@
-import {
-	NetDiskRuleSettingConfigurationInterface_linkClickMode,
-	NetDiskRuleSettingConfigurationInterface_linkClickMode_extend,
-} from "../link-click-mode/NetDiskLinkClickMode";
+import { NetDiskRuleSettingConfigurationInterface_linkClickMode } from "../link-click-mode/NetDiskLinkClickMode";
 import { NetDiskRuleDataKEY } from "./NetDiskRuleDataKey";
 import { GeneratePanelData } from "./NetDiskDataUtils";
 
@@ -90,9 +87,7 @@ export const NetDiskRuleData = {
 				NetDiskRuleDataKEY.function.linkClickMode(key),
 				defaultValue
 			);
-			return panelData.value as
-				| NetDiskRuleSettingConfigurationInterface_linkClickMode
-				| NetDiskRuleSettingConfigurationInterface_linkClickMode_extend;
+			return panelData.value;
 		},
 		/**
 		 * 是否进行校验链接有效性

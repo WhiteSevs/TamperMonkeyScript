@@ -26,13 +26,9 @@ import { UISlider } from "@/setting/common-components/ui-slider";
 import { UISwitch } from "@/setting/common-components/ui-switch";
 import { UIInput } from "@/setting/common-components/ui-input";
 import { NetDiskUI } from "../ui/NetDiskUI";
-import { pops } from "@/env";
+import { pops, utils } from "@/env";
 import { UISelect } from "@/setting/common-components/ui-select";
-import {
-	NetDiskRuleSettingConfigurationInterface_linkClickMode,
-	NetDiskRuleSettingConfigurationInterface_linkClickMode_extend,
-	NetDiskRuleSettingConfigurationInterface_linkClickMode_all,
-} from "../link-click-mode/NetDiskLinkClickMode";
+import { NetDiskRuleSettingConfigurationInterface_linkClickMode } from "../link-click-mode/NetDiskLinkClickMode";
 import { NetDiskRuleDataKEY } from "../data/NetDiskRuleDataKey";
 import { NetDiskRuleData } from "../data/NetDiskRuleData";
 import { NetDiskRuleUtils } from "./NetDiskRuleUtils";
@@ -42,28 +38,55 @@ import {
 } from "./user-rule/NetDiskUserRuleReplaceParam";
 import { NetDiskRule_115pan } from "./netdisk/115pan/rule";
 
+/** 匹配范围 */
 export type NetDiskRuleSettingConfigurationInterface_MatchRange = {
 	/** 间隔前 */
 	before?: number;
 	/** 间隔后 */
 	after?: number;
 };
+/** 功能 */
 export type NetDiskRuleSettingConfigurationInterface_Function = {
 	/** 是否启用 */
 	enable?: boolean;
-	/** 链接点击动作 @default "copy" */
-	linkClickMode?:
-		| NetDiskRuleSettingConfigurationInterface_linkClickMode
-		| NetDiskRuleSettingConfigurationInterface_linkClickMode_extend;
-	/** 链接点击动作-扩展 这个配置项是扩展linkClickMode的，不会存储 */
-	linkClickMode_extend?: NetDiskRuleSettingConfigurationInterface_linkClickMode_extend[];
+	/**
+	 * 链接点击动作
+	 *
+	 * 默认启用复制和新标签页打开
+	 *
+	 * 默认选择复制到剪贴板
+	 * @default {
+	 * "copy": {
+	 *         "default": true,
+	 *         "enable": true,
+	 *         "text": "复制到剪贴板",
+	 *     }
+	 * },
+	 * "openBlank": {
+	 *         "enable": true,
+	 *         "text": "新标签页打开",
+	 *     }
+	 * }
+	 */
+	linkClickMode?: {
+		[key in NetDiskRuleSettingConfigurationInterface_linkClickMode]?: {
+			/** 是否是默认值 */
+			default?: boolean;
+			/** 是否启用 */
+			enable?: boolean;
+			/** 显示的文字 */
+			text?: string;
+		};
+	};
 	/** 验证链接有效性 */
 	checkLinkValidity?: boolean;
 };
+/** 点击动作-新标签页打开 */
 export type NetDiskRuleSettingConfigurationInterface_linkClickMode_openBlank = {
 	/** 跳转时复制访问码 */
 	openBlankWithCopyAccessCode?: boolean;
 };
+/** Scheme转发 */
 export type NetDiskRuleSettingConfigurationInterface_SchemeUri = {
 	/** 是否启用 */
 	enable?: boolean;
@@ -74,6 +97,7 @@ export type NetDiskRuleSettingConfigurationInterface_SchemeUri = {
 	/** Uri链接 */
 	uri?: string;
 };
+/** 自定义配置列表 */
 export type NetDiskRuleSettingConfigurationInterface_OwnFormList = (
 	| PopsPanelFormsDetails
 	| PopsPanelFormsTotalDetails
@@ -341,53 +365,56 @@ export const NetDiskRule = {
 					NetDiskRuleData.function.enable(ruleKey);
 			}
 			if ("linkClickMode" in settingConfig.function) {
-				let default_value: NetDiskRuleSettingConfigurationInterface_linkClickMode_all =
-					typeof settingConfig.function.linkClickMode === "string"
-						? settingConfig.function.linkClickMode
-						: "copy";
-				let data = [
-					{
-						value: "copy",
-						text: "复制到剪贴板",
-					},
-					{
-						value: "openBlank",
-						text: "新标签页打开",
-					},
-				];
-				// 扩展数据
-				let extendData: {
-					[key in NetDiskRuleSettingConfigurationInterface_linkClickMode_extend]: string;
-				} = {
-					parseFile: "文件解析",
-				};
-				if (
-					settingConfig.function.linkClickMode_extend &&
-					Array.isArray(settingConfig.function.linkClickMode_extend)
-				) {
-					// 扩展
-					settingConfig.function.linkClickMode_extend.forEach((extendName) => {
-						if (extendName in extendData) {
-							data.push({
-								value: extendName,
-								text: extendData[extendName],
-							});
+				let data = utils.assign(
+					NetDiskRuleUtils.getDefaultLinkClickMode(),
+					settingConfig.function.linkClickMode || {}
+				);
+				let default_value: null | NetDiskRuleSettingConfigurationInterface_linkClickMode =
+					null;
+				let selectData = Object.keys(data)
+					.map((keyName) => {
+						let itemData = data[keyName as keyof typeof data];
+						if (!itemData.enable) {
+							return;
 						}
-					});
+						if (itemData.default) {
+							default_value = keyName as keyof typeof data;
+						}
+						return {
+							value: keyName,
+							text: itemData.text!,
+						};
+					})
+					.filter((item) => item != null);
+				if (default_value == null) {
+					// 直接取可选菜单的第一个值
+					default_value = selectData[0]
+						.value as NetDiskRuleSettingConfigurationInterface_linkClickMode;
 				}
 				function_form.push(
 					UISelect(
 						"点击动作",
 						NetDiskRuleDataKEY.function.linkClickMode(ruleKey),
 						default_value,
-						data,
+						selectData,
 						void 0,
 						"点击匹配到的链接的执行的动作"
 					)
 				);
 				// 覆盖默认值
-				settingConfig.function.linkClickMode =
-					NetDiskRuleData.function.linkClickMode(ruleKey);
+				for (const linkClickModeKey in settingConfig.function.linkClickMode) {
+					const linkClickModeItem =
+						settingConfig.function.linkClickMode[
+							linkClickModeKey as keyof typeof settingConfig.function.linkClickMode
+						];
+					if (
+						linkClickModeKey === NetDiskRuleData.function.linkClickMode(ruleKey)
+					) {
+						linkClickModeItem!.default = true;
+					} else {
+						linkClickModeItem!.default = false;
+					}
+				}
 			}
 			if ("checkLinkValidity" in settingConfig.function) {
 				const default_value =
@@ -534,7 +561,7 @@ export const NetDiskRule = {
 				});
 			}
 		}
-		
+
 		if (settingConfig.matchRange_text) {
 			let matchRange_text_form: PopsPanelFormsTotalDetails[] = [];
 			if ("before" in settingConfig.matchRange_text) {

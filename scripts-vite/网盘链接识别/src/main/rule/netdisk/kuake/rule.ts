@@ -30,7 +30,11 @@ export const NetDiskRule_kuake: NetDiskRuleConfig = {
 			},
 			function: {
 				enable: true,
-				linkClickMode: "openBlank",
+				linkClickMode: {
+					openBlank: {
+						default: true,
+					},
+				},
 				checkLinkValidity: true,
 			},
 			linkClickMode_openBlank: {

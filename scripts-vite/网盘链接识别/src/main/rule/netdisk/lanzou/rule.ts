@@ -49,8 +49,14 @@ export const NetDiskRule_lanzou = (): NetDiskRuleConfig => {
 				},
 				function: {
 					enable: true,
-					linkClickMode: "openBlank",
-					linkClickMode_extend: ["parseFile"],
+					linkClickMode: {
+						openBlank: {
+							default: true,
+						},
+						parseFile: {
+							enable: true,
+						},
+					},
 					checkLinkValidity: true,
 				},
 				linkClickMode_openBlank: {

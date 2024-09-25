@@ -17,8 +17,6 @@ export const NetDiskRuleDataKEY = {
 		enable: (key: string) => `${key}-enable`,
 		checkLinkValidity: (key: string) => `${key}-check-link-valid`,
 		linkClickMode: (key: string) => `${key}-click-mode`,
-		// openBlank: (key: string) => `${key}-open-blank`,
-		// parseFile: (key: string) => `${key}-parse-file`,
 	},
 	/** 点击动作 新标签页打开 */
 	linkClickMode_openBlank: {

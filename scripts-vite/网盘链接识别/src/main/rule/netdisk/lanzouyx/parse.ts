@@ -131,9 +131,9 @@ export class NetDiskParse_Lanzouyx extends NetDiskParseObject {
 	shareCodeId = void 0 as any as number;
 	/**
 	 * 入口
-	 * @param {number} netDiskIndex
-	 * @param {string} shareCode
-	 * @param {string} accessCode
+	 * @param netDiskIndex
+	 * @param shareCode
+	 * @param accessCode
 	 */
 	async init(netDiskIndex: number, shareCode: string, accessCode: string) {
 		const that = this;
