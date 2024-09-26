@@ -3951,20 +3951,48 @@ class Utils {
 		compareArrayData?: TT[],
 		compareFun?: (item1: T, item2: TT) => boolean
 	): any[];
-	uniqueArray<T extends any, TT extends any>(
+	/**
+	 * 数组去重，去除不需要的值
+	 * @param uniqueArrayData 需要过滤的数组
+	 * @param getIdentfierValue 获取用于确定唯一性的值
+	 * @example
+	 * Utils.uniqueArray([{name:"1",host:"baidu.com"},{name:"2",host:"baidu.com"},{name:"3",host:"baidu.com"}]);
+	 * > [{name:"1",host:"baidu.com"}]
+	 */
+	uniqueArray<T>(
+		uniqueArrayData: T[],
+		getIdentfierValue: (itemValue: T) => any
+	): T[];
+	uniqueArray<T, T2>(
 		uniqueArrayData: T[] = [],
-		compareArrayData: TT[] = [],
-		compareFun: (item1: T, item2: TT) => boolean = (item, item2) => {
-			// @ts-ignore
+		compareArrayData: any,
+		compareFun: any = (item: any, item2: any) => {
 			return item === item2;
 		}
 	): any[] {
-		return Array.from(uniqueArrayData).filter(
-			(item) =>
-				!Array.from(compareArrayData).some(function (item2) {
-					return compareFun(item, item2);
-				})
-		);
+		if (typeof compareArrayData === "function") {
+			const compareFn = compareArrayData;
+			const seen = new Set();
+
+			const result: T[] = [];
+			for (const item of uniqueArrayData) {
+				// 使用compareFn函数来获取当前对象的唯一标识
+				const identfier = compareFn(item);
+				// 如果Set中还没有这个标识，则添加到结果数组中，并将其标识存入Set
+				if (!seen.has(identfier)) {
+					seen.add(identfier);
+					result.push(item);
+				}
+			}
+			return result;
+		} else {
+			return Array.from(uniqueArrayData).filter(
+				(item) =>
+					!Array.from(compareArrayData).some(function (item2) {
+						return compareFun(item, item2);
+					})
+			);
+		}
 	}
 	/**
 	 * 等待函数数组全部执行完毕，注意，每个函数的顺序不是同步

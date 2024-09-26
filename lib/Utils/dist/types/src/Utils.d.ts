@@ -1420,6 +1420,15 @@ declare class Utils {
      **/
     uniqueArray<T extends any, TT extends any>(uniqueArrayData?: T[], compareArrayData?: TT[], compareFun?: (item1: T, item2: TT) => boolean): any[];
     /**
+     * 数组去重，去除不需要的值
+     * @param uniqueArrayData 需要过滤的数组
+     * @param getIdentfierValue 获取用于确定唯一性的值
+     * @example
+     * Utils.uniqueArray([{name:"1",host:"baidu.com"},{name:"2",host:"baidu.com"},{name:"3",host:"baidu.com"}]);
+     * > [{name:"1",host:"baidu.com"}]
+     */
+    uniqueArray<T>(uniqueArrayData: T[], getIdentfierValue: (itemValue: T) => any): T[];
+    /**
      * 等待函数数组全部执行完毕，注意，每个函数的顺序不是同步
      * @param data 需要遍历的数组
      * @param handleFunc 对该数组进行操作的函数，该函数的参数为数组格式的参数,[数组下标，数组项]
