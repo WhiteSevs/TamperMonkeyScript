@@ -1299,7 +1299,7 @@ class Httpx {
 				return uuid;
 			} else {
 				console.warn(
-					"HttpxRequestHook.addBeforeRequestCallBack: fn is not a function"
+					"[Httpx-HttpxRequestHook.addBeforeRequestCallBack] fn is not a function"
 				);
 			}
 		},
@@ -1889,66 +1889,93 @@ class Httpx {
 			argumentsList: any
 		) {
 			/* X浏览器会因为设置了responseType导致不返回responseText */
-			let Response: HttpxAsyncResultData<HttpxDetails> = argumentsList[0];
+			let originResponse: HttpxAsyncResultData<HttpxDetails> = argumentsList[0];
 			/* responseText为空，response不为空的情况 */
 			if (
-				Utils.isNull(Response["responseText"]) &&
-				Utils.isNotNull(Response["response"])
+				Utils.isNull(originResponse["responseText"]) &&
+				Utils.isNotNull(originResponse["response"])
 			) {
-				if (typeof Response["response"] === "object") {
+				if (typeof originResponse["response"] === "object") {
 					Utils.tryCatch().run(() => {
-						Response["responseText"] = JSON.stringify(Response["response"]);
+						originResponse["responseText"] = JSON.stringify(
+							originResponse["response"]
+						);
 					});
 				} else {
-					Response["responseText"] = Response["response"];
+					originResponse["responseText"] = originResponse["response"];
 				}
 			}
 
 			/* response为空，responseText不为空的情况 */
 			if (
-				Response["response"] == null &&
-				typeof Response["responseText"] === "string" &&
-				Response["responseText"].trim() !== ""
+				originResponse["response"] == null &&
+				typeof originResponse["responseText"] === "string" &&
+				originResponse["responseText"].trim() !== ""
 			) {
-				let newResponse = Response["responseText"];
+				/** 原始的请求text */
+				let httpxResponseText = originResponse.responseText;
+				// 自定义个新的response
+				let httpxResponse: any = httpxResponseText;
 				if (details.responseType === "json") {
-					(newResponse as any) = Utils.toJSON(Response["responseText"]);
+					httpxResponse = Utils.toJSON(httpxResponseText);
 				} else if (details.responseType === "document") {
 					let parser = new DOMParser();
-					(newResponse as any) = parser.parseFromString(
-						Response["responseText"],
+					httpxResponse = parser.parseFromString(
+						httpxResponseText,
 						"text/html"
 					);
 				} else if (details.responseType === "arraybuffer") {
 					let encoder = new TextEncoder();
-					let arrayBuffer = encoder.encode(Response["responseText"]);
-					(newResponse as any) = arrayBuffer;
+					let arrayBuffer = encoder.encode(httpxResponseText);
+					httpxResponse = arrayBuffer;
 				} else if (details.responseType === "blob") {
 					let encoder = new TextEncoder();
-					let arrayBuffer = encoder.encode(Response["responseText"]);
-					(newResponse as any) = new Blob([arrayBuffer]);
-				} else {
-					newResponse = Response["responseText"];
+					let arrayBuffer = encoder.encode(httpxResponseText);
+					httpxResponse = new Blob([arrayBuffer]);
 				}
+				// 尝试覆盖原response
 				try {
-					Response["response"] = newResponse;
+					let setStatus = Reflect.set(
+						originResponse,
+						"response",
+						httpxResponse
+					);
+					if (!setStatus) {
+						console.warn(
+							"[Httpx-HttpxCallBack.oonLoad] 覆盖原始 response 失败，尝试添加新的httpxResponse"
+						);
+						try {
+							Reflect.set(originResponse, "httpxResponse", httpxResponse);
+						} catch (error) {
+							console.warn(
+								"[Httpx-HttpxCallBack.oonLoad] httpxResponse 无法被覆盖"
+							);
+						}
+					}
 				} catch (error) {
-					console.warn("response 无法被覆盖");
+					console.warn(
+						"[Httpx-HttpxCallBack.oonLoad] 原始 response 无法被覆盖，尝试添加新的httpxResponse"
+					);
+					try {
+						Reflect.set(originResponse, "httpxResponse", httpxResponse);
+					} catch (error) {
+						console.warn(
+							"[Httpx-HttpxCallBack.oonLoad] httpxResponse 无法被覆盖"
+						);
+					}
 				}
 			}
 			/* Stay扩展中没有finalUrl，对应的是responseURL */
-			if (
-				Response["finalUrl"] == null &&
-				(Response as any)["responseURL"] != null
-			) {
-				Response["finalUrl"] = (Response as any)["responseURL"];
+			let originResponseURL = Reflect.get(originResponse, "responseURL");
+			if (originResponse["finalUrl"] == null && originResponseURL != null) {
+				Reflect.set(originResponse, "finalUrl", originResponseURL);
 			}
 
 			/* 状态码2xx都是成功的 */
-			if (Math.floor(Response.status / 100) === 2) {
+			if (Math.floor(originResponse.status / 100) === 2) {
 				if (
 					this.context.HttpxResponseHook.successResponseCallBack(
-						Response,
+						originResponse,
 						details
 					) == null
 				) {
@@ -1957,7 +1984,7 @@ class Httpx {
 				}
 				resolve({
 					status: true,
-					data: Response,
+					data: originResponse,
 					details: details,
 					msg: "请求完毕",
 					type: "onload",
@@ -2007,7 +2034,7 @@ class Httpx {
 		 */
 		request(details: Required<HttpxDetails>) {
 			if (this.context.#LOG_DETAILS) {
-				console.log("Httpx请求配置👇", details);
+				console.log("[Httpx-HttpxRequest.request] 请求前的配置👇", details);
 			}
 			if (
 				typeof this.context.HttpxRequestHook.beforeRequestCallBack ===
@@ -2047,37 +2074,43 @@ class Httpx {
 			abortController: AbortController
 		) {
 			fetch(details.url, fetchRequestInit)
-				.then(async (resp) => {
-					/**
-					 * @type {HttpxAsyncResultData}
-					 */
-					let httpxResponse = {
+				.then(async (fetchResponse) => {
+					/** 自定义的response */
+					let httpxResponse: HttpxAsyncResultData = {
 						isFetch: true,
-						finalUrl: resp.url,
+						finalUrl: fetchResponse.url,
 						readyState: 4,
-						status: resp.status,
-						statusText: resp.statusText,
+						// @ts-ignore
+						status: fetchResponse.status,
+						statusText: fetchResponse.statusText,
 						response: void 0,
-						responseFetchHeaders: resp.headers,
+						responseFetchHeaders: fetchResponse.headers,
 						responseHeaders: "",
+						// @ts-ignore
 						responseText: void 0,
 						responseType: details.responseType,
 						responseXML: void 0,
 					};
 					Object.assign(httpxResponse, details.context || {});
 
-					for (const [key, value] of (resp.headers as any).entries()) {
+					// 把headers转为字符串
+					for (const [key, value] of (fetchResponse.headers as any).entries()) {
 						httpxResponse.responseHeaders += `${key}: ${value}\n`;
 					}
 
-					/* 如果是流式传输，直接返回 */
+					/** 请求返回的类型 */
+					const fetchResponseType = fetchResponse.headers.get("Content-Type");
+
+					/* 如果需要stream，且获取到的是stream，那直接返回 */
 					if (
 						details.responseType === "stream" ||
-						(resp.headers.has("Content-Type") &&
-							resp.headers.get("Content-Type")!.includes("text/event-stream"))
+						(fetchResponse.headers.has("Content-Type") &&
+							fetchResponse.headers
+								.get("Content-Type")!
+								.includes("text/event-stream"))
 					) {
-						(httpxResponse as any)["isStream"] = true;
-						(httpxResponse as any).response = resp.body;
+						Reflect.set(httpxResponse, "isStream", true);
+						Reflect.set(httpxResponse, "response", fetchResponse.body);
 						Reflect.deleteProperty(httpxResponse, "responseText");
 						Reflect.deleteProperty(httpxResponse, "responseXML");
 						details.onload(httpxResponse);
@@ -2085,57 +2118,67 @@ class Httpx {
 					}
 
 					/** 响应 */
-					let response = "";
+					let response: any = "";
 					/** 响应字符串 */
 					let responseText = "";
 					/** 响应xml文档 */
-					let responseXML = "";
+					let responseXML: XMLDocument | string = "";
+					/** 先获取二进制数据 */
+					let arrayBuffer = await fetchResponse.arrayBuffer();
 
-					let arrayBuffer = await resp.arrayBuffer();
-
+					/** 数据编码 */
 					let encoding = "utf-8";
-					if (resp.headers.has("Content-Type")) {
-						let charsetMatched = resp.headers
+					if (fetchResponse.headers.has("Content-Type")) {
+						let charsetMatched = fetchResponse.headers
 							.get("Content-Type")
 							?.match(/charset=(.+)/);
 						if (charsetMatched) {
 							encoding = charsetMatched[1];
+							encoding = encoding.toLowerCase();
 						}
 					}
+					// Failed to construct 'TextDecoder': The encoding label provided ('"UTF-8"') is invalid.
+					// 去除引号
+					encoding = encoding.replace(/('|")/gi, "");
+					// 编码
 					let textDecoder = new TextDecoder(encoding);
 					responseText = textDecoder.decode(arrayBuffer);
 					response = responseText;
 
 					if (details.responseType === "arraybuffer") {
-						(response as any) = arrayBuffer;
+						// response返回格式是二进制流
+						response = arrayBuffer;
 					} else if (details.responseType === "blob") {
-						(response as any) = new Blob([arrayBuffer as any]);
+						// response返回格式是blob
+						response = new Blob([arrayBuffer]);
+					} else if (
+						details.responseType === "json" ||
+						(typeof fetchResponseType === "string" &&
+							fetchResponseType.includes("application/json"))
+					) {
+						// response返回格式是JSON格式
+						response = Utils.toJSON(responseText);
 					} else if (
 						details.responseType === "document" ||
 						details.responseType == null
 					) {
+						// response返回格式是文档格式
 						let parser = new DOMParser();
-						(response as any) = parser.parseFromString(
-							responseText,
-							"text/html"
-						);
-					} else if (details.responseType === "json") {
-						(response as any) = Utils.toJSON(responseText);
+						response = parser.parseFromString(responseText, "text/html");
 					}
+					// 转为XML结构
 					let parser = new DOMParser();
-					(responseXML as any) = parser.parseFromString(
-						responseText,
-						"text/xml"
-					);
+					responseXML = parser.parseFromString(responseText, "text/xml");
 
-					(httpxResponse as any).response = response;
-					(httpxResponse as any).responseText = responseText;
-					(httpxResponse as any).responseXML = responseXML;
+					Reflect.set(httpxResponse, "response", response);
+					Reflect.set(httpxResponse, "responseText", responseText);
+					Reflect.set(httpxResponse, "responseXML", responseXML);
 
+					// 执行回调
 					details.onload(httpxResponse);
 				})
-				.catch((err) => {
-					if (err.name === "AbortError") {
+				.catch((error: any) => {
+					if (error.name === "AbortError") {
 						return;
 					}
 					details.onerror({
@@ -2146,7 +2189,7 @@ class Httpx {
 						statusText: "",
 						responseHeaders: "",
 						responseText: "",
-						error: err,
+						error: error,
 					});
 				});
 			details.onloadstart({
@@ -2210,7 +2253,7 @@ class Httpx {
 	constructor(__xmlHttpRequest__?: any) {
 		if (typeof __xmlHttpRequest__ !== "function") {
 			console.warn(
-				"Httpx未传入GM_xmlhttpRequest函数或传入的GM_xmlhttpRequest不是Function，强制使用window.fetch"
+				"[Httpx-constructor] 未传入GM_xmlhttpRequest函数或传入的GM_xmlhttpRequest不是Function，将默认使用window.fetch"
 			);
 		}
 		this.interceptors.request.context = this as any;
