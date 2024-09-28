@@ -1048,6 +1048,26 @@ export declare interface HttpxDetails {
 	 */
 	cookie?: string;
 	/**
+	 * TamperMonkey5.2+
+	 *
+	 * @link https://developer.mozilla.org/zh-CN/docs/Mozilla/Add-ons/WebExtensions/API/cookies#storage_partitioning
+	 */
+	cookiePartition?: {
+		/**
+		 * 设置顶级站点
+		 *
+		 * @example
+		 * http://*.example.com/
+		 *
+		 * @example
+		 * http://www.example.com/
+		 *
+		 * @example
+		 * *://*.example.com/
+		 */
+		topLevelSite?: string;
+	};
+	/**
 	 * 以二进制模式发送数据字符串，可为空
 	 */
 	binary?: HttpxBinary;
@@ -1509,6 +1529,9 @@ class Httpx {
 				data: details.data || this.context.#defaultDetails.data,
 				redirect: details.redirect || this.context.#defaultDetails.redirect,
 				cookie: details.cookie || this.context.#defaultDetails.cookie,
+				cookiePartition:
+					details.cookiePartition ||
+					this.context.#defaultDetails.cookiePartition,
 				binary: details.binary || this.context.#defaultDetails.binary,
 				nocache: details.nocache || this.context.#defaultDetails.nocache,
 				revalidate:
@@ -1660,6 +1683,20 @@ class Httpx {
 				}
 			} else {
 				(result as any).fetchInit = details.fetchInit;
+			}
+
+			// 处理新的cookiePartition
+			if (
+				typeof result.cookiePartition === "object" &&
+				result.cookiePartition != null
+			) {
+				if (
+					Reflect.has(result.cookiePartition, "topLevelSite") &&
+					typeof result.cookiePartition.topLevelSite !== "string"
+				) {
+					// topLevelSite必须是字符串
+					Reflect.deleteProperty(result.cookiePartition, "topLevelSite");
+				}
 			}
 			return result;
 		},
@@ -2220,6 +2257,7 @@ class Httpx {
 		data: void 0,
 		redirect: void 0,
 		cookie: void 0,
+		cookiePartition: void 0,
 		binary: void 0,
 		nocache: void 0,
 		revalidate: void 0,
@@ -2362,26 +2400,33 @@ class Httpx {
 	/**
 	 * GET 请求
 	 * @param url 网址
-	 * @param details 配置
 	 */
-	async get<T extends HttpxDetails>(
-		url: string,
-		details?: T // @ts-ignore
-	): HttpxPromise<HttpxAsyncResult<T>>;
+	async get(
+		url: string // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
 	/**
 	 * GET 请求
 	 * @param details 配置
 	 */
-	async get<T extends HttpxDetails>(
-		details: T // @ts-ignore
-	): HttpxPromise<HttpxAsyncResult<T>>;
+	async get(
+		details: HttpxDetails // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
 	/**
 	 * GET 请求
 	 * @param url 网址
 	 * @param details 配置
 	 */
 	async get(
-		...args: (HttpxDetails | string)[] // @ts-ignore
+		url: string,
+		details: HttpxDetails // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
+	/**
+	 * GET 请求
+	 * @param url 网址
+	 * @param details 配置
+	 */
+	async get(
+		...args: (string | HttpxDetails)[] // @ts-ignore
 	): HttpxPromise<HttpxAsyncResult<HttpxDetails>> {
 		let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
 		let abortFn: Function | null = null;
@@ -2420,18 +2465,24 @@ class Httpx {
 	 * POST 请求
 	 * @param details 配置
 	 */
-	async post<T extends HttpxDetails>(
-		details: T // @ts-ignore
-	): HttpxPromise<HttpxAsyncResult<T>>;
+	async post(
+		details: HttpxDetails // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
+	/**
+	 * POST 请求
+	 * @param url 网址
+	 */
+	// @ts-ignore
+	async post(url: string): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
 	/**
 	 * POST 请求
 	 * @param url 网址
 	 * @param details 配置
 	 */
-	async post<T extends HttpxDetails>(
+	async post(
 		url: string,
-		details?: T // @ts-ignore
-	): HttpxPromise<HttpxAsyncResult<T>>;
+		details: HttpxDetails // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
 	/**
 	 * POST 请求
 	 */
@@ -2474,18 +2525,25 @@ class Httpx {
 	 * HEAD 请求
 	 * @param details 配置
 	 */
-	async head<T extends HttpxDetails>(
-		details: T // @ts-ignore
-	): HttpxPromise<HttpxAsyncResult<T>>;
+	async head(
+		details: HttpxDetails // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
+	/**
+	 * HEAD 请求
+	 * @param url 网址
+	 */
+	async head(
+		url: string // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
 	/**
 	 * HEAD 请求
 	 * @param url 网址
 	 * @param details 配置
 	 */
-	async head<T extends HttpxDetails>(
+	async head(
 		url: string,
-		details?: T // @ts-ignore
-	): HttpxPromise<HttpxAsyncResult<T>>;
+		details: HttpxDetails // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
 	/**
 	 * HEAD 请求
 	 */
@@ -2533,18 +2591,25 @@ class Httpx {
 	 * OPTIONS 请求
 	 * @param details 配置
 	 */
-	options<T extends HttpxDetails>(
-		details: T // @ts-ignore
-	): HttpxPromise<HttpxAsyncResult<T>>;
+	options(
+		details: HttpxDetails // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
+	/**
+	 * OPTIONS 请求
+	 * @param url 网址
+	 */
+	options(
+		url: string // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
 	/**
 	 * OPTIONS 请求
 	 * @param url 网址
 	 * @param details 配置
 	 */
-	options<T extends HttpxDetails>(
+	options(
 		url: string,
-		details?: T // @ts-ignore
-	): HttpxPromise<HttpxAsyncResult<T>>;
+		details: HttpxDetails // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
 	/**
 	 * OPTIONS 请求
 	 */
@@ -2589,18 +2654,25 @@ class Httpx {
 	 * DELETE 请求
 	 * @param details 配置
 	 */
-	async delete<T extends HttpxDetails>(
-		details: T // @ts-ignore
-	): HttpxPromise<HttpxAsyncResult<T>>;
+	async delete(
+		details: HttpxDetails // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
+	/**
+	 * DELETE 请求
+	 * @param url 网址
+	 */
+	async delete(
+		url: string // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
 	/**
 	 * DELETE 请求
 	 * @param url 网址
 	 * @param details 配置
 	 */
-	async delete<T extends HttpxDetails>(
+	async delete(
 		url: string,
-		details?: T // @ts-ignore
-	): HttpxPromise<HttpxAsyncResult<T>>;
+		details: HttpxDetails // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
 	/**
 	 * DELETE 请求
 	 */
@@ -2646,18 +2718,25 @@ class Httpx {
 	 * PUT 请求
 	 * @param details 配置
 	 */
-	async put<T extends HttpxDetails>(
-		details: T // @ts-ignore
-	): HttpxPromise<HttpxAsyncResult<T>>;
+	async put(
+		details: HttpxDetails // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
+	/**
+	 * PUT 请求
+	 * @param url 网址
+	 */
+	async put(
+		url: string // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
 	/**
 	 * PUT 请求
 	 * @param url 网址
 	 * @param details 配置
 	 */
-	async put<T extends HttpxDetails>(
+	async put(
 		url: string,
-		details?: T // @ts-ignore
-	): HttpxPromise<HttpxAsyncResult<T>>;
+		details: HttpxDetails // @ts-ignore
+	): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
 	/**
 	 * PUT 请求
 	 */

@@ -950,6 +950,26 @@ export declare interface HttpxDetails {
      */
     cookie?: string;
     /**
+     * TamperMonkey5.2+
+     *
+     * @link https://developer.mozilla.org/zh-CN/docs/Mozilla/Add-ons/WebExtensions/API/cookies#storage_partitioning
+     */
+    cookiePartition?: {
+        /**
+         * 设置顶级站点
+         *
+         * @example
+         * http://*.example.com/
+         *
+         * @example
+         * http://www.example.com/
+         *
+         * @example
+         * *://*.example.com/
+         */
+        topLevelSite?: string;
+    };
+    /**
      * 以二进制模式发送数据字符串，可为空
      */
     binary?: HttpxBinary;
@@ -1206,68 +1226,98 @@ declare class Httpx {
     /**
      * GET 请求
      * @param url 网址
-     * @param details 配置
      */
-    get<T extends HttpxDetails>(url: string, details?: T): HttpxPromise<HttpxAsyncResult<T>>;
+    get(url: string): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
     /**
      * GET 请求
      * @param details 配置
      */
-    get<T extends HttpxDetails>(details: T): HttpxPromise<HttpxAsyncResult<T>>;
+    get(details: HttpxDetails): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
+    /**
+     * GET 请求
+     * @param url 网址
+     * @param details 配置
+     */
+    get(url: string, details: HttpxDetails): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
     /**
      * POST 请求
      * @param details 配置
      */
-    post<T extends HttpxDetails>(details: T): HttpxPromise<HttpxAsyncResult<T>>;
+    post(details: HttpxDetails): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
+    /**
+     * POST 请求
+     * @param url 网址
+     */
+    post(url: string): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
     /**
      * POST 请求
      * @param url 网址
      * @param details 配置
      */
-    post<T extends HttpxDetails>(url: string, details?: T): HttpxPromise<HttpxAsyncResult<T>>;
+    post(url: string, details: HttpxDetails): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
     /**
      * HEAD 请求
      * @param details 配置
      */
-    head<T extends HttpxDetails>(details: T): HttpxPromise<HttpxAsyncResult<T>>;
+    head(details: HttpxDetails): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
+    /**
+     * HEAD 请求
+     * @param url 网址
+     */
+    head(url: string): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
     /**
      * HEAD 请求
      * @param url 网址
      * @param details 配置
      */
-    head<T extends HttpxDetails>(url: string, details?: T): HttpxPromise<HttpxAsyncResult<T>>;
+    head(url: string, details: HttpxDetails): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
     /**
      * OPTIONS 请求
      * @param details 配置
      */
-    options<T extends HttpxDetails>(details: T): HttpxPromise<HttpxAsyncResult<T>>;
+    options(details: HttpxDetails): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
+    /**
+     * OPTIONS 请求
+     * @param url 网址
+     */
+    options(url: string): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
     /**
      * OPTIONS 请求
      * @param url 网址
      * @param details 配置
      */
-    options<T extends HttpxDetails>(url: string, details?: T): HttpxPromise<HttpxAsyncResult<T>>;
+    options(url: string, details: HttpxDetails): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
     /**
      * DELETE 请求
      * @param details 配置
      */
-    delete<T extends HttpxDetails>(details: T): HttpxPromise<HttpxAsyncResult<T>>;
+    delete(details: HttpxDetails): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
+    /**
+     * DELETE 请求
+     * @param url 网址
+     */
+    delete(url: string): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
     /**
      * DELETE 请求
      * @param url 网址
      * @param details 配置
      */
-    delete<T extends HttpxDetails>(url: string, details?: T): HttpxPromise<HttpxAsyncResult<T>>;
+    delete(url: string, details: HttpxDetails): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
     /**
      * PUT 请求
      * @param details 配置
      */
-    put<T extends HttpxDetails>(details: T): HttpxPromise<HttpxAsyncResult<T>>;
+    put(details: HttpxDetails): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
+    /**
+     * PUT 请求
+     * @param url 网址
+     */
+    put(url: string): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
     /**
      * PUT 请求
      * @param url 网址
      * @param details 配置
      */
-    put<T extends HttpxDetails>(url: string, details?: T): HttpxPromise<HttpxAsyncResult<T>>;
+    put(url: string, details: HttpxDetails): HttpxPromise<HttpxAsyncResult<HttpxDetails>>;
 }
 export { Httpx };
