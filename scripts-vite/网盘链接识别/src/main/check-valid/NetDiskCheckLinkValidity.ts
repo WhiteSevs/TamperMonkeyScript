@@ -1,5 +1,4 @@
 import { DOMUtils, log, pops, utils } from "@/env";
-import { NetDisk } from "../NetDisk";
 import { NetDiskCheckLinkValidity_baidu } from "../rule/netdisk/baidu/checkLinkValidity";
 import { NetDiskCheckLinkValidity_lanzou } from "../rule/netdisk/lanzou/checkLinkValidity";
 import { NetDiskCheckLinkValidity_lanzouyx } from "../rule/netdisk/lanzouyx/checkLinkValidity";
@@ -16,15 +15,17 @@ import { NetDiskCheckLinkValidity_kuake } from "../rule/netdisk/kuake/checkLinkV
 import { NetDiskCheckLinkValidity_jianguoyun } from "../rule/netdisk/jianguoyun/checkLinkValidity";
 import { NetDiskCheckLinkValidity_onedrive } from "../rule/netdisk/onedrive/checkLinkValidity";
 import { NetDiskCheckLinkValidity_uc } from "../rule/netdisk/uc/checkLinkValidity";
-import { NetDiskView } from "../view/index/NetDiskView";
+import { NetDiskView } from "../view/NetDiskView";
 import { NetDiskCheckLinkValidity_115pan } from "../rule/netdisk/115pan/checkLinkValidity";
 import { NetDiskRuleData } from "../data/NetDiskRuleData";
-import { NetDiskRuleDataKEY } from "../data/NetDiskRuleDataKey";
 
 /**
  * 校验码状态
  */
 export const NetDiskCheckLinkValidityStatus = {
+	/**
+	 * 验证中
+	 */
 	loading: <NetDiskCheckLinkValidityStatusObj>{
 		code: 1,
 		msg: "验证中",
@@ -33,6 +34,9 @@ export const NetDiskCheckLinkValidityStatus = {
 			ele.innerHTML = pops.config.iconSVG.loading;
 		},
 	},
+	/**
+	 * 验证成功
+	 */
 	success: <NetDiskCheckLinkValidityStatusObj>{
 		code: 200,
 		msg: "该链接有效",
@@ -48,6 +52,9 @@ export const NetDiskCheckLinkValidityStatus = {
 			NetDiskCheckLinkValidity.setViewAgainCheckClickEvent(ele, checkInfo);
 		},
 	},
+	/**
+	 * 验证失败
+	 */
 	error: <NetDiskCheckLinkValidityStatusObj>{
 		code: -404,
 		msg: "网络异常",
@@ -63,7 +70,9 @@ export const NetDiskCheckLinkValidityStatus = {
 			NetDiskCheckLinkValidity.setViewAgainCheckClickEvent(ele, checkInfo);
 		},
 	},
-	/** 该链接已失效 */
+	/**
+	 * 该链接已失效
+	 */
 	failed: <NetDiskCheckLinkValidityStatusObj>{
 		code: 0,
 		msg: "该链接已失效",
@@ -79,6 +88,9 @@ export const NetDiskCheckLinkValidityStatus = {
 			NetDiskCheckLinkValidity.setViewAgainCheckClickEvent(ele, checkInfo);
 		},
 	},
+	/**
+	 * 该链接需要密码
+	 */
 	needAccessCode: <NetDiskCheckLinkValidityStatusObj>{
 		code: 201,
 		msg: "该链接缺失提取码",
@@ -97,6 +109,25 @@ export const NetDiskCheckLinkValidityStatus = {
 			NetDiskCheckLinkValidity.setViewAgainCheckClickEvent(ele, checkInfo);
 		},
 	},
+	/**
+	 * 存在部分违规文件
+	 */
+	partialViolation: <NetDiskCheckLinkValidityStatusObj>{
+		code: 202,
+		msg: "存在部分违规文件",
+		setView(ele, checkInfo) {
+			NetDiskCheckLinkValidity.setViewCheckValid(ele, "partial-violation");
+			ele.innerHTML = /*html*/ `
+			<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+				<path 
+				fill="currentColor"
+				d="M954.963 810.267L543.112 96.919c-14.07-24.37-49.245-24.37-63.315 0L67.945 810.267c-14.07 24.37 3.518 54.832 31.657 54.832h823.703c28.141 0 45.728-30.463 31.658-54.832zM476.699 306.55c0-19.115 15.64-34.755 34.755-34.755 19.115 0 34.755 15.64 34.755 34.755v281.817c0 19.115-15.64 34.755-34.755 34.755-19.115 0-34.755-15.64-34.755-34.755V306.55z m34.755 445.293c-23.198 0-42.004-18.806-42.004-42.004s18.806-42.004 42.004-42.004c23.198 0 42.004 18.806 42.004 42.004s-18.806 42.004-42.004 42.004z"></path>
+			</svg>`;
+		},
+	},
+	/**
+	 * 未知状态
+	 */
 	unknown: <NetDiskCheckLinkValidityStatusObj>{
 		code: -200,
 		msg: "未知检查情况",
@@ -266,6 +297,8 @@ export const NetDiskCheckLinkValidity = {
 	},
 	/**
 	 * 判断元素当前是否处于验证状态且验证是error或未验证状态
+	 * 
+	 * 简而言之。验证成功的图标点击后将不触发验证请求
 	 * + true 已验证(成功/需要密码)
 	 * + false 尚未验证/验证超时/验证网络异常
 	 * @param ele

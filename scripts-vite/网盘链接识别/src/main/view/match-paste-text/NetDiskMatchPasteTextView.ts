@@ -36,7 +36,7 @@ export const NetDiskMatchPasteText = {
 									textList: [inputText],
 									matchTextRange: NetDiskGlobalData.match.pageMatchRange.value,
 									// 剪贴板匹配的话直接使用全部规则来进行匹配
-									regular: NetDisk.matchRule,
+									regular: NetDisk.$rule.matchRule,
 									startTime: Date.now(),
 									from: "PasteText",
 								});

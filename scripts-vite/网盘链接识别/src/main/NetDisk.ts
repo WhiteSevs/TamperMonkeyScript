@@ -2,7 +2,6 @@ import { NetDiskGlobalData } from "./data/NetDiskGlobalData";
 import { log, utils } from "@/env";
 import Qmsg from "qmsg";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
-import { NetDiskUI } from "./ui/NetDiskUI";
 import { NetDiskRuleUtils } from "./rule/NetDiskRuleUtils";
 import { NetDiskRuleConfig, type NetDiskRuleSetting } from "./rule/NetDiskRule";
 import Utils from "@whitesev/utils";
@@ -10,57 +9,78 @@ import { WebsiteRule } from "./website-rule/WebsiteRule";
 import { WebsiteRuleDataKey } from "./data/NetDiskRuleDataKey";
 
 export const NetDisk = {
-	$flag: {},
-	/**
-	 * 链接字典，识别规则->识别到的访问码|分享码|下标
-	 */
-	linkDict: new Utils.Dictionary<
-		string,
-		UtilsDictionary<string, NetDiskDictData>
-	>(),
-	/**
-	 * （临时）链接字典
-	 */
-	tempLinkDict: new Utils.Dictionary<
-		string,
-		UtilsDictionary<string, NetiDiskHandleObject>
-	>(),
-	/**
-	 * 用于存储已匹配到的网盘规则名
-	 * 只有单独的名
-	 */
-	matchLink: new Set<string>(),
-	/**
-	 * 是否成功匹配到链接
-	 */
-	hasMatchLink: false,
-	/**
-	 * 剪贴板内容
-	 */
-	clipboardText: "",
-	/**
-	 * 使用该正则判断提取到的shareCode是否正确
-	 */
-	shareCodeNotMatchRegexpList: [
-		/(vipstyle|notexist|ajax|file|download|ptqrshow|xy-privacy|comp|web|undefined|1125|unproved|console|account|favicon|setc)/g,
-	],
-	/**
-	 * 使用该正则判断提取到的accessCode是否正确
-	 */
-	accessCodeNotMatchRegexpList: [/^(font)/gi],
-	/**
-	 * 当没有accessCode时，使用该正则去除不需要的字符串
-	 */
-	noAccessCodeRegExp:
-		/( |提取码:|\n密码：{#accessCode#}|{#accessCode#}|{#encodeURI-accessCode#}|{#encodeURIComponent-accessCode#}|{#decodeURI-accessCode#}|{#encodeURIComponent-accessCode#}|\?pwd=|&pwd=)/gi,
-	/** 各个网盘规则的匹配规则 */
-	matchRule: {} as NetDiskMatchRule,
-	/** 各个网盘规则的设置项 */
-	ruleSetting: {} as {
-		[key: string]: NetDiskRuleSetting;
+	$data: {
+		/**
+		 * 是否成功匹配到链接
+		 */
+		isMatchedLink: false,
+		/**
+		 * 剪贴板内容
+		 */
+		clipboardText: "",
 	},
-	/** 各个网盘规则 */
-	rule: [] as NetDiskRuleConfig[],
+	/** 匹配信息 */
+	$match: {
+		/**
+		 * 匹配到的链接信息
+		 *
+		 * Worker识别规则 -> 存储识别到的信息（访问码|分享码|规则下标...）
+		 */
+		matchedInfo: new Utils.Dictionary<
+			string,
+			UtilsDictionary<string, NetDiskDictData>
+		>(),
+		/**
+		 * 黑名单-识别到的信息
+		 *
+		 * 如果Worker识别到的信息能在这里面找到对应的shareCode，则不会被识别
+		 */
+		blackMatchedInfo: new Utils.Dictionary<
+			string,
+			UtilsDictionary<string, NetDiskDictData>
+		>(),
+		/**
+		 * （临时）链接字典
+		 */
+		tempMatchedInfo: new Utils.Dictionary<
+			string,
+			UtilsDictionary<string, NetiDiskHandleObject>
+		>(),
+		/**
+		 * 用于存储已匹配到的网盘规则名
+		 * 只有单独的名
+		 */
+		matchedInfoRuleKey: new Set<string>(),
+	},
+	/** 规则 */
+	$rule: {
+		/** 执行匹配本文的规则 */
+		matchRule: {} as NetDiskMatchRule,
+		/** 各个网盘规则的设置项 */
+		ruleSetting: {} as {
+			[key: string]: NetDiskRuleSetting;
+		},
+		/** 各个网盘规则 */
+		rule: [] as NetDiskRuleConfig[],
+	},
+	/** 额外规则，用于辅助处理 */
+	$extraRule: {
+		/**
+		 * 使用该正则判断提取到的shareCode是否正确
+		 */
+		shareCodeNotMatchRegexpList: [
+			/(vipstyle|notexist|ajax|file|download|ptqrshow|xy-privacy|comp|web|undefined|1125|unproved|console|account|favicon|setc)/g,
+		],
+		/**
+		 * 使用该正则判断提取到的accessCode是否正确
+		 */
+		accessCodeNotMatchRegexpList: [/^(font)/gi],
+		/**
+		 * 当没有accessCode时，使用该正则去除不需要的字符串
+		 */
+		noAccessCodeRegExp:
+			/( |提取码:|\n密码：{#accessCode#}|{#accessCode#}|{#encodeURI-accessCode#}|{#encodeURIComponent-accessCode#}|{#decodeURI-accessCode#}|{#encodeURIComponent-accessCode#}|\?pwd=|&pwd=)/gi,
+	},
 	/**
 	 * 初始化
 	 */
@@ -71,9 +91,10 @@ export const NetDisk = {
 	 * 初始化字典
 	 */
 	initLinkDict() {
-		Object.keys(this.matchRule).forEach((netDiskName) => {
-			this.linkDict.set(netDiskName, new utils.Dictionary());
-			this.tempLinkDict.set(netDiskName, new utils.Dictionary());
+		Object.keys(this.$rule.matchRule).forEach((netDiskName) => {
+			this.$match.matchedInfo.set(netDiskName, new utils.Dictionary());
+			this.$match.blackMatchedInfo.set(netDiskName, new utils.Dictionary());
+			this.$match.tempMatchedInfo.set(netDiskName, new utils.Dictionary());
 		});
 	},
 	/**
@@ -114,7 +135,8 @@ export const NetDisk = {
 		matchText: string
 	) {
 		/* 当前执行的规则 */
-		let netDiskMatchRegular = NetDisk.matchRule[netDiskName][netDiskIndex];
+		let netDiskMatchRegular =
+			NetDisk.$rule.matchRule[netDiskName][netDiskIndex];
 		let shareCodeMatch = matchText
 			.match(netDiskMatchRegular.shareCode)
 			?.filter((item) => utils.isNotNull(item));
@@ -145,7 +167,8 @@ export const NetDisk = {
 			log.error(`不可能的shareCode => ${shareCode}`);
 			return;
 		}
-		for (const shareCodeNotMatchRegexp of NetDisk.shareCodeNotMatchRegexpList) {
+		for (const shareCodeNotMatchRegexp of NetDisk.$extraRule
+			.shareCodeNotMatchRegexpList) {
 			if (shareCode.match(shareCodeNotMatchRegexp)) {
 				log.error(`不可能的shareCode => ${shareCode}`);
 				return;
@@ -183,7 +206,7 @@ export const NetDisk = {
 		matchText: string
 	): string {
 		/* 当前执行正则匹配的规则 */
-		let netDiskMatchRegular = this.matchRule[netDiskName][netDiskIndex];
+		let netDiskMatchRegular = this.$rule.matchRule[netDiskName][netDiskIndex];
 		let accessCode = "";
 		if (!netDiskMatchRegular.checkAccessCode) {
 			/* 不存在匹配提取码的正则 */
@@ -214,7 +237,8 @@ export const NetDisk = {
 			}
 		}
 		if (utils.isNotNull(accessCode)) {
-			for (const accessCodeNotMatchRegexp of NetDisk.accessCodeNotMatchRegexpList) {
+			for (const accessCodeNotMatchRegexp of NetDisk.$extraRule
+				.accessCodeNotMatchRegexpList) {
 				if (accessCode.match(accessCodeNotMatchRegexp)) {
 					accessCode = "";
 					break;
@@ -279,7 +303,8 @@ export const NetDisk = {
 		accessCode: string,
 		matchText?: string
 	) {
-		let netDiskMatchRegular = NetDisk.matchRule[netDiskName][netDiskIndex];
+		let netDiskMatchRegular =
+			NetDisk.$rule.matchRule[netDiskName][netDiskIndex];
 		if (netDiskMatchRegular == void 0) {
 			Qmsg.error("BUG: 获取uiLink规则失败");
 			log.error([
@@ -302,13 +327,15 @@ export const NetDisk = {
 				accessCode: accessCode,
 			});
 		} else {
-			uiLink = uiLink.replace(NetDisk.noAccessCodeRegExp, "");
+			uiLink = uiLink.replace(NetDisk.$extraRule.noAccessCodeRegExp, "");
 		}
 		if (netDiskMatchRegular.paramMatch) {
 			/**
 			 * 当前字典
 			 */
-			let currentDict = NetDisk.linkDict.get(netDiskName).get(shareCode);
+			let currentDict = NetDisk.$match.matchedInfo
+				.get(netDiskName)
+				.get(shareCode);
 			matchText = matchText ?? currentDict?.matchText;
 			if (utils.isNotNull(matchText)) {
 				let paramMatchArray = matchText.match(netDiskMatchRegular.paramMatch);

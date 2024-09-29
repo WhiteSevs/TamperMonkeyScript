@@ -189,10 +189,10 @@ export const NetDiskRule = {
 			const netDiskRule = netDiskRuleConfig.rule;
 
 			// 添加规则
-			if (Reflect.has(NetDisk.matchRule, ruleKey)) {
+			if (Reflect.has(NetDisk.$rule.matchRule, ruleKey)) {
 				/* 如果规则已存在(已内置)，自定义规则先放在前面匹配 */
 				/* 即用户自定义的规则优先级最高 */
-				let commonRule = NetDisk.matchRule[ruleKey];
+				let commonRule = NetDisk.$rule.matchRule[ruleKey];
 				if (netDiskRuleConfig.isUserRule) {
 					// 是用户规则，放在最前面
 					commonRule = [...netDiskRule, ...commonRule];
@@ -200,17 +200,21 @@ export const NetDiskRule = {
 					// 默认规则，放在后面
 					commonRule = [...commonRule, ...netDiskRule];
 				}
-				let findValue = NetDisk.rule.find(
+				let findValue = NetDisk.$rule.rule.find(
 					(item) => item.setting.key === ruleKey
 				);
 				findValue!.rule = commonRule;
 			} else {
 				// 不存在，直接新增新的
-				Reflect.set(NetDisk.matchRule, ruleKey, netDiskRuleConfig.rule);
-				NetDisk.rule.push(netDiskRuleConfig);
+				Reflect.set(NetDisk.$rule.matchRule, ruleKey, netDiskRuleConfig.rule);
+				NetDisk.$rule.rule.push(netDiskRuleConfig);
 			}
 			// 添加设置值
-			Reflect.set(NetDisk.ruleSetting, ruleKey, netDiskRuleConfig.setting);
+			Reflect.set(
+				NetDisk.$rule.ruleSetting,
+				ruleKey,
+				netDiskRuleConfig.setting
+			);
 
 			// 对配置的匹配规则解析某些值
 			netDiskRuleConfig.rule = this.parseRuleMatchRule(netDiskRuleConfig);

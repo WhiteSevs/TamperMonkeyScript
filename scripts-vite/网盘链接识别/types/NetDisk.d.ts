@@ -21,9 +21,7 @@ declare interface NetiDiskHandleObject {
 	netDiskName: string;
 	/** 下标 */
 	netDiskIndex: number;
-	/**
-	 * 匹配的文本
-	 */
+	/** 匹配的文本 */
 	matchText: string;
 }
 

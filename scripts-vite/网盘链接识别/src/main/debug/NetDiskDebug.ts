@@ -65,7 +65,8 @@ export const NetDiskDebug = {
 			});
 			return;
 		}
-		for (const shareCodeNotMatchRegexp of NetDisk.shareCodeNotMatchRegexpList) {
+		for (const shareCodeNotMatchRegexp of NetDisk.$extraRule
+			.shareCodeNotMatchRegexpList) {
 			if (shareCode.match(shareCodeNotMatchRegexp)) {
 				log.error(`不可能的shareCode => ${shareCode}`);
 				logCallBack({
@@ -193,7 +194,8 @@ export const NetDiskDebug = {
 			}
 		}
 		if (utils.isNotNull(accessCode)) {
-			for (const accessCodeNotMatchRegexp of NetDisk.accessCodeNotMatchRegexpList) {
+			for (const accessCodeNotMatchRegexp of NetDisk.$extraRule
+				.accessCodeNotMatchRegexpList) {
 				if (accessCode.match(accessCodeNotMatchRegexp)) {
 					accessCode = "";
 					logCallBack({
@@ -270,7 +272,7 @@ export const NetDiskDebug = {
 				],
 			});
 		} else {
-			uiLink = uiLink.replace(NetDisk.noAccessCodeRegExp, "");
+			uiLink = uiLink.replace(NetDisk.$extraRule.noAccessCodeRegExp, "");
 			logCallBack({
 				status: true,
 				msg: [
@@ -352,7 +354,7 @@ export const NetDiskDebug = {
 				],
 			});
 		} else {
-			blankUrl = blankUrl.replace(NetDisk.noAccessCodeRegExp, "");
+			blankUrl = blankUrl.replace(NetDisk.$extraRule.noAccessCodeRegExp, "");
 			logCallBack({
 				status: true,
 				msg: [
@@ -433,7 +435,7 @@ export const NetDiskDebug = {
 				],
 			});
 		} else {
-			copyUrl = copyUrl.replace(NetDisk.noAccessCodeRegExp, "");
+			copyUrl = copyUrl.replace(NetDisk.$extraRule.noAccessCodeRegExp, "");
 			logCallBack({
 				status: true,
 				msg: [

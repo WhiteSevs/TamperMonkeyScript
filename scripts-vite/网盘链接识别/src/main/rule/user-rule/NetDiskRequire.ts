@@ -19,7 +19,7 @@ export const NetDiskRequire = {
 			log.warn(["NetDiskRequire.file的参数path已引入过", url]);
 			return true;
 		}
-		let getResp = await httpx.get(url, options);
+		let getResp = await httpx.get(url, options!);
 		if (!getResp.status) {
 			return false;
 		}

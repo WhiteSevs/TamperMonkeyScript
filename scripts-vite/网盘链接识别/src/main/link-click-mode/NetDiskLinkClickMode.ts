@@ -29,7 +29,7 @@ export const NetDiskLinkClickModeUtils = {
 		shareCode: string,
 		accessCode: string
 	) {
-		let regularOption = NetDisk.matchRule[netDiskName][netDiskIndex];
+		let regularOption = NetDisk.$rule.matchRule[netDiskName][netDiskIndex];
 		let blankUrl = regularOption.blank;
 		if (shareCode) {
 			blankUrl = NetDiskRuleUtils.replaceParam(blankUrl, {
@@ -41,12 +41,14 @@ export const NetDiskLinkClickModeUtils = {
 				accessCode: accessCode,
 			});
 		} else {
-			blankUrl = blankUrl.replace(NetDisk.noAccessCodeRegExp, "");
+			blankUrl = blankUrl.replace(NetDisk.$extraRule.noAccessCodeRegExp, "");
 		}
 		/**
 		 * 当前字典
 		 */
-		let currentDict = NetDisk.linkDict.get(netDiskName).get(shareCode);
+		let currentDict = NetDisk.$match.matchedInfo
+			.get(netDiskName)
+			.get(shareCode);
 		if (regularOption.paramMatch) {
 			let paramMatchArray = currentDict.matchText.match(
 				regularOption.paramMatch
@@ -74,7 +76,7 @@ export const NetDiskLinkClickModeUtils = {
 		shareCode: string,
 		accessCode: string
 	) {
-		let regularOption = NetDisk.matchRule[netDiskName][netDiskIndex];
+		let regularOption = NetDisk.$rule.matchRule[netDiskName][netDiskIndex];
 		let copyUrl = regularOption["copyUrl"];
 		if (shareCode) {
 			copyUrl = NetDiskRuleUtils.replaceParam(copyUrl, {
@@ -86,12 +88,14 @@ export const NetDiskLinkClickModeUtils = {
 				accessCode: accessCode,
 			});
 		} else {
-			copyUrl = copyUrl.replace(NetDisk.noAccessCodeRegExp, "");
+			copyUrl = copyUrl.replace(NetDisk.$extraRule.noAccessCodeRegExp, "");
 		}
 		/**
 		 * 当前字典
 		 */
-		let currentDict = NetDisk.linkDict.get(netDiskName).get(shareCode);
+		let currentDict = NetDisk.$match.matchedInfo
+			.get(netDiskName)
+			.get(shareCode);
 		if (regularOption.paramMatch) {
 			let paramMatchArray = currentDict.matchText.match(
 				regularOption.paramMatch

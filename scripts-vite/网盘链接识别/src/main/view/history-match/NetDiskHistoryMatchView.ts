@@ -4,7 +4,7 @@ import { NetDisk } from "@/main/NetDisk";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
 import { NetDiskUI } from "../../ui/NetDiskUI";
-import { NetDiskView } from "../index/NetDiskView";
+import { NetDiskView } from "../NetDiskView";
 import indexCSS from "./index.css?raw";
 
 export const NetDiskHistoryMatchView = {
@@ -30,7 +30,7 @@ export const NetDiskHistoryMatchView = {
 		data = this.orderNetDiskHistoryMatchData(data);
 		for (let index = 0; index < 10; index++) {
 			if (data[index]) {
-				dataHTML += that.getTableHTML(data[index]);
+				dataHTML += that.getTableHTML(data[index]).html;
 			}
 		}
 		dataHTML = /*html*/ `
@@ -156,6 +156,7 @@ export const NetDiskHistoryMatchView = {
 	 * @param data
 	 */
 	getTableHTML(data: NetDiskHistoryDataOption) {
+		/** 获取处理后的显示的链接 */
 		let netDiskURL = NetDisk.handleLinkShow(
 			data.netDiskName,
 			data.netDiskIndex,
@@ -163,44 +164,20 @@ export const NetDiskHistoryMatchView = {
 			data.accessCode,
 			data.matchText
 		);
-		return /*html*/ `
-		<li>
+		let $liItemContainer = DOMUtils.createElement("li", {
+			innerHTML: /*html*/ `
 			<div class="netdiskrecord-link">
 				<p>链接</p>
-				<a  href="javascript:;"
-					isvisited="false"
-					${NetDiskView.createElementAttributeRuleInfo({
-						netDisk: data.netDiskName,
-						netDiskIndex: data.netDiskIndex,
-						shareCode: data.shareCode,
-						accessCode: data.accessCode,
-					})}>${netDiskURL}</a>
+				<a  href="javascript:;" isvisited="false">${netDiskURL}</a>
 			</div>
 			<div class="netdiskrecord-icon">
 				<p>网盘</p>
-				<div class="netdisk-icon-img" style="background: url(${
-					NetDiskUI.src.icon[data.netDiskName]
-				}) no-repeat;background-size:100%"></div>
+				<div class="netdisk-icon-img"></div>
 			</div>
-			${
-				data.url === data.topURL
-					? /*html*/ `
 			<div class="netdiskrecord-url">
 				<p>网址</p>
 				<a href="${data.url}" target="_blank">${data.url}</a>
 			</div>
-			`
-					: /*html*/ `
-			<div class="netdiskrecord-url">
-				<p>网址</p>
-				<a href="${data.url}" target="_blank">${data.url}</a>
-			</div>
-			<div class="netdiskrecord-top-url">
-				<p>TOP网址</p>
-				<a href="${data.topURL}" target="_blank">${data.topURL}</a>
-			</div>
-			`
-			}
 			<div class="netdiskrecord-url-title">
 				<p>网址标题</p>
 				${data.title}
@@ -215,9 +192,80 @@ export const NetDiskHistoryMatchView = {
 			</div>
 			<div class="netdiskrecord-functions">
 				<p>功能</p>
-				<button class="btn-delete" data-json='${JSON.stringify(data)}'>删除</button>
+				<button class="btn-delete">删除</button>
 			</div>
-		</li>`;
+			`,
+		});
+
+		let $link = $liItemContainer.querySelector<HTMLDivElement>(
+			".netdiskrecord-link"
+		)!;
+		let $linkAnchor = $link.querySelector<HTMLAnchorElement>("a")!;
+		let $icon = $liItemContainer.querySelector<HTMLDivElement>(
+			".netdiskrecord-icon"
+		);
+		let $iconImg =
+			$liItemContainer!.querySelector<HTMLDivElement>(".netdisk-icon-img")!;
+
+		let $url =
+			$liItemContainer.querySelector<HTMLDivElement>(".netdiskrecord-url")!;
+		let $urlTitle = $liItemContainer.querySelector<HTMLDivElement>(
+			".netdiskrecord-url-title"
+		)!;
+		let $addTime = $liItemContainer.querySelector<HTMLDivElement>(
+			".netdiskrecord-add-time"
+		);
+		let $updateTime = $liItemContainer.querySelector<HTMLDivElement>(
+			".netdiskrecord-update-time"
+		)!;
+		let $features = $liItemContainer.querySelector<HTMLDivElement>(
+			".netdiskrecord-functions"
+		);
+		let $featuresBtnDelete =
+			$features!.querySelector<HTMLButtonElement>(".btn-delete")!;
+		NetDiskView.handleElementAttributeRuleInfo(
+			{
+				netDisk: data.netDiskName,
+				netDiskIndex: data.netDiskIndex,
+				shareCode: data.shareCode,
+				accessCode: data.accessCode,
+			},
+			$linkAnchor
+		);
+
+		$iconImg.style.cssText = `background: url(${
+			NetDiskUI.src.icon[data.netDiskName]
+		}) no-repeat;background-size:100%`;
+
+		if (data.url !== data.topURL) {
+			// 添加top信息
+			let $topUrl = DOMUtils.createElement("div", {
+				className: "netdiskrecord-top-url",
+				innerHTML: /*html*/ `
+				<p>Top网址</p>
+				<a href="${data.topURL}" target="_blank">${data.topURL}</a>
+				`,
+			});
+			DOMUtils.after($url, $topUrl);
+		}
+
+		$featuresBtnDelete.setAttribute("data-json", JSON.stringify(data));
+		Reflect.set($featuresBtnDelete, "data-json", data);
+
+		return {
+			$liItemContainer,
+			$link,
+			$linkAnchor,
+			$icon,
+			$iconImg,
+			$url,
+			$urlTitle,
+			$addTime,
+			$updateTime,
+			$features,
+			$featuresBtnDelete,
+			html: $liItemContainer.outerHTML,
+		};
 	},
 	/**
 	 * 设置只执行一次的事件
@@ -291,7 +339,7 @@ export const NetDiskHistoryMatchView = {
 		let dataHTML = "";
 		for (let index = 0; index < 10; index++) {
 			if (data[startIndex]) {
-				dataHTML += this.getTableHTML(data[startIndex]);
+				dataHTML += this.getTableHTML(data[startIndex]).html;
 			} else {
 				break;
 			}
@@ -370,7 +418,7 @@ export const NetDiskHistoryMatchView = {
 					if (index > 9) {
 						return;
 					}
-					historyDataHTML += that.getTableHTML(item);
+					historyDataHTML += that.getTableHTML(item).html;
 				});
 				NetDiskUI.Alias.historyAlias.$shadowRoot
 					.querySelectorAll<HTMLLIElement>(
@@ -407,7 +455,7 @@ export const NetDiskHistoryMatchView = {
 				) {
 					/* 匹配到 */
 					isFind = true;
-					isFindHTML += that.getTableHTML(item);
+					isFindHTML += that.getTableHTML(item).html;
 				}
 			});
 			DOMUtils.remove(

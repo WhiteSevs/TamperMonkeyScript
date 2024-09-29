@@ -1,7 +1,10 @@
 import { httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
 import { NetDiskParseObject } from "../../../parse/NetDiskParseObject";
-import { NetDiskLinkClickMode, NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
+import {
+	NetDiskLinkClickMode,
+	NetDiskLinkClickModeUtils,
+} from "@/main/link-click-mode/NetDiskLinkClickMode";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 
@@ -38,23 +41,23 @@ export class NetDiskParse_Wenshushu extends NetDiskParseObject {
 	/**
 	 * 获取token
 	 * wss:xxxxxx
-	 * @returns {Promise<string>}
 	 */
-	async getWssToken() {
+	async getWssToken(): Promise<string | undefined> {
 		const that = this;
-		let postResp = await httpx.post({
-			url: "https://www.wenshushu.cn/ap/login/anonymous",
-			responseType: "json",
-			dataType: "json",
-			data: JSON.stringify({
-				dev_info: "{}",
-			}),
-			headers: {
-				Accept: "application/json, text/plain, */*",
-				"User-Agent": utils.getRandomAndroidUA(),
-				Referer: "https://www.wenshushu.cn/f/" + that.shareCode,
-			},
-		});
+		let postResp = await httpx.post(
+			"https://www.wenshushu.cn/ap/login/anonymous",
+			{
+				responseType: "json",
+				data: JSON.stringify({
+					dev_info: "{}",
+				}),
+				headers: {
+					Accept: "application/json, text/plain, */*",
+					"User-Agent": utils.getRandomAndroidUA(),
+					Referer: "https://www.wenshushu.cn/f/" + that.shareCode,
+				},
+			}
+		);
 		log.success(postResp);
 		if (!postResp.status) {
 			return;
@@ -71,13 +74,11 @@ export class NetDiskParse_Wenshushu extends NetDiskParseObject {
 	}
 	/**
 	 * 获取pid
-	 * @returns {Promise<{bid:string,pid:string}> }
 	 */
 	async getPid() {
 		const that = this;
 		let postResp = await httpx.post({
 			url: "https://www.wenshushu.cn/ap/task/mgrtask",
-			dataType: "json",
 			responseType: "json",
 			data: JSON.stringify({
 				tid: that.shareCode,
@@ -110,15 +111,12 @@ export class NetDiskParse_Wenshushu extends NetDiskParseObject {
 	}
 	/**
 	 * 获取文件列表信息
-	 * @param {string} bid
-	 * @param {string} pid
-	 * @returns
+	 * @param bid
+	 * @param pid
 	 */
 	async getFileNList(bid: string, pid: string) {
 		const that = this;
-		let postResp = await httpx.post({
-			url: "https://www.wenshushu.cn/ap/ufile/nlist",
-			dataType: "json",
+		let postResp = await httpx.post("https://www.wenshushu.cn/ap/ufile/nlist", {
 			responseType: "json",
 			data: JSON.stringify({
 				start: 0,
@@ -178,9 +176,7 @@ export class NetDiskParse_Wenshushu extends NetDiskParseObject {
 		const that = this;
 		let file_name = data.fname;
 		let file_size = utils.formatByteToSize(data.size);
-		let postResp = await httpx.post({
-			url: "https://www.wenshushu.cn/ap/dl/sign",
-			dataType: "json",
+		let postResp = await httpx.post("https://www.wenshushu.cn/ap/dl/sign", {
 			responseType: "json",
 			data: JSON.stringify({
 				ufileid: data.fid,

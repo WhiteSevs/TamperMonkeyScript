@@ -244,14 +244,13 @@ export const NetDiskWorker = {
 			NetDiskWorker.matchingEndCallBack();
 			return;
 		}
-		/** @type {NetiDiskHandleObject[]} */
+
 		const handleNetDiskList: NetiDiskHandleObject[] = [];
 		for (const matchData of options.data) {
 			/* 已匹配到的网盘，用于显示图标 */
-			NetDisk.matchLink.add(matchData.netDiskName!);
+			NetDisk.$match.matchedInfoRuleKey.add(matchData.netDiskName!);
 			/**
 			 * 匹配到的可能很多，使用集合去重
-			 * @type {Set<string>}
 			 */
 			let matchLinkSet = new Set<string>();
 			matchData.data.forEach((item) => {
@@ -298,27 +297,55 @@ export const NetDiskWorker = {
 			}
 		);
 		filterHandleNetDiskList.forEach((item) => {
-			if (NetDisk.tempLinkDict.has(item.netDiskName)) {
-				let currentTempDict = NetDisk.tempLinkDict.get(item.netDiskName);
+			if (NetDisk.$match.tempMatchedInfo.has(item.netDiskName)) {
+				let currentTempDict = NetDisk.$match.tempMatchedInfo.get(
+					item.netDiskName
+				);
 				currentTempDict.set(item.shareCode, item);
 			}
 		});
-		/** 过滤掉匹配的分享码 */
+		/** 按规则过滤掉匹配的分享码 */
 		filterHandleNetDiskList.forEach((item) => {
 			const { shareCode, accessCode, netDiskName, netDiskIndex, matchText } =
 				item;
-			const currentRule = NetDisk.rule.find(
+			// 先找到对应的规则
+			const currentRule = NetDisk.$rule.rule.find(
 				(item) => item.setting.key === netDiskName
 			);
+			// 对应的匹配规则
 			const currentRegular = currentRule!.rule[netDiskIndex];
+
+			/* 过滤掉黑名单中的 */
+			let isBlackShareCode = false;
+			NetDisk.$match.blackMatchedInfo.forEach(
+				(blackMatchInfoItem, blackNetDiskName) => {
+					// 规则名也要相同
+					if (blackNetDiskName !== item.netDiskName) {
+						return;
+					}
+					let isFindBlackShareCode = blackMatchInfoItem.has(shareCode);
+					if (isFindBlackShareCode) {
+						// 黑名单的分享码相同
+						isBlackShareCode = true;
+						log.warn([
+							`匹配到黑名单分享码，已过滤：${shareCode}`,
+							JSON.stringify(item),
+						]);
+					}
+				}
+			);
+			if (isBlackShareCode) {
+				return;
+			}
 			if (
 				currentRegular.shareCodeExcludeRegular &&
 				Array.isArray(currentRegular.shareCodeExcludeRegular)
 			) {
 				/* 排除掉在目标规则已匹配到的shareCode */
 				for (const excludeRegularName of currentRegular.shareCodeExcludeRegular) {
-					let excludeDict = NetDisk.linkDict.get(excludeRegularName);
-					let currentTempDict = NetDisk.tempLinkDict.get(excludeRegularName);
+					let excludeDict = NetDisk.$match.matchedInfo.get(excludeRegularName);
+					let currentTempDict =
+						NetDisk.$match.tempMatchedInfo.get(excludeRegularName);
 					if (
 						excludeDict.startsWith(shareCode) ||
 						currentTempDict.startsWith(shareCode)
@@ -332,8 +359,8 @@ export const NetDiskWorker = {
 			}
 
 			/** 当前存储的 */
-			const currentDict = NetDisk.linkDict.get(netDiskName);
-			NetDisk.hasMatchLink = true;
+			const currentDict = NetDisk.$match.matchedInfo.get(netDiskName);
+			NetDisk.$data.isMatchedLink = true;
 			if (currentDict.startsWith(shareCode)) {
 				/* 存在该访问码 */
 				/* 根据shareCode获取accessCode和netDiskIndex信息 */
@@ -389,10 +416,14 @@ export const NetDiskWorker = {
 		});
 
 		/* 清空临时的 */
-		Object.keys(NetDisk.tempLinkDict.getItems()).forEach((keyName) => {
-			NetDisk.tempLinkDict.get(keyName).clear();
-		});
-		if (NetDisk.hasMatchLink) {
+		Object.keys(NetDisk.$match.tempMatchedInfo.getItems()).forEach(
+			(keyName) => {
+				NetDisk.$match.tempMatchedInfo.get(keyName).clear();
+			}
+		);
+		// 判断是否有匹配
+		if (NetDisk.$data.isMatchedLink) {
+			// 根据当前情况选择显示的视图
 			switch (NetDiskGlobalData.function["netdisk-behavior-mode"].value) {
 				case "suspension_smallwindow".toLowerCase():
 					if (
@@ -470,7 +501,7 @@ export const NetDiskWorker = {
 		/** 过滤出执行匹配的规则 */
 		const matchRegular = {} as NetDiskMatchRule;
 		/* 循环 */
-		NetDisk.rule.forEach((item) => {
+		NetDisk.$rule.rule.forEach((item) => {
 			// 网盘键
 			let netDiskName = item.setting.key;
 			// 启用状态
@@ -521,20 +552,20 @@ export const NetDiskWorker = {
 			const startTime = Date.now();
 			if (readClipboard) {
 				try {
-					NetDisk.clipboardText = await CommonUtils.getClipboardText();
+					NetDisk.$data.clipboardText = await CommonUtils.getClipboardText();
 				} catch (error) {
 					// 获取剪贴板内容失败
 				}
 			}
-			if (typeof NetDisk.clipboardText !== "string") {
-				NetDisk.clipboardText = "";
+			if (typeof NetDisk.$data.clipboardText !== "string") {
+				NetDisk.$data.clipboardText = "";
 			}
 			/** 待匹配的文字列表 */
 			const textListToBeMatched: string[] = [];
 
 			/* 剪贴板内容 */
-			if (NetDisk.clipboardText.trim() !== "") {
-				textListToBeMatched.push(NetDisk.clipboardText);
+			if (NetDisk.$data.clipboardText.trim() !== "") {
+				textListToBeMatched.push(NetDisk.$data.clipboardText);
 			}
 			/* 当前的网页链接 */
 			if (NetDiskGlobalData.match.allowMatchLocationHref) {

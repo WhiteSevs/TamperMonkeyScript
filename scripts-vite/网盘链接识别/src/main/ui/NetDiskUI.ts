@@ -6,7 +6,10 @@ import { NetDisk } from "../NetDisk";
 import { NetDiskUISizeConfig } from "./NetDiskUISizeConfig";
 import { NetDiskSuspension } from "../view/suspension/NetDiskSuspensionView";
 import { NetDiskGlobalSettingView } from "../view/global-setting/NetDiskGlobalSettingView";
-import { NetDiskView } from "../view/index/NetDiskView";
+import {
+	NetDiskView,
+	type RegisterContextMenuShowTextOption,
+} from "../view/NetDiskView";
 import { NetDiskLinearChainDialogView } from "../view/linear-chain-dialog/NetDiskLinearChainDialogView";
 import { NetDiskNewAccessCodeView } from "../view/new-access-code/NetDiskNewAccessCodeView";
 import { NetDiskMatchPasteText } from "../view/match-paste-text/NetDiskMatchPasteTextView";
@@ -171,7 +174,7 @@ export const NetDiskUI = {
 		selector: string,
 		isHistoryView?: boolean
 	) {
-		NetDiskUI.view.registerContextMenu(target, selector, [
+		let showTextList: RegisterContextMenuShowTextOption[] = [
 			{
 				text: "复制链接",
 				callback: function (event: any, contextMenuEvent: any) {
@@ -267,7 +270,7 @@ export const NetDiskUI = {
 					 */
 					function newAccessCodeCallBack_(userInputAccessCode: string) {
 						event.target.setAttribute("data-accesscode", userInputAccessCode);
-						let netDiskDict = NetDisk.linkDict.get(netDiskName);
+						let netDiskDict = NetDisk.$match.matchedInfo.get(netDiskName);
 						if (netDiskDict.has(shareCode)) {
 							let currentDict = netDiskDict.get(shareCode);
 							netDiskDict.set(
@@ -292,7 +295,7 @@ export const NetDiskUI = {
 						}
 					}
 					NetDiskUI.newAccessCodeView(
-						this.text,
+						this.text as string,
 						netDiskName,
 						netDiskIndex,
 						shareCode,
@@ -307,6 +310,65 @@ export const NetDiskUI = {
 					);
 				},
 			},
-		]);
+		];
+
+		if (!isHistoryView) {
+			// 添加清空当前or所有已匹配的项
+			showTextList.push({
+				text: "删除当前项",
+				callback: function (event: any, contextMenuEvent: any) {
+					let $linkElement = contextMenuEvent.target as HTMLElement;
+					let $box = $linkElement.closest(".netdisk-url-box") as HTMLDivElement;
+					const { netDiskName, netDiskIndex, shareCode, accessCode } =
+						NetDiskView.praseElementAttributeRuleInfo($linkElement);
+					let flag = false;
+					NetDisk.$match.matchedInfo.forEach((netDiskItem, netDiskKeyName) => {
+						if (netDiskKeyName !== netDiskName) {
+							return;
+						}
+						netDiskItem.forEach((matchedInfo, matchedShareCode) => {
+							if (matchedShareCode === shareCode) {
+								flag = true;
+								netDiskItem.delete(matchedShareCode);
+								log.info([
+									`删除：`,
+									netDiskKeyName,
+									JSON.stringify(matchedInfo),
+								]);
+							}
+						});
+					});
+					// 更新匹配到的key
+					NetDisk.$match.matchedInfoRuleKey.clear();
+					NetDisk.$match.matchedInfo.forEach((netDiskItem, netDiskKeyName) => {
+						if (netDiskItem.length) {
+							NetDisk.$match.matchedInfoRuleKey.add(netDiskKeyName);
+						}
+					});
+					if (flag) {
+						$box.remove();
+					} else {
+						Qmsg.error("发生意外情况，未在已匹配到的信息中到对应的网盘信息");
+					}
+				},
+			});
+			showTextList.push({
+				text: "删除所有项",
+				callback: function (event: any, contextMenuEvent: any) {
+					let $linkElement = contextMenuEvent.target as HTMLElement;
+					let $boxAll = $linkElement.closest(
+						".netdisk-url-box-all"
+					) as HTMLDivElement;
+					const { netDiskName, netDiskIndex, shareCode, accessCode } =
+						NetDiskView.praseElementAttributeRuleInfo($linkElement);
+					NetDisk.$match.matchedInfo.forEach((netDiskItem, netDiskKeyName) => {
+						netDiskItem.clear();
+					});
+					NetDisk.$match.matchedInfoRuleKey.clear();
+					$boxAll.innerHTML = "";
+				},
+			});
+		}
+		NetDiskUI.view.registerContextMenu(target, selector, showTextList);
 	},
 };

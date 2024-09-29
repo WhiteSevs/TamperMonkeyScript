@@ -62,9 +62,15 @@
 	width: 15px;
 	height: 15px;
 }
+
 .netdisk-status[data-check-valid="failed"] {
 	color: red;
 }
+
+.netdisk-status[data-check-valid="partial-violation"] {
+	color: orange;
+}
+
 .netdisk-status[data-check-valid="error"] {
 	cursor: pointer;
 }
@@ -72,12 +78,15 @@
 .netdisk-status[data-check-valid="success"] {
 	color: green;
 }
+
 .netdisk-status[data-check-valid="loading"] svg {
 	animation: rotating 2s linear infinite;
 }
+
 .netdisk-url-box:has(.netdisk-status[data-check-valid="failed"]) {
 	text-decoration: line-through;
 }
+
 .whitesevPop-whitesevPopSetting :focus-visible {
 	outline-offset: 0;
 	outline: 0;
