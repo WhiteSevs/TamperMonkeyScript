@@ -8,10 +8,12 @@ import { DOMUtils, addStyle, log, utils } from "@/env";
 import { WeiBoVideo } from "./video/WeiBoVideo";
 import { WeiBoDetail } from "./detail/WeiBoDetail";
 import { CommonUtils } from "@/utils/CommonUtils";
-import { WeiBoU } from "./u/WeiBoU";
+import { WeiBoUserHome } from "./u/WeiBoUserHome";
 import { WeiBoSearch } from "./search/WeiBoSearch";
 import { WeiBoUnlockQuality } from "./WeiBoUnlockQuality";
 import { WeiBoCardArticle } from "./card/WeiBoCardArticle";
+import { VueUtils } from "@/utils/VueUtils";
+import { WeiBoHome } from "./home/WeiBoHome";
 
 const WeiBo = {
 	$data: {
@@ -38,8 +40,7 @@ const WeiBo = {
 				WeiBoHook.hookVueRouter();
 			});
 			PopsPanel.execMenuOnce("weibo_remove_ads", () => {
-				// 屏蔽 广告
-				return addStyle(blockAdsCSS);
+				return this.blockAds();
 			});
 			PopsPanel.execMenuOnce("weibo_shield_bottom_bar", () => {
 				return this.shieldBottomBar();
@@ -50,12 +51,15 @@ const WeiBo = {
 					this.unlockVideoHigherQuality();
 				});
 			});
-			if (WeiBoRouter.isMWeiBo_detail()) {
+			if (WeiBoRouter.isMWeiBoHome()) {
+				log.info(`Router: 移动端微博首页`);
+				WeiBoHome.init();
+			} else if (WeiBoRouter.isMWeiBo_detail()) {
 				log.info("Router: 移动端微博帖子");
 				WeiBoDetail.init();
-			} else if (WeiBoRouter.isMWeiBo_u()) {
-				log.info("Router: 移动端微博主页");
-				WeiBoU.init();
+			} else if (WeiBoRouter.isMWeiBo_userHome()) {
+				log.info("Router: 移动端微博用户主页");
+				WeiBoUserHome.init();
 			} else if (WeiBoRouter.isMWeiBo_search()) {
 				log.info("Router: 移动端微博搜索");
 				WeiBoSearch.init();
@@ -79,6 +83,12 @@ const WeiBo = {
 			// 未适配Router
 			log.error("Router: 未适配 => " + window.location.href);
 		}
+	},
+	/**
+	 * 屏蔽 广告
+	 */
+	blockAds() {
+		return addStyle(blockAdsCSS);
 	},
 	/**
 	 * 【屏蔽】底部工具栏

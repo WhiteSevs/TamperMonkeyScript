@@ -212,7 +212,6 @@ export class WeiBoUnlockQuality {
 					return new Promise<void>((resolve, reject) => {
 						VueUtils.waitVuePropToSet($ele, [
 							{
-								msg: "等待获取属性 __vue__.item.object_id",
 								check(vueObj) {
 									if (
 										typeof vueObj?.item?.type === "string" &&
@@ -232,15 +231,15 @@ export class WeiBoUnlockQuality {
 										}
 										let object_id = vueObj.item.object_id;
 										let urls = vueObj.item.urls;
-										log.success(
-											"成功获取属性 __vue__.item.object_id=" + object_id
-										);
+										// log.success(
+										// 	"成功获取属性 __vue__.item.object_id=" + object_id
+										// );
 
 										let componentInfo = await WeiBoApi.component(object_id);
 										if (!componentInfo) {
 											return;
 										}
-										log.info(["获取组件信息成功", componentInfo]);
+										// log.info(["获取组件信息成功", componentInfo]);
 										if (!componentInfo.urls) {
 											log.error("获取组件信息urls失败");
 											Qmsg.error("获取组件信息urls失败");

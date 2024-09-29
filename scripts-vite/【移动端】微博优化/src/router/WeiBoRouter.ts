@@ -7,6 +7,12 @@ const WeiBoRouter = {
 		return globalThis.location.hostname === "m.weibo.cn";
 	},
 	/**
+	 * 移动端微博-首页
+	 */
+	isMWeiBoHome() {
+		return this.isMWeiBo() && globalThis.location.pathname === "/";
+	},
+	/**
 	 * 移动端微博-帖子
 	 */
 	isMWeiBo_detail() {
@@ -15,9 +21,9 @@ const WeiBoRouter = {
 		);
 	},
 	/**
-	 * 移动端微博-主页
+	 * 移动端微博-用户主页
 	 */
-	isMWeiBo_u() {
+	isMWeiBo_userHome() {
 		return this.isMWeiBo() && globalThis.location.pathname.startsWith("/u/");
 	},
 	/**

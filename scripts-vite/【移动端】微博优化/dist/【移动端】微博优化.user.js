@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.9.21
+// @version      2024.9.29
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -12,10 +12,10 @@
 // @match        http*://h5.video.weibo.com/*
 // @match        http*://card.weibo.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.9/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.6.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.1/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css
 // @connect      m.weibo.cn
 // @connect      www.weibo.com
@@ -502,7 +502,6 @@
           return new Promise((resolve, reject) => {
             VueUtils.waitVuePropToSet($ele, [
               {
-                msg: "等待获取属性 __vue__.item.object_id",
                 check(vueObj) {
                   var _a2, _b, _c;
                   if (typeof ((_a2 = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _a2.type) === "string" && ((_b = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _b.type) !== "video") {
@@ -520,14 +519,10 @@
                     }
                     let object_id = vueObj.item.object_id;
                     let urls = vueObj.item.urls;
-                    log.success(
-                      "成功获取属性 __vue__.item.object_id=" + object_id
-                    );
                     let componentInfo = await WeiBoApi.component(object_id);
                     if (!componentInfo) {
                       return;
                     }
-                    log.info(["获取组件信息成功", componentInfo]);
                     if (!componentInfo.urls) {
                       log.error("获取组件信息urls失败");
                       Qmsg.error("获取组件信息urls失败");
@@ -1188,6 +1183,37 @@
       }
     ]
   };
+  const SettingUIHome = {
+    id: "weibo-panel-config-card-article",
+    title: "首页",
+    forms: [
+      // {
+      // 	text: "功能",
+      // 	type: "forms",
+      // 	forms: [],
+      // },
+      {
+        text: "屏蔽",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "屏蔽信息流广告",
+            "weibo-home-blockArticleAds",
+            true,
+            void 0,
+            '夹杂在文章中间的"微博广告"'
+          ),
+          UISwitch(
+            "屏蔽消息数量",
+            "weibo-home-blockMessageCount",
+            false,
+            void 0,
+            "即登录后右上角的消息提示数"
+          )
+        ]
+      }
+    ]
+  };
   const __PopsPanel__ = {
     data: null,
     oneSuccessExecMenu: null,
@@ -1682,7 +1708,8 @@
     getPanelContentConfig() {
       let configList = [
         SettingUICommon,
-        // SettingUIU,
+        SettingUIHome,
+        // SettingUIUserHome,
         SettingUISearch,
         // SettingUIDetail,
         SettingUIHuaTi,
@@ -1728,7 +1755,7 @@
           selectorList.push(selector);
         }
       });
-      addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
     /**
      * 设置GM_getResourceText的style内容
@@ -2065,15 +2092,21 @@
       return globalThis.location.hostname === "m.weibo.cn";
     },
     /**
+     * 移动端微博-首页
+     */
+    isMWeiBoHome() {
+      return this.isMWeiBo() && globalThis.location.pathname === "/";
+    },
+    /**
      * 移动端微博-帖子
      */
     isMWeiBo_detail() {
       return this.isMWeiBo() && globalThis.location.pathname.startsWith("/detail/");
     },
     /**
-     * 移动端微博-主页
+     * 移动端微博-用户主页
      */
-    isMWeiBo_u() {
+    isMWeiBo_userHome() {
       return this.isMWeiBo() && globalThis.location.pathname.startsWith("/u/");
     },
     /**
@@ -2332,6 +2365,50 @@
       );
     }
   };
+  const WeiBoHome = {
+    init() {
+      PopsPanel.execMenuOnce("weibo-home-blockArticleAds", () => {
+        this.blockArticleAds();
+      });
+      PopsPanel.execMenuOnce("weibo-home-blockMessageCount", () => {
+        return this.blockMessageCount();
+      });
+    },
+    /**
+     * 屏蔽隐藏在card内的微博广告
+     */
+    blockArticleAds() {
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        callback: utils.debounce(() => {
+          document.querySelectorAll(".card.m-panel").forEach(($mpanel) => {
+            var _a2, _b, _c;
+            let vueIns = VueUtils.getVue($mpanel);
+            if (!vueIns) {
+              return;
+            }
+            let cardInfo = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$options) == null ? void 0 : _a2.propsData) == null ? void 0 : _b.item;
+            let ad_state = cardInfo == null ? void 0 : cardInfo.ad_state;
+            let cardText = cardInfo == null ? void 0 : cardInfo.text;
+            let page_title = (_c = cardInfo == null ? void 0 : cardInfo.page_info) == null ? void 0 : _c.page_title;
+            if (ad_state && page_title === "微博广告") {
+              $mpanel.remove();
+              log.info(`移除广告card: ` + cardText);
+            }
+          });
+        }, 150)
+      });
+    },
+    /**
+     * 屏蔽右上角的信息红点（登录后）
+     */
+    blockMessageCount() {
+      return CommonUtils.addBlockCSS(".nav-right .m-bubble");
+    }
+  };
   const WeiBo = {
     $data: {
       weiBoUnlockQuality: new WeiBoUnlockQuality()
@@ -2354,7 +2431,7 @@
           WeiBoHook.hookVueRouter();
         });
         PopsPanel.execMenuOnce("weibo_remove_ads", () => {
-          return addStyle(blockAdsCSS);
+          return this.blockAds();
         });
         PopsPanel.execMenuOnce("weibo_shield_bottom_bar", () => {
           return this.shieldBottomBar();
@@ -2365,10 +2442,13 @@
             this.unlockVideoHigherQuality();
           });
         });
-        if (WeiBoRouter.isMWeiBo_detail()) {
+        if (WeiBoRouter.isMWeiBoHome()) {
+          log.info(`Router: 移动端微博首页`);
+          WeiBoHome.init();
+        } else if (WeiBoRouter.isMWeiBo_detail()) {
           log.info("Router: 移动端微博帖子");
-        } else if (WeiBoRouter.isMWeiBo_u()) {
-          log.info("Router: 移动端微博主页");
+        } else if (WeiBoRouter.isMWeiBo_userHome()) {
+          log.info("Router: 移动端微博用户主页");
         } else if (WeiBoRouter.isMWeiBo_search()) {
           log.info("Router: 移动端微博搜索");
           WeiBoSearch.init();
@@ -2389,6 +2469,12 @@
       } else {
         log.error("Router: 未适配 => " + window.location.href);
       }
+    },
+    /**
+     * 屏蔽 广告
+     */
+    blockAds() {
+      return addStyle(blockAdsCSS);
     },
     /**
      * 【屏蔽】底部工具栏

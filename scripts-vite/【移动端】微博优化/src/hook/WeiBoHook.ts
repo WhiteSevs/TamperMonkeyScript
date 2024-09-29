@@ -305,7 +305,7 @@ const WeiBoHook = {
 							next();
 						}
 					);
-					vueObj.$router.afterEach((to, from) => {
+					vueObj.$router.afterEach((to: any, from: any) => {
 						PopsPanel.execMenu("weibo-listenRouterChange", () => {
 							log.info("路由更新，重载功能");
 							WeiBo.init();

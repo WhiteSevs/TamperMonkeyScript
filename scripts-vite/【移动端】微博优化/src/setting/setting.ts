@@ -10,7 +10,7 @@ import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
 import { SettingUICommon } from "./components/common";
 import { SettingUIHuaTi } from "./components/huati";
 import { SettingUIVideo } from "./components/video";
-import { SettingUIU } from "./components/u";
+import { SettingUIU as SettingUIUserHome } from "./components/userHome";
 import { SettingUIDetail } from "./components/detail";
 import { SettingUISearch } from "./components/search";
 import { SettingUICardArticle } from "./components/card";
@@ -18,6 +18,7 @@ import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/
 import { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
+import { SettingUIHome } from "./components/home";
 
 const __PopsPanel__ = {
 	data: null as any as UtilsDictionary<string, any>,
@@ -597,7 +598,8 @@ const PopsPanel = {
 	getPanelContentConfig() {
 		let configList: PopsPanelContentConfig[] = [
 			SettingUICommon,
-			// SettingUIU,
+			SettingUIHome,
+			// SettingUIUserHome,
 			SettingUISearch,
 			// SettingUIDetail,
 			SettingUIHuaTi,
