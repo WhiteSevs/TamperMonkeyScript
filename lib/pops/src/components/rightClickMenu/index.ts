@@ -254,16 +254,19 @@ export class PopsRightClickMenu {
 			},
 			/**
 			 * 获取菜单容器
-			 * @param zIndex z-index值
 			 * @param isChildren 是否是rightClickMenu的某一项的子菜单
 			 */
-			getMenuContainerElement(zIndex: number, isChildren: boolean) {
+			getMenuContainerElement(isChildren: boolean) {
 				let $menu = popsDOMUtils.createElement("div", {
 					className: `pops-${PopsType}`,
 					innerHTML: /*html*/ `
 					<ul></ul>
 					`,
 				});
+				let zIndex = this.getMenuZIndex();
+				if (zIndex > 10000) {
+					$menu.style.zIndex = zIndex.toString();
+				}
 				if (isChildren) {
 					$menu.setAttribute("is-children", "true");
 				}
@@ -319,13 +322,10 @@ export class PopsRightClickMenu {
 				menuEvent: PointerEvent,
 				_config_: PopsRightClickMenuDataDetails[]
 			) {
-				let menuElement = this.getMenuContainerElement(
-					this.getMenuZIndex(),
-					false
-				);
-				(menuElement as any)["__menuData__"] = {
+				let menuElement = this.getMenuContainerElement(false);
+				Reflect.set(menuElement, "__menuData__", {
 					child: [],
-				};
+				});
 				PopsContextMenu.addMenuLiELement(
 					menuEvent,
 					menuElement as HTMLDivElement,
@@ -378,15 +378,14 @@ export class PopsRightClickMenu {
 				rootElement: HTMLDivElement,
 				targetLiElement: HTMLLIElement
 			) {
-				let menuElement = this.getMenuContainerElement(
-					this.getMenuZIndex(),
-					true
-				);
-				(menuElement as any)["__menuData__"] = {
+				let menuElement = this.getMenuContainerElement(true);
+				Reflect.set(menuElement, "__menuData__", {
 					parent: targetLiElement,
 					root: rootElement,
-				};
-				(rootElement as any)["__menuData__"].child.push(menuElement);
+				});
+				// 根菜单数据
+				let rootElementMenuData = Reflect.get(rootElement, "__menuData__");
+				rootElementMenuData.child.push(menuElement);
 				PopsContextMenu.addMenuLiELement(
 					menuEvent as PointerEvent,
 					rootElement as HTMLDivElement,
