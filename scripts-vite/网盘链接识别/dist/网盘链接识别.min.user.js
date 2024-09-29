@@ -27,7 +27,7 @@
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.1/dist/index.umd.js
 // @connect      *
 // @connect      lanzoub.com
 // @connect      lanzouc.com
@@ -834,7 +834,7 @@ aside.pops-panel-aside li[data-key][data-function-enable="false"] {\r
             .pops[type-value=panel]{
                 --aside-bg-color: rgba(221, 221, 221, var(--acrylic-opacity));
             }
-            `;typeof e.style=="string"?e.style+=a:e.style=a;}return e.zIndex=()=>{let a=d.getMaxZIndex(10),t=K.config.InstanceUtils.getPopsMaxZIndex(a).zIndex;return d.getMaxValue(a,t)+100},e}},Da=`/* 容器 */\r
+            `;typeof e.style=="string"?e.style+=a:e.style=a;}return e.zIndex=()=>{let t=d.getMaxZIndex(10),i=K.config.InstanceUtils.getPopsMaxZIndex(10).zIndex;return d.getMaxValue(t,i)+10},e}},Da=`/* 容器 */\r
 .website-rule-container {\r
 }\r
 /* 每一条规则 */\r

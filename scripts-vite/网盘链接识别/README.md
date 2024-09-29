@@ -250,7 +250,7 @@ abcd
 
 - 规则定义
 
-
+[点击查看如何自定义规则](https://github.com/WhiteSevs/TamperMonkeyScript/blob/master/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/types/NetDiskCustomRule.d.ts)
 
 - 只有分享码的
 
@@ -270,7 +270,12 @@ abcd
     "setting": { // 设置
         "name": "wangpantest1", // 在设置中显示的网盘名
         "enable": true, // 是否启用
-        "isBlank": true // 是否让识别到的网盘链接改为新标签页打开
+        "linkClickMode": {
+            "openBlank": {
+                enable: true,
+                default: true
+            }
+        } // 是否让识别到的网盘链接改为新标签页打开
     }
 }
 ```
@@ -297,7 +302,12 @@ abcd
     "setting": { // 设置
         "name": "wangpantest2", // 在设置中显示的网盘名
         "enable": true, // 是否启用
-        "isBlank": true // 是否让识别到的网盘链接改为新标签页打开
+        "linkClickMode": {
+            "openBlank": {
+                enable: true,
+                default: true
+            }
+        } // 是否让识别到的网盘链接改为新标签页打开
     }
 }
 ```
@@ -331,7 +341,12 @@ abcd
     "setting": {
         "name": "飞猫盘",
         "enable": true,
-        "isBlank": true,
+        "linkClickMode": {
+            "openBlank": {
+                enable: true,
+                default: true
+            }
+        } // 是否让识别到的网盘链接改为新标签页打开
         "openBlankWithCopyAccessCode": true,
     },
 }
@@ -355,7 +370,12 @@ abcd
     "setting": {
         "name": "飞猫盘",
         "enable": true,
-        "isBlank": true,
+        "linkClickMode": {
+            "openBlank": {
+                enable: true,
+                default: true
+            }
+        } // 是否让识别到的网盘链接改为新标签页打开
         "openBlankWithCopyAccessCode": true,
     },
 }

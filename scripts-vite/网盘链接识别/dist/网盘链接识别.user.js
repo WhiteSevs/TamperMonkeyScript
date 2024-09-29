@@ -27,7 +27,7 @@
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.1/dist/index.umd.js
 // @connect      *
 // @connect      lanzoub.com
 // @connect      lanzouc.com
@@ -14127,9 +14127,10 @@
         }
       }
       details.zIndex = () => {
-        let maxZIndex = utils.getMaxZIndex(10);
-        let popsMaxZIndex = __pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
-        let zIndex = utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+        const deviation = 10;
+        let maxZIndex = utils.getMaxZIndex(deviation);
+        let popsMaxZIndex = __pops.config.InstanceUtils.getPopsMaxZIndex(deviation).zIndex;
+        let zIndex = utils.getMaxValue(maxZIndex, popsMaxZIndex) + deviation;
         return zIndex;
       };
       return details;

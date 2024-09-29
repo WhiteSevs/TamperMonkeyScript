@@ -216,10 +216,12 @@ export const NetDiskPops = {
 		}
 		// 设置z-index获取方式
 		details.zIndex = () => {
-			let maxZIndex = utils.getMaxZIndex(10);
+			/** 偏移量 */
+			const deviation = 10;
+			let maxZIndex = utils.getMaxZIndex(deviation);
 			let popsMaxZIndex =
-				pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
-			let zIndex = utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+				pops.config.InstanceUtils.getPopsMaxZIndex(deviation).zIndex;
+			let zIndex = utils.getMaxValue(maxZIndex, popsMaxZIndex) + deviation;
 			return zIndex;
 		};
 		return details;
