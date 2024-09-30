@@ -97,6 +97,7 @@ export const NetDiskWorkerUtils = {
 				});
 			}
 		}
+		strList = strList.filter((item) => item !== "");
 		return strList;
 	},
 	/**
@@ -123,6 +124,7 @@ export const NetDiskWorkerUtils = {
 				});
 			}
 		}
+		strList = strList.filter((item) => item !== "");
 		return strList;
 	},
 	/**

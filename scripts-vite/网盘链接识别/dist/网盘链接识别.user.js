@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2024.9.29
+// @version      2024.9.30
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -1857,10 +1857,10 @@
     /** 规则 */
     rule: [
       {
-        link_innerText: `123pan.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
-        link_innerHTML: `123pan.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
-        shareCode: /123pan.com\/s\/([a-zA-Z0-9_\-]{8,14})/gi,
-        shareCodeNeedRemoveStr: /123pan.com\/s\//gi,
+        link_innerText: `(123pan|123865).com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+        link_innerHTML: `(123pan|123865).com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+        shareCode: /(123pan|123865).com\/s\/([a-zA-Z0-9_\-]{8,14})/gi,
+        shareCodeNeedRemoveStr: /(123pan|123865).com\/s\//gi,
         checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
         accessCode: /([0-9a-zA-Z]{4})/gi,
         uiLinkShow: "123pan.com/s/{#shareCode#} 提取码: {#accessCode#}",
@@ -11325,6 +11325,7 @@
           });
         }
       }
+      strList = strList.filter((item) => item !== "");
       return strList;
     },
     /**
@@ -11344,6 +11345,7 @@
           });
         }
       }
+      strList = strList.filter((item) => item !== "");
       return strList;
     },
     /**
@@ -11788,7 +11790,7 @@
       let isFirstLoad = true;
       let isFirstLoadPageText = true;
       let isFirstLoadPageHTML = true;
-      let depthAcquisitionWithShadowRoot = NetDiskGlobalData.match.depthQueryWithShadowRoot.value;
+      let isDepthAcquisitionWithShadowRoot = NetDiskGlobalData.match.depthQueryWithShadowRoot.value;
       const matchRegular = {};
       NetDisk.$rule.rule.forEach((item) => {
         let netDiskName = item.setting.key;
@@ -11836,34 +11838,20 @@
         if (typeof NetDisk.$data.clipboardText !== "string") {
           NetDisk.$data.clipboardText = "";
         }
-        const textListToBeMatched = [];
-        if (NetDisk.$data.clipboardText.trim() !== "") {
-          textListToBeMatched.push(NetDisk.$data.clipboardText);
+        const toMatchedTextList = [];
+        if (utils.isNotNull(NetDisk.$data.clipboardText)) {
+          let clipboardText = NetDisk.$data.clipboardText;
+          toMatchedTextList.push(clipboardText);
         }
         if (NetDiskGlobalData.match.allowMatchLocationHref) {
-          textListToBeMatched.push(NetDiskRuleUtils.getDecodeComponentUrl());
-        }
-        if (NetDiskGlobalData.match.toBeMatchedWithInputElementValue) {
-          textListToBeMatched.push(
-            ...NetDiskWorkerUtils.getInputElementValue(
-              document.documentElement,
-              depthAcquisitionWithShadowRoot
-            )
-          );
-        }
-        if (NetDiskGlobalData.match.toBeMatchedTextAreaElementValue) {
-          textListToBeMatched.push(
-            ...NetDiskWorkerUtils.getTextAreaElementValue(
-              document.documentElement,
-              depthAcquisitionWithShadowRoot
-            )
-          );
+          let decodeComponentUrl = NetDiskRuleUtils.getDecodeComponentUrl();
+          toMatchedTextList.push(decodeComponentUrl);
         }
         if (isFirstLoad) {
           isFirstLoad = false;
-          if (textListToBeMatched.length) {
+          if (toMatchedTextList.length) {
             NetDiskWorker.postMessage({
-              textList: textListToBeMatched,
+              textList: toMatchedTextList,
               matchTextRange: matchRange,
               regular: matchRegular,
               startTime,
@@ -11873,15 +11861,15 @@
           }
         }
         if (matchRange.includes("innerText")) {
-          let pageText = NetDiskWorkerUtils.getPageHTML(
+          let pageTextList = NetDiskWorkerUtils.getPageText(
             document.documentElement,
-            depthAcquisitionWithShadowRoot
+            isDepthAcquisitionWithShadowRoot
           );
-          textListToBeMatched.push(...pageText);
+          toMatchedTextList.push(...pageTextList);
           if (isFirstLoadPageText) {
             isFirstLoadPageText = false;
             NetDiskWorker.postMessage({
-              textList: textListToBeMatched,
+              textList: toMatchedTextList,
               matchTextRange: matchRange,
               regular: matchRegular,
               startTime,
@@ -11891,15 +11879,15 @@
           }
         }
         if (matchRange.includes("innerHTML")) {
-          let pageHTML = NetDiskWorkerUtils.getPageHTML(
+          let pageHTMLList = NetDiskWorkerUtils.getPageHTML(
             document.documentElement,
-            depthAcquisitionWithShadowRoot
+            isDepthAcquisitionWithShadowRoot
           );
-          textListToBeMatched.push(...pageHTML);
+          toMatchedTextList.push(...pageHTMLList);
           if (isFirstLoadPageHTML) {
             isFirstLoadPageHTML = false;
             NetDiskWorker.postMessage({
-              textList: textListToBeMatched,
+              textList: toMatchedTextList,
               matchTextRange: matchRange,
               regular: matchRegular,
               startTime,
@@ -11908,8 +11896,22 @@
             return;
           }
         }
+        if (NetDiskGlobalData.match.toBeMatchedWithInputElementValue) {
+          let inputValueList = NetDiskWorkerUtils.getInputElementValue(
+            document.documentElement,
+            isDepthAcquisitionWithShadowRoot
+          );
+          toMatchedTextList.push(...inputValueList);
+        }
+        if (NetDiskGlobalData.match.toBeMatchedTextAreaElementValue) {
+          let textAreaValueList = NetDiskWorkerUtils.getTextAreaElementValue(
+            document.documentElement,
+            isDepthAcquisitionWithShadowRoot
+          );
+          toMatchedTextList.push(...textAreaValueList);
+        }
         NetDiskWorker.postMessage({
-          textList: textListToBeMatched,
+          textList: toMatchedTextList,
           matchTextRange: matchRange,
           regular: matchRegular,
           startTime,

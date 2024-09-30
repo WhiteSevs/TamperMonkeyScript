@@ -4,10 +4,10 @@ export const NetDiskRule_123pan: NetDiskRuleConfig = {
 	/** 规则 */
 	rule: <NetDiskMatchRuleOption[]>[
 		{
-			link_innerText: `123pan.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
-			link_innerHTML: `123pan.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
-			shareCode: /123pan.com\/s\/([a-zA-Z0-9_\-]{8,14})/gi,
-			shareCodeNeedRemoveStr: /123pan.com\/s\//gi,
+			link_innerText: `(123pan|123865).com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+			link_innerHTML: `(123pan|123865).com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+			shareCode: /(123pan|123865).com\/s\/([a-zA-Z0-9_\-]{8,14})/gi,
+			shareCodeNeedRemoveStr: /(123pan|123865).com\/s\//gi,
 			checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
 			accessCode: /([0-9a-zA-Z]{4})/gi,
 			uiLinkShow: "123pan.com/s/{#shareCode#} 提取码: {#accessCode#}",

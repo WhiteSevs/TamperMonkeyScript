@@ -495,7 +495,7 @@ export const NetDiskWorker = {
 		/** 是否是首次加载页面文本，该项需要匹配范围为all，那么会分批次匹配，优先innerText，然后innerHTML */
 		let isFirstLoadPageHTML = true;
 		/** 是否深度遍历shadowRoot */
-		let depthAcquisitionWithShadowRoot =
+		let isDepthAcquisitionWithShadowRoot =
 			NetDiskGlobalData.match.depthQueryWithShadowRoot.value;
 
 		/** 过滤出执行匹配的规则 */
@@ -561,41 +561,25 @@ export const NetDiskWorker = {
 				NetDisk.$data.clipboardText = "";
 			}
 			/** 待匹配的文字列表 */
-			const textListToBeMatched: string[] = [];
+			const toMatchedTextList: string[] = [];
 
 			/* 剪贴板内容 */
-			if (NetDisk.$data.clipboardText.trim() !== "") {
-				textListToBeMatched.push(NetDisk.$data.clipboardText);
+			if (utils.isNotNull(NetDisk.$data.clipboardText)) {
+				let clipboardText = NetDisk.$data.clipboardText;
+				toMatchedTextList.push(clipboardText);
 			}
 			/* 当前的网页链接 */
 			if (NetDiskGlobalData.match.allowMatchLocationHref) {
-				textListToBeMatched.push(NetDiskRuleUtils.getDecodeComponentUrl());
-			}
-			/* 匹配input标签的内容 */
-			if (NetDiskGlobalData.match.toBeMatchedWithInputElementValue) {
-				textListToBeMatched.push(
-					...NetDiskWorkerUtils.getInputElementValue(
-						document.documentElement,
-						depthAcquisitionWithShadowRoot
-					)
-				);
-			}
-			/* 匹配textarea标签的内容 */
-			if (NetDiskGlobalData.match.toBeMatchedTextAreaElementValue) {
-				textListToBeMatched.push(
-					...NetDiskWorkerUtils.getTextAreaElementValue(
-						document.documentElement,
-						depthAcquisitionWithShadowRoot
-					)
-				);
+				let decodeComponentUrl = NetDiskRuleUtils.getDecodeComponentUrl();
+				toMatchedTextList.push(decodeComponentUrl);
 			}
 			if (isFirstLoad) {
 				// 首次加载
 				isFirstLoad = false;
-				/* 发送给worker执行匹配的通知 */
-				if (textListToBeMatched.length) {
+				/* 通知worker执行匹配，优先匹配当前url、剪贴板的内容 */
+				if (toMatchedTextList.length) {
 					NetDiskWorker.postMessage({
-						textList: textListToBeMatched,
+						textList: toMatchedTextList,
 						matchTextRange: matchRange,
 						regular: matchRegular,
 						startTime: startTime,
@@ -604,18 +588,19 @@ export const NetDiskWorker = {
 					return;
 				}
 			}
+			// 匹配页面文本
 			if (matchRange.includes("innerText")) {
 				/* innerText */
-				let pageText = NetDiskWorkerUtils.getPageHTML(
+				let pageTextList = NetDiskWorkerUtils.getPageText(
 					document.documentElement,
-					depthAcquisitionWithShadowRoot
+					isDepthAcquisitionWithShadowRoot
 				);
-				textListToBeMatched.push(...pageText);
+				toMatchedTextList.push(...pageTextList);
 				if (isFirstLoadPageText) {
 					// 首次加载text
 					isFirstLoadPageText = false;
 					NetDiskWorker.postMessage({
-						textList: textListToBeMatched,
+						textList: toMatchedTextList,
 						matchTextRange: matchRange,
 						regular: matchRegular,
 						startTime: startTime,
@@ -624,18 +609,19 @@ export const NetDiskWorker = {
 					return;
 				}
 			}
+			// 匹配页面超文本
 			if (matchRange.includes("innerHTML")) {
 				/* innerHTML */
-				let pageHTML = NetDiskWorkerUtils.getPageHTML(
+				let pageHTMLList = NetDiskWorkerUtils.getPageHTML(
 					document.documentElement,
-					depthAcquisitionWithShadowRoot
+					isDepthAcquisitionWithShadowRoot
 				);
-				textListToBeMatched.push(...pageHTML);
+				toMatchedTextList.push(...pageHTMLList);
 				if (isFirstLoadPageHTML) {
 					// 首次加载html
 					isFirstLoadPageHTML = false;
 					NetDiskWorker.postMessage({
-						textList: textListToBeMatched,
+						textList: toMatchedTextList,
 						matchTextRange: matchRange,
 						regular: matchRegular,
 						startTime: startTime,
@@ -644,9 +630,25 @@ export const NetDiskWorker = {
 					return;
 				}
 			}
+			/* 匹配input标签的内容 */
+			if (NetDiskGlobalData.match.toBeMatchedWithInputElementValue) {
+				let inputValueList = NetDiskWorkerUtils.getInputElementValue(
+					document.documentElement,
+					isDepthAcquisitionWithShadowRoot
+				);
+				toMatchedTextList.push(...inputValueList);
+			}
+			/* 匹配textarea标签的内容 */
+			if (NetDiskGlobalData.match.toBeMatchedTextAreaElementValue) {
+				let textAreaValueList = NetDiskWorkerUtils.getTextAreaElementValue(
+					document.documentElement,
+					isDepthAcquisitionWithShadowRoot
+				);
+				toMatchedTextList.push(...textAreaValueList);
+			}
 			/* 发送执行匹配的消息 */
 			NetDiskWorker.postMessage({
-				textList: textListToBeMatched,
+				textList: toMatchedTextList,
 				matchTextRange: matchRange,
 				regular: matchRegular,
 				startTime: startTime,
