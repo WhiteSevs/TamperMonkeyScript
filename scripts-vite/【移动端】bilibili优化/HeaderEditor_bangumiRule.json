@@ -1,0 +1,22 @@
+{
+	"request": [],
+	"sendHeader": [
+		{
+			"enable": true,
+			"name": "哔哩哔哩解锁播放限制",
+			"ruleType": "modifySendHeader",
+			"matchType": "regexp",
+			"pattern": "https://.*.(bilivideo.com|akamaized.net|bilivideo.cn).*?",
+			"exclude": "",
+			"group": "未分组",
+			"isFunction": true,
+			"action": {
+				"name": "referer",
+				"value": "https://www.bilibili.com/"
+			},
+			"code": "for (const index in val) {\n    let headerItem = val[index];\n\tif (headerItem.name.toLowerCase() === 'referer') {\n\t\theaderItem.value = \"https://www.bilibili.com/\"\n\t}else if(headerItem.name.toLowerCase() === 'user-agent'){\n                headerItem.value = \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36\"\n        }\n}"
+		}
+	],
+	"receiveHeader": [],
+	"receiveBody": []
+}
