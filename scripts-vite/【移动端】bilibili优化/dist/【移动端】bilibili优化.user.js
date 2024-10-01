@@ -15,7 +15,7 @@
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
 // @require      https://fastly.jsdelivr.net/npm/artplayer-plugin-danmuku@5.1.4/dist/artplayer-plugin-danmuku.js
@@ -6369,12 +6369,14 @@
         M4SAudio.syncAudioProgress();
         M4SAudio.syncAudioVolumn();
         M4SAudio.audio.play();
+        M4SAudio.syncAudioProgress();
       },
       seek: (currentTime) => {
         M4SAudio.syncAudioProgress();
       },
       pause: () => {
         M4SAudio.audio.pause();
+        M4SAudio.syncAudioProgress();
       },
       restart: (url) => {
         if (typeof M4SAudio.userEvent.onRestart === "function") {
@@ -6397,6 +6399,7 @@
       },
       "video:ended": () => {
         M4SAudio.audio.pause();
+        M4SAudio.syncAudioProgress();
       },
       "video:ratechange": () => {
         M4SAudio.audio.playbackRate = M4SAudio.art.playbackRate;
@@ -6408,9 +6411,11 @@
       "video:playing": () => {
         M4SAudio.syncAudioProgress();
         M4SAudio.audio.play();
+        M4SAudio.syncAudioProgress();
       },
       "video:volumechange": () => {
         M4SAudio.syncAudioVolumn();
+        M4SAudio.syncAudioProgress();
       }
     },
     /**
@@ -7200,6 +7205,24 @@
     async init(option) {
       this.resetEnv();
       this.currentOption = option;
+      const localArtDanmakuOption_KEY = "artplayer-bangumi-danmaku-option";
+      const defaultDanmakuOption = {
+        speed: 5,
+        margin: [10, "75%"],
+        opacity: 1,
+        modes: [0, 1, 2],
+        fontSize: 18,
+        antiOverlap: true,
+        synchronousPlayback: false,
+        visible: true
+      };
+      const localArtDanmakuOption = utils.assign(
+        defaultDanmakuOption,
+        _GM_getValue(
+          localArtDanmakuOption_KEY,
+          {}
+        )
+      );
       const artOption = {
         /** 容器 */
         container: option.container,
@@ -7388,7 +7411,7 @@
           artplayerPluginDanmuku({
             danmuku: option.danmukuUrl,
             // 以下为非必填
-            speed: 5,
+            speed: localArtDanmakuOption.speed,
             // 弹幕持续时间，范围在[1 ~ 10]
             /**
                             * [{
@@ -7405,21 +7428,21 @@
                                        value: [10, 10]
                                    }]
                             */
-            margin: [10, "75%"],
+            margin: localArtDanmakuOption["margin"],
             // 弹幕上下边距，支持像素数字和百分比
-            opacity: 1,
+            opacity: localArtDanmakuOption["opacity"],
             // 弹幕透明度，范围在[0 ~ 1]
             color: "#FFFFFF",
             // 默认弹幕颜色，可以被单独弹幕项覆盖
             mode: 0,
             // 默认弹幕模式: 0: 滚动，1: 顶部，2: 底部
-            modes: [0, 1, 2],
+            modes: localArtDanmakuOption["modes"],
             // 弹幕可见的模式
-            fontSize: 18,
+            fontSize: localArtDanmakuOption["fontSize"],
             // 弹幕字体大小，支持像素数字和百分比
-            antiOverlap: true,
+            antiOverlap: localArtDanmakuOption["antiOverlap"],
             // 弹幕是否防重叠
-            synchronousPlayback: false,
+            synchronousPlayback: localArtDanmakuOption["synchronousPlayback"],
             // 是否同步播放速度
             mount: void 0,
             // 弹幕发射器挂载点, 默认为播放器控制栏中部
@@ -7433,9 +7456,9 @@
             // 弹幕载入前的过滤器
             beforeVisible: () => true,
             // 弹幕显示前的过滤器，返回 true 则可以发送
-            visible: true,
+            visible: localArtDanmakuOption["visible"],
             // 弹幕层是否可见
-            emitter: true,
+            emitter: false,
             // 是否开启弹幕发射器
             maxLength: 50,
             // 弹幕输入框最大长度, 范围在[1 ~ 1000]
@@ -7504,6 +7527,19 @@
         artOption.url = url;
       }
       this.art = new Artplayer(artOption);
+      this.art.on(
+        // @ts-ignore
+        "artplayerPluginDanmuku:config",
+        (option2) => {
+          Object.keys(localArtDanmakuOption).forEach((key) => {
+            if (Reflect.has(option2, key)) {
+              let value = Reflect.get(option2, key);
+              Reflect.set(localArtDanmakuOption, key, value);
+            }
+          });
+          _GM_setValue(localArtDanmakuOption_KEY, localArtDanmakuOption);
+        }
+      );
       return this.art;
     },
     /**

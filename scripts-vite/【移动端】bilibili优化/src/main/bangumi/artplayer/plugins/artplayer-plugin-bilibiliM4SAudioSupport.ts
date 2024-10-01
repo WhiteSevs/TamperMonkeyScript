@@ -23,6 +23,7 @@ const M4SAudio = {
 			M4SAudio.syncAudioProgress();
 			M4SAudio.syncAudioVolumn();
 			M4SAudio.audio.play();
+			M4SAudio.syncAudioProgress();
 		},
 		seek: (currentTime) => {
 			// console.log("[artplayer-plugin-bilibiliCCSubTitle]：seek", currentTime);
@@ -35,6 +36,7 @@ const M4SAudio = {
 			// 视频暂停
 			// 音频暂停
 			M4SAudio.audio.pause();
+			M4SAudio.syncAudioProgress();
 		},
 		restart: (url) => {
 			// console.log("[artplayer-plugin-bilibiliCCSubTitle]：restart", url);
@@ -72,6 +74,7 @@ const M4SAudio = {
 			// 视频播放完毕
 			// 音频暂停
 			M4SAudio.audio.pause();
+			M4SAudio.syncAudioProgress();
 		},
 		"video:ratechange": () => {
 			// console.log("[artplayer-plugin-bilibiliCCSubTitle]：video:ratechange");
@@ -92,11 +95,13 @@ const M4SAudio = {
 			// 视频缓冲恢复，音频也恢复
 			M4SAudio.syncAudioProgress();
 			M4SAudio.audio.play();
+			M4SAudio.syncAudioProgress();
 		},
 		"video:volumechange": () => {
 			// console.log("[artplayer-plugin-bilibiliCCSubTitle]：video:volumechange");
 			// 同步音量
 			M4SAudio.syncAudioVolumn();
+			M4SAudio.syncAudioProgress();
 		},
 	} as {
 		[key in keyof Events]?: (...args: Events[key]) => unknown;
