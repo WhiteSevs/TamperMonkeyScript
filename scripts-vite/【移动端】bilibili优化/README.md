@@ -34,7 +34,9 @@
 
 将下面的规则自行创建一个`xxx.json`文件，粘贴进去，导入到插件即可，或者复制链接
 
-[复制链接并导入](https://raw.githubusercontent.com/WhiteSevs/TamperMonkeyScript/refs/heads/dev/scripts-vite/%E3%80%90%E7%A7%BB%E5%8A%A8%E7%AB%AF%E3%80%91bilibili%E4%BC%98%E5%8C%96/HeaderEditor_bangumiRule.json)
+[复制配置链接(fastly节点)](https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/scripts-vite/%E3%80%90%E7%A7%BB%E5%8A%A8%E7%AB%AF%E3%80%91bilibili%E4%BC%98%E5%8C%96/HeaderEditor_bangumiRule.json)
+[复制配置链接(testingcf节点)](https://testingcf.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/scripts-vite/%E3%80%90%E7%A7%BB%E5%8A%A8%E7%AB%AF%E3%80%91bilibili%E4%BC%98%E5%8C%96/HeaderEditor_bangumiRule.json)
+[复制配置链接(gcore节点)](https://gcore.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/scripts-vite/%E3%80%90%E7%A7%BB%E5%8A%A8%E7%AB%AF%E3%80%91bilibili%E4%BC%98%E5%8C%96/HeaderEditor_bangumiRule.json)
 
 ```json
 {
