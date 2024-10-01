@@ -150,7 +150,7 @@ section.pops-panel-container
 	.pops-panel-forms-container-item
 	.pops-panel-item-left-text
 	.pops-panel-item-left-desc-text {
-	/* line-height: 1; */
+	line-height: normal;
 	margin-top: 6px;
 	font-size: 0.8em;
 	color: rgb(108, 108, 108);
