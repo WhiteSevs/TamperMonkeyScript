@@ -147,14 +147,13 @@ export const BilibiliExtraSearch = {
 			.gm-card-eps-item {
 				text-align: center;
 				white-space: nowrap;
+				padding: 10px 10px;
+				background: #edeff3;
+				border-radius: 8px;
+				min-width: 60px;
 			}
 	
 			.gm-card-eps-item-info {
-				min-width: 60px;
-				height: 40px;
-				background: #edeff3;
-				padding: 10px;
-				border-radius: 8px;
 			}
 			`);
 		}

@@ -760,14 +760,13 @@
 			.gm-card-eps-item {
 				text-align: center;
 				white-space: nowrap;
+				padding: 10px 10px;
+				background: #edeff3;
+				border-radius: 8px;
+				min-width: 60px;
 			}
 	
 			.gm-card-eps-item-info {
-				min-width: 60px;
-				height: 40px;
-				background: #edeff3;
-				padding: 10px;
-				border-radius: 8px;
 			}
 			`)),s.waitNode(".m-search-result .tabs:not(:has(.gm-tab-item))").then(e=>{be.getSearchProxyHost().forEach(i=>{let r=m.createElement("a",{className:"tab-item gm-tab-item",innerHTML:`番剧（${i.name}）`},{"data-area":i.area,"data-host":i.host});e.appendChild(r);});const u=i=>{e.querySelectorAll(".tab-item").forEach(r=>i!=r&&r.classList.remove("on")),i.classList.add("on");};m.on(e,"click",".tab-item",async i=>{let r=i.target;u(r);let a=document.querySelector(".result-panel"),n=document.querySelector(".gm-result-panel");if(n&&(n.remove(),m.show(a)),!r.classList.contains("gm-tab-item"))return;let l=r.dataset.area,p=r.dataset.host,d=document.querySelector(".m-search-result"),C=D.getVue(d);C.switchTab(233),m.hide(a);let f=C.keyword,A=g.loading("搜索中，请稍后..."),v=await Xe.getBangumiSearchResult({keyword:f,area:l,host:p});if(A.close(),!v)return;o.info(["搜索结果：",v]);let w=m.createElement("div",{className:"gm-result-panel",innerHTML:`
 					<div class="gm-list-view">
