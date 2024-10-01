@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2024.9.30
+// @version      2024.10.1
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -11313,7 +11313,7 @@
      */
     getPageText(target = document.documentElement, isCheckShadowRoot) {
       let strList = [];
-      strList.push(target.innerText || target.textContent || "");
+      strList.push((target == null ? void 0 : target.textContent) || (target == null ? void 0 : target.innerText) || "");
       if (isCheckShadowRoot) {
         let queryShadowRootAllNodeInfo = this.depthQueryShadowRootAllNode(target);
         if (queryShadowRootAllNodeInfo.length) {
@@ -11341,7 +11341,9 @@
         if (queryShadowRootAllNodeInfo.length) {
           queryShadowRootAllNodeInfo.forEach((queryShadowRootInfo) => {
             let shadowRootHTML = queryShadowRootInfo.shadowRoot.innerHTML;
-            strList.push(shadowRootHTML);
+            if (shadowRootHTML) {
+              strList.push(shadowRootHTML);
+            }
           });
         }
       }
@@ -11364,7 +11366,7 @@
           queryShadowRootAllNodeInfo.forEach((queryShadowRootInfo) => {
             for (let index = 0; index < queryShadowRootInfo.childNode.length; index++) {
               const $childNode = queryShadowRootInfo.childNode[index];
-              if ($childNode instanceof HTMLInputElement) {
+              if ($childNode instanceof HTMLInputElement && $childNode.value) {
                 result.push($childNode.value);
               }
             }
@@ -11389,7 +11391,7 @@
           queryShadowRootAllNodeInfo.forEach((queryShadowRootInfo) => {
             for (let index = 0; index < queryShadowRootInfo.childNode.length; index++) {
               const $childNode = queryShadowRootInfo.childNode[index];
-              if ($childNode instanceof HTMLTextAreaElement) {
+              if ($childNode instanceof HTMLTextAreaElement && $childNode.value) {
                 result.push($childNode.value);
               }
             }

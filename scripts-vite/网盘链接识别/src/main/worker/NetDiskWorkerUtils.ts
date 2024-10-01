@@ -82,7 +82,7 @@ export const NetDiskWorkerUtils = {
 	): string[] {
 		let strList: string[] = [];
 		// 先把页面的内容添加进去
-		strList.push(target.innerText || target.textContent! || "");
+		strList.push(target?.textContent || target?.innerText || "");
 
 		if (isCheckShadowRoot) {
 			// 检索ShadowRoot
@@ -120,7 +120,9 @@ export const NetDiskWorkerUtils = {
 				// 遍历ShadowRoot并把innerHTML添加进去
 				queryShadowRootAllNodeInfo.forEach((queryShadowRootInfo) => {
 					let shadowRootHTML = queryShadowRootInfo.shadowRoot.innerHTML;
-					strList.push(shadowRootHTML);
+					if (shadowRootHTML) {
+						strList.push(shadowRootHTML);
+					}
 				});
 			}
 		}
@@ -154,7 +156,7 @@ export const NetDiskWorkerUtils = {
 						index++
 					) {
 						const $childNode = queryShadowRootInfo.childNode[index];
-						if ($childNode instanceof HTMLInputElement) {
+						if ($childNode instanceof HTMLInputElement && $childNode.value) {
 							result.push($childNode.value);
 						}
 					}
@@ -190,7 +192,7 @@ export const NetDiskWorkerUtils = {
 						index++
 					) {
 						const $childNode = queryShadowRootInfo.childNode[index];
-						if ($childNode instanceof HTMLTextAreaElement) {
+						if ($childNode instanceof HTMLTextAreaElement && $childNode.value) {
 							result.push($childNode.value);
 						}
 					}
