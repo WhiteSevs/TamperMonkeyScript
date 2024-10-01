@@ -153,7 +153,7 @@ const NetDiskCheckLinkValidityNetDisk: NetDiskCheckLinkValidityEntrance = {
 	lanzou: NetDiskCheckLinkValidity_lanzou,
 	lanzouyx: NetDiskCheckLinkValidity_lanzouyx,
 	tianyiyun: NetDiskCheckLinkValidity_tianyiyun,
-	hecaiyun: NetDiskCheckLinkValidity_hecaiyun,
+	// hecaiyun: NetDiskCheckLinkValidity_hecaiyun,
 	aliyun: NetDiskCheckLinkValidity_aliyun,
 	wenshushu: NetDiskCheckLinkValidity_wenshushu,
 	nainiu: NetDiskCheckLinkValidity_nainiu,

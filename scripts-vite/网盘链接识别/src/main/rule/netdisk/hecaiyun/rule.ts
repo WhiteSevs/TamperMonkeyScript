@@ -48,7 +48,7 @@ export const NetDiskRule_hecaiyun: NetDiskRuleConfig = {
 						default: true,
 					},
 				},
-				checkLinkValidity: true,
+				// checkLinkValidity: true,
 			},
 			linkClickMode_openBlank: {
 				openBlankWithCopyAccessCode: true,
