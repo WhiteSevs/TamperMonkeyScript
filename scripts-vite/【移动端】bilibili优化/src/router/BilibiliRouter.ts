@@ -21,6 +21,15 @@ export const BilibiliRouter = {
 		return window.location.pathname.startsWith("/search");
 	},
 	/**
+	 * 搜索结果页面
+	 *
+	 * + /search?keyword=xxx
+	 */
+	isSearchResult() {
+		let urlSearchParams = new URLSearchParams(window.location.search);
+		return this.isSearch() && urlSearchParams.has("keyword");
+	},
+	/**
 	 * 直播
 	 * + live.bilibili.com
 	 */

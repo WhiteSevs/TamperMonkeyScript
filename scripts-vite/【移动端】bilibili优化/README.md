@@ -20,12 +20,11 @@
 
 ## 画质解锁的限制
 
-1. 1080p+的视频是`m4s`类型，`<video>`标签无法直接播放，所以只能获取`720P`
-2. 番剧画质解锁需要设置`Referer`和`User-Agent`鉴权，但`Referer`和`User-Agent`无法通过油猴脚本设置，所以只能通过插件设置
+番剧画质解锁需要设置`Referer`和`User-Agent`鉴权，但`Referer`和`User-Agent`无法通过油猴脚本设置，所以只能通过插件设置
 
 ## 画质解锁
 
-需安装插件`Header Editor`，最高解锁画质`720P`
+需安装插件`Header Editor`
 
 | 商店名  | 链接                                                                                                                                                                                                 |
 | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -41,18 +40,18 @@
 	"sendHeader": [
 		{
 			"enable": true,
-			"name": "bangumi",
+			"name": "哔哩哔哩解锁播放限制",
 			"ruleType": "modifySendHeader",
 			"matchType": "regexp",
-			"pattern": "https://.*.bilivideo.cn.*?",
+			"pattern": "https://.*.(bilivideo.com|akamaized.net|bilivideo.cn).*?",
 			"exclude": "",
-			"group": "Bilibili",
+			"group": "未分组",
 			"isFunction": true,
 			"action": {
 				"name": "referer",
 				"value": "https://www.bilibili.com/"
 			},
-			"code": "for (const index in val) {\n    let headerItem = val[index];\n\tif (headerItem.name.toLowerCase() === 'referer') {\n\t\theaderItem.value = \"https://www.bilibili.com/\"\n\t}else if(headerItem.name.toLowerCase() === 'user-agent'){\n                headerItem.value = \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36\"\n        }\n}"
+			"code": "for (const index in val) {\n    let headerItem = val[index];\n\tif (headerItem.name.toLowerCase() === 'referer') {\n\t\theaderItem.value = \"https://www.bilibili.com/\"\n\t}else if(headerItem.name.toLowerCase() === 'user-agent'){\n                headerItem.value = \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36\"\n        }\n}"
 		}
 	],
 	"receiveHeader": [],

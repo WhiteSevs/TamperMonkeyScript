@@ -118,13 +118,12 @@ export const BilibiliNetworkHook = {
 	},
 	init() {
 		if (BilibiliRouter.isVideo()) {
+			// 视频页
 			PopsPanel.execMenuOnce("bili-video-xhr-unlockQuality", () => {
 				this.hook_video_playurl();
 			});
 		} else if (BilibiliRouter.isBangumi()) {
-			PopsPanel.execMenuOnce("bili-bangumi-xhr-unlockQuality", () => {
-				this.hook_bangumi_html5();
-			});
+			// 番剧
 		}
 	},
 	/**

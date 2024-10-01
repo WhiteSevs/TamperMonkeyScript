@@ -141,6 +141,12 @@ export default defineConfig({
 					),
 					"@whitesev/pops": cdn.jsdelivrFastly("pops", "dist/index.umd.js"),
 					md5: cdn.jsdelivrFastly("MD5", "dist/md5.min.js"),
+					"flv.js": cdn.jsdelivrFastly("MD5", "dist/flv.js"),
+					"artplayer-plugin-danmuku": cdn.jsdelivrFastly(
+						"artplayerPluginDanmuku",
+						"dist/artplayer-plugin-danmuku.js"
+					),
+					artplayer: cdn.jsdelivrFastly("Artplayer", "dist/artplayer.js"),
 				},
 			},
 		}),

@@ -42,10 +42,16 @@ const Bilibili = {
 			log.info("hook  window.setTimeout autoOpenApp");
 			BilibiliHook.setTimeout("autoOpenApp");
 			BilibiliHook.setTimeout("bilibili://");
+			// bnagumi的
+			BilibiliHook.setTimeout("void 0 !== y && document[y]");
 		});
 		PopsPanel.execMenuOnce("bili-overrideLaunchAppBtn_Vue_openApp", () => {
 			log.info("覆盖元素.launch-app-btn上的openApp");
 			BilibiliHook.overRideLaunchAppBtn_Vue_openApp();
+		});
+		PopsPanel.execMenuOnce("bili-cover-bili-open-app-open", () => {
+			log.info(`覆盖元素bili-open-app上的opener.open`);
+			BilibiliHook.overRideBiliOpenApp();
 		});
 		PopsPanel.execMenuOnce("bili-head-beautify", () => {
 			log.info("添加美化CSS");

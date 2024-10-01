@@ -515,6 +515,13 @@ const SettingUICommon: PopsPanelContentConfig = {
 									"覆盖.launch-app-btn元素上的openApp函数，可阻止点击唤醒/下载App"
 								),
 								UISwitch(
+									"覆盖bili-open-app opener.open",
+									"bili-cover-bili-open-app-open",
+									true,
+									void 0,
+									"覆盖bili-open-app元素上的opener.open函数，可阻止点击唤醒/下载App"
+								),
+								UISwitch(
 									"劫持setTimeout-autoOpenApp",
 									"bili-hookSetTimeout_autoOpenApp",
 									true,

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.9.22
+// @version      2024.10.1
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -12,11 +12,14 @@
 // @match        *://www.bilibili.com/read/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/497907/1413262/QRCodeJS.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.9/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.6.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
+// @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
+// @require      https://fastly.jsdelivr.net/npm/artplayer-plugin-danmuku@5.1.4/dist/artplayer-plugin-danmuku.js
+// @require      https://fastly.jsdelivr.net/npm/artplayer@5.1.7/dist/artplayer.js
 // @connect      *
 // @connect      m.bilibili.com
 // @connect      www.bilibili.com
@@ -37,7 +40,7 @@
 
 (a=>{if(typeof GM_addStyle=="function"){GM_addStyle(a);return}function n(e){let p=document.createElement("style");return p.innerHTML=e,document.head?document.head.appendChild(p):document.documentElement.appendChild(p),p}n(a)})(' @charset "UTF-8";.m-video2-awaken-btn,.openapp-dialog,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#app .read-app-main bili-open-app{display:none!important}html{--bili-color: #fb7299;--bili-color-rgb: 251, 114, 153} ');
 
-(function (Qmsg, Utils, DOMUtils, pops, md5) {
+(function (Qmsg, Utils, DOMUtils, pops, md5, Artplayer, artplayerPluginDanmuku, flvjs) {
   'use strict';
 
   var _a;
@@ -668,6 +671,15 @@
       return window.location.pathname.startsWith("/search");
     },
     /**
+     * 搜索结果页面
+     *
+     * + /search?keyword=xxx
+     */
+    isSearchResult() {
+      let urlSearchParams = new URLSearchParams(window.location.search);
+      return this.isSearch() && urlSearchParams.has("keyword");
+    },
+    /**
      * 直播
      * + live.bilibili.com
      */
@@ -833,11 +845,7 @@
         PopsPanel.execMenuOnce("bili-video-xhr-unlockQuality", () => {
           this.hook_video_playurl();
         });
-      } else if (BilibiliRouter.isBangumi()) {
-        PopsPanel.execMenuOnce("bili-bangumi-xhr-unlockQuality", () => {
-          this.hook_bangumi_html5();
-        });
-      }
+      } else if (BilibiliRouter.isBangumi()) ;
     },
     /**
      * 视频播放地址获取
@@ -941,6 +949,52 @@
       });
     }
   };
+  const BilibiliApiUtils = {
+    /**
+     * 合并并检查是否传入aid或者bvid
+     */
+    mergeAndCheckSearchParamsData(searchParamsData, config) {
+      if ("aid" in config && config["aid"] != null) {
+        Reflect.set(searchParamsData, "aid", config.aid);
+      } else if ("bvid" in config && config["bvid"] != null) {
+        Reflect.set(searchParamsData, "bvid", config.bvid);
+      } else {
+        throw new TypeError("avid or bvid must give one");
+      }
+    }
+  };
+  const BilibiliApiConfig = {
+    web_host: "api.bilibili.com"
+  };
+  const BilibiliVideoCodingCode = {
+    AVC: 7,
+    HEVC: 12,
+    AV1: 13
+  };
+  const BilibiliResponseCheck = {
+    /**
+     * check json has {code: 0, message: "0"}
+     */
+    isWebApiSuccess(json) {
+      return (json == null ? void 0 : json.code) === 0 && ((json == null ? void 0 : json.message) === "0" || (json == null ? void 0 : json.message) === "success");
+    },
+    /**
+     * 是否是区域限制
+     */
+    isAreaLimit(data2) {
+      let areaLimitCode = {
+        "6002003": "抱歉您所在地区不可观看！"
+      };
+      let flag = false;
+      Object.keys(areaLimitCode).forEach((code) => {
+        let codeMsg = areaLimitCode[code];
+        if (data2.code.toString() === code.toString() || data2.message.includes(codeMsg)) {
+          flag = true;
+        }
+      });
+      return flag;
+    }
+  };
   const BilibiliVideoApi = {
     /**
      * 获取视频播放地址，avid或bvid必须给一个
@@ -949,7 +1003,7 @@
      * @param extraParams 额外参数，一般用于hook network参数内的判断
      */
     async playUrl(config, extraParams) {
-      let getData = {
+      let searchParamsData = {
         cid: config.cid,
         qn: config.qn ?? BilibiliVideoPlayUrlQN["1080P60 高帧率"],
         high_quality: config.high_quality ?? 1,
@@ -960,20 +1014,14 @@
         fourk: config.fourk ?? 1
       };
       if (config.setPlatformHTML5) {
-        Reflect.set(getData, "platform", "html5");
+        Reflect.set(searchParamsData, "platform", "html5");
       }
-      if ("avid" in config) {
-        Reflect.set(getData, "avid", config.avid);
-      } else if ("bvid" in config) {
-        Reflect.set(getData, "bvid", config.bvid);
-      } else {
-        throw new TypeError("avid or bvid must give one");
-      }
+      BilibiliApiUtils.mergeAndCheckSearchParamsData(searchParamsData, config);
       if (typeof extraParams === "object") {
-        Object.assign(getData, extraParams);
+        Object.assign(searchParamsData, extraParams);
       }
       let getResp = await httpx.get(
-        "https://api.bilibili.com/x/player/playurl?" + utils.toSearchParamsStr(getData),
+        "https://api.bilibili.com/x/player/playurl?" + utils.toSearchParamsStr(searchParamsData),
         {
           responseType: "json",
           fetch: true
@@ -989,24 +1037,50 @@
       return data2["data"];
     },
     /**
+     * 获取视频在线观看人数
+     * + /x/player/online/total
+     */
+    async onlineTotal(config) {
+      let searchParamsData = {
+        cid: config.cid
+      };
+      BilibiliApiUtils.mergeAndCheckSearchParamsData(searchParamsData, config);
+      if ("aid" in config) {
+        Reflect.set(searchParamsData, "aid", config.aid);
+      } else if ("bvid" in config) {
+        Reflect.set(searchParamsData, "bvid", config.bvid);
+      } else {
+        throw new TypeError("avid or bvid must give one");
+      }
+      let httpxResponse = await httpx.get(
+        `https://${BilibiliApiConfig.web_host}/x/player/online/total?${utils.toSearchParamsStr(searchParamsData)}`,
+        {
+          responseType: "json",
+          fetch: true
+        }
+      );
+      if (!httpxResponse.status) {
+        return;
+      }
+      let data2 = utils.toJSON(httpxResponse.data.responseText);
+      if (!BilibiliResponseCheck.isWebApiSuccess(data2)) {
+        log.error(`获取在线观看人数失败: ${JSON.stringify(data2)}`);
+      }
+      return data2["data"];
+    },
+    /**
      * 点赞视频（web端）
      * @param config
      */
     async like(config) {
       var _a2;
-      let getData = {
+      let searchParamsData = {
         like: config.like,
         csrf: ((_a2 = GMCookie.get("bili_jct")) == null ? void 0 : _a2.value) || ""
       };
-      if ("avid" in config) {
-        Reflect.set(getData, "avid", config.avid);
-      } else if ("bvid" in config) {
-        Reflect.set(getData, "bvid", config.bvid);
-      } else {
-        throw new TypeError("avid or bvid must give one");
-      }
+      BilibiliApiUtils.mergeAndCheckSearchParamsData(searchParamsData, config);
       let getResp = await httpx.get(
-        "https://api.bilibili.com/x/web-interface/archive/like?" + utils.toSearchParamsStr(getData),
+        "https://api.bilibili.com/x/web-interface/archive/like?" + utils.toSearchParamsStr(searchParamsData),
         {
           fetch: true
         }
@@ -1188,7 +1262,8 @@
     $isHook: {
       windowPlayerAgent: false,
       hookWebpackJsonp_openApp: false,
-      overRideLaunchAppBtn_Vue_openApp: false
+      overRideLaunchAppBtn_Vue_openApp: false,
+      overRideBiliOpenApp: false
     },
     $data: {
       setTimeout: []
@@ -1331,6 +1406,44 @@
               vueObj.$children.forEach(($child) => {
                 overrideOpenApp($child);
               });
+            }
+          });
+        }
+      });
+    },
+    /**
+     * 覆盖元素bili-open-app上的opener.open
+     *
+     * 页面上有很多
+     */
+    overRideBiliOpenApp() {
+      if (this.$isHook.overRideBiliOpenApp) {
+        return;
+      }
+      this.$isHook.overRideBiliOpenApp = true;
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true,
+          attributes: true
+        },
+        callback() {
+          document.querySelectorAll("bili-open-app").forEach(($biliOpenApp) => {
+            if ($biliOpenApp.hasAttribute("data-inject-opener-open")) {
+              return;
+            }
+            let opener = Reflect.get($biliOpenApp, "opener");
+            if (opener == null) {
+              return;
+            }
+            let originOpen = opener == null ? void 0 : opener.open;
+            if (typeof originOpen === "function") {
+              Reflect.set(opener, "open", (config) => {
+                log.success(
+                  `拦截bili-open-app.open跳转: ${JSON.stringify(config)}`
+                );
+              });
+              $biliOpenApp.setAttribute("data-inject-opener-open", "true");
             }
           });
         }
@@ -1506,6 +1619,26 @@
         }
       });
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    /**
+     * 固定meta viewport缩放倍率为1
+     */
+    initialScale() {
+      log.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
+      domutils.ready(() => {
+        let meta = domutils.createElement(
+          "meta",
+          {},
+          {
+            name: "viewport",
+            content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"
+          }
+        );
+        domutils.remove("meta[name='viewport']");
+        utils.waitNode("head").then(() => {
+          document.head.appendChild(meta);
+        });
+      });
     }
   };
   const BilibiliUrlUtils = {
@@ -3506,6 +3639,25 @@
                     true,
                     void 0,
                     "一般用于处理楼层的回复弹窗内无法选中复制问题"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            type: "deepMenu",
+            text: "播放器",
+            forms: [
+              {
+                text: "功能",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "记住选择的清晰度",
+                    "bili-rememberUserChooseQuality",
+                    true,
+                    void 0,
+                    "需开启 - 修复【清晰度】按钮"
                   ),
                   UISwitch(
                     "修复【倍速】按钮",
@@ -3520,13 +3672,6 @@
                     true,
                     void 0,
                     "可查看当前视频的清晰度"
-                  ),
-                  UISwitch(
-                    "记住选择的清晰度",
-                    "bili-rememberUserChooseQuality",
-                    true,
-                    void 0,
-                    "需开启 - 修复【清晰度】按钮"
                   )
                 ]
               }
@@ -3953,6 +4098,13 @@
                     "覆盖.launch-app-btn元素上的openApp函数，可阻止点击唤醒/下载App"
                   ),
                   UISwitch(
+                    "覆盖bili-open-app opener.open",
+                    "bili-cover-bili-open-app-open",
+                    true,
+                    void 0,
+                    "覆盖bili-open-app元素上的opener.open函数，可阻止点击唤醒/下载App"
+                  ),
+                  UISwitch(
                     "劫持setTimeout-autoOpenApp",
                     "bili-hookSetTimeout_autoOpenApp",
                     true,
@@ -4122,7 +4274,7 @@
                 type: "forms",
                 forms: [
                   UISwitch(
-                    "修复视频底部区域高度",
+                    "调整视频底部区域高度",
                     "bili-video-repairVideoBottomAreaHeight",
                     true,
                     void 0,
@@ -4136,7 +4288,7 @@
                     "可避免弹窗出现且自动点击后播放视频"
                   ),
                   UISwitch(
-                    "美化显示",
+                    "美化底部推荐视频",
                     "bili-video-beautify",
                     true,
                     void 0,
@@ -4308,6 +4460,629 @@
       }
     ]
   };
+  const AppKeyInfo = {
+    /** 云视听小电视(TV版) 不过用这个无法解锁番剧 */
+    tv: {
+      appkey: "4409e2ce8ffd12b8",
+      appsec: "59b43e04ad6965f34319062b478f83dd",
+      mobi_app: "android_tv_yst"
+    },
+    /** web_ios */
+    ios: {
+      appkey: "27eb53fc9058f8c3",
+      appsec: "c2ed53a74eeefe3cf99fbd01d8c9c375",
+      mobi_app: "ipnone"
+    }
+  };
+  function appSign(params, appkey, appsec) {
+    params.appkey = appkey;
+    const searchParams = new URLSearchParams(params);
+    searchParams.sort();
+    return md5(searchParams.toString() + appsec);
+  }
+  const BilibiliLoginApi = {
+    /**
+     * 获取登录二维码信息（TV端）
+     * https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/login/login_action/QR.md#%E7%94%B3%E8%AF%B7%E4%BA%8C%E7%BB%B4%E7%A0%81(TV%E7%AB%AF)
+     */
+    async getQrCodeInfo() {
+      var _a2;
+      let Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/auth_code";
+      let postData = {
+        /** APP 密钥 APP 方式必要 */
+        appkey: AppKeyInfo.ios.appkey,
+        /** TV 端 id */
+        local_id: "0",
+        /** 当前时间戳 APP 方式必要 */
+        ts: "0",
+        /** APP 签名 APP 方式必要 */
+        // sign: "",
+        /** 平台标识 会被拼接到返回的 url query */
+        mobi_app: AppKeyInfo.ios.mobi_app,
+        csrf: ((_a2 = GMCookie.get("bili_jct")) == null ? void 0 : _a2.value) || ""
+      };
+      let sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
+      let postResp = await httpx.post(
+        Api,
+        {
+          data: utils.toSearchParamsStr({
+            ...postData,
+            sign
+          }),
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          responseType: "json",
+          fetch: true
+        }
+        // sign: 'e134154ed6add881d28fbdf68653cd9c',
+      );
+      log.info(postResp);
+      if (!postResp.status) {
+        return;
+      }
+      let data2 = utils.toJSON(postResp.data.responseText);
+      if (data2.code !== 0) {
+        Qmsg.error(data2.message);
+        return;
+      }
+      let loginData = data2.data;
+      return loginData;
+    },
+    /**
+     * 获取auth_code对应的链接的扫码状态
+     * @param auth_code
+     * @returns
+     */
+    async poll(auth_code) {
+      let Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/poll";
+      let postData = {
+        appkey: AppKeyInfo.ios.appkey,
+        auth_code,
+        local_id: "0",
+        ts: "0"
+      };
+      let sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
+      let postResp = await httpx.post(Api, {
+        data: utils.toSearchParamsStr({
+          ...postData,
+          sign
+        }),
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        responseType: "json",
+        fetch: true
+      });
+      if (!postResp.status) {
+        return { success: false, message: "网络错误", action: void 0 };
+      }
+      const json = utils.toJSON(postResp.data.responseText);
+      log.info(json);
+      const msgMap = {
+        "0": "成功",
+        "-3": "API校验密匙错误",
+        "-400": "请求错误",
+        "-404": "啥都木有",
+        "86038": "二维码已失效",
+        "86039": "二维码尚未确认",
+        "86090": "二维码已扫码未确认"
+      };
+      if (!BilibiliResponseCheck.isWebApiSuccess(json)) {
+        const code = json.code.toString();
+        const message = json.message || msgMap[code] || "未知错误";
+        if (code === "86038") {
+          return { success: false, message, action: "refresh" };
+        }
+        if (code === "86039" || code === "86090") {
+          return { success: false, message, action: "wait" };
+        }
+        return { success: false, message, action: void 0 };
+      }
+      const accessKey = json.data.access_token;
+      const accessKeyExpireAt = Date.now() + json.data.expires_in * 1e3;
+      return {
+        success: true,
+        message: "获取成功",
+        accessKey,
+        accessKeyExpireAt
+      };
+    }
+  };
+  const BilibiliQrCodeLogin = {
+    async init() {
+      Qmsg.info("正在申请二维码...");
+      let qrcodeInfo = await this.getQRCodeInfo();
+      if (!qrcodeInfo) {
+        return;
+      }
+      this.confirmScanQrcode(qrcodeInfo);
+    },
+    /**'
+     * 获取二维码信息
+     */
+    getQRCodeInfo: async function() {
+      log.info("正在申请二维码...");
+      let qrcodeInfo = await BilibiliLoginApi.getQrCodeInfo();
+      log.info(["获取到二维码信息", qrcodeInfo]);
+      return qrcodeInfo;
+    },
+    /**
+     * 确认扫码
+     * @param qrcodeInfo
+     */
+    async confirmScanQrcode(qrcodeInfo) {
+      let $alert = __pops.alert({
+        title: {
+          text: "请扫描二维码登录",
+          position: "center",
+          html: false,
+          style: ""
+        },
+        content: {
+          text: (
+            /*html*/
+            `<div id="bili-qrcode-canvas"></div>`
+          ),
+          html: true
+        },
+        btn: {
+          ok: {
+            enable: false
+          },
+          close: {
+            enable: true,
+            callback(event) {
+              isUserCloseScanDialog = true;
+              event.close();
+            }
+          }
+        },
+        mask: {
+          enable: true,
+          clickEvent: {
+            toClose: false,
+            toHide: false
+          }
+        },
+        only: true,
+        width: "310px",
+        height: "365px",
+        drag: true,
+        dragLimit: true,
+        style: (
+          /*css*/
+          `
+            #bili-qrcode-canvas{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                height: 100%;
+            }
+            `
+        )
+      });
+      let $biliQrcodeCanvas = $alert.$shadowRoot.querySelector(
+        "#bili-qrcode-canvas"
+      );
+      let qrcode = new QRCodeJS($biliQrcodeCanvas, {
+        text: qrcodeInfo.url,
+        width: 300,
+        height: 300,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCodeJS.CorrectLevel.H
+      });
+      let isUserCloseScanDialog = false;
+      while (true) {
+        if (isUserCloseScanDialog) {
+          log.error("用户关闭扫码登录弹窗、取消扫码登录");
+          break;
+        }
+        log.info("正在等待扫码登录...");
+        let pollInfo = await BilibiliLoginApi.poll(qrcodeInfo.auth_code);
+        if (pollInfo == null ? void 0 : pollInfo.success) {
+          this.setAccessTokenInfo({
+            access_token: pollInfo.accessKey,
+            expireAt: pollInfo.accessKeyExpireAt
+          });
+          log.info(["扫码登录成功", pollInfo]);
+          log.success("扫码登录成功");
+          Qmsg.success("扫码登录成功");
+          break;
+        } else {
+          if ((pollInfo == null ? void 0 : pollInfo.action) === "refresh") {
+            log.info("刷新二维码");
+            Qmsg.info("刷新二维码");
+            let qrcodeInfo2 = await this.getQRCodeInfo();
+            if (qrcodeInfo2) {
+              qrcode.clear();
+              qrcode.makeCode(qrcodeInfo2.url);
+            }
+          } else if (pollInfo.action === "wait") {
+            if (pollInfo.message === "二维码已扫码未确认") {
+              log.info("已扫码，等待确认...");
+              __pops.loading({
+                parent: $biliQrcodeCanvas,
+                content: {
+                  text: "已扫码，等待确认"
+                },
+                mask: {
+                  enable: true
+                }
+              });
+            }
+          } else {
+            log.error(pollInfo.message);
+            Qmsg.error(pollInfo.message);
+            break;
+          }
+        }
+        await utils.sleep(1500);
+      }
+      $alert.close();
+    },
+    /**
+     * 生成过期时间
+     * @param monthNumber xx月后过期
+     * @returns
+     */
+    generateExpireAt(monthNumber = 6) {
+      return (/* @__PURE__ */ new Date()).getTime() + 1e3 * 60 * 60 * 24 * 30 * monthNumber;
+    },
+    /**
+     * 设置获取到的access_token和过期时间
+     * @param data
+     */
+    setAccessTokenInfo(data2) {
+      _GM_setValue("bili-accessTokenInfo", data2);
+    },
+    /**
+     * 获取access_token和过期时间
+     * 自动根据过期时间处理数据
+     * @returns
+     */
+    getAccessTokenInfo() {
+      let data2 = _GM_getValue("bili-accessTokenInfo");
+      if (data2 && data2.expireAt > Date.now()) {
+        return data2;
+      } else {
+        return null;
+      }
+    },
+    /**
+     * 获取access_token
+     * @returns
+     */
+    getAccessToken() {
+      var _a2;
+      return ((_a2 = this.getAccessTokenInfo()) == null ? void 0 : _a2.access_token) || "";
+    }
+  };
+  const BilibiliApiProxy = {
+    /**
+     * 获取番剧代理服务器
+     *
+     * 轮询查询播放地址
+     */
+    getBangumiProxyHost() {
+      let serverHost = [
+        {
+          name: "中国大陆",
+          area: "",
+          host: PopsPanel.getValue(
+            "bili-bangumi-proxyApiServer-default",
+            ""
+          ).trim() || BilibiliApiConfig.web_host
+        }
+      ];
+      if (!PopsPanel.getValue("bili-bangumi-unlockAreaLimit")) {
+        return serverHost;
+      }
+      let hk_host = PopsPanel.getValue("bili-bangumi-proxyApiServer-hk");
+      if (utils.isNotNull(hk_host)) {
+        serverHost.push({
+          name: "香港",
+          area: "hk",
+          host: hk_host
+        });
+      }
+      let tw_host = PopsPanel.getValue("bili-bangumi-proxyApiServer-tw");
+      if (utils.isNotNull(tw_host)) {
+        serverHost.push({
+          name: "台湾",
+          area: "tw",
+          host: tw_host
+        });
+      }
+      let tha_host = PopsPanel.getValue(
+        "bili-bangumi-proxyApiServer-tha-or-sea"
+      );
+      if (utils.isNotNull(tha_host)) {
+        serverHost.push({
+          name: "泰国/东南亚",
+          area: "th",
+          host: tha_host
+        });
+      }
+      return serverHost;
+    },
+    /**
+     * 获取搜索代理服务器
+     *
+     * 因为有些代理服务器虽然能拉取播放地址，但是不能使用搜索功能
+     *
+     * 特地区分开
+     *
+     * 如果没有填入服务器，则从番剧代理服务器中获取
+     *
+     * 搜索番剧结果
+     */
+    getSearchProxyHost() {
+      let bangumiProxyHost = this.getBangumiProxyHost();
+      let serverHost = [];
+      let hk_host = PopsPanel.getValue("bili-search-proxyApiServer-hk");
+      if (utils.isNotNull(hk_host)) {
+        serverHost.push({
+          name: "香港",
+          area: "hk",
+          host: hk_host
+        });
+      } else {
+        let bangumi_hk_host = bangumiProxyHost.find((item) => item.area === "hk");
+        if (bangumi_hk_host) {
+          serverHost.push(bangumi_hk_host);
+        }
+      }
+      let tw_host = PopsPanel.getValue("bili-search-proxyApiServer-tw");
+      if (utils.isNotNull(tw_host)) {
+        serverHost.push({
+          name: "台湾",
+          area: "tw",
+          host: tw_host
+        });
+      } else {
+        let bangumi_tw_host = bangumiProxyHost.find((item) => item.area === "tw");
+        if (bangumi_tw_host) {
+          serverHost.push(bangumi_tw_host);
+        }
+      }
+      let tha_host = PopsPanel.getValue(
+        "bili-search-proxyApiServer-tha-or-sea"
+      );
+      if (utils.isNotNull(tha_host)) {
+        serverHost.push({
+          name: "泰国/东南亚",
+          area: "th",
+          host: tha_host
+        });
+      } else {
+        let bangumi_tha_host = bangumiProxyHost.find(
+          (item) => item.area === "th"
+        );
+        if (bangumi_tha_host) {
+          serverHost.push;
+        }
+      }
+      return serverHost;
+    },
+    /**
+     * 获取番剧代理参数
+     */
+    getBangumiProxySearchParam(option = {}) {
+      let proxyData = {
+        from_client: "BROWSER",
+        drm_tech_type: 2,
+        module: "bangumi",
+        area: (option == null ? void 0 : option.area) || "",
+        access_key: BilibiliQrCodeLogin.getAccessToken()
+      };
+      return proxyData;
+    }
+  };
+  const BilibiliCDNProxy = {
+    /**
+     * 筛选出更好的cdn
+     *
+     * 通过playurl获取到的url信息默认的base_url|baseUrl可能是辣鸡的mcdn节点，而upos节点在backupUrl|backup_url中
+     *
+     * 筛选最好的节点
+     *
+     * 传入参数顺序base_url=>baseUrl=>backup_url=>backupUrl，即好的在后面
+     */
+    findBetterCDN(...args) {
+      let urlList = [];
+      args.forEach((arg) => {
+        if (Array.isArray(arg)) {
+          urlList = urlList.concat(
+            arg.filter((item) => typeof item === "string")
+          );
+        } else {
+          if (typeof arg === "string") {
+            urlList.push(arg);
+          }
+        }
+      });
+      let betterCDN = urlList.find((url) => {
+        let urlObj = new URL(url);
+        if (urlObj.host.startsWith("upos")) {
+          return url;
+        }
+      });
+      if (betterCDN) {
+        return betterCDN;
+      } else {
+        return urlList[0];
+      }
+    },
+    /**
+     * 视频CDN替换
+     *
+     * 有以下类型
+     * .mcdn.bilivideo 辣鸡路线
+     *
+     */
+    replaceVideoCDN(url) {
+      try {
+        let urlObj = new URL(url);
+        let userChooseCDN = PopsPanel.getValue(
+          "bili-bangumi-uposServerSelect"
+        );
+        let chooseUposCDN = this.getUposCDNServerList().find((item) => {
+          return item.host === userChooseCDN;
+        });
+        if (utils.isNull(chooseUposCDN)) {
+          return url;
+        }
+        let chooseUposCDNHost = chooseUposCDN.host;
+        let originHost = urlObj.host;
+        if (originHost.includes("mirror")) {
+          log.info(`原Host为：${originHost}`);
+          log.info(`替换CDN为：${JSON.stringify(chooseUposCDN)}`);
+          urlObj.host = chooseUposCDNHost;
+        }
+        return urlObj.toString();
+      } catch (error) {
+        log.error(["视频upos替换失败", error]);
+        log.error(error);
+        return url;
+      }
+    },
+    /**
+     * 获取upos服务器列表
+     * @link https://github.com/the1812/Bilibili-Evolved/issues/3234#issuecomment-1504764774
+     */
+    getUposCDNServerList() {
+      const serverList = [
+        {
+          name: "不替换",
+          host: ""
+        },
+        {
+          name: "ali（阿里云）",
+          host: "upos-sz-mirrorali.bilivideo.com"
+        },
+        {
+          name: "alib（阿里云）",
+          host: "upos-sz-mirroralib.bilivideo.com"
+        },
+        {
+          name: "alio1（阿里云）",
+          host: "upos-sz-mirroralio1.bilivideo.com"
+        },
+        {
+          name: "cos（腾讯云）",
+          host: "upos-sz-mirrorcos.bilivideo.com"
+        },
+        {
+          name: "cosb（腾讯云，VOD加速类型）",
+          host: "upos-sz-mirrorcosb.bilivideo.com"
+        },
+        {
+          name: "coso1（腾讯云）",
+          host: "upos-sz-mirrorcoso1.bilivideo.com"
+        },
+        {
+          name: "hw（华为云，融合CDN）",
+          host: "upos-sz-mirrorhw.bilivideo.com"
+        },
+        {
+          name: "hwb（华为云，融合CDN）",
+          host: "upos-sz-mirrorhwb.bilivideo.com"
+        },
+        {
+          name: "hwo1（华为云，融合CDN）",
+          host: "upos-sz-mirrorhwo1.bilivideo.com"
+        },
+        {
+          name: "08c（华为云，融合CDN）",
+          host: "upos-sz-mirror08c.bilivideo.com"
+        },
+        {
+          name: "08h（华为云，融合CDN）",
+          host: "upos-sz-mirror08h.bilivideo.com"
+        },
+        {
+          name: "08ct（华为云，融合CDN）",
+          host: "upos-sz-mirror08ct.bilivideo.com"
+        },
+        {
+          name: "tf_hw（华为云）",
+          host: "upos-tf-all-hw.bilivideo.com"
+        },
+        {
+          name: "tf_tx（腾讯云）",
+          host: "upos-tf-all-tx.bilivideo.com"
+        },
+        {
+          name: "akamai（Akamai海外）",
+          host: "upos-hz-mirrorakam.akamaized.net"
+        },
+        {
+          name: "aliov（阿里云海外）",
+          host: "upos-sz-mirroraliov.bilivideo.com"
+        },
+        {
+          name: "cosov（腾讯云海外）",
+          host: "upos-sz-mirrorcosov.bilivideo.com"
+        },
+        {
+          name: "hwov（华为云海外）",
+          host: "upos-sz-mirrorhwov.bilivideo.com"
+        },
+        {
+          name: "hk_bcache（Bilibili海外）",
+          host: "cn-hk-eq-bcache-01.bilivideo.com"
+        },
+        {
+          name: "alibstar1（阿里云海外-东南亚）",
+          host: "upos-sz-mirroralibstar1.bilivideo.com"
+        },
+        {
+          name: "cosbstar1（腾讯云海外-东南亚）",
+          host: "upos-sz-mirrorcosbstar1.bilivideo.com"
+        },
+        {
+          name: "hwbstar1（华为云海外-东南亚）",
+          host: "upos-sz-mirrorhwbstar1.bilivideo.com"
+        },
+        {
+          name: "akamai（Akamai海外-东南亚）",
+          host: "upos-bstar1-mirrorakam.akamaized.net"
+        }
+      ];
+      return serverList;
+    }
+  };
+  const UIInput = function(text, key, defaultValue, description, changeCallBack, placeholder = "", isNumber, isPassword) {
+    let result = {
+      text,
+      type: "input",
+      isNumber: Boolean(isNumber),
+      isPassword: Boolean(isPassword),
+      attributes: {},
+      description,
+      getValue() {
+        let localValue = PopsPanel.getValue(key, defaultValue);
+        return localValue;
+      },
+      callback(event, value) {
+        if (typeof changeCallBack === "function") {
+          if (changeCallBack(event, value)) {
+            return;
+          }
+        }
+        PopsPanel.setValue(key, value);
+      },
+      placeholder
+    };
+    if (result.attributes) {
+      result.attributes[ATTRIBUTE_KEY] = key;
+      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
+    }
+    return result;
+  };
   const SettingUIBangumi = {
     id: "panel-bangumi",
     title: "番剧",
@@ -4320,11 +5095,30 @@
         type: "forms",
         forms: [
           {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "固定缩放倍率",
+                    "bili-bangumi-initialScale",
+                    true,
+                    void 0,
+                    ""
+                  )
+                ]
+              }
+            ]
+          },
+          {
             text: "变量设置",
             type: "deepMenu",
             forms: [
               {
-                text: "变量设置",
+                text: "",
                 type: "forms",
                 forms: [
                   UISwitch(
@@ -4372,25 +5166,6 @@
             ]
           },
           {
-            text: "网络拦截",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "解锁清晰度",
-                    "bili-bangumi-xhr-unlockQuality",
-                    true,
-                    void 0,
-                    "最高清晰度为720P"
-                  )
-                ]
-              }
-            ]
-          },
-          {
             text: "劫持/拦截",
             type: "deepMenu",
             forms: [
@@ -4404,6 +5179,89 @@
                     true,
                     void 0,
                     ""
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "解除区域限制",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "解锁番剧限制",
+                    "bili-bangumi-unlockAreaLimit",
+                    false,
+                    void 0,
+                    "使用户可以观看区域外版权番剧"
+                  ),
+                  UISwitch(
+                    "生成简中字幕",
+                    "bili-bangumi-generateSimpleChineseSubtitle",
+                    false,
+                    void 0,
+                    "根据繁体字幕自动生成简体中文字幕"
+                  )
+                ]
+              },
+              {
+                text: "<a href='https://github.com/yujincheng08/BiliRoaming/wiki/%E5%85%AC%E5%85%B1%E8%A7%A3%E6%9E%90%E6%9C%8D%E5%8A%A1%E5%99%A8' target='_blank'>解析服务器</a>",
+                type: "forms",
+                forms: [
+                  UIInput(
+                    "中国大陆",
+                    "bili-bangumi-proxyApiServer-default",
+                    "",
+                    "用于请求播放地址的代理",
+                    void 0,
+                    "bilibili优化.example.com"
+                  ),
+                  UIInput(
+                    "香港",
+                    "bili-bangumi-proxyApiServer-hk",
+                    "",
+                    "用于请求播放地址的代理",
+                    void 0,
+                    "bilibili优化.example.com"
+                  ),
+                  UIInput(
+                    "台湾",
+                    "bili-bangumi-proxyApiServer-tw",
+                    "",
+                    "用于请求播放地址的代理",
+                    void 0,
+                    "bilibili优化.example.com"
+                  ),
+                  UIInput(
+                    "泰国/东南亚",
+                    "bili-bangumi-proxyApiServer-tha-or-sea",
+                    "",
+                    "用于请求播放地址的代理",
+                    void 0,
+                    "bilibili优化.example.com"
+                  )
+                ]
+              },
+              {
+                text: "加速CDN设置",
+                type: "forms",
+                forms: [
+                  UISelect(
+                    "UPOS服务器设置",
+                    "bili-bangumi-uposServerSelect",
+                    "",
+                    BilibiliCDNProxy.getUposCDNServerList().map((item) => {
+                      return {
+                        text: item.name,
+                        value: item.host
+                      };
+                    }),
+                    void 0,
+                    "设置解锁番剧的服务器，可加快视频加载速度"
                   )
                 ]
               }
@@ -4438,6 +5296,43 @@
                     false,
                     void 0,
                     ""
+                  ),
+                  UISwitch(
+                    "开启其它地区番剧搜索",
+                    "bili-search-enableOtherAreaSearchBangumi",
+                    false,
+                    void 0,
+                    "在搜索页面添加其它地区番剧搜索结果，需要解析服务器支持"
+                  )
+                ]
+              },
+              {
+                text: "<a href='https://github.com/yujincheng08/BiliRoaming/wiki/%E5%85%AC%E5%85%B1%E8%A7%A3%E6%9E%90%E6%9C%8D%E5%8A%A1%E5%99%A8' target='_blank'>搜索服务器</a>",
+                type: "forms",
+                forms: [
+                  UIInput(
+                    "香港",
+                    "bili-search-proxyApiServer-hk",
+                    "",
+                    "用于搜索番剧结果的代理",
+                    void 0,
+                    "bilibili优化.example.com"
+                  ),
+                  UIInput(
+                    "台湾",
+                    "bili-search-proxyApiServer-tw",
+                    "",
+                    "用于搜索番剧结果的代理",
+                    void 0,
+                    "bilibili优化.example.com"
+                  ),
+                  UIInput(
+                    "泰国/东南亚",
+                    "bili-search-proxyApiServer-tha-or-sea",
+                    "",
+                    "用于搜索番剧结果的代理",
+                    void 0,
+                    "bilibili优化.example.com"
                   )
                 ]
               }
@@ -4647,318 +5542,6 @@
         ]
       }
     ]
-  };
-  const TVKeyInfo = {
-    appkey: "4409e2ce8ffd12b8",
-    appsec: "59b43e04ad6965f34319062b478f83dd"
-  };
-  function appSign(params, appkey, appsec) {
-    params.appkey = appkey;
-    const searchParams = new URLSearchParams(params);
-    searchParams.sort();
-    return md5(searchParams.toString() + appsec);
-  }
-  const BilibiliApiCheck = {
-    /**
-     * check json has {code: 0, message: "0"}
-     */
-    isWebApiSuccess(json) {
-      return (json == null ? void 0 : json.code) === 0 && ((json == null ? void 0 : json.message) === "0" || (json == null ? void 0 : json.message) === "success");
-    }
-  };
-  const BilibiliLoginApi = {
-    /**
-     * 获取登录二维码信息（TV端）
-     * https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/login/login_action/QR.md#%E7%94%B3%E8%AF%B7%E4%BA%8C%E7%BB%B4%E7%A0%81(TV%E7%AB%AF)
-     */
-    async getQrCodeInfo() {
-      var _a2;
-      let Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/auth_code";
-      let postData = {
-        appkey: TVKeyInfo.appkey,
-        local_id: "0",
-        csrf: ((_a2 = GMCookie.get("bili_jct")) == null ? void 0 : _a2.value) || "",
-        ts: "0"
-      };
-      let sign = appSign(postData, TVKeyInfo.appkey, TVKeyInfo.appsec);
-      let postResp = await httpx.post(
-        Api,
-        {
-          data: utils.toSearchParamsStr({
-            ...postData,
-            sign
-          }),
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-          },
-          responseType: "json",
-          fetch: true
-        }
-        // sign: 'e134154ed6add881d28fbdf68653cd9c',
-      );
-      log.info(postResp);
-      if (!postResp.status) {
-        return;
-      }
-      let data2 = utils.toJSON(postResp.data.responseText);
-      if (data2.code !== 0) {
-        Qmsg.error(data2.message);
-        return;
-      }
-      return data2.data;
-    },
-    async poll(auth_code) {
-      let Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/poll";
-      let postData = {
-        appkey: TVKeyInfo.appkey,
-        auth_code,
-        local_id: "0",
-        ts: "0"
-      };
-      let sign = appSign(postData, TVKeyInfo.appkey, TVKeyInfo.appsec);
-      let postResp = await httpx.post(Api, {
-        data: utils.toSearchParamsStr({
-          ...postData,
-          sign
-        }),
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        responseType: "json",
-        fetch: true
-      });
-      if (!postResp.status) {
-        return { success: false, message: "网络错误", action: void 0 };
-      }
-      const json = utils.toJSON(postResp.data.responseText);
-      const msgMap = {
-        "0": "成功",
-        "-3": "API校验密匙错误",
-        "-400": "请求错误",
-        "-404": "啥都木有",
-        "86038": "二维码已失效",
-        "86039": "二维码尚未确认",
-        "86090": "二维码已扫码未确认"
-      };
-      if (!BilibiliApiCheck.isWebApiSuccess(json)) {
-        const code = json.code.toString();
-        const message = json.message || msgMap[code] || "未知错误";
-        if (code === "86038") {
-          return { success: false, message, action: "refresh" };
-        }
-        if (code === "86039" || code === "86090") {
-          return { success: false, message, action: "wait" };
-        }
-        return { success: false, message, action: void 0 };
-      }
-      const accessKey = json.data.access_token;
-      const accessKeyExpireAt = Date.now() + json.data.expires_in * 1e3;
-      return {
-        success: true,
-        message: "获取成功",
-        accessKey,
-        accessKeyExpireAt
-      };
-    }
-  };
-  const BilibiliQrCodeLogin = {
-    async init() {
-      Qmsg.info("正在申请二维码...");
-      let qrcodeInfo = await this.getQRCodeInfo();
-      if (!qrcodeInfo) {
-        return;
-      }
-      this.confirmScanQrcode(qrcodeInfo);
-    },
-    /**'
-     * 获取二维码信息
-     */
-    getQRCodeInfo: async function() {
-      log.info("正在申请二维码...");
-      let qrcodeInfo = await BilibiliLoginApi.getQrCodeInfo();
-      log.info(["获取到二维码信息", qrcodeInfo]);
-      return qrcodeInfo;
-    },
-    /**
-     * 确认扫码
-     * @param qrcodeInfo
-     */
-    async confirmScanQrcode(qrcodeInfo) {
-      let $alert = __pops.alert({
-        title: {
-          text: "请扫描二维码登录",
-          position: "center",
-          html: false,
-          style: ""
-        },
-        content: {
-          text: (
-            /*html*/
-            `<div id="bili-qrcode-canvas"></div>`
-          ),
-          html: true
-        },
-        btn: {
-          ok: {
-            enable: false
-          },
-          close: {
-            enable: true,
-            callback(event) {
-              isUserCloseScanDialog = true;
-              event.close();
-            }
-          }
-        },
-        mask: {
-          enable: true,
-          clickEvent: {
-            toClose: false,
-            toHide: false
-          }
-        },
-        only: true,
-        width: "310px",
-        height: "365px",
-        drag: true,
-        dragLimit: true,
-        style: (
-          /*css*/
-          `
-            #bili-qrcode-canvas{
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 100%;
-                height: 100%;
-            }
-            `
-        )
-      });
-      let $biliQrcodeCanvas = $alert.$shadowRoot.querySelector(
-        "#bili-qrcode-canvas"
-      );
-      let qrcode = new QRCodeJS($biliQrcodeCanvas, {
-        text: qrcodeInfo.url,
-        width: 300,
-        height: 300,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: QRCodeJS.CorrectLevel.H
-      });
-      let isUserCloseScanDialog = false;
-      while (true) {
-        if (isUserCloseScanDialog) {
-          log.error("用户关闭扫码登录弹窗、取消扫码登录");
-          break;
-        }
-        log.info("正在等待扫码登录...");
-        let pollInfo = await BilibiliLoginApi.poll(qrcodeInfo.auth_code);
-        if (pollInfo == null ? void 0 : pollInfo.success) {
-          this.setAccessTokenInfo({
-            access_token: pollInfo.accessKey,
-            expireAt: pollInfo.accessKeyExpireAt
-          });
-          log.info(["扫码登录成功", pollInfo]);
-          log.success("扫码登录成功");
-          Qmsg.success("扫码登录成功");
-          break;
-        } else {
-          if ((pollInfo == null ? void 0 : pollInfo.action) === "refresh") {
-            log.info("刷新二维码");
-            Qmsg.info("刷新二维码");
-            let qrcodeInfo2 = await this.getQRCodeInfo();
-            if (qrcodeInfo2) {
-              qrcode.clear();
-              qrcode.makeCode(qrcodeInfo2.url);
-            }
-          } else if (pollInfo.action === "wait") {
-            if (pollInfo.message === "二维码已扫码未确认") {
-              log.info("已扫码，等待确认...");
-              __pops.loading({
-                parent: $biliQrcodeCanvas,
-                content: {
-                  text: "已扫码，等待确认"
-                },
-                mask: {
-                  enable: true
-                }
-              });
-            }
-          } else {
-            log.error(pollInfo.message);
-            Qmsg.error(pollInfo.message);
-            break;
-          }
-        }
-        await utils.sleep(1500);
-      }
-      $alert.close();
-    },
-    /**
-     * 生成过期时间
-     * @param monthNumber xx月后过期
-     * @returns
-     */
-    generateExpireAt(monthNumber = 6) {
-      return (/* @__PURE__ */ new Date()).getTime() + 1e3 * 60 * 60 * 24 * 30 * monthNumber;
-    },
-    /**
-     * 设置获取到的access_token和过期时间
-     * @param data
-     */
-    setAccessTokenInfo(data2) {
-      _GM_setValue("bili-accessTokenInfo", data2);
-    },
-    /**
-     * 获取access_token和过期时间
-     * 自动根据过期时间处理数据
-     * @returns
-     */
-    getAccessTokenInfo() {
-      let data2 = _GM_getValue("bili-accessTokenInfo");
-      if (data2 && data2.expireAt > Date.now()) {
-        return data2;
-      } else {
-        return null;
-      }
-    },
-    /**
-     * 获取access_token
-     * @returns
-     */
-    getAccessToken() {
-      var _a2;
-      return ((_a2 = this.getAccessTokenInfo()) == null ? void 0 : _a2.access_token) || "";
-    }
-  };
-  const UIInput = function(text, key, defaultValue, description, changeCallBack, placeholder = "", isNumber, isPassword) {
-    let result = {
-      text,
-      type: "input",
-      isNumber: Boolean(isNumber),
-      isPassword: Boolean(isPassword),
-      attributes: {},
-      description,
-      getValue() {
-        let localValue = PopsPanel.getValue(key, defaultValue);
-        return localValue;
-      },
-      callback(event, value) {
-        if (typeof changeCallBack === "function") {
-          if (changeCallBack(event, value)) {
-            return;
-          }
-        }
-        PopsPanel.setValue(key, value);
-      },
-      placeholder
-    };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
-    }
-    return result;
   };
   const SettingUIHead = {
     id: "panel-head",
@@ -5580,7 +6163,7 @@
      * 获取设置面板的高度
      */
     getHeight() {
-      if (window.innerHeight > 450) {
+      if (window.innerHeight < 550) {
         return "80vh";
       } else {
         return "450px";
@@ -5606,45 +6189,7 @@
     }
   };
   const BilibiliBeautifyCSS = '@charset "UTF-8";\r\n/* 主页 */\r\n#app .m-head {\r\n	--bg-color: #f0f1f3;\r\n	--bg-rever-color: #ffffff;\r\n	--pd-width: 1.3333vmin;\r\n	--bd-circle: 1.3333vmin;\r\n	--card-height: 30vmin;\r\n	--icon-font-size: 3.2vmin;\r\n	--icon-text-font-size: 2.6vmin;\r\n	--icon-font-margin-right: 3vmin;\r\n	--title-font-size: 2.8vmin;\r\n	background-color: var(--bg-color);\r\n}\r\n#app .m-head .m-home {\r\n	background-color: var(--bg-color);\r\n}\r\n/* 美化视频卡片 */\r\n#app .m-head .video-list .card-box .v-card {\r\n	background-color: var(--bg-rever-color);\r\n	padding: 0px;\r\n	margin: 0px;\r\n	width: calc(50% - var(--pd-width) / 2);\r\n	border-radius: var(--bd-circle);\r\n	margin-top: var(--pd-width);\r\n	display: grid;\r\n	/* 视频封面区域 */\r\n}\r\n#app .m-head .video-list .card-box .v-card .card {\r\n	background: var(--bg-rever-color);\r\n	border-radius: unset;\r\n	border-top-left-radius: var(--bd-circle);\r\n	border-top-right-radius: var(--bd-circle);\r\n	height: var(--card-height);\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count {\r\n	display: flex;\r\n	justify-content: safe flex-start;\r\n	padding-right: 0;\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count .iconfont {\r\n	font-size: var(--icon-text-font-size);\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count > span {\r\n	font-size: var(--icon-text-font-size);\r\n	margin-right: var(--icon-font-margin-right);\r\n}\r\n/* 视频标题区域 */\r\n#app .m-head .video-list .card-box .v-card .title {\r\n	padding: 0;\r\n	margin: var(--pd-width);\r\n	font-size: var(--title-font-size);\r\n}\r\n/* 两列 => 左边的 */\r\n#app .m-head .video-list .card-box .v-card:nth-child(2n-1) {\r\n	/*background-color: red;*/\r\n	margin-right: calc(var(--pd-width) / 2);\r\n}\r\n/* 两列 => 右边的 */\r\n#app .m-head .video-list .card-box .v-card:nth-child(2n) {\r\n	/*background-color: rebeccapurple;*/\r\n	margin-left: calc(var(--pd-width) / 2);\r\n}\r\n';
-  const BilibiliBangumiVueProp = {
-    init() {
-      PopsPanel.execMenu("bili-bangumi-setPay", () => {
-        this.setPay();
-      });
-    },
-    /**
-     * 设置已购买番剧(会员？)
-     *
-     * + $store.state.userStat.pay 1
-     * + $store.state.mediaInfo.user_status.pay 1
-     */
-    setPay() {
-      VueUtils.waitVuePropToSet("#app", [
-        {
-          msg: "设置参数 $store.state.userStat.pay",
-          check(vueIns) {
-            var _a2, _b, _c;
-            return typeof typeof ((_c = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.userStat) == null ? void 0 : _c.pay) === "number";
-          },
-          set(vueIns) {
-            log.success("成功设置参数 $store.state.userStat.pay=1");
-            vueIns.$store.state.userStat.pay = 1;
-          }
-        },
-        {
-          msg: "设置参数 $store.state.mediaInfo.user_status.pay",
-          check(vueObj) {
-            var _a2, _b, _c, _d;
-            return typeof ((_d = (_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.mediaInfo) == null ? void 0 : _c.user_status) == null ? void 0 : _d.pay) === "number";
-          },
-          set(vueObj) {
-            log.success("成功设置参数 $store.state.mediaInfo.user_status.pay=1");
-            vueObj.$store.state.mediaInfo.user_status.pay = 1;
-          }
-        }
-      ]);
-    }
-  };
+  const artPlayerCSS = ".artplayer-container {\r\n	--bili-color: #f25d8e;\r\n}\r\n.artplayer-container {\r\n	width: 100vw;\r\n	height: 35vh;\r\n}\r\n#artplayer {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n.art-video-player {\r\n	width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n	display: none !important;\r\n}\r\n/* 大会员画质 */\r\n.art-player-quality-badge-bigvip {\r\n	border-radius: 8px;\r\n	-webkit-box-sizing: border-box;\r\n	box-sizing: border-box;\r\n	display: block;\r\n	padding: 2px 5px;\r\n	background-color: var(--bili-color);\r\n	color: #fff;\r\n	margin-left: 16px;\r\n}\r\n/* 选中的清晰度中如果有大会员文字，隐藏 */\r\n.art-selector-value .art-player-quality-badge-bigvip {\r\n	display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n	backdrop-filter: unset !important;\r\n}\r\n/* 竖屏且宽度小于550px */\r\n@media (max-width: 550px) and (orientation: portrait) {\r\n	/* 隐藏 清晰度选择 */\r\n	.art-control.art-control-quality,\r\n	/* 隐藏 画质选择按钮 */\r\n	.art-control.art-control-quality,\r\n	/* 隐藏 弹幕设置按钮 */\r\n	.artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		display: none !important;\r\n	}\r\n	/* 弹幕库靠右对齐 */\r\n	.artplayer-plugin-danmuku {\r\n		justify-content: right;\r\n	}\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n	/* 限制弹幕输入框的最大宽度 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		max-width: 260px;\r\n	}\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-layer-top-wrap {\r\n	--layer-top-wrap-follow-text-font-size: 0.8em;\r\n	--layer-top-wrap-follow-icon-size: 1em;\r\n	position: absolute;\r\n	top: 0px;\r\n	right: 0px;\r\n	color: #fff;\r\n	display: -webkit-box;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	left: 0;\r\n	-webkit-transition: all 0.2s ease-in-out;\r\n	transition: all 0.2s ease-in-out;\r\n	width: 100%;\r\n	background: rgba(0, 0, 0, 0.8);\r\n	padding: calc(var(--art-padding));\r\n	z-index: 60;\r\n}\r\n.art-hide-cursor .art-layer-top-wrap {\r\n	display: none;\r\n}\r\n.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n	margin-top: var(--art-padding);\r\n	gap: var(--layer-top-wrap-follow-text-font-size);\r\n	font-size: var(--layer-top-wrap-follow-text-font-size);\r\n	display: flex;\r\n	align-items: center;\r\n	position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n	width: var(--layer-top-wrap-follow-icon-size);\r\n	height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n	text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n";
   const BilibiliOpenApp = {
     getUrl($ele) {
       if ($ele == null) {
@@ -5673,9 +6218,1653 @@
       }
     }
   };
+  const BilibiliLogUtils = {
+    /**
+     * 过滤searchParam的敏感数据
+     */
+    filteringSensitiveSearchParamData(data2) {
+      const sensitiveData = utils.assign({}, data2, true);
+      Reflect.deleteProperty(sensitiveData, "access_key");
+      Reflect.deleteProperty(sensitiveData, "access_token");
+      return sensitiveData;
+    },
+    /**
+     * 请求失败的信息弹窗
+     */
+    failToast(data2) {
+      log.error(data2);
+      alert(JSON.stringify(data2, null, 4));
+    }
+  };
+  const BilibiliBangumiApi = {
+    /**
+     * 轮询获取番剧播放地址
+     */
+    async getPlayUrl(option) {
+      let searchParamsData = {
+        avid: "",
+        cid: "",
+        ep_id: "",
+        // 8K 超高清
+        qn: 127,
+        /** 固定值 */
+        fnver: 0,
+        // dash且需求 av1 编码且需求 8K 分辨率
+        fnval: 16 | 1024 | 2048,
+        // mp4格式
+        // fnval: 1,
+        /** 是否允许4K视频 */
+        fourk: 1
+      };
+      searchParamsData = utils.assign(searchParamsData, option);
+      let serverHostList = BilibiliApiProxy.getBangumiProxyHost();
+      log.info(`番剧播放地址请求数据`);
+      let failReponseJSON = [];
+      let result = void 0;
+      const urlPath = "/pgc/player/web/playurl";
+      log.info(`请求路径：${urlPath}`);
+      for (let index = 0; index < serverHostList.length; index++) {
+        const serverHostInfo = serverHostList[index];
+        const serverHost = serverHostInfo.host;
+        const proxyServerSearchParamsData = {};
+        if (serverHost !== BilibiliApiConfig.web_host) {
+          utils.assign(
+            proxyServerSearchParamsData,
+            BilibiliApiProxy.getBangumiProxySearchParam({
+              area: serverHostInfo.area
+            }),
+            true
+          );
+          log.info(`代理服务器数据: ${JSON.stringify(serverHostInfo)}`);
+          log.info(
+            `代理服务器请求参数：${JSON.stringify(
+            BilibiliLogUtils.filteringSensitiveSearchParamData(
+              proxyServerSearchParamsData
+            )
+          )}`
+          );
+        }
+        let url = `https://${serverHost}${urlPath}?${utils.toSearchParamsStr(
+        searchParamsData
+      )}&${utils.toSearchParamsStr(proxyServerSearchParamsData)}`;
+        let getResponse = await httpx.get(url, {
+          responseType: "json",
+          fetch: false,
+          allowInterceptConfig: false,
+          headers: {
+            Referer: "https://www.bilibili.com/"
+          }
+        });
+        if (!getResponse.status) {
+          log.error(`代理服务器：${serverHost} 请求失败`);
+          continue;
+        }
+        let responseData = utils.toJSON(getResponse.data.responseText);
+        responseData.result;
+        if (!BilibiliResponseCheck.isWebApiSuccess(responseData) || BilibiliResponseCheck.isAreaLimit(responseData)) {
+          log.error(
+            `请求失败，当前代理服务器：${serverHost} ${JSON.stringify(
+            responseData
+          )}`
+          );
+          failReponseJSON.push(responseData);
+          continue;
+        }
+        result = responseData.result;
+        break;
+      }
+      if (result == null) {
+        BilibiliLogUtils.failToast(failReponseJSON);
+      }
+      return result;
+    },
+    /**
+     * 获取番剧播放地址-html5，获取的是mp4的
+     */
+    async getPlayUrlHTML5(option) {
+      let searchParamsData = {
+        avid: "",
+        cid: "",
+        ep_id: "",
+        bsource: ""
+        // qn: 116,
+        // fnver: 0,
+        // fnval: 1,
+        // fourk: 1,
+        // from_client: "BROWSER",
+        // drm_tech_type: 2,
+      };
+      searchParamsData = utils.assign(searchParamsData, option);
+      log.info(`（原版api）番剧播放地址请求数据`);
+      const urlPath = "/pgc/player/web/playurl/html5";
+      let url = `https://${BilibiliApiConfig.web_host}${urlPath}?${utils.toSearchParamsStr(searchParamsData)}`;
+      let getResponse = await httpx.get(url, {
+        responseType: "json",
+        fetch: true,
+        headers: {
+          Host: "www.bilibili.com",
+          Referer: "https://www.bilibili.com"
+        }
+      });
+      if (!getResponse.status) {
+        return;
+      }
+      let responseData = utils.toJSON(getResponse.data.responseText);
+      if (!BilibiliResponseCheck.isWebApiSuccess(responseData)) {
+        BilibiliLogUtils.failToast(responseData);
+        return;
+      }
+      let responseResult = responseData.result;
+      return responseResult;
+    }
+  };
+  const M4SAudio = {
+    art: null,
+    audio: new Audio(),
+    userEvent: {
+      onRestart: void 0
+    },
+    events: {
+      play: () => {
+        M4SAudio.syncAudioProgress();
+        M4SAudio.syncAudioVolumn();
+        M4SAudio.audio.play();
+      },
+      seek: (currentTime) => {
+        M4SAudio.syncAudioProgress();
+      },
+      pause: () => {
+        M4SAudio.audio.pause();
+      },
+      restart: (url) => {
+        if (typeof M4SAudio.userEvent.onRestart === "function") {
+          let newAudioUrl = M4SAudio.userEvent.onRestart(url);
+          if (typeof newAudioUrl === "string") {
+            M4SAudio.audio.src = newAudioUrl;
+          }
+        }
+        M4SAudio.syncAudioProgress();
+      },
+      muted: (state) => {
+        M4SAudio.audio.muted = state;
+        M4SAudio.syncAudioVolumn();
+      },
+      destroy: () => {
+        M4SAudio.audio.pause();
+      },
+      error: (error, reconnectTime) => {
+        M4SAudio.audio.pause();
+      },
+      "video:ended": () => {
+        M4SAudio.audio.pause();
+      },
+      "video:ratechange": () => {
+        M4SAudio.audio.playbackRate = M4SAudio.art.playbackRate;
+      },
+      "video:waiting": () => {
+        M4SAudio.audio.pause();
+        M4SAudio.syncAudioProgress();
+      },
+      "video:playing": () => {
+        M4SAudio.syncAudioProgress();
+        M4SAudio.audio.play();
+      },
+      "video:volumechange": () => {
+        M4SAudio.syncAudioVolumn();
+      }
+    },
+    /**
+     * 更新
+     * @param url
+     */
+    update(url) {
+      this.unbind();
+      if (utils.isNull(url)) {
+        this.audio.src = "";
+      } else {
+        this.audio.src = url;
+        this.bind();
+      }
+    },
+    /**
+     * 音频同步视频进度
+     */
+    syncAudioProgress() {
+      this.audio.currentTime = this.art.currentTime;
+    },
+    /**
+     * 同步音量
+     */
+    syncAudioVolumn() {
+      this.audio.volume = this.art.volume;
+    },
+    /**
+     * 绑定事件
+     */
+    bind() {
+      Object.keys(this.events).forEach((eventName) => {
+        this.art.on(
+          eventName,
+          this.events[eventName]
+        );
+      });
+    },
+    /**
+     * 取消绑定事件
+     */
+    unbind() {
+      Object.keys(this.events).forEach((eventName) => {
+        this.art.off(
+          eventName,
+          this.events[eventName]
+        );
+      });
+    }
+  };
+  const artplayerPluginM4SAudioSupport = (option) => {
+    return (art) => {
+      M4SAudio.art = art;
+      log.info("加载番剧音频：" + option.url);
+      if (typeof option.onRestart === "function") {
+        M4SAudio.userEvent.onRestart = option.onRestart;
+      }
+      M4SAudio.update(option.url);
+      return {
+        name: "plugin-bilibili-m4sAudio",
+        /** 主动更新音频 */
+        update(url) {
+          M4SAudio.update(url);
+          M4SAudio.syncAudioVolumn();
+          M4SAudio.syncAudioProgress();
+        }
+      };
+    };
+  };
+  const chinese = {
+    S: "万与丑专业丛东丝丢两严丧个丬丰临为丽举么义乌乐乔习乡书买乱争于亏云亘亚产亩亲亵亸亿仅从仑仓仪们价众优伙会伛伞伟传伤伥伦伧伪伫体余佣佥侠侣侥侦侧侨侩侪侬俣俦俨俩俪俭债倾偬偻偾偿傥傧储傩儿兑兖党兰关兴兹养兽冁内冈册写军农冢冯冲决况冻净凄凉凌减凑凛几凤凫凭凯击凼凿刍划刘则刚创删别刬刭刽刿剀剂剐剑剥剧劝办务劢动励劲劳势勋勐勚匀匦匮区医华协单卖卢卤卧卫却卺厂厅历厉压厌厍厕厢厣厦厨厩厮县参叆叇双发变叙叠叶号叹叽吁后吓吕吗吣吨听启吴呒呓呕呖呗员呙呛呜咏咔咙咛咝咤咴咸哌响哑哒哓哔哕哗哙哜哝哟唛唝唠唡唢唣唤唿啧啬啭啮啰啴啸喷喽喾嗫呵嗳嘘嘤嘱噜噼嚣嚯团园囱围囵国图圆圣圹场坂坏块坚坛坜坝坞坟坠垄垅垆垒垦垧垩垫垭垯垱垲垴埘埙埚埝埯堑堕塆墙壮声壳壶壸处备复够头夸夹夺奁奂奋奖奥妆妇妈妩妪妫姗姜娄娅娆娇娈娱娲娴婳婴婵婶媪嫒嫔嫱嬷孙学孪宁宝实宠审宪宫宽宾寝对寻导寿将尔尘尧尴尸尽层屃屉届属屡屦屿岁岂岖岗岘岙岚岛岭岳岽岿峃峄峡峣峤峥峦崂崃崄崭嵘嵚嵛嵝嵴巅巩巯币帅师帏帐帘帜带帧帮帱帻帼幂幞干并广庄庆庐庑库应庙庞废庼廪开异弃张弥弪弯弹强归当录彟彦彻径徕御忆忏忧忾怀态怂怃怄怅怆怜总怼怿恋恳恶恸恹恺恻恼恽悦悫悬悭悯惊惧惨惩惫惬惭惮惯愍愠愤愦愿慑慭憷懑懒懔戆戋戏戗战戬户扎扑扦执扩扪扫扬扰抚抛抟抠抡抢护报担拟拢拣拥拦拧拨择挂挚挛挜挝挞挟挠挡挢挣挤挥挦捞损捡换捣据捻掳掴掷掸掺掼揸揽揿搀搁搂搅携摄摅摆摇摈摊撄撑撵撷撸撺擞攒敌敛数斋斓斗斩断无旧时旷旸昙昼昽显晋晒晓晔晕晖暂暧札术朴机杀杂权条来杨杩杰极构枞枢枣枥枧枨枪枫枭柜柠柽栀栅标栈栉栊栋栌栎栏树栖样栾桊桠桡桢档桤桥桦桧桨桩梦梼梾检棂椁椟椠椤椭楼榄榇榈榉槚槛槟槠横樯樱橥橱橹橼檐檩欢欤欧歼殁殇残殒殓殚殡殴毁毂毕毙毡毵氇气氢氩氲汇汉污汤汹沓沟没沣沤沥沦沧沨沩沪沵泞泪泶泷泸泺泻泼泽泾洁洒洼浃浅浆浇浈浉浊测浍济浏浐浑浒浓浔浕涂涌涛涝涞涟涠涡涢涣涤润涧涨涩淀渊渌渍渎渐渑渔渖渗温游湾湿溃溅溆溇滗滚滞滟滠满滢滤滥滦滨滩滪漤潆潇潋潍潜潴澜濑濒灏灭灯灵灾灿炀炉炖炜炝点炼炽烁烂烃烛烟烦烧烨烩烫烬热焕焖焘煅煳熘爱爷牍牦牵牺犊犟状犷犸犹狈狍狝狞独狭狮狯狰狱狲猃猎猕猡猪猫猬献獭玑玙玚玛玮环现玱玺珉珏珐珑珰珲琎琏琐琼瑶瑷璇璎瓒瓮瓯电画畅畲畴疖疗疟疠疡疬疮疯疱疴痈痉痒痖痨痪痫痴瘅瘆瘗瘘瘪瘫瘾瘿癞癣癫癯皑皱皲盏盐监盖盗盘眍眦眬着睁睐睑瞒瞩矫矶矾矿砀码砖砗砚砜砺砻砾础硁硅硕硖硗硙硚确硷碍碛碜碱碹磙礼祎祢祯祷祸禀禄禅离秃秆种积称秽秾稆税稣稳穑穷窃窍窑窜窝窥窦窭竖竞笃笋笔笕笺笼笾筑筚筛筜筝筹签简箓箦箧箨箩箪箫篑篓篮篱簖籁籴类籼粜粝粤粪粮糁糇紧絷纟纠纡红纣纤纥约级纨纩纪纫纬纭纮纯纰纱纲纳纴纵纶纷纸纹纺纻纼纽纾线绀绁绂练组绅细织终绉绊绋绌绍绎经绐绑绒结绔绕绖绗绘给绚绛络绝绞统绠绡绢绣绤绥绦继绨绩绪绫绬续绮绯绰绱绲绳维绵绶绷绸绹绺绻综绽绾绿缀缁缂缃缄缅缆缇缈缉缊缋缌缍缎缏缐缑缒缓缔缕编缗缘缙缚缛缜缝缞缟缠缡缢缣缤缥缦缧缨缩缪缫缬缭缮缯缰缱缲缳缴缵罂网罗罚罢罴羁羟羡翘翙翚耢耧耸耻聂聋职聍联聩聪肃肠肤肷肾肿胀胁胆胜胧胨胪胫胶脉脍脏脐脑脓脔脚脱脶脸腊腌腘腭腻腼腽腾膑臜舆舣舰舱舻艰艳艹艺节芈芗芜芦苁苇苈苋苌苍苎苏苘苹茎茏茑茔茕茧荆荐荙荚荛荜荞荟荠荡荣荤荥荦荧荨荩荪荫荬荭荮药莅莜莱莲莳莴莶获莸莹莺莼萚萝萤营萦萧萨葱蒇蒉蒋蒌蓝蓟蓠蓣蓥蓦蔷蔹蔺蔼蕲蕴薮藁藓虏虑虚虫虬虮虽虾虿蚀蚁蚂蚕蚝蚬蛊蛎蛏蛮蛰蛱蛲蛳蛴蜕蜗蜡蝇蝈蝉蝎蝼蝾螀螨蟏衅衔补衬衮袄袅袆袜袭袯装裆裈裢裣裤裥褛褴襁襕见观觃规觅视觇览觉觊觋觌觍觎觏觐觑觞触觯詟誉誊讠计订讣认讥讦讧讨让讪讫训议讯记讱讲讳讴讵讶讷许讹论讻讼讽设访诀证诂诃评诅识诇诈诉诊诋诌词诎诏诐译诒诓诔试诖诗诘诙诚诛诜话诞诟诠诡询诣诤该详诧诨诩诪诫诬语诮误诰诱诲诳说诵诶请诸诹诺读诼诽课诿谀谁谂调谄谅谆谇谈谊谋谌谍谎谏谐谑谒谓谔谕谖谗谘谙谚谛谜谝谞谟谠谡谢谣谤谥谦谧谨谩谪谫谬谭谮谯谰谱谲谳谴谵谶谷豮贝贞负贠贡财责贤败账货质贩贪贫贬购贮贯贰贱贲贳贴贵贶贷贸费贺贻贼贽贾贿赀赁赂赃资赅赆赇赈赉赊赋赌赍赎赏赐赑赒赓赔赕赖赗赘赙赚赛赜赝赞赟赠赡赢赣赪赵赶趋趱趸跃跄跖跞践跶跷跸跹跻踊踌踪踬踯蹑蹒蹰蹿躏躜躯车轧轨轩轪轫转轭轮软轰轱轲轳轴轵轶轷轸轹轺轻轼载轾轿辀辁辂较辄辅辆辇辈辉辊辋辌辍辎辏辐辑辒输辔辕辖辗辘辙辚辞辩辫边辽达迁过迈运还这进远违连迟迩迳迹适选逊递逦逻遗遥邓邝邬邮邹邺邻郁郄郏郐郑郓郦郧郸酝酦酱酽酾酿释里鉅鉴銮錾钆钇针钉钊钋钌钍钎钏钐钑钒钓钔钕钖钗钘钙钚钛钝钞钟钠钡钢钣钤钥钦钧钨钩钪钫钬钭钮钯钰钱钲钳钴钵钶钷钸钹钺钻钼钽钾钿铀铁铂铃铄铅铆铈铉铊铋铍铎铏铐铑铒铕铗铘铙铚铛铜铝铞铟铠铡铢铣铤铥铦铧铨铪铫铬铭铮铯铰铱铲铳铴铵银铷铸铹铺铻铼铽链铿销锁锂锃锄锅锆锇锈锉锊锋锌锍锎锏锐锑锒锓锔锕锖锗错锚锜锞锟锠锡锢锣锤锥锦锨锩锫锬锭键锯锰锱锲锳锴锵锶锷锸锹锺锻锼锽锾锿镀镁镂镃镆镇镈镉镊镌镍镎镏镐镑镒镕镖镗镙镚镛镜镝镞镟镠镡镢镣镤镥镦镧镨镩镪镫镬镭镮镯镰镱镲镳镴镶长门闩闪闫闬闭问闯闰闱闲闳间闵闶闷闸闹闺闻闼闽闾闿阀阁阂阃阄阅阆阇阈阉阊阋阌阍阎阏阐阑阒阓阔阕阖阗阘阙阚阛队阳阴阵阶际陆陇陈陉陕陧陨险随隐隶隽难雏雠雳雾霁霉霭靓静靥鞑鞒鞯鞴韦韧韨韩韪韫韬韵页顶顷顸项顺须顼顽顾顿颀颁颂颃预颅领颇颈颉颊颋颌颍颎颏颐频颒颓颔颕颖颗题颙颚颛颜额颞颟颠颡颢颣颤颥颦颧风飏飐飑飒飓飔飕飖飗飘飙飚飞飨餍饤饥饦饧饨饩饪饫饬饭饮饯饰饱饲饳饴饵饶饷饸饹饺饻饼饽饾饿馀馁馂馃馄馅馆馇馈馉馊馋馌馍馎馏馐馑馒馓馔馕马驭驮驯驰驱驲驳驴驵驶驷驸驹驺驻驼驽驾驿骀骁骂骃骄骅骆骇骈骉骊骋验骍骎骏骐骑骒骓骔骕骖骗骘骙骚骛骜骝骞骟骠骡骢骣骤骥骦骧髅髋髌鬓魇魉鱼鱽鱾鱿鲀鲁鲂鲄鲅鲆鲇鲈鲉鲊鲋鲌鲍鲎鲏鲐鲑鲒鲓鲔鲕鲖鲗鲘鲙鲚鲛鲜鲝鲞鲟鲠鲡鲢鲣鲤鲥鲦鲧鲨鲩鲪鲫鲬鲭鲮鲯鲰鲱鲲鲳鲴鲵鲶鲷鲸鲹鲺鲻鲼鲽鲾鲿鳀鳁鳂鳃鳄鳅鳆鳇鳈鳉鳊鳋鳌鳍鳎鳏鳐鳑鳒鳓鳔鳕鳖鳗鳘鳙鳛鳜鳝鳞鳟鳠鳡鳢鳣鸟鸠鸡鸢鸣鸤鸥鸦鸧鸨鸩鸪鸫鸬鸭鸮鸯鸰鸱鸲鸳鸴鸵鸶鸷鸸鸹鸺鸻鸼鸽鸾鸿鹀鹁鹂鹃鹄鹅鹆鹇鹈鹉鹊鹋鹌鹍鹎鹏鹐鹑鹒鹓鹔鹕鹖鹗鹘鹚鹛鹜鹝鹞鹟鹠鹡鹢鹣鹤鹥鹦鹧鹨鹩鹪鹫鹬鹭鹯鹰鹱鹲鹳鹴鹾麦麸黄黉黡黩黪黾鼋鼌鼍鼗鼹齄齐齑齿龀龁龂龃龄龅龆龇龈龉龊龋龌龙龚龛龟志制咨只里系范松没尝尝闹面准钟别闲乾尽脏拼冲里",
+    T: "萬與醜專業叢東絲丟兩嚴喪個丬豐臨爲麗舉麼義烏樂喬習鄉書買亂爭於虧雲亙亞產畝親褻嚲億僅從侖倉儀們價衆優夥會傴傘偉傳傷倀倫傖僞佇體餘傭僉俠侶僥偵側僑儈儕儂俁儔儼倆儷儉債傾傯僂僨償儻儐儲儺兒兌兗黨蘭關興茲養獸囅內岡冊寫軍農冢馮沖決況凍淨淒涼凌減湊凜幾鳳鳧憑凱擊凼鑿芻劃劉則剛創刪別剗剄劊劌剴劑剮劍剝劇勸辦務勱動勵勁勞勢勳勐勩勻匭匱區醫華協單賣盧滷臥衛卻巹廠廳歷厲壓厭厙廁廂厴廈廚廄廝縣參靉靆雙發變敘疊葉號嘆嘰籲後嚇呂嗎唚噸聽啓吳嘸囈嘔嚦唄員咼嗆嗚詠咔嚨嚀噝吒咴鹹哌響啞噠嘵嗶噦譁噲嚌噥喲嘜嗊嘮啢嗩唣喚唿嘖嗇囀齧囉嘽嘯噴嘍嚳囁呵噯噓嚶囑嚕噼囂嚯團園囪圍圇國圖圓聖壙場阪壞塊堅壇壢壩塢墳墜壟壠壚壘墾垧堊墊埡墶壋塏堖塒壎堝埝垵塹墮壪牆壯聲殼壺壼處備復夠頭誇夾奪奩奐奮獎奧妝婦媽嫵嫗嬀姍姜婁婭嬈嬌孌娛媧嫺嫿嬰嬋嬸媼嬡嬪嬙嬤孫學孿寧寶實寵審憲宮寬賓寢對尋導壽將爾塵堯尷屍盡層屓屜屆屬屢屨嶼歲豈嶇崗峴嶴嵐島嶺嶽崬巋嶨嶧峽嶢嶠崢巒嶗崍嶮嶄嶸嶔嵛嶁嵴巔鞏巰幣帥師幃帳簾幟帶幀幫幬幘幗冪襆幹並廣莊慶廬廡庫應廟龐廢廎廩開異棄張彌弳彎彈強歸當錄彠彥徹徑徠御憶懺憂愾懷態慫憮慪悵愴憐總懟懌戀懇惡慟懨愷惻惱惲悅愨懸慳憫驚懼慘懲憊愜慚憚慣愍慍憤憒願懾憖憷懣懶懍戇戔戲戧戰戩戶扎撲扦執擴捫掃揚擾撫拋摶摳掄搶護報擔擬攏揀擁攔擰撥擇掛摯攣掗撾撻挾撓擋撟掙擠揮撏撈損撿換搗據捻擄摑擲撣摻摜揸攬撳攙擱摟攪攜攝攄擺搖擯攤攖撐攆擷擼攛擻攢敵斂數齋斕鬥斬斷無舊時曠暘曇晝曨顯晉曬曉曄暈暉暫曖札術樸機殺雜權條來楊榪傑極構樅樞棗櫪梘棖槍楓梟櫃檸檉梔柵標棧櫛櫳棟櫨櫟欄樹棲樣欒桊椏橈楨檔榿橋樺檜槳樁夢檮棶檢櫺槨櫝槧欏橢樓欖櫬櫚櫸檟檻檳櫧橫檣櫻櫫櫥櫓櫞檐檁歡歟歐殲歿殤殘殞殮殫殯毆毀轂畢斃氈毿氌氣氫氬氳匯漢污湯洶沓溝沒灃漚瀝淪滄渢潙滬沵濘淚澩瀧瀘濼瀉潑澤涇潔灑窪浹淺漿澆湞溮濁測澮濟瀏滻渾滸濃潯濜塗涌濤澇淶漣潿渦溳渙滌潤澗漲澀澱淵淥漬瀆漸澠漁瀋滲溫遊灣溼潰濺漵漊潷滾滯灩灄滿瀅濾濫灤濱灘澦漤瀠瀟瀲濰潛瀦瀾瀨瀕灝滅燈靈災燦煬爐燉煒熗點煉熾爍爛烴燭煙煩燒燁燴燙燼熱煥燜燾煅煳熘愛爺牘犛牽犧犢犟狀獷獁猶狽狍獮獰獨狹獅獪猙獄猻獫獵獼玀豬貓蝟獻獺璣璵瑒瑪瑋環現瑲璽珉珏琺瓏璫琿璡璉瑣瓊瑤璦璇瓔瓚甕甌電畫暢畲疇癤療瘧癘瘍癧瘡瘋皰痾癰痙癢瘂癆瘓癇癡癉瘮瘞瘻癟癱癮癭癩癬癲癯皚皺皸盞鹽監蓋盜盤瞘眥矓着睜睞瞼瞞矚矯磯礬礦碭碼磚硨硯碸礪礱礫礎硜硅碩硤磽磑礄確礆礙磧磣鹼碹磙禮禕禰禎禱禍稟祿禪離禿稈種積稱穢穠穭稅穌穩穡窮竊竅窯竄窩窺竇窶豎競篤筍筆筧箋籠籩築篳篩簹箏籌籤簡籙簀篋籜籮簞簫簣簍籃籬籪籟糴類秈糶糲粵糞糧糝餱緊縶糹糾紆紅紂纖紇約級紈纊紀紉緯紜紘純紕紗綱納紝縱綸紛紙紋紡紵紖紐紓線紺紲紱練組紳細織終縐絆紼絀紹繹經紿綁絨結絝繞絰絎繪給絢絳絡絕絞統綆綃絹繡綌綏絛繼綈績緒綾緓續綺緋綽鞝緄繩維綿綬繃綢綯綹綣綜綻綰綠綴緇緙緗緘緬纜緹緲緝縕繢緦綞緞緶線緱縋緩締縷編緡緣縉縛縟縝縫縗縞纏縭縊縑繽縹縵縲纓縮繆繅纈繚繕繒繮繾繰繯繳纘罌網羅罰罷羆羈羥羨翹翽翬耮耬聳恥聶聾職聹聯聵聰肅腸膚肷腎腫脹脅膽勝朧腖臚脛膠脈膾髒臍腦膿臠腳脫腡臉臘醃膕齶膩靦膃騰臏臢輿艤艦艙艫艱豔艹藝節羋薌蕪蘆蓯葦藶莧萇蒼苧蘇檾蘋莖蘢蔦塋煢繭荊薦薘莢蕘蓽蕎薈薺蕩榮葷滎犖熒蕁藎蓀蔭蕒葒葤藥蒞莜萊蓮蒔萵薟獲蕕瑩鶯蓴蘀蘿螢營縈蕭薩蔥蕆蕢蔣蔞藍薊蘺蕷鎣驀薔蘞藺藹蘄蘊藪藁蘚虜慮虛蟲虯蟣雖蝦蠆蝕蟻螞蠶蠔蜆蠱蠣蟶蠻蟄蛺蟯螄蠐蛻蝸蠟蠅蟈蟬蠍螻蠑螿蟎蠨釁銜補襯袞襖嫋褘襪襲襏裝襠褌褳襝褲襉褸襤襁襴見觀覎規覓視覘覽覺覬覡覿覥覦覯覲覷觴觸觶讋譽謄訁計訂訃認譏訐訌討讓訕訖訓議訊記訒講諱謳詎訝訥許訛論訩訟諷設訪訣證詁訶評詛識詗詐訴診詆謅詞詘詔詖譯詒誆誄試詿詩詰詼誠誅詵話誕詬詮詭詢詣諍該詳詫諢詡譸誡誣語誚誤誥誘誨誑說誦誒請諸諏諾讀諑誹課諉諛誰諗調諂諒諄誶談誼謀諶諜謊諫諧謔謁謂諤諭諼讒諮諳諺諦謎諞諝謨讜謖謝謠謗諡謙謐謹謾謫譾謬譚譖譙讕譜譎讞譴譫讖谷豶貝貞負貟貢財責賢敗賬貨質販貪貧貶購貯貫貳賤賁貰貼貴貺貸貿費賀貽賊贄賈賄貲賃賂贓資賅贐賕賑賚賒賦賭齎贖賞賜贔賙賡賠賧賴賵贅賻賺賽賾贗贊贇贈贍贏贛赬趙趕趨趲躉躍蹌跖躒踐躂蹺蹕躚躋踊躊蹤躓躑躡蹣躕躥躪躦軀車軋軌軒軑軔轉軛輪軟轟軲軻轤軸軹軼軤軫轢軺輕軾載輊轎輈輇輅較輒輔輛輦輩輝輥輞輬輟輜輳輻輯轀輸轡轅轄輾轆轍轔辭辯辮邊遼達遷過邁運還這進遠違連遲邇逕跡適選遜遞邐邏遺遙鄧鄺鄔郵鄒鄴鄰鬱郄郟鄶鄭鄆酈鄖鄲醞醱醬釅釃釀釋裏鉅鑑鑾鏨釓釔針釘釗釙釕釷釺釧釤鈒釩釣鍆釹鍚釵鈃鈣鈈鈦鈍鈔鍾鈉鋇鋼鈑鈐鑰欽鈞鎢鉤鈧鈁鈥鈄鈕鈀鈺錢鉦鉗鈷鉢鈳鉕鈽鈸鉞鑽鉬鉭鉀鈿鈾鐵鉑鈴鑠鉛鉚鈰鉉鉈鉍鈹鐸鉶銬銠鉺銪鋏鋣鐃銍鐺銅鋁銱銦鎧鍘銖銑鋌銩銛鏵銓鉿銚鉻銘錚銫鉸銥鏟銃鐋銨銀銣鑄鐒鋪鋙錸鋱鏈鏗銷鎖鋰鋥鋤鍋鋯鋨鏽銼鋝鋒鋅鋶鐦鐗銳銻鋃鋟鋦錒錆鍺錯錨錡錁錕錩錫錮鑼錘錐錦杴錈錇錟錠鍵鋸錳錙鍥鍈鍇鏘鍶鍔鍤鍬鍾鍛鎪鍠鍰鎄鍍鎂鏤鎡鏌鎮鎛鎘鑷鐫鎳鎿鎦鎬鎊鎰鎔鏢鏜鏍鏰鏞鏡鏑鏃鏇鏐鐔钁鐐鏷鑥鐓鑭鐠鑹鏹鐙鑊鐳鐶鐲鐮鐿鑔鑣鑞鑲長門閂閃閆閈閉問闖閏闈閒閎間閔閌悶閘鬧閨聞闥閩閭闓閥閣閡閫鬮閱閬闍閾閹閶鬩閿閽閻閼闡闌闃闠闊闋闔闐闒闕闞闤隊陽陰陣階際陸隴陳陘陝隉隕險隨隱隸雋難雛讎靂霧霽黴靄靚靜靨韃鞽韉鞴韋韌韍韓韙韞韜韻頁頂頃頇項順須頊頑顧頓頎頒頌頏預顱領頗頸頡頰頲頜潁熲頦頤頻頮頹頷頴穎顆題顒顎顓顏額顳顢顛顙顥纇顫顬顰顴風颺颭颮颯颶颸颼颻飀飄飆飈飛饗饜飣飢飥餳飩餼飪飫飭飯飲餞飾飽飼飿飴餌饒餉餄餎餃餏餅餑餖餓餘餒餕餜餛餡館餷饋餶餿饞饁饃餺餾饈饉饅饊饌饢馬馭馱馴馳驅馹駁驢駔駛駟駙駒騶駐駝駑駕驛駘驍罵駰驕驊駱駭駢驫驪騁驗騂駸駿騏騎騍騅騌驌驂騙騭騤騷騖驁騮騫騸驃騾驄驏驟驥驦驤髏髖髕鬢魘魎魚魛魢魷魨魯魴魺鮁鮃鮎鱸鮋鮓鮒鮊鮑鱟鮍鮐鮭鮚鮳鮪鮞鮦鰂鮜鱠鱭鮫鮮鮺鯗鱘鯁鱺鰱鰹鯉鰣鰷鯀鯊鯇鮶鯽鯒鯖鯪鯕鯫鯡鯤鯧鯝鯢鮎鯛鯨鰺鯴鯔鱝鰈鰏鱨鯷鰮鰃鰓鱷鰍鰒鰉鰁鱂鯿鰠鰲鰭鰨鰥鰩鰟鰜鰳鰾鱈鱉鰻鰵鱅鰼鱖鱔鱗鱒鱯鱤鱧鱣鳥鳩雞鳶鳴鳲鷗鴉鶬鴇鴆鴣鶇鸕鴨鴞鴦鴒鴟鴝鴛鷽鴕鷥鷙鴯鴰鵂鴴鵃鴿鸞鴻鵐鵓鸝鵑鵠鵝鵒鷳鵜鵡鵲鶓鵪鵾鵯鵬鵮鶉鶊鵷鷫鶘鶡鶚鶻鶿鶥鶩鷊鷂鶲鶹鶺鷁鶼鶴鷖鸚鷓鷚鷯鷦鷲鷸鷺鸇鷹鸌鸏鸛鸘鹺麥麩黃黌黶黷黲黽黿鼂鼉鞀鼴齇齊齏齒齔齕齗齟齡齙齠齜齦齬齪齲齷龍龔龕龜志制諮只裏系範鬆沒嚐嚐鬧面準鍾別閒乾盡髒拼衝裡"
+  };
+  const S = chinese.S;
+  const T = chinese.T;
+  const tranStr = (str, toT) => {
+    let src;
+    let des;
+    let i;
+    let letter;
+    let result = "";
+    let index;
+    if (toT) {
+      src = S;
+      des = T;
+    } else {
+      src = T;
+      des = S;
+    }
+    for (i = 0; i < str.length; i++) {
+      letter = str.charAt(i);
+      const code = str.charCodeAt(i);
+      const isChinese = code > 13312 && code < 40899 || code > 63744 && code < 64106;
+      if (!isChinese) {
+        result += letter;
+        continue;
+      }
+      index = src.indexOf(letter);
+      if (index !== -1)
+        result += des.charAt(index);
+      else
+        result += letter;
+    }
+    return result;
+  };
+  const Chinese = {
+    s2t: (str, custom) => {
+      if (custom) {
+        for (let s = 0; s < custom.length; s++) {
+          if (str.includes(custom[s].src))
+            str = str.replaceAll(custom[s].src, custom[s].des);
+        }
+        return tranStr(str, true);
+      } else {
+        return tranStr(str, true);
+      }
+    },
+    t2s: (str, custom) => {
+      if (custom) {
+        for (let s = 0; s < custom.length; s++) {
+          if (str.includes(custom[s].src))
+            str = str.replaceAll(custom[s].src, custom[s].des);
+        }
+        return tranStr(str, false);
+      } else {
+        return tranStr(str, false);
+      }
+    }
+  };
+  const SubTitleCustomStr = {
+    src: "臟妳為傢蔔餵眾係姊託迴蹟儘封啟",
+    des: "脏你为家卜喂众系姐托回迹尽对启",
+    more_src: ["乾脆", "随著", "相信著", "奇蹟", "拚命", "採取", "製造"],
+    more_des: ["干脆", "随着", "相信着", "奇迹", "拼命", "采取", "制造"],
+    _custom_str: [],
+    generteCustomStr() {
+      for (let index = 0; index < this.src.length; index++) {
+        this._custom_str.push({
+          src: this.src[index],
+          des: this.des[index]
+        });
+      }
+      for (let index = 0; index < this.more_src.length; index++) {
+        this._custom_str.push({
+          src: this.more_src[index],
+          des: this.more_des[index]
+        });
+      }
+    },
+    getCustomStr() {
+      return this._custom_str;
+    }
+  };
+  const SubTitleEvent = {
+    /**
+     * 重置
+     */
+    reset() {
+      this.unbind();
+    },
+    /**
+     * 绑定事件
+     */
+    bind() {
+      SubTitle.art.on("video:timeupdate", this.event.bind(this));
+    },
+    /**
+     * 取消绑定事件
+     */
+    unbind() {
+      SubTitle.clearSubTitle();
+      SubTitle.art.off("video:timeupdate", this.event);
+    },
+    /**
+     * 事件
+     */
+    event() {
+      var _a2;
+      let currentTime = SubTitle.art.currentTime;
+      let currentSubTitleData = (_a2 = SubTitleData.allSubTitleInfo[SubTitleData.currentSelectIndex]) == null ? void 0 : _a2.data;
+      if (!currentSubTitleData) {
+        return;
+      }
+      let findValue = currentSubTitleData.find((item) => {
+        if (item.to >= currentTime && item.from <= currentTime) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+      let $allSubTitleLine = Array.from(
+        SubTitle.$el.$subtitle.querySelectorAll(".art-subtitle-line")
+      );
+      for (let index = 0; index < $allSubTitleLine.length; index++) {
+        const $oldSubtitleLine = $allSubTitleLine[index];
+        const { from: oldFrom, to: oldTo } = Reflect.get(
+          $oldSubtitleLine,
+          "data-subtitle-line-info"
+        );
+        if (oldTo <= currentTime || oldFrom >= currentTime) {
+          $oldSubtitleLine.remove();
+        } else {
+          if (findValue) {
+            if (findValue.from === oldFrom && findValue.to === oldTo) {
+              return;
+            }
+          }
+        }
+      }
+      if (findValue) {
+        let $subtitleLine = document.createElement("div");
+        $subtitleLine.className = "art-subtitle-line";
+        Reflect.set($subtitleLine, "data-subtitle-line-info", findValue);
+        $subtitleLine.setAttribute("data-group", "0");
+        $subtitleLine.innerHTML = findValue.content;
+        SubTitle.$el.$subtitle.appendChild($subtitleLine);
+      }
+    }
+  };
+  const SubTitleSettingLayer = {
+    config: {
+      NAME: "setting-bilibili-cc-subtitle"
+    },
+    /**
+     * 重置菜单
+     */
+    reset() {
+      let oldSetting = SubTitle.art.setting.option.find(
+        (item) => item.name === this.config.NAME
+      );
+      if (oldSetting) {
+        SubTitle.art.setting.remove(this.config.NAME);
+      }
+    },
+    /**
+     * 获取默认的layer配置项
+     */
+    getDefaultSettingOption: () => {
+      return {
+        name: SubTitleSettingLayer.config.NAME,
+        width: 200,
+        html: "字幕",
+        tooltip: SubTitleSettingLayer.getDefaultSelector().html,
+        icon: '<img width="22" heigth="22" src="https://artplayer.org/assets/img/subtitle.svg">',
+        selector: [],
+        onSelect: function(item) {
+          if (typeof item.callback === "function") {
+            item.callback();
+          }
+          return item.html;
+        }
+      };
+    },
+    /**
+     * 获取默认的selector配置项
+     */
+    getDefaultSelector: () => {
+      return {
+        default: true,
+        html: "无",
+        callback() {
+          SubTitleEvent.unbind();
+        }
+      };
+    }
+  };
+  const SubTitleData = {
+    /**
+     * 所有的字幕信息
+     */
+    allSubTitleInfo: [],
+    /**
+     * 当前选择的字幕下标
+     */
+    currentSelectIndex: -1,
+    /**
+     * 重置所有data数据
+     */
+    reset() {
+      this.allSubTitleInfo = [];
+      this.currentSelectIndex = -1;
+    }
+  };
+  const SubTitle = {
+    art: null,
+    $el: {
+      /**
+       * 字幕容器
+       */
+      $subtitle: null
+    },
+    /**
+     * 更新字幕信息
+     * @param option
+     */
+    async update(option) {
+      var _a2;
+      SubTitleData.reset();
+      SubTitleSettingLayer.reset();
+      SubTitleEvent.reset();
+      const settingOption = SubTitleSettingLayer.getDefaultSettingOption();
+      const defaultSelector = SubTitleSettingLayer.getDefaultSelector();
+      (_a2 = settingOption.selector) == null ? void 0 : _a2.push(defaultSelector);
+      this.art.setting.add(settingOption);
+      this.$el.$subtitle = this.art.template.$subtitle;
+      const videoInfoResponse = await httpx.get(
+        `https://${BilibiliApiConfig.web_host}/x/player/v2?cid=${option.cid}&aid=${option.aid}&ep_id=${option.ep_id}`,
+        {
+          fetch: true,
+          allowInterceptConfig: false,
+          responseType: "json",
+          headers: {
+            Host: "www.bilibili.com",
+            Referer: "https://www.bilibili.com"
+          }
+        }
+      );
+      if (!videoInfoResponse.status) {
+        console.error(
+          "[artplayer-plugin-bilibiliCCSubTitle]：获取视频信息失败",
+          videoInfoResponse
+        );
+        return;
+      }
+      console.log(
+        "[artplayer-plugin-bilibiliCCSubTitle]：视频字幕信息",
+        videoInfoResponse
+      );
+      const videoInfoResultJSON = utils.toJSON(
+        videoInfoResponse.data.responseText
+      );
+      if (!BilibiliResponseCheck.isWebApiSuccess(videoInfoResultJSON)) {
+        console.error(
+          "[artplayer-plugin-bilibiliCCSubTitle]：获取视频信息失败",
+          videoInfoResultJSON
+        );
+        return;
+      }
+      let subTitleUrlInfoList = videoInfoResultJSON["data"]["subtitle"]["subtitles"];
+      if (!subTitleUrlInfoList.length) {
+        console.warn(
+          "[artplayer-plugin-bilibiliCCSubTitle]：获取字幕链接列表为空",
+          videoInfoResultJSON
+        );
+        return;
+      }
+      for (let index = 0; index < subTitleUrlInfoList.length; index++) {
+        const subTitleUrlInfo = subTitleUrlInfoList[index];
+        const subTitleInfoResponse = await httpx.get(
+          subTitleUrlInfo.subtitle_url,
+          {
+            responseType: "json",
+            allowInterceptConfig: false,
+            fetch: false,
+            headers: {
+              // Host: "www.bilibili.com",
+              // Referer: "https://www.bilibili.com",
+              "User-Agent": utils.getRandomPCUA()
+            }
+          }
+        );
+        if (subTitleInfoResponse.status) {
+          const subTitleInfoJSON = utils.toJSON(
+            subTitleInfoResponse.data.responseText
+          );
+          const subTitleInfo = subTitleInfoJSON["body"];
+          let currentIndex = SubTitleData.allSubTitleInfo.length;
+          SubTitleData.allSubTitleInfo.push({
+            name: subTitleUrlInfo.lan_doc,
+            data: subTitleInfo,
+            lan: subTitleUrlInfo.lan
+          });
+          settingOption.selector.push({
+            html: subTitleUrlInfo.lan_doc,
+            callback() {
+              SubTitleData.currentSelectIndex = currentIndex;
+              SubTitleEvent.unbind();
+              SubTitleEvent.bind();
+            }
+          });
+        }
+      }
+      PopsPanel.execMenu("bili-bangumi-generateSimpleChineseSubtitle", () => {
+        let subTitleHant = SubTitleData.allSubTitleInfo.find((item) => {
+          return item.lan === "zh-Hant" || item.name.includes("繁体");
+        });
+        if (!subTitleHant) {
+          return;
+        }
+        let simpleChineseSubtitleData = [];
+        subTitleHant.data.forEach((item) => {
+          const { content, ...otherData } = item;
+          const translateContent = Chinese.t2s(
+            content,
+            SubTitleCustomStr.getCustomStr()
+          );
+          simpleChineseSubtitleData.push({
+            content: translateContent,
+            ...otherData
+          });
+        });
+        let subTitleName = "简体（自动生成）";
+        SubTitleData.allSubTitleInfo.push({
+          name: subTitleName,
+          lan: "zh-CN",
+          data: simpleChineseSubtitleData
+        });
+        let currentIndex = SubTitleData.allSubTitleInfo.length - 1;
+        settingOption.selector.push({
+          html: subTitleName,
+          callback() {
+            SubTitleData.currentSelectIndex = currentIndex;
+            SubTitleEvent.unbind();
+            SubTitleEvent.bind();
+          }
+        });
+      });
+      console.log(
+        "[artplayer-plugin-bilibiliCCSubTitle]：加载视频CC字幕信息",
+        SubTitleData.allSubTitleInfo
+      );
+      this.art.setting.update(settingOption);
+    },
+    /**
+     * 清空字幕
+     */
+    clearSubTitle() {
+      if (this.$el.$subtitle) {
+        this.$el.$subtitle.innerHTML = "";
+      }
+    },
+    /**
+     * 更新artplayer实例
+     * @param art
+     */
+    updateArtPlayer(art) {
+      this.art = art;
+    }
+  };
+  function artplayerPluginBilibiliCCSubTitle(option) {
+    return async (art) => {
+      SubTitleCustomStr.generteCustomStr();
+      SubTitle.updateArtPlayer(art);
+      SubTitle.update(option);
+      return {
+        name: "plugin-bilibili-cc-subtitle",
+        /** 更新视频时调用，更新字幕 */
+        update(option2) {
+          SubTitle.update(option2);
+        }
+      };
+    };
+  }
+  const TopToolBarUtils = {
+    show($el) {
+      $el.style.display = "";
+    },
+    hide($el) {
+      $el.style.display = "none";
+    }
+  };
+  const TopToolBarEvent = {
+    events: {
+      control: (state) => {
+        if (!state) {
+          return;
+        }
+        TopToolBar.updateOnlineTotal(TopToolBar.option);
+      }
+    },
+    /**
+     * 绑定事件
+     */
+    bind() {
+      Object.keys(this.events).forEach((eventName) => {
+        TopToolBar.art.on(
+          eventName,
+          this.events[eventName]
+        );
+      });
+    },
+    /**
+     * 取消绑定事件
+     */
+    unbind() {
+      Object.keys(this.events).forEach((eventName) => {
+        TopToolBar.art.off(
+          eventName,
+          this.events[eventName]
+        );
+      });
+    }
+  };
+  const TopToolBar = {
+    art: null,
+    $el: {
+      /** 容器 */
+      $topWrap: null,
+      $topTitle: null,
+      /** 视频标题 */
+      $topTitleText: null,
+      /** 视频标题的下面的容器 */
+      $topTitleFollow: null,
+      /** 视频标题下面的在线观看人数 */
+      $topTitleFollowText: null,
+      /** 右侧容器 */
+      $topRight: null,
+      /** 右侧容器的下面的容器 */
+      $topRightFollow: null
+    },
+    option: {},
+    /**
+     * 初始化
+     */
+    init(option) {
+      this.option = null;
+      this.option = option;
+      this.art.layers.add({
+        name: "top-wrap",
+        html: (
+          /*html*/
+          `
+            <div class="art-player-top-wrap">
+                <div class="art-player-top-title">
+                    <!-- 番剧名，第xx集 -->
+                    <div class="art-player-top-title-text"></div></div>
+                <div class="art-player-top-follow">
+                    <svg class="art-player-top-follow-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="13306"><path d="M641.522424 590.30953c-29.470195-20.878516-61.574381-37.341466-95.630011-49.183166C617.699855 497.470075 661.783887 419.876859 661.783887 335.542102c0-132.611274-108.021226-240.529145-240.581334-240.529145-132.62867 0-240.545518 107.916848-240.545518 240.529145 0 45.162596 12.561084 89.143273 36.623106 127.426181 20.159132 32.190143 47.677882 59.195194 80.124875 78.789461-34.56933 11.740392-67.220984 28.493961-97.135294 49.663096-32.652677 23.136953-61.334927 51.117215-85.361133 83.051531-49.937342 66.587558-76.393901 145.737222-76.393901 228.959645 0 15.624862 12.561084 28.237111 28.066219 28.237111 15.607466 0 28.27088-12.612249 28.27088-28.237111 0-86.747713 33.850969-168.516018 95.252411-230.277664 61.266365-61.488423 142.486178-95.40693 228.532927-95.491865 2.806929 0.274246 5.749958 0 8.556886-0.685615l2.326998-0.445138c83.650165 1.678222 162.338319 35.528168 222.268246 95.544053 61.403488 61.675688 95.185896 143.478785 95.185896 230.311433 0 15.45397 12.629645 28.134781 28.16855 28.134781 15.538905 0 28.133757-12.681834 28.133757-28.134781 0-83.307358-26.355251-162.457022-76.393901-228.925876C702.958658 641.376603 674.174078 613.412714 641.522424 590.30953zM421.203576 519.768941c-101.550861 0-184.242188-82.588997-184.242188-184.225815 0-101.550861 82.692351-184.173626 184.242188-184.173626 101.483322 0 184.17465 82.622766 184.17465 184.173626C605.378226 437.178921 522.686898 519.768941 421.203576 519.768941z" p-id="13307"></path><path d="M932.277484 638.022205c-36.074613-52.05968-84.915995-91.249237-141.595902-113.821325 24.986067-17.661242 46.070268-41.141002 61.231573-68.505233 17.627473-31.642674 27.006074-67.820642 27.006074-104.699574 0-114.745371-88.956008-208.082152-198.10594-208.082152-15.607466 0-28.167526 12.595876-28.167526 28.134781s12.56006 28.082592 28.167526 28.082592c78.175477 0 141.700279 68.197218 141.700279 151.86478 0 83.804684-63.524802 151.932318-141.700279 151.932318-15.607466 0-28.167526 12.594853-28.167526 28.134781l0 0.171915c0 15.538905 12.56006 28.184923 28.167526 28.184923 140.569526 0 254.990508 121.899304 254.990508 271.76045 0 15.539928 12.664438 28.219715 28.203342 28.219715 15.504112 0 28.203342-12.68081 28.203342-28.219715C992.209458 761.28967 971.399503 694.427866 932.277484 638.022205z" p-id="13308"></path></svg>
+                    <span class="art-player-top-follow-text"></span>
+                </div>
+                <!-- 右侧的图标 -->
+                <div class="art-player-top-right">
+                    <div class="art-player-top-right-follow"></div>
+                </div>
+            </div>
+            `
+        ),
+        mounted: async function($topWrap) {
+          TopToolBar.$el.$topWrap = $topWrap;
+          TopToolBar.$el.$topTitle = $topWrap.querySelector(
+            ".art-player-top-title"
+          );
+          TopToolBar.$el.$topTitleText = $topWrap.querySelector(
+            ".art-player-top-title-text"
+          );
+          TopToolBar.$el.$topTitleFollow = $topWrap.querySelector(
+            ".art-player-top-follow"
+          );
+          TopToolBar.$el.$topTitleFollowText = $topWrap.querySelector(
+            ".art-player-top-follow-text"
+          );
+          TopToolBar.$el.$topRight = $topWrap.querySelector(
+            ".art-player-top-right"
+          );
+          TopToolBar.$el.$topRightFollow = $topWrap.querySelector(
+            ".art-player-top-right-follow"
+          );
+          TopToolBarUtils.hide(TopToolBar.$el.$topTitleFollow);
+          TopToolBar.update(option);
+          TopToolBarEvent.bind();
+        }
+      });
+    },
+    /**
+     * 更新配置
+     */
+    update(option) {
+      TopToolBar.updateWrap(option);
+      TopToolBar.updateTitle(option);
+      TopToolBar.updateOnlineTotal(option);
+      TopToolBar.updateRight(option);
+    },
+    /**
+     * 更新标题
+     * @param option
+     * @returns
+     */
+    updateTitle(option) {
+      console.log(
+        `[artplayer-plugin-TopToolBar]: 更新标题 ==> ${JSON.stringify(option)}`
+      );
+      if (typeof option.title === "string") {
+        TopToolBar.$el.$topTitleText.innerText = option.title;
+      }
+      if (option.showTitle) {
+        TopToolBarUtils.show(TopToolBar.$el.$topTitle);
+      } else {
+        TopToolBarUtils.hide(TopToolBar.$el.$topTitle);
+      }
+    },
+    /**
+     * 更新在线观看人数
+     */
+    async updateOnlineTotal(option) {
+      console.log(
+        `[artplayer-plugin-TopToolBar]: 更新在线观看人数 ==> ${JSON.stringify(
+        option
+      )}`
+      );
+      let onlineTotalInfo = await BilibiliVideoApi.onlineTotal({
+        aid: option.aid,
+        bvid: option.bvid,
+        cid: option.cid
+      });
+      if (!onlineTotalInfo) {
+        return;
+      }
+      TopToolBar.$el.$topTitleFollowText.innerText = `${onlineTotalInfo["total"] || onlineTotalInfo["count"] || 0}人正在看`;
+      if (option.showOnlineTotal) {
+        TopToolBarUtils.show(TopToolBar.$el.$topTitleFollow);
+      } else {
+        TopToolBarUtils.hide(TopToolBar.$el.$topTitleFollow);
+      }
+      console.log(
+        `[artplayer-plugin-TopToolBar]: 更新在线观看人数，请求的数据 ==> ${JSON.stringify(
+        onlineTotalInfo
+      )}`
+      );
+    },
+    /**
+     * 更新视图
+     * @param option
+     */
+    updateWrap(option) {
+      console.log(
+        `[artplayer-plugin-TopToolBar]: 更新总视图 ==> ${JSON.stringify(option)}`
+      );
+      if (option.showWrap) {
+        TopToolBarUtils.show(this.$el.$topWrap);
+      } else {
+        TopToolBarUtils.hide(this.$el.$topWrap);
+      }
+    },
+    /**
+     * 更新右侧视图
+     */
+    updateRight(option) {
+      console.log(
+        `[artplayer-plugin-TopToolBar]: 更新右侧视图 ==> ${JSON.stringify(
+        option
+      )}`
+      );
+      if (option.showRight) {
+        TopToolBarUtils.show(this.$el.$topRight);
+      } else {
+        TopToolBarUtils.hide(this.$el.$topRight);
+      }
+      if (option.showRightFollow) {
+        TopToolBarUtils.show(this.$el.$topRightFollow);
+      } else {
+        TopToolBarUtils.hide(this.$el.$topRightFollow);
+      }
+    }
+  };
+  const artplayerPluginTopToolBar = (option) => {
+    return (art) => {
+      TopToolBar.art = art;
+      TopToolBar.init(option);
+      return {
+        name: "plugin-bilibili-topToolBar",
+        update(option2) {
+          TopToolBar.update(option2);
+        },
+        updateWrap(option2) {
+          utils.assign(TopToolBar.option, option2);
+          TopToolBar.updateWrap(option2);
+        },
+        updateTitle(option2) {
+          utils.assign(TopToolBar.option, option2);
+          TopToolBar.updateTitle(option2);
+        },
+        updateOnlineTotal(option2) {
+          utils.assign(TopToolBar.option, option2);
+          TopToolBar.updateOnlineTotal(option2);
+        },
+        updateRight(option2) {
+          utils.assign(TopToolBar.option, option2);
+          TopToolBar.updateRight(option2);
+        }
+      };
+    };
+  };
+  const ArtPlayerBiliBiliIcon = {
+    loading: `<img src="data:image/gif;base64,R0lGODlhWgBaALMOAHR0dAICAnd3dwEBAXh4eAMDAwkJCQ0NDQsLCxwcHA4ODggICHl5eQAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/wtYTVAgRGF0YVhNUDw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTMyIDc5LjE1OTI4NCwgMjAxNi8wNC8xOS0xMzoxMzo0MCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpiYWE1ODg5ZS1jN2RmLTRmZmUtYjkzOS0wMmVkMTZhNmNjZDIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6M0I2ODI2NjA1NzhGMTFFNkEyMEVDNzhEOUY1RkQxRjgiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6M0I2ODI2NUY1NzhGMTFFNkEyMEVDNzhEOUY1RkQxRjgiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUuNSAoTWFjaW50b3NoKSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjljYjgzNjY2LWYxYWUtNGMyZi1hMGEwLThhODJmYjIxM2U0MyIgc3RSZWY6ZG9jdW1lbnRJRD0iYWRvYmU6ZG9jaWQ6cGhvdG9zaG9wOmU1NDE3YzFmLTllODAtMTE3OS04NjdiLWUyN2Y3M2VkMTZkOSIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PgH//v38+/r5+Pf29fTz8vHw7+7t7Ovq6ejn5uXk4+Lh4N/e3dzb2tnY19bV1NPS0dDPzs3My8rJyMfGxcTDwsHAv769vLu6ubi3trW0s7KxsK+urayrqqmop6alpKOioaCfnp2cm5qZmJeWlZSTkpGQj46NjIuKiYiHhoWEg4KBgH9+fXx7enl4d3Z1dHNycXBvbm1sa2ppaGdmZWRjYmFgX15dXFtaWVhXVlVUU1JRUE9OTUxLSklIR0ZFRENCQUA/Pj08Ozo5ODc2NTQzMjEwLy4tLCsqKSgnJiUkIyIhIB8eHRwbGhkYFxYVFBMSERAPDg0MCwoJCAcGBQQDAgEAACH5BAkKAA4ALAAAAABaAFoAAAT/0MlJq7046827/2AojmRpnmiqrmzrvnAsz3Ta3HW+3bjuV7wbg/H7BYXEYu7YGCaVjuDr6Hwqjy2qEzphNlTaIZfi/ZqY2zHZW0KL1RVGeRS2wiXD+ad+x8jZHXx9GX9MO2GDG3mGGG52iX5ojUFVRWWXmJmam1IknJ+goXoioqWmnHSnqquUpDxVsLGys7S1tk6Uj4dIt72+v7K5IcKQF8R7r1asPC7HHs7L0Z3Ogclr0tES1BzH2NiLSMPWUcnAsd7gTboaxLnm77e527vq2uMm8FXy98/j8z77woFoxw9Fp2pI/mUgKBDMQXrp3iATqNBeD3rMIBaqN9BfwWsZ/7kBmpTwo0aLHIF4kchupIWAKftRLHgpDYeND7skq2jMY0NyjlgqwnlRZ8mfCDlCqyO0A1E7MJueBBrTnc0RG1lGXbfQZ0w8sFLEAhmRK0khKJtWConv6lZXaKlKNWpmyk6TJxVqoWvw7iu49fQyLOrJWitx4QTzQhnX4sTAeLsmjuyO8cWcLScjFan5K9kkl9KapSuG50vDlFtlkjtaNGvEkDeDXIlprsrOts+WjkzVUZmrkmN7zsu7dzkiK3OTRl78NO7WQenK7vkc9u7pt9UJrZz0+vDMwpVPGGuBPOfwrbO/8SbNu3j1oNkvc5/+s3T5oraYhn8f/6e1zfFHQZY+BPbiWkdIFajgLMs9ZgoX+1nmn0upYOfchPK95iCG+L034HHpAAAAh6V4OOAsQYh4hAAC3EJAMO3VV55WmLBYiwAv+pKiirzoE+CGDbAoZFu4eCGiiOdYCBgPQrK4wiVHXlDJk0w4mUUZAGgAXApNDtmMkVn+0KWVLhxppojFsHBmlGm26eabcMYp55x01mnnnXjSEAEAIfkECQoADgAsAAAAAFoAWgAABP/QyUmrvTjrzbv/YCiOZGmeaKqubOu+cCxbTT3fX23jfKbXDEZvSPk1gkSiMShM8pZMZ1HngjalEiPLip1qUdZr12Hcmbhj73eETlMY5QbpxxS7JfCyqH2v5NccfH1+cR6CgxVxchqHiIR6GGGOG38/kXRIkxyVR2SKn6CFbKGkpaangDmoq6ytdh2tsbKhmaqzpHW5uru8lbWGOr3Cw8TFvJghmMbLUVvBrxvImmq/sM+Jt9mWE9K2R2La4VRZ1yDdnuLaTefWQFfp4kjsgeXo38z4xMjz0fXK+QB37asHzB03gkqu8WPkD+GQgQbNNYxIY1zBRf0MLvQx8duFVBn/zXDU6DBkrXllqo3cdokkxYsnEaZUudJiRZceJVI8N5NmTZsHcfpcGXOnpBCcRJITCo2h0afuhlISFdTjxpY57RW91/QDJ3AKSzrNyi5XCl/vwr5sB6RqtToZPZhdalXs2LRrvXwEqgEuXXl2ia4Ty7Jq1qX0mO4pt7DbTDWJ6+aNnKkx48duu2oVchVrZcKXqW6+yzmw58GTR4eie/im5NZsP6emhUsqRNiUUeO2F4cJqGanRycLvfs3kqSmb0sNLnxvzyvIlyvXzPyqMD9oqU9fHLEzLwy7TJZOTfovdRF+y3d2ThZeNsDkBRt272r87vLz6Z+Kst71L/2x8GcapHsqBWTgMOZxB9uBDIbXnDcAAricaxFKeB42FUY4IYbpHJCAAgYYsEABoQRgYgA6nIiicaNw9VUQ/zCoIhMz6tKfBcco84MAAjTIQI0/npjjfZtspQiPKdTogJI4AgcGKDwKoIKQKprok5MpCFBGlEgmWSWTPPBoBJctBCkklmFyKaULZgYwVxJqwnDmhtN4hWadJtyJ55589unnn4AGKuigG0QAACH5BAkKAA4ALAAAAABaAFoAAAT/0MlJq7046827/2AojmRpnmiqrmzrvnAsW009319t43ym1wxGb0j5NYJEojEoTPKWTOfzF5VOfi1o0yoxNlTaLdf7PXmr3CvZpE1bGORyKOx+x+Udev0CX3vaexhBcRyAgRmDXhp6U3ghfVQ+VEhDd5aXmJmajjmbnp+gOiShpKWWlCCmqqtHYn86TLGys7S1tre3kyKTuL2+v7mwrnnChxi6c8VqrFnKqc4OrNJ4yM9AYtPSy627xaLZzNHQr9fiNsC22ULVneWR6PC/k+zk3PQk8bHz48Tu/ErC7hXy9q9SwIKLCJZbgaVeooXW7CHsImpgww37ILaTqLGIIotG/zAe7NiPI7cKd1BJ8nMh48mISNidUomIUMuRLzfGdJYyloeHsG5eEyjSH8Qzsx5Byklx6MRjCl/y8olPFg2cNEvu7Jg0BVWPTkmC3MrUZ8VlYLAOG7sO4cWmnEa4zMrWHFOwJ5egmLu2qEm6dvMS1bkUcEKjd+FWOYNyh9bCfQ//7csr8Fm7hAevnAx14Z1thvECDd2Zs1DBmkgrhtwNMWBFS2ZGFs06mevIsnvOBl0bZluxcJEKWfqUt+bSZEP3nDBa9erjp5PvBtrKFS2HvQnbVW2LDxq20K+6BqeqeWuT5Mtnxx48/SdZ4RtDJO4+tb7i4nPm2/+L9/ms/AVYi3Z/tiVmTHx41Vefc/IpuOBupzmYHoMJZoPAAQ5SWEEtwkCGDgHBXOMhEwhuSEuHU+FCAIi48JIiJN/ttVxaQBjCXIxmKPKVjHHgiGOOYUAYERQGlbhRZUNc98KLSXT1woDGtLBjlFRWaeWVWGap5ZZcdumlChEAACH5BAkKAA4ALAAAAABaAFoAAAT/0MlJq7046827/2AojmRpnmiqrmzrvnAsW009319t43ym1wxGbzj5AYXEoTGITOKWTOfzx2xKHb8W1Ho1NlTba8X7PW25YnJ55I2KLQw1mxp8Y+LyHL1uv6vXGmd9GkF5gXuDHIVkPoiJHYtGF4JEf5aXmJmZJZqdnp+GIaCjpJloHKWpqlCiOlWvsLGys7S1THStR7a7vL2xuCDAj5Oup4dHwxjCHsvJRcW5DXxYqzouzajQ1NXc1hLYG8Dd4zvgx9JI5ONC5o3I2+i+sOSR6NF8e/L6tXTtytr+POyr0k+bnncBbxR8d9AevGkpsjArlnAMQIPEdmTzthFdRQri/zA+k9SBUTiKIjviE/kHojuS/458HOlwCc02Ll9KzOgx5UmGVL6pefUBjxee9XL+dPiQ3Rk3RY3upJnU2MtpuPJBFSEViEWZPs9hNQhLhVSIC5lOBErWDccSZal2tRqTqbmpQgFB2prV1b0mdzHCBKlRrFOGJQ0GRjw4r966dWY2lQvZCivKhic3HIuYMGObjtUiPSx6KWevoz3vdHSVtNLWqo0JGwovnmnXdGkI9smo09bKmteqBafqd2rJyxYP7Vost+PIYYFjvsBcF5kqiZEh3925wq3mSGQJh949881UEmJtxh2Mu7pU5EubD/1+VPzX0unX10R0e2fw+nDTX5l0qXk30IG0xOacgtThtxeCaBGoW3nO+LffhRTWheF+Dk64IYcLqjZOACQGUEABJA6g4orVdNjgPDoAIKNWENYDwA8y/pIhITA2cCNONRIUI44A2MLCj17IyIIRSCp5h4sgIBmjjAAsqYaTPTBJZZUrXInlEFt+CQYZVDoRZgwzTunMCmGWuWYLW74p55x01mnnnXjmqecNEQAAIfkEBQoADgAsAAAAAFoAWgAABP/QyUmrvTjrzbv/YCiOZGmeaKqubOu+cCzP9Nrcdb7duO5XvBuD8fsFhcSi7jhMKh3BF7P5lBxb02HVelUdG9Qtt3vKiinfRjnYdJ6h31LW/XYw0qJvuE65x0FmfBdpah1zghh+ZBmHiIl4jIGOGYo8kTx7NYSbnJ2en5t5oKOkpaEhpqmqo1ofq6+wenQ7mG22t7i5uru8TWyzGr+9w8TFub+AtZODyq7NY7AwyM5IaLHXURPTHttw2NjW1dRgSd/m5NCt3M3Cxm3nrd0c0+3u9rr0z4bs+iP37/zErRMnz0hAdOPi9TNIcGGwg+qY9dg38WFDgRQRFtSWLWNFiRr/HV4KiTGcSCCEMOQrSesiQpO1gIH8Y1IhS4skX0KLKfNCpUXeckacB9FNmjYhhhytWe4kSJsvZWUC4evZSp1EXaqb09MDLo5au1pgks5JOxZIy6pNJmTtBFuXUCCbgkqZPKSWUH4UVU1Y3b4nO4IFY2JuzL/oNroNOpRtYqcq7QbWRzZcRi2KcWJ2ygZmIWiXiWQeufnm4M8pFz8VDXk1466lVI+VbFoz69o7SzXW+xh3ZMC+g07ZNHU2cKyhX3f4aYtQcd6lkWftLd1nrtzVmSpHHH03pbRv/bak7t228HOvuot1jR6ber7U2696z72p/Pm3s5N28q9/se2OReTffYC7AJjQemeMZpx8MSjI230Q6rdghPeV9xuF8lmYyC48kcMLhhJuiIsw9RDo3IitOQbJBsawwQMAANxymA2cwEjjFzZapyFiL8Lo4404iojFET4WCSSRPgRRJABSEJKjDksyGUOUP/pg5AxUPrnMllx26eWXYIYp5phkjhkBADs=">`,
+    state: `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 80 80" width="100" height="100"><defs><path id="pid-64-svgo-a" d="M0 0h80v80H0z"/><path d="M52.546 8.014a3.998 3.998 0 014.222 3.077c.104.446.093.808.039 1.138a2.74 2.74 0 01-.312.881c-.073.132-.16.254-.246.376l-.257.366-.521.73c-.7.969-1.415 1.926-2.154 2.866l-.015.02a240.945 240.945 0 015.986.341l1.643.123.822.066.41.034.206.018.103.008.115.012c1.266.116 2.516.45 3.677.975a11.663 11.663 0 013.166 2.114c.931.87 1.719 1.895 2.321 3.022a11.595 11.595 0 011.224 3.613c.03.157.046.316.068.474l.015.119.013.112.022.206.085.822.159 1.646c.1 1.098.19 2.198.27 3.298.315 4.4.463 8.829.36 13.255a166.489 166.489 0 01-.843 13.213c-.012.127-.034.297-.053.454a7.589 7.589 0 01-.072.475l-.04.237-.05.236a11.762 11.762 0 01-.74 2.287 11.755 11.755 0 01-5.118 5.57 11.705 11.705 0 01-3.623 1.263c-.158.024-.316.052-.475.072l-.477.053-.821.071-1.644.134c-1.096.086-2.192.16-3.288.23a260.08 260.08 0 01-6.578.325c-8.772.324-17.546.22-26.313-.302a242.458 242.458 0 01-3.287-.22l-1.643-.129-.822-.069-.41-.035-.206-.018c-.068-.006-.133-.01-.218-.02a11.566 11.566 0 01-3.7-.992 11.732 11.732 0 01-5.497-5.178 11.73 11.73 0 01-1.215-3.627c-.024-.158-.051-.316-.067-.475l-.026-.238-.013-.119-.01-.103-.07-.823-.132-1.648a190.637 190.637 0 01-.22-3.298c-.256-4.399-.358-8.817-.258-13.233.099-4.412.372-8.811.788-13.197a11.65 11.65 0 013.039-6.835 11.585 11.585 0 016.572-3.563c.157-.023.312-.051.47-.07l.47-.05.82-.07 1.643-.13a228.493 228.493 0 016.647-.405l-.041-.05a88.145 88.145 0 01-2.154-2.867l-.52-.73-.258-.366c-.086-.122-.173-.244-.246-.376a2.74 2.74 0 01-.312-.881 2.808 2.808 0 01.04-1.138 3.998 3.998 0 014.22-3.077 2.8 2.8 0 011.093.313c.294.155.538.347.742.568.102.11.19.23.28.35l.27.359.532.72a88.059 88.059 0 012.06 2.936 73.036 73.036 0 011.929 3.03c.187.313.373.628.556.945 2.724-.047 5.447-.056 8.17-.038.748.006 1.496.015 2.244.026.18-.313.364-.624.549-.934a73.281 73.281 0 011.93-3.03 88.737 88.737 0 012.059-2.935l.533-.72.268-.359c.09-.12.179-.24.281-.35a2.8 2.8 0 011.834-.881zM30.13 34.631a4 4 0 00-.418 1.42 91.157 91.157 0 00-.446 9.128c0 2.828.121 5.656.364 8.483l.11 1.212a4 4 0 005.858 3.143c2.82-1.498 5.55-3.033 8.193-4.606a177.41 177.41 0 005.896-3.666l1.434-.942a4 4 0 00.047-6.632 137.703 137.703 0 00-7.377-4.708 146.88 146.88 0 00-6.879-3.849l-1.4-.725a4 4 0 00-5.382 1.742z" id="pid-64-svgo-d"/><filter x="-15.4%" y="-16.3%" width="130.9%" height="132.5%" filterUnits="objectBoundingBox" id="pid-64-svgo-c"><feOffset dy="2" in="SourceAlpha" result="shadowOffsetOuter1"/><feGaussianBlur stdDeviation="1" in="shadowOffsetOuter1" result="shadowBlurOuter1"/><feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.3 0" in="shadowBlurOuter1" result="shadowMatrixOuter1"/><feOffset in="SourceAlpha" result="shadowOffsetOuter2"/><feGaussianBlur stdDeviation="3.5" in="shadowOffsetOuter2" result="shadowBlurOuter2"/><feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.2 0" in="shadowBlurOuter2" result="shadowMatrixOuter2"/><feMerge><feMergeNode in="shadowMatrixOuter1"/><feMergeNode in="shadowMatrixOuter2"/></feMerge></filter></defs><g fill="none" fill-rule="evenodd" opacity=".8"><mask id="pid-64-svgo-b" fill="#fff"><use xlink:href="#pid-64-svgo-a"/></mask><g mask="url(#pid-64-svgo-b)"><use fill="#000" filter="url(#pid-64-svgo-c)" xlink:href="#pid-64-svgo-d"/><use fill="#FFF" xlink:href="#pid-64-svgo-d"/></g></g></svg>`,
+    indicator: `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22" width="16" height="16">
+        <path d="M16.118 3.667h.382a3.667 3.667 0 013.667 3.667v7.333a3.667 3.667 0 01-3.667 3.667h-11a3.667 3.667 0 01-3.667-3.667V7.333A3.667 3.667 0 015.5 3.666h.382L4.95 2.053a1.1 1.1 0 011.906-1.1l1.567 2.714h5.156L15.146.953a1.101 1.101 0 011.906 1.1l-.934 1.614z" fill="#333"></path>
+        <path d="M5.561 5.194h10.878a2.2 2.2 0 012.2 2.2v7.211a2.2 2.2 0 01-2.2 2.2H5.561a2.2 2.2 0 01-2.2-2.2V7.394a2.2 2.2 0 012.2-2.2z" fill="#fff"></path>
+        <path d="M6.967 8.556a1.1 1.1 0 011.1 1.1v2.689a1.1 1.1 0 11-2.2 0V9.656a1.1 1.1 0 011.1-1.1zM15.033 8.556a1.1 1.1 0 011.1 1.1v2.689a1.1 1.1 0 11-2.2 0V9.656a1.1 1.1 0 011.1-1.1z" fill="#333"></path>
+    </svg>
+        `,
+    fullscreenWebOn: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" width="28" height="28" preserveAspectRatio="xMidYMid meet"><defs><clipPath id="__lottie_element_172"><rect width="88" height="88" x="0" y="0"></rect></clipPath></defs><g clip-path="url(#__lottie_element_172)"><g transform="matrix(1,0,0,1,44,44)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,0,0)"><path fill="rgb(255,255,255)" fill-opacity="1" d=" M-14,-20 C-14,-20 -26,-20 -26,-20 C-27.049999237060547,-20 -27.920000076293945,-19.18000030517578 -27.989999771118164,-18.149999618530273 C-27.989999771118164,-18.149999618530273 -28,-18 -28,-18 C-28,-18 -28,-6 -28,-6 C-28,-4.949999809265137 -27.18000030517578,-4.079999923706055 -26.149999618530273,-4.010000228881836 C-26.149999618530273,-4.010000228881836 -26,-4 -26,-4 C-26,-4 -22,-4 -22,-4 C-20.950000762939453,-4 -20.079999923706055,-4.820000171661377 -20.010000228881836,-5.849999904632568 C-20.010000228881836,-5.849999904632568 -20,-6 -20,-6 C-20,-6 -20,-12 -20,-12 C-20,-12 -14,-12 -14,-12 C-12.949999809265137,-12 -12.079999923706055,-12.819999694824219 -12.010000228881836,-13.850000381469727 C-12.010000228881836,-13.850000381469727 -12,-14 -12,-14 C-12,-14 -12,-18 -12,-18 C-12,-19.049999237060547 -12.819999694824219,-19.920000076293945 -13.850000381469727,-19.989999771118164 C-13.850000381469727,-19.989999771118164 -14,-20 -14,-20z M26,-20 C26,-20 14,-20 14,-20 C12.949999809265137,-20 12.079999923706055,-19.18000030517578 12.010000228881836,-18.149999618530273 C12.010000228881836,-18.149999618530273 12,-18 12,-18 C12,-18 12,-14 12,-14 C12,-12.949999809265137 12.819999694824219,-12.079999923706055 13.850000381469727,-12.010000228881836 C13.850000381469727,-12.010000228881836 14,-12 14,-12 C14,-12 20,-12 20,-12 C20,-12 20,-6 20,-6 C20,-4.949999809265137 20.81999969482422,-4.079999923706055 21.850000381469727,-4.010000228881836 C21.850000381469727,-4.010000228881836 22,-4 22,-4 C22,-4 26,-4 26,-4 C27.049999237060547,-4 27.920000076293945,-4.820000171661377 27.989999771118164,-5.849999904632568 C27.989999771118164,-5.849999904632568 28,-6 28,-6 C28,-6 28,-18 28,-18 C28,-19.049999237060547 27.18000030517578,-19.920000076293945 26.149999618530273,-19.989999771118164 C26.149999618530273,-19.989999771118164 26,-20 26,-20z M-22,4 C-22,4 -26,4 -26,4 C-27.049999237060547,4 -27.920000076293945,4.820000171661377 -27.989999771118164,5.849999904632568 C-27.989999771118164,5.849999904632568 -28,6 -28,6 C-28,6 -28,18 -28,18 C-28,19.049999237060547 -27.18000030517578,19.920000076293945 -26.149999618530273,19.989999771118164 C-26.149999618530273,19.989999771118164 -26,20 -26,20 C-26,20 -14,20 -14,20 C-12.949999809265137,20 -12.079999923706055,19.18000030517578 -12.010000228881836,18.149999618530273 C-12.010000228881836,18.149999618530273 -12,18 -12,18 C-12,18 -12,14 -12,14 C-12,12.949999809265137 -12.819999694824219,12.079999923706055 -13.850000381469727,12.010000228881836 C-13.850000381469727,12.010000228881836 -14,12 -14,12 C-14,12 -20,12 -20,12 C-20,12 -20,6 -20,6 C-20,4.949999809265137 -20.81999969482422,4.079999923706055 -21.850000381469727,4.010000228881836 C-21.850000381469727,4.010000228881836 -22,4 -22,4z M26,4 C26,4 22,4 22,4 C20.950000762939453,4 20.079999923706055,4.820000171661377 20.010000228881836,5.849999904632568 C20.010000228881836,5.849999904632568 20,6 20,6 C20,6 20,12 20,12 C20,12 14,12 14,12 C12.949999809265137,12 12.079999923706055,12.819999694824219 12.010000228881836,13.850000381469727 C12.010000228881836,13.850000381469727 12,14 12,14 C12,14 12,18 12,18 C12,19.049999237060547 12.819999694824219,19.920000076293945 13.850000381469727,19.989999771118164 C13.850000381469727,19.989999771118164 14,20 14,20 C14,20 26,20 26,20 C27.049999237060547,20 27.920000076293945,19.18000030517578 27.989999771118164,18.149999618530273 C27.989999771118164,18.149999618530273 28,18 28,18 C28,18 28,6 28,6 C28,4.949999809265137 27.18000030517578,4.079999923706055 26.149999618530273,4.010000228881836 C26.149999618530273,4.010000228881836 26,4 26,4z M28,-28 C32.41999816894531,-28 36,-24.420000076293945 36,-20 C36,-20 36,20 36,20 C36,24.420000076293945 32.41999816894531,28 28,28 C28,28 -28,28 -28,28 C-32.41999816894531,28 -36,24.420000076293945 -36,20 C-36,20 -36,-20 -36,-20 C-36,-24.420000076293945 -32.41999816894531,-28 -28,-28 C-28,-28 28,-28 28,-28z"></path></g></g></g></svg>`,
+    fullscreenWebOff: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" width="28" height="28" preserveAspectRatio="xMidYMid meet"><defs><clipPath id="__lottie_element_177"><rect width="88" height="88" x="0" y="0"></rect></clipPath></defs><g clip-path="url(#__lottie_element_177)"><g transform="matrix(1,0,0,1,44,44)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,0,0)"><path fill="rgb(255,255,255)" fill-opacity="1" d=" M-14,-20 C-14,-20 -18,-20 -18,-20 C-19.049999237060547,-20 -19.920000076293945,-19.18000030517578 -19.989999771118164,-18.149999618530273 C-19.989999771118164,-18.149999618530273 -20,-18 -20,-18 C-20,-18 -20,-12 -20,-12 C-20,-12 -26,-12 -26,-12 C-27.049999237060547,-12 -27.920000076293945,-11.180000305175781 -27.989999771118164,-10.149999618530273 C-27.989999771118164,-10.149999618530273 -28,-10 -28,-10 C-28,-10 -28,-6 -28,-6 C-28,-4.949999809265137 -27.18000030517578,-4.079999923706055 -26.149999618530273,-4.010000228881836 C-26.149999618530273,-4.010000228881836 -26,-4 -26,-4 C-26,-4 -14,-4 -14,-4 C-12.949999809265137,-4 -12.079999923706055,-4.820000171661377 -12.010000228881836,-5.849999904632568 C-12.010000228881836,-5.849999904632568 -12,-6 -12,-6 C-12,-6 -12,-18 -12,-18 C-12,-19.049999237060547 -12.819999694824219,-19.920000076293945 -13.850000381469727,-19.989999771118164 C-13.850000381469727,-19.989999771118164 -14,-20 -14,-20z M18,-20 C18,-20 14,-20 14,-20 C12.949999809265137,-20 12.079999923706055,-19.18000030517578 12.010000228881836,-18.149999618530273 C12.010000228881836,-18.149999618530273 12,-18 12,-18 C12,-18 12,-6 12,-6 C12,-4.949999809265137 12.819999694824219,-4.079999923706055 13.850000381469727,-4.010000228881836 C13.850000381469727,-4.010000228881836 14,-4 14,-4 C14,-4 26,-4 26,-4 C27.049999237060547,-4 27.920000076293945,-4.820000171661377 27.989999771118164,-5.849999904632568 C27.989999771118164,-5.849999904632568 28,-6 28,-6 C28,-6 28,-10 28,-10 C28,-11.050000190734863 27.18000030517578,-11.920000076293945 26.149999618530273,-11.989999771118164 C26.149999618530273,-11.989999771118164 26,-12 26,-12 C26,-12 20,-12 20,-12 C20,-12 20,-18 20,-18 C20,-19.049999237060547 19.18000030517578,-19.920000076293945 18.149999618530273,-19.989999771118164 C18.149999618530273,-19.989999771118164 18,-20 18,-20z M-14,4 C-14,4 -26,4 -26,4 C-27.049999237060547,4 -27.920000076293945,4.820000171661377 -27.989999771118164,5.849999904632568 C-27.989999771118164,5.849999904632568 -28,6 -28,6 C-28,6 -28,10 -28,10 C-28,11.050000190734863 -27.18000030517578,11.920000076293945 -26.149999618530273,11.989999771118164 C-26.149999618530273,11.989999771118164 -26,12 -26,12 C-26,12 -20,12 -20,12 C-20,12 -20,18 -20,18 C-20,19.049999237060547 -19.18000030517578,19.920000076293945 -18.149999618530273,19.989999771118164 C-18.149999618530273,19.989999771118164 -18,20 -18,20 C-18,20 -14,20 -14,20 C-12.949999809265137,20 -12.079999923706055,19.18000030517578 -12.010000228881836,18.149999618530273 C-12.010000228881836,18.149999618530273 -12,18 -12,18 C-12,18 -12,6 -12,6 C-12,4.949999809265137 -12.819999694824219,4.079999923706055 -13.850000381469727,4.010000228881836 C-13.850000381469727,4.010000228881836 -14,4 -14,4z M26,4 C26,4 14,4 14,4 C12.949999809265137,4 12.079999923706055,4.820000171661377 12.010000228881836,5.849999904632568 C12.010000228881836,5.849999904632568 12,6 12,6 C12,6 12,18 12,18 C12,19.049999237060547 12.819999694824219,19.920000076293945 13.850000381469727,19.989999771118164 C13.850000381469727,19.989999771118164 14,20 14,20 C14,20 18,20 18,20 C19.049999237060547,20 19.920000076293945,19.18000030517578 19.989999771118164,18.149999618530273 C19.989999771118164,18.149999618530273 20,18 20,18 C20,18 20,12 20,12 C20,12 26,12 26,12 C27.049999237060547,12 27.920000076293945,11.180000305175781 27.989999771118164,10.149999618530273 C27.989999771118164,10.149999618530273 28,10 28,10 C28,10 28,6 28,6 C28,4.949999809265137 27.18000030517578,4.079999923706055 26.149999618530273,4.010000228881836 C26.149999618530273,4.010000228881836 26,4 26,4z M28,-28 C32.41999816894531,-28 36,-24.420000076293945 36,-20 C36,-20 36,20 36,20 C36,24.420000076293945 32.41999816894531,28 28,28 C28,28 -28,28 -28,28 C-32.41999816894531,28 -36,24.420000076293945 -36,20 C-36,20 -36,-20 -36,-20 C-36,-24.420000076293945 -32.41999816894531,-28 -28,-28 C-28,-28 28,-28 28,-28z"></path></g></g></g></svg>`
+  };
+  const GenerateArtPlayerEPSelectSetting = (option) => {
+    return {
+      name: "bili-video-choose-ep",
+      icon: `<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2295" width="24" height="24"><path d="M983.745542 312.673133a510.516437 510.516437 0 0 0-109.673817-162.745211A510.516437 510.516437 0 0 0 511.999823 0.000353 510.516437 510.516437 0 0 0 149.927922 149.927922 510.516437 510.516437 0 0 0 0.000353 511.999823a510.516437 510.516437 0 0 0 149.927569 362.071902A510.516437 510.516437 0 0 0 511.999823 1023.999294a510.516437 510.516437 0 0 0 362.071902-149.927569A510.516437 510.516437 0 0 0 1023.999294 511.999823c0-69.137584-13.488538-136.121238-40.253752-199.32669z m-62.852348 372.029408a443.779955 443.779955 0 0 1-95.05535 140.994061 441.908508 441.908508 0 0 1-313.73209 129.941935c-59.886283 0-118.042361-11.758333-172.667407-34.851274a443.779955 443.779955 0 0 1-141.029372-95.090661 441.908508 441.908508 0 0 1-129.941934-313.696779c0-59.886283 11.758333-118.042361 34.851274-172.667407a443.779955 443.779955 0 0 1 95.09066-141.029371 441.908508 441.908508 0 0 1 313.696779-129.941935c59.886283 0 118.077671 11.758333 172.667408 34.851274a443.779955 443.779955 0 0 1 141.064682 95.090661 441.908508 441.908508 0 0 1 129.941934 313.696778c0 59.886283-11.793643 118.042361-34.851274 172.667408zM388.413744 706.206519l317.792775-211.86185-317.792775-211.861849v423.723699z" p-id="2296"></path></svg>`,
+      html: "选集",
+      // icon: `<svg t="1727413004405" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3183" width="24" height="24"><path d="M170.666667 256h682.666666c23.466667 0 42.666667 19.2 42.666667 42.666667v170.666666h85.333333V256c0-46.933333-38.4-85.333333-85.333333-85.333333H128c-46.933333 0-85.333333 38.4-85.333333 85.333333v512c0 46.933333 38.4 85.333333 85.333333 85.333333h384v-85.333333H170.666667c-23.466667 0-42.666667-19.2-42.666667-42.666667V298.666667c0-23.466667 19.2-42.666667 42.666667-42.666667z" p-id="3184"></path><path d="M640 512L384 341.333333v341.333334zM968.96 786.346667c1.28-12.373333 1.706667-24.746667 0.426667-36.693334l45.653333-36.266666c4.266667-3.413333 5.12-8.96 2.56-13.653334l-43.946667-76.373333c-2.56-4.693333-8.106667-6.4-13.226666-4.693333l-54.613334 21.333333a146.773333 146.773333 0 0 0-32-17.92l-8.533333-58.026667a10.624 10.624 0 0 0-10.666667-9.386666h-88.32c-5.12 0-9.813333 3.84-10.666666 8.96l-8.533334 58.026666c-11.093333 4.693333-21.76 11.093333-31.573333 17.92l-54.613333-21.333333c-5.12-2.133333-10.666667 0-13.226667 4.693333l-43.946667 76.373334c-2.56 4.693333-1.706667 10.24 2.56 13.653333l45.653334 36.693333c-1.28 12.373333-1.706667 24.746667-0.426667 36.693334l-45.653333 36.266666c-4.266667 3.413333-5.12 8.96-2.56 13.653334l43.946666 76.373333c2.56 4.693333 8.106667 6.4 13.226667 4.693333l54.186667-21.333333c9.813333 7.253333 20.48 13.226667 32 17.92l8.533333 58.026667c0.853333 5.12 5.12 8.96 10.666667 8.96h88.32c5.12 0 9.813333-3.84 10.666666-8.96l8.533334-58.026667c11.093333-4.693333 21.76-11.093333 31.573333-17.92l54.613333 21.333333c5.12 2.133333 10.666667 0 13.226667-4.693333l43.946667-76.373333c2.56-4.693333 1.706667-10.24-2.56-13.653334l-45.226667-36.266666zM810.666667 832c-35.413333 0-64-28.586667-64-64s28.586667-64 64-64 64 28.586667 64 64-28.586667 64-64 64z" p-id="3185"></path></svg>`,
+      selector: option.epList.map((item) => {
+        return {
+          html: GenerateVideoTitle(item.title, item.long_title),
+          default: item.ep_id === option.ep_id && item.aid === option.aid && item.cid === option.cid,
+          ep_info: item
+        };
+      }),
+      onSelect: function(item) {
+        let select_EP_Info = item.ep_info;
+        BlibiliBangumiPlayer.updateArtPlayerVideoInfo(
+          select_EP_Info,
+          option.epList
+        );
+        return item.html;
+      }
+    };
+  };
+  const BilibiliArtPlayer = {
+    art: null,
+    flv: null,
+    /** 当前的配置项 */
+    currentOption: null,
+    /**
+     * 重置环境变量
+     */
+    resetEnv() {
+      this.art = null;
+      this.flv = null;
+      this.currentOption = null;
+    },
+    /**
+     * flv播放
+     *
+     * 切换url时自动调用
+     * @param videoInfoList 可能多个，可能只有一个
+     */
+    flvPlayer() {
+      var _a2, _b;
+      if (this.currentOption == null) {
+        console.error("flv获取当前配置为空");
+        return;
+      }
+      let flvInfoList = this.currentOption.flvInfo;
+      if (this.flv != null || flvInfoList == null) {
+        (_a2 = this.flv) == null ? void 0 : _a2.detachMediaElement();
+        (_b = this.flv) == null ? void 0 : _b.destroy();
+      }
+      let currentOption = this.currentOption;
+      console.log("加载视频", flvInfoList);
+      if (flvInfoList.length > 1) {
+        this.flv = flvjs.createPlayer(
+          {
+            type: "flv",
+            filesize: currentOption.flvTotalSize,
+            duration: currentOption.flvTotalDuration,
+            segments: flvInfoList.map((item) => {
+              return {
+                url: item.url,
+                duration: item.duration,
+                filesize: item.size
+              };
+            })
+          },
+          {
+            stashInitialSize: 1024 * 100
+          }
+        );
+      } else {
+        this.flv = flvjs.createPlayer(
+          {
+            type: "flv",
+            url: flvInfoList[0].url
+          },
+          {
+            stashInitialSize: 1024 * 100
+          }
+        );
+      }
+      this.flv.attachMediaElement(this.art.video);
+      this.flv.load();
+    },
+    /**
+     * 初始化播放器
+     * @param option
+     */
+    async init(option) {
+      this.resetEnv();
+      this.currentOption = option;
+      const artOption = {
+        /** 容器 */
+        container: option.container,
+        /** 链接 */
+        url: "",
+        // poster: 'https://artplayer.org/assets/sample/poster.jpg',
+        /** 默认音量 */
+        volume: 1,
+        /** 是否是直播 */
+        isLive: false,
+        /** 是否静音 */
+        muted: false,
+        /** 是否自动播放 */
+        autoplay: false,
+        /** 是否显示视频画中画按钮 */
+        pip: false,
+        /** 播放器是否自动调整大小 */
+        autoSize: true,
+        /** 播放器是否自动运行迷你模式 */
+        autoMini: false,
+        /** 是否显示截图按钮 */
+        screenshot: false,
+        /** 是否显示视频设置按钮 */
+        setting: true,
+        /** 是否循环播放 */
+        loop: false,
+        /** 是否显示视频翻转按钮 */
+        flip: true,
+        /** 是否显示视频播放速率按钮 */
+        playbackRate: true,
+        /** 是否显示视频宽高比按钮 */
+        aspectRatio: true,
+        /** 是否显示视频窗口全屏按钮 */
+        fullscreen: true,
+        /** 是否显示视频网页全屏按钮 */
+        fullscreenWeb: true,
+        /** 是否启用播放器字幕偏移 */
+        subtitleOffset: true,
+        /** 是否启用播放器迷你进度条 */
+        miniProgressBar: true,
+        /** 保证页面只存在一个实例 */
+        mutex: true,
+        /** UI中是否使用背景 */
+        backdrop: true,
+        /** 移动端是否使用playsInline */
+        playsInline: true,
+        /** 是否使用自动播放 */
+        autoPlayback: true,
+        /** 是否使用airplay */
+        airplay: true,
+        /** 播放器颜色主题 */
+        theme: "#23ade5",
+        /** 播放器语言 */
+        lang: navigator.language.toLowerCase(),
+        /** 覆盖video属性 */
+        moreVideoAttr: {
+          crossOrigin: "anonymous"
+        },
+        /** 自定义设置列表 */
+        settings: [
+          // {
+          // 	html: "音量",
+          // 	icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" width="24" height="24" preserveAspectRatio="xMidYMid meet"><defs><clipPath id="__lottie_element_94"><rect width="88" height="88" x="0" y="0"></rect></clipPath><clipPath id="__lottie_element_96"><path d="M0,0 L88,0 L88,88 L0,88z"></path></clipPath></defs><g clip-path="url(#__lottie_element_94)"><g clip-path="url(#__lottie_element_96)" transform="matrix(1,0,0,1,0,0)" opacity="1" style="display: block;"><g transform="matrix(0.9999997615814209,0,0,0.9999997615814209,28.000003814697266,44)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,0,0)"><path fill="rgb(255,255,255)" fill-opacity="1" d=" M15.5600004196167,-25.089000701904297 C15.850000381469727,-24.729000091552734 16,-24.288999557495117 16,-23.839000701904297 C16,-23.839000701904297 16,23.840999603271484 16,23.840999603271484 C16,24.94099998474121 15.100000381469727,25.840999603271484 14,25.840999603271484 C13.550000190734863,25.840999603271484 13.109999656677246,25.680999755859375 12.75,25.400999069213867 C12.75,25.400999069213867 -4,12.00100040435791 -4,12.00100040435791 C-4,12.00100040435791 -8,12.00100040435791 -8,12.00100040435791 C-12.420000076293945,12.00100040435791 -16,8.420999526977539 -16,4.000999927520752 C-16,4.000999927520752 -16,-3.999000072479248 -16,-3.999000072479248 C-16,-8.418999671936035 -12.420000076293945,-11.99899959564209 -8,-11.99899959564209 C-8,-11.99899959564209 -4,-11.99899959564209 -4,-11.99899959564209 C-4,-11.99899959564209 12.75,-25.39900016784668 12.75,-25.39900016784668 C13.609999656677246,-26.089000701904297 14.869999885559082,-25.948999404907227 15.5600004196167,-25.089000701904297z"></path></g></g><g style="display: none;" transform="matrix(1.0053564310073853,0,0,1.0053564310073853,56.00461959838867,44.0004997253418)" opacity="0.039782297805396355"><g opacity="1" transform="matrix(1,0,0,1,0,0)"><path fill="rgb(255,255,255)" fill-opacity="1" d=" M-4,-13.859000205993652 C0.7799999713897705,-11.08899974822998 4,-5.919000148773193 4,0.0010000000474974513 C4,5.921000003814697 0.7799999713897705,11.090999603271484 -4,13.861000061035156 C-4,13.861000061035156 -4,-13.859000205993652 -4,-13.859000205993652z"></path></g></g><g style="display: none;" transform="matrix(1.0126574039459229,0,0,1.0126574039459229,64.37825012207031,44.0057487487793)" opacity="0.017782484959038527"><g opacity="1" transform="matrix(1,0,0,1,0,0)"><path fill="rgb(255,255,255)" fill-opacity="1" d=" M-6.236000061035156,-28.895999908447266 C4.803999900817871,-23.615999221801758 11.984000205993652,-12.456000328063965 11.984000205993652,-0.006000000052154064 C11.984000205993652,12.454000473022461 4.794000148773193,23.624000549316406 -6.265999794006348,28.893999099731445 C-8.255999565124512,29.8439998626709 -10.645999908447266,29.003999710083008 -11.595999717712402,27.003999710083008 C-12.545999526977539,25.013999938964844 -11.696000099182129,22.624000549316406 -9.706000328063965,21.673999786376953 C-1.406000018119812,17.724000930786133 3.9839999675750732,9.343999862670898 3.9839999675750732,-0.006000000052154064 C3.9839999675750732,-9.345999717712402 -1.3960000276565552,-17.715999603271484 -9.675999641418457,-21.676000595092773 C-11.675999641418457,-22.625999450683594 -12.515999794006348,-25.016000747680664 -11.565999984741211,-27.006000518798828 C-10.616000175476074,-29.006000518798828 -8.22599983215332,-29.84600067138672 -6.236000061035156,-28.895999908447266z"></path></g></g><g style="display: none;" transform="matrix(1.000211238861084,0,0,1.000211238861084,56.002986907958984,44)" opacity="1"><g opacity="1" transform="matrix(1,0,0,1,0,0)"><path fill="rgb(255,255,255)" fill-opacity="1" d=" M-4,-13.859000205993652 C0.7799999713897705,-11.08899974822998 4,-5.919000148773193 4,0.0010000000474974513 C4,5.921000003814697 0.7799999713897705,11.090999603271484 -4,13.861000061035156 C-4,13.861000061035156 -4,-13.859000205993652 -4,-13.859000205993652z"></path></g></g><g style="display: none;" transform="matrix(1.000205397605896,0,0,1.000205397605896,64.00399017333984,44.00699996948242)" opacity="1"><g opacity="1" transform="matrix(1,0,0,1,0,0)"><path fill="rgb(255,255,255)" fill-opacity="1" d=" M-6.236000061035156,-28.895999908447266 C4.803999900817871,-23.615999221801758 11.984000205993652,-12.456000328063965 11.984000205993652,-0.006000000052154064 C11.984000205993652,12.454000473022461 4.794000148773193,23.624000549316406 -6.265999794006348,28.893999099731445 C-8.255999565124512,29.8439998626709 -10.645999908447266,29.003999710083008 -11.595999717712402,27.003999710083008 C-12.545999526977539,25.013999938964844 -11.696000099182129,22.624000549316406 -9.706000328063965,21.673999786376953 C-1.406000018119812,17.724000930786133 3.9839999675750732,9.343999862670898 3.9839999675750732,-0.006000000052154064 C3.9839999675750732,-9.345999717712402 -1.3960000276565552,-17.715999603271484 -9.675999641418457,-21.676000595092773 C-11.675999641418457,-22.625999450683594 -12.515999794006348,-25.016000747680664 -11.565999984741211,-27.006000518798828 C-10.616000175476074,-29.006000518798828 -8.22599983215332,-29.84600067138672 -6.236000061035156,-28.895999908447266z"></path></g></g><g transform="matrix(0.9999995231628418,0,0,0.9999995231628418,55.99999237060547,44)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,0,0)"><path fill="rgb(255,255,255)" fill-opacity="1" d=" M-4,-13.859000205993652 C0.7799999713897705,-11.08899974822998 4,-5.919000148773193 4,0.0010000000474974513 C4,5.921000003814697 0.7799999713897705,11.090999603271484 -4,13.861000061035156 C-4,13.861000061035156 -4,-13.859000205993652 -4,-13.859000205993652z"></path></g></g><g transform="matrix(0.9999995231628418,0,0,0.9999995231628418,64.01399230957031,44.00699996948242)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,0,0)"><path fill="rgb(255,255,255)" fill-opacity="1" d=" M-6.236000061035156,-28.895999908447266 C4.803999900817871,-23.615999221801758 11.984000205993652,-12.456000328063965 11.984000205993652,-0.006000000052154064 C11.984000205993652,12.454000473022461 4.794000148773193,23.624000549316406 -6.265999794006348,28.893999099731445 C-8.255999565124512,29.8439998626709 -10.645999908447266,29.003999710083008 -11.595999717712402,27.003999710083008 C-12.545999526977539,25.013999938964844 -11.696000099182129,22.624000549316406 -9.706000328063965,21.673999786376953 C-1.406000018119812,17.724000930786133 3.9839999675750732,9.343999862670898 3.9839999675750732,-0.006000000052154064 C3.9839999675750732,-9.345999717712402 -1.3960000276565552,-17.715999603271484 -9.675999641418457,-21.676000595092773 C-11.675999641418457,-22.625999450683594 -12.515999794006348,-25.016000747680664 -11.565999984741211,-27.006000518798828 C-10.616000175476074,-29.006000518798828 -8.22599983215332,-29.84600067138672 -6.236000061035156,-28.895999908447266z"></path></g></g></g></g></svg>`,
+          // 	tooltip: volume.toString(),
+          // 	range: [100, 0, 100, 1],
+          // 	onChange: function (item, $dom, event) {
+          // 		// 实际值在0~10之间且间隔为1
+          // 		let selectValue = parseFloat((item.range / 100).toString());
+          // 		let showToolTip = item.range.toString();
+          // 		art.volume = selectValue;
+          // 		return item.range;
+          // 	},
+          // },
+          {
+            name: "video-playback-codeid",
+            html: "播放策略",
+            tooltip: "默认",
+            icon: `<svg t="1727413004405" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3183" width="24" height="24"><path d="M170.666667 256h682.666666c23.466667 0 42.666667 19.2 42.666667 42.666667v170.666666h85.333333V256c0-46.933333-38.4-85.333333-85.333333-85.333333H128c-46.933333 0-85.333333 38.4-85.333333 85.333333v512c0 46.933333 38.4 85.333333 85.333333 85.333333h384v-85.333333H170.666667c-23.466667 0-42.666667-19.2-42.666667-42.666667V298.666667c0-23.466667 19.2-42.666667 42.666667-42.666667z" p-id="3184"></path><path d="M640 512L384 341.333333v341.333334zM968.96 786.346667c1.28-12.373333 1.706667-24.746667 0.426667-36.693334l45.653333-36.266666c4.266667-3.413333 5.12-8.96 2.56-13.653334l-43.946667-76.373333c-2.56-4.693333-8.106667-6.4-13.226666-4.693333l-54.613334 21.333333a146.773333 146.773333 0 0 0-32-17.92l-8.533333-58.026667a10.624 10.624 0 0 0-10.666667-9.386666h-88.32c-5.12 0-9.813333 3.84-10.666666 8.96l-8.533334 58.026666c-11.093333 4.693333-21.76 11.093333-31.573333 17.92l-54.613333-21.333333c-5.12-2.133333-10.666667 0-13.226667 4.693333l-43.946667 76.373334c-2.56 4.693333-1.706667 10.24 2.56 13.653333l45.653334 36.693333c-1.28 12.373333-1.706667 24.746667-0.426667 36.693334l-45.653333 36.266666c-4.266667 3.413333-5.12 8.96-2.56 13.653334l43.946666 76.373333c2.56 4.693333 8.106667 6.4 13.226667 4.693333l54.186667-21.333333c9.813333 7.253333 20.48 13.226667 32 17.92l8.533333 58.026667c0.853333 5.12 5.12 8.96 10.666667 8.96h88.32c5.12 0 9.813333-3.84 10.666666-8.96l8.533334-58.026667c11.093333-4.693333 21.76-11.093333 31.573333-17.92l54.613333 21.333333c5.12 2.133333 10.666667 0 13.226667-4.693333l43.946667-76.373333c2.56-4.693333 1.706667-10.24-2.56-13.653334l-45.226667-36.266666zM810.666667 832c-35.413333 0-64-28.586667-64-64s28.586667-64 64-64 64 28.586667 64 64-28.586667 64-64 64z" p-id="3185"></path></svg>`,
+            selector: [
+              {
+                default: true,
+                html: "默认",
+                value: BilibiliVideoCodingCode["AV1"]
+              },
+              {
+                html: "AV1",
+                value: BilibiliVideoCodingCode["AV1"]
+              },
+              {
+                html: "HEVC",
+                value: BilibiliVideoCodingCode["HEVC"]
+              },
+              {
+                html: "AVC",
+                value: BilibiliVideoCodingCode["AVC"]
+              }
+            ],
+            onSelect: function(item) {
+              PopsPanel.setValue("bili-bangumi-videoCodingCode", item.value);
+              return item.html;
+            }
+          },
+          GenerateArtPlayerEPSelectSetting(option)
+        ],
+        /** 自定义右键菜单 */
+        contextmenu: [
+          // {
+          // 	html: "Custom menu",
+          // 	click: function (contextmenu) {
+          // 		console.info("You clicked on the custom menu");
+          // 		contextmenu.show = false;
+          // 	},
+          // },
+        ],
+        /**  */
+        layers: [
+          // {
+          //     html: '<img width="100" src="https://artplayer.org/assets/sample/layer.png">',
+          //     click: function () {
+          //         window.open('https://aimu.app');
+          //         console.info('You clicked on the custom layer');
+          //     },
+          //     style: {
+          //         position: 'absolute',
+          //         top: '20px',
+          //         right: '20px',
+          //         opacity: '.9',
+          //     },
+          // },
+        ],
+        /**  */
+        quality: [...option.quality],
+        // thumbnails: {
+        // 	url: "https://artplayer.org/assets/sample/thumbnails.png",
+        // 	number: 60,
+        // 	column: 10,
+        // 	scale: 0.85,
+        // },
+        // subtitle: {
+        // 	url: "https://artplayer.org/assets/sample/subtitle.srt",
+        // 	type: "srt",
+        // 	style: {
+        // 		color: "#fe9200",
+        // 		fontSize: "20px",
+        // 	},
+        // 	encoding: "utf-8",
+        // },
+        highlight: [
+          // {
+          // 	time: 15,
+          // 	text: "One more chance",
+          // },
+          // {
+          // 	time: 30,
+          // 	text: "谁でもいいはずなのに",
+          // },
+          // {
+          // 	time: 45,
+          // 	text: "夏の想い出がまわる",
+          // },
+          // {
+          // 	time: 60,
+          // 	text: "こんなとこにあるはずもないのに",
+          // },
+          // {
+          // 	time: 75,
+          // 	text: "终わり",
+          // },
+        ],
+        controls: [
+          // {
+          //     position: 'right',
+          //     html: 'Control',
+          //     index: 1,
+          //     tooltip: 'Control Tooltip',
+          //     style: {
+          //         marginRight: '20px',
+          //     },
+          //     click: function () {
+          //         console.info('You clicked on the custom control');
+          //     },
+          // },
+        ],
+        icons: ArtPlayerBiliBiliIcon,
+        plugins: [
+          artplayerPluginDanmuku({
+            danmuku: option.danmukuUrl,
+            // 以下为非必填
+            speed: 5,
+            // 弹幕持续时间，范围在[1 ~ 10]
+            /**
+                            * [{
+                                       name: "1/4",
+                                       value: [10, "75%"]
+                                   }, {
+                                       name: "半屏",
+                                       value: [10, "50%"]
+                                   }, {
+                                       name: "3/4",
+                                       value: [10, "25%"]
+                                   }, {
+                                       name: "满屏",
+                                       value: [10, 10]
+                                   }]
+                            */
+            margin: [10, "75%"],
+            // 弹幕上下边距，支持像素数字和百分比
+            opacity: 1,
+            // 弹幕透明度，范围在[0 ~ 1]
+            color: "#FFFFFF",
+            // 默认弹幕颜色，可以被单独弹幕项覆盖
+            mode: 0,
+            // 默认弹幕模式: 0: 滚动，1: 顶部，2: 底部
+            modes: [0, 1, 2],
+            // 弹幕可见的模式
+            fontSize: 18,
+            // 弹幕字体大小，支持像素数字和百分比
+            antiOverlap: true,
+            // 弹幕是否防重叠
+            synchronousPlayback: false,
+            // 是否同步播放速度
+            mount: void 0,
+            // 弹幕发射器挂载点, 默认为播放器控制栏中部
+            heatmap: true,
+            // 是否开启热力图
+            width: 800,
+            // 当播放器宽度小于此值时，弹幕发射器置于播放器底部
+            points: [],
+            // 热力图数据
+            filter: (danmu) => danmu.text.length <= 100,
+            // 弹幕载入前的过滤器
+            beforeVisible: () => true,
+            // 弹幕显示前的过滤器，返回 true 则可以发送
+            visible: true,
+            // 弹幕层是否可见
+            emitter: true,
+            // 是否开启弹幕发射器
+            maxLength: 50,
+            // 弹幕输入框最大长度, 范围在[1 ~ 1000]
+            lockTime: 3,
+            // 输入框锁定时间，范围在[1 ~ 60]
+            theme: utils.isThemeDark() ? "dark" : "light",
+            // 弹幕主题，支持 dark 和 light，只在自定义挂载时生效
+            // OPACITY: {}, // 不透明度配置项
+            // FONT_SIZE: {}, // 弹幕字号配置项
+            // MARGIN: {}, // 显示区域配置项
+            // SPEED: {}, // 弹幕速度配置项
+            // COLOR: [], // 颜色列表配置项
+            // 手动发送弹幕前的过滤器，返回 true 则可以发送，可以做存库处理
+            beforeEmit(danmu) {
+              return new Promise((resolve) => {
+                console.log(danmu);
+                setTimeout(() => {
+                  resolve(true);
+                }, 1e3);
+              });
+            }
+          }),
+          artplayerPluginM4SAudioSupport({
+            url: option.audioUrl
+          }),
+          artplayerPluginBilibiliCCSubTitle({
+            cid: option.cid,
+            aid: option.aid,
+            ep_id: option.ep_id
+          }),
+          artplayerPluginTopToolBar({
+            aid: option.aid,
+            cid: option.cid,
+            bvid: option.bvid,
+            title: option.videoTitle,
+            showWrap: true,
+            showTitle: true,
+            showOnlineTotal: true
+          })
+        ]
+      };
+      if (option.isFlv) {
+        artOption.quality = [];
+        artOption.type = "flv";
+        if (option.flvInfo.length === 0) {
+          BilibiliLogUtils.failToast("视频播放地址为空，无法播放！");
+          return;
+        }
+        artOption.url = option.flvInfo[0].url;
+        artOption.customType = {
+          flv: (video, url, art) => {
+            if (!flvjs.isSupported()) {
+              art.notice.show = "Unsupported playback format: flv";
+              return;
+            }
+            this.flvPlayer();
+          }
+        };
+      } else {
+        artOption.type = "mp4";
+      }
+      if (typeof option.url === "string") {
+        artOption.url = option.url;
+      } else if (typeof option.url === "function") {
+        let url = await option.url();
+        artOption.url = url;
+      }
+      this.art = new Artplayer(artOption);
+      return this.art;
+    },
+    /**
+     * 更新新的播放信息
+     * @param option
+     */
+    async update(art, option) {
+      this.resetEnv();
+      this.currentOption = option;
+      let videoUrl = "";
+      if (typeof option.url === "string") {
+        videoUrl = option.url;
+      } else if (typeof option.url === "function") {
+        let url = await option.url();
+        videoUrl = url;
+      }
+      log.info([`更新新的播放信息`, option]);
+      art.pause();
+      log.info(`暂停视频`);
+      art.currentTime = 0;
+      log.info(`重置播放进度`);
+      art.url = videoUrl;
+      log.info(`更新视频地址`);
+      art.quality = option.quality;
+      log.info(`更新画质地址`);
+      art.plugins["plugin-bilibili-m4sAudio"].update(option.audioUrl);
+      log.info([`更新音频`, option.audioUrl]);
+      const subTitleOption = {
+        cid: option.cid,
+        aid: option.aid,
+        ep_id: option.ep_id
+      };
+      art.plugins["plugin-bilibili-cc-subtitle"].update(subTitleOption);
+      log.info([`更新字幕`, subTitleOption]);
+      const topToolBarOption = {
+        aid: option.aid,
+        cid: option.cid,
+        bvid: option.bvid,
+        title: option.videoTitle,
+        showWrap: true,
+        showTitle: true,
+        showOnlineTotal: true
+      };
+      art.plugins["plugin-bilibili-topToolBar"].update(topToolBarOption);
+      log.info([`更新顶部标题`, topToolBarOption]);
+      art.setting.update(GenerateArtPlayerEPSelectSetting(option));
+      log.info([`更新选集信息`, option.epList]);
+      art.play();
+      log.info("播放");
+    }
+  };
+  const ArtPlayerVideoConfig = {
+    /**
+     * 获取用户选择的视频编码
+     */
+    getUserChooseVideoCodingCode() {
+      let userChooseVideoCodingCode = PopsPanel.getValue(
+        "bili-bangumi-videoCodingCode",
+        BilibiliVideoCodingCode.AV1
+      );
+      if (!Object.values(BilibiliVideoCodingCode).includes(
+        userChooseVideoCodingCode
+      )) {
+        log.error(
+          "意外情况，选择的编码格式不是允许的编码，将强制使用默认，防止过滤掉的视频链接为空：" + userChooseVideoCodingCode
+        );
+        userChooseVideoCodingCode = BilibiliVideoCodingCode.AV1;
+      }
+      return userChooseVideoCodingCode;
+    }
+  };
+  const VideoSoundQualityCode = {
+    "30216": "64K",
+    "30232": "132K",
+    "30280": "192K",
+    "30250": "杜比全景声",
+    "30251": "Hi-Res无损"
+  };
+  function filterArrayWithMaxSize(arr) {
+    const map = {};
+    arr.forEach((item) => {
+      if (!map[item.id] || item.size > map[item.id].size) {
+        map[item.id] = item;
+      }
+    });
+    const result = Object.values(map);
+    return result;
+  }
+  function filterDashVideoQualityInfo(dashInfo, config) {
+    let result = [];
+    dashInfo.video.forEach((dashVideoInfo) => {
+      if (!dashInfo.accept_quality.includes(dashVideoInfo.id)) {
+        return;
+      }
+      if (config.codecid != null && dashVideoInfo.codecid !== config.codecid) {
+        return;
+      }
+      let findSupportFormat = dashInfo.support_formats.find(
+        (formatsItem) => formatsItem.quality === dashVideoInfo.id
+      );
+      let videoUrl = BilibiliCDNProxy.findBetterCDN(
+        dashVideoInfo.base_url,
+        dashVideoInfo.baseUrl,
+        dashVideoInfo.backup_url,
+        dashVideoInfo.backupUrl
+      );
+      videoUrl = BilibiliCDNProxy.replaceVideoCDN(videoUrl);
+      let qualityName = findSupportFormat == null ? void 0 : findSupportFormat.new_description;
+      result.push({
+        name: qualityName,
+        url: videoUrl,
+        type: dashVideoInfo.mimeType,
+        id: dashVideoInfo.id,
+        size: dashVideoInfo.size,
+        quality: dashVideoInfo.id,
+        vip: Boolean(findSupportFormat == null ? void 0 : findSupportFormat.need_vip)
+      });
+    });
+    return result;
+  }
+  const GenerateVideoTitle = (ep_id, title) => {
+    return `第${ep_id}话 ${title}`;
+  };
+  const GenerateArtPlayerOption = async (EP_INFO, EP_LIST) => {
+    var _a2;
+    const { aid, bvid, cid, ep_id, title, long_title } = EP_INFO;
+    log.info(`解析番剧信息 aid:${aid} cid:${cid} ep_id:${ep_id}`);
+    const videoTitle = GenerateVideoTitle(title, long_title);
+    const audioInfo = [];
+    let qualityInfo = [];
+    let isFlv = false;
+    let flvInfo = [];
+    let flvTotalDuration = 0;
+    let flvTotalSize = 0;
+    if (PopsPanel.getValue("bili-bangumi-unlockAreaLimit")) {
+      const bangumiInfo = await BilibiliBangumiApi.getPlayUrl({
+        avid: aid,
+        cid,
+        ep_id
+      });
+      if (!bangumiInfo) {
+        return;
+      }
+      let userChooseVideoCodingCode = ArtPlayerVideoConfig.getUserChooseVideoCodingCode();
+      if (bangumiInfo.type.toLowerCase() === "flv") {
+        isFlv = true;
+        bangumiInfo.durl.forEach((durlInfo) => {
+          let videoUrl = BilibiliCDNProxy.findBetterCDN(
+            durlInfo.url,
+            durlInfo.backup_url
+          );
+          videoUrl = BilibiliCDNProxy.replaceVideoCDN(videoUrl);
+          flvTotalDuration += durlInfo.length;
+          flvTotalSize += durlInfo.size;
+          flvInfo.push({
+            order: durlInfo.order,
+            url: videoUrl,
+            duration: durlInfo.length,
+            length: durlInfo.length,
+            size: durlInfo.size
+          });
+        });
+      } else if (bangumiInfo.type.toLowerCase() === "dash" || bangumiInfo.type.toLowerCase() === "mp4") {
+        bangumiInfo.dash.audio.forEach((item) => {
+          let audioUrl = item.base_url || item.baseUrl;
+          audioUrl = BilibiliCDNProxy.replaceVideoCDN(audioUrl);
+          audioInfo.push({
+            url: audioUrl,
+            id: item.id,
+            size: item.size,
+            text: VideoSoundQualityCode[item.id] || ""
+          });
+        });
+        audioInfo.sort((leftItem, rightItem) => {
+          return rightItem.id - leftItem.id;
+        });
+        log.info([`ArtPlayer: 获取的音频信息`, audioInfo]);
+        qualityInfo = [
+          ...filterDashVideoQualityInfo(
+            {
+              accept_quality: bangumiInfo.accept_quality,
+              support_formats: bangumiInfo.support_formats,
+              video: bangumiInfo.dash.video
+            },
+            {
+              codecid: userChooseVideoCodingCode
+            }
+          )
+        ];
+        if (qualityInfo.length === 0) {
+          if (bangumiInfo.dash.video.length !== 0) {
+            log.warn(
+              `当前选择的视频编码id为: ${userChooseVideoCodingCode}，但是过滤出的视频没有一个符合的，所以直接放弃使用自定义选择视频编码`
+            );
+            qualityInfo = [];
+            qualityInfo = [
+              ...filterDashVideoQualityInfo(
+                {
+                  accept_quality: bangumiInfo.accept_quality,
+                  support_formats: bangumiInfo.support_formats,
+                  video: bangumiInfo.dash.video
+                },
+                {}
+              )
+            ];
+          }
+        }
+        qualityInfo = filterArrayWithMaxSize(qualityInfo);
+        qualityInfo.sort((leftItem, rightItem) => {
+          return rightItem.quality - leftItem.quality;
+        });
+        log.info([`ArtPlayer: 获取的视频画质信息`, qualityInfo]);
+      } else {
+        BilibiliLogUtils.failToast(
+          "暂未适配的视频格式：" + bangumiInfo["format"]
+        );
+        return;
+      }
+    } else {
+      const bangumiInfo = await BilibiliBangumiApi.getPlayUrlHTML5({
+        avid: aid,
+        cid,
+        ep_id
+      });
+      if (!bangumiInfo) {
+        return;
+      }
+      if (bangumiInfo.durls.length === 0) {
+        if (bangumiInfo.durl != null) {
+          bangumiInfo.durls.push({
+            quality: bangumiInfo.quality,
+            durl: bangumiInfo.durl
+          });
+        }
+      }
+      bangumiInfo.durls.forEach((durlInfo) => {
+        if (!bangumiInfo.accept_quality.includes(durlInfo.quality)) {
+          return;
+        }
+        if (!durlInfo.durl.length) {
+          return;
+        }
+        let currentDurl = durlInfo["durl"][0];
+        let findSupportFormat = bangumiInfo.support_formats.find(
+          (formatsItem) => formatsItem.quality === durlInfo.quality
+        );
+        let videoUrl = BilibiliCDNProxy.findBetterCDN(
+          currentDurl.url,
+          currentDurl.backup_url
+        );
+        let qualityName = findSupportFormat == null ? void 0 : findSupportFormat.new_description;
+        qualityInfo.push({
+          name: qualityName,
+          url: videoUrl,
+          type: "audio/mp4",
+          id: durlInfo.quality,
+          size: currentDurl.size,
+          quality: durlInfo.quality,
+          vip: Boolean(findSupportFormat == null ? void 0 : findSupportFormat.need_vip)
+        });
+      });
+    }
+    const currentVideoQuality = qualityInfo.map((item, index) => {
+      return {
+        default: index === 0,
+        html: item.name,
+        url: item.url
+      };
+    });
+    const artPlayerOption = {
+      // @ts-ignore
+      container: null,
+      epList: EP_LIST,
+      cid,
+      aid,
+      bvid,
+      ep_id,
+      videoTitle,
+      danmukuUrl: `https://api.bilibili.com/x/v1/dm/list.so?oid=${cid}`,
+      quality: currentVideoQuality,
+      isFlv,
+      flvInfo,
+      flvTotalDuration,
+      flvTotalSize
+    };
+    artPlayerOption.url = (_a2 = qualityInfo == null ? void 0 : qualityInfo[0]) == null ? void 0 : _a2.url;
+    if (audioInfo.length) {
+      artPlayerOption.audioUrl = audioInfo[0].url;
+    }
+    return artPlayerOption;
+  };
+  const BlibiliBangumiPlayer = {
+    /**
+     * 更新播放器的信息
+     */
+    updateArtPlayerVideoInfo(ep_info, ep_list) {
+      VueUtils.waitVuePropToSet(".player-wrapper", {
+        msg: "等待player-wrapper加载完成",
+        check(vueInstance) {
+          var _a2, _b, _c;
+          return typeof ((_a2 = vueInstance == null ? void 0 : vueInstance.EP_INFO) == null ? void 0 : _a2.aid) === "number" && typeof ((_b = vueInstance == null ? void 0 : vueInstance.EP_INFO) == null ? void 0 : _b.cid) === "number" && typeof ((_c = vueInstance == null ? void 0 : vueInstance.EP_INFO) == null ? void 0 : _c.ep_id) === "number";
+        },
+        async set(vueInstance) {
+          const $playerWrapper = document.querySelector(".player-wrapper");
+          if (ep_info == null) {
+            ep_info = vueInstance.EP_INFO;
+          }
+          if (ep_list == null) {
+            ep_list = vueInstance.EP_LIST;
+          }
+          const artPlayerOption = await GenerateArtPlayerOption(ep_info, ep_list);
+          if (artPlayerOption == null) {
+            return;
+          }
+          let $artPlayer = document.querySelector("#artplayer");
+          if (!$artPlayer) {
+            const $artPlayerContainer = domutils.createElement("div", {
+              className: "artplayer-container",
+              innerHTML: (
+                /*html*/
+                `
+						<div id="artplayer"></div>
+						`
+              )
+            });
+            $artPlayer = $artPlayerContainer.querySelector("#artplayer");
+            domutils.after($playerWrapper, $artPlayerContainer);
+          }
+          artPlayerOption.container = $artPlayer;
+          if (BilibiliBangumi.$data.art == null) {
+            let art = await BilibiliArtPlayer.init(artPlayerOption);
+            if (art) {
+              BilibiliBangumi.$data.art = art;
+            } else {
+              return;
+            }
+            Reflect.set(_unsafeWindow, "art", BilibiliBangumi.$data.art);
+            BilibiliBangumi.$data.art.on("restart", (url) => {
+              let findQuality = artPlayerOption.quality.find((item) => {
+                return item.url === url;
+              });
+              if (findQuality) {
+                console.log("切换画质：", findQuality);
+              }
+            });
+            BilibiliBangumi.$data.art.volume = 1;
+          } else {
+            BilibiliArtPlayer.update(BilibiliBangumi.$data.art, artPlayerOption);
+          }
+        }
+      });
+    }
+  };
   const BilibiliBangumi = {
+    $data: {
+      art: null
+    },
     init() {
-      BilibiliBangumiVueProp.init();
+      PopsPanel.execMenuOnce("bili-bangumi-initialScale", () => {
+        BilibiliUtils.initialScale();
+      });
       PopsPanel.execMenuOnce("bili-bangumi-hook-callApp", () => {
         this.hookCallApp();
       });
@@ -5688,6 +7877,7 @@
       PopsPanel.execMenu("bili-bangumi-cover-clicl-event-recommend", () => {
         this.setRecommendClickEvent();
       });
+      this.coverVideoPlayer();
     },
     /**
      * 阻止唤醒App
@@ -5849,10 +8039,217 @@
           }
         );
       });
+    },
+    /**
+     * 覆盖视频播放器
+     */
+    coverVideoPlayer() {
+      if (document.querySelector("#artplayer")) {
+        log.warn("已存在播放器，更新播放信息");
+      } else {
+        addStyle(
+          /*css*/
+          `
+			.player-wrapper,
+			.open-app-bar{
+				display: none !important;
+			}
+			${artPlayerCSS}
+			`
+        );
+      }
+      BlibiliBangumiPlayer.updateArtPlayerVideoInfo();
+    }
+  };
+  const BilibiliSearchApi = {
+    /**
+     * 获取输入框的placeholder的热点关键词
+     */
+    async getSearchInputPlaceholder() {
+      let getResponse = await httpx.get(
+        "https://api.bilibili.com/x/web-interface/wbi/search/default",
+        {
+          fetch: true,
+          headers: {
+            accept: "application/json, text/plain, */*",
+            "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+            "cache-control": "no-cache",
+            pragma: "no-cache",
+            "sec-ch-ua": '""',
+            "sec-ch-ua-mobile": "?1",
+            "sec-ch-ua-platform": '""',
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-site"
+          },
+          allowInterceptConfig: false
+        }
+      );
+      if (!getResponse.status) {
+        return;
+      }
+      let responseData = utils.toJSON(getResponse.data.responseText);
+      if (!BilibiliResponseCheck.isWebApiSuccess(responseData)) {
+        return;
+      }
+      return responseData.data;
+    },
+    /**
+     * 从代理服务器拉取番剧搜索结果
+     */
+    async getBangumiSearchResult(config) {
+      let searchParamsData = {
+        search_type: "media_bangumi",
+        keyword: config.keyword,
+        from_client: "BROWSER",
+        drm_tech_type: "2",
+        module: "bangumi",
+        area: config.area.toLowerCase(),
+        access_key: BilibiliQrCodeLogin.getAccessToken()
+      };
+      let url = `https://${config.host}/x/web-interface/search/type?${utils.toSearchParamsStr(searchParamsData)}`;
+      let getResponse = await httpx.get(url, {
+        fetch: false,
+        headers: {
+          "User-Agent": utils.getRandomAndroidUA()
+        }
+      });
+      if (!getResponse.status) {
+        return;
+      }
+      let data2 = utils.toJSON(getResponse.data.responseText);
+      if (!BilibiliResponseCheck.isWebApiSuccess(data2)) {
+        log.error(`请求失败，当前代理服务器信息：${JSON.stringify(config.host)}`);
+        log.error(`请求失败，当前请求的响应信息：${JSON.stringify(data2)}`);
+        return;
+      }
+      return data2.data.result;
+    }
+  };
+  const BilibiliExtraSearch = {
+    $data: {},
+    init() {
+      domutils.ready(() => {
+        PopsPanel.execMenuOnce("bili-search-enableOtherAreaSearchBangumi", () => {
+          this.enableOtherAreaSearchBangumi();
+        });
+      });
+    },
+    /**
+     * 初始化搜索的tab
+     */
+    enableOtherAreaSearchBangumi() {
+      addStyle(
+        /*css*/
+        `
+        .m-search-result .tabs{
+            overflow: auto;
+            white-space: nowrap;
+        }
+        .m-search-result .tabs .tab-item{
+            display: inline-block;
+            height: 8vmin;
+            line-height: 8vmin;
+            color: #757575;
+            font-size: 3.73333vmin;
+            margin-top: 1.86667vmin;
+            padding: 0 2.33vmin;
+        }
+        .m-search-result .tabs .tab-item:first-child{
+            padding-left: 0;
+        }
+        .m-search-result .tabs .tab-item:last-child{
+            padding-right: 0;
+        }
+        .m-search-result .tabs .tab-item.on{
+            color: #fb7299;
+            border-bottom: 0.53333vmin solid #fb7299;
+        }
+        `
+      );
+      utils.waitNode(".m-search-result .tabs").then(($tabs) => {
+        let enableSearchServer = BilibiliApiProxy.getSearchProxyHost();
+        enableSearchServer.forEach((proxyServerInfo) => {
+          let $tab = domutils.createElement(
+            "a",
+            {
+              className: "tab-item gm-tab-item",
+              innerHTML: `番剧（${proxyServerInfo.name}）`
+            },
+            {
+              "data-area": proxyServerInfo.area,
+              "data-host": proxyServerInfo.host
+            }
+          );
+          $tabs.appendChild($tab);
+        });
+        const refreshTabActive = ($tab) => {
+          $tabs.querySelectorAll(".tab-item").forEach(($ele) => $ele.classList.remove("on"));
+          $tab.classList.add("on");
+        };
+        domutils.on($tabs, "click", ".tab-item", async (event) => {
+          let $tab = event.target;
+          refreshTabActive($tab);
+          if (!$tab.classList.contains("gm-tab-item")) {
+            return;
+          }
+          let area = $tab.dataset.area;
+          let host = $tab.dataset.host;
+          let $searchResult = document.querySelector(".m-search-result");
+          let searchResultVueIns = VueUtils.getVue($searchResult);
+          searchResultVueIns.switchTab(2);
+          let refreshCount = 0;
+          let intervalRefreshId = setInterval(() => {
+            if (refreshCount > 10) {
+              clearInterval(intervalRefreshId);
+              return;
+            }
+            refreshCount++;
+            refreshTabActive($tab);
+          }, 250);
+          let keyword = searchResultVueIns.keyword;
+          let $loading = Qmsg.loading("搜索中，请稍后...");
+          let searchBangumiResult = await BilibiliSearchApi.getBangumiSearchResult({
+            keyword,
+            area,
+            host
+          });
+          $loading.close();
+          if (!searchBangumiResult) {
+            return;
+          }
+          log.info(["搜索结果：", searchBangumiResult]);
+          let videoListVueIns = VueUtils.getVue(
+            $searchResult.querySelector(".video-list")
+          );
+          for (let index = 0; index < videoListVueIns.list.length; index++) {
+            videoListVueIns.list.splice(index, 1);
+            index--;
+          }
+          videoListVueIns.list = videoListVueIns.list.concat(searchBangumiResult);
+          let $listViewState = $searchResult.querySelector(".list-view__state");
+          let $listViewShim = $searchResult.querySelector(".list-view__shim");
+          if (searchBangumiResult.length) {
+            domutils.hide($listViewState);
+            domutils.hide($listViewShim);
+          } else {
+            domutils.show($listViewState);
+            domutils.show($listViewShim);
+          }
+        });
+      });
+    },
+    /**
+     * 搜索番剧(从自定义服务器拉取搜索结果)
+     */
+    searchBangumi() {
     }
   };
   const BilibiliSearch = {
     init() {
+      if (BilibiliRouter.isSearchResult()) {
+        BilibiliExtraSearch.init();
+      }
       PopsPanel.execMenuOnce("bili-search-cover-cancel", () => {
         this.coverCancel();
       });
@@ -6450,7 +8847,7 @@
     async getRecommendVideoInfo() {
       var _a2;
       let getData = {
-        appkey: TVKeyInfo.appkey,
+        appkey: AppKeyInfo.ios.appkey,
         access_key: ((_a2 = BilibiliQrCodeLogin.getAccessTokenInfo()) == null ? void 0 : _a2.access_token) || ""
       };
       let Api = "https://app.bilibili.com/x/v2/feed/index";
@@ -6468,7 +8865,7 @@
       let data2 = utils.toJSON(
         getResp.data.responseText
       );
-      if (!BilibiliApiCheck.isWebApiSuccess(data2)) {
+      if (!BilibiliResponseCheck.isWebApiSuccess(data2)) {
         Qmsg.error(data2["message"]);
         return;
       }
@@ -6604,40 +9001,6 @@
       );
       $vCard["data-video"] = data2;
       return $vCard;
-    }
-  };
-  const BilibiliSearchApi = {
-    /**
-     * 获取输入框的placeholder的热点关键词
-     */
-    async getSearchInputPlaceholder() {
-      let getResponse = await httpx.get(
-        "https://api.bilibili.com/x/web-interface/wbi/search/default",
-        {
-          fetch: true,
-          headers: {
-            accept: "application/json, text/plain, */*",
-            "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
-            "cache-control": "no-cache",
-            pragma: "no-cache",
-            "sec-ch-ua": '""',
-            "sec-ch-ua-mobile": "?1",
-            "sec-ch-ua-platform": '""',
-            "sec-fetch-dest": "empty",
-            "sec-fetch-mode": "cors",
-            "sec-fetch-site": "same-site"
-          },
-          allowInterceptConfig: false
-        }
-      );
-      if (!getResponse.status) {
-        return;
-      }
-      let responseData = utils.toJSON(getResponse.data.responseText);
-      if (!BilibiliApiCheck.isWebApiSuccess(responseData)) {
-        return;
-      }
-      return responseData.data;
     }
   };
   const BilibiliHead = {
@@ -7186,10 +9549,15 @@
         log.info("hook  window.setTimeout autoOpenApp");
         BilibiliHook.setTimeout("autoOpenApp");
         BilibiliHook.setTimeout("bilibili://");
+        BilibiliHook.setTimeout("void 0 !== y && document[y]");
       });
       PopsPanel.execMenuOnce("bili-overrideLaunchAppBtn_Vue_openApp", () => {
         log.info("覆盖元素.launch-app-btn上的openApp");
         BilibiliHook.overRideLaunchAppBtn_Vue_openApp();
+      });
+      PopsPanel.execMenuOnce("bili-cover-bili-open-app-open", () => {
+        log.info(`覆盖元素bili-open-app上的opener.open`);
+        BilibiliHook.overRideBiliOpenApp();
       });
       PopsPanel.execMenuOnce("bili-head-beautify", () => {
         log.info("添加美化CSS");
@@ -7360,4 +9728,4 @@ aside.pops-panel-aside .pops-is-visited, aside.pops-panel-aside ul li:hover{
 }
 `  ;
 
-})(Qmsg, Utils, DOMUtils, pops, MD5);
+})(Qmsg, Utils, DOMUtils, pops, MD5, Artplayer, artplayerPluginDanmuku, MD5);

@@ -624,7 +624,7 @@ export const PopsPanel = {
 	 * 获取设置面板的高度
 	 */
 	getHeight() {
-		if (window.innerHeight > 450) {
+		if (window.innerHeight < 550) {
 			return "80vh";
 		} else {
 			return "450px";

@@ -12,6 +12,6 @@
 		"vite.config.ts",
 		"plugin/**/*",
 		"./../../vite.utils.ts",
-		"./../../vite-plugins/**/*"
+		"./../../vite-plugins/**/*",
 	]
 }

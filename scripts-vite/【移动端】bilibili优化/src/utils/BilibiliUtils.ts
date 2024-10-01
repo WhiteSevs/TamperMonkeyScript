@@ -203,4 +203,25 @@ export const BilibiliUtils = {
 		});
 		return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
 	},
+	/**
+	 * 固定meta viewport缩放倍率为1
+	 */
+	initialScale() {
+		log.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
+		DOMUtils.ready(() => {
+			let meta = DOMUtils.createElement(
+				"meta",
+				{},
+				{
+					name: "viewport",
+					content:
+						"width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover",
+				}
+			);
+			DOMUtils.remove("meta[name='viewport']");
+			utils.waitNode("head").then(() => {
+				document.head.appendChild(meta);
+			});
+		});
+	},
 };

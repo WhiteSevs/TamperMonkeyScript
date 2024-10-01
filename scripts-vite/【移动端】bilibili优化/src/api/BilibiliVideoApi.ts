@@ -1,5 +1,8 @@
-import { GMCookie, httpx, Qmsg, utils } from "@/env";
+import { GMCookie, httpx, log, Qmsg, utils } from "@/env";
 import { BilibiliVideoPlayUrlQN } from "@/hook/BilibiliNetworkHook";
+import { BilibiliApiUtils } from "./BilibiliApiUtils";
+import { BilibiliApiConfig } from "./BilibiliApiConfig";
+import { BilibiliResponseCheck } from "./BilibiliApiCheck";
 
 type BilibliPlayUrlCommonConfig = {
 	cid: string | number;
@@ -27,7 +30,7 @@ export const BilibiliVideoApi = {
 		config:
 			| (BilibliPlayUrlCommonConfig & {
 					/** 视频的av号 */
-					avid: string;
+					aid: string;
 			  })
 			| (BilibliPlayUrlCommonConfig & {
 					/** 视频的bv号 */
@@ -35,7 +38,7 @@ export const BilibiliVideoApi = {
 			  }),
 		extraParams?: any
 	) {
-		let getData = {
+		let searchParamsData = {
 			cid: config.cid,
 			qn: config.qn ?? BilibiliVideoPlayUrlQN["1080P60 高帧率"],
 			high_quality: config.high_quality ?? 1,
@@ -47,21 +50,15 @@ export const BilibiliVideoApi = {
 		};
 		if (config.setPlatformHTML5) {
 			// 该值是用来请求可以在移动端播放的链接的
-			Reflect.set(getData, "platform", "html5");
+			Reflect.set(searchParamsData, "platform", "html5");
 		}
-		if ("avid" in config) {
-			Reflect.set(getData, "avid", config.avid);
-		} else if ("bvid" in config) {
-			Reflect.set(getData, "bvid", config.bvid);
-		} else {
-			throw new TypeError("avid or bvid must give one");
-		}
+		BilibiliApiUtils.mergeAndCheckSearchParamsData(searchParamsData, config);
 		if (typeof extraParams === "object") {
-			Object.assign(getData, extraParams);
+			Object.assign(searchParamsData, extraParams);
 		}
 		let getResp = await httpx.get(
 			"https://api.bilibili.com/x/player/playurl?" +
-				utils.toSearchParamsStr(getData),
+				utils.toSearchParamsStr(searchParamsData),
 			{
 				responseType: "json",
 				fetch: true,
@@ -107,26 +104,76 @@ export const BilibiliVideoApi = {
 		};
 	},
 	/**
+	 * 获取视频在线观看人数
+	 * + /x/player/online/total
+	 */
+	async onlineTotal(
+		config:
+			| {
+					aid: number | string;
+					cid: number | string;
+			  }
+			| {
+					bvid: string;
+					cid: number | string;
+			  }
+	) {
+		let searchParamsData = {
+			cid: config.cid,
+		};
+		BilibiliApiUtils.mergeAndCheckSearchParamsData(searchParamsData, config);
+		if ("aid" in config) {
+			Reflect.set(searchParamsData, "aid", config.aid);
+		} else if ("bvid" in config) {
+			Reflect.set(searchParamsData, "bvid", config.bvid);
+		} else {
+			throw new TypeError("avid or bvid must give one");
+		}
+		let httpxResponse = await httpx.get(
+			`https://${
+				BilibiliApiConfig.web_host
+			}/x/player/online/total?${utils.toSearchParamsStr(searchParamsData)}`,
+			{
+				responseType: "json",
+				fetch: true,
+			}
+		);
+		if (!httpxResponse.status) {
+			return;
+		}
+		let data = utils.toJSON(httpxResponse.data.responseText);
+		if (!BilibiliResponseCheck.isWebApiSuccess(data)) {
+			log.error(`获取在线观看人数失败: ${JSON.stringify(data)}`);
+		}
+
+		return data["data"] as {
+			/** 展示所有终端总计人数 */
+			total: string;
+			/** 展示web端实时在线人数 */
+			count: string;
+			/** 数据显示控制 */
+			show_switch: {
+				total: boolean;
+				count: boolean;
+			};
+		};
+	},
+	/**
 	 * 点赞视频（web端）
 	 * @param config
 	 */
 	async like(
 		config: { aid: number; like: 1 | 2 } | { bvid: string; like: 1 | 2 }
 	) {
-		let getData = {
+		let searchParamsData = {
 			like: config.like,
 			csrf: GMCookie.get("bili_jct")?.value || "",
 		};
-		if ("avid" in config) {
-			Reflect.set(getData, "avid", config.avid);
-		} else if ("bvid" in config) {
-			Reflect.set(getData, "bvid", config.bvid);
-		} else {
-			throw new TypeError("avid or bvid must give one");
-		}
+
+		BilibiliApiUtils.mergeAndCheckSearchParamsData(searchParamsData, config);
 		let getResp = await httpx.get(
 			"https://api.bilibili.com/x/web-interface/archive/like?" +
-				utils.toSearchParamsStr(getData),
+				utils.toSearchParamsStr(searchParamsData),
 			{
 				fetch: true,
 			}

@@ -1,6 +1,5 @@
 import { log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { VueUtils } from "@/utils/VueUtils";
 import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
 

@@ -1,45 +1,23 @@
-import { DOMUtils, log, utils } from "@/env";
+import { addStyle, DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { unsafeWindow } from "ViteGM";
-import { Qmsg } from "@/env";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliData } from "@/data/BlibiliData";
-import { BilibiliBangumiVueProp } from "./BilibiliBangumiVueProp";
 import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
 import { VueUtils } from "@/utils/VueUtils";
-
-const BilibiliOpenApp = {
-	getUrl($ele: HTMLElement | null | Element) {
-		if ($ele == null) {
-			return;
-		}
-		return $ele.getAttribute("universallink");
-	},
-	/**
-	 * 直接跳转Url
-	 * @param event
-	 */
-	jumpToUrl(event: Event) {
-		let $click = event.target as HTMLElement;
-		let $biliOpenApp = $click.querySelector("bili-open-app");
-		if ($biliOpenApp) {
-			let url = BilibiliOpenApp.getUrl($biliOpenApp);
-			if (url) {
-				BilibiliUtils.goToUrl(url);
-			} else {
-				Qmsg.error("获取bili-open-app的Url失败");
-				log.error("获取bili-open-app的Url失败");
-			}
-		} else {
-			Qmsg.error("未获取到<bili-open-app>元素");
-			log.error("未获取到<bili-open-app>元素");
-		}
-	},
-};
+import artPlayerCSS from "./artplayer/index.css?raw";
+import type Artplayer from "artplayer";
+import { BilibiliOpenApp } from "./BilibiliOpenApp";
+import { BlibiliBangumiPlayer } from "./BilibiliBangumiPlayer";
 
 const BilibiliBangumi = {
+	$data: {
+		art: null as any as Artplayer,
+	},
 	init() {
-		BilibiliBangumiVueProp.init();
+		PopsPanel.execMenuOnce("bili-bangumi-initialScale", () => {
+			BilibiliUtils.initialScale();
+		});
 		PopsPanel.execMenuOnce("bili-bangumi-hook-callApp", () => {
 			this.hookCallApp();
 		});
@@ -52,6 +30,7 @@ const BilibiliBangumi = {
 		PopsPanel.execMenu("bili-bangumi-cover-clicl-event-recommend", () => {
 			this.setRecommendClickEvent();
 		});
+		this.coverVideoPlayer();
 	},
 	/**
 	 * 阻止唤醒App
@@ -232,6 +211,23 @@ const BilibiliBangumi = {
 					}
 				);
 			});
+	},
+	/**
+	 * 覆盖视频播放器
+	 */
+	coverVideoPlayer() {
+		if (document.querySelector("#artplayer")) {
+			log.warn("已存在播放器，更新播放信息");
+		} else {
+			addStyle(/*css*/ `
+			.player-wrapper,
+			.open-app-bar{
+				display: none !important;
+			}
+			${artPlayerCSS}
+			`);
+		}
+		BlibiliBangumiPlayer.updateArtPlayerVideoInfo();
 	},
 };
 

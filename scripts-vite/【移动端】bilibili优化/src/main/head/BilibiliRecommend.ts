@@ -1,12 +1,12 @@
 import { BilibiliQrCodeLogin } from "@/account/BilibiliQrCodeLogin";
-import { TVKeyInfo } from "@/common/config";
 import { DOMUtils, Qmsg, addStyle, httpx, log, utils } from "@/env";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import BilibiliRecommendCSS from "./BilibiliRecommend.css?raw";
 import { android } from "@/define/BilibiliRecommendDefine";
 import { av2bv } from "@mgdn/bvid";
 import { PopsPanel } from "@/setting/setting";
-import { BilibiliApiCheck } from "@/api/BilibiliApiCheck";
+import { BilibiliResponseCheck } from "@/api/BilibiliApiCheck";
+import { AppKeyInfo } from "@/common/config";
 
 /**
  * 修复图片（http转换为https）
@@ -230,7 +230,7 @@ export const BilibiliRecommend = {
 	 */
 	async getRecommendVideoInfo() {
 		let getData = {
-			appkey: TVKeyInfo.appkey,
+			appkey: AppKeyInfo.ios.appkey,
 			access_key: BilibiliQrCodeLogin.getAccessTokenInfo()?.access_token || "",
 		};
 		let Api = "https://app.bilibili.com/x/v2/feed/index";
@@ -248,7 +248,7 @@ export const BilibiliRecommend = {
 		let data = utils.toJSON<android.AppRecommendJson>(
 			getResp.data.responseText
 		);
-		if (!BilibiliApiCheck.isWebApiSuccess(data)) {
+		if (!BilibiliResponseCheck.isWebApiSuccess(data)) {
 			Qmsg.error(data["message"]);
 			return;
 		}

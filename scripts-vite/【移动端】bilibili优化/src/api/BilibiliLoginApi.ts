@@ -1,7 +1,7 @@
-import { TVKeyInfo } from "@/common/config";
+import { AppKeyInfo } from "@/common/config";
 import { appSign } from "@/common/sign";
 import { httpx, utils, GMCookie, Qmsg, log } from "@/env";
-import { BilibiliApiCheck } from "./BilibiliApiCheck";
+import { BilibiliResponseCheck } from "./BilibiliApiCheck";
 
 export const BilibiliLoginApi = {
 	/**
@@ -12,12 +12,19 @@ export const BilibiliLoginApi = {
 		let Api =
 			"https://passport.bilibili.com/x/passport-tv-login/qrcode/auth_code";
 		let postData = {
-			appkey: TVKeyInfo.appkey,
+			/** APP 密钥 APP 方式必要 */
+			appkey: AppKeyInfo.ios.appkey,
+			/** TV 端 id */
 			local_id: "0",
-			csrf: GMCookie.get("bili_jct")?.value || "",
+			/** 当前时间戳 APP 方式必要 */
 			ts: "0",
+			/** APP 签名 APP 方式必要 */
+			// sign: "",
+			/** 平台标识 会被拼接到返回的 url query */
+			mobi_app: AppKeyInfo.ios.mobi_app,
+			csrf: GMCookie.get("bili_jct")?.value || "",
 		};
-		let sign = appSign(postData, TVKeyInfo.appkey, TVKeyInfo.appsec);
+		let sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
 		let postResp = await httpx.post(
 			Api,
 			{
@@ -42,22 +49,28 @@ export const BilibiliLoginApi = {
 			Qmsg.error(data.message);
 			return;
 		}
-		return data.data as {
+		let loginData = data.data as {
 			/** 二维码内容 url	 */
 			url: string;
 			/** 扫码登录秘钥 */
 			auth_code: string;
 		};
+		return loginData;
 	},
+	/**
+	 * 获取auth_code对应的链接的扫码状态
+	 * @param auth_code
+	 * @returns
+	 */
 	async poll(auth_code: string) {
 		let Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/poll";
 		let postData = {
-			appkey: TVKeyInfo.appkey,
+			appkey: AppKeyInfo.ios.appkey,
 			auth_code,
 			local_id: "0",
 			ts: "0",
 		};
-		let sign = appSign(postData, TVKeyInfo.appkey, TVKeyInfo.appsec);
+		let sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
 		let postResp = await httpx.post(Api, {
 			data: utils.toSearchParamsStr({
 				...postData,
@@ -73,6 +86,7 @@ export const BilibiliLoginApi = {
 			return { success: false, message: "网络错误", action: void 0 };
 		}
 		const json = utils.toJSON(postResp.data.responseText);
+		log.info(json);
 		const msgMap: Record<string, string> = {
 			"0": "成功",
 			"-3": "API校验密匙错误",
@@ -83,7 +97,7 @@ export const BilibiliLoginApi = {
 			"86090": "二维码已扫码未确认",
 		};
 
-		if (!BilibiliApiCheck.isWebApiSuccess(json)) {
+		if (!BilibiliResponseCheck.isWebApiSuccess(json)) {
 			const code = json.code.toString();
 			const message = json.message || msgMap[code] || "未知错误";
 

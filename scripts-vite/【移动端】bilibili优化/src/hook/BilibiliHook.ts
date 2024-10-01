@@ -9,6 +9,7 @@ const BilibiliHook = {
 		windowPlayerAgent: false,
 		hookWebpackJsonp_openApp: false,
 		overRideLaunchAppBtn_Vue_openApp: false,
+		overRideBiliOpenApp: false,
 	},
 	$data: {
 		setTimeout: <(string | RegExp)[]>[],
@@ -169,6 +170,46 @@ const BilibiliHook = {
 							vueObj.$children.forEach(($child) => {
 								overrideOpenApp($child);
 							});
+						}
+					});
+			},
+		});
+	},
+	/**
+	 * 覆盖元素bili-open-app上的opener.open
+	 *
+	 * 页面上有很多
+	 */
+	overRideBiliOpenApp() {
+		if (this.$isHook.overRideBiliOpenApp) {
+			return;
+		}
+		this.$isHook.overRideBiliOpenApp = true;
+		utils.mutationObserver(document, {
+			config: {
+				subtree: true,
+				childList: true,
+				attributes: true,
+			},
+			callback() {
+				document
+					.querySelectorAll<HTMLDivElement>("bili-open-app")
+					.forEach(($biliOpenApp) => {
+						if ($biliOpenApp.hasAttribute("data-inject-opener-open")) {
+							return;
+						}
+						let opener = Reflect.get($biliOpenApp, "opener");
+						if (opener == null) {
+							return;
+						}
+						let originOpen = opener?.open;
+						if (typeof originOpen === "function") {
+							Reflect.set(opener, "open", (config: any) => {
+								log.success(
+									`拦截bili-open-app.open跳转: ${JSON.stringify(config)}`
+								);
+							});
+							$biliOpenApp.setAttribute("data-inject-opener-open", "true");
 						}
 					});
 			},
