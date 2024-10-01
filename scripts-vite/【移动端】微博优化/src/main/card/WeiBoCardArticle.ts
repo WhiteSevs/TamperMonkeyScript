@@ -1,6 +1,7 @@
 import { DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { CommonUtils } from "@/utils/CommonUtils";
+import { VueUtils } from "@/utils/VueUtils";
 
 export const WeiBoCardArticle = {
 	init() {

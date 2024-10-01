@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.1
+// @version      2024.10.1.19
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -15,7 +15,7 @@
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.2/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css
 // @connect      m.weibo.cn
 // @connect      www.weibo.com
@@ -1135,6 +1135,25 @@
       }
     ]
   };
+  const SettingUIDetail = {
+    id: "weibo-panel-config-detail",
+    title: "正文",
+    forms: [
+      {
+        text: "功能",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "修改发布时间显示为绝对时间",
+            "weibo-detail-setArticleAbsoluteTime",
+            false,
+            void 0,
+            "该功能全局生效包括但不限于微博正文、首页等"
+          )
+        ]
+      }
+    ]
+  };
   const SettingUISearch = {
     id: "weibo-panel-config-u",
     title: "搜索",
@@ -1721,9 +1740,9 @@
       let configList = [
         SettingUICommon,
         SettingUIHome,
+        SettingUIDetail,
         // SettingUIUserHome,
         SettingUISearch,
-        // SettingUIDetail,
         SettingUIHuaTi,
         SettingUIVideo,
         SettingUICardArticle
@@ -1960,7 +1979,7 @@
     hookNetWork() {
       WeiBoNetWorkHook.ajaxHooker.hook(function(request) {
         let requestUrl = CommonUtils.fixUrl(request.url);
-        log.info(["ajaxHookr: ", requestUrl]);
+        log.info("[ajaxHookr] " + requestUrl);
         if (requestUrl.startsWith("https://m.weibo.cn/api/config") && PopsPanel.getValue("weibo_request_api_config")) {
           request.response = function(originResponse) {
             let originResponseData = utils.toJSON(originResponse.responseText);
@@ -2275,6 +2294,43 @@
       PopsPanel.onceExec("weibo-detail-blockAds", () => {
         return addStyle(blockAdsCSS);
       });
+    },
+    /**
+     * 设置正文显示的时间为绝对时间
+     */
+    setArticleAbsoluteTime() {
+      utils.mutationObserver(document.documentElement, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        immediate: true,
+        callback: () => {
+          Array.from(
+            document.querySelectorAll(
+              ".card.m-panel .m-text-cut .time:not([data-gm-absolute-time])"
+            )
+          ).forEach(($time) => {
+            var _a2;
+            let $card = $time.closest(".card.m-panel");
+            let cardVueIns = VueUtils.getVue($card);
+            if (!cardVueIns) {
+              return;
+            }
+            let createTime = (_a2 = cardVueIns == null ? void 0 : cardVueIns.item) == null ? void 0 : _a2.created_at;
+            if (typeof createTime !== "string") {
+              return;
+            }
+            let createTimeObj = new Date(createTime);
+            let formatCreateTime = utils.formatTime(
+              createTimeObj,
+              "yyyy-MM-dd HH:mm:ss"
+            );
+            $time.innerText = formatCreateTime;
+            $time.setAttribute("data-gm-absolute-time", "true");
+          });
+        }
+      });
     }
   };
   const WeiBoSearch = {
@@ -2531,6 +2587,9 @@
         domUtils.ready(() => {
           PopsPanel.execMenuOnce("weibo-common-unlockVideoHigherQuality", () => {
             this.unlockVideoHigherQuality();
+          });
+          PopsPanel.execMenuOnce("weibo-detail-setArticleAbsoluteTime", () => {
+            WeiBoDetail.setArticleAbsoluteTime();
           });
         });
         if (WeiBoRouter.isMWeiBoHome()) {

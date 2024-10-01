@@ -50,6 +50,9 @@ const WeiBo = {
 				PopsPanel.execMenuOnce("weibo-common-unlockVideoHigherQuality", () => {
 					this.unlockVideoHigherQuality();
 				});
+				PopsPanel.execMenuOnce("weibo-detail-setArticleAbsoluteTime", () => {
+					WeiBoDetail.setArticleAbsoluteTime();
+				});
 			});
 			if (WeiBoRouter.isMWeiBoHome()) {
 				log.info(`Router: 移动端微博首页`);

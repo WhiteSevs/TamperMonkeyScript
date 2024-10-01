@@ -164,7 +164,7 @@ const WeiBoHook = {
 		WeiBoNetWorkHook.ajaxHooker.hook(function (request) {
 			/** 请求的Url */
 			let requestUrl = CommonUtils.fixUrl(request.url);
-			log.info(["ajaxHookr: ", requestUrl]);
+			log.info("[ajaxHookr] " + requestUrl);
 			if (
 				requestUrl.startsWith("https://m.weibo.cn/api/config") &&
 				PopsPanel.getValue("weibo_request_api_config")
