@@ -5,11 +5,19 @@ export const SettingUIHome: PopsPanelContentConfig = {
 	id: "weibo-panel-config-card-article",
 	title: "首页",
 	forms: [
-		// {
-		// 	text: "功能",
-		// 	type: "forms",
-		// 	forms: [],
-		// },
+		{
+			text: "功能",
+			type: "forms",
+			forms: [
+				UISwitch(
+					"新增超话Tab",
+					"weibo-home-addSupertalkTab",
+					false,
+					void 0,
+					"在首页添加超话Tab，方便快速查看超话"
+				),
+			],
+		},
 		{
 			text: "屏蔽",
 			type: "forms",

@@ -1,0 +1,4 @@
+/* 文章内容的底部的广告 */
+#app .ad-wrap {
+	display: none !important;
+}

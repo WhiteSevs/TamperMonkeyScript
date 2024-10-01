@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.9.29
+// @version      2024.10.1
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -300,44 +300,48 @@
         }
         return __target__;
       }
-      needSetList.forEach((needSetOption) => {
-        if (typeof needSetOption.msg === "string") {
-          log.info(needSetOption.msg);
-        }
-        function checkVue() {
-          let target = getTarget();
-          if (target == null) {
-            return false;
+      if (Array.isArray(needSetList)) {
+        needSetList.forEach((needSetOption) => {
+          if (typeof needSetOption.msg === "string") {
+            log.info(needSetOption.msg);
           }
-          let vueObj = VueUtils.getVue(target);
-          if (vueObj == null) {
-            return false;
-          }
-          let needOwnCheck = needSetOption.check(vueObj);
-          return Boolean(needOwnCheck);
-        }
-        utils.waitVueByInterval(
-          () => {
-            return getTarget();
-          },
-          checkVue,
-          250,
-          1e4
-        ).then((result) => {
-          if (!result) {
-            if (typeof needSetOption.close === "function") {
-              needSetOption.close();
+          function checkVue() {
+            let target = getTarget();
+            if (target == null) {
+              return false;
             }
-            return;
+            let vueObj = VueUtils.getVue(target);
+            if (vueObj == null) {
+              return false;
+            }
+            let needOwnCheck = needSetOption.check(vueObj);
+            return Boolean(needOwnCheck);
           }
-          let target = getTarget();
-          let vueObj = VueUtils.getVue(target);
-          if (vueObj == null) {
-            return;
-          }
-          needSetOption.set(vueObj);
+          utils.waitVueByInterval(
+            () => {
+              return getTarget();
+            },
+            checkVue,
+            250,
+            1e4
+          ).then((result) => {
+            if (!result) {
+              if (typeof needSetOption.close === "function") {
+                needSetOption.close();
+              }
+              return;
+            }
+            let target = getTarget();
+            let vueObj = VueUtils.getVue(target);
+            if (vueObj == null) {
+              return;
+            }
+            needSetOption.set(vueObj);
+          });
         });
-      });
+      } else {
+        this.waitVuePropToSet($target, [needSetList]);
+      }
     }
   };
   const VideoQualityMap_Mobile = {
@@ -1187,11 +1191,19 @@
     id: "weibo-panel-config-card-article",
     title: "首页",
     forms: [
-      // {
-      // 	text: "功能",
-      // 	type: "forms",
-      // 	forms: [],
-      // },
+      {
+        text: "功能",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "新增超话Tab",
+            "weibo-home-addSupertalkTab",
+            false,
+            void 0,
+            "在首页添加超话Tab，方便快速查看超话"
+          )
+        ]
+      },
       {
         text: "屏蔽",
         type: "forms",
@@ -1719,7 +1731,7 @@
       return configList;
     }
   };
-  const blockAdsCSS = "/* 底部中间的 登录/注册按钮 */\r\n#app div.main-wrap div.login-box,\r\n /* 主内容底部的小程序横幅推荐 */\r\n #app > div.lite-page-wrap > div > div.main > div > div.wrap,\r\n /* 底部悬浮的在微博内打开 */\r\n #app .woo-frame.blog-config-page div.weibo-btn-box,\r\n /* 顶部的新闻信息流 */\r\n #app .woo-frame div.woo-panel-container.news-banner {\r\n	display: none !important;\r\n}\r\n";
+  const blockAdsCSS$1 = "/* 底部中间的 登录/注册按钮 */\r\n#app div.main-wrap div.login-box,\r\n /* 主内容底部的小程序横幅推荐 */\r\n #app > div.lite-page-wrap > div > div.main > div > div.wrap,\r\n /* 底部悬浮的在微博内打开 */\r\n #app .woo-frame.blog-config-page div.weibo-btn-box,\r\n /* 顶部的新闻信息流 */\r\n #app .woo-frame div.woo-panel-container.news-banner {\r\n	display: none !important;\r\n}\r\n";
   let _ajaxHooker_ = null;
   const WeiBoNetWorkHook = {
     get ajaxHooker() {
@@ -2257,6 +2269,14 @@
       );
     }
   };
+  const blockAdsCSS = "/* 文章内容的底部的广告 */\r\n#app .ad-wrap {\r\n	display: none !important;\r\n}\r\n";
+  const WeiBoDetail = {
+    init() {
+      PopsPanel.onceExec("weibo-detail-blockAds", () => {
+        return addStyle(blockAdsCSS);
+      });
+    }
+  };
   const WeiBoSearch = {
     init() {
       domUtils.ready(() => {
@@ -2373,6 +2393,11 @@
       PopsPanel.execMenuOnce("weibo-home-blockMessageCount", () => {
         return this.blockMessageCount();
       });
+      domUtils.ready(() => {
+        PopsPanel.execMenuOnce("weibo-home-addSupertalkTab", () => {
+          this.addSupertalkTab();
+        });
+      });
     },
     /**
      * 屏蔽隐藏在card内的微博广告
@@ -2407,6 +2432,72 @@
      */
     blockMessageCount() {
       return CommonUtils.addBlockCSS(".nav-right .m-bubble");
+    },
+    /**
+     * 新增Tab - 超话
+     */
+    addSupertalkTab() {
+      VueUtils.waitVuePropToSet(".main-top", {
+        check(vueObj) {
+          return Array.isArray(vueObj == null ? void 0 : vueObj.tabs);
+        },
+        set(vueObj) {
+          var _a2;
+          log.success(`添加顶部Tab - 超话`);
+          (_a2 = vueObj == null ? void 0 : vueObj.tabs) == null ? void 0 : _a2.push({
+            children: [
+              {
+                api: "api/container/getIndex?containerid=100803",
+                gid: "100803",
+                name: "超话社区",
+                type: 1
+              }
+            ]
+          });
+          VueUtils.waitVuePropToSet(".main-wrap", {
+            check(vueIns) {
+              return typeof (vueIns == null ? void 0 : vueIns.$watch) === "function";
+            },
+            set(vueIns) {
+              vueIns.$watch("list_all", function(newVal, oldVal) {
+                var _a3;
+                if (this.cur_group["gid"] !== "100803") {
+                  return;
+                }
+                let cur_length = this.list_cur.length;
+                this.list_all.length;
+                let slice_list = this.list_all.slice(cur_length);
+                for (let index = 0; index < slice_list.length; index++) {
+                  const slice_item = slice_list[index];
+                  slice_item["hei"] = 1345;
+                }
+                let last_feed_id = (_a3 = slice_list[slice_list.length - 1]) == null ? void 0 : _a3["feed_id"];
+                if (last_feed_id != null) {
+                  this.max = last_feed_id;
+                  this.since = last_feed_id;
+                }
+                this.list_cur = this.list_cur.concat(slice_list);
+                const updateFirstScroll = () => {
+                  var _a4;
+                  if ((_a4 = this.$refs) == null ? void 0 : _a4.cont) {
+                    let clientHeight = document.documentElement.clientHeight || window.innerHeight;
+                    this.first_scroll = this.$refs.cont.offsetHeight - clientHeight * 1.4;
+                  }
+                };
+                let intervalCount = 0;
+                let intervalId = setInterval(() => {
+                  if (intervalCount > 50) {
+                    clearInterval(intervalId);
+                    return;
+                  }
+                  intervalCount++;
+                  updateFirstScroll();
+                }, 50);
+              });
+            }
+          });
+        }
+      });
     }
   };
   const WeiBo = {
@@ -2447,6 +2538,7 @@
           WeiBoHome.init();
         } else if (WeiBoRouter.isMWeiBo_detail()) {
           log.info("Router: 移动端微博帖子");
+          WeiBoDetail.init();
         } else if (WeiBoRouter.isMWeiBo_userHome()) {
           log.info("Router: 移动端微博用户主页");
         } else if (WeiBoRouter.isMWeiBo_search()) {
@@ -2474,7 +2566,7 @@
      * 屏蔽 广告
      */
     blockAds() {
-      return addStyle(blockAdsCSS);
+      return addStyle(blockAdsCSS$1);
     },
     /**
      * 【屏蔽】底部工具栏

@@ -9,11 +9,11 @@ interface WaitSetVuePropOption {
 	/**
 	 * 检测属性的函数
 	 */
-	check(vueObj: Vue2Context): boolean;
+	check(vueIns: Vue2Context): boolean;
 	/**
 	 * 进行设置
 	 */
-	set(vueObj: Vue2Context): void;
+	set(vueIns: Vue2Context): void;
 	/**
 	 * 超时关闭调用
 	 */
@@ -40,7 +40,7 @@ export const VueUtils = {
 	 */
 	waitVuePropToSet(
 		$target: HTMLElement | (() => HTMLElement | null) | string,
-		needSetList: WaitSetVuePropOption[]
+		needSetList: WaitSetVuePropOption | WaitSetVuePropOption[]
 	) {
 		function getTarget() {
 			let __target__ = null;
@@ -53,45 +53,49 @@ export const VueUtils = {
 			}
 			return __target__;
 		}
-		needSetList.forEach((needSetOption) => {
-			if (typeof needSetOption.msg === "string") {
-				log.info(needSetOption.msg);
-			}
-			function checkVue() {
-				let target = getTarget();
-				if (target == null) {
-					return false;
+		if (Array.isArray(needSetList)) {
+			needSetList.forEach((needSetOption) => {
+				if (typeof needSetOption.msg === "string") {
+					log.info(needSetOption.msg);
 				}
-				let vueObj = VueUtils.getVue(target);
-				if (vueObj == null) {
-					return false;
-				}
-				let needOwnCheck = needSetOption.check(vueObj);
-				return Boolean(needOwnCheck);
-			}
-			utils
-				.waitVueByInterval(
-					() => {
-						return getTarget();
-					},
-					checkVue,
-					250,
-					10000
-				)
-				.then((result) => {
-					if (!result) {
-						if (typeof needSetOption.close === "function") {
-							needSetOption.close();
-						}
-						return;
-					}
+				function checkVue() {
 					let target = getTarget();
-					let vueObj = VueUtils.getVue(target as HTMLElement);
-					if (vueObj == null) {
-						return;
+					if (target == null) {
+						return false;
 					}
-					needSetOption.set(vueObj);
-				});
-		});
+					let vueObj = VueUtils.getVue(target);
+					if (vueObj == null) {
+						return false;
+					}
+					let needOwnCheck = needSetOption.check(vueObj);
+					return Boolean(needOwnCheck);
+				}
+				utils
+					.waitVueByInterval(
+						() => {
+							return getTarget();
+						},
+						checkVue,
+						250,
+						10000
+					)
+					.then((result) => {
+						if (!result) {
+							if (typeof needSetOption.close === "function") {
+								needSetOption.close();
+							}
+							return;
+						}
+						let target = getTarget();
+						let vueObj = VueUtils.getVue(target as HTMLElement);
+						if (vueObj == null) {
+							return;
+						}
+						needSetOption.set(vueObj);
+					});
+			});
+		} else {
+			this.waitVuePropToSet($target, [needSetList]);
+		}
 	},
 };
