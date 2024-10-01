@@ -32,7 +32,9 @@
 | Chrome  | [https://chromewebstore.google.com/detail/header-editor/eningockdidmgiojffjmkdblpjocbhgh?hl=zh-CN](https://chromewebstore.google.com/detail/header-editor/eningockdidmgiojffjmkdblpjocbhgh?hl=zh-CN) |
 | Firefox | [https://addons.mozilla.org/zh-CN/firefox/addon/header-editor](https://addons.mozilla.org/zh-CN/firefox/addon/header-editor)                                                                         |
 
-将下面的规则自行创建一个`xxx.json`文件，粘贴进去，导入到插件即可
+将下面的规则自行创建一个`xxx.json`文件，粘贴进去，导入到插件即可，或者复制链接
+
+[复制链接并导入](https://raw.githubusercontent.com/WhiteSevs/TamperMonkeyScript/refs/heads/dev/scripts-vite/%E3%80%90%E7%A7%BB%E5%8A%A8%E7%AB%AF%E3%80%91bilibili%E4%BC%98%E5%8C%96/HeaderEditor_bangumiRule.json)
 
 ```json
 {
