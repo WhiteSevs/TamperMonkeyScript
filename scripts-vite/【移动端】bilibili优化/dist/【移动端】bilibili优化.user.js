@@ -8163,10 +8163,13 @@
     }
   };
   const BilibiliExtraSearch = {
+    $flag_css: {
+      enableOtherAreaSearchBangumi: false
+    },
     $data: {},
     init() {
       domutils.ready(() => {
-        PopsPanel.execMenuOnce("bili-search-enableOtherAreaSearchBangumi", () => {
+        PopsPanel.execMenu("bili-search-enableOtherAreaSearchBangumi", () => {
           this.enableOtherAreaSearchBangumi();
         });
       });
@@ -8175,35 +8178,143 @@
      * 初始化搜索的tab
      */
     enableOtherAreaSearchBangumi() {
-      addStyle(
-        /*css*/
-        `
-        .m-search-result .tabs{
-            overflow: auto;
-            white-space: nowrap;
-        }
-        .m-search-result .tabs .tab-item{
-            display: inline-block;
-            height: 8vmin;
-            line-height: 8vmin;
-            color: #757575;
-            font-size: 3.73333vmin;
-            margin-top: 1.86667vmin;
-            padding: 0 2.33vmin;
-        }
-        .m-search-result .tabs .tab-item:first-child{
-            padding-left: 0;
-        }
-        .m-search-result .tabs .tab-item:last-child{
-            padding-right: 0;
-        }
-        .m-search-result .tabs .tab-item.on{
-            color: #fb7299;
-            border-bottom: 0.53333vmin solid #fb7299;
-        }
-        `
-      );
-      utils.waitNode(".m-search-result .tabs").then(($tabs) => {
+      if (!this.$flag_css.enableOtherAreaSearchBangumi) {
+        this.$flag_css.enableOtherAreaSearchBangumi = true;
+        addStyle(
+          /*css*/
+          `
+			.m-search-result .tabs{
+				overflow: auto;
+				white-space: nowrap;
+			}
+			.m-search-result .tabs .tab-item{
+				display: inline-block;
+				height: 8vmin;
+				line-height: 8vmin;
+				color: #757575;
+				font-size: 3.73333vmin;
+				margin-top: 1.86667vmin;
+				padding: 0 2.33vmin;
+			}
+			.m-search-result .tabs .tab-item:first-child{
+				padding-left: 0;
+			}
+			.m-search-result .tabs .tab-item:last-child{
+				padding-right: 0;
+			}
+			.m-search-result .tabs .tab-item.on{
+				color: #fb7299;
+				border-bottom: 0.53333vmin solid #fb7299;
+			}
+			`
+        );
+        addStyle(
+          /*css*/
+          `
+			.gm-result-panel {
+				padding-top: 23.46667vmin;
+				background: #f4f4f4;
+				--card-img-width: 100px;
+				--card-img-height: calc(var(--card-img-width) * 1.2 );
+				--card-desc-color: #808080;
+				--card-desc-size: 0.8em;
+			}
+			.gm-card-cover{
+			}
+			.gm-card-cover img {
+				width: var(--card-img-width);
+				height: var(--card-img-height);
+				border-radius: 8px;
+			}
+			.gm-card-container {
+				display: flex;
+				gap: 15px;
+			}
+	
+			.gm-card-box {
+				padding: 0px 10px;
+			}
+	
+			.gm-card-item em {
+				color: var(--bili-color);
+				font-style: unset;
+			}
+	
+			.gm-card-title {
+				font-family: 微软雅黑;
+				font-size: 1em;
+			}
+	
+			.gm-card-pubtime,
+			.gm-card-styles,
+			span.gm-card-media_score-user_count {
+				font-size: var(--card-desc-size);
+				color: var(--card-desc-color);
+			}
+	
+			.gm-card-info-container {
+				display: flex;
+				flex-direction: column;
+				gap: 3px;
+				justify-content: flex-start;
+			}
+			.gm-card-info {
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
+			}
+			span.gm-card-media_score-score {
+				color: #F77C2E;
+				font-size: 1.2em;
+				font-weight: bold;
+			}
+	
+			.gm-card-media_score {
+				display: flex;
+				align-items: flex-end;
+				gap: 0.5em;
+			}
+			.gm-card-item {
+				padding: 1.6vmin;
+				background: #fff;
+				margin: 10px 0px;
+				border-radius: 6px;
+				display: flex;
+				flex-direction: column;
+				gap: 15px;
+			}
+			.gm-card-badges {
+				background: var(--bili-color);
+				color: #fff;
+				padding: 3px;
+				font-size: 12px;
+				border-radius: 3px;
+				white-space: nowrap;
+				position: absolute;
+				margin: 5px 0px 0px calc(var(--card-img-width) - 36px );
+			}
+			.gm-card-eps {
+				display: flex;
+				overflow: auto;
+				gap: 10px;
+			}
+	
+			.gm-card-eps-item {
+				text-align: center;
+				white-space: nowrap;
+			}
+	
+			.gm-card-eps-item-info {
+				min-width: 60px;
+				height: 40px;
+				background: #edeff3;
+				padding: 10px;
+				border-radius: 8px;
+			}
+			`
+        );
+      }
+      utils.waitNode(".m-search-result .tabs:not(:has(.gm-tab-item))").then(($tabs) => {
         let enableSearchServer = BilibiliApiProxy.getSearchProxyHost();
         enableSearchServer.forEach((proxyServerInfo) => {
           let $tab = domutils.createElement(
@@ -8220,12 +8331,18 @@
           $tabs.appendChild($tab);
         });
         const refreshTabActive = ($tab) => {
-          $tabs.querySelectorAll(".tab-item").forEach(($ele) => $ele.classList.remove("on"));
+          $tabs.querySelectorAll(".tab-item").forEach(($ele) => $tab != $ele && $ele.classList.remove("on"));
           $tab.classList.add("on");
         };
         domutils.on($tabs, "click", ".tab-item", async (event) => {
           let $tab = event.target;
           refreshTabActive($tab);
+          let $resultPanel = document.querySelector(".result-panel");
+          let $oldGmResultPanel = document.querySelector(".gm-result-panel");
+          if ($oldGmResultPanel) {
+            $oldGmResultPanel.remove();
+            domutils.show($resultPanel);
+          }
           if (!$tab.classList.contains("gm-tab-item")) {
             return;
           }
@@ -8233,16 +8350,8 @@
           let host = $tab.dataset.host;
           let $searchResult = document.querySelector(".m-search-result");
           let searchResultVueIns = VueUtils.getVue($searchResult);
-          searchResultVueIns.switchTab(2);
-          let refreshCount = 0;
-          let intervalRefreshId = setInterval(() => {
-            if (refreshCount > 10) {
-              clearInterval(intervalRefreshId);
-              return;
-            }
-            refreshCount++;
-            refreshTabActive($tab);
-          }, 250);
+          searchResultVueIns.switchTab(233);
+          domutils.hide($resultPanel);
           let keyword = searchResultVueIns.keyword;
           let $loading = Qmsg.loading("搜索中，请稍后...");
           let searchBangumiResult = await BilibiliSearchApi.getBangumiSearchResult({
@@ -8255,25 +8364,154 @@
             return;
           }
           log.info(["搜索结果：", searchBangumiResult]);
-          let videoListVueIns = VueUtils.getVue(
-            $searchResult.querySelector(".video-list")
-          );
-          for (let index = 0; index < videoListVueIns.list.length; index++) {
-            videoListVueIns.list.splice(index, 1);
-            index--;
-          }
-          videoListVueIns.list = videoListVueIns.list.concat(searchBangumiResult);
-          let $listViewState = $searchResult.querySelector(".list-view__state");
-          let $listViewShim = $searchResult.querySelector(".list-view__shim");
-          if (searchBangumiResult.length) {
-            domutils.hide($listViewState);
-            domutils.hide($listViewShim);
-          } else {
-            domutils.show($listViewState);
-            domutils.show($listViewShim);
-          }
+          let $gmResultPanel = domutils.createElement("div", {
+            className: "gm-result-panel",
+            innerHTML: (
+              /*html*/
+              `
+					<div class="gm-list-view">
+						<div class="gm-video-list-box">
+							<div class="gm-video-list">
+								<div class="gm-card-box"></div>
+							</div>
+						</div>
+					</div>
+
+					`
+            )
+          });
+          let $gmCardBox = $gmResultPanel.querySelector(".gm-card-box");
+          searchBangumiResult.forEach((searchBangumiResultItem) => {
+            $gmCardBox.appendChild(
+              this.createSearchResultVideoItem(searchBangumiResultItem)
+            );
+          });
+          $searchResult.appendChild($gmResultPanel);
         });
       });
+    },
+    /**
+     * 创建搜索结果项
+     */
+    createSearchResultVideoItem(option) {
+      var _a2, _b;
+      let $item = domutils.createElement(
+        "div",
+        {
+          className: "gm-card-item",
+          innerHTML: (
+            /*html*/
+            `
+			<div class="gm-card-container">
+				<div class="gm-card-cover">
+					<img src="${option.cover}" alt="封面">
+				</div>
+				<div class="gm-card-badges">${option.season_type_name}</div>
+				<div class="gm-card-info">
+					<div class="gm-card-info-container">
+						<div class="gm-card-title">${option.title}</div>
+						<div class="gm-card-pubtime">
+						</div>
+						<div class="gm-card-styles">${option.styles || ""}</div>
+					</div>
+					<div class="gm-card-media_score">
+						
+					</div>
+				</div>
+				<div class="gm-card-ferture">
+				</div>
+			</div>
+			<div class="gm-card-eps">
+				
+			</div>
+			`
+          )
+        },
+        {
+          "data-url": option.url,
+          "data-type": option.type,
+          "data-media_id": option.media_id,
+          "data-pgc_season_id": option.pgc_season_id,
+          "data-is_follow": option.is_follow,
+          "data-is_selection": option.is_selection
+        }
+      );
+      domutils.on($item, "click", (event) => {
+        utils.preventEvent(event);
+        window.open(option.url, "_blank");
+      });
+      let $pubtime = $item.querySelector(".gm-card-pubtime");
+      if (option.pubtime) {
+        domutils.append(
+          $pubtime,
+          /*html*/
+          `
+			<span>${utils.formatTime(option.pubtime * 1e3, "yyyy")}</span>
+			`
+        );
+      }
+      if (option.areas) {
+        if ($pubtime.children.length) {
+          domutils.append(
+            $pubtime,
+            /*html*/
+            `
+					<span> | </span>
+				`
+          );
+        }
+        domutils.append(
+          $pubtime,
+          /*html*/
+          `
+					<span>${option.areas}</span>
+				`
+        );
+      }
+      let $mediaScore = $item.querySelector(".gm-card-media_score");
+      if (option.media_score && option.media_score.user_count) {
+        domutils.append(
+          $mediaScore,
+          /*html*/
+          `
+				<span class="gm-card-media_score-score">${((_a2 = option.media_score) == null ? void 0 : _a2.score) || 0}分</span>
+				<span class="gm-card-media_score-user_count">${((_b = option.media_score) == null ? void 0 : _b.user_count) || 0}人参与</span>
+				`
+        );
+      }
+      let $eps = $item.querySelector(".gm-card-eps");
+      if (Array.isArray(option.eps)) {
+        option.eps.forEach((epsItem) => {
+          let $epsItem = domutils.createElement(
+            "div",
+            {
+              className: "gm-card-eps-item",
+              innerHTML: (
+                /*html*/
+                `
+					<div class="gm-card-eps-item-badges">
+						
+					</div>
+					<div class="gm-card-eps-item-info">
+						${epsItem.title}
+					</div>`
+              )
+            },
+            {
+              "data-id": epsItem.id,
+              "data-url": epsItem.url,
+              "data-title": epsItem.title,
+              "data-long_title": epsItem.long_title
+            }
+          );
+          domutils.on($epsItem, "click", (event) => {
+            utils.preventEvent(event);
+            window.open(epsItem.url, "_blank");
+          });
+          $eps.appendChild($epsItem);
+        });
+      }
+      return $item;
     },
     /**
      * 搜索番剧(从自定义服务器拉取搜索结果)
