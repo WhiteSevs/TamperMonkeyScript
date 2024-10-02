@@ -59,8 +59,8 @@ export const BilibiliExtraSearch = {
 			.gm-result-panel {
 				padding-top: 23.46667vmin;
 				background: #f4f4f4;
-				--card-img-width: 100px;
-				--card-img-height: calc(var(--card-img-width) * 1.2 );
+				--card-img-width: 90px;
+				--card-img-height: calc(var(--card-img-width) * 1.33 );
 				--card-desc-color: #808080;
 				--card-desc-size: 0.8em;
 			}
@@ -147,13 +147,14 @@ export const BilibiliExtraSearch = {
 			.gm-card-eps-item {
 				text-align: center;
 				white-space: nowrap;
-				padding: 10px 10px;
+				padding: 10px;
 				background: #edeff3;
 				border-radius: 8px;
-				min-width: 60px;
+				font-size: 14px;
 			}
 	
 			.gm-card-eps-item-info {
+				min-width: 30px;
 			}
 			`);
 		}
@@ -264,29 +265,34 @@ export const BilibiliExtraSearch = {
 			{
 				className: "gm-card-item",
 				innerHTML: /*html*/ `
-			<div class="gm-card-container">
-				<div class="gm-card-cover">
-					<img src="${option.cover}" alt="封面">
-				</div>
-				<div class="gm-card-badges">${option.season_type_name}</div>
-				<div class="gm-card-info">
-					<div class="gm-card-info-container">
-						<div class="gm-card-title">${option.title}</div>
-						<div class="gm-card-pubtime">
+				<div class="gm-card-container">
+					<div class="gm-card-cover">
+						<img src="${option.cover}" alt="封面">
+					</div>
+					<div class="gm-card-badges">${option.season_type_name}</div>
+					<div class="gm-card-info">
+						<div class="gm-card-info-container">
+							<div class="gm-card-title">${option.title}</div>
+							<div class="gm-card-pubtime">
+							</div>
+							<div class="gm-card-styles">${
+								option.styles ||
+								Reflect.get(option, "style") ||
+								Reflect.get(option, "styles_v2") ||
+								""
+							}</div>
 						</div>
-						<div class="gm-card-styles">${option.styles || ""}</div>
+						<div class="gm-card-media_score">
+							
+						</div>
 					</div>
-					<div class="gm-card-media_score">
-						
+					<div class="gm-card-ferture">
 					</div>
 				</div>
-				<div class="gm-card-ferture">
+				<div class="gm-card-eps">
+					
 				</div>
-			</div>
-			<div class="gm-card-eps">
-				
-			</div>
-			`,
+				`,
 			},
 			{
 				"data-url": option.url,
@@ -311,7 +317,8 @@ export const BilibiliExtraSearch = {
 			`
 			);
 		}
-		if (option.areas) {
+		let areas = option.areas || Reflect.get(option, "area");
+		if (areas) {
 			if ($pubtime.children.length) {
 				DOMUtils.append(
 					$pubtime,
@@ -323,7 +330,7 @@ export const BilibiliExtraSearch = {
 			DOMUtils.append(
 				$pubtime,
 				/*html*/ `
-					<span>${option.areas}</span>
+					<span>${areas}</span>
 				`
 			);
 		}
@@ -346,34 +353,39 @@ export const BilibiliExtraSearch = {
 
 		// 添加集数信息
 		let $eps = $item.querySelector<HTMLElement>(".gm-card-eps")!;
-		if (Array.isArray(option.eps)) {
-			option.eps.forEach((epsItem) => {
-				let $epsItem = DOMUtils.createElement(
-					"div",
-					{
-						className: "gm-card-eps-item",
-						innerHTML: /*html*/ `
-					<div class="gm-card-eps-item-badges">
-						
-					</div>
-					<div class="gm-card-eps-item-info">
-						${epsItem.title}
-					</div>`,
-					},
-					{
-						"data-id": epsItem.id,
-						"data-url": epsItem.url,
-						"data-title": epsItem.title,
-						"data-long_title": epsItem.long_title,
-					}
-				);
-				DOMUtils.on($epsItem, "click", (event) => {
-					utils.preventEvent(event);
-					window.open(epsItem.url, "_blank");
-				});
-				$eps.appendChild($epsItem);
+		// 兼容一下漫游服务器的公告信息
+		let epsList = [
+			...(option.eps || []),
+			...(Reflect.get(option, "episodes_new") || []),
+		].filter((item) => utils.isNotNull(item));
+		epsList.forEach((epsItem) => {
+			let title = epsItem.title || epsItem.long_title;
+			let url = epsItem.url || Reflect.get(epsItem, "uri");
+			let $epsItem = DOMUtils.createElement(
+				"div",
+				{
+					className: "gm-card-eps-item",
+					innerHTML: /*html*/ `
+				<div class="gm-card-eps-item-badges">
+					
+				</div>
+				<div class="gm-card-eps-item-info">
+					${title}
+				</div>`,
+				},
+				{
+					"data-id": epsItem.id,
+					"data-url": url,
+					"data-title": title,
+					"data-long_title": epsItem.long_title,
+				}
+			);
+			DOMUtils.on($epsItem, "click", (event) => {
+				utils.preventEvent(event);
+				window.open(url, "_blank");
 			});
-		}
+			$eps.appendChild($epsItem);
+		});
 		return $item;
 	},
 	/**

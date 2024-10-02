@@ -216,8 +216,8 @@ export const BilibiliArtPlayer = {
 			autoplay: false,
 			/** 是否显示视频画中画按钮 */
 			pip: false,
-			/** 播放器是否自动调整大小 */
-			autoSize: true,
+			/** 播放器是否自动调整大小(可能有bug) */
+			autoSize: false,
 			/** 播放器是否自动运行迷你模式 */
 			autoMini: false,
 			/** 是否显示截图按钮 */
@@ -251,7 +251,7 @@ export const BilibiliArtPlayer = {
 			/** 是否使用airplay */
 			airplay: true,
 			/** 播放器颜色主题 */
-			theme: "#23ade5",
+			theme: "#FB7299",
 			/** 播放器语言 */
 			lang: navigator.language.toLowerCase(),
 			/** 覆盖video属性 */

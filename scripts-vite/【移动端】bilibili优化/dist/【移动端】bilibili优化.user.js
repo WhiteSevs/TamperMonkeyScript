@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.1
+// @version      2024.10.2
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -6189,7 +6189,7 @@
     }
   };
   const BilibiliBeautifyCSS = '@charset "UTF-8";\r\n/* 主页 */\r\n#app .m-head {\r\n	--bg-color: #f0f1f3;\r\n	--bg-rever-color: #ffffff;\r\n	--pd-width: 1.3333vmin;\r\n	--bd-circle: 1.3333vmin;\r\n	--card-height: 30vmin;\r\n	--icon-font-size: 3.2vmin;\r\n	--icon-text-font-size: 2.6vmin;\r\n	--icon-font-margin-right: 3vmin;\r\n	--title-font-size: 2.8vmin;\r\n	background-color: var(--bg-color);\r\n}\r\n#app .m-head .m-home {\r\n	background-color: var(--bg-color);\r\n}\r\n/* 美化视频卡片 */\r\n#app .m-head .video-list .card-box .v-card {\r\n	background-color: var(--bg-rever-color);\r\n	padding: 0px;\r\n	margin: 0px;\r\n	width: calc(50% - var(--pd-width) / 2);\r\n	border-radius: var(--bd-circle);\r\n	margin-top: var(--pd-width);\r\n	display: grid;\r\n	/* 视频封面区域 */\r\n}\r\n#app .m-head .video-list .card-box .v-card .card {\r\n	background: var(--bg-rever-color);\r\n	border-radius: unset;\r\n	border-top-left-radius: var(--bd-circle);\r\n	border-top-right-radius: var(--bd-circle);\r\n	height: var(--card-height);\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count {\r\n	display: flex;\r\n	justify-content: safe flex-start;\r\n	padding-right: 0;\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count .iconfont {\r\n	font-size: var(--icon-text-font-size);\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count > span {\r\n	font-size: var(--icon-text-font-size);\r\n	margin-right: var(--icon-font-margin-right);\r\n}\r\n/* 视频标题区域 */\r\n#app .m-head .video-list .card-box .v-card .title {\r\n	padding: 0;\r\n	margin: var(--pd-width);\r\n	font-size: var(--title-font-size);\r\n}\r\n/* 两列 => 左边的 */\r\n#app .m-head .video-list .card-box .v-card:nth-child(2n-1) {\r\n	/*background-color: red;*/\r\n	margin-right: calc(var(--pd-width) / 2);\r\n}\r\n/* 两列 => 右边的 */\r\n#app .m-head .video-list .card-box .v-card:nth-child(2n) {\r\n	/*background-color: rebeccapurple;*/\r\n	margin-left: calc(var(--pd-width) / 2);\r\n}\r\n';
-  const artPlayerCSS = ".artplayer-container {\r\n	--bili-color: #f25d8e;\r\n}\r\n.artplayer-container {\r\n	width: 100vw;\r\n	height: 35vh;\r\n}\r\n#artplayer {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n.art-video-player {\r\n	width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n	display: none !important;\r\n}\r\n/* 大会员画质 */\r\n.art-player-quality-badge-bigvip {\r\n	border-radius: 8px;\r\n	-webkit-box-sizing: border-box;\r\n	box-sizing: border-box;\r\n	display: block;\r\n	padding: 2px 5px;\r\n	background-color: var(--bili-color);\r\n	color: #fff;\r\n	margin-left: 16px;\r\n}\r\n/* 选中的清晰度中如果有大会员文字，隐藏 */\r\n.art-selector-value .art-player-quality-badge-bigvip {\r\n	display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n	backdrop-filter: unset !important;\r\n}\r\n/* 竖屏且宽度小于550px */\r\n@media (max-width: 550px) and (orientation: portrait) {\r\n	/* 隐藏 清晰度选择 */\r\n	.art-control.art-control-quality,\r\n	/* 隐藏 画质选择按钮 */\r\n	.art-control.art-control-quality,\r\n	/* 隐藏 弹幕设置按钮 */\r\n	.artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		display: none !important;\r\n	}\r\n	/* 弹幕库靠右对齐 */\r\n	.artplayer-plugin-danmuku {\r\n		justify-content: right;\r\n	}\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n	/* 限制弹幕输入框的最大宽度 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		max-width: 260px;\r\n	}\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-layer-top-wrap {\r\n	--layer-top-wrap-follow-text-font-size: 0.8em;\r\n	--layer-top-wrap-follow-icon-size: 1em;\r\n	position: absolute;\r\n	top: 0px;\r\n	right: 0px;\r\n	color: #fff;\r\n	display: -webkit-box;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	left: 0;\r\n	-webkit-transition: all 0.2s ease-in-out;\r\n	transition: all 0.2s ease-in-out;\r\n	width: 100%;\r\n	background: rgba(0, 0, 0, 0.8);\r\n	padding: calc(var(--art-padding));\r\n	z-index: 60;\r\n}\r\n.art-hide-cursor .art-layer-top-wrap {\r\n	display: none;\r\n}\r\n.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n	margin-top: var(--art-padding);\r\n	gap: var(--layer-top-wrap-follow-text-font-size);\r\n	font-size: var(--layer-top-wrap-follow-text-font-size);\r\n	display: flex;\r\n	align-items: center;\r\n	position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n	width: var(--layer-top-wrap-follow-icon-size);\r\n	height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n	text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n";
+  const artPlayerCSS = ".artplayer-container {\r\n}\r\n.artplayer-container {\r\n	width: 100vw;\r\n	height: 35vh;\r\n}\r\n#artplayer {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n.art-video-player {\r\n	width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n	display: none !important;\r\n}\r\n/* 大会员画质 */\r\n.art-player-quality-badge-bigvip {\r\n	border-radius: 8px;\r\n	-webkit-box-sizing: border-box;\r\n	box-sizing: border-box;\r\n	display: block;\r\n	padding: 2px 5px;\r\n	background-color: var(--bili-color);\r\n	color: #fff;\r\n	margin-left: 16px;\r\n}\r\n/* 选中的清晰度中如果有大会员文字，隐藏 */\r\n.art-selector-value .art-player-quality-badge-bigvip {\r\n	display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n	backdrop-filter: unset !important;\r\n}\r\n/* 竖屏且宽度小于550px */\r\n@media (max-width: 550px) and (orientation: portrait) {\r\n	/* 隐藏 清晰度选择 */\r\n	.art-control.art-control-quality,\r\n	/* 隐藏 画质选择按钮 */\r\n	.art-control.art-control-quality,\r\n	/* 隐藏 弹幕设置按钮 */\r\n	.artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		display: none !important;\r\n	}\r\n	/* 弹幕库靠右对齐 */\r\n	.artplayer-plugin-danmuku {\r\n		justify-content: right;\r\n	}\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n	/* 限制弹幕输入框的最大宽度 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		max-width: 260px;\r\n	}\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-layer-top-wrap {\r\n	--layer-top-wrap-follow-text-font-size: 0.8em;\r\n	--layer-top-wrap-follow-icon-size: 1em;\r\n	position: absolute;\r\n	top: 0px;\r\n	right: 0px;\r\n	color: #fff;\r\n	display: -webkit-box;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	left: 0;\r\n	-webkit-transition: all 0.2s ease-in-out;\r\n	transition: all 0.2s ease-in-out;\r\n	width: 100%;\r\n	background: rgba(0, 0, 0, 0.8);\r\n	padding: calc(var(--art-padding));\r\n	z-index: 60;\r\n}\r\n.art-hide-cursor .art-layer-top-wrap {\r\n	display: none;\r\n}\r\n.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n	margin-top: var(--art-padding);\r\n	gap: var(--layer-top-wrap-follow-text-font-size);\r\n	font-size: var(--layer-top-wrap-follow-text-font-size);\r\n	display: flex;\r\n	align-items: center;\r\n	position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n	width: var(--layer-top-wrap-follow-icon-size);\r\n	height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n	text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n";
   const BilibiliOpenApp = {
     getUrl($ele) {
       if ($ele == null) {
@@ -7239,8 +7239,8 @@
         autoplay: false,
         /** 是否显示视频画中画按钮 */
         pip: false,
-        /** 播放器是否自动调整大小 */
-        autoSize: true,
+        /** 播放器是否自动调整大小(可能有bug) */
+        autoSize: false,
         /** 播放器是否自动运行迷你模式 */
         autoMini: false,
         /** 是否显示截图按钮 */
@@ -7274,7 +7274,7 @@
         /** 是否使用airplay */
         airplay: true,
         /** 播放器颜色主题 */
-        theme: "#23ade5",
+        theme: "#FB7299",
         /** 播放器语言 */
         lang: navigator.language.toLowerCase(),
         /** 覆盖video属性 */
@@ -8214,8 +8214,8 @@
 			.gm-result-panel {
 				padding-top: 23.46667vmin;
 				background: #f4f4f4;
-				--card-img-width: 100px;
-				--card-img-height: calc(var(--card-img-width) * 1.2 );
+				--card-img-width: 90px;
+				--card-img-height: calc(var(--card-img-width) * 1.33 );
 				--card-desc-color: #808080;
 				--card-desc-size: 0.8em;
 			}
@@ -8302,13 +8302,14 @@
 			.gm-card-eps-item {
 				text-align: center;
 				white-space: nowrap;
-				padding: 10px 10px;
+				padding: 10px;
 				background: #edeff3;
 				border-radius: 8px;
-				min-width: 60px;
+				font-size: 14px;
 			}
 	
 			.gm-card-eps-item-info {
+				min-width: 30px;
 			}
 			`
         );
@@ -8401,29 +8402,29 @@
           innerHTML: (
             /*html*/
             `
-			<div class="gm-card-container">
-				<div class="gm-card-cover">
-					<img src="${option.cover}" alt="封面">
-				</div>
-				<div class="gm-card-badges">${option.season_type_name}</div>
-				<div class="gm-card-info">
-					<div class="gm-card-info-container">
-						<div class="gm-card-title">${option.title}</div>
-						<div class="gm-card-pubtime">
+				<div class="gm-card-container">
+					<div class="gm-card-cover">
+						<img src="${option.cover}" alt="封面">
+					</div>
+					<div class="gm-card-badges">${option.season_type_name}</div>
+					<div class="gm-card-info">
+						<div class="gm-card-info-container">
+							<div class="gm-card-title">${option.title}</div>
+							<div class="gm-card-pubtime">
+							</div>
+							<div class="gm-card-styles">${option.styles || Reflect.get(option, "style") || Reflect.get(option, "styles_v2") || ""}</div>
 						</div>
-						<div class="gm-card-styles">${option.styles || ""}</div>
+						<div class="gm-card-media_score">
+							
+						</div>
 					</div>
-					<div class="gm-card-media_score">
-						
+					<div class="gm-card-ferture">
 					</div>
 				</div>
-				<div class="gm-card-ferture">
+				<div class="gm-card-eps">
+					
 				</div>
-			</div>
-			<div class="gm-card-eps">
-				
-			</div>
-			`
+				`
           )
         },
         {
@@ -8449,7 +8450,8 @@
 			`
         );
       }
-      if (option.areas) {
+      let areas = option.areas || Reflect.get(option, "area");
+      if (areas) {
         if ($pubtime.children.length) {
           domutils.append(
             $pubtime,
@@ -8463,7 +8465,7 @@
           $pubtime,
           /*html*/
           `
-					<span>${option.areas}</span>
+					<span>${areas}</span>
 				`
         );
       }
@@ -8479,37 +8481,41 @@
         );
       }
       let $eps = $item.querySelector(".gm-card-eps");
-      if (Array.isArray(option.eps)) {
-        option.eps.forEach((epsItem) => {
-          let $epsItem = domutils.createElement(
-            "div",
-            {
-              className: "gm-card-eps-item",
-              innerHTML: (
-                /*html*/
-                `
-					<div class="gm-card-eps-item-badges">
-						
-					</div>
-					<div class="gm-card-eps-item-info">
-						${epsItem.title}
-					</div>`
-              )
-            },
-            {
-              "data-id": epsItem.id,
-              "data-url": epsItem.url,
-              "data-title": epsItem.title,
-              "data-long_title": epsItem.long_title
-            }
-          );
-          domutils.on($epsItem, "click", (event) => {
-            utils.preventEvent(event);
-            window.open(epsItem.url, "_blank");
-          });
-          $eps.appendChild($epsItem);
+      let epsList = [
+        ...option.eps || [],
+        ...Reflect.get(option, "episodes_new") || []
+      ].filter((item) => utils.isNotNull(item));
+      epsList.forEach((epsItem) => {
+        let title = epsItem.title || epsItem.long_title;
+        let url = epsItem.url || Reflect.get(epsItem, "uri");
+        let $epsItem = domutils.createElement(
+          "div",
+          {
+            className: "gm-card-eps-item",
+            innerHTML: (
+              /*html*/
+              `
+				<div class="gm-card-eps-item-badges">
+					
+				</div>
+				<div class="gm-card-eps-item-info">
+					${title}
+				</div>`
+            )
+          },
+          {
+            "data-id": epsItem.id,
+            "data-url": url,
+            "data-title": title,
+            "data-long_title": epsItem.long_title
+          }
+        );
+        domutils.on($epsItem, "click", (event) => {
+          utils.preventEvent(event);
+          window.open(url, "_blank");
         });
-      }
+        $eps.appendChild($epsItem);
+      });
       return $item;
     },
     /**
