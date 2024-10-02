@@ -2339,6 +2339,30 @@
             $time.innerText = formatCreateTime;
             $time.setAttribute("data-gm-absolute-time", "true");
           });
+          Array.from(
+            document.querySelectorAll(
+              ".comment-content .card .m-box .time:not([data-gm-absolute-time])"
+            )
+          ).forEach(($time) => {
+            var _a2, _b;
+            let $card = $time.closest(".card");
+            let $cardParent = $card.parentElement;
+            let cardVueIns = VueUtils.getVue($card) || VueUtils.getVue($cardParent);
+            if (!cardVueIns) {
+              return;
+            }
+            let createTime = (_a2 = cardVueIns == null ? void 0 : cardVueIns.item) == null ? void 0 : _a2.created_at;
+            if (typeof createTime !== "string") {
+              return;
+            }
+            let createTimeObj = new Date(createTime);
+            let formatCreateTime = utils.formatTime(
+              createTimeObj,
+              "yyyy-MM-dd HH:mm:ss"
+            );
+            $time.innerText = `${formatCreateTime} ${((_b = cardVueIns == null ? void 0 : cardVueIns.item) == null ? void 0 : _b.source) || ""}`;
+            $time.setAttribute("data-gm-absolute-time", "true");
+          });
         }
       });
     }

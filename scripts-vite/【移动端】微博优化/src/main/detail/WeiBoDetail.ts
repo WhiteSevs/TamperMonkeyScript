@@ -44,6 +44,33 @@ export const WeiBoDetail = {
 					$time.innerText = formatCreateTime;
 					$time.setAttribute("data-gm-absolute-time", "true");
 				});
+				// 评论区的
+				Array.from(
+					document.querySelectorAll<HTMLElement>(
+						".comment-content .card .m-box .time:not([data-gm-absolute-time])"
+					)
+				).forEach(($time) => {
+					let $card = $time.closest(".card") as HTMLElement;
+					let $cardParent = $card.parentElement as HTMLElement;
+					let cardVueIns =
+						VueUtils.getVue($card) || VueUtils.getVue($cardParent);
+					if (!cardVueIns) {
+						return;
+					}
+					let createTime = cardVueIns?.item?.created_at;
+					if (typeof createTime !== "string") {
+						return;
+					}
+					let createTimeObj = new Date(createTime);
+					let formatCreateTime = utils.formatTime(
+						createTimeObj,
+						"yyyy-MM-dd HH:mm:ss"
+					);
+					$time.innerText = `${formatCreateTime} ${
+						cardVueIns?.item?.source || ""
+					}`;
+					$time.setAttribute("data-gm-absolute-time", "true");
+				});
 			},
 		});
 	},
