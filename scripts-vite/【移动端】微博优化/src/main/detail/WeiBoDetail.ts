@@ -33,6 +33,9 @@ export const WeiBoDetail = {
 					if (typeof createTime !== "string") {
 						return;
 					}
+					if ($time.innerText.includes("编辑")) {
+						return;
+					}
 					let createTimeObj = new Date(createTime);
 					let formatCreateTime = utils.formatTime(
 						createTimeObj,

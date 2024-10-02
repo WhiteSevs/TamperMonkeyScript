@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.1.19
+// @version      2024.10.2
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -849,6 +849,13 @@
                     true,
                     void 0,
                     "自动请求PC端的视频清晰度，如果请求成功，将解锁更多的清晰度，如1080p、2K、2K-60、4K-60"
+                  ),
+                  UISwitch(
+                    "点击图片关闭预览",
+                    "weibo-common-clickImageToClosePreviewImage",
+                    false,
+                    void 0,
+                    "当点击图片进入预览模式时，再点击当前预览的图片可退出预览"
                   )
                 ]
               },
@@ -2321,6 +2328,9 @@
             if (typeof createTime !== "string") {
               return;
             }
+            if ($time.innerText.includes("编辑")) {
+              return;
+            }
             let createTimeObj = new Date(createTime);
             let formatCreateTime = utils.formatTime(
               createTimeObj,
@@ -2459,29 +2469,40 @@
      * 屏蔽隐藏在card内的微博广告
      */
     blockArticleAds() {
-      utils.mutationObserver(document, {
-        config: {
-          subtree: true,
-          childList: true
+      VueUtils.waitVuePropToSet(".main-wrap", {
+        check(vueIns) {
+          return typeof (vueIns == null ? void 0 : vueIns.$watch) === "function";
         },
-        callback: utils.debounce(() => {
-          document.querySelectorAll(".card.m-panel").forEach(($mpanel) => {
-            var _a2, _b, _c;
-            let vueIns = VueUtils.getVue($mpanel);
-            if (!vueIns) {
-              return;
+        set(vueIns) {
+          vueIns.$watch(
+            "list_all",
+            function(newVal, oldVal) {
+              var _a2;
+              for (let index = 0; index < newVal.length; index++) {
+                const card = newVal[index];
+                let cardInfo = card == null ? void 0 : card.mblog;
+                if (!cardInfo) {
+                  continue;
+                }
+                let id = cardInfo.id;
+                let ad_state = cardInfo == null ? void 0 : cardInfo.ad_state;
+                let cardText = cardInfo == null ? void 0 : cardInfo.text;
+                (_a2 = cardInfo == null ? void 0 : cardInfo.page_info) == null ? void 0 : _a2.page_title;
+                if (ad_state) {
+                  newVal.splice(index, 1);
+                  index--;
+                  log.info(`移除广告url：https://m.weibo.cn/detail/` + id);
+                  log.info(`移除广告card：` + cardText);
+                }
+              }
+            },
+            {
+              immediate: true
             }
-            let cardInfo = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$options) == null ? void 0 : _a2.propsData) == null ? void 0 : _b.item;
-            let ad_state = cardInfo == null ? void 0 : cardInfo.ad_state;
-            let cardText = cardInfo == null ? void 0 : cardInfo.text;
-            let page_title = (_c = cardInfo == null ? void 0 : cardInfo.page_info) == null ? void 0 : _c.page_title;
-            if (ad_state && page_title === "微博广告") {
-              $mpanel.remove();
-              log.info(`移除广告card: ` + cardText);
-            }
-          });
-        }, 150)
+          );
+        }
       });
+      return;
     },
     /**
      * 屏蔽右上角的信息红点（登录后）
@@ -2567,6 +2588,9 @@
           WeiBoHook.hookServiceWorkerRegister();
         }
       );
+      PopsPanel.execMenuOnce("weibo-common-clickImageToClosePreviewImage", () => {
+        this.clickImageToClosePreviewImage();
+      });
       if (WeiBoRouter.isHuaTi()) {
         log.info("Router: 话题");
         WeiBoHuaTi.init();
@@ -2625,6 +2649,7 @@
      * 屏蔽 广告
      */
     blockAds() {
+      log.info(`屏蔽 广告`);
       return addStyle(blockAdsCSS$1);
     },
     /**
@@ -2652,6 +2677,25 @@
         callback: () => {
           lock.run();
         }
+      });
+    },
+    /**
+     * 设置监听事件，监听点击预览中的图片，从而关闭预览
+     */
+    clickImageToClosePreviewImage() {
+      let selectorList = [".pswp .pswp__item img", ".pswp .pswp__item video"];
+      selectorList.forEach((selector) => {
+        domUtils.on(document, "click", selector, (event) => {
+          let $closeButton = document.querySelector(
+            ".pswp .pswp__button--close"
+          );
+          if ($closeButton) {
+            $closeButton.click();
+          } else {
+            log.warn("未找到关闭预览按钮，使用history.back()");
+            window.history.back();
+          }
+        });
       });
     }
   };

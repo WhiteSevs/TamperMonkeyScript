@@ -21,6 +21,39 @@ export const WeiBoHome = {
 	 * 屏蔽隐藏在card内的微博广告
 	 */
 	blockArticleAds() {
+		VueUtils.waitVuePropToSet(".main-wrap", {
+			check(vueIns) {
+				return typeof vueIns?.$watch === "function";
+			},
+			set(vueIns) {
+				vueIns.$watch(
+					"list_all",
+					function (newVal: any[], oldVal: any[]) {
+						for (let index = 0; index < newVal.length; index++) {
+							const card = newVal[index];
+							let cardInfo = card?.mblog;
+							if (!cardInfo) {
+								continue;
+							}
+							let id = cardInfo.id;
+							let ad_state = cardInfo?.ad_state;
+							let cardText = cardInfo?.text;
+							let page_title = cardInfo?.page_info?.page_title;
+							if (ad_state) {
+								newVal.splice(index, 1);
+								index--;
+								log.info(`移除广告url：` + "https://m.weibo.cn/detail/" + id);
+								log.info(`移除广告card：` + cardText);
+							}
+						}
+					},
+					{
+						immediate: true,
+					}
+				);
+			},
+		});
+		return;
 		utils.mutationObserver(document, {
 			config: {
 				subtree: true,

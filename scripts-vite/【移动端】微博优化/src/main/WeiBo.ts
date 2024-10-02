@@ -12,7 +12,6 @@ import { WeiBoUserHome } from "./u/WeiBoUserHome";
 import { WeiBoSearch } from "./search/WeiBoSearch";
 import { WeiBoUnlockQuality } from "./WeiBoUnlockQuality";
 import { WeiBoCardArticle } from "./card/WeiBoCardArticle";
-import { VueUtils } from "@/utils/VueUtils";
 import { WeiBoHome } from "./home/WeiBoHome";
 
 const WeiBo = {
@@ -26,7 +25,9 @@ const WeiBo = {
 				WeiBoHook.hookServiceWorkerRegister();
 			}
 		);
-
+		PopsPanel.execMenuOnce("weibo-common-clickImageToClosePreviewImage", () => {
+			this.clickImageToClosePreviewImage();
+		});
 		// 不同域名不会触发Router改变，所以单独设定m.weibo.cn下监听路由改变
 		if (WeiBoRouter.isHuaTi()) {
 			log.info("Router: 话题");
@@ -91,6 +92,7 @@ const WeiBo = {
 	 * 屏蔽 广告
 	 */
 	blockAds() {
+		log.info(`屏蔽 广告`);
 		return addStyle(blockAdsCSS);
 	},
 	/**
@@ -119,6 +121,25 @@ const WeiBo = {
 			callback: () => {
 				lock.run();
 			},
+		});
+	},
+	/**
+	 * 设置监听事件，监听点击预览中的图片，从而关闭预览
+	 */
+	clickImageToClosePreviewImage() {
+		let selectorList = [".pswp .pswp__item img", ".pswp .pswp__item video"];
+		selectorList.forEach((selector) => {
+			DOMUtils.on(document, "click", selector, (event) => {
+				let $closeButton = document.querySelector<HTMLElement>(
+					".pswp .pswp__button--close"
+				)!;
+				if ($closeButton) {
+					$closeButton.click();
+				} else {
+					log.warn("未找到关闭预览按钮，使用history.back()");
+					window.history.back();
+				}
+			});
 		});
 	},
 };

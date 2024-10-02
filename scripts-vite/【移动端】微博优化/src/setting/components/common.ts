@@ -192,6 +192,13 @@ const SettingUICommon: PopsPanelContentConfig = {
 									void 0,
 									"自动请求PC端的视频清晰度，如果请求成功，将解锁更多的清晰度，如1080p、2K、2K-60、4K-60"
 								),
+								UISwitch(
+									"点击图片关闭预览",
+									"weibo-common-clickImageToClosePreviewImage",
+									false,
+									void 0,
+									"当点击图片进入预览模式时，再点击当前预览的图片可退出预览"
+								),
 							],
 						},
 						{
