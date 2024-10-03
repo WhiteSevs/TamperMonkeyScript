@@ -101,7 +101,7 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 										},
 									],
 									void 0,
-									`默认: ${NetDiskGlobalData.toast.showreverse.default}`
+									`默认: ${NetDiskGlobalData.toast.maxnums.default}`
 								),
 								UISwitch(
 									"逆序弹出",
