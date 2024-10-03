@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.2
+// @version      2024.10.3
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -1027,6 +1027,13 @@
                     true,
                     void 0,
                     "可以正确跳转至用户主页"
+                  ),
+                  UISwitch(
+                    "新标签页打开微博正文",
+                    "weibo-router-blankOpenDetail",
+                    false,
+                    void 0,
+                    "开启【监听路由改变】才可生效"
                   )
                 ]
               }
@@ -2069,16 +2076,16 @@
       VueUtils.waitVuePropToSet("#app", [
         {
           msg: "等待获取属性 __vue__.$router",
-          check(vueObj) {
+          check(vueIns) {
             var _a2;
-            return typeof ((_a2 = vueObj == null ? void 0 : vueObj.$router) == null ? void 0 : _a2.push) === "function";
+            return typeof ((_a2 = vueIns == null ? void 0 : vueIns.$router) == null ? void 0 : _a2.push) === "function";
           },
-          set(vueObj) {
+          set(vueIns) {
             log.success("拦截Vue路由跳转");
-            vueObj.$router.beforeEach(
-              (to, from, next) => {
-                var _a2;
-                if (to.name === "profile" && PopsPanel.getValue("weibo_router_profile_to_user_home")) {
+            let beforeEachFn = (to, from, next) => {
+              var _a2;
+              if (to.name === "profile") {
+                if (PopsPanel.getValue("weibo_router_profile_to_user_home")) {
                   let uid = (_a2 = to == null ? void 0 : to.params) == null ? void 0 : _a2.uid;
                   if (uid == null) {
                     log.error("获取uid失败");
@@ -2090,15 +2097,30 @@
                   window.location.href = uidHomeUrl;
                   return;
                 }
-                next();
+              } else if ((to == null ? void 0 : to.name) === "detail") {
+                if (PopsPanel.getValue("weibo-router-blankOpenDetail")) {
+                  window.open(to.fullPath, "_blank");
+                  return;
+                }
               }
-            );
-            vueObj.$router.afterEach((to, from) => {
+              next();
+            };
+            vueIns.$router.beforeEach(beforeEachFn);
+            vueIns.$router.afterEach((to, from) => {
               PopsPanel.execMenu("weibo-listenRouterChange", () => {
                 log.info("路由更新，重载功能");
                 WeiBo.init();
               });
             });
+            let ownHookIndex = vueIns.$router.beforeHooks.findIndex(
+              (item) => item == beforeEachFn
+            );
+            if (ownHookIndex !== -1) {
+              let ownHook = vueIns.$router.beforeHooks.splice(ownHookIndex, 1);
+              vueIns.$router.beforeHooks.splice(0, 0, ...ownHook);
+            } else {
+              log.error("$router未在beforeHooks内找到自定义的beforeEach");
+            }
           }
         }
       ]);
@@ -2493,6 +2515,32 @@
      * 屏蔽隐藏在card内的微博广告
      */
     blockArticleAds() {
+      let isHandling = false;
+      function removeAdsCard(cardList) {
+        var _a2;
+        if (isHandling) {
+          return;
+        }
+        isHandling = true;
+        for (let index = 0; index < cardList.length; index++) {
+          const card = cardList[index];
+          let cardInfo = card == null ? void 0 : card.mblog;
+          if (!cardInfo) {
+            continue;
+          }
+          let id = cardInfo.id;
+          let ad_state = cardInfo == null ? void 0 : cardInfo.ad_state;
+          let cardText = cardInfo == null ? void 0 : cardInfo.text;
+          (_a2 = cardInfo == null ? void 0 : cardInfo.page_info) == null ? void 0 : _a2.page_title;
+          if (ad_state) {
+            cardList.splice(index, 1);
+            index--;
+            log.info(`移除广告url：https://m.weibo.cn/detail/` + id);
+            log.info(`移除广告card：` + cardText);
+          }
+        }
+        isHandling = false;
+      }
       VueUtils.waitVuePropToSet(".main-wrap", {
         check(vueIns) {
           return typeof (vueIns == null ? void 0 : vueIns.$watch) === "function";
@@ -2501,24 +2549,7 @@
           vueIns.$watch(
             "list_all",
             function(newVal, oldVal) {
-              var _a2;
-              for (let index = 0; index < newVal.length; index++) {
-                const card = newVal[index];
-                let cardInfo = card == null ? void 0 : card.mblog;
-                if (!cardInfo) {
-                  continue;
-                }
-                let id = cardInfo.id;
-                let ad_state = cardInfo == null ? void 0 : cardInfo.ad_state;
-                let cardText = cardInfo == null ? void 0 : cardInfo.text;
-                (_a2 = cardInfo == null ? void 0 : cardInfo.page_info) == null ? void 0 : _a2.page_title;
-                if (ad_state) {
-                  newVal.splice(index, 1);
-                  index--;
-                  log.info(`移除广告url：https://m.weibo.cn/detail/` + id);
-                  log.info(`移除广告card：` + cardText);
-                }
-              }
+              removeAdsCard(newVal);
             },
             {
               immediate: true
@@ -2526,7 +2557,28 @@
           );
         }
       });
-      return;
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        immediate: true,
+        callback: utils.debounce(() => {
+          let $mainWrap = document.querySelector(".main-wrap");
+          let vueIns = VueUtils.getVue($mainWrap);
+          if (!vueIns) {
+            return;
+          }
+          let cardInfo = vueIns == null ? void 0 : vueIns.list_all;
+          if (!cardInfo) {
+            return;
+          }
+          if (!Array.isArray(cardInfo)) {
+            return;
+          }
+          removeAdsCard(cardInfo);
+        }, 150)
+      });
     },
     /**
      * 屏蔽右上角的信息红点（登录后）
@@ -2707,9 +2759,10 @@
      * 设置监听事件，监听点击预览中的图片，从而关闭预览
      */
     clickImageToClosePreviewImage() {
-      let selectorList = [".pswp .pswp__item img", ".pswp .pswp__item video"];
+      let selectorList = [".pswp .pswp__item"];
       selectorList.forEach((selector) => {
         domUtils.on(document, "click", selector, (event) => {
+          event.target;
           let $closeButton = document.querySelector(
             ".pswp .pswp__button--close"
           );

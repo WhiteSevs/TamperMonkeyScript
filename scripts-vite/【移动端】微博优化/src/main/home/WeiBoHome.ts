@@ -21,6 +21,36 @@ export const WeiBoHome = {
 	 * 屏蔽隐藏在card内的微博广告
 	 */
 	blockArticleAds() {
+		let isHandling = false;
+		/**
+		 * 移除广告card
+		 * @param cardList
+		 */
+		function removeAdsCard(cardList: any[]) {
+			if (isHandling) {
+				return;
+			}
+			isHandling = true;
+			for (let index = 0; index < cardList.length; index++) {
+				const card = cardList[index];
+				let cardInfo = card?.mblog;
+				if (!cardInfo) {
+					continue;
+				}
+				let id = cardInfo.id;
+				let ad_state = cardInfo?.ad_state;
+				let cardText = cardInfo?.text;
+				let page_title = cardInfo?.page_info?.page_title;
+				// page_title.includes("微博广告")
+				if (ad_state) {
+					cardList.splice(index, 1);
+					index--;
+					log.info(`移除广告url：` + "https://m.weibo.cn/detail/" + id);
+					log.info(`移除广告card：` + cardText);
+				}
+			}
+			isHandling = false;
+		}
 		VueUtils.waitVuePropToSet(".main-wrap", {
 			check(vueIns) {
 				return typeof vueIns?.$watch === "function";
@@ -29,23 +59,7 @@ export const WeiBoHome = {
 				vueIns.$watch(
 					"list_all",
 					function (newVal: any[], oldVal: any[]) {
-						for (let index = 0; index < newVal.length; index++) {
-							const card = newVal[index];
-							let cardInfo = card?.mblog;
-							if (!cardInfo) {
-								continue;
-							}
-							let id = cardInfo.id;
-							let ad_state = cardInfo?.ad_state;
-							let cardText = cardInfo?.text;
-							let page_title = cardInfo?.page_info?.page_title;
-							if (ad_state) {
-								newVal.splice(index, 1);
-								index--;
-								log.info(`移除广告url：` + "https://m.weibo.cn/detail/" + id);
-								log.info(`移除广告card：` + cardText);
-							}
-						}
+						removeAdsCard(newVal);
 					},
 					{
 						immediate: true,
@@ -53,29 +67,26 @@ export const WeiBoHome = {
 				);
 			},
 		});
-		return;
 		utils.mutationObserver(document, {
 			config: {
 				subtree: true,
 				childList: true,
 			},
+			immediate: true,
 			callback: utils.debounce(() => {
-				document
-					.querySelectorAll<HTMLDivElement>(".card.m-panel")
-					.forEach(($mpanel) => {
-						let vueIns = VueUtils.getVue($mpanel);
-						if (!vueIns) {
-							return;
-						}
-						let cardInfo = vueIns?.$options?.propsData?.item;
-						let ad_state = cardInfo?.ad_state;
-						let cardText = cardInfo?.text;
-						let page_title = cardInfo?.page_info?.page_title;
-						if (ad_state && page_title === "微博广告") {
-							$mpanel.remove();
-							log.info(`移除广告card: ` + cardText);
-						}
-					});
+				let $mainWrap = document.querySelector<HTMLElement>(".main-wrap");
+				let vueIns = VueUtils.getVue($mainWrap);
+				if (!vueIns) {
+					return;
+				}
+				let cardInfo = vueIns?.list_all;
+				if (!cardInfo) {
+					return;
+				}
+				if (!Array.isArray(cardInfo)) {
+					return;
+				}
+				removeAdsCard(cardInfo);
 			}, 150),
 		});
 	},

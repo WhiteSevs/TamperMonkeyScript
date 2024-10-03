@@ -276,21 +276,19 @@ const WeiBoHook = {
 		VueUtils.waitVuePropToSet("#app", [
 			{
 				msg: "等待获取属性 __vue__.$router",
-				check(vueObj) {
-					return typeof vueObj?.$router?.push === "function";
+				check(vueIns) {
+					return typeof vueIns?.$router?.push === "function";
 				},
-				set(vueObj) {
+				set(vueIns) {
 					log.success("拦截Vue路由跳转");
-					vueObj.$router.beforeEach(
-						(
-							to: Vue2Context["$route"],
-							from: Vue2Context["$route"],
-							next: Function
-						) => {
-							if (
-								to.name === "profile" &&
-								PopsPanel.getValue("weibo_router_profile_to_user_home")
-							) {
+					let beforeEachFn = (
+						to: Vue2Context["$route"],
+						from: Vue2Context["$route"],
+						next: Function
+					) => {
+						if (to.name === "profile") {
+							// 主页
+							if (PopsPanel.getValue("weibo_router_profile_to_user_home")) {
 								let uid = to?.params?.uid;
 								if (uid == null) {
 									log.error("获取uid失败");
@@ -302,15 +300,34 @@ const WeiBoHook = {
 								window.location.href = uidHomeUrl;
 								return;
 							}
-							next();
+						} else if (to?.name === "detail") {
+							// 正文
+							if (PopsPanel.getValue("weibo-router-blankOpenDetail")) {
+								// 新标签页打开正文
+								window.open(to.fullPath, "_blank");
+								return;
+							}
 						}
-					);
-					vueObj.$router.afterEach((to: any, from: any) => {
+						next();
+					};
+					vueIns.$router.beforeEach(beforeEachFn);
+					vueIns.$router.afterEach((to: any, from: any) => {
 						PopsPanel.execMenu("weibo-listenRouterChange", () => {
 							log.info("路由更新，重载功能");
 							WeiBo.init();
 						});
 					});
+
+					// 调整自定义的beforeHooks的优先级
+					let ownHookIndex = vueIns.$router.beforeHooks.findIndex(
+						(item: any) => item == beforeEachFn
+					);
+					if (ownHookIndex !== -1) {
+						let ownHook = vueIns.$router.beforeHooks.splice(ownHookIndex, 1);
+						vueIns.$router.beforeHooks.splice(0, 0, ...ownHook);
+					} else {
+						log.error("$router未在beforeHooks内找到自定义的beforeEach");
+					}
 				},
 			},
 		]);

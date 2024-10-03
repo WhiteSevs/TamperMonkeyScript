@@ -127,9 +127,10 @@ const WeiBo = {
 	 * 设置监听事件，监听点击预览中的图片，从而关闭预览
 	 */
 	clickImageToClosePreviewImage() {
-		let selectorList = [".pswp .pswp__item img", ".pswp .pswp__item video"];
+		let selectorList = [".pswp .pswp__item"];
 		selectorList.forEach((selector) => {
 			DOMUtils.on(document, "click", selector, (event) => {
+				let $clickTarget = event.target as HTMLElement;
 				let $closeButton = document.querySelector<HTMLElement>(
 					".pswp .pswp__button--close"
 				)!;
