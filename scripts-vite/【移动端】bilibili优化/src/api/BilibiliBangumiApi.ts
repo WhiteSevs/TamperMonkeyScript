@@ -5,7 +5,7 @@ import {
 	BilibiliApiConfig,
 	type BilibiliFailResponse,
 } from "./BilibiliApiConfig";
-import { BilibiliResponseCheck } from "./BilibiliApiCheck";
+import { BilibiliResponseCheck } from "./BilibiliResponseCheck";
 
 /**
  * 番剧视频播放地址信息

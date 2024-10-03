@@ -195,24 +195,44 @@ export const BilibiliCDNProxy = {
 		}
 	},
 	/**
-	 * 视频CDN替换
-	 *
-	 * 有以下类型
-	 * .mcdn.bilivideo 辣鸡路线
+	 * 番剧视频CDN替换
+	 * @param url 视频url
+	 */
+	replaceBangumiVideoCDN(url: string) {
+		let userChooseCDN = PopsPanel.getValue<string>(
+			"bili-bangumi-uposServerSelect"
+		);
+		return this.replaceVideoCDNHost(url, userChooseCDN);
+	},
+	/**
+	 * 视频CDN替换host
+	 * @param url 视频url
 	 *
 	 */
 	replaceVideoCDN(url: string) {
+		let userChooseCDN = PopsPanel.getValue<string>(
+			"bili-video-uposServerSelect"
+		);
+		return this.replaceVideoCDNHost(url, userChooseCDN);
+	},
+	/**
+	 * 视频CDN替换host
+	 *
+	 * 有以下类型
+	 * .mcdn.bilivideo 辣鸡路线
+	 * @param url 视频url
+	 * @param userChooseCDNHost 需要替换的host
+	 *
+	 */
+	replaceVideoCDNHost(url: string, userChooseCDNHost: string) {
 		try {
 			let urlObj = new URL(url);
-			let userChooseCDN = PopsPanel.getValue<string>(
-				"bili-bangumi-uposServerSelect"
-			);
 			// 自定义替换upos
 			let chooseUposCDN = this.getUposCDNServerList().find((item) => {
-				return item.host === userChooseCDN;
+				return item.host === userChooseCDNHost;
 			});
 			// 判空
-			if (utils.isNull(chooseUposCDN)) {
+			if (utils.isNull(chooseUposCDN) || utils.isNull(chooseUposCDN.host)) {
 				// 不替换
 				return url;
 			}

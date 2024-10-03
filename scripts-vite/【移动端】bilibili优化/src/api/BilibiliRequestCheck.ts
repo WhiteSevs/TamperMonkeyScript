@@ -1,8 +1,11 @@
-export const BilibiliApiUtils = {
+/**
+ * 请求参数检测
+ */
+export const BilibiliRequestCheck = {
 	/**
 	 * 合并并检查是否传入aid或者bvid
 	 */
-	mergeAndCheckSearchParamsData(
+	mergeAidOrBvidSearchParamsData(
 		searchParamsData: any,
 		config: { aid: number | string } | { bvid: string }
 	) {

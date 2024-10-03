@@ -51,8 +51,8 @@ export const BilibiliExtraSearch = {
 				padding-right: 0;
 			}
 			.m-search-result .tabs .tab-item.on{
-				color: #fb7299;
-				border-bottom: 0.53333vmin solid #fb7299;
+				color: var(--bili-color);
+				border-bottom: 0.53333vmin solid var(--bili-color);
 			}
 			`);
 			addStyle(/*css*/ `

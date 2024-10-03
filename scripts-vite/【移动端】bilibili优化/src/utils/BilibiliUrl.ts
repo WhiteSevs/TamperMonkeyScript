@@ -1,4 +1,4 @@
-export const BilibiliUrlUtils = {
+export const BilibiliUrl = {
 	/**
 	 * 获取用户个人空间链接
 	 * @param userId 用户id

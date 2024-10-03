@@ -32,6 +32,25 @@ export const SettingUISpace: PopsPanelContentConfig = {
 						},
 					],
 				},
+				{
+					text: "覆盖点击事件",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"动态视频",
+									"bili-space-coverDynamicStateCardVideo",
+									true,
+									void 0,
+									"点击发布动态的视频可正常跳转至该视频"
+								),
+							],
+						},
+					],
+				},
 			],
 		},
 	],

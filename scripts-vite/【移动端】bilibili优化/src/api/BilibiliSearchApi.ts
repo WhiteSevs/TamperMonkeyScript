@@ -1,5 +1,5 @@
 import { httpx, log, utils } from "@/env";
-import { BilibiliResponseCheck } from "./BilibiliApiCheck";
+import { BilibiliResponseCheck } from "./BilibiliResponseCheck";
 import { BilibiliQrCodeLogin } from "@/account/BilibiliQrCodeLogin";
 
 /** 搜索结果番剧实体 */

@@ -8,6 +8,8 @@ export const BilibiliData = {
 		video: "#app .video",
 		head: "#app .m-head",
 	},
+	/** 主题色 */
+	theme: "#FB7299",
 };
 
 export const BilibiliPCData = {

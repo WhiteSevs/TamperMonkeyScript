@@ -1,13 +1,12 @@
 import { DOMUtils, Qmsg, addStyle, log, utils } from "@/env";
-import { BilibiliVideoHook } from "./BilibiliVideoHook";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
-import { BilibiliUrlUtils } from "@/utils/BilibiliUrlUtils";
+import { BilibiliUrl } from "@/utils/BilibiliUrl";
 import { BilibiliData } from "@/data/BlibiliData";
 import BilibiliVideoBeautifyCSS from "./BilibiliVideoBeautify.css?raw";
-import { BilibiliVideoVueProp } from "./BilibiliVideoVueProp";
 import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
 import { VueUtils } from "@/utils/VueUtils";
+import { BilibiliVideoPlayer } from "./BilibiliVideoPlayer";
 
 const BilibiliVideo = {
 	$data: {
@@ -15,9 +14,8 @@ const BilibiliVideo = {
 		isAddBeautifyCSS: false,
 	},
 	init() {
+		BilibiliVideoPlayer.init();
 		/* 执行hook */
-		BilibiliVideoHook.init();
-		BilibiliVideoVueProp.init();
 		PopsPanel.execMenuOnce("bili-video-repairVideoBottomAreaHeight", () => {
 			return this.repairVideoBottomAreaHeight();
 		});
@@ -302,7 +300,7 @@ const BilibiliVideo = {
 					}
 				}
 				log.info("相关视频的bvid: " + bvid);
-				BilibiliUtils.goToUrl(BilibiliUrlUtils.getVideoUrl(bvid));
+				BilibiliUtils.goToUrl(BilibiliUrl.getVideoUrl(bvid));
 				utils.preventEvent(event);
 			},
 			{
@@ -328,7 +326,7 @@ const BilibiliVideo = {
 				return;
 			}
 			log.info("相关视频的bvid: " + bvid);
-			BilibiliUtils.goToUrl(BilibiliUrlUtils.getVideoUrl(bvid));
+			BilibiliUtils.goToUrl(BilibiliUrl.getVideoUrl(bvid));
 			utils.preventEvent(event);
 		}
 		DOMUtils.on<MouseEvent | PointerEvent>(
@@ -549,6 +547,7 @@ const BilibiliVideo = {
 						$mVideoPlayer.style.paddingTop = "";
 					}
 				} else {
+					// padding-0
 					$mVideoPlayer.style.paddingTop = "0px";
 				}
 

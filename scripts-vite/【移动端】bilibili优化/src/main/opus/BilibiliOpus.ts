@@ -1,8 +1,9 @@
 import { BilibiliData } from "@/data/BlibiliData";
 import { DOMUtils, Qmsg, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { BilibiliUrlUtils } from "@/utils/BilibiliUrlUtils";
+import { BilibiliUrl } from "@/utils/BilibiliUrl";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
+import { CommonUtils } from "@/utils/CommonUtils";
 import { VueUtils } from "@/utils/VueUtils";
 
 export const BilibiliOpus = {
@@ -56,9 +57,7 @@ export const BilibiliOpus = {
 	automaticallyExpandToReadFullText() {
 		log.info("自动展开阅读全文");
 		return [
-			BilibiliUtils.addBlockCSS(
-				BilibiliData.className.opus + " .opus-read-more"
-			),
+			CommonUtils.addBlockCSS(BilibiliData.className.opus + " .opus-read-more"),
 			addStyle(/*css*/ `
 			${BilibiliData.className.opus} .opus-module-content{
 				overflow: unset !important;
@@ -89,7 +88,7 @@ export const BilibiliOpus = {
 					Qmsg.error("获取mid失败");
 					return;
 				}
-				BilibiliUtils.goToUrl(BilibiliUrlUtils.getUserSpaceUrl(mid));
+				BilibiliUtils.goToUrl(BilibiliUrl.getUserSpaceUrl(mid));
 			},
 			{
 				capture: true,

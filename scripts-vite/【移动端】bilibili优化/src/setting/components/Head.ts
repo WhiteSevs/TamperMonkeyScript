@@ -66,21 +66,6 @@ export const SettingUIHead: PopsPanelContentConfig = {
 									void 0,
 									"加载App端推送的【图文】卡片"
 								),
-								UIInput(
-									"access_token",
-									"bili-head-recommend-access_token",
-									BilibiliQrCodeLogin.getAccessToken(),
-									"填入access_token，即可获取推荐视频数据",
-									(event, value, valueAsNumber) => {
-										BilibiliQrCodeLogin.setAccessTokenInfo({
-											access_token: value,
-											expireAt: BilibiliQrCodeLogin.generateExpireAt(),
-										});
-									},
-									void 0,
-									false,
-									true
-								),
 							],
 						},
 					],

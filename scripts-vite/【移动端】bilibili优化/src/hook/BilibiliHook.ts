@@ -59,51 +59,6 @@ const BilibiliHook = {
 		});
 	},
 	/**
-	 * window.PlayerAgent
-	 */
-	windowPlayerAgent() {
-		if (this.$isHook.windowPlayerAgent) {
-			return;
-		}
-		this.$isHook.windowPlayerAgent = true;
-		let PlayerAgent: any = void 0;
-		OriginPrototype.Object.defineProperty(unsafeWindow, "PlayerAgent", {
-			get() {
-				return new Proxy(
-					{},
-					{
-						get(target, key) {
-							if (key === "openApp") {
-								return function (this: any, ...args: any) {
-									let data: any = args[0];
-									log.info(["调用PlayerAgent.openApp", data]);
-									if (data["event"] === "fullScreen") {
-										/* 点击视频的全屏，因为被拦截，没会导致没有反应，影响体验，手动再次触发一次 */
-										let $wideScreen = document.querySelector<HTMLDivElement>(
-											".mplayer-btn-widescreen"
-										);
-										if ($wideScreen) {
-											$wideScreen.click();
-										} else {
-											log.warn(
-												"主动再次点击全屏按钮失败，原因：未获取到.mplayer-btn-widescreen元素"
-											);
-										}
-									}
-								};
-							} else {
-								return PlayerAgent[key];
-							}
-						},
-					}
-				);
-			},
-			set(v) {
-				PlayerAgent = v;
-			},
-		});
-	},
-	/**
 	 * 劫持全局setTimeout
 	 * + 视频页面/video
 	 *

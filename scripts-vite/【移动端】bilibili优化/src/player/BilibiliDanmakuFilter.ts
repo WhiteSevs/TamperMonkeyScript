@@ -1,7 +1,5 @@
-import { log, utils } from "@/env";
+import { utils } from "@/env";
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
-import { BilibiliPlayer } from "./BilibiliPlayer";
-import { BilibiliRouter } from "@/router/BilibiliRouter";
 import { PopsPanel } from "@/setting/setting";
 
 /** 弹幕过滤器 */
@@ -14,127 +12,24 @@ export const BilibiliDanmakuFilter = {
 		4: "底部",
 		1: "从右往左",
 	},
-	$player: {
-		async danmakuArray() {
-			await utils.waitPropertyByInterval(
-				unsafeWindow,
-				() => {
-					return (
-						typeof BilibiliPlayer.player === "object" &&
-						typeof BilibiliPlayer.player?.playerPromise === "object"
-					);
-				},
-				250,
-				10000
-			);
-			let playerPromise = await BilibiliPlayer.$player.playerPromise();
-			await utils.waitPropertyByInterval(
-				async () => {
-					playerPromise = await BilibiliPlayer.$player.playerPromise();
-				},
-				() => {
-					return (
-						typeof playerPromise?.danmaku?.danmakuCore?.danmakuArray ===
-							"object" &&
-						playerPromise?.danmaku?.danmakuCore?.danmakuArray != null &&
-						Array.isArray(playerPromise?.danmaku?.danmakuCore?.danmakuArray)
-					);
-				},
-				250,
-				10000
-			);
-			let danmakuArray = playerPromise?.danmaku?.danmakuCore?.danmakuArray;
-			// log.info(`获取当前弹幕列表数量: ${danmakuArray.length}`);
-			return danmakuArray;
-		},
-		async danmakuFilter() {
-			await utils.waitPropertyByInterval(
-				unsafeWindow,
-				() => {
-					return (
-						typeof BilibiliPlayer.player === "object" &&
-						typeof BilibiliPlayer.player?.playerPromise === "object"
-					);
-				},
-				250,
-				10000
-			);
-			let playerPromise = await BilibiliPlayer.$player.playerPromise();
-			await utils.waitPropertyByInterval(
-				async () => {
-					playerPromise = await BilibiliPlayer.$player.playerPromise();
-				},
-				() => {
-					return (
-						typeof playerPromise?.danmaku?.danmakuCore?.config
-							?.danmakuFilter === "function"
-					);
-				},
-				250,
-				10000
-			);
-			let danmakuFilter =
-				playerPromise?.danmaku?.danmakuCore?.config?.danmakuFilter;
-			return danmakuFilter;
-		},
-	},
 	$data: {
 		danmakuArray: <DanmaConfig[]>[],
-	},
-	$fn: {
-		updateDanmakuArray: new utils.LockFunction(async () => {
-			BilibiliDanmakuFilter.$data.danmakuArray =
-				await BilibiliDanmakuFilter.$player.danmakuArray();
-		}, 250),
 	},
 	/** 初始化弹幕过滤器 */
 	async init() {
 		let totalRule = this.parseRule();
-
-		let danmakuFilter = await this.$player.danmakuFilter();
 		let that = this;
-		if (typeof danmakuFilter == "function") {
-			let playerPromise = await BilibiliPlayer.$player.playerPromise();
-			await utils.waitPropertyByInterval(
-				async () => {
-					playerPromise = await BilibiliPlayer.$player.playerPromise();
-				},
-				() => {
-					return (
-						typeof playerPromise?.danmaku?.danmakuCore?.config
-							?.danmakuFilter === "function"
-					);
-				},
-				250,
-				10000
-			);
-			let isBangumi = BilibiliRouter.isBangumi();
-			/**
-			 * 自定义的弹幕过滤函数，用于替换页面原有的过滤函数
-			 * @param danmaConfig
-			 */
-			let ownFilter = function (
-				danmaConfig: DanmaConfig | BangumiDanmaConfig
-			): boolean {
-				let isFilter = false;
-				isFilter = that.filter(danmaConfig as DanmaConfig, totalRule);
-				if (isBangumi) {
-					// 番剧页面中，true是不过滤，false是过滤
-					isFilter = !isFilter;
-				}
-				return isFilter;
-			};
-			Reflect.set(
-				playerPromise.danmaku.danmakuCore.config,
-				"danmakuFilter",
-				ownFilter
-			);
-			log.success(`成功覆盖danmakuFilter`);
-		}
-	},
-	/** 更新弹幕列表 */
-	updateDanmakuArray() {
-		this.$fn.updateDanmakuArray.run();
+		/**
+		 * 自定义的弹幕过滤函数，用于替换页面原有的过滤函数
+		 * @param danmaConfig
+		 */
+		let ownFilter = function (
+			danmaConfig: DanmaConfig | BangumiDanmaConfig
+		): boolean {
+			let isFilter = false;
+			isFilter = that.filter(danmaConfig as DanmaConfig, totalRule);
+			return isFilter;
+		};
 	},
 	/**
 	 * 判断是否需要过滤
@@ -143,7 +38,6 @@ export const BilibiliDanmakuFilter = {
 	 * @param danmakuArray
 	 */
 	filter(danmaConfig: DanmaConfig, totalRule: RegExp[]): boolean {
-		this.updateDanmakuArray();
 		let filterFlag = false;
 		if (!filterFlag) {
 			if (PopsPanel.getValue("bili-danmaku-filter-type-roll")) {

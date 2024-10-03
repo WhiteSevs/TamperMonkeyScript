@@ -1,6 +1,7 @@
 import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
+import { CommonUtils } from "@/utils/CommonUtils";
 
 // 屏蔽元素
 const BilibiliLiveBlockNode = {
@@ -20,21 +21,21 @@ const BilibiliLiveBlockNode = {
 	 */
 	blockChatRoom() {
 		log.info("屏蔽聊天室");
-		return BilibiliUtils.addBlockCSS("#chat-items");
+		return CommonUtils.addBlockCSS("#chat-items");
 	},
 	/**
 	 * 屏蔽xxx进入直播间
 	 */
 	blockBrushPrompt() {
 		log.info("屏蔽xxx进入直播间");
-		return BilibiliUtils.addBlockCSS("#brush-prompt");
+		return CommonUtils.addBlockCSS("#brush-prompt");
 	},
 	/**
 	 * 屏蔽底部工具栏
 	 */
 	blockControlPanel() {
 		log.info("屏蔽底部工具栏");
-		return BilibiliUtils.addBlockCSS(".control-panel");
+		return CommonUtils.addBlockCSS(".control-panel");
 	},
 };
 

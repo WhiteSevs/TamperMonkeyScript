@@ -8,7 +8,7 @@ export const BilibiliRouter = {
 	},
 	/**
 	 * 番剧
-	 * + /banggumi/
+	 * + /bangumi/
 	 */
 	isBangumi() {
 		return window.location.pathname.startsWith("/bangumi/");

@@ -9,6 +9,7 @@ import artPlayerCSS from "./artplayer/index.css?raw";
 import type Artplayer from "artplayer";
 import { BilibiliOpenApp } from "./BilibiliOpenApp";
 import { BlibiliBangumiPlayer } from "./BilibiliBangumiPlayer";
+import { CommonUtils } from "@/utils/CommonUtils";
 
 const BilibiliBangumi = {
 	$data: {
@@ -16,7 +17,7 @@ const BilibiliBangumi = {
 	},
 	init() {
 		PopsPanel.execMenuOnce("bili-bangumi-initialScale", () => {
-			BilibiliUtils.initialScale();
+			CommonUtils.initialScale();
 		});
 		PopsPanel.execMenuOnce("bili-bangumi-hook-callApp", () => {
 			this.hookCallApp();

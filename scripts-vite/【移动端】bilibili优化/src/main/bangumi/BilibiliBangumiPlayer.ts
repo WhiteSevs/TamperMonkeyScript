@@ -8,15 +8,15 @@ import { unsafeWindow } from "ViteGM";
 import { VueUtils } from "@/utils/VueUtils";
 import { DOMUtils, log } from "@/env";
 import {
-	BilibiliArtPlayer,
+	BilibiliBangumiArtPlayer,
 	type BilibiliBangumiArtPlayerOption,
 } from "./artplayer/ArtPlayer";
 import { PopsPanel } from "@/setting/setting";
-import { ArtPlayerVideoConfig } from "./artplayer/ArtPlayerVideoConfig";
+import { BangumiArtPlayerVideoConfig } from "./artplayer/ArtPlayerVideoConfig";
 import { VideoSoundQualityCode } from "@/video-info/VideoDict";
 import { BilibiliLogUtils } from "@/utils/BilibiliLogUtils";
 import type { quality } from "artplayer/types/quality";
-import type { EP_INFO, EP_LIST } from "./BangumiType";
+import type { EP_INFO, EP_LIST } from "./TypeBangumi";
 
 type VideoQualityInfo = {
 	/** 画质文字 */
@@ -91,7 +91,7 @@ function filterDashVideoQualityInfo(
 			dashVideoInfo.backupUrl
 		);
 		// 处理视频host替换
-		videoUrl = BilibiliCDNProxy.replaceVideoCDN(videoUrl);
+		videoUrl = BilibiliCDNProxy.replaceBangumiVideoCDN(videoUrl);
 		// 视频画质名称
 		let qualityName = findSupportFormat?.new_description!;
 		result.push({
@@ -167,7 +167,7 @@ export const GenerateArtPlayerOption = async (
 
 		// 遍历视频
 		let userChooseVideoCodingCode =
-			ArtPlayerVideoConfig.getUserChooseVideoCodingCode();
+			BangumiArtPlayerVideoConfig.getUserChooseVideoCodingCode();
 
 		if (bangumiInfo.type.toLowerCase() === "flv") {
 			isFlv = true;
@@ -179,7 +179,7 @@ export const GenerateArtPlayerOption = async (
 					durlInfo.backup_url
 				);
 				// 处理视频host替换
-				videoUrl = BilibiliCDNProxy.replaceVideoCDN(videoUrl);
+				videoUrl = BilibiliCDNProxy.replaceBangumiVideoCDN(videoUrl);
 				flvTotalDuration += durlInfo.length;
 				flvTotalSize += durlInfo.size;
 				flvInfo.push({
@@ -197,8 +197,16 @@ export const GenerateArtPlayerOption = async (
 			// dash类型，分video和audio
 			// 遍历audio
 			bangumiInfo.dash.audio.forEach((item) => {
-				let audioUrl = item.base_url || item.baseUrl;
-				audioUrl = BilibiliCDNProxy.replaceVideoCDN(audioUrl);
+				let audioUrl = BilibiliCDNProxy.findBetterCDN(
+					item.baseUrl,
+					item.base_url,
+					item.baseUrl,
+					item.backup_url
+				);
+				if (PopsPanel.getValue("bili-bangumi-uposServerSelect-applyAudio")) {
+					// 给音频也替换
+					audioUrl = BilibiliCDNProxy.replaceBangumiVideoCDN(audioUrl);
+				}
 				audioInfo.push({
 					url: audioUrl,
 					id: item.id,
@@ -255,7 +263,6 @@ export const GenerateArtPlayerOption = async (
 			});
 			log.info([`ArtPlayer: 获取的视频画质信息`, qualityInfo]);
 		} else {
-			// m4p类型，没有audio
 			BilibiliLogUtils.failToast(
 				"暂未适配的视频格式：" + bangumiInfo["format"]
 			);
@@ -351,7 +358,14 @@ export const GenerateArtPlayerOption = async (
 	artPlayerOption.url = qualityInfo?.[0]?.url;
 	if (audioInfo.length) {
 		// 如果存在音频，则设置m4s的音频
-		artPlayerOption.audioUrl = audioInfo[0].url;
+		artPlayerOption.audioList = audioInfo.map((item, index) => {
+			return {
+				isDefault: index === 0,
+				url: item.url,
+				soundQualityCode: item.id,
+				soundQualityCodeText: item.text,
+			};
+		});
 	}
 
 	return artPlayerOption;
@@ -404,13 +418,15 @@ export const BlibiliBangumiPlayer = {
 				artPlayerOption!.container = $artPlayer;
 				// 初始化artplayer播放器
 				if (BilibiliBangumi.$data.art == null) {
-					let art = await BilibiliArtPlayer.init(artPlayerOption);
+					let art = await BilibiliBangumiArtPlayer.init(artPlayerOption);
 					if (art) {
 						BilibiliBangumi.$data.art = art;
 					} else {
 						return;
 					}
-					Reflect.set(unsafeWindow, "art", BilibiliBangumi.$data.art);
+					if (import.meta.hot) {
+						Reflect.set(unsafeWindow, "art", BilibiliBangumi.$data.art);
+					}
 					BilibiliBangumi.$data.art.on("restart", (url) => {
 						// 切换播放地址
 						// 看看切换的播放地址是不是当前的画质列表内的地址
@@ -419,14 +435,17 @@ export const BlibiliBangumiPlayer = {
 							return item.url === url;
 						});
 						if (findQuality) {
-							console.log("切换画质：", findQuality);
+							log.info(["切换画质：", findQuality]);
 						}
 					});
 					// 强制初始化音量为1
 					BilibiliBangumi.$data.art.volume = 1;
 				} else {
 					// 更新artplayer播放信息
-					BilibiliArtPlayer.update(BilibiliBangumi.$data.art, artPlayerOption);
+					BilibiliBangumiArtPlayer.update(
+						BilibiliBangumi.$data.art,
+						artPlayerOption
+					);
 				}
 			},
 		});

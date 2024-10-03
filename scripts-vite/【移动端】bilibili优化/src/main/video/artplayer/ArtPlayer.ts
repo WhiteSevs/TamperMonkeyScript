@@ -1,8 +1,13 @@
-import { log, utils } from "@/env";
+import { BilibiliVideoCodingCode } from "@/api/BilibiliApiConfig";
+import { BilibiliData } from "@/data/BlibiliData";
+import { ArtPlayerDanmakuOptionHelper } from "@/player/plugins/artplayer-plugin-DanmakuHelper";
+import { PopsPanel } from "@/setting/setting";
 import Artplayer from "artplayer";
-import artplayerPluginDanmuku from "artplayer-plugin-danmuku";
-import type Option from "artplayer/types/option";
 import type { quality } from "artplayer/types/quality";
+import type Option from "artplayer/types/option";
+import { ArtPlayerBiliBiliIcon } from "@/player/BilibiliArtPlayerIcon";
+import artplayerPluginDanmuku from "artplayer-plugin-danmuku";
+import { log, utils } from "@/env";
 import {
 	ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY,
 	artplayerPluginM4SAudioSupport,
@@ -10,24 +15,18 @@ import {
 	type ArtPlayerPluginM4SAudioSupportResult,
 } from "@/player/plugins/artplayer-plugin-bilibiliM4SAudioSupport";
 import {
-	ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY,
-	artplayerPluginBilibiliCCSubTitle,
-	type ArtPlayerPluginBilibiliSubTitleOption,
-	type ArtPlayerPluginBilibiliSubTitleResult,
-} from "@/player/plugins/artplayer-plugin-bilibiliCCSubtitle";
-import { PopsPanel } from "@/setting/setting";
-import { BilibiliVideoCodingCode } from "@/api/BilibiliApiConfig";
-import {
 	ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY,
 	artplayerPluginTopToolBar,
 	type ArtPlayerPluginTopToolBarOption,
 	type ArtPlayerPluginTopToolBarResult,
 } from "@/player/plugins/artplayer-plugin-TopToolBar";
-import flvjs from "flv.js";
-import { BilibiliLogUtils } from "@/utils/BilibiliLogUtils";
-import type { EP_INFO } from "../TypeBangumi";
-import { BlibiliBangumiPlayer } from "../BilibiliBangumiPlayer";
-import { ArtPlayerDanmakuOptionHelper } from "@/player/plugins/artplayer-plugin-DanmakuHelper";
+import {
+	ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY,
+	artplayerPluginBilibiliCCSubTitle,
+	type ArtPlayerPluginBilibiliSubTitleOption,
+	type ArtPlayerPluginBilibiliSubTitleResult,
+} from "@/player/plugins/artplayer-plugin-bilibiliCCSubtitle";
+import type { VIDEO_EP_LIST } from "../TypeVideo";
 import {
 	ArtPlayer_PLUGIN_EP_CHOOSE_KEY,
 	artplayerPluginEpChoose,
@@ -35,159 +34,87 @@ import {
 	type ArtPlayerPluginEpChooseOption,
 	type ArtPlayerPluginEpChooseResult,
 } from "@/player/plugins/artplayer-plugin-epChoose";
+import { BilibiliVideoPlayer } from "../BilibiliVideoPlayer";
 import { ArtPlayerCommonOption } from "@/player/ArtPlayerCommonOption";
 
-export type BilibiliBangumiArtPlayerOption = {
+export interface BilibiliVideoArtPlayerOption {
 	/** 容器 */
 	container: HTMLDivElement | string;
 	/** 选集信息 */
-	epList: EP_INFO[];
+	epList?: VIDEO_EP_LIST[];
 	/** 视频链接 */
 	url?: string | (() => IPromise<string>);
-	/** 音频链接数组信息 */
+	poster?: string;
+	/** 音频链接 */
 	audioList?: ArtPlayerPluginM4SAudioSupportOption["audioList"];
 	/** 画质信息 */
 	quality: quality[];
 	/** 弹幕xml地址 */
 	danmukuUrl: string;
-	/** 视频的cid */
-	cid: string | number;
 	/** 视频的aid */
 	aid: string | number;
 	/** 视频的bvid */
-	bvid?: string;
-	/** 视频的ep_id */
-	ep_id: string | number;
+	bvid: string;
+	/** 视频的cid */
+	cid: string | number;
 	/** 视频的标题 */
 	videoTitle?: string;
-	/** 是否是flv文件 */
-	isFlv: boolean;
-	/** flv的视频信息 */
-	flvInfo: {
-		/** 排序 */
-		order: number;
-		/** 播放地址 */
-		url: string;
-		/** 视频长度 */
-		length: number;
-		/** 文件大小 */
-		size: number;
-		/** 视频秒数 */
-		duration: number;
-	}[];
-	/** flv视频总大小(byte) */
-	flvTotalSize: number;
-	/** flv视频总长度(ms) */
-	flvTotalDuration: number;
-};
-
-const TAG_FLV = "[flvjs]：";
+}
 
 /**
- * 生成番剧需要的选集信息
+ * 生成需要的选集信息
  * @param option
  */
-const generateBangumiVideoSelectSetting = (
-	option: BilibiliBangumiArtPlayerOption
+const generateVideoSelectSetting = (
+	option: BilibiliVideoArtPlayerOption
 ): ArtPlayerPluginEpChooseOption["EP_LIST"] => {
-	return option.epList.map((item) => {
+	return (option.epList || []).map((epInfo) => {
 		return {
-			isDefault:
-				item.ep_id === option.ep_id &&
-				item.aid === option.aid &&
-				item.cid === option.cid,
-			title: GenerateArtPlayerEpTitle(item.long_title, item.title),
-			aid: item.aid,
-			bvid: item.bvid,
-			cid: item.cid,
-			ep_id: item.ep_id,
+			isDefault: epInfo.aid === option.aid && epInfo.cid === option.cid,
+			title: GenerateArtPlayerEpTitle(epInfo.title),
+			aid: epInfo.aid,
+			bvid: epInfo.bvid,
+			cid: epInfo.cid,
 			onSelect(selectItem, index) {
-				BlibiliBangumiPlayer.updateArtPlayerVideoInfo(item, option.epList);
+				BilibiliVideoPlayer.updateArtPlayerVideoInfo(
+					{
+						aid: epInfo.aid,
+						bvid: epInfo.bvid,
+						cid: epInfo.cid,
+						pic: epInfo.arc.pic,
+						title: epInfo.title,
+						epList: option.epList || [],
+					},
+					true
+				);
 			},
 		};
 	});
 };
 
-export const BilibiliBangumiArtPlayer = {
+export const BilibiliVideoArtPlayer = {
 	$data: {
 		art: null as any as Artplayer,
-		flv: null as any as flvjs.Player | null,
 		/** 当前的配置项 */
-		currentOption: null as any as BilibiliBangumiArtPlayerOption | null,
+		currentOption: null as any as BilibiliVideoArtPlayerOption | null,
 	},
 	/**
 	 * 重置环境变量
 	 */
 	resetEnv() {
-		Object.keys(BilibiliBangumiArtPlayer.$data).forEach((keyName) => {
+		Object.keys(BilibiliVideoArtPlayer.$data).forEach((keyName) => {
 			Reflect.set(this.$data, keyName, null);
 		});
-	},
-	/**
-	 * flv播放
-	 *
-	 * 切换url时自动调用
-	 * @param videoInfoList 可能多个，可能只有一个
-	 */
-	flvPlayer() {
-		if (this.$data.currentOption == null) {
-			console.error(TAG_FLV + "获取当前配置为空");
-			return;
-		}
-		let flvInfoList = this.$data.currentOption.flvInfo;
-		if (this.$data.flv != null || flvInfoList == null) {
-			// 销毁旧的
-			this.$data.flv?.detachMediaElement();
-			this.$data.flv?.destroy();
-		}
-		let currentOption = this.$data.currentOption;
-		console.log(TAG_FLV + "加载视频", flvInfoList);
-		if (flvInfoList.length > 1) {
-			// 多个
-			this.$data.flv = flvjs.createPlayer(
-				{
-					type: "flv",
-					filesize: currentOption.flvTotalSize,
-					duration: currentOption.flvTotalDuration,
-					segments: flvInfoList.map((item) => {
-						return {
-							url: item.url,
-							duration: item.duration,
-							filesize: item.size,
-						};
-					}),
-				},
-				{
-					stashInitialSize: 1024 * 100,
-				}
-			);
-		} else {
-			// 1个
-			this.$data.flv = flvjs.createPlayer(
-				{
-					type: "flv",
-					url: flvInfoList[0].url,
-				},
-				{
-					stashInitialSize: 1024 * 100,
-				}
-			);
-		}
-		// 输出流绑定
-		this.$data.flv.attachMediaElement(this.$data.art.video);
-		// 加载流
-		this.$data.flv.load();
 	},
 	/**
 	 * 初始化播放器
 	 * @param option
 	 */
-	async init(option: BilibiliBangumiArtPlayerOption) {
+	async init(option: BilibiliVideoArtPlayerOption) {
 		this.resetEnv();
 		this.$data.currentOption = option;
-		// const volume = 100;
 		// 本地存储的弹幕设置
-		const localArtDanmakuOption_KEY = "artplayer-bangumi-danmaku-option";
+		const localArtDanmakuOption_KEY = "artplayer-video-danmaku-option";
 		const artPlayerDanmakuOptionHelper = new ArtPlayerDanmakuOptionHelper(
 			localArtDanmakuOption_KEY
 		);
@@ -200,6 +127,11 @@ export const BilibiliBangumiArtPlayer = {
 		const artOption: Option = {
 			...ArtPlayerCommonOption(),
 			container: option.container,
+			/** 视频封面 */
+			poster: option.poster,
+			/** 是否自动播放 */
+			autoplay: PopsPanel.getValue("bili-video-playerAutoPlayVideo", false),
+			autoPlayback: PopsPanel.getValue("bili-video-playerAutoPlayVideo", false),
 			/** 自定义设置列表 */
 			settings: [
 				{
@@ -226,7 +158,7 @@ export const BilibiliBangumiArtPlayer = {
 							value: BilibiliVideoCodingCode["AVC"],
 						},
 					],
-					onSelect: function (item) {
+					onSelect: function (item: any) {
 						PopsPanel.setValue("bili-bangumi-videoCodingCode", item.value);
 						return item.html;
 					},
@@ -239,6 +171,21 @@ export const BilibiliBangumiArtPlayer = {
 					danmuku: option.danmukuUrl,
 					// 以下为非必填
 					speed: localArtDanmakuOption.speed, // 弹幕持续时间，范围在[1 ~ 10]
+					/**
+                     * [{
+                                name: "1/4",
+                                value: [10, "75%"]
+                            }, {
+                                name: "半屏",
+                                value: [10, "50%"]
+                            }, {
+                                name: "3/4",
+                                value: [10, "25%"]
+                            }, {
+                                name: "满屏",
+                                value: [10, 10]
+                            }]
+                     */
 					margin: localArtDanmakuOption["margin"], // 弹幕上下边距，支持像素数字和百分比
 					opacity: localArtDanmakuOption["opacity"], // 弹幕透明度，范围在[0 ~ 1]
 					color: "#FFFFFF", // 默认弹幕颜色，可以被单独弹幕项覆盖
@@ -275,18 +222,17 @@ export const BilibiliBangumiArtPlayer = {
 					},
 				}),
 				artplayerPluginM4SAudioSupport({
-					audioList: option.audioList,
 					showSetting: true,
+					audioList: option.audioList,
 				}),
 				artplayerPluginEpChoose({
-					EP_LIST: generateBangumiVideoSelectSetting(option),
+					EP_LIST: generateVideoSelectSetting(option),
 					automaticBroadcast: true,
 				}),
 				artplayerPluginBilibiliCCSubTitle({
 					cid: option.cid,
 					aid: option.aid,
 					bvid: option.bvid!,
-					ep_id: option.ep_id,
 				}),
 				artplayerPluginTopToolBar({
 					onlineInfoParams: {
@@ -301,39 +247,8 @@ export const BilibiliBangumiArtPlayer = {
 				}),
 			],
 		};
-		if (option.isFlv) {
-			// flv格式
-			// 清空画质信息
-			artOption.quality = [];
-			// 固定播放格式
-			artOption.type = "flv";
-			if (option.flvInfo.length === 0) {
-				BilibiliLogUtils.failToast("视频播放地址为空，无法播放！");
-				return;
-			}
-			artOption.url = option.flvInfo[0].url;
-			// 使用flvjs
-			artOption.customType = {
-				flv: (video, url, art) => {
-					// 这里里面尽量不要用外面的变量
-					// 要用的话也是用this.currentOption
-					if (!flvjs.isSupported()) {
-						art.notice.show = "Unsupported playback format: flv";
-						return;
-					}
-					this.flvPlayer();
-					// let flvInfo =
-					// 	this.currentOption.flvInfo[this.currentOptionFlvInfoIndex];
-					// if (flvInfo == null) {
-					// 	console.error("没有flv播放信息了");
-					// 	return;
-					// }
-					// this.flvPlayer(flvInfo);
-				},
-			};
-		} else {
-			artOption.type = "mp4";
-		}
+
+		artOption.type = "mp4";
 
 		if (typeof option.url === "string") {
 			artOption.url = option.url;
@@ -348,10 +263,9 @@ export const BilibiliBangumiArtPlayer = {
 	},
 	/**
 	 * 更新新的播放信息
-	 * @param art
 	 * @param option
 	 */
-	async update(art: Artplayer, option: BilibiliBangumiArtPlayerOption) {
+	async update(art: Artplayer, option: BilibiliVideoArtPlayerOption) {
 		this.resetEnv();
 		this.$data.currentOption = option;
 		let videoUrl = "";
@@ -386,7 +300,7 @@ export const BilibiliBangumiArtPlayer = {
 	 * @param art
 	 * @param option
 	 */
-	updatePluginInfo(art: Artplayer, option: BilibiliBangumiArtPlayerOption) {
+	updatePluginInfo(art: Artplayer, option: BilibiliVideoArtPlayerOption) {
 		// 更新音频
 		let plugin_m4sAudioSupport = art.plugins[
 			ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY
@@ -400,9 +314,9 @@ export const BilibiliBangumiArtPlayer = {
 		] as ArtPlayerPluginBilibiliSubTitleResult;
 		// 配置字幕数据
 		const subTitleOption = {
-			cid: option.cid,
 			aid: option.aid,
-			ep_id: option.ep_id,
+			bvid: option.bvid,
+			cid: option.cid,
 		} as ArtPlayerPluginBilibiliSubTitleOption;
 		plugin_bilibiliCCSubTitle.update(subTitleOption);
 		log.info([`更新字幕`, subTitleOption]);
@@ -434,7 +348,7 @@ export const BilibiliBangumiArtPlayer = {
 			ArtPlayer_PLUGIN_EP_CHOOSE_KEY
 		] as ArtPlayerPluginEpChooseResult;
 		plugin_epChoose.update({
-			EP_LIST: generateBangumiVideoSelectSetting(option),
+			EP_LIST: generateVideoSelectSetting(option),
 			automaticBroadcast: true,
 		});
 		log.info([`更新选集信息`, option.epList]);

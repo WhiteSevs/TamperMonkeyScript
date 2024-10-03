@@ -1,4 +1,5 @@
 import "./block.css";
+import "./common.css";
 import BilibiliBeautifyCSS from "./BilibiliBeautify.css?raw";
 import { BilibiliPCRouter, BilibiliRouter } from "@/router/BilibiliRouter";
 import { BilibiliVideo } from "./video/BilibiliVideo";
@@ -12,19 +13,14 @@ import { BilibiliTopicDetail } from "./topic-detail/BilibiliTopicDetail";
 import { BilibiliDynamic } from "./dynamic/BilibiliDynamic";
 import { BilibiliHook } from "@/hook/BilibiliHook";
 import { BilibiliHead } from "./head/BilibiliHead";
-import { BilibiliUtils } from "@/utils/BilibiliUtils";
-import { BilibiliVueProp } from "./BilibiliVueProp";
 import { BilibiliReadMobile } from "./read/mobile/BilibiliReadMobile";
-import { BilibiliNetworkHook } from "@/hook/BilibiliNetworkHook";
 import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
-import { BilibiliPlayer } from "../player/BilibiliPlayer";
-import "./common.css";
 import { BilibiliSpace } from "./space/BilibiliSpace";
 import { VueUtils } from "@/utils/VueUtils";
+import { BilibiliVueProp } from "./BilibiliVueProp";
 
 const Bilibili = {
 	init() {
-		BilibiliNetworkHook.init();
 		BilibiliVueProp.init();
 		PopsPanel.execMenuOnce("bili-allowCopy", () => {
 			return addStyle(/*css*/ `
@@ -91,55 +87,6 @@ const Bilibili = {
 		} else {
 			log.error("该Router暂未适配，可能是首页之类：" + window.location.href);
 		}
-
-		DOMUtils.ready(() => {
-			// 番剧页面没有player，而是BiliH5Player
-			// 但是在.player-wrapper属性上
-			// 需要点击播放才会有player属性生成
-			if (BilibiliRouter.isBangumi()) {
-				let isInitPlayer = false;
-				VueUtils.waitVuePropToSet(
-					() => document.querySelector<HTMLDivElement>(".player-wrapper"),
-					[
-						{
-							msg: "等待获取.player-wrapper上的$0.__vue__.player.player.on_video_play",
-							check(vueIns) {
-								return (
-									typeof vueIns?.player?.player?.on_video_play == "function"
-								);
-							},
-							set(vueIns) {
-								log.success(
-									`成功覆盖.player-wrapper上的$0.__vue__.player.player.on_video_play`
-								);
-								let originFn = vueIns?.player?.player?.on_video_play;
-								if (originFn.prototype.isHook) {
-									log.warn("函数on_video_play已被hook，取消覆盖");
-								}
-								let on_video_play = function (
-									this: any,
-									$video: HTMLVideoElement
-								) {
-									if (!isInitPlayer) {
-										isInitPlayer = true;
-										BilibiliPlayer.$player.parseBiliH5PlayerToPlayer(
-											vueIns.player
-										);
-										BilibiliPlayer.init();
-									}
-									return originFn.apply(this, arguments);
-								};
-								on_video_play.prototype.isHook = true;
-								vueIns.player.player.on_video_play = on_video_play;
-							},
-						},
-					]
-				);
-			} else if (BilibiliRouter.isVideo()) {
-				// 视频页面
-				BilibiliPlayer.init();
-			}
-		});
 	},
 	/**
 	 * 监听路由变化

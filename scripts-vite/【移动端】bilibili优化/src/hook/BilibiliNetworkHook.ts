@@ -1,5 +1,4 @@
 import { log, utils } from "@/env";
-import { BilibiliPlayer } from "@/player/BilibiliPlayer";
 import { BilibiliPlayerToast } from "@/player/BilibiliPlayerToast";
 import { BilibiliRouter } from "@/router/BilibiliRouter";
 import { PopsPanel } from "@/setting/setting";
@@ -117,14 +116,6 @@ export const BilibiliNetworkHook = {
 		is_hook_bangumi_html5: false,
 	},
 	init() {
-		if (BilibiliRouter.isVideo()) {
-			// 视频页
-			PopsPanel.execMenuOnce("bili-video-xhr-unlockQuality", () => {
-				this.hook_video_playurl();
-			});
-		} else if (BilibiliRouter.isBangumi()) {
-			// 番剧
-		}
 	},
 	/**
 	 * 视频播放地址获取
@@ -176,7 +167,6 @@ export const BilibiliNetworkHook = {
 					}[] = data?.["data"]?.["support_formats"];
 					log.info("当前解锁的quality值：" + unlockQuality);
 					if (unlockQuality) {
-						BilibiliPlayer.initVideoQualityInfo(unlockQuality);
 					}
 					if (unlockQuality && support_formats) {
 						let findValue = support_formats.find((item: any) => {

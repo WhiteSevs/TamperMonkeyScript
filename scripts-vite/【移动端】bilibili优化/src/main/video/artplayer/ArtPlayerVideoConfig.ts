@@ -5,14 +5,14 @@ import { PopsPanel } from "@/setting/setting";
 /**
  * 播放器内的一些配置
  */
-export const BangumiArtPlayerVideoConfig = {
+export const VideoArtPlayerVideoConfig = {
 	/**
 	 * 获取用户选择的视频编码
 	 */
 	getUserChooseVideoCodingCode() {
 		// 遍历视频
 		let userChooseVideoCodingCode = PopsPanel.getValue(
-			"bili-bangumi-videoCodingCode",
+			"bili-video-artplayer-videoCodingCode",
 			BilibiliVideoCodingCode.AV1
 		);
 

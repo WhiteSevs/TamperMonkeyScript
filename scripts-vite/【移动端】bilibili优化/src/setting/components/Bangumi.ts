@@ -185,6 +185,13 @@ const SettingUIBangumi: PopsPanelContentConfig = {
 									void 0,
 									"设置解锁番剧的服务器，可加快视频加载速度"
 								),
+								UISwitch(
+									"作用于Audio上",
+									"bili-bangumi-uposServerSelect-applyAudio",
+									false,
+									void 0,
+									"把m4s类型的audio也进行upos替换"
+								),
 							],
 						},
 					],

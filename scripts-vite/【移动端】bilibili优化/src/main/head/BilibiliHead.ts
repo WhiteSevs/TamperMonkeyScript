@@ -2,10 +2,10 @@ import { BilibiliData } from "@/data/BlibiliData";
 import { DOMUtils, Qmsg, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
-import { BilibiliRecommend } from "./BilibiliRecommend";
+import { BilibiliRecommend } from "./recommend/BilibiliRecommend";
 import { VueUtils } from "@/utils/VueUtils";
 import { BilibiliSearchApi } from "@/api/BilibiliSearchApi";
-import { BilibiliUrlUtils } from "@/utils/BilibiliUrlUtils";
+import { BilibiliUrl } from "@/utils/BilibiliUrl";
 
 export const BilibiliHead = {
 	$flag: {
@@ -218,7 +218,7 @@ export const BilibiliHead = {
 			if (isLogin) {
 				// 前往个人空间
 				if (uid != null) {
-					let url = BilibiliUrlUtils.getUserSpaceUrl(uid);
+					let url = BilibiliUrl.getUserSpaceUrl(uid);
 					BilibiliUtils.goToUrl(url, false);
 				} else {
 					Qmsg.error("获取用户id失败");

@@ -1,7 +1,7 @@
 import { AppKeyInfo } from "@/common/config";
 import { appSign } from "@/common/sign";
 import { httpx, utils, GMCookie, Qmsg, log } from "@/env";
-import { BilibiliResponseCheck } from "./BilibiliApiCheck";
+import { BilibiliResponseCheck } from "./BilibiliResponseCheck";
 
 export const BilibiliLoginApi = {
 	/**

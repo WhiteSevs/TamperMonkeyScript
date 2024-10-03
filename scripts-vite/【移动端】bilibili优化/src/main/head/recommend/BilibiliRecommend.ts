@@ -5,7 +5,7 @@ import BilibiliRecommendCSS from "./BilibiliRecommend.css?raw";
 import { android } from "@/define/BilibiliRecommendDefine";
 import { av2bv } from "@mgdn/bvid";
 import { PopsPanel } from "@/setting/setting";
-import { BilibiliResponseCheck } from "@/api/BilibiliApiCheck";
+import { BilibiliResponseCheck } from "@/api/BilibiliResponseCheck";
 import { AppKeyInfo } from "@/common/config";
 
 /**

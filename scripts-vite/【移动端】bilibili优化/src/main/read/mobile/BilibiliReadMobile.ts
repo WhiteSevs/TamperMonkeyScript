@@ -2,6 +2,7 @@ import { BilibiliPCData } from "@/data/BlibiliData";
 import { addStyle, log } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
+import { CommonUtils } from "@/utils/CommonUtils";
 
 export const BilibiliReadMobile = {
 	init() {
@@ -21,7 +22,7 @@ export const BilibiliReadMobile = {
 				max-height: unset !important;
 			}`),
 			// 屏蔽 【展开阅读全文】
-			BilibiliUtils.addBlockCSS(
+			CommonUtils.addBlockCSS(
 				BilibiliPCData.className.read.mobile + " .read-more"
 			),
 		];

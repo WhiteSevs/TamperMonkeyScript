@@ -1,8 +1,8 @@
 import { GMCookie, httpx, log, Qmsg, utils } from "@/env";
 import { BilibiliVideoPlayUrlQN } from "@/hook/BilibiliNetworkHook";
-import { BilibiliApiUtils } from "./BilibiliApiUtils";
+import { BilibiliRequestCheck } from "./BilibiliRequestCheck";
 import { BilibiliApiConfig } from "./BilibiliApiConfig";
-import { BilibiliResponseCheck } from "./BilibiliApiCheck";
+import { BilibiliResponseCheck } from "./BilibiliResponseCheck";
 
 type BilibliPlayUrlCommonConfig = {
 	cid: string | number;
@@ -19,6 +19,108 @@ type BilibliPlayUrlCommonConfig = {
 	setPlatformHTML5?: boolean;
 };
 
+type TypeBilibiliVideoInfo = {
+	accept_description: string[];
+	accept_format: string;
+	/** 允许的清晰度 */
+	accept_quality: number[];
+	/** 画质 */
+	quality: number;
+	/** 支持解锁的画质列表 */
+	support_formats: {
+		codecs: null;
+		/** 描述 */
+		display_desc: string;
+		/** 类型如flv */
+		format: string;
+		/** 文字，一般用这个显示 */
+		new_description: string;
+		/** 画质值 */
+		quality: number;
+		superscript: string;
+	}[];
+};
+
+export type TypeBilibiliVideoInfo_mp4 = TypeBilibiliVideoInfo & {
+	/** 播放地址信息列表 */
+	durl: {
+		ahead: string;
+		/** 备用url */
+		backup_url: string[] | null;
+		length: number;
+		order: number;
+		/** 视频大小 */
+		size: number;
+		/** 链接 */
+		url: string;
+		vhead: string;
+	}[];
+	[key: string]: any;
+};
+
+export type TypeBilibiliVideoInfo_m4s = TypeBilibiliVideoInfo & {
+	dash: {
+		audio: {
+			/** 链接信息 */
+			backupUrl: string[];
+			/** 链接信息 */
+			backup_url: string[];
+			/** 链接信息 */
+			baseUrl: string;
+			/** 链接信息 */
+			base_url: string;
+			/** 编码格式，一般是0 */
+			codecid: number;
+			/** 编码格式描述 */
+			codecs: string;
+			/** 音质代码 */
+			id: number;
+			/** 类型，一般是audio/mp4 */
+			mimeType: string;
+			/** 类型，一般是audio/mp4 */
+			mime_type: string;
+			/** 文件大小 */
+			// size: number;
+		}[];
+		dolby: {
+			audio: null;
+			type: number;
+		};
+		duration: number;
+		minBufferTime: number;
+		min_buffer_time: number;
+		video: {
+			/** 链接信息 */
+			backupUrl: string[];
+			/** 链接信息 */
+			backup_url: string[];
+			/** 编码格式 */
+			codecid: number;
+			/** 编码格式描述 */
+			codecs: string;
+			/** 链接信息 */
+			baseUrl: string;
+			/** 链接信息 */
+			base_url: string;
+			/** 画质代码 */
+			id: number;
+			/** 类型，一般是video/mp4 */
+			mimeType: string;
+			/** 类型，一般是video/mp4 */
+			mime_type: string;
+			/** 文件大小 */
+			// size: number;
+		}[];
+	};
+	format: "flv";
+	from: "local";
+	last_play_cid: number;
+	last_play_time: number;
+	timelength: number;
+	/** 视频编码 */
+	video_codecid: number;
+	[key: string]: any;
+};
 export const BilibiliVideoApi = {
 	/**
 	 * 获取视频播放地址，avid或bvid必须给一个
@@ -52,7 +154,7 @@ export const BilibiliVideoApi = {
 			// 该值是用来请求可以在移动端播放的链接的
 			Reflect.set(searchParamsData, "platform", "html5");
 		}
-		BilibiliApiUtils.mergeAndCheckSearchParamsData(searchParamsData, config);
+		BilibiliRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
 		if (typeof extraParams === "object") {
 			Object.assign(searchParamsData, extraParams);
 		}
@@ -71,37 +173,9 @@ export const BilibiliVideoApi = {
 		if (data["code"] !== 0) {
 			return;
 		}
-		return data["data"] as {
-			/** 播放地址信息列表 */
-			durl: {
-				ahead: string;
-				/** 备用url */
-				backup_url: string[] | null;
-				length: number;
-				order: number;
-				/** 视频大小 */
-				size: number;
-				/** 链接 */
-				url: string;
-				vhead: string;
-			}[];
-			/** 画质 */
-			quality: number;
-			/** 支持解锁的画质列表 */
-			support_formats: {
-				codecs: null;
-				/** 描述 */
-				display_desc: string;
-				/** 类型如flv */
-				format: string;
-				/** 文字，一般用这个显示 */
-				new_description: string;
-				/** 画质值 */
-				quality: number;
-				superscript: string;
-			}[];
-			[key: string]: any;
-		};
+		return data["data"] as
+			| TypeBilibiliVideoInfo_mp4
+			| TypeBilibiliVideoInfo_m4s;
 	},
 	/**
 	 * 获取视频在线观看人数
@@ -121,14 +195,7 @@ export const BilibiliVideoApi = {
 		let searchParamsData = {
 			cid: config.cid,
 		};
-		BilibiliApiUtils.mergeAndCheckSearchParamsData(searchParamsData, config);
-		if ("aid" in config) {
-			Reflect.set(searchParamsData, "aid", config.aid);
-		} else if ("bvid" in config) {
-			Reflect.set(searchParamsData, "bvid", config.bvid);
-		} else {
-			throw new TypeError("avid or bvid must give one");
-		}
+		BilibiliRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
 		let httpxResponse = await httpx.get(
 			`https://${
 				BilibiliApiConfig.web_host
@@ -170,7 +237,7 @@ export const BilibiliVideoApi = {
 			csrf: GMCookie.get("bili_jct")?.value || "",
 		};
 
-		BilibiliApiUtils.mergeAndCheckSearchParamsData(searchParamsData, config);
+		BilibiliRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
 		let getResp = await httpx.get(
 			"https://api.bilibili.com/x/web-interface/archive/like?" +
 				utils.toSearchParamsStr(searchParamsData),

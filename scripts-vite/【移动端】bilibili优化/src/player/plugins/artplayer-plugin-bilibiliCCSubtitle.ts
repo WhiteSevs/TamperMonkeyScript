@@ -1,4 +1,4 @@
-import { BilibiliResponseCheck } from "@/api/BilibiliApiCheck";
+import { BilibiliResponseCheck } from "@/api/BilibiliResponseCheck";
 import { BilibiliApiConfig } from "@/api/BilibiliApiConfig";
 import { httpx, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
@@ -6,6 +6,7 @@ import Artplayer from "artplayer";
 import type { Setting } from "artplayer/types/setting";
 import Chinese, { type CustomStr } from "s2t-chinese";
 
+const TAG = "[artplayer-plugin-bilibiliCCSubTitle]：";
 /**
  * 自定义字符库（补充）
  */
@@ -45,7 +46,7 @@ const SubTitleEvent = {
 	 * 绑定事件
 	 */
 	bind() {
-		SubTitle.art.on("video:timeupdate", this.event.bind(this));
+		SubTitle.art.on("video:timeupdate", this.event, this);
 	},
 	/**
 	 * 取消绑定事件
@@ -135,7 +136,12 @@ const SubTitleSettingLayer = {
 			width: 200,
 			html: "字幕",
 			tooltip: SubTitleSettingLayer.getDefaultSelector().html,
-			icon: '<img width="22" heigth="22" src="https://artplayer.org/assets/img/subtitle.svg">',
+			icon: /*html*/ `
+			<svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" viewBox="0 0 48 48">
+				<path d="M0 0h48v48H0z" fill="none"/>
+				<path fill="#ffffff" d="M40 8H8c-2.21 0-4 1.79-4 4v24c0 2.21 1.79 4 4 4h32c2.21 0 4-1.79 4-4V12c0-2.21-1.79-4-4-4zM8 24h8v4H8v-4zm20 12H8v-4h20v4zm12 0h-8v-4h8v4zm0-8H20v-4h20v4z"/>
+			</svg>
+			`,
 			selector: [],
 			onSelect: function (item) {
 				if (typeof item.callback === "function") {
@@ -193,6 +199,9 @@ const SubTitleData = {
 
 const SubTitle = {
 	art: null as any as Artplayer,
+	$key: {
+		plugin_KEY: "plugin-bilibili-cc-subtitle",
+	},
 	$el: {
 		/**
 		 * 字幕容器
@@ -203,7 +212,7 @@ const SubTitle = {
 	 * 更新字幕信息
 	 * @param option
 	 */
-	async update(option: BilibiliSubTitleOption) {
+	async update(option: ArtPlayerPluginBilibiliSubTitleOption) {
 		SubTitleData.reset();
 		SubTitleSettingLayer.reset();
 		SubTitleEvent.reset();
@@ -219,9 +228,24 @@ const SubTitle = {
 		// 获取字幕容器
 		this.$el.$subtitle = this.art.template.$subtitle;
 
+		const searchParamsData = {
+			cid: option.cid,
+		};
+		if (option.ep_id) {
+			Reflect.set(searchParamsData, "ep_id", option.ep_id);
+		}
+		if (option.aid) {
+			Reflect.set(searchParamsData, "aid", option.aid);
+		} else if (option.bvid) {
+			Reflect.set(searchParamsData, "bvid", option.bvid);
+		} else {
+			throw new TypeError("avid or bvid must give one");
+		}
 		// 获取视频信息（里面有字幕信息）
 		const videoInfoResponse = await httpx.get(
-			`https://${BilibiliApiConfig.web_host}/x/player/v2?cid=${option.cid}&aid=${option.aid}&ep_id=${option.ep_id}`,
+			`https://${
+				BilibiliApiConfig.web_host
+			}/x/player/v2?${utils.toSearchParamsStr(searchParamsData)}`,
 			{
 				fetch: true,
 				allowInterceptConfig: false,
@@ -234,25 +258,16 @@ const SubTitle = {
 		);
 
 		if (!videoInfoResponse.status) {
-			console.error(
-				"[artplayer-plugin-bilibiliCCSubTitle]：获取视频信息失败",
-				videoInfoResponse
-			);
+			console.error(TAG + "获取视频信息失败", videoInfoResponse);
 			return;
 		}
-		console.log(
-			"[artplayer-plugin-bilibiliCCSubTitle]：视频字幕信息",
-			videoInfoResponse
-		);
+		console.log(TAG + "视频字幕信息", videoInfoResponse);
 		// 解析json
 		const videoInfoResultJSON = utils.toJSON(
 			videoInfoResponse.data.responseText
 		);
 		if (!BilibiliResponseCheck.isWebApiSuccess(videoInfoResultJSON)) {
-			console.error(
-				"[artplayer-plugin-bilibiliCCSubTitle]：获取视频信息失败",
-				videoInfoResultJSON
-			);
+			console.error(TAG + "获取视频信息失败", videoInfoResultJSON);
 			return;
 		}
 		// 字幕链接列表
@@ -271,10 +286,7 @@ const SubTitle = {
 		}[];
 
 		if (!subTitleUrlInfoList.length) {
-			console.warn(
-				"[artplayer-plugin-bilibiliCCSubTitle]：获取字幕链接列表为空",
-				videoInfoResultJSON
-			);
+			console.warn(TAG + "获取字幕链接列表为空", videoInfoResultJSON);
 			return;
 		}
 		// 依次加载字幕json
@@ -367,10 +379,7 @@ const SubTitle = {
 				},
 			});
 		});
-		console.log(
-			"[artplayer-plugin-bilibiliCCSubTitle]：加载视频CC字幕信息",
-			SubTitleData.allSubTitleInfo
-		);
+		console.log(TAG + "加载视频CC字幕信息", SubTitleData.allSubTitleInfo);
 
 		// 更新菜单数据
 		this.art.setting.update(settingOption);
@@ -392,31 +401,44 @@ const SubTitle = {
 	},
 };
 
-type BilibiliSubTitleOption = {
-	/** 视频的cid */
-	cid: string | number;
+export type ArtPlayerPluginBilibiliSubTitleOption = {
 	/** 视频的aid */
 	aid: string | number;
-	/** 视频的ep_id */
-	ep_id: string | number;
+	/** 视频的bvid */
+	bvid: string;
+	/** 视频的cid */
+	cid: string | number;
+	/** 视频的ep_id，一般是番剧的 */
+	ep_id?: string | number;
+};
+
+export type ArtPlayerPluginBilibiliSubTitleResult = {
+	name: string;
+	/** 更新视频时调用，更新字幕 */
+	update: (option: ArtPlayerPluginBilibiliSubTitleOption) => void;
 };
 /**
  * 加载Bilibili的CC字幕的插件
  */
 export function artplayerPluginBilibiliCCSubTitle(
-	option: BilibiliSubTitleOption
+	option: ArtPlayerPluginBilibiliSubTitleOption
 ) {
-	return async (art: Artplayer) => {
+	return (art: Artplayer): ArtPlayerPluginBilibiliSubTitleResult => {
 		SubTitleCustomStr.generteCustomStr();
 		// 更新实例
 		SubTitle.updateArtPlayer(art);
 		SubTitle.update(option);
 		return {
-			name: "plugin-bilibili-cc-subtitle",
-			/** 更新视频时调用，更新字幕 */
-			update(option: BilibiliSubTitleOption) {
+			name: SubTitle.$key.plugin_KEY,
+			update(option: ArtPlayerPluginBilibiliSubTitleOption) {
 				SubTitle.update(option);
 			},
 		};
 	};
 }
+
+/**
+ * 插件id
+ */
+export const ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY =
+	SubTitle.$key.plugin_KEY;

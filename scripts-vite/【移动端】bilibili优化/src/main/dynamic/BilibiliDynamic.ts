@@ -1,7 +1,7 @@
 import { BilibiliData } from "@/data/BlibiliData";
 import { DOMUtils, Qmsg, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { BilibiliUrlUtils } from "@/utils/BilibiliUrlUtils";
+import { BilibiliUrl } from "@/utils/BilibiliUrl";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { VueUtils } from "@/utils/VueUtils";
 
@@ -100,7 +100,7 @@ export const BilibiliDynamic = {
 					return;
 				}
 				log.info("用户的oid: " + oid);
-				BilibiliUtils.goToUrl(BilibiliUrlUtils.getUserSpaceDynamicUrl(oid));
+				BilibiliUtils.goToUrl(BilibiliUrl.getUserSpaceDynamicUrl(oid));
 			},
 			{
 				capture: true,

@@ -1,6 +1,8 @@
 import { BilibiliRouter } from "@/router/BilibiliRouter";
 import { UISwitch } from "../common-components/ui-switch";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { UISelect } from "../common-components/ui-select";
+import { BilibiliCDNProxy } from "@/api/BilibiliCDNProxy";
 
 const SettingUIVideo: PopsPanelContentConfig = {
 	id: "panel-video",
@@ -29,13 +31,6 @@ const SettingUIVideo: PopsPanelContentConfig = {
 									"添加margin-top"
 								),
 								UISwitch(
-									"自动点击【继续在网页观看】",
-									"bili-video-autoClickContinueToWatchOnTheWebpage",
-									true,
-									void 0,
-									"可避免弹窗出现且自动点击后播放视频"
-								),
-								UISwitch(
 									"美化底部推荐视频",
 									"bili-video-beautify",
 									true,
@@ -55,40 +50,6 @@ const SettingUIVideo: PopsPanelContentConfig = {
 									false,
 									void 0,
 									"用于解决跳转播放视频时，播放当前视频会有上一个播放视频的声音的情况"
-								),
-								UISwitch(
-									"initPlayer",
-									"bili-video-initPlayer",
-									true,
-									void 0,
-									"自动执行初始化播放器"
-								),
-								UISwitch(
-									"检测是否静音",
-									"bili-video-playerAutoPlayVideoCheckMute",
-									false,
-									void 0,
-									"在播放视频时自动检测视频是否静音，有的话弹出Toast"
-								),
-							],
-						},
-						{
-							text: "自动播放视频",
-							type: "forms",
-							forms: [
-								UISwitch(
-									"启用",
-									"bili-video-playerAutoPlayVideo",
-									false,
-									void 0,
-									"需开启【initPlayer】"
-								),
-								UISwitch(
-									"自动进入全屏",
-									"bili-video-playerAutoPlayVideoFullScreen",
-									false,
-									void 0,
-									"需开启【自动播放视频】"
 								),
 							],
 						},
@@ -114,8 +75,9 @@ const SettingUIVideo: PopsPanelContentConfig = {
 						},
 					],
 				},
+
 				{
-					text: "变量设置",
+					text: "ArtPlayer播放器",
 					type: "deepMenu",
 					forms: [
 						{
@@ -123,18 +85,68 @@ const SettingUIVideo: PopsPanelContentConfig = {
 							type: "forms",
 							forms: [
 								UISwitch(
-									"playBtnNoOpenApp",
-									"bili-video-setVideoPlayer",
+									"启用",
+									"bili-video-enableArtPlayer",
 									true,
 									void 0,
-									"playBtnNoOpenApp=true<br>playBtnOpenApp=false<br>coverOpenApp=false"
+									"使用artplayer代替页面的播放器"
+								),
+								UISelect(
+									"播放的视频类型",
+									"bili-video-playType",
+									"mp4",
+									[
+										{
+											text: "mp4",
+											value: "mp4",
+										},
+										{
+											text: "dash",
+											value: "dash",
+										},
+									],
+									void 0,
+									"当选择dash时会有画质更高的选项"
 								),
 								UISwitch(
-									"解锁充电限制",
-									"bili-video-unlockUpower",
+									"自动播放视频",
+									"bili-video-playerAutoPlayVideo",
 									false,
 									void 0,
-									"is_upower_exclusive=true<br>is_upower_play=false<br>is_upower_preview=false"
+									""
+								),
+								UISwitch(
+									"自动进入全屏",
+									"bili-video-playerAutoPlayVideoFullScreen",
+									false,
+									void 0,
+									""
+								),
+							],
+						},
+						{
+							text: "加速CDN设置",
+							type: "forms",
+							forms: [
+								UISelect(
+									"UPOS服务器设置",
+									"bili-video-uposServerSelect",
+									"",
+									BilibiliCDNProxy.getUposCDNServerList().map((item) => {
+										return {
+											text: item.name,
+											value: item.host,
+										};
+									}),
+									void 0,
+									"设置视频流的服务器，可加快视频加载速度"
+								),
+								UISwitch(
+									"作用于Audio上",
+									"bili-video-uposServerSelect-applyAudio",
+									false,
+									void 0,
+									"把m4s类型的audio也进行upos替换"
 								),
 							],
 						},
@@ -161,25 +173,6 @@ const SettingUIVideo: PopsPanelContentConfig = {
 									true,
 									void 0,
 									"点击下面的选集列表内的视频可正确跳转至该视频"
-								),
-							],
-						},
-					],
-				},
-				{
-					text: "网络拦截",
-					type: "deepMenu",
-					forms: [
-						{
-							text: "",
-							type: "forms",
-							forms: [
-								UISwitch(
-									"解锁清晰度",
-									"bili-video-xhr-unlockQuality",
-									true,
-									void 0,
-									"最高清晰度为720P"
 								),
 							],
 						},

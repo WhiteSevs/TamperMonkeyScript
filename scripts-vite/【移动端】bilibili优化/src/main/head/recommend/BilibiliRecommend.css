@@ -21,7 +21,7 @@
 	.suspension
 	.channel-menu:has(.recommend-tag.is-avtive)
 	a.recommend-tag {
-	color: #fb7299 !important;
+	color: var(--bili-color) !important;
 }
 #app
 	.m-head
@@ -31,7 +31,7 @@
 	span:after {
 	content: " ";
 	position: relative;
-	background: #fb7299;
+	background: var(--bili-color);
 	width: 30.4375px;
 	height: 0.53333vmin;
 	display: block;
@@ -199,8 +199,8 @@
 	.gm-up-name
 	.gm-picture-text {
 	padding: 1px 4px;
-	border: 1px solid #fb7299;
-	color: #fb7299;
+	border: 1px solid var(--bili-color);
+	color: var(--bili-color);
 	border-radius: 2px;
 	margin-right: 4px;
 	font-size: 2vmin;

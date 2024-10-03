@@ -1,65 +1,74 @@
 import { BilibiliVideoApi } from "@/api/BilibiliVideoApi";
-import { utils } from "@/env";
 import Artplayer from "artplayer";
 import type { Events } from "artplayer/types/events";
 
-type TopToolBarUpdateWrapOption = {
+/** 配置信息 */
+export type ArtPlayerPluginTopToolBarOption = {
 	/** 是否显示容器 @default false */
 	showWrap?: boolean;
-};
-
-type TopToolBarUpdateTitleOption = {
-	/** 视频标题文字 */
-	title?: string;
-	/** 是否显示标题 @default false */
-	showTitle?: boolean;
-};
-
-type TopToolBarUpdateOnlineTitleOption =
-	| {
-			/** 视频的aid */
-			aid: number | string;
-			/** 视频的cid */
-			cid: number | string;
-			/** 是否显示在线观看人数 @default false */
-			showOnlineTotal?: boolean;
-	  } & {
-			/** 视频的bvid */
-			bvid: string;
-			/** 视频的cid */
-			cid: number | string;
-			/** 是否显示在线观看人数 @default false */
-			showOnlineTotal?: boolean;
-	  };
-
-type TopToolBarUpdateRightOption = {
 	/** 是否显示右侧视图 */
 	showRight?: boolean;
 	/** 是否显示右侧下面的follow */
 	showRightFollow?: boolean;
+	/** 视频标题文字 */
+	title?: string;
+	/** 是否显示标题 @default false */
+	showTitle?: boolean;
+	onlineInfoParams: {
+		/** 视频的aid */
+		aid: number | string;
+		/** 视频的cid */
+		cid: number | string;
+	} & {
+		/** 视频的bvid */
+		bvid: string;
+		/** 视频的cid */
+		cid: number | string;
+	};
+	/** 是否显示在线观看人数 @default false */
+	showOnlineTotal?: boolean;
 };
 
-type TopToolBarOption = TopToolBarUpdateWrapOption &
-	TopToolBarUpdateTitleOption &
-	TopToolBarUpdateOnlineTitleOption &
-	TopToolBarUpdateRightOption;
+export type ArtPlayerPluginTopToolBarResult = {
+	name: string;
+	/**
+	 * 更新参数时调用
+	 * @param option
+	 */
+	update(option: ArtPlayerPluginTopToolBarOption): void;
+};
 
+const TAG = "[artplayer-plugin-TopToolBar]：";
+
+/** 工具函数 */
 const TopToolBarUtils = {
+	/** 显示元素 */
 	show($el: HTMLElement) {
+		if (!$el) {
+			return;
+		}
 		$el.style.display = "";
 	},
+	/** 隐藏元素 */
 	hide($el: HTMLElement) {
+		if (!$el) {
+			return;
+		}
 		$el.style.display = "none";
 	},
 };
 
+/** 事件 */
 const TopToolBarEvent = {
 	events: {
 		control: (state) => {
 			if (!state) {
 				return;
 			}
-			TopToolBar.updateOnlineTotal(TopToolBar.option);
+			TopToolBar.updateOnlineTotal({
+				showOnlineTotal: TopToolBar.$data.option.showOnlineTotal!,
+				onlineInfoParams: TopToolBar.$data.option.onlineInfoParams,
+			});
 		},
 	} as {
 		[key in keyof Events]?: (...args: Events[key]) => unknown;
@@ -105,14 +114,122 @@ const TopToolBar = {
 		/** 右侧容器的下面的容器 */
 		$topRightFollow: null as any as HTMLDivElement,
 	},
-	option: {} as TopToolBarOption,
+	$data: {
+		__option: {} as ArtPlayerPluginTopToolBarOption,
+		/** 配置 */
+		option: {} as ArtPlayerPluginTopToolBarOption,
+	},
+	$key: {
+		plugin_KEY: "plugin-bilibili-topToolBar",
+	},
 	/**
 	 * 初始化
 	 */
-	init(option: TopToolBarOption) {
-		// @ts-ignore
-		this.option = null;
-		this.option = option;
+	init(option: ArtPlayerPluginTopToolBarOption) {
+		Object.defineProperties(this.$data.option, {
+			/** 是否显示容器 @default false */
+			showWrap: {
+				set(this: ArtPlayerPluginTopToolBarOption, value) {
+					TopToolBar.$data.__option.showWrap = value;
+					// 更新容器状态
+					if (value) {
+						TopToolBarUtils.show(TopToolBar.$el.$topWrap);
+					} else {
+						TopToolBarUtils.hide(TopToolBar.$el.$topWrap);
+					}
+				},
+				get(this: ArtPlayerPluginTopToolBarOption) {
+					return TopToolBar.$data.__option.showWrap;
+				},
+			},
+			/** 是否显示标题 @default false */
+			showTitle: {
+				set(this: ArtPlayerPluginTopToolBarOption, value) {
+					TopToolBar.$data.__option.showTitle = value;
+					// 更新标题显示状态
+					if (value) {
+						TopToolBarUtils.show(TopToolBar.$el.$topTitle);
+					} else {
+						TopToolBarUtils.hide(TopToolBar.$el.$topTitle);
+					}
+				},
+				get(this: ArtPlayerPluginTopToolBarOption) {
+					return TopToolBar.$data.__option.showTitle;
+				},
+			},
+			/** 视频标题文字 */
+			title: {
+				set(this: ArtPlayerPluginTopToolBarOption, value) {
+					TopToolBar.$data.__option.title = value;
+					// 更新标题显示的文字
+					if (typeof value === "string") {
+						TopToolBar.$el.$topTitleText.innerText = value;
+					}
+				},
+				get(this: ArtPlayerPluginTopToolBarOption) {
+					return TopToolBar.$data.__option.title;
+				},
+			},
+			/** 是否显示在线观看人数 @default false */
+			showOnlineTotal: {
+				set(this: ArtPlayerPluginTopToolBarOption, value) {
+					TopToolBar.$data.__option.showOnlineTotal = value;
+					// 更新在线观看人数显示状态
+					if (value) {
+						TopToolBarUtils.show(TopToolBar.$el.$topTitleFollow);
+					} else {
+						TopToolBarUtils.hide(TopToolBar.$el.$topTitleFollow);
+					}
+				},
+				get(this: ArtPlayerPluginTopToolBarOption) {
+					return TopToolBar.$data.__option.showOnlineTotal;
+				},
+			},
+			/** 在线人数请求参数信息 */
+			onlineInfoParams: {
+				set(this: ArtPlayerPluginTopToolBarOption, value) {
+					TopToolBar.$data.__option.onlineInfoParams = value;
+					// 更新在线人数参数信息
+					TopToolBar.updateOnlineTotal({
+						showOnlineTotal: this.showOnlineTotal,
+						onlineInfoParams: value,
+					});
+				},
+				get(this: ArtPlayerPluginTopToolBarOption) {
+					return TopToolBar.$data.__option.onlineInfoParams;
+				},
+			},
+			/** 是否显示右侧视图 */
+			showRight: {
+				set(this: ArtPlayerPluginTopToolBarOption, value) {
+					TopToolBar.$data.__option.showRight = value;
+					// 更新右侧视图显示状态
+					if (value) {
+						TopToolBarUtils.show(TopToolBar.$el.$topRight);
+					} else {
+						TopToolBarUtils.hide(TopToolBar.$el.$topRight);
+					}
+				},
+				get(this: ArtPlayerPluginTopToolBarOption) {
+					return TopToolBar.$data.__option.showRight;
+				},
+			},
+			/** 是否显示右侧下面的follow */
+			showRightFollow: {
+				set(this: ArtPlayerPluginTopToolBarOption, value) {
+					TopToolBar.$data.__option.showRightFollow = value;
+					// 更新右侧下面的follow显示状态
+					if (value) {
+						TopToolBarUtils.show(TopToolBar.$el.$topRightFollow);
+					} else {
+						TopToolBarUtils.hide(TopToolBar.$el.$topRightFollow);
+					}
+				},
+				get(this: ArtPlayerPluginTopToolBarOption) {
+					return TopToolBar.$data.__option.showRightFollow;
+				},
+			},
+		});
 		this.art.layers.add({
 			name: "top-wrap",
 			html: /*html*/ `
@@ -163,48 +280,24 @@ const TopToolBar = {
 	/**
 	 * 更新配置
 	 */
-	update(option: TopToolBarOption) {
-		// 更新总视图
-		TopToolBar.updateWrap(option);
-		// 更新标题
-		TopToolBar.updateTitle(option);
-		// 更新在线观看人数
-		TopToolBar.updateOnlineTotal(option);
-		// 更新右侧信息
-		TopToolBar.updateRight(option);
-	},
-	/**
-	 * 更新标题
-	 * @param option
-	 * @returns
-	 */
-	updateTitle(option: TopToolBarUpdateTitleOption) {
-		console.log(
-			`[artplayer-plugin-TopToolBar]: 更新标题 ==> ${JSON.stringify(option)}`
-		);
-		if (typeof option.title === "string") {
-			TopToolBar.$el.$topTitleText.innerText = option.title;
-		}
-		if (option.showTitle) {
-			TopToolBarUtils.show(TopToolBar.$el.$topTitle);
-		} else {
-			TopToolBarUtils.hide(TopToolBar.$el.$topTitle);
-		}
+	update(option: ArtPlayerPluginTopToolBarOption) {
+		Object.assign(this.$data.option, option);
 	},
 	/**
 	 * 更新在线观看人数
 	 */
-	async updateOnlineTotal(option: TopToolBarUpdateOnlineTitleOption) {
-		console.log(
-			`[artplayer-plugin-TopToolBar]: 更新在线观看人数 ==> ${JSON.stringify(
-				option
-			)}`
-		);
+	async updateOnlineTotal(option: {
+		showOnlineTotal: ArtPlayerPluginTopToolBarOption["showOnlineTotal"];
+		onlineInfoParams: ArtPlayerPluginTopToolBarOption["onlineInfoParams"];
+	}) {
+		if (!option.showOnlineTotal) {
+			return;
+		}
 		// 请求在线观看人数
 		let onlineTotalInfo = await BilibiliVideoApi.onlineTotal({
-			aid: option.aid,
-			bvid: option.bvid,
-			cid: option.cid,
+			aid: option.onlineInfoParams.aid,
+			bvid: option.onlineInfoParams.bvid,
+			cid: option.onlineInfoParams.cid,
 		});
 		if (!onlineTotalInfo) {
 			return;
@@ -213,78 +306,30 @@ const TopToolBar = {
 		TopToolBar.$el.$topTitleFollowText.innerText = `${
 			onlineTotalInfo["total"] || onlineTotalInfo["count"] || 0
 		}人正在看`;
-		if (option.showOnlineTotal) {
-			TopToolBarUtils.show(TopToolBar.$el.$topTitleFollow);
-		} else {
-			TopToolBarUtils.hide(TopToolBar.$el.$topTitleFollow);
-		}
-		console.log(
-			`[artplayer-plugin-TopToolBar]: 更新在线观看人数，请求的数据 ==> ${JSON.stringify(
-				onlineTotalInfo
-			)}`
-		);
-	},
-	/**
-	 * 更新视图
-	 * @param option
-	 */
-	updateWrap(option: TopToolBarUpdateWrapOption) {
-		console.log(
-			`[artplayer-plugin-TopToolBar]: 更新总视图 ==> ${JSON.stringify(option)}`
-		);
-		if (option.showWrap) {
-			TopToolBarUtils.show(this.$el.$topWrap);
-		} else {
-			TopToolBarUtils.hide(this.$el.$topWrap);
-		}
-	},
-	/**
-	 * 更新右侧视图
-	 */
-	updateRight(option: TopToolBarUpdateRightOption) {
-		console.log(
-			`[artplayer-plugin-TopToolBar]: 更新右侧视图 ==> ${JSON.stringify(
-				option
-			)}`
-		);
-		if (option.showRight) {
-			TopToolBarUtils.show(this.$el.$topRight);
-		} else {
-			TopToolBarUtils.hide(this.$el.$topRight);
-		}
-		if (option.showRightFollow) {
-			TopToolBarUtils.show(this.$el.$topRightFollow);
-		} else {
-			TopToolBarUtils.hide(this.$el.$topRightFollow);
-		}
+		// console.log(
+		// 	TAG + `更新在线观看人数，请求的数据 ==> ${JSON.stringify(
+		// 		onlineTotalInfo
+		// 	)}`
+		// );
 	},
 };
 
-export const artplayerPluginTopToolBar = (option: TopToolBarOption) => {
-	return (art: Artplayer) => {
+export const artplayerPluginTopToolBar = (
+	option: ArtPlayerPluginTopToolBarOption
+) => {
+	return (art: Artplayer): ArtPlayerPluginTopToolBarResult => {
 		TopToolBar.art = art;
 		TopToolBar.init(option);
 		return {
-			name: "plugin-bilibili-topToolBar",
-			update(option: TopToolBarOption) {
+			name: TopToolBar.$key.plugin_KEY,
+			update(option: ArtPlayerPluginTopToolBarOption) {
 				TopToolBar.update(option);
-			},
-			updateWrap(option: TopToolBarUpdateWrapOption) {
-				utils.assign(TopToolBar.option, option);
-				TopToolBar.updateWrap(option);
-			},
-			updateTitle(option: TopToolBarOption) {
-				utils.assign(TopToolBar.option, option);
-				TopToolBar.updateTitle(option);
-			},
-			updateOnlineTotal(option: TopToolBarUpdateOnlineTitleOption) {
-				utils.assign(TopToolBar.option, option);
-				TopToolBar.updateOnlineTotal(option);
-			},
-			updateRight(option: TopToolBarUpdateRightOption) {
-				utils.assign(TopToolBar.option, option);
-				TopToolBar.updateRight(option);
 			},
 		};
 	};
 };
+
+/**
+ * 插件id
+ */
+export const ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY = TopToolBar.$key.plugin_KEY;
