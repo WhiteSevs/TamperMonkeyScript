@@ -370,13 +370,6 @@ const SettingUICommon: PopsPanelContentConfig = {
 									void 0,
 									"可以正确跳转至用户主页"
 								),
-								UISwitch(
-									"新标签页打开微博正文",
-									"weibo-router-blankOpenDetail",
-									false,
-									void 0,
-									"开启【监听路由改变】才可生效"
-								),
 							],
 						},
 					],

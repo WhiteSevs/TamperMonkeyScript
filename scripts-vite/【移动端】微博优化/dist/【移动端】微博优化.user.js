@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.3
+// @version      2024.10.4
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -1027,13 +1027,6 @@
                     true,
                     void 0,
                     "可以正确跳转至用户主页"
-                  ),
-                  UISwitch(
-                    "新标签页打开微博正文",
-                    "weibo-router-blankOpenDetail",
-                    false,
-                    void 0,
-                    "开启【监听路由改变】才可生效"
                   )
                 ]
               }
@@ -1234,6 +1227,26 @@
             false,
             void 0,
             "在首页添加超话Tab，方便快速查看超话"
+          ),
+          UISwitch(
+            "新增【新标签页打开】按钮",
+            "weibo-home-addOpenBlankBtn",
+            false,
+            void 0,
+            "在每个card下面的按钮区域添加该按钮，方便快速在新标签页中打开"
+          )
+        ]
+      },
+      {
+        text: "网络拦截",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "过滤掉信息流广告",
+            "weibo-request-blockArticleAds",
+            true,
+            void 0,
+            '夹杂在文章中间的"微博广告"'
           )
         ]
       },
@@ -1241,13 +1254,6 @@
         text: "屏蔽",
         type: "forms",
         forms: [
-          UISwitch(
-            "屏蔽信息流广告",
-            "weibo-home-blockArticleAds",
-            true,
-            void 0,
-            '夹杂在文章中间的"微博广告"'
-          ),
           UISwitch(
             "屏蔽消息数量",
             "weibo-home-blockMessageCount",
@@ -1886,14 +1892,15 @@
       let originApply = _unsafeWindow.Function.prototype.apply;
       _unsafeWindow.Function.prototype.apply = function(...args) {
         var _a2, _b;
+        let target = originApply;
         if (args.length !== 2) {
-          return originApply.call(this, ...args);
+          return Reflect.apply(target, this, args);
         }
         if (args.length === 2 && !Array.isArray(args[1])) {
-          return originApply.call(this, ...args);
+          return Reflect.apply(target, this, args);
         }
         if (typeof args[1][0] !== "string") {
-          return originApply.call(this, ...args);
+          return Reflect.apply(target, this, args);
         }
         const ApiPath = args[1][0];
         const ApiSearchParams = (_b = (_a2 = args[1]) == null ? void 0 : _a2[1]) == null ? void 0 : _b["params"];
@@ -1984,7 +1991,7 @@
             });
           });
         } else ;
-        return originApply.call(this, ...args);
+        return Reflect.apply(target, this, args);
       };
     },
     /**
@@ -2031,6 +2038,29 @@
             let originResponseData = utils.toJSON(originResponse.responseText);
             Reflect.set(originResponse, "json", {});
             log.info([`重构/status/push响应`, originResponseData]);
+            originResponse.responseText = JSON.stringify(originResponseData);
+          };
+        } else if (requestUrl.startsWith("https://m.weibo.cn/api/container/getIndex") && PopsPanel.getValue("weibo-request-blockArticleAds")) {
+          request.response = function(originResponse) {
+            var _a2;
+            let originResponseData = utils.toJSON(originResponse.responseText);
+            let cards = originResponseData["data"]["cards"];
+            for (let index = 0; index < cards.length; index++) {
+              const card = cards[index];
+              let mblog = card == null ? void 0 : card.mblog;
+              if (mblog) {
+                let id = mblog.id;
+                let ad_state = mblog == null ? void 0 : mblog.ad_state;
+                let cardText = mblog == null ? void 0 : mblog.text;
+                (_a2 = mblog == null ? void 0 : mblog.page_info) == null ? void 0 : _a2.page_title;
+                if (ad_state) {
+                  cards.splice(index, 1);
+                  index--;
+                  log.info(`移除广告url：https://m.weibo.cn/detail/` + id);
+                  log.info(`移除广告card：` + cardText);
+                }
+              }
+            }
             originResponse.responseText = JSON.stringify(originResponseData);
           };
         }
@@ -2097,12 +2127,7 @@
                   window.location.href = uidHomeUrl;
                   return;
                 }
-              } else if ((to == null ? void 0 : to.name) === "detail") {
-                if (PopsPanel.getValue("weibo-router-blankOpenDetail")) {
-                  window.open(to.fullPath, "_blank");
-                  return;
-                }
-              }
+              } else if ((to == null ? void 0 : to.name) === "detail") ;
               next();
             };
             vueIns.$router.beforeEach(beforeEachFn);
@@ -2385,6 +2410,47 @@
             $time.innerText = `${formatCreateTime} ${((_b = cardVueIns == null ? void 0 : cardVueIns.item) == null ? void 0 : _b.source) || ""}`;
             $time.setAttribute("data-gm-absolute-time", "true");
           });
+          let searchParams = new URLSearchParams(window.location.search);
+          if (searchParams.has("cid")) {
+            let $litePageWrap = document.querySelector(".lite-page-wrap");
+            let litePageWrapVueIns = VueUtils.getVue($litePageWrap);
+            if (litePageWrapVueIns) {
+              let curWeiboData = litePageWrapVueIns == null ? void 0 : litePageWrapVueIns.curWeiboData;
+              let $timeList = Array.from(
+                document.querySelectorAll(
+                  ".card .card-main .m-box .time:not([data-gm-absolute-time])"
+                )
+              );
+              if ($timeList.length === curWeiboData.commentLists.length + 1) {
+                $timeList.forEach(($time, index) => {
+                  if (index === 0) {
+                    let createTimeObj = new Date(
+                      curWeiboData.rootComment.created_at
+                    );
+                    let formatCreateTime = utils.formatTime(
+                      createTimeObj,
+                      "yyyy-MM-dd HH:mm:ss"
+                    );
+                    $time.innerText = formatCreateTime;
+                  } else {
+                    let createTimeObj = new Date(
+                      curWeiboData.commentLists[index - 1].created_at
+                    );
+                    let formatCreateTime = utils.formatTime(
+                      createTimeObj,
+                      "yyyy-MM-dd HH:mm:ss"
+                    );
+                    $time.innerText = formatCreateTime;
+                  }
+                  $time.setAttribute("data-gm-absolute-time", "true");
+                });
+              } else {
+                if ($timeList.length !== 0) {
+                  log.warn("楼中楼时间设置失败，数量不一致");
+                }
+              }
+            }
+          }
         }
       });
     }
@@ -2499,85 +2565,16 @@
   };
   const WeiBoHome = {
     init() {
-      PopsPanel.execMenuOnce("weibo-home-blockArticleAds", () => {
-        this.blockArticleAds();
-      });
       PopsPanel.execMenuOnce("weibo-home-blockMessageCount", () => {
         return this.blockMessageCount();
+      });
+      PopsPanel.execMenuOnce("weibo-home-addOpenBlankBtn", () => {
+        this.addOpenBlankBtn();
       });
       domUtils.ready(() => {
         PopsPanel.execMenuOnce("weibo-home-addSupertalkTab", () => {
           this.addSupertalkTab();
         });
-      });
-    },
-    /**
-     * 屏蔽隐藏在card内的微博广告
-     */
-    blockArticleAds() {
-      let isHandling = false;
-      function removeAdsCard(cardList) {
-        var _a2;
-        if (isHandling) {
-          return;
-        }
-        isHandling = true;
-        for (let index = 0; index < cardList.length; index++) {
-          const card = cardList[index];
-          let cardInfo = card == null ? void 0 : card.mblog;
-          if (!cardInfo) {
-            continue;
-          }
-          let id = cardInfo.id;
-          let ad_state = cardInfo == null ? void 0 : cardInfo.ad_state;
-          let cardText = cardInfo == null ? void 0 : cardInfo.text;
-          (_a2 = cardInfo == null ? void 0 : cardInfo.page_info) == null ? void 0 : _a2.page_title;
-          if (ad_state) {
-            cardList.splice(index, 1);
-            index--;
-            log.info(`移除广告url：https://m.weibo.cn/detail/` + id);
-            log.info(`移除广告card：` + cardText);
-          }
-        }
-        isHandling = false;
-      }
-      VueUtils.waitVuePropToSet(".main-wrap", {
-        check(vueIns) {
-          return typeof (vueIns == null ? void 0 : vueIns.$watch) === "function";
-        },
-        set(vueIns) {
-          vueIns.$watch(
-            "list_all",
-            function(newVal, oldVal) {
-              removeAdsCard(newVal);
-            },
-            {
-              immediate: true
-            }
-          );
-        }
-      });
-      utils.mutationObserver(document, {
-        config: {
-          subtree: true,
-          childList: true
-        },
-        immediate: true,
-        callback: utils.debounce(() => {
-          let $mainWrap = document.querySelector(".main-wrap");
-          let vueIns = VueUtils.getVue($mainWrap);
-          if (!vueIns) {
-            return;
-          }
-          let cardInfo = vueIns == null ? void 0 : vueIns.list_all;
-          if (!cardInfo) {
-            return;
-          }
-          if (!Array.isArray(cardInfo)) {
-            return;
-          }
-          removeAdsCard(cardInfo);
-        }, 150)
       });
     },
     /**
@@ -2607,46 +2604,65 @@
               }
             ]
           });
-          VueUtils.waitVuePropToSet(".main-wrap", {
-            check(vueIns) {
-              return typeof (vueIns == null ? void 0 : vueIns.$watch) === "function";
-            },
-            set(vueIns) {
-              vueIns.$watch("list_all", function(newVal, oldVal) {
-                var _a3;
-                if (this.cur_group["gid"] !== "100803") {
-                  return;
-                }
-                let cur_length = this.list_cur.length;
-                this.list_all.length;
-                let slice_list = this.list_all.slice(cur_length);
-                for (let index = 0; index < slice_list.length; index++) {
-                  const slice_item = slice_list[index];
-                  slice_item["hei"] = 1345;
-                }
-                let last_feed_id = (_a3 = slice_list[slice_list.length - 1]) == null ? void 0 : _a3["feed_id"];
-                if (last_feed_id != null) {
-                  this.max = last_feed_id;
-                  this.since = last_feed_id;
-                }
-                this.list_cur = this.list_cur.concat(slice_list);
-                const updateFirstScroll = () => {
-                  var _a4;
-                  if ((_a4 = this.$refs) == null ? void 0 : _a4.cont) {
-                    let clientHeight = document.documentElement.clientHeight || window.innerHeight;
-                    this.first_scroll = this.$refs.cont.offsetHeight - clientHeight * 1.4;
-                  }
-                };
-                let intervalCount = 0;
-                let intervalId = setInterval(() => {
-                  if (intervalCount > 50) {
-                    clearInterval(intervalId);
-                    return;
-                  }
-                  intervalCount++;
-                  updateFirstScroll();
-                }, 50);
-              });
+          return;
+        }
+      });
+    },
+    /**
+     * 新增新标签页打开按钮
+     */
+    addOpenBlankBtn() {
+      utils.mutationObserver(document.documentElement, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        immediate: true,
+        callback() {
+          if (!WeiBoRouter.isMWeiBoHome()) {
+            return;
+          }
+          document.querySelectorAll(
+            ".main-wrap .wb-item .card .f-footer-ctrl:not(:has(.gm-open-blank))"
+          ).forEach(($footerCtrl) => {
+            if ($footerCtrl.querySelector(".gm-open-blank")) {
+              return;
+            }
+            let $ownDiyBtn = domUtils.createElement("div", {
+              innerHTML: (
+                /*html*/
+                `
+								<h4>新标签页打开</h4>
+							`
+              )
+            });
+            $ownDiyBtn.classList.add(
+              "m-diy-btn",
+              "m-box-center-a",
+              "gm-open-blank"
+            );
+            domUtils.on($ownDiyBtn, "click", (event) => {
+              var _a2;
+              utils.preventEvent(event);
+              let vueIns = VueUtils.getVue($footerCtrl);
+              if (!vueIns) {
+                Qmsg.error("没有找到对应的Vue实例");
+                return;
+              }
+              let id = (_a2 = vueIns == null ? void 0 : vueIns.item) == null ? void 0 : _a2.id;
+              if (typeof id !== "string") {
+                Qmsg.error("没有找到对应的id");
+                return;
+              }
+              let url = `${window.location.origin}/detail/${id}`;
+              log.info(`新标签页打开：${url}`);
+              window.open(url, "_blank");
+            });
+            let $diyBtnList = $footerCtrl.querySelectorAll(".m-diy-btn");
+            if ($diyBtnList.length) {
+              domUtils.after($diyBtnList[$diyBtnList.length - 1], $ownDiyBtn);
+            } else {
+              domUtils.append($footerCtrl, $ownDiyBtn);
             }
           });
         }

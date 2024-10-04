@@ -16,14 +16,15 @@ const WeiBoHook = {
 		log.info("劫持Function.prototype.apply");
 		let originApply = unsafeWindow.Function.prototype.apply;
 		unsafeWindow.Function.prototype.apply = function (...args) {
+			let target = originApply;
 			if (args.length !== 2) {
-				return originApply.call(this, ...args);
+				return Reflect.apply(target, this, args);
 			}
 			if (args.length === 2 && !Array.isArray(args[1])) {
-				return originApply.call(this, ...args);
+				return Reflect.apply(target, this, args);
 			}
 			if (typeof args[1][0] !== "string") {
-				return originApply.call(this, ...args);
+				return Reflect.apply(target, this, args);
 			}
 			const ApiPath = args[1][0] as string;
 			const ApiSearchParams = args[1]?.[1]?.["params"] as any;
@@ -154,7 +155,7 @@ const WeiBoHook = {
 			} else {
 				//log.info(["请求API：", ApiPath, ApiSearchParams]);
 			}
-			return originApply.call(this, ...args);
+			return Reflect.apply(target, this, args);
 		};
 	},
 	/**
@@ -222,6 +223,34 @@ const WeiBoHook = {
 					let originResponseData = utils.toJSON(originResponse.responseText);
 					Reflect.set(originResponse, "json", {});
 					log.info([`重构/status/push响应`, originResponseData]);
+					originResponse.responseText = JSON.stringify(originResponseData);
+				};
+			} else if (
+				requestUrl.startsWith("https://m.weibo.cn/api/container/getIndex") &&
+				PopsPanel.getValue("weibo-request-blockArticleAds")
+			) {
+				/**
+				 * 重构响应
+				 */
+				request.response = function (originResponse) {
+					let originResponseData = utils.toJSON(originResponse.responseText);
+					let cards = originResponseData["data"]["cards"];
+					for (let index = 0; index < cards.length; index++) {
+						const card = cards[index];
+						let mblog = card?.mblog;
+						if (mblog) {
+							let id = mblog.id;
+							let ad_state = mblog?.ad_state;
+							let cardText = mblog?.text;
+							let page_title = mblog?.page_info?.page_title;
+							if (ad_state) {
+								cards.splice(index, 1);
+								index--;
+								log.info(`移除广告url：` + "https://m.weibo.cn/detail/" + id);
+								log.info(`移除广告card：` + cardText);
+							}
+						}
+					}
 					originResponse.responseText = JSON.stringify(originResponseData);
 				};
 			}
@@ -302,11 +331,6 @@ const WeiBoHook = {
 							}
 						} else if (to?.name === "detail") {
 							// 正文
-							if (PopsPanel.getValue("weibo-router-blankOpenDetail")) {
-								// 新标签页打开正文
-								window.open(to.fullPath, "_blank");
-								return;
-							}
 						}
 						next();
 					};

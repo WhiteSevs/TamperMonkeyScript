@@ -1,4 +1,4 @@
-import { addStyle, utils } from "@/env";
+import { addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import blockAdsCSS from "./blockAds.css?raw";
 import { VueUtils } from "@/utils/VueUtils";
@@ -71,6 +71,52 @@ export const WeiBoDetail = {
 					}`;
 					$time.setAttribute("data-gm-absolute-time", "true");
 				});
+				let searchParams = new URLSearchParams(window.location.search);
+				if (searchParams.has("cid")) {
+					// 楼中楼的，要按照数据顺序来
+					let $litePageWrap =
+						document.querySelector<HTMLElement>(".lite-page-wrap")!;
+					let litePageWrapVueIns = VueUtils.getVue($litePageWrap);
+					if (litePageWrapVueIns) {
+						let curWeiboData = litePageWrapVueIns?.curWeiboData;
+						let $timeList = Array.from(
+							document.querySelectorAll<HTMLElement>(
+								".card .card-main .m-box .time:not([data-gm-absolute-time])"
+							)
+						);
+						if ($timeList.length === curWeiboData.commentLists.length + 1) {
+							// 数量和获取到的数量一致
+							$timeList.forEach(($time, index) => {
+								if (index === 0) {
+									// 根评论
+									let createTimeObj = new Date(
+										curWeiboData.rootComment.created_at
+									);
+									let formatCreateTime = utils.formatTime(
+										createTimeObj,
+										"yyyy-MM-dd HH:mm:ss"
+									);
+									$time.innerText = formatCreateTime;
+								} else {
+									// 子评论
+									let createTimeObj = new Date(
+										curWeiboData.commentLists[index - 1].created_at
+									);
+									let formatCreateTime = utils.formatTime(
+										createTimeObj,
+										"yyyy-MM-dd HH:mm:ss"
+									);
+									$time.innerText = formatCreateTime;
+								}
+								$time.setAttribute("data-gm-absolute-time", "true");
+							});
+						} else {
+							if ($timeList.length !== 0) {
+								log.warn("楼中楼时间设置失败，数量不一致");
+							}
+						}
+					}
+				}
 			},
 		});
 	},

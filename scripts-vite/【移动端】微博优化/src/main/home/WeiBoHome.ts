@@ -1,93 +1,23 @@
 import { addStyle, DOMUtils, log, utils } from "@/env";
+import { WeiBoRouter } from "@/router/WeiBoRouter";
 import { PopsPanel } from "@/setting/setting";
 import { CommonUtils } from "@/utils/CommonUtils";
 import { VueUtils } from "@/utils/VueUtils";
+import Qmsg from "qmsg";
+import { unsafeWindow } from "ViteGM";
 
 export const WeiBoHome = {
 	init() {
-		PopsPanel.execMenuOnce("weibo-home-blockArticleAds", () => {
-			this.blockArticleAds();
-		});
 		PopsPanel.execMenuOnce("weibo-home-blockMessageCount", () => {
 			return this.blockMessageCount();
+		});
+		PopsPanel.execMenuOnce("weibo-home-addOpenBlankBtn", () => {
+			this.addOpenBlankBtn();
 		});
 		DOMUtils.ready(() => {
 			PopsPanel.execMenuOnce("weibo-home-addSupertalkTab", () => {
 				this.addSupertalkTab();
 			});
-		});
-	},
-	/**
-	 * 屏蔽隐藏在card内的微博广告
-	 */
-	blockArticleAds() {
-		let isHandling = false;
-		/**
-		 * 移除广告card
-		 * @param cardList
-		 */
-		function removeAdsCard(cardList: any[]) {
-			if (isHandling) {
-				return;
-			}
-			isHandling = true;
-			for (let index = 0; index < cardList.length; index++) {
-				const card = cardList[index];
-				let cardInfo = card?.mblog;
-				if (!cardInfo) {
-					continue;
-				}
-				let id = cardInfo.id;
-				let ad_state = cardInfo?.ad_state;
-				let cardText = cardInfo?.text;
-				let page_title = cardInfo?.page_info?.page_title;
-				// page_title.includes("微博广告")
-				if (ad_state) {
-					cardList.splice(index, 1);
-					index--;
-					log.info(`移除广告url：` + "https://m.weibo.cn/detail/" + id);
-					log.info(`移除广告card：` + cardText);
-				}
-			}
-			isHandling = false;
-		}
-		VueUtils.waitVuePropToSet(".main-wrap", {
-			check(vueIns) {
-				return typeof vueIns?.$watch === "function";
-			},
-			set(vueIns) {
-				vueIns.$watch(
-					"list_all",
-					function (newVal: any[], oldVal: any[]) {
-						removeAdsCard(newVal);
-					},
-					{
-						immediate: true,
-					}
-				);
-			},
-		});
-		utils.mutationObserver(document, {
-			config: {
-				subtree: true,
-				childList: true,
-			},
-			immediate: true,
-			callback: utils.debounce(() => {
-				let $mainWrap = document.querySelector<HTMLElement>(".main-wrap");
-				let vueIns = VueUtils.getVue($mainWrap);
-				if (!vueIns) {
-					return;
-				}
-				let cardInfo = vueIns?.list_all;
-				if (!cardInfo) {
-					return;
-				}
-				if (!Array.isArray(cardInfo)) {
-					return;
-				}
-				removeAdsCard(cardInfo);
-			}, 150),
 		});
 	},
 	/**
@@ -116,6 +46,7 @@ export const WeiBoHome = {
 						},
 					],
 				});
+				return;
 				// 再监听list_all 的变化，如果存在超话，就同步至list_cur中
 				VueUtils.waitVuePropToSet(".main-wrap", {
 					check(vueIns) {
@@ -169,6 +100,65 @@ export const WeiBoHome = {
 						});
 					},
 				});
+			},
+		});
+	},
+	/**
+	 * 新增新标签页打开按钮
+	 */
+	addOpenBlankBtn() {
+		utils.mutationObserver(document.documentElement, {
+			config: {
+				subtree: true,
+				childList: true,
+			},
+			immediate: true,
+			callback() {
+				if (!WeiBoRouter.isMWeiBoHome()) {
+					return;
+				}
+				document
+					.querySelectorAll<HTMLElement>(
+						".main-wrap .wb-item .card .f-footer-ctrl:not(:has(.gm-open-blank))"
+					)
+					.forEach(($footerCtrl) => {
+						if ($footerCtrl.querySelector(".gm-open-blank")) {
+							return;
+						}
+						let $ownDiyBtn = DOMUtils.createElement("div", {
+							innerHTML: /*html*/ `
+								<h4>新标签页打开</h4>
+							`,
+						});
+						$ownDiyBtn.classList.add(
+							"m-diy-btn",
+							"m-box-center-a",
+							"gm-open-blank"
+						);
+						DOMUtils.on($ownDiyBtn, "click", (event) => {
+							utils.preventEvent(event);
+							let vueIns = VueUtils.getVue($footerCtrl);
+							if (!vueIns) {
+								Qmsg.error("没有找到对应的Vue实例");
+								return;
+							}
+							let id = vueIns?.item?.id;
+							if (typeof id !== "string") {
+								Qmsg.error("没有找到对应的id");
+								return;
+							}
+							let url = `${window.location.origin}/detail/${id}`;
+							log.info(`新标签页打开：${url}`);
+							window.open(url, "_blank");
+						});
+						let $diyBtnList =
+							$footerCtrl.querySelectorAll<HTMLElement>(".m-diy-btn");
+						if ($diyBtnList.length) {
+							DOMUtils.after($diyBtnList[$diyBtnList.length - 1], $ownDiyBtn);
+						} else {
+							DOMUtils.append($footerCtrl, $ownDiyBtn);
+						}
+					});
 			},
 		});
 	},
