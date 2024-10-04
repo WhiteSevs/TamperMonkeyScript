@@ -359,7 +359,7 @@ export class NetDiskParse_123pan extends NetDiskParseObject {
 							} else if (downloadInfo && downloadInfo["code"] === 401) {
 								Qmsg.error("请登录后下载");
 							} else {
-								Qmsg.error("获取下载链接失败");
+								Qmsg.error(downloadInfo?.["message"] || "获取下载链接失败");
 							}
 						} else {
 							let downloadUrl = item.DownloadUrl;
@@ -392,11 +392,11 @@ export class NetDiskParse_123pan extends NetDiskParseObject {
 	/**
 	 * 获取单文件下载链接
 	 * 123云盘新增了下载验证
-	 * @param {string} Etag
-	 * @param {string} FileID
-	 * @param {string} S3keyFlag
-	 * @param {string} ShareKey
-	 * @param {string} Size
+	 * @param Etag
+	 * @param FileID
+	 * @param S3keyFlag
+	 * @param ShareKey
+	 * @param Size
 	 * @returns
 	 */
 	async getFileDownloadInfo(
@@ -448,6 +448,7 @@ export class NetDiskParse_123pan extends NetDiskParseObject {
 		} else {
 			return {
 				code: jsonData["code"],
+				message: jsonData["message"],
 			};
 		}
 	}
