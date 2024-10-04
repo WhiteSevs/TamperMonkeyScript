@@ -334,7 +334,9 @@ export const BilibiliVideoPlayer = {
 		art: null as any as Artplayer,
 	},
 	init() {
-		this.coverVideoPlayer();
+		PopsPanel.execMenu("bili-video-enableArtPlayer", () => {
+			this.coverVideoPlayer();
+		});
 	},
 	/**
 	 * 覆盖播放器
@@ -359,11 +361,12 @@ export const BilibiliVideoPlayer = {
 	 * @param isEpChoose 是否是从选集内调用的
 	 */
 	updateArtPlayerVideoInfo(videoInfo?: VideoInfo, isEpChoose?: boolean) {
+		let that = this;
 		VueUtils.waitVuePropToSet("#app .video .m-video-player", {
 			msg: "等待m-video-player加载完成",
 			check(vueInstance) {
 				if (!isEpChoose && BilibiliVideoArtPlayer.$data.currentOption != null) {
-					// 等待页面参数更新完毕
+					// 暂停视频 等待页面参数更新完毕
 					BilibiliVideoArtPlayer.$data.art.pause();
 					return (
 						typeof vueInstance?.info?.aid === "number" &&
@@ -461,20 +464,34 @@ export const BilibiliVideoPlayer = {
 					});
 					// 强制初始化音量为1
 					BilibiliVideoPlayer.$data.art.volume = 1;
+					that.$data.art.once("ready", () => {
+						PopsPanel.execMenu(
+							"bili-video-playerAutoPlayVideoFullScreen",
+							async () => {
+								log.info(`自动进入全屏`);
+								that.$data.art.fullscreen = true;
+								that.$data.art.once("fullscreenError", () => {
+									log.warn(
+										"未成功进入全屏，需要用户交互操作，使用网页全屏代替"
+									);
+									that.$data.art.fullscreenWeb = true;
+								});
+							}
+						);
+					});
 				} else {
 					// 更新artplayer播放信息
 					await BilibiliVideoArtPlayer.update(
 						BilibiliVideoPlayer.$data.art,
 						artPlayerOption
 					);
+
+					// 如果开启了滚动固钉tab，当滚动到底部推荐视频进行切换视频时，当前视频paddingTop是0，会导致视频不能归位
+					// 需要重置paddingTop
+					let $mVideoPlayer =
+						document.querySelector<HTMLElement>(".m-video-player")!;
+					$mVideoPlayer.style.paddingTop = "";
 				}
-				// 自动进入全屏
-				setTimeout(() => {
-					PopsPanel.execMenu("bili-video-playerAutoPlayVideoFullScreen", () => {
-						log.info(`自动进入全屏`);
-						BilibiliVideoPlayer.$data.art.fullscreen = true;
-					});
-				}, 250);
 			},
 		});
 	},

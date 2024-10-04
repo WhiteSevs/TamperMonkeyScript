@@ -101,17 +101,18 @@ export const BilibiliVideoArtPlayer = {
 	/**
 	 * 重置环境变量
 	 */
-	resetEnv() {
-		Object.keys(BilibiliVideoArtPlayer.$data).forEach((keyName) => {
-			Reflect.set(this.$data, keyName, null);
-		});
+	resetEnv(isInit: boolean) {
+		if (isInit) {
+			Reflect.set(this.$data, "art", null);
+		}
+		Reflect.set(this.$data, "currentOption", null);
 	},
 	/**
 	 * 初始化播放器
 	 * @param option
 	 */
 	async init(option: BilibiliVideoArtPlayerOption) {
-		this.resetEnv();
+		this.resetEnv(true);
 		this.$data.currentOption = option;
 		// 本地存储的弹幕设置
 		const localArtDanmakuOption_KEY = "artplayer-video-danmaku-option";
@@ -129,9 +130,6 @@ export const BilibiliVideoArtPlayer = {
 			container: option.container,
 			/** 视频封面 */
 			poster: option.poster,
-			/** 是否自动播放 */
-			autoplay: PopsPanel.getValue("bili-video-playerAutoPlayVideo", false),
-			autoPlayback: PopsPanel.getValue("bili-video-playerAutoPlayVideo", false),
 			/** 自定义设置列表 */
 			settings: [
 				{
@@ -256,6 +254,12 @@ export const BilibiliVideoArtPlayer = {
 			let url = await option.url();
 			artOption.url = url;
 		}
+
+		if (PopsPanel.getValue("bili-video-playerAutoPlayVideo")) {
+			// 自动播放视频
+			artOption.muted = true;
+			artOption.autoplay = true;
+		}
 		this.$data.art = new Artplayer(artOption);
 
 		artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
@@ -266,7 +270,7 @@ export const BilibiliVideoArtPlayer = {
 	 * @param option
 	 */
 	async update(art: Artplayer, option: BilibiliVideoArtPlayerOption) {
-		this.resetEnv();
+		this.resetEnv(false);
 		this.$data.currentOption = option;
 		let videoUrl = "";
 		if (typeof option.url === "string") {
@@ -352,5 +356,12 @@ export const BilibiliVideoArtPlayer = {
 			automaticBroadcast: true,
 		});
 		log.info([`更新选集信息`, option.epList]);
+
+		// 更新弹幕信息
+		art.plugins.artplayerPluginDanmuku.config({
+			danmuku: option.danmukuUrl,
+		});
+		art.plugins.artplayerPluginDanmuku.load();
+		log.info([`更新弹幕姬`, option.danmukuUrl]);
 	},
 };

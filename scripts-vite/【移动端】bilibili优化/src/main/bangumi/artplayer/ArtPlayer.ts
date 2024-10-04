@@ -118,10 +118,12 @@ export const BilibiliBangumiArtPlayer = {
 	/**
 	 * 重置环境变量
 	 */
-	resetEnv() {
-		Object.keys(BilibiliBangumiArtPlayer.$data).forEach((keyName) => {
-			Reflect.set(this.$data, keyName, null);
-		});
+	resetEnv(isInit: boolean) {
+		if (isInit) {
+			Reflect.set(this.$data, "art", null);
+			Reflect.set(this.$data, "flv", null);
+		}
+		Reflect.set(this.$data, "currentOption", null);
 	},
 	/**
 	 * flv播放
@@ -183,7 +185,7 @@ export const BilibiliBangumiArtPlayer = {
 	 * @param option
 	 */
 	async init(option: BilibiliBangumiArtPlayerOption) {
-		this.resetEnv();
+		this.resetEnv(true);
 		this.$data.currentOption = option;
 		// const volume = 100;
 		// 本地存储的弹幕设置
@@ -352,7 +354,7 @@ export const BilibiliBangumiArtPlayer = {
 	 * @param option
 	 */
 	async update(art: Artplayer, option: BilibiliBangumiArtPlayerOption) {
-		this.resetEnv();
+		this.resetEnv(false);
 		this.$data.currentOption = option;
 		let videoUrl = "";
 		if (typeof option.url === "string") {
@@ -438,5 +440,12 @@ export const BilibiliBangumiArtPlayer = {
 			automaticBroadcast: true,
 		});
 		log.info([`更新选集信息`, option.epList]);
+
+		// 更新弹幕信息
+		art.plugins.artplayerPluginDanmuku.config({
+			danmuku: option.danmukuUrl,
+		});
+		art.plugins.artplayerPluginDanmuku.load();
+		log.info([`更新弹幕姬`, option.danmukuUrl]);
 	},
 };

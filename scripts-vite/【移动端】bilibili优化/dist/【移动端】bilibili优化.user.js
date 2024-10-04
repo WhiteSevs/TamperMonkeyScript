@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.3
+// @version      2024.10.4
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -3380,19 +3380,41 @@
       onRestart: void 0
     },
     events: {
+      /**
+       * artplayer 播放
+       *
+       * 同步进度 - 同步音量 - 播放音频
+       */
       play: () => {
         M4SAudio.syncAudioProgress();
         M4SAudio.syncAudioVolumn();
-        M4SAudio.$data.audio.play();
+        M4SAudio.syncAudioPlayState();
         M4SAudio.syncAudioProgress();
       },
+      /**
+       * 视频进度更新（主动改变的，而不是播放的改变）
+       *
+       * 音频同步进度
+       * @param currentTime 当前的进度
+       */
       seek: (currentTime) => {
         M4SAudio.syncAudioProgress();
       },
+      /**
+       * 视频暂停
+       *
+       * 音频暂停
+       */
       pause: () => {
-        M4SAudio.$data.audio.pause();
+        M4SAudio.syncAudioPlayState();
         M4SAudio.syncAudioProgress();
       },
+      /**
+       * 视频重载，这里的音频也重载
+       *
+       * 触发回调 - 获取新的音频 - 同步进度
+       * @param url
+       */
       restart: (url) => {
         if (typeof M4SAudio.userEvent.onRestart === "function") {
           let newAudioUrl = M4SAudio.userEvent.onRestart(url);
@@ -3402,36 +3424,102 @@
         }
         M4SAudio.syncAudioProgress();
       },
+      /**
+       * 静音状态改变
+       * @param state
+       */
       muted: (state) => {
-        M4SAudio.$data.audio.muted = state;
+        M4SAudio.syncAudioMuted();
         M4SAudio.syncAudioVolumn();
       },
+      /**
+       * artplayer 销毁
+       *
+       * 音频暂停
+       */
       destroy: () => {
         M4SAudio.$data.audio.pause();
       },
+      /**
+       * 视频出岔子了无法播放
+       *
+       * 音频暂停 - 同步进度
+       * @param error
+       * @param reconnectTime
+       */
       error: (error, reconnectTime) => {
         M4SAudio.$data.audio.pause();
       },
+      /**
+       * 当播放器尺寸变化时触发
+       *
+       * 可能会音视频不停步
+       */
+      resize: () => {
+        M4SAudio.syncAudioProgress();
+        M4SAudio.syncAudioPlayState();
+        setTimeout(() => {
+          M4SAudio.syncAudioProgress();
+          M4SAudio.syncAudioPlayState();
+        }, 500);
+      },
+      /**
+       * 当播放器发生窗口全屏时触发
+       *
+       * 可能会音视频不停步
+       */
+      fullscreen: () => {
+        M4SAudio.syncAudioProgress();
+        M4SAudio.syncAudioPlayState();
+        setTimeout(() => {
+          M4SAudio.syncAudioProgress();
+          M4SAudio.syncAudioPlayState();
+        }, 500);
+      },
+      /**
+       * 视频播放完毕
+       *
+       * 音频暂停
+       */
       "video:ended": () => {
         M4SAudio.$data.audio.pause();
         M4SAudio.syncAudioProgress();
       },
+      /**
+       * 视频倍速改变
+       *
+       * 同步视频的倍速
+       */
       "video:ratechange": () => {
         M4SAudio.$data.audio.playbackRate = M4SAudio.$data.art.playbackRate;
       },
+      /**
+       * 视频缓冲暂停
+       *
+       * 音频暂停 然后同步进度
+       */
       "video:waiting": () => {
         M4SAudio.$data.audio.pause();
         M4SAudio.syncAudioProgress();
       },
+      /**
+       * 视频缓冲恢复，音频也恢复
+       */
       "video:playing": () => {
         M4SAudio.syncAudioProgress();
-        M4SAudio.$data.audio.play();
+        M4SAudio.syncAudioPlayState();
         M4SAudio.syncAudioProgress();
       },
+      /**
+       * 同步音量
+       */
       "video:volumechange": () => {
         M4SAudio.syncAudioVolumn();
         M4SAudio.syncAudioProgress();
       },
+      /**
+       * 应该是主动切换的视频，首次播放时可能音频不同步
+       */
       "video:timeupdate": () => {
         if (M4SAudio.$data.art.currentTime < 3) {
           M4SAudio.syncAudioProgress();
@@ -3493,17 +3581,30 @@
         M4SAudioSetting.update(audioList);
       }
     },
-    /**
-     * 音频同步视频进度
-     */
+    /** 同步播放状态 */
+    syncAudioPlayState() {
+      if (this.$data.art.playing) {
+        if (this.$data.audio.paused) {
+          this.$data.audio.play();
+        }
+      } else {
+        if (!this.$data.audio.paused) {
+          this.$data.audio.pause();
+        }
+      }
+    },
+    /** 音频同步视频进度 */
     syncAudioProgress() {
       this.$data.audio.currentTime = this.$data.art.currentTime;
+      this.syncAudioPlayState();
     },
-    /**
-     * 同步音量
-     */
+    /** 同步音量 */
     syncAudioVolumn() {
       this.$data.audio.volume = this.$data.art.volume;
+    },
+    /** 同步静音状态 */
+    syncAudioMuted() {
+      this.$data.audio.muted = this.$data.art.muted;
     },
     /**
      * 绑定事件
@@ -4452,17 +4553,18 @@
     /**
      * 重置环境变量
      */
-    resetEnv() {
-      Object.keys(BilibiliVideoArtPlayer.$data).forEach((keyName) => {
-        Reflect.set(this.$data, keyName, null);
-      });
+    resetEnv(isInit) {
+      if (isInit) {
+        Reflect.set(this.$data, "art", null);
+      }
+      Reflect.set(this.$data, "currentOption", null);
     },
     /**
      * 初始化播放器
      * @param option
      */
     async init(option) {
-      this.resetEnv();
+      this.resetEnv(true);
       this.$data.currentOption = option;
       const localArtDanmakuOption_KEY = "artplayer-video-danmaku-option";
       const artPlayerDanmakuOptionHelper = new ArtPlayerDanmakuOptionHelper(
@@ -4474,9 +4576,6 @@
         container: option.container,
         /** 视频封面 */
         poster: option.poster,
-        /** 是否自动播放 */
-        autoplay: PopsPanel.getValue("bili-video-playerAutoPlayVideo", false),
-        autoPlayback: PopsPanel.getValue("bili-video-playerAutoPlayVideo", false),
         /** 自定义设置列表 */
         settings: [
           {
@@ -4618,6 +4717,10 @@
         let url = await option.url();
         artOption.url = url;
       }
+      if (PopsPanel.getValue("bili-video-playerAutoPlayVideo")) {
+        artOption.muted = true;
+        artOption.autoplay = true;
+      }
       this.$data.art = new Artplayer(artOption);
       artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
       return this.$data.art;
@@ -4627,7 +4730,7 @@
      * @param option
      */
     async update(art, option) {
-      this.resetEnv();
+      this.resetEnv(false);
       this.$data.currentOption = option;
       let videoUrl = "";
       if (typeof option.url === "string") {
@@ -4688,6 +4791,11 @@
         automaticBroadcast: true
       });
       log.info([`更新选集信息`, option.epList]);
+      art.plugins.artplayerPluginDanmuku.config({
+        danmuku: option.danmukuUrl
+      });
+      art.plugins.artplayerPluginDanmuku.load();
+      log.info([`更新弹幕姬`, option.danmukuUrl]);
     }
   };
   function filterArrayWithMaxSize$1(arr) {
@@ -4878,7 +4986,9 @@
       art: null
     },
     init() {
-      this.coverVideoPlayer();
+      PopsPanel.execMenu("bili-video-enableArtPlayer", () => {
+        this.coverVideoPlayer();
+      });
     },
     /**
      * 覆盖播放器
@@ -4906,6 +5016,7 @@
      * @param isEpChoose 是否是从选集内调用的
      */
     updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
+      let that = this;
       VueUtils.waitVuePropToSet("#app .video .m-video-player", {
         msg: "等待m-video-player加载完成",
         check(vueInstance) {
@@ -4979,18 +5090,29 @@
               }
             });
             BilibiliVideoPlayer.$data.art.volume = 1;
+            that.$data.art.once("ready", () => {
+              PopsPanel.execMenu(
+                "bili-video-playerAutoPlayVideoFullScreen",
+                async () => {
+                  log.info(`自动进入全屏`);
+                  that.$data.art.fullscreen = true;
+                  that.$data.art.once("fullscreenError", () => {
+                    log.warn(
+                      "未成功进入全屏，需要用户交互操作，使用网页全屏代替"
+                    );
+                    that.$data.art.fullscreenWeb = true;
+                  });
+                }
+              );
+            });
           } else {
             await BilibiliVideoArtPlayer.update(
               BilibiliVideoPlayer.$data.art,
               artPlayerOption
             );
+            let $mVideoPlayer2 = document.querySelector(".m-video-player");
+            $mVideoPlayer2.style.paddingTop = "";
           }
-          setTimeout(() => {
-            PopsPanel.execMenu("bili-video-playerAutoPlayVideoFullScreen", () => {
-              log.info(`自动进入全屏`);
-              BilibiliVideoPlayer.$data.art.fullscreen = true;
-            });
-          }, 250);
         }
       });
     }
@@ -5704,10 +5826,12 @@
     /**
      * 重置环境变量
      */
-    resetEnv() {
-      Object.keys(BilibiliBangumiArtPlayer.$data).forEach((keyName) => {
-        Reflect.set(this.$data, keyName, null);
-      });
+    resetEnv(isInit) {
+      if (isInit) {
+        Reflect.set(this.$data, "art", null);
+        Reflect.set(this.$data, "flv", null);
+      }
+      Reflect.set(this.$data, "currentOption", null);
     },
     /**
      * flv播放
@@ -5765,7 +5889,7 @@
      * @param option
      */
     async init(option) {
-      this.resetEnv();
+      this.resetEnv(true);
       this.$data.currentOption = option;
       const localArtDanmakuOption_KEY = "artplayer-bangumi-danmaku-option";
       const artPlayerDanmakuOptionHelper = new ArtPlayerDanmakuOptionHelper(
@@ -5931,7 +6055,7 @@
      * @param option
      */
     async update(art, option) {
-      this.resetEnv();
+      this.resetEnv(false);
       this.$data.currentOption = option;
       let videoUrl = "";
       if (typeof option.url === "string") {
@@ -5992,6 +6116,11 @@
         automaticBroadcast: true
       });
       log.info([`更新选集信息`, option.epList]);
+      art.plugins.artplayerPluginDanmuku.config({
+        danmuku: option.danmukuUrl
+      });
+      art.plugins.artplayerPluginDanmuku.load();
+      log.info([`更新弹幕姬`, option.danmukuUrl]);
     }
   };
   const BangumiArtPlayerVideoConfig = {

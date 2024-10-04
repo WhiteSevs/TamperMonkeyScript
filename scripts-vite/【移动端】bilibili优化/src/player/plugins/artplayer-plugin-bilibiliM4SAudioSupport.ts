@@ -142,32 +142,46 @@ const M4SAudio = {
 		onRestart: void 0 as ((url: string) => string) | void,
 	},
 	events: {
+		/**
+		 * artplayer 播放
+		 *
+		 * 同步进度 - 同步音量 - 播放音频
+		 */
 		play: () => {
 			// console.log(TAG + "play");
-			// artplayer 播放
-			// 同步进度 - 同步音量 - 播放音频
 			M4SAudio.syncAudioProgress();
 			M4SAudio.syncAudioVolumn();
-			M4SAudio.$data.audio.play();
+			M4SAudio.syncAudioPlayState();
 			M4SAudio.syncAudioProgress();
 		},
+		/**
+		 * 视频进度更新（主动改变的，而不是播放的改变）
+		 *
+		 * 音频同步进度
+		 * @param currentTime 当前的进度
+		 */
 		seek: (currentTime) => {
 			// console.log(TAG + "seek", currentTime);
-			// 视频进度更新（主动改变的，而不是播放的改变）
-			// 音频同步进度
 			M4SAudio.syncAudioProgress();
 		},
+		/**
+		 * 视频暂停
+		 *
+		 * 音频暂停
+		 */
 		pause: () => {
 			// console.log(TAG + "pause");
-			// 视频暂停
-			// 音频暂停
-			M4SAudio.$data.audio.pause();
+			M4SAudio.syncAudioPlayState();
 			M4SAudio.syncAudioProgress();
 		},
+		/**
+		 * 视频重载，这里的音频也重载
+		 *
+		 * 触发回调 - 获取新的音频 - 同步进度
+		 * @param url
+		 */
 		restart: (url) => {
 			// console.log(TAG + "restart", url);
-			// 视频重载，这里的音频也重载
-			// 触发回调 - 获取新的音频 - 同步进度
 			if (typeof M4SAudio.userEvent.onRestart === "function") {
 				let newAudioUrl = M4SAudio.userEvent.onRestart(url);
 				if (typeof newAudioUrl === "string") {
@@ -177,60 +191,111 @@ const M4SAudio = {
 			}
 			M4SAudio.syncAudioProgress();
 		},
+		/**
+		 * 静音状态改变
+		 * @param state
+		 */
 		muted: (state) => {
 			// console.log(TAG + "muted",state);
-			// 静音状态改变
-			M4SAudio.$data.audio.muted = state;
+			M4SAudio.syncAudioMuted();
 			M4SAudio.syncAudioVolumn();
 		},
+		/**
+		 * artplayer 销毁
+		 *
+		 * 音频暂停
+		 */
 		destroy: () => {
 			// console.log(TAG + "destory");
-			// artplayer 销毁
-			// 音频暂停
 			M4SAudio.$data.audio.pause();
 		},
+		/**
+		 * 视频出岔子了无法播放
+		 *
+		 * 音频暂停 - 同步进度
+		 * @param error
+		 * @param reconnectTime
+		 */
 		error: (error, reconnectTime) => {
 			// console.log(TAG + "error", error, reconnectTime);
-			// 视频出岔子了无法播放
-			// 音频暂停 - 同步进度
 			M4SAudio.$data.audio.pause();
 		},
+		/**
+		 * 当播放器尺寸变化时触发
+		 *
+		 * 可能会音视频不停步
+		 */
+		resize: () => {
+			M4SAudio.syncAudioProgress();
+			M4SAudio.syncAudioPlayState();
+			setTimeout(() => {
+				M4SAudio.syncAudioProgress();
+				M4SAudio.syncAudioPlayState();
+			}, 500);
+		},
+		/**
+		 * 当播放器发生窗口全屏时触发
+		 *
+		 * 可能会音视频不停步
+		 */
+		fullscreen: () => {
+			M4SAudio.syncAudioProgress();
+			M4SAudio.syncAudioPlayState();
+			setTimeout(() => {
+				M4SAudio.syncAudioProgress();
+				M4SAudio.syncAudioPlayState();
+			}, 500);
+		},
+		/**
+		 * 视频播放完毕
+		 *
+		 * 音频暂停
+		 */
 		"video:ended": () => {
 			// console.log(TAG + "video:ended");
-			// 视频播放完毕
-			// 音频暂停
 			M4SAudio.$data.audio.pause();
 			M4SAudio.syncAudioProgress();
 		},
+		/**
+		 * 视频倍速改变
+		 *
+		 * 同步视频的倍速
+		 */
 		"video:ratechange": () => {
 			// console.log(TAG + "video:ratechange");
-			// 视频倍速改变
-			// 音频同步视频的倍速
 			M4SAudio.$data.audio.playbackRate = M4SAudio.$data.art.playbackRate;
 		},
+		/**
+		 * 视频缓冲暂停
+		 *
+		 * 音频暂停 然后同步进度
+		 */
 		"video:waiting": () => {
 			// console.log(TAG + "video:waiting");
-			// 视频缓冲暂停
-			// 音频暂停
 			M4SAudio.$data.audio.pause();
-			// 然后同步进度
 			M4SAudio.syncAudioProgress();
 		},
+		/**
+		 * 视频缓冲恢复，音频也恢复
+		 */
 		"video:playing": () => {
 			// console.log(TAG + "video:playing");
-			// 视频缓冲恢复，音频也恢复
 			M4SAudio.syncAudioProgress();
-			M4SAudio.$data.audio.play();
+			M4SAudio.syncAudioPlayState();
 			M4SAudio.syncAudioProgress();
 		},
+		/**
+		 * 同步音量
+		 */
 		"video:volumechange": () => {
 			// console.log(TAG + "video:volumechange");
-			// 同步音量
 			M4SAudio.syncAudioVolumn();
 			M4SAudio.syncAudioProgress();
 		},
+		/**
+		 * 应该是主动切换的视频，首次播放时可能音频不同步
+		 */
 		"video:timeupdate": () => {
-			// 应该是主动切换的视频，首次播放时可能音频不同步
 			if (M4SAudio.$data.art.currentTime < 3) {
 				// 强制同步音频
 				M4SAudio.syncAudioProgress();
@@ -311,18 +376,35 @@ const M4SAudio = {
 			M4SAudioSetting.update(audioList);
 		}
 	},
-	/**
-	 * 音频同步视频进度
-	 */
+	/** 同步播放状态 */
+	syncAudioPlayState() {
+		if (this.$data.art.playing) {
+			// 视频播放中
+			if (this.$data.audio.paused) {
+				// 音频当前暂停，播放
+				this.$data.audio.play();
+			}
+		} else {
+			// 视频暂停
+			if (!this.$data.audio.paused) {
+				// 音频当前播放中，暂停
+				this.$data.audio.pause();
+			}
+		}
+	},
+	/** 音频同步视频进度 */
 	syncAudioProgress() {
 		// console.log(TAG + "音频同步视频进度");
 		this.$data.audio.currentTime = this.$data.art.currentTime;
+		this.syncAudioPlayState();
 	},
-	/**
-	 * 同步音量
-	 */
+	/** 同步音量 */
 	syncAudioVolumn() {
 		this.$data.audio.volume = this.$data.art.volume;
+	},
+	/** 同步静音状态 */
+	syncAudioMuted() {
+		this.$data.audio.muted = this.$data.art.muted;
 	},
 	/**
 	 * 绑定事件
