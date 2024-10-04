@@ -4,6 +4,7 @@ import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components
 import { UISelect } from "../common-components/ui-select";
 import { BilibiliCDNProxy } from "@/api/BilibiliCDNProxy";
 import { UIInput } from "../common-components/ui-input";
+import { UISlider } from "../common-components/ui-slider";
 
 const SettingUIBangumi: PopsPanelContentConfig = {
 	id: "panel-bangumi",
@@ -36,80 +37,28 @@ const SettingUIBangumi: PopsPanelContentConfig = {
 					],
 				},
 				{
-					text: "变量设置",
-					type: "deepMenu",
-					forms: [
-						{
-							text: "",
-							type: "forms",
-							forms: [
-								UISwitch(
-									"pay",
-									"bili-bangumi-setPay",
-									true,
-									void 0,
-									"$store.state.userStat.pay=1<br>$store.state.mediaInfo.user_status.pay=1"
-								),
-							],
-						},
-					],
-				},
-				{
-					text: "覆盖点击事件",
-					type: "deepMenu",
-					forms: [
-						{
-							text: "",
-							type: "forms",
-							forms: [
-								UISwitch(
-									"【选集】",
-									"bili-bangumi-cover-clicl-event-chooseEp",
-									true,
-									void 0,
-									"让【选集】的视频列表可点击跳转"
-								),
-								UISwitch(
-									"【其它】",
-									"bili-bangumi-cover-clicl-event-other",
-									true,
-									void 0,
-									"让【PV&其他】、【预告】、【主题曲】、【香境剧场】等的视频列表可点击跳转"
-								),
-								UISwitch(
-									"【更多推荐】",
-									"bili-bangumi-cover-clicl-event-recommend",
-									true,
-									void 0,
-									"让【更多推荐】的视频列表可点击跳转"
-								),
-							],
-						},
-					],
-				},
-				{
-					text: "劫持/拦截",
-					type: "deepMenu",
-					forms: [
-						{
-							text: "",
-							type: "forms",
-							forms: [
-								UISwitch(
-									"阻止调用App",
-									"bili-bangumi-hook-callApp",
-									true,
-									void 0,
-									""
-								),
-							],
-						},
-					],
-				},
-				{
 					text: "ArtPlayer播放器",
 					type: "deepMenu",
 					forms: [
+						{
+							text: "控件设置",
+							type: "forms",
+							forms: [
+								UISlider(
+									"controls左右边距",
+									"bili-bangumi-artplayer-controlsPadding-left-right",
+									0,
+									0,
+									50,
+									1,
+									void 0,
+									(value) => {
+										return value + "px";
+									},
+									"可用于全屏横屏适配屏幕"
+								),
+							],
+						},
 						{
 							text: "解除区域限制",
 							type: "forms",
@@ -191,6 +140,58 @@ const SettingUIBangumi: PopsPanelContentConfig = {
 									"用于请求播放地址的代理",
 									void 0,
 									"bilibili优化.example.com"
+								),
+							],
+						},
+					],
+				},
+				{
+					text: "覆盖点击事件",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"【选集】",
+									"bili-bangumi-cover-clicl-event-chooseEp",
+									true,
+									void 0,
+									"让【选集】的视频列表可点击跳转"
+								),
+								UISwitch(
+									"【其它】",
+									"bili-bangumi-cover-clicl-event-other",
+									true,
+									void 0,
+									"让【PV&其他】、【预告】、【主题曲】、【香境剧场】等的视频列表可点击跳转"
+								),
+								UISwitch(
+									"【更多推荐】",
+									"bili-bangumi-cover-clicl-event-recommend",
+									true,
+									void 0,
+									"让【更多推荐】的视频列表可点击跳转"
+								),
+							],
+						},
+					],
+				},
+				{
+					text: "劫持/拦截",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"阻止调用App",
+									"bili-bangumi-hook-callApp",
+									true,
+									void 0,
+									""
 								),
 							],
 						},

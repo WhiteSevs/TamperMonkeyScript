@@ -1,11 +1,11 @@
 import { addStyle, DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { unsafeWindow } from "ViteGM";
-import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliData } from "@/data/BlibiliData";
 import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
 import { VueUtils } from "@/utils/VueUtils";
 import artPlayerCSS from "./artplayer/index.css?raw";
+import artPlayerCommonCSS from "@/player/player.css?raw";
 import type Artplayer from "artplayer";
 import { BilibiliOpenApp } from "./BilibiliOpenApp";
 import { BlibiliBangumiPlayer } from "./BilibiliBangumiPlayer";
@@ -225,8 +225,27 @@ const BilibiliBangumi = {
 			.open-app-bar{
 				display: none !important;
 			}
+			
+			${artPlayerCommonCSS}
+			
 			${artPlayerCSS}
+			
 			`);
+			let controlsPadding = PopsPanel.getValue(
+				"bili-bangumi-artplayer-controlsPadding-left-right",
+				0
+			);
+			if (controlsPadding != 0) {
+				addStyle(/*css*/ `
+				@media (orientation: landscape) {
+					.art-video-player .art-layers .art-layer-top-wrap,
+					.art-video-player .art-bottom{
+						padding-left: ${controlsPadding}px !important;
+						padding-right: ${controlsPadding}px !important;
+					}
+				}
+				`);
+			}
 		}
 		BlibiliBangumiPlayer.updateArtPlayerVideoInfo();
 	},

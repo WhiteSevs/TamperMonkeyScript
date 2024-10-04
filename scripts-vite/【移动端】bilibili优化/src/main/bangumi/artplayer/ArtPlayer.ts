@@ -2,7 +2,6 @@ import { log, utils } from "@/env";
 import Artplayer from "artplayer";
 import artplayerPluginDanmuku from "artplayer-plugin-danmuku";
 import type Option from "artplayer/types/option";
-import type { quality } from "artplayer/types/quality";
 import {
 	ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY,
 	artplayerPluginM4SAudioSupport,

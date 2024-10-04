@@ -261,7 +261,6 @@ export const BilibiliVideoArtPlayer = {
 			artOption.autoplay = true;
 		}
 		this.$data.art = new Artplayer(artOption);
-
 		artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
 		return this.$data.art;
 	},

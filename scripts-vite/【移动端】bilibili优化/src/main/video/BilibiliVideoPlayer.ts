@@ -1,5 +1,6 @@
 import { addStyle, DOMUtils, log, utils } from "@/env";
 import artPlayerCSS from "./artplayer/index.css?raw";
+import artPlayerCommonCSS from "@/player/player.css?raw";
 import { VueUtils } from "@/utils/VueUtils";
 import {
 	BilibiliVideoApi,
@@ -10,7 +11,6 @@ import { PopsPanel } from "@/setting/setting";
 import { BilibiliCDNProxy } from "@/api/BilibiliCDNProxy";
 import { VideoArtPlayerVideoConfig } from "./artplayer/ArtPlayerVideoConfig";
 import { VideoSoundQualityCode } from "@/video-info/AudioDict";
-import type { quality } from "artplayer/types/quality";
 import {
 	BilibiliVideoArtPlayer,
 	type BilibiliVideoArtPlayerOption,
@@ -352,8 +352,27 @@ export const BilibiliVideoPlayer = {
 			#app .video .m-video-player .player-container{
 				display: none !important;
 			}
+			
+			${artPlayerCommonCSS}
+			
 			${artPlayerCSS}
+
 			`);
+			let controlsPadding = PopsPanel.getValue(
+				"bili-video-artplayer-controlsPadding-left-right",
+				0
+			);
+			if (controlsPadding != 0) {
+				addStyle(/*css*/ `
+				@media (orientation: landscape) {
+					.art-video-player .art-layers .art-layer-top-wrap,
+					.art-video-player .art-bottom{
+						padding-left: ${controlsPadding}px !important;
+						padding-right: ${controlsPadding}px !important;
+					}
+				}
+				`);
+			}
 		}
 		this.updateArtPlayerVideoInfo();
 	},

@@ -3,6 +3,7 @@ import { UISwitch } from "../common-components/ui-switch";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { UISelect } from "../common-components/ui-select";
 import { BilibiliCDNProxy } from "@/api/BilibiliCDNProxy";
+import { UISlider } from "../common-components/ui-slider";
 
 const SettingUIVideo: PopsPanelContentConfig = {
 	id: "panel-video",
@@ -75,7 +76,6 @@ const SettingUIVideo: PopsPanelContentConfig = {
 						},
 					],
 				},
-
 				{
 					text: "ArtPlayer播放器",
 					type: "deepMenu",
@@ -121,6 +121,25 @@ const SettingUIVideo: PopsPanelContentConfig = {
 									false,
 									void 0,
 									""
+								),
+							],
+						},
+						{
+							text: "控件设置",
+							type: "forms",
+							forms: [
+								UISlider(
+									"controls左右边距",
+									"bili-video-artplayer-controlsPadding-left-right",
+									0,
+									0,
+									50,
+									1,
+									void 0,
+									(value) => {
+										return value + "px";
+									},
+									"可用于全屏横屏适配屏幕"
 								),
 							],
 						},

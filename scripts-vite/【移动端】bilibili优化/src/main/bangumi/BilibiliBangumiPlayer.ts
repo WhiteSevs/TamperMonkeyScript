@@ -15,7 +15,6 @@ import { PopsPanel } from "@/setting/setting";
 import { BangumiArtPlayerVideoConfig } from "./artplayer/ArtPlayerVideoConfig";
 import { VideoSoundQualityCode } from "@/video-info/AudioDict";
 import { BilibiliLogUtils } from "@/utils/BilibiliLogUtils";
-import type { quality } from "artplayer/types/quality";
 import type { EP_INFO, EP_LIST } from "./TypeBangumi";
 import type { ArtPlayerPluginQualityOption } from "@/player/plugins/artplayer-plugin-quality";
 

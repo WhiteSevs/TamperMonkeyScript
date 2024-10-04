@@ -42,7 +42,7 @@ export const ArtPlayerCommonOption = (): Option => {
 		/** 是否启用播放器迷你进度条 */
 		miniProgressBar: true,
 		/** 保证页面只存在一个实例 */
-		mutex: true,
+		mutex: false,
 		/** UI中是否使用背景 */
 		backdrop: true,
 		/** 移动端是否使用playsInline */
@@ -51,6 +51,10 @@ export const ArtPlayerCommonOption = (): Option => {
 		autoPlayback: true,
 		/** 是否使用airplay */
 		airplay: true,
+		/** 是否在移动端显示一个 锁定按钮 ，用于隐藏底部 控制栏 */
+		lock: true,
+		/** 是否在移动端添加长按视频快进功能 */
+		fastForward: true,
 		/** 播放器颜色主题 */
 		theme: BilibiliData.theme,
 		/** 播放器语言 */

@@ -287,6 +287,14 @@ const M4SAudio = {
 			M4SAudio.syncAudioProgress();
 		},
 		/**
+		 * 切换页面视频会被暂停
+		 */
+		"video:pause": () => {
+			// console.log(TAG + "video:pause");
+			M4SAudio.syncAudioProgress();
+			M4SAudio.syncAudioPlayState();
+		},
+		/**
 		 * 同步音量
 		 */
 		"video:volumechange": () => {

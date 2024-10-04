@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.4.23
+// @version      2024.10.5
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -1358,6 +1358,35 @@
       return serverList;
     }
   };
+  const UISlider = function(text, key, defaultValue, min, max, step, changeCallBack, getToolTipContent, description) {
+    let result = {
+      text,
+      type: "slider",
+      description,
+      attributes: {},
+      getValue() {
+        return PopsPanel.getValue(key, defaultValue);
+      },
+      getToolTipContent(value) {
+        if (typeof getToolTipContent === "function") {
+          return getToolTipContent(value);
+        } else {
+          return `${value}`;
+        }
+      },
+      callback(event, value) {
+        PopsPanel.setValue(key, value);
+      },
+      min,
+      max,
+      step
+    };
+    if (result.attributes) {
+      result.attributes[ATTRIBUTE_KEY] = key;
+      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
+    }
+    return result;
+  };
   const SettingUIVideo = {
     id: "panel-video",
     title: "视频",
@@ -1478,6 +1507,25 @@
                 ]
               },
               {
+                text: "控件设置",
+                type: "forms",
+                forms: [
+                  UISlider(
+                    "controls左右边距",
+                    "bili-video-artplayer-controlsPadding-left-right",
+                    0,
+                    0,
+                    50,
+                    1,
+                    void 0,
+                    (value) => {
+                      return value + "px";
+                    },
+                    "可用于全屏横屏适配屏幕"
+                  )
+                ]
+              },
+              {
                 text: "加速CDN设置",
                 type: "forms",
                 forms: [
@@ -1585,80 +1633,28 @@
             ]
           },
           {
-            text: "变量设置",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "pay",
-                    "bili-bangumi-setPay",
-                    true,
-                    void 0,
-                    "$store.state.userStat.pay=1<br>$store.state.mediaInfo.user_status.pay=1"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: "覆盖点击事件",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "【选集】",
-                    "bili-bangumi-cover-clicl-event-chooseEp",
-                    true,
-                    void 0,
-                    "让【选集】的视频列表可点击跳转"
-                  ),
-                  UISwitch(
-                    "【其它】",
-                    "bili-bangumi-cover-clicl-event-other",
-                    true,
-                    void 0,
-                    "让【PV&其他】、【预告】、【主题曲】、【香境剧场】等的视频列表可点击跳转"
-                  ),
-                  UISwitch(
-                    "【更多推荐】",
-                    "bili-bangumi-cover-clicl-event-recommend",
-                    true,
-                    void 0,
-                    "让【更多推荐】的视频列表可点击跳转"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: "劫持/拦截",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "阻止调用App",
-                    "bili-bangumi-hook-callApp",
-                    true,
-                    void 0,
-                    ""
-                  )
-                ]
-              }
-            ]
-          },
-          {
             text: "ArtPlayer播放器",
             type: "deepMenu",
             forms: [
+              {
+                text: "控件设置",
+                type: "forms",
+                forms: [
+                  UISlider(
+                    "controls左右边距",
+                    "bili-bangumi-artplayer-controlsPadding-left-right",
+                    0,
+                    0,
+                    50,
+                    1,
+                    void 0,
+                    (value) => {
+                      return value + "px";
+                    },
+                    "可用于全屏横屏适配屏幕"
+                  )
+                ]
+              },
               {
                 text: "解除区域限制",
                 type: "forms",
@@ -1740,6 +1736,58 @@
                     "用于请求播放地址的代理",
                     void 0,
                     "bilibili优化.example.com"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "覆盖点击事件",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【选集】",
+                    "bili-bangumi-cover-clicl-event-chooseEp",
+                    true,
+                    void 0,
+                    "让【选集】的视频列表可点击跳转"
+                  ),
+                  UISwitch(
+                    "【其它】",
+                    "bili-bangumi-cover-clicl-event-other",
+                    true,
+                    void 0,
+                    "让【PV&其他】、【预告】、【主题曲】、【香境剧场】等的视频列表可点击跳转"
+                  ),
+                  UISwitch(
+                    "【更多推荐】",
+                    "bili-bangumi-cover-clicl-event-recommend",
+                    true,
+                    void 0,
+                    "让【更多推荐】的视频列表可点击跳转"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "劫持/拦截",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "阻止调用App",
+                    "bili-bangumi-hook-callApp",
+                    true,
+                    void 0,
+                    ""
                   )
                 ]
               }
@@ -2989,7 +3037,8 @@
     }
   };
   const BilibiliVideoBeautifyCSS = '@charset "UTF-8";\r\n#app .video {\r\n	/* 下面的推荐视频卡片 */\r\n}\r\n#app .video .video-list .card-box {\r\n	--left-card-width: 33%;\r\n	--right-child-padding: 1.333vmin;\r\n	/* 开启了bili-video-beautify */\r\n}\r\n#app .video .video-list .card-box .v-card-toapp {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a {\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n	gap: var(--right-child-padding);\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card {\r\n	width: var(--left-card-width);\r\n	height: 80px;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .left {\r\n	display: list-item;\r\n}\r\n#app\r\n	.video\r\n	.video-list\r\n	.card-box\r\n	.v-card-toapp\r\n	> a\r\n	.card\r\n	.count\r\n	.left\r\n	span.item {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .duration {\r\n	background: rgba(0, 0, 0, 0.4);\r\n	border-radius: 0.6vmin;\r\n	padding: 0px 0.5vmin;\r\n	right: 1vmin;\r\n	bottom: 1vmin;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .title {\r\n	flex: 1;\r\n	/*padding: var(--right-child-padding);*/\r\n	padding-top: 0;\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n#app .video .video-list .card-box .gm-right-container {\r\n	display: flex;\r\n	flex-direction: column;\r\n	width: calc(100% - var(--left-card-width));\r\n}\r\n#app .video .video-list .card-box .gm-right-container > * {\r\n	padding: var(--right-child-padding);\r\n	padding-bottom: 0;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	gap: 1rem;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .left span {\r\n	display: flex;\r\n	align-items: safe center;\r\n	gap: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name,\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	color: #999;\r\n	font-size: 3vmin;\r\n	transform-origin: left;\r\n	display: flex;\r\n	/*align-items: safe center;*/\r\n	align-items: safe flex-end;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name svg{\r\n	width: 3vmin;\r\n	height: 3vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name-text {\r\n	margin-left: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .num {\r\n	margin-right: 4vmin;\r\n}\r\n#app .video .video-list .card-box > a.v-card {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card {\r\n	width: var(--left-card-width);\r\n	height: 100%;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count span {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count .duration {\r\n	background-color: rgba(0, 0, 0, 0.3);\r\n	border-radius: 4px;\r\n	color: #fff;\r\n	font-size: 12px;\r\n	height: 16px;\r\n	line-height: 16px;\r\n	margin-left: auto;\r\n	padding-left: 4px;\r\n	padding-right: 4px;\r\n}\r\n#app .video .video-list .card-box > a.v-card .title {\r\n	flex: 1;\r\n	/*padding: var(--right-child-padding);*/\r\n	padding-top: 0;\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n';
-  const artPlayerCSS$1 = ".artplayer-container {\r\n	position: absolute;\r\n	width: 100%;\r\n	height: 100%;\r\n	top: 0;\r\n	left: 0;\r\n	overflow: hidden;\r\n}\r\n#artplayer {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n.art-video-player {\r\n	width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n	display: none !important;\r\n}\r\n/* 大会员画质 */\r\n.art-player-quality-badge-bigvip {\r\n	border-radius: 8px;\r\n	-webkit-box-sizing: border-box;\r\n	box-sizing: border-box;\r\n	display: block;\r\n	padding: 2px 5px;\r\n	background-color: var(--bili-color);\r\n	color: #fff;\r\n	margin-left: 16px;\r\n}\r\n/* 选中的清晰度中如果有大会员文字，隐藏 */\r\n.art-selector-value .art-player-quality-badge-bigvip {\r\n	display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n	backdrop-filter: unset !important;\r\n}\r\n/* 竖屏且宽度小于550px */\r\n@media (max-width: 550px) and (orientation: portrait) {\r\n	/* 隐藏 弹幕设置按钮 */\r\n	.artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		display: none !important;\r\n	}\r\n	/* 弹幕库靠右对齐 */\r\n	.artplayer-plugin-danmuku {\r\n		justify-content: right;\r\n	}\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n	/* 限制弹幕输入框的最大宽度 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		max-width: 260px;\r\n	}\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-layer-top-wrap {\r\n	--layer-top-wrap-follow-text-font-size: 0.8em;\r\n	--layer-top-wrap-follow-icon-size: 1em;\r\n	position: absolute;\r\n	top: 0px;\r\n	right: 0px;\r\n	color: #fff;\r\n	display: -webkit-box;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	left: 0;\r\n	-webkit-transition: all 0.2s ease-in-out;\r\n	transition: all 0.2s ease-in-out;\r\n	width: 100%;\r\n	background: rgba(0, 0, 0, 0.8);\r\n	padding: calc(var(--art-padding));\r\n	z-index: 60;\r\n}\r\n.art-hide-cursor .art-layer-top-wrap {\r\n	display: none;\r\n}\r\n.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n	margin-top: var(--art-padding);\r\n	gap: var(--layer-top-wrap-follow-text-font-size);\r\n	font-size: var(--layer-top-wrap-follow-text-font-size);\r\n	display: flex;\r\n	align-items: center;\r\n	position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n	width: var(--layer-top-wrap-follow-icon-size);\r\n	height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n	text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n";
+  const artPlayerCSS$1 = ".artplayer-container {\r\n	position: absolute;\r\n	width: 100%;\r\n	height: 100%;\r\n	top: 0;\r\n	left: 0;\r\n	overflow: hidden;\r\n}";
+  const artPlayerCommonCSS = "#artplayer {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n.art-video-player {\r\n	width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n	display: none !important;\r\n}\r\n/* 大会员画质 */\r\n.art-player-quality-badge-bigvip {\r\n	border-radius: 8px;\r\n	-webkit-box-sizing: border-box;\r\n	box-sizing: border-box;\r\n	display: block;\r\n	padding: 2px 5px;\r\n	background-color: var(--bili-color);\r\n	color: #fff;\r\n	margin-left: 16px;\r\n}\r\n/* 选中的清晰度中如果有大会员文字，隐藏 */\r\n.art-selector-value .art-player-quality-badge-bigvip {\r\n	display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n	backdrop-filter: unset !important;\r\n}\r\n/* 竖屏且宽度小于550px */\r\n@media (max-width: 550px) and (orientation: portrait) {\r\n	/* 隐藏 弹幕设置按钮 */\r\n	.artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		display: none !important;\r\n	}\r\n	/* 弹幕库靠右对齐 */\r\n	.artplayer-plugin-danmuku {\r\n		justify-content: right;\r\n	}\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n	/* 限制弹幕输入框的最大宽度 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		max-width: 260px;\r\n	}\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-lock .art-layer-top-wrap {\r\n	/* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */\r\n	display: none !important;\r\n}\r\n.art-layer-top-wrap {\r\n	--layer-top-wrap-follow-text-font-size: 0.8em;\r\n	--layer-top-wrap-follow-icon-size: 1em;\r\n	position: absolute;\r\n	top: 0px;\r\n	right: 0px;\r\n	color: #fff;\r\n	display: -webkit-box;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	left: 0;\r\n	-webkit-transition: all 0.2s ease-in-out;\r\n	transition: all 0.2s ease-in-out;\r\n	width: 100%;\r\n	background: rgba(0, 0, 0, 0.8);\r\n	padding: 10px calc(var(--art-padding));\r\n	z-index: 60;\r\n}\r\n.art-hide-cursor .art-layer-top-wrap {\r\n	display: none;\r\n}\r\n.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n	margin-top: var(--art-padding);\r\n	gap: var(--layer-top-wrap-follow-text-font-size);\r\n	font-size: var(--layer-top-wrap-follow-text-font-size);\r\n	display: flex;\r\n	align-items: center;\r\n	position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n	width: var(--layer-top-wrap-follow-icon-size);\r\n	height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n	text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n";
   const BilibiliRequestCheck = {
     /**
      * 合并并检查是否传入aid或者bvid
@@ -3517,6 +3566,13 @@
         M4SAudio.syncAudioProgress();
         M4SAudio.syncAudioPlayState();
         M4SAudio.syncAudioProgress();
+      },
+      /**
+       * 切换页面视频会被暂停
+       */
+      "video:pause": () => {
+        M4SAudio.syncAudioProgress();
+        M4SAudio.syncAudioPlayState();
       },
       /**
        * 同步音量
@@ -4507,7 +4563,7 @@
       /** 是否启用播放器迷你进度条 */
       miniProgressBar: true,
       /** 保证页面只存在一个实例 */
-      mutex: true,
+      mutex: false,
       /** UI中是否使用背景 */
       backdrop: true,
       /** 移动端是否使用playsInline */
@@ -4516,6 +4572,10 @@
       autoPlayback: true,
       /** 是否使用airplay */
       airplay: true,
+      /** 是否在移动端显示一个 锁定按钮 ，用于隐藏底部 控制栏 */
+      lock: true,
+      /** 是否在移动端添加长按视频快进功能 */
+      fastForward: true,
       /** 播放器颜色主题 */
       theme: BilibiliData.theme,
       /** 播放器语言 */
@@ -5089,9 +5149,31 @@
 			#app .video .m-video-player .player-container{
 				display: none !important;
 			}
+			
+			${artPlayerCommonCSS}
+			
 			${artPlayerCSS$1}
+
 			`
         );
+        let controlsPadding = PopsPanel.getValue(
+          "bili-video-artplayer-controlsPadding-left-right",
+          0
+        );
+        if (controlsPadding != 0) {
+          addStyle(
+            /*css*/
+            `
+				@media (orientation: landscape) {
+					.art-video-player .art-layers .art-layer-top-wrap,
+					.art-video-player .art-bottom{
+						padding-left: ${controlsPadding}px !important;
+						padding-right: ${controlsPadding}px !important;
+					}
+				}
+				`
+          );
+        }
       }
       this.updateArtPlayerVideoInfo();
     },
@@ -5707,7 +5789,7 @@
       });
     }
   };
-  const artPlayerCSS = ".artplayer-container {\r\n}\r\n.artplayer-container {\r\n	width: 100vw;\r\n	height: 35vh;\r\n}\r\n#artplayer {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n.art-video-player {\r\n	width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n	display: none !important;\r\n}\r\n/* 大会员画质 */\r\n.art-player-quality-badge-bigvip {\r\n	border-radius: 8px;\r\n	-webkit-box-sizing: border-box;\r\n	box-sizing: border-box;\r\n	display: block;\r\n	padding: 2px 5px;\r\n	background-color: var(--bili-color);\r\n	color: #fff;\r\n	margin-left: 16px;\r\n}\r\n/* 选中的清晰度中如果有大会员文字，隐藏 */\r\n.art-selector-value .art-player-quality-badge-bigvip {\r\n	display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n	backdrop-filter: unset !important;\r\n}\r\n/* 竖屏且宽度小于550px */\r\n@media (max-width: 550px) and (orientation: portrait) {\r\n	/* 隐藏 清晰度选择 */\r\n	.art-control.art-control-quality,\r\n	/* 隐藏 画质选择按钮 */\r\n	.art-control.art-control-quality,\r\n	/* 隐藏 弹幕设置按钮 */\r\n	.artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		display: none !important;\r\n	}\r\n	/* 弹幕库靠右对齐 */\r\n	.artplayer-plugin-danmuku {\r\n		justify-content: right;\r\n	}\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n	/* 限制弹幕输入框的最大宽度 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		max-width: 260px;\r\n	}\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-layer-top-wrap {\r\n	--layer-top-wrap-follow-text-font-size: 0.8em;\r\n	--layer-top-wrap-follow-icon-size: 1em;\r\n	position: absolute;\r\n	top: 0px;\r\n	right: 0px;\r\n	color: #fff;\r\n	display: -webkit-box;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	left: 0;\r\n	-webkit-transition: all 0.2s ease-in-out;\r\n	transition: all 0.2s ease-in-out;\r\n	width: 100%;\r\n	background: rgba(0, 0, 0, 0.8);\r\n	padding: calc(var(--art-padding));\r\n	z-index: 60;\r\n}\r\n.art-hide-cursor .art-layer-top-wrap {\r\n	display: none;\r\n}\r\n.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n	margin-top: var(--art-padding);\r\n	gap: var(--layer-top-wrap-follow-text-font-size);\r\n	font-size: var(--layer-top-wrap-follow-text-font-size);\r\n	display: flex;\r\n	align-items: center;\r\n	position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n	width: var(--layer-top-wrap-follow-icon-size);\r\n	height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n	text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n";
+  const artPlayerCSS = ".artplayer-container {\r\n	width: 100vw;\r\n	height: 35vh;\r\n}";
   const BilibiliOpenApp = {
     getUrl($ele) {
       if ($ele == null) {
@@ -6758,9 +6840,31 @@
 			.open-app-bar{
 				display: none !important;
 			}
+			
+			${artPlayerCommonCSS}
+			
 			${artPlayerCSS}
+			
 			`
         );
+        let controlsPadding = PopsPanel.getValue(
+          "bili-bangumi-artplayer-controlsPadding-left-right",
+          0
+        );
+        if (controlsPadding != 0) {
+          addStyle(
+            /*css*/
+            `
+				@media (orientation: landscape) {
+					.art-video-player .art-layers .art-layer-top-wrap,
+					.art-video-player .art-bottom{
+						padding-left: ${controlsPadding}px !important;
+						padding-right: ${controlsPadding}px !important;
+					}
+				}
+				`
+          );
+        }
       }
       BlibiliBangumiPlayer.updateArtPlayerVideoInfo();
     }
