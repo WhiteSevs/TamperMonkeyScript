@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.4
+// @version      2024.10.4.18
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -2360,69 +2360,49 @@
         },
         immediate: true,
         callback: () => {
-          Array.from(
-            document.querySelectorAll(
-              ".card.m-panel .m-text-cut .time:not([data-gm-absolute-time])"
-            )
-          ).forEach(($time) => {
-            var _a2;
-            let $card = $time.closest(".card.m-panel");
-            let cardVueIns = VueUtils.getVue($card);
-            if (!cardVueIns) {
-              return;
-            }
-            let createTime = (_a2 = cardVueIns == null ? void 0 : cardVueIns.item) == null ? void 0 : _a2.created_at;
-            if (typeof createTime !== "string") {
-              return;
-            }
-            if ($time.innerText.includes("编辑")) {
-              return;
-            }
-            let createTimeObj = new Date(createTime);
-            let formatCreateTime = utils.formatTime(
-              createTimeObj,
-              "yyyy-MM-dd HH:mm:ss"
-            );
-            $time.innerText = formatCreateTime;
-            $time.setAttribute("data-gm-absolute-time", "true");
-          });
-          Array.from(
-            document.querySelectorAll(
-              ".comment-content .card .m-box .time:not([data-gm-absolute-time])"
-            )
-          ).forEach(($time) => {
-            var _a2, _b;
-            let $card = $time.closest(".card");
-            let $cardParent = $card.parentElement;
-            let cardVueIns = VueUtils.getVue($card) || VueUtils.getVue($cardParent);
-            if (!cardVueIns) {
-              return;
-            }
-            let createTime = (_a2 = cardVueIns == null ? void 0 : cardVueIns.item) == null ? void 0 : _a2.created_at;
-            if (typeof createTime !== "string") {
-              return;
-            }
-            let createTimeObj = new Date(createTime);
-            let formatCreateTime = utils.formatTime(
-              createTimeObj,
-              "yyyy-MM-dd HH:mm:ss"
-            );
-            $time.innerText = `${formatCreateTime} ${((_b = cardVueIns == null ? void 0 : cardVueIns.item) == null ? void 0 : _b.source) || ""}`;
-            $time.setAttribute("data-gm-absolute-time", "true");
-          });
-          let searchParams = new URLSearchParams(window.location.search);
-          if (searchParams.has("cid")) {
+          function handleCardMainTime() {
+            Array.from(
+              document.querySelectorAll(
+                ".card.m-panel .m-text-cut .time:not([data-gm-absolute-time])"
+              )
+            ).forEach(($time) => {
+              var _a2;
+              let $card = $time.closest(".card.m-panel");
+              let cardVueIns = VueUtils.getVue($card);
+              if (!cardVueIns) {
+                return;
+              }
+              let createTime = (_a2 = cardVueIns == null ? void 0 : cardVueIns.item) == null ? void 0 : _a2.created_at;
+              if (typeof createTime !== "string") {
+                return;
+              }
+              if ($time.innerText.includes("编辑")) {
+                return;
+              }
+              let createTimeObj = new Date(createTime);
+              let formatCreateTime = utils.formatTime(
+                createTimeObj,
+                "yyyy-MM-dd HH:mm:ss"
+              );
+              $time.innerText = formatCreateTime;
+              $time.setAttribute("data-gm-absolute-time", "true");
+            });
+          }
+          function handleCardLzlTime() {
             let $litePageWrap = document.querySelector(".lite-page-wrap");
             let litePageWrapVueIns = VueUtils.getVue($litePageWrap);
             if (litePageWrapVueIns) {
               let curWeiboData = litePageWrapVueIns == null ? void 0 : litePageWrapVueIns.curWeiboData;
               let $timeList = Array.from(
                 document.querySelectorAll(
-                  ".card .card-main .m-box .time:not([data-gm-absolute-time])"
+                  ".lite-page-comment .card .card-main .m-box .time"
                 )
               );
               if ($timeList.length === curWeiboData.commentLists.length + 1) {
                 $timeList.forEach(($time, index) => {
+                  if ($time.hasAttribute("data-gm-absolute-time")) {
+                    return;
+                  }
                   if (index === 0) {
                     let createTimeObj = new Date(
                       curWeiboData.rootComment.created_at
@@ -2450,6 +2430,43 @@
                 }
               }
             }
+          }
+          function handleCardCommentTime() {
+            Array.from(
+              document.querySelectorAll(
+                ".comment-content .card .m-box .time:not([data-gm-absolute-time])"
+              )
+            ).forEach(($time) => {
+              var _a2, _b;
+              let $card = $time.closest(".card");
+              let $cardParent = $card.parentElement;
+              let cardVueIns = VueUtils.getVue($card) || VueUtils.getVue($cardParent);
+              if (!cardVueIns) {
+                return;
+              }
+              let createTime = (_a2 = cardVueIns == null ? void 0 : cardVueIns.item) == null ? void 0 : _a2.created_at;
+              if (typeof createTime !== "string") {
+                return;
+              }
+              let createTimeObj = new Date(createTime);
+              let formatCreateTime = utils.formatTime(
+                createTimeObj,
+                "yyyy-MM-dd HH:mm:ss"
+              );
+              $time.innerText = `${formatCreateTime} ${((_b = cardVueIns == null ? void 0 : cardVueIns.item) == null ? void 0 : _b.source) || ""}`;
+              $time.setAttribute("data-gm-absolute-time", "true");
+            });
+          }
+          let searchParams = new URLSearchParams(window.location.search);
+          if (WeiBoRouter.isMWeiBo_detail()) {
+            if (searchParams.has("cid")) {
+              handleCardLzlTime();
+            } else {
+              handleCardMainTime();
+              handleCardCommentTime();
+            }
+          } else {
+            handleCardMainTime();
           }
         }
       });

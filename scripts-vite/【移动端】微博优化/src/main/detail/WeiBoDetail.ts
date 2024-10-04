@@ -2,6 +2,7 @@ import { addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import blockAdsCSS from "./blockAds.css?raw";
 import { VueUtils } from "@/utils/VueUtils";
+import { WeiBoRouter } from "@/router/WeiBoRouter";
 export const WeiBoDetail = {
 	init() {
 		PopsPanel.onceExec("weibo-detail-blockAds", () => {
@@ -19,61 +20,41 @@ export const WeiBoDetail = {
 			},
 			immediate: true,
 			callback: () => {
-				Array.from(
-					document.querySelectorAll<HTMLElement>(
-						".card.m-panel .m-text-cut .time:not([data-gm-absolute-time])"
-					)
-				).forEach(($time) => {
-					let $card = $time.closest(".card.m-panel") as HTMLElement;
-					let cardVueIns = VueUtils.getVue($card);
-					if (!cardVueIns) {
-						return;
-					}
-					let createTime = cardVueIns?.item?.created_at;
-					if (typeof createTime !== "string") {
-						return;
-					}
-					if ($time.innerText.includes("编辑")) {
-						return;
-					}
-					let createTimeObj = new Date(createTime);
-					let formatCreateTime = utils.formatTime(
-						createTimeObj,
-						"yyyy-MM-dd HH:mm:ss"
-					);
-					$time.innerText = formatCreateTime;
-					$time.setAttribute("data-gm-absolute-time", "true");
-				});
-				// 评论区的
-				Array.from(
-					document.querySelectorAll<HTMLElement>(
-						".comment-content .card .m-box .time:not([data-gm-absolute-time])"
-					)
-				).forEach(($time) => {
-					let $card = $time.closest(".card") as HTMLElement;
-					let $cardParent = $card.parentElement as HTMLElement;
-					let cardVueIns =
-						VueUtils.getVue($card) || VueUtils.getVue($cardParent);
-					if (!cardVueIns) {
-						return;
-					}
-					let createTime = cardVueIns?.item?.created_at;
-					if (typeof createTime !== "string") {
-						return;
-					}
-					let createTimeObj = new Date(createTime);
-					let formatCreateTime = utils.formatTime(
-						createTimeObj,
-						"yyyy-MM-dd HH:mm:ss"
-					);
-					$time.innerText = `${formatCreateTime} ${
-						cardVueIns?.item?.source || ""
-					}`;
-					$time.setAttribute("data-gm-absolute-time", "true");
-				});
-				let searchParams = new URLSearchParams(window.location.search);
-				if (searchParams.has("cid")) {
-					// 楼中楼的，要按照数据顺序来
+				/**
+				 * 处理卡片内的时间
+				 */
+				function handleCardMainTime() {
+					// 其它区域，如首页
+					Array.from(
+						document.querySelectorAll<HTMLElement>(
+							".card.m-panel .m-text-cut .time:not([data-gm-absolute-time])"
+						)
+					).forEach(($time) => {
+						let $card = $time.closest(".card.m-panel") as HTMLElement;
+						let cardVueIns = VueUtils.getVue($card);
+						if (!cardVueIns) {
+							return;
+						}
+						let createTime = cardVueIns?.item?.created_at;
+						if (typeof createTime !== "string") {
+							return;
+						}
+						if ($time.innerText.includes("编辑")) {
+							return;
+						}
+						let createTimeObj = new Date(createTime);
+						let formatCreateTime = utils.formatTime(
+							createTimeObj,
+							"yyyy-MM-dd HH:mm:ss"
+						);
+						$time.innerText = formatCreateTime;
+						$time.setAttribute("data-gm-absolute-time", "true");
+					});
+				}
+				/**
+				 * 处理正文楼中楼的时间
+				 */
+				function handleCardLzlTime() {
 					let $litePageWrap =
 						document.querySelector<HTMLElement>(".lite-page-wrap")!;
 					let litePageWrapVueIns = VueUtils.getVue($litePageWrap);
@@ -81,12 +62,15 @@ export const WeiBoDetail = {
 						let curWeiboData = litePageWrapVueIns?.curWeiboData;
 						let $timeList = Array.from(
 							document.querySelectorAll<HTMLElement>(
-								".card .card-main .m-box .time:not([data-gm-absolute-time])"
+								".lite-page-comment .card .card-main .m-box .time"
 							)
 						);
 						if ($timeList.length === curWeiboData.commentLists.length + 1) {
 							// 数量和获取到的数量一致
 							$timeList.forEach(($time, index) => {
+								if ($time.hasAttribute("data-gm-absolute-time")) {
+									return;
+								}
 								if (index === 0) {
 									// 根评论
 									let createTimeObj = new Date(
@@ -116,6 +100,53 @@ export const WeiBoDetail = {
 							}
 						}
 					}
+				}
+				/**
+				 * 处理正文内的时间
+				 */
+				function handleCardCommentTime() {
+					Array.from(
+						document.querySelectorAll<HTMLElement>(
+							".comment-content .card .m-box .time:not([data-gm-absolute-time])"
+						)
+					).forEach(($time) => {
+						let $card = $time.closest(".card") as HTMLElement;
+						let $cardParent = $card.parentElement as HTMLElement;
+						let cardVueIns =
+							VueUtils.getVue($card) || VueUtils.getVue($cardParent);
+						if (!cardVueIns) {
+							return;
+						}
+						let createTime = cardVueIns?.item?.created_at;
+						if (typeof createTime !== "string") {
+							return;
+						}
+						let createTimeObj = new Date(createTime);
+						let formatCreateTime = utils.formatTime(
+							createTimeObj,
+							"yyyy-MM-dd HH:mm:ss"
+						);
+						$time.innerText = `${formatCreateTime} ${
+							cardVueIns?.item?.source || ""
+						}`;
+						$time.setAttribute("data-gm-absolute-time", "true");
+					});
+				}
+				let searchParams = new URLSearchParams(window.location.search);
+				if (WeiBoRouter.isMWeiBo_detail()) {
+					// 正文
+					if (searchParams.has("cid")) {
+						// 正文楼中楼的
+						handleCardLzlTime();
+					} else {
+						// 正文主内容
+						handleCardMainTime();
+						// 正文评论区的
+						handleCardCommentTime();
+					}
+				} else {
+					// 其它区域，如首页的
+					handleCardMainTime();
 				}
 			},
 		});
