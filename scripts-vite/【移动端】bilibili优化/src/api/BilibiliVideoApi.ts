@@ -1,8 +1,8 @@
 import { GMCookie, httpx, log, Qmsg, utils } from "@/env";
-import { BilibiliVideoPlayUrlQN } from "@/hook/BilibiliNetworkHook";
 import { BilibiliRequestCheck } from "./BilibiliRequestCheck";
 import { BilibiliApiConfig } from "./BilibiliApiConfig";
 import { BilibiliResponseCheck } from "./BilibiliResponseCheck";
+import { VideoQualityNameMap } from "@/video-info/VideoDict";
 
 type BilibliPlayUrlCommonConfig = {
 	cid: string | number;
@@ -142,7 +142,7 @@ export const BilibiliVideoApi = {
 	) {
 		let searchParamsData = {
 			cid: config.cid,
-			qn: config.qn ?? BilibiliVideoPlayUrlQN["1080P60 高帧率"],
+			qn: config.qn ?? VideoQualityNameMap["1080P60 高帧率"],
 			high_quality: config.high_quality ?? 1,
 			fnval: config.fnval ?? 1,
 			// 固定0
@@ -154,7 +154,10 @@ export const BilibiliVideoApi = {
 			// 该值是用来请求可以在移动端播放的链接的
 			Reflect.set(searchParamsData, "platform", "html5");
 		}
-		BilibiliRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
+		BilibiliRequestCheck.mergeAidOrBvidSearchParamsData(
+			searchParamsData,
+			config
+		);
 		if (typeof extraParams === "object") {
 			Object.assign(searchParamsData, extraParams);
 		}
@@ -195,7 +198,10 @@ export const BilibiliVideoApi = {
 		let searchParamsData = {
 			cid: config.cid,
 		};
-		BilibiliRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
+		BilibiliRequestCheck.mergeAidOrBvidSearchParamsData(
+			searchParamsData,
+			config
+		);
 		let httpxResponse = await httpx.get(
 			`https://${
 				BilibiliApiConfig.web_host
@@ -237,7 +243,10 @@ export const BilibiliVideoApi = {
 			csrf: GMCookie.get("bili_jct")?.value || "",
 		};
 
-		BilibiliRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
+		BilibiliRequestCheck.mergeAidOrBvidSearchParamsData(
+			searchParamsData,
+			config
+		);
 		let getResp = await httpx.get(
 			"https://api.bilibili.com/x/web-interface/archive/like?" +
 				utils.toSearchParamsStr(searchParamsData),

@@ -13,10 +13,11 @@ import {
 } from "./artplayer/ArtPlayer";
 import { PopsPanel } from "@/setting/setting";
 import { BangumiArtPlayerVideoConfig } from "./artplayer/ArtPlayerVideoConfig";
-import { VideoSoundQualityCode } from "@/video-info/VideoDict";
+import { VideoSoundQualityCode } from "@/video-info/AudioDict";
 import { BilibiliLogUtils } from "@/utils/BilibiliLogUtils";
 import type { quality } from "artplayer/types/quality";
 import type { EP_INFO, EP_LIST } from "./TypeBangumi";
+import type { ArtPlayerPluginQualityOption } from "@/player/plugins/artplayer-plugin-quality";
 
 type VideoQualityInfo = {
 	/** 画质文字 */
@@ -328,13 +329,14 @@ export const GenerateArtPlayerOption = async (
 	/**
 	 * 当前的画质信息列表
 	 */
-	const currentVideoQuality: quality[] = qualityInfo.map((item, index) => {
-		return {
-			default: index === 0,
-			html: item.name,
-			url: item.url,
-		};
-	});
+	const currentVideoQuality: ArtPlayerPluginQualityOption["qualityList"] =
+		qualityInfo.map((item, index) => {
+			return {
+				html: item.name,
+				url: item.url,
+				quality: item.quality,
+			};
+		});
 	const artPlayerOption: BilibiliBangumiArtPlayerOption = {
 		// @ts-ignore
 		container: null,
@@ -427,17 +429,6 @@ export const BlibiliBangumiPlayer = {
 					if (import.meta.hot) {
 						Reflect.set(unsafeWindow, "art", BilibiliBangumi.$data.art);
 					}
-					BilibiliBangumi.$data.art.on("restart", (url) => {
-						// 切换播放地址
-						// 看看切换的播放地址是不是当前的画质列表内的地址
-						// 如果是,记住选择的画质
-						let findQuality = artPlayerOption.quality.find((item) => {
-							return item.url === url;
-						});
-						if (findQuality) {
-							log.info(["切换画质：", findQuality]);
-						}
-					});
 					// 强制初始化音量为1
 					BilibiliBangumi.$data.art.volume = 1;
 				} else {

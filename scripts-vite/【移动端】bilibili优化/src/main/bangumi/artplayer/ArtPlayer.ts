@@ -36,6 +36,12 @@ import {
 	type ArtPlayerPluginEpChooseResult,
 } from "@/player/plugins/artplayer-plugin-epChoose";
 import { ArtPlayerCommonOption } from "@/player/ArtPlayerCommonOption";
+import {
+	ArtPlayer_PLUGIN_QUALITY_KEY,
+	artplayPluginQuality,
+	type ArtPlayerPluginQualityOption,
+	type ArtPlayerPluginQualityResult,
+} from "@/player/plugins/artplayer-plugin-quality";
 
 export type BilibiliBangumiArtPlayerOption = {
 	/** 容器 */
@@ -47,7 +53,7 @@ export type BilibiliBangumiArtPlayerOption = {
 	/** 音频链接数组信息 */
 	audioList?: ArtPlayerPluginM4SAudioSupportOption["audioList"];
 	/** 画质信息 */
-	quality: quality[];
+	quality: ArtPlayerPluginQualityOption["qualityList"];
 	/** 弹幕xml地址 */
 	danmukuUrl: string;
 	/** 视频的cid */
@@ -234,9 +240,11 @@ export const BilibiliBangumiArtPlayer = {
 					},
 				},
 			],
-			/**  */
-			quality: [...option.quality],
 			plugins: [
+				artplayPluginQuality({
+					from: "bangumi",
+					qualityList: option.quality,
+				}),
 				artplayerPluginDanmuku({
 					danmuku: option.danmukuUrl,
 					// 以下为非必填
@@ -337,12 +345,6 @@ export const BilibiliBangumiArtPlayer = {
 			artOption.type = "mp4";
 		}
 
-		if (typeof option.url === "string") {
-			artOption.url = option.url;
-		} else if (typeof option.url === "function") {
-			let url = await option.url();
-			artOption.url = url;
-		}
 		this.$data.art = new Artplayer(artOption);
 
 		artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
@@ -370,12 +372,6 @@ export const BilibiliBangumiArtPlayer = {
 		// 重置播放进度
 		art.currentTime = 0;
 		log.info(`重置播放进度`);
-		// 更新视频地址
-		art.url = videoUrl;
-		log.info(`更新视频地址`);
-		// 更新画质地址
-		art.quality = option.quality;
-		log.info(`更新画质地址`);
 
 		this.updatePluginInfo(art, option);
 
@@ -389,6 +385,16 @@ export const BilibiliBangumiArtPlayer = {
 	 * @param option
 	 */
 	updatePluginInfo(art: Artplayer, option: BilibiliBangumiArtPlayerOption) {
+		// 更新画质
+		let plugin_quality = art.plugins[
+			ArtPlayer_PLUGIN_QUALITY_KEY
+		] as ArtPlayerPluginQualityResult;
+		plugin_quality.update({
+			from: "bangumi",
+			qualityList: option.quality,
+		});
+		log.info([`更新画质`, option.quality]);
+
 		// 更新音频
 		let plugin_m4sAudioSupport = art.plugins[
 			ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY

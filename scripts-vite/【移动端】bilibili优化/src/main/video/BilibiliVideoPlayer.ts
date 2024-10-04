@@ -9,7 +9,7 @@ import {
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliCDNProxy } from "@/api/BilibiliCDNProxy";
 import { VideoArtPlayerVideoConfig } from "./artplayer/ArtPlayerVideoConfig";
-import { VideoSoundQualityCode } from "@/video-info/VideoDict";
+import { VideoSoundQualityCode } from "@/video-info/AudioDict";
 import type { quality } from "artplayer/types/quality";
 import {
 	BilibiliVideoArtPlayer,
@@ -18,6 +18,7 @@ import {
 import type Artplayer from "artplayer";
 import { unsafeWindow } from "ViteGM";
 import type { VIDEO_EP_LIST } from "./TypeVideo";
+import type { ArtPlayerPluginQualityOption } from "@/player/plugins/artplayer-plugin-quality";
 
 type VideoInfo = {
 	/** 视频的bvid */
@@ -287,13 +288,14 @@ const GenerateArtPlayerOption = async (option: VideoInfo) => {
 	 *
 	 * 优先最高画质
 	 */
-	const currentVideoQuality: quality[] = qualityInfo.map((item, index) => {
-		return {
-			default: index === 0,
-			html: item.name,
-			url: item.url,
-		};
-	});
+	const currentVideoQuality: ArtPlayerPluginQualityOption["qualityList"] =
+		qualityInfo.map((item, index) => {
+			return {
+				quality: item.quality,
+				html: item.name,
+				url: item.url,
+			};
+		});
 
 	const artPlayerOption: BilibiliVideoArtPlayerOption = {
 		// @ts-ignore
@@ -451,17 +453,6 @@ export const BilibiliVideoPlayer = {
 					if (import.meta.hot) {
 						Reflect.set(unsafeWindow, "art", BilibiliVideoPlayer.$data.art);
 					}
-					BilibiliVideoPlayer.$data.art.on("restart", (url) => {
-						// 切换播放地址
-						// 看看切换的播放地址是不是当前的画质列表内的地址
-						// 如果是,记住选择的画质
-						let findQuality = artPlayerOption.quality.find((item) => {
-							return item.url === url;
-						});
-						if (findQuality) {
-							log.info(["切换画质：", findQuality]);
-						}
-					});
 					// 强制初始化音量为1
 					BilibiliVideoPlayer.$data.art.volume = 1;
 					that.$data.art.once("ready", () => {
@@ -485,13 +476,11 @@ export const BilibiliVideoPlayer = {
 						BilibiliVideoPlayer.$data.art,
 						artPlayerOption
 					);
-
-					// 如果开启了滚动固钉tab，当滚动到底部推荐视频进行切换视频时，当前视频paddingTop是0，会导致视频不能归位
-					// 需要重置paddingTop
-					let $mVideoPlayer =
-						document.querySelector<HTMLElement>(".m-video-player")!;
-					$mVideoPlayer.style.paddingTop = "";
 				}
+
+				// 如果开启了滚动固钉tab，当滚动到底部推荐视频进行切换视频时，当前视频paddingTop是0，会导致视频不能归位
+				// 需要重置paddingTop
+				$mVideoPlayer.style.paddingTop = "";
 			},
 		});
 	},

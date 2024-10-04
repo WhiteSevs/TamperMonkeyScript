@@ -107,11 +107,11 @@ const SettingUIBangumi: PopsPanelContentConfig = {
 					],
 				},
 				{
-					text: "解除区域限制",
+					text: "ArtPlayer播放器",
 					type: "deepMenu",
 					forms: [
 						{
-							text: "",
+							text: "解除区域限制",
 							type: "forms",
 							forms: [
 								UISwitch(
@@ -127,6 +127,32 @@ const SettingUIBangumi: PopsPanelContentConfig = {
 									false,
 									void 0,
 									"根据繁体字幕自动生成简体中文字幕"
+								),
+							],
+						},
+						{
+							text: "加速CDN设置",
+							type: "forms",
+							forms: [
+								UISelect(
+									"UPOS服务器设置",
+									"bili-bangumi-uposServerSelect",
+									"",
+									BilibiliCDNProxy.getUposCDNServerList().map((item) => {
+										return {
+											text: item.name,
+											value: item.host,
+										};
+									}),
+									void 0,
+									"设置解锁番剧的服务器，可加快视频加载速度"
+								),
+								UISwitch(
+									"作用于Audio上",
+									"bili-bangumi-uposServerSelect-applyAudio",
+									false,
+									void 0,
+									"把m4s类型的audio也进行upos替换"
 								),
 							],
 						},
@@ -165,32 +191,6 @@ const SettingUIBangumi: PopsPanelContentConfig = {
 									"用于请求播放地址的代理",
 									void 0,
 									"bilibili优化.example.com"
-								),
-							],
-						},
-						{
-							text: "加速CDN设置",
-							type: "forms",
-							forms: [
-								UISelect(
-									"UPOS服务器设置",
-									"bili-bangumi-uposServerSelect",
-									"",
-									BilibiliCDNProxy.getUposCDNServerList().map((item) => {
-										return {
-											text: item.name,
-											value: item.host,
-										};
-									}),
-									void 0,
-									"设置解锁番剧的服务器，可加快视频加载速度"
-								),
-								UISwitch(
-									"作用于Audio上",
-									"bili-bangumi-uposServerSelect-applyAudio",
-									false,
-									void 0,
-									"把m4s类型的audio也进行upos替换"
 								),
 							],
 						},

@@ -1,7 +1,6 @@
 import { log, utils } from "@/env";
 import { BilibiliPlayerToast } from "@/player/BilibiliPlayerToast";
-import { BilibiliRouter } from "@/router/BilibiliRouter";
-import { PopsPanel } from "@/setting/setting";
+import { VideoQualityNameMap } from "@/video-info/VideoDict";
 import { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/AjaxHookerType";
 
 let _ajaxHooker_ = null as any as UtilsAjaxHookResult;
@@ -16,107 +15,13 @@ const XhrHook = {
 	},
 };
 
-export const BilibiliVideoPlayUrlQN = {
-	/**
-	 * 仅mp4方式支持
-	 * + 6
-	 */
-	"240P 极速": 6,
-	/**
-	 * 仅mp4方式支持
-	 * + 16
-	 */
-	"360P 流畅": 16,
-	/**
-	 * 仅mp4方式支持
-	 * + 32
-	 */
-	"480P 清晰": 32,
-	/**
-	 * web端默认值
-	 *
-	 * B站前端需要登录才能选择，但是直接发送请求可以不登录就拿到720P的取流地址
-	 *
-	 * 无720P时则为720P60
-	 * + 64
-	 */
-	"720P 高清": 64,
-	/**
-	 * 需要认证登录账号
-	 * + 74
-	 */
-	"720P60 高帧率": 74,
-	/**
-	 * TV端与APP端默认值
-	 *
-	 * 需要认证登录账号
-	 * + 80
-	 */
-	"1080P 高清": 80,
-	/**
-	 * 大多情况需求认证大会员账号
-	 * + 112
-	 */
-	"1080P+ 高码率": 112,
-	/**
-	 * 大多情况需求认证大会员账号
-	 * + 116
-	 */
-	"1080P60 高帧率": 116,
-	/**
-	 * 需要fnval&128=128且fourk=1
-	 *
-	 * 大多情况需求认证大会员账号
-	 * + 120
-	 */
-	"4K 超清": 120,
-	/**
-	 * 仅支持dash方式
-	 *
-	 * 需要fnval&64=64
-	 * + 125
-	 */
-	"HDR 真彩色": 125,
-	/**
-	 * 仅支持dash方式
-	 *
-	 * 需要fnval&512=512
-	 *
-	 * 大多情况需求认证大会员账号
-	 * + 126
-	 */
-	杜比视界: 126,
-	/**
-	 * 仅支持dash方式
-	 *
-	 * 需要fnval&1024=1024
-	 *
-	 * 大多情况需求认证大会员账号
-	 * + 127
-	 */
-	"8K 超高清": 127,
-};
-
-const BilibiliVideoPlayUrlQN_Value = {} as {
-	[key: number]: string;
-};
-Object.keys(BilibiliVideoPlayUrlQN).forEach((text) => {
-	Reflect.set(
-		BilibiliVideoPlayUrlQN_Value,
-		(BilibiliVideoPlayUrlQN as any)[text],
-		text
-	);
-});
-export { BilibiliVideoPlayUrlQN_Value };
-
 // https://socialsisteryi.github.io/bilibili-API-collect/
 export const BilibiliNetworkHook = {
 	$flag: {
 		is_hook_video_playurl: false,
 		is_hook_bangumi_html5: false,
 	},
-	init() {
-	},
+	init() {},
 	/**
 	 * 视频播放地址获取
 	 *
@@ -143,7 +48,7 @@ export const BilibiliNetworkHook = {
 				// 视频清晰度选择
 				playUrl.searchParams.set(
 					"qn",
-					BilibiliVideoPlayUrlQN["1080P60 高帧率"].toString()
+					VideoQualityNameMap["1080P60 高帧率"].toString()
 				);
 				// 高质量画质
 				playUrl.searchParams.set("high_quality", "1");
@@ -210,7 +115,7 @@ export const BilibiliNetworkHook = {
 				// 视频清晰度选择
 				playUrl.searchParams.set(
 					"qn",
-					BilibiliVideoPlayUrlQN["1080P60 高帧率"].toString()
+					VideoQualityNameMap["1080P60 高帧率"].toString()
 				);
 				// 视频获取方式选择。这里固定mp4，填入80虽然可以获取1080p+，但是那是m4s格式的，无法播放
 				playUrl.searchParams.set("fnval", "1");

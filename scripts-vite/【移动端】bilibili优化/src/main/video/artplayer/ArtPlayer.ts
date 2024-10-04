@@ -36,6 +36,12 @@ import {
 } from "@/player/plugins/artplayer-plugin-epChoose";
 import { BilibiliVideoPlayer } from "../BilibiliVideoPlayer";
 import { ArtPlayerCommonOption } from "@/player/ArtPlayerCommonOption";
+import {
+	ArtPlayer_PLUGIN_QUALITY_KEY,
+	artplayPluginQuality,
+	type ArtPlayerPluginQualityOption,
+	type ArtPlayerPluginQualityResult,
+} from "@/player/plugins/artplayer-plugin-quality";
 
 export interface BilibiliVideoArtPlayerOption {
 	/** 容器 */
@@ -48,7 +54,7 @@ export interface BilibiliVideoArtPlayerOption {
 	/** 音频链接 */
 	audioList?: ArtPlayerPluginM4SAudioSupportOption["audioList"];
 	/** 画质信息 */
-	quality: quality[];
+	quality: ArtPlayerPluginQualityOption["qualityList"];
 	/** 弹幕xml地址 */
 	danmukuUrl: string;
 	/** 视频的aid */
@@ -162,9 +168,11 @@ export const BilibiliVideoArtPlayer = {
 					},
 				},
 			],
-			/**  */
-			quality: [...option.quality],
 			plugins: [
+				artplayPluginQuality({
+					from: "video",
+					qualityList: option.quality,
+				}),
 				artplayerPluginDanmuku({
 					danmuku: option.danmukuUrl,
 					// 以下为非必填
@@ -245,15 +253,7 @@ export const BilibiliVideoArtPlayer = {
 				}),
 			],
 		};
-
 		artOption.type = "mp4";
-
-		if (typeof option.url === "string") {
-			artOption.url = option.url;
-		} else if (typeof option.url === "function") {
-			let url = await option.url();
-			artOption.url = url;
-		}
 
 		if (PopsPanel.getValue("bili-video-playerAutoPlayVideo")) {
 			// 自动播放视频
@@ -272,13 +272,7 @@ export const BilibiliVideoArtPlayer = {
 	async update(art: Artplayer, option: BilibiliVideoArtPlayerOption) {
 		this.resetEnv(false);
 		this.$data.currentOption = option;
-		let videoUrl = "";
-		if (typeof option.url === "string") {
-			videoUrl = option.url;
-		} else if (typeof option.url === "function") {
-			let url = await option.url();
-			videoUrl = url;
-		}
+
 		log.info([`更新新的播放信息`, option]);
 		// 暂停视频
 		art.pause();
@@ -286,12 +280,6 @@ export const BilibiliVideoArtPlayer = {
 		// 重置播放进度
 		art.currentTime = 0;
 		log.info(`重置播放进度`);
-		// 更新视频地址
-		art.url = videoUrl;
-		log.info(`更新视频地址`);
-		// 更新画质地址
-		art.quality = option.quality;
-		log.info(`更新画质地址`);
 
 		this.updatePluginInfo(art, option);
 
@@ -305,6 +293,16 @@ export const BilibiliVideoArtPlayer = {
 	 * @param option
 	 */
 	updatePluginInfo(art: Artplayer, option: BilibiliVideoArtPlayerOption) {
+		// 更新画质
+		let plugin_quality = art.plugins[
+			ArtPlayer_PLUGIN_QUALITY_KEY
+		] as ArtPlayerPluginQualityResult;
+		plugin_quality.update({
+			from: "video",
+			qualityList: option.quality,
+		});
+		log.info([`更新画质`, option.quality]);
+
 		// 更新音频
 		let plugin_m4sAudioSupport = art.plugins[
 			ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY

@@ -81,7 +81,7 @@ const SettingUIVideo: PopsPanelContentConfig = {
 					type: "deepMenu",
 					forms: [
 						{
-							text: "",
+							text: "功能",
 							type: "forms",
 							forms: [
 								UISwitch(

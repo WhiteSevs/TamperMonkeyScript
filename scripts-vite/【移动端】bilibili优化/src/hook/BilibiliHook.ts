@@ -1,5 +1,4 @@
 import { OriginPrototype, log, utils } from "@/env";
-import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { VueUtils } from "@/utils/VueUtils";
 import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
 import { unsafeWindow } from "ViteGM";

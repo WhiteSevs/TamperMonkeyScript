@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.4
+// @version      2024.10.4.23
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -1434,7 +1434,7 @@
             type: "deepMenu",
             forms: [
               {
-                text: "",
+                text: "功能",
                 type: "forms",
                 forms: [
                   UISwitch(
@@ -1656,11 +1656,11 @@
             ]
           },
           {
-            text: "解除区域限制",
+            text: "ArtPlayer播放器",
             type: "deepMenu",
             forms: [
               {
-                text: "",
+                text: "解除区域限制",
                 type: "forms",
                 forms: [
                   UISwitch(
@@ -1676,6 +1676,32 @@
                     false,
                     void 0,
                     "根据繁体字幕自动生成简体中文字幕"
+                  )
+                ]
+              },
+              {
+                text: "加速CDN设置",
+                type: "forms",
+                forms: [
+                  UISelect(
+                    "UPOS服务器设置",
+                    "bili-bangumi-uposServerSelect",
+                    "",
+                    BilibiliCDNProxy.getUposCDNServerList().map((item) => {
+                      return {
+                        text: item.name,
+                        value: item.host
+                      };
+                    }),
+                    void 0,
+                    "设置解锁番剧的服务器，可加快视频加载速度"
+                  ),
+                  UISwitch(
+                    "作用于Audio上",
+                    "bili-bangumi-uposServerSelect-applyAudio",
+                    false,
+                    void 0,
+                    "把m4s类型的audio也进行upos替换"
                   )
                 ]
               },
@@ -1714,32 +1740,6 @@
                     "用于请求播放地址的代理",
                     void 0,
                     "bilibili优化.example.com"
-                  )
-                ]
-              },
-              {
-                text: "加速CDN设置",
-                type: "forms",
-                forms: [
-                  UISelect(
-                    "UPOS服务器设置",
-                    "bili-bangumi-uposServerSelect",
-                    "",
-                    BilibiliCDNProxy.getUposCDNServerList().map((item) => {
-                      return {
-                        text: item.name,
-                        value: item.host
-                      };
-                    }),
-                    void 0,
-                    "设置解锁番剧的服务器，可加快视频加载速度"
-                  ),
-                  UISwitch(
-                    "作用于Audio上",
-                    "bili-bangumi-uposServerSelect-applyAudio",
-                    false,
-                    void 0,
-                    "把m4s类型的audio也进行upos替换"
                   )
                 ]
               }
@@ -2990,7 +2990,21 @@
   };
   const BilibiliVideoBeautifyCSS = '@charset "UTF-8";\r\n#app .video {\r\n	/* 下面的推荐视频卡片 */\r\n}\r\n#app .video .video-list .card-box {\r\n	--left-card-width: 33%;\r\n	--right-child-padding: 1.333vmin;\r\n	/* 开启了bili-video-beautify */\r\n}\r\n#app .video .video-list .card-box .v-card-toapp {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a {\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n	gap: var(--right-child-padding);\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card {\r\n	width: var(--left-card-width);\r\n	height: 80px;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .left {\r\n	display: list-item;\r\n}\r\n#app\r\n	.video\r\n	.video-list\r\n	.card-box\r\n	.v-card-toapp\r\n	> a\r\n	.card\r\n	.count\r\n	.left\r\n	span.item {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .duration {\r\n	background: rgba(0, 0, 0, 0.4);\r\n	border-radius: 0.6vmin;\r\n	padding: 0px 0.5vmin;\r\n	right: 1vmin;\r\n	bottom: 1vmin;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .title {\r\n	flex: 1;\r\n	/*padding: var(--right-child-padding);*/\r\n	padding-top: 0;\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n#app .video .video-list .card-box .gm-right-container {\r\n	display: flex;\r\n	flex-direction: column;\r\n	width: calc(100% - var(--left-card-width));\r\n}\r\n#app .video .video-list .card-box .gm-right-container > * {\r\n	padding: var(--right-child-padding);\r\n	padding-bottom: 0;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	gap: 1rem;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .left span {\r\n	display: flex;\r\n	align-items: safe center;\r\n	gap: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name,\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	color: #999;\r\n	font-size: 3vmin;\r\n	transform-origin: left;\r\n	display: flex;\r\n	/*align-items: safe center;*/\r\n	align-items: safe flex-end;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name svg{\r\n	width: 3vmin;\r\n	height: 3vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name-text {\r\n	margin-left: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .num {\r\n	margin-right: 4vmin;\r\n}\r\n#app .video .video-list .card-box > a.v-card {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card {\r\n	width: var(--left-card-width);\r\n	height: 100%;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count span {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count .duration {\r\n	background-color: rgba(0, 0, 0, 0.3);\r\n	border-radius: 4px;\r\n	color: #fff;\r\n	font-size: 12px;\r\n	height: 16px;\r\n	line-height: 16px;\r\n	margin-left: auto;\r\n	padding-left: 4px;\r\n	padding-right: 4px;\r\n}\r\n#app .video .video-list .card-box > a.v-card .title {\r\n	flex: 1;\r\n	/*padding: var(--right-child-padding);*/\r\n	padding-top: 0;\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n';
   const artPlayerCSS$1 = ".artplayer-container {\r\n	position: absolute;\r\n	width: 100%;\r\n	height: 100%;\r\n	top: 0;\r\n	left: 0;\r\n	overflow: hidden;\r\n}\r\n#artplayer {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n.art-video-player {\r\n	width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n	display: none !important;\r\n}\r\n/* 大会员画质 */\r\n.art-player-quality-badge-bigvip {\r\n	border-radius: 8px;\r\n	-webkit-box-sizing: border-box;\r\n	box-sizing: border-box;\r\n	display: block;\r\n	padding: 2px 5px;\r\n	background-color: var(--bili-color);\r\n	color: #fff;\r\n	margin-left: 16px;\r\n}\r\n/* 选中的清晰度中如果有大会员文字，隐藏 */\r\n.art-selector-value .art-player-quality-badge-bigvip {\r\n	display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n	backdrop-filter: unset !important;\r\n}\r\n/* 竖屏且宽度小于550px */\r\n@media (max-width: 550px) and (orientation: portrait) {\r\n	/* 隐藏 弹幕设置按钮 */\r\n	.artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		display: none !important;\r\n	}\r\n	/* 弹幕库靠右对齐 */\r\n	.artplayer-plugin-danmuku {\r\n		justify-content: right;\r\n	}\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n	/* 限制弹幕输入框的最大宽度 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		max-width: 260px;\r\n	}\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-layer-top-wrap {\r\n	--layer-top-wrap-follow-text-font-size: 0.8em;\r\n	--layer-top-wrap-follow-icon-size: 1em;\r\n	position: absolute;\r\n	top: 0px;\r\n	right: 0px;\r\n	color: #fff;\r\n	display: -webkit-box;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	left: 0;\r\n	-webkit-transition: all 0.2s ease-in-out;\r\n	transition: all 0.2s ease-in-out;\r\n	width: 100%;\r\n	background: rgba(0, 0, 0, 0.8);\r\n	padding: calc(var(--art-padding));\r\n	z-index: 60;\r\n}\r\n.art-hide-cursor .art-layer-top-wrap {\r\n	display: none;\r\n}\r\n.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n	margin-top: var(--art-padding);\r\n	gap: var(--layer-top-wrap-follow-text-font-size);\r\n	font-size: var(--layer-top-wrap-follow-text-font-size);\r\n	display: flex;\r\n	align-items: center;\r\n	position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n	width: var(--layer-top-wrap-follow-icon-size);\r\n	height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n	text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n";
-  const BilibiliVideoPlayUrlQN = {
+  const BilibiliRequestCheck = {
+    /**
+     * 合并并检查是否传入aid或者bvid
+     */
+    mergeAidOrBvidSearchParamsData(searchParamsData, config) {
+      if ("aid" in config && config["aid"] != null) {
+        Reflect.set(searchParamsData, "aid", config.aid);
+      } else if ("bvid" in config && config["bvid"] != null) {
+        Reflect.set(searchParamsData, "bvid", config.bvid);
+      } else {
+        throw new TypeError("avid or bvid must give one");
+      }
+    }
+  };
+  const VideoQualityNameMap = {
     /**
      * 仅mp4方式支持
      * + 6
@@ -3070,28 +3084,11 @@
      */
     "8K 超高清": 127
   };
-  const BilibiliVideoPlayUrlQN_Value = {};
-  Object.keys(BilibiliVideoPlayUrlQN).forEach((text) => {
-    Reflect.set(
-      BilibiliVideoPlayUrlQN_Value,
-      BilibiliVideoPlayUrlQN[text],
-      text
-    );
+  const VideoQualityMap = {};
+  Object.keys(VideoQualityNameMap).forEach((qualityName) => {
+    let qualityValue = Reflect.get(VideoQualityNameMap, qualityName);
+    Reflect.set(VideoQualityMap, qualityValue, qualityName);
   });
-  const BilibiliRequestCheck = {
-    /**
-     * 合并并检查是否传入aid或者bvid
-     */
-    mergeAidOrBvidSearchParamsData(searchParamsData, config) {
-      if ("aid" in config && config["aid"] != null) {
-        Reflect.set(searchParamsData, "aid", config.aid);
-      } else if ("bvid" in config && config["bvid"] != null) {
-        Reflect.set(searchParamsData, "bvid", config.bvid);
-      } else {
-        throw new TypeError("avid or bvid must give one");
-      }
-    }
-  };
   const BilibiliVideoApi = {
     /**
      * 获取视频播放地址，avid或bvid必须给一个
@@ -3102,7 +3099,7 @@
     async playUrl(config, extraParams) {
       let searchParamsData = {
         cid: config.cid,
-        qn: config.qn ?? BilibiliVideoPlayUrlQN["1080P60 高帧率"],
+        qn: config.qn ?? VideoQualityNameMap["1080P60 高帧率"],
         high_quality: config.high_quality ?? 1,
         fnval: config.fnval ?? 1,
         // 固定0
@@ -3113,7 +3110,10 @@
       if (config.setPlatformHTML5) {
         Reflect.set(searchParamsData, "platform", "html5");
       }
-      BilibiliRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
+      BilibiliRequestCheck.mergeAidOrBvidSearchParamsData(
+        searchParamsData,
+        config
+      );
       if (typeof extraParams === "object") {
         Object.assign(searchParamsData, extraParams);
       }
@@ -3141,7 +3141,10 @@
       let searchParamsData = {
         cid: config.cid
       };
-      BilibiliRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
+      BilibiliRequestCheck.mergeAidOrBvidSearchParamsData(
+        searchParamsData,
+        config
+      );
       let httpxResponse = await httpx.get(
         `https://${BilibiliApiConfig.web_host}/x/player/online/total?${utils.toSearchParamsStr(searchParamsData)}`,
         {
@@ -3168,7 +3171,10 @@
         like: config.like,
         csrf: ((_a2 = GMCookie.get("bili_jct")) == null ? void 0 : _a2.value) || ""
       };
-      BilibiliRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
+      BilibiliRequestCheck.mergeAidOrBvidSearchParamsData(
+        searchParamsData,
+        config
+      );
       let getResp = await httpx.get(
         "https://api.bilibili.com/x/web-interface/archive/like?" + utils.toSearchParamsStr(searchParamsData),
         {
@@ -3274,7 +3280,7 @@
       );
     }
   }
-  const TAG$2 = "[artplayer-plugin-bilibiliCCSubTitle]：";
+  const TAG$3 = "[artplayer-plugin-bilibiliCCSubTitle]：";
   const M4SAudioSetting = {
     $data: {
       setting_KEY: "setting-bilibili-m4sAudio"
@@ -3399,6 +3405,8 @@
        */
       seek: (currentTime) => {
         M4SAudio.syncAudioProgress();
+        M4SAudio.syncAudioMuted();
+        M4SAudio.syncAudioPlayState();
       },
       /**
        * 视频暂停
@@ -3521,7 +3529,7 @@
        * 应该是主动切换的视频，首次播放时可能音频不同步
        */
       "video:timeupdate": () => {
-        if (M4SAudio.$data.art.currentTime < 3) {
+        if (2 <= M4SAudio.$data.art.currentTime && M4SAudio.$data.art.currentTime <= 4) {
           M4SAudio.syncAudioProgress();
           M4SAudio.syncAudioVolumn();
         }
@@ -3529,7 +3537,7 @@
     },
     audioEvents: {
       loadedmetadata: (event) => {
-        console.log(TAG$2 + "Audio预加载完成");
+        console.log(TAG$3 + "Audio预加载完成");
         M4SAudio.$data.reconnectInfo.count = 0;
         M4SAudio.$data.reconnectInfo.url = "";
         if (M4SAudio.$data.art.playing) {
@@ -3542,13 +3550,13 @@
       // 	);
       // },
       error: (event) => {
-        console.error(TAG$2 + `Audio加载失败`, event);
+        console.error(TAG$3 + `Audio加载失败`, event);
         if (utils.isNull(M4SAudio.$data.reconnectInfo.url)) {
           M4SAudio.$data.reconnectInfo.url = M4SAudio.$data.audio.src;
         }
         if (M4SAudio.$data.reconnectInfo.count < M4SAudio.$data.reconnectConfig.maxCount) {
           console.log(
-            TAG$2 + `Audio第${M4SAudio.$data.reconnectInfo.count + 1}次尝试重新连接`
+            TAG$3 + `Audio第${M4SAudio.$data.reconnectInfo.count + 1}次尝试重新连接`
           );
           M4SAudio.$data.art.notice.show = `Audio第${M4SAudio.$data.reconnectInfo.count + 1}次尝试重新连接`;
           M4SAudio.$data.reconnectInfo.count++;
@@ -3558,7 +3566,7 @@
             M4SAudio.$data.audio.load();
           }, M4SAudio.$data.reconnectConfig.delayTime);
         } else {
-          console.error(TAG$2 + `Audio已超出重连次数`);
+          console.error(TAG$3 + `Audio已超出重连次数`);
           M4SAudio.$data.art.notice.show = `Audio已超出重连次数，请尝试切换源`;
         }
       }
@@ -3979,7 +3987,7 @@
       }
     }
   };
-  const TAG$1 = "[artplayer-plugin-bilibiliCCSubTitle]：";
+  const TAG$2 = "[artplayer-plugin-bilibiliCCSubTitle]：";
   const SubTitleCustomStr = {
     src: "臟妳為傢蔔餵眾係姊託迴蹟儘封啟",
     des: "脏你为家卜喂众系姐托回迹尽对启",
@@ -4193,20 +4201,20 @@
         }
       );
       if (!videoInfoResponse.status) {
-        console.error(TAG$1 + "获取视频信息失败", videoInfoResponse);
+        console.error(TAG$2 + "获取视频信息失败", videoInfoResponse);
         return;
       }
-      console.log(TAG$1 + "视频字幕信息", videoInfoResponse);
+      console.log(TAG$2 + "视频字幕信息", videoInfoResponse);
       const videoInfoResultJSON = utils.toJSON(
         videoInfoResponse.data.responseText
       );
       if (!BilibiliResponseCheck.isWebApiSuccess(videoInfoResultJSON)) {
-        console.error(TAG$1 + "获取视频信息失败", videoInfoResultJSON);
+        console.error(TAG$2 + "获取视频信息失败", videoInfoResultJSON);
         return;
       }
       let subTitleUrlInfoList = videoInfoResultJSON["data"]["subtitle"]["subtitles"];
       if (!subTitleUrlInfoList.length) {
-        console.warn(TAG$1 + "获取字幕链接列表为空", videoInfoResultJSON);
+        console.warn(TAG$2 + "获取字幕链接列表为空", videoInfoResultJSON);
         return;
       }
       for (let index = 0; index < subTitleUrlInfoList.length; index++) {
@@ -4280,7 +4288,7 @@
           }
         });
       });
-      console.log(TAG$1 + "加载视频CC字幕信息", SubTitleData.allSubTitleInfo);
+      console.log(TAG$2 + "加载视频CC字幕信息", SubTitleData.allSubTitleInfo);
       this.art.setting.update(settingOption);
     },
     /**
@@ -4313,7 +4321,7 @@
     };
   }
   const ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY = SubTitle.$key.plugin_KEY;
-  const TAG = "[artplayer-plugin-epChoose]：";
+  const TAG$1 = "[artplayer-plugin-epChoose]：";
   const GenerateArtPlayerEpTitle = (title, title_id) => {
     if (title_id == null) {
       return title;
@@ -4349,7 +4357,7 @@
           findIndex += 1;
           this.onSelect(this.selector[findIndex]);
         } else {
-          console.warn(TAG + "当前播放列表已无下一集");
+          console.warn(TAG$1 + "当前播放列表已无下一集");
         }
       }
     };
@@ -4357,7 +4365,7 @@
   const EpChooseEvent = {
     $event: {
       "video:ended": () => {
-        console.log(TAG + "当前ep播放完毕，连播下一集");
+        console.log(TAG$1 + "当前ep播放完毕，连播下一集");
         let settingIns = EpChoose.$data.art.setting.find(
           EpChoose.$key.SETTING_KEY
         );
@@ -4520,6 +4528,92 @@
       icons: ArtPlayerBiliBiliIcon
     };
   };
+  const TAG = "[artplayer-plugin-quality]：";
+  const ArtPlayer_PLUGIN_QUALITY_KEY = "artplayer-plugin-quality";
+  const Quality = {
+    $data: {
+      art: null
+    },
+    init(art, option) {
+      Reflect.set(this.$data, "art", null);
+      this.$data.art = art;
+      this.update(option);
+    },
+    update(option) {
+      const that = this;
+      if (option.qualityList.length) {
+        let firstQualityInfo = option.qualityList[0];
+        const storageKey = `artplayer-quality-${option.from}`;
+        const storageQualityInfo = this.$data.art.storage.get(
+          storageKey
+        );
+        let currentSelectQualityInfo = {
+          index: 0,
+          html: firstQualityInfo.html,
+          /** 播放的地址 */
+          url: firstQualityInfo.url
+        };
+        if (storageQualityInfo) {
+          const findQualityIndex = option.qualityList.findIndex(
+            (item) => item.quality === storageQualityInfo.quality
+          );
+          if (findQualityIndex !== -1) {
+            const findQuality = option.qualityList[findQualityIndex];
+            currentSelectQualityInfo.index = findQualityIndex;
+            currentSelectQualityInfo.url = findQuality.url;
+            currentSelectQualityInfo.html = findQuality.html;
+          } else {
+            console.warn(TAG + "没有找到上次选的画质，使用当前默认第一个画质");
+          }
+        }
+        let selectorList = option.qualityList.map((item, index) => {
+          return {
+            default: index === currentSelectQualityInfo.index,
+            html: item.html,
+            url: item.url,
+            quality: item.quality
+          };
+        });
+        const controlsOption = {
+          name: ArtPlayer_PLUGIN_QUALITY_KEY,
+          index: 10,
+          position: "right",
+          html: currentSelectQualityInfo.html,
+          selector: selectorList,
+          onSelect: function(selector) {
+            let itemInfo = selector;
+            console.log(TAG + "切换画质", itemInfo);
+            that.$data.art.switchQuality(itemInfo.url);
+            that.$data.art.storage.set(storageKey, {
+              quality: itemInfo.quality
+            });
+            return selector.html;
+          }
+        };
+        if (Reflect.has(this.$data.art.controls, ArtPlayer_PLUGIN_QUALITY_KEY)) {
+          this.$data.art.controls.update(controlsOption);
+        } else {
+          this.$data.art.controls.add(controlsOption);
+        }
+        this.$data.art.url = currentSelectQualityInfo.url;
+      } else {
+        if (Reflect.has(this.$data.art.controls, ArtPlayer_PLUGIN_QUALITY_KEY)) {
+          this.$data.art.controls.remove(ArtPlayer_PLUGIN_QUALITY_KEY);
+        }
+      }
+    }
+  };
+  const artplayPluginQuality = (option) => {
+    return (art) => {
+      Quality.init(art, option);
+      return {
+        name: ArtPlayer_PLUGIN_QUALITY_KEY,
+        update(option2) {
+          Quality.update(option2);
+        }
+      };
+    };
+  };
   const generateVideoSelectSetting = (option) => {
     return (option.epList || []).map((epInfo) => {
       return {
@@ -4608,9 +4702,11 @@
             }
           }
         ],
-        /**  */
-        quality: [...option.quality],
         plugins: [
+          artplayPluginQuality({
+            from: "video",
+            qualityList: option.quality
+          }),
           artplayerPluginDanmuku({
             danmuku: option.danmukuUrl,
             // 以下为非必填
@@ -4711,12 +4807,6 @@
         ]
       };
       artOption.type = "mp4";
-      if (typeof option.url === "string") {
-        artOption.url = option.url;
-      } else if (typeof option.url === "function") {
-        let url = await option.url();
-        artOption.url = url;
-      }
       if (PopsPanel.getValue("bili-video-playerAutoPlayVideo")) {
         artOption.muted = true;
         artOption.autoplay = true;
@@ -4732,22 +4822,11 @@
     async update(art, option) {
       this.resetEnv(false);
       this.$data.currentOption = option;
-      let videoUrl = "";
-      if (typeof option.url === "string") {
-        videoUrl = option.url;
-      } else if (typeof option.url === "function") {
-        let url = await option.url();
-        videoUrl = url;
-      }
       log.info([`更新新的播放信息`, option]);
       art.pause();
       log.info(`暂停视频`);
       art.currentTime = 0;
       log.info(`重置播放进度`);
-      art.url = videoUrl;
-      log.info(`更新视频地址`);
-      art.quality = option.quality;
-      log.info(`更新画质地址`);
       this.updatePluginInfo(art, option);
       art.play();
       log.info("播放");
@@ -4758,6 +4837,12 @@
      * @param option
      */
     updatePluginInfo(art, option) {
+      let plugin_quality = art.plugins[ArtPlayer_PLUGIN_QUALITY_KEY];
+      plugin_quality.update({
+        from: "video",
+        qualityList: option.quality
+      });
+      log.info([`更新画质`, option.quality]);
       let plugin_m4sAudioSupport = art.plugins[ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY];
       plugin_m4sAudioSupport.update(option.audioList);
       log.info([`更新音频`, option.audioList]);
@@ -4949,7 +5034,7 @@
     }
     const currentVideoQuality = qualityInfo.map((item, index) => {
       return {
-        default: index === 0,
+        quality: item.quality,
         html: item.name,
         url: item.url
       };
@@ -5081,14 +5166,6 @@
             } else {
               return;
             }
-            BilibiliVideoPlayer.$data.art.on("restart", (url) => {
-              let findQuality = artPlayerOption.quality.find((item) => {
-                return item.url === url;
-              });
-              if (findQuality) {
-                log.info(["切换画质：", findQuality]);
-              }
-            });
             BilibiliVideoPlayer.$data.art.volume = 1;
             that.$data.art.once("ready", () => {
               PopsPanel.execMenu(
@@ -5110,9 +5187,8 @@
               BilibiliVideoPlayer.$data.art,
               artPlayerOption
             );
-            let $mVideoPlayer2 = document.querySelector(".m-video-player");
-            $mVideoPlayer2.style.paddingTop = "";
           }
+          $mVideoPlayer.style.paddingTop = "";
         }
       });
     }
@@ -5931,9 +6007,11 @@
             }
           }
         ],
-        /**  */
-        quality: [...option.quality],
         plugins: [
+          artplayPluginQuality({
+            from: "bangumi",
+            qualityList: option.quality
+          }),
           artplayerPluginDanmuku({
             danmuku: option.danmukuUrl,
             // 以下为非必填
@@ -6039,12 +6117,6 @@
       } else {
         artOption.type = "mp4";
       }
-      if (typeof option.url === "string") {
-        artOption.url = option.url;
-      } else if (typeof option.url === "function") {
-        let url = await option.url();
-        artOption.url = url;
-      }
       this.$data.art = new Artplayer(artOption);
       artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
       return this.$data.art;
@@ -6057,22 +6129,16 @@
     async update(art, option) {
       this.resetEnv(false);
       this.$data.currentOption = option;
-      let videoUrl = "";
       if (typeof option.url === "string") {
-        videoUrl = option.url;
+        option.url;
       } else if (typeof option.url === "function") {
-        let url = await option.url();
-        videoUrl = url;
+        await option.url();
       }
       log.info([`更新新的播放信息`, option]);
       art.pause();
       log.info(`暂停视频`);
       art.currentTime = 0;
       log.info(`重置播放进度`);
-      art.url = videoUrl;
-      log.info(`更新视频地址`);
-      art.quality = option.quality;
-      log.info(`更新画质地址`);
       this.updatePluginInfo(art, option);
       art.play();
       log.info("播放");
@@ -6083,6 +6149,12 @@
      * @param option
      */
     updatePluginInfo(art, option) {
+      let plugin_quality = art.plugins[ArtPlayer_PLUGIN_QUALITY_KEY];
+      plugin_quality.update({
+        from: "bangumi",
+        qualityList: option.quality
+      });
+      log.info([`更新画质`, option.quality]);
       let plugin_m4sAudioSupport = art.plugins[ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY];
       plugin_m4sAudioSupport.update(option.audioList);
       log.info([`更新音频`, option.audioList]);
@@ -6336,9 +6408,9 @@
     }
     const currentVideoQuality = qualityInfo.map((item, index) => {
       return {
-        default: index === 0,
         html: item.name,
-        url: item.url
+        url: item.url,
+        quality: item.quality
       };
     });
     const artPlayerOption = {
@@ -6415,14 +6487,6 @@
             } else {
               return;
             }
-            BilibiliBangumi.$data.art.on("restart", (url) => {
-              let findQuality = artPlayerOption.quality.find((item) => {
-                return item.url === url;
-              });
-              if (findQuality) {
-                log.info(["切换画质：", findQuality]);
-              }
-            });
             BilibiliBangumi.$data.art.volume = 1;
           } else {
             BilibiliBangumiArtPlayer.update(

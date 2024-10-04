@@ -163,6 +163,8 @@ const M4SAudio = {
 		seek: (currentTime) => {
 			// console.log(TAG + "seek", currentTime);
 			M4SAudio.syncAudioProgress();
+			M4SAudio.syncAudioMuted();
+			M4SAudio.syncAudioPlayState();
 		},
 		/**
 		 * 视频暂停
@@ -296,8 +298,11 @@ const M4SAudio = {
 		 * 应该是主动切换的视频，首次播放时可能音频不同步
 		 */
 		"video:timeupdate": () => {
-			if (M4SAudio.$data.art.currentTime < 3) {
-				// 强制同步音频
+			if (
+				2 <= M4SAudio.$data.art.currentTime &&
+				M4SAudio.$data.art.currentTime <= 4
+			) {
+				// 2~4秒内同步音频
 				M4SAudio.syncAudioProgress();
 				M4SAudio.syncAudioVolumn();
 			}
