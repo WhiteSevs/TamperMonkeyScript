@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.5.20
+// @version      2024.10.5.21
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -2169,11 +2169,11 @@
                     "给视频添加UP主名，当前视频总时长信息"
                   ),
                   UISwitch(
-                    "新标签页打开视频",
+                    "新标签页打开",
                     "bili-head-openVideoInNewTab",
                     false,
                     void 0,
-                    ""
+                    "包括视频、番剧"
                   )
                 ]
               }
@@ -6791,8 +6791,86 @@
   const GenerateVideoTitle = (ep_id, title) => {
     return `第${ep_id}话 ${title}`;
   };
+  const handleQueryVideoQualityData = (bangumiInfo, userChooseVideoCodingCode) => {
+    var _a2, _b;
+    let qualityInfoList = [];
+    if ((_b = (_a2 = bangumiInfo == null ? void 0 : bangumiInfo.dash) == null ? void 0 : _a2.video) == null ? void 0 : _b.length) {
+      let dashBangumiInfo = bangumiInfo;
+      qualityInfoList = [
+        ...filterDashVideoQualityInfo(
+          {
+            accept_quality: dashBangumiInfo.accept_quality,
+            support_formats: dashBangumiInfo.support_formats,
+            video: dashBangumiInfo.dash.video
+          },
+          {
+            codecid: userChooseVideoCodingCode
+          }
+        )
+      ];
+      if (qualityInfoList.length === 0) {
+        if (dashBangumiInfo.dash.video.length !== 0) {
+          log.warn(
+            `当前选择的视频编码id为: ${userChooseVideoCodingCode}，但是过滤出的视频没有一个符合的，所以直接放弃使用自定义选择视频编码`
+          );
+          qualityInfoList = [];
+          qualityInfoList = [
+            ...filterDashVideoQualityInfo(
+              {
+                accept_quality: dashBangumiInfo.accept_quality,
+                support_formats: dashBangumiInfo.support_formats,
+                video: dashBangumiInfo.dash.video
+              },
+              {}
+            )
+          ];
+        }
+      }
+      qualityInfoList = filterArrayWithMaxSize(qualityInfoList);
+      qualityInfoList.sort((leftItem, rightItem) => {
+        return rightItem.quality - leftItem.quality;
+      });
+    } else {
+      let mp4BangumiInfo = bangumiInfo;
+      if (mp4BangumiInfo.durls.length === 0) {
+        if (mp4BangumiInfo.durl != null) {
+          mp4BangumiInfo.durls.push({
+            quality: mp4BangumiInfo.quality,
+            durl: mp4BangumiInfo.durl
+          });
+        }
+      }
+      mp4BangumiInfo.durls.forEach((durlInfo) => {
+        if (!mp4BangumiInfo.accept_quality.includes(durlInfo.quality)) {
+          return;
+        }
+        if (!durlInfo.durl.length) {
+          return;
+        }
+        let currentDurl = durlInfo["durl"][0];
+        let findSupportFormat = bangumiInfo.support_formats.find(
+          (formatsItem) => formatsItem.quality === durlInfo.quality
+        );
+        let videoUrl = BilibiliCDNProxy.findBetterCDN(
+          currentDurl.url,
+          currentDurl.backup_url
+        );
+        let qualityName = findSupportFormat == null ? void 0 : findSupportFormat.new_description;
+        qualityInfoList.push({
+          name: qualityName,
+          url: videoUrl,
+          type: "audio/mp4",
+          id: durlInfo.quality,
+          size: currentDurl.size,
+          quality: durlInfo.quality,
+          vip: Boolean(findSupportFormat == null ? void 0 : findSupportFormat.need_vip)
+        });
+      });
+    }
+    return qualityInfoList;
+  };
   const GenerateArtPlayerOption = async (EP_INFO, EP_LIST) => {
-    var _a2;
+    var _a2, _b;
     const { aid, bvid, cid, ep_id, title, long_title } = EP_INFO;
     log.info(`解析番剧信息 aid:${aid} cid:${cid} ep_id:${ep_id}`);
     const videoTitle = GenerateVideoTitle(title, long_title);
@@ -6831,7 +6909,7 @@
           });
         });
       } else if (bangumiInfo.type.toLowerCase() === "dash" || bangumiInfo.type.toLowerCase() === "mp4") {
-        bangumiInfo.dash.audio.forEach((item) => {
+        (((_a2 = bangumiInfo == null ? void 0 : bangumiInfo.dash) == null ? void 0 : _a2.audio) || []).forEach((item) => {
           let audioUrl = BilibiliCDNProxy.findBetterCDN(
             item.baseUrl,
             item.base_url,
@@ -6852,40 +6930,9 @@
           return rightItem.id - leftItem.id;
         });
         log.info([`ArtPlayer: 获取的音频信息`, audioInfo]);
-        qualityInfo = [
-          ...filterDashVideoQualityInfo(
-            {
-              accept_quality: bangumiInfo.accept_quality,
-              support_formats: bangumiInfo.support_formats,
-              video: bangumiInfo.dash.video
-            },
-            {
-              codecid: userChooseVideoCodingCode
-            }
-          )
-        ];
-        if (qualityInfo.length === 0) {
-          if (bangumiInfo.dash.video.length !== 0) {
-            log.warn(
-              `当前选择的视频编码id为: ${userChooseVideoCodingCode}，但是过滤出的视频没有一个符合的，所以直接放弃使用自定义选择视频编码`
-            );
-            qualityInfo = [];
-            qualityInfo = [
-              ...filterDashVideoQualityInfo(
-                {
-                  accept_quality: bangumiInfo.accept_quality,
-                  support_formats: bangumiInfo.support_formats,
-                  video: bangumiInfo.dash.video
-                },
-                {}
-              )
-            ];
-          }
-        }
-        qualityInfo = filterArrayWithMaxSize(qualityInfo);
-        qualityInfo.sort((leftItem, rightItem) => {
-          return rightItem.quality - leftItem.quality;
-        });
+        qualityInfo = qualityInfo.concat(
+          handleQueryVideoQualityData(bangumiInfo, userChooseVideoCodingCode)
+        );
         log.info([`ArtPlayer: 获取的视频画质信息`, qualityInfo]);
       } else {
         BilibiliLogUtils.failToast(
@@ -6902,40 +6949,7 @@
       if (!bangumiInfo) {
         return;
       }
-      if (bangumiInfo.durls.length === 0) {
-        if (bangumiInfo.durl != null) {
-          bangumiInfo.durls.push({
-            quality: bangumiInfo.quality,
-            durl: bangumiInfo.durl
-          });
-        }
-      }
-      bangumiInfo.durls.forEach((durlInfo) => {
-        if (!bangumiInfo.accept_quality.includes(durlInfo.quality)) {
-          return;
-        }
-        if (!durlInfo.durl.length) {
-          return;
-        }
-        let currentDurl = durlInfo["durl"][0];
-        let findSupportFormat = bangumiInfo.support_formats.find(
-          (formatsItem) => formatsItem.quality === durlInfo.quality
-        );
-        let videoUrl = BilibiliCDNProxy.findBetterCDN(
-          currentDurl.url,
-          currentDurl.backup_url
-        );
-        let qualityName = findSupportFormat == null ? void 0 : findSupportFormat.new_description;
-        qualityInfo.push({
-          name: qualityName,
-          url: videoUrl,
-          type: "audio/mp4",
-          id: durlInfo.quality,
-          size: currentDurl.size,
-          quality: durlInfo.quality,
-          vip: Boolean(findSupportFormat == null ? void 0 : findSupportFormat.need_vip)
-        });
-      });
+      qualityInfo = qualityInfo.concat(handleQueryVideoQualityData(bangumiInfo));
     }
     const currentVideoQuality = qualityInfo.map((item, index) => {
       return {
@@ -6960,7 +6974,7 @@
       flvTotalDuration,
       flvTotalSize
     };
-    artPlayerOption.url = (_a2 = qualityInfo == null ? void 0 : qualityInfo[0]) == null ? void 0 : _a2.url;
+    artPlayerOption.url = (_b = qualityInfo == null ? void 0 : qualityInfo[0]) == null ? void 0 : _b.url;
     if (audioInfo.length) {
       artPlayerOption.audioList = audioInfo.map((item, index) => {
         return {
@@ -9320,6 +9334,14 @@
                     return;
                   } else if (PopsPanel.getValue("bili-video-enableArtPlayer")) {
                     window.location.href = to.fullPath;
+                    return;
+                  }
+                } else if (to.fullPath.startsWith("/bangumi")) {
+                  if (from.fullPath.startsWith("/bangumi")) {
+                    window.location.href = to.fullPath;
+                    return;
+                  } else if (BilibiliRouter.isHead() && PopsPanel.getValue("bili-head-openVideoInNewTab")) {
+                    window.open(to.fullPath, "_blank");
                     return;
                   }
                 }

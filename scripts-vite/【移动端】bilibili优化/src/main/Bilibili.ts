@@ -146,6 +146,21 @@ const Bilibili = {
 									window.location.href = to.fullPath;
 									return;
 								}
+							} else if (to.fullPath.startsWith("/bangumi")) {
+								// 前往番剧
+								if (from.fullPath.startsWith("/bangumi")) {
+									// 番剧=>番剧
+									// 启用了ArtPlayer，强制本页刷新，不然会有内存泄露
+									window.location.href = to.fullPath;
+									return;
+								} else if (
+									BilibiliRouter.isHead() &&
+									PopsPanel.getValue("bili-head-openVideoInNewTab")
+								) {
+									// 首页 => 番剧
+									window.open(to.fullPath, "_blank");
+									return;
+								}
 							}
 							next();
 						}

@@ -1,5 +1,6 @@
 import {
 	BilibiliBangumiApi,
+	type BilibiliTypeBangumiVideoPlayeHtml5Info,
 	type BilibiliTypeBangumiVideoPlayeInfo,
 } from "@/api/BilibiliBangumiApi";
 import { BilibiliCDNProxy } from "@/api/BilibiliCDNProxy";
@@ -118,6 +119,109 @@ export const GenerateVideoTitle = (ep_id: string | number, title: string) => {
 };
 
 /**
+ * 处理请求的数据中的画质信息
+ *
+ * 处理为需要的画质对应的信息
+ */
+const handleQueryVideoQualityData = (
+	bangumiInfo:
+		| BilibiliTypeBangumiVideoPlayeInfo
+		| BilibiliTypeBangumiVideoPlayeHtml5Info,
+	userChooseVideoCodingCode?: number
+): VideoQualityInfo[] => {
+	let qualityInfoList: VideoQualityInfo[] = [];
+	if ((bangumiInfo as BilibiliTypeBangumiVideoPlayeInfo)?.dash?.video?.length) {
+		// dash
+		let dashBangumiInfo = bangumiInfo as BilibiliTypeBangumiVideoPlayeInfo;
+		qualityInfoList = [
+			...filterDashVideoQualityInfo(
+				{
+					accept_quality: dashBangumiInfo.accept_quality,
+					support_formats: dashBangumiInfo.support_formats,
+					video: dashBangumiInfo.dash.video,
+				},
+				{
+					codecid: userChooseVideoCodingCode!,
+				}
+			),
+		];
+		if (qualityInfoList.length === 0) {
+			// 可能是请求到的视频的编码格式没有一个符合自定义的视频编码的格式
+			if (dashBangumiInfo.dash.video.length !== 0) {
+				log.warn(
+					`当前选择的视频编码id为: ${userChooseVideoCodingCode}，但是过滤出的视频没有一个符合的，所以直接放弃使用自定义选择视频编码`
+				);
+				qualityInfoList = [];
+				qualityInfoList = [
+					...filterDashVideoQualityInfo(
+						{
+							accept_quality: dashBangumiInfo.accept_quality,
+							support_formats: dashBangumiInfo.support_formats,
+							video: dashBangumiInfo.dash.video,
+						},
+						{}
+					),
+				];
+			}
+		}
+
+		// 过滤掉重复画质
+		qualityInfoList = filterArrayWithMaxSize(qualityInfoList);
+		// 按画质排序（降序）
+		qualityInfoList.sort((leftItem, rightItem) => {
+			return rightItem.quality - leftItem.quality;
+		});
+	} else {
+		// mp4
+		let mp4BangumiInfo = bangumiInfo as BilibiliTypeBangumiVideoPlayeHtml5Info;
+		if (mp4BangumiInfo.durls.length === 0) {
+			// 空的？把有的durl放进durls中
+			if (mp4BangumiInfo.durl != null) {
+				mp4BangumiInfo.durls.push({
+					quality: mp4BangumiInfo.quality,
+					durl: mp4BangumiInfo.durl,
+				});
+			}
+		}
+		mp4BangumiInfo.durls.forEach((durlInfo) => {
+			if (!mp4BangumiInfo.accept_quality.includes(durlInfo.quality)) {
+				// 必须是允许的画质
+				return;
+			}
+			if (!durlInfo.durl.length) {
+				// durl内必须有数据
+				// 一般有且一个
+				return;
+			}
+			let currentDurl = durlInfo["durl"][0];
+			//  找到画质代码对应的文字名称
+			let findSupportFormat = bangumiInfo.support_formats.find(
+				(formatsItem) => formatsItem.quality === durlInfo.quality
+			);
+			// 视频url
+			let videoUrl = BilibiliCDNProxy.findBetterCDN(
+				currentDurl.url,
+				currentDurl.backup_url
+			);
+			// 处理视频host替换
+			// videoUrl = BilibiliCDNProxy.replaceVideoCDN(videoUrl);
+			// 视频画质名称
+			let qualityName = findSupportFormat?.new_description!;
+			qualityInfoList.push({
+				name: qualityName,
+				url: videoUrl,
+				type: "audio/mp4",
+				id: durlInfo.quality,
+				size: currentDurl.size,
+				quality: durlInfo.quality,
+				vip: Boolean(findSupportFormat?.need_vip),
+			});
+		});
+	}
+	return qualityInfoList;
+};
+
+/**
  * 生成art-player需要的参数
  *
  * 注意没有container，需要自行补上
@@ -196,7 +300,7 @@ export const GenerateArtPlayerOption = async (
 		) {
 			// dash类型，分video和audio
 			// 遍历audio
-			bangumiInfo.dash.audio.forEach((item) => {
+			(bangumiInfo?.dash?.audio || []).forEach((item) => {
 				let audioUrl = BilibiliCDNProxy.findBetterCDN(
 					item.baseUrl,
 					item.base_url,
@@ -222,45 +326,9 @@ export const GenerateArtPlayerOption = async (
 			log.info([`ArtPlayer: 获取的音频信息`, audioInfo]);
 
 			// 筛选视频
-			qualityInfo = [
-				...filterDashVideoQualityInfo(
-					{
-						accept_quality: bangumiInfo.accept_quality,
-						support_formats: bangumiInfo.support_formats,
-						video: bangumiInfo.dash.video,
-					},
-					{
-						codecid: userChooseVideoCodingCode,
-					}
-				),
-			];
-
-			if (qualityInfo.length === 0) {
-				// 可能是请求到的视频的编码格式没有一个符合自定义的视频编码的格式
-				if (bangumiInfo.dash.video.length !== 0) {
-					log.warn(
-						`当前选择的视频编码id为: ${userChooseVideoCodingCode}，但是过滤出的视频没有一个符合的，所以直接放弃使用自定义选择视频编码`
-					);
-					qualityInfo = [];
-					qualityInfo = [
-						...filterDashVideoQualityInfo(
-							{
-								accept_quality: bangumiInfo.accept_quality,
-								support_formats: bangumiInfo.support_formats,
-								video: bangumiInfo.dash.video,
-							},
-							{}
-						),
-					];
-				}
-			}
-
-			// 过滤掉重复画质
-			qualityInfo = filterArrayWithMaxSize(qualityInfo);
-			// 按画质排序（降序）
-			qualityInfo.sort((leftItem, rightItem) => {
-				return rightItem.quality - leftItem.quality;
-			});
+			qualityInfo = qualityInfo.concat(
+				handleQueryVideoQualityData(bangumiInfo, userChooseVideoCodingCode)
+			);
 			log.info([`ArtPlayer: 获取的视频画质信息`, qualityInfo]);
 		} else {
 			BilibiliLogUtils.failToast(
@@ -280,49 +348,7 @@ export const GenerateArtPlayerOption = async (
 			// 未获取到信息
 			return;
 		}
-		if (bangumiInfo.durls.length === 0) {
-			// 空的？把有的durl放进durls中
-			if (bangumiInfo.durl != null) {
-				bangumiInfo.durls.push({
-					quality: bangumiInfo.quality,
-					durl: bangumiInfo.durl,
-				});
-			}
-		}
-		bangumiInfo.durls.forEach((durlInfo) => {
-			if (!bangumiInfo.accept_quality.includes(durlInfo.quality)) {
-				// 必须是允许的画质
-				return;
-			}
-			if (!durlInfo.durl.length) {
-				// durl内必须有数据
-				// 一般有且一个
-				return;
-			}
-			let currentDurl = durlInfo["durl"][0];
-			//  找到画质代码对应的文字名称
-			let findSupportFormat = bangumiInfo.support_formats.find(
-				(formatsItem) => formatsItem.quality === durlInfo.quality
-			);
-			// 视频url
-			let videoUrl = BilibiliCDNProxy.findBetterCDN(
-				currentDurl.url,
-				currentDurl.backup_url
-			);
-			// 处理视频host替换
-			// videoUrl = BilibiliCDNProxy.replaceVideoCDN(videoUrl);
-			// 视频画质名称
-			let qualityName = findSupportFormat?.new_description!;
-			qualityInfo.push({
-				name: qualityName,
-				url: videoUrl,
-				type: "audio/mp4",
-				id: durlInfo.quality,
-				size: currentDurl.size,
-				quality: durlInfo.quality,
-				vip: Boolean(findSupportFormat?.need_vip),
-			});
-		});
+		qualityInfo = qualityInfo.concat(handleQueryVideoQualityData(bangumiInfo));
 	}
 
 	/**
