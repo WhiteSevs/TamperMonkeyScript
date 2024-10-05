@@ -1,14 +1,18 @@
 import { log, utils } from "@/env";
 import type Artplayer from "artplayer";
+import type { ComponentOption, Selector } from "artplayer/types/component";
 import type { Events } from "artplayer/types/events";
 import type { Setting } from "artplayer/types/setting";
 
 const TAG = "[artplayer-plugin-bilibiliCCSubTitle]：";
+
+/** 控制面板key */
+const ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY = "setting-bilibili-m4sAudio";
 export type ArtPlayerPluginM4SAudioSupportOption = {
+	/** 来源 */
+	from: "video" | "bangumi";
 	/** 音频列表信息，为空就不播放 */
-	audioList?: {
-		/** 是否是默认使用的音频文件 */
-		isDefault: boolean;
+	audioList: {
 		/** 音频链接 */
 		url: string;
 		/** 音质代码数字 */
@@ -22,97 +26,45 @@ export type ArtPlayerPluginM4SAudioSupportOption = {
 	onRestart?: (url: string) => string;
 };
 
+type ArtPlayerPluginM4SAudioSupportUpdateOption = {
+	from: ArtPlayerPluginM4SAudioSupportOption["from"];
+	audioList: ArtPlayerPluginM4SAudioSupportOption["audioList"];
+};
+
+type ArtPlayerPluginM4SAudioSupportStorageOption = {
+	/** 音频质量代码 */
+	soundQualityCode: number;
+};
+
 export type ArtPlayerPluginM4SAudioSupportResult = {
 	name: string;
 	/** 主动更新音频 */
-	update(audioList?: ArtPlayerPluginM4SAudioSupportOption["audioList"]): void;
+	update(option: ArtPlayerPluginM4SAudioSupportUpdateOption): void;
 };
 
-const M4SAudioSetting = {
-	$data: {
-		setting_KEY: "setting-bilibili-m4sAudio",
-	},
-
+const M4SAudioUtils = {
 	/**
-	 * 重置菜单
+	 * 自定义某个函数执行N次和间隔时间
+	 * @param fn 需要执行的函数
+	 * @param [count=5] 重复执行的次数
+	 * @param [delayTime=500] 重复执行的间隔时间
 	 */
-	reset() {
-		// 移除旧的菜单
-		let oldSetting = M4SAudio.$data.art.setting.option.find(
-			(item) => item.name === this.$data.setting_KEY
-		);
-		if (oldSetting) {
-			M4SAudio.$data.art.setting.remove(this.$data.setting_KEY);
-		}
-	},
-	/**
-	 * 更新设置面板信息
-	 */
-	update(audioList: ArtPlayerPluginM4SAudioSupportOption["audioList"] = []) {
-		let setting = this.getSettingOption();
-		// 设置默认tooltip
-		setting.tooltip =
-			audioList.find((item) => item.isDefault)?.soundQualityCodeText || "";
-
-		setting.selector!.push(
-			...audioList.map((item) => {
-				return {
-					default: item.isDefault,
-					html: item.soundQualityCodeText,
-					callback() {
-						// 重新设置isDefault为当前的
-						let audioUpdateList = audioList.map((audioItem) => {
-							let result = audioItem;
-							result.isDefault = false;
-							if (
-								result.url === item.url &&
-								result.soundQualityCode === item.soundQualityCode
-							) {
-								result.isDefault = true;
-							}
-							return result;
-						});
-						M4SAudio.update(audioUpdateList);
-					},
-				};
-			})
-		);
-
-		let findSettingValue = M4SAudio.$data.art.setting.find(
-			this.$data.setting_KEY
-		);
-		if (findSettingValue) {
-			// 已存在面板，更新
-			M4SAudio.$data.art.setting.update(setting);
-		} else {
-			// 不存在面板，添加
-			M4SAudio.$data.art.setting.add(setting);
-		}
-	},
-	/**
-	 * 获取默认的layer配置项
-	 */
-	getSettingOption: (): Setting => {
-		return {
-			name: M4SAudioSetting.$data.setting_KEY,
-			width: 200,
-			html: "音频",
-			tooltip: "",
-			icon: /*html*/ `
-			<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="22" height="22">
-				<path d="M123.5 438.5h131.3v310.7H123.5zM769.2 438.5h131.3v310.7H769.2z"></path>
-				<path d="M859.8 398.8h-48.3c-7.9 0-15.4 1.6-22.5 3.9v-32.4c0-125.2-101.9-227.1-227.1-227.1h-99.7c-125.2 0-227.1 101.9-227.1 227.1v32.4c-7.1-2.3-14.6-3.9-22.5-3.9h-48.3c-40.9 0-74.2 33.3-74.2 74.2v243c0 40.9 33.3 74.2 74.2 74.2h48.3c40.9 0 74.2-33.3 74.2-74.2V370.3c0-96.7 78.7-175.4 175.4-175.4h99.7c96.7 0 175.4 78.7 175.4 175.4V716c0 40.9 33.3 74.2 74.2 74.2h48.3c40.9 0 74.2-33.3 74.2-74.2V473c-0.1-40.9-33.3-74.2-74.2-74.2zM235.1 716c0 12.4-10.1 22.5-22.5 22.5h-48.3c-12.4 0-22.5-10.1-22.5-22.5V473c0-12.4 10.1-22.5 22.5-22.5h48.3c12.4 0 22.5 10.1 22.5 22.5v243z m647.2 0c0 12.4-10.1 22.5-22.5 22.5h-48.3c-12.4 0-22.5-10.1-22.5-22.5V473c0-12.4 10.1-22.5 22.5-22.5h48.3c12.4 0 22.5 10.1 22.5 22.5v243z"></path>
-				<path d="M531.3 652.3c-1.7 0-3.3-0.1-5-0.4-10.2-1.7-18.7-8.3-22.7-17.8l-41.1-95.4-37 43.8c-8.1 9.6-19.9 15.1-32.5 15.1h-71.9V546h67.6l56.6-67.1c6.8-8.1 17-12 27.5-10.4 10.4 1.5 19.1 8.2 23.3 17.9l41.6 96.7 21.9-24c8-8.8 19.5-13.9 31.4-13.9h102.4v51.7H595l-41.6 45.7c-5.6 6.2-13.7 9.7-22.1 9.7z"></path>
-			</svg>
-			`,
-			selector: [],
-			onSelect: function (item) {
-				if (typeof item.callback === "function") {
-					item.callback();
+	intervalHandler(fn: Function, count: number = 5, delayTime: number = 500) {
+		let maxCount = 0;
+		let intervalId = setInterval(() => {
+			if (maxCount > count) {
+				clearInterval(intervalId);
+				return;
+			}
+			if (typeof fn === "function") {
+				try {
+					fn();
+				} catch (error) {
+					console.error(TAG, error);
 				}
-				return item.html;
-			},
-		};
+			}
+			maxCount++;
+		}, delayTime);
 	},
 };
 
@@ -121,7 +73,9 @@ const M4SAudio = {
 		plugin_KEY: "plugin-bilibili-m4sAudio",
 	},
 	$data: {
+		/** artplayer实例 */
 		art: null as any as Artplayer,
+		/** 播放的音频 */
 		audio: new Audio(),
 		/** 音频的重新连接的配置 */
 		reconnectConfig: {
@@ -149,10 +103,8 @@ const M4SAudio = {
 		 */
 		play: () => {
 			// console.log(TAG + "play");
-			M4SAudio.syncAudioProgress();
-			M4SAudio.syncAudioVolumn();
-			M4SAudio.syncAudioPlayState();
-			M4SAudio.syncAudioProgress();
+			M4SAudio.handler.syncTime();
+			M4SAudio.handler.play();
 		},
 		/**
 		 * 视频进度更新（主动改变的，而不是播放的改变）
@@ -162,9 +114,10 @@ const M4SAudio = {
 		 */
 		seek: (currentTime) => {
 			// console.log(TAG + "seek", currentTime);
-			M4SAudio.syncAudioProgress();
-			M4SAudio.syncAudioMuted();
-			M4SAudio.syncAudioPlayState();
+			M4SAudioUtils.intervalHandler(() => {
+				M4SAudio.handler.syncTime();
+				M4SAudio.handler.syncPlayState();
+			});
 		},
 		/**
 		 * 视频暂停
@@ -173,8 +126,8 @@ const M4SAudio = {
 		 */
 		pause: () => {
 			// console.log(TAG + "pause");
-			M4SAudio.syncAudioPlayState();
-			M4SAudio.syncAudioProgress();
+			M4SAudio.handler.syncTime();
+			M4SAudio.handler.pause();
 		},
 		/**
 		 * 视频重载，这里的音频也重载
@@ -186,12 +139,11 @@ const M4SAudio = {
 			// console.log(TAG + "restart", url);
 			if (typeof M4SAudio.userEvent.onRestart === "function") {
 				let newAudioUrl = M4SAudio.userEvent.onRestart(url);
-				if (typeof newAudioUrl === "string") {
-					// 更新audio的url
-					M4SAudio.$data.audio.src = newAudioUrl;
-				}
+				// 更新audio的url
+				M4SAudio.handler.playUrl(newAudioUrl);
 			}
-			M4SAudio.syncAudioProgress();
+			M4SAudio.handler.syncTime();
+			M4SAudio.handler.syncPlayState();
 		},
 		/**
 		 * 静音状态改变
@@ -199,8 +151,8 @@ const M4SAudio = {
 		 */
 		muted: (state) => {
 			// console.log(TAG + "muted",state);
-			M4SAudio.syncAudioMuted();
-			M4SAudio.syncAudioVolumn();
+			M4SAudio.handler.syncVolume();
+			M4SAudio.handler.syncMuted();
 		},
 		/**
 		 * artplayer 销毁
@@ -209,7 +161,7 @@ const M4SAudio = {
 		 */
 		destroy: () => {
 			// console.log(TAG + "destory");
-			M4SAudio.$data.audio.pause();
+			M4SAudio.handler.pause();
 		},
 		/**
 		 * 视频出岔子了无法播放
@@ -220,7 +172,7 @@ const M4SAudio = {
 		 */
 		error: (error, reconnectTime) => {
 			// console.log(TAG + "error", error, reconnectTime);
-			M4SAudio.$data.audio.pause();
+			M4SAudio.handler.pause();
 		},
 		/**
 		 * 当播放器尺寸变化时触发
@@ -228,12 +180,9 @@ const M4SAudio = {
 		 * 可能会音视频不停步
 		 */
 		resize: () => {
-			M4SAudio.syncAudioProgress();
-			M4SAudio.syncAudioPlayState();
-			setTimeout(() => {
-				M4SAudio.syncAudioProgress();
-				M4SAudio.syncAudioPlayState();
-			}, 500);
+			M4SAudioUtils.intervalHandler(() => {
+				M4SAudio.handler.syncTime();
+			});
 		},
 		/**
 		 * 当播放器发生窗口全屏时触发
@@ -241,12 +190,9 @@ const M4SAudio = {
 		 * 可能会音视频不停步
 		 */
 		fullscreen: () => {
-			M4SAudio.syncAudioProgress();
-			M4SAudio.syncAudioPlayState();
-			setTimeout(() => {
-				M4SAudio.syncAudioProgress();
-				M4SAudio.syncAudioPlayState();
-			}, 500);
+			M4SAudioUtils.intervalHandler(() => {
+				M4SAudio.handler.syncTime();
+			});
 		},
 		/**
 		 * 视频播放完毕
@@ -255,8 +201,7 @@ const M4SAudio = {
 		 */
 		"video:ended": () => {
 			// console.log(TAG + "video:ended");
-			M4SAudio.$data.audio.pause();
-			M4SAudio.syncAudioProgress();
+			M4SAudio.handler.pause();
 		},
 		/**
 		 * 视频倍速改变
@@ -265,7 +210,7 @@ const M4SAudio = {
 		 */
 		"video:ratechange": () => {
 			// console.log(TAG + "video:ratechange");
-			M4SAudio.$data.audio.playbackRate = M4SAudio.$data.art.playbackRate;
+			M4SAudio.handler.syncPlayBackRate();
 		},
 		/**
 		 * 视频缓冲暂停
@@ -274,33 +219,30 @@ const M4SAudio = {
 		 */
 		"video:waiting": () => {
 			// console.log(TAG + "video:waiting");
-			M4SAudio.$data.audio.pause();
-			M4SAudio.syncAudioProgress();
+			M4SAudio.handler.pause();
 		},
 		/**
 		 * 视频缓冲恢复，音频也恢复
 		 */
 		"video:playing": () => {
 			// console.log(TAG + "video:playing");
-			M4SAudio.syncAudioProgress();
-			M4SAudio.syncAudioPlayState();
-			M4SAudio.syncAudioProgress();
+			M4SAudio.handler.syncTime();
+			M4SAudio.handler.play();
 		},
 		/**
 		 * 切换页面视频会被暂停
 		 */
 		"video:pause": () => {
 			// console.log(TAG + "video:pause");
-			M4SAudio.syncAudioProgress();
-			M4SAudio.syncAudioPlayState();
+			M4SAudio.handler.pause();
+			M4SAudio.handler.syncTime();
 		},
 		/**
 		 * 同步音量
 		 */
 		"video:volumechange": () => {
 			// console.log(TAG + "video:volumechange");
-			M4SAudio.syncAudioVolumn();
-			M4SAudio.syncAudioProgress();
+			M4SAudio.handler.syncTime();
 		},
 		/**
 		 * 应该是主动切换的视频，首次播放时可能音频不同步
@@ -311,8 +253,7 @@ const M4SAudio = {
 				M4SAudio.$data.art.currentTime <= 4
 			) {
 				// 2~4秒内同步音频
-				M4SAudio.syncAudioProgress();
-				M4SAudio.syncAudioVolumn();
+				M4SAudio.handler.syncTime();
 			}
 		},
 	} as {
@@ -324,12 +265,13 @@ const M4SAudio = {
 			// 重置重连信息
 			M4SAudio.$data.reconnectInfo.count = 0;
 			M4SAudio.$data.reconnectInfo.url = "";
-			// 判断当前音频是否正在播放
-			if (M4SAudio.$data.art.playing) {
-				// 同步音量、进度
-				// @ts-ignore
-				M4SAudio.events.play();
-			}
+
+			// 同步音量、进度
+			M4SAudio.handler.syncPlayState();
+			M4SAudio.handler.syncMuted();
+			M4SAudio.handler.syncPlayBackRate();
+			M4SAudio.handler.syncVolume();
+			M4SAudio.handler.syncTime();
 		},
 		// canplaythrough: (event) => {
 		// 	console.log(
@@ -355,8 +297,8 @@ const M4SAudio = {
 				}次尝试重新连接`;
 				M4SAudio.$data.reconnectInfo.count++;
 				setTimeout(() => {
-					M4SAudio.$data.audio.src = "";
-					M4SAudio.$data.audio.src = M4SAudio.$data.reconnectInfo.url;
+					M4SAudio.handler.playUrl("");
+					M4SAudio.handler.playUrl(M4SAudio.$data.reconnectInfo.url);
 					M4SAudio.$data.audio.load();
 				}, M4SAudio.$data.reconnectConfig.delayTime);
 			} else {
@@ -371,53 +313,177 @@ const M4SAudio = {
 		) => any;
 	},
 	/**
+	 * 音频工具处理
+	 */
+	handler: {
+		/**
+		 * 播放音频链接，会自行处理判断是否是字符串链接
+		 */
+		playUrl(url: any) {
+			if (typeof url !== "string") {
+				return;
+			}
+			M4SAudio.$data.audio.src = url;
+		},
+		/** 播放音频 */
+		play() {
+			M4SAudio.$data.audio.play();
+		},
+		/** 暂停音频 */
+		pause() {
+			M4SAudio.$data.audio.pause();
+		},
+		/** 同步播放状态 */
+		syncPlayState() {
+			if (M4SAudio.$data.art.playing) {
+				// 视频播放中
+				if (M4SAudio.$data.audio.paused) {
+					// 音频当前暂停，播放
+					this.play();
+				}
+			} else {
+				// 视频暂停
+				if (!M4SAudio.$data.audio.paused) {
+					// 音频当前播放中，暂停
+					this.pause();
+				}
+			}
+		},
+		/** 音频同步视频进度 */
+		syncTime() {
+			// console.log(TAG + "音频同步视频进度");
+			M4SAudio.$data.audio.currentTime = M4SAudio.$data.art.currentTime;
+			// 同步音量
+			this.syncVolume();
+			// 同步静音状态
+			this.syncMuted();
+		},
+		/** 同步音量 */
+		syncVolume() {
+			M4SAudio.$data.audio.volume = M4SAudio.$data.art.volume;
+		},
+		/** 同步静音状态 */
+		syncMuted() {
+			M4SAudio.$data.audio.muted = M4SAudio.$data.art.muted;
+		},
+		/** 同步播放速度 */
+		syncPlayBackRate() {
+			M4SAudio.$data.audio.playbackRate = M4SAudio.$data.art.playbackRate;
+		},
+	},
+	/**
 	 * 更新
 	 * @param audioList
 	 */
-	update(audioList: ArtPlayerPluginM4SAudioSupportOption["audioList"] = []) {
+	update(option: ArtPlayerPluginM4SAudioSupportUpdateOption) {
 		this.unbind();
-		let loadSoundUrlInfo = (audioList || []).find((item) => item.isDefault);
-		if (loadSoundUrlInfo == null || utils.isNull(loadSoundUrlInfo.url)) {
-			// 没有audio
-			this.$data.audio.src = "";
-			M4SAudioSetting.reset();
-		} else {
-			let url = loadSoundUrlInfo.url;
-			log.info("加载m4s的音频：" + url);
-			this.$data.audio.src = url;
+		const that = this;
+
+		if (option.audioList?.length) {
+			// 如果存在audio选项
+			let firstAudioInfo = option.audioList[0];
+			// 存储键
+			const storageKey = `artplayer-m4s-audio-${option.from}`;
+			// 获取本地存储的上次选的画质，默认最高画质
+			const storageAudioInfo = this.$data.art.storage.get(
+				storageKey
+			) as ArtPlayerPluginM4SAudioSupportStorageOption;
+
+			// 根据本地保存的记录和当前提供的音频列表筛选出当前的音频
+			let currentSelectAudioInfo = {
+				index: 0,
+				html: firstAudioInfo.soundQualityCodeText,
+				/** 播放的地址 */
+				url: firstAudioInfo.url,
+			};
+
+			if (storageAudioInfo) {
+				// 判断当前的音频中是否同样的音频，存在的话就使用这个音频，默认第一个音频的
+				const findAudioIndex = option.audioList.findIndex(
+					(item) => item.soundQualityCode === storageAudioInfo.soundQualityCode
+				);
+				if (findAudioIndex !== -1) {
+					const findAudio = option.audioList[findAudioIndex];
+					currentSelectAudioInfo.index = findAudioIndex;
+					currentSelectAudioInfo.url = findAudio.url;
+					currentSelectAudioInfo.html = findAudio.soundQualityCodeText;
+				} else {
+					console.warn(
+						TAG + "没有找到上次选的音频代码，使用当前默认第一个音频"
+					);
+				}
+			}
+
+			// 调整一下select的default的值
+			let selectorList: (Selector &
+				ArtPlayerPluginM4SAudioSupportOption["audioList"]["0"])[] =
+				option.audioList.map((item, index) => {
+					return {
+						default: index === currentSelectAudioInfo.index,
+						html: item.soundQualityCodeText,
+						url: item.url,
+						soundQualityCode: item.soundQualityCode,
+						soundQualityCodeText: item.soundQualityCodeText,
+					};
+				});
+			// 判断面板是否存在
+			// 存在就更新
+			// 不存在就添加
+			const settingOption = {
+				name: ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY,
+				width: 200,
+				html: "音频",
+				tooltip: currentSelectAudioInfo.html,
+				icon: /*html*/ `
+				<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="22" height="22">
+					<path d="M123.5 438.5h131.3v310.7H123.5zM769.2 438.5h131.3v310.7H769.2z"></path>
+					<path d="M859.8 398.8h-48.3c-7.9 0-15.4 1.6-22.5 3.9v-32.4c0-125.2-101.9-227.1-227.1-227.1h-99.7c-125.2 0-227.1 101.9-227.1 227.1v32.4c-7.1-2.3-14.6-3.9-22.5-3.9h-48.3c-40.9 0-74.2 33.3-74.2 74.2v243c0 40.9 33.3 74.2 74.2 74.2h48.3c40.9 0 74.2-33.3 74.2-74.2V370.3c0-96.7 78.7-175.4 175.4-175.4h99.7c96.7 0 175.4 78.7 175.4 175.4V716c0 40.9 33.3 74.2 74.2 74.2h48.3c40.9 0 74.2-33.3 74.2-74.2V473c-0.1-40.9-33.3-74.2-74.2-74.2zM235.1 716c0 12.4-10.1 22.5-22.5 22.5h-48.3c-12.4 0-22.5-10.1-22.5-22.5V473c0-12.4 10.1-22.5 22.5-22.5h48.3c12.4 0 22.5 10.1 22.5 22.5v243z m647.2 0c0 12.4-10.1 22.5-22.5 22.5h-48.3c-12.4 0-22.5-10.1-22.5-22.5V473c0-12.4 10.1-22.5 22.5-22.5h48.3c12.4 0 22.5 10.1 22.5 22.5v243z"></path>
+					<path d="M531.3 652.3c-1.7 0-3.3-0.1-5-0.4-10.2-1.7-18.7-8.3-22.7-17.8l-41.1-95.4-37 43.8c-8.1 9.6-19.9 15.1-32.5 15.1h-71.9V546h67.6l56.6-67.1c6.8-8.1 17-12 27.5-10.4 10.4 1.5 19.1 8.2 23.3 17.9l41.6 96.7 21.9-24c8-8.8 19.5-13.9 31.4-13.9h102.4v51.7H595l-41.6 45.7c-5.6 6.2-13.7 9.7-22.1 9.7z"></path>
+				</svg>
+				`,
+				selector: selectorList,
+				onSelect: function (selector) {
+					let itemInfo = selector as any as Selector &
+						ArtPlayerPluginM4SAudioSupportOption["audioList"]["0"];
+					// 切换音频
+					console.log(TAG + "切换音频", itemInfo);
+					that.handler.playUrl(itemInfo.url);
+					// 保存切换的音频
+					that.$data.art.storage.set(storageKey, {
+						soundQualityCode: itemInfo.soundQualityCode,
+					} as ArtPlayerPluginM4SAudioSupportStorageOption);
+					return selector.html;
+				},
+			} as Setting;
+
+			let findSettingValue = M4SAudio.$data.art.setting.find(
+				ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY
+			);
+			if (findSettingValue) {
+				// 已存在面板，更新
+				M4SAudio.$data.art.setting.update(settingOption);
+			} else {
+				// 不存在面板，添加
+				M4SAudio.$data.art.setting.add(settingOption);
+			}
+
+			// 设置播放地址
+			log.info(["加载m4s的音频：", currentSelectAudioInfo]);
+			M4SAudio.handler.playUrl(currentSelectAudioInfo.url);
 			this.bind();
-			M4SAudioSetting.update(audioList);
-		}
-	},
-	/** 同步播放状态 */
-	syncAudioPlayState() {
-		if (this.$data.art.playing) {
-			// 视频播放中
-			if (this.$data.audio.paused) {
-				// 音频当前暂停，播放
-				this.$data.audio.play();
-			}
 		} else {
-			// 视频暂停
-			if (!this.$data.audio.paused) {
-				// 音频当前播放中，暂停
-				this.$data.audio.pause();
+			// 没有audio
+			M4SAudio.handler.playUrl("");
+			// 移除旧的菜单
+			let oldSetting = M4SAudio.$data.art.setting.option.find(
+				(item) => item.name === ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY
+			);
+			if (oldSetting) {
+				M4SAudio.$data.art.setting.remove(
+					ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY
+				);
 			}
 		}
-	},
-	/** 音频同步视频进度 */
-	syncAudioProgress() {
-		// console.log(TAG + "音频同步视频进度");
-		this.$data.audio.currentTime = this.$data.art.currentTime;
-		this.syncAudioPlayState();
-	},
-	/** 同步音量 */
-	syncAudioVolumn() {
-		this.$data.audio.volume = this.$data.art.volume;
-	},
-	/** 同步静音状态 */
-	syncAudioMuted() {
-		this.$data.audio.muted = this.$data.art.muted;
 	},
 	/**
 	 * 绑定事件
@@ -466,13 +532,17 @@ export const artplayerPluginM4SAudioSupport = (
 		if (typeof option.onRestart === "function") {
 			M4SAudio.userEvent.onRestart = option.onRestart;
 		}
-		M4SAudio.update(option.audioList);
+		M4SAudio.update({
+			from: option.from,
+			audioList: option.audioList,
+		});
+
 		return {
 			name: M4SAudio.$key.plugin_KEY,
-			update(audioList = []) {
-				M4SAudio.update(audioList);
-				M4SAudio.syncAudioVolumn();
-				M4SAudio.syncAudioProgress();
+			update(...args) {
+				M4SAudio.update(...args);
+				M4SAudio.handler.syncVolume();
+				M4SAudio.handler.syncTime();
 			},
 		};
 	};

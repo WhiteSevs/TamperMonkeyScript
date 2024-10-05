@@ -366,9 +366,15 @@ export const BilibiliVideoPlayer = {
 				addStyle(/*css*/ `
 				@media (orientation: landscape) {
 					.art-video-player .art-layers .art-layer-top-wrap,
+					/* 底部 */
 					.art-video-player .art-bottom{
 						padding-left: ${controlsPadding}px !important;
 						padding-right: ${controlsPadding}px !important;
+					}
+					
+					/* 锁定图标 */
+					.art-video-player  .art-layer-lock{
+						--art-lock-left-size: ${controlsPadding}px;
 					}
 				}
 				`);

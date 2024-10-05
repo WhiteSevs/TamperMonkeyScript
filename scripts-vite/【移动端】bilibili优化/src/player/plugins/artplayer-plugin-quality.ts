@@ -71,7 +71,6 @@ const Quality = {
 					console.warn(TAG + "没有找到上次选的画质，使用当前默认第一个画质");
 				}
 			}
-
 			// 调整一下select的default的值
 			let selectorList: (Selector &
 				ArtPlayerPluginQualityOption["qualityList"]["0"])[] =
@@ -83,7 +82,6 @@ const Quality = {
 						quality: item.quality,
 					};
 				});
-
 			// 判断面板是否存在
 			// 存在就更新
 			// 不存在就添加

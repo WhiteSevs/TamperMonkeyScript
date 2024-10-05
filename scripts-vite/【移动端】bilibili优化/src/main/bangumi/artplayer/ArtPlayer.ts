@@ -41,6 +41,7 @@ import {
 	type ArtPlayerPluginQualityOption,
 	type ArtPlayerPluginQualityResult,
 } from "@/player/plugins/artplayer-plugin-quality";
+import { artplayerPluginToast } from "@/player/plugins/artplayer-plugin-toast";
 
 export type BilibiliBangumiArtPlayerOption = {
 	/** 容器 */
@@ -240,6 +241,7 @@ export const BilibiliBangumiArtPlayer = {
 				},
 			],
 			plugins: [
+				artplayerPluginToast(),
 				artplayPluginQuality({
 					from: "bangumi",
 					qualityList: option.quality,
@@ -284,7 +286,8 @@ export const BilibiliBangumiArtPlayer = {
 					},
 				}),
 				artplayerPluginM4SAudioSupport({
-					audioList: option.audioList,
+					from: "bangumi",
+					audioList: option.audioList || [],
 					showSetting: true,
 				}),
 				artplayerPluginEpChoose({
@@ -292,6 +295,7 @@ export const BilibiliBangumiArtPlayer = {
 					automaticBroadcast: true,
 				}),
 				artplayerPluginBilibiliCCSubTitle({
+					from: "bangumi",
 					cid: option.cid,
 					aid: option.aid,
 					bvid: option.bvid!,
@@ -331,13 +335,6 @@ export const BilibiliBangumiArtPlayer = {
 						return;
 					}
 					this.flvPlayer();
-					// let flvInfo =
-					// 	this.currentOption.flvInfo[this.currentOptionFlvInfoIndex];
-					// if (flvInfo == null) {
-					// 	console.error("没有flv播放信息了");
-					// 	return;
-					// }
-					// this.flvPlayer(flvInfo);
 				},
 			};
 		} else {
@@ -398,7 +395,10 @@ export const BilibiliBangumiArtPlayer = {
 		let plugin_m4sAudioSupport = art.plugins[
 			ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY
 		] as ArtPlayerPluginM4SAudioSupportResult;
-		plugin_m4sAudioSupport.update(option.audioList);
+		plugin_m4sAudioSupport.update({
+			from: "bangumi",
+			audioList: option.audioList || [],
+		});
 		log.info([`更新音频`, option.audioList]);
 
 		// 更新字幕
@@ -407,6 +407,7 @@ export const BilibiliBangumiArtPlayer = {
 		] as ArtPlayerPluginBilibiliSubTitleResult;
 		// 配置字幕数据
 		const subTitleOption = {
+			from: "bangumi",
 			cid: option.cid,
 			aid: option.aid,
 			ep_id: option.ep_id,

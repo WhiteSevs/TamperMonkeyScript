@@ -228,14 +228,16 @@ export const BilibiliVideoArtPlayer = {
 					},
 				}),
 				artplayerPluginM4SAudioSupport({
+					from: "video",
 					showSetting: true,
-					audioList: option.audioList,
+					audioList: option.audioList || [],
 				}),
 				artplayerPluginEpChoose({
 					EP_LIST: generateVideoSelectSetting(option),
 					automaticBroadcast: true,
 				}),
 				artplayerPluginBilibiliCCSubTitle({
+					from: "video",
 					cid: option.cid,
 					aid: option.aid,
 					bvid: option.bvid!,
@@ -306,7 +308,10 @@ export const BilibiliVideoArtPlayer = {
 		let plugin_m4sAudioSupport = art.plugins[
 			ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY
 		] as ArtPlayerPluginM4SAudioSupportResult;
-		plugin_m4sAudioSupport.update(option.audioList);
+		plugin_m4sAudioSupport.update({
+			from: "video",
+			audioList: option.audioList || [],
+		});
 		log.info([`更新音频`, option.audioList]);
 
 		// 更新字幕
@@ -315,6 +320,7 @@ export const BilibiliVideoArtPlayer = {
 		] as ArtPlayerPluginBilibiliSubTitleResult;
 		// 配置字幕数据
 		const subTitleOption = {
+			from: "video",
 			aid: option.aid,
 			bvid: option.bvid,
 			cid: option.cid,

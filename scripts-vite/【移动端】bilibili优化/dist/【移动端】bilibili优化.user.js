@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.5
+// @version      2024.10.5.18
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -3038,7 +3038,7 @@
   };
   const BilibiliVideoBeautifyCSS = '@charset "UTF-8";\r\n#app .video {\r\n	/* 下面的推荐视频卡片 */\r\n}\r\n#app .video .video-list .card-box {\r\n	--left-card-width: 33%;\r\n	--right-child-padding: 1.333vmin;\r\n	/* 开启了bili-video-beautify */\r\n}\r\n#app .video .video-list .card-box .v-card-toapp {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a {\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n	gap: var(--right-child-padding);\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card {\r\n	width: var(--left-card-width);\r\n	height: 80px;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .left {\r\n	display: list-item;\r\n}\r\n#app\r\n	.video\r\n	.video-list\r\n	.card-box\r\n	.v-card-toapp\r\n	> a\r\n	.card\r\n	.count\r\n	.left\r\n	span.item {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .duration {\r\n	background: rgba(0, 0, 0, 0.4);\r\n	border-radius: 0.6vmin;\r\n	padding: 0px 0.5vmin;\r\n	right: 1vmin;\r\n	bottom: 1vmin;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .title {\r\n	flex: 1;\r\n	/*padding: var(--right-child-padding);*/\r\n	padding-top: 0;\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n#app .video .video-list .card-box .gm-right-container {\r\n	display: flex;\r\n	flex-direction: column;\r\n	width: calc(100% - var(--left-card-width));\r\n}\r\n#app .video .video-list .card-box .gm-right-container > * {\r\n	padding: var(--right-child-padding);\r\n	padding-bottom: 0;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	gap: 1rem;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .left span {\r\n	display: flex;\r\n	align-items: safe center;\r\n	gap: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name,\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	color: #999;\r\n	font-size: 3vmin;\r\n	transform-origin: left;\r\n	display: flex;\r\n	/*align-items: safe center;*/\r\n	align-items: safe flex-end;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name svg{\r\n	width: 3vmin;\r\n	height: 3vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name-text {\r\n	margin-left: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .num {\r\n	margin-right: 4vmin;\r\n}\r\n#app .video .video-list .card-box > a.v-card {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card {\r\n	width: var(--left-card-width);\r\n	height: 100%;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count span {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count .duration {\r\n	background-color: rgba(0, 0, 0, 0.3);\r\n	border-radius: 4px;\r\n	color: #fff;\r\n	font-size: 12px;\r\n	height: 16px;\r\n	line-height: 16px;\r\n	margin-left: auto;\r\n	padding-left: 4px;\r\n	padding-right: 4px;\r\n}\r\n#app .video .video-list .card-box > a.v-card .title {\r\n	flex: 1;\r\n	/*padding: var(--right-child-padding);*/\r\n	padding-top: 0;\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n';
   const artPlayerCSS$1 = ".artplayer-container {\r\n	position: absolute;\r\n	width: 100%;\r\n	height: 100%;\r\n	top: 0;\r\n	left: 0;\r\n	overflow: hidden;\r\n}";
-  const artPlayerCommonCSS = "#artplayer {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n.art-video-player {\r\n	width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n	display: none !important;\r\n}\r\n/* 大会员画质 */\r\n.art-player-quality-badge-bigvip {\r\n	border-radius: 8px;\r\n	-webkit-box-sizing: border-box;\r\n	box-sizing: border-box;\r\n	display: block;\r\n	padding: 2px 5px;\r\n	background-color: var(--bili-color);\r\n	color: #fff;\r\n	margin-left: 16px;\r\n}\r\n/* 选中的清晰度中如果有大会员文字，隐藏 */\r\n.art-selector-value .art-player-quality-badge-bigvip {\r\n	display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n	backdrop-filter: unset !important;\r\n}\r\n/* 竖屏且宽度小于550px */\r\n@media (max-width: 550px) and (orientation: portrait) {\r\n	/* 隐藏 弹幕设置按钮 */\r\n	.artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		display: none !important;\r\n	}\r\n	/* 弹幕库靠右对齐 */\r\n	.artplayer-plugin-danmuku {\r\n		justify-content: right;\r\n	}\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n	/* 限制弹幕输入框的最大宽度 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		max-width: 260px;\r\n	}\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-lock .art-layer-top-wrap {\r\n	/* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */\r\n	display: none !important;\r\n}\r\n.art-layer-top-wrap {\r\n	--layer-top-wrap-follow-text-font-size: 0.8em;\r\n	--layer-top-wrap-follow-icon-size: 1em;\r\n	position: absolute;\r\n	top: 0px;\r\n	right: 0px;\r\n	color: #fff;\r\n	display: -webkit-box;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	left: 0;\r\n	-webkit-transition: all 0.2s ease-in-out;\r\n	transition: all 0.2s ease-in-out;\r\n	width: 100%;\r\n	background: rgba(0, 0, 0, 0.8);\r\n	padding: 10px calc(var(--art-padding));\r\n	z-index: 60;\r\n}\r\n.art-hide-cursor .art-layer-top-wrap {\r\n	display: none;\r\n}\r\n.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n	margin-top: var(--art-padding);\r\n	gap: var(--layer-top-wrap-follow-text-font-size);\r\n	font-size: var(--layer-top-wrap-follow-text-font-size);\r\n	display: flex;\r\n	align-items: center;\r\n	position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n	width: var(--layer-top-wrap-follow-icon-size);\r\n	height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n	text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n";
+  const artPlayerCommonCSS = "/* 设置播放器基础宽高 */\r\n#artplayer {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n/* 通用隐藏class */\r\n.art-video-player .art-common-hide {\r\n	display: none !important;\r\n}\r\n/* 设置播放器基础宽高 */\r\n.art-video-player {\r\n	width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n	display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n	backdrop-filter: unset !important;\r\n}\r\n/* 底部的设置菜单当前选中的提示文字设置文字溢出省略号 */\r\n.art-settings .art-setting-item .art-setting-item-right-tooltip {\r\n	max-width: 100px;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n}\r\n\r\n/* 竖屏 宽度小于550px */\r\n@media (orientation: portrait) and (max-width: 550px) {\r\n	/* 隐藏 弹幕设置按钮 */\r\n	.artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		display: none !important;\r\n	}\r\n	/* 弹幕库靠右对齐 */\r\n	.artplayer-plugin-danmuku {\r\n		justify-content: right;\r\n	}\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n	/* 限制弹幕输入框的最大宽度 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		max-width: 260px;\r\n	}\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-lock .art-layer-top-wrap {\r\n	/* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */\r\n	display: none !important;\r\n}\r\n.art-layer-top-wrap {\r\n	--layer-top-wrap-follow-text-font-size: 0.8em;\r\n	--layer-top-wrap-follow-icon-size: 1em;\r\n	width: 100%;\r\n	position: absolute;\r\n	top: 0px;\r\n	right: 0px;\r\n	color: #fff;\r\n	display: -webkit-box;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	left: 0;\r\n	-webkit-transition: all 0.2s ease-in-out;\r\n	transition: all 0.2s ease-in-out;\r\n	width: 100%;\r\n	background: rgba(0, 0, 0, 0.8);\r\n	padding: 10px calc(var(--art-padding));\r\n	z-index: 60;\r\n}\r\n.art-player-top-wrap {\r\n	width: 100%;\r\n}\r\n.art-player-top-wrap .art-player-top-title-text {\r\n	white-space: nowrap;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n	max-width: 100%;\r\n}\r\n/* 面板隐藏时，顶部toolbar也隐藏 */\r\n.art-hide-cursor .art-layer-top-wrap {\r\n	transform: translateY(-60px);\r\n}\r\n/*.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}*/\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n	margin-top: var(--art-padding);\r\n	gap: var(--layer-top-wrap-follow-text-font-size);\r\n	font-size: var(--layer-top-wrap-follow-text-font-size);\r\n	display: flex;\r\n	align-items: center;\r\n	position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n	width: var(--layer-top-wrap-follow-icon-size);\r\n	height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n	text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n\r\n/* 插件-锁定 */\r\n.art-video-player .art-layers .art-layer.art-layer-lock {\r\n	/* 放在右边 */\r\n	right: 0;\r\n	left: calc(100% - 20px - var(--art-lock-size) - var(--art-lock-left-size));\r\n}\r\n/* 插件-锁定 */\r\n";
   const BilibiliRequestCheck = {
     /**
      * 合并并检查是否传入aid或者bvid
@@ -3330,83 +3330,30 @@
     }
   }
   const TAG$3 = "[artplayer-plugin-bilibiliCCSubTitle]：";
-  const M4SAudioSetting = {
-    $data: {
-      setting_KEY: "setting-bilibili-m4sAudio"
-    },
+  const ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY = "setting-bilibili-m4sAudio";
+  const M4SAudioUtils = {
     /**
-     * 重置菜单
+     * 自定义某个函数执行N次和间隔时间
+     * @param fn 需要执行的函数
+     * @param [count=5] 重复执行的次数
+     * @param [delayTime=500] 重复执行的间隔时间
      */
-    reset() {
-      let oldSetting = M4SAudio.$data.art.setting.option.find(
-        (item) => item.name === this.$data.setting_KEY
-      );
-      if (oldSetting) {
-        M4SAudio.$data.art.setting.remove(this.$data.setting_KEY);
-      }
-    },
-    /**
-     * 更新设置面板信息
-     */
-    update(audioList = []) {
-      var _a2;
-      let setting = this.getSettingOption();
-      setting.tooltip = ((_a2 = audioList.find((item) => item.isDefault)) == null ? void 0 : _a2.soundQualityCodeText) || "";
-      setting.selector.push(
-        ...audioList.map((item) => {
-          return {
-            default: item.isDefault,
-            html: item.soundQualityCodeText,
-            callback() {
-              let audioUpdateList = audioList.map((audioItem) => {
-                let result = audioItem;
-                result.isDefault = false;
-                if (result.url === item.url && result.soundQualityCode === item.soundQualityCode) {
-                  result.isDefault = true;
-                }
-                return result;
-              });
-              M4SAudio.update(audioUpdateList);
-            }
-          };
-        })
-      );
-      let findSettingValue = M4SAudio.$data.art.setting.find(
-        this.$data.setting_KEY
-      );
-      if (findSettingValue) {
-        M4SAudio.$data.art.setting.update(setting);
-      } else {
-        M4SAudio.$data.art.setting.add(setting);
-      }
-    },
-    /**
-     * 获取默认的layer配置项
-     */
-    getSettingOption: () => {
-      return {
-        name: M4SAudioSetting.$data.setting_KEY,
-        width: 200,
-        html: "音频",
-        tooltip: "",
-        icon: (
-          /*html*/
-          `
-			<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="22" height="22">
-				<path d="M123.5 438.5h131.3v310.7H123.5zM769.2 438.5h131.3v310.7H769.2z"></path>
-				<path d="M859.8 398.8h-48.3c-7.9 0-15.4 1.6-22.5 3.9v-32.4c0-125.2-101.9-227.1-227.1-227.1h-99.7c-125.2 0-227.1 101.9-227.1 227.1v32.4c-7.1-2.3-14.6-3.9-22.5-3.9h-48.3c-40.9 0-74.2 33.3-74.2 74.2v243c0 40.9 33.3 74.2 74.2 74.2h48.3c40.9 0 74.2-33.3 74.2-74.2V370.3c0-96.7 78.7-175.4 175.4-175.4h99.7c96.7 0 175.4 78.7 175.4 175.4V716c0 40.9 33.3 74.2 74.2 74.2h48.3c40.9 0 74.2-33.3 74.2-74.2V473c-0.1-40.9-33.3-74.2-74.2-74.2zM235.1 716c0 12.4-10.1 22.5-22.5 22.5h-48.3c-12.4 0-22.5-10.1-22.5-22.5V473c0-12.4 10.1-22.5 22.5-22.5h48.3c12.4 0 22.5 10.1 22.5 22.5v243z m647.2 0c0 12.4-10.1 22.5-22.5 22.5h-48.3c-12.4 0-22.5-10.1-22.5-22.5V473c0-12.4 10.1-22.5 22.5-22.5h48.3c12.4 0 22.5 10.1 22.5 22.5v243z"></path>
-				<path d="M531.3 652.3c-1.7 0-3.3-0.1-5-0.4-10.2-1.7-18.7-8.3-22.7-17.8l-41.1-95.4-37 43.8c-8.1 9.6-19.9 15.1-32.5 15.1h-71.9V546h67.6l56.6-67.1c6.8-8.1 17-12 27.5-10.4 10.4 1.5 19.1 8.2 23.3 17.9l41.6 96.7 21.9-24c8-8.8 19.5-13.9 31.4-13.9h102.4v51.7H595l-41.6 45.7c-5.6 6.2-13.7 9.7-22.1 9.7z"></path>
-			</svg>
-			`
-        ),
-        selector: [],
-        onSelect: function(item) {
-          if (typeof item.callback === "function") {
-            item.callback();
-          }
-          return item.html;
+    intervalHandler(fn, count = 5, delayTime = 500) {
+      let maxCount = 0;
+      let intervalId = setInterval(() => {
+        if (maxCount > count) {
+          clearInterval(intervalId);
+          return;
         }
-      };
+        if (typeof fn === "function") {
+          try {
+            fn();
+          } catch (error) {
+            console.error(TAG$3, error);
+          }
+        }
+        maxCount++;
+      }, delayTime);
     }
   };
   const M4SAudio = {
@@ -3414,7 +3361,9 @@
       plugin_KEY: "plugin-bilibili-m4sAudio"
     },
     $data: {
+      /** artplayer实例 */
       art: null,
+      /** 播放的音频 */
       audio: new Audio(),
       /** 音频的重新连接的配置 */
       reconnectConfig: {
@@ -3441,10 +3390,8 @@
        * 同步进度 - 同步音量 - 播放音频
        */
       play: () => {
-        M4SAudio.syncAudioProgress();
-        M4SAudio.syncAudioVolumn();
-        M4SAudio.syncAudioPlayState();
-        M4SAudio.syncAudioProgress();
+        M4SAudio.handler.syncTime();
+        M4SAudio.handler.play();
       },
       /**
        * 视频进度更新（主动改变的，而不是播放的改变）
@@ -3453,9 +3400,10 @@
        * @param currentTime 当前的进度
        */
       seek: (currentTime) => {
-        M4SAudio.syncAudioProgress();
-        M4SAudio.syncAudioMuted();
-        M4SAudio.syncAudioPlayState();
+        M4SAudioUtils.intervalHandler(() => {
+          M4SAudio.handler.syncTime();
+          M4SAudio.handler.syncPlayState();
+        });
       },
       /**
        * 视频暂停
@@ -3463,8 +3411,8 @@
        * 音频暂停
        */
       pause: () => {
-        M4SAudio.syncAudioPlayState();
-        M4SAudio.syncAudioProgress();
+        M4SAudio.handler.syncTime();
+        M4SAudio.handler.pause();
       },
       /**
        * 视频重载，这里的音频也重载
@@ -3475,19 +3423,18 @@
       restart: (url) => {
         if (typeof M4SAudio.userEvent.onRestart === "function") {
           let newAudioUrl = M4SAudio.userEvent.onRestart(url);
-          if (typeof newAudioUrl === "string") {
-            M4SAudio.$data.audio.src = newAudioUrl;
-          }
+          M4SAudio.handler.playUrl(newAudioUrl);
         }
-        M4SAudio.syncAudioProgress();
+        M4SAudio.handler.syncTime();
+        M4SAudio.handler.syncPlayState();
       },
       /**
        * 静音状态改变
        * @param state
        */
       muted: (state) => {
-        M4SAudio.syncAudioMuted();
-        M4SAudio.syncAudioVolumn();
+        M4SAudio.handler.syncVolume();
+        M4SAudio.handler.syncMuted();
       },
       /**
        * artplayer 销毁
@@ -3495,7 +3442,7 @@
        * 音频暂停
        */
       destroy: () => {
-        M4SAudio.$data.audio.pause();
+        M4SAudio.handler.pause();
       },
       /**
        * 视频出岔子了无法播放
@@ -3505,7 +3452,7 @@
        * @param reconnectTime
        */
       error: (error, reconnectTime) => {
-        M4SAudio.$data.audio.pause();
+        M4SAudio.handler.pause();
       },
       /**
        * 当播放器尺寸变化时触发
@@ -3513,12 +3460,9 @@
        * 可能会音视频不停步
        */
       resize: () => {
-        M4SAudio.syncAudioProgress();
-        M4SAudio.syncAudioPlayState();
-        setTimeout(() => {
-          M4SAudio.syncAudioProgress();
-          M4SAudio.syncAudioPlayState();
-        }, 500);
+        M4SAudioUtils.intervalHandler(() => {
+          M4SAudio.handler.syncTime();
+        });
       },
       /**
        * 当播放器发生窗口全屏时触发
@@ -3526,12 +3470,9 @@
        * 可能会音视频不停步
        */
       fullscreen: () => {
-        M4SAudio.syncAudioProgress();
-        M4SAudio.syncAudioPlayState();
-        setTimeout(() => {
-          M4SAudio.syncAudioProgress();
-          M4SAudio.syncAudioPlayState();
-        }, 500);
+        M4SAudioUtils.intervalHandler(() => {
+          M4SAudio.handler.syncTime();
+        });
       },
       /**
        * 视频播放完毕
@@ -3539,8 +3480,7 @@
        * 音频暂停
        */
       "video:ended": () => {
-        M4SAudio.$data.audio.pause();
-        M4SAudio.syncAudioProgress();
+        M4SAudio.handler.pause();
       },
       /**
        * 视频倍速改变
@@ -3548,7 +3488,7 @@
        * 同步视频的倍速
        */
       "video:ratechange": () => {
-        M4SAudio.$data.audio.playbackRate = M4SAudio.$data.art.playbackRate;
+        M4SAudio.handler.syncPlayBackRate();
       },
       /**
        * 视频缓冲暂停
@@ -3556,38 +3496,34 @@
        * 音频暂停 然后同步进度
        */
       "video:waiting": () => {
-        M4SAudio.$data.audio.pause();
-        M4SAudio.syncAudioProgress();
+        M4SAudio.handler.pause();
       },
       /**
        * 视频缓冲恢复，音频也恢复
        */
       "video:playing": () => {
-        M4SAudio.syncAudioProgress();
-        M4SAudio.syncAudioPlayState();
-        M4SAudio.syncAudioProgress();
+        M4SAudio.handler.syncTime();
+        M4SAudio.handler.play();
       },
       /**
        * 切换页面视频会被暂停
        */
       "video:pause": () => {
-        M4SAudio.syncAudioProgress();
-        M4SAudio.syncAudioPlayState();
+        M4SAudio.handler.pause();
+        M4SAudio.handler.syncTime();
       },
       /**
        * 同步音量
        */
       "video:volumechange": () => {
-        M4SAudio.syncAudioVolumn();
-        M4SAudio.syncAudioProgress();
+        M4SAudio.handler.syncTime();
       },
       /**
        * 应该是主动切换的视频，首次播放时可能音频不同步
        */
       "video:timeupdate": () => {
         if (2 <= M4SAudio.$data.art.currentTime && M4SAudio.$data.art.currentTime <= 4) {
-          M4SAudio.syncAudioProgress();
-          M4SAudio.syncAudioVolumn();
+          M4SAudio.handler.syncTime();
         }
       }
     },
@@ -3596,9 +3532,11 @@
         console.log(TAG$3 + "Audio预加载完成");
         M4SAudio.$data.reconnectInfo.count = 0;
         M4SAudio.$data.reconnectInfo.url = "";
-        if (M4SAudio.$data.art.playing) {
-          M4SAudio.events.play();
-        }
+        M4SAudio.handler.syncPlayState();
+        M4SAudio.handler.syncMuted();
+        M4SAudio.handler.syncPlayBackRate();
+        M4SAudio.handler.syncVolume();
+        M4SAudio.handler.syncTime();
       },
       // canplaythrough: (event) => {
       // 	console.log(
@@ -3617,8 +3555,8 @@
           M4SAudio.$data.art.notice.show = `Audio第${M4SAudio.$data.reconnectInfo.count + 1}次尝试重新连接`;
           M4SAudio.$data.reconnectInfo.count++;
           setTimeout(() => {
-            M4SAudio.$data.audio.src = "";
-            M4SAudio.$data.audio.src = M4SAudio.$data.reconnectInfo.url;
+            M4SAudio.handler.playUrl("");
+            M4SAudio.handler.playUrl(M4SAudio.$data.reconnectInfo.url);
             M4SAudio.$data.audio.load();
           }, M4SAudio.$data.reconnectConfig.delayTime);
         } else {
@@ -3628,47 +3566,149 @@
       }
     },
     /**
+     * 音频工具处理
+     */
+    handler: {
+      /**
+       * 播放音频链接，会自行处理判断是否是字符串链接
+       */
+      playUrl(url) {
+        if (typeof url !== "string") {
+          return;
+        }
+        M4SAudio.$data.audio.src = url;
+      },
+      /** 播放音频 */
+      play() {
+        M4SAudio.$data.audio.play();
+      },
+      /** 暂停音频 */
+      pause() {
+        M4SAudio.$data.audio.pause();
+      },
+      /** 同步播放状态 */
+      syncPlayState() {
+        if (M4SAudio.$data.art.playing) {
+          if (M4SAudio.$data.audio.paused) {
+            this.play();
+          }
+        } else {
+          if (!M4SAudio.$data.audio.paused) {
+            this.pause();
+          }
+        }
+      },
+      /** 音频同步视频进度 */
+      syncTime() {
+        M4SAudio.$data.audio.currentTime = M4SAudio.$data.art.currentTime;
+        this.syncVolume();
+        this.syncMuted();
+      },
+      /** 同步音量 */
+      syncVolume() {
+        M4SAudio.$data.audio.volume = M4SAudio.$data.art.volume;
+      },
+      /** 同步静音状态 */
+      syncMuted() {
+        M4SAudio.$data.audio.muted = M4SAudio.$data.art.muted;
+      },
+      /** 同步播放速度 */
+      syncPlayBackRate() {
+        M4SAudio.$data.audio.playbackRate = M4SAudio.$data.art.playbackRate;
+      }
+    },
+    /**
      * 更新
      * @param audioList
      */
-    update(audioList = []) {
+    update(option) {
+      var _a2;
       this.unbind();
-      let loadSoundUrlInfo = (audioList || []).find((item) => item.isDefault);
-      if (loadSoundUrlInfo == null || utils.isNull(loadSoundUrlInfo.url)) {
-        this.$data.audio.src = "";
-        M4SAudioSetting.reset();
-      } else {
-        let url = loadSoundUrlInfo.url;
-        log.info("加载m4s的音频：" + url);
-        this.$data.audio.src = url;
+      const that = this;
+      if ((_a2 = option.audioList) == null ? void 0 : _a2.length) {
+        let firstAudioInfo = option.audioList[0];
+        const storageKey = `artplayer-m4s-audio-${option.from}`;
+        const storageAudioInfo = this.$data.art.storage.get(
+          storageKey
+        );
+        let currentSelectAudioInfo = {
+          index: 0,
+          html: firstAudioInfo.soundQualityCodeText,
+          /** 播放的地址 */
+          url: firstAudioInfo.url
+        };
+        if (storageAudioInfo) {
+          const findAudioIndex = option.audioList.findIndex(
+            (item) => item.soundQualityCode === storageAudioInfo.soundQualityCode
+          );
+          if (findAudioIndex !== -1) {
+            const findAudio = option.audioList[findAudioIndex];
+            currentSelectAudioInfo.index = findAudioIndex;
+            currentSelectAudioInfo.url = findAudio.url;
+            currentSelectAudioInfo.html = findAudio.soundQualityCodeText;
+          } else {
+            console.warn(
+              TAG$3 + "没有找到上次选的音频代码，使用当前默认第一个音频"
+            );
+          }
+        }
+        let selectorList = option.audioList.map((item, index) => {
+          return {
+            default: index === currentSelectAudioInfo.index,
+            html: item.soundQualityCodeText,
+            url: item.url,
+            soundQualityCode: item.soundQualityCode,
+            soundQualityCodeText: item.soundQualityCodeText
+          };
+        });
+        const settingOption = {
+          name: ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY,
+          width: 200,
+          html: "音频",
+          tooltip: currentSelectAudioInfo.html,
+          icon: (
+            /*html*/
+            `
+				<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="22" height="22">
+					<path d="M123.5 438.5h131.3v310.7H123.5zM769.2 438.5h131.3v310.7H769.2z"></path>
+					<path d="M859.8 398.8h-48.3c-7.9 0-15.4 1.6-22.5 3.9v-32.4c0-125.2-101.9-227.1-227.1-227.1h-99.7c-125.2 0-227.1 101.9-227.1 227.1v32.4c-7.1-2.3-14.6-3.9-22.5-3.9h-48.3c-40.9 0-74.2 33.3-74.2 74.2v243c0 40.9 33.3 74.2 74.2 74.2h48.3c40.9 0 74.2-33.3 74.2-74.2V370.3c0-96.7 78.7-175.4 175.4-175.4h99.7c96.7 0 175.4 78.7 175.4 175.4V716c0 40.9 33.3 74.2 74.2 74.2h48.3c40.9 0 74.2-33.3 74.2-74.2V473c-0.1-40.9-33.3-74.2-74.2-74.2zM235.1 716c0 12.4-10.1 22.5-22.5 22.5h-48.3c-12.4 0-22.5-10.1-22.5-22.5V473c0-12.4 10.1-22.5 22.5-22.5h48.3c12.4 0 22.5 10.1 22.5 22.5v243z m647.2 0c0 12.4-10.1 22.5-22.5 22.5h-48.3c-12.4 0-22.5-10.1-22.5-22.5V473c0-12.4 10.1-22.5 22.5-22.5h48.3c12.4 0 22.5 10.1 22.5 22.5v243z"></path>
+					<path d="M531.3 652.3c-1.7 0-3.3-0.1-5-0.4-10.2-1.7-18.7-8.3-22.7-17.8l-41.1-95.4-37 43.8c-8.1 9.6-19.9 15.1-32.5 15.1h-71.9V546h67.6l56.6-67.1c6.8-8.1 17-12 27.5-10.4 10.4 1.5 19.1 8.2 23.3 17.9l41.6 96.7 21.9-24c8-8.8 19.5-13.9 31.4-13.9h102.4v51.7H595l-41.6 45.7c-5.6 6.2-13.7 9.7-22.1 9.7z"></path>
+				</svg>
+				`
+          ),
+          selector: selectorList,
+          onSelect: function(selector) {
+            let itemInfo = selector;
+            console.log(TAG$3 + "切换音频", itemInfo);
+            that.handler.playUrl(itemInfo.url);
+            that.$data.art.storage.set(storageKey, {
+              soundQualityCode: itemInfo.soundQualityCode
+            });
+            return selector.html;
+          }
+        };
+        let findSettingValue = M4SAudio.$data.art.setting.find(
+          ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY
+        );
+        if (findSettingValue) {
+          M4SAudio.$data.art.setting.update(settingOption);
+        } else {
+          M4SAudio.$data.art.setting.add(settingOption);
+        }
+        log.info(["加载m4s的音频：", currentSelectAudioInfo]);
+        M4SAudio.handler.playUrl(currentSelectAudioInfo.url);
         this.bind();
-        M4SAudioSetting.update(audioList);
-      }
-    },
-    /** 同步播放状态 */
-    syncAudioPlayState() {
-      if (this.$data.art.playing) {
-        if (this.$data.audio.paused) {
-          this.$data.audio.play();
-        }
       } else {
-        if (!this.$data.audio.paused) {
-          this.$data.audio.pause();
+        M4SAudio.handler.playUrl("");
+        let oldSetting = M4SAudio.$data.art.setting.option.find(
+          (item) => item.name === ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY
+        );
+        if (oldSetting) {
+          M4SAudio.$data.art.setting.remove(
+            ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY
+          );
         }
       }
-    },
-    /** 音频同步视频进度 */
-    syncAudioProgress() {
-      this.$data.audio.currentTime = this.$data.art.currentTime;
-      this.syncAudioPlayState();
-    },
-    /** 同步音量 */
-    syncAudioVolumn() {
-      this.$data.audio.volume = this.$data.art.volume;
-    },
-    /** 同步静音状态 */
-    syncAudioMuted() {
-      this.$data.audio.muted = this.$data.art.muted;
     },
     /**
      * 绑定事件
@@ -3711,34 +3751,21 @@
       if (typeof option.onRestart === "function") {
         M4SAudio.userEvent.onRestart = option.onRestart;
       }
-      M4SAudio.update(option.audioList);
+      M4SAudio.update({
+        from: option.from,
+        audioList: option.audioList
+      });
       return {
         name: M4SAudio.$key.plugin_KEY,
-        update(audioList = []) {
-          M4SAudio.update(audioList);
-          M4SAudio.syncAudioVolumn();
-          M4SAudio.syncAudioProgress();
+        update(...args) {
+          M4SAudio.update(...args);
+          M4SAudio.handler.syncVolume();
+          M4SAudio.handler.syncTime();
         }
       };
     };
   };
   const ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY = M4SAudio.$key.plugin_KEY;
-  const TopToolBarUtils = {
-    /** 显示元素 */
-    show($el) {
-      if (!$el) {
-        return;
-      }
-      $el.style.display = "";
-    },
-    /** 隐藏元素 */
-    hide($el) {
-      if (!$el) {
-        return;
-      }
-      $el.style.display = "none";
-    }
-  };
   const TopToolBarEvent = {
     events: {
       control: (state) => {
@@ -3792,6 +3819,8 @@
       $topRightFollow: null
     },
     $data: {
+      /** 是否已初始化 */
+      isInit: false,
       __option: {},
       /** 配置 */
       option: {}
@@ -3803,103 +3832,6 @@
      * 初始化
      */
     init(option) {
-      Object.defineProperties(this.$data.option, {
-        /** 是否显示容器 @default false */
-        showWrap: {
-          set(value) {
-            TopToolBar.$data.__option.showWrap = value;
-            if (value) {
-              TopToolBarUtils.show(TopToolBar.$el.$topWrap);
-            } else {
-              TopToolBarUtils.hide(TopToolBar.$el.$topWrap);
-            }
-          },
-          get() {
-            return TopToolBar.$data.__option.showWrap;
-          }
-        },
-        /** 是否显示标题 @default false */
-        showTitle: {
-          set(value) {
-            TopToolBar.$data.__option.showTitle = value;
-            if (value) {
-              TopToolBarUtils.show(TopToolBar.$el.$topTitle);
-            } else {
-              TopToolBarUtils.hide(TopToolBar.$el.$topTitle);
-            }
-          },
-          get() {
-            return TopToolBar.$data.__option.showTitle;
-          }
-        },
-        /** 视频标题文字 */
-        title: {
-          set(value) {
-            TopToolBar.$data.__option.title = value;
-            if (typeof value === "string") {
-              TopToolBar.$el.$topTitleText.innerText = value;
-            }
-          },
-          get() {
-            return TopToolBar.$data.__option.title;
-          }
-        },
-        /** 是否显示在线观看人数 @default false */
-        showOnlineTotal: {
-          set(value) {
-            TopToolBar.$data.__option.showOnlineTotal = value;
-            if (value) {
-              TopToolBarUtils.show(TopToolBar.$el.$topTitleFollow);
-            } else {
-              TopToolBarUtils.hide(TopToolBar.$el.$topTitleFollow);
-            }
-          },
-          get() {
-            return TopToolBar.$data.__option.showOnlineTotal;
-          }
-        },
-        /** 在线人数请求参数信息 */
-        onlineInfoParams: {
-          set(value) {
-            TopToolBar.$data.__option.onlineInfoParams = value;
-            TopToolBar.updateOnlineTotal({
-              showOnlineTotal: this.showOnlineTotal,
-              onlineInfoParams: value
-            });
-          },
-          get() {
-            return TopToolBar.$data.__option.onlineInfoParams;
-          }
-        },
-        /** 是否显示右侧视图 */
-        showRight: {
-          set(value) {
-            TopToolBar.$data.__option.showRight = value;
-            if (value) {
-              TopToolBarUtils.show(TopToolBar.$el.$topRight);
-            } else {
-              TopToolBarUtils.hide(TopToolBar.$el.$topRight);
-            }
-          },
-          get() {
-            return TopToolBar.$data.__option.showRight;
-          }
-        },
-        /** 是否显示右侧下面的follow */
-        showRightFollow: {
-          set(value) {
-            TopToolBar.$data.__option.showRightFollow = value;
-            if (value) {
-              TopToolBarUtils.show(TopToolBar.$el.$topRightFollow);
-            } else {
-              TopToolBarUtils.hide(TopToolBar.$el.$topRightFollow);
-            }
-          },
-          get() {
-            return TopToolBar.$data.__option.showRightFollow;
-          }
-        }
-      });
       this.art.layers.add({
         name: "top-wrap",
         html: (
@@ -3940,7 +3872,6 @@
           TopToolBar.$el.$topRightFollow = $topWrap.querySelector(
             ".art-player-top-right-follow"
           );
-          TopToolBarUtils.hide(TopToolBar.$el.$topTitleFollow);
           TopToolBar.update(option);
           TopToolBarEvent.bind();
         }
@@ -3950,6 +3881,81 @@
      * 更新配置
      */
     update(option) {
+      if (!this.$data.isInit) {
+        this.$data.isInit = true;
+        Object.defineProperties(this.$data.option, {
+          /** 是否显示容器 @default false */
+          showWrap: {
+            set(value) {
+              TopToolBar.$data.__option.showWrap = value;
+            },
+            get() {
+              return TopToolBar.$data.__option.showWrap;
+            }
+          },
+          /** 是否显示标题 @default false */
+          showTitle: {
+            set(value) {
+              TopToolBar.$data.__option.showTitle = value;
+            },
+            get() {
+              return TopToolBar.$data.__option.showTitle;
+            }
+          },
+          /** 视频标题文字 */
+          title: {
+            set(value) {
+              TopToolBar.$data.__option.title = value;
+              if (typeof value === "string") {
+                TopToolBar.$el.$topTitleText.innerText = value;
+              }
+            },
+            get() {
+              return TopToolBar.$data.__option.title;
+            }
+          },
+          /** 是否显示在线观看人数 @default false */
+          showOnlineTotal: {
+            set(value) {
+              TopToolBar.$data.__option.showOnlineTotal = value;
+            },
+            get() {
+              return TopToolBar.$data.__option.showOnlineTotal;
+            }
+          },
+          /** 在线人数请求参数信息 */
+          onlineInfoParams: {
+            set(value) {
+              TopToolBar.$data.__option.onlineInfoParams = value;
+              TopToolBar.updateOnlineTotal({
+                showOnlineTotal: this.showOnlineTotal,
+                onlineInfoParams: value
+              });
+            },
+            get() {
+              return TopToolBar.$data.__option.onlineInfoParams;
+            }
+          },
+          /** 是否显示右侧视图 */
+          showRight: {
+            set(value) {
+              TopToolBar.$data.__option.showRight = value;
+            },
+            get() {
+              return TopToolBar.$data.__option.showRight;
+            }
+          },
+          /** 是否显示右侧下面的follow */
+          showRightFollow: {
+            set(value) {
+              TopToolBar.$data.__option.showRightFollow = value;
+            },
+            get() {
+              return TopToolBar.$data.__option.showRightFollow;
+            }
+          }
+        });
+      }
       Object.assign(this.$data.option, option);
     },
     /**
@@ -4134,61 +4140,6 @@
       }
     }
   };
-  const SubTitleSettingLayer = {
-    config: {
-      NAME: "setting-bilibili-cc-subtitle"
-    },
-    /**
-     * 重置菜单
-     */
-    reset() {
-      let oldSetting = SubTitle.art.setting.option.find(
-        (item) => item.name === this.config.NAME
-      );
-      if (oldSetting) {
-        SubTitle.art.setting.remove(this.config.NAME);
-      }
-    },
-    /**
-     * 获取默认的layer配置项
-     */
-    getDefaultSettingOption: () => {
-      return {
-        name: SubTitleSettingLayer.config.NAME,
-        width: 200,
-        html: "字幕",
-        tooltip: SubTitleSettingLayer.getDefaultSelector().html,
-        icon: (
-          /*html*/
-          `
-			<svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" viewBox="0 0 48 48">
-				<path d="M0 0h48v48H0z" fill="none"/>
-				<path fill="#ffffff" d="M40 8H8c-2.21 0-4 1.79-4 4v24c0 2.21 1.79 4 4 4h32c2.21 0 4-1.79 4-4V12c0-2.21-1.79-4-4-4zM8 24h8v4H8v-4zm20 12H8v-4h20v4zm12 0h-8v-4h8v4zm0-8H20v-4h20v4z"/>
-			</svg>
-			`
-        ),
-        selector: [],
-        onSelect: function(item) {
-          if (typeof item.callback === "function") {
-            item.callback();
-          }
-          return item.html;
-        }
-      };
-    },
-    /**
-     * 获取默认的selector配置项
-     */
-    getDefaultSelector: () => {
-      return {
-        default: true,
-        html: "无",
-        callback() {
-          SubTitleEvent.unbind();
-        }
-      };
-    }
-  };
   const SubTitleData = {
     /**
      * 所有的字幕信息
@@ -4222,13 +4173,82 @@
      * @param option
      */
     async update(option) {
-      var _a2;
+      const that = this;
+      const STORAGE_KEY = `artplayer-bili-cc-subtitle-${option.from}`;
+      const SubTitleSettingLayer = {
+        config: {
+          NAME: "setting-bilibili-cc-subtitle"
+        },
+        /**
+         * 重置菜单
+         */
+        reset() {
+          let oldSetting = SubTitle.art.setting.option.find(
+            (item) => item.name === this.config.NAME
+          );
+          if (oldSetting) {
+            SubTitle.art.setting.remove(this.config.NAME);
+          }
+        },
+        /**
+         * 获取默认的layer配置项
+         */
+        getSettingOption: () => {
+          return {
+            name: SubTitleSettingLayer.config.NAME,
+            width: 200,
+            html: "字幕",
+            tooltip: "",
+            icon: (
+              /*html*/
+              `
+					<svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" viewBox="0 0 48 48">
+						<path d="M0 0h48v48H0z" fill="none"/>
+						<path fill="#ffffff" d="M40 8H8c-2.21 0-4 1.79-4 4v24c0 2.21 1.79 4 4 4h32c2.21 0 4-1.79 4-4V12c0-2.21-1.79-4-4-4zM8 24h8v4H8v-4zm20 12H8v-4h20v4zm12 0h-8v-4h8v4zm0-8H20v-4h20v4z"/>
+					</svg>
+					`
+            ),
+            selector: [],
+            onSelect: function(selector) {
+              let itemInfo = selector;
+              that.art.storage.set(STORAGE_KEY, {
+                lan: itemInfo.subTitle_lan
+              });
+              SubTitleEvent.unbind();
+              SubTitleData.currentSelectIndex = itemInfo.subTitle_index;
+              if (itemInfo.subTitle_index !== -1) {
+                SubTitleEvent.bind();
+              }
+              return selector.html;
+            }
+          };
+        },
+        /**
+         * 获取默认的selector配置项
+         */
+        getDefaultSelector: () => {
+          return {
+            default: true,
+            html: "无",
+            subTitle_lan: "",
+            subTitle_index: 0,
+            subTitle_data: []
+          };
+        }
+      };
       SubTitleData.reset();
       SubTitleSettingLayer.reset();
       SubTitleEvent.reset();
-      const settingOption = SubTitleSettingLayer.getDefaultSettingOption();
+      const settingOption = SubTitleSettingLayer.getSettingOption();
       const defaultSelector = SubTitleSettingLayer.getDefaultSelector();
-      (_a2 = settingOption.selector) == null ? void 0 : _a2.push(defaultSelector);
+      settingOption.selector.push(defaultSelector);
+      settingOption.tooltip = defaultSelector.html;
+      SubTitleData.currentSelectIndex = 0;
+      SubTitleData.allSubTitleInfo.push({
+        name: defaultSelector.html,
+        lan: defaultSelector.subTitle_lan,
+        data: defaultSelector.subTitle_data
+      });
       this.art.setting.add(settingOption);
       this.$el.$subtitle = this.art.template.$subtitle;
       const searchParamsData = {
@@ -4294,22 +4314,21 @@
           );
           const subTitleInfo = subTitleInfoJSON["body"];
           let currentIndex = SubTitleData.allSubTitleInfo.length;
-          SubTitleData.allSubTitleInfo.push({
+          let data2 = {
             name: subTitleUrlInfo.lan_doc,
-            data: subTitleInfo,
-            lan: subTitleUrlInfo.lan
-          });
+            lan: subTitleUrlInfo.lan,
+            data: subTitleInfo
+          };
+          SubTitleData.allSubTitleInfo.push(data2);
           settingOption.selector.push({
             html: subTitleUrlInfo.lan_doc,
-            callback() {
-              SubTitleData.currentSelectIndex = currentIndex;
-              SubTitleEvent.unbind();
-              SubTitleEvent.bind();
-            }
+            subTitle_index: currentIndex,
+            subTitle_lan: subTitleUrlInfo.lan,
+            subTitle_data: subTitleInfo
           });
         }
       }
-      PopsPanel.execMenu("bili-bangumi-generateSimpleChineseSubtitle", () => {
+      if (PopsPanel.getValue("bili-bangumi-generateSimpleChineseSubtitle")) {
         let subTitleHant = SubTitleData.allSubTitleInfo.find((item) => {
           return item.lan === "zh-Hant" || item.name.includes("繁体");
         });
@@ -4331,20 +4350,48 @@
         let subTitleName = "简体（自动生成）";
         SubTitleData.allSubTitleInfo.push({
           name: subTitleName,
-          lan: "zh-CN",
+          lan: "zh-CN-auto",
           data: simpleChineseSubtitleData
         });
-        let currentIndex = SubTitleData.allSubTitleInfo.length - 1;
+        let currentIndex = SubTitleData.allSubTitleInfo.length;
         settingOption.selector.push({
           html: subTitleName,
-          callback() {
-            SubTitleData.currentSelectIndex = currentIndex;
-            SubTitleEvent.unbind();
-            SubTitleEvent.bind();
-          }
+          subTitle_index: currentIndex,
+          subTitle_lan: "zh-CN-auto",
+          subTitle_data: simpleChineseSubtitleData
         });
-      });
+      }
       console.log(TAG$2 + "加载视频CC字幕信息", SubTitleData.allSubTitleInfo);
+      let firstSubTitle = settingOption.selector[0];
+      let currentSelectSubTitle = {
+        index: 0,
+        html: firstSubTitle.html
+      };
+      const storageInfo = this.art.storage.get(
+        STORAGE_KEY
+      );
+      if (storageInfo) {
+        const findInfoIndex = settingOption.selector.findIndex(
+          (item) => item.subTitle_lan === storageInfo.lan
+        );
+        if (findInfoIndex !== -1) {
+          const findInfo = settingOption.selector[findInfoIndex];
+          console.log(TAG$2 + "选择字幕：" + findInfo.html);
+          currentSelectSubTitle.index = findInfoIndex;
+          currentSelectSubTitle.html = findInfo.html;
+        } else {
+          console.warn(TAG$2 + "没有找到上次选的字幕，使用当前默认无");
+        }
+      }
+      for (let index = 0; index < settingOption.selector.length; index++) {
+        settingOption.selector[index].default = index === currentSelectSubTitle.index;
+      }
+      settingOption.tooltip = currentSelectSubTitle.html;
+      SubTitleData.currentSelectIndex = currentSelectSubTitle.index;
+      if (SubTitleData.allSubTitleInfo[SubTitleData.currentSelectIndex].data == null || SubTitleData.allSubTitleInfo[SubTitleData.currentSelectIndex].data.length == 0) ;
+      else {
+        SubTitleEvent.bind();
+      }
       this.art.setting.update(settingOption);
     },
     /**
@@ -4385,7 +4432,11 @@
     return `第${title_id}话 ${title}`;
   };
   const GenerateArtPlayerEpSetting = (option) => {
+    let tooltip = "";
     let selector = option.EP_LIST.map((item, itemIndex) => {
+      if (item.isDefault) {
+        tooltip = item.title;
+      }
       return {
         html: item.title,
         default: item.isDefault,
@@ -4398,6 +4449,7 @@
       icon: `<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2295" width="24" height="24"><path d="M983.745542 312.673133a510.516437 510.516437 0 0 0-109.673817-162.745211A510.516437 510.516437 0 0 0 511.999823 0.000353 510.516437 510.516437 0 0 0 149.927922 149.927922 510.516437 510.516437 0 0 0 0.000353 511.999823a510.516437 510.516437 0 0 0 149.927569 362.071902A510.516437 510.516437 0 0 0 511.999823 1023.999294a510.516437 510.516437 0 0 0 362.071902-149.927569A510.516437 510.516437 0 0 0 1023.999294 511.999823c0-69.137584-13.488538-136.121238-40.253752-199.32669z m-62.852348 372.029408a443.779955 443.779955 0 0 1-95.05535 140.994061 441.908508 441.908508 0 0 1-313.73209 129.941935c-59.886283 0-118.042361-11.758333-172.667407-34.851274a443.779955 443.779955 0 0 1-141.029372-95.090661 441.908508 441.908508 0 0 1-129.941934-313.696779c0-59.886283 11.758333-118.042361 34.851274-172.667407a443.779955 443.779955 0 0 1 95.09066-141.029371 441.908508 441.908508 0 0 1 313.696779-129.941935c59.886283 0 118.077671 11.758333 172.667408 34.851274a443.779955 443.779955 0 0 1 141.064682 95.090661 441.908508 441.908508 0 0 1 129.941934 313.696778c0 59.886283-11.793643 118.042361-34.851274 172.667408zM388.413744 706.206519l317.792775-211.86185-317.792775-211.861849v423.723699z" p-id="2296"></path></svg>`,
       html: "选集",
       selector,
+      tooltip,
       onSelect: function(item) {
         if (typeof item.callback === "function") {
           item.callback(item, item.index);
@@ -4841,14 +4893,16 @@
             }
           }),
           artplayerPluginM4SAudioSupport({
+            from: "video",
             showSetting: true,
-            audioList: option.audioList
+            audioList: option.audioList || []
           }),
           artplayerPluginEpChoose({
             EP_LIST: generateVideoSelectSetting(option),
             automaticBroadcast: true
           }),
           artplayerPluginBilibiliCCSubTitle({
+            from: "video",
             cid: option.cid,
             aid: option.aid,
             bvid: option.bvid
@@ -4904,10 +4958,14 @@
       });
       log.info([`更新画质`, option.quality]);
       let plugin_m4sAudioSupport = art.plugins[ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY];
-      plugin_m4sAudioSupport.update(option.audioList);
+      plugin_m4sAudioSupport.update({
+        from: "video",
+        audioList: option.audioList || []
+      });
       log.info([`更新音频`, option.audioList]);
       let plugin_bilibiliCCSubTitle = art.plugins[ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY];
       const subTitleOption = {
+        from: "video",
         aid: option.aid,
         bvid: option.bvid,
         cid: option.cid
@@ -5166,9 +5224,15 @@
             `
 				@media (orientation: landscape) {
 					.art-video-player .art-layers .art-layer-top-wrap,
+					/* 底部 */
 					.art-video-player .art-bottom{
 						padding-left: ${controlsPadding}px !important;
 						padding-right: ${controlsPadding}px !important;
+					}
+					
+					/* 锁定图标 */
+					.art-video-player  .art-layer-lock{
+						--art-lock-left-size: ${controlsPadding}px;
 					}
 				}
 				`
@@ -5958,6 +6022,283 @@
       return responseResult;
     }
   };
+  const Toast = {
+    $key: {
+      plugin_KEY: "artplayer-plugin-toast"
+    },
+    $flag: {
+      isInitCSS: false
+    },
+    $config: {
+      /** 默认的toast的className */
+      originToast: "art-layer-auto-playback",
+      /** 让Toast隐藏的className */
+      hideClassName: "art-toast-hide-opacity",
+      /** 自定义的toast的class，避免和页面原有的toast冲突 */
+      prefix: "mplayer-toast-gm"
+    },
+    $data: {
+      art: null
+    },
+    $el: {
+      get $originPlayer() {
+        return document.querySelector(
+          ".art-video-player .art-layers"
+        );
+      }
+    },
+    /**
+     * 弹出吐司
+     * @param config
+     */
+    toast(config) {
+      if (typeof config === "string") {
+        config = {
+          text: config
+        };
+      }
+      this.initCSS();
+      let $parent = config.parent ?? this.$el.$originPlayer;
+      if (!$parent) {
+        throw new TypeError("toast parent is null");
+      }
+      this.mutationMPlayerOriginToast($parent);
+      let $toast = domutils.createElement("div", {
+        "data-from": "gm"
+      });
+      domutils.addClass($toast, this.$config.prefix);
+      if (config.showCloseBtn) {
+        let $closeBtn = domutils.createElement("div", {
+          className: this.$config.prefix + "-close",
+          innerHTML: (
+            /*html*/
+            `
+                    <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="22" height="22"><path d="m571.733 512 268.8-268.8c17.067-17.067 17.067-42.667 0-59.733-17.066-17.067-42.666-17.067-59.733 0L512 452.267l-268.8-268.8c-17.067-17.067-42.667-17.067-59.733 0-17.067 17.066-17.067 42.666 0 59.733l268.8 268.8-268.8 268.8c-17.067 17.067-17.067 42.667 0 59.733 8.533 8.534 19.2 12.8 29.866 12.8s21.334-4.266 29.867-12.8l268.8-268.8 268.8 268.8c8.533 8.534 19.2 12.8 29.867 12.8s21.333-4.266 29.866-12.8c17.067-17.066 17.067-42.666 0-59.733L571.733 512z"></path></svg>
+                `
+          )
+        });
+        $toast.appendChild($closeBtn);
+        domutils.on($closeBtn, "click", (event) => {
+          utils.preventEvent(event);
+          this.closeToast($toast);
+        });
+      }
+      let $text = domutils.createElement("span", {
+        className: this.$config.prefix + "-text",
+        innerText: config.text
+      });
+      $toast.appendChild($text);
+      if (typeof config.timeText === "string" && config.timeText.trim() != "") {
+        let $time = domutils.createElement("span", {
+          className: this.$config.prefix + "-time",
+          innerText: config.timeText
+        });
+        $toast.appendChild($time);
+      }
+      if (typeof config.jumpText === "string" && config.jumpText.trim() != "") {
+        let $jump = domutils.createElement("span", {
+          className: this.$config.prefix + "-jump",
+          innerText: config.jumpText
+        });
+        $toast.appendChild($jump);
+        domutils.on($jump, "click", (event) => {
+          if (typeof config.jumpClickCallback === "function") {
+            utils.preventEvent(event);
+            config.jumpClickCallback(event);
+          }
+        });
+      }
+      this.setTransitionendEvent($toast);
+      let timeout = typeof config.timeout === "number" && !isNaN(config.timeout) ? config.timeout : 3500;
+      $parent.appendChild($toast);
+      setTimeout(() => {
+        this.closeToast($toast);
+      }, timeout);
+      return {
+        $toast,
+        close: () => {
+          this.closeToast($toast);
+        }
+      };
+    },
+    /**
+     * 初始化css
+     */
+    initCSS() {
+      if (this.$flag.isInitCSS) {
+        return;
+      }
+      this.$flag.isInitCSS = true;
+      addStyle(
+        /*css*/
+        `
+		.${this.$config.prefix}.mplayer-show {
+			opacity: 1;
+			visibility: visible;
+			z-index: 40;
+		}
+
+		.mplayer-toast, .${this.$config.prefix} {
+			-webkit-transition-property: opacity, bottom;
+			transition-property: opacity, bottom;
+		}
+
+		.${this.$config.prefix} {
+            backdrop-filter: saturate(180%) blur(20px);
+            background-color: #000000bf !important;
+			border-radius: var(--art-border-radius);
+			/* bottom: 48px; */
+            bottom: calc( calc( var(--art-control-height) + var(--art-bottom-gap) ) * 1 + 10px);
+			opacity: 1;
+			overflow: hidden;
+			padding: 10px;
+            gap: 10px;
+            line-height: 1;
+			position: absolute;
+			text-align: center;
+			-webkit-transition: opacity .3s;
+			transition: opacity .3s;
+            left: var(--art-padding);
+            display: flex;
+            align-items: center;
+		}
+        .art-video-player.art-backdrop .${this.$config.prefix}{
+            backdrop-filter: saturate(180%) blur(20px);
+            background-color: #000000bf !important;
+        }
+
+		.${this.$config.prefix}-close {
+            cursor: pointer;
+            justify-content: center;
+            align-items: center;
+            display: flex;
+		}
+		.${this.$config.prefix}-close svg{
+            fill: var(--art-theme);
+            width: 15px;
+            height: 15px;
+        }
+
+		.${this.$config.prefix}-jump {
+            color: var(--art-theme);
+            cursor: pointer;
+		}
+		`
+      );
+      addStyle(
+        /*css*/
+        `
+        .${this.$config.hideClassName}{
+            opacity: 0;
+            visibility: hidden;
+        }
+        `
+      );
+    },
+    /**
+     * 观察mplayer
+     * 用于关闭页面自己的toast
+     * 动态更新自己的toast位置
+     */
+    mutationMPlayerOriginToast($parent) {
+      let $mplayer = this.$el.$originPlayer;
+      if (!$mplayer) {
+        return;
+      }
+      if ($mplayer.hasAttribute("data-mutation")) {
+        return;
+      }
+      log.success(`添加观察器，动态更新toast的位置`);
+      $mplayer.setAttribute("data-mutation", "gm");
+      utils.mutationObserver($mplayer, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        immediate: true,
+        callback: () => {
+          this.updatePageToastBottom();
+        }
+      });
+    },
+    /**
+     * 更新页面上的bottom的位置
+     */
+    updatePageToastBottom() {
+      let pageToastList = Array.from(
+        document.querySelectorAll(`.${this.$config.prefix}`)
+      ).concat(
+        Array.from(
+          document.querySelectorAll(
+            ".".concat(this.$config.originToast)
+          )
+        )
+      );
+      if (pageToastList.length) {
+        pageToastList.length - 1;
+        pageToastList.forEach(($pageToast, index) => {
+          $pageToast.setAttribute("data-transition", "move");
+          $pageToast.style.bottom = `calc( calc( var(--art-control-height) + var(--art-bottom-gap) ) * ${index + 1} + 10px)`;
+        });
+      }
+    },
+    /**
+     * 关闭吐司
+     */
+    closeToast($ele) {
+      $ele.classList.add(this.$config.hideClassName);
+    },
+    /**
+     * 获取事件名称列表
+     * @private
+     */
+    getTransitionendEventNameList() {
+      return [
+        "webkitTransitionEnd",
+        "mozTransitionEnd",
+        "MSTransitionEnd",
+        "otransitionend",
+        "transitionend"
+      ];
+    },
+    /**
+     * 监听过渡结束
+     * @private
+     */
+    setTransitionendEvent($toast) {
+      let that = this;
+      let animationEndNameList = this.getTransitionendEventNameList();
+      domutils.on(
+        $toast,
+        animationEndNameList,
+        function(event) {
+          let dataTransition = $toast.getAttribute("data-transition");
+          if ($toast.classList.contains(that.$config.hideClassName)) {
+            $toast.remove();
+            return;
+          }
+          if (dataTransition === "move") {
+            $toast.removeAttribute("data-transition");
+            return;
+          }
+        },
+        {
+          capture: true
+        }
+      );
+    }
+  };
+  const artplayerPluginToast = (option) => {
+    return (art) => {
+      Toast.$data.art = art;
+      return {
+        name: Toast.$key.plugin_KEY,
+        toast(...args) {
+          Toast.toast(...args);
+        }
+      };
+    };
+  };
   const TAG_FLV = "[flvjs]：";
   const generateBangumiVideoSelectSetting = (option) => {
     return option.epList.map((item) => {
@@ -6090,6 +6431,7 @@
           }
         ],
         plugins: [
+          artplayerPluginToast(),
           artplayPluginQuality({
             from: "bangumi",
             qualityList: option.quality
@@ -6153,7 +6495,8 @@
             }
           }),
           artplayerPluginM4SAudioSupport({
-            audioList: option.audioList,
+            from: "bangumi",
+            audioList: option.audioList || [],
             showSetting: true
           }),
           artplayerPluginEpChoose({
@@ -6161,6 +6504,7 @@
             automaticBroadcast: true
           }),
           artplayerPluginBilibiliCCSubTitle({
+            from: "bangumi",
             cid: option.cid,
             aid: option.aid,
             bvid: option.bvid,
@@ -6238,10 +6582,14 @@
       });
       log.info([`更新画质`, option.quality]);
       let plugin_m4sAudioSupport = art.plugins[ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY];
-      plugin_m4sAudioSupport.update(option.audioList);
+      plugin_m4sAudioSupport.update({
+        from: "bangumi",
+        audioList: option.audioList || []
+      });
       log.info([`更新音频`, option.audioList]);
       let plugin_bilibiliCCSubTitle = art.plugins[ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY];
       const subTitleOption = {
+        from: "bangumi",
         cid: option.cid,
         aid: option.aid,
         ep_id: option.ep_id
@@ -6857,9 +7205,15 @@
             `
 				@media (orientation: landscape) {
 					.art-video-player .art-layers .art-layer-top-wrap,
+					/* 底部 */
 					.art-video-player .art-bottom{
 						padding-left: ${controlsPadding}px !important;
 						padding-right: ${controlsPadding}px !important;
+					}
+					
+					/* 锁定图标 */
+					.art-video-player  .art-layer-lock{
+						--art-lock-left-size: ${controlsPadding}px;
 					}
 				}
 				`

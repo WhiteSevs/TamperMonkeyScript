@@ -3,7 +3,7 @@ import { BilibiliApiConfig } from "@/api/BilibiliApiConfig";
 import { httpx, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import Artplayer from "artplayer";
-import type { Setting } from "artplayer/types/setting";
+import type { Setting, SettingOption } from "artplayer/types/setting";
 import Chinese, { type CustomStr } from "s2t-chinese";
 
 const TAG = "[artplayer-plugin-bilibiliCCSubTitle]：";
@@ -111,79 +111,11 @@ const SubTitleEvent = {
 	},
 };
 
-const SubTitleSettingLayer = {
-	config: {
-		NAME: "setting-bilibili-cc-subtitle",
-	},
-	/**
-	 * 重置菜单
-	 */
-	reset() {
-		// 移除旧的菜单
-		let oldSetting = SubTitle.art.setting.option.find(
-			(item) => item.name === this.config.NAME
-		);
-		if (oldSetting) {
-			SubTitle.art.setting.remove(this.config.NAME);
-		}
-	},
-	/**
-	 * 获取默认的layer配置项
-	 */
-	getDefaultSettingOption: (): Setting => {
-		return {
-			name: SubTitleSettingLayer.config.NAME,
-			width: 200,
-			html: "字幕",
-			tooltip: SubTitleSettingLayer.getDefaultSelector().html,
-			icon: /*html*/ `
-			<svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" viewBox="0 0 48 48">
-				<path d="M0 0h48v48H0z" fill="none"/>
-				<path fill="#ffffff" d="M40 8H8c-2.21 0-4 1.79-4 4v24c0 2.21 1.79 4 4 4h32c2.21 0 4-1.79 4-4V12c0-2.21-1.79-4-4-4zM8 24h8v4H8v-4zm20 12H8v-4h20v4zm12 0h-8v-4h8v4zm0-8H20v-4h20v4z"/>
-			</svg>
-			`,
-			selector: [],
-			onSelect: function (item) {
-				if (typeof item.callback === "function") {
-					item.callback();
-				}
-				return item.html;
-			},
-		};
-	},
-	/**
-	 * 获取默认的selector配置项
-	 */
-	getDefaultSelector: (): Setting => {
-		return {
-			default: true,
-			html: "无",
-			callback() {
-				SubTitleEvent.unbind();
-			},
-		};
-	},
-};
-
 const SubTitleData = {
 	/**
 	 * 所有的字幕信息
 	 */
-	allSubTitleInfo: <
-		{
-			/** 字幕显示的名字 */
-			name: string;
-			/** 语言（代码） */
-			lan: string;
-			/** 字幕的位置信息 */
-			data: {
-				content: string;
-				from: number;
-				location: number;
-				to: number;
-			}[];
-		}[]
-	>[],
+	allSubTitleInfo: <SubTitleData[]>[],
 	/**
 	 * 当前选择的字幕下标
 	 */
@@ -213,19 +145,88 @@ const SubTitle = {
 	 * @param option
 	 */
 	async update(option: ArtPlayerPluginBilibiliSubTitleOption) {
+		const that = this;
+		const STORAGE_KEY = `artplayer-bili-cc-subtitle-${option.from}`;
+		const SubTitleSettingLayer = {
+			config: {
+				NAME: "setting-bilibili-cc-subtitle",
+			},
+			/**
+			 * 重置菜单
+			 */
+			reset() {
+				// 移除旧的菜单
+				let oldSetting = SubTitle.art.setting.option.find(
+					(item) => item.name === this.config.NAME
+				);
+				if (oldSetting) {
+					SubTitle.art.setting.remove(this.config.NAME);
+				}
+			},
+			/**
+			 * 获取默认的layer配置项
+			 */
+			getSettingOption: (): Setting => {
+				return {
+					name: SubTitleSettingLayer.config.NAME,
+					width: 200,
+					html: "字幕",
+					tooltip: "",
+					icon: /*html*/ `
+					<svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" viewBox="0 0 48 48">
+						<path d="M0 0h48v48H0z" fill="none"/>
+						<path fill="#ffffff" d="M40 8H8c-2.21 0-4 1.79-4 4v24c0 2.21 1.79 4 4 4h32c2.21 0 4-1.79 4-4V12c0-2.21-1.79-4-4-4zM8 24h8v4H8v-4zm20 12H8v-4h20v4zm12 0h-8v-4h8v4zm0-8H20v-4h20v4z"/>
+					</svg>
+					`,
+					selector: [],
+					onSelect: function (selector) {
+						let itemInfo = selector as any as SettingOption &
+							SubTitleSettingExtraOption;
+						that.art.storage.set(STORAGE_KEY, {
+							lan: itemInfo.subTitle_lan,
+						} as ArtPlayerPluginBilibiliSubTitleStorageOption);
+						SubTitleEvent.unbind();
+						SubTitleData.currentSelectIndex = itemInfo.subTitle_index;
+						if (itemInfo.subTitle_index !== -1) {
+							SubTitleEvent.bind();
+						}
+						return selector.html;
+					},
+				};
+			},
+			/**
+			 * 获取默认的selector配置项
+			 */
+			getDefaultSelector: (): Setting & SubTitleSettingExtraOption => {
+				return {
+					default: true,
+					html: "无",
+					subTitle_lan: "",
+					subTitle_index: 0,
+					subTitle_data: [],
+				};
+			},
+		};
+
 		SubTitleData.reset();
 		SubTitleSettingLayer.reset();
 		SubTitleEvent.reset();
 		// 设置菜单项
-		const settingOption: Setting =
-			SubTitleSettingLayer.getDefaultSettingOption();
-		/** 默认的配置项 */
-		const defaultSelector: Setting = SubTitleSettingLayer.getDefaultSelector();
-		settingOption.selector?.push(defaultSelector);
+		const settingOption: Setting = SubTitleSettingLayer.getSettingOption();
+		// 配置selector列表
+		const defaultSelector = SubTitleSettingLayer.getDefaultSelector();
+		settingOption!.selector!.push(defaultSelector);
+		// 配置默认数据
+		settingOption.tooltip = defaultSelector.html;
+		SubTitleData.currentSelectIndex = 0;
+		SubTitleData.allSubTitleInfo.push({
+			name: defaultSelector.html as string,
+			lan: defaultSelector.subTitle_lan,
+			data: defaultSelector.subTitle_data,
+		});
 		// 添加菜单
 		this.art.setting.add(settingOption);
-
-		// 获取字幕容器
+		// 初始化字幕容器
 		this.$el.$subtitle = this.art.template.$subtitle;
 
 		const searchParamsData = {
@@ -318,24 +319,23 @@ const SubTitle = {
 					to: number;
 				}[];
 				let currentIndex = SubTitleData.allSubTitleInfo.length;
-				SubTitleData.allSubTitleInfo.push({
+				let data: SubTitleData = {
 					name: subTitleUrlInfo.lan_doc,
-					data: subTitleInfo,
 					lan: subTitleUrlInfo.lan,
-				});
+					data: subTitleInfo,
+				};
+				SubTitleData.allSubTitleInfo.push(data);
 				// 动态添加菜单
 				settingOption!.selector!.push({
 					html: subTitleUrlInfo.lan_doc,
-					callback() {
-						SubTitleData.currentSelectIndex = currentIndex;
-						SubTitleEvent.unbind();
-						SubTitleEvent.bind();
-					},
-				});
+					subTitle_index: currentIndex,
+					subTitle_lan: subTitleUrlInfo.lan,
+					subTitle_data: subTitleInfo,
+				} as Setting & SubTitleSettingExtraOption);
 			}
 		}
 
-		PopsPanel.execMenu("bili-bangumi-generateSimpleChineseSubtitle", () => {
+		if (PopsPanel.getValue("bili-bangumi-generateSimpleChineseSubtitle")) {
 			let subTitleHant = SubTitleData.allSubTitleInfo.find((item) => {
 				return item.lan === "zh-Hant" || item.name.includes("繁体");
 			});
@@ -344,12 +344,7 @@ const SubTitle = {
 			}
 			// 繁体转简体
 			// 生成简中字幕
-			let simpleChineseSubtitleData: {
-				content: string;
-				from: number;
-				location: number;
-				to: number;
-			}[] = [];
+			let simpleChineseSubtitleData: ArtPlayerPluginBilibiliSubTitleInfo[] = [];
 			subTitleHant.data.forEach((item) => {
 				const { content, ...otherData } = item;
 				const translateContent = Chinese.t2s(
@@ -365,21 +360,63 @@ const SubTitle = {
 			let subTitleName = "简体（自动生成）";
 			SubTitleData.allSubTitleInfo.push({
 				name: subTitleName,
-				lan: "zh-CN",
+				lan: "zh-CN-auto",
 				data: simpleChineseSubtitleData,
 			});
-			let currentIndex = SubTitleData.allSubTitleInfo.length - 1;
+			let currentIndex = SubTitleData.allSubTitleInfo.length;
 			// 动态添加菜单
 			settingOption!.selector!.push({
 				html: subTitleName,
-				callback() {
-					SubTitleData.currentSelectIndex = currentIndex;
-					SubTitleEvent.unbind();
-					SubTitleEvent.bind();
-				},
-			});
-		});
+				subTitle_index: currentIndex,
+				subTitle_lan: "zh-CN-auto",
+				subTitle_data: simpleChineseSubtitleData,
+			} as Setting & SubTitleSettingExtraOption);
+		}
 		console.log(TAG + "加载视频CC字幕信息", SubTitleData.allSubTitleInfo);
+
+		// 处理菜单中的默认选项
+		let firstSubTitle = settingOption!.selector![0];
+		let currentSelectSubTitle = {
+			index: 0,
+			html: firstSubTitle.html,
+		};
+		// 获取本地存储的上次选的字幕，默认无
+		const storageInfo = this.art.storage.get(
+			STORAGE_KEY
+		) as ArtPlayerPluginBilibiliSubTitleStorageOption;
+		if (storageInfo) {
+			// 判断当前的字幕中是否同样的字幕，存在的话就使用这个字幕，默认第一个
+			const findInfoIndex = settingOption.selector!.findIndex(
+				(item: any) => item.subTitle_lan === storageInfo.lan
+			);
+			if (findInfoIndex !== -1) {
+				const findInfo = settingOption.selector![findInfoIndex];
+				console.log(TAG + "选择字幕：" + findInfo.html);
+				currentSelectSubTitle.index = findInfoIndex;
+				currentSelectSubTitle.html = findInfo.html;
+			} else {
+				console.warn(TAG + "没有找到上次选的字幕，使用当前默认无");
+			}
+		}
+		// 更新default
+		for (let index = 0; index < settingOption.selector!.length; index++) {
+			settingOption.selector![index].default =
+				index === currentSelectSubTitle.index;
+		}
+		// 更新tooltip
+		settingOption.tooltip = currentSelectSubTitle.html;
+		// 更新data
+		SubTitleData.currentSelectIndex = currentSelectSubTitle.index;
+		if (
+			SubTitleData.allSubTitleInfo[SubTitleData.currentSelectIndex].data ==
+				null ||
+			SubTitleData.allSubTitleInfo[SubTitleData.currentSelectIndex].data
+				.length == 0
+		) {
+			// 空字幕
+		} else {
+			SubTitleEvent.bind();
+		}
 
 		// 更新菜单数据
 		this.art.setting.update(settingOption);
@@ -410,6 +447,38 @@ export type ArtPlayerPluginBilibiliSubTitleOption = {
 	cid: string | number;
 	/** 视频的ep_id，一般是番剧的 */
 	ep_id?: string | number;
+	/** 来源 */
+	from: "video" | "bangumi";
+};
+type ArtPlayerPluginBilibiliSubTitleInfo = {
+	/** 字幕内容 */
+	content: string;
+	/** 开始时间 */
+	from: number;
+	/** 结束时间 */
+	to: number;
+};
+
+type SubTitleData = {
+	/** 字幕显示的名字 */
+	name: string;
+	/** 语言（代码） */
+	lan: string;
+	/** 字幕的位置信息 */
+	data: ArtPlayerPluginBilibiliSubTitleInfo[];
+};
+
+type SubTitleSettingExtraOption = {
+	/** 字幕语言代码 */
+	subTitle_lan: string;
+	/** 字幕数据下标 */
+	subTitle_index: number;
+	/** 字幕数据 */
+	subTitle_data: ArtPlayerPluginBilibiliSubTitleInfo[];
+};
+type ArtPlayerPluginBilibiliSubTitleStorageOption = {
+	/** 字幕语言代码 */
+	lan: string;
 };
 
 export type ArtPlayerPluginBilibiliSubTitleResult = {
