@@ -40,6 +40,13 @@ export const SettingUIHead: PopsPanelContentConfig = {
 									void 0,
 									"给视频添加UP主名，当前视频总时长信息"
 								),
+								UISwitch(
+									"新标签页打开视频",
+									"bili-head-openVideoInNewTab",
+									false,
+									void 0,
+									""
+								),
 							],
 						},
 					],

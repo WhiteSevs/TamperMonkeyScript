@@ -50,7 +50,7 @@ const SettingUIVideo: PopsPanelContentConfig = {
 									"bili-video-forceThisPageToRefreshAndRedirect",
 									false,
 									void 0,
-									"用于解决跳转播放视频时，播放当前视频会有上一个播放视频的声音的情况"
+									"用于处理内存泄露问题"
 								),
 							],
 						},

@@ -123,15 +123,29 @@ const Bilibili = {
 									return;
 								}
 							}
-							if (
-								to.fullPath.startsWith("/video") &&
-								from.fullPath.startsWith("/video") &&
-								PopsPanel.getValue(
-									"bili-video-forceThisPageToRefreshAndRedirect"
-								)
-							) {
-								window.location.href = to.fullPath;
-								return;
+							// 前往视频页面
+							if (to.fullPath.startsWith("/video")) {
+								if (
+									from.fullPath.startsWith("/video") &&
+									PopsPanel.getValue(
+										"bili-video-forceThisPageToRefreshAndRedirect"
+									)
+								) {
+									// 强制本页刷新
+									window.location.href = to.fullPath;
+									return;
+								} else if (
+									BilibiliRouter.isHead() &&
+									PopsPanel.getValue("bili-head-openVideoInNewTab")
+								) {
+									// 当前是首页，新标签页打开
+									window.open(to.fullPath, "_blank");
+									return;
+								} else if (PopsPanel.getValue("bili-video-enableArtPlayer")) {
+									// 启用了ArtPlayer，强制本页刷新，不然会有内存泄露
+									window.location.href = to.fullPath;
+									return;
+								}
 							}
 							next();
 						}

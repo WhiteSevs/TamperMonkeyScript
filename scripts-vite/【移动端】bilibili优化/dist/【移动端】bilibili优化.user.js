@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.5.19
+// @version      2024.10.5.20
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -1432,7 +1432,7 @@
                     "bili-video-forceThisPageToRefreshAndRedirect",
                     false,
                     void 0,
-                    "用于解决跳转播放视频时，播放当前视频会有上一个播放视频的声音的情况"
+                    "用于处理内存泄露问题"
                   )
                 ]
               },
@@ -2167,6 +2167,13 @@
                     true,
                     void 0,
                     "给视频添加UP主名，当前视频总时长信息"
+                  ),
+                  UISwitch(
+                    "新标签页打开视频",
+                    "bili-head-openVideoInNewTab",
+                    false,
+                    void 0,
+                    ""
                   )
                 ]
               }
@@ -9302,11 +9309,19 @@
                     return;
                   }
                 }
-                if (to.fullPath.startsWith("/video") && from.fullPath.startsWith("/video") && PopsPanel.getValue(
-                  "bili-video-forceThisPageToRefreshAndRedirect"
-                )) {
-                  window.location.href = to.fullPath;
-                  return;
+                if (to.fullPath.startsWith("/video")) {
+                  if (from.fullPath.startsWith("/video") && PopsPanel.getValue(
+                    "bili-video-forceThisPageToRefreshAndRedirect"
+                  )) {
+                    window.location.href = to.fullPath;
+                    return;
+                  } else if (BilibiliRouter.isHead() && PopsPanel.getValue("bili-head-openVideoInNewTab")) {
+                    window.open(to.fullPath, "_blank");
+                    return;
+                  } else if (PopsPanel.getValue("bili-video-enableArtPlayer")) {
+                    window.location.href = to.fullPath;
+                    return;
+                  }
                 }
                 next();
               }
