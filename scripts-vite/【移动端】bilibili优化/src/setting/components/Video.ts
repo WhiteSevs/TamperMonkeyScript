@@ -144,6 +144,42 @@ const SettingUIVideo: PopsPanelContentConfig = {
 							],
 						},
 						{
+							text: "插件",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"弹幕",
+									"artplayer-plugin-video-danmaku-enable",
+									false,
+									void 0
+								),
+								UISwitch(
+									"dash Audio Support",
+									"artplayer-plugin-video-m4sAudioSupport-enable",
+									true,
+									void 0
+								),
+								UISwitch(
+									"选集",
+									"artplayer-plugin-video-epChoose-enable",
+									true,
+									void 0
+								),
+								UISwitch(
+									"CC字幕",
+									"artplayer-plugin-video-cc-subtitle-enable",
+									true,
+									void 0
+								),
+								UISwitch(
+									"顶部工具栏",
+									"artplayer-plugin-video-toptoolbar-enable",
+									true,
+									void 0
+								),
+							],
+						},
+						{
 							text: "加速CDN设置",
 							type: "forms",
 							forms: [

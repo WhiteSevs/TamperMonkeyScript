@@ -60,6 +60,42 @@ const SettingUIBangumi: PopsPanelContentConfig = {
 							],
 						},
 						{
+							text: "插件",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"弹幕",
+									"artplayer-plugin-bangumi-danmaku-enable",
+									false,
+									void 0
+								),
+								UISwitch(
+									"dash Audio Support",
+									"artplayer-plugin-bangumi-m4sAudioSupport-enable",
+									true,
+									void 0
+								),
+								UISwitch(
+									"选集",
+									"artplayer-plugin-bangumi-epChoose-enable",
+									true,
+									void 0
+								),
+								UISwitch(
+									"CC字幕",
+									"artplayer-plugin-bangumi-cc-subtitle-enable",
+									true,
+									void 0
+								),
+								UISwitch(
+									"顶部工具栏",
+									"artplayer-plugin-bangumi-toptoolbar-enable",
+									true,
+									void 0
+								),
+							],
+						},
+						{
 							text: "解除区域限制",
 							type: "forms",
 							forms: [

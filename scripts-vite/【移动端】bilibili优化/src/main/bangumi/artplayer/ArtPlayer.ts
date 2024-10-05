@@ -246,6 +246,37 @@ export const BilibiliBangumiArtPlayer = {
 					from: "bangumi",
 					qualityList: option.quality,
 				}),
+			],
+		};
+		if (option.isFlv) {
+			// flv格式
+			// 清空画质信息
+			artOption.quality = [];
+			// 固定播放格式
+			artOption.type = "flv";
+			if (option.flvInfo.length === 0) {
+				BilibiliLogUtils.failToast("视频播放地址为空，无法播放！");
+				return;
+			}
+			artOption.url = option.flvInfo[0].url;
+			// 使用flvjs
+			artOption.customType = {
+				flv: (video, url, art) => {
+					// 这里里面尽量不要用外面的变量
+					// 要用的话也是用this.currentOption
+					if (!flvjs.isSupported()) {
+						art.notice.show = "Unsupported playback format: flv";
+						return;
+					}
+					this.flvPlayer();
+				},
+			};
+		} else {
+			artOption.type = "mp4";
+		}
+
+		if (PopsPanel.getValue("artplayer-plugin-bangumi-danmaku-enable")) {
+			artOption.plugins!.push(
 				artplayerPluginDanmuku({
 					danmuku: option.danmukuUrl,
 					// 以下为非必填
@@ -284,23 +315,43 @@ export const BilibiliBangumiArtPlayer = {
 							}, 1000);
 						});
 					},
-				}),
+				})
+			);
+		}
+
+		if (PopsPanel.getValue("artplayer-plugin-bangumi-m4sAudioSupport-enable")) {
+			artOption.plugins!.push(
 				artplayerPluginM4SAudioSupport({
 					from: "bangumi",
 					audioList: option.audioList || [],
 					showSetting: true,
-				}),
+				})
+			);
+		}
+
+		if (PopsPanel.getValue("artplayer-plugin-bangumi-epChoose-enable")) {
+			artOption.plugins!.push(
 				artplayerPluginEpChoose({
 					EP_LIST: generateBangumiVideoSelectSetting(option),
 					automaticBroadcast: true,
-				}),
+				})
+			);
+		}
+
+		if (PopsPanel.getValue("artplayer-plugin-bangumi-cc-subtitle-enable")) {
+			artOption.plugins!.push(
 				artplayerPluginBilibiliCCSubTitle({
 					from: "bangumi",
 					cid: option.cid,
 					aid: option.aid,
 					bvid: option.bvid!,
 					ep_id: option.ep_id,
-				}),
+				})
+			);
+		}
+
+		if (PopsPanel.getValue("artplayer-plugin-bangumi-toptoolbar-enable")) {
+			artOption.plugins!.push(
 				artplayerPluginTopToolBar({
 					onlineInfoParams: {
 						aid: option.aid,
@@ -311,34 +362,8 @@ export const BilibiliBangumiArtPlayer = {
 					showWrap: true,
 					showTitle: true,
 					showOnlineTotal: true,
-				}),
-			],
-		};
-		if (option.isFlv) {
-			// flv格式
-			// 清空画质信息
-			artOption.quality = [];
-			// 固定播放格式
-			artOption.type = "flv";
-			if (option.flvInfo.length === 0) {
-				BilibiliLogUtils.failToast("视频播放地址为空，无法播放！");
-				return;
-			}
-			artOption.url = option.flvInfo[0].url;
-			// 使用flvjs
-			artOption.customType = {
-				flv: (video, url, art) => {
-					// 这里里面尽量不要用外面的变量
-					// 要用的话也是用this.currentOption
-					if (!flvjs.isSupported()) {
-						art.notice.show = "Unsupported playback format: flv";
-						return;
-					}
-					this.flvPlayer();
-				},
-			};
-		} else {
-			artOption.type = "mp4";
+				})
+			);
 		}
 
 		this.$data.art = new Artplayer(artOption);

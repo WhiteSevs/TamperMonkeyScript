@@ -41,9 +41,6 @@ export const Toast = {
 		/** 自定义的toast的class，避免和页面原有的toast冲突 */
 		prefix: "mplayer-toast-gm",
 	},
-	$data: {
-		art: null as any as Artplayer,
-	},
 	$el: {
 		get $originPlayer() {
 			return document.querySelector<HTMLElement>(
@@ -320,7 +317,6 @@ export const Toast = {
 };
 export const artplayerPluginToast = (option?: ArtPlayerPluginToastOption) => {
 	return (art: Artplayer): ArtPlayerPluginToastResult => {
-		Toast.$data.art = art;
 		return {
 			name: Toast.$key.plugin_KEY,
 			toast(...args) {

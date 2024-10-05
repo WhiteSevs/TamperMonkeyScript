@@ -42,6 +42,7 @@ import {
 	type ArtPlayerPluginQualityOption,
 	type ArtPlayerPluginQualityResult,
 } from "@/player/plugins/artplayer-plugin-quality";
+import { artplayerPluginToast } from "@/player/plugins/artplayer-plugin-toast";
 
 export interface BilibiliVideoArtPlayerOption {
 	/** 容器 */
@@ -169,29 +170,21 @@ export const BilibiliVideoArtPlayer = {
 				},
 			],
 			plugins: [
+				artplayerPluginToast(),
 				artplayPluginQuality({
 					from: "video",
 					qualityList: option.quality,
 				}),
+			],
+		};
+		artOption.type = "mp4";
+
+		if (PopsPanel.getValue("artplayer-plugin-video-danmaku-enable")) {
+			artOption.plugins!.push(
 				artplayerPluginDanmuku({
 					danmuku: option.danmukuUrl,
 					// 以下为非必填
 					speed: localArtDanmakuOption.speed, // 弹幕持续时间，范围在[1 ~ 10]
-					/**
-                     * [{
-                                name: "1/4",
-                                value: [10, "75%"]
-                            }, {
-                                name: "半屏",
-                                value: [10, "50%"]
-                            }, {
-                                name: "3/4",
-                                value: [10, "25%"]
-                            }, {
-                                name: "满屏",
-                                value: [10, 10]
-                            }]
-                     */
 					margin: localArtDanmakuOption["margin"], // 弹幕上下边距，支持像素数字和百分比
 					opacity: localArtDanmakuOption["opacity"], // 弹幕透明度，范围在[0 ~ 1]
 					color: "#FFFFFF", // 默认弹幕颜色，可以被单独弹幕项覆盖
@@ -226,22 +219,42 @@ export const BilibiliVideoArtPlayer = {
 							}, 1000);
 						});
 					},
-				}),
+				})
+			);
+		}
+
+		if (PopsPanel.getValue("artplayer-plugin-video-m4sAudioSupport-enable")) {
+			artOption.plugins!.push(
 				artplayerPluginM4SAudioSupport({
 					from: "video",
 					showSetting: true,
 					audioList: option.audioList || [],
-				}),
+				})
+			);
+		}
+
+		if (PopsPanel.getValue("artplayer-plugin-video-epChoose-enable")) {
+			artOption.plugins!.push(
 				artplayerPluginEpChoose({
 					EP_LIST: generateVideoSelectSetting(option),
 					automaticBroadcast: true,
-				}),
+				})
+			);
+		}
+
+		if (PopsPanel.getValue("artplayer-plugin-video-cc-subtitle-enable")) {
+			artOption.plugins!.push(
 				artplayerPluginBilibiliCCSubTitle({
 					from: "video",
 					cid: option.cid,
 					aid: option.aid,
 					bvid: option.bvid!,
-				}),
+				})
+			);
+		}
+
+		if (PopsPanel.getValue("artplayer-plugin-video-toptoolbar-enable")) {
+			artOption.plugins!.push(
 				artplayerPluginTopToolBar({
 					onlineInfoParams: {
 						aid: option.aid,
@@ -252,10 +265,9 @@ export const BilibiliVideoArtPlayer = {
 					showWrap: true,
 					showTitle: true,
 					showOnlineTotal: true,
-				}),
-			],
-		};
-		artOption.type = "mp4";
+				})
+			);
+		}
 
 		if (PopsPanel.getValue("bili-video-playerAutoPlayVideo")) {
 			// 自动播放视频
@@ -304,67 +316,76 @@ export const BilibiliVideoArtPlayer = {
 		});
 		log.info([`更新画质`, option.quality]);
 
-		// 更新音频
-		let plugin_m4sAudioSupport = art.plugins[
-			ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY
-		] as ArtPlayerPluginM4SAudioSupportResult;
-		plugin_m4sAudioSupport.update({
-			from: "video",
-			audioList: option.audioList || [],
-		});
-		log.info([`更新音频`, option.audioList]);
+		if (PopsPanel.getValue("artplayer-plugin-video-danmaku-enable")) {
+			// 更新弹幕信息
+			art.plugins.artplayerPluginDanmuku.config({
+				danmuku: option.danmukuUrl,
+			});
+			art.plugins.artplayerPluginDanmuku.load();
+			log.info([`更新弹幕姬`, option.danmukuUrl]);
+		}
 
-		// 更新字幕
-		let plugin_bilibiliCCSubTitle = art.plugins[
-			ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY
-		] as ArtPlayerPluginBilibiliSubTitleResult;
-		// 配置字幕数据
-		const subTitleOption = {
-			from: "video",
-			aid: option.aid,
-			bvid: option.bvid,
-			cid: option.cid,
-		} as ArtPlayerPluginBilibiliSubTitleOption;
-		plugin_bilibiliCCSubTitle.update(subTitleOption);
-		log.info([`更新字幕`, subTitleOption]);
+		if (PopsPanel.getValue("artplayer-plugin-video-m4sAudioSupport-enable")) {
+			// 更新音频
+			let plugin_m4sAudioSupport = art.plugins[
+				ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY
+			] as ArtPlayerPluginM4SAudioSupportResult;
+			plugin_m4sAudioSupport.update({
+				from: "video",
+				audioList: option.audioList || [],
+			});
+			log.info([`更新音频`, option.audioList]);
+		}
 
-		// 更新顶部标题
-		// 更新顶部在线观看人数来源
-		let plugin_topToolBar = art.plugins[
-			ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY
-		] as ArtPlayerPluginTopToolBarResult;
-		// 更新数据
-		const topToolBarOption = {
-			showRight: true,
-			showRightFollow: true,
-			showWrap: true,
-			showTitle: true,
-			showOnlineTotal: true,
-			title: option.videoTitle,
-			onlineInfoParams: {
+		if (PopsPanel.getValue("artplayer-plugin-video-epChoose-enable")) {
+			// 更新选集信息
+			let plugin_epChoose = art.plugins[
+				ArtPlayer_PLUGIN_EP_CHOOSE_KEY
+			] as ArtPlayerPluginEpChooseResult;
+			plugin_epChoose.update({
+				EP_LIST: generateVideoSelectSetting(option),
+				automaticBroadcast: true,
+			});
+			log.info([`更新选集信息`, option.epList]);
+		}
+		if (PopsPanel.getValue("artplayer-plugin-video-cc-subtitle-enable")) {
+			// 更新字幕
+			let plugin_bilibiliCCSubTitle = art.plugins[
+				ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY
+			] as ArtPlayerPluginBilibiliSubTitleResult;
+			// 配置字幕数据
+			const subTitleOption = {
+				from: "video",
 				aid: option.aid,
+				bvid: option.bvid,
 				cid: option.cid,
-				bvid: option.bvid!,
-			},
-		} as ArtPlayerPluginTopToolBarOption;
-		plugin_topToolBar.update(topToolBarOption);
-		log.info([`更新顶部标题`, topToolBarOption]);
+			} as ArtPlayerPluginBilibiliSubTitleOption;
+			plugin_bilibiliCCSubTitle.update(subTitleOption);
+			log.info([`更新字幕`, subTitleOption]);
+		}
 
-		// 更新选集信息
-		let plugin_epChoose = art.plugins[
-			ArtPlayer_PLUGIN_EP_CHOOSE_KEY
-		] as ArtPlayerPluginEpChooseResult;
-		plugin_epChoose.update({
-			EP_LIST: generateVideoSelectSetting(option),
-			automaticBroadcast: true,
-		});
-		log.info([`更新选集信息`, option.epList]);
-
-		// 更新弹幕信息
-		art.plugins.artplayerPluginDanmuku.config({
-			danmuku: option.danmukuUrl,
-		});
-		art.plugins.artplayerPluginDanmuku.load();
-		log.info([`更新弹幕姬`, option.danmukuUrl]);
+		if (PopsPanel.getValue("artplayer-plugin-video-toptoolbar-enable")) {
+			// 更新顶部标题
+			// 更新顶部在线观看人数来源
+			let plugin_topToolBar = art.plugins[
+				ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY
+			] as ArtPlayerPluginTopToolBarResult;
+			// 更新数据
+			const topToolBarOption = {
+				showRight: true,
+				showRightFollow: true,
+				showWrap: true,
+				showTitle: true,
+				showOnlineTotal: true,
+				title: option.videoTitle,
+				onlineInfoParams: {
+					aid: option.aid,
+					cid: option.cid,
+					bvid: option.bvid!,
+				},
+			} as ArtPlayerPluginTopToolBarOption;
+			plugin_topToolBar.update(topToolBarOption);
+			log.info([`更新顶部标题`, topToolBarOption]);
+		}
 	},
 };

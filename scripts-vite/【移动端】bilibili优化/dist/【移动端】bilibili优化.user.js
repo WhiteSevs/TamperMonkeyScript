@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.5.18
+// @version      2024.10.5.19
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -1526,6 +1526,37 @@
                 ]
               },
               {
+                text: "插件",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "弹幕",
+                    "artplayer-plugin-video-danmaku-enable",
+                    false
+                  ),
+                  UISwitch(
+                    "dash Audio Support",
+                    "artplayer-plugin-video-m4sAudioSupport-enable",
+                    true
+                  ),
+                  UISwitch(
+                    "选集",
+                    "artplayer-plugin-video-epChoose-enable",
+                    true
+                  ),
+                  UISwitch(
+                    "CC字幕",
+                    "artplayer-plugin-video-cc-subtitle-enable",
+                    true
+                  ),
+                  UISwitch(
+                    "顶部工具栏",
+                    "artplayer-plugin-video-toptoolbar-enable",
+                    true
+                  )
+                ]
+              },
+              {
                 text: "加速CDN设置",
                 type: "forms",
                 forms: [
@@ -1652,6 +1683,37 @@
                       return value + "px";
                     },
                     "可用于全屏横屏适配屏幕"
+                  )
+                ]
+              },
+              {
+                text: "插件",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "弹幕",
+                    "artplayer-plugin-bangumi-danmaku-enable",
+                    false
+                  ),
+                  UISwitch(
+                    "dash Audio Support",
+                    "artplayer-plugin-bangumi-m4sAudioSupport-enable",
+                    true
+                  ),
+                  UISwitch(
+                    "选集",
+                    "artplayer-plugin-bangumi-epChoose-enable",
+                    true
+                  ),
+                  UISwitch(
+                    "CC字幕",
+                    "artplayer-plugin-bangumi-cc-subtitle-enable",
+                    true
+                  ),
+                  UISwitch(
+                    "顶部工具栏",
+                    "artplayer-plugin-bangumi-toptoolbar-enable",
+                    true
                   )
                 ]
               },
@@ -4726,6 +4788,279 @@
       };
     };
   };
+  const Toast = {
+    $key: {
+      plugin_KEY: "artplayer-plugin-toast"
+    },
+    $flag: {
+      isInitCSS: false
+    },
+    $config: {
+      /** 默认的toast的className */
+      originToast: "art-layer-auto-playback",
+      /** 让Toast隐藏的className */
+      hideClassName: "art-toast-hide-opacity",
+      /** 自定义的toast的class，避免和页面原有的toast冲突 */
+      prefix: "mplayer-toast-gm"
+    },
+    $el: {
+      get $originPlayer() {
+        return document.querySelector(
+          ".art-video-player .art-layers"
+        );
+      }
+    },
+    /**
+     * 弹出吐司
+     * @param config
+     */
+    toast(config) {
+      if (typeof config === "string") {
+        config = {
+          text: config
+        };
+      }
+      this.initCSS();
+      let $parent = config.parent ?? this.$el.$originPlayer;
+      if (!$parent) {
+        throw new TypeError("toast parent is null");
+      }
+      this.mutationMPlayerOriginToast($parent);
+      let $toast = domutils.createElement("div", {
+        "data-from": "gm"
+      });
+      domutils.addClass($toast, this.$config.prefix);
+      if (config.showCloseBtn) {
+        let $closeBtn = domutils.createElement("div", {
+          className: this.$config.prefix + "-close",
+          innerHTML: (
+            /*html*/
+            `
+                    <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="22" height="22"><path d="m571.733 512 268.8-268.8c17.067-17.067 17.067-42.667 0-59.733-17.066-17.067-42.666-17.067-59.733 0L512 452.267l-268.8-268.8c-17.067-17.067-42.667-17.067-59.733 0-17.067 17.066-17.067 42.666 0 59.733l268.8 268.8-268.8 268.8c-17.067 17.067-17.067 42.667 0 59.733 8.533 8.534 19.2 12.8 29.866 12.8s21.334-4.266 29.867-12.8l268.8-268.8 268.8 268.8c8.533 8.534 19.2 12.8 29.867 12.8s21.333-4.266 29.866-12.8c17.067-17.066 17.067-42.666 0-59.733L571.733 512z"></path></svg>
+                `
+          )
+        });
+        $toast.appendChild($closeBtn);
+        domutils.on($closeBtn, "click", (event) => {
+          utils.preventEvent(event);
+          this.closeToast($toast);
+        });
+      }
+      let $text = domutils.createElement("span", {
+        className: this.$config.prefix + "-text",
+        innerText: config.text
+      });
+      $toast.appendChild($text);
+      if (typeof config.timeText === "string" && config.timeText.trim() != "") {
+        let $time = domutils.createElement("span", {
+          className: this.$config.prefix + "-time",
+          innerText: config.timeText
+        });
+        $toast.appendChild($time);
+      }
+      if (typeof config.jumpText === "string" && config.jumpText.trim() != "") {
+        let $jump = domutils.createElement("span", {
+          className: this.$config.prefix + "-jump",
+          innerText: config.jumpText
+        });
+        $toast.appendChild($jump);
+        domutils.on($jump, "click", (event) => {
+          if (typeof config.jumpClickCallback === "function") {
+            utils.preventEvent(event);
+            config.jumpClickCallback(event);
+          }
+        });
+      }
+      this.setTransitionendEvent($toast);
+      let timeout = typeof config.timeout === "number" && !isNaN(config.timeout) ? config.timeout : 3500;
+      $parent.appendChild($toast);
+      setTimeout(() => {
+        this.closeToast($toast);
+      }, timeout);
+      return {
+        $toast,
+        close: () => {
+          this.closeToast($toast);
+        }
+      };
+    },
+    /**
+     * 初始化css
+     */
+    initCSS() {
+      if (this.$flag.isInitCSS) {
+        return;
+      }
+      this.$flag.isInitCSS = true;
+      addStyle(
+        /*css*/
+        `
+		.${this.$config.prefix}.mplayer-show {
+			opacity: 1;
+			visibility: visible;
+			z-index: 40;
+		}
+
+		.mplayer-toast, .${this.$config.prefix} {
+			-webkit-transition-property: opacity, bottom;
+			transition-property: opacity, bottom;
+		}
+
+		.${this.$config.prefix} {
+            backdrop-filter: saturate(180%) blur(20px);
+            background-color: #000000bf !important;
+			border-radius: var(--art-border-radius);
+			/* bottom: 48px; */
+            bottom: calc( calc( var(--art-control-height) + var(--art-bottom-gap) ) * 1 + 10px);
+			opacity: 1;
+			overflow: hidden;
+			padding: 10px;
+            gap: 10px;
+            line-height: 1;
+			position: absolute;
+			text-align: center;
+			-webkit-transition: opacity .3s;
+			transition: opacity .3s;
+            left: var(--art-padding);
+            display: flex;
+            align-items: center;
+		}
+        .art-video-player.art-backdrop .${this.$config.prefix}{
+            backdrop-filter: saturate(180%) blur(20px);
+            background-color: #000000bf !important;
+        }
+
+		.${this.$config.prefix}-close {
+            cursor: pointer;
+            justify-content: center;
+            align-items: center;
+            display: flex;
+		}
+		.${this.$config.prefix}-close svg{
+            fill: var(--art-theme);
+            width: 15px;
+            height: 15px;
+        }
+
+		.${this.$config.prefix}-jump {
+            color: var(--art-theme);
+            cursor: pointer;
+		}
+		`
+      );
+      addStyle(
+        /*css*/
+        `
+        .${this.$config.hideClassName}{
+            opacity: 0;
+            visibility: hidden;
+        }
+        `
+      );
+    },
+    /**
+     * 观察mplayer
+     * 用于关闭页面自己的toast
+     * 动态更新自己的toast位置
+     */
+    mutationMPlayerOriginToast($parent) {
+      let $mplayer = this.$el.$originPlayer;
+      if (!$mplayer) {
+        return;
+      }
+      if ($mplayer.hasAttribute("data-mutation")) {
+        return;
+      }
+      log.success(`添加观察器，动态更新toast的位置`);
+      $mplayer.setAttribute("data-mutation", "gm");
+      utils.mutationObserver($mplayer, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        immediate: true,
+        callback: () => {
+          this.updatePageToastBottom();
+        }
+      });
+    },
+    /**
+     * 更新页面上的bottom的位置
+     */
+    updatePageToastBottom() {
+      let pageToastList = Array.from(
+        document.querySelectorAll(`.${this.$config.prefix}`)
+      ).concat(
+        Array.from(
+          document.querySelectorAll(
+            ".".concat(this.$config.originToast)
+          )
+        )
+      );
+      if (pageToastList.length) {
+        pageToastList.length - 1;
+        pageToastList.forEach(($pageToast, index) => {
+          $pageToast.setAttribute("data-transition", "move");
+          $pageToast.style.bottom = `calc( calc( var(--art-control-height) + var(--art-bottom-gap) ) * ${index + 1} + 10px)`;
+        });
+      }
+    },
+    /**
+     * 关闭吐司
+     */
+    closeToast($ele) {
+      $ele.classList.add(this.$config.hideClassName);
+    },
+    /**
+     * 获取事件名称列表
+     * @private
+     */
+    getTransitionendEventNameList() {
+      return [
+        "webkitTransitionEnd",
+        "mozTransitionEnd",
+        "MSTransitionEnd",
+        "otransitionend",
+        "transitionend"
+      ];
+    },
+    /**
+     * 监听过渡结束
+     * @private
+     */
+    setTransitionendEvent($toast) {
+      let that = this;
+      let animationEndNameList = this.getTransitionendEventNameList();
+      domutils.on(
+        $toast,
+        animationEndNameList,
+        function(event) {
+          let dataTransition = $toast.getAttribute("data-transition");
+          if ($toast.classList.contains(that.$config.hideClassName)) {
+            $toast.remove();
+            return;
+          }
+          if (dataTransition === "move") {
+            $toast.removeAttribute("data-transition");
+            return;
+          }
+        },
+        {
+          capture: true
+        }
+      );
+    }
+  };
+  const artplayerPluginToast = (option) => {
+    return (art) => {
+      return {
+        name: Toast.$key.plugin_KEY,
+        toast(...args) {
+          Toast.toast(...args);
+        }
+      };
+    };
+  };
   const generateVideoSelectSetting = (option) => {
     return (option.epList || []).map((epInfo) => {
       return {
@@ -4815,30 +5150,21 @@
           }
         ],
         plugins: [
+          artplayerPluginToast(),
           artplayPluginQuality({
             from: "video",
             qualityList: option.quality
-          }),
+          })
+        ]
+      };
+      artOption.type = "mp4";
+      if (PopsPanel.getValue("artplayer-plugin-video-danmaku-enable")) {
+        artOption.plugins.push(
           artplayerPluginDanmuku({
             danmuku: option.danmukuUrl,
             // 以下为非必填
             speed: localArtDanmakuOption.speed,
             // 弹幕持续时间，范围在[1 ~ 10]
-            /**
-                            * [{
-                                       name: "1/4",
-                                       value: [10, "75%"]
-                                   }, {
-                                       name: "半屏",
-                                       value: [10, "50%"]
-                                   }, {
-                                       name: "3/4",
-                                       value: [10, "25%"]
-                                   }, {
-                                       name: "满屏",
-                                       value: [10, 10]
-                                   }]
-                            */
             margin: localArtDanmakuOption["margin"],
             // 弹幕上下边距，支持像素数字和百分比
             opacity: localArtDanmakuOption["opacity"],
@@ -4891,22 +5217,38 @@
                 }, 1e3);
               });
             }
-          }),
+          })
+        );
+      }
+      if (PopsPanel.getValue("artplayer-plugin-video-m4sAudioSupport-enable")) {
+        artOption.plugins.push(
           artplayerPluginM4SAudioSupport({
             from: "video",
             showSetting: true,
             audioList: option.audioList || []
-          }),
+          })
+        );
+      }
+      if (PopsPanel.getValue("artplayer-plugin-video-epChoose-enable")) {
+        artOption.plugins.push(
           artplayerPluginEpChoose({
             EP_LIST: generateVideoSelectSetting(option),
             automaticBroadcast: true
-          }),
+          })
+        );
+      }
+      if (PopsPanel.getValue("artplayer-plugin-video-cc-subtitle-enable")) {
+        artOption.plugins.push(
           artplayerPluginBilibiliCCSubTitle({
             from: "video",
             cid: option.cid,
             aid: option.aid,
             bvid: option.bvid
-          }),
+          })
+        );
+      }
+      if (PopsPanel.getValue("artplayer-plugin-video-toptoolbar-enable")) {
+        artOption.plugins.push(
           artplayerPluginTopToolBar({
             onlineInfoParams: {
               aid: option.aid,
@@ -4918,9 +5260,8 @@
             showTitle: true,
             showOnlineTotal: true
           })
-        ]
-      };
-      artOption.type = "mp4";
+        );
+      }
       if (PopsPanel.getValue("bili-video-playerAutoPlayVideo")) {
         artOption.muted = true;
         artOption.autoplay = true;
@@ -4957,48 +5298,58 @@
         qualityList: option.quality
       });
       log.info([`更新画质`, option.quality]);
-      let plugin_m4sAudioSupport = art.plugins[ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY];
-      plugin_m4sAudioSupport.update({
-        from: "video",
-        audioList: option.audioList || []
-      });
-      log.info([`更新音频`, option.audioList]);
-      let plugin_bilibiliCCSubTitle = art.plugins[ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY];
-      const subTitleOption = {
-        from: "video",
-        aid: option.aid,
-        bvid: option.bvid,
-        cid: option.cid
-      };
-      plugin_bilibiliCCSubTitle.update(subTitleOption);
-      log.info([`更新字幕`, subTitleOption]);
-      let plugin_topToolBar = art.plugins[ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY];
-      const topToolBarOption = {
-        showRight: true,
-        showRightFollow: true,
-        showWrap: true,
-        showTitle: true,
-        showOnlineTotal: true,
-        title: option.videoTitle,
-        onlineInfoParams: {
+      if (PopsPanel.getValue("artplayer-plugin-video-danmaku-enable")) {
+        art.plugins.artplayerPluginDanmuku.config({
+          danmuku: option.danmukuUrl
+        });
+        art.plugins.artplayerPluginDanmuku.load();
+        log.info([`更新弹幕姬`, option.danmukuUrl]);
+      }
+      if (PopsPanel.getValue("artplayer-plugin-video-m4sAudioSupport-enable")) {
+        let plugin_m4sAudioSupport = art.plugins[ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY];
+        plugin_m4sAudioSupport.update({
+          from: "video",
+          audioList: option.audioList || []
+        });
+        log.info([`更新音频`, option.audioList]);
+      }
+      if (PopsPanel.getValue("artplayer-plugin-video-epChoose-enable")) {
+        let plugin_epChoose = art.plugins[ArtPlayer_PLUGIN_EP_CHOOSE_KEY];
+        plugin_epChoose.update({
+          EP_LIST: generateVideoSelectSetting(option),
+          automaticBroadcast: true
+        });
+        log.info([`更新选集信息`, option.epList]);
+      }
+      if (PopsPanel.getValue("artplayer-plugin-video-cc-subtitle-enable")) {
+        let plugin_bilibiliCCSubTitle = art.plugins[ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY];
+        const subTitleOption = {
+          from: "video",
           aid: option.aid,
-          cid: option.cid,
-          bvid: option.bvid
-        }
-      };
-      plugin_topToolBar.update(topToolBarOption);
-      log.info([`更新顶部标题`, topToolBarOption]);
-      let plugin_epChoose = art.plugins[ArtPlayer_PLUGIN_EP_CHOOSE_KEY];
-      plugin_epChoose.update({
-        EP_LIST: generateVideoSelectSetting(option),
-        automaticBroadcast: true
-      });
-      log.info([`更新选集信息`, option.epList]);
-      art.plugins.artplayerPluginDanmuku.config({
-        danmuku: option.danmukuUrl
-      });
-      art.plugins.artplayerPluginDanmuku.load();
-      log.info([`更新弹幕姬`, option.danmukuUrl]);
+          bvid: option.bvid,
+          cid: option.cid
+        };
+        plugin_bilibiliCCSubTitle.update(subTitleOption);
+        log.info([`更新字幕`, subTitleOption]);
+      }
+      if (PopsPanel.getValue("artplayer-plugin-video-toptoolbar-enable")) {
+        let plugin_topToolBar = art.plugins[ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY];
+        const topToolBarOption = {
+          showRight: true,
+          showRightFollow: true,
+          showWrap: true,
+          showTitle: true,
+          showOnlineTotal: true,
+          title: option.videoTitle,
+          onlineInfoParams: {
+            aid: option.aid,
+            cid: option.cid,
+            bvid: option.bvid
+          }
+        };
+        plugin_topToolBar.update(topToolBarOption);
+        log.info([`更新顶部标题`, topToolBarOption]);
+      }
     }
   };
   function filterArrayWithMaxSize$1(arr) {
@@ -6022,283 +6373,6 @@
       return responseResult;
     }
   };
-  const Toast = {
-    $key: {
-      plugin_KEY: "artplayer-plugin-toast"
-    },
-    $flag: {
-      isInitCSS: false
-    },
-    $config: {
-      /** 默认的toast的className */
-      originToast: "art-layer-auto-playback",
-      /** 让Toast隐藏的className */
-      hideClassName: "art-toast-hide-opacity",
-      /** 自定义的toast的class，避免和页面原有的toast冲突 */
-      prefix: "mplayer-toast-gm"
-    },
-    $data: {
-      art: null
-    },
-    $el: {
-      get $originPlayer() {
-        return document.querySelector(
-          ".art-video-player .art-layers"
-        );
-      }
-    },
-    /**
-     * 弹出吐司
-     * @param config
-     */
-    toast(config) {
-      if (typeof config === "string") {
-        config = {
-          text: config
-        };
-      }
-      this.initCSS();
-      let $parent = config.parent ?? this.$el.$originPlayer;
-      if (!$parent) {
-        throw new TypeError("toast parent is null");
-      }
-      this.mutationMPlayerOriginToast($parent);
-      let $toast = domutils.createElement("div", {
-        "data-from": "gm"
-      });
-      domutils.addClass($toast, this.$config.prefix);
-      if (config.showCloseBtn) {
-        let $closeBtn = domutils.createElement("div", {
-          className: this.$config.prefix + "-close",
-          innerHTML: (
-            /*html*/
-            `
-                    <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="22" height="22"><path d="m571.733 512 268.8-268.8c17.067-17.067 17.067-42.667 0-59.733-17.066-17.067-42.666-17.067-59.733 0L512 452.267l-268.8-268.8c-17.067-17.067-42.667-17.067-59.733 0-17.067 17.066-17.067 42.666 0 59.733l268.8 268.8-268.8 268.8c-17.067 17.067-17.067 42.667 0 59.733 8.533 8.534 19.2 12.8 29.866 12.8s21.334-4.266 29.867-12.8l268.8-268.8 268.8 268.8c8.533 8.534 19.2 12.8 29.867 12.8s21.333-4.266 29.866-12.8c17.067-17.066 17.067-42.666 0-59.733L571.733 512z"></path></svg>
-                `
-          )
-        });
-        $toast.appendChild($closeBtn);
-        domutils.on($closeBtn, "click", (event) => {
-          utils.preventEvent(event);
-          this.closeToast($toast);
-        });
-      }
-      let $text = domutils.createElement("span", {
-        className: this.$config.prefix + "-text",
-        innerText: config.text
-      });
-      $toast.appendChild($text);
-      if (typeof config.timeText === "string" && config.timeText.trim() != "") {
-        let $time = domutils.createElement("span", {
-          className: this.$config.prefix + "-time",
-          innerText: config.timeText
-        });
-        $toast.appendChild($time);
-      }
-      if (typeof config.jumpText === "string" && config.jumpText.trim() != "") {
-        let $jump = domutils.createElement("span", {
-          className: this.$config.prefix + "-jump",
-          innerText: config.jumpText
-        });
-        $toast.appendChild($jump);
-        domutils.on($jump, "click", (event) => {
-          if (typeof config.jumpClickCallback === "function") {
-            utils.preventEvent(event);
-            config.jumpClickCallback(event);
-          }
-        });
-      }
-      this.setTransitionendEvent($toast);
-      let timeout = typeof config.timeout === "number" && !isNaN(config.timeout) ? config.timeout : 3500;
-      $parent.appendChild($toast);
-      setTimeout(() => {
-        this.closeToast($toast);
-      }, timeout);
-      return {
-        $toast,
-        close: () => {
-          this.closeToast($toast);
-        }
-      };
-    },
-    /**
-     * 初始化css
-     */
-    initCSS() {
-      if (this.$flag.isInitCSS) {
-        return;
-      }
-      this.$flag.isInitCSS = true;
-      addStyle(
-        /*css*/
-        `
-		.${this.$config.prefix}.mplayer-show {
-			opacity: 1;
-			visibility: visible;
-			z-index: 40;
-		}
-
-		.mplayer-toast, .${this.$config.prefix} {
-			-webkit-transition-property: opacity, bottom;
-			transition-property: opacity, bottom;
-		}
-
-		.${this.$config.prefix} {
-            backdrop-filter: saturate(180%) blur(20px);
-            background-color: #000000bf !important;
-			border-radius: var(--art-border-radius);
-			/* bottom: 48px; */
-            bottom: calc( calc( var(--art-control-height) + var(--art-bottom-gap) ) * 1 + 10px);
-			opacity: 1;
-			overflow: hidden;
-			padding: 10px;
-            gap: 10px;
-            line-height: 1;
-			position: absolute;
-			text-align: center;
-			-webkit-transition: opacity .3s;
-			transition: opacity .3s;
-            left: var(--art-padding);
-            display: flex;
-            align-items: center;
-		}
-        .art-video-player.art-backdrop .${this.$config.prefix}{
-            backdrop-filter: saturate(180%) blur(20px);
-            background-color: #000000bf !important;
-        }
-
-		.${this.$config.prefix}-close {
-            cursor: pointer;
-            justify-content: center;
-            align-items: center;
-            display: flex;
-		}
-		.${this.$config.prefix}-close svg{
-            fill: var(--art-theme);
-            width: 15px;
-            height: 15px;
-        }
-
-		.${this.$config.prefix}-jump {
-            color: var(--art-theme);
-            cursor: pointer;
-		}
-		`
-      );
-      addStyle(
-        /*css*/
-        `
-        .${this.$config.hideClassName}{
-            opacity: 0;
-            visibility: hidden;
-        }
-        `
-      );
-    },
-    /**
-     * 观察mplayer
-     * 用于关闭页面自己的toast
-     * 动态更新自己的toast位置
-     */
-    mutationMPlayerOriginToast($parent) {
-      let $mplayer = this.$el.$originPlayer;
-      if (!$mplayer) {
-        return;
-      }
-      if ($mplayer.hasAttribute("data-mutation")) {
-        return;
-      }
-      log.success(`添加观察器，动态更新toast的位置`);
-      $mplayer.setAttribute("data-mutation", "gm");
-      utils.mutationObserver($mplayer, {
-        config: {
-          subtree: true,
-          childList: true
-        },
-        immediate: true,
-        callback: () => {
-          this.updatePageToastBottom();
-        }
-      });
-    },
-    /**
-     * 更新页面上的bottom的位置
-     */
-    updatePageToastBottom() {
-      let pageToastList = Array.from(
-        document.querySelectorAll(`.${this.$config.prefix}`)
-      ).concat(
-        Array.from(
-          document.querySelectorAll(
-            ".".concat(this.$config.originToast)
-          )
-        )
-      );
-      if (pageToastList.length) {
-        pageToastList.length - 1;
-        pageToastList.forEach(($pageToast, index) => {
-          $pageToast.setAttribute("data-transition", "move");
-          $pageToast.style.bottom = `calc( calc( var(--art-control-height) + var(--art-bottom-gap) ) * ${index + 1} + 10px)`;
-        });
-      }
-    },
-    /**
-     * 关闭吐司
-     */
-    closeToast($ele) {
-      $ele.classList.add(this.$config.hideClassName);
-    },
-    /**
-     * 获取事件名称列表
-     * @private
-     */
-    getTransitionendEventNameList() {
-      return [
-        "webkitTransitionEnd",
-        "mozTransitionEnd",
-        "MSTransitionEnd",
-        "otransitionend",
-        "transitionend"
-      ];
-    },
-    /**
-     * 监听过渡结束
-     * @private
-     */
-    setTransitionendEvent($toast) {
-      let that = this;
-      let animationEndNameList = this.getTransitionendEventNameList();
-      domutils.on(
-        $toast,
-        animationEndNameList,
-        function(event) {
-          let dataTransition = $toast.getAttribute("data-transition");
-          if ($toast.classList.contains(that.$config.hideClassName)) {
-            $toast.remove();
-            return;
-          }
-          if (dataTransition === "move") {
-            $toast.removeAttribute("data-transition");
-            return;
-          }
-        },
-        {
-          capture: true
-        }
-      );
-    }
-  };
-  const artplayerPluginToast = (option) => {
-    return (art) => {
-      Toast.$data.art = art;
-      return {
-        name: Toast.$key.plugin_KEY,
-        toast(...args) {
-          Toast.toast(...args);
-        }
-      };
-    };
-  };
   const TAG_FLV = "[flvjs]：";
   const generateBangumiVideoSelectSetting = (option) => {
     return option.epList.map((item) => {
@@ -6435,7 +6509,31 @@
           artplayPluginQuality({
             from: "bangumi",
             qualityList: option.quality
-          }),
+          })
+        ]
+      };
+      if (option.isFlv) {
+        artOption.quality = [];
+        artOption.type = "flv";
+        if (option.flvInfo.length === 0) {
+          BilibiliLogUtils.failToast("视频播放地址为空，无法播放！");
+          return;
+        }
+        artOption.url = option.flvInfo[0].url;
+        artOption.customType = {
+          flv: (video, url, art) => {
+            if (!flvjs.isSupported()) {
+              art.notice.show = "Unsupported playback format: flv";
+              return;
+            }
+            this.flvPlayer();
+          }
+        };
+      } else {
+        artOption.type = "mp4";
+      }
+      if (PopsPanel.getValue("artplayer-plugin-bangumi-danmaku-enable")) {
+        artOption.plugins.push(
           artplayerPluginDanmuku({
             danmuku: option.danmukuUrl,
             // 以下为非必填
@@ -6493,23 +6591,39 @@
                 }, 1e3);
               });
             }
-          }),
+          })
+        );
+      }
+      if (PopsPanel.getValue("artplayer-plugin-bangumi-m4sAudioSupport-enable")) {
+        artOption.plugins.push(
           artplayerPluginM4SAudioSupport({
             from: "bangumi",
             audioList: option.audioList || [],
             showSetting: true
-          }),
+          })
+        );
+      }
+      if (PopsPanel.getValue("artplayer-plugin-bangumi-epChoose-enable")) {
+        artOption.plugins.push(
           artplayerPluginEpChoose({
             EP_LIST: generateBangumiVideoSelectSetting(option),
             automaticBroadcast: true
-          }),
+          })
+        );
+      }
+      if (PopsPanel.getValue("artplayer-plugin-bangumi-cc-subtitle-enable")) {
+        artOption.plugins.push(
           artplayerPluginBilibiliCCSubTitle({
             from: "bangumi",
             cid: option.cid,
             aid: option.aid,
             bvid: option.bvid,
             ep_id: option.ep_id
-          }),
+          })
+        );
+      }
+      if (PopsPanel.getValue("artplayer-plugin-bangumi-toptoolbar-enable")) {
+        artOption.plugins.push(
           artplayerPluginTopToolBar({
             onlineInfoParams: {
               aid: option.aid,
@@ -6521,27 +6635,7 @@
             showTitle: true,
             showOnlineTotal: true
           })
-        ]
-      };
-      if (option.isFlv) {
-        artOption.quality = [];
-        artOption.type = "flv";
-        if (option.flvInfo.length === 0) {
-          BilibiliLogUtils.failToast("视频播放地址为空，无法播放！");
-          return;
-        }
-        artOption.url = option.flvInfo[0].url;
-        artOption.customType = {
-          flv: (video, url, art) => {
-            if (!flvjs.isSupported()) {
-              art.notice.show = "Unsupported playback format: flv";
-              return;
-            }
-            this.flvPlayer();
-          }
-        };
-      } else {
-        artOption.type = "mp4";
+        );
       }
       this.$data.art = new Artplayer(artOption);
       artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
