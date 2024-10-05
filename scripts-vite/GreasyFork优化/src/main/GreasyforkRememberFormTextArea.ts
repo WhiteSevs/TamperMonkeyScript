@@ -147,7 +147,7 @@ export const GreasyforkRememberFormTextArea = {
 				$form,
 				"submit",
 				(event) => {
-					log.info(`提交表单，清空数据库`);
+					log.info(`表单提交，刷新页面后清理内容：` + window.location.href);
 					GM_setValue(
 						"delyClear_rememberReplyContent_url",
 						window.location.href
@@ -173,14 +173,18 @@ export const GreasyforkRememberFormTextArea = {
 			);
 			if (!result.success) {
 				// 数据库是空的
-				GM_deleteValue(KEY);
+				log.info("表单记录：数据库是空的");
 				return;
 			}
 			let localDataIndex = result.data.findIndex((item) => {
-				return this.checkUrlIsSame(window.location.href, item.url);
+				return this.checkUrlIsSame(
+					delyClear_rememberReplyContent_url,
+					item.url
+				);
 			});
 			if (localDataIndex == -1) {
 				// 不存在该数据
+				log.info("表单记录：已不存在该数据");
 				GM_deleteValue(KEY);
 				return;
 			}
@@ -188,9 +192,10 @@ export const GreasyforkRememberFormTextArea = {
 			let saveResult = await this.$data.db.save(this.$key.DB_KEY, result.data);
 			if (saveResult.success) {
 				// 成功清除
+				log.success("表单记录：成功清除");
 				GM_deleteValue(KEY);
 			} else {
-				log.error(["清除失败", result]);
+				log.error(["表单记录：清除失败", result]);
 			}
 		}
 	},

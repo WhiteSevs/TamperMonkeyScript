@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.9.18
+// @version            2024.10.5
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -11,12 +11,12 @@
 // @supportURL         https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match              *://greasyfork.org/*
 // @require            https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require            https://fastly.jsdelivr.net/npm/qmsg@1.2.2/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.9/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.2/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@1.6.4/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/qmsg@1.2.3/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.3/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.3/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.2/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
-// @require            https://fastly.jsdelivr.net/npm/i18next@23.12.2/i18next.min.js
+// @require            https://fastly.jsdelivr.net/npm/i18next@23.15.1/i18next.min.js
 // @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
 // @connect            greasyfork.org
 // @grant              GM_addStyle
@@ -1806,7 +1806,7 @@
           $form,
           "submit",
           (event) => {
-            log.info(`提交表单，清空数据库`);
+            log.info(`表单提交，刷新页面后清理内容：` + window.location.href);
             _GM_setValue(
               "delyClear_rememberReplyContent_url",
               window.location.href
@@ -1829,22 +1829,27 @@
           this.$key.DB_KEY
         );
         if (!result.success) {
-          _GM_deleteValue(KEY2);
+          log.info("表单记录：数据库是空的");
           return;
         }
         let localDataIndex = result.data.findIndex((item) => {
-          return this.checkUrlIsSame(window.location.href, item.url);
+          return this.checkUrlIsSame(
+            delyClear_rememberReplyContent_url,
+            item.url
+          );
         });
         if (localDataIndex == -1) {
+          log.info("表单记录：已不存在该数据");
           _GM_deleteValue(KEY2);
           return;
         }
         result.data.splice(localDataIndex, 1);
         let saveResult = await this.$data.db.save(this.$key.DB_KEY, result.data);
         if (saveResult.success) {
+          log.success("表单记录：成功清除");
           _GM_deleteValue(KEY2);
         } else {
-          log.error(["清除失败", result]);
+          log.error(["表单记录：清除失败", result]);
         }
       }
     },
