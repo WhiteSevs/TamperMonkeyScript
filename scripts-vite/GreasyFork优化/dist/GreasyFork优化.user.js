@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.10.5
+// @version            2024.10.6
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -1682,14 +1682,26 @@
           return $commentText;
         },
         callback() {
-          let $replyBtn = document.querySelector(
-            'input[name="commit"][type="submit"]'
-          );
-          if (!$replyBtn) {
-            log.error("页面不存在【发表回复】按钮");
-            return;
+          if (document.activeElement) {
+            let $parentForm = document.activeElement.closest("form");
+            if (!$parentForm) {
+              log.error("当前activeElement不在表单内，无法触发快捷键");
+              return;
+            }
+            let $replyBtnList = $parentForm.querySelectorAll(
+              'input[name="commit"][type="submit"]'
+            );
+            if (!$replyBtnList.length) {
+              log.error("表单内不存在【发表回复】按钮");
+              return;
+            }
+            if ($replyBtnList.length > 1) {
+              log.warn("表单内存在多个【发表回复】按钮，只触发第一个");
+            }
+            $replyBtnList[0].click();
+          } else {
+            log.error("当前页面没有激活元素，无法触发快捷键");
           }
-          $replyBtn.click();
         }
       }
     },
