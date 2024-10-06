@@ -369,7 +369,7 @@ export const BilibiliBangumiArtPlayer = {
 		this.$data.art = new Artplayer(artOption);
 
 		if (PopsPanel.getValue("artplayer-plugin-bangumi-danmaku-enable")) {
-			artPlayerDanmakuOptionHelper.removeResizeEvent(this.$data.art);
+			artPlayerDanmakuOptionHelper.repairBrowserNoResponse(this.$data.art);
 		}
 		artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
 		return this.$data.art;

@@ -3386,19 +3386,9 @@
      * 移除Danmaku的resize事件，该事件可能会导致浏览器卡死
      */
     removeResizeEvent(art) {
-      for (let index = 0; index < art.e.resize.length; index++) {
-        const event = art.e.resize[index];
-        if (typeof (event == null ? void 0 : event.fn) !== "function") {
-          continue;
-        }
-        if (utils.isNativeFunc(event.fn) || event.fn.toString().match("filter|stop|emit|transform")) {
-          console.log(
-            "移除Danmaku的resize事件，该事件可能会导致浏览器卡死",
-            event.fn.toString()
-          );
-          art.off("resize", event.fn);
-        }
-      }
+      console.warn(
+        "目前尚未知晓导致浏览器卡死的原因是哪里的问题，但是启用该弹幕插件100%复现，复现操作：点击播放，然后重复全屏和退出全屏，拖动进度到弹幕量最多的时间点，过一会卡死"
+      );
     }
     onConfigChange(art) {
       art.on(
