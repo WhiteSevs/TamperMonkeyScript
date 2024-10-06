@@ -358,12 +358,12 @@ const SubTitle = {
 			});
 
 			let subTitleName = "简体（自动生成）";
+			let currentIndex = SubTitleData.allSubTitleInfo.length;
 			SubTitleData.allSubTitleInfo.push({
 				name: subTitleName,
 				lan: "zh-CN-auto",
 				data: simpleChineseSubtitleData,
 			});
-			let currentIndex = SubTitleData.allSubTitleInfo.length;
 			// 动态添加菜单
 			settingOption!.selector!.push({
 				html: subTitleName,

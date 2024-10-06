@@ -3,6 +3,7 @@ import type Artplayer from "artplayer";
 import type { ComponentOption, Selector } from "artplayer/types/component";
 import type { Events } from "artplayer/types/events";
 import type { Setting } from "artplayer/types/setting";
+import { unsafeWindow } from "ViteGM";
 
 const TAG = "[artplayer-plugin-bilibiliCCSubTitle]：";
 
@@ -43,16 +44,37 @@ export type ArtPlayerPluginM4SAudioSupportResult = {
 };
 
 const M4SAudioUtils = {
+	$flag: {
+		/**
+		 * 是否正在循环中
+		 */
+		isIntervaling: false,
+	},
 	/**
 	 * 自定义某个函数执行N次和间隔时间
 	 * @param fn 需要执行的函数
-	 * @param [count=5] 重复执行的次数
-	 * @param [delayTime=500] 重复执行的间隔时间
+	 * @param count 重复执行的次数
+	 * @param delayTime 重复执行的间隔时间
+	 * @param isForce 是否强制循环
 	 */
-	intervalHandler(fn: Function, count: number = 5, delayTime: number = 500) {
-		let maxCount = 0;
-		let intervalId = setInterval(() => {
-			if (maxCount > count) {
+	intervalHandler(
+		fn: Function,
+		count: number = 5,
+		delayTime: number = 555,
+		isForce: boolean = false
+	) {
+		if (isForce) {
+			this.$flag.isIntervaling = false;
+		}
+		if (this.$flag.isIntervaling) {
+			return;
+		}
+		this.$flag.isIntervaling = true;
+		/** 已经循环的次数 */
+		let intervalCount = 1;
+		let callback = () => {
+			if (intervalCount > count) {
+				this.$flag.isIntervaling = false;
 				clearInterval(intervalId);
 				return;
 			}
@@ -63,8 +85,10 @@ const M4SAudioUtils = {
 					console.error(TAG, error);
 				}
 			}
-			maxCount++;
-		}, delayTime);
+			intervalCount++;
+		};
+		callback();
+		let intervalId = setInterval(callback, delayTime);
 	},
 };
 
@@ -113,11 +137,15 @@ const M4SAudio = {
 		 * @param currentTime 当前的进度
 		 */
 		seek: (currentTime) => {
-			// console.log(TAG + "seek", currentTime);
-			M4SAudioUtils.intervalHandler(() => {
-				M4SAudio.handler.syncTime();
-				M4SAudio.handler.syncPlayState();
-			});
+			M4SAudioUtils.intervalHandler(
+				() => {
+					M4SAudio.handler.syncTime();
+					M4SAudio.handler.syncPlayState();
+				},
+				2,
+				800,
+				true
+			);
 		},
 		/**
 		 * 视频暂停
@@ -271,13 +299,24 @@ const M4SAudio = {
 			M4SAudio.handler.syncMuted();
 			M4SAudio.handler.syncPlayBackRate();
 			M4SAudio.handler.syncVolume();
-			M4SAudio.handler.syncTime();
+			M4SAudioUtils.intervalHandler(() => {
+				M4SAudio.handler.syncTime();
+			});
 		},
-		// canplaythrough: (event) => {
-		// 	console.log(
-		// 		TAG + "浏览器估计该音频可以在不停止内容缓冲的情况下播放媒体直到结束"
-		// 	);
-		// },
+		canplaythrough: (event) => {
+			console.log(
+				TAG + "浏览器估计该音频可以在不停止内容缓冲的情况下播放媒体直到结束"
+			);
+			// 同步进度
+			M4SAudioUtils.intervalHandler(
+				() => {
+					M4SAudio.handler.syncTime();
+				},
+				void 0,
+				void 0,
+				true
+			);
+		},
 		error: (event) => {
 			console.error(TAG + `Audio加载失败`, event);
 			if (utils.isNull(M4SAudio.$data.reconnectInfo.url)) {
@@ -324,29 +363,29 @@ const M4SAudio = {
 				return;
 			}
 			M4SAudio.$data.audio.src = url;
+			M4SAudio.unbindAudio();
+			M4SAudio.bindAudio();
 		},
 		/** 播放音频 */
 		play() {
-			M4SAudio.$data.audio.play();
+			if (M4SAudio.$data.audio.paused) {
+				M4SAudio.$data.audio.play();
+			}
 		},
 		/** 暂停音频 */
 		pause() {
-			M4SAudio.$data.audio.pause();
+			if (!M4SAudio.$data.audio.paused) {
+				M4SAudio.$data.audio.pause();
+			}
 		},
 		/** 同步播放状态 */
 		syncPlayState() {
 			if (M4SAudio.$data.art.playing) {
 				// 视频播放中
-				if (M4SAudio.$data.audio.paused) {
-					// 音频当前暂停，播放
-					this.play();
-				}
+				this.play();
 			} else {
 				// 视频暂停
-				if (!M4SAudio.$data.audio.paused) {
-					// 音频当前播放中，暂停
-					this.pause();
-				}
+				this.pause();
 			}
 		},
 		/** 音频同步视频进度 */
@@ -364,11 +403,21 @@ const M4SAudio = {
 		},
 		/** 同步静音状态 */
 		syncMuted() {
-			M4SAudio.$data.audio.muted = M4SAudio.$data.art.muted;
+			let artMuted = M4SAudio.$data.art.muted;
+			let audioMuted = M4SAudio.$data.audio.muted;
+			if (artMuted !== audioMuted) {
+				// 同步
+				M4SAudio.$data.audio.muted = artMuted;
+			}
 		},
 		/** 同步播放速度 */
 		syncPlayBackRate() {
-			M4SAudio.$data.audio.playbackRate = M4SAudio.$data.art.playbackRate;
+			let artPlayBackRate = M4SAudio.$data.art.playbackRate;
+			let audioPlayBackRate = M4SAudio.$data.audio.playbackRate;
+			if (artPlayBackRate !== audioPlayBackRate) {
+				// 同步
+				M4SAudio.$data.audio.playbackRate = artPlayBackRate;
+			}
 		},
 	},
 	/**
@@ -377,6 +426,7 @@ const M4SAudio = {
 	 */
 	update(option: ArtPlayerPluginM4SAudioSupportUpdateOption) {
 		this.unbind();
+		this.unbindAudio();
 		const that = this;
 
 		if (option.audioList?.length) {
@@ -471,6 +521,7 @@ const M4SAudio = {
 			log.info(["加载m4s的音频：", currentSelectAudioInfo]);
 			M4SAudio.handler.playUrl(currentSelectAudioInfo.url);
 			this.bind();
+			this.bindAudio();
 		} else {
 			// 没有audio
 			M4SAudio.handler.playUrl("");
@@ -495,10 +546,15 @@ const M4SAudio = {
 				(this.events as any)[eventName as keyof Events]
 			);
 		});
+	},
+	bindAudio() {
 		Object.keys(this.audioEvents).forEach((eventName) => {
 			this.$data.audio.addEventListener(
 				eventName,
-				(this.audioEvents as any)[eventName]
+				(this.audioEvents as any)[eventName],
+				{
+					once: true,
+				}
 			);
 		});
 	},
@@ -512,6 +568,8 @@ const M4SAudio = {
 				(this.events as any)[eventName as keyof Events]
 			);
 		});
+	},
+	unbindAudio() {
 		Object.keys(this.audioEvents).forEach((eventName) => {
 			this.$data.audio.removeEventListener(
 				eventName,
@@ -520,7 +578,9 @@ const M4SAudio = {
 		});
 	},
 };
-
+if (import.meta.hot) {
+	Reflect.set(unsafeWindow, "M4SAudio", M4SAudio);
+}
 /**
  * m4s视频的音频支持
  */
