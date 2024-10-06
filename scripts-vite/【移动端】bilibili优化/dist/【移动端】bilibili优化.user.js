@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.5.21
+// @version      2024.10.6
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -3382,6 +3382,24 @@
     getLocalArtDanmakuOption() {
       return this.$data.localArtDanmakuOption;
     }
+    /**
+     * 移除Danmaku的resize事件，该事件可能会导致浏览器卡死
+     */
+    removeResizeEvent(art) {
+      for (let index = 0; index < art.e.resize.length; index++) {
+        const event = art.e.resize[index];
+        if (typeof (event == null ? void 0 : event.fn) !== "function") {
+          continue;
+        }
+        if (utils.isNativeFunc(event.fn) || event.fn.toString().match("filter|stop|emit|transform")) {
+          console.log(
+            "移除Danmaku的resize事件，该事件可能会导致浏览器卡死",
+            event.fn.toString()
+          );
+          art.off("resize", event.fn);
+        }
+      }
+    }
     onConfigChange(art) {
       art.on(
         // @ts-ignore
@@ -4647,7 +4665,9 @@
     return {
       /** 容器 */
       container: "",
+      /** 视频地址 */
       url: "",
+      /** 视频封面 */
       // poster: 'https://artplayer.org/assets/sample/poster.jpg',
       /** 默认音量 */
       volume: 1,
@@ -4659,8 +4679,6 @@
       autoplay: false,
       /** 是否显示视频画中画按钮 */
       pip: false,
-      /** 播放器是否自动调整大小(可能有bug) */
-      autoSize: false,
       /** 播放器是否自动运行迷你模式 */
       autoMini: false,
       /** 是否显示截图按钮 */
@@ -4673,8 +4691,10 @@
       flip: true,
       /** 是否显示视频播放速率按钮 */
       playbackRate: true,
+      /** 播放器是否自动调整大小(可能有bug) */
+      autoSize: false,
       /** 是否显示视频宽高比按钮 */
-      aspectRatio: true,
+      aspectRatio: false,
       /** 是否显示视频窗口全屏按钮 */
       fullscreen: true,
       /** 是否显示视频网页全屏按钮 */
@@ -5274,6 +5294,9 @@
         artOption.autoplay = true;
       }
       this.$data.art = new Artplayer(artOption);
+      if (PopsPanel.getValue("artplayer-plugin-video-danmaku-enable")) {
+        artPlayerDanmakuOptionHelper.removeResizeEvent(this.$data.art);
+      }
       artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
       return this.$data.art;
     },
@@ -6645,6 +6668,9 @@
         );
       }
       this.$data.art = new Artplayer(artOption);
+      if (PopsPanel.getValue("artplayer-plugin-bangumi-danmaku-enable")) {
+        artPlayerDanmakuOptionHelper.removeResizeEvent(this.$data.art);
+      }
       artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
       return this.$data.art;
     },

@@ -5,7 +5,9 @@ export const ArtPlayerCommonOption = (): Option => {
 	return {
 		/** 容器 */
 		container: "",
+		/** 视频地址 */
 		url: "",
+		/** 视频封面 */
 		// poster: 'https://artplayer.org/assets/sample/poster.jpg',
 		/** 默认音量 */
 		volume: 1,
@@ -17,8 +19,6 @@ export const ArtPlayerCommonOption = (): Option => {
 		autoplay: false,
 		/** 是否显示视频画中画按钮 */
 		pip: false,
-		/** 播放器是否自动调整大小(可能有bug) */
-		autoSize: false,
 		/** 播放器是否自动运行迷你模式 */
 		autoMini: false,
 		/** 是否显示截图按钮 */
@@ -31,8 +31,10 @@ export const ArtPlayerCommonOption = (): Option => {
 		flip: true,
 		/** 是否显示视频播放速率按钮 */
 		playbackRate: true,
+		/** 播放器是否自动调整大小(可能有bug) */
+		autoSize: false,
 		/** 是否显示视频宽高比按钮 */
-		aspectRatio: true,
+		aspectRatio: false,
 		/** 是否显示视频窗口全屏按钮 */
 		fullscreen: true,
 		/** 是否显示视频网页全屏按钮 */

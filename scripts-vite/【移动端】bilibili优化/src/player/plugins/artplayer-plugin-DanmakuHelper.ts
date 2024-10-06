@@ -35,6 +35,27 @@ export class ArtPlayerDanmakuOptionHelper {
 	getLocalArtDanmakuOption() {
 		return this.$data.localArtDanmakuOption;
 	}
+	/**
+	 * 移除Danmaku的resize事件，该事件可能会导致浏览器卡死
+	 */
+	removeResizeEvent(art: Artplayer) {
+		for (let index = 0; index < art.e.resize.length; index++) {
+			const event = art.e.resize[index];
+			if (typeof event?.fn !== "function") {
+				continue;
+			}
+			if (
+				utils.isNativeFunc(event.fn) ||
+				event.fn.toString().match("filter|stop|emit|transform")
+			) {
+				console.log(
+					"移除Danmaku的resize事件，该事件可能会导致浏览器卡死",
+					event.fn.toString()
+				);
+				art.off("resize", event.fn);
+			}
+		}
+	}
 	onConfigChange(art: Artplayer) {
 		art.on(
 			// @ts-ignore
