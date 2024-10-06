@@ -662,7 +662,6 @@ export const NetDiskWorker = {
 			set: function (value) {
 				dispatchMonitorDOMChange = value;
 				if (value) {
-					log.info(`主动触发识别器`);
 					let addedNodes = document.querySelectorAll<HTMLElement>(
 						"html"
 					) as any as NodeList;
