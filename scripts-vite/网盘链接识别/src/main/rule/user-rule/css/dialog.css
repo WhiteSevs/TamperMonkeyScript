@@ -20,7 +20,7 @@
 	display: inline-block;
 	resize: vertical;
 	padding: 5px 15px;
-	line-height: 1.5;
+	line-height: normal;
 	box-sizing: border-box;
 	border: 1px solid #dcdfe6;
 	transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);

@@ -11984,7 +11984,7 @@
                 .custom-rule-select-regexp{
                     width: 100%;
                     height: 32px;
-                    line-height: 32px;
+                    line-height: normal;
                     border: 1px solid rgb(184, 184, 184, var(--pops-bd-opacity));
                     border-radius: 5px;
                     text-align: center;
@@ -12015,7 +12015,7 @@
                     display: inline-block;
                     resize: vertical;
                     padding: 5px;
-                    line-height: 1.5;
+                    line-height: normal;
                     box-sizing: border-box;
                     border: 1px solid rgb(220, 223, 230);
                     appearance: none;
@@ -12181,7 +12181,7 @@
       domUtils.on(that.$el.$button, "click", void 0, debugRunClickEvent);
     }
   };
-  const dialogCSS = '.pops[type-value="confirm"] .pops-confirm-content {\r\n	overflow: hidden;\r\n}\r\n/* textarea美化 */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"]\r\n	.pops-confirm-content\r\n	textarea {\r\n	width: 100%;\r\n	height: 100%;\r\n	border: none;\r\n	outline: none;\r\n	padding: 0;\r\n	margin: 0;\r\n	-webkit-appearance: none;\r\n	-moz-appearance: none;\r\n	appearance: none;\r\n	background-image: none;\r\n	background-color: transparent;\r\n\r\n	display: inline-block;\r\n	resize: vertical;\r\n	padding: 5px 15px;\r\n	line-height: 1.5;\r\n	box-sizing: border-box;\r\n	border: 1px solid #dcdfe6;\r\n	transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n	appearance: none;\r\n	resize: none;\r\n}\r\n/* 获得焦点 */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"]\r\n	.pops-confirm-content\r\n	textarea:focus {\r\n	outline: none;\r\n	border-color: #3677f0;\r\n}\r\n/* 提示文字 */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"]\r\n	.pops-confirm-content\r\n	textarea::placeholder {\r\n	color: #c0c4cc;\r\n}\r\n/* 鼠标hover */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"]\r\n	.pops-confirm-content\r\n	textarea:hover {\r\n	border-color: #c0c4cc;\r\n}\r\n';
+  const dialogCSS = '.pops[type-value="confirm"] .pops-confirm-content {\r\n	overflow: hidden;\r\n}\r\n/* textarea美化 */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"]\r\n	.pops-confirm-content\r\n	textarea {\r\n	width: 100%;\r\n	height: 100%;\r\n	border: none;\r\n	outline: none;\r\n	padding: 0;\r\n	margin: 0;\r\n	-webkit-appearance: none;\r\n	-moz-appearance: none;\r\n	appearance: none;\r\n	background-image: none;\r\n	background-color: transparent;\r\n\r\n	display: inline-block;\r\n	resize: vertical;\r\n	padding: 5px 15px;\r\n	line-height: normal;\r\n	box-sizing: border-box;\r\n	border: 1px solid #dcdfe6;\r\n	transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n	appearance: none;\r\n	resize: none;\r\n}\r\n/* 获得焦点 */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"]\r\n	.pops-confirm-content\r\n	textarea:focus {\r\n	outline: none;\r\n	border-color: #3677f0;\r\n}\r\n/* 提示文字 */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"]\r\n	.pops-confirm-content\r\n	textarea::placeholder {\r\n	color: #c0c4cc;\r\n}\r\n/* 鼠标hover */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"]\r\n	.pops-confirm-content\r\n	textarea:hover {\r\n	border-color: #c0c4cc;\r\n}\r\n';
   const NetDiskUserRuleUI = {
     /**
      * 添加/编辑规则
@@ -12936,7 +12936,7 @@
       }
     );
   };
-  const indexCSS$2 = '.pops[type-value="confirm"] .pops-confirm-content {\r\n	overflow: hidden;\r\n}\r\n.netdisk-match-paste-text {\r\n	--textarea-bd-color: #dcdfe6;\r\n	display: inline-block;\r\n	resize: vertical;\r\n	padding: 5px 15px;\r\n	line-height: 1.5;\r\n	box-sizing: border-box;\r\n	color: #606266;\r\n	border: 1px solid var(--textarea-bd-color);\r\n	border-radius: 4px;\r\n	transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n	outline: none;\r\n	margin: 0;\r\n	-webkit-appearance: none;\r\n	-moz-appearance: none;\r\n	appearance: none;\r\n	background: none;\r\n	width: 100%;\r\n	height: 100%;\r\n	appearance: none;\r\n	resize: none;\r\n}\r\n.netdisk-match-paste-text:hover {\r\n	--textarea-bd-color: #c0c4cc;\r\n}\r\n.netdisk-match-paste-text:focus {\r\n	--textarea-bd-color: #3677f0;\r\n}\r\n';
+  const indexCSS$2 = '.pops[type-value="confirm"] .pops-confirm-content {\r\n	overflow: hidden;\r\n}\r\n.netdisk-match-paste-text {\r\n	--textarea-bd-color: #dcdfe6;\r\n	display: inline-block;\r\n	resize: vertical;\r\n	padding: 5px 15px;\r\n	line-height: normal;\r\n	box-sizing: border-box;\r\n	color: #606266;\r\n	border: 1px solid var(--textarea-bd-color);\r\n	border-radius: 4px;\r\n	transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n	outline: none;\r\n	margin: 0;\r\n	-webkit-appearance: none;\r\n	-moz-appearance: none;\r\n	appearance: none;\r\n	background: none;\r\n	width: 100%;\r\n	height: 100%;\r\n	appearance: none;\r\n	resize: none;\r\n}\r\n.netdisk-match-paste-text:hover {\r\n	--textarea-bd-color: #c0c4cc;\r\n}\r\n.netdisk-match-paste-text:focus {\r\n	--textarea-bd-color: #3677f0;\r\n}\r\n';
   const NetDiskMatchPasteText = {
     show() {
       let popsConfirm = NetDiskPops.confirm(
@@ -12997,7 +12997,7 @@
       }
     }
   };
-  const indexCSS$1 = '.whitesevPopNetDiskHistoryMatch .pops-confirm-content ul {\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content li {\r\n	display: flex;\r\n	flex-direction: column;\r\n	justify-content: center;\r\n	border-radius: 10px;\r\n	box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%),\r\n		0 1.3px 2.5px rgb(0 0 0 / 10%), 0 2.2px 4.5px rgb(0 0 0 / 12%),\r\n		0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);\r\n	margin: 20px 10px;\r\n	padding: 10px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search {\r\n	height: 11%;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-table {\r\n	height: calc(85% - 40px);\r\n	overflow: auto;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-page {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	margin-top: 10px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-search\r\n	input {\r\n	border: none;\r\n	border-bottom: 1px solid #000000;\r\n	padding: 0px 5px;\r\n	line-height: 28px;\r\n	width: -moz-available;\r\n	width: -webkit-fill-available;\r\n	width: fill-available;\r\n	margin: 5px 5px 0px 5px;\r\n	background: none;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-search\r\n	input:focus-visible {\r\n	outline: none;\r\n	border-bottom: 1px solid #0009ff;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link {\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link a {\r\n	color: #ff4848;\r\n	font-size: 0.8em;\r\n	border: none;\r\n	word-break: break-word;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-link\r\n	a[isvisited="true"] {\r\n	color: #8b8888;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon {\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-icon\r\n	.netdisk-icon-img {\r\n	width: 28px;\r\n	height: 28px;\r\n	min-width: 28px;\r\n	min-height: 28px;\r\n	font-size: 0.8em;\r\n	border-radius: 10px;\r\n	box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%),\r\n		0 1.3px 2.5px rgb(0 0 0 / 10%), 0 2.2px 4.5px rgb(0 0 0 / 12%),\r\n		0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url {\r\n	color: #000;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url {\r\n	color: #000;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-functions\r\n	button.btn-delete {\r\n	background: #263cf3;\r\n	color: #fff;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-functions\r\n	button.btn-delete:active {\r\n	background: #6e7be8;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time,\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-update-time,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url-title,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions {\r\n	display: flex;\r\n	margin: 5px 0px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time p,\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-update-time\r\n	p,\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-url-title\r\n	p,\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-functions\r\n	p {\r\n	min-width: 80px;\r\n	max-width: 80px;\r\n	align-self: center;\r\n}\r\n';
+  const indexCSS$1 = '.whitesevPopNetDiskHistoryMatch .pops-confirm-content ul {\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content li {\r\n	display: flex;\r\n	flex-direction: column;\r\n	justify-content: center;\r\n	border-radius: 10px;\r\n	box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%),\r\n		0 1.3px 2.5px rgb(0 0 0 / 10%), 0 2.2px 4.5px rgb(0 0 0 / 12%),\r\n		0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);\r\n	margin: 20px 10px;\r\n	padding: 10px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search {\r\n	height: 11%;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-table {\r\n	height: calc(85% - 40px);\r\n	overflow: auto;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-page {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	margin-top: 10px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-search\r\n	input {\r\n	border: none;\r\n	border-bottom: 1px solid #000000;\r\n	padding: 0px 5px;\r\n	line-height: normal;\r\n	width: -moz-available;\r\n	width: -webkit-fill-available;\r\n	width: fill-available;\r\n	margin: 5px 5px 0px 5px;\r\n	background: none;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-search\r\n	input:focus-visible {\r\n	outline: none;\r\n	border-bottom: 1px solid #0009ff;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link {\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link a {\r\n	color: #ff4848;\r\n	font-size: 0.8em;\r\n	border: none;\r\n	word-break: break-word;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-link\r\n	a[isvisited="true"] {\r\n	color: #8b8888;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon {\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-icon\r\n	.netdisk-icon-img {\r\n	width: 28px;\r\n	height: 28px;\r\n	min-width: 28px;\r\n	min-height: 28px;\r\n	font-size: 0.8em;\r\n	border-radius: 10px;\r\n	box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%),\r\n		0 1.3px 2.5px rgb(0 0 0 / 10%), 0 2.2px 4.5px rgb(0 0 0 / 12%),\r\n		0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url {\r\n	color: #000;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url {\r\n	color: #000;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-functions\r\n	button.btn-delete {\r\n	background: #263cf3;\r\n	color: #fff;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-functions\r\n	button.btn-delete:active {\r\n	background: #6e7be8;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time,\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-update-time,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url-title,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions {\r\n	display: flex;\r\n	margin: 5px 0px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time p,\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-update-time\r\n	p,\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-url-title\r\n	p,\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-functions\r\n	p {\r\n	min-width: 80px;\r\n	max-width: 80px;\r\n	align-self: center;\r\n}\r\n';
   const NetDiskHistoryMatchView = {
     /**
      * 本地存储的keyName
@@ -14085,7 +14085,7 @@
       return details;
     }
   };
-  const indexCSS = "/* 容器 */\r\n.website-rule-container {\r\n}\r\n/* 每一条规则 */\r\n.website-rule-item {\r\n	display: flex;\r\n	align-items: center;\r\n	line-height: 1;\r\n	font-size: 16px;\r\n	padding: 4px 4px;\r\n	gap: 6px;\r\n}\r\n/* 规则名 */\r\n.website-rule-item .website-rule-name {\r\n	flex: 1;\r\n	white-space: nowrap;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n}\r\n/* 操作按钮 */\r\n.website-rule-item .website-controls {\r\n	display: flex;\r\n	align-items: center;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n	white-space: nowrap;\r\n	gap: 8px;\r\n	padding: 0px 4px;\r\n}\r\n/* 编辑和删除按钮 */\r\n.website-rule-item .website-rule-edit,\r\n.website-rule-item .website-rule-delete {\r\n	width: 16px;\r\n	height: 16px;\r\n	cursor: pointer;\r\n}\r\n/* 启用按钮 */\r\n.website-rule-item .website-rule-enable {\r\n}\r\n/* 编辑按钮 */\r\n.website-rule-item .website-rule-edit {\r\n}\r\n/* 删除按钮 */\r\n.website-rule-item .website-rule-delete {\r\n}\r\n";
+  const indexCSS = "/* 容器 */\r\n.website-rule-container {\r\n}\r\n/* 每一条规则 */\r\n.website-rule-item {\r\n	display: flex;\r\n	align-items: center;\r\n	line-height: normal;\r\n	font-size: 16px;\r\n	padding: 4px 4px;\r\n	gap: 6px;\r\n}\r\n/* 规则名 */\r\n.website-rule-item .website-rule-name {\r\n	flex: 1;\r\n	white-space: nowrap;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n}\r\n/* 操作按钮 */\r\n.website-rule-item .website-controls {\r\n	display: flex;\r\n	align-items: center;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n	white-space: nowrap;\r\n	gap: 8px;\r\n	padding: 0px 4px;\r\n}\r\n/* 编辑和删除按钮 */\r\n.website-rule-item .website-rule-edit,\r\n.website-rule-item .website-rule-delete {\r\n	width: 16px;\r\n	height: 16px;\r\n	cursor: pointer;\r\n}\r\n/* 启用按钮 */\r\n.website-rule-item .website-rule-enable {\r\n}\r\n/* 编辑按钮 */\r\n.website-rule-item .website-rule-edit {\r\n}\r\n/* 删除按钮 */\r\n.website-rule-item .website-rule-delete {\r\n}\r\n";
   const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack) {
     let result = {
       text,
@@ -15943,103 +15943,64 @@
         forms: [
           {
             type: "deepMenu",
-            text: "网盘图标",
+            text: "功能",
             forms: [
               {
                 type: "forms",
                 text: "",
+                className: "netdisk-panel-forms-function",
                 forms: [
-                  UISwitch(
-                    "点击定位分享码",
-                    NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode"].KEY,
-                    NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode"].default,
-                    void 0,
-                    "自动滚动页面至包含分享码的元素"
-                  ),
-                  UISwitch(
-                    "选中分享码",
-                    NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode-with-select"].KEY,
-                    NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode-with-select"].default,
-                    void 0,
-                    "使用光标选中分享码/元素"
-                  ),
-                  UISwitch(
-                    "循环定位",
-                    NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-loop-find-sharecode"].KEY,
-                    NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-loop-find-sharecode"].default,
-                    void 0,
-                    "关闭则是每一个元素只定位一次"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            type: "deepMenu",
-            text: "历史匹配记录",
-            forms: [
-              {
-                type: "forms",
-                text: "",
-                className: "netdisk-panel-history-match",
-                forms: [
-                  UISwitch(
-                    "保存匹配记录",
-                    NetDiskGlobalData.historyMatch.saveMatchNetDisk.KEY,
-                    NetDiskGlobalData.historyMatch.saveMatchNetDisk.default,
-                    void 0,
-                    "将匹配到的链接信息进行本地存储，可点击【油猴菜单-⚙ 历史匹配记录】进行查看"
-                  ),
-                  UISwitch(
-                    "合并相同链接",
-                    NetDiskGlobalData.historyMatch["netdisk-history-match-merge-same-link"].KEY,
-                    NetDiskGlobalData.historyMatch["netdisk-history-match-merge-same-link"].default,
-                    void 0,
-                    "将合并匹配到的相同链接，并更新它最后一次匹配到的更新时间、网址信息"
-                  ),
                   UISelect(
-                    "排序规则",
-                    NetDiskGlobalData.historyMatch["netdisk-history-match-ordering-rule"].KEY,
-                    NetDiskGlobalData.historyMatch["netdisk-history-match-ordering-rule"].default,
+                    "匹配模式",
+                    NetDiskGlobalData.function["netdisk-match-mode"].KEY,
+                    NetDiskGlobalData.function["netdisk-match-mode"].default,
                     [
                       {
-                        value: "按 记录时间 - 升序",
-                        text: "按 记录时间 - 升序"
+                        text: "MutationObserver",
+                        value: "MutationObserver"
                       },
                       {
-                        value: "按 记录时间 - 降序",
-                        text: "按 记录时间 - 降序"
-                      },
-                      {
-                        value: "按 更新时间 - 升序",
-                        text: "按 更新时间 - 升序"
-                      },
-                      {
-                        value: "按 更新时间 - 降序",
-                        text: "按 更新时间 - 降序"
+                        text: "Menu",
+                        value: "Menu"
                       }
-                    ]
+                    ],
+                    void 0,
+                    "MutationObserver是网页加载完毕后自动监听识别链接，Menu是油猴菜单点击进行识别"
                   ),
-                  UIButton(
-                    "修复存储记录",
-                    "如果【匹配记录】弹窗打不开，可能是存储的数据缺失某些字段，可尝试点击此处进行修复",
-                    "修复",
-                    void 0,
-                    void 0,
-                    false,
-                    "primary",
-                    () => {
-                      try {
-                        const { count, repairCount } = NetDiskUI.netDiskHistoryMatch.checkAndRepairLocalData();
-                        if (repairCount === 0) {
-                          Qmsg.info(`不存在需要修复的数据`);
-                        } else {
-                          Qmsg.success(`共计: ${count} 条，修复${repairCount}条`);
-                        }
-                      } catch (error) {
-                        Qmsg.error("修复异常：" + error.toString());
+                  UISelect(
+                    "行为模式",
+                    NetDiskGlobalData.function["netdisk-behavior-mode"].KEY,
+                    NetDiskGlobalData.function["netdisk-behavior-mode"].default,
+                    [
+                      {
+                        text: "悬浮按钮+小窗",
+                        value: "suspension_smallwindow"
+                      },
+                      {
+                        text: "悬浮按钮+大窗",
+                        value: "suspension_window"
+                      },
+                      {
+                        text: "小窗",
+                        value: "smallwindow"
                       }
-                    }
+                    ],
+                    void 0,
+                    "匹配到链接时触发的UI执行"
+                  ),
+                  UISwitch(
+                    "自动输入访问码",
+                    NetDiskGlobalData.function.autoFillAccessCode.KEY,
+                    NetDiskGlobalData.function.autoFillAccessCode.default,
+                    void 0,
+                    "通过主动点击链接跳转时，会自动输入网盘访问码"
+                  ),
+                  UISwitch(
+                    "获取重定向后的直链",
+                    NetDiskGlobalData.function.getTheDirectLinkAfterRedirection.KEY,
+                    NetDiskGlobalData.function.getTheDirectLinkAfterRedirection.default,
+                    void 0,
+                    "对获取的链接再进行一次重定向获取链接"
                   )
                 ]
               }
@@ -16162,64 +16123,103 @@
           },
           {
             type: "deepMenu",
-            text: "功能",
+            text: "网盘图标",
             forms: [
               {
                 type: "forms",
                 text: "",
-                className: "netdisk-panel-forms-function",
                 forms: [
-                  UISelect(
-                    "匹配模式",
-                    NetDiskGlobalData.function["netdisk-match-mode"].KEY,
-                    NetDiskGlobalData.function["netdisk-match-mode"].default,
-                    [
-                      {
-                        text: "MutationObserver",
-                        value: "MutationObserver"
-                      },
-                      {
-                        text: "Menu",
-                        value: "Menu"
-                      }
-                    ],
+                  UISwitch(
+                    "点击定位分享码",
+                    NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode"].KEY,
+                    NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode"].default,
                     void 0,
-                    "MutationObserver是网页加载完毕后自动监听识别链接，Menu是油猴菜单点击进行识别"
-                  ),
-                  UISelect(
-                    "行为模式",
-                    NetDiskGlobalData.function["netdisk-behavior-mode"].KEY,
-                    NetDiskGlobalData.function["netdisk-behavior-mode"].default,
-                    [
-                      {
-                        text: "悬浮按钮+小窗",
-                        value: "suspension_smallwindow"
-                      },
-                      {
-                        text: "悬浮按钮+大窗",
-                        value: "suspension_window"
-                      },
-                      {
-                        text: "小窗",
-                        value: "smallwindow"
-                      }
-                    ],
-                    void 0,
-                    "匹配到链接时触发的UI执行"
+                    "自动滚动页面至包含分享码的元素"
                   ),
                   UISwitch(
-                    "自动输入访问码",
-                    NetDiskGlobalData.function.autoFillAccessCode.KEY,
-                    NetDiskGlobalData.function.autoFillAccessCode.default,
+                    "选中分享码",
+                    NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode-with-select"].KEY,
+                    NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode-with-select"].default,
                     void 0,
-                    "通过主动点击链接跳转时，会自动输入网盘访问码"
+                    "使用光标选中分享码/元素"
                   ),
                   UISwitch(
-                    "获取重定向后的直链",
-                    NetDiskGlobalData.function.getTheDirectLinkAfterRedirection.KEY,
-                    NetDiskGlobalData.function.getTheDirectLinkAfterRedirection.default,
+                    "循环定位",
+                    NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-loop-find-sharecode"].KEY,
+                    NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-loop-find-sharecode"].default,
                     void 0,
-                    "对获取的链接再进行一次重定向获取链接"
+                    "关闭则是每一个元素只定位一次"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            type: "deepMenu",
+            text: "历史匹配记录",
+            forms: [
+              {
+                type: "forms",
+                text: "",
+                className: "netdisk-panel-history-match",
+                forms: [
+                  UISwitch(
+                    "保存匹配记录",
+                    NetDiskGlobalData.historyMatch.saveMatchNetDisk.KEY,
+                    NetDiskGlobalData.historyMatch.saveMatchNetDisk.default,
+                    void 0,
+                    "将匹配到的链接信息进行本地存储，可点击【油猴菜单-⚙ 历史匹配记录】进行查看"
+                  ),
+                  UISwitch(
+                    "合并相同链接",
+                    NetDiskGlobalData.historyMatch["netdisk-history-match-merge-same-link"].KEY,
+                    NetDiskGlobalData.historyMatch["netdisk-history-match-merge-same-link"].default,
+                    void 0,
+                    "将合并匹配到的相同链接，并更新它最后一次匹配到的更新时间、网址信息"
+                  ),
+                  UISelect(
+                    "排序规则",
+                    NetDiskGlobalData.historyMatch["netdisk-history-match-ordering-rule"].KEY,
+                    NetDiskGlobalData.historyMatch["netdisk-history-match-ordering-rule"].default,
+                    [
+                      {
+                        value: "按 记录时间 - 升序",
+                        text: "按 记录时间 - 升序"
+                      },
+                      {
+                        value: "按 记录时间 - 降序",
+                        text: "按 记录时间 - 降序"
+                      },
+                      {
+                        value: "按 更新时间 - 升序",
+                        text: "按 更新时间 - 升序"
+                      },
+                      {
+                        value: "按 更新时间 - 降序",
+                        text: "按 更新时间 - 降序"
+                      }
+                    ]
+                  ),
+                  UIButton(
+                    "修复存储记录",
+                    "如果【匹配记录】弹窗打不开，可能是存储的数据缺失某些字段，可尝试点击此处进行修复",
+                    "修复",
+                    void 0,
+                    void 0,
+                    false,
+                    "primary",
+                    () => {
+                      try {
+                        const { count, repairCount } = NetDiskUI.netDiskHistoryMatch.checkAndRepairLocalData();
+                        if (repairCount === 0) {
+                          Qmsg.info(`不存在需要修复的数据`);
+                        } else {
+                          Qmsg.success(`共计: ${count} 条，修复${repairCount}条`);
+                        }
+                      } catch (error) {
+                        Qmsg.error("修复异常：" + error.toString());
+                      }
+                    }
                   )
                 ]
               }

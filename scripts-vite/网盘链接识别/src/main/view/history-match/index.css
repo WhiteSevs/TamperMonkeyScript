@@ -31,7 +31,7 @@
 	border: none;
 	border-bottom: 1px solid #000000;
 	padding: 0px 5px;
-	line-height: 28px;
+	line-height: normal;
 	width: -moz-available;
 	width: -webkit-fill-available;
 	width: fill-available;

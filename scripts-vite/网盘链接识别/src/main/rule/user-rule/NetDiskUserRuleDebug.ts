@@ -109,7 +109,7 @@ export const NetDiskUserRuleDebug = {
                 .custom-rule-select-regexp{
                     width: 100%;
                     height: 32px;
-                    line-height: 32px;
+                    line-height: normal;
                     border: 1px solid rgb(184, 184, 184, var(--pops-bd-opacity));
                     border-radius: 5px;
                     text-align: center;
@@ -140,7 +140,7 @@ export const NetDiskUserRuleDebug = {
                     display: inline-block;
                     resize: vertical;
                     padding: 5px;
-                    line-height: 1.5;
+                    line-height: normal;
                     box-sizing: border-box;
                     border: 1px solid rgb(220, 223, 230);
                     appearance: none;

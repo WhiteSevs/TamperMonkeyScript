@@ -6,7 +6,7 @@
 	display: inline-block;
 	resize: vertical;
 	padding: 5px 15px;
-	line-height: 1.5;
+	line-height: normal;
 	box-sizing: border-box;
 	color: #606266;
 	border: 1px solid var(--textarea-bd-color);

@@ -432,124 +432,66 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 			forms: [
 				{
 					type: "deepMenu",
-					text: "网盘图标",
+					text: "功能",
 					forms: [
 						{
 							type: "forms",
 							text: "",
+							className: "netdisk-panel-forms-function",
 							forms: [
-								UISwitch(
-									"点击定位分享码",
-									NetDiskGlobalData.smallIconNavgiator[
-										"pops-netdisk-icon-click-event-find-sharecode"
-									].KEY,
-									NetDiskGlobalData.smallIconNavgiator[
-										"pops-netdisk-icon-click-event-find-sharecode"
-									].default,
-									void 0,
-									"自动滚动页面至包含分享码的元素"
-								),
-								UISwitch(
-									"选中分享码",
-									NetDiskGlobalData.smallIconNavgiator[
-										"pops-netdisk-icon-click-event-find-sharecode-with-select"
-									].KEY,
-									NetDiskGlobalData.smallIconNavgiator[
-										"pops-netdisk-icon-click-event-find-sharecode-with-select"
-									].default,
-									void 0,
-									"使用光标选中分享码/元素"
-								),
-								UISwitch(
-									"循环定位",
-									NetDiskGlobalData.smallIconNavgiator[
-										"pops-netdisk-icon-click-event-loop-find-sharecode"
-									].KEY,
-									NetDiskGlobalData.smallIconNavgiator[
-										"pops-netdisk-icon-click-event-loop-find-sharecode"
-									].default,
-									void 0,
-									"关闭则是每一个元素只定位一次"
-								),
-							],
-						},
-					],
-				},
-				{
-					type: "deepMenu",
-					text: "历史匹配记录",
-					forms: [
-						{
-							type: "forms",
-							text: "",
-							className: "netdisk-panel-history-match",
-							forms: [
-								UISwitch(
-									"保存匹配记录",
-									NetDiskGlobalData.historyMatch.saveMatchNetDisk.KEY,
-									NetDiskGlobalData.historyMatch.saveMatchNetDisk.default,
-									void 0,
-									"将匹配到的链接信息进行本地存储，可点击【油猴菜单-⚙ 历史匹配记录】进行查看"
-								),
-								UISwitch(
-									"合并相同链接",
-									NetDiskGlobalData.historyMatch[
-										"netdisk-history-match-merge-same-link"
-									].KEY,
-									NetDiskGlobalData.historyMatch[
-										"netdisk-history-match-merge-same-link"
-									].default,
-									void 0,
-									"将合并匹配到的相同链接，并更新它最后一次匹配到的更新时间、网址信息"
-								),
 								UISelect(
-									"排序规则",
-									NetDiskGlobalData.historyMatch[
-										"netdisk-history-match-ordering-rule"
-									].KEY,
-									NetDiskGlobalData.historyMatch[
-										"netdisk-history-match-ordering-rule"
-									].default,
+									"匹配模式",
+									NetDiskGlobalData.function["netdisk-match-mode"].KEY,
+									NetDiskGlobalData.function["netdisk-match-mode"].default,
 									[
 										{
-											value: "按 记录时间 - 升序",
-											text: "按 记录时间 - 升序",
+											text: "MutationObserver",
+											value: "MutationObserver",
 										},
 										{
-											value: "按 记录时间 - 降序",
-											text: "按 记录时间 - 降序",
+											text: "Menu",
+											value: "Menu",
 										},
-										{
-											value: "按 更新时间 - 升序",
-											text: "按 更新时间 - 升序",
-										},
-										{
-											value: "按 更新时间 - 降序",
-											text: "按 更新时间 - 降序",
-										},
-									]
+									],
+									void 0,
+									"MutationObserver是网页加载完毕后自动监听识别链接，Menu是油猴菜单点击进行识别"
 								),
-								UIButton(
-									"修复存储记录",
-									"如果【匹配记录】弹窗打不开，可能是存储的数据缺失某些字段，可尝试点击此处进行修复",
-									"修复",
+								UISelect(
+									"行为模式",
+									NetDiskGlobalData.function["netdisk-behavior-mode"].KEY,
+									NetDiskGlobalData.function["netdisk-behavior-mode"].default,
+									[
+										{
+											text: "悬浮按钮+小窗",
+											value: "suspension_smallwindow",
+										},
+										{
+											text: "悬浮按钮+大窗",
+											value: "suspension_window",
+										},
+										{
+											text: "小窗",
+											value: "smallwindow",
+										},
+									],
 									void 0,
+									"匹配到链接时触发的UI执行"
+								),
+								UISwitch(
+									"自动输入访问码",
+									NetDiskGlobalData.function.autoFillAccessCode.KEY,
+									NetDiskGlobalData.function.autoFillAccessCode.default,
 									void 0,
-									false,
-									"primary",
-									() => {
-										try {
-											const { count, repairCount } =
-												NetDiskUI.netDiskHistoryMatch.checkAndRepairLocalData();
-											if (repairCount === 0) {
-												Qmsg.info(`不存在需要修复的数据`);
-											} else {
-												Qmsg.success(`共计: ${count} 条，修复${repairCount}条`);
-											}
-										} catch (error: any) {
-											Qmsg.error("修复异常：" + error.toString());
-										}
-									}
+									"通过主动点击链接跳转时，会自动输入网盘访问码"
+								),
+								UISwitch(
+									"获取重定向后的直链",
+									NetDiskGlobalData.function.getTheDirectLinkAfterRedirection
+										.KEY,
+									NetDiskGlobalData.function.getTheDirectLinkAfterRedirection
+										.default,
+									void 0,
+									"对获取的链接再进行一次重定向获取链接"
 								),
 							],
 						},
@@ -675,68 +617,127 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 						},
 					],
 				},
+
 				{
 					type: "deepMenu",
-					text: "功能",
+					text: "网盘图标",
 					forms: [
 						{
 							type: "forms",
 							text: "",
-							className: "netdisk-panel-forms-function",
 							forms: [
-								UISelect(
-									"匹配模式",
-									NetDiskGlobalData.function["netdisk-match-mode"].KEY,
-									NetDiskGlobalData.function["netdisk-match-mode"].default,
-									[
-										{
-											text: "MutationObserver",
-											value: "MutationObserver",
-										},
-										{
-											text: "Menu",
-											value: "Menu",
-										},
-									],
+								UISwitch(
+									"点击定位分享码",
+									NetDiskGlobalData.smallIconNavgiator[
+										"pops-netdisk-icon-click-event-find-sharecode"
+									].KEY,
+									NetDiskGlobalData.smallIconNavgiator[
+										"pops-netdisk-icon-click-event-find-sharecode"
+									].default,
 									void 0,
-									"MutationObserver是网页加载完毕后自动监听识别链接，Menu是油猴菜单点击进行识别"
-								),
-								UISelect(
-									"行为模式",
-									NetDiskGlobalData.function["netdisk-behavior-mode"].KEY,
-									NetDiskGlobalData.function["netdisk-behavior-mode"].default,
-									[
-										{
-											text: "悬浮按钮+小窗",
-											value: "suspension_smallwindow",
-										},
-										{
-											text: "悬浮按钮+大窗",
-											value: "suspension_window",
-										},
-										{
-											text: "小窗",
-											value: "smallwindow",
-										},
-									],
-									void 0,
-									"匹配到链接时触发的UI执行"
+									"自动滚动页面至包含分享码的元素"
 								),
 								UISwitch(
-									"自动输入访问码",
-									NetDiskGlobalData.function.autoFillAccessCode.KEY,
-									NetDiskGlobalData.function.autoFillAccessCode.default,
+									"选中分享码",
+									NetDiskGlobalData.smallIconNavgiator[
+										"pops-netdisk-icon-click-event-find-sharecode-with-select"
+									].KEY,
+									NetDiskGlobalData.smallIconNavgiator[
+										"pops-netdisk-icon-click-event-find-sharecode-with-select"
+									].default,
 									void 0,
-									"通过主动点击链接跳转时，会自动输入网盘访问码"
+									"使用光标选中分享码/元素"
 								),
 								UISwitch(
-									"获取重定向后的直链",
-									NetDiskGlobalData.function.getTheDirectLinkAfterRedirection
-										.KEY,
-									NetDiskGlobalData.function.getTheDirectLinkAfterRedirection
-										.default,
+									"循环定位",
+									NetDiskGlobalData.smallIconNavgiator[
+										"pops-netdisk-icon-click-event-loop-find-sharecode"
+									].KEY,
+									NetDiskGlobalData.smallIconNavgiator[
+										"pops-netdisk-icon-click-event-loop-find-sharecode"
+									].default,
 									void 0,
-									"对获取的链接再进行一次重定向获取链接"
+									"关闭则是每一个元素只定位一次"
+								),
+							],
+						},
+					],
+				},
+				{
+					type: "deepMenu",
+					text: "历史匹配记录",
+					forms: [
+						{
+							type: "forms",
+							text: "",
+							className: "netdisk-panel-history-match",
+							forms: [
+								UISwitch(
+									"保存匹配记录",
+									NetDiskGlobalData.historyMatch.saveMatchNetDisk.KEY,
+									NetDiskGlobalData.historyMatch.saveMatchNetDisk.default,
+									void 0,
+									"将匹配到的链接信息进行本地存储，可点击【油猴菜单-⚙ 历史匹配记录】进行查看"
+								),
+								UISwitch(
+									"合并相同链接",
+									NetDiskGlobalData.historyMatch[
+										"netdisk-history-match-merge-same-link"
+									].KEY,
+									NetDiskGlobalData.historyMatch[
+										"netdisk-history-match-merge-same-link"
+									].default,
+									void 0,
+									"将合并匹配到的相同链接，并更新它最后一次匹配到的更新时间、网址信息"
+								),
+								UISelect(
+									"排序规则",
+									NetDiskGlobalData.historyMatch[
+										"netdisk-history-match-ordering-rule"
+									].KEY,
+									NetDiskGlobalData.historyMatch[
+										"netdisk-history-match-ordering-rule"
+									].default,
+									[
+										{
+											value: "按 记录时间 - 升序",
+											text: "按 记录时间 - 升序",
+										},
+										{
+											value: "按 记录时间 - 降序",
+											text: "按 记录时间 - 降序",
+										},
+										{
+											value: "按 更新时间 - 升序",
+											text: "按 更新时间 - 升序",
+										},
+										{
+											value: "按 更新时间 - 降序",
+											text: "按 更新时间 - 降序",
+										},
+									]
+								),
+								UIButton(
+									"修复存储记录",
+									"如果【匹配记录】弹窗打不开，可能是存储的数据缺失某些字段，可尝试点击此处进行修复",
+									"修复",
+									void 0,
+									void 0,
+									false,
+									"primary",
+									() => {
+										try {
+											const { count, repairCount } =
+												NetDiskUI.netDiskHistoryMatch.checkAndRepairLocalData();
+											if (repairCount === 0) {
+												Qmsg.info(`不存在需要修复的数据`);
+											} else {
+												Qmsg.success(`共计: ${count} 条，修复${repairCount}条`);
+											}
+										} catch (error: any) {
+											Qmsg.error("修复异常：" + error.toString());
+										}
+									}
 								),
 							],
 						},
