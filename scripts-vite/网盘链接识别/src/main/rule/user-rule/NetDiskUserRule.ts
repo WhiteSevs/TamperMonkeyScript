@@ -8,10 +8,7 @@ import { NetDiskParse } from "../../parse/NetDiskParse";
 import { NetDiskRequire } from "./NetDiskRequire";
 import { NetDiskUI } from "../../ui/NetDiskUI";
 import { NetDiskRuleConfig } from "../NetDiskRule";
-import {
-	NetDiskLinkClickModeUtils,
-	type NetDiskRuleSettingConfigurationInterface_linkClickMode,
-} from "@/main/link-click-mode/NetDiskLinkClickMode";
+import { type NetDiskRuleSettingConfigurationInterface_linkClickMode } from "@/main/link-click-mode/NetDiskLinkClickMode";
 import { NetDiskRuleDataKEY } from "@/main/data/NetDiskRuleDataKey";
 import { StorageUtils } from "@/utils/StorageUtils";
 import { NetDiskRuleUtils } from "../NetDiskRuleUtils";

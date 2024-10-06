@@ -52,7 +52,10 @@ export class NetDiskParse_Tianyiyun extends NetDiskParseObject {
 		if ("shareId" in shareInfoData) {
 			this.shareId = shareInfoData["shareId"];
 		} else {
-			this.shareId = await that.getShareId(shareCode, accessCode);
+			let newShareId = await that.getShareId(shareCode, accessCode);
+			if (newShareId) {
+				this.shareId = newShareId;
+			}
 		}
 		if ("shareMode" in shareInfoData) {
 			this.shareMode = shareInfoData["shareMode"];
@@ -207,7 +210,6 @@ export class NetDiskParse_Tianyiyun extends NetDiskParseObject {
 	}
 	/**
 	 * 获取shareId
-	 * @returns {Promise<?number>}
 	 */
 	async getShareId(shareCode: string, accessCode: string) {
 		let getResp = await httpx.get({
@@ -228,7 +230,7 @@ export class NetDiskParse_Tianyiyun extends NetDiskParseObject {
 		log.info(respData);
 		let data = utils.toJSON(respData.responseText);
 		if (data["res_code"] === 0 && "shareId" in data) {
-			return data["shareId"];
+			return data["shareId"] as number;
 		} else {
 			Qmsg.error("获取shareId失败");
 			log.info(data);

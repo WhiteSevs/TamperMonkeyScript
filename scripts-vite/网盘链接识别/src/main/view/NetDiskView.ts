@@ -632,7 +632,7 @@ export const NetDiskView = {
 		accessCode: string,
 		matchText: string
 	) {
-		NetDiskUI.netDiskHistoryMatch.setNetDiskHistoryMatchData(
+		NetDiskUI.netDiskHistoryMatch.changeMatchedData(
 			netDiskName,
 			netDiskIndex,
 			shareCode,
@@ -692,7 +692,7 @@ export const NetDiskView = {
 		accessCode: string,
 		matchText: string
 	) {
-		NetDiskUI.netDiskHistoryMatch.setNetDiskHistoryMatchData(
+		NetDiskUI.netDiskHistoryMatch.changeMatchedData(
 			netDiskName,
 			netDiskIndex,
 			shareCode,

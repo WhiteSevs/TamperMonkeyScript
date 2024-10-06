@@ -19,6 +19,12 @@ export class NetDiskParse_123pan extends NetDiskParseObject {
 		"-4000": "请求超时",
 		104: "文件已失效",
 	};
+	Headers = {
+		"user-agent": "123pan/v2.4.0(Android_7.1.2;Xiaomi)",
+		platform: "android",
+		"app-version": "61",
+		"x-app-version": "2.4.0",
+	};
 	async init(netDiskIndex: number, shareCode: string, accessCode: string) {
 		const that = this;
 		log.info([netDiskIndex, shareCode, accessCode]);
@@ -104,7 +110,6 @@ export class NetDiskParse_123pan extends NetDiskParseObject {
 	}
 	/**
 	 * 校验链接有效性
-	 * @returns {boolean}
 	 */
 	async checkLinkValidity() {
 		const that = this;
@@ -160,24 +165,7 @@ export class NetDiskParse_123pan extends NetDiskParseObject {
 	}
 	/**
 	 * 获取文件
-	 * @param {number} parentFileId
-	 * @returns {Promise<?{
-	 * Category: number,
-	 * ContentType: string,
-	 * CreateAt: number,
-	 * DownloadUrl: string,
-	 * Etag: string,
-	 * FileId: number,
-	 * FileName: string,
-	 * ParentFileId: number,
-	 * PunishFlag: number,
-	 * S3KeyFlag: number,
-	 * Size: number,
-	 * Status: number,
-	 * StorageNode: string,
-	 * Type: 0|1,
-	 * UpdateAt: string,
-	 * }[]>}
+	 * @param parentFileId
 	 */
 	async getFiles(parentFileId = 0) {
 		const that = this;
@@ -198,8 +186,8 @@ export class NetDiskParse_123pan extends NetDiskParseObject {
 			url: url,
 			headers: {
 				Accept: "*/*",
-				"User-Agent": utils.getRandomPCUA(),
 				Referer: `https://www.123pan.com/s/${that.shareCode}`,
+				...that.Headers,
 			},
 		});
 		log.info(getResp);
@@ -209,7 +197,23 @@ export class NetDiskParse_123pan extends NetDiskParseObject {
 		let respData = getResp.data;
 		let json_data = utils.toJSON(respData.responseText);
 		if (json_data["code"] === 0) {
-			let infoList = json_data["data"]["InfoList"];
+			let infoList = json_data["data"]["InfoList"] as {
+				Category: number;
+				ContentType: string;
+				CreateAt: number;
+				DownloadUrl: string;
+				Etag: string;
+				FileId: number;
+				FileName: string;
+				ParentFileId: number;
+				PunishFlag: number;
+				S3KeyFlag: number;
+				Size: number;
+				Status: number;
+				StorageNode: string;
+				Type: 0 | 1;
+				UpdateAt: string;
+			}[];
 			return infoList;
 		} else if (json_data["code"] === 5103) {
 			NetDiskUI.newAccessCodeView(
@@ -232,24 +236,7 @@ export class NetDiskParse_123pan extends NetDiskParseObject {
 	}
 	/**
 	 * 递归算法使用的请求
-	 * @param {string} parentFileId
-	 * @returns {Promise<?{
-	 * Category: number,
-	 * ContentType: string,
-	 * CreateAt: number,
-	 * DownloadUrl: string,
-	 * Etag: string,
-	 * FileId: number,
-	 * FileName: string,
-	 * ParentFileId: number,
-	 * PunishFlag: number,
-	 * S3KeyFlag: number,
-	 * Size: number,
-	 * Status: number,
-	 * StorageNode: string,
-	 * Type: 0|1,
-	 * UpdateAt: string,
-	 * }[]>}
+	 * @param parentFileId
 	 */
 	async getFilesByRec(parentFileId: string) {
 		const that = this;
@@ -257,8 +244,8 @@ export class NetDiskParse_123pan extends NetDiskParseObject {
 			url: `https://www.123pan.com/b/api/share/get?limit=100&next=1&orderBy=share_id&orderDirection=desc&shareKey=${that.shareCode}&SharePwd=${that.accessCode}&ParentFileId=${parentFileId}&Page=1`,
 			headers: {
 				Accept: "*/*",
-				"User-Agent": utils.getRandomAndroidUA(),
 				Referer: `https://www.123pan.com/s/${that.shareCode}`,
+				...that.Headers,
 			},
 		});
 		if (!getResp.status) {
@@ -268,46 +255,53 @@ export class NetDiskParse_123pan extends NetDiskParseObject {
 		log.info(respData);
 		let jsonData = utils.toJSON(respData.responseText);
 		if (jsonData["code"] == 0) {
-			return jsonData["data"]["InfoList"];
+			return jsonData["data"]["InfoList"] as {
+				Category: number;
+				ContentType: string;
+				CreateAt: number;
+				DownloadUrl: string;
+				Etag: string;
+				FileId: number;
+				FileName: string;
+				ParentFileId: number;
+				PunishFlag: number;
+				S3KeyFlag: number;
+				Size: number;
+				Status: number;
+				StorageNode: string;
+				Type: 0 | 1;
+				UpdateAt: string;
+			}[];
 		}
 	}
 	/**
 	 * 获取文件夹信息
-	 * @param {{
-	 * Category: number,
-	 * ContentType: string,
-	 * CreateAt: number,
-	 * DownloadUrl: string,
-	 * Etag: string,
-	 * FileId: number,
-	 * FileName: string,
-	 * ParentFileId: number,
-	 * PunishFlag: number,
-	 * S3KeyFlag: number,
-	 * Size: number,
-	 * Status: number,
-	 * StorageNode: string,
-	 * Type: 0|1,
-	 * UpdateAt: string,
-	 * }[]} infoList
-	 * @returns {Promise<{
-	 * fileName: string,
-	 * fileSize: string|number,
-	 * fileType: ?string,
-	 * createTime: ?string,
-	 * latestTime: ?string,
-	 * isFolder: boolean,
-	 * index: ?number,
-	 * clickCallBack: ?(event:Event,_config_: object)=>{}
-	 * }[]>}
+	 * @param infoList
 	 */
-	getFolderInfo(infoList: any, index: number) {
+	getFolderInfo(
+		infoList: {
+			Category: number;
+			ContentType: string;
+			CreateAt: number;
+			DownloadUrl: string;
+			Etag: string;
+			FileId: number;
+			FileName: string;
+			ParentFileId: number;
+			PunishFlag: number;
+			S3KeyFlag: number;
+			Size: number;
+			Status: number;
+			StorageNode: string;
+			Type: 0 | 1;
+			UpdateAt: string;
+		}[],
+		index: number
+	) {
 		const that = this;
 		let folderInfoList: PopsFolderDataConfig[] = [];
 		let tempFolderInfoList: PopsFolderDataConfig[] = [];
-		/**
-		 * @type {PopsFolderDataConfig[]}
-		 */
+
 		let tempFolderFileInfoList: PopsFolderDataConfig[] = [];
 		infoList.forEach((item: any) => {
 			if (item.Type) {
@@ -397,43 +391,44 @@ export class NetDiskParse_123pan extends NetDiskParseObject {
 	 * @param S3keyFlag
 	 * @param ShareKey
 	 * @param Size
-	 * @returns
 	 */
 	async getFileDownloadInfo(
 		Etag: string,
-		FileID: string,
-		S3keyFlag: string,
+		FileID: string | number,
+		S3keyFlag: string | number,
 		ShareKey: string,
-		Size: string
+		Size: string | number
 	) {
 		const that = this;
 		let authK_V = that.getFileDownloadAuth();
 		let headers = {
-			"App-Version": "3",
-			Platform: "web",
+			// "App-Version": "3",
+			// Platform: "web",
 			"Content-Type": "application/json;charset=UTF-8",
 			Host: "www.123pan.com",
 			Accept: "*/*",
-			"User-Agent": utils.getRandomPCUA(),
 			Referer: "https://www.123pan.com/s/" + ShareKey,
 			Origin: "https://www.123pan.com",
+			...that.Headers,
 		};
 		if (that.Authorization) {
 			Reflect.set(headers, "Authorization", "Bearer " + that.Authorization);
 		}
 		log.success("获取下载链接加密参数：" + authK_V);
-		let postResp = await httpx.post({
-			url: `https://www.123pan.com/a/api/share/download/info?${authK_V[0]}=${authK_V[1]}`,
-			data: JSON.stringify({
-				Etag: Etag,
-				FileID: FileID,
-				S3keyFlag: S3keyFlag,
-				ShareKey: ShareKey,
-				Size: Size,
-			}),
-			responseType: "json",
-			headers: headers,
-		});
+		let postResp = await httpx.post(
+			`https://www.123pan.com/a/api/share/download/info?${authK_V[0]}=${authK_V[1]}`,
+			{
+				data: JSON.stringify({
+					Etag: Etag,
+					FileID: FileID,
+					S3keyFlag: S3keyFlag,
+					ShareKey: ShareKey,
+					Size: Size,
+				}),
+				responseType: "json",
+				headers: headers,
+			}
+		);
 		if (!postResp.status) {
 			return;
 		}
@@ -607,7 +602,7 @@ export class NetDiskParse_123pan extends NetDiskParseObject {
 	}
 	/**
 	 * 将直链的param参数解析成真正的直链
-	 * @param {string} url
+	 * @param url
 	 */
 	async decodeDownloadUrl(url: string) {
 		const that = this;
@@ -625,9 +620,9 @@ export class NetDiskParse_123pan extends NetDiskParseObject {
 				url: newDecodeUrl,
 				responseType: "json",
 				headers: {
-					"User-Agent": utils.getRandomAndroidUA(),
 					Referer: "https://www.123pan.com/s/" + that.shareCode,
 					Origin: "https://www.123pan.com",
+					...that.Headers,
 				},
 				allowInterceptConfig: false,
 				onerror: function () {},

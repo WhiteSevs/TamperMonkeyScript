@@ -48,7 +48,10 @@ export const NetDiskGlobalData = {
 			"fileName" as PopsFolderDetails["sort"]["name"]
 		),
 		/** 排序规则 */
-		"pops-folder-sort-is-desc": GeneratePanelData("pops-folder-sort-is-desc", false),
+		"pops-folder-sort-is-desc": GeneratePanelData(
+			"pops-folder-sort-is-desc",
+			false
+		),
 	},
 	/** 小图标导航 */
 	smallIconNavgiator: {
@@ -58,10 +61,11 @@ export const NetDiskGlobalData = {
 			true
 		),
 		/** 选中分享码 */
-		"pops-netdisk-icon-click-event-find-sharecode-with-select": GeneratePanelData(
-			"pops-netdisk-icon-click-event-find-sharecode-with-select",
-			true
-		),
+		"pops-netdisk-icon-click-event-find-sharecode-with-select":
+			GeneratePanelData(
+				"pops-netdisk-icon-click-event-find-sharecode-with-select",
+				true
+			),
 		/** 循环定位 */
 		"pops-netdisk-icon-click-event-loop-find-sharecode": GeneratePanelData(
 			"pops-netdisk-icon-click-event-loop-find-sharecode",
@@ -104,6 +108,11 @@ export const NetDiskGlobalData = {
 			"netdisk-history-match-ordering-rule",
 			"按 更新时间 - 降序"
 		),
+		/** 合并相同链接 */
+		"netdisk-history-match-merge-same-link": GeneratePanelData(
+			"netdisk-history-match-merge-same-link",
+			true
+		),
 		/** 保存匹配记录 */
 		saveMatchNetDisk: GeneratePanelData("saveMatchNetDisk", false),
 	},
@@ -115,7 +124,10 @@ export const NetDiskGlobalData = {
 			"innerHTML",
 		] as NetDiskWorkerOptions["matchTextRange"]),
 		/** 深入ShadowRoot获取匹配文本 */
-		depthQueryWithShadowRoot: GeneratePanelData("depthQueryWithShadowRoot", false),
+		depthQueryWithShadowRoot: GeneratePanelData(
+			"depthQueryWithShadowRoot",
+			false
+		),
 		/** 匹配剪贴板 */
 		readClipboard: GeneratePanelData("readClipboard", false),
 		/** 匹配当前URL */
@@ -145,10 +157,18 @@ export const NetDiskGlobalData = {
 			true
 		),
 		/** 观察器：subtree */
-		"mutationObserver-subtree": GeneratePanelData("mutationObserver-subtree", true),
+		"mutationObserver-subtree": GeneratePanelData(
+			"mutationObserver-subtree",
+			true
+		),
 	},
 	/** 功能 */
 	function: {
+		/** 匹配模式 */
+		"netdisk-match-mode": GeneratePanelData(
+			"netdisk-match-mode",
+			"MutationObserver" as "MutationObserver" | "Menu"
+		),
 		/** 行为模式 */
 		"netdisk-behavior-mode": GeneratePanelData(
 			"netdisk-behavior-mode",

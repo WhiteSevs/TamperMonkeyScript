@@ -6,6 +6,7 @@ import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
 import { NetDiskUI } from "../../ui/NetDiskUI";
 import { NetDiskView } from "../NetDiskView";
 import indexCSS from "./index.css?raw";
+import { PopsPanel } from "@/setting/setting";
 
 export const NetDiskHistoryMatchView = {
 	/**
@@ -24,7 +25,7 @@ export const NetDiskHistoryMatchView = {
 	 * 显示弹窗
 	 */
 	show() {
-		let data = this.getNetDiskHistoryMatchData();
+		let data = this.getStorageData();
 		let dataHTML = "";
 		let that = this;
 		data = this.orderNetDiskHistoryMatchData(data);
@@ -90,7 +91,7 @@ export const NetDiskHistoryMatchView = {
 									ok: {
 										enable: true,
 										callback(okEvent) {
-											that.clearNetDiskHistoryMatchData();
+											that.clearStorageData();
 											DOMUtils.remove(
 												NetDiskUI.Alias.historyAlias.$shadowRoot.querySelectorAll(
 													".whitesevPopNetDiskHistoryMatch .pops-confirm-content ul li"
@@ -300,7 +301,7 @@ export const NetDiskHistoryMatchView = {
 				let clickNode = event.target as HTMLElement;
 				let dataJSON = clickNode.getAttribute("data-json")!;
 				clickNode.closest("li")?.remove();
-				that.deleteNetDiskHistoryMatchData(dataJSON);
+				that.deleteStorageData(dataJSON);
 				deleteLoading?.close();
 				let totalNumberText = DOMUtils.text(
 					target.querySelector<HTMLElement>(
@@ -322,7 +323,7 @@ export const NetDiskHistoryMatchView = {
 					)!,
 					totalNumberText
 				);
-				let data = that.getNetDiskHistoryMatchData();
+				let data = that.getStorageData();
 				data = that.orderNetDiskHistoryMatchData(data);
 				that.dataPaging.refresh(data);
 				that.pageChangeCallBack(data, that.dataPaging.CONFIG.currentPage);
@@ -409,7 +410,7 @@ export const NetDiskHistoryMatchView = {
 					".whitesevPopNetDiskHistoryMatch .netdiskrecord-search input"
 				)!
 				.value.trim();
-			let data = that.getNetDiskHistoryMatchData();
+			let data = that.getStorageData();
 			data = that.orderNetDiskHistoryMatchData(data);
 			if (inputText === "") {
 				/* 输入空就关闭遮罩层且恢复style */
@@ -515,6 +516,39 @@ export const NetDiskHistoryMatchView = {
 		return data;
 	},
 	/**
+	 * 修改存储的数据的访问码
+	 * @param netDiskName 网盘名称
+	 * @param netDiskIndex 网盘名称索引下标
+	 * @param shareCode 分享码
+	 * @param accessCode 新的访问码
+	 */
+	changeMatchedDataAccessCode(
+		netDiskName: string,
+		netDiskIndex: number,
+		shareCode: string,
+		accessCode: string
+	) {
+		let storageDataList = this.getStorageData();
+		let flag = false;
+		for (let index = 0; index < storageDataList.length; index++) {
+			const localData = storageDataList[index];
+			if (
+				localData.netDiskName === netDiskName &&
+				String(localData.netDiskIndex) === String(netDiskIndex) &&
+				localData.shareCode === shareCode
+			) {
+				flag = true;
+				storageDataList[index].accessCode = accessCode;
+				storageDataList[index].updateTime = Date.now();
+			}
+		}
+		if (flag) {
+			this.saveStorageData(storageDataList);
+		}
+
+		return flag;
+	},
+	/**
 	 * 存储匹配到的链接
 	 * @param netDiskName 网盘名称
 	 * @param netDiskIndex 网盘名称索引下标
@@ -522,7 +556,7 @@ export const NetDiskHistoryMatchView = {
 	 * @param accessCode 访问码
 	 * @param matchText 匹配到的文本
 	 */
-	setNetDiskHistoryMatchData(
+	changeMatchedData(
 		netDiskName: string,
 		netDiskIndex: number,
 		shareCode: string,
@@ -530,75 +564,86 @@ export const NetDiskHistoryMatchView = {
 		matchText: string
 	) {
 		if (!NetDiskGlobalData.historyMatch.saveMatchNetDisk.value) {
-			return;
+			return false;
 		}
-		let localData = this.getNetDiskHistoryMatchData();
-		for (let index = 0; index < localData.length; index++) {
-			const data = localData[index];
+		let storageDataList = this.getStorageData();
+
+		let flag = false;
+		// 先从已有的数据中查找是否存在相同的
+		// 有的话修改，没有的话添加新的
+		for (let index = 0; index < storageDataList.length; index++) {
+			const localData = storageDataList[index];
+			// 按照匹配的网址的区分的
 			if (
-				data.url === window.location.href &&
-				data.topURL === top!.window.location.href &&
-				data.netDiskName === netDiskName &&
-				shareCode.startsWith(data.shareCode) &&
-				data.netDiskIndex === netDiskIndex
+				localData.netDiskName === netDiskName &&
+				shareCode.startsWith(localData.shareCode) &&
+				localData.netDiskIndex === netDiskIndex
 			) {
-				if (data.matchText !== matchText) {
-					/* 修改/设置新的matchText */
-					log.success(["匹配历史记录 -> 设置新的matchText", [matchText]]);
-					localData[index].matchText = matchText;
-					localData[index].updateTime = Date.now();
-					if (localData[index].title) {
-						localData[index].title = document.title;
+				if (
+					NetDiskGlobalData.historyMatch[
+						"netdisk-history-match-merge-same-link"
+					].value ||
+					(localData.url === window.location.href &&
+						localData.topURL === top!.window.location.href)
+				) {
+					flag = true;
+					let editFlag = false;
+					if (matchText.trim() !== "" && localData.matchText !== matchText) {
+						/* 修改/设置新的matchText */
+						editFlag = true;
+						log.success(["匹配历史记录 -> 设置新的matchText", [matchText]]);
+						storageDataList[index].matchText = matchText;
 					}
-					GM_setValue(this.storageKey, localData);
-					return;
-				}
-				if (data.accessCode !== accessCode) {
-					/* 修改accessCode */
-					log.success("匹配历史记录 -> 修改accessCode");
-					localData[index].accessCode = accessCode;
-					localData[index].updateTime = Date.now();
-					if (localData[index].title) {
-						localData[index].title = document.title;
+					if (
+						utils.isNotNull(accessCode) &&
+						localData.accessCode !== accessCode
+					) {
+						// 修改accessCode
+						editFlag = true;
+						log.success("匹配历史记录 -> 修改accessCode");
+						storageDataList[index].accessCode = accessCode;
 					}
-					GM_setValue(this.storageKey, localData);
-					return;
-				}
-				if (data.accessCode === accessCode) {
-					/* 已存在一模一样的 */
-					return;
+
+					if (editFlag) {
+						storageDataList[index].updateTime = Date.now();
+						if (storageDataList[index].title) {
+							storageDataList[index].title = document.title;
+						}
+						if (
+							NetDiskGlobalData.historyMatch[
+								"netdisk-history-match-merge-same-link"
+							].value
+						) {
+							storageDataList[index].url = window.location.href;
+							storageDataList[index].topURL = top!.window.location.href;
+						}
+						break;
+					}
 				}
 			}
 		}
-		log.success("匹配历史记录 -> 增加新的");
-		let time = Date.now();
-		localData = [
-			...localData,
-			{
-				url: window.location.href,
-				topURL: top!.window.location.href,
-				netDiskName: netDiskName,
-				netDiskIndex: netDiskIndex,
-				shareCode: shareCode,
-				accessCode,
-				addTime: time,
-				updateTime: time,
-				title: document.title || top!.document.title,
-				matchText: matchText,
-			},
-		];
-		GM_setValue(this.storageKey, localData);
-	},
-	/**
-	 * 获取历史匹配到的链接
-	 */
-	getNetDiskHistoryMatchData(): NetDiskHistoryDataOption[] {
-		let data = GM_getValue<NetDiskHistoryDataOption[]>(this.storageKey);
-		if (data == null) {
-			data = [];
-			GM_setValue(this.storageKey, data);
+		if (!flag) {
+			flag = true;
+			log.success("匹配历史记录 -> 增加新的");
+			let time = Date.now();
+			storageDataList = [
+				...storageDataList,
+				{
+					url: window.location.href,
+					topURL: top!.window.location.href,
+					netDiskName: netDiskName,
+					netDiskIndex: netDiskIndex,
+					shareCode: shareCode,
+					accessCode,
+					addTime: time,
+					updateTime: time,
+					title: document.title || top!.document.title,
+					matchText: matchText,
+				},
+			];
 		}
-		return data;
+		this.saveStorageData(storageDataList);
+		return true;
 	},
 	/**
 	 * 检测并尝试修复本地的数据
@@ -617,19 +662,36 @@ export const NetDiskHistoryMatchView = {
 		} else {
 			data = [];
 		}
-		GM_setValue(this.storageKey, data);
+		this.saveStorageData(data);
 		return {
 			count: data.length,
 			repairCount: repairCount,
 		};
 	},
 	/**
+	 * 获取历史匹配到的链接
+	 */
+	getStorageData(): NetDiskHistoryDataOption[] {
+		let data = GM_getValue<NetDiskHistoryDataOption[]>(this.storageKey, []);
+		if (data == null) {
+			data = [];
+			this.saveStorageData(data);
+		}
+		return data;
+	},
+	/**
+	 * 保存数据到本地存储的链接数据
+	 */
+	saveStorageData(data: NetDiskHistoryDataOption[]) {
+		GM_setValue(this.storageKey, data);
+	},
+	/**
 	 * 删除存储的某个项
 	 * @param dataJSONText
 	 */
-	deleteNetDiskHistoryMatchData(dataJSONText: string) {
+	deleteStorageData(dataJSONText: string) {
 		let isSuccess = false;
-		let data = this.getNetDiskHistoryMatchData();
+		let data = this.getStorageData();
 		for (let index = 0; index < data.length; index++) {
 			if (JSON.stringify(data[index]) === dataJSONText) {
 				log.success(["删除 ===> ", data[index]]);
@@ -639,14 +701,14 @@ export const NetDiskHistoryMatchView = {
 			}
 		}
 		if (isSuccess) {
-			GM_setValue(this.storageKey, data);
+			this.saveStorageData(data);
 		}
 		return isSuccess;
 	},
 	/**
 	 * 清空所有配置
 	 */
-	clearNetDiskHistoryMatchData() {
-		GM_setValue(this.storageKey, []);
+	clearStorageData() {
+		this.saveStorageData([]);
 	},
 };

@@ -224,28 +224,13 @@ export const NetDiskUI = {
 						userInputAccessCode: string
 					) {
 						let currentTime = new Date().getTime();
-						let data = GM_getValue<any>(
-							NetDiskUI.netDiskHistoryMatch.storageKey
+						let flag = NetDiskHistoryMatchView.changeMatchedDataAccessCode(
+							netDiskName,
+							netDiskIndex,
+							shareCode,
+							userInputAccessCode
 						);
-						let editFlag = false;
-						data.forEach((item: any) => {
-							if (
-								item["netDiskName"] === netDiskName &&
-								item["netDiskIndex"] === netDiskIndex &&
-								item["shareCode"] === shareCode &&
-								item["accessCode"] === accessCode
-							) {
-								item = utils.assign(item, {
-									accessCode: userInputAccessCode,
-									updateTime: currentTime,
-								});
-								log.success(["成功找到项", item]);
-								editFlag = true;
-								return;
-							}
-						});
-						if (editFlag) {
-							GM_setValue(NetDiskUI.netDiskHistoryMatch.storageKey, data);
+						if (flag) {
 							$link
 								.closest("li")
 								.querySelector(
@@ -268,7 +253,7 @@ export const NetDiskUI = {
 					 * 输入完毕新访问码的回调
 					 * @param userInputAccessCode
 					 */
-					function newAccessCodeCallBack_(userInputAccessCode: string) {
+					function newAccessCodeCallBack(userInputAccessCode: string) {
 						event.target.setAttribute("data-accesscode", userInputAccessCode);
 						let netDiskDict = NetDisk.$match.matchedInfo.get(netDiskName);
 						if (netDiskDict.has(shareCode)) {
@@ -304,7 +289,7 @@ export const NetDiskUI = {
 							if (isHistoryView) {
 								newAccessCodeByHistoryViewCallBack(userInputAccessCode);
 							} else {
-								newAccessCodeCallBack_(userInputAccessCode);
+								newAccessCodeCallBack(userInputAccessCode);
 							}
 						}
 					);

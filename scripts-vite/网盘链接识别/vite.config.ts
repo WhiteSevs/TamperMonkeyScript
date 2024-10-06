@@ -112,20 +112,6 @@ export default defineConfig({
 					"ctfile.com",
 					"sharepoint.com",
 				],
-				exclude: [
-					"/^http(s|)://s1.hdslb.com/.*$/",
-					"/^http(s|)://www.bilibili.com/video.*$/",
-					"/^http(s|)://message.bilibili.com/.*$/",
-					"/^http(s|)://live.bilibili.com/.*$/",
-					"/^http(s|)://.*.mail.qq.com/.*$/",
-					"/^http(s|)://.*video.qq.com/.*$/",
-					"/^http(s|)://.*.vscode-cdn.net/.*$/",
-					"/^http(s|)://.*vscode.dev/.*$/",
-					"/^http(s|)://cloudgame.ds.163.com/.*$/",
-					"/^http(s|)://cloudgame.webapp.163.com/.*$/",
-					"/^http(s|)://cg.163.com/.*$/",
-					"/^http(s|)://.*.youtube.com/.*$/",
-				],
 				// GM api权限申请
 				grant: [
 					"GM_addStyle",
@@ -166,9 +152,7 @@ export default defineConfig({
 					),
 					"@whitesev/pops": cdn.jsdelivrFastly("pops", "dist/index.umd.js"),
 				},
-				externalResource: {
-					
-				}
+				externalResource: {},
 			},
 		}),
 	],

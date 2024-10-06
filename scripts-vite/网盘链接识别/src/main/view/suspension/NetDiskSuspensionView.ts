@@ -107,8 +107,8 @@ export const NetDiskSuspension = {
 				innerHTML: /*html*/ `
                 <style type="text/css">
 				/* 动态生成z-index */
-				.whitesevSuspension{
-					z-index: ${utils.getMaxValue(4000, utils.getMaxZIndex(10))};;
+				#whitesevSuspensionId{
+					z-index: ${utils.getMaxValue(40000, utils.getMaxZIndex(10))};;
 				}
 
 				${indexCSS}

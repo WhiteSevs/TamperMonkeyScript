@@ -221,7 +221,8 @@ export const NetDiskPops = {
 			let maxZIndex = utils.getMaxZIndex(deviation);
 			let popsMaxZIndex =
 				pops.config.InstanceUtils.getPopsMaxZIndex(deviation).zIndex;
-			let zIndex = utils.getMaxValue(maxZIndex, popsMaxZIndex) + deviation;
+			let zIndex =
+				utils.getMaxValue(99999, maxZIndex, popsMaxZIndex) + deviation;
 			return zIndex;
 		};
 		return details;

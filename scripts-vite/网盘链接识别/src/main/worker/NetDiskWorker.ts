@@ -1,4 +1,4 @@
-import { isDebug, log, utils } from "@/env";
+import { GM_Menu, isDebug, log, utils } from "@/env";
 import { NetDisk } from "../NetDisk";
 import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import { NetDiskUI } from "../ui/NetDiskUI";
@@ -655,18 +655,6 @@ export const NetDiskWorker = {
 				from: "DOMChange",
 			});
 		}
-		utils.mutationObserver(document.documentElement, {
-			callback: observeEvent,
-			config: {
-				/* 子节点的变动（新增、删除或者更改） */
-				childList: NetDiskGlobalData.match["mutationObserver-childList"].value,
-				/* 节点内容或节点文本的变动 */
-				characterData:
-					NetDiskGlobalData.match["mutationObserver-characterData"].value,
-				/* 是否将观察器应用于该节点的所有后代节点 */
-				subtree: NetDiskGlobalData.match["mutationObserver-subtree"].value,
-			},
-		});
 
 		/* 动态监听是否主动触发监听器 */
 		let dispatchMonitorDOMChange = NetDiskWorker.dispatchMonitorDOMChange;
@@ -674,6 +662,7 @@ export const NetDiskWorker = {
 			set: function (value) {
 				dispatchMonitorDOMChange = value;
 				if (value) {
+					log.info(`主动触发识别器`);
 					let addedNodes = document.querySelectorAll<HTMLElement>(
 						"html"
 					) as any as NodeList;
@@ -696,6 +685,48 @@ export const NetDiskWorker = {
 				return dispatchMonitorDOMChange;
 			},
 		});
-		this.dispatchMonitorDOMChange = true;
+
+		if (
+			NetDiskGlobalData.function["netdisk-match-mode"].value ===
+			"MutationObserver"
+		) {
+			utils.mutationObserver(document.documentElement, {
+				callback: observeEvent,
+				config: {
+					/* 子节点的变动（新增、删除或者更改） */
+					childList:
+						NetDiskGlobalData.match["mutationObserver-childList"].value,
+					/* 节点内容或节点文本的变动 */
+					characterData:
+						NetDiskGlobalData.match["mutationObserver-characterData"].value,
+					/* 是否将观察器应用于该节点的所有后代节点 */
+					subtree: NetDiskGlobalData.match["mutationObserver-subtree"].value,
+				},
+			});
+			// 主动触发一下
+			this.dispatchMonitorDOMChange = true;
+		} else if (
+			NetDiskGlobalData.function["netdisk-match-mode"].value === "Menu"
+		) {
+			// 手动
+			// 注册油猴菜单
+			GM_Menu.add({
+				key: "performPageTextMatchingManually",
+				text: "点击执行文本匹配",
+				autoReload: false,
+				isStoreValue: false,
+				showText(text) {
+					return text;
+				},
+				callback: () => {
+					this.dispatchMonitorDOMChange = true;
+				},
+			});
+		} else {
+			log.error(
+				"未知匹配模式：" +
+					NetDiskGlobalData.function["netdisk-match-mode"].value
+			);
+		}
 	},
 };

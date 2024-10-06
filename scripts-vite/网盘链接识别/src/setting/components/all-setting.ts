@@ -282,51 +282,6 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 				},
 				{
 					type: "deepMenu",
-					text: "小图标导航",
-					forms: [
-						{
-							type: "forms",
-							text: "",
-							forms: [
-								UISwitch(
-									"点击定位分享码",
-									NetDiskGlobalData.smallIconNavgiator[
-										"pops-netdisk-icon-click-event-find-sharecode"
-									].KEY,
-									NetDiskGlobalData.smallIconNavgiator[
-										"pops-netdisk-icon-click-event-find-sharecode"
-									].default,
-									void 0,
-									"自动滚动页面至包含分享码的元素"
-								),
-								UISwitch(
-									"选中分享码",
-									NetDiskGlobalData.smallIconNavgiator[
-										"pops-netdisk-icon-click-event-find-sharecode-with-select"
-									].KEY,
-									NetDiskGlobalData.smallIconNavgiator[
-										"pops-netdisk-icon-click-event-find-sharecode-with-select"
-									].default,
-									void 0,
-									"使用光标选中分享码/元素"
-								),
-								UISwitch(
-									"循环定位",
-									NetDiskGlobalData.smallIconNavgiator[
-										"pops-netdisk-icon-click-event-loop-find-sharecode"
-									].KEY,
-									NetDiskGlobalData.smallIconNavgiator[
-										"pops-netdisk-icon-click-event-loop-find-sharecode"
-									].default,
-									void 0,
-									"关闭则是每一个元素只定位一次"
-								),
-							],
-						},
-					],
-				},
-				{
-					type: "deepMenu",
 					text: "悬浮按钮",
 					forms: [
 						{
@@ -469,6 +424,57 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 						},
 					],
 				},
+			],
+		},
+		{
+			type: "forms",
+			text: "",
+			forms: [
+				{
+					type: "deepMenu",
+					text: "网盘图标",
+					forms: [
+						{
+							type: "forms",
+							text: "",
+							forms: [
+								UISwitch(
+									"点击定位分享码",
+									NetDiskGlobalData.smallIconNavgiator[
+										"pops-netdisk-icon-click-event-find-sharecode"
+									].KEY,
+									NetDiskGlobalData.smallIconNavgiator[
+										"pops-netdisk-icon-click-event-find-sharecode"
+									].default,
+									void 0,
+									"自动滚动页面至包含分享码的元素"
+								),
+								UISwitch(
+									"选中分享码",
+									NetDiskGlobalData.smallIconNavgiator[
+										"pops-netdisk-icon-click-event-find-sharecode-with-select"
+									].KEY,
+									NetDiskGlobalData.smallIconNavgiator[
+										"pops-netdisk-icon-click-event-find-sharecode-with-select"
+									].default,
+									void 0,
+									"使用光标选中分享码/元素"
+								),
+								UISwitch(
+									"循环定位",
+									NetDiskGlobalData.smallIconNavgiator[
+										"pops-netdisk-icon-click-event-loop-find-sharecode"
+									].KEY,
+									NetDiskGlobalData.smallIconNavgiator[
+										"pops-netdisk-icon-click-event-loop-find-sharecode"
+									].default,
+									void 0,
+									"关闭则是每一个元素只定位一次"
+								),
+							],
+						},
+					],
+				},
 				{
 					type: "deepMenu",
 					text: "历史匹配记录",
@@ -478,6 +484,24 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 							text: "",
 							className: "netdisk-panel-history-match",
 							forms: [
+								UISwitch(
+									"保存匹配记录",
+									NetDiskGlobalData.historyMatch.saveMatchNetDisk.KEY,
+									NetDiskGlobalData.historyMatch.saveMatchNetDisk.default,
+									void 0,
+									"将匹配到的链接信息进行本地存储，可点击【油猴菜单-⚙ 历史匹配记录】进行查看"
+								),
+								UISwitch(
+									"合并相同链接",
+									NetDiskGlobalData.historyMatch[
+										"netdisk-history-match-merge-same-link"
+									].KEY,
+									NetDiskGlobalData.historyMatch[
+										"netdisk-history-match-merge-same-link"
+									].default,
+									void 0,
+									"将合并匹配到的相同链接，并更新它最后一次匹配到的更新时间、网址信息"
+								),
 								UISelect(
 									"排序规则",
 									NetDiskGlobalData.historyMatch[
@@ -526,13 +550,6 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 											Qmsg.error("修复异常：" + error.toString());
 										}
 									}
-								),
-								UISwitch(
-									"保存匹配记录",
-									NetDiskGlobalData.historyMatch.saveMatchNetDisk.KEY,
-									NetDiskGlobalData.historyMatch.saveMatchNetDisk.default,
-									void 0,
-									"将匹配到的链接信息进行本地存储，可点击【油猴菜单-⚙ 历史匹配记录】进行查看"
 								),
 							],
 						},
@@ -610,7 +627,7 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 						},
 						{
 							type: "forms",
-							text: "页面内容改变时的观察器",
+							text: "MutationObserver观察器",
 							forms: [
 								UISlider(
 									"匹配间隔",
@@ -667,6 +684,23 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 							text: "",
 							className: "netdisk-panel-forms-function",
 							forms: [
+								UISelect(
+									"匹配模式",
+									NetDiskGlobalData.function["netdisk-match-mode"].KEY,
+									NetDiskGlobalData.function["netdisk-match-mode"].default,
+									[
+										{
+											text: "MutationObserver",
+											value: "MutationObserver",
+										},
+										{
+											text: "Menu",
+											value: "Menu",
+										},
+									],
+									void 0,
+									"MutationObserver是网页加载完毕后自动监听识别链接，Menu是油猴菜单点击进行识别"
+								),
 								UISelect(
 									"行为模式",
 									NetDiskGlobalData.function["netdisk-behavior-mode"].KEY,
@@ -803,6 +837,15 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 									"【打开】⚙ 识别文本",
 									"",
 									"netdisk-keyboard-open-proactively-recognize-text",
+									void 0,
+									"暂无快捷键",
+									"default",
+									NetDiskShortcut.shortCut
+								),
+								UIButtonShortCut(
+									"执行文本匹配",
+									"",
+									"netdisk-keyboard-performPageTextMatchingManually",
 									void 0,
 									"暂无快捷键",
 									"default",

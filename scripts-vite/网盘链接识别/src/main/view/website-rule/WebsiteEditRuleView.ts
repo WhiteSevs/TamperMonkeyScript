@@ -334,7 +334,7 @@ export const WebsiteEditRuleView = {
 				// 	true
 				// ) as PopsPanelContentConfig[];
 				let newPanelContentConfig = deepCopy(originPanelContentConfig);
-				console.log(newPanelContentConfig);
+				// console.log(newPanelContentConfig);
 				// 迭代遍历form配置，进行updateStorageApi
 				/** 迭代遍历 */
 				function iterativeTraversal(
