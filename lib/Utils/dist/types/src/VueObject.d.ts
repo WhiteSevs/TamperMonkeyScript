@@ -23,7 +23,7 @@ export declare interface Vue2Object {
     $data: any;
     $isServer: boolean;
     $props: any;
-    $route: any & {
+    $route: {
         fullPath: string;
         hash: string;
         matched: any[];
@@ -33,13 +33,13 @@ export declare interface Vue2Object {
         path: string;
         query: any;
     };
-    $router: any & {
+    $router: {
         afterHooks: Function[];
         app: Vue2Object;
         apps: Vue2Object[];
         beforeHooks: Function[];
         fallback: boolean;
-        history: any & {
+        history: {
             base: string;
             current: any;
             listeners: any[];
@@ -66,7 +66,7 @@ export declare interface Vue2Object {
              */
             replace: (to: string, data?: any) => void;
         };
-        matcher: any & {
+        matcher: {
             addRoute: (...args: any[]) => any;
             addRoutes: (...args: any[]) => any;
             getRoutes: () => any;

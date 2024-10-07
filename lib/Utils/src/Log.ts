@@ -1,21 +1,20 @@
-
 /** Utils.Log的初始化配置 */
 declare interface UtilsLogOptions {
-	/** 是否输出Tag，false的话其它的颜色也不输出，默认为true */
+	/** 是否输出Tag，false的话其它的颜色也不输出 @default true */
 	tag: boolean;
-	/** log.success的颜色，默认#0000FF */
+	/** log.success的颜色 @default "#0000FF" */
 	successColor: string;
-	/** log.warn的颜色，默认0 */
+	/** log.warn的颜色 @default "0" */
 	warnColor: string;
-	/** log.error的颜色，默认#FF0000 */
+	/** log.error的颜色 @default "#FF0000" */
 	errorColor: string;
-	/** log.info的颜色，默认0 */
+	/** log.info的颜色 @default "0" */
 	infoColor: string;
-	/** 是否开启debug模式，true会在控制台每次调用时输出调用函数的所在位置，false不会输出位置，默认false */
+	/** 是否开启debug模式，true会在控制台每次调用时输出调用函数的所在位置，false不会输出位置 @default false */
 	debug: boolean;
-	/** 当console输出超过logMaxCount数量自动清理控制台，默认false */
+	/** 当console输出超过logMaxCount数量自动清理控制台 @default false */
 	autoClearConsole: boolean;
-	/** console输出的最高数量，autoClearConsole开启则生效，默认999 */
+	/** console输出的最高数量，autoClearConsole开启则生效 @default 999 */
 	logMaxCount: number;
 }
 
@@ -39,6 +38,9 @@ class Log {
 		autoClearConsole: false,
 		logMaxCount: 999,
 	};
+	/**
+	 * 颜色配置
+	 */
 	#msgColorDetails = [
 		"font-weight: bold; color: cornflowerblue",
 		"font-weight: bold; color: cornflowerblue",
@@ -46,11 +48,11 @@ class Log {
 		"font-weight: bold; color: cornflowerblue",
 	];
 	/**
-	 * @param _GM_info_ 油猴管理器的API GM_info，或者是一个对象，如{"script":{name:"Utils.Log"}}，或者直接是一个字符串
+	 * @param __GM_info 油猴管理器的API GM_info，或者是一个对象，如{"script":{name:"Utils.Log"}}，或者直接是一个字符串，用作tag名
 	 * @param console 可指定console对象为unsafeWindow下的console或者是油猴window下的console
 	 */
 	constructor(
-		_GM_info_?:
+		__GM_info?:
 			| {
 					script: {
 						name: string;
@@ -59,13 +61,13 @@ class Log {
 			| string,
 		console: Console = window.console
 	) {
-		if (typeof _GM_info_ === "string") {
-			this.tag = _GM_info_;
+		if (typeof __GM_info === "string") {
+			this.tag = __GM_info;
 		} else if (
-			typeof _GM_info_ === "object" &&
-			typeof _GM_info_?.script?.name === "string"
+			typeof __GM_info === "object" &&
+			typeof __GM_info?.script?.name === "string"
 		) {
-			this.tag = _GM_info_.script.name;
+			this.tag = __GM_info.script.name;
 		}
 		this.#console = console;
 	}
@@ -145,7 +147,7 @@ class Log {
 	 * @param color 颜色
 	 * @param otherStyle 其它CSS
 	 */
-	private printContent(msg: any, color: string, otherStyle?: string) {
+	private printContent(msg: any[], color: string, otherStyle?: string) {
 		this.checkClearConsole();
 		otherStyle = otherStyle || "";
 		let stackSplit = new Error()!.stack!.split("\n");
@@ -154,36 +156,46 @@ class Log {
 			this.parseErrorStack(stackSplit);
 		let tagName = this.tag;
 		let that = this;
-		function consoleMsg(_msg_: any) {
-			if (typeof _msg_ === "string") {
+
+		/** tag的html输出格式 */
+		let tagNameHTML = `%c[${tagName}%c`;
+		/** 调用的函数名的html输出格式 */
+		let callerNameHTML = `%c${callerName}%c]%c`;
+		callerName.trim() !== "" && (callerNameHTML = "-" + callerNameHTML);
+		/**
+		 * 输出消息到控制台
+		 * @param message
+		 */
+		function consoleMsg(message: any) {
+			if (typeof message === "string") {
 				that.#console.log(
-					`%c[${tagName}%c-%c${callerName}%c]%c %s`,
+					`${tagNameHTML}${callerNameHTML} %s`,
 					...that.#msgColorDetails,
 					`color: ${color};${otherStyle}`,
-					_msg_
+					message
 				);
-			} else if (typeof _msg_ === "number") {
+			} else if (typeof message === "number") {
 				that.#console.log(
-					`%c[${tagName}%c-%c${callerName}%c]%c %d`,
+					`${tagNameHTML}${callerNameHTML} %d`,
 					...that.#msgColorDetails,
 					`color: ${color};${otherStyle}`,
-					_msg_
+					message
 				);
-			} else if (typeof _msg_ === "object") {
+			} else if (typeof message === "object") {
 				that.#console.log(
-					`%c[${tagName}%c-%c${callerName}%c]%c %o`,
+					`${tagNameHTML}${callerNameHTML} %o`,
 					...that.#msgColorDetails,
 					`color: ${color};${otherStyle}`,
-					_msg_
+					message
 				);
 			} else {
-				that.#console.log(_msg_);
+				that.#console.log(message);
 			}
 		}
 		if (Array.isArray(msg)) {
-			msg.forEach((item) => {
-				consoleMsg(item);
-			});
+			for (let index = 0; index < msg.length; index++) {
+				consoleMsg(msg[index]);
+			}
 		} else {
 			consoleMsg(msg);
 		}
@@ -194,69 +206,69 @@ class Log {
 	}
 	/**
 	 * 控制台-普通输出
-	 * @param msg 需要输出的内容，如果想输出多个，修改成数组，且数组内的长度最大值为4个
-	 * @param color 输出的颜色
-	 * @param otherStyle 其它CSS
+	 * @param args 需要输出的内容
+	 * @example
+	 * log.info("输出信息","输出信息2","输出信息3","输出")
 	 */
-	info(msg: any, color: string = this.#details.infoColor, otherStyle?: string) {
+	info(...args: any[]) {
 		if (this.#disable) return;
-		this.printContent.call(this, msg, color, otherStyle);
+		this.printContent(args, this.#details.infoColor);
 	}
 	/**
 	 * 控制台-警告输出
-	 * @param msg 需要输出的内容，如果想输出多个，修改成数组，且数组内的长度最大值为4个
-	 * @param color 输出的颜色
-	 * @param otherStyle 其它CSS
+	 * @param args 需要输出的内容
+	 * @example
+	 * log.warn("输出警告","输出警告2","输出警告3","输出警告4")
 	 */
-	warn(
-		msg: any,
-		color = this.#details.warnColor,
-		otherStyle = "background: #FEF6D5;padding: 4px 6px 4px 0px;"
-	) {
+	warn(...args: any[]) {
 		if (this.#disable) return;
-		this.printContent.call(this, msg, color, otherStyle);
+		this.printContent(
+			args,
+			this.#details.warnColor,
+			"background: #FEF6D5;padding: 4px 6px 4px 0px;"
+		);
 	}
 	/**
 	 * 控制台-错误输出
-	 * @param msg 需要输出的内容，如果想输出多个，修改成数组，且数组内的长度最大值为4个
-	 * @param color 输出的颜色
-	 * @param otherStyle 其它CSS
+	 * @param args 需要输出的内容
+	 * @example
+	 * log.error("输出错误","输出错误2","输出错误3","输出错误4")
 	 */
-	error(msg: any, color = this.#details.errorColor, otherStyle?: string) {
+	error(...args: any[]) {
 		if (this.#disable) return;
-		this.printContent.call(this, msg, color, otherStyle);
+		this.printContent(args, this.#details.errorColor);
 	}
 	/**
 	 * 控制台-成功输出
-	 * @param msg 需要输出的内容，如果想输出多个，修改成数组，且数组内的长度最大值为4个
-	 * @param color 输出的颜色
-	 * @param otherStyle 其它CSS
+	 * @param args 需要输出的内容
+	 * @example
+	 * log.success("输出成功")
 	 */
-	success(msg: any, color = this.#details.successColor, otherStyle?: string) {
+	success(...args: any[]) {
 		if (this.#disable) return;
-		this.printContent.call(this, msg, color, otherStyle);
+		this.printContent(args, this.#details.successColor);
 	}
 	/**
 	 * 控制台-输出表格
-	 * @param msg
-	 * @param color 输出的颜色
-	 * @param otherStyle 其它CSS
+	 * @param msg 需要输出的内容
 	 * @example
 	 * log.table([{"名字":"example","值":"123"},{"名字":"example2","值":"345"}])
 	 */
-	table(msg: any[], color = this.#details.infoColor, otherStyle = "") {
+	table(msg: any[]) {
 		if (this.#disable) return;
 		this.checkClearConsole();
 		let stack = new Error()!.stack!.split("\n");
 		stack.splice(0, 1);
 		let errorStackParse = this.parseErrorStack(stack);
+		/** 堆栈函数名 */
 		let stackFunctionName = errorStackParse.name;
+		/** 堆栈位置 */
 		let stackFunctionNamePosition = errorStackParse.position;
 		let callerName = stackFunctionName;
 		this.#console.log(
 			`%c[${this.tag}%c-%c${callerName}%c]%c`,
 			...this.#msgColorDetails,
-			`color: ${color};${otherStyle}`
+			`color: ${this.#details.infoColor};`
 		);
 		this.#console.table(msg);
 		if (this.#details.debug) {
