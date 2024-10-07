@@ -42,6 +42,12 @@ import {
 	type ArtPlayerPluginQualityResult,
 } from "@/player/plugins/artplayer-plugin-quality";
 import { artplayerPluginToast } from "@/player/plugins/artplayer-plugin-toast";
+import {
+	ArtPlayer_PLUGIN_AIRBORNE_HELPER_KEY,
+	artplayerPluginAirborneHelper,
+	type ArtPlayerPluginAirborneHelperOption,
+	type ArtPlayerPluginAirborneHelperResult,
+} from "@/player/plugins/artplayer-plugin-airborneHelper";
 
 export type BilibiliBangumiArtPlayerOption = {
 	/** 容器 */
@@ -66,6 +72,8 @@ export type BilibiliBangumiArtPlayerOption = {
 	ep_id: string | number;
 	/** 视频的标题 */
 	videoTitle?: string;
+	/** 空降信息 */
+	clip_info_list: ArtPlayerPluginAirborneHelperOption["clip_info_list"];
 	/** 是否是flv文件 */
 	isFlv: boolean;
 	/** flv的视频信息 */
@@ -366,6 +374,14 @@ export const BilibiliBangumiArtPlayer = {
 			);
 		}
 
+		if (PopsPanel.getValue("artplayer-plugin-bangumi-airborneHelper-enable")) {
+			// 空降助手
+			artOption.plugins!.push(
+				artplayerPluginAirborneHelper({
+					clip_info_list: option.clip_info_list,
+				})
+			);
+		}
 		this.$data.art = new Artplayer(artOption);
 
 		if (PopsPanel.getValue("artplayer-plugin-bangumi-danmaku-enable")) {
@@ -382,14 +398,7 @@ export const BilibiliBangumiArtPlayer = {
 	async update(art: Artplayer, option: BilibiliBangumiArtPlayerOption) {
 		this.resetEnv(false);
 		this.$data.currentOption = option;
-		let videoUrl = "";
-		if (typeof option.url === "string") {
-			videoUrl = option.url;
-		} else if (typeof option.url === "function") {
-			let url = await option.url();
-			videoUrl = url;
-		}
-		log.info([`更新新的播放信息`, option]);
+		log.info(`更新新的播放信息`, option);
 		// 暂停视频
 		art.pause();
 		log.info(`暂停视频`);
@@ -417,69 +426,89 @@ export const BilibiliBangumiArtPlayer = {
 			from: "bangumi",
 			qualityList: option.quality,
 		});
-		log.info([`更新画质`, option.quality]);
+		log.info(`更新画质`, option.quality);
 
-		// 更新音频
-		let plugin_m4sAudioSupport = art.plugins[
-			ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY
-		] as ArtPlayerPluginM4SAudioSupportResult;
-		plugin_m4sAudioSupport.update({
-			from: "bangumi",
-			audioList: option.audioList || [],
-		});
-		log.info([`更新音频`, option.audioList]);
+		if (PopsPanel.getValue("artplayer-plugin-bangumi-danmaku-enable")) {
+			// 更新弹幕信息
+			art.plugins.artplayerPluginDanmuku.config({
+				danmuku: option.danmukuUrl,
+			});
+			art.plugins.artplayerPluginDanmuku.load();
+			log.info(`更新弹幕姬`, option.danmukuUrl);
+		}
 
-		// 更新字幕
-		let plugin_bilibiliCCSubTitle = art.plugins[
-			ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY
-		] as ArtPlayerPluginBilibiliSubTitleResult;
-		// 配置字幕数据
-		const subTitleOption = {
-			from: "bangumi",
-			cid: option.cid,
-			aid: option.aid,
-			ep_id: option.ep_id,
-		} as ArtPlayerPluginBilibiliSubTitleOption;
-		plugin_bilibiliCCSubTitle.update(subTitleOption);
-		log.info([`更新字幕`, subTitleOption]);
+		if (PopsPanel.getValue("artplayer-plugin-bangumi-m4sAudioSupport-enable")) {
+			// 更新音频
+			let plugin_m4sAudioSupport = art.plugins[
+				ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY
+			] as ArtPlayerPluginM4SAudioSupportResult;
+			plugin_m4sAudioSupport.update({
+				from: "bangumi",
+				audioList: option.audioList || [],
+			});
+			log.info(`更新音频`, option.audioList);
+		}
+		if (PopsPanel.getValue("artplayer-plugin-bangumi-epChoose-enable")) {
+			// 更新选集信息
+			let plugin_epChoose = art.plugins[
+				ArtPlayer_PLUGIN_EP_CHOOSE_KEY
+			] as ArtPlayerPluginEpChooseResult;
+			plugin_epChoose.update({
+				EP_LIST: generateBangumiVideoSelectSetting(option),
+				automaticBroadcast: true,
+			});
+			log.info(`更新选集信息`, option.epList);
+		}
 
-		// 更新顶部标题
-		// 更新顶部在线观看人数来源
-		let plugin_topToolBar = art.plugins[
-			ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY
-		] as ArtPlayerPluginTopToolBarResult;
-		// 更新数据
-		const topToolBarOption = {
-			showRight: true,
-			showRightFollow: true,
-			showWrap: true,
-			showTitle: true,
-			showOnlineTotal: true,
-			title: option.videoTitle,
-			onlineInfoParams: {
-				aid: option.aid,
+		if (PopsPanel.getValue("artplayer-plugin-bangumi-cc-subtitle-enable")) {
+			// 更新字幕
+			let plugin_bilibiliCCSubTitle = art.plugins[
+				ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY
+			] as ArtPlayerPluginBilibiliSubTitleResult;
+			// 配置字幕数据
+			const subTitleOption = {
+				from: "bangumi",
 				cid: option.cid,
-				bvid: option.bvid!,
-			},
-		} as ArtPlayerPluginTopToolBarOption;
-		plugin_topToolBar.update(topToolBarOption);
-		log.info([`更新顶部标题`, topToolBarOption]);
+				aid: option.aid,
+				ep_id: option.ep_id,
+			} as ArtPlayerPluginBilibiliSubTitleOption;
+			plugin_bilibiliCCSubTitle.update(subTitleOption);
+			log.info(`更新字幕`, subTitleOption);
+		}
 
-		// 更新选集信息
-		let plugin_epChoose = art.plugins[
-			ArtPlayer_PLUGIN_EP_CHOOSE_KEY
-		] as ArtPlayerPluginEpChooseResult;
-		plugin_epChoose.update({
-			EP_LIST: generateBangumiVideoSelectSetting(option),
-			automaticBroadcast: true,
-		});
-		log.info([`更新选集信息`, option.epList]);
+		if (PopsPanel.getValue("artplayer-plugin-bangumi-toptoolbar-enable")) {
+			// 更新顶部标题
+			// 更新顶部在线观看人数来源
+			let plugin_topToolBar = art.plugins[
+				ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY
+			] as ArtPlayerPluginTopToolBarResult;
+			// 更新数据
+			const topToolBarOption = {
+				showRight: true,
+				showRightFollow: true,
+				showWrap: true,
+				showTitle: true,
+				showOnlineTotal: true,
+				title: option.videoTitle,
+				onlineInfoParams: {
+					aid: option.aid,
+					cid: option.cid,
+					bvid: option.bvid!,
+				},
+			} as ArtPlayerPluginTopToolBarOption;
+			plugin_topToolBar.update(topToolBarOption);
+			log.info(`更新顶部标题`, topToolBarOption);
+		}
 
-		// 更新弹幕信息
-		art.plugins.artplayerPluginDanmuku.config({
-			danmuku: option.danmukuUrl,
-		});
-		art.plugins.artplayerPluginDanmuku.load();
-		log.info([`更新弹幕姬`, option.danmukuUrl]);
+		if (PopsPanel.getValue("artplayer-plugin-bangumi-airborneHelper-enable")) {
+			// 更新空降助手信息
+			let plugin_airborneHelper = art.plugins[
+				ArtPlayer_PLUGIN_AIRBORNE_HELPER_KEY
+			] as ArtPlayerPluginAirborneHelperResult;
+			plugin_airborneHelper.update({
+				clip_info_list: option.clip_info_list,
+			});
+			log.info(`更新空降助手信息`, option.clip_info_list);
+		}
 	},
 };

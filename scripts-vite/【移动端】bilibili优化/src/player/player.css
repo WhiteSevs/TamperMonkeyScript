@@ -68,7 +68,7 @@
 	-webkit-transition: all 0.2s ease-in-out;
 	transition: all 0.2s ease-in-out;
 	width: 100%;
-	background: rgba(0, 0, 0, 0.8);
+	background: linear-gradient(to bottom, #000, transparent);
 	padding: 10px calc(var(--art-padding));
 	z-index: 60;
 }

@@ -136,9 +136,9 @@ export type BilibiliSearchBangumiResultEntity = {
 	 */
 	angle_color: number;
 	/**
-	 * 剧集标志信息
+	 * 剧集显示信息
 	 */
-	display_info: any[];
+	display_info: BilibiliSearchBangumiResultEntity["badges"];
 	/**
 	 * 关键字匹配分集标题的分集epid
 	 *
@@ -238,37 +238,44 @@ export type BilibiliSearchBangumiResultEntity = {
 	 */
 	badges: {
 		/**
+		 * 背景颜色
+		 * @example "#FF7F24"
+		 */
+		bg_color: string;
+		/**
 		 * 夜间背景颜色
+		 * @example "#D66011"
 		 */
 		bg_color_night: string;
-		/**
-		 * 剧集标志
-		 */
-		text: string;
-		/**
-		 * 背景颜色
-		 */
-		border_color: string;
 		/**
 		 * @default 1
 		 */
 		bg_style: number;
 		/**
+		 * 背景颜色
+		 * @example "#FF7F24"
+		 */
+		border_color: string;
+		/**
+		 * 夜间背景颜色
+		 * @example "#D66011"
+		 */
+		border_color_night: string;
+		/**
+		 * 剧集标志
+		 * @example "限时免费"
+		 */
+		text: string;
+		/**
 		 * 文字颜色
+		 * @example "#FFFFFF"
 		 */
 		text_color: string;
 		/**
-		 * 背景颜色
-		 */
-		bg_color: string;
-		/**
 		 * 夜间文字颜色
+		 * @example "#E5E5E5"
 		 */
 		text_color_night: string;
-		/**
-		 * 夜间背景颜色
-		 */
-		border_color_night: string;
 	}[];
 };
 
@@ -303,6 +310,9 @@ export const BilibiliSearchApi = {
 			return;
 		}
 		let responseData = utils.toJSON(getResponse.data.responseText);
+		if (import.meta.hot) {
+			console.log(responseData);
+		}
 		if (!BilibiliResponseCheck.isWebApiSuccess(responseData)) {
 			return;
 		}
@@ -352,12 +362,21 @@ export const BilibiliSearchApi = {
 			return;
 		}
 		let data = utils.toJSON(getResponse.data.responseText);
+		if (import.meta.hot) {
+			console.log(data);
+		}
 		if (!BilibiliResponseCheck.isWebApiSuccess(data)) {
 			// 检测请求的数据是否是成功的
 			log.error(`请求失败，当前代理服务器信息：${JSON.stringify(config.host)}`);
 			log.error(`请求失败，当前请求的响应信息：${JSON.stringify(data)}`);
-			return;
+			return {
+				isSuccess: false,
+				data: data as BilibiliSearchBangumiResultEntity[],
+			};
 		}
-		return data.data.result as BilibiliSearchBangumiResultEntity[];
+		return {
+			isSuccess: true,
+			data: data.data.result as BilibiliSearchBangumiResultEntity[],
+		};
 	},
 };

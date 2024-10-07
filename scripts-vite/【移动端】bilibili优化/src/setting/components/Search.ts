@@ -30,6 +30,13 @@ const SettingUISearch: PopsPanelContentConfig = {
 									""
 								),
 								UISwitch(
+									"美化搜索结果",
+									"bili-search-beautifySearchResult",
+									true,
+									void 0,
+									"重构搜索结果的样式"
+								),
+								UISwitch(
 									"开启其它地区番剧搜索",
 									"bili-search-enableOtherAreaSearchBangumi",
 									false,

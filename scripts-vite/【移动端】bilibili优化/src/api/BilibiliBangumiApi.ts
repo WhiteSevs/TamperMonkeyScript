@@ -17,7 +17,13 @@ export type BilibiliTypeBangumiVideoPlayeInfo = {
 	accept_quality: number[];
 	/** 跳过片头|片尾信息的数据 */
 	clip_info_list: {
+		/**
+		 * 跳过片头|片尾的类型
+		 *
+		 * + CLIP_TYPE_ED
+		 */
 		clipType: string;
+		/** @default 0 */
 		materialNo: number;
 		/** toast开始弹出的事件 */
 		start: number;
@@ -136,7 +142,8 @@ export type BilibiliTypeBangumiVideoPlayeHtml5Info = {
 	accept_format: BilibiliTypeBangumiVideoPlayeInfo["accept_format"];
 	/** 允许的清晰度 */
 	accept_quality: BilibiliTypeBangumiVideoPlayeInfo["accept_quality"];
-	clip_info_list: {
+	/** 跳过的信息 */
+	clip_info: {
 		clipType: number;
 		/** toast开始弹出的事件 */
 		start: number;
@@ -253,6 +260,9 @@ export const BilibiliBangumiApi = {
 			}
 			// 数据json
 			let responseData = utils.toJSON(getResponse.data.responseText);
+			if (import.meta.hot) {
+				console.log(responseData);
+			}
 			let responseResult =
 				responseData.result as BilibiliTypeBangumiVideoPlayeInfo;
 			if (
@@ -329,6 +339,9 @@ export const BilibiliBangumiApi = {
 		}
 		// 数据json
 		let responseData = utils.toJSON(getResponse.data.responseText);
+		if (import.meta.hot) {
+			console.log(responseData);
+		}
 		if (!BilibiliResponseCheck.isWebApiSuccess(responseData)) {
 			// 检测请求的数据是否是成功的
 			BilibiliLogUtils.failToast(responseData);

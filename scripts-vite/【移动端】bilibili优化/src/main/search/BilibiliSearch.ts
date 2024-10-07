@@ -2,6 +2,7 @@ import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliExtraSearch } from "./BilibiliExtraSearch";
 import { BilibiliRouter } from "@/router/BilibiliRouter";
+import { BilibiliSearchBeautify } from "./BilibiliSearchBeautify";
 
 const BilibiliSearch = {
 	init() {
@@ -11,6 +12,9 @@ const BilibiliSearch = {
 		}
 		PopsPanel.execMenuOnce("bili-search-cover-cancel", () => {
 			this.coverCancel();
+		});
+		PopsPanel.execMenu("bili-search-beautifySearchResult", () => {
+			BilibiliSearchBeautify.init();
 		});
 		DOMUtils.ready(() => {
 			PopsPanel.execMenu("bili-search-inputAutoFocus", () => {

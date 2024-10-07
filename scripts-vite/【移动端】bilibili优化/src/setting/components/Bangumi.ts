@@ -93,6 +93,13 @@ const SettingUIBangumi: PopsPanelContentConfig = {
 									true,
 									void 0
 								),
+								UISwitch(
+									"空降助手",
+									"artplayer-plugin-bangumi-airborneHelper-enable",
+									false,
+									void 0,
+									"如果获取到的信息中存在空降信息，如跳过片头片尾，那么会自动跳过"
+								),
 							],
 						},
 						{

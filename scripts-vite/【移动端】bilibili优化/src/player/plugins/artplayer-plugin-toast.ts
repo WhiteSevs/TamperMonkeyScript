@@ -1,7 +1,7 @@
 import type Artplayer from "artplayer";
 import { addStyle, DOMUtils, log, utils } from "@/env";
 
-type BilibiliPlayerToastConfig = {
+export type BilibiliPlayerToastConfig = {
 	/** 显示的文字 */
 	text: string;
 	/** 多长时间关闭显示 @default 3500 */
@@ -14,19 +14,28 @@ type BilibiliPlayerToastConfig = {
 	jumpText?: string;
 	/** 跳转的文字的点击事件 */
 	jumpClickCallback?: (event: MouseEvent | PointerEvent) => void;
+	/** toast关闭的回调函数 */
+	closeCallback?: () => void;
 	/** 插入的父元素 @default HTMLDivElement */
 	parent?: HTMLDivElement;
 };
 
-type ArtPlayerPluginToastOption = {};
+export type ArtPlayerPluginToastOption = {};
 
-type ArtPlayerPluginToastResult = {
+export type ArtPlayerPluginToastResult = {
 	name: string;
-	toast(option: BilibiliPlayerToastConfig): void;
+	toast(option: BilibiliPlayerToastConfig | string): {
+		$toast: HTMLDivElement;
+		timeoutId: number;
+		close: () => void;
+	};
 };
 
 /** 在.mplayer内使用的toast */
 export const Toast = {
+	$data: {
+		art: null as any as Artplayer,
+	},
 	$key: {
 		plugin_KEY: "artplayer-plugin-toast",
 	},
@@ -80,10 +89,17 @@ export const Toast = {
                 `,
 			});
 			$toast.appendChild($closeBtn);
-			DOMUtils.on($closeBtn, "click", (event) => {
-				utils.preventEvent(event);
-				this.closeToast($toast);
-			});
+			DOMUtils.on(
+				$closeBtn,
+				"click",
+				(event) => {
+					utils.preventEvent(event);
+					this.closeToast($toast);
+				},
+				{
+					capture: true,
+				}
+			);
 		}
 		let $text = DOMUtils.createElement("span", {
 			className: this.$config.prefix + "-text",
@@ -104,15 +120,22 @@ export const Toast = {
 				innerText: config.jumpText,
 			});
 			$toast.appendChild($jump);
-			DOMUtils.on($jump, "click", (event) => {
-				if (typeof config.jumpClickCallback === "function") {
-					utils.preventEvent(event);
-					config.jumpClickCallback(event);
+			DOMUtils.on(
+				$jump,
+				"click",
+				(event) => {
+					if (typeof config.jumpClickCallback === "function") {
+						utils.preventEvent(event);
+						config.jumpClickCallback(event);
+					}
+				},
+				{
+					capture: true,
 				}
-			});
+			);
 		}
 
-		this.setTransitionendEvent($toast);
+		this.setTransitionendEvent($toast, config);
 		let timeout =
 			typeof config.timeout === "number" && !isNaN(config.timeout)
 				? config.timeout
@@ -120,12 +143,14 @@ export const Toast = {
 
 		$parent.appendChild($toast);
 
-		setTimeout(() => {
+		let timeoutId = setTimeout(() => {
 			this.closeToast($toast);
 		}, timeout);
 		return {
 			$toast: $toast,
+			timeoutId: timeoutId,
 			close: () => {
+				clearTimeout(timeoutId);
 				this.closeToast($toast);
 			},
 		};
@@ -169,6 +194,7 @@ export const Toast = {
             left: var(--art-padding);
             display: flex;
             align-items: center;
+			pointer-events: auto;
 		}
         .art-video-player.art-backdrop .${this.$config.prefix}{
             backdrop-filter: saturate(180%) blur(20px);
@@ -284,7 +310,10 @@ export const Toast = {
 	 * 监听过渡结束
 	 * @private
 	 */
-	setTransitionendEvent($toast: HTMLDivElement) {
+	setTransitionendEvent(
+		$toast: HTMLDivElement,
+		config: BilibiliPlayerToastConfig | string
+	) {
 		let that = this;
 		// 事件名称列表
 		let animationEndNameList = this.getTransitionendEventNameList();
@@ -299,6 +328,12 @@ export const Toast = {
 				// }
 				if ($toast.classList.contains(that.$config.hideClassName)) {
 					// 不显示了，移除元素
+					if (
+						typeof config === "object" &&
+						typeof config?.closeCallback === "function"
+					) {
+						config.closeCallback();
+					}
 					$toast.remove();
 					return;
 				}
@@ -317,11 +352,14 @@ export const Toast = {
 };
 export const artplayerPluginToast = (option?: ArtPlayerPluginToastOption) => {
 	return (art: Artplayer): ArtPlayerPluginToastResult => {
+		Toast.$data.art = art;
 		return {
 			name: Toast.$key.plugin_KEY,
 			toast(...args) {
-				Toast.toast(...args);
+				return Toast.toast(...args);
 			},
 		};
 	};
 };
+
+export const ArtPlayer_PLUGIN_TOAST_KEY = Toast.$key.plugin_KEY;

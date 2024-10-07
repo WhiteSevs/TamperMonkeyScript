@@ -56,15 +56,25 @@ export const BilibiliExtraSearch = {
 			}
 			`);
 			addStyle(/*css*/ `
-			.gm-result-panel {
-				padding-top: 23.46667vmin;
-				background: #f4f4f4;
+			#app .m-search{
 				--card-img-width: 90px;
 				--card-img-height: calc(var(--card-img-width) * 1.33 );
 				--card-desc-color: #808080;
 				--card-desc-size: 0.8em;
+				--card-badge-item-size: 0.7em;
+				--card-badge-item-padding: 0.1em 0.2em;
+				--card-badge-item-border-radius: 3px;
+				--card-ep-item-border-radius: 4px;
+				--card-ep-item-padding-top-bottom: 13px;
+				--card-ep-item-padding-left-right: 13px;
+				--card-ep-item-badge-padding: 2px;
+			}
+			.gm-result-panel {
+				padding-top: 23.46667vmin;
+				background: #f4f4f4;
 			}
 			.gm-card-cover{
+				position: relative;
 			}
 			.gm-card-cover img {
 				width: var(--card-img-width);
@@ -90,7 +100,7 @@ export const BilibiliExtraSearch = {
 				font-size: 1em;
 			}
 	
-			.gm-card-pubtime,
+			.gm-card-display-info,
 			.gm-card-styles,
 			span.gm-card-media_score-user_count {
 				font-size: var(--card-desc-size);
@@ -127,6 +137,7 @@ export const BilibiliExtraSearch = {
 				display: flex;
 				flex-direction: column;
 				gap: 15px;
+				overflow: hidden;
 			}
 			.gm-card-badges {
 				background: var(--bili-color);
@@ -136,7 +147,13 @@ export const BilibiliExtraSearch = {
 				border-radius: 3px;
 				white-space: nowrap;
 				position: absolute;
-				margin: 5px 0px 0px calc(var(--card-img-width) - 36px );
+				top: 5px;
+    			right: 5px;
+			}
+			.gm-card-badge-info-item{
+				font-size: var(--card-badge-item-size);
+				padding: var(--card-badge-item-padding);
+				border-radius: var(--card-badge-item-border-radius);
 			}
 			.gm-card-eps {
 				display: flex;
@@ -144,16 +161,29 @@ export const BilibiliExtraSearch = {
 				gap: 10px;
 			}
 	
-			.gm-card-eps-item {
+			.gm-card-ep-conatiner {
 				text-align: center;
 				white-space: nowrap;
-				padding: 10px;
+				padding: var(--card-ep-item-padding-top-bottom) var(--card-ep-item-padding-left-right);
 				background: #edeff3;
-				border-radius: 8px;
+				border-radius: var(--card-ep-item-border-radius);
 				font-size: 14px;
+				position: relative;
+			}
+
+			.gm-card-ep-badges-container{
+				position: absolute;
+				top: 0;
+				right: 0;
+				font-size: calc( var(--card-ep-item-padding-top-bottom) - var(--card-ep-item-badge-padding) );
 			}
 	
-			.gm-card-eps-item-info {
+			.gm-card-ep-badge-top-right{
+				border-top-right-radius: var(--card-ep-item-border-radius);
+    			border-bottom-left-radius: var(--card-ep-item-border-radius);
+				padding: var(--card-ep-item-badge-padding);
+			}
+			.gm-card-ep-info-container {
 				min-width: 30px;
 			}
 			`);
@@ -219,35 +249,39 @@ export const BilibiliExtraSearch = {
 					let keyword = searchResultVueIns.keyword;
 					let $loading = Qmsg.loading("搜索中，请稍后...");
 					// 搜索
-					let searchBangumiResult =
+					let searchBangumiResultInfo =
 						await BilibiliSearchApi.getBangumiSearchResult({
 							keyword: keyword,
 							area: area as any,
 							host: host,
 						});
 					$loading.close();
-					if (!searchBangumiResult) {
+					if (!searchBangumiResultInfo) {
 						return;
 					}
-					log.info(["搜索结果：", searchBangumiResult]);
+					if (!searchBangumiResultInfo.isSuccess) {
+						alert(JSON.stringify(searchBangumiResultInfo.data, null, 2));
+						return;
+					}
+					let searchBangumiResultData = searchBangumiResultInfo.data;
+					log.info(["搜索结果：", searchBangumiResultData]);
 
 					// 自定义搜索结果元素添加到页面中
 					let $gmResultPanel = DOMUtils.createElement("div", {
 						className: "gm-result-panel",
 						innerHTML: /*html*/ `
-					<div class="gm-list-view">
-						<div class="gm-video-list-box">
-							<div class="gm-video-list">
-								<div class="gm-card-box"></div>
+						<div class="gm-list-view">
+							<div class="gm-video-list-box">
+								<div class="gm-video-list">
+									<div class="gm-card-box"></div>
+								</div>
 							</div>
 						</div>
-					</div>
-
 					`,
 					});
 					let $gmCardBox =
 						$gmResultPanel.querySelector<HTMLElement>(".gm-card-box")!;
-					searchBangumiResult.forEach((searchBangumiResultItem) => {
+					searchBangumiResultData.forEach((searchBangumiResultItem) => {
 						$gmCardBox.appendChild(
 							this.createSearchResultVideoItem(searchBangumiResultItem)
 						);
@@ -267,13 +301,13 @@ export const BilibiliExtraSearch = {
 				innerHTML: /*html*/ `
 				<div class="gm-card-container">
 					<div class="gm-card-cover">
+						<div class="gm-card-badges">${option.season_type_name}</div>
 						<img src="${option.cover}" alt="封面">
 					</div>
-					<div class="gm-card-badges">${option.season_type_name}</div>
 					<div class="gm-card-info">
 						<div class="gm-card-info-container">
 							<div class="gm-card-title">${option.title}</div>
-							<div class="gm-card-pubtime">
+							<div class="gm-card-display-info">
 							</div>
 							<div class="gm-card-styles">${
 								option.styles ||
@@ -303,32 +337,63 @@ export const BilibiliExtraSearch = {
 				"data-is_selection": option.is_selection,
 			}
 		);
+		Reflect.set($item, "data-option", option);
 		DOMUtils.on($item, "click", (event) => {
 			utils.preventEvent(event);
 			window.open(option.url, "_blank");
 		});
-		// 添加发布时间、发布区域信息
-		let $pubtime = $item.querySelector<HTMLElement>(".gm-card-pubtime")!;
+		// 显示信息，包括发布时间、发布区域信息
+		// 排在前面的是display_info内的信息
+		let $displayInfo = $item.querySelector<HTMLElement>(
+			".gm-card-display-info"
+		)!;
+		let totalDisplayInfo: BilibiliSearchBangumiResultEntity["badges"] = [];
+
+		if (Array.isArray(option?.display_info)) {
+			totalDisplayInfo = totalDisplayInfo.concat(option.display_info);
+		}
+		if (Array.isArray(option?.badges)) {
+			totalDisplayInfo = totalDisplayInfo.concat(option.badges);
+		}
+		// 去重
+		totalDisplayInfo = utils.uniqueArray(totalDisplayInfo, (item) => item.text);
+
+		totalDisplayInfo.forEach((displayInfo) => {
+			let $displayInfoItem = DOMUtils.createElement("span", {
+				className: "gm-card-badge-info-item",
+				innerText: displayInfo.text,
+			});
+			if (typeof displayInfo.border_color === "string") {
+				// 边框颜色
+				$displayInfoItem.style.border = `1px solid ${displayInfo.border_color}`;
+				// 字体跟随边框
+				$displayInfoItem.style.color = displayInfo.border_color;
+			}
+			DOMUtils.append($displayInfo, $displayInfoItem);
+		});
+
 		if (option.pubtime) {
+			// 发布时间
 			DOMUtils.append(
-				$pubtime,
+				$displayInfo,
 				/*html*/ `
-			<span>${utils.formatTime(option.pubtime * 1000, "yyyy")}</span>
-			`
+				<span>${utils.formatTime(option.pubtime * 1000, "yyyy")}</span>
+				`
 			);
 		}
 		let areas = option.areas || Reflect.get(option, "area");
 		if (areas) {
-			if ($pubtime.children.length) {
+			// 发布区域
+			if ($displayInfo.children.length) {
 				DOMUtils.append(
-					$pubtime,
+					$displayInfo,
 					/*html*/ `
 					<span> | </span>
 				`
 				);
 			}
 			DOMUtils.append(
-				$pubtime,
+				$displayInfo,
 				/*html*/ `
 					<span>${areas}</span>
 				`
@@ -354,22 +419,22 @@ export const BilibiliExtraSearch = {
 		// 添加集数信息
 		let $eps = $item.querySelector<HTMLElement>(".gm-card-eps")!;
 		// 兼容一下漫游服务器的公告信息
-		let epsList = [
+		let epsList: BilibiliSearchBangumiResultEntity["eps"] = [
 			...(option.eps || []),
 			...(Reflect.get(option, "episodes_new") || []),
 		].filter((item) => utils.isNotNull(item));
 		epsList.forEach((epsItem) => {
 			let title = epsItem.title || epsItem.long_title;
 			let url = epsItem.url || Reflect.get(epsItem, "uri");
-			let $epsItem = DOMUtils.createElement(
+			let $epItem = DOMUtils.createElement(
 				"div",
 				{
-					className: "gm-card-eps-item",
+					className: "gm-card-ep-conatiner",
 					innerHTML: /*html*/ `
-				<div class="gm-card-eps-item-badges">
+				<div class="gm-card-ep-badges-container">
 					
 				</div>
-				<div class="gm-card-eps-item-info">
+				<div class="gm-card-ep-info-container">
 					${title}
 				</div>`,
 				},
@@ -380,11 +445,38 @@ export const BilibiliExtraSearch = {
 					"data-long_title": epsItem.long_title,
 				}
 			);
-			DOMUtils.on($epsItem, "click", (event) => {
+			// 右上角标志
+			let $epBadges = $epItem.querySelector<HTMLElement>(
+				".gm-card-ep-badges-container"
+			)!;
+			// 番剧集数
+			let $epInfo = $epItem.querySelector<HTMLElement>(
+				".gm-card-ep-info-container"
+			)!;
+			if (Array.isArray(epsItem.badges) && epsItem.badges.length) {
+				// 添加badges
+				// 只添加1个
+				let epItemBadgeInfo = epsItem.badges[0];
+				let $badge = DOMUtils.createElement("span", {
+					className: "gm-card-ep-badge-top-right",
+					innerText: epItemBadgeInfo.text,
+				});
+				if (typeof epItemBadgeInfo.bg_color === "string") {
+					// 背景颜色
+					$badge.style.backgroundColor = epItemBadgeInfo.bg_color;
+				}
+				if (typeof epItemBadgeInfo.text_color === "string") {
+					// 字体颜色
+					$badge.style.color = epItemBadgeInfo.text_color;
+				}
+				DOMUtils.append($epBadges, $badge);
+			}
+
+			DOMUtils.on($epItem, "click", (event) => {
 				utils.preventEvent(event);
 				window.open(url, "_blank");
 			});
-			$eps.appendChild($epsItem);
+			$eps.appendChild($epItem);
 		});
 		return $item;
 	},

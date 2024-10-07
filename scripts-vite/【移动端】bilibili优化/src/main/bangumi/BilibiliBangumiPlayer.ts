@@ -18,6 +18,7 @@ import { VideoSoundQualityCode } from "@/video-info/AudioDict";
 import { BilibiliLogUtils } from "@/utils/BilibiliLogUtils";
 import type { EP_INFO, EP_LIST } from "./TypeBangumi";
 import type { ArtPlayerPluginQualityOption } from "@/player/plugins/artplayer-plugin-quality";
+import type { ArtPlayerPluginAirborneHelperOption } from "@/player/plugins/artplayer-plugin-airborneHelper";
 
 type VideoQualityInfo = {
 	/** 画质文字 */
@@ -250,6 +251,9 @@ export const GenerateArtPlayerOption = async (
 
 	// 解析清晰度信息
 	let qualityInfo: VideoQualityInfo[] = [];
+	// 空降信息
+	let clip_info_list: ArtPlayerPluginAirborneHelperOption["clip_info_list"] =
+		[];
 	/** 是否是flv */
 	let isFlv = false;
 	let flvInfo: BilibiliBangumiArtPlayerOption["flvInfo"] = [];
@@ -268,7 +272,16 @@ export const GenerateArtPlayerOption = async (
 			// 没获取到
 			return;
 		}
-
+		// 设置空降信息
+		if (Array.isArray(bangumiInfo?.clip_info_list)) {
+			clip_info_list =
+				bangumiInfo.clip_info_list as ArtPlayerPluginAirborneHelperOption["clip_info_list"];
+			// @ts-ignore
+		} else if (Array.isArray(bangumiInfo?.clip_info)) {
+			clip_info_list =
+				// @ts-ignore
+				bangumiInfo.clip_info as ArtPlayerPluginAirborneHelperOption["clip_info_list"];
+		}
 		// 遍历视频
 		let userChooseVideoCodingCode =
 			BangumiArtPlayerVideoConfig.getUserChooseVideoCodingCode();
@@ -348,6 +361,16 @@ export const GenerateArtPlayerOption = async (
 			// 未获取到信息
 			return;
 		}
+		// 设置空降信息
+		// @ts-ignore
+		if (Array.isArray(bangumiInfo?.clip_info_list)) {
+			clip_info_list =
+				// @ts-ignore
+				bangumiInfo.clip_info_list as ArtPlayerPluginAirborneHelperOption["clip_info_list"];
+		} else if (Array.isArray(bangumiInfo?.clip_info)) {
+			clip_info_list =
+				bangumiInfo.clip_info as ArtPlayerPluginAirborneHelperOption["clip_info_list"];
+		}
 		qualityInfo = qualityInfo.concat(handleQueryVideoQualityData(bangumiInfo));
 	}
 
@@ -373,6 +396,7 @@ export const GenerateArtPlayerOption = async (
 		videoTitle: videoTitle,
 		danmukuUrl: `https://api.bilibili.com/x/v1/dm/list.so?oid=${cid}`,
 		quality: currentVideoQuality,
+		clip_info_list: clip_info_list,
 		isFlv: isFlv,
 		flvInfo: flvInfo,
 		flvTotalDuration: flvTotalDuration,
@@ -443,6 +467,7 @@ export const BlibiliBangumiPlayer = {
 				}
 				// 设置container参数
 				artPlayerOption!.container = $artPlayer;
+
 				// 初始化artplayer播放器
 				if (BilibiliBangumi.$data.art == null) {
 					let art = await BilibiliBangumiArtPlayer.init(artPlayerOption);

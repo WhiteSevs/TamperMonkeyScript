@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.7
+// @version      2024.10.7.18
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/497907/1413262/QRCodeJS.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
@@ -1714,6 +1714,13 @@
                     "顶部工具栏",
                     "artplayer-plugin-bangumi-toptoolbar-enable",
                     true
+                  ),
+                  UISwitch(
+                    "空降助手",
+                    "artplayer-plugin-bangumi-airborneHelper-enable",
+                    false,
+                    void 0,
+                    "如果获取到的信息中存在空降信息，如跳过片头片尾，那么会自动跳过"
                   )
                 ]
               },
@@ -1884,6 +1891,13 @@
                     false,
                     void 0,
                     ""
+                  ),
+                  UISwitch(
+                    "美化搜索结果",
+                    "bili-search-beautifySearchResult",
+                    true,
+                    void 0,
+                    "重构搜索结果的样式"
                   ),
                   UISwitch(
                     "开启其它地区番剧搜索",
@@ -3107,7 +3121,7 @@
   };
   const BilibiliVideoBeautifyCSS = '@charset "UTF-8";\r\n#app .video {\r\n	/* 下面的推荐视频卡片 */\r\n}\r\n#app .video .video-list .card-box {\r\n	--left-card-width: 33%;\r\n	--right-child-padding: 1.333vmin;\r\n	/* 开启了bili-video-beautify */\r\n}\r\n#app .video .video-list .card-box .v-card-toapp {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a {\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n	gap: var(--right-child-padding);\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card {\r\n	width: var(--left-card-width);\r\n	height: 80px;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .left {\r\n	display: list-item;\r\n}\r\n#app\r\n	.video\r\n	.video-list\r\n	.card-box\r\n	.v-card-toapp\r\n	> a\r\n	.card\r\n	.count\r\n	.left\r\n	span.item {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .duration {\r\n	background: rgba(0, 0, 0, 0.4);\r\n	border-radius: 0.6vmin;\r\n	padding: 0px 0.5vmin;\r\n	right: 1vmin;\r\n	bottom: 1vmin;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .title {\r\n	flex: 1;\r\n	/*padding: var(--right-child-padding);*/\r\n	padding-top: 0;\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n#app .video .video-list .card-box .gm-right-container {\r\n	display: flex;\r\n	flex-direction: column;\r\n	width: calc(100% - var(--left-card-width));\r\n}\r\n#app .video .video-list .card-box .gm-right-container > * {\r\n	padding: var(--right-child-padding);\r\n	padding-bottom: 0;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	gap: 1rem;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .left span {\r\n	display: flex;\r\n	align-items: safe center;\r\n	gap: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name,\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	color: #999;\r\n	font-size: 3vmin;\r\n	transform-origin: left;\r\n	display: flex;\r\n	/*align-items: safe center;*/\r\n	align-items: safe flex-end;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name svg{\r\n	width: 3vmin;\r\n	height: 3vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name-text {\r\n	margin-left: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .num {\r\n	margin-right: 4vmin;\r\n}\r\n#app .video .video-list .card-box > a.v-card {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card {\r\n	width: var(--left-card-width);\r\n	height: 100%;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count span {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count .duration {\r\n	background-color: rgba(0, 0, 0, 0.3);\r\n	border-radius: 4px;\r\n	color: #fff;\r\n	font-size: 12px;\r\n	height: 16px;\r\n	line-height: 16px;\r\n	margin-left: auto;\r\n	padding-left: 4px;\r\n	padding-right: 4px;\r\n}\r\n#app .video .video-list .card-box > a.v-card .title {\r\n	flex: 1;\r\n	/*padding: var(--right-child-padding);*/\r\n	padding-top: 0;\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n';
   const artPlayerCSS$1 = ".artplayer-container {\r\n	position: absolute;\r\n	width: 100%;\r\n	height: 100%;\r\n	top: 0;\r\n	left: 0;\r\n	overflow: hidden;\r\n}";
-  const artPlayerCommonCSS = "/* 设置播放器基础宽高 */\r\n#artplayer {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n/* 通用隐藏class */\r\n.art-video-player .art-common-hide {\r\n	display: none !important;\r\n}\r\n/* 设置播放器基础宽高 */\r\n.art-video-player {\r\n	width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n	display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n	backdrop-filter: unset !important;\r\n}\r\n/* 底部的设置菜单当前选中的提示文字设置文字溢出省略号 */\r\n.art-settings .art-setting-item .art-setting-item-right-tooltip {\r\n	max-width: 100px;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n}\r\n\r\n/* 竖屏 宽度小于550px */\r\n@media (orientation: portrait) and (max-width: 550px) {\r\n	/* 隐藏 弹幕设置按钮 */\r\n	.artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		display: none !important;\r\n	}\r\n	/* 弹幕库靠右对齐 */\r\n	.artplayer-plugin-danmuku {\r\n		justify-content: right;\r\n	}\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n	/* 限制弹幕输入框的最大宽度 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		max-width: 260px;\r\n	}\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-lock .art-layer-top-wrap {\r\n	/* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */\r\n	display: none !important;\r\n}\r\n.art-layer-top-wrap {\r\n	--layer-top-wrap-follow-text-font-size: 0.8em;\r\n	--layer-top-wrap-follow-icon-size: 1em;\r\n	width: 100%;\r\n	position: absolute;\r\n	top: 0px;\r\n	right: 0px;\r\n	color: #fff;\r\n	display: -webkit-box;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	left: 0;\r\n	-webkit-transition: all 0.2s ease-in-out;\r\n	transition: all 0.2s ease-in-out;\r\n	width: 100%;\r\n	background: rgba(0, 0, 0, 0.8);\r\n	padding: 10px calc(var(--art-padding));\r\n	z-index: 60;\r\n}\r\n.art-player-top-wrap {\r\n	width: 100%;\r\n}\r\n.art-player-top-wrap .art-player-top-title-text {\r\n	white-space: nowrap;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n	max-width: 100%;\r\n}\r\n/* 面板隐藏时，顶部toolbar也隐藏 */\r\n.art-hide-cursor .art-layer-top-wrap {\r\n	transform: translateY(-60px);\r\n}\r\n/*.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}*/\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n	margin-top: var(--art-padding);\r\n	gap: var(--layer-top-wrap-follow-text-font-size);\r\n	font-size: var(--layer-top-wrap-follow-text-font-size);\r\n	display: flex;\r\n	align-items: center;\r\n	position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n	width: var(--layer-top-wrap-follow-icon-size);\r\n	height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n	text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n\r\n/* 插件-锁定 */\r\n.art-video-player .art-layers .art-layer.art-layer-lock {\r\n	/* 放在右边 */\r\n	right: 0;\r\n	left: calc(100% - 20px - var(--art-lock-size) - var(--art-lock-left-size));\r\n}\r\n/* 插件-锁定 */\r\n";
+  const artPlayerCommonCSS = "/* 设置播放器基础宽高 */\r\n#artplayer {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n/* 通用隐藏class */\r\n.art-video-player .art-common-hide {\r\n	display: none !important;\r\n}\r\n/* 设置播放器基础宽高 */\r\n.art-video-player {\r\n	width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n	display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n	backdrop-filter: unset !important;\r\n}\r\n/* 底部的设置菜单当前选中的提示文字设置文字溢出省略号 */\r\n.art-settings .art-setting-item .art-setting-item-right-tooltip {\r\n	max-width: 100px;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n}\r\n\r\n/* 竖屏 宽度小于550px */\r\n@media (orientation: portrait) and (max-width: 550px) {\r\n	/* 隐藏 弹幕设置按钮 */\r\n	.artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		display: none !important;\r\n	}\r\n	/* 弹幕库靠右对齐 */\r\n	.artplayer-plugin-danmuku {\r\n		justify-content: right;\r\n	}\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n	/* 限制弹幕输入框的最大宽度 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		max-width: 260px;\r\n	}\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-lock .art-layer-top-wrap {\r\n	/* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */\r\n	display: none !important;\r\n}\r\n.art-layer-top-wrap {\r\n	--layer-top-wrap-follow-text-font-size: 0.8em;\r\n	--layer-top-wrap-follow-icon-size: 1em;\r\n	width: 100%;\r\n	position: absolute;\r\n	top: 0px;\r\n	right: 0px;\r\n	color: #fff;\r\n	display: -webkit-box;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	left: 0;\r\n	-webkit-transition: all 0.2s ease-in-out;\r\n	transition: all 0.2s ease-in-out;\r\n	width: 100%;\r\n	background: linear-gradient(to bottom, #000, transparent);\r\n	padding: 10px calc(var(--art-padding));\r\n	z-index: 60;\r\n}\r\n.art-player-top-wrap {\r\n	width: 100%;\r\n}\r\n.art-player-top-wrap .art-player-top-title-text {\r\n	white-space: nowrap;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n	max-width: 100%;\r\n}\r\n/* 面板隐藏时，顶部toolbar也隐藏 */\r\n.art-hide-cursor .art-layer-top-wrap {\r\n	transform: translateY(-60px);\r\n}\r\n/*.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}*/\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n	margin-top: var(--art-padding);\r\n	gap: var(--layer-top-wrap-follow-text-font-size);\r\n	font-size: var(--layer-top-wrap-follow-text-font-size);\r\n	display: flex;\r\n	align-items: center;\r\n	position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n	width: var(--layer-top-wrap-follow-icon-size);\r\n	height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n	text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n\r\n/* 插件-锁定 */\r\n.art-video-player .art-layers .art-layer.art-layer-lock {\r\n	/* 放在右边 */\r\n	right: 0;\r\n	left: calc(100% - 20px - var(--art-lock-size) - var(--art-lock-left-size));\r\n}\r\n/* 插件-锁定 */\r\n";
   const BilibiliRequestCheck = {
     /**
      * 合并并检查是否传入aid或者bvid
@@ -3406,7 +3420,7 @@
       );
     }
   }
-  const TAG$3 = "[artplayer-plugin-bilibiliCCSubTitle]：";
+  const TAG$4 = "[artplayer-plugin-bilibiliCCSubTitle]：";
   const ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY = "setting-bilibili-m4sAudio";
   const M4SAudioUtils = {
     $flag: {
@@ -3441,7 +3455,7 @@
           try {
             fn();
           } catch (error) {
-            console.error(TAG$3, error);
+            console.error(TAG$4, error);
           }
         }
         intervalCount++;
@@ -3628,7 +3642,7 @@
     },
     audioEvents: {
       loadedmetadata: (event) => {
-        console.log(TAG$3 + "Audio预加载完成");
+        console.log(TAG$4 + "Audio预加载完成");
         M4SAudio.$data.reconnectInfo.count = 0;
         M4SAudio.$data.reconnectInfo.url = "";
         M4SAudio.handler.syncPlayState();
@@ -3641,7 +3655,7 @@
       },
       canplaythrough: (event) => {
         console.log(
-          TAG$3 + "浏览器估计该音频可以在不停止内容缓冲的情况下播放媒体直到结束"
+          TAG$4 + "浏览器估计该音频可以在不停止内容缓冲的情况下播放媒体直到结束"
         );
         M4SAudioUtils.intervalHandler(
           () => {
@@ -3653,13 +3667,13 @@
         );
       },
       error: (event) => {
-        console.error(TAG$3 + `Audio加载失败`, event);
+        console.error(TAG$4 + `Audio加载失败`, event);
         if (utils.isNull(M4SAudio.$data.reconnectInfo.url)) {
           M4SAudio.$data.reconnectInfo.url = M4SAudio.$data.audio.src;
         }
         if (M4SAudio.$data.reconnectInfo.count < M4SAudio.$data.reconnectConfig.maxCount) {
           console.log(
-            TAG$3 + `Audio第${M4SAudio.$data.reconnectInfo.count + 1}次尝试重新连接`
+            TAG$4 + `Audio第${M4SAudio.$data.reconnectInfo.count + 1}次尝试重新连接`
           );
           M4SAudio.$data.art.notice.show = `Audio第${M4SAudio.$data.reconnectInfo.count + 1}次尝试重新连接`;
           M4SAudio.$data.reconnectInfo.count++;
@@ -3669,7 +3683,7 @@
             M4SAudio.$data.audio.load();
           }, M4SAudio.$data.reconnectConfig.delayTime);
         } else {
-          console.error(TAG$3 + `Audio已超出重连次数`);
+          console.error(TAG$4 + `Audio已超出重连次数`);
           M4SAudio.$data.art.notice.show = `Audio已超出重连次数，请尝试切换源`;
         }
       }
@@ -3687,7 +3701,9 @@
         }
         M4SAudio.$data.audio.src = url;
         M4SAudio.unbindAudio();
-        M4SAudio.bindAudio();
+        if (utils.isNotNull(url)) {
+          M4SAudio.bindAudio();
+        }
       },
       /** 播放音频 */
       play() {
@@ -3768,7 +3784,7 @@
             currentSelectAudioInfo.html = findAudio.soundQualityCodeText;
           } else {
             console.warn(
-              TAG$3 + "没有找到上次选的音频代码，使用当前默认第一个音频"
+              TAG$4 + "没有找到上次选的音频代码，使用当前默认第一个音频"
             );
           }
         }
@@ -3799,7 +3815,7 @@
           selector: selectorList,
           onSelect: function(selector) {
             let itemInfo = selector;
-            console.log(TAG$3 + "切换音频", itemInfo);
+            console.log(TAG$4 + "切换音频", itemInfo);
             that.handler.playUrl(itemInfo.url);
             that.$data.art.storage.set(storageKey, {
               soundQualityCode: itemInfo.soundQualityCode
@@ -4177,7 +4193,7 @@
       }
     }
   };
-  const TAG$2 = "[artplayer-plugin-bilibiliCCSubTitle]：";
+  const TAG$3 = "[artplayer-plugin-bilibiliCCSubTitle]：";
   const SubTitleCustomStr = {
     src: "臟妳為傢蔔餵眾係姊託迴蹟儘封啟",
     des: "脏你为家卜喂众系姐托回迹尽对启",
@@ -4405,20 +4421,20 @@
         }
       );
       if (!videoInfoResponse.status) {
-        console.error(TAG$2 + "获取视频信息失败", videoInfoResponse);
+        console.error(TAG$3 + "获取视频信息失败", videoInfoResponse);
         return;
       }
-      console.log(TAG$2 + "视频字幕信息", videoInfoResponse);
+      console.log(TAG$3 + "视频字幕信息", videoInfoResponse);
       const videoInfoResultJSON = utils.toJSON(
         videoInfoResponse.data.responseText
       );
       if (!BilibiliResponseCheck.isWebApiSuccess(videoInfoResultJSON)) {
-        console.error(TAG$2 + "获取视频信息失败", videoInfoResultJSON);
+        console.error(TAG$3 + "获取视频信息失败", videoInfoResultJSON);
         return;
       }
       let subTitleUrlInfoList = videoInfoResultJSON["data"]["subtitle"]["subtitles"];
       if (!subTitleUrlInfoList.length) {
-        console.warn(TAG$2 + "获取字幕链接列表为空", videoInfoResultJSON);
+        console.warn(TAG$3 + "获取字幕链接列表为空", videoInfoResultJSON);
         return;
       }
       for (let index = 0; index < subTitleUrlInfoList.length; index++) {
@@ -4489,7 +4505,7 @@
           subTitle_data: simpleChineseSubtitleData
         });
       }
-      console.log(TAG$2 + "加载视频CC字幕信息", SubTitleData.allSubTitleInfo);
+      console.log(TAG$3 + "加载视频CC字幕信息", SubTitleData.allSubTitleInfo);
       let firstSubTitle = settingOption.selector[0];
       let currentSelectSubTitle = {
         index: 0,
@@ -4504,11 +4520,11 @@
         );
         if (findInfoIndex !== -1) {
           const findInfo = settingOption.selector[findInfoIndex];
-          console.log(TAG$2 + "选择字幕：" + findInfo.html);
+          console.log(TAG$3 + "选择字幕：" + findInfo.html);
           currentSelectSubTitle.index = findInfoIndex;
           currentSelectSubTitle.html = findInfo.html;
         } else {
-          console.warn(TAG$2 + "没有找到上次选的字幕，使用当前默认无");
+          console.warn(TAG$3 + "没有找到上次选的字幕，使用当前默认无");
         }
       }
       for (let index = 0; index < settingOption.selector.length; index++) {
@@ -4552,7 +4568,7 @@
     };
   }
   const ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY = SubTitle.$key.plugin_KEY;
-  const TAG$1 = "[artplayer-plugin-epChoose]：";
+  const TAG$2 = "[artplayer-plugin-epChoose]：";
   const GenerateArtPlayerEpTitle = (title, title_id) => {
     if (title_id == null) {
       return title;
@@ -4593,7 +4609,7 @@
           findIndex += 1;
           this.onSelect(this.selector[findIndex]);
         } else {
-          console.warn(TAG$1 + "当前播放列表已无下一集");
+          console.warn(TAG$2 + "当前播放列表已无下一集");
         }
       }
     };
@@ -4601,7 +4617,7 @@
   const EpChooseEvent = {
     $event: {
       "video:ended": () => {
-        console.log(TAG$1 + "当前ep播放完毕，连播下一集");
+        console.log(TAG$2 + "当前ep播放完毕，连播下一集");
         let settingIns = EpChoose.$data.art.setting.find(
           EpChoose.$key.SETTING_KEY
         );
@@ -4770,7 +4786,7 @@
       icons: ArtPlayerBiliBiliIcon
     };
   };
-  const TAG = "[artplayer-plugin-quality]：";
+  const TAG$1 = "[artplayer-plugin-quality]：";
   const ArtPlayer_PLUGIN_QUALITY_KEY = "artplayer-plugin-quality";
   const Quality = {
     $data: {
@@ -4805,7 +4821,7 @@
             currentSelectQualityInfo.url = findQuality.url;
             currentSelectQualityInfo.html = findQuality.html;
           } else {
-            console.warn(TAG + "没有找到上次选的画质，使用当前默认第一个画质");
+            console.warn(TAG$1 + "没有找到上次选的画质，使用当前默认第一个画质");
           }
         }
         let selectorList = option.qualityList.map((item, index) => {
@@ -4824,7 +4840,7 @@
           selector: selectorList,
           onSelect: function(selector) {
             let itemInfo = selector;
-            console.log(TAG + "切换画质", itemInfo);
+            console.log(TAG$1 + "切换画质", itemInfo);
             that.$data.art.switchQuality(itemInfo.url);
             that.$data.art.storage.set(storageKey, {
               quality: itemInfo.quality
@@ -4857,6 +4873,9 @@
     };
   };
   const Toast = {
+    $data: {
+      art: null
+    },
     $key: {
       plugin_KEY: "artplayer-plugin-toast"
     },
@@ -4909,10 +4928,17 @@
           )
         });
         $toast.appendChild($closeBtn);
-        domutils.on($closeBtn, "click", (event) => {
-          utils.preventEvent(event);
-          this.closeToast($toast);
-        });
+        domutils.on(
+          $closeBtn,
+          "click",
+          (event) => {
+            utils.preventEvent(event);
+            this.closeToast($toast);
+          },
+          {
+            capture: true
+          }
+        );
       }
       let $text = domutils.createElement("span", {
         className: this.$config.prefix + "-text",
@@ -4932,22 +4958,31 @@
           innerText: config.jumpText
         });
         $toast.appendChild($jump);
-        domutils.on($jump, "click", (event) => {
-          if (typeof config.jumpClickCallback === "function") {
-            utils.preventEvent(event);
-            config.jumpClickCallback(event);
+        domutils.on(
+          $jump,
+          "click",
+          (event) => {
+            if (typeof config.jumpClickCallback === "function") {
+              utils.preventEvent(event);
+              config.jumpClickCallback(event);
+            }
+          },
+          {
+            capture: true
           }
-        });
+        );
       }
-      this.setTransitionendEvent($toast);
+      this.setTransitionendEvent($toast, config);
       let timeout = typeof config.timeout === "number" && !isNaN(config.timeout) ? config.timeout : 3500;
       $parent.appendChild($toast);
-      setTimeout(() => {
+      let timeoutId = setTimeout(() => {
         this.closeToast($toast);
       }, timeout);
       return {
         $toast,
+        timeoutId,
         close: () => {
+          clearTimeout(timeoutId);
           this.closeToast($toast);
         }
       };
@@ -4992,6 +5027,7 @@
             left: var(--art-padding);
             display: flex;
             align-items: center;
+			pointer-events: auto;
 		}
         .art-video-player.art-backdrop .${this.$config.prefix}{
             backdrop-filter: saturate(180%) blur(20px);
@@ -5096,7 +5132,7 @@
      * 监听过渡结束
      * @private
      */
-    setTransitionendEvent($toast) {
+    setTransitionendEvent($toast, config) {
       let that = this;
       let animationEndNameList = this.getTransitionendEventNameList();
       domutils.on(
@@ -5105,6 +5141,9 @@
         function(event) {
           let dataTransition = $toast.getAttribute("data-transition");
           if ($toast.classList.contains(that.$config.hideClassName)) {
+            if (typeof config === "object" && typeof (config == null ? void 0 : config.closeCallback) === "function") {
+              config.closeCallback();
+            }
             $toast.remove();
             return;
           }
@@ -5121,14 +5160,16 @@
   };
   const artplayerPluginToast = (option) => {
     return (art) => {
+      Toast.$data.art = art;
       return {
         name: Toast.$key.plugin_KEY,
         toast(...args) {
-          Toast.toast(...args);
+          return Toast.toast(...args);
         }
       };
     };
   };
+  const ArtPlayer_PLUGIN_TOAST_KEY = Toast.$key.plugin_KEY;
   const generateVideoSelectSetting = (option) => {
     return (option.epList || []).map((epInfo) => {
       return {
@@ -6444,6 +6485,141 @@
       return responseResult;
     }
   };
+  const TAG = "[artplayer-plugin-airborneHelper]：";
+  const AirborneHelperEvent = {
+    $data: {
+      tipJumpToastTimeoutId: void 0,
+      tipJumpToastInfo: void 0,
+      successJumpToastInfo: void 0
+    },
+    $event: {
+      "video:timeupdate": () => {
+        if (AirborneHelperEvent.$data.tipJumpToastTimeoutId != null) {
+          return;
+        }
+        if (!AirborneHelper.$data.art.playing) {
+          return;
+        }
+        const beforeToastTime = 5;
+        let currentTime = AirborneHelper.$data.art.currentTime;
+        let findIndex = AirborneHelper.$data.option.clip_info_list.findIndex(
+          (item) => {
+            let jumpTime = item.start;
+            if (jumpTime === 0) {
+              return currentTime <= 1;
+            } else {
+              return currentTime >= jumpTime - beforeToastTime && currentTime < jumpTime;
+            }
+          }
+        );
+        if (findIndex !== -1) {
+          let toastCloseCallBack = function() {
+            var _a2;
+            clearTimeout(AirborneHelperEvent.$data.tipJumpToastTimeoutId);
+            AirborneHelperEvent.$data.tipJumpToastTimeoutId = void 0;
+            (_a2 = AirborneHelperEvent.$data.tipJumpToastInfo) == null ? void 0 : _a2.close();
+            AirborneHelperEvent.$data.tipJumpToastInfo = void 0;
+            AirborneHelper.$data.option.clip_info_list.splice(findIndex, 1);
+          };
+          let findValue = AirborneHelper.$data.option.clip_info_list[findIndex];
+          let plugin_toast = AirborneHelper.$data.art.plugins[ArtPlayer_PLUGIN_TOAST_KEY];
+          let timeout = (findValue.start - currentTime) * 1e3;
+          AirborneHelperEvent.$data.tipJumpToastTimeoutId = setTimeout(() => {
+            AirborneHelper.$data.art.currentTime = findValue.end;
+            AirborneHelperEvent.$data.tipJumpToastTimeoutId = void 0;
+            if (AirborneHelperEvent.$data.successJumpToastInfo) {
+              AirborneHelperEvent.$data.successJumpToastInfo.close();
+              AirborneHelperEvent.$data.successJumpToastInfo = void 0;
+            }
+            AirborneHelperEvent.$data.successJumpToastInfo = plugin_toast.toast({
+              text: "空降成功~o(*≧▽≦)ツ┏━┓",
+              closeCallback() {
+                AirborneHelperEvent.$data.successJumpToastInfo = void 0;
+              }
+            });
+          }, timeout);
+          if (AirborneHelperEvent.$data.tipJumpToastInfo) {
+            AirborneHelperEvent.$data.tipJumpToastInfo.close();
+            AirborneHelperEvent.$data.tipJumpToastInfo = void 0;
+          }
+          AirborneHelperEvent.$data.tipJumpToastInfo = plugin_toast.toast({
+            text: typeof findValue.toastText === "string" ? findValue.toastText : "站稳扶好，准备起飞~",
+            timeout: timeout < 2e3 ? 2e3 : timeout,
+            showCloseBtn: false,
+            jumpText: typeof findValue.toastText === "string" ? "不跳过" : "坠机",
+            jumpClickCallback: () => {
+              toastCloseCallBack();
+            }
+          });
+          setTimeout(() => {
+            if (AirborneHelperEvent.$data.tipJumpToastInfo) {
+              AirborneHelperEvent.$data.tipJumpToastInfo.close();
+              AirborneHelperEvent.$data.tipJumpToastInfo = void 0;
+            }
+          }, (beforeToastTime + 3) * 1e3);
+        }
+      }
+    },
+    bind() {
+      Object.keys(this.$event).forEach((eventName) => {
+        AirborneHelper.$data.art.on(
+          eventName,
+          this.$event[eventName]
+        );
+      });
+    },
+    unbind() {
+      Object.keys(this.$event).forEach((eventName) => {
+        AirborneHelper.$data.art.off(
+          eventName,
+          this.$event[eventName]
+        );
+      });
+      clearTimeout(AirborneHelperEvent.$data.tipJumpToastTimeoutId);
+      AirborneHelperEvent.$data.tipJumpToastTimeoutId = void 0;
+      if (AirborneHelperEvent.$data.successJumpToastInfo) {
+        AirborneHelperEvent.$data.successJumpToastInfo.close();
+        AirborneHelperEvent.$data.successJumpToastInfo = void 0;
+      }
+      if (AirborneHelperEvent.$data.tipJumpToastInfo) {
+        AirborneHelperEvent.$data.tipJumpToastInfo.close();
+        AirborneHelperEvent.$data.tipJumpToastInfo = void 0;
+      }
+    }
+  };
+  const AirborneHelper = {
+    $key: {
+      plugin_KEY: "plugin-airborne-helper"
+    },
+    $data: {
+      art: null,
+      option: null
+    },
+    init(art, option) {
+      this.$data.art = art;
+      this.update(option);
+    },
+    update(option) {
+      this.$data.option = option;
+      console.log(TAG + "更新配置", option);
+      AirborneHelperEvent.unbind();
+      if (option.clip_info_list.length) {
+        AirborneHelperEvent.bind();
+      }
+    }
+  };
+  const artplayerPluginAirborneHelper = (option) => {
+    return (art) => {
+      AirborneHelper.init(art, option);
+      return {
+        name: AirborneHelper.$key.plugin_KEY,
+        update(option2) {
+          AirborneHelper.update(option2);
+        }
+      };
+    };
+  };
+  const ArtPlayer_PLUGIN_AIRBORNE_HELPER_KEY = AirborneHelper.$key.plugin_KEY;
   const TAG_FLV = "[flvjs]：";
   const generateBangumiVideoSelectSetting = (option) => {
     return option.epList.map((item) => {
@@ -6708,6 +6884,13 @@
           })
         );
       }
+      if (PopsPanel.getValue("artplayer-plugin-bangumi-airborneHelper-enable")) {
+        artOption.plugins.push(
+          artplayerPluginAirborneHelper({
+            clip_info_list: option.clip_info_list
+          })
+        );
+      }
       this.$data.art = new Artplayer(artOption);
       if (PopsPanel.getValue("artplayer-plugin-bangumi-danmaku-enable")) {
         artPlayerDanmakuOptionHelper.repairBrowserNoResponse(this.$data.art);
@@ -6723,12 +6906,7 @@
     async update(art, option) {
       this.resetEnv(false);
       this.$data.currentOption = option;
-      if (typeof option.url === "string") {
-        option.url;
-      } else if (typeof option.url === "function") {
-        await option.url();
-      }
-      log.info([`更新新的播放信息`, option]);
+      log.info(`更新新的播放信息`, option);
       art.pause();
       log.info(`暂停视频`);
       art.currentTime = 0;
@@ -6748,49 +6926,66 @@
         from: "bangumi",
         qualityList: option.quality
       });
-      log.info([`更新画质`, option.quality]);
-      let plugin_m4sAudioSupport = art.plugins[ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY];
-      plugin_m4sAudioSupport.update({
-        from: "bangumi",
-        audioList: option.audioList || []
-      });
-      log.info([`更新音频`, option.audioList]);
-      let plugin_bilibiliCCSubTitle = art.plugins[ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY];
-      const subTitleOption = {
-        from: "bangumi",
-        cid: option.cid,
-        aid: option.aid,
-        ep_id: option.ep_id
-      };
-      plugin_bilibiliCCSubTitle.update(subTitleOption);
-      log.info([`更新字幕`, subTitleOption]);
-      let plugin_topToolBar = art.plugins[ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY];
-      const topToolBarOption = {
-        showRight: true,
-        showRightFollow: true,
-        showWrap: true,
-        showTitle: true,
-        showOnlineTotal: true,
-        title: option.videoTitle,
-        onlineInfoParams: {
-          aid: option.aid,
+      log.info(`更新画质`, option.quality);
+      if (PopsPanel.getValue("artplayer-plugin-bangumi-danmaku-enable")) {
+        art.plugins.artplayerPluginDanmuku.config({
+          danmuku: option.danmukuUrl
+        });
+        art.plugins.artplayerPluginDanmuku.load();
+        log.info(`更新弹幕姬`, option.danmukuUrl);
+      }
+      if (PopsPanel.getValue("artplayer-plugin-bangumi-m4sAudioSupport-enable")) {
+        let plugin_m4sAudioSupport = art.plugins[ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY];
+        plugin_m4sAudioSupport.update({
+          from: "bangumi",
+          audioList: option.audioList || []
+        });
+        log.info(`更新音频`, option.audioList);
+      }
+      if (PopsPanel.getValue("artplayer-plugin-bangumi-epChoose-enable")) {
+        let plugin_epChoose = art.plugins[ArtPlayer_PLUGIN_EP_CHOOSE_KEY];
+        plugin_epChoose.update({
+          EP_LIST: generateBangumiVideoSelectSetting(option),
+          automaticBroadcast: true
+        });
+        log.info(`更新选集信息`, option.epList);
+      }
+      if (PopsPanel.getValue("artplayer-plugin-bangumi-cc-subtitle-enable")) {
+        let plugin_bilibiliCCSubTitle = art.plugins[ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY];
+        const subTitleOption = {
+          from: "bangumi",
           cid: option.cid,
-          bvid: option.bvid
-        }
-      };
-      plugin_topToolBar.update(topToolBarOption);
-      log.info([`更新顶部标题`, topToolBarOption]);
-      let plugin_epChoose = art.plugins[ArtPlayer_PLUGIN_EP_CHOOSE_KEY];
-      plugin_epChoose.update({
-        EP_LIST: generateBangumiVideoSelectSetting(option),
-        automaticBroadcast: true
-      });
-      log.info([`更新选集信息`, option.epList]);
-      art.plugins.artplayerPluginDanmuku.config({
-        danmuku: option.danmukuUrl
-      });
-      art.plugins.artplayerPluginDanmuku.load();
-      log.info([`更新弹幕姬`, option.danmukuUrl]);
+          aid: option.aid,
+          ep_id: option.ep_id
+        };
+        plugin_bilibiliCCSubTitle.update(subTitleOption);
+        log.info(`更新字幕`, subTitleOption);
+      }
+      if (PopsPanel.getValue("artplayer-plugin-bangumi-toptoolbar-enable")) {
+        let plugin_topToolBar = art.plugins[ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY];
+        const topToolBarOption = {
+          showRight: true,
+          showRightFollow: true,
+          showWrap: true,
+          showTitle: true,
+          showOnlineTotal: true,
+          title: option.videoTitle,
+          onlineInfoParams: {
+            aid: option.aid,
+            cid: option.cid,
+            bvid: option.bvid
+          }
+        };
+        plugin_topToolBar.update(topToolBarOption);
+        log.info(`更新顶部标题`, topToolBarOption);
+      }
+      if (PopsPanel.getValue("artplayer-plugin-bangumi-airborneHelper-enable")) {
+        let plugin_airborneHelper = art.plugins[ArtPlayer_PLUGIN_AIRBORNE_HELPER_KEY];
+        plugin_airborneHelper.update({
+          clip_info_list: option.clip_info_list
+        });
+        log.info(`更新空降助手信息`, option.clip_info_list);
+      }
     }
   };
   const BangumiArtPlayerVideoConfig = {
@@ -6943,6 +7138,7 @@
     const videoTitle = GenerateVideoTitle(title, long_title);
     const audioInfo = [];
     let qualityInfo = [];
+    let clip_info_list = [];
     let isFlv = false;
     let flvInfo = [];
     let flvTotalDuration = 0;
@@ -6955,6 +7151,12 @@
       });
       if (!bangumiInfo) {
         return;
+      }
+      if (Array.isArray(bangumiInfo == null ? void 0 : bangumiInfo.clip_info_list)) {
+        clip_info_list = bangumiInfo.clip_info_list;
+      } else if (Array.isArray(bangumiInfo == null ? void 0 : bangumiInfo.clip_info)) {
+        clip_info_list = // @ts-ignore
+        bangumiInfo.clip_info;
       }
       let userChooseVideoCodingCode = BangumiArtPlayerVideoConfig.getUserChooseVideoCodingCode();
       if (bangumiInfo.type.toLowerCase() === "flv") {
@@ -7016,6 +7218,12 @@
       if (!bangumiInfo) {
         return;
       }
+      if (Array.isArray(bangumiInfo == null ? void 0 : bangumiInfo.clip_info_list)) {
+        clip_info_list = // @ts-ignore
+        bangumiInfo.clip_info_list;
+      } else if (Array.isArray(bangumiInfo == null ? void 0 : bangumiInfo.clip_info)) {
+        clip_info_list = bangumiInfo.clip_info;
+      }
       qualityInfo = qualityInfo.concat(handleQueryVideoQualityData(bangumiInfo));
     }
     const currentVideoQuality = qualityInfo.map((item, index) => {
@@ -7036,6 +7244,7 @@
       videoTitle,
       danmukuUrl: `https://api.bilibili.com/x/v1/dm/list.so?oid=${cid}`,
       quality: currentVideoQuality,
+      clip_info_list,
       isFlv,
       flvInfo,
       flvTotalDuration,
@@ -7465,9 +7674,15 @@
       if (!BilibiliResponseCheck.isWebApiSuccess(data2)) {
         log.error(`请求失败，当前代理服务器信息：${JSON.stringify(config.host)}`);
         log.error(`请求失败，当前请求的响应信息：${JSON.stringify(data2)}`);
-        return;
+        return {
+          isSuccess: false,
+          data: data2
+        };
       }
-      return data2.data.result;
+      return {
+        isSuccess: true,
+        data: data2.data.result
+      };
     }
   };
   const BilibiliExtraSearch = {
@@ -7519,15 +7734,25 @@
         addStyle(
           /*css*/
           `
-			.gm-result-panel {
-				padding-top: 23.46667vmin;
-				background: #f4f4f4;
+			#app .m-search{
 				--card-img-width: 90px;
 				--card-img-height: calc(var(--card-img-width) * 1.33 );
 				--card-desc-color: #808080;
 				--card-desc-size: 0.8em;
+				--card-badge-item-size: 0.7em;
+				--card-badge-item-padding: 0.1em 0.2em;
+				--card-badge-item-border-radius: 3px;
+				--card-ep-item-border-radius: 4px;
+				--card-ep-item-padding-top-bottom: 13px;
+				--card-ep-item-padding-left-right: 13px;
+				--card-ep-item-badge-padding: 2px;
+			}
+			.gm-result-panel {
+				padding-top: 23.46667vmin;
+				background: #f4f4f4;
 			}
 			.gm-card-cover{
+				position: relative;
 			}
 			.gm-card-cover img {
 				width: var(--card-img-width);
@@ -7553,7 +7778,7 @@
 				font-size: 1em;
 			}
 	
-			.gm-card-pubtime,
+			.gm-card-display-info,
 			.gm-card-styles,
 			span.gm-card-media_score-user_count {
 				font-size: var(--card-desc-size);
@@ -7590,6 +7815,7 @@
 				display: flex;
 				flex-direction: column;
 				gap: 15px;
+				overflow: hidden;
 			}
 			.gm-card-badges {
 				background: var(--bili-color);
@@ -7599,7 +7825,13 @@
 				border-radius: 3px;
 				white-space: nowrap;
 				position: absolute;
-				margin: 5px 0px 0px calc(var(--card-img-width) - 36px );
+				top: 5px;
+    			right: 5px;
+			}
+			.gm-card-badge-info-item{
+				font-size: var(--card-badge-item-size);
+				padding: var(--card-badge-item-padding);
+				border-radius: var(--card-badge-item-border-radius);
 			}
 			.gm-card-eps {
 				display: flex;
@@ -7607,16 +7839,29 @@
 				gap: 10px;
 			}
 	
-			.gm-card-eps-item {
+			.gm-card-ep-conatiner {
 				text-align: center;
 				white-space: nowrap;
-				padding: 10px;
+				padding: var(--card-ep-item-padding-top-bottom) var(--card-ep-item-padding-left-right);
 				background: #edeff3;
-				border-radius: 8px;
+				border-radius: var(--card-ep-item-border-radius);
 				font-size: 14px;
+				position: relative;
+			}
+
+			.gm-card-ep-badges-container{
+				position: absolute;
+				top: 0;
+				right: 0;
+				font-size: calc( var(--card-ep-item-padding-top-bottom) - var(--card-ep-item-badge-padding) );
 			}
 	
-			.gm-card-eps-item-info {
+			.gm-card-ep-badge-top-right{
+				border-top-right-radius: var(--card-ep-item-border-radius);
+    			border-bottom-left-radius: var(--card-ep-item-border-radius);
+				padding: var(--card-ep-item-badge-padding);
+			}
+			.gm-card-ep-info-container {
 				min-width: 30px;
 			}
 			`
@@ -7662,34 +7907,38 @@
           domutils.hide($resultPanel);
           let keyword = searchResultVueIns.keyword;
           let $loading = Qmsg.loading("搜索中，请稍后...");
-          let searchBangumiResult = await BilibiliSearchApi.getBangumiSearchResult({
+          let searchBangumiResultInfo = await BilibiliSearchApi.getBangumiSearchResult({
             keyword,
             area,
             host
           });
           $loading.close();
-          if (!searchBangumiResult) {
+          if (!searchBangumiResultInfo) {
             return;
           }
-          log.info(["搜索结果：", searchBangumiResult]);
+          if (!searchBangumiResultInfo.isSuccess) {
+            alert(JSON.stringify(searchBangumiResultInfo.data, null, 2));
+            return;
+          }
+          let searchBangumiResultData = searchBangumiResultInfo.data;
+          log.info(["搜索结果：", searchBangumiResultData]);
           let $gmResultPanel = domutils.createElement("div", {
             className: "gm-result-panel",
             innerHTML: (
               /*html*/
               `
-					<div class="gm-list-view">
-						<div class="gm-video-list-box">
-							<div class="gm-video-list">
-								<div class="gm-card-box"></div>
+						<div class="gm-list-view">
+							<div class="gm-video-list-box">
+								<div class="gm-video-list">
+									<div class="gm-card-box"></div>
+								</div>
 							</div>
 						</div>
-					</div>
-
 					`
             )
           });
           let $gmCardBox = $gmResultPanel.querySelector(".gm-card-box");
-          searchBangumiResult.forEach((searchBangumiResultItem) => {
+          searchBangumiResultData.forEach((searchBangumiResultItem) => {
             $gmCardBox.appendChild(
               this.createSearchResultVideoItem(searchBangumiResultItem)
             );
@@ -7712,13 +7961,13 @@
             `
 				<div class="gm-card-container">
 					<div class="gm-card-cover">
+						<div class="gm-card-badges">${option.season_type_name}</div>
 						<img src="${option.cover}" alt="封面">
 					</div>
-					<div class="gm-card-badges">${option.season_type_name}</div>
 					<div class="gm-card-info">
 						<div class="gm-card-info-container">
 							<div class="gm-card-title">${option.title}</div>
-							<div class="gm-card-pubtime">
+							<div class="gm-card-display-info">
 							</div>
 							<div class="gm-card-styles">${option.styles || Reflect.get(option, "style") || Reflect.get(option, "styles_v2") || ""}</div>
 						</div>
@@ -7744,25 +7993,47 @@
           "data-is_selection": option.is_selection
         }
       );
+      Reflect.set($item, "data-option", option);
       domutils.on($item, "click", (event) => {
         utils.preventEvent(event);
         window.open(option.url, "_blank");
       });
-      let $pubtime = $item.querySelector(".gm-card-pubtime");
+      let $displayInfo = $item.querySelector(
+        ".gm-card-display-info"
+      );
+      let totalDisplayInfo = [];
+      if (Array.isArray(option == null ? void 0 : option.display_info)) {
+        totalDisplayInfo = totalDisplayInfo.concat(option.display_info);
+      }
+      if (Array.isArray(option == null ? void 0 : option.badges)) {
+        totalDisplayInfo = totalDisplayInfo.concat(option.badges);
+      }
+      totalDisplayInfo = utils.uniqueArray(totalDisplayInfo, (item) => item.text);
+      totalDisplayInfo.forEach((displayInfo) => {
+        let $displayInfoItem = domutils.createElement("span", {
+          className: "gm-card-badge-info-item",
+          innerText: displayInfo.text
+        });
+        if (typeof displayInfo.border_color === "string") {
+          $displayInfoItem.style.border = `1px solid ${displayInfo.border_color}`;
+          $displayInfoItem.style.color = displayInfo.border_color;
+        }
+        domutils.append($displayInfo, $displayInfoItem);
+      });
       if (option.pubtime) {
         domutils.append(
-          $pubtime,
+          $displayInfo,
           /*html*/
           `
-			<span>${utils.formatTime(option.pubtime * 1e3, "yyyy")}</span>
-			`
+				<span>${utils.formatTime(option.pubtime * 1e3, "yyyy")}</span>
+				`
         );
       }
       let areas = option.areas || Reflect.get(option, "area");
       if (areas) {
-        if ($pubtime.children.length) {
+        if ($displayInfo.children.length) {
           domutils.append(
-            $pubtime,
+            $displayInfo,
             /*html*/
             `
 					<span> | </span>
@@ -7770,7 +8041,7 @@
           );
         }
         domutils.append(
-          $pubtime,
+          $displayInfo,
           /*html*/
           `
 					<span>${areas}</span>
@@ -7796,17 +8067,17 @@
       epsList.forEach((epsItem) => {
         let title = epsItem.title || epsItem.long_title;
         let url = epsItem.url || Reflect.get(epsItem, "uri");
-        let $epsItem = domutils.createElement(
+        let $epItem = domutils.createElement(
           "div",
           {
-            className: "gm-card-eps-item",
+            className: "gm-card-ep-conatiner",
             innerHTML: (
               /*html*/
               `
-				<div class="gm-card-eps-item-badges">
+				<div class="gm-card-ep-badges-container">
 					
 				</div>
-				<div class="gm-card-eps-item-info">
+				<div class="gm-card-ep-info-container">
 					${title}
 				</div>`
             )
@@ -7818,11 +8089,31 @@
             "data-long_title": epsItem.long_title
           }
         );
-        domutils.on($epsItem, "click", (event) => {
+        let $epBadges = $epItem.querySelector(
+          ".gm-card-ep-badges-container"
+        );
+        $epItem.querySelector(
+          ".gm-card-ep-info-container"
+        );
+        if (Array.isArray(epsItem.badges) && epsItem.badges.length) {
+          let epItemBadgeInfo = epsItem.badges[0];
+          let $badge = domutils.createElement("span", {
+            className: "gm-card-ep-badge-top-right",
+            innerText: epItemBadgeInfo.text
+          });
+          if (typeof epItemBadgeInfo.bg_color === "string") {
+            $badge.style.backgroundColor = epItemBadgeInfo.bg_color;
+          }
+          if (typeof epItemBadgeInfo.text_color === "string") {
+            $badge.style.color = epItemBadgeInfo.text_color;
+          }
+          domutils.append($epBadges, $badge);
+        }
+        domutils.on($epItem, "click", (event) => {
           utils.preventEvent(event);
           window.open(url, "_blank");
         });
-        $eps.appendChild($epsItem);
+        $eps.appendChild($epItem);
       });
       return $item;
     },
@@ -7832,6 +8123,50 @@
     searchBangumi() {
     }
   };
+  const BilibiliSearchBeautify = {
+    $flag: { mutationSearchResult: false },
+    init() {
+      this.mutationSearchResult();
+    },
+    /**
+     * 监听搜索结果改变
+     */
+    mutationSearchResult() {
+      if (this.$flag.mutationSearchResult) {
+        return;
+      }
+      this.$flag.mutationSearchResult = true;
+      addStyle(
+        /*css*/
+        `
+        .bangumi-list{
+            padding: 0 10px;
+        }
+        `
+      );
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        callback: utils.debounce(() => {
+          document.querySelectorAll(".m-search-bangumi-item").forEach(($bangumiItem) => {
+            let vueIns = VueUtils.getVue($bangumiItem);
+            if (!vueIns) {
+              return;
+            }
+            let info = vueIns.info;
+            if (!info) {
+              return;
+            }
+            let $newBangumiItem = BilibiliExtraSearch.createSearchResultVideoItem(info);
+            domutils.after($bangumiItem, $newBangumiItem);
+            $bangumiItem.remove();
+          });
+        })
+      });
+    }
+  };
   const BilibiliSearch = {
     init() {
       if (BilibiliRouter.isSearchResult()) {
@@ -7839,6 +8174,9 @@
       }
       PopsPanel.execMenuOnce("bili-search-cover-cancel", () => {
         this.coverCancel();
+      });
+      PopsPanel.execMenu("bili-search-beautifySearchResult", () => {
+        BilibiliSearchBeautify.init();
       });
       domutils.ready(() => {
         PopsPanel.execMenu("bili-search-inputAutoFocus", () => {

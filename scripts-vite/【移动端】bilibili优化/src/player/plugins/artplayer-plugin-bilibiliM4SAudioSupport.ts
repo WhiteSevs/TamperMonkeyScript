@@ -364,7 +364,9 @@ const M4SAudio = {
 			}
 			M4SAudio.$data.audio.src = url;
 			M4SAudio.unbindAudio();
-			M4SAudio.bindAudio();
+			if (utils.isNotNull(url)) {
+				M4SAudio.bindAudio();
+			}
 		},
 		/** 播放音频 */
 		play() {
