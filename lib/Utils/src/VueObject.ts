@@ -34,6 +34,7 @@ export declare interface Vue2Object {
 		params: any;
 		path: string;
 		query: any;
+		[key: string]: any;
 	};
 	$router: {
 		afterHooks: Function[];
@@ -43,40 +44,45 @@ export declare interface Vue2Object {
 		fallback: boolean;
 		history: {
 			base: string;
-			current: any;
+			current: Vue2Object["$route"];
 			listeners: any[];
 			router: Vue2Object["$router"];
 			/**
 			 *
 			 * @param delta 访问的距离。如果 delta < 0 则后退相应数量的记录，如果 > 0 则前进。
 			 * @param triggerListeners 是否应该触发连接到该历史的监听器
-			 * @returns
 			 */
 			go: (delta: number, triggerListeners?: boolean) => void;
 			/**
 			 *
 			 * @param to 要设置的地址
 			 * @param data 可选的 HistoryState 以关联该导航记录
-			 * @returns
 			 */
 			push: (to: string, data?: any) => void;
 			/**
 			 *
 			 * @param to 要设置的地址
 			 * @param data 可选的 HistoryState 以关联该导航记录
-			 * @returns
 			 */
 			replace: (to: string, data?: any) => void;
+			[key: string]: any;
 		};
 		matcher: {
 			addRoute: (...args: any[]) => any;
 			addRoutes: (...args: any[]) => any;
 			getRoutes: () => any;
 			match: (...args: any[]) => any;
+			[key: string]: any;
 		};
 		mode: string;
+		options: {
+			mode: string;
+			routes: any[];
+			scrollBehavior: (...args: any[]) => any;
+			[key: string]: any;
+		};
 		resolveHooks: ((...args: any[]) => any)[];
-		currentRoute: any;
+		currentRoute: Vue2Object["$route"];
 		beforeEach: (
 			callback:
 				| ((
@@ -108,6 +114,13 @@ export declare interface Vue2Object {
 				/** 移除上一个添加的监听 */
 				| (() => void)
 		) => void;
+		push: (...args: any[]) => void;
+		back: () => void;
+		go: (...args: any[]) => void;
+		replace: (...args: any[]) => void;
+		addRoute: (...args: any[]) => void;
+		addRoutes: (...args: any[]) => void;
+		[key: string]: any;
 	};
 	$ssrContext: any;
 
