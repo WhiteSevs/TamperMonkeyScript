@@ -86,6 +86,8 @@ export const BilibiliPCRouter = {
 	},
 	/**
 	 * 应该是动态？
+	 * + /read/mobile-readlist/
+	 * + /read/mobile?id=
 	 */
 	isReadMobile() {
 		return this.isPC() && window.location.pathname.startsWith("/read/mobile");

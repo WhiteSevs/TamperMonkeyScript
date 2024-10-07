@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.7.18
+// @version      2024.10.7.23
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -1030,6 +1030,8 @@
     },
     /**
      * 应该是动态？
+     * + /read/mobile-readlist/
+     * + /read/mobile?id=
      */
     isReadMobile() {
       return this.isPC() && window.location.pathname.startsWith("/read/mobile");
@@ -9371,9 +9373,16 @@
   };
   const BilibiliReadMobile = {
     init() {
+      this.removeAds();
       PopsPanel.onceExec("bili-pc-read-mobile-autoExpand", () => {
         return this.autoExpand();
       });
+    },
+    removeAds() {
+      CommonUtils.addBlockCSS(
+        /* 底部的打开客户端阅读 */
+        "body>.h5-download-bar"
+      );
     },
     /**
      * 自动展开

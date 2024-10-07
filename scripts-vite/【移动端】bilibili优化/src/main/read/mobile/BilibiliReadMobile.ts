@@ -1,14 +1,20 @@
 import { BilibiliPCData } from "@/data/BlibiliData";
 import { addStyle, log } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { CommonUtils } from "@/utils/CommonUtils";
 
 export const BilibiliReadMobile = {
 	init() {
+		this.removeAds();
 		PopsPanel.onceExec("bili-pc-read-mobile-autoExpand", () => {
 			return this.autoExpand();
 		});
+	},
+	removeAds() {
+		CommonUtils.addBlockCSS(
+			/* 底部的打开客户端阅读 */
+			"body>.h5-download-bar"
+		);
 	},
 	/**
 	 * 自动展开
