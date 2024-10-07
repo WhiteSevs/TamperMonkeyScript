@@ -204,11 +204,12 @@ const TiebaPost = {
 						$clickParent.localName === "uni-image"
 					) {
 						// uni-app的帖子主内容的图片
-						log.info($clickParent);
+						log.info("uni-app的图片", $clickParent);
 						let $slideFrame = $click.closest<HTMLDivElement>(
 							".uni-swiper-slide-frame"
 						)!;
 						if ($slideFrame) {
+							// 贴吧自带的预览图片模式下的
 							let lazyImgList: string[] = [];
 							$slideFrame.querySelectorAll("img").forEach(($img) => {
 								let imgSrc = getImageSrc($img);
@@ -216,6 +217,48 @@ const TiebaPost = {
 								lazyImgList.push(imgSrc);
 							});
 							viewIMG(lazyImgList, lazyImgList.indexOf(imageUrl));
+						} else if ($click.closest(".pb-comment-item")) {
+							log.info(`uni-app评论区的图片`);
+							// 评论区的图片
+							// 图片大小可能缺失，要从vue中获取原图
+							let lazyImgList: string[] = [];
+							let findIndex = 0;
+							let $pbCommentItem =
+								$click.closest<HTMLElement>(".pb-comment-item")!;
+							let vueIns = VueUtils.getVue3($pbCommentItem);
+							if (vueIns) {
+								let commentData = vueIns?.props?.commentData;
+								if (commentData) {
+									commentData.content.forEach((item: any) => {
+										if (item.type === 3) {
+											// 图片类型
+											const {
+												cdn_src,
+												cdn_src_active,
+												big_cdn_src,
+												origin_src,
+											} = item;
+											if (
+												imageUrl === cdn_src ||
+												imageUrl === cdn_src_active ||
+												imageUrl === big_cdn_src ||
+												imageUrl === origin_src
+											) {
+												findIndex = lazyImgList.length;
+												// 使用origin_src，没有的话再是big_cdn_src，不然的话就是原图
+												lazyImgList.push(origin_src || big_cdn_src || imageUrl);
+											}
+										}
+									});
+									viewIMG(lazyImgList, findIndex);
+								} else {
+									log.error("获取评论数据失败");
+									Qmsg.error("获取评论数据失败");
+								}
+							} else {
+								log.error("获取.pb-comment-item元素失败");
+								Qmsg.error("获取.pb-comment-item元素失败");
+							}
 						} else {
 							// 帖子详情页的图片
 							log.warn("获取多组图片失败，采用查看单张图片");

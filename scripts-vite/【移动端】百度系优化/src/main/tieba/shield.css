@@ -23,9 +23,11 @@ div.diy-guide-wrapper,
 /* 首页-我的-底部的 年轻人的潮流文化社区 */
 .app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .desc,
 /* 首页-我的-底部的 立即下载 */
-.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .download-btn {
-  display: none !important;
+.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .download-btn,
+/* 帖子内预览图片模式下底部的打开App查看高清大图 */
+.img-preview .operate .wake-app {
+	display: none !important;
 }
 body.tb-modal-open {
-  overflow: auto !important;
+	overflow: auto !important;
 }

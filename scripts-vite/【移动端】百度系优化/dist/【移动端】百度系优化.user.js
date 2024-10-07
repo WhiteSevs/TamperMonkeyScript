@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.4
+// @version      2024.10.7
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -20,7 +20,7 @@
 // @require      https://update.greasyfork.org/scripts/495227/1413261/Element-Plus.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.2/dist/index.umd.js
@@ -7406,7 +7406,7 @@ div[class^="new-summary-container_"] {\r
       return CommonUtils.addBlockCSS("div#wise-invoke-interact-bar");
     }
   };
-  const TieBaShieldCSS = ".tb-backflow-defensive,\r\n.fixed-nav-bar-defensive,\r\n.post-cut-guide,\r\n.ertiao-wrap-defensive,\r\n.feed-warp.gray-background,\r\n.pb-page-wrapper.app-view.transition-fade nav:first-child,\r\n.only-lz,\r\n.nav-bar-v2 .nav-bar-bottom,\r\n.more-image-desc,\r\n.fengchao-banner-defensive,\r\n/*.wake-app,*/\r\n.banner-wrapper-defensive,\r\n.open-app,\r\n.topic-share-page-v2 .bav-bar-top,\r\n/* 打开APP查看更多评论 */\r\n.cmt-large-cut-guide,\r\n/* 底部评论滚动栏 */\r\ndiv.diy-guide-wrapper,\r\n/* 底部评论滚动栏上面的空白 */\r\n.individuality,\r\n/* 吧内的广告 */\r\n.tb-threadlist__wrapper .tb-banner-wrapper-defensive,\r\n/* 首页-我的-底部的 年轻人的潮流文化社区 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .desc,\r\n/* 首页-我的-底部的 立即下载 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .download-btn {\r\n  display: none !important;\r\n}\r\nbody.tb-modal-open {\r\n  overflow: auto !important;\r\n}\r\n";
+  const TieBaShieldCSS = ".tb-backflow-defensive,\r\n.fixed-nav-bar-defensive,\r\n.post-cut-guide,\r\n.ertiao-wrap-defensive,\r\n.feed-warp.gray-background,\r\n.pb-page-wrapper.app-view.transition-fade nav:first-child,\r\n.only-lz,\r\n.nav-bar-v2 .nav-bar-bottom,\r\n.more-image-desc,\r\n.fengchao-banner-defensive,\r\n/*.wake-app,*/\r\n.banner-wrapper-defensive,\r\n.open-app,\r\n.topic-share-page-v2 .bav-bar-top,\r\n/* 打开APP查看更多评论 */\r\n.cmt-large-cut-guide,\r\n/* 底部评论滚动栏 */\r\ndiv.diy-guide-wrapper,\r\n/* 底部评论滚动栏上面的空白 */\r\n.individuality,\r\n/* 吧内的广告 */\r\n.tb-threadlist__wrapper .tb-banner-wrapper-defensive,\r\n/* 首页-我的-底部的 年轻人的潮流文化社区 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .desc,\r\n/* 首页-我的-底部的 立即下载 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .download-btn,\r\n/* 帖子内预览图片模式下底部的打开App查看高清大图 */\r\n.img-preview .operate .wake-app {\r\n	display: none !important;\r\n}\r\nbody.tb-modal-open {\r\n	overflow: auto !important;\r\n}\r\n";
   const UniTieBaShieldCSS = "/* 热门推荐、相关推荐 */\r\nuni-app .recom-layout-container,\r\n/* 热门推荐、相关推荐 */\r\nuni-app #pbRecomContainer,\r\n/* 猜你还想搜（标题） */\r\nuni-app .guess-title,\r\n/* 猜你还想搜 */\r\nuni-app .guess-container,\r\n/* 底部工具栏 来贴吧畅享精彩内容 */\r\nuni-app .operation-chat,\r\n/* 图片右滑最后一个 来贴吧畅享精彩内容 */\r\nuni-app .pic-popup-guide-title,\r\n/* 图片右滑最后一个 下面的按钮 打开APP */\r\nuni-app .operate-group .wake-app:has(.external-btn-class),\r\n/* 顶部右上角的 App内查看 */\r\nuni-app .operate-btn-wake {\r\n	display: none !important;\r\n}\r\n\r\n/* 评论内容高度 */\r\nuni-app .swiper-content {\r\n	max-height: unset !important;\r\n}\r\n";
   const TiebaTopic = {
     init() {
@@ -19786,6 +19786,7 @@ div[class^="new-summary-container_"] {\r
         "click",
         "img",
         (event) => {
+          var _a3;
           let $click = event.target;
           let $clickParent = $click.parentElement;
           let imageUrl = getImageSrc($click);
@@ -19857,7 +19858,7 @@ div[class^="new-summary-container_"] {\r
               log.info(lazyImgList);
               viewIMG(lazyImgList, lazyImgList.indexOf(imageUrl));
             } else if ($clickParent.classList.contains("pb-image") && $clickParent.localName === "uni-image") {
-              log.info($clickParent);
+              log.info("uni-app的图片", $clickParent);
               let $slideFrame = $click.closest(
                 ".uni-swiper-slide-frame"
               );
@@ -19869,6 +19870,38 @@ div[class^="new-summary-container_"] {\r
                   lazyImgList.push(imgSrc);
                 });
                 viewIMG(lazyImgList, lazyImgList.indexOf(imageUrl));
+              } else if ($click.closest(".pb-comment-item")) {
+                log.info(`uni-app评论区的图片`);
+                let lazyImgList = [];
+                let findIndex = 0;
+                let $pbCommentItem = $click.closest(".pb-comment-item");
+                let vueIns = VueUtils.getVue3($pbCommentItem);
+                if (vueIns) {
+                  let commentData = (_a3 = vueIns == null ? void 0 : vueIns.props) == null ? void 0 : _a3.commentData;
+                  if (commentData) {
+                    commentData.content.forEach((item) => {
+                      if (item.type === 3) {
+                        const {
+                          cdn_src,
+                          cdn_src_active,
+                          big_cdn_src,
+                          origin_src
+                        } = item;
+                        if (imageUrl === cdn_src || imageUrl === cdn_src_active || imageUrl === big_cdn_src || imageUrl === origin_src) {
+                          findIndex = lazyImgList.length;
+                          lazyImgList.push(origin_src || big_cdn_src || imageUrl);
+                        }
+                      }
+                    });
+                    viewIMG(lazyImgList, findIndex);
+                  } else {
+                    log.error("获取评论数据失败");
+                    Qmsg.error("获取评论数据失败");
+                  }
+                } else {
+                  log.error("获取.pb-comment-item元素失败");
+                  Qmsg.error("获取.pb-comment-item元素失败");
+                }
               } else {
                 log.warn("获取多组图片失败，采用查看单张图片");
                 viewIMG([imageUrl]);
