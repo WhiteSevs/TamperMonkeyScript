@@ -8,6 +8,7 @@ import { NetDiskRuleUtils } from "../rule/NetDiskRuleUtils";
 import { NetDiskWorkerUtils } from "./NetDiskWorkerUtils";
 import { NetDiskRuleData } from "../data/NetDiskRuleData";
 import { NetDiskRuleDataKEY } from "../data/NetDiskRuleDataKey";
+import { NetDiskHistoryMatchView } from "../view/history-match/NetDiskHistoryMatchView";
 
 /** Woker */
 export const NetDiskWorker = {
@@ -245,7 +246,7 @@ export const NetDiskWorker = {
 			return;
 		}
 
-		const handleNetDiskList: NetiDiskHandleObject[] = [];
+		const handleNetDiskList: NetDiskHandleObject[] = [];
 		for (const matchData of options.data) {
 			/* 已匹配到的网盘，用于显示图标 */
 			NetDisk.$match.matchedInfoRuleKey.add(matchData.netDiskName!);
@@ -296,6 +297,7 @@ export const NetDiskWorker = {
 				return isFind;
 			}
 		);
+		/* 设置临时值 */
 		filterHandleNetDiskList.forEach((item) => {
 			if (NetDisk.$match.tempMatchedInfo.has(item.netDiskName)) {
 				let currentTempDict = NetDisk.$match.tempMatchedInfo.get(
@@ -304,9 +306,9 @@ export const NetDiskWorker = {
 				currentTempDict.set(item.shareCode, item);
 			}
 		});
-		/** 按规则过滤掉匹配的分享码 */
+		/** 按规则过滤掉当前匹配到的分享码 */
 		filterHandleNetDiskList.forEach((item) => {
-			const { shareCode, accessCode, netDiskName, netDiskIndex, matchText } =
+			let { shareCode, accessCode, netDiskName, netDiskIndex, matchText } =
 				item;
 			// 先找到对应的规则
 			const currentRule = NetDisk.$rule.rule.find(
@@ -335,6 +337,7 @@ export const NetDiskWorker = {
 				}
 			);
 			if (isBlackShareCode) {
+				// 是黑名单的访问码，退出
 				return;
 			}
 			if (
@@ -369,15 +372,15 @@ export const NetDiskWorker = {
 					typeof shareCodeDict.isForceAccessCode === "boolean" &&
 					shareCodeDict.isForceAccessCode
 				) {
-					/* 该访问码已被锁定，禁止修改 */
+					/* 该访问码已被锁定，禁止修改，应该是自己修改的访问码 */
 					return;
 				}
 				if (utils.isNotNull(shareCodeDict.accessCode)) {
-					/* 已匹配到的访问码不为空，不设置新的 */
+					/* 已匹配到的访问码已有值，不替换 */
 					return;
 				}
 				if (utils.isNull(accessCode)) {
-					/* 访问码为空，不设置新的 */
+					/* 新获取到的访问码为空，不替换 */
 					return;
 				}
 
@@ -385,6 +388,7 @@ export const NetDiskWorker = {
 					shareCode,
 					NetDisk.getLinkDickObj(accessCode, netDiskIndex, false, matchText)
 				);
+				// 修改视图
 				NetDiskUI.view.changeLinkView(
 					netDiskName,
 					netDiskIndex,
@@ -397,6 +401,24 @@ export const NetDiskWorker = {
 				);
 			} else {
 				/* 不存在该访问码，添加新的进去 */
+
+				// 判断访问码是否为空，为空则从历史匹配记录中获取（如果开启了功能）
+				if (
+					utils.isNull(accessCode) &&
+					NetDiskGlobalData.accessCode.allowQueryHistoryMatchingAccessCode.value
+				) {
+					let historyMatchAccessCode = NetDiskHistoryMatchView.queryAccessCode(
+						netDiskName,
+						shareCode,
+						true
+					);
+					if (historyMatchAccessCode) {
+						log.info(
+							"历史匹配记录 ==> 查询到访问码：" + historyMatchAccessCode
+						);
+						accessCode = historyMatchAccessCode;
+					}
+				}
 				currentDict.set(
 					shareCode,
 					NetDisk.getLinkDickObj(accessCode, netDiskIndex, false, matchText)
@@ -424,7 +446,7 @@ export const NetDiskWorker = {
 		// 判断是否有匹配
 		if (NetDisk.$data.isMatchedLink) {
 			// 根据当前情况选择显示的视图
-			switch (NetDiskGlobalData.function["netdisk-behavior-mode"].value) {
+			switch (NetDiskGlobalData.features["netdisk-behavior-mode"].value) {
 				case "suspension_smallwindow".toLowerCase():
 					if (
 						NetDiskSuspensionConfig.mode.current_suspension_smallwindow_mode
@@ -444,7 +466,7 @@ export const NetDiskWorker = {
 				default:
 					log.error([
 						"未知的行为模式：" +
-							NetDiskGlobalData.function["netdisk-behavior-mode"].value,
+							NetDiskGlobalData.features["netdisk-behavior-mode"].value,
 					]);
 			}
 		}
@@ -686,7 +708,7 @@ export const NetDiskWorker = {
 		});
 
 		if (
-			NetDiskGlobalData.function["netdisk-match-mode"].value ===
+			NetDiskGlobalData.features["netdisk-match-mode"].value ===
 			"MutationObserver"
 		) {
 			utils.mutationObserver(document.documentElement, {
@@ -705,7 +727,7 @@ export const NetDiskWorker = {
 			// 主动触发一下
 			this.dispatchMonitorDOMChange = true;
 		} else if (
-			NetDiskGlobalData.function["netdisk-match-mode"].value === "Menu"
+			NetDiskGlobalData.features["netdisk-match-mode"].value === "Menu"
 		) {
 			// 手动
 			// 注册油猴菜单
@@ -724,7 +746,7 @@ export const NetDiskWorker = {
 		} else {
 			log.error(
 				"未知匹配模式：" +
-					NetDiskGlobalData.function["netdisk-match-mode"].value
+					NetDiskGlobalData.features["netdisk-match-mode"].value
 			);
 		}
 	},

@@ -87,10 +87,10 @@ export const NetDiskDebug = {
 			msg: ["对shareCode进行解码: " + shareCode],
 		});
 		if (
-			NetDiskGlobalData.aboutShareCode.excludeIdenticalSharedCodes.value &&
+			NetDiskGlobalData.shareCode.excludeIdenticalSharedCodes.value &&
 			utils.isSameChars(
 				shareCode,
-				NetDiskGlobalData.aboutShareCode.excludeIdenticalSharedCodesCoefficient
+				NetDiskGlobalData.shareCode.excludeIdenticalSharedCodesCoefficient
 					.value
 			)
 		) {

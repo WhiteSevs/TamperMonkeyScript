@@ -116,7 +116,7 @@ export const NetDiskLinkClickModeUtils = {
 	 * @param userAgent 用户代理字符串
 	 */
 	async getRedirectFinalUrl(url: string, userAgent: string) {
-		if (!NetDiskGlobalData.function.getTheDirectLinkAfterRedirection.value) {
+		if (!NetDiskGlobalData.features.getTheDirectLinkAfterRedirection.value) {
 			return url;
 		}
 		Qmsg.success("获取重定向后的直链");

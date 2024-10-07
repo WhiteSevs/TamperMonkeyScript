@@ -2,7 +2,18 @@ import { NetDisk } from "@/main/NetDisk";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { NetDiskUI } from "../../ui/NetDiskUI";
 import { DOMUtils, log } from "@/env";
+import { NetDiskHistoryMatchView } from "../history-match/NetDiskHistoryMatchView";
 
+type OkCallBackOption = {
+	/** 该分享码是否在已匹配的字典中 */
+	isFindInMatchedDict: boolean;
+	/** 是否成功同步至已匹配的字典 */
+	isUpdatedMatchedDict: boolean;
+	/** 是否成功同步至历史匹配记录 */
+	isUpdatedHistoryMatched: boolean;
+	/** 新的访问码 */
+	accessCode: string;
+};
 /**
  * 需要重新输入新密码的弹窗
  * @param title 标题
@@ -10,7 +21,7 @@ import { DOMUtils, log } from "@/env";
  * @param netDiskIndex 网盘名称索引下标
  * @param shareCode 分享码
  * @param accessCode 访问码
- * @param okCallBack
+ * @param okCallBack 成功的回调
  */
 export const NetDiskNewAccessCodeView = function (
 	title: string = "密码错误",
@@ -18,7 +29,7 @@ export const NetDiskNewAccessCodeView = function (
 	netDiskIndex: number,
 	shareCode: string,
 	accessCode: string | null | undefined,
-	okCallBack: (userInputAccessCode: string) => void = () => {}
+	okCallBack: (option: OkCallBackOption) => void = () => {}
 ) {
 	const accessCodeConfirm = NetDiskPops.prompt(
 		{
@@ -32,6 +43,9 @@ export const NetDiskNewAccessCodeView = function (
 				position: "end",
 				cancel: {
 					text: "取消",
+					callback(eventDetails, event) {
+						accessCodeConfirm.close();
+					},
 				},
 				ok: {
 					callback: (event) => {
@@ -72,7 +86,44 @@ export const NetDiskNewAccessCodeView = function (
 						}
 
 						log.info(`${netDiskName} 重新输入的密码：${userInputAccessCode}`);
-						okCallBack(userInputAccessCode);
+
+						let callbackOption: OkCallBackOption = {
+							/** 该分享码是否在已匹配的字典中 */
+							isFindInMatchedDict: false,
+							/** 是否成功同步至已匹配的字典 */
+							isUpdatedMatchedDict: false,
+							/** 是否成功同步至历史匹配记录 */
+							isUpdatedHistoryMatched: false,
+							/** 新的访问码 */
+							accessCode: userInputAccessCode,
+						};
+						// 更新已匹配到的字典
+						// 如果来自历史匹配记录，那字典肯定是空的
+						let netDiskDict = NetDisk.$match.matchedInfo.get(netDiskName);
+						if (netDiskDict.has(shareCode)) {
+							callbackOption.isFindInMatchedDict = true;
+							callbackOption.isUpdatedMatchedDict = true;
+							// 字典中存在，更新访问码
+							let currentDict = netDiskDict.get(shareCode);
+							netDiskDict.set(
+								shareCode,
+								NetDisk.getLinkDickObj(
+									userInputAccessCode,
+									netDiskIndex,
+									true,
+									currentDict.matchText
+								)
+							);
+						}
+						// 同步新的访问码到历史匹配记录
+						callbackOption.isUpdatedHistoryMatched =
+							NetDiskHistoryMatchView.syncAccessCode(
+								netDiskName,
+								netDiskIndex,
+								shareCode,
+								userInputAccessCode
+							);
+						okCallBack(callbackOption);
 						event.close();
 					},
 				},
@@ -88,6 +139,11 @@ export const NetDiskNewAccessCodeView = function (
 						? accessCode
 						: "",
 			},
+			style: /*css*/ `
+			input{
+				font-size: larger;
+			}
+			`,
 		},
 		NetDiskUI.popsStyle.inputNewAccessCodeView
 	);

@@ -25,7 +25,7 @@ export const NetDiskAutoFillAccessCode = {
 		 * 自动输入访问码是否开启
 		 */
 		get enable() {
-			return NetDiskGlobalData.function.autoFillAccessCode.value;
+			return NetDiskGlobalData.features.autoFillAccessCode.value;
 		},
 	},
 	/**

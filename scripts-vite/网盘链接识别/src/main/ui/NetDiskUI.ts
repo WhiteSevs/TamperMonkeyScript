@@ -20,6 +20,7 @@ import {
 import { NetDiskUserRuleUI } from "../rule/user-rule/NetDiskUserRuleUI";
 import { NetDiskHistoryMatchView } from "../view/history-match/NetDiskHistoryMatchView";
 import { WebsiteRuleView } from "../view/website-rule/WebsiteRuleView";
+import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 
 /** 弹窗UI界面 */
 export const NetDiskUI = {
@@ -216,80 +217,53 @@ export const NetDiskUI = {
 					let $link = contextMenuEvent.target;
 					const { netDiskName, netDiskIndex, shareCode, accessCode } =
 						NetDiskView.praseElementAttributeRuleInfo($link);
-					/**
-					 * 输入完毕新访问码的回调（历史记录界面）
-					 * @param userInputAccessCode
-					 */
-					function newAccessCodeByHistoryViewCallBack(
-						userInputAccessCode: string
-					) {
-						let currentTime = new Date().getTime();
-						let flag = NetDiskHistoryMatchView.changeMatchedDataAccessCode(
-							netDiskName,
-							netDiskIndex,
-							shareCode,
-							userInputAccessCode
-						);
-						if (flag) {
-							$link
-								.closest("li")
-								.querySelector(
-									".netdiskrecord-update-time"
-								).lastChild.textContent = utils.formatTime(currentTime);
-							$link.setAttribute("data-accesscode", userInputAccessCode);
-							Qmsg.success(
-								/*html*/ `
-                                <div style="text-align: left;">旧: ${accessCode}</div>
-                                <div style="text-align: left;">新: ${userInputAccessCode}</div>`,
-								{
-									html: true,
-								}
-							);
-						} else {
-							Qmsg.error("修改失败");
-						}
-					}
-					/**
-					 * 输入完毕新访问码的回调
-					 * @param userInputAccessCode
-					 */
-					function newAccessCodeCallBack(userInputAccessCode: string) {
-						event.target.setAttribute("data-accesscode", userInputAccessCode);
-						let netDiskDict = NetDisk.$match.matchedInfo.get(netDiskName);
-						if (netDiskDict.has(shareCode)) {
-							let currentDict = netDiskDict.get(shareCode);
-							netDiskDict.set(
-								shareCode,
-								NetDisk.getLinkDickObj(
-									userInputAccessCode,
-									netDiskIndex,
-									true,
-									currentDict.matchText
-								)
-							);
-							Qmsg.success(
-								/*html*/ `
-                                <div style="text-align: left;">旧: ${accessCode}</div>
-                                <div style="text-align: left;">新: ${userInputAccessCode}</div>`,
-								{
-									html: true,
-								}
-							);
-						} else {
-							Qmsg.error("该访问码不在已获取的字典中：" + shareCode);
-						}
-					}
+
 					NetDiskUI.newAccessCodeView(
 						this.text as string,
 						netDiskName,
 						netDiskIndex,
 						shareCode,
 						accessCode,
-						(userInputAccessCode) => {
+						(option) => {
 							if (isHistoryView) {
-								newAccessCodeByHistoryViewCallBack(userInputAccessCode);
+								// 来自历史匹配记录界面的
+								if (option.isUpdatedMatchedDict) {
+									let currentTime = new Date().getTime();
+									$link
+										.closest("li")
+										.querySelector(
+											".netdiskrecord-update-time"
+										).lastChild.textContent = utils.formatTime(currentTime);
+									$link.setAttribute("data-accesscode", option.accessCode);
+									Qmsg.success(
+										/*html*/ `
+										<div style="text-align: left;">旧: ${accessCode}</div>
+										<div style="text-align: left;">新: ${option.accessCode}</div>`,
+										{
+											html: true,
+										}
+									);
+								} else {
+									Qmsg.error("修改失败");
+								}
 							} else {
-								newAccessCodeCallBack(userInputAccessCode);
+								event.target.setAttribute("data-accesscode", option.accessCode);
+								if (option.isUpdatedMatchedDict) {
+									Qmsg.success(
+										/*html*/ `
+										<div style="text-align: left;">旧: ${accessCode}</div>
+										<div style="text-align: left;">新: ${option.accessCode}</div>`,
+										{
+											html: true,
+										}
+									);
+								} else {
+									if (option.isFindInMatchedDict) {
+										Qmsg.error("修改访问码失败");
+									} else {
+										Qmsg.error("修改访问码失败，因为当前已匹配字典中未找到对应的访问码");
+									}
+								}
 							}
 						}
 					);

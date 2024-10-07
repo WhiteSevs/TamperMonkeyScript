@@ -103,6 +103,8 @@ export const NetDiskGlobalData = {
 	},
 	/** 历史匹配记录 */
 	historyMatch: {
+		/** 保存匹配记录 */
+		saveMatchNetDisk: GeneratePanelData("saveMatchNetDisk", false),
 		/** 排序规则 */
 		"netdisk-history-match-ordering-rule": GeneratePanelData(
 			"netdisk-history-match-ordering-rule",
@@ -113,8 +115,6 @@ export const NetDiskGlobalData = {
 			"netdisk-history-match-merge-same-link",
 			true
 		),
-		/** 保存匹配记录 */
-		saveMatchNetDisk: GeneratePanelData("saveMatchNetDisk", false),
 	},
 	/** 匹配设置 */
 	match: {
@@ -163,7 +163,7 @@ export const NetDiskGlobalData = {
 		),
 	},
 	/** 功能 */
-	function: {
+	features: {
 		/** 匹配模式 */
 		"netdisk-match-mode": GeneratePanelData(
 			"netdisk-match-mode",
@@ -186,7 +186,7 @@ export const NetDiskGlobalData = {
 		),
 	},
 	/** 分享码相关 */
-	aboutShareCode: {
+	shareCode: {
 		/** 相同系数 */
 		excludeIdenticalSharedCodesCoefficient: GeneratePanelData(
 			"excludeIdenticalSharedCodesCoefficient",
@@ -196,6 +196,14 @@ export const NetDiskGlobalData = {
 		excludeIdenticalSharedCodes: GeneratePanelData(
 			"excludeIdenticalSharedCodes",
 			false
+		),
+	},
+	/** 访问码 */
+	accessCode: {
+		/** 允许查询历史匹配记录 */
+		allowQueryHistoryMatchingAccessCode: GeneratePanelData(
+			"allowQueryHistoryMatchingAccessCode",
+			true
 		),
 	},
 };

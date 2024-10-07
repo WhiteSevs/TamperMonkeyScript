@@ -253,7 +253,7 @@ export const NetDiskSuspension = {
 				netDiskLinkViewTimer = setTimeout(() => {
 					isDouble = false;
 					if (
-						NetDiskGlobalData.function["netdisk-behavior-mode"].value.includes(
+						NetDiskGlobalData.features["netdisk-behavior-mode"].value.includes(
 							"smallwindow"
 						)
 					) {

@@ -92,7 +92,7 @@ export const NetDiskView = {
             </div>`;
 
 		if (
-			NetDiskGlobalData.function["netdisk-behavior-mode"].value
+			NetDiskGlobalData.features["netdisk-behavior-mode"].value
 				.toLowerCase()
 				.includes("smallwindow")
 		) {
@@ -113,7 +113,7 @@ export const NetDiskView = {
 						close: {
 							callback(event) {
 								if (
-									NetDiskGlobalData.function["netdisk-behavior-mode"].value
+									NetDiskGlobalData.features["netdisk-behavior-mode"].value
 										.toLowerCase()
 										.includes("suspension")
 								) {

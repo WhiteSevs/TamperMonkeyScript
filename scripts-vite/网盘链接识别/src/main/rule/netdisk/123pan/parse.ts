@@ -151,8 +151,8 @@ export class NetDiskParse_123pan extends NetDiskParseObject {
 					that.netDiskIndex,
 					that.shareCode,
 					that.accessCode,
-					(userInputAccessCode) => {
-						that.init(that.netDiskIndex, that.shareCode, userInputAccessCode);
+					(option) => {
+						that.init(that.netDiskIndex, that.shareCode, option.accessCode);
 					}
 				);
 			} else {
@@ -222,8 +222,8 @@ export class NetDiskParse_123pan extends NetDiskParseObject {
 				that.netDiskIndex,
 				that.shareCode,
 				that.accessCode,
-				(userInputAccessCode) => {
-					that.init(that.netDiskIndex, that.shareCode, userInputAccessCode);
+				(option) => {
+					that.init(that.netDiskIndex, that.shareCode, option.accessCode);
 				}
 			);
 		} else if (that.code[json_data["code"] as keyof typeof that.code]) {

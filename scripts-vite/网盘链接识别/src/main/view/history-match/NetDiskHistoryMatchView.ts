@@ -516,6 +516,59 @@ export const NetDiskHistoryMatchView = {
 		return data;
 	},
 	/**
+	 * 查询访问码
+	 * @param netDiskName
+	 * @param shareCode
+	 * @param isNotNull 查询的访问码是否不为空
+	 * + true 不能是空的
+	 * + false 允许为空
+	 */
+	queryAccessCode(netDiskName: string, shareCode: string, isNotNull: boolean) {
+		let storageDataList = this.getStorageData();
+		for (let index = 0; index < storageDataList.length; index++) {
+			const localData = storageDataList[index];
+			if (
+				localData.netDiskName === netDiskName &&
+				localData.shareCode === shareCode
+			) {
+				if (isNotNull && utils.isNotNull(localData.accessCode)) {
+					// 不要空的
+					return localData.accessCode;
+				}
+				return localData.accessCode;
+			}
+		}
+	},
+	/**
+	 * 同步访问码
+	 * @param netDiskName 网盘名称
+	 * @param netDiskIndex 网盘名称索引下标
+	 * @param shareCode 分享码
+	 * @param accessCode 新的访问码
+	 */
+	syncAccessCode(
+		netDiskName: string,
+		netDiskIndex: number,
+		shareCode: string,
+		accessCode: string
+	) {
+		if (NetDiskGlobalData.historyMatch.saveMatchNetDisk.value) {
+			let flag = NetDiskHistoryMatchView.changeMatchedDataAccessCode(
+				netDiskName,
+				netDiskIndex,
+				shareCode,
+				accessCode
+			);
+			if (flag) {
+				log.success("已成功同步访问码至历史匹配记录");
+				return true;
+			} else {
+				log.error("同步访问码至历史匹配记录失败");
+			}
+		}
+		return false;
+	},
+	/**
 	 * 修改存储的数据的访问码
 	 * @param netDiskName 网盘名称
 	 * @param netDiskIndex 网盘名称索引下标

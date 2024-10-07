@@ -4,15 +4,13 @@ declare interface NetDiskDictData {
 	accessCode: string;
 	/** 匹配规则的下标 */
 	netDiskIndex?: number;
-	/**
-	 * 匹配的文本
-	 */
+	/** 匹配的文本 */
 	matchText: string;
 	/** 是否锁定访问码不允许修改，默认false */
 	isForceAccessCode?: boolean;
 }
 
-declare interface NetiDiskHandleObject {
+declare interface NetDiskHandleObject {
 	/** 分享码 */
 	shareCode: string;
 	/** 访问码 */

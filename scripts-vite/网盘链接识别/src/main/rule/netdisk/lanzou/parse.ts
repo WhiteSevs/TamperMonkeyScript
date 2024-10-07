@@ -418,8 +418,8 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 						that.netDiskIndex,
 						that.shareCode,
 						that.accessCode,
-						(userInputAccessCode) => {
-							that.init(that.netDiskIndex, that.shareCode, userInputAccessCode);
+						(option) => {
+							that.init(that.netDiskIndex, that.shareCode, option.accessCode);
 						}
 					);
 				} else {
@@ -612,8 +612,8 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 				that.netDiskIndex,
 				that.shareCode,
 				that.accessCode,
-				(userInputAccessCode) => {
-					that.init(that.netDiskIndex, that.shareCode, userInputAccessCode);
+				(option) => {
+					that.init(that.netDiskIndex, that.shareCode, option.accessCode);
 				}
 			);
 		} else {
@@ -743,8 +743,8 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 				that.netDiskIndex,
 				that.shareCode,
 				that.accessCode,
-				(userInputAccessCode) => {
-					that.init(that.netDiskIndex, that.shareCode, userInputAccessCode);
+				(option) => {
+					that.init(that.netDiskIndex, that.shareCode, option.accessCode);
 				}
 			);
 		} else if ("没有了".indexOf(info) !== -1) {

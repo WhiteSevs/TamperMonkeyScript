@@ -441,8 +441,8 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 							forms: [
 								UISelect(
 									"匹配模式",
-									NetDiskGlobalData.function["netdisk-match-mode"].KEY,
-									NetDiskGlobalData.function["netdisk-match-mode"].default,
+									NetDiskGlobalData.features["netdisk-match-mode"].KEY,
+									NetDiskGlobalData.features["netdisk-match-mode"].default,
 									[
 										{
 											text: "MutationObserver",
@@ -458,8 +458,8 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 								),
 								UISelect(
 									"行为模式",
-									NetDiskGlobalData.function["netdisk-behavior-mode"].KEY,
-									NetDiskGlobalData.function["netdisk-behavior-mode"].default,
+									NetDiskGlobalData.features["netdisk-behavior-mode"].KEY,
+									NetDiskGlobalData.features["netdisk-behavior-mode"].default,
 									[
 										{
 											text: "悬浮按钮+小窗",
@@ -479,16 +479,16 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 								),
 								UISwitch(
 									"自动输入访问码",
-									NetDiskGlobalData.function.autoFillAccessCode.KEY,
-									NetDiskGlobalData.function.autoFillAccessCode.default,
+									NetDiskGlobalData.features.autoFillAccessCode.KEY,
+									NetDiskGlobalData.features.autoFillAccessCode.default,
 									void 0,
 									"通过主动点击链接跳转时，会自动输入网盘访问码"
 								),
 								UISwitch(
 									"获取重定向后的直链",
-									NetDiskGlobalData.function.getTheDirectLinkAfterRedirection
+									NetDiskGlobalData.features.getTheDirectLinkAfterRedirection
 										.KEY,
-									NetDiskGlobalData.function.getTheDirectLinkAfterRedirection
+									NetDiskGlobalData.features.getTheDirectLinkAfterRedirection
 										.default,
 									void 0,
 									"对获取的链接再进行一次重定向获取链接"
@@ -745,7 +745,7 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 				},
 				{
 					type: "deepMenu",
-					text: "分享码相关",
+					text: "分享码",
 					forms: [
 						{
 							type: "forms",
@@ -754,18 +754,17 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 							forms: [
 								UISwitch(
 									"排除分享码",
-									NetDiskGlobalData.aboutShareCode.excludeIdenticalSharedCodes
-										.KEY,
-									NetDiskGlobalData.aboutShareCode.excludeIdenticalSharedCodes
+									NetDiskGlobalData.shareCode.excludeIdenticalSharedCodes.KEY,
+									NetDiskGlobalData.shareCode.excludeIdenticalSharedCodes
 										.default,
 									void 0,
 									"启用后会根据【相同系数】排除掉匹配到的分享码"
 								),
 								UISlider(
 									"相同系数",
-									NetDiskGlobalData.aboutShareCode
+									NetDiskGlobalData.shareCode
 										.excludeIdenticalSharedCodesCoefficient.KEY,
-									NetDiskGlobalData.aboutShareCode
+									NetDiskGlobalData.shareCode
 										.excludeIdenticalSharedCodesCoefficient.default,
 									0,
 									1,
@@ -775,6 +774,28 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 									},
 									"例如分享码: aaaaaaaabb，它的相同系数是0.8，设置相同系数≥0.8时会被排除",
 									0.01
+								),
+							],
+						},
+					],
+				},
+				{
+					type: "deepMenu",
+					text: "访问码",
+					forms: [
+						{
+							className: "netdisk-panel-forms-access-code",
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"允许查询历史匹配记录",
+									NetDiskGlobalData.accessCode
+										.allowQueryHistoryMatchingAccessCode.KEY,
+									NetDiskGlobalData.accessCode
+										.allowQueryHistoryMatchingAccessCode.default,
+									void 0,
+									"当访问码为空时，访问码将从历史匹配记录中查询，优先级：页面匹配 < 历史匹配记录 < 网站规则 < 黑名单"
 								),
 							],
 						},

@@ -44,7 +44,7 @@ export const NetDisk = {
 		 */
 		tempMatchedInfo: new Utils.Dictionary<
 			string,
-			UtilsDictionary<string, NetiDiskHandleObject>
+			UtilsDictionary<string, NetDiskHandleObject>
 		>(),
 		/**
 		 * 用于存储已匹配到的网盘规则名
@@ -177,10 +177,10 @@ export const NetDisk = {
 		/* %E7%BD%91%E7%9B%98 => 网盘 */
 		shareCode = decodeURI(shareCode);
 		if (
-			NetDiskGlobalData.aboutShareCode.excludeIdenticalSharedCodes.value &&
+			NetDiskGlobalData.shareCode.excludeIdenticalSharedCodes.value &&
 			utils.isSameChars(
 				shareCode,
-				NetDiskGlobalData.aboutShareCode.excludeIdenticalSharedCodesCoefficient
+				NetDiskGlobalData.shareCode.excludeIdenticalSharedCodesCoefficient
 					.value
 			)
 		) {
