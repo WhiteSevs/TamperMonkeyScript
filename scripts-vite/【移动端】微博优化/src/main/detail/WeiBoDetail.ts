@@ -13,6 +13,7 @@ export const WeiBoDetail = {
 	 * 设置正文显示的时间为绝对时间
 	 */
 	setArticleAbsoluteTime() {
+		log.info(`监听并设置正文显示的时间为绝对时间`);
 		utils.mutationObserver(document.documentElement, {
 			config: {
 				subtree: true,
@@ -133,7 +134,7 @@ export const WeiBoDetail = {
 					});
 				}
 				let searchParams = new URLSearchParams(window.location.search);
-				if (WeiBoRouter.isMWeiBo_detail()) {
+				if (WeiBoRouter.isMWeiBo_detail() || WeiBoRouter.isMWeiBo_status()) {
 					// 正文
 					if (searchParams.has("cid")) {
 						// 正文楼中楼的

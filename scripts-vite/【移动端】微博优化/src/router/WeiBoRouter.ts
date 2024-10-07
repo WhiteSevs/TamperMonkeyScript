@@ -13,11 +13,19 @@ const WeiBoRouter = {
 		return this.isMWeiBo() && globalThis.location.pathname === "/";
 	},
 	/**
-	 * 移动端微博-帖子
+	 * 移动端微博-微博正文
 	 */
 	isMWeiBo_detail() {
 		return (
 			this.isMWeiBo() && globalThis.location.pathname.startsWith("/detail/")
+		);
+	},
+	/**
+	 * 移动端微博-微博正文
+	 */
+	isMWeiBo_status() {
+		return (
+			this.isMWeiBo() && globalThis.location.pathname.startsWith("/status/")
 		);
 	},
 	/**

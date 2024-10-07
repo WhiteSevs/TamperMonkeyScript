@@ -56,19 +56,22 @@ const WeiBo = {
 				});
 			});
 			if (WeiBoRouter.isMWeiBoHome()) {
-				log.info(`Router: 移动端微博首页`);
+				log.info(`Router: 首页`);
 				WeiBoHome.init();
-			} else if (WeiBoRouter.isMWeiBo_detail()) {
-				log.info("Router: 移动端微博帖子");
+			} else if (
+				WeiBoRouter.isMWeiBo_detail() ||
+				WeiBoRouter.isMWeiBo_status()
+			) {
+				log.info("Router: 正文");
 				WeiBoDetail.init();
 			} else if (WeiBoRouter.isMWeiBo_userHome()) {
-				log.info("Router: 移动端微博用户主页");
+				log.info("Router: 用户主页");
 				WeiBoUserHome.init();
 			} else if (WeiBoRouter.isMWeiBo_search()) {
-				log.info("Router: 移动端微博搜索");
+				log.info("Router: 搜索");
 				WeiBoSearch.init();
 			} else {
-				log.error("Router: 未适配的移动端微博链接 => " + window.location.href);
+				log.error("Router: 未适配的微博链接 => " + window.location.href);
 			}
 		} else if (WeiBoRouter.isVideo()) {
 			// 视频页

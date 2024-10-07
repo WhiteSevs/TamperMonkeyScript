@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.4.18
+// @version      2024.10.7
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -2183,10 +2183,16 @@
       return this.isMWeiBo() && globalThis.location.pathname === "/";
     },
     /**
-     * 移动端微博-帖子
+     * 移动端微博-微博正文
      */
     isMWeiBo_detail() {
       return this.isMWeiBo() && globalThis.location.pathname.startsWith("/detail/");
+    },
+    /**
+     * 移动端微博-微博正文
+     */
+    isMWeiBo_status() {
+      return this.isMWeiBo() && globalThis.location.pathname.startsWith("/status/");
     },
     /**
      * 移动端微博-用户主页
@@ -2353,6 +2359,7 @@
      * 设置正文显示的时间为绝对时间
      */
     setArticleAbsoluteTime() {
+      log.info(`监听并设置正文显示的时间为绝对时间`);
       utils.mutationObserver(document.documentElement, {
         config: {
           subtree: true,
@@ -2458,7 +2465,7 @@
             });
           }
           let searchParams = new URLSearchParams(window.location.search);
-          if (WeiBoRouter.isMWeiBo_detail()) {
+          if (WeiBoRouter.isMWeiBo_detail() || WeiBoRouter.isMWeiBo_status()) {
             if (searchParams.has("cid")) {
               handleCardLzlTime();
             } else {
@@ -2726,18 +2733,18 @@
           });
         });
         if (WeiBoRouter.isMWeiBoHome()) {
-          log.info(`Router: 移动端微博首页`);
+          log.info(`Router: 首页`);
           WeiBoHome.init();
-        } else if (WeiBoRouter.isMWeiBo_detail()) {
-          log.info("Router: 移动端微博帖子");
+        } else if (WeiBoRouter.isMWeiBo_detail() || WeiBoRouter.isMWeiBo_status()) {
+          log.info("Router: 正文");
           WeiBoDetail.init();
         } else if (WeiBoRouter.isMWeiBo_userHome()) {
-          log.info("Router: 移动端微博用户主页");
+          log.info("Router: 用户主页");
         } else if (WeiBoRouter.isMWeiBo_search()) {
-          log.info("Router: 移动端微博搜索");
+          log.info("Router: 搜索");
           WeiBoSearch.init();
         } else {
-          log.error("Router: 未适配的移动端微博链接 => " + window.location.href);
+          log.error("Router: 未适配的微博链接 => " + window.location.href);
         }
       } else if (WeiBoRouter.isVideo()) {
         log.info("Router: 视频页");
