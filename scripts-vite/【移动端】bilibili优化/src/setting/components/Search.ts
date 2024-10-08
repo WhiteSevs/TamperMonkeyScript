@@ -96,6 +96,32 @@ const SettingUISearch: PopsPanelContentConfig = {
 						},
 					],
 				},
+				{
+					text: "变量设置",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"noCallApp",
+									"bili-search-vue-prop-noCallApp",
+									true,
+									void 0,
+									"noCallApp = true"
+								),
+								UISwitch(
+									"openAppDialog",
+									"bili-search-vue-prop-openAppDialog",
+									true,
+									void 0,
+									"openAppDialog = false"
+								),
+							],
+						},
+					],
+				},
 			],
 		},
 	],

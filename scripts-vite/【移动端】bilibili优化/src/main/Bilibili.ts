@@ -116,6 +116,14 @@ const Bilibili = {
 									from,
 								},
 							]);
+							if (
+								to["hash"] === "#/seeCommentReply" ||
+								from["hash"] === "#/seeCommentReply"
+							) {
+								log.info("该路由变化判定为#/seeCommentReply");
+								next();
+								return;
+							}
 							if (PopsPanel.getValue("bili-repairVueRouter404")) {
 								if (to.name === "space") {
 									// 修复空间跳转404

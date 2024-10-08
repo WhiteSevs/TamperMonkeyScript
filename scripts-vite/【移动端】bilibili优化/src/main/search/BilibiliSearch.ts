@@ -3,6 +3,7 @@ import { PopsPanel } from "@/setting/setting";
 import { BilibiliExtraSearch } from "./BilibiliExtraSearch";
 import { BilibiliRouter } from "@/router/BilibiliRouter";
 import { BilibiliSearchBeautify } from "./BilibiliSearchBeautify";
+import { BilibiliSearchVueProp } from "./BilibiliSearchVueProp";
 
 const BilibiliSearch = {
 	init() {
@@ -10,6 +11,7 @@ const BilibiliSearch = {
 			// 搜索结果页面
 			BilibiliExtraSearch.init();
 		}
+		BilibiliSearchVueProp.init();
 		PopsPanel.execMenuOnce("bili-search-cover-cancel", () => {
 			this.coverCancel();
 		});

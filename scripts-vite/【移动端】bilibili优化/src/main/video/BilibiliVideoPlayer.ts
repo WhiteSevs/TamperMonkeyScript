@@ -17,7 +17,7 @@ import {
 } from "./artplayer/ArtPlayer";
 import type Artplayer from "artplayer";
 import { unsafeWindow } from "ViteGM";
-import type { VIDEO_EP_LIST } from "./TypeVideo";
+import type { VIDEO_EP_LIST, VIDEO_PART } from "./TypeVideo";
 import type { ArtPlayerPluginQualityOption } from "@/player/plugins/artplayer-plugin-quality";
 
 type VideoInfo = {
@@ -414,20 +414,77 @@ export const BilibiliVideoPlayer = {
 				const $mVideoPlayer = document.querySelector<HTMLDivElement>(
 					"#app .video .m-video-player"
 				)!;
-				let { aid, bvid, cid, pic, title } = vueInstance.info;
+				// info中获取似乎有滞后性，对分p的视频不起作用
+				let { aid, bvid, cid, pic, title } = vueInstance;
+				aid = aid || vueInstance.info.aid;
+				bvid = bvid || vueInstance.info.bvid;
+				cid = cid || vueInstance.info.cid;
+				pic = pic || vueInstance.info.pic;
+				title = title || vueInstance.info.title;
 
-				let epInfoList = [];
+				/** 分集信息 */
+				let epInfoList: VIDEO_EP_LIST[] = [];
 				// 获取页面中的分集信息
 				const $seasonNew = document.querySelector<HTMLElement>(
 					".m-video-season-new"
 				);
+				// 获取页面中的分p信息
+				const $partNew =
+					document.querySelector<HTMLElement>(".m-video-part-new");
 				if ($seasonNew && VueUtils.getVue($seasonNew)) {
+					// 分集 > 分p信息
 					let seasonVueIns = VueUtils.getVue($seasonNew)!;
 					let videoList = seasonVueIns?.videoList;
 					if (Array.isArray(videoList)) {
 						epInfoList = videoList;
 					}
+				} else if ($partNew && VueUtils.getVue($partNew)) {
+					// 分p信息
+					let partVueIns = VueUtils.getVue($partNew)!;
+					let info = partVueIns?.info;
+					let currentPage = partVueIns?.p;
+					let pages = partVueIns?.pages || partVueIns?.info?.pages;
+					// 将分p数据和info合并为EP_LIST数据
+					if (Array.isArray(pages)) {
+						epInfoList.push({
+							season_id: 0,
+							section_id: 0,
+							id: 0,
+							aid: aid || info.aid,
+							bvid: bvid || info.bvid,
+							cid: cid || info.cid,
+							title: title || info.title,
+							attribute: 0,
+							arc: {
+								aid: aid || info.aid,
+								videos: info?.videos,
+								type_id: 0,
+								type_name: "",
+								copyright: info?.copyright,
+								pic: info?.pic,
+								title: info?.title,
+								pubdate: info?.pubdate,
+								ctime: info?.ctime,
+								desc: info?.desc,
+								state: info?.state,
+								duration: info?.duration,
+								rights: info?.rights,
+								author: info?.owner,
+								stat: info?.stat,
+								dynamic: info?.dynamic,
+								dimension: info?.dimension,
+								desc_v2: info?.desc_v2,
+								is_chargeable_season: info?.is_chargeable_season,
+								is_blooper: info?.is_blooper,
+								enable_vt: info?.enable_vt,
+								vt_display: info?.vt_display,
+							},
+							page: info?.pages?.[currentPage],
+							pages: info?.pages,
+						});
+					}
 				}
+
 				if (videoInfo == null) {
 					// 如果是空值，那应该是页面切换的
 					// 如果有值，那应该是切换分集的，先预留这个接口

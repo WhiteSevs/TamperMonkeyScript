@@ -4,6 +4,8 @@ export type VIDEO_EP_LIST = {
 	id: number;
 	/** 视频aid */
 	aid: number;
+	/** 视频bvid */
+	bvid: string;
 	/** 视频cid */
 	cid: number;
 	/** 视频标题 */
@@ -12,6 +14,7 @@ export type VIDEO_EP_LIST = {
 	arc: {
 		/** 视频aid */
 		aid: number;
+		/** 视频分p的数量 */
 		videos: number;
 		type_id: number;
 		type_name: string;
@@ -94,26 +97,33 @@ export type VIDEO_EP_LIST = {
 		enable_vt: number;
 		vt_display: string;
 	};
-	page: {
-		/** 视频cid */
-		cid: number;
-		/** 视频分页页码，大部分是1 */
-		page: number;
-		/** 视频来源，一般是 @default "vupload"  */
-		from: string;
-		/** 标题 */
-		part: string;
-		/** 视频时长（s） */
-		duration: number;
-		vid: string;
-		weblink: string;
-		dimension: {
-			width: number;
-			height: number;
-			rotate: number;
-		};
-	};
-	/** 视频bvid */
-	bvid: string;
+	/** 当前p信息 */
+	page: VIDEO_PART;
+	/** 所有分p信息 */
 	pages: VIDEO_EP_LIST["page"][];
+};
+
+/**
+ * 分p信息
+ */
+export type VIDEO_PART = {
+	/** 视频cid */
+	cid: number;
+	/** 视频分页所属页码*/
+	page: number;
+	/** 视频来源，一般是 @default "vupload"  */
+	from: string;
+	/** 标题 */
+	part: string;
+	/** 视频时长（s） */
+	duration: number;
+	vid: string;
+	weblink: string;
+	dimension: {
+		width: number;
+		height: number;
+		rotate: number;
+	};
+	/** 视频封面 */
+	first_frame?: string;
 };

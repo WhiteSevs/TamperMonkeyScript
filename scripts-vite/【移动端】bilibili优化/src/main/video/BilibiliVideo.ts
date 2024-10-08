@@ -92,7 +92,7 @@ const BilibiliVideo = {
 						// 隐藏元素，不能直接修改元素的位置，回答导致页面初始化时appendChild异常
 						DOMUtils.hide($originTitle);
 						if ($originCount) {
-							DOMUtils.hide($originCount);
+							// DOMUtils.hide($originCount);
 						}
 						// 视频封面右上角的App文字
 						let $isOpenAppWeakened =

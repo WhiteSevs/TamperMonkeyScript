@@ -75,28 +75,59 @@ export interface BilibiliVideoArtPlayerOption {
 const generateVideoSelectSetting = (
 	option: BilibiliVideoArtPlayerOption
 ): ArtPlayerPluginEpChooseOption["EP_LIST"] => {
-	return (option.epList || []).map((epInfo) => {
-		return {
-			isDefault: epInfo.aid === option.aid && epInfo.cid === option.cid,
-			title: GenerateArtPlayerEpTitle(epInfo.title),
-			aid: epInfo.aid,
-			bvid: epInfo.bvid,
-			cid: epInfo.cid,
-			onSelect(selectItem, index) {
-				BilibiliVideoPlayer.updateArtPlayerVideoInfo(
-					{
-						aid: epInfo.aid,
-						bvid: epInfo.bvid,
-						cid: epInfo.cid,
-						pic: epInfo.arc.pic,
-						title: epInfo.title,
-						epList: option.epList || [],
-					},
-					true
-				);
-			},
-		};
-	});
+	// 如果选集只有1集
+	// 那么从分p中进行选取
+	let epList = option.epList || [];
+	if (epList.length === 1) {
+		let parentEp = epList[0];
+		return parentEp.pages.map((pageInfo) => {
+			return {
+				isDefault: pageInfo.cid === option.cid,
+				title: pageInfo.part,
+				aid: option.aid,
+				bvid: option.bvid,
+				cid: pageInfo.cid,
+				onSelect(selectOption, index) {
+					// 先更新为当前的cid
+					parentEp.cid = pageInfo.cid;
+					BilibiliVideoPlayer.updateArtPlayerVideoInfo(
+						{
+							aid: option.aid as number,
+							bvid: option.bvid,
+							cid: pageInfo.cid,
+							pic: pageInfo.first_frame || "",
+							title: pageInfo.part,
+							epList: option.epList || [],
+						},
+						true
+					);
+				},
+			};
+		});
+	} else {
+		return epList.map((epInfo) => {
+			return {
+				isDefault: epInfo.aid === option.aid && epInfo.cid === option.cid,
+				title: GenerateArtPlayerEpTitle(epInfo.title),
+				aid: epInfo.aid,
+				bvid: epInfo.bvid,
+				cid: epInfo.cid,
+				onSelect(selectItem, index) {
+					BilibiliVideoPlayer.updateArtPlayerVideoInfo(
+						{
+							aid: epInfo.aid,
+							bvid: epInfo.bvid,
+							cid: epInfo.cid,
+							pic: epInfo.arc.pic,
+							title: epInfo.title,
+							epList: option.epList || [],
+						},
+						true
+					);
+				},
+			};
+		});
+	}
 };
 
 export const BilibiliVideoArtPlayer = {

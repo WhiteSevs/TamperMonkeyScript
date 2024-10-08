@@ -1,3 +1,4 @@
+import { addStyle } from "@/env";
 import type Artplayer from "artplayer";
 import type { Events } from "artplayer/types/events";
 import type { Setting, SettingOption } from "artplayer/types/setting";
@@ -78,6 +79,9 @@ export const GenerateArtPlayerEpSetting = (
 			}
 			return item.html;
 		},
+		mounted(panel, item) {
+			panel.setAttribute("data-plugin", EpChoose.$key.SETTING_KEY);
+		},
 		/**
 		 * 播放下一集
 		 */
@@ -125,6 +129,9 @@ const EpChooseEvent = {
 };
 
 const EpChoose = {
+	$flag: {
+		isInitCSS: false,
+	},
 	$key: {
 		SETTING_KEY: "setting-ep-choose",
 		PLUGIN_KEY: "plugin-ep-choose",
@@ -153,7 +160,17 @@ const EpChoose = {
 			// 连播
 			EpChooseEvent.bind(art);
 		}
-
+		if (!this.$flag.isInitCSS) {
+			this.$flag.isInitCSS = true;
+			addStyle(/*css*/ `
+			.art-setting-panel[data-plugin="${EpChoose.$key.SETTING_KEY}"] .art-setting-item .art-setting-item-left-text{
+				max-width: 210px;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+			`);
+		}
 		this.update(option);
 	},
 	/**

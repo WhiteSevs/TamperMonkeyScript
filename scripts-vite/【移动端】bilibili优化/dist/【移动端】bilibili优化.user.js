@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.7.23
+// @version      2024.10.8
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -1960,6 +1960,32 @@
                 ]
               }
             ]
+          },
+          {
+            text: "变量设置",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "noCallApp",
+                    "bili-search-vue-prop-noCallApp",
+                    true,
+                    void 0,
+                    "noCallApp = true"
+                  ),
+                  UISwitch(
+                    "openAppDialog",
+                    "bili-search-vue-prop-openAppDialog",
+                    true,
+                    void 0,
+                    "openAppDialog = false"
+                  )
+                ]
+              }
+            ]
           }
         ]
       }
@@ -3121,7 +3147,7 @@
       }
     }
   };
-  const BilibiliVideoBeautifyCSS = '@charset "UTF-8";\r\n#app .video {\r\n	/* 下面的推荐视频卡片 */\r\n}\r\n#app .video .video-list .card-box {\r\n	--left-card-width: 33%;\r\n	--right-child-padding: 1.333vmin;\r\n	/* 开启了bili-video-beautify */\r\n}\r\n#app .video .video-list .card-box .v-card-toapp {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a {\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n	gap: var(--right-child-padding);\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card {\r\n	width: var(--left-card-width);\r\n	height: 80px;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .left {\r\n	display: list-item;\r\n}\r\n#app\r\n	.video\r\n	.video-list\r\n	.card-box\r\n	.v-card-toapp\r\n	> a\r\n	.card\r\n	.count\r\n	.left\r\n	span.item {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .duration {\r\n	background: rgba(0, 0, 0, 0.4);\r\n	border-radius: 0.6vmin;\r\n	padding: 0px 0.5vmin;\r\n	right: 1vmin;\r\n	bottom: 1vmin;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .title {\r\n	flex: 1;\r\n	/*padding: var(--right-child-padding);*/\r\n	padding-top: 0;\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n#app .video .video-list .card-box .gm-right-container {\r\n	display: flex;\r\n	flex-direction: column;\r\n	width: calc(100% - var(--left-card-width));\r\n}\r\n#app .video .video-list .card-box .gm-right-container > * {\r\n	padding: var(--right-child-padding);\r\n	padding-bottom: 0;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	gap: 1rem;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .left span {\r\n	display: flex;\r\n	align-items: safe center;\r\n	gap: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name,\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	color: #999;\r\n	font-size: 3vmin;\r\n	transform-origin: left;\r\n	display: flex;\r\n	/*align-items: safe center;*/\r\n	align-items: safe flex-end;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name svg{\r\n	width: 3vmin;\r\n	height: 3vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name-text {\r\n	margin-left: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .num {\r\n	margin-right: 4vmin;\r\n}\r\n#app .video .video-list .card-box > a.v-card {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card {\r\n	width: var(--left-card-width);\r\n	height: 100%;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count span {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count .duration {\r\n	background-color: rgba(0, 0, 0, 0.3);\r\n	border-radius: 4px;\r\n	color: #fff;\r\n	font-size: 12px;\r\n	height: 16px;\r\n	line-height: 16px;\r\n	margin-left: auto;\r\n	padding-left: 4px;\r\n	padding-right: 4px;\r\n}\r\n#app .video .video-list .card-box > a.v-card .title {\r\n	flex: 1;\r\n	/*padding: var(--right-child-padding);*/\r\n	padding-top: 0;\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n';
+  const BilibiliVideoBeautifyCSS = '@charset "UTF-8";\r\n#app .video {\r\n	/* 下面的推荐视频卡片 */\r\n}\r\n#app .video .video-list .card-box {\r\n	--left-card-width: 33%;\r\n	--right-child-padding: 1.333vmin;\r\n	/* 开启了bili-video-beautify */\r\n}\r\n#app .video .video-list .card-box .v-card-toapp {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a {\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n	gap: var(--right-child-padding);\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card {\r\n	width: var(--left-card-width);\r\n	height: 80px;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .left {\r\n	display: list-item;\r\n}\r\n#app\r\n	.video\r\n	.video-list\r\n	.card-box\r\n	.v-card-toapp\r\n	> a\r\n	.card\r\n	.count\r\n	.left\r\n	span.item {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .duration {\r\n	background: rgba(0, 0, 0, 0.4);\r\n	border-radius: 0.6vmin;\r\n	padding: 0px 0.5vmin;\r\n	right: 1vmin;\r\n	bottom: 1vmin;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .title {\r\n	/*flex: 1;*/\r\n	/*padding: var(--right-child-padding);*/\r\n	padding-top: 0;\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n#app .video .video-list .card-box .gm-right-container {\r\n	display: flex;\r\n	flex-direction: column;\r\n	width: calc(100% - var(--left-card-width));\r\n	justify-content: space-between;\r\n}\r\n#app .video .video-list .card-box .gm-right-container > * {\r\n	padding: var(--right-child-padding);\r\n	padding-bottom: 0;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	gap: 1rem;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .left span {\r\n	display: flex;\r\n	align-items: safe center;\r\n	gap: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name,\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	color: #999;\r\n	font-size: 3vmin;\r\n	transform-origin: left;\r\n	display: flex;\r\n	/*align-items: safe center;*/\r\n	align-items: safe flex-end;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name svg {\r\n	width: 3vmin;\r\n	height: 3vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name-text {\r\n	margin-left: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .num {\r\n	margin-right: 4vmin;\r\n}\r\n#app .video .video-list .card-box > a.v-card {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card {\r\n	width: var(--left-card-width);\r\n	height: 100%;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count span {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count .duration {\r\n	background-color: rgba(0, 0, 0, 0.3);\r\n	border-radius: 4px;\r\n	color: #fff;\r\n	font-size: 12px;\r\n	height: 16px;\r\n	line-height: 16px;\r\n	margin-left: auto;\r\n	padding-left: 4px;\r\n	padding-right: 4px;\r\n}\r\n#app .video .video-list .card-box > a.v-card .title {\r\n	flex: 1;\r\n	/*padding: var(--right-child-padding);*/\r\n	padding-top: 0;\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n';
   const artPlayerCSS$1 = ".artplayer-container {\r\n	position: absolute;\r\n	width: 100%;\r\n	height: 100%;\r\n	top: 0;\r\n	left: 0;\r\n	overflow: hidden;\r\n}";
   const artPlayerCommonCSS = "/* 设置播放器基础宽高 */\r\n#artplayer {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n/* 通用隐藏class */\r\n.art-video-player .art-common-hide {\r\n	display: none !important;\r\n}\r\n/* 设置播放器基础宽高 */\r\n.art-video-player {\r\n	width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n	display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n	backdrop-filter: unset !important;\r\n}\r\n/* 底部的设置菜单当前选中的提示文字设置文字溢出省略号 */\r\n.art-settings .art-setting-item .art-setting-item-right-tooltip {\r\n	max-width: 100px;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n}\r\n\r\n/* 竖屏 宽度小于550px */\r\n@media (orientation: portrait) and (max-width: 550px) {\r\n	/* 隐藏 弹幕设置按钮 */\r\n	.artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		display: none !important;\r\n	}\r\n	/* 弹幕库靠右对齐 */\r\n	.artplayer-plugin-danmuku {\r\n		justify-content: right;\r\n	}\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n	/* 限制弹幕输入框的最大宽度 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		max-width: 260px;\r\n	}\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-lock .art-layer-top-wrap {\r\n	/* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */\r\n	display: none !important;\r\n}\r\n.art-layer-top-wrap {\r\n	--layer-top-wrap-follow-text-font-size: 0.8em;\r\n	--layer-top-wrap-follow-icon-size: 1em;\r\n	width: 100%;\r\n	position: absolute;\r\n	top: 0px;\r\n	right: 0px;\r\n	color: #fff;\r\n	display: -webkit-box;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	left: 0;\r\n	-webkit-transition: all 0.2s ease-in-out;\r\n	transition: all 0.2s ease-in-out;\r\n	width: 100%;\r\n	background: linear-gradient(to bottom, #000, transparent);\r\n	padding: 10px calc(var(--art-padding));\r\n	z-index: 60;\r\n}\r\n.art-player-top-wrap {\r\n	width: 100%;\r\n}\r\n.art-player-top-wrap .art-player-top-title-text {\r\n	white-space: nowrap;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n	max-width: 100%;\r\n}\r\n/* 面板隐藏时，顶部toolbar也隐藏 */\r\n.art-hide-cursor .art-layer-top-wrap {\r\n	transform: translateY(-60px);\r\n}\r\n/*.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}*/\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n	margin-top: var(--art-padding);\r\n	gap: var(--layer-top-wrap-follow-text-font-size);\r\n	font-size: var(--layer-top-wrap-follow-text-font-size);\r\n	display: flex;\r\n	align-items: center;\r\n	position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n	width: var(--layer-top-wrap-follow-icon-size);\r\n	height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n	text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n\r\n/* 插件-锁定 */\r\n.art-video-player .art-layers .art-layer.art-layer-lock {\r\n	/* 放在右边 */\r\n	right: 0;\r\n	left: calc(100% - 20px - var(--art-lock-size) - var(--art-lock-left-size));\r\n}\r\n/* 插件-锁定 */\r\n";
   const BilibiliRequestCheck = {
@@ -4602,6 +4628,9 @@
         }
         return item.html;
       },
+      mounted(panel, item) {
+        panel.setAttribute("data-plugin", EpChoose.$key.SETTING_KEY);
+      },
       /**
        * 播放下一集
        */
@@ -4644,6 +4673,9 @@
     }
   };
   const EpChoose = {
+    $flag: {
+      isInitCSS: false
+    },
     $key: {
       SETTING_KEY: "setting-ep-choose",
       PLUGIN_KEY: "plugin-ep-choose"
@@ -4669,6 +4701,20 @@
       EpChooseEvent.unbind(art);
       if (option.automaticBroadcast) {
         EpChooseEvent.bind(art);
+      }
+      if (!this.$flag.isInitCSS) {
+        this.$flag.isInitCSS = true;
+        addStyle(
+          /*css*/
+          `
+			.art-setting-panel[data-plugin="${EpChoose.$key.SETTING_KEY}"] .art-setting-item .art-setting-item-left-text{
+				max-width: 210px;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+			`
+        );
       }
       this.update(option);
     },
@@ -5173,28 +5219,56 @@
   };
   const ArtPlayer_PLUGIN_TOAST_KEY = Toast.$key.plugin_KEY;
   const generateVideoSelectSetting = (option) => {
-    return (option.epList || []).map((epInfo) => {
-      return {
-        isDefault: epInfo.aid === option.aid && epInfo.cid === option.cid,
-        title: GenerateArtPlayerEpTitle(epInfo.title),
-        aid: epInfo.aid,
-        bvid: epInfo.bvid,
-        cid: epInfo.cid,
-        onSelect(selectItem, index) {
-          BilibiliVideoPlayer.updateArtPlayerVideoInfo(
-            {
-              aid: epInfo.aid,
-              bvid: epInfo.bvid,
-              cid: epInfo.cid,
-              pic: epInfo.arc.pic,
-              title: epInfo.title,
-              epList: option.epList || []
-            },
-            true
-          );
-        }
-      };
-    });
+    let epList = option.epList || [];
+    if (epList.length === 1) {
+      let parentEp = epList[0];
+      return parentEp.pages.map((pageInfo) => {
+        return {
+          isDefault: pageInfo.cid === option.cid,
+          title: pageInfo.part,
+          aid: option.aid,
+          bvid: option.bvid,
+          cid: pageInfo.cid,
+          onSelect(selectOption, index) {
+            parentEp.cid = pageInfo.cid;
+            BilibiliVideoPlayer.updateArtPlayerVideoInfo(
+              {
+                aid: option.aid,
+                bvid: option.bvid,
+                cid: pageInfo.cid,
+                pic: pageInfo.first_frame || "",
+                title: pageInfo.part,
+                epList: option.epList || []
+              },
+              true
+            );
+          }
+        };
+      });
+    } else {
+      return epList.map((epInfo) => {
+        return {
+          isDefault: epInfo.aid === option.aid && epInfo.cid === option.cid,
+          title: GenerateArtPlayerEpTitle(epInfo.title),
+          aid: epInfo.aid,
+          bvid: epInfo.bvid,
+          cid: epInfo.cid,
+          onSelect(selectItem, index) {
+            BilibiliVideoPlayer.updateArtPlayerVideoInfo(
+              {
+                aid: epInfo.aid,
+                bvid: epInfo.bvid,
+                cid: epInfo.cid,
+                pic: epInfo.arc.pic,
+                title: epInfo.title,
+                epList: option.epList || []
+              },
+              true
+            );
+          }
+        };
+      });
+    }
   };
   const BilibiliVideoArtPlayer = {
     $data: {
@@ -5725,19 +5799,69 @@
           }
         },
         async set(vueInstance) {
+          var _a2, _b;
           const $mVideoPlayer = document.querySelector(
             "#app .video .m-video-player"
           );
-          let { aid, bvid, cid, pic, title } = vueInstance.info;
+          let { aid, bvid, cid, pic, title } = vueInstance;
+          aid = aid || vueInstance.info.aid;
+          bvid = bvid || vueInstance.info.bvid;
+          cid = cid || vueInstance.info.cid;
+          pic = pic || vueInstance.info.pic;
+          title = title || vueInstance.info.title;
           let epInfoList = [];
           const $seasonNew = document.querySelector(
             ".m-video-season-new"
           );
+          const $partNew = document.querySelector(".m-video-part-new");
           if ($seasonNew && VueUtils.getVue($seasonNew)) {
             let seasonVueIns = VueUtils.getVue($seasonNew);
             let videoList = seasonVueIns == null ? void 0 : seasonVueIns.videoList;
             if (Array.isArray(videoList)) {
               epInfoList = videoList;
+            }
+          } else if ($partNew && VueUtils.getVue($partNew)) {
+            let partVueIns = VueUtils.getVue($partNew);
+            let info = partVueIns == null ? void 0 : partVueIns.info;
+            let currentPage = partVueIns == null ? void 0 : partVueIns.p;
+            let pages = (partVueIns == null ? void 0 : partVueIns.pages) || ((_a2 = partVueIns == null ? void 0 : partVueIns.info) == null ? void 0 : _a2.pages);
+            if (Array.isArray(pages)) {
+              epInfoList.push({
+                season_id: 0,
+                section_id: 0,
+                id: 0,
+                aid: aid || info.aid,
+                bvid: bvid || info.bvid,
+                cid: cid || info.cid,
+                title: title || info.title,
+                attribute: 0,
+                arc: {
+                  aid: aid || info.aid,
+                  videos: info == null ? void 0 : info.videos,
+                  type_id: 0,
+                  type_name: "",
+                  copyright: info == null ? void 0 : info.copyright,
+                  pic: info == null ? void 0 : info.pic,
+                  title: info == null ? void 0 : info.title,
+                  pubdate: info == null ? void 0 : info.pubdate,
+                  ctime: info == null ? void 0 : info.ctime,
+                  desc: info == null ? void 0 : info.desc,
+                  state: info == null ? void 0 : info.state,
+                  duration: info == null ? void 0 : info.duration,
+                  rights: info == null ? void 0 : info.rights,
+                  author: info == null ? void 0 : info.owner,
+                  stat: info == null ? void 0 : info.stat,
+                  dynamic: info == null ? void 0 : info.dynamic,
+                  dimension: info == null ? void 0 : info.dimension,
+                  desc_v2: info == null ? void 0 : info.desc_v2,
+                  is_chargeable_season: info == null ? void 0 : info.is_chargeable_season,
+                  is_blooper: info == null ? void 0 : info.is_blooper,
+                  enable_vt: info == null ? void 0 : info.enable_vt,
+                  vt_display: info == null ? void 0 : info.vt_display
+                },
+                page: (_b = info == null ? void 0 : info.pages) == null ? void 0 : _b[currentPage],
+                pages: info == null ? void 0 : info.pages
+              });
             }
           }
           if (videoInfo == null) {
@@ -5870,13 +5994,10 @@
               log.error("美化显示-handleVCardToApp：获取up主名字失败");
               return;
             }
-            let $originCount = $vCard.querySelector(".count");
+            $vCard.querySelector(".count");
             let $title = $originTitle.cloneNode(true);
             let $left = $originLeft.cloneNode(true);
             domutils.hide($originTitle);
-            if ($originCount) {
-              domutils.hide($originCount);
-            }
             let $isOpenAppWeakened = $vCard.querySelector(".open-app.weakened");
             if ($isOpenAppWeakened) {
               domutils.hide($isOpenAppWeakened);
@@ -8169,11 +8290,90 @@
       });
     }
   };
+  const BilibiliSearchVueProp = {
+    init() {
+      PopsPanel.execMenuOnce("bili-search-vue-prop-noCallApp", () => {
+        this.noCallApp();
+      });
+      PopsPanel.execMenuOnce("bili-search-vue-prop-openAppDialog", () => {
+        this.openAppDialog();
+      });
+    },
+    /**
+     * 该属性会让点击搜索结果弹出打开哔哩哔哩app的弹窗
+     * + __vue__.noCallApp
+     */
+    noCallApp() {
+      let lockFn = new utils.LockFunction(() => {
+        document.querySelectorAll(
+          ".video-list .card-box > div:not([data-gm-inject-no-call-app])"
+        ).forEach(($div) => {
+          let vueIns = VueUtils.getVue($div);
+          if (!vueIns) {
+            return;
+          }
+          if (typeof vueIns.noCallApp === "boolean") {
+            Object.defineProperty(vueIns, "noCallApp", {
+              value: true,
+              writable: false,
+              enumerable: true,
+              configurable: true
+            });
+            $div.setAttribute("data-gm-inject-no-call-app", "true");
+          }
+        });
+      });
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        callback() {
+          lockFn.run();
+        }
+      });
+    },
+    /**
+     * 该属性会让点击搜索结果弹出打开哔哩哔哩app的弹窗
+     * + __vue__.openAppDialog
+     */
+    openAppDialog() {
+      let lockFn = new utils.LockFunction(() => {
+        document.querySelectorAll(
+          ".video-list .card-box > div:not([data-gm-inject-openAppDialog])"
+        ).forEach(($div) => {
+          let vueIns = VueUtils.getVue($div);
+          if (!vueIns) {
+            return;
+          }
+          if (typeof vueIns.openAppDialog === "boolean") {
+            Object.defineProperty(vueIns, "openAppDialog", {
+              value: false,
+              writable: false,
+              enumerable: true,
+              configurable: true
+            });
+            $div.setAttribute("data-gm-inject-openAppDialog", "true");
+          }
+        });
+      });
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        callback() {
+          lockFn.run();
+        }
+      });
+    }
+  };
   const BilibiliSearch = {
     init() {
       if (BilibiliRouter.isSearchResult()) {
         BilibiliExtraSearch.init();
       }
+      BilibiliSearchVueProp.init();
       PopsPanel.execMenuOnce("bili-search-cover-cancel", () => {
         this.coverCancel();
       });
@@ -9731,6 +9931,11 @@
                     from
                   }
                 ]);
+                if (to["hash"] === "#/seeCommentReply" || from["hash"] === "#/seeCommentReply") {
+                  log.info("该路由变化判定为#/seeCommentReply");
+                  next();
+                  return;
+                }
                 if (PopsPanel.getValue("bili-repairVueRouter404")) {
                   if (to.name === "space") {
                     window.location.href = to.fullPath;

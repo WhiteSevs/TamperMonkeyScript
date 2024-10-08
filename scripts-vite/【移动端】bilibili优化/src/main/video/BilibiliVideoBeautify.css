@@ -49,7 +49,7 @@
 	bottom: 1vmin;
 }
 #app .video .video-list .card-box .v-card-toapp > a .title {
-	flex: 1;
+	/*flex: 1;*/
 	/*padding: var(--right-child-padding);*/
 	padding-top: 0;
 	margin-top: 0;
@@ -62,6 +62,7 @@
 	display: flex;
 	flex-direction: column;
 	width: calc(100% - var(--left-card-width));
+	justify-content: space-between;
 }
 #app .video .video-list .card-box .gm-right-container > * {
 	padding: var(--right-child-padding);
@@ -84,7 +85,7 @@
 	/*align-items: safe center;*/
 	align-items: safe flex-end;
 }
-#app .video .video-list .card-box .gm-right-container .gm-up-name svg{
+#app .video .video-list .card-box .gm-right-container .gm-up-name svg {
 	width: 3vmin;
 	height: 3vmin;
 }
