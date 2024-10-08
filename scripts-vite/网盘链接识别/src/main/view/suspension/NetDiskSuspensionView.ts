@@ -346,7 +346,7 @@ export const NetDiskSuspension = {
 		// 然后判断是否超出最大值
 		// 超出最大值，则使用默认值
 		if (MAX_X !== LAST_MAX_X) {
-			log.warn(`当前页面最大x和上次记录的不一致`);
+			// log.warn(`当前页面最大x和上次记录的不一致`);
 			// 当前页面和上次的页面x坐标不一致
 			// 计算出百分比
 			let percent_X = suspension_X / LAST_MAX_X;
@@ -354,22 +354,22 @@ export const NetDiskSuspension = {
 			let recalculate_suspension_X = MAX_X * percent_X;
 			let old_position_X = suspension_X;
 			suspension_X = recalculate_suspension_X;
-			log.table([
-				{
-					介绍: "上次记录的值",
-					X: old_position_X,
-					MAX_X: LAST_MAX_X,
-					percent: percent_X,
-				},
-				{
-					介绍: "当前页面的值",
-					X: suspension_X,
-					MAX_X: MAX_X,
-				},
-			]);
+			// log.table([
+			// 	{
+			// 		介绍: "上次记录的值",
+			// 		X: old_position_X,
+			// 		MAX_X: LAST_MAX_X,
+			// 		percent: percent_X,
+			// 	},
+			// 	{
+			// 		介绍: "当前页面的值",
+			// 		X: suspension_X,
+			// 		MAX_X: MAX_X,
+			// 	},
+			// ]);
 		}
 		if (MAX_Y !== LAST_MAX_Y) {
-			log.warn(`当前页面最大y和上次记录的不一致`);
+			// log.warn(`当前页面最大y和上次记录的不一致`);
 			// 当前页面和上次的页面y坐标不一致
 			// 计算出百分比
 			let percent_Y = suspension_Y / LAST_MAX_Y;
@@ -377,35 +377,35 @@ export const NetDiskSuspension = {
 			let recalculate_suspension_Y = MAX_Y * percent_Y;
 			let old_position_Y = suspension_Y;
 			suspension_Y = recalculate_suspension_Y;
-			log.table([
-				{
-					介绍: "上次记录的值",
-					Y: old_position_Y,
-					MAX_Y: LAST_MAX_Y,
-					percent: percent_Y,
-				},
-				{
-					介绍: "当前页面的值",
-					Y: suspension_Y,
-					MAX_Y: MAX_Y,
-				},
-			]);
+			// log.table([
+			// 	{
+			// 		介绍: "上次记录的值",
+			// 		Y: old_position_Y,
+			// 		MAX_Y: LAST_MAX_Y,
+			// 		percent: percent_Y,
+			// 	},
+			// 	{
+			// 		介绍: "当前页面的值",
+			// 		Y: suspension_Y,
+			// 		MAX_Y: MAX_Y,
+			// 	},
+			// ]);
 		}
 		if (suspension_X > MAX_X) {
-			log.warn("left超出最大值，重置为最大值");
+			// log.warn("left超出最大值，重置为最大值");
 			/* 如果用户设置的left偏移为正的，那么是超出边界，归位设置为最大值 */
 			suspension_X = MAX_X;
 		} else if (suspension_X < 0) {
-			log.warn(`left超出最小值，重置为0`);
+			// log.warn(`left超出最小值，重置为0`);
 			/* 如果用户设置的left偏移为负的，那么是超出边界，归位设置为0 */
 			suspension_X = 0;
 		}
 		if (suspension_Y > MAX_Y) {
-			log.warn("top超出最大值，重置为最大值");
+			// log.warn("top超出最大值，重置为最大值");
 			/* 如果用户设置的top偏移为正的，那么是超出边界，归位设置为最大值 */
 			suspension_Y = MAX_Y;
 		} else if (suspension_Y < 0) {
-			log.warn(`top超出最小值，重置为0`);
+			// log.warn(`top超出最小值，重置为0`);
 			/* 如果用户设置的top偏移为负的，那么是超出边界，归位设置为0 */
 			suspension_Y = 0;
 		}

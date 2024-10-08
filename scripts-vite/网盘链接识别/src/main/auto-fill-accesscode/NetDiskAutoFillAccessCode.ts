@@ -155,7 +155,7 @@ export const NetDiskAutoFillAccessCode = {
 	},
 	/**
 	 * 设置值
-	 * @param {NetDiskAutoFillAccessCodeOption} value
+	 * @param value
 	 */
 	setValue(value: NetDiskAutoFillAccessCodeOption) {
 		GM_setValue(this.key, value);

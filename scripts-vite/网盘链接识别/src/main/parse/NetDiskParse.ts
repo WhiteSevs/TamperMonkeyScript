@@ -1,6 +1,7 @@
 import { NetDiskParse_123pan } from "../rule/netdisk/123pan/parse";
 import { NetDiskParse_Aliyun } from "../rule/netdisk/aliyun/parse";
 import { NetDiskParse_Baidu } from "../rule/netdisk/baidu/parse";
+import { NetDiskParse_Chengtong } from "../rule/netdisk/chengtong/parse";
 import { NetDiskParse_Jianguoyun } from "../rule/netdisk/jianguoyun/parse";
 import { NetDiskParse_Lanzou } from "../rule/netdisk/lanzou/parse";
 import { NetDiskParse_Lanzouyx } from "../rule/netdisk/lanzouyx/parse";
@@ -54,5 +55,11 @@ export const NetDiskParse = {
 		 * 阿里云盘
 		 */
 		aliyun: NetDiskParse_Aliyun,
+		/**
+		 * 城通网盘
+		 *
+		 * + https://github.com/qinlili23333/ctfileGet
+		 */
+		chengtong: NetDiskParse_Chengtong,
 	},
 };

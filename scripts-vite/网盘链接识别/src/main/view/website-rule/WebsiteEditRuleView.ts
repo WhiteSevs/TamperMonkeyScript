@@ -474,7 +474,9 @@ export const WebsiteEditRuleView = {
 
 						/* 隐藏顶部的图标 */
 						.netdisk-custom-rule-edit,
-						.netdisk-custom-rule-delete{
+						.netdisk-custom-rule-delete,
+						/* 隐藏快捷键设置菜单，因为这个是全局唯一的 */
+						.netdisk-panel-forms-shortcut-keys-deepMenu{
 							display: none !important;
 						}
 						`,

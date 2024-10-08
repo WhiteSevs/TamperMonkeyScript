@@ -1,7 +1,13 @@
-
-
 /** worker的传递的数据 */
 declare interface NetDiskWorkerOptions {
+	/**
+	 * 是否去除中文字符
+	 */
+	isRemoveChineseCharacters: boolean;
+	/**
+	 * 是否去除任何空白字符
+	 */
+	isRemoveAllSpaceCharacters: boolean;
 	/**
 	 * 待匹配的字符串数组
 	 */

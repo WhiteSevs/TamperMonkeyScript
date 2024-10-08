@@ -2,6 +2,7 @@ import { log, utils } from "@/env";
 import { NetDisk } from "../NetDisk";
 import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import { NetDiskRuleUtils } from "../rule/NetDiskRuleUtils";
+import { CommonUtils } from "@/utils/CommonUtils";
 
 export const NetDiskDebug = {
 	/**
@@ -90,8 +91,7 @@ export const NetDiskDebug = {
 			NetDiskGlobalData.shareCode.excludeIdenticalSharedCodes.value &&
 			utils.isSameChars(
 				shareCode,
-				NetDiskGlobalData.shareCode.excludeIdenticalSharedCodesCoefficient
-					.value
+				NetDiskGlobalData.shareCode.excludeIdenticalSharedCodesCoefficient.value
 			)
 		) {
 			/* 排除掉由相同字符组成的分享码 */
@@ -272,7 +272,11 @@ export const NetDiskDebug = {
 				],
 			});
 		} else {
-			uiLink = uiLink.replace(NetDisk.$extraRule.noAccessCodeRegExp, "");
+			uiLink = CommonUtils.replaceText(
+				uiLink,
+				NetDisk.$extraRule.noAccessCodeRegExp,
+				""
+			);
 			logCallBack({
 				status: true,
 				msg: [
@@ -354,7 +358,11 @@ export const NetDiskDebug = {
 				],
 			});
 		} else {
-			blankUrl = blankUrl.replace(NetDisk.$extraRule.noAccessCodeRegExp, "");
+			blankUrl = CommonUtils.replaceText(
+				blankUrl,
+				NetDisk.$extraRule.noAccessCodeRegExp,
+				""
+			);
 			logCallBack({
 				status: true,
 				msg: [
@@ -435,7 +443,11 @@ export const NetDiskDebug = {
 				],
 			});
 		} else {
-			copyUrl = copyUrl.replace(NetDisk.$extraRule.noAccessCodeRegExp, "");
+			copyUrl = CommonUtils.replaceText(
+				copyUrl,
+				NetDisk.$extraRule.noAccessCodeRegExp,
+				""
+			);
 			logCallBack({
 				status: true,
 				msg: [

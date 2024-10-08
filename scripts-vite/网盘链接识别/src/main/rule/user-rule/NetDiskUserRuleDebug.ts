@@ -5,6 +5,7 @@ import Qmsg from "qmsg";
 import { NetDiskUserRule } from "./NetDiskUserRule";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskWorker } from "@/main/worker/NetDiskWorker";
+import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
 
 /**
  * 调试用户规则
@@ -239,6 +240,10 @@ export const NetDiskUserRuleDebug = {
 				let matchTextList: string[] = [];
 				NetDiskWorker.handleRegularMatch(
 					{
+						isRemoveChineseCharacters:
+							NetDiskGlobalData.match.removeChineseCharacters.value,
+						isRemoveAllSpaceCharacters:
+							NetDiskGlobalData.match.removeAllSpaceCharacters.value,
 						regular: testCustomRule,
 						textList: [that.$el.$matchText.value],
 						matchTextRange: ["innerText", "innerHTML"],

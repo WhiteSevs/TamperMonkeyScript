@@ -7,6 +7,7 @@ import { NetDiskRuleData } from "../data/NetDiskRuleData";
 import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import { NetDisk } from "../NetDisk";
 import { NetDiskRuleUtils } from "../rule/NetDiskRuleUtils";
+import { CommonUtils } from "@/utils/CommonUtils";
 
 /** 点击动作 */
 export type NetDiskRuleSettingConfigurationInterface_linkClickMode =
@@ -41,7 +42,11 @@ export const NetDiskLinkClickModeUtils = {
 				accessCode: accessCode,
 			});
 		} else {
-			blankUrl = blankUrl.replace(NetDisk.$extraRule.noAccessCodeRegExp, "");
+			blankUrl = CommonUtils.replaceText(
+				blankUrl,
+				NetDisk.$extraRule.noAccessCodeRegExp,
+				""
+			);
 		}
 		/**
 		 * 当前字典
@@ -88,7 +93,11 @@ export const NetDiskLinkClickModeUtils = {
 				accessCode: accessCode,
 			});
 		} else {
-			copyUrl = copyUrl.replace(NetDisk.$extraRule.noAccessCodeRegExp, "");
+			copyUrl = CommonUtils.replaceText(
+				copyUrl,
+				NetDisk.$extraRule.noAccessCodeRegExp,
+				""
+			);
 		}
 		/**
 		 * 当前字典
@@ -176,7 +185,7 @@ export const NetDiskLinkClickMode = {
 		shareCode: string,
 		accessCode: string
 	) {
-		Qmsg.info("正在获取直链");
+		// Qmsg.info("正在获取直链");
 		if (
 			NetDiskParse.netDisk[netDiskName as keyof typeof NetDiskParse.netDisk]
 		) {
@@ -185,8 +194,8 @@ export const NetDiskLinkClickMode = {
 			]();
 			await parseObj.init(netDiskIndex, shareCode, accessCode);
 		} else {
-			log.error(`${netDiskName} 不存在解析`);
-			Qmsg.error("该链接不存在解析功能");
+			log.error(`${netDiskName} 未配置解析函数`);
+			Qmsg.error("该链接未配置解析函数");
 		}
 	},
 	/**
@@ -204,7 +213,7 @@ export const NetDiskLinkClickMode = {
 		shareCode: string,
 		accessCode: string
 	) {
-		log.success(["新标签页打开", [...arguments]]);
+		log.success("新标签页打开", arguments);
 		if (NetDiskAutoFillAccessCode.$data.enable) {
 			NetDiskAutoFillAccessCode.setValue({
 				url: url,
@@ -248,6 +257,7 @@ export const NetDiskLinkClickMode = {
 		shareCode: string,
 		accessCode: string
 	) {
+		log.success("scheme新标签页打开", arguments);
 		let url = NetDiskLinkClickModeUtils.getBlankUrl(
 			netDiskName,
 			netDiskIndex,

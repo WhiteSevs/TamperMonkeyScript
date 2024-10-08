@@ -510,11 +510,11 @@ export const NetDiskRule = {
 						: false;
 				schemeUri_form.push(
 					UISwitch(
-						"转发直链",
+						"转发新标签页链接",
 						NetDiskRuleDataKEY.schemeUri.isForwardBlankLink(ruleKey),
 						default_value,
 						void 0,
-						"对解析的直链进行scheme转换"
+						"对新标签页打开的链接进行scheme转换"
 					)
 				);
 				// 覆盖默认值
@@ -528,11 +528,11 @@ export const NetDiskRule = {
 						: false;
 				schemeUri_form.push(
 					UISwitch(
-						"转发新标签页链接",
-						NetDiskRuleDataKEY.schemeUri.isForwardBlankLink(ruleKey),
+						"转发直链",
+						NetDiskRuleDataKEY.schemeUri.isForwardLinearChain(ruleKey),
 						default_value,
 						void 0,
-						"对新标签页打开的链接进行scheme转换"
+						"对解析的直链进行scheme转换"
 					)
 				);
 				// 覆盖默认值

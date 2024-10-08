@@ -74,11 +74,25 @@ export const NetDiskWorker = {
 		workerOptionData: NetDiskWorkerOptions,
 		callback: (matchData: NetDiskWorkerMatchOption) => void
 	) {
+		// 规则名列表
 		const NetDiskRegularNameList = Object.keys(workerOptionData.regular);
+
+		// 待匹配的文本
+		const matchTextList = workerOptionData.textList.map((matchTextItem) => {
+			// 处理中文字符串
+			if (workerOptionData.isRemoveChineseCharacters) {
+				matchTextItem = matchTextItem.replace(/[\u4e00-\u9fa5]/g, "");
+			}
+			// 处理空白字符
+			if (workerOptionData.isRemoveAllSpaceCharacters) {
+				matchTextItem = matchTextItem.replace(/\s/g, "");
+			}
+			return matchTextItem;
+		});
+
 		for (const netDiskName of NetDiskRegularNameList) {
 			const netDiskRegular = workerOptionData.regular[netDiskName];
 			for (let index = 0; index < netDiskRegular.length; index++) {
-				/* 判断该规则是否已启用 */
 				const netDiskRegularItem = netDiskRegular[index];
 				// if (
 				// 	netDiskRegularItem["enable"] != null &&
@@ -87,7 +101,7 @@ export const NetDiskWorker = {
 				// 	continue;
 				// }
 				/* 匹配规则数组 */
-				let matchRegExpList = [];
+				let matchRegExpList: RegExp[] = [];
 				if (workerOptionData.matchTextRange.includes("innerText")) {
 					matchRegExpList.push(
 						new RegExp(netDiskRegularItem["link_innerText"], "gi")
@@ -107,24 +121,29 @@ export const NetDiskWorker = {
 						"未知的匹配范围: " + workerOptionData.matchTextRange
 					);
 				}
+				// 遍历匹配规则进行匹配
 				for (
 					let matchRegExpIndex = 0;
 					matchRegExpIndex < matchRegExpList.length;
 					matchRegExpIndex++
 				) {
+					// 匹配规则
 					const matchRegExp = matchRegExpList[matchRegExpIndex];
 					for (
 						let textIndex = 0;
-						textIndex < workerOptionData.textList.length;
+						textIndex < matchTextList.length;
 						textIndex++
 					) {
-						const text = workerOptionData.textList[textIndex];
-						let matchData = text.match(matchRegExp);
-						if (matchData && matchData.length) {
+						// 匹配文本
+						let text = matchTextList[textIndex];
+						// 进行规则匹配
+						let matchArray = text.match(matchRegExp);
+						if (matchArray && matchArray.length) {
+							// 匹配成功
 							callback({
 								netDiskName: netDiskName,
 								netDiskIndex: index,
-								data: matchData,
+								data: matchArray,
 							});
 						}
 					}
@@ -601,6 +620,10 @@ export const NetDiskWorker = {
 				/* 通知worker执行匹配，优先匹配当前url、剪贴板的内容 */
 				if (toMatchedTextList.length) {
 					NetDiskWorker.postMessage({
+						isRemoveChineseCharacters:
+							NetDiskGlobalData.match.removeChineseCharacters.value,
+						isRemoveAllSpaceCharacters:
+							NetDiskGlobalData.match.removeAllSpaceCharacters.value,
 						textList: toMatchedTextList,
 						matchTextRange: matchRange,
 						regular: matchRegular,
@@ -622,6 +645,10 @@ export const NetDiskWorker = {
 					// 首次加载text
 					isFirstLoadPageText = false;
 					NetDiskWorker.postMessage({
+						isRemoveChineseCharacters:
+							NetDiskGlobalData.match.removeChineseCharacters.value,
+						isRemoveAllSpaceCharacters:
+							NetDiskGlobalData.match.removeAllSpaceCharacters.value,
 						textList: toMatchedTextList,
 						matchTextRange: matchRange,
 						regular: matchRegular,
@@ -643,6 +670,10 @@ export const NetDiskWorker = {
 					// 首次加载html
 					isFirstLoadPageHTML = false;
 					NetDiskWorker.postMessage({
+						isRemoveChineseCharacters:
+							NetDiskGlobalData.match.removeChineseCharacters.value,
+						isRemoveAllSpaceCharacters:
+							NetDiskGlobalData.match.removeAllSpaceCharacters.value,
 						textList: toMatchedTextList,
 						matchTextRange: matchRange,
 						regular: matchRegular,
@@ -670,6 +701,10 @@ export const NetDiskWorker = {
 			}
 			/* 发送执行匹配的消息 */
 			NetDiskWorker.postMessage({
+				isRemoveChineseCharacters:
+					NetDiskGlobalData.match.removeChineseCharacters.value,
+				isRemoveAllSpaceCharacters:
+					NetDiskGlobalData.match.removeAllSpaceCharacters.value,
 				textList: toMatchedTextList,
 				matchTextRange: matchRange,
 				regular: matchRegular,

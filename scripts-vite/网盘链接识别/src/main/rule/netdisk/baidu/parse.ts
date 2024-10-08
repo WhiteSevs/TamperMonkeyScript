@@ -8,9 +8,9 @@ import { NetDiskLinkClickMode } from "@/main/link-click-mode/NetDiskLinkClickMod
 export class NetDiskParse_Baidu extends NetDiskParseObject {
 	/**
 	 * 入口
-	 * @param {number} netDiskIndex 网盘名称索引下标
-	 * @param {string} shareCode
-	 * @param {string} accessCode
+	 * @param netDiskIndex 网盘名称索引下标
+	 * @param shareCode
+	 * @param accessCode
 	 */
 	init(netDiskIndex: number, shareCode: string, accessCode: string) {
 		log.info([netDiskIndex, shareCode, accessCode]);

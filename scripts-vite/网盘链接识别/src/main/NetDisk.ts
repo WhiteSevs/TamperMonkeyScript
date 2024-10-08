@@ -7,6 +7,7 @@ import { NetDiskRuleConfig, type NetDiskRuleSetting } from "./rule/NetDiskRule";
 import Utils from "@whitesev/utils";
 import { WebsiteRule } from "./website-rule/WebsiteRule";
 import { WebsiteRuleDataKey } from "./data/NetDiskRuleDataKey";
+import { CommonUtils } from "@/utils/CommonUtils";
 
 export const NetDisk = {
 	$data: {
@@ -69,7 +70,8 @@ export const NetDisk = {
 		 * 使用该正则判断提取到的shareCode是否正确
 		 */
 		shareCodeNotMatchRegexpList: [
-			/(vipstyle|notexist|ajax|file|download|ptqrshow|xy-privacy|comp|web|undefined|1125|unproved|console|account|favicon|setc)/g,
+			/vipstyle|notexist|ajax|file|download|ptqrshow|xy-privacy/g,
+			/comp|web|undefined|1125|unproved|console|account|favicon|setc/g,
 		],
 		/**
 		 * 使用该正则判断提取到的accessCode是否正确
@@ -78,8 +80,13 @@ export const NetDisk = {
 		/**
 		 * 当没有accessCode时，使用该正则去除不需要的字符串
 		 */
-		noAccessCodeRegExp:
-			/( |提取码:|\n密码：{#accessCode#}|{#accessCode#}|{#encodeURI-accessCode#}|{#encodeURIComponent-accessCode#}|{#decodeURI-accessCode#}|{#encodeURIComponent-accessCode#}|\?pwd=|&pwd=)/gi,
+		noAccessCodeRegExp: [
+			/( |提取码:|\n密码：)/gi,
+			/{#accessCode#}/gi,
+			/{#encodeURI-accessCode#}|{#encodeURIComponent-accessCode#}/gi,
+			/{#decodeURI-accessCode#}|{#decodeURIComponent-accessCode#}/gi,
+			/(\?pwd=|&pwd=|\?password=|\?p=)/gi,
+		],
 	},
 	/**
 	 * 初始化
@@ -180,8 +187,7 @@ export const NetDisk = {
 			NetDiskGlobalData.shareCode.excludeIdenticalSharedCodes.value &&
 			utils.isSameChars(
 				shareCode,
-				NetDiskGlobalData.shareCode.excludeIdenticalSharedCodesCoefficient
-					.value
+				NetDiskGlobalData.shareCode.excludeIdenticalSharedCodesCoefficient.value
 			)
 		) {
 			/* 排除掉由相同字符组成的分享码 */
@@ -322,12 +328,17 @@ export const NetDisk = {
 				shareCode: shareCode,
 			}
 		);
-		if (accessCode && accessCode != "") {
+		if (typeof accessCode === "string" && accessCode.trim() != "") {
+			// 替换{#accessCode#}占位符
 			uiLink = NetDiskRuleUtils.replaceParam(uiLink, {
 				accessCode: accessCode,
 			});
 		} else {
-			uiLink = uiLink.replace(NetDisk.$extraRule.noAccessCodeRegExp, "");
+			uiLink = CommonUtils.replaceText(
+				uiLink,
+				NetDisk.$extraRule.noAccessCodeRegExp,
+				""
+			);
 		}
 		if (netDiskMatchRegular.paramMatch) {
 			/**

@@ -6,9 +6,9 @@ import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkC
 export const NetDiskCheckLinkValidity_chengtong: NetDiskCheckLinkValidityEntranceObj =
 	{
 		/**
-		 * @param {number} netDiskIndex 网盘名称索引下标
-		 * @param {string} shareCode 分享码
-		 * @param {string} accessCode 访问码
+		 * @param netDiskIndex 网盘名称索引下标
+		 * @param shareCode 分享码
+		 * @param accessCode 访问码
 		 */
 		async init(netDiskIndex: number, shareCode: string, accessCode: string) {
 			/* 城通通用的检查api */
@@ -57,7 +57,11 @@ export const NetDiskCheckLinkValidity_chengtong: NetDiskCheckLinkValidityEntranc
 			if (data["code"] === 401) {
 				return NetDiskCheckLinkValidity.status.needAccessCode;
 			}
-			if (data["code"] === 404 || data["code"] === 503) {
+			if (
+				data["code"] === 404 ||
+				data["code"] === 503 ||
+				data["code"] === 504
+			) {
 				return NetDiskCheckLinkValidity.status.failed;
 			}
 			return NetDiskCheckLinkValidity.status.unknown;

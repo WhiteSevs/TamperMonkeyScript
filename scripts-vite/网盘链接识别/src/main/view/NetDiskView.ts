@@ -13,6 +13,7 @@ import { NetDiskSuspensionConfig } from "./suspension/NetDiskSuspensionView";
 import {
 	NetDiskLinkClickMode,
 	NetDiskLinkClickModeUtils,
+	type NetDiskRuleSettingConfigurationInterface_linkClickMode,
 } from "@/main/link-click-mode/NetDiskLinkClickMode";
 import { NetDiskRuleData } from "@/main/data/NetDiskRuleData";
 import indexCSS from "./index.css?raw";
@@ -524,66 +525,88 @@ export const NetDiskView = {
 	/**
 	 * 设置网盘链接点击事件
 	 * @param target
-	 * @param clickNodeSelector - 元素选择器
+	 * @param clickNodeSelector 元素选择器
 	 */
 	setNetDiskUrlClickEvent(target: any, clickNodeSelector: string) {
-		function clickEvent(event: any) {
-			event.target.setAttribute("isvisited", "true");
+		DOMUtils.on(target, "click", clickNodeSelector, (event) => {
 			let $click = event.target as HTMLElement;
+			$click.setAttribute("isvisited", "true");
+
 			// 解析数据
-			const { netDiskName, netDiskIndex, shareCode, accessCode } =
-				NetDiskView.praseElementAttributeRuleInfo($click);
-			let linkClickMode = NetDiskRuleData.function.linkClickMode(netDiskName);
-			if (linkClickMode === "copy") {
-				// 复制
-				NetDiskLinkClickMode.copy(
-					netDiskName,
-					netDiskIndex,
-					shareCode,
-					accessCode
-				);
-			} else if (linkClickMode === "openBlank") {
-				// 新页打开
-				let url = NetDiskLinkClickModeUtils.getBlankUrl(
-					netDiskName,
-					netDiskIndex,
-					shareCode,
-					accessCode
-				);
-				let isSchemeForward =
-					NetDiskRuleData.schemeUri.isForwardBlankLink(netDiskName);
-				if (isSchemeForward) {
-					// 用scheme处理的进行新标签打开
-					NetDiskLinkClickMode.openBlankWithScheme(
-						netDiskName,
-						netDiskIndex,
-						shareCode,
-						accessCode
-					);
-				} else {
-					// 否则用原链接打开
-					NetDiskLinkClickMode.openBlank(
-						url,
-						netDiskName,
-						netDiskIndex,
-						shareCode,
-						accessCode
-					);
-				}
-			} else if (linkClickMode === "parseFile") {
-				// 文件解析
-				NetDiskLinkClickMode.parseFile(
+			const data = NetDiskView.praseElementAttributeRuleInfo($click);
+			this.netDiskUrlClickEvent({
+				data: data,
+			});
+		});
+	},
+	/**
+	 * 网盘链接点击事件
+	 * @param option
+	 */
+	netDiskUrlClickEvent(option: {
+		data: {
+			netDiskName: string;
+			netDiskIndex: number;
+			shareCode: string;
+			accessCode: string;
+		};
+		/** 自定义的点击动作，优先级最高 */
+		clickMode?: NetDiskRuleSettingConfigurationInterface_linkClickMode;
+	}) {
+		const { netDiskName, netDiskIndex, shareCode, accessCode } = option.data;
+		// 获取对应的点击动作
+		let linkClickMode =
+			option.clickMode ??
+			NetDiskRuleData.function.linkClickMode(option.data.netDiskName);
+		if (linkClickMode === "copy") {
+			// 复制
+			NetDiskLinkClickMode.copy(
+				netDiskName,
+				netDiskIndex,
+				shareCode,
+				accessCode
+			);
+		} else if (linkClickMode === "openBlank") {
+			// 新页打开
+			let url = NetDiskLinkClickModeUtils.getBlankUrl(
+				netDiskName,
+				netDiskIndex,
+				shareCode,
+				accessCode
+			);
+			// 判断scheme转发新标签页链接是否开启
+			let isForwardBlankUrl =
+				NetDiskRuleData.schemeUri.isForwardBlankLink(netDiskName);
+			if (isForwardBlankUrl) {
+				// 用scheme处理的进行新标签打开
+				NetDiskLinkClickMode.openBlankWithScheme(
 					netDiskName,
 					netDiskIndex,
 					shareCode,
 					accessCode
 				);
 			} else {
-				log.error("未知点击动作：" + linkClickMode);
-				Qmsg.error("未知点击动作：" + linkClickMode);
+				// 否则用原链接打开
+				NetDiskLinkClickMode.openBlank(
+					url,
+					netDiskName,
+					netDiskIndex,
+					shareCode,
+					accessCode
+				);
 			}
+		} else if (linkClickMode === "parseFile") {
+			// 文件解析
+			NetDiskLinkClickMode.parseFile(
+				netDiskName,
+				netDiskIndex,
+				shareCode,
+				accessCode
+			);
+		} else {
+			log.error("未知点击动作：" + linkClickMode);
+			Qmsg.error("未知点击动作：" + linkClickMode);
 		}
-		DOMUtils.on(target, "click", clickNodeSelector, clickEvent);
 	},
 	/**
 	 * 注册右键菜单

@@ -569,6 +569,28 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 						},
 						{
 							type: "forms",
+							text: "文本匹配前处理",
+							forms: [
+								UISwitch(
+									"删除中文字符",
+									NetDiskGlobalData.match.removeChineseCharacters.KEY,
+									NetDiskGlobalData.match.removeChineseCharacters.default,
+									void 0,
+									"删除匹配文本中的中文字符",
+									void 0
+								),
+								UISwitch(
+									"删除任何空白字符",
+									NetDiskGlobalData.match.removeAllSpaceCharacters.KEY,
+									NetDiskGlobalData.match.removeAllSpaceCharacters.default,
+									void 0,
+									"删除任何空白字符，如空格、制表符、换页符等",
+									void 0
+								),
+							],
+						},
+						{
+							type: "forms",
 							text: "MutationObserver观察器",
 							forms: [
 								UISlider(
@@ -617,7 +639,6 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 						},
 					],
 				},
-
 				{
 					type: "deepMenu",
 					text: "网盘图标",
@@ -803,6 +824,7 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 				},
 				{
 					type: "deepMenu",
+					className: "netdisk-panel-forms-shortcut-keys-deepMenu",
 					text: "快捷键",
 					forms: [
 						{
