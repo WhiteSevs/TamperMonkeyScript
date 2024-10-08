@@ -133,7 +133,7 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 							type: "forms",
 							forms: [
 								UISwitch(
-									"楼中楼回复弹窗后退手势优化",
+									"楼中楼回复弹窗手势返回",
 									"baidu_tieba_lzl_ban_global_back",
 									false,
 									function (event, enable) {
@@ -262,7 +262,7 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 									"加载评论时会有重复的评论出现，启用该功能可过滤掉"
 								),
 								UISwitch(
-									"楼中楼回复弹窗后退手势优化",
+									"楼中楼回复弹窗手势返回",
 									"baidu-tieba-uni-app-post-optimizationLzlPostBackGestureReturn",
 									false,
 									function (event, enable) {
@@ -273,6 +273,13 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 										}
 									},
 									"使浏览器后退变成关闭楼中楼弹窗"
+								),
+								UISwitch(
+									"图片预览手势返回",
+									"baidu-tieba-uni-app-post-optimizationImagePreviewBackGestureReturn",
+									false,
+									void 0,
+									"使浏览器后退变成退出图片预览模式，该功能仅对贴吧自带的图片预览模式生效"
 								),
 								UISwitch(
 									"新增滚动到顶部按钮",

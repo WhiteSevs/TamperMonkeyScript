@@ -7,6 +7,16 @@ import { GM_getValue, GM_setValue } from "ViteGM";
 import { TiebaUniAppComment } from "./TiebaUniAppComment";
 import { TiebaPostApi } from "../api/TiebaPostApi";
 
+/**
+ * 优化使用的hash值
+ */
+const OptimizationLocationHash = {
+	/** 楼中楼回复弹窗 */
+	seeLzlReply: "#/seeLzlReply",
+	/** 图片预览 */
+	previewImage: "#/previewImage",
+};
+
 export const TiebaUniAppPost = {
 	init() {
 		utils.waitNode("uni-app", 10000).then(($uniApp) => {
@@ -14,6 +24,12 @@ export const TiebaUniAppPost = {
 				return;
 			}
 			log.info(`uni-app ===> 本页面为uni-app页面`);
+			if (
+				Object.values(OptimizationLocationHash).includes(window.location.hash)
+			) {
+				log.warn("检测到hash值为手势优化的hash值，已自动去除");
+				window.location.hash = "";
+			}
 			addStyle(/*css*/ `
 			/* 加载评论失败的弹窗 */
 			.swiper-content .tb-error-page{
@@ -98,6 +114,12 @@ export const TiebaUniAppPost = {
 					"baidu-tieba-uni-app-post-optimizationLzlPostBackGestureReturn",
 					() => {
 						this.optimizationLzlPostBackGestureReturn();
+					}
+				);
+				PopsPanel.execMenuOnce(
+					"baidu-tieba-uni-app-post-optimizationImagePreviewBackGestureReturn",
+					() => {
+						this.optimizationImagePreviewBackGestureReturn();
 					}
 				);
 				this.repairSearch();
@@ -430,10 +452,10 @@ export const TiebaUniAppPost = {
 		});
 	},
 	/**
-	 * 楼中楼回复弹窗后退手势优化
+	 * 楼中楼回复弹窗手势返回
 	 */
 	optimizationLzlPostBackGestureReturn() {
-		log.info(`uni-app ===> 楼中楼回复弹窗后退手势优化`);
+		log.info(`uni-app ===> 楼中楼回复弹窗手势返回`);
 		let isClosingDialog = false;
 		/**
 		 * 设置浏览器历史地址
@@ -454,7 +476,7 @@ export const TiebaUniAppPost = {
 		function setPopStateEvent() {
 			/* 监听地址改变 */
 			log.success("监听popstate事件");
-			window.history.pushState({}, "", "#/seeLzlReply");
+			window.history.pushState({}, "", OptimizationLocationHash.seeLzlReply);
 			DOMUtils.on(window, "popstate", popstateEvent, {
 				capture: true,
 			});
@@ -468,7 +490,11 @@ export const TiebaUniAppPost = {
 			log.success("location地址后退并关闭评论弹窗");
 			closeDialogByUrlChange();
 			while (true) {
-				if (globalThis.location.hash.endsWith("seeLzlReply")) {
+				if (
+					globalThis.location.hash.endsWith(
+						OptimizationLocationHash.seeLzlReply
+					)
+				) {
 					log.info("后退！");
 					globalThis.history.back();
 					// VueUtils.getVue(TiebaComment.vueRootView)?.$router.back();
@@ -508,6 +534,100 @@ export const TiebaUniAppPost = {
 				return;
 			}
 			removePopStateEvent();
+		});
+	},
+	/**
+	 * 图片预览手势返回
+	 */
+	optimizationImagePreviewBackGestureReturn() {
+		log.info(`uni-app ===> 图片预览手势返回`);
+		let isClosing = false;
+		let isUrlChangeClick = false;
+		/**
+		 * 设置浏览器历史地址
+		 * @param event
+		 */
+		function popstateEvent(event: Event) {
+			utils.preventEvent(event);
+			if (isClosing) {
+				return;
+			}
+			log.success("触发popstate事件");
+			removePopStateEvent();
+		}
+
+		/**
+		 * 设置popstate事件
+		 */
+		function setPopStateEvent() {
+			/* 监听地址改变 */
+			log.success("监听popstate事件");
+			window.history.pushState({}, "", OptimizationLocationHash.previewImage);
+			DOMUtils.on(window, "popstate", popstateEvent, {
+				capture: true,
+			});
+		}
+
+		/**
+		 * 允许浏览器后退并退出图片预览模式
+		 */
+		async function removePopStateEvent() {
+			isClosing = true;
+			log.success("location地址后退并退出图片预览模式");
+			closeByUrlChange();
+			while (true) {
+				if (
+					globalThis.location.hash.endsWith(
+						OptimizationLocationHash.previewImage
+					)
+				) {
+					log.info("后退！");
+					globalThis.history.back();
+					// VueUtils.getVue(TiebaComment.vueRootView)?.$router.back();
+					await utils.sleep(150);
+				} else {
+					break;
+				}
+			}
+			log.success("停止popstate事件监听");
+			DOMUtils.off(window, "popstate", popstateEvent, { capture: true });
+			isClosing = false;
+		}
+		function closeByUrlChange() {
+			let $closeIcon = document.querySelector<HTMLElement>(
+				".img-preview .back-icon-con"
+			);
+			if ($closeIcon) {
+				isUrlChangeClick = true;
+				$closeIcon.click();
+			} else {
+				log.warn(`未找到退出图片预览模式的按钮`);
+			}
+		}
+		DOMUtils.on(document, "click", "img", (event) => {
+			let $click = event.target as HTMLImageElement;
+			let $parent = $click.parentElement!;
+			if (
+				$parent.localName === "uni-image" &&
+				$parent.classList.contains("pb-image")
+			) {
+				// <uni-app>内的图片
+				setPopStateEvent();
+				utils
+					.waitNode(".img-preview .back-icon-con", 10000)
+					.then(($backIcon) => {
+						if (!$backIcon) {
+							return;
+						}
+						DOMUtils.on($backIcon, "click", () => {
+							if (isUrlChangeClick) {
+								isUrlChangeClick = false;
+								return;
+							}
+							removePopStateEvent();
+						});
+					});
+			}
 		});
 	},
 	/**

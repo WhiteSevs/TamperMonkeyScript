@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.7
+// @version      2024.10.8
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -2212,7 +2212,7 @@ match-attr##srcid##sp_purc_atom
                 type: "forms",
                 forms: [
                   UISwitch(
-                    "楼中楼回复弹窗后退手势优化",
+                    "楼中楼回复弹窗手势返回",
                     "baidu_tieba_lzl_ban_global_back",
                     false,
                     function(event, enable) {
@@ -2341,7 +2341,7 @@ match-attr##srcid##sp_purc_atom
                     "加载评论时会有重复的评论出现，启用该功能可过滤掉"
                   ),
                   UISwitch(
-                    "楼中楼回复弹窗后退手势优化",
+                    "楼中楼回复弹窗手势返回",
                     "baidu-tieba-uni-app-post-optimizationLzlPostBackGestureReturn",
                     false,
                     function(event, enable) {
@@ -2352,6 +2352,13 @@ match-attr##srcid##sp_purc_atom
                       }
                     },
                     "使浏览器后退变成关闭楼中楼弹窗"
+                  ),
+                  UISwitch(
+                    "图片预览手势返回",
+                    "baidu-tieba-uni-app-post-optimizationImagePreviewBackGestureReturn",
+                    false,
+                    void 0,
+                    "使浏览器后退变成退出图片预览模式，该功能仅对贴吧自带的图片预览模式生效"
                   ),
                   UISwitch(
                     "新增滚动到顶部按钮",
@@ -12103,6 +12110,12 @@ div[class^="new-summary-container_"] {\r
       });
     }
   };
+  const OptimizationLocationHash = {
+    /** 楼中楼回复弹窗 */
+    seeLzlReply: "#/seeLzlReply",
+    /** 图片预览 */
+    previewImage: "#/previewImage"
+  };
   const TiebaUniAppPost = {
     init() {
       utils.waitNode("uni-app", 1e4).then(($uniApp) => {
@@ -12110,6 +12123,10 @@ div[class^="new-summary-container_"] {\r
           return;
         }
         log.info(`uni-app ===> 本页面为uni-app页面`);
+        if (Object.values(OptimizationLocationHash).includes(window.location.hash)) {
+          log.warn("检测到hash值为手势优化的hash值，已自动去除");
+          window.location.hash = "";
+        }
         addStyle(
           /*css*/
           `
@@ -12196,6 +12213,12 @@ div[class^="new-summary-container_"] {\r
             "baidu-tieba-uni-app-post-optimizationLzlPostBackGestureReturn",
             () => {
               this.optimizationLzlPostBackGestureReturn();
+            }
+          );
+          PopsPanel.execMenuOnce(
+            "baidu-tieba-uni-app-post-optimizationImagePreviewBackGestureReturn",
+            () => {
+              this.optimizationImagePreviewBackGestureReturn();
             }
           );
           this.repairSearch();
@@ -12511,10 +12534,10 @@ div[class^="new-summary-container_"] {\r
       });
     },
     /**
-     * 楼中楼回复弹窗后退手势优化
+     * 楼中楼回复弹窗手势返回
      */
     optimizationLzlPostBackGestureReturn() {
-      log.info(`uni-app ===> 楼中楼回复弹窗后退手势优化`);
+      log.info(`uni-app ===> 楼中楼回复弹窗手势返回`);
       let isClosingDialog = false;
       function popstateEvent(event) {
         utils.preventEvent(event);
@@ -12526,7 +12549,7 @@ div[class^="new-summary-container_"] {\r
       }
       function setPopStateEvent() {
         log.success("监听popstate事件");
-        window.history.pushState({}, "", "#/seeLzlReply");
+        window.history.pushState({}, "", OptimizationLocationHash.seeLzlReply);
         domutils.on(window, "popstate", popstateEvent, {
           capture: true
         });
@@ -12536,7 +12559,9 @@ div[class^="new-summary-container_"] {\r
         log.success("location地址后退并关闭评论弹窗");
         closeDialogByUrlChange();
         while (true) {
-          if (globalThis.location.hash.endsWith("seeLzlReply")) {
+          if (globalThis.location.hash.endsWith(
+            OptimizationLocationHash.seeLzlReply
+          )) {
             log.info("后退！");
             globalThis.history.back();
             await utils.sleep(150);
@@ -12573,6 +12598,78 @@ div[class^="new-summary-container_"] {\r
           return;
         }
         removePopStateEvent();
+      });
+    },
+    /**
+     * 图片预览手势返回
+     */
+    optimizationImagePreviewBackGestureReturn() {
+      log.info(`uni-app ===> 图片预览手势返回`);
+      let isClosing = false;
+      let isUrlChangeClick = false;
+      function popstateEvent(event) {
+        utils.preventEvent(event);
+        if (isClosing) {
+          return;
+        }
+        log.success("触发popstate事件");
+        removePopStateEvent();
+      }
+      function setPopStateEvent() {
+        log.success("监听popstate事件");
+        window.history.pushState({}, "", OptimizationLocationHash.previewImage);
+        domutils.on(window, "popstate", popstateEvent, {
+          capture: true
+        });
+      }
+      async function removePopStateEvent() {
+        isClosing = true;
+        log.success("location地址后退并退出图片预览模式");
+        closeByUrlChange();
+        while (true) {
+          if (globalThis.location.hash.endsWith(
+            OptimizationLocationHash.previewImage
+          )) {
+            log.info("后退！");
+            globalThis.history.back();
+            await utils.sleep(150);
+          } else {
+            break;
+          }
+        }
+        log.success("停止popstate事件监听");
+        domutils.off(window, "popstate", popstateEvent, { capture: true });
+        isClosing = false;
+      }
+      function closeByUrlChange() {
+        let $closeIcon = document.querySelector(
+          ".img-preview .back-icon-con"
+        );
+        if ($closeIcon) {
+          isUrlChangeClick = true;
+          $closeIcon.click();
+        } else {
+          log.warn(`未找到退出图片预览模式的按钮`);
+        }
+      }
+      domutils.on(document, "click", "img", (event) => {
+        let $click = event.target;
+        let $parent = $click.parentElement;
+        if ($parent.localName === "uni-image" && $parent.classList.contains("pb-image")) {
+          setPopStateEvent();
+          utils.waitNode(".img-preview .back-icon-con", 1e4).then(($backIcon) => {
+            if (!$backIcon) {
+              return;
+            }
+            domutils.on($backIcon, "click", () => {
+              if (isUrlChangeClick) {
+                isUrlChangeClick = false;
+                return;
+              }
+              removePopStateEvent();
+            });
+          });
+        }
       });
     },
     /**
