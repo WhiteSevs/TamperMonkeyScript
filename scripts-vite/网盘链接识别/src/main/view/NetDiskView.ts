@@ -18,6 +18,7 @@ import {
 import { NetDiskRuleData } from "@/main/data/NetDiskRuleData";
 import indexCSS from "./index.css?raw";
 import { GenerateData } from "@/main/data/NetDiskGenerateDataUtils";
+import { NetDiskFilterScheme } from "../scheme/NetDiskFilterScheme";
 
 /**
  * 传递给生成需要的网盘参数数据
@@ -576,7 +577,7 @@ export const NetDiskView = {
 			);
 			// 判断scheme转发新标签页链接是否开启
 			let isForwardBlankUrl =
-				NetDiskRuleData.schemeUri.isForwardBlankLink(netDiskName);
+				NetDiskFilterScheme.isForwardBlankLink(netDiskName);
 			if (isForwardBlankUrl) {
 				// 用scheme处理的进行新标签打开
 				NetDiskLinkClickMode.openBlankWithScheme(

@@ -20,7 +20,7 @@ export const NetDiskRuleUtils = {
 			openBlank: {
 				default: false,
 				enable: true,
-				text: "新窗口打开",
+				text: "新标签页打开",
 			},
 			parseFile: {
 				default: false,

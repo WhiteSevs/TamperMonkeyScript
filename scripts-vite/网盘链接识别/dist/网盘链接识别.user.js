@@ -308,7 +308,7 @@
         openBlank: {
           default: false,
           enable: true,
-          text: "新窗口打开"
+          text: "新标签页打开"
         },
         parseFile: {
           default: false,
@@ -2101,16 +2101,16 @@
     protocol: "jumpwsv",
     pathname: "go",
     /**
-     * 处理链接
-     * @param name 规则名
+     * 把链接转为scheme的uri链接
+     * @param key 规则名
      * @param intentData 需要处理的数据
      */
-    parseDataToSchemeUri(name, intentData) {
-      let isEnable = NetDiskRuleData.schemeUri.enable(name);
+    parseDataToSchemeUri(key, intentData) {
+      let isEnable = this.isEnableForward(key);
       if (!isEnable) {
         return intentData;
       }
-      let schemeUri = NetDiskRuleData.schemeUri.uri(name);
+      let schemeUri = NetDiskRuleData.schemeUri.uri(key);
       if (utils.isNull(schemeUri)) {
         schemeUri = this.getSchemeUri(this.get1DMSchemeUriOption(intentData));
       }
@@ -2124,25 +2124,35 @@
       return schemeUri;
     },
     /**
+     * 是否启用转发
+     * @param key
+     * @returns
+     */
+    isEnableForward(key) {
+      return NetDiskRuleData.schemeUri.enable(key);
+    },
+    /**
      * 是否转发下载链接
      * @param key
      */
     isForwardDownloadLink(key) {
-      return NetDiskRuleData.schemeUri.isForwardLinearChain(key);
+      return this.isEnableForward(key) && NetDiskRuleData.schemeUri.isForwardLinearChain(key);
     },
     /**
-     * 是否转发跳转链接
+     * 是否转发新标签页的链接
      * @param key
      */
     isForwardBlankLink(key) {
-      return NetDiskRuleData.schemeUri.isForwardBlankLink(key);
+      return this.isEnableForward(key) && NetDiskRuleData.schemeUri.isForwardBlankLink(key);
     },
     /**
      * 获取转发的uri链接
      * @param option
      */
     getSchemeUri(option) {
-      return `${this.protocol}://${this.pathname}?package=${option["package"]}&activity=${option["activity"]}&intentAction=${option["intentAction"]}&intentData=${option["intentData"]}&intentExtra=${option["intentExtra"]}`;
+      return `${this.protocol}://${this.pathname}?${utils.toSearchParamsStr(
+      option
+    )}`;
     },
     /**
      * 获取1dm的intent的配置
@@ -3554,7 +3564,7 @@
           shareCode,
           accessCode
         );
-        let isForwardBlankUrl = NetDiskRuleData.schemeUri.isForwardBlankLink(netDiskName);
+        let isForwardBlankUrl = NetDiskFilterScheme.isForwardBlankLink(netDiskName);
         if (isForwardBlankUrl) {
           NetDiskLinkClickMode.openBlankWithScheme(
             netDiskName,
