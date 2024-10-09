@@ -35,9 +35,6 @@ export const NetDiskRule_xunlei: NetDiskRuleConfig = {
 					openBlank: {
 						default: true,
 					},
-					parseFile: {
-						enable: true,
-					},
 				},
 				checkLinkValidity: true,
 			},

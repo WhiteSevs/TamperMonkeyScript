@@ -119,30 +119,6 @@ export const NetDiskLinkClickModeUtils = {
 		}
 		return copyUrl;
 	},
-	/**
-	 * 获取重定向后的直链
-	 * @param url
-	 * @param userAgent 用户代理字符串
-	 */
-	async getRedirectFinalUrl(url: string, userAgent: string) {
-		if (!NetDiskGlobalData.features.getTheDirectLinkAfterRedirection.value) {
-			return url;
-		}
-		Qmsg.success("获取重定向后的直链");
-		log.info("开始获取重定向后的直链");
-		let headResp = await httpx.head({
-			url: url,
-			headers: {
-				"User-Agent": userAgent,
-				Referer: window.location.origin,
-			},
-		});
-		if (headResp.status) {
-			return headResp.data.finalUrl;
-		} else {
-			return url;
-		}
-	},
 };
 
 /** 链接点击动作 */

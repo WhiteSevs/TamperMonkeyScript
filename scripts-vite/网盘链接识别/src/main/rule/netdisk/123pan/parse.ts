@@ -436,7 +436,7 @@ export class NetDiskParse_123pan extends NetDiskParseObject {
 		let jsonData = utils.toJSON(postData.responseText);
 		log.info(jsonData);
 		if (jsonData["code"] == 0) {
-			jsonData["data"]["DownloadURL"] = await that.decodeDownloadUrl(
+			jsonData["data"]["DownloadURL"] = that.decodeDownloadUrl(
 				jsonData["data"]["DownloadURL"]
 			);
 			return jsonData;
@@ -604,51 +604,17 @@ export class NetDiskParse_123pan extends NetDiskParseObject {
 	 * 将直链的param参数解析成真正的直链
 	 * @param url
 	 */
-	async decodeDownloadUrl(url: string) {
-		const that = this;
+	decodeDownloadUrl(url: string) {
 		if (url === "") {
 			return "";
 		}
-		let decodeURL = new URL(url);
-		let params = decodeURL.search.replace(/^\?params=/gi, "");
-		params = params.split("&")[0];
-		try {
-			let newDecodeUrl = decodeURI(atob(params));
-			log.info("正在获取重定向直链");
-			Qmsg.info("正在获取重定向直链");
-			let getResp = await httpx.get({
-				url: newDecodeUrl,
-				responseType: "json",
-				headers: {
-					Referer: "https://www.123pan.com/s/" + that.shareCode,
-					Origin: "https://www.123pan.com",
-					...that.Headers,
-				},
-				allowInterceptConfig: false,
-				onerror: function () {},
-			});
-			log.info(getResp);
-			// @ts-ignore
-			if (!getResp.status && getResp.data.status !== 210) {
-				/* 很奇怪，123盘返回的状态码是210 */
-				// 这里还会有另一种情况，请求失败时，getResp.data内是数组[response]，status不存在！！
-				// 先转为URL对象看看auto_redirect是否存在，存在就设置1自动重定向
-				let parseUrl = new URL(newDecodeUrl);
-				if (parseUrl.searchParams.has("auto_redirect")) {
-					parseUrl.searchParams.set("auto_redirect", "1");
-					return parseUrl.toString();
-				}
-				return newDecodeUrl;
-			}
-			let respData = getResp.data;
-			let resultJSON = utils.toJSON(respData.responseText);
-			let newURL = new URL(resultJSON.data.redirect_url);
-			newURL.searchParams.set("auto_redirect", "1");
-			log.success(resultJSON);
-			return newURL.toString();
-		} catch (error) {
-			log.error(error);
-			return url;
-		}
+		return url;
+		let new_url_no_redirect = url + "&auto_redirect=0";
+		let base64data = btoa(new_url_no_redirect);
+		return (
+			"https://web-pro2.123952.com/download-v2/?params=" +
+			base64data +
+			"&is_s3=0"
+		);
 	}
 }

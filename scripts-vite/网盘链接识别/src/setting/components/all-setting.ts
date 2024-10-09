@@ -484,15 +484,6 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 									void 0,
 									"通过主动点击链接跳转时，会自动输入网盘访问码"
 								),
-								UISwitch(
-									"获取重定向后的直链",
-									NetDiskGlobalData.features.getTheDirectLinkAfterRedirection
-										.KEY,
-									NetDiskGlobalData.features.getTheDirectLinkAfterRedirection
-										.default,
-									void 0,
-									"对获取的链接再进行一次重定向获取链接"
-								),
 							],
 						},
 					],

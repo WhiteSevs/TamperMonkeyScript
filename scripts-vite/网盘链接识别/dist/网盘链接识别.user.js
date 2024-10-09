@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2024.10.8
+// @version      2024.10.9
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -2533,7 +2533,7 @@
       let jsonData = utils.toJSON(postData.responseText);
       log.info(jsonData);
       if (jsonData["code"] == 0) {
-        jsonData["data"]["DownloadURL"] = await that.decodeDownloadUrl(
+        jsonData["data"]["DownloadURL"] = that.decodeDownloadUrl(
           jsonData["data"]["DownloadURL"]
         );
         return jsonData;
@@ -2629,49 +2629,11 @@
      * 将直链的param参数解析成真正的直链
      * @param url
      */
-    async decodeDownloadUrl(url) {
-      const that = this;
+    decodeDownloadUrl(url) {
       if (url === "") {
         return "";
       }
-      let decodeURL = new URL(url);
-      let params = decodeURL.search.replace(/^\?params=/gi, "");
-      params = params.split("&")[0];
-      try {
-        let newDecodeUrl = decodeURI(atob(params));
-        log.info("正在获取重定向直链");
-        Qmsg.info("正在获取重定向直链");
-        let getResp = await httpx.get({
-          url: newDecodeUrl,
-          responseType: "json",
-          headers: {
-            Referer: "https://www.123pan.com/s/" + that.shareCode,
-            Origin: "https://www.123pan.com",
-            ...that.Headers
-          },
-          allowInterceptConfig: false,
-          onerror: function() {
-          }
-        });
-        log.info(getResp);
-        if (!getResp.status && getResp.data.status !== 210) {
-          let parseUrl = new URL(newDecodeUrl);
-          if (parseUrl.searchParams.has("auto_redirect")) {
-            parseUrl.searchParams.set("auto_redirect", "1");
-            return parseUrl.toString();
-          }
-          return newDecodeUrl;
-        }
-        let respData = getResp.data;
-        let resultJSON = utils.toJSON(respData.responseText);
-        let newURL = new URL(resultJSON.data.redirect_url);
-        newURL.searchParams.set("auto_redirect", "1");
-        log.success(resultJSON);
-        return newURL.toString();
-      } catch (error) {
-        log.error(error);
-        return url;
-      }
+      return url;
     }
   }
   class NetDiskParse_Aliyun extends NetDiskParseObject {
@@ -4699,10 +4661,6 @@
             );
           } else {
             fileName = json_data["inf"] ? json_data["inf"] : fileName;
-            downloadUrl = await NetDiskLinkClickModeUtils.getRedirectFinalUrl(
-              downloadUrl,
-              utils.getRandomAndroidUA()
-            );
             log.info(downloadUrl);
             if (NetDiskFilterScheme.isForwardDownloadLink("lanzou")) {
               downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
@@ -4748,10 +4706,6 @@
         }
         let downloadUrl = `${loadDownHost[loadDownHost.length - 1]}${loadDown[loadDown.length - 1]}`;
         log.info([fileName, fileSize, downloadUrl]);
-        downloadUrl = await NetDiskLinkClickModeUtils.getRedirectFinalUrl(
-          downloadUrl,
-          utils.getRandomAndroidUA()
-        );
         log.info(downloadUrl);
         if (NetDiskFilterScheme.isForwardDownloadLink("lanzou")) {
           downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
@@ -4878,10 +4832,6 @@
         );
       } else {
         fileInfo.fileName = utils.isNotNull(jsonData["inf"]) ? jsonData["inf"] : fileInfo.fileName;
-        downloadUrl = await NetDiskLinkClickModeUtils.getRedirectFinalUrl(
-          downloadUrl,
-          utils.getRandomAndroidUA()
-        );
         log.info(downloadUrl);
         return downloadUrl;
       }
@@ -7390,30 +7340,6 @@
         copyUrl = NetDiskRuleUtils.replaceParam(copyUrl, replaceParamData);
       }
       return copyUrl;
-    },
-    /**
-     * 获取重定向后的直链
-     * @param url
-     * @param userAgent 用户代理字符串
-     */
-    async getRedirectFinalUrl(url, userAgent) {
-      if (!NetDiskGlobalData.features.getTheDirectLinkAfterRedirection.value) {
-        return url;
-      }
-      Qmsg.success("获取重定向后的直链");
-      log.info("开始获取重定向后的直链");
-      let headResp = await httpx.head({
-        url,
-        headers: {
-          "User-Agent": userAgent,
-          Referer: window.location.origin
-        }
-      });
-      if (headResp.status) {
-        return headResp.data.finalUrl;
-      } else {
-        return url;
-      }
     }
   };
   const NetDiskLinkClickMode = {
@@ -9856,9 +9782,6 @@
           linkClickMode: {
             openBlank: {
               default: true
-            },
-            parseFile: {
-              enable: true
             }
           },
           checkLinkValidity: true
@@ -15223,12 +15146,7 @@
         "suspension_smallwindow"
       ),
       /** 自动输入访问码 */
-      autoFillAccessCode: GeneratePanelData("autoFillAccessCode", true),
-      /** 获取重定向后的直链 */
-      getTheDirectLinkAfterRedirection: GeneratePanelData(
-        "getTheDirectLinkAfterRedirection",
-        false
-      )
+      autoFillAccessCode: GeneratePanelData("autoFillAccessCode", true)
     },
     /** 分享码相关 */
     shareCode: {
@@ -16214,13 +16132,6 @@
                     NetDiskGlobalData.features.autoFillAccessCode.default,
                     void 0,
                     "通过主动点击链接跳转时，会自动输入网盘访问码"
-                  ),
-                  UISwitch(
-                    "获取重定向后的直链",
-                    NetDiskGlobalData.features.getTheDirectLinkAfterRedirection.KEY,
-                    NetDiskGlobalData.features.getTheDirectLinkAfterRedirection.default,
-                    void 0,
-                    "对获取的链接再进行一次重定向获取链接"
                   )
                 ]
               }

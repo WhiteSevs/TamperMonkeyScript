@@ -190,11 +190,6 @@ export const NetDiskGlobalData = {
 		),
 		/** 自动输入访问码 */
 		autoFillAccessCode: GeneratePanelData("autoFillAccessCode", true),
-		/** 获取重定向后的直链 */
-		getTheDirectLinkAfterRedirection: GeneratePanelData(
-			"getTheDirectLinkAfterRedirection",
-			false
-		),
 	},
 	/** 分享码相关 */
 	shareCode: {

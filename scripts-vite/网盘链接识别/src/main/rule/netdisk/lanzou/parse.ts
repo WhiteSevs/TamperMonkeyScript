@@ -1,10 +1,8 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
-import { GM_getValue } from "ViteGM";
 import { NetDiskParseObject } from "../../../parse/NetDiskParseObject";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
-import { NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
 import { GeneratePanelData } from "@/main/data/NetDiskDataUtils";
 
 export const NetDiskParse_Lanzou_Config = {
@@ -424,10 +422,6 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 					);
 				} else {
 					fileName = json_data["inf"] ? json_data["inf"] : fileName;
-					downloadUrl = await NetDiskLinkClickModeUtils.getRedirectFinalUrl(
-						downloadUrl,
-						utils.getRandomAndroidUA()
-					);
 					log.info(downloadUrl);
 
 					if (NetDiskFilterScheme.isForwardDownloadLink("lanzou")) {
@@ -477,10 +471,6 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 				loadDown[loadDown.length - 1]
 			}`;
 			log.info([fileName, fileSize, downloadUrl]);
-			downloadUrl = await NetDiskLinkClickModeUtils.getRedirectFinalUrl(
-				downloadUrl,
-				utils.getRandomAndroidUA()
-			);
 			log.info(downloadUrl);
 			if (NetDiskFilterScheme.isForwardDownloadLink("lanzou")) {
 				downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
@@ -620,10 +610,6 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 			fileInfo.fileName = utils.isNotNull(jsonData["inf"])
 				? jsonData["inf"]
 				: fileInfo.fileName;
-			downloadUrl = await NetDiskLinkClickModeUtils.getRedirectFinalUrl(
-				downloadUrl,
-				utils.getRandomAndroidUA()
-			);
 			log.info(downloadUrl);
 			return downloadUrl;
 		}
