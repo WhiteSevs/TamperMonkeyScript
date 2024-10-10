@@ -4305,19 +4305,32 @@
        * 路由
        */
       __publicField(this, "router", {
-        default(pathName = "") {
+        /**
+         * 根路径
+         * + /
+         * @param pathName
+         */
+        root(pathName = "") {
           if (pathName.startsWith("/")) {
             pathName = pathName.replace(/^\//, "");
           }
           return `https://${NetDiskParse_Lanzou_Config.hostname}/${pathName}`;
         },
-        tp(pathName = "") {
+        /**
+         * + /tp/
+         * @param pathName
+         */
+        root_tp(pathName = "") {
           if (pathName.startsWith("/")) {
             pathName = pathName.replace(/^\//, "");
           }
           return `https://${NetDiskParse_Lanzou_Config.hostname}/tp/${pathName}`;
         },
-        s(pathName = "") {
+        /**
+         * + /s/
+         * @param pathName
+         */
+        root_s(pathName = "") {
           if (pathName.startsWith("/")) {
             pathName = pathName.replace(/^\//, "");
           }
@@ -4406,9 +4419,9 @@
     }
     /**
      * 入口
-     * @param {number} netDiskIndex
-     * @param {string} shareCode
-     * @param {string} accessCode
+     * @param netDiskIndex
+     * @param shareCode
+     * @param accessCode
      */
     async init(netDiskIndex, shareCode, accessCode) {
       log.info([netDiskIndex, shareCode, accessCode]);
@@ -4419,20 +4432,19 @@
         this.shareCode.match(this.regexp.unicode.match)
       );
       if (netDiskIndex === 2) {
-        await this.getMoreFile(this.router.s(this.shareCode));
+        await this.getMoreFile(this.router.root_s(this.shareCode));
       } else {
         await this.getFileLink();
       }
     }
     /**
      * 获取文件链接
-     * @param {boolean} getShareCodeByPageAgain
-     * @returns
+     * @param getShareCodeByPageAgain
      */
     async getFileLink(getShareCodeByPageAgain = false) {
       var _a2, _b, _c, _d, _e, _f, _g, _h, _i;
       const that = this;
-      let url = this.router.default(this.shareCode);
+      let url = this.router.root(this.shareCode);
       log.info("蓝奏云-获取文件下载链接" + url);
       let getResp = await httpx.get({
         url,
@@ -4555,8 +4567,7 @@
     }
     /**
      * 页面检查，看看是否存在文件失效情况
-     * @param {object} response
-     * @returns {boolean}
+     * @param response
      * + true 未失效
      * + false 已失效
      */
@@ -4597,7 +4608,7 @@
     }
     /**
      * 获取链接
-     * @param {object} response
+     * @param response
      */
     async getLink(response) {
       const that = this;
@@ -4636,12 +4647,12 @@
           log.info("传入参数=>无密码");
         }
         let postResp = await httpx.post({
-          url: that.router.default("ajaxm.php"),
+          url: that.router.root("ajaxm.php"),
           responseType: "json",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
             "User-Agent": utils.getRandomAndroidUA(),
-            Referer: that.router.default(that.shareCode)
+            Referer: that.router.root(that.shareCode)
           },
           data: `action=downprocess&sign=${postData_sign}&p=${postData_p}`
         });
@@ -4734,23 +4745,19 @@
     }
     /**
      * 通过iframe的链接来获取单文件直链
-     * @param {string} urlPathName url路径
-     * @param {{
-     * fileName:string,
-     * fileSize:string,
-     * fileUploadTime:string
-     * }} fileInfo 文件信息
+     * @param urlPathName url路径
+     * @param fileInfo 文件信息
      */
     async getLinkByIframe(urlPathName, fileInfo) {
       const that = this;
       log.info([urlPathName, fileInfo]);
-      let iFrameUrl = that.router.default(urlPathName);
+      let iFrameUrl = that.router.root(urlPathName);
       let getResp = await httpx.get({
         url: iFrameUrl,
         headers: {
           Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
           "User-Agent": utils.getRandomPCUA(),
-          Referer: that.router.default(that.shareCode)
+          Referer: that.router.root(that.shareCode)
         }
       });
       if (!getResp.status) {
@@ -4805,19 +4812,19 @@
         websign: ciucjdsdc,
         websignkey: aihidcms,
         ves: 1,
+        // kdns
         kd: 1
       };
       log.success("请求的路径参数：" + ajaxUrlMatch);
       log.success("ajaxm.php的请求参数-> " + postData);
-      let postResp = await httpx.post({
-        url: that.router.default(ajaxUrl),
+      let postResp = await httpx.post(that.router.root(ajaxUrl), {
+        data: utils.toSearchParamsStr(postData),
         headers: {
           Accept: "application/json, text/javascript, */*",
           "Content-Type": "application/x-www-form-urlencoded",
-          Referer: that.router.default(that.shareCode),
+          Referer: that.router.root(that.shareCode),
           "User-Agent": utils.getRandomPCUA()
-        },
-        data: utils.toSearchParamsStr(postData)
+        }
       });
       if (!postResp.status) {
         return;
@@ -4827,6 +4834,14 @@
       let jsonData = utils.toJSON(postRespData.responseText);
       let downloadUrl = `${jsonData["dom"]}/file/${jsonData["url"]}`;
       jsonData["zt"];
+      await httpx.get("https://down-load.lanrar.com/file/kdns.js");
+      let killdns2 = await httpx.get("https://boce.lanosso.com/file/kdns2.js");
+      if (!killdns2.status) {
+        downloadUrl += "&lanosso";
+        log.info(`测试killdns2失败使用参数 lanosso`);
+      } else {
+        log.info("测试killdns2成功，不改变原downloadUrl");
+      }
       log.success(["直链", downloadUrl]);
       if ("密码不正确".indexOf(jsonData["inf"]) != -1) {
         Qmsg.error("密码不正确!");
@@ -4848,12 +4863,12 @@
     }
     /**
      * 多文件获取
-     * @param {string} url 链接
+     * @param url 链接
      */
     async getMoreFile(url) {
       const that = this;
       if (url == null) {
-        url = that.router.default(that.shareCode);
+        url = that.router.root(that.shareCode);
       }
       let getResp = await httpx.get({
         url,
@@ -4886,7 +4901,7 @@
       let postData = `lx=${lx}&fid=${fid}&uid=${uid}&pg=${pgs}&rep=0&t=${t}&k=${k}&up=1&ls=1&pwd=${that.accessCode}`;
       log.info(`多文件请求参数：${postData}`);
       let postResp = await httpx.post({
-        url: that.router.default("filemoreajax.php"),
+        url: that.router.root("filemoreajax.php"),
         responseType: "json",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -4967,27 +4982,19 @@
     }
     /**
      * 文件解析并返回html-vip
-     * @param {string} paramShareCode 解析多文件获取的shareCode
-     * @param {string} fileName 文件名
-     * @param {string} fileSize 文件大小
-     * @param {string} fileUploadTime 文件上传时间
-     * @returns {Promise<{
-     * success :boolean,
-     * fileName: string,
-     * fileSize: string,
-     * fileUploadTime: string,
-     * downloadUrl?: string,
-     * msg: string,
-     * }>}
+     * @param paramShareCode 解析多文件获取的shareCode
+     * @param fileName 文件名
+     * @param fileSize 文件大小
+     * @param fileUploadTime 文件上传时间
      */
     async parseMoreFile(paramShareCode, fileName, fileSize, fileUploadTime) {
       const that = this;
       let getResp = await httpx.get({
-        url: that.router.default(paramShareCode),
+        url: that.router.root(paramShareCode),
         headers: {
           Accept: "*/*",
           "User-Agent": utils.getRandomPCUA(),
-          Referer: that.router.default(that.shareCode)
+          Referer: that.router.root(that.shareCode)
         }
       });
       log.info(getResp);
