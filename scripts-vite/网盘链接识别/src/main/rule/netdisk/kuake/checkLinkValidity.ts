@@ -1,5 +1,8 @@
 import { httpx, utils } from "@/env";
-import { NetDiskCheckLinkValidity } from "../../../check-valid/NetDiskCheckLinkValidity";
+import {
+	NetDiskCheckLinkValidity,
+	NetDiskCheckLinkValidityRequestOption,
+} from "../../../check-valid/NetDiskCheckLinkValidity";
 import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
 
 export const NetDiskCheckLinkValidity_kuake: NetDiskCheckLinkValidityEntranceObj =
@@ -10,39 +13,43 @@ export const NetDiskCheckLinkValidity_kuake: NetDiskCheckLinkValidityEntranceObj
 		 * @param accessCode 访问码
 		 */
 		async init(netDiskIndex: number, shareCode: string, accessCode: string) {
-			let url =
-				"https://drive.quark.cn/1/clouddrive/share/sharepage/token?pr=ucpro&fr=pc";
-			let postResp = await httpx.post(url, {
-				data: JSON.stringify({
-					pwd_id: shareCode,
-					passcode: "",
-				}),
-				headers: {
-					Accept: "application/json, text/plain, */*",
-					"Content-Type": "application/json;charset=UTF-8",
-					"User-Agent": utils.getRandomPCUA(),
-					Origin: "https://pan.quark.cn",
-					Referer: NetDiskLinkClickModeUtils.getBlankUrl(
-						"kuake",
-						netDiskIndex,
-						shareCode,
-						accessCode
-					),
-				},
-
-				allowInterceptConfig: false,
-				onerror() {},
-				ontimeout() {},
-			});
-			if (!postResp.status && utils.isNull(postResp.data.responseText)) {
-				return NetDiskCheckLinkValidity.status.error;
+			let response = await httpx.post(
+				"https://drive.quark.cn/1/clouddrive/share/sharepage/token?pr=ucpro&fr=pc",
+				{
+					data: JSON.stringify({
+						pwd_id: shareCode,
+						passcode: "",
+					}),
+					headers: {
+						Accept: "application/json, text/plain, */*",
+						"Content-Type": "application/json;charset=UTF-8",
+						"User-Agent": utils.getRandomPCUA(),
+						Origin: "https://pan.quark.cn",
+						Referer: NetDiskLinkClickModeUtils.getBlankUrl(
+							"kuake",
+							netDiskIndex,
+							shareCode,
+							accessCode
+						),
+					},
+					...NetDiskCheckLinkValidityRequestOption,
+				}
+			);
+			if (!response.status && utils.isNull(response.data.responseText)) {
+				return {
+					...NetDiskCheckLinkValidity.status.error,
+					data: response,
+				};
 			}
-			let sharePageJSON = utils.toJSON(postResp.data.responseText);
-			if (sharePageJSON.message.includes("需要提取码")) {
-				return NetDiskCheckLinkValidity.status.needAccessCode;
-			} else if (sharePageJSON.message.includes("ok")) {
+			let data = utils.toJSON(response.data.responseText);
+			if (data.message.includes("需要提取码")) {
+				return {
+					...NetDiskCheckLinkValidity.status.needAccessCode,
+					data: data,
+				};
+			} else if (data.message.includes("ok")) {
 				// 再请求判断是否存在部分违规文件
-				let stoken = sharePageJSON["data"]["stoken"];
+				let stoken = data["data"]["stoken"];
 				let getSearchParams = {
 					// pr: "ucpro",
 					// fr: "pc",
@@ -71,9 +78,7 @@ export const NetDiskCheckLinkValidity_kuake: NetDiskCheckLinkValidityEntranceObj
 							Referer: "https://pan.quark.cn/",
 							"User-Agent": utils.getRandomPCUA(),
 						},
-						allowInterceptConfig: false,
-						onerror() {},
-						ontimeout() {},
+						...NetDiskCheckLinkValidityRequestOption,
 					}
 				);
 				if (
@@ -81,22 +86,37 @@ export const NetDiskCheckLinkValidity_kuake: NetDiskCheckLinkValidityEntranceObj
 					utils.isNull(getResponse.data.responseText)
 				) {
 					// 空的|失败的
-					return NetDiskCheckLinkValidity.status.error;
+					return {
+						...NetDiskCheckLinkValidity.status.error,
+						data: getResponse,
+					};
 				}
 				// 解析json
 				let detailJSON = utils.toJSON(getResponse.data.responseText);
 				if (detailJSON["data"]["share"]["status"] == 1) {
 					// 判断是否存在部分违规文件
 					if (detailJSON["data"]["share"]["partial_violation"]) {
-						return NetDiskCheckLinkValidity.status.partialViolation;
+						return {
+							...NetDiskCheckLinkValidity.status.partialViolation,
+							data: [data, detailJSON],
+						};
 					} else {
-						return NetDiskCheckLinkValidity.status.success;
+						return {
+							...NetDiskCheckLinkValidity.status.success,
+							data: [data, detailJSON],
+						};
 					}
 				} else {
-					return NetDiskCheckLinkValidity.status.failed;
+					return {
+						...NetDiskCheckLinkValidity.status.failed,
+						data: [data, detailJSON],
+					};
 				}
 			} else {
-				return NetDiskCheckLinkValidity.status.failed;
+				return {
+					...NetDiskCheckLinkValidity.status.failed,
+					data: data,
+				};
 			}
 		},
 	};

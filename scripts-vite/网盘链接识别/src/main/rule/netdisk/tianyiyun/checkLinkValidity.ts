@@ -1,15 +1,18 @@
 import { httpx, utils } from "@/env";
-import { NetDiskCheckLinkValidity } from "../../../check-valid/NetDiskCheckLinkValidity";
+import {
+	NetDiskCheckLinkValidity,
+	NetDiskCheckLinkValidityRequestOption,
+} from "../../../check-valid/NetDiskCheckLinkValidity";
 
 export const NetDiskCheckLinkValidity_tianyiyun: NetDiskCheckLinkValidityEntranceObj =
 	{
 		/**
-		 * @param {number} netDiskIndex 网盘名称索引下标
-		 * @param {string} shareCode 分享码
-		 * @param {string} accessCode 访问码
+		 * @param netDiskIndex 网盘名称索引下标
+		 * @param shareCode 分享码
+		 * @param accessCode 访问码
 		 */
 		async init(netDiskIndex: number, shareCode: string, accessCode: string) {
-			let postResp = await httpx.post(
+			let response = await httpx.post(
 				"https://api.cloud.189.cn/open/share/getShareInfoByCodeV2.action",
 				{
 					data: `shareCode=${shareCode}`,
@@ -21,15 +24,15 @@ export const NetDiskCheckLinkValidity_tianyiyun: NetDiskCheckLinkValidityEntranc
 						Referer: "https://cloud.189.cn/web/share?code=" + shareCode,
 						Origin: "https://cloud.189.cn",
 					},
-
-					allowInterceptConfig: false,
-					onerror() {},
-					ontimeout() {},
+					...NetDiskCheckLinkValidityRequestOption,
 				}
 			);
-			let responseText = postResp.data.responseText;
-			if (!postResp.status && utils.isNull(responseText)) {
-				return NetDiskCheckLinkValidity.status.error;
+			let responseText = response.data.responseText;
+			if (!response.status && utils.isNull(responseText)) {
+				return {
+					...NetDiskCheckLinkValidity.status.error,
+					data: response,
+				};
 			}
 			if (
 				responseText.includes("ShareInfoNotFound") ||
@@ -39,11 +42,20 @@ export const NetDiskCheckLinkValidity_tianyiyun: NetDiskCheckLinkValidityEntranc
 				responseText.includes("ShareExpiredError") ||
 				responseText.includes("ShareAuditNotPass")
 			) {
-				return NetDiskCheckLinkValidity.status.failed;
+				return {
+					...NetDiskCheckLinkValidity.status.failed,
+					data: response,
+				};
 			}
 			if (responseText.includes("needAccessCode")) {
-				return NetDiskCheckLinkValidity.status.needAccessCode;
+				return {
+					...NetDiskCheckLinkValidity.status.needAccessCode,
+					data: response,
+				};
 			}
-			return NetDiskCheckLinkValidity.status.success;
+			return {
+				...NetDiskCheckLinkValidity.status.success,
+				data: response,
+			};
 		},
 	};

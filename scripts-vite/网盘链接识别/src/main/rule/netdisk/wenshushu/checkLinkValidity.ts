@@ -1,17 +1,19 @@
 import { httpx, utils } from "@/env";
-import { NetDiskCheckLinkValidity } from "../../../check-valid/NetDiskCheckLinkValidity";
-import { NetDiskParse } from "../../../parse/NetDiskParse";
+import {
+	NetDiskCheckLinkValidity,
+	NetDiskCheckLinkValidityRequestOption,
+} from "../../../check-valid/NetDiskCheckLinkValidity";
 import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
 
 export const NetDiskCheckLinkValidity_wenshushu: NetDiskCheckLinkValidityEntranceObj =
 	{
 		/**
-		 * @param {number} netDiskIndex 网盘名称索引下标
-		 * @param {string} shareCode 分享码
-		 * @param {string} accessCode 访问码
+		 * @param netDiskIndex 网盘名称索引下标
+		 * @param shareCode 分享码
+		 * @param accessCode 访问码
 		 */
 		async init(netDiskIndex: number, shareCode: string, accessCode: string) {
-			let postResp = await httpx.post(
+			let response = await httpx.post(
 				"https://www.wenshushu.cn/ap/task/mgrtask",
 				{
 					data: JSON.stringify({
@@ -31,19 +33,25 @@ export const NetDiskCheckLinkValidity_wenshushu: NetDiskCheckLinkValidityEntranc
 						),
 					},
 					responseType: "json",
-
-					allowInterceptConfig: false,
-					onerror() {},
-					ontimeout() {},
+					...NetDiskCheckLinkValidityRequestOption,
 				}
 			);
-			if (!postResp.status && utils.isNull(postResp.data.responseText)) {
-				return NetDiskCheckLinkValidity.status.error;
+			if (!response.status && utils.isNull(response.data.responseText)) {
+				return {
+					...NetDiskCheckLinkValidity.status.error,
+					data: response,
+				};
 			}
-			let data = utils.toJSON(postResp.data.responseText);
+			let data = utils.toJSON(response.data.responseText);
 			if (data.code !== 0) {
-				return NetDiskCheckLinkValidity.status.failed;
+				return {
+					...NetDiskCheckLinkValidity.status.failed,
+					data: data,
+				};
 			}
-			return NetDiskCheckLinkValidity.status.success;
+			return {
+				...NetDiskCheckLinkValidity.status.success,
+				data: data,
+			};
 		},
 	};

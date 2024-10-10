@@ -1,6 +1,8 @@
 import { httpx, log, utils } from "@/env";
-import { NetDiskParse } from "../../../parse/NetDiskParse";
-import { NetDiskCheckLinkValidity } from "../../../check-valid/NetDiskCheckLinkValidity";
+import {
+	NetDiskCheckLinkValidity,
+	NetDiskCheckLinkValidityRequestOption,
+} from "../../../check-valid/NetDiskCheckLinkValidity";
 import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
 
 export const NetDiskCheckLinkValidity_chengtong: NetDiskCheckLinkValidityEntranceObj =
@@ -31,9 +33,12 @@ export const NetDiskCheckLinkValidity_chengtong: NetDiskCheckLinkValidityEntranc
 				url = `https://webapi.ctfile.com/getdir.php?path=${path}&d=${shareCode}&folder_id=&passcode=${accessCode}&token=0&r=${Math.random()}&ref=`;
 			} else {
 				log.warn(["未知path", [netDiskIndex, shareCode, accessCode]]);
-				return NetDiskCheckLinkValidity.status.unknown;
+				return {
+					...NetDiskCheckLinkValidity.status.unknown,
+					data: null,
+				};
 			}
-			let getResp = await httpx.get(url, {
+			let response = await httpx.get(url, {
 				headers: {
 					Host: "webapi.ctfile.com",
 					Origin: "https://url95.ctfile.com",
@@ -41,29 +46,41 @@ export const NetDiskCheckLinkValidity_chengtong: NetDiskCheckLinkValidityEntranc
 					Accept: "application/json, text/javascript, */*; q=0.01",
 					"User-Agent": utils.getRandomPCUA(),
 				},
-
-				allowInterceptConfig: false,
-				onerror() {},
-				ontimeout() {},
+				...NetDiskCheckLinkValidityRequestOption,
 			});
-			let responseText = getResp.data.responseText;
-			if (!getResp.status && utils.isNull(responseText)) {
-				return NetDiskCheckLinkValidity.status.error;
+			let responseText = response.data.responseText;
+			if (!response.status && utils.isNull(responseText)) {
+				return {
+					...NetDiskCheckLinkValidity.status.error,
+					data: response,
+				};
 			}
 			let data = utils.toJSON(responseText);
 			if (data["code"] === 200) {
-				return NetDiskCheckLinkValidity.status.success;
+				return {
+					...NetDiskCheckLinkValidity.status.success,
+					data: data,
+				};
 			}
 			if (data["code"] === 401) {
-				return NetDiskCheckLinkValidity.status.needAccessCode;
+				return {
+					...NetDiskCheckLinkValidity.status.needAccessCode,
+					data: data,
+				};
 			}
 			if (
 				data["code"] === 404 ||
 				data["code"] === 503 ||
 				data["code"] === 504
 			) {
-				return NetDiskCheckLinkValidity.status.failed;
+				return {
+					...NetDiskCheckLinkValidity.status.failed,
+					data: data,
+				};
 			}
-			return NetDiskCheckLinkValidity.status.unknown;
+			return {
+				...NetDiskCheckLinkValidity.status.unknown,
+				data: data,
+			};
 		},
 	};

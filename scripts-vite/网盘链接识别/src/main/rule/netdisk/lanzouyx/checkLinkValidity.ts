@@ -1,13 +1,16 @@
 import { httpx, log, utils } from "@/env";
-import { NetDiskCheckLinkValidity } from "../../../check-valid/NetDiskCheckLinkValidity";
+import {
+	NetDiskCheckLinkValidity,
+	NetDiskCheckLinkValidityRequestOption,
+} from "../../../check-valid/NetDiskCheckLinkValidity";
 import { NetDiskParse } from "../../../parse/NetDiskParse";
 
 export const NetDiskCheckLinkValidity_lanzouyx: NetDiskCheckLinkValidityEntranceObj =
 	{
 		/**
-		 * @param {number} netDiskIndex 网盘名称索引下标
-		 * @param {string} shareCode 分享码
-		 * @param {string} accessCode 访问码
+		 * @param netDiskIndex 网盘名称索引下标
+		 * @param shareCode 分享码
+		 * @param accessCode 访问码
 		 */
 		async init(netDiskIndex: number, shareCode: string, accessCode: string) {
 			let LanZouYX = new NetDiskParse.netDisk.lanzouyx();
@@ -21,7 +24,7 @@ export const NetDiskCheckLinkValidity_lanzouyx: NetDiskCheckLinkValidityEntrance
 
 			let offset = 1;
 			let limit = 60;
-			let postResp = await httpx.post(
+			let response = await httpx.post(
 				`https://api.ilanzou.com/unproved/recommend/list?devType=${devType}&devModel=${devModel}&uuid=${LanZouYX.uuid}&extra=${extra}&timestamp=${timestamp}&shareId=${LanZouYX.shareCodeId}&type=${type}&offset=${offset}&limit=${limit}`,
 				{
 					headers: {
@@ -33,22 +36,32 @@ export const NetDiskCheckLinkValidity_lanzouyx: NetDiskCheckLinkValidityEntrance
 						"User-Agent": utils.getRandomPCUA(),
 					},
 					responseType: "json",
-					allowInterceptConfig: false,
-					onerror() {},
-					ontimeout() {},
+					...NetDiskCheckLinkValidityRequestOption,
 				}
 			);
-			if (!postResp.status) {
-				return NetDiskCheckLinkValidity.status.error;
+			if (!response.status) {
+				return {
+					...NetDiskCheckLinkValidity.status.error,
+					data: response,
+				};
 			}
-			let data = utils.toJSON(postResp.data.responseText);
+			let data = utils.toJSON(response.data.responseText);
 			log.success(["获取链接信息：", data]);
 			if (data["code"] !== 200) {
-				return NetDiskCheckLinkValidity.status.error;
+				return {
+					...NetDiskCheckLinkValidity.status.error,
+					data: data,
+				};
 			}
 			if (!data["list"].length) {
-				return NetDiskCheckLinkValidity.status.failed;
+				return {
+					...NetDiskCheckLinkValidity.status.failed,
+					data: data,
+				};
 			}
-			return NetDiskCheckLinkValidity.status.success;
+			return {
+				...NetDiskCheckLinkValidity.status.success,
+				data: data,
+			};
 		},
 	};

@@ -1,17 +1,19 @@
 import { httpx, utils } from "@/env";
-import { NetDiskParse } from "../../../parse/NetDiskParse";
-import { NetDiskCheckLinkValidity } from "../../../check-valid/NetDiskCheckLinkValidity";
+import {
+	NetDiskCheckLinkValidity,
+	NetDiskCheckLinkValidityRequestOption,
+} from "../../../check-valid/NetDiskCheckLinkValidity";
 import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
 
 export const NetDiskCheckLinkValidity_xunlei: NetDiskCheckLinkValidityEntranceObj =
 	{
 		/**
-		 * @param {number} netDiskIndex 网盘名称索引下标
-		 * @param {string} shareCode 分享码
-		 * @param {string} accessCode 访问码
+		 * @param netDiskIndex 网盘名称索引下标
+		 * @param shareCode 分享码
+		 * @param accessCode 访问码
 		 */
 		async init(netDiskIndex: number, shareCode: string, accessCode: string) {
-			let postResp = await httpx.post(
+			let postResponse = await httpx.post(
 				"https://xluser-ssl.xunlei.com/v1/shield/captcha/init",
 				{
 					data: JSON.stringify({
@@ -36,18 +38,21 @@ export const NetDiskCheckLinkValidity_xunlei: NetDiskCheckLinkValidityEntranceOb
 						),
 						Origin: "https://pan.xunlei.com",
 					},
-
-					allowInterceptConfig: false,
-					onerror() {},
-					ontimeout() {},
+					...NetDiskCheckLinkValidityRequestOption,
 				}
 			);
-			if (!postResp.status && utils.isNull(postResp.data.responseText)) {
-				return NetDiskCheckLinkValidity.status.error;
+			if (
+				!postResponse.status &&
+				utils.isNull(postResponse.data.responseText)
+			) {
+				return {
+					...NetDiskCheckLinkValidity.status.error,
+					data: postResponse,
+				};
 			}
-			let data = utils.toJSON(postResp.data.responseText);
-			let token = data["captcha_token"];
-			let getResp = await httpx.get(
+			let postResponseData = utils.toJSON(postResponse.data.responseText);
+			let token = postResponseData["captcha_token"];
+			let getResponse = await httpx.get(
 				"https://api-pan.xunlei.com/drive/v1/share?share_id=" + shareCode,
 				{
 					headers: {
@@ -64,27 +69,36 @@ export const NetDiskCheckLinkValidity_xunlei: NetDiskCheckLinkValidityEntranceOb
 						"x-client-id": "Xqp0kJBXWhwaTpB6",
 						"x-device-id": "925b7631473a13716b791d7f28289cad",
 					},
-
-					allowInterceptConfig: false,
-					onerror() {},
-					ontimeout() {},
+					...NetDiskCheckLinkValidityRequestOption,
 				}
 			);
 
-			if (!getResp.status && utils.isNull(getResp.data.responseText)) {
-				return NetDiskCheckLinkValidity.status.error;
+			if (!getResponse.status && utils.isNull(getResponse.data.responseText)) {
+				return {
+					...NetDiskCheckLinkValidity.status.error,
+					data: [postResponse, getResponse],
+				};
 			}
-			let responseText = getResp.data.responseText;
+			let responseText = getResponse.data.responseText;
 			if (
 				responseText.includes("NOT_FOUND") ||
 				responseText.includes("SENSITIVE_RESOURCE") ||
 				responseText.includes("EXPIRED") ||
 				responseText.includes("DELETED")
 			) {
-				return NetDiskCheckLinkValidity.status.failed;
+				return {
+					...NetDiskCheckLinkValidity.status.failed,
+					data: getResponse,
+				};
 			} else if (responseText.includes("PASS_CODE_EMPTY")) {
-				return NetDiskCheckLinkValidity.status.needAccessCode;
+				return {
+					...NetDiskCheckLinkValidity.status.needAccessCode,
+					data: getResponse,
+				};
 			}
-			return NetDiskCheckLinkValidity.status.success;
+			return {
+				...NetDiskCheckLinkValidity.status.success,
+				data: getResponse,
+			};
 		},
 	};

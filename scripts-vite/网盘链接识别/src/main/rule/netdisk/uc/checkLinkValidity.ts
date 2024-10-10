@@ -1,17 +1,19 @@
 import { DOMUtils, httpx, utils } from "@/env";
-import { NetDiskParse } from "../../../parse/NetDiskParse";
-import { NetDiskCheckLinkValidity } from "../../../check-valid/NetDiskCheckLinkValidity";
+import {
+	NetDiskCheckLinkValidity,
+	NetDiskCheckLinkValidityRequestOption,
+} from "../../../check-valid/NetDiskCheckLinkValidity";
 import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
 
 export const NetDiskCheckLinkValidity_uc: NetDiskCheckLinkValidityEntranceObj =
 	{
 		/**
-		 * @param {number} netDiskIndex 网盘名称索引下标
-		 * @param {string} shareCode 分享码
-		 * @param {string} accessCode 访问码
+		 * @param netDiskIndex 网盘名称索引下标
+		 * @param shareCode 分享码
+		 * @param accessCode 访问码
 		 */
 		async init(netDiskIndex: number, shareCode: string, accessCode: string) {
-			let resp = await httpx.get("https://drive.uc.cn/s/" + shareCode, {
+			let response = await httpx.get("https://drive.uc.cn/s/" + shareCode, {
 				headers: {
 					"User-Agent": utils.getRandomAndroidUA(),
 					Host: "drive.uc.cn",
@@ -23,19 +25,20 @@ export const NetDiskCheckLinkValidity_uc: NetDiskCheckLinkValidityEntranceObj =
 					),
 					Origin: "https://drive.uc.cn",
 				},
-
-				allowInterceptConfig: false,
-				onerror() {},
-				ontimeout() {},
+				...NetDiskCheckLinkValidityRequestOption,
 			});
-			let responseText = resp.data.responseText;
-			if (!resp.status && utils.isNull(responseText)) {
-				return NetDiskCheckLinkValidity.status.error;
+			let responseText = response.data.responseText;
+			if (!response.status && utils.isNull(responseText)) {
+				return {
+					...NetDiskCheckLinkValidity.status.error,
+					data: response,
+				};
 			}
-			let respDoc = DOMUtils.parseHTML(responseText, true, true);
-			if (respDoc.querySelector(".h5-page-main")) {
+			let responseDocument = DOMUtils.parseHTML(responseText, true, true);
+			if (responseDocument.querySelector(".h5-page-main")) {
 				// 存在错误
-				let $h5PageMain = respDoc.querySelector<HTMLElement>(".h5-page-main")!;
+				let $h5PageMain =
+					responseDocument.querySelector<HTMLElement>(".h5-page-main")!;
 				let errorText = $h5PageMain.textContent || $h5PageMain.innerText;
 				if (
 					errorText.includes("失效") ||
@@ -43,14 +46,28 @@ export const NetDiskCheckLinkValidity_uc: NetDiskCheckLinkValidityEntranceObj =
 					errorText.includes("违规") ||
 					errorText.includes("删除")
 				) {
-					return NetDiskCheckLinkValidity.status.failed;
+					return {
+						...NetDiskCheckLinkValidity.status.failed,
+						data: response,
+					};
 				} else {
-					return NetDiskCheckLinkValidity.status.unknown;
+					return {
+						...NetDiskCheckLinkValidity.status.unknown,
+						data: response,
+					};
 				}
-			} else if (respDoc.querySelector(".main-body .input-wrap input")) {
-				return NetDiskCheckLinkValidity.status.needAccessCode;
+			} else if (
+				responseDocument.querySelector(".main-body .input-wrap input")
+			) {
+				return {
+					...NetDiskCheckLinkValidity.status.needAccessCode,
+					data: response,
+				};
 			} else {
-				return NetDiskCheckLinkValidity.status.success;
+				return {
+					...NetDiskCheckLinkValidity.status.success,
+					data: response,
+				};
 			}
 		},
 	};

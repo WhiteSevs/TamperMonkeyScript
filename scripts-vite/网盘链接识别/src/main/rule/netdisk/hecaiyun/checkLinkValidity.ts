@@ -1,5 +1,8 @@
 import { httpx, utils } from "@/env";
-import { NetDiskCheckLinkValidity } from "../../../check-valid/NetDiskCheckLinkValidity";
+import {
+	NetDiskCheckLinkValidity,
+	NetDiskCheckLinkValidityRequestOption,
+} from "../../../check-valid/NetDiskCheckLinkValidity";
 import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
 
 export const NetDiskCheckLinkValidity_hecaiyun: NetDiskCheckLinkValidityEntranceObj =
@@ -11,7 +14,7 @@ export const NetDiskCheckLinkValidity_hecaiyun: NetDiskCheckLinkValidityEntrance
 		 * @param accessCode 访问码
 		 */
 		async init(netDiskIndex: number, shareCode: string, accessCode: string) {
-			let resp = await httpx.post(
+			let response = await httpx.post(
 				"https://caiyun.139.com/stapi/custom/outlink/brief",
 				{
 					data: "linkId=" + shareCode,
@@ -25,24 +28,33 @@ export const NetDiskCheckLinkValidity_hecaiyun: NetDiskCheckLinkValidityEntrance
 							accessCode
 						),
 					},
-
-					allowInterceptConfig: false,
-					onerror() {},
-					ontimeout() {},
+					...NetDiskCheckLinkValidityRequestOption,
 				}
 			);
-			if (!resp.status) {
-				return NetDiskCheckLinkValidity.status.error;
+			if (!response.status) {
+				return {
+					...NetDiskCheckLinkValidity.status.error,
+					data: response,
+				};
 			}
-			let data = utils.toJSON(resp.data.responseText);
+			let data = utils.toJSON(response.data.responseText);
 			if (data.code == 0) {
 				if (data.data.isPasswd === "1") {
-					return NetDiskCheckLinkValidity.status.needAccessCode;
+					return {
+						...NetDiskCheckLinkValidity.status.needAccessCode,
+						data: data,
+					};
 				} else {
-					return NetDiskCheckLinkValidity.status.success;
+					return {
+						...NetDiskCheckLinkValidity.status.success,
+						data: data,
+					};
 				}
 			} else {
-				return NetDiskCheckLinkValidity.status.failed;
+				return {
+					...NetDiskCheckLinkValidity.status.failed,
+					data: data,
+				};
 			}
 		},
 	};

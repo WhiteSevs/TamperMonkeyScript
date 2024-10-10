@@ -1,6 +1,8 @@
 import { httpx, utils } from "@/env";
-import { NetDiskParse } from "../../../parse/NetDiskParse";
-import { NetDiskCheckLinkValidity } from "../../../check-valid/NetDiskCheckLinkValidity";
+import {
+	NetDiskCheckLinkValidity,
+	NetDiskCheckLinkValidityRequestOption,
+} from "../../../check-valid/NetDiskCheckLinkValidity";
 import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
 
 export const NetDiskCheckLinkValidity_weiyun: NetDiskCheckLinkValidityEntranceObj =
@@ -17,35 +19,47 @@ export const NetDiskCheckLinkValidity_weiyun: NetDiskCheckLinkValidityEntranceOb
 				shareCode,
 				accessCode
 			);
-			let getResp = await httpx.get(url, {
+			let response = await httpx.get(url, {
 				headers: {
 					"User-Agent": utils.getRandomPCUA(),
 					Host: "share.weiyun.com",
 					Origin: "https://share.weiyun.com",
 					Referer: url,
 				},
-
-				allowInterceptConfig: false,
-				onerror() {},
-				ontimeout() {},
+				...NetDiskCheckLinkValidityRequestOption,
 			});
 
-			if (!getResp.status && utils.isNull(getResp.data.responseText)) {
-				return NetDiskCheckLinkValidity.status.error;
+			if (!response.status && utils.isNull(response.data.responseText)) {
+				return {
+					...NetDiskCheckLinkValidity.status.error,
+					data: response,
+				};
 			}
-			let respText = getResp.data.responseText;
+			let responseText = response.data.responseText;
 			if (
-				respText.includes("已删除") ||
-				respText.includes("违反相关法规") ||
-				respText.includes("已过期") ||
-				respText.includes("已经删除") ||
-				respText.includes("目录无效")
+				responseText.includes("已删除") ||
+				responseText.includes("违反相关法规") ||
+				responseText.includes("已过期") ||
+				responseText.includes("已经删除") ||
+				responseText.includes("目录无效")
 			) {
-				return NetDiskCheckLinkValidity.status.failed;
+				return {
+					...NetDiskCheckLinkValidity.status.failed,
+					data: response,
+				};
 			}
-			if (respText.includes('"need_pwd":1') || respText.includes('"pwd":"')) {
-				return NetDiskCheckLinkValidity.status.needAccessCode;
+			if (
+				responseText.includes('"need_pwd":1') ||
+				responseText.includes('"pwd":"')
+			) {
+				return {
+					...NetDiskCheckLinkValidity.status.needAccessCode,
+					data: response,
+				};
 			}
-			return NetDiskCheckLinkValidity.status.success;
+			return {
+				...NetDiskCheckLinkValidity.status.success,
+				data: response,
+			};
 		},
 	};

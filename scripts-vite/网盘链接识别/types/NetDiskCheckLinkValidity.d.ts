@@ -47,7 +47,16 @@ declare interface NetDiskCheckLinkValidityEntranceObj {
 		netDiskIndex: number,
 		shareCode: string,
 		accessCode: string
-	) => IPromise<NetDiskCheckLinkValidityStatusObj>;
+	) => IPromise<
+		NetDiskCheckLinkValidityStatusObj & {
+			/**
+			 * 网络请求的数据
+			 *
+			 * 会设置到元素的data-httpx-response属性上
+			 */
+			data: any;
+		}
+	>;
 }
 
 declare interface NetDiskCheckLinkValidityEntrance {

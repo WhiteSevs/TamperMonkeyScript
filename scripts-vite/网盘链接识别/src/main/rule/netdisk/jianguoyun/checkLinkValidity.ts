@@ -1,14 +1,17 @@
 import { httpx, utils } from "@/env";
 import { NetDiskParse } from "../../../parse/NetDiskParse";
-import { NetDiskCheckLinkValidity } from "../../../check-valid/NetDiskCheckLinkValidity";
+import {
+	NetDiskCheckLinkValidity,
+	NetDiskCheckLinkValidityRequestOption,
+} from "../../../check-valid/NetDiskCheckLinkValidity";
 import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
 
 export const NetDiskCheckLinkValidity_jianguoyun: NetDiskCheckLinkValidityEntranceObj =
 	{
 		/**
-		 * @param {number} netDiskIndex 网盘名称索引下标
-		 * @param {string} shareCode 分享码
-		 * @param {string} accessCode 访问码
+		 * @param netDiskIndex 网盘名称索引下标
+		 * @param shareCode 分享码
+		 * @param accessCode 访问码
 		 */
 		async init(netDiskIndex: number, shareCode: string, accessCode: string) {
 			let url = NetDiskLinkClickModeUtils.getBlankUrl(
@@ -17,7 +20,7 @@ export const NetDiskCheckLinkValidity_jianguoyun: NetDiskCheckLinkValidityEntran
 				shareCode,
 				accessCode
 			);
-			let getResp = await httpx.get(url, {
+			let response = await httpx.get(url, {
 				headers: {
 					"User-Agent": utils.getRandomPCUA(),
 					Host: "www.jianguoyun.com",
@@ -29,18 +32,24 @@ export const NetDiskCheckLinkValidity_jianguoyun: NetDiskCheckLinkValidityEntran
 					),
 					Origin: "https://www.jianguoyun.com",
 				},
-
-				allowInterceptConfig: false,
-				onerror() {},
-				ontimeout() {},
+				...NetDiskCheckLinkValidityRequestOption,
 			});
-			let responseText = getResp.data.responseText;
-			if (!getResp.status && utils.isNull(responseText)) {
-				return NetDiskCheckLinkValidity.status.error;
+			let responseText = response.data.responseText;
+			if (!response.status && utils.isNull(responseText)) {
+				return {
+					...NetDiskCheckLinkValidity.status.error,
+					data: response,
+				};
 			}
 			if (responseText.includes("<h1>啊噢！")) {
-				return NetDiskCheckLinkValidity.status.failed;
+				return {
+					...NetDiskCheckLinkValidity.status.failed,
+					data: response,
+				};
 			}
-			return NetDiskCheckLinkValidity.status.success;
+			return {
+				...NetDiskCheckLinkValidity.status.success,
+				data: response,
+			};
 		},
 	};
