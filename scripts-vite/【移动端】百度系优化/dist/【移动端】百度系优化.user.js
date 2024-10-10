@@ -2389,20 +2389,20 @@ match-attr##srcid##sp_purc_atom
                     "允许长按选择文字"
                   )
                 ]
-              },
-              {
-                type: "forms",
-                text: "网络请求拦截",
-                forms: [
-                  UISwitch(
-                    "/mo/q/getUpConfigData",
-                    "baidu-tieba-uni-app-post-intercept-getUpConfigData",
-                    true,
-                    void 0,
-                    "该请求类似于广告配置，建议拦截"
-                  )
-                ]
               }
+              // {
+              // 	type: "forms",
+              // 	text: "网络请求拦截",
+              // 	forms: [
+              // 		UISwitch(
+              // 			"/mo/q/getUpConfigData",
+              // 			"baidu-tieba-uni-app-post-intercept-getUpConfigData",
+              // 			true,
+              // 			void 0,
+              // 			"该请求类似于广告配置，建议拦截"
+              // 		),
+              // 	],
+              // },
             ]
           }
         ]
@@ -12123,30 +12123,6 @@ div[class^="new-summary-container_"] {\r
       });
     }
   };
-  const NetWorkHook = {
-    $data: {
-      __ajaxHooker: null,
-      get ajaxHooker() {
-        if (this.__ajaxHooker == null) {
-          this.__ajaxHooker = utils.ajaxHooker();
-        }
-        return this.__ajaxHooker;
-      }
-    },
-    /**
-     * 拦截贴吧请求
-     *
-     * + /mo/q/getUpConfigData
-     */
-    injectTieBaPost_getUpConfigData() {
-      this.$data.ajaxHooker.hook((request) => {
-        if (request.url.includes("/mo/q/getUpConfigData")) {
-          log.info("拦截请求：" + request.url);
-          request.abort = true;
-        }
-      });
-    }
-  };
   const OptimizationLocationHash = {
     /** 楼中楼回复弹窗 */
     seeLzlReply: "#/seeLzlReply",
@@ -12155,12 +12131,6 @@ div[class^="new-summary-container_"] {\r
   };
   const TiebaUniAppPost = {
     init() {
-      PopsPanel.execMenuOnce(
-        "baidu-tieba-uni-app-post-intercept-getUpConfigData",
-        () => {
-          NetWorkHook.injectTieBaPost_getUpConfigData();
-        }
-      );
       utils.waitNode("uni-app", 1e4).then(($uniApp) => {
         if (!$uniApp) {
           return;

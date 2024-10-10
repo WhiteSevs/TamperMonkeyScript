@@ -311,19 +311,19 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 								),
 							],
 						},
-						{
-							type: "forms",
-							text: "网络请求拦截",
-							forms: [
-								UISwitch(
-									"/mo/q/getUpConfigData",
-									"baidu-tieba-uni-app-post-intercept-getUpConfigData",
-									true,
-									void 0,
-									"该请求类似于广告配置，建议拦截"
-								),
-							],
-						},
+						// {
+						// 	type: "forms",
+						// 	text: "网络请求拦截",
+						// 	forms: [
+						// 		UISwitch(
+						// 			"/mo/q/getUpConfigData",
+						// 			"baidu-tieba-uni-app-post-intercept-getUpConfigData",
+						// 			true,
+						// 			void 0,
+						// 			"该请求类似于广告配置，建议拦截"
+						// 		),
+						// 	],
+						// },
 					],
 				},
 			],

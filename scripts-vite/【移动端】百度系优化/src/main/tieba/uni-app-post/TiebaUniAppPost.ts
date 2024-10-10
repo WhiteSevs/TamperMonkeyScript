@@ -20,12 +20,6 @@ const OptimizationLocationHash = {
 
 export const TiebaUniAppPost = {
 	init() {
-		PopsPanel.execMenuOnce(
-			"baidu-tieba-uni-app-post-intercept-getUpConfigData",
-			() => {
-				NetWorkHook.injectTieBaPost_getUpConfigData();
-			}
-		);
 		utils.waitNode("uni-app", 10000).then(($uniApp) => {
 			if (!$uniApp) {
 				return;
