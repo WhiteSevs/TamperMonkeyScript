@@ -6,6 +6,7 @@ import { PopsPanel } from "@/setting/setting";
 import { GM_getValue, GM_setValue } from "ViteGM";
 import { TiebaUniAppComment } from "./TiebaUniAppComment";
 import { TiebaPostApi } from "../api/TiebaPostApi";
+import { NetWorkHook } from "@/hook/NetWorkHook";
 
 /**
  * 优化使用的hash值
@@ -19,6 +20,12 @@ const OptimizationLocationHash = {
 
 export const TiebaUniAppPost = {
 	init() {
+		PopsPanel.execMenuOnce(
+			"baidu-tieba-uni-app-post-intercept-getUpConfigData",
+			() => {
+				NetWorkHook.injectTieBaPost_getUpConfigData();
+			}
+		);
 		utils.waitNode("uni-app", 10000).then(($uniApp) => {
 			if (!$uniApp) {
 				return;
@@ -30,17 +37,7 @@ export const TiebaUniAppPost = {
 				log.warn("检测到hash值为手势优化的hash值，已自动去除");
 				window.location.hash = "";
 			}
-			addStyle(/*css*/ `
-			/* 加载评论失败的弹窗 */
-			.swiper-content .tb-error-page{
-				background: rgba(0, 0, 0, 0.7);
-				color: #ffffff;
-				z-index: 10000;
-			}
-			.swiper-content .tb-error-page .error-icon{
-				margin: 0;
-			}
-			`);
+			this.repairTbErrorPage();
 			this.mutationRemoveWakeUpBtn();
 			PopsPanel.execMenuOnce(
 				"baidu-tieba-uni-app-post-allow-user-select",
@@ -141,6 +138,19 @@ export const TiebaUniAppPost = {
 			-webkit-user-select: unset !important;
 			-moz-user-select: unset !important;
 			user-select: unset !important;
+		}
+		`);
+	},
+	/**
+	 * 修复贴吧请求失败的弹窗（点击无反应）
+	 */
+	repairTbErrorPage() {
+		addStyle(/*css*/ `
+		/* 加载评论失败的弹窗 */
+		.swiper-content .tb-error-page{
+			background: rgba(0, 0, 0, 0.7);
+			color: #ffffff;
+			z-index: 10000;
 		}
 		`);
 	},
