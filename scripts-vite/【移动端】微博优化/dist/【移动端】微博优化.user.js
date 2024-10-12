@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.7
+// @version      2024.10.12
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @match        http*://card.weibo.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.2/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css
@@ -1169,7 +1169,14 @@
         text: "功能",
         type: "forms",
         forms: [
-          UISwitch("自动聚焦搜索框", "weibo-search-autoFocusSearchInput", void 0)
+          UISwitch("自动聚焦搜索框", "weibo-search-autoFocusSearchInput", void 0),
+          UISwitch(
+            "新增【新标签页打开】按钮",
+            "weibo-search-addOpenBlankBtn",
+            false,
+            void 0,
+            "在每个card下面的按钮区域添加该按钮，方便快速在新标签页中打开"
+          )
         ]
       }
     ]
@@ -2481,6 +2488,9 @@
   };
   const WeiBoSearch = {
     init() {
+      PopsPanel.execMenuOnce("weibo-search-addOpenBlankBtn", () => {
+        this.addOpenBlankBtn();
+      });
       domUtils.ready(() => {
         PopsPanel.execMenu("weibo-search-autoFocusSearchInput", () => {
           this.autoFocusSearchInput();
@@ -2516,6 +2526,68 @@
         setTimeout(() => {
           $input.focus();
         }, 250);
+      });
+    },
+    /**
+     * 新增新标签页打开按钮
+     */
+    addOpenBlankBtn() {
+      utils.mutationObserver(document.documentElement, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        immediate: true,
+        callback() {
+          if (!WeiBoRouter.isMWeiBo_search()) {
+            return;
+          }
+          document.querySelectorAll(
+            ".card footer.m-ctrl-box:not(:has(.gm-open-blank))"
+          ).forEach(($footerCtrl) => {
+            if ($footerCtrl.querySelector(".gm-open-blank")) {
+              return;
+            }
+            let $ownDiyBtn = domUtils.createElement("div", {
+              innerHTML: (
+                /*html*/
+                `
+								<h4>新标签页打开</h4>
+							`
+              )
+            });
+            $ownDiyBtn.classList.add(
+              "m-diy-btn",
+              "m-box-col",
+              "m-box-center",
+              "m-box-center-a",
+              "gm-open-blank"
+            );
+            domUtils.on($ownDiyBtn, "click", (event) => {
+              var _a2;
+              utils.preventEvent(event);
+              let vueIns = VueUtils.getVue($footerCtrl);
+              if (!vueIns) {
+                Qmsg.error("没有找到对应的Vue实例");
+                return;
+              }
+              let id = (_a2 = vueIns == null ? void 0 : vueIns.item) == null ? void 0 : _a2.id;
+              if (typeof id !== "string") {
+                Qmsg.error("没有找到对应的id");
+                return;
+              }
+              let url = `${window.location.origin}/detail/${id}`;
+              log.info(`新标签页打开：${url}`);
+              window.open(url, "_blank");
+            });
+            let $diyBtnList = $footerCtrl.querySelectorAll(".m-diy-btn");
+            if ($diyBtnList.length) {
+              domUtils.after($diyBtnList[$diyBtnList.length - 1], $ownDiyBtn);
+            } else {
+              domUtils.append($footerCtrl, $ownDiyBtn);
+            }
+          });
+        }
       });
     }
   };

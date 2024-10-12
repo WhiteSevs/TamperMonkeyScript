@@ -1,9 +1,14 @@
 import { DOMUtils, log, utils } from "@/env";
+import { WeiBoRouter } from "@/router/WeiBoRouter";
 import { PopsPanel } from "@/setting/setting";
+import { VueUtils } from "@/utils/VueUtils";
 import Qmsg from "qmsg";
 
 export const WeiBoSearch = {
 	init() {
+		PopsPanel.execMenuOnce("weibo-search-addOpenBlankBtn", () => {
+			this.addOpenBlankBtn();
+		});
 		DOMUtils.ready(() => {
 			PopsPanel.execMenu("weibo-search-autoFocusSearchInput", () => {
 				this.autoFocusSearchInput();
@@ -42,5 +47,66 @@ export const WeiBoSearch = {
 					$input.focus();
 				}, 250);
 			});
+	},
+	/**
+	 * 新增新标签页打开按钮
+	 */
+	addOpenBlankBtn() {
+		utils.mutationObserver(document.documentElement, {
+			config: {
+				subtree: true,
+				childList: true,
+			},
+			immediate: true,
+			callback() {
+				if (!WeiBoRouter.isMWeiBo_search()) {
+					return;
+				}
+				document
+					.querySelectorAll<HTMLElement>(
+						".card footer.m-ctrl-box:not(:has(.gm-open-blank))"
+					)
+					.forEach(($footerCtrl) => {
+						if ($footerCtrl.querySelector(".gm-open-blank")) {
+							return;
+						}
+						let $ownDiyBtn = DOMUtils.createElement("div", {
+							innerHTML: /*html*/ `
+								<h4>新标签页打开</h4>
+							`,
+						});
+						$ownDiyBtn.classList.add(
+							"m-diy-btn",
+							"m-box-col",
+							"m-box-center",
+							"m-box-center-a",
+							"gm-open-blank"
+						);
+						DOMUtils.on($ownDiyBtn, "click", (event) => {
+							utils.preventEvent(event);
+							let vueIns = VueUtils.getVue($footerCtrl);
+							if (!vueIns) {
+								Qmsg.error("没有找到对应的Vue实例");
+								return;
+							}
+							let id = vueIns?.item?.id;
+							if (typeof id !== "string") {
+								Qmsg.error("没有找到对应的id");
+								return;
+							}
+							let url = `${window.location.origin}/detail/${id}`;
+							log.info(`新标签页打开：${url}`);
+							window.open(url, "_blank");
+						});
+						let $diyBtnList =
+							$footerCtrl.querySelectorAll<HTMLElement>(".m-diy-btn");
+						if ($diyBtnList.length) {
+							DOMUtils.after($diyBtnList[$diyBtnList.length - 1], $ownDiyBtn);
+						} else {
+							DOMUtils.append($footerCtrl, $ownDiyBtn);
+						}
+					});
+			},
+		});
 	},
 };
