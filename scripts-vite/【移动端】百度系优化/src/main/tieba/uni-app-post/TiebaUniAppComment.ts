@@ -205,32 +205,54 @@ export const TiebaUniAppComment = {
 				},
 				immediate: true,
 				callback: (mutations, observer) => {
-					const $pbCommentItemContainerList = Array.from(
-						document.querySelectorAll<HTMLDivElement>(
-							".pb-comment-item-container"
-						)
-					);
 					let commentContainerInfoList: {
 						data: TiebaPostUniAppCommentData;
 						remove: () => void;
 					}[] = [];
 
-					for (
-						let index = 0;
-						index < $pbCommentItemContainerList.length;
-						index++
-					) {
-						const $pbCommentItemContainer = $pbCommentItemContainerList[index];
-						// vue实例
-						const $vueIns = VueUtils.getVue3($pbCommentItemContainer);
-						commentContainerInfoList.push({
-							data: $vueIns?.props?.commentData,
-							remove() {
-								$pbCommentItemContainer.remove();
-								index--;
-							},
+					// const $pbCommentItemContainerList = Array.from(
+					// 	document.querySelectorAll<HTMLDivElement>(
+					// 		".pb-comment-item-container"
+					// 	)
+					// );
+					// for (
+					// 	let index = 0;
+					// 	index < $pbCommentItemContainerList.length;
+					// 	index++
+					// ) {
+					// 	const $pbCommentItemContainer = $pbCommentItemContainerList[index];
+					// 	// vue实例
+					// 	const $vueIns = VueUtils.getVue3($pbCommentItemContainer);
+					// 	commentContainerInfoList.push({
+					// 		data: $vueIns?.props?.commentData,
+					// 		remove() {
+					// 			$pbCommentItemContainer.remove();
+					// 			index--;
+					// 		},
+					// 	});
+					// }
+					const $commentGroup = document.querySelectorAll(".comment-group");
+					$commentGroup.forEach(($commentGroupItem) => {
+						let vueIns = VueUtils.getVue($commentGroupItem);
+						if (!vueIns) {
+							return;
+						}
+						let sectionData = vueIns?.sectionData;
+						sectionData.forEach((item: any) => {
+							commentContainerInfoList.push({
+								data: item,
+								remove() {
+									let findIndex = sectionData.findIndex(
+										(item2: any) => item2 === item
+									);
+									if (findIndex !== -1) {
+										sectionData.splice(findIndex, 1);
+									}
+								},
+							});
 						});
-					}
+					});
+
 					for (
 						let index = 0;
 						index < this.$data.watchCommentCallBack.length;

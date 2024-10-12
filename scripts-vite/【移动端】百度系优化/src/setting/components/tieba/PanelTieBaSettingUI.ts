@@ -126,6 +126,7 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 				},
 				{
 					text: "帖内",
+					description: "旧版本设置项，大部分功能已失效",
 					type: "deepMenu",
 					forms: [
 						{
@@ -212,7 +213,8 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 					],
 				},
 				{
-					text: "帖内(uni-app)",
+					text: "帖内",
+					description: "新版的uni-app",
 					type: "deepMenu",
 					forms: [
 						{

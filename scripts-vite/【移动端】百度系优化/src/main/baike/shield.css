@@ -1,4 +1,8 @@
 /* 底部的广告 */
-#J_yitiao_container {
+#J_yitiao_container,
+/* 顶部广告 */
+#BK_before_content_wrapper > div:has(a[onclick*="page"]) ,
+/* 底部的广告 */
+.BK-after-content-wrapper>div:has(a[onclick*="page"]) {
 	display: none !important;
 }

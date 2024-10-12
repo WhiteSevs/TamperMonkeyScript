@@ -177,12 +177,24 @@ export const TiebaUniAppPost = {
 			(event) => {
 				let $loadMore = event.target;
 				utils.preventEvent(event);
-				let $vueIns = VueUtils.getVue3($loadMore);
-				if (typeof $vueIns?.attrs?.onHandleClick === "function") {
-					log.success(`uni-app ===> 加载更多评论`);
-					$vueIns.attrs.onHandleClick();
+				let vue3Ins = VueUtils.getVue3($loadMore);
+				let vue2Ins = VueUtils.getVue($loadMore);
+				if (vue3Ins) {
+					if (typeof vue3Ins?.attrs?.onHandleClick === "function") {
+						vue3Ins.attrs.onHandleClick();
+						log.success(`uni-app ===> __vueParentComponent 加载更多评论`);
+					} else {
+						log.error("uni-app ==> __vueParentComponent 点击加载更多失败");
+					}
+				} else if (vue2Ins) {
+					if (typeof vue2Ins?.$listeners?.["handle-click"] === "function") {
+						vue2Ins.$listeners["handle-click"]();
+						log.success(`uni-app ===> __vue__加载更多评论`);
+					} else {
+						log.error("uni-app ==> __vue__点击加载更多失败");
+					}
 				} else {
-					log.warn("uni-app ==> 点击加载更多失败");
+					log.error("uni-app ==> 获取vue实例失败");
 				}
 			},
 			{

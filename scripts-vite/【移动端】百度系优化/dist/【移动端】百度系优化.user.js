@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.10
+// @version      2024.10.12
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -2205,6 +2205,7 @@ match-attr##srcid##sp_purc_atom
           },
           {
             text: "帖内",
+            description: "旧版本设置项，大部分功能已失效",
             type: "deepMenu",
             forms: [
               {
@@ -2291,7 +2292,8 @@ match-attr##srcid##sp_purc_atom
             ]
           },
           {
-            text: "帖内(uni-app)",
+            text: "帖内",
+            description: "新版的uni-app",
             type: "deepMenu",
             forms: [
               {
@@ -12090,24 +12092,28 @@ div[class^="new-summary-container_"] {\r
           },
           immediate: true,
           callback: (mutations, observer) => {
-            var _a3;
-            const $pbCommentItemContainerList = Array.from(
-              document.querySelectorAll(
-                ".pb-comment-item-container"
-              )
-            );
             let commentContainerInfoList = [];
-            for (let index = 0; index < $pbCommentItemContainerList.length; index++) {
-              const $pbCommentItemContainer = $pbCommentItemContainerList[index];
-              const $vueIns = VueUtils.getVue3($pbCommentItemContainer);
-              commentContainerInfoList.push({
-                data: (_a3 = $vueIns == null ? void 0 : $vueIns.props) == null ? void 0 : _a3.commentData,
-                remove() {
-                  $pbCommentItemContainer.remove();
-                  index--;
-                }
+            const $commentGroup = document.querySelectorAll(".comment-group");
+            $commentGroup.forEach(($commentGroupItem) => {
+              let vueIns = VueUtils.getVue($commentGroupItem);
+              if (!vueIns) {
+                return;
+              }
+              let sectionData = vueIns == null ? void 0 : vueIns.sectionData;
+              sectionData.forEach((item) => {
+                commentContainerInfoList.push({
+                  data: item,
+                  remove() {
+                    let findIndex = sectionData.findIndex(
+                      (item2) => item2 === item
+                    );
+                    if (findIndex !== -1) {
+                      sectionData.splice(findIndex, 1);
+                    }
+                  }
+                });
               });
-            }
+            });
             for (let index = 0; index < this.$data.watchCommentCallBack.length; index++) {
               const watchCommentCallBack = this.$data.watchCommentCallBack[index];
               if (typeof watchCommentCallBack === "function") {
@@ -12287,15 +12293,27 @@ div[class^="new-summary-container_"] {\r
         "click",
         "uni-app .load-more",
         (event) => {
-          var _a3;
+          var _a3, _b;
           let $loadMore = event.target;
           utils.preventEvent(event);
-          let $vueIns = VueUtils.getVue3($loadMore);
-          if (typeof ((_a3 = $vueIns == null ? void 0 : $vueIns.attrs) == null ? void 0 : _a3.onHandleClick) === "function") {
-            log.success(`uni-app ===> 加载更多评论`);
-            $vueIns.attrs.onHandleClick();
+          let vue3Ins = VueUtils.getVue3($loadMore);
+          let vue2Ins = VueUtils.getVue($loadMore);
+          if (vue3Ins) {
+            if (typeof ((_a3 = vue3Ins == null ? void 0 : vue3Ins.attrs) == null ? void 0 : _a3.onHandleClick) === "function") {
+              vue3Ins.attrs.onHandleClick();
+              log.success(`uni-app ===> __vueParentComponent 加载更多评论`);
+            } else {
+              log.error("uni-app ==> __vueParentComponent 点击加载更多失败");
+            }
+          } else if (vue2Ins) {
+            if (typeof ((_b = vue2Ins == null ? void 0 : vue2Ins.$listeners) == null ? void 0 : _b["handle-click"]) === "function") {
+              vue2Ins.$listeners["handle-click"]();
+              log.success(`uni-app ===> __vue__加载更多评论`);
+            } else {
+              log.error("uni-app ==> __vue__点击加载更多失败");
+            }
           } else {
-            log.warn("uni-app ==> 点击加载更多失败");
+            log.error("uni-app ==> 获取vue实例失败");
           }
         },
         {
@@ -23142,7 +23160,7 @@ div[class^="new-summary-container_"] {\r
       log.info("插入CSS规则");
     }
   };
-  const BaiKeShieldCSS = "/* 底部的广告 */\r\n#J_yitiao_container {\r\n	display: none !important;\r\n}\r\n";
+  const BaiKeShieldCSS = '/* 底部的广告 */\r\n#J_yitiao_container,\r\n/* 顶部广告 */\r\n#BK_before_content_wrapper > div:has(a[onclick*="page"]) ,\r\n/* 底部的广告 */\r\n.BK-after-content-wrapper>div:has(a[onclick*="page"]) {\r\n	display: none !important;\r\n}\r\n';
   const BaiduBaiKe = {
     init() {
       addStyle(BaiKeShieldCSS);
