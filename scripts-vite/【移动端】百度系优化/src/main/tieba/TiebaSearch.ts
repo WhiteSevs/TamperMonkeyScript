@@ -761,7 +761,7 @@ const TiebaSearch = {
 		// 吧内的主内容
 		DOMUtils.hide(".tb-mobile-viewport");
 		// uni-app
-		DOMUtils.hide("#app:has(uni-app)");
+		DOMUtils.hide("uni-app");
 
 		this.showSearchContainer();
 		// 自动获取焦点
@@ -789,7 +789,7 @@ const TiebaSearch = {
 		// 吧内的主内容
 		DOMUtils.show(".tb-mobile-viewport");
 		// uni-app的导航栏
-		DOMUtils.show("#app:has(uni-app)");
+		DOMUtils.show("uni-app");
 	},
 	/**
 	 * 获取搜索内容
