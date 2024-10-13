@@ -293,14 +293,22 @@ export const TiebaUniAppPost = {
 			(event) => {
 				utils.preventEvent(event);
 				let $click = event.target as HTMLDivElement;
-				let $vueIns = VueUtils.getVue3($click);
-				if (typeof $vueIns?.props?.playerInfo?.portrait === "string") {
-					let portrait = $vueIns.props.playerInfo.portrait;
+				let vue3Ins = VueUtils.getVue3($click);
+				if (typeof vue3Ins?.props?.playerInfo?.portrait === "string") {
+					let portrait = vue3Ins.props.playerInfo.portrait;
 					let url = TiebaUrlApi.getUserHome(portrait);
 					window.open(url, "_blank");
 				} else {
-					log.error(["获取portrait失败", $click]);
-					Qmsg.error("获取portrait失败");
+					let $wakeApp = $click.querySelector(".wake-app");
+					let vueIns = VueUtils.getVue($wakeApp);
+					let portrait = vueIns?.config?.param?.portrait;
+					if (typeof portrait === "string") {
+						let url = TiebaUrlApi.getUserHome(portrait);
+						window.open(url, "_blank");
+					} else {
+						log.error("获取portrait失败", $click);
+						Qmsg.error("获取portrait失败");
+					}
 				}
 			},
 			{
@@ -729,27 +737,53 @@ export const TiebaUniAppPost = {
 				if ($click.nodeType === Node.ELEMENT_NODE && $click.classList) {
 					if ($click.classList.contains("pb-link")) {
 						utils.preventEvent(event);
-						let vueIns = VueUtils.getVue3($click);
-						let link: string | null = vueIns?.props?.content?.link;
+						let vue3Ins = VueUtils.getVue3($click);
+						let link: string | null = vue3Ins?.props?.content?.link;
 						if (typeof link === "string") {
 							log.info(`点击超链接：` + link);
 							window.open(link, "_blank");
 						} else {
-							log.error("获取链接失败");
-							log.error([$click, vueIns]);
-							Qmsg.error("获取链接失败");
+							let $uniText = $click.closest("uni-text.pb-content-item");
+							let vueIns = VueUtils.getVue($uniText);
+							let section =
+								vueIns?.$vnode?.context?.sectionData?.[
+									vueIns?.$vnode?.context?.sectionIdx
+								];
+							if (section != null) {
+								let findValue = section["content"].find(
+									(item: any) =>
+										item.type == 1 &&
+										item.text == ($click.textContent || $click.innerText)
+								);
+								if (findValue) {
+									let link = findValue["link"];
+									log.info(`点击超链接：` + link);
+									window.open(link, "_blank");
+								} else {
+									log.error("获取链接失败");
+									log.error($click, vue3Ins, $uniText, vueIns, section);
+									Qmsg.error("获取链接失败");
+								}
+							} else {
+								log.error("获取链接失败");
+								log.error($click, vue3Ins);
+								Qmsg.error("获取链接失败");
+							}
 						}
 					} else if ($click.classList.contains("pb-at")) {
 						utils.preventEvent(event);
-						let vueIns = VueUtils.getVue3($click);
-						let un: string | null = vueIns?.props?.content?.text;
-						let type: number | null = vueIns?.props?.content?.type;
+						let vue3Ins = VueUtils.getVue3($click);
+						let vueIns = VueUtils.getVue($click);
+						let un: string | null =
+							vue3Ins?.props?.content?.text || vueIns?.content?.text;
+						let type: number | null =
+							vue3Ins?.props?.content?.type || vueIns?.content?.type;
 						if (un == null) {
 							log.error("获取用户un失败");
 							Qmsg.error("获取用户un失败");
 							return;
 						}
-						un = un.replace("@", "");
+						un = un.replace(/^@/g, "");
 						let userHomeUrl = TiebaUrlApi.getUserHomeByUN(un);
 						window.open(userHomeUrl, "_blank");
 					}

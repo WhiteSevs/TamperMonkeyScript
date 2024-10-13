@@ -44,6 +44,7 @@ log.config({
 	autoClearConsole: true,
 	tag: true,
 });
+
 /* 配置吐司Qmsg */
 Qmsg.config(
 	Object.defineProperties(
@@ -72,13 +73,31 @@ Qmsg.config(
 				get() {
 					let maxZIndex = Utils.getMaxZIndex();
 					let popsMaxZIndex =
-						pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
+						__pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
 					return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
 				},
 			},
 		}
 	)
 );
+
+__pops.GlobalConfig.setGlobalConfig({
+	zIndex: () => {
+		let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
+			if (($ele as HTMLElement)?.classList?.contains("qmsg-shadow-container")) {
+				return false;
+			}
+			if (
+				($ele as HTMLElement)?.closest("qmsg") &&
+				$ele.getRootNode() instanceof ShadowRoot
+			) {
+				return false;
+			}
+		});
+		let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+		return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+	},
+});
 
 /** 油猴菜单 */
 const GM_Menu = new Utils.GM_Menu({

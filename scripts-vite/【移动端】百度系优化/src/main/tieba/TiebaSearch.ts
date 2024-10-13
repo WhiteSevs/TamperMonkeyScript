@@ -305,35 +305,35 @@ const TiebaSearch = {
 				let $newSearch = DOMUtils.createElement("div", {
 					id: "search",
 					innerHTML: /*html*/ `
-				<div id="nav-top-search">
-					<div class="nav-bar-wrapper">
-						<div class="nav-search-back">
-							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><path fill="currentColor" d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64"></path><path fill="currentColor" d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312z"></path></svg>
+					<div id="nav-top-search">
+						<div class="nav-bar-wrapper">
+							<div class="nav-search-back">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><path fill="currentColor" d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64"></path><path fill="currentColor" d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312z"></path></svg>
+							</div>
+							<div class="nav-search-select-wrapper">
+								<select class="nav-search-select">
+									<option>本吧</option>
+									<option>全局</option>
+								</select>
+							</div>
+							<input type="search" id="tieba-search" placeholder="请输入搜索内容..." autocomplete="off">
+							<div class="nav-search-btn">搜索</div>
 						</div>
-						<div class="nav-search-select-wrapper">
-							<select class="nav-search-select">
-								<option>本吧</option>
-								<option>全局</option>
-							</select>
+					</div>
+					<div class="search-result">
+						<div class="search-result-model" style="display: none;">
+							<div class="search-result-model-item" data-model="1">新帖在前</div>
+							<div class="search-result-model-item" data-model="0">旧帖在前</div>
+							<div class="search-result-model-item" data-model="2">只看相关</div>
+							<div class="search-result-model-item" data-model="3">只看主题</div>
 						</div>
-						<input type="search" id="tieba-search" placeholder="请输入搜索内容..." autocomplete="off">
-						<div class="nav-search-btn">搜索</div>
-					</div>
-				</div>
-				<div class="search-result">
-					<div class="search-result-model" style="display: none;">
-						<div class="search-result-model-item" data-model="1">新帖在前</div>
-						<div class="search-result-model-item" data-model="0">旧帖在前</div>
-						<div class="search-result-model-item" data-model="2">只看相关</div>
-						<div class="search-result-model-item" data-model="3">只看主题</div>
-					</div>
-					<div class="search-result-from-info" style="display: none;">
+						<div class="search-result-from-info" style="display: none;">
 
-					</div>
-					<div class="search-result-list">
+						</div>
+						<div class="search-result-list">
 
+						</div>
 					</div>
-				</div>
 				`,
 				});
 				document.body.appendChild($newSearch);
@@ -372,7 +372,7 @@ const TiebaSearch = {
 				) as HTMLDivElement;
 				// 初始化加载下一页
 				this.$context.loading.initLoadingView(true);
-				this.$ele.$searchResultContainer.appendChild(
+				this.$ele.$searchResultList.appendChild(
 					this.$context.loading.getLoadingViewElement()
 				);
 				// 设置搜索结果项
@@ -382,7 +382,7 @@ const TiebaSearch = {
 				if ($searchResultModelItem) {
 					$searchResultModelItem.setAttribute("data-active", "true");
 				}
-				this, this.$context.loading.hide();
+				this.$context.loading.hide();
 				/* 用于判断是否已设置点击事件 */
 				let searchParams = new URLSearchParams(window.location.search);
 				this.$ele.$moreBtnDesc = document.querySelector(
@@ -500,13 +500,20 @@ const TiebaSearch = {
 			--ohter-bg-color: #F3F3F5;
 			--result-item-bg-color: #ffffff;
 			background: var(--bg-color);
+			position: fixed;
+			z-index: 100000;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			padding: 0;
 		}
 		#nav-top-search{
 			top: 0;
 			position: fixed;
 			width: 100%;
-			z-index: 1000;
 			background: var(--bg-color);
+			z-index: inherit;
 		}
 		.nav-bar-wrapper{
 			position: relative;
@@ -567,6 +574,7 @@ const TiebaSearch = {
 		.search-result{
 			position: relative;
 			top: 0.48rem;
+			background: var(--bg-color);
 		}
 		.search-result-model{
 			display: flex;
@@ -575,7 +583,7 @@ const TiebaSearch = {
    			width: 100%;
 			top: 0.48rem;
 			height: 0.32rem;
-			z-index: 1000;
+			z-index: inherit;
 			background: var(--bg-color);
 			align-items: flex-start;
     		justify-content: center;
@@ -592,6 +600,7 @@ const TiebaSearch = {
 		}
 		.search-result-list{
 			overflow: auto;
+			max-height: calc( 100vh - 48px - 32px - 36px);
 		}
 		.search-result-list .search_result{
 			background: var(--result-item-bg-color);
@@ -714,7 +723,11 @@ const TiebaSearch = {
 	 */
 	clearSearchResult() {
 		log.success("清空搜索结果");
-		this.$ele.$searchResultList.innerHTML = "";
+		Array.from(this.$ele.$searchResultList.children).forEach(($item) => {
+			if ($item != this.$context.loading.getLoadingViewElement()) {
+				$item.remove();
+			}
+		});
 	},
 	/**
 	 * 显示搜索结果选项
@@ -762,8 +775,6 @@ const TiebaSearch = {
 			".main-page-wrap",
 			// 吧内的主内容
 			".tb-mobile-viewport",
-			// uni-app
-			"uni-app",
 		];
 	},
 	/**
@@ -774,12 +785,17 @@ const TiebaSearch = {
 	 * 如果已在搜索模式（即已显示搜索框），返回undefine，否则成功进入返回true
 	 */
 	enterSeachMode() {
-		this.getEnterOrQuietSearchModeSelectorList().forEach((selector) => {
-			let $selector = document.querySelector(selector);
-			if ($selector) {
-				$selector.classList.add("gm-hide");
-			}
-		});
+		// this.getEnterOrQuietSearchModeSelectorList().forEach((selector) => {
+		// 	let $selector = document.querySelector(selector);
+		// 	if ($selector) {
+		// 		$selector.classList.add("gm-hide");
+		// 	}
+		// });
+		// let $uniApp = document.querySelector<HTMLElement>("uni-app");
+		// if ($uniApp) {
+		// 	$uniApp.style.position = "absolute";
+		// 	$uniApp.style.zIndex = "1";
+		// }
 		this.showSearchContainer();
 		// 自动获取焦点
 		setTimeout(() => {
@@ -799,12 +815,17 @@ const TiebaSearch = {
 		/* 搜索框隐藏的话就显示出来 */
 		// 隐藏搜索框
 		this.hideSearchContainer();
-		this.getEnterOrQuietSearchModeSelectorList().forEach((selector) => {
-			let $selector = document.querySelector(selector);
-			if ($selector) {
-				$selector.classList.remove("gm-hide");
-			}
-		});
+		// this.getEnterOrQuietSearchModeSelectorList().forEach((selector) => {
+		// 	let $selector = document.querySelector(selector);
+		// 	if ($selector) {
+		// 		$selector.classList.remove("gm-hide");
+		// 	}
+		// });
+		// let $uniApp = document.querySelector<HTMLElement>("uni-app");
+		// if ($uniApp) {
+		// 	$uniApp.style.position = "";
+		// 	$uniApp.style.zIndex = "";
+		// }
 	},
 	/**
 	 * 获取搜索内容
@@ -1147,7 +1168,11 @@ const TiebaSearch = {
 		log.success("添加滚动事件");
 		this.$flag.isSetScrollEvent = true;
 		this.$context.lockFunc = new utils.LockFunction(this.scrollEvent, this, 20);
-		DOMUtils.on(document, "scroll", this.$context.lockFunc.run);
+		DOMUtils.on(
+			this.$ele.$searchResultList,
+			"scroll",
+			this.$context.lockFunc.run
+		);
 	},
 	/**
 	 * 移除滚动事件
@@ -1156,7 +1181,11 @@ const TiebaSearch = {
 		log.error("移除滚动事件");
 		this.$context.loading.hide();
 		if (this.$context.lockFunc?.run) {
-			DOMUtils.off(document, "scroll", this.$context.lockFunc.run);
+			DOMUtils.off(
+				this.$ele.$searchResultList,
+				"scroll",
+				this.$context.lockFunc.run
+			);
 		}
 		this.$context.lockFunc = null;
 		this.$flag.isSetScrollEvent = false;
@@ -1187,8 +1216,8 @@ const TiebaSearch = {
 	 */
 	setSearchResultToPage(data: SearchResultInfo[]) {
 		for (const searchResultItem of data) {
-			DOMUtils.append(
-				this.$ele.$searchResultList,
+			DOMUtils.before(
+				this.$context.loading.getLoadingViewElement(),
 				this.getSearchItemElement(searchResultItem as SearchResultInfo)
 			);
 		}
@@ -1197,7 +1226,10 @@ const TiebaSearch = {
 	 * 滚动事件
 	 */
 	async scrollEvent(event: Event) {
-		if (!utils.isNearBottom()) {
+		let maxScrollHeight =
+			this.$ele.$searchResultList.scrollHeight -
+			this.$ele.$searchResultList.clientHeight;
+		if (this.$ele.$searchResultList.scrollTop + 50 < maxScrollHeight) {
 			return;
 		}
 		this.$context.loading.show();
@@ -1221,6 +1253,14 @@ const TiebaSearch = {
 			this.removeScrollEvent();
 			log.success("已到达最后一页");
 			return;
+		} else {
+			// 更新搜索页
+			if (typeof searchResult.nextPageUrl == "string") {
+				log.success(`更新下一页Url：${searchResult.nextPageUrl}`);
+				this.$data.nextPageUrl = searchResult.nextPageUrl;
+			} else {
+				log.error("nextPageUrl不是string，无法更新下一页Url");
+			}
 		}
 	},
 	isShowSearchContainer() {

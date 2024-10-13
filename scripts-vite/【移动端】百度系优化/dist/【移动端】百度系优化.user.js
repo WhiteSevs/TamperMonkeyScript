@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.12.15
+// @version      2024.10.13
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -20,10 +20,10 @@
 // @require      https://update.greasyfork.org/scripts/495227/1413261/Element-Plus.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.3/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.7/dist/index.min.css
 // @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
 // @connect      *
@@ -4822,13 +4822,28 @@ match-attr##srcid##sp_purc_atom
         zIndex: {
           get() {
             let maxZIndex = Utils.getMaxZIndex();
-            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
+            let popsMaxZIndex = __pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
             return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
           }
         }
       }
     )
   );
+  __pops.GlobalConfig.setGlobalConfig({
+    zIndex: () => {
+      let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
+        var _a3;
+        if ((_a3 = $ele == null ? void 0 : $ele.classList) == null ? void 0 : _a3.contains("qmsg-shadow-container")) {
+          return false;
+        }
+        if (($ele == null ? void 0 : $ele.closest("qmsg")) && $ele.getRootNode() instanceof ShadowRoot) {
+          return false;
+        }
+      });
+      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+    }
+  });
   const GM_Menu = new Utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
@@ -8225,35 +8240,35 @@ div[class^="new-summary-container_"] {\r
           innerHTML: (
             /*html*/
             `
-				<div id="nav-top-search">
-					<div class="nav-bar-wrapper">
-						<div class="nav-search-back">
-							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><path fill="currentColor" d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64"></path><path fill="currentColor" d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312z"></path></svg>
+					<div id="nav-top-search">
+						<div class="nav-bar-wrapper">
+							<div class="nav-search-back">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><path fill="currentColor" d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64"></path><path fill="currentColor" d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312z"></path></svg>
+							</div>
+							<div class="nav-search-select-wrapper">
+								<select class="nav-search-select">
+									<option>本吧</option>
+									<option>全局</option>
+								</select>
+							</div>
+							<input type="search" id="tieba-search" placeholder="请输入搜索内容..." autocomplete="off">
+							<div class="nav-search-btn">搜索</div>
 						</div>
-						<div class="nav-search-select-wrapper">
-							<select class="nav-search-select">
-								<option>本吧</option>
-								<option>全局</option>
-							</select>
+					</div>
+					<div class="search-result">
+						<div class="search-result-model" style="display: none;">
+							<div class="search-result-model-item" data-model="1">新帖在前</div>
+							<div class="search-result-model-item" data-model="0">旧帖在前</div>
+							<div class="search-result-model-item" data-model="2">只看相关</div>
+							<div class="search-result-model-item" data-model="3">只看主题</div>
 						</div>
-						<input type="search" id="tieba-search" placeholder="请输入搜索内容..." autocomplete="off">
-						<div class="nav-search-btn">搜索</div>
-					</div>
-				</div>
-				<div class="search-result">
-					<div class="search-result-model" style="display: none;">
-						<div class="search-result-model-item" data-model="1">新帖在前</div>
-						<div class="search-result-model-item" data-model="0">旧帖在前</div>
-						<div class="search-result-model-item" data-model="2">只看相关</div>
-						<div class="search-result-model-item" data-model="3">只看主题</div>
-					</div>
-					<div class="search-result-from-info" style="display: none;">
+						<div class="search-result-from-info" style="display: none;">
 
-					</div>
-					<div class="search-result-list">
+						</div>
+						<div class="search-result-list">
 
+						</div>
 					</div>
-				</div>
 				`
           )
         });
@@ -8290,7 +8305,7 @@ div[class^="new-summary-container_"] {\r
           ".search-result-from-info"
         );
         this.$context.loading.initLoadingView(true);
-        this.$ele.$searchResultContainer.appendChild(
+        this.$ele.$searchResultList.appendChild(
           this.$context.loading.getLoadingViewElement()
         );
         let $searchResultModelItem = this.$ele.$searchResultModel.querySelector(
@@ -8405,13 +8420,20 @@ div[class^="new-summary-container_"] {\r
 			--ohter-bg-color: #F3F3F5;
 			--result-item-bg-color: #ffffff;
 			background: var(--bg-color);
+			position: fixed;
+			z-index: 100000;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			padding: 0;
 		}
 		#nav-top-search{
 			top: 0;
 			position: fixed;
 			width: 100%;
-			z-index: 1000;
 			background: var(--bg-color);
+			z-index: inherit;
 		}
 		.nav-bar-wrapper{
 			position: relative;
@@ -8472,6 +8494,7 @@ div[class^="new-summary-container_"] {\r
 		.search-result{
 			position: relative;
 			top: 0.48rem;
+			background: var(--bg-color);
 		}
 		.search-result-model{
 			display: flex;
@@ -8480,7 +8503,7 @@ div[class^="new-summary-container_"] {\r
    			width: 100%;
 			top: 0.48rem;
 			height: 0.32rem;
-			z-index: 1000;
+			z-index: inherit;
 			background: var(--bg-color);
 			align-items: flex-start;
     		justify-content: center;
@@ -8497,6 +8520,7 @@ div[class^="new-summary-container_"] {\r
 		}
 		.search-result-list{
 			overflow: auto;
+			max-height: calc( 100vh - 48px - 32px - 36px);
 		}
 		.search-result-list .search_result{
 			background: var(--result-item-bg-color);
@@ -8628,7 +8652,11 @@ div[class^="new-summary-container_"] {\r
      */
     clearSearchResult() {
       log.success("清空搜索结果");
-      this.$ele.$searchResultList.innerHTML = "";
+      Array.from(this.$ele.$searchResultList.children).forEach(($item) => {
+        if ($item != this.$context.loading.getLoadingViewElement()) {
+          $item.remove();
+        }
+      });
     },
     /**
      * 显示搜索结果选项
@@ -8674,9 +8702,7 @@ div[class^="new-summary-container_"] {\r
         // 帖子的主内容
         ".main-page-wrap",
         // 吧内的主内容
-        ".tb-mobile-viewport",
-        // uni-app
-        "uni-app"
+        ".tb-mobile-viewport"
       ];
     },
     /**
@@ -8687,12 +8713,6 @@ div[class^="new-summary-container_"] {\r
      * 如果已在搜索模式（即已显示搜索框），返回undefine，否则成功进入返回true
      */
     enterSeachMode() {
-      this.getEnterOrQuietSearchModeSelectorList().forEach((selector) => {
-        let $selector = document.querySelector(selector);
-        if ($selector) {
-          $selector.classList.add("gm-hide");
-        }
-      });
       this.showSearchContainer();
       setTimeout(() => {
         this.$ele.$searchInput.focus();
@@ -8709,12 +8729,6 @@ div[class^="new-summary-container_"] {\r
      */
     quitSearchMode() {
       this.hideSearchContainer();
-      this.getEnterOrQuietSearchModeSelectorList().forEach((selector) => {
-        let $selector = document.querySelector(selector);
-        if ($selector) {
-          $selector.classList.remove("gm-hide");
-        }
-      });
     },
     /**
      * 获取搜索内容
@@ -8999,7 +9013,11 @@ div[class^="new-summary-container_"] {\r
       log.success("添加滚动事件");
       this.$flag.isSetScrollEvent = true;
       this.$context.lockFunc = new utils.LockFunction(this.scrollEvent, this, 20);
-      domutils.on(document, "scroll", this.$context.lockFunc.run);
+      domutils.on(
+        this.$ele.$searchResultList,
+        "scroll",
+        this.$context.lockFunc.run
+      );
     },
     /**
      * 移除滚动事件
@@ -9009,7 +9027,11 @@ div[class^="new-summary-container_"] {\r
       log.error("移除滚动事件");
       this.$context.loading.hide();
       if ((_a3 = this.$context.lockFunc) == null ? void 0 : _a3.run) {
-        domutils.off(document, "scroll", this.$context.lockFunc.run);
+        domutils.off(
+          this.$ele.$searchResultList,
+          "scroll",
+          this.$context.lockFunc.run
+        );
       }
       this.$context.lockFunc = null;
       this.$flag.isSetScrollEvent = false;
@@ -9040,8 +9062,8 @@ div[class^="new-summary-container_"] {\r
      */
     setSearchResultToPage(data) {
       for (const searchResultItem of data) {
-        domutils.append(
-          this.$ele.$searchResultList,
+        domutils.before(
+          this.$context.loading.getLoadingViewElement(),
           this.getSearchItemElement(searchResultItem)
         );
       }
@@ -9050,7 +9072,8 @@ div[class^="new-summary-container_"] {\r
      * 滚动事件
      */
     async scrollEvent(event) {
-      if (!utils.isNearBottom()) {
+      let maxScrollHeight = this.$ele.$searchResultList.scrollHeight - this.$ele.$searchResultList.clientHeight;
+      if (this.$ele.$searchResultList.scrollTop + 50 < maxScrollHeight) {
         return;
       }
       this.$context.loading.show();
@@ -9074,6 +9097,13 @@ div[class^="new-summary-container_"] {\r
         this.removeScrollEvent();
         log.success("已到达最后一页");
         return;
+      } else {
+        if (typeof searchResult.nextPageUrl == "string") {
+          log.success(`更新下一页Url：${searchResult.nextPageUrl}`);
+          this.$data.nextPageUrl = searchResult.nextPageUrl;
+        } else {
+          log.error("nextPageUrl不是string，无法更新下一页Url");
+        }
       }
     },
     isShowSearchContainer() {
@@ -12434,17 +12464,25 @@ div[class^="new-summary-container_"] {\r
         "click",
         ".player-line-left",
         (event) => {
-          var _a3, _b;
+          var _a3, _b, _c, _d;
           utils.preventEvent(event);
           let $click = event.target;
-          let $vueIns = VueUtils.getVue3($click);
-          if (typeof ((_b = (_a3 = $vueIns == null ? void 0 : $vueIns.props) == null ? void 0 : _a3.playerInfo) == null ? void 0 : _b.portrait) === "string") {
-            let portrait = $vueIns.props.playerInfo.portrait;
+          let vue3Ins = VueUtils.getVue3($click);
+          if (typeof ((_b = (_a3 = vue3Ins == null ? void 0 : vue3Ins.props) == null ? void 0 : _a3.playerInfo) == null ? void 0 : _b.portrait) === "string") {
+            let portrait = vue3Ins.props.playerInfo.portrait;
             let url = TiebaUrlApi.getUserHome(portrait);
             window.open(url, "_blank");
           } else {
-            log.error(["获取portrait失败", $click]);
-            Qmsg.error("获取portrait失败");
+            let $wakeApp = $click.querySelector(".wake-app");
+            let vueIns = VueUtils.getVue($wakeApp);
+            let portrait = (_d = (_c = vueIns == null ? void 0 : vueIns.config) == null ? void 0 : _c.param) == null ? void 0 : _d.portrait;
+            if (typeof portrait === "string") {
+              let url = TiebaUrlApi.getUserHome(portrait);
+              window.open(url, "_blank");
+            } else {
+              log.error("获取portrait失败", $click);
+              Qmsg.error("获取portrait失败");
+            }
           }
         },
         {
@@ -12812,32 +12850,51 @@ div[class^="new-summary-container_"] {\r
         document,
         "click",
         (event) => {
-          var _a3, _b, _c, _d, _e, _f;
+          var _a3, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m;
           let $click = event.composedPath()[0];
           if ($click.nodeType === Node.ELEMENT_NODE && $click.classList) {
             if ($click.classList.contains("pb-link")) {
               utils.preventEvent(event);
-              let vueIns = VueUtils.getVue3($click);
-              let link = (_b = (_a3 = vueIns == null ? void 0 : vueIns.props) == null ? void 0 : _a3.content) == null ? void 0 : _b.link;
+              let vue3Ins = VueUtils.getVue3($click);
+              let link = (_b = (_a3 = vue3Ins == null ? void 0 : vue3Ins.props) == null ? void 0 : _a3.content) == null ? void 0 : _b.link;
               if (typeof link === "string") {
                 log.info(`点击超链接：` + link);
                 window.open(link, "_blank");
               } else {
-                log.error("获取链接失败");
-                log.error([$click, vueIns]);
-                Qmsg.error("获取链接失败");
+                let $uniText = $click.closest("uni-text.pb-content-item");
+                let vueIns = VueUtils.getVue($uniText);
+                let section = (_g = (_d = (_c = vueIns == null ? void 0 : vueIns.$vnode) == null ? void 0 : _c.context) == null ? void 0 : _d.sectionData) == null ? void 0 : _g[(_f = (_e = vueIns == null ? void 0 : vueIns.$vnode) == null ? void 0 : _e.context) == null ? void 0 : _f.sectionIdx];
+                if (section != null) {
+                  let findValue = section["content"].find(
+                    (item) => item.type == 1 && item.text == ($click.textContent || $click.innerText)
+                  );
+                  if (findValue) {
+                    let link2 = findValue["link"];
+                    log.info(`点击超链接：` + link2);
+                    window.open(link2, "_blank");
+                  } else {
+                    log.error("获取链接失败");
+                    log.error($click, vue3Ins, $uniText, vueIns, section);
+                    Qmsg.error("获取链接失败");
+                  }
+                } else {
+                  log.error("获取链接失败");
+                  log.error($click, vue3Ins);
+                  Qmsg.error("获取链接失败");
+                }
               }
             } else if ($click.classList.contains("pb-at")) {
               utils.preventEvent(event);
-              let vueIns = VueUtils.getVue3($click);
-              let un = (_d = (_c = vueIns == null ? void 0 : vueIns.props) == null ? void 0 : _c.content) == null ? void 0 : _d.text;
-              (_f = (_e = vueIns == null ? void 0 : vueIns.props) == null ? void 0 : _e.content) == null ? void 0 : _f.type;
+              let vue3Ins = VueUtils.getVue3($click);
+              let vueIns = VueUtils.getVue($click);
+              let un = ((_i = (_h = vue3Ins == null ? void 0 : vue3Ins.props) == null ? void 0 : _h.content) == null ? void 0 : _i.text) || ((_j = vueIns == null ? void 0 : vueIns.content) == null ? void 0 : _j.text);
+              ((_l = (_k = vue3Ins == null ? void 0 : vue3Ins.props) == null ? void 0 : _k.content) == null ? void 0 : _l.type) || ((_m = vueIns == null ? void 0 : vueIns.content) == null ? void 0 : _m.type);
               if (un == null) {
                 log.error("获取用户un失败");
                 Qmsg.error("获取用户un失败");
                 return;
               }
-              un = un.replace("@", "");
+              un = un.replace(/^@/g, "");
               let userHomeUrl = TiebaUrlApi.getUserHomeByUN(un);
               window.open(userHomeUrl, "_blank");
             }
