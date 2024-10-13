@@ -4,6 +4,7 @@ import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import type { PopsSearchSuggestionDetails } from "./indexType";
 import { searchSuggestionConfig as PopsSearchSuggestionConfig } from "./config";
+import { GlobalConfig } from "../../GlobalConfig";
 
 export class PopsSearchSuggestion {
 	constructor(details: PopsSearchSuggestionDetails) {
@@ -16,6 +17,7 @@ export class PopsSearchSuggestion {
 
 		let config: Required<PopsSearchSuggestionDetails> =
 			PopsSearchSuggestionConfig();
+		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
 		if (config.target == null) {
 			throw new TypeError("config.target 不能为空");

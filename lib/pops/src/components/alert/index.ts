@@ -1,3 +1,4 @@
+import { GlobalConfig } from "../../GlobalConfig";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { pops } from "../../Pops";
@@ -22,6 +23,7 @@ export class PopsAlert {
 		]);
 
 		let config: Required<PopsAlertDetails> = PopsAlertConfig();
+		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
 		let guid = popsUtils.getRandomGUID();
 		// 设置当前类型

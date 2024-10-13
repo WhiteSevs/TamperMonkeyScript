@@ -7,6 +7,7 @@ import { popsUtils } from "../../utils/PopsUtils";
 import type { PopsPanelDetails } from "./indexType";
 import { PopsPanelConfig } from "./config";
 import { PanelHandleContentDetails } from "./PanelHandleContentDetails";
+import { GlobalConfig } from "../../GlobalConfig";
 
 export class PopsPanel {
 	constructor(details: PopsPanelDetails) {
@@ -22,6 +23,7 @@ export class PopsPanel {
 		]);
 
 		let config: Required<PopsPanelDetails> = PopsPanelConfig();
+		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
 		if (details && Array.isArray(details.content)) {
 			config.content = details.content;

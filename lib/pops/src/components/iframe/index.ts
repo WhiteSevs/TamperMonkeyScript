@@ -1,3 +1,4 @@
+import { GlobalConfig } from "../../GlobalConfig";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { pops } from "../../Pops";
@@ -21,6 +22,7 @@ export class PopsIframe {
 		]);
 
 		let config: Required<PopsIframeDetails> = PopsIframeConfig();
+		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
 		if (config.url == null) {
 			throw "config.url不能为空";

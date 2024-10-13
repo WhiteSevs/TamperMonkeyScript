@@ -77,12 +77,13 @@ import type {
 import { PopsSearchSuggestion } from "./components/searchSuggestion";
 import { PopsMathFloatUtils } from "./utils/PopsMathUtils";
 import { PanelHandleContentDetails } from "./components/panel/PanelHandleContentDetails";
+import { GlobalConfig } from "./GlobalConfig";
 
 class Pops {
 	/** 配置 */
 	config = {
 		/** 版本号 */
-		version: "2024.10.1",
+		version: "2024.10.13",
 		cssText: {
 			/** 主CSS */
 			index: indexCSS,
@@ -230,6 +231,10 @@ class Pops {
 	isPhone(userAgent = PopsCore.globalThis.navigator.userAgent): boolean {
 		return Boolean(/(iPhone|iPad|iPod|iOS|Android)/i.test(userAgent));
 	}
+	/**
+	 * 为所有弹窗设置全局属性
+	 */
+	GlobalConfig = GlobalConfig;
 	/**
 	 * 普通信息框
 	 * @param details 配置

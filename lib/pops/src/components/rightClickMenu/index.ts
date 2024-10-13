@@ -1,4 +1,5 @@
 import { OriginPrototype } from "../../Core";
+import { GlobalConfig } from "../../GlobalConfig";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { pops } from "../../Pops";
 import type { PopsIcon } from "../../types/icon";
@@ -22,6 +23,7 @@ export class PopsRightClickMenu {
 
 		let config: Required<PopsRightClickMenuDetails> =
 			PopsRightClickMenuConfig();
+		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
 		if (config.target == null) {
 			throw "config.target 不能为空";

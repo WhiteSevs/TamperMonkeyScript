@@ -1,3 +1,4 @@
+import { GlobalConfig } from "../../GlobalConfig";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { pops } from "../../Pops";
@@ -9,6 +10,7 @@ import type { PopsLoadingDetails } from "./indexType";
 export class PopsLoading {
 	constructor(details: PopsLoadingDetails) {
 		let config: Required<PopsLoadingDetails> = PopsLoadingConfig();
+		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
 		let guid = popsUtils.getRandomGUID();
 		const PopsType = "loading";

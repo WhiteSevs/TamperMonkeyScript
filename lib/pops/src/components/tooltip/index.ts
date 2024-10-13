@@ -1,3 +1,4 @@
+import { GlobalConfig } from "../../GlobalConfig";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { pops } from "../../Pops";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
@@ -16,6 +17,7 @@ export class PopsTooltip {
 		]);
 
 		let config: Required<PopsToolTipDetails> = PopsTooltipConfig();
+		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
 		if (!(config.target instanceof HTMLElement)) {
 			throw "config.target 必须是HTMLElement类型";

@@ -1,3 +1,4 @@
+import { GlobalConfig } from "../../GlobalConfig";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { pops } from "../../Pops";
@@ -22,6 +23,8 @@ export class PopsFolder {
 		]);
 
 		let config: Required<PopsFolderDetails> = PopsFolderConfig();
+		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
+		config = popsUtils.assign(config, details);
 
 		/* 办公几件套 */
 		(Folder_ICON as any).docx = Folder_ICON.doc;
@@ -82,7 +85,6 @@ export class PopsFolder {
 			(Folder_ICON as any)[keyName] = Folder_ICON.apk;
 		});
 
-		config = popsUtils.assign(config, details);
 		if (details?.folder) {
 			config.folder = details.folder;
 		}

@@ -232,6 +232,23 @@ declare class Pops {
      */
     isPhone(userAgent?: string): boolean;
     /**
+     * 为所有弹窗设置全局属性
+     */
+    GlobalConfig: {
+        config: {
+            style?: string | (() => string) | null;
+            zIndex?: (number | (() => number) | null) | (string | (() => string) | null);
+        };
+        setGlobalConfig(config: {
+            style?: string | (() => string) | null;
+            zIndex?: (number | (() => number) | null) | (string | (() => string) | null);
+        }): void;
+        getGlobalConfig(): {
+            style?: string | undefined;
+            zIndex?: string | number | undefined;
+        };
+    };
+    /**
      * 普通信息框
      * @param details 配置
      */
