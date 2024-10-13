@@ -53,7 +53,7 @@ class Utils {
 		this.windowApi = new WindowApi(option);
 	}
 	/** 版本号 */
-	version = "2024.9.28";
+	version = "2024.10.13";
 
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
@@ -1228,7 +1228,9 @@ class Utils {
 	}
 	/**
 	 * 获取页面中最大的z-index的元素信息
-	 * @param deviation 获取最大的z-index值的偏移，默认是+1
+	 * @param deviation 获取最大的z-index值的偏移，默认是1
+	 * @param node 进行判断的元素，默认是document
+	 * @param ignoreCallBack 执行元素处理时调用的函数，返回false可忽略不想要处理的元素
 	 * @example
 	 * Utils.getMaxZIndexNodeInfo();
 	 * > {
@@ -1236,11 +1238,23 @@ class Utils {
 	 *   zIndex: 1001
 	 * }
 	 **/
-	getMaxZIndexNodeInfo(deviation?: number): {
+	getMaxZIndexNodeInfo(
+		deviation?: number,
+		target?: Element | ShadowRoot | Document,
+		ignoreCallBack?: (
+			$ele: Element | HTMLElement | ShadowRoot
+		) => boolean | void
+	): {
 		node: Element;
 		zIndex: number;
 	};
-	getMaxZIndexNodeInfo(deviation = 1): {
+	getMaxZIndexNodeInfo(
+		deviation = 1,
+		target: Element | ShadowRoot | Document = this.windowApi.document,
+		ignoreCallBack?: (
+			$ele: Element | HTMLElement | ShadowRoot
+		) => boolean | void
+	): {
 		node: Element;
 		zIndex: number;
 	} {
@@ -1268,6 +1282,12 @@ class Utils {
 		 * @param $ele
 		 */
 		function queryMaxZIndex($ele: Element) {
+			if (typeof ignoreCallBack === "function") {
+				let ignoreResult = ignoreCallBack($ele);
+				if (typeof ignoreResult === "boolean" && !ignoreResult) {
+					return;
+				}
+			}
 			/** 元素的样式 */
 			const nodeStyle = UtilsContext.windowApi.window.getComputedStyle($ele);
 			/* 不对position为static和display为none的元素进行获取它们的z-index */
@@ -1288,7 +1308,7 @@ class Utils {
 				}
 			}
 		}
-		this.windowApi.document.querySelectorAll("*").forEach(($ele, index) => {
+		target.querySelectorAll("*").forEach(($ele, index) => {
 			queryMaxZIndex($ele);
 		});
 		zIndex += deviation;
@@ -1303,14 +1323,28 @@ class Utils {
 	}
 	/**
 	 * 获取页面中最大的z-index
-	 * @param deviation 获取最大的z-index值的偏移，默认是+1
+	 * @param deviation 获取最大的z-index值的偏移，默认是1
+	 * @param node 进行判断的元素，默认是document
+	 * @param ignoreCallBack 执行元素处理时调用的函数，返回false可忽略不想要处理的元素
 	 * @example
 	 * Utils.getMaxZIndex();
 	 * > 1001
 	 **/
-	getMaxZIndex(deviation?: number): number;
-	getMaxZIndex(deviation = 1): number {
-		return this.getMaxZIndexNodeInfo(deviation).zIndex;
+	getMaxZIndex(
+		deviation?: number,
+		target?: Element | DocumentOrShadowRoot | Document,
+		ignoreCallBack?: (
+			$ele: Element | HTMLElement | ShadowRoot
+		) => boolean | void
+	): number;
+	getMaxZIndex(
+		deviation = 1,
+		target: Element | ShadowRoot | Document = this.windowApi.document,
+		ignoreCallBack?: (
+			$ele: Element | HTMLElement | ShadowRoot
+		) => boolean | void
+	): number {
+		return this.getMaxZIndexNodeInfo(deviation, target, ignoreCallBack).zIndex;
 	}
 	/**
 	 * 获取最小值

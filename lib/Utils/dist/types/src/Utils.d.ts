@@ -434,7 +434,9 @@ declare class Utils {
     getMaxValue(val: UtilsOwnObject<number>, handler: (key: any, value: any) => number): number;
     /**
      * 获取页面中最大的z-index的元素信息
-     * @param deviation 获取最大的z-index值的偏移，默认是+1
+     * @param deviation 获取最大的z-index值的偏移，默认是1
+     * @param node 进行判断的元素，默认是document
+     * @param ignoreCallBack 执行元素处理时调用的函数，返回false可忽略不想要处理的元素
      * @example
      * Utils.getMaxZIndexNodeInfo();
      * > {
@@ -442,18 +444,20 @@ declare class Utils {
      *   zIndex: 1001
      * }
      **/
-    getMaxZIndexNodeInfo(deviation?: number): {
+    getMaxZIndexNodeInfo(deviation?: number, target?: Element | ShadowRoot | Document, ignoreCallBack?: ($ele: Element | HTMLElement | ShadowRoot) => boolean | void): {
         node: Element;
         zIndex: number;
     };
     /**
      * 获取页面中最大的z-index
-     * @param deviation 获取最大的z-index值的偏移，默认是+1
+     * @param deviation 获取最大的z-index值的偏移，默认是1
+     * @param node 进行判断的元素，默认是document
+     * @param ignoreCallBack 执行元素处理时调用的函数，返回false可忽略不想要处理的元素
      * @example
      * Utils.getMaxZIndex();
      * > 1001
      **/
-    getMaxZIndex(deviation?: number): number;
+    getMaxZIndex(deviation?: number, target?: Element | DocumentOrShadowRoot | Document, ignoreCallBack?: ($ele: Element | HTMLElement | ShadowRoot) => boolean | void): number;
     /**
      * 获取最小值
      * @example
