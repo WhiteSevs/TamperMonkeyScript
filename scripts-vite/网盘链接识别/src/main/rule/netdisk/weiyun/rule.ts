@@ -4,8 +4,8 @@ export const NetDiskRule_weiyun: NetDiskRuleConfig = {
 	/** 规则 */
 	rule: <NetDiskMatchRuleOption[]>[
 		{
-			link_innerText: `weiyun.com/[0-9a-zA-Z-_]{7,24}([\\s\\S]{0,{#matchRange-text-before#}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-text-after#}[0-9a-zA-Z]{4,6}|)`,
-			link_innerHTML: `weiyun.com/[0-9a-zA-Z-_]{7,24}([\\s\\S]{0,{#matchRange-html-before#}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}[0-9a-zA-Z]{4,6}|)`,
+			link_innerText: `weiyun.com/[0-9a-zA-Z-_]{7,24}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
+			link_innerHTML: `weiyun.com/[0-9a-zA-Z-_]{7,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
 			shareCode: /weiyun.com\/([0-9a-zA-Z\-_]{7,24})/gi,
 			shareCodeNeedRemoveStr: /weiyun.com\//gi,
 			checkAccessCode: /(提取码|密码|访问码)[\s\S]+/g,
