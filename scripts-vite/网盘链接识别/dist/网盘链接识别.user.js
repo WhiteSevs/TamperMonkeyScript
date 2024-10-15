@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2024.10.14
+// @version      2024.10.15
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -174,7 +174,7 @@
         } else {
           details.headers["Cookie"] = ownCookie;
         }
-        log.info(["Httpx => 设置cookie:", details]);
+        log.info("Httpx => 设置cookie:", details);
       }
       if (details.headers && details.headers.Cookie != null && utils.isNull(details.headers.Cookie)) {
         delete details.headers.Cookie;
@@ -346,7 +346,7 @@
               encodeURI(replacedText)
             );
           } catch (error) {
-            log.error(["encodeURI-替换的文本失败", [replacedText]]);
+            log.error("encodeURI-替换的文本失败", [replacedText]);
           }
           try {
             text = text.replaceAll(
@@ -354,7 +354,7 @@
               encodeURIComponent(replacedText)
             );
           } catch (error) {
-            log.error(["encodeURIComponent-替换的文本失败", [replacedText]]);
+            log.error("encodeURIComponent-替换的文本失败", [replacedText]);
           }
           try {
             text = text.replaceAll(
@@ -362,7 +362,7 @@
               decodeURI(replacedText)
             );
           } catch (error) {
-            log.error(["decodeURI-替换的文本失败", [replacedText]]);
+            log.error("decodeURI-替换的文本失败", [replacedText]);
           }
           try {
             text = text.replaceAll(
@@ -370,7 +370,7 @@
               decodeURIComponent(replacedText)
             );
           } catch (error) {
-            log.error(["encodeURIComponent-替换的文本失败", [replacedText]]);
+            log.error("encodeURIComponent-替换的文本失败", [replacedText]);
           }
           text = text.replaceAll(`{#${key}#}`, replacedText);
         }
@@ -656,7 +656,7 @@
         navigator.clipboard.readText().then((clipboardText) => {
           resolve(clipboardText);
         }).catch((error) => {
-          log.error(["读取剪贴板内容失败👉", error]);
+          log.error("读取剪贴板内容失败👉", error);
           resolve("");
         });
       }
@@ -667,10 +667,10 @@
         }).then((permissionStatus) => {
           readClipboardText(resolve);
         }).catch((error) => {
-          log.error([
+          log.error(
             "申请剪贴板权限失败，尝试直接读取👉",
             error.message ?? error.name ?? error.stack
-          ]);
+          );
           readClipboardText(resolve);
         });
       }
@@ -788,6 +788,10 @@
         this.$match.blackMatchedInfo.set(netDiskName, new utils.Dictionary());
         this.$match.tempMatchedInfo.set(netDiskName, new utils.Dictionary());
       });
+      let matchedUrlRuleList = WebsiteRule.getUrlMatchedRule();
+      if (matchedUrlRuleList.length) {
+        log.info("成功命中网站规则 ==> ", matchedUrlRuleList);
+      }
     },
     /**
      * 处理链接，将匹配到的链接转为参数和密码存入字典中
@@ -826,16 +830,13 @@
       let netDiskMatchRegular = NetDisk.$rule.matchRule[netDiskName][netDiskIndex];
       let shareCodeMatch = (_a2 = matchText.match(netDiskMatchRegular.shareCode)) == null ? void 0 : _a2.filter((item) => utils.isNotNull(item));
       if (utils.isNull(shareCodeMatch)) {
-        log.error([
-          `匹配shareCode为空`,
-          {
-            匹配的文本: matchText,
-            规则: netDiskMatchRegular,
-            正在使用的规则: netDiskMatchRegular.shareCode,
-            网盘名称: netDiskName,
-            网盘名称索引下标: netDiskIndex
-          }
-        ]);
+        log.error(`匹配shareCode为空`, {
+          匹配的文本: matchText,
+          规则: netDiskMatchRegular,
+          正在使用的规则: netDiskMatchRegular.shareCode,
+          网盘名称: netDiskName,
+          网盘名称索引下标: netDiskIndex
+        });
         return;
       }
       let shareCode = shareCodeMatch[0];
@@ -949,13 +950,13 @@
       let netDiskMatchRegular = NetDisk.$rule.matchRule[netDiskName][netDiskIndex];
       if (netDiskMatchRegular == void 0) {
         Qmsg.error("BUG: 获取uiLink规则失败");
-        log.error([
+        log.error(
           "BUG: 分析参数",
           netDiskName,
           netDiskIndex,
           shareCode,
           accessCode
-        ]);
+        );
         throw new TypeError("获取uiLink规则失败");
       }
       let uiLink = NetDiskRuleUtils.replaceParam(
@@ -1236,7 +1237,7 @@
   };
   const NetDiskAutoFillAccessCode_baidu = function(netDiskInfo) {
     if (window.location.hostname === "pan.baidu.com" && window.location.pathname === "/share/init" && window.location.search.startsWith("?surl=")) {
-      log.success(["自动填写链接", netDiskInfo]);
+      log.success("自动填写链接", netDiskInfo);
       utils.waitNode("div.verify-form #accessCode").then(($ele) => {
         var _a2;
         if (!utils.isVisible($ele)) {
@@ -1250,7 +1251,7 @@
       });
     }
     if (window.location.hostname === "pan.baidu.com" && window.location.pathname === "/wap/init" && window.location.search.startsWith("?surl=")) {
-      log.success(["自动填写链接", netDiskInfo]);
+      log.success("自动填写链接", netDiskInfo);
       utils.waitNode(
         "div.extractWrap div.extract-content div.extractInputWrap.extract input[type=text]"
       ).then(($input) => {
@@ -1270,7 +1271,7 @@
   };
   const NetDiskAutoFillAccessCode_lanzou = function(netDiskInfo) {
     if (window.location.hostname.match(/lanzou[a-z]{1}.com/gi)) {
-      log.success(["自动填写链接", netDiskInfo]);
+      log.success("自动填写链接", netDiskInfo);
       utils.waitNode("#pwd").then(($input) => {
         var _a2, _b;
         if (!utils.isVisible($input)) {
@@ -1329,7 +1330,7 @@
       }, 500);
     }
     if (window.location.hostname === "cloud.189.cn") {
-      log.success(["自动填写链接", netDiskInfo]);
+      log.success("自动填写链接", netDiskInfo);
       utils.waitNode("input#code_txt").then((codeTxtElement) => {
         loopWaitElementShow(codeTxtElement, () => {
           Qmsg.success("自动填入访问码");
@@ -1344,7 +1345,7 @@
       });
     }
     if (window.location.hostname === "h5.cloud.189.cn") {
-      log.success(["自动填写链接", netDiskInfo]);
+      log.success("自动填写链接", netDiskInfo);
       utils.waitNode("input.access-code-input").then((accessInputElement) => {
         loopWaitElementShow(accessInputElement, () => {
           Qmsg.success("自动填入访问码");
@@ -1361,7 +1362,7 @@
   };
   const NetDiskAutoFillAccessCode_hecaiyun = function(netDiskInfo) {
     if (window.location.hostname === "caiyun.139.com") {
-      log.success(["自动填写链接", netDiskInfo]);
+      log.success("自动填写链接", netDiskInfo);
       utils.waitNode("#token-input").then((element) => {
         if (!utils.isVisible(element)) {
           log.error("输入框不可见，不输入密码");
@@ -1457,7 +1458,7 @@
   };
   const NetDiskAutoFillAccessCode_aliyun = function(netDiskInfo) {
     if (window.location.hostname === "www.aliyundrive.com" || window.location.hostname === "www.alipan.com") {
-      log.success(["自动填写链接", netDiskInfo]);
+      log.success("自动填写链接", netDiskInfo);
       utils.waitNode("#root input.ant-input").then((element) => {
         if (!utils.isVisible(element)) {
           log.error("输入框不可见，不输入密码");
@@ -1504,7 +1505,7 @@
   };
   const NetDiskAutoFillAccessCode_123pan = function(netDiskInfo) {
     if (window.location.hostname === "www.123pan.com") {
-      log.success(["自动填写链接", netDiskInfo]);
+      log.success("自动填写链接", netDiskInfo);
       utils.waitNode("#app .ca-fot input.ant-input[type=text]").then((element) => {
         if (!utils.isVisible(element)) {
           log.error("输入框不可见，不输入密码");
@@ -1551,7 +1552,7 @@
   };
   const NetDiskAutoFillAccessCode_weiyun = function(netDiskInfo) {
     if (window.location.hostname === "share.weiyun.com") {
-      log.success(["自动填写链接", netDiskInfo]);
+      log.success("自动填写链接", netDiskInfo);
       utils.waitNode("#app input.input-txt").then((element) => {
         if (!utils.isVisible(element)) {
           log.error("输入框不可见，不输入密码");
@@ -1582,7 +1583,7 @@
   };
   const NetDiskAutoFillAccessCode_xunlei = function(netDiskInfo) {
     if (window.location.hostname === "pan.xunlei.com") {
-      log.success(["自动填写链接", netDiskInfo]);
+      log.success("自动填写链接", netDiskInfo);
       utils.waitNode(
         "#__layout div.pass-input-wrap input.td-input__inner"
       ).then((element) => {
@@ -1621,7 +1622,7 @@
   };
   const NetDiskAutoFillAccessCode_kuake = function(netDiskInfo) {
     if (window.location.hostname === "pan.quark.cn") {
-      log.success(["自动填写链接", netDiskInfo]);
+      log.success("自动填写链接", netDiskInfo);
       utils.waitNode(
         "#ice-container input.ant-input[class*=ShareReceive]"
       ).then((element) => {
@@ -1658,7 +1659,7 @@
     }
   };
   const NetDiskAutoFillAccessCode_chengtong = function(netDiskInfo) {
-    log.success(["自动填写链接", netDiskInfo]);
+    log.success("自动填写链接", netDiskInfo);
     utils.waitNode("#passcode").then((element) => {
       if (!utils.isVisible(element)) {
         log.error("输入框不可见，不输入密码");
@@ -1674,7 +1675,7 @@
   };
   const NetDiskAutoFillAccessCode_115pan = function(netDiskInfo) {
     if (window.location.hostname === "115.com") {
-      log.success(["自动填写链接", netDiskInfo]);
+      log.success("自动填写链接", netDiskInfo);
       utils.waitNode("input.text").then((element) => {
         if (!utils.isVisible(element)) {
           log.error("输入框不可见，不输入密码");
@@ -2202,7 +2203,7 @@
     }
     async init(netDiskIndex, shareCode, accessCode) {
       const that = this;
-      log.info([netDiskIndex, shareCode, accessCode]);
+      log.info(netDiskIndex, shareCode, accessCode);
       that.netDiskIndex = netDiskIndex;
       that.shareCode = shareCode;
       that.accessCode = accessCode;
@@ -2665,14 +2666,13 @@
     }
     /**
      * 入口
-     * @param {number} netDiskIndex 网盘名称索引下标
-     * @param {string} shareCode
-     * @param {string} accessCode
-     * @returns
+     * @param netDiskIndex 网盘名称索引下标
+     * @param shareCode
+     * @param accessCode
      */
     async init(netDiskIndex, shareCode, accessCode) {
       const that = this;
-      log.info([netDiskIndex, shareCode, accessCode]);
+      log.info(netDiskIndex, shareCode, accessCode);
       that.netDiskIndex = netDiskIndex;
       that.shareCode = shareCode;
       that.accessCode = accessCode;
@@ -2818,32 +2818,15 @@
       );
       folderInfoList = folderInfoList.concat(tempFolderInfoList);
       folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
-      log.info(["getFilesInfoByRec", folderInfoList]);
+      log.info("getFilesInfoByRec", folderInfoList);
       return folderInfoList;
     }
     /**
      * 列出文件列表
-     * @param {string} share_id
-     * @param {string} parent_file_id 父项，根是root
-     * @param {"name"} order_by 根据xxx排序
-     * @param {"ASC"|"DESC"} order_direction 排序规则(升序/降序)
-     * @returns {Promise<{
-     * category?: string,
-     * domain_id?: string,
-     * file_extension?: string,
-     * mime_extension?: string,
-     * mime_type?: string,
-     * punish_flag: number,
-     * created_at: string,
-     * domain_id: string,
-     * drive_id: string,
-     * file_id: string,
-     * name: string,
-     * parent_file_id:string,
-     * share_id: string,
-     * type: string,
-     * updated_at: string,
-     * }[]>}
+     * @param share_id
+     * @param parent_file_id 父项，根是root
+     * @param order_by 根据xxx排序
+     * @param order_direction 排序规则(升序/降序)
      */
     async list_by_share(share_id, parent_file_id, order_by = "name", order_direction = "DESC") {
       const that = this;
@@ -2883,7 +2866,7 @@
         return;
       }
       let data = utils.toJSON(postResp.data.responseText);
-      log.info(["列出文件列表：", data]);
+      log.info("列出文件列表：", data);
       return data["items"];
     }
     /**
@@ -2922,12 +2905,12 @@
         return;
       }
       let data = utils.toJSON(postResp.data.responseText);
-      log.info(["获取文件的下载链接：", data]);
+      log.info("获取文件的下载链接：", data);
       return data["download_url"];
     }
     /**
      * 处理请求的错误
-     * @param {HttpxAsyncResult} postResp
+     * @param postResp
      */
     handle_request_error(postResp) {
       log.error(postResp);
@@ -2943,7 +2926,7 @@
       if (utils.isNotNull(token) && token != null) {
         let tokenJSON = utils.toJSON(token);
         let access_token = tokenJSON["access_token"];
-        log.success(["获取阿里云盘的access_token：", access_token]);
+        log.success("获取阿里云盘的access_token：", access_token);
         return access_token;
       } else {
         log.error("获取access_token失败，请先登录账号！");
@@ -2986,7 +2969,7 @@
       }
       let data = utils.toJSON(postResp.data.responseText);
       that.X_Share_Token_Data = data;
-      log.info(["获取share_token：", that.X_Share_Token_Data]);
+      log.info("获取share_token：", that.X_Share_Token_Data);
       return that.X_Share_Token_Data["share_token"];
     }
     /**
@@ -3021,7 +3004,7 @@
      * @param accessCode
      */
     init(netDiskIndex, shareCode, accessCode) {
-      log.info([netDiskIndex, shareCode, accessCode]);
+      log.info(netDiskIndex, shareCode, accessCode);
       this.netDiskIndex = netDiskIndex;
       this.shareCode = shareCode;
       this.accessCode = accessCode;
@@ -3054,9 +3037,9 @@
         formElement.appendChild(textAreaElement);
         formData[key] = value;
       }
-      log.info(["表单数据", formData]);
+      log.info("表单数据", formData);
       document.body.appendChild(formElement);
-      log.info(["访问网址", url]);
+      log.info("访问网址", url);
       if (enableCopy) {
         NetDiskLinkClickMode.copy(
           "baidu",
@@ -3465,7 +3448,7 @@
         accessCode: $ele.getAttribute("data-accesscode")
       };
       if (isNaN(result.netDiskIndex)) {
-        log.warn(["元素上的netDiskIndex的值是NaN", $ele]);
+        log.warn("元素上的netDiskIndex的值是NaN", $ele);
         result.netDiskIndex = 0;
       }
       return result;
@@ -3639,7 +3622,7 @@
       if (!NetDiskUI.Alias.uiLinkAlias) {
         return;
       }
-      log.info([netDiskName, netDiskIndex, shareCode, accessCode]);
+      log.info(netDiskName, netDiskIndex, shareCode, accessCode);
       let icon = NetDiskUI.src.icon[netDiskName];
       let uiLink = NetDisk.handleLinkShow(
         netDiskName,
@@ -3742,7 +3725,7 @@
             iterator = findGenerator.next();
           }
           if (iterator == null ? void 0 : iterator.value) {
-            log.success(["定位元素", iterator]);
+            log.success("定位元素", iterator);
             if (iterator.value.nodeType === Node.ELEMENT_NODE && iterator.value.getClientRects().length) {
               iterator.value.scrollIntoView({
                 behavior: "smooth",
@@ -3836,7 +3819,7 @@
                 }
               }
             } else {
-              log.error(["无法定位该元素位置", iterator.value]);
+              log.error("无法定位该元素位置", iterator.value);
               Qmsg.error(
                 `无法定位该元素位置，类型：<${(iterator.value.nodeName || iterator.value.localName || iterator.value.tagName).toLowerCase()}>`,
                 {
@@ -3906,7 +3889,7 @@
     }
     async init(netDiskIndex, shareCode, accessCode) {
       const that = this;
-      log.info([netDiskIndex, shareCode, accessCode]);
+      log.info(netDiskIndex, shareCode, accessCode);
       that.netDiskIndex = netDiskIndex;
       that.shareCode = shareCode;
       that.accessCode = accessCode;
@@ -3976,7 +3959,7 @@
      */
     parseMoreFile(folderInfo, hash = "", fileName = "") {
       const that = this;
-      log.info(["解析多文件信息", folderInfo]);
+      log.info("解析多文件信息", folderInfo);
       let folderInfoList = [];
       folderInfo.forEach((item) => {
         let fileName2 = item.relPath;
@@ -4159,7 +4142,7 @@
       if (!getResp.status) {
         if (utils.isNotNull((_a2 = getResp.data) == null ? void 0 : _a2.responseText)) {
           let errorData = utils.toJSON(getResp.data.responseText);
-          log.error(["坚果云", errorData]);
+          log.error("坚果云", errorData);
           if (errorData["errorCode"] === "UnAuthorized") {
             that.gotoLogin();
           } else {
@@ -4171,9 +4154,9 @@
         return;
       }
       let respData = getResp.data;
-      log.info(["请求信息", respData]);
+      log.info("请求信息", respData);
       let resultJSON = utils.toJSON(respData.responseText);
-      log.info(["解析JSON", resultJSON]);
+      log.info("解析JSON", resultJSON);
       if (resultJSON.hasOwnProperty("errorCode")) {
         Qmsg.error("坚果云: " + resultJSON["detailMsg"]);
         return;
@@ -4207,7 +4190,7 @@
       if (!getResp.status) {
         if (utils.isNotNull((_a2 = getResp.data) == null ? void 0 : _a2.responseText)) {
           let errorData = utils.toJSON(getResp.data.responseText);
-          log.error(["坚果云", errorData]);
+          log.error("坚果云", errorData);
           if (errorData["errorCode"] === "UnAuthorized") {
             that.gotoLogin();
           } else {
@@ -4219,7 +4202,7 @@
         return;
       }
       let respData = getResp.data;
-      log.info(["请求信息", respData]);
+      log.info("请求信息", respData);
       let resultJSON = utils.toJSON(respData.responseText);
       log.info(resultJSON);
       if (resultJSON.hasOwnProperty("errorCode")) {
@@ -4248,7 +4231,7 @@
         return;
       }
       let respData = getResp.data;
-      log.info(["请求信息", respData]);
+      log.info("请求信息", respData);
       let resultJSON = utils.toJSON(respData.responseText);
       log.info(resultJSON);
       if ("objects" in resultJSON) {
@@ -4424,7 +4407,7 @@
      * @param accessCode
      */
     async init(netDiskIndex, shareCode, accessCode) {
-      log.info([netDiskIndex, shareCode, accessCode]);
+      log.info(netDiskIndex, shareCode, accessCode);
       this.netDiskIndex = netDiskIndex;
       this.shareCode = shareCode;
       this.accessCode = accessCode;
@@ -4503,7 +4486,7 @@
         let pageIframeElement = pageDOM.querySelector('iframe[class^="ifr"]') || pageDOM.querySelector('iframe[class^="n_downlink"]');
         if (pageIframeElement) {
           let iframeUrl = pageIframeElement.getAttribute("src");
-          log.error(["该链接需要重新通过iframe地址访问获取信息", iframeUrl]);
+          log.error("该链接需要重新通过iframe地址访问获取信息", iframeUrl);
           Qmsg.info("正在请求下载信息");
           let fileName = ((_a2 = pageDOM.querySelector("body div.d > div")) == null ? void 0 : _a2.innerText) || ((_b = pageDOM.querySelector("#filenajax")) == null ? void 0 : _b.innerText) || ((_d = (_c = pageDOM.querySelector("title")) == null ? void 0 : _c.textContent) == null ? void 0 : _d.replace(/ - 蓝奏云$/i, ""));
           let fileSize = pageText.match(/文件大小：<\/span>(.+?)<br>/i) || ((_e = pageDOM.querySelector(
@@ -4711,7 +4694,7 @@
           appleDown = appleDown[appleDown.length - 1];
           loadDownHost = [appleDown];
           loadDown = [""];
-          log.success(["多文件-当前链接猜测为苹果的文件", appleDown]);
+          log.success("多文件-当前链接猜测为苹果的文件", appleDown);
         }
         if (utils.isNull(loadDownHost)) {
           Qmsg.error("蓝奏云直链：获取sign的域名失败，请反馈开发者", {
@@ -4726,7 +4709,7 @@
           return;
         }
         let downloadUrl = `${loadDownHost[loadDownHost.length - 1]}${loadDown[loadDown.length - 1]}`;
-        log.info([fileName, fileSize, downloadUrl]);
+        log.info(fileName, fileSize, downloadUrl);
         log.info(downloadUrl);
         if (NetDiskFilterScheme.isForwardDownloadLink("lanzou")) {
           downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
@@ -4750,7 +4733,7 @@
      */
     async getLinkByIframe(urlPathName, fileInfo) {
       const that = this;
-      log.info([urlPathName, fileInfo]);
+      log.info(urlPathName, fileInfo);
       let iFrameUrl = that.router.root(urlPathName);
       let getResp = await httpx.get({
         url: iFrameUrl,
@@ -4842,7 +4825,7 @@
       } else {
         log.info("测试killdns2成功，不改变原downloadUrl");
       }
-      log.success(["直链", downloadUrl]);
+      log.success("直链", downloadUrl);
       if ("密码不正确".indexOf(jsonData["inf"]) != -1) {
         Qmsg.error("密码不正确!");
         NetDiskUI.newAccessCodeView(
@@ -4954,7 +4937,7 @@
                   url: folderDownloadInfo.downloadUrl
                 };
               } else {
-                log.error(["获取下载信息失败：", folderDownloadInfo]);
+                log.error("获取下载信息失败：", folderDownloadInfo);
                 Qmsg.error(folderDownloadInfo.msg);
               }
             }
@@ -5023,7 +5006,7 @@
         };
       }
       let iframeUrl = pageIframeElement.getAttribute("src");
-      log.error(["该链接需要重新通过iframe地址访问获取信息", iframeUrl]);
+      log.error("该链接需要重新通过iframe地址访问获取信息", iframeUrl);
       Qmsg.info("正在请求下载信息");
       let downloadUrl = await that.getLinkByIframe(iframeUrl, {
         fileName,
@@ -5183,7 +5166,7 @@
     async init(netDiskIndex, shareCode, accessCode) {
       var _a2, _b, _c, _d;
       const that = this;
-      log.info([netDiskIndex, shareCode, accessCode]);
+      log.info(netDiskIndex, shareCode, accessCode);
       that.netDiskIndex = netDiskIndex;
       that.shareCode = shareCode;
       that.accessCode = accessCode;
@@ -5375,7 +5358,7 @@
         return;
       }
       let data = utils.toJSON(postResp.data.responseText);
-      log.success(["获取链接信息：", data]);
+      log.success("获取链接信息：", data);
       if (data["code"] !== 200) {
         Qmsg.error("请求链接信息失败");
         return;
@@ -5416,7 +5399,7 @@
         return;
       }
       let data = utils.toJSON(postResp.data.responseText);
-      log.success(["获取文件列表信息：", data]);
+      log.success("获取文件列表信息：", data);
       if (data["code"] === 200) {
         return data;
       } else {
@@ -5519,7 +5502,7 @@
     }
     async init(netDiskIndex, shareCode, accessCode) {
       const that = this;
-      log.info([netDiskIndex, shareCode, accessCode]);
+      log.info(netDiskIndex, shareCode, accessCode);
       that.netDiskIndex = netDiskIndex;
       that.shareCode = shareCode;
       that.accessCode = accessCode;
@@ -5759,7 +5742,7 @@
       );
       folderInfoList = folderInfoList.concat(tempFolderInfoList);
       folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
-      log.info(["getFolderInfo", folderInfoList]);
+      log.info("getFolderInfo", folderInfoList);
       return folderInfoList;
     }
     /**
@@ -5880,7 +5863,7 @@
       }
       let respData = getResp.data;
       let resultJSON = utils.toJSON(respData.responseText);
-      log.info(["转换的JSON", resultJSON]);
+      log.info("转换的JSON", resultJSON);
       return resultJSON;
     }
     /**
@@ -5906,7 +5889,7 @@
       }
       let respData = getResp.data;
       let resultJSON = utils.toJSON(respData.responseText);
-      log.info(["转换的JSON", resultJSON]);
+      log.info("转换的JSON", resultJSON);
       if (resultJSON["code"] === that.OK_CODE) {
         return resultJSON["data"]["downloadUrl"];
       } else {
@@ -5937,7 +5920,7 @@
       }
       let respData = getResp.data;
       let resultJSON = utils.toJSON(respData.responseText);
-      log.info(["转换的JSON", resultJSON]);
+      log.info("转换的JSON", resultJSON);
       if (resultJSON["code"] === that.OK_CODE) {
         return resultJSON["data"]["downloadUrl"];
       } else {
@@ -5952,7 +5935,7 @@
      */
     async downloadFile(fileName, fileDownloadUrl) {
       const that = this;
-      log.info(["下载文件：", fileName, fileDownloadUrl]);
+      log.info("下载文件：", fileName, fileDownloadUrl);
       Qmsg.info(`调用【GM_download】下载：${fileName}`);
       if (typeof _GM_download === "undefined") {
         Qmsg.error("当前脚本环境缺失API 【GM_download】");
@@ -5990,7 +5973,7 @@
         },
         onerror(error) {
           downloadingQmsg.close();
-          log.error(["下载失败error👉", error]);
+          log.error("下载失败error👉", error);
           if (typeof error === "object" && error["error"]) {
             Qmsg.error(`下载 ${fileName} 失败或已取消 原因：${error["error"]}`, {
               timeout: 6e3
@@ -6029,7 +6012,7 @@
     }
     async init(netDiskIndex, shareCode, accessCode) {
       const that = this;
-      log.info([netDiskIndex, shareCode, accessCode]);
+      log.info(netDiskIndex, shareCode, accessCode);
       that.netDiskIndex = netDiskIndex;
       that.shareCode = shareCode;
       that.accessCode = accessCode;
@@ -6037,7 +6020,7 @@
       if (!shareInfoData) {
         return;
       }
-      log.info(["解析的JSON信息", shareInfoData]);
+      log.info("解析的JSON信息", shareInfoData);
       if (shareInfoData["needAccessCode"] && utils.isNull(that.accessCode)) {
         Qmsg.error("密码不正确!");
         NetDiskUI.newAccessCodeView(
@@ -6190,7 +6173,7 @@
       });
       if (!postResp.status) {
         let errorData = utils.toJSON(postResp.data.responseText);
-        log.error(["获取下载参数失败的JSON信息", errorData]);
+        log.error("获取下载参数失败的JSON信息", errorData);
         if (errorData["res_code"] in that.code) {
           Qmsg.error(that.code[errorData["res_code"]]);
         } else {
@@ -6372,7 +6355,7 @@
       );
       if (!getResp.status) {
         let errorData = utils.toJSON(getResp.data.responseText);
-        log.error(["解析文件夹信息失败", errorData]);
+        log.error("解析文件夹信息失败", errorData);
         if (errorData["res_code"] in that.code) {
           Qmsg.error(that.code[errorData["res_code"]]);
         } else if ("res_message" in errorData) {
@@ -6478,7 +6461,7 @@
       );
       folderInfoList = folderInfoList.concat(tempFolderInfoList);
       folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
-      log.info(["getFolderInfo", folderInfoList]);
+      log.info("getFolderInfo", folderInfoList);
       return folderInfoList;
     }
   }
@@ -6492,7 +6475,7 @@
      */
     async init(netDiskIndex, shareCode, accessCode) {
       const that = this;
-      log.info([netDiskIndex, shareCode, accessCode]);
+      log.info(netDiskIndex, shareCode, accessCode);
       that.netDiskIndex = netDiskIndex;
       that.shareCode = shareCode;
       that.accessCode = accessCode;
@@ -6564,7 +6547,7 @@
           "User-Agent": utils.getRandomPCUA()
         }
       });
-      log.success(["判断是否已登录UC网盘", getResp]);
+      log.success("判断是否已登录UC网盘", getResp);
       if (!getResp.status) {
         return;
       }
@@ -6583,7 +6566,7 @@
      * } }
      */
     downloadFile(fileName, downloadUrl) {
-      log.info([`调用【GM_download】下载：`, arguments]);
+      log.info(`调用【GM_download】下载：`, arguments);
       Qmsg.info(`调用【GM_download】下载：${fileName}`);
       if (typeof _GM_download === "undefined") {
         Qmsg.error("当前脚本环境缺失API 【GM_download】");
@@ -6613,7 +6596,7 @@
         },
         onerror(error) {
           downloadingQmsg.close();
-          log.error(["下载失败error👉", error]);
+          log.error("下载失败error👉", error);
           if (typeof error === "object" && error["error"]) {
             Qmsg.error(`下载 ${fileName} 失败或已取消 原因：${error["error"]}`, {
               timeout: 6e3
@@ -6687,7 +6670,7 @@
       );
       if (!postResp.status) {
         let errorData = utils.toJSON(postResp.data.responseText);
-        log.error(["获取stoken失败JSON信息", errorData]);
+        log.error("获取stoken失败JSON信息", errorData);
         if ("message" in errorData) {
           Qmsg.error(errorData["message"]);
         } else {
@@ -6696,9 +6679,9 @@
         return;
       }
       let data = utils.toJSON(postResp.data.responseText);
-      log.info(["获取stoken：", data]);
+      log.info("获取stoken：", data);
       if (data["code"] !== 0) {
-        log.error(["获取stoken失败", data]);
+        log.error("获取stoken失败", data);
         Qmsg.error("获取stoken失败");
         return;
       }
@@ -6737,9 +6720,9 @@
         return;
       }
       let data = utils.toJSON(getResp.data.responseText);
-      log.info(["获取detail：", data]);
+      log.info("获取detail：", data);
       if (data["code"] !== 0) {
-        log.error(["获取detail失败", data]);
+        log.error("获取detail失败", data);
         Qmsg.error("获取detail失败");
         return;
       }
@@ -6841,14 +6824,14 @@
         return;
       }
       let data = utils.toJSON(postResp.data.responseText);
-      log.info(["获取download：", data]);
+      log.info("获取download：", data);
       if (data["code"] !== 0) {
-        log.error(["获取download失败", data]);
+        log.error("获取download失败", data);
         Qmsg.error("获取download失败");
         return;
       }
       if (data["data"].length === 0) {
-        log.error(["获取download detail失败", data]);
+        log.error("获取download detail失败", data);
         Qmsg.error("获取download detail失败失败");
         return;
       }
@@ -7008,7 +6991,7 @@
       );
       folderInfoList = folderInfoList.concat(tempFolderInfoList);
       folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
-      log.info(["getFilesInfoByRec", folderInfoList]);
+      log.info("getFilesInfoByRec", folderInfoList);
       return folderInfoList;
     }
   }
@@ -7030,7 +7013,7 @@
     }
     async init(netDiskIndex, shareCode, accessCode) {
       const that = this;
-      log.info([netDiskIndex, shareCode, accessCode]);
+      log.info(netDiskIndex, shareCode, accessCode);
       that.netDiskIndex = netDiskIndex;
       that.shareCode = shareCode;
       that.accessCode = accessCode;
@@ -7600,7 +7583,7 @@
         };
       }
       let data = utils.toJSON(response.data.responseText);
-      log.success(["获取链接信息：", data]);
+      log.success("获取链接信息：", data);
       if (data["code"] !== 200) {
         return {
           ...NetDiskCheckLinkValidity.status.error,
@@ -8007,7 +7990,7 @@
       } else if (path === "d" || path === "dir") {
         url = `https://webapi.ctfile.com/getdir.php?path=${path}&d=${shareCode}&folder_id=&passcode=${accessCode}&token=0&r=${Math.random()}&ref=`;
       } else {
-        log.warn(["未知path", [netDiskIndex, shareCode, accessCode]]);
+        log.warn("未知path", [netDiskIndex, shareCode, accessCode]);
         return {
           ...NetDiskCheckLinkValidity.status.unknown,
           data: null
@@ -8717,11 +8700,11 @@
      */
     async file(url, options) {
       if (utils.isNull(url)) {
-        log.error(["NetDiskRequire.file的参数path为空", url]);
+        log.error("NetDiskRequire.file的参数path为空", url);
         return false;
       }
       if (this.requiredFileMap.has(url)) {
-        log.warn(["NetDiskRequire.file的参数path已引入过", url]);
+        log.warn("NetDiskRequire.file的参数path已引入过", url);
         return true;
       }
       let getResp = await httpx.get(url, options);
@@ -8731,7 +8714,7 @@
       let jsText = getResp.data.responseText;
       let count = this.requiredFileMap.get(url);
       this.requiredFileMap.set(url, count++);
-      log.info(["加载js文件", url]);
+      log.info("加载js文件", url);
       _unsafeWindow.eval(
         `
 		let exports = void 0;
@@ -9259,8 +9242,8 @@
     },
     /**
      * 设置规则到本地
-     * @param {string} oldRuleKey 旧规则的键名
-     * @param {NetDiskUserCustomRule[]|NetDiskUserCustomRule} userRule
+     * @param oldRuleKey 旧规则的键名
+     * @param userRule
      */
     setRule(oldRuleKey, userRule) {
       if (Array.isArray(userRule)) {
@@ -9274,7 +9257,7 @@
           localRule[findRuleIndex] = null;
           localRule[findRuleIndex] = userRule;
         } else {
-          log.error(["覆盖规则失败", userRule]);
+          log.error("覆盖规则失败", userRule);
           Qmsg.error("覆盖规则失败");
           return false;
         }
@@ -9283,7 +9266,7 @@
     },
     /**
      * 删除单条规则
-     * @param {string} ruleKey 规则的key名
+     * @param ruleKey 规则的key名
      */
     deleteRule(ruleKey) {
       let localRule = this.getAllRule();
@@ -12112,7 +12095,7 @@
             let editFlag = false;
             if (matchText.trim() !== "" && localData.matchText !== matchText) {
               editFlag = true;
-              log.success(["匹配历史记录 -> 设置新的matchText", [matchText]]);
+              log.success("匹配历史记录 -> 设置新的matchText", [matchText]);
               storageDataList[index].matchText = matchText;
             }
             if (utils.isNotNull(accessCode) && localData.accessCode !== accessCode) {
@@ -12206,7 +12189,7 @@
       let data = this.getStorageData();
       for (let index = 0; index < data.length; index++) {
         if (JSON.stringify(data[index]) === dataJSONText) {
-          log.success(["删除 ===> ", data[index]]);
+          log.success("删除 ===> ", data[index]);
           data.splice(index, 1);
           isSuccess = true;
           break;
@@ -12357,10 +12340,10 @@
         NetDiskWorker.GM_matchWorker.onmessage = NetDiskWorker.onMessage;
         NetDiskWorker.GM_matchWorker.onerror = NetDiskWorker.onError;
       } catch (error) {
-        log.error([
-          "初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用另类方法",
+        log.error(
+          "初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果内容过大会导致页面卡死",
           error.message
-        ]);
+        );
         NetDiskWorker.GM_matchWorker = {
           postMessage(data) {
             return new Promise((resolve, reject) => {
@@ -12493,10 +12476,10 @@
             let isFindBlackShareCode = blackMatchInfoItem.has(shareCode);
             if (isFindBlackShareCode) {
               isBlackShareCode = true;
-              log.warn([
+              log.warn(
                 `匹配到黑名单分享码，已过滤：${shareCode}`,
                 JSON.stringify(item)
-              ]);
+              );
             }
           }
         );
@@ -12594,9 +12577,9 @@
             NetDiskUI.view.show();
             break;
           default:
-            log.error([
+            log.error(
               "未知的行为模式：" + NetDiskGlobalData.features["netdisk-behavior-mode"].value
-            ]);
+            );
         }
       }
       NetDiskWorker.matchingEndCallBack();
@@ -12607,7 +12590,7 @@
      */
     errorCallBack(error) {
       NetDiskWorker.matchingEndCallBack(true);
-      log.error(["Worker Error", error]);
+      log.error("Worker Error", error);
     },
     /**
      * 匹配结束回调
@@ -13049,7 +13032,7 @@
           let netDiskName = ruleJSON.key;
           let netDiskIndex = that.$el.$select.selectedIndex;
           let selectRegularOption = that.$el.$select.selectedOptions[netDiskIndex]["data-value"];
-          log.info(["当前选中的规则: ", selectRegularOption]);
+          log.info("当前选中的规则: ", selectRegularOption);
           let testCustomRule = {};
           testCustomRule[ruleJSON.key] = [selectRegularOption];
           let matchTextList = [];
@@ -13714,7 +13697,7 @@
      * @param fileDetails 配置
      */
     oneFile(fileDetails) {
-      log.success(["成功获取单文件直链", fileDetails]);
+      log.success("成功获取单文件直链", fileDetails);
       NetDiskPops.folder(
         {
           title: {
@@ -13768,7 +13751,7 @@
      * @param folderInfoList文件夹信息
      */
     moreFile(title, folderInfoList = []) {
-      log.success(["文件解析信息", folderInfoList]);
+      log.success("文件解析信息", folderInfoList);
       NetDiskPops.folder(
         {
           title: {
@@ -14189,7 +14172,9 @@
                     if (option.isFindInMatchedDict) {
                       Qmsg.error("修改访问码失败");
                     } else {
-                      Qmsg.error("修改访问码失败，因为当前已匹配字典中未找到对应的访问码");
+                      Qmsg.error(
+                        "修改访问码失败，因为当前已匹配字典中未找到对应的访问码"
+                      );
                     }
                   }
                 }
@@ -14214,11 +14199,7 @@
                 if (matchedShareCode === shareCode) {
                   flag = true;
                   netDiskItem.delete(matchedShareCode);
-                  log.info([
-                    `删除：`,
-                    netDiskKeyName,
-                    JSON.stringify(matchedInfo)
-                  ]);
+                  log.info(`删除：`, netDiskKeyName, JSON.stringify(matchedInfo));
                 }
               });
             });
@@ -15371,7 +15352,10 @@
   const domUtils = DOMUtils.noConflict();
   const __pops = pops;
   const Cryptojs$1 = CryptoJS ?? window.CryptoJS ?? _unsafeWindow.CryptoJS;
-  const __DataPaging = DataPaging ?? window.DataPaging ?? _unsafeWindow.DataPaging;
+  const __DataPaging = (
+    // @ts-ignore
+    DataPaging ?? window.DataPaging ?? _unsafeWindow.DataPaging
+  );
   const log = new utils.Log(
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
@@ -15429,7 +15413,7 @@
     return data;
   });
   httpx.interceptors.response.use(void 0, (data) => {
-    log.error(["拦截器-请求错误", data]);
+    log.error("拦截器-请求错误", data);
     if (data.type === "onabort") {
       Qmsg.warning("请求取消");
     } else if (data.type === "onerror") {
@@ -15496,7 +15480,7 @@
           } = await shortCut.enterShortcutKeys(key);
           loadingQmsg.close();
           if (status) {
-            log.success(["成功录入快捷键", option]);
+            log.success("成功录入快捷键", option);
             Qmsg.success("成功录入");
           } else {
             Qmsg.error(
@@ -15737,7 +15721,7 @@
             });
             if (findShortcutIndex != -1) {
               let findShortcut = localOptions[findShortcutIndex];
-              log.info(["调用快捷键", findShortcut]);
+              log.info("调用快捷键", findShortcut);
               if (findShortcut.key in option) {
                 option[findShortcut.key].callback();
               }
@@ -15857,7 +15841,7 @@
           value.push(selectedInfo.value);
         });
         this.props[PROPS_STORAGE_API].set(key, value);
-        log.info([`多选-选择：`, value]);
+        log.info(`多选-选择：`, value);
       },
       data: selectData
     };
@@ -16869,7 +16853,7 @@
         }
         let needInitConfigList = Object.keys(needInitConfig);
         if (!needInitConfigList.length) {
-          log.warn(["请先配置键", config]);
+          log.warn("请先配置键", config);
           return;
         }
         needInitConfigList.forEach((iteratorKey) => {

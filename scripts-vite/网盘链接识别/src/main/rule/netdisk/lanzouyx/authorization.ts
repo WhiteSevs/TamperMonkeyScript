@@ -12,14 +12,14 @@ export const NetDiskAuthorization_Lanzouyx = function () {
 	// let diskVueX = unsafeWindow.localStorage.getItem("disk-vuex");
 	// let diskPCVueX = unsafeWindow.localStorage.getItem("disk-pc-vuex")!;
 	// if (utils.isNotNull(uuid)) {
-	// 	log.success(["获取蓝奏云优享生成的uuid：", uuid]);
+	// 	log.success("获取蓝奏云优享生成的uuid：", uuid);
 	// 	GM_setValue("lanzouyx-uuid", uuid);
 	// }
 	// if (utils.isNotNull(diskVueX)) {
 	// 	diskVueX = utils.toJSON(diskVueX);
 	// 	let userId = diskVueX?.["admin"]?.["account"]?.["info"]?.["userId"];
 	// 	if (userId != null) {
-	// 		log.success(["获取蓝奏云优享已登录用户的userId：", userId]);
+	// 		log.success("获取蓝奏云优享已登录用户的userId：", userId);
 	// 		GM_setValue("lanzouyx-userId", userId);
 	// 	}
 	// }
@@ -27,7 +27,7 @@ export const NetDiskAuthorization_Lanzouyx = function () {
 	// 	diskPCVueX = utils.toJSON(diskPCVueX);
 	// 	let userId = diskVueX?.["common"]?.["accountInfo"]?.["userId"];
 	// 	if (userId != null) {
-	// 		log.success(["获取蓝奏云优享已登录用户的userId：", userId]);
+	// 		log.success("获取蓝奏云优享已登录用户的userId：", userId);
 	// 		GM_setValue("lanzouyx-userId", userId);
 	// 	}
 	// }
@@ -44,14 +44,14 @@ export const NetDiskAuthorization_Lanzouyx = function () {
 	// let diskVueX = unsafeWindow.localStorage.getItem("disk-vuex");
 	// let diskPCVueX = unsafeWindow.localStorage.getItem("disk-pc-vuex");
 	// if (utils.isNotNull(uuid)) {
-	// 	log.success(["获取蓝奏云优享生成的uuid：", uuid]);
+	// 	log.success("获取蓝奏云优享生成的uuid：", uuid);
 	// 	GM_setValue("lanzouyx-uuid", uuid);
 	// }
 	// if (utils.isNotNull(diskVueX)) {
 	// 	diskVueX = utils.toJSON(diskVueX);
 	// 	let userId = diskVueX?.["admin"]?.["account"]?.["info"]?.["userId"];
 	// 	if (userId != null) {
-	// 		log.success(["获取蓝奏云优享已登录用户的userId：", userId]);
+	// 		log.success("获取蓝奏云优享已登录用户的userId：", userId);
 	// 		GM_setValue("lanzouyx-userId", userId);
 	// 	}
 	// }
@@ -59,7 +59,7 @@ export const NetDiskAuthorization_Lanzouyx = function () {
 	// 	diskPCVueX = utils.toJSON(diskPCVueX);
 	// 	let userId = diskVueX?.["common"]?.["accountInfo"]?.["userId"];
 	// 	if (userId != null) {
-	// 		log.success(["获取蓝奏云优享已登录用户的userId：", userId]);
+	// 		log.success("获取蓝奏云优享已登录用户的userId：", userId);
 	// 		GM_setValue("lanzouyx-userId", userId);
 	// 	}
 	// }

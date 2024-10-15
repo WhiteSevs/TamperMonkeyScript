@@ -32,7 +32,7 @@ export const NetDiskCheckLinkValidity_chengtong: NetDiskCheckLinkValidityEntranc
 				/* 文件夹 */
 				url = `https://webapi.ctfile.com/getdir.php?path=${path}&d=${shareCode}&folder_id=&passcode=${accessCode}&token=0&r=${Math.random()}&ref=`;
 			} else {
-				log.warn(["未知path", [netDiskIndex, shareCode, accessCode]]);
+				log.warn("未知path", [netDiskIndex, shareCode, accessCode]);
 				return {
 					...NetDiskCheckLinkValidity.status.unknown,
 					data: null,

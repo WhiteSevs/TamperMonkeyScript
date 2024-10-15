@@ -13,7 +13,7 @@ export class NetDiskParse_Baidu extends NetDiskParseObject {
 	 * @param accessCode
 	 */
 	init(netDiskIndex: number, shareCode: string, accessCode: string) {
-		log.info([netDiskIndex, shareCode, accessCode]);
+		log.info(netDiskIndex, shareCode, accessCode);
 		this.netDiskIndex = netDiskIndex;
 		this.shareCode = shareCode;
 		this.accessCode = accessCode;
@@ -51,9 +51,9 @@ export class NetDiskParse_Baidu extends NetDiskParseObject {
 			formElement.appendChild(textAreaElement);
 			formData[key] = value;
 		}
-		log.info(["表单数据", formData]);
+		log.info("表单数据", formData);
 		document.body.appendChild(formElement);
-		log.info(["访问网址", url]);
+		log.info("访问网址", url);
 		if (enableCopy) {
 			NetDiskLinkClickMode.copy(
 				"baidu",

@@ -234,7 +234,7 @@ export const NetDiskUserRuleDebug = {
 				let selectRegularOption = (
 					that.$el.$select.selectedOptions[netDiskIndex] as any
 				)["data-value"] as NetDiskMatchRuleOption;
-				log.info(["当前选中的规则: ", selectRegularOption]);
+				log.info("当前选中的规则: ", selectRegularOption);
 				let testCustomRule = <NetDiskMatchRule>{};
 				testCustomRule[ruleJSON.key] = [selectRegularOption];
 				let matchTextList: string[] = [];

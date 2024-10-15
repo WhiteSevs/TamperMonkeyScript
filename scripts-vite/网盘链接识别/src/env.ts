@@ -24,7 +24,9 @@ const domUtils = DOMUtils.noConflict();
 const __pops = pops;
 const Cryptojs = CryptoJS ?? window.CryptoJS ?? unsafeWindow.CryptoJS;
 // @ts-ignore
-const __DataPaging:typeof import("@库/DataPaging") = DataPaging ?? window.DataPaging ?? unsafeWindow.DataPaging;
+const __DataPaging: typeof import("@库/DataPaging") =
+	// @ts-ignore
+	DataPaging ?? window.DataPaging ?? unsafeWindow.DataPaging;
 // const Viewer: typeof import("@库/Viewer") =
 // 	(monkeyWindow as any).Viewer || (unsafeWindow as any).Viewer;
 // const showdown: typeof import("@库/showdown") =
@@ -97,7 +99,7 @@ httpx.interceptors.request.use((data) => {
 
 // 添加响应拦截器
 httpx.interceptors.response.use(void 0, (data) => {
-	log.error(["拦截器-请求错误", data]);
+	log.error("拦截器-请求错误", data);
 	if (data.type === "onabort") {
 		Qmsg.warning("请求取消");
 	} else if (data.type === "onerror") {

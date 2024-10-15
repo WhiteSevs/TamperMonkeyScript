@@ -38,7 +38,7 @@ export const NetDiskLinearChainDialogView = {
 	 * @param fileDetails 配置
 	 */
 	oneFile(fileDetails: NetDiskOneFileDetails) {
-		log.success(["成功获取单文件直链", fileDetails]);
+		log.success("成功获取单文件直链", fileDetails);
 		NetDiskPops.folder(
 			{
 				title: {
@@ -94,7 +94,7 @@ export const NetDiskLinearChainDialogView = {
 	 * @param folderInfoList文件夹信息
 	 */
 	moreFile(title: string, folderInfoList: PopsFolderDataConfig[] = []) {
-		log.success(["文件解析信息", folderInfoList]);
+		log.success("文件解析信息", folderInfoList);
 		NetDiskPops.folder(
 			{
 				title: {

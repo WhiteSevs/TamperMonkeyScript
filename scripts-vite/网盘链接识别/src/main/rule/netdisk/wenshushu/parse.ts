@@ -23,7 +23,7 @@ export class NetDiskParse_Wenshushu extends NetDiskParseObject {
 	};
 	async init(netDiskIndex: number, shareCode: string, accessCode: string) {
 		const that = this;
-		log.info([netDiskIndex, shareCode, accessCode]);
+		log.info(netDiskIndex, shareCode, accessCode);
 		that.netDiskIndex = netDiskIndex;
 		that.shareCode = shareCode;
 		that.accessCode = accessCode;

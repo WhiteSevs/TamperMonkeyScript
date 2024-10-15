@@ -644,7 +644,7 @@ export const NetDiskHistoryMatchView = {
 					if (matchText.trim() !== "" && localData.matchText !== matchText) {
 						/* 修改/设置新的matchText */
 						editFlag = true;
-						log.success(["匹配历史记录 -> 设置新的matchText", [matchText]]);
+						log.success("匹配历史记录 -> 设置新的matchText", [matchText]);
 						storageDataList[index].matchText = matchText;
 					}
 					if (
@@ -747,7 +747,7 @@ export const NetDiskHistoryMatchView = {
 		let data = this.getStorageData();
 		for (let index = 0; index < data.length; index++) {
 			if (JSON.stringify(data[index]) === dataJSONText) {
-				log.success(["删除 ===> ", data[index]]);
+				log.success("删除 ===> ", data[index]);
 				data.splice(index, 1);
 				isSuccess = true;
 				break;

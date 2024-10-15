@@ -174,10 +174,10 @@ export const NetDiskWorker = {
 			NetDiskWorker.GM_matchWorker.onmessage = NetDiskWorker.onMessage;
 			NetDiskWorker.GM_matchWorker.onerror = NetDiskWorker.onError;
 		} catch (error: any) {
-			log.error([
-				"初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用另类方法",
-				error.message,
-			]);
+			log.error(
+				"初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果内容过大会导致页面卡死",
+				error.message
+			);
 			// @ts-ignore
 			NetDiskWorker.GM_matchWorker = {
 				postMessage(data: NetDiskWorkerOptions) {
@@ -219,7 +219,7 @@ export const NetDiskWorker = {
 		options?: StructuredSerializeOptions
 	) {
 		if (isDebug) {
-			log.info(["Debug-传递数据给worker内进行处理匹配: ", message]);
+			log.info("Debug-传递数据给worker内进行处理匹配: ", message);
 		}
 		NetDiskWorker.GM_matchWorker.postMessage(message, options);
 	},
@@ -231,7 +231,7 @@ export const NetDiskWorker = {
 	onMessage(event: MessageEvent<NetDiskWorkerCallBackOptions>) {
 		const data = event.data;
 		if (isDebug) {
-			log.info([`Debug-匹配结束,用时${Date.now() - data.startTime}ms: `, data]);
+			log.info(`Debug-匹配结束,用时${Date.now() - data.startTime}ms: `, data);
 		}
 		if (data.data.length) {
 			log.success(
@@ -348,10 +348,10 @@ export const NetDiskWorker = {
 					if (isFindBlackShareCode) {
 						// 黑名单的分享码相同
 						isBlackShareCode = true;
-						log.warn([
+						log.warn(
 							`匹配到黑名单分享码，已过滤：${shareCode}`,
-							JSON.stringify(item),
-						]);
+							JSON.stringify(item)
+						);
 					}
 				}
 			);
@@ -483,10 +483,10 @@ export const NetDiskWorker = {
 					NetDiskUI.view.show();
 					break;
 				default:
-					log.error([
+					log.error(
 						"未知的行为模式：" +
-							NetDiskGlobalData.features["netdisk-behavior-mode"].value,
-					]);
+							NetDiskGlobalData.features["netdisk-behavior-mode"].value
+					);
 			}
 		}
 		NetDiskWorker.matchingEndCallBack();
@@ -497,7 +497,7 @@ export const NetDiskWorker = {
 	 */
 	errorCallBack(error: any) {
 		NetDiskWorker.matchingEndCallBack(true);
-		log.error(["Worker Error", error]);
+		log.error("Worker Error", error);
 	},
 	/**
 	 * 匹配结束回调

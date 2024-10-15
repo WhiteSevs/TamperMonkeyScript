@@ -632,8 +632,8 @@ export const NetDiskUserRule = {
 	},
 	/**
 	 * 设置规则到本地
-	 * @param {string} oldRuleKey 旧规则的键名
-	 * @param {NetDiskUserCustomRule[]|NetDiskUserCustomRule} userRule
+	 * @param oldRuleKey 旧规则的键名
+	 * @param userRule
 	 */
 	setRule(
 		oldRuleKey: string,
@@ -651,7 +651,7 @@ export const NetDiskUserRule = {
 				localRule[findRuleIndex] = null;
 				localRule[findRuleIndex] = userRule;
 			} else {
-				log.error(["覆盖规则失败", userRule]);
+				log.error("覆盖规则失败", userRule);
 				Qmsg.error("覆盖规则失败");
 				return false;
 			}
@@ -660,7 +660,7 @@ export const NetDiskUserRule = {
 	},
 	/**
 	 * 删除单条规则
-	 * @param {string} ruleKey 规则的key名
+	 * @param ruleKey 规则的key名
 	 */
 	deleteRule(ruleKey: string) {
 		let localRule = this.getAllRule();

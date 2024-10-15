@@ -10,7 +10,7 @@ export const NetDiskAutoFillAccessCode_aliyun = function (
 		window.location.hostname === "www.alipan.com"
 	) {
 		/* 桌面端 */
-		log.success(["自动填写链接", netDiskInfo]);
+		log.success("自动填写链接", netDiskInfo);
 		utils
 			.waitNode<HTMLInputElement>("#root input.ant-input")
 			.then((element) => {

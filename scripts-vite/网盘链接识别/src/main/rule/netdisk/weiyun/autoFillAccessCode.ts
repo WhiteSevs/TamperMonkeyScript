@@ -6,7 +6,7 @@ export const NetDiskAutoFillAccessCode_weiyun = function (
 ) {
 	if (window.location.hostname === "share.weiyun.com") {
 		/* 桌面端 */
-		log.success(["自动填写链接", netDiskInfo]);
+		log.success("自动填写链接", netDiskInfo);
 		utils.waitNode<HTMLInputElement>("#app input.input-txt").then((element) => {
 			if (!utils.isVisible(element)) {
 				log.error("输入框不可见，不输入密码");

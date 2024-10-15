@@ -285,7 +285,7 @@ export class ShortCut {
 					});
 					if (findShortcutIndex != -1) {
 						let findShortcut = localOptions[findShortcutIndex];
-						log.info(["调用快捷键", findShortcut]);
+						log.info("调用快捷键", findShortcut);
 						if (findShortcut.key in option) {
 							option[findShortcut.key].callback();
 						}

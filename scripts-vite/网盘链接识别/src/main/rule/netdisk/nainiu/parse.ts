@@ -12,7 +12,7 @@ export class NetDiskParse_nainiu extends NetDiskParseObject {
 	OK_CODE = "0000";
 	async init(netDiskIndex: number, shareCode: string, accessCode: string) {
 		const that = this;
-		log.info([netDiskIndex, shareCode, accessCode]);
+		log.info(netDiskIndex, shareCode, accessCode);
 		that.netDiskIndex = netDiskIndex;
 		that.shareCode = shareCode;
 		that.accessCode = accessCode;
@@ -269,7 +269,7 @@ export class NetDiskParse_nainiu extends NetDiskParseObject {
 		);
 		folderInfoList = folderInfoList.concat(tempFolderInfoList);
 		folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
-		log.info(["getFolderInfo", folderInfoList]);
+		log.info("getFolderInfo", folderInfoList);
 		return folderInfoList;
 	}
 	/**
@@ -401,7 +401,7 @@ export class NetDiskParse_nainiu extends NetDiskParseObject {
 		}
 		let respData = getResp.data;
 		let resultJSON = utils.toJSON(respData.responseText);
-		log.info(["转换的JSON", resultJSON]);
+		log.info("转换的JSON", resultJSON);
 		return resultJSON;
 	}
 	/**
@@ -427,7 +427,7 @@ export class NetDiskParse_nainiu extends NetDiskParseObject {
 		}
 		let respData = getResp.data;
 		let resultJSON = utils.toJSON(respData.responseText);
-		log.info(["转换的JSON", resultJSON]);
+		log.info("转换的JSON", resultJSON);
 		if (resultJSON["code"] === that.OK_CODE) {
 			return resultJSON["data"]["downloadUrl"];
 		} else {
@@ -458,7 +458,7 @@ export class NetDiskParse_nainiu extends NetDiskParseObject {
 		}
 		let respData = getResp.data;
 		let resultJSON = utils.toJSON(respData.responseText);
-		log.info(["转换的JSON", resultJSON]);
+		log.info("转换的JSON", resultJSON);
 		if (resultJSON["code"] === that.OK_CODE) {
 			return resultJSON["data"]["downloadUrl"];
 		} else {
@@ -473,7 +473,7 @@ export class NetDiskParse_nainiu extends NetDiskParseObject {
 	 */
 	async downloadFile(fileName: string, fileDownloadUrl: string) {
 		const that = this;
-		log.info(["下载文件：", fileName, fileDownloadUrl]);
+		log.info("下载文件：", fileName, fileDownloadUrl);
 		Qmsg.info(`调用【GM_download】下载：${fileName}`);
 		if (typeof GM_download === "undefined") {
 			Qmsg.error("当前脚本环境缺失API 【GM_download】");
@@ -516,7 +516,7 @@ export class NetDiskParse_nainiu extends NetDiskParseObject {
 			},
 			onerror(error) {
 				downloadingQmsg.close();
-				log.error(["下载失败error👉", error]);
+				log.error("下载失败error👉", error);
 				if (typeof error === "object" && error["error"]) {
 					Qmsg.error(`下载 ${fileName} 失败或已取消 原因：${error["error"]}`, {
 						timeout: 6000,

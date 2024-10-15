@@ -17,7 +17,7 @@ export class NetDiskParse_UC extends NetDiskParseObject {
 	 */
 	async init(netDiskIndex: number, shareCode: string, accessCode: string) {
 		const that = this;
-		log.info([netDiskIndex, shareCode, accessCode]);
+		log.info(netDiskIndex, shareCode, accessCode);
 		that.netDiskIndex = netDiskIndex;
 		that.shareCode = shareCode;
 		that.accessCode = accessCode;
@@ -94,7 +94,7 @@ export class NetDiskParse_UC extends NetDiskParseObject {
 				"User-Agent": utils.getRandomPCUA(),
 			},
 		});
-		log.success(["判断是否已登录UC网盘", getResp]);
+		log.success("判断是否已登录UC网盘", getResp);
 		if (!getResp.status) {
 			return;
 		}
@@ -113,7 +113,7 @@ export class NetDiskParse_UC extends NetDiskParseObject {
 	 * } }
 	 */
 	downloadFile(fileName: string, downloadUrl: string) {
-		log.info([`调用【GM_download】下载：`, arguments]);
+		log.info(`调用【GM_download】下载：`, arguments);
 		Qmsg.info(`调用【GM_download】下载：${fileName}`);
 		if (typeof GM_download === "undefined") {
 			Qmsg.error("当前脚本环境缺失API 【GM_download】");
@@ -148,7 +148,7 @@ export class NetDiskParse_UC extends NetDiskParseObject {
 			},
 			onerror(error) {
 				downloadingQmsg.close();
-				log.error(["下载失败error👉", error]);
+				log.error("下载失败error👉", error);
 				if (typeof error === "object" && error["error"]) {
 					Qmsg.error(`下载 ${fileName} 失败或已取消 原因：${error["error"]}`, {
 						timeout: 6000,
@@ -223,7 +223,7 @@ export class NetDiskParse_UC extends NetDiskParseObject {
 		);
 		if (!postResp.status) {
 			let errorData = utils.toJSON(postResp.data.responseText);
-			log.error(["获取stoken失败JSON信息", errorData]);
+			log.error("获取stoken失败JSON信息", errorData);
 			if ("message" in errorData) {
 				Qmsg.error(errorData["message"]);
 			} else {
@@ -232,9 +232,9 @@ export class NetDiskParse_UC extends NetDiskParseObject {
 			return;
 		}
 		let data = utils.toJSON(postResp.data.responseText);
-		log.info(["获取stoken：", data]);
+		log.info("获取stoken：", data);
 		if (data["code"] !== 0) {
-			log.error(["获取stoken失败", data]);
+			log.error("获取stoken失败", data);
 			Qmsg.error("获取stoken失败");
 			return;
 		}
@@ -286,9 +286,9 @@ export class NetDiskParse_UC extends NetDiskParseObject {
 			return;
 		}
 		let data = utils.toJSON(getResp.data.responseText);
-		log.info(["获取detail：", data]);
+		log.info("获取detail：", data);
 		if (data["code"] !== 0) {
-			log.error(["获取detail失败", data]);
+			log.error("获取detail失败", data);
 			Qmsg.error("获取detail失败");
 			return;
 		}
@@ -401,14 +401,14 @@ export class NetDiskParse_UC extends NetDiskParseObject {
 			return;
 		}
 		let data = utils.toJSON(postResp.data.responseText);
-		log.info(["获取download：", data]);
+		log.info("获取download：", data);
 		if (data["code"] !== 0) {
-			log.error(["获取download失败", data]);
+			log.error("获取download失败", data);
 			Qmsg.error("获取download失败");
 			return;
 		}
 		if (data["data"].length === 0) {
-			log.error(["获取download detail失败", data]);
+			log.error("获取download detail失败", data);
 			Qmsg.error("获取download detail失败失败");
 			return;
 		}
@@ -577,7 +577,7 @@ export class NetDiskParse_UC extends NetDiskParseObject {
 		);
 		folderInfoList = folderInfoList.concat(tempFolderInfoList);
 		folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
-		log.info(["getFilesInfoByRec", folderInfoList]);
+		log.info("getFilesInfoByRec", folderInfoList);
 		return folderInfoList;
 	}
 }

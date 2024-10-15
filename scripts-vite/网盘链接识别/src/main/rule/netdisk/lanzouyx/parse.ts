@@ -137,7 +137,7 @@ export class NetDiskParse_Lanzouyx extends NetDiskParseObject {
 	 */
 	async init(netDiskIndex: number, shareCode: string, accessCode: string) {
 		const that = this;
-		log.info([netDiskIndex, shareCode, accessCode]);
+		log.info(netDiskIndex, shareCode, accessCode);
 		that.netDiskIndex = netDiskIndex;
 		that.shareCode = shareCode;
 		that.accessCode = accessCode;
@@ -345,7 +345,7 @@ export class NetDiskParse_Lanzouyx extends NetDiskParseObject {
 			return;
 		}
 		let data = utils.toJSON(postResp.data.responseText);
-		log.success(["获取链接信息：", data]);
+		log.success("获取链接信息：", data);
 		if (data["code"] !== 200) {
 			Qmsg.error("请求链接信息失败");
 			return;
@@ -396,7 +396,7 @@ export class NetDiskParse_Lanzouyx extends NetDiskParseObject {
 			return;
 		}
 		let data = utils.toJSON(postResp.data.responseText);
-		log.success(["获取文件列表信息：", data]);
+		log.success("获取文件列表信息：", data);
 		if (data["code"] === 200) {
 			return data;
 		} else {

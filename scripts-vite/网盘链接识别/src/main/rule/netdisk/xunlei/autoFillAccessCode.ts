@@ -5,7 +5,7 @@ export const NetDiskAutoFillAccessCode_xunlei = function (
 ) {
 	if (window.location.hostname === "pan.xunlei.com") {
 		/* 桌面端 */
-		log.success(["自动填写链接", netDiskInfo]);
+		log.success("自动填写链接", netDiskInfo);
 		utils
 			.waitNode<HTMLInputElement>(
 				"#__layout div.pass-input-wrap input.td-input__inner"

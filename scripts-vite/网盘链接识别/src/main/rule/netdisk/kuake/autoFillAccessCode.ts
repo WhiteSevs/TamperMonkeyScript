@@ -6,7 +6,7 @@ export const NetDiskAutoFillAccessCode_kuake = function (
 	netDiskInfo: NetDiskAutoFillAccessCodeOption
 ) {
 	if (window.location.hostname === "pan.quark.cn") {
-		log.success(["自动填写链接", netDiskInfo]);
+		log.success("自动填写链接", netDiskInfo);
 		utils
 			.waitNode<HTMLInputElement>(
 				"#ice-container input.ant-input[class*=ShareReceive]"

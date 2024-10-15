@@ -261,7 +261,9 @@ export const NetDiskUI = {
 									if (option.isFindInMatchedDict) {
 										Qmsg.error("修改访问码失败");
 									} else {
-										Qmsg.error("修改访问码失败，因为当前已匹配字典中未找到对应的访问码");
+										Qmsg.error(
+											"修改访问码失败，因为当前已匹配字典中未找到对应的访问码"
+										);
 									}
 								}
 							}
@@ -289,11 +291,7 @@ export const NetDiskUI = {
 							if (matchedShareCode === shareCode) {
 								flag = true;
 								netDiskItem.delete(matchedShareCode);
-								log.info([
-									`删除：`,
-									netDiskKeyName,
-									JSON.stringify(matchedInfo),
-								]);
+								log.info(`删除：`, netDiskKeyName, JSON.stringify(matchedInfo));
 							}
 						});
 					});

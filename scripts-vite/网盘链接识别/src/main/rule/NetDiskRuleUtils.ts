@@ -63,7 +63,7 @@ export const NetDiskRuleUtils = {
 						encodeURI(replacedText)
 					);
 				} catch (error) {
-					log.error(["encodeURI-替换的文本失败", [replacedText]]);
+					log.error("encodeURI-替换的文本失败", [replacedText]);
 				}
 
 				try {
@@ -72,7 +72,7 @@ export const NetDiskRuleUtils = {
 						encodeURIComponent(replacedText)
 					);
 				} catch (error) {
-					log.error(["encodeURIComponent-替换的文本失败", [replacedText]]);
+					log.error("encodeURIComponent-替换的文本失败", [replacedText]);
 				}
 				try {
 					text = text.replaceAll(
@@ -80,7 +80,7 @@ export const NetDiskRuleUtils = {
 						decodeURI(replacedText)
 					);
 				} catch (error) {
-					log.error(["decodeURI-替换的文本失败", [replacedText]]);
+					log.error("decodeURI-替换的文本失败", [replacedText]);
 				}
 				try {
 					text = text.replaceAll(
@@ -88,7 +88,7 @@ export const NetDiskRuleUtils = {
 						decodeURIComponent(replacedText)
 					);
 				} catch (error) {
-					log.error(["encodeURIComponent-替换的文本失败", [replacedText]]);
+					log.error("encodeURIComponent-替换的文本失败", [replacedText]);
 				}
 				text = text.replaceAll(`{#${key}#}`, replacedText);
 			}

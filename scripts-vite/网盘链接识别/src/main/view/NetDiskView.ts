@@ -450,7 +450,7 @@ export const NetDiskView = {
 			accessCode: $ele.getAttribute("data-accesscode")!,
 		};
 		if (isNaN(result.netDiskIndex)) {
-			log.warn(["元素上的netDiskIndex的值是NaN", $ele]);
+			log.warn("元素上的netDiskIndex的值是NaN", $ele);
 			result.netDiskIndex = 0;
 		}
 		return result;
@@ -666,7 +666,7 @@ export const NetDiskView = {
 		if (!NetDiskUI.Alias.uiLinkAlias) {
 			return;
 		}
-		log.info([netDiskName, netDiskIndex, shareCode, accessCode]);
+		log.info(netDiskName, netDiskIndex, shareCode, accessCode);
 		let icon = NetDiskUI.src.icon[netDiskName];
 		let uiLink = NetDisk.handleLinkShow(
 			netDiskName,
@@ -793,7 +793,7 @@ export const NetDiskView = {
 					iterator = findGenerator.next();
 				}
 				if (iterator?.value) {
-					log.success(["定位元素", iterator]);
+					log.success("定位元素", iterator);
 					if (
 						iterator.value.nodeType === Node.ELEMENT_NODE &&
 						(iterator.value as HTMLElement).getClientRects().length
@@ -915,7 +915,7 @@ export const NetDiskView = {
 							}
 						}
 					} else {
-						log.error(["无法定位该元素位置", iterator.value]);
+						log.error("无法定位该元素位置", iterator.value);
 						Qmsg.error(
 							`无法定位该元素位置，类型：<${(
 								iterator.value.nodeName ||

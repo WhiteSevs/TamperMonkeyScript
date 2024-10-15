@@ -46,7 +46,7 @@ export const NetDiskCheckLinkValidity_lanzouyx: NetDiskCheckLinkValidityEntrance
 				};
 			}
 			let data = utils.toJSON(response.data.responseText);
-			log.success(["获取链接信息：", data]);
+			log.success("获取链接信息：", data);
 			if (data["code"] !== 200) {
 				return {
 					...NetDiskCheckLinkValidity.status.error,

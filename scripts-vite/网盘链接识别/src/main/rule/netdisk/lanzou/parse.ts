@@ -153,7 +153,7 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 	 * @param accessCode
 	 */
 	async init(netDiskIndex: number, shareCode: string, accessCode: string) {
-		log.info([netDiskIndex, shareCode, accessCode]);
+		log.info(netDiskIndex, shareCode, accessCode);
 		this.netDiskIndex = netDiskIndex;
 		this.shareCode = shareCode;
 		this.accessCode = accessCode;
@@ -234,7 +234,7 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 				pageDOM.querySelector('iframe[class^="n_downlink"]');
 			if (pageIframeElement) {
 				let iframeUrl = pageIframeElement.getAttribute("src")!;
-				log.error(["该链接需要重新通过iframe地址访问获取信息", iframeUrl]);
+				log.error("该链接需要重新通过iframe地址访问获取信息", iframeUrl);
 				Qmsg.info("正在请求下载信息");
 				let fileName =
 					pageDOM.querySelector<HTMLElement>("body div.d > div")?.innerText ||
@@ -469,7 +469,7 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 				appleDown = appleDown[appleDown.length - 1];
 				loadDownHost = [appleDown];
 				loadDown = [""];
-				log.success(["多文件-当前链接猜测为苹果的文件", appleDown]);
+				log.success("多文件-当前链接猜测为苹果的文件", appleDown);
 			}
 			if (utils.isNull(loadDownHost)) {
 				Qmsg.error("蓝奏云直链：获取sign的域名失败，请反馈开发者", {
@@ -486,7 +486,7 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 			let downloadUrl = `${loadDownHost[loadDownHost.length - 1]}${
 				loadDown[loadDown.length - 1]
 			}`;
-			log.info([fileName, fileSize, downloadUrl]);
+			log.info(fileName, fileSize, downloadUrl);
 			log.info(downloadUrl);
 			if (NetDiskFilterScheme.isForwardDownloadLink("lanzou")) {
 				downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
@@ -519,7 +519,7 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 		}
 	) {
 		const that = this;
-		log.info([urlPathName, fileInfo]);
+		log.info(urlPathName, fileInfo);
 		let iFrameUrl = that.router.root(urlPathName);
 		let getResp = await httpx.get({
 			url: iFrameUrl,
@@ -618,7 +618,7 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 			log.info("测试killdns2成功，不改变原downloadUrl");
 		}
 
-		log.success(["直链", downloadUrl]);
+		log.success("直链", downloadUrl);
 		if ("密码不正确".indexOf(jsonData["inf"]) != -1) {
 			Qmsg.error("密码不正确!");
 			NetDiskUI.newAccessCodeView(
@@ -737,7 +737,7 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 								url: folderDownloadInfo.downloadUrl!,
 							};
 						} else {
-							log.error(["获取下载信息失败：", folderDownloadInfo]);
+							log.error("获取下载信息失败：", folderDownloadInfo);
 							Qmsg.error(folderDownloadInfo.msg);
 						}
 					},
@@ -821,7 +821,7 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 			};
 		}
 		let iframeUrl = pageIframeElement.getAttribute("src")!;
-		log.error(["该链接需要重新通过iframe地址访问获取信息", iframeUrl]);
+		log.error("该链接需要重新通过iframe地址访问获取信息", iframeUrl);
 		Qmsg.info("正在请求下载信息");
 		let downloadUrl = await that.getLinkByIframe(iframeUrl, {
 			fileName,

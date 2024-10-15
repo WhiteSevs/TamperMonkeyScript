@@ -5,7 +5,7 @@ export const NetDiskAutoFillAccessCode_lanzou = function (
 	netDiskInfo: NetDiskAutoFillAccessCodeOption
 ) {
 	if (window.location.hostname.match(/lanzou[a-z]{1}.com/gi)) {
-		log.success(["自动填写链接", netDiskInfo]);
+		log.success("自动填写链接", netDiskInfo);
 		utils.waitNode<HTMLInputElement>("#pwd").then(($input) => {
 			if (!utils.isVisible($input)) {
 				log.error("输入框不可见，不输入密码");

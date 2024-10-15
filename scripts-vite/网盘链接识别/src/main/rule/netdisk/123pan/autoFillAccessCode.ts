@@ -7,7 +7,7 @@ export const NetDiskAutoFillAccessCode_123pan = function (
 ) {
 	if (window.location.hostname === "www.123pan.com") {
 		/* 桌面端 */
-		log.success(["自动填写链接", netDiskInfo]);
+		log.success("自动填写链接", netDiskInfo);
 		utils
 			.waitNode<HTMLInputElement>("#app .ca-fot input.ant-input[type=text]")
 			.then((element) => {

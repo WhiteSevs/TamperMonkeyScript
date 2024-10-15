@@ -108,7 +108,7 @@ export const CommonUtils = {
 					resolve(clipboardText);
 				})
 				.catch((error: TypeError) => {
-					log.error(["读取剪贴板内容失败👉", error]);
+					log.error("读取剪贴板内容失败👉", error);
 					resolve("");
 				});
 		}
@@ -123,10 +123,10 @@ export const CommonUtils = {
 					readClipboardText(resolve);
 				})
 				.catch((error: TypeError) => {
-					log.error([
+					log.error(
 						"申请剪贴板权限失败，尝试直接读取👉",
-						error.message ?? error.name ?? error.stack,
-					]);
+						error.message ?? error.name ?? error.stack
+					);
 					/* 该权限申请Api可能在该环境下不生效，尝试直接读取剪贴板 */
 					readClipboardText(resolve);
 				});

@@ -4,7 +4,10 @@ import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/f
 import { HttpxAsyncResult } from "@whitesev/utils/dist/types/src/Httpx";
 import { unsafeWindow } from "ViteGM";
 import { NetDiskParseObject } from "../../../parse/NetDiskParseObject";
-import { NetDiskLinkClickMode, NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
+import {
+	NetDiskLinkClickMode,
+	NetDiskLinkClickModeUtils,
+} from "@/main/link-click-mode/NetDiskLinkClickMode";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 
@@ -24,14 +27,13 @@ export class NetDiskParse_Aliyun extends NetDiskParseObject {
 	X_Canary = "client=web,app=share,version=v2.3.1";
 	/**
 	 * 入口
-	 * @param {number} netDiskIndex 网盘名称索引下标
-	 * @param {string} shareCode
-	 * @param {string} accessCode
-	 * @returns
+	 * @param netDiskIndex 网盘名称索引下标
+	 * @param shareCode
+	 * @param accessCode
 	 */
 	async init(netDiskIndex: number, shareCode: string, accessCode: string) {
 		const that = this;
-		log.info([netDiskIndex, shareCode, accessCode]);
+		log.info(netDiskIndex, shareCode, accessCode);
 		that.netDiskIndex = netDiskIndex;
 		that.shareCode = shareCode;
 		that.accessCode = accessCode;
@@ -186,38 +188,21 @@ export class NetDiskParse_Aliyun extends NetDiskParseObject {
 		);
 		folderInfoList = folderInfoList.concat(tempFolderInfoList);
 		folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
-		log.info(["getFilesInfoByRec", folderInfoList]);
+		log.info("getFilesInfoByRec", folderInfoList);
 		return folderInfoList;
 	}
 	/**
 	 * 列出文件列表
-	 * @param {string} share_id
-	 * @param {string} parent_file_id 父项，根是root
-	 * @param {"name"} order_by 根据xxx排序
-	 * @param {"ASC"|"DESC"} order_direction 排序规则(升序/降序)
-	 * @returns {Promise<{
-	 * category?: string,
-	 * domain_id?: string,
-	 * file_extension?: string,
-	 * mime_extension?: string,
-	 * mime_type?: string,
-	 * punish_flag: number,
-	 * created_at: string,
-	 * domain_id: string,
-	 * drive_id: string,
-	 * file_id: string,
-	 * name: string,
-	 * parent_file_id:string,
-	 * share_id: string,
-	 * type: string,
-	 * updated_at: string,
-	 * }[]>}
+	 * @param share_id
+	 * @param parent_file_id 父项，根是root
+	 * @param order_by 根据xxx排序
+	 * @param order_direction 排序规则(升序/降序)
 	 */
 	async list_by_share(
 		share_id: string,
 		parent_file_id: string,
-		order_by = "name",
-		order_direction = "DESC"
+		order_by: string = "name",
+		order_direction: "ASC" | "DESC" = "DESC"
 	) {
 		const that = this;
 		let postResp = await httpx.post(
@@ -255,8 +240,23 @@ export class NetDiskParse_Aliyun extends NetDiskParseObject {
 			return;
 		}
 		let data = utils.toJSON(postResp.data.responseText);
-		log.info(["列出文件列表：", data]);
-		return data["items"];
+		log.info("列出文件列表：", data);
+		return data["items"] as {
+			category?: string;
+			domain_id?: string;
+			file_extension?: string;
+			mime_extension?: string;
+			mime_type?: string;
+			punish_flag: number;
+			created_at: string;
+			drive_id: string;
+			file_id: string;
+			name: string;
+			parent_file_id: string;
+			share_id: string;
+			type: string;
+			updated_at: string;
+		}[];
 	}
 	/**
 	 * 获取文件的下载链接
@@ -293,12 +293,12 @@ export class NetDiskParse_Aliyun extends NetDiskParseObject {
 			return;
 		}
 		let data = utils.toJSON(postResp.data.responseText);
-		log.info(["获取文件的下载链接：", data]);
+		log.info("获取文件的下载链接：", data);
 		return data["download_url"];
 	}
 	/**
 	 * 处理请求的错误
-	 * @param {HttpxAsyncResult} postResp
+	 * @param postResp
 	 */
 	handle_request_error(postResp: HttpxAsyncResult) {
 		log.error(postResp);
@@ -314,7 +314,7 @@ export class NetDiskParse_Aliyun extends NetDiskParseObject {
 		if (utils.isNotNull(token) && token != null) {
 			let tokenJSON = utils.toJSON(token);
 			let access_token = tokenJSON["access_token"];
-			log.success(["获取阿里云盘的access_token：", access_token]);
+			log.success("获取阿里云盘的access_token：", access_token);
 			return access_token;
 		} else {
 			log.error("获取access_token失败，请先登录账号！");
@@ -356,7 +356,7 @@ export class NetDiskParse_Aliyun extends NetDiskParseObject {
 		}
 		let data = utils.toJSON<any>(postResp.data.responseText);
 		that.X_Share_Token_Data = data;
-		log.info(["获取share_token：", that.X_Share_Token_Data]);
+		log.info("获取share_token：", that.X_Share_Token_Data);
 		return that.X_Share_Token_Data["share_token"];
 	}
 	/**

@@ -209,7 +209,7 @@ export const PopsPanel = {
 			}
 			let needInitConfigList = Object.keys(needInitConfig);
 			if (!needInitConfigList.length) {
-				log.warn(["请先配置键", config]);
+				log.warn("请先配置键", config);
 				return;
 			}
 			// 循环初始化默认值

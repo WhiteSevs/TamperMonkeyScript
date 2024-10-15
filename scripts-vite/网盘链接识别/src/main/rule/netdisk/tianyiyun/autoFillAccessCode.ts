@@ -29,7 +29,7 @@ export const NetDiskAutoFillAccessCode_tianyiyun = function (
 	}
 	if (window.location.hostname === "cloud.189.cn") {
 		/* 桌面端 */
-		log.success(["自动填写链接", netDiskInfo]);
+		log.success("自动填写链接", netDiskInfo);
 
 		utils
 			.waitNode<HTMLInputElement>("input#code_txt")
@@ -49,7 +49,7 @@ export const NetDiskAutoFillAccessCode_tianyiyun = function (
 	}
 	if (window.location.hostname === "h5.cloud.189.cn") {
 		/* 移动端 */
-		log.success(["自动填写链接", netDiskInfo]);
+		log.success("自动填写链接", netDiskInfo);
 		utils
 			.waitNode<HTMLInputElement>("input.access-code-input")
 			.then((accessInputElement) => {

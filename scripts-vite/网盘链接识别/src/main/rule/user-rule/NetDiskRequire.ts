@@ -12,11 +12,11 @@ export const NetDiskRequire = {
 	 */
 	async file(url: string, options?: HttpxDetails) {
 		if (utils.isNull(url)) {
-			log.error(["NetDiskRequire.file的参数path为空", url]);
+			log.error("NetDiskRequire.file的参数path为空", url);
 			return false;
 		}
 		if (this.requiredFileMap.has(url)) {
-			log.warn(["NetDiskRequire.file的参数path已引入过", url]);
+			log.warn("NetDiskRequire.file的参数path已引入过", url);
 			return true;
 		}
 		let getResp = await httpx.get(url, options!);
@@ -26,7 +26,7 @@ export const NetDiskRequire = {
 		let jsText = getResp.data.responseText;
 		let count = this.requiredFileMap.get(url)!;
 		this.requiredFileMap.set(url, count++);
-		log.info(["加载js文件", url]);
+		log.info("加载js文件", url);
 		unsafeWindow.eval(
 			`
 		let exports = void 0;

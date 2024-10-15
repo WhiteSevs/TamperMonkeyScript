@@ -70,7 +70,7 @@ export const UISelectMultiple = function <T>(
 				value.push(selectedInfo.value);
 			});
 			(this.props as any)[PROPS_STORAGE_API].set(key, value);
-			log.info([`多选-选择：`, value]);
+			log.info(`多选-选择：`, value);
 			if (typeof callback === "function") {
 				callback(selectInfo);
 			}

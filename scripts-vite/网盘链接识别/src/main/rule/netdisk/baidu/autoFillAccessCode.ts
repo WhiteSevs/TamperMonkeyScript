@@ -9,7 +9,7 @@ export const NetDiskAutoFillAccessCode_baidu = function (
 		window.location.pathname === "/share/init" &&
 		window.location.search.startsWith("?surl=")
 	) {
-		log.success(["自动填写链接", netDiskInfo]);
+		log.success("自动填写链接", netDiskInfo);
 		utils
 			.waitNode<HTMLInputElement>("div.verify-form #accessCode")
 			.then(($ele) => {
@@ -30,7 +30,7 @@ export const NetDiskAutoFillAccessCode_baidu = function (
 		window.location.pathname === "/wap/init" &&
 		window.location.search.startsWith("?surl=")
 	) {
-		log.success(["自动填写链接", netDiskInfo]);
+		log.success("自动填写链接", netDiskInfo);
 		utils
 			.waitNode<HTMLInputElement>(
 				"div.extractWrap div.extract-content div.extractInputWrap.extract input[type=text]"

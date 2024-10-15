@@ -16,7 +16,7 @@ export class NetDiskParse_Jianguoyun extends NetDiskParseObject {
 	};
 	async init(netDiskIndex: number, shareCode: string, accessCode: string) {
 		const that = this;
-		log.info([netDiskIndex, shareCode, accessCode]);
+		log.info(netDiskIndex, shareCode, accessCode);
 		that.netDiskIndex = netDiskIndex;
 		that.shareCode = shareCode;
 		that.accessCode = accessCode;
@@ -92,7 +92,7 @@ export class NetDiskParse_Jianguoyun extends NetDiskParseObject {
 	 */
 	parseMoreFile(folderInfo: any, hash = "", fileName = "") {
 		const that = this;
-		log.info(["解析多文件信息", folderInfo]);
+		log.info("解析多文件信息", folderInfo);
 		/**
 		 * @type {PopsFolderDataConfig[]}
 		 */
@@ -283,7 +283,7 @@ export class NetDiskParse_Jianguoyun extends NetDiskParseObject {
 		if (!getResp.status) {
 			if (utils.isNotNull(getResp.data?.responseText)) {
 				let errorData = utils.toJSON(getResp.data.responseText);
-				log.error(["坚果云", errorData]);
+				log.error("坚果云", errorData);
 				if (errorData["errorCode"] === "UnAuthorized") {
 					that.gotoLogin();
 				} else {
@@ -295,9 +295,9 @@ export class NetDiskParse_Jianguoyun extends NetDiskParseObject {
 			return;
 		}
 		let respData = getResp.data;
-		log.info(["请求信息", respData]);
+		log.info("请求信息", respData);
 		let resultJSON = utils.toJSON(respData.responseText);
-		log.info(["解析JSON", resultJSON]);
+		log.info("解析JSON", resultJSON);
 		if (resultJSON.hasOwnProperty("errorCode")) {
 			Qmsg.error("坚果云: " + resultJSON["detailMsg"]);
 			return;
@@ -329,7 +329,7 @@ export class NetDiskParse_Jianguoyun extends NetDiskParseObject {
 		if (!getResp.status) {
 			if (utils.isNotNull(getResp.data?.responseText)) {
 				let errorData = utils.toJSON(getResp.data.responseText);
-				log.error(["坚果云", errorData]);
+				log.error("坚果云", errorData);
 				if (errorData["errorCode"] === "UnAuthorized") {
 					that.gotoLogin();
 				} else {
@@ -341,7 +341,7 @@ export class NetDiskParse_Jianguoyun extends NetDiskParseObject {
 			return;
 		}
 		let respData = getResp.data;
-		log.info(["请求信息", respData]);
+		log.info("请求信息", respData);
 		let resultJSON = utils.toJSON(respData.responseText);
 		log.info(resultJSON);
 		if (resultJSON.hasOwnProperty("errorCode")) {
@@ -371,7 +371,7 @@ export class NetDiskParse_Jianguoyun extends NetDiskParseObject {
 			return;
 		}
 		let respData = getResp.data;
-		log.info(["请求信息", respData]);
+		log.info("请求信息", respData);
 		let resultJSON = utils.toJSON(respData.responseText);
 		log.info(resultJSON);
 		if ("objects" in resultJSON) {

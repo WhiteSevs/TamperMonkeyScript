@@ -24,7 +24,7 @@ export class NetDiskParse_Tianyiyun extends NetDiskParseObject {
 	};
 	async init(netDiskIndex: number, shareCode: string, accessCode: string) {
 		const that = this;
-		log.info([netDiskIndex, shareCode, accessCode]);
+		log.info(netDiskIndex, shareCode, accessCode);
 		that.netDiskIndex = netDiskIndex;
 		that.shareCode = shareCode;
 		that.accessCode = accessCode;
@@ -34,7 +34,7 @@ export class NetDiskParse_Tianyiyun extends NetDiskParseObject {
 			return;
 		}
 
-		log.info(["解析的JSON信息", shareInfoData]);
+		log.info("解析的JSON信息", shareInfoData);
 		if (shareInfoData["needAccessCode"] && utils.isNull(that.accessCode)) {
 			Qmsg.error("密码不正确!");
 			NetDiskUI.newAccessCodeView(
@@ -187,7 +187,7 @@ export class NetDiskParse_Tianyiyun extends NetDiskParseObject {
 		});
 		if (!postResp.status) {
 			let errorData = utils.toJSON(postResp.data.responseText);
-			log.error(["获取下载参数失败的JSON信息", errorData]);
+			log.error("获取下载参数失败的JSON信息", errorData);
 			if (errorData["res_code"] in that.code) {
 				Qmsg.error(that.code[errorData["res_code"] as keyof typeof that.code]);
 			} else {
@@ -389,7 +389,7 @@ export class NetDiskParse_Tianyiyun extends NetDiskParseObject {
 		);
 		if (!getResp.status) {
 			let errorData = utils.toJSON(getResp.data.responseText);
-			log.error(["解析文件夹信息失败", errorData]);
+			log.error("解析文件夹信息失败", errorData);
 			if (errorData["res_code"] in that.code) {
 				Qmsg.error(that.code[errorData["res_code"] as keyof typeof that.code]);
 			} else if ("res_message" in errorData) {
@@ -503,7 +503,7 @@ export class NetDiskParse_Tianyiyun extends NetDiskParseObject {
 		);
 		folderInfoList = folderInfoList.concat(tempFolderInfoList);
 		folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
-		log.info(["getFolderInfo", folderInfoList]);
+		log.info("getFolderInfo", folderInfoList);
 		return folderInfoList;
 	}
 }

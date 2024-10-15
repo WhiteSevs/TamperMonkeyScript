@@ -103,6 +103,12 @@ export const NetDisk = {
 			this.$match.blackMatchedInfo.set(netDiskName, new utils.Dictionary());
 			this.$match.tempMatchedInfo.set(netDiskName, new utils.Dictionary());
 		});
+
+		// 这里是输出信息用的，无其它的作用
+		let matchedUrlRuleList = WebsiteRule.getUrlMatchedRule();
+		if (matchedUrlRuleList.length) {
+			log.info("成功命中网站规则 ==> ", matchedUrlRuleList);
+		}
 	},
 	/**
 	 * 处理链接，将匹配到的链接转为参数和密码存入字典中
@@ -148,16 +154,13 @@ export const NetDisk = {
 			.match(netDiskMatchRegular.shareCode)
 			?.filter((item) => utils.isNotNull(item));
 		if (utils.isNull(shareCodeMatch)) {
-			log.error([
-				`匹配shareCode为空`,
-				{
-					匹配的文本: matchText,
-					规则: netDiskMatchRegular,
-					正在使用的规则: netDiskMatchRegular.shareCode,
-					网盘名称: netDiskName,
-					网盘名称索引下标: netDiskIndex,
-				},
-			]);
+			log.error(`匹配shareCode为空`, {
+				匹配的文本: matchText,
+				规则: netDiskMatchRegular,
+				正在使用的规则: netDiskMatchRegular.shareCode,
+				网盘名称: netDiskName,
+				网盘名称索引下标: netDiskIndex,
+			});
 			return;
 		}
 		/* 匹配到的网盘链接，取第一个值就行 */
@@ -313,13 +316,13 @@ export const NetDisk = {
 			NetDisk.$rule.matchRule[netDiskName][netDiskIndex];
 		if (netDiskMatchRegular == void 0) {
 			Qmsg.error("BUG: 获取uiLink规则失败");
-			log.error([
+			log.error(
 				"BUG: 分析参数",
 				netDiskName,
 				netDiskIndex,
 				shareCode,
-				accessCode,
-			]);
+				accessCode
+			);
 			throw new TypeError("获取uiLink规则失败");
 		}
 		let uiLink = NetDiskRuleUtils.replaceParam(

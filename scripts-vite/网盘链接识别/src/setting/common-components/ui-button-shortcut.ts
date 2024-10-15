@@ -80,7 +80,7 @@ export const UIButtonShortCut = function (
 				} = await shortCut.enterShortcutKeys(key);
 				loadingQmsg.close();
 				if (status) {
-					log.success(["成功录入快捷键", option]);
+					log.success("成功录入快捷键", option);
 					Qmsg.success("成功录入");
 				} else {
 					Qmsg.error(
