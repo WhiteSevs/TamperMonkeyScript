@@ -202,15 +202,13 @@ export const DouYinLive = {
 		/**
 		 * 检测并关闭弹窗
 		 * @param $ele
-		 * @param from
-		 * + "1" 检测来源
-		 * + "2" 检测来源
+		 * @param from 检测来源
+		 * + "1"
+		 * + "2"
 		 */
 		function checkDialogToClose($ele: HTMLElement, from: string) {
-			if (
-				$ele.innerText.includes("长时间无操作") &&
-				$ele.innerText.includes("暂停播放")
-			) {
+			let eleText = $ele.textContent || $ele.innerText;
+			if (eleText.includes("长时间无操作") && eleText.includes("暂停播放")) {
 				log.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
 				Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
 				let $rect = utils.getReactObj($ele);
@@ -219,17 +217,11 @@ export const DouYinLive = {
 						DouYinUtils.getObjectPropertiesInDepth(
 							$rect.reactContainer,
 							(obj) => {
+								// 不要用onMaskClick，该函数调用不会关闭弹窗
 								if (typeof obj["onClose"] === "function") {
 									return {
 										isFind: true,
 										data: obj["onClose"],
-									};
-								} else if (
-									typeof obj?.["memoizedProps"]?.["onMaskClick"] === "function"
-								) {
-									return {
-										isFind: true,
-										data: obj?.["memoizedProps"]?.["onMaskClick"],
 									};
 								} else if (
 									typeof obj?.["memoizedProps"]?.["onClose"] === "function"
@@ -239,6 +231,7 @@ export const DouYinLive = {
 										data: obj?.["memoizedProps"]?.["onClose"],
 									};
 								} else {
+									// 未找到，进入下一层
 									return {
 										isFind: false,
 										data: obj["child"],

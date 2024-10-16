@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.9.22
+// @version      2024.10.16
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,9 +11,9 @@
 // @match        *://*.iesdouyin.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.2.9/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.6.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.3/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
 // @grant        GM_getValue
@@ -1195,7 +1195,8 @@
       log.info("监听【长时间无操作，已暂停播放】弹窗");
       function checkDialogToClose($ele, from) {
         var _a2, _b, _c, _d, _e, _f;
-        if ($ele.innerText.includes("长时间无操作") && $ele.innerText.includes("暂停播放")) {
+        let eleText = $ele.textContent || $ele.innerText;
+        if (eleText.includes("长时间无操作") && eleText.includes("暂停播放")) {
           log.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
           Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
           let $rect = utils.getReactObj($ele);
@@ -1203,21 +1204,16 @@
             let closeDialogFn = DouYinUtils.getObjectPropertiesInDepth(
               $rect.reactContainer,
               (obj) => {
-                var _a3, _b2, _c2, _d2;
+                var _a3, _b2;
                 if (typeof obj["onClose"] === "function") {
                   return {
                     isFind: true,
                     data: obj["onClose"]
                   };
-                } else if (typeof ((_a3 = obj == null ? void 0 : obj["memoizedProps"]) == null ? void 0 : _a3["onMaskClick"]) === "function") {
+                } else if (typeof ((_a3 = obj == null ? void 0 : obj["memoizedProps"]) == null ? void 0 : _a3["onClose"]) === "function") {
                   return {
                     isFind: true,
-                    data: (_b2 = obj == null ? void 0 : obj["memoizedProps"]) == null ? void 0 : _b2["onMaskClick"]
-                  };
-                } else if (typeof ((_c2 = obj == null ? void 0 : obj["memoizedProps"]) == null ? void 0 : _c2["onClose"]) === "function") {
-                  return {
-                    isFind: true,
-                    data: (_d2 = obj == null ? void 0 : obj["memoizedProps"]) == null ? void 0 : _d2["onClose"]
+                    data: (_b2 = obj == null ? void 0 : obj["memoizedProps"]) == null ? void 0 : _b2["onClose"]
                   };
                 } else {
                   return {
