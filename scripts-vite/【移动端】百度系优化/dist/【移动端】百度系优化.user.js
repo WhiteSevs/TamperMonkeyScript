@@ -7515,13 +7515,15 @@ div[class^="new-summary-container_"] {\r
           }
           if (suggestionList.length) {
             this.clearSuggestion();
-            this.addSuggestionItem(
-              this.createSuggestionItem({
-                searchText,
-                suggestionText: searchText,
-                isHistory: true
-              })
-            );
+            if (searchText.trim() !== "") {
+              this.addSuggestionItem(
+                this.createSuggestionItem({
+                  searchText,
+                  suggestionText: searchText,
+                  isHistory: true
+                })
+              );
+            }
             suggestionList.forEach((item) => {
               if (item.type === "sug") {
                 this.addSuggestionItem(

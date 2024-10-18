@@ -259,13 +259,15 @@ export const BaiduSearchToolBar = {
 				if (suggestionList.length) {
 					// 清空搜索结果
 					this.clearSuggestion();
-					this.addSuggestionItem(
-						this.createSuggestionItem({
-							searchText: searchText,
-							suggestionText: searchText,
-							isHistory: true,
-						})
-					);
+					if (searchText.trim() !== "") {
+						this.addSuggestionItem(
+							this.createSuggestionItem({
+								searchText: searchText,
+								suggestionText: searchText,
+								isHistory: true,
+							})
+						);
+					}
 					suggestionList.forEach((item) => {
 						if (item.type === "sug") {
 							this.addSuggestionItem(
