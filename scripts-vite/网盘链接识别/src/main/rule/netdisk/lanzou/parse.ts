@@ -607,9 +607,13 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 		let zt = jsonData["zt"];
 
 		// var killdns = true;
-		let killdns = await httpx.get("https://down-load.lanrar.com/file/kdns.js");
+		let killdns = await httpx.get("https://down-load.lanrar.com/file/kdns.js",{
+			allowInterceptConfig: false,
+		});
 		// var killdns2 = true;
-		let killdns2 = await httpx.get("https://boce.lanosso.com/file/kdns2.js");
+		let killdns2 = await httpx.get("https://boce.lanosso.com/file/kdns2.js",{
+			allowInterceptConfig: false,
+		});
 		if (!killdns2.status) {
 			// 使用lanosso
 			downloadUrl += "&lanosso";
