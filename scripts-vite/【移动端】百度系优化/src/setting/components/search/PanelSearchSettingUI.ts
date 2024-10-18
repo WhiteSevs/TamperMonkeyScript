@@ -262,6 +262,26 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 								),
 							],
 						},
+						{
+							text: "全局悬浮搜索按钮",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"启用",
+									"baidu-search-global-searchToolBar",
+									false,
+									void 0,
+									"开启后将在页面右下角添加搜索按钮用于搜索"
+								),
+								UISwitch(
+									"手势返回关闭搜索框",
+									"baidu-search-global-searchToolBar-gesture-back",
+									true,
+									void 0,
+									"让网页后退触发关闭搜索建议框"
+								),
+							],
+						},
 					],
 				},
 				{

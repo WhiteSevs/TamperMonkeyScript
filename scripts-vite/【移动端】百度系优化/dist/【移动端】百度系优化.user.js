@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.13
+// @version      2024.10.18
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -1121,6 +1121,26 @@ match-attr##srcid##sp_purc_atom
                     false,
                     void 0,
                     "需开启【劫持-_onClick函数】和【处理搜索结果】且能成功劫持到该函数才会生效，否则是提取article的URL链接信息跳转"
+                  )
+                ]
+              },
+              {
+                text: "全局悬浮搜索按钮",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "启用",
+                    "baidu-search-global-searchToolBar",
+                    false,
+                    void 0,
+                    "开启后将在页面右下角添加搜索按钮用于搜索"
+                  ),
+                  UISwitch(
+                    "手势返回关闭搜索框",
+                    "baidu-search-global-searchToolBar-gesture-back",
+                    true,
+                    void 0,
+                    "让网页后退触发关闭搜索建议框"
                   )
                 ]
               }
@@ -7188,6 +7208,462 @@ div[class^="new-summary-container_"] {\r
       domutils.on(_unsafeWindow, "popstate", popstateEvent);
     }
   };
+  const searchToolBarCSS = ".search-toolbar-container {\r\n	--back-icon-size: 12px;\r\n	--empty-icon-size: 14px;\r\n	--container-padding: 10px;\r\n	--input-height: 36px;\r\n	--input-border-height: 2px;\r\n	--suggestion-text-color: #6d6d6d;\r\n	--suggestion-left-icon-size: 24px;\r\n	--suggestion-left-icon-color: #6d6d6d;\r\n	--suggestion-right-icon-size: 20px;\r\n}\r\n.search-toolbar-container {\r\n	position: fixed;\r\n	bottom: 0;\r\n	left: 0;\r\n	right: 0;\r\n	z-index: 10000;\r\n	width: 100vw;\r\n	opacity: 1;\r\n	visibility: visible;\r\n	transition: all 0.2s;\r\n}\r\n.search-toolbar-inner {\r\n	display: flex;\r\n	flex-direction: column;\r\n	height: 100vh;\r\n}\r\n\r\n.search-toolbar {\r\n	display: flex;\r\n	align-items: center;\r\n	padding: var(--container-padding) 0px;\r\n	background: #fff;\r\n}\r\n\r\n.search-icon {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n}\r\n.search-icon svg {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n.search-toolbar-back {\r\n	width: var(--back-icon-size);\r\n	height: var(--back-icon-size);\r\n	padding: 12px 15px;\r\n}\r\n.search-form {\r\n	width: 100%;\r\n	border: var(--input-border-height) solid #222;\r\n	height: var(--input-height);\r\n	border-radius: 10px;\r\n	display: flex;\r\n	align-items: center;\r\n	margin-right: 10px;\r\n	position: relative;\r\n}\r\n.search-toolbar-input {\r\n	flex: 1;\r\n	margin: 12px;\r\n	border: 0;\r\n	background: transparent;\r\n}\r\n.search-toolbar-input::-webkit-search-cancel-button {\r\n	-webkit-appearance: none;\r\n}\r\n.search-toolbar-input::-moz-search-clear-button {\r\n	display: none;\r\n}\r\n.search-toolbar-input:focus,\r\n.search-toolbar-input:focus-visible,\r\n.search-toolbar-input:focus-within {\r\n	outline: none;\r\n}\r\n.search-toolbar-input-inner {\r\n	display: flex;\r\n	align-items: center;\r\n	gap: 12px;\r\n	margin-right: 16px;\r\n}\r\n.search-toolbar-empty {\r\n	width: var(--empty-icon-size);\r\n	height: var(--empty-icon-size);\r\n	padding: 2px;\r\n}\r\n.search-form-submit {\r\n	font-size: 14px;\r\n	background: transparent;\r\n	border: 0;\r\n	margin: 0;\r\n	padding: 0;\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n}\r\n.search-form-submit[disabled] {\r\n	color: #6d6d6d;\r\n}\r\n.search-suggestion {\r\n	background: #f2f2f2;\r\n	flex: 1;\r\n	display: flex;\r\n	flex-direction: column-reverse;\r\n}\r\n.search-suggestion-item {\r\n	display: flex;\r\n	align-items: center;\r\n	padding: 8px 16px;\r\n}\r\n.search-suggestion-item-left-icon {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	width: var(--suggestion-left-icon-size);\r\n	height: var(--suggestion-left-icon-size);\r\n}\r\n.search-suggestion-item-left-icon svg {\r\n	fill: var(--suggestion-left-icon-color);\r\n}\r\n.search-suggestion-item-text {\r\n	margin-left: 6px;\r\n	width: 100%;\r\n	text-align: left;\r\n	color: #000000;\r\n	white-space: nowrap;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n    line-height: normal;\r\n}\r\n.search-suggestion-item-text em {\r\n	color: var(--suggestion-text-color);\r\n	font-style: unset;\r\n}\r\n.search-suggestion-item-right-icon {\r\n	display: flex;\r\n	align-items: center;\r\n	width: var(--suggestion-right-icon-size);\r\n	height: var(--suggestion-right-icon-size);\r\n}\r\n";
+  class GestureBack {
+    constructor(config) {
+      /**
+       * 是否正在后退
+       */
+      __publicField(this, "isBacking", false);
+      __publicField(this, "config");
+      this.config = config;
+      if (typeof config.backDelayTime !== "number" || isNaN(config.backDelayTime)) {
+        config.backDelayTime = 150;
+      }
+    }
+    /**
+     * popstate事件函数
+     * @param event
+     */
+    popStateEvent(event) {
+      utils.preventEvent(event);
+      if (this.isBacking) {
+        return;
+      }
+      this.quitGestureBackMode();
+    }
+    /**
+     * 进入手势模式
+     */
+    enterGestureBackMode() {
+      log.success("进入手势模式");
+      let hash = this.config.hash;
+      if (!hash.startsWith("#")) {
+        if (!hash.startsWith("/")) {
+          hash = "/" + hash;
+        }
+        hash = "#" + hash;
+      }
+      window.history.pushState({}, "", hash);
+      log.success("监听popstate事件");
+      domutils.on(window, "popstate", this.popStateEvent.bind(this), {
+        capture: true
+      });
+    }
+    /**
+     * 退出手势模式
+     */
+    async quitGestureBackMode() {
+      this.isBacking = true;
+      log.success("退出手势模式");
+      if (typeof this.config.beforeHistoryBackCallBack === "function") {
+        this.config.beforeHistoryBackCallBack();
+      }
+      while (true) {
+        if (globalThis.location.hash.endsWith(this.config.hash)) {
+          log.info("history.back()");
+          globalThis.history.back();
+          await utils.sleep(this.config.backDelayTime);
+        } else {
+          break;
+        }
+      }
+      log.success("移除popstate事件");
+      domutils.off(window, "popstate", this.popStateEvent.bind(this), {
+        capture: true
+      });
+      this.isBacking = false;
+      if (typeof this.config.afterHistoryBackCallBack === "function") {
+        this.config.afterHistoryBackCallBack();
+      }
+    }
+  }
+  const BaiduSearchToolBar = {
+    $el: {
+      /** 搜索框总容器 */
+      $container: null,
+      shadowRoot: null,
+      $toolbarContainer: null,
+      /** 搜索框容器 */
+      $toolbar: null,
+      /** 提交表单 */
+      $form: null,
+      /** 输入框 */
+      $input: null,
+      /** 搜索建议 */
+      $suggestion: null,
+      /** 返回按钮 */
+      $back: null,
+      /** 清空图标 */
+      $empty: null,
+      /** 搜索按钮 */
+      $submit: null
+    },
+    $data: {
+      gestureBack: new GestureBack({
+        hash: "global-search",
+        beforeHistoryBackCallBack() {
+          BaiduSearchToolBar.hideToolBar();
+        }
+      })
+    },
+    init() {
+      domutils.ready(() => {
+        this.addFloatButton();
+        this.addToolBar();
+      });
+    },
+    /**
+     * 添加悬浮搜索按钮
+     */
+    addFloatButton() {
+      let $btn = domutils.createElement("div", {
+        className: "gm-search-toolbar-float-btn",
+        innerHTML: (
+          /*html*/
+          `
+            <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#EFF9FE" d="M478.12 64.88h67.76c103.54-5.49 241.95 13.46 317.81 94.93 81.48 75.86 100.42 214.27 94.94 317.81v67.76c5.48 103.54-13.45 241.95-94.94 317.81-75.86 81.49-214.27 100.42-317.81 94.94h-67.76c-103.54 5.48-241.95-13.45-317.81-94.94-81.48-75.86-100.42-214.27-94.93-317.81v-67.76c-5.48-103.54 13.45-241.95 94.94-317.81 75.85-81.48 214.26-100.42 317.8-94.93z" fill="#56B9F1" p-id="43986"></path><path d="M552.89 392.04c21.84 17.58 35.84 44.49 35.84 74.71 0 2.16-0.18 4.27-0.32 6.39H397.23c-0.14-2.12-0.32-4.24-0.32-6.39 0-30.96 14.73-58.41 37.49-75.95l-11.06-17.62c-1.77-2.81-0.72-6.41 2.34-8.03 3.06-1.62 6.97-0.66 8.73 2.15l10.37 16.52c14.14-8.21 30.51-12.98 48.03-12.98 18.15 0 35.06 5.13 49.53 13.89l8.88-15.38c1.77-3.06 5.68-4.11 8.73-2.34 3.06 1.77 4.11 5.68 2.34 8.73l-9.4 16.3z m-92.04 36.34c-7.06 0-12.79 5.73-12.79 12.79s5.73 12.79 12.79 12.79 12.79-5.73 12.79-12.79-5.73-12.79-12.79-12.79z m63.94 0c-7.06 0-12.79 5.73-12.79 12.79s5.73 12.79 12.79 12.79c7.06 0 12.79-5.73 12.79-12.79s-5.73-12.79-12.79-12.79z m-31.97 134.28c-46.4 0-85.1-32.95-93.99-76.73H586.8c-8.88 43.77-47.58 76.73-93.98 76.73z" fill="#EFF9FE" p-id="43987"></path><path d="M736.53 704.11c-15.9 15.91-41.68 15.91-57.58 0l-74.87-74.9c-79.04 52.39-186.58 43.76-256.22-25.91-79.5-79.54-79.5-208.5 0-288.03 79.5-79.54 208.4-79.54 287.9 0 69.64 69.67 78.26 177.25 25.9 256.33l74.87 74.9c15.9 15.91 15.9 41.7 0 57.61zM582.99 368.07c-50.35-50.37-131.98-50.37-182.33 0s-50.35 132.05 0 182.42c50.35 50.37 131.98 50.37 182.33 0 50.35-50.37 50.35-132.04 0-182.42z">
+                </path>
+            </svg>
+            `
+        )
+      });
+      domutils.on($btn, "click", (event) => {
+        utils.preventEvent(event);
+        this.showToolBar();
+        this.initDefaultSearchText();
+        setTimeout(() => {
+          this.$el.$input.select();
+        }, 150);
+        PopsPanel.execMenu(
+          "baidu-search-global-searchToolBar-gesture-back",
+          () => {
+            this.$data.gestureBack.enterGestureBackMode();
+          }
+        );
+      });
+      addStyle(
+        /*css*/
+        `
+        .gm-search-toolbar-float-btn {
+            --gm-search-toolbar-icon-size: 45px;
+            position: fixed;
+            bottom: 20px;
+            right: 15px;
+            width: var(--gm-search-toolbar-icon-size);
+            height: var(--gm-search-toolbar-icon-size);
+            z-index: 9000;
+        }
+
+        `
+      );
+      document.body.appendChild($btn);
+      return $btn;
+    },
+    /**
+     * 添加搜索工具栏
+     */
+    addToolBar() {
+      let $toolbarInner = domutils.createElement("div");
+      $toolbarInner.className = "gm-search-toolbar";
+      $toolbarInner.attachShadow({ mode: "open" });
+      let shadowRoot = $toolbarInner.shadowRoot;
+      this.$el.$container = $toolbarInner;
+      this.$el.shadowRoot = shadowRoot;
+      let $css = domutils.createElement("style", {
+        innerHTML: searchToolBarCSS
+      });
+      shadowRoot.appendChild($css);
+      let $container = domutils.createElement("div", {
+        className: "search-toolbar-container",
+        innerHTML: (
+          /*html*/
+          `
+            <div class="search-toolbar-inner">                
+                <div class="search-suggestion"></div>
+                <div class="search-toolbar">
+                    <i class="search-icon search-toolbar-back">
+                        <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M773.5 143.3L403 514.6l370.5 371.2-76.2 76.3-446.6-447.5L697.3 67l76.2 76.3zM697.3 67"></path>
+                        </svg>
+                    </i>
+                    <form class="search-form" autocomplete="off">
+                        <input class="search-toolbar-input" type="search" placeholder="搜索内容" autocomplete="off" autocorrect="off">
+                        <div class="search-toolbar-input-inner">
+                            <i class="search-icon search-toolbar-empty">
+                                <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M512 0C229.2736 0 0 229.2736 0 512s229.2736 512 512 512 512-229.2736 512-512S794.7264 0 512 0z m248.832 670.4128c24.8832 24.8832 24.8832 65.6384 0 90.5216-24.8832 24.9856-65.6384 24.8832-90.5216 0L512 602.5216 353.5872 760.9344c-24.8832 24.8832-65.6384 24.8832-90.5216 0-24.9856-24.8832-24.8832-65.6384 0-90.5216L421.4784 512 263.0656 353.5872c-24.8832-24.8832-24.8832-65.6384 0-90.5216 24.8832-24.9856 65.6384-24.8832 90.5216 0L512 421.4784l158.4128-158.4128c24.8832-24.8832 65.6384-24.8832 90.5216 0 24.9856 24.8832 24.8832 65.6384 0 90.5216L602.5216 512 760.832 670.4128z"></path>
+                                </svg>
+                            </i>
+                            <button type="submit" class="search-form-submit" disabled="true">
+                                <span>搜索</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            `
+        )
+      });
+      this.$el.$toolbarContainer = $container;
+      this.$el.$toolbar = $container.querySelector(".search-toolbar");
+      this.$el.$input = $container.querySelector(
+        ".search-toolbar-input"
+      );
+      this.$el.$form = $container.querySelector(".search-form");
+      this.$el.$suggestion = $container.querySelector(".search-suggestion");
+      this.$el.$back = $container.querySelector(
+        ".search-toolbar-back"
+      );
+      this.$el.$empty = $container.querySelector(
+        ".search-toolbar-empty"
+      );
+      this.$el.$submit = $container.querySelector(
+        ".search-form-submit"
+      );
+      shadowRoot.appendChild($container);
+      this.hideToolBar();
+      document.body.appendChild($toolbarInner);
+      this.setInputEvent();
+      this.setEmptyEvent();
+      this.setBackEvent();
+      this.setFormEvent();
+    },
+    /**
+     * 显示搜索工具栏
+     */
+    showToolBar() {
+      this.$el.$toolbarContainer.style.opacity = "";
+      this.$el.$toolbarContainer.style.visibility = "";
+    },
+    /**
+     * 隐藏搜索工具栏
+     */
+    hideToolBar() {
+      this.$el.$toolbarContainer.style.opacity = "0";
+      this.$el.$toolbarContainer.style.visibility = "hidden";
+    },
+    /**
+     * 获取当前页面搜索的关键字
+     */
+    getPageSearchText() {
+      let searchParams = new URLSearchParams(window.location.search);
+      let searchText = searchParams.get("word") || searchParams.get("wd");
+      return searchText;
+    },
+    /**
+     * 获取搜索建议内容
+     * @param text 搜索内容
+     */
+    async getSuggestionText(text) {
+      let searchParamData = {
+        json: 1,
+        prod: "wise",
+        callback: "baidusug",
+        wd: text
+      };
+      let response = await httpx.get(
+        `https://m.baidu.com/sugrec?${utils.toSearchParamsStr(searchParamData)}`,
+        {
+          fetch: true,
+          allowInterceptConfig: false
+        }
+      );
+      if (!response.status) {
+        log.error("获取百度搜索建议失败", response);
+        return;
+      }
+      let suggestion = response.data.responseText.replace(/^baidusug\(/, "").replace(/\)$/, "");
+      let suggestionJSON = utils.toJSON(suggestion);
+      log.info(`百度搜索联想词：`, suggestionJSON);
+      return suggestionJSON.g || [];
+    },
+    /**
+     * 初始化当前页面默认的搜索关键字
+     */
+    initDefaultSearchText() {
+      let searchText = this.getPageSearchText();
+      this.setInputText(searchText);
+    },
+    /**
+     * 监听输入框内容改变
+     */
+    setInputEvent() {
+      domutils.on(this.$el.$input, ["input", "propertychange"], (event) => {
+        if (this.$el.$input.value === "") {
+          this.clearSuggestion();
+          this.$el.$empty.style.display = "none";
+          this.$el.$submit.setAttribute("disabled", "true");
+        } else {
+          this.$el.$empty.style.display = "";
+          this.$el.$submit.removeAttribute("disabled");
+        }
+      });
+      domutils.on(
+        this.$el.$input,
+        ["input", "propertychange"],
+        utils.debounce(async () => {
+          let searchText = this.$el.$input.value;
+          if (searchText === "") {
+            return;
+          }
+          let suggestionList = await this.getSuggestionText(searchText);
+          if (!suggestionList) {
+            return;
+          }
+          if (suggestionList.length) {
+            this.clearSuggestion();
+            this.addSuggestionItem(
+              this.createSuggestionItem({
+                searchText,
+                suggestionText: searchText,
+                isHistory: true
+              })
+            );
+            suggestionList.forEach((item) => {
+              if (item.type === "sug") {
+                this.addSuggestionItem(
+                  this.createSuggestionItem({
+                    searchText,
+                    suggestionText: item.q,
+                    isHistory: false
+                  })
+                );
+              }
+            });
+          }
+        }, 50)
+      );
+    },
+    /**
+     * 设置搜索文本内容
+     * @param text 搜索关键字
+     * @param triggerEvent 是否触发事件
+     * @default true
+     */
+    setInputText(text, triggerEvent = true) {
+      this.$el.$input.value = text;
+      if (triggerEvent) {
+        utils.dispatchEvent(this.$el.$input, "input");
+      }
+    },
+    /**
+     * 设置返回按钮点击事件
+     */
+    setBackEvent() {
+      domutils.on(this.$el.$back, "click", (event) => {
+        utils.preventEvent(event);
+        log.success("点击返回");
+        this.hideToolBar();
+        PopsPanel.execMenu(
+          "baidu-search-global-searchToolBar-gesture-back",
+          () => {
+            this.$data.gestureBack.quitGestureBackMode();
+          }
+        );
+      });
+    },
+    /**
+     * 设置清空图标点击事件
+     */
+    setEmptyEvent() {
+      domutils.on(this.$el.$empty, "click", (event) => {
+        utils.preventEvent(event);
+        this.setInputText("");
+      });
+    },
+    /**
+     * 设置表单事件
+     */
+    setFormEvent() {
+      domutils.on(this.$el.$form, "submit", (event) => {
+        utils.preventEvent(event);
+        let searchText = this.$el.$input.value;
+        log.success("提交表单 搜索 ==> " + searchText);
+        window.location.href = `${window.location.origin}/s?word=${searchText}`;
+      });
+    },
+    /**
+     * 创建搜索建议元素项
+     */
+    createSuggestionItem(config) {
+      let $suggestionItem = domutils.createElement("div", {
+        className: "search-suggestion-item",
+        innerHTML: (
+          /*html*/
+          `
+            <div class="search-suggestion-item-left-icon">
+                <i class="search-icon">
+                    <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M495.25 310.62c-106.67 0-193.14 86.47-193.14 193.14S388.58 696.9 495.25 696.9s193.14-86.47 193.14-193.14-86.48-193.14-193.14-193.14z m0-64.37c142.22 0 257.52 115.29 257.52 257.52 0 59.51-20.18 114.3-54.08 157.9l66.96 66.72c12.59 12.55 12.63 32.93 0.08 45.52-12.55 12.59-32.93 12.63-45.52 0.08l-67.05-66.78c-43.61 33.89-98.4 54.08-157.9 54.08-142.22 0-257.52-115.29-257.52-257.52s115.29-257.52 257.51-257.52z"></path>
+                    </svg>
+                </i>
+            </div>
+            <div class="search-suggestion-item-text"></div>
+            <div class="search-suggestion-item-right-icon">
+                <i class="search-icon">
+                    <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M755.498667 268.501333a42.666667 42.666667 0 0 1 0 60.330667L401.664 682.666667H640a42.666667 42.666667 0 1 1 0 85.333333H298.666667a42.666667 42.666667 0 0 1-42.666667-42.666667V384a42.666667 42.666667 0 1 1 85.333333 0v238.336l353.834667-353.834667a42.666667 42.666667 0 0 1 60.330667 0z"></path>
+                    </svg>
+                </i>
+            </div>
+            `
+        )
+      });
+      let $leftIcon = $suggestionItem.querySelector(
+        ".search-suggestion-item-left-icon"
+      );
+      let $leftIconI = $leftIcon.querySelector(".search-icon");
+      let $text = $suggestionItem.querySelector(
+        ".search-suggestion-item-text"
+      );
+      let $rightIcon = $suggestionItem.querySelector(
+        ".search-suggestion-item-right-icon"
+      );
+      if (config.isHistory) {
+        $leftIconI.innerHTML = /*html*/
+        `
+            <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" style="
+                width: 18px;
+                height: 18px;
+            ">
+                <path d="M512 117.333333c217.962667 0 394.666667 176.704 394.666667 394.666667S729.962667 906.666667 512 906.666667 117.333333 729.962667 117.333333 512 294.037333 117.333333 512 117.333333z m0 64C329.386667 181.333333 181.333333 329.386667 181.333333 512c0 182.613333 148.053333 330.666667 330.666667 330.666667 182.613333 0 330.666667-148.053333 330.666667-330.666667 0-182.613333-148.053333-330.666667-330.666667-330.666667z m0 85.333334a32 32 0 0 1 32 32v200.085333l118.613333 118.613333a32 32 0 0 1-45.226666 45.269334l-128-128A32 32 0 0 1 480 512V298.666667a32 32 0 0 1 32-32z"></path>
+            </svg>
+            `;
+      }
+      let searchText = config.suggestionText.replaceAll(
+        config.searchText,
+        `<em>${config.searchText}</em>`
+      );
+      $text.innerHTML = searchText;
+      domutils.on($leftIcon, "click", (event) => {
+        utils.preventEvent(event);
+      });
+      domutils.on($text, "click", (event) => {
+        utils.preventEvent(event);
+        this.setInputText(config.suggestionText, false);
+        this.$el.$submit.click();
+      });
+      domutils.on($rightIcon, "click", (event) => {
+        utils.preventEvent(event);
+        this.setInputText(config.suggestionText);
+      });
+      return $suggestionItem;
+    },
+    /**
+     * 清除搜索建议
+     */
+    clearSuggestion() {
+      this.$el.$suggestion.innerHTML = "";
+    },
+    /**
+     * 添加搜索建议
+     */
+    addSuggestionItem($ele) {
+      this.$el.$suggestion.appendChild($ele);
+    }
+  };
   const UserCustomStyle = {
     /**
      * 获取用户自定义样式
@@ -7201,6 +7677,9 @@ div[class^="new-summary-container_"] {\r
       addStyle(UserCustomStyle.getUserStyle());
       log.info("插入用户CSS规则");
       BaiduSearchBlockRule.init();
+      PopsPanel.execMenuOnce("baidu-search-global-searchToolBar", () => {
+        BaiduSearchToolBar.init();
+      });
       if (BaiduRouter.isSearchBh()) {
         BaiduHeadlth.init();
       } else if (BaiduRouter.isSearchVideo()) {

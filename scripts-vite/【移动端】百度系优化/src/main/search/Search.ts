@@ -10,6 +10,7 @@ import { SearchInputEvent } from "./SearchInput";
 import { BaiduSearchBlockRule } from "./SearchBlockRule";
 import { BaiduSearchVideo } from "./video/SearchVideo";
 import { BaiduSearchVSearch } from "./vsearch/VSearch";
+import { BaiduSearchToolBar } from "./SearchToolBar";
 
 /**
  * 处理百度搜索自定义的样式添加
@@ -28,6 +29,9 @@ const BaiduSearch = {
 		addStyle(UserCustomStyle.getUserStyle());
 		log.info("插入用户CSS规则");
 		BaiduSearchBlockRule.init();
+		PopsPanel.execMenuOnce("baidu-search-global-searchToolBar", () => {
+			BaiduSearchToolBar.init();
+		});
 		if (BaiduRouter.isSearchBh()) {
 			/* 百度健康 */
 			BaiduHeadlth.init();
