@@ -656,21 +656,24 @@ div[class^="index_brandEntry"] {\r
             <div class="whitesev-new-pagenav">
                 <p>${e}</p>
             </div>`})}},po={intersectionObserver:null,$data:{moreResultSelector:".infinite-load-wrap .se-infiniteload-text"},init(){let e=navigator.userAgent.includes("SearchCraft");s.success(`判断是否是SearchCraft：${e?Nr.getEnableTrueEmoji():Nr.getEnableFalseEmoji()}`),e&&this.setNextPageInterSectionObserver();},getMoreResultBtn(){return document.querySelector(this.$data.moreResultSelector)},setNextPageInterSectionObserver(){let e=!1;typeof IntersectionObserver>"u"?(s.success("SearchCraft监听滚动: scroll"),g.on(document,"scroll",void 0,async()=>{e||p.isNearBottom(window.innerHeight/3)&&(e=!0,await this.scrollEvent(),await p.sleep(150),e=!1);},{capture:!0,passive:!0,once:!1})):p.waitNode(this.$data.moreResultSelector,1e4).then(t=>{if(!t){s.error("SearchCraft监听滚动失败：【更多结果】按钮");return}s.success("SearchCraft监听滚动: IntersectionObserver"),this.intersectionObserver=new IntersectionObserver(async r=>{!e&&r[0].isIntersecting&&(e=!0,await this.scrollEvent(),e=!1);},{threshold:0}),this.intersectionObserver.observe(t);});},removeNextPageInterSectionObserver(){var e;typeof IntersectionObserver>"u"?(g.off(document,"scroll",void 0,void 0,{capture:!0},t=>t.originCallBack.toString().includes("isLoadingNextPage")),s.info("SearchCraft取消监听滚动: scroll","#f400ff")):((e=this.intersectionObserver)==null||e.disconnect(),this.intersectionObserver=null,s.info("SearchCraft取消监听滚动: IntersectionObserver","#f400ff"));},async scrollEvent(){let e=this.getMoreResultBtn(),t=e.innerText;t.includes("更多结果")?(s.success("点击【更多结果】"),e.click(),await p.sleep(500)):t.includes("到底了 没有更多内容了")&&(s.error("到底了 没有更多内容了，移除滚动监听"),po.removeNextPageInterSectionObserver());}},We={init(){let e="#se-box .suggest-content",t="#se-box .suggest-content button",r="#se-box2 .suggest-content",n="#se-box2 .suggest-content button",o="#index-box .suggest-content",a="#index-box .suggest-content button",i="#kw",l="#kw2",c="#se-bn",u="#se-bn2",d="#index-kw",f="#index-bn";p.waitNode(e).then(m=>{p.mutationObserver(m,{callback:()=>{We.mutationObserverFunction(t);},config:{childList:!0,attributes:!0}});}),p.waitNode(r).then(m=>{p.mutationObserver(m,{callback:()=>{We.mutationObserverFunction(n);},config:{childList:!0,attributes:!0}});}),p.waitNode(o).then(m=>{p.mutationObserver(m,{callback:()=>{We.mutationObserverFunction(a);},config:{childList:!0,attributes:!0}});}),g.on(c,"click",function(m){return We.searchBtnJump(m,document.querySelector(i))}),g.on(i,"keydown",function(m){return We.enterKeyDownEvent(m,document.querySelector(i))}),g.on(u,"click",function(m){return We.searchBtnJump(m,document.querySelector(l))}),g.on(document.querySelector(l),"keydown",function(m){return We.enterKeyDownEvent(m,document.querySelector(l))}),g.on(f,"click",function(m){return We.searchBtnJump(m,document.querySelector(d))}),g.on(d,"keydown",function(m){return We.enterKeyDownEvent(m,document.querySelector(d))});},mutationObserverFunction(e){s.success("设置搜索建议自定义click事件"),document.querySelectorAll(e).forEach(t=>{g.on(t,"click",function(r){p.preventEvent(r),window==null||window.stop();let n=r.target.textContent,o=window.location.origin+"/s?word="+n;return s.success("点击按钮跳转搜索 -> "+n),s.success(o),window.location.href=o,!1});});},searchBtnJump(e,t){p.preventEvent(e),window==null||window.stop();let r=window.location.origin+"/s?word="+t.value;return s.success("点击按钮跳转搜索 -> "+t.value),s.success(r),window.location.href=r,!1},enterKeyDownEvent(e,t){if(e.keyCode===108||e.keyCode===13){window==null||window.stop(),p.preventEvent(e);let r=window.location.origin+"/s?word="+t.value;return s.success("回车键跳转搜索 -> "+t.value),s.success(r),window.location.href=r,!1}return !0}},Si={init(){y.execMenuOnce("baidu-search-video-blockBottomRecommendVideo",()=>this.blockBottomRecommendVideo());},blockBottomRecommendVideo(){return s.info("【屏蔽】底部推荐视频"),Y.addBlockCSS(".short-mini-wrapper")}},ki={init(){Si.init(),y.execMenuOnce("baidu-search-video-autoJumpToOriginUrl",()=>{this.autoJumpToOriginUrl();});},autoJumpToOriginUrl(){p.waitNode(".sfc-video-page-info-showurl",1e4).then(e=>{if(!e){s.error("未找到.sfc-video-page-info-showurl元素"),q.error("未找到.sfc-video-page-info-showurl元素");return}let t=e.getAttribute("data-url")||e.href;if(p.isNull(t)){s.error("获取原网页Url失败"),q.error("获取原网页Url失败");return}window.location.href=t;});}},Ci={init(){g.ready(()=>{K.isSearchVSearch_image_content()&&y.execMenuOnce("baidu_search_vsearch-isBaiduBox",()=>{this.isBaiduBox();});});},isBaiduBox(){ee.waitVuePropToSet(".sf-image-content-page",[{msg:"等待设置属性 __vue__.isBaiduBox",check(e){return typeof e.isBaiduBox=="boolean"},set(e){s.info("成功设置属性 __vue__.isBaiduBox"),e.isBaiduBox=!0;}}]);}},Ti={init(){this.listenRouterChange(),Ci.init(),g.ready(()=>{this.replaceVSearchLink();});},replaceVSearchLink(){function e(){document.querySelectorAll("#realtime-container  div:not([class])").forEach(t=>{let r=t.querySelector("a");if(r&&r.hasAttribute("data-sf-visited")){let n=r.getAttribute("data-sf-visited");n!==r.href&&(r.href=n,s.success("替换链接  "+n));}});}p.waitNode("#realtime-container .c-infinite-scroll").then(t=>{let r=new p.LockFunction(e,600);p.mutationObserver(t,{config:{subtree:!0,childList:!0},callback:()=>{r.run();}});});},listenRouterChange(){s.info("监听路由变化");const e=t=>{console.log(t);};g.on(Q,"popstate",e);}},Ei=`.search-toolbar-container {\r
-	--back-icon-size: 12px;\r
+	--back-icon-size: 14px;\r
+	--back-icon-padding-top-bottom: 12px;\r
+	--back-icon-padding-left-right: 14px;\r
 	--empty-icon-size: 14px;\r
 	--container-padding: 10px;\r
 	--input-height: 36px;\r
 	--input-border-height: 2px;\r
 	--suggestion-text-color: #6d6d6d;\r
-	--suggestion-left-icon-size: 24px;\r
+	--suggestion-left-icon-size: 26px;\r
 	--suggestion-left-icon-color: #6d6d6d;\r
-	--suggestion-right-icon-size: 20px;\r
+	--suggestion-right-icon-size: 22px;\r
 }\r
 .search-toolbar-container {\r
 	position: fixed;\r
+	top: 0;\r
+	right: 0;\r
 	bottom: 0;\r
 	left: 0;\r
-	right: 0;\r
 	z-index: 10000;\r
 	width: 100vw;\r
 	opacity: 1;\r
@@ -680,7 +683,7 @@ div[class^="index_brandEntry"] {\r
 .search-toolbar-inner {\r
 	display: flex;\r
 	flex-direction: column;\r
-	height: 100vh;\r
+	height: 100%;\r
 }\r
 \r
 .search-toolbar {\r
@@ -688,6 +691,8 @@ div[class^="index_brandEntry"] {\r
 	align-items: center;\r
 	padding: var(--container-padding) 0px;\r
 	background: #fff;\r
+	position: sticky;\r
+	bottom: 0;\r
 }\r
 \r
 .search-icon {\r
@@ -702,7 +707,8 @@ div[class^="index_brandEntry"] {\r
 .search-toolbar-back {\r
 	width: var(--back-icon-size);\r
 	height: var(--back-icon-size);\r
-	padding: 12px 15px;\r
+	padding: var(--back-icon-padding-top-bottom)\r
+		var(--back-icon-padding-left-right);\r
 }\r
 .search-form {\r
 	width: 100%;\r
@@ -759,6 +765,9 @@ div[class^="index_brandEntry"] {\r
 	flex: 1;\r
 	display: flex;\r
 	flex-direction: column-reverse;\r
+	height: 100%;\r
+	height: -webkit-fill-available;\r
+	overflow-y: auto;\r
 }\r
 .search-suggestion-item {\r
 	display: flex;\r
@@ -783,7 +792,7 @@ div[class^="index_brandEntry"] {\r
 	white-space: nowrap;\r
 	text-overflow: ellipsis;\r
 	overflow: hidden;\r
-    line-height: normal;\r
+	line-height: normal;\r
 }\r
 .search-suggestion-item-text em {\r
 	color: var(--suggestion-text-color);\r
@@ -800,7 +809,7 @@ div[class^="index_brandEntry"] {\r
                 <path fill="#EFF9FE" d="M478.12 64.88h67.76c103.54-5.49 241.95 13.46 317.81 94.93 81.48 75.86 100.42 214.27 94.94 317.81v67.76c5.48 103.54-13.45 241.95-94.94 317.81-75.86 81.49-214.27 100.42-317.81 94.94h-67.76c-103.54 5.48-241.95-13.45-317.81-94.94-81.48-75.86-100.42-214.27-94.93-317.81v-67.76c-5.48-103.54 13.45-241.95 94.94-317.81 75.85-81.48 214.26-100.42 317.8-94.93z" fill="#56B9F1" p-id="43986"></path><path d="M552.89 392.04c21.84 17.58 35.84 44.49 35.84 74.71 0 2.16-0.18 4.27-0.32 6.39H397.23c-0.14-2.12-0.32-4.24-0.32-6.39 0-30.96 14.73-58.41 37.49-75.95l-11.06-17.62c-1.77-2.81-0.72-6.41 2.34-8.03 3.06-1.62 6.97-0.66 8.73 2.15l10.37 16.52c14.14-8.21 30.51-12.98 48.03-12.98 18.15 0 35.06 5.13 49.53 13.89l8.88-15.38c1.77-3.06 5.68-4.11 8.73-2.34 3.06 1.77 4.11 5.68 2.34 8.73l-9.4 16.3z m-92.04 36.34c-7.06 0-12.79 5.73-12.79 12.79s5.73 12.79 12.79 12.79 12.79-5.73 12.79-12.79-5.73-12.79-12.79-12.79z m63.94 0c-7.06 0-12.79 5.73-12.79 12.79s5.73 12.79 12.79 12.79c7.06 0 12.79-5.73 12.79-12.79s-5.73-12.79-12.79-12.79z m-31.97 134.28c-46.4 0-85.1-32.95-93.99-76.73H586.8c-8.88 43.77-47.58 76.73-93.98 76.73z" fill="#EFF9FE" p-id="43987"></path><path d="M736.53 704.11c-15.9 15.91-41.68 15.91-57.58 0l-74.87-74.9c-79.04 52.39-186.58 43.76-256.22-25.91-79.5-79.54-79.5-208.5 0-288.03 79.5-79.54 208.4-79.54 287.9 0 69.64 69.67 78.26 177.25 25.9 256.33l74.87 74.9c15.9 15.91 15.9 41.7 0 57.61zM582.99 368.07c-50.35-50.37-131.98-50.37-182.33 0s-50.35 132.05 0 182.42c50.35 50.37 131.98 50.37 182.33 0 50.35-50.37 50.35-132.04 0-182.42z">
                 </path>
             </svg>
-            `});return g.on(e,"click",t=>{p.preventEvent(t),this.showToolBar(),this.initDefaultSearchText(),setTimeout(()=>{this.$el.$input.select();},150),y.execMenu("baidu-search-global-searchToolBar-gesture-back",()=>{this.$data.gestureBack.enterGestureBackMode();});}),W(`
+            `});return g.on(e,"click",t=>{p.preventEvent(t),this.showToolBar(),this.initDefaultSearchText(),setTimeout(()=>{this.$el.$input.focus(),this.$el.$input.select();},150),y.execMenu("baidu-search-global-searchToolBar-gesture-back",()=>{this.$data.gestureBack.enterGestureBackMode();});}),W(`
         .gm-search-toolbar-float-btn {
             --gm-search-toolbar-icon-size: 45px;
             position: fixed;
@@ -817,7 +826,7 @@ div[class^="index_brandEntry"] {\r
                 <div class="search-toolbar">
                     <i class="search-icon search-toolbar-back">
                         <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M773.5 143.3L403 514.6l370.5 371.2-76.2 76.3-446.6-447.5L697.3 67l76.2 76.3zM697.3 67"></path>
+                            <path d="M738.845554 1024c-15.975039 0-31.950078-6.390016-44.730109-19.170047L243.619345 554.333853c-22.365055-22.365055-22.365055-63.900156 0-86.26521L694.115445 19.170047c22.365055-22.365055 63.900156-25.560062 86.26521-3.195008 22.365055 22.365055 25.560062 63.900156 3.195008 86.265211l-3.195008 3.195007-405.76599 404.168487 405.76599 408.960999c22.365055 22.365055 22.365055 63.900156 0 86.26521-12.780031 12.780031-25.560062 19.170047-41.535101 19.170047z"></path>
                         </svg>
                     </i>
                     <form class="search-form" autocomplete="off">

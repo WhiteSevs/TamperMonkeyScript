@@ -1,19 +1,22 @@
 .search-toolbar-container {
-	--back-icon-size: 12px;
+	--back-icon-size: 14px;
+	--back-icon-padding-top-bottom: 12px;
+	--back-icon-padding-left-right: 14px;
 	--empty-icon-size: 14px;
 	--container-padding: 10px;
 	--input-height: 36px;
 	--input-border-height: 2px;
 	--suggestion-text-color: #6d6d6d;
-	--suggestion-left-icon-size: 24px;
+	--suggestion-left-icon-size: 26px;
 	--suggestion-left-icon-color: #6d6d6d;
-	--suggestion-right-icon-size: 20px;
+	--suggestion-right-icon-size: 22px;
 }
 .search-toolbar-container {
 	position: fixed;
+	top: 0;
+	right: 0;
 	bottom: 0;
 	left: 0;
-	right: 0;
 	z-index: 10000;
 	width: 100vw;
 	opacity: 1;
@@ -23,7 +26,7 @@
 .search-toolbar-inner {
 	display: flex;
 	flex-direction: column;
-	height: 100vh;
+	height: 100%;
 }
 
 .search-toolbar {
@@ -31,6 +34,8 @@
 	align-items: center;
 	padding: var(--container-padding) 0px;
 	background: #fff;
+	position: sticky;
+	bottom: 0;
 }
 
 .search-icon {
@@ -45,7 +50,8 @@
 .search-toolbar-back {
 	width: var(--back-icon-size);
 	height: var(--back-icon-size);
-	padding: 12px 15px;
+	padding: var(--back-icon-padding-top-bottom)
+		var(--back-icon-padding-left-right);
 }
 .search-form {
 	width: 100%;
@@ -102,6 +108,9 @@
 	flex: 1;
 	display: flex;
 	flex-direction: column-reverse;
+	height: 100%;
+	height: -webkit-fill-available;
+	overflow-y: auto;
 }
 .search-suggestion-item {
 	display: flex;
@@ -126,7 +135,7 @@
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	overflow: hidden;
-    line-height: normal;
+	line-height: normal;
 }
 .search-suggestion-item-text em {
 	color: var(--suggestion-text-color);

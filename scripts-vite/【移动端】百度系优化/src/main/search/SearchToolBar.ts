@@ -56,6 +56,7 @@ export const BaiduSearchToolBar = {
 			this.showToolBar();
 			this.initDefaultSearchText();
 			setTimeout(() => {
+				this.$el.$input.focus();
 				this.$el.$input.select();
 			}, 150);
 
@@ -110,7 +111,7 @@ export const BaiduSearchToolBar = {
                 <div class="search-toolbar">
                     <i class="search-icon search-toolbar-back">
                         <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M773.5 143.3L403 514.6l370.5 371.2-76.2 76.3-446.6-447.5L697.3 67l76.2 76.3zM697.3 67"></path>
+                            <path d="M738.845554 1024c-15.975039 0-31.950078-6.390016-44.730109-19.170047L243.619345 554.333853c-22.365055-22.365055-22.365055-63.900156 0-86.26521L694.115445 19.170047c22.365055-22.365055 63.900156-25.560062 86.26521-3.195008 22.365055 22.365055 25.560062 63.900156 3.195008 86.265211l-3.195008 3.195007-405.76599 404.168487 405.76599 408.960999c22.365055 22.365055 22.365055 63.900156 0 86.26521-12.780031 12.780031-25.560062 19.170047-41.535101 19.170047z"></path>
                         </svg>
                     </i>
                     <form class="search-form" autocomplete="off">
