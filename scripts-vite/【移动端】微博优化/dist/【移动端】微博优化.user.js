@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.12
+// @version      2024.10.18
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -13,9 +13,9 @@
 // @match        http*://card.weibo.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.3/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css
 // @connect      m.weibo.cn
 // @connect      www.weibo.com
@@ -1272,6 +1272,25 @@
       }
     ]
   };
+  const SettingUIOther = {
+    id: "weibo-panel-config-other",
+    title: "其它",
+    forms: [
+      {
+        text: "微博热搜",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "新标签页打开",
+            "weibo-hot-search-openBlank",
+            false,
+            void 0,
+            "新标签页打开链接"
+          )
+        ]
+      }
+    ]
+  };
   const __PopsPanel__ = {
     data: null,
     oneSuccessExecMenu: null,
@@ -1772,7 +1791,8 @@
         SettingUISearch,
         SettingUIHuaTi,
         SettingUIVideo,
-        SettingUICardArticle
+        SettingUICardArticle,
+        SettingUIOther
       ];
       return configList;
     }
@@ -2212,6 +2232,14 @@
      */
     isMWeiBo_search() {
       return this.isMWeiBo() && globalThis.location.pathname.startsWith("/search");
+    },
+    /**
+     * 移动端微博-微博热搜
+     */
+    isMWeiBo_HotSearch() {
+      let searchParams = new URLSearchParams(globalThis.location.search);
+      let containerid = searchParams.get("containerid");
+      return this.isMWeiBo() && globalThis.location.pathname.startsWith("/p/index") && typeof containerid === "string" && containerid.startsWith("106003");
     },
     /**
      * 话题
@@ -2765,6 +2793,44 @@
       });
     }
   };
+  const WeiBoHotSearch = {
+    init() {
+      PopsPanel.execMenuOnce("weibo-hot-search-openBlank", () => {
+        this.openBlank();
+      });
+    },
+    /**
+     * 新标签页打开链接
+     */
+    openBlank() {
+      DOMUtils.on(
+        document,
+        "click",
+        ".card-list .card",
+        (event) => {
+          utils.preventEvent(event);
+          let vueIns = VueUtils.getVue(event.target);
+          if (!vueIns) {
+            log.error("没有找到对应的Vue实例", vueIns);
+            Qmsg.error("没有找到对应的Vue实例");
+            return;
+          }
+          let carddata = vueIns == null ? void 0 : vueIns.carddata;
+          if (typeof (carddata == null ? void 0 : carddata.scheme) !== "string") {
+            log.error("没有找到对应的scheme", vueIns);
+            Qmsg.error("没有找到对应的scheme");
+            return;
+          }
+          let scheme = carddata.scheme;
+          log.success(`新标签页打开：` + scheme);
+          window.open(scheme, "_blank");
+        },
+        {
+          capture: true
+        }
+      );
+    }
+  };
   const WeiBo = {
     $data: {
       weiBoUnlockQuality: new WeiBoUnlockQuality()
@@ -2815,6 +2881,9 @@
         } else if (WeiBoRouter.isMWeiBo_search()) {
           log.info("Router: 搜索");
           WeiBoSearch.init();
+        } else if (WeiBoRouter.isMWeiBo_HotSearch()) {
+          log.info(`Router: 微博热搜`);
+          WeiBoHotSearch.init();
         } else {
           log.error("Router: 未适配的微博链接 => " + window.location.href);
         }

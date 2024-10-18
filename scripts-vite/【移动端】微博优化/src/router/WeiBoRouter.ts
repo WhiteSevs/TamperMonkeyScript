@@ -43,6 +43,19 @@ const WeiBoRouter = {
 		);
 	},
 	/**
+	 * 移动端微博-微博热搜
+	 */
+	isMWeiBo_HotSearch() {
+		let searchParams = new URLSearchParams(globalThis.location.search);
+		let containerid = searchParams.get("containerid");
+		return (
+			this.isMWeiBo() &&
+			globalThis.location.pathname.startsWith("/p/index") &&
+			typeof containerid === "string" &&
+			containerid.startsWith("106003")
+		);
+	},
+	/**
 	 * 话题
 	 */
 	isHuaTi() {

@@ -19,6 +19,7 @@ import { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { SettingUIHome } from "./components/home";
+import { SettingUIOther } from "./components/other";
 
 const __PopsPanel__ = {
 	data: null as any as UtilsDictionary<string, any>,
@@ -605,6 +606,7 @@ const PopsPanel = {
 			SettingUIHuaTi,
 			SettingUIVideo,
 			SettingUICardArticle,
+			SettingUIOther,
 		];
 		return configList;
 	},

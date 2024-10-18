@@ -13,6 +13,7 @@ import { WeiBoSearch } from "./search/WeiBoSearch";
 import { WeiBoUnlockQuality } from "./WeiBoUnlockQuality";
 import { WeiBoCardArticle } from "./card/WeiBoCardArticle";
 import { WeiBoHome } from "./home/WeiBoHome";
+import { WeiBoHotSearch } from "./p/WeiBoHotSearch";
 
 const WeiBo = {
 	$data: {
@@ -70,6 +71,9 @@ const WeiBo = {
 			} else if (WeiBoRouter.isMWeiBo_search()) {
 				log.info("Router: 搜索");
 				WeiBoSearch.init();
+			} else if (WeiBoRouter.isMWeiBo_HotSearch()) {
+				log.info(`Router: 微博热搜`);
+				WeiBoHotSearch.init();
 			} else {
 				log.error("Router: 未适配的微博链接 => " + window.location.href);
 			}
