@@ -1,6 +1,6 @@
 {
 	"name": "@whitesev/pops",
-	"version": "1.7.3",
+	"version": "1.7.4",
 	"description": "弹窗库",
 	"main": "dist/index.cjs.js",
 	"module": "dist/index.esm.js",
@@ -42,6 +42,7 @@
 		"@rollup/plugin-commonjs": "^25.0.8",
 		"@rollup/plugin-node-resolve": "^15.2.3",
 		"@rollup/plugin-typescript": "^11.1.6",
+		"any-touch": "^2.2.0",
 		"rollup-plugin-clear": "^2.0.7",
 		"tslib": "^2.6.2"
 	},

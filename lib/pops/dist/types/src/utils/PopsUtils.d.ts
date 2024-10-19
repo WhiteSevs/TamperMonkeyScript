@@ -1,3 +1,4 @@
+import AnyTouch from "any-touch";
 declare class PopsUtils {
     /**
      * 判断是否是window，例如window、self、globalThis
@@ -117,7 +118,7 @@ declare class PopsUtils {
      * > 793.27
      **/
     formatByteToSize<T extends boolean>(byteSize: number | string, addType?: T): T extends true ? string : number;
-    AnyTouch: () => any;
+    AnyTouch: () => typeof AnyTouch;
 }
 declare const popsUtils: PopsUtils;
 export { popsUtils };

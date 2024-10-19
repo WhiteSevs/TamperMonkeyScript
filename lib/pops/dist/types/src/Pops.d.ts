@@ -79,7 +79,7 @@ declare class Pops {
             formatTime(text?: string | number | Date, formatType?: string): string;
             formatTime(text?: string | number | Date, formatType?: "yyyy-MM-dd HH:mm:ss" | "yyyy/MM/dd HH:mm:ss" | "yyyy_MM_dd_HH_mm_ss" | "yyyy\u5E74MM\u6708dd\u65E5 HH\u65F6mm\u5206ss\u79D2" | "yyyy\u5E74MM\u6708dd\u65E5 hh:mm:ss" | "yyyy\u5E74MM\u6708dd\u65E5 HH:mm:ss" | "yyyy-MM-dd" | "yyyyMMdd" | "HH:mm:ss"): string;
             formatByteToSize<T extends boolean>(byteSize: number | string, addType?: T | undefined): T extends true ? string : number;
-            AnyTouch: () => any;
+            AnyTouch: () => typeof import("any-touch").default;
         };
         /** pops使用的DOM工具类 */
         DOMUtils: {

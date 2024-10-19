@@ -1,7 +1,7 @@
 import { PopsCore } from "../Core";
 import type { PopsUtilsOwnObject } from "../types/main";
 import { popsDOMUtils } from "./PopsDOMUtils";
-import { AnyTouch } from "./AnyTouch";
+import AnyTouch from "any-touch";
 
 class PopsUtils {
 	/**
@@ -370,13 +370,16 @@ class PopsUtils {
 				break;
 			}
 		}
+		new Date();
 		result = result.toFixed(2) as any;
 		result = addType
 			? result + resultType.toString()
 			: (parseFloat(result.toString()) as any);
 		return result;
 	}
-	AnyTouch: () => any = AnyTouch;
+	AnyTouch = () => {
+		return AnyTouch;
+	};
 }
 
 const popsUtils = new PopsUtils();

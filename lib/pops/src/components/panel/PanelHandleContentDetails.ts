@@ -903,7 +903,7 @@ export const PanelHandleContentDetails = () => {
 				setPanEvent() {
 					const AnyTouch = popsUtils.AnyTouch();
 					this.$tooltip = new AnyTouch(this.$ele.button, {
-						preventEvent() {
+						preventDefault() {
 							return false;
 						},
 					});

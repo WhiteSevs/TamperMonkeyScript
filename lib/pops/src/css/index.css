@@ -133,3 +133,11 @@ button.pops-header-control i:hover {
 .pops[type-value] .pops-header-controls {
 	display: flex;
 }
+
+/* 标题禁止选中文字 */
+.pops [class^="pops"][class*="-title"] p[pops] {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}

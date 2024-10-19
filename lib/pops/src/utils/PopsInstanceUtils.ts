@@ -519,7 +519,7 @@ export const PopsInstanceUtils = {
 		let clickElementTopOffset = 0;
 		let AnyTouch = popsUtils.AnyTouch();
 		let anyTouchElement = new AnyTouch(options.dragElement, {
-			preventEvent(event: Event) {
+			preventDefault(event: Event) {
 				if (typeof options.preventEvent === "function") {
 					return options.preventEvent(event as any);
 				} else {
@@ -606,133 +606,123 @@ export const PopsInstanceUtils = {
 
 		let resumeMoveElementStyle: Function | null = null;
 
-		anyTouchElement.on(
-			"pan",
-			function (
-				event: PointerEvent & {
-					phase: string;
-				}
-			) {
-				if (!isMove) {
-					isMove = true;
-					let rect = options.dragElement.getBoundingClientRect();
-					clickElementLeftOffset = event.x - rect.left;
-					clickElementTopOffset = event.y - rect.top;
-					transformInfo = getTransform(moveElement);
-					transformLeft = transformInfo.transformLeft;
-					transformTop = transformInfo.transformTop;
-					//if (event.nativeEvent.offsetX) {
-					//  clickElementLeftOffset = parseInt(event.nativeEvent.offsetX);
-					//} else {
-					//  clickElementLeftOffset = parseInt(event.getOffset().x);
-					//}
-					//if (event.nativeEvent.offsetY) {
-					//  clickElementTopOffset = parseInt(event.nativeEvent.offsetY);
-					//} else {
-					//  clickElementTopOffset = parseInt(event.getOffset().y);
-					//}
-					resumeMoveElementStyle = changeMoveElementStyle(moveElement);
-				}
-
-				/** 当前移动的left偏移 */
-				let currentMoveLeftOffset =
-					event.x - clickElementLeftOffset + transformLeft;
-				/** 当前移动的top偏移 */
-				let currentMoveTopOffset =
-					event.y - clickElementTopOffset + transformTop;
-				/* 拖拽移动 */
-				if (event.phase === "move") {
-					if (options.limit) {
-						/* 限制在容器内移动 */
-						/* left偏移最大值 */
-						let maxLeftOffset =
-							getContainerWidthOrHeight(options.container!).width -
-							popsDOMUtils.width(moveElement) +
-							transformLeft;
-						let { left: minLeftOffset, top: minTopOffset } =
-							getContainerTopOrLeft(options.container!);
-						/* top偏移的最大值 */
-						let maxTopOffset =
-							getContainerWidthOrHeight(options.container!).height -
-							popsDOMUtils.height(moveElement) +
-							transformTop;
-						if (currentMoveLeftOffset > maxLeftOffset) {
-							/* 不允许超过容器的最大宽度 */
-							currentMoveLeftOffset = maxLeftOffset;
-						}
-						if (currentMoveTopOffset > maxTopOffset) {
-							/* 不允许超过容器的最大高度 */
-							currentMoveTopOffset = maxTopOffset;
-						}
-						if (
-							currentMoveLeftOffset - options.extraDistance * 2 <
-							minLeftOffset + transformLeft
-						) {
-							/* 不允许left偏移小于容器最小值 */
-							currentMoveLeftOffset = minLeftOffset + transformLeft;
-							/* 最左边 +额外距离 */
-							currentMoveLeftOffset += options.extraDistance;
-						} else {
-							/* 最右边 -额外距离 */
-							currentMoveLeftOffset -= options.extraDistance;
-						}
-						if (
-							currentMoveTopOffset - options.extraDistance * 2 <
-							minTopOffset + transformTop
-						) {
-							/* 不允许top偏移小于容器最小值 */
-							currentMoveTopOffset = minTopOffset + transformTop;
-							/* 最上面 +额外距离 */
-							currentMoveTopOffset += options.extraDistance;
-						} else {
-							/* 最下面 -额外距离 */
-							currentMoveTopOffset -= options.extraDistance;
-						}
-					}
-					if (typeof options.moveCallBack === "function") {
-						options.moveCallBack(
-							moveElement,
-							currentMoveLeftOffset,
-							currentMoveTopOffset
-						);
-					}
-
-					popsDOMUtils.css(moveElement, {
-						left: currentMoveLeftOffset + "px",
-						top: currentMoveTopOffset + "px",
-					});
-				}
-
-				/* 停止拖拽 */
-				if (event.phase === "end") {
-					isMove = false;
-					if (typeof resumeMoveElementStyle === "function") {
-						resumeMoveElementStyle();
-						resumeMoveElementStyle = null;
-					}
-					if (typeof options.endCallBack === "function") {
-						options.endCallBack(
-							moveElement,
-							currentMoveLeftOffset,
-							currentMoveTopOffset
-						);
-					}
-				}
+		anyTouchElement.on("pan", function (event) {
+			if (!isMove) {
+				isMove = true;
+				let rect = options.dragElement.getBoundingClientRect();
+				clickElementLeftOffset = event.x - rect.left;
+				clickElementTopOffset = event.y - rect.top;
+				transformInfo = getTransform(moveElement);
+				transformLeft = transformInfo.transformLeft;
+				transformTop = transformInfo.transformTop;
+				//if (event.nativeEvent.offsetX) {
+				//  clickElementLeftOffset = parseInt(event.nativeEvent.offsetX);
+				//} else {
+				//  clickElementLeftOffset = parseInt(event.getOffset().x);
+				//}
+				//if (event.nativeEvent.offsetY) {
+				//  clickElementTopOffset = parseInt(event.nativeEvent.offsetY);
+				//} else {
+				//  clickElementTopOffset = parseInt(event.getOffset().y);
+				//}
+				resumeMoveElementStyle = changeMoveElementStyle(moveElement);
 			}
-		);
-		/* 因为会覆盖上面的点击事件，主动触发一下 */
-		anyTouchElement.on(
-			["click", "tap"],
-			function (
-				event: PointerEvent & {
-					changedPoints: any[];
+
+			/** 当前移动的left偏移 */
+			let currentMoveLeftOffset =
+				event.x - clickElementLeftOffset + transformLeft;
+			/** 当前移动的top偏移 */
+			let currentMoveTopOffset = event.y - clickElementTopOffset + transformTop;
+			/* 拖拽移动 */
+			if (event.phase === "move") {
+				if (options.limit) {
+					/* 限制在容器内移动 */
+					/* left偏移最大值 */
+					let maxLeftOffset =
+						getContainerWidthOrHeight(options.container!).width -
+						popsDOMUtils.width(moveElement) +
+						transformLeft;
+					let { left: minLeftOffset, top: minTopOffset } =
+						getContainerTopOrLeft(options.container!);
+					/* top偏移的最大值 */
+					let maxTopOffset =
+						getContainerWidthOrHeight(options.container!).height -
+						popsDOMUtils.height(moveElement) +
+						transformTop;
+					if (currentMoveLeftOffset > maxLeftOffset) {
+						/* 不允许超过容器的最大宽度 */
+						currentMoveLeftOffset = maxLeftOffset;
+					}
+					if (currentMoveTopOffset > maxTopOffset) {
+						/* 不允许超过容器的最大高度 */
+						currentMoveTopOffset = maxTopOffset;
+					}
+					if (
+						currentMoveLeftOffset - options.extraDistance * 2 <
+						minLeftOffset + transformLeft
+					) {
+						/* 不允许left偏移小于容器最小值 */
+						currentMoveLeftOffset = minLeftOffset + transformLeft;
+						/* 最左边 +额外距离 */
+						currentMoveLeftOffset += options.extraDistance;
+					} else {
+						/* 最右边 -额外距离 */
+						currentMoveLeftOffset -= options.extraDistance;
+					}
+					if (
+						currentMoveTopOffset - options.extraDistance * 2 <
+						minTopOffset + transformTop
+					) {
+						/* 不允许top偏移小于容器最小值 */
+						currentMoveTopOffset = minTopOffset + transformTop;
+						/* 最上面 +额外距离 */
+						currentMoveTopOffset += options.extraDistance;
+					} else {
+						/* 最下面 -额外距离 */
+						currentMoveTopOffset -= options.extraDistance;
+					}
 				}
-			) {
-				event.changedPoints.forEach((item) => {
-					popsDOMUtils.trigger(item.target, "click", void 0, true);
+				if (typeof options.moveCallBack === "function") {
+					options.moveCallBack(
+						moveElement,
+						currentMoveLeftOffset,
+						currentMoveTopOffset
+					);
+				}
+
+				popsDOMUtils.css(moveElement, {
+					left: currentMoveLeftOffset + "px",
+					top: currentMoveTopOffset + "px",
 				});
 			}
-		);
+
+			/* 停止拖拽 */
+			if (event.phase === "end") {
+				isMove = false;
+				if (typeof resumeMoveElementStyle === "function") {
+					resumeMoveElementStyle();
+					resumeMoveElementStyle = null;
+				}
+				if (typeof options.endCallBack === "function") {
+					options.endCallBack(
+						moveElement,
+						currentMoveLeftOffset,
+						currentMoveTopOffset
+					);
+				}
+			}
+		});
+		/* 因为会覆盖上面的点击事件，主动触发一下 */
+		anyTouchElement.on(["tap"], function (event) {
+			event.changedPoints.forEach((item) => {
+				popsDOMUtils.trigger(
+					item.target! as HTMLElement,
+					"click",
+					void 0,
+					true
+				);
+			});
+		});
 	},
 	/**
 	 * 排序数组
