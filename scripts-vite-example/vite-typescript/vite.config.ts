@@ -33,7 +33,7 @@ export default defineConfig({
 		}),
 		monkey({
 			// 脚本入口
-			entry: "src/main.ts",
+			entry: "./src/entrance.ts",
 			userscript: {
 				// 脚本名
 				name: SCRIPT_NAME,
@@ -104,6 +104,7 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			"@": Utils.getAbsolutePath("./src"),
+			"@lib": Utils.getAbsolutePath("./../../lib"),
 		},
 	},
 	server: {

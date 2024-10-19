@@ -1,8 +1,3 @@
-const DemoRouter = {
+export const Router = {
 
-}
-
-
-export {
-    DemoRouter
 }

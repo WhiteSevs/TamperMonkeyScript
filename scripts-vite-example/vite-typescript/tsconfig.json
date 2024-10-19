@@ -20,7 +20,8 @@
 		"importsNotUsedAsValues": "remove",
 		"sourceMap": true,
 		"paths": {
-			"@/*": ["./src/*"]
+			"@/*": ["./src/*"],
+			"@lib/*": ["./../../lib/*"]
 		},
 		"typeRoots": ["types"]
 	},
