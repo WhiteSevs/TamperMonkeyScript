@@ -13,9 +13,8 @@ export const QmsgUtils = {
 	/**
 	 * 生成带插件名的名称
 	 * @param args
-	 * @returns
 	 */
-	getNameSpacify(...args: string[]) {
+	getNameSpacify(...args: string[]): string {
 		let result = QmsgConfig.NAMESPACE;
 		for (let index = 0; index < args.length; ++index) {
 			result += "-" + args[index];
@@ -26,15 +25,14 @@ export const QmsgUtils = {
 	 * 判断字符是否是数字
 	 * @param text 需要判断的字符串
 	 */
-	isNumber(text: string) {
+	isNumber(text: string): boolean {
 		let isNumberPattern = /^\d+$/;
 		return isNumberPattern.test(text);
 	},
 	/**
 	 * 获取唯一性的UUID
-	 * @returns
 	 */
-	getUUID() {
+	getUUID(): string {
 		return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
 			/[xy]/g,
 			function (value) {
@@ -48,19 +46,18 @@ export const QmsgUtils = {
 	 * 合并参数为配置信息，用于创建Msg实例
 	 * @param content 文本内容
 	 * @param config 配置
-	 * @private
 	 */
-	mergeArgs(content = "", config?: object) {
+	mergeArgs(content: any = "", config?: object): QmsgOption {
 		let opts = {} as QmsgOption;
 		if (arguments.length === 0) {
 			return opts;
 		}
-		if (typeof content === "object") {
+		if (typeof content === "object" && content != null) {
 			return Object.assign(opts, content);
 		} else {
 			opts.content = content.toString();
 		}
-		if (typeof config === "object") {
+		if (typeof config === "object" && config != null) {
 			return Object.assign(opts, config);
 		}
 		return opts;
@@ -69,9 +66,8 @@ export const QmsgUtils = {
 	/**
 	 * 通过配置信息 来判断是否为同一条消息,并返回消息实例
 	 * @param option 配置项
-	 * @private
 	 */
-	judgeReMsg(option: QmsgOption) {
+	judgeReMsg(option: QmsgOption): QmsgMsg {
 		option = option || {};
 		let optionString = JSON.stringify(option);
 		/* 寻找已生成的实例是否存在配置相同的 */
@@ -128,20 +124,22 @@ export const QmsgUtils = {
 	 * 转换为动态对象
 	 * @param obj 需要配置的对象
 	 * @param other_obj 获取的其它对象
-	 * @returns
 	 */
-	toDynamicObject(obj: any, ...other_objs: any[]) {
+	toDynamicObject<T1 extends any, T2 extends any[]>(
+		obj: T1,
+		...other_objs: T2
+	): T1 & (T2 extends Array<infer U> ? U : never) {
 		let __obj__ = Object.assign({}, obj);
 		Object.keys(__obj__).forEach((keyName) => {
-			let objValue = __obj__[keyName];
+			let objValue = (__obj__ as any)[keyName];
 			Object.defineProperty(__obj__, keyName, {
 				get() {
 					let findIndex = other_objs.findIndex((other_obj) => {
 						// 判断其他对象中是否有该属性
-						return other_obj.hasOwnProperty.call(other_obj, keyName);
+						return other_obj!.hasOwnProperty.call(other_obj, keyName);
 					});
 					if (findIndex !== -1) {
-						return other_objs[findIndex][keyName];
+						return (other_objs as any)[findIndex][keyName];
 					} else {
 						return objValue;
 					}
@@ -151,6 +149,6 @@ export const QmsgUtils = {
 				},
 			});
 		});
-		return __obj__;
+		return __obj__ as any;
 	},
 };

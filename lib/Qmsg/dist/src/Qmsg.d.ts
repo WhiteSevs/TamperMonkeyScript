@@ -105,6 +105,7 @@ export interface QmsgOption {
 }
 export interface QmsgDetails extends Partial<QmsgOption> {
 }
+type QmsgContentString = string | boolean | number | symbol | Function | bigint | null | undefined;
 declare const QmsgEvent: {
     visibilitychange: {
         eventConfig: {
@@ -144,7 +145,7 @@ declare class Qmsg {
      * 信息Toast
      * @param content 内容
      */
-    info(content: any): QmsgMsg;
+    info(content: QmsgContentString): QmsgMsg;
     /**
      * 信息Toast
      * @param option 配置
@@ -155,12 +156,12 @@ declare class Qmsg {
      * @param content 内容
      * @param option 配置
      */
-    info(content: any, option: QmsgDetails): QmsgMsg;
+    info(content: QmsgContentString, option: QmsgDetails): QmsgMsg;
     /**
      * 警告Toast
      * @param content 内容
      */
-    warning(content: any): QmsgMsg;
+    warning(content: QmsgContentString): QmsgMsg;
     /**
      * 警告Toast
      * @param option 配置
@@ -171,12 +172,12 @@ declare class Qmsg {
      * @param content 内容
      * @param option 配置
      */
-    warning(content: any, option: QmsgDetails): QmsgMsg;
+    warning(content: QmsgContentString, option: QmsgDetails): QmsgMsg;
     /**
      * 成功Toast
      * @param content 内容
      */
-    success(content: any): QmsgMsg;
+    success(content: QmsgContentString): QmsgMsg;
     /**
      * 成功Toast
      * @param option 配置
@@ -187,12 +188,12 @@ declare class Qmsg {
      * @param content 内容
      * @param option 配置
      */
-    success(content: any, option: QmsgDetails): QmsgMsg;
+    success(content: QmsgContentString, option: QmsgDetails): QmsgMsg;
     /**
      * 失败Toast
      * @param content 内容
      */
-    error(content: any): QmsgMsg;
+    error(content: QmsgContentString): QmsgMsg;
     /**
      * 失败Toast
      * @param option 配置
@@ -203,12 +204,12 @@ declare class Qmsg {
      * @param content 内容
      * @param option 配置
      */
-    error(content: any, option: QmsgDetails): QmsgMsg;
+    error(content: QmsgContentString, option: QmsgDetails): QmsgMsg;
     /**
      * 加载中Toast
      * @param content 内容
      */
-    loading(content: any): QmsgMsg;
+    loading(content: QmsgContentString): QmsgMsg;
     /**
      * 加载中Toast
      * @param config 配置
@@ -220,7 +221,7 @@ declare class Qmsg {
      * @param config 配置
      * @returns
      */
-    loading(content: any, config: QmsgDetails): QmsgMsg;
+    loading(content: QmsgContentString, config: QmsgDetails): QmsgMsg;
     /**
      * 根据uuid删除Qmsg实例和元素
      * @param uuid
