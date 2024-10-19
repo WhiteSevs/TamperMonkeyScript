@@ -53,7 +53,7 @@ class Utils {
 		this.windowApi = new WindowApi(option);
 	}
 	/** 版本号 */
-	version = "2024.10.13";
+	version = "2024.10.19";
 
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
@@ -2378,16 +2378,16 @@ class Utils {
 	 * Utils.parseObjectToArray({"工具类":"jsonToArray","return","Array"});
 	 * > ['jsonToArray', 'Array']
 	 **/
-	parseObjectToArray(target: any): any;
-	parseObjectToArray(target: any): any {
+	parseObjectToArray<T extends any>(target: T): T[keyof T][];
+	parseObjectToArray<T extends any>(target: T) {
 		if (typeof target !== "object") {
 			throw new Error(
 				"Utils.parseObjectToArray 参数 target 必须为 object 类型"
 			);
 		}
-		let result: any[] = [];
-		Object.keys(target).forEach(function (keyName) {
-			result = result.concat(target[keyName]);
+		let result: T[keyof T][] = [];
+		Object.keys(target!).forEach(function (keyName) {
+			result = result.concat(target![keyName as any as keyof T]);
 		});
 		return result;
 	}
@@ -2441,8 +2441,14 @@ class Utils {
 	 * Utils.mergeArrayToString([{"name":"数组内数据部分字段合并成字符串->"},{"name":"mergeToString"}],(item)=>{return item["name"]});
 	 * > '数组内数据部分字段合并成字符串->mergeToString'
 	 **/
-	mergeArrayToString(data: any[], handleFunc?: (val: any) => any): string;
-	mergeArrayToString(data: any[], handleFunc?: (val: any) => any): string {
+	mergeArrayToString<T extends any>(
+		data: T[],
+		handleFunc?: ((val: T) => T) | keyof T
+	): string;
+	mergeArrayToString<T extends any>(
+		data: T[],
+		handleFunc?: ((val: T) => T) | keyof T
+	): string {
 		if (!(data instanceof Array)) {
 			throw new Error("Utils.mergeArrayToString 参数 data 必须为 Array 类型");
 		}
@@ -2457,7 +2463,7 @@ class Utils {
 			});
 		} else {
 			data.forEach((item) => {
-				Object.values(item)
+				Object.values(item as any)
 					.filter((item2) => typeof item2 === "string")
 					.forEach((item3) => {
 						content += item3;
@@ -2914,7 +2920,10 @@ class Utils {
 	 * Utils.parseInt(["aaaaaaa"],"aa");
 	 * > NaN
 	 **/
-	parseInt(matchList?: any[], defaultValue?: number): number;
+	parseInt(
+		matchList?: any[] | null | undefined | RegExpMatchArray,
+		defaultValue?: number
+	): number;
 	parseInt(matchList: any[] = [], defaultValue = 0): number {
 		if (matchList == null) {
 			return parseInt(defaultValue.toString());

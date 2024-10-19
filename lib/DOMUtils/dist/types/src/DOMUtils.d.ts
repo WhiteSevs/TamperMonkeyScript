@@ -26,7 +26,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.attr(document.querySelector("a.xx"),"href","abcd");
      * DOMUtils.attr("a.xx","href","abcd");
      */
-    attr(element: HTMLElement | string, attrName: string, attrValue: string): void;
+    attr(element: HTMLElement | string, attrName: string, attrValue: string | boolean | number): void;
     /**
      * 创建元素
      * @param tagName 标签名
@@ -115,9 +115,8 @@ declare class DOMUtils extends DOMUtilsEvent {
         [key: string]: string | number;
     }): string;
     /**
-     * 获取元素的文本内容
+     * 获取元素的文本内容，优先返回textContent
      * @param element 目标元素
-     * @param text （可选）文本内容
      * @returns 如果传入了text，则返回undefined；否则返回文本内容
      * @example
      * // 设置元素a.xx的文本内容为abcd
@@ -137,7 +136,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.text("a.xx","abcd")
      * DOMUtils.text("a.xx",document.querySelector("b"))
      * */
-    text(element: HTMLElement | string, text: string | HTMLElement | Element): void;
+    text(element: HTMLElement | string, text: string | HTMLElement | Element | number): void;
     /**
      * 设置元素的HTML内容
      * @param element 目标元素
@@ -149,7 +148,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.html("a.xx","<b>abcd</b>")
      * DOMUtils.html("a.xx",document.querySelector("b"))
      * */
-    html(element: HTMLElement | string, html: string | HTMLElement | Element): void;
+    html(element: HTMLElement | string, html: string | HTMLElement | Element | number): void;
     /**
      * 获取元素的HTML内容
      * @param element 目标元素

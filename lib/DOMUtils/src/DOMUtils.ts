@@ -11,7 +11,7 @@ class DOMUtils extends DOMUtilsEvent {
 		super(option);
 	}
 	/** 版本号 */
-	version = "2024.9.23";
+	version = "2024.10.19";
 	/**
 	 * 获取元素的属性值
 	 * @param element 目标元素
@@ -36,9 +36,9 @@ class DOMUtils extends DOMUtilsEvent {
 	attr(
 		element: HTMLElement | string,
 		attrName: string,
-		attrValue: string
+		attrValue: string | boolean | number
 	): void;
-	attr(element: HTMLElement | string, attrName: string, attrValue?: string) {
+	attr(element: HTMLElement | string, attrName: string, attrValue?: any) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
 			element = DOMUtilsContext.windowApi.document.querySelector(
@@ -263,9 +263,8 @@ class DOMUtils extends DOMUtilsEvent {
 		}
 	}
 	/**
-	 * 获取元素的文本内容
+	 * 获取元素的文本内容，优先返回textContent
 	 * @param element 目标元素
-	 * @param text （可选）文本内容
 	 * @returns 如果传入了text，则返回undefined；否则返回文本内容
 	 * @example
 	 * // 设置元素a.xx的文本内容为abcd
@@ -287,9 +286,9 @@ class DOMUtils extends DOMUtilsEvent {
 	 * */
 	text(
 		element: HTMLElement | string,
-		text: string | HTMLElement | Element
+		text: string | HTMLElement | Element | number
 	): void;
-	text(element: HTMLElement | string, text?: string | HTMLElement | Element) {
+	text(element: HTMLElement | string, text?: any) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
 			element = DOMUtilsContext.windowApi.document.querySelector(
@@ -326,7 +325,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * */
 	html(
 		element: HTMLElement | string,
-		html: string | HTMLElement | Element
+		html: string | HTMLElement | Element | number
 	): void;
 	/**
 	 * 获取元素的HTML内容
@@ -340,7 +339,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.html("a.xx",document.querySelector("b"))
 	 * */
 	html(element: HTMLElement | string): string;
-	html(element: HTMLElement | string, html?: string | HTMLElement | Element) {
+	html(element: HTMLElement | string, html?: any) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
 			element = DOMUtilsContext.windowApi.document.querySelector(
@@ -353,7 +352,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (html == null) {
 			return element.innerHTML;
 		} else {
-			if (html instanceof Node) {
+			if (html instanceof Element) {
 				html = html.innerHTML;
 			}
 			if ("innerHTML" in element) {

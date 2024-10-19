@@ -963,7 +963,7 @@ declare class Utils {
      * Utils.parseObjectToArray({"工具类":"jsonToArray","return","Array"});
      * > ['jsonToArray', 'Array']
      **/
-    parseObjectToArray(target: any): any;
+    parseObjectToArray<T extends any>(target: T): T[keyof T][];
     /**
      * 自动锁对象，用于循环判断运行的函数，在循环外new后使用，注意，如果函数内部存在异步操作，需要使用await
      * @example
@@ -1014,7 +1014,7 @@ declare class Utils {
      * Utils.mergeArrayToString([{"name":"数组内数据部分字段合并成字符串->"},{"name":"mergeToString"}],(item)=>{return item["name"]});
      * > '数组内数据部分字段合并成字符串->mergeToString'
      **/
-    mergeArrayToString(data: any[], handleFunc?: (val: any) => any): string;
+    mergeArrayToString<T extends any>(data: T[], handleFunc?: ((val: T) => T) | keyof T): string;
     /**
      * 监听页面元素改变并处理
      * @param target 需要监听的元素，如果不存在，可以等待它出现
@@ -1142,7 +1142,7 @@ declare class Utils {
      * Utils.parseInt(["aaaaaaa"],"aa");
      * > NaN
      **/
-    parseInt(matchList?: any[], defaultValue?: number): number;
+    parseInt(matchList?: any[] | null | undefined | RegExpMatchArray, defaultValue?: number): number;
     /**
      * blob转File对象
      * @param blobUrl 需要转换的blob的链接
