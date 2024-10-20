@@ -20,7 +20,6 @@
 
 .pops-drawer-content {
 	flex: 1;
-	overflow: auto;
 }
 .pops[type-value="drawer"] .pops-drawer-btn {
 	padding-top: 10px;
