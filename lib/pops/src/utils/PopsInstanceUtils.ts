@@ -525,7 +525,8 @@ export const PopsInstanceUtils = {
 				if (typeof options.preventEvent === "function") {
 					return options.preventEvent(event as any);
 				} else {
-					return false;
+					// 返回true阻止滑动
+					return true;
 				}
 			},
 		});

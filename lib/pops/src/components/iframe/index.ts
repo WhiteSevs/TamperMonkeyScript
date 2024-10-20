@@ -221,6 +221,9 @@ export class PopsIframe {
 				if (typeof config?.btn?.min?.callback === "function") {
 					config.btn.min.callback(eventDetails, event);
 				}
+			},
+			{
+				capture: true,
 			}
 		);
 		/* 最大化按钮点击事件 */
@@ -252,6 +255,9 @@ export class PopsIframe {
 				if (typeof config?.btn?.max?.callback === "function") {
 					config.btn.max.callback(eventDetails, event);
 				}
+			},
+			{
+				capture: true,
 			}
 		);
 		/* 先隐藏窗口化按钮 */
@@ -291,6 +297,9 @@ export class PopsIframe {
 				if (typeof config?.btn?.mise?.callback === "function") {
 					config.btn.mise.callback(eventDetails, event);
 				}
+			},
+			{
+				capture: true,
 			}
 		);
 		/* 关闭按钮点击事件 */
@@ -298,6 +307,8 @@ export class PopsIframe {
 			headerCloseBtnElement,
 			"click",
 			(event) => {
+				event.preventDefault();
+				event.stopPropagation();
 				PopsInstanceUtils.removeInstance(
 					[pops.config.layer.iframe],
 					guid,
@@ -306,6 +317,9 @@ export class PopsIframe {
 				if (typeof config?.btn?.close?.callback === "function") {
 					config.btn.close.callback(eventDetails, event);
 				}
+			},
+			{
+				capture: true,
 			}
 		);
 
