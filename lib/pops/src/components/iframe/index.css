@@ -1,5 +1,6 @@
 .pops[type-value="iframe"] {
 	--container-title-height: 55px;
+	transition: width 0.35s ease, height 0.35s ease;
 }
 .pops[type-value] .pops-iframe-title {
 	display: flex;
@@ -19,18 +20,20 @@
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	font-weight: 500;
-	line-height: var(--container-title-height);
+	line-height: normal;
+	align-content: center;
+}
+.pops[type-value="iframe"] .pops-iframe-content {
+	width: 100%;
+	/*height: calc(100% - var(--container-title-height));*/
+	flex: 1;
+	overflow: hidden;
+	word-break: break-word;
 }
 .pops[type-value="iframe"] .pops-iframe-content p[pops] {
 	padding: 5px 10px;
 	color: #333;
 	text-indent: 15px;
-}
-.pops[type-value="iframe"] .pops-iframe-content {
-	width: 100%;
-	height: calc(100% - var(--container-title-height));
-	overflow: hidden;
-	word-break: break-word;
 }
 .pops-loading {
 	position: absolute;
@@ -56,22 +59,30 @@
 	animation: pops-anim-wait-rotate 1.2s linear infinite;
 }
 .pops[type-value="iframe"].pops[type-module="min"] {
-	top: unset !important;
 	bottom: 0;
 	max-width: 200px;
 	max-height: 53px;
-	transform: none;
+	position: unset;
 }
 .pops[type-value="iframe"].pops[type-module="min"]
 	.pops-header-control[type="min"] {
 	display: none;
 }
-.pops[type-value="iframe"].pops[type-module="max"] {
+.pops[type-value="iframe"].pops-iframe-unset-top {
 	top: unset !important;
+}
+.pops[type-value="iframe"].pops-iframe-unset-left {
 	left: unset !important;
+}
+.pops[type-value="iframe"].pops-iframe-unset-transform {
+	transform: none !important;
+}
+.pops[type-value="iframe"].pops-iframe-unset-transition {
+	transition: none !important;
+}
+.pops[type-value="iframe"].pops[type-module="max"] {
 	width: 100% !important;
 	height: 100% !important;
-	transform: none;
 }
 .pops[type-value="iframe"] iframe[pops] {
 	width: calc(100% - 4px);
@@ -87,4 +98,8 @@
 	height: 4px;
 	background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));
 	animation: iframeLoadingChange 2s forwards;
+}
+
+.pops-anim:has(.pops[type-value="iframe"].pops[type-module="min"]) {
+	position: unset;
 }

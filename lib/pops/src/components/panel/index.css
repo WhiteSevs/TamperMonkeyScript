@@ -23,26 +23,28 @@
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	font-weight: 500;
-	line-height: var(--container-title-height);
+	line-height: normal;
+	align-content: center;
 }
 .pops[type-value="panel"] .pops-panel-content {
 	width: 100%;
-	height: calc(
+	/*height: calc(
 		100% - var(--container-title-height) - var(--container-bottom-btn-height)
-	);
+	);*/
+	flex: 1;
 	overflow: auto;
 	word-break: break-word;
 }
 .pops[type-value="panel"] .pops-panel-btn {
-	position: absolute;
-	bottom: 0;
 	display: flex;
 	padding: 10px 10px 10px 10px;
 	width: 100%;
 	height: var(--container-bottom-btn-height);
+	max-height: var(--container-bottom-btn-height);
+	line-height: normal;
 	border-top: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));
 	text-align: right;
-	line-height: var(--container-bottom-btn-height);
+	align-content: center;
 	align-items: center;
 }
 
@@ -226,9 +228,14 @@ section.pops-panel-container
 	align-items: center;
 	position: relative;
 	font-size: 14px;
-	line-height: 20px;
+	line-height: normal;
+	align-content: center;
 	height: 32px;
 	vertical-align: middle;
+	user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	-moz-user-select: none;
 }
 .pops-panel-switch input.pops-panel-switch__input {
 	position: absolute;
@@ -287,7 +294,8 @@ section.pops-panel-container
 section.pops-panel-container .pops-panel-slider:has(> input[type="range"]) {
 	overflow: hidden;
 	height: 25px;
-	line-height: 25px;
+	line-height: normal;
+	align-content: center;
 	display: flex;
 	align-items: center;
 }
@@ -360,6 +368,10 @@ section.pops-panel-container
 	height: 32px;
 	display: flex;
 	align-items: center;
+	user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	-moz-user-select: none;
 }
 
 .pops-slider-width {
@@ -575,7 +587,8 @@ section.pops-panel-container
 	display: inline-flex;
 	justify-content: center;
 	align-items: center;
-	line-height: 1;
+	line-height: normal;
+	align-content: center;
 	height: 32px;
 	white-space: nowrap;
 	cursor: text;
@@ -622,7 +635,8 @@ section.pops-panel-container
 }
 .pops-panel-input .pops-panel-icon {
 	height: inherit;
-	line-height: inherit;
+	line-height: normal;
+	align-content: center;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -694,7 +708,8 @@ section.pops-panel-container
 /* select的CSS */
 .pops-panel-select select {
 	height: 32px;
-	line-height: 32px;
+	line-height: normal;
+	align-content: center;
 	min-width: 200px;
 	border: 1px solid rgb(184, 184, 184, var(--pops-bd-opacity));
 	border-radius: 5px;
@@ -751,7 +766,8 @@ section.pops-panel-container
 	padding: 4px 12px;
 	gap: 6px;
 	min-height: 32px;
-	line-height: 24px;
+	line-height: normal;
+	align-content: center;
 	border-radius: var(--el-border-radius-base);
 	background-color: var(--el-fill-color-blank);
 	transition: var(--el-transition-duration);
@@ -815,7 +831,8 @@ section.pops-panel-container
 	--color: inherit;
 	height: 1em;
 	width: 1em;
-	line-height: 1em;
+	line-height: normal;
+	align-content: center;
 	display: inline-flex;
 	justify-content: center;
 	align-items: center;
@@ -851,7 +868,8 @@ section.pops-panel-container
 	height: 24px;
 	padding: 0 9px;
 	font-size: var(--el-tag-font-size);
-	line-height: 1;
+	line-height: normal;
+	align-content: center;
 	border-width: 1px;
 	border-style: solid;
 	border-radius: var(--el-tag-border-radius);
@@ -901,6 +919,7 @@ section.pops-panel-container
 .pops-panel-select-multiple .el-select__tags-text {
 	display: block;
 	line-height: normal;
+	align-content: center;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;

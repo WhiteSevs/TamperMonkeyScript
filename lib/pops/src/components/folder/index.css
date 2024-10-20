@@ -16,7 +16,7 @@
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	font-weight: 500;
-	line-height: var(--container-title-height);
+	line-height: normal;
 }
 .pops[type-value="folder"] .pops-folder-content p[pops] {
 	padding: 5px 10px;
@@ -25,22 +25,24 @@
 }
 .pops[type-value="folder"] .pops-folder-content {
 	width: 100%;
-	height: calc(
+	/*height: calc(
 		100% - var(--container-title-height) - var(--container-bottom-btn-height)
-	);
+	);*/
+	flex: 1;
 	overflow: auto;
 	word-break: break-word;
 }
 .pops[type-value="folder"] .pops-folder-btn {
-	position: absolute;
-	bottom: 0;
+	/*position: absolute;
+	bottom: 0;*/
 	display: flex;
 	padding: 10px 10px 10px 10px;
 	width: 100%;
 	height: var(--container-bottom-btn-height);
+	max-height: var(--container-bottom-btn-height);
+	line-height: normal;
 	border-top: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));
 	text-align: right;
-	line-height: var(--container-bottom-btn-height);
 	align-items: center;
 }
 .pops-folder-list .cursor-p {
@@ -79,11 +81,13 @@ table.pops-folder-list-table__body {
 	user-select: none;
 }
 .pops-folder-list table tr {
-	line-height: 1;
+	line-height: normal;
+	align-content: center;
 }
 .pops-folder-list-table__header-row {
 	height: 50px;
-	line-height: 50px;
+	line-height: normal;
+	align-content: center;
 	color: rgb(129, 137, 153);
 	text-align: left;
 	font-size: 12px;
@@ -96,7 +100,8 @@ table.pops-folder-list-table__body {
 }
 .pops-folder-list-table__body-row {
 	height: 50px;
-	line-height: 50px;
+	line-height: normal;
+	align-content: center;
 	color: #03081a;
 	font-size: 12px;
 }
@@ -115,7 +120,8 @@ table.pops-folder-list-table__body {
 .pops-folder-list .list-name-text {
 	display: inline-block;
 	padding-left: 12px;
-	line-height: 40px;
+	line-height: normal;
+	align-content: center;
 	max-width: 176px;
 }
 .pops-folder-list-file-name > div {
@@ -204,7 +210,8 @@ table.pops-folder-list-table__body {
 	height: 32px;
 }
 .pops-folder-list .pops-folder-list-file-icon {
-	line-height: 1;
+	line-height: normal;
+	align-content: center;
 	position: relative;
 	vertical-align: middle;
 }
@@ -265,7 +272,8 @@ table.pops-folder-list-table__body {
 .pops-folder-list .pops-folder-file-list-breadcrumb-allFiles {
 	font-size: 12px;
 	color: #333;
-	line-height: 20px;
+	line-height: normal;
+	align-content: center;
 	font-weight: 700;
 	display: inline-block;
 	max-width: 140px;

@@ -1,3 +1,4 @@
+import { PopsCore } from "../../Core";
 import { GlobalConfig } from "../../GlobalConfig";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
@@ -20,7 +21,6 @@ export class PopsIframe {
 			pops.config.cssText.common,
 			pops.config.cssText.iframeCSS,
 		]);
-
 		let config: Required<PopsIframeDetails> = PopsIframeConfig();
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
@@ -98,6 +98,16 @@ export class PopsIframe {
 			headerMaxBtnElement,
 			headerMiseBtnElement,
 		} = PopsHandler.handleQueryElement($anim, PopsType);
+		let $iframeContainer = PopsCore.document.querySelector<HTMLDivElement>(
+			".pops-iframe-container"
+		);
+		if (!$iframeContainer) {
+			$iframeContainer = PopsCore.document.createElement("div");
+			$iframeContainer.className = "pops-iframe-container";
+			$iframeContainer.style.cssText =
+				"display: flex;position: fixed;bottom: 0px;flex-flow: wrap-reverse;user-select: none;-webkit-user-select: none;-ms-user-select: none;-moz-user-select: none;";
+			popsDOMUtils.appendBody($iframeContainer);
+		}
 		/**
 		 * 遮罩层元素
 		 */
@@ -145,9 +155,7 @@ export class PopsIframe {
 		popsDOMUtils.on($iframe, "load", () => {
 			/* iframe加载中... */
 			loadingElement?.remove();
-
 			$contentLoading!.style.animation = "iframeLoadingChange_85 0.3s forwards";
-
 			popsDOMUtils.on(
 				$contentLoading,
 				popsDOMUtils.getAnimationEndNameList(),
@@ -159,12 +167,11 @@ export class PopsIframe {
 
 			if (config.title!.text!.trim() === "" && $iframe!.contentDocument) {
 				/* 同域名下的才可以获取网页标题 */
-
 				$title!.querySelector<HTMLElement>("p")!.innerText =
 					$iframe!.contentDocument.title;
 			}
 
-			config.loadEndCallBack(eventDetails as any);
+			config.loadEndCallBack(eventDetails);
 		});
 		/* 创建到页面中 */
 
@@ -173,7 +180,7 @@ export class PopsIframe {
 			config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
 		}
 
-		popsDOMUtils.appendBody($shadowContainer);
+		$iframeContainer.appendChild($shadowContainer);
 		if ($mask != null) {
 			$anim.after($mask);
 		}
@@ -187,46 +194,33 @@ export class PopsIframe {
 				endCallBack: config.dragEndCallBack,
 			});
 		}
-		let normalLeft = "";
+		const TYPE_MODULE = "type-module";
 		/* 最小化按钮点击事件 */
-
+		let origin_left = "";
+		let origin_top = "";
+		let origin_is_max = false;
 		popsDOMUtils.on<PointerEvent | MouseEvent>(
 			headerMinBtnElement,
 			"click",
 			(event) => {
-				/**
-				 * 所有最小化的iframe数组
-				 */
-				let allMinElementList: HTMLElement[] = [];
+				event.preventDefault();
+				event.stopPropagation();
+				origin_left = $pops.style.left;
+				origin_top = $pops.style.top;
+				$pops.classList.add("pops-iframe-unset-top");
+				$pops.classList.add("pops-iframe-unset-left");
+				$pops.classList.add("pops-iframe-unset-transform");
+				$pops.style.transitionDuration = "";
 
-				pops.config.layer.iframe.forEach((item) => {
-					if (
-						item.animElement != $anim &&
-						item.popsElement.getAttribute("type-module") === "min"
-					) {
-						allMinElementList.push(item.popsElement);
-					}
-				});
-				let maxLeftValue = allMinElementList.length
-					? allMinElementList.length * 205
-					: 0;
-
-				$pops!.style.transitionDuration = "";
-
-				normalLeft = $pops!.style.left;
-
-				$pops!.style.left = maxLeftValue + "px";
-
-				$pops!.setAttribute("type-module", "min");
-
-				$anim!
-					.querySelector<HTMLDivElement>(".pops-header-controls")
-					?.setAttribute("type", "max");
-
-				config.btn.min.callback(eventDetails, event);
-			},
-			{
-				capture: true,
+				$pops.setAttribute(TYPE_MODULE, "min");
+				headerControlsElement.setAttribute("type", "min");
+				// 隐藏放大图标
+				headerMaxBtnElement.style.setProperty("display", "none");
+				// 显示复位图标
+				headerMiseBtnElement.style.setProperty("display", "");
+				if (typeof config?.btn?.min?.callback === "function") {
+					config.btn.min.callback(eventDetails, event);
+				}
 			}
 		);
 		/* 最大化按钮点击事件 */
@@ -234,75 +228,69 @@ export class PopsIframe {
 			headerMaxBtnElement,
 			"click",
 			(event) => {
-				$pops!.style.transitionDuration = "";
-
-				normalLeft = $pops!.style.left;
-
-				$pops!.removeAttribute("type-module");
-
-				$pops!.setAttribute("type-module", "max");
-
-				headerControlsElement!.setAttribute("type", "max");
-
-				headerMaxBtnElement!.style.setProperty("display", "none");
-
-				headerMiseBtnElement!.style.setProperty("display", "");
-
-				config.btn.max.callback(eventDetails, event);
-			},
-			{
-				capture: true,
+				event.preventDefault();
+				event.stopPropagation();
+				if ($pops.getAttribute(TYPE_MODULE) !== "min") {
+					origin_left = $pops.style.left;
+					origin_top = $pops.style.top;
+				}
+				origin_is_max = true;
+				$pops.style.transitionDuration = "";
+				$pops.style.transform = "";
+				$pops.removeAttribute(TYPE_MODULE);
+				$pops.classList.add("pops-iframe-unset-transition");
+				$pops.classList.add("pops-iframe-unset-left");
+				$pops.classList.add("pops-iframe-unset-top");
+				$pops.classList.add("pops-iframe-unset-transform");
+				$pops.classList.remove("pops-iframe-unset-transition");
+				$pops.setAttribute(TYPE_MODULE, "max");
+				headerControlsElement.setAttribute("type", "max");
+				// 隐藏放大图标
+				headerMaxBtnElement.style.setProperty("display", "none");
+				// 显示复位图标
+				headerMiseBtnElement.style.setProperty("display", "");
+				if (typeof config?.btn?.max?.callback === "function") {
+					config.btn.max.callback(eventDetails, event);
+				}
 			}
 		);
 		/* 先隐藏窗口化按钮 */
 		headerMiseBtnElement?.style?.setProperty("display", "none");
-		/* 窗口化按钮点击事件 */
+		/* 复位按钮点击事件 */
 		popsDOMUtils.on<MouseEvent | PointerEvent>(
 			headerMiseBtnElement,
 			"click",
 			(event) => {
-				$pops!.style.transitionDuration = "";
+				event.preventDefault();
+				event.stopPropagation();
+				if (origin_is_max && $pops.getAttribute(TYPE_MODULE) === "min") {
+					$pops.classList.add("pops-iframe-unset-transition");
+					$pops.classList.add("pops-iframe-unset-left");
+					$pops.classList.add("pops-iframe-unset-top");
+					$pops.classList.add("pops-iframe-unset-transform");
+					$pops.classList.remove("pops-iframe-unset-transition");
+					$pops.setAttribute(TYPE_MODULE, "max");
+					headerControlsElement.setAttribute("type", "max");
+				} else {
+					origin_is_max = false;
+					$pops.style.left = origin_left;
+					$pops.style.top = origin_top;
+					$pops.style.transitionDuration = "";
+					$pops.style.transform = "";
+					headerControlsElement.removeAttribute("type");
+					$pops.removeAttribute(TYPE_MODULE);
+					$pops.classList.remove("pops-iframe-unset-top");
+					$pops.classList.remove("pops-iframe-unset-left");
+					$pops.classList.remove("pops-iframe-unset-transform");
 
-				$pops!.style.left = normalLeft;
-
-				headerControlsElement!.removeAttribute("type");
-
-				$pops!.removeAttribute("type-module");
-				/**
-				 * 所有最小化的iframe数组
-				 */
-				let allMinElementList: HTMLElement[] = [];
-				pops.config.layer.iframe.forEach((item) => {
-					if (
-						item.animElement != $anim &&
-						$pops!.getAttribute("type-module") === "min"
-					) {
-						allMinElementList.push(item.popsElement);
-					}
-				});
-				allMinElementList.sort(
-					PopsInstanceUtils.sortElementListByProperty<HTMLElement, number>(
-						(obj) => {
-							return parseInt(getComputedStyle(obj).left);
-						},
-						(obj) => {
-							return parseInt(getComputedStyle(obj).left);
-						},
-						false
-					)
-				);
-				allMinElementList.forEach((item, index) => {
-					item.style.left = index * 205 + "px";
-				});
-
-				headerMiseBtnElement!.style.setProperty("display", "none");
-
-				headerMaxBtnElement!.style.setProperty("display", "");
-
-				config.btn.mise.callback(eventDetails, event);
-			},
-			{
-				capture: true,
+					// 显示放大图标
+					headerMaxBtnElement.style.setProperty("display", "");
+					// 隐藏复位图标
+					headerMiseBtnElement.style.setProperty("display", "none");
+				}
+				if (typeof config?.btn?.mise?.callback === "function") {
+					config.btn.mise.callback(eventDetails, event);
+				}
 			}
 		);
 		/* 关闭按钮点击事件 */
@@ -315,38 +303,9 @@ export class PopsIframe {
 					guid,
 					false
 				);
-				setTimeout(() => {
-					let allIsMinElementList: HTMLElement[] = [];
-					pops.config.layer.iframe.forEach((item) => {
-						if (
-							item.animElement != $anim &&
-							$pops!.getAttribute("type-module") === "min"
-						) {
-							allIsMinElementList.push(item.popsElement);
-						}
-					});
-
-					allIsMinElementList.sort(
-						PopsInstanceUtils.sortElementListByProperty(
-							(obj) => {
-								return parseInt(getComputedStyle(obj).left);
-							},
-							(obj) => {
-								return parseInt(getComputedStyle(obj).left);
-							},
-							false
-						)
-					);
-
-					allIsMinElementList.forEach((item, index) => {
-						item.style.left = index * 205 + "px";
-					});
-				}, 1000 * 0.3);
-
-				config.btn.close.callback(eventDetails, event);
-			},
-			{
-				capture: true,
+				if (typeof config?.btn?.close?.callback === "function") {
+					config.btn.close.callback(eventDetails, event);
+				}
 			}
 		);
 

@@ -20,5 +20,19 @@
 	border: 0;
 }
 .pops-no-border-important {
-	border: 0;
+	border: 0 !important;
+}
+.pops-user-select-none {
+	user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	-moz-user-select: none;
+}
+.pops-line-height-center {
+	line-height: normal;
+	align-content: center;
+}
+.pops-width-fill {
+	width: -webkit-fill-available;
+	width: -moz-available;
 }

@@ -28,7 +28,7 @@ export const PopsIframeConfig = (): Required<PopsIframeDetails> => {
 		},
 		animation: "pops-anim-fadein-zoom",
 		position: "center",
-		drag: false,
+		drag: true,
 		dragLimit: true,
 		dragExtraDistance: 3,
 		dragMoveCallBack() {},

@@ -30,7 +30,8 @@
 i.pops-rightClickMenu-icon {
 	height: 1em;
 	width: 1em;
-	line-height: 1em;
+	line-height: normal;
+	align-content: center;
 	display: inline-flex;
 	justify-content: center;
 	align-items: center;

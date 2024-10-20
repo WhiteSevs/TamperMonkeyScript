@@ -25,6 +25,8 @@
 	box-sizing: border-box;
 	overflow: hidden;
 	transition: all 0.35s;
+	display: flex;
+	flex-direction: column;
 }
 .pops-anim {
 	position: fixed;
@@ -51,7 +53,7 @@
 .pops i.pops-bottom-icon {
 	height: 1em;
 	width: 1em;
-	line-height: 1em;
+	line-height: normal;
 	display: inline-flex;
 	justify-content: center;
 	align-items: center;
@@ -90,9 +92,6 @@
 .pops-header-controls button.pops-header-control[type="max"],
 .pops-header-controls button.pops-header-control[type="mise"],
 .pops-header-controls button.pops-header-control[type="min"] {
-	position: relative;
-	float: right;
-	margin: 0 2px;
 	outline: 0 !important;
 	border: 0;
 	border-color: rgb(136, 136, 136, var(--pops-bd-opacity));
@@ -122,16 +121,19 @@ button.pops-header-control {
 	background: 0 0;
 	cursor: pointer;
 	position: unset;
-	line-height: 1.15;
+	line-height: normal;
 }
 button.pops-header-control i:hover {
 	color: rgb(64, 158, 255);
 }
 .pops-header-controls[data-margin] button.pops-header-control {
 	margin: 0 6px;
+	display: flex;
+    align-items: center;
 }
 .pops[type-value] .pops-header-controls {
 	display: flex;
+	gap: 6px;
 }
 
 /* 标题禁止选中文字 */

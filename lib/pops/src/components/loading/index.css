@@ -48,7 +48,8 @@
 	overflow: hidden;
 	width: auto;
 	font-size: inherit;
-	line-height: 2em;
+	line-height: normal;
+	align-content: center;
 }
 .pops[type-value="loading"] .pops-loading-content p[pops] {
 	display: inline-block;

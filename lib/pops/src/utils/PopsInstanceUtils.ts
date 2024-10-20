@@ -489,6 +489,7 @@ export const PopsInstanceUtils = {
 		options: {
 			dragElement: HTMLElement;
 			limit: boolean;
+			triggerClick?: boolean;
 			extraDistance: number;
 			container?: Window | typeof globalThis | HTMLElement;
 			moveCallBack?: (
@@ -509,6 +510,7 @@ export const PopsInstanceUtils = {
 				limit: true,
 				extraDistance: 3,
 				container: PopsCore.globalThis,
+				triggerClick: true,
 			},
 			options
 		);
@@ -712,17 +714,19 @@ export const PopsInstanceUtils = {
 				}
 			}
 		});
-		/* 因为会覆盖上面的点击事件，主动触发一下 */
-		anyTouchElement.on(["tap"], function (event) {
-			event.changedPoints.forEach((item) => {
-				popsDOMUtils.trigger(
-					item.target! as HTMLElement,
-					"click",
-					void 0,
-					true
-				);
+		if (options.triggerClick) {
+			/* 因为会覆盖上面的点击事件，主动触发一下 */
+			anyTouchElement.on(["tap"], function (event) {
+				event.changedPoints.forEach((item) => {
+					popsDOMUtils.trigger(
+						item.target! as HTMLElement,
+						"click",
+						void 0,
+						true
+					);
+				});
 			});
-		});
+		}
 	},
 	/**
 	 * 排序数组

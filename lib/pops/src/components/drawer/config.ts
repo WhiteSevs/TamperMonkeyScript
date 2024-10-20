@@ -7,20 +7,16 @@ export const PopsDrawerConfig = (): Required<PopsDrawerDetails> => {
 			position: "center",
 			text: "默认标题",
 			html: false,
-			style: "height: 60px;line-height: 60px;",
 		},
 		content: {
 			text: "默认内容",
 			html: false,
-			style: "overflow: auto;padding: 0px 10px;",
 		},
 		btn: {
 			position: "flex-end",
 			ok: {
 				enable: true,
-
 				size: void 0,
-
 				icon: void 0,
 				rightIcon: false,
 				iconIsLoading: false,

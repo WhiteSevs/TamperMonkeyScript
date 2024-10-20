@@ -13,7 +13,19 @@
 	align-items: center;
 	justify-content: space-between;
 }
+.pops[type-value] .pops-drawer-title p[pops] {
+	line-height: normal;
+	align-content: center;
+}
 
+.pops-drawer-content {
+	flex: 1;
+	overflow: auto;
+}
+.pops[type-value="drawer"] .pops-drawer-btn {
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
 .pops[type-value="drawer"][direction="top"] {
 	width: 100%;
 	left: 0;
@@ -37,11 +49,4 @@
 	top: 0;
 	bottom: 0;
 	right: 0;
-}
-.pops-drawer-content {
-	height: 100%;
-}
-.pops[type-value="drawer"] .pops-drawer-btn {
-	padding-top: 10px;
-	padding-bottom: 10px;
 }

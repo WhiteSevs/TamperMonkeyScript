@@ -45,7 +45,7 @@
 	display: flex;
 	align-items: center;
 	height: var(--button-height);
-	line-height: 1;
+	line-height: normal;
 	box-sizing: border-box;
 	user-select: none;
 	-webkit-user-select: none;
