@@ -1,4 +1,8 @@
-import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY } from "../config";
+import {
+	ATTRIBUTE_DEFAULT_VALUE,
+	ATTRIBUTE_KEY,
+	PROPS_STORAGE_API,
+} from "../config";
 import { PopsPanelSelectMultipleDetails } from "@whitesev/pops/dist/types/src/components/panel/selectMultipleType";
 import { log } from "@/env";
 import type { PopsAlertDetails } from "@whitesev/pops/dist/types/src/components/alert/indexType";
@@ -54,27 +58,35 @@ export const UISelectMultiple = function <T>(
 		type: "select-multiple",
 		description: description,
 		placeholder: placeholder,
-		attributes: {} as { [key: string]: any },
+		attributes: {},
+		props: {},
 		getValue() {
-			return PopsPanel.getValue(key, defaultValue);
+			return (this.props as any)[PROPS_STORAGE_API].get(key, defaultValue);
 		},
 		selectConfirmDialogDetails: selectConfirmDialogDetails,
 		callback(selectInfo) {
-			let saveValue: T[] = [];
+			let value: T[] = [];
 			selectInfo.forEach((selectedInfo) => {
-				saveValue.push(selectedInfo.value);
+				value.push(selectedInfo.value);
 			});
-			PopsPanel.setValue(key, saveValue);
-			log.info([`多选-选择：`, saveValue]);
+			(this.props as any)[PROPS_STORAGE_API].set(key, value);
+			log.info(`多选-选择：`, value);
 			if (typeof callback === "function") {
 				callback(selectInfo);
 			}
 		},
 		data: selectData,
 	};
-	if (result.attributes) {
-		result.attributes[ATTRIBUTE_KEY] = key;
-		result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
-	}
+
+	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
+	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+	Reflect.set(result.props!, PROPS_STORAGE_API, {
+		get<T>(key: string, defaultValue: T) {
+			return PopsPanel.getValue(key, defaultValue);
+		},
+		set(key: string, value: any) {
+			PopsPanel.setValue(key, value);
+		},
+	});
 	return result;
 };
