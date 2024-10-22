@@ -35,9 +35,6 @@ function deepCopy<T>(obj: T): T {
 	return copy;
 }
 
-let arr = [{ a: 1 }, { b: 2 }];
-let deepCopiedArr = deepCopy(arr);
-
 export const WebsiteEditRuleView = {
 	/**
 	 * 主弹窗的shadowRoot
