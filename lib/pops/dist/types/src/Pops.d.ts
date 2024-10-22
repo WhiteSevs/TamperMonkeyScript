@@ -239,14 +239,23 @@ declare class Pops {
         config: {
             style?: string | (() => string) | null;
             zIndex?: (number | (() => number) | null) | (string | (() => string) | null);
-        };
+        } & Partial<import("./types/components").PopsCommonConfig>;
         setGlobalConfig(config: {
             style?: string | (() => string) | null;
             zIndex?: (number | (() => number) | null) | (string | (() => string) | null);
-        }): void;
+        } & Partial<import("./types/components").PopsCommonConfig>): void;
         getGlobalConfig(): {
             style?: string | undefined;
             zIndex?: string | number | undefined;
+            class?: string | undefined;
+            only?: boolean | undefined;
+            width?: string | undefined;
+            height?: string | undefined;
+            position?: import("./types/position").PopsPosition | undefined;
+            animation?: import("./types/animation").PopsAnimation | undefined;
+            mask?: import("./types/mask").PopsMaskDetails | undefined;
+            forbiddenScroll?: boolean | undefined;
+            beforeAppendToPageCallBack?: void;
         };
     };
     /**

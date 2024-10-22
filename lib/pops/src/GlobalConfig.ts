@@ -1,9 +1,11 @@
+import type { PopsCommonConfig } from "./types/components";
+
 type EnterReturnType<T> = null | T | (() => T);
 
 type GlobalConfigOption = {
 	style?: EnterReturnType<string>;
 	zIndex?: EnterReturnType<number> | EnterReturnType<string>;
-};
+} & Partial<PopsCommonConfig>;
 
 type ResultGlobalConfigOption<T> = T extends null | undefined
 	? never
@@ -29,32 +31,49 @@ export const GlobalConfig = {
 				GlobalConfigOption[P]
 			>;
 		} = {};
-		let style =
-			GlobalConfig.config.style == null
-				? ""
-				: typeof GlobalConfig.config.style === "function"
-				? GlobalConfig.config.style()
-				: GlobalConfig.config.style;
+		Object.keys(GlobalConfig.config).forEach((keyName) => {
+			let configValue = Reflect.get(GlobalConfig.config, keyName);
+			if (keyName === "style") {
+				// 设置style属性
+				let style =
+					configValue == null
+						? ""
+						: typeof configValue === "function"
+						? // @ts-ignore
+						  configValue()
+						: configValue;
 
-		if (typeof style === "string") {
-			result.style = style;
-		}
-		let zIndex =
-			GlobalConfig.config.zIndex == null
-				? ""
-				: typeof GlobalConfig.config.zIndex === "function"
-				? GlobalConfig.config.zIndex()
-				: GlobalConfig.config.zIndex;
-		if (typeof zIndex === "string") {
-			let newIndex = (zIndex = parseInt(zIndex));
-			if (!isNaN(newIndex)) {
-				result.zIndex = newIndex;
+				if (typeof style === "string") {
+					result.style = style;
+				}
+			} else if (keyName === "zIndex") {
+				// 设置zIndex属性
+				let zIndex =
+					configValue == null
+						? ""
+						: typeof configValue === "function"
+						? configValue()
+						: configValue;
+				if (typeof zIndex === "string") {
+					let newIndex = (zIndex = parseInt(zIndex));
+					if (!isNaN(newIndex)) {
+						result.zIndex = newIndex;
+					}
+				} else {
+					if (!isNaN(zIndex)) {
+						result.zIndex = zIndex;
+					}
+				}
+			} else if (keyName === "mask") {
+				let mask =
+					GlobalConfig.config.mask == null ? {} : GlobalConfig.config.mask;
+				if (typeof mask === "object" && mask != null) {
+					result.mask = mask;
+				}
+			} else {
+				Reflect.set(result, keyName, configValue);
 			}
-		} else {
-			if (!isNaN(zIndex)) {
-				result.zIndex = zIndex;
-			}
-		}
+		});
 		return result;
 	},
 };

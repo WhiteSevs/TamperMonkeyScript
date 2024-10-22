@@ -1,8 +1,9 @@
+import type { PopsCommonConfig } from "./types/components";
 type EnterReturnType<T> = null | T | (() => T);
 type GlobalConfigOption = {
     style?: EnterReturnType<string>;
     zIndex?: EnterReturnType<number> | EnterReturnType<string>;
-};
+} & Partial<PopsCommonConfig>;
 export declare const GlobalConfig: {
     config: GlobalConfigOption;
     /**
@@ -15,6 +16,15 @@ export declare const GlobalConfig: {
     getGlobalConfig(): {
         style?: string | undefined;
         zIndex?: string | number | undefined;
+        class?: string | undefined;
+        only?: boolean | undefined;
+        width?: string | undefined;
+        height?: string | undefined;
+        position?: import("./types/position").PopsPosition | undefined;
+        animation?: import("./types/animation").PopsAnimation | undefined;
+        mask?: import("./types/mask").PopsMaskDetails | undefined;
+        forbiddenScroll?: boolean | undefined;
+        beforeAppendToPageCallBack?: void;
     };
 };
 export {};

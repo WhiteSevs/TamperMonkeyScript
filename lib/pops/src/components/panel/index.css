@@ -573,6 +573,7 @@ section.pops-panel-container
 	border: 1px solid #dcdfe6;
 	border-radius: 4px;
 	background-color: #ffffff;
+	position: relative;
 }
 .pops-panel-input:hover {
 	box-shadow: 0 0 0 1px #c0c4cc inset;
@@ -586,17 +587,12 @@ section.pops-panel-container
 .pops-panel-input input {
 	display: inline-flex;
 	justify-content: center;
+	text-align: start;
 	align-items: center;
-	line-height: normal;
 	align-content: center;
-	height: 32px;
 	white-space: nowrap;
 	cursor: text;
-	text-align: center;
 	box-sizing: border-box;
-	outline: 0;
-	transition: 0.1s;
-	font-weight: 500;
 	user-select: none;
 	-webkit-user-select: none;
 	-moz-user-select: none;
@@ -605,12 +601,17 @@ section.pops-panel-container
 	-webkit-appearance: none;
 	appearance: none;
 	background-color: transparent;
+	outline: 0;
+	transition: 0.1s;
 	border: 0;
-	padding: 8px 8px;
 	font-size: 14px;
-	text-align: start;
+	font-weight: 500;
+	line-height: normal;
+	height: 32px;
 	width: 100%;
 	flex: 1;
+	margin-right: calc(1em + 8px);
+	padding: 8px 8px;
 }
 .pops-panel-input span.pops-panel-input__suffix {
 	display: inline-flex;
@@ -623,6 +624,8 @@ section.pops-panel-container
 	transition: all 0.3s;
 	pointer-events: none;
 	margin: 0 8px;
+	position: absolute;
+	right: 0px;
 }
 .pops-panel-input span.pops-panel-input__suffix-inner {
 	pointer-events: all;
