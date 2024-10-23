@@ -1,6 +1,11 @@
 import { type DOMUtilsCreateElementAttributesMap, DOMUtilsEvent } from "./DOMUtilsEvent";
-import { ParseHTMLReturnType } from "./types/global";
+import { ParseHTMLReturnType, type DOMUtilsTargetElementType } from "./types/global";
 import { type UtilsWindowApiOption } from "./WindowApi";
+/**
+ * 判断是否是元素列表
+ * @param $ele
+ */
+export declare const isNodeList: ($ele: any) => $ele is any[] | NodeList;
 declare class DOMUtils extends DOMUtilsEvent {
     constructor(option?: UtilsWindowApiOption);
     /** 版本号 */
@@ -15,7 +20,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.attr("a.xx","href");
      * > https://xxxx....
      */
-    attr(element: HTMLElement | string, attrName: string): string;
+    attr(element: DOMUtilsTargetElementType, attrName: string): string;
     /**
      * 设置元素的属性值
      * @param element 目标元素
@@ -26,7 +31,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.attr(document.querySelector("a.xx"),"href","abcd");
      * DOMUtils.attr("a.xx","href","abcd");
      */
-    attr(element: HTMLElement | string, attrName: string, attrValue: string | boolean | number): void;
+    attr(element: DOMUtilsTargetElementType, attrName: string, attrValue: string | boolean | number): void;
     /**
      * 创建元素
      * @param tagName 标签名
@@ -66,7 +71,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.css("a.xx","display");
      * > "none"
      * */
-    css(element: HTMLElement | string, property: keyof CSSStyleDeclaration): string;
+    css(element: DOMUtilsTargetElementType, property: keyof CSSStyleDeclaration): string;
     /**
      * 获取元素的样式属性值
      * @param element 目标元素
@@ -77,7 +82,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.css("a.xx","display");
      * > "none"
      * */
-    css(element: HTMLElement | string, property: string): string;
+    css(element: DOMUtilsTargetElementType, property: string): string;
     /**
      * 设置元素的样式属性
      * @param element 目标元素
@@ -94,7 +99,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.css(document.querySelector("a.xx"),"top","10px");
      * DOMUtils.css(document.querySelector("a.xx"),"top",10);
      * */
-    css(element: HTMLElement | string, property: keyof CSSStyleDeclaration & string, value: string | number): string;
+    css(element: DOMUtilsTargetElementType, property: keyof CSSStyleDeclaration & string, value: string | number): string;
     /**
      * 设置元素的样式属性
      * @param element 目标元素
@@ -109,7 +114,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.css(document.querySelector("a.xx"),{ top: "10px" });
      * DOMUtils.css(document.querySelector("a.xx"),{ top: 10 });
      * */
-    css(element: HTMLElement | string, property: {
+    css(element: DOMUtilsTargetElementType, property: {
         [P in keyof CSSStyleDeclaration]?: CSSStyleDeclaration[P];
     } | {
         [key: string]: string | number;
@@ -124,7 +129,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.text("a.xx","abcd")
      * DOMUtils.text("a.xx",document.querySelector("b"))
      * */
-    text(element: HTMLElement | string): string;
+    text(element: DOMUtilsTargetElementType): string;
     /**
      * 设置元素的文本内容
      * @param element 目标元素
@@ -136,7 +141,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.text("a.xx","abcd")
      * DOMUtils.text("a.xx",document.querySelector("b"))
      * */
-    text(element: HTMLElement | string, text: string | HTMLElement | Element | number): void;
+    text(element: DOMUtilsTargetElementType, text: string | HTMLElement | Element | number): void;
     /**
      * 设置元素的HTML内容
      * @param element 目标元素
@@ -148,7 +153,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.html("a.xx","<b>abcd</b>")
      * DOMUtils.html("a.xx",document.querySelector("b"))
      * */
-    html(element: HTMLElement | string, html: string | HTMLElement | Element | number): void;
+    html(element: DOMUtilsTargetElementType, html: string | HTMLElement | Element | number): void;
     /**
      * 获取元素的HTML内容
      * @param element 目标元素
@@ -160,7 +165,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.html("a.xx","<b>abcd</b>")
      * DOMUtils.html("a.xx",document.querySelector("b"))
      * */
-    html(element: HTMLElement | string): string;
+    html(element: DOMUtilsTargetElementType): string;
     /**
      * 获取移动元素的transform偏移
      */
@@ -179,7 +184,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.val(document.querySelector("input.xx"),true)
      * DOMUtils.val("input.xx",true)
      * */
-    val(element: HTMLInputElement | string, value: string | boolean): void;
+    val(element: HTMLInputElement | HTMLTextAreaElement | string | (HTMLInputElement | HTMLTextAreaElement)[] | NodeListOf<HTMLInputElement | HTMLTextAreaElement>, value: string | boolean): void;
     /**
      * 获取value属性值
      * @param element 目标元素
@@ -187,7 +192,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * // 获取元素textarea的值
      * DOMUtils.val(document.querySelector("textarea.xx"))
      * */
-    val(element: HTMLInputElement | string): string;
+    val(element: HTMLInputElement | HTMLTextAreaElement | string | (HTMLInputElement | HTMLTextAreaElement)[] | NodeListOf<HTMLInputElement | HTMLTextAreaElement>): string;
     /**
      * 获取value属性值
      * @param element 目标元素
@@ -196,7 +201,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.val(document.querySelector("input.xx"))
      * DOMUtils.val("input.xx")
      * */
-    val(element: HTMLInputElement): boolean | string;
+    val(element: HTMLInputElement | HTMLTextAreaElement | (HTMLInputElement | HTMLTextAreaElement)[] | NodeListOf<HTMLInputElement | HTMLTextAreaElement>): boolean | string;
     /**
      * 获取元素的属性值
      * @param element 目标元素
@@ -208,7 +213,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.val("a.xx","data-value")
      * > undefined
      * */
-    prop<T extends any>(element: HTMLElement | string, propName: string): T;
+    prop<T extends any>(element: DOMUtilsTargetElementType, propName: string): T;
     /**
      * 设置元素的属性值
      * @param element 目标元素
@@ -219,7 +224,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.val(document.querySelector("a.xx"),"data-value",1)
      * DOMUtils.val("a.xx","data-value",1)
      * */
-    prop<T extends any>(element: HTMLElement | string, propName: string, propValue: T): void;
+    prop<T extends any>(element: DOMUtilsTargetElementType, propName: string, propValue: T): void;
     /**
      * 移除元素的属性
      * @param element 目标元素
@@ -229,7 +234,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.removeAttr(document.querySelector("a.xx"),"data-value")
      * DOMUtils.removeAttr("a.xx","data-value")
      * */
-    removeAttr(element: HTMLElement | string, attrName: string): void;
+    removeAttr(element: DOMUtilsTargetElementType, attrName: string): void;
     /**
      * 移除元素class名
      * @param element 目标元素
@@ -239,7 +244,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.removeClass(document.querySelector("a.xx"),"xx")
      * DOMUtils.removeClass("a.xx","xx")
      */
-    removeClass(element: HTMLElement | string, className: string): void;
+    removeClass(element: DOMUtilsTargetElementType, className?: string | string[] | undefined | null): void;
     /**
      * 移除元素的属性
      * @param element 目标元素
@@ -249,7 +254,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.removeProp(document.querySelector("a.xx"),"href")
      * DOMUtils.removeProp("a.xx","href")
      * */
-    removeProp(element: HTMLElement | string, propName: string): void;
+    removeProp(element: DOMUtilsTargetElementType, propName: string): void;
     /**
      * 将一个元素替换为另一个元素
      * @param element 目标元素
@@ -259,7 +264,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.replaceWith(document.querySelector("a.xx"),document.querySelector("b.xx"))
      * DOMUtils.replaceWith("a.xx",'<b class="xx"></b>')
      */
-    replaceWith(element: HTMLElement | string | NodeList | HTMLElement[] | Node, newElement: HTMLElement | string | Node): void;
+    replaceWith(element: DOMUtilsTargetElementType, newElement: HTMLElement | string | Node): void;
     /**
      * 给元素添加class
      * @param element 目标元素
@@ -269,7 +274,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.addClass(document.querySelector("a.xx"),"_vue_")
      * DOMUtils.addClass("a.xx","_vue_")
      * */
-    addClass(element: HTMLElement | string, className: string): void;
+    addClass(element: DOMUtilsTargetElementType, className: string | string[]): void;
     /**
      * 函数在元素内部末尾添加子元素或HTML字符串
      * @param element 目标元素
@@ -279,7 +284,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.append(document.querySelector("a.xx"),document.querySelector("b.xx"))
      * DOMUtils.append("a.xx","'<b class="xx"></b>")
      * */
-    append(element: HTMLElement | string, content: HTMLElement | string | (HTMLElement | string | Element)[] | NodeList): void;
+    append(element: DOMUtilsTargetElementType, content: HTMLElement | string | (HTMLElement | string | Element)[] | NodeList): void;
     /**
      * 函数 在元素内部开头添加子元素或HTML字符串
      * @param element 目标元素
@@ -289,7 +294,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.prepend(document.querySelector("a.xx"),document.querySelector("b.xx"))
      * DOMUtils.prepend("a.xx","'<b class="xx"></b>")
      * */
-    prepend(element: HTMLElement | string, content: HTMLElement | string): void;
+    prepend(element: DOMUtilsTargetElementType, content: HTMLElement | string): void;
     /**
      * 在元素后面添加兄弟元素或HTML字符串
      * @param element 目标元素
@@ -299,7 +304,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.after(document.querySelector("a.xx"),document.querySelector("b.xx"))
      * DOMUtils.after("a.xx","'<b class="xx"></b>")
      * */
-    after(element: HTMLElement | string, content: HTMLElement | string): void;
+    after(element: DOMUtilsTargetElementType, content: HTMLElement | string): void;
     /**
      * 在元素前面添加兄弟元素或HTML字符串
      * @param element 目标元素
@@ -309,17 +314,17 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.before(document.querySelector("a.xx"),document.querySelector("b.xx"))
      * DOMUtils.before("a.xx","'<b class="xx"></b>")
      * */
-    before(element: HTMLElement | string, content: HTMLElement | string): void;
+    before(element: DOMUtilsTargetElementType, content: HTMLElement | string): void;
     /**
      * 移除元素
-     * @param target 目标元素
+     * @param element 目标元素
      * @example
      * // 元素a.xx前面添加一个元素
      * DOMUtils.remove(document.querySelector("a.xx"))
      * DOMUtils.remove(document.querySelectorAll("a.xx"))
      * DOMUtils.remove("a.xx")
      * */
-    remove(target: HTMLElement | string | NodeList | HTMLElement[]): void;
+    remove(element: DOMUtilsTargetElementType): void;
     /**
      * 移除元素的所有子元素
      * @param element 目标元素
@@ -328,7 +333,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.empty(document.querySelector("a.xx"))
      * DOMUtils.empty("a.xx")
      * */
-    empty(element: HTMLElement | string): void;
+    empty(element: DOMUtilsTargetElementType): void;
     /**
      * 获取元素相对于文档的偏移坐标（加上文档的滚动条）
      * @param element 目标元素
@@ -347,6 +352,7 @@ declare class DOMUtils extends DOMUtilsEvent {
     /**
      * 获取元素的宽度
      * @param element 要获取宽度的元素
+     * @param value 宽度值
      * @param isShow 是否已进行isShow，避免爆堆栈
      * @returns 元素的宽度，单位为像素
      * @example
@@ -362,7 +368,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.width(document.querySelector("a.xx"),200)
      * DOMUtils.width("a.xx",200)
      */
-    width(element: HTMLElement | string | Window | Document, isShow?: boolean): number;
+    width(element: HTMLElement | string | Window | typeof globalThis | Document, isShow?: boolean): number;
     /**
      * 获取元素的高度
      * @param element 要获取高度的元素
@@ -381,7 +387,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.height(document.querySelector("a.xx"),200)
      * DOMUtils.height("a.xx",200)
      */
-    height(element: HTMLElement | string | Window | Document, isShow?: boolean): number;
+    height(element: HTMLElement | string | Window | typeof globalThis | Document, isShow?: boolean): number;
     /**
      * 获取元素的外部宽度（包括边框和外边距）
      * @param {HTMLElement|string} element 要获取外部宽度的元素
@@ -396,7 +402,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.outerWidth(window)
      * > 400
      */
-    outerWidth(element: HTMLElement | string | Window | Document, isShow?: boolean): number;
+    outerWidth(element: HTMLElement | string | Window | typeof globalThis | Document, isShow?: boolean): number;
     /**
      * 获取元素的外部高度（包括边框和外边距）
      * @param {HTMLElement|string} element 要获取外部高度的元素
@@ -411,7 +417,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.outerHeight(window)
      * > 700
      */
-    outerHeight(element: HTMLElement | string | Window, isShow?: boolean): number;
+    outerHeight(element: HTMLElement | string | Window | typeof globalThis | Document, isShow?: boolean): number;
     /**
      * 在一定时间内改变元素的样式属性，实现动画效果
      * @param element 需要进行动画的元素
@@ -424,7 +430,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      *   console.log("已往上位移100px")
      * })
      */
-    animate(element: HTMLElement | string, styles: CSSStyleDeclaration, duration?: number, callback?: (() => void) | undefined | null): void;
+    animate(element: DOMUtilsTargetElementType, styles: CSSStyleDeclaration, duration?: number, callback?: (() => void) | undefined | null): void;
     /**
      * 将一个元素包裹在指定的HTML元素中
      * @param element 要包裹的元素
@@ -433,7 +439,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * // 将a.xx元素外面包裹一层div
      * DOMUtils.wrap(document.querySelector("a.xx"),"<div></div>")
      */
-    wrap(element: HTMLElement | string | Node, wrapperHTML: string): void;
+    wrap(element: DOMUtilsTargetElementType, wrapperHTML: string): void;
     /**
      * 获取当前元素的前一个兄弟元素
      * @param element 当前元素
@@ -525,25 +531,39 @@ declare class DOMUtils extends DOMUtilsEvent {
      */
     parseHTML<T1 extends boolean, T2 extends boolean>(html: string, useParser?: T1, isComplete?: T2): ParseHTMLReturnType<T1, T2>;
     /**
+     * 序列化表单元素
+     * @param $form 表单元素
+     * @example
+     * DOMUtils.serialize(document.querySelector("form"))
+     * > xxx=xxx&aaa=
+     */
+    serialize($form: HTMLFormElement): string;
+    /**
      * 显示元素
      * @param target 当前元素
+     * @param checkVisiblie 是否检测元素是否显示
+     * + true （默认）如果检测到还未显示，则强制使用display: unset !important;
+     * + false 不检测，直接设置display属性为空
      * @example
      * // 显示a.xx元素
      * DOMUtils.show(document.querySelector("a.xx"))
      * DOMUtils.show(document.querySelectorAll("a.xx"))
      * DOMUtils.show("a.xx")
      */
-    show(target: HTMLElement | string | NodeList | HTMLElement[]): void;
+    show(target: DOMUtilsTargetElementType, checkVisiblie?: boolean): void;
     /**
      * 隐藏元素
      * @param target 当前元素
+     * @param checkVisiblie 是否检测元素是否显示
+     * + true （默认）如果检测到显示，则强制使用display: none !important;
+     * + false 不检测，直接设置display属性为none
      * @example
      * // 隐藏a.xx元素
      * DOMUtils.hide(document.querySelector("a.xx"))
      * DOMUtils.hide(document.querySelectorAll("a.xx"))
      * DOMUtils.hide("a.xx")
      */
-    hide(target: HTMLElement | string | NodeList | HTMLElement[]): void;
+    hide(target: DOMUtilsTargetElementType, checkVisiblie?: boolean): void;
     /**
      * 淡入元素
      * @param element 当前元素
@@ -558,7 +578,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      *   console.log("淡入完毕");
      * })
      */
-    fadeIn(element: HTMLElement | string, duration?: number, callback?: () => void): void;
+    fadeIn(element: DOMUtilsTargetElementType, duration?: number, callback?: () => void): void;
     /**
      * 淡出元素
      * @param element 当前元素
@@ -573,16 +593,17 @@ declare class DOMUtils extends DOMUtilsEvent {
      *   console.log("淡出完毕");
      * })
      */
-    fadeOut(element: HTMLElement | string, duration?: number, callback?: () => void): void;
+    fadeOut(element: DOMUtilsTargetElementType, duration?: number, callback?: () => void): void;
     /**
      * 切换元素的显示和隐藏状态
      * @param element 当前元素
+     * @param checkVisiblie 是否检测元素是否显示
      * @example
      * // 如果元素a.xx当前是隐藏，则显示，如果是显示，则隐藏
      * DOMUtils.toggle(document.querySelector("a.xx"))
      * DOMUtils.toggle("a.xx")
      */
-    toggle(element: HTMLElement | string): void;
+    toggle(element: DOMUtilsTargetElementType, checkVisiblie?: boolean): void;
     /**
      * 创建一个新的DOMUtils实例
      * @param option

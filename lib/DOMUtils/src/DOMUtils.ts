@@ -3,15 +3,26 @@ import {
 	type DOMUtilsCreateElementAttributesMap,
 	DOMUtilsEvent,
 } from "./DOMUtilsEvent";
-import { ParseHTMLReturnType } from "./types/global";
+import {
+	ParseHTMLReturnType,
+	type DOMUtilsTargetElementType,
+} from "./types/global";
 import { type UtilsWindowApiOption } from "./WindowApi";
+
+/**
+ * 判断是否是元素列表
+ * @param $ele
+ */
+export const isNodeList = ($ele: any): $ele is any[] | NodeList => {
+	return Array.isArray($ele) || $ele instanceof NodeList;
+};
 
 class DOMUtils extends DOMUtilsEvent {
 	constructor(option?: UtilsWindowApiOption) {
 		super(option);
 	}
 	/** 版本号 */
-	version = "2024.10.19";
+	version = "2024.10.22";
 	/**
 	 * 获取元素的属性值
 	 * @param element 目标元素
@@ -22,7 +33,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.attr("a.xx","href");
 	 * > https://xxxx....
 	 */
-	attr(element: HTMLElement | string, attrName: string): string;
+	attr(element: DOMUtilsTargetElementType, attrName: string): string;
 	/**
 	 * 设置元素的属性值
 	 * @param element 目标元素
@@ -34,19 +45,33 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.attr("a.xx","href","abcd");
 	 */
 	attr(
-		element: HTMLElement | string,
+		element: DOMUtilsTargetElementType,
 		attrName: string,
 		attrValue: string | boolean | number
 	): void;
-	attr(element: HTMLElement | string, attrName: string, attrValue?: any) {
+	attr(element: DOMUtilsTargetElementType, attrName: string, attrValue?: any) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
 			return;
+		}
+		if (isNodeList(element)) {
+			if (attrValue == null) {
+				// 获取属性
+				return DOMUtilsContext.attr(
+					element[0] as HTMLElement,
+					attrName,
+					attrValue
+				);
+			} else {
+				// 设置属性
+				element.forEach(($ele) => {
+					DOMUtilsContext.attr($ele as HTMLElement, attrName, attrValue);
+				});
+				return;
+			}
 		}
 		if (attrValue == null) {
 			return element.getAttribute(attrName);
@@ -127,7 +152,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * > "none"
 	 * */
 	css(
-		element: HTMLElement | string,
+		element: DOMUtilsTargetElementType,
 		property: keyof CSSStyleDeclaration
 	): string;
 	/**
@@ -140,7 +165,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.css("a.xx","display");
 	 * > "none"
 	 * */
-	css(element: HTMLElement | string, property: string): string;
+	css(element: DOMUtilsTargetElementType, property: string): string;
 	/**
 	 * 设置元素的样式属性
 	 * @param element 目标元素
@@ -158,7 +183,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.css(document.querySelector("a.xx"),"top",10);
 	 * */
 	css(
-		element: HTMLElement | string,
+		element: DOMUtilsTargetElementType,
 		property: keyof CSSStyleDeclaration & string,
 		value: string | number
 	): string;
@@ -177,7 +202,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.css(document.querySelector("a.xx"),{ top: 10 });
 	 * */
 	css(
-		element: HTMLElement | string,
+		element: DOMUtilsTargetElementType,
 		property:
 			| {
 					[P in keyof CSSStyleDeclaration]?: CSSStyleDeclaration[P];
@@ -187,7 +212,7 @@ class DOMUtils extends DOMUtilsEvent {
 			  }
 	): string;
 	css(
-		element: HTMLElement | string,
+		element: DOMUtilsTargetElementType,
 		property:
 			| keyof CSSStyleDeclaration
 			| string
@@ -226,16 +251,38 @@ class DOMUtils extends DOMUtilsEvent {
 			return propertyValue;
 		}
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
 			return;
 		}
+		if (isNodeList(element)) {
+			if (typeof property === "string") {
+				if (value == null) {
+					// 获取属性
+					return DOMUtilsContext.css(element[0] as HTMLElement, property);
+				} else {
+					// 设置属性
+					element.forEach(($ele) => {
+						DOMUtilsContext.css($ele as HTMLElement, property);
+					});
+					return;
+				}
+			} else if (typeof property === "object") {
+				// 设置属性
+				element.forEach(($ele) => {
+					DOMUtilsContext.css($ele as HTMLElement, property as object);
+				});
+				return;
+			} else {
+			}
+			return;
+		}
 		if (typeof property === "string") {
 			if (value == null) {
-				return getComputedStyle(element).getPropertyValue(property);
+				return DOMUtilsContext.windowApi.globalThis
+					.getComputedStyle(element)
+					.getPropertyValue(property);
 			} else {
 				if (value === "string" && value.includes("!important")) {
 					element.style.setProperty(property, value, "important");
@@ -260,6 +307,7 @@ class DOMUtils extends DOMUtilsEvent {
 					element.style.setProperty(prop, property[prop] as string);
 				}
 			}
+		} else {
 		}
 	}
 	/**
@@ -272,7 +320,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.text("a.xx","abcd")
 	 * DOMUtils.text("a.xx",document.querySelector("b"))
 	 * */
-	text(element: HTMLElement | string): string;
+	text(element: DOMUtilsTargetElementType): string;
 	/**
 	 * 设置元素的文本内容
 	 * @param element 目标元素
@@ -285,17 +333,27 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.text("a.xx",document.querySelector("b"))
 	 * */
 	text(
-		element: HTMLElement | string,
+		element: DOMUtilsTargetElementType,
 		text: string | HTMLElement | Element | number
 	): void;
-	text(element: HTMLElement | string, text?: any) {
+	text(element: DOMUtilsTargetElementType, text?: any) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
+			return;
+		}
+		if (isNodeList(element)) {
+			if (text == null) {
+				// 获取
+				return DOMUtilsContext.text(element[0] as HTMLElement);
+			} else {
+				// 设置
+				element.forEach(($ele) => {
+					DOMUtilsContext.text($ele as HTMLElement, text);
+				});
+			}
 			return;
 		}
 		if (text == null) {
@@ -324,7 +382,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.html("a.xx",document.querySelector("b"))
 	 * */
 	html(
-		element: HTMLElement | string,
+		element: DOMUtilsTargetElementType,
 		html: string | HTMLElement | Element | number
 	): void;
 	/**
@@ -338,20 +396,32 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.html("a.xx","<b>abcd</b>")
 	 * DOMUtils.html("a.xx",document.querySelector("b"))
 	 * */
-	html(element: HTMLElement | string): string;
-	html(element: HTMLElement | string, html?: any) {
+	html(element: DOMUtilsTargetElementType): string;
+	html(element: DOMUtilsTargetElementType, html?: any) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
 			return;
 		}
+		if (isNodeList(element)) {
+			if (html == null) {
+				// 获取
+				return DOMUtilsContext.html(element[0] as HTMLElement);
+			} else {
+				// 设置
+				element.forEach(($ele) => {
+					DOMUtilsContext.html($ele as HTMLElement, html);
+				});
+			}
+			return;
+		}
 		if (html == null) {
+			// 获取
 			return element.innerHTML;
 		} else {
+			// 设置
 			if (html instanceof Element) {
 				html = html.innerHTML;
 			}
@@ -380,7 +450,8 @@ class DOMUtils extends DOMUtilsEvent {
 			recovery();
 			return transformInfo;
 		}
-		let elementTransform = getComputedStyle(element).transform;
+		let elementTransform =
+			DOMUtilsContext.windowApi.globalThis.getComputedStyle(element).transform;
 		if (
 			elementTransform != null &&
 			elementTransform !== "none" &&
@@ -414,7 +485,15 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.val(document.querySelector("input.xx"),true)
 	 * DOMUtils.val("input.xx",true)
 	 * */
-	val(element: HTMLInputElement | string, value: string | boolean): void;
+	val(
+		element:
+			| HTMLInputElement
+			| HTMLTextAreaElement
+			| string
+			| (HTMLInputElement | HTMLTextAreaElement)[]
+			| NodeListOf<HTMLInputElement | HTMLTextAreaElement>,
+		value: string | boolean
+	): void;
 	/**
 	 * 获取value属性值
 	 * @param element 目标元素
@@ -422,7 +501,14 @@ class DOMUtils extends DOMUtilsEvent {
 	 * // 获取元素textarea的值
 	 * DOMUtils.val(document.querySelector("textarea.xx"))
 	 * */
-	val(element: HTMLInputElement | string): string;
+	val(
+		element:
+			| HTMLInputElement
+			| HTMLTextAreaElement
+			| string
+			| (HTMLInputElement | HTMLTextAreaElement)[]
+			| NodeListOf<HTMLInputElement | HTMLTextAreaElement>
+	): string;
 	/**
 	 * 获取value属性值
 	 * @param element 目标元素
@@ -431,32 +517,58 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.val(document.querySelector("input.xx"))
 	 * DOMUtils.val("input.xx")
 	 * */
-	val(element: HTMLInputElement): boolean | string;
-	val(element: HTMLInputElement | string, value?: string | boolean) {
+	val(
+		element:
+			| HTMLInputElement
+			| HTMLTextAreaElement
+			| (HTMLInputElement | HTMLTextAreaElement)[]
+			| NodeListOf<HTMLInputElement | HTMLTextAreaElement>
+	): boolean | string;
+	val(
+		element:
+			| HTMLInputElement
+			| HTMLTextAreaElement
+			| string
+			| (HTMLInputElement | HTMLTextAreaElement)[]
+			| NodeListOf<HTMLInputElement | HTMLTextAreaElement>,
+		value?: string | boolean
+	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLInputElement;
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
 			return;
 		}
+		if (isNodeList(element)) {
+			if (value == null) {
+				// 获取
+				return DOMUtilsContext.val(element[0] as HTMLInputElement);
+			} else {
+				// 设置
+				element.forEach(($ele) => {
+					DOMUtilsContext.val($ele as HTMLInputElement, value);
+				});
+			}
+			return;
+		}
 		if (value == null) {
+			// 获取
 			if (
 				element.localName === "input" &&
 				(element.type === "checkbox" || element.type === "radio")
 			) {
-				return element.checked;
+				return (element as HTMLInputElement).checked;
 			} else {
 				return element.value;
 			}
 		} else {
+			// 设置
 			if (
 				element.localName === "input" &&
 				(element.type === "checkbox" || element.type === "radio")
 			) {
-				element.checked = !!value;
+				(element as HTMLInputElement).checked = !!value;
 			} else {
 				element.value = value as string;
 			}
@@ -474,7 +586,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.val("a.xx","data-value")
 	 * > undefined
 	 * */
-	prop<T extends any>(element: HTMLElement | string, propName: string): T;
+	prop<T extends any>(element: DOMUtilsTargetElementType, propName: string): T;
 	/**
 	 * 设置元素的属性值
 	 * @param element 目标元素
@@ -486,24 +598,34 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.val("a.xx","data-value",1)
 	 * */
 	prop<T extends any>(
-		element: HTMLElement | string,
+		element: DOMUtilsTargetElementType,
 		propName: string,
 		propValue: T
 	): void;
-	prop(element: HTMLElement | string, propName: string, propValue?: any) {
+	prop(element: DOMUtilsTargetElementType, propName: string, propValue?: any) {
 		let DOMUtilsContext = this;
+		if (typeof element === "string") {
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+		}
 		if (element == null) {
 			return;
 		}
-		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+		if (isNodeList(element)) {
+			if (propValue == null) {
+				// 获取
+				return DOMUtilsContext.prop(element[0] as HTMLElement, propName);
+			} else {
+				// 设置
+				element.forEach(($ele) => {
+					DOMUtilsContext.prop($ele as HTMLElement, propName, propValue);
+				});
+			}
+			return;
 		}
 		if (propValue == null) {
-			return (element as any)[propName];
+			return Reflect.get(element, propName);
 		} else {
-			(element as any)[propName] = propValue;
+			Reflect.set(element, propName, propValue);
 		}
 	}
 	/**
@@ -515,14 +637,19 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.removeAttr(document.querySelector("a.xx"),"data-value")
 	 * DOMUtils.removeAttr("a.xx","data-value")
 	 * */
-	removeAttr(element: HTMLElement | string, attrName: string) {
+	removeAttr(element: DOMUtilsTargetElementType, attrName: string) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
+			return;
+		}
+		if (isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.removeAttr($ele as HTMLElement, attrName);
+			});
 			return;
 		}
 		element.removeAttribute(attrName);
@@ -536,20 +663,35 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.removeClass(document.querySelector("a.xx"),"xx")
 	 * DOMUtils.removeClass("a.xx","xx")
 	 */
-	removeClass(element: HTMLElement | string, className: string) {
+	removeClass(
+		element: DOMUtilsTargetElementType,
+		className?: string | string[] | undefined | null
+	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
 			return;
 		}
-		if (className == null) {
+		if (isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.removeClass($ele as HTMLElement, className);
+			});
 			return;
 		}
-		element.classList.remove(className);
+		if (className == null) {
+			// 清空全部className
+			element.className = "";
+		} else {
+			if (!Array.isArray(className)) {
+				className = className.split(" ");
+			}
+			className.forEach((itemClassName) => {
+				element.classList.remove(itemClassName);
+			});
+		}
 	}
 	/**
 	 * 移除元素的属性
@@ -560,14 +702,19 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.removeProp(document.querySelector("a.xx"),"href")
 	 * DOMUtils.removeProp("a.xx","href")
 	 * */
-	removeProp(element: HTMLElement | string, propName: string) {
+	removeProp(element: DOMUtilsTargetElementType, propName: string) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
+			return;
+		}
+		if (isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.removeProp($ele as HTMLElement, propName);
+			});
 			return;
 		}
 		DOMUtilsCommonUtils.delete(element, propName);
@@ -582,28 +729,27 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.replaceWith("a.xx",'<b class="xx"></b>')
 	 */
 	replaceWith(
-		element: HTMLElement | string | NodeList | HTMLElement[] | Node,
+		element: DOMUtilsTargetElementType,
 		newElement: HTMLElement | string | Node
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
+			return;
+		}
+		if (isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.replaceWith($ele as HTMLElement, newElement);
+			});
 			return;
 		}
 		if (typeof newElement === "string") {
 			newElement = DOMUtilsContext.parseHTML(newElement, false, false);
 		}
-		if (element instanceof NodeList || element instanceof Array) {
-			element.forEach((item) => {
-				DOMUtilsContext.replaceWith(item, newElement);
-			});
-		} else {
-			element!.parentElement!.replaceChild(newElement as Node, element);
-		}
+		element!.parentElement!.replaceChild(newElement as Node, element);
 	}
 	/**
 	 * 给元素添加class
@@ -614,17 +760,30 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.addClass(document.querySelector("a.xx"),"_vue_")
 	 * DOMUtils.addClass("a.xx","_vue_")
 	 * */
-	addClass(element: HTMLElement | string, className: string) {
+	addClass(element: DOMUtilsTargetElementType, className: string | string[]) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
 			return;
 		}
-		element.classList.add(className);
+		if (isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.addClass($ele as HTMLElement, className);
+			});
+			return;
+		}
+		if (!Array.isArray(className)) {
+			className = className.split(" ");
+		}
+		className.forEach((itemClassName) => {
+			if (itemClassName.trim() == "") {
+				return;
+			}
+			element.classList.add(itemClassName);
+		});
 	}
 	/**
 	 * 函数在元素内部末尾添加子元素或HTML字符串
@@ -636,7 +795,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.append("a.xx","'<b class="xx"></b>")
 	 * */
 	append(
-		element: HTMLElement | string,
+		element: DOMUtilsTargetElementType,
 		content:
 			| HTMLElement
 			| string
@@ -645,11 +804,17 @@ class DOMUtils extends DOMUtilsEvent {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
+			return;
+		}
+
+		if (isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.append($ele as HTMLElement, content);
+			});
 			return;
 		}
 		function elementAppendChild(ele: HTMLElement, text: HTMLElement | string) {
@@ -665,7 +830,7 @@ class DOMUtils extends DOMUtilsEvent {
 				DOMUtilsContext.windowApi.document.createDocumentFragment();
 			content.forEach((ele) => {
 				if (typeof ele === "string") {
-					ele = this.parseHTML(ele, true, false);
+					ele = DOMUtilsContext.parseHTML(ele, true, false);
 				}
 				fragment.appendChild(ele);
 			});
@@ -683,14 +848,19 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.prepend(document.querySelector("a.xx"),document.querySelector("b.xx"))
 	 * DOMUtils.prepend("a.xx","'<b class="xx"></b>")
 	 * */
-	prepend(element: HTMLElement | string, content: HTMLElement | string) {
+	prepend(element: DOMUtilsTargetElementType, content: HTMLElement | string) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
+			return;
+		}
+		if (isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.prepend($ele as HTMLElement, content);
+			});
 			return;
 		}
 		if (typeof content === "string") {
@@ -713,14 +883,19 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.after(document.querySelector("a.xx"),document.querySelector("b.xx"))
 	 * DOMUtils.after("a.xx","'<b class="xx"></b>")
 	 * */
-	after(element: HTMLElement | string, content: HTMLElement | string) {
+	after(element: DOMUtilsTargetElementType, content: HTMLElement | string) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
+			return;
+		}
+		if (isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.after($ele as HTMLElement, content);
+			});
 			return;
 		}
 		if (typeof content === "string") {
@@ -745,14 +920,19 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.before(document.querySelector("a.xx"),document.querySelector("b.xx"))
 	 * DOMUtils.before("a.xx","'<b class="xx"></b>")
 	 * */
-	before(element: HTMLElement | string, content: HTMLElement | string) {
+	before(element: DOMUtilsTargetElementType, content: HTMLElement | string) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
+			return;
+		}
+		if (isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.before($ele as HTMLElement, content);
+			});
 			return;
 		}
 		if (typeof content === "string") {
@@ -768,31 +948,28 @@ class DOMUtils extends DOMUtilsEvent {
 	}
 	/**
 	 * 移除元素
-	 * @param target 目标元素
+	 * @param element 目标元素
 	 * @example
 	 * // 元素a.xx前面添加一个元素
 	 * DOMUtils.remove(document.querySelector("a.xx"))
 	 * DOMUtils.remove(document.querySelectorAll("a.xx"))
 	 * DOMUtils.remove("a.xx")
 	 * */
-	remove(target: HTMLElement | string | NodeList | HTMLElement[]) {
+	remove(element: DOMUtilsTargetElementType) {
 		let DOMUtilsContext = this;
-		if (typeof target === "string") {
-			target = DOMUtilsContext.windowApi.document.querySelectorAll(
-				target
-			) as NodeListOf<HTMLElement>;
+		if (typeof element === "string") {
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
-		if (target == null) {
+		if (element == null) {
 			return;
 		}
-		if (target instanceof NodeList || target instanceof Array) {
-			target = target as HTMLElement[];
-			for (const element of target) {
-				DOMUtilsContext.remove(element);
-			}
-		} else {
-			target.remove();
+		if (isNodeList(element)) {
+			element.forEach(($ele) => {
+				DOMUtilsContext.remove($ele as HTMLElement);
+			});
+			return;
 		}
+		element.remove();
 	}
 	/**
 	 * 移除元素的所有子元素
@@ -802,14 +979,19 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.empty(document.querySelector("a.xx"))
 	 * DOMUtils.empty("a.xx")
 	 * */
-	empty(element: HTMLElement | string) {
+	empty(element: DOMUtilsTargetElementType) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
+			return;
+		}
+		if (isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.empty($ele as HTMLElement);
+			});
 			return;
 		}
 		element.innerHTML = "";
@@ -833,6 +1015,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
+
 		let rect = element.getBoundingClientRect();
 		return {
 			/** y轴偏移 */
@@ -844,6 +1027,7 @@ class DOMUtils extends DOMUtilsEvent {
 	/**
 	 * 获取元素的宽度
 	 * @param element 要获取宽度的元素
+	 * @param value 宽度值
 	 * @param isShow 是否已进行isShow，避免爆堆栈
 	 * @returns 元素的宽度，单位为像素
 	 * @example
@@ -860,18 +1044,17 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.width("a.xx",200)
 	 */
 	width(
-		element: HTMLElement | string | Window | Document,
+		element: HTMLElement | string | Window | typeof globalThis | Document,
 		isShow?: boolean
 	): number;
 	width(
-		element: HTMLElement | string | Window | Document,
+		element: HTMLElement | string | Window | typeof globalThis | Document,
 		isShow: boolean = false
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element =
+				DOMUtilsContext.windowApi.document.querySelector<HTMLElement>(element)!;
 		}
 		if (element == null) {
 			return;
@@ -965,11 +1148,11 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.height("a.xx",200)
 	 */
 	height(
-		element: HTMLElement | string | Window | Document,
+		element: HTMLElement | string | Window | typeof globalThis | Document,
 		isShow?: boolean
 	): number;
 	height(
-		element: HTMLElement | string | Window | Document,
+		element: HTMLElement | string | Window | typeof globalThis | Document,
 		isShow: boolean = false
 	) {
 		let DOMUtilsContext = this;
@@ -1066,11 +1249,11 @@ class DOMUtils extends DOMUtilsEvent {
 	 * > 400
 	 */
 	outerWidth(
-		element: HTMLElement | string | Window | Document,
+		element: HTMLElement | string | Window | typeof globalThis | Document,
 		isShow?: boolean
 	): number;
 	outerWidth(
-		element: HTMLElement | string | Window | Document,
+		element: HTMLElement | string | Window | typeof globalThis | Document,
 		isShow: boolean = false
 	) {
 		let DOMUtilsContext = this;
@@ -1088,7 +1271,10 @@ class DOMUtils extends DOMUtilsEvent {
 		}
 		element = element as HTMLElement;
 		if (isShow || (!isShow && DOMUtilsCommonUtils.isShow(element))) {
-			let style = getComputedStyle(element, null);
+			let style = DOMUtilsContext.windowApi.globalThis.getComputedStyle(
+				element,
+				null
+			);
 			let marginLeft = DOMUtilsCommonUtils.getStyleValue(style, "marginLeft");
 			let marginRight = DOMUtilsCommonUtils.getStyleValue(style, "marginRight");
 			return element.offsetWidth + marginLeft + marginRight;
@@ -1113,9 +1299,12 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.outerHeight(window)
 	 * > 700
 	 */
-	outerHeight(element: HTMLElement | string | Window, isShow?: boolean): number;
 	outerHeight(
-		element: HTMLElement | string | Window,
+		element: HTMLElement | string | Window | typeof globalThis | Document,
+		isShow?: boolean
+	): number;
+	outerHeight(
+		element: HTMLElement | string | Window | typeof globalThis | Document,
 		isShow: boolean = false
 	): number {
 		let DOMUtilsContext = this;
@@ -1133,7 +1322,10 @@ class DOMUtils extends DOMUtilsEvent {
 		}
 		element = element as HTMLElement;
 		if (isShow || (!isShow && DOMUtilsCommonUtils.isShow(element))) {
-			let style = getComputedStyle(element, null);
+			let style = DOMUtilsContext.windowApi.globalThis.getComputedStyle(
+				element,
+				null
+			);
 			let marginTop = DOMUtilsCommonUtils.getStyleValue(style, "marginTop");
 			let marginBottom = DOMUtilsCommonUtils.getStyleValue(
 				style,
@@ -1160,18 +1352,28 @@ class DOMUtils extends DOMUtilsEvent {
 	 * })
 	 */
 	animate(
-		element: HTMLElement | string,
+		element: DOMUtilsTargetElementType,
 		styles: CSSStyleDeclaration,
 		duration: number = 1000,
 		callback: (() => void) | undefined | null = null
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
+			return;
+		}
+		if (isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.animate(
+					$ele as HTMLElement,
+					styles,
+					duration,
+					callback
+				);
+			});
 			return;
 		}
 		if (typeof duration !== "number" || duration <= 0) {
@@ -1194,7 +1396,9 @@ class DOMUtils extends DOMUtilsEvent {
 			[prop: string]: any;
 		} = {};
 		for (let prop in styles) {
-			from[prop] = element.style[prop] || getComputedStyle(element)[prop];
+			from[prop] =
+				element.style[prop] ||
+				DOMUtilsContext.windowApi.globalThis.getComputedStyle(element)[prop];
 			to[prop] = styles[prop];
 		}
 		let timer = setInterval(function () {
@@ -1223,14 +1427,19 @@ class DOMUtils extends DOMUtilsEvent {
 	 * // 将a.xx元素外面包裹一层div
 	 * DOMUtils.wrap(document.querySelector("a.xx"),"<div></div>")
 	 */
-	wrap(element: HTMLElement | string | Node, wrapperHTML: string) {
+	wrap(element: DOMUtilsTargetElementType, wrapperHTML: string) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
+			return;
+		}
+		if (isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.wrap($ele as HTMLElement, wrapperHTML);
+			});
 			return;
 		}
 		element = element as HTMLElement;
@@ -1240,10 +1449,8 @@ class DOMUtils extends DOMUtilsEvent {
 
 		let wrapperFirstChild = wrapper.firstChild as HTMLElement;
 		// 将要包裹的元素插入目标元素前面
-		(element.parentElement as HTMLElement).insertBefore(
-			wrapperFirstChild,
-			element
-		);
+		let parentElement = element.parentElement as HTMLElement;
+		parentElement.insertBefore(wrapperFirstChild, element);
 
 		// 将要包裹的元素移动到wrapper中
 		wrapperFirstChild.appendChild(element);
@@ -1422,6 +1629,8 @@ class DOMUtils extends DOMUtilsEvent {
 	): ParseHTMLReturnType<T1, T2>;
 	parseHTML(html: string, useParser = false, isComplete = false) {
 		let DOMUtilsContext = this;
+		// 去除html前后的空格
+		html = html.trim();
 		function parseHTMLByDOMParser() {
 			let parser = new DOMParser();
 			if (isComplete) {
@@ -1446,15 +1655,74 @@ class DOMUtils extends DOMUtilsEvent {
 		}
 	}
 	/**
+	 * 序列化表单元素
+	 * @param $form 表单元素
+	 * @example
+	 * DOMUtils.serialize(document.querySelector("form"))
+	 * > xxx=xxx&aaa=
+	 */
+	serialize($form: HTMLFormElement): string {
+		const elements = $form.elements;
+		let serializedArray: { name: string; value: string }[] = [];
+
+		for (let i = 0; i < elements.length; i++) {
+			const element = elements[i] as
+				| HTMLInputElement
+				| HTMLSelectElement
+				| HTMLTextAreaElement;
+
+			if (
+				element.name &&
+				!element.disabled &&
+				((element as HTMLInputElement).checked ||
+					[
+						"text",
+						"hidden",
+						"password",
+						"textarea",
+						"select-one",
+						"select-multiple",
+					].includes(element.type))
+			) {
+				if (element.type === "select-multiple") {
+					for (
+						let j = 0;
+						j < (element as HTMLSelectElement).options.length;
+						j++
+					) {
+						if ((element as HTMLSelectElement).options[j].selected) {
+							serializedArray.push({
+								name: (element as HTMLSelectElement).name,
+								value: (element as HTMLSelectElement).options[j].value,
+							});
+						}
+					}
+				} else {
+					serializedArray.push({ name: element.name, value: element.value });
+				}
+			}
+		}
+
+		return serializedArray
+			.map(
+				(item) =>
+					`${encodeURIComponent(item.name)}=${encodeURIComponent(item.value)}`
+			)
+			.join("&");
+	}
+	/**
 	 * 显示元素
 	 * @param target 当前元素
+	 * @param checkVisiblie 是否检测元素是否显示
+	 * + true （默认）如果检测到还未显示，则强制使用display: unset !important;
+	 * + false 不检测，直接设置display属性为空
 	 * @example
 	 * // 显示a.xx元素
 	 * DOMUtils.show(document.querySelector("a.xx"))
 	 * DOMUtils.show(document.querySelectorAll("a.xx"))
 	 * DOMUtils.show("a.xx")
 	 */
-	show(target: HTMLElement | string | NodeList | HTMLElement[]) {
+	show(target: DOMUtilsTargetElementType, checkVisiblie: boolean = true) {
 		let DOMUtilsContext = this;
 		if (target == null) {
 			return;
@@ -1465,27 +1733,32 @@ class DOMUtils extends DOMUtilsEvent {
 		if (target instanceof NodeList || target instanceof Array) {
 			target = target as HTMLElement[];
 			for (const element of target) {
-				DOMUtilsContext.show(element);
+				DOMUtilsContext.show(element, checkVisiblie);
 			}
 		} else {
 			target = target as HTMLElement;
 			target.style.display = "";
-			if (!DOMUtilsCommonUtils.isShow(target)) {
-				/* 仍然是不显示，尝试使用强覆盖 */
-				target.style.setProperty("display", "unset", "important");
+			if (checkVisiblie) {
+				if (!DOMUtilsCommonUtils.isShow(target)) {
+					/* 仍然是不显示，尝试使用强覆盖 */
+					target.style.setProperty("display", "unset", "important");
+				}
 			}
 		}
 	}
 	/**
 	 * 隐藏元素
 	 * @param target 当前元素
+	 * @param checkVisiblie 是否检测元素是否显示
+	 * + true （默认）如果检测到显示，则强制使用display: none !important;
+	 * + false 不检测，直接设置display属性为none
 	 * @example
 	 * // 隐藏a.xx元素
 	 * DOMUtils.hide(document.querySelector("a.xx"))
 	 * DOMUtils.hide(document.querySelectorAll("a.xx"))
 	 * DOMUtils.hide("a.xx")
 	 */
-	hide(target: HTMLElement | string | NodeList | HTMLElement[]) {
+	hide(target: DOMUtilsTargetElementType, checkVisiblie: boolean = true) {
 		let DOMUtilsContext = this;
 		if (target == null) {
 			return;
@@ -1496,14 +1769,16 @@ class DOMUtils extends DOMUtilsEvent {
 		if (target instanceof NodeList || target instanceof Array) {
 			target = target as HTMLElement[];
 			for (const element of target) {
-				DOMUtilsContext.hide(element);
+				DOMUtilsContext.hide(element, checkVisiblie);
 			}
 		} else {
 			target = target as HTMLElement;
 			target.style.display = "none";
-			if (DOMUtilsCommonUtils.isShow(target)) {
-				/* 仍然是显示，尝试使用强覆盖 */
-				target.style.setProperty("display", "none", "important");
+			if (checkVisiblie) {
+				if (DOMUtilsCommonUtils.isShow(target)) {
+					/* 仍然是显示，尝试使用强覆盖 */
+					target.style.setProperty("display", "none", "important");
+				}
 			}
 		}
 	}
@@ -1522,7 +1797,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * })
 	 */
 	fadeIn(
-		element: HTMLElement | string,
+		element: DOMUtilsTargetElementType,
 		duration: number = 400,
 		callback?: () => void
 	) {
@@ -1531,11 +1806,15 @@ class DOMUtils extends DOMUtilsEvent {
 		}
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
-		element = element as HTMLElement;
+		if (isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.fadeIn($ele as HTMLElement, duration, callback);
+			});
+			return;
+		}
 		element.style.opacity = "0";
 		element.style.display = "";
 		let start: number = null as any;
@@ -1571,7 +1850,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * })
 	 */
 	fadeOut(
-		element: HTMLElement | string,
+		element: DOMUtilsTargetElementType,
 		duration: number = 400,
 		callback?: () => void
 	) {
@@ -1580,11 +1859,15 @@ class DOMUtils extends DOMUtilsEvent {
 			return;
 		}
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
-		element = element as HTMLElement;
+		if (isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.fadeOut($ele as HTMLElement, duration, callback);
+			});
+			return;
+		}
 		element.style.opacity = "1";
 		let start: number = null as any;
 		let timer: number = null as any;
@@ -1608,25 +1891,35 @@ class DOMUtils extends DOMUtilsEvent {
 	/**
 	 * 切换元素的显示和隐藏状态
 	 * @param element 当前元素
+	 * @param checkVisiblie 是否检测元素是否显示
 	 * @example
 	 * // 如果元素a.xx当前是隐藏，则显示，如果是显示，则隐藏
 	 * DOMUtils.toggle(document.querySelector("a.xx"))
 	 * DOMUtils.toggle("a.xx")
 	 */
-	toggle(element: HTMLElement | string) {
+	toggle(element: DOMUtilsTargetElementType, checkVisiblie?: boolean) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
 			return;
 		}
-		if (getComputedStyle(element).getPropertyValue("display") === "none") {
-			DOMUtilsContext.show(element);
+		if (isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.toggle($ele as HTMLElement);
+			});
+			return;
+		}
+		if (
+			DOMUtilsContext.windowApi.globalThis
+				.getComputedStyle(element)
+				.getPropertyValue("display") === "none"
+		) {
+			DOMUtilsContext.show(element, checkVisiblie);
 		} else {
-			DOMUtilsContext.hide(element);
+			DOMUtilsContext.hide(element, checkVisiblie);
 		}
 	}
 	/**

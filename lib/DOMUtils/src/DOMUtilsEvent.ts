@@ -1,6 +1,8 @@
+import { isNodeList } from "./DOMUtils";
 import { DOMUtilsCommonUtils } from "./DOMUtilsCommonUtils";
 import { DOMUtilsData } from "./DOMUtilsData";
 import { OriginPrototype } from "./DOMUtilsOriginPrototype";
+import type { DOMUtilsTargetElementType } from "./types/global";
 import { UtilsWindowApiOption, WindowApi } from "./WindowApi";
 
 export type DOMUtilsEventObject<T extends Node> = Event & {
@@ -913,7 +915,12 @@ export class DOMUtilsEvent {
 	 * DOMUtils.trigger("a.xx",["click","tap","hover"])
 	 */
 	trigger(
-		element: HTMLElement | string | NodeList | any[] | Window | Document,
+		element:
+			| DOMUtilsTargetElementType
+			| any[]
+			| typeof globalThis
+			| Window
+			| Document,
 		eventType: string,
 		details?: object,
 		useDispatchToTriggerEvent?: boolean
@@ -1022,18 +1029,28 @@ export class DOMUtilsEvent {
 	 * })
 	 * */
 	click(
-		element: HTMLElement | string | Window,
+		element: DOMUtilsTargetElementType | typeof globalThis | Window,
 		handler?: (event: DOMUtils_Event["click"]) => void,
 		details?: any,
 		useDispatchToTriggerEvent?: boolean
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
+			return;
+		}
+		if (isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.click(
+					$ele as HTMLElement,
+					handler,
+					details,
+					useDispatchToTriggerEvent
+				);
+			});
 			return;
 		}
 		if (handler == null) {
@@ -1062,7 +1079,7 @@ export class DOMUtilsEvent {
 	 * })
 	 * */
 	blur(
-		element: HTMLElement | string | Window,
+		element: DOMUtilsTargetElementType | typeof globalThis | Window,
 		handler?: (event: DOMUtils_Event["blur"]) => void,
 		details?: object,
 		useDispatchToTriggerEvent?: boolean
@@ -1074,6 +1091,18 @@ export class DOMUtilsEvent {
 			) as HTMLElement;
 		}
 		if (element == null) {
+			return;
+		}
+		if (isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.focus(
+					$ele as HTMLElement,
+					handler,
+					details,
+					useDispatchToTriggerEvent
+				);
+			});
 			return;
 		}
 		if (handler === null) {
@@ -1107,18 +1136,28 @@ export class DOMUtilsEvent {
 	 * })
 	 * */
 	focus(
-		element: HTMLElement | string | Window,
+		element: DOMUtilsTargetElementType | typeof globalThis | Window,
 		handler?: (event: DOMUtils_Event["focus"]) => void,
 		details?: object,
 		useDispatchToTriggerEvent?: boolean
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
+			return;
+		}
+		if (isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.focus(
+					$ele as HTMLElement,
+					handler,
+					details,
+					useDispatchToTriggerEvent
+				);
+			});
 			return;
 		}
 		if (handler == null) {
@@ -1147,17 +1186,22 @@ export class DOMUtilsEvent {
 	 * })
 	 */
 	hover(
-		element: HTMLElement | string,
+		element: DOMUtilsTargetElementType,
 		handler: (event: DOMUtils_Event["hover"]) => void,
 		option?: boolean | AddEventListenerOptions
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
 		if (element == null) {
+			return;
+		}
+		if (isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.hover($ele as HTMLElement, handler, option);
+			});
 			return;
 		}
 		DOMUtilsContext.on(element, "mouseenter", null, handler, option);
@@ -1166,7 +1210,7 @@ export class DOMUtilsEvent {
 	/**
 	 * 当按键松开时触发事件
 	 * keydown - > keypress - > keyup
-	 * @param target 当前元素
+	 * @param element 当前元素
 	 * @param handler 事件处理函数
 	 * @param option 配置
 	 * @example
@@ -1179,25 +1223,30 @@ export class DOMUtilsEvent {
 	 * })
 	 */
 	keyup(
-		target: HTMLElement | string | Window | typeof globalThis,
+		element: DOMUtilsTargetElementType | Window | typeof globalThis,
 		handler: (event: DOMUtils_Event["keyup"]) => void,
 		option?: boolean | AddEventListenerOptions
 	) {
 		let DOMUtilsContext = this;
-		if (target == null) {
+		if (element == null) {
 			return;
 		}
-		if (typeof target === "string") {
-			target = DOMUtilsContext.windowApi.document.querySelector(
-				target
-			) as HTMLElement;
+		if (typeof element === "string") {
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
-		DOMUtilsContext.on(target, "keyup", null, handler, option);
+		if (isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.keyup($ele as HTMLElement, handler, option);
+			});
+			return;
+		}
+		DOMUtilsContext.on(element, "keyup", null, handler, option);
 	}
 	/**
 	 * 当按键按下时触发事件
 	 * keydown - > keypress - > keyup
-	 * @param target 目标
+	 * @param element 目标
 	 * @param handler 事件处理函数
 	 * @param option 配置
 	 * @example
@@ -1210,25 +1259,30 @@ export class DOMUtilsEvent {
 	 * })
 	 */
 	keydown(
-		target: HTMLElement | Window | typeof globalThis | string,
+		element: DOMUtilsTargetElementType | Window | typeof globalThis,
 		handler: (event: DOMUtils_Event["keydown"]) => void,
 		option?: boolean | AddEventListenerOptions
 	) {
 		let DOMUtilsContext = this;
-		if (target == null) {
+		if (element == null) {
 			return;
 		}
-		if (typeof target === "string") {
-			target = DOMUtilsContext.windowApi.document.querySelector(
-				target
-			) as HTMLElement;
+		if (typeof element === "string") {
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
-		DOMUtilsContext.on(target, "keydown", null, handler, option);
+		if (isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.keydown($ele as HTMLElement, handler, option);
+			});
+			return;
+		}
+		DOMUtilsContext.on(element, "keydown", null, handler, option);
 	}
 	/**
 	 * 当按键按下时触发事件
 	 * keydown - > keypress - > keyup
-	 * @param target 目标
+	 * @param element 目标
 	 * @param handler 事件处理函数
 	 * @param option 配置
 	 * @example
@@ -1241,26 +1295,31 @@ export class DOMUtilsEvent {
 	 * })
 	 */
 	keypress(
-		target: HTMLElement | Window | typeof globalThis | string,
+		element: DOMUtilsTargetElementType | Window | typeof globalThis,
 		handler: (event: DOMUtils_Event["keypress"]) => void,
 		option?: boolean | AddEventListenerOptions
 	) {
 		let DOMUtilsContext = this;
-		if (target == null) {
+		if (element == null) {
 			return;
 		}
-		if (typeof target === "string") {
-			target = DOMUtilsContext.windowApi.document.querySelector(
-				target
-			) as HTMLElement;
+		if (typeof element === "string") {
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
 		}
-		DOMUtilsContext.on(target, "keypress", null, handler, option);
+		if (isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.keypress($ele as HTMLElement, handler, option);
+			});
+			return;
+		}
+		DOMUtilsContext.on(element, "keypress", null, handler, option);
 	}
 
 	/**
      * 监听某个元素键盘按键事件或window全局按键事件
      * 按下有值的键时触发，按下Ctrl\Alt\Shift\Meta是无值键。按下先触发keydown事件，再触发keypress事件。
-     * @param target 需要监听的对象，可以是全局Window或者某个元素
+     * @param element 需要监听的对象，可以是全局Window或者某个元素
      * @param eventName 事件名，默认keypress
      * @param callback 自己定义的回调事件，参数1为当前的key，参数2为组合按键，数组类型，包含ctrl、shift、alt和meta（win键或mac的cmd键）
 	 * @param options 监听事件的配置
@@ -1321,7 +1380,7 @@ export class DOMUtilsEvent {
       收藏		171
      **/
 	listenKeyboard(
-		target: Window | Node | HTMLElement | typeof globalThis,
+		element: DOMUtilsTargetElementType | Window | Node | typeof globalThis,
 		eventName: "keyup" | "keypress" | "keydown" = "keypress",
 		callback: (
 			keyName: string,
@@ -1333,6 +1392,10 @@ export class DOMUtilsEvent {
 	): {
 		removeListen(): void;
 	} {
+		let DOMUtilsContext = this;
+		if (typeof element === "string") {
+			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+		}
 		let keyboardEventCallBack = function (event: KeyboardEvent) {
 			/** 键名 */
 			let keyName = event.key || event.code;
@@ -1356,10 +1419,10 @@ export class DOMUtilsEvent {
 				callback(keyName, keyValue, otherCodeList, event);
 			}
 		};
-		this.on(target, eventName, keyboardEventCallBack, options);
+		DOMUtilsContext.on(element, eventName, keyboardEventCallBack, options);
 		return {
 			removeListen: () => {
-				this.off(target, eventName, keyboardEventCallBack, options);
+				DOMUtilsContext.off(element, eventName, keyboardEventCallBack, options);
 			},
 		};
 	}
