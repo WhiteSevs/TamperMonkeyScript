@@ -52,7 +52,7 @@ class DOMUtils extends DOMUtilsEvent {
 	attr(element: DOMUtilsTargetElementType, attrName: string, attrValue?: any) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -251,7 +251,7 @@ class DOMUtils extends DOMUtilsEvent {
 			return propertyValue;
 		}
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -339,7 +339,7 @@ class DOMUtils extends DOMUtilsEvent {
 	text(element: DOMUtilsTargetElementType, text?: any) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -400,7 +400,7 @@ class DOMUtils extends DOMUtilsEvent {
 	html(element: DOMUtilsTargetElementType, html?: any) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -492,7 +492,7 @@ class DOMUtils extends DOMUtilsEvent {
 			| string
 			| (HTMLInputElement | HTMLTextAreaElement)[]
 			| NodeListOf<HTMLInputElement | HTMLTextAreaElement>,
-		value: string | boolean
+		value: string | boolean | number
 	): void;
 	/**
 	 * 获取value属性值
@@ -531,11 +531,11 @@ class DOMUtils extends DOMUtilsEvent {
 			| string
 			| (HTMLInputElement | HTMLTextAreaElement)[]
 			| NodeListOf<HTMLInputElement | HTMLTextAreaElement>,
-		value?: string | boolean
+		value?: string | boolean | number
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -605,7 +605,7 @@ class DOMUtils extends DOMUtilsEvent {
 	prop(element: DOMUtilsTargetElementType, propName: string, propValue?: any) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -640,7 +640,7 @@ class DOMUtils extends DOMUtilsEvent {
 	removeAttr(element: DOMUtilsTargetElementType, attrName: string) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -669,7 +669,7 @@ class DOMUtils extends DOMUtilsEvent {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -705,7 +705,7 @@ class DOMUtils extends DOMUtilsEvent {
 	removeProp(element: DOMUtilsTargetElementType, propName: string) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -734,7 +734,7 @@ class DOMUtils extends DOMUtilsEvent {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -763,7 +763,7 @@ class DOMUtils extends DOMUtilsEvent {
 	addClass(element: DOMUtilsTargetElementType, className: string | string[]) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -804,7 +804,7 @@ class DOMUtils extends DOMUtilsEvent {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -851,7 +851,7 @@ class DOMUtils extends DOMUtilsEvent {
 	prepend(element: DOMUtilsTargetElementType, content: HTMLElement | string) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -886,7 +886,7 @@ class DOMUtils extends DOMUtilsEvent {
 	after(element: DOMUtilsTargetElementType, content: HTMLElement | string) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -923,7 +923,7 @@ class DOMUtils extends DOMUtilsEvent {
 	before(element: DOMUtilsTargetElementType, content: HTMLElement | string) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -958,7 +958,7 @@ class DOMUtils extends DOMUtilsEvent {
 	remove(element: DOMUtilsTargetElementType) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -982,7 +982,7 @@ class DOMUtils extends DOMUtilsEvent {
 	empty(element: DOMUtilsTargetElementType) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -1359,7 +1359,7 @@ class DOMUtils extends DOMUtilsEvent {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -1430,7 +1430,7 @@ class DOMUtils extends DOMUtilsEvent {
 	wrap(element: DOMUtilsTargetElementType, wrapperHTML: string) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -1728,7 +1728,7 @@ class DOMUtils extends DOMUtilsEvent {
 			return;
 		}
 		if (typeof target === "string") {
-			target = DOMUtilsContext.windowApi.document.querySelectorAll(target);
+			target = DOMUtilsContext.selectorAll(target);
 		}
 		if (target instanceof NodeList || target instanceof Array) {
 			target = target as HTMLElement[];
@@ -1764,7 +1764,7 @@ class DOMUtils extends DOMUtilsEvent {
 			return;
 		}
 		if (typeof target === "string") {
-			target = DOMUtilsContext.windowApi.document.querySelectorAll(target);
+			target = DOMUtilsContext.selectorAll(target);
 		}
 		if (target instanceof NodeList || target instanceof Array) {
 			target = target as HTMLElement[];
@@ -1806,7 +1806,7 @@ class DOMUtils extends DOMUtilsEvent {
 		}
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (isNodeList(element)) {
 			// 设置
@@ -1859,7 +1859,7 @@ class DOMUtils extends DOMUtilsEvent {
 			return;
 		}
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (isNodeList(element)) {
 			// 设置
@@ -1900,7 +1900,7 @@ class DOMUtils extends DOMUtilsEvent {
 	toggle(element: DOMUtilsTargetElementType, checkVisiblie?: boolean) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;

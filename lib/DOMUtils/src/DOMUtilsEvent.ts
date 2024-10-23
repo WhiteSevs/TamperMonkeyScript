@@ -410,7 +410,7 @@ export class DOMUtilsEvent {
 		let DOMUtilsContext = this;
 		let args = arguments;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -667,7 +667,7 @@ export class DOMUtilsEvent {
 		let DOMUtilsContext = this;
 		let args = arguments;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -776,7 +776,7 @@ export class DOMUtilsEvent {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -1036,7 +1036,7 @@ export class DOMUtilsEvent {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -1143,7 +1143,7 @@ export class DOMUtilsEvent {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -1192,7 +1192,7 @@ export class DOMUtilsEvent {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -1232,7 +1232,7 @@ export class DOMUtilsEvent {
 			return;
 		}
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (isNodeList(element)) {
 			// 设置
@@ -1268,7 +1268,7 @@ export class DOMUtilsEvent {
 			return;
 		}
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (isNodeList(element)) {
 			// 设置
@@ -1304,7 +1304,7 @@ export class DOMUtilsEvent {
 			return;
 		}
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (isNodeList(element)) {
 			// 设置
@@ -1394,7 +1394,7 @@ export class DOMUtilsEvent {
 	} {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		let keyboardEventCallBack = function (event: KeyboardEvent) {
 			/** 键名 */

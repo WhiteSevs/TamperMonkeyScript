@@ -184,7 +184,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.val(document.querySelector("input.xx"),true)
      * DOMUtils.val("input.xx",true)
      * */
-    val(element: HTMLInputElement | HTMLTextAreaElement | string | (HTMLInputElement | HTMLTextAreaElement)[] | NodeListOf<HTMLInputElement | HTMLTextAreaElement>, value: string | boolean): void;
+    val(element: HTMLInputElement | HTMLTextAreaElement | string | (HTMLInputElement | HTMLTextAreaElement)[] | NodeListOf<HTMLInputElement | HTMLTextAreaElement>, value: string | boolean | number): void;
     /**
      * 获取value属性值
      * @param element 目标元素
