@@ -575,4 +575,42 @@ export declare class DOMUtilsEvent {
     listenKeyboard(element: DOMUtilsTargetElementType | Window | Node | typeof globalThis, eventName: ("keyup" | "keypress" | "keydown") | undefined, callback: (keyName: string, keyValue: number, otherCodeList: string[], event: KeyboardEvent) => void, options?: AddEventListenerOptions | boolean): {
         removeListen(): void;
     };
+    /**
+     * 选择器，可使用以下的额外语法
+     *
+     * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
+     * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
+     * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
+     * @param selector
+     * @example
+     * DOMUtils.selector("div:contains('测试')")
+     * > div.xxx
+     * @example
+     * DOMUtils.selector("div:empty")
+     * > div.xxx
+     * @example
+     * DOMUtils.selector("div:regexp('^xxxx$')")
+     * > div.xxx
+     */
+    selector<K extends keyof HTMLElementTagNameMap>(selector: K): HTMLElementTagNameMap[K] | undefined;
+    selector<E extends Element = Element>(selector: string): E | undefined;
+    /**
+     * 选择器，可使用以下的额外语法
+     *
+     * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
+     * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
+     * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
+     * @param selector
+     * @example
+     * DOMUtils.selectorAll("div:contains('测试')")
+     * > [div.xxx]
+     * @example
+     * DOMUtils.selectorAll("div:empty")
+     * > [div.xxx]
+     * @example
+     * DOMUtils.selectorAll("div:regexp('^xxxx$')")
+     * > [div.xxx]
+     */
+    selectorAll<K extends keyof HTMLElementTagNameMap>(selector: K): HTMLElementTagNameMap[K][];
+    selectorAll<E extends Element = Element>(selector: string): E[];
 }

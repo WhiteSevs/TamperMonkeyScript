@@ -1426,4 +1426,96 @@ export class DOMUtilsEvent {
 			},
 		};
 	}
+	/**
+	 * 选择器，可使用以下的额外语法
+	 *
+	 * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
+	 * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
+	 * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
+	 * @param selector
+	 * @example
+	 * DOMUtils.selector("div:contains('测试')")
+	 * > div.xxx
+	 * @example
+	 * DOMUtils.selector("div:empty")
+	 * > div.xxx
+	 * @example
+	 * DOMUtils.selector("div:regexp('^xxxx$')")
+	 * > div.xxx
+	 */
+	selector<K extends keyof HTMLElementTagNameMap>(
+		selector: K
+	): HTMLElementTagNameMap[K] | undefined;
+	selector<E extends Element = Element>(selector: string): E | undefined;
+	selector<E extends Element = Element>(selector: string) {
+		return this.selectorAll<E>(selector)[0];
+	}
+	/**
+	 * 选择器，可使用以下的额外语法
+	 *
+	 * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
+	 * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
+	 * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
+	 * @param selector
+	 * @example
+	 * DOMUtils.selectorAll("div:contains('测试')")
+	 * > [div.xxx]
+	 * @example
+	 * DOMUtils.selectorAll("div:empty")
+	 * > [div.xxx]
+	 * @example
+	 * DOMUtils.selectorAll("div:regexp('^xxxx$')")
+	 * > [div.xxx]
+	 */
+	selectorAll<K extends keyof HTMLElementTagNameMap>(
+		selector: K
+	): HTMLElementTagNameMap[K][];
+	selectorAll<E extends Element = Element>(selector: string): E[];
+	selectorAll<E extends Element = Element>(selector: string) {
+		const context = this;
+		selector = selector.trim();
+		if (selector.match(/[^\s]{1}:empty$/gi)) {
+			// empty 语法
+			selector = selector.replace(/:empty$/gi, "");
+			return Array.from(
+				context.windowApi.document.querySelectorAll<E>(selector)
+			).filter(($ele) => {
+				return $ele?.innerHTML?.trim() === "";
+			});
+		} else if (
+			selector.match(/[^\s]{1}:contains\("(.*)"\)$/gi) ||
+			selector.match(/[^\s]{1}:contains\('(.*)'\)$/gi)
+		) {
+			// contains 语法
+			let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
+			let text = textMatch![2];
+			selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
+			return Array.from(
+				context.windowApi.document.querySelectorAll<E>(selector)
+			).filter(($ele) => {
+				// @ts-ignore
+				return ($ele?.textContent || $ele?.innerText)?.includes(text);
+			});
+		} else if (
+			selector.match(/[^\s]{1}:regexp\("(.*)"\)$/gi) ||
+			selector.match(/[^\s]{1}:regexp\('(.*)'\)$/gi)
+		) {
+			// regexp 语法
+			let textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
+			let text = textMatch![2];
+			let regexp = new RegExp(text);
+			selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
+			return Array.from(
+				context.windowApi.document.querySelectorAll<E>(selector)
+			).filter(($ele) => {
+				// @ts-ignore
+				return Boolean(($ele?.textContent || $ele?.innerText)?.match(regexp));
+			});
+		} else {
+			// 普通语法
+			return Array.from(
+				context.windowApi.document.querySelectorAll<E>(selector)
+			);
+		}
+	}
 }
