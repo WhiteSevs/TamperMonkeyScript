@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.8
+// @version      2024.10.23
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -12,10 +12,10 @@
 // @match        *://www.bilibili.com/read/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/497907/1413262/QRCodeJS.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
 // @require      https://fastly.jsdelivr.net/npm/artplayer-plugin-danmuku@5.1.4/dist/artplayer-plugin-danmuku.js
@@ -7808,12 +7808,13 @@
       };
     }
   };
+  const beautifyCSS = "#app .m-search {\r\n	--card-img-width: 90px;\r\n	--card-img-height: calc(var(--card-img-width) * 1.33);\r\n	--card-desc-color: #808080;\r\n	--card-desc-size: 0.8em;\r\n	--card-badge-item-size: 0.7em;\r\n	--card-badge-item-padding: 0.1em 0.2em;\r\n	--card-badge-item-border-radius: 3px;\r\n	--card-ep-item-border-radius: 4px;\r\n	--card-ep-item-padding-top-bottom: 13px;\r\n	--card-ep-item-padding-left-right: 13px;\r\n	--card-ep-item-badge-padding: 2px;\r\n}\r\n.gm-result-panel {\r\n	padding-top: 23.46667vmin;\r\n	background: #f4f4f4;\r\n}\r\n.gm-card-cover {\r\n	position: relative;\r\n}\r\n.gm-card-cover img {\r\n	width: var(--card-img-width);\r\n	height: var(--card-img-height);\r\n	border-radius: 8px;\r\n}\r\n.gm-card-container {\r\n	display: flex;\r\n	gap: 15px;\r\n}\r\n\r\n.gm-card-box {\r\n	padding: 0px 10px;\r\n}\r\n\r\n.gm-card-item em {\r\n	color: var(--bili-color);\r\n	font-style: unset;\r\n}\r\n\r\n.gm-card-title {\r\n	font-family: 微软雅黑;\r\n	font-size: 1em;\r\n}\r\n\r\n.gm-card-display-info,\r\n.gm-card-styles,\r\nspan.gm-card-media_score-user_count {\r\n	font-size: var(--card-desc-size);\r\n	color: var(--card-desc-color);\r\n}\r\n\r\n.gm-card-info-container {\r\n	display: flex;\r\n	flex-direction: column;\r\n	gap: 3px;\r\n	justify-content: flex-start;\r\n}\r\n.gm-card-info {\r\n	display: flex;\r\n	flex-direction: column;\r\n	justify-content: space-between;\r\n}\r\nspan.gm-card-media_score-score {\r\n	color: #f77c2e;\r\n	font-size: 1.2em;\r\n	font-weight: bold;\r\n}\r\n\r\n.gm-card-media_score {\r\n	display: flex;\r\n	align-items: flex-end;\r\n	gap: 0.5em;\r\n}\r\n.gm-card-item {\r\n	padding: 1.6vmin;\r\n	background: #fff;\r\n	margin: 10px 0px;\r\n	border-radius: 6px;\r\n	display: flex;\r\n	flex-direction: column;\r\n	gap: 15px;\r\n	overflow: hidden;\r\n}\r\n.gm-card-badges {\r\n	background: var(--bili-color);\r\n	color: #fff;\r\n	padding: 3px;\r\n	font-size: 12px;\r\n	border-radius: 3px;\r\n	white-space: nowrap;\r\n	position: absolute;\r\n	top: 5px;\r\n	right: 5px;\r\n}\r\n.gm-card-badge-info-item {\r\n	font-size: var(--card-badge-item-size);\r\n	padding: var(--card-badge-item-padding);\r\n	border-radius: var(--card-badge-item-border-radius);\r\n}\r\n.gm-card-eps {\r\n	display: flex;\r\n	overflow: auto;\r\n	gap: 10px;\r\n}\r\n\r\n.gm-card-ep-conatiner {\r\n	text-align: center;\r\n	white-space: nowrap;\r\n	padding: var(--card-ep-item-padding-top-bottom)\r\n		var(--card-ep-item-padding-left-right);\r\n	background: #edeff3;\r\n	border-radius: var(--card-ep-item-border-radius);\r\n	font-size: 14px;\r\n	position: relative;\r\n}\r\n\r\n.gm-card-ep-badges-container {\r\n	position: absolute;\r\n	top: 0;\r\n	right: 0;\r\n	font-size: calc(\r\n		var(--card-ep-item-padding-top-bottom) - var(--card-ep-item-badge-padding)\r\n	);\r\n}\r\n\r\n.gm-card-ep-badge-top-right {\r\n	border-top-right-radius: var(--card-ep-item-border-radius);\r\n	border-bottom-left-radius: var(--card-ep-item-border-radius);\r\n	padding: var(--card-ep-item-badge-padding);\r\n}\r\n.gm-card-ep-info-container {\r\n	min-width: 30px;\r\n}\r\n";
   const BilibiliExtraSearch = {
     $flag_css: {
       enableOtherAreaSearchBangumi: false
     },
-    $data: {},
     init() {
+      addStyle(beautifyCSS);
       domutils.ready(() => {
         PopsPanel.execMenu("bili-search-enableOtherAreaSearchBangumi", () => {
           this.enableOtherAreaSearchBangumi();
@@ -7851,141 +7852,6 @@
 			.m-search-result .tabs .tab-item.on{
 				color: var(--bili-color);
 				border-bottom: 0.53333vmin solid var(--bili-color);
-			}
-			`
-        );
-        addStyle(
-          /*css*/
-          `
-			#app .m-search{
-				--card-img-width: 90px;
-				--card-img-height: calc(var(--card-img-width) * 1.33 );
-				--card-desc-color: #808080;
-				--card-desc-size: 0.8em;
-				--card-badge-item-size: 0.7em;
-				--card-badge-item-padding: 0.1em 0.2em;
-				--card-badge-item-border-radius: 3px;
-				--card-ep-item-border-radius: 4px;
-				--card-ep-item-padding-top-bottom: 13px;
-				--card-ep-item-padding-left-right: 13px;
-				--card-ep-item-badge-padding: 2px;
-			}
-			.gm-result-panel {
-				padding-top: 23.46667vmin;
-				background: #f4f4f4;
-			}
-			.gm-card-cover{
-				position: relative;
-			}
-			.gm-card-cover img {
-				width: var(--card-img-width);
-				height: var(--card-img-height);
-				border-radius: 8px;
-			}
-			.gm-card-container {
-				display: flex;
-				gap: 15px;
-			}
-	
-			.gm-card-box {
-				padding: 0px 10px;
-			}
-	
-			.gm-card-item em {
-				color: var(--bili-color);
-				font-style: unset;
-			}
-	
-			.gm-card-title {
-				font-family: 微软雅黑;
-				font-size: 1em;
-			}
-	
-			.gm-card-display-info,
-			.gm-card-styles,
-			span.gm-card-media_score-user_count {
-				font-size: var(--card-desc-size);
-				color: var(--card-desc-color);
-			}
-	
-			.gm-card-info-container {
-				display: flex;
-				flex-direction: column;
-				gap: 3px;
-				justify-content: flex-start;
-			}
-			.gm-card-info {
-				display: flex;
-				flex-direction: column;
-				justify-content: space-between;
-			}
-			span.gm-card-media_score-score {
-				color: #F77C2E;
-				font-size: 1.2em;
-				font-weight: bold;
-			}
-	
-			.gm-card-media_score {
-				display: flex;
-				align-items: flex-end;
-				gap: 0.5em;
-			}
-			.gm-card-item {
-				padding: 1.6vmin;
-				background: #fff;
-				margin: 10px 0px;
-				border-radius: 6px;
-				display: flex;
-				flex-direction: column;
-				gap: 15px;
-				overflow: hidden;
-			}
-			.gm-card-badges {
-				background: var(--bili-color);
-				color: #fff;
-				padding: 3px;
-				font-size: 12px;
-				border-radius: 3px;
-				white-space: nowrap;
-				position: absolute;
-				top: 5px;
-    			right: 5px;
-			}
-			.gm-card-badge-info-item{
-				font-size: var(--card-badge-item-size);
-				padding: var(--card-badge-item-padding);
-				border-radius: var(--card-badge-item-border-radius);
-			}
-			.gm-card-eps {
-				display: flex;
-				overflow: auto;
-				gap: 10px;
-			}
-	
-			.gm-card-ep-conatiner {
-				text-align: center;
-				white-space: nowrap;
-				padding: var(--card-ep-item-padding-top-bottom) var(--card-ep-item-padding-left-right);
-				background: #edeff3;
-				border-radius: var(--card-ep-item-border-radius);
-				font-size: 14px;
-				position: relative;
-			}
-
-			.gm-card-ep-badges-container{
-				position: absolute;
-				top: 0;
-				right: 0;
-				font-size: calc( var(--card-ep-item-padding-top-bottom) - var(--card-ep-item-badge-padding) );
-			}
-	
-			.gm-card-ep-badge-top-right{
-				border-top-right-radius: var(--card-ep-item-border-radius);
-    			border-bottom-left-radius: var(--card-ep-item-border-radius);
-				padding: var(--card-ep-item-badge-padding);
-			}
-			.gm-card-ep-info-container {
-				min-width: 30px;
 			}
 			`
         );
