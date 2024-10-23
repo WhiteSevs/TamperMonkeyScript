@@ -184,7 +184,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.val(document.querySelector("input.xx"),true)
      * DOMUtils.val("input.xx",true)
      * */
-    val(element: HTMLInputElement | HTMLTextAreaElement | string | (HTMLInputElement | HTMLTextAreaElement)[] | NodeListOf<HTMLInputElement | HTMLTextAreaElement>, value: string | boolean | number): void;
+    val(element: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | string | (HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement)[] | NodeListOf<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>, value: string | boolean | number): void;
     /**
      * 获取value属性值
      * @param element 目标元素
@@ -192,7 +192,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * // 获取元素textarea的值
      * DOMUtils.val(document.querySelector("textarea.xx"))
      * */
-    val(element: HTMLInputElement | HTMLTextAreaElement | string | (HTMLInputElement | HTMLTextAreaElement)[] | NodeListOf<HTMLInputElement | HTMLTextAreaElement>): string;
+    val(element: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | string | (HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement)[] | NodeListOf<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>): string;
     /**
      * 获取value属性值
      * @param element 目标元素
@@ -201,7 +201,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.val(document.querySelector("input.xx"))
      * DOMUtils.val("input.xx")
      * */
-    val(element: HTMLInputElement | HTMLTextAreaElement | (HTMLInputElement | HTMLTextAreaElement)[] | NodeListOf<HTMLInputElement | HTMLTextAreaElement>): boolean | string;
+    val(element: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | (HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement)[] | NodeListOf<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>): boolean | string;
     /**
      * 获取元素的属性值
      * @param element 目标元素
@@ -275,6 +275,12 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.addClass("a.xx","_vue_")
      * */
     addClass(element: DOMUtilsTargetElementType, className: string | string[]): void;
+    /**
+     * 判断元素是否存在className
+     * @param element
+     * @param className
+     */
+    hasClass(element: DOMUtilsTargetElementType, className: string | string[]): boolean;
     /**
      * 函数在元素内部末尾添加子元素或HTML字符串
      * @param element 目标元素

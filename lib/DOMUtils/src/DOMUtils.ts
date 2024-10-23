@@ -489,9 +489,10 @@ class DOMUtils extends DOMUtilsEvent {
 		element:
 			| HTMLInputElement
 			| HTMLTextAreaElement
+			| HTMLSelectElement
 			| string
-			| (HTMLInputElement | HTMLTextAreaElement)[]
-			| NodeListOf<HTMLInputElement | HTMLTextAreaElement>,
+			| (HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement)[]
+			| NodeListOf<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
 		value: string | boolean | number
 	): void;
 	/**
@@ -505,9 +506,10 @@ class DOMUtils extends DOMUtilsEvent {
 		element:
 			| HTMLInputElement
 			| HTMLTextAreaElement
+			| HTMLSelectElement
 			| string
-			| (HTMLInputElement | HTMLTextAreaElement)[]
-			| NodeListOf<HTMLInputElement | HTMLTextAreaElement>
+			| (HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement)[]
+			| NodeListOf<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
 	): string;
 	/**
 	 * 获取value属性值
@@ -521,16 +523,18 @@ class DOMUtils extends DOMUtilsEvent {
 		element:
 			| HTMLInputElement
 			| HTMLTextAreaElement
-			| (HTMLInputElement | HTMLTextAreaElement)[]
-			| NodeListOf<HTMLInputElement | HTMLTextAreaElement>
+			| HTMLSelectElement
+			| (HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement)[]
+			| NodeListOf<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
 	): boolean | string;
 	val(
 		element:
 			| HTMLInputElement
 			| HTMLTextAreaElement
+			| HTMLSelectElement
 			| string
-			| (HTMLInputElement | HTMLTextAreaElement)[]
-			| NodeListOf<HTMLInputElement | HTMLTextAreaElement>,
+			| (HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement)[]
+			| NodeListOf<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
 		value?: string | boolean | number
 	) {
 		let DOMUtilsContext = this;
@@ -786,6 +790,44 @@ class DOMUtils extends DOMUtilsEvent {
 		});
 	}
 	/**
+	 * 判断元素是否存在className
+	 * @param element
+	 * @param className
+	 */
+	hasClass(
+		element: DOMUtilsTargetElementType,
+		className: string | string[]
+	): boolean {
+		let DOMUtilsContext = this;
+		if (typeof element === "string") {
+			element = DOMUtilsContext.selectorAll(element);
+		}
+		if (element == null) {
+			return false;
+		}
+		if (isNodeList(element)) {
+			let flag = true;
+			for (let index = 0; index < element.length; index++) {
+				const $ele = element[index] as HTMLElement;
+				flag = flag && DOMUtilsContext.hasClass($ele, className);
+			}
+			return flag;
+		}
+		if (!element?.classList) {
+			return false;
+		}
+		if (!Array.isArray(className)) {
+			className = className.split(" ");
+		}
+		for (let index = 0; index < className.length; index++) {
+			const item = className[index].trim();
+			if (!element.classList.contains(item)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	/**
 	 * 函数在元素内部末尾添加子元素或HTML字符串
 	 * @param element 目标元素
 	 * @param content 子元素或HTML字符串
@@ -1008,9 +1050,7 @@ class DOMUtils extends DOMUtilsEvent {
 	offset(element: HTMLElement | string) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.selector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -1053,8 +1093,7 @@ class DOMUtils extends DOMUtilsEvent {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element =
-				DOMUtilsContext.windowApi.document.querySelector<HTMLElement>(element)!;
+			element = DOMUtilsContext.selector<HTMLElement>(element)!;
 		}
 		if (element == null) {
 			return;
@@ -1161,9 +1200,7 @@ class DOMUtils extends DOMUtilsEvent {
 				.clientHeight;
 		}
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.selector(element) as HTMLElement;
 		}
 		if (element == null) {
 			// @ts-ignore
@@ -1261,9 +1298,7 @@ class DOMUtils extends DOMUtilsEvent {
 			return DOMUtilsContext.windowApi.window.innerWidth;
 		}
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.selector(element) as HTMLElement;
 		}
 		if (element == null) {
 			// @ts-ignore
@@ -1312,9 +1347,7 @@ class DOMUtils extends DOMUtilsEvent {
 			return DOMUtilsContext.windowApi.window.innerHeight;
 		}
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.selector(element) as HTMLElement;
 		}
 		if (element == null) {
 			// @ts-ignore
@@ -1469,9 +1502,7 @@ class DOMUtils extends DOMUtilsEvent {
 	prev(element: HTMLElement | string) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.selector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -1493,9 +1524,7 @@ class DOMUtils extends DOMUtilsEvent {
 	next(element: HTMLElement | string) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.selector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -1529,9 +1558,7 @@ class DOMUtils extends DOMUtilsEvent {
 	siblings(element: HTMLElement | string) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.selector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -1576,18 +1603,15 @@ class DOMUtils extends DOMUtilsEvent {
 	parent(element: HTMLElement | NodeList | string | HTMLElement[]) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.selector<HTMLElement>(element)!;
 		}
 		if (element == null) {
 			return;
 		}
-		if (element instanceof NodeList || element instanceof Array) {
-			element = element as HTMLElement[];
+		if (isNodeList(element)) {
 			let resultArray: HTMLElement[] = [];
-			element.forEach((eleItem) => {
-				resultArray.push(DOMUtilsContext.parent(eleItem));
+			element.forEach(($ele) => {
+				resultArray.push(DOMUtilsContext.parent($ele as HTMLElement));
 			});
 			return resultArray;
 		} else {

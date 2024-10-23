@@ -967,9 +967,7 @@ export class DOMUtilsEvent {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -1086,9 +1084,7 @@ export class DOMUtilsEvent {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.windowApi.document.querySelector(
-				element
-			) as HTMLElement;
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
