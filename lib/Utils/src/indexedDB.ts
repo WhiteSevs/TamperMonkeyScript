@@ -35,6 +35,10 @@ class indexedDB {
 			code: 401,
 			msg: "操作失败",
 		},
+		empty: {
+			code: 201,
+			msg: "操作成功，但是没有数据",
+		},
 		openFailed: { code: 91001, msg: "打开数据库失败" },
 		saveFailed: { code: 91002, msg: "保存数据失败" },
 		getFailed: { code: 91003, msg: "获取数据失败" },
@@ -287,23 +291,21 @@ class indexedDB {
 						/* result 返回的是 {key: string, value: any} */
 						/* 键值对存储 */
 						let data = result ? result.value : void 0;
-						if (data) {
+						if (data == null) {
 							resolve({
 								success: true,
-								code: that.#statusCode.operationSuccess.code,
-								msg: that.#statusCode.operationSuccess.msg,
-								data: data,
-
+								code: that.#statusCode.empty.code,
+								msg: that.#statusCode.empty.msg,
+								data: data!,
 								event: event,
 								result: result,
 							});
 						} else {
 							resolve({
-								success: false,
-								code: that.#statusCode.operationFailed.code,
-								msg: that.#statusCode.operationFailed.msg,
-								data: void 0 as any,
-
+								success: true,
+								code: that.#statusCode.operationSuccess.code,
+								msg: that.#statusCode.operationSuccess.msg,
+								data: data,
 								event: event,
 								result: result,
 							});

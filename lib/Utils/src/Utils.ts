@@ -291,37 +291,38 @@ class Utils {
 				"Utils.checkUserClickInNode 参数 targetNode 必须为 Element|Node 类型"
 			);
 		}
-		let mouseClickPosX = Number(
-			(window!.event as any).clientX.toString()
-		); /* 鼠标相对屏幕横坐标 */
-		let mouseClickPosY = Number(
-			(window!.event as any).clientY.toString()
-		); /* 鼠标相对屏幕纵坐标 */
-		let elementPosXLeft = Number(
-			(element as HTMLElement).getBoundingClientRect().left
-		); /* 要检测的元素的相对屏幕的横坐标最左边 */
-		let elementPosXRight = Number(
-			(element as HTMLElement).getBoundingClientRect().right
-		); /* 要检测的元素的相对屏幕的横坐标最右边 */
-		let elementPosYTop = Number(
-			(element as HTMLElement).getBoundingClientRect().top
-		); /* 要检测的元素的相对屏幕的纵坐标最上边 */
-		let elementPosYBottom = Number(
-			(element as HTMLElement).getBoundingClientRect().bottom
-		); /* 要检测的元素的相对屏幕的纵坐标最下边 */
-		let clickNodeHTML = (this.windowApi.window.event as any).target
-			.innerHTML as string;
+		let clickEvent = UtilsContext.windowApi.window.event as PointerEvent;
+		let touchEvent = UtilsContext.windowApi.window.event as TouchEvent;
+		let $click = clickEvent?.composedPath()?.[0] as HTMLElement;
+
+		// 点击的x坐标
+		let clickPosX =
+			clickEvent?.clientX != null
+				? clickEvent.clientX
+				: touchEvent.touches[0].clientX;
+		// 点击的y坐标
+		let clickPosY =
+			clickEvent?.clientY != null
+				? clickEvent.clientY
+				: touchEvent.touches[0].clientY;
+		let {
+			/* 要检测的元素的相对屏幕的横坐标最左边 */
+			left: elementPosXLeft,
+			/* 要检测的元素的相对屏幕的横坐标最右边 */
+			right: elementPosXRight,
+			/* 要检测的元素的相对屏幕的纵坐标最上边 */
+			top: elementPosYTop,
+			/* 要检测的元素的相对屏幕的纵坐标最下边 */
+			bottom: elementPosYBottom,
+		} = (element as HTMLElement).getBoundingClientRect();
 		if (
-			mouseClickPosX >= elementPosXLeft &&
-			mouseClickPosX <= elementPosXRight &&
-			mouseClickPosY >= elementPosYTop &&
-			mouseClickPosY <= elementPosYBottom
+			clickPosX >= elementPosXLeft &&
+			clickPosX <= elementPosXRight &&
+			clickPosY >= elementPosYTop &&
+			clickPosY <= elementPosYBottom
 		) {
 			return true;
-		} else if (
-			clickNodeHTML &&
-			(element as HTMLElement).innerHTML.includes(clickNodeHTML)
-		) {
+		} else if (($click && element.contains($click)) || $click == element) {
 			/* 这种情况是应对在界面中隐藏的元素，getBoundingClientRect获取的都是0 */
 			return true;
 		} else {
