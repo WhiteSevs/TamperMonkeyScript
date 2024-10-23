@@ -221,7 +221,7 @@ export const Component_Common: PopsPanelContentConfig = {
 								UISwitch(
 									"小窗模式",
 									"mt-small-window",
-									false,
+									true,
 									void 0,
 									"开启后点击帖子右侧区域为小窗打开"
 								),

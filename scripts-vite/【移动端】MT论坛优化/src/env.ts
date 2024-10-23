@@ -157,6 +157,9 @@ if (import.meta.env.DEV) {
 } else {
 	CommonUtils.setGMResourceCSS(GM_RESOURCE_MAP.Hljs);
 }
+
+const $ = document.querySelector.bind(document);
+const $$ = document.querySelectorAll.bind(document);
 export {
 	utils,
 	domUtils as DOMUtils,
@@ -169,4 +172,6 @@ export {
 	// showdown,
 	httpx,
 	addStyle,
+	$,
+	$$,
 };

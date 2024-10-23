@@ -1,7 +1,6 @@
 import { PopsPanel } from "@/setting/setting";
-import "./index.css";
-import { MTBlackHome } from "./black-home/MTBlackHome";
-import { MTOnlineUser } from "./online-user/MTOnlineUser";
+import { MTBlackHome } from "./MTBlackHome";
+import { MTOnlineUser } from "./MTOnlineUser";
 import { MTIdentifyLinks } from "./MTIdentifyLinks";
 import { MTAutoSignIn } from "./sign/MTAutoSignIn";
 import { addStyle, DOMUtils, log, utils } from "@/env";
@@ -9,7 +8,6 @@ import { Router } from "@/router/router";
 import { MTForumPost } from "./forum-post/MTForumPost";
 import { ElementUtils } from "@/utils/ElementUtils";
 import { MTRegExp } from "@/utils/MTRegExp";
-import { GM_setClipboard } from "ViteGM";
 import Qmsg from "qmsg";
 import { MTSearch } from "./search/MTSearch";
 import { MTSign } from "./sign/MTSign";
@@ -21,6 +19,8 @@ import { MTOwnBlock } from "./MTOwnBlock";
 import { MTCommentFilter } from "./forum-post/MTCommentFilter";
 import { MTProductListingReminder } from "./MTProductListingReminder";
 import { MTCustomizeUserLabels } from "./MTCustomizeUserLabels";
+import { MTForumPostPublish } from "./forum-post-publish/MTForumPostPublish";
+
 export const MT = {
 	$flag: {
 		showUserUID_initCSS: false,
@@ -84,6 +84,9 @@ export const MT = {
 		} else if (Router.isGuide()) {
 			log.info(`Router: 导读`);
 			MTGuide.init();
+		} else if (Router.isPostPublish()) {
+			log.info("Router: 发帖页面");
+			MTForumPostPublish.init();
 		} else {
 			log.error(`Router: 未适配的链接 ==> ` + window.location.href);
 		}

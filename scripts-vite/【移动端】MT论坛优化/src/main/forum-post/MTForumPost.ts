@@ -294,6 +294,7 @@ export const MTForumPost = {
 			DOMUtils.text($loadingCommentTip, "请上下滑动或点击加载");
 			DOMUtils.on(window, "scroll", lockFn.run);
 			DOMUtils.on($loadingCommentTip, "click", loadNextComments);
+			lockFn.run();
 		}
 
 		let tip_html = /*html*/ `

@@ -1,5 +1,5 @@
 import { ElementUtils } from "@/utils/ElementUtils";
-import onlineUserCSS from "./online-user.css?raw";
+import onlineUserCSS from "./css/online-user.css?raw";
 import Qmsg from "qmsg";
 import { httpx, pops, utils } from "@/env";
 import DOMUtils from "@whitesev/domutils";

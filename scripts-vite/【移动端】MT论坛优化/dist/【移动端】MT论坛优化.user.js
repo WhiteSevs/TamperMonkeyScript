@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359
-// @version      2024.10.22
+// @version      2024.10.23
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -13,9 +13,9 @@
 // @require      https://update.greasyfork.org/scripts/452322/1413240/js-watermark.js
 // @require      https://update.greasyfork.org/scripts/456607/1413244/GM_html2canvas.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.10.0/styles/github-dark.min.css
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
@@ -36,8 +36,6 @@
 // @grant        unsafeWindow
 // @run-at       document-start
 // ==/UserScript==
-
-(d=>{if(typeof GM_addStyle=="function"){GM_addStyle(d);return}function t(n){let e=document.createElement("style");return e.innerHTML=n,document.head?document.head.appendChild(e):document.documentElement.appendChild(e),e}t(d)})(" html,body{padding:0;margin:0} ");
 
 (function (Qmsg, DOMUtils, Utils, pops, Viewer) {
   'use strict';
@@ -361,6 +359,8 @@
   {
     CommonUtils.setGMResourceCSS(GM_RESOURCE_MAP.Hljs);
   }
+  const $ = document.querySelector.bind(document);
+  const $$ = document.querySelectorAll.bind(document);
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
@@ -519,6 +519,45 @@
         window.STYLEID || // @ts-ignore
         typeof STYLEID !== "undefined" && STYLEID) === "3"
       );
+    },
+    /**
+     * 获取帖子id
+     * @param url
+     */
+    getThreadId: (url) => {
+      let urlMatch = url.match(/thread-([\d]+)-|&tid=([\d]+)/i);
+      if (urlMatch) {
+        let forumIdList = urlMatch.filter(Boolean);
+        let forumId = forumIdList[forumIdList.length - 1];
+        return forumId;
+      }
+    },
+    /**
+     * 获取板块？id
+     */
+    getForumId(url) {
+      let urlMatch = url.match(/&fid=([\d]+)/i);
+      if (urlMatch) {
+        return urlMatch[urlMatch.length - 1];
+      }
+    },
+    /**
+     * 获取发布id
+     */
+    getPostId(url) {
+      let urlMatch = url.match(/&pid=([\d]+)/i);
+      if (urlMatch) {
+        return urlMatch[urlMatch.length - 1];
+      }
+    },
+    /**
+     * 获取回复id
+     */
+    getRepquote(url) {
+      let urlMatch = url.match(/&repquote=([\d]+)/i);
+      if (urlMatch) {
+        return urlMatch[urlMatch.length - 1];
+      }
     }
   };
   const MTDyncmicAvatar = {
@@ -1026,7 +1065,7 @@
                   UISwitch(
                     "小窗模式",
                     "mt-small-window",
-                    false,
+                    true,
                     void 0,
                     "开启后点击帖子右侧区域为小窗打开"
                   )
@@ -1223,104 +1262,4928 @@
       return document.querySelectorAll(".comiis_mmlist");
     }
   };
+  const UIInput = function(text, key, defaultValue, description, changeCallBack, placeholder = "", isNumber, isPassword) {
+    let result = {
+      text,
+      type: "input",
+      isNumber: Boolean(isNumber),
+      isPassword: Boolean(isPassword),
+      props: {},
+      attributes: {},
+      description,
+      getValue() {
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+      },
+      callback(event2, value, valueAsNumber) {
+        this.props[PROPS_STORAGE_API].set(
+          key,
+          isNumber ? valueAsNumber : value
+        );
+      },
+      placeholder
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
+    return result;
+  };
+  const optimizationCSS$1 = '#comiis_foot_menu_beautify {\r\n	position: fixed;\r\n	display: inline-flex;\r\n	z-index: 90;\r\n	left: 0;\r\n	right: 0;\r\n	bottom: 0;\r\n	width: 100%;\r\n	height: 48px;\r\n	overflow: hidden;\r\n	align-content: center;\r\n	justify-content: center;\r\n	align-items: center;\r\n}\r\n#comiis_foot_menu_beautify_big {\r\n	position: fixed;\r\n	display: inline-flex;\r\n	flex-direction: column;\r\n	z-index: 92;\r\n	left: 0;\r\n	right: 0;\r\n	bottom: 0;\r\n	width: 100%;\r\n	min-height: 120px;\r\n	overflow: hidden;\r\n	align-content: center;\r\n	justify-content: center;\r\n	align-items: center;\r\n}\r\n#comiis_foot_menu_beautify input.bg_e.f_c::-webkit-input-placeholder {\r\n	padding-left: 10px;\r\n	color: #999;\r\n}\r\n#comiis_foot_menu_beautify input.bg_e.f_c::-moz-input-placeholder {\r\n	padding-left: 10px;\r\n	color: #999;\r\n}\r\n#comiis_foot_menu_beautify .reply_area ul li a {\r\n	display: block;\r\n	width: 22px;\r\n	height: 22px;\r\n	padding: 4px 8px;\r\n	margin: 8px 0;\r\n	position: relative;\r\n}\r\n#comiis_foot_menu_beautify .reply_area ul {\r\n	display: inline-flex;\r\n	align-content: center;\r\n	align-items: center;\r\n	justify-content: center;\r\n}\r\n#comiis_foot_menu_beautify .reply_area,\r\n#comiis_foot_menu_beautify .reply_area ul {\r\n	width: 100%;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li a i {\r\n	width: 22px;\r\n	height: 22px;\r\n	line-height: 22px;\r\n	font-size: 22px;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li a span {\r\n	position: absolute;\r\n	display: block;\r\n	font-size: 10px;\r\n	height: 14px;\r\n	line-height: 14px;\r\n	padding: 0 6px;\r\n	right: -8px;\r\n	top: 4px;\r\n	overflow: hidden;\r\n	border-radius: 20px;\r\n}\r\n#comiis_foot_menu_beautify li[data-attr="回帖"] input {\r\n	border: transparent;\r\n	border-radius: 15px;\r\n	height: 30px;\r\n	width: 100%;\r\n}\r\n#comiis_foot_menu_beautify_big .comiis_smiley_box {\r\n	padding: 6px 6px 0;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_area {\r\n	margin: 10px 0 5px 0;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_area ul {\r\n	display: inline-flex;\r\n	align-content: center;\r\n	justify-content: center;\r\n	align-items: flex-end;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="回帖"] {\r\n	width: 75vw;\r\n	margin-right: 15px;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_user_content {\r\n	width: 75vw;\r\n	word-wrap: break-word;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	margin: 8px 10px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] .fastpostform_new {\r\n	text-align: center;\r\n	margin-bottom: 28px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] .fastpostform_new i {\r\n	font-size: 22px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] input {\r\n	width: 60px;\r\n	height: 30px;\r\n	border: transparent;\r\n	color: #fff;\r\n	background: #d1c9fc;\r\n	border-radius: 30px;\r\n	margin-bottom: 6px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] input[data-text="true"] {\r\n	background: #7a61fb;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="回帖"] textarea {\r\n	padding: 10px 10px 10px 10px;\r\n	border: transparent;\r\n	border-radius: 6px;\r\n	min-height: 70px;\r\n	max-height: 180px;\r\n	background: #e9e8ec;\r\n	overflow-y: auto;\r\n	width: -webkit-fill-available;\r\n	width: -moz-available;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li[data-attr="回帖"] {\r\n	width: 65%;\r\n	margin: 0 3%;\r\n	text-align: center;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li:not(first-child) {\r\n	width: 7%;\r\n	text-align: -webkit-center;\r\n	text-align: center;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area {\r\n	width: 100%;\r\n	text-align: center;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_icon a {\r\n	margin: 0 20px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area i {\r\n	font-size: 24px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area #comiis_insert_ubb_tab i {\r\n	font-size: 16px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_body {\r\n	background: #f4f4f4;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.other_area\r\n	.menu_body\r\n	.comiis_smiley_box\r\n	.comiis_optimization {\r\n	max-height: 140px;\r\n	overflow-y: auto;\r\n	flex-direction: column;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.other_area\r\n	.menu_body\r\n	.comiis_smiley_box\r\n	.bqbox_t {\r\n	background: #fff;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.other_area\r\n	.menu_body\r\n	.comiis_smiley_box\r\n	.bqbox_t\r\n	ul#comiis_smilies_key\r\n	li\r\n	a.bg_f.b_l.b_r {\r\n	background: #f4f4f4 !important;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.menu_body\r\n	#comiis_pictitle_tab\r\n	#comiis_pictitle_key {\r\n	display: -webkit-box;\r\n	top: 0;\r\n	left: 0;\r\n	height: 42px;\r\n	line-height: 42px;\r\n	overflow: hidden;\r\n	overflow-x: auto;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.menu_body\r\n	#comiis_pictitle_tab\r\n	#comiis_pictitle_key\r\n	li {\r\n	padding: 0 10px;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.menu_body\r\n	#comiis_insert_ubb_tab\r\n	.comiis_input_style,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab .comiis_upbox {\r\n	height: 140px;\r\n	overflow-y: auto;\r\n	flex-direction: column;\r\n}\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_hello,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_kggzs,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_mt,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_z4a {\r\n	display: none;\r\n}\r\n@media screen and (max-width: 350px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 14.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 350px) and (max-width: 400px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 12.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 400px) and (max-width: 450px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 11%;\r\n	}\r\n}\r\n@media screen and (min-width: 450px) and (max-width: 500px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 10%;\r\n	}\r\n}\r\n@media screen and (min-width: 500px) and (max-width: 550px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 9.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 550px) and (max-width: 600px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 9%;\r\n	}\r\n}\r\n@media screen and (min-width: 600px) and (max-width: 650px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 8.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 650px) and (max-width: 700px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 8%;\r\n	}\r\n}\r\n@media screen and (min-width: 700px) and (max-width: 750px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 7.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 750px) and (max-width: 800px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 7%;\r\n	}\r\n}\r\n@media screen and (min-width: 800px) and (max-width: 850px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 6.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 850px) and (max-width: 1200px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 6%;\r\n	}\r\n}\r\n@media screen and (min-width: 1200px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 4.5%;\r\n	}\r\n}\r\n#imglist_settings button {\r\n	font-size: 13.333px;\r\n	color: #9baacf;\r\n	outline: 0;\r\n	border: none;\r\n	height: 35px;\r\n	width: 80px;\r\n	border-radius: 10px;\r\n	box-shadow: 0.3rem 0.3rem 0.6rem #c8d0e7, -0.2rem -0.2rem 0.5rem #fff;\r\n	font-weight: 800;\r\n	line-height: 40px;\r\n	background: #efefef;\r\n	padding: 0;\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n}\r\n#imglist_settings button:active {\r\n	box-shadow: inset 0.2rem 0.2rem 0.5rem #c8d0e7,\r\n		inset -0.2rem -0.2rem 0.5rem #fff !important;\r\n	color: #638ffb !important;\r\n}\r\n\r\n#comiis_head .header_y {\r\n	display: flex;\r\n	align-content: center;\r\n	align-items: center;\r\n	justify-content: flex-end;\r\n	height: 100%;\r\n}\r\n#comiis_head .header_y input {\r\n	border: transparent;\r\n	background: 0 0;\r\n	text-align: center;\r\n	margin: 0 5px;\r\n}\r\n#comiis_head .header_y input[value="删除"] {\r\n	color: #d00;\r\n}\r\n#comiis_head .header_y input[value="保存"] {\r\n	color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="保存草稿"] {\r\n	color: #f90;\r\n}\r\n#comiis_head .header_y input[value="发表"] {\r\n	color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="回复"] {\r\n	color: #b0ff6a;\r\n}\r\n#comiis_post_tab {\r\n	color: #000;\r\n}\r\n#comiis_pictitle_tab #imglist input {\r\n	display: none;\r\n}\r\n\r\n.comiis_post_imglist .delImg {\r\n	position: absolute;\r\n	top: -5px;\r\n	left: -5px;\r\n}\r\n\r\n.comiis_post_imglist .p_img a {\r\n	float: left;\r\n	height: 36px;\r\n}\r\n#imglist .p_img a {\r\n	float: left;\r\n	height: 36px;\r\n}\r\n#imglist .del a {\r\n	padding: 0;\r\n}\r\n';
+  const MTEditorSmilies = () => {
+    return [
+      {
+        "[呵呵]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq001.gif",
+        "[撇嘴]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq002.gif",
+        "[色]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq003.gif",
+        "[发呆]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq004.gif",
+        "[得意]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq005.gif",
+        "[流泪]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq006.gif",
+        "[害羞]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq007.gif",
+        "[闭嘴]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq008.gif",
+        "[睡]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq009.gif",
+        "[大哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq010.gif",
+        "[尴尬]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq011.gif",
+        "[发怒]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq012.gif",
+        "[调皮]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq013.gif",
+        "[呲牙]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq014.gif",
+        "[惊讶]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq015.gif",
+        "[难过]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq016.gif",
+        "[酷]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq017.gif",
+        "[冷汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq018.gif",
+        "[抓狂]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq019.gif",
+        "[吐]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq020.gif",
+        "[偷笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq021.gif",
+        "[可爱]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq022.gif",
+        "[白眼]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq023.gif",
+        "[傲慢]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq024.gif",
+        "[饥饿]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq025.gif",
+        "[困]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq026.gif",
+        "[惊恐]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq027.gif",
+        "[流汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq028.gif",
+        "[憨笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq029.gif",
+        "[装逼]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq030.gif",
+        "[奋斗]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq031.gif",
+        "[咒骂]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq032.gif",
+        "[疑问]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq033.gif",
+        "[嘘]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq034.gif",
+        "[晕]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq035.gif",
+        "[折磨]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq036.gif",
+        "[衰]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq037.gif",
+        "[骷髅]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq038.gif",
+        "[敲打]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq039.gif",
+        "[再见]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq040.gif",
+        "[擦汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq041.gif",
+        "[抠鼻]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq042.gif",
+        "[鼓掌]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq043.gif",
+        "[糗大了]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq044.gif",
+        "[坏笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq045.gif",
+        "[左哼哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq046.gif",
+        "[右哼哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq047.gif",
+        "[哈欠]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq048.gif",
+        "[鄙视]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq049.gif",
+        "[委屈]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq050.gif",
+        "[快哭了]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq051.gif",
+        "[阴脸]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq052.gif",
+        "[亲亲]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq053.gif",
+        "[吓]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq054.gif",
+        "[可怜]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq055.gif",
+        "[眨眼睛]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq056.gif",
+        "[笑哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq057.gif",
+        "[dogeQQ]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq058.gif",
+        "[泪奔]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq059.gif",
+        "[无奈]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq060.gif",
+        "[托腮]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq061.gif",
+        "[卖萌]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq062.png",
+        "[斜眼笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq063.gif",
+        "[喷血]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq064.gif",
+        "[惊喜]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq065.gif",
+        "[骚扰]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq066.gif",
+        "[小纠结]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq067.gif",
+        "[我最美]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq068.gif",
+        "[菜刀]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq069.gif",
+        "[西瓜]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq070.gif",
+        "[啤酒]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq071.gif",
+        "[篮球]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq072.gif",
+        "[乒乓]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq073.gif",
+        "[咖啡]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq074.gif",
+        "[饭]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq075.gif",
+        "[猪]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq076.gif",
+        "[玫瑰]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq077.gif",
+        "[凋谢]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq078.gif",
+        "[示爱]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq079.gif",
+        "[爱心]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq080.gif",
+        "[心碎]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq081.gif",
+        "[蛋糕]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq082.gif",
+        "[闪电]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq083.gif",
+        "[炸弹]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq084.gif",
+        "[刀]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq085.gif",
+        "[足球]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq086.gif",
+        "[瓢虫]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq087.gif",
+        "[便便]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq088.gif",
+        "[月亮]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq089.gif",
+        "[太阳]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq090.gif",
+        "[礼物]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq091.gif",
+        "[抱抱]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq092.gif",
+        "[喝彩]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq93.gif",
+        "[祈祷]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq94.gif",
+        "[棒棒糖]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq95.gif",
+        "[药]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq96.gif",
+        "[赞]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq097.gif",
+        "[差劲]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq098.gif",
+        "[握手]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq099.gif",
+        "[胜利]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq100.gif",
+        "[抱拳]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq101.gif",
+        "[勾引]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq102.gif",
+        "[拳头]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq103.gif",
+        "[爱你]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq105.gif",
+        "[NO]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq106.gif",
+        "[OK]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq107.gif"
+      },
+      {
+        "[#呵呵]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_1.png",
+        "[#滑稽]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_10.png",
+        "[#吐舌]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_3.png",
+        "[#哈哈]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_2.png",
+        "[#啊]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_23.png",
+        "[#酷]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_22.png",
+        "[#怒]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_13.png",
+        "[#开心]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_39.png",
+        "[#汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_14.png",
+        "[#泪]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_16.png",
+        "[#黑线]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_15.png",
+        "[#鄙视]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_21.png",
+        "[#不高兴]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_12.png",
+        "[#真棒]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_17.png",
+        "[#钱]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_40.png",
+        "[#疑问]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_26.png",
+        "[#阴险]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_20.png",
+        "[#吐]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_34.png",
+        "[#咦]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_41.png",
+        "[#委屈]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_29.png",
+        "[#花心]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_6.png",
+        "[#呼～]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_42.png",
+        "[#激动]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_5.png",
+        "[#冷]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_43.png",
+        "[#可爱]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_4.png",
+        "[#What？]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_25.png",
+        "[#勉强]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_38.png",
+        "[#狂汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_24.png",
+        "[#酸爽]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_27.png",
+        "[#乖]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_8.png",
+        "[#雅美蝶]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_28.png",
+        "[#睡觉]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_31.png",
+        "[#惊哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_19.png",
+        "[#哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_44.png",
+        "[#笑尿]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_32.png",
+        "[#惊讶]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_30.png",
+        "[#小乖]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_7.png",
+        "[#喷]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_18.png",
+        "[#抠鼻]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_33.png",
+        "[#捂嘴笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_9.png",
+        "[#你懂的]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_11.png",
+        "[#犀利]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_35.png",
+        "[#小红脸]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_36.png",
+        "[#懒得理]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_37.png",
+        "[#爱心]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_45.png",
+        "[#心碎]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_46.png",
+        "[#玫瑰]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_47.png",
+        "[#礼物]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_48.png",
+        "[#彩虹]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_49.png",
+        "[#太阳]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_50.png",
+        "[#月亮]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_51.png",
+        "[#钱币]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_52.png",
+        "[#咖啡]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_53.png",
+        "[#蛋糕]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_54.png",
+        "[#大拇指]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_55.png",
+        "[#胜利]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_56.png",
+        "[#爱你]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_57.png",
+        "[#OK]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_58.png",
+        "[#弱]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_59.png",
+        "[#沙发]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_60.png",
+        "[#纸巾]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_61.png",
+        "[#香蕉]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_62.png",
+        "[#便便]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_63.png",
+        "[#药丸]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_64.png",
+        "[#红领巾]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_65.png",
+        "[#蜡烛]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_66.png",
+        "[#三道杠]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_67.png",
+        "[#音乐]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_68.png",
+        "[#灯泡]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_69.png"
+      },
+      {
+        "[doge]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/1.png",
+        "[doge思考]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/2.png",
+        "[doge再见]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/3.png",
+        "[doge生气]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/4.png",
+        "[doge气哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/5.png",
+        "[doge笑哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/7.png",
+        "[doge调皮]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/6.png",
+        "[doge啊哈]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/8.png",
+        "[doge原谅TA]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/9.png",
+        "[miao]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/10.png",
+        "[miao思考]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/11.png",
+        "[miao拜拜]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/12.png",
+        "[miao生气]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/13.png",
+        "[miao气哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/14.png",
+        "[二哈]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/15.png",
+        "[摊手]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/19.png",
+        "[w并不简单]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/20.png",
+        "[w滑稽]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/21.png",
+        "[w色]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/22.png",
+        "[w爱你]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/23.png",
+        "[w拜拜]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/24.png",
+        "[w悲伤]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/25.png",
+        "[w鄙视]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/26.png",
+        "[w馋嘴]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/27.png",
+        "[w冷汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/28.png",
+        "[w打哈欠]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/29.png",
+        "[w打脸]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/30.png",
+        "[w敲打]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/31.png",
+        "[w生病]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/32.png",
+        "[w闭嘴]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/33.png",
+        "[w鼓掌]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/34.png",
+        "[w哈哈]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/35.png",
+        "[w害羞]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/36.png",
+        "[w呵呵]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/37.png",
+        "[w黑线]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/38.png",
+        "[w哼哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/39.png",
+        "[w调皮]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/40.png",
+        "[w可爱]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/41.png",
+        "[w可怜]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/42.png",
+        "[w酷]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/43.png",
+        "[w困]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/44.png",
+        "[w懒得理你]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/45.png",
+        "[w流泪]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/46.png",
+        "[w怒]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/47.png",
+        "[w怒骂]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/48.png",
+        "[w钱]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/49.png",
+        "[w亲亲]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/50.png",
+        "[w傻眼]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/51.png",
+        "[w便秘]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/52.png",
+        "[w失望]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/53.png",
+        "[w衰]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/54.png",
+        "[w睡觉]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/55.png",
+        "[w思考]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/56.png",
+        "[w开心]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/57.png",
+        "[w色舔]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/58.png",
+        "[w偷笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/59.png",
+        "[w吐]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/60.png",
+        "[w抠鼻]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/61.png",
+        "[w委屈]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/62.png",
+        "[w笑哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/63.png",
+        "[w嘻嘻]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/64.png",
+        "[w嘘]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/65.png",
+        "[w阴险]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/66.png",
+        "[w疑问]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/67.png",
+        "[w抓狂]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/70.png",
+        "[w晕]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/69.png",
+        "[w右哼哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/68.png",
+        "[w左哼哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/71.png",
+        "[w肥皂]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/77.png",
+        "[w奥特曼]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/78.png",
+        "[w草泥马]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/79.png",
+        "[w兔子]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/80.png",
+        "[w熊猫]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/81.png",
+        "[w猪头]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/82.png",
+        "[w→_→]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/83.png",
+        "[w给力]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/84.png",
+        "[w囧]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/85.png",
+        "[w萌]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/86.png",
+        "[w神马]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/87.png",
+        "[w威武]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/88.png"
+      }
+    ];
+  };
+  const MTRegExp = {
+    /** 论坛账号的凭证 */
+    formhash: /formhash=(.+)&/,
+    /** 论坛账号的凭证 */
+    hash: /hash=(.+)&/,
+    /** 用户uid */
+    uid: /uid=(\d+)/,
+    /** 帖子内特殊字体格式 */
+    fontSpecial: /<font.*?>|<\/font>|<strike>|<strong>|<i>|<u>|align=".*?"|<br>[\s]*<br>[\s]*<br>/g,
+    /** 帖子链接的ptid参数 */
+    ptid: /&ptid=([\d]+)/i,
+    /** 帖子链接的pid参数 */
+    pid: /&pid=([\d]+)/i,
+    /** 链接的tid参数 */
+    tid: /&tid=([\d]+)/i
+  };
+  const GlobalImageDelete = [];
+  class MTEditorImageBed {
+    constructor(option) {
+      __publicField(this, "option");
+      __publicField(this, "$data", {
+        STORAGE_KEY: "mt-image-bed-upload-history"
+      });
+      this.option = option;
+      GlobalImageDelete.push({
+        id: this.option.id,
+        callback: this.option.delImageEvent.bind(this)
+      });
+      this.addTab();
+      domUtils.on(
+        `.comiis_post_imglist[data-chartbed="${this.option.name}"] .up_btn a`,
+        "click",
+        async (event2) => {
+          let result = await this.option.uploadBtnClickEvent(event2);
+          if (result) {
+            $(
+              `.comiis_post_imglist[data-chartbed="${this.option.name}"] input[type="file"]`
+            ).click();
+          }
+        }
+      );
+      domUtils.on(
+        `.comiis_post_imglist[data-chartbed="${this.option.name}"] input[type="file"]`,
+        "change",
+        async (event2) => {
+          let $file = event2.target;
+          if ($file.files && $file.files.length) {
+            let uploadInfo = await this.option.fileChangeEvent(
+              event2,
+              $file.files
+            );
+            $file.value = "";
+            if (uploadInfo.success) {
+              uploadInfo.data.forEach((imageInfo) => {
+                this.addImage(imageInfo);
+                let $thumbImage = this.createImageBtnElement(
+                  "插入",
+                  imageInfo.url
+                );
+                this.setImageBtnDeleteEvent($thumbImage, imageInfo);
+                domUtils.append(
+                  `.comiis_post_imglist[data-chartbed="${this.option.name}"]`,
+                  $thumbImage
+                );
+              });
+            }
+          }
+        }
+      );
+    }
+    /**
+     * 添加图床标签
+     */
+    addTab() {
+      let $picture_key = $("#comiis_pictitle_key");
+      let $history = $picture_key.querySelector(
+        "a[data-type='history']"
+      );
+      let tabHTML = (
+        /*html*/
+        `
+            <li>
+                <a href="javascript:;" class="comiis-picture-tab" data-type="image-bed">${this.option.name}</a>
+            </li>
+        `
+      );
+      if (!$history) {
+        let $history_parent = domUtils.createElement("li");
+        $history = domUtils.createElement(
+          "a",
+          {
+            href: "javascript:;",
+            className: "comiis-picture-tab",
+            innerHTML: `历史图片`
+          },
+          { "data-type": "history" }
+        );
+        domUtils.on($history, "click", () => {
+          this.initHistoryUploadImageList();
+        });
+        domUtils.append($history_parent, $history);
+        domUtils.append($picture_key, $history_parent);
+      }
+      domUtils.before($history.parentElement, tabHTML);
+      let $box = $("#comiis_pictitle_tab .bqbox_t");
+      let $historyBox = Array.from(
+        $$("#comiis_pictitle_tab .comiis_upbox")
+      ).find((item) => Boolean(item.querySelector("#imglist_history")));
+      if (!$historyBox) {
+        $historyBox = domUtils.createElement(
+          "div",
+          {
+            className: "comiis_upbox bg_f cl",
+            innerHTML: (
+              /*html*/
+              `
+					<ul class="comiis_post_imglist cl" id="imglist_history">	
+                    </ul>
+				`
+            )
+          },
+          {
+            style: "display: none;"
+          }
+        );
+        domUtils.before($box, $historyBox);
+        $historyBox = Array.from(
+          $$("#comiis_pictitle_tab .comiis_upbox")
+        ).find((item) => Boolean(item.querySelector("#imglist_history")));
+      }
+      domUtils.before(
+        $historyBox,
+        /*html*/
+        `
+            <div class="comiis_upbox bg_f cl" style="display: none;">
+                <ul class="comiis_post_imglist cl" data-chartbed="${this.option.name}">
+                    <li class="up_btn">
+                        <a href="javascript:;" class="bg_e b_ok f_d">
+                            <i class="comiis_font"></i>
+                            
+                        </a>
+                        <input type="file" name="Filedata" accept="image/*" multiple="" style="display: none;">
+                    </li>				
+                </ul>
+            </div>
+            `
+      );
+    }
+    /**
+     * 创建图片缩略图，用于插入
+     */
+    createImageBtnElement(labelName, url) {
+      let $li = domUtils.createElement("li", {
+        innerHTML: (
+          /*html*/
+          `
+            <span class="delImg" data-id="${this.option.id}" data-name="${this.option.name}">
+                <a href="javascript:;">
+                    <i class="comiis_font f_g"></i>
+                </a>
+            </span>
+            <span class="charu f_f">${labelName}</span>
+            <span class="p_img">
+                <a href="javascript:;"
+                onclick="comiis_addsmilies('[img]${url}[/img]')">
+                    <img style="height:54px;width:54px;" 
+                        title="${url}" 
+                        src="${url}" 
+                        loading="lazy"
+                        class="vm b_ok"></a>
+            </span>
+            `
+        )
+      });
+      return $li;
+    }
+    /**
+     * 初始化历史上传图片列表
+     */
+    initHistoryUploadImageList() {
+      let $imglist_history = $(
+        "#comiis_pictitle_tab #imglist_history"
+      );
+      $imglist_history.innerHTML = "";
+      let $fragment = document.createDocumentFragment();
+      this.getAllImage().forEach((item) => {
+        let $thumbImage = this.createImageBtnElement(
+          item.labelName,
+          item.data.url
+        );
+        this.setHistoryImageBtnDeleteEvent($thumbImage, item);
+        $fragment.appendChild($thumbImage);
+      });
+      $imglist_history.appendChild($fragment);
+    }
+    /**
+     * 设置图片缩略图的删除事件
+     */
+    setImageBtnDeleteEvent($ele, data) {
+      let $delImg = $ele.querySelector(".delImg");
+      domUtils.on($delImg, "click", async (event2) => {
+        let result = await this.option.delImageEvent(event2, data);
+        if (result) {
+          let deleteStorageStatus = this.deleteImage(this.option.id, data);
+          if (deleteStorageStatus) {
+            domUtils.remove($ele);
+          }
+        }
+      });
+    }
+    /**
+     * 设置历史图片图片缩略图的删除事件
+     */
+    setHistoryImageBtnDeleteEvent($ele, data) {
+      let $delImg = $ele.querySelector(".delImg");
+      domUtils.on($delImg, "click", async (event2) => {
+        let findValue = GlobalImageDelete.find((item) => item.id === data.id);
+        if (!findValue) {
+          return;
+        }
+        let result = await findValue.callback(event2, data.data);
+        if (result) {
+          let deleteStorageStatus = this.deleteImage(data.id, data.data);
+          if (deleteStorageStatus) {
+            domUtils.remove($ele);
+          }
+        }
+      });
+    }
+    /**
+     * 存储历史记录图片
+     */
+    addImage(info) {
+      let allData = _GM_getValue(this.$data.STORAGE_KEY, []);
+      allData.push({
+        id: this.option.id,
+        name: this.option.name,
+        labelName: this.option.labelName,
+        data: info
+      });
+      _GM_setValue(this.$data.STORAGE_KEY, allData);
+    }
+    /**
+     * 查询所有上传的历史图片
+     */
+    getAllImage() {
+      let allData = _GM_getValue(this.$data.STORAGE_KEY, []);
+      return allData;
+    }
+    /**
+     * 删除历史记录图片
+     */
+    deleteImage(id, data) {
+      let allData = this.getAllImage();
+      let findIndex = allData.findIndex(
+        (item) => item.id === id && JSON.stringify(item.data) === JSON.stringify(data)
+      );
+      if (findIndex != -1) {
+        allData.splice(findIndex, 1);
+        _GM_setValue(this.$data.STORAGE_KEY, allData);
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+  const MTEditorImageBed_Hello = {
+    $data: {
+      get account() {
+        return PopsPanel.getValue("mt-image-bed-hello-account");
+      },
+      get password() {
+        return PopsPanel.getValue("mt-image-bed-hello-password");
+      },
+      get token() {
+        return PopsPanel.getValue("mt-image-bed-hello-token");
+      }
+    },
+    $code: {
+      401: "未登录或授权失败",
+      403: "管理员关闭了接口功能或没有该接口权限",
+      429: "超出请求配额，请求受限",
+      500: "服务端出现异常"
+    },
+    $config: {
+      base_url: "https://www.helloimg.com/api/v1",
+      TAG: "Hello图床："
+    },
+    $tabConfig: {
+      id: "www.helloimg.com",
+      name: "Hello图床",
+      labelName: "hello"
+    },
+    init() {
+      const that = this;
+      new MTEditorImageBed({
+        id: this.$tabConfig.id,
+        name: this.$tabConfig.name,
+        labelName: this.$tabConfig.labelName,
+        async uploadBtnClickEvent(event2) {
+          return await that.checkLogin();
+        },
+        async fileChangeEvent(event2, fileList) {
+          let uploadList = [];
+          let $loading = Qmsg.loading("上传中...");
+          let flag = true;
+          for (let index = 0; index < Array.from(fileList).length; index++) {
+            const file = Array.from(fileList)[index];
+            let result = await that.uploadImage(file);
+            if (result) {
+              uploadList.push({
+                url: result.data.links.url,
+                data: result.data
+              });
+              flag = flag && true;
+            } else {
+              flag = flag && false;
+            }
+          }
+          $loading.close();
+          return {
+            success: flag,
+            data: uploadList
+          };
+        },
+        storageSaveCallBack(data) {
+          return data.data;
+        },
+        async delImageEvent(event2, data) {
+          let isLogin = await that.checkLogin();
+          if (isLogin) {
+            let $loading = Qmsg.loading("正在删除图片...");
+            let deleteResult = await that.deleteImage(data.data.key) ?? false;
+            $loading.close();
+            return deleteResult;
+          } else {
+            return false;
+          }
+        }
+      });
+    },
+    /**
+     * 检测是否登录
+     */
+    async checkLogin() {
+      if (!this.$data.account) {
+        Qmsg.error(`${this.$config.TAG}请先配置账号`);
+        return false;
+      }
+      if (!this.$data.password) {
+        Qmsg.error(`${this.$config.TAG}请先配置密码`);
+        return false;
+      }
+      if (!this.$data.token) {
+        Qmsg.error(`${this.$config.TAG}请先配置token`);
+        return false;
+      }
+      return true;
+    },
+    /**
+     * 上传图片
+     * @param imageFile
+     */
+    async uploadImage(imageFile) {
+      let formData = new FormData();
+      formData.append("file", imageFile);
+      formData.append("permission", "0");
+      formData.append("strategy_id", "0");
+      formData.append("album_id", "0");
+      let response = await httpx.post(`${this.$config.base_url}/upload`, {
+        data: formData,
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${this.$data.token}`,
+          "User-Agent": utils.getRandomPCUA(),
+          Referer: `${this.$config.base_url}/`,
+          Origin: this.$config.base_url
+        },
+        allowInterceptConfig: false
+      });
+      if (response.data.status in this.$code) {
+        Qmsg.error(this.$config.TAG + this.$code[response.data.status]);
+        return;
+      }
+      let data = utils.toJSON(response.data.responseText);
+      if (!data.status) {
+        Qmsg.error(this.$config.TAG + data.message);
+        return;
+      }
+      log.info(data);
+      Qmsg.success(this.$config.TAG + "上传成功");
+      let file_reader = new FileReader();
+      file_reader.readAsDataURL(imageFile);
+      return await new Promise((resolve) => {
+        file_reader.onload = function() {
+          let imageUri = this.result;
+          let result = {
+            imageUri,
+            data: data.data
+          };
+          resolve(result);
+        };
+      });
+    },
+    /**
+     * 删除图片
+     * @param imageKey 删除的key
+     */
+    async deleteImage(imageKey) {
+      let response = await httpx.delete(
+        this.$config.base_url + "/images/" + imageKey,
+        {
+          timeout: 15e3,
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${this.$data.token}`,
+            "User-Agent": utils.getRandomPCUA(),
+            Referer: `${this.$config.base_url}/`,
+            Origin: this.$config.base_url
+          },
+          allowInterceptConfig: false
+        }
+      );
+      if (response.data.status in this.$code) {
+        Qmsg.error(this.$config.TAG + this.$code[response.data.status]);
+        return false;
+      }
+      let data = utils.toJSON(response.data.responseText);
+      if (!data.status) {
+        Qmsg.error(this.$config.TAG + data.message);
+        return false;
+      }
+      Qmsg.success(this.$config.TAG + "删除成功");
+      return true;
+    }
+  };
+  const MTEditorImageBed_MT = {
+    $data: {
+      csrf_token: null
+    },
+    $config: {
+      TAG: "MT图床：",
+      base_url: "https://img.binmt.cc"
+    },
+    $tabConfig: {
+      id: "img.binmt.cc",
+      name: "MT图床",
+      labelName: "mt"
+    },
+    init() {
+      const that = this;
+      new MTEditorImageBed({
+        id: this.$tabConfig.id,
+        name: this.$tabConfig.name,
+        labelName: this.$tabConfig.labelName,
+        async uploadBtnClickEvent(event2) {
+          return await that.checkLogin();
+        },
+        async fileChangeEvent(event2, fileList) {
+          let uploadList = [];
+          let $loading = Qmsg.loading("上传中...");
+          let flag = true;
+          for (let index = 0; index < Array.from(fileList).length; index++) {
+            const file = Array.from(fileList)[index];
+            let result = await that.uploadImage(file);
+            if (result) {
+              uploadList.push({
+                url: result.data.links.url,
+                data: result.data
+              });
+              flag = flag && true;
+            } else {
+              flag = flag && false;
+            }
+          }
+          $loading.close();
+          return {
+            success: flag,
+            data: uploadList
+          };
+        },
+        storageSaveCallBack(data) {
+          return data.data;
+        },
+        async delImageEvent(event2, data) {
+          return true;
+        }
+      });
+    },
+    /**
+     * 检测是否登录
+     */
+    async checkLogin() {
+      if (!this.$data.csrf_token) {
+        let $loading = Qmsg.loading("正在获取CSRF Token中...");
+        let csrf_token = await this.getCSRFToken();
+        $loading.close();
+        if (!csrf_token) {
+          return false;
+        }
+        this.$data.csrf_token = csrf_token;
+      }
+      return true;
+    },
+    /**
+     * 获取MT图床的CSRF参数
+     */
+    async getCSRFToken() {
+      var _a2;
+      let response = await httpx.get(this.$config.base_url, {
+        allowInterceptConfig: false,
+        headers: {
+          "User-Agent": utils.getRandomPCUA(),
+          Referer: this.$config.base_url + "/",
+          Origin: this.$config.base_url
+        }
+      });
+      if (!response.status) {
+        Qmsg.error(this.$config.TAG + "获取CSRF Token失败，网络异常");
+        return;
+      }
+      let doc = domUtils.parseHTML(response.data.responseText, true, true);
+      let metaCSRFToken = (_a2 = doc.querySelector('meta[name="csrf-token"]')) == null ? void 0 : _a2.getAttribute("content");
+      if (!metaCSRFToken) {
+        return;
+      }
+      log.info("获取的CSRF token：", metaCSRFToken);
+      Qmsg.success(this.$config.TAG + "获取CSRF Token成功");
+      return metaCSRFToken;
+    },
+    /**
+     * 上传图片
+     * @param imageFile
+     */
+    async uploadImage(imageFile) {
+      let formData = new FormData();
+      formData.append("strategy_id", "2");
+      formData.append("file", imageFile);
+      let response = await httpx.post(`${this.$config.base_url}/upload`, {
+        data: formData,
+        headers: {
+          Accept: "application/json, text/javascript, */*; q=0.01",
+          "User-Agent": utils.getRandomAndroidUA(),
+          Origin: this.$config.base_url,
+          pragma: "no-cache",
+          "Accept-Encoding": "gzip, deflate, br",
+          "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+          Referer: this.$config.base_url + "/",
+          Pragma: "no-cache",
+          "x-csrf-token": this.$data.csrf_token,
+          "X-Requested-With": "XMLHttpRequest"
+        },
+        allowInterceptConfig: false
+      });
+      let data = utils.toJSON(response.data.responseText);
+      if (!data.status) {
+        Qmsg.error(this.$config.TAG + data.message);
+        return;
+      }
+      log.info(data);
+      Qmsg.success(this.$config.TAG + "上传成功");
+      let file_reader = new FileReader();
+      file_reader.readAsDataURL(imageFile);
+      return await new Promise((resolve) => {
+        file_reader.onload = function() {
+          let imageUri = this.result;
+          let result = {
+            imageUri,
+            data: data.data
+          };
+          resolve(result);
+        };
+      });
+    }
+  };
+  const MTQuickUBB = () => {
+    return {
+      rainbow1: {
+        key: "转普通彩虹",
+        value: "",
+        isFunc: true,
+        num: 1
+      },
+      rainbow2: {
+        key: "转黑白彩虹",
+        value: "",
+        isFunc: true,
+        num: 2
+      },
+      rainbow3: {
+        key: "转黑红彩虹",
+        value: "",
+        isFunc: true,
+        num: 3
+      },
+      rainbow4: {
+        key: "转蓝绿彩虹",
+        value: "",
+        isFunc: true,
+        num: 4
+      },
+      size: {
+        key: "大小",
+        value: "[size=][/size]",
+        tagL: "=",
+        tagR: "]",
+        L: "[size=]",
+        R: "[/size]",
+        cursorL: "[size=",
+        cursorLength: 6,
+        quickUBBReplace: "[size=14]replace[/size]"
+      },
+      color: {
+        key: "颜色",
+        value: "[color=][/color]",
+        tagL: "=",
+        tagR: "]",
+        L: "[color=]",
+        R: "[/color]",
+        cursorL: "[color=",
+        cursorLength: 7,
+        quickUBBReplace: "[color=#000]replace[/color]"
+      },
+      b: {
+        key: "加粗",
+        value: "[b][/b]",
+        tagL: "]",
+        tagR: "[",
+        L: "[b]",
+        R: "[/b]",
+        cursorR: "[/b]",
+        cursorLength: 4,
+        quickUBBReplace: "[b]replace[/b]"
+      },
+      u: {
+        key: "下划线",
+        value: "[u][/u]",
+        tagL: "]",
+        tagR: "[",
+        L: "[u]",
+        R: "[/u]",
+        cursorR: "[/u]",
+        cursorLength: 4,
+        quickUBBReplace: "[u]replace[/u]"
+      },
+      i: {
+        key: "倾斜",
+        value: "[i][/i]",
+        tagL: "]",
+        tagR: "[",
+        L: "[i]",
+        R: "[/i]",
+        cursorR: "[/i]",
+        cursorLength: 4,
+        quickUBBReplace: "[i]replace[/i]"
+      },
+      s: {
+        key: "中划线",
+        value: "[s][/s]",
+        tagL: "]",
+        tagR: "[",
+        L: "[s]",
+        R: "[/s]",
+        cursorR: "[/s]",
+        cursorLength: 4,
+        quickUBBReplace: "[s]replace[/s]"
+      },
+      lineFeed: {
+        key: "换行",
+        value: "[*]",
+        L: "",
+        R: "[*]",
+        cursorL: "[*]",
+        cursorLength: 3,
+        quickUBBReplace: "replace[*]"
+      },
+      longHorizontalLine: {
+        key: "水平线",
+        value: "[hr]",
+        L: "",
+        R: "[hr]",
+        cursorL: "[hr]",
+        cursorLength: 4,
+        quickUBBReplace: "replace[hr]"
+      },
+      link: {
+        key: "链接",
+        value: "[url=][/url]",
+        tagL: "=",
+        tagR: "]",
+        L: "[url=]",
+        R: "[/url]",
+        cursorL: "[url=",
+        cursorLength: 5,
+        quickUBBReplace: "[url=replace]replace[/url]"
+      },
+      hide: {
+        key: "隐藏",
+        value: "[hide]\n[/hide]",
+        tagL: "]",
+        tagR: "[",
+        L: "[hide]",
+        R: "[/hide]",
+        cursorR: "[/hide]",
+        cursorLength: 7,
+        quickUBBReplace: "[hide]replace\n[/hide]"
+      },
+      quote: {
+        key: "引用",
+        value: "[quote][/quote]",
+        tagL: "]",
+        tagR: "[",
+        L: "[quote]",
+        R: "[/quote]",
+        cursorR: "[/quote]",
+        cursorLength: 8,
+        quickUBBReplace: "[quote]replace[/quote]"
+      },
+      email: {
+        key: "邮件",
+        value: "[email=][/email]",
+        tagL: "=",
+        tagR: "]",
+        L: "[email=]",
+        R: "[/email]",
+        cursorL: "[email=",
+        cursorLength: 7,
+        quickUBBReplace: "[email=replace]replace[/email]"
+      }
+    };
+  };
+  const MTUBB_Rainbow = (num, text) => {
+    if (text == "") {
+      return "";
+    }
+    var wr_text = text;
+    var wr_code, wr_rgb, r, g, b, i, j, istep;
+    r = 0;
+    g = 0;
+    b = 0;
+    istep = 0;
+    wr_code = "";
+    if (num == 1) {
+      istep = 40;
+      r = 255;
+      i = 1;
+      j = 0;
+      do {
+        if (wr_text.charCodeAt(j) != 32) {
+          if (g + istep < 256) {
+            if (i == 1) g += istep;
+          } else if (i == 1) {
+            i = 2;
+            g = 255;
+          }
+          if (r - istep > -1) {
+            if (i == 2) r -= istep;
+          } else if (i == 2) {
+            i = 3;
+            r = 0;
+          }
+          if (b + istep < 256) {
+            if (i == 3) b += istep;
+          } else if (i == 3) {
+            i = 4;
+            b = 255;
+          }
+          if (g - istep > -1) {
+            if (i == 4) g -= istep;
+          } else if (i == 4) {
+            i = 5;
+            g = 0;
+          }
+          if (r + istep < 256) {
+            if (i == 5) r += istep;
+          } else if (i == 5) {
+            i = 6;
+            r = 255;
+          }
+          if (b - istep > -1) {
+            if (i == 6) b -= istep;
+          } else if (i == 6) {
+            i = 1;
+            b = 0;
+          }
+          wr_rgb = "";
+          wr_rgb += // @ts-ignore
+          parseInt(r).toString(16).length == 1 ? (
+            // @ts-ignore
+            0 + parseInt(r).toString(16)
+          ) : (
+            // @ts-ignore
+            parseInt(r).toString(16)
+          );
+          wr_rgb += // @ts-ignore
+          parseInt(g).toString(16).length == 1 ? (
+            // @ts-ignore
+            0 + parseInt(g).toString(16)
+          ) : (
+            // @ts-ignore
+            parseInt(g).toString(16)
+          );
+          wr_rgb += // @ts-ignore
+          parseInt(b).toString(16).length == 1 ? (
+            // @ts-ignore
+            0 + parseInt(b).toString(16)
+          ) : (
+            // @ts-ignore
+            parseInt(b).toString(16)
+          );
+          wr_rgb = wr_rgb.toUpperCase();
+          wr_code += `[color=#${wr_rgb}]${wr_text.charAt(j)}[/color]`;
+        } else {
+          wr_code += wr_text.charAt(j);
+        }
+        j++;
+      } while (j < wr_text.length);
+    } else if (num == 2) {
+      istep = 255 / wr_text.length;
+      for (i = 1; i < wr_text.length + 1; i++) {
+        if (wr_text.charCodeAt(i - 1) != 32) {
+          r += istep;
+          g += istep;
+          b += istep;
+          if (r > 255) r = 255;
+          if (g > 255) g = 255;
+          if (b > 255) b = 255;
+          wr_rgb = "";
+          wr_rgb += // @ts-ignore
+          parseInt(r).toString(16).length == 1 ? (
+            // @ts-ignore
+            0 + parseInt(r).toString(16)
+          ) : (
+            // @ts-ignore
+            parseInt(r).toString(16)
+          );
+          wr_rgb += // @ts-ignore
+          parseInt(g).toString(16).length == 1 ? (
+            // @ts-ignore
+            0 + parseInt(g).toString(16)
+          ) : (
+            // @ts-ignore
+            parseInt(g).toString(16)
+          );
+          wr_rgb += // @ts-ignore
+          parseInt(b).toString(16).length == 1 ? (
+            // @ts-ignore
+            0 + parseInt(b).toString(16)
+          ) : (
+            // @ts-ignore
+            parseInt(b).toString(16)
+          );
+          wr_rgb = wr_rgb.toUpperCase();
+          wr_code += `[color=#${wr_rgb}]${wr_text.charAt(i - 1)}[/color]`;
+        } else {
+          wr_code += wr_text.charAt(i - 1);
+        }
+      }
+    } else if (num == 3) {
+      istep = 255 / wr_text.length;
+      for (i = 1; i < wr_text.length + 1; i++) {
+        if (wr_text.charCodeAt(i - 1) != 32) {
+          r += istep;
+          g = 29;
+          b = 36;
+          if (r > 255) r = 255;
+          if (g > 255) g = 255;
+          if (b > 255) b = 255;
+          wr_rgb = "";
+          wr_rgb += // @ts-ignore
+          parseInt(r).toString(16).length == 1 ? (
+            // @ts-ignore
+            0 + parseInt(r).toString(16)
+          ) : (
+            // @ts-ignore
+            parseInt(r).toString(16)
+          );
+          wr_rgb += // @ts-ignore
+          parseInt(g).toString(16).length == 1 ? (
+            // @ts-ignore
+            0 + parseInt(g).toString(16)
+          ) : (
+            // @ts-ignore
+            parseInt(g).toString(16)
+          );
+          wr_rgb += // @ts-ignore
+          parseInt(b).toString(16).length == 1 ? (
+            // @ts-ignore
+            0 + parseInt(b).toString(16)
+          ) : (
+            // @ts-ignore
+            parseInt(b).toString(16)
+          );
+          wr_rgb = wr_rgb.toUpperCase();
+          wr_code += `[color=#${wr_rgb}]${wr_text.charAt(i - 1)}[/color]`;
+        } else {
+          wr_code += wr_text.charAt(i - 1);
+        }
+      }
+    } else if (num == 4) {
+      istep = 255 / wr_text.length;
+      for (i = 1; i < wr_text.length + 1; i++) {
+        if (wr_text.charCodeAt(i - 1) != 32) {
+          r = 0;
+          g = 174;
+          b += istep;
+          if (r > 255) r = 255;
+          if (g > 255) g = 255;
+          if (b > 255) b = 255;
+          wr_rgb = "";
+          wr_rgb += // @ts-ignore
+          parseInt(r).toString(16).length == 1 ? (
+            // @ts-ignore
+            0 + parseInt(r).toString(16)
+          ) : (
+            // @ts-ignore
+            parseInt(r).toString(16)
+          );
+          wr_rgb += // @ts-ignore
+          parseInt(g).toString(16).length == 1 ? (
+            // @ts-ignore
+            0 + parseInt(g).toString(16)
+          ) : (
+            // @ts-ignore
+            parseInt(g).toString(16)
+          );
+          wr_rgb += // @ts-ignore
+          parseInt(255 - b).toString(16).length == 1 ? (
+            // @ts-ignore
+            0 + parseInt(255 - b).toString(16)
+          ) : (
+            // @ts-ignore
+            parseInt(255 - b).toString(16)
+          );
+          wr_rgb = wr_rgb.toUpperCase();
+          wr_code += `[color=#${wr_rgb}]${wr_text.charAt(i - 1)}[/color]`;
+        } else {
+          wr_code += wr_text.charAt(i - 1);
+        }
+      }
+    }
+    return wr_code;
+  };
+  const ExtendJQueryFn = function() {
+    _unsafeWindow.$.fn.extend({
+      insertAtCaret: function(myValue) {
+        var $t = _unsafeWindow.$(this)[0];
+        if (document.selection) {
+          this.focus();
+          var sel = document.selection.createRange();
+          sel.text = myValue;
+          this.focus();
+        } else if ($t.selectionStart || $t.selectionStart == "0") {
+          var startPos = $t.selectionStart;
+          var endPos = $t.selectionEnd;
+          var scrollTop = $t.scrollTop;
+          $t.value = $t.value.substring(0, startPos) + myValue + $t.value.substring(endPos, $t.value.length);
+          this.focus();
+          $t.selectionStart = startPos + myValue.length;
+          $t.selectionEnd = startPos + myValue.length;
+          $t.scrollTop = scrollTop;
+        } else {
+          this.value += myValue;
+          this.focus();
+        }
+      },
+      selectRange: function(start, end) {
+        if (end === void 0) {
+          end = start;
+        }
+        return this.each(function() {
+          if ("selectionStart" in this) {
+            this.selectionStart = start;
+            this.selectionEnd = end;
+          } else if (this.setSelectionRange) {
+            this.setSelectionRange(start, end);
+          } else if (this.createTextRange) {
+            var range = this.createTextRange();
+            range.collapse(true);
+            range.moveEnd("character", end);
+            range.moveStart("character", start);
+            range.select();
+          }
+        });
+      },
+      getCursorPosition: function() {
+        var el = _unsafeWindow.$(this)[0];
+        var pos = 0;
+        if ("selectionStart" in el) {
+          pos = el.selectionStart;
+        } else if ("selection" in document) {
+          el.focus();
+          var Sel = document.selection.createRange();
+          var SelLength = document.selection.createRange().text.length;
+          Sel.moveStart("character", -el.value.length);
+          pos = Sel.text.length - SelLength;
+        }
+        return pos;
+      },
+      moveCursorInCenterByText: function(leftTextFlag, rightTextFlag) {
+        var el = _unsafeWindow.$(this)[0];
+        var el_text = el.value;
+        for (let i = el.selectionStart - 1; i > 0; i--) {
+          let LText = el_text[i - 1];
+          let currentText = el_text[i];
+          if (LText == leftTextFlag && currentText == rightTextFlag) {
+            this.selectRange(i);
+            break;
+          }
+        }
+      },
+      moveCursorToCenterByTextWithLeft: function(leftMatchText, _length_) {
+        var el = _unsafeWindow.$(this)[0];
+        var el_text = el.value;
+        for (let index = el.selectionStart - 1; index > 0; index--) {
+          let lTexts = el_text.substring(index - _length_, index);
+          if (lTexts == leftMatchText) {
+            this.selectRange(index);
+            break;
+          }
+        }
+      },
+      moveCursorToCenterByTextWithRight: function(rightMatchText, _length_) {
+        var el = _unsafeWindow.$(this)[0];
+        var el_text = el.value;
+        for (let i = el.selectionStart - 1; i > 0; i--) {
+          let rTexts = el_text.substring(i, i + _length_);
+          if (rTexts == rightMatchText) {
+            this.selectRange(i + _length_);
+            break;
+          }
+        }
+      }
+    });
+  };
+  let error_code = {
+    1: {
+      error_match: "抱歉，您填写的内容包含敏感词而无法提交",
+      popup_text: "抱歉，您填写的内容包含敏感词而无法提交"
+    },
+    2: {
+      error_match: "抱歉，管理员设置了本版块发表于 30 天以前的主题自动关闭，不再接受新回复",
+      popup_text: "抱歉，管理员设置了本版块发表于 30 天以前的主题自动关闭，不再接受新回复"
+    },
+    3: {
+      error_match: "抱歉，本主题已关闭，不再接受新内容",
+      popup_text: "抱歉，本主题已关闭，不再接受新内容"
+    },
+    4: {
+      error_match: "抱歉，管理员设置了本版块发表于 30 天以前的主题自动关闭，不再接受新回复",
+      popup_text: "抱歉，管理员设置了本版块发表于 30 天以前的主题自动关闭，不再接受新回复"
+    },
+    5: {
+      error_match: "抱歉，您的帖子小于 10 个字符的限制",
+      popup_text: "抱歉，您的帖子小于 10 个字符的限制"
+    }
+  };
+  let tempReplyBtnNode = null;
+  const MTEditorOptimizationNormal = {
+    $data: {
+      isUBBCodeInsertClick: false,
+      db: new Utils.indexedDB("mt_reply_record", "input_text"),
+      forum_action: null,
+      get tid() {
+        return MTUtils.getThreadId(window.location.href);
+      }
+    },
+    $el: {
+      /** 点赞按钮 */
+      $like: null,
+      /** 发表按钮 */
+      $btn_submit: null,
+      /** 输入框 */
+      $input: null,
+      /** 表单元素 */
+      $form: null,
+      /** 发表|回复按钮 */
+      $fastpostsubmit: null
+    },
+    init() {
+      log.info(`编辑器优化-简略版`);
+      addStyle(optimizationCSS$1);
+      this.overridePageEditor();
+    },
+    /**
+     * 覆盖页面的编辑器
+     */
+    overridePageEditor() {
+      let $old_commentIcon = document.querySelector(
+        "#comiis_foot_memu .comiis_flex li:nth-child(2)"
+      );
+      let $old_linkIcon = document.querySelector(
+        "#comiis_foot_memu .comiis_flex li:nth-child(3)"
+      );
+      let $old_collectIcon = document.querySelector(
+        "#comiis_foot_memu .comiis_flex li:nth-child(4)"
+      );
+      this.$el.$form = document.querySelector("#fastpostform");
+      this.$data.forum_action = this.$el.$form.getAttribute("action");
+      let forum_serialize = domUtils.serialize(this.$el.$form);
+      let forum_url = document.querySelector(
+        "#fastpostform .header_y a"
+      ).href;
+      domUtils.remove("#needmessage[name='message']");
+      domUtils.remove("#imglist");
+      domUtils.remove("#fastpostsubmitline");
+      domUtils.remove("#fastpostsubmit");
+      let $footMenu = document.querySelector("#comiis_foot_memu");
+      domUtils.hide($footMenu, false);
+      let smiliesList = MTEditorSmilies();
+      let first_smilies = Object.keys(smiliesList[0]).map((key) => {
+        let smilies_url = smiliesList[0][key];
+        return (
+          /*html*/
+          `<li><a href="javascript:;" onclick="comiis_addsmilies('${key}');"><img loading="lazy" data-src="${smilies_url}" class="vm"></a></li>`
+        );
+      });
+      let second_smilies = Object.keys(smiliesList[1]).map((key) => {
+        let smilies_url = smiliesList[1][key];
+        return (
+          /*html*/
+          `<li><a href="javascript:;" onclick="comiis_addsmilies('${key}');"><img loading="lazy" data-src="${smilies_url}" class="vm"></a></li>`
+        );
+      });
+      let third_smilies = Object.keys(smiliesList[2]).map((key) => {
+        let smilies_url = smiliesList[2][key];
+        return (
+          /*html*/
+          `<li><a href="javascript:;" onclick="comiis_addsmilies('${key}');"><img loading="lazy" data-src="${smilies_url}" class="vm"></a></li>`
+        );
+      });
+      domUtils.after(
+        $footMenu,
+        /*html*/
+        `
+            <div id="comiis_foot_menu_beautify" class="bg_f b_t">
+                <div class="reply_area">
+                    <ul>
+                        <li data-attr="回帖"><input type="text" class="bg_e f_c" placeholder="发帖千百度，文明第一步" readonly="readonly"></li>
+                        <li data-attr="评论数量">${$old_commentIcon.innerHTML}</li>
+                        <li data-attr="点赞">${$old_linkIcon.innerHTML}</li>
+                        <li data-attr="收藏">${$old_collectIcon.innerHTML}</li>
+                    </ul>
+                </div>
+            </div>
+            <div id="comiis_foot_menu_beautify_big" data-model="comment" class="bg_f b_t" style="display:none;">
+                <div class="reply_area">
+                    <div class="reply_user_content" style="display:none;"></div>
+                    <ul>
+                        <li data-attr="回帖"><textarea id="needmessage" placeholder="发帖千百度，文明第一步"></textarea></li>
+                        <li data-attr="发表">
+                            <div class="fastpostform_new"><a href="${forum_url}" data-comment-url="${forum_url}" target="_blank"><i class="comiis_font f_d"></i></a></div>
+                            <div id="fastpostsubmitline"><input data-comment-url="${forum_url}" data-comment-action="${this.$data.forum_action}" data-comment-serialize="${forum_serialize}" data-text="false" type="button" value="发表" name="replysubmit" id="fastpostsubmit" comiis="handle"></div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="other_area">
+                    <div class="menu_icon">
+                        <a href="javascript:;" class="comiis_pictitle"><i class="comiis_font"></i></a>
+                        <a href="javascript:;" class="comiis_smile"><i class="comiis_font"></i></a>
+                        <a href="javascript:;" class="commis_insert_bbs"><i class="comiis_font"></i></a>
+                    </div>
+                    <div class="menu_body">
+                        <div id="comiis_pictitle_tab">
+                            <!-- 列表项 -->
+                            <div class="comiis_upbox bg_f cl">
+                                <ul id="imglist" class="comiis_post_imglist cl">
+                                    <li class="up_btn">
+                                        <a href="javascript:;" class="bg_e b_ok f_d">
+                                            <i class="comiis_font"></i>
+                                        </a>
+                                        <input type="file" name="Filedata" id="filedata" accept="image/*" multiple>
+                                    </li>				
+                                </ul>
+                             </div>
+                             <!-- 菜单项 -->
+                             <div class="bqbox_t">
+                                <ul id="comiis_pictitle_key">
+                                    <li class="bg_f" id="comiis_pictitle_tab_n_1"><a href="javascript:;" class="">论坛</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div id="comiis_post_tab" class="comiis_bqbox">
+                            <div class="comiis_smiley_box swiper-container-horizontal swiper-container-android">
+                                <div class="swiper-wrapper bqbox_c comiis_optimization">
+                                    <div class="swiper-slide">
+                                        ${first_smilies.join("\n")}
+                                    </div>
+    
+                                    <div class="swiper-slide" style="display: none;">
+                                        ${second_smilies.join("\n")}
+                                    </div>
+                                    
+                                    <div class="swiper-slide" style="display: none;">
+                                        ${third_smilies.join("\n")}    
+                                    </div>
+                                </div>
+                                <div class="bqbox_t">
+                                    <ul id="comiis_smilies_key">
+                                        <li>
+                                            <a href="javascript:;" id="comiis_smilies_tab_n_1" class="bg_f b_l b_r">
+                                                <img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq063.gif" class="vm">
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="javascript:;" id="comiis_smilies_tab_n_2" class="">
+                                                <img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_10.png" class="vm">
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="javascript:;" id="comiis_smilies_tab_n_3" class="">
+                                                <img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/21.png" class="vm">
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="comiis_insert_ubb_tab" style="display: none;">
+                            <div class="bg_f comiis_input_style">
+                                <div class="comiis_post_urlico b_b">
+                                    <ul id="comiis_insert_ubb_tab_list">
+                                        
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `
+      );
+      $(
+        "#comiis_foot_menu_beautify .comiis_position_key"
+      );
+      this.$el.$like = $(
+        "#comiis_foot_menu_beautify .comiis_recommend_addkey"
+      );
+      $(
+        "#comiis_foot_menu_beautify #comiis_favorite_a"
+      );
+      $("#comiis_pictitle_key");
+      this.$el.$btn_submit = $(
+        '#comiis_foot_menu_beautify_big li[data-attr="发表"] input'
+      );
+      this.$el.$input = $(
+        "#comiis_foot_menu_beautify_big textarea"
+      );
+      this.$el.$fastpostsubmit = $("#fastpostsubmit");
+      _unsafeWindow.textarea_scrollHeight = () => {
+      };
+      if (typeof _unsafeWindow.comiis_addsmilies == "function") {
+        _unsafeWindow.comiis_addsmilies = (smilies_text) => {
+          _unsafeWindow.$("#needmessage").comiis_insert(smilies_text);
+          _unsafeWindow.$("#needmessage")[0].dispatchEvent(new Event("propertychange"));
+        };
+      }
+      _unsafeWindow.$("#imglist .up_btn").append(_unsafeWindow.$("#filedata"));
+      _unsafeWindow.$(document).on("click", "#imglist .up_btn a", function() {
+        _unsafeWindow.$(this).next().click();
+      });
+      _unsafeWindow.$(document).on("click", "#imglist .p_img a", function() {
+        let obj = _unsafeWindow.$(this);
+        if (obj.attr("onclick") == null) {
+          let img_id = obj.find("img").attr("id").replace("aimg_", "");
+          _unsafeWindow.comiis_addsmilies(`[attachimg]${img_id}[/attachimg]`);
+        }
+      });
+      domUtils.hide("#comiis_foot_menu_beautify_big .menu_body", false);
+      this.setInputChangeEvent();
+      this.setLikeBtnClickEvent();
+      this.setSubmitBtnClickEvent();
+      this.setGlobalReplyBtnClickEvent();
+      this.setGlobalClickCheckEvent();
+      this.setMenuIconToggleEvent();
+      this.setMenuImageClickEvent();
+      this.setMenuImageToggleEvent();
+      this.setMenuSmileClickEvent();
+      this.setMenuSmileTabClickEvent();
+      this.setMenuInsertClickEvent();
+      this.setMenuQuickUBB();
+      PopsPanel.execMenu(
+        "mt-forum-post-editorOptimizationNormal-recordInputText",
+        () => {
+          this.initReplyText();
+          this.setInputChangeSaveEvent();
+        }
+      );
+      PopsPanel.execMenuOnce("mt-image-bed-hello-enable", () => {
+        MTEditorImageBed_Hello.init();
+      });
+      PopsPanel.execMenuOnce("mt-image-bed-mt-enable", () => {
+        MTEditorImageBed_MT.init();
+      });
+    },
+    /**
+     * 处理错误的响应
+     * @param text
+     */
+    handle_error(text) {
+      let return_status = false;
+      let messagetext = domUtils.text(
+        domUtils.parseHTML(text, false, false).querySelector(
+          "#messagetext"
+        )
+      );
+      if (!messagetext || typeof messagetext === "string" && messagetext.trim() == "") {
+        return return_status;
+      }
+      Object.keys(error_code).forEach((item) => {
+        let value = error_code[item];
+        if (messagetext.indexOf(value.error_match) != -1) {
+          if (messagetext.indexOf(`typeof errorhandle_=='function'`) != -1) {
+            Qmsg.error(value.popup_text);
+          }
+          return_status = true;
+          return;
+        }
+      });
+      return return_status;
+    },
+    /**
+     * 监听输入框内容改变
+     */
+    setInputChangeEvent() {
+      const that = this;
+      domUtils.on(that.$el.$input, ["input", "propertychange"], function(event2) {
+        var _a2, _b;
+        let inputText = that.$el.$input.value;
+        if (inputText === "") {
+          that.$el.$btn_submit.setAttribute("data-text", "false");
+          (_a2 = $(
+            "#comiis_foot_menu_beautify li[data-attr='回帖'] input"
+          )) == null ? void 0 : _a2.setAttribute("placeholder", "发帖千百度，文明第一步");
+        } else {
+          that.$el.$btn_submit.setAttribute("data-text", "true");
+          (_b = $(
+            "#comiis_foot_menu_beautify li[data-attr='回帖'] input"
+          )) == null ? void 0 : _b.setAttribute("placeholder", "[草稿待发送]");
+        }
+        domUtils.css(that.$el.$input, "height", "70px");
+        domUtils.css(
+          that.$el.$input,
+          "height",
+          that.$el.$input.scrollHeight - 20 + "px"
+        );
+      });
+    },
+    /**
+     * 监听输入框内容改变并保存到indexDB
+     */
+    setInputChangeSaveEvent() {
+      const that = this;
+      domUtils.on(this.$el.$input, ["input", "propertychange"], (event2) => {
+        let inputText = that.$el.$input.value;
+        let $reply = that.$el.$input.closest(".reply_area").querySelector(".reply_user_content");
+        let replyUrl = $reply.getAttribute("data-reply-url");
+        let data = {
+          url: window.location.href,
+          text: inputText,
+          repquote: replyUrl ? MTUtils.getRepquote(replyUrl) : void 0,
+          forumId: that.$data.tid
+        };
+        that.$data.db.get("data").then((result) => {
+          if (!result.success || result.code === 201) {
+            console.warn(result);
+            return;
+          }
+          let localDataIndex = result.data.findIndex((item) => {
+            return item.forumId === data.forumId && item.repquote === data.repquote;
+          });
+          if (localDataIndex !== -1) {
+            if (inputText == null || inputText === "") {
+              result.data.splice(localDataIndex, 1);
+            } else {
+              result.data[localDataIndex] = utils.assign(
+                result.data[localDataIndex],
+                {
+                  text: data.text
+                }
+              );
+            }
+          } else {
+            result.data.push(data);
+          }
+          that.$data.db.save("data", result.data).then((result2) => {
+          });
+        });
+      });
+    },
+    /**
+     * 把存储回复框的内容设置到输入框中
+     * @param isUserReply 是否是来自点击回复的
+     * @param replyUrl 回复的url
+     */
+    async initReplyText(isUserReply = false, replyUrl = void 0) {
+      const that = this;
+      let initResult = await this.$data.db.get(
+        "data"
+      );
+      if (initResult.code === 201) {
+        await this.$data.db.save("data", []);
+      }
+      let queryResult = await this.$data.db.get(
+        "data"
+      );
+      if (!queryResult.success || queryResult.code === 201) {
+        console.warn(queryResult);
+        return;
+      }
+      let repquote = void 0;
+      if (replyUrl) {
+        repquote = MTUtils.getRepquote(replyUrl);
+      }
+      let localReplyData = queryResult.data.find((item) => {
+        if (isUserReply) {
+          return item.forumId === that.$data.tid && item.repquote == repquote;
+        } else {
+          return item.forumId === that.$data.tid && item.repquote == null;
+        }
+      });
+      if (localReplyData) {
+        domUtils.val(this.$el.$input, localReplyData.text);
+        utils.dispatchEvent(this.$el.$input, "input");
+      }
+    },
+    /**
+     * 设置点赞按钮点击事件
+     */
+    setLikeBtnClickEvent() {
+      domUtils.on(this.$el.$like, "click", async (event2) => {
+        var _a2, _b;
+        utils.preventEvent(event2);
+        if (_unsafeWindow.comiis_recommend_key == 0) {
+          _unsafeWindow.comiis_recommend_key = 1;
+          let response = await httpx.get(this.$el.$like.href + "&inajax=1", {
+            headers: {
+              Accept: "application/xml, text/xml, */*; q=0.01"
+            },
+            allowInterceptConfig: false
+          });
+          if (!response.status) {
+            window.location.href = this.$el.$like.href;
+            setTimeout(function() {
+              _unsafeWindow.comiis_recommend_key = 0;
+            }, 500);
+            return;
+          }
+          let xmlDoc = utils.parseFromString(
+            response.data.responseText,
+            "text/xml"
+          );
+          let resultText = (_b = (_a2 = xmlDoc.lastChild) == null ? void 0 : _a2.firstChild) == null ? void 0 : _b.nodeValue;
+          if (resultText.includes("您已评价过本主题")) {
+            let tid = this.$el.$like.href.match(MTRegExp.tid)[1];
+            let response2 = await httpx.get(
+              `plugin.php?id=comiis_app&comiis=re_recommend&tid=${tid}&inajax=1`,
+              {
+                headers: {
+                  Accept: "application/xml, text/xml, */*; q=0.01"
+                },
+                allowInterceptConfig: false
+              }
+            );
+            if (!response2.status) {
+              Qmsg.error("取消点赞失败，网络异常");
+              return;
+            }
+            var recommend_num = Number(domUtils.text("#comiis_recommend_num"));
+            if (document.querySelectorAll(".comiis_recommend_list_a").length > 0) {
+              domUtils.remove("#comiis_recommend_list_a" + _unsafeWindow.uid);
+            }
+            if (document.querySelectorAll(".comiis_recommend_list_s").length > 0) {
+              domUtils.remove("#comiis_recommend_list_s" + _unsafeWindow.uid);
+            }
+            if (document.querySelectorAll(".comiis_recommend_list_t").length > 0) {
+              domUtils.remove("#comiis_recommend_list_t" + _unsafeWindow.uid);
+            }
+            if (recommend_num > 1) {
+              domUtils.text(
+                ".comiis_recommend_num",
+                recommend_num - Number(_unsafeWindow.allowrecommend)
+              );
+              domUtils.text(
+                ".comiis_recommend_nums",
+                "+" + (recommend_num - Number(_unsafeWindow.allowrecommend))
+              );
+            } else {
+              domUtils.remove("#comiis_recommend_num");
+              domUtils.text(".comiis_recommend_nums", "");
+              if (document.querySelectorAll(".comiis_recommend_list_a").length > 0) {
+                domUtils.empty(".comiis_recommend_list_a");
+                domUtils.removeClass(
+                  ".comiis_recommend_list_a",
+                  "comiis_recommend_list_on"
+                );
+              }
+              if (document.querySelectorAll(".comiis_recommend_list_t").length > 0) {
+                domUtils.removeClass(
+                  ".comiis_recommend_list_t",
+                  "comiis_recommend_list_on"
+                );
+              }
+            }
+            domUtils.html(".comiis_recommend_addkey i", "&#xe63b;");
+            domUtils.removeClass(".comiis_recommend_color", "f_a");
+            domUtils.addClass(".comiis_recommend_color", "f_b");
+            if (document.querySelectorAll(".comiis_recommend_list_s").length > 0) {
+              if (document.querySelectorAll(".comiis_recommend_list_s li").length < 7) {
+                domUtils.hide(".txshow_more", false);
+              } else {
+                domUtils.show(".txshow_more", false);
+              }
+            }
+            Qmsg.success("已取消点赞");
+          } else if (resultText.includes("您不能评价自己的帖子")) {
+            Qmsg.error("不能点赞自己的帖子");
+          } else if (resultText.includes("今日评价机会已用完")) {
+            Qmsg.warning("您今日的点赞机会已用完");
+          } else if (resultText.includes(
+            "'recommendv':'+" + _unsafeWindow.allowrecommend + "'"
+          )) {
+            var recommendcList = {
+              recommendc: 0,
+              daycount: 0
+            }, recommendc;
+            recommendc = resultText.match(/\'recommendc\':\'(.*?)\'/);
+            if (recommendc != null) {
+              recommendcList["recommendc"] = parseInt(recommendc[1]);
+            } else {
+              recommendcList["recommendc"] = 0;
+            }
+            recommendc = resultText.match(/\'daycount\':\'(.*?)\'/);
+            if (recommendc != null) {
+              recommendcList["daycount"] = parseInt(recommendc[1]);
+            } else {
+              recommendcList["daycount"] = 0;
+            }
+            if (document.querySelectorAll(".comiis_recommend_new span").length < 1) {
+              domUtils.append(
+                ".comiis_recommend_new",
+                '<span class="bg_del f_f comiis_kmvnum comiis_recommend_num" id="comiis_recommend_num">0</span>'
+              );
+            }
+            var comiis_recommend_num = Number(
+              domUtils.text("#comiis_recommend_num")
+            );
+            if ($$(".comiis_recommend_list_a").length > 0) {
+              let $list_a = $$(".comiis_recommend_list_a");
+              domUtils.removeClass($list_a, "comiis_recommend_list_on");
+              domUtils.addClass($list_a, "comiis_recommend_list_on");
+              domUtils.prepend(
+                $list_a,
+                ($$(".comiis_recommend_list_a li").length > 0 ? "" : '<li style="float:right;margin-right:0;"><a href="misc.php?op=recommend&tid= ' + _unsafeWindow.tid + '&mod=faq&mobile=2"><span class="bg_b f_c"><em class="comiis_recommend_num">' + comiis_recommend_num + "</em>赞</span></a></li>") + '<li id="comiis_recommend_list_a' + _unsafeWindow.uid + '"><a href="home.php?mod=space&uid=' + _unsafeWindow.uid + '"><img src="' + MTUtils.getAvatar(_unsafeWindow.uid, "small") + '"></a></li>'
+              );
+            }
+            if ($$(".comiis_recommend_list_t").length > 0) {
+              let $list_t = $$(".comiis_recommend_list_t");
+              domUtils.removeClass($list_t, "comiis_recommend_list_on");
+              domUtils.addClass($list_t, "comiis_recommend_list_on");
+              domUtils.prepend(
+                $list_t,
+                `<span id="comiis_recommend_list_t${_unsafeWindow.uid}">
+                          							<a href="home.php?mod=space&uid=${_unsafeWindow.uid}" class="f_c">${_unsafeWindow.username}</a>
+													${$$(".comiis_recommend_list_t a").length > 0 ? '<span class="f_d"> , </span>' : ""}
+                        						</span>`
+              );
+            }
+            if ($$(".comiis_recommend_list_s").length > 0) {
+              let $list_s = $$(".comiis_recommend_list_s");
+              domUtils.removeClass($list_s, "comiis_recommend_list_on");
+              domUtils.addClass($list_s, "comiis_recommend_list_on");
+              domUtils.prepend(
+                $list_s,
+                ($$(".comiis_recommend_list_s li").length > 0 ? "" : "") + '<li id="comiis_recommend_list_s' + _unsafeWindow.uid + '"><a href="home.php?mod=space&uid=' + _unsafeWindow.uid + '"><img loading="lazy" src="' + MTUtils.getAvatar(_unsafeWindow.uid, "small") + '"></a></li>'
+              );
+            }
+            domUtils.text(
+              ".comiis_recommend_num",
+              comiis_recommend_num + Number(_unsafeWindow.allowrecommend)
+            );
+            domUtils.text(
+              ".comiis_recommend_nums",
+              "+" + (comiis_recommend_num + Number(_unsafeWindow.allowrecommend))
+            );
+            domUtils.html(".comiis_recommend_addkey i", "&#xe654;");
+            domUtils.removeClass(".comiis_recommend_color", "f_b");
+            domUtils.addClass(".comiis_recommend_color", "f_a");
+            if ($$(".comiis_recommend_list_s").length > 0) {
+              if ($$(".comiis_recommend_list_s li").length < 7) {
+                domUtils.hide(".txshow_more", false);
+              } else {
+                domUtils.show(".txshow_more", false);
+              }
+            }
+            Qmsg.success(
+              "点赞成功" + (recommendcList["daycount"] ? `, 您今天还能点赞 ${recommendcList["daycount"] - 1} 次` : "")
+            );
+          } else if (resultText.indexOf(
+            "window.location.href = 'member.php?mod=logging&action=login&mobile=2'"
+          ) >= 0) {
+            window.location.href = "member.php?mod=logging&action=login&mobile=2";
+          } else {
+            Qmsg.error("没有点赞权限或帖子不存在");
+          }
+          setTimeout(function() {
+            _unsafeWindow.comiis_recommend_key = 0;
+          }, 500);
+        }
+        return false;
+      });
+    },
+    /**
+     * 发表按钮|回复按钮点击事件
+     */
+    setSubmitBtnClickEvent() {
+      const that = this;
+      domUtils.on(this.$el.$fastpostsubmit, "click", async (event2) => {
+        var _a2, _b, _c, _d, _e, _f;
+        utils.preventEvent(event2);
+        var msgobj = $("#needmessage");
+        var msgData = domUtils.val(msgobj);
+        msgData = encodeURIComponent(msgData);
+        if (msgData == null || msgData === "") {
+          return;
+        }
+        if (domUtils.val(that.$el.$fastpostsubmit) == "发表") {
+          let $loading = Qmsg.loading("发表中，请稍后...");
+          let url = that.$data.forum_action + "reply&handlekey=fastpost&loc=1&inajax=1";
+          let data = domUtils.serialize(that.$el.$form) + msgData;
+          $$("#imglist input[type='hidden']").forEach(
+            ($ele) => {
+              data = `${data}&${$ele.getAttribute("name")}=`;
+            }
+          );
+          let response = await httpx.post(url, {
+            data,
+            fetch: true,
+            allowInterceptConfig: false,
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded"
+            }
+          });
+          $loading.close();
+          if (!response.status) {
+            Qmsg.error("发表失败，网络异常");
+            return;
+          }
+          let xmlDoc = utils.parseFromString(
+            response.data.responseText,
+            "text/xml"
+          );
+          let xmlText = (_b = (_a2 = xmlDoc.lastChild) == null ? void 0 : _a2.firstChild) == null ? void 0 : _b.nodeValue;
+          _unsafeWindow.evalscript(xmlText);
+          if (this.handle_error(xmlText)) {
+            return;
+          }
+          window.scrollTo({
+            top: domUtils.height(document)
+          });
+          domUtils.val("#needmessage", "");
+          (_c = $("#comiis_head")) == null ? void 0 : _c.click();
+          domUtils.hide(
+            "#comiis_foot_menu_beautify_big .reply_user_content",
+            false
+          );
+          domUtils.attr(
+            '#comiis_foot_menu_beautify_big li[data-attr="发表"] input',
+            "data-text",
+            "false"
+          );
+          domUtils.attr(
+            "#comiis_foot_menu_beautify li[data-attr='回帖'] input",
+            "placeholder",
+            "发帖千百度，文明第一步"
+          );
+          this.deleteReplyTextStorage();
+        } else {
+          let data = domUtils.attr(
+            "#comiis_foot_menu_beautify_big .reply_user_content",
+            "data-reply-serialize"
+          ) + msgData;
+          $$("#imglist input[type='hidden']").forEach(
+            (item) => {
+              data = `${data}&${item.getAttribute("name")}=`;
+            }
+          );
+          let replyUrl = domUtils.attr(
+            "#comiis_foot_menu_beautify_big .reply_user_content",
+            "data-reply-action"
+          );
+          let response = await httpx.post(
+            replyUrl + "&handlekey=fastposts&loc=1&inajax=1",
+            {
+              allowInterceptConfig: false,
+              fetch: true,
+              data,
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+              }
+            }
+          );
+          if (!response.status) {
+            Qmsg.error("回复失败，网络异常");
+            return;
+          }
+          let xmlDoc = utils.parseFromString(
+            response.data.responseText,
+            "text/xml"
+          );
+          let xmlText = (_e = (_d = xmlDoc.lastChild) == null ? void 0 : _d.firstChild) == null ? void 0 : _e.nodeValue;
+          log.info(xmlText);
+          _unsafeWindow.evalscript(xmlText);
+          if (this.handle_error(xmlText)) {
+            return;
+          }
+          (_f = $(xmlText)) == null ? void 0 : _f.click();
+          domUtils.val("#needmessage", "");
+          $("#comiis_head").click();
+          domUtils.val(
+            '#comiis_foot_menu_beautify_big li[data-attr="发表"] input',
+            "发表"
+          );
+          domUtils.attr(
+            '#comiis_foot_menu_beautify_big li[data-attr="发表"] input',
+            "data-text",
+            "false"
+          );
+          domUtils.attr(
+            "#comiis_foot_menu_beautify li[data-attr='回帖'] input",
+            "placeholder",
+            "发帖千百度，文明第一步"
+          );
+          window.scrollTo({
+            top: domUtils.height(document)
+          });
+          this.deleteReplyTextStorage(true, replyUrl);
+        }
+        return false;
+      });
+    },
+    /**
+     * 全局回复按钮点击事件
+     */
+    setGlobalReplyBtnClickEvent() {
+      domUtils.on(
+        document,
+        "click",
+        '.comiis_postli_times .dialog[href*="reply"]',
+        async (event2) => {
+          var _a2, _b, _c, _d;
+          utils.preventEvent(event2);
+          let $reply = event2.target;
+          domUtils.attr("#comiis_foot_menu_beautify_big", "data-model", "reply");
+          let response = await httpx.get(
+            domUtils.attr($reply, "datahref") || $reply.href + "&inajax=1",
+            {
+              fetch: true,
+              allowInterceptConfig: false
+            }
+          );
+          if (!response.status) {
+            Qmsg.error("网络异常，获取回复参数失败");
+            return;
+          }
+          let xmlDoc = utils.parseFromString(
+            response.data.responseText,
+            "text/xml"
+          );
+          let xmlText = (_b = (_a2 = xmlDoc.lastChild) == null ? void 0 : _a2.firstChild) == null ? void 0 : _b.nodeValue;
+          if (this.handle_error(xmlText)) {
+            return;
+          }
+          let requestDOM = domUtils.parseHTML(
+            `<div>${xmlText}</div>`,
+            true,
+            false
+          );
+          let reply_url = (_c = requestDOM.querySelector(".comiis_tip .tip_tit a")) == null ? void 0 : _c.getAttribute("href");
+          let reply_user = domUtils.text(
+            requestDOM.querySelector(".comiis_tip span.f_0")
+          );
+          let reply_content = domUtils.val(
+            requestDOM.querySelector(
+              "input[name='noticeauthormsg']"
+            )
+          );
+          let reply_action = domUtils.attr(
+            requestDOM.querySelector("#postforms"),
+            "action"
+          );
+          let reply_serialize = domUtils.serialize(
+            requestDOM.querySelector("#postforms")
+          );
+          domUtils.text(
+            "#comiis_foot_menu_beautify_big .reply_user_content",
+            `回复 ${reply_user}: ${reply_content}`
+          );
+          domUtils.show(
+            "#comiis_foot_menu_beautify_big .reply_user_content",
+            false
+          );
+          (_d = $(
+            "#comiis_foot_menu_beautify li[data-attr='回帖'] input"
+          )) == null ? void 0 : _d.click();
+          domUtils.focus("#comiis_foot_menu_beautify li[data-attr='回帖'] input");
+          domUtils.val("#fastpostsubmitline input", "回复");
+          domUtils.attr(
+            "#comiis_foot_menu_beautify_big .fastpostform_new a",
+            "href",
+            reply_url
+          );
+          domUtils.attr(
+            "#comiis_foot_menu_beautify_big .reply_user_content",
+            "data-reply-url",
+            reply_url
+          );
+          domUtils.attr(
+            "#comiis_foot_menu_beautify_big .reply_user_content",
+            "data-reply-action",
+            reply_action
+          );
+          domUtils.attr(
+            "#comiis_foot_menu_beautify_big .reply_user_content",
+            "data-reply-serialize",
+            reply_serialize
+          );
+          tempReplyBtnNode = $reply;
+          domUtils.val("#needmessage", domUtils.attr($reply, "data-text") || "");
+          PopsPanel.execMenu(
+            "mt-forum-post-editorOptimizationNormal-recordInputText",
+            () => {
+              this.initReplyText(true, reply_url);
+            }
+          );
+        },
+        {
+          capture: true
+        }
+      );
+    },
+    /**
+     * 全局点击检测事件
+     */
+    setGlobalClickCheckEvent() {
+      const that = this;
+      let forum_url = $("#fastpostform .header_y a").href;
+      domUtils.on(document, "click", function(event2) {
+        var _a2;
+        let $click = event2.target;
+        if ($(".popups-popmenu") || MTEditorOptimizationNormal.$data.isUBBCodeInsertClick) {
+          log.info(`点击的是弹出层，不做处理`);
+          MTEditorOptimizationNormal.$data.isUBBCodeInsertClick = false;
+          return;
+        } else if (($click == null ? void 0 : $click.classList) && ((_a2 = $click == null ? void 0 : $click.classList) == null ? void 0 : _a2.contains(".dialog_reply")) || ($click == null ? void 0 : $click.closest) && ($click == null ? void 0 : $click.closest(".dialog_reply")) || $click === $('li[data-attr="回帖"] input')) {
+          log.info(`点击回复按钮或者是编辑器，显示编辑器`);
+          domUtils.hide("#comiis_foot_menu_beautify", false);
+          domUtils.show("#comiis_foot_menu_beautify_big", false);
+          domUtils.focus("#needmessage");
+        } else if (window.event && !utils.checkUserClickInNode($("#comiis_foot_menu_beautify_big"))) {
+          log.info(`点击的其它区域，隐藏大编辑器，显示小编辑器`);
+          domUtils.show("#comiis_foot_menu_beautify", false);
+          domUtils.hide("#comiis_foot_menu_beautify_big", false);
+          if (domUtils.attr("#comiis_foot_menu_beautify_big", "data-model") == "reply") {
+            domUtils.attr(
+              "#comiis_foot_menu_beautify_big",
+              "data-model",
+              "comment"
+            );
+            domUtils.val("#fastpostsubmitline input", "发表");
+            domUtils.attr(
+              "#comiis_foot_menu_beautify_big .fastpostform_new a",
+              "href",
+              forum_url
+            );
+            domUtils.text(
+              "#comiis_foot_menu_beautify_big .reply_area .reply_user_content"
+            );
+            domUtils.hide(
+              "#comiis_foot_menu_beautify_big .reply_area .reply_user_content",
+              false
+            );
+            domUtils.attr(
+              "#comiis_foot_menu_beautify_big .reply_area .reply_user_content",
+              "data-reply-url",
+              ""
+            );
+            domUtils.attr(
+              "#comiis_foot_menu_beautify_big .reply_area .reply_user_content",
+              "data-reply-action",
+              ""
+            );
+            domUtils.attr(
+              "#comiis_foot_menu_beautify_big .reply_area .reply_user_content",
+              "data-reply-serialize",
+              ""
+            );
+            if (tempReplyBtnNode) {
+              domUtils.attr(
+                tempReplyBtnNode,
+                "data-text",
+                domUtils.val("#needmessage")
+              );
+              domUtils.val("#needmessage", "");
+              domUtils.attr(
+                '#comiis_foot_menu_beautify_big li[data-attr="发表"] input',
+                "data-text",
+                "false"
+              );
+              domUtils.attr(
+                "#comiis_foot_menu_beautify li[data-attr='回帖'] input",
+                "placeholder",
+                "发帖千百度，文明第一步"
+              );
+            }
+          }
+          if (domUtils.val(that.$el.$input) === "") {
+            PopsPanel.execMenu(
+              "mt-forum-post-editorOptimizationNormal-recordInputText",
+              () => {
+                that.initReplyText();
+              }
+            );
+          }
+        }
+      });
+    },
+    /**
+     * 菜单-图标切换事件
+     */
+    setMenuIconToggleEvent() {
+      domUtils.on(
+        "#comiis_foot_menu_beautify_big .menu_icon a i",
+        "click",
+        function(event2) {
+          let $click = this;
+          if ($click.classList.contains("f_0")) {
+            domUtils.hide("#comiis_foot_menu_beautify_big .menu_body", false);
+            domUtils.removeClass(
+              "#comiis_foot_menu_beautify_big .menu_icon a i",
+              "f_0"
+            );
+          } else {
+            domUtils.show("#comiis_foot_menu_beautify_big .menu_body", false);
+            domUtils.removeClass(
+              "#comiis_foot_menu_beautify_big .menu_icon a i",
+              "f_0"
+            );
+            domUtils.addClass($click, "f_0");
+          }
+        }
+      );
+    },
+    /**
+     * 菜单-图片点击事件
+     */
+    setMenuImageClickEvent() {
+      domUtils.on(
+        "#comiis_foot_menu_beautify_big .menu_icon a.comiis_pictitle",
+        "click",
+        function(event2) {
+          domUtils.hide(
+            "#comiis_foot_menu_beautify_big .menu_body #comiis_post_tab",
+            false
+          );
+          domUtils.hide(
+            "#comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab",
+            false
+          );
+          domUtils.show(
+            "#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab",
+            false
+          );
+        }
+      );
+    },
+    /**
+     * 菜单-图标-切换图片组的事件
+     */
+    setMenuImageToggleEvent() {
+      domUtils.on(
+        "#comiis_foot_menu_beautify_big #comiis_pictitle_tab #comiis_pictitle_key",
+        "click",
+        "li",
+        function(event2) {
+          let $click = event2.target;
+          domUtils.removeClass(
+            "#comiis_foot_menu_beautify_big #comiis_pictitle_tab #comiis_pictitle_key li",
+            "bg_f"
+          );
+          domUtils.addClass($click, "bg_f");
+          _unsafeWindow.$(
+            "#comiis_foot_menu_beautify_big #comiis_pictitle_tab div.comiis_upbox"
+          ).hide().eq(_unsafeWindow.$($click).index()).fadeIn();
+        }
+      );
+    },
+    /**
+     * 菜单-表情点击事件
+     */
+    setMenuSmileClickEvent() {
+      domUtils.on(
+        "#comiis_foot_menu_beautify_big .menu_icon a.comiis_smile",
+        "click",
+        function(event2) {
+          domUtils.hide(
+            "#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab",
+            false
+          );
+          domUtils.hide(
+            "#comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab",
+            false
+          );
+          domUtils.show(
+            "#comiis_foot_menu_beautify_big .menu_body #comiis_post_tab",
+            false
+          );
+          let smileDOM = $(
+            "#comiis_foot_menu_beautify_big .menu_body .comiis_bqbox"
+          );
+          if (domUtils.attr(smileDOM, "data-isLoaded") != 1) {
+            domUtils.attr(smileDOM, "data-isLoaded", 1);
+            smileDOM.querySelectorAll("img").forEach((item) => {
+              let data_src = item.getAttribute("data-src");
+              if (data_src) {
+                item.setAttribute("src", data_src);
+              }
+            });
+          }
+        }
+      );
+    },
+    /**
+     * 菜单-表情-切换表情组的点击事件
+     */
+    setMenuSmileTabClickEvent() {
+      domUtils.on(
+        "#comiis_foot_menu_beautify_big #comiis_smilies_key li",
+        "click",
+        function(event2) {
+          let $click = this;
+          domUtils.removeClass(
+            "#comiis_foot_menu_beautify_big #comiis_smilies_key li a"
+          );
+          domUtils.addClass($click.querySelector("a"), "bg_f b_l b_r");
+          _unsafeWindow.$(
+            "#comiis_post_tab div.swiper-wrapper.bqbox_c.comiis_optimization .swiper-slide"
+          ).hide().eq(_unsafeWindow.$($click).index()).fadeIn();
+        }
+      );
+    },
+    /**
+     * 菜单-插入点击事件
+     */
+    setMenuInsertClickEvent() {
+      domUtils.on(
+        "#comiis_foot_menu_beautify_big .menu_icon a.commis_insert_bbs",
+        "click",
+        (event2) => {
+          domUtils.hide(
+            "#comiis_foot_menu_beautify_big .menu_body #comiis_post_tab",
+            false
+          );
+          domUtils.hide(
+            "#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab",
+            false
+          );
+          domUtils.show(
+            "#comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab",
+            false
+          );
+        }
+      );
+    },
+    /**
+     * 获取回复记录的占用空间
+     */
+    async getReplyRecordSize() {
+      var _a2;
+      let result = await this.$data.db.get("data");
+      if (result.success) {
+        let size = utils.getTextStorageSize(
+          ((_a2 = result == null ? void 0 : result.data) == null ? void 0 : _a2.length) ? JSON.stringify(result.data) : ""
+        );
+        return size;
+      } else {
+        return utils.formatByteToSize(0);
+      }
+    },
+    /**
+     * 清空所有的回复记录
+     */
+    async clearAllReplyRecord() {
+      return await this.$data.db.deleteAll();
+    },
+    /**
+     * 删除存储的回复框的内容到indexedDB
+     * @param isUserReply 是否是来自点击回复的
+     * @param replyUrl 回复的url
+     */
+    deleteReplyTextStorage(isUserReply = false, replyUrl = void 0) {
+      const that = this;
+      this.$data.db.get("data").then((result) => {
+        if (!result.success || result.code === 201) {
+          console.warn(result);
+          return;
+        }
+        let localDataIndex = result.data.findIndex((item) => {
+          if (isUserReply) {
+            return item.forumId === that.$data.tid && replyUrl && item.repquote === MTUtils.getRepquote(replyUrl);
+          } else {
+            return item.forumId === that.$data.tid && utils.isNull(item.repquote);
+          }
+        });
+        if (localDataIndex !== -1) {
+          result.data.splice(localDataIndex, 1);
+          this.$data.db.save("data", result.data).then((result2) => {
+          });
+        }
+      });
+    },
+    /**
+     * 注入UBB代码
+     */
+    setMenuQuickUBB() {
+      let $tab_list = $("#comiis_insert_ubb_tab_list");
+      let ubbCodeMap = MTQuickUBB();
+      Reflect.set(ubbCodeMap, "code", {
+        key: "代码",
+        value: "[code][/code]",
+        tagL: "]",
+        tagR: "[",
+        L: "[code]",
+        R: "[/code]",
+        cursorL: "[code]",
+        cursorLength: 7,
+        quickUBBReplace: "[code]replace[/code]"
+      });
+      Reflect.set(ubbCodeMap, "password", {
+        key: "密码",
+        value: "[password][/password]",
+        tagL: "]",
+        tagR: "[",
+        L: "[password]",
+        R: "[/password]",
+        cursorL: "[password]",
+        cursorLength: 10,
+        quickUBBReplace: "[password]replace[/password]"
+      });
+      Object.keys(ubbCodeMap).forEach((keyName) => {
+        let value = ubbCodeMap[keyName];
+        let $ubbs = domUtils.createElement("li", {
+          className: "quickUBBs",
+          innerHTML: (
+            /*html*/
+            `
+                    <a href="javascript:;" class="comiis_xifont f_d">
+                        <i class="comiis_font"></i>${value["key"]}
+                    </a>
+                `
+          )
+        });
+        domUtils.on($ubbs, "click", (event2) => {
+          domUtils.removeClass(
+            "#comiis_insert_ubb_tab div.comiis_post_urlico ul li.quickUBBs a.comiis_xifont",
+            "f_0"
+          );
+          domUtils.addClass(
+            "#comiis_insert_ubb_tab div.comiis_post_urlico ul li.quickUBBs a.comiis_xifont",
+            "f_d"
+          );
+          let $font = $ubbs.querySelector(".comiis_xifont");
+          domUtils.removeClass($font, "f_d");
+          domUtils.removeClass($font, "f_d");
+          let $prompt = __pops.prompt({
+            title: {
+              text: "UBB代码",
+              position: "center"
+            },
+            content: {
+              text: "",
+              placeholder: `请输入需要${value["key"]}的文字`,
+              focus: true
+            },
+            btn: {
+              ok: {
+                text: "插入",
+                type: "primary",
+                callback: (details) => {
+                  if (details.text.trim() === "") {
+                    Qmsg.error("输入框不能为空或纯空格");
+                    return;
+                  }
+                  if (value["isFunc"]) {
+                    _unsafeWindow.comiis_addsmilies(
+                      MTUBB_Rainbow(value["num"], details.text)
+                    );
+                  } else if (value["quickUBBReplace"]) {
+                    _unsafeWindow.comiis_addsmilies(
+                      value["quickUBBReplace"].replaceAll("replace", details.text)
+                    );
+                  } else {
+                    _unsafeWindow.comiis_addsmilies(details.text);
+                  }
+                  $prompt.close();
+                }
+              },
+              cancel: {
+                text: "关闭",
+                callback: () => {
+                  $prompt.close();
+                }
+              }
+            },
+            width: "300px",
+            height: "200px"
+          });
+        });
+        $tab_list.append($ubbs);
+      });
+    }
+  };
+  const optimizationCSS = '.f_c,\r\n.f_c a,\r\n.ntc_body {\r\n	color: #000 !important;\r\n}\r\ninput::placeholder,\r\ntextarea::placeholder {\r\n	color: #cfcfcf;\r\n}\r\n#needsubject::placeholder {\r\n	font-weight: 700;\r\n}\r\n#postform #comiis_mh_sub {\r\n	height: 60px;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n#postform #comiis_post_tab {\r\n	display: inherit;\r\n	width: 100%;\r\n}\r\n#postform .comiis_sendbtn {\r\n	padding: 0 12px;\r\n	display: flex !important;\r\n	-webkit-box-align: center;\r\n	-moz-box-align: center;\r\n	align-items: center;\r\n}\r\n#postform .f_f {\r\n	color: #fff !important;\r\n}\r\n#postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:hover,\r\n#postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:link,\r\n#postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:visited {\r\n	color: #333 !important;\r\n}\r\n#postform .comiis_post_from .comiis_post_ico.comiis_minipost_icot {\r\n	position: fixed;\r\n	display: inline-table;\r\n	z-index: 90;\r\n	left: 0;\r\n	right: 0;\r\n	bottom: 0;\r\n	width: 100%;\r\n	overflow: hidden;\r\n	padding: 0;\r\n}\r\n#postform .comiis_post_from #comiis_post_tab .comiis_bqbox {\r\n	height: 200px;\r\n}\r\n#postform .comiis_post_from #comiis_post_tab .comiis_smiley_box {\r\n	height: 150px;\r\n}\r\n#postform\r\n	.comiis_post_from\r\n	#comiis_post_tab\r\n	.comiis_input_style\r\n	.comiis_post_urlico {\r\n	overflow-y: auto;\r\n	height: 110px;\r\n}\r\n#postform\r\n	.comiis_post_from\r\n	#comiis_post_tab\r\n	.comiis_smiley_box\r\n	.comiis_optimization {\r\n	display: block;\r\n	overflow-y: auto;\r\n	height: 100%;\r\n}\r\n#postform #comiis_post_tab .comiis_input_style .comiis_xifont {\r\n	width: -webkit-fill-available;\r\n	width: -moz-available;\r\n}\r\n#postform #comiis_post_tab .comiis_input_style .comiis_xifont i.comiis_font {\r\n	font-size: 16px;\r\n	line-height: inherit;\r\n	padding-top: 0;\r\n}\r\n#postform #comiis_post_tab .comiis_input_style .styli_h10 {\r\n	display: none;\r\n}\r\n.gm_plugin_chartbed .comiis_chartbed_hello,\r\n.gm_plugin_chartbed .comiis_chartbed_history,\r\n.gm_plugin_chartbed .comiis_chartbed_kggzs,\r\n.gm_plugin_chartbed .comiis_chartbed_luntan,\r\n.gm_plugin_chartbed .comiis_chartbed_mt,\r\n.gm_plugin_chartbed .comiis_chartbed_z4a {\r\n	height: 140px;\r\n	overflow-y: auto;\r\n	flex-direction: column;\r\n}\r\n#comiis_pictitle_key {\r\n	display: -webkit-box;\r\n	top: 0;\r\n	left: 0;\r\n	height: 42px;\r\n	line-height: 42px;\r\n	overflow: hidden;\r\n	overflow-x: auto;\r\n	background: #f8f8f8;\r\n}\r\n#comiis_pictitle_key a {\r\n	color: #333 !important;\r\n	padding: 0 10px;\r\n}\r\n#comiis_mh_sub {\r\n	height: auto !important;\r\n}\r\n#comiis_mh_sub .swiper-wrapper.comiis_post_ico {\r\n	flex-flow: wrap;\r\n}\r\n#comiis_mh_sub a {\r\n	margin: 5px 0;\r\n}\r\n#comiis_post_tab .comiis_over_box {\r\n	max-height: 225px;\r\n}\r\n@media screen and (max-width: 350px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 14.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 350px) and (max-width: 400px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 12.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 400px) and (max-width: 450px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 11%;\r\n	}\r\n}\r\n@media screen and (min-width: 450px) and (max-width: 500px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 10%;\r\n	}\r\n}\r\n@media screen and (min-width: 500px) and (max-width: 550px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 9.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 550px) and (max-width: 600px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 9%;\r\n	}\r\n}\r\n@media screen and (min-width: 600px) and (max-width: 650px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 8.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 650px) and (max-width: 700px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 8%;\r\n	}\r\n}\r\n@media screen and (min-width: 700px) and (max-width: 750px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 7.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 750px) and (max-width: 800px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 7%;\r\n	}\r\n}\r\n@media screen and (min-width: 800px) and (max-width: 850px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 6.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 850px) and (max-width: 1200px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 6%;\r\n	}\r\n}\r\n@media screen and (min-width: 1200px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 4.5%;\r\n	}\r\n}\r\n\r\n#comiis_head .header_y {\r\n	display: flex;\r\n	align-content: center;\r\n	align-items: center;\r\n	justify-content: flex-end;\r\n	height: 100%;\r\n}\r\n#comiis_head .header_y input {\r\n	border: transparent;\r\n	background: 0 0;\r\n	text-align: center;\r\n	margin: 0 5px;\r\n}\r\n#comiis_head .header_y input[value="删除"] {\r\n	color: #d00;\r\n}\r\n#comiis_head .header_y input[value="保存"] {\r\n	color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="保存草稿"] {\r\n	color: #f90;\r\n}\r\n#comiis_head .header_y input[value="发表"] {\r\n	color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="回复"] {\r\n	color: #b0ff6a;\r\n}\r\n#comiis_post_tab {\r\n	color: #000;\r\n}\r\n.gm_plugin_chartbed .delImg a,\r\n.gm_plugin_chartbed .p_img a {\r\n	padding: 0;\r\n}\r\n.gm_plugin_chartbed .delImg a i {\r\n	line-height: inherit;\r\n}\r\n#filedata,\r\n#filedata_hello,\r\n#filedata_kggzs,\r\n#filedata_mt {\r\n	display: none;\r\n}\r\n\r\n#comiis_mh_sub {\r\n	height: 40px;\r\n}\r\n#imglist .del a {\r\n	padding: 0;\r\n}\r\n.comiis_post_from.mt15 {\r\n	margin-top: unset !important;\r\n}\r\n';
+  const pathname = globalThis.location.pathname;
+  const search = globalThis.location.search;
+  new URLSearchParams(search);
+  const Router = {
+    /**
+     * 克米签到页面
+     */
+    isKMiSign() {
+      return pathname.startsWith("/k_misign-sign.html");
+    },
+    /**
+     * 帖子
+     */
+    isPost() {
+      return pathname.startsWith("/thread-") || pathname.startsWith("/forum.php") && search.startsWith("?mod=viewthread");
+    },
+    /**
+     * 首页、精华
+     */
+    isPage() {
+      return Boolean(pathname.match(/^\/page-([0-9]+).html/g));
+    },
+    /**
+     * 导读链接
+     */
+    isGuide() {
+      return pathname.startsWith("/forum.php") && search.startsWith("?mod=guide");
+    },
+    /**
+     * 板块
+     */
+    isPlate() {
+      return Boolean(pathname.match(/\/forum-[0-9]{1,2}-[0-9]{1,2}.html/g));
+    },
+    /**
+     * 搜索页面
+     */
+    isSearch() {
+      return pathname.startsWith("/search.php");
+    },
+    /**
+     * 空间
+     */
+    isSpace() {
+      return pathname.startsWith("/home.php") && search.startsWith("?mod=space");
+    },
+    /**
+     * 我的个人空间
+     */
+    isMySpace() {
+      return pathname.startsWith("/home.php") && search.startsWith("?mod=space&do=profile&mycenter");
+    },
+    /**
+     * 个人空间页的@点进去
+     */
+    isSpaceWithAt() {
+      return pathname.startsWith("/space-uid-");
+    },
+    /**
+     * 社区列表
+     */
+    isForumList() {
+      return pathname.startsWith("/forum.php") && search.startsWith("?forumlist");
+    },
+    /**
+     * 消息提醒
+     */
+    isMessage() {
+      return pathname.startsWith("/home.php") && search.startsWith("?mod=space&do=notice");
+    },
+    /**
+     * 消息提醒列表
+     */
+    isMessageList() {
+      return pathname.startsWith("/home.php") && search.startsWith("?mod=space&do=pm");
+    },
+    /**
+     * 积分商城
+     */
+    isPointsMall() {
+      return pathname.startsWith("/keke_integralmall-keke_integralmall.html") || pathname.startsWith("/plugin.php") && search.startsWith("?id=keke_integralmal");
+    },
+    /**
+     * 帖子发布/回复页面
+     */
+    isPostPublish() {
+      return pathname.startsWith("/forum.php") && search.startsWith("?mod=post");
+    },
+    /**
+     * 投票页面
+     */
+    isPostPublish_voting() {
+      return pathname.startsWith("/forum.php") && search.includes("&special=1") || search.includes("&fid=42");
+    },
+    /**
+     * 帖子编辑页面
+     */
+    isPostPublish_edit() {
+      return this.isPostPublish() && search.includes("&action=edit");
+    },
+    /**
+     * 发帖页面，该页面是尚未存入草稿
+     */
+    isPostPublish_newthread() {
+      return this.isPostPublish() && search.includes("&action=newthread");
+    },
+    /**
+     * 回复编辑页面
+     */
+    isPostPublish_reply() {
+      return this.isPostPublish() && search.includes("&action=reply");
+    }
+  };
+  const MTSmiliesDict = () => {
+    return {
+      "[呵呵]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq001.gif",
+      "[撇嘴]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq002.gif",
+      "[色]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq003.gif",
+      "[发呆]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq004.gif",
+      "[得意]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq005.gif",
+      "[流泪]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq006.gif",
+      "[害羞]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq007.gif",
+      "[闭嘴]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq008.gif",
+      "[睡]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq009.gif",
+      "[大哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq010.gif",
+      "[尴尬]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq011.gif",
+      "[发怒]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq012.gif",
+      "[调皮]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq013.gif",
+      "[呲牙]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq014.gif",
+      "[惊讶]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq015.gif",
+      "[难过]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq016.gif",
+      "[酷]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq017.gif",
+      "[冷汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq018.gif",
+      "[抓狂]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq019.gif",
+      "[吐]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq020.gif",
+      "[偷笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq021.gif",
+      "[可爱]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq022.gif",
+      "[白眼]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq023.gif",
+      "[傲慢]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq024.gif",
+      "[饥饿]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq025.gif",
+      "[困]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq026.gif",
+      "[惊恐]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq027.gif",
+      "[流汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq028.gif",
+      "[憨笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq029.gif",
+      "[装逼]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq030.gif",
+      "[奋斗]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq031.gif",
+      "[咒骂]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq032.gif",
+      "[疑问]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq033.gif",
+      "[嘘]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq034.gif",
+      "[晕]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq035.gif",
+      "[折磨]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq036.gif",
+      "[衰]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq037.gif",
+      "[骷髅]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq038.gif",
+      "[敲打]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq039.gif",
+      "[再见]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq040.gif",
+      "[擦汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq041.gif",
+      "[抠鼻]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq042.gif",
+      "[鼓掌]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq043.gif",
+      "[糗大了]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq044.gif",
+      "[坏笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq045.gif",
+      "[左哼哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq046.gif",
+      "[右哼哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq047.gif",
+      "[哈欠]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq048.gif",
+      "[鄙视]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq049.gif",
+      "[委屈]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq050.gif",
+      "[快哭了]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq051.gif",
+      "[阴脸]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq052.gif",
+      "[亲亲]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq053.gif",
+      "[吓]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq054.gif",
+      "[可怜]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq055.gif",
+      "[眨眼睛]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq056.gif",
+      "[笑哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq057.gif",
+      "[dogeQQ]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq058.gif",
+      "[泪奔]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq059.gif",
+      "[无奈]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq060.gif",
+      "[托腮]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq061.gif",
+      "[卖萌]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq062.png",
+      "[斜眼笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq063.gif",
+      "[喷血]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq064.gif",
+      "[惊喜]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq065.gif",
+      "[骚扰]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq066.gif",
+      "[小纠结]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq067.gif",
+      "[我最美]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq068.gif",
+      "[菜刀]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq069.gif",
+      "[西瓜]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq070.gif",
+      "[啤酒]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq071.gif",
+      "[篮球]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq072.gif",
+      "[乒乓]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq073.gif",
+      "[咖啡]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq074.gif",
+      "[饭]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq075.gif",
+      "[猪]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq076.gif",
+      "[玫瑰]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq077.gif",
+      "[凋谢]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq078.gif",
+      "[示爱]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq079.gif",
+      "[爱心]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq080.gif",
+      "[心碎]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq081.gif",
+      "[蛋糕]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq082.gif",
+      "[闪电]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq083.gif",
+      "[炸弹]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq084.gif",
+      "[刀]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq085.gif",
+      "[足球]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq086.gif",
+      "[瓢虫]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq087.gif",
+      "[便便]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq088.gif",
+      "[月亮]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq089.gif",
+      "[太阳]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq090.gif",
+      "[礼物]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq091.gif",
+      "[抱抱]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq092.gif",
+      "[喝彩]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq93.gif",
+      "[祈祷]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq94.gif",
+      "[棒棒糖]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq95.gif",
+      "[药]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq96.gif",
+      "[赞]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq097.gif",
+      "[差劲]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq098.gif",
+      "[握手]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq099.gif",
+      "[胜利]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq100.gif",
+      "[抱拳]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq101.gif",
+      "[勾引]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq102.gif",
+      "[拳头]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq103.gif",
+      // "[差劲]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq104.gif",
+      "[爱你]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq105.gif",
+      "[NO]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq106.gif",
+      "[OK]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq107.gif",
+      "[#呵呵]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_1.png",
+      "[#滑稽]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_10.png",
+      "[#吐舌]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_3.png",
+      "[#哈哈]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_2.png",
+      "[#啊]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_23.png",
+      "[#酷]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_22.png",
+      "[#怒]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_13.png",
+      "[#开心]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_39.png",
+      "[#汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_14.png",
+      "[#泪]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_16.png",
+      "[#黑线]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_15.png",
+      "[#鄙视]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_21.png",
+      "[#不高兴]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_12.png",
+      "[#真棒]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_17.png",
+      "[#钱]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_40.png",
+      "[#疑问]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_26.png",
+      "[#阴险]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_20.png",
+      "[#吐]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_34.png",
+      "[#咦]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_41.png",
+      "[#委屈]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_29.png",
+      "[#花心]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_6.png",
+      "[#呼～]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_42.png",
+      "[#激动]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_5.png",
+      "[#冷]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_43.png",
+      "[#可爱]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_4.png",
+      "[#What？]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_25.png",
+      "[#勉强]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_38.png",
+      "[#狂汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_24.png",
+      "[#酸爽]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_27.png",
+      "[#乖]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_8.png",
+      "[#雅美蝶]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_28.png",
+      "[#睡觉]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_31.png",
+      "[#惊哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_19.png",
+      "[#哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_44.png",
+      "[#笑尿]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_32.png",
+      "[#惊讶]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_30.png",
+      "[#小乖]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_7.png",
+      "[#喷]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_18.png",
+      "[#抠鼻]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_33.png",
+      "[#捂嘴笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_9.png",
+      "[#你懂的]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_11.png",
+      "[#犀利]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_35.png",
+      "[#小红脸]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_36.png",
+      "[#懒得理]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_37.png",
+      "[#爱心]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_45.png",
+      "[#心碎]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_46.png",
+      "[#玫瑰]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_47.png",
+      "[#礼物]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_48.png",
+      "[#彩虹]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_49.png",
+      "[#太阳]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_50.png",
+      "[#月亮]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_51.png",
+      "[#钱币]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_52.png",
+      "[#咖啡]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_53.png",
+      "[#蛋糕]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_54.png",
+      "[#大拇指]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_55.png",
+      "[#胜利]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_56.png",
+      "[#爱你]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_57.png",
+      "[#OK]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_58.png",
+      "[#弱]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_59.png",
+      "[#沙发]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_60.png",
+      "[#纸巾]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_61.png",
+      "[#香蕉]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_62.png",
+      "[#便便]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_63.png",
+      "[#药丸]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_64.png",
+      "[#红领巾]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_65.png",
+      "[#蜡烛]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_66.png",
+      "[#三道杠]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_67.png",
+      "[#音乐]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_68.png",
+      "[#灯泡]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_69.png",
+      "[doge]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/1.png",
+      "[doge思考]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/2.png",
+      "[doge再见]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/3.png",
+      "[doge生气]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/4.png",
+      "[doge气哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/5.png",
+      "[doge笑哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/7.png",
+      "[doge调皮]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/6.png",
+      "[doge啊哈]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/8.png",
+      "[doge原谅TA]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/9.png",
+      "[miao]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/10.png",
+      "[miao思考]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/11.png",
+      "[miao拜拜]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/12.png",
+      "[miao生气]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/13.png",
+      "[miao气哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/14.png",
+      "[二哈]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/15.png",
+      "[摊手]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/19.png",
+      "[w并不简单]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/20.png",
+      "[w滑稽]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/21.png",
+      "[w色]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/22.png",
+      "[w爱你]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/23.png",
+      "[w拜拜]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/24.png",
+      "[w悲伤]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/25.png",
+      "[w鄙视]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/26.png",
+      "[w馋嘴]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/27.png",
+      "[w冷汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/28.png",
+      "[w打哈欠]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/29.png",
+      "[w打脸]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/30.png",
+      "[w敲打]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/31.png",
+      "[w生病]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/32.png",
+      "[w闭嘴]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/33.png",
+      "[w鼓掌]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/34.png",
+      "[w哈哈]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/35.png",
+      "[w害羞]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/36.png",
+      "[w呵呵]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/37.png",
+      "[w黑线]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/38.png",
+      "[w哼哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/39.png",
+      "[w调皮]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/40.png",
+      "[w可爱]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/41.png",
+      "[w可怜]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/42.png",
+      "[w酷]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/43.png",
+      "[w困]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/44.png",
+      "[w懒得理你]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/45.png",
+      "[w流泪]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/46.png",
+      "[w怒]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/47.png",
+      "[w怒骂]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/48.png",
+      "[w钱]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/49.png",
+      "[w亲亲]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/50.png",
+      "[w傻眼]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/51.png",
+      "[w便秘]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/52.png",
+      "[w失望]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/53.png",
+      "[w衰]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/54.png",
+      "[w睡觉]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/55.png",
+      "[w思考]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/56.png",
+      "[w开心]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/57.png",
+      "[w色舔]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/58.png",
+      "[w偷笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/59.png",
+      "[w吐]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/60.png",
+      "[w抠鼻]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/61.png",
+      "[w委屈]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/62.png",
+      "[w笑哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/63.png",
+      "[w嘻嘻]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/64.png",
+      "[w嘘]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/65.png",
+      "[w阴险]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/66.png",
+      "[w疑问]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/67.png",
+      "[w抓狂]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/70.png",
+      "[w晕]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/69.png",
+      "[w右哼哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/68.png",
+      "[w左哼哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/71.png",
+      "[w肥皂]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/77.png",
+      "[w奥特曼]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/78.png",
+      "[w草泥马]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/79.png",
+      "[w兔子]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/80.png",
+      "[w熊猫]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/81.png",
+      "[w猪头]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/82.png",
+      "[w→_→]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/83.png",
+      "[w给力]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/84.png",
+      "[w囧]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/85.png",
+      "[w萌]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/86.png",
+      "[w神马]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/87.png",
+      "[w威武]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/88.png"
+    };
+  };
+  const MTEditorPreview = {
+    /**
+     * 内容转换
+     */
+    parseText(text) {
+      const smiliesDictionaries = MTSmiliesDict();
+      let attachimgmatch = text.match(/\[attachimg\]([\s\S]+?)\[\/attachimg\]/g);
+      if (attachimgmatch) {
+        attachimgmatch.forEach((item) => {
+          let aimgidMatch = item.match(/\[attachimg\]([\s\S]+?)\[\/attachimg\]/);
+          let aimg_id = aimgidMatch ? aimgidMatch[aimgidMatch.length - 1] : "";
+          let imgtitle = domUtils.attr(`#aimg_${aimg_id}`, "title");
+          let imgsrc = domUtils.attr(`#aimg_${aimg_id}`, "src");
+          if (!imgsrc) {
+            imgtitle = "该图片不存在";
+          }
+          text = text.replace(
+            item,
+            `<span class="comiis_postimg vm"><img loading="lazy" id="aimg_${aimg_id}" src="${imgsrc}" alt="${imgtitle}" title="${imgtitle}"></span>`
+          );
+        });
+      }
+      let code = text.match(/\[code\]([\s\S]*?)\[\/code\]/g);
+      if (code) {
+        code.forEach((item) => {
+          let match_content = item.match(/\[code\]([\s\S]*?)\[\/code\]/);
+          let contentAll = match_content ? match_content[match_content.length - 1] : "";
+          let content = "";
+          let brSplit = contentAll.split("\n");
+          if (brSplit.length == 1) {
+            content = `<li>${contentAll}</li>`;
+          } else {
+            Array.from(brSplit).forEach((item2, index) => {
+              if (index == brSplit.length - 1) {
+                content = `${content}<li>${item2}</li>`;
+              } else {
+                content = `${content}<li>${item2}<br></li>`;
+              }
+            });
+          }
+          text = text.replace(
+            item,
+            `
+                <div class="comiis_blockcode comiis_bodybg b_ok f_b"><div class="bg_f b_l"><ol>${content}</ol></div></div>`
+          );
+        });
+      }
+      let url = text.match(/\[url\=[\s\S]*?\]([\s\S]*?)\[\/url\]/g);
+      if (url) {
+        url.forEach((item) => {
+          let urlMatch = item.match(/\[url=([\s\S]*?)\][\s\S]*\[\/url\]/);
+          let urlNameMatch = item.match(/\[url=[\s\S]*?\]([\s\S]*?)\[\/url\]/);
+          let _url_ = urlMatch ? urlMatch[urlMatch.length - 1] : "";
+          let _url_name_ = urlNameMatch ? urlNameMatch[urlNameMatch.length - 1] : "";
+          text = text.replace(
+            item,
+            `<a href="${_url_}" target="_blank">${_url_name_}</a>`
+          );
+        });
+      }
+      let color = text.match(/\[color\=[\s\S]*?\]([\s\S]*?)\[\/color\]/g);
+      if (color) {
+        color.forEach((item) => {
+          let colorValueMatch = item.match(
+            /\[color=([\s\S]*?)\][\s\S]*\[\/color\]/
+          );
+          let colorTextMatch = item.match(
+            /\[color=[\s\S]*?\]([\s\S]*?)\[\/color\]/
+          );
+          let colorValue = colorValueMatch ? colorValueMatch[colorValueMatch.length - 1] : "";
+          let colorText = colorTextMatch ? colorTextMatch[colorTextMatch.length - 1] : "";
+          text = text.replace(
+            item,
+            `<font color="${colorValue}">${colorText}</font>`
+          );
+        });
+      }
+      let size = text.match(/\[size\=[\s\S]*?\]([\s\S]*?)\[\/size\]/g);
+      if (size) {
+        size.forEach((item) => {
+          let sizeValueMatch = item.match(/\[size=([\s\S]*?)\][\s\S]*\[\/size\]/);
+          let sizeTextMatch = item.match(/\[size=[\s\S]*?\]([\s\S]*?)\[\/size\]/);
+          let sizeValue = sizeValueMatch ? sizeValueMatch[sizeValueMatch.length - 1] : "";
+          let sizeText = sizeTextMatch ? sizeTextMatch[sizeTextMatch.length - 1] : "";
+          text = text.replace(
+            item,
+            `<font size="${sizeValue}">${sizeText}</font>`
+          );
+        });
+      }
+      let img = text.match(/\[img(|\=[\s\S]+?)\]([\s\S]*?)\[\/img\]/g);
+      if (img) {
+        img.forEach((item) => {
+          let widthInfo = null;
+          let heightInfo = null;
+          let img_size_match = item.match(/\[img\=([\s\S]+?)\][\s\S]*?\[\/img\]/);
+          if (img_size_match) {
+            img_size_match = img_size_match[img_size_match.length - 1].split(",");
+            widthInfo = img_size_match[0];
+            heightInfo = img_size_match[1];
+          }
+          widthInfo = widthInfo ? widthInfo : "";
+          heightInfo = heightInfo ? heightInfo : "";
+          let match_content = item.match(
+            /\[img\]([\s\S]*?)\[\/img\]|\[img=[\s\S]*?\]([\s\S]*?)\[\/img\]/
+          );
+          let content = "";
+          if (match_content) {
+            if (match_content[match_content.length - 1] == null) {
+              content = match_content[match_content.length - 2];
+            } else {
+              content = match_content[match_content.length - 1];
+            }
+          }
+          text = text.replace(
+            item,
+            `<img loading="lazy" src="${content}" border="0" alt="" width="${widthInfo}" height="${heightInfo}" crossoriginNew="anonymous">`
+          );
+        });
+      }
+      let hide = text.match(/\[hide\]([\s\S]*?)\[\/hide\]/g);
+      if (hide) {
+        hide.forEach((item) => {
+          let match_content = item.match(/\[hide\]([\s\S]*?)\[\/hide\]/);
+          let content = match_content ? match_content[match_content.length - 1] : "";
+          text = text.replace(
+            item,
+            `<div class="comiis_quote bg_h f_c"><h2 class="f_a">本帖隐藏的内容: </h2>${content}</div>`
+          );
+        });
+      }
+      let hide2 = text.match(/\[hide=[\s\S]*?\]([\s\S]*?)\[\/hide\]/g);
+      if (hide2) {
+        hide2.forEach((item) => {
+          let match_content = item.match(
+            /\[hide=([\s\S]*?)\]([\s\S]*?)\[\/hide\]/
+          );
+          let other_info = match_content ? match_content[match_content.length - 2] : "";
+          other_info = other_info.split(",");
+          let integral_big_can_see = other_info.length == 2 ? other_info[1] : "";
+          text = text.replace(
+            item,
+            `<div class="comiis_quote bg_h f_c">以下内容需要积分高于 ${integral_big_can_see} 才可浏览</div>`
+          );
+        });
+      }
+      let quote = text.match(/\[quote\]([\s\S]*?)\[\/quote\]/g);
+      if (quote) {
+        quote.forEach((item) => {
+          let match_content = item.match(/\[quote\]([\s\S]*?)\[\/quote\]/);
+          let content = match_content ? match_content[match_content.length - 1] : "";
+          text = text.replace(
+            item,
+            `<div class="comiis_quote bg_h b_dashed f_c"><blockquote><font>回复</font> ${content}</blockquote></div>`
+          );
+        });
+      }
+      let free = text.match(/\[free\]([\s\S]*?)\[\/free\]/g);
+      if (free) {
+        free.forEach((item) => {
+          let match_content = item.match(/\[free\]([\s\S]*?)\[\/free\]/);
+          let content = match_content ? match_content[match_content.length - 1] : "";
+          text = text.replace(
+            item,
+            `<div class="comiis_quote bg_h f_c"><blockquote>${content}</blockquote></div>`
+          );
+        });
+      }
+      let strong = text.match(/\[b\]([\s\S]*?)\[\/b\]/g);
+      if (strong) {
+        strong.forEach((item) => {
+          let match_content = item.match(/\[b\]([\s\S]*?)\[\/b\]/i);
+          let content = match_content ? match_content[match_content.length - 1] : "";
+          text = text.replace(item, `<strong>${content}</strong>`);
+        });
+      }
+      let xhx = text.match(/\[u\]([\s\S]*?)\[\/u\]/g);
+      if (xhx) {
+        xhx.forEach((item) => {
+          let match_content = item.match(/\[u\]([\s\S]*?)\[\/u\]/);
+          let content = match_content ? match_content[match_content.length - 1] : "";
+          text = text.replace(item, `<u>${content}</u>`);
+        });
+      }
+      let qx = text.match(/\[i\]([\s\S]*?)\[\/i\]/g);
+      if (qx) {
+        qx.forEach((item) => {
+          let match_content = item.match(/\[i\]([\s\S]*?)\[\/i\]/);
+          let content = match_content ? match_content[match_content.length - 1] : "";
+          text = text.replace(item, `<i>${content}</i>`);
+        });
+      }
+      let strike = text.match(/\[s\]([\s\S]*?)\[\/s\]/g);
+      if (strike) {
+        strike.forEach((item) => {
+          let match_content = item.match(/\[s\]([\s\S]*?)\[\/s\]/);
+          let content = match_content ? match_content[match_content.length - 1] : "";
+          text = text.replace(item, `<strike>${content}</strike>`);
+        });
+      }
+      let smilies = text.match(/\[([\s\S]+?)\]/g);
+      if (smilies) {
+        smilies.forEach((item) => {
+          let smiliesMatchSrc = smiliesDictionaries[item];
+          if (smiliesMatchSrc) {
+            text = text.replace(
+              item,
+              `<img loading="lazy" src="${smiliesMatchSrc}" border="0" alt="" smilieid="">`
+            );
+          }
+        });
+      }
+      let media = text.match(/\[media=[\s\S]+?\][\s\S]+?\[\/media\]/g);
+      if (media) {
+        media.forEach((item) => {
+          let match_content = item.match(
+            /\[media=[\s\S]*?\]([\s\S]*?)\[\/media\]/
+          );
+          let content = match_content ? match_content[match_content.length - 1] : "";
+          if (content) {
+            text = text.replace(
+              item,
+              `<ignore_js_op><span><iframe src="${content}" border="0" scrolling="no" framespacing="0" allowfullscreen="true" style="max-width: 100%" width="100%" height="auto" frameborder="no"></iframe></span></ignore_js_op>`
+            );
+          }
+        });
+      }
+      let email = text.match(/\[email=[\s\S]+?\][\s\S]+?\[\/email\]/g);
+      if (email) {
+        email.forEach((item) => {
+          let email_match = item.match(/\[email=([\s\S]*?)\][\s\S]*?\[\/email\]/);
+          let content_match = item.match(
+            /\[email=[\s\S]*?\]([\s\S]*?)\[\/email\]/
+          );
+          let _email_ = email_match.length ? (
+            // @ts-ignore
+            email_match[email_match.length - 1]
+          ) : "";
+          let _content_ = content_match.length ? (
+            // @ts-ignore
+            content_match[content_match.length - 1]
+          ) : "";
+          if (_email_ || _content_) {
+            text = text.replace(
+              item,
+              `<a href="mailto:${_email_}">${_content_}</a>`
+            );
+          }
+        });
+      }
+      let align = text.match(/\[align=[\s\S]+?\][\s\S]+?\[\/align\]/g);
+      if (align) {
+        align.forEach((item) => {
+          let align_match = item.match(/\[align=([\s\S]*?)\][\s\S]+?\[\/align\]/);
+          let content_match = item.match(
+            /\[align=[\s\S]*?\]([\s\S]+?)\[\/align\]/
+          );
+          let _align_ = align_match.length ? (
+            // @ts-ignore
+            align_match[align_match.length - 1]
+          ) : "";
+          let _content_ = content_match.length ? (
+            // @ts-ignore
+            content_match[content_match.length - 1]
+          ) : "";
+          if (_align_ || _content_) {
+            text = text.replace(
+              item,
+              `<div align="${_align_}">${_content_}</div>`
+            );
+          }
+        });
+      }
+      let qq = text.match(/\[qq\][\s\S]*?\[\/qq\]/g);
+      if (qq) {
+        qq.forEach((item) => {
+          let match_content = item.match(/\[qq\]([\s\S]*?)\[\/qq\]/);
+          let content = match_content ? match_content[match_content.length - 1] : "";
+          text = text.replace(
+            item,
+            `<a href="http://wpa.qq.com/msgrd?v=3&uin=${content}&site=[Discuz!]&from=discuz&menu=yes" target="_blank"><img loading="lazy" src="static/image/common/qq_big.gif" border="0"></a>`
+          );
+        });
+      }
+      let td = text.match(/\[td\][\s\S]+?\[\/td\]/g);
+      if (td) {
+        td.forEach((item) => {
+          let match_content = item.match(/\[td\]([\s\S]*?)\[\/td\]/);
+          let content = match_content ? match_content[match_content.length - 1] : "";
+          text = text.replace(item, `<td>${content}</td>`);
+        });
+      }
+      let tr = text.match(/\[tr\][\s\S]+?\[\/tr\]/g);
+      if (tr) {
+        tr.forEach((item) => {
+          let match_content = item.match(/\[tr\]([\s\S]*?)\[\/tr\]/);
+          let content = match_content ? match_content[match_content.length - 1] : "";
+          text = text.replace(item, `<tr>${content}</tr>`);
+        });
+      }
+      let table = text.match(/\[table\][\s\S]+?\[\/table\]/g);
+      if (table) {
+        table.forEach((item) => {
+          let match_content = item.match(/\[table\]([\s\S]*?)\[\/table\]/);
+          let content = match_content ? match_content[match_content.length - 1] : "";
+          content = content.replace(/\n/g, "");
+          text = text.replace(item, `<table>${content}</table>`);
+        });
+      }
+      let list = text.match(/\[list=[\s\S]+?\][\s\S]+?\[\/list\]/g);
+      if (list) {
+        list.forEach((item) => {
+          let list_model_match = item.match(
+            /\[list=([\s\S]*?)\][\s\S]*?\[\/list\]/
+          );
+          let list_content_match = item.match(
+            /\[list=[\s\S]*?\]([\s\S]*?)\[\/list\]/
+          );
+          let list_model = list_model_match ? list_model_match[list_model_match.length - 1] : "";
+          let list_type = "";
+          if (list_model === "a") {
+            list_type = "litype_2";
+          } else if (list_model === "A") {
+            list_type = "litype_3";
+          } else if (list_model.length === 1 && list_model.match(/[0-9]{1}/)) {
+            list_type = "litype_1";
+          }
+          let content = list_content_match ? list_content_match[list_content_match.length - 1] : "";
+          let li_split = content.split("[*]");
+          if (li_split.length > 1) {
+            let newContent = "";
+            if (li_split[0].replace(/[\s]*/, "") == "") {
+              li_split = li_split.slice(1);
+            }
+            Array.from(li_split).forEach((item2) => {
+              newContent = `${newContent}<li>${item2}</li>`;
+            });
+            content = newContent;
+          }
+          content = content.replace(/\n/g, "");
+          text = text.replace(
+            item,
+            `<ul type="${list_model}" class="${list_type}">${content}</ul>`
+          );
+        });
+      }
+      return text;
+    },
+    /**
+     * 投票的内容转换
+     */
+    parseVoteText() {
+      let chooseColor = [
+        "rgb(233, 39, 37)",
+        "rgb(242, 123, 33)",
+        "rgb(242, 166, 31)",
+        "rgb(90, 175, 74)",
+        "rgb(66, 196, 245)",
+        "rgb(0, 153, 204)",
+        "rgb(51, 101, 174)",
+        "rgb(42, 53, 145)",
+        "rgb(89, 45, 142)",
+        "rgb(219, 49, 145)",
+        "rgb(233, 39, 37)",
+        "rgb(242, 123, 33)",
+        "rgb(242, 166, 31)",
+        "rgb(90, 175, 74)",
+        "rgb(66, 196, 245)",
+        "rgb(0, 153, 204)",
+        "rgb(51, 101, 174)",
+        "rgb(42, 53, 145)",
+        "rgb(89, 45, 142)",
+        "rgb(219, 49, 145)"
+      ];
+      let chooseContent = $$(
+        ".comiis_polloption_add ul li:first-child div.flex .comiis_input.kmshow[type='text']"
+      );
+      let maxchoices = parseInt(domUtils.val("input#maxchoices"));
+      maxchoices = isNaN(maxchoices) ? 0 : maxchoices;
+      maxchoices = maxchoices > 0 ? maxchoices : 0;
+      maxchoices = maxchoices > chooseContent.length ? chooseContent.length : maxchoices;
+      let polldatas = parseInt(domUtils.val("input#polldatas"));
+      polldatas = isNaN(polldatas) ? 0 : polldatas;
+      _unsafeWindow.$("input#visibilitypoll").parent().find(".comiis_checkbox").hasClass("comiis_checkbox_close") ? false : true;
+      let overt = _unsafeWindow.$("input#overt").parent().find(".comiis_checkbox").hasClass("comiis_checkbox_close") ? false : true;
+      let html = "";
+      let choosehtml = "";
+      chooseContent.forEach((item, index) => {
+        if (index >= 20) {
+          return;
+        }
+        choosehtml = choosehtml + `
+                    <li class="kmnop">
+                        <input type="${maxchoices > 1 ? "checkbox" : "radio"}">
+                        <label><i class="comiis_font f_d"></i>${item.value}</label>
+                    </li>
+                    <li class="poll_ok cl">
+                        <span class="bg_b">
+                            <em style="width:2%;background-color:${chooseColor[index]}"></em>
+                        </span>
+                        <em style="color:${chooseColor[index]}">0% (0)</em>
+                    </li>`;
+      });
+      html = `
+                    <div class="comiis_poll cl comiis_input_style b_t postforum_vote">
+                            <div class="comiis_poll_top">
+                                <i class="comiis_font bg_a f_f"></i>
+                                <h2>${maxchoices > 1 ? '多选投票<em class="f_c"> 最多可选 ' + maxchoices + " 项</em>" : "单选投票"}</h2>
+                                <p class="f_c">共有 0 人参与投票</p>
+                                ${polldatas > 0 ? ` <p class="kmbtn">
+                                <span class="bg_e">距结束还有:
+                                ${polldatas > 1 ? '<em class="f_a">' + (polldatas - 1) + "</em> 天 " : ""}<em class="f_a">23</em> 小时 <em class="f_a">59</em> 分钟</span>
+                            </p>` : ""}
+                               
+                            </div>
+                            <div class="comiis_poll_list comiis_input_style cl">
+                                <ul>
+                                    ${choosehtml}
+                                </ul>
+                            </div>
+                            <div class="comiis_poll_bottom cl">
+                                <input type="submit" value="提交" class="formdialog comiis_btn kmshow bg_c f_f" disabled>
+                                ${overt ? '<div class="comiis_quote bg_h b_dashed f_a"><i class="comiis_font"></i>此为公开投票，其他人可看到您的投票项目</div>' : ""}
+                            </div>
+                    </div>
+                `;
+      _unsafeWindow.$(".gm_plugin_previewpostforum_html .postforum_vote").remove();
+      _unsafeWindow.$(".gm_plugin_previewpostforum_html .comiis_messages.comiis_aimg_show").children().eq(0).before(_unsafeWindow.$(html));
+    }
+  };
+  const MTEditorOptimization = {
+    $data: {
+      db: new Utils.indexedDB("mt_full_reply_record", "input_text"),
+      get type() {
+        return Router.isPostPublish_voting() ? "post-vote" : "post";
+      },
+      get tid() {
+        return MTUtils.getThreadId(window.location.href);
+      },
+      get pid() {
+        return MTUtils.getPostId(window.location.href);
+      }
+    },
+    $key: {
+      /** 尚未发布、尚未存入草稿的序列化内容 */
+      noPublishSerializeText: "mt-editor-no-publish-serialize-text",
+      /** 尚未发布、尚未存入草稿的序列化投票内容 */
+      noPublishVotingSerializeText: "mt-editor-no-publish-voting-serialize-text"
+    },
+    $el: {
+      /** 标题框 */
+      $title: null,
+      /** 输入框 */
+      $input: null,
+      /** 表单元素 */
+      $form: null
+    },
+    init() {
+      log.info(`编辑器优化`);
+      addStyle(optimizationCSS);
+      this.overridePageEditor();
+    },
+    /**
+     * 覆盖页面的编辑器
+     */
+    overridePageEditor() {
+      const that = this;
+      this.$el.$title = $("#needsubject");
+      this.$el.$form = $("#postform");
+      this.$el.$input = $("#needmessage");
+      domUtils.hide(domUtils.parent(".comiis_scrollTop_box"), false);
+      domUtils.css("#postform .comiis_post_from.mt15", {
+        "margin-top": "0px !important"
+      });
+      let comiis_post_tab = _unsafeWindow.$(
+        "#postform .comiis_post_from #comiis_post_tab"
+      );
+      _unsafeWindow.$("#postform .comiis_post_from .comiis_post_ico").append(comiis_post_tab);
+      comiis_post_tab.remove();
+      _unsafeWindow.textarea_scrollHeight = () => {
+      };
+      let comiis_delete = _unsafeWindow.$.fn.comiis_delete;
+      _unsafeWindow.$.fn.extend({
+        comiis_delete: function(...args) {
+          let result = comiis_delete.call(this, ...args);
+          utils.dispatchEvent(that.$el.$input, "input");
+          return result;
+        }
+      });
+      domUtils.hide(".comiis_btnbox", false);
+      this.initVotePage();
+      _unsafeWindow.$(
+        ".gm_plugin_chartbed .comiis_over_box.comiis_input_style #imglist"
+      );
+      addStyle(
+        /*css*/
+        `
+        #imglist_settings button{
+            font-size: 13.333px;
+            color: #9baacf;
+            outline: none;
+            border: none;
+            height: 35px;
+            width: 80px;
+            border-radius: 10px;
+            box-shadow: 0.3rem 0.3rem 0.6rem #c8d0e7, -0.2rem -0.2rem 0.5rem #ffffff;
+            font-weight: 800;
+            line-height: 40px;
+            background: #efefef;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #imglist_settings button:active{box-shadow:inset .2rem .2rem .5rem #c8d0e7,inset -.2rem -.2rem .5rem #fff!important;color:#638ffb!important}
+        `
+      );
+      domUtils.attr("#filedata", "multiple", true);
+      domUtils.remove(".gm_plugin_chartbed .comiis_over_box.comiis_input_style");
+      domUtils.on(
+        document,
+        "#comiis_pictitle_key li",
+        "click",
+        function() {
+          domUtils.removeClass("#comiis_pictitle_key li", "bg_f");
+          domUtils.addClass(this, "bg_f");
+          _unsafeWindow.$(".gm_plugin_chartbed .comiis_upbox").hide().eq(_unsafeWindow.$(this).index()).fadeIn();
+        }
+      );
+      let top_height = parseInt(domUtils.css("#comiis_head", "height")) || 0;
+      let fatie_toupiao = parseInt(domUtils.css("#comiis_sub", "height")) || 0;
+      let extra_margin_bottom = $("#pollm_c_1") ? 60 : 0;
+      let title_height = parseInt(domUtils.css(".comiis_styli.comiis_flex", "height")) || 0;
+      let nav_bottom_height = parseInt(
+        domUtils.css(".comiis_post_ico.comiis_minipost_icot", "height")
+      ) || 0;
+      domUtils.css(
+        "#needmessage",
+        "height",
+        `${window.screen.height - top_height - fatie_toupiao - 48 - title_height - nav_bottom_height - 10}px`
+      );
+      domUtils.css("#needmessage", "marginBottom", extra_margin_bottom + "px");
+      if (Router.isPostPublish_edit() && domUtils.val("#needsubject") === "") {
+        domUtils.hide(".comiis_styli.comiis_flex", false);
+      } else {
+        domUtils.attr(
+          "#needsubject",
+          "placeholder",
+          "请输入完整的帖子标题 (1-80个字)"
+        );
+      }
+      domUtils.attr("#needmessage", "placeholder", "来吧，尽情发挥吧...");
+      if (typeof _unsafeWindow.comiis_addsmilies == "function") {
+        _unsafeWindow.comiis_addsmilies = (_str_) => {
+          _unsafeWindow.$("#needmessage").comiis_insert(_str_);
+          _unsafeWindow.$("#needmessage")[0].dispatchEvent(new Event("input"));
+        };
+      }
+      if (PopsPanel.getValue(
+        "mt-forum-post-editorOptimizationNormal-recordInputText"
+      ) || PopsPanel.getValue("mt-forum-post-editorOptimization-recordInputText")) {
+        this.setInputChangeEvent();
+        this.initReplyText();
+      }
+      this.initDeleteBtn();
+      this.initSaveDraftBtn();
+      this.initSaveBtn();
+      this.initPostBtn();
+      this.initReplyBtn();
+      this.observerChangeEditorHeight();
+      this.listenResize();
+      this.initSelectPostingSection();
+      this.initUBB();
+      this.initImage();
+      this.initPreview();
+      this.initCharacterCount();
+      this.initSettingImmersionMode();
+    },
+    /**
+     * 把存储回复框的内容设置到输入框中
+     */
+    async initReplyText() {
+      const that = this;
+      let data = null;
+      let save_callback = null;
+      let delete_callback = null;
+      if (Router.isPostPublish_newthread()) {
+        log.info(`新发布帖子的页面`);
+        if (Router.isPostPublish_voting()) {
+          log.info(`投票页面`);
+          data = _GM_getValue(
+            this.$key.noPublishVotingSerializeText
+          );
+          delete_callback = () => {
+            _GM_deleteValue(that.$key.noPublishVotingSerializeText);
+          };
+        } else {
+          log.info(`普通帖子页面`);
+          data = _GM_getValue(this.$key.noPublishSerializeText);
+          delete_callback = () => {
+            _GM_deleteValue(this.$key.noPublishSerializeText);
+          };
+        }
+      } else if (Router.isPostPublish_edit()) {
+        log.info(`草稿的页面`);
+        log.info(
+          `type：${this.$data.type} tid：${this.$data.tid} pid：${this.$data.pid}`
+        );
+        let initResult = await this.$data.db.get("data");
+        if (initResult.code === 201) {
+          await this.$data.db.save("data", []);
+        }
+        let queryResult = await this.$data.db.get("data");
+        if (queryResult.data) {
+          let findValue = queryResult.data.find((item) => {
+            if (item.type !== that.$data.type) {
+              return;
+            }
+            if (item.tid !== that.$data.tid || item.pid !== that.$data.pid) {
+              return;
+            }
+            return true;
+          });
+          if (findValue) {
+            data = findValue.data;
+            delete_callback = async () => {
+              let deleteQuery = await this.$data.db.get(
+                "data"
+              );
+              if (deleteQuery.data) {
+                let deleteFindIndex = deleteQuery.data.findIndex((item) => {
+                  if (item.type !== that.$data.type) {
+                    return;
+                  }
+                  if (item.tid !== that.$data.tid || item.pid !== that.$data.pid) {
+                    return;
+                  }
+                  return true;
+                });
+                if (deleteFindIndex != -1) {
+                  deleteQuery.data.splice(deleteFindIndex, 1);
+                  await this.$data.db.save(
+                    "data",
+                    deleteQuery.data
+                  );
+                }
+              }
+            };
+          }
+        }
+      } else if (Router.isPostPublish_reply()) {
+        log.info(`回复页面`);
+        if (PopsPanel.getValue(
+          "mt-forum-post-editorOptimizationNormal-recordInputText"
+        )) {
+          let initResult = await MTEditorOptimizationNormal.$data.db.get("data");
+          if (initResult.code === 201) {
+            await this.$data.db.save("data", []);
+          }
+          let queryResult = await MTEditorOptimizationNormal.$data.db.get("data");
+          if (queryResult.data) {
+            let findValue = queryResult.data.find((item) => {
+              return item.forumId === that.$data.tid && item.repquote === MTUtils.getRepquote(window.location.href);
+            });
+            if (findValue) {
+              data = findValue;
+            }
+          }
+        }
+      }
+      if (!data) {
+        return;
+      }
+      if (Router.isPostPublish_voting()) {
+        save_callback = () => {
+          let $title = that.$el.$form.querySelector(
+            "input[name='subject']"
+          );
+          let $content = that.$el.$form.querySelector(
+            "textarea[name='message']"
+          );
+          let $maxchoices = that.$el.$form.querySelector(
+            "input[name='maxchoices']"
+          );
+          let $expiration = that.$el.$form.querySelector(
+            "input[name='expiration']"
+          );
+          let $visibilitypoll = that.$el.$form.querySelector(
+            "input[name='visibilitypoll']"
+          );
+          let $overt = that.$el.$form.querySelector(
+            "input[name='overt']"
+          );
+          domUtils.val($title, data.title);
+          domUtils.val($content, data.content);
+          domUtils.val($maxchoices, data.maxchoices);
+          domUtils.val($expiration, data.expiration);
+          domUtils.val(
+            $visibilitypoll,
+            data.visibilitypoll
+          );
+          domUtils.val($overt, data.overt);
+          utils.dispatchEvent($title, "input");
+          utils.dispatchEvent($content, "input");
+          utils.dispatchEvent($maxchoices, "input");
+          utils.dispatchEvent($expiration, "input");
+          utils.dispatchEvent($visibilitypoll, "input");
+          utils.dispatchEvent($overt, "input");
+          return true;
+        };
+      } else {
+        if (Router.isPostPublish_reply()) {
+          save_callback = () => {
+            let $content = that.$el.$form.querySelector(
+              "textarea[name='message']"
+            );
+            domUtils.val($content, data.text);
+            utils.dispatchEvent($content, "input");
+            return true;
+          };
+        } else {
+          save_callback = () => {
+            let $title = that.$el.$form.querySelector(
+              "input[name='subject']"
+            );
+            let $content = that.$el.$form.querySelector(
+              "textarea[name='message']"
+            );
+            domUtils.val($title, data.title);
+            domUtils.val($content, data.content);
+            utils.dispatchEvent($title, "input");
+            utils.dispatchEvent($content, "input");
+            return true;
+          };
+        }
+      }
+      if (Router.isPostPublish_newthread()) {
+        log.info(`新发布帖子的页面`);
+        if (typeof save_callback === "function") {
+          save_callback();
+        }
+      } else if (Router.isPostPublish_edit()) {
+        log.info(`草稿的页面`);
+        if (typeof save_callback === "function" && typeof delete_callback === "function") {
+          __pops.confirm({
+            title: {
+              text: "提示",
+              position: "center"
+            },
+            content: {
+              text: "<p>存在历史写入的数据，是否恢复到编辑器里？</p>",
+              html: true
+            },
+            btn: {
+              merge: true,
+              position: "space-between",
+              ok: {
+                text: "恢复",
+                callback: async (details) => {
+                  if (await save_callback()) {
+                    Qmsg.success("恢复成功");
+                    details.close();
+                  }
+                }
+              },
+              other: {
+                enable: true,
+                type: "danger",
+                text: "删除该数据",
+                callback: async (details) => {
+                  await delete_callback();
+                  details.close();
+                  Qmsg.success("删除成功");
+                }
+              }
+            },
+            width: "300px",
+            height: "200px"
+          });
+        }
+      } else if (Router.isPostPublish_reply()) {
+        log.info(`回复页面`);
+        if (typeof save_callback === "function") {
+          save_callback();
+        }
+      }
+    },
+    /**
+     * 获取回复记录的占用空间
+     */
+    async getReplyRecordSize() {
+      var _a2;
+      let result = await this.$data.db.get("data");
+      if (result.success) {
+        let size = utils.getTextStorageSize(
+          ((_a2 = result == null ? void 0 : result.data) == null ? void 0 : _a2.length) ? JSON.stringify(result.data) : ""
+        );
+        return size;
+      } else {
+        return utils.formatByteToSize(0);
+      }
+    },
+    /**
+     * 清空所有的回复记录
+     */
+    async clearAllReplyRecord() {
+      return await this.$data.db.deleteAll();
+    },
+    /**
+     * 删除存储的数据
+     */
+    deleteReplyTextStorage() {
+      const that = this;
+      this.$data.db.get("data").then((result) => {
+        if (!result.success) {
+          console.warn(result);
+          return;
+        }
+        let type = Router.isPostPublish_voting() ? "post-vote" : "post";
+        let tid = MTUtils.getThreadId(window.location.href);
+        let pid = MTUtils.getPostId(window.location.href);
+        let localDataIndex = result.data.findIndex((item) => {
+          if (item.type !== type) {
+            return;
+          }
+          if (item.tid !== tid || item.pid !== pid) {
+            return;
+          }
+          return true;
+        });
+        if (localDataIndex !== -1) {
+          result.data.splice(localDataIndex, 1);
+          that.$data.db.save("data", result.data).then((result2) => {
+          });
+        }
+      });
+    },
+    /**
+     * 监听输入框内容改变
+     */
+    setInputChangeEvent() {
+      const that = this;
+      domUtils.on(
+        [this.$el.$input, this.$el.$title].filter(Boolean),
+        ["input", "propertychange"],
+        function(event2) {
+          let data = null;
+          if (Router.isPostPublish_voting()) {
+            let $title = that.$el.$form.querySelector(
+              "input[name='subject']"
+            );
+            let $content = that.$el.$form.querySelector(
+              "textarea[name='message']"
+            );
+            let $maxchoices = that.$el.$form.querySelector(
+              "input[name='maxchoices']"
+            );
+            let $expiration = that.$el.$form.querySelector(
+              "input[name='expiration']"
+            );
+            let $visibilitypoll = that.$el.$form.querySelector(
+              "input[name='visibilitypoll']"
+            );
+            let $overt = that.$el.$form.querySelector(
+              "input[name='overt']"
+            );
+            data = {
+              title: $title.value,
+              maxchoices: $maxchoices.value,
+              expiration: $expiration.value,
+              visibilitypoll: $visibilitypoll.checked,
+              overt: $overt.checked,
+              content: $content.value
+            };
+          } else {
+            let $title = that.$el.$form.querySelector(
+              "input[name='subject']"
+            );
+            let $content = that.$el.$form.querySelector(
+              "textarea[name='message']"
+            );
+            data = {
+              title: $title == null ? void 0 : $title.value,
+              content: $content.value
+            };
+          }
+          if (Router.isPostPublish_newthread()) {
+            log.info(`内容改变 ==> 新发布帖子的页面`);
+            if (Router.isPostPublish_voting()) {
+              _GM_setValue(that.$key.noPublishVotingSerializeText, data);
+            } else {
+              _GM_setValue(that.$key.noPublishSerializeText, data);
+            }
+          } else if (Router.isPostPublish_edit()) {
+            log.info(`内容改变 ==> 草稿的页面`);
+            that.$data.db.get("data").then((result) => {
+              if (!result.success) {
+                console.warn(result);
+                return;
+              }
+              let localDataIndex = result.data.findIndex((item) => {
+                if (item.type !== that.$data.type) {
+                  return;
+                }
+                if (item.tid !== that.$data.tid || item.pid !== that.$data.pid) {
+                  return;
+                }
+                return true;
+              });
+              if (localDataIndex !== -1) {
+                result.data.splice(localDataIndex, 1);
+              }
+              result.data.push({
+                url: window.location.href,
+                data,
+                pid: that.$data.pid,
+                tid: that.$data.tid,
+                type: that.$data.type
+              });
+              that.$data.db.save("data", result.data).then((result2) => {
+              });
+            });
+          } else if (Router.isPostPublish_reply()) {
+            log.info(`内容改变 ==> 回复页面`);
+            PopsPanel.execMenu(
+              "mt-forum-post-editorOptimizationNormal-recordInputText",
+              () => {
+                MTEditorOptimizationNormal.$data.db.get("data").then((result) => {
+                  if (!result.success || result.code === 201) {
+                    console.warn(result);
+                    return;
+                  }
+                  let localDataIndex = result.data.findIndex((item) => {
+                    return item.forumId === that.$data.tid && item.repquote === MTUtils.getRepquote(window.location.href);
+                  });
+                  if (localDataIndex !== -1) {
+                    if (data.content == null || data.content === "") {
+                      result.data.splice(localDataIndex, 1);
+                    } else {
+                      result.data[localDataIndex] = utils.assign(
+                        result.data[localDataIndex],
+                        {
+                          text: data.content
+                        }
+                      );
+                    }
+                  } else {
+                    result.data.push({
+                      forumId: that.$data.tid,
+                      url: window.location.href,
+                      repquote: MTUtils.getRepquote(window.location.href),
+                      text: data.content
+                    });
+                  }
+                  MTEditorOptimizationNormal.$data.db.save("data", result.data).then((result2) => {
+                  });
+                });
+              }
+            );
+          }
+        }
+      );
+    },
+    /**
+     * 初始化删除按钮
+     */
+    initDeleteBtn() {
+      let btn_del = $(".comiis_btnbox .comiis_btn.bg_del");
+      if (!btn_del) {
+        return;
+      }
+      let $header = $("#comiis_head .header_y");
+      let $btn = domUtils.createElement(
+        "input",
+        {
+          className: "new_btn_del"
+        },
+        {
+          type: "button",
+          value: "删除"
+        }
+      );
+      domUtils.append($header, $btn);
+      domUtils.on($btn, "click", function() {
+        __pops.confirm({
+          title: {
+            text: "提示",
+            position: "center"
+          },
+          content: {
+            text: "<p>是否删除帖子?</p>",
+            html: true
+          },
+          btn: {
+            ok: {
+              callback: (details) => {
+                details.close();
+                _unsafeWindow.comiis_delthread();
+              }
+            }
+          },
+          width: "300px",
+          height: "200px"
+        });
+      });
+    },
+    /**
+     * 初始化保存按钮
+     */
+    initSaveBtn() {
+      let $save = domUtils.selector(
+        ".comiis_btnbox button#postsubmit:contains('保存')"
+      );
+      if (!$save) {
+        return;
+      }
+      if (domUtils.text($save).includes("草稿")) {
+        return;
+      }
+      let $header = $("#comiis_head .header_y");
+      let $btn = domUtils.createElement(
+        "input",
+        {
+          className: "new_btn_save"
+        },
+        {
+          type: "button",
+          value: "保存"
+        }
+      );
+      domUtils.append($header, $btn);
+      domUtils.on($btn, "click", function() {
+        $save.click();
+      });
+    },
+    /**
+     * 初始化发表按钮
+     */
+    initPostBtn() {
+      let $post2 = domUtils.selector(
+        ".comiis_btnbox button#postsubmit:contains('发表')"
+      );
+      if (!$post2) {
+        return;
+      }
+      let $header = $("#comiis_head .header_y");
+      let $btn = domUtils.createElement(
+        "input",
+        {
+          className: "new_btn_post"
+        },
+        {
+          type: "button",
+          value: "发表"
+        }
+      );
+      domUtils.append($header, $btn);
+      domUtils.on($btn, "click", function() {
+        domUtils.val("#postsave", 0);
+        $post2.click();
+      });
+    },
+    /**
+     * 初始化回复按钮
+     */
+    initReplyBtn() {
+      const that = this;
+      let $reply = domUtils.selector(
+        ".comiis_btnbox button#postsubmit:contains('回复')"
+      );
+      if (!$reply) {
+        return;
+      }
+      let $header = $("#comiis_head .header_y");
+      let $btn = domUtils.createElement(
+        "input",
+        {
+          className: "new_btn_reply"
+        },
+        {
+          type: "button",
+          value: "回复"
+        }
+      );
+      domUtils.append($header, $btn);
+      domUtils.on($btn, "click", function() {
+        $reply.click();
+        that.deleteReplyTextStorage();
+      });
+    },
+    /**
+     * 初始化投票页面
+     */
+    initVotePage() {
+      if (!$$(".comiis_scrollTop_box").length) {
+        return;
+      }
+      _unsafeWindow.$("#htmlon").parent().append(
+        /*html*/
+        `
+                <li class="comiis_styli_m f15 comiis_flex b_b">
+                    <div class="flex">发表帖子</div>
+                    <div class="styli_r">
+                        <input type="checkbox" name="usesig" value="1" class="comiis_checkbox_key">
+                        <label for="" class="wauto">
+                            <code class="bg_f b_ok comiis_checkbox comiis_choose_post comiis_checkbox_close"></code>
+                        </label>
+                    </div>	
+                </li>
+                <li class="comiis_styli_m f15 comiis_flex b_b">
+                    <div class="flex">发投票</div>
+                    <div class="styli_r">
+                        <input type="checkbox" name="usesig" value="1" class="comiis_checkbox_key">
+                        <label for="" class="wauto">
+                            <code class="bg_f b_ok comiis_checkbox comiis_choose_vote comiis_checkbox_close"></code>
+                        </label>
+                    </div>	
+                </li>
+                `
+      );
+      if (_unsafeWindow.$(".comiis_scrollTop_box .swiper-slide a:contains('发表帖子')").attr("class") != "f_c") {
+        _unsafeWindow.$(".comiis_checkbox.comiis_choose_post").removeClass("comiis_checkbox_close");
+      } else {
+        _unsafeWindow.$(".comiis_checkbox.comiis_choose_vote").removeClass("comiis_checkbox_close");
+      }
+      _unsafeWindow.$(".comiis_checkbox.comiis_choose_post").on("click", function() {
+        let obj = _unsafeWindow.$(this);
+        obj.addClass("comiis_checkbox_close");
+        _unsafeWindow.$(".comiis_checkbox.comiis_choose_vote").addClass("comiis_checkbox_close");
+        obj.removeClass("comiis_checkbox_close");
+        window.location.href = window.location.href.replace("&special=1", "");
+      });
+      _unsafeWindow.$(".comiis_checkbox.comiis_choose_vote").on("click", function() {
+        let obj = _unsafeWindow.$(this);
+        obj.addClass("comiis_checkbox_close");
+        _unsafeWindow.$(".comiis_checkbox.comiis_choose_post").addClass("comiis_checkbox_close");
+        obj.removeClass("comiis_checkbox_close");
+        window.location.href = window.location.href + "&special=1";
+      });
+    },
+    /**
+     * 初始化保存草稿按钮
+     */
+    initSaveDraftBtn() {
+      let $saveDraft = domUtils.selector(
+        ".comiis_btnbox button#postsubmit em:contains('保存草稿')"
+      );
+      if (!$saveDraft) {
+        return;
+      }
+      let $header = $("#comiis_head .header_y");
+      let $btn = domUtils.createElement(
+        "input",
+        {
+          className: "new_btn_save_temp"
+        },
+        {
+          type: "button",
+          value: "保存草稿"
+        }
+      );
+      $("#needsubject");
+      domUtils.append($header, $btn);
+      domUtils.selector(
+        ".comiis_scrollTop_box .swiper-slide a:contains('发表帖子')"
+      );
+      domUtils.on($btn, "click", function() {
+        $saveDraft.click();
+      });
+    },
+    /**
+     * 动态修改编辑器的高度
+     */
+    observerChangeEditorHeight() {
+      var recordHeight = 0;
+      utils.waitNode("#postform > div > div.comiis_post_ico.comiis_minipost_icot").then((element) => {
+        utils.mutationObserver(element, {
+          callback: (mutations) => {
+            var $tar = $(
+              "#postform > div > div.comiis_post_ico.comiis_minipost_icot"
+            );
+            let height = window.getComputedStyle($tar).getPropertyValue("height");
+            if (height.toString() === recordHeight.toString()) {
+              return;
+            }
+            recordHeight = parseInt(height);
+            let needMessageSeeHeight = document.documentElement.clientHeight - $(
+              "#postform > div > div.comiis_post_ico.comiis_minipost_icot"
+            ).getBoundingClientRect().height - $("#needmessage").getBoundingClientRect().top;
+            if (needMessageSeeHeight - 5 < 100) {
+              _unsafeWindow.$("#needmessage").css("height", "100px");
+              _unsafeWindow.$(
+                ".gm_plugin_previewpostforum_html.double-preview .comiis_over_box"
+              ).css("height", "100px");
+            } else {
+              _unsafeWindow.$("#needmessage").css("height", needMessageSeeHeight - 5 + "px");
+              _unsafeWindow.$(
+                ".gm_plugin_previewpostforum_html.double-preview .comiis_over_box"
+              ).css("height", needMessageSeeHeight - 5 + "px");
+            }
+          },
+          config: {
+            childList: true,
+            /* 属性的变动 */
+            attributes: true,
+            /* 节点内容或节点文本的变动 */
+            characterData: true,
+            /* 是否将观察器应用于该节点的所有后代节点 */
+            subtree: true
+          }
+        });
+      });
+    },
+    /**
+     * 监听窗口大小变化
+     */
+    listenResize() {
+      domUtils.on(window, "resize", function() {
+        let needMessageSeeHeight = document.documentElement.clientHeight - $(
+          "#postform > div > div.comiis_post_ico.comiis_minipost_icot"
+        ).getBoundingClientRect().height - $("#needmessage").getBoundingClientRect().top;
+        if (needMessageSeeHeight - 5 < 100) {
+          domUtils.css("#needmessage", "height", "100px");
+          domUtils.css(
+            ".gm_plugin_previewpostforum_html.double-preview .comiis_over_box",
+            "height",
+            "100px"
+          );
+        } else {
+          log.info("设置输入框、预览高度", needMessageSeeHeight - 5);
+          domUtils.css("#needmessage", "height", needMessageSeeHeight - 5 + "px");
+          domUtils.css(
+            ".gm_plugin_previewpostforum_html.double-preview .comiis_over_box",
+            "height",
+            needMessageSeeHeight - 5 + "px"
+          );
+        }
+      });
+    },
+    /**
+     * 注入选择板块功能
+     */
+    initSelectPostingSection() {
+      addStyle(
+        /*css*/
+        `
+            #select-post-section {
+                height: 28px;
+                width: 160px;
+                line-height: 28px;
+                border: 1px solid #ececec;
+                background: url(w.png) no-repeat;
+                background-position: 95% 50%;
+                -webkit-appearance: none;
+                appearance: none;
+                -moz-appearance: none;
+            }
+            `
+      );
+      let section_dict = {
+        2: "版本发布",
+        37: "插件交流",
+        38: "建议反馈",
+        41: "逆向交流",
+        39: "玩机交流",
+        42: "编程开发",
+        40: "求助问答",
+        44: "综合交流",
+        50: "休闲灌水",
+        46: "官方公告",
+        53: "申诉举报",
+        92: "站务专区"
+      };
+      domUtils.before(
+        ".comiis_post_from .comiis_wzpost.comiis_input_style .comiis_styli:contains('标题')",
+        /*html*/
+        `
+        <li class="comiis_styli_section comiis_flex b_b" style="padding: 10px 12px;font-size: 16px;">
+            <div class="styli_section f_c" style="padding-right: 8px;vertical-align: top;">板块</div>
+            <div class="flex">
+                <select id="select-post-section" style="vertical-align:top;border-color:transparent;font-size: 17px;font-weight: 300;text-overflow:ellipsis;white-space:nowrap;">
+                    <option value="2">版本发布</option>
+                    <option value="37">插件交流</option>
+                    <option value="38">建议反馈</option>
+                    <option value="39">玩机交流</option>
+                    <option value="40">求助问答</option>
+                    <option value="41">逆向交流</option>
+                    <option value="42">编程开发</option>
+                    <option value="44">综合交流</option>
+                    <option value="46">官方公告</option>
+                    <option value="50">休闲灌水</option>
+                    <option value="53">申诉举报</option>
+                    <option value="92">站务专区</option>
+                </select>
+            </div>
+        </li>
+        `
+      );
+      let $select = $(`#select-post-section`);
+      let currentSection = MTUtils.getForumId(window.location.href);
+      if (Router.isPostPublish_newthread()) {
+        log.info(`发帖`);
+        domUtils.on($select, "change", function() {
+          let fid = domUtils.val($select);
+          let postSection = `forum.php?mod=post&action=newthread&fid=${fid}&extra=&topicsubmit=yes&mobile=2`;
+          log.info(`修改发帖板块: ${section_dict[fid]} ${postSection}`);
+          let classifyClassNameDict = {
+            求助问答: {
+              className: "gm_user_select_help",
+              optionHTML: `<option value="0" selected="selected">请选择</option>
+                        <option value="59">求助问答</option>
+                        <option value="58">已解决</option>`
+            },
+            建议反馈: {
+              className: "gm_user_select_feedback",
+              optionHTML: `<option value="0" selected="selected">请选择</option>
+                        <option value="62">BUG反馈</option>
+                        <option value="63">意见反馈</option>
+                        <option value="65">论坛问题</option>
+                        <option value="64">已解决</option>`
+            },
+            站务专区: {
+              className: "gm_user_select_depot",
+              optionHTML: `<option value="0" selected="selected">请选择</option>
+                        <option value="42">版主申请</option>
+                        <option value="43">职位调整</option>`
+            }
+          };
+          let otherSelect = classifyClassNameDict[section_dict[fid]];
+          if (otherSelect) {
+            domUtils.remove(
+              domUtils.parent(".comiis_post_from .styli_tit:contains('分类')")
+            );
+            domUtils.before(
+              ".comiis_stylino.comiis_needmessage",
+              /*html*/
+              `
+                        <li class="comiis_styli comiis_flex b_b ${otherSelect["className"]}">
+                            <div class="styli_tit f_c">分类</div>
+                                <div class="flex comiis_input_style">
+                                    <div class="comiis_login_select">
+                                    <span class="inner">
+                                        <i class="comiis_font f_d"></i>
+                                        <span class="z">
+                                            <span class="comiis_question" id="typeid_name">请选择</span>
+                                        </span>					
+                                    </span>
+                                    <select id="typeid" name="typeid">
+                                        ${otherSelect["optionHTML"]}
+                                    </select>
+                                </div>	
+                            </div>
+                        </li>
+                        `
+            );
+          } else {
+            Object.keys(classifyClassNameDict).forEach((key) => {
+              domUtils.remove(
+                ".comiis_post_from ." + classifyClassNameDict[key]["className"]
+              );
+            });
+          }
+          domUtils.attr("#postform", "action", postSection);
+        });
+      } else {
+        domUtils.attr($select, "disabled", true);
+      }
+      domUtils.val($select, currentSection);
+      domUtils.trigger($select, "change");
+    },
+    /**
+     * 字符计数
+     */
+    initCharacterCount() {
+      log.info(`添加功能：字符计数`);
+      addStyle(
+        /*css*/
+        `
+        .gm_plugin_word_count{display:flex}
+        .gm_plugin_word_count::after{content:"/20000"}
+        `
+      );
+      domUtils.append(
+        "#comiis_mh_sub .swiper-wrapper.comiis_post_ico",
+        /*html*/
+        `
+            <a href="javascript:;" class="swiper-slide gm_plugin_word_count">
+                <p>0</p>
+            </a>`
+      );
+      domUtils.on(this.$el.$input, ["input", "propertychange"], (event2) => {
+        let userInputText = this.$el.$input.value;
+        let userInputTextLength = utils.getTextLength(userInputText);
+        let parsedText = MTEditorPreview.parseText(userInputText);
+        domUtils.html(
+          ".gm_plugin_previewpostforum_html .comiis_message_table",
+          parsedText
+        );
+        let wordCountDom = $(".gm_plugin_word_count p");
+        domUtils.text(wordCountDom, userInputTextLength);
+        if (userInputTextLength > 2e4 || userInputTextLength < 10) {
+          domUtils.attr(wordCountDom, "style", "color: red;");
+        } else {
+          domUtils.attr(wordCountDom, "style", "");
+        }
+      });
+    },
+    /**
+     * 自定义的其它ubb
+     */
+    initUBB() {
+      if (!$(".comiis_post_urlico")) {
+        log.error("未找到插入元素");
+        return;
+      }
+      addStyle(
+        /*css*/
+        `
+        #comiis_post_tab .comiis_input_style .comiis_post_urlico li a.f_0{
+            color: #53bcf5 !important;
+        }
+        `
+      );
+      let ubbCode = MTQuickUBB();
+      let parentEle = $(".comiis_post_urlico > ul");
+      let contentEle = $("#comiis_post_qydiv > ul");
+      let childNums = $$("#comiis_post_qydiv ul li").length;
+      ExtendJQueryFn();
+      domUtils.on(
+        "#comiis_post_tab .comiis_input_style .comiis_post_urlico li",
+        "click",
+        function() {
+          domUtils.removeClass(
+            "#comiis_post_tab .comiis_input_style .comiis_post_urlico li a",
+            "f_0"
+          );
+          domUtils.addClass(
+            "#comiis_post_tab .comiis_input_style .comiis_post_urlico li a",
+            "f_d"
+          );
+          domUtils.attr(this.querySelector("a"), "class", "comiis_xifont f_0");
+          _unsafeWindow.$("#comiis_post_qydiv ul li").hide().eq(_unsafeWindow.$(this).index()).fadeIn();
+        }
+      );
+      _unsafeWindow.$.each(ubbCode, function(key, value) {
+        let $ubbs = domUtils.createElement("li", {
+          className: "quickUBBs",
+          innerHTML: (
+            /*html*/
+            `
+                <a href="javascript:;" class="comiis_xifont f_d"><i class="comiis_font"></i>${value["key"]}</a>
+                `
+          )
+        });
+        domUtils.on($ubbs, "click", (event2) => {
+          let bottomEle = $(
+            `#comiis_post_qydiv li[data-key='${value.key}']`
+          );
+          if (!bottomEle) {
+            log.error("未找到该元素");
+            return;
+          }
+          $$(
+            "#comiis_post_tab div.comiis_post_urlico ul li a.comiis_xifont"
+          ).forEach(($ele) => {
+            $ele.className = "comiis_xifont f_d";
+          });
+          let $childAnchor = $ubbs.querySelector("a");
+          $childAnchor.className = "comiis_xifont f_0";
+          let contentIndex = childNums + Object.keys(ubbCode).indexOf(key);
+          _unsafeWindow.$("#comiis_post_qydiv ul li").hide().eq(contentIndex).fadeIn();
+        });
+        domUtils.append(parentEle, $ubbs);
+        let ubbs_content = document.createElement("li");
+        ubbs_content.setAttribute("style", "display: none;");
+        ubbs_content.setAttribute("data-key", value["key"]);
+        ubbs_content.innerHTML = /*html*/
+        `
+            <div class="comiis_styli_m f15" style="padding-top:12px;">
+                <div class="bg_e comiis_p5" style="border-radius:4px">
+                    <textarea class="comiis_pt kmshow f_c" id="comiis_input_${key}" style="font-size:15px" placeholder="请输入需要${value["key"]}的文字"></textarea>
+                </div>
+            </div>
+            <div class="comiis_styli_m f15 comiis_flex" style="padding-top:0;">
+                <div class="styli_tit">
+                    <button class="comiis_sendbtn bg_0 f_f" data-keyI="${key}" type="button">插入</button>
+                </div>
+                <div class="flex"></div>
+            </div>`;
+        domUtils.append(contentEle, ubbs_content);
+        domUtils.on(`.comiis_sendbtn[data-keyI="${key}"]`, "click", () => {
+          let text = _unsafeWindow.$(`#comiis_input_${key}`).val();
+          if (text == "") {
+            Qmsg.warning("请输入需要插入的内容");
+            return;
+          }
+          let currentUBBObj = ubbCode[key];
+          if (currentUBBObj["isFunc"]) {
+            text = MTUBB_Rainbow(currentUBBObj["num"], text);
+          }
+          if (currentUBBObj.hasOwnProperty("L")) {
+            text = currentUBBObj["L"] + text + currentUBBObj["R"];
+          }
+          _unsafeWindow.$("#needmessage").insertAtCaret(text);
+          if (currentUBBObj.hasOwnProperty("cursorL")) {
+            _unsafeWindow.$("#needmessage").moveCursorToCenterByTextWithLeft(
+              currentUBBObj["cursorL"],
+              currentUBBObj["cursorLength"]
+            );
+          }
+          if (currentUBBObj.hasOwnProperty("cursorR")) {
+            _unsafeWindow.$("#needmessage").moveCursorToCenterByTextWithRight(
+              currentUBBObj["cursorR"],
+              currentUBBObj["cursorLength"]
+            );
+          }
+        });
+      });
+    },
+    /**
+     * 图片功能
+     */
+    initImage() {
+      log.info(`添加功能：图片`);
+      addStyle(
+        /*css*/
+        `
+            #comiis_pictitle_tab .comiis_upbox{
+                height: 140px;
+                overflow-y: auto;
+            }
+            `
+      );
+      let imageBtnHTML = (
+        /*html*/
+        `
+        <a href="javascript:;" class="comiis_pictitle"><i class="comiis_font"><em>图片</em></i></a>`
+      );
+      domUtils.append(
+        "#comiis_mh_sub .swiper-wrapper.comiis_post_ico",
+        imageBtnHTML
+      );
+      domUtils.on(
+        ".comiis_pictitle",
+        "click",
+        function(event2) {
+          let $click = this;
+          let $font = $click.querySelector("i.comiis_font");
+          if (!$font.classList.contains("f_0")) {
+            domUtils.show(".gm_plugin_chartbed", false);
+          } else {
+            domUtils.hide(".gm_plugin_chartbed", false);
+          }
+        }
+      );
+      domUtils.append(
+        "#comiis_post_tab",
+        /*html*/
+        `
+            <div id="comiis_pictitle_tab" class="gm_plugin_chartbed" style="display: none">
+                <!-- <div class="comiis_upbox bg_f cl">
+                    <ul id="mt-imglist" class="comiis_post_imglist cl">
+                        <li class="up_btn">
+                            <a href="javascript:;" class="bg_e b_ok f_d">
+                                <i class="comiis_font"></i>
+                            </a>
+                        </li>				
+                    </ul>
+                </div> -->
+                <div class="bqbox_t">
+                    <ul id="comiis_pictitle_key">
+                        <li class="bg_f" id="comiis_pictitle_tab_n_1"><a href="javascript:;" class="">论坛</a></li>
+                    </ul>
+                </div>
+            </div>
+            `
+      );
+      let originImageList = $("#imglist");
+      let originImageListParent = domUtils.parent(originImageList);
+      domUtils.before(".gm_plugin_chartbed .bqbox_t", originImageListParent);
+      domUtils.on("#imglist .comiis_font", "click", (event2) => {
+        $("#filedata").click();
+      });
+      domUtils.on(
+        "#comiis_pictitle_tab #comiis_pictitle_key",
+        "click",
+        "li",
+        function(event2) {
+          let $click = event2.target;
+          domUtils.removeClass(
+            "#comiis_pictitle_tab #comiis_pictitle_key li",
+            "bg_f"
+          );
+          domUtils.addClass($click, "bg_f");
+          _unsafeWindow.$("#comiis_pictitle_tab div.comiis_upbox").hide().eq(_unsafeWindow.$($click).index()).fadeIn();
+        }
+      );
+      PopsPanel.execMenuOnce("mt-image-bed-hello-enable", () => {
+        MTEditorImageBed_Hello.init();
+      });
+      PopsPanel.execMenuOnce("mt-image-bed-mt-enable", () => {
+        MTEditorImageBed_MT.init();
+      });
+    },
+    /**
+     * 双列预览
+     */
+    initPreview() {
+      const that = this;
+      log.info(`添加功能：双列预览`);
+      addStyle(
+        /*css*/
+        `
+        .gm_plugin_previewpostforum_html .comiis_message_table{margin-top:10px;font-weight:initial;line-height:24px}
+        .gm_plugin_previewpostforum_html .comiis_message_table a{height:auto;float:unset;color:#507daf!important}
+        .gm_plugin_previewpostforum_html .comiis_message_table i{text-align:unset;font-size:unset;line-height:unset;padding-top:unset;display:unset}
+        .comiis_postli.comiis_list_readimgs.nfqsqi{width:100vw}
+        .gm_plugin_previewpostforum_html.double-preview{width:50vw}
+        .gm_plugin_previewpostforum_html.double-preview .comiis_over_box.comiis_input_style{border-left:1px solid}
+        `
+      );
+      let previewBtnHTML = (
+        /*html*/
+        `
+        <a href="javascript:;" class="swiper-slide gm_plugin_previewpostforum">
+            <i class="comiis_font" style="display: flex;flex-direction: column;padding-top: 1px;">
+                <svg t="1661243615511" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2399" width="22" height="22" fill="currentColor">
+                    <path d="M470.1 885.3H208.8V138.7h597.3v336c0 20.6 16.7 37.3 37.3 37.3 20.6 0 37.3-16.7 37.3-37.3v-336c0-41.2-33.4-74.7-74.7-74.7H208.8c-41.2 0-74.7 33.4-74.7 74.7v746.7c0 41.2 33.4 74.7 74.7 74.7h261.3c20.6 0 37.3-16.7 37.3-37.3 0.1-20.8-16.6-37.5-37.3-37.5z" p-id="2400"></path>
+                    <path d="M641.3 496.5c-54.3 0-108.5 23.5-146.2 70.5-54.7 68.3-53.4 168.6 2.8 235.6 37.5 44.8 90.5 67.2 143.4 67.2 35.9 0 71.8-10.3 103-30.9l81.8 81.8c7.3 7.3 16.8 10.9 26.4 10.9 9.6 0 19.1-3.6 26.4-10.9 14.6-14.6 14.6-38.2 0-52.8l-81.8-81.8c48-72.5 40.1-171.1-23.7-234.9-36.5-36.4-84.3-54.7-132.1-54.7z m0 298.7c-36.5 0-72.9-17.6-95.3-52.9-22.6-35.6-22.6-82.5 0-118.1 22.4-35.3 58.9-52.9 95.3-52.9 36.5 0 72.9 17.6 95.3 52.9 22.6 35.6 22.6 82.5 0 118.1-22.4 35.2-58.8 52.9-95.3 52.9z" p-id="2401"></path>
+                </svg>
+                <em style="bottom: 1px;position: relative;">预览</em>
+            </i>
+        </a>`
+      );
+      domUtils.append(
+        "#comiis_mh_sub .swiper-wrapper.comiis_post_ico",
+        previewBtnHTML
+      );
+      domUtils.css(domUtils.parent(this.$el.$input), "display", "flex");
+      domUtils.after(
+        this.$el.$input,
+        /*html*/
+        `
+            <div class="bg_f cl gm_plugin_previewpostforum_html double-preview" style="display: none;">
+              <div class="comiis_over_box comiis_input_style">
+                <div class="comiis_postli comiis_list_readimgs nfqsqi" style="width: 50vw;">
+                  <div class="comiis_message bg_f view_one cl message" style="margin-bottom: auto;padding: 0px 12px 0px 12px;">
+                    <div class="comiis_messages comiis_aimg_show cl" style="overflow-y: auto;position: relative;">
+                      <div class="comiis_a comiis_message_table cl" style="margin: 0;"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>`
+      );
+      domUtils.on(
+        ".gm_plugin_previewpostforum",
+        "click",
+        function(event2) {
+          let $click = this;
+          if ($$("#polldatas").length) {
+            MTEditorPreview.parseVoteText();
+          }
+          let $font = $click.querySelector("i.comiis_font");
+          if (!$font.classList.contains("f_0")) {
+            domUtils.show(".gm_plugin_previewpostforum_html", false);
+            let parsedText = MTEditorPreview.parseText(
+              domUtils.val(that.$el.$input)
+            );
+            domUtils.html(
+              ".gm_plugin_previewpostforum_html .comiis_message_table",
+              parsedText
+            );
+            domUtils.css(
+              ".gm_plugin_previewpostforum_html.double-preview .comiis_over_box.comiis_input_style",
+              "height",
+              domUtils.css(that.$el.$input, "height")
+            );
+          } else {
+            domUtils.hide(".gm_plugin_previewpostforum_html", false);
+          }
+        }
+      );
+    },
+    /**
+     * 初始化设置功能-使用沉浸模式
+     */
+    initSettingImmersionMode() {
+      log.info(`初始化设置功能-使用沉浸模式`);
+      domUtils.append(
+        domUtils.parent("#htmlon"),
+        /*html*/
+        `
+            <li class="comiis_styli_m f15 comiis_flex b_b">
+                <div class="flex">使用沉浸输入</div>
+                <div class="styli_r">
+                    <input type="checkbox" name="immersiveinput" id="immersiveinput" value="" class="comiis_checkbox_key">
+                    <label for="immersiveinput" class="wauto">
+                        <code class="bg_f b_ok comiis_checkbox comiis_checkbox_close"></code>
+                    </label>
+                </div>	
+            </li>
+            `
+      );
+      domUtils.on("#immersiveinput", "click", function() {
+        let $click = this;
+        let code_obj = domUtils.parent($click).querySelector(".comiis_checkbox");
+        let elementList = [
+          /* 板块、标题 */
+          ".comiis_wzpost ul li.comiis_flex",
+          /* 回复别人的quote */
+          ".comiis_wzpost ul li.comiis_styli.kmquote",
+          /* 投票,最多可填写 20 个选项 */
+          domUtils.parent(domUtils.parent("#pollchecked")),
+          /* 投票,增加一项 */
+          "#pollm_c_1",
+          /* 投票,增加一项(编辑状态下) */
+          ".comiis_polloption_add+div.f_0",
+          /* 投票,内容 */
+          ".comiis_wzpost ul li.comiis_thread_content:contains('内容')",
+          /* 顶部header */
+          "div#comiis_head",
+          /* 后面的 */
+          "div#comiis_head+*:not([class])"
+        ];
+        if (domUtils.hasClass(code_obj, "comiis_checkbox_close")) {
+          elementList.forEach(($ele) => {
+            $ele && domUtils.hide($ele, false);
+          });
+        } else {
+          elementList.forEach(($ele) => {
+            $ele && domUtils.show($ele, false);
+          });
+        }
+        window.dispatchEvent(new Event("resize"));
+      });
+    }
+  };
   const Component_ForumPost = {
     id: "component-forum-post",
     title: "帖子",
     forms: [
       {
-        text: "功能",
+        text: "",
         type: "forms",
         forms: [
-          UISwitch(
-            "评论过滤器",
-            "mt-post-comment-filter",
-            true,
-            void 0,
-            "将会在左侧面板添加【评论过滤器】菜单"
-          ),
-          UISwitch(
-            "自动展开内容",
-            "mt-forum-post-autoExpandContent",
-            true,
-            void 0,
-            "注入CSS展开帖子的内容"
-          ),
-          UISwitch(
-            "修复图片宽度",
-            "mt-forum-post-repairImageWidth",
-            true,
-            void 0,
-            "修复图片宽度超出页面宽度的问题"
-          ),
-          UISwitch(
-            "移除帖子字体效果",
-            "mt-forum-post-removeFontStyle",
-            false,
-            void 0,
-            ""
-          ),
-          UISwitch(
-            "移除评论区的字体效果",
-            "mt-forum-post-removeCommentFontStyle",
-            false,
-            void 0,
-            ""
-          ),
-          UISwitch(
-            "添加【点评】按钮",
-            "mt-forum-post-addCommentOnBtn",
-            false,
-            void 0,
-            "在评论区的每个评论右下角添加按钮"
-          ),
-          UISwitch(
-            "附件点击提醒",
-            "mt-forum-post-setAttachmentsClickTip",
-            true,
-            void 0,
-            "阻止默认点击附件就会触发附件下载"
-          ),
-          UISwitch(
-            "代码块优化",
-            "mt-forum-post-codeQuoteOptimization",
-            false,
-            void 0,
-            "自动检测代码块语言并设置关键字高亮"
-          ),
-          UISwitch(
-            "图片查看优化",
-            "mt-forum-post-optimizationImagePreview",
-            true,
-            void 0,
-            "使用Viewer查看图片"
-          ),
-          UISwitch(
-            "编辑器优化-简略版",
-            "mt-forum-post-editorOptimizationNormal",
-            false,
-            void 0,
-            "优化样式，插入bbcode代码等"
-          )
-        ]
-      },
-      {
-        type: "forms",
-        text: "自动加载评论",
-        forms: [
-          UISwitch(
-            "自动加载下一页评论",
-            "mt-forum-post-loadNextPageComment",
-            false,
-            void 0,
-            ""
-          ),
-          UISwitch(
-            "同步加载的地址",
-            "mt-forum-post-syncNextPageUrl",
-            false,
-            void 0,
-            "便于刷新页面会停留在当前查看的评论页面"
-          )
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "评论过滤器",
+                    "mt-post-comment-filter",
+                    true,
+                    void 0,
+                    "将会在左侧面板添加【评论过滤器】菜单"
+                  ),
+                  UISwitch(
+                    "自动展开内容",
+                    "mt-forum-post-autoExpandContent",
+                    true,
+                    void 0,
+                    "注入CSS展开帖子的内容"
+                  ),
+                  UISwitch(
+                    "修复图片宽度",
+                    "mt-forum-post-repairImageWidth",
+                    true,
+                    void 0,
+                    "修复图片宽度超出页面宽度的问题"
+                  ),
+                  UISwitch(
+                    "移除帖子字体效果",
+                    "mt-forum-post-removeFontStyle",
+                    false,
+                    void 0,
+                    ""
+                  ),
+                  UISwitch(
+                    "移除评论区的字体效果",
+                    "mt-forum-post-removeCommentFontStyle",
+                    false,
+                    void 0,
+                    ""
+                  ),
+                  UISwitch(
+                    "添加【点评】按钮",
+                    "mt-forum-post-addCommentOnBtn",
+                    false,
+                    void 0,
+                    "在评论区的每个评论右下角添加按钮"
+                  ),
+                  UISwitch(
+                    "附件点击提醒",
+                    "mt-forum-post-setAttachmentsClickTip",
+                    true,
+                    void 0,
+                    "阻止默认点击附件就会触发附件下载"
+                  ),
+                  UISwitch(
+                    "代码块优化",
+                    "mt-forum-post-codeQuoteOptimization",
+                    true,
+                    void 0,
+                    "自动检测代码块语言并设置关键字高亮"
+                  ),
+                  UISwitch(
+                    "图片查看优化",
+                    "mt-forum-post-optimizationImagePreview",
+                    true,
+                    void 0,
+                    "使用Viewer查看图片"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "自动加载评论",
+            type: "deepMenu",
+            forms: [
+              {
+                type: "forms",
+                text: "",
+                forms: [
+                  UISwitch(
+                    "自动加载下一页评论",
+                    "mt-forum-post-loadNextPageComment",
+                    true,
+                    void 0,
+                    ""
+                  ),
+                  UISwitch(
+                    "同步加载的地址",
+                    "mt-forum-post-syncNextPageUrl",
+                    false,
+                    void 0,
+                    "便于刷新页面会停留在当前查看的评论页面"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "编辑器-简略版",
+            type: "deepMenu",
+            forms: [
+              {
+                type: "forms",
+                text: "",
+                forms: [
+                  UISwitch(
+                    "启用",
+                    "mt-forum-post-editorOptimizationNormal",
+                    true,
+                    void 0,
+                    "优化样式，插入bbcode代码等"
+                  ),
+                  UISwitch(
+                    "自动保存输入记录",
+                    "mt-forum-post-editorOptimizationNormal-recordInputText",
+                    true,
+                    void 0,
+                    "当回复时会自动清空记录"
+                  ),
+                  UIButton(
+                    "清空回复记录",
+                    "当前占用空间大小：计算中",
+                    "清理",
+                    void 0,
+                    false,
+                    false,
+                    "default",
+                    async (event2) => {
+                      let $click = event2.target;
+                      let $li = $click.closest("li");
+                      let $desc = $li.querySelector(
+                        ".pops-panel-item-left-desc-text"
+                      );
+                      let result = await MTEditorOptimizationNormal.clearAllReplyRecord();
+                      if (result.success) {
+                        Qmsg.success("清理成功");
+                        domUtils.text(
+                          $desc,
+                          `当前占用空间大小：${await MTEditorOptimizationNormal.getReplyRecordSize()}`
+                        );
+                      } else {
+                        Qmsg.error("清理失败 " + result.msg);
+                      }
+                    },
+                    async (formCOnfig, container) => {
+                      let $desc = container.target.querySelector(
+                        ".pops-panel-item-left-desc-text"
+                      );
+                      domUtils.text(
+                        $desc,
+                        `当前占用空间大小：${await MTEditorOptimizationNormal.getReplyRecordSize()}`
+                      );
+                    }
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "编辑器-完整版",
+            type: "deepMenu",
+            forms: [
+              {
+                type: "forms",
+                text: "",
+                forms: [
+                  UISwitch(
+                    "启用",
+                    "mt-forum-post-publish-editorOptimization",
+                    true,
+                    void 0,
+                    "优化样式，插入bbcode代码，双列预览等"
+                  ),
+                  UISwitch(
+                    "自动保存输入记录",
+                    "mt-forum-post-editorOptimization-recordInputText",
+                    true,
+                    void 0,
+                    "当回复/发表时会自动清空记录"
+                  ),
+                  UIButton(
+                    "清空回复记录",
+                    "当前占用空间大小：计算中",
+                    "清理",
+                    void 0,
+                    false,
+                    false,
+                    "default",
+                    async (event2) => {
+                      let $click = event2.target;
+                      let $li = $click.closest("li");
+                      let $desc = $li.querySelector(
+                        ".pops-panel-item-left-desc-text"
+                      );
+                      let result = await MTEditorOptimization.clearAllReplyRecord();
+                      if (result.success) {
+                        Qmsg.success("清理成功");
+                        domUtils.text(
+                          $desc,
+                          `当前占用空间大小：${await MTEditorOptimization.getReplyRecordSize()}`
+                        );
+                      } else {
+                        Qmsg.error("清理失败 " + result.msg);
+                      }
+                    },
+                    async (formCOnfig, container) => {
+                      let $desc = container.target.querySelector(
+                        ".pops-panel-item-left-desc-text"
+                      );
+                      domUtils.text(
+                        $desc,
+                        `当前占用空间大小：${await MTEditorOptimization.getReplyRecordSize()}`
+                      );
+                    }
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "编辑器-图床配置",
+            type: "deepMenu",
+            forms: [
+              {
+                type: "forms",
+                text: `<a href="https://www.helloimg.com/" target="_blank">Hello图床</a>`,
+                forms: [
+                  UISwitch(
+                    "启用",
+                    "mt-image-bed-hello-enable",
+                    false,
+                    void 0,
+                    "启用Hello图床"
+                  ),
+                  UIInput(
+                    "账号",
+                    "mt-image-bed-hello-account",
+                    "",
+                    "",
+                    void 0,
+                    "必填"
+                  ),
+                  UIInput(
+                    "密码",
+                    "mt-image-bed-hello-password",
+                    "",
+                    "",
+                    void 0,
+                    "必填",
+                    false,
+                    true
+                  ),
+                  UIInput(
+                    "token",
+                    "mt-image-bed-hello-token",
+                    "",
+                    "",
+                    void 0,
+                    "必填",
+                    false,
+                    true
+                  )
+                ]
+              },
+              {
+                type: "forms",
+                text: `<a href="https://img.binmt.cc/" target="_blank">MT图床</a>`,
+                forms: [
+                  UISwitch(
+                    "启用",
+                    "mt-image-bed-mt-enable",
+                    true,
+                    void 0,
+                    "启用MT图床"
+                  )
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
@@ -1357,20 +6220,6 @@
         ]
       }
     ]
-  };
-  const MTRegExp = {
-    /** 论坛账号的凭证 */
-    formhash: /formhash=(.+)&/,
-    /** 论坛账号的凭证 */
-    hash: /hash=(.+)&/,
-    /** 用户uid */
-    uid: /uid=(\d+)/,
-    /** 帖子内特殊字体格式 */
-    fontSpecial: /<font.*?>|<\/font>|<strike>|<strong>|<i>|<u>|align=".*?"|<br>[\s]*<br>[\s]*<br>/g,
-    /** 帖子链接的ptid参数 */
-    ptid: /&ptid=([\d]+)/i,
-    /** 帖子链接的pid参数 */
-    pid: /&pid=([\d]+)/i
   };
   const MTAutoSignIn = {
     $key: {
@@ -1578,7 +6427,7 @@
           UISwitch("启用", "mt-auto-sign", true, void 0, "自动请求签到"),
           UIButton(
             "签到信息",
-            `上次签到时间：${MTAutoSignIn.getSignTime() == null ? "尚未签到" : utils.formatTime(MTAutoSignIn.getSignTime())}`,
+            `上次签到时间：${MTAutoSignIn.getSignTime() == null ? "尚未签到" : Utils.formatTime(MTAutoSignIn.getSignTime())}`,
             "清空信息",
             void 0,
             void 0,
@@ -2786,89 +7635,6 @@
     };
     setTimeout(clearlinkE, 1500);
     setTimeout(linkMixInit, 100);
-  };
-  const pathname = globalThis.location.pathname;
-  const search = globalThis.location.search;
-  new URLSearchParams(search);
-  const Router = {
-    /**
-     * 克米签到页面
-     */
-    isKMiSign() {
-      return pathname.startsWith("/k_misign-sign.html");
-    },
-    /**
-     * 帖子
-     */
-    isPost() {
-      return pathname.startsWith("/thread-") || pathname.startsWith("/forum.php") && search.startsWith("?mod=viewthread");
-    },
-    /**
-     * 首页、精华
-     */
-    isPage() {
-      return Boolean(pathname.match(/^\/page-([0-9]+).html/g));
-    },
-    /**
-     * 导读链接
-     */
-    isGuide() {
-      return pathname.startsWith("/forum.php") && search.startsWith("?mod=guide");
-    },
-    /**
-     * 板块
-     */
-    isPlate() {
-      return Boolean(pathname.match(/\/forum-[0-9]{1,2}-[0-9]{1,2}.html/g));
-    },
-    /**
-     * 搜索页面
-     */
-    isSearch() {
-      return pathname.startsWith("/search.php");
-    },
-    /**
-     * 空间
-     */
-    isSpace() {
-      return pathname.startsWith("/home.php") && search.startsWith("?mod=space");
-    },
-    /**
-     * 我的个人空间
-     */
-    isMySpace() {
-      return pathname.startsWith("/home.php") && search.startsWith("?mod=space&do=profile&mycenter");
-    },
-    /**
-     * 个人空间页的@点进去
-     */
-    isSpaceWithAt() {
-      return pathname.startsWith("/space-uid-");
-    },
-    /**
-     * 社区列表
-     */
-    isForumList() {
-      return pathname.startsWith("/forum.php") && search.startsWith("?forumlist");
-    },
-    /**
-     * 消息提醒
-     */
-    isMessage() {
-      return pathname.startsWith("/home.php") && search.startsWith("?mod=space&do=notice");
-    },
-    /**
-     * 消息提醒列表
-     */
-    isMessageList() {
-      return pathname.startsWith("/home.php") && search.startsWith("?mod=space&do=pm");
-    },
-    /**
-     * 积分商城
-     */
-    isPointsMall() {
-      return pathname.startsWith("/keke_integralmall-keke_integralmall.html") || pathname.startsWith("/plugin.php") && search.startsWith("?id=keke_integralmal");
-    }
   };
   function getDefaultExportFromCjs(x) {
     return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, "default") ? x["default"] : x;
@@ -53911,6 +58677,7 @@
           this.codeQuoteOptimization();
         });
         PopsPanel.execMenuOnce("mt-forum-post-editorOptimizationNormal", () => {
+          MTEditorOptimizationNormal.init();
         });
         PopsPanel.execMenu("mt-forum-post-optimizationImagePreview", () => {
           this.optimizationImagePreview();
@@ -54139,6 +58906,7 @@
         domUtils.text($loadingCommentTip, "请上下滑动或点击加载");
         domUtils.on(window, "scroll", lockFn.run);
         domUtils.on($loadingCommentTip, "click", loadNextComments);
+        lockFn.run();
       }
       let tip_html = (
         /*html*/
@@ -56119,38 +60887,6 @@
         );
       });
     }
-  };
-  const UIInput = function(text, key, defaultValue, description, changeCallBack, placeholder = "", isNumber, isPassword) {
-    let result = {
-      text,
-      type: "input",
-      isNumber: Boolean(isNumber),
-      isPassword: Boolean(isPassword),
-      props: {},
-      attributes: {},
-      description,
-      getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
-      },
-      callback(event2, value, valueAsNumber) {
-        this.props[PROPS_STORAGE_API].set(
-          key,
-          isNumber ? valueAsNumber : value
-        );
-      },
-      placeholder
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return PopsPanel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        PopsPanel.setValue(key2, value);
-      }
-    });
-    return result;
   };
   class RuleEditView {
     constructor(option) {
@@ -58367,6 +63103,15 @@
       _GM_deleteValue(this.$key.STORAGE_KEY);
     }
   };
+  const MTForumPostPublish = {
+    init() {
+      domUtils.ready(() => {
+        PopsPanel.execMenuOnce("mt-forum-post-publish-editorOptimization", () => {
+          MTEditorOptimization.init();
+        });
+      });
+    }
+  };
   const MT = {
     $flag: {
       showUserUID_initCSS: false
@@ -58421,6 +63166,9 @@
       } else if (Router.isGuide()) {
         log.info(`Router: 导读`);
         MTGuide.init();
+      } else if (Router.isPostPublish()) {
+        log.info("Router: 发帖页面");
+        MTForumPostPublish.init();
       } else {
         log.error(`Router: 未适配的链接 ==> ` + window.location.href);
       }

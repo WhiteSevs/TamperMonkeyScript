@@ -1,6 +1,6 @@
 import { DOMUtils, log, pops, utils } from "@/env";
 import { ElementUtils } from "@/utils/ElementUtils";
-import smallWindowCSS from "./small-window.css?raw";
+import smallWindowCSS from "./css/small-window.css?raw";
 import Qmsg from "qmsg";
 import Viewer from "viewerjs";
 import { GestureBack } from "@/utils/GestureBack";

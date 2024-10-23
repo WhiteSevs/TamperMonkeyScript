@@ -1,0 +1,238 @@
+.f_c,
+.f_c a,
+.ntc_body {
+	color: #000 !important;
+}
+input::placeholder,
+textarea::placeholder {
+	color: #cfcfcf;
+}
+#needsubject::placeholder {
+	font-weight: 700;
+}
+#postform #comiis_mh_sub {
+	height: 60px;
+	display: flex;
+	align-items: center;
+}
+#postform #comiis_post_tab {
+	display: inherit;
+	width: 100%;
+}
+#postform .comiis_sendbtn {
+	padding: 0 12px;
+	display: flex !important;
+	-webkit-box-align: center;
+	-moz-box-align: center;
+	align-items: center;
+}
+#postform .f_f {
+	color: #fff !important;
+}
+#postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:hover,
+#postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:link,
+#postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:visited {
+	color: #333 !important;
+}
+#postform .comiis_post_from .comiis_post_ico.comiis_minipost_icot {
+	position: fixed;
+	display: inline-table;
+	z-index: 90;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 100%;
+	overflow: hidden;
+	padding: 0;
+}
+#postform .comiis_post_from #comiis_post_tab .comiis_bqbox {
+	height: 200px;
+}
+#postform .comiis_post_from #comiis_post_tab .comiis_smiley_box {
+	height: 150px;
+}
+#postform
+	.comiis_post_from
+	#comiis_post_tab
+	.comiis_input_style
+	.comiis_post_urlico {
+	overflow-y: auto;
+	height: 110px;
+}
+#postform
+	.comiis_post_from
+	#comiis_post_tab
+	.comiis_smiley_box
+	.comiis_optimization {
+	display: block;
+	overflow-y: auto;
+	height: 100%;
+}
+#postform #comiis_post_tab .comiis_input_style .comiis_xifont {
+	width: -webkit-fill-available;
+	width: -moz-available;
+}
+#postform #comiis_post_tab .comiis_input_style .comiis_xifont i.comiis_font {
+	font-size: 16px;
+	line-height: inherit;
+	padding-top: 0;
+}
+#postform #comiis_post_tab .comiis_input_style .styli_h10 {
+	display: none;
+}
+.gm_plugin_chartbed .comiis_chartbed_hello,
+.gm_plugin_chartbed .comiis_chartbed_history,
+.gm_plugin_chartbed .comiis_chartbed_kggzs,
+.gm_plugin_chartbed .comiis_chartbed_luntan,
+.gm_plugin_chartbed .comiis_chartbed_mt,
+.gm_plugin_chartbed .comiis_chartbed_z4a {
+	height: 140px;
+	overflow-y: auto;
+	flex-direction: column;
+}
+#comiis_pictitle_key {
+	display: -webkit-box;
+	top: 0;
+	left: 0;
+	height: 42px;
+	line-height: 42px;
+	overflow: hidden;
+	overflow-x: auto;
+	background: #f8f8f8;
+}
+#comiis_pictitle_key a {
+	color: #333 !important;
+	padding: 0 10px;
+}
+#comiis_mh_sub {
+	height: auto !important;
+}
+#comiis_mh_sub .swiper-wrapper.comiis_post_ico {
+	flex-flow: wrap;
+}
+#comiis_mh_sub a {
+	margin: 5px 0;
+}
+#comiis_post_tab .comiis_over_box {
+	max-height: 225px;
+}
+@media screen and (max-width: 350px) {
+	.comiis_bqbox .bqbox_c li {
+		width: 14.5%;
+	}
+}
+@media screen and (min-width: 350px) and (max-width: 400px) {
+	.comiis_bqbox .bqbox_c li {
+		width: 12.5%;
+	}
+}
+@media screen and (min-width: 400px) and (max-width: 450px) {
+	.comiis_bqbox .bqbox_c li {
+		width: 11%;
+	}
+}
+@media screen and (min-width: 450px) and (max-width: 500px) {
+	.comiis_bqbox .bqbox_c li {
+		width: 10%;
+	}
+}
+@media screen and (min-width: 500px) and (max-width: 550px) {
+	.comiis_bqbox .bqbox_c li {
+		width: 9.5%;
+	}
+}
+@media screen and (min-width: 550px) and (max-width: 600px) {
+	.comiis_bqbox .bqbox_c li {
+		width: 9%;
+	}
+}
+@media screen and (min-width: 600px) and (max-width: 650px) {
+	.comiis_bqbox .bqbox_c li {
+		width: 8.5%;
+	}
+}
+@media screen and (min-width: 650px) and (max-width: 700px) {
+	.comiis_bqbox .bqbox_c li {
+		width: 8%;
+	}
+}
+@media screen and (min-width: 700px) and (max-width: 750px) {
+	.comiis_bqbox .bqbox_c li {
+		width: 7.5%;
+	}
+}
+@media screen and (min-width: 750px) and (max-width: 800px) {
+	.comiis_bqbox .bqbox_c li {
+		width: 7%;
+	}
+}
+@media screen and (min-width: 800px) and (max-width: 850px) {
+	.comiis_bqbox .bqbox_c li {
+		width: 6.5%;
+	}
+}
+@media screen and (min-width: 850px) and (max-width: 1200px) {
+	.comiis_bqbox .bqbox_c li {
+		width: 6%;
+	}
+}
+@media screen and (min-width: 1200px) {
+	.comiis_bqbox .bqbox_c li {
+		width: 4.5%;
+	}
+}
+
+#comiis_head .header_y {
+	display: flex;
+	align-content: center;
+	align-items: center;
+	justify-content: flex-end;
+	height: 100%;
+}
+#comiis_head .header_y input {
+	border: transparent;
+	background: 0 0;
+	text-align: center;
+	margin: 0 5px;
+}
+#comiis_head .header_y input[value="删除"] {
+	color: #d00;
+}
+#comiis_head .header_y input[value="保存"] {
+	color: #b0ff6a;
+}
+#comiis_head .header_y input[value="保存草稿"] {
+	color: #f90;
+}
+#comiis_head .header_y input[value="发表"] {
+	color: #b0ff6a;
+}
+#comiis_head .header_y input[value="回复"] {
+	color: #b0ff6a;
+}
+#comiis_post_tab {
+	color: #000;
+}
+.gm_plugin_chartbed .delImg a,
+.gm_plugin_chartbed .p_img a {
+	padding: 0;
+}
+.gm_plugin_chartbed .delImg a i {
+	line-height: inherit;
+}
+#filedata,
+#filedata_hello,
+#filedata_kggzs,
+#filedata_mt {
+	display: none;
+}
+
+#comiis_mh_sub {
+	height: 40px;
+}
+#imglist .del a {
+	padding: 0;
+}
+.comiis_post_from.mt15 {
+	margin-top: unset !important;
+}

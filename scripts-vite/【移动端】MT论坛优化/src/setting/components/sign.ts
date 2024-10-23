@@ -4,6 +4,7 @@ import { MTAutoSignIn } from "@/main/sign/MTAutoSignIn";
 import Qmsg from "qmsg";
 import { pops, utils } from "@/env";
 import { UIButton } from "../common-components/ui-button";
+import Utils from "@whitesev/utils";
 
 export const Component_Sign: PopsPanelContentConfig = {
 	id: "component-sigh",
@@ -39,7 +40,7 @@ export const Component_Sign: PopsPanelContentConfig = {
 					`上次签到时间：${
 						MTAutoSignIn.getSignTime() == null
 							? "尚未签到"
-							: utils.formatTime(MTAutoSignIn.getSignTime())
+							: Utils.formatTime(MTAutoSignIn.getSignTime())
 					}`,
 					"清空信息",
 					void 0,

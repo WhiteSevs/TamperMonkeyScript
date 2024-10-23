@@ -12,4 +12,6 @@ export const MTRegExp = {
 	ptid: /&ptid=([\d]+)/i,
 	/** 帖子链接的pid参数 */
 	pid: /&pid=([\d]+)/i,
+	/** 链接的tid参数 */
+	tid: /&tid=([\d]+)/i,
 };

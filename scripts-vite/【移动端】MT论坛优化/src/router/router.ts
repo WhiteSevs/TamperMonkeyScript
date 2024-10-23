@@ -97,4 +97,37 @@ export const Router = {
 				search.startsWith("?id=keke_integralmal"))
 		);
 	},
+	/**
+	 * 帖子发布/回复页面
+	 */
+	isPostPublish() {
+		return pathname.startsWith("/forum.php") && search.startsWith("?mod=post");
+	},
+	/**
+	 * 投票页面
+	 */
+	isPostPublish_voting() {
+		return (
+			(pathname.startsWith("/forum.php") && search.includes("&special=1")) ||
+			search.includes("&fid=42")
+		);
+	},
+	/**
+	 * 帖子编辑页面
+	 */
+	isPostPublish_edit() {
+		return this.isPostPublish() && search.includes("&action=edit");
+	},
+	/**
+	 * 发帖页面，该页面是尚未存入草稿
+	 */
+	isPostPublish_newthread() {
+		return this.isPostPublish() && search.includes("&action=newthread");
+	},
+	/**
+	 * 回复编辑页面
+	 */
+	isPostPublish_reply() {
+		return this.isPostPublish() && search.includes("&action=reply");
+	},
 };

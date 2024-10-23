@@ -1,18 +1,71 @@
-# Vue 3 + TypeScript + Vite
+## 功能
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+- 在回复区域的添加了一个点评功能
+- 识别帖子和评论中的网页链接，可以直接点击访问
+- 将评论区别人使用的代码改变别人评论颜色恢复为黑色
+- 访问主页面自动签到功能
+- 搜索区域的历史记录功能
+- 屏蔽功能(屏蔽用户或者板块)
+- 帖子内图片大小自适应
+- 显示用户 uid，点击可复制
+- 自动展开帖子
+- 自动加载所有评论
+- 自动保存输入的内容
+- 纠正文章字体效果
+- 小黑屋（点击标题可选择显示小黑屋列表的数量）
+- 签到页面的今日最先
+- 签到页面的今日之星
+- 帖外预览图片
+- 搜索框清空按钮修复
+- 个人空间正确进入
+- Hello 图床-帖子内|聊天内(20MB) 图床地址:[https://www.helloimg.com/](https://www.helloimg.com/)
+- MT 图床-帖子内(6MB) 图床地址:[https://img.binmt.cc/](https://img.binmt.cc/)
+- 付费主题白嫖提醒
+- 页面小窗浏览帖子
+- 蓝奏云快捷功能
+- 代码块上方新增复制按钮
+- 编辑器优化-快捷
+- 编辑器优化-完整
+- 上传动态头像
+- 空间-帖子-显示具体回复内容
+- 导读显示最新发布的帖子
+- 可对帖子进行快照(html|image)
+- 图片查看模式优化
+- 贴内图片查看优化
+- 附件点击拦截
+- 按条件屏蔽
+- 商城上架商品自定义关键字提醒
+- 自定义用户标签
 
-## Recommended IDE Setup
+## 1.自定义关键字屏蔽
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+![pCqsjKJ.png](https://s1.ax1x.com/2023/07/23/pCqsjKJ.png)
+![pCqsOv4.png](https://s1.ax1x.com/2023/07/23/pCqsOv4.png)
 
-## Type Support For `.vue` Imports in TS
+## 2.自定义商城商品关键字提醒
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
+![pCqypUx.png](https://s1.ax1x.com/2023/07/23/pCqypUx.png)
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+## 3.自动加载评论
 
-1. Disable the built-in TypeScript Extension
-   1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-   2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+![Co0DAX.gif](https://vip.helloimg.com/i/2024/03/17/65f68b7835abf.gif)
+
+## 4.手机版小黑屋
+
+![2a74682a53db0663a98dfb8eb4b43939.gif](https://www.z4a.net/images/2023/07/23/2a74682a53db0663a98dfb8eb4b43939.gif)
+
+## 5.付费主题白嫖列表
+
+![ZNuB0u.gif](https://vip.helloimg.com/i/2024/03/17/65f68b79ac9d2.gif)
+
+## 6.帖外图片预览
+
+![ZNjyGQ.gif](https://vip.helloimg.com/i/2024/03/17/65f68b7b2ba4d.gif)
+
+## 7.小窗口浏览
+
+![5f815af373a243e83184fe04c9b7c3bd.gif](https://www.z4a.net/images/2023/07/23/5f815af373a243e83184fe04c9b7c3bd.gif)
+
+## 8.发帖、编辑、回复预览
+
+![cd701edc7826bed99b96be39ae21c498.gif](https://www.z4a.net/images/2023/07/23/cd701edc7826bed99b96be39ae21c498.gif)

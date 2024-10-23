@@ -54,4 +54,44 @@ export const MTUtils = {
 				(typeof STYLEID !== "undefined" && STYLEID)) === "3"
 		);
 	},
+
+	/**
+	 * 获取帖子id
+	 * @param url
+	 */
+	getThreadId: (url: string) => {
+		let urlMatch = url.match(/thread-([\d]+)-|&tid=([\d]+)/i);
+		if (urlMatch) {
+			let forumIdList = urlMatch.filter(Boolean);
+			let forumId = forumIdList[forumIdList.length - 1];
+			return forumId;
+		}
+	},
+	/**
+	 * 获取板块？id
+	 */
+	getForumId(url: string) {
+		let urlMatch = url.match(/&fid=([\d]+)/i);
+		if (urlMatch) {
+			return urlMatch[urlMatch.length - 1];
+		}
+	},
+	/**
+	 * 获取发布id
+	 */
+	getPostId(url: string) {
+		let urlMatch = url.match(/&pid=([\d]+)/i);
+		if (urlMatch) {
+			return urlMatch[urlMatch.length - 1];
+		}
+	},
+	/**
+	 * 获取回复id
+	 */
+	getRepquote(url: string) {
+		let urlMatch = url.match(/&repquote=([\d]+)/i);
+		if (urlMatch) {
+			return urlMatch[urlMatch.length - 1];
+		}
+	},
 };
