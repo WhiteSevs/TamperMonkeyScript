@@ -3,9 +3,11 @@ import { PopsPanelFormsTotalDetails } from "./indexType";
  * 右侧容器的配置
  */
 export interface PopsPanelRightAsideContainerOptions {
-    /** 把获取的项<li>元素添加到这个<ul>元素内 */
+    /** 当前的<li>元素 */
+    target: HTMLLIElement | undefined;
+    /** 当前的<li>元素的父<ul>元素 */
     ulElement: HTMLUListElement;
-    /**  */
+    /** 当前的<li>元素所在的统一的<ul>元素 */
     sectionContainerULElement?: HTMLUListElement;
     /**  */
     formContainerListElement?: HTMLLIElement;

@@ -2577,14 +2577,17 @@ export const PanelHandleContentDetails = () => {
 		 */
 		uListContainerAddItem(
 			formConfig: PopsPanelFormsTotalDetails,
-			containerOptions: PopsPanelRightAsideContainerOptions
+			containerOptions: Omit<PopsPanelRightAsideContainerOptions, "target">
 		) {
 			let itemLiElement = this.createSectionContainerItem(formConfig);
 			if (itemLiElement) {
 				containerOptions["ulElement"].appendChild(itemLiElement);
 			}
 			if (typeof formConfig.afterAddToUListCallBack === "function") {
-				formConfig.afterAddToUListCallBack(formConfig, containerOptions);
+				formConfig.afterAddToUListCallBack(formConfig, {
+					...containerOptions,
+					target: itemLiElement,
+				});
 			}
 		},
 		/**

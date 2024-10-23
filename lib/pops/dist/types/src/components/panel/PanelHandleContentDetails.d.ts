@@ -155,7 +155,7 @@ export declare const PanelHandleContentDetails: () => {
      * @param formConfig
      * @param containerOptions
      */
-    uListContainerAddItem(formConfig: PopsPanelFormsTotalDetails, containerOptions: PopsPanelRightAsideContainerOptions): void;
+    uListContainerAddItem(formConfig: PopsPanelFormsTotalDetails, containerOptions: Omit<PopsPanelRightAsideContainerOptions, "target">): void;
     /**
      * 为左侧容器元素添加点击事件
      * @param asideLiElement 左侧的容器<li>元素
