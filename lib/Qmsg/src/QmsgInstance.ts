@@ -5,7 +5,6 @@ import { QmsgConfig } from "./QmsgConfig";
 import { QmsgIcon, QmsgHeaderCloseIcon } from "./QmsgIcon";
 import { QmsgInstanceStorage } from "./QmsgInstanceStorage";
 import { QmsgUtils } from "./QmsgUtils";
-
 /**
  * 每条消息的构造函数
  */
@@ -13,7 +12,7 @@ export class QmsgMsg {
 	/**
 	 * setTimeout的id
 	 */
-	timeId: NodeJS.Timeout | undefined;
+	timeId: number | undefined;
 	/**
 	 * 启动时间
 	 */
@@ -257,7 +256,9 @@ export class QmsgMsg {
 			if (animationName === QmsgAnimation.$state.closing) {
 				// 设置关闭时间
 				QmsgContext.endTime = Date.now();
-				clearTimeout(QmsgContext.timeId);
+				if (QmsgContext.timeId != null) {
+					clearTimeout(QmsgContext.timeId);
+				}
 				QmsgContext.destroy();
 			}
 			QmsgAnimation.setStyleAnimationName(target);
@@ -273,14 +274,14 @@ export class QmsgMsg {
 		if (this.setting.autoClose) {
 			/* 自动关闭 */
 			// 获取时间戳
-			this.timeId = setTimeout(() => {
+			this.timeId = QmsgUtils.setTimeout(() => {
 				this.close();
 			}, this.setting.timeout);
 			let enterEvent = (event: MouseEvent) => {
 				/* 鼠标滑入，清除定时器，清除开始时间和结束时间 */
 				this.startTime = null;
 				this.endTime = null;
-				clearTimeout(this.timeId);
+				QmsgUtils.clearTimeout(this.timeId);
 				this.timeId = void 0;
 			};
 			let leaveEvent = (event: MouseEvent | TouchEvent) => {
@@ -293,7 +294,7 @@ export class QmsgMsg {
 					return;
 				}
 				this.startTime = Date.now();
-				this.timeId = setTimeout(() => {
+				this.timeId = QmsgUtils.setTimeout(() => {
 					this.close();
 				}, this.setting.timeout);
 			};
@@ -390,9 +391,9 @@ export class QmsgMsg {
 		QmsgAnimation.setStyleAnimationName($count);
 		QmsgAnimation.setStyleAnimationName($count, "MessageShake");
 		/* 重置定时器 */
-		clearTimeout(this.timeId);
+		QmsgUtils.clearTimeout(this.timeId);
 		if (this.setting.autoClose) {
-			this.timeId = setTimeout(function () {
+			this.timeId = QmsgUtils.setTimeout(function () {
 				QmsgContext.close();
 			}, this.setting.timeout);
 		}
@@ -420,7 +421,7 @@ export class QmsgMsg {
 	destroy() {
 		this.endTime = Date.now();
 		this.$Qmsg.remove();
-		clearTimeout(this.timeId);
+		QmsgUtils.clearTimeout(this.timeId);
 		QmsgInstanceStorage.remove(this.uuid);
 	}
 	/**

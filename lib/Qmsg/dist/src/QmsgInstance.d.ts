@@ -7,7 +7,7 @@ export declare class QmsgMsg {
     /**
      * setTimeout的id
      */
-    timeId: NodeJS.Timeout | undefined;
+    timeId: number | undefined;
     /**
      * 启动时间
      */

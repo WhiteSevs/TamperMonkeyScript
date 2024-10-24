@@ -2,6 +2,12 @@ import { QmsgOption } from "./Qmsg";
 import { QmsgConfig } from "./QmsgConfig";
 import { QmsgInstanceStorage } from "./QmsgInstanceStorage";
 import { QmsgMsg } from "./QmsgInstance";
+import {
+	clearInterval,
+	clearTimeout,
+	setInterval,
+	setTimeout,
+} from "worker-timers";
 
 export interface QmsgItemInfo {
 	config: string;
@@ -150,5 +156,22 @@ export const QmsgUtils = {
 			});
 		});
 		return __obj__ as any;
+	},
+	setTimeout(callback: Function, timeout: number) {
+		try {
+			return setTimeout(callback, timeout);
+		} catch (error) {
+			return globalThis.setTimeout(callback, timeout);
+		}
+	},
+	clearTimeout(timeId: number | undefined) {
+		try {
+			if (timeId != null) {
+				clearTimeout(timeId);
+			}
+		} catch (error) {
+		} finally {
+			globalThis.clearTimeout(timeId);
+		}
 	},
 };
