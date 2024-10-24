@@ -24,13 +24,6 @@ export const Component_ForumPost: PopsPanelContentConfig = {
 							type: "forms",
 							forms: [
 								UISwitch(
-									"评论过滤器",
-									"mt-post-comment-filter",
-									true,
-									void 0,
-									"将会在左侧面板添加【评论过滤器】菜单"
-								),
-								UISwitch(
 									"自动展开内容",
 									"mt-forum-post-autoExpandContent",
 									true,
@@ -295,6 +288,96 @@ export const Component_ForumPost: PopsPanelContentConfig = {
 									true,
 									void 0,
 									"启用MT图床"
+								),
+							],
+						},
+						{
+							type: "forms",
+							text: "图片水印",
+							forms: [
+								UISwitch(
+									"启用",
+									"mt-image-bed-watermark-enable",
+									false,
+									void 0,
+									"开启后会为图床图片添加文字水印"
+								),
+								UISwitch(
+									"自动添加水印",
+									"mt-image-bed-watermark-autoAddWaterMark",
+									false,
+									void 0,
+									"开启后会自动添加水印，关闭后会有添加水印后的图片预览"
+								),
+								UIInput("水印文字", "mt-image-bed-watermark-text", "MT论坛"),
+								UIInput(
+									"颜色",
+									"mt-image-bed-watermark-text-color",
+									"#000000",
+									void 0,
+									void 0,
+									"",
+									false,
+									false,
+									(formCOnfig, container) => {
+										let $input = container.target?.querySelector("input")!;
+										let $suffix =
+											container.target?.querySelector<HTMLDivElement>(
+												".pops-panel-input__suffix"
+											)!;
+										DOMUtils.hide($suffix, false);
+										$input.setAttribute("type", "color");
+										DOMUtils.css($input, {
+											margin: "unset",
+											padding: "unset",
+											width: "80px",
+										});
+									}
+								),
+								UIInput(
+									"大小",
+									"mt-image-bed-watermark-font-size",
+									16,
+									void 0,
+									void 0,
+									void 0,
+									true
+								),
+								UIInput(
+									"透明度",
+									"mt-image-bed-watermark-font-opacity",
+									1,
+									void 0,
+									void 0,
+									void 0,
+									true
+								),
+								UIInput(
+									"左右间距",
+									"mt-image-bed-watermark-left-right-margin",
+									80,
+									void 0,
+									void 0,
+									void 0,
+									true
+								),
+								UIInput(
+									"上下间距",
+									"mt-image-bed-watermark-top-bottom-margin",
+									80,
+									void 0,
+									void 0,
+									void 0,
+									true
+								),
+								UIInput(
+									"旋转角度",
+									"mt-image-bed-watermark-rotate",
+									45,
+									void 0,
+									void 0,
+									void 0,
+									true
 								),
 							],
 						},

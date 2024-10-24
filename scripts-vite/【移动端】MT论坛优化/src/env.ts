@@ -18,6 +18,7 @@ import { HttpxCookieManager } from "./utils/HttpxCookieManager";
 import pops from "@whitesev/pops";
 import { CommonUtils } from "./utils/CommonUtils";
 import { GM_RESOURCE_MAP } from "./GM_Resource_Map";
+import "@lib/js-watermark";
 
 /* 脚本名 */
 const _SCRIPT_NAME_ = "Demo Script Name";

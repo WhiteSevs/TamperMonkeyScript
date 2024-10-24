@@ -609,7 +609,7 @@ export const PopsPanel = {
 	 */
 	getWidth() {
 		if (window.innerWidth < 550) {
-			return "92vw";
+			return "88vw";
 		} else {
 			return "550px";
 		}
@@ -619,9 +619,9 @@ export const PopsPanel = {
 	 */
 	getHeight() {
 		if (window.innerHeight > 450) {
-			return "80vh";
-		} else {
 			return "450px";
+		} else {
+			return "88vh";
 		}
 	},
 	/**

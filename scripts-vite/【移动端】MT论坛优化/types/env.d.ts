@@ -34,4 +34,5 @@ declare interface Window {
 	comiis_addsmilies?: Function;
 	evalscript: Function;
 	comiis_delthread:Function;
+	Watermark: typeof import("@lib/js-watermark/index")
 }

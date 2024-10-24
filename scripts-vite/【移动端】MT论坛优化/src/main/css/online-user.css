@@ -1,3 +1,11 @@
+.pops-alert-content{
+	display: flex;
+	flex-direction: column;
+}
+.pops-alert-content > .online-user-info{
+	text-align: center;
+	padding: 0px 6px;
+}
 .online-user-filter input {
 	width: -webkit-fill-available;
 	width: -moz-available;
@@ -10,7 +18,7 @@
 	outline: none;
 }
 .online-user-list {
-	height: calc(100% - 46px - 26px - 1px);
+	flex: 1;
 	overflow-y: auto;
 }
 .online-user-list li {

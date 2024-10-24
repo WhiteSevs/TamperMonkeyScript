@@ -1,45 +1,7 @@
-import { $, $$, DOMUtils } from "@/env";
+import { $, $$, DOMUtils, pops, utils } from "@/env";
+import { PopsPanel } from "@/setting/setting";
+import Qmsg from "qmsg";
 import { GM_getValue, GM_setValue } from "ViteGM";
-type WaterMarkOption = {
-	/**
-	 * 是否添加图片水印
-	 */
-	enable: boolean;
-	/**
-	 * 是否自动添加水印
-	 * + true
-	 * + false 会显示预览弹窗
-	 */
-	autoAddWaterMark: boolean;
-	/**
-	 * 水印文字
-	 */
-	text: string;
-	/**
-	 * 水印文字大小
-	 */
-	textSize: number;
-	/**
-	 * 水印颜色
-	 */
-	color: string;
-	/**
-	 * 文字透明度
-	 */
-	opacity: number;
-	/**
-	 * 左右间距
-	 */
-	leftRightDistance: number;
-	/**
-	 * 上下间距
-	 */
-	topBottomDistance: number;
-	/**
-	 * 旋转角度
-	 */
-	rotat: number;
-};
 
 export type ImageBedUploadImageReusltInfo<T> = {
 	/** 图片链接 */
@@ -74,7 +36,7 @@ type ImageBedOption<T> = {
 	 */
 	fileChangeEvent: (
 		event: InputEvent,
-		fileList: FileList
+		fileList: FileList | File[]
 	) => Promise<{
 		/** 是否成功上传 */
 		success: boolean;
@@ -98,10 +60,6 @@ type ImageBedOption<T> = {
 		event: PointerEvent | MouseEvent,
 		data: ImageBedUploadImageReusltInfo<T>
 	) => boolean | Promise<boolean>;
-	/**
-	 * 图片水印
-	 */
-	waterMark?: WaterMarkOption;
 };
 
 type StorageOption<T> = {
@@ -157,12 +115,15 @@ export class MTEditorImageBed<T> {
 			"change",
 			async (event) => {
 				let $file = event.target as HTMLInputElement;
-				if ($file.files && $file.files.length) {
+				let clear_input = () => {
+					$file.value = "";
+				};
+				let upload_callback = async (uploadFiles: FileList | File[]) => {
 					let uploadInfo = await this.option.fileChangeEvent(
 						event,
-						$file.files
+						uploadFiles
 					);
-					$file.value = "";
+					clear_input();
 					if (uploadInfo.success) {
 						// 上传成功
 						uploadInfo.data.forEach((imageInfo) => {
@@ -179,6 +140,121 @@ export class MTEditorImageBed<T> {
 						});
 					} else {
 						// 上传失败
+					}
+				};
+				if ($file.files && $file.files.length) {
+					let chooseImage = $file.files!;
+					if (PopsPanel.getValue<boolean>("mt-image-bed-watermark-enable")) {
+						let $loading = Qmsg.loading("处理水印中...");
+						let needUploadImageArray: string[] = [];
+						let needUploadImageFileArray: File[] = [];
+						await Promise.all(
+							Array.from($file.files).map(async (item, index) => {
+								if (item.type === "image/gif") {
+									/* 不支持对GIF添加水印 */
+									let image_base64 = await utils.parseFileToBase64(item);
+									needUploadImageArray.push(image_base64);
+									needUploadImageFileArray.push(item);
+								} else {
+									Qmsg.info(`添加水印 ${index + 1}/${chooseImage.length}`);
+									var watermark = new window.Watermark();
+									await watermark.setFile(item);
+									watermark.addText({
+										text: [
+											PopsPanel.getValue<string>("mt-image-bed-watermark-text"),
+										],
+										color: PopsPanel.getValue<string>(
+											"mt-image-bed-watermark-text-color"
+										),
+										fontSize: PopsPanel.getValue<number>(
+											"mt-image-bed-watermark-font-size"
+										),
+										globalAlpha: PopsPanel.getValue<number>(
+											"mt-image-bed-watermark-font-opacity"
+										),
+										xMoveDistance: PopsPanel.getValue<number>(
+											"mt-image-bed-watermark-left-right-margin"
+										),
+										yMoveDistance: PopsPanel.getValue<number>(
+											"mt-image-bed-watermark-top-bottom-margin"
+										),
+										rotateAngle: PopsPanel.getValue<number>(
+											"mt-image-bed-watermark-rotate"
+										),
+									});
+									needUploadImageArray.push(watermark.render("png"));
+									needUploadImageFileArray.push(
+										utils.parseBase64ToFile(
+											watermark.render("png"),
+											"WaterMark_" + item.name
+										)
+									);
+								}
+							})
+						);
+						$loading.close();
+						// @ts-ignore
+						chooseImage = needUploadImageFileArray;
+						if (
+							PopsPanel.getValue<boolean>(
+								"mt-image-bed-watermark-autoAddWaterMark"
+							)
+						) {
+							await upload_callback(chooseImage);
+						} else {
+							// 预览水印
+							pops.confirm({
+								title: {
+									text: "水印预览",
+									position: "center",
+								},
+								content: {
+									text: /*html*/ `
+									<div class="upload-image-water">${needUploadImageArray
+										.map((item) => {
+											return /*html*/ `<img src="${item}" crossoriginNew="anonymous" loading="lazy">`;
+										})
+										.join("\n")}
+									</div>
+									`,
+									html: true,
+								},
+								btn: {
+									ok: {
+										text: "继续上传",
+										async callback(eventDetails, event) {
+											eventDetails.close();
+											await upload_callback(chooseImage);
+										},
+									},
+									close: {
+										callback(details, event) {
+											details.close();
+											clear_input();
+										},
+									},
+									cancel: {
+										callback(eventDetails, event) {
+											eventDetails.close();
+											clear_input();
+										},
+									},
+								},
+								drag: true,
+								width: "88vw",
+								height: "80vh",
+								style: /*css*/ `
+								.upload-image-water {
+
+								}
+								.upload-image-water img{
+									width: 100%;
+								}
+								`,
+							});
+						}
+					} else {
+						await upload_callback(chooseImage);
 					}
 				}
 			}

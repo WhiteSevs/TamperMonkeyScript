@@ -136,14 +136,14 @@ export const Component_Common: PopsPanelContentConfig = {
 									void 0,
 									"自动根据请求的域名来设置对应的cookie"
 								),
-								// UITextArea(
-								// 	"tieba.baidu.com",
-								// 	"httpx-cookie-tieba.baidu.com",
-								// 	"",
-								// 	void 0,
-								// 	void 0,
-								// 	"Cookie格式：xxx=xxxx;xxx=xxxx"
-								// ),
+								UITextArea(
+									"bbs.binmt.cc",
+									"httpx-cookie-bbs.binmt.cc",
+									"",
+									void 0,
+									void 0,
+									"Cookie格式：xxx=xxxx;xxx=xxxx"
+								),
 							],
 						},
 					],
@@ -161,6 +161,39 @@ export const Component_Common: PopsPanelContentConfig = {
 						{
 							text: "",
 							type: "forms",
+							forms: [
+								UISwitch(
+									"链接文本转超链接",
+									"mt-link-text-to-hyperlink",
+									true,
+									void 0,
+									"自动把页面中的链接文本转换为超链接"
+								),
+								UISwitch(
+									"显示用户UID",
+									"mt-show-user-uid",
+									true,
+									void 0,
+									"格式为UID：xxx"
+								),
+								UISwitch(
+									"小窗模式",
+									"mt-small-window",
+									true,
+									void 0,
+									"开启后点击帖子右侧区域为小窗打开"
+								),
+							],
+						},
+					],
+				},
+				{
+					text: "额外菜单项",
+					type: "deepMenu",
+					forms: [
+						{
+							type: "forms",
+							text: "",
 							forms: [
 								UISwitch(
 									"小黑屋",
@@ -205,25 +238,11 @@ export const Component_Common: PopsPanelContentConfig = {
 									"将会在左侧面板添加【自定义用户标签】菜单"
 								),
 								UISwitch(
-									"链接文本转超链接",
-									"mt-link-text-to-hyperlink",
+									"评论过滤器",
+									"mt-post-comment-filter",
 									true,
 									void 0,
-									"自动把页面中的链接文本转换为超链接"
-								),
-								UISwitch(
-									"显示用户UID",
-									"mt-show-user-uid",
-									true,
-									void 0,
-									"格式为UID：xxx"
-								),
-								UISwitch(
-									"小窗模式",
-									"mt-small-window",
-									true,
-									void 0,
-									"开启后点击帖子右侧区域为小窗打开"
+									"将会在左侧面板添加【评论过滤器】菜单"
 								),
 							],
 						},

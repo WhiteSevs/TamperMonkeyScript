@@ -2,7 +2,7 @@ import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/compo
 import { UISwitch } from "../common-components/ui-switch";
 import { MTAutoSignIn } from "@/main/sign/MTAutoSignIn";
 import Qmsg from "qmsg";
-import { pops, utils } from "@/env";
+import { DOMUtils, pops, utils } from "@/env";
 import { UIButton } from "../common-components/ui-button";
 import Utils from "@whitesev/utils";
 
@@ -47,7 +47,11 @@ export const Component_Sign: PopsPanelContentConfig = {
 					void 0,
 					void 0,
 					"primary",
-					() => {
+					(event) => {
+						let $click = event.composedPath()[0] as HTMLElement;
+						let $desc = $click
+							.closest("li")!
+							.querySelector<HTMLElement>(".pops-panel-item-left-desc-text")!;
 						pops.confirm({
 							title: {
 								text: "提示 ",
@@ -63,6 +67,14 @@ export const Component_Sign: PopsPanelContentConfig = {
 									callback: (event) => {
 										MTAutoSignIn.clearSignTime();
 										Qmsg.success("删除成功");
+										DOMUtils.text(
+											$desc,
+											`上次签到时间：${
+												MTAutoSignIn.getSignTime() == null
+													? "尚未签到"
+													: Utils.formatTime(MTAutoSignIn.getSignTime())
+											}`
+										);
 										event.close();
 									},
 								},
@@ -71,7 +83,7 @@ export const Component_Sign: PopsPanelContentConfig = {
 								enable: true,
 							},
 							width: "88vw",
-							height: "250px",
+							height: "200px",
 						});
 					}
 				),

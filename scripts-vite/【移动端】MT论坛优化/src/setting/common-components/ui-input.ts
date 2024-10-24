@@ -31,7 +31,8 @@ export const UIInput = function (
 		| undefined,
 	placeholder = "",
 	isNumber?: boolean,
-	isPassword?: boolean
+	isPassword?: boolean,
+	afterAddToUListCallBack?: PopsPanelInputDetails["afterAddToUListCallBack"],
 ) {
 	let result: PopsPanelInputDetails = {
 		text: text,
@@ -41,6 +42,7 @@ export const UIInput = function (
 		props: {},
 		attributes: {},
 		description: description,
+		afterAddToUListCallBack: afterAddToUListCallBack,
 		getValue() {
 			return (this.props as any)[PROPS_STORAGE_API].get(key, defaultValue);
 		},

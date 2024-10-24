@@ -19,7 +19,12 @@ export const HttpxCookieManager = {
 		get useDocumentCookie() {
 			return PopsPanel.getValue<boolean>("httpx-use-document-cookie");
 		},
-		cookieRule: <HttpxCookieManagerRule[]>[],
+		cookieRule: <HttpxCookieManagerRule[]>[
+			{
+				key: "httpx-cookie-bbs.binmt.cc",
+				hostname: /bbs.binmt.cc/g,
+			},
+		],
 	},
 	/**
 	 * 补充cookie末尾分号
