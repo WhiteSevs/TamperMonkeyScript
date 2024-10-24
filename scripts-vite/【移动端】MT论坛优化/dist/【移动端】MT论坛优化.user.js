@@ -10,8 +10,8 @@
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/452322/1413240/js-watermark.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.4/dist/index.umd.js
+// @require      https://update.greasyfork.org/scripts/452322/1470429/js-watermark.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.9/dist/index.umd.js
@@ -47,7 +47,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var require_entrance_001 = __commonJS({
-    "entrance-D-SXKkBQ.js"(exports, module) {
+    "entrance-Cez3nuW5.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -2669,16 +2669,22 @@
             },
             allowInterceptConfig: false
           });
+          if (!response.status) {
+            log.error(response);
+            Qmsg.error(this.$config.TAG + "网络异常，上传图片失败");
+            return;
+          }
           if (response.data.status in this.$code) {
+            log.error(response);
             Qmsg.error(this.$config.TAG + this.$code[response.data.status]);
             return;
           }
           let data = utils.toJSON(response.data.responseText);
+          log.info(data);
           if (!data.status) {
             Qmsg.error(this.$config.TAG + data.message);
             return;
           }
-          log.info(data);
           Qmsg.success(this.$config.TAG + "上传成功");
           let file_reader = new FileReader();
           file_reader.readAsDataURL(imageFile);
@@ -2843,12 +2849,18 @@
             },
             allowInterceptConfig: false
           });
-          let data = utils.toJSON(response.data.responseText);
-          if (!data.status) {
-            Qmsg.error(this.$config.TAG + data.message);
+          if (!response.status) {
+            log.error(response);
+            Qmsg.error(this.$config.TAG + "网络异常，上传图片失败");
             return;
           }
+          let data = utils.toJSON(response.data.responseText);
           log.info(data);
+          if (!data.status) {
+            log.error(response);
+            Qmsg.error(this.$config.TAG + data.message || JSON.stringify(data));
+            return;
+          }
           Qmsg.success(this.$config.TAG + "上传成功");
           let file_reader = new FileReader();
           file_reader.readAsDataURL(imageFile);

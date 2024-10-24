@@ -143,16 +143,22 @@ export const MTEditorImageBed_MT = {
 			},
 			allowInterceptConfig: false,
 		});
+		if (!response.status) {
+			log.error(response);
+			Qmsg.error(this.$config.TAG + "网络异常，上传图片失败");
+			return;
+		}
 		let data = utils.toJSON(response.data.responseText) as {
 			status: boolean;
 			message: string;
 			data: ImageInfo;
 		};
+		log.info(data);
 		if (!data.status) {
-			Qmsg.error(this.$config.TAG + data.message);
+			log.error(response);
+			Qmsg.error(this.$config.TAG + data.message || JSON.stringify(data));
 			return;
 		}
-		log.info(data);
 		Qmsg.success(this.$config.TAG + "上传成功");
 		let file_reader = new FileReader();
 		/* FileReader主要用于将文件内容读入内存，通过一系列异步接口，可以在主线程中访问本地文件 */

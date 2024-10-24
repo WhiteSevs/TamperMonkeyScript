@@ -10,8 +10,8 @@
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/452322/1413240/js-watermark.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.4/dist/index.umd.js
+// @require      https://update.greasyfork.org/scripts/452322/1470429/js-watermark.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.9/dist/index.umd.js
