@@ -54,6 +54,12 @@ const GreasyforkRouter = {
 		return Boolean(window.location.pathname.endsWith("/scripts"));
 	},
 	/**
+	 * 脚本列表-按域名
+	 */
+	isScriptsBySite() {
+		return Boolean(window.location.pathname.match("/scripts/by-site"));
+	},
+	/**
 	 * 库列表页面
 	 */
 	isScriptLibraryList() {

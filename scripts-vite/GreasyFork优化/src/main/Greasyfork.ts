@@ -38,7 +38,8 @@ const Greasyfork = {
 		if (
 			GreasyforkRouter.isScriptList() ||
 			GreasyforkRouter.isScriptLibraryList() ||
-			GreasyforkRouter.isScriptCodeSearch()
+			GreasyforkRouter.isScriptCodeSearch() ||
+			GreasyforkRouter.isScriptsBySite()
 		) {
 			GreasyforkScriptsList.init();
 		}
