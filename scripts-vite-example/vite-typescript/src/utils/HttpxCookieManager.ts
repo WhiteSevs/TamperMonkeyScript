@@ -19,6 +19,14 @@ export const HttpxCookieManager = {
 		get useDocumentCookie() {
 			return PopsPanel.getValue<boolean>("httpx-use-document-cookie");
 		},
+		/**
+		 * cookie规则，在这里填入
+		 * @example
+		 * {
+		 *     key: "",
+		 *     hostname: "",
+		 * }
+		 */
 		cookieRule: <HttpxCookieManagerRule[]>[],
 	},
 	/**
