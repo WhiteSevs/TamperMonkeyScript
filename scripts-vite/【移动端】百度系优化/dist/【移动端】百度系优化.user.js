@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.18
+// @version      2024.10.24
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -19,11 +19,11 @@
 // @require      https://fastly.jsdelivr.net/npm/vue-router@4.4.5/dist/vue-router.global.js
 // @require      https://update.greasyfork.org/scripts/495227/1413261/Element-Plus.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.9/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.7/dist/index.min.css
 // @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
 // @connect      *
@@ -12832,23 +12832,25 @@ div[class^="new-summary-container_"] {\r
         "uni-app .load-more",
         (event) => {
           var _a3, _b;
-          let $loadMore = event.target;
           utils.preventEvent(event);
+          let $loadMore = event.target;
           let vue3Ins = VueUtils.getVue3($loadMore);
           let vue2Ins = VueUtils.getVue($loadMore);
-          if (vue3Ins) {
-            if (typeof ((_a3 = vue3Ins == null ? void 0 : vue3Ins.attrs) == null ? void 0 : _a3.onHandleClick) === "function") {
-              vue3Ins.attrs.onHandleClick();
+          if (vue2Ins) {
+            let handleClick = (_a3 = vue2Ins == null ? void 0 : vue2Ins.$listeners) == null ? void 0 : _a3["handle-click"];
+            if (typeof handleClick === "function") {
+              handleClick();
+              log.success(`uni-app ===> __vue__ 加载更多评论`);
+            } else {
+              log.error("uni-app ==> __vue__ 点击加载更多失败");
+            }
+          } else if (vue3Ins) {
+            let onHandleClick = (_b = vue3Ins == null ? void 0 : vue3Ins.attrs) == null ? void 0 : _b.onHandleClick;
+            if (typeof onHandleClick === "function") {
+              onHandleClick();
               log.success(`uni-app ===> __vueParentComponent 加载更多评论`);
             } else {
               log.error("uni-app ==> __vueParentComponent 点击加载更多失败");
-            }
-          } else if (vue2Ins) {
-            if (typeof ((_b = vue2Ins == null ? void 0 : vue2Ins.$listeners) == null ? void 0 : _b["handle-click"]) === "function") {
-              vue2Ins.$listeners["handle-click"]();
-              log.success(`uni-app ===> __vue__加载更多评论`);
-            } else {
-              log.error("uni-app ==> __vue__点击加载更多失败");
             }
           } else {
             log.error("uni-app ==> 获取vue实例失败");

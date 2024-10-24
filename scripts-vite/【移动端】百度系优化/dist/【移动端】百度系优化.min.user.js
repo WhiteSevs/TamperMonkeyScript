@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.18
+// @version      2024.10.24
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -19,11 +19,11 @@
 // @require      https://fastly.jsdelivr.net/npm/vue-router@4.4.5/dist/vue-router.global.js
 // @require      https://update.greasyfork.org/scripts/495227/1413261/Element-Plus.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.9/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.7/dist/index.min.css
 // @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
 // @connect      *
@@ -2164,7 +2164,7 @@ uni-app .swiper-content {\r
 			color: #ffffff;
 			z-index: 10000;
 		}
-		`);},mutationRemoveWakeUpBtn(){p.mutationObserver(document.documentElement,{config:{subtree:!0,childList:!0},immediate:!0,callback(){document.querySelectorAll(".wake-app-btn").forEach(e=>e.remove());}});},overloadLoadMore(){s.info("uni-app ===> 覆盖页面的加载更多按钮，可实现加载更多评论"),g.on(document,"click","uni-app .load-more",e=>{var o,a;let t=e.target;p.preventEvent(e);let r=ee.getVue3(t),n=ee.getVue(t);r?typeof((o=r==null?void 0:r.attrs)==null?void 0:o.onHandleClick)=="function"?(r.attrs.onHandleClick(),s.success("uni-app ===> __vueParentComponent 加载更多评论")):s.error("uni-app ==> __vueParentComponent 点击加载更多失败"):n?typeof((a=n==null?void 0:n.$listeners)==null?void 0:a["handle-click"])=="function"?(n.$listeners["handle-click"](),s.success("uni-app ===> __vue__加载更多评论")):s.error("uni-app ==> __vue__点击加载更多失败"):s.error("uni-app ==> 获取vue实例失败");},{capture:!0}),g.on(document,"scroll",p.debounce(async()=>{let e=document.querySelector("uni-app .load-more");e&&p.isVisible(e,!0)&&e.click();}),{capture:!0,passive:!0,once:!1}),p.dispatchEvent(document,"scroll");},addScrollTopButton(e){return e?(s.info("uni-app ===> 添加滚动到顶部按钮"),W(`
+		`);},mutationRemoveWakeUpBtn(){p.mutationObserver(document.documentElement,{config:{subtree:!0,childList:!0},immediate:!0,callback(){document.querySelectorAll(".wake-app-btn").forEach(e=>e.remove());}});},overloadLoadMore(){s.info("uni-app ===> 覆盖页面的加载更多按钮，可实现加载更多评论"),g.on(document,"click","uni-app .load-more",e=>{var o,a;p.preventEvent(e);let t=e.target,r=ee.getVue3(t),n=ee.getVue(t);if(n){let i=(o=n==null?void 0:n.$listeners)==null?void 0:o["handle-click"];typeof i=="function"?(i(),s.success("uni-app ===> __vue__ 加载更多评论")):s.error("uni-app ==> __vue__ 点击加载更多失败");}else if(r){let i=(a=r==null?void 0:r.attrs)==null?void 0:a.onHandleClick;typeof i=="function"?(i(),s.success("uni-app ===> __vueParentComponent 加载更多评论")):s.error("uni-app ==> __vueParentComponent 点击加载更多失败");}else s.error("uni-app ==> 获取vue实例失败");},{capture:!0}),g.on(document,"scroll",p.debounce(async()=>{let e=document.querySelector("uni-app .load-more");e&&p.isVisible(e,!0)&&e.click();}),{capture:!0,passive:!0,once:!1}),p.dispatchEvent(document,"scroll");},addScrollTopButton(e){return e?(s.info("uni-app ===> 添加滚动到顶部按钮"),W(`
 				.whitesev-tb-totop{
 					display: unset !important;
 					right: 9px !important;
