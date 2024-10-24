@@ -21,7 +21,7 @@ import { GM_RESOURCE_MAP } from "./GM_Resource_Map";
 import "@lib/js-watermark";
 
 /* 脚本名 */
-const _SCRIPT_NAME_ = "Demo Script Name";
+const _SCRIPT_NAME_ = "【移动端】MT论坛优化";
 const utils = Utils.noConflict();
 const domUtils = DOMUtils.noConflict();
 const __pops = pops;

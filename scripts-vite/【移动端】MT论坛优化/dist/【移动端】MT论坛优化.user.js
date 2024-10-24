@@ -47,7 +47,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var require_entrance_001 = __commonJS({
-    "entrance-Cez3nuW5.js"(exports, module) {
+    "entrance-IqeEvtXO.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -815,7 +815,7 @@
         };
         return Watermark;
       });
-      const _SCRIPT_NAME_ = "Demo Script Name";
+      const _SCRIPT_NAME_ = "【移动端】MT论坛优化";
       const utils = Utils.noConflict();
       const domUtils = DOMUtils.noConflict();
       const __pops = pops;
