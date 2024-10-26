@@ -164,9 +164,9 @@ const SubTitle = {
 				}
 			},
 			/**
-			 * 获取默认的layer配置项
+			 * 获取默认的配置项
 			 */
-			getSettingOption: (): Setting => {
+			getDefaultSettingOption: (): Setting => {
 				return {
 					name: SubTitleSettingLayer.config.NAME,
 					width: 200,
@@ -195,15 +195,17 @@ const SubTitle = {
 				};
 			},
 			/**
-			 * 获取默认的layer配置项
+			 * 获取配置项
 			 *
 			 * 因为配置会被动态修改，
 			 */
-			getDefaultSettingOption: (): Setting => {
+			getSettingOption: (): Setting => {
 				// 设置菜单项
-				const settingOption: Setting = SubTitleSettingLayer.getSettingOption();
+				const settingOption: Setting =
+					SubTitleSettingLayer.getDefaultSettingOption();
 				// 配置selector列表
-				const defaultSelector = SubTitleSettingLayer.getDefaultSelector();
+				const defaultSelector =
+					SubTitleSettingLayer.getDefaultSettingSelector();
 				settingOption!.selector!.push(defaultSelector);
 				// 配置默认数据
 				settingOption.tooltip = defaultSelector.html;
@@ -212,7 +214,7 @@ const SubTitle = {
 			/**
 			 * 获取默认的selector配置项
 			 */
-			getDefaultSelector: (): Setting & SubTitleSettingExtraOption => {
+			getDefaultSettingSelector: (): Setting & SubTitleSettingExtraOption => {
 				return {
 					default: true,
 					html: "无",
@@ -228,7 +230,7 @@ const SubTitle = {
 		SubTitleEvent.reset();
 
 		// 配置selector列表
-		const defaultSelector = SubTitleSettingLayer.getDefaultSelector();
+		const defaultSelector = SubTitleSettingLayer.getDefaultSettingSelector();
 
 		SubTitleData.currentSelectIndex = 0;
 		SubTitleData.allSubTitleInfo.push({
@@ -237,9 +239,9 @@ const SubTitle = {
 			data: defaultSelector.subTitle_data,
 		});
 		// 添加菜单
-		this.art.setting.add(SubTitleSettingLayer.getDefaultSettingOption());
+		this.art.setting.add(SubTitleSettingLayer.getSettingOption());
 		// 设置菜单项
-		const settingOption = SubTitleSettingLayer.getDefaultSettingOption();
+		const settingOption = SubTitleSettingLayer.getSettingOption();
 		// 初始化字幕容器
 		this.$el.$subtitle = this.art.template.$subtitle;
 

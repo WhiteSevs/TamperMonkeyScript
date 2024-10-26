@@ -94,6 +94,8 @@ export default defineConfig({
 					"api.bilibili.com",
 					"app.bilibili.com",
 					"passport.bilibili.com",
+					"hdslb.com",
+					"aisubtitle.hdslb.com",
 				],
 				grant: [
 					"GM_addStyle",
