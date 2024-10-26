@@ -51,17 +51,17 @@ export const MTDyncmicAvatar = {
 			content: {
 				text: /*html*/ `
                 <div class="avatar-container">
-                    <p class="avatar-tip">1. 小头像: 48×48</p>
+                    <p class="avatar-tip">1. 小头像（图片宽高限制最大：48×48）</p>
                     <p class="avatar-upload-status" data-type="small">🤡请先上传图片</p>
                     <input type="file" class="avatar-upload" data-type="small" data-maxwidth="48" data-maxheight="48" accept="image/*">
                 </div>
                 <div class="avatar-container">
-                    <p class="avatar-tip">2. 中头像: 120×120</p>
+                    <p class="avatar-tip">2. 中头像（图片最大宽高最大：120×120）</p>
                     <p class="avatar-upload-status" data-type="middle">🤡请先上传图片</p>
                     <input type="file" class="avatar-upload" data-type="middle" data-maxwidth="120" data-maxheight="120" accept="image/*">
                 </div>
                 <div class="avatar-container">
-                    <p class="avatar-tip">3. 大头像: 200×250</p>
+                    <p class="avatar-tip">3. 大头像（图片最大宽高最大：200×250）</p>
                     <p class="avatar-upload-status" data-type="big">🤡请先上传图片</p>
                     <input type="file" class="avatar-upload" data-type="big" data-maxwidth="200" data-maxheight="250" accept="image/*">
                 </div>
