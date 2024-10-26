@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.24
+// @version      2024.10.26
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -19,7 +19,7 @@
 // @require      https://fastly.jsdelivr.net/npm/vue-router@4.4.5/dist/vue-router.global.js
 // @require      https://update.greasyfork.org/scripts/495227/1413261/Element-Plus.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
@@ -2949,11 +2949,25 @@ match-attr##srcid##sp_purc_atom
         type: "forms",
         forms: [
           UISwitch(
-            "拦截-唤醒App",
-            "baidu_map_hijack_wakeup",
+            "劫持Element.appendChild",
+            "baidu_map_hijack-element-appendChild",
             true,
             void 0,
             "阻止唤醒调用App"
+          ),
+          UISwitch(
+            "劫持$.append",
+            "baidu_map_hijack-jQuery-append",
+            true,
+            void 0,
+            "阻止唤醒调用App"
+          ),
+          UISwitch(
+            "劫持setTimeout",
+            "baidu_map_hijack-setTimeout",
+            true,
+            void 0,
+            "阻止唤醒调用App和剪贴板复制"
           )
         ]
       }
@@ -5368,11 +5382,10 @@ div[class^="new-summary-container_"] {\r
      * @param handleCallBack 处理的回调函数，如果劫持请返回true
      */
     elementAppendChild(handleCallBack = function(element) {
-      var _a3;
       if (element instanceof HTMLIFrameElement) {
-        if (!((_a3 = element == null ? void 0 : element.src) == null ? void 0 : _a3.startsWith("http"))) {
+        if (typeof (element == null ? void 0 : element.src) === "string" && !element.src.startsWith("http")) {
           log.success(["劫持iframe唤醒：" + element.src, element]);
-          return;
+          return true;
         }
       }
     }) {
@@ -5388,7 +5401,7 @@ div[class^="new-summary-container_"] {\r
             return;
           }
         }
-        return OriginPrototype.Element.appendChild.call(this, element);
+        return OriginPrototype.Element.appendChild.call(this, ...arguments);
       };
     },
     /**
@@ -5411,7 +5424,7 @@ div[class^="new-summary-container_"] {\r
             return;
           }
         }
-        originAppend.apply(this, arguments);
+        return originAppend.apply(this, arguments);
       };
     },
     /**
@@ -23998,14 +24011,20 @@ div[class^="new-summary-container_"] {\r
   const MapShieldCSS = '.index-widget-guidebanner,\r\n.common-widget-bottom-banner-changeId,\r\n#index-areaEntry-widget,\r\ndiv.common-widget-bottom-banner-changeId,\r\n#downloadnativepopup,\r\n.xiaoduVoiceCard,\r\n.index-widget-guidebanner,\r\n#message-center-panel,\r\n.xiaoduVoice-banner.-border-round,\r\n/* 底部中间横幅-打开百度地图APP */\r\n#main div[id^="fis_elm"] .btn-banner-float {\r\n  display: none !important;\r\n}\r\n';
   const BaiduMapHook = {
     init() {
-      PopsPanel.execMenu("baidu_map_hijack_wakeup", () => {
+      addStyle(MapShieldCSS);
+      log.info("插入CSS规则");
+      PopsPanel.execMenuOnce("baidu_map_hijack-element-appendChild", () => {
         log.success("hook: Element.appendChild");
         BaiduHook.elementAppendChild();
+      });
+      PopsPanel.execMenuOnce("baidu_map_hijack-setTimeout", () => {
         log.success("hook: window.setTimeout");
         BaiduHook.setTimeout(
           /goToDownloadOfAndrod|downloadAndrFromMarket|jumpToDownloadPage|jumpToMiddlePage|downloadIosPkg/
         );
-        domutils.ready(function() {
+      });
+      domutils.ready(function() {
+        PopsPanel.execMenuOnce("baidu_map_hijack-jQuery-append", () => {
           log.success("hook: $.append");
           BaiduHook.windowJQueryAppend();
         });

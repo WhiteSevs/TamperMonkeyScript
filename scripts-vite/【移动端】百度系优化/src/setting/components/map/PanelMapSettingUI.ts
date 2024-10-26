@@ -16,11 +16,25 @@ const PanelMapSettingUI: PopsPanelContentConfig = {
 			type: "forms",
 			forms: [
 				UISwitch(
-					"拦截-唤醒App",
-					"baidu_map_hijack_wakeup",
+					"劫持Element.appendChild",
+					"baidu_map_hijack-element-appendChild",
 					true,
 					void 0,
 					"阻止唤醒调用App"
+				),
+				UISwitch(
+					"劫持$.append",
+					"baidu_map_hijack-jQuery-append",
+					true,
+					void 0,
+					"阻止唤醒调用App"
+				),
+				UISwitch(
+					"劫持setTimeout",
+					"baidu_map_hijack-setTimeout",
+					true,
+					void 0,
+					"阻止唤醒调用App和剪贴板复制"
 				),
 			],
 		},

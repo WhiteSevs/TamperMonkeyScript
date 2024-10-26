@@ -311,10 +311,13 @@ const BaiduHook = {
 			element
 		) {
 			if (element instanceof HTMLIFrameElement) {
-				if (!element?.src?.startsWith("http")) {
+				if (
+					typeof element?.src === "string" &&
+					!element.src.startsWith("http")
+				) {
 					log.success(["劫持iframe唤醒：" + element.src, element]);
 					// @ts-ignore
-					return;
+					return true;
 				}
 			}
 		}
@@ -335,7 +338,7 @@ const BaiduHook = {
 				}
 			}
 			// @ts-ignore
-			return OriginPrototype.Element.appendChild.call(this, element);
+			return OriginPrototype.Element.appendChild.call(this, ...arguments);
 		};
 	},
 	/**
@@ -361,7 +364,7 @@ const BaiduHook = {
 					return;
 				}
 			}
-			originAppend.apply(this, arguments);
+			return originAppend.apply(this, arguments);
 		};
 	},
 	/**
