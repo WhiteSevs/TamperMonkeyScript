@@ -302,4 +302,5 @@ export const en_US_language = {
 	"结果：": "Result: ",
 	转换前: "Before Parse",
 	转换后: "Parse Result",
+	使用namespace查询脚本信息: "Use a namespace to query script information",
 };

@@ -133,6 +133,13 @@ export const SettingUIScripts: PopsPanelContentConfig = {
 									void 0,
 									i18next.t("双列显示且添加脚本卡片操作项（安装、收藏）")
 								),
+								UISwitch(
+									i18next.t("使用namespace查询脚本信息"),
+									"beautifyCenterContent-queryNameSpace",
+									true,
+									void 0,
+									i18next.t("开启后检测已安装的脚本信息更准确，但是速度会更慢")
+								),
 							],
 						},
 					],

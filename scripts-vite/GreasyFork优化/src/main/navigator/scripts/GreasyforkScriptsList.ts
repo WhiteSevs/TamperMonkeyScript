@@ -82,6 +82,9 @@ export const GreasyforkScriptsList = {
 		log.info("美化脚本列表");
 		let result = [];
 		result.push(addStyle(beautifyCenterContentCSS));
+
+		const lodingClassName = "lum-lightbox-loader";
+		const noInstallBtnText = i18next.t("安装此脚本");
 		DOMUtils.ready(async () => {
 			let allScriptsList = GreasyforkScriptsFilter.getElementList();
 
@@ -205,13 +208,12 @@ export const GreasyforkScriptsList = {
 					".script-collect-btn"
 				)!;
 
-				// 安装此脚本
 				let $installLink =
 					$operationRight.querySelector<HTMLAnchorElement>(".install-link")!;
 				// 存储数据
 				($installLink as any)["data-script-info"] = scriptInfo;
 				// 添加加载脚本已安装版本号加载中的样式
-				$installLink.classList.add("lum-lightbox-loader");
+				DOMUtils.addClass($installLink, lodingClassName);
 				if (scriptInfo.scriptType === "library") {
 					// 当它是个库时，是不应该被安装的
 					$installLink.remove();
@@ -338,76 +340,82 @@ export const GreasyforkScriptsList = {
 				$inlineStats.appendChild($operationLeft);
 				$inlineStats.appendChild($operationRight);
 			});
-
+			/** 页面上所有的安装按钮 */
 			let $installLinkList = Array.from(
 				document.querySelectorAll<HTMLElement>(
 					".install-link[data-install-format=js]"
 				)
 			);
-			let scriptContainerStatus =
+			/** 遍历所有的脚本容器状态 */
+			let allScriptContainerStatus =
 				GreasyforkCheckVersion.getScriptContainerStatus();
-			let hasScriptContainer = Object.values(scriptContainerStatus).filter(
-				Boolean
+			/** 是否存在脚本容器 */
+			let hasScriptContainer = Object.values(allScriptContainerStatus).find(
+				(item) => item
 			);
-			if (
-				scriptContainerStatus.Tampermonkey ||
-				scriptContainerStatus.ScriptCat
-			) {
+			/** 是否强制使用命名空间来查询信息 */
+			let isForceUseNameSpace = PopsPanel.getValue<boolean>(
+				"beautifyCenterContent-queryNameSpace"
+			);
+
+			if (!hasScriptContainer) {
+				log.error("脚本容器未暴露external信息", window.external);
+			} else {
 				log.info(
-					`当前脚本管理器【${
-						scriptContainerStatus.Tampermonkey ? "TamperMonkey" : "ScriptCat"
-					}】，启用极速检测已安装脚本信息`
-				);
-				// TamperMonkey、ScriptCat可以不设置namespace从而获取到脚本的安装信息
-				$installLinkList.forEach(async ($installLink) => {
-					let result = await GreasyforkCheckVersion.checkForUpdatesJS(
-						$installLink,
-						true
-					);
-					$installLink.classList.remove("lum-lightbox-loader");
-					if (!result) {
-						$installLink.textContent = i18next.t("安装此脚本");
-					}
-				});
-			} else if (hasScriptContainer.length) {
-				// 其它的脚本过滤器需要网络请求json获取namespace来获取已安装脚本的信息
-				// ViolentMonkey
-				log.info(
-					`当前脚本管理器` +
-						Object.keys(scriptContainerStatus)
+					"当前暴露的external信息：" +
+						Object.keys(allScriptContainerStatus)
 							.map((item) => `【${item}】`)
 							.join("、")
 				);
-				for (let index = 0; index < $installLinkList.length; index++) {
-					let $installLink = $installLinkList[index];
-					let scriptInfo = ($installLink as any)[
-						"data-script-info"
-					] as GreasyforkScriptListInfo;
-					let response = await httpx.get(
-						GreasyforkUrlUtils.getScriptInfoUrl(scriptInfo.scriptId),
-						{
-							fetch: true,
+			}
+			for (let index = 0; index < $installLinkList.length; index++) {
+				const $installLink = $installLinkList[index];
+				let scriptInfo = Reflect.get(
+					$installLink,
+					"data-script-info"
+				) as GreasyforkScriptListInfo;
+				if (hasScriptContainer) {
+					// 得有脚本容器才可以获取版本号信息嘞
+					if (isForceUseNameSpace) {
+						// 强制获取namespace
+						let response = await httpx.get(
+							GreasyforkUrlUtils.getScriptInfoUrl(scriptInfo.scriptId),
+							{
+								fetch: true,
+							}
+						);
+						if (response.status) {
+							let data = utils.toJSON<GreasyforkScriptUrlInfo>(
+								response.data.responseText
+							);
+							// 设置namespace信息
+							$installLink.setAttribute(
+								"data-script-namespace",
+								data.namespace
+							);
+						} else {
+							// 哦吼，获取失败
+						}
+					}
+					// 更新安装信息
+					GreasyforkCheckVersion.checkForUpdatesJS($installLink, true).then(
+						(checkResult) => {
+							// 移除加载中的样式
+							DOMUtils.removeClass($installLink, lodingClassName);
+							if (!checkResult) {
+								// 检测失败
+								// 设置初始状态
+								DOMUtils.text($installLink, noInstallBtnText);
+							}
 						}
 					);
-					if (!response.status) {
-						$installLink.textContent = i18next.t("安装此脚本");
-						continue;
-					}
-					let data = utils.toJSON<GreasyforkScriptUrlInfo>(
-						response.data.responseText
-					);
-					$installLink.setAttribute("data-script-namespace", data.namespace);
-					let result = await GreasyforkCheckVersion.checkForUpdatesJS(
-						$installLink,
-						true
-					);
-					$installLink.classList.remove("lum-lightbox-loader");
-					if (!result) {
-						$installLink.textContent = i18next.t("安装此脚本");
-					}
+				} else {
+					// 啥容器也没有
+					// 移除加载中的样式
+					DOMUtils.removeClass($installLink, lodingClassName);
+					// 设置初始状态
+					DOMUtils.text($installLink, noInstallBtnText);
 				}
-			} else {
-				log.error("未知的脚本容器", window.external);
 			}
 		});
 		return result;

@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.10.26.20
+// @version            2024.10.26.21
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -293,7 +293,8 @@
     "例如：": "例如：",
     "结果：": "结果：",
     转换前: "转换前",
-    转换后: "转换后"
+    转换后: "转换后",
+    使用namespace查询脚本信息: "使用namespace查询脚本信息"
   };
   const en_US_language = {
     GreasyFork优化: "GreasyFork Optimization",
@@ -537,7 +538,8 @@
     "例如：": "Example: ",
     "结果：": "Result: ",
     转换前: "Before Parse",
-    转换后: "Parse Result"
+    转换后: "Parse Result",
+    使用namespace查询脚本信息: "Use a namespace to query script information"
   };
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
@@ -3524,6 +3526,8 @@
       log.info("美化脚本列表");
       let result = [];
       result.push(addStyle(beautifyCenterContentCSS));
+      const lodingClassName = "lum-lightbox-loader";
+      const noInstallBtnText = i18next.t("安装此脚本");
       DOMUtils.ready(async () => {
         let allScriptsList = GreasyforkScriptsFilter.getElementList();
         allScriptsList.forEach(($scriptList) => {
@@ -3641,7 +3645,7 @@
           );
           let $installLink = $operationRight.querySelector(".install-link");
           $installLink["data-script-info"] = scriptInfo;
-          $installLink.classList.add("lum-lightbox-loader");
+          DOMUtils.addClass($installLink, lodingClassName);
           if (scriptInfo.scriptType === "library") {
             $installLink.remove();
           }
@@ -3768,56 +3772,56 @@
             ".install-link[data-install-format=js]"
           )
         );
-        let scriptContainerStatus = GreasyforkCheckVersion.getScriptContainerStatus();
-        let hasScriptContainer = Object.values(scriptContainerStatus).filter(
-          Boolean
+        let allScriptContainerStatus = GreasyforkCheckVersion.getScriptContainerStatus();
+        let hasScriptContainer = Object.values(allScriptContainerStatus).find(
+          (item) => item
         );
-        if (scriptContainerStatus.Tampermonkey || scriptContainerStatus.ScriptCat) {
+        let isForceUseNameSpace = PopsPanel.getValue(
+          "beautifyCenterContent-queryNameSpace"
+        );
+        if (!hasScriptContainer) {
+          log.error("脚本容器未暴露external信息", window.external);
+        } else {
           log.info(
-            `当前脚本管理器【${scriptContainerStatus.Tampermonkey ? "TamperMonkey" : "ScriptCat"}】，启用极速检测已安装脚本信息`
+            "当前暴露的external信息：" + Object.keys(allScriptContainerStatus).map((item) => `【${item}】`).join("、")
           );
-          $installLinkList.forEach(async ($installLink) => {
-            let result2 = await GreasyforkCheckVersion.checkForUpdatesJS(
-              $installLink,
-              true
-            );
-            $installLink.classList.remove("lum-lightbox-loader");
-            if (!result2) {
-              $installLink.textContent = i18next.t("安装此脚本");
+        }
+        for (let index = 0; index < $installLinkList.length; index++) {
+          const $installLink = $installLinkList[index];
+          let scriptInfo = Reflect.get(
+            $installLink,
+            "data-script-info"
+          );
+          if (hasScriptContainer) {
+            if (isForceUseNameSpace) {
+              let response = await httpx.get(
+                GreasyforkUrlUtils.getScriptInfoUrl(scriptInfo.scriptId),
+                {
+                  fetch: true
+                }
+              );
+              if (response.status) {
+                let data = utils.toJSON(
+                  response.data.responseText
+                );
+                $installLink.setAttribute(
+                  "data-script-namespace",
+                  data.namespace
+                );
+              }
             }
-          });
-        } else if (hasScriptContainer.length) {
-          log.info(
-            `当前脚本管理器` + Object.keys(scriptContainerStatus).map((item) => `【${item}】`).join("、")
-          );
-          for (let index = 0; index < $installLinkList.length; index++) {
-            let $installLink = $installLinkList[index];
-            let scriptInfo = $installLink["data-script-info"];
-            let response = await httpx.get(
-              GreasyforkUrlUtils.getScriptInfoUrl(scriptInfo.scriptId),
-              {
-                fetch: true
+            GreasyforkCheckVersion.checkForUpdatesJS($installLink, true).then(
+              (checkResult) => {
+                DOMUtils.removeClass($installLink, lodingClassName);
+                if (!checkResult) {
+                  DOMUtils.text($installLink, noInstallBtnText);
+                }
               }
             );
-            if (!response.status) {
-              $installLink.textContent = i18next.t("安装此脚本");
-              continue;
-            }
-            let data = utils.toJSON(
-              response.data.responseText
-            );
-            $installLink.setAttribute("data-script-namespace", data.namespace);
-            let result2 = await GreasyforkCheckVersion.checkForUpdatesJS(
-              $installLink,
-              true
-            );
-            $installLink.classList.remove("lum-lightbox-loader");
-            if (!result2) {
-              $installLink.textContent = i18next.t("安装此脚本");
-            }
+          } else {
+            DOMUtils.removeClass($installLink, lodingClassName);
+            DOMUtils.text($installLink, noInstallBtnText);
           }
-        } else {
-          log.error("未知的脚本容器", window.external);
         }
       });
       return result;
@@ -4077,6 +4081,13 @@
                     true,
                     void 0,
                     i18next.t("双列显示且添加脚本卡片操作项（安装、收藏）")
+                  ),
+                  UISwitch(
+                    i18next.t("使用namespace查询脚本信息"),
+                    "beautifyCenterContent-queryNameSpace",
+                    true,
+                    void 0,
+                    i18next.t("开启后检测已安装的脚本信息更准确，但是速度会更慢")
                   )
                 ]
               }

@@ -282,4 +282,5 @@ export const zh_CN_language = {
 	"结果：": "结果：",
 	转换前: "转换前",
 	转换后: "转换后",
+	使用namespace查询脚本信息: "使用namespace查询脚本信息",
 };
