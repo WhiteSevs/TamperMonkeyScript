@@ -61,6 +61,8 @@ export const GreasyforkCheckVersion = {
 	getViolentmonkey: () => {
 		return (unsafeWindow.external as any)?.Violentmonkey as
 			| {
+					/** 容器版本号 */
+					version: string;
 					/** 获取脚本安装信息，返回版本号 */
 					isInstalled: (
 						name: string,

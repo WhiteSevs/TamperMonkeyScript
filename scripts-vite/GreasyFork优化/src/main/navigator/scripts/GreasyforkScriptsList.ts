@@ -349,8 +349,16 @@ export const GreasyforkScriptsList = {
 			let hasScriptContainer = Object.values(scriptContainerStatus).filter(
 				Boolean
 			);
-			if (!scriptContainerStatus.Tampermonkey) {
-				// TamperMonkey可以不设置namespace从而获取到脚本的安装信息
+			if (
+				scriptContainerStatus.Tampermonkey ||
+				scriptContainerStatus.ScriptCat
+			) {
+				log.info(
+					`当前脚本管理器【${
+						scriptContainerStatus.Tampermonkey ? "TamperMonkey" : "ScriptCat"
+					}】，启用极速检测已安装脚本信息`
+				);
+				// TamperMonkey、ScriptCat可以不设置namespace从而获取到脚本的安装信息
 				$installLinkList.forEach(async ($installLink) => {
 					let result = await GreasyforkCheckVersion.checkForUpdatesJS(
 						$installLink,
@@ -362,24 +370,31 @@ export const GreasyforkScriptsList = {
 					}
 				});
 			} else if (hasScriptContainer.length) {
-				// 其它的需要网络请求json获取namespace
+				// 其它的脚本过滤器需要网络请求json获取namespace来获取已安装脚本的信息
+				// ViolentMonkey
+				log.info(
+					`当前脚本管理器` +
+						Object.keys(scriptContainerStatus)
+							.map((item) => `【${item}】`)
+							.join("、")
+				);
 				for (let index = 0; index < $installLinkList.length; index++) {
 					let $installLink = $installLinkList[index];
 					let scriptInfo = ($installLink as any)[
 						"data-script-info"
 					] as GreasyforkScriptListInfo;
-					let getResp = await httpx.get(
+					let response = await httpx.get(
 						GreasyforkUrlUtils.getScriptInfoUrl(scriptInfo.scriptId),
 						{
 							fetch: true,
 						}
 					);
-					if (!getResp.status) {
+					if (!response.status) {
 						$installLink.textContent = i18next.t("安装此脚本");
 						continue;
 					}
 					let data = utils.toJSON<GreasyforkScriptUrlInfo>(
-						getResp.data.responseText
+						response.data.responseText
 					);
 					$installLink.setAttribute("data-script-namespace", data.namespace);
 					let result = await GreasyforkCheckVersion.checkForUpdatesJS(
@@ -390,10 +405,9 @@ export const GreasyforkScriptsList = {
 					if (!result) {
 						$installLink.textContent = i18next.t("安装此脚本");
 					}
-					await utils.sleep(150);
 				}
 			} else {
-				log.error("未知的脚本容器");
+				log.error("未知的脚本容器", window.external);
 			}
 		});
 		return result;

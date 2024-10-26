@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.10.26
+// @version            2024.10.26.20
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -3772,7 +3772,10 @@
         let hasScriptContainer = Object.values(scriptContainerStatus).filter(
           Boolean
         );
-        if (!scriptContainerStatus.Tampermonkey) {
+        if (scriptContainerStatus.Tampermonkey || scriptContainerStatus.ScriptCat) {
+          log.info(
+            `当前脚本管理器【${scriptContainerStatus.Tampermonkey ? "TamperMonkey" : "ScriptCat"}】，启用极速检测已安装脚本信息`
+          );
           $installLinkList.forEach(async ($installLink) => {
             let result2 = await GreasyforkCheckVersion.checkForUpdatesJS(
               $installLink,
@@ -3784,21 +3787,24 @@
             }
           });
         } else if (hasScriptContainer.length) {
+          log.info(
+            `当前脚本管理器` + Object.keys(scriptContainerStatus).map((item) => `【${item}】`).join("、")
+          );
           for (let index = 0; index < $installLinkList.length; index++) {
             let $installLink = $installLinkList[index];
             let scriptInfo = $installLink["data-script-info"];
-            let getResp = await httpx.get(
+            let response = await httpx.get(
               GreasyforkUrlUtils.getScriptInfoUrl(scriptInfo.scriptId),
               {
                 fetch: true
               }
             );
-            if (!getResp.status) {
+            if (!response.status) {
               $installLink.textContent = i18next.t("安装此脚本");
               continue;
             }
             let data = utils.toJSON(
-              getResp.data.responseText
+              response.data.responseText
             );
             $installLink.setAttribute("data-script-namespace", data.namespace);
             let result2 = await GreasyforkCheckVersion.checkForUpdatesJS(
@@ -3809,10 +3815,9 @@
             if (!result2) {
               $installLink.textContent = i18next.t("安装此脚本");
             }
-            await utils.sleep(150);
           }
         } else {
-          log.error("未知的脚本容器");
+          log.error("未知的脚本容器", window.external);
         }
       });
       return result;
