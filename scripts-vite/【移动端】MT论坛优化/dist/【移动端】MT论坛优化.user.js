@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359
-// @version      2024.10.24
+// @version      2024.10.26
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -47,7 +47,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var require_entrance_001 = __commonJS({
-    "entrance-IqeEvtXO.js"(exports, module) {
+    "entrance-DNNd5_Z9.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -1064,7 +1064,7 @@
          * @param size
          */
         getAvatar: (uid, size = "middle") => {
-          return `https://bbs.binmt.cc/uc_server/avatar.php?uid=${uid}&size=${size}&ts=1`;
+          return `/uc_server/avatar.php?uid=${uid}&size=${size}&ts=1`;
         },
         /**
          * 获取当前已登录的用户的uid
@@ -1784,7 +1784,9 @@
                       }),
                       UIButton(
                         "修改头像",
-                        "可以上传gif图片，注意图片大小限制",
+                        `可以上传gif图片，注意图片最大限制为${Utils.formatByteToSize(
+                        MTDyncmicAvatar.$data.avatarInfo.maxSize
+                      )}`,
                         "上传",
                         void 0,
                         false,
@@ -7148,9 +7150,7 @@
             ajaxtarget: "midaben_sign"
           };
           let response = await httpx.get(
-            `https://bbs.binmt.cc/k_misign-sign.html?${utils.toSearchParamsStr(
-            searchParamsData
-          )}`,
+            `/k_misign-sign.html?${utils.toSearchParamsStr(searchParamsData)}`,
             {
               headers: {
                 "User-Agent": utils.getRandomPCUA()
@@ -7998,9 +7998,7 @@
             ajaxdata: "json"
           };
           let response = await httpx.get(
-            `https://bbs.binmt.cc/forum.php?${utils.toSearchParamsStr(
-            searchParamsData
-          )}`,
+            `/forum.php?${utils.toSearchParamsStr(searchParamsData)}`,
             {
               headers: {
                 "User-Agent": utils.getRandomPCUA()
@@ -8259,9 +8257,7 @@
             showoldetails: "yes"
           };
           let response = await httpx.get(
-            `https://bbs.binmt.cc/forum.php?${utils.toSearchParamsStr(
-            searchParamsData
-          )}`,
+            `/forum.php?${utils.toSearchParamsStr(searchParamsData)}`,
             {
               headers: {
                 "User-Agent": utils.getRandomPCUA()
@@ -60037,11 +60033,11 @@
               pathName: "^(/static(/|//)image|/template)"
             },
             {
-              hostName: "bbs.binmt.cc",
+              hostName: window.location.hostname,
               pathName: "^(/static(/|//)image|/template)"
             },
             {
-              hostName: "bbs.binmt.cc",
+              hostName: window.location.hostname,
               pathName: "/uc_server/avatar.php"
             }
           ];
@@ -60333,7 +60329,7 @@
             ".pg_k_misign .comiis_qdinfo"
           );
           let todayStar = document.createElement("ul");
-          let response = await httpx.get("https://bbs.binmt.cc/k_misign-sign.html", {
+          let response = await httpx.get("/k_misign-sign.html", {
             headers: {
               "User-Agent": utils.getRandomPCUA()
             }
@@ -60404,7 +60400,7 @@
           domUtils.after(today_ranking_ele, $li);
           let getMaxPage = async (urlextra2) => {
             let response = await httpx.get(
-              `https://bbs.binmt.cc/k_misign-sign.html?operation=${urlextra2}`,
+              `/k_misign-sign.html?operation=${urlextra2}`,
               {
                 responseType: "html",
                 headers: {
@@ -60432,7 +60428,7 @@
           };
           let getPagePeople = async (page) => {
             let response = await httpx.get(
-              `https://bbs.binmt.cc/k_misign-sign.html?operation=list&op=&page=${page}`,
+              `/k_misign-sign.html?operation=list&op=&page=${page}`,
               {
                 responseType: "html",
                 headers: {

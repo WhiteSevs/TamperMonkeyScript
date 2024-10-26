@@ -25,7 +25,7 @@ export const MTSign = {
 		)!;
 		let todayStar = document.createElement("ul");
 
-		let response = await httpx.get("https://bbs.binmt.cc/k_misign-sign.html", {
+		let response = await httpx.get("/k_misign-sign.html", {
 			headers: {
 				"User-Agent": utils.getRandomPCUA(),
 			},
@@ -95,7 +95,7 @@ export const MTSign = {
 		DOMUtils.after(today_ranking_ele, $li);
 		let getMaxPage = async (urlextra: string) => {
 			let response = await httpx.get(
-				`https://bbs.binmt.cc/k_misign-sign.html?operation=${urlextra}`,
+				`/k_misign-sign.html?operation=${urlextra}`,
 				{
 					responseType: "html",
 					headers: {
@@ -124,7 +124,7 @@ export const MTSign = {
 
 		let getPagePeople = async (page: string | number) => {
 			let response = await httpx.get(
-				`https://bbs.binmt.cc/k_misign-sign.html?operation=list&op=&page=${page}`,
+				`/k_misign-sign.html?operation=list&op=&page=${page}`,
 				{
 					responseType: "html",
 					headers: {

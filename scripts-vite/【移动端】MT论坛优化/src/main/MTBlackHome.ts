@@ -179,9 +179,7 @@ export const MTBlackHome = {
 			ajaxdata: "json",
 		};
 		let response = await httpx.get(
-			`https://bbs.binmt.cc/forum.php?${utils.toSearchParamsStr(
-				searchParamsData
-			)}`,
+			`/forum.php?${utils.toSearchParamsStr(searchParamsData)}`,
 			{
 				headers: {
 					"User-Agent": utils.getRandomPCUA(),

@@ -7,7 +7,7 @@ export const MTUtils = {
 	 * @param size
 	 */
 	getAvatar: (uid: string, size: "small" | "middle" | "big" = "middle") => {
-		return `https://bbs.binmt.cc/uc_server/avatar.php?uid=${uid}&size=${size}&ts=1`;
+		return `/uc_server/avatar.php?uid=${uid}&size=${size}&ts=1`;
 	},
 	/**
 	 * 获取当前已登录的用户的uid
