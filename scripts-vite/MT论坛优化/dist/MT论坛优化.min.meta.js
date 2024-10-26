@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.24
+// @version      2024.10.26
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子等
 // @license      GPL-3.0-only

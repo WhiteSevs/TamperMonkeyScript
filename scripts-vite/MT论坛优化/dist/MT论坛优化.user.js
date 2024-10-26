@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.24
+// @version      2024.10.26
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子等
 // @license      GPL-3.0-only
@@ -44,7 +44,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
   var require_entrance_001 = __commonJS({
-    "entrance-abhzAgBs.js"(exports, module) {
+    "entrance-JH_f_VXD.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -1028,7 +1028,7 @@
          * @param size
          */
         getAvatar: (uid, size = "middle") => {
-          return `https://bbs.binmt.cc/uc_server/avatar.php?uid=${uid}&size=${size}&ts=1`;
+          return `/uc_server/avatar.php?uid=${uid}&size=${size}&ts=1`;
         },
         /**
          * 获取当前已登录的用户的uid
@@ -1053,7 +1053,7 @@
          */
         getCurrentFormHash() {
           let $exit = document.querySelector(
-            '.sidenv_exit a[href*="formhash="]'
+            '.comiis_user_info a[href*="&formhash="]'
           );
           if ($exit) {
             let formHashMatch = $exit.href.match(/formhash=([0-9a-zA-Z]+)/);
@@ -1680,7 +1680,9 @@
                       }),
                       UIButton(
                         "修改头像",
-                        "可以上传gif图片，注意图片大小限制",
+                        `可以上传gif图片，注意图片最大限制为${Utils.formatByteToSize(
+                        MTDyncmicAvatar.$data.avatarInfo.maxSize
+                      )}`,
                         "上传",
                         void 0,
                         false,
@@ -1897,9 +1899,7 @@
             ajaxtarget: "midaben_sign"
           };
           let response = await httpx.get(
-            `https://bbs.binmt.cc/k_misign-sign.html?${utils.toSearchParamsStr(
-            searchParamsData
-          )}`,
+            `/k_misign-sign.html?${utils.toSearchParamsStr(searchParamsData)}`,
             {
               headers: {
                 "User-Agent": utils.getRandomPCUA()
@@ -54232,11 +54232,11 @@
               pathName: "^(/static(/|//)image|/template)"
             },
             {
-              hostName: "bbs.binmt.cc",
+              hostName: window.location.hostname,
               pathName: "^(/static(/|//)image|/template)"
             },
             {
-              hostName: "bbs.binmt.cc",
+              hostName: window.location.hostname,
               pathName: "/uc_server/avatar.php"
             }
           ];

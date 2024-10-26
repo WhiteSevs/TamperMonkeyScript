@@ -424,11 +424,11 @@ export const MTForumPost = {
 				pathName: "^(/static(/|//)image|/template)",
 			},
 			{
-				hostName: "bbs.binmt.cc",
+				hostName: window.location.hostname,
 				pathName: "^(/static(/|//)image|/template)",
 			},
 			{
-				hostName: "bbs.binmt.cc",
+				hostName: window.location.hostname,
 				pathName: "/uc_server/avatar.php",
 			},
 		];

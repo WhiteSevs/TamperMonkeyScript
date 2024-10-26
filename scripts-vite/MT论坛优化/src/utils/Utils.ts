@@ -7,7 +7,7 @@ export const MTUtils = {
 	 * @param size
 	 */
 	getAvatar: (uid: string, size: "small" | "middle" | "big" = "middle") => {
-		return `https://bbs.binmt.cc/uc_server/avatar.php?uid=${uid}&size=${size}&ts=1`;
+		return `/uc_server/avatar.php?uid=${uid}&size=${size}&ts=1`;
 	},
 	/**
 	 * 获取当前已登录的用户的uid
@@ -32,7 +32,7 @@ export const MTUtils = {
 	 */
 	getCurrentFormHash() {
 		let $exit = document.querySelector<HTMLAnchorElement>(
-			'.sidenv_exit a[href*="formhash="]'
+			'.comiis_user_info a[href*="&formhash="]'
 		);
 		if ($exit) {
 			let formHashMatch = $exit.href.match(/formhash=([0-9a-zA-Z]+)/);

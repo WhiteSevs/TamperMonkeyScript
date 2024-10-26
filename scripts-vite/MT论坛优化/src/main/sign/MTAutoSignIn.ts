@@ -131,9 +131,7 @@ export const MTAutoSignIn = {
 			ajaxtarget: "midaben_sign",
 		};
 		let response = await httpx.get(
-			`https://bbs.binmt.cc/k_misign-sign.html?${utils.toSearchParamsStr(
-				searchParamsData
-			)}`,
+			`/k_misign-sign.html?${utils.toSearchParamsStr(searchParamsData)}`,
 			{
 				headers: {
 					"User-Agent": utils.getRandomPCUA(),
