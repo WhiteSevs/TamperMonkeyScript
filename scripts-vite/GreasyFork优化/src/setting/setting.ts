@@ -21,6 +21,7 @@ import {
 import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 import { SettingUIUsers } from "./components/users";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
+import { GithubUrl2WebhookUrl } from "@/main/GithubUrl2WebhookUrl";
 
 type PosPanelListenerData = {
 	id: number;
@@ -115,6 +116,18 @@ const PopsPanel = {
 				},
 				callback: () => {
 					this.showPanel();
+				},
+			},
+			{
+				key: "githubUrl2webhookUrl",
+				text: "⚙ " + i18next.t("Url To WebhookUrl"),
+				autoReload: false,
+				isStoreValue: false,
+				showText(text) {
+					return text;
+				},
+				callback: () => {
+					GithubUrl2WebhookUrl.showView();
 				},
 			},
 		]);

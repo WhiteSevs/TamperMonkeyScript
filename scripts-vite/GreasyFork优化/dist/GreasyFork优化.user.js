@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.10.24
+// @version            2024.10.26
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -287,7 +287,13 @@
     当前存储的数据所占用的空间大小: "当前存储的数据所占用的空间大小",
     清空: "清空",
     清理成功: "清理成功",
-    清理失败: "清理失败"
+    清理失败: "清理失败",
+    "Url To WebhookUrl": "Url 转 WebhookUrl",
+    关闭: "关闭",
+    "例如：": "例如：",
+    "结果：": "结果：",
+    转换前: "转换前",
+    转换后: "转换后"
   };
   const en_US_language = {
     GreasyFork优化: "GreasyFork Optimization",
@@ -525,7 +531,13 @@
     当前存储的数据所占用的空间大小: "The size of the space occupied by the currently stored data",
     清空: "Clear",
     清理成功: "Cleanup successful",
-    清理失败: "Cleaning failed"
+    清理失败: "Cleaning failed",
+    "Url To WebhookUrl": "Url To WebhookUrl",
+    关闭: "Clsoe",
+    "例如：": "Example: ",
+    "结果：": "Result: ",
+    转换前: "Before Parse",
+    转换后: "Parse Result"
   };
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
@@ -4744,6 +4756,143 @@
       }
     ]
   };
+  const GithubUrl2WebhookUrl = {
+    init() {
+    },
+    /**
+     * 显示视图
+     */
+    showView() {
+      let $alert = __pops.alert({
+        title: {
+          text: i18next.t("Url To WebhookUrl"),
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+                <div class="github-2-webhook-container">
+                    <div class="url-container">
+                        <h4>Github Url</h4>
+                        <div class="url-parse url-parse-link">
+                            <label>${i18next.t("转换前")}</label>
+                            <textarea id="github" placeholder="${i18next.t("例如：") + "https://github.com/WhiteSevs/TamperMonkeyScript/blob/master/README.md"}"></textarea>
+                        </div>
+                        <div class="url-parse url-parse-result">
+                            <label>${i18next.t("转换后")}</label>
+                            <textarea id="webhook" placeholder="${i18next.t("结果：") + "https://raw.githubusercontent.com/WhiteSevs/TamperMonkeyScript/master/README.md"}" readonly></textarea>
+                        </div>
+                    </div>
+                </div>
+                `
+          ),
+          html: true
+        },
+        btn: {
+          ok: {
+            type: "default",
+            text: i18next.t("关闭")
+          }
+        },
+        mask: {
+          enable: true,
+          clickEvent: {
+            toClose: false,
+            toHide: false
+          }
+        },
+        drag: true,
+        width: window.innerWidth > 500 ? "500px" : "88vw",
+        height: window.innerHeight > 500 ? "500px" : "80vh",
+        style: (
+          /*css*/
+          `
+            .github-2-webhook-container{
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
+            .url-container{
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                padding: 20px;
+                flex: 1;
+            }
+            .url-parse{
+                display: flex;
+                flex-direction: column;
+                flex: 1;
+            }
+            .url-container textarea{
+                height: 100%;
+                width: 100%;
+                position: relative;
+                display: block;
+                resize: none;
+                padding: 5px 11px;
+                box-sizing: border-box;
+                font-size: inherit;
+                font-family: inherit;
+                background-color: rgb(255, 255, 255, var(--pops-bg-opacity));
+                background-image: none;
+                -webkit-appearance: none;
+                appearance: none;
+                box-shadow: 0 0 0 1px #dcdfe6 inset;
+                border-radius: 0;
+                transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+                border: none;
+            }
+            .url-container textarea:hover,
+            .url-container textarea:focus{
+                outline: 0;
+                box-shadow: 0 0 0 1px #409eff inset;
+            }
+            `
+        )
+      });
+      let $githubUrlInput = $alert.$shadowRoot.querySelector("#github");
+      let $webhookUrlInput = $alert.$shadowRoot.querySelector("#webhook");
+      domUtils.on($githubUrlInput, ["input", "propertychange"], (event) => {
+        let githubUrl = $githubUrlInput.value.trim();
+        let webhookUrlList = [];
+        githubUrl.split("\n").forEach((urlStr) => {
+          try {
+            urlStr = urlStr.trim();
+            if (utils.isNull(urlStr)) {
+              return;
+            }
+            let urlObj = new URL(urlStr);
+            let urlPathNameSplit = urlObj.pathname.split("/");
+            let {
+              1: userName,
+              2: repoName,
+              3: blobStr,
+              4: branchName
+            } = urlPathNameSplit;
+            let filePath = "";
+            if (urlPathNameSplit.length >= 6 && blobStr === "blob") {
+              filePath = urlPathNameSplit.slice(5, urlPathNameSplit.length).join("/");
+            } else if (urlPathNameSplit.length >= 8 && blobStr === "raw" && branchName === "refs") {
+              branchName = urlPathNameSplit[6];
+              filePath = urlPathNameSplit.slice(7, urlPathNameSplit.length).join("/");
+            } else {
+              return;
+            }
+            if (filePath === "") {
+              return;
+            }
+            webhookUrlList.push(
+              `https://raw.githubusercontent.com/${userName}/${repoName}/${branchName}/${filePath}`
+            );
+          } catch (error) {
+          }
+        });
+        $webhookUrlInput.value = webhookUrlList.join("\n");
+      });
+    }
+  };
   const PopsPanel = {
     /** 数据 */
     $data: {
@@ -4824,6 +4973,18 @@
           },
           callback: () => {
             this.showPanel();
+          }
+        },
+        {
+          key: "githubUrl2webhookUrl",
+          text: "⚙ " + i18next.t("Url To WebhookUrl"),
+          autoReload: false,
+          isStoreValue: false,
+          showText(text) {
+            return text;
+          },
+          callback: () => {
+            GithubUrl2WebhookUrl.showView();
           }
         }
       ]);

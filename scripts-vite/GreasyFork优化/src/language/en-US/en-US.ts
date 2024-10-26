@@ -296,4 +296,10 @@ export const en_US_language = {
 	清空: "Clear",
 	清理成功: "Cleanup successful",
 	清理失败: "Cleaning failed",
+	"Url To WebhookUrl": "Url To WebhookUrl",
+	关闭: "Clsoe",
+	"例如：": "Example: ",
+	"结果：": "Result: ",
+	转换前: "Before Parse",
+	转换后: "Parse Result",
 };
