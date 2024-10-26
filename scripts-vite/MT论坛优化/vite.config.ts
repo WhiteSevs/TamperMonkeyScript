@@ -104,6 +104,12 @@ export default defineConfig({
 					),
 					"@whitesev/pops": cdn.jsdelivrFastly("pops", "dist/index.umd.js"),
 					viewerjs: cdn.jsdelivrFastly("Viewer", "dist/viewer.min.js"),
+					"highlight.js": [
+						"hljs",
+						(version, name) => {
+							return `https://fastly.jsdelivr.net/gh/highlightjs/cdn-release@${version}/build/highlight.min.js`;
+						},
+					],
 				},
 			},
 		}),
