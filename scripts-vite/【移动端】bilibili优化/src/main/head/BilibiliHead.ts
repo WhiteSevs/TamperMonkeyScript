@@ -312,7 +312,7 @@ export const BilibiliHead = {
 				// 获取热点词
 				let hotWordInfo = await BilibiliSearchApi.getSearchInputPlaceholder();
 				if (hotWordInfo != null) {
-					log.info([`热点信息：`, hotWordInfo]);
+					log.info(`热点信息：`, hotWordInfo);
 					$input.placeholder = hotWordInfo.show_name || hotWordInfo.name;
 				}
 			});

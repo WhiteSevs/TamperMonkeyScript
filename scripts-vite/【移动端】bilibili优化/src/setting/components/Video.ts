@@ -151,31 +151,36 @@ const SettingUIVideo: PopsPanelContentConfig = {
 									"弹幕",
 									"artplayer-plugin-video-danmaku-enable",
 									false,
-									void 0
+									void 0,
+									"哔哩哔哩 (゜-゜)つロ 干杯~"
 								),
 								UISwitch(
-									"dash Audio Support",
+									"Dash Audio Support",
 									"artplayer-plugin-video-m4sAudioSupport-enable",
 									true,
-									void 0
+									void 0,
+									"视频类型为dash时，该插件可支持播放音频"
 								),
 								UISwitch(
 									"选集",
 									"artplayer-plugin-video-epChoose-enable",
 									true,
-									void 0
+									void 0,
+									"当视频播放完毕后会自动连播"
 								),
 								UISwitch(
 									"CC字幕",
 									"artplayer-plugin-video-cc-subtitle-enable",
 									true,
-									void 0
+									void 0,
+									"字幕支持插件，如果存在繁体字幕，则自动生成简体字幕"
 								),
 								UISwitch(
 									"顶部工具栏",
 									"artplayer-plugin-video-toptoolbar-enable",
 									true,
-									void 0
+									void 0,
+									"显示视频标题和当前观看人数"
 								),
 							],
 						},

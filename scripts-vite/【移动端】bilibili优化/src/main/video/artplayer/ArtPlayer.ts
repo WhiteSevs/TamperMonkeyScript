@@ -302,13 +302,17 @@ export const BilibiliVideoArtPlayer = {
 
 		if (PopsPanel.getValue("bili-video-playerAutoPlayVideo")) {
 			// 自动播放视频
+			// 静音才能自动播放
 			artOption.muted = true;
 			artOption.autoplay = true;
 		}
+
 		this.$data.art = new Artplayer(artOption);
+
 		if (PopsPanel.getValue("artplayer-plugin-video-danmaku-enable")) {
 			artPlayerDanmakuOptionHelper.repairBrowserNoResponse(this.$data.art);
 		}
+
 		artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
 		return this.$data.art;
 	},
@@ -320,7 +324,7 @@ export const BilibiliVideoArtPlayer = {
 		this.resetEnv(false);
 		this.$data.currentOption = option;
 
-		log.info([`更新新的播放信息`, option]);
+		log.info(`更新新的播放信息`, option);
 		// 暂停视频
 		art.pause();
 		log.info(`暂停视频`);
@@ -348,7 +352,7 @@ export const BilibiliVideoArtPlayer = {
 			from: "video",
 			qualityList: option.quality,
 		});
-		log.info([`更新画质`, option.quality]);
+		log.info(`更新画质`, option.quality);
 
 		if (PopsPanel.getValue("artplayer-plugin-video-danmaku-enable")) {
 			// 更新弹幕信息
@@ -356,7 +360,7 @@ export const BilibiliVideoArtPlayer = {
 				danmuku: option.danmukuUrl,
 			});
 			art.plugins.artplayerPluginDanmuku.load();
-			log.info([`更新弹幕姬`, option.danmukuUrl]);
+			log.info(`更新弹幕姬`, option.danmukuUrl);
 		}
 
 		if (PopsPanel.getValue("artplayer-plugin-video-m4sAudioSupport-enable")) {
@@ -368,7 +372,7 @@ export const BilibiliVideoArtPlayer = {
 				from: "video",
 				audioList: option.audioList || [],
 			});
-			log.info([`更新音频`, option.audioList]);
+			log.info(`更新音频`, option.audioList);
 		}
 
 		if (PopsPanel.getValue("artplayer-plugin-video-epChoose-enable")) {
@@ -380,7 +384,7 @@ export const BilibiliVideoArtPlayer = {
 				EP_LIST: generateVideoSelectSetting(option),
 				automaticBroadcast: true,
 			});
-			log.info([`更新选集信息`, option.epList]);
+			log.info(`更新选集信息`, option.epList);
 		}
 		if (PopsPanel.getValue("artplayer-plugin-video-cc-subtitle-enable")) {
 			// 更新字幕
@@ -395,7 +399,7 @@ export const BilibiliVideoArtPlayer = {
 				cid: option.cid,
 			} as ArtPlayerPluginBilibiliSubTitleOption;
 			plugin_bilibiliCCSubTitle.update(subTitleOption);
-			log.info([`更新字幕`, subTitleOption]);
+			log.info(`更新字幕`, subTitleOption);
 		}
 
 		if (PopsPanel.getValue("artplayer-plugin-video-toptoolbar-enable")) {
@@ -419,7 +423,7 @@ export const BilibiliVideoArtPlayer = {
 				},
 			} as ArtPlayerPluginTopToolBarOption;
 			plugin_topToolBar.update(topToolBarOption);
-			log.info([`更新顶部标题`, topToolBarOption]);
+			log.info(`更新顶部标题`, topToolBarOption);
 		}
 	},
 };

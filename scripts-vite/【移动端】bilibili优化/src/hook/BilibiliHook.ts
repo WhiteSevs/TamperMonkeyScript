@@ -73,7 +73,7 @@ const BilibiliHook = {
 		(unsafeWindow as any).setTimeout = function (...args: any[]): any {
 			let callBackString = args[0].toString();
 			if (callBackString.match(matchStr)) {
-				log.success(["劫持setTimeout的函数", callBackString]);
+				log.success("劫持setTimeout的函数", callBackString);
 				return;
 			}
 			// @ts-ignore
@@ -101,7 +101,7 @@ const BilibiliHook = {
 				return;
 			}
 			vueObj.openApp = function (...args: any[]) {
-				log.success(["openApp：阻止唤醒App", args]);
+				log.success("openApp：阻止唤醒App", args);
 			};
 		}
 		utils.mutationObserver(document, {

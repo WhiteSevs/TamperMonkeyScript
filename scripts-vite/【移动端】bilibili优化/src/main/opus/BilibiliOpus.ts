@@ -43,7 +43,7 @@ export const BilibiliOpus = {
 					Qmsg.error("获取话题的jump_url失败");
 					return;
 				}
-				log.info(["话题的跳转信息: ", data]);
+				log.info("话题的跳转信息: ", data);
 				BilibiliUtils.goToUrl(jump_url);
 			},
 			{

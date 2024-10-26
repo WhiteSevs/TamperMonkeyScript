@@ -100,8 +100,9 @@ export const GenerateArtPlayerEpSetting = (
 
 const EpChooseEvent = {
 	$event: {
+		/** 自动连播 */
 		"video:ended": () => {
-			console.log(TAG + "当前ep播放完毕，连播下一集");
+			console.log(TAG + "自动连播启用，播放下一集");
 			let settingIns = EpChoose.$data.art.setting.find(
 				EpChoose.$key.SETTING_KEY
 			);

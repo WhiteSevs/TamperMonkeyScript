@@ -246,7 +246,7 @@ export const BilibiliCDNProxy = {
 			}
 			return urlObj.toString();
 		} catch (error) {
-			log.error(["视频upos替换失败", error]);
+			log.error("视频upos替换失败", error);
 			log.error(error);
 			return url;
 		}

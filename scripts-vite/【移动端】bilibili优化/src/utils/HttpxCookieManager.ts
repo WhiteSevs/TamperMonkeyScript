@@ -104,7 +104,7 @@ export const HttpxCookieManager = {
 			} else {
 				details.headers["Cookie"] = ownCookie;
 			}
-			log.info(["Httpx => 设置cookie:", details]);
+			log.info("Httpx => 设置cookie:", details);
 		}
 
 		if (

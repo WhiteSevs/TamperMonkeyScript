@@ -336,13 +336,13 @@ export const GenerateArtPlayerOption = async (
 			audioInfo.sort((leftItem, rightItem) => {
 				return rightItem.id - leftItem.id;
 			});
-			log.info([`ArtPlayer: 获取的音频信息`, audioInfo]);
+			log.info(`ArtPlayer: 获取的音频信息`, audioInfo);
 
 			// 筛选视频
 			qualityInfo = qualityInfo.concat(
 				handleQueryVideoQualityData(bangumiInfo, userChooseVideoCodingCode)
 			);
-			log.info([`ArtPlayer: 获取的视频画质信息`, qualityInfo]);
+			log.info(`ArtPlayer: 获取的视频画质信息`, qualityInfo);
 		} else {
 			BilibiliLogUtils.failToast(
 				"暂未适配的视频格式：" + bangumiInfo["format"]

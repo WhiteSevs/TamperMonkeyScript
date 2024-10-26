@@ -3,6 +3,8 @@ import { GM_getValue, GM_setValue } from "ViteGM";
 import type Artplayer from "artplayer";
 import type { Option as ArtPlayerDanmakuOption } from "artplayer-plugin-danmuku";
 
+const TAG = "[artplayer-plugin-danmuku]：";
+
 export class ArtPlayerDanmakuOptionHelper {
 	$data = {
 		KEY: "art-player-danmaku-option",
@@ -40,7 +42,8 @@ export class ArtPlayerDanmakuOptionHelper {
 	 */
 	repairBrowserNoResponse(art: Artplayer) {
 		console.warn(
-			"目前尚未知晓导致浏览器卡死的原因是哪里的问题，但是启用该弹幕插件100%复现，复现操作：点击播放，然后重复全屏和退出全屏，拖动进度到弹幕量最多的时间点，过一会卡死"
+			TAG +
+				"目前尚未知晓导致浏览器卡死的原因是哪里的问题，但是启用该弹幕插件100%复现，复现操作：点击播放，然后重复全屏和退出全屏，拖动进度到弹幕量最多的时间点，过一会卡死"
 		);
 	}
 	onConfigChange(art: Artplayer) {

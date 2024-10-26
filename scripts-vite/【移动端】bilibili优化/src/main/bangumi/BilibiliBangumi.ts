@@ -41,7 +41,7 @@ const BilibiliBangumi = {
 		(unsafeWindow as any).setTimeout = function (...args: any[]): any {
 			let callString = args[0].toString();
 			if (callString.includes("autoOpenApp")) {
-				log.success(["阻止唤醒App", args]);
+				log.success("阻止唤醒App", args);
 				return;
 			}
 			// @ts-ignore

@@ -238,7 +238,7 @@ const GenerateArtPlayerOption = async (option: VideoInfo) => {
 		audioInfo.sort((leftItem, rightItem) => {
 			return rightItem.id - leftItem.id;
 		});
-		log.info([`ArtPlayer: 获取的音频信息`, audioInfo]);
+		log.info(`ArtPlayer: 获取的音频信息`, audioInfo);
 
 		// 筛选视频
 		qualityInfo = [
@@ -280,7 +280,7 @@ const GenerateArtPlayerOption = async (option: VideoInfo) => {
 		qualityInfo.sort((leftItem, rightItem) => {
 			return rightItem.quality - leftItem.quality;
 		});
-		log.info([`ArtPlayer: 获取的视频画质信息`, qualityInfo]);
+		log.info(`ArtPlayer: 获取的视频画质信息`, qualityInfo);
 	}
 
 	/**

@@ -17,7 +17,7 @@ export const BilibiliQrCodeLogin = {
 	getQRCodeInfo: async function () {
 		log.info("正在申请二维码...");
 		let qrcodeInfo = await BilibiliLoginApi.getQrCodeInfo();
-		log.info(["获取到二维码信息", qrcodeInfo]);
+		log.info("获取到二维码信息", qrcodeInfo);
 		return qrcodeInfo;
 	},
 	/**
@@ -98,8 +98,7 @@ export const BilibiliQrCodeLogin = {
 					expireAt: pollInfo.accessKeyExpireAt as any,
 				});
 				isSuccessLogin = true;
-				log.info(["扫码登录成功", pollInfo]);
-				log.success("扫码登录成功");
+				log.info("扫码登录成功", pollInfo);
 				Qmsg.success("扫码登录成功");
 				break;
 			} else {

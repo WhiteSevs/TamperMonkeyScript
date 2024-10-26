@@ -36,7 +36,7 @@ export const BilibiliVueProp = {
 		let GM_Cookie = new utils.GM_Cookie();
 		let cookie_DedeUserID = GM_Cookie.get("DedeUserID");
 		if (cookie_DedeUserID != null) {
-			log.info(["Cookie DedeUserID已存在：", cookie_DedeUserID.value]);
+			log.info("Cookie DedeUserID已存在：", cookie_DedeUserID.value);
 		} else {
 			GM_Cookie.set(
 				{

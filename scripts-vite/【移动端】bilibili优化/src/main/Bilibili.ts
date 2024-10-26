@@ -109,13 +109,10 @@ const Bilibili = {
 							from: Vue2Context["$route"],
 							next: Function
 						) => {
-							log.info([
-								"路由变化 => 更新前",
-								{
-									to,
-									from,
-								},
-							]);
+							log.info("路由变化 => 更新前", {
+								to,
+								from,
+							});
 							if (
 								to["hash"] === "#/seeCommentReply" ||
 								from["hash"] === "#/seeCommentReply"
@@ -175,13 +172,10 @@ const Bilibili = {
 					);
 					$app.__vue__.$router.afterEach(
 						(to: Vue2Context["$route"], from: Vue2Context["$route"]) => {
-							log.info([
-								"路由变化 => 更新后",
-								{
-									to,
-									from,
-								},
-							]);
+							log.info("路由变化 => 更新后", {
+								to,
+								from,
+							});
 							if (
 								to["hash"] === "#/seeCommentReply" ||
 								from["hash"] === "#/seeCommentReply"

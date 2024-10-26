@@ -132,7 +132,7 @@ export const BilibiliExtraSearch = {
 						return;
 					}
 					let searchBangumiResultData = searchBangumiResultInfo.data;
-					log.info(["搜索结果：", searchBangumiResultData]);
+					log.info("搜索结果：", searchBangumiResultData);
 
 					// 自定义搜索结果元素添加到页面中
 					let $gmResultPanel = DOMUtils.createElement("div", {

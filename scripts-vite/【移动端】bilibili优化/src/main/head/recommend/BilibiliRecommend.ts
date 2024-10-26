@@ -197,7 +197,7 @@ export const BilibiliRecommend = {
 		if (!videoInfo) {
 			return;
 		}
-		log.success(["获取推荐视频信息", videoInfo]);
+		log.success("获取推荐视频信息", videoInfo);
 		let $fragment = document.createDocumentFragment();
 		let allowLoadPictureCard = PopsPanel.getValue(
 			"bili-head-recommend-push-graphic"
@@ -218,7 +218,7 @@ export const BilibiliRecommend = {
 					videoInfoItem as Required<android.AppRecItem>
 				);
 			} else {
-				log.error(["该goto暂未适配", videoInfoItem]);
+				log.error("该goto暂未适配", videoInfoItem);
 				return;
 			}
 			$fragment.appendChild($ele);
