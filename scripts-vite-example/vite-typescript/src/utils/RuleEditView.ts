@@ -64,7 +64,7 @@ export class RuleEditView<T> {
 				{
 					ok: {
 						callback() {
-							$submit.click();
+							submitSaveOption();
 						},
 					},
 				},
@@ -117,14 +117,16 @@ export class RuleEditView<T> {
 			$dialog.$shadowRoot.querySelector<HTMLUListElement>(".rule-form-ulist")!;
 		let view = this.option.getView(this.option.data());
 		$ulist.appendChild(view);
-		DOMUtils.on<SubmitEvent>($form, "submit", (event) => {
-			utils.preventEvent(event);
+		/**
+		 * 保存配置的回调
+		 */
+		const submitSaveOption = () => {
 			let result = this.option.onsubmit($form, this.option.data());
 			if (!result.success) {
 				return;
 			}
 			$dialog.close();
 			this.option.dialogCloseCallBack(true);
-		});
+		};
 	}
 }

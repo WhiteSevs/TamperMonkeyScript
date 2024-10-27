@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359
-// @version      2024.10.26
+// @version      2024.10.27
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -48,7 +48,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var require_entrance_001 = __commonJS({
-    "entrance-CJGjGj4h.js"(exports, module) {
+    "entrance-C-fK7GzE.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -10735,7 +10735,7 @@
               {
                 ok: {
                   callback() {
-                    $submit.click();
+                    submitSaveOption();
                   }
                 }
               },
@@ -10782,21 +10782,101 @@
           let $form = $dialog.$shadowRoot.querySelector(
             ".rule-form-container"
           );
-          let $submit = $dialog.$shadowRoot.querySelector(
+          $dialog.$shadowRoot.querySelector(
             "input[type=submit]"
           );
           let $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
           let view = this.option.getView(this.option.data());
           $ulist.appendChild(view);
-          domUtils.on($form, "submit", (event2) => {
-            utils.preventEvent(event2);
+          const submitSaveOption = () => {
             let result = this.option.onsubmit($form, this.option.data());
             if (!result.success) {
               return;
             }
             $dialog.close();
             this.option.dialogCloseCallBack(true);
+          };
+        }
+      }
+      class RuleFilterView {
+        constructor(option) {
+          __publicField(this, "option");
+          this.option = option;
+        }
+        showView() {
+          let $alert = __pops.alert({
+            title: {
+              text: this.option.title,
+              position: "center"
+            },
+            content: {
+              text: (
+                /*html*/
+                `
+                <div class="filter-container"></div>
+                `
+              )
+            },
+            btn: {
+              ok: {
+                text: "关闭",
+                type: "default"
+              }
+            },
+            mask: {
+              enable: true
+            },
+            width: window.innerWidth > 500 ? "350px" : "80vw",
+            height: window.innerHeight > 500 ? "300px" : "70vh",
+            style: (
+              /*css*/
+              `
+            .filter-container{
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            .filter-container button{
+                text-wrap: wrap;
+                padding: 8px;
+                height: auto;
+                text-align: left;
+            }
+            `
+            )
           });
+          let $filterContainer = $alert.$shadowRoot.querySelector(".filter-container");
+          let $fragment = document.createDocumentFragment();
+          this.option.filterOption.forEach((filterOption) => {
+            let $button = document.createElement("button");
+            $button.innerText = filterOption.name;
+            let execFilterAndCloseDialog = () => {
+              this.option.getAllRuleInfo().forEach((ruleInfo) => {
+                if (!filterOption.filterCallBack(ruleInfo.data)) {
+                  domUtils.hide(ruleInfo.$el, false);
+                } else {
+                  domUtils.show(ruleInfo.$el, false);
+                }
+              });
+              if (typeof this.option.execFilterCallBack === "function") {
+                this.option.execFilterCallBack();
+              }
+              $alert.close();
+            };
+            domUtils.on($button, "click", (event2) => {
+              utils.preventEvent(event2);
+              if (typeof filterOption.callback === "function") {
+                let result = filterOption.callback(event2, execFilterAndCloseDialog);
+                if (!result) {
+                  return;
+                }
+              }
+              execFilterAndCloseDialog();
+            });
+            $fragment.appendChild($button);
+          });
+          $filterContainer.appendChild($fragment);
         }
       }
       class RuleView {
@@ -10851,9 +10931,39 @@
                 type: "default",
                 text: "过滤",
                 callback: (details, event2) => {
-                  var _a3, _b2, _c2;
+                  var _a3, _b2, _c2, _d2, _e2, _f2, _g2;
                   if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.filter) == null ? void 0 : _c2.callback) === "function") {
                     this.option.bottomControls.filter.callback();
+                  }
+                  let getAllRuleElement = () => {
+                    return Array.from(
+                      $popsConfirm.$shadowRoot.querySelectorAll(
+                        ".rule-view-container .rule-item"
+                      )
+                    );
+                  };
+                  let $button = event2.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
+                  if (domUtils.text($button).includes("取消")) {
+                    getAllRuleElement().forEach(($el) => {
+                      domUtils.show($el, false);
+                    });
+                  } else {
+                    let ruleFilterView = new RuleFilterView({
+                      title: ((_e2 = (_d2 = this.option.bottomControls) == null ? void 0 : _d2.filter) == null ? void 0 : _e2.title) ?? "过滤规则",
+                      filterOption: ((_g2 = (_f2 = this.option.bottomControls) == null ? void 0 : _f2.filter) == null ? void 0 : _g2.option) || [],
+                      execFilterCallBack() {
+                        domUtils.text($button, "取消过滤");
+                      },
+                      getAllRuleInfo: () => {
+                        return getAllRuleElement().map(($el) => {
+                          return {
+                            data: this.parseRuleItemElement($el).data,
+                            $el
+                          };
+                        });
+                      }
+                    });
+                    ruleFilterView.showView();
                   }
                 }
               },
@@ -10979,8 +11089,8 @@
         /**
          * 解析每一项的元素
          */
-        parseItemElement($shadowRoot) {
-          let $enable = $shadowRoot.querySelector(
+        parseRuleItemElement($ruleElement) {
+          let $enable = $ruleElement.querySelector(
             ".rule-controls-enable"
           );
           let $enableSwitch = $enable.querySelector(".pops-panel-switch");
@@ -10990,8 +11100,8 @@
           let $enableSwitchCore = $enable.querySelector(
             ".pops-panel-switch__core"
           );
-          let $edit = $shadowRoot.querySelector(".rule-controls-edit");
-          let $delete = $shadowRoot.querySelector(
+          let $edit = $ruleElement.querySelector(".rule-controls-edit");
+          let $delete = $ruleElement.querySelector(
             ".rule-controls-delete"
           );
           return {
@@ -11006,7 +11116,9 @@
             /** 编辑按钮 */
             $edit,
             /** 删除按钮 */
-            $delete
+            $delete,
+            /** 存储在元素上的数据 */
+            data: Reflect.get($ruleElement, "data-rule")
           };
         }
         /**
@@ -11040,6 +11152,7 @@
 			`
             )
           });
+          Reflect.set($ruleItem, "data-rule", data);
           let switchCheckedClassName = "pops-panel-switch-is-checked";
           const {
             $enable,
@@ -11048,7 +11161,7 @@
             $enableSwitchInput,
             $delete,
             $edit
-          } = this.parseItemElement($ruleItem);
+          } = this.parseRuleItemElement($ruleItem);
           if (this.option.itemControls.enable.enable) {
             domUtils.on($enableSwitchCore, "click", (event2) => {
               let isChecked = false;

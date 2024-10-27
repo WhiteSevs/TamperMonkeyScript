@@ -1,6 +1,7 @@
 import { DOMUtils, log, pops, utils } from "@/env";
 import Qmsg from "qmsg";
 import { RuleEditView } from "./RuleEditView";
+import { RuleFilterView, type RuleFilterViewOption } from "./RuleFilterView";
 
 /**
  * 规则视图配置
@@ -115,6 +116,11 @@ type RuleViewOption<T> = {
 		filter?: {
 			/** @default false */
 			enable?: boolean;
+			/** 标题 */
+			title?: RuleFilterViewOption<T>["title"];
+			/** 自定义的过滤类型 */
+			option: RuleFilterViewOption<T>["filterOption"];
+			/** 点击回调 */
 			callback?: () => void;
 		};
 	};
@@ -172,6 +178,41 @@ export class RuleView<T> {
 							"function"
 						) {
 							this.option.bottomControls.filter.callback();
+						}
+						/**
+						 * 获取所有的规则元素
+						 */
+						let getAllRuleElement = () => {
+							return Array.from(
+								$popsConfirm.$shadowRoot.querySelectorAll<HTMLDivElement>(
+									".rule-view-container .rule-item"
+								)
+							);
+						};
+						let $button = (event.target as HTMLElement)
+							.closest<HTMLElement>(".pops-confirm-btn")!
+							.querySelector<HTMLSpanElement>(".pops-confirm-btn-cancel span")!;
+						if (DOMUtils.text($button).includes("取消")) {
+							getAllRuleElement().forEach(($el) => {
+								DOMUtils.show($el, false);
+							});
+						} else {
+							let ruleFilterView = new RuleFilterView<T>({
+								title: this.option.bottomControls?.filter?.title ?? "过滤规则",
+								filterOption: this.option.bottomControls?.filter?.option || [],
+								execFilterCallBack() {
+									DOMUtils.text($button, "取消过滤");
+								},
+								getAllRuleInfo: () => {
+									return getAllRuleElement().map(($el) => {
+										return {
+											data: this.parseRuleItemElement($el).data,
+											$el: $el,
+										};
+									});
+								},
+							});
+							ruleFilterView.showView();
 						}
 					},
 				},
@@ -296,8 +337,8 @@ export class RuleView<T> {
 	/**
 	 * 解析每一项的元素
 	 */
-	parseItemElement($shadowRoot: ShadowRoot | HTMLElement) {
-		let $enable = $shadowRoot.querySelector<HTMLElement>(
+	parseRuleItemElement($ruleElement: ShadowRoot | HTMLElement) {
+		let $enable = $ruleElement.querySelector<HTMLElement>(
 			".rule-controls-enable"
 		)!;
 		let $enableSwitch =
@@ -309,9 +350,9 @@ export class RuleView<T> {
 			".pops-panel-switch__core"
 		);
 		/** 编辑按钮 */
-		let $edit = $shadowRoot.querySelector<HTMLElement>(".rule-controls-edit")!;
+		let $edit = $ruleElement.querySelector<HTMLElement>(".rule-controls-edit")!;
 		/** 删除按钮 */
-		let $delete = $shadowRoot.querySelector<HTMLElement>(
+		let $delete = $ruleElement.querySelector<HTMLElement>(
 			".rule-controls-delete"
 		)!;
 
@@ -328,6 +369,8 @@ export class RuleView<T> {
 			$edit: $edit,
 			/** 删除按钮 */
 			$delete: $delete,
+			/** 存储在元素上的数据 */
+			data: Reflect.get($ruleElement, "data-rule") as T,
 		};
 	}
 	/**
@@ -359,6 +402,7 @@ export class RuleView<T> {
 			</div>
 			`,
 		});
+		Reflect.set($ruleItem, "data-rule", data);
 		/** 开关切换的className */
 		let switchCheckedClassName = "pops-panel-switch-is-checked";
 
@@ -369,7 +413,7 @@ export class RuleView<T> {
 			$enableSwitchInput,
 			$delete,
 			$edit,
-		} = this.parseItemElement($ruleItem);
+		} = this.parseRuleItemElement($ruleItem);
 		if (this.option.itemControls.enable.enable) {
 			// 给switch添加点击事件
 			DOMUtils.on($enableSwitchCore, "click", (event) => {
