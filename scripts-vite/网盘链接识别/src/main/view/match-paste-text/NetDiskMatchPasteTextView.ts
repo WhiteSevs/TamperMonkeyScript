@@ -33,10 +33,13 @@ export const NetDiskMatchPasteText = {
 								/* 删除掉中文 */
 								inputText = NetDiskRuleUtils.replaceChinese(inputText);
 								NetDiskWorker.postMessage({
-									isRemoveChineseCharacters:
-										NetDiskGlobalData.match.removeChineseCharacters.value,
-									isRemoveAllSpaceCharacters:
-										NetDiskGlobalData.match.removeAllSpaceCharacters.value,
+									characterMapping: [
+										// 删除中文
+										{
+											searchValue: /[\u4e00-\u9fa5]/g,
+											replaceValue: "",
+										},
+									],
 									textList: [inputText],
 									matchTextRange: NetDiskGlobalData.match.pageMatchRange.value,
 									// 剪贴板匹配的话直接使用全部规则来进行匹配

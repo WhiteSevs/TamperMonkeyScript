@@ -148,7 +148,7 @@ export const NetDiskSuspension = {
 		/* 点击元素，top偏移 */
 		let clickElementTopOffset = 0;
 		/* 设置悬浮按钮 按下事件 */
-		dragNode.on("pan", function (event: any) {
+		dragNode.on("pan", function (event) {
 			if (!moveFlag) {
 				moveFlag = true;
 				let rect = needDragElement.getBoundingClientRect();
@@ -242,7 +242,7 @@ export const NetDiskSuspension = {
 			}
 		});
 		/* 设置悬浮按钮 点击/按下事件 */
-		dragNode.on(["click", "tap"], function (event: any) {
+		dragNode.on("tap", function (event) {
 			clearTimeout(netDiskLinkViewTimer);
 			netDiskLinkViewTimer = void 0;
 			if (isDouble) {

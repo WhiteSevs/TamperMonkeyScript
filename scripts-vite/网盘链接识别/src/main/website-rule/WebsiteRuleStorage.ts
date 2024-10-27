@@ -1,7 +1,5 @@
 import { StorageUtils } from "@/utils/StorageUtils";
-import { WebsiteRuleView } from "../view/website-rule/WebsiteRuleView";
 import { WebsiteRule } from "./WebsiteRule";
-import { utils } from "@/env";
 import { GM_getValue } from "ViteGM";
 
 /** 存储的网站规则 */
@@ -64,7 +62,7 @@ export const WebsiteProxyGlobalValue = <T>(
 	defaultValue: T
 ): T => {
 	// 注意：这里不能用this，因为会被修改指向
-	if (WebsiteRuleView.$data.isShowEditView) {
+	if (WebsiteRule.$data.isShowEditView) {
 		// 当前是添加|修改规则界面，直接获取全局默认的值
 		return value;
 	}

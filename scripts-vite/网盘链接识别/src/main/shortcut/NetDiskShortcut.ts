@@ -4,6 +4,7 @@ import { NetDiskUI } from "../ui/NetDiskUI";
 import { NetDiskGlobalSettingView } from "../view/global-setting/NetDiskGlobalSettingView";
 import { NetDiskUserRuleUI } from "../rule/user-rule/NetDiskUserRuleUI";
 import { NetDiskWorker } from "../worker/NetDiskWorker";
+import { CharacterMapping } from "../character-mapping/CharacterMapping";
 
 export const NetDiskShortcut = {
 	shortCut: new ShortCut("GM_shortcut"),
@@ -45,6 +46,13 @@ export const NetDiskShortcut = {
 				callback() {
 					log.info("快捷键 ==> 执行文本匹配");
 					NetDiskWorker.dispatchMonitorDOMChange = true;
+				},
+			},
+			"netdisk-keyboard-character-mapping": {
+				target: "window",
+				callback() {
+					log.info("快捷键 ==> 【打开】⚙ 字符映射");
+					CharacterMapping.show();
 				},
 			},
 		};

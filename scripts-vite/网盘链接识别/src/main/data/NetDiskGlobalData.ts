@@ -142,16 +142,6 @@ export const NetDiskGlobalData = {
 			"to-be-matched-textAreaElementValue",
 			false
 		),
-		/** 移除中文字符 */
-		removeChineseCharacters: GeneratePanelData(
-			"before-match-removeChineseCharacters",
-			false
-		),
-		/** 移除任何空白字符 */
-		removeAllSpaceCharacters: GeneratePanelData(
-			"before-match-removeAllSpaceCharacters",
-			false
-		),
 
 		/** 匹配间隔 */
 		delaytime: GeneratePanelData("delaytime", 0.8),

@@ -9,6 +9,7 @@ import { NetDiskWorkerUtils } from "./NetDiskWorkerUtils";
 import { NetDiskRuleData } from "../data/NetDiskRuleData";
 import { NetDiskRuleDataKEY } from "../data/NetDiskRuleDataKey";
 import { NetDiskHistoryMatchView } from "../view/history-match/NetDiskHistoryMatchView";
+import { CharacterMapping } from "../character-mapping/CharacterMapping";
 
 /** Woker */
 export const NetDiskWorker = {
@@ -79,13 +80,25 @@ export const NetDiskWorker = {
 
 		// 待匹配的文本
 		const matchTextList = workerOptionData.textList.map((matchTextItem) => {
-			// 处理中文字符串
-			if (workerOptionData.isRemoveChineseCharacters) {
-				matchTextItem = matchTextItem.replace(/[\u4e00-\u9fa5]/g, "");
-			}
-			// 处理空白字符
-			if (workerOptionData.isRemoveAllSpaceCharacters) {
-				matchTextItem = matchTextItem.replace(/\s/g, "");
+			for (
+				let index = 0;
+				index < workerOptionData.characterMapping.length;
+				index++
+			) {
+				const characterMapping = workerOptionData.characterMapping[index];
+				try {
+					if (typeof characterMapping.searchValue === "string") {
+						matchTextItem = matchTextItem.replaceAll(
+							characterMapping.searchValue,
+							characterMapping.replaceValue
+						);
+					} else {
+						matchTextItem = matchTextItem.replace(
+							characterMapping.searchValue,
+							characterMapping.replaceValue
+						);
+					}
+				} catch (error) {}
 			}
 			return matchTextItem;
 		});
@@ -541,6 +554,8 @@ export const NetDiskWorker = {
 
 		/** 过滤出执行匹配的规则 */
 		const matchRegular = {} as NetDiskMatchRule;
+		/** 字符映射规则 */
+		const characterMapping = CharacterMapping.getMappingData();
 		/* 循环 */
 		NetDisk.$rule.rule.forEach((item) => {
 			// 网盘键
@@ -620,10 +635,7 @@ export const NetDiskWorker = {
 				/* 通知worker执行匹配，优先匹配当前url、剪贴板的内容 */
 				if (toMatchedTextList.length) {
 					NetDiskWorker.postMessage({
-						isRemoveChineseCharacters:
-							NetDiskGlobalData.match.removeChineseCharacters.value,
-						isRemoveAllSpaceCharacters:
-							NetDiskGlobalData.match.removeAllSpaceCharacters.value,
+						characterMapping: characterMapping,
 						textList: toMatchedTextList,
 						matchTextRange: matchRange,
 						regular: matchRegular,
@@ -645,10 +657,7 @@ export const NetDiskWorker = {
 					// 首次加载text
 					isFirstLoadPageText = false;
 					NetDiskWorker.postMessage({
-						isRemoveChineseCharacters:
-							NetDiskGlobalData.match.removeChineseCharacters.value,
-						isRemoveAllSpaceCharacters:
-							NetDiskGlobalData.match.removeAllSpaceCharacters.value,
+						characterMapping: characterMapping,
 						textList: toMatchedTextList,
 						matchTextRange: matchRange,
 						regular: matchRegular,
@@ -670,10 +679,7 @@ export const NetDiskWorker = {
 					// 首次加载html
 					isFirstLoadPageHTML = false;
 					NetDiskWorker.postMessage({
-						isRemoveChineseCharacters:
-							NetDiskGlobalData.match.removeChineseCharacters.value,
-						isRemoveAllSpaceCharacters:
-							NetDiskGlobalData.match.removeAllSpaceCharacters.value,
+						characterMapping: characterMapping,
 						textList: toMatchedTextList,
 						matchTextRange: matchRange,
 						regular: matchRegular,
@@ -701,10 +707,7 @@ export const NetDiskWorker = {
 			}
 			/* 发送执行匹配的消息 */
 			NetDiskWorker.postMessage({
-				isRemoveChineseCharacters:
-					NetDiskGlobalData.match.removeChineseCharacters.value,
-				isRemoveAllSpaceCharacters:
-					NetDiskGlobalData.match.removeAllSpaceCharacters.value,
+				characterMapping: characterMapping,
 				textList: toMatchedTextList,
 				matchTextRange: matchRange,
 				regular: matchRegular,

@@ -1,5 +1,4 @@
 import type { PopsEventDetails } from "@whitesev/pops/dist/types/src/types/event";
-import { GM_getValue, GM_setValue } from "ViteGM";
 import Qmsg from "qmsg";
 import { log, utils } from "@/env";
 import { NetDisk } from "../NetDisk";
@@ -19,8 +18,8 @@ import {
 } from "../link-click-mode/NetDiskLinkClickMode";
 import { NetDiskUserRuleUI } from "../rule/user-rule/NetDiskUserRuleUI";
 import { NetDiskHistoryMatchView } from "../view/history-match/NetDiskHistoryMatchView";
-import { WebsiteRuleView } from "../view/website-rule/WebsiteRuleView";
-import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
+import { CharacterMapping } from "../character-mapping/CharacterMapping";
+import { WebsiteRule } from "../website-rule/WebsiteRule";
 
 /** 弹窗UI界面 */
 export const NetDiskUI = {
@@ -116,12 +115,6 @@ export const NetDiskUI = {
 	 */
 	matchPasteText: NetDiskMatchPasteText,
 	/**
-	 * 网站规则
-	 */
-	get websiteRule() {
-		return WebsiteRuleView;
-	},
-	/**
 	 * 设置标题的右键菜单
 	 * @param element
 	 */
@@ -152,7 +145,14 @@ export const NetDiskUI = {
 				text: "网站规则",
 				callback() {
 					log.info("打开-网站规则");
-					WebsiteRuleView.show();
+					WebsiteRule.show();
+				},
+			},
+			{
+				text: "字符映射",
+				callback() {
+					log.info("打开-字符映射");
+					CharacterMapping.show();
 				},
 			},
 			{

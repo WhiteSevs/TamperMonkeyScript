@@ -8,6 +8,7 @@ import Utils from "@whitesev/utils";
 import { WebsiteRule } from "./website-rule/WebsiteRule";
 import { WebsiteRuleDataKey } from "./data/NetDiskRuleDataKey";
 import { CommonUtils } from "@/utils/CommonUtils";
+import { CharacterMapping } from "./character-mapping/CharacterMapping";
 
 export const NetDisk = {
 	$data: {
@@ -108,6 +109,10 @@ export const NetDisk = {
 		let matchedUrlRuleList = WebsiteRule.getUrlMatchedRule();
 		if (matchedUrlRuleList.length) {
 			log.info("成功命中网站规则 ==> ", matchedUrlRuleList);
+		}
+		let characterMapping = CharacterMapping.getMappingData();
+		if (characterMapping.length) {
+			log.info("成功命中字符规则 ==> ", characterMapping);
 		}
 	},
 	/**

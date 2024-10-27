@@ -3,13 +3,13 @@
  */
 export interface WebsiteRuleOption {
 	/**
-	 * 是否启用该规则
-	 */
-	enable: boolean;
-	/**
 	 * 规则的uuid
 	 */
 	uuid: string;
+	/**
+	 * 是否启用该规则
+	 */
+	enable: boolean;
 	/**
 	 * 规则名，为空的话就使用url代替显示
 	 */
