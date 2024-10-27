@@ -310,6 +310,25 @@ export const PopsPanelConfig = (): Required<PopsPanelDetails> => {
 							},
 						],
 					},
+					{
+						type: "forms",
+						isFold: true,
+						text: "折叠菜单",
+						forms: [
+							{
+								className: "panel-switch",
+								text: "switch",
+								type: "switch",
+								attributes: [],
+								getValue() {
+									return true;
+								},
+								callback(event, value) {
+									console.log("按钮开启状态：", value);
+								},
+							},
+						],
+					},
 				],
 			},
 		],

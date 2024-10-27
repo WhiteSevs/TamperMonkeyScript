@@ -1,6 +1,7 @@
 import type { PopsPanelButtonDetails } from "./buttonType";
 import type { PopsPanelRightAsideContainerOptions } from "./commonType";
 import type { PopsPanelDeepMenuDetails } from "./deepMenuType";
+import type { PopsPanelFormsDetails } from "./formsType";
 import type { PopsPanelContentConfig, PopsPanelDetails, PopsPanelFormsTotalDetails } from "./indexType";
 import type { PopsPanelInputDetails } from "./inputType";
 import type { PopsPanelOwnDetails } from "./ownType";
@@ -149,7 +150,7 @@ export declare const PanelHandleContentDetails: () => {
      * 生成配置每一项的元素
      * @param formConfig
      */
-    initFormItem(formConfig: PopsPanelContentConfig): void;
+    initFormItem(formConfig: PopsPanelContentConfig | PopsPanelFormsDetails): void;
     /**
      *
      * @param formConfig

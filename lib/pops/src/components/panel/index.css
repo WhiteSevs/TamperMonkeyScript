@@ -2,12 +2,24 @@
 	--el-disabled-text-color: #a8abb2;
 	--el-disabled-bg-color: #f5f7fa;
 	--el-disabled-border-color: #e4e7ed;
-	--aside-bg-color: #f2f2f2;
+	--pops-bg-color: #f2f2f2;
+	--pops-color: #333;
+	--title-bg-color: #ffffff;
+	--aside-bg-color: #ffffff;
+	--aside-hover-color: rgb(64, 158, 255);
+	--aside-hover-bg-color: rgba(64, 158, 255, 0.1);
+	--container-item-bg-color: #ffffff;
+	--container-title-color: #333;
+}
+.pops[type-value="panel"] {
+	color: var(--pops-color);
+	background: var(--pops-bg-color);
 }
 .pops[type-value] .pops-panel-title {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	background: var(--title-bg-color);
 }
 
 .pops[type-value="panel"] .pops-panel-title {
@@ -18,7 +30,6 @@
 .pops[type-value="panel"] .pops-panel-title p[pops] {
 	width: 100%;
 	overflow: hidden;
-	color: #333;
 	text-indent: 15px;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -103,8 +114,8 @@ aside.pops-panel-aside ul li {
 }
 aside.pops-panel-aside .pops-is-visited,
 aside.pops-panel-aside ul li:hover {
-	color: rgb(64, 158, 255);
-	background: rgba(64, 158, 255, 0.1);
+	color: var(--aside-hover-color);
+	background: var(--aside-hover-bg-color);
 }
 section.pops-panel-container > ul li {
 	display: flex;
@@ -113,23 +124,34 @@ section.pops-panel-container > ul li {
 	margin: 10px 20px;
 	gap: 10px;
 }
+section.pops-panel-container .pops-panel-forms-container-item-header-text {
+	color: var(--container-title-color);
+}
 section.pops-panel-container li.pops-panel-forms-container-item {
 	display: block;
 	margin-top: 20px;
 }
 section.pops-panel-container .pops-panel-forms-container-item ul {
 	border-radius: 6px;
-	background: var(--aside-bg-color);
+	background: var(--container-item-bg-color);
 	margin: 10px;
 }
 section.pops-panel-container .pops-panel-forms-container-item ul li {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin: 0px;
-	padding: 10px 10px;
+	padding: 12px 0px;
+	margin: 0px 16px;
 	border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));
 	text-align: left;
+}
+section.pops-panel-container
+	.pops-panel-forms-container-item
+	ul
+	li.pops-panel-deepMenu-nav-item {
+	padding: 12px 16px;
+	margin: 0px;
+	border-bottom: 0;
 }
 section.pops-panel-container .pops-panel-forms-container-item ul li:last-child {
 	border: 0;
@@ -157,69 +179,112 @@ section.pops-panel-container
 	font-size: 0.8em;
 	color: rgb(108, 108, 108);
 }
-/* 兼容移动端CSS */
-.pops[type-value="panel"].pops-panel-is-mobile {
-	width: 92%;
-	width: 92vw;
+
+/* 折叠面板 */
+
+section.pops-panel-container .pops-panel-forms-fold {
+	border-radius: 6px;
+	background: var(--container-item-bg-color);
+	margin: 10px 30px;
 }
-.pops[type-value="panel"].pops-panel-is-mobile section.pops-panel-container {
-	padding: 10px 0px;
+section.pops-panel-container
+	.pops-panel-forms-fold
+	.pops-panel-forms-fold-container {
+	display: flex;
+	align-items: center;
+	fill: #6c6c6c;
+	justify-content: space-between;
+	margin: 0px 16px !important;
+	padding: 12px 0px !important;
 }
-.pops[type-value="panel"].pops-panel-is-mobile
-	.pops-panel-content
-	aside.pops-panel-aside {
-	width: 20%;
+section.pops-panel-container
+	.pops-panel-forms-fold[data-fold-enable]
+	.pops-panel-forms-fold-container-icon {
+	transform: rotate(90deg);
 }
-.pops[type-value="panel"].pops-panel-is-mobile
-	section.pops-panel-container
-	.pops-panel-forms-container-item
-	> div {
-	margin: 5px 10px;
-	text-align: left;
+section.pops-panel-container
+	.pops-panel-forms-fold
+	.pops-panel-forms-fold-container-icon {
+	width: 15px;
+	height: 15px;
+	display: flex;
+	align-items: center;
+	transform: rotate(-90deg);
+	transition: transform 0.3s;
 }
-.pops[type-value="panel"].pops-panel-is-mobile
-	section.pops-panel-container
-	.pops-panel-forms-container-item
-	ul {
-	margin: 0px !important;
+section.pops-panel-container
+	.pops-panel-forms-fold[data-fold-enable]
+	.pops-panel-forms-container-item-formlist {
+	height: 0;
 }
-.pops[type-value="panel"].pops-panel-is-mobile
-	section.pops-panel-container
-	> ul
-	li {
-	padding: 10px 10px;
+section.pops-panel-container
+	.pops-panel-forms-fold
+	.pops-panel-forms-container-item-formlist {
+	transition: height 0.3s;
+	overflow: hidden;
+	border-radius: unset;
+	background: unset;
 	margin: 0;
+	height: auto;
+	height: calc-size(auto, size);
 }
-.pops[type-value="panel"].pops-panel-is-mobile
-	section.pops-panel-container
-	> ul
-	> li
-	div:nth-child(2) {
-	max-width: 55%;
-	margin-left: 6px;
-	text-align: right;
-}
-.pops[type-value="panel"].pops-panel-is-mobile
-	section.pops-panel-container
-	.pops-panel-select
-	select {
-	min-width: 88px !important;
-	width: -webkit-fill-available;
-	width: -moz-available;
-}
-.pops[type-value="panel"].pops-panel-is-mobile
-	section.pops-panel-container
-	.pops-panel-container-header-ul
-	li {
-	font-size: 16px;
-}
-.pops[type-value="panel"].pops-panel-is-mobile .pops-panel-title p[pops],
-.pops[type-value="panel"].pops-panel-is-mobile
-	section.pops-panel-container
-	> ul
-	li,
-.pops[type-value="panel"].pops-panel-is-mobile aside.pops-panel-aside ul li {
-	font-size: 14px;
+/* 折叠面板 */
+
+/* 姑且认为小于600px的屏幕为移动端 */
+@media (max-width: 600px) {
+	/* 兼容移动端CSS */
+	.pops[type-value="panel"] {
+		width: 92%;
+		width: 92vw;
+	}
+	.pops[type-value="panel"] section.pops-panel-container {
+		padding: 10px 0px;
+	}
+	.pops[type-value="panel"] .pops-panel-content aside.pops-panel-aside {
+		width: 20%;
+	}
+	.pops[type-value="panel"]
+		section.pops-panel-container
+		.pops-panel-forms-container-item
+		> div {
+		margin: 5px 10px;
+		text-align: left;
+	}
+	.pops[type-value="panel"]
+		section.pops-panel-container
+		.pops-panel-forms-container-item
+		ul {
+		margin: 0px !important;
+	}
+	.pops[type-value="panel"] section.pops-panel-container > ul > li {
+		margin: 10px 10px;
+	}
+	.pops[type-value="panel"]
+		section.pops-panel-container
+		> ul
+		> li
+		div:nth-child(2) {
+		max-width: 55%;
+	}
+	.pops[type-value="panel"]
+		section.pops-panel-container
+		.pops-panel-select
+		select {
+		min-width: 88px !important;
+		width: -webkit-fill-available;
+		width: -moz-available;
+	}
+	.pops[type-value="panel"]
+		section.pops-panel-container
+		.pops-panel-container-header-ul
+		li {
+		font-size: 16px;
+	}
+	.pops[type-value="panel"] .pops-panel-title p[pops],
+	.pops[type-value="panel"] section.pops-panel-container > ul li,
+	.pops[type-value="panel"] aside.pops-panel-aside ul li {
+		font-size: 14px;
+	}
 }
 /* switch的CSS */
 .pops-panel-switch {

@@ -214,7 +214,7 @@ declare class Pops {
             createSectionContainerItem_deepMenu(formConfig: import("./components/panel/deepMenuType").PopsPanelDeepMenuDetails): HTMLLIElement;
             createSectionContainerItem_own(formConfig: import("./components/panel/ownType").PopsPanelOwnDetails): HTMLLIElement;
             createSectionContainerItem(formConfig: import("./components/panel/indexType").PopsPanelFormsTotalDetails): HTMLLIElement | undefined;
-            initFormItem(formConfig: import("./components/panel/indexType").PopsPanelContentConfig): void;
+            initFormItem(formConfig: import("./components/panel/indexType").PopsPanelContentConfig | import("./components/panel/formsType").PopsPanelFormsDetails): void;
             uListContainerAddItem(formConfig: import("./components/panel/indexType").PopsPanelFormsTotalDetails, containerOptions: Omit<import("./components/panel/commonType").PopsPanelRightAsideContainerOptions, "target">): void;
             setAsideItemClickEvent(asideLiElement: HTMLElement, asideConfig: import("./components/panel/indexType").PopsPanelContentConfig): void;
         };

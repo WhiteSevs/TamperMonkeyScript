@@ -2263,14 +2263,14 @@ export const PanelHandleContentDetails = () => {
 		 */
 		createSectionContainerItem_deepMenu(formConfig: PopsPanelDeepMenuDetails) {
 			let that = this;
-			let liElement = document.createElement("li");
-			liElement.classList.add("pops-panel-deepMenu-nav-item");
-			(liElement as any)["__formConfig__"] = formConfig;
-			this.setElementClassName(liElement, formConfig.className);
+			let $li = document.createElement("li");
+			$li.classList.add("pops-panel-deepMenu-nav-item");
+			($li as any)["__formConfig__"] = formConfig;
+			this.setElementClassName($li, formConfig.className);
 			// 设置属性
-			this.setElementAttributes(liElement, formConfig.attributes);
+			this.setElementAttributes($li, formConfig.attributes);
 			// 设置元素上的属性
-			this.setElementProps(liElement, formConfig.props);
+			this.setElementProps($li, formConfig.props);
 
 			/* 左边底部的描述的文字 */
 			let leftDescriptionText = "";
@@ -2291,7 +2291,7 @@ export const PanelHandleContentDetails = () => {
 			if (formConfig.rightText) {
 				rightText = /*html*/ `<p class="pops-panel-item-right-text">${formConfig.rightText}</p>`;
 			}
-			liElement.innerHTML = /*html*/ `
+			$li.innerHTML = /*html*/ `
 			<div class="pops-panel-item-left-text">
 				<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
 				${leftDescriptionText}
@@ -2320,21 +2320,56 @@ export const PanelHandleContentDetails = () => {
 					$container: HTMLElement,
 					formItemConfig: PopsPanelFormsTotalDetails | PopsPanelFormsDetails
 				) {
-					if (formItemConfig["type"] === "forms") {
-						let childForms = formItemConfig["forms"];
+					let formConfig_forms = formItemConfig as PopsPanelFormsDetails;
+					if (formConfig_forms["type"] === "forms") {
+						let childForms = formConfig_forms["forms"];
 						/* 每一项<li>元素 */
 						let formContainerListElement = document.createElement("li");
 						/* 每一项<li>内的子<ul>元素 */
 						let formContainerULElement = document.createElement("ul");
-						formContainerListElement.className =
-							"pops-panel-forms-container-item";
+						formContainerULElement.classList.add(
+							"pops-panel-forms-container-item-formlist"
+						);
+						formContainerListElement.classList.add(
+							"pops-panel-forms-container-item"
+						);
 						/* 区域头部的文字 */
 						let formHeaderDivElement = popsDOMUtils.createElement("div", {
 							className: "pops-panel-forms-container-item-header-text",
 						});
-						formHeaderDivElement.innerHTML = formItemConfig["text"];
-						/* 加进容器内 */
-						formContainerListElement.appendChild(formHeaderDivElement);
+						formHeaderDivElement.innerHTML = formConfig_forms["text"];
+
+						if (formConfig_forms.isFold) {
+							/* 添加第一个 */
+							/* 加进容器内 */
+							formHeaderDivElement.innerHTML = /*html*/ `
+								<p>${formConfig_forms.text}</p>
+								<i class="pops-panel-forms-fold-container-icon">
+									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+										<path d="M340.864 149.312a30.592 30.592 0 0 0 0 42.752L652.736 512 340.864 831.872a30.592 30.592 0 0 0 0 42.752 29.12 29.12 0 0 0 41.728 0L714.24 534.336a32 32 0 0 0 0-44.672L382.592 149.376a29.12 29.12 0 0 0-41.728 0z"></path>
+									</svg>
+								</i>
+								
+							`;
+							// 添加点击事件
+							popsDOMUtils.on(formHeaderDivElement, "click", (event) => {
+								if (formContainerListElement.hasAttribute("data-fold-enable")) {
+									formContainerListElement.removeAttribute("data-fold-enable");
+								} else {
+									formContainerListElement.setAttribute("data-fold-enable", "");
+								}
+							});
+							formHeaderDivElement.classList.add(
+								"pops-panel-forms-fold-container"
+							);
+							formHeaderDivElement.classList.add("pops-user-select-none");
+							formContainerListElement.setAttribute("data-fold-enable", "");
+							formContainerListElement.classList.add("pops-panel-forms-fold");
+							formContainerListElement.appendChild(formHeaderDivElement);
+						} else {
+							/* 加进容器内 */
+							formContainerListElement.appendChild(formHeaderDivElement);
+						}
 
 						that.setElementClassName(
 							formContainerListElement,
@@ -2443,22 +2478,22 @@ export const PanelHandleContentDetails = () => {
 				},
 				/** 设置项的点击事件 */
 				setLiClickEvent() {
-					popsDOMUtils.on(liElement, "click", void 0, async (event) => {
+					popsDOMUtils.on($li, "click", void 0, async (event) => {
 						if (typeof formConfig.clickCallBack === "function") {
 							let result = await formConfig.clickCallBack(event, formConfig);
 							if (result) {
 								return;
 							}
 						}
-						this.gotoDeepMenu(event, liElement);
+						this.gotoDeepMenu(event, $li);
 					});
 				},
 			};
 
 			PopsPanelDeepMenu.init();
-			(liElement as any)["data-deepMenu"] = PopsPanelDeepMenu;
+			($li as any)["data-deepMenu"] = PopsPanelDeepMenu;
 
-			return liElement;
+			return $li;
 		},
 		/**
 		 * 获取中间容器的元素<li>
@@ -2526,24 +2561,54 @@ export const PanelHandleContentDetails = () => {
 		 * 生成配置每一项的元素
 		 * @param formConfig
 		 */
-		initFormItem(formConfig: PopsPanelContentConfig) {
+		initFormItem(formConfig: PopsPanelContentConfig | PopsPanelFormsDetails) {
 			let that = this;
-			if ((formConfig as any)["type"] === "forms") {
-				let __formConfig_forms = formConfig as any as PopsPanelFormsDetails;
+			let formConfig_forms = formConfig as PopsPanelFormsDetails;
+			if (formConfig_forms["type"] === "forms") {
 				let childForms = formConfig["forms"];
 				/* 每一项<li>元素 */
 				let formContainerListElement = document.createElement("li");
 				/* 每一项<li>内的子<ul>元素 */
 				let formContainerULElement = document.createElement("ul");
-				formContainerListElement.className = "pops-panel-forms-container-item";
+				formContainerULElement.classList.add(
+					"pops-panel-forms-container-item-formlist"
+				);
+				formContainerListElement.classList.add(
+					"pops-panel-forms-container-item"
+				);
 				/* 区域头部的文字 */
 				let formHeaderDivElement = popsDOMUtils.createElement("div", {
 					className: "pops-panel-forms-container-item-header-text",
 				});
-				formHeaderDivElement.innerHTML = __formConfig_forms["text"];
-				/* 加进容器内 */
-				formContainerListElement.appendChild(formHeaderDivElement);
-
+				formHeaderDivElement.innerHTML = formConfig_forms["text"];
+				if (formConfig_forms.isFold) {
+					/* 加进容器内 */
+					formHeaderDivElement.innerHTML = /*html*/ `
+						<p>${formConfig_forms.text}</p>
+						<i class="pops-panel-forms-fold-container-icon">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+								<path d="M340.864 149.312a30.592 30.592 0 0 0 0 42.752L652.736 512 340.864 831.872a30.592 30.592 0 0 0 0 42.752 29.12 29.12 0 0 0 41.728 0L714.24 534.336a32 32 0 0 0 0-44.672L382.592 149.376a29.12 29.12 0 0 0-41.728 0z"></path>
+							</svg>
+						</i>
+						
+					`;
+					// 添加点击事件
+					popsDOMUtils.on(formHeaderDivElement, "click", (event) => {
+						if (formContainerListElement.hasAttribute("data-fold-enable")) {
+							formContainerListElement.removeAttribute("data-fold-enable");
+						} else {
+							formContainerListElement.setAttribute("data-fold-enable", "");
+						}
+					});
+					formHeaderDivElement.classList.add("pops-panel-forms-fold-container");
+					formHeaderDivElement.classList.add("pops-user-select-none");
+					formContainerListElement.setAttribute("data-fold-enable", "");
+					formContainerListElement.classList.add("pops-panel-forms-fold");
+					formContainerListElement.appendChild(formHeaderDivElement);
+				} else {
+					/* 加进容器内 */
+					formContainerListElement.appendChild(formHeaderDivElement);
+				}
 				that.setElementClassName(
 					formContainerListElement,
 					formConfig.className

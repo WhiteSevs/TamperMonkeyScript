@@ -12,6 +12,7 @@
 	--pops-bg-opacity: 1;
 	--pops-bd-opacity: 1;
 	--pops-font-size: 16px;
+	interpolate-size: allow-keywords;
 }
 .pops-mask {
 	--pops-mask-bg-opacity: 0.4;
@@ -129,7 +130,7 @@ button.pops-header-control i:hover {
 .pops-header-controls[data-margin] button.pops-header-control {
 	margin: 0 6px;
 	display: flex;
-    align-items: center;
+	align-items: center;
 }
 .pops[type-value] .pops-header-controls {
 	display: flex;

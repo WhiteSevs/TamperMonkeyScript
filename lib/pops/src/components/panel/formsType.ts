@@ -26,6 +26,10 @@ export interface PopsPanelFormsDetails extends PopsPanelCommonDetails {
 	 */
 	text: string;
 	/**
+	 * 是否进行折叠
+	 */
+	isFold?: boolean;
+	/**
 	 * 类型
 	 */
 	type: "forms";
