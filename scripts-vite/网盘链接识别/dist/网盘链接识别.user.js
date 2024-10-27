@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2024.10.27
+// @version      2024.10.27.18
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -15,7 +15,7 @@
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.7.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.0/dist/index.umd.js
 // @connect      *
 // @connect      lanzoub.com
 // @connect      lanzouc.com
@@ -11124,6 +11124,7 @@
           formConfigList.push({
             text: "Scheme Uri转发",
             type: "forms",
+            isFold: true,
             forms: schemeUri_form
           });
         }
@@ -14631,11 +14632,15 @@
                 --pops-bg-opacity: var(--acrylic-opacity);
             }
             .pops {
-                backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-saturate));
-                background-color: var(--acrylic-color);
+                backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-saturate)) !important;
+                background-color: var(--acrylic-color) !important;
             }
             .pops[type-value=panel]{
                 --aside-bg-color: rgba(221, 221, 221, var(--acrylic-opacity));
+				--pops-bg-color: #f2f2f2;
+				--title-bg-color: var(--acrylic-color);
+				--aside-bg-color: var(--acrylic-color);
+				--container-item-bg-color: var(--acrylic-color);
             }
             `
         );

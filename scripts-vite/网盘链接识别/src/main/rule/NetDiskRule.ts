@@ -561,6 +561,7 @@ export const NetDiskRule = {
 				formConfigList.push({
 					text: "Scheme Uri转发",
 					type: "forms",
+					isFold: true,
 					forms: schemeUri_form,
 				});
 			}

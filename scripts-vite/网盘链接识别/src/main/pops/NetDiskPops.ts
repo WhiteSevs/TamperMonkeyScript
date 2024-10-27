@@ -201,11 +201,15 @@ export const NetDiskPops = {
                 --pops-bg-opacity: var(--acrylic-opacity);
             }
             .pops {
-                backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-saturate));
-                background-color: var(--acrylic-color);
+                backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-saturate)) !important;
+                background-color: var(--acrylic-color) !important;
             }
             .pops[type-value=panel]{
                 --aside-bg-color: rgba(221, 221, 221, var(--acrylic-opacity));
+				--pops-bg-color: #f2f2f2;
+				--title-bg-color: var(--acrylic-color);
+				--aside-bg-color: var(--acrylic-color);
+				--container-item-bg-color: var(--acrylic-color);
             }
             `;
 			if (typeof details.style === "string") {

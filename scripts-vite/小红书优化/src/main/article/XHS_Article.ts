@@ -57,7 +57,7 @@ const XHS_Article = {
 			/* 搜索输入框 */
 			$searchInput.placeholder = "搜索小红书";
 			PopsPanel.execMenu("pc-xhs-search-open-blank-keyboard-enter", () => {
-				utils.listenKeyboard(
+				DOMUtils.listenKeyboard(
 					$searchInput,
 					"keydown",
 					(keyName, keyValue, otherCodeList, event) => {
