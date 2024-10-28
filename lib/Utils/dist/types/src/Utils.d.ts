@@ -9,35 +9,11 @@ import { LockFunction } from "./LockFunction";
 import { Log } from "./Log";
 import { Progress } from "./Progress";
 import { UtilsDictionary } from "./Dictionary";
-import type { DOMUtils_EventType } from "./Event";
-import type { Vue2Object } from "./VueObject";
-import type { UtilsAjaxHookResult } from "./AjaxHookerType";
-import { type UtilsWindowApiOption } from "./WindowApi";
+import type { DOMUtils_EventType } from "./types/Event";
+import type { UtilsAjaxHookResult } from "./types/ajaxHooker";
 import { Vue } from "./Vue";
-export declare var unsafeWindow: Window & typeof globalThis;
-export type JSTypeMap = {
-    string: string;
-    number: number;
-    boolean: boolean;
-    object: object;
-    symbol: symbol;
-    bigint: bigint;
-    undefined: undefined;
-    null: null;
-};
-export type JSTypeNames = keyof JSTypeMap;
-export type ArgsType<T extends JSTypeNames[]> = {
-    [I in keyof T]: JSTypeMap[T[I]];
-};
-export declare interface UtilsOwnObject<V extends any> {
-    [key: string]: V | UtilsOwnObject<V>;
-}
-export declare interface AnyObject {
-    [key: string]: any | AnyObject;
-    toString(): string;
-}
-export declare interface Vue2Context extends Vue2Object {
-}
+import { type ArgsType, type JSTypeNames, type UtilsOwnObject } from "./types/global";
+import type { UtilsWindowApiOption } from "./types/WindowApi";
 declare class Utils {
     private windowApi;
     constructor(option?: UtilsWindowApiOption);
@@ -184,7 +160,7 @@ declare class Utils {
      * @example
      * Utils.dispatchEvent(document.querySelector("input","input"))
      */
-    dispatchEvent(element: HTMLElement | Document, eventName: DOMUtils_EventType | DOMUtils_EventType[], details?: UtilsOwnObject<any>): void;
+    dispatchEvent(element: HTMLElement | Document, eventName: DOMUtils_EventType | DOMUtils_EventType[], details?: any): void;
     /**
      * 主动触发事件
      * @param element 元素
@@ -195,7 +171,7 @@ declare class Utils {
      * @example
      * Utils.dispatchEvent(document.querySelector("input","input"))
      */
-    dispatchEvent(element: HTMLElement | Document, eventName: string, details?: UtilsOwnObject<any>): void;
+    dispatchEvent(element: HTMLElement | Document, eventName: string, details?: any): void;
     /**
      * 下载base64格式的数据
      * @param base64Data	需要转换的base64数据
@@ -1400,9 +1376,9 @@ declare class Utils {
      * > ()=>{throw new Error('测试错误')}出现错误
      */
     tryCatch: (...args: any) => {
-        config(paramDetails: import("./TryCatch").UtilsTryCatchConfig): any;
+        config(paramDetails: import("./types/TryCatch").UtilsTryCatchConfig): any;
         error(handler: ((...args: any[]) => any) | string | Function): any;
-        run<A extends any[], R>(callback: ((...args: A) => R) | string | Function, __context__?: any): import("./TryCatch").UtilsTryCatchType;
+        run<A extends any[], R>(callback: ((...args: A) => R) | string | Function, __context__?: any): import("./types/TryCatch").UtilsTryCatchType;
     };
     /**
      * 数组去重，去除重复的值

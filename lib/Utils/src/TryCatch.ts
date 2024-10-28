@@ -1,15 +1,7 @@
+import type { UtilsTryCatchConfig, UtilsTryCatchType } from "./types/TryCatch";
 import { Utils } from "./Utils";
 
-export declare interface UtilsTryCatchConfig {
-	log: boolean;
-}
-/** tryCatch */
-export declare interface UtilsTryCatchType {
-	run: UtilsTryCatchType;
-	config: UtilsTryCatchType;
-	error: UtilsTryCatchType;
-}
-const TryCatch = function (...args: any) {
+export const TryCatch = function (...args: any) {
 	/* 定义变量和函数 */
 	let callbackFunction = null;
 	let context = null;
@@ -103,5 +95,3 @@ const TryCatch = function (...args: any) {
 
 	return TryCatchCore;
 };
-
-export { TryCatch };

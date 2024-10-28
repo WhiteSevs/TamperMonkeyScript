@@ -1,4 +1,4 @@
-import { UtilsOwnObject } from "./Utils";
+import type { UtilsOwnObject } from "./types/global";
 
 class GBKEncoder {
 	#data: RegExpMatchArray = [] as any;

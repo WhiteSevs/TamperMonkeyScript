@@ -1,15 +1,6 @@
-/**
- * 配置类型
- */
-export type UtilsWindowApiOption = {
-	document: Document;
-	window: Window & typeof globalThis;
-	globalThis: typeof globalThis | Window;
-	self: Window & typeof globalThis;
-	top: Window;
-};
+import type { UtilsWindowApiOption } from "./types/WindowApi";
 
-export class WindowApi {
+class WindowApi {
 	/** 默认的配置 */
 	private defaultApi: UtilsWindowApiOption = {
 		document: document,
@@ -42,3 +33,5 @@ export class WindowApi {
 		return this.api.top;
 	}
 }
+
+export { WindowApi };

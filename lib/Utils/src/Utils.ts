@@ -11,41 +11,17 @@ import { Log } from "./Log";
 import { Progress } from "./Progress";
 import { TryCatch } from "./TryCatch";
 import { UtilsDictionary } from "./Dictionary";
-import type { DOMUtils_EventType } from "./Event";
-import type { Vue2Object } from "./VueObject";
-import type { UtilsAjaxHookResult } from "./AjaxHookerType";
+import type { DOMUtils_EventType } from "./types/Event";
+import type { UtilsAjaxHookResult } from "./types/ajaxHooker";
 import { GenerateUUID } from "./UtilsCommon";
-import { WindowApi, type UtilsWindowApiOption } from "./WindowApi";
+import { WindowApi } from "./WindowApi";
 import { Vue } from "./Vue";
-
-export declare var unsafeWindow: Window & typeof globalThis;
-
-export type JSTypeMap = {
-	string: string;
-	number: number;
-	boolean: boolean;
-	object: object;
-	symbol: symbol;
-	bigint: bigint;
-	undefined: undefined;
-	null: null;
-};
-
-export type JSTypeNames = keyof JSTypeMap;
-
-export type ArgsType<T extends JSTypeNames[]> = {
-	[I in keyof T]: JSTypeMap[T[I]];
-};
-
-export declare interface UtilsOwnObject<V extends any> {
-	[key: string]: V | UtilsOwnObject<V>;
-}
-export declare interface AnyObject {
-	[key: string]: any | AnyObject;
-	toString(): string;
-}
-
-export declare interface Vue2Context extends Vue2Object {}
+import {
+	type ArgsType,
+	type JSTypeNames,
+	type UtilsOwnObject,
+} from "./types/global";
+import type { UtilsWindowApiOption } from "./types/WindowApi";
 
 class Utils {
 	private windowApi: WindowApi;
@@ -53,7 +29,7 @@ class Utils {
 		this.windowApi = new WindowApi(option);
 	}
 	/** 版本号 */
-	version = "2024.10.19";
+	version = "2024.10.28";
 
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
@@ -504,7 +480,7 @@ class Utils {
 	dispatchEvent(
 		element: HTMLElement | Document,
 		eventName: DOMUtils_EventType | DOMUtils_EventType[],
-		details?: UtilsOwnObject<any>
+		details?: any
 	): void;
 	/**
 	 * 主动触发事件
@@ -519,12 +495,12 @@ class Utils {
 	dispatchEvent(
 		element: HTMLElement | Document,
 		eventName: string,
-		details?: UtilsOwnObject<any>
+		details?: any
 	): void;
 	dispatchEvent(
 		element: HTMLElement | Document,
 		eventName: DOMUtils_EventType | DOMUtils_EventType[] | string,
-		details?: UtilsOwnObject<any>
+		details?: any
 	) {
 		let eventNameList: string[] = [];
 		if (typeof eventName === "string") {
@@ -3510,7 +3486,8 @@ class Utils {
 			offSetX: number,
 			offSetY: number
 		) {
-			let win = unsafeWindow || window;
+			// @ts-ignore
+			let win = typeof unsafeWindow === "undefined" ? globalThis : unsafeWindow;
 			let mouseEvent =
 				UtilsContext.windowApi.document.createEvent("MouseEvents");
 			mouseEvent.initMouseEvent(

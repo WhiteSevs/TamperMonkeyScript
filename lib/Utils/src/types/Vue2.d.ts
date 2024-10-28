@@ -1,13 +1,16 @@
-export declare interface Vue2Object {
+/**
+ * Vue2实例
+ */
+export declare interface Vue2Instance {
 	$attrs: any;
-	$children: Vue2Object[];
+	$children: Vue2Instance[];
 	$createElement: (...args: any[]) => any;
 	$el: HTMLElement;
 	$listeners: any;
 	$options: any;
-	$parent: Vue2Object;
+	$parent: Vue2Instance;
 	$refs: any;
-	$root: Vue2Object;
+	$root: Vue2Instance;
 	$scopedSlots: any;
 	$slots: any;
 	$store: any;
@@ -38,15 +41,15 @@ export declare interface Vue2Object {
 	};
 	$router: {
 		afterHooks: Function[];
-		app: Vue2Object;
-		apps: Vue2Object[];
+		app: Vue2Instance;
+		apps: Vue2Instance[];
 		beforeHooks: Function[];
 		fallback: boolean;
 		history: {
 			base: string;
-			current: Vue2Object["$route"];
+			current: Vue2Instance["$route"];
 			listeners: any[];
-			router: Vue2Object["$router"];
+			router: Vue2Instance["$router"];
 			/**
 			 *
 			 * @param delta 访问的距离。如果 delta < 0 则后退相应数量的记录，如果 > 0 则前进。
@@ -82,14 +85,14 @@ export declare interface Vue2Object {
 			[key: string]: any;
 		};
 		resolveHooks: ((...args: any[]) => any)[];
-		currentRoute: Vue2Object["$route"];
+		currentRoute: Vue2Instance["$route"];
 		beforeEach: (
 			callback:
 				| ((
 						/** 即将要进入的目标 路由对象 */
-						to: Vue2Object["$route"],
+						to: Vue2Instance["$route"],
 						/** 当前导航正要离开的路由 */
-						from: Vue2Object["$route"],
+						from: Vue2Instance["$route"],
 						/**
 						 *
 						 * + next(): 进行管道中的下一个钩子。如果全部钩子执行完了，则导航的状态就是 confirmed (确认的)。
@@ -107,9 +110,9 @@ export declare interface Vue2Object {
 			callback:
 				| ((
 						/** 即将要进入的目标 路由对象 */
-						to: Vue2Object["$route"],
+						to: Vue2Instance["$route"],
 						/** 当前导航正要离开的路由 */
-						from: Vue2Object["$route"]
+						from: Vue2Instance["$route"]
 				  ) => void)
 				/** 移除上一个添加的监听 */
 				| (() => void)
@@ -136,6 +139,16 @@ export declare interface Vue2Object {
 	[key: string]: any;
 }
 
-export declare interface HTMLVue2DivElement extends HTMLDivElement {
-	__vue__: Vue2Object;
+/**
+ * 包含vue属性的HTMLElement
+ */
+export declare interface Vue2HTMLElement extends HTMLElement {
+	__vue__: Vue2Instance;
+}
+
+/**
+ * 包含vue属性的HTMLElement
+ */
+export declare interface Vue2HTMLDivElement extends HTMLDivElement {
+	__vue__: Vue2Instance;
 }

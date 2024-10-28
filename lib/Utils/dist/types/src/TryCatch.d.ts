@@ -1,13 +1,5 @@
-export declare interface UtilsTryCatchConfig {
-    log: boolean;
-}
-/** tryCatch */
-export declare interface UtilsTryCatchType {
-    run: UtilsTryCatchType;
-    config: UtilsTryCatchType;
-    error: UtilsTryCatchType;
-}
-declare const TryCatch: (...args: any) => {
+import type { UtilsTryCatchConfig, UtilsTryCatchType } from "./types/TryCatch";
+export declare const TryCatch: (...args: any) => {
     /**
      *
      * @param paramDetails 配置
@@ -28,4 +20,3 @@ declare const TryCatch: (...args: any) => {
      */
     run<A extends any[], R>(callback: ((...args: A) => R) | string | Function, __context__?: any): UtilsTryCatchType;
 };
-export { TryCatch };
