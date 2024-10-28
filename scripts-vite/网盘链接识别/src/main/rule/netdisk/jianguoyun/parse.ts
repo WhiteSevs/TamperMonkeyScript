@@ -1,14 +1,14 @@
 import { httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
 import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/indexType";
-import {
-	HttpxAsyncResult,
-	HttpxDetails,
-} from "@whitesev/utils/dist/types/src/Httpx";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { NetDiskParseObject } from "@/main/parse/NetDiskParseObject";
+import type {
+	HttpxRequestOption,
+	HttpxResponse,
+} from "@库/Utils/dist/types/src/types/Httpx";
 
 export class NetDiskParse_Jianguoyun extends NetDiskParseObject {
 	errorCode = {
@@ -149,7 +149,7 @@ export class NetDiskParse_Jianguoyun extends NetDiskParseObject {
 		let pageInfoRegexp = /var[\s]*PageInfo[\s]*=[\s]*{([\s\S]+)};/i;
 		let formData = new FormData();
 		formData.append("pd", that.accessCode);
-		let requestDetails: HttpxDetails = {
+		let requestDetails: HttpxRequestOption = {
 			url: `https://www.jianguoyun.com/p/${that.shareCode}`,
 			data: that.accessCode === "" ? void 0 : `pd=${that.accessCode}`,
 			responseType: "html",
@@ -159,7 +159,7 @@ export class NetDiskParse_Jianguoyun extends NetDiskParseObject {
 				Referer: `https://www.jianguoyun.com/p/${that.shareCode}`,
 			},
 		};
-		let requestResp = void 0 as any as HttpxAsyncResult<typeof requestDetails>;
+		let requestResp = void 0 as any as HttpxResponse<typeof requestDetails>;
 		if (that.accessCode === "") {
 			requestResp = await httpx.get(requestDetails);
 		} else {

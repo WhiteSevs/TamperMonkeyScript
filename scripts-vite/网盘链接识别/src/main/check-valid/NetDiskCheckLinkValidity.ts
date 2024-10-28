@@ -17,7 +17,7 @@ import { NetDiskCheckLinkValidity_uc } from "../rule/netdisk/uc/checkLinkValidit
 import { NetDiskView } from "../view/NetDiskView";
 import { NetDiskCheckLinkValidity_115pan } from "../rule/netdisk/115pan/checkLinkValidity";
 import { NetDiskRuleData } from "../data/NetDiskRuleData";
-import type { HttpxDetails } from "@whitesev/utils/dist/types/src/Httpx";
+import type { HttpxRequestOption } from "@whitesev/utils/dist/types/src/types/Httpx";
 
 /**
  * 校验码状态
@@ -173,7 +173,7 @@ const NetDiskCheckLinkValidityNetDisk: NetDiskCheckLinkValidityEntrance = {
 /**
  * 校验链接有效性的通用配置
  */
-export const NetDiskCheckLinkValidityRequestOption: Partial<HttpxDetails> = {
+export const NetDiskCheckLinkValidityRequestOption: Partial<HttpxRequestOption> = {
 	// 有效性校验时，如果请求错误，禁止Qmsg弹出
 	allowInterceptConfig: false,
 	// 有效性校验时，如果请求错误，禁止Qmsg弹出

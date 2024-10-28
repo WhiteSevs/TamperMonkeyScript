@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2024.10.27.18
+// @version      2024.10.28
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @require      https://update.greasyfork.org/scripts/486152/1448081/Crypto-JS.js
 // @require      https://update.greasyfork.org/scripts/465550/1448580/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.0/dist/index.umd.js
 // @connect      *
@@ -106,6 +106,14 @@
       get useDocumentCookie() {
         return PopsPanel.getValue("httpx-use-document-cookie");
       },
+      /**
+       * cookie规则，在这里填入
+       * @example
+       * {
+       *     key: "",
+       *     hostname: "",
+       * }
+       */
       cookieRule: []
     },
     /**
@@ -174,7 +182,7 @@
         } else {
           details.headers["Cookie"] = ownCookie;
         }
-        log.info("Httpx => 设置cookie:", details);
+        log.info(["Httpx => 设置cookie:", details]);
       }
       if (details.headers && details.headers.Cookie != null && utils.isNull(details.headers.Cookie)) {
         delete details.headers.Cookie;
@@ -3047,33 +3055,7 @@
     }
     /**
      * 弹窗使用-获取文件夹信息
-     * @param {{
-     * category?: string,
-     * domain_id?: string,
-     * file_extension?: string,
-     * mime_extension?: string,
-     * mime_type?: string,
-     * punish_flag: number,
-     * created_at: string,
-     * domain_id: string,
-     * drive_id: string,
-     * file_id: string,
-     * name: string,
-     * parent_file_id:string,
-     * share_id: string,
-     * type: string,
-     * updated_at: string,
-     * }[]} infoList
-     * @return {Promise<{
-     * fileName: string,
-     * fileSize: string|number,
-     * fileType: ?string,
-     * createTime: ?string,
-     * latestTime: ?string,
-     * isFolder: boolean,
-     * index: ?number,
-     * clickCallBack: ?(event:Event,_config_: object)=>{}
-     * }[]>}
+     * @param infoList
      */
     getFolderInfo(infoList, index = 0) {
       const that = this;
@@ -3196,7 +3178,8 @@
     }
     /**
      * 获取文件的下载链接
-     * @returns {Promise<string>}
+     * @param share_id
+     * @param file_id
      */
     async get_share_link_download_url(share_id, file_id) {
       const that = this;
@@ -3220,6 +3203,7 @@
             ),
             "User-Agent": utils.getRandomPCUA()
           },
+          responseType: "arraybuffer",
           allowInterceptConfig: false,
           onerror() {
           }
@@ -3240,7 +3224,11 @@
     handle_request_error(postResp) {
       log.error(postResp);
       let errData = utils.toJSON(postResp.data.responseText);
-      Qmsg.error(errData["message"]);
+      if (errData["message"] == "") {
+        Qmsg.error(postResp.msg);
+      } else {
+        Qmsg.error(errData["message"]);
+      }
     }
     /**
      * 获取用户鉴权值
@@ -3261,6 +3249,8 @@
     /**
      * 获取header请求头 X-Share-Token
      * 来源：localStorage => shareToken.share_token
+     * @param share_id
+     * @param share_pwd
      */
     async get_X_Share_Token(share_id, share_pwd) {
       const that = this;

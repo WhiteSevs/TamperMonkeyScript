@@ -1,7 +1,6 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
 import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/indexType";
-import { HttpxAsyncResult } from "@whitesev/utils/dist/types/src/Httpx";
 import { unsafeWindow } from "ViteGM";
 import { NetDiskParseObject } from "../../../parse/NetDiskParseObject";
 import {
@@ -10,7 +9,11 @@ import {
 } from "@/main/link-click-mode/NetDiskLinkClickMode";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
+import type { HttpxResponse } from "@whitesev/utils/src/types/Httpx";
 
+/**
+ * 阿里云解析下载已失效
+ */
 export class NetDiskParse_Aliyun extends NetDiskParseObject {
 	X_Share_Token_Data = {
 		expire_time: "2000-01-01T00:00:00.000Z",
@@ -86,35 +89,27 @@ export class NetDiskParse_Aliyun extends NetDiskParseObject {
 	}
 	/**
 	 * 弹窗使用-获取文件夹信息
-	 * @param {{
-	 * category?: string,
-	 * domain_id?: string,
-	 * file_extension?: string,
-	 * mime_extension?: string,
-	 * mime_type?: string,
-	 * punish_flag: number,
-	 * created_at: string,
-	 * domain_id: string,
-	 * drive_id: string,
-	 * file_id: string,
-	 * name: string,
-	 * parent_file_id:string,
-	 * share_id: string,
-	 * type: string,
-	 * updated_at: string,
-	 * }[]} infoList
-	 * @return {Promise<{
-	 * fileName: string,
-	 * fileSize: string|number,
-	 * fileType: ?string,
-	 * createTime: ?string,
-	 * latestTime: ?string,
-	 * isFolder: boolean,
-	 * index: ?number,
-	 * clickCallBack: ?(event:Event,_config_: object)=>{}
-	 * }[]>}
+	 * @param infoList
 	 */
-	getFolderInfo(infoList: any, index = 0) {
+	getFolderInfo(
+		infoList: {
+			category?: string;
+			domain_id?: string;
+			file_extension?: string;
+			mime_extension?: string;
+			mime_type?: string;
+			punish_flag: number;
+			created_at: string;
+			drive_id: string;
+			file_id: string;
+			name: string;
+			parent_file_id: string;
+			share_id: string;
+			type: string;
+			updated_at: string;
+		}[],
+		index = 0
+	) {
 		const that = this;
 		let folderInfoList: PopsFolderDataConfig[] = [];
 		let tempFolderInfoList: PopsFolderDataConfig[] = [];
@@ -260,7 +255,8 @@ export class NetDiskParse_Aliyun extends NetDiskParseObject {
 	}
 	/**
 	 * 获取文件的下载链接
-	 * @returns {Promise<string>}
+	 * @param share_id
+	 * @param file_id
 	 */
 	async get_share_link_download_url(share_id: string, file_id: string) {
 		const that = this;
@@ -284,6 +280,7 @@ export class NetDiskParse_Aliyun extends NetDiskParseObject {
 					),
 					"User-Agent": utils.getRandomPCUA(),
 				},
+				responseType: "arraybuffer",
 				allowInterceptConfig: false,
 				onerror() {},
 			}
@@ -294,16 +291,20 @@ export class NetDiskParse_Aliyun extends NetDiskParseObject {
 		}
 		let data = utils.toJSON(postResp.data.responseText);
 		log.info("获取文件的下载链接：", data);
-		return data["download_url"];
+		return data["download_url"] as string;
 	}
 	/**
 	 * 处理请求的错误
 	 * @param postResp
 	 */
-	handle_request_error(postResp: HttpxAsyncResult) {
+	handle_request_error(postResp: HttpxResponse<any>) {
 		log.error(postResp);
 		let errData = utils.toJSON(postResp.data.responseText);
-		Qmsg.error(errData["message"]);
+		if (errData["message"] == "") {
+			Qmsg.error(postResp.msg);
+		} else {
+			Qmsg.error(errData["message"]);
+		}
 	}
 	/**
 	 * 获取用户鉴权值
@@ -315,7 +316,7 @@ export class NetDiskParse_Aliyun extends NetDiskParseObject {
 			let tokenJSON = utils.toJSON(token);
 			let access_token = tokenJSON["access_token"];
 			log.success("获取阿里云盘的access_token：", access_token);
-			return access_token;
+			return access_token as string;
 		} else {
 			log.error("获取access_token失败，请先登录账号！");
 			Qmsg.error("获取access_token失败，请先登录账号！");
@@ -324,6 +325,8 @@ export class NetDiskParse_Aliyun extends NetDiskParseObject {
 	/**
 	 * 获取header请求头 X-Share-Token
 	 * 来源：localStorage => shareToken.share_token
+	 * @param share_id
+	 * @param share_pwd
 	 */
 	async get_X_Share_Token(share_id: string, share_pwd: string) {
 		const that = this;

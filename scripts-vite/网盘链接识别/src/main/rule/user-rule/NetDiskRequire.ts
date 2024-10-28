@@ -1,5 +1,5 @@
 import { httpx, log, utils } from "@/env";
-import { HttpxDetails } from "@whitesev/utils/dist/types/src/Httpx";
+import type { HttpxRequestOption } from "@库/Utils/dist/types/src/types/Httpx";
 import { unsafeWindow } from "ViteGM";
 
 /** 网盘-引用/获取文件 */
@@ -10,7 +10,7 @@ export const NetDiskRequire = {
 	 * @param url 网络文件路径
 	 * @param options
 	 */
-	async file(url: string, options?: HttpxDetails) {
+	async file(url: string, options?: HttpxRequestOption) {
 		if (utils.isNull(url)) {
 			log.error("NetDiskRequire.file的参数path为空", url);
 			return false;
