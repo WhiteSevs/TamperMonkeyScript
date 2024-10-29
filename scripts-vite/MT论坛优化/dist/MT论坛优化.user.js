@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.27
+// @version      2024.10.29
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
@@ -32,7 +32,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(t=>{if(typeof GM_addStyle=="function"){GM_addStyle(t);return}function d(n){let e=document.createElement("style");return e.innerHTML=n,document.head?document.head.appendChild(e):document.documentElement.appendChild(e),e}d(t)})(" .pls .avatar img,.avtm img{border-radius:10%}.pls .avatar img{width:90px} ");
+(a=>{if(typeof GM_addStyle=="function"){GM_addStyle(a);return}function t(d){let e=document.createElement("style");return e.innerHTML=d,document.head?document.head.appendChild(e):document.documentElement.appendChild(e),e}t(a)})(" .pls .avatar img,.avtm img{border-radius:10%}.pls .avatar img{--avatar-size: 90px;width:var(--avatar-size);height:var(--avatar-size)} ");
 
 (function (Qmsg, DOMUtils, Utils, pops, hljs, Viewer) {
   'use strict';
@@ -45,7 +45,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
   var require_entrance_001 = __commonJS({
-    "entrance-cXHBd7g4.js"(exports, module) {
+    "entrance-DfmYR9r8.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -1706,77 +1706,108 @@
         title: "帖子",
         forms: [
           {
-            text: "功能",
             type: "forms",
+            text: "",
             forms: [
-              UISwitch(
-                "拦截附件",
-                "mt-forum-post-interceptionAttachment",
-                true,
-                void 0,
-                "点击附件时弹出提示框进行确认是否下载附件"
-              ),
-              UISwitch(
-                "图片查看优化",
-                "mt-forum-post-optimizationImagePreview",
-                true,
-                void 0,
-                "使用Viewer查看图片"
-              ),
-              UISwitch(
-                "自动加载下一页",
-                "mt-forum-post-loadNextPageComment",
-                true,
-                void 0,
-                "无缝预览下一页"
-              ),
-              UISwitch(
-                "代码块优化",
-                "mt-forum-post-codeQuoteOptimization",
-                true,
-                void 0,
-                "自动检测代码块语言并设置关键字高亮"
-              )
-            ]
-          },
-          {
-            type: "forms",
-            text: "用户信息块",
-            forms: [
-              UISwitch(
-                "探测用户在线状态",
-                "mt-forum-post-detectingUserOnlineStatus",
-                false,
-                void 0,
-                "获取用户在线状态并在用户信息处显示状态表情"
-              ),
-              UISwitch(
-                "显示用户等级",
-                "mt-forum-post-showUserLevel",
-                true,
-                void 0,
-                "在用户信息处显示当前用户的等级"
-              )
-            ]
-          },
-          {
-            type: "forms",
-            text: "右侧悬浮工具栏",
-            forms: [
-              UISwitch(
-                "快捷收藏",
-                "mt-forum-post-quickCollentBtn",
-                true,
-                void 0,
-                "在右侧悬浮工具栏添加【收藏】按钮，用于快捷收藏"
-              ),
-              UISwitch(
-                "快捷回复",
-                "mt-forum-post-quickReplyOptimization",
-                true,
-                void 0,
-                "为快捷回复弹窗添加【一键空格】按钮"
-              )
+              {
+                text: "功能",
+                type: "deepMenu",
+                forms: [
+                  {
+                    type: "forms",
+                    text: "",
+                    forms: [
+                      UISwitch(
+                        "拦截附件",
+                        "mt-forum-post-interceptionAttachment",
+                        true,
+                        void 0,
+                        "点击附件时弹出提示框进行确认是否下载附件"
+                      ),
+                      UISwitch(
+                        "图片查看优化",
+                        "mt-forum-post-optimizationImagePreview",
+                        true,
+                        void 0,
+                        "使用Viewer查看图片"
+                      ),
+                      UISwitch(
+                        "自动加载下一页",
+                        "mt-forum-post-loadNextPageComment",
+                        true,
+                        void 0,
+                        "无缝预览下一页"
+                      ),
+                      UISwitch(
+                        "代码块优化",
+                        "mt-forum-post-codeQuoteOptimization",
+                        true,
+                        void 0,
+                        "自动检测代码块语言并设置关键字高亮"
+                      )
+                    ]
+                  }
+                ]
+              },
+              {
+                type: "deepMenu",
+                text: "用户信息块",
+                forms: [
+                  {
+                    type: "forms",
+                    text: "",
+                    forms: [
+                      UISwitch(
+                        "探测用户在线状态",
+                        "mt-forum-post-detectingUserOnlineStatus",
+                        false,
+                        void 0,
+                        "获取用户在线状态并在用户信息处显示状态表情"
+                      ),
+                      UISwitch(
+                        "显示用户等级",
+                        "mt-forum-post-showUserLevel",
+                        true,
+                        void 0,
+                        "在用户信息处显示当前用户的等级"
+                      ),
+                      UISwitch(
+                        "隐藏底部信息块",
+                        "mt-forum-post-hideBottomInfoBlock",
+                        false,
+                        void 0,
+                        "包括金币、好评、信誉等信息"
+                      )
+                    ]
+                  }
+                ]
+              },
+              {
+                type: "deepMenu",
+                text: "右侧悬浮工具栏",
+                forms: [
+                  {
+                    type: "forms",
+                    text: "",
+                    forms: [
+                      UISwitch(
+                        "新增【快捷收藏】",
+                        "mt-forum-post-quickCollentBtn",
+                        true,
+                        void 0,
+                        "在右侧悬浮工具栏添加【收藏】按钮，用于快捷收藏"
+                      ),
+                      UISwitch(
+                        "快捷回复优化",
+                        "mt-forum-post-quickReplyOptimization",
+                        true,
+                        void 0,
+                        "为快捷回复弹窗底部区域添加【一键空格】按钮"
+                      )
+                    ]
+                  }
+                ]
+              }
             ]
           }
         ]
@@ -2764,69 +2795,90 @@
       };
       const MTForumPostRightToolBar = {
         init() {
-          PopsPanel.execMenuOnce("mt-forum-post-quickCollentBtn", () => {
-            this.quickCollentBtn();
-          });
-          PopsPanel.execMenuOnce("mt-forum-post-quickReplyOptimization", () => {
-            this.quickReplyOptimization();
+          domUtils.ready(() => {
+            PopsPanel.execMenuOnce("mt-forum-post-quickCollentBtn", () => {
+              this.quickCollentBtn();
+            });
+            PopsPanel.execMenuOnce("mt-forum-post-quickReplyOptimization", () => {
+              this.quickReplyOptimization();
+            });
           });
         },
         /**
-         * 快捷收藏
+         * 【快捷收藏】
          */
         quickCollentBtn() {
-          log.info(`快捷收藏`);
-          var own_formhash = $(
-            '#scform input[name="formhash"]'
-          ).value;
-          var collect_href_id = MTUtils.getThreadId(window.location.href);
-          var collect_href = `/home.php?mod=spacecp&ac=favorite&type=thread&id=${collect_href_id}&formhash=${own_formhash}`;
-          var $collect = document.createElement("span");
-          var $scrollTop = document.querySelector("#scrolltop");
-          $collect.innerHTML = `
-        <a href="${collect_href}" 
-            id="k_favorite"
-            onclick="showWindow(this.id, this.href, 'get', 0);"
-            onmouseover="this.title = $('favoritenumber').innerHTML + ' 人收藏'">
-            <img src="https://s1.ax1x.com/2020/04/29/JTk3lD.gif"
-                     height="26" 
-                     width="26" 
-                     style="position:absolute;top:10px;left:11px">
-        </a>
-        `;
-          domUtils.prepend($scrollTop, $collect);
+          log.info(`【快捷收藏】`);
+          utils.waitNode("#scrolltop", 1e4).then(($scrollTop) => {
+            if (!$scrollTop) {
+              return;
+            }
+            let formhash = $(
+              '#scform input[name="formhash"]'
+            ).value;
+            let threadId = MTUtils.getThreadId(window.location.href);
+            let collectUrl = `/home.php?${utils.toSearchParamsStr({
+            mod: "spacecp",
+            ac: "favorite",
+            type: "thread",
+            id: threadId,
+            formhash,
+            infloat: "yes",
+            handlekey: "k_favorite",
+            inajax: 1,
+            ajaxtarget: "fwin_content_k_favorite"
+          })}`;
+            let $collect = document.createElement("span");
+            $collect.innerHTML = /*html*/
+            `
+			<a href="${collectUrl}" 
+				id="k_favorite"
+				onclick="showWindow(this.id, this.href, 'get', 0);"
+				onmouseover="this.title = $('favoritenumber').innerHTML + ' 人收藏'">
+				<img src="https://s1.ax1x.com/2020/04/29/JTk3lD.gif"
+						height="26" 
+						width="26" 
+						style="position:absolute;top:10px;left:11px">
+			</a>
+			`;
+            domUtils.prepend($scrollTop, $collect);
+          });
         },
         /**
          * 快捷回复优化
          */
         quickReplyOptimization() {
-          log.info(`快捷回复优化`);
-          let $ele = $("#scrolltop > span:nth-child(2) > a");
-          domUtils.on($ele, "click", function() {
-            _unsafeWindow.showWindow("reply", this.href);
-            utils.waitNode("#moreconf", 1e4).then(($moreconf) => {
-              if (!$moreconf) {
-                return;
-              }
-              let $oneKeySpace = domUtils.createElement(
-                "button",
-                {
-                  innerText: "一键空格",
-                  type: "button",
-                  id: "insertspace2"
-                },
-                {
-                  style: "float: left;"
+          utils.waitNode("#scrolltop > span:nth-child(2) > a", 1e4).then(($ele) => {
+            if (!$ele) {
+              return;
+            }
+            log.info(`快捷回复优化`);
+            domUtils.on($ele, "click", function() {
+              _unsafeWindow.showWindow("reply", this.href);
+              utils.waitNode("#moreconf", 1e4).then(($moreconf) => {
+                if (!$moreconf) {
+                  return;
                 }
-              );
-              domUtils.on($oneKeySpace, "click", (event) => {
-                utils.preventEvent(event);
-                domUtils.val(
-                  $("#postmessage"),
-                  domUtils.val($("#postmessage")) + "           "
+                let $oneKeySpace = domUtils.createElement(
+                  "button",
+                  {
+                    innerText: "一键空格",
+                    type: "button",
+                    id: "insertspace2"
+                  },
+                  {
+                    style: "float: left;"
+                  }
                 );
+                domUtils.on($oneKeySpace, "click", (event) => {
+                  utils.preventEvent(event);
+                  domUtils.val(
+                    $("#postmessage"),
+                    domUtils.val($("#postmessage")) + "           "
+                  );
+                });
+                domUtils.append($moreconf, $oneKeySpace);
               });
-              domUtils.append($moreconf, $oneKeySpace);
             });
           });
         }
@@ -2848,6 +2900,9 @@
           });
           PopsPanel.execMenu("mt-forum-post-removeCommentFontStyle", () => {
             this.removeCommentFontStyle();
+          });
+          PopsPanel.execMenuOnce("mt-forum-post-hideBottomInfoBlock", () => {
+            return this.hideBottomInfoBlock();
           });
           domUtils.ready(() => {
             PopsPanel.execMenuOnce("mt-forum-post-loadNextPageComment", () => {
@@ -3429,50 +3484,71 @@
          */
         showUserLevel() {
           log.info(`显示用户等级`);
-          $$(".pls.favatar").forEach((userAvatarItem) => {
-            let userLevel = "0级";
-            let userInfo = userAvatarItem.querySelector("tr");
-            let currentLevelText = userAvatarItem.querySelector("p em").innerText;
-            let userLevelText = document.createElement("td");
-            userLevelText.setAttribute("style", "border-left: 1px solid #e3e3e3;");
-            switch (currentLevelText) {
-              case "幼儿园":
-                userLevel = "1级";
-                break;
-              case "小学生":
-                userLevel = "2级";
-                break;
-              case "初中生":
-                userLevel = "3级";
-                break;
-              case "高中生":
-                userLevel = "4级";
-                break;
-              case "大学生":
-                userLevel = "5级";
-                break;
-              case "硕士生":
-                userLevel = "6级";
-                break;
-              case "博士生":
-              case "实习版主":
-              case "版主":
-              case "审核员":
-                userLevel = "7级";
-                break;
-              case "博士后":
-              case "超级版主":
-              case "网站编辑":
-                userLevel = "8级";
-                break;
-              case "管理员":
-              case "信息监察员":
-                userLevel = "9级";
-                break;
+          $$(".pls.favatar:not([data-show-user-level])").forEach(
+            ($userAvatar) => {
+              $userAvatar.setAttribute("data-show-user-level", "true");
+              let userLevel = "0级";
+              let userInfo = $userAvatar.querySelector("tr");
+              let currentLevelText = $userAvatar.querySelector("p em").innerText;
+              let userLevelText = document.createElement("td");
+              userLevelText.setAttribute("style", "border-left: 1px solid #e3e3e3;");
+              switch (currentLevelText) {
+                case "幼儿园":
+                  userLevel = "1级";
+                  break;
+                case "小学生":
+                  userLevel = "2级";
+                  break;
+                case "初中生":
+                  userLevel = "3级";
+                  break;
+                case "高中生":
+                  userLevel = "4级";
+                  break;
+                case "大学生":
+                  userLevel = "5级";
+                  break;
+                case "硕士生":
+                  userLevel = "6级";
+                  break;
+                case "博士生":
+                case "实习版主":
+                case "版主":
+                case "审核员":
+                  userLevel = "7级";
+                  break;
+                case "博士后":
+                case "超级版主":
+                case "网站编辑":
+                  userLevel = "8级";
+                  break;
+                case "管理员":
+                case "信息监察员":
+                  userLevel = "9级";
+                  break;
+              }
+              userLevelText.innerHTML = `<p><a class="dj">${userLevel}</a></p>Lv`;
+              userInfo.appendChild(userLevelText);
             }
-            userLevelText.innerHTML = `<p><a class="dj">${userLevel}</a></p>Lv`;
-            userInfo.appendChild(userLevelText);
-          });
+          );
+        },
+        /**
+         * 隐藏底部信息块
+         */
+        hideBottomInfoBlock() {
+          log.info(`隐藏底部信息块`);
+          return addStyle(
+            /*css*/
+            `
+			.pls .favatar>*:not([id^="userinfo"]+div){
+				display: none;
+			}
+			.pls .favatar>div[id^="userinfo"],
+			.pls .favatar>div.tns{
+				display: block;
+			}
+		`
+          );
         }
       };
       const MTGuide = {

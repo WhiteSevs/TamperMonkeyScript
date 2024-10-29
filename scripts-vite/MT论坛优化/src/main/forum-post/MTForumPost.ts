@@ -25,7 +25,9 @@ export const MTForumPost = {
 		PopsPanel.execMenu("mt-forum-post-removeCommentFontStyle", () => {
 			this.removeCommentFontStyle();
 		});
-
+		PopsPanel.execMenuOnce("mt-forum-post-hideBottomInfoBlock", () => {
+			return this.hideBottomInfoBlock();
+		});
 		DOMUtils.ready(() => {
 			PopsPanel.execMenuOnce("mt-forum-post-loadNextPageComment", () => {
 				this.loadNextPageComment();
@@ -659,50 +661,68 @@ export const MTForumPost = {
 	 */
 	showUserLevel() {
 		log.info(`显示用户等级`);
-		$$<HTMLElement>(".pls.favatar").forEach((userAvatarItem) => {
-			let userLevel = "0级";
-			let userInfo = userAvatarItem.querySelector<HTMLElement>("tr")!;
-			let currentLevelText =
-				userAvatarItem.querySelector<HTMLElement>("p em")!.innerText;
-			let userLevelText = document.createElement("td");
-			userLevelText.setAttribute("style", "border-left: 1px solid #e3e3e3;");
-			switch (currentLevelText) {
-				case "幼儿园":
-					userLevel = "1级";
-					break;
-				case "小学生":
-					userLevel = "2级";
-					break;
-				case "初中生":
-					userLevel = "3级";
-					break;
-				case "高中生":
-					userLevel = "4级";
-					break;
-				case "大学生":
-					userLevel = "5级";
-					break;
-				case "硕士生":
-					userLevel = "6级";
-					break;
-				case "博士生":
-				case "实习版主":
-				case "版主":
-				case "审核员":
-					userLevel = "7级";
-					break;
-				case "博士后":
-				case "超级版主":
-				case "网站编辑":
-					userLevel = "8级";
-					break;
-				case "管理员":
-				case "信息监察员":
-					userLevel = "9级";
-					break;
+		$$<HTMLElement>(".pls.favatar:not([data-show-user-level])").forEach(
+			($userAvatar) => {
+				$userAvatar.setAttribute("data-show-user-level", "true");
+				let userLevel = "0级";
+				let userInfo = $userAvatar.querySelector<HTMLElement>("tr")!;
+				let currentLevelText =
+					$userAvatar.querySelector<HTMLElement>("p em")!.innerText;
+				let userLevelText = document.createElement("td");
+				userLevelText.setAttribute("style", "border-left: 1px solid #e3e3e3;");
+				switch (currentLevelText) {
+					case "幼儿园":
+						userLevel = "1级";
+						break;
+					case "小学生":
+						userLevel = "2级";
+						break;
+					case "初中生":
+						userLevel = "3级";
+						break;
+					case "高中生":
+						userLevel = "4级";
+						break;
+					case "大学生":
+						userLevel = "5级";
+						break;
+					case "硕士生":
+						userLevel = "6级";
+						break;
+					case "博士生":
+					case "实习版主":
+					case "版主":
+					case "审核员":
+						userLevel = "7级";
+						break;
+					case "博士后":
+					case "超级版主":
+					case "网站编辑":
+						userLevel = "8级";
+						break;
+					case "管理员":
+					case "信息监察员":
+						userLevel = "9级";
+						break;
+				}
+				userLevelText.innerHTML = `<p><a class="dj">${userLevel}</a></p>Lv`;
+				userInfo.appendChild(userLevelText);
 			}
-			userLevelText.innerHTML = `<p><a class="dj">${userLevel}</a></p>Lv`;
-			userInfo.appendChild(userLevelText);
-		});
+		);
+	},
+	/**
+	 * 隐藏底部信息块
+	 */
+	hideBottomInfoBlock() {
+		log.info(`隐藏底部信息块`);
+		return addStyle(/*css*/ `
+			.pls .favatar>*:not([id^="userinfo"]+div){
+				display: none;
+			}
+			.pls .favatar>div[id^="userinfo"],
+			.pls .favatar>div.tns{
+				display: block;
+			}
+		`);
 	},
 };

@@ -1,6 +1,5 @@
 import { DOMUtils, addStyle, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
-import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
+import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import Qmsg from "qmsg";
 
 /** 等待设置vue某个值的配置 */
@@ -12,19 +11,19 @@ type VueWaitSetOption = {
 	/**
 	 * 检测属性的函数
 	 */
-	check(vueInstance: Vue2Context): boolean;
+	check(vueInstance: Vue2Instance): boolean;
 	/**
 	 * 进行设置
 	 */
-	set(vueInstance: Vue2Context): void;
+	set(vueInstance: Vue2Instance): void;
 };
 export const VueUtils = {
 	/**
 	 * 获取元素上的__vue__属性
 	 * @param element
 	 */
-	getVue(element: HTMLElement | Node | Element): Vue2Context | null {
-		return (element as any)?.__vue__ as Vue2Context | null;
+	getVue(element: HTMLElement | Node | Element): Vue2Instance | null {
+		return (element as any)?.__vue__ as Vue2Instance | null;
 	},
 	/**
 	 * 等待vue属性并进行设置
@@ -140,7 +139,7 @@ export const VueUtils = {
 	 * @param option 配置
 	 */
 	hookGestureReturnByVueRouter(option: {
-		vueInstance: Vue2Context;
+		vueInstance: Vue2Instance;
 		hash: string;
 		/**
 		 *
