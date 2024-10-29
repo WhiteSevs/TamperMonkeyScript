@@ -93,7 +93,7 @@ export const MTBlackHome = {
 					text: "关闭",
 				},
 			},
-			width: "80vw",
+			width: "88vw",
 			height: "82vh",
 			style: blackHomeCSS,
 			mask: {

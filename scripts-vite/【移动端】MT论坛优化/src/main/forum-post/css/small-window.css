@@ -74,10 +74,10 @@
 .small-window-control-image-view,
 .small-window-control-open-blank,
 .small-window-control-close {
-	width: 100%;
+	width: 2rem;
+	height: 2rem;
 	text-align: center;
 	margin: 0 0;
-	height: 100%;
 	display: flex;
 	justify-content: center;
 	align-items: center;

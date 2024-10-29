@@ -67,7 +67,7 @@ export const MTOnlineUser = {
 					type: "default",
 				},
 			},
-			width: "80vw",
+			width: "88vw",
 			height: "82vh",
 			style: onlineUserCSS,
 			mask: {

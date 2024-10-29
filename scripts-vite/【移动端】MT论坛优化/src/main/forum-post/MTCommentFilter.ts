@@ -355,7 +355,7 @@ export const MTCommentFilter = {
 					"评论关键字",
 					"keywords",
 					"",
-					"多个评论关键字换行分割",
+					"多个关键字换行分割",
 					void 0
 				);
 
@@ -450,6 +450,12 @@ export const MTCommentFilter = {
                                 ${this.$el.isFilterElementHTML.join("\n")}
                                 `,
 								html: true,
+							},
+							btn: {
+								ok: {
+									type: "default",
+									text: "关闭",
+								},
 							},
 							mask: {
 								enable: true,

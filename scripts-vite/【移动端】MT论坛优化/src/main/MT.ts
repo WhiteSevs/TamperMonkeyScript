@@ -63,7 +63,12 @@ export const MT = {
 			});
 		}
 
-		if (Router.isSearch() || Router.isGuide() || Router.isSpace()) {
+		if (
+			Router.isSearch() ||
+			Router.isGuide() ||
+			Router.isSpace() ||
+			Router.isPlate()
+		) {
 			PopsPanel.execMenuOnce("mt-small-window", () => {
 				MTSmallWindow.init();
 			});
