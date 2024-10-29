@@ -1314,3 +1314,10 @@ export declare interface HttpxHookErrorData {
 	/** 请求的配置 */
 	details: HttpxRequestOption;
 }
+
+/**
+ * httpx的自定义Promise，包含额外函数
+ */
+export declare interface HttpxPromise<T> extends Promise<T> {
+	abort: () => void;
+}

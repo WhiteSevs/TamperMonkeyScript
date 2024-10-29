@@ -6,6 +6,7 @@ import type {
 	HttpxRequestOptionConfig,
 	HttpxResponse,
 	HttpxResponseData,
+	HttpxPromise,
 } from "./types/Httpx";
 import { Utils } from "./Utils";
 import { GenerateUUID } from "./UtilsCommon";
