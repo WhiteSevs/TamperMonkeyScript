@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.30.21
+// @version      2024.10.30.22
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -18,7 +18,7 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
-// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/ArtPlayer@50c12a7933425e2849f84af7e2ff1bccf0f8ecf0/packages/artplayer-plugin-danmuku/dist/artplayer-plugin-danmuku.js
+// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/ArtPlayer@07f0c901200839428822fb04776b90c3499134cf/packages/artplayer-plugin-danmuku/dist/artplayer-plugin-danmuku.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/ArtPlayer@3cbe20292ddaf3018362944c2e6e06250b463d14/packages/artplayer/dist/artplayer.js
 // @connect      *
 // @connect      m.bilibili.com
