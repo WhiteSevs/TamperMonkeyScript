@@ -30,13 +30,13 @@
 
 ## 开发库信息
 
-| 名称         | 描述                                                                         | 发布地址                                                                                                                                             |
-| :----------- | :--------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **CoverUMD** | 覆盖**umd**打包的库的前置判断浏览器环境，建议把本库作为第一个引用            | **[Greasyfork](https://greasyfork.org/zh-CN/scripts/494167-coverumd)**                                                                               |
-| **DOMUtils** | 对jQuery的部分函数进行仿写，旨在替换jQuery                                   | **[Greasyfork](https://greasyfork.org/zh-CN/scripts/465772-domutils)** \| **[jsdelivr](https://www.jsdelivr.com/package/npm/@whitesev/domutils)**    |
-| **Qmsg**     | 一款优雅的原生JS页面消息提示插件                                             | **[Greasyfork](https://greasyfork.org/zh-CN/scripts/462234-message)** \| **[jsdelivr](https://www.jsdelivr.com/package/npm/qmsg)**                   |
-| **Utils**    | 内置多种实用工具类，例如等待元素出现的**waitNode**，网络请求函数**Httpx**... | **[Greasyfork](https://greasyfork.org/zh-CN/scripts/455186-whitesevsutils)** \| **[jsdelivr](https://www.jsdelivr.com/package/npm/@whitesev/utils)** |
-| **pops**     | 弹窗库，其中也有适合脚本设置菜单的**pops.panel**函数                         | **[Greasyfork](https://greasyfork.org/zh-CN/scripts/456485-pops)** \| **[jsdelivr](https://www.jsdelivr.com/package/npm/@whitesev/pops)**            |
+| 名称                                                                                 | 描述                                           | 发布地址                                                                                                                                             |
+| :----------------------------------------------------------------------------------- | :--------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [CoverUMD](https://github.com/WhiteSevs/TamperMonkeyScript/tree/master/lib/CoverUMD) | 覆盖**umd**打包的库的前置判断浏览器环境        | **[Greasyfork](https://greasyfork.org/zh-CN/scripts/494167-coverumd)**                                                                               |
+| [DOMUtils](https://github.com/WhiteSevs/TamperMonkeyScript/tree/master/lib/DOMUtils) | 对jQuery的部分函数进行仿写                     | **[Greasyfork](https://greasyfork.org/zh-CN/scripts/465772-domutils)** \| **[jsdelivr](https://www.jsdelivr.com/package/npm/@whitesev/domutils)**    |
+| [Qmsg](https://github.com/WhiteSevs/TamperMonkeyScript/tree/master/lib/Qmsg)         | 一款优雅的原生JS页面消息提示插件               | **[Greasyfork](https://greasyfork.org/zh-CN/scripts/462234-message)** \| **[jsdelivr](https://www.jsdelivr.com/package/npm/qmsg)**                   |
+| [Utils](https://github.com/WhiteSevs/TamperMonkeyScript/tree/master/lib/Utils)       | 内置多种实用工具类如**waitNode**、**Httpx**... | **[Greasyfork](https://greasyfork.org/zh-CN/scripts/455186-whitesevsutils)** \| **[jsdelivr](https://www.jsdelivr.com/package/npm/@whitesev/utils)** |
+| [pops](https://github.com/WhiteSevs/TamperMonkeyScript/tree/master/lib/pops)         | 弹窗库                                         | **[Greasyfork](https://greasyfork.org/zh-CN/scripts/456485-pops)** \| **[jsdelivr](https://www.jsdelivr.com/package/npm/@whitesev/pops)**            |
 ****
 
 ## Tampermonkey `v5.0.0` 后脚本在 `部分网站` 无法正常运行？
