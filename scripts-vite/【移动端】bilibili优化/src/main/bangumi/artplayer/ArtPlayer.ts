@@ -288,26 +288,46 @@ export const BilibiliBangumiArtPlayer = {
 				artplayerPluginDanmuku({
 					danmuku: option.danmukuUrl,
 					// 以下为非必填
-					speed: localArtDanmakuOption.speed, // 弹幕持续时间，范围在[1 ~ 10]
-					margin: localArtDanmakuOption["margin"], // 弹幕上下边距，支持像素数字和百分比
-					opacity: localArtDanmakuOption["opacity"], // 弹幕透明度，范围在[0 ~ 1]
-					color: "#FFFFFF", // 默认弹幕颜色，可以被单独弹幕项覆盖
-					mode: 0, // 默认弹幕模式: 0: 滚动，1: 顶部，2: 底部
-					modes: localArtDanmakuOption["modes"], // 弹幕可见的模式
-					fontSize: localArtDanmakuOption["fontSize"], // 弹幕字体大小，支持像素数字和百分比
-					antiOverlap: localArtDanmakuOption["antiOverlap"], // 弹幕是否防重叠
-					synchronousPlayback: localArtDanmakuOption["synchronousPlayback"], // 是否同步播放速度
-					mount: undefined, // 弹幕发射器挂载点, 默认为播放器控制栏中部
-					heatmap: true, // 是否开启热力图
-					width: 800, // 当播放器宽度小于此值时，弹幕发射器置于播放器底部
-					points: [], // 热力图数据
-					filter: (danmu) => danmu.text.length <= 100, // 弹幕载入前的过滤器
-					beforeVisible: () => true, // 弹幕显示前的过滤器，返回 true 则可以发送
-					visible: localArtDanmakuOption["visible"], // 弹幕层是否可见
-					emitter: false, // 是否开启弹幕发射器
-					maxLength: 50, // 弹幕输入框最大长度, 范围在[1 ~ 1000]
-					lockTime: 3, // 输入框锁定时间，范围在[1 ~ 60]
-					theme: utils.isThemeDark() ? "dark" : "light", // 弹幕主题，支持 dark 和 light，只在自定义挂载时生效
+					// 弹幕持续时间，范围在[1 ~ 10]
+					speed: localArtDanmakuOption.speed,
+					// 弹幕上下边距，支持像素数字和百分比
+					margin: localArtDanmakuOption["margin"],
+					// 弹幕透明度，范围在[0 ~ 1]
+					opacity: localArtDanmakuOption["opacity"],
+					// 默认弹幕颜色，可以被单独弹幕项覆盖
+					color: "#FFFFFF",
+					// 默认弹幕模式: 0: 滚动，1: 顶部，2: 底部
+					mode: 0,
+					// 弹幕可见的模式
+					modes: localArtDanmakuOption["modes"],
+					// 弹幕字体大小，支持像素数字和百分比
+					fontSize: localArtDanmakuOption["fontSize"],
+					// 弹幕是否防重叠
+					antiOverlap: localArtDanmakuOption["antiOverlap"],
+					// 是否同步播放速度
+					synchronousPlayback: localArtDanmakuOption["synchronousPlayback"],
+					// 弹幕发射器挂载点, 默认为播放器控制栏中部
+					mount: void 0,
+					// 是否开启热力图
+					heatmap: false,
+					// 当播放器宽度小于此值时，弹幕发射器置于播放器底部
+					width: 800,
+					// 热力图数据
+					points: [],
+					// 弹幕载入前的过滤器
+					filter: (danmu) => danmu.text.length <= 100,
+					// 弹幕显示前的过滤器，返回 true 则可以发送
+					beforeVisible: () => true,
+					// 弹幕层是否可见
+					visible: localArtDanmakuOption["visible"],
+					// 是否开启弹幕发射器
+					emitter: false,
+					// 弹幕输入框最大长度, 范围在[1 ~ 1000]
+					maxLength: 50,
+					// 输入框锁定时间，范围在[1 ~ 60]
+					lockTime: 3,
+					// 弹幕主题，支持 dark 和 light，只在自定义挂载时生效
+					theme: utils.isThemeDark() ? "dark" : "light",
 					// OPACITY: {}, // 不透明度配置项
 					// FONT_SIZE: {}, // 弹幕字号配置项
 					// MARGIN: {}, // 显示区域配置项

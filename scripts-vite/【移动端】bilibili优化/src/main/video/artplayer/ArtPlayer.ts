@@ -233,7 +233,7 @@ export const BilibiliVideoArtPlayer = {
 					// 弹幕发射器挂载点, 默认为播放器控制栏中部
 					mount: void 0,
 					// 是否开启热力图
-					heatmap: true,
+					heatmap: false,
 					// 当播放器宽度小于此值时，弹幕发射器置于播放器底部
 					width: 800,
 					// 热力图数据

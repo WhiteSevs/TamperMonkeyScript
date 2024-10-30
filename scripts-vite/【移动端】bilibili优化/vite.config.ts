@@ -152,7 +152,7 @@ export default defineConfig({
 					"artplayer-plugin-danmuku": [
 						"artplayerPluginDanmuku",
 						() =>
-							`https://fastly.jsdelivr.net/gh/WhiteSevs/ArtPlayer@e1349a55018c01dc6a12725ddd243b58b9fe0e6d/packages/artplayer-plugin-danmuku/dist/artplayer-plugin-danmuku.js`,
+							`https://fastly.jsdelivr.net/gh/WhiteSevs/ArtPlayer@78dcae673558915192020103d55bca9fc28b39ec/packages/artplayer-plugin-danmuku/dist/artplayer-plugin-danmuku.js`,
 					],
 					artplayer: [
 						`Artplayer`,
