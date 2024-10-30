@@ -18,7 +18,7 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
-// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/ArtPlayer@b57313ddfdec39891ecd64267fe2a6d554a52e23/packages/artplayer-plugin-danmuku/dist/artplayer-plugin-danmuku.js
+// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/ArtPlayer@50c12a7933425e2849f84af7e2ff1bccf0f8ecf0/packages/artplayer-plugin-danmuku/dist/artplayer-plugin-danmuku.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/ArtPlayer@3cbe20292ddaf3018362944c2e6e06250b463d14/packages/artplayer/dist/artplayer.js
 // @connect      *
 // @connect      m.bilibili.com
