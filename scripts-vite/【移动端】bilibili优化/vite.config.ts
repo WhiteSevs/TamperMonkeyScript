@@ -144,11 +144,21 @@ export default defineConfig({
 					"@whitesev/pops": cdn.jsdelivrFastly("pops", "dist/index.umd.js"),
 					md5: cdn.jsdelivrFastly("MD5", "dist/md5.min.js"),
 					"flv.js": cdn.jsdelivrFastly("MD5", "dist/flv.js"),
-					"artplayer-plugin-danmuku": cdn.jsdelivrFastly(
+					// "artplayer-plugin-danmuku": cdn.jsdelivrFastly(
+					// 	"artplayerPluginDanmuku",
+					// 	"dist/artplayer-plugin-danmuku.js"
+					// ),
+					// artplayer: cdn.jsdelivrFastly("Artplayer", "dist/artplayer.js"),
+					"artplayer-plugin-danmuku": [
 						"artplayerPluginDanmuku",
-						"dist/artplayer-plugin-danmuku.js"
-					),
-					artplayer: cdn.jsdelivrFastly("Artplayer", "dist/artplayer.js"),
+						() =>
+							`https://fastly.jsdelivr.net/gh/WhiteSevs/ArtPlayer@3cbe20292ddaf3018362944c2e6e06250b463d14/packages/artplayer-plugin-danmuku/dist/artplayer-plugin-danmuku.js`,
+					],
+					artplayer: [
+						`Artplayer`,
+						() =>
+							`https://fastly.jsdelivr.net/gh/WhiteSevs/ArtPlayer@3cbe20292ddaf3018362944c2e6e06250b463d14/packages/artplayer/dist/artplayer.js`,
+					],
 				},
 			},
 		}),

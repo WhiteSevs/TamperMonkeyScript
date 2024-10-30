@@ -1,6 +1,6 @@
 import { DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
+import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import Qmsg from "qmsg";
 import { VueUtils } from "./VueUtils";
 
@@ -106,7 +106,7 @@ export const BilibiliUtils = {
 	 * 手势返回
 	 */
 	hookGestureReturnByVueRouter(option: {
-		vueObj: Vue2Context;
+		vueObj: Vue2Instance;
 		hash: string;
 		/**
 		 *

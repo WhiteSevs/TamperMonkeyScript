@@ -1,6 +1,6 @@
 import { OriginPrototype, log, utils } from "@/env";
 import { VueUtils } from "@/utils/VueUtils";
-import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
+import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import { unsafeWindow } from "ViteGM";
 
 const BilibiliHook = {
@@ -90,7 +90,7 @@ const BilibiliHook = {
 			return;
 		}
 		this.$isHook.overRideLaunchAppBtn_Vue_openApp = true;
-		function overrideOpenApp(vueObj: Vue2Context) {
+		function overrideOpenApp(vueObj: Vue2Instance) {
 			if (typeof vueObj.openApp !== "function") {
 				/* openApp函数不存在 */
 				return;

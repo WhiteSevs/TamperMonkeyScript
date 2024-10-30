@@ -4,7 +4,7 @@ import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliUrl } from "@/utils/BilibiliUrl";
 import { BilibiliData } from "@/data/BlibiliData";
 import BilibiliVideoBeautifyCSS from "./BilibiliVideoBeautify.css?raw";
-import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
+import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import { VueUtils } from "@/utils/VueUtils";
 import { BilibiliVideoPlayer } from "./BilibiliVideoPlayer";
 
@@ -378,8 +378,8 @@ const BilibiliVideo = {
 					}
 					let oldScrollBehavior = appVue.$router.options.scrollBehavior;
 					appVue.$router.options.scrollBehavior = function (
-						to: Vue2Context["$route"],
-						from: Vue2Context["$route"],
+						to: Vue2Instance["$route"],
+						from: Vue2Instance["$route"],
 						scrollInfo?: {
 							x: number;
 							y: number;

@@ -1,7 +1,6 @@
 import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { BilibiliUtils } from "@/utils/BilibiliUtils";
-import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
+import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import { VueUtils } from "@/utils/VueUtils";
 import { BilibiliHead } from "./head/BilibiliHead";
 
@@ -56,33 +55,33 @@ export const BilibiliVueProp = {
 		VueUtils.waitVuePropToSet("#app", [
 			{
 				msg: "设置参数 $store.state.common.noCallApp",
-				check(vueIns: Vue2Context) {
+				check(vueIns: Vue2Instance) {
 					return typeof vueIns?.$store?.state?.common?.noCallApp === "boolean";
 				},
-				set(vueIns: Vue2Context) {
+				set(vueIns: Vue2Instance) {
 					log.success("成功设置参数 $store.state.common.noCallApp=true");
 					vueIns.$store.state.common.noCallApp = true;
 				},
 			},
 			{
 				msg: "设置参数 $store.state.common.userInfo.isLogin",
-				check(vueObj: Vue2Context) {
+				check(vueObj: Vue2Instance) {
 					return (
 						typeof vueObj?.$store?.state?.common?.userInfo?.isLogin ===
 						"boolean"
 					);
 				},
-				set(vueObj: Vue2Context) {
+				set(vueObj: Vue2Instance) {
 					log.success("成功设置参数 $store.state.common.userInfo.isLogin=true");
 					vueObj.$store.state.common.userInfo.isLogin = true;
 				},
 			},
 			{
 				msg: "设置参数 $store.state.loginInfo.isLogin",
-				check(vueObj: Vue2Context) {
+				check(vueObj: Vue2Instance) {
 					return typeof vueObj?.$store?.state?.loginInfo?.isLogin === "boolean";
 				},
-				set(vueObj: Vue2Context) {
+				set(vueObj: Vue2Instance) {
 					log.success("成功设置参数 $store.state.loginInfo.isLogin=true");
 					vueObj.$store.state.loginInfo.isLogin = true;
 				},
@@ -102,52 +101,52 @@ export const BilibiliVueProp = {
 		VueUtils.waitVuePropToSet("#app", [
 			{
 				msg: "设置参数 $store.state.video.isClient",
-				check(vueIns: Vue2Context) {
+				check(vueIns: Vue2Instance) {
 					return (
 						typeof typeof vueIns?.$store?.state?.video?.isClient === "boolean"
 					);
 				},
-				set(vueIns: Vue2Context) {
+				set(vueIns: Vue2Instance) {
 					log.success("成功设置参数 $store.state.video.isClient=true");
 					vueIns.$store.state.video.isClient = true;
 				},
 			},
 			{
 				msg: "设置参数 $store.state.opus.isClient=true",
-				check(vueObj: Vue2Context) {
+				check(vueObj: Vue2Instance) {
 					return typeof vueObj?.$store?.state?.opus?.isClient === "boolean";
 				},
-				set(vueObj: Vue2Context) {
+				set(vueObj: Vue2Instance) {
 					log.success("成功设置参数 $store.state.opus.isClient");
 					vueObj.$store.state.opus.isClient = true;
 				},
 			},
 			{
 				msg: "设置参数 $store.state.playlist.isClient",
-				check(vueObj: Vue2Context) {
+				check(vueObj: Vue2Instance) {
 					return typeof vueObj?.$store?.state?.playlist?.isClient === "boolean";
 				},
-				set(vueObj: Vue2Context) {
+				set(vueObj: Vue2Instance) {
 					log.success("成功设置参数 $store.state.playlist.isClient=true");
 					vueObj.$store.state.playlist.isClient = true;
 				},
 			},
 			{
 				msg: "设置参数 $store.state.ver.bili",
-				check(vueObj: Vue2Context) {
+				check(vueObj: Vue2Instance) {
 					return typeof vueObj?.$store?.state?.ver?.bili === "boolean";
 				},
-				set(vueObj: Vue2Context) {
+				set(vueObj: Vue2Instance) {
 					log.success("成功设置参数 $store.state.ver.bili=true");
 					vueObj.$store.state.ver.bili = true;
 				},
 			},
 			{
 				msg: "设置参数 $store.state.ver.biliVer",
-				check(vueObj: Vue2Context) {
+				check(vueObj: Vue2Instance) {
 					return typeof vueObj?.$store?.state?.ver?.biliVer === "number";
 				},
-				set(vueObj: Vue2Context) {
+				set(vueObj: Vue2Instance) {
 					log.success("成功设置参数 $store.state.ver.biliVer=2333333");
 					vueObj.$store.state.ver.biliVer = 2333333;
 				},

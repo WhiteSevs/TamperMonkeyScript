@@ -2,7 +2,7 @@ import { addStyle, DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { unsafeWindow } from "ViteGM";
 import { BilibiliData } from "@/data/BlibiliData";
-import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
+import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import { VueUtils } from "@/utils/VueUtils";
 import artPlayerCSS from "./artplayer/index.css?raw";
 import artPlayerCommonCSS from "@/player/player.css?raw";
@@ -58,25 +58,25 @@ const BilibiliBangumi = {
 		VueUtils.waitVuePropToSet("#app", [
 			{
 				msg: "设置参数 $store.state.userStat.pay",
-				check(vueIns: Vue2Context) {
+				check(vueIns: Vue2Instance) {
 					return (
 						typeof typeof vueIns?.$store?.state?.userStat?.pay === "number"
 					);
 				},
-				set(vueIns: Vue2Context) {
+				set(vueIns: Vue2Instance) {
 					log.success("成功设置参数 $store.state.userStat.pay=1");
 					vueIns.$store.state.userStat.pay = 1;
 				},
 			},
 			{
 				msg: "设置参数 $store.state.mediaInfo.user_status.pay",
-				check(vueObj: Vue2Context) {
+				check(vueObj: Vue2Instance) {
 					return (
 						typeof vueObj?.$store?.state?.mediaInfo?.user_status?.pay ===
 						"number"
 					);
 				},
-				set(vueObj: Vue2Context) {
+				set(vueObj: Vue2Instance) {
 					log.success("成功设置参数 $store.state.mediaInfo.user_status.pay=1");
 					vueObj.$store.state.mediaInfo.user_status.pay = 1;
 				},

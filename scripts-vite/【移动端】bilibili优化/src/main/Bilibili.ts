@@ -14,7 +14,7 @@ import { BilibiliDynamic } from "./dynamic/BilibiliDynamic";
 import { BilibiliHook } from "@/hook/BilibiliHook";
 import { BilibiliHead } from "./head/BilibiliHead";
 import { BilibiliReadMobile } from "./read/mobile/BilibiliReadMobile";
-import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
+import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import { BilibiliSpace } from "./space/BilibiliSpace";
 import { VueUtils } from "@/utils/VueUtils";
 import { BilibiliVueProp } from "./BilibiliVueProp";
@@ -93,7 +93,7 @@ const Bilibili = {
 	 */
 	listenRouterChange() {
 		utils.waitNode<HTMLDivElement>("#app").then(($app: any) => {
-			let check = function (vueObj: Vue2Context) {
+			let check = function (vueObj: Vue2Instance) {
 				return typeof vueObj?.$router?.afterEach === "function";
 			};
 			utils.waitVueByInterval($app, check).then(() => {
@@ -105,8 +105,8 @@ const Bilibili = {
 					log.success("成功设置监听路由变化");
 					$app.__vue__.$router.beforeEach(
 						(
-							to: Vue2Context["$route"],
-							from: Vue2Context["$route"],
+							to: Vue2Instance["$route"],
+							from: Vue2Instance["$route"],
 							next: Function
 						) => {
 							log.info("路由变化 => 更新前", {
@@ -171,7 +171,7 @@ const Bilibili = {
 						}
 					);
 					$app.__vue__.$router.afterEach(
-						(to: Vue2Context["$route"], from: Vue2Context["$route"]) => {
+						(to: Vue2Instance["$route"], from: Vue2Instance["$route"]) => {
 							log.info("路由变化 => 更新后", {
 								to,
 								from,

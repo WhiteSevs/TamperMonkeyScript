@@ -1,7 +1,7 @@
 import { log, utils } from "@/env";
 import { BilibiliPlayerToast } from "@/player/BilibiliPlayerToast";
 import { VideoQualityNameMap } from "@/video-info/VideoDict";
-import { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/AjaxHookerType";
+import { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
 
 let _ajaxHooker_ = null as any as UtilsAjaxHookResult;
 
