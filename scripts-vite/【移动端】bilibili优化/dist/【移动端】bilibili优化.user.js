@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.30
+// @version      2024.10.30.21
 // @author       WhiteSevs
 // @description  移动端专用，免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -18,7 +18,7 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
-// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/ArtPlayer@3cbe20292ddaf3018362944c2e6e06250b463d14/packages/artplayer-plugin-danmuku/dist/artplayer-plugin-danmuku.js
+// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/ArtPlayer@fc568efb54fb6d18d76fe5ccb84f13532cbc8930/packages/artplayer-plugin-danmuku/dist/artplayer-plugin-danmuku.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/ArtPlayer@3cbe20292ddaf3018362944c2e6e06250b463d14/packages/artplayer/dist/artplayer.js
 // @connect      *
 // @connect      m.bilibili.com
@@ -3431,6 +3431,9 @@
         _GM_getValue(this.$data.KEY, {})
       );
     }
+    /**
+     * 获取默认配置
+     */
     getDefaultDanmakuOption() {
       return {
         speed: 5,
@@ -3443,15 +3446,15 @@
         visible: true
       };
     }
+    /**
+     * 获取本地保存的配置
+     */
     getLocalArtDanmakuOption() {
       return this.$data.localArtDanmakuOption;
     }
-    /**
-     * 移除Danmaku的resize事件，该事件可能会导致浏览器卡死
-     */
     repairBrowserNoResponse(art) {
       console.warn(
-        TAG$5 + "目前尚未知晓导致浏览器卡死的原因是哪里的问题，但是启用该弹幕插件100%复现，复现操作：点击播放，然后重复全屏和退出全屏，拖动进度到弹幕量最多的时间点，过一会卡死"
+        TAG$5 + "目前尚未知晓导致浏览器卡死的原因是哪里的问题，但是启用该弹幕插件100%复现，复现操作：点击播放，点击全屏，再点击屏幕隐藏播放器的setting，使用浏览器手势后退退出全屏，这时候浏览器直接卡死"
       );
     }
     onConfigChange(art) {
@@ -3459,6 +3462,7 @@
         // @ts-ignore
         "artplayerPluginDanmuku:config",
         (option) => {
+          console.log(TAG$5 + "更新配置项", option);
           Object.keys(this.$data.localArtDanmakuOption).forEach((key) => {
             if (Reflect.has(option, key)) {
               let value = Reflect.get(option, key);
@@ -5376,46 +5380,46 @@
           artplayerPluginDanmuku({
             danmuku: option.danmukuUrl,
             // 以下为非必填
-            speed: localArtDanmakuOption.speed,
             // 弹幕持续时间，范围在[1 ~ 10]
-            margin: localArtDanmakuOption["margin"],
+            speed: localArtDanmakuOption.speed,
             // 弹幕上下边距，支持像素数字和百分比
-            opacity: localArtDanmakuOption["opacity"],
+            margin: localArtDanmakuOption["margin"],
             // 弹幕透明度，范围在[0 ~ 1]
-            color: "#FFFFFF",
+            opacity: localArtDanmakuOption["opacity"],
             // 默认弹幕颜色，可以被单独弹幕项覆盖
-            mode: 0,
+            color: "#FFFFFF",
             // 默认弹幕模式: 0: 滚动，1: 顶部，2: 底部
-            modes: localArtDanmakuOption["modes"],
+            mode: 0,
             // 弹幕可见的模式
-            fontSize: localArtDanmakuOption["fontSize"],
+            modes: localArtDanmakuOption["modes"],
             // 弹幕字体大小，支持像素数字和百分比
-            antiOverlap: localArtDanmakuOption["antiOverlap"],
+            fontSize: localArtDanmakuOption["fontSize"],
             // 弹幕是否防重叠
-            synchronousPlayback: localArtDanmakuOption["synchronousPlayback"],
+            antiOverlap: localArtDanmakuOption["antiOverlap"],
             // 是否同步播放速度
-            mount: void 0,
+            synchronousPlayback: localArtDanmakuOption["synchronousPlayback"],
             // 弹幕发射器挂载点, 默认为播放器控制栏中部
-            heatmap: true,
+            mount: void 0,
             // 是否开启热力图
-            width: 800,
+            heatmap: true,
             // 当播放器宽度小于此值时，弹幕发射器置于播放器底部
-            points: [],
+            width: 800,
             // 热力图数据
-            filter: (danmu) => danmu.text.length <= 100,
+            points: [],
             // 弹幕载入前的过滤器
-            beforeVisible: () => true,
+            filter: (danmu) => danmu.text.length <= 100,
             // 弹幕显示前的过滤器，返回 true 则可以发送
-            visible: localArtDanmakuOption["visible"],
+            beforeVisible: () => true,
             // 弹幕层是否可见
-            emitter: false,
+            visible: localArtDanmakuOption["visible"],
             // 是否开启弹幕发射器
-            maxLength: 50,
+            emitter: false,
             // 弹幕输入框最大长度, 范围在[1 ~ 1000]
-            lockTime: 3,
+            maxLength: 50,
             // 输入框锁定时间，范围在[1 ~ 60]
-            theme: utils.isThemeDark() ? "dark" : "light",
+            lockTime: 3,
             // 弹幕主题，支持 dark 和 light，只在自定义挂载时生效
+            theme: utils.isThemeDark() ? "dark" : "light",
             // OPACITY: {}, // 不透明度配置项
             // FONT_SIZE: {}, // 弹幕字号配置项
             // MARGIN: {}, // 显示区域配置项
