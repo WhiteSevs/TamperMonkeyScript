@@ -10,13 +10,24 @@ import { DouYinLive } from "./Live/DouYinLive";
 import { DouYinRedirect } from "./DouYinRedirect";
 import { DouYinSearch } from "./search/DouYinSearch";
 import { BlockLeftNavigator } from "./block-frame/blockLeftNavigator";
+import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
 
 export const DouYin = {
 	init() {
-		DouYinRedirect.init();
-		PopsPanel.execMenuOnce("debug", () => {
-			DouYinHook.removeEnvCheck();
+		PopsPanel.onceExec("hookKeyboard", () => {
+			DouYinHook.disableShortCut();
 		});
+		if (DouYinRouter.isVideo()) {
+			PopsPanel.execMenuOnce("dy-video-disableDoubleClickLike", () => {
+				DouYinHook.disableDoubleClickLike();
+			});
+		} else if (DouYinRouter.isLive()) {
+			PopsPanel.execMenuOnce("dy-live-disableDoubleClickLike", () => {
+				DouYinHook.disableDoubleClickLike();
+			});
+		}
+		DouYinNetWorkHook.init();
+		DouYinRedirect.init();
 		PopsPanel.execMenuOnce("watchLoginDialogToClose", () => {
 			DouYinAccount.watchLoginDialogToClose();
 		});

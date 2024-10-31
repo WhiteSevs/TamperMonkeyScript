@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.27
+// @version      2024.10.31
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,9 +11,9 @@
 // @match        *://*.iesdouyin.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.1/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
 // @grant        GM_getValue
@@ -106,65 +106,6 @@
         type: "forms",
         forms: [
           {
-            text: "功能",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "debug模式",
-                    "debug",
-                    true,
-                    void 0,
-                    "移除抖音的开发者模式检测"
-                  ),
-                  UISwitch(
-                    "伪装登录",
-                    "disguiseLogin",
-                    false,
-                    void 0,
-                    "使用随机UID进行伪装"
-                  ),
-                  UISwitch(
-                    "initial-scale=1",
-                    "dy-initialScale",
-                    false,
-                    void 0,
-                    "可配合手机模式放大页面"
-                  ),
-                  UISwitch(
-                    "移除<meta> apple-itunes-app",
-                    "dy-apple-removeMetaAppleItunesApp",
-                    true,
-                    void 0,
-                    "Safari使用，移除顶部横幅【Open in the 抖音 app】"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: "Url重定向",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "重定向/home",
-                    "douyin-redirect-url-home-to-root",
-                    false,
-                    void 0,
-                    "/home => /"
-                  )
-                ]
-              }
-            ]
-          },
-          {
             text: "Toast配置",
             type: "deepMenu",
             forms: [
@@ -254,6 +195,280 @@
                     false,
                     void 0,
                     "修改Toast弹出的顺序"
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        type: "forms",
+        text: "",
+        forms: [
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "伪装登录",
+                    "disguiseLogin",
+                    false,
+                    void 0,
+                    "使用随机UID进行伪装"
+                  ),
+                  UISwitch(
+                    "initial-scale=1",
+                    "dy-initialScale",
+                    false,
+                    void 0,
+                    "可配合手机模式放大页面"
+                  ),
+                  UISwitch(
+                    "移除<meta> apple-itunes-app",
+                    "dy-apple-removeMetaAppleItunesApp",
+                    true,
+                    void 0,
+                    "Safari使用，移除顶部横幅【Open in the 抖音 app】"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "Url重定向",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "重定向/home",
+                    "douyin-redirect-url-home-to-root",
+                    false,
+                    void 0,
+                    "/home => /"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            type: "deepMenu",
+            text: "快捷键禁用",
+            forms: [
+              {
+                type: "forms",
+                text: (
+                  /*html*/
+                  `
+								<a href="javascript:;" class="keyboard-oneClickOpen">一键开启</a>
+								<br>
+								<a href="javascript:;" class="keyboard-oneClickClose">一键关闭</a>
+							`
+                ),
+                afterAddToUListCallBack(formConfig, container) {
+                  const { target } = container;
+                  let $oneClickOpen = target.querySelector(
+                    ".keyboard-oneClickOpen"
+                  );
+                  let $oneClickClose = target.querySelector(
+                    ".keyboard-oneClickClose"
+                  );
+                  let clickCallBack = (isOpen) => {
+                    target == null ? void 0 : target.querySelectorAll(".pops-panel-switch").forEach(($ele) => {
+                      let $input = $ele.querySelector(
+                        ".pops-panel-switch__input"
+                      );
+                      let $checkbox = $ele.querySelector(
+                        ".pops-panel-switch__core"
+                      );
+                      if (isOpen) {
+                        if (!$input.checked) {
+                          $checkbox.click();
+                        }
+                      } else {
+                        if ($input.checked) {
+                          $checkbox.click();
+                        }
+                      }
+                    });
+                  };
+                  domUtils.on($oneClickOpen, "click", (event) => {
+                    utils.preventEvent(event);
+                    clickCallBack(true);
+                  });
+                  domUtils.on($oneClickClose, "click", (event) => {
+                    utils.preventEvent(event);
+                    clickCallBack(false);
+                  });
+                },
+                forms: [
+                  UISwitch(
+                    "赞|取消赞",
+                    "dy-keyboard-hook-likeOrDislike",
+                    false,
+                    void 0,
+                    "Z"
+                  ),
+                  UISwitch(
+                    "评论",
+                    "dy-keyboard-hook-comment",
+                    false,
+                    void 0,
+                    "X"
+                  ),
+                  UISwitch(
+                    "开启/关闭弹幕",
+                    "dy-keyboard-hook-danmaku-enable",
+                    false,
+                    void 0,
+                    "B"
+                  ),
+                  UISwitch(
+                    "收藏/取消收藏",
+                    "dy-keyboard-hook-collect-enable",
+                    false,
+                    void 0,
+                    "C"
+                  ),
+                  UISwitch(
+                    "复制分享口令",
+                    "dy-keyboard-hook-copyShareLink",
+                    false,
+                    void 0,
+                    "V"
+                  ),
+                  UISwitch(
+                    "清屏",
+                    "dy-keyboard-hook-clearScreen",
+                    false,
+                    void 0,
+                    "J"
+                  ),
+                  UISwitch(
+                    "自动连播",
+                    "dy-keyboard-hook-automaticBroadcast",
+                    false,
+                    void 0,
+                    "K"
+                  ),
+                  UISwitch(
+                    "视频信息",
+                    "dy-keyboard-hook-videoInfo",
+                    false,
+                    void 0,
+                    "I"
+                  ),
+                  UISwitch(
+                    "不感兴趣",
+                    "dy-keyboard-hook-notInterested",
+                    false,
+                    void 0,
+                    "R"
+                  ),
+                  UISwitch(
+                    "进入作者主页",
+                    "dy-keyboard-hook-enterAuthorHomePage",
+                    false,
+                    void 0,
+                    "F"
+                  ),
+                  UISwitch(
+                    "关注/取消关注",
+                    "dy-keyboard-hook-follow",
+                    false,
+                    void 0,
+                    "G"
+                  ),
+                  UISwitch(
+                    "抖音搜索",
+                    "dy-keyboard-hook-search",
+                    false,
+                    void 0,
+                    "Shift+F"
+                  ),
+                  UISwitch(
+                    "一键关闭当前页",
+                    "dy-keyboard-hook-closeTheCurrentPageWithOneClick",
+                    false,
+                    void 0,
+                    "Shift+Q"
+                  ),
+                  UISwitch(
+                    "上下翻页",
+                    "dy-keyboard-hook-pageUpAndDown",
+                    false,
+                    void 0,
+                    "↑↓"
+                  ),
+                  UISwitch(
+                    "快进快退",
+                    "dy-keyboard-hook-fastForwardAndFastBack",
+                    false,
+                    void 0,
+                    "← →"
+                  ),
+                  UISwitch(
+                    "暂停",
+                    "dy-keyboard-hook-pause",
+                    false,
+                    void 0,
+                    "空格"
+                  ),
+                  UISwitch(
+                    "网页内全屏",
+                    "dy-keyboard-hook-fullScreenInsideThePage",
+                    false,
+                    void 0,
+                    "Y"
+                  ),
+                  UISwitch(
+                    "全屏",
+                    "dy-keyboard-hook-fullScreen",
+                    false,
+                    void 0,
+                    "H"
+                  ),
+                  UISwitch(
+                    "稍后再看",
+                    "dy-keyboard-hook-watchItOutLater",
+                    false,
+                    void 0,
+                    "L"
+                  ),
+                  UISwitch(
+                    "音量调整",
+                    "dy-keyboard-hook-volumeAdjustment",
+                    false,
+                    void 0,
+                    "Shift + / Shift -"
+                  ),
+                  UISwitch(
+                    "呼出快捷键列表",
+                    "dy-keyboard-hook-listOfCallShortcutKeys",
+                    false,
+                    void 0,
+                    "?"
+                  ),
+                  UISwitch(
+                    "关闭快捷键列表",
+                    "dy-keyboard-hook-closeTheShortcutKeyList",
+                    false,
+                    void 0,
+                    "ESC"
+                  ),
+                  UISwitch(
+                    "相关推荐",
+                    "dy-keyboard-hook-relevantRecommendation",
+                    false,
+                    void 0,
+                    "N"
                   )
                 ]
               }
@@ -1354,6 +1569,13 @@
                     false,
                     void 0,
                     "开启后将在油猴菜单中新增菜单【⚙ PlayerInstance】，可解析当前的直播信息"
+                  ),
+                  UISwitch(
+                    "禁用双击点赞",
+                    "dy-live-disableDoubleClickLike",
+                    false,
+                    void 0,
+                    "禁止直播视频区域双击点赞"
                   )
                 ]
               },
@@ -1465,6 +1687,33 @@
                       return liElement;
                     }
                   }
+                ]
+              }
+            ]
+          },
+          {
+            type: "deepMenu",
+            text: "快捷键禁用",
+            forms: [
+              {
+                type: "forms",
+                text: "",
+                forms: [
+                  UISwitch("刷新", "dy-live-refresh", false, void 0, "E"),
+                  UISwitch(
+                    "屏幕旋转",
+                    "dy-live-screenRotation",
+                    false,
+                    void 0,
+                    "D"
+                  ),
+                  UISwitch(
+                    "开启小窗模式",
+                    "dy-live-enableSmallWindowMode",
+                    false,
+                    void 0,
+                    "U"
+                  )
                 ]
               }
             ]
@@ -3610,6 +3859,13 @@
                     false,
                     void 0,
                     "修复移动端不能点击拖拽和定位进度的问题(移动端使用)"
+                  ),
+                  UISwitch(
+                    "禁用双击点赞",
+                    "dy-video-disableDoubleClickLike",
+                    false,
+                    void 0,
+                    "禁止视频区域双击点赞"
                   )
                 ]
               },
@@ -3761,7 +4017,7 @@
             ]
           },
           {
-            text: "快捷键",
+            text: "自定义快捷键",
             type: "deepMenu",
             forms: [
               {
@@ -3794,6 +4050,46 @@
                     "点击录入快捷键",
                     void 0,
                     DouYinVideoShortcut.shortCut
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            type: "deepMenu",
+            text: "快捷键禁用",
+            forms: [
+              {
+                type: "forms",
+                text: "",
+                forms: [
+                  UISwitch(
+                    "上翻页",
+                    "dy-keyboard-hook-arrowUp-w",
+                    false,
+                    void 0,
+                    "W"
+                  ),
+                  UISwitch(
+                    "下翻页",
+                    "dy-keyboard-hook-arrowDown-s",
+                    false,
+                    void 0,
+                    "S"
+                  ),
+                  UISwitch(
+                    "快退",
+                    "dy-keyboard-hook-videoRewind",
+                    false,
+                    void 0,
+                    "A"
+                  ),
+                  UISwitch(
+                    "快进",
+                    "dy-keyboard-hook-videoFastForward",
+                    false,
+                    void 0,
+                    "D"
                   )
                 ]
               }
@@ -5149,7 +5445,7 @@
      * 获取设置面板的高度
      */
     getHeight() {
-      if (window.innerHeight > 450) {
+      if (window.innerHeight < 450) {
         return "80vh";
       } else {
         return "450px";
@@ -5656,7 +5952,124 @@
       );
     }
   };
+  const Hook = {
+    $data: {
+      document_addEventListener: [],
+      element_addEventListener: []
+    },
+    /**
+     * 劫持 document.addEventListener
+     * @param handler
+     */
+    document_addEventListener(handler) {
+      this.$data.document_addEventListener.push(handler);
+      log.info("document.addEventListener hook新增劫持判断回调");
+      if (this.$data.document_addEventListener.length > 1) {
+        return;
+      }
+      const that = this;
+      let weakMap = /* @__PURE__ */ new WeakMap();
+      const originAddEventListener = _unsafeWindow.document.addEventListener;
+      const originRemoveEventListener = _unsafeWindow.document.removeEventListener;
+      _unsafeWindow.document.addEventListener = function(...args) {
+        let target = this;
+        let eventName = args[0];
+        let listener = args[1];
+        let options = args[2];
+        for (let index = 0; index < that.$data.document_addEventListener.length; index++) {
+          const callback = that.$data.document_addEventListener[index];
+          const result = callback(target, eventName, listener, options);
+          if (typeof result === "function") {
+            args[1] = result;
+            weakMap.set(listener, {
+              eventName,
+              fn: result,
+              options
+            });
+          }
+        }
+        return Reflect.apply(originAddEventListener, this, args);
+      };
+      _unsafeWindow.document.removeEventListener = function(...args) {
+        let __eventName = args[0];
+        let __listener = args[1];
+        let __options = args[2];
+        if (weakMap.has(__listener)) {
+          const { eventName, fn, options } = weakMap.get(__listener);
+          let flag = false;
+          if (eventName === __eventName) {
+            if (typeof __options === "boolean" && __options === options) {
+              flag = true;
+            } else if (typeof __options === "object" && typeof options === "object" && __options["capture"] === options["capture"]) {
+              flag = true;
+            }
+          }
+          if (flag) {
+            args[1] = fn;
+          }
+        }
+        return originRemoveEventListener.apply(this, args);
+      };
+    },
+    /**
+     * 劫持 Element.property.addEventListener
+     * @param handler
+     */
+    element_addEventListener(handler) {
+      this.$data.element_addEventListener.push(handler);
+      log.info("Element.prototype.addEventListener hook新增劫持判断回调");
+      if (this.$data.element_addEventListener.length > 1) {
+        return;
+      }
+      const that = this;
+      let weakMap = /* @__PURE__ */ new WeakMap();
+      const originAddEventListener = _unsafeWindow.Element.prototype.addEventListener;
+      const originRemoveEventListener = _unsafeWindow.Element.prototype.removeEventListener;
+      _unsafeWindow.Element.prototype.addEventListener = function(...args) {
+        let target = this;
+        let eventName = args[0];
+        let listener = args[1];
+        let options = args[2];
+        for (let index = 0; index < that.$data.element_addEventListener.length; index++) {
+          const callback = that.$data.element_addEventListener[index];
+          const result = callback(target, eventName, listener, options);
+          if (typeof result === "function") {
+            args[1] = result;
+            weakMap.set(listener, {
+              eventName,
+              fn: result,
+              options
+            });
+          }
+        }
+        return Reflect.apply(originAddEventListener, this, args);
+      };
+      _unsafeWindow.Element.prototype.removeEventListener = function(...args) {
+        let __eventName = args[0];
+        let __listener = args[1];
+        let __options = args[2];
+        if (weakMap.has(__listener)) {
+          const { eventName, fn, options } = weakMap.get(__listener);
+          let flag = false;
+          if (eventName === __eventName) {
+            if (typeof __options === "boolean" && __options === options) {
+              flag = true;
+            } else if (typeof __options === "object" && typeof options === "object" && __options["capture"] === options["capture"]) {
+              flag = true;
+            }
+          }
+          if (flag) {
+            args[1] = fn;
+          }
+        }
+        return originRemoveEventListener.apply(this, args);
+      };
+    }
+  };
   const DouYinHook = {
+    $data: {
+      hookElementAddEventListener: []
+    },
     /**
      * 移除环境检测
      */
@@ -5675,6 +6088,207 @@
         }
         return originalSetInterval.call(this, callback, time);
       };
+    },
+    /**
+     * 禁用快捷键
+     */
+    disableShortCut() {
+      Hook.document_addEventListener((target, eventName, listener, option) => {
+        if (["keydown", "keypress", "keyup"].includes(eventName)) {
+          return function(...eventArgs) {
+            let event = eventArgs[0];
+            event.key;
+            let code = event.code;
+            event.charCode || event.keyCode || event.which;
+            let otherCodeList = [];
+            if (event.ctrlKey) {
+              otherCodeList.push("ctrl");
+            }
+            if (event.altKey) {
+              otherCodeList.push("alt");
+            }
+            if (event.metaKey) {
+              otherCodeList.push("meta");
+            }
+            if (event.shiftKey) {
+              otherCodeList.push("shift");
+            }
+            let keyboardConfigList = [
+              {
+                enableKey: "dy-keyboard-hook-likeOrDislike",
+                code: ["KeyZ"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-comment",
+                code: ["KeyX"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-danmaku-enable",
+                code: ["KeyB"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-collect-enable",
+                code: ["KeyC"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-copyShareLink",
+                code: ["KeyV"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-clearScreen",
+                code: ["KeyJ"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-automaticBroadcast",
+                code: ["KeyK"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-videoInfo",
+                code: ["KeyI"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-notInterested",
+                code: ["KeyR"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-enterAuthorHomePage",
+                code: ["KeyF"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-follow",
+                code: ["KeyG"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-search",
+                code: ["KeyF"],
+                otherCodeList: ["shift"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-closeTheCurrentPageWithOneClick",
+                code: ["KeyQ"],
+                otherCodeList: ["shift"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-pageUpAndDown",
+                code: ["ArrowUp", "ArrowDown"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-fastForwardAndFastBack",
+                code: ["ArrowLeft", "ArrowRight"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-pause",
+                code: ["Space"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-fullScreenInsideThePage",
+                code: ["KeyY"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-fullScreen",
+                code: ["KeyH"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-watchItOutLater",
+                code: ["KeyL"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-volumeAdjustment",
+                code: ["Minus"],
+                otherCodeList: ["shift"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-listOfCallShortcutKeys",
+                code: ["Slash"],
+                otherCodeList: ["shift"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-closeTheShortcutKeyList",
+                code: ["Escape"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-relevantRecommendation",
+                code: ["KeyN"]
+              }
+            ];
+            if (DouYinRouter.isVideo()) {
+              keyboardConfigList.push(
+                {
+                  enableKey: "dy-keyboard-hook-arrowUp-w",
+                  code: ["KeyW"]
+                },
+                {
+                  enableKey: "dy-keyboard-hook-arrowDown-s",
+                  code: ["KeyS"]
+                },
+                {
+                  enableKey: "dy-keyboard-hook-videoRewind",
+                  code: ["KeyA"]
+                },
+                {
+                  enableKey: "dy-keyboard-hook-videoFastForward",
+                  code: ["KeyD"]
+                }
+              );
+            } else if (DouYinRouter.isLive()) {
+              keyboardConfigList.push(
+                {
+                  enableKey: "dy-live-refresh",
+                  code: ["KeyE"]
+                },
+                {
+                  enableKey: "dy-live-screenRotation",
+                  code: ["KeyD"]
+                },
+                {
+                  enableKey: "dy-live-enableSmallWindowMode",
+                  code: ["KeyU"]
+                }
+              );
+            }
+            for (let index = 0; index < keyboardConfigList.length; index++) {
+              const keyboardConfig = keyboardConfigList[index];
+              if (keyboardConfig.code.includes(code)) {
+                if (Array.isArray(keyboardConfig.otherCodeList)) {
+                  let findValue = keyboardConfig.otherCodeList.find(
+                    (item) => !otherCodeList.includes(item)
+                  );
+                  if (findValue) {
+                    continue;
+                  }
+                }
+                if (!PopsPanel.getValue(keyboardConfig.enableKey)) {
+                  continue;
+                }
+                return;
+              }
+            }
+            Reflect.apply(listener, this, eventArgs);
+          };
+        }
+      });
+    },
+    /**
+     * 禁用双击点赞
+     */
+    disableDoubleClickLike() {
+      let latestClickTime = Date.now();
+      Hook.element_addEventListener((target, eventName, listener, option) => {
+        var _a2;
+        const listenerStr = listener.toString();
+        if (eventName === "click" && target instanceof HTMLElement && ((_a2 = target == null ? void 0 : target.classList) == null ? void 0 : _a2.contains("xgplayer")) && listenerStr.match(/video|innerContainer|video.__canvas|mouse/)) {
+          return function(...eventArgs) {
+            let currentClickTime = Date.now();
+            if (currentClickTime - latestClickTime <= 288) {
+              latestClickTime = currentClickTime;
+              log.success("阻止触发双击点赞");
+              return;
+            }
+            latestClickTime = currentClickTime;
+            Reflect.apply(listener, this, eventArgs);
+          };
+        }
+      });
     }
   };
   const DouYinAccount = {
@@ -6076,10 +6690,19 @@
   };
   const DouYin = {
     init() {
-      DouYinRedirect.init();
-      PopsPanel.execMenuOnce("debug", () => {
-        DouYinHook.removeEnvCheck();
+      PopsPanel.onceExec("hookKeyboard", () => {
+        DouYinHook.disableShortCut();
       });
+      if (DouYinRouter.isVideo()) {
+        PopsPanel.execMenuOnce("dy-video-disableDoubleClickLike", () => {
+          DouYinHook.disableDoubleClickLike();
+        });
+      } else if (DouYinRouter.isLive()) {
+        PopsPanel.execMenuOnce("dy-live-disableDoubleClickLike", () => {
+          DouYinHook.disableDoubleClickLike();
+        });
+      }
+      DouYinRedirect.init();
       PopsPanel.execMenuOnce("watchLoginDialogToClose", () => {
         DouYinAccount.watchLoginDialogToClose();
       });

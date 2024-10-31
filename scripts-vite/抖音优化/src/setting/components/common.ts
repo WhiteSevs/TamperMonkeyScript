@@ -1,4 +1,4 @@
-import { log } from "@/env";
+import { DOMUtils, log, utils } from "@/env";
 import { UISelect } from "../common-components/ui-select";
 import { UISwitch } from "../common-components/ui-switch";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
@@ -11,65 +11,6 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 			text: "",
 			type: "forms",
 			forms: [
-				{
-					text: "功能",
-					type: "deepMenu",
-					forms: [
-						{
-							text: "",
-							type: "forms",
-							forms: [
-								UISwitch(
-									"debug模式",
-									"debug",
-									true,
-									void 0,
-									"移除抖音的开发者模式检测"
-								),
-								UISwitch(
-									"伪装登录",
-									"disguiseLogin",
-									false,
-									void 0,
-									"使用随机UID进行伪装"
-								),
-								UISwitch(
-									"initial-scale=1",
-									"dy-initialScale",
-									false,
-									void 0,
-									"可配合手机模式放大页面"
-								),
-								UISwitch(
-									"移除<meta> apple-itunes-app",
-									"dy-apple-removeMetaAppleItunesApp",
-									true,
-									void 0,
-									"Safari使用，移除顶部横幅【Open in the 抖音 app】"
-								),
-							],
-						},
-					],
-				},
-				{
-					text: "Url重定向",
-					type: "deepMenu",
-					forms: [
-						{
-							text: "",
-							type: "forms",
-							forms: [
-								UISwitch(
-									"重定向/home",
-									"douyin-redirect-url-home-to-root",
-									false,
-									void 0,
-									"/home => /"
-								),
-							],
-						},
-					],
-				},
 				{
 					text: "Toast配置",
 					type: "deepMenu",
@@ -160,6 +101,279 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 									false,
 									void 0,
 									"修改Toast弹出的顺序"
+								),
+							],
+						},
+					],
+				},
+			],
+		},
+		{
+			type: "forms",
+			text: "",
+			forms: [
+				{
+					text: "功能",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"伪装登录",
+									"disguiseLogin",
+									false,
+									void 0,
+									"使用随机UID进行伪装"
+								),
+								UISwitch(
+									"initial-scale=1",
+									"dy-initialScale",
+									false,
+									void 0,
+									"可配合手机模式放大页面"
+								),
+								UISwitch(
+									"移除<meta> apple-itunes-app",
+									"dy-apple-removeMetaAppleItunesApp",
+									true,
+									void 0,
+									"Safari使用，移除顶部横幅【Open in the 抖音 app】"
+								),
+							],
+						},
+					],
+				},
+				{
+					text: "Url重定向",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"重定向/home",
+									"douyin-redirect-url-home-to-root",
+									false,
+									void 0,
+									"/home => /"
+								),
+							],
+						},
+					],
+				},
+				{
+					type: "deepMenu",
+					text: "快捷键禁用",
+					forms: [
+						{
+							type: "forms",
+							text: /*html*/ `
+								<a href="javascript:;" class="keyboard-oneClickOpen">一键开启</a>
+								<br>
+								<a href="javascript:;" class="keyboard-oneClickClose">一键关闭</a>
+							`,
+							afterAddToUListCallBack(formConfig, container) {
+								const { target } = container;
+								let $oneClickOpen = target!.querySelector<HTMLAnchorElement>(
+									".keyboard-oneClickOpen"
+								);
+								let $oneClickClose = target!.querySelector<HTMLAnchorElement>(
+									".keyboard-oneClickClose"
+								);
+								let clickCallBack = (isOpen: boolean) => {
+									target
+										?.querySelectorAll<HTMLElement>(".pops-panel-switch")
+										.forEach(($ele) => {
+											let $input = $ele.querySelector<HTMLInputElement>(
+												".pops-panel-switch__input"
+											)!;
+											let $checkbox = $ele.querySelector<HTMLInputElement>(
+												".pops-panel-switch__core"
+											)!;
+											if (isOpen) {
+												if (!$input.checked) {
+													$checkbox.click();
+												}
+											} else {
+												if ($input.checked) {
+													$checkbox.click();
+												}
+											}
+										});
+								};
+								DOMUtils.on($oneClickOpen, "click", (event) => {
+									utils.preventEvent(event);
+									clickCallBack(true);
+								});
+								DOMUtils.on($oneClickClose, "click", (event) => {
+									utils.preventEvent(event);
+									clickCallBack(false);
+								});
+							},
+							forms: [
+								UISwitch(
+									"赞|取消赞",
+									"dy-keyboard-hook-likeOrDislike",
+									false,
+									void 0,
+									"Z"
+								),
+								UISwitch(
+									"评论",
+									"dy-keyboard-hook-comment",
+									false,
+									void 0,
+									"X"
+								),
+								UISwitch(
+									"开启/关闭弹幕",
+									"dy-keyboard-hook-danmaku-enable",
+									false,
+									void 0,
+									"B"
+								),
+								UISwitch(
+									"收藏/取消收藏",
+									"dy-keyboard-hook-collect-enable",
+									false,
+									void 0,
+									"C"
+								),
+								UISwitch(
+									"复制分享口令",
+									"dy-keyboard-hook-copyShareLink",
+									false,
+									void 0,
+									"V"
+								),
+								UISwitch(
+									"清屏",
+									"dy-keyboard-hook-clearScreen",
+									false,
+									void 0,
+									"J"
+								),
+								UISwitch(
+									"自动连播",
+									"dy-keyboard-hook-automaticBroadcast",
+									false,
+									void 0,
+									"K"
+								),
+								UISwitch(
+									"视频信息",
+									"dy-keyboard-hook-videoInfo",
+									false,
+									void 0,
+									"I"
+								),
+								UISwitch(
+									"不感兴趣",
+									"dy-keyboard-hook-notInterested",
+									false,
+									void 0,
+									"R"
+								),
+								UISwitch(
+									"进入作者主页",
+									"dy-keyboard-hook-enterAuthorHomePage",
+									false,
+									void 0,
+									"F"
+								),
+								UISwitch(
+									"关注/取消关注",
+									"dy-keyboard-hook-follow",
+									false,
+									void 0,
+									"G"
+								),
+								UISwitch(
+									"抖音搜索",
+									"dy-keyboard-hook-search",
+									false,
+									void 0,
+									"Shift+F"
+								),
+								UISwitch(
+									"一键关闭当前页",
+									"dy-keyboard-hook-closeTheCurrentPageWithOneClick",
+									false,
+									void 0,
+									"Shift+Q"
+								),
+								UISwitch(
+									"上下翻页",
+									"dy-keyboard-hook-pageUpAndDown",
+									false,
+									void 0,
+									"↑↓"
+								),
+								UISwitch(
+									"快进快退",
+									"dy-keyboard-hook-fastForwardAndFastBack",
+									false,
+									void 0,
+									"← →"
+								),
+								UISwitch(
+									"暂停",
+									"dy-keyboard-hook-pause",
+									false,
+									void 0,
+									"空格"
+								),
+								UISwitch(
+									"网页内全屏",
+									"dy-keyboard-hook-fullScreenInsideThePage",
+									false,
+									void 0,
+									"Y"
+								),
+								UISwitch(
+									"全屏",
+									"dy-keyboard-hook-fullScreen",
+									false,
+									void 0,
+									"H"
+								),
+								UISwitch(
+									"稍后再看",
+									"dy-keyboard-hook-watchItOutLater",
+									false,
+									void 0,
+									"L"
+								),
+								UISwitch(
+									"音量调整",
+									"dy-keyboard-hook-volumeAdjustment",
+									false,
+									void 0,
+									"Shift + / Shift -"
+								),
+								UISwitch(
+									"呼出快捷键列表",
+									"dy-keyboard-hook-listOfCallShortcutKeys",
+									false,
+									void 0,
+									"?"
+								),
+								UISwitch(
+									"关闭快捷键列表",
+									"dy-keyboard-hook-closeTheShortcutKeyList",
+									false,
+									void 0,
+									"ESC"
+								),
+								UISwitch(
+									"相关推荐",
+									"dy-keyboard-hook-relevantRecommendation",
+									false,
+									void 0,
+									"N"
 								),
 							],
 						},

@@ -1,6 +1,6 @@
 import { log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { HttpxDetails } from "@whitesev/utils/dist/types/src/Httpx";
+import { HttpxRequestOption } from "@whitesev/utils/dist/types/src/types/Httpx";
 
 interface HttpxCookieManagerRule {
 	/** PopsPanel存储的键名 */
@@ -51,7 +51,7 @@ export const HttpxCookieManager = {
 	 * @param details
 	 * @returns
 	 */
-	handle(details: Required<HttpxDetails>) {
+	handle(details: Required<HttpxRequestOption>) {
 		if (details.fetch) {
 			// fetch不做处理
 			return;

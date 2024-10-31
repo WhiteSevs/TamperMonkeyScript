@@ -45,6 +45,13 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									void 0,
 									"修复移动端不能点击拖拽和定位进度的问题(移动端使用)"
 								),
+								UISwitch(
+									"禁用双击点赞",
+									"dy-video-disableDoubleClickLike",
+									false,
+									void 0,
+									"禁止视频区域双击点赞"
+								),
 							],
 						},
 						{
@@ -190,7 +197,7 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 					],
 				},
 				{
-					text: "快捷键",
+					text: "自定义快捷键",
 					type: "deepMenu",
 					forms: [
 						{
@@ -223,6 +230,46 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									"点击录入快捷键",
 									void 0,
 									DouYinVideoShortcut.shortCut
+								),
+							],
+						},
+					],
+				},
+				{
+					type: "deepMenu",
+					text: "快捷键禁用",
+					forms: [
+						{
+							type: "forms",
+							text: "",
+							forms: [
+								UISwitch(
+									"上翻页",
+									"dy-keyboard-hook-arrowUp-w",
+									false,
+									void 0,
+									"W"
+								),
+								UISwitch(
+									"下翻页",
+									"dy-keyboard-hook-arrowDown-s",
+									false,
+									void 0,
+									"S"
+								),
+								UISwitch(
+									"快退",
+									"dy-keyboard-hook-videoRewind",
+									false,
+									void 0,
+									"A"
+								),
+								UISwitch(
+									"快进",
+									"dy-keyboard-hook-videoFastForward",
+									false,
+									void 0,
+									"D"
 								),
 							],
 						},

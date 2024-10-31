@@ -73,6 +73,13 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 									void 0,
 									"开启后将在油猴菜单中新增菜单【⚙ PlayerInstance】，可解析当前的直播信息"
 								),
+								UISwitch(
+									"禁用双击点赞",
+									"dy-live-disableDoubleClickLike",
+									false,
+									void 0,
+									"禁止直播视频区域双击点赞"
+								),
 							],
 						},
 						{
@@ -185,6 +192,33 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 										return liElement;
 									},
 								},
+							],
+						},
+					],
+				},
+				{
+					type: "deepMenu",
+					text: "快捷键禁用",
+					forms: [
+						{
+							type: "forms",
+							text: "",
+							forms: [
+								UISwitch("刷新", "dy-live-refresh", false, void 0, "E"),
+								UISwitch(
+									"屏幕旋转",
+									"dy-live-screenRotation",
+									false,
+									void 0,
+									"D"
+								),
+								UISwitch(
+									"开启小窗模式",
+									"dy-live-enableSmallWindowMode",
+									false,
+									void 0,
+									"U"
+								),
 							],
 						},
 					],
