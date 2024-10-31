@@ -4,7 +4,8 @@ import type { PopsPanelCommonDetails } from "./commonType";
  * pops.panel的 own
  * 自定义的
  */
-export interface PopsPanelOwnDetails extends PopsPanelCommonDetails {
+export interface PopsPanelOwnDetails
+	extends PopsPanelCommonDetails<PopsPanelOwnDetails> {
 	/**
 	 * （可选）className属性
 	 */

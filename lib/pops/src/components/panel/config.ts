@@ -229,6 +229,9 @@ export const PopsPanelConfig = (): Required<PopsPanelDetails> => {
 								description: "二级菜单",
 								rightText: "自定义配置",
 								arrowRightIcon: true,
+								afterAddToUListCallBack(formConfig, container) {
+									console.log(formConfig, container);
+								},
 								clickCallBack(event, formConfig) {
 									console.log("进入子配置", event, formConfig);
 								},
@@ -314,6 +317,9 @@ export const PopsPanelConfig = (): Required<PopsPanelDetails> => {
 						type: "forms",
 						isFold: true,
 						text: "折叠菜单",
+						afterAddToUListCallBack(formConfig, container) {
+							console.log(formConfig, container);
+						},
 						forms: [
 							{
 								className: "panel-switch",

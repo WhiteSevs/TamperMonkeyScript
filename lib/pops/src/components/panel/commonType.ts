@@ -1,3 +1,4 @@
+import type { PopsPanelFormsDetails } from "./formsType";
 import { PopsPanelFormsTotalDetails } from "./indexType";
 
 /**
@@ -18,7 +19,9 @@ export interface PopsPanelRightAsideContainerOptions {
 /**
  * 通用配置
  */
-export interface PopsPanelCommonDetails {
+export interface PopsPanelCommonDetails<
+	T extends PopsPanelFormsTotalDetails | PopsPanelFormsDetails
+> {
 	/**
      * 在添加到<ul>元素后触发该回调
      * @param formConfig 配置
@@ -46,7 +49,7 @@ export interface PopsPanelCommonDetails {
      * container内只有container.ulElement这个属性
      */
 	afterAddToUListCallBack?: (
-		formConfig: PopsPanelFormsTotalDetails,
+		formConfig: T,
 		container: PopsPanelRightAsideContainerOptions
 	) => void;
 }

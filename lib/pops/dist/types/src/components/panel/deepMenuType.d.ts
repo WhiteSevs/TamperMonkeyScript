@@ -4,7 +4,7 @@ import type { PopsPanelCommonDetails } from "./commonType";
 /**
  * pops.panel的 深层菜单
  */
-export interface PopsPanelDeepMenuDetails extends PopsPanelCommonDetails {
+export interface PopsPanelDeepMenuDetails extends PopsPanelCommonDetails<PopsPanelDeepMenuDetails> {
     /**
      * 类型
      */
@@ -48,7 +48,7 @@ export interface PopsPanelDeepMenuDetails extends PopsPanelCommonDetails {
      * + true 表示阻止进入深层菜单
      * + false （默认）表示允许进入深层菜单
      */
-    clickCallBack?: (event: MouseEvent | PointerEvent, formConfig: PopsPanelDeepMenuDetails) => boolean | void;
+    clickCallBack?: (event: MouseEvent | PointerEvent, formConfig: PopsPanelDeepMenuDetails) => boolean | void | Promise<boolean | void>;
     /**
      * 菜单配置
      */

@@ -26,7 +26,7 @@ export interface PopsPanelSelectMultipleDataOption<T> {
  * pops.panel的 select
  */
 export interface PopsPanelSelectMultipleDetails<T = any>
-	extends PopsPanelCommonDetails {
+	extends PopsPanelCommonDetails<PopsPanelSelectMultipleDetails> {
 	/**
 	 * （可选）className属性
 	 */

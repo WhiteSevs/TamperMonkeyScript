@@ -4,7 +4,7 @@ import type { PopsIcon } from "../../types/icon";
 /**
  * pops.panel的 button
  */
-export interface PopsPanelButtonDetails extends PopsPanelCommonDetails {
+export interface PopsPanelButtonDetails extends PopsPanelCommonDetails<PopsPanelButtonDetails> {
     /**
      * （可选）className属性
      */

@@ -2,7 +2,7 @@ import type { PopsPanelCommonDetails } from "./commonType";
 /**
  * pops.panel的 select
  */
-export interface PopsPanelSelectDetails<T = any> extends PopsPanelCommonDetails {
+export interface PopsPanelSelectDetails<T = any> extends PopsPanelCommonDetails<PopsPanelSelectDetails> {
     /**
      * （可选）className属性
      */

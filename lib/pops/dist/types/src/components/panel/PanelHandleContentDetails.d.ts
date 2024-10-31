@@ -147,10 +147,11 @@ export declare const PanelHandleContentDetails: () => {
      */
     createSectionContainerItem(formConfig: PopsPanelFormsTotalDetails): HTMLLIElement | undefined;
     /**
+     * 生成配置项forms
      * 生成配置每一项的元素
      * @param formConfig
      */
-    initFormItem(formConfig: PopsPanelContentConfig | PopsPanelFormsDetails): void;
+    createSectionContainerItem_forms(formConfig: PopsPanelContentConfig | PopsPanelFormsDetails): void;
     /**
      *
      * @param formConfig

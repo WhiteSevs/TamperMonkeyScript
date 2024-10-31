@@ -1045,7 +1045,7 @@ export const PanelHandleContentDetails = () => {
 				<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
 			${leftDescriptionText}
 			</div>
-			<div class="pops-panel-input">
+			<div class="pops-panel-input pops-user-select-none">
 				<input type="${inputType}" placeholder="${formConfig.placeholder}">
 			</div>
 			`;
@@ -1347,7 +1347,7 @@ export const PanelHandleContentDetails = () => {
 				<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
 			${leftDescriptionText}
 			</div>
-			<div class="pops-panel-select">
+			<div class="pops-panel-select pops-user-select-none">
 				<select></select>
 			</div>
 			`;
@@ -2393,6 +2393,17 @@ export const PanelHandleContentDetails = () => {
 						});
 						formContainerListElement.appendChild(formContainerULElement);
 						$container.appendChild(formContainerListElement);
+						if (
+							typeof formConfig_forms.afterAddToUListCallBack === "function"
+						) {
+							formConfig_forms.afterAddToUListCallBack(formConfig as any, {
+								target: formContainerListElement,
+								ulElement: formContainerULElement,
+								sectionContainerULElement: that.sectionContainerULElement,
+								formContainerListElement: formContainerListElement,
+								formHeaderDivElement: formHeaderDivElement,
+							});
+						}
 					} else {
 						/* 如果成功创建，加入到中间容器中 */
 						that.uListContainerAddItem(formConfig, {
@@ -2411,7 +2422,7 @@ export const PanelHandleContentDetails = () => {
 						"section.pops-panel-container"
 					) as HTMLElement | null;
 					if (currentSection) {
-						popsDOMUtils.cssHide(currentSection);
+						popsDOMUtils.cssHide(currentSection,true);
 					}
 					// 子菜单的容器
 					let $deepMenuContainer = popsDOMUtils.createElement("section", {
@@ -2462,19 +2473,6 @@ export const PanelHandleContentDetails = () => {
 						}
 					}
 					that.$el.$content?.appendChild($deepMenuContainer);
-
-					/* 根据标题的高度来自适应内容高度，默认开启 */
-					/* 中间容器的偏移量，看设置的section.pops-panel-container的padding，默认0 */
-					let contentContainerOffset = 0;
-					/* 获取标题的<ul>元素的高度 */
-					let sectionContainerHeaderULElementHeight =
-						popsDOMUtils.height($deepMenuHeaderUL);
-					$deepMenuChildMenuUL.style.setProperty(
-						"height",
-						`calc( 100% - ${
-							sectionContainerHeaderULElementHeight + contentContainerOffset
-						}px )`
-					);
 				},
 				/** 设置项的点击事件 */
 				setLiClickEvent() {
@@ -2558,10 +2556,13 @@ export const PanelHandleContentDetails = () => {
 			}
 		},
 		/**
+		 * 生成配置项forms
 		 * 生成配置每一项的元素
 		 * @param formConfig
 		 */
-		initFormItem(formConfig: PopsPanelContentConfig | PopsPanelFormsDetails) {
+		createSectionContainerItem_forms(
+			formConfig: PopsPanelContentConfig | PopsPanelFormsDetails
+		) {
 			let that = this;
 			let formConfig_forms = formConfig as PopsPanelFormsDetails;
 			if (formConfig_forms["type"] === "forms") {
@@ -2628,6 +2629,16 @@ export const PanelHandleContentDetails = () => {
 				});
 				formContainerListElement.appendChild(formContainerULElement);
 				that.sectionContainerULElement.appendChild(formContainerListElement);
+
+				if (typeof formConfig_forms.afterAddToUListCallBack === "function") {
+					formConfig_forms.afterAddToUListCallBack(formConfig_forms, {
+						target: formContainerListElement,
+						ulElement: formContainerULElement,
+						sectionContainerULElement: that.sectionContainerULElement,
+						formContainerListElement: formContainerListElement,
+						formHeaderDivElement: formHeaderDivElement,
+					});
+				}
 			} else {
 				/* 如果成功创建，加入到中间容器中 */
 				that.uListContainerAddItem(formConfig as any, {
@@ -2649,7 +2660,7 @@ export const PanelHandleContentDetails = () => {
 				containerOptions["ulElement"].appendChild(itemLiElement);
 			}
 			if (typeof formConfig.afterAddToUListCallBack === "function") {
-				formConfig.afterAddToUListCallBack(formConfig, {
+				formConfig.afterAddToUListCallBack(formConfig as any, {
 					...containerOptions,
 					target: itemLiElement,
 				});
@@ -2694,27 +2705,8 @@ export const PanelHandleContentDetails = () => {
 					] as PopsPanelContentConfig[];
 
 					__forms__.forEach((formConfig) => {
-						this.initFormItem(formConfig);
+						this.createSectionContainerItem_forms(formConfig);
 					});
-
-					let autoAdaptionContentHeight =
-						asideConfig.autoAdaptionContentHeight ?? true;
-					if (autoAdaptionContentHeight) {
-						/* 根据标题的高度来自适应内容高度，默认开启 */
-						/* 中间容器的偏移量，看设置的section.pops-panel-container的padding，默认0 */
-						let contentContainerOffset =
-							(asideConfig as any).contentContainerOffset ?? 0;
-						/* 获取标题的<ul>元素的高度 */
-						let sectionContainerHeaderULElementHeight = popsDOMUtils.height(
-							this.sectionContainerHeaderULElement
-						);
-						this.sectionContainerULElement.style.setProperty(
-							"height",
-							`calc( 100% - ${
-								sectionContainerHeaderULElementHeight + contentContainerOffset
-							}px )`
-						);
-					}
 
 					if (typeof asideConfig.callback === "function") {
 						/* 执行回调 */

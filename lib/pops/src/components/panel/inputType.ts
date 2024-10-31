@@ -3,7 +3,8 @@ import type { PopsPanelCommonDetails } from "./commonType";
 /**
  * pops.panel的 input
  */
-export interface PopsPanelInputDetails extends PopsPanelCommonDetails {
+export interface PopsPanelInputDetails
+	extends PopsPanelCommonDetails<PopsPanelInputDetails> {
 	/**
 	 * （可选）className属性
 	 */
