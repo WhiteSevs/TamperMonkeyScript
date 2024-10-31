@@ -23,7 +23,7 @@ class Httpx {
 			configList: <
 				{
 					id: string;
-					fn: Function;
+					fn: Function | Promise<Function>;
 				}[]
 			>[],
 		},
@@ -33,7 +33,7 @@ class Httpx {
 		 * @param details 当前的请求配置
 		 * @private
 		 */
-		beforeRequestCallBack(details: HttpxRequestOption) {
+		async beforeRequestCallBack(details: HttpxRequestOption) {
 			if (typeof details.allowInterceptConfig === "boolean") {
 				if (!details.allowInterceptConfig) {
 					// 不允许拦截
@@ -58,7 +58,7 @@ class Httpx {
 			for (let index = 0; index < this.$config.configList.length; index++) {
 				let item = this.$config.configList[index];
 				if (typeof item.fn === "function") {
-					let result = item.fn(details);
+					let result = await item.fn(details);
 					if (result == null) {
 						return;
 					}
@@ -114,8 +114,8 @@ class Httpx {
 			configList: <
 				{
 					id: string;
-					successFn?: Function;
-					errorFn?: Function;
+					successFn?: Function | Promise<Function>;
+					errorFn?: Function | Promise<Function>;
 				}[]
 			>[],
 		},
@@ -124,7 +124,7 @@ class Httpx {
 		 * @param response 响应
 		 * @param details 请求的配置
 		 */
-		successResponseCallBack(
+		async successResponseCallBack(
 			response: HttpxResponseData<HttpxRequestOption>,
 			details: HttpxRequestOption
 		) {
@@ -153,7 +153,8 @@ class Httpx {
 			for (let index = 0; index < this.$config.configList.length; index++) {
 				let item = this.$config.configList[index];
 				if (typeof item.successFn === "function") {
-					if (item.successFn(response, details) == null) {
+					let result = await item.successFn(response, details);
+					if (result == null) {
 						return;
 					}
 				}
@@ -166,9 +167,7 @@ class Httpx {
 		 * @returns
 		 * 返回null|undefined就是拦截掉了
 		 */
-		errorResponseCallBack<T extends HttpxHookErrorData>(
-			data: T
-		): T | null | undefined {
+		async errorResponseCallBack<T extends HttpxHookErrorData>(data: T) {
 			if (typeof data.details.allowInterceptConfig === "boolean") {
 				if (!data.details.allowInterceptConfig) {
 					// 不允许拦截
@@ -194,7 +193,8 @@ class Httpx {
 			for (let index = 0; index < this.$config.configList.length; index++) {
 				let item = this.$config.configList[index];
 				if (typeof item.errorFn === "function") {
-					if (item.errorFn(data) == null) {
+					let result = await item.errorFn(data);
+					if (result == null) {
 						return;
 					}
 				}
@@ -236,7 +236,7 @@ class Httpx {
 			this.$config.configList = [];
 		},
 	};
-	private HttpxRequestDetails = {
+	private HttpxRequestOption = {
 		context: this,
 		/**
 		 * 根据传入的参数处理获取details配置
@@ -670,7 +670,7 @@ class Httpx {
 		 * @param reject 抛出错误
 		 * @param argsResult 返回的参数列表
 		 */
-		onAbort(
+		async onAbort(
 			details: Required<HttpxRequestOption>,
 			resolve: (resultOption: HttpxResponse<HttpxRequestOption>) => void,
 			reject: (...args: any[]) => void,
@@ -687,12 +687,12 @@ class Httpx {
 				response = response[0];
 			}
 			if (
-				this.context.HttpxResponseHook.errorResponseCallBack({
+				(await this.context.HttpxResponseHook.errorResponseCallBack({
 					type: "onabort",
 					error: new TypeError("request canceled"),
 					response: null,
 					details: details,
-				}) == null
+				})) == null
 			) {
 				// reject(new TypeError("response is intercept with onabort"));
 				return;
@@ -706,7 +706,6 @@ class Httpx {
 				type: "onabort",
 			});
 		},
-
 		/**
 		 * onerror请求异常-触发
 		 * @param details 配置
@@ -714,7 +713,7 @@ class Httpx {
 		 * @param reject 抛出错误
 		 * @param argsResult 返回的参数列表
 		 */
-		onError(
+		async onError(
 			details: Required<HttpxRequestOption>,
 			resolve: (resultOption: HttpxResponse<HttpxRequestOption>) => void,
 			reject: (...args: any[]) => void,
@@ -731,12 +730,12 @@ class Httpx {
 				response = response[0];
 			}
 			if (
-				this.context.HttpxResponseHook.errorResponseCallBack({
+				(await this.context.HttpxResponseHook.errorResponseCallBack({
 					type: "onerror",
 					error: new TypeError("request error"),
 					response: response,
 					details: details,
-				}) == null
+				})) == null
 			) {
 				// reject(new TypeError("response is intercept with onerror"));
 				return;
@@ -757,7 +756,7 @@ class Httpx {
 		 * @param reject 抛出错误
 		 * @param argsResult 返回的参数列表
 		 */
-		onTimeout(
+		async onTimeout(
 			details: Required<HttpxRequestOption>,
 			resolve: (resultOption: HttpxResponse<HttpxRequestOption>) => void,
 			reject: (...args: any[]) => void,
@@ -774,12 +773,12 @@ class Httpx {
 				response = response[0];
 			}
 			if (
-				this.context.HttpxResponseHook.errorResponseCallBack({
+				(await this.context.HttpxResponseHook.errorResponseCallBack({
 					type: "ontimeout",
 					error: new TypeError("request timeout"),
 					response: (argsResult || [null])[0],
 					details: details,
-				}) == null
+				})) == null
 			) {
 				// reject(new TypeError("response is intercept with ontimeout"));
 				return;
@@ -814,7 +813,7 @@ class Httpx {
 		 * @param reject 抛出错误
 		 * @param argsResult 返回的参数列表
 		 */
-		onLoad(
+		async onLoad(
 			details: Required<HttpxRequestOption>,
 			resolve: (resultOption: HttpxResponse<HttpxRequestOption>) => void,
 			reject: (...args: any[]) => void,
@@ -907,10 +906,10 @@ class Httpx {
 			/* 状态码2xx都是成功的 */
 			if (Math.floor(originResponse.status / 100) === 2) {
 				if (
-					this.context.HttpxResponseHook.successResponseCallBack(
+					(await this.context.HttpxResponseHook.successResponseCallBack(
 						originResponse,
 						details
-					) == null
+					)) == null
 				) {
 					// reject(new TypeError("response is intercept with onloada"));
 					return;
@@ -971,7 +970,7 @@ class Httpx {
 		 * 发送请求
 		 * @param details
 		 */
-		request(details: Required<HttpxRequestOption>) {
+		async request(details: Required<HttpxRequestOption>) {
 			if (this.context.#LOG_DETAILS) {
 				console.log("[Httpx-HttpxRequest.request] 请求前的配置👇", details);
 			}
@@ -980,7 +979,7 @@ class Httpx {
 				"function"
 			) {
 				let hookResult =
-					this.context.HttpxRequestHook.beforeRequestCallBack(details);
+					await this.context.HttpxRequestHook.beforeRequestCallBack(details);
 				if (hookResult == null) {
 					return;
 				}
@@ -991,7 +990,7 @@ class Httpx {
 					fetchOption: fetchOption,
 					fetchRequestOption: fetchRequestOption,
 					abortController,
-				} = this.context.HttpxRequestDetails.handleFetchOption(details);
+				} = this.context.HttpxRequestOption.handleFetchOption(details);
 				return this.fetch(fetchOption, fetchRequestOption, abortController);
 			} else {
 				// 使用GM_xmlHttpRequest请求
@@ -1226,7 +1225,7 @@ class Httpx {
 	/**
 	 * 拦截器
 	 */
-	public interceptors = {
+	interceptors = {
 		/**
 		 * 请求拦截器
 		 */
@@ -1237,7 +1236,9 @@ class Httpx {
 			 * @param fn 设置的请求前回调函数，如果返回配置，则使用返回的配置，如果返回null|undefined，则阻止请求
 			 */
 			use(
-				fn: <T extends Required<HttpxRequestOption>>(details: T) => void | T
+				fn: <T extends Required<HttpxRequestOption>>(
+					details: T
+				) => void | T | Promise<void | T>
 			) {
 				if (typeof fn !== "function") {
 					console.warn("[Httpx-interceptors-request] 请传入拦截器函数");
@@ -1276,7 +1277,9 @@ class Httpx {
 					response: T,
 					details: HttpxRequestOption
 				) => void | T,
-				errorFn?: <T extends HttpxHookErrorData>(data: T) => void | T
+				errorFn?: <T extends HttpxHookErrorData>(
+					data: T
+				) => void | T | Promise<void | T>
 			) {
 				if (typeof successFn !== "function" && typeof errorFn !== "function") {
 					console.warn("[Httpx-interceptors-response] 必须传入一个拦截器函数");
@@ -1310,14 +1313,14 @@ class Httpx {
 	 * GET 请求
 	 * @param url 网址
 	 */
-	async get<T extends HttpxRequestOption>(
+	get<T extends HttpxRequestOption>(
 		url: string // @ts-ignore
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * GET 请求
 	 * @param details 配置
 	 */
-	async get<T extends HttpxRequestOption>(
+	get<T extends HttpxRequestOption>(
 		details: T // @ts-ignore
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
@@ -1325,7 +1328,7 @@ class Httpx {
 	 * @param url 网址
 	 * @param details 配置
 	 */
-	async get<T extends HttpxRequestOption>(
+	get<T extends HttpxRequestOption>(
 		url: string,
 		details: T // @ts-ignore
 	): HttpxPromise<HttpxResponse<T>>;
@@ -1334,24 +1337,24 @@ class Httpx {
 	 * @param url 网址
 	 * @param details 配置
 	 */
-	async get(
+	get(
 		...args: (string | HttpxRequestOption)[] // @ts-ignore
 	): HttpxPromise<HttpxResponse<HttpxRequestOption>> {
-		let userRequestOption = this.HttpxRequestDetails.handleBeforeRequestOption(
+		let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(
 			...args
 		);
 		let abortFn: Function | null = null;
 		let promise = new globalThis.Promise<HttpxResponse<HttpxRequestOption>>(
-			(resolve, reject) => {
-				let requestOption = this.HttpxRequestDetails.getRequestOption(
+			async (resolve, reject) => {
+				let requestOption = this.HttpxRequestOption.getRequestOption(
 					"GET",
 					userRequestOption,
 					resolve,
 					reject
 				);
 				Reflect.deleteProperty(requestOption, "onprogress");
-				this.HttpxRequestDetails.removeRequestNullOption(requestOption);
-				const requestResult = this.HttpxRequest.request(requestOption);
+				this.HttpxRequestOption.removeRequestNullOption(requestOption);
+				const requestResult = await this.HttpxRequest.request(requestOption);
 				if (
 					requestResult != null &&
 					typeof requestResult.abort === "function"
@@ -1366,20 +1369,21 @@ class Httpx {
 				abortFn();
 			}
 		};
+		// @ts-ignore
 		return promise;
 	}
 	/**
 	 * POST 请求
 	 * @param details 配置
 	 */
-	async post<T extends HttpxRequestOption>(
+	post<T extends HttpxRequestOption>(
 		details: T // @ts-ignore
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * POST 请求
 	 * @param url 网址
 	 */
-	async post<T extends HttpxRequestOption>(
+	post<T extends HttpxRequestOption>(
 		url: string
 	): // @ts-ignore
 	HttpxPromise<HttpxResponse<T>>;
@@ -1388,23 +1392,23 @@ class Httpx {
 	 * @param url 网址
 	 * @param details 配置
 	 */
-	async post<T extends HttpxRequestOption>(
+	post<T extends HttpxRequestOption>(
 		url: string,
 		details: T // @ts-ignore
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * POST 请求
 	 */
-	async post(
+	post(
 		...args: (HttpxRequestOption | string)[] // @ts-ignore
 	): HttpxPromise<HttpxResponse<HttpxRequestOption>> {
-		let userRequestOption = this.HttpxRequestDetails.handleBeforeRequestOption(
+		let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(
 			...args
 		);
 		let abortFn: Function | null = null;
 		let promise = new Promise<HttpxResponse<HttpxRequestOption>>(
-			(resolve, reject) => {
-				let requestOption = this.HttpxRequestDetails.getRequestOption(
+			async (resolve, reject) => {
+				let requestOption = this.HttpxRequestOption.getRequestOption(
 					"POST",
 					userRequestOption,
 					resolve,
@@ -1412,8 +1416,8 @@ class Httpx {
 				);
 				// @ts-ignore
 				requestOption =
-					this.HttpxRequestDetails.removeRequestNullOption(requestOption);
-				const requestResult = this.HttpxRequest.request(requestOption);
+					this.HttpxRequestOption.removeRequestNullOption(requestOption);
+				const requestResult = await this.HttpxRequest.request(requestOption);
 				if (
 					requestResult != null &&
 					typeof requestResult.abort === "function"
@@ -1428,20 +1432,21 @@ class Httpx {
 				abortFn();
 			}
 		};
+		// @ts-ignore
 		return promise;
 	}
 	/**
 	 * HEAD 请求
 	 * @param details 配置
 	 */
-	async head<T extends HttpxRequestOption>(
+	head<T extends HttpxRequestOption>(
 		details: T // @ts-ignore
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * HEAD 请求
 	 * @param url 网址
 	 */
-	async head<T extends HttpxRequestOption>(
+	head<T extends HttpxRequestOption>(
 		url: string // @ts-ignore
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
@@ -1449,23 +1454,23 @@ class Httpx {
 	 * @param url 网址
 	 * @param details 配置
 	 */
-	async head<T extends HttpxRequestOption>(
+	head<T extends HttpxRequestOption>(
 		url: string,
 		details: T // @ts-ignore
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * HEAD 请求
 	 */
-	async head(
+	head(
 		...args: (HttpxRequestOption | string)[] // @ts-ignore
 	): HttpxPromise<HttpxResponse<HttpxRequestOption>> {
-		let userRequestOption = this.HttpxRequestDetails.handleBeforeRequestOption(
+		let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(
 			...args
 		);
 		let abortFn: Function | null = null;
 		let promise = new Promise<HttpxResponse<HttpxRequestOption>>(
-			(resolve, reject) => {
-				let requestOption = this.HttpxRequestDetails.getRequestOption(
+			async (resolve, reject) => {
+				let requestOption = this.HttpxRequestOption.getRequestOption(
 					"HEAD",
 					userRequestOption,
 					resolve,
@@ -1474,8 +1479,8 @@ class Httpx {
 				Reflect.deleteProperty(requestOption, "onprogress");
 				// @ts-ignore
 				requestOption =
-					this.HttpxRequestDetails.removeRequestNullOption(requestOption);
-				const requestResult = this.HttpxRequest.request(requestOption);
+					this.HttpxRequestOption.removeRequestNullOption(requestOption);
+				const requestResult = await this.HttpxRequest.request(requestOption);
 				if (
 					requestResult != null &&
 					typeof requestResult.abort === "function"
@@ -1491,9 +1496,9 @@ class Httpx {
 				abortFn();
 			}
 		};
+		// @ts-ignore
 		return promise;
 	}
-
 	/**
 	 * OPTIONS 请求
 	 * @param details 配置
@@ -1520,16 +1525,16 @@ class Httpx {
 	/**
 	 * OPTIONS 请求
 	 */
-	async options(
+	options(
 		...args: (HttpxRequestOption | string)[] // @ts-ignore
 	): HttpxPromise<HttpxResponse<HttpxRequestOption>> {
-		let userRequestOption = this.HttpxRequestDetails.handleBeforeRequestOption(
+		let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(
 			...args
 		);
 		let abortFn: Function | null = null;
 		let promise = new Promise<HttpxResponse<HttpxRequestOption>>(
-			(resolve, reject) => {
-				let requestOption = this.HttpxRequestDetails.getRequestOption(
+			async (resolve, reject) => {
+				let requestOption = this.HttpxRequestOption.getRequestOption(
 					"OPTIONS",
 					userRequestOption,
 					resolve,
@@ -1538,8 +1543,8 @@ class Httpx {
 				Reflect.deleteProperty(requestOption, "onprogress");
 				// @ts-ignore
 				requestOption =
-					this.HttpxRequestDetails.removeRequestNullOption(requestOption);
-				const requestResult = this.HttpxRequest.request(requestOption);
+					this.HttpxRequestOption.removeRequestNullOption(requestOption);
+				const requestResult = await this.HttpxRequest.request(requestOption);
 				if (
 					requestResult != null &&
 					typeof requestResult.abort === "function"
@@ -1554,6 +1559,7 @@ class Httpx {
 				abortFn();
 			}
 		};
+		// @ts-ignore
 		return promise;
 	}
 
@@ -1561,14 +1567,14 @@ class Httpx {
 	 * DELETE 请求
 	 * @param details 配置
 	 */
-	async delete<T extends HttpxRequestOption>(
+	delete<T extends HttpxRequestOption>(
 		details: T // @ts-ignore
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * DELETE 请求
 	 * @param url 网址
 	 */
-	async delete<T extends HttpxRequestOption>(
+	delete<T extends HttpxRequestOption>(
 		url: string // @ts-ignore
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
@@ -1576,23 +1582,23 @@ class Httpx {
 	 * @param url 网址
 	 * @param details 配置
 	 */
-	async delete<T extends HttpxRequestOption>(
+	delete<T extends HttpxRequestOption>(
 		url: string,
 		details: T // @ts-ignore
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * DELETE 请求
 	 */
-	async delete(
+	delete(
 		...args: (HttpxRequestOption | string)[] // @ts-ignore
 	): HttpxPromise<HttpxResponse<HttpxRequestOption>> {
-		let userRequestOption = this.HttpxRequestDetails.handleBeforeRequestOption(
+		let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(
 			...args
 		);
 		let abortFn: Function | null = null;
 		let promise = new Promise<HttpxResponse<HttpxRequestOption>>(
-			(resolve, reject) => {
-				let requestOption = this.HttpxRequestDetails.getRequestOption(
+			async (resolve, reject) => {
+				let requestOption = this.HttpxRequestOption.getRequestOption(
 					"DELETE",
 					userRequestOption,
 					resolve,
@@ -1601,8 +1607,8 @@ class Httpx {
 				Reflect.deleteProperty(requestOption, "onprogress");
 				// @ts-ignore
 				requestOption =
-					this.HttpxRequestDetails.removeRequestNullOption(requestOption);
-				const requestResult = this.HttpxRequest.request(requestOption);
+					this.HttpxRequestOption.removeRequestNullOption(requestOption);
+				const requestResult = await this.HttpxRequest.request(requestOption);
 				if (
 					requestResult != null &&
 					typeof requestResult.abort === "function"
@@ -1618,6 +1624,7 @@ class Httpx {
 				abortFn();
 			}
 		};
+		// @ts-ignore
 		return promise;
 	}
 
@@ -1625,14 +1632,14 @@ class Httpx {
 	 * PUT 请求
 	 * @param details 配置
 	 */
-	async put<T extends HttpxRequestOption>(
+	put<T extends HttpxRequestOption>(
 		details: T // @ts-ignore
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * PUT 请求
 	 * @param url 网址
 	 */
-	async put<T extends HttpxRequestOption>(
+	put<T extends HttpxRequestOption>(
 		url: string // @ts-ignore
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
@@ -1640,23 +1647,23 @@ class Httpx {
 	 * @param url 网址
 	 * @param details 配置
 	 */
-	async put<T extends HttpxRequestOption>(
+	put<T extends HttpxRequestOption>(
 		url: string,
 		details: T // @ts-ignore
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * PUT 请求
 	 */
-	async put(
+	put(
 		...args: (HttpxRequestOption | string)[] // @ts-ignore
 	): HttpxPromise<HttpxResponse<HttpxRequestOption>> {
-		let userRequestOption = this.HttpxRequestDetails.handleBeforeRequestOption(
+		let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(
 			...args
 		);
 		let abortFn: Function | null = null;
 		let promise = new Promise<HttpxResponse<HttpxRequestOption>>(
-			(resolve, reject) => {
-				let requestOption = this.HttpxRequestDetails.getRequestOption(
+			async (resolve, reject) => {
+				let requestOption = this.HttpxRequestOption.getRequestOption(
 					"PUT",
 					userRequestOption,
 					resolve,
@@ -1664,8 +1671,8 @@ class Httpx {
 				);
 				// @ts-ignore
 				requestOption =
-					this.HttpxRequestDetails.removeRequestNullOption(requestOption);
-				const requestResult = this.HttpxRequest.request(requestOption);
+					this.HttpxRequestOption.removeRequestNullOption(requestOption);
+				const requestResult = await this.HttpxRequest.request(requestOption);
 				if (
 					requestResult != null &&
 					typeof requestResult.abort === "function"
@@ -1680,6 +1687,7 @@ class Httpx {
 				abortFn();
 			}
 		};
+		// @ts-ignore
 		return promise;
 	}
 }
