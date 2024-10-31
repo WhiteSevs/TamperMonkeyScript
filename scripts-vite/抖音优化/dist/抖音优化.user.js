@@ -5955,7 +5955,12 @@
   const Hook = {
     $data: {
       document_addEventListener: [],
-      element_addEventListener: []
+      element_addEventListener: [],
+      setTimeout: [],
+      setInterval: [],
+      function_apply: [],
+      function_call: [],
+      defineProperty: []
     },
     /**
      * 劫持 document.addEventListener
@@ -5986,6 +5991,7 @@
               fn: result,
               options
             });
+            break;
           }
         }
         return Reflect.apply(originAddEventListener, this, args);
@@ -6040,6 +6046,7 @@
               fn: result,
               options
             });
+            break;
           }
         }
         return Reflect.apply(originAddEventListener, this, args);
@@ -6064,6 +6071,179 @@
         }
         return originRemoveEventListener.apply(this, args);
       };
+    },
+    /**
+     * 劫持 window.setTimeout
+     *
+     * @param handler
+     */
+    setTimeout(handler) {
+      this.$data.setTimeout.push(handler);
+      log.info("window.setTimeout hook新增劫持");
+      if (this.$data.setTimeout.length > 1) {
+        return;
+      }
+      const that = this;
+      let originSetTimeout = _unsafeWindow.setTimeout;
+      _unsafeWindow.setTimeout = function(...args) {
+        let fn = args[0];
+        let timeout = args[1];
+        for (let index = 0; index < that.$data.setTimeout.length; index++) {
+          const item = that.$data.setTimeout[index];
+          const result = item(fn, timeout);
+          if (typeof result === "boolean" && !result) {
+            return;
+          }
+        }
+        return Reflect.apply(originSetTimeout, this, args);
+      };
+    },
+    /**
+     * 劫持 window.setInterval
+     * @param handler
+     */
+    setInterval(handler) {
+      this.$data.setInterval.push(handler);
+      log.info("window.setInterval hook新增劫持");
+      if (this.$data.setInterval.length > 1) {
+        return;
+      }
+      const that = this;
+      let originSetInterval = _unsafeWindow.setInterval;
+      _unsafeWindow.setInterval = function(...args) {
+        let fn = args[0];
+        let timeout = args[1];
+        for (let index = 0; index < that.$data.setInterval.length; index++) {
+          const item = that.$data.setInterval[index];
+          const result = item(fn, timeout);
+          if (typeof result === "boolean" && !result) {
+            return;
+          }
+        }
+        return Reflect.apply(originSetInterval, this, args);
+      };
+    },
+    /**
+     * 劫持 Function.prototype.apply
+     * @param handler
+     */
+    function_apply(handler) {
+      this.$data.function_apply.push(handler);
+      log.info("Function.prototype.apply hook新增劫持");
+      if (this.$data.function_apply.length > 1) {
+        return;
+      }
+      const that = this;
+      let originFunctionApply = _unsafeWindow.Function.prototype.apply;
+      _unsafeWindow.Function.prototype.apply = function(...args) {
+        let thisArg = args[0];
+        let argArray = args[1];
+        let context = this;
+        for (let index = 0; index < that.$data.function_apply.length; index++) {
+          const item = that.$data.function_apply[index];
+          const result = item(context, thisArg, argArray);
+          if (result != null) {
+            args[0] = result.thisArg;
+            args[1] = result.argArray;
+            context = result.context;
+            break;
+          }
+        }
+        return Reflect.apply(originFunctionApply, context, args);
+      };
+    },
+    /**
+     * 劫持 Function.prototype.call
+     * @param handler
+     */
+    function_call(handler) {
+      this.$data.function_call.push(handler);
+      log.info("Function.prototype.call hook新增劫持");
+      if (this.$data.function_call.length > 1) {
+        return;
+      }
+      const that = this;
+      let originFunctionCall = _unsafeWindow.Function.prototype.call;
+      _unsafeWindow.Function.prototype.call = function(...args) {
+        let thisArg = args[0];
+        let argArray = args.slice(1);
+        let context = this;
+        for (let index = 0; index < that.$data.function_call.length; index++) {
+          const item = that.$data.function_call[index];
+          const result = item(context, thisArg, argArray);
+          if (result != null) {
+            args[0] = result.thisArg;
+            args.splice(1, argArray.length, ...result.argArray);
+            context = result.context;
+            break;
+          }
+        }
+        return Reflect.apply(originFunctionCall, context, args);
+      };
+    },
+    /**
+     * 劫持 Object.defineProperty
+     * @package handler
+     */
+    defineProperty(handler) {
+      this.$data.defineProperty.push(handler);
+      log.info("Object.defineProperty hook新增劫持");
+      if (this.$data.defineProperty.length > 1) {
+        return;
+      }
+      const that = this;
+      let originDefineProperty = _unsafeWindow.Object.defineProperty;
+      _unsafeWindow.Object.defineProperty = function(...args) {
+        let target = args[0];
+        let key = args[1];
+        let attributes = args[2];
+        for (let index = 0; index < that.$data.defineProperty.length; index++) {
+          const item = that.$data.defineProperty[index];
+          const result = item(target, key, attributes);
+          if (result != null) {
+            args[0] = result.target;
+            args[1] = result.key;
+            args[2] = result.attributes;
+            break;
+          }
+        }
+        return Reflect.apply(originDefineProperty, this, args);
+      };
+    },
+    /**
+     * 劫持webpack
+     * @param webpackName 当前全局变量的webpack名
+     * @param mainCoreData 需要劫持的webpack的顶部core
+     * 例如：(window.webpackJsonp = window.webpackJsonp || []).push([["core:0"],{}])
+     * 此时mainCoreData是["core:0"]
+     * @param handler 如果mainCoreData匹配上，则调用此回调函数，替换的话把传入的值进行处理后再返回它就行
+     */
+    window_webpack(webpackName = "webpackJsonp", mainCoreData, handler) {
+      let originObject = void 0;
+      _unsafeWindow.Object.defineProperty(_unsafeWindow, webpackName, {
+        get() {
+          return originObject;
+        },
+        set(newValue) {
+          log.success("成功劫持webpack，当前webpack名：" + webpackName);
+          originObject = newValue;
+          const originPush = originObject.push;
+          originObject.push = function(...args) {
+            let _mainCoreData = args[0][0];
+            if (mainCoreData == _mainCoreData || Array.isArray(mainCoreData) && Array.isArray(_mainCoreData) && JSON.stringify(mainCoreData) === JSON.stringify(_mainCoreData)) {
+              Object.keys(args[0][1]).forEach((keyName) => {
+                let originSwitchFunc = args[0][1][keyName];
+                args[0][1][keyName] = function(..._args) {
+                  let result = originSwitchFunc.call(this, ..._args);
+                  _args[0] = handler(_args[0]);
+                  return result;
+                };
+              });
+            }
+            return Reflect.apply(originPush, this, args);
+          };
+        }
+      });
     }
   };
   const DouYinHook = {
