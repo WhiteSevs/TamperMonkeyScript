@@ -53,6 +53,13 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									void 0,
 									"禁止视频区域双击点赞"
 								),
+								UISwitch(
+									"手势返回关闭评论区",
+									"dy-video-gestureBackCloseComment",
+									false,
+									void 0,
+									"浏览器手势返回时关闭评论区"
+								),
 							],
 						},
 						{

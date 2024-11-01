@@ -11,9 +11,11 @@ import { DouYinRedirect } from "./DouYinRedirect";
 import { DouYinSearch } from "./search/DouYinSearch";
 import { BlockLeftNavigator } from "./block-frame/blockLeftNavigator";
 import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
+import { DouYinGestureBackClearHash } from "./DouYinGestureBackConfig";
 
 export const DouYin = {
 	init() {
+		DouYinGestureBackClearHash();
 		PopsPanel.onceExec("hookKeyboard", () => {
 			DouYinHook.disableShortCut();
 		});

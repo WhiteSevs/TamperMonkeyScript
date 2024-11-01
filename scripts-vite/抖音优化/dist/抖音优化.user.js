@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.1
+// @version      2024.11.1.21
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -3145,6 +3145,103 @@
       return this.videoFilter.set(value);
     }
   };
+  class GestureBack {
+    constructor(config) {
+      /**
+       * 是否正在后退
+       */
+      __publicField(this, "isBacking", false);
+      __publicField(this, "config");
+      this.config = config;
+      this.enterGestureBackMode.bind(this);
+      this.quitGestureBackMode.bind(this);
+      this.popStateEvent.bind(this);
+      if (typeof this.config.backDelayTime !== "number" || isNaN(this.config.backDelayTime)) {
+        this.config.backDelayTime = 150;
+      }
+      if (this.config.win == null) {
+        this.config.win = self;
+      }
+    }
+    /**
+     * popstate事件函数
+     * @param event
+     */
+    popStateEvent(event) {
+      utils.preventEvent(event);
+      if (this.isBacking) {
+        return;
+      }
+      this.quitGestureBackMode(true);
+    }
+    /**
+     * 进入手势模式
+     */
+    enterGestureBackMode() {
+      log.success("进入手势模式");
+      let pushUrl = this.config.hash;
+      if (!pushUrl.startsWith("#")) {
+        if (!pushUrl.startsWith("/")) {
+          pushUrl = "/" + pushUrl;
+        }
+        pushUrl = "#" + pushUrl;
+      }
+      if (this.config.useUrl) {
+        pushUrl = this.config.win.location.origin + this.config.win.location.pathname + this.config.win.location.search + pushUrl;
+      }
+      this.config.win.history.pushState({}, "", pushUrl);
+      log.success("监听popstate事件");
+      domUtils.on(this.config.win, "popstate", this.popStateEvent.bind(this), {
+        capture: true
+      });
+    }
+    /**
+     * 退出手势模式
+     * @param isUrlChange 是否是url改变触发的
+     */
+    async quitGestureBackMode(isUrlChange = false) {
+      this.isBacking = true;
+      log.success("退出手势模式");
+      if (typeof this.config.beforeHistoryBackCallBack === "function") {
+        this.config.beforeHistoryBackCallBack(isUrlChange);
+      }
+      let maxDate = Date.now() + 1e3 * 5;
+      while (true) {
+        if (Date.now() > maxDate) {
+          log.error("未知情况，history.back()失败，无法退出手势模式");
+          break;
+        }
+        if (this.config.win.location.hash.endsWith(this.config.hash)) {
+          log.info("history.back()");
+          this.config.win.history.back();
+          await utils.sleep(this.config.backDelayTime || 150);
+        } else {
+          break;
+        }
+      }
+      log.success("移除popstate事件");
+      domUtils.off(this.config.win, "popstate", this.popStateEvent.bind(this), {
+        capture: true
+      });
+      this.isBacking = false;
+      if (typeof this.config.afterHistoryBackCallBack === "function") {
+        this.config.afterHistoryBackCallBack(isUrlChange);
+      }
+    }
+  }
+  const DouYinGestureBackHashConfig = {
+    /** 进入视频评论区 */
+    videoCommentDrawer: "videoCommentDrawer"
+  };
+  const DouYinGestureBackClearHash = () => {
+    let findValue = Object.values(DouYinGestureBackHashConfig).find((hash) => {
+      return globalThis.location.hash.endsWith(hash);
+    });
+    if (findValue) {
+      globalThis.location.hash = "";
+      log.success(`发现残留的手势返回hash，已清理 ==> ` + findValue);
+    }
+  };
   const DouYinVideo = {
     init() {
       DouYinVideoHideElement.init();
@@ -3196,6 +3293,9 @@
         PopsPanel.onceExec("repairProgressBar", () => {
           this.repairVideoProgressBar();
         });
+      });
+      PopsPanel.execMenuOnce("dy-video-gestureBackCloseComment", () => {
+        this.gestureBackCloseComment();
       });
       domUtils.ready(() => {
         DouYinVideo.chooseVideoDefinition(
@@ -3723,6 +3823,71 @@
           lockFn.run();
         }
       });
+    },
+    /**
+     * 手势返回关闭评论区
+     */
+    gestureBackCloseComment() {
+      log.info(`手势返回关闭评论区`);
+      let gestureback = new GestureBack({
+        hash: DouYinGestureBackHashConfig.videoCommentDrawer,
+        useUrl: true,
+        beforeHistoryBackCallBack(isUrlChange) {
+          if (isUrlChange) {
+            closeComment();
+          }
+        }
+      });
+      const $closeSelector = `#relatedVideoCard .semi-tabs + div svg:has(path[d="M22.133 23.776a1.342 1.342 0 1 0 1.898-1.898l-4.112-4.113 4.112-4.112a1.342 1.342 0 0 0-1.898-1.898l-4.112 4.112-4.113-4.112a1.342 1.342 0 1 0-1.898 1.898l4.113 4.112-4.113 4.113a1.342 1.342 0 0 0 1.898 1.898l4.113-4.113 4.112 4.113z"])`;
+      function closeComment() {
+        var _a2;
+        let $close = document.querySelector($closeSelector);
+        if ($close) {
+          let rect = utils.getReactObj($close);
+          if (rect) {
+            let fn = (_a2 = rect.reactProps) == null ? void 0 : _a2.onClick;
+            if (typeof fn === "function") {
+              fn();
+            } else {
+              Qmsg.error("调用关闭评论区按钮的onClick函数失败");
+            }
+          } else {
+            Qmsg.error("获取关闭评论区按钮react信息失败");
+          }
+        } else {
+          Qmsg.error("未找到关闭评论区的按钮");
+        }
+      }
+      domUtils.on(
+        document,
+        "click",
+        `.xgplayer div[data-e2e="feed-comment-icon"]`,
+        (event) => {
+          log.info(`手势 => 打开评论区`);
+          utils.waitNode($closeSelector, 1e4).then(($el) => {
+            if (!$el) {
+              return;
+            }
+            log.info(`手势 => 评论区出现`);
+            gestureback.enterGestureBackMode();
+          });
+        },
+        {
+          capture: true
+        }
+      );
+      domUtils.on(
+        document,
+        "click",
+        $closeSelector,
+        (event) => {
+          log.info(`手势 => 关闭评论区`);
+          gestureback.quitGestureBackMode();
+        },
+        {
+          capture: true
+        }
+      );
     }
   };
   const DouYinVideoShortcut = {
@@ -3932,6 +4097,13 @@
                     false,
                     void 0,
                     "禁止视频区域双击点赞"
+                  ),
+                  UISwitch(
+                    "手势返回关闭评论区",
+                    "dy-video-gestureBackCloseComment",
+                    false,
+                    void 0,
+                    "浏览器手势返回时关闭评论区"
                   )
                 ]
               },
@@ -6962,6 +7134,7 @@
   };
   const DouYin = {
     init() {
+      DouYinGestureBackClearHash();
       PopsPanel.onceExec("hookKeyboard", () => {
         DouYinHook.disableShortCut();
       });

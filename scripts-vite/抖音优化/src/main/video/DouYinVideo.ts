@@ -11,6 +11,9 @@ import { DouYinVideoHideElement } from "./DouYinVideoHideElement";
 import { DouYinVideoShortcut } from "./DouYinVideoShortCut";
 import { DouYinVideoComment } from "./DouYinVideoComment";
 import { DouYinRecommendVideoFilter } from "../recommend/DouYinRecommendVideoFilter";
+import { GestureBack } from "@/utils/GestureBack";
+import { ReactUtils } from "@/utils/ReactUtils";
+import { DouYinGestureBackHashConfig } from "../DouYinGestureBackConfig";
 
 export type VideoRate = "0.75" | "1" | "1.25" | "1.5" | "1.75" | "2" | "3";
 
@@ -70,6 +73,9 @@ export const DouYinVideo = {
 			PopsPanel.onceExec("repairProgressBar", () => {
 				this.repairVideoProgressBar();
 			});
+		});
+		PopsPanel.execMenuOnce("dy-video-gestureBackCloseComment", () => {
+			this.gestureBackCloseComment();
 		});
 		DOMUtils.ready(() => {
 			DouYinVideo.chooseVideoDefinition(
@@ -609,5 +615,74 @@ export const DouYinVideo = {
 				lockFn.run();
 			},
 		});
+	},
+	/**
+	 * 手势返回关闭评论区
+	 */
+	gestureBackCloseComment() {
+		log.info(`手势返回关闭评论区`);
+		let gestureback = new GestureBack({
+			hash: DouYinGestureBackHashConfig.videoCommentDrawer,
+			useUrl: true,
+			beforeHistoryBackCallBack(isUrlChange) {
+				if (isUrlChange) {
+					closeComment();
+				}
+			},
+		});
+
+		const $closeSelector = `#relatedVideoCard .semi-tabs + div svg:has(path[d="M22.133 23.776a1.342 1.342 0 1 0 1.898-1.898l-4.112-4.113 4.112-4.112a1.342 1.342 0 0 0-1.898-1.898l-4.112 4.112-4.113-4.112a1.342 1.342 0 1 0-1.898 1.898l4.113 4.112-4.113 4.113a1.342 1.342 0 0 0 1.898 1.898l4.113-4.113 4.112 4.113z"])`;
+		/**
+		 * 关闭评论区
+		 */
+		function closeComment() {
+			let $close = document.querySelector<HTMLElement>($closeSelector);
+			if ($close) {
+				let rect = utils.getReactObj($close);
+				if (rect) {
+					let fn = rect.reactProps?.onClick;
+					if (typeof fn === "function") {
+						fn();
+					} else {
+						Qmsg.error("调用关闭评论区按钮的onClick函数失败");
+					}
+				} else {
+					Qmsg.error("获取关闭评论区按钮react信息失败");
+				}
+			} else {
+				Qmsg.error("未找到关闭评论区的按钮");
+			}
+		}
+
+		DOMUtils.on(
+			document,
+			"click",
+			`.xgplayer div[data-e2e="feed-comment-icon"]`,
+			(event) => {
+				log.info(`手势 => 打开评论区`);
+				utils.waitNode($closeSelector, 10000).then(($el) => {
+					if (!$el) {
+						return;
+					}
+					log.info(`手势 => 评论区出现`);
+					gestureback.enterGestureBackMode();
+				});
+			},
+			{
+				capture: true,
+			}
+		);
+		DOMUtils.on(
+			document,
+			"click",
+			$closeSelector,
+			(event) => {
+				log.info(`手势 => 关闭评论区`);
+				gestureback.quitGestureBackMode();
+			},
+			{
+				capture: true,
+			}
+		);
 	},
 };
