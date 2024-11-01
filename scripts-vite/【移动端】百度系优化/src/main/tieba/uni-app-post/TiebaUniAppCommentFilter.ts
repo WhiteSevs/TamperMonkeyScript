@@ -38,6 +38,10 @@ export const TiebaUniAppCommentFilter = {
 	 */
 	execFilter() {
 		let filterRule = this.getData();
+		if (!filterRule.length) {
+			return;
+		}
+		log.success(`评论过滤器-启动！`);
 		let lockFn = new utils.LockFunction(() => {
 			let $commentGroupList = Array.from(
 				document.querySelectorAll<HTMLElement>("uni-app .comment-group")
