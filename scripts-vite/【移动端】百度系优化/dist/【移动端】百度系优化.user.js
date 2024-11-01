@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.27
+// @version      2024.11.1
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -13,17 +13,17 @@
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/488179/1413254/showdown.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.4.33/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.9/lib/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/pinia@2.1.7/dist/pinia.iife.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-router@4.4.5/dist/vue-router.global.js
 // @require      https://update.greasyfork.org/scripts/495227/1413261/Element-Plus.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.0/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.7/dist/index.min.css
 // @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
 // @connect      *
@@ -57,6 +57,7 @@
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var _a2;
+  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
   var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
@@ -669,6 +670,7 @@
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+  const PROPS_STORAGE_API = "data-storage-api";
   const BaiduSearchBlockRule = {
     defaultRule: `
 // 百度健康
@@ -854,30 +856,40 @@ match-attr##srcid##sp_purc_atom
       }
     }
   };
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description) {
+  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
     let result = {
       text,
       type: "switch",
       description,
       attributes: {},
+      props: {},
       getValue() {
-        return Boolean(PopsPanel.getValue(key, defaultValue));
+        return Boolean(
+          this.props[PROPS_STORAGE_API].get(key, defaultValue)
+        );
       },
-      callback(event, value) {
+      callback(event, __value) {
+        let value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
         if (typeof clickCallBack === "function") {
           if (clickCallBack(event, value)) {
             return;
           }
         }
-        PopsPanel.setValue(key, Boolean(value));
+        this.props[PROPS_STORAGE_API].set(key, value);
       },
-      afterAddToUListCallBack: void 0
+      afterAddToUListCallBack
     };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
-    }
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
     return result;
   };
   const PanelSearchSettingUI = {
@@ -2106,10 +2118,1089 @@ match-attr##srcid##sp_purc_atom
       return result;
     }
   };
+  const UIInput = function(text, key, defaultValue, description, changeCallBack, placeholder = "", isNumber2, isPassword) {
+    let result = {
+      text,
+      type: "input",
+      isNumber: Boolean(isNumber2),
+      isPassword: Boolean(isPassword),
+      props: {},
+      attributes: {},
+      description,
+      getValue() {
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+      },
+      callback(event, value) {
+        this.props[PROPS_STORAGE_API].set(key, value);
+      },
+      placeholder
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
+    return result;
+  };
+  class RuleEditView {
+    constructor(option) {
+      __publicField(this, "option");
+      this.option = option;
+    }
+    /**
+     * 显示视图
+     */
+    showView() {
+      var _a3;
+      let $dialog = __pops.confirm({
+        title: {
+          text: this.option.title,
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+                    <form class="rule-form-container" onsubmit="return false">
+                        <ul class="rule-form-ulist">
+                            
+                        </ul>
+                        <input type="submit" style="display: none;" />
+                    </form>
+                    `
+          ),
+          html: true
+        },
+        btn: utils.assign(
+          {
+            ok: {
+              callback() {
+                submitSaveOption();
+              }
+            }
+          },
+          this.option.btn || {},
+          true
+        ),
+        mask: {
+          enable: true
+        },
+        style: (
+          /*css*/
+          `
+                ${__pops.config.cssText.panelCSS}
+                
+                .rule-form-container {
+                    
+                }
+                .rule-form-container li{
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 5px 20px;
+                    gap: 10px;
+                }
+                .pops-panel-item-left-main-text{
+                    max-width: 150px;
+                }
+                .pops-panel-item-right-text{
+                    padding-left: 30px;
+                }
+                .pops-panel-item-right-text,
+                .pops-panel-item-right-main-text{
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    white-space: nowrap;
+                }
+
+                ${((_a3 = this.option) == null ? void 0 : _a3.style) ?? ""}
+            `
+        ),
+        width: window.innerWidth > 500 ? "500px" : "88vw",
+        height: window.innerHeight > 500 ? "500px" : "80vh"
+      });
+      let $form = $dialog.$shadowRoot.querySelector(
+        ".rule-form-container"
+      );
+      $dialog.$shadowRoot.querySelector(
+        "input[type=submit]"
+      );
+      let $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
+      let view = this.option.getView(this.option.data());
+      $ulist.appendChild(view);
+      const submitSaveOption = () => {
+        let result = this.option.onsubmit($form, this.option.data());
+        if (!result.success) {
+          return;
+        }
+        $dialog.close();
+        this.option.dialogCloseCallBack(true);
+      };
+    }
+  }
+  class RuleFilterView {
+    constructor(option) {
+      __publicField(this, "option");
+      this.option = option;
+    }
+    showView() {
+      let $alert = __pops.alert({
+        title: {
+          text: this.option.title,
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+                <div class="filter-container"></div>
+                `
+          )
+        },
+        btn: {
+          ok: {
+            text: "关闭",
+            type: "default"
+          }
+        },
+        mask: {
+          enable: true
+        },
+        width: window.innerWidth > 500 ? "350px" : "80vw",
+        height: window.innerHeight > 500 ? "300px" : "70vh",
+        style: (
+          /*css*/
+          `
+            .filter-container{
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            .filter-container button{
+                text-wrap: wrap;
+                padding: 8px;
+                height: auto;
+                text-align: left;
+            }
+            `
+        )
+      });
+      let $filterContainer = $alert.$shadowRoot.querySelector(".filter-container");
+      let $fragment = document.createDocumentFragment();
+      this.option.filterOption.forEach((filterOption) => {
+        let $button = document.createElement("button");
+        $button.innerText = filterOption.name;
+        let execFilterAndCloseDialog = () => {
+          this.option.getAllRuleInfo().forEach((ruleInfo) => {
+            if (!filterOption.filterCallBack(ruleInfo.data)) {
+              domutils.hide(ruleInfo.$el, false);
+            } else {
+              domutils.show(ruleInfo.$el, false);
+            }
+          });
+          if (typeof this.option.execFilterCallBack === "function") {
+            this.option.execFilterCallBack();
+          }
+          $alert.close();
+        };
+        domutils.on($button, "click", (event) => {
+          utils.preventEvent(event);
+          if (typeof filterOption.callback === "function") {
+            let result = filterOption.callback(event, execFilterAndCloseDialog);
+            if (!result) {
+              return;
+            }
+          }
+          execFilterAndCloseDialog();
+        });
+        $fragment.appendChild($button);
+      });
+      $filterContainer.appendChild($fragment);
+    }
+  }
+  class RuleView {
+    constructor(option) {
+      __publicField(this, "option");
+      this.option = option;
+    }
+    /**
+     * 显示视图
+     */
+    showView() {
+      var _a3, _b, _c, _d, _e, _f, _g, _h, _i;
+      let $popsConfirm = __pops.confirm({
+        title: {
+          text: this.option.title,
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+                    <div class="rule-view-container">
+                    </div>
+                    `
+          ),
+          html: true
+        },
+        btn: {
+          merge: true,
+          reverse: false,
+          position: "space-between",
+          ok: {
+            enable: ((_c = (_b = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b.add) == null ? void 0 : _c.enable) || true,
+            type: "primary",
+            text: "添加",
+            callback: (event) => {
+              this.showEditView(
+                $popsConfirm.$shadowRoot,
+                false,
+                this.option.getAddData()
+              );
+            }
+          },
+          close: {
+            enable: true,
+            callback(event) {
+              $popsConfirm.close();
+            }
+          },
+          cancel: {
+            enable: ((_f = (_e = (_d = this.option) == null ? void 0 : _d.bottomControls) == null ? void 0 : _e.filter) == null ? void 0 : _f.enable) || false,
+            type: "default",
+            text: "过滤",
+            callback: (details, event) => {
+              var _a4, _b2, _c2, _d2, _e2, _f2, _g2;
+              if (typeof ((_c2 = (_b2 = (_a4 = this.option) == null ? void 0 : _a4.bottomControls) == null ? void 0 : _b2.filter) == null ? void 0 : _c2.callback) === "function") {
+                this.option.bottomControls.filter.callback();
+              }
+              let getAllRuleElement = () => {
+                return Array.from(
+                  $popsConfirm.$shadowRoot.querySelectorAll(
+                    ".rule-view-container .rule-item"
+                  )
+                );
+              };
+              let $button = event.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
+              if (domutils.text($button).includes("取消")) {
+                getAllRuleElement().forEach(($el) => {
+                  domutils.show($el, false);
+                });
+                domutils.text($button, "过滤");
+              } else {
+                let ruleFilterView = new RuleFilterView({
+                  title: ((_e2 = (_d2 = this.option.bottomControls) == null ? void 0 : _d2.filter) == null ? void 0 : _e2.title) ?? "过滤规则",
+                  filterOption: ((_g2 = (_f2 = this.option.bottomControls) == null ? void 0 : _f2.filter) == null ? void 0 : _g2.option) || [],
+                  execFilterCallBack() {
+                    domutils.text($button, "取消过滤");
+                  },
+                  getAllRuleInfo: () => {
+                    return getAllRuleElement().map(($el) => {
+                      return {
+                        data: this.parseRuleItemElement($el).data,
+                        $el
+                      };
+                    });
+                  }
+                });
+                ruleFilterView.showView();
+              }
+            }
+          },
+          other: {
+            enable: ((_i = (_h = (_g = this.option) == null ? void 0 : _g.bottomControls) == null ? void 0 : _h.clear) == null ? void 0 : _i.enable) || true,
+            type: "xiaomi-primary",
+            text: `清空所有(${this.option.data().length})`,
+            callback: (event) => {
+              let $askDialog = __pops.confirm({
+                title: {
+                  text: "提示",
+                  position: "center"
+                },
+                content: {
+                  text: "确定清空所有的数据？",
+                  html: false
+                },
+                btn: {
+                  ok: {
+                    enable: true,
+                    callback: (popsEvent) => {
+                      var _a4, _b2, _c2;
+                      log.success("清空所有");
+                      if (typeof ((_c2 = (_b2 = (_a4 = this.option) == null ? void 0 : _a4.bottomControls) == null ? void 0 : _b2.clear) == null ? void 0 : _c2.callback) === "function") {
+                        this.option.bottomControls.clear.callback();
+                      }
+                      if (this.option.data().length) {
+                        Qmsg.error("清理失败");
+                        return;
+                      } else {
+                        Qmsg.success("清理成功");
+                      }
+                      this.updateDeleteAllBtnText($popsConfirm.$shadowRoot);
+                      this.clearContent($popsConfirm.$shadowRoot);
+                      $askDialog.close();
+                    }
+                  },
+                  cancel: {
+                    text: "取消",
+                    enable: true
+                  }
+                },
+                mask: { enable: true },
+                width: "300px",
+                height: "200px"
+              });
+            }
+          }
+        },
+        mask: {
+          enable: true
+        },
+        width: window.innerWidth > 500 ? "500px" : "88vw",
+        height: window.innerHeight > 500 ? "500px" : "80vh",
+        style: (
+          /*css*/
+          `
+            ${__pops.config.cssText.panelCSS}
+            
+            .rule-item{
+                display: flex;
+                align-items: center;
+                line-height: normal;
+                font-size: 16px;
+                padding: 4px 4px;
+                gap: 6px;
+            }
+            .rule-name{
+                flex: 1;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
+            .rule-controls{
+                display: flex;
+                align-items: center;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+                gap: 8px;
+                padding: 0px 4px;
+            }
+            .rule-controls-enable{
+                
+            }
+            .rule-controls-edit{
+                
+            }
+            .rule-controls-delete{
+                
+            }
+            .rule-controls-edit,
+            .rule-controls-delete{
+                width: 16px;
+                height: 16px;
+                cursor: pointer;
+            }
+            `
+        )
+      });
+      let allData = this.option.data();
+      allData.forEach((data) => {
+        this.appendRuleItemElement($popsConfirm.$shadowRoot, data);
+      });
+    }
+    /**
+     * 解析弹窗内的各个元素
+     */
+    parseViewElement($shadowRoot) {
+      let $container = $shadowRoot.querySelector(
+        ".rule-view-container"
+      );
+      let $deleteBtn = $shadowRoot.querySelector(
+        ".pops-confirm-btn button.pops-confirm-btn-other"
+      );
+      return {
+        /** 容器 */
+        $container,
+        /** 左下角的清空按钮 */
+        $deleteBtn
+      };
+    }
+    /**
+     * 解析每一项的元素
+     */
+    parseRuleItemElement($ruleElement) {
+      let $enable = $ruleElement.querySelector(
+        ".rule-controls-enable"
+      );
+      let $enableSwitch = $enable.querySelector(".pops-panel-switch");
+      let $enableSwitchInput = $enable.querySelector(
+        ".pops-panel-switch__input"
+      );
+      let $enableSwitchCore = $enable.querySelector(
+        ".pops-panel-switch__core"
+      );
+      let $edit = $ruleElement.querySelector(".rule-controls-edit");
+      let $delete = $ruleElement.querySelector(
+        ".rule-controls-delete"
+      );
+      return {
+        /** 启用开关 */
+        $enable,
+        /** 启用开关的container */
+        $enableSwitch,
+        /** 启用开关的input */
+        $enableSwitchInput,
+        /** 启用开关的core */
+        $enableSwitchCore,
+        /** 编辑按钮 */
+        $edit,
+        /** 删除按钮 */
+        $delete,
+        /** 存储在元素上的数据 */
+        data: Reflect.get($ruleElement, "data-rule")
+      };
+    }
+    /**
+     * 创建一条规则元素
+     */
+    createRuleItemElement(data, $shadowRoot) {
+      let name = this.option.getDataItemName(data);
+      let $ruleItem = domutils.createElement("div", {
+        className: "rule-item",
+        innerHTML: (
+          /*html*/
+          `
+			<div class="rule-name">${name}</div>
+			<div class="rule-controls">
+				<div class="rule-controls-enable">
+					<div class="pops-panel-switch">
+						<input class="pops-panel-switch__input" type="checkbox">
+						<span class="pops-panel-switch__core">
+							<div class="pops-panel-switch__action">
+							</div>
+						</span>
+					</div>
+				</div>
+				<div class="rule-controls-edit">
+					${__pops.config.iconSVG.edit}
+				</div>
+				<div class="rule-controls-delete">
+					${__pops.config.iconSVG.delete}
+				</div>
+			</div>
+			`
+        )
+      });
+      Reflect.set($ruleItem, "data-rule", data);
+      let switchCheckedClassName = "pops-panel-switch-is-checked";
+      const {
+        $enable,
+        $enableSwitch,
+        $enableSwitchCore,
+        $enableSwitchInput,
+        $delete,
+        $edit
+      } = this.parseRuleItemElement($ruleItem);
+      if (this.option.itemControls.enable.enable) {
+        domutils.on($enableSwitchCore, "click", (event) => {
+          let isChecked = false;
+          if ($enableSwitch.classList.contains(switchCheckedClassName)) {
+            $enableSwitch.classList.remove(switchCheckedClassName);
+            isChecked = false;
+          } else {
+            $enableSwitch.classList.add(switchCheckedClassName);
+            isChecked = true;
+          }
+          $enableSwitchInput.checked = isChecked;
+          this.option.itemControls.enable.callback(data, isChecked);
+        });
+        if (this.option.itemControls.enable.getEnable(data)) {
+          $enableSwitch.classList.add(switchCheckedClassName);
+        }
+      } else {
+        $enable.remove();
+      }
+      if (this.option.itemControls.edit.enable) {
+        domutils.on($edit, "click", (event) => {
+          utils.preventEvent(event);
+          this.showEditView($shadowRoot, true, data, $ruleItem, (newData) => {
+            data = null;
+            data = newData;
+          });
+        });
+      } else {
+        $edit.remove();
+      }
+      if (this.option.itemControls.delete.enable) {
+        domutils.on($delete, "click", (event) => {
+          utils.preventEvent(event);
+          let $askDialog = __pops.confirm({
+            title: {
+              text: "提示",
+              position: "center"
+            },
+            content: {
+              text: "确定删除该条数据？",
+              html: false
+            },
+            btn: {
+              ok: {
+                enable: true,
+                callback: (popsEvent) => {
+                  log.success("删除数据");
+                  let flag = this.option.itemControls.delete.deleteCallBack(data);
+                  if (flag) {
+                    Qmsg.success("成功删除该数据");
+                    $ruleItem.remove();
+                    this.updateDeleteAllBtnText($shadowRoot);
+                    $askDialog.close();
+                  } else {
+                    Qmsg.error("删除该数据失败");
+                  }
+                }
+              },
+              cancel: {
+                text: "取消",
+                enable: true
+              }
+            },
+            mask: {
+              enable: true
+            },
+            width: "300px",
+            height: "200px"
+          });
+        });
+      } else {
+        $delete.remove();
+      }
+      return $ruleItem;
+    }
+    /**
+     * 添加一个规则元素
+     */
+    appendRuleItemElement($shadowRoot, data) {
+      const { $container } = this.parseViewElement($shadowRoot);
+      if (Array.isArray(data)) {
+        for (let index = 0; index < data.length; index++) {
+          const item = data[index];
+          $container.appendChild(this.createRuleItemElement(item, $shadowRoot));
+        }
+      } else {
+        $container.appendChild(this.createRuleItemElement(data, $shadowRoot));
+      }
+      this.updateDeleteAllBtnText($shadowRoot);
+    }
+    /**
+     * 更新弹窗内容的元素
+     */
+    updateRuleContaienrElement($shadowRoot) {
+      this.clearContent($shadowRoot);
+      this.parseViewElement($shadowRoot);
+      let data = this.option.data();
+      this.appendRuleItemElement($shadowRoot, data);
+      this.updateDeleteAllBtnText($shadowRoot);
+    }
+    /**
+     * 更新规则元素
+     */
+    updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
+      let $newRuleItem = this.createRuleItemElement(data, $shadowRoot);
+      $oldRuleItem.after($newRuleItem);
+      $oldRuleItem.remove();
+    }
+    /**
+     * 清空内容
+     */
+    clearContent($shadowRoot) {
+      const { $container } = this.parseViewElement($shadowRoot);
+      domutils.html($container, "");
+    }
+    /**
+     * 设置删除按钮的文字
+     */
+    setDeleteBtnText($shadowRoot, text, isHTML = false) {
+      const { $deleteBtn } = this.parseViewElement($shadowRoot);
+      if (isHTML) {
+        domutils.html($deleteBtn, text);
+      } else {
+        domutils.text($deleteBtn, text);
+      }
+    }
+    /**
+     * 更新【清空所有】的按钮的文字
+     */
+    updateDeleteAllBtnText($shadowRoot) {
+      let data = this.option.data();
+      this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
+    }
+    /**
+     * 显示编辑视图
+     * @param isEdit 是否是编辑状态
+     */
+    showEditView($parentShadowRoot, isEdit, editData, $editRuleItemElement, updateDataCallBack) {
+      let dialogCloseCallBack = (isSubmit) => {
+        if (isSubmit) ;
+        else {
+          if (!isEdit) {
+            this.option.deleteData(editData);
+          }
+          if (typeof updateDataCallBack === "function") {
+            let newData = this.option.getData(editData);
+            updateDataCallBack(newData);
+          }
+        }
+      };
+      let editView = new RuleEditView({
+        title: isEdit ? "编辑" : "添加",
+        data: () => {
+          return editData;
+        },
+        dialogCloseCallBack,
+        getView: (data) => {
+          return this.option.itemControls.edit.getView(data, isEdit);
+        },
+        btn: {
+          ok: {
+            enable: true,
+            text: isEdit ? "修改" : "添加"
+          },
+          cancel: {
+            callback(details, event) {
+              details.close();
+              dialogCloseCallBack(false);
+            }
+          },
+          close: {
+            callback(details, event) {
+              details.close();
+              dialogCloseCallBack(false);
+            }
+          }
+        },
+        onsubmit: ($form, data) => {
+          let result = this.option.itemControls.edit.onsubmit(
+            $form,
+            isEdit,
+            data
+          );
+          if (result.success) {
+            if (isEdit) {
+              Qmsg.success("修改成功");
+              this.updateRuleItemElement(
+                result.data,
+                $editRuleItemElement,
+                $parentShadowRoot
+              );
+            } else {
+              this.appendRuleItemElement($parentShadowRoot, result.data);
+            }
+          } else {
+            if (isEdit) {
+              Qmsg.error("修改失败");
+            }
+          }
+          return result;
+        },
+        style: this.option.itemControls.edit.style
+      });
+      editView.showView();
+    }
+  }
+  const TiebaUniAppCommentFilter = {
+    $key: {
+      STORAGE_KEY: "baidu-tieba-uni-app-comment-filter-rule"
+    },
+    init() {
+      this.execFilter();
+    },
+    /**
+     * 执行过滤
+     */
+    execFilter() {
+      let filterRule = this.getData();
+      let lockFn = new utils.LockFunction(() => {
+        let $commentGroupList = Array.from(
+          document.querySelectorAll("uni-app .comment-group")
+        );
+        $commentGroupList.forEach(($commentGroup) => {
+          var _a3, _b;
+          let vueIns = VueUtils.getVue($commentGroup);
+          if (!vueIns) {
+            return;
+          }
+          const sectionData = vueIns == null ? void 0 : vueIns.sectionData;
+          if (!Array.isArray(sectionData)) {
+            return;
+          }
+          for (let sectionDataIndex = 0; sectionDataIndex < sectionData.length; sectionDataIndex++) {
+            const commentInfo = sectionData[sectionDataIndex];
+            const commentData = {
+              /** 用户id */
+              author_id: ((commentInfo == null ? void 0 : commentInfo.author_id) || ((_a3 = commentInfo == null ? void 0 : commentInfo.author) == null ? void 0 : _a3.id)).toString(),
+              /** 用户显示的名字 */
+              nameShow: (_b = commentInfo == null ? void 0 : commentInfo.author) == null ? void 0 : _b.name_show,
+              /** 用户发布的内容 */
+              content: "",
+              /** 楼层 */
+              floor: commentInfo == null ? void 0 : commentInfo.floor
+            };
+            if (Array.isArray(commentInfo.content)) {
+              commentInfo.content.forEach((item) => {
+                if (item.type === 0 && typeof item.text === "string") {
+                  commentData.content += item.text;
+                }
+              });
+            }
+            let findRule = filterRule.find((rule) => {
+              if (!rule.enable) {
+                return;
+              }
+              let flag = true;
+              if (rule.author_id.trim() !== "") {
+                flag = flag && commentData.author_id == rule.author_id;
+              }
+              if (rule.author_nameShow.trim() !== "") {
+                flag = flag && typeof commentData.nameShow === "string" && Boolean(
+                  commentData.nameShow.match(new RegExp(rule.author_nameShow))
+                );
+              }
+              if (rule.content.trim() !== "") {
+                flag = flag && commentData.content !== "" && Boolean(commentData.content.match(new RegExp(rule.content)));
+              }
+              return flag;
+            });
+            if (findRule) {
+              Array.from(
+                $commentGroup.querySelectorAll(".comment-item")
+              ).find(($commentItem, elIndex) => {
+                if (elIndex === sectionDataIndex) {
+                  if (!$commentItem.hasAttribute("data-hide")) {
+                    $commentItem.setAttribute("data-hide", "");
+                    domutils.hide($commentItem, false);
+                    log.success(`过滤评论`, findRule, commentData);
+                  }
+                  return true;
+                }
+              });
+            }
+          }
+        });
+      });
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        callback: () => {
+          lockFn.run();
+        }
+      });
+    },
+    /**
+     * 显示视图
+     */
+    showView() {
+      let popsPanelContentUtils = __pops.config.panelHandleContentUtils();
+      function generateStorageApi(data) {
+        return {
+          get(key, defaultValue) {
+            return data[key] ?? defaultValue;
+          },
+          set(key, value) {
+            data[key] = value;
+          }
+        };
+      }
+      let ruleView = new RuleView({
+        title: "评论过滤器",
+        data: () => {
+          return this.getData();
+        },
+        getAddData: () => {
+          return this.getTemplateData();
+        },
+        getDataItemName: (data) => {
+          return data["name"];
+        },
+        updateData: (data) => {
+          return this.updateData(data);
+        },
+        deleteData: (data) => {
+          return this.deleteData(data);
+        },
+        getData: (data) => {
+          let allData = this.getData();
+          let findValue = allData.find((item) => item.uuid === data.uuid);
+          return findValue ?? data;
+        },
+        itemControls: {
+          enable: {
+            enable: true,
+            getEnable(data) {
+              return data.enable;
+            },
+            callback: (data, enable) => {
+              data.enable = enable;
+              this.updateData(data);
+            }
+          },
+          edit: {
+            enable: true,
+            getView: (data, isEdit) => {
+              let $fragment = document.createDocumentFragment();
+              if (!isEdit) {
+                data = this.getTemplateData();
+              }
+              let enable_template = UISwitch("启用", "enable", true);
+              Reflect.set(
+                enable_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data)
+              );
+              let $enable = popsPanelContentUtils.createSectionContainerItem_switch(
+                enable_template
+              );
+              let name_template = UIInput(
+                "规则名称",
+                "name",
+                "",
+                "",
+                void 0,
+                "必填"
+              );
+              Reflect.set(
+                name_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data)
+              );
+              let $name = popsPanelContentUtils.createSectionContainerItem_input(
+                name_template
+              );
+              let author_id_template = UIInput(
+                "用户id",
+                "author_id",
+                "",
+                "",
+                void 0,
+                "完全匹配"
+              );
+              Reflect.set(
+                author_id_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data)
+              );
+              let $author_id = popsPanelContentUtils.createSectionContainerItem_input(
+                author_id_template
+              );
+              let author_nameShow_template = UIInput(
+                "用户名",
+                "author_nameShow",
+                "",
+                "",
+                void 0,
+                "可正则，注意转义"
+              );
+              Reflect.set(
+                author_nameShow_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data)
+              );
+              let $author_nameShow = popsPanelContentUtils.createSectionContainerItem_input(
+                author_nameShow_template
+              );
+              let content_template = UIInput("内容", "content", "", "");
+              Reflect.set(
+                content_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data)
+              );
+              let $content = popsPanelContentUtils.createSectionContainerItem_input(
+                content_template
+              );
+              $fragment.append(
+                $enable,
+                $name,
+                $author_id,
+                $author_nameShow,
+                $content
+              );
+              return $fragment;
+            },
+            onsubmit: ($form, isEdit, editData) => {
+              let $ulist_li = $form.querySelectorAll(
+                ".rule-form-ulist > li"
+              );
+              let data = this.getTemplateData();
+              if (isEdit) {
+                data.uuid = editData.uuid;
+              }
+              $ulist_li.forEach(($li) => {
+                let formConfig = Reflect.get($li, "__formConfig__");
+                let attrs = Reflect.get(formConfig, "attributes");
+                let storageApi = Reflect.get($li, PROPS_STORAGE_API);
+                let key = Reflect.get(attrs, ATTRIBUTE_KEY);
+                let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
+                let value = storageApi.get(key, defaultValue);
+                if (Reflect.has(data, key)) {
+                  Reflect.set(data, key, value);
+                } else {
+                  log.error(`${key}不在数据中`);
+                }
+              });
+              if (data.name.trim() === "") {
+                Qmsg.error("规则名称不能为空");
+                return {
+                  success: false,
+                  data
+                };
+              }
+              if (data.author_id.trim() === "" && data.author_nameShow.trim() === "" && data.content.trim() === "") {
+                Qmsg.error("用户id、用户名、内容必须填一个");
+                return {
+                  success: false,
+                  data
+                };
+              }
+              if (isEdit) {
+                return {
+                  success: this.updateData(data),
+                  data
+                };
+              } else {
+                return {
+                  success: this.addData(data),
+                  data
+                };
+              }
+            },
+            style: (
+              /*css*/
+              `
+                    .pops-panel-textarea textarea{
+                        height: 150px;
+                    }
+                    `
+            )
+          },
+          delete: {
+            enable: true,
+            deleteCallBack: (data) => {
+              return this.deleteData(data);
+            }
+          }
+        },
+        bottomControls: {
+          filter: {
+            enable: true,
+            option: [
+              {
+                name: "过滤已启用",
+                filterCallBack(data) {
+                  return data.enable;
+                }
+              },
+              {
+                name: "过滤未启用",
+                filterCallBack(data) {
+                  return !data.enable;
+                }
+              }
+            ]
+          }
+        }
+      });
+      ruleView.showView();
+    },
+    /**
+     * 获取模板数据
+     */
+    getTemplateData() {
+      return {
+        uuid: utils.generateUUID(),
+        enable: true,
+        name: "",
+        author_id: "",
+        author_nameShow: "",
+        content: ""
+      };
+    },
+    /**
+     * 获取数据
+     */
+    getData() {
+      return _GM_getValue(this.$key.STORAGE_KEY, []);
+    },
+    /**
+     * 设置数据
+     * @param data
+     */
+    setData(data) {
+      _GM_setValue(this.$key.STORAGE_KEY, data);
+    },
+    /**
+     * 添加数据
+     * @param data
+     */
+    addData(data) {
+      let localData = this.getData();
+      let findIndex = localData.findIndex((item) => item.uuid == data.uuid);
+      if (findIndex === -1) {
+        localData.push(data);
+        _GM_setValue(this.$key.STORAGE_KEY, localData);
+        return true;
+      } else {
+        return false;
+      }
+    },
+    /**
+     * 更新数据
+     * @param data
+     */
+    updateData(data) {
+      let localData = this.getData();
+      let index = localData.findIndex((item) => item.uuid == data.uuid);
+      let updateFlag = false;
+      if (index !== -1) {
+        updateFlag = true;
+        localData[index] = data;
+      }
+      this.setData(localData);
+      return updateFlag;
+    },
+    /**
+     * 删除数据
+     * @param data
+     */
+    deleteData(data) {
+      let localData = this.getData();
+      let index = localData.findIndex((item) => item.uuid == data.uuid);
+      let deleteFlag = false;
+      if (index !== -1) {
+        deleteFlag = true;
+        localData.splice(index, 1);
+      }
+      this.setData(localData);
+      return deleteFlag;
+    },
+    /**
+     * 清空数据
+     */
+    clearData() {
+      _GM_deleteValue(this.$key.STORAGE_KEY);
+    }
+  };
   const PanelTieBaSettingUI = {
     id: "baidu-panel-config-tieba",
     title: "贴吧",
-    headerTitle: "百度贴吧<br />tieba.baidu.com<br />www.tieba.com<br />...等",
+    headerTitle: "百度贴吧<br />tieba.baidu.com",
     isDefault() {
       return BaiduRouter.isTieBa();
     },
@@ -2223,94 +3314,94 @@ match-attr##srcid##sp_purc_atom
               }
             ]
           },
-          {
-            text: "帖内",
-            description: "旧版本设置项，大部分功能已失效",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "功能",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "楼中楼回复弹窗手势返回",
-                    "baidu_tieba_lzl_ban_global_back",
-                    false,
-                    function(event, enable) {
-                      if (enable) {
-                        alert(
-                          "开启后，当在手机浏览器中使用屏幕左滑回退网页操作或者点击浏览器的回退到上一页按钮，不会触发回退上一页操作，而是会关闭当前查看的楼中楼的弹窗。注：某些浏览器不适用"
-                        );
-                      }
-                    },
-                    "使浏览器后退变成关闭楼中楼弹窗"
-                  ),
-                  UISwitch(
-                    "新增滚动到顶部按钮",
-                    "baidu_tieba_add_scroll_top_button_in_forum",
-                    true,
-                    void 0,
-                    "向下滚动的距离>页面高度*2就会出现按钮"
-                  ),
-                  UISwitch(
-                    "优化查看评论",
-                    "baidu_tieba_optimize_see_comments",
-                    true,
-                    void 0,
-                    "可以查看更多的评论"
-                  ),
-                  UISwitch(
-                    "优化评论工具栏",
-                    "baidu_tieba_optimize_comments_toolbar",
-                    true,
-                    void 0,
-                    "可以进行评论区回复/楼中楼回复，需开启【优化查看评论】"
-                  ),
-                  UISwitch(
-                    "优化图片点击预览",
-                    "baidu_tieba_optimize_image_preview",
-                    true,
-                    void 0,
-                    "使用Viewer查看图片"
-                  ),
-                  UISwitch(
-                    "强制查看被屏蔽的帖子",
-                    "baidu_tieba_repairErrorThread",
-                    false,
-                    function(event, enable) {
-                      if (enable) {
-                        window.alert(
-                          "开启后，如果查看的帖子显示【贴子不存在或者已被删除】或【该帖子需要去app内查看哦】，且该帖子在PC端可以查看，那么该修复可以生效。"
-                        );
-                      }
-                    },
-                    "PC端可以查看帖子该功能才能正确生效"
-                  ),
-                  UISwitch(
-                    "点击楼主头像正确跳转主页",
-                    "baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",
-                    true,
-                    void 0,
-                    "点击头像正确跳转至用户主页"
-                  ),
-                  UISwitch(
-                    "屏蔽机器人",
-                    "baidu_tieba_shield_commnets_baodating",
-                    true,
-                    void 0,
-                    "屏蔽【贴吧包打听】机器人，回答的评论都是牛头不对马嘴的"
-                  ),
-                  UISwitch(
-                    "显示用户当前吧的等级头衔",
-                    "baidu_tieba_show_forum_level",
-                    true,
-                    void 0,
-                    "只对评论和楼中楼的用户进行显示处理"
-                  )
-                ]
-              }
-            ]
-          },
+          // {
+          // 	text: "帖内",
+          // 	description: "旧版本设置项，大部分功能已失效",
+          // 	type: "deepMenu",
+          // 	forms: [
+          // 		{
+          // 			text: "功能",
+          // 			type: "forms",
+          // 			forms: [
+          // 				UISwitch(
+          // 					"楼中楼回复弹窗手势返回",
+          // 					"baidu_tieba_lzl_ban_global_back",
+          // 					false,
+          // 					function (event, enable) {
+          // 						if (enable) {
+          // 							alert(
+          // 								"开启后，当在手机浏览器中使用屏幕左滑回退网页操作或者点击浏览器的回退到上一页按钮，不会触发回退上一页操作，而是会关闭当前查看的楼中楼的弹窗。注：某些浏览器不适用"
+          // 							);
+          // 						}
+          // 					},
+          // 					"使浏览器后退变成关闭楼中楼弹窗"
+          // 				),
+          // 				UISwitch(
+          // 					"新增滚动到顶部按钮",
+          // 					"baidu_tieba_add_scroll_top_button_in_forum",
+          // 					true,
+          // 					void 0,
+          // 					"向下滚动的距离>页面高度*2就会出现按钮"
+          // 				),
+          // 				UISwitch(
+          // 					"优化查看评论",
+          // 					"baidu_tieba_optimize_see_comments",
+          // 					true,
+          // 					void 0,
+          // 					"可以查看更多的评论"
+          // 				),
+          // 				UISwitch(
+          // 					"优化评论工具栏",
+          // 					"baidu_tieba_optimize_comments_toolbar",
+          // 					true,
+          // 					void 0,
+          // 					"可以进行评论区回复/楼中楼回复，需开启【优化查看评论】"
+          // 				),
+          // 				UISwitch(
+          // 					"优化图片点击预览",
+          // 					"baidu_tieba_optimize_image_preview",
+          // 					true,
+          // 					void 0,
+          // 					"使用Viewer查看图片"
+          // 				),
+          // 				UISwitch(
+          // 					"强制查看被屏蔽的帖子",
+          // 					"baidu_tieba_repairErrorThread",
+          // 					false,
+          // 					function (event, enable) {
+          // 						if (enable) {
+          // 							window.alert(
+          // 								"开启后，如果查看的帖子显示【贴子不存在或者已被删除】或【该帖子需要去app内查看哦】，且该帖子在PC端可以查看，那么该修复可以生效。"
+          // 							);
+          // 						}
+          // 					},
+          // 					"PC端可以查看帖子该功能才能正确生效"
+          // 				),
+          // 				UISwitch(
+          // 					"点击楼主头像正确跳转主页",
+          // 					"baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",
+          // 					true,
+          // 					void 0,
+          // 					"点击头像正确跳转至用户主页"
+          // 				),
+          // 				UISwitch(
+          // 					"屏蔽机器人",
+          // 					"baidu_tieba_shield_commnets_baodating",
+          // 					true,
+          // 					void 0,
+          // 					"屏蔽【贴吧包打听】机器人，回答的评论都是牛头不对马嘴的"
+          // 				),
+          // 				UISwitch(
+          // 					"显示用户当前吧的等级头衔",
+          // 					"baidu_tieba_show_forum_level",
+          // 					true,
+          // 					void 0,
+          // 					"只对评论和楼中楼的用户进行显示处理"
+          // 				),
+          // 			],
+          // 		},
+          // 	],
+          // },
           {
             text: "帖内",
             description: "新版的uni-app",
@@ -2376,11 +3467,18 @@ match-attr##srcid##sp_purc_atom
                     "使浏览器后退变成关闭楼中楼弹窗"
                   ),
                   UISwitch(
+                    "优化图片点击预览",
+                    "baidu_tieba_optimize_image_preview",
+                    true,
+                    void 0,
+                    "使用Viewer查看图片"
+                  ),
+                  UISwitch(
                     "图片预览手势返回",
                     "baidu-tieba-uni-app-post-optimizationImagePreviewBackGestureReturn",
                     false,
                     void 0,
-                    "使浏览器后退变成退出图片预览模式，该功能仅对贴吧自带的图片预览模式生效"
+                    "使浏览器后退变成退出图片预览模式"
                   ),
                   UISwitch(
                     "新增滚动到顶部按钮",
@@ -2409,6 +3507,18 @@ match-attr##srcid##sp_purc_atom
                     true,
                     void 0,
                     "允许长按选择文字"
+                  ),
+                  UIButton(
+                    "评论过滤规则",
+                    "可过滤评论",
+                    "自定义",
+                    void 0,
+                    false,
+                    false,
+                    "primary",
+                    () => {
+                      TiebaUniAppCommentFilter.showView();
+                    }
                   )
                 ]
               }
@@ -3374,638 +4484,6 @@ match-attr##srcid##sp_purc_atom
       }
     ]
   };
-  const YiYanChat = {
-    dialogAlias: null,
-    /** 是否正在进行初始化参数 */
-    isIniting: false,
-    /** 是否已初始化参数 */
-    isInitParams: false,
-    aisearch_id: null,
-    pvId: null,
-    sessionId: null,
-    question: [],
-    async init() {
-      if (!this.isInitParams) {
-        this.isIniting = true;
-        Qmsg.info("初始化参数中...");
-        this.isInitParams = Boolean(await this.initParams());
-        this.isIniting = false;
-        if (this.isInitParams) {
-          Qmsg.success("初始化成功！");
-          this.init();
-        } else {
-          Qmsg.error("初始化参数失败");
-        }
-      } else if (!this.isIniting) {
-        this.showChatGPTDialog();
-      }
-    },
-    /**
-     * 初始化参数
-     * @param queryText 需要提问的问题
-     */
-    async initParams(queryText = "") {
-      let getResp = await httpx.get(
-        `https://chat.baidu.com/?pcasync=pc&asyncRenderUrl=&passportStaticPage=https%3A%2F%2Fwww.baidu.com%2Fcache%2Fuser%2Fhtml%2Fv3Jump.html&from=pc_tab&word=${encodeURI(
-        queryText
-      )}&source=pd_ic`,
-        {
-          fetch: true,
-          headers: {
-            Accept: "*/*",
-            Origin: "https://www.baidu.com",
-            Referer: `https://www.baidu.com/`
-          },
-          data: JSON.stringify({
-            data: {}
-          })
-        }
-      );
-      if (!getResp.status) {
-        log.error(getResp);
-        return false;
-      }
-      try {
-        let aisearch_id = /"aisearch_id":"(.*?)"/i.exec(
-          getResp.data.responseText
-        );
-        if (!(aisearch_id == null ? void 0 : aisearch_id[1])) {
-          throw new TypeError("获取aisearch_id失败");
-        }
-        let pvId = /"pvId":"(.*?)"/i.exec(getResp.data.responseText);
-        if (!(pvId == null ? void 0 : pvId[1])) {
-          throw new TypeError("获取pvId失败");
-        }
-        let sessionId = /"sessionId":"(.*?)"/i.exec(getResp.data.responseText);
-        if (!(sessionId == null ? void 0 : sessionId[1])) {
-          throw new TypeError("获取sessionId失败");
-        }
-        YiYanChat.aisearch_id = aisearch_id[1];
-        YiYanChat.pvId = pvId[1];
-        YiYanChat.sessionId = sessionId[1];
-        log.success("获取一言参数aisearch_id：" + YiYanChat.aisearch_id);
-        log.success("获取一言参数pvId：" + YiYanChat.pvId);
-        log.success("获取一言参数sessionId：" + YiYanChat.sessionId);
-        return true;
-      } catch (error) {
-        log.error(error);
-        return false;
-      }
-    },
-    /**
-     * 显示ChatGPT回答弹窗
-     */
-    showChatGPTDialog() {
-      if (YiYanChat.dialogAlias != null) {
-        if (!YiYanChat.dialogAlias.popsElement.getClientRects().length) {
-          YiYanChat.dialogAlias.show();
-        } else {
-          log.info("请勿重复打开");
-        }
-        return;
-      }
-      YiYanChat.dialogAlias = __pops.alert({
-        title: {
-          text: "<p style='width:100%;'>文心一言</p>",
-          position: "center",
-          html: true
-        },
-        content: {
-          text: ""
-        },
-        mask: {
-          enable: true,
-          clickEvent: {
-            toHide: true
-          }
-        },
-        btn: {
-          close: {
-            enable: true,
-            callback(event) {
-              event.hide();
-            }
-          }
-        },
-        drag: true,
-        dragLimit: true,
-        width: "95vw",
-        height: "90vh",
-        style: (
-          /*css*/
-          `
-            .pops{
-            --container-title-height: 45px;
-            --container-bottom-btn-height: 100px;
-
-            --gpt-bg-color: #ffffff;
-            --gpt-border-radius: 4px;
-            }
-            .pops-alert-content{
-            background: #ECEAF7;
-            }
-            .pops-alert-btn .ask-question{
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            }
-            .pops-alert-btn .ask-question textarea{
-            width: inherit;
-            height: inherit;
-            }
-            .pops-alert-btn .ask-question textarea {
-            vertical-align: bottom;
-            position: relative;
-            display: block;
-            resize: none;
-            padding: 5px 11px;
-            line-height: 1.5;
-            box-sizing: border-box;
-            font-size: 16px;
-            font-family: inherit;
-            background-color: var(--gpt-bg-color);
-            background-image: none;
-            -webkit-appearance: none;
-            appearance: none;
-            box-shadow: 0 0 0 1px #dcdfe6 inset;
-            border-radius: 0;
-            transition: box-shadow .2s cubic-bezier(.645, .045, .355, 1);
-            border: none;
-            }
-            .pops-alert-btn .ask-question textarea:hover{box-shadow:0 0 0 1px #c0c4cc inset}
-            .pops-alert-btn .ask-question textarea:focus{outline:0;box-shadow:0 0 0 1px #409eff inset}
-
-            .ask-container{
-
-            }
-            .ask-container .user-question,
-            .ask-container .gpt-answer{
-            display: flex;
-            margin: 10px 10px;
-            }
-            .ask-container .user-question{
-
-            }
-            .ask-container .gpt-answer{
-
-            }
-            .ask-container .avatar-img{
-            
-            }
-            .ask-container .avatar-img img{
-            width: 30px;
-            height: 30px;
-            border-radius: 6px;
-            background: var(--gpt-bg-color);
-            }
-            .ask-container .ask-text,
-            .ask-container .answer-text{
-            background: var(--gpt-bg-color);
-            border-radius: var(--gpt-border-radius);
-            padding: 10px;
-            margin-left: 10px;
-            text-align: left;
-            }
-            .ask-container .ask-text{
-            width: auto;
-            }
-            .ask-container .answer-text{
-            }
-            .ask-container .answer-text *{
-            text-wrap: wrap;
-            }
-            .gpt-btn-control{
-            display: flex;
-            flex-direction: column;
-            }
-            .gpt-btn-control .pops-alert-btn-clear-history{
-            margin-bottom: 5px;
-            }
-            .gpt-btn-control .pops-alert-btn-ok{
-            margin-top: 5px;
-            }
-
-            .markdown-body .code-header{
-            align-items: center;
-            background: #e3e8f6;
-            border-radius: 7px 7px 0 0;
-            display: flex;
-            height: 34px;
-            }
-            .markdown-body .code-header+pre{
-            border-top-left-radius: 0px;
-            border-top-right-radius: 0px;
-            }
-            .markdown-body span.code-lang{
-            color: #120649;
-            flex: 1 0 auto;
-            font-family: PingFangSC-Semibold;
-            font-size: 16px;
-            font-weight: 600;
-            letter-spacing: 0;
-            padding-left: 14px;
-            text-align: justify;
-            display: flex;
-            }
-            .markdown-body span.code-copy{
-            align-items: center;
-            color: #7886a4;
-            display: flex;
-            font-family: PingFangSC-Regular;
-            font-size: 13px;
-            font-weight: 400;
-            letter-spacing: 0;
-            line-height: 14px;
-            text-align: justify;
-            user-select: none;
-            }
-            .markdown-body span.code-copy-text{
-            margin-left: 7px;
-            margin-right: 20px;
-            }
-
-
-            .typing::after {
-            content: '▌';
-            }
-            .typing::after {
-            animation: blinker 1s step-end infinite;
-            }
-            @keyframes blinker {
-            0% {
-                visibility: visible;
-            }
-            50% {
-                visibility: hidden;
-            }
-            100% {
-                visibility: visible;
-            }
-            }
-            `
-        )
-      });
-      YiYanChat.loadCSS(
-        "https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown.min.css"
-      );
-      let $alertBtn = YiYanChat.dialogAlias.popsElement.querySelector(
-        ".pops-alert-btn"
-      );
-      $alertBtn.innerHTML = /*html*/
-      `
-        <div class="ask-question">
-            <textarea class="ask-question-input" placeholder="请输入问题"></textarea>
-            <div class="gpt-btn-control">
-            <button class="pops-alert-btn-clear-history" type="danger" data-icon="" data-righticon="false">
-                <span>清空</span>
-            </button>
-            <button class="pops-alert-btn-ok" type="primary" data-icon="" data-righticon="false">
-                <span>发送</span>
-            </button>
-            </div>
-        </div>`;
-      let $textArea = $alertBtn.querySelector("textarea");
-      let $enterBtn = $alertBtn.querySelector(
-        ".pops-alert-btn-ok"
-      );
-      let $clearHistoryBtn = $alertBtn.querySelector(
-        ".pops-alert-btn-clear-history"
-      );
-      let $content = YiYanChat.dialogAlias.popsElement.querySelector(
-        ".pops-alert-content"
-      );
-      $content.innerHTML = "";
-      function sendEvent(event) {
-        let queryText = $textArea.value;
-        if (queryText.trim() === "") {
-          Qmsg.error("你没有输入内容哦", {
-            timeout: 1500
-          });
-          return;
-        }
-        $textArea.value = "";
-        let askElement = YiYanChat.getAskElement(queryText);
-        let answerElement = YiYanChat.getAnswerElement();
-        let answerTextElement = answerElement.querySelector(
-          ".answer-text"
-        );
-        let askContainer = domutils.createElement("div", {
-          className: "ask-container"
-        });
-        let newQueryText = "";
-        YiYanChat.question.forEach((item) => {
-          if (item.questionText) {
-            newQueryText += "\n\n" + item.questionText;
-            if (item.answerText) {
-              newQueryText += "\n\n" + item.answerText;
-            }
-          }
-        });
-        newQueryText += "\n\n" + queryText;
-        YiYanChat.question.push({
-          questionText: queryText,
-          answerText: void 0,
-          markdownText: void 0
-        });
-        YiYanChat.conversation(newQueryText).then(async (stream) => {
-          if (!stream) {
-            YiYanChat.question.pop();
-            return;
-          }
-          try {
-            let latestQuestion = YiYanChat.question[YiYanChat.question.length - 1];
-            let answer = await YiYanChat.getAnswerStream(stream, (itemText) => {
-              latestQuestion.answerText += itemText;
-              answerTextElement.innerText += itemText;
-              YiYanChat.scrollToContentContainerEnd();
-            });
-            answerTextElement.classList.remove("typing");
-            if (!answer) {
-              YiYanChat.question.pop();
-              return;
-            }
-            latestQuestion.answerText = answer;
-            let parseData = YiYanChat.conversionTextToMarkdown(answer);
-            log.info(["转换为markdown", parseData]);
-            if (parseData.status) {
-              latestQuestion.markdownText = parseData.text;
-              answerTextElement.innerHTML = parseData.text;
-              YiYanChat.handleMarkdown(answerTextElement);
-            } else {
-              Qmsg.error("转换为Markdown失败");
-            }
-            YiYanChat.scrollToContentContainerEnd();
-          } catch (error) {
-            answerTextElement.classList.remove("typing");
-            YiYanChat.question.pop();
-            log.error(error);
-            Qmsg.error(error);
-          }
-        });
-        askContainer.appendChild(askElement);
-        askContainer.appendChild(answerElement);
-        $content.appendChild(askContainer);
-        YiYanChat.scrollToContentContainerEnd();
-      }
-      domutils.listenKeyboard(
-        $textArea,
-        "keydown",
-        function(keyName, keyValue, otherCodeList) {
-          if (otherCodeList.includes("ctrl") && keyName === "Enter") {
-            $enterBtn.click();
-          }
-        }
-      );
-      domutils.on($enterBtn, "click", void 0, sendEvent);
-      domutils.on($clearHistoryBtn, "click", void 0, function() {
-        YiYanChat.clearHistoryQuestion();
-      });
-    },
-    /**
-     * 获取回答流
-     * @param stream
-     * @param callback 每次的流读取的回调
-     */
-    async getAnswerStream(stream, callback) {
-      const reader = stream.getReader();
-      async function parseStreamText() {
-        let answerChunkList = [];
-        let preResponseItem = "";
-        let combineItem = [];
-        let referenceList;
-        return new Promise((resolve, reject) => {
-          reader.read().then(
-            //@ts-ignore
-            function processText({ done, value }) {
-              var _a3, _b, _c, _d, _e, _f, _g, _h;
-              try {
-                if (done) {
-                  log.success("=====读取结束，转换内容=====");
-                  let result = answerChunkList.join("");
-                  resolve(result);
-                  return;
-                }
-                let responseItem = new TextDecoder("utf-8").decode(
-                  value
-                );
-                responseItem = responseItem.trim();
-                if (!responseItem.includes("event:ping") && !responseItem.startsWith("event:messag")) {
-                  combineItem.push(preResponseItem);
-                  combineItem.push(responseItem);
-                  preResponseItem = "";
-                  responseItem = combineItem.join("");
-                  combineItem = [];
-                } else if (!responseItem.includes("event:ping")) {
-                  preResponseItem = responseItem;
-                }
-                let responseItemSplit = responseItem.split("\n").filter((item) => item.trim().startsWith("data:"));
-                for (let item of responseItemSplit) {
-                  item = item.trim();
-                  let streamDataStr = item.replace(/^data:/gi, "").trim();
-                  if (utils.isNull(streamDataStr)) {
-                    continue;
-                  }
-                  log.info(streamDataStr);
-                  let streamData = utils.toJSON(streamDataStr);
-                  if (utils.isNull(streamData)) {
-                    continue;
-                  }
-                  let answerChunk = (_d = (_c = (_b = (_a3 = streamData == null ? void 0 : streamData.data) == null ? void 0 : _a3.message) == null ? void 0 : _b.content) == null ? void 0 : _c.generator) == null ? void 0 : _d.text;
-                  if (!answerChunk) {
-                    continue;
-                  }
-                  callback(answerChunk);
-                  answerChunkList.push(answerChunk);
-                  if ((_h = (_g = (_f = (_e = streamData == null ? void 0 : streamData.data) == null ? void 0 : _e.message) == null ? void 0 : _f.content) == null ? void 0 : _g.generator) == null ? void 0 : _h.referenceList) {
-                    referenceList = streamData == null ? void 0 : streamData.data.message.content.generator.referenceList;
-                  }
-                }
-              } catch (error) {
-                log.error(error);
-              }
-              return reader.read().then(processText);
-            }
-          ).catch((error) => {
-            reject(error);
-          });
-        });
-      }
-      return parseStreamText();
-    },
-    /**
-     * 添加CSS链接
-     * @param url
-     */
-    loadCSS(url) {
-      YiYanChat.dialogAlias.$shadowRoot.insertBefore(
-        domutils.createElement("link", {
-          rel: "stylesheet",
-          href: url,
-          type: "text/css",
-          crossOrigin: "anonymous"
-        }),
-        YiYanChat.dialogAlias.$shadowRoot.childNodes[0]
-      );
-    },
-    /**
-     * 获取提问的元素
-     * @param queryText 提问的问题
-     */
-    getAskElement(queryText = "") {
-      let element = domutils.createElement("div", {
-        className: "user-question",
-        innerHTML: (
-          /*html*/
-          `
-        <div class="avatar-img">
-          <img src="https://www.baidu.com/img/flexible/logo/bearicon_198.png"></img>
-        </div>
-        <div class="ask-text">${queryText}</div>
-        `
-        )
-      });
-      return element;
-    },
-    /**
-     * 获取回答的元素
-     */
-    getAnswerElement() {
-      let element = domutils.createElement("div", {
-        className: "gpt-answer",
-        innerHTML: (
-          /*html*/
-          `
-        <div class="avatar-img">
-          <img src="data:image/png;base64,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"></img>
-        </div>
-        <div class="answer-text markdown-body typing"></div>
-        `
-        )
-      });
-      return element;
-    },
-    /**
-     * 获取AI的回答
-     */
-    async conversation(queryText = "") {
-      let postResp = await httpx.post(
-        "https://chat-ws.baidu.com/aichat/api/conversation",
-        {
-          headers: {
-            Accept: "text/event-stream",
-            "Content-Type": "application/json",
-            Origin: "https://www.baidu.com",
-            Referer: `https://www.baidu.com/`
-          },
-          fetch: true,
-          responseType: "stream",
-          data: JSON.stringify({
-            message: {
-              inputMethod: "keyboard",
-              isRebuild: false,
-              content: {
-                query: queryText,
-                qtype: 0
-              }
-            },
-            sessionId: YiYanChat.sessionId,
-            aisearchId: YiYanChat.aisearch_id,
-            pvId: YiYanChat.pvId
-          })
-        }
-      );
-      if (!postResp.status) {
-        return;
-      }
-      let stream = postResp.data.response;
-      return stream;
-    },
-    /**
-     * 转换文本为markdown格式
-     * @param text
-     */
-    conversionTextToMarkdown(text) {
-      let converter = new showdown.Converter();
-      converter.setOption("tables", true);
-      converter.setOption("openLinksInNewWindow", true);
-      converter.setOption("strikethrough", true);
-      converter.setOption("emoji", true);
-      showdown.setFlavor("github");
-      try {
-        let markHTML = converter.makeHtml(text);
-        return {
-          status: true,
-          text: markHTML
-        };
-      } catch (error) {
-        return {
-          status: false,
-          error
-        };
-      }
-    },
-    /**
-     * 对内部的markdown元素进行处理
-     * @param element
-     */
-    handleMarkdown(element) {
-      element.querySelectorAll("pre").forEach((ele) => {
-        let codeElement = ele.querySelector("code");
-        let language = "";
-        if (codeElement.classList.length >= 2) {
-          language = codeElement.classList[0];
-        }
-        let copyText = codeElement.innerText || codeElement.textContent;
-        let codeHeader = domutils.createElement("div", {
-          className: "code-header",
-          innerHTML: (
-            /*html*/
-            `
-          <span class="code-lang">${language}</span>
-          <span class="code-copy">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 32 32">
-              <path d="M28 1.333H9.333C8.597 1.333 8 1.93 8 2.667v4H4c-.736 0-1.333.597-1.333 1.333v14.667c0 .353.14.692.39.943l6.667 6.666c.25.25.589.39.943.39h12c.736 0 1.333-.596 1.333-1.333v-4h4c.736 0 1.333-.597 1.333-1.333V2.667c0-.737-.597-1.334-1.333-1.334zM9.333 26.115L7.22 24h2.114v2.115zm12 1.885H12v-5.333c0-.737-.597-1.334-1.333-1.334H5.333v-12h16V28zm5.334-5.333H24V8c0-.736-.597-1.333-1.333-1.333h-12V4h16v18.667z"></path>
-            </svg>
-            <span class="code-copy-text">复制代码</span>
-          </span>
-          `
-          )
-        });
-        let codeCopyText = codeHeader.querySelector(
-          ".code-copy-text"
-        );
-        domutils.on(codeCopyText, "click", void 0, function() {
-          try {
-            utils.setClip(copyText);
-            Qmsg.success("复制成功");
-          } catch (error) {
-            Qmsg.error("复制失败，" + error);
-          }
-        });
-        domutils.before(ele, codeHeader);
-      });
-    },
-    /**
-     * 清除提问历史
-     */
-    clearHistoryQuestion() {
-      YiYanChat.question = [];
-      let $content = YiYanChat.dialogAlias.$shadowRoot.querySelector(
-        ".pops-alert-content"
-      );
-      $content.innerHTML = "";
-    },
-    /**
-     * 滚动到内容容器的底部
-     */
-    scrollToContentContainerEnd() {
-      let $contentElement = YiYanChat.dialogAlias.popsElement.querySelector(
-        ".pops-alert-content"
-      );
-      $contentElement.scrollTo(0, $contentElement.scrollHeight);
-    }
-  };
   const UISelect = function(text, key, defaultValue, data, callback, description) {
     let selectData = [];
     if (typeof data === "function") {
@@ -4018,21 +4496,30 @@ match-attr##srcid##sp_purc_atom
       type: "select",
       description,
       attributes: {},
+      props: {},
       getValue() {
-        return PopsPanel.getValue(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(event, isSelectedValue, isSelectedText) {
-        PopsPanel.setValue(key, isSelectedValue);
+        let value = isSelectedValue;
+        log.info(`选择：${isSelectedText}`);
+        this.props[PROPS_STORAGE_API].set(key, value);
         if (typeof callback === "function") {
-          callback(event, isSelectedValue, isSelectedText);
+          callback(event, value, isSelectedText);
         }
       },
       data: selectData
     };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
-    }
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
     return result;
   };
   const UITextArea = function(text, key, defaultValue, description, changeCallBack, placeholder = "", disabled) {
@@ -4040,21 +4527,27 @@ match-attr##srcid##sp_purc_atom
       text,
       type: "textarea",
       attributes: {},
+      props: {},
       description,
       placeholder,
       disabled,
       getValue() {
-        let localValue = PopsPanel.getValue(key, defaultValue);
-        return localValue;
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(event, value) {
-        PopsPanel.setValue(key, value);
+        this.props[PROPS_STORAGE_API].set(key, value);
       }
     };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
-    }
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
     return result;
   };
   const PanelCommonSettingUI = {
@@ -4198,6 +4691,29 @@ match-attr##srcid##sp_purc_atom
       }
     ]
   };
+  const PanelUISize = {
+    /**
+     * 一般设置界面的尺寸
+     */
+    setting: {
+      width: window.innerWidth < 550 ? "88vw" : "550px",
+      height: window.innerHeight < 450 ? "70vh" : "450px"
+    },
+    /**
+     * 功能丰富，aside铺满了的设置界面，要稍微大一点
+     */
+    settingBig: {
+      width: window.innerWidth < 800 ? "92vw" : "800px",
+      height: window.innerHeight < 600 ? "80vh" : "600px"
+    },
+    /**
+     * 信息界面，一般用于提示信息之类
+     */
+    info: {
+      width: window.innerWidth < 350 ? "350px" : "350px",
+      height: window.innerHeight < 250 ? "250px" : "250px"
+    }
+  };
   const PopsPanel = {
     /** 数据 */
     $data: {
@@ -4279,19 +4795,19 @@ match-attr##srcid##sp_purc_atom
           callback: () => {
             this.showPanel();
           }
-        },
-        {
-          key: "show_yiyan_chatgpt",
-          text: "⚙ 文心一言",
-          autoReload: false,
-          isStoreValue: false,
-          showText(text) {
-            return text;
-          },
-          callback: () => {
-            YiYanChat.init();
-          }
         }
+        // {
+        // 	key: "show_yiyan_chatgpt",
+        // 	text: "⚙ 文心一言",
+        // 	autoReload: false,
+        // 	isStoreValue: false,
+        // 	showText(text) {
+        // 		return text;
+        // 	},
+        // 	callback: () => {
+        // 		YiYanChat.init();
+        // 	},
+        // },
       ]);
     },
     /** 初始化本地设置默认的值 */
@@ -4653,8 +5169,8 @@ match-attr##srcid##sp_purc_atom
           }
         },
         isMobile: this.isMobile(),
-        width: this.getWidth(),
-        height: this.getHeight(),
+        width: PanelUISize.setting.width,
+        height: PanelUISize.setting.height,
         drag: true,
         only: true
       });
@@ -4676,10 +5192,10 @@ match-attr##srcid##sp_purc_atom
      * 获取设置面板的高度
      */
     getHeight() {
-      if (window.innerHeight > 450) {
+      if (window.innerHeight < 550) {
         return "80vh";
       } else {
-        return "450px";
+        return "550px";
       }
     },
     /**
@@ -4816,7 +5332,7 @@ match-attr##srcid##sp_purc_atom
   const utils = Utils.noConflict();
   const domutils = DOMUtils.noConflict();
   const __pops = pops;
-  const showdown = _monkeyWindow.showdown || _unsafeWindow.showdown;
+  _monkeyWindow.showdown || _unsafeWindow.showdown;
   const log = new Utils.Log(
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
@@ -7230,8 +7746,14 @@ div[class^="new-summary-container_"] {\r
       __publicField(this, "isBacking", false);
       __publicField(this, "config");
       this.config = config;
-      if (typeof config.backDelayTime !== "number" || isNaN(config.backDelayTime)) {
-        config.backDelayTime = 150;
+      this.enterGestureBackMode.bind(this);
+      this.quitGestureBackMode.bind(this);
+      this.popStateEvent.bind(this);
+      if (typeof this.config.backDelayTime !== "number" || isNaN(this.config.backDelayTime)) {
+        this.config.backDelayTime = 150;
+      }
+      if (this.config.win == null) {
+        this.config.win = self;
       }
     }
     /**
@@ -7243,51 +7765,60 @@ div[class^="new-summary-container_"] {\r
       if (this.isBacking) {
         return;
       }
-      this.quitGestureBackMode();
+      this.quitGestureBackMode(true);
     }
     /**
      * 进入手势模式
      */
     enterGestureBackMode() {
       log.success("进入手势模式");
-      let hash = this.config.hash;
-      if (!hash.startsWith("#")) {
-        if (!hash.startsWith("/")) {
-          hash = "/" + hash;
+      let pushUrl = this.config.hash;
+      if (!pushUrl.startsWith("#")) {
+        if (!pushUrl.startsWith("/")) {
+          pushUrl = "/" + pushUrl;
         }
-        hash = "#" + hash;
+        pushUrl = "#" + pushUrl;
       }
-      window.history.pushState({}, "", hash);
+      if (this.config.useUrl) {
+        pushUrl = this.config.win.location.origin + this.config.win.location.pathname + this.config.win.location.search + pushUrl;
+      }
+      this.config.win.history.pushState({}, "", pushUrl);
       log.success("监听popstate事件");
-      domutils.on(window, "popstate", this.popStateEvent.bind(this), {
+      domutils.on(this.config.win, "popstate", this.popStateEvent.bind(this), {
         capture: true
       });
     }
     /**
      * 退出手势模式
+     * @param isUrlChange 是否是url改变触发的
      */
-    async quitGestureBackMode() {
+    async quitGestureBackMode(isUrlChange = false) {
       this.isBacking = true;
       log.success("退出手势模式");
       if (typeof this.config.beforeHistoryBackCallBack === "function") {
-        this.config.beforeHistoryBackCallBack();
+        this.config.beforeHistoryBackCallBack(isUrlChange);
       }
+      let maxDate = Date.now() + 1e3 * 5;
       while (true) {
-        if (globalThis.location.hash.endsWith(this.config.hash)) {
+        if (Date.now() > maxDate) {
+          log.error("未知情况，history.back()失败，无法退出手势模式");
+          break;
+        }
+        if (this.config.win.location.hash.endsWith(this.config.hash)) {
           log.info("history.back()");
-          globalThis.history.back();
-          await utils.sleep(this.config.backDelayTime);
+          this.config.win.history.back();
+          await utils.sleep(this.config.backDelayTime || 150);
         } else {
           break;
         }
       }
       log.success("移除popstate事件");
-      domutils.off(window, "popstate", this.popStateEvent.bind(this), {
+      domutils.off(this.config.win, "popstate", this.popStateEvent.bind(this), {
         capture: true
       });
       this.isBacking = false;
       if (typeof this.config.afterHistoryBackCallBack === "function") {
-        this.config.afterHistoryBackCallBack();
+        this.config.afterHistoryBackCallBack(isUrlChange);
       }
     }
   }
@@ -7939,7 +8470,7 @@ div[class^="new-summary-container_"] {\r
     }
   };
   const TieBaShieldCSS = ".tb-backflow-defensive,\r\n.fixed-nav-bar-defensive,\r\n.post-cut-guide,\r\n.ertiao-wrap-defensive,\r\n.feed-warp.gray-background,\r\n.pb-page-wrapper.app-view.transition-fade nav:first-child,\r\n.only-lz,\r\n.nav-bar-v2 .nav-bar-bottom,\r\n.more-image-desc,\r\n.fengchao-banner-defensive,\r\n/*.wake-app,*/\r\n.banner-wrapper-defensive,\r\n.open-app,\r\n.topic-share-page-v2 .bav-bar-top,\r\n/* 打开APP查看更多评论 */\r\n.cmt-large-cut-guide,\r\n/* 底部评论滚动栏 */\r\ndiv.diy-guide-wrapper,\r\n/* 底部评论滚动栏上面的空白 */\r\n.individuality,\r\n/* 吧内的广告 */\r\n.tb-threadlist__wrapper .tb-banner-wrapper-defensive,\r\n/* 首页-我的-底部的 年轻人的潮流文化社区 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .desc,\r\n/* 首页-我的-底部的 立即下载 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .download-btn,\r\n/* 帖子内预览图片模式下底部的打开App查看高清大图 */\r\n.img-preview .operate .wake-app {\r\n	display: none !important;\r\n}\r\nbody.tb-modal-open {\r\n	overflow: auto !important;\r\n}\r\n";
-  const UniTieBaShieldCSS = "/* 热门推荐、相关推荐 */\r\nuni-app .recom-layout-container,\r\n/* 热门推荐、相关推荐 */\r\nuni-app #pbRecomContainer,\r\n/* 猜你还想搜（标题） */\r\nuni-app .guess-title,\r\n/* 猜你还想搜 */\r\nuni-app .guess-container,\r\n/* 底部工具栏 来贴吧畅享精彩内容 */\r\nuni-app .operation-chat,\r\n/* 图片右滑最后一个 来贴吧畅享精彩内容 */\r\nuni-app .pic-popup-guide-title,\r\n/* 图片右滑最后一个 下面的按钮 打开APP */\r\nuni-app .operate-group .wake-app:has(.external-btn-class),\r\n/* 顶部右上角的 App内查看 */\r\nuni-app .operate-btn-wake {\r\n	display: none !important;\r\n}\r\n\r\n/* 评论内容高度 */\r\nuni-app .swiper-content {\r\n	max-height: unset !important;\r\n}\r\n";
+  const UniTieBaShieldCSS = "/* 热门推荐、相关推荐 */\r\nuni-app .recom-layout-container,\r\n/* 热门推荐、相关推荐 */\r\nuni-app #pbRecomContainer,\r\n/* 猜你还想搜（标题） */\r\nuni-app .guess-title,\r\n/* 猜你还想搜 */\r\nuni-app .guess-container,\r\n/* 底部工具栏 来贴吧畅享精彩内容 */\r\nuni-app .operation-chat,\r\n/* 图片右滑最后一个 来贴吧畅享精彩内容 */\r\nuni-app .pic-popup-guide-title,\r\n/* 图片右滑最后一个 下面的按钮 打开APP */\r\nuni-app .operate-group .wake-app:has(.external-btn-class),\r\n/* 顶部右上角的 App内查看 */\r\nuni-app .operate-btn-wake {\r\n	display: none !important;\r\n}\r\n\r\n/* 评论内容高度 */\r\nuni-app .swiper-content {\r\n	max-height: unset !important;\r\n}\r\n\r\n/* 调整顶部navbar的样式 */\r\nuni-app .nav-bar-fixed {\r\n	padding: 20px 0px !important;\r\n}\r\n";
   const TiebaTopic = {
     init() {
       PopsPanel.execMenu("baidu_tieba_topic_redirect_jump", () => {
@@ -12680,11 +13211,13 @@ div[class^="new-summary-container_"] {\r
       });
     }
   };
-  const OptimizationLocationHash = {
+  const GeastureBackHashConfig = {
     /** 楼中楼回复弹窗 */
     seeLzlReply: "#/seeLzlReply",
     /** 图片预览 */
-    previewImage: "#/previewImage"
+    previewImage: "#/previewImage",
+    /** Viewer图片预览 */
+    viewerPreviewImage: "#/viewerPreviewImage"
   };
   const TiebaUniAppPost = {
     init() {
@@ -12693,12 +13226,21 @@ div[class^="new-summary-container_"] {\r
           return;
         }
         log.info(`uni-app ===> 本页面为uni-app页面`);
-        if (Object.values(OptimizationLocationHash).includes(window.location.hash)) {
-          log.warn("检测到hash值为手势优化的hash值，已自动去除");
+        let findHashValue = Object.values(GeastureBackHashConfig).find((item) => {
+          return window.location.hash.endsWith(item);
+        });
+        if (findHashValue) {
+          log.warn(`删除检测到的手势hash参数：${findHashValue}`);
           window.location.hash = "";
         }
         this.repairTbErrorPage();
         this.mutationRemoveWakeUpBtn();
+        PopsPanel.onceExec("tieba-post-uni-app-comment-filter", () => {
+          TiebaUniAppCommentFilter.init();
+        });
+        PopsPanel.execMenu("baidu_tieba_optimize_image_preview", () => {
+          TiebaPost.optimizeImagePreview();
+        });
         PopsPanel.execMenuOnce(
           "baidu-tieba-uni-app-post-allow-user-select",
           () => {
@@ -12933,16 +13475,17 @@ div[class^="new-summary-container_"] {\r
         "click",
         ".pic-popup-guide-thread-wrapper .thread-guide-item-wake",
         (event) => {
-          var _a3, _b, _c;
+          var _a3, _b, _c, _d, _e, _f;
           utils.preventEvent(event);
           let $click = event.target;
-          let $vueIns = VueUtils.getVue3($click);
-          if (typeof ((_c = (_b = (_a3 = $vueIns == null ? void 0 : $vueIns.props) == null ? void 0 : _a3.config) == null ? void 0 : _b.param) == null ? void 0 : _c.tid) === "number") {
-            let tid = $vueIns.props.config.param.tid;
+          let vue2Ins = VueUtils.getVue($click);
+          let vue3Ins = VueUtils.getVue3($click);
+          let tid = ((_c = (_b = (_a3 = vue2Ins == null ? void 0 : vue2Ins.$props) == null ? void 0 : _a3.config) == null ? void 0 : _b.param) == null ? void 0 : _c.tid) || ((_f = (_e = (_d = vue3Ins == null ? void 0 : vue3Ins.props) == null ? void 0 : _d.config) == null ? void 0 : _e.param) == null ? void 0 : _f.tid);
+          if (typeof tid === "number") {
             let url = TiebaUrlApi.getPost(tid);
             window.open(url, "_blank");
           } else {
-            log.error(["获取tid失败", $click]);
+            log.error("获取tid失败", $click);
             Qmsg.error("获取tid失败");
           }
         },
@@ -13133,115 +13676,60 @@ div[class^="new-summary-container_"] {\r
      */
     optimizationLzlPostBackGestureReturn() {
       log.info(`uni-app ===> 楼中楼回复弹窗手势返回`);
-      let isClosingDialog = false;
-      function popstateEvent(event) {
-        utils.preventEvent(event);
-        if (isClosingDialog) {
-          return;
-        }
-        log.success("触发popstate事件");
-        removePopStateEvent();
-      }
-      function setPopStateEvent() {
-        log.success("监听popstate事件");
-        window.history.pushState({}, "", OptimizationLocationHash.seeLzlReply);
-        domutils.on(window, "popstate", popstateEvent, {
-          capture: true
-        });
-      }
-      async function removePopStateEvent() {
-        isClosingDialog = true;
-        log.success("location地址后退并关闭评论弹窗");
-        closeDialogByUrlChange();
-        while (true) {
-          if (globalThis.location.hash.endsWith(
-            OptimizationLocationHash.seeLzlReply
-          )) {
-            log.info("后退！");
-            globalThis.history.back();
-            await utils.sleep(150);
-          } else {
-            break;
+      let gestureBack = new GestureBack({
+        hash: GeastureBackHashConfig.seeLzlReply,
+        useUrl: true,
+        beforeHistoryBackCallBack(isUrlChange) {
+          if (isUrlChange) {
+            closeDialogByUrlChange();
           }
         }
-        log.success("停止popstate事件监听");
-        domutils.off(window, "popstate", popstateEvent, { capture: true });
-        isClosingDialog = false;
-      }
+      });
       function closeDialogByUrlChange() {
         let $lzlCloseIcon = document.querySelector(".lzl-close-icon");
         if ($lzlCloseIcon) {
-          $lzlCloseIcon.dispatchEvent(
-            new CustomEvent("click", {
-              detail: {
-                from: "urlchange"
-              }
-            })
-          );
+          $lzlCloseIcon.click();
         } else {
-          log.warn(`未找到关闭楼中楼回复弹窗的按钮`);
+          Qmsg.error(`未找到关闭楼中楼回复弹窗的按钮`);
         }
       }
       domutils.on(document, "click", ".lzl-wrapper", (event) => {
         log.info(`点击楼中楼回复`);
-        setPopStateEvent();
+        gestureBack.enterGestureBackMode();
       });
       domutils.on(document, "click", ".lzl-close-icon", (event) => {
-        log.info(`点击关闭楼中楼回复弹窗`);
-        let detail = event.detail;
-        if (detail.from === "urlchange") {
-          return;
-        }
-        removePopStateEvent();
+        log.info(`点击关闭按钮-关闭楼中楼回复弹窗`);
+        gestureBack.quitGestureBackMode();
       });
+      domutils.on(
+        document,
+        "click",
+        ".lzl-float-container .error-close",
+        (event) => {
+          log.info(`点击遮罩层-关闭楼中楼回复弹窗`);
+          gestureBack.quitGestureBackMode();
+        }
+      );
     },
     /**
      * 图片预览手势返回
      */
     optimizationImagePreviewBackGestureReturn() {
       log.info(`uni-app ===> 图片预览手势返回`);
-      let isClosing = false;
-      let isUrlChangeClick = false;
-      function popstateEvent(event) {
-        utils.preventEvent(event);
-        if (isClosing) {
-          return;
-        }
-        log.success("触发popstate事件");
-        removePopStateEvent();
-      }
-      function setPopStateEvent() {
-        log.success("监听popstate事件");
-        window.history.pushState({}, "", OptimizationLocationHash.previewImage);
-        domutils.on(window, "popstate", popstateEvent, {
-          capture: true
-        });
-      }
-      async function removePopStateEvent() {
-        isClosing = true;
-        log.success("location地址后退并退出图片预览模式");
-        closeByUrlChange();
-        while (true) {
-          if (globalThis.location.hash.endsWith(
-            OptimizationLocationHash.previewImage
-          )) {
-            log.info("后退！");
-            globalThis.history.back();
-            await utils.sleep(150);
-          } else {
-            break;
+      let gestureBack = new GestureBack({
+        hash: GeastureBackHashConfig.previewImage,
+        useUrl: true,
+        beforeHistoryBackCallBack(isUrlChange) {
+          if (isUrlChange) {
+            closeByUrlChange();
           }
         }
-        log.success("停止popstate事件监听");
-        domutils.off(window, "popstate", popstateEvent, { capture: true });
-        isClosing = false;
-      }
+      });
       function closeByUrlChange() {
         let $closeIcon = document.querySelector(
           ".img-preview .back-icon-con"
         );
         if ($closeIcon) {
-          isUrlChangeClick = true;
           $closeIcon.click();
         } else {
           log.warn(`未找到退出图片预览模式的按钮`);
@@ -13251,17 +13739,13 @@ div[class^="new-summary-container_"] {\r
         let $click = event.target;
         let $parent = $click.parentElement;
         if ($parent.localName === "uni-image" && $parent.classList.contains("pb-image")) {
-          setPopStateEvent();
+          gestureBack.enterGestureBackMode();
           utils.waitNode(".img-preview .back-icon-con", 1e4).then(($backIcon) => {
             if (!$backIcon) {
               return;
             }
             domutils.on($backIcon, "click", () => {
-              if (isUrlChangeClick) {
-                isUrlChangeClick = false;
-                return;
-              }
-              removePopStateEvent();
+              gestureBack.quitGestureBackMode();
             });
           });
         }
@@ -13347,20 +13831,21 @@ div[class^="new-summary-container_"] {\r
         document,
         "click",
         (event) => {
-          var _a3, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m;
+          var _a3, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n;
           let $click = event.composedPath()[0];
           if ($click.nodeType === Node.ELEMENT_NODE && $click.classList) {
             if ($click.classList.contains("pb-link")) {
               utils.preventEvent(event);
               let vue3Ins = VueUtils.getVue3($click);
-              let link = (_b = (_a3 = vue3Ins == null ? void 0 : vue3Ins.props) == null ? void 0 : _a3.content) == null ? void 0 : _b.link;
+              let vue2Ins = VueUtils.getVue($click);
+              let link = ((_b = (_a3 = vue3Ins == null ? void 0 : vue3Ins.props) == null ? void 0 : _a3.content) == null ? void 0 : _b.link) || ((_c = vue2Ins == null ? void 0 : vue2Ins.content) == null ? void 0 : _c.link);
               if (typeof link === "string") {
                 log.info(`点击超链接：` + link);
                 window.open(link, "_blank");
               } else {
                 let $uniText = $click.closest("uni-text.pb-content-item");
                 let vueIns = VueUtils.getVue($uniText);
-                let section = (_g = (_d = (_c = vueIns == null ? void 0 : vueIns.$vnode) == null ? void 0 : _c.context) == null ? void 0 : _d.sectionData) == null ? void 0 : _g[(_f = (_e = vueIns == null ? void 0 : vueIns.$vnode) == null ? void 0 : _e.context) == null ? void 0 : _f.sectionIdx];
+                let section = (_h = (_e = (_d = vueIns == null ? void 0 : vueIns.$vnode) == null ? void 0 : _d.context) == null ? void 0 : _e.sectionData) == null ? void 0 : _h[(_g = (_f = vueIns == null ? void 0 : vueIns.$vnode) == null ? void 0 : _f.context) == null ? void 0 : _g.sectionIdx];
                 if (section != null) {
                   let findValue = section["content"].find(
                     (item) => item.type == 1 && item.text == ($click.textContent || $click.innerText)
@@ -13382,10 +13867,11 @@ div[class^="new-summary-container_"] {\r
               }
             } else if ($click.classList.contains("pb-at")) {
               utils.preventEvent(event);
+              log.info("点击@");
               let vue3Ins = VueUtils.getVue3($click);
               let vueIns = VueUtils.getVue($click);
-              let un = ((_i = (_h = vue3Ins == null ? void 0 : vue3Ins.props) == null ? void 0 : _h.content) == null ? void 0 : _i.text) || ((_j = vueIns == null ? void 0 : vueIns.content) == null ? void 0 : _j.text);
-              ((_l = (_k = vue3Ins == null ? void 0 : vue3Ins.props) == null ? void 0 : _k.content) == null ? void 0 : _l.type) || ((_m = vueIns == null ? void 0 : vueIns.content) == null ? void 0 : _m.type);
+              let un = ((_j = (_i = vue3Ins == null ? void 0 : vue3Ins.props) == null ? void 0 : _i.content) == null ? void 0 : _j.text) || ((_k = vueIns == null ? void 0 : vueIns.content) == null ? void 0 : _k.text);
+              ((_m = (_l = vue3Ins == null ? void 0 : vue3Ins.props) == null ? void 0 : _l.content) == null ? void 0 : _m.type) || ((_n = vueIns == null ? void 0 : vueIns.content) == null ? void 0 : _n.type);
               if (un == null) {
                 log.error("获取用户un失败");
                 Qmsg.error("获取用户un失败");
@@ -20455,8 +20941,28 @@ div[class^="new-summary-container_"] {\r
      * 注册全局贴吧图片点击预览(只预览通过贴吧上传的图片，非其它图床图片)
      */
     optimizeImagePreview() {
+      log.success("优化图片预览");
       {
         CommonUtils.setGMResourceCSS(GM_RESOURCE_MAP.Viewer);
+      }
+      let gestureback = null;
+      if (PopsPanel.getValue("baidu_tieba_optimize_image_preview")) {
+        gestureback = new GestureBack({
+          hash: GeastureBackHashConfig.viewerPreviewImage,
+          useUrl: true,
+          beforeHistoryBackCallBack(isUrlChange) {
+            if (isUrlChange) {
+              let $viewerClose = document.querySelector(
+                ".viewer-button.viewer-close"
+              );
+              if ($viewerClose) {
+                $viewerClose.click();
+              } else {
+                Qmsg.error(`未找到关闭Viewer的按钮`);
+              }
+            }
+          }
+        });
       }
       function viewIMG(imgList = [], imgIndex = 0) {
         log.info(["当前查看图片的索引下标：" + imgIndex]);
@@ -20474,6 +20980,11 @@ div[class^="new-summary-container_"] {\r
           zIndex: utils.getMaxZIndex() + 100,
           hidden: () => {
             viewer.destroy();
+          },
+          hide(event) {
+            if (gestureback) {
+              gestureback.quitGestureBackMode();
+            }
           }
         });
         if (imgIndex < 0) {
@@ -20487,6 +20998,9 @@ div[class^="new-summary-container_"] {\r
         viewer.zoomTo(1);
         viewer.show();
         log.success("预览图片");
+        if (PopsPanel.getValue("baidu_tieba_optimize_image_preview")) {
+          gestureback == null ? void 0 : gestureback.enterGestureBackMode();
+        }
       }
       function getImageSrc($img) {
         let imgUrl = $img.getAttribute("data-src") || $img.getAttribute("src") || $img.src;
@@ -20500,12 +21014,17 @@ div[class^="new-summary-container_"] {\r
           var _a3;
           let $click = event.target;
           let $clickParent = $click.parentElement;
-          let imageUrl = getImageSrc($click);
+          let currentClickImageUrl = getImageSrc($click);
           if ($clickParent.className === "viewer-canvas" || $clickParent.hasAttribute("data-viewer-action")) {
             log.info("点击的<img>属于Viewer内的元素， 不处理");
             return;
           }
-          if (imageUrl == null ? void 0 : imageUrl.match(/^http(s|):\/\/(tiebapic|imgsa).baidu.com\/forum/g)) {
+          if ($click.closest(".pic-popup-guide-thread-wrapper")) {
+            return;
+          }
+          if (currentClickImageUrl == null ? void 0 : currentClickImageUrl.match(
+            /^http(s|):\/\/(tiebapic|imgsa).baidu.com\/forum/g
+          )) {
             utils.preventEvent(event);
             log.info(`点击图片👇`);
             log.info($click);
@@ -20513,7 +21032,7 @@ div[class^="new-summary-container_"] {\r
               let $imgSudoKu = $click.closest(".img-sudoku.main-img-sudoku");
               log.info($imgSudoKu);
               if (!$imgSudoKu) {
-                viewIMG([imageUrl]);
+                viewIMG([currentClickImageUrl]);
                 return;
               }
               let lazyImgList = [];
@@ -20544,7 +21063,7 @@ div[class^="new-summary-container_"] {\r
               }
               log.info("图片列表👇");
               log.info(lazyImgList);
-              viewIMG(lazyImgList, lazyImgList.indexOf(imageUrl));
+              viewIMG(lazyImgList, lazyImgList.indexOf(currentClickImageUrl));
             } else if ($clickParent.className === "text-content") {
               let lazyImgList = [];
               log.info($clickParent);
@@ -20567,58 +21086,93 @@ div[class^="new-summary-container_"] {\r
               });
               log.info("评论区图片列表👇");
               log.info(lazyImgList);
-              viewIMG(lazyImgList, lazyImgList.indexOf(imageUrl));
+              viewIMG(lazyImgList, lazyImgList.indexOf(currentClickImageUrl));
             } else if ($clickParent.classList.contains("pb-image") && $clickParent.localName === "uni-image") {
               log.info("uni-app的图片", $clickParent);
+              let lazyImgList = [];
+              let lazyImgIndex = 0;
               let $slideFrame = $click.closest(
                 ".uni-swiper-slide-frame"
               );
               if ($slideFrame) {
-                let lazyImgList = [];
                 $slideFrame.querySelectorAll("img").forEach(($img) => {
                   let imgSrc = getImageSrc($img);
                   log.info(`获取图片: ${imgSrc}`);
                   lazyImgList.push(imgSrc);
                 });
-                viewIMG(lazyImgList, lazyImgList.indexOf(imageUrl));
+                lazyImgIndex = lazyImgList.indexOf(currentClickImageUrl);
               } else if ($click.closest(".pb-comment-item")) {
                 log.info(`uni-app评论区的图片`);
-                let lazyImgList = [];
-                let findIndex = 0;
                 let $pbCommentItem = $click.closest(".pb-comment-item");
-                let vueIns = VueUtils.getVue3($pbCommentItem);
-                if (vueIns) {
-                  let commentData = (_a3 = vueIns == null ? void 0 : vueIns.props) == null ? void 0 : _a3.commentData;
-                  if (commentData) {
-                    commentData.content.forEach((item) => {
-                      if (item.type === 3) {
+                if ($pbCommentItem) {
+                  let commentImageList = Array.from(
+                    $pbCommentItem.querySelectorAll(
+                      "uni-image img"
+                    )
+                  ).map(($el) => $el.src);
+                  let pbCommentItemVue3Ins = VueUtils.getVue3($pbCommentItem);
+                  let pbCommentData = (_a3 = pbCommentItemVue3Ins == null ? void 0 : pbCommentItemVue3Ins.props) == null ? void 0 : _a3.commentData;
+                  let $commentGroup = $pbCommentItem.closest(".comment-group");
+                  let commentGroupVue2Ins = VueUtils.getVue($commentGroup);
+                  let sectionData = commentGroupVue2Ins == null ? void 0 : commentGroupVue2Ins.sectionData;
+                  if (pbCommentData) {
+                    pbCommentData.content.forEach((item) => {
+                      const {
+                        cdn_src,
+                        cdn_src_active,
+                        big_cdn_src,
+                        origin_src,
+                        type
+                      } = item;
+                      if (type !== 3) {
+                        return;
+                      }
+                      if (currentClickImageUrl === cdn_src || currentClickImageUrl === cdn_src_active || currentClickImageUrl === big_cdn_src || currentClickImageUrl === origin_src) {
+                        lazyImgIndex = lazyImgList.length;
+                      }
+                      lazyImgList.push(
+                        origin_src || big_cdn_src || currentClickImageUrl
+                      );
+                    });
+                  } else if (sectionData) {
+                    sectionData.forEach((item) => {
+                      item.imgList.forEach((item2) => {
                         const {
                           cdn_src,
                           cdn_src_active,
                           big_cdn_src,
-                          origin_src
-                        } = item;
-                        if (imageUrl === cdn_src || imageUrl === cdn_src_active || imageUrl === big_cdn_src || imageUrl === origin_src) {
-                          findIndex = lazyImgList.length;
-                          lazyImgList.push(origin_src || big_cdn_src || imageUrl);
+                          origin_src,
+                          type
+                        } = item2;
+                        if (type !== 3) {
+                          return;
                         }
-                      }
+                        if (currentClickImageUrl === cdn_src || currentClickImageUrl === cdn_src_active || currentClickImageUrl === big_cdn_src || currentClickImageUrl === origin_src) {
+                          lazyImgIndex = lazyImgList.length;
+                        }
+                        lazyImgList.push(
+                          origin_src || big_cdn_src || currentClickImageUrl
+                        );
+                      });
                     });
-                    viewIMG(lazyImgList, findIndex);
                   } else {
-                    log.error("获取评论数据失败");
-                    Qmsg.error("获取评论数据失败");
+                    lazyImgList.push(...commentImageList);
+                    lazyImgIndex = lazyImgList.indexOf(currentClickImageUrl);
                   }
                 } else {
                   log.error("获取.pb-comment-item元素失败");
-                  Qmsg.error("获取.pb-comment-item元素失败");
+                  lazyImgList.push(currentClickImageUrl);
                 }
               } else {
-                log.warn("获取多组图片失败，采用查看单张图片");
-                viewIMG([imageUrl]);
+                lazyImgList.push(currentClickImageUrl);
+              }
+              if (lazyImgList.length) {
+                viewIMG(lazyImgList, lazyImgIndex);
+              } else {
+                Qmsg.error("获取图片数据为空");
               }
             } else {
-              viewIMG([imageUrl]);
+              viewIMG([currentClickImageUrl]);
             }
           }
         },
@@ -23278,7 +23832,6 @@ div[class^="new-summary-container_"] {\r
         });
       } else if (BaiduRouter.isTieBaPost()) {
         log.success("Router: 帖子");
-        TiebaPost.init();
         TiebaUniAppPost.init();
       } else if (BaiduRouter.isTieBaNewTopic()) {
         log.success("Router: 话题热议");

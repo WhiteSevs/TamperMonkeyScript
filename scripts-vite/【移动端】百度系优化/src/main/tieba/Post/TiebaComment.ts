@@ -16,15 +16,11 @@ import { TiebaSearch } from "../TiebaSearch";
 import { ref } from "vue";
 import { Toolbar } from "./Toolbar";
 import Qmsg from "qmsg";
-import { CommonUtils } from "@/utils/CommonUtils";
 import { TiebaPostApi } from "../api/TiebaPostApi";
-import { TiebaPost } from "./TiebaPost";
 import { VueUtils } from "@/utils/VueUtils";
-import { TiebaReply } from "./TiebaReply";
-import { dataType } from "element-plus/es/components/table-v2/src/common";
 import { FloorCommentData, LzlItemData, PageComment } from "../types/PostsType";
 import { CommentData } from "../types/CommentType";
-import { HttpxDetails } from "@whitesev/utils/dist/types/src/Httpx";
+import { HttpxRequestOption } from "@whitesev/utils/dist/types/src/types/Httpx";
 
 interface AffixOption {
 	/**
@@ -2455,7 +2451,7 @@ const TiebaComment = {
 	 * @param url
 	 */
 	async getPageComment(url: string) {
-		let getDetails: HttpxDetails = {
+		let getDetails: HttpxRequestOption = {
 			url: url,
 			headers: {
 				"User-Agent": utils.getRandomPCUA(),

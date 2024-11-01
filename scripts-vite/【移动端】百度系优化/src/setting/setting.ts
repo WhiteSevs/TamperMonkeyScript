@@ -33,6 +33,7 @@ import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/
 import { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
+import { PanelUISize } from "./panel-ui-size";
 
 type PosPanelListenerData = {
 	id: number;
@@ -129,18 +130,18 @@ const PopsPanel = {
 					this.showPanel();
 				},
 			},
-			{
-				key: "show_yiyan_chatgpt",
-				text: "⚙ 文心一言",
-				autoReload: false,
-				isStoreValue: false,
-				showText(text) {
-					return text;
-				},
-				callback: () => {
-					YiYanChat.init();
-				},
-			},
+			// {
+			// 	key: "show_yiyan_chatgpt",
+			// 	text: "⚙ 文心一言",
+			// 	autoReload: false,
+			// 	isStoreValue: false,
+			// 	showText(text) {
+			// 		return text;
+			// 	},
+			// 	callback: () => {
+			// 		YiYanChat.init();
+			// 	},
+			// },
 		]);
 	},
 	/** 初始化本地设置默认的值 */
@@ -570,8 +571,8 @@ const PopsPanel = {
 				},
 			},
 			isMobile: this.isMobile(),
-			width: this.getWidth(),
-			height: this.getHeight(),
+			width: PanelUISize.setting.width,
+			height: PanelUISize.setting.height,
 			drag: true,
 			only: true,
 		});
@@ -593,10 +594,10 @@ const PopsPanel = {
 	 * 获取设置面板的高度
 	 */
 	getHeight() {
-		if (window.innerHeight > 450) {
+		if (window.innerHeight < 550) {
 			return "80vh";
 		} else {
-			return "450px";
+			return "550px";
 		}
 	},
 	/**

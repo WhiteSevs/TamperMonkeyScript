@@ -6,16 +6,20 @@ import { PopsPanel } from "@/setting/setting";
 import { GM_getValue, GM_setValue } from "ViteGM";
 import { TiebaUniAppComment } from "./TiebaUniAppComment";
 import { TiebaPostApi } from "../api/TiebaPostApi";
-import { NetWorkHook } from "@/hook/NetWorkHook";
+import { GestureBack } from "@/utils/GestureBack";
+import { TiebaPost } from "../Post/TiebaPost";
+import { TiebaUniAppCommentFilter } from "./TiebaUniAppCommentFilter";
 
 /**
- * 优化使用的hash值
+ * 手势返回使用的hash参数
  */
-const OptimizationLocationHash = {
+export const GeastureBackHashConfig = {
 	/** 楼中楼回复弹窗 */
 	seeLzlReply: "#/seeLzlReply",
 	/** 图片预览 */
 	previewImage: "#/previewImage",
+	/** Viewer图片预览 */
+	viewerPreviewImage: "#/viewerPreviewImage",
 };
 
 export const TiebaUniAppPost = {
@@ -25,14 +29,22 @@ export const TiebaUniAppPost = {
 				return;
 			}
 			log.info(`uni-app ===> 本页面为uni-app页面`);
-			if (
-				Object.values(OptimizationLocationHash).includes(window.location.hash)
-			) {
-				log.warn("检测到hash值为手势优化的hash值，已自动去除");
+			let findHashValue = Object.values(GeastureBackHashConfig).find((item) => {
+				return window.location.hash.endsWith(item);
+			});
+			if (findHashValue) {
+				log.warn(`删除检测到的手势hash参数：${findHashValue}`);
 				window.location.hash = "";
 			}
 			this.repairTbErrorPage();
 			this.mutationRemoveWakeUpBtn();
+			PopsPanel.onceExec("tieba-post-uni-app-comment-filter", () => {
+				TiebaUniAppCommentFilter.init();
+			});
+
+			PopsPanel.execMenu("baidu_tieba_optimize_image_preview", () => {
+				TiebaPost.optimizeImagePreview();
+			});
 			PopsPanel.execMenuOnce(
 				"baidu-tieba-uni-app-post-allow-user-select",
 				() => {
@@ -228,7 +240,6 @@ export const TiebaUniAppPost = {
 		// 主动触发一次滚动事件
 		utils.dispatchEvent(document, "scroll");
 	},
-
 	/**
 	 * 添加滚动到顶部按钮
 	 */
@@ -268,13 +279,16 @@ export const TiebaUniAppPost = {
 			(event) => {
 				utils.preventEvent(event);
 				let $click = event.target as HTMLDivElement;
-				let $vueIns = VueUtils.getVue3($click);
-				if (typeof $vueIns?.props?.config?.param?.tid === "number") {
-					let tid = $vueIns.props.config.param.tid;
+				let vue2Ins = VueUtils.getVue($click)!;
+				let vue3Ins = VueUtils.getVue3($click);
+				let tid =
+					vue2Ins?.$props?.config?.param?.tid ||
+					vue3Ins?.props?.config?.param?.tid;
+				if (typeof tid === "number") {
 					let url = TiebaUrlApi.getPost(tid);
 					window.open(url, "_blank");
 				} else {
-					log.error(["获取tid失败", $click]);
+					log.error("获取tid失败", $click);
 					Qmsg.error("获取tid失败");
 				}
 			},
@@ -482,149 +496,61 @@ export const TiebaUniAppPost = {
 	 */
 	optimizationLzlPostBackGestureReturn() {
 		log.info(`uni-app ===> 楼中楼回复弹窗手势返回`);
-		let isClosingDialog = false;
-		/**
-		 * 设置浏览器历史地址
-		 * @param event
-		 */
-		function popstateEvent(event: Event) {
-			utils.preventEvent(event);
-			if (isClosingDialog) {
-				return;
-			}
-			log.success("触发popstate事件");
-			removePopStateEvent();
-		}
-
-		/**
-		 * 设置popstate事件
-		 */
-		function setPopStateEvent() {
-			/* 监听地址改变 */
-			log.success("监听popstate事件");
-			window.history.pushState({}, "", OptimizationLocationHash.seeLzlReply);
-			DOMUtils.on(window, "popstate", popstateEvent, {
-				capture: true,
-			});
-		}
-
-		/**
-		 * 允许浏览器后退并关闭小窗
-		 */
-		async function removePopStateEvent() {
-			isClosingDialog = true;
-			log.success("location地址后退并关闭评论弹窗");
-			closeDialogByUrlChange();
-			while (true) {
-				if (
-					globalThis.location.hash.endsWith(
-						OptimizationLocationHash.seeLzlReply
-					)
-				) {
-					log.info("后退！");
-					globalThis.history.back();
-					// VueUtils.getVue(TiebaComment.vueRootView)?.$router.back();
-					await utils.sleep(150);
-				} else {
-					break;
+		let gestureBack = new GestureBack({
+			hash: GeastureBackHashConfig.seeLzlReply,
+			useUrl: true,
+			beforeHistoryBackCallBack(isUrlChange) {
+				if (isUrlChange) {
+					closeDialogByUrlChange();
 				}
-			}
-			log.success("停止popstate事件监听");
-			DOMUtils.off(window, "popstate", popstateEvent, { capture: true });
-			isClosingDialog = false;
-		}
+			},
+		});
 		function closeDialogByUrlChange() {
 			let $lzlCloseIcon =
 				document.querySelector<HTMLElement>(".lzl-close-icon");
 			if ($lzlCloseIcon) {
-				$lzlCloseIcon.dispatchEvent(
-					new CustomEvent("click", {
-						detail: {
-							from: "urlchange",
-						},
-					})
-				);
+				$lzlCloseIcon.click();
 			} else {
-				log.warn(`未找到关闭楼中楼回复弹窗的按钮`);
+				Qmsg.error(`未找到关闭楼中楼回复弹窗的按钮`);
 			}
 		}
 		DOMUtils.on(document, "click", ".lzl-wrapper", (event) => {
 			log.info(`点击楼中楼回复`);
-			setPopStateEvent();
+			gestureBack.enterGestureBackMode();
 		});
 		DOMUtils.on(document, "click", ".lzl-close-icon", (event) => {
-			log.info(`点击关闭楼中楼回复弹窗`);
-			let detail = event.detail;
-			// @ts-ignore
-			if (detail.from === "urlchange") {
-				return;
-			}
-			removePopStateEvent();
+			log.info(`点击关闭按钮-关闭楼中楼回复弹窗`);
+			gestureBack.quitGestureBackMode();
 		});
+		DOMUtils.on(
+			document,
+			"click",
+			".lzl-float-container .error-close",
+			(event) => {
+				log.info(`点击遮罩层-关闭楼中楼回复弹窗`);
+				gestureBack.quitGestureBackMode();
+			}
+		);
 	},
 	/**
 	 * 图片预览手势返回
 	 */
 	optimizationImagePreviewBackGestureReturn() {
 		log.info(`uni-app ===> 图片预览手势返回`);
-		let isClosing = false;
-		let isUrlChangeClick = false;
-		/**
-		 * 设置浏览器历史地址
-		 * @param event
-		 */
-		function popstateEvent(event: Event) {
-			utils.preventEvent(event);
-			if (isClosing) {
-				return;
-			}
-			log.success("触发popstate事件");
-			removePopStateEvent();
-		}
-
-		/**
-		 * 设置popstate事件
-		 */
-		function setPopStateEvent() {
-			/* 监听地址改变 */
-			log.success("监听popstate事件");
-			window.history.pushState({}, "", OptimizationLocationHash.previewImage);
-			DOMUtils.on(window, "popstate", popstateEvent, {
-				capture: true,
-			});
-		}
-
-		/**
-		 * 允许浏览器后退并退出图片预览模式
-		 */
-		async function removePopStateEvent() {
-			isClosing = true;
-			log.success("location地址后退并退出图片预览模式");
-			closeByUrlChange();
-			while (true) {
-				if (
-					globalThis.location.hash.endsWith(
-						OptimizationLocationHash.previewImage
-					)
-				) {
-					log.info("后退！");
-					globalThis.history.back();
-					// VueUtils.getVue(TiebaComment.vueRootView)?.$router.back();
-					await utils.sleep(150);
-				} else {
-					break;
+		let gestureBack = new GestureBack({
+			hash: GeastureBackHashConfig.previewImage,
+			useUrl: true,
+			beforeHistoryBackCallBack(isUrlChange) {
+				if (isUrlChange) {
+					closeByUrlChange();
 				}
-			}
-			log.success("停止popstate事件监听");
-			DOMUtils.off(window, "popstate", popstateEvent, { capture: true });
-			isClosing = false;
-		}
+			},
+		});
 		function closeByUrlChange() {
 			let $closeIcon = document.querySelector<HTMLElement>(
 				".img-preview .back-icon-con"
 			);
 			if ($closeIcon) {
-				isUrlChangeClick = true;
 				$closeIcon.click();
 			} else {
 				log.warn(`未找到退出图片预览模式的按钮`);
@@ -638,7 +564,7 @@ export const TiebaUniAppPost = {
 				$parent.classList.contains("pb-image")
 			) {
 				// <uni-app>内的图片
-				setPopStateEvent();
+				gestureBack.enterGestureBackMode();
 				utils
 					.waitNode(".img-preview .back-icon-con", 10000)
 					.then(($backIcon) => {
@@ -646,11 +572,7 @@ export const TiebaUniAppPost = {
 							return;
 						}
 						DOMUtils.on($backIcon, "click", () => {
-							if (isUrlChangeClick) {
-								isUrlChangeClick = false;
-								return;
-							}
-							removePopStateEvent();
+							gestureBack.quitGestureBackMode();
 						});
 					});
 			}
@@ -740,7 +662,9 @@ export const TiebaUniAppPost = {
 					if ($click.classList.contains("pb-link")) {
 						utils.preventEvent(event);
 						let vue3Ins = VueUtils.getVue3($click);
-						let link: string | null = vue3Ins?.props?.content?.link;
+						let vue2Ins = VueUtils.getVue($click)!;
+						let link: string | null =
+							vue3Ins?.props?.content?.link || vue2Ins?.content?.link;
 						if (typeof link === "string") {
 							log.info(`点击超链接：` + link);
 							window.open(link, "_blank");
@@ -774,6 +698,7 @@ export const TiebaUniAppPost = {
 						}
 					} else if ($click.classList.contains("pb-at")) {
 						utils.preventEvent(event);
+						log.info("点击@");
 						let vue3Ins = VueUtils.getVue3($click);
 						let vueIns = VueUtils.getVue($click);
 						let un: string | null =

@@ -1,10 +1,9 @@
 import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { TieBaApi, TiebaUrlApi } from "../api/TiebaApi";
-import { CommonUtils } from "@/utils/CommonUtils";
 import Qmsg from "qmsg";
 import { VueUtils } from "@/utils/VueUtils";
-import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
+import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 
 interface BaNeiPostInfo {
 	abstract: [
@@ -48,7 +47,7 @@ const TiebaBaNei = {
 	/**
 	 * __vue__
 	 */
-	vueRootView: null as unknown as Vue2Context,
+	vueRootView: null as unknown as Vue2Instance,
 	init() {
 		PopsPanel.execMenu("baidu_tieba_openANewTab", () => {
 			this.openANewTab();
@@ -71,7 +70,7 @@ const TiebaBaNei = {
 		utils.waitNode<HTMLDivElement>(".tb-mobile-viewport").then(async () => {
 			TiebaBaNei.vueRootView = VueUtils.getVue(
 				document.querySelector(".tb-mobile-viewport")
-			) as Vue2Context;
+			) as Vue2Instance;
 			let isLogin = Boolean(TiebaBaNei.vueRootView?.["user"]?.["is_login"]);
 			utils
 				.waitNode<HTMLDivElement>(".tb-forum-user__join-btn")

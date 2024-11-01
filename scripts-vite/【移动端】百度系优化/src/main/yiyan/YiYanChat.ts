@@ -547,7 +547,7 @@ const YiYanChat = {
 	 * 获取AI的回答
 	 */
 	async conversation(queryText = "") {
-		let postResp = await httpx.post(
+		let response = await httpx.post(
 			"https://chat-ws.baidu.com/aichat/api/conversation",
 			{
 				headers: {
@@ -573,10 +573,10 @@ const YiYanChat = {
 				}),
 			}
 		);
-		if (!postResp.status) {
+		if (!response.status) {
 			return;
 		}
-		let stream = postResp.data.response as ReadableStream<string>;
+		let stream = response.data.response;
 		return stream;
 	},
 	/**

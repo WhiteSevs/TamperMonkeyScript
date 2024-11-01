@@ -3,12 +3,16 @@ import { DOMUtils, log, utils } from "@/env";
 type GestureBackConfig = {
 	/** 进入手势模式的hash */
 	hash: string;
+	/** 当前的window对象 @default self */
+	win?: Window & typeof globalThis;
+	/** 使用当前url+hash作为url @default false */
+	useUrl?: boolean;
 	/** 退出手势模式的延迟时间，单位ms @default 150 */
 	backDelayTime?: number;
-	/** 在执行退出手势模式前的回调函数 */
-	beforeHistoryBackCallBack?: Function;
-	/** 在执行退出手势模式后的回调函数 */
-	afterHistoryBackCallBack?: Function;
+	/** 调用退出手势模式前执行的回调函数 @default null */
+	beforeHistoryBackCallBack?: (isUrlChange: boolean) => void;
+	/** 调用退出手势模式后执行的回调函数 @default null */
+	afterHistoryBackCallBack?: (isUrlChange: boolean) => void;
 };
 /**
  * 手势返回
@@ -21,11 +25,17 @@ export class GestureBack {
 	config: GestureBackConfig;
 	constructor(config: GestureBackConfig) {
 		this.config = config;
+		this.enterGestureBackMode.bind(this);
+		this.quitGestureBackMode.bind(this);
+		this.popStateEvent.bind(this);
 		if (
-			typeof config.backDelayTime !== "number" ||
-			isNaN(config.backDelayTime)
+			typeof this.config.backDelayTime !== "number" ||
+			isNaN(this.config.backDelayTime)
 		) {
-			config.backDelayTime = 150;
+			this.config.backDelayTime = 150;
+		}
+		if (this.config.win == null) {
+			this.config.win = self;
 		}
 	}
 	/**
@@ -37,7 +47,7 @@ export class GestureBack {
 		if (this.isBacking) {
 			return;
 		}
-		this.quitGestureBackMode();
+		this.quitGestureBackMode(true);
 	}
 	/**
 	 * 进入手势模式
@@ -45,46 +55,60 @@ export class GestureBack {
 	enterGestureBackMode() {
 		/* 监听地址改变 */
 		log.success("进入手势模式");
-		let hash = this.config.hash;
-		if (!hash.startsWith("#")) {
+		let pushUrl = this.config.hash;
+		if (!pushUrl.startsWith("#")) {
+			// 完善hash
 			// /xxx
 			// xxxx
-			if (!hash.startsWith("/")) {
-				hash = "/" + hash;
+			if (!pushUrl.startsWith("/")) {
+				pushUrl = "/" + pushUrl;
 			}
-			hash = "#" + hash;
+			pushUrl = "#" + pushUrl;
 		}
-		window.history.pushState({}, "", hash);
+		if (this.config.useUrl) {
+			pushUrl =
+				this.config.win!.location.origin +
+				this.config.win!.location.pathname +
+				this.config.win!.location.search +
+				pushUrl;
+		}
+		this.config.win!.history.pushState({}, "", pushUrl);
 		log.success("监听popstate事件");
-		DOMUtils.on(window, "popstate", this.popStateEvent.bind(this), {
+		DOMUtils.on(this.config.win!, "popstate", this.popStateEvent.bind(this), {
 			capture: true,
 		});
 	}
 	/**
 	 * 退出手势模式
+	 * @param isUrlChange 是否是url改变触发的
 	 */
-	async quitGestureBackMode() {
+	async quitGestureBackMode(isUrlChange: boolean = false) {
 		this.isBacking = true;
 		log.success("退出手势模式");
 		if (typeof this.config.beforeHistoryBackCallBack === "function") {
-			this.config.beforeHistoryBackCallBack();
+			this.config.beforeHistoryBackCallBack(isUrlChange);
 		}
+		let maxDate = Date.now() + 1000 * 5;
 		while (true) {
-			if (globalThis.location.hash.endsWith(this.config.hash)) {
+			if (Date.now() > maxDate) {
+				log.error("未知情况，history.back()失败，无法退出手势模式");
+				break;
+			}
+			if (this.config.win!.location.hash.endsWith(this.config.hash)) {
 				log.info("history.back()");
-				globalThis.history.back();
-				await utils.sleep(this.config.backDelayTime);
+				this.config.win!.history.back();
+				await utils.sleep(this.config.backDelayTime || 150);
 			} else {
 				break;
 			}
 		}
 		log.success("移除popstate事件");
-		DOMUtils.off(window, "popstate", this.popStateEvent.bind(this), {
+		DOMUtils.off(this.config.win!, "popstate", this.popStateEvent.bind(this), {
 			capture: true,
 		});
 		this.isBacking = false;
 		if (typeof this.config.afterHistoryBackCallBack === "function") {
-			this.config.afterHistoryBackCallBack();
+			this.config.afterHistoryBackCallBack(isUrlChange);
 		}
 	}
 }

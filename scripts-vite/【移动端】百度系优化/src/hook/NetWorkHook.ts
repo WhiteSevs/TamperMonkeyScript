@@ -1,5 +1,5 @@
 import { log, utils } from "@/env";
-import type { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/AjaxHookerType";
+import type { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
 
 export const NetWorkHook = {
 	$data: {

@@ -12,7 +12,7 @@ import { TiebaData } from "./Home/data";
 import { TiebaCore } from "./TiebaCore";
 import { TiebaPost } from "./Post/TiebaPost";
 import { TiebaHome } from "./Home/TiebaHome";
-import { TieBaApi, TiebaUrlApi } from "./api/TiebaApi";
+import { TiebaUrlApi } from "./api/TiebaApi";
 import Qmsg from "qmsg";
 import { VueUtils } from "@/utils/VueUtils";
 import { TiebaUniAppPost } from "./uni-app-post/TiebaUniAppPost";
@@ -84,7 +84,7 @@ const BaiduTieBa = {
 		} else if (BaiduRouter.isTieBaPost()) {
 			/* 帖子 */
 			log.success("Router: 帖子");
-			TiebaPost.init();
+			// TiebaPost.init();
 			TiebaUniAppPost.init();
 		} else if (BaiduRouter.isTieBaNewTopic()) {
 			/* 话题热议 */

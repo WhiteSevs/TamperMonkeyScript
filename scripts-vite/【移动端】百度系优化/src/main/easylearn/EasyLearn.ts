@@ -4,7 +4,7 @@ import { PopsPanel } from "@/setting/setting";
 import { CommonUtils } from "@/utils/CommonUtils";
 import EasyLearnShieldCSS from "./shield.css?raw";
 import { VueUtils } from "@/utils/VueUtils";
-import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
+import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 
 const BaiduEasyLearn = {
 	init() {
@@ -198,7 +198,7 @@ const BaiduEasyLearn = {
 				log.success("允许使用顶部的输入框");
 				await utils.waitVueByInterval(
 					$searchBox,
-					function (vueObj: Vue2Context) {
+					function (vueObj: Vue2Instance) {
 						return "$watch" in vueObj;
 					},
 					250,

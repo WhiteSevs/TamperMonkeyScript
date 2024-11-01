@@ -3,23 +3,25 @@ import {
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
 } from "../config";
-import { PopsPanelSelectDetails } from "@whitesev/pops/dist/types/src/components/panel/selectType";
+import { PopsPanelSelectMultipleDetails } from "@whitesev/pops/dist/types/src/components/panel/selectMultipleType";
 import { log } from "@/env";
+import type { PopsAlertDetails } from "@whitesev/pops/dist/types/src/components/alert/indexType";
 import { PopsPanel } from "../setting";
 
 /**
- * 下拉列表
+ * 下拉列表-多选
  * @param text 左边的文字
  * @param key 键
  * @param defaultValue 默认值
  * @param data 下拉列表的数据
  * @param callback 选择列表的某一项的回调
  * @param description 左边的文字下面的描述
+ * @param selectConfirmDialogDetails 弹窗配置
  */
-export const UISelect = function <T extends any>(
+export const UISelectMultiple = function <T>(
 	text: string,
 	key: string,
-	defaultValue: T,
+	defaultValue: T[],
 	data:
 		| {
 				value: T;
@@ -32,12 +34,15 @@ export const UISelect = function <T extends any>(
 				disable?(value: T): boolean;
 		  }[]),
 	callback?: (
-		event: PointerEvent | TouchEvent,
-		isSelectedValue: T,
-		isSelectedText: string
+		selectInfo: {
+			value: T;
+			text: string;
+		}[]
 	) => void,
-	description?: string
-): PopsPanelSelectDetails<T> {
+	description?: string,
+	placeholder = "请至少选择一个选项",
+	selectConfirmDialogDetails?: Partial<PopsAlertDetails>
+): PopsPanelSelectMultipleDetails<T> {
 	let selectData: {
 		value: T;
 		text: string;
@@ -48,25 +53,31 @@ export const UISelect = function <T extends any>(
 	} else {
 		selectData = data;
 	}
-	let result: PopsPanelSelectDetails<T> = {
+	let result: PopsPanelSelectMultipleDetails<T> = {
 		text: text,
-		type: "select",
+		type: "select-multiple",
 		description: description,
+		placeholder: placeholder,
 		attributes: {},
 		props: {},
 		getValue() {
 			return (this.props as any)[PROPS_STORAGE_API].get(key, defaultValue);
 		},
-		callback(event, isSelectedValue, isSelectedText) {
-			let value = isSelectedValue;
-			log.info(`选择：${isSelectedText}`);
+		selectConfirmDialogDetails: selectConfirmDialogDetails,
+		callback(selectInfo) {
+			let value: T[] = [];
+			selectInfo.forEach((selectedInfo) => {
+				value.push(selectedInfo.value);
+			});
 			(this.props as any)[PROPS_STORAGE_API].set(key, value);
+			log.info(`多选-选择：`, value);
 			if (typeof callback === "function") {
-				callback(event, value, isSelectedText);
+				callback(selectInfo);
 			}
 		},
 		data: selectData,
 	};
+
 	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
 	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
 	Reflect.set(result.props!, PROPS_STORAGE_API, {

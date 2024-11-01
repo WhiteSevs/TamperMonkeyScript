@@ -6,11 +6,12 @@ import { UISwitch } from "@/setting/common-components/ui-switch";
 import Qmsg from "qmsg";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { TiebaPCApi } from "@/main/tieba/api/TiebaPCApi";
+import { TiebaUniAppCommentFilter } from "@/main/tieba/uni-app-post/TiebaUniAppCommentFilter";
 
 const PanelTieBaSettingUI: PopsPanelContentConfig = {
 	id: "baidu-panel-config-tieba",
 	title: "贴吧",
-	headerTitle: "百度贴吧<br />tieba.baidu.com<br />www.tieba.com<br />...等",
+	headerTitle: "百度贴吧<br />tieba.baidu.com",
 	isDefault() {
 		return BaiduRouter.isTieBa();
 	},
@@ -124,94 +125,94 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 						},
 					],
 				},
-				{
-					text: "帖内",
-					description: "旧版本设置项，大部分功能已失效",
-					type: "deepMenu",
-					forms: [
-						{
-							text: "功能",
-							type: "forms",
-							forms: [
-								UISwitch(
-									"楼中楼回复弹窗手势返回",
-									"baidu_tieba_lzl_ban_global_back",
-									false,
-									function (event, enable) {
-										if (enable) {
-											alert(
-												"开启后，当在手机浏览器中使用屏幕左滑回退网页操作或者点击浏览器的回退到上一页按钮，不会触发回退上一页操作，而是会关闭当前查看的楼中楼的弹窗。注：某些浏览器不适用"
-											);
-										}
-									},
-									"使浏览器后退变成关闭楼中楼弹窗"
-								),
-								UISwitch(
-									"新增滚动到顶部按钮",
-									"baidu_tieba_add_scroll_top_button_in_forum",
-									true,
-									void 0,
-									"向下滚动的距离>页面高度*2就会出现按钮"
-								),
-								UISwitch(
-									"优化查看评论",
-									"baidu_tieba_optimize_see_comments",
-									true,
-									void 0,
-									"可以查看更多的评论"
-								),
-								UISwitch(
-									"优化评论工具栏",
-									"baidu_tieba_optimize_comments_toolbar",
-									true,
-									void 0,
-									"可以进行评论区回复/楼中楼回复，需开启【优化查看评论】"
-								),
-								UISwitch(
-									"优化图片点击预览",
-									"baidu_tieba_optimize_image_preview",
-									true,
-									void 0,
-									"使用Viewer查看图片"
-								),
-								UISwitch(
-									"强制查看被屏蔽的帖子",
-									"baidu_tieba_repairErrorThread",
-									false,
-									function (event, enable) {
-										if (enable) {
-											window.alert(
-												"开启后，如果查看的帖子显示【贴子不存在或者已被删除】或【该帖子需要去app内查看哦】，且该帖子在PC端可以查看，那么该修复可以生效。"
-											);
-										}
-									},
-									"PC端可以查看帖子该功能才能正确生效"
-								),
-								UISwitch(
-									"点击楼主头像正确跳转主页",
-									"baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",
-									true,
-									void 0,
-									"点击头像正确跳转至用户主页"
-								),
-								UISwitch(
-									"屏蔽机器人",
-									"baidu_tieba_shield_commnets_baodating",
-									true,
-									void 0,
-									"屏蔽【贴吧包打听】机器人，回答的评论都是牛头不对马嘴的"
-								),
-								UISwitch(
-									"显示用户当前吧的等级头衔",
-									"baidu_tieba_show_forum_level",
-									true,
-									void 0,
-									"只对评论和楼中楼的用户进行显示处理"
-								),
-							],
-						},
-					],
-				},
+				// {
+				// 	text: "帖内",
+				// 	description: "旧版本设置项，大部分功能已失效",
+				// 	type: "deepMenu",
+				// 	forms: [
+				// 		{
+				// 			text: "功能",
+				// 			type: "forms",
+				// 			forms: [
+				// 				UISwitch(
+				// 					"楼中楼回复弹窗手势返回",
+				// 					"baidu_tieba_lzl_ban_global_back",
+				// 					false,
+				// 					function (event, enable) {
+				// 						if (enable) {
+				// 							alert(
+				// 								"开启后，当在手机浏览器中使用屏幕左滑回退网页操作或者点击浏览器的回退到上一页按钮，不会触发回退上一页操作，而是会关闭当前查看的楼中楼的弹窗。注：某些浏览器不适用"
+				// 							);
+				// 						}
+				// 					},
+				// 					"使浏览器后退变成关闭楼中楼弹窗"
+				// 				),
+				// 				UISwitch(
+				// 					"新增滚动到顶部按钮",
+				// 					"baidu_tieba_add_scroll_top_button_in_forum",
+				// 					true,
+				// 					void 0,
+				// 					"向下滚动的距离>页面高度*2就会出现按钮"
+				// 				),
+				// 				UISwitch(
+				// 					"优化查看评论",
+				// 					"baidu_tieba_optimize_see_comments",
+				// 					true,
+				// 					void 0,
+				// 					"可以查看更多的评论"
+				// 				),
+				// 				UISwitch(
+				// 					"优化评论工具栏",
+				// 					"baidu_tieba_optimize_comments_toolbar",
+				// 					true,
+				// 					void 0,
+				// 					"可以进行评论区回复/楼中楼回复，需开启【优化查看评论】"
+				// 				),
+				// 				UISwitch(
+				// 					"优化图片点击预览",
+				// 					"baidu_tieba_optimize_image_preview",
+				// 					true,
+				// 					void 0,
+				// 					"使用Viewer查看图片"
+				// 				),
+				// 				UISwitch(
+				// 					"强制查看被屏蔽的帖子",
+				// 					"baidu_tieba_repairErrorThread",
+				// 					false,
+				// 					function (event, enable) {
+				// 						if (enable) {
+				// 							window.alert(
+				// 								"开启后，如果查看的帖子显示【贴子不存在或者已被删除】或【该帖子需要去app内查看哦】，且该帖子在PC端可以查看，那么该修复可以生效。"
+				// 							);
+				// 						}
+				// 					},
+				// 					"PC端可以查看帖子该功能才能正确生效"
+				// 				),
+				// 				UISwitch(
+				// 					"点击楼主头像正确跳转主页",
+				// 					"baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",
+				// 					true,
+				// 					void 0,
+				// 					"点击头像正确跳转至用户主页"
+				// 				),
+				// 				UISwitch(
+				// 					"屏蔽机器人",
+				// 					"baidu_tieba_shield_commnets_baodating",
+				// 					true,
+				// 					void 0,
+				// 					"屏蔽【贴吧包打听】机器人，回答的评论都是牛头不对马嘴的"
+				// 				),
+				// 				UISwitch(
+				// 					"显示用户当前吧的等级头衔",
+				// 					"baidu_tieba_show_forum_level",
+				// 					true,
+				// 					void 0,
+				// 					"只对评论和楼中楼的用户进行显示处理"
+				// 				),
+				// 			],
+				// 		},
+				// 	],
+				// },
 				{
 					text: "帖内",
 					description: "新版的uni-app",
@@ -277,11 +278,18 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 									"使浏览器后退变成关闭楼中楼弹窗"
 								),
 								UISwitch(
+									"优化图片点击预览",
+									"baidu_tieba_optimize_image_preview",
+									true,
+									void 0,
+									"使用Viewer查看图片"
+								),
+								UISwitch(
 									"图片预览手势返回",
 									"baidu-tieba-uni-app-post-optimizationImagePreviewBackGestureReturn",
 									false,
 									void 0,
-									"使浏览器后退变成退出图片预览模式，该功能仅对贴吧自带的图片预览模式生效"
+									"使浏览器后退变成退出图片预览模式"
 								),
 								UISwitch(
 									"新增滚动到顶部按钮",
@@ -310,6 +318,18 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 									true,
 									void 0,
 									"允许长按选择文字"
+								),
+								UIButton(
+									"评论过滤规则",
+									"可过滤评论",
+									"自定义",
+									void 0,
+									false,
+									false,
+									"primary",
+									() => {
+										TiebaUniAppCommentFilter.showView();
+									}
 								),
 							],
 						},

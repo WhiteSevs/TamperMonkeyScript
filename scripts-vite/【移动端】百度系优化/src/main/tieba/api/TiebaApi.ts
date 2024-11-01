@@ -545,7 +545,7 @@ const TiebaUrlApi = {
 	 * 根据tid/pid获取帖子链接
 	 * @param id
 	 */
-	getPost(id: string) {
+	getPost(id: string | number) {
 		return `https://tieba.baidu.com/p/${id}`;
 	},
 	/**
