@@ -1,4 +1,3 @@
-import "./index.css";
-export const DeomIndex = {
+export const DemoWebSite = {
 	init() {},
 };

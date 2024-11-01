@@ -1,5 +1,5 @@
 import { PopsPanel } from "@/setting/setting";
-import { DeomIndex } from "@/main/demo";
+import { DemoWebSite } from "@/main/demo";
 
 PopsPanel.init();
-DeomIndex.init();
+DemoWebSite.init();

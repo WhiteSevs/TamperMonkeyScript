@@ -196,6 +196,7 @@ export class RuleView<T> {
 							getAllRuleElement().forEach(($el) => {
 								DOMUtils.show($el, false);
 							});
+							DOMUtils.text($button, "过滤");
 						} else {
 							let ruleFilterView = new RuleFilterView<T>({
 								title: this.option.bottomControls?.filter?.title ?? "过滤规则",

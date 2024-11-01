@@ -13,12 +13,18 @@ import {
 import Qmsg from "qmsg";
 import DOMUtils from "@whitesev/domutils";
 import Utils from "@whitesev/utils";
+import pops from "@whitesev/pops";
 import { PopsPanel } from "./setting/setting";
 import { HttpxCookieManager } from "./utils/HttpxCookieManager";
-import pops from "@whitesev/pops";
 
-/* 脚本名 */
-const _SCRIPT_NAME_ = "Demo Script Name";
+/**
+ * 脚本名
+ *
+ * 除了这里还有vite.config.ts内的 SCRIPT_NAME
+ *
+ * @link file://./../vite.config.ts?SCRIPT_NAME
+ */
+const _SCRIPT_NAME_ = "Demo_Script_Name";
 const utils = Utils.noConflict();
 const domUtils = DOMUtils.noConflict();
 const __pops = pops;
