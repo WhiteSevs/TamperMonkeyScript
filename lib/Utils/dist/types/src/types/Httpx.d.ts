@@ -1241,10 +1241,9 @@ export declare interface HttpxResponseData<T extends HttpxRequestOption> {
 	/**
 	 *  响应内容，根据responseType，如果是html，那就是Document类型，如果是json，那么类型是Object类型
 	 */
-	// @ts-ignore
-	response: HttpxResponseTypeMap[T["responseType"]] extends unknown
-		? HttpxResponseTypeMap["html"]
-		: T["responseType"];
+	response: T["responseType"] extends keyof HttpxResponseTypeMap
+		? HttpxResponseTypeMap[T["responseType"]]
+		: HttpxResponseTypeMap["html"];
 	/**
 	 * 当请求头fetch为true时，该属性存在
 	 */
