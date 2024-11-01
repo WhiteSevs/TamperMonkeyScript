@@ -29,7 +29,7 @@ class Utils {
 		this.windowApi = new WindowApi(option);
 	}
 	/** 版本号 */
-	version = "2024.10.31";
+	version = "2024.11.1";
 
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
@@ -4937,6 +4937,40 @@ class Utils {
 				},
 			});
 		}
+	}
+
+	/**
+	 * 深度获取对象属性
+	 * @param target 待获取的对象
+	 * @param handler 获取属性的回调
+	 */
+	queryProperty(
+		target: any,
+		handler: (target: any) => {
+			/**
+			 * 是否是需要的属性
+			 * + true 将目标值赋值给data
+			 * + false 不是需要的，data为下一个处理的对象
+			 */
+			isFind: boolean;
+			/**
+			 * 对象/目标值
+			 */
+			data: any;
+		}
+	): any {
+		if (target == null) {
+			return;
+		}
+		let handleResult = handler(target);
+		if (
+			handleResult &&
+			typeof handleResult.isFind === "boolean" &&
+			handleResult.isFind
+		) {
+			return handleResult.data;
+		}
+		return this.queryProperty(handleResult.data, handler);
 	}
 
 	/**

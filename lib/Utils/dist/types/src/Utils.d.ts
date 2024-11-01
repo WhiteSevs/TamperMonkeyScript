@@ -1699,6 +1699,23 @@ declare class Utils {
      */
     watchObject(target: any, propertyName: string, getCallBack: (value: any) => void, setCallBack: (value: any) => void): void;
     /**
+     * 深度获取对象属性
+     * @param target 待获取的对象
+     * @param handler 获取属性的回调
+     */
+    queryProperty(target: any, handler: (target: any) => {
+        /**
+         * 是否是需要的属性
+         * + true 将目标值赋值给data
+         * + false 不是需要的，data为下一个处理的对象
+         */
+        isFind: boolean;
+        /**
+         * 对象/目标值
+         */
+        data: any;
+    }): any;
+    /**
      * 创建一个新的Utils实例
      * @param option
      * @returns
