@@ -16,6 +16,60 @@ export class ViteUtils {
 			this.dirName = dirName;
 		}
 	}
+	/** 
+     * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
+     * @param target 目标数据
+     * @param source 源数据
+     * @param isAdd 是否可以追加键，默认false
+     * @example
+     * Utils.assign({"1":1,"2":{"3":3}}, {"2":{"3":4}});
+     * > 
+     * {
+            "1": 1,
+            "2": {
+                "3": 4
+            }
+        }
+     */
+	assign<T, U>(target1: T, target2: U, isAdd: boolean): T & U {
+		if (target2 == null) {
+			return target1;
+		}
+		const that = this;
+		const result: any = { ...target1 };
+
+		for (const key in target2) {
+			if (target2.hasOwnProperty(key)) {
+				const value = target2[key];
+				const targetValue = result[key];
+
+				if (Array.isArray(value) && Array.isArray(targetValue)) {
+					// [...]
+					// [...]
+					if (isAdd) {
+						result[key].push(...value); // 数组合并
+					} else {
+						result[key] = value; // 数组替换
+					}
+				} else if (
+					typeof value === "object" &&
+					typeof targetValue === "object"
+				) {
+					// {...}
+					// {...}
+					result[key] = that.assign(targetValue, value, isAdd); // 递归处理对象
+				} else {
+					// ""
+					// ""|0|false|true
+					if (isAdd || result.hasOwnProperty(key)) {
+						result[key] = value; // 覆盖或新增属性
+					}
+				}
+			}
+		}
+
+		return result as T & U;
+	}
 	/** 获取vite.utils.ts的绝对路径 */
 	getViteUtilsPath() {
 		return path.resolve(this.originDirName);
