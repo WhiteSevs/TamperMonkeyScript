@@ -81,6 +81,9 @@ export const DouYinVideo = {
 					DouYinSearch.mobileMode();
 				}
 			});
+			PopsPanel.execMenuOnce("dy-video-titleInfoAutoHide", () => {
+				this.titleInfoAutoHide();
+			});
 		});
 	},
 	/**
@@ -571,5 +574,40 @@ export const DouYinVideo = {
 			background: ${color}  !important;
 		}
 		`);
+	},
+	/**
+	 * 自动隐藏视频标题
+	 */
+	titleInfoAutoHide() {
+		log.info(`自动隐藏视频标题`);
+
+		let lockFn = new utils.LockFunction(() => {
+			let $currentVideoInfo = document.querySelector<HTMLElement>(
+				'#sliderVideo[data-e2e="feed-active-video"] #video-info-wrap:not([data-is-inject-mouse-hide])'
+			);
+			if (!$currentVideoInfo) {
+				return;
+			}
+			$currentVideoInfo.setAttribute("data-is-inject-mouse-hide", "");
+			let timeId = setTimeout(() => {
+				DOMUtils.trigger($currentVideoInfo, "mouseleave");
+			}, PopsPanel.getValue("dy-video-titleInfoAutoHide-delayTime"));
+			DOMUtils.on($currentVideoInfo, ["mouseenter", "touchstart"], (event) => {
+				clearTimeout(timeId);
+				DOMUtils.css($currentVideoInfo, "opacity", "");
+			});
+			DOMUtils.on($currentVideoInfo, ["mouseleave", "touchend"], (event) => {
+				DOMUtils.css($currentVideoInfo, "opacity", 0);
+			});
+		});
+		utils.mutationObserver(document, {
+			config: {
+				subtree: true,
+				childList: true,
+			},
+			callback: () => {
+				lockFn.run();
+			},
+		});
 	},
 };

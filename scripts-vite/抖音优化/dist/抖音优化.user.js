@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.31
+// @version      2024.11.1
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,11 +10,11 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.1/dist/index.umd.js
-// @grant        GM_addStyle
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
+// @connect      *
 // @grant        GM_deleteValue
 // @grant        GM_getValue
 // @grant        GM_info
@@ -3207,6 +3207,9 @@
             DouYinSearch.mobileMode();
           }
         });
+        PopsPanel.execMenuOnce("dy-video-titleInfoAutoHide", () => {
+          this.titleInfoAutoHide();
+        });
       });
     },
     /**
@@ -3686,6 +3689,40 @@
 		}
 		`
       );
+    },
+    /**
+     * 自动隐藏视频标题
+     */
+    titleInfoAutoHide() {
+      log.info(`自动隐藏视频标题`);
+      let lockFn = new utils.LockFunction(() => {
+        let $currentVideoInfo = document.querySelector(
+          '#sliderVideo[data-e2e="feed-active-video"] #video-info-wrap:not([data-is-inject-mouse-hide])'
+        );
+        if (!$currentVideoInfo) {
+          return;
+        }
+        $currentVideoInfo.setAttribute("data-is-inject-mouse-hide", "");
+        let timeId = setTimeout(() => {
+          domUtils.trigger($currentVideoInfo, "mouseleave");
+        }, PopsPanel.getValue("dy-video-titleInfoAutoHide-delayTime"));
+        domUtils.on($currentVideoInfo, ["mouseenter", "touchstart"], (event) => {
+          clearTimeout(timeId);
+          domUtils.css($currentVideoInfo, "opacity", "");
+        });
+        domUtils.on($currentVideoInfo, ["mouseleave", "touchend"], (event) => {
+          domUtils.css($currentVideoInfo, "opacity", 0);
+        });
+      });
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        callback: () => {
+          lockFn.run();
+        }
+      });
     }
   };
   const DouYinVideoShortcut = {
@@ -3823,6 +3860,35 @@
     });
     return result;
   };
+  const UISlider = function(text, key, defaultValue, min, max, changeCallBack, getToolTipContent, description, step) {
+    let result = {
+      text,
+      type: "slider",
+      description,
+      attributes: {},
+      getValue() {
+        return PopsPanel.getValue(key, defaultValue);
+      },
+      getToolTipContent(value) {
+        if (typeof getToolTipContent === "function") {
+          return getToolTipContent(value);
+        } else {
+          return `${value}`;
+        }
+      },
+      callback(event, value) {
+        PopsPanel.setValue(key, value);
+      },
+      min,
+      max,
+      step
+    };
+    if (result.attributes) {
+      result.attributes[ATTRIBUTE_KEY] = key;
+      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
+    }
+    return result;
+  };
   const PanelVideoConfig = {
     id: "panel-config-video",
     title: "视频",
@@ -3936,6 +4002,32 @@
                       return liElement;
                     }
                   }
+                ]
+              },
+              {
+                type: "forms",
+                text: "视频标题",
+                forms: [
+                  UISwitch(
+                    "自动隐藏视频标题",
+                    "dy-video-titleInfoAutoHide",
+                    false,
+                    void 0,
+                    "自动隐藏视频标题，鼠标移入时自动显示，鼠标移除时自动隐藏"
+                  ),
+                  UISlider(
+                    "自动隐藏视频标题的延迟时间",
+                    "dy-video-titleInfoAutoHide-delayTime",
+                    3e3,
+                    0,
+                    5e3,
+                    void 0,
+                    (value) => {
+                      return `${value}ms`;
+                    },
+                    "可设置隐藏视频标题的延迟时间，单位为ms",
+                    100
+                  )
                 ]
               }
             ]

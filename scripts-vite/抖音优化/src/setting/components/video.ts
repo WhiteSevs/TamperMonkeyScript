@@ -7,6 +7,7 @@ import { PopsPanel } from "../setting";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import Qmsg from "qmsg";
 import { UIButtonShortCut } from "../common-components/ui-button-shortcut";
+import { UISlider } from "../common-components/ui-slider";
 
 const PanelVideoConfig: PopsPanelContentConfig = {
 	id: "panel-config-video",
@@ -116,6 +117,32 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 										return liElement;
 									},
 								},
+							],
+						},
+						{
+							type: "forms",
+							text: "视频标题",
+							forms: [
+								UISwitch(
+									"自动隐藏视频标题",
+									"dy-video-titleInfoAutoHide",
+									false,
+									void 0,
+									"自动隐藏视频标题，鼠标移入时自动显示，鼠标移除时自动隐藏"
+								),
+								UISlider(
+									"自动隐藏视频标题的延迟时间",
+									"dy-video-titleInfoAutoHide-delayTime",
+									3000,
+									0,
+									5000,
+									void 0,
+									(value) => {
+										return `${value}ms`;
+									},
+									"可设置隐藏视频标题的延迟时间，单位为ms",
+									100
+								),
 							],
 						},
 					],

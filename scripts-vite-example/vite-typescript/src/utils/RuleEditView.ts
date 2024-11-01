@@ -1,5 +1,5 @@
 import { DOMUtils, pops, utils } from "@/env";
-import type { PopsConfirmDetails } from "@lib/pops/dist/types/src/components/confirm/indexType";
+import type { PopsConfirmDetails } from "@whitesev/pops/dist/types/src/components/confirm/indexType";
 
 type RuleEditViewOption<T> = {
 	/** 标题 */
