@@ -5,14 +5,14 @@ type GestureBackConfig = {
 	hash: string;
 	/** 当前的window对象 @default self */
 	win?: Window & typeof globalThis;
-	/** 使用当前url+hash作为url */
+	/** 使用当前url+hash作为url @default false */
 	useUrl?: boolean;
 	/** 退出手势模式的延迟时间，单位ms @default 150 */
 	backDelayTime?: number;
-	/** 在执行退出手势模式前的回调函数 */
-	beforeHistoryBackCallBack?: Function;
-	/** 在执行退出手势模式后的回调函数 */
-	afterHistoryBackCallBack?: Function;
+	/** 调用退出手势模式前执行的回调函数 @default null */
+	beforeHistoryBackCallBack?: (isUrlChange: boolean) => void;
+	/** 调用退出手势模式后执行的回调函数 @default null */
+	afterHistoryBackCallBack?: (isUrlChange: boolean) => void;
 };
 /**
  * 手势返回
@@ -47,7 +47,7 @@ export class GestureBack {
 		if (this.isBacking) {
 			return;
 		}
-		this.quitGestureBackMode();
+		this.quitGestureBackMode(true);
 	}
 	/**
 	 * 进入手势模式
@@ -57,6 +57,7 @@ export class GestureBack {
 		log.success("进入手势模式");
 		let pushUrl = this.config.hash;
 		if (!pushUrl.startsWith("#")) {
+			// 完善hash
 			// /xxx
 			// xxxx
 			if (!pushUrl.startsWith("/")) {
@@ -79,12 +80,13 @@ export class GestureBack {
 	}
 	/**
 	 * 退出手势模式
+	 * @param isUrlChange 是否是url改变触发的
 	 */
-	async quitGestureBackMode() {
+	async quitGestureBackMode(isUrlChange: boolean = false) {
 		this.isBacking = true;
 		log.success("退出手势模式");
 		if (typeof this.config.beforeHistoryBackCallBack === "function") {
-			this.config.beforeHistoryBackCallBack();
+			this.config.beforeHistoryBackCallBack(isUrlChange);
 		}
 		let maxDate = Date.now() + 1000 * 5;
 		while (true) {
@@ -106,7 +108,7 @@ export class GestureBack {
 		});
 		this.isBacking = false;
 		if (typeof this.config.afterHistoryBackCallBack === "function") {
-			this.config.afterHistoryBackCallBack();
+			this.config.afterHistoryBackCallBack(isUrlChange);
 		}
 	}
 }
