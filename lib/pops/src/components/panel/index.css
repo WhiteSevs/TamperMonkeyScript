@@ -172,8 +172,8 @@ section.pops-panel-container .pops-panel-forms-container-item ul li {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	padding: 12px 0px;
-	margin: 0px 16px;
+	padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px;
+	margin: 0px var(--pops-panel-forms-container-li-padding-left-right);
 	border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));
 	text-align: left;
 }
@@ -262,21 +262,22 @@ section.pops-panel-container
 @media (max-width: 600px) {
 	/* 兼容移动端CSS */
 	.pops[type-value="panel"] {
+		--pops-panel-forms-margin-left-right: 10px;
+	}
+	.pops[type-value="panel"] {
 		width: 92%;
 		width: 92vw;
-	}
-	.pops[type-value="panel"] section.pops-panel-container {
-		padding: 10px 0px;
+		width: 92dvw;
 	}
 	.pops[type-value="panel"] .pops-panel-content aside.pops-panel-aside {
-		width: 20%;
+		max-width: 20%;
 	}
 	.pops[type-value="panel"]
 		section.pops-panel-container
 		.pops-panel-forms-container-item
 		> div {
-		margin: 5px 10px;
 		text-align: left;
+		--pops-panel-forms-margin-left-right: 0px;
 	}
 	.pops[type-value="panel"]
 		section.pops-panel-container
