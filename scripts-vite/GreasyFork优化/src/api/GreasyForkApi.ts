@@ -1,5 +1,5 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
-import { HttpxAsyncResultData } from "@whitesev/utils/dist/types/src/Httpx";
+import { HttpxResponseData } from "@whitesev/utils/dist/types/src/types/Httpx";
 import i18next from "i18next";
 import Qmsg from "qmsg";
 
@@ -123,7 +123,7 @@ const GreasyforkApi = {
 	 * 获取脚本统计数据
 	 * @param scriptId
 	 */
-	async getScriptStats(scriptId: string): Promise<HttpxAsyncResultData<{
+	async getScriptStats(scriptId: string): Promise<HttpxResponseData<{
 		url: string;
 		fetch: true;
 		onerror(): void;

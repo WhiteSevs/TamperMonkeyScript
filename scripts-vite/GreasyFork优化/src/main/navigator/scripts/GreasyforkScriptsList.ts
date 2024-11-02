@@ -79,7 +79,7 @@ export const GreasyforkScriptsList = {
 	 * 美化脚本列表
 	 */
 	beautifyCenterContent() {
-		log.info("美化脚本列表");
+		log.info("美化脚本列表-双列");
 		let result = [];
 		result.push(addStyle(beautifyCenterContentCSS));
 
@@ -96,7 +96,11 @@ export const GreasyforkScriptsList = {
 				let scriptInfo = parseScriptListInfo($scriptList);
 				let $inlineStats = $scriptList.querySelector<HTMLElement>(
 					".inline-script-stats"
-				)!;
+				);
+				if (!$inlineStats) {
+					log.error("美化脚本列表失败，未获取到.inline-script-stats");
+					return;
+				}
 				let code_url = scriptInfo.codeUrl;
 
 				// 评分

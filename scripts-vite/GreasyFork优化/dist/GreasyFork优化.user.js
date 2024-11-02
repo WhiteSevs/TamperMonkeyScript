@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.10.27
+// @version            2024.11.2
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -12,9 +12,9 @@
 // @match              *://greasyfork.org/*
 // @require            https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.8/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.5/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.0/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.2/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require            https://fastly.jsdelivr.net/npm/i18next@23.15.1/i18next.min.js
 // @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
@@ -962,76 +962,118 @@
   const GreasyforkRouter = {
     /**
      * 代码页面
+     *
+     * + /code...
      */
     isCode() {
       var _a2;
       return Boolean((_a2 = window.location.pathname.split("/")) == null ? void 0 : _a2.includes("code"));
     },
     /**
-     * （严格比较）代码页面
+     * 代码页面
+     *
+     * （严格比较）
+     *
+     * + /code
+     * + /code/
      */
     isCodeStrict() {
-      return Boolean(window.location.pathname.endsWith("/code"));
+      return Boolean(window.location.pathname.match(/\/code(\/|)$/));
     },
     /**
      * 版本页面
+     *
+     * （严格比较）
+     *
+     * + /version
+     * + /version/
      */
     isVersion() {
-      return Boolean(window.location.pathname.endsWith("/versions"));
+      return Boolean(window.location.pathname.match(/\/versions(\/|)$/));
     },
     /**
      * 用户
+     *
+     * + /users/...
      */
     isUsers() {
       return Boolean(window.location.pathname.match(/\/.+\/users\/.+/gi));
     },
     /**
      * 私聊用户页面，可能是全部私信页面，也可能是某个用户的私信页面
+     *
+     * + /conversations...
      */
     isUsersConversations() {
       return this.isUsers() && Boolean(window.location.pathname.includes("/conversations"));
     },
     /**
      * 私聊xxx用户页面
+     *
+     * + /conversations/111...
      */
     isUsersConversationsWithSomeUser() {
       return this.isUsersConversations() && Boolean(window.location.pathname.match(/\/conversations\/[\d]+/));
     },
     /**
      * 脚本页面(单个脚本的页面)
+     *
+     * + /scripts/111...
      */
     isScript() {
-      return Boolean(window.location.pathname.includes("/scripts/"));
+      return Boolean(window.location.pathname.match(/\/scripts\/[\d+]/));
     },
     /**
      * 脚本列表页面
+     *
+     * （严格比较）
+     *
+     * + /scripts
+     * + /scripts/
      */
     isScriptList() {
-      return Boolean(window.location.pathname.endsWith("/scripts"));
+      return Boolean(window.location.pathname.match(/\/scripts(\/|)$/));
     },
     /**
      * 脚本列表-按域名
+     *
+     * + /scripts/by-site...
      */
     isScriptsBySite() {
       return Boolean(window.location.pathname.match("/scripts/by-site"));
     },
     /**
      * 库列表页面
+     *
+     * （严格比较）
+     *
+     * + /libraries
+     * + /libraries/
      */
     isScriptLibraryList() {
-      return Boolean(window.location.pathname.endsWith("/libraries"));
+      return Boolean(window.location.pathname.match(/\/libraries(\/|)$/));
     },
     /**
      * 脚本代码搜索页面
+     *
+     * （严格比较）
+     *
+     * + /code-search
+     * + /code-search/
      */
     isScriptCodeSearch() {
-      return Boolean(window.location.pathname.endsWith("/code-search"));
+      return Boolean(window.location.pathname.match(/\/code-search(\/|)$/));
     },
     /**
      * 讨论页面
+     *
+     * （严格比较）
+     *
+     * + /discussions
+     * + /discussions/
      */
     isDiscuessions() {
-      return Boolean(window.location.pathname.endsWith("/discussions"));
+      return Boolean(window.location.pathname.match(/\/discussions(\/|)$/));
     }
   };
   const GreasyforkUrlUtils = {
@@ -3523,7 +3565,7 @@
      * 美化脚本列表
      */
     beautifyCenterContent() {
-      log.info("美化脚本列表");
+      log.info("美化脚本列表-双列");
       let result = [];
       result.push(addStyle(beautifyCenterContentCSS));
       const lodingClassName = "lum-lightbox-loader";
@@ -3538,6 +3580,10 @@
           let $inlineStats = $scriptList.querySelector(
             ".inline-script-stats"
           );
+          if (!$inlineStats) {
+            log.error("美化脚本列表失败，未获取到.inline-script-stats");
+            return;
+          }
           let code_url = scriptInfo.codeUrl;
           let $ratingScoreLeft = DOMUtils.createElement("dt", {
             className: "script-list-rating-score",
