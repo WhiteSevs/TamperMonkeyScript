@@ -23,10 +23,10 @@ export const en_US_language = {
 		"Failed to retrieve the currently logged in user's homepage",
 	"源代码同步【未上架的脚本】":
 		"Source code synchronization [Script not listed]",
-	"源代码同步【库】": "Source code synchronization 【 Library 】",
+	"源代码同步【库】": "Source code synchronization [Library]",
 
 	论坛: "Forum",
-	功能: "Function",
+	功能: "Features",
 	过滤重复的评论: "Filter duplicate comments",
 	"过滤掉重复的评论数量(≥2)": "Filter out duplicate comments (≥ 2)",
 	"过滤脚本(id)": "Filter script (id)",
@@ -181,7 +181,7 @@ export const en_US_language = {
 
 	启用: "Enable",
 	开启后下面的过滤功能才会生效:
-		"The following filtering function will only take effect after it is enabled",
+		"The following filtering features will only take effect after it is enabled",
 	屏蔽脚本: "Block script",
 	点击查看规则: "Click to view rules",
 	过滤: "Filter",
@@ -209,7 +209,7 @@ export const en_US_language = {
 		"Add the button to copy to the top right corner of the Markdown content, click to copy the Markdown content in one click",
 
 	开启后下面的功能才会生效:
-		"The following functions will only take effect after it is enabled",
+		"The following features will only take effect after it is enabled",
 	检测页面加载: "Detect page loading",
 	"检测Greasyfork页面是否正常加载，如加载失败则自动刷新页面":
 		"Detect whether the Greasyfork page is loaded normally. If the loading fails, the page will be automatically refreshed",
@@ -243,7 +243,7 @@ export const en_US_language = {
 	查看代码: "View Code",
 	添加快捷操作按钮: "Add shortcut operation button",
 	"在每一行讨论的最后面添加【过滤】按钮，需开启过滤功能才会生效":
-		"Add a 'Filter' button at the end of each discussion line. The filtering function needs to be enabled for it to take effect",
+		"Add a 'Filter' button at the end of each discussion line. The filtering features needs to be enabled for it to take effect",
 	选择需要过滤的选项: "Select the options that need to be filtered",
 	"确定{{type}}：{{filterId}}？": "Are you sure {{type}}：{{filterId}}？",
 	"该收藏集未包含：{{scriptId}}":
@@ -303,4 +303,15 @@ export const en_US_language = {
 	转换前: "Before Parse",
 	转换后: "Parse Result",
 	使用namespace查询脚本信息: "Use a namespace to query script information",
+	脚本管理: "Script management",
+	"开启后检测已安装的脚本信息更准确，但是速度会更慢":
+		"Detecting the installed script information is more accurate, but slower",
+	美化私信列表: "Beautify the private message list",
+	搜索: "Search",
+	"新增【{{buttonText}}】按钮": "Added [{{buttonText}}] button",
+	"该Checkbox按钮开启后，自动过滤出包含搜索关键词的脚本":
+		"When the Checkbox button is turned on, it automatically filters out scripts that contain search terms",
+	"名称-全词匹配": "Name - Full word match",
+	"描述-全词匹配": "Description - Full word match",
+	"作者名称-全词匹配": "Author name - Full word match",
 };

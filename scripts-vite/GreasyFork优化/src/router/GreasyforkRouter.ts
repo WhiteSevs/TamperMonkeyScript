@@ -1,3 +1,8 @@
+const url = globalThis.location.href;
+const urlObj = new URL(url);
+const pathname = urlObj.pathname;
+const searchParams = urlObj.searchParams;
+
 const GreasyforkRouter = {
 	/**
 	 * 代码页面
@@ -5,7 +10,7 @@ const GreasyforkRouter = {
 	 * + /code...
 	 */
 	isCode() {
-		return Boolean(window.location.pathname.split("/")?.includes("code"));
+		return Boolean(pathname.split("/")?.includes("code"));
 	},
 	/**
 	 * 代码页面
@@ -16,7 +21,7 @@ const GreasyforkRouter = {
 	 * + /code/
 	 */
 	isCodeStrict() {
-		return Boolean(window.location.pathname.match(/\/code(\/|)$/));
+		return Boolean(pathname.match(/\/code(\/|)$/));
 	},
 	/**
 	 * 版本页面
@@ -27,7 +32,7 @@ const GreasyforkRouter = {
 	 * + /version/
 	 */
 	isVersion() {
-		return Boolean(window.location.pathname.match(/\/versions(\/|)$/));
+		return Boolean(pathname.match(/\/versions(\/|)$/));
 	},
 	/**
 	 * 用户
@@ -35,7 +40,7 @@ const GreasyforkRouter = {
 	 * + /users/...
 	 */
 	isUsers() {
-		return Boolean(window.location.pathname.match(/\/.+\/users\/.+/gi));
+		return Boolean(pathname.match(/\/.+\/users\/.+/gi));
 	},
 	/**
 	 * 私聊用户页面，可能是全部私信页面，也可能是某个用户的私信页面
@@ -43,10 +48,7 @@ const GreasyforkRouter = {
 	 * + /conversations...
 	 */
 	isUsersConversations() {
-		return (
-			this.isUsers() &&
-			Boolean(window.location.pathname.includes("/conversations"))
-		);
+		return this.isUsers() && Boolean(pathname.includes("/conversations"));
 	},
 	/**
 	 * 私聊xxx用户页面
@@ -56,7 +58,7 @@ const GreasyforkRouter = {
 	isUsersConversationsWithSomeUser() {
 		return (
 			this.isUsersConversations() &&
-			Boolean(window.location.pathname.match(/\/conversations\/[\d]+/))
+			Boolean(pathname.match(/\/conversations\/[\d]+/))
 		);
 	},
 	/**
@@ -65,7 +67,7 @@ const GreasyforkRouter = {
 	 * + /scripts/111...
 	 */
 	isScript() {
-		return Boolean(window.location.pathname.match(/\/scripts\/[\d+]/));
+		return Boolean(pathname.match(/\/scripts\/[\d+]/));
 	},
 	/**
 	 * 脚本列表页面
@@ -76,7 +78,7 @@ const GreasyforkRouter = {
 	 * + /scripts/
 	 */
 	isScriptList() {
-		return Boolean(window.location.pathname.match(/\/scripts(\/|)$/));
+		return Boolean(pathname.match(/\/scripts(\/|)$/));
 	},
 	/**
 	 * 脚本列表-按域名
@@ -84,7 +86,7 @@ const GreasyforkRouter = {
 	 * + /scripts/by-site...
 	 */
 	isScriptsBySite() {
-		return Boolean(window.location.pathname.match("/scripts/by-site"));
+		return Boolean(pathname.match("/scripts/by-site"));
 	},
 	/**
 	 * 库列表页面
@@ -95,7 +97,15 @@ const GreasyforkRouter = {
 	 * + /libraries/
 	 */
 	isScriptLibraryList() {
-		return Boolean(window.location.pathname.match(/\/libraries(\/|)$/));
+		return Boolean(pathname.match(/\/libraries(\/|)$/));
+	},
+	/**
+	 * 脚本搜索结果页面
+	 *
+	 * + /scripts?q=
+	 */
+	isScriptSearch() {
+		return this.isScriptList() && searchParams.has("q");
 	},
 	/**
 	 * 脚本代码搜索页面
@@ -106,7 +116,7 @@ const GreasyforkRouter = {
 	 * + /code-search/
 	 */
 	isScriptCodeSearch() {
-		return Boolean(window.location.pathname.match(/\/code-search(\/|)$/));
+		return Boolean(pathname.match(/\/code-search(\/|)$/));
 	},
 	/**
 	 * 讨论页面
@@ -117,7 +127,7 @@ const GreasyforkRouter = {
 	 * + /discussions/
 	 */
 	isDiscuessions() {
-		return Boolean(window.location.pathname.match(/\/discussions(\/|)$/));
+		return Boolean(pathname.match(/\/discussions(\/|)$/));
 	},
 };
 

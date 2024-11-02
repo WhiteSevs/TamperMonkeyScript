@@ -15,8 +15,6 @@ export const PopsPanelUISetting = {
 	 */
 	async UIScriptList(
 		type: "script-list" | "script-library",
-		event: Event,
-		rightHeaderElement: HTMLUListElement,
 		rightContainerElement: HTMLUListElement
 	) {
 		if (!GreasyforkMenu.isLogin) {

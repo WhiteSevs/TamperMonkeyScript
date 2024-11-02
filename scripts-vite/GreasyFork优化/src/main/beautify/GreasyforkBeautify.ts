@@ -5,7 +5,6 @@ import beautifyButtonCSS from "./css/beautifyButton.css?raw";
 import beautifyRadioCSS from "./css/beautifyRadio.css?raw";
 import beautifyInputCSS from "./css/beautifyInput.css?raw";
 import beautifyTextAreaCSS from "./css/beautifyTextArea.css?raw";
-import notUseBeautifyCSS from "./css/notUseBeautify.css?raw";
 import beautifyUploadImageCSS from "./css/beautifyUploadImage.css?raw";
 import compatibleBeautifyCSS from "./css/compatibleBeautify.css?raw";
 import beautifyTopNavigationBarCSS from "./css/beautifyTopNavigationBar.css?raw";

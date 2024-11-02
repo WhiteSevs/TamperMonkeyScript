@@ -1,5 +1,5 @@
 import { PopsPanel } from "@/setting/setting";
-import "./OwnCSS.css";
+import "./css/OwnCSS.css";
 import { DOMUtils, httpx, log, pops, utils } from "@/env";
 import Qmsg from "qmsg";
 import { GreasyforkApi } from "@/api/GreasyForkApi";
@@ -24,6 +24,7 @@ import { GreasyforkUsers } from "./navigator/users/GreasyforkUsers";
 import { GreasyforkShortCut } from "./GreasyforkShortCut";
 import { GreasyforkConversations } from "./navigator/users/conversations/GreasyforkConversations";
 import { GreasyforkRememberFormTextArea } from "./GreasyforkRememberFormTextArea";
+import { GreasyforkScriptsSearch } from "./navigator/scripts-search/GreasyforkScriptsSearch";
 
 const Greasyfork = {
 	init() {
@@ -44,13 +45,18 @@ const Greasyfork = {
 			GreasyforkScriptsList.init();
 		}
 		if (GreasyforkRouter.isDiscuessions()) {
+			log.info(`Router: 讨论页面`);
 			GreasyforkDiscussions.init();
-		}
-		if (GreasyforkRouter.isUsers()) {
+		} else if (GreasyforkRouter.isUsers()) {
+			log.info(`Router: 用户页面`);
 			GreasyforkUsers.init();
 			if (GreasyforkRouter.isUsersConversations()) {
+				log.info(`Router-next: 私聊用户页面`);
 				GreasyforkConversations.init();
 			}
+		} else if (GreasyforkRouter.isScriptSearch()) {
+			log.info(`Router: 脚本搜索页面`);
+			GreasyforkScriptsSearch.init();
 		}
 		PopsPanel.execMenuOnce("scripts-addOperationPanelBtnWithNavigator", () => {
 			this.addOperationPanelBtnWithNavigator();
@@ -597,7 +603,7 @@ const Greasyfork = {
 					zIndex: utils.getMaxZIndex(100),
 					style: /*css*/ `
                     .pops-drawer-content div:first-child{
-                        margin: 20px 0 0 0;
+                        margin: 20px;
                     }
                     .option-panel-groups > div{
                     

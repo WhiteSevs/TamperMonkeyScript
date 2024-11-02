@@ -10,6 +10,7 @@ import { GM_addStyle, unsafeWindow } from "ViteGM";
 import { GreasyforkVersions } from "./versions/GreasyforkVersions";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 import { GreasyforkUtils } from "@/utils/GreasyforkUtils";
+import { PanelUISize } from "@/setting/panel-ui-size";
 
 let userCollection: {
 	id: string;
@@ -233,8 +234,8 @@ export const GreasyforkScriptsCollectEvent = async function (
 					`,
 					drag: true,
 					dragLimit: true,
-					width: pops.isPhone() ? "88vw" : "400px",
-					height: pops.isPhone() ? "50vh" : "300px",
+					width: PanelUISize.info.width,
+					height: PanelUISize.info.height,
 				});
 			} else {
 				await GreasyforkApi.updateUserSetsInfo(userId, setsId, saveData);

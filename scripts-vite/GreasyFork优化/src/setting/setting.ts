@@ -10,9 +10,7 @@ import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
 import { SettingUIGeneral } from "./components/general";
 import { SettingUIScripts } from "./components/scripts";
 import { SettingUIDiscuessions } from "./components/discussions";
-import { SettingUIScriptList } from "./components/script-list";
-import { SettingUIScriptLib } from "./components/script-lib";
-import UIScriptListCSS from "@/main/UIScriptListCSS.css?raw";
+import UIScriptListCSS from "@/main/css/UIScriptListCSS.css?raw";
 import i18next from "i18next";
 import {
 	PopsPanelContentConfig,
@@ -22,6 +20,8 @@ import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/
 import { SettingUIUsers } from "./components/users";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { GithubUrl2WebhookUrl } from "@/main/GithubUrl2WebhookUrl";
+import { PanelUISize } from "./panel-ui-size";
+import { SettingUIScriptSearch } from "./components/script-search";
 
 type PosPanelListenerData = {
 	id: number;
@@ -567,8 +567,8 @@ const PopsPanel = {
 				},
 			},
 			isMobile: this.isMobile(),
-			width: this.getWidth(),
-			height: this.getHeight(),
+			width: PanelUISize.setting.width,
+			height: PanelUISize.setting.height,
 			drag: true,
 			only: true,
 			style: `
@@ -580,36 +580,15 @@ const PopsPanel = {
 		return window.innerWidth < 550;
 	},
 	/**
-	 * 获取设置面板的宽度
-	 */
-	getWidth() {
-		if (window.innerWidth < 550) {
-			return "92vw";
-		} else {
-			return "550px";
-		}
-	},
-	/**
-	 * 获取设置面板的高度
-	 */
-	getHeight() {
-		if (window.innerHeight > 450) {
-			return "80vh";
-		} else {
-			return "450px";
-		}
-	},
-	/**
 	 * 获取配置内容
 	 */
 	getPanelContentConfig() {
 		let configList: PopsPanelContentConfig[] = [
 			SettingUIGeneral,
 			SettingUIScripts,
+			SettingUIScriptSearch,
 			SettingUIDiscuessions,
 			SettingUIUsers,
-			SettingUIScriptList,
-			SettingUIScriptLib,
 		];
 		return configList;
 	},

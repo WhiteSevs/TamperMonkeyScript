@@ -1,8 +1,11 @@
 .w-script-list-item {
-	padding: 10px 0;
+	padding: 10px;
 	border-bottom: 1px solid #e5e5e5;
 	font-size: 16px;
 	text-align: left;
+	background: var(--aside-bg-color);
+	border-radius: 8px;
+	--pops-panel-forms-margin-left-right: 10px;
 }
 .w-script-version,
 .w-script-fan-score,
