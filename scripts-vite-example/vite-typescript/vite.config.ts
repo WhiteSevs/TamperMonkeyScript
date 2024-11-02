@@ -85,7 +85,7 @@ let DefaultMonkeyOption: __MonkeyOption__ = {
 		// 许可证
 		license: "GPL-3.0-only",
 		// GM_xmlhttpRequest允许访问的域
-		connect: ["*"],
+		connect: [],
 	},
 	clientAlias: "ViteGM",
 	server: {
@@ -245,7 +245,9 @@ const CheckOptionList = [
 	{
 		checkFn: () => {
 			return (
-				typeof DefaultMonkeyOption.userscript!.description !== "string" ||
+				DefaultMonkeyOption.userscript!.description == null ||
+				(Array.isArray(DefaultMonkeyOption.userscript!.description) &&
+					DefaultMonkeyOption.userscript!.description.length === 0) ||
 				(typeof DefaultMonkeyOption.userscript!.description === "string" &&
 					DefaultMonkeyOption.userscript!.description.trim() === "")
 			);
