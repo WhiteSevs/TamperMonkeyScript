@@ -12,6 +12,8 @@ import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import { execSync } from "child_process";
+import fs from "fs";
+import path from "path";
 const Utils = new ViteUtils(__dirname);
 const pkg = Utils.getPackageJSON();
 /**
@@ -151,7 +153,24 @@ let DefaultMonkeyOption: __MonkeyOption__ = {
 /* -------------以下配置不需要动------------- */
 DefaultMonkeyOption = viteUtils.assign(DefaultMonkeyOption, MonkeyOption, true);
 process.on("exit", (code) => {
-	execSync(`del .\\vite.config.ts.timestamp*`, { cwd: process.cwd() });
+	try {
+		const dir = "."; // 当前目录
+		const pattern = /^vite\.config\.ts\.timestamp.+/;
+
+		// 读取目录中的所有文件
+		const files = fs.readdirSync(dir);
+
+		// 遍历文件并删除匹配的文件
+		files.forEach((file) => {
+			if (file.match(pattern)) {
+				const filePath = path.join(dir, file);
+				fs.unlinkSync(filePath);
+				console.log(`已删除文件: ${filePath}`);
+			}
+		});
+	} catch (error) {
+		console.error("删除文件时出错:", error);
+	}
 });
 
 let FILE_NAME = SCRIPT_NAME + ".user.js";
