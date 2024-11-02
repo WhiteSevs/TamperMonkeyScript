@@ -16,19 +16,8 @@ import { DouYinGestureBackClearHash } from "./DouYinGestureBackConfig";
 export const DouYin = {
 	init() {
 		DouYinGestureBackClearHash();
-		PopsPanel.onceExec("hookKeyboard", () => {
-			DouYinHook.disableShortCut();
-		});
-		if (DouYinRouter.isVideo()) {
-			PopsPanel.execMenuOnce("dy-video-disableDoubleClickLike", () => {
-				DouYinHook.disableDoubleClickLike();
-			});
-		} else if (DouYinRouter.isLive()) {
-			PopsPanel.execMenuOnce("dy-live-disableDoubleClickLike", () => {
-				DouYinHook.disableDoubleClickLike();
-			});
-		}
-		DouYinNetWorkHook.init();
+		DouYinHook.init();
+		// DouYinNetWorkHook.init();
 		DouYinRedirect.init();
 		PopsPanel.execMenuOnce("watchLoginDialogToClose", () => {
 			DouYinAccount.watchLoginDialogToClose();

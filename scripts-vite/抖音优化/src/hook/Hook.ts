@@ -9,7 +9,7 @@ type HookEventListenerHandler<T> = (
 	eventName: string,
 	listener: Function,
 	option: boolean | AddEventListenerOptions | undefined
-) => Function | void;
+) => Function | void | boolean;
 
 /**
  * @returns
@@ -117,7 +117,12 @@ export const Hook = {
 				index++
 			) {
 				const callback = that.$data.document_addEventListener[index];
-				const result = callback(target, eventName, listener, options);
+				const result = Reflect.apply(callback, this, [
+					target,
+					eventName,
+					listener,
+					options,
+				]);
 				if (typeof result === "function") {
 					args[1] = result;
 					weakMap.set(listener, {
@@ -126,6 +131,8 @@ export const Hook = {
 						options: options,
 					});
 					break;
+				} else if (typeof result === "boolean" && !result) {
+					return;
 				}
 			}
 			return Reflect.apply(originAddEventListener, this, args);
@@ -135,31 +142,36 @@ export const Hook = {
 			...args: any[]
 		) {
 			/** 事件名 */
-			let __eventName = args[0] as string;
+			let eventName = args[0] as string;
 			/** 回调函数 */
-			let __listener = args[1] as Function;
+			let listener = args[1] as Function;
 			/** 监听配置 */
-			let __options = args[2] as boolean | EventListenerOptions | undefined;
-			if (weakMap.has(__listener)) {
-				const { eventName, fn, options } = weakMap.get(__listener)!;
+			let options = args[2] as boolean | EventListenerOptions | undefined;
+			if (weakMap.has(listener)) {
+				const {
+					eventName: __eventName__,
+					fn: __listener__,
+					options: __options__,
+				} = weakMap.get(listener)!;
 				let flag = false;
-				if (eventName === __eventName) {
-					if (typeof __options === "boolean" && __options === options) {
+				if (eventName === __eventName__) {
+					if (typeof options === "boolean" && options === __options__) {
 						flag = true;
 					} else if (
-						typeof __options === "object" &&
 						typeof options === "object" &&
-						__options["capture"] === options["capture"]
+						typeof __options__ === "object" &&
+						options["capture"] === __options__["capture"]
 					) {
+						flag = true;
+					} else if (options == options) {
 						flag = true;
 					}
 				}
 				if (flag) {
-					args[1] = fn;
+					args[1] = __listener__;
 				}
 			}
-			// @ts-ignore
-			return originRemoveEventListener.apply(this, args);
+			return Reflect.apply(originRemoveEventListener, this, args);
 		};
 	},
 	/**

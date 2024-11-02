@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.1.21
+// @version      2024.11.2
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -6247,7 +6247,12 @@
         let options = args[2];
         for (let index = 0; index < that.$data.document_addEventListener.length; index++) {
           const callback = that.$data.document_addEventListener[index];
-          const result = callback(target, eventName, listener, options);
+          const result = Reflect.apply(callback, this, [
+            target,
+            eventName,
+            listener,
+            options
+          ]);
           if (typeof result === "function") {
             args[1] = result;
             weakMap.set(listener, {
@@ -6256,29 +6261,37 @@
               options
             });
             break;
+          } else if (typeof result === "boolean" && !result) {
+            return;
           }
         }
         return Reflect.apply(originAddEventListener, this, args);
       };
       _unsafeWindow.document.removeEventListener = function(...args) {
-        let __eventName = args[0];
-        let __listener = args[1];
-        let __options = args[2];
-        if (weakMap.has(__listener)) {
-          const { eventName, fn, options } = weakMap.get(__listener);
+        let eventName = args[0];
+        let listener = args[1];
+        let options = args[2];
+        if (weakMap.has(listener)) {
+          const {
+            eventName: __eventName__,
+            fn: __listener__,
+            options: __options__
+          } = weakMap.get(listener);
           let flag = false;
-          if (eventName === __eventName) {
-            if (typeof __options === "boolean" && __options === options) {
+          if (eventName === __eventName__) {
+            if (typeof options === "boolean" && options === __options__) {
               flag = true;
-            } else if (typeof __options === "object" && typeof options === "object" && __options["capture"] === options["capture"]) {
+            } else if (typeof options === "object" && typeof __options__ === "object" && options["capture"] === __options__["capture"]) {
+              flag = true;
+            } else if (options == options) {
               flag = true;
             }
           }
           if (flag) {
-            args[1] = fn;
+            args[1] = __listener__;
           }
         }
-        return originRemoveEventListener.apply(this, args);
+        return Reflect.apply(originRemoveEventListener, this, args);
       };
     },
     /**
@@ -6514,6 +6527,20 @@
     $data: {
       hookElementAddEventListener: []
     },
+    init() {
+      PopsPanel.onceExec("hookKeyboard", () => {
+        DouYinHook.disableShortCut();
+      });
+      if (DouYinRouter.isVideo()) {
+        PopsPanel.execMenuOnce("dy-video-disableDoubleClickLike", () => {
+          DouYinHook.disableDoubleClickLike();
+        });
+      } else if (DouYinRouter.isLive()) {
+        PopsPanel.execMenuOnce("dy-live-disableDoubleClickLike", () => {
+          DouYinHook.disableDoubleClickLike();
+        });
+      }
+    },
     /**
      * 移除环境检测
      */
@@ -6538,7 +6565,7 @@
      */
     disableShortCut() {
       Hook.document_addEventListener((target, eventName, listener, option) => {
-        if (["keydown", "keypress", "keyup"].includes(eventName)) {
+        if (["keydown", "keypress", "keyup"].includes(eventName) && typeof listener === "function") {
           return function(...eventArgs) {
             let event = eventArgs[0];
             event.key;
@@ -6707,7 +6734,7 @@
                 return;
               }
             }
-            Reflect.apply(listener, this, eventArgs);
+            return Reflect.apply(listener, this, eventArgs);
           };
         }
       });
@@ -7135,18 +7162,7 @@
   const DouYin = {
     init() {
       DouYinGestureBackClearHash();
-      PopsPanel.onceExec("hookKeyboard", () => {
-        DouYinHook.disableShortCut();
-      });
-      if (DouYinRouter.isVideo()) {
-        PopsPanel.execMenuOnce("dy-video-disableDoubleClickLike", () => {
-          DouYinHook.disableDoubleClickLike();
-        });
-      } else if (DouYinRouter.isLive()) {
-        PopsPanel.execMenuOnce("dy-live-disableDoubleClickLike", () => {
-          DouYinHook.disableDoubleClickLike();
-        });
-      }
+      DouYinHook.init();
       DouYinRedirect.init();
       PopsPanel.execMenuOnce("watchLoginDialogToClose", () => {
         DouYinAccount.watchLoginDialogToClose();

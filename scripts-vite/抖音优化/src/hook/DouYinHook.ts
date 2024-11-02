@@ -15,6 +15,20 @@ export const DouYinHook = {
 			) => Function | void)[]
 		>[],
 	},
+	init() {
+		PopsPanel.onceExec("hookKeyboard", () => {
+			DouYinHook.disableShortCut();
+		});
+		if (DouYinRouter.isVideo()) {
+			PopsPanel.execMenuOnce("dy-video-disableDoubleClickLike", () => {
+				DouYinHook.disableDoubleClickLike();
+			});
+		} else if (DouYinRouter.isLive()) {
+			PopsPanel.execMenuOnce("dy-live-disableDoubleClickLike", () => {
+				DouYinHook.disableDoubleClickLike();
+			});
+		}
+	},
 	/**
 	 * 移除环境检测
 	 */
@@ -40,7 +54,10 @@ export const DouYinHook = {
 	disableShortCut() {
 		type KeyboardOtherCodeName = "ctrl" | "alt" | "meta" | "shift";
 		Hook.document_addEventListener((target, eventName, listener, option) => {
-			if (["keydown", "keypress", "keyup"].includes(eventName)) {
+			if (
+				["keydown", "keypress", "keyup"].includes(eventName) &&
+				typeof listener === "function"
+			) {
 				return function (this: Document, ...eventArgs: any[]) {
 					let event = eventArgs[0] as KeyboardEvent;
 					/** 键名 */
@@ -205,6 +222,7 @@ export const DouYinHook = {
 						const keyboardConfig = keyboardConfigList[index];
 						if (keyboardConfig.code.includes(code)) {
 							if (Array.isArray(keyboardConfig.otherCodeList)) {
+								// @ts-ignore
 								let findValue = keyboardConfig.otherCodeList.find(
 									(item) => !otherCodeList.includes(item)
 								);
@@ -219,7 +237,7 @@ export const DouYinHook = {
 						}
 					}
 					// 触发原始回调
-					Reflect.apply(listener, this, eventArgs);
+					return Reflect.apply(listener, this, eventArgs);
 				};
 			}
 		});
