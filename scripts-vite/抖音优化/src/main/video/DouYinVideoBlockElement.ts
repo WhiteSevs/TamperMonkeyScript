@@ -2,8 +2,9 @@ import { PopsPanel } from "@/setting/setting";
 import { addStyle, log } from "@/env";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 import { DouYinRouter } from "@/router/DouYinRouter";
+import { CommonUtils } from "@/utils/CommonUtils";
 
-export const DouYinVideoCommentHideElement = {
+export const DouYinVideoCommentBlockElement = {
 	init() {
 		PopsPanel.execMenuOnce("dy-video-shieldUserCommentToolBar", () => {
 			return this.shieldUserCommentToolBar();
@@ -32,7 +33,7 @@ export const DouYinVideoCommentHideElement = {
 	},
 };
 
-export const DouYinVideoBottomToolbarHideElement = {
+export const DouYinVideoBlockElement_BottomToolbar = {
 	init() {
 		PopsPanel.execMenuOnce("shieldBottomVideoToolBar", () => {
 			return this.shieldBottomVideoToolBar();
@@ -82,7 +83,7 @@ export const DouYinVideoBottomToolbarHideElement = {
 	},
 };
 
-export const DouYinVideoRightToolbarHideElement = {
+export const DouYinVideoBlockElement_RightToolbar = {
 	init() {
 		PopsPanel.execMenuOnce("shieldPlaySwitchButton", () => {
 			return this.shieldPlaySwitchButton();
@@ -224,7 +225,7 @@ export const DouYinVideoRightToolbarHideElement = {
 		);
 	},
 };
-export const DouYinVideoHideElement = {
+export const DouYinVideoBlockElement = {
 	init() {
 		PopsPanel.execMenuOnce("shieldRightExpandCommentButton", () => {
 			return this.shieldRightExpandCommentButton();
@@ -235,9 +236,12 @@ export const DouYinVideoHideElement = {
 		PopsPanel.execMenuOnce("shieldCloseFullScreenButton", () => {
 			return this.shieldCloseFullScreenButton();
 		});
-		DouYinVideoBottomToolbarHideElement.init();
-		DouYinVideoRightToolbarHideElement.init();
-		DouYinVideoCommentHideElement.init();
+		PopsPanel.execMenuOnce("dy-video-blockShopInfo", () => {
+			return this.blockShopInfo();
+		});
+		DouYinVideoBlockElement_BottomToolbar.init();
+		DouYinVideoBlockElement_RightToolbar.init();
+		DouYinVideoCommentBlockElement.init();
 	},
 	/**
 	 * 【屏蔽】右侧的展开评论按钮
@@ -302,5 +306,12 @@ export const DouYinVideoHideElement = {
 			);
 		}
 		return result;
+	},
+	/**
+	 * 【屏蔽】购物信息
+	 */
+	blockShopInfo() {
+		log.info(`【屏蔽】购物信息`);
+		return CommonUtils.addBlockCSS(`.xgplayer-shop-anchor`);
 	},
 };

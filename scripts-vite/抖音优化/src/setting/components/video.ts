@@ -8,6 +8,7 @@ import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components
 import Qmsg from "qmsg";
 import { UIButtonShortCut } from "../common-components/ui-button-shortcut";
 import { UISlider } from "../common-components/ui-slider";
+import { AutoOpenOrClose } from "../utils/all-open-or-close";
 
 const PanelVideoConfig: PopsPanelContentConfig = {
 	id: "panel-config-video",
@@ -142,7 +143,7 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									"dy-video-titleInfoAutoHide-delayTime",
 									3000,
 									0,
-									5000,
+									8000,
 									void 0,
 									(value) => {
 										return `${value}ms`;
@@ -272,10 +273,12 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 				{
 					type: "deepMenu",
 					text: "快捷键禁用",
+					afterEnterDeepMenuCallBack:
+						AutoOpenOrClose.afterEnterDeepMenuCallBack,
 					forms: [
 						{
 							type: "forms",
-							text: "",
+							text: AutoOpenOrClose.text,
 							forms: [
 								UISwitch(
 									"上翻页",
@@ -318,9 +321,11 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 				{
 					text: "屏蔽-视频区域内",
 					type: "deepMenu",
+					afterEnterDeepMenuCallBack:
+						AutoOpenOrClose.afterEnterDeepMenuCallBack,
 					forms: [
 						{
-							text: "右侧",
+							text: AutoOpenOrClose.text + "<br>右侧工具栏",
 							type: "forms",
 							forms: [
 								UISwitch(
@@ -382,7 +387,7 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 							],
 						},
 						{
-							text: "底部",
+							text: "底部工具栏",
 							type: "forms",
 							forms: [
 								UISwitch(
@@ -433,6 +438,13 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									void 0,
 									"屏蔽元素，一般开启网页全屏后出现在左上角"
 								),
+								UISwitch(
+									"【屏蔽】购物信息",
+									"dy-video-blockShopInfo",
+									true,
+									void 0,
+									"屏蔽元素，该元素出现在视频底部的用户名、标题信息的上面"
+								),
 							],
 						},
 					],
@@ -440,9 +452,11 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 				{
 					text: "屏蔽-评论区域内",
 					type: "deepMenu",
+					afterEnterDeepMenuCallBack:
+						AutoOpenOrClose.afterEnterDeepMenuCallBack,
 					forms: [
 						{
-							text: "",
+							text: AutoOpenOrClose.text,
 							type: "forms",
 							forms: [
 								UISwitch(

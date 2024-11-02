@@ -3,6 +3,7 @@ import { UISwitch } from "../common-components/ui-switch";
 import { UISelect } from "../common-components/ui-select";
 import { DOMUtils, utils } from "@/env";
 import { DouYinSearchFilter } from "@/main/search/DouYinSearchFilter";
+import { AutoOpenOrClose } from "../utils/all-open-or-close";
 
 const PanelSearchConfig: PopsPanelContentConfig = {
 	id: "panel-config-search",
@@ -143,9 +144,11 @@ const PanelSearchConfig: PopsPanelContentConfig = {
 				{
 					text: "屏蔽",
 					type: "deepMenu",
+					afterEnterDeepMenuCallBack:
+						AutoOpenOrClose.afterEnterDeepMenuCallBack,
 					forms: [
 						{
-							text: "",
+							text: AutoOpenOrClose.text,
 							type: "forms",
 							forms: [
 								UISwitch(

@@ -86,6 +86,9 @@ httpx.interceptors.response.use(void 0, (data) => {
 
 const addStyle = utils.addStyle.bind(utils);
 
+const $ = document.querySelector.bind(document);
+const $$ = document.querySelectorAll.bind(document);
+
 export {
 	utils,
 	domUtils as DOMUtils,
@@ -96,4 +99,6 @@ export {
 	httpx,
 	addStyle,
 	__pops as pops,
+	$,
+	$$,
 };

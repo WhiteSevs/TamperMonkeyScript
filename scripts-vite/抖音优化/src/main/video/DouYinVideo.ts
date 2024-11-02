@@ -1,5 +1,5 @@
 import { unsafeWindow } from "ViteGM";
-import { DOMUtils, addStyle, log, pops, utils } from "@/env";
+import { $, DOMUtils, addStyle, log, pops, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 import { DouYinSearch } from "../search/DouYinSearch";
@@ -7,21 +7,23 @@ import { DouYinRouter } from "@/router/DouYinRouter";
 import MobileCSS from "./mobile.css?raw";
 import Qmsg from "qmsg";
 import { DouYin } from "../DouYin";
-import { DouYinVideoHideElement } from "./DouYinVideoHideElement";
+import { DouYinVideoBlockElement } from "./DouYinVideoBlockElement";
 import { DouYinVideoShortcut } from "./DouYinVideoShortCut";
 import { DouYinVideoComment } from "./DouYinVideoComment";
 import { DouYinRecommendVideoFilter } from "../recommend/DouYinRecommendVideoFilter";
 import { GestureBack } from "@/utils/GestureBack";
 import { ReactUtils } from "@/utils/ReactUtils";
 import { DouYinGestureBackHashConfig } from "../DouYinGestureBackConfig";
+import { DouYinVideoBlockMouseHoverTip } from "./DouYinVideoBlockMouseHoverTip";
 
 export type VideoRate = "0.75" | "1" | "1.25" | "1.5" | "1.75" | "2" | "3";
 
 export const DouYinVideo = {
 	init() {
-		DouYinVideoHideElement.init();
+		DouYinVideoBlockElement.init();
 		DouYinVideoShortcut.init();
 		DouYinVideoComment.init();
+		DouYinVideoBlockMouseHoverTip.init();
 		if (!DouYinRouter.isSearch()) {
 			PopsPanel.execMenuOnce("shieldVideo", () => {
 				DouYinRecommendVideoFilter.init();
@@ -108,7 +110,7 @@ export const DouYinVideo = {
 				"xg-controls.xgplayer-controls"
 			)
 		);
-		result.push(DouYinVideoHideElement.shieldSearchFloatingBar());
+		result.push(DouYinVideoBlockElement.shieldSearchFloatingBar());
 		result.push(
 			addStyle(/*css*/ `
 			/* 视频全屏 */
@@ -588,22 +590,43 @@ export const DouYinVideo = {
 		log.info(`自动隐藏视频标题`);
 
 		let lockFn = new utils.LockFunction(() => {
-			let $currentVideoInfo = document.querySelector<HTMLElement>(
-				'#sliderVideo[data-e2e="feed-active-video"] #video-info-wrap:not([data-is-inject-mouse-hide])'
+			/** 视频信息列表 */
+			let videoInfoList: (HTMLElement | null)[] = [];
+
+			videoInfoList.push(
+				// 一般的推荐视频|单个视频的当前观看的视频
+				$<HTMLElement>(
+					'#sliderVideo[data-e2e="feed-active-video"] #video-info-wrap:not([data-is-inject-mouse-hide])'
+				)
 			);
-			if (!$currentVideoInfo) {
+			videoInfoList.push(
+				// 进入作者主页后的当前观看的视频
+				$<HTMLElement>(
+					'#slideMode[data-e2e="feed-active-video"] #video-info-wrap:not([data-is-inject-mouse-hide])'
+				)
+			);
+			if (!videoInfoList.length) {
 				return;
 			}
-			$currentVideoInfo.setAttribute("data-is-inject-mouse-hide", "");
-			let timeId = setTimeout(() => {
-				DOMUtils.trigger($currentVideoInfo, "mouseleave");
-			}, PopsPanel.getValue("dy-video-titleInfoAutoHide-delayTime"));
-			DOMUtils.on($currentVideoInfo, ["mouseenter", "touchstart"], (event) => {
-				clearTimeout(timeId);
-				DOMUtils.css($currentVideoInfo, "opacity", "");
-			});
-			DOMUtils.on($currentVideoInfo, ["mouseleave", "touchend"], (event) => {
-				DOMUtils.css($currentVideoInfo, "opacity", 0);
+			videoInfoList.forEach(($currentVideoInfo) => {
+				if (!$currentVideoInfo) {
+					return;
+				}
+				$currentVideoInfo.setAttribute("data-is-inject-mouse-hide", "");
+				let timeId = setTimeout(() => {
+					DOMUtils.trigger($currentVideoInfo, "mouseleave");
+				}, PopsPanel.getValue("dy-video-titleInfoAutoHide-delayTime"));
+				DOMUtils.on(
+					$currentVideoInfo,
+					["mouseenter", "touchstart"],
+					(event) => {
+						clearTimeout(timeId);
+						DOMUtils.css($currentVideoInfo, "opacity", "");
+					}
+				);
+				DOMUtils.on($currentVideoInfo, ["mouseleave", "touchend"], (event) => {
+					DOMUtils.css($currentVideoInfo, "opacity", 0);
+				});
 			});
 		});
 		utils.mutationObserver(document, {

@@ -5,6 +5,7 @@ import { PopsPanel } from "../setting";
 import { UISelect } from "../common-components/ui-select";
 import { VideoQualityMap } from "@/main/Live/DouYinLive";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { AutoOpenOrClose } from "../utils/all-open-or-close";
 
 const PanelLiveConfig: PopsPanelContentConfig = {
 	id: "panel-config-live",
@@ -199,10 +200,12 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 				{
 					type: "deepMenu",
 					text: "快捷键禁用",
+					afterEnterDeepMenuCallBack:
+						AutoOpenOrClose.afterEnterDeepMenuCallBack,
 					forms: [
 						{
 							type: "forms",
-							text: "",
+							text: AutoOpenOrClose.text,
 							forms: [
 								UISwitch("刷新", "dy-live-refresh", false, void 0, "E"),
 								UISwitch(
@@ -232,9 +235,11 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 				{
 					text: "屏蔽-视频区域内",
 					type: "deepMenu",
+					afterEnterDeepMenuCallBack:
+						AutoOpenOrClose.afterEnterDeepMenuCallBack,
 					forms: [
 						{
-							text: "",
+							text: AutoOpenOrClose.text,
 							type: "forms",
 							forms: [
 								UISwitch(
@@ -279,9 +284,11 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 				{
 					text: "屏蔽-聊天室",
 					type: "deepMenu",
+					afterEnterDeepMenuCallBack:
+						AutoOpenOrClose.afterEnterDeepMenuCallBack,
 					forms: [
 						{
-							text: "",
+							text: AutoOpenOrClose.text,
 							type: "forms",
 							forms: [
 								UISwitch(

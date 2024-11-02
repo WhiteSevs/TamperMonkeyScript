@@ -1,5 +1,5 @@
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
-import { GM_Menu, log, pops, SCRIPT_NAME, utils } from "@/env";
+import { DOMUtils, GM_Menu, log, pops, SCRIPT_NAME, utils } from "@/env";
 import { PanelCommonConfig } from "./components/common";
 import { PanelLiveConfig } from "./components/live";
 import {
@@ -131,6 +131,55 @@ const PopsPanel = {
 				},
 			},
 		]);
+
+		if (import.meta.hot) {
+			let isRegisterKeyboardDebugger = false;
+			GM_Menu.add([
+				{
+					key: "Debugger",
+					text: "⚙ Debugger",
+					autoReload: false,
+					isStoreValue: false,
+					showText(text: string) {
+						return text;
+					},
+					callback: () => {
+						debugger;
+					},
+				},
+				{
+					key: "ShortCut-Debugger",
+					text: "⚙ 注册Debugger快捷键",
+					autoReload: false,
+					isStoreValue: false,
+					showText(text: string) {
+						return text;
+					},
+					callback: () => {
+						if (isRegisterKeyboardDebugger) {
+							return;
+						}
+						isRegisterKeyboardDebugger = true;
+						DOMUtils.listenKeyboard(
+							window,
+							"keydown",
+							(keyName, keyValue, ohterCodeList) => {
+								if (
+									keyValue === 67 &&
+									ohterCodeList.includes("ctrl") &&
+									ohterCodeList.includes("shift")
+								) {
+									debugger;
+								}
+							},
+							{
+								capture: true,
+							}
+						);
+					},
+				},
+			]);
+		}
 	},
 	/** 初始化菜单项的默认值保存到本地数据中 */
 	initPanelDefaultValue() {

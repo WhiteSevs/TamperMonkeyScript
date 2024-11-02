@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.2
+// @version      2024.11.3
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -12,10 +12,11 @@
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
 // @connect      *
 // @grant        GM_deleteValue
+// @grant        GM_getResourceText
 // @grant        GM_getValue
 // @grant        GM_info
 // @grant        GM_registerMenuCommand
@@ -34,6 +35,7 @@
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var _a;
   var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
+  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
   var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
@@ -96,6 +98,53 @@
       result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
     }
     return result;
+  };
+  const afterEnterDeepMenuCallBack = (formConfig, container) => {
+    let $oneClickOpen = container.sectionBodyContainer.querySelector(
+      ".keyboard-oneClickOpen"
+    );
+    let $oneClickClose = container.sectionBodyContainer.querySelector(
+      ".keyboard-oneClickClose"
+    );
+    let clickCallBack = (isOpen) => {
+      var _a2;
+      (_a2 = container.sectionBodyContainer) == null ? void 0 : _a2.querySelectorAll(".pops-panel-switch").forEach(($ele) => {
+        let $input = $ele.querySelector(
+          ".pops-panel-switch__input"
+        );
+        let $checkbox = $ele.querySelector(
+          ".pops-panel-switch__core"
+        );
+        if (isOpen) {
+          if (!$input.checked) {
+            $checkbox.click();
+          }
+        } else {
+          if ($input.checked) {
+            $checkbox.click();
+          }
+        }
+      });
+    };
+    domUtils.on($oneClickOpen, "click", (event) => {
+      utils.preventEvent(event);
+      clickCallBack(true);
+    });
+    domUtils.on($oneClickClose, "click", (event) => {
+      utils.preventEvent(event);
+      clickCallBack(false);
+    });
+  };
+  const AutoOpenOrClose = {
+    text: (
+      /*html*/
+      `
+        <a href="javascript:;" class="keyboard-oneClickOpen">一键开启</a>
+        <br>
+        <a href="javascript:;" class="keyboard-oneClickClose">一键关闭</a>
+    `
+    ),
+    afterEnterDeepMenuCallBack
   };
   const PanelCommonConfig = {
     id: "panel-config-common",
@@ -234,6 +283,13 @@
                     true,
                     void 0,
                     "Safari使用，移除顶部横幅【Open in the 抖音 app】"
+                  ),
+                  UISwitch(
+                    "移除某些Cookie",
+                    "dy-cookie-remove__ac__",
+                    false,
+                    void 0,
+                    ""
                   )
                 ]
               }
@@ -261,53 +317,11 @@
           {
             type: "deepMenu",
             text: "快捷键禁用",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             forms: [
               {
                 type: "forms",
-                text: (
-                  /*html*/
-                  `
-								<a href="javascript:;" class="keyboard-oneClickOpen">一键开启</a>
-								<br>
-								<a href="javascript:;" class="keyboard-oneClickClose">一键关闭</a>
-							`
-                ),
-                afterAddToUListCallBack(formConfig, container) {
-                  const { target } = container;
-                  let $oneClickOpen = target.querySelector(
-                    ".keyboard-oneClickOpen"
-                  );
-                  let $oneClickClose = target.querySelector(
-                    ".keyboard-oneClickClose"
-                  );
-                  let clickCallBack = (isOpen) => {
-                    target == null ? void 0 : target.querySelectorAll(".pops-panel-switch").forEach(($ele) => {
-                      let $input = $ele.querySelector(
-                        ".pops-panel-switch__input"
-                      );
-                      let $checkbox = $ele.querySelector(
-                        ".pops-panel-switch__core"
-                      );
-                      if (isOpen) {
-                        if (!$input.checked) {
-                          $checkbox.click();
-                        }
-                      } else {
-                        if ($input.checked) {
-                          $checkbox.click();
-                        }
-                      }
-                    });
-                  };
-                  domUtils.on($oneClickOpen, "click", (event) => {
-                    utils.preventEvent(event);
-                    clickCallBack(true);
-                  });
-                  domUtils.on($oneClickClose, "click", (event) => {
-                    utils.preventEvent(event);
-                    clickCallBack(false);
-                  });
-                },
+                text: AutoOpenOrClose.text,
                 forms: [
                   UISwitch(
                     "赞|取消赞",
@@ -483,10 +497,11 @@
           {
             text: "屏蔽-通用",
             type: "deepMenu",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             forms: [
               {
-                text: "",
                 type: "forms",
+                text: AutoOpenOrClose.text,
                 forms: [
                   UISwitch(
                     "【屏蔽】登录弹窗",
@@ -509,10 +524,11 @@
           {
             text: "屏蔽-左侧导航栏",
             type: "deepMenu",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             forms: [
               {
-                text: "",
                 type: "forms",
+                text: AutoOpenOrClose.text,
                 forms: [
                   UISwitch(
                     "【屏蔽】左侧导航栏",
@@ -640,9 +656,10 @@
           {
             text: "屏蔽-顶部导航栏",
             type: "deepMenu",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             forms: [
               {
-                text: "",
+                text: AutoOpenOrClose.text,
                 type: "forms",
                 forms: [
                   UISwitch(
@@ -715,9 +732,10 @@
           {
             text: "屏蔽-搜索",
             type: "deepMenu",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             forms: [
               {
-                text: "",
+                text: AutoOpenOrClose.text,
                 type: "forms",
                 forms: [
                   UISwitch(
@@ -747,6 +765,85 @@
                     false,
                     void 0,
                     "屏蔽元素"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            type: "deepMenu",
+            text: "屏蔽-鼠标悬浮提示",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
+            forms: [
+              {
+                type: "forms",
+                text: AutoOpenOrClose.text + "<br>视频区域-右侧工具栏",
+                forms: [
+                  UISwitch(
+                    "进入作者主页",
+                    "dy-video-mouseHoverTip-rightToolBar-enterUserHome",
+                    false
+                  ),
+                  UISwitch(
+                    "关注",
+                    "dy-video-mouseHoverTip-rightToolBar-follow",
+                    false
+                  ),
+                  UISwitch(
+                    "点赞",
+                    "dy-video-mouseHoverTip-rightToolBar-addLike",
+                    false
+                  ),
+                  UISwitch(
+                    "评论",
+                    "dy-video-mouseHoverTip-rightToolBar-comment",
+                    false
+                  ),
+                  UISwitch(
+                    "收藏",
+                    "dy-video-mouseHoverTip-rightToolBar-collect",
+                    false
+                  ),
+                  UISwitch(
+                    "分享",
+                    "dy-video-mouseHoverTip-rightToolBar-share",
+                    false
+                  ),
+                  UISwitch(
+                    "看相关",
+                    "dy-video-mouseHoverTip-rightToolBar-seeCorrelation",
+                    false
+                  )
+                ]
+              },
+              {
+                type: "forms",
+                text: "视频区域-底部工具栏",
+                forms: [
+                  UISwitch(
+                    "自动连播",
+                    "dy-video-mouseHoverTip-bottomToolBar-automaticBroadcast",
+                    false
+                  ),
+                  UISwitch(
+                    "清屏",
+                    "dy-video-mouseHoverTip-bottomToolBar-clearScreen",
+                    false
+                  ),
+                  UISwitch(
+                    "稍后再看",
+                    "dy-video-mouseHoverTip-bottomToolBar-watchLater",
+                    false
+                  ),
+                  UISwitch(
+                    "网页全屏",
+                    "dy-video-mouseHoverTip-bottomToolBar-pageFullScreen",
+                    false
+                  ),
+                  UISwitch(
+                    "全屏",
+                    "dy-video-mouseHoverTip-bottomToolBar-fullScreen",
+                    false
                   )
                 ]
               }
@@ -1694,10 +1791,11 @@
           {
             type: "deepMenu",
             text: "快捷键禁用",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             forms: [
               {
                 type: "forms",
-                text: "",
+                text: AutoOpenOrClose.text,
                 forms: [
                   UISwitch("刷新", "dy-live-refresh", false, void 0, "E"),
                   UISwitch(
@@ -1727,9 +1825,10 @@
           {
             text: "屏蔽-视频区域内",
             type: "deepMenu",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             forms: [
               {
-                text: "",
+                text: AutoOpenOrClose.text,
                 type: "forms",
                 forms: [
                   UISwitch(
@@ -1774,9 +1873,10 @@
           {
             text: "屏蔽-聊天室",
             type: "deepMenu",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             forms: [
               {
-                text: "",
+                text: AutoOpenOrClose.text,
                 type: "forms",
                 forms: [
                   UISwitch(
@@ -2748,7 +2848,108 @@
     }
   };
   const MobileCSS = '/* 右侧工具栏放大 */\r\n.basePlayerContainer .positionBox {\r\n	bottom: 80px !important;\r\n	padding-right: 5px !important;\r\n	scale: unset !important;\r\n	transform: scale3d(1.12, 1.12, 1.12) !important;\r\n}\r\n/* 右侧工具栏的svg再放大 */\r\n.basePlayerContainer .positionBox svg {\r\n	transform: scale3d(1.12, 1.12, 1.12);\r\n}\r\n/* 重置关注按钮的scale */\r\n.basePlayerContainer\r\n	.positionBox\r\n	.dy-tip-container\r\n	div[data-e2e="feed-follow-icon"]\r\n	svg {\r\n	scale: unset !important;\r\n}\r\n/* 设备处于横向方向，即宽度大于高度。 */\r\n@media screen and (orientation: landscape) {\r\n	/* 右侧工具栏放大 */\r\n	.basePlayerContainer .positionBox {\r\n		/*transform: scale(0.95) !important;\r\n		bottom: 42px !important;*/\r\n		padding-right: 10px !important;\r\n	}\r\n}\r\n/* 该设备是纵向的，即高度大于或等于宽度 */\r\n@media screen and (orientation: portrait) {\r\n	/* /video/xxx页面 */\r\n	/* 点赞、评论、分享偏移 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.basePlayerContainer\r\n		.positionBox {\r\n		padding-right: 30px !important;\r\n	}\r\n	/* 底部工具栏右侧的按钮 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.xgplayer.xgplayer-pc\r\n		.xg-right-grid {\r\n		margin-right: 35px !important;\r\n	}\r\n	/* 评论区全屏 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n		width: 100vw !important;\r\n	}\r\n}\r\n\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#slidelist {\r\n		width: 100vw;\r\n		height: 100vh;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: 150px;\r\n		padding-right: 0;\r\n		max-width: unset;\r\n	}\r\n	/* 搜索框获取焦点时自动放大宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]:focus) {\r\n		width: 100vw;\r\n		width: 100dvw;\r\n	}\r\n	/* 去除设置min-width超出浏览器宽度的问题 */\r\n	body {\r\n		min-width: 100% !important;\r\n	}\r\n	/* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n	#douyin-right-container #douyin-header {\r\n		width: 100%;\r\n	}\r\n	/* 去除设置 */\r\n	#douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n		min-width: 100%;\r\n	}\r\n}\r\n';
-  const DouYinVideoCommentHideElement = {
+  const CommonUtils = {
+    /**
+     * 添加屏蔽CSS
+     * @param args
+     * @example
+     * addBlockCSS("")
+     * addBlockCSS("","")
+     * addBlockCSS(["",""])
+     */
+    addBlockCSS(...args) {
+      let selectorList = [];
+      if (args.length === 0) {
+        return;
+      }
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+        return;
+      }
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    /**
+     * 设置GM_getResourceText的style内容
+     * @param resourceMapData 资源数据
+     */
+    setGMResourceCSS(resourceMapData) {
+      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+      if (typeof cssText === "string" && cssText) {
+        addStyle(cssText);
+      } else {
+        CommonUtils.addLinkNode(resourceMapData.url);
+      }
+    },
+    /**
+     * 添加<link>标签
+     * @param url
+     */
+    async addLinkNode(url) {
+      let $link = document.createElement("link");
+      $link.rel = "stylesheet";
+      $link.type = "text/css";
+      $link.href = url;
+      domUtils.ready(() => {
+        document.head.appendChild($link);
+      });
+    },
+    /**
+     * 将url修复，例如只有search的链接修复为
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：`/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`//xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     */
+    fixUrl(url) {
+      url = url.trim();
+      if (url.match(/^http(s|):\/\//i)) {
+        return url;
+      } else {
+        if (!url.startsWith("/")) {
+          url += "/";
+        }
+        url = window.location.origin + url;
+        return url;
+      }
+    },
+    /**
+     * http转https
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：
+     * 修复后：
+     * @example
+     * 修复前：
+     * 修复后：
+     */
+    fixHttps(url) {
+      if (url.startsWith("https://")) {
+        return url;
+      }
+      if (!url.startsWith("http://")) {
+        return url;
+      }
+      let urlObj = new URL(url);
+      urlObj.protocol = "https:";
+      return urlObj.toString();
+    }
+  };
+  const DouYinVideoCommentBlockElement = {
     init() {
       PopsPanel.execMenuOnce("dy-video-shieldUserCommentToolBar", () => {
         return this.shieldUserCommentToolBar();
@@ -2775,7 +2976,7 @@
       return [DouYinUtils.addBlockCSS(".comment-header-with-search")];
     }
   };
-  const DouYinVideoBottomToolbarHideElement = {
+  const DouYinVideoBlockElement_BottomToolbar = {
     init() {
       PopsPanel.execMenuOnce("shieldBottomVideoToolBar", () => {
         return this.shieldBottomVideoToolBar();
@@ -2825,7 +3026,7 @@
       ];
     }
   };
-  const DouYinVideoRightToolbarHideElement = {
+  const DouYinVideoBlockElement_RightToolbar = {
     init() {
       PopsPanel.execMenuOnce("shieldPlaySwitchButton", () => {
         return this.shieldPlaySwitchButton();
@@ -2970,7 +3171,7 @@
       );
     }
   };
-  const DouYinVideoHideElement = {
+  const DouYinVideoBlockElement = {
     init() {
       PopsPanel.execMenuOnce("shieldRightExpandCommentButton", () => {
         return this.shieldRightExpandCommentButton();
@@ -2981,9 +3182,12 @@
       PopsPanel.execMenuOnce("shieldCloseFullScreenButton", () => {
         return this.shieldCloseFullScreenButton();
       });
-      DouYinVideoBottomToolbarHideElement.init();
-      DouYinVideoRightToolbarHideElement.init();
-      DouYinVideoCommentHideElement.init();
+      PopsPanel.execMenuOnce("dy-video-blockShopInfo", () => {
+        return this.blockShopInfo();
+      });
+      DouYinVideoBlockElement_BottomToolbar.init();
+      DouYinVideoBlockElement_RightToolbar.init();
+      DouYinVideoCommentBlockElement.init();
     },
     /**
      * 【屏蔽】右侧的展开评论按钮
@@ -3049,6 +3253,13 @@
         );
       }
       return result;
+    },
+    /**
+     * 【屏蔽】购物信息
+     */
+    blockShopInfo() {
+      log.info(`【屏蔽】购物信息`);
+      return CommonUtils.addBlockCSS(`.xgplayer-shop-anchor`);
     }
   };
   const DouYinRecommendVideo = {
@@ -3242,10 +3453,194 @@
       log.success(`发现残留的手势返回hash，已清理 ==> ` + findValue);
     }
   };
+  const DouYinVideoBlockMouseHoverTip = {
+    init() {
+      DouYinVideoBlockMouseHoverTip_RightToolBar.init();
+      DouYinVideoBlockMouseHoverTip_BottomToolBar.init();
+    }
+  };
+  const DouYinVideoBlockMouseHoverTip_RightToolBar = {
+    init() {
+      PopsPanel.execMenuOnce(
+        "dy-video-mouseHoverTip-rightToolBar-enterUserHome",
+        () => {
+          return this.blockEnterUserHomeMouseHoverTip();
+        }
+      );
+      PopsPanel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-follow", () => {
+        return this.blockFollowMouseHoverTip();
+      });
+      PopsPanel.execMenuOnce(
+        "dy-video-mouseHoverTip-rightToolBar-addLike",
+        () => {
+          return this.blockAddLikeMouseHoverTip();
+        }
+      );
+      PopsPanel.execMenuOnce(
+        "dy-video-mouseHoverTip-rightToolBar-comment",
+        () => {
+          return this.blockCommentMouseHoverTip();
+        }
+      );
+      PopsPanel.execMenuOnce(
+        "dy-video-mouseHoverTip-rightToolBar-collect",
+        () => {
+          return this.blockCollectMouseHoverTip();
+        }
+      );
+      PopsPanel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-share", () => {
+        return this.blockShareMouseHoverTip();
+      });
+      PopsPanel.execMenuOnce(
+        "dy-video-mouseHoverTip-rightToolBar-seeCorrelation",
+        () => {
+          return this.blockSeeCorrelationMouseHoverTip();
+        }
+      );
+    },
+    /**
+     * 禁用进入作者主页按钮的悬浮提示
+     */
+    blockEnterUserHomeMouseHoverTip() {
+      log.info(`禁用进入作者主页按钮的悬浮提示`);
+      return CommonUtils.addBlockCSS(
+        ` div > div:has( >a[data-e2e="video-avatar"]) + .semi-portal`
+      );
+    },
+    /**
+     * 禁用关注按钮的悬浮提示
+     */
+    blockFollowMouseHoverTip() {
+      log.info(`禁用关注按钮的悬浮提示`);
+      return CommonUtils.addBlockCSS(
+        `div[data-e2e="feed-follow-icon"]  .semi-portal`
+      );
+    },
+    /**
+     * 禁用点赞按钮的悬浮提示
+     */
+    blockAddLikeMouseHoverTip() {
+      log.info(`禁用点赞按钮的悬浮提示`);
+      return CommonUtils.addBlockCSS(
+        `div[data-e2e="video-player-digg"] + .semi-portal`
+      );
+    },
+    /**
+     * 禁用评论按钮的悬浮提示
+     */
+    blockCommentMouseHoverTip() {
+      log.info(`禁用评论按钮的悬浮提示`);
+      return CommonUtils.addBlockCSS(
+        `div[data-e2e="feed-comment-icon"] + .semi-portal`
+      );
+    },
+    /**
+     * 禁用收藏按钮的悬浮提示
+     */
+    blockCollectMouseHoverTip() {
+      log.info(`禁用收藏按钮的悬浮提示`);
+      return CommonUtils.addBlockCSS(
+        `div[data-e2e="video-player-collect"] + .semi-always-dark`
+      );
+    },
+    /**
+     * 禁用分享按钮的悬浮提示
+     */
+    blockShareMouseHoverTip() {
+      log.info(`禁用分享按钮的悬浮提示`);
+      return CommonUtils.addBlockCSS(`div[data-e2e="video-share-container"]`);
+    },
+    /**
+     * 禁用看相关推荐按钮的悬浮提示
+     */
+    blockSeeCorrelationMouseHoverTip() {
+      log.info(`禁用看相关推荐按钮的悬浮提示`);
+      return CommonUtils.addBlockCSS(
+        `div:has(+[data-e2e="video-play-more"]) .semi-portal`
+      );
+    }
+  };
+  const DouYinVideoBlockMouseHoverTip_BottomToolBar = {
+    init() {
+      PopsPanel.execMenuOnce(
+        "dy-video-mouseHoverTip-bottomToolBar-automaticBroadcast",
+        () => {
+          return this.blockAutomaticBroadcast();
+        }
+      );
+      PopsPanel.execMenuOnce(
+        "dy-video-mouseHoverTip-bottomToolBar-clearScreen",
+        () => {
+          return this.blockClearScreenMouseHoverTip();
+        }
+      );
+      PopsPanel.execMenuOnce(
+        "dy-video-mouseHoverTip-bottomToolBar-watchLater",
+        () => {
+          return this.blockWatchLaterMouseHoverTip();
+        }
+      );
+      PopsPanel.execMenuOnce(
+        "dy-video-mouseHoverTip-bottomToolBar-pageFullScreen",
+        () => {
+          return this.blockPageFullScreenMouseHoverTip();
+        }
+      );
+      PopsPanel.execMenuOnce(
+        "dy-video-mouseHoverTip-bottomToolBar-fullScreen",
+        () => {
+          return this.blockFullScreenMouseHoverTip();
+        }
+      );
+    },
+    /**
+     * 禁用自动连播按钮的悬浮提示
+     */
+    blockAutomaticBroadcast() {
+      log.info(`禁用自动连播按钮的悬浮提示`);
+      return CommonUtils.addBlockCSS(
+        `div[data-e2e="video-player-auto-play"] + .xgTips`
+      );
+    },
+    /**
+     * 禁用清屏按钮的悬浮提示
+     */
+    blockClearScreenMouseHoverTip() {
+      log.info(`禁用清屏按钮的悬浮提示`);
+      return CommonUtils.addBlockCSS(
+        `.xgplayer-immersive-switch-setting .xgTips`
+      );
+    },
+    /**
+     * 禁用稍后再看按钮的悬浮提示
+     */
+    blockWatchLaterMouseHoverTip() {
+      log.info(`禁用稍后再看按钮的悬浮提示`);
+      return CommonUtils.addBlockCSS(
+        `.xgplayer-watch-later .xgTips`,
+        `.xgplayer-watch-later-item + .xgTips`
+      );
+    },
+    /**
+     * 禁用网页全屏按钮的悬浮提示
+     */
+    blockPageFullScreenMouseHoverTip() {
+      log.info(`禁用网页全屏按钮的悬浮提示`);
+      return CommonUtils.addBlockCSS(`.xgplayer-page-full-screen .xgTips`);
+    },
+    /**
+     * 禁用全屏按钮的悬浮提示
+     */
+    blockFullScreenMouseHoverTip() {
+      log.info(`禁用全屏按钮的悬浮提示`);
+      return CommonUtils.addBlockCSS(`.xgplayer-fullscreen .xg-tips`);
+    }
+  };
   const DouYinVideo = {
     init() {
-      DouYinVideoHideElement.init();
+      DouYinVideoBlockElement.init();
       DouYinVideoShortcut.init();
+      DouYinVideoBlockMouseHoverTip.init();
       if (!DouYinRouter.isSearch()) {
         PopsPanel.execMenuOnce("shieldVideo", () => {
           DouYinRecommendVideoFilter.init();
@@ -3328,7 +3723,7 @@
           "xg-controls.xgplayer-controls"
         )
       );
-      result.push(DouYinVideoHideElement.shieldSearchFloatingBar());
+      result.push(DouYinVideoBlockElement.shieldSearchFloatingBar());
       result.push(
         addStyle(
           /*css*/
@@ -3796,22 +4191,41 @@
     titleInfoAutoHide() {
       log.info(`自动隐藏视频标题`);
       let lockFn = new utils.LockFunction(() => {
-        let $currentVideoInfo = document.querySelector(
-          '#sliderVideo[data-e2e="feed-active-video"] #video-info-wrap:not([data-is-inject-mouse-hide])'
+        let videoInfoList = [];
+        videoInfoList.push(
+          // 一般的推荐视频|单个视频的当前观看的视频
+          $(
+            '#sliderVideo[data-e2e="feed-active-video"] #video-info-wrap:not([data-is-inject-mouse-hide])'
+          )
         );
-        if (!$currentVideoInfo) {
+        videoInfoList.push(
+          // 进入作者主页后的当前观看的视频
+          $(
+            '#slideMode[data-e2e="feed-active-video"] #video-info-wrap:not([data-is-inject-mouse-hide])'
+          )
+        );
+        if (!videoInfoList.length) {
           return;
         }
-        $currentVideoInfo.setAttribute("data-is-inject-mouse-hide", "");
-        let timeId = setTimeout(() => {
-          domUtils.trigger($currentVideoInfo, "mouseleave");
-        }, PopsPanel.getValue("dy-video-titleInfoAutoHide-delayTime"));
-        domUtils.on($currentVideoInfo, ["mouseenter", "touchstart"], (event) => {
-          clearTimeout(timeId);
-          domUtils.css($currentVideoInfo, "opacity", "");
-        });
-        domUtils.on($currentVideoInfo, ["mouseleave", "touchend"], (event) => {
-          domUtils.css($currentVideoInfo, "opacity", 0);
+        videoInfoList.forEach(($currentVideoInfo) => {
+          if (!$currentVideoInfo) {
+            return;
+          }
+          $currentVideoInfo.setAttribute("data-is-inject-mouse-hide", "");
+          let timeId = setTimeout(() => {
+            domUtils.trigger($currentVideoInfo, "mouseleave");
+          }, PopsPanel.getValue("dy-video-titleInfoAutoHide-delayTime"));
+          domUtils.on(
+            $currentVideoInfo,
+            ["mouseenter", "touchstart"],
+            (event) => {
+              clearTimeout(timeId);
+              domUtils.css($currentVideoInfo, "opacity", "");
+            }
+          );
+          domUtils.on($currentVideoInfo, ["mouseleave", "touchend"], (event) => {
+            domUtils.css($currentVideoInfo, "opacity", 0);
+          });
         });
       });
       utils.mutationObserver(document, {
@@ -4192,7 +4606,7 @@
                     "dy-video-titleInfoAutoHide-delayTime",
                     3e3,
                     0,
-                    5e3,
+                    8e3,
                     void 0,
                     (value) => {
                       return `${value}ms`;
@@ -4322,10 +4736,11 @@
           {
             type: "deepMenu",
             text: "快捷键禁用",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             forms: [
               {
                 type: "forms",
-                text: "",
+                text: AutoOpenOrClose.text,
                 forms: [
                   UISwitch(
                     "上翻页",
@@ -4368,9 +4783,10 @@
           {
             text: "屏蔽-视频区域内",
             type: "deepMenu",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             forms: [
               {
-                text: "右侧",
+                text: AutoOpenOrClose.text + "<br>右侧工具栏",
                 type: "forms",
                 forms: [
                   UISwitch(
@@ -4432,7 +4848,7 @@
                 ]
               },
               {
-                text: "底部",
+                text: "底部工具栏",
                 type: "forms",
                 forms: [
                   UISwitch(
@@ -4482,6 +4898,13 @@
                     true,
                     void 0,
                     "屏蔽元素，一般开启网页全屏后出现在左上角"
+                  ),
+                  UISwitch(
+                    "【屏蔽】购物信息",
+                    "dy-video-blockShopInfo",
+                    true,
+                    void 0,
+                    "屏蔽元素，该元素出现在视频底部的用户名、标题信息的上面"
                   )
                 ]
               }
@@ -4490,9 +4913,10 @@
           {
             text: "屏蔽-评论区域内",
             type: "deepMenu",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             forms: [
               {
-                text: "",
+                text: AutoOpenOrClose.text,
                 type: "forms",
                 forms: [
                   UISwitch(
@@ -4659,9 +5083,10 @@
           {
             text: "屏蔽",
             type: "deepMenu",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             forms: [
               {
-                text: "",
+                text: AutoOpenOrClose.text,
                 type: "forms",
                 forms: [
                   UISwitch(
@@ -5803,6 +6228,8 @@
     return data;
   });
   const addStyle = utils.addStyle.bind(utils);
+  const $ = document.querySelector.bind(document);
+  document.querySelectorAll.bind(document);
   const BlockTopNavigator = {
     init() {
       PopsPanel.execInheritMenuOnce(
@@ -6544,6 +6971,9 @@
       PopsPanel.onceExec("hookKeyboard", () => {
         DouYinHook.disableShortCut();
       });
+      PopsPanel.execMenu("dy-cookie-remove__ac__", () => {
+        this.removeCookie();
+      });
       if (DouYinRouter.isVideo()) {
         PopsPanel.execMenuOnce("dy-video-disableDoubleClickLike", () => {
           DouYinHook.disableDoubleClickLike();
@@ -6572,6 +7002,27 @@
         }
         return originalSetInterval.call(this, callback, time);
       };
+    },
+    /**
+     * 移除Cookie
+     */
+    removeCookie() {
+      let cookieHandler = new utils.GM_Cookie();
+      let cookieNameList = ["__ac_signature", "__ac_referer", "__ac_nonce"];
+      cookieNameList.forEach((cookieName) => {
+        cookieHandler.delete(
+          {
+            name: cookieName
+          },
+          (error) => {
+            if (error) {
+              log.error(`移除Cookie失败 ==> ${cookieName}`, error);
+            } else {
+              log.success(`移除Cookie成功 ==> ${cookieName}`);
+            }
+          }
+        );
+      });
     },
     /**
      * 禁用快捷键

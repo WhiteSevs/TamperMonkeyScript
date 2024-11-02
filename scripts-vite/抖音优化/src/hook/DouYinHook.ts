@@ -1,5 +1,5 @@
 import { unsafeWindow } from "ViteGM";
-import { log } from "@/env";
+import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { Hook } from "./Hook";
 import { DouYinRouter } from "@/router/DouYinRouter";
@@ -18,6 +18,9 @@ export const DouYinHook = {
 	init() {
 		PopsPanel.onceExec("hookKeyboard", () => {
 			DouYinHook.disableShortCut();
+		});
+		PopsPanel.execMenu("dy-cookie-remove__ac__", () => {
+			this.removeCookie();
 		});
 		if (DouYinRouter.isVideo()) {
 			PopsPanel.execMenuOnce("dy-video-disableDoubleClickLike", () => {
@@ -47,6 +50,27 @@ export const DouYinHook = {
 			}
 			return originalSetInterval.call(this, callback, time);
 		};
+	},
+	/**
+	 * 移除Cookie
+	 */
+	removeCookie() {
+		let cookieHandler = new utils.GM_Cookie();
+		let cookieNameList = ["__ac_signature", "__ac_referer", "__ac_nonce"];
+		cookieNameList.forEach((cookieName) => {
+			cookieHandler.delete(
+				{
+					name: cookieName,
+				},
+				(error) => {
+					if (error) {
+						log.error(`移除Cookie失败 ==> ${cookieName}`, error);
+					} else {
+						log.success(`移除Cookie成功 ==> ${cookieName}`);
+					}
+				}
+			);
+		});
 	},
 	/**
 	 * 禁用快捷键

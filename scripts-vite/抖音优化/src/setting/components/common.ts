@@ -2,6 +2,7 @@ import { DOMUtils, log, utils } from "@/env";
 import { UISelect } from "../common-components/ui-select";
 import { UISwitch } from "../common-components/ui-switch";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { AutoOpenOrClose } from "../utils/all-open-or-close";
 
 const PanelCommonConfig: PopsPanelContentConfig = {
 	id: "panel-config-common",
@@ -141,6 +142,13 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 									void 0,
 									"Safari使用，移除顶部横幅【Open in the 抖音 app】"
 								),
+								UISwitch(
+									"移除某些Cookie",
+									"dy-cookie-remove__ac__",
+									false,
+									void 0,
+									""
+								),
 							],
 						},
 					],
@@ -167,52 +175,12 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 				{
 					type: "deepMenu",
 					text: "快捷键禁用",
+					afterEnterDeepMenuCallBack:
+						AutoOpenOrClose.afterEnterDeepMenuCallBack,
 					forms: [
 						{
 							type: "forms",
-							text: /*html*/ `
-								<a href="javascript:;" class="keyboard-oneClickOpen">一键开启</a>
-								<br>
-								<a href="javascript:;" class="keyboard-oneClickClose">一键关闭</a>
-							`,
-							afterAddToUListCallBack(formConfig, container) {
-								const { target } = container;
-								let $oneClickOpen = target!.querySelector<HTMLAnchorElement>(
-									".keyboard-oneClickOpen"
-								);
-								let $oneClickClose = target!.querySelector<HTMLAnchorElement>(
-									".keyboard-oneClickClose"
-								);
-								let clickCallBack = (isOpen: boolean) => {
-									target
-										?.querySelectorAll<HTMLElement>(".pops-panel-switch")
-										.forEach(($ele) => {
-											let $input = $ele.querySelector<HTMLInputElement>(
-												".pops-panel-switch__input"
-											)!;
-											let $checkbox = $ele.querySelector<HTMLInputElement>(
-												".pops-panel-switch__core"
-											)!;
-											if (isOpen) {
-												if (!$input.checked) {
-													$checkbox.click();
-												}
-											} else {
-												if ($input.checked) {
-													$checkbox.click();
-												}
-											}
-										});
-								};
-								DOMUtils.on($oneClickOpen, "click", (event) => {
-									utils.preventEvent(event);
-									clickCallBack(true);
-								});
-								DOMUtils.on($oneClickClose, "click", (event) => {
-									utils.preventEvent(event);
-									clickCallBack(false);
-								});
-							},
+							text: AutoOpenOrClose.text,
 							forms: [
 								UISwitch(
 									"赞|取消赞",
@@ -388,10 +356,12 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 				{
 					text: "屏蔽-通用",
 					type: "deepMenu",
+					afterEnterDeepMenuCallBack:
+						AutoOpenOrClose.afterEnterDeepMenuCallBack,
 					forms: [
 						{
-							text: "",
 							type: "forms",
+							text: AutoOpenOrClose.text,
 							forms: [
 								UISwitch(
 									"【屏蔽】登录弹窗",
@@ -414,10 +384,12 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 				{
 					text: "屏蔽-左侧导航栏",
 					type: "deepMenu",
+					afterEnterDeepMenuCallBack:
+						AutoOpenOrClose.afterEnterDeepMenuCallBack,
 					forms: [
 						{
-							text: "",
 							type: "forms",
+							text: AutoOpenOrClose.text,
 							forms: [
 								UISwitch(
 									"【屏蔽】左侧导航栏",
@@ -545,9 +517,11 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 				{
 					text: "屏蔽-顶部导航栏",
 					type: "deepMenu",
+					afterEnterDeepMenuCallBack:
+						AutoOpenOrClose.afterEnterDeepMenuCallBack,
 					forms: [
 						{
-							text: "",
+							text: AutoOpenOrClose.text,
 							type: "forms",
 							forms: [
 								UISwitch(
@@ -620,9 +594,11 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 				{
 					text: "屏蔽-搜索",
 					type: "deepMenu",
+					afterEnterDeepMenuCallBack:
+						AutoOpenOrClose.afterEnterDeepMenuCallBack,
 					forms: [
 						{
-							text: "",
+							text: AutoOpenOrClose.text,
 							type: "forms",
 							forms: [
 								UISwitch(
@@ -652,6 +628,86 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 									false,
 									void 0,
 									"屏蔽元素"
+								),
+							],
+						},
+					],
+				},
+				{
+					type: "deepMenu",
+					text: "屏蔽-鼠标悬浮提示",
+					afterEnterDeepMenuCallBack:
+						AutoOpenOrClose.afterEnterDeepMenuCallBack,
+					forms: [
+						{
+							type: "forms",
+							text: AutoOpenOrClose.text + "<br>视频区域-右侧工具栏",
+							forms: [
+								UISwitch(
+									"进入作者主页",
+									"dy-video-mouseHoverTip-rightToolBar-enterUserHome",
+									false
+								),
+								UISwitch(
+									"关注",
+									"dy-video-mouseHoverTip-rightToolBar-follow",
+									false
+								),
+								UISwitch(
+									"点赞",
+									"dy-video-mouseHoverTip-rightToolBar-addLike",
+									false
+								),
+								UISwitch(
+									"评论",
+									"dy-video-mouseHoverTip-rightToolBar-comment",
+									false
+								),
+								UISwitch(
+									"收藏",
+									"dy-video-mouseHoverTip-rightToolBar-collect",
+									false
+								),
+								UISwitch(
+									"分享",
+									"dy-video-mouseHoverTip-rightToolBar-share",
+									false
+								),
+								UISwitch(
+									"看相关",
+									"dy-video-mouseHoverTip-rightToolBar-seeCorrelation",
+									false
+								),
+							],
+						},
+						{
+							type: "forms",
+							text: "视频区域-底部工具栏",
+							forms: [
+								UISwitch(
+									"自动连播",
+									"dy-video-mouseHoverTip-bottomToolBar-automaticBroadcast",
+									false
+								),
+								UISwitch(
+									"清屏",
+									"dy-video-mouseHoverTip-bottomToolBar-clearScreen",
+									false
+								),
+								UISwitch(
+									"稍后再看",
+									"dy-video-mouseHoverTip-bottomToolBar-watchLater",
+									false
+								),
+								UISwitch(
+									"网页全屏",
+									"dy-video-mouseHoverTip-bottomToolBar-pageFullScreen",
+									false
+								),
+								UISwitch(
+									"全屏",
+									"dy-video-mouseHoverTip-bottomToolBar-fullScreen",
+									false
 								),
 							],
 						},
