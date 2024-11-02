@@ -2422,7 +2422,7 @@ export const PanelHandleContentDetails = () => {
 						"section.pops-panel-container"
 					) as HTMLElement | null;
 					if (currentSection) {
-						popsDOMUtils.cssHide(currentSection,true);
+						popsDOMUtils.cssHide(currentSection, true);
 					}
 					// 子菜单的容器
 					let $deepMenuContainer = popsDOMUtils.createElement("section", {
@@ -2431,7 +2431,7 @@ export const PanelHandleContentDetails = () => {
 					let $deepMenuHeaderUL = popsDOMUtils.createElement("ul", {
 						className: "pops-panel-deepMenu-container-header-ul",
 					});
-					let $deepMenuChildMenuUL = popsDOMUtils.createElement("ul");
+					let $deepMenuBodyUL = popsDOMUtils.createElement("ul");
 					// 标题文字
 					let headerTitleText = formConfig.headerTitle ?? formConfig.text;
 					let $header = popsDOMUtils.createElement("div", {
@@ -2464,15 +2464,24 @@ export const PanelHandleContentDetails = () => {
 					);
 					$deepMenuHeaderUL.appendChild($header);
 					$deepMenuContainer.appendChild($deepMenuHeaderUL);
-					$deepMenuContainer.appendChild($deepMenuChildMenuUL);
+					$deepMenuContainer.appendChild($deepMenuBodyUL);
 
 					if (formConfig.forms && Array.isArray(formConfig.forms)) {
 						for (let index = 0; index < formConfig.forms.length; index++) {
 							let formItemConfig = formConfig.forms[index];
-							this.initFormItem($deepMenuChildMenuUL, formItemConfig);
+							this.initFormItem($deepMenuBodyUL, formItemConfig);
 						}
 					}
 					that.$el.$content?.appendChild($deepMenuContainer);
+
+					if (typeof formConfig.afterEnterDeepMenuCallBack === "function") {
+						formConfig.afterEnterDeepMenuCallBack(formConfig, {
+							sectionContainer: $deepMenuContainer,
+							sectionContainerHeaderContainer: $deepMenuHeaderUL,
+							sectionContainerHeader: $header,
+							sectionBodyContainer: $deepMenuBodyUL,
+						});
+					}
 				},
 				/** 设置项的点击事件 */
 				setLiClickEvent() {

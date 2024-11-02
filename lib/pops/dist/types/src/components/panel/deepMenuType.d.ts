@@ -50,6 +50,20 @@ export interface PopsPanelDeepMenuDetails extends PopsPanelCommonDetails<PopsPan
      */
     clickCallBack?: (event: MouseEvent | PointerEvent, formConfig: PopsPanelDeepMenuDetails) => boolean | void | Promise<boolean | void>;
     /**
+     * 进入深层菜单后触发的回调
+     * @param formConfig
+     */
+    afterEnterDeepMenuCallBack?: (formConfig: PopsPanelDeepMenuDetails, container: {
+        /** 右侧的总容器 */
+        sectionContainer: HTMLElement;
+        /** 右侧的总容器的标题头容器 */
+        sectionContainerHeaderContainer: HTMLUListElement;
+        /** 右侧的总容器的标题头 */
+        sectionContainerHeader: HTMLDivElement;
+        /** 右侧的内容容器 */
+        sectionBodyContainer: HTMLUListElement;
+    }) => void;
+    /**
      * 菜单配置
      */
     forms?: (PopsPanelFormsDetails | PopsPanelFormsTotalDetails)[];
