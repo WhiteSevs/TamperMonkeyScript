@@ -136,6 +136,10 @@ const OriginPrototype = {
 };
 
 const addStyle = utils.addStyle.bind(utils);
+
+const $ = document.querySelector.bind(document);
+const $$ = document.querySelectorAll.bind(document);
+
 export {
 	utils,
 	domUtils as DOMUtils,
@@ -148,4 +152,6 @@ export {
 	// showdown,
 	httpx,
 	addStyle,
+	$,
+	$$,
 };
