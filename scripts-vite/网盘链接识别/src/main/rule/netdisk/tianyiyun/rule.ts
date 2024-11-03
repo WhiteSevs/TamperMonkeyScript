@@ -42,6 +42,7 @@ export const NetDiskRule_tianyiyun: NetDiskRuleConfig = {
 					},
 				},
 				checkLinkValidity: true,
+				checkLinkValidityHoverTip: true,
 			},
 			linkClickMode_openBlank: {
 				openBlankWithCopyAccessCode: true,

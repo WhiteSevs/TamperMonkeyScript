@@ -64,6 +64,7 @@ export const NetDiskRule_aliyun: NetDiskRuleConfig = {
 					},
 				},
 				checkLinkValidity: true,
+				checkLinkValidityHoverTip: true,
 			},
 			linkClickMode_openBlank: {
 				openBlankWithCopyAccessCode: true,

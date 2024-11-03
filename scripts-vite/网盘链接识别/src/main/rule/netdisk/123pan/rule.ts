@@ -48,6 +48,7 @@ export const NetDiskRule_123pan: NetDiskRuleConfig = {
 					},
 				},
 				checkLinkValidity: true,
+				checkLinkValidityHoverTip: true,
 			},
 			linkClickMode_openBlank: {
 				openBlankWithCopyAccessCode: true,

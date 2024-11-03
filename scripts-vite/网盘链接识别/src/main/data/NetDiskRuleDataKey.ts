@@ -16,6 +16,8 @@ export const NetDiskRuleDataKEY = {
 	function: {
 		enable: (key: string) => `${key}-enable`,
 		checkLinkValidity: (key: string) => `${key}-check-link-valid`,
+		checkLinkValidityHoverTip: (key: string) =>
+			`${key}-check-link-valid-hover-tip`,
 		linkClickMode: (key: string) => `${key}-click-mode`,
 	},
 	/** 点击动作 新标签页打开 */

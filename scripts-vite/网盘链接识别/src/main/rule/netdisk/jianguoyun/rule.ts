@@ -40,6 +40,7 @@ export const NetDiskRule_jianguoyun: NetDiskRuleConfig = {
 					},
 				},
 				checkLinkValidity: true,
+				checkLinkValidityHoverTip: true,
 			},
 			linkClickMode_openBlank: {
 				openBlankWithCopyAccessCode: true,

@@ -37,6 +37,7 @@ export const NetDiskRule_xunlei: NetDiskRuleConfig = {
 					},
 				},
 				checkLinkValidity: true,
+				checkLinkValidityHoverTip: true,
 			},
 			linkClickMode_openBlank: {
 				openBlankWithCopyAccessCode: true,

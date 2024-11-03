@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2024.10.28
+// @version      2024.11.3
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -13,9 +13,9 @@
 // @require      https://update.greasyfork.org/scripts/486152/1448081/Crypto-JS.js
 // @require      https://update.greasyfork.org/scripts/465550/1448580/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.6/dist/index.umd.js
 // @connect      *
 // @connect      lanzoub.com
 // @connect      lanzouc.com
@@ -419,6 +419,7 @@
     function: {
       enable: (key) => `${key}-enable`,
       checkLinkValidity: (key) => `${key}-check-link-valid`,
+      checkLinkValidityHoverTip: (key) => `${key}-check-link-valid-hover-tip`,
       linkClickMode: (key) => `${key}-click-mode`
     },
     /** 点击动作 新标签页打开 */
@@ -2258,6 +2259,18 @@
           defaultValue
         );
         return Boolean(panelData.value);
+      },
+      /**
+       * 是否添加验证结果图标悬停提示
+       * @param key
+       * @param defaultValue
+       */
+      checkLinlValidityHoverTip(key, defaultValue = true) {
+        const panelData = GeneratePanelData(
+          NetDiskRuleDataKEY.function.checkLinkValidityHoverTip(key),
+          defaultValue
+        );
+        return Boolean(panelData.value);
       }
     },
     linkClickMode_openBlank: {
@@ -2372,7 +2385,8 @@
               enable: true
             }
           },
-          checkLinkValidity: true
+          checkLinkValidity: true,
+          checkLinkValidityHoverTip: true
         },
         linkClickMode_openBlank: {
           openBlankWithCopyAccessCode: true
@@ -5900,9 +5914,8 @@
     }
     /**
      * 校验链接有效性并解析获取信息
-     * @param {string} shareCode
-     * @param {string} accessCode
-     * @param {boolean|object}
+     * @param shareCode
+     * @param accessCode
      */
     async checkLinkValidity(shareCode, accessCode) {
       const that = this;
@@ -6066,18 +6079,17 @@
     }
     /**
      * 文件解析
-     * @param {string} shareCode
-     * @param {string} accessCode
+     * @param shareCode
+     * @param accessCode
      */
     async parseMoreFile(shareCode, accessCode) {
     }
     /**
      * 获取文件夹信息
-     * @param {string} transferGuid
-     * @param {number} folderId
-     * @param {number} page
-     * @param {number} size
-     * @returns {Promise<?object[]>}
+     * @param transferGuid
+     * @param folderId
+     * @param page
+     * @param size
      */
     async getShareFolder(transferGuid, folderId = "", page = 0, size = 100) {
       const that = this;
@@ -6109,12 +6121,11 @@
     }
     /**
      * 获取文件信息
-     * @param {string} transferGuid
-     * @param {number} folderId
-     * @param {number} page
-     * @param {number} size
-     * @param {boolean} subContent
-     * @returns {Promise<?object[]>}
+     * @param transferGuid
+     * @param folderId
+     * @param page
+     * @param size
+     * @param subContent
      */
     async getShareFiles(transferGuid, folderId = "", page = 0, size = 20, subContent = false) {
       const that = this;
@@ -6147,25 +6158,6 @@
     /**
      * 获取分享信息
      * @param {string} shareCode
-     * @returns {?{
-     * code: string,
-     * message: string,
-     * data: {zipDownload: boolean,
-     * guid:string,
-     * fileSize: string,
-     * fileName: string,
-     * fileUploadTime: number,
-     * fileLatestTime: number,
-     * } | {
-     * zipDownload: boolean,
-     * guid:string,
-     * id: string,
-     * fileSize: string,
-     * fileType: string,
-     * fileName: string,
-     * fileUploadTime: number,
-     * fileLatestTime: number,
-     * }[]}
      */
     async getShareByUniqueUrl(shareCode) {
       let url = `https://cowtransfer.com/core/api/transfer/share?uniqueUrl=${shareCode}`;
@@ -6187,10 +6179,9 @@
     }
     /**
      * 获取下载链接
-     * @param {string} shareCode
-     * @param {string} guid
-     * @param {string} id
-     * @returns {?string}
+     * @param shareCode
+     * @param guid
+     * @param id
      */
     async getDownloadUrl(shareCode, guid = "", id = "") {
       const that = this;
@@ -6218,10 +6209,9 @@
     }
     /**
      * 获取zip文件的下载链接
-     * @param {string} shareCode
-     * @param {string} guid
-     * @param {string} title 标题
-     * @returns {?string}
+     * @param shareCode
+     * @param guid
+     * @param title 标题
      */
     async getZipFileDownloadUrl(shareCode, guid = "", title = "") {
       const that = this;
@@ -8691,9 +8681,13 @@
      */
     loading: {
       code: 1,
-      msg: "验证中",
-      setView($ele, checkInfo) {
-        NetDiskCheckLinkValidity.setViewCheckValid($ele, "loading");
+      msg: "验证中...",
+      setView($ele, checkInfo, msg) {
+        NetDiskCheckLinkValidity.setViewCheckValid(
+          $ele,
+          "loading",
+          msg ?? this.msg
+        );
         $ele.innerHTML = __pops.config.iconSVG.loading;
       }
     },
@@ -8702,9 +8696,13 @@
      */
     success: {
       code: 200,
-      msg: "该链接有效",
-      setView($ele, checkInfo) {
-        NetDiskCheckLinkValidity.setViewCheckValid($ele, "success");
+      msg: "有效",
+      setView($ele, checkInfo, msg) {
+        NetDiskCheckLinkValidity.setViewCheckValid(
+          $ele,
+          "success",
+          msg ?? this.msg
+        );
         $ele.innerHTML = /*html*/
         `
 			<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
@@ -8722,8 +8720,12 @@
     error: {
       code: -404,
       msg: "网络异常",
-      setView($ele, checkInfo) {
-        NetDiskCheckLinkValidity.setViewCheckValid($ele, "error");
+      setView($ele, checkInfo, msg) {
+        NetDiskCheckLinkValidity.setViewCheckValid(
+          $ele,
+          "error",
+          msg ?? this.msg
+        );
         $ele.innerHTML = /*html*/
         `
 			<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
@@ -8740,9 +8742,13 @@
      */
     failed: {
       code: 0,
-      msg: "该链接已失效",
-      setView($ele, checkInfo) {
-        NetDiskCheckLinkValidity.setViewCheckValid($ele, "failed");
+      msg: "已失效",
+      setView($ele, checkInfo, msg) {
+        NetDiskCheckLinkValidity.setViewCheckValid(
+          $ele,
+          "failed",
+          msg ?? this.msg
+        );
         $ele.innerHTML = /*html*/
         `
 			<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
@@ -8759,9 +8765,13 @@
      */
     needAccessCode: {
       code: 201,
-      msg: "该链接缺失提取码",
-      setView($ele, checkInfo) {
-        NetDiskCheckLinkValidity.setViewCheckValid($ele, "needAccessCode");
+      msg: "缺失提取码",
+      setView($ele, checkInfo, msg) {
+        NetDiskCheckLinkValidity.setViewCheckValid(
+          $ele,
+          "needAccessCode",
+          msg ?? this.msg
+        );
         $ele.innerHTML = /*html*/
         `
 			<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
@@ -8782,8 +8792,12 @@
     partialViolation: {
       code: 202,
       msg: "存在部分违规文件",
-      setView($ele, checkInfo) {
-        NetDiskCheckLinkValidity.setViewCheckValid($ele, "partial-violation");
+      setView($ele, checkInfo, msg) {
+        NetDiskCheckLinkValidity.setViewCheckValid(
+          $ele,
+          "partial-violation",
+          msg ?? this.msg
+        );
         $ele.innerHTML = /*html*/
         `
 			<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
@@ -8799,8 +8813,12 @@
     unknown: {
       code: -200,
       msg: "未知检查情况",
-      setView($ele, checkInfo) {
-        NetDiskCheckLinkValidity.setViewCheckValid($ele, "unknown");
+      setView($ele, checkInfo, msg) {
+        NetDiskCheckLinkValidity.setViewCheckValid(
+          $ele,
+          "unknown",
+          msg ?? this.msg
+        );
         $ele.innerHTML = /*html*/
         `
 			<svg viewBox="0 0 1025 1024" xmlns="http://www.w3.org/2000/svg">
@@ -8848,7 +8866,9 @@
   };
   const NetDiskCheckLinkValidity = {
     $data: {
-      isSubscribing: false,
+      /** 是否正在消费中（验证有效性中） */
+      isConsuming: false,
+      /** 待检测有有效性的列表 */
       subscribe: []
     },
     /**
@@ -8875,10 +8895,10 @@
         shareCode,
         accessCode
       });
-      if (this.$data.isSubscribing) {
+      if (this.$data.isConsuming) {
         return;
       }
-      this.$data.isSubscribing = true;
+      this.$data.isConsuming = true;
       for (let index = 0; index < this.$data.subscribe.length; index++) {
         const checkInfo = this.$data.subscribe[index];
         await this.checkLinkValidity(checkInfo, true);
@@ -8886,7 +8906,7 @@
         this.$data.subscribe.splice(index, 1);
         index--;
       }
-      this.$data.isSubscribing = false;
+      this.$data.isConsuming = false;
     },
     /**
      * 开始校验链接的有效性
@@ -8900,6 +8920,7 @@
       if (this.isViewCheckValid($netDiskStatus) && !isForceCheck) {
         return;
       }
+      this.setCheckStatusElementToolTip(checkInfo);
       let netDiskName = checkInfo.netDiskName;
       if (!NetDiskRuleData.function.checkLinkValidity(netDiskName)) {
         log.error("未开启checkLinkValidity功能", checkInfo);
@@ -8920,7 +8941,11 @@
         log.error("该验证函数的返回值不是有效值", [checkStatusResult, checkInfo]);
         return;
       }
-      checkStatusResult.setView($netDiskStatus, checkInfo);
+      checkStatusResult.setView(
+        $netDiskStatus,
+        checkInfo,
+        checkStatusResult.tipMsg
+      );
       if (checkStatusResult.data) {
         Reflect.set(
           $netDiskStatus,
@@ -8976,9 +9001,11 @@
      * 设置当前的验证状态
      * @param $ele
      * @param value
+     * @param msg
      */
-    setViewCheckValid($ele, value) {
+    setViewCheckValid($ele, value, msg) {
       $ele.setAttribute("data-check-valid", value);
+      $ele.setAttribute("data-msg", msg);
     },
     /**
      * 取消设置当前的验证状态
@@ -8986,6 +9013,7 @@
      */
     removeViewCheckValid($ele) {
       $ele.removeAttribute("data-check-valid");
+      $ele.removeAttribute("data-msg");
     },
     /**
      * 判断状态码是成功的
@@ -9008,6 +9036,43 @@
           return statusName;
         }
       }
+    },
+    /**
+     * 设置鼠标悬浮事件
+     */
+    setCheckStatusElementToolTip(checkInfo) {
+      if (!NetDiskRuleData.function.checkLinlValidityHoverTip(checkInfo.netDiskName)) {
+        return;
+      }
+      function getNetDiskStatus() {
+        return checkInfo.netDiskViewBox.querySelector(
+          ".netdisk-status"
+        );
+      }
+      let $netDiskStatus = getNetDiskStatus();
+      if ($netDiskStatus.hasAttribute("data-pops-tooltip")) {
+        return;
+      }
+      $netDiskStatus.setAttribute("data-pops-tooltip", "true");
+      __pops.tooltip({
+        target: $netDiskStatus,
+        className: "github-tooltip",
+        content() {
+          let msg = $netDiskStatus.getAttribute("data-msg");
+          return msg ?? "";
+        },
+        showBeforeCallBack() {
+          let msg = $netDiskStatus.getAttribute("data-msg");
+          if (msg == null || typeof msg === "string" && msg.trim() === "") {
+            return false;
+          }
+        },
+        zIndex() {
+          let maxZIndex = utils.getMaxZIndex(10);
+          let popsMaxZIndex = __pops.config.InstanceUtils.getPopsMaxZIndex(10).zIndex;
+          return utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+        }
+      });
     }
   };
   const NetDiskRequire = {
@@ -9395,6 +9460,12 @@
             );
             netDiskRuleConfig.setting.configurationInterface.function.checkLinkValidity = Boolean(userRuleItemConfig.setting["checkLinkValidity"]);
           }
+          if (typeof userRuleItemConfig.setting["checkLinkValidityHoverTip"] === "boolean") {
+            this.initDefaultValue(
+              NetDiskRuleDataKEY.function.checkLinkValidityHoverTip(ruleKey),
+              Boolean(userRuleItemConfig.setting["checkLinkValidityHoverTip"])
+            );
+          }
           if (typeof userRuleItemConfig.setting["isForward"] === "boolean") {
             this.initDefaultValue(
               NetDiskRuleDataKEY.schemeUri.enable(ruleKey),
@@ -9675,7 +9746,8 @@
               default: true
             }
           },
-          checkLinkValidity: true
+          checkLinkValidity: true,
+          checkLinkValidityHoverTip: true
         },
         linkClickMode_openBlank: {
           openBlankWithCopyAccessCode: true
@@ -9780,7 +9852,8 @@
                 enable: true
               }
             },
-            checkLinkValidity: true
+            checkLinkValidity: true,
+            checkLinkValidityHoverTip: true
           },
           linkClickMode_openBlank: {
             openBlankWithCopyAccessCode: true
@@ -9849,7 +9922,8 @@
               enable: true
             }
           },
-          checkLinkValidity: true
+          checkLinkValidity: true,
+          checkLinkValidityHoverTip: true
         },
         linkClickMode_openBlank: {
           openBlankWithCopyAccessCode: true
@@ -9901,7 +9975,8 @@
               enable: true
             }
           },
-          checkLinkValidity: true
+          checkLinkValidity: true,
+          checkLinkValidityHoverTip: true
         },
         linkClickMode_openBlank: {
           openBlankWithCopyAccessCode: true
@@ -10034,7 +10109,8 @@
               enable: true
             }
           },
-          checkLinkValidity: true
+          checkLinkValidity: true,
+          checkLinkValidityHoverTip: true
         },
         linkClickMode_openBlank: {
           openBlankWithCopyAccessCode: true
@@ -10097,7 +10173,8 @@
               enable: true
             }
           },
-          checkLinkValidity: true
+          checkLinkValidity: true,
+          checkLinkValidityHoverTip: true
         },
         linkClickMode_openBlank: {
           openBlankWithCopyAccessCode: true
@@ -10149,7 +10226,8 @@
               enable: true
             }
           },
-          checkLinkValidity: true
+          checkLinkValidity: true,
+          checkLinkValidityHoverTip: true
         },
         linkClickMode_openBlank: {
           openBlankWithCopyAccessCode: true
@@ -10198,7 +10276,8 @@
               default: true
             }
           },
-          checkLinkValidity: true
+          checkLinkValidity: true,
+          checkLinkValidityHoverTip: true
         },
         linkClickMode_openBlank: {
           openBlankWithCopyAccessCode: true
@@ -10246,7 +10325,8 @@
               default: true
             }
           },
-          checkLinkValidity: true
+          checkLinkValidity: true,
+          checkLinkValidityHoverTip: true
         },
         linkClickMode_openBlank: {
           openBlankWithCopyAccessCode: true
@@ -10386,7 +10466,8 @@
               enable: true
             }
           },
-          checkLinkValidity: true
+          checkLinkValidity: true,
+          checkLinkValidityHoverTip: true
         },
         linkClickMode_openBlank: {
           openBlankWithCopyAccessCode: true
@@ -10450,7 +10531,8 @@
               default: true
             }
           },
-          checkLinkValidity: true
+          checkLinkValidity: true,
+          checkLinkValidityHoverTip: true
         },
         linkClickMode_openBlank: {
           openBlankWithCopyAccessCode: true
@@ -10537,7 +10619,8 @@
               enable: true
             }
           },
-          checkLinkValidity: true
+          checkLinkValidity: true,
+          checkLinkValidityHoverTip: true
         },
         linkClickMode_openBlank: {
           openBlankWithCopyAccessCode: true
@@ -10587,7 +10670,8 @@
               default: true
             }
           },
-          checkLinkValidity: true
+          checkLinkValidity: true,
+          checkLinkValidityHoverTip: true
         },
         linkClickMode_openBlank: {
           openBlankWithCopyAccessCode: true
@@ -10638,7 +10722,8 @@
               enable: true
             }
           },
-          checkLinkValidity: true
+          checkLinkValidity: true,
+          checkLinkValidityHoverTip: true
         },
         linkClickMode_openBlank: {
           openBlankWithCopyAccessCode: true
@@ -10763,7 +10848,8 @@
               default: true
             }
           },
-          checkLinkValidity: true
+          checkLinkValidity: true,
+          checkLinkValidityHoverTip: true
         },
         linkClickMode_openBlank: {
           openBlankWithCopyAccessCode: true
@@ -11019,6 +11105,18 @@
             )
           );
           settingConfig.function.checkLinkValidity = NetDiskRuleData.function.checkLinkValidity(ruleKey);
+        }
+        if ("checkLinkValidityHoverTip" in settingConfig.function) {
+          const default_value = typeof settingConfig.function.checkLinkValidityHoverTip === "boolean" ? settingConfig.function.checkLinkValidityHoverTip : true;
+          function_form.push(
+            UISwitch(
+              "验证链接有效性-悬停提示",
+              NetDiskRuleDataKEY.function.checkLinkValidityHoverTip(ruleKey),
+              default_value,
+              void 0,
+              "当鼠标悬停在验证结果图标上时会显示相关验证信息"
+            )
+          );
         }
         if (function_form.length) {
           formConfigList.push({
@@ -16122,7 +16220,7 @@
         zIndex: {
           get() {
             let maxZIndex = Utils.getMaxZIndex(10);
-            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
+            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(10).zIndex;
             return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
           }
         }

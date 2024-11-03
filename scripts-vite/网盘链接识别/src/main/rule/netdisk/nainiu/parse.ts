@@ -62,6 +62,7 @@ export class NetDiskParse_nainiu extends NetDiskParseObject {
 					checkLinkValidityInfo["fileName"]
 				);
 			} else {
+				// @ts-ignore
 				downloadUrl = await that.getDownloadUrl(
 					that.shareCode,
 					checkLinkValidityInfo["guid"],
@@ -94,9 +95,8 @@ export class NetDiskParse_nainiu extends NetDiskParseObject {
 	}
 	/**
 	 * 校验链接有效性并解析获取信息
-	 * @param {string} shareCode
-	 * @param {string} accessCode
-	 * @param {boolean|object}
+	 * @param shareCode
+	 * @param accessCode
 	 */
 	async checkLinkValidity(shareCode: string, accessCode: string) {
 		const that = this;
@@ -274,17 +274,16 @@ export class NetDiskParse_nainiu extends NetDiskParseObject {
 	}
 	/**
 	 * 文件解析
-	 * @param {string} shareCode
-	 * @param {string} accessCode
+	 * @param shareCode
+	 * @param accessCode
 	 */
 	async parseMoreFile(shareCode: string, accessCode: string) {}
 	/**
 	 * 获取文件夹信息
-	 * @param {string} transferGuid
-	 * @param {number} folderId
-	 * @param {number} page
-	 * @param {number} size
-	 * @returns {Promise<?object[]>}
+	 * @param transferGuid
+	 * @param folderId
+	 * @param page
+	 * @param size
 	 */
 	async getShareFolder(
 		transferGuid: string,
@@ -321,19 +320,18 @@ export class NetDiskParse_nainiu extends NetDiskParseObject {
 	}
 	/**
 	 * 获取文件信息
-	 * @param {string} transferGuid
-	 * @param {number} folderId
-	 * @param {number} page
-	 * @param {number} size
-	 * @param {boolean} subContent
-	 * @returns {Promise<?object[]>}
+	 * @param transferGuid
+	 * @param folderId
+	 * @param page
+	 * @param size
+	 * @param subContent
 	 */
 	async getShareFiles(
 		transferGuid: string,
-		folderId = "",
-		page = 0,
-		size = 20,
-		subContent = false
+		folderId: string = "",
+		page: number = 0,
+		size: number = 20,
+		subContent: boolean = false
 	) {
 		const that = this;
 		let getResp = await httpx.get(
@@ -365,25 +363,6 @@ export class NetDiskParse_nainiu extends NetDiskParseObject {
 	/**
 	 * 获取分享信息
 	 * @param {string} shareCode
-	 * @returns {?{
-	 * code: string,
-	 * message: string,
-	 * data: {zipDownload: boolean,
-	 * guid:string,
-	 * fileSize: string,
-	 * fileName: string,
-	 * fileUploadTime: number,
-	 * fileLatestTime: number,
-	 * } | {
-	 * zipDownload: boolean,
-	 * guid:string,
-	 * id: string,
-	 * fileSize: string,
-	 * fileType: string,
-	 * fileName: string,
-	 * fileUploadTime: number,
-	 * fileLatestTime: number,
-	 * }[]}
 	 */
 	async getShareByUniqueUrl(shareCode: string) {
 		const that = this;
@@ -400,18 +379,21 @@ export class NetDiskParse_nainiu extends NetDiskParseObject {
 			return;
 		}
 		let respData = getResp.data;
-		let resultJSON = utils.toJSON(respData.responseText);
+		let resultJSON = utils.toJSON(respData.responseText) as {
+			code: string;
+			message: string;
+			data: any;
+		};
 		log.info("转换的JSON", resultJSON);
 		return resultJSON;
 	}
 	/**
 	 * 获取下载链接
-	 * @param {string} shareCode
-	 * @param {string} guid
-	 * @param {string} id
-	 * @returns {?string}
+	 * @param shareCode
+	 * @param guid
+	 * @param id
 	 */
-	async getDownloadUrl(shareCode: string, guid = "", id = "") {
+	async getDownloadUrl(shareCode: string, guid: string = "", id: string = "") {
 		const that = this;
 		let url = `https://cowtransfer.com/core/api/transfer/share/download?transferGuid=${guid}&fileId=${id}`;
 		let getResp = await httpx.get({
@@ -429,7 +411,7 @@ export class NetDiskParse_nainiu extends NetDiskParseObject {
 		let resultJSON = utils.toJSON(respData.responseText);
 		log.info("转换的JSON", resultJSON);
 		if (resultJSON["code"] === that.OK_CODE) {
-			return resultJSON["data"]["downloadUrl"];
+			return resultJSON["data"]["downloadUrl"] as string;
 		} else {
 			Qmsg.error(`奶牛快传-获取直链：${resultJSON["message"]}`);
 			return;
@@ -437,10 +419,9 @@ export class NetDiskParse_nainiu extends NetDiskParseObject {
 	}
 	/**
 	 * 获取zip文件的下载链接
-	 * @param {string} shareCode
-	 * @param {string} guid
-	 * @param {string} title 标题
-	 * @returns {?string}
+	 * @param shareCode
+	 * @param guid
+	 * @param title 标题
 	 */
 	async getZipFileDownloadUrl(shareCode: string, guid = "", title = "") {
 		const that = this;

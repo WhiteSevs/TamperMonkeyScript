@@ -28,9 +28,13 @@ export const NetDiskCheckLinkValidityStatus = {
 	 */
 	loading: <NetDiskCheckLinkValidityStatusObj>{
 		code: 1,
-		msg: "验证中",
-		setView($ele, checkInfo) {
-			NetDiskCheckLinkValidity.setViewCheckValid($ele, "loading");
+		msg: "验证中...",
+		setView($ele, checkInfo, msg?: string) {
+			NetDiskCheckLinkValidity.setViewCheckValid(
+				$ele,
+				"loading",
+				msg ?? this.msg
+			);
 			$ele.innerHTML = pops.config.iconSVG.loading;
 		},
 	},
@@ -39,9 +43,13 @@ export const NetDiskCheckLinkValidityStatus = {
 	 */
 	success: <NetDiskCheckLinkValidityStatusObj>{
 		code: 200,
-		msg: "该链接有效",
-		setView($ele, checkInfo) {
-			NetDiskCheckLinkValidity.setViewCheckValid($ele, "success");
+		msg: "有效",
+		setView($ele, checkInfo, msg?: string) {
+			NetDiskCheckLinkValidity.setViewCheckValid(
+				$ele,
+				"success",
+				msg ?? this.msg
+			);
 			$ele.innerHTML = /*html*/ `
 			<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
 				<path
@@ -58,8 +66,12 @@ export const NetDiskCheckLinkValidityStatus = {
 	error: <NetDiskCheckLinkValidityStatusObj>{
 		code: -404,
 		msg: "网络异常",
-		setView($ele, checkInfo) {
-			NetDiskCheckLinkValidity.setViewCheckValid($ele, "error");
+		setView($ele, checkInfo, msg?: string) {
+			NetDiskCheckLinkValidity.setViewCheckValid(
+				$ele,
+				"error",
+				msg ?? this.msg
+			);
 			$ele.innerHTML = /*html*/ `
 			<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
 				<path
@@ -75,9 +87,13 @@ export const NetDiskCheckLinkValidityStatus = {
 	 */
 	failed: <NetDiskCheckLinkValidityStatusObj>{
 		code: 0,
-		msg: "该链接已失效",
-		setView($ele, checkInfo) {
-			NetDiskCheckLinkValidity.setViewCheckValid($ele, "failed");
+		msg: "已失效",
+		setView($ele, checkInfo, msg?: string) {
+			NetDiskCheckLinkValidity.setViewCheckValid(
+				$ele,
+				"failed",
+				msg ?? this.msg
+			);
 			$ele.innerHTML = /*html*/ `
 			<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
 				<path
@@ -93,9 +109,13 @@ export const NetDiskCheckLinkValidityStatus = {
 	 */
 	needAccessCode: <NetDiskCheckLinkValidityStatusObj>{
 		code: 201,
-		msg: "该链接缺失提取码",
-		setView($ele, checkInfo) {
-			NetDiskCheckLinkValidity.setViewCheckValid($ele, "needAccessCode");
+		msg: "缺失提取码",
+		setView($ele, checkInfo, msg?: string) {
+			NetDiskCheckLinkValidity.setViewCheckValid(
+				$ele,
+				"needAccessCode",
+				msg ?? this.msg
+			);
 			$ele.innerHTML = /*html*/ `
 			<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
 				<path
@@ -115,8 +135,12 @@ export const NetDiskCheckLinkValidityStatus = {
 	partialViolation: <NetDiskCheckLinkValidityStatusObj>{
 		code: 202,
 		msg: "存在部分违规文件",
-		setView($ele, checkInfo) {
-			NetDiskCheckLinkValidity.setViewCheckValid($ele, "partial-violation");
+		setView($ele, checkInfo, msg?: string) {
+			NetDiskCheckLinkValidity.setViewCheckValid(
+				$ele,
+				"partial-violation",
+				msg ?? this.msg
+			);
 			$ele.innerHTML = /*html*/ `
 			<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
 				<path 
@@ -131,8 +155,12 @@ export const NetDiskCheckLinkValidityStatus = {
 	unknown: <NetDiskCheckLinkValidityStatusObj>{
 		code: -200,
 		msg: "未知检查情况",
-		setView($ele, checkInfo) {
-			NetDiskCheckLinkValidity.setViewCheckValid($ele, "unknown");
+		setView($ele, checkInfo, msg?: string) {
+			NetDiskCheckLinkValidity.setViewCheckValid(
+				$ele,
+				"unknown",
+				msg ?? this.msg
+			);
 			$ele.innerHTML = /*html*/ `
 			<svg viewBox="0 0 1025 1024" xmlns="http://www.w3.org/2000/svg">
 				<path
@@ -173,19 +201,22 @@ const NetDiskCheckLinkValidityNetDisk: NetDiskCheckLinkValidityEntrance = {
 /**
  * 校验链接有效性的通用配置
  */
-export const NetDiskCheckLinkValidityRequestOption: Partial<HttpxRequestOption> = {
-	// 有效性校验时，如果请求错误，禁止Qmsg弹出
-	allowInterceptConfig: false,
-	// 有效性校验时，如果请求错误，禁止Qmsg弹出
-	onerror() {},
-	// 有效性校验时，如果请求错误，禁止Qmsg弹出
-	ontimeout() {},
-};
+export const NetDiskCheckLinkValidityRequestOption: Partial<HttpxRequestOption> =
+	{
+		// 有效性校验时，如果请求错误，禁止Qmsg弹出
+		allowInterceptConfig: false,
+		// 有效性校验时，如果请求错误，禁止Qmsg弹出
+		onerror() {},
+		// 有效性校验时，如果请求错误，禁止Qmsg弹出
+		ontimeout() {},
+	};
 
 /** 网盘-校验链接有效性 */
 export const NetDiskCheckLinkValidity = {
 	$data: {
-		isSubscribing: false,
+		/** 是否正在消费中（验证有效性中） */
+		isConsuming: false,
+		/** 待检测有有效性的列表 */
 		subscribe: <NetDiskCheckLinkValidityOption[]>[],
 	},
 	/**
@@ -219,10 +250,10 @@ export const NetDiskCheckLinkValidity = {
 			accessCode,
 		});
 
-		if (this.$data.isSubscribing) {
+		if (this.$data.isConsuming) {
 			return;
 		}
-		this.$data.isSubscribing = true;
+		this.$data.isConsuming = true;
 		for (let index = 0; index < this.$data.subscribe.length; index++) {
 			const checkInfo = this.$data.subscribe[index];
 			await this.checkLinkValidity(checkInfo, true);
@@ -230,7 +261,7 @@ export const NetDiskCheckLinkValidity = {
 			this.$data.subscribe.splice(index, 1);
 			index--;
 		}
-		this.$data.isSubscribing = false;
+		this.$data.isConsuming = false;
 	},
 	/**
 	 * 开始校验链接的有效性
@@ -248,6 +279,7 @@ export const NetDiskCheckLinkValidity = {
 		if (this.isViewCheckValid($netDiskStatus) && !isForceCheck) {
 			return;
 		}
+		this.setCheckStatusElementToolTip(checkInfo);
 		// 网盘键
 		let netDiskName = checkInfo.netDiskName;
 		if (!NetDiskRuleData.function.checkLinkValidity(netDiskName)) {
@@ -274,7 +306,11 @@ export const NetDiskCheckLinkValidity = {
 			log.error("该验证函数的返回值不是有效值", [checkStatusResult, checkInfo]);
 			return;
 		}
-		checkStatusResult.setView($netDiskStatus, checkInfo);
+		checkStatusResult.setView(
+			$netDiskStatus,
+			checkInfo,
+			checkStatusResult.tipMsg
+		);
 		if (checkStatusResult.data) {
 			// 设置属性
 			Reflect.set(
@@ -338,9 +374,11 @@ export const NetDiskCheckLinkValidity = {
 	 * 设置当前的验证状态
 	 * @param $ele
 	 * @param value
+	 * @param msg
 	 */
-	setViewCheckValid($ele: HTMLElement, value: string) {
+	setViewCheckValid($ele: HTMLElement, value: string, msg: string) {
 		$ele.setAttribute("data-check-valid", value);
+		$ele.setAttribute("data-msg", msg);
 	},
 	/**
 	 * 取消设置当前的验证状态
@@ -348,6 +386,7 @@ export const NetDiskCheckLinkValidity = {
 	 */
 	removeViewCheckValid($ele: HTMLElement) {
 		$ele.removeAttribute("data-check-valid");
+		$ele.removeAttribute("data-msg");
 	},
 	/**
 	 * 判断状态码是成功的
@@ -371,5 +410,46 @@ export const NetDiskCheckLinkValidity = {
 				return statusName;
 			}
 		}
+	},
+	/**
+	 * 设置鼠标悬浮事件
+	 */
+	setCheckStatusElementToolTip(checkInfo: NetDiskCheckLinkValidityOption) {
+		if (
+			!NetDiskRuleData.function.checkLinlValidityHoverTip(checkInfo.netDiskName)
+		) {
+			return;
+		}
+		function getNetDiskStatus() {
+			return checkInfo.netDiskViewBox.querySelector<HTMLDivElement>(
+				".netdisk-status"
+			)!;
+		}
+		let $netDiskStatus = getNetDiskStatus();
+
+		if ($netDiskStatus.hasAttribute("data-pops-tooltip")) {
+			return;
+		}
+		$netDiskStatus.setAttribute("data-pops-tooltip", "true");
+		pops.tooltip({
+			target: $netDiskStatus,
+			className: "github-tooltip",
+			content() {
+				let msg = $netDiskStatus.getAttribute("data-msg");
+				return msg ?? "";
+			},
+			showBeforeCallBack() {
+				let msg = $netDiskStatus.getAttribute("data-msg");
+				if (msg == null || (typeof msg === "string" && msg.trim() === "")) {
+					return false;
+				}
+			},
+			zIndex() {
+				let maxZIndex = utils.getMaxZIndex(10);
+				let popsMaxZIndex =
+					pops.config.InstanceUtils.getPopsMaxZIndex(10).zIndex;
+				return utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+			},
+		});
 	},
 };

@@ -281,6 +281,14 @@ declare interface NetDiskUserCustomRuleSetting {
 	 * 键: `${key}-check-link-valid`
 	 */
 	checkLinkValidity?: boolean;
+	/**
+	 * 验证链接有效性-悬停提示
+	 *
+	 * 【功能】-【验证链接有效性-悬停提示】
+	 *
+	 * 键: `${key}-check-link-valid-hover-tip`
+	 */
+	checkLinkValidityHoverTip?: boolean;
 }
 
 /**

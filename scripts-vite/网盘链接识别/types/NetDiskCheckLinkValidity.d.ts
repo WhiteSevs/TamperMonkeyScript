@@ -32,8 +32,14 @@ declare interface NetDiskCheckLinkValidityStatusObj {
 	/**
 	 * 设置元素状态
 	 * @param ele netdisk-status元素
+	 * @param checkInfo
+	 * @param msg 悬浮提示
 	 */
-	setView(ele: HTMLDivElement, checkInfo: NetDiskCheckLinkValidityOption): void;
+	setView(
+		ele: HTMLDivElement,
+		checkInfo: NetDiskCheckLinkValidityOption,
+		msg?: string
+	): void;
 }
 declare interface NetDiskCheckLinkValidityEntranceObj {
 	/**
@@ -55,6 +61,10 @@ declare interface NetDiskCheckLinkValidityEntranceObj {
 			 * 会设置到元素的data-httpx-response属性上
 			 */
 			data: any;
+			/**
+			 * 自定义悬浮提示
+			 */
+			tipMsg?: string;
 		}
 	>;
 }

@@ -493,6 +493,7 @@ export const NetDiskView = {
 		let $urlDiv = $viewBox.querySelector<HTMLDivElement>(".netdisk-url-div")!;
 		let $icon = $viewBox.querySelector<HTMLDivElement>(".netdisk-icon")!;
 		let $iconImg = $viewBox.querySelector<HTMLDivElement>(".netdisk-icon-img")!;
+		/** 校验有效性 */
 		let $checkValidStatus =
 			$viewBox.querySelector<HTMLDivElement>(".netdisk-status")!;
 		let $url = $viewBox.querySelector<HTMLDivElement>(".netdisk-url")!;
@@ -512,6 +513,7 @@ export const NetDiskView = {
 			},
 			[$iconImg, $link]
 		);
+		
 		return {
 			$viewBox,
 			$urlDiv,

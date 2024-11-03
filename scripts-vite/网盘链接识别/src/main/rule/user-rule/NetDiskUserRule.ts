@@ -426,6 +426,16 @@ export const NetDiskUserRule = {
 					netDiskRuleConfig.setting!.configurationInterface!.function!.checkLinkValidity =
 						Boolean(userRuleItemConfig.setting["checkLinkValidity"]);
 				}
+				if (
+					typeof userRuleItemConfig.setting["checkLinkValidityHoverTip"] ===
+					"boolean"
+				) {
+					/* 用于验证链接有效性结果的悬停提示 */
+					this.initDefaultValue(
+						NetDiskRuleDataKEY.function.checkLinkValidityHoverTip(ruleKey),
+						Boolean(userRuleItemConfig.setting["checkLinkValidityHoverTip"])
+					);
+				}
 				if (typeof userRuleItemConfig.setting["isForward"] === "boolean") {
 					/* 直接进行scheme转发链接 */
 					this.initDefaultValue(

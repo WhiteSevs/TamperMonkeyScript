@@ -80,6 +80,8 @@ export type NetDiskRuleSettingConfigurationInterface_Function = {
 	};
 	/** 验证链接有效性 */
 	checkLinkValidity?: boolean;
+	/** 验证链接有效性-鼠标悬停提示 */
+	checkLinkValidityHoverTip?: boolean;
 };
 /** 点击动作-新标签页打开 */
 export type NetDiskRuleSettingConfigurationInterface_linkClickMode_openBlank = {
@@ -438,7 +440,21 @@ export const NetDiskRule = {
 				settingConfig.function.checkLinkValidity =
 					NetDiskRuleData.function.checkLinkValidity(ruleKey);
 			}
-
+			if ("checkLinkValidityHoverTip" in settingConfig.function) {
+				const default_value =
+					typeof settingConfig.function.checkLinkValidityHoverTip === "boolean"
+						? settingConfig.function.checkLinkValidityHoverTip
+						: true;
+				function_form.push(
+					UISwitch(
+						"验证链接有效性-悬停提示",
+						NetDiskRuleDataKEY.function.checkLinkValidityHoverTip(ruleKey),
+						default_value,
+						void 0,
+						"当鼠标悬停在验证结果图标上时会显示相关验证信息"
+					)
+				);
+			}
 			if (function_form.length) {
 				formConfigList.push({
 					text: "功能",

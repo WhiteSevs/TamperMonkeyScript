@@ -101,6 +101,18 @@ export const NetDiskRuleData = {
 			);
 			return Boolean(panelData.value);
 		},
+		/**
+		 * 是否添加验证结果图标悬停提示
+		 * @param key
+		 * @param defaultValue
+		 */
+		checkLinlValidityHoverTip(key: string, defaultValue: boolean = true) {
+			const panelData = GeneratePanelData(
+				NetDiskRuleDataKEY.function.checkLinkValidityHoverTip(key),
+				defaultValue
+			);
+			return Boolean(panelData.value);
+		},
 	},
 	linkClickMode_openBlank: {
 		/**

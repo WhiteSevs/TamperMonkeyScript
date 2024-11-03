@@ -58,6 +58,7 @@ export const NetDiskRule_lanzou = (): NetDiskRuleConfig => {
 						},
 					},
 					checkLinkValidity: true,
+					checkLinkValidityHoverTip: true,
 				},
 				linkClickMode_openBlank: {
 					openBlankWithCopyAccessCode: true,
