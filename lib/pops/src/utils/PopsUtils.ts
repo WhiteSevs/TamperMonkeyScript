@@ -206,6 +206,9 @@ class PopsUtils {
 				arguments[0]
 			);
 		} else {
+			if (target == null) {
+				return false;
+			}
 			if (typeof (target as any)[Symbol.iterator] === "function") {
 				// 可遍历的数组
 				let flag = true;

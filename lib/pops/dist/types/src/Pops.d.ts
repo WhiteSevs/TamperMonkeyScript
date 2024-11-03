@@ -13,6 +13,7 @@ import type { PopsPanelDetails } from "./components/panel/indexType";
 import type { PopsRightClickMenuDetails } from "./components/rightClickMenu/indexType";
 import type { PopsIcon } from "./types/icon";
 import type { PopsSearchSuggestionDetails, PopsSearchSuggestionResult } from "./components/searchSuggestion/indexType";
+import { type PopsTooltipResult } from "./components/tooltip";
 declare class Pops {
     /** 配置 */
     config: {
@@ -219,7 +220,6 @@ declare class Pops {
             setAsideItemClickEvent(asideLiElement: HTMLElement, asideConfig: import("./components/panel/indexType").PopsPanelContentConfig): void;
         };
     };
-    constructor();
     init(): void;
     /**
      * 释放原有的pops控制权
@@ -289,23 +289,7 @@ declare class Pops {
      * 提示框
      * @param details 配置
      */
-    tooltip: (details: PopsToolTipDetails) => {
-        guid: string;
-        config: Required<PopsToolTipDetails>;
-        toolTipNode: HTMLDivElement;
-        show: () => void;
-        close: () => void;
-    } | {
-        $shadowContainer: HTMLDivElement;
-        $shadowRoot: ShadowRoot;
-        guid: string;
-        config: Required<PopsToolTipDetails>;
-        toolTipNode: HTMLDivElement;
-        show: () => void;
-        close: () => void;
-        off: () => void;
-        on: () => void;
-    };
+    tooltip: <T extends PopsToolTipDetails>(details: T) => PopsTooltipResult<T>;
     /**
      * 抽屉
      * @param details 配置

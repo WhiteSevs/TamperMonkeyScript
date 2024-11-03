@@ -59,7 +59,6 @@ import { PopsLoading } from "./components/loading";
 import type { PopsIframeDetails } from "./components/iframe/indexType";
 import { PopsIframe } from "./components/iframe";
 import type { PopsToolTipDetails } from "./components/tooltip/indexType";
-import { PopsTooltip } from "./components/tooltip";
 import { PopsDrawer } from "./components/drawer";
 import type { PopsDrawerDetails } from "./components/drawer/indexType";
 import type { PopsFolderDetails } from "./components/folder/indexType";
@@ -78,12 +77,13 @@ import { PopsSearchSuggestion } from "./components/searchSuggestion";
 import { PopsMathFloatUtils } from "./utils/PopsMathUtils";
 import { PanelHandleContentDetails } from "./components/panel/PanelHandleContentDetails";
 import { GlobalConfig } from "./GlobalConfig";
+import { PopsTooltip, type PopsTooltipResult } from "./components/tooltip";
 
 class Pops {
 	/** 配置 */
 	config = {
 		/** 版本号 */
-		version: "2024.11.2",
+		version: "2024.11.3",
 		cssText: {
 			/** 主CSS */
 			index: indexCSS,
@@ -189,7 +189,6 @@ class Pops {
 		/** pops.panel中用于处理各个类型的工具 */
 		panelHandleContentUtils: PanelHandleContentDetails,
 	};
-	constructor() {}
 	init() {
 		if (!this.config.isInit) {
 			/* 处理获取当前所有的动画名 */
@@ -284,26 +283,9 @@ class Pops {
 	 * 提示框
 	 * @param details 配置
 	 */
-	tooltip = (details: PopsToolTipDetails) => {
-		return new PopsTooltip(details) as
-			| {
-					guid: string;
-					config: Required<PopsToolTipDetails>;
-					toolTipNode: HTMLDivElement;
-					show: () => void;
-					close: () => void;
-			  }
-			| {
-					$shadowContainer: HTMLDivElement;
-					$shadowRoot: ShadowRoot;
-					guid: string;
-					config: Required<PopsToolTipDetails>;
-					toolTipNode: HTMLDivElement;
-					show: () => void;
-					close: () => void;
-					off: () => void;
-					on: () => void;
-			  };
+	tooltip = <T extends PopsToolTipDetails>(details: T) => {
+		let popsTooltip = new PopsTooltip(details) as PopsTooltipResult<T>;
+		return popsTooltip;
 	};
 
 	/**

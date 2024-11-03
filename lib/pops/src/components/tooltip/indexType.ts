@@ -26,9 +26,14 @@ export interface PopsToolTipDetails {
 	 * 是否总是显示，默认为false
 	 * + true 设置的triggerShowEventName、triggerCloseEventName将无效
 	 *        返回提供show和close函数，取消on和off
-	 * + false 返回提供on和off，取消close函数
+	 * + false 不添加事件，只显示
 	 */
 	alwaysShow?: boolean;
+	/**
+	 * 延迟xxms关闭tooltip
+	 * @default 100
+	 */
+	delayCloseTime?: number;
 	/**
 	 * 触发显示事件的名称，默认mouseenter touchstart，如果是多个事件，按空格分割
 	 */
@@ -51,22 +56,24 @@ export interface PopsToolTipDetails {
 	eventOption?: AddEventListenerOptions;
 	/**
 	 * 触发显示前的回调
-	 * 返回值为false可阻止显示
+	 * @returns
+	 * + false 可阻止显示
 	 */
-	showBeforeCallBack?: () => boolean | void;
+	showBeforeCallBack?: ($toolTip: HTMLElement) => false | void;
 	/**
 	 * 触发显示后的回调
 	 */
-	showAfterCallBack?: (toolTipElement: HTMLElement) => void;
+	showAfterCallBack?: ($toolTip: HTMLElement) => void;
 	/**
 	 * 触发关闭前的回调
-	 * 返回值为false可阻止关闭
+	 * @returns
+	 * + false 可阻止关闭
 	 */
-	closeBeforeCallBack?: (toolTipElement: HTMLElement) => boolean | void;
+	closeBeforeCallBack?: ($toolTip: HTMLElement) => false | void;
 	/**
 	 * 触发关闭后的回调
 	 */
-	closeAfterCallBack?: (toolTipElement: HTMLElement) => void;
+	closeAfterCallBack?: ($toolTip: HTMLElement) => void;
 	/**
 	 * 箭头与目标的的距离，默认12.5(px)
 	 */

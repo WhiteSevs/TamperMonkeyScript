@@ -1,8 +1,10 @@
 import { pops } from "../../Pops";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
+import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { PopsMathFloatUtils } from "../../utils/PopsMathUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import type { PopsAlertDetails } from "../alert/indexType";
+import type { PopsTooltipResult } from "../tooltip";
 import type { PopsToolTipDetails } from "../tooltip/indexType";
 import type { PopsPanelButtonDetails } from "./buttonType";
 import type { PopsPanelRightAsideContainerOptions } from "./commonType";
@@ -393,13 +395,13 @@ export const PanelHandleContentDetails = () => {
 			};
 			let tooltip = pops.tooltip({
 				target: rangeInputElement.parentElement!,
-				content: getToolTipContent(rangeInputElement.value),
-				zIndex: 1000000,
-				className: "github-tooltip",
-				showBeforeCallBack() {
-					tooltip.toolTipNode.querySelector("div")!.innerText =
-						getToolTipContent(rangeInputElement.value);
+				content: () => {
+					return getToolTipContent(rangeInputElement.value);
 				},
+				zIndex: () => {
+					return PopsInstanceUtils.getPopsMaxZIndex().zIndex;
+				},
+				className: "github-tooltip",
 				alwaysShow: false,
 				only: false,
 				position: "top",
@@ -410,8 +412,9 @@ export const PanelHandleContentDetails = () => {
 				["input", "propertychange"],
 				void 0,
 				function (event) {
-					tooltip.toolTipNode.querySelector("div")!.innerText =
-						getToolTipContent(rangeInputElement.value);
+					tooltip.toolTip.changeContent(
+						getToolTipContent(rangeInputElement.value)
+					);
 					if (typeof formConfig.callback === "function") {
 						formConfig.callback(
 							event as InputEvent,
@@ -520,6 +523,7 @@ export const PanelHandleContentDetails = () => {
 							percent: number;
 						}
 					>(),
+					tooltip: null as any as PopsTooltipResult<PopsToolTipDetails>,
 				},
 				$ele: {
 					slider: liElement.querySelector<HTMLDivElement>(".pops-slider")!,
@@ -533,17 +537,6 @@ export const PanelHandleContentDetails = () => {
 					button: liElement.querySelector<HTMLDivElement>(
 						".pops-slider__button"
 					)!,
-					tooltip: null as any as {
-						$shadowContainer: HTMLDivElement;
-						$shadowRoot: ShadowRoot;
-						guid: string;
-						config: Required<PopsToolTipDetails>;
-						toolTipNode: HTMLDivElement;
-						show: () => void;
-						close: () => void;
-						off: () => void;
-						on: () => void;
-					},
 				},
 				$interval: {
 					isCheck: false,
@@ -938,13 +931,13 @@ export const PanelHandleContentDetails = () => {
 				 * 显示悬浮的
 				 */
 				showToolTip() {
-					this.$ele.tooltip.show();
+					this.$data.tooltip.toolTip.show();
 				},
 				/**
 				 * 关闭悬浮的
 				 */
 				closeToolTip() {
-					this.$ele.tooltip.close();
+					this.$data.tooltip.toolTip.close();
 				},
 				/**
 				 * 检测在1000ms内，是否停止了拖拽
@@ -980,12 +973,13 @@ export const PanelHandleContentDetails = () => {
 							return PopsPanelSlider.value as any as string;
 						}
 					}
-					let tooltipContent = null as any as HTMLElement;
 
-					this.$ele.tooltip = pops.tooltip({
+					let tooltip = pops.tooltip({
 						target: this.$ele.button,
 						content: getToolTipContent,
-						zIndex: 1000000,
+						zIndex: () => {
+							return PopsInstanceUtils.getPopsMaxZIndex().zIndex;
+						},
 						className: "github-tooltip",
 						only: false,
 						eventOption: {
@@ -996,7 +990,7 @@ export const PanelHandleContentDetails = () => {
 							this.intervalInit();
 						},
 						showAfterCallBack: (toolTipNode) => {
-							tooltipContent.innerText = getToolTipContent();
+							tooltip.toolTip.changeContent(getToolTipContent());
 						},
 						closeBeforeCallBack: () => {
 							if (this.$data.isMove) {
@@ -1009,9 +1003,8 @@ export const PanelHandleContentDetails = () => {
 						// only: false,
 						position: "top",
 						arrowDistance: 10,
-					}) as any;
-					tooltipContent =
-						this.$ele.tooltip.toolTipNode.querySelector<HTMLDivElement>("div")!;
+					});
+					this.$data.tooltip = tooltip;
 				},
 			};
 			PopsPanelSlider.init();
