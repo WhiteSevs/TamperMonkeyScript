@@ -429,11 +429,12 @@ const Greasyfork = {
 					className: "github-tooltip",
 					alwaysShow: true,
 				});
+				tooltip.toolTip.onAnimationFinishEvent();
 				setTimeout(() => {
 					clipboardCopyElement.removeAttribute("success");
 					octiconCheckCopyElement.setAttribute("aria-hidden", "true");
 					octiconCopyElement.removeAttribute("aria-hidden");
-					tooltip.close();
+					tooltip.toolTip.close();
 				}, 2000);
 			});
 			return copyElement;
