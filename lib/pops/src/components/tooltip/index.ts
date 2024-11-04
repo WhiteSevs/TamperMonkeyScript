@@ -6,6 +6,8 @@ import { popsUtils } from "../../utils/PopsUtils";
 import { PopsTooltipConfig } from "./config";
 import type { PopsToolTipDetails } from "./indexType";
 
+type ToolTipEventTypeName = "MouseEvent" | "TouchEvent";
+
 export class ToolTip {
 	$el = {
 		$shadowContainer: null as unknown as HTMLDivElement,
@@ -17,8 +19,8 @@ export class ToolTip {
 	$data = {
 		config: null as any as Required<PopsToolTipDetails>,
 		guid: null as any as string,
-		timeId_show: <number[]>[],
-		timeId_close: <number[]>[],
+		timeId_close_TouchEvent: <number[]>[],
+		timeId_close_MouseEvent: <number[]>[],
 	};
 	constructor(
 		config: Required<PopsToolTipDetails>,
@@ -226,21 +228,38 @@ export class ToolTip {
 		this.offMouseLeaveEvent();
 	}
 	/**
-	 * 清除延迟的timeId
+	 * 添加关闭的timeId
+	 * @param type
+	 * @param timeId
 	 */
-	clearCloseTimeoutId(timeId?: number) {
-		for (let index = 0; index < this.$data.timeId_close.length; index++) {
-			const currentTimeId = this.$data.timeId_close[index];
+	addCloseTimeoutId(type: ToolTipEventTypeName, timeId: number) {
+		if (type === "MouseEvent") {
+			this.$data.timeId_close_MouseEvent.push(timeId);
+		} else {
+			this.$data.timeId_close_TouchEvent.push(timeId);
+		}
+	}
+	/**
+	 * 清除延迟的timeId
+	 * @param type 事件类型
+	 */
+	clearCloseTimeoutId(type: ToolTipEventTypeName, timeId?: number) {
+		let timeIdList =
+			type === "MouseEvent"
+				? this.$data.timeId_close_MouseEvent
+				: this.$data.timeId_close_TouchEvent;
+		for (let index = 0; index < timeIdList.length; index++) {
+			const currentTimeId = timeIdList[index];
 			if (typeof timeId === "number") {
 				// 只清除一个
 				if (timeId == currentTimeId) {
 					clearTimeout(timeId);
-					this.$data.timeId_close.splice(index, 1);
+					timeIdList.splice(index, 1);
 					break;
 				}
 			} else {
 				clearTimeout(currentTimeId);
-				this.$data.timeId_close.splice(index, 1);
+				timeIdList.splice(index, 1);
 				index--;
 			}
 		}
@@ -248,14 +267,18 @@ export class ToolTip {
 	/**
 	 * 显示提示框
 	 */
-	show() {
+	show(...args: any[]) {
+		let event = args[0] as MouseEvent | TouchEvent;
+		let eventType: ToolTipEventTypeName =
+			event instanceof MouseEvent ? "MouseEvent" : "TouchEvent";
+		this.clearCloseTimeoutId(eventType);
+
 		if (typeof this.$data.config.showBeforeCallBack === "function") {
 			let result = this.$data.config.showBeforeCallBack(this.$el.$toolTip);
 			if (typeof result === "boolean" && !result) {
 				return;
 			}
 		}
-		this.clearCloseTimeoutId();
 		if (!popsUtils.contains(this.$el.$shadowRoot, this.$el.$toolTip)) {
 			// 不在容器中，添加
 			this.init();
@@ -310,6 +333,8 @@ export class ToolTip {
 	 */
 	close(...args: any[]) {
 		let event = args[0] as MouseEvent | TouchEvent;
+		let eventType: ToolTipEventTypeName =
+			event instanceof MouseEvent ? "MouseEvent" : "TouchEvent";
 		// 只判断鼠标事件
 		// 其它的如Touch事件不做处理
 		if (event && event instanceof MouseEvent) {
@@ -334,7 +359,7 @@ export class ToolTip {
 		}
 		let timeId = setTimeout(() => {
 			// 设置属性触发关闭动画
-			this.clearCloseTimeoutId(timeId);
+			this.clearCloseTimeoutId(eventType, timeId);
 			this.$el.$toolTip.setAttribute(
 				"data-motion",
 				this.$el.$toolTip
@@ -342,7 +367,7 @@ export class ToolTip {
 					.replace("fadeIn", "fadeOut")
 			);
 		}, this.$data.config.delayCloseTime);
-		this.$data.timeId_close.push(timeId);
+		this.addCloseTimeoutId(eventType, timeId);
 		if (typeof this.$data.config.closeAfterCallBack === "function") {
 			this.$data.config.closeAfterCallBack(this.$el.$toolTip);
 		}
@@ -430,7 +455,8 @@ export class ToolTip {
 	 * 监听鼠标|触摸事件
 	 */
 	onMouseEnterEvent() {
-		this.clearCloseTimeoutId();
+		this.clearCloseTimeoutId("MouseEvent");
+		this.clearCloseTimeoutId("TouchEvent");
 		popsDOMUtils.on(
 			this.$el.$toolTip,
 			"mouseenter touchstart",

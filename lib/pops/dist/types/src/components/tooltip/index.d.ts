@@ -1,4 +1,5 @@
 import type { PopsToolTipDetails } from "./indexType";
+type ToolTipEventTypeName = "MouseEvent" | "TouchEvent";
 export declare class ToolTip {
     $el: {
         $shadowContainer: HTMLDivElement;
@@ -10,8 +11,8 @@ export declare class ToolTip {
     $data: {
         config: Required<PopsToolTipDetails>;
         guid: string;
-        timeId_show: number[];
-        timeId_close: number[];
+        timeId_close_TouchEvent: number[];
+        timeId_close_MouseEvent: number[];
     };
     constructor(config: Required<PopsToolTipDetails>, guid: string, ShadowInfo: {
         $shadowContainer: HTMLDivElement;
@@ -88,13 +89,20 @@ export declare class ToolTip {
      */
     offEvent(): void;
     /**
-     * 清除延迟的timeId
+     * 添加关闭的timeId
+     * @param type
+     * @param timeId
      */
-    clearCloseTimeoutId(timeId?: number): void;
+    addCloseTimeoutId(type: ToolTipEventTypeName, timeId: number): void;
+    /**
+     * 清除延迟的timeId
+     * @param type 事件类型
+     */
+    clearCloseTimeoutId(type: ToolTipEventTypeName, timeId?: number): void;
     /**
      * 显示提示框
      */
-    show(): void;
+    show(...args: any[]): void;
     /**
      * 绑定 显示事件
      */
@@ -166,3 +174,4 @@ export type PopsTooltipResult<T extends PopsToolTipDetails> = {
 export declare class PopsTooltip {
     constructor(details: PopsToolTipDetails);
 }
+export {};
