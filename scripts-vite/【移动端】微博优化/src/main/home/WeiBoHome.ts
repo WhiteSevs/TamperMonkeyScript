@@ -4,7 +4,6 @@ import { PopsPanel } from "@/setting/setting";
 import { CommonUtils } from "@/utils/CommonUtils";
 import { VueUtils } from "@/utils/VueUtils";
 import Qmsg from "qmsg";
-import { unsafeWindow } from "ViteGM";
 
 export const WeiBoHome = {
 	init() {
@@ -48,58 +47,58 @@ export const WeiBoHome = {
 				});
 				return;
 				// 再监听list_all 的变化，如果存在超话，就同步至list_cur中
-				VueUtils.waitVuePropToSet(".main-wrap", {
-					check(vueIns) {
-						return typeof vueIns?.$watch === "function";
-					},
-					set(vueIns) {
-						vueIns.$watch("list_all", function (newVal: any[], oldVal: any[]) {
-							if (this.cur_group["gid"] !== "100803") {
-								return;
-							}
-							// 7
-							let cur_length = this.list_cur.length;
-							// 8
-							let all_length = this.list_all.length;
-							// 截取多出来的
-							let slice_list = this.list_all.slice(cur_length);
-							for (let index = 0; index < slice_list.length; index++) {
-								const slice_item = slice_list[index];
-								slice_item["hei"] = 1345;
-							}
-							let last_feed_id = slice_list[slice_list.length - 1]?.["feed_id"];
-							if (last_feed_id != null) {
-								// 更新max
-								this.max = last_feed_id;
-								this.since = last_feed_id;
-							}
-							this.list_cur = this.list_cur.concat(slice_list);
+				// VueUtils.waitVuePropToSet(".main-wrap", {
+				// 	check(vueIns) {
+				// 		return typeof vueIns?.$watch === "function";
+				// 	},
+				// 	set(vueIns) {
+				// 		vueIns.$watch("list_all", function (newVal: any[], oldVal: any[]) {
+				// 			if (this.cur_group["gid"] !== "100803") {
+				// 				return;
+				// 			}
+				// 			// 7
+				// 			let cur_length = this.list_cur.length;
+				// 			// 8
+				// 			let all_length = this.list_all.length;
+				// 			// 截取多出来的
+				// 			let slice_list = this.list_all.slice(cur_length);
+				// 			for (let index = 0; index < slice_list.length; index++) {
+				// 				const slice_item = slice_list[index];
+				// 				slice_item["hei"] = 1345;
+				// 			}
+				// 			let last_feed_id = slice_list[slice_list.length - 1]?.["feed_id"];
+				// 			if (last_feed_id != null) {
+				// 				// 更新max
+				// 				this.max = last_feed_id;
+				// 				this.since = last_feed_id;
+				// 			}
+				// 			this.list_cur = this.list_cur.concat(slice_list);
 
-							const updateFirstScroll = () => {
-								if (this.$refs?.cont) {
-									// 每次更新数据都要重新初始化滚动判断条
-									// 它的判断方式是scrollY>this.first_scroll
-									// 而scrollY的最大值为this.$refs.cont的高度-屏幕高度
-									// 所以获取this.$refs.cont的高度-屏幕高度*1.2
-									let clientHeight =
-										document.documentElement.clientHeight || window.innerHeight;
-									this.first_scroll =
-										this.$refs.cont.offsetHeight - clientHeight * 1.4;
-								}
-							};
-							// 2.5s内更新滚动判断高度
-							let intervalCount = 0;
-							let intervalId = setInterval(() => {
-								if (intervalCount > 50) {
-									clearInterval(intervalId);
-									return;
-								}
-								intervalCount++;
-								updateFirstScroll();
-							}, 50);
-						});
-					},
-				});
+				// 			const updateFirstScroll = () => {
+				// 				if (this.$refs?.cont) {
+				// 					// 每次更新数据都要重新初始化滚动判断条
+				// 					// 它的判断方式是scrollY>this.first_scroll
+				// 					// 而scrollY的最大值为this.$refs.cont的高度-屏幕高度
+				// 					// 所以获取this.$refs.cont的高度-屏幕高度*1.2
+				// 					let clientHeight =
+				// 						document.documentElement.clientHeight || window.innerHeight;
+				// 					this.first_scroll =
+				// 						this.$refs.cont.offsetHeight - clientHeight * 1.4;
+				// 				}
+				// 			};
+				// 			// 2.5s内更新滚动判断高度
+				// 			let intervalCount = 0;
+				// 			let intervalId = setInterval(() => {
+				// 				if (intervalCount > 50) {
+				// 					clearInterval(intervalId);
+				// 					return;
+				// 				}
+				// 				intervalCount++;
+				// 				updateFirstScroll();
+				// 			}, 50);
+				// 		});
+				// 	},
+				// });
 			},
 		});
 	},

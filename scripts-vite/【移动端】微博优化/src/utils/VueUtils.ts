@@ -1,5 +1,5 @@
 import { log, utils } from "@/env";
-import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
+import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 
 interface WaitSetVuePropOption {
 	/**
@@ -9,11 +9,11 @@ interface WaitSetVuePropOption {
 	/**
 	 * 检测属性的函数
 	 */
-	check(vueIns: Vue2Context): boolean;
+	check(vueIns: Vue2Instance): boolean;
 	/**
 	 * 进行设置
 	 */
-	set(vueIns: Vue2Context): void;
+	set(vueIns: Vue2Instance): void;
 	/**
 	 * 超时关闭调用
 	 */
@@ -32,7 +32,7 @@ export const VueUtils = {
 		}
 		return ((element as NestedObjectWithToString)["__vue__"] ||
 			(element as NestedObjectWithToString)["__Ivue__"] ||
-			(element as NestedObjectWithToString)["__IVue__"]) as Vue2Context;
+			(element as NestedObjectWithToString)["__IVue__"]) as Vue2Instance;
 	},
 
 	/**

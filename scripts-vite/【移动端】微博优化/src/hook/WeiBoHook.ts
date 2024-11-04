@@ -5,7 +5,7 @@ import { WeiBoNetWorkHook } from "./WeiBoNetWorkHook";
 import { VueUtils } from "@/utils/VueUtils";
 import Qmsg from "qmsg";
 import { WeiBo } from "@/main/WeiBo";
-import { Vue2Context } from "@whitesev/utils/dist/types/src/Utils";
+import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import { CommonUtils } from "@/utils/CommonUtils";
 
 const WeiBoHook = {
@@ -311,8 +311,8 @@ const WeiBoHook = {
 				set(vueIns) {
 					log.success("拦截Vue路由跳转");
 					let beforeEachFn = (
-						to: Vue2Context["$route"],
-						from: Vue2Context["$route"],
+						to: Vue2Instance["$route"],
+						from: Vue2Instance["$route"],
 						next: Function
 					) => {
 						if (to.name === "profile") {

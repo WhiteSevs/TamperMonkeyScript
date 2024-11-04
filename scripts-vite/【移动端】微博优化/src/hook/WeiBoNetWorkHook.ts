@@ -1,5 +1,5 @@
 import { log, utils } from "@/env";
-import { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/AjaxHookerType";
+import { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
 
 let _ajaxHooker_ = null as any as UtilsAjaxHookResult;
 const WeiBoNetWorkHook = {

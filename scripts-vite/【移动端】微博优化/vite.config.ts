@@ -49,10 +49,11 @@ export default defineConfig({
 				description:
 					"劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)",
 				match: [
-					"http*://m.weibo.cn/*",
-					"http*://huati.weibo.cn/*",
-					"http*://h5.video.weibo.com/*",
-					"http*://card.weibo.com/*",
+					"*://m.weibo.cn/*",
+					"*://huati.weibo.cn/*",
+					"*://h5.video.weibo.com/*",
+					"*://card.weibo.com/*",
+					"*://weibo.com/l/wblive/m/show/*",
 				],
 				connect: ["m.weibo.cn", "www.weibo.com", "passport.weibo.com"],
 				grant: [

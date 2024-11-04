@@ -1,21 +1,22 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.27
+// @version      2024.11.4
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
 // @icon         https://favicon.yandex.net/favicon/v2/https://m.weibo.cn/?size=32
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @match        http*://m.weibo.cn/*
-// @match        http*://huati.weibo.cn/*
-// @match        http*://h5.video.weibo.com/*
-// @match        http*://card.weibo.com/*
+// @match        *://m.weibo.cn/*
+// @match        *://huati.weibo.cn/*
+// @match        *://h5.video.weibo.com/*
+// @match        *://card.weibo.com/*
+// @match        *://weibo.com/l/wblive/m/show/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.8/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css
 // @connect      m.weibo.cn
 // @connect      www.weibo.com
@@ -103,19 +104,19 @@
         return;
       }
       let ownCookie = "";
-      let url = details.url;
-      if (url.startsWith("//")) {
-        url = window.location.protocol + url;
+      let url2 = details.url;
+      if (url2.startsWith("//")) {
+        url2 = window.location.protocol + url2;
       }
-      let urlObj = new URL(url);
-      if (this.$data.useDocumentCookie && urlObj.hostname.endsWith(
+      let urlObj2 = new URL(url2);
+      if (this.$data.useDocumentCookie && urlObj2.hostname.endsWith(
         window.location.hostname.split(".").slice(-2).join(".")
       )) {
         ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
       }
       for (let index = 0; index < this.$data.cookieRule.length; index++) {
         let rule = this.$data.cookieRule[index];
-        if (urlObj.hostname.match(rule.hostname)) {
+        if (urlObj2.hostname.match(rule.hostname)) {
           let cookie = PopsPanel.getValue(rule.key);
           if (utils.isNull(cookie)) {
             break;
@@ -1851,11 +1852,11 @@
      * 添加<link>标签
      * @param url
      */
-    async addLinkNode(url) {
+    async addLinkNode(url2) {
       let $link = document.createElement("link");
       $link.rel = "stylesheet";
       $link.type = "text/css";
-      $link.href = url;
+      $link.href = url2;
       domUtils.ready(() => {
         document.head.appendChild($link);
       });
@@ -1876,16 +1877,16 @@
      * 修复前：`xxx/xxx?ss=ssss`
      * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
      */
-    fixUrl(url) {
-      url = url.trim();
-      if (url.match(/^http(s|):\/\//i)) {
-        return url;
+    fixUrl(url2) {
+      url2 = url2.trim();
+      if (url2.match(/^http(s|):\/\//i)) {
+        return url2;
       } else {
-        if (!url.startsWith("/")) {
-          url += "/";
+        if (!url2.startsWith("/")) {
+          url2 += "/";
         }
-        url = window.location.origin + url;
-        return url;
+        url2 = window.location.origin + url2;
+        return url2;
       }
     },
     /**
@@ -1898,16 +1899,16 @@
      * 修复前：
      * 修复后：
      */
-    fixHttps(url) {
-      if (url.startsWith("https://")) {
-        return url;
+    fixHttps(url2) {
+      if (url2.startsWith("https://")) {
+        return url2;
       }
-      if (!url.startsWith("http://")) {
-        return url;
+      if (!url2.startsWith("http://")) {
+        return url2;
       }
-      let urlObj = new URL(url);
-      urlObj.protocol = "https:";
-      return urlObj.toString();
+      let urlObj2 = new URL(url2);
+      urlObj2.protocol = "https:";
+      return urlObj2.toString();
     }
   };
   const WeiBoHook = {
@@ -2195,43 +2196,47 @@
       );
     }
   };
+  const url = globalThis.location.href;
+  const urlObj = new URL(url);
+  const hostname = urlObj.hostname;
+  const pathname = urlObj.pathname;
   const WeiBoRouter = {
     /**
      * 移动端微博
      * @returns
      */
     isMWeiBo() {
-      return globalThis.location.hostname === "m.weibo.cn";
+      return hostname === "m.weibo.cn";
     },
     /**
      * 移动端微博-首页
      */
     isMWeiBoHome() {
-      return this.isMWeiBo() && globalThis.location.pathname === "/";
+      return this.isMWeiBo() && pathname === "/";
     },
     /**
      * 移动端微博-微博正文
      */
     isMWeiBo_detail() {
-      return this.isMWeiBo() && globalThis.location.pathname.startsWith("/detail/");
+      return this.isMWeiBo() && pathname.startsWith("/detail/");
     },
     /**
      * 移动端微博-微博正文
      */
     isMWeiBo_status() {
-      return this.isMWeiBo() && globalThis.location.pathname.startsWith("/status/");
+      return this.isMWeiBo() && pathname.startsWith("/status/");
     },
     /**
      * 移动端微博-用户主页
      */
     isMWeiBo_userHome() {
-      return this.isMWeiBo() && globalThis.location.pathname.startsWith("/u/");
+      return this.isMWeiBo() && pathname.startsWith("/u/");
     },
     /**
      * 移动端微博-搜索
      */
     isMWeiBo_search() {
-      return this.isMWeiBo() && globalThis.location.pathname.startsWith("/search");
+      return this.isMWeiBo() && pathname.startsWith("/search");
     },
     /**
      * 移动端微博-微博热搜
@@ -2239,31 +2244,37 @@
     isMWeiBo_HotSearch() {
       let searchParams = new URLSearchParams(globalThis.location.search);
       let containerid = searchParams.get("containerid");
-      return this.isMWeiBo() && globalThis.location.pathname.startsWith("/p/index") && typeof containerid === "string" && containerid.startsWith("106003");
+      return this.isMWeiBo() && pathname.startsWith("/p/index") && typeof containerid === "string" && containerid.startsWith("106003");
     },
     /**
      * 话题
      */
     isHuaTi() {
-      return globalThis.location.hostname === "huati.weibo.cn";
+      return hostname === "huati.weibo.cn";
     },
     /**
      * 视频页
      */
     isVideo() {
-      return globalThis.location.hostname === "h5.video.weibo.com";
+      return hostname === "h5.video.weibo.com";
     },
     /**
      * 头条
      */
     isCard() {
-      return globalThis.location.hostname === "card.weibo.com";
+      return hostname === "card.weibo.com";
     },
     /**
      * 头条文章
      */
     isCardArticle() {
-      return this.isCard() && globalThis.location.pathname.startsWith("/article/");
+      return this.isCard() && pathname.startsWith("/article/");
+    },
+    /**
+     * 微博直播页面
+     */
+    isLive() {
+      return hostname === "weibo.com" && pathname.startsWith("/l/wblive/m/show/");
     }
   };
   const WeiBoHuaTi = {
@@ -2604,9 +2615,9 @@
                 Qmsg.error("没有找到对应的id");
                 return;
               }
-              let url = `${window.location.origin}/detail/${id}`;
-              log.info(`新标签页打开：${url}`);
-              window.open(url, "_blank");
+              let url2 = `${window.location.origin}/detail/${id}`;
+              log.info(`新标签页打开：${url2}`);
+              window.open(url2, "_blank");
             });
             let $diyBtnList = $footerCtrl.querySelectorAll(".m-diy-btn");
             if ($diyBtnList.length) {
@@ -2678,8 +2689,8 @@
           let jQueryEvent = $click[jQueryEventName];
           let data = jQueryEvent["events"]["click"][0]["data"];
           log.success(["跳转信息：", data]);
-          let url = data["url"] || data["target_url"];
-          window.open(url, "_blank");
+          let url2 = data["url"] || data["target_url"];
+          window.open(url2, "_blank");
         },
         {
           capture: true
@@ -2778,9 +2789,9 @@
                 Qmsg.error("没有找到对应的id");
                 return;
               }
-              let url = `${window.location.origin}/detail/${id}`;
-              log.info(`新标签页打开：${url}`);
-              window.open(url, "_blank");
+              let url2 = `${window.location.origin}/detail/${id}`;
+              log.info(`新标签页打开：${url2}`);
+              window.open(url2, "_blank");
             });
             let $diyBtnList = $footerCtrl.querySelectorAll(".m-diy-btn");
             if ($diyBtnList.length) {
@@ -2831,6 +2842,12 @@
       );
     }
   };
+  const blockCSS = "#app .bottombtn {\r\n	display: none !important;\r\n}\r\n";
+  const WeiBoLive = {
+    init() {
+      addStyle(blockCSS);
+    }
+  };
   const WeiBo = {
     $data: {
       weiBoUnlockQuality: new WeiBoUnlockQuality()
@@ -2845,10 +2862,7 @@
       PopsPanel.execMenuOnce("weibo-common-clickImageToClosePreviewImage", () => {
         this.clickImageToClosePreviewImage();
       });
-      if (WeiBoRouter.isHuaTi()) {
-        log.info("Router: 话题");
-        WeiBoHuaTi.init();
-      } else if (WeiBoRouter.isMWeiBo()) {
+      if (WeiBoRouter.isMWeiBo()) {
         log.info("Router: 移动端微博");
         PopsPanel.onceExec("weibo-m-init", () => {
           WeiBoHook.hookNetWork();
@@ -2871,22 +2885,25 @@
           });
         });
         if (WeiBoRouter.isMWeiBoHome()) {
-          log.info(`Router: 首页`);
+          log.info(`Router: 移动端微博-首页`);
           WeiBoHome.init();
         } else if (WeiBoRouter.isMWeiBo_detail() || WeiBoRouter.isMWeiBo_status()) {
-          log.info("Router: 正文");
+          log.info("Router: 移动端微博-正文");
           WeiBoDetail.init();
         } else if (WeiBoRouter.isMWeiBo_userHome()) {
-          log.info("Router: 用户主页");
+          log.info("Router: 移动端微博-用户主页");
         } else if (WeiBoRouter.isMWeiBo_search()) {
-          log.info("Router: 搜索");
+          log.info("Router: 移动端微博-搜索");
           WeiBoSearch.init();
         } else if (WeiBoRouter.isMWeiBo_HotSearch()) {
-          log.info(`Router: 微博热搜`);
+          log.info(`Router: 移动端微博-微博热搜`);
           WeiBoHotSearch.init();
         } else {
-          log.error("Router: 未适配的微博链接 => " + window.location.href);
+          log.error("Router: 移动端微博未适配链接 => " + window.location.href);
         }
+      } else if (WeiBoRouter.isHuaTi()) {
+        log.info("Router: 话题");
+        WeiBoHuaTi.init();
       } else if (WeiBoRouter.isVideo()) {
         log.info("Router: 视频页");
         WeiBoVideo.init();
@@ -2896,8 +2913,11 @@
           log.info("Router: 头条文章");
           WeiBoCardArticle.init();
         } else {
-          log.error("Router: 未适配头条 => " + window.location.href);
+          log.error("Router: 头条未适配链接 => " + window.location.href);
         }
+      } else if (WeiBoRouter.isLive()) {
+        log.info(`Router: 直播`);
+        WeiBoLive.init();
       } else {
         log.error("Router: 未适配 => " + window.location.href);
       }

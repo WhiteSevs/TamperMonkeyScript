@@ -14,6 +14,7 @@ import { WeiBoUnlockQuality } from "./WeiBoUnlockQuality";
 import { WeiBoCardArticle } from "./card/WeiBoCardArticle";
 import { WeiBoHome } from "./home/WeiBoHome";
 import { WeiBoHotSearch } from "./p/WeiBoHotSearch";
+import { WeiBoLive } from "./wblive/WeiBoLive";
 
 const WeiBo = {
 	$data: {
@@ -30,10 +31,7 @@ const WeiBo = {
 			this.clickImageToClosePreviewImage();
 		});
 		// 不同域名不会触发Router改变，所以单独设定m.weibo.cn下监听路由改变
-		if (WeiBoRouter.isHuaTi()) {
-			log.info("Router: 话题");
-			WeiBoHuaTi.init();
-		} else if (WeiBoRouter.isMWeiBo()) {
+		if (WeiBoRouter.isMWeiBo()) {
 			// 移动端微博
 			log.info("Router: 移动端微博");
 			PopsPanel.onceExec("weibo-m-init", () => {
@@ -57,26 +55,29 @@ const WeiBo = {
 				});
 			});
 			if (WeiBoRouter.isMWeiBoHome()) {
-				log.info(`Router: 首页`);
+				log.info(`Router: 移动端微博-首页`);
 				WeiBoHome.init();
 			} else if (
 				WeiBoRouter.isMWeiBo_detail() ||
 				WeiBoRouter.isMWeiBo_status()
 			) {
-				log.info("Router: 正文");
+				log.info("Router: 移动端微博-正文");
 				WeiBoDetail.init();
 			} else if (WeiBoRouter.isMWeiBo_userHome()) {
-				log.info("Router: 用户主页");
+				log.info("Router: 移动端微博-用户主页");
 				WeiBoUserHome.init();
 			} else if (WeiBoRouter.isMWeiBo_search()) {
-				log.info("Router: 搜索");
+				log.info("Router: 移动端微博-搜索");
 				WeiBoSearch.init();
 			} else if (WeiBoRouter.isMWeiBo_HotSearch()) {
-				log.info(`Router: 微博热搜`);
+				log.info(`Router: 移动端微博-微博热搜`);
 				WeiBoHotSearch.init();
 			} else {
-				log.error("Router: 未适配的微博链接 => " + window.location.href);
+				log.error("Router: 移动端微博未适配链接 => " + window.location.href);
 			}
+		} else if (WeiBoRouter.isHuaTi()) {
+			log.info("Router: 话题");
+			WeiBoHuaTi.init();
 		} else if (WeiBoRouter.isVideo()) {
 			// 视频页
 			log.info("Router: 视频页");
@@ -88,8 +89,11 @@ const WeiBo = {
 				log.info("Router: 头条文章");
 				WeiBoCardArticle.init();
 			} else {
-				log.error("Router: 未适配头条 => " + window.location.href);
+				log.error("Router: 头条未适配链接 => " + window.location.href);
 			}
+		} else if (WeiBoRouter.isLive()) {
+			log.info(`Router: 直播`);
+			WeiBoLive.init();
 		} else {
 			// 未适配Router
 			log.error("Router: 未适配 => " + window.location.href);
