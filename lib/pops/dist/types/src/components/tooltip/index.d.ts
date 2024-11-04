@@ -88,6 +88,10 @@ export declare class ToolTip {
      */
     offEvent(): void;
     /**
+     * 清除延迟的timeId
+     */
+    clearCloseTimeoutId(timeId?: number): void;
+    /**
      * 显示提示框
      */
     show(): void;
@@ -128,13 +132,29 @@ export declare class ToolTip {
      */
     offAnimationFinishEvent(): void;
     /**
-     * 当鼠标|手触摸
+     * 鼠标|触摸进入事件
+     */
+    mouseEnterEvent(): void;
+    /**
+     * 监听鼠标|触摸事件
      */
     onMouseEnterEvent(): void;
     /**
-     * 当鼠标|手离开，开始当前动画
+     * 取消监听鼠标|触摸事件
+     */
+    offMouseEnterEvent(): void;
+    /**
+     * 鼠标|触摸离开事件
+     */
+    mouseLeaveEvent(): void;
+    /**
+     * 监听鼠标|触摸离开事件
      */
     onMouseLeaveEvent(): void;
+    /**
+     * 取消监听鼠标|触摸离开事件
+     */
+    offMouseLeaveEvent(): void;
 }
 export type PopsTooltipResult<T extends PopsToolTipDetails> = {
     guid: string;
