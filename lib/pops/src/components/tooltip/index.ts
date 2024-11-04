@@ -211,21 +211,21 @@ export class ToolTip {
 	 */
 	onEvent() {
 		// 监听动画结束事件
-		this.onAnimationFinishEvent();
+		this.onToolTipAnimationFinishEvent();
 		this.onShowEvent();
 		this.onCloseEvent();
-		this.onMouseEnterEvent();
-		this.onMouseLeaveEvent();
+		this.onToolTipMouseEnterEvent();
+		this.onToolTipMouseLeaveEvent();
 	}
 	/**
 	 * 取消事件绑定
 	 */
 	offEvent() {
-		this.offAnimationFinishEvent();
+		this.offToolTipAnimationFinishEvent();
 		this.offShowEvent();
 		this.offCloseEvent();
-		this.offMouseEnterEvent();
-		this.offMouseLeaveEvent();
+		this.offToolTipMouseEnterEvent();
+		this.offToolTipMouseLeaveEvent();
 	}
 	/**
 	 * 添加关闭的timeId
@@ -413,7 +413,7 @@ export class ToolTip {
 	/**
 	 * 动画结束事件
 	 */
-	animationFinishEvent() {
+	toolTipAnimationFinishEvent() {
 		if (!this.$el.$toolTip) {
 			return;
 		}
@@ -423,29 +423,29 @@ export class ToolTip {
 		this.destory();
 	}
 	/**
-	 * 监听动画结束
+	 * 监听tooltip的动画结束
 	 */
-	onAnimationFinishEvent() {
+	onToolTipAnimationFinishEvent() {
 		popsDOMUtils.on(
 			this.$el.$toolTip,
 			popsDOMUtils.getAnimationEndNameList(),
-			this.animationFinishEvent.bind(this)
+			this.toolTipAnimationFinishEvent.bind(this)
 		);
 	}
 	/**
-	 * 取消监听动画结束
+	 * 取消tooltip监听动画结束
 	 */
-	offAnimationFinishEvent() {
+	offToolTipAnimationFinishEvent() {
 		popsDOMUtils.off(
 			this.$el.$toolTip,
 			popsDOMUtils.getAnimationEndNameList(),
-			this.animationFinishEvent.bind(this)
+			this.toolTipAnimationFinishEvent.bind(this)
 		);
 	}
 	/**
 	 * 鼠标|触摸进入事件
 	 */
-	mouseEnterEvent() {
+	toolTipMouseEnterEvent() {
 		this.$el.$toolTip.style.animationPlayState = "paused";
 		// if (parseInt(getComputedStyle(toolTipElement)) > 0.5) {
 		// toolTipElement.style.animationPlayState = "paused";
@@ -454,52 +454,52 @@ export class ToolTip {
 	/**
 	 * 监听鼠标|触摸事件
 	 */
-	onMouseEnterEvent() {
+	onToolTipMouseEnterEvent() {
 		this.clearCloseTimeoutId("MouseEvent");
 		this.clearCloseTimeoutId("TouchEvent");
 		popsDOMUtils.on(
 			this.$el.$toolTip,
 			"mouseenter touchstart",
-			this.mouseEnterEvent.bind(this),
+			this.toolTipMouseEnterEvent.bind(this),
 			this.$data.config.eventOption
 		);
 	}
 	/**
 	 * 取消监听鼠标|触摸事件
 	 */
-	offMouseEnterEvent() {
+	offToolTipMouseEnterEvent() {
 		popsDOMUtils.off(
 			this.$el.$toolTip,
 			"mouseenter touchstart",
-			this.mouseEnterEvent.bind(this),
+			this.toolTipMouseEnterEvent.bind(this),
 			this.$data.config.eventOption
 		);
 	}
 	/**
 	 * 鼠标|触摸离开事件
 	 */
-	mouseLeaveEvent() {
+	toolTipMouseLeaveEvent() {
 		this.$el.$toolTip.style.animationPlayState = "running";
 	}
 	/**
 	 * 监听鼠标|触摸离开事件
 	 */
-	onMouseLeaveEvent() {
+	onToolTipMouseLeaveEvent() {
 		popsDOMUtils.on(
 			this.$el.$toolTip,
 			"mouseleave touchend",
-			this.mouseLeaveEvent.bind(this),
+			this.toolTipMouseLeaveEvent.bind(this),
 			this.$data.config.eventOption
 		);
 	}
 	/**
 	 * 取消监听鼠标|触摸离开事件
 	 */
-	offMouseLeaveEvent() {
+	offToolTipMouseLeaveEvent() {
 		popsDOMUtils.off(
 			this.$el.$toolTip,
 			"mouseleave touchend",
-			this.mouseLeaveEvent.bind(this),
+			this.toolTipMouseLeaveEvent.bind(this),
 			this.$data.config.eventOption
 		);
 	}
