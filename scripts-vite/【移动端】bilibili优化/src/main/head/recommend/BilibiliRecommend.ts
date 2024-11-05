@@ -30,6 +30,8 @@ export const BilibiliRecommend = {
 	$data: {
 		/** 监听滚动的观察器 */
 		intersectionObserver: null as IntersectionObserver | null,
+		/** 加载推荐视频次数 */
+		loadNums: 0,
 	},
 	$ele: {
 		$listView: null as any as HTMLDivElement,
@@ -79,6 +81,7 @@ export const BilibiliRecommend = {
 		);
 		if (!$vSwitcher) {
 			log.error("添加推荐标签失败，原因：.channel-menu .v-switcher不存在");
+			Qmsg.error("添加推荐标签失败，原因：.channel-menu .v-switcher不存在");
 			return;
 		}
 		let $recommendTag = DOMUtils.createElement(
@@ -169,16 +172,23 @@ export const BilibiliRecommend = {
 	 * 设置滚动观察事件
 	 */
 	setScrollEvent() {
-		log.success("监听滚动: IntersectionObserver");
+		log.success("推荐视频监听滚动: IntersectionObserver");
 		this.$data.intersectionObserver = new IntersectionObserver(
 			async (entries) => {
 				if (!this.$flag.isLoadingNextPage && entries[0].isIntersecting) {
 					this.$flag.isLoadingNextPage = true;
-					await this.scrollEvent();
+					let flag = await this.scrollEvent();
 					this.$flag.isLoadingNextPage = false;
+					if (this.$data.loadNums <= 1 && flag) {
+						DOMUtils.hide(this.$ele.$listViewShim, false);
+						await utils.sleep(500);
+						DOMUtils.show(this.$ele.$listViewShim, false);
+					} else {
+						DOMUtils.show(this.$ele.$listViewShim, false);
+					}
 				}
 			},
-			{ threshold: 0 }
+			{ threshold: 0, rootMargin: "0px 0px 0px 0px" }
 		);
 		this.$data.intersectionObserver.observe(this.$ele.$listViewShim);
 	},
@@ -195,7 +205,7 @@ export const BilibiliRecommend = {
 	async scrollEvent() {
 		let videoInfo = await this.getRecommendVideoInfo();
 		if (!videoInfo) {
-			return;
+			return false;
 		}
 		log.success("获取推荐视频信息", videoInfo);
 		let $fragment = document.createDocumentFragment();
@@ -208,15 +218,16 @@ export const BilibiliRecommend = {
 				$ele = this.getRecommendItemAVElement(
 					videoInfoItem as Required<android.AppRecItem>
 				);
-			} else if (
-				allowLoadPictureCard &&
-				videoInfoItem.goto === this.$cardGoto.picture
-			) {
+			} else if (videoInfoItem.goto === this.$cardGoto.picture) {
 				/* 应该是专栏/动态 */
 				/* 图文 */
-				$ele = this.getRecommendItemPictureElement(
-					videoInfoItem as Required<android.AppRecItem>
-				);
+				if (allowLoadPictureCard) {
+					$ele = this.getRecommendItemPictureElement(
+						videoInfoItem as Required<android.AppRecItem>
+					);
+				} else {
+					return;
+				}
 			} else {
 				log.error("该goto暂未适配", videoInfoItem);
 				return;
@@ -224,6 +235,8 @@ export const BilibiliRecommend = {
 			$fragment.appendChild($ele);
 		});
 		this.$ele.$cardBox.appendChild($fragment);
+		this.$data.loadNums++;
+		return true;
 	},
 	/**
 	 * 获取推荐视频信息
