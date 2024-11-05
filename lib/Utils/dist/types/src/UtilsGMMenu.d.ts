@@ -5,11 +5,24 @@ declare class GMMenu {
     constructor(details: UtilsGMMenuConstructorOptions);
     /**
      * 新增菜单数据
-     * @param paramData
+     * @param menuOption
      */
-    add(paramData: UtilsGMMenuOption[] | UtilsGMMenuOption): void;
+    private __add;
+    /**
+     * 新增菜单数据
+     *
+     * 自动调用.update()
+     * @param menuOption
+     */
+    add(menuOption: UtilsGMMenuOption[] | UtilsGMMenuOption): void;
     /**
      * 更新菜单数据
+     *
+     * 实现方式：先取消注册所有已注册的菜单、再依次注册所有菜单项
+     *
+     * 如果菜单不存在，新增菜单项
+     *
+     * 如果菜单已存在，新菜单项覆盖旧的菜单项
      * @param options 数据
      */
     update(options?: UtilsGMMenuOption[] | UtilsGMMenuOption): void;
@@ -21,6 +34,7 @@ declare class GMMenu {
     /**
      * 根据键值获取enable值
      * @param menuKey 菜单-键key
+     * @deprecated
      */
     get(menuKey: string): boolean;
     /**

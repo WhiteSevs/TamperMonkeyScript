@@ -262,41 +262,58 @@ class GMMenu {
 	}
 	/**
 	 * 新增菜单数据
-	 * @param paramData
+	 * @param menuOption
 	 */
-	add(paramData: UtilsGMMenuOption[] | UtilsGMMenuOption) {
-		if (Array.isArray(paramData)) {
-			for (const _paramData of paramData) {
-				// @ts-ignore
+	private __add(menuOption: UtilsGMMenuOption[] | UtilsGMMenuOption) {
+		if (Array.isArray(menuOption)) {
+			for (let index = 0; index < menuOption.length; index++) {
+				const option = menuOption[index];
 				this.MenuHandle.$data.data.push({
-					data: _paramData,
+					data: option,
 					id: void 0,
 				});
 			}
 		} else {
-			// @ts-ignore
 			this.MenuHandle.$data.data.push({
-				data: paramData,
+				data: menuOption,
 				id: void 0,
 			});
 		}
+	}
+	/**
+	 * 新增菜单数据
+	 *
+	 * 自动调用.update()
+	 * @param menuOption
+	 */
+	add(menuOption: UtilsGMMenuOption[] | UtilsGMMenuOption) {
+		this.__add(menuOption);
 		this.update();
 	}
 	/**
 	 * 更新菜单数据
+	 *
+	 * 实现方式：先取消注册所有已注册的菜单、再依次注册所有菜单项
+	 *
+	 * 如果菜单不存在，新增菜单项
+	 *
+	 * 如果菜单已存在，新菜单项覆盖旧的菜单项
 	 * @param options 数据
 	 */
 	update(options?: UtilsGMMenuOption[] | UtilsGMMenuOption) {
-		let optionsList: UtilsGMMenuOption[] = [];
+		let menuOptionList: UtilsGMMenuOption[] = [];
 		if (Array.isArray(options)) {
-			optionsList = [...optionsList, ...options];
+			menuOptionList = [...menuOptionList, ...options];
 		} else if (options != null) {
-			optionsList = [...optionsList, options];
+			menuOptionList = [...menuOptionList, options];
 		}
-		optionsList.forEach((item) => {
-			let targetMenu = this.MenuHandle.getMenuOption(item.key);
-			if (targetMenu) {
-				Object.assign(targetMenu, item);
+		menuOptionList.forEach((menuOption) => {
+			let oldMenuOption = this.MenuHandle.getMenuOption(menuOption.key);
+			if (oldMenuOption) {
+				// 覆盖
+				Object.assign(oldMenuOption, menuOption);
+			} else {
+				this.__add(menuOption);
 			}
 		});
 		this.MenuHandle.$data.data.forEach((value) => {
@@ -317,6 +334,7 @@ class GMMenu {
 	/**
 	 * 根据键值获取enable值
 	 * @param menuKey 菜单-键key
+	 * @deprecated
 	 */
 	get(menuKey: string): boolean {
 		return this.getEnable(menuKey);
@@ -342,7 +360,7 @@ class GMMenu {
 	getShowTextValue(menuKey: string): string {
 		return this.MenuHandle.getMenuHandledOption(menuKey)!.showText(
 			this.getText(menuKey),
-			this.get(menuKey)
+			this.getEnable(menuKey)
 		);
 	}
 	/**

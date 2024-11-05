@@ -58,7 +58,7 @@ export interface UtilsGMMenuOptionData {
 	 * 对isStoreValue进行处理，如果未赋值，按默认的true赋值
 	 * 新增一个deleteMenu
 	 */
-	handleData: UtilsGMMenuHandledOption;
+	handleData?: UtilsGMMenuHandledOption;
 }
 
 export interface UtilsGMMenuConstructorOptions {

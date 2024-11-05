@@ -1751,6 +1751,15 @@ declare class Utils {
     generateUUID: () => string;
     /**
      * 自定义的动态响应对象
+     * @example
+     * let vue = new Utils.Vue();
+     * let reactive = new vue.reactive({});
+     * vue.watch(()=>reactive["name"], (newValue, oldValue)=>{
+     *     console.log("newValue ==> " + newValue);
+     *     console.log("oldValue ==> " + oldValue);
+     * })
+     * vue["name"] = "测试";
+     * > "测试"
      */
     Vue: typeof Vue;
 }

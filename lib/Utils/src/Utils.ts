@@ -29,7 +29,7 @@ class Utils {
 		this.windowApi = new WindowApi(option);
 	}
 	/** 版本号 */
-	version = "2024.11.1";
+	version = "2024.11.5";
 
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
@@ -5052,6 +5052,15 @@ class Utils {
 	generateUUID = GenerateUUID;
 	/**
 	 * 自定义的动态响应对象
+	 * @example
+	 * let vue = new Utils.Vue();
+	 * let reactive = new vue.reactive({});
+	 * vue.watch(()=>reactive["name"], (newValue, oldValue)=>{
+	 *     console.log("newValue ==> " + newValue);
+	 *     console.log("oldValue ==> " + oldValue);
+	 * })
+	 * vue["name"] = "测试";
+	 * > "测试"
 	 */
 	Vue = Vue;
 }
