@@ -51,16 +51,6 @@ export const DouYin = {
 		} else {
 			log.error("未知router: " + window.location.hostname);
 		}
-		DouYinQueryApi.user().then((user_uid) => {
-			if (!user_uid) {
-				return;
-			}
-			DouYinFollowingApi.list({
-				user_id: user_uid,
-				offset: 0,
-				count: 20,
-			}).then((data) => {});
-		});
 	},
 	/**
 	 * 固定meta viewport缩放倍率为1

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.5
+// @version      2024.11.5.22
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1640,6 +1640,14 @@
             let flag = PopsPanel.getValue("live-shieldChatRoom");
             PopsPanel.setValue("live-shieldChatRoom", !flag);
           }
+        },
+        "dy-live-shieldGiftEffects": {
+          target: "window",
+          callback: () => {
+            log.info("快捷键 ==> 【屏蔽】礼物特效");
+            let flag = PopsPanel.getValue("live-shieldGiftEffects");
+            PopsPanel.setValue("live-shieldGiftEffects", !flag);
+          }
         }
       };
     }
@@ -2168,6 +2176,15 @@
                     "【屏蔽】聊天室",
                     "",
                     "dy-live-block-chatroom",
+                    void 0,
+                    "点击录入快捷键",
+                    void 0,
+                    DouYinLiveShortCut.shortCut
+                  ),
+                  UIButtonShortCut(
+                    "【屏蔽】礼物特效",
+                    "",
+                    "dy-live-shieldGiftEffects",
                     void 0,
                     "点击录入快捷键",
                     void 0,
@@ -7667,224 +7684,6 @@
     }
   };
   const blockCSS$5 = "/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */\r\n#douyin-web-download-guide-container {\r\n	display: none !important;\r\n}\r\n";
-  const ApiConfig = {
-    BASE_URL: "https://www.douyin.com/",
-    /**
-     * 获取通用的数据
-     */
-    getCommonData() {
-      return {
-        aid: 6383,
-        channel: "channel_pc_web",
-        device_platform: "webapp",
-        pc_client_type: 1,
-        pc_libra_divert: "Windows",
-        version_code: 170400,
-        version_name: "17.4.0",
-        cookie_enabled: true,
-        screen_width: window.outerWidth,
-        screen_height: window.outerHeight,
-        browser_language: "zh-CN",
-        browser_platform: "Win32",
-        browser_name: "Edge",
-        browser_version: "130.0.0.0",
-        browser_online: true,
-        engine_name: "Blink",
-        engine_version: "130.0.0.0",
-        os_name: "Windows",
-        os_version: 10,
-        cpu_core_num: 4,
-        device_memory: 8,
-        platform: "PC",
-        effective_type: "4g",
-        round_trip_time: 50
-      };
-    },
-    /**
-     * webid
-     *
-     * 等同于获取登录用户信息接口的["id"]
-     */
-    getWebId() {
-      return utils.toJSON(_unsafeWindow.localStorage.getItem("SysInfo"))["webid"];
-    },
-    /**
-     * sec_user_id
-     *
-     * MS4....
-     */
-    getSecUserId() {
-      return utils.toJSON(_unsafeWindow.localStorage.getItem("user_info"))["uid"];
-    }
-  };
-  const ApiResponseCheck = {
-    /**
-     * 接口是否请求成功
-     * @param responseData
-     */
-    isSuccess(responseData) {
-      if (responseData == null) {
-        Qmsg.error("接口返回数据为空");
-        return false;
-      }
-      if (typeof responseData !== "object") {
-        Qmsg.error("接口返回数据不是JSON");
-        return false;
-      }
-      let status_code = responseData["status_code"];
-      if (status_code == 0) {
-        return true;
-      } else {
-        Qmsg.error("接口返回数据状态码不为0");
-        return false;
-      }
-    }
-  };
-  const DouYinUrlUtils = {
-    /**
-     * 获取视频链接
-     * @param videoId 视频id
-     */
-    getVideoUrl(videoId) {
-      return "https://www.douyin.com/video/" + videoId;
-    },
-    /**
-     * 获取视频合集链接
-     * @param collectionId 合集id
-     */
-    getCollectionUrl(collectionId) {
-      return "https://www.douyin.com/collection/" + collectionId;
-    },
-    /**
-     * 获取笔记链接
-     * @param noteId 笔记id
-     */
-    getNoteUrl(noteId) {
-      return "https://www.douyin.com/note/" + noteId;
-    },
-    /**
-     * 获取话题链接
-     * @param hashTagId 话题id
-     */
-    getHashTagUrl(hashTagId) {
-      return "https://www.douyin.com/hashtag/" + hashTagId;
-    },
-    /**
-     * 获取用户主页链接
-     * @param sec_uid
-     */
-    getUserHomeUrl(sec_uid) {
-      return "https://www.douyin.com/user/" + sec_uid;
-    },
-    /**
-     * 获取音乐链接
-     * @param musicId 音乐id
-     */
-    getMusicUrl(musicId) {
-      return "https://www.douyin.com/music/" + musicId;
-    }
-  };
-  const DouYinFollowingApi = {
-    /**
-     * 获取关注列表的信息
-     */
-    async list(config) {
-      let response = await httpx.get("/aweme/v1/web/user/following/list/", {
-        fetch: true,
-        allowInterceptConfig: false,
-        data: {
-          ...ApiConfig.getCommonData(),
-          user_id: config.user_id,
-          sec_user_id: ApiConfig.getSecUserId(),
-          webid: ApiConfig.getWebId(),
-          offset: config.offset,
-          min_time: 0,
-          max_time: 0,
-          count: config.count,
-          source_type: 4,
-          gps_access: 0,
-          address_book_access: 0,
-          is_top: 1,
-          downlink: 0.4
-          // verifyFp的值和fp的值相同
-          // verifyFp: "",
-          // fp: "",
-          // // cookie↓
-          // msToken: "",
-          // a_bogus: "",
-        },
-        processData: true,
-        headers: {
-          // "bd-ticket-guard-client-data": "",
-          // "bd-ticket-guard-iteration-version": 1,
-          // "bd-ticket-guard-ree-public-key": "",
-          // "bd-ticket-guard-version": 2,
-          // "bd-ticket-guard-web-version": 1,
-          Referer: "https://www.douyin.com/follow"
-        }
-      });
-      if (!response.status) {
-        log.error(response);
-        Qmsg.error("获取关注列表信息失败");
-        return;
-      }
-      let data = utils.toJSON(response.data.responseText);
-      if (!ApiResponseCheck.isSuccess(data)) {
-        return;
-      }
-      let notSeenIdInfoList = [];
-      let getAvatarUri = (avatarData) => {
-        var _a2;
-        return (_a2 = avatarData == null ? void 0 : avatarData["url_list"]) == null ? void 0 : _a2[0];
-      };
-      for (let index = 0; index < data["followings"].length; index++) {
-        const item = data["followings"][index];
-        notSeenIdInfoList.push({
-          data: item,
-          videoIdList: item["not_seen_item_id_list_v2"],
-          authorInfo: {
-            name: item["nickname"],
-            remarkName: item["remark_name"],
-            avatarUri: getAvatarUri(item == null ? void 0 : item["avatar_larger"]) || getAvatarUri(item == null ? void 0 : item["avatar_medium"]) || getAvatarUri(item == null ? void 0 : item["avatar_thumb"]) || getAvatarUri(item == null ? void 0 : item["avatar_300x300"]) || getAvatarUri(item == null ? void 0 : item["avatar_168x168"]),
-            sec_uid: item["sec_uid"],
-            homeUrl: DouYinUrlUtils.getUserHomeUrl(item["sec_uid"])
-          }
-        });
-      }
-    }
-  };
-  const DouYinQueryApi = {
-    /**
-     * 获取当前登录的用户的信息
-     */
-    async user() {
-      let response = await httpx.get("/aweme/v1/web/query/user/", {
-        fetch: true,
-        data: {
-          ...ApiConfig.getCommonData(),
-          publish_video_strategy_type: 2,
-          update_version_code: ApiConfig.getCommonData()["version_code"],
-          downlink: 10,
-          webid: ApiConfig.getWebId()
-        },
-        allowInterceptConfig: false
-      });
-      if (!response.status) {
-        log.error(response);
-        Qmsg.error("获取用户信息失败");
-        return;
-      }
-      let data = utils.toJSON(response.data.responseText);
-      if (!ApiResponseCheck.isSuccess(data)) {
-        return;
-      }
-      let { user_uid } = data;
-      if (typeof user_uid !== "string") {
-        return;
-      }
-      return user_uid;
-    }
-  };
   const DouYin = {
     init() {
       addStyle(blockCSS$5);
@@ -7919,17 +7718,6 @@
       } else {
         log.error("未知router: " + window.location.hostname);
       }
-      DouYinQueryApi.user().then((user_uid) => {
-        if (!user_uid) {
-          return;
-        }
-        DouYinFollowingApi.list({
-          user_id: user_uid,
-          offset: 0,
-          count: 20
-        }).then((data) => {
-        });
-      });
     },
     /**
      * 固定meta viewport缩放倍率为1
@@ -8007,6 +7795,50 @@
     }
   };
   const blockCSS$4 = "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 上面屏蔽后的空白区域 */\r\n.user-card .nav-bar-placeholder,\r\n/* 视频区域底部的【打开抖音App看更多内容】 */\r\n.select-list .img-button{\r\n    display: none !important;\r\n}";
+  const DouYinUrlUtils = {
+    /**
+     * 获取视频链接
+     * @param videoId 视频id
+     */
+    getVideoUrl(videoId) {
+      return "https://www.douyin.com/video/" + videoId;
+    },
+    /**
+     * 获取视频合集链接
+     * @param collectionId 合集id
+     */
+    getCollectionUrl(collectionId) {
+      return "https://www.douyin.com/collection/" + collectionId;
+    },
+    /**
+     * 获取笔记链接
+     * @param noteId 笔记id
+     */
+    getNoteUrl(noteId) {
+      return "https://www.douyin.com/note/" + noteId;
+    },
+    /**
+     * 获取话题链接
+     * @param hashTagId 话题id
+     */
+    getHashTagUrl(hashTagId) {
+      return "https://www.douyin.com/hashtag/" + hashTagId;
+    },
+    /**
+     * 获取用户主页链接
+     * @param sec_uid
+     */
+    getUserHomeUrl(sec_uid) {
+      return "https://www.douyin.com/user/" + sec_uid;
+    },
+    /**
+     * 获取音乐链接
+     * @param musicId 音乐id
+     */
+    getMusicUrl(musicId) {
+      return "https://www.douyin.com/music/" + musicId;
+    }
+  };
   const MDouYinShareUser = {
     init() {
       addStyle(blockCSS$4);

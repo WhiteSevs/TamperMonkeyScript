@@ -216,6 +216,15 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 									void 0,
 									DouYinLiveShortCut.shortCut
 								),
+								UIButtonShortCut(
+									"【屏蔽】礼物特效",
+									"",
+									"dy-live-shieldGiftEffects",
+									void 0,
+									"点击录入快捷键",
+									void 0,
+									DouYinLiveShortCut.shortCut
+								),
 							],
 						},
 					],

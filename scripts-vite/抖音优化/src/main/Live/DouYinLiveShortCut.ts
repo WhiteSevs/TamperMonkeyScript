@@ -21,6 +21,14 @@ export const DouYinLiveShortCut = {
 					PopsPanel.setValue("live-shieldChatRoom", !flag);
 				},
 			},
+			"dy-live-shieldGiftEffects": {
+				target: "window",
+				callback: () => {
+					log.info("快捷键 ==> 【屏蔽】礼物特效");
+					let flag = PopsPanel.getValue<boolean>("live-shieldGiftEffects");
+					PopsPanel.setValue("live-shieldGiftEffects", !flag);
+				},
+			},
 		};
 	},
 };
