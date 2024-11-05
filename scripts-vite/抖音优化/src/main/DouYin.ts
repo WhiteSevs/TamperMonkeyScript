@@ -1,4 +1,4 @@
-import { DOMUtils, log, utils } from "@/env";
+import { addStyle, DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BlockTopNavigator } from "./block-frame/blockTopNavigator";
 import { BlockSearchFrame } from "./block-frame/blockSearchFrame";
@@ -12,9 +12,13 @@ import { DouYinSearch } from "./search/DouYinSearch";
 import { BlockLeftNavigator } from "./block-frame/blockLeftNavigator";
 import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
 import { DouYinGestureBackClearHash } from "./DouYinGestureBackConfig";
+import blockCSS from "./css/block.css?raw";
+import { DouYinFollowingApi } from "@/api/DouYinFollowingApi";
+import { DouYinQueryApi } from "@/api/DouYinQueryApi";
 
 export const DouYin = {
 	init() {
+		addStyle(blockCSS);
 		DouYinGestureBackClearHash();
 		DouYinHook.init();
 		// DouYinNetWorkHook.init();
@@ -47,6 +51,16 @@ export const DouYin = {
 		} else {
 			log.error("未知router: " + window.location.hostname);
 		}
+		DouYinQueryApi.user().then((user_uid) => {
+			if (!user_uid) {
+				return;
+			}
+			DouYinFollowingApi.list({
+				user_id: user_uid,
+				offset: 0,
+				count: 20,
+			}).then((data) => {});
+		});
 	},
 	/**
 	 * 固定meta viewport缩放倍率为1

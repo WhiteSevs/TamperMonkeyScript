@@ -6,6 +6,8 @@ import { UISelect } from "../common-components/ui-select";
 import { VideoQualityMap } from "@/main/Live/DouYinLive";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { AutoOpenOrClose } from "../utils/all-open-or-close";
+import { UIButtonShortCut } from "../common-components/ui-button-shortcut";
+import { DouYinLiveShortCut } from "@/main/Live/DouYinLiveShortCut";
 
 const PanelLiveConfig: PopsPanelContentConfig = {
 	id: "panel-config-live",
@@ -193,6 +195,27 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 										return liElement;
 									},
 								},
+							],
+						},
+					],
+				},
+				{
+					text: "自定义快捷键",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UIButtonShortCut(
+									"【屏蔽】聊天室",
+									"",
+									"dy-live-block-chatroom",
+									void 0,
+									"点击录入快捷键",
+									void 0,
+									DouYinLiveShortCut.shortCut
+								),
 							],
 						},
 					],

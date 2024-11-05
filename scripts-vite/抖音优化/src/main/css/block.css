@@ -1,0 +1,4 @@
+/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */
+#douyin-web-download-guide-container {
+	display: none !important;
+}

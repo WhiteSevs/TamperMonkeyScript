@@ -24,10 +24,10 @@ export const DouYinLiveChatRoomHideElement = {
 		});
 	},
 	/**
-	 * 【屏蔽】评论区
+	 * 【屏蔽】评论区（聊天室）
 	 */
 	shieldChatRoom() {
-		log.info("【屏蔽】评论区");
+		log.info("【屏蔽】评论区（聊天室）");
 		return [
 			DouYinUtils.addBlockCSS("#chatroom"),
 			addStyle(`

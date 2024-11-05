@@ -7,6 +7,7 @@ import { DouYinUtils } from "@/utils/DouYinUtils";
 import { ReactUtils } from "@/utils/ReactUtils";
 import { DouYinLiveHideElement } from "./DouYinLiveHideElement";
 import { DouYinLivePlayerInstance } from "./DouYinLivePlayerInstance";
+import { DouYinLiveShortCut } from "./DouYinLiveShortCut";
 
 export const VideoQualityMap: {
 	[key: string]: {
@@ -60,6 +61,7 @@ export const VideoQualityMap: {
 export const DouYinLive = {
 	init() {
 		DouYinLiveHideElement.init();
+		DouYinLiveShortCut.init();
 		PopsPanel.execMenu("live-autoEnterElementFullScreen", () => {
 			this.autoEnterElementFullScreen();
 		});
