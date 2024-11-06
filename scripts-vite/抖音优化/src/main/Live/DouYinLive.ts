@@ -5,7 +5,7 @@ import { DouYinLiveDanmuku } from "./DouYinLiveDanmuku";
 import Qmsg from "qmsg";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 import { ReactUtils } from "@/utils/ReactUtils";
-import { DouYinLiveHideElement } from "./DouYinLiveHideElement";
+import { DouYinLiveBlock } from "./DouYinLiveBlock";
 import { DouYinLivePlayerInstance } from "./DouYinLivePlayerInstance";
 import { DouYinLiveShortCut } from "./DouYinLiveShortCut";
 
@@ -60,7 +60,7 @@ export const VideoQualityMap: {
  */
 export const DouYinLive = {
 	init() {
-		DouYinLiveHideElement.init();
+		DouYinLiveBlock.init();
 		DouYinLiveShortCut.init();
 		PopsPanel.execMenu("live-autoEnterElementFullScreen", () => {
 			this.autoEnterElementFullScreen();

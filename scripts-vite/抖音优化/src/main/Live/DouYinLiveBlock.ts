@@ -2,7 +2,7 @@ import { addStyle, log } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 
-export const DouYinLiveChatRoomHideElement = {
+export const DouYinLiveChatRoomBlock = {
 	init() {
 		PopsPanel.execMenuOnce("live-shieldChatRoom", () => {
 			return this.shieldChatRoom();
@@ -55,7 +55,7 @@ export const DouYinLiveChatRoomHideElement = {
 		log.info("【屏蔽】用户等级图标");
 		return [
 			DouYinUtils.addBlockCSS(
-				'.webcast-chatroom___item span:has(>img[src*="level"])'
+				'#chatroom .webcast-chatroom___item span:has(>img[src*="level"])'
 			),
 		];
 	},
@@ -66,7 +66,7 @@ export const DouYinLiveChatRoomHideElement = {
 		log.info("【屏蔽】VIP图标");
 		return [
 			DouYinUtils.addBlockCSS(
-				'.webcast-chatroom___item span:has(>img[src*="subscribe"])'
+				'#chatroom .webcast-chatroom___item span:has(>img[src*="subscribe"])'
 			),
 		];
 	},
@@ -77,7 +77,8 @@ export const DouYinLiveChatRoomHideElement = {
 		log.info("【屏蔽】粉丝牌");
 		return [
 			DouYinUtils.addBlockCSS(
-				'.webcast-chatroom___item span:has(>div[style*="fansclub"])'
+				'#chatroom .webcast-chatroom___item span:has(>div[style*="fansclub"])',
+				'#chatroom .webcast-chatroom___item span:has(>img[src*="fansclub"])'
 			),
 		];
 	},
@@ -88,7 +89,7 @@ export const DouYinLiveChatRoomHideElement = {
 		log.info("【屏蔽】信息播报");
 		return [
 			DouYinUtils.addBlockCSS(
-				".webcast-chatroom___bottom-message",
+				"#chatroom .webcast-chatroom___bottom-message",
 				// 上面的滚动播报，xxx加入了直播间
 				'#chatroom >div>div>div:has(>div[elementtiming="element-timing"])'
 			),
@@ -96,7 +97,7 @@ export const DouYinLiveChatRoomHideElement = {
 	},
 };
 
-export const DouYinLiveDanmuHideElement = {
+export const DouYinLiveDanmuBlock = {
 	init() {
 		PopsPanel.execMenuOnce("live-shieldDanmuku", () => {
 			return this.shieldDanmu();
@@ -112,7 +113,7 @@ export const DouYinLiveDanmuHideElement = {
 	},
 };
 
-export const DouYinLiveHideElement = {
+export const DouYinLiveBlock = {
 	init() {
 		PopsPanel.execMenuOnce("live-shieldGiftColumn", () => {
 			return this.shieldGiftColumn();
@@ -126,8 +127,8 @@ export const DouYinLiveHideElement = {
 		PopsPanel.execMenuOnce("live-shielYellowCar", () => {
 			return this.shieldYellowCar();
 		});
-		DouYinLiveChatRoomHideElement.init();
-		DouYinLiveDanmuHideElement.init();
+		DouYinLiveChatRoomBlock.init();
+		DouYinLiveDanmuBlock.init();
 	},
 
 	/**

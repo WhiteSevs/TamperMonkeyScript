@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.5.22
+// @version      2024.11.6
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,8 +10,8 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
 // @connect      *
@@ -1058,7 +1058,7 @@
       });
     }
   };
-  const DouYinLiveChatRoomHideElement = {
+  const DouYinLiveChatRoomBlock = {
     init() {
       PopsPanel.execMenuOnce("live-shieldChatRoom", () => {
         return this.shieldChatRoom();
@@ -1111,7 +1111,7 @@
       log.info("【屏蔽】用户等级图标");
       return [
         DouYinUtils.addBlockCSS(
-          '.webcast-chatroom___item span:has(>img[src*="level"])'
+          '#chatroom .webcast-chatroom___item span:has(>img[src*="level"])'
         )
       ];
     },
@@ -1122,7 +1122,7 @@
       log.info("【屏蔽】VIP图标");
       return [
         DouYinUtils.addBlockCSS(
-          '.webcast-chatroom___item span:has(>img[src*="subscribe"])'
+          '#chatroom .webcast-chatroom___item span:has(>img[src*="subscribe"])'
         )
       ];
     },
@@ -1133,7 +1133,8 @@
       log.info("【屏蔽】粉丝牌");
       return [
         DouYinUtils.addBlockCSS(
-          '.webcast-chatroom___item span:has(>div[style*="fansclub"])'
+          '#chatroom .webcast-chatroom___item span:has(>div[style*="fansclub"])',
+          '#chatroom .webcast-chatroom___item span:has(>img[src*="fansclub"])'
         )
       ];
     },
@@ -1144,14 +1145,14 @@
       log.info("【屏蔽】信息播报");
       return [
         DouYinUtils.addBlockCSS(
-          ".webcast-chatroom___bottom-message",
+          "#chatroom .webcast-chatroom___bottom-message",
           // 上面的滚动播报，xxx加入了直播间
           '#chatroom >div>div>div:has(>div[elementtiming="element-timing"])'
         )
       ];
     }
   };
-  const DouYinLiveDanmuHideElement = {
+  const DouYinLiveDanmuBlock = {
     init() {
       PopsPanel.execMenuOnce("live-shieldDanmuku", () => {
         return this.shieldDanmu();
@@ -1165,7 +1166,7 @@
       return [DouYinUtils.addBlockCSS("xg-danmu.xgplayer-danmu")];
     }
   };
-  const DouYinLiveHideElement = {
+  const DouYinLiveBlock = {
     init() {
       PopsPanel.execMenuOnce("live-shieldGiftColumn", () => {
         return this.shieldGiftColumn();
@@ -1179,8 +1180,8 @@
       PopsPanel.execMenuOnce("live-shielYellowCar", () => {
         return this.shieldYellowCar();
       });
-      DouYinLiveChatRoomHideElement.init();
-      DouYinLiveDanmuHideElement.init();
+      DouYinLiveChatRoomBlock.init();
+      DouYinLiveDanmuBlock.init();
     },
     /**
      * 【屏蔽】底部的礼物栏
@@ -1680,7 +1681,7 @@
   };
   const DouYinLive = {
     init() {
-      DouYinLiveHideElement.init();
+      DouYinLiveBlock.init();
       DouYinLiveShortCut.init();
       PopsPanel.execMenu("live-autoEnterElementFullScreen", () => {
         this.autoEnterElementFullScreen();

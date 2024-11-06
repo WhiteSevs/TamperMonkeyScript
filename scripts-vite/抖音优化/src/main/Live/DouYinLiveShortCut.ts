@@ -1,6 +1,6 @@
 import { log } from "@/env";
 import { ShortCut, type ShortCutOption } from "@/utils/ShortCut";
-import { DouYinLiveChatRoomHideElement } from "./DouYinLiveHideElement";
+import { DouYinLiveChatRoomBlock } from "./DouYinLiveBlock";
 import { PopsPanel } from "@/setting/setting";
 
 export const DouYinLiveShortCut = {
