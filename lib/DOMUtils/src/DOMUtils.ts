@@ -1,13 +1,11 @@
 import { DOMUtilsCommonUtils } from "./DOMUtilsCommonUtils";
-import {
-	type DOMUtilsCreateElementAttributesMap,
-	DOMUtilsEvent,
-} from "./DOMUtilsEvent";
+import { DOMUtilsEvent } from "./DOMUtilsEvent";
+import type { DOMUtilsCreateElementAttributesMap } from "./types/DOMUtilsEvent";
 import {
 	ParseHTMLReturnType,
 	type DOMUtilsTargetElementType,
 } from "./types/global";
-import { type UtilsWindowApiOption } from "./WindowApi";
+import type { WindowApiOption } from "./types/WindowApi";
 
 /**
  * 判断是否是元素列表
@@ -18,11 +16,11 @@ export const isNodeList = ($ele: any): $ele is any[] | NodeList => {
 };
 
 class DOMUtils extends DOMUtilsEvent {
-	constructor(option?: UtilsWindowApiOption) {
+	constructor(option?: WindowApiOption) {
 		super(option);
 	}
 	/** 版本号 */
-	version = "2024.10.23";
+	version = "2024.11.6";
 	/**
 	 * 获取元素的属性值
 	 * @param element 目标元素
@@ -1951,7 +1949,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * @param option
 	 * @returns
 	 */
-	createDOMUtils(option?: UtilsWindowApiOption) {
+	createDOMUtils(option?: WindowApiOption) {
 		return new DOMUtils(option);
 	}
 	/**

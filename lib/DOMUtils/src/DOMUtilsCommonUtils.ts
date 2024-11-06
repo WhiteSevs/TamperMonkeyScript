@@ -1,11 +1,12 @@
-import { UtilsWindowApiOption } from "./WindowApi";
+import { WindowApi } from "./WindowApi";
 
 /** 通用工具类 */
 const DOMUtilsCommonUtils = {
-	windowApi: {
-		window: window,
+	windowApi: new WindowApi({
 		document: document,
-	} as UtilsWindowApiOption,
+		window: window,
+		top: top!,
+	}),
 	/**
 	 * 判断元素是否已显示或已连接
 	 * @param element

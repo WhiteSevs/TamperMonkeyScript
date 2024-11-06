@@ -13,10 +13,10 @@ import type { DOMUtils_EventType } from "./types/Event";
 import type { UtilsAjaxHookResult } from "./types/ajaxHooker";
 import { Vue } from "./Vue";
 import { type ArgsType, type JSTypeNames, type UtilsOwnObject } from "./types/global";
-import type { UtilsWindowApiOption } from "./types/WindowApi";
+import type { WindowApiOption } from "./types/WindowApi";
 declare class Utils {
     private windowApi;
-    constructor(option?: UtilsWindowApiOption);
+    constructor(option?: WindowApiOption);
     /** 版本号 */
     version: string;
     /**
@@ -1720,7 +1720,7 @@ declare class Utils {
      * @param option
      * @returns
      */
-    createUtils(option?: UtilsWindowApiOption): Utils;
+    createUtils(option?: WindowApiOption): Utils;
     /**
      * 将对象转换为FormData
      * @param data 待转换的对象

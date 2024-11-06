@@ -21,15 +21,15 @@ import {
 	type JSTypeNames,
 	type UtilsOwnObject,
 } from "./types/global";
-import type { UtilsWindowApiOption } from "./types/WindowApi";
+import type { WindowApiOption } from "./types/WindowApi";
 
 class Utils {
-	private windowApi: WindowApi;
-	constructor(option?: UtilsWindowApiOption) {
+	private windowApi: typeof WindowApi.prototype;
+	constructor(option?: WindowApiOption) {
 		this.windowApi = new WindowApi(option);
 	}
 	/** 版本号 */
-	version = "2024.11.5";
+	version = "2024.11.6";
 
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
@@ -4978,7 +4978,7 @@ class Utils {
 	 * @param option
 	 * @returns
 	 */
-	createUtils(option?: UtilsWindowApiOption) {
+	createUtils(option?: WindowApiOption) {
 		return new Utils(option);
 	}
 

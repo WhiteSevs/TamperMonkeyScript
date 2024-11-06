@@ -1,5 +1,5 @@
 declare const DOMUtilsData: {
-    /** .on绑定的事件 */
+    /** .on添加在元素存储的事件 */
     SymbolEvents: symbol;
 };
 export { DOMUtilsData };
