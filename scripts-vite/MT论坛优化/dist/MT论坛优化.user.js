@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.29
+// @version      2024.11.6
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子等
 // @license      GPL-3.0-only
@@ -11,9 +11,9 @@
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.10.0/highlight.min.js
 // @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.10.0/styles/github-dark.min.css
@@ -45,7 +45,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
   var require_entrance_001 = __commonJS({
-    "entrance-DfmYR9r8.js"(exports, module) {
+    "entrance-BmOegRNf.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -1162,17 +1162,17 @@
                 /*html*/
                 `
                 <div class="avatar-container">
-                    <p class="avatar-tip">1. 小头像（图片宽高限制最大：48×48）</p>
+                    <p class="avatar-tip">1. 小头像（图片宽高限制最大尺寸：48×48）</p>
                     <p class="avatar-upload-status" data-type="small">🤡请先上传图片</p>
                     <input type="file" class="avatar-upload" data-type="small" data-maxwidth="48" data-maxheight="48" accept="image/*">
                 </div>
                 <div class="avatar-container">
-                    <p class="avatar-tip">2. 中头像（图片宽高限制最大：120×120）</p>
+                    <p class="avatar-tip">2. 中头像（图片宽高限制最大尺寸：120×120）</p>
                     <p class="avatar-upload-status" data-type="middle">🤡请先上传图片</p>
                     <input type="file" class="avatar-upload" data-type="middle" data-maxwidth="120" data-maxheight="120" accept="image/*">
                 </div>
                 <div class="avatar-container">
-                    <p class="avatar-tip">3. 大头像（图片宽高限制最大：200×250）</p>
+                    <p class="avatar-tip">3. 大头像（图片宽高限制最大尺寸：200×250）</p>
                     <p class="avatar-upload-status" data-type="big">🤡请先上传图片</p>
                     <input type="file" class="avatar-upload" data-type="big" data-maxwidth="200" data-maxheight="250" accept="image/*">
                 </div>
@@ -2848,17 +2848,19 @@
          * 快捷回复优化
          */
         quickReplyOptimization() {
-          utils.waitNode("#scrolltop > span:nth-child(2) > a", 1e4).then(($ele) => {
+          utils.waitNode('#scrolltop a[title="快速回复"]', 1e4).then(($ele) => {
             if (!$ele) {
               return;
             }
             log.info(`快捷回复优化`);
             domUtils.on($ele, "click", function() {
               _unsafeWindow.showWindow("reply", this.href);
+              log.info(`等待弹窗出现`);
               utils.waitNode("#moreconf", 1e4).then(($moreconf) => {
                 if (!$moreconf) {
                   return;
                 }
+                log.success(`弹出出现，添加按钮`);
                 let $oneKeySpace = domUtils.createElement(
                   "button",
                   {
@@ -3716,7 +3718,7 @@
               {
                 ok: {
                   callback() {
-                    $submit.click();
+                    submitSaveOption();
                   }
                 }
               },
@@ -3763,21 +3765,20 @@
           let $form = $dialog.$shadowRoot.querySelector(
             ".rule-form-container"
           );
-          let $submit = $dialog.$shadowRoot.querySelector(
+          $dialog.$shadowRoot.querySelector(
             "input[type=submit]"
           );
           let $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
           let view = this.option.getView(this.option.data());
           $ulist.appendChild(view);
-          domUtils.on($form, "submit", (event) => {
-            utils.preventEvent(event);
+          const submitSaveOption = () => {
             let result = this.option.onsubmit($form, this.option.data());
             if (!result.success) {
               return;
             }
             $dialog.close();
             this.option.dialogCloseCallBack(true);
-          });
+          };
         }
       }
       const MTCommentFilter = {
@@ -4165,6 +4166,87 @@
           _GM_setValue(this.$key.STORAGE_KEY, data);
         }
       };
+      class RuleFilterView {
+        constructor(option) {
+          __publicField(this, "option");
+          this.option = option;
+        }
+        showView() {
+          let $alert = __pops.alert({
+            title: {
+              text: this.option.title,
+              position: "center"
+            },
+            content: {
+              text: (
+                /*html*/
+                `
+                <div class="filter-container"></div>
+                `
+              )
+            },
+            btn: {
+              ok: {
+                text: "关闭",
+                type: "default"
+              }
+            },
+            mask: {
+              enable: true
+            },
+            width: window.innerWidth > 500 ? "350px" : "80vw",
+            height: window.innerHeight > 500 ? "300px" : "70vh",
+            style: (
+              /*css*/
+              `
+            .filter-container{
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            .filter-container button{
+                text-wrap: wrap;
+                padding: 8px;
+                height: auto;
+                text-align: left;
+            }
+            `
+            )
+          });
+          let $filterContainer = $alert.$shadowRoot.querySelector(".filter-container");
+          let $fragment = document.createDocumentFragment();
+          this.option.filterOption.forEach((filterOption) => {
+            let $button = document.createElement("button");
+            $button.innerText = filterOption.name;
+            let execFilterAndCloseDialog = () => {
+              this.option.getAllRuleInfo().forEach((ruleInfo) => {
+                if (!filterOption.filterCallBack(ruleInfo.data)) {
+                  domUtils.hide(ruleInfo.$el, false);
+                } else {
+                  domUtils.show(ruleInfo.$el, false);
+                }
+              });
+              if (typeof this.option.execFilterCallBack === "function") {
+                this.option.execFilterCallBack();
+              }
+              $alert.close();
+            };
+            domUtils.on($button, "click", (event) => {
+              utils.preventEvent(event);
+              if (typeof filterOption.callback === "function") {
+                let result = filterOption.callback(event, execFilterAndCloseDialog);
+                if (!result) {
+                  return;
+                }
+              }
+              execFilterAndCloseDialog();
+            });
+            $fragment.appendChild($button);
+          });
+          $filterContainer.appendChild($fragment);
+        }
+      }
       class RuleView {
         constructor(option) {
           __publicField(this, "option");
@@ -4217,9 +4299,40 @@
                 type: "default",
                 text: "过滤",
                 callback: (details, event) => {
-                  var _a3, _b2, _c2;
+                  var _a3, _b2, _c2, _d2, _e2, _f2, _g2;
                   if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.filter) == null ? void 0 : _c2.callback) === "function") {
                     this.option.bottomControls.filter.callback();
+                  }
+                  let getAllRuleElement = () => {
+                    return Array.from(
+                      $popsConfirm.$shadowRoot.querySelectorAll(
+                        ".rule-view-container .rule-item"
+                      )
+                    );
+                  };
+                  let $button = event.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
+                  if (domUtils.text($button).includes("取消")) {
+                    getAllRuleElement().forEach(($el) => {
+                      domUtils.show($el, false);
+                    });
+                    domUtils.text($button, "过滤");
+                  } else {
+                    let ruleFilterView = new RuleFilterView({
+                      title: ((_e2 = (_d2 = this.option.bottomControls) == null ? void 0 : _d2.filter) == null ? void 0 : _e2.title) ?? "过滤规则",
+                      filterOption: ((_g2 = (_f2 = this.option.bottomControls) == null ? void 0 : _f2.filter) == null ? void 0 : _g2.option) || [],
+                      execFilterCallBack() {
+                        domUtils.text($button, "取消过滤");
+                      },
+                      getAllRuleInfo: () => {
+                        return getAllRuleElement().map(($el) => {
+                          return {
+                            data: this.parseRuleItemElement($el).data,
+                            $el
+                          };
+                        });
+                      }
+                    });
+                    ruleFilterView.showView();
                   }
                 }
               },
@@ -4345,8 +4458,8 @@
         /**
          * 解析每一项的元素
          */
-        parseItemElement($shadowRoot) {
-          let $enable = $shadowRoot.querySelector(
+        parseRuleItemElement($ruleElement) {
+          let $enable = $ruleElement.querySelector(
             ".rule-controls-enable"
           );
           let $enableSwitch = $enable.querySelector(".pops-panel-switch");
@@ -4356,8 +4469,8 @@
           let $enableSwitchCore = $enable.querySelector(
             ".pops-panel-switch__core"
           );
-          let $edit = $shadowRoot.querySelector(".rule-controls-edit");
-          let $delete = $shadowRoot.querySelector(
+          let $edit = $ruleElement.querySelector(".rule-controls-edit");
+          let $delete = $ruleElement.querySelector(
             ".rule-controls-delete"
           );
           return {
@@ -4372,7 +4485,9 @@
             /** 编辑按钮 */
             $edit,
             /** 删除按钮 */
-            $delete
+            $delete,
+            /** 存储在元素上的数据 */
+            data: Reflect.get($ruleElement, "data-rule")
           };
         }
         /**
@@ -4406,6 +4521,7 @@
 			`
             )
           });
+          Reflect.set($ruleItem, "data-rule", data);
           let switchCheckedClassName = "pops-panel-switch-is-checked";
           const {
             $enable,
@@ -4414,7 +4530,7 @@
             $enableSwitchInput,
             $delete,
             $edit
-          } = this.parseItemElement($ruleItem);
+          } = this.parseRuleItemElement($ruleItem);
           if (this.option.itemControls.enable.enable) {
             domUtils.on($enableSwitchCore, "click", (event) => {
               let isChecked = false;

@@ -59,7 +59,7 @@ export const MTForumPostRightToolBar = {
 	 */
 	quickReplyOptimization() {
 		utils
-			.waitNode<HTMLAnchorElement>("#scrolltop > span:nth-child(2) > a", 10000)
+			.waitNode<HTMLAnchorElement>('#scrolltop a[title="快速回复"]', 10000)
 			.then(($ele) => {
 				if (!$ele) {
 					return;
@@ -67,12 +67,14 @@ export const MTForumPostRightToolBar = {
 				log.info(`快捷回复优化`);
 				DOMUtils.on($ele, "click", function (this: HTMLAnchorElement) {
 					unsafeWindow.showWindow("reply", this.href);
+					log.info(`等待弹窗出现`);
 					utils
 						.waitNode<HTMLDivElement>("#moreconf", 10000)
 						.then(($moreconf) => {
 							if (!$moreconf) {
 								return;
 							}
+							log.success(`弹出出现，添加按钮`);
 							let $oneKeySpace = DOMUtils.createElement(
 								"button",
 								{

@@ -12,7 +12,7 @@ import { ElementUtils } from "@/utils/ElementUtils";
 import { MTRegExp } from "@/utils/MTRegExp";
 import { RuleView } from "@/utils/RuleView";
 import Qmsg from "qmsg";
-import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
+import { GM_deleteValue, GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
 
 type LabelOption = {
 	/** 是否启用 */
@@ -401,7 +401,7 @@ export const MTCustomizeUserLabels = {
 					DOMUtils.on($label, "click", async (event) => {
 						utils.preventEvent(event);
 						if (utils.isNotNull(labelOption.labelClickEvent)) {
-							eval(labelOption.labelClickEvent);
+							unsafeWindow.eval(labelOption.labelClickEvent);
 						}
 					});
 

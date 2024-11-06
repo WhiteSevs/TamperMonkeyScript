@@ -5,10 +5,17 @@ import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 
 export const MTSearch = {
-	$flag: {
-		showSearchHistory: false,
-	},
 	init() {
+		addStyle(/*css*/ `
+		/* 去除搜索框的蒙版 */
+        #comiis_search_noe{
+            display: none !important;
+        }
+		/* 显示真正的试搜索框 */
+        #comiis_search_two{
+            display: block !important;
+        }
+        `);
 		PopsPanel.execMenuOnce("mt-search-showSearchHistory", () => {
 			this.showSearchHistory();
 		});
@@ -26,14 +33,6 @@ export const MTSearch = {
 	 */
 	async showSearchHistory() {
 		log.info(`显示搜索历史`);
-		addStyle(/*css*/ `
-        #comiis_search_noe{
-            display: none !important;
-        }
-        #comiis_search_two{
-            display: block !important;
-        }
-        `);
 		let searchHistoryList = GM_getValue<string[]>("search_history", []);
 		let $input = document.querySelector<HTMLInputElement>("#scform_srchtxt")!;
 		let $submit = document.querySelector<HTMLFormElement>("#searchform")!;
@@ -158,9 +157,7 @@ export const MTSearch = {
 		}
 		utils.waitNode<HTMLInputElement>("#scform_srchtxt").then(($input) => {
 			log.info(`搜索框自动获取焦点`);
-			setTimeout(() => {
-				$input.focus();
-			}, 25);
+			$input.focus();
 		});
 	},
 };

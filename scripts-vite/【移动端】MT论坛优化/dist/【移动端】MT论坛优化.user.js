@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359
-// @version      2024.10.29
+// @version      2024.11.6
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -12,9 +12,9 @@
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/452322/1470429/js-watermark.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.10.0/highlight.min.js
 // @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.10.0/styles/github-dark.min.css
@@ -48,7 +48,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var require_entrance_001 = __commonJS({
-    "entrance-g-xnobCh.js"(exports, module) {
+    "entrance-dLVRq76l.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -379,8 +379,8 @@
         function loadFile(file) {
           let fileReader = new FileReader();
           return new Promise((resolve) => {
-            fileReader.onloadend = async function(event2) {
-              resolve(event2);
+            fileReader.onloadend = async function(event) {
+              resolve(event);
             };
             fileReader.readAsDataURL(file);
           });
@@ -941,7 +941,7 @@
               this.props[PROPS_STORAGE_API].get(key, defaultValue)
             );
           },
-          callback(event2, __value) {
+          callback(event, __value) {
             let value = Boolean(__value);
             log.success(`${value ? "开启" : "关闭"} ${text}`);
             this.props[PROPS_STORAGE_API].set(key, value);
@@ -972,7 +972,7 @@
           getValue() {
             return this.props[PROPS_STORAGE_API].get(key, defaultValue);
           },
-          callback(event2, value) {
+          callback(event, value) {
             this.props[PROPS_STORAGE_API].set(key, value);
           }
         };
@@ -1004,12 +1004,12 @@
           getValue() {
             return this.props[PROPS_STORAGE_API].get(key, defaultValue);
           },
-          callback(event2, isSelectedValue, isSelectedText) {
+          callback(event, isSelectedValue, isSelectedText) {
             let value = isSelectedValue;
             log.info(`选择：${isSelectedText}`);
             this.props[PROPS_STORAGE_API].set(key, value);
             if (typeof callback === "function") {
-              callback(event2, value, isSelectedText);
+              callback(event, value, isSelectedText);
             }
           },
           data: selectData
@@ -1036,9 +1036,9 @@
           buttonIconIsLoading,
           buttonType,
           buttonText,
-          callback(event2) {
+          callback(event) {
             if (typeof clickCallBack === "function") {
-              clickCallBack(event2);
+              clickCallBack(event);
             }
           },
           afterAddToUListCallBack
@@ -1198,17 +1198,17 @@
                 /*html*/
                 `
                 <div class="avatar-container">
-                    <p class="avatar-tip">1. 小头像（图片宽高限制最大：48×48）</p>
+                    <p class="avatar-tip">1. 小头像（图片宽高限制最大尺寸：48×48）</p>
                     <p class="avatar-upload-status" data-type="small">🤡请先上传图片</p>
                     <input type="file" class="avatar-upload" data-type="small" data-maxwidth="48" data-maxheight="48" accept="image/*">
                 </div>
                 <div class="avatar-container">
-                    <p class="avatar-tip">2. 中头像（图片最大宽高最大：120×120）</p>
+                    <p class="avatar-tip">2. 中头像（图片宽高限制最大尺寸：120×120）</p>
                     <p class="avatar-upload-status" data-type="middle">🤡请先上传图片</p>
                     <input type="file" class="avatar-upload" data-type="middle" data-maxwidth="120" data-maxheight="120" accept="image/*">
                 </div>
                 <div class="avatar-container">
-                    <p class="avatar-tip">3. 大头像（图片最大宽高最大：200×250）</p>
+                    <p class="avatar-tip">3. 大头像（图片宽高限制最大尺寸：200×250）</p>
                     <p class="avatar-upload-status" data-type="big">🤡请先上传图片</p>
                     <input type="file" class="avatar-upload" data-type="big" data-maxwidth="200" data-maxheight="250" accept="image/*">
                 </div>
@@ -1370,7 +1370,7 @@
          * 设置文件改变事件
          */
         setUploadChangeEvent($file, $status, sizeInfo, successCallBack) {
-          domUtils.on($file, "change", (event2) => {
+          domUtils.on($file, "change", (event) => {
             var _a2;
             if (!((_a2 = $file.files) == null ? void 0 : _a2.length)) {
               return;
@@ -1503,7 +1503,7 @@
                             text: "右下角"
                           }
                         ],
-                        (event2, isSelectValue, isSelectText) => {
+                        (event, isSelectValue, isSelectText) => {
                           log.info("设置当前Qmsg弹出位置" + isSelectText);
                         },
                         "Toast显示在页面九宫格的位置"
@@ -1843,8 +1843,8 @@
             if (typeof config.iconSize === "string") {
               $icon.style.fontSize = config.iconSize;
             }
-            domUtils.on($setting, "click", (event2) => {
-              utils.preventEvent(event2);
+            domUtils.on($setting, "click", (event) => {
+              utils.preventEvent(event);
               if (typeof config.callback === "function") {
                 config.callback();
               }
@@ -1886,7 +1886,7 @@
           getValue() {
             return this.props[PROPS_STORAGE_API].get(key, defaultValue);
           },
-          callback(event2, value, valueAsNumber) {
+          callback(event, value, valueAsNumber) {
             this.props[PROPS_STORAGE_API].set(
               key,
               isNumber ? valueAsNumber : value
@@ -2204,8 +2204,8 @@
           domUtils.on(
             `.comiis_post_imglist[data-chartbed="${this.option.name}"] .up_btn a`,
             "click",
-            async (event2) => {
-              let result = await this.option.uploadBtnClickEvent(event2);
+            async (event) => {
+              let result = await this.option.uploadBtnClickEvent(event);
               if (result) {
                 $(
                   `.comiis_post_imglist[data-chartbed="${this.option.name}"] input[type="file"]`
@@ -2216,14 +2216,14 @@
           domUtils.on(
             `.comiis_post_imglist[data-chartbed="${this.option.name}"] input[type="file"]`,
             "change",
-            async (event2) => {
-              let $file = event2.target;
+            async (event) => {
+              let $file = event.target;
               let clear_input = () => {
                 $file.value = "";
               };
               let upload_callback = async (uploadFiles) => {
                 let uploadInfo = await this.option.fileChangeEvent(
-                  event2,
+                  event,
                   uploadFiles
                 );
                 clear_input();
@@ -2321,19 +2321,19 @@
                       btn: {
                         ok: {
                           text: "继续上传",
-                          async callback(eventDetails, event22) {
+                          async callback(eventDetails, event2) {
                             eventDetails.close();
                             await upload_callback(chooseImage);
                           }
                         },
                         close: {
-                          callback(details, event22) {
+                          callback(details, event2) {
                             details.close();
                             clear_input();
                           }
                         },
                         cancel: {
-                          callback(eventDetails, event22) {
+                          callback(eventDetails, event2) {
                             eventDetails.close();
                             clear_input();
                           }
@@ -2492,8 +2492,8 @@
          */
         setImageBtnDeleteEvent($ele, data) {
           let $delImg = $ele.querySelector(".delImg");
-          domUtils.on($delImg, "click", async (event2) => {
-            let result = await this.option.delImageEvent(event2, data);
+          domUtils.on($delImg, "click", async (event) => {
+            let result = await this.option.delImageEvent(event, data);
             if (result) {
               let deleteStorageStatus = this.deleteImage(this.option.id, data);
               if (deleteStorageStatus) {
@@ -2507,12 +2507,12 @@
          */
         setHistoryImageBtnDeleteEvent($ele, data) {
           let $delImg = $ele.querySelector(".delImg");
-          domUtils.on($delImg, "click", async (event2) => {
+          domUtils.on($delImg, "click", async (event) => {
             let findValue = GlobalImageDelete.find((item) => item.id === data.id);
             if (!findValue) {
               return;
             }
-            let result = await findValue.callback(event2, data.data);
+            let result = await findValue.callback(event, data.data);
             if (result) {
               let deleteStorageStatus = this.deleteImage(data.id, data.data);
               if (deleteStorageStatus) {
@@ -2591,10 +2591,10 @@
             id: this.$tabConfig.id,
             name: this.$tabConfig.name,
             labelName: this.$tabConfig.labelName,
-            async uploadBtnClickEvent(event2) {
+            async uploadBtnClickEvent(event) {
               return await that.checkLogin();
             },
-            async fileChangeEvent(event2, fileList) {
+            async fileChangeEvent(event, fileList) {
               let uploadList = [];
               let $loading = Qmsg.loading("上传中...");
               let flag = true;
@@ -2620,7 +2620,7 @@
             storageSaveCallBack(data) {
               return data.data;
             },
-            async delImageEvent(event2, data) {
+            async delImageEvent(event, data) {
               let isLogin = await that.checkLogin();
               if (isLogin) {
                 let $loading = Qmsg.loading("正在删除图片...");
@@ -2753,10 +2753,10 @@
             id: this.$tabConfig.id,
             name: this.$tabConfig.name,
             labelName: this.$tabConfig.labelName,
-            async uploadBtnClickEvent(event2) {
+            async uploadBtnClickEvent(event) {
               return await that.checkLogin();
             },
-            async fileChangeEvent(event2, fileList) {
+            async fileChangeEvent(event, fileList) {
               let uploadList = [];
               let $loading = Qmsg.loading("上传中...");
               let flag = true;
@@ -2782,7 +2782,7 @@
             storageSaveCallBack(data) {
               return data.data;
             },
-            async delImageEvent(event2, data) {
+            async delImageEvent(event, data) {
               return true;
             }
           });
@@ -3629,7 +3629,7 @@
          */
         setInputChangeEvent() {
           const that = this;
-          domUtils.on(that.$el.$input, ["input", "propertychange"], function(event2) {
+          domUtils.on(that.$el.$input, ["input", "propertychange"], function(event) {
             var _a2, _b;
             let inputText = that.$el.$input.value;
             if (inputText === "") {
@@ -3656,7 +3656,7 @@
          */
         setInputChangeSaveEvent() {
           const that = this;
-          domUtils.on(this.$el.$input, ["input", "propertychange"], (event2) => {
+          domUtils.on(this.$el.$input, ["input", "propertychange"], (event) => {
             let inputText = that.$el.$input.value;
             let $reply = that.$el.$input.closest(".reply_area").querySelector(".reply_user_content");
             let replyUrl = $reply.getAttribute("data-reply-url");
@@ -3733,9 +3733,9 @@
          * 设置点赞按钮点击事件
          */
         setLikeBtnClickEvent() {
-          domUtils.on(this.$el.$like, "click", async (event2) => {
+          domUtils.on(this.$el.$like, "click", async (event) => {
             var _a2, _b;
-            utils.preventEvent(event2);
+            utils.preventEvent(event);
             if (_unsafeWindow.comiis_recommend_key == 0) {
               _unsafeWindow.comiis_recommend_key = 1;
               let response = await httpx.get(this.$el.$like.href + "&inajax=1", {
@@ -3920,9 +3920,9 @@
          */
         setSubmitBtnClickEvent() {
           const that = this;
-          domUtils.on(this.$el.$fastpostsubmit, "click", async (event2) => {
+          domUtils.on(this.$el.$fastpostsubmit, "click", async (event) => {
             var _a2, _b, _c, _d, _e, _f;
-            utils.preventEvent(event2);
+            utils.preventEvent(event);
             var msgobj = $("#needmessage");
             var msgData = domUtils.val(msgobj);
             msgData = encodeURIComponent(msgData);
@@ -4052,10 +4052,10 @@
             document,
             "click",
             '.comiis_postli_times .dialog[href*="reply"]',
-            async (event2) => {
+            async (event) => {
               var _a2, _b, _c, _d;
-              utils.preventEvent(event2);
-              let $reply = event2.target;
+              utils.preventEvent(event);
+              let $reply = event.target;
               domUtils.attr("#comiis_foot_menu_beautify_big", "data-model", "reply");
               let response = await httpx.get(
                 domUtils.attr($reply, "datahref") || $reply.href + "&inajax=1",
@@ -4150,9 +4150,9 @@
         setGlobalClickCheckEvent() {
           const that = this;
           let forum_url = $("#fastpostform .header_y a").href;
-          domUtils.on(document, "click", function(event2) {
+          domUtils.on(document, "click", function(event) {
             var _a2;
-            let $click = event2.target;
+            let $click = event.target;
             if ($(".popups-popmenu") || MTEditorOptimizationNormal.$data.isUBBCodeInsertClick) {
               log.info(`点击的是弹出层，不做处理`);
               MTEditorOptimizationNormal.$data.isUBBCodeInsertClick = false;
@@ -4237,7 +4237,7 @@
           domUtils.on(
             "#comiis_foot_menu_beautify_big .menu_icon a i",
             "click",
-            function(event2) {
+            function(event) {
               let $click = this;
               if ($click.classList.contains("f_0")) {
                 domUtils.hide("#comiis_foot_menu_beautify_big .menu_body", false);
@@ -4263,7 +4263,7 @@
           domUtils.on(
             "#comiis_foot_menu_beautify_big .menu_icon a.comiis_pictitle",
             "click",
-            function(event2) {
+            function(event) {
               domUtils.hide(
                 "#comiis_foot_menu_beautify_big .menu_body #comiis_post_tab",
                 false
@@ -4287,8 +4287,8 @@
             "#comiis_foot_menu_beautify_big #comiis_pictitle_tab #comiis_pictitle_key",
             "click",
             "li",
-            function(event2) {
-              let $click = event2.target;
+            function(event) {
+              let $click = event.target;
               domUtils.removeClass(
                 "#comiis_foot_menu_beautify_big #comiis_pictitle_tab #comiis_pictitle_key li",
                 "bg_f"
@@ -4307,7 +4307,7 @@
           domUtils.on(
             "#comiis_foot_menu_beautify_big .menu_icon a.comiis_smile",
             "click",
-            function(event2) {
+            function(event) {
               domUtils.hide(
                 "#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab",
                 false
@@ -4342,7 +4342,7 @@
           domUtils.on(
             "#comiis_foot_menu_beautify_big #comiis_smilies_key li",
             "click",
-            function(event2) {
+            function(event) {
               let $click = this;
               domUtils.removeClass(
                 "#comiis_foot_menu_beautify_big #comiis_smilies_key li a"
@@ -4361,7 +4361,7 @@
           domUtils.on(
             "#comiis_foot_menu_beautify_big .menu_icon a.commis_insert_bbs",
             "click",
-            (event2) => {
+            (event) => {
               domUtils.hide(
                 "#comiis_foot_menu_beautify_big .menu_body #comiis_post_tab",
                 false
@@ -4465,7 +4465,7 @@
                 `
               )
             });
-            domUtils.on($ubbs, "click", (event2) => {
+            domUtils.on($ubbs, "click", (event) => {
               domUtils.removeClass(
                 "#comiis_insert_ubb_tab div.comiis_post_urlico ul li.quickUBBs a.comiis_xifont",
                 "f_0"
@@ -5744,7 +5744,7 @@
           domUtils.on(
             [this.$el.$input, this.$el.$title].filter(Boolean),
             ["input", "propertychange"],
-            function(event2) {
+            function(event) {
               let data = null;
               if (Router.isPostPublish_voting()) {
                 let $title = that.$el.$form.querySelector(
@@ -5938,10 +5938,10 @@
          * 初始化发表按钮
          */
         initPostBtn() {
-          let $post2 = domUtils.selector(
+          let $post = domUtils.selector(
             ".comiis_btnbox button#postsubmit:contains('发表')"
           );
-          if (!$post2) {
+          if (!$post) {
             return;
           }
           let $header = $("#comiis_head .header_y");
@@ -5958,7 +5958,7 @@
           domUtils.append($header, $btn);
           domUtils.on($btn, "click", function() {
             domUtils.val("#postsave", 0);
-            $post2.click();
+            $post.click();
           });
         },
         /**
@@ -6289,7 +6289,7 @@
                 <p>0</p>
             </a>`
           );
-          domUtils.on(this.$el.$input, ["input", "propertychange"], (event2) => {
+          domUtils.on(this.$el.$input, ["input", "propertychange"], (event) => {
             let userInputText = this.$el.$input.value;
             let userInputTextLength = utils.getTextLength(userInputText);
             let parsedText = MTEditorPreview.parseText(userInputText);
@@ -6353,7 +6353,7 @@
                 `
               )
             });
-            domUtils.on($ubbs, "click", (event2) => {
+            domUtils.on($ubbs, "click", (event) => {
               let bottomEle = $(
                 `#comiis_post_qydiv li[data-key='${value.key}']`
               );
@@ -6444,7 +6444,7 @@
           domUtils.on(
             ".comiis_pictitle",
             "click",
-            function(event2) {
+            function(event) {
               let $click = this;
               let $font = $click.querySelector("i.comiis_font");
               if (!$font.classList.contains("f_0")) {
@@ -6479,15 +6479,15 @@
           let originImageList = $("#imglist");
           let originImageListParent = domUtils.parent(originImageList);
           domUtils.before(".gm_plugin_chartbed .bqbox_t", originImageListParent);
-          domUtils.on("#imglist .comiis_font", "click", (event2) => {
+          domUtils.on("#imglist .comiis_font", "click", (event) => {
             $("#filedata").click();
           });
           domUtils.on(
             "#comiis_pictitle_tab #comiis_pictitle_key",
             "click",
             "li",
-            function(event2) {
-              let $click = event2.target;
+            function(event) {
+              let $click = event.target;
               domUtils.removeClass(
                 "#comiis_pictitle_tab #comiis_pictitle_key li",
                 "bg_f"
@@ -6557,7 +6557,7 @@
           domUtils.on(
             ".gm_plugin_previewpostforum",
             "click",
-            function(event2) {
+            function(event) {
               let $click = this;
               if ($$("#polldatas").length) {
                 MTEditorPreview.parseVoteText();
@@ -6769,8 +6769,8 @@
                         false,
                         false,
                         "default",
-                        async (event2) => {
-                          let $click = event2.target;
+                        async (event) => {
+                          let $click = event.target;
                           let $li = $click.closest("li");
                           let $desc = $li.querySelector(
                             ".pops-panel-item-left-desc-text"
@@ -6830,8 +6830,8 @@
                         false,
                         false,
                         "default",
-                        async (event2) => {
-                          let $click = event2.target;
+                        async (event) => {
+                          let $click = event.target;
                           let $li = $click.closest("li");
                           let $desc = $li.querySelector(
                             ".pops-panel-item-left-desc-text"
@@ -7258,8 +7258,8 @@
                 void 0,
                 void 0,
                 "primary",
-                (event2) => {
-                  let $click = event2.composedPath()[0];
+                (event) => {
+                  let $click = event.composedPath()[0];
                   let $desc = $click.closest("li").querySelector(".pops-panel-item-left-desc-text");
                   __pops.confirm({
                     title: {
@@ -7273,14 +7273,14 @@
                     btn: {
                       ok: {
                         enable: true,
-                        callback: (event22) => {
+                        callback: (event2) => {
                           MTAutoSignIn.clearSignTime();
                           Qmsg.success("删除成功");
                           domUtils.text(
                             $desc,
                             `上次签到时间：${MTAutoSignIn.getSignTime() == null ? "尚未签到" : Utils.formatTime(MTAutoSignIn.getSignTime())}`
                           );
-                          event22.close();
+                          event2.close();
                         }
                       }
                     },
@@ -8353,8 +8353,8 @@
               "data-sf": userInfo.sf
             }
           );
-          DOMUtils.on($item, "click", ".online-user-avatar", (event2) => {
-            utils.preventEvent(event2);
+          DOMUtils.on($item, "click", ".online-user-avatar", (event) => {
+            utils.preventEvent(event);
             window.open(
               `home.php?mod=space&uid=${userInfo.uid}&do=profile`,
               "_blank"
@@ -8888,9 +8888,9 @@
               document,
               "click",
               ".reader-copy-button",
-              async function(event2) {
-                utils.preventEvent(event2);
-                let $click = event2.target;
+              async function(event) {
+                utils.preventEvent(event);
+                let $click = event.target;
                 let codeElement = document.querySelector(
                   $click.getAttribute("data-code-selector")
                 );
@@ -9146,10 +9146,20 @@
         }
       };
       const MTSearch = {
-        $flag: {
-          showSearchHistory: false
-        },
         init() {
+          addStyle(
+            /*css*/
+            `
+		/* 去除搜索框的蒙版 */
+        #comiis_search_noe{
+            display: none !important;
+        }
+		/* 显示真正的试搜索框 */
+        #comiis_search_two{
+            display: block !important;
+        }
+        `
+          );
           PopsPanel.execMenuOnce("mt-search-showSearchHistory", () => {
             this.showSearchHistory();
           });
@@ -9167,17 +9177,6 @@
          */
         async showSearchHistory() {
           log.info(`显示搜索历史`);
-          addStyle(
-            /*css*/
-            `
-        #comiis_search_noe{
-            display: none !important;
-        }
-        #comiis_search_two{
-            display: block !important;
-        }
-        `
-          );
           let searchHistoryList = _GM_getValue("search_history", []);
           let $input = document.querySelector("#scform_srchtxt");
           let $submit = document.querySelector("#searchform");
@@ -9195,7 +9194,7 @@
             },
             deleteIcon: {
               enable: true,
-              callback(event2, liElement, data) {
+              callback(event, liElement, data) {
                 let findIndex = searchHistoryList.findIndex((item) => item === data);
                 if (findIndex !== -1) {
                   searchHistoryList.splice(findIndex, 1);
@@ -9204,7 +9203,7 @@
                 liElement.remove();
               }
             },
-            itemClickCallBack(event2, liElement, data) {
+            itemClickCallBack(event, liElement, data) {
               $input.value = data;
               $submit.submit();
             }
@@ -9251,8 +9250,8 @@
               clear_history_innerHTML
             );
             let $searchHistory = document.querySelector(".btn_clear_search_history");
-            DOMUtils.on($searchHistory, "click", (event2) => {
-              utils.preventEvent(event2);
+            DOMUtils.on($searchHistory, "click", (event) => {
+              utils.preventEvent(event);
               _GM_deleteValue("search_history");
               window.location.reload();
             });
@@ -9269,7 +9268,7 @@
             DOMUtils.on(
               $empty,
               "click",
-              (event2) => {
+              (event) => {
                 let $input = document.querySelector("#scform_srchtxt");
                 if ($input) {
                   $input.value = "";
@@ -9293,9 +9292,7 @@
           }
           utils.waitNode("#scform_srchtxt").then(($input) => {
             log.info(`搜索框自动获取焦点`);
-            setTimeout(() => {
-              $input.focus();
-            }, 25);
+            $input.focus();
           });
         }
       };
@@ -9696,8 +9693,8 @@
             return;
           }
           var pcReplyJSON = formatPCReply(pcReplyArray);
-          let forumList2 = getForumList();
-          forumList2.forEach((forumListItem, forumListItemIndex) => {
+          let forumList = getForumList();
+          forumList.forEach((forumListItem, forumListItemIndex) => {
             let praiseNode = forumListItem.querySelector(
               ".comiis_xznalist_bottom a"
             );
@@ -10048,8 +10045,8 @@
           domUtils.on(
             document.querySelector(".delsubjecttip i.comiis_font"),
             "click",
-            (event2) => {
-              let $click = event2.target;
+            (event) => {
+              let $click = event.target;
               let $parent = domUtils.parent($click);
               var t_index = parseInt($parent.getAttribute("t-index"));
               __pops.confirm({
@@ -10082,9 +10079,9 @@
           let $paymentSubjectReminderIsFreeList = document.querySelector(
             "#paymentSubjectReminderIsFreeList"
           );
-          domUtils.on($paymentSubjectReminderIsFreeList, "click", "a", (event2) => {
+          domUtils.on($paymentSubjectReminderIsFreeList, "click", "a", (event) => {
             var _a2, _b, _c, _d, _e, _f;
-            let $click = event2.target;
+            let $click = event.target;
             var tIndex = parseInt($click.getAttribute("t-index"));
             var tHref = $click.getAttribute("t-href");
             data[tIndex]["isVisited"] = true;
@@ -10113,8 +10110,8 @@
           let $paymentSubjectReminderIsPaidList = document.querySelector(
             "paymentSubjectReminderIsPaidList"
           );
-          domUtils.on($paymentSubjectReminderIsPaidList, "click", "a", (event2) => {
-            let $click = event2.target;
+          domUtils.on($paymentSubjectReminderIsPaidList, "click", "a", (event) => {
+            let $click = event.target;
             $click.getAttribute("t-index");
             var t_href = $click.getAttribute("t-href");
             window.open(t_href, "_blank");
@@ -10151,12 +10148,12 @@
          * popstate事件函数
          * @param event
          */
-        popStateEvent(event2) {
-          utils.preventEvent(event2);
+        popStateEvent(event) {
+          utils.preventEvent(event);
           if (this.isBacking) {
             return;
           }
-          this.quitGestureBackMode();
+          this.quitGestureBackMode(true);
         }
         /**
          * 进入手势模式
@@ -10181,12 +10178,13 @@
         }
         /**
          * 退出手势模式
+         * @param isUrlChange 是否是url改变触发的
          */
-        async quitGestureBackMode() {
+        async quitGestureBackMode(isUrlChange = false) {
           this.isBacking = true;
           log.success("退出手势模式");
           if (typeof this.config.beforeHistoryBackCallBack === "function") {
-            this.config.beforeHistoryBackCallBack();
+            this.config.beforeHistoryBackCallBack(isUrlChange);
           }
           let maxDate = Date.now() + 1e3 * 5;
           while (true) {
@@ -10208,7 +10206,7 @@
           });
           this.isBacking = false;
           if (typeof this.config.afterHistoryBackCallBack === "function") {
-            this.config.afterHistoryBackCallBack();
+            this.config.afterHistoryBackCallBack(isUrlChange);
           }
         }
       }
@@ -10412,12 +10410,12 @@
           let dragNode = new AnyTouch($drag);
           let smallWidowNode = $drawer.popsElement;
           let smallWidowNormalHeight = domUtils.height(smallWidowNode);
-          dragNode.on("pan", (event2) => {
-            if (event2.phase == "move" && event2.displacementY > 0) {
+          dragNode.on("pan", (event) => {
+            if (event.phase == "move" && event.displacementY > 0) {
               smallWidowNode.style["transition"] = "none";
-              smallWidowNode.style["height"] = Math.abs(smallWidowNormalHeight - event2.distanceY) + "px";
+              smallWidowNode.style["height"] = Math.abs(smallWidowNormalHeight - event.distanceY) + "px";
             }
-            if (event2.isEnd) {
+            if (event.isEnd) {
               smallWidowNode.style["transition"] = "0.2s ease-in";
               if (parseInt(smallWidowNode.style["height"]) > window.innerHeight / 2) {
                 smallWidowNode.style["height"] = smallWidowNormalHeight + "px";
@@ -10435,13 +10433,13 @@
             }
           });
           getureBack.enterGestureBackMode();
-          domUtils.on($titleText, "click", (event2) => {
-            utils.preventEvent(event2);
+          domUtils.on($titleText, "click", (event) => {
+            utils.preventEvent(event);
             utils.setClip(`『${title}』 - ${url}`);
             Qmsg.success("已复制链接");
           });
-          domUtils.on($imageIcon, "click", (event2) => {
-            utils.preventEvent(event2);
+          domUtils.on($imageIcon, "click", (event) => {
+            utils.preventEvent(event);
             log.info(`查看图片`, imagesList);
             var viewerULNodeHTML = "";
             imagesList.forEach((item) => {
@@ -10467,16 +10465,16 @@
             viewer.zoomTo(1);
             viewer.show();
           });
-          domUtils.on($closeIcon, "click", (event2) => {
-            utils.preventEvent(event2);
+          domUtils.on($closeIcon, "click", (event) => {
+            utils.preventEvent(event);
             getureBack.quitGestureBackMode();
           });
-          domUtils.on($openBlankIcon, "click", (event2) => {
-            utils.preventEvent(event2);
+          domUtils.on($openBlankIcon, "click", (event) => {
+            utils.preventEvent(event);
             window.open(url, "_blank");
           });
-          domUtils.on($webSiteIcon, "click", (event2) => {
-            utils.preventEvent(event2);
+          domUtils.on($webSiteIcon, "click", (event) => {
+            utils.preventEvent(event);
             $iframe.contentWindow.location.reload();
             this.checkIframeReadyState($iframe);
           });
@@ -10516,8 +10514,8 @@
               $anchor.setAttribute("data-href", url);
             });
             let $mmlist_li_box = $forum.querySelector(".mmlist_li_box");
-            domUtils.on($mmlist_li_box, "click", function(event2) {
-              var mouseClickPosX = Number(event2.clientX);
+            domUtils.on($mmlist_li_box, "click", function(event) {
+              var mouseClickPosX = Number(event.clientX);
               if (document.body.offsetWidth / 2 > mouseClickPosX) {
                 window.location.href = url;
               } else {
@@ -10843,10 +10841,10 @@
               }
               $alert.close();
             };
-            domUtils.on($button, "click", (event2) => {
-              utils.preventEvent(event2);
+            domUtils.on($button, "click", (event) => {
+              utils.preventEvent(event);
               if (typeof filterOption.callback === "function") {
-                let result = filterOption.callback(event2, execFilterAndCloseDialog);
+                let result = filterOption.callback(event, execFilterAndCloseDialog);
                 if (!result) {
                   return;
                 }
@@ -10891,7 +10889,7 @@
                 enable: ((_c = (_b = (_a2 = this.option) == null ? void 0 : _a2.bottomControls) == null ? void 0 : _b.add) == null ? void 0 : _c.enable) || true,
                 type: "primary",
                 text: "添加",
-                callback: (event2) => {
+                callback: (event) => {
                   this.showEditView(
                     $popsConfirm.$shadowRoot,
                     false,
@@ -10901,7 +10899,7 @@
               },
               close: {
                 enable: true,
-                callback(event2) {
+                callback(event) {
                   $popsConfirm.close();
                 }
               },
@@ -10909,7 +10907,7 @@
                 enable: ((_f = (_e = (_d = this.option) == null ? void 0 : _d.bottomControls) == null ? void 0 : _e.filter) == null ? void 0 : _f.enable) || false,
                 type: "default",
                 text: "过滤",
-                callback: (details, event2) => {
+                callback: (details, event) => {
                   var _a3, _b2, _c2, _d2, _e2, _f2, _g2;
                   if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.filter) == null ? void 0 : _c2.callback) === "function") {
                     this.option.bottomControls.filter.callback();
@@ -10921,11 +10919,12 @@
                       )
                     );
                   };
-                  let $button = event2.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
+                  let $button = event.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
                   if (domUtils.text($button).includes("取消")) {
                     getAllRuleElement().forEach(($el) => {
                       domUtils.show($el, false);
                     });
+                    domUtils.text($button, "过滤");
                   } else {
                     let ruleFilterView = new RuleFilterView({
                       title: ((_e2 = (_d2 = this.option.bottomControls) == null ? void 0 : _d2.filter) == null ? void 0 : _e2.title) ?? "过滤规则",
@@ -10950,7 +10949,7 @@
                 enable: ((_i = (_h = (_g = this.option) == null ? void 0 : _g.bottomControls) == null ? void 0 : _h.clear) == null ? void 0 : _i.enable) || true,
                 type: "xiaomi-primary",
                 text: `清空所有(${this.option.data().length})`,
-                callback: (event2) => {
+                callback: (event) => {
                   let $askDialog = __pops.confirm({
                     title: {
                       text: "提示",
@@ -11142,7 +11141,7 @@
             $edit
           } = this.parseRuleItemElement($ruleItem);
           if (this.option.itemControls.enable.enable) {
-            domUtils.on($enableSwitchCore, "click", (event2) => {
+            domUtils.on($enableSwitchCore, "click", (event) => {
               let isChecked = false;
               if ($enableSwitch.classList.contains(switchCheckedClassName)) {
                 $enableSwitch.classList.remove(switchCheckedClassName);
@@ -11161,8 +11160,8 @@
             $enable.remove();
           }
           if (this.option.itemControls.edit.enable) {
-            domUtils.on($edit, "click", (event2) => {
-              utils.preventEvent(event2);
+            domUtils.on($edit, "click", (event) => {
+              utils.preventEvent(event);
               this.showEditView($shadowRoot, true, data, $ruleItem, (newData) => {
                 data = null;
                 data = newData;
@@ -11172,8 +11171,8 @@
             $edit.remove();
           }
           if (this.option.itemControls.delete.enable) {
-            domUtils.on($delete, "click", (event2) => {
-              utils.preventEvent(event2);
+            domUtils.on($delete, "click", (event) => {
+              utils.preventEvent(event);
               let $askDialog = __pops.confirm({
                 title: {
                   text: "提示",
@@ -11306,13 +11305,13 @@
                 text: isEdit ? "修改" : "添加"
               },
               cancel: {
-                callback(details, event2) {
+                callback(details, event) {
                   details.close();
                   dialogCloseCallBack(false);
                 }
               },
               close: {
-                callback(details, event2) {
+                callback(details, event) {
                   details.close();
                   dialogCloseCallBack(false);
                 }
@@ -12119,7 +12118,7 @@
                 enable: true,
                 text: `查看已过滤（${this.$el.isFilterElementHTML.length}）`,
                 type: "primary",
-                callback: (details, event2) => {
+                callback: (details, event) => {
                   console.log(this.$el.isFilterElementHTML);
                   __pops.alert({
                     title: {
@@ -12899,7 +12898,7 @@
                 domUtils.on($label, "click", async (event) => {
                   utils.preventEvent(event);
                   if (utils.isNotNull(labelOption.labelClickEvent)) {
-                    eval(labelOption.labelClickEvent);
+                    _unsafeWindow.eval(labelOption.labelClickEvent);
                   }
                 });
                 $topLev.parentElement.append($label);
@@ -13082,42 +13081,42 @@
             );
           }
           let lockFn = new utils.LockFunction(() => {
-            let forumList2 = utils.getNodeListValue(
+            let forumList = utils.getNodeListValue(
               ElementUtils.comiisForumList(),
               ElementUtils.comiisPostli(),
               ElementUtils.comiisMmlist()
             );
-            if (forumList2.length) {
-              forumList2.forEach(($post2) => {
-                let mtUIDOM = $post2.querySelector(".gm-custom-label-uid");
+            if (forumList.length) {
+              forumList.forEach(($post) => {
+                let mtUIDOM = $post.querySelector(".gm-custom-label-uid");
                 if (mtUIDOM) {
                   return;
                 }
-                let mt_uid_array2 = Array.from($post2.querySelectorAll("a")).map((item) => {
+                let mt_uid_array = Array.from($post.querySelectorAll("a")).map((item) => {
                   let url = item.href;
                   let uid = url.match(MTRegExp.uid);
                   if (uid) {
                     return uid[uid.length - 1];
                   }
                 }).filter((item) => item != null);
-                if (mt_uid_array2.length) {
-                  let mt_uid2 = mt_uid_array2[0];
+                if (mt_uid_array.length) {
+                  let mt_uid = mt_uid_array[0];
                   let uid_control = document.createElement("a");
-                  let $topLev2 = $post2.querySelector(".top_lev");
-                  uid_control.className = $topLev2.className;
+                  let $topLev = $post.querySelector(".top_lev");
+                  uid_control.className = $topLev.className;
                   uid_control.classList.add("gm-custom-label-uid");
                   uid_control.style.cssText = `background: #FF7600 !important;`;
-                  uid_control.innerHTML = "UID:" + mt_uid2;
-                  domUtils.on(uid_control, "click", async (event2) => {
-                    utils.preventEvent(event2);
-                    let status = await utils.setClip(mt_uid2);
+                  uid_control.innerHTML = "UID:" + mt_uid;
+                  domUtils.on(uid_control, "click", async (event) => {
+                    utils.preventEvent(event);
+                    let status = await utils.setClip(mt_uid);
                     if (status) {
-                      Qmsg.success(`${mt_uid2}已复制`);
+                      Qmsg.success(`${mt_uid}已复制`);
                     } else {
-                      Qmsg.error(`${mt_uid2}复制失败`);
+                      Qmsg.error(`${mt_uid}复制失败`);
                     }
                   });
-                  $topLev2.parentElement.append(uid_control);
+                  $topLev.parentElement.append(uid_control);
                 }
               });
             }
