@@ -786,12 +786,18 @@ declare class Utils {
     isNativeFunc(target: Function): boolean;
     /**
      * 判断当前的位置是否位于页面底部附近
-     * @param nearValue （可选）判断在页面底部的误差值，默认：50
+     * @param nearBottomHeight （可选）判断在底部的误差值，默认：50
      * @returns
      * + true 在底部附近
      * + false 不在底部附近
      */
-    isNearBottom(nearValue?: number): boolean;
+    isNearBottom(nearBottomHeight?: number): boolean;
+    /**
+     * 判断元素内当前的位置是否位于元素内底部附近
+     * @param target 需要判断的元素
+     * @param nearBottomHeight （可选）判断在底部的误差值，默认：50
+     */
+    isNearBottom(target: HTMLElement, nearBottomHeight?: number): boolean;
     /**
      * 判断对象是否是元素
      * @param target

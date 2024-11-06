@@ -1857,21 +1857,64 @@ class Utils {
 	}
 	/**
 	 * 判断当前的位置是否位于页面底部附近
-	 * @param nearValue （可选）判断在页面底部的误差值，默认：50
+	 * @param nearBottomHeight （可选）判断在底部的误差值，默认：50
 	 * @returns
 	 * + true 在底部附近
 	 * + false 不在底部附近
 	 */
-	isNearBottom(nearValue?: number): boolean;
-	isNearBottom(nearValue: number = 50): boolean {
-		var scrollTop =
-			this.windowApi.window.pageYOffset ||
-			this.windowApi.document.documentElement.scrollTop;
-		var windowHeight =
-			this.windowApi.window.innerHeight ||
-			this.windowApi.document.documentElement.clientHeight;
-		var documentHeight = this.windowApi.document.documentElement.scrollHeight;
-		return scrollTop + windowHeight >= documentHeight - nearValue;
+	isNearBottom(nearBottomHeight?: number): boolean;
+	/**
+	 * 判断元素内当前的位置是否位于元素内底部附近
+	 * @param target 需要判断的元素
+	 * @param nearBottomHeight （可选）判断在底部的误差值，默认：50
+	 */
+	isNearBottom(target: HTMLElement, nearBottomHeight?: number): boolean;
+	isNearBottom(...args: any[]): boolean {
+		let nearBottomHeight = 50;
+
+		let checkWindow = () => {
+			// 已滚动的距离
+			let scrollTop: number =
+				this.windowApi.window.pageYOffset ||
+				this.windowApi.document.documentElement.scrollTop;
+			// 视窗高度
+			let viewportHeight: number =
+				this.windowApi.window.innerHeight ||
+				this.windowApi.document.documentElement.clientHeight;
+			// 最大滚动距离
+			let maxScrollHeight: number =
+				this.windowApi.document.documentElement.scrollHeight - nearBottomHeight;
+
+			return scrollTop + viewportHeight >= maxScrollHeight;
+		};
+
+		let checkNode = ($ele: HTMLElement) => {
+			// 已滚动的距离
+			let scrollTop: number = $ele.scrollTop;
+			// 视窗高度
+			let viewportHeight: number = $ele.clientHeight;
+			// 最大滚动距离
+			let maxScrollHeight: number =
+				$ele.scrollHeight - viewportHeight - nearBottomHeight;
+
+			return scrollTop >= maxScrollHeight;
+		};
+
+		let firstArg = args[0];
+		if (args.length === 0 || typeof args[0] === "number") {
+			// nearBottomHeight
+			//
+			return checkWindow();
+		} else if (typeof args[0] === "object" && args[0] instanceof HTMLElement) {
+			// target
+			// target，nearBottomHeight
+			if (typeof args[1] === "number" && !Number.isNaN(args[1])) {
+				nearBottomHeight = args[1];
+			}
+			return checkNode(args[0]);
+		} else {
+			throw new TypeError("参数1类型错误" + typeof firstArg);
+		}
 	}
 	/**
 	 * 判断对象是否是元素
