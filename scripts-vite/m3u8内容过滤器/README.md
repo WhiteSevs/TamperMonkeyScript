@@ -1,18 +1,23 @@
-# Vue 3 + TypeScript + Vite
+## 自定义js的参数格式
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
-
-## Recommended IDE Setup
-
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
-
-## Type Support For `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
-
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
-
-1. Disable the built-in TypeScript Extension
-   1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-   2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+```js
+/**
+ * @param {string} m3u8Text m3u8文本
+ * @param {Object} M3U8Filter 过滤类
+ * @param {Object} M3U8Parser 解析类
+ */
+let ownFilterCodeFunction = function(m3u8Text,M3U8Filter,M3U8Parser){
+   // 自定义的规则的代码code
+   ...
+   // 必须返回处理后的m3u8Text
+   // 例如：
+   let handlerM3U8Text = M3U8Filter.filterAdsWithFilePathSimilar(m3u8Text, {
+      similarCompareValue: 0.2,
+      includePercent: 0.5,
+      handleFilePath(filePath){
+         return filePath.replace(/^http(s|):\/\/.*.com\/video\//,"")
+      }
+   });
+   return handlerM3U8Text;
+}
+```

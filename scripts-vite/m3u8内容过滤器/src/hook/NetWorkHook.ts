@@ -27,6 +27,11 @@ export const NetWorkHook = {
 					if (m3u8Text.trim() === "") {
 						return;
 					}
+					if (!m3u8Text.includes("#EXT-X-ENDLIST")) {
+						// 直播
+						return;
+					}
+					// 点播
 					let handlerM3U8Text = M3U8Rule.runRule(m3u8Text);
 					response.responseText = handlerM3U8Text;
 				};

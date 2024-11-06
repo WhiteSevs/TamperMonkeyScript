@@ -13,6 +13,7 @@ import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 import { M3U8Filter } from "./M3U8Filter";
 import { UITextArea } from "@/setting/common-components/ui-textarea";
 import { M3U8Menu } from "./M3U8Menu";
+import { M3U8Parser } from "./M3U8Parser";
 
 type RuleOption = {
 	/** 唯一uuid */
@@ -26,9 +27,9 @@ type RuleOption = {
 		/** 匹配网站 */
 		url: string;
 		/** 是否启用通过过滤广告 */
-		commonFilterAdsSegmentsFileNameLength: boolean;
+		commonFilterAdsSegmentsFilePathLength: boolean;
 		/** 是否启用通过相似度过滤广告 */
-		commonFilterAdsSegmentsFileNameSimilar: boolean;
+		commonFilterAdsSegmentsFilePathSimilar: boolean;
 		/** 自定义过滤逻辑代码 */
 		ownFilterCode: string;
 	};
@@ -121,8 +122,8 @@ export const M3U8Rule = {
 			name: "",
 			data: {
 				url: "",
-				commonFilterAdsSegmentsFileNameLength: true,
-				commonFilterAdsSegmentsFileNameSimilar: false,
+				commonFilterAdsSegmentsFilePathLength: true,
+				commonFilterAdsSegmentsFilePathSimilar: false,
 				ownFilterCode: "",
 			},
 		};
@@ -240,39 +241,39 @@ export const M3U8Rule = {
 							);
 
 						// 是否启用通用1过滤广告
-						let data_commonFilterAdsSegmentsFileNameLength_template = UISwitch(
+						let data_commonFilterAdsSegmentsFilePathLength_template = UISwitch(
 							"广告通杀1",
-							"commonFilterAdsSegmentsFileNameLength",
+							"commonFilterAdsSegmentsFilePathLength",
 							true,
 							void 0,
 							"使用文件名称长度比较"
 						);
 						Reflect.set(
-							data_commonFilterAdsSegmentsFileNameLength_template.props!,
+							data_commonFilterAdsSegmentsFilePathLength_template.props!,
 							PROPS_STORAGE_API,
 							generateStorageApi(data.data)
 						);
-						let $data_commonFilterAdsSegmentsFileNameLength =
+						let $data_commonFilterAdsSegmentsFilePathLength =
 							popsPanelContentUtils.createSectionContainerItem_switch(
-								data_commonFilterAdsSegmentsFileNameLength_template
+								data_commonFilterAdsSegmentsFilePathLength_template
 							);
 
 						// 是否启用通用2过滤广告
-						let data_commonFilterAdsSegmentsFileNameSimilar_template = UISwitch(
+						let data_commonFilterAdsSegmentsFilePathSimilar_template = UISwitch(
 							"广告通杀2",
-							"commonFilterAdsSegmentsFileNameSimilar",
+							"commonFilterAdsSegmentsFilePathSimilar",
 							false,
 							void 0,
 							"使用文件名称相似度比较"
 						);
 						Reflect.set(
-							data_commonFilterAdsSegmentsFileNameSimilar_template.props!,
+							data_commonFilterAdsSegmentsFilePathSimilar_template.props!,
 							PROPS_STORAGE_API,
 							generateStorageApi(data.data)
 						);
-						let $data_commonFilterAdsSegmentsFileNameSimilar =
+						let $data_commonFilterAdsSegmentsFilePathSimilar =
 							popsPanelContentUtils.createSectionContainerItem_switch(
-								data_commonFilterAdsSegmentsFileNameSimilar_template
+								data_commonFilterAdsSegmentsFilePathSimilar_template
 							);
 
 						// 自定义过滤代码
@@ -303,8 +304,8 @@ export const M3U8Rule = {
 						$fragment.appendChild($enable);
 						$fragment.appendChild($name);
 						$fragment.appendChild($data_url);
-						$fragment.appendChild($data_commonFilterAdsSegmentsFileNameLength);
-						$fragment.appendChild($data_commonFilterAdsSegmentsFileNameSimilar);
+						$fragment.appendChild($data_commonFilterAdsSegmentsFilePathLength);
+						$fragment.appendChild($data_commonFilterAdsSegmentsFilePathSimilar);
 						$fragment.appendChild($data_ownFilterCode);
 						return $fragment;
 					},
@@ -421,14 +422,14 @@ export const M3U8Rule = {
 			try {
 				const RuleOption = this.$data.matchedRule[index];
 				const RuleOptionData = RuleOption.data;
-				if (RuleOptionData.commonFilterAdsSegmentsFileNameLength) {
+				if (RuleOptionData.commonFilterAdsSegmentsFilePathLength) {
 					const { filterInfo, m3u8Text: __handler_m3u8_text__ } =
-						M3U8Filter.filterAdsWithFileNameLength(handlerM3U8Text, true);
+						M3U8Filter.filterAdsWithFilePathLength(handlerM3U8Text);
 					handlerM3U8Text = __handler_m3u8_text__;
 				}
-				if (RuleOptionData.commonFilterAdsSegmentsFileNameSimilar) {
+				if (RuleOptionData.commonFilterAdsSegmentsFilePathSimilar) {
 					const { filterInfo, m3u8Text: __handler_m3u8_text__ } =
-						M3U8Filter.filterAdsWithFileNameSimilar(handlerM3U8Text, true);
+						M3U8Filter.filterAdsWithFilePathSimilar(handlerM3U8Text);
 					handlerM3U8Text = __handler_m3u8_text__;
 				}
 
@@ -436,9 +437,15 @@ export const M3U8Rule = {
 					// 执行自定义js代码
 					let ownFilterCodeFunction = new Function(
 						"m3u8Text",
+						"M3U8Filter",
+						"M3U8Parser",
 						RuleOptionData.ownFilterCode
 					);
-					let ownFilter_m3u8_text = ownFilterCodeFunction(handlerM3U8Text);
+					let ownFilter_m3u8_text = ownFilterCodeFunction(
+						handlerM3U8Text,
+						M3U8Filter,
+						M3U8Parser
+					);
 					if (typeof ownFilter_m3u8_text === "string") {
 						handlerM3U8Text = ownFilter_m3u8_text;
 					} else {

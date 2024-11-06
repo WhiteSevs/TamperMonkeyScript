@@ -1,10 +1,11 @@
 import { log, utils } from "@/env";
 import { CommonUtils } from "@/utils/CommonUtils";
 import { M3U8Menu } from "./M3U8Menu";
+import { M3U8Parser } from "./M3U8Parser";
 
 type SegmentInfo = {
-	/** ts名 */
-	fileName: string;
+	/** 文件路径 */
+	filePath: string;
 	/** 开始的时长 */
 	startDuration: number;
 	/** 结束的时长 */
@@ -13,34 +14,6 @@ type SegmentInfo = {
 	duration: number;
 	/** 索引下标 */
 	index: number;
-};
-
-/**
- * 解析播放信息
- * @param durationText 时长所在的行
- * @param fileNameText ts名所在的行
- * @param currentDuration 当前时长
- */
-const parseM3U8Info = (
-	durationText: string,
-	fileNameText: string,
-	currentDuration: number
-) => {
-	// 解析片段时长
-	let duration = Number(durationText.replace(/(^#EXTINF:\s*|,)/g, ""));
-	// 开始的时长
-	let startDuration = currentDuration;
-	// 结束的时长
-	let endDuration = currentDuration + duration;
-	// ts名称
-	let fileName = fileNameText.trim();
-
-	return {
-		fileName: fileName,
-		startDuration: startDuration,
-		endDuration: endDuration,
-		duration: duration,
-	};
 };
 
 /**
@@ -62,9 +35,19 @@ export const M3U8Filter = {
 	 *
 	 * 该方法仅用于测试，不建议使用，因为无法确定广告片段的格式，可能无法正确过滤广告片段
 	 * @param m3u8Text m3u8的内容
-	 * @param consoleLog 是否输出日志
+	 * @param config
 	 */
-	filterAdsWithFileNameLength(m3u8Text: string, consoleLog: boolean) {
+	filterAdsWithFilePathLength(
+		m3u8Text: string,
+		config: {
+			/** 自定义处理文件名函数 */
+			handlerFilePath: (filePath: string) => string;
+		} = {
+			handlerFilePath(filePath) {
+				return filePath;
+			},
+		}
+	) {
 		let m3u8Split = m3u8Text.split("\n");
 		// 正常视频片段的长度相同，且占大部分
 		// 广告片段的长度不同于正常片段，且占少量
@@ -78,35 +61,38 @@ export const M3U8Filter = {
 			}
 			// 视频信息
 			// 解析片段信息
-			const { duration, startDuration, endDuration, fileName } = parseM3U8Info(
-				m3u8Info,
-				m3u8Split[index + 1],
-				durationTotal
-			);
+			let { duration, startDuration, endDuration, filePath } =
+				M3U8Parser.parse_EXTINF(m3u8Info, m3u8Split[index + 1], durationTotal);
+			if (config && typeof config.handlerFilePath === "function") {
+				let handlerFilePath = config.handlerFilePath(filePath);
+				if (typeof handlerFilePath === "string") {
+					filePath = handlerFilePath;
+				}
+			}
 			durationTotal += duration;
 			// 片段名称长度
-			let fileNameLength = fileName.length.toString();
+			let filePathLength = filePath.length.toString();
 			// 获取字典中已有的信息
-			let segmentInfo = segmentsParseInfo.get(fileNameLength) || [];
+			let segmentInfo = segmentsParseInfo.get(filePathLength) || [];
 			// 添加信息
 			segmentInfo.push({
-				fileName: fileName,
+				filePath: filePath,
 				startDuration: startDuration,
 				endDuration: endDuration,
 				duration: duration,
 				index: index,
 			});
-			segmentsParseInfo.set(fileNameLength, segmentInfo);
+			segmentsParseInfo.set(filePathLength, segmentInfo);
 			index++;
 		}
 		// 需要过滤的片段
 		let needFilterSegments: {
-			fileNameLength: string;
+			filePathLength: string;
 			segmentsInfoList: SegmentInfo[];
 		}[] = [];
 		segmentsParseInfo.forEach((value, key) => {
 			needFilterSegments.push({
-				fileNameLength: key,
+				filePathLength: key,
 				segmentsInfoList: value,
 			});
 		});
@@ -141,14 +127,14 @@ export const M3U8Filter = {
 				);
 				if (findIndex != -1) {
 					let adsSegmentInfo = adsSegmentIndexList[findIndex];
-					consoleLog &&
-						log.info(
-							`通杀1：过滤广告片段 ==> 索引：${index + indexOffset} 文件名：${
-								adsSegmentInfo.data.fileName
-							} 开始：${CommonUtils.duration2Text(
-								adsSegmentInfo.data.startDuration
-							)} 持续时长：${adsSegmentInfo.data.duration}s`
-						);
+
+					log.info(
+						`通杀1：过滤广告片段 ==> 索引：${index + indexOffset} 文件名：${
+							adsSegmentInfo.data.filePath
+						} 开始：${CommonUtils.duration2Text(
+							adsSegmentInfo.data.startDuration
+						)} 持续时长：${adsSegmentInfo.data.duration}s`
+					);
 
 					// 1. 移除原始列表的内容
 					m3u8Split.splice(index, 2);
@@ -180,18 +166,30 @@ export const M3U8Filter = {
 	 *
 	 * 该方法仅用于测试，不建议使用，因为无法确定广告片段的格式，可能无法正确过滤广告片段
 	 * @param m3u8Text m3u8的内容
-	 * @param consoleLog 是否输出日志
+	 * @param config
 	 */
-	filterAdsWithFileNameSimilar(m3u8Text: string, consoleLog: boolean) {
+	filterAdsWithFilePathSimilar(
+		m3u8Text: string,
+		config: {
+			/** 相似度阈值 */
+			similarCompareValue: number;
+			/** 占据的比例 */
+			includePercent: number;
+			/** 自定义处理文件名函数 */
+			handlerFilePath: (filePath: string) => string;
+		} = {
+			similarCompareValue: 0.35,
+			includePercent: 0.5,
+			handlerFilePath(filePath) {
+				return filePath;
+			},
+		}
+	) {
 		let m3u8Split = m3u8Text.split("\n");
 		// 正常视频片段的长度相同，且占大部分
 		// 广告片段的长度不同于正常片段，且占少量
 		// m3u8的片段解析信息
 		let segmentsParseInfoList: SegmentInfo[] = [];
-		// 相似度阈值
-		let similarCompareValue = 0.45;
-		// 占据的比例
-		let includePercent = 0.5;
 
 		let durationTotal = 0;
 		for (let index = 0; index < m3u8Split.length; index++) {
@@ -201,15 +199,18 @@ export const M3U8Filter = {
 			}
 			// 视频信息
 			// 解析片段信息
-			const { duration, startDuration, endDuration, fileName } = parseM3U8Info(
-				m3u8Info,
-				m3u8Split[index + 1],
-				durationTotal
-			);
+			let { duration, startDuration, endDuration, filePath } =
+				M3U8Parser.parse_EXTINF(m3u8Info, m3u8Split[index + 1], durationTotal);
+			if (config && typeof config.handlerFilePath === "function") {
+				let handlerFilePath = config.handlerFilePath(filePath);
+				if (typeof handlerFilePath === "string") {
+					filePath = handlerFilePath;
+				}
+			}
 			durationTotal += duration;
 			// 添加信息
 			segmentsParseInfoList.push({
-				fileName: fileName,
+				filePath: filePath,
 				startDuration: startDuration,
 				endDuration: endDuration,
 				duration: duration,
@@ -241,10 +242,10 @@ export const M3U8Filter = {
 			) {
 				const compareSegmentInfo = iteratorSegmentsParseInfoList[iteratorIndex];
 				let similar = CommonUtils.similar(
-					segmentInfo.fileName,
-					compareSegmentInfo.fileName
+					segmentInfo.filePath,
+					compareSegmentInfo.filePath
 				);
-				if (similar >= similarCompareValue) {
+				if (similar >= config.similarCompareValue) {
 					// 很相似
 					similarCount++;
 				} else {
@@ -252,7 +253,7 @@ export const M3U8Filter = {
 				}
 				if (
 					similarCount / iteratorSegmentsParseInfoList.length >
-					includePercent
+					config.includePercent
 				) {
 					// 与其它的片段的相似度大于设定的比例值
 					// 认为它是正常视频的片段
@@ -263,14 +264,13 @@ export const M3U8Filter = {
 
 			if (isAdsSegment) {
 				isFilterSegmentsInfoList.push(segmentInfo);
-				consoleLog &&
-					log.info(
-						`通杀2：过滤广告片段 ==> 索引：${segmentInfo.index} 文件名：${
-							segmentInfo.fileName
-						} 开始：${CommonUtils.duration2Text(
-							segmentInfo.startDuration
-						)} 持续时长：${segmentInfo.duration}s`
-					);
+				log.info(
+					`通杀2：过滤广告片段 ==> 索引：${segmentInfo.index} 文件名：${
+						segmentInfo.filePath
+					} 开始：${CommonUtils.duration2Text(
+						segmentInfo.startDuration
+					)} 持续时长：${segmentInfo.duration}s`
+				);
 				// 1. 移除原始列表的内容
 				m3u8Split.splice(segmentInfo.index - indexOffset, 2);
 				// 2. 索引偏移
