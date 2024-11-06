@@ -12,11 +12,11 @@ const MSettingUIBlog: PopsPanelContentConfig = {
 	},
 	forms: [
 		{
-			text: "",
 			type: "forms",
+			text: "",
 			forms: [
 				{
-					text: "全局屏蔽",
+					text: "功能",
 					type: "deepMenu",
 					forms: [
 						{
@@ -31,9 +31,36 @@ const MSettingUIBlog: PopsPanelContentConfig = {
 									"包括：登录弹窗、打开APP、ios版本提示等"
 								),
 								UISwitch(
-									"【屏蔽】顶部Toolbar",
+									"允许复制",
+									"m-csdn-blog-unBlockCopy",
+									true,
+									void 0,
+									"允许点击复制按钮进行复制"
+								),
+							],
+						},
+					],
+				},
+			],
+		},
+		{
+			text: "",
+			type: "forms",
+			forms: [
+				{
+					type: "deepMenu",
+					text: "顶部工具栏",
+					forms: [
+						{
+							type: "forms",
+							text: "",
+							forms: [
+								UISwitch(
+									"启用",
 									"m-csdn-blog-shieldTopToolbar",
-									false
+									false,
+									void 0,
+									"关闭是屏蔽顶部工具栏"
 								),
 							],
 						},
@@ -118,7 +145,7 @@ const MSettingUIBlog: PopsPanelContentConfig = {
 									"m-csdn-blog-removeResourceArticle",
 									false,
 									void 0,
-									"移除download.csdn.net、www.iteye.com、edu.csdn.net的文章链接"
+									"download.csdn.net<br>www.iteye.com<br>edu.csdn.net"
 								),
 								UISwitch(
 									"重构",
@@ -139,19 +166,26 @@ const MSettingUIBlog: PopsPanelContentConfig = {
 					],
 				},
 				{
-					text: "劫持/拦截",
 					type: "deepMenu",
+					text: "底部工具栏",
 					forms: [
 						{
-							text: "",
 							type: "forms",
+							text: "",
 							forms: [
 								UISwitch(
-									"劫持-禁止复制",
-									"m-csdn-blog-unBlockCopy",
-									true,
+									"启用",
+									"m-csdn-blog-bottom-toolbar-enable",
+									false,
 									void 0,
-									"允许点击复制按钮进行复制"
+									"关闭是屏蔽底部工具栏"
+								),
+								UISwitch(
+									"常驻底部",
+									"m-csdn-blog-bottom-toolbar-always-bottom",
+									false,
+									void 0,
+									"开启后底部工具栏不随下滑滚动而隐藏"
 								),
 							],
 						},

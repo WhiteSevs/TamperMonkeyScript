@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.27
+// @version      2024.11.6
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -9,11 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.csdn.net/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.0/dist/index.umd.js
-// @grant        GM_addStyle
 // @grant        GM_deleteValue
 // @grant        GM_getValue
 // @grant        GM_info
@@ -124,6 +123,8 @@
     setTimeout: _unsafeWindow.setTimeout
   });
   const addStyle = utils.addStyle.bind(utils);
+  const $ = document.querySelector.bind(document);
+  document.querySelectorAll.bind(document);
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
@@ -501,7 +502,7 @@
                     "csdn-blog-removeResourceDownloadArticle",
                     false,
                     void 0,
-                    "移除download.csdn.net、www.iteye.com、edu.csdn.net的文章链接"
+                    "download.csdn.net<br>www.iteye.com<br>edu.csdn.net"
                   )
                 ]
               }
@@ -670,11 +671,11 @@
     },
     forms: [
       {
-        text: "",
         type: "forms",
+        text: "",
         forms: [
           {
-            text: "全局屏蔽",
+            text: "功能",
             type: "deepMenu",
             forms: [
               {
@@ -689,9 +690,36 @@
                     "包括：登录弹窗、打开APP、ios版本提示等"
                   ),
                   UISwitch(
-                    "【屏蔽】顶部Toolbar",
+                    "允许复制",
+                    "m-csdn-blog-unBlockCopy",
+                    true,
+                    void 0,
+                    "允许点击复制按钮进行复制"
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        text: "",
+        type: "forms",
+        forms: [
+          {
+            type: "deepMenu",
+            text: "顶部工具栏",
+            forms: [
+              {
+                type: "forms",
+                text: "",
+                forms: [
+                  UISwitch(
+                    "启用",
                     "m-csdn-blog-shieldTopToolbar",
-                    false
+                    false,
+                    void 0,
+                    "关闭是屏蔽顶部工具栏"
                   )
                 ]
               }
@@ -776,7 +804,7 @@
                     "m-csdn-blog-removeResourceArticle",
                     false,
                     void 0,
-                    "移除download.csdn.net、www.iteye.com、edu.csdn.net的文章链接"
+                    "download.csdn.net<br>www.iteye.com<br>edu.csdn.net"
                   ),
                   UISwitch(
                     "重构",
@@ -797,19 +825,26 @@
             ]
           },
           {
-            text: "劫持/拦截",
             type: "deepMenu",
+            text: "底部工具栏",
             forms: [
               {
-                text: "",
                 type: "forms",
+                text: "",
                 forms: [
                   UISwitch(
-                    "劫持-禁止复制",
-                    "m-csdn-blog-unBlockCopy",
-                    true,
+                    "启用",
+                    "m-csdn-blog-bottom-toolbar-enable",
+                    false,
                     void 0,
-                    "允许点击复制按钮进行复制"
+                    "关闭是屏蔽底部工具栏"
+                  ),
+                  UISwitch(
+                    "常驻底部",
+                    "m-csdn-blog-bottom-toolbar-always-bottom",
+                    false,
+                    void 0,
+                    "开启后底部工具栏不随下滑滚动而隐藏"
                   )
                 ]
               }
@@ -1215,6 +1250,29 @@
       // 	],
       // },
     ]
+  };
+  const PanelUISize = {
+    /**
+     * 一般设置界面的尺寸
+     */
+    setting: {
+      width: window.innerWidth < 550 ? "88vw" : "550px",
+      height: window.innerHeight < 450 ? "70vh" : "450px"
+    },
+    /**
+     * 功能丰富，aside铺满了的设置界面，要稍微大一点
+     */
+    settingBig: {
+      width: window.innerWidth < 800 ? "92vw" : "800px",
+      height: window.innerHeight < 600 ? "80vh" : "600px"
+    },
+    /**
+     * 信息界面，一般用于提示信息之类
+     */
+    info: {
+      width: window.innerWidth < 350 ? "350px" : "350px",
+      height: window.innerHeight < 250 ? "250px" : "250px"
+    }
   };
   const PopsPanel = {
     /** 数据 */
@@ -1685,9 +1743,8 @@
             toHide: false
           }
         },
-        isMobile: this.isMobile(),
-        width: this.getWidth(),
-        height: this.getHeight(),
+        width: PanelUISize.setting.width,
+        height: PanelUISize.setting.height,
         drag: true,
         only: true
       });
@@ -1711,9 +1768,8 @@
             toHide: false
           }
         },
-        isMobile: this.isMobile(),
-        width: this.getWidth(),
-        height: this.getHeight(),
+        width: PanelUISize.setting.width,
+        height: PanelUISize.setting.height,
         drag: true,
         only: true
       });
@@ -1775,14 +1831,16 @@
     }
   };
   const ShieldCSS$4 = "/* 底部免费抽xxx奖品广告 */\r\ndiv.siderbar-box,\r\n/* 华为开发者联盟加入社区 */\r\ndiv.user-desc.user-desc-fix {\r\n  display: none !important;\r\n}\r\n";
-  const CSDNUtils = {
+  const CommonUtil = {
     /**
      * 移除元素（未出现也可以等待出现）
-     * @param selectorText 元素选择器
+     * @param selector 元素选择器
      */
-    waitForElementToRemove(selectorText = "") {
-      utils.waitNodeList(selectorText).then((nodeList) => {
-        nodeList.forEach((item) => item.remove());
+    waitRemove(...args) {
+      args.forEach((selector) => {
+        utils.waitNodeList(selector).then((nodeList) => {
+          nodeList.forEach((item) => item.remove());
+        });
       });
     },
     /**
@@ -1851,7 +1909,7 @@
     autoExpandContent() {
       log.info("自动展开全文");
       return [
-        CSDNUtils.addBlockCSS("div.article-show-more"),
+        CommonUtil.addBlockCSS("div.article-show-more"),
         addStyle(`
 			/* 自动展开全文 */
 			.main-content .user-article{
@@ -1866,38 +1924,38 @@
      */
     shieldCloudDeveloperTaskChallengeEvent() {
       log.info("屏蔽云开发者任务挑战活动");
-      return CSDNUtils.addBlockCSS(".luck-draw-modal-warp");
+      return CommonUtil.addBlockCSS(".luck-draw-modal-warp");
     },
     /**
      * 屏蔽左侧悬浮按钮
      */
     shieldLeftFloatingButton() {
       log.info("屏蔽左侧悬浮按钮，包括当前阅读量、点赞按钮、评论按钮、分享按钮");
-      return CSDNUtils.addBlockCSS("div.toolbar-wrapper.article-interact-bar");
+      return CommonUtil.addBlockCSS("div.toolbar-wrapper.article-interact-bar");
     },
     /**
      * 屏蔽右侧栏
      */
     blockRightColumn() {
       log.info("屏蔽右侧栏，包括相关产品-活动日历-运营活动-热门标签");
-      return CSDNUtils.addBlockCSS("div.page-home-right.dp-aside-right");
+      return CommonUtil.addBlockCSS("div.page-home-right.dp-aside-right");
     },
     /**
      * 屏蔽底部推荐内容
      */
     blockRecommendedContentAtTheBottom() {
       log.info("屏蔽底部推荐内容");
-      return CSDNUtils.addBlockCSS("div.recommend-card-box");
+      return CommonUtil.addBlockCSS("div.recommend-card-box");
     },
     /**
      * 屏蔽底部更多推荐
      */
     shieldTheBottomForMoreRecommendations() {
       log.info("屏蔽底部更多推荐");
-      return CSDNUtils.addBlockCSS("div.more-article");
+      return CommonUtil.addBlockCSS("div.more-article");
     }
   };
-  const BlogShieldCSS = ".ecommend-item-box.recommend-recommend-box,\r\n.login-mark,\r\n.opt-box.text-center,\r\n.leftPop,\r\n#csdn-shop-window,\r\n.toolbar-advert,\r\n.hide-article-box,\r\n.user-desc.user-desc-fix,\r\n.recommend-card-box,\r\n.more-article,\r\n.article-show-more,\r\n#csdn-toolbar-profile-nologin,\r\n.guide-rr-first,\r\n#recommend-item-box-tow,\r\n/* 发文章得原力分图片提示 */\r\ndiv.csdn-toolbar-creative-mp,\r\n/* 阅读终点，创作起航，您可以撰写心得或摘录文章要点写篇博文。 */\r\n#toolBarBox div.write-guide-buttom-box,\r\n/* 觉得还不错? 一键收藏 */\r\nul.toolbox-list div.tool-active-list,\r\n/* 右边按钮组的最上面的创作话题 */\r\ndiv.csdn-side-toolbar .activity-swiper-box,\r\n.sidetool-writeguide-box .tip-box,\r\n/* 右下角的登录提示 */\r\n.passport-login-tip-container {\r\n  display: none !important;\r\n}\r\n\r\n\r\n";
+  const BlogShieldCSS = ".ecommend-item-box.recommend-recommend-box,\r\n.login-mark,\r\n.opt-box.text-center,\r\n.leftPop,\r\n#csdn-shop-window,\r\n.toolbar-advert,\r\n.hide-article-box,\r\n.user-desc.user-desc-fix,\r\n.recommend-card-box,\r\n.more-article,\r\n.article-show-more,\r\n#csdn-toolbar-profile-nologin,\r\n.guide-rr-first,\r\n#recommend-item-box-tow,\r\n/* 发文章得原力分图片提示 */\r\ndiv.csdn-toolbar-creative-mp,\r\n/* 阅读终点，创作起航，您可以撰写心得或摘录文章要点写篇博文。 */\r\n#toolBarBox div.write-guide-buttom-box,\r\n/* 觉得还不错? 一键收藏 */\r\nul.toolbox-list div.tool-active-list,\r\n/* 右边按钮组的最上面的创作话题 */\r\ndiv.csdn-side-toolbar .activity-swiper-box,\r\n.sidetool-writeguide-box .tip-box,\r\n/* 右下角的登录提示 */\r\n.passport-login-tip-container,\r\n/* 全屏双十一红包 */\r\n.csdn-reapck-select {\r\n	display: none !important;\r\n}\r\n";
   const BlogCSS = "/*.blog_container_aside,\r\n#nav {\r\n	margin-left: -45px;\r\n}\r\n.recommend-right.align-items-stretch.clearfix,\r\n.dl_right_fixed {\r\n	margin-left: 45px;\r\n}*/\r\n";
   const BlogArticleCenterCSS = '#mainBox main {\r\n	width: inherit !important;\r\n}\r\n/* 当文章向下滚动时，触发左侧信息悬浮 */\r\naside.blog_container_aside[style*="position: fixed;"] {\r\n	display: none !important;\r\n}\r\n\r\n@media (min-width: 1320px) and (max-width: 1380px) {\r\n	.nodata .container {\r\n		width: 900px !important;\r\n	}\r\n\r\n	.nodata .container main {\r\n		width: 900px;\r\n	}\r\n\r\n	.nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n		width: 490px !important;\r\n	}\r\n\r\n	.nodata .container main .articleConDownSource {\r\n		width: 500px;\r\n	}\r\n}\r\n\r\n@media screen and (max-width: 1320px) {\r\n	.nodata .container {\r\n		width: 760px !important;\r\n	}\r\n\r\n	.nodata .container main {\r\n		width: 760px;\r\n	}\r\n\r\n	.nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n		width: 490px !important;\r\n	}\r\n\r\n	.nodata .container main .toolbox-list .tool-reward {\r\n		display: none;\r\n	}\r\n\r\n	.nodata\r\n		.container\r\n		main\r\n		.more-toolbox-new\r\n		.toolbox-left\r\n		.profile-box\r\n		.profile-name {\r\n		max-width: 128px;\r\n	}\r\n\r\n	.nodata .container main .articleConDownSource {\r\n		width: 420px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1380px) {\r\n	.nodata .container {\r\n		width: 1010px !important;\r\n	}\r\n\r\n	.nodata .container main {\r\n		width: 1010px;\r\n	}\r\n\r\n	.nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n		width: 490px !important;\r\n	}\r\n\r\n	.nodata .container main .articleConDownSource {\r\n		width: 560px;\r\n	}\r\n}\r\n\r\n@media (min-width: 1550px) and (max-width: 1700px) {\r\n	.nodata .container {\r\n		width: 820px !important;\r\n	}\r\n\r\n	.nodata .container main {\r\n		width: 820px;\r\n	}\r\n\r\n	.nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n		width: 690px !important;\r\n	}\r\n\r\n	.nodata .container main .articleConDownSource {\r\n		width: 500px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1700px) {\r\n	.nodata .container {\r\n		width: 1010px !important;\r\n	}\r\n\r\n	.nodata .container main {\r\n		width: 1010px;\r\n	}\r\n\r\n	.nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n		width: 690px !important;\r\n	}\r\n\r\n	.nodata .container main .articleConDownSource {\r\n		width: 560px;\r\n	}\r\n}\r\n';
   const CSDNBlogRightToolBar = {
@@ -1949,12 +2007,15 @@
       gotoRecommandNode.setAttribute("data-type", "gorecommand");
       gotoRecommandNode.innerHTML = `<span class="show-txt" style="display:flex;opacity:100;">前往<br>评论</span>`;
       gotoRecommandNode.addEventListener("click", function() {
-        let toolbarBoxElement = document.querySelector(
-          "#toolBarBox"
-        );
-        if (!toolbarBoxElement.getClientRects().length) {
-          log.error("评论区处于隐藏状态");
-          return;
+        let toolbarBoxElement = document.querySelector("#toolBarBox");
+        if (!toolbarBoxElement || !toolbarBoxElement.getClientRects().length) {
+          let $pcCommentBox = $("#pcCommentBox");
+          if ($pcCommentBox && $pcCommentBox.getClientRects().length) {
+            toolbarBoxElement = $pcCommentBox;
+          } else {
+            log.error("评论区处于隐藏状态");
+            return;
+          }
         }
         log.info("滚动到评论");
         let toolbarBoxOffsetTop = toolbarBoxElement.getBoundingClientRect().top + window.scrollY;
@@ -2004,28 +2065,28 @@
      */
     shieldRightToolbar() {
       log.info("屏蔽右侧工具栏");
-      return CSDNUtils.addBlockCSS(`div.csdn-side-toolbar`);
+      return CommonUtil.addBlockCSS(`div.csdn-side-toolbar`);
     },
     /**
      * 【屏蔽】创作中心
      */
     shieldCreativeCenter() {
       log.info("【屏蔽】创作中心");
-      return CSDNUtils.addBlockCSS(".csdn-side-toolbar .sidetool-writeguide-box");
+      return CommonUtil.addBlockCSS(".csdn-side-toolbar .sidetool-writeguide-box");
     },
     /**
      * 【屏蔽】显示/隐藏侧栏
      */
     shieldShowOrSidebar() {
       log.info("【屏蔽】显示/隐藏侧栏");
-      return CSDNUtils.addBlockCSS(".csdn-side-toolbar a.sidecolumn");
+      return CommonUtil.addBlockCSS(".csdn-side-toolbar a.sidecolumn");
     },
     /**
      * 【屏蔽】新手引导
      */
     shieldBeginnerGuidance() {
       log.info("【屏蔽】新手引导");
-      return CSDNUtils.addBlockCSS(
+      return CommonUtil.addBlockCSS(
         '.csdn-side-toolbar a.option-box[data-type="guide"]'
       );
     },
@@ -2034,7 +2095,7 @@
      */
     shieldCustomerService() {
       log.info("【屏蔽】客服");
-      return CSDNUtils.addBlockCSS(
+      return CommonUtil.addBlockCSS(
         '.csdn-side-toolbar a.option-box[data-type="cs"]'
       );
     },
@@ -2043,7 +2104,7 @@
      */
     shieldReport() {
       log.info("【屏蔽】举报");
-      return CSDNUtils.addBlockCSS(
+      return CommonUtil.addBlockCSS(
         '.csdn-side-toolbar a.option-box[data-type="report"]'
       );
     },
@@ -2052,7 +2113,7 @@
      */
     shieldBackToTop() {
       log.info("【屏蔽】返回顶部");
-      return CSDNUtils.addBlockCSS(
+      return CommonUtil.addBlockCSS(
         '.csdn-side-toolbar a.option-box[data-type="gotop"]'
       );
     }
@@ -2308,7 +2369,7 @@
      */
     shieldLoginDialog() {
       log.info("屏蔽登录弹窗");
-      return CSDNUtils.addBlockCSS(`.passport-login-container`);
+      return CommonUtil.addBlockCSS(`.passport-login-container`);
     },
     /**
      * 自动展开代码块
@@ -2316,7 +2377,7 @@
     autoExpandCodeContent() {
       log.info("自动展开代码块");
       return [
-        CSDNUtils.addBlockCSS("pre.set-code-hide .hide-preCode-box"),
+        CommonUtil.addBlockCSS("pre.set-code-hide .hide-preCode-box"),
         addStyle(
           /*css*/
           `
@@ -2354,56 +2415,56 @@
      */
     blockComment() {
       log.info("屏蔽评论区");
-      return CSDNUtils.addBlockCSS(`#pcCommentBox`);
+      return CommonUtil.addBlockCSS(`#pcCommentBox`);
     },
     /**
      * 屏蔽底部推荐文章
      */
     shieldBottomRecommendArticle() {
       log.info("屏蔽底部推荐文章");
-      return CSDNUtils.addBlockCSS(`main > div.recommend-box`);
+      return CommonUtil.addBlockCSS(`main > div.recommend-box`);
     },
     /**
      * 屏蔽底部xx技能树
      */
     shieldBottomSkillTree() {
       log.info("屏蔽底部xx技能树");
-      return CSDNUtils.addBlockCSS(`#treeSkill`);
+      return CommonUtil.addBlockCSS(`#treeSkill`);
     },
     /**
      * 屏蔽底部悬浮工具栏
      */
     shieldBottomFloatingToolbar() {
       log.info("屏蔽底部悬浮工具栏");
-      return CSDNUtils.addBlockCSS(`#toolBarBox`);
+      return CommonUtil.addBlockCSS(`#toolBarBox`);
     },
     /**
      * 屏蔽左侧博客信息
      */
     shieldLeftBlogContainerAside() {
       log.info("【屏蔽】左侧博客信息");
-      return CSDNUtils.addBlockCSS(`aside.blog_container_aside`);
+      return CommonUtil.addBlockCSS(`aside.blog_container_aside`);
     },
     /**
      * 【屏蔽】右侧目录信息
      */
     shieldRightDirectoryInformation() {
       log.info("【屏蔽】右侧目录信息");
-      return CSDNUtils.addBlockCSS("#rightAsideConcision", "#rightAside");
+      return CommonUtil.addBlockCSS("#rightAsideConcision", "#rightAside");
     },
     /**
      * 屏蔽顶部Toolbar
      */
     shieldTopToolbar() {
       log.info("屏蔽顶部Toolbar");
-      return CSDNUtils.addBlockCSS(`#toolbarBox`);
+      return CommonUtil.addBlockCSS(`#toolbarBox`);
     },
     /**
      * 屏蔽文章内的选中搜索悬浮提示
      */
     shieldArticleSearchTip() {
       log.info("屏蔽文章内的选中搜索悬浮提示");
-      return CSDNUtils.addBlockCSS(`#articleSearchTip`);
+      return CommonUtil.addBlockCSS(`#articleSearchTip`);
     },
     /**
      * 允许选择内容
@@ -2443,21 +2504,21 @@
      */
     shieldResourceRecommend() {
       log.info("【屏蔽】资源推荐");
-      return CSDNUtils.addBlockCSS("#recommend");
+      return CommonUtil.addBlockCSS("#recommend");
     },
     /**
      * 【屏蔽】右侧用户信息
      */
     shieldRightUserInfo() {
       log.info("【屏蔽】右侧用户信息");
-      return CSDNUtils.addBlockCSS(".layout-right");
+      return CommonUtil.addBlockCSS(".layout-right");
     },
     /**
      * 【屏蔽】右侧悬浮工具栏
      */
     shieldRightToolBar() {
       log.info("【屏蔽】右侧悬浮工具栏");
-      return CSDNUtils.addBlockCSS(".csdn-side-toolbar");
+      return CommonUtil.addBlockCSS(".csdn-side-toolbar");
     }
   };
   const CSDNLink = {
@@ -2533,17 +2594,22 @@
      */
     blockBottomJoinTheCommunity() {
       log.info("【屏蔽】底部加入社区");
-      return CSDNUtils.addBlockCSS(".user-desc");
+      return CommonUtil.addBlockCSS(".user-desc");
     }
   };
-  const ShieldCSS$1 = "#operate,.feed-Sign-span,\r\n.view_comment_box,\r\n.weixin-shadowbox.wap-shadowbox,\r\n.feed-Sign-span,\r\n.user-desc.user-desc-fix,\r\n.comment_read_more_box,\r\n#content_views pre.set-code-hide .hide-preCode-box,\r\n/* 登录弹窗 */\r\n.passport-login-container,\r\n.hljs-button[data-title='登录后复制'],\r\n.article-show-more,\r\n#treeSkill,\r\ndiv.btn_open_app_prompt_div,\r\ndiv.readall_box,\r\ndiv.aside-header-fixed,\r\ndiv.feed-Sign-weixin,\r\ndiv.ios-shadowbox {\r\n  display: none !important;\r\n}\r\n";
+  const ShieldCSS$1 = ".view_comment_box,\r\n.weixin-shadowbox.wap-shadowbox,\r\n.feed-Sign-span,\r\n.user-desc.user-desc-fix,\r\n.comment_read_more_box,\r\n#content_views pre.set-code-hide .hide-preCode-box,\r\n/* 登录弹窗 */\r\n.passport-login-container,\r\n.hljs-button[data-title='登录后复制'],\r\n.article-show-more,\r\n#treeSkill,\r\ndiv.btn_open_app_prompt_div,\r\ndiv.readall_box,\r\ndiv.aside-header-fixed,\r\ndiv.feed-Sign-weixin,\r\ndiv.ios-shadowbox {\r\n	display: none !important;\r\n}\r\n";
   const MBlogCSS = "#mainBox {\r\n  width: auto;\r\n}\r\n.user-desc.user-desc-fix {\r\n  height: auto !important;\r\n  overflow: auto !important;\r\n}\r\n.component-box .praise {\r\n  background: #ff5722;\r\n  border-radius: 5px;\r\n  padding: 0px 8px;\r\n  height: auto;\r\n}\r\n.component-box .praise,\r\n.component-box .share {\r\n  color: #fff;\r\n}\r\n.component-box a {\r\n  display: inline-block;\r\n  font-size: xx-small;\r\n}\r\n.component-box {\r\n  display: inline;\r\n  margin: 0;\r\n  position: relative;\r\n  white-space: nowrap;\r\n}\r\n.csdn-edu-title {\r\n  background: #4d6de1;\r\n  border-radius: 5px;\r\n  padding: 0px 8px;\r\n  height: auto;\r\n  color: #fff !important;\r\n}\r\n\r\n.GM-csdn-dl {\r\n  padding: 0.24rem 0.32rem;\r\n  width: 100%;\r\n  justify-content: space-between;\r\n  -webkit-box-pack: justify;\r\n  border-bottom: 1px solid #f5f6f7 !important;\r\n}\r\n.GM-csdn-title {\r\n  font-size: 0.3rem;\r\n  color: #222226;\r\n  letter-spacing: 0;\r\n  line-height: 0.44rem;\r\n  font-weight: 600;\r\n  /*max-height: .88rem;*/\r\n  word-break: break-all;\r\n  overflow: hidden;\r\n  display: -webkit-box;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-line-clamp: 2;\r\n}\r\n.GM-csdn-title a {\r\n  word-break: break-all;\r\n  color: #222226;\r\n  font-weight: 600;\r\n}\r\n.GM-csdn-title em,\r\n.GM-csdn-content em {\r\n  font-style: normal;\r\n  color: #fc5531;\r\n}\r\n.GM-csdn-content {\r\n  /*max-width: 5.58rem;*/\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  display: -webkit-box;\r\n  -webkit-line-clamp: 1;\r\n  -webkit-box-orient: vertical;\r\n  color: #555666;\r\n  font-size: 0.24rem;\r\n  line-height: 0.34rem;\r\n  max-height: 0.34rem;\r\n  word-break: break-all;\r\n  -webkit-box-flex: 1;\r\n  -ms-flex: 1;\r\n  flex: 1;\r\n  margin-top: 0.16rem;\r\n}\r\n.GM-csdn-img img {\r\n  width: 2.18rem;\r\n  height: 1.58rem;\r\n  /*margin-left: .16rem*/\r\n}\r\n";
   const M_CSDNBlog = {
     init() {
       this.addCSS();
-      PopsPanel.execMenuOnce("m-csdn-blog-shieldTopToolbar", () => {
-        return this.shieldTopToolbar();
-      });
+      PopsPanel.execMenuOnce(
+        "m-csdn-blog-shieldTopToolbar",
+        () => {
+          return this.shieldTopToolbar();
+        },
+        (_, value) => !value,
+        (_, value) => !value
+      );
       PopsPanel.execMenuOnce("m-csdn-blog-notLimitCodePreMaxHeight", () => {
         return this.notLimitCodePreMaxHeight();
       });
@@ -2556,21 +2622,33 @@
       PopsPanel.execMenuOnce("m-csdn-blog-autoExpandContent", () => {
         return this.autoExpandContent();
       });
-      PopsPanel.execMenuOnce("m-csdn-blog-bottomArticleEnable", () => {
-        return this.blockBottomArticle();
-      });
+      PopsPanel.execMenuOnce(
+        "m-csdn-blog-bottomArticleEnable",
+        () => {
+          return this.blockBottomArticle();
+        },
+        (_, value) => !value,
+        (_, value) => !value
+      );
       PopsPanel.execMenuOnce(
         "m-csdn-blog-comment-enable",
         () => {
           return this.blockComment();
         },
-        (_, value) => {
-          return !value;
-        },
-        (_, newValue) => {
-          return !newValue;
-        }
+        (_, value) => !value,
+        (_, value) => !value
       );
+      PopsPanel.execMenuOnce(
+        "m-csdn-blog-bottom-toolbar-enable",
+        () => {
+          return this.blockBottomToolBar();
+        },
+        (_, value) => !value,
+        (_, value) => !value
+      );
+      PopsPanel.execMenuOnce("m-csdn-blog-bottom-toolbar-always-bottom", () => {
+        return this.bottomToolBarAlwaysShow();
+      });
       domutils.ready(() => {
         PopsPanel.execMenuOnce("m-csdn-blog-removeAds", () => {
           return this.removeAds();
@@ -2593,7 +2671,7 @@
     shieldTopToolbar() {
       log.info("屏蔽顶部Toolbar");
       return [
-        CSDNUtils.addBlockCSS("#csdn-toolbar"),
+        CommonUtil.addBlockCSS("#csdn-toolbar"),
         addStyle(
           /*css*/
           `
@@ -2687,27 +2765,25 @@
      */
     blockBottomArticle() {
       log.info("屏蔽底部文章");
-      return CSDNUtils.addBlockCSS("#recommend");
+      return CommonUtil.addBlockCSS("#recommend");
     },
     /**
      * 屏蔽评论
      */
     blockComment() {
       log.info("屏蔽评论");
-      return CSDNUtils.addBlockCSS("#comment");
+      return CommonUtil.addBlockCSS("#comment");
     },
     /**
      * 去除广告
      */
     removeAds() {
       log.info("去除广告");
-      CSDNUtils.waitForElementToRemove(".passport-login-container");
-      CSDNUtils.waitForElementToRemove(
-        ".btn_open_app_prompt_box.detail-open-removed"
-      );
-      CSDNUtils.waitForElementToRemove(".add-firstAd");
-      CSDNUtils.waitForElementToRemove("div.feed-Sign-weixin");
-      CSDNUtils.waitForElementToRemove("div.ios-shadowbox");
+      CommonUtil.waitRemove(".passport-login-container");
+      CommonUtil.waitRemove(".btn_open_app_prompt_box.detail-open-removed");
+      CommonUtil.waitRemove(".add-firstAd");
+      CommonUtil.waitRemove("div.feed-Sign-weixin");
+      CommonUtil.waitRemove("div.ios-shadowbox");
     },
     /**
      * 不限制代码块最大高度
@@ -2773,6 +2849,28 @@
         }
         `
       );
+    },
+    /**
+     * 屏蔽底部工具栏
+     */
+    blockBottomToolBar() {
+      log.info(`屏蔽底部工具栏`);
+      return CommonUtil.addBlockCSS("#operate");
+    },
+    /**
+     * 底部工具栏常驻
+     */
+    bottomToolBarAlwaysShow() {
+      log.info(`底部工具栏常驻`);
+      return addStyle(
+        /*css*/
+        `
+			/* 底部工具栏 */
+			#operate {
+				bottom: 0 !important;
+			}
+			`
+      );
     }
   };
   const ShieldCSS = "/* 右下角的买一年送3个月的广告图标 */\r\n.blind_box {\r\n  display: none !important;\r\n}\r\n";
@@ -2788,7 +2886,7 @@
      */
     shieldBottomToolbar() {
       log.info("【屏蔽】底部工具栏");
-      CSDNUtils.addBlockCSS(`.page-container > div.btn`);
+      CommonUtil.addBlockCSS(`.page-container > div.btn`);
     }
   };
   const CSDNBlockCSS = "/* 右下角悬浮图标 买1年送3个月 */\r\n.page-container .blind_box,\r\n/* 底部工具栏右边的 开会员按钮（低至xx元/次） */\r\n.page-container .btn .ml-12,\r\n/* 登录弹窗 */\r\n.passport-login-container,\r\n/* 通用广告className匹配 */\r\n.ads {\r\n	display: none !important;\r\n}\r\n";
@@ -2810,7 +2908,7 @@
     automaticallyExpandResourceIntroduction() {
       log.info("自动展开资源介绍");
       return [
-        CSDNUtils.addBlockCSS("label.unfold-font"),
+        CommonUtil.addBlockCSS("label.unfold-font"),
         addStyle(
           /*css*/
           `

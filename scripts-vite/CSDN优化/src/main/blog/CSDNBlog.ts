@@ -5,7 +5,7 @@ import { DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { unsafeWindow } from "ViteGM";
 import { CSDNBlogRightToolBar } from "./CSDNBlogRightToolBar";
-import { CSDNUtils } from "@/utils/CSDNUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 export const CSDNBlog = {
 	init() {
@@ -285,7 +285,7 @@ export const CSDNBlog = {
 	 */
 	shieldLoginDialog() {
 		log.info("屏蔽登录弹窗");
-		return CSDNUtils.addBlockCSS(`.passport-login-container`);
+		return CommonUtil.addBlockCSS(`.passport-login-container`);
 	},
 	/**
 	 * 自动展开代码块
@@ -293,7 +293,7 @@ export const CSDNBlog = {
 	autoExpandCodeContent() {
 		log.info("自动展开代码块");
 		return [
-			CSDNUtils.addBlockCSS("pre.set-code-hide .hide-preCode-box"),
+			CommonUtil.addBlockCSS("pre.set-code-hide .hide-preCode-box"),
 			addStyle(/*css*/ `
 			pre.set-code-hide{
 				height: auto !important;
@@ -325,56 +325,56 @@ export const CSDNBlog = {
 	 */
 	blockComment() {
 		log.info("屏蔽评论区");
-		return CSDNUtils.addBlockCSS(`#pcCommentBox`);
+		return CommonUtil.addBlockCSS(`#pcCommentBox`);
 	},
 	/**
 	 * 屏蔽底部推荐文章
 	 */
 	shieldBottomRecommendArticle() {
 		log.info("屏蔽底部推荐文章");
-		return CSDNUtils.addBlockCSS(`main > div.recommend-box`);
+		return CommonUtil.addBlockCSS(`main > div.recommend-box`);
 	},
 	/**
 	 * 屏蔽底部xx技能树
 	 */
 	shieldBottomSkillTree() {
 		log.info("屏蔽底部xx技能树");
-		return CSDNUtils.addBlockCSS(`#treeSkill`);
+		return CommonUtil.addBlockCSS(`#treeSkill`);
 	},
 	/**
 	 * 屏蔽底部悬浮工具栏
 	 */
 	shieldBottomFloatingToolbar() {
 		log.info("屏蔽底部悬浮工具栏");
-		return CSDNUtils.addBlockCSS(`#toolBarBox`);
+		return CommonUtil.addBlockCSS(`#toolBarBox`);
 	},
 	/**
 	 * 屏蔽左侧博客信息
 	 */
 	shieldLeftBlogContainerAside() {
 		log.info("【屏蔽】左侧博客信息");
-		return CSDNUtils.addBlockCSS(`aside.blog_container_aside`);
+		return CommonUtil.addBlockCSS(`aside.blog_container_aside`);
 	},
 	/**
 	 * 【屏蔽】右侧目录信息
 	 */
 	shieldRightDirectoryInformation() {
 		log.info("【屏蔽】右侧目录信息");
-		return CSDNUtils.addBlockCSS("#rightAsideConcision", "#rightAside");
+		return CommonUtil.addBlockCSS("#rightAsideConcision", "#rightAside");
 	},
 	/**
 	 * 屏蔽顶部Toolbar
 	 */
 	shieldTopToolbar() {
 		log.info("屏蔽顶部Toolbar");
-		return CSDNUtils.addBlockCSS(`#toolbarBox`);
+		return CommonUtil.addBlockCSS(`#toolbarBox`);
 	},
 	/**
 	 * 屏蔽文章内的选中搜索悬浮提示
 	 */
 	shieldArticleSearchTip() {
 		log.info("屏蔽文章内的选中搜索悬浮提示");
-		return CSDNUtils.addBlockCSS(`#articleSearchTip`);
+		return CommonUtil.addBlockCSS(`#articleSearchTip`);
 	},
 	/**
 	 * 允许选择内容

@@ -2,7 +2,7 @@ import { addStyle, log } from "@/env";
 import ShieldCSS from "./css/shield.css?raw";
 import { CSDNHuaWeiCloud } from "@/main/huaWeiCloud/CSDNHuaWeiCloud";
 import { PopsPanel } from "@/setting/setting";
-import { CSDNUtils } from "@/utils/CSDNUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 export const M_CSDNHuaWeiCloud = {
 	init() {
@@ -22,6 +22,6 @@ export const M_CSDNHuaWeiCloud = {
 	 */
 	blockBottomJoinTheCommunity() {
 		log.info("【屏蔽】底部加入社区");
-		return CSDNUtils.addBlockCSS(".user-desc");
+		return CommonUtil.addBlockCSS(".user-desc");
 	},
 };

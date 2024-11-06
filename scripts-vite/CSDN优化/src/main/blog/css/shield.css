@@ -22,8 +22,8 @@ ul.toolbox-list div.tool-active-list,
 div.csdn-side-toolbar .activity-swiper-box,
 .sidetool-writeguide-box .tip-box,
 /* 右下角的登录提示 */
-.passport-login-tip-container {
-  display: none !important;
+.passport-login-tip-container,
+/* 全屏双十一红包 */
+.csdn-reapck-select {
+	display: none !important;
 }
-
-

@@ -1,6 +1,6 @@
-import { DOMUtils, addStyle, log, utils } from "@/env";
+import { $, DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { CSDNUtils } from "@/utils/CSDNUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 const CSDNBlogRightToolBar = {
 	init() {
@@ -51,12 +51,16 @@ const CSDNBlogRightToolBar = {
 		gotoRecommandNode.setAttribute("data-type", "gorecommand");
 		gotoRecommandNode.innerHTML = `<span class="show-txt" style="display:flex;opacity:100;">前往<br>评论</span>`;
 		gotoRecommandNode.addEventListener("click", function () {
-			let toolbarBoxElement = document.querySelector(
-				"#toolBarBox"
-			) as HTMLDivElement;
-			if (!toolbarBoxElement.getClientRects().length) {
-				log.error("评论区处于隐藏状态");
-				return;
+			let toolbarBoxElement =
+				document.querySelector<HTMLDivElement>("#toolBarBox");
+			if (!toolbarBoxElement || !toolbarBoxElement.getClientRects().length) {
+				let $pcCommentBox = $<HTMLDivElement>("#pcCommentBox");
+				if ($pcCommentBox && $pcCommentBox.getClientRects().length) {
+					toolbarBoxElement = $pcCommentBox;
+				} else {
+					log.error("评论区处于隐藏状态");
+					return;
+				}
 			}
 			log.info("滚动到评论");
 			let toolbarBoxOffsetTop =
@@ -113,28 +117,28 @@ const CSDNBlogRightToolBar = {
 	 */
 	shieldRightToolbar() {
 		log.info("屏蔽右侧工具栏");
-		return CSDNUtils.addBlockCSS(`div.csdn-side-toolbar`);
+		return CommonUtil.addBlockCSS(`div.csdn-side-toolbar`);
 	},
 	/**
 	 * 【屏蔽】创作中心
 	 */
 	shieldCreativeCenter() {
 		log.info("【屏蔽】创作中心");
-		return CSDNUtils.addBlockCSS(".csdn-side-toolbar .sidetool-writeguide-box");
+		return CommonUtil.addBlockCSS(".csdn-side-toolbar .sidetool-writeguide-box");
 	},
 	/**
 	 * 【屏蔽】显示/隐藏侧栏
 	 */
 	shieldShowOrSidebar() {
 		log.info("【屏蔽】显示/隐藏侧栏");
-		return CSDNUtils.addBlockCSS(".csdn-side-toolbar a.sidecolumn");
+		return CommonUtil.addBlockCSS(".csdn-side-toolbar a.sidecolumn");
 	},
 	/**
 	 * 【屏蔽】新手引导
 	 */
 	shieldBeginnerGuidance() {
 		log.info("【屏蔽】新手引导");
-		return CSDNUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'.csdn-side-toolbar a.option-box[data-type="guide"]'
 		);
 	},
@@ -143,7 +147,7 @@ const CSDNBlogRightToolBar = {
 	 */
 	shieldCustomerService() {
 		log.info("【屏蔽】客服");
-		return CSDNUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'.csdn-side-toolbar a.option-box[data-type="cs"]'
 		);
 	},
@@ -152,7 +156,7 @@ const CSDNBlogRightToolBar = {
 	 */
 	shieldReport() {
 		log.info("【屏蔽】举报");
-		return CSDNUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'.csdn-side-toolbar a.option-box[data-type="report"]'
 		);
 	},
@@ -161,7 +165,7 @@ const CSDNBlogRightToolBar = {
 	 */
 	shieldBackToTop() {
 		log.info("【屏蔽】返回顶部");
-		return CSDNUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'.csdn-side-toolbar a.option-box[data-type="gotop"]'
 		);
 	},

@@ -1,7 +1,7 @@
 import { addStyle, log } from "@/env";
 import CSDNBlockCSS from "./block.css?raw";
 import { PopsPanel } from "@/setting/setting";
-import { CSDNUtils } from "@/utils/CSDNUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 export const M_CSDNDownload = {
 	init() {
 		PopsPanel.execMenuOnce("m-csdn-download-removeAds", () => {
@@ -21,7 +21,7 @@ export const M_CSDNDownload = {
 		log.info("自动展开资源介绍");
 		/* 屏蔽 展开全部 按钮 */
 		return [
-			CSDNUtils.addBlockCSS("label.unfold-font"),
+			CommonUtil.addBlockCSS("label.unfold-font"),
 			addStyle(/*css*/ `
 			.resource-desc{
 				max-height: unset !important;

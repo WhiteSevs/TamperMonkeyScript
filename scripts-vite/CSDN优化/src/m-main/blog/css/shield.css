@@ -1,4 +1,3 @@
-#operate,.feed-Sign-span,
 .view_comment_box,
 .weixin-shadowbox.wap-shadowbox,
 .feed-Sign-span,
@@ -15,5 +14,5 @@ div.readall_box,
 div.aside-header-fixed,
 div.feed-Sign-weixin,
 div.ios-shadowbox {
-  display: none !important;
+	display: none !important;
 }

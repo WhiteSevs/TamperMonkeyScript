@@ -118,6 +118,9 @@ const OriginPrototype = {
 
 const addStyle = utils.addStyle.bind(utils);
 
+const $ = document.querySelector.bind(document);
+const $$ = document.querySelectorAll.bind(document);
+
 export {
 	utils,
 	domutils as DOMUtils,
@@ -130,4 +133,6 @@ export {
 	// Viewer,
 	httpx,
 	addStyle,
+	$,
+	$$,
 };

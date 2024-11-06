@@ -263,7 +263,7 @@ const SettingUIBlog: PopsPanelContentConfig = {
 									"csdn-blog-removeResourceDownloadArticle",
 									false,
 									void 0,
-									"移除download.csdn.net、www.iteye.com、edu.csdn.net的文章链接"
+									"download.csdn.net<br>www.iteye.com<br>edu.csdn.net"
 								),
 							],
 						},

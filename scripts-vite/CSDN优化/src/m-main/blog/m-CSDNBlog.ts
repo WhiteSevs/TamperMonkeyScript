@@ -3,14 +3,21 @@ import { CSDNBlog } from "@/main/blog/CSDNBlog";
 import { PopsPanel } from "@/setting/setting";
 import ShieldCSS from "./css/shield.css?raw";
 import MBlogCSS from "./css/blog.css?raw";
-import { CSDNUtils } from "@/utils/CSDNUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
+import { M_CSDNBlogRightToolBar } from "./m-CSDNBlogRightToolBar";
 
 export const M_CSDNBlog = {
 	init() {
 		this.addCSS();
-		PopsPanel.execMenuOnce("m-csdn-blog-shieldTopToolbar", () => {
-			return this.shieldTopToolbar();
-		});
+		// M_CSDNBlogRightToolBar.init();
+		PopsPanel.execMenuOnce(
+			"m-csdn-blog-shieldTopToolbar",
+			() => {
+				return this.shieldTopToolbar();
+			},
+			(_, value) => !value,
+			(_, value) => !value
+		);
 		PopsPanel.execMenuOnce("m-csdn-blog-notLimitCodePreMaxHeight", () => {
 			return this.notLimitCodePreMaxHeight();
 		});
@@ -23,21 +30,34 @@ export const M_CSDNBlog = {
 		PopsPanel.execMenuOnce("m-csdn-blog-autoExpandContent", () => {
 			return this.autoExpandContent();
 		});
-		PopsPanel.execMenuOnce("m-csdn-blog-bottomArticleEnable", () => {
-			return this.blockBottomArticle();
-		});
+		PopsPanel.execMenuOnce(
+			"m-csdn-blog-bottomArticleEnable",
+			() => {
+				return this.blockBottomArticle();
+			},
+			(_, value) => !value,
+			(_, value) => !value
+		);
 		PopsPanel.execMenuOnce(
 			"m-csdn-blog-comment-enable",
 			() => {
 				return this.blockComment();
 			},
-			(_, value) => {
-				return !value;
-			},
-			(_, newValue) => {
-				return !newValue;
-			}
+			(_, value) => !value,
+			(_, value) => !value
 		);
+		PopsPanel.execMenuOnce(
+			"m-csdn-blog-bottom-toolbar-enable",
+			() => {
+				return this.blockBottomToolBar();
+			},
+			(_, value) => !value,
+			(_, value) => !value
+		);
+		PopsPanel.execMenuOnce("m-csdn-blog-bottom-toolbar-always-bottom", () => {
+			return this.bottomToolBarAlwaysShow();
+		});
+
 		DOMUtils.ready(() => {
 			PopsPanel.execMenuOnce("m-csdn-blog-removeAds", () => {
 				return this.removeAds();
@@ -60,7 +80,7 @@ export const M_CSDNBlog = {
 	shieldTopToolbar() {
 		log.info("屏蔽顶部Toolbar");
 		return [
-			CSDNUtils.addBlockCSS("#csdn-toolbar"),
+			CommonUtil.addBlockCSS("#csdn-toolbar"),
 			addStyle(/*css*/ `
 			/* 内容顶部要归位 */
 			body #main,
@@ -179,14 +199,14 @@ export const M_CSDNBlog = {
 	 */
 	blockBottomArticle() {
 		log.info("屏蔽底部文章");
-		return CSDNUtils.addBlockCSS("#recommend");
+		return CommonUtil.addBlockCSS("#recommend");
 	},
 	/**
 	 * 屏蔽评论
 	 */
 	blockComment() {
 		log.info("屏蔽评论");
-		return CSDNUtils.addBlockCSS("#comment");
+		return CommonUtil.addBlockCSS("#comment");
 	},
 	/**
 	 * 去除广告
@@ -194,17 +214,15 @@ export const M_CSDNBlog = {
 	removeAds() {
 		log.info("去除广告");
 		/* 登录窗口 */
-		CSDNUtils.waitForElementToRemove(".passport-login-container");
+		CommonUtil.waitRemove(".passport-login-container");
 		/* 打开APP */
-		CSDNUtils.waitForElementToRemove(
-			".btn_open_app_prompt_box.detail-open-removed"
-		);
+		CommonUtil.waitRemove(".btn_open_app_prompt_box.detail-open-removed");
 		/* 广告 */
-		CSDNUtils.waitForElementToRemove(".add-firstAd");
+		CommonUtil.waitRemove(".add-firstAd");
 		/* 打开CSDN APP 小程序看全文 */
-		CSDNUtils.waitForElementToRemove("div.feed-Sign-weixin");
+		CommonUtil.waitRemove("div.feed-Sign-weixin");
 		/* ios版本提示 */
-		CSDNUtils.waitForElementToRemove("div.ios-shadowbox");
+		CommonUtil.waitRemove("div.ios-shadowbox");
 	},
 	/**
 	 * 不限制代码块最大高度
@@ -258,5 +276,24 @@ export const M_CSDNBlog = {
           overflow: auto !important;
         }
         `);
+	},
+	/**
+	 * 屏蔽底部工具栏
+	 */
+	blockBottomToolBar() {
+		log.info(`屏蔽底部工具栏`);
+		return CommonUtil.addBlockCSS("#operate");
+	},
+	/**
+	 * 底部工具栏常驻
+	 */
+	bottomToolBarAlwaysShow() {
+		log.info(`底部工具栏常驻`);
+		return addStyle(/*css*/ `
+			/* 底部工具栏 */
+			#operate {
+				bottom: 0 !important;
+			}
+			`);
 	},
 };
