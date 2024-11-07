@@ -434,6 +434,7 @@ export const NetDiskCheckLinkValidity = {
 		pops.tooltip({
 			target: $netDiskStatus,
 			className: "github-tooltip",
+			isFixed: true,
 			content() {
 				let msg = $netDiskStatus.getAttribute("data-msg");
 				return msg ?? "";
