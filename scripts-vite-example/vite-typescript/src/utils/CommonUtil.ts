@@ -98,7 +98,9 @@ export const CommonUtil = {
 		});
 	},
 	/**
-	 * 将url修复，例如只有search的链接修复为
+	 * 将url修复，例如只有search的链接修复为完整的链接
+	 * 
+	 * 注意：不包括http转https
 	 * @param url 需要修复的链接
 	 * @example
 	 * 修复前：`/xxx/xxx?ss=ssss`
