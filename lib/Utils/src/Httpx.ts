@@ -1401,7 +1401,7 @@ class Httpx {
 	 * @param url 网址
 	 * @param details 配置
 	 */
-	post<T = HttpxRequestOption>(
+	post<T extends HttpxRequestOption>(
 		url: string,
 		details: T // @ts-ignore
 	): HttpxPromise<HttpxResponse<T>>;

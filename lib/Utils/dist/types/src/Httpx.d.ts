@@ -101,7 +101,7 @@ declare class Httpx {
      * @param url 网址
      * @param details 配置
      */
-    post<T = HttpxRequestOption>(url: string, details: T): HttpxPromise<HttpxResponse<T>>;
+    post<T extends HttpxRequestOption>(url: string, details: T): HttpxPromise<HttpxResponse<T>>;
     /**
      * HEAD 请求
      * @param details 配置
