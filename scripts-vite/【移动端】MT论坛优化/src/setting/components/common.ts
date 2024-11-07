@@ -340,7 +340,7 @@ export const Component_Common: PopsPanelContentConfig = {
 									false,
 									"primary",
 									() => {
-										MTDyncmicAvatar.init();
+										MTDyncmicAvatar.showView();
 									}
 								),
 							],

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359
-// @version      2024.11.6
+// @version      2024.11.7
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/452322/1470429/js-watermark.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
@@ -48,7 +48,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var require_entrance_001 = __commonJS({
-    "entrance-dLVRq76l.js"(exports, module) {
+    "entrance-DTvwdkpt.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -1184,9 +1184,9 @@
           $middleStatus: null,
           $bigStatus: null
         },
-        init() {
-          this.showView();
-        },
+        /**
+         * 显示视图
+         */
         showView() {
           let $confirm = __pops.confirm({
             title: {
@@ -1266,6 +1266,7 @@
                       "User-Agent": utils.getRandomPCUA()
                     }
                   });
+                  $confirm.close();
                   if (!response.status) {
                     return;
                   }
@@ -1273,10 +1274,6 @@
                     "window.parent.postMessage('success','*')"
                   ) != -1) {
                     Qmsg.success("上传成功");
-                    $confirm.close();
-                    setTimeout(() => {
-                      window.location.reload();
-                    }, 1500);
                   } else {
                     log.error(response);
                     Qmsg.error(response.data.responseText);
@@ -1426,14 +1423,14 @@
             return;
           }
           if (utils.isNull(response.data.responseText)) {
-            Qmsg.error("获取PC数据失败");
+            Qmsg.error("动态头像：获取上传地址失败");
             return;
           }
           let dataMatch = response.data.responseText.match(
             /var[\s]*data[\s]*=[\s]*"(.+?)"/
           );
           if (dataMatch == null || dataMatch.length != 2) {
-            Qmsg.error("获取变量-data失败");
+            Qmsg.error("动态头像：获取变量data失败");
             return;
           }
           let data = dataMatch[dataMatch.length - 1];
@@ -1442,6 +1439,7 @@
             "images/camera.swf?inajax=1",
             "index.php?m=user&a=rectavatar&base64=yes"
           );
+          log.info(`上传地址：` + uploadUrl);
           return uploadUrl;
         }
       };
@@ -1794,7 +1792,7 @@
                         false,
                         "primary",
                         () => {
-                          MTDyncmicAvatar.init();
+                          MTDyncmicAvatar.showView();
                         }
                       )
                     ]
@@ -3923,21 +3921,23 @@
           domUtils.on(this.$el.$fastpostsubmit, "click", async (event) => {
             var _a2, _b, _c, _d, _e, _f;
             utils.preventEvent(event);
-            var msgobj = $("#needmessage");
-            var msgData = domUtils.val(msgobj);
-            msgData = encodeURIComponent(msgData);
-            if (msgData == null || msgData === "") {
+            var $message = $("#needmessage");
+            var message = domUtils.val($message);
+            message = encodeURIComponent(message);
+            if (message == null || message === "") {
               return;
             }
             if (domUtils.val(that.$el.$fastpostsubmit) == "发表") {
               let $loading = Qmsg.loading("发表中，请稍后...");
-              let url = that.$data.forum_action + "reply&handlekey=fastpost&loc=1&inajax=1";
-              let data = domUtils.serialize(that.$el.$form) + msgData;
+              let data = "message=" + message;
               $$("#imglist input[type='hidden']").forEach(
                 ($ele) => {
-                  data = `${data}&${$ele.getAttribute("name")}=`;
+                  let key = $ele.getAttribute("name");
+                  data += `&${key}=`;
                 }
               );
+              data = domUtils.serialize(that.$el.$form) + "&" + data;
+              let url = that.$data.forum_action + "reply&handlekey=fastpost&loc=1&inajax=1";
               let response = await httpx.post(url, {
                 data,
                 fetch: true,
@@ -3984,7 +3984,7 @@
               let data = domUtils.attr(
                 "#comiis_foot_menu_beautify_big .reply_user_content",
                 "data-reply-serialize"
-              ) + msgData;
+              ) + message;
               $$("#imglist input[type='hidden']").forEach(
                 (item) => {
                   data = `${data}&${item.getAttribute("name")}=`;
@@ -7153,20 +7153,30 @@
           let response = await httpx.get(
             `/k_misign-sign.html?${utils.toSearchParamsStr(searchParamsData)}`,
             {
+              fetch: Boolean(PopsPanel.getValue("mt-auto-sign-useFetch")),
               headers: {
                 "User-Agent": utils.getRandomPCUA()
-              }
+              },
+              allowInterceptConfig: false
             }
           );
           if (!response.status) {
+            log.error("签到：网络异常，请求失败");
+            Qmsg.error("签到：网络异常，请求失败");
             return;
           }
           this.setSignTime();
-          log.info("自动签到信息：", response);
+          log.info("签到信息：", response);
           let CDATA = utils.parseCDATA(response.data.responseText);
           let CDATAElement = domUtils.parseHTML(`<div>${CDATA}</div>`, true, false);
           let content = domUtils.text(CDATAElement);
-          if (content.includes("请稍后再试") || content.includes("您已经被列入黑名单") || content.includes("绑定手机号后才可以签到")) {
+          if (content.includes("需要先登录")) {
+            Qmsg.error("签到：请先登录账号", {
+              timeout: 3e3
+            });
+            this.clearSignTime();
+            return;
+          } else if (content.includes("请稍后再试") || content.includes("您已经被列入黑名单") || content.includes("绑定手机号后才可以签到") || content.includes("您所在用户组不允许使用")) {
             Qmsg.error("签到：" + content, {
               timeout: 5e3
             });
@@ -7204,21 +7214,22 @@
             );
             return;
           }
-          pops.alert({
+          let $alert = pops.alert({
             title: {
-              text: "签到的响应内容",
+              text: "未知签到内容",
               position: "center"
             },
             content: {
-              text: response.data.responseText,
+              text: "",
               html: false
             },
             width: "88vw",
-            height: "400px"
+            height: "300px"
           });
-          Qmsg.error("签到: 未知结果,请查看控制台信息", {
-            timeout: 4e3
-          });
+          let $content = $alert.$shadowRoot.querySelector(
+            ".pops-alert-content"
+          );
+          $content.innerText = response.data.responseText;
         }
       };
       const Component_Sign = {
@@ -7250,6 +7261,7 @@
             type: "forms",
             forms: [
               UISwitch("启用", "mt-auto-sign", true, void 0, "自动请求签到"),
+              UISwitch("使用fetch请求", "mt-auto-sign-useFetch", false, void 0, ""),
               UIButton(
                 "签到信息",
                 `上次签到时间：${MTAutoSignIn.getSignTime() == null ? "尚未签到" : Utils.formatTime(MTAutoSignIn.getSignTime())}`,

@@ -35,6 +35,7 @@ export const Component_Sign: PopsPanelContentConfig = {
 			type: "forms",
 			forms: [
 				UISwitch("启用", "mt-auto-sign", true, void 0, "自动请求签到"),
+				UISwitch("使用fetch请求", "mt-auto-sign-useFetch", false, void 0, ""),
 				UIButton(
 					"签到信息",
 					`上次签到时间：${

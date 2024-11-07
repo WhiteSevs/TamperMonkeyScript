@@ -1,5 +1,6 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
 import { Router } from "@/router/router";
+import { PopsPanel } from "@/setting/setting";
 import { MTRegExp } from "@/utils/MTRegExp";
 import { MTUtils } from "@/utils/Utils";
 import pops from "@whitesev/pops";
@@ -133,26 +134,37 @@ export const MTAutoSignIn = {
 		let response = await httpx.get(
 			`/k_misign-sign.html?${utils.toSearchParamsStr(searchParamsData)}`,
 			{
+				fetch: Boolean(PopsPanel.getValue("mt-auto-sign-useFetch")),
 				headers: {
 					"User-Agent": utils.getRandomPCUA(),
 				},
+				allowInterceptConfig: false,
 			}
 		);
 
 		if (!response.status) {
+			log.error("签到：网络异常，请求失败");
+			Qmsg.error("签到：网络异常，请求失败");
 			return;
 		}
 
 		this.setSignTime();
-		log.info("自动签到信息：", response);
+		log.info("签到信息：", response);
 
 		let CDATA = utils.parseCDATA(response.data.responseText);
 		let CDATAElement = DOMUtils.parseHTML(`<div>${CDATA}</div>`, true, false);
 		let content = DOMUtils.text(CDATAElement);
-		if (
+		if (content.includes("需要先登录")) {
+			Qmsg.error("签到：" + "请先登录账号", {
+				timeout: 3000,
+			});
+			this.clearSignTime();
+			return;
+		} else if (
 			content.includes("请稍后再试") ||
 			content.includes("您已经被列入黑名单") ||
-			content.includes("绑定手机号后才可以签到")
+			content.includes("绑定手机号后才可以签到") ||
+			content.includes("您所在用户组不允许使用")
 		) {
 			Qmsg.error("签到：" + content, {
 				timeout: 5000,
@@ -194,23 +206,23 @@ export const MTAutoSignIn = {
 					isHTML: true,
 				}
 			);
-
 			return;
 		}
-		pops.alert({
+		let $alert = pops.alert({
 			title: {
-				text: "签到的响应内容",
+				text: "未知签到内容",
 				position: "center",
 			},
 			content: {
-				text: response.data.responseText,
+				text: "",
 				html: false,
 			},
 			width: "88vw",
-			height: "400px",
+			height: "300px",
 		});
-		Qmsg.error("签到: 未知结果,请查看控制台信息", {
-			timeout: 4000,
-		});
+		let $content = $alert.$shadowRoot.querySelector<HTMLElement>(
+			".pops-alert-content"
+		)!;
+		$content.innerText = response.data.responseText;
 	},
 };

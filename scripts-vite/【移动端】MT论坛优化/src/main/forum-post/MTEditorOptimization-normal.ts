@@ -708,24 +708,26 @@ export const MTEditorOptimizationNormal = {
 		const that = this;
 		DOMUtils.on(this.$el.$fastpostsubmit, "click", async (event) => {
 			utils.preventEvent(event);
-			var msgobj = $<HTMLTextAreaElement>("#needmessage")!;
-			var msgData = DOMUtils.val(msgobj);
-			msgData = encodeURIComponent(msgData);
-			if (msgData == null || msgData === "") {
+			var $message = $<HTMLTextAreaElement>("#needmessage")!;
+			var message = DOMUtils.val($message);
+			message = encodeURIComponent(message);
+			if (message == null || message === "") {
 				return;
 			}
 			if (DOMUtils.val(that.$el.$fastpostsubmit) == "发表") {
 				let $loading = Qmsg.loading("发表中，请稍后...");
-				/* 发表 */
-				let url =
-					that.$data.forum_action + "reply&handlekey=fastpost&loc=1&inajax=1";
-				let data = DOMUtils.serialize(that.$el.$form) + msgData;
-				// 遍历图片数据
+				// 请求数据
+				let data = "message=" + message;
+				// 遍历图片数据，添加到请求数据中
 				$$<HTMLInputElement>("#imglist input[type='hidden']").forEach(
 					($ele) => {
-						data = `${data}&${$ele.getAttribute("name")}=`;
+						let key = $ele.getAttribute("name");
+						data += `&${key}=`;
 					}
 				);
+				data = DOMUtils.serialize(that.$el.$form) + "&" + data;
+				let url =
+					that.$data.forum_action + "reply&handlekey=fastpost&loc=1&inajax=1";
 				let response = await httpx.post(url, {
 					data: data,
 					fetch: true,
@@ -775,7 +777,7 @@ export const MTEditorOptimizationNormal = {
 					DOMUtils.attr(
 						"#comiis_foot_menu_beautify_big .reply_user_content",
 						"data-reply-serialize"
-					) + msgData;
+					) + message;
 
 				$$<HTMLInputElement>("#imglist input[type='hidden']").forEach(
 					(item) => {
