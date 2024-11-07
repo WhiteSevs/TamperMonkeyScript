@@ -1398,7 +1398,6 @@ class Utils {
 	 * Utils.getRandomAndroidUA();
 	 * > 'Mozilla/5.0 (Linux; Android 10; MI 13 Build/OPR1.170623.027; wv) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.3490.40 Mobile Safari/537.36'
 	 **/
-	getRandomAndroidUA(): string;
 	getRandomAndroidUA(): string {
 		let UtilsContext = this;
 		let mobileNameList = [
@@ -1417,13 +1416,43 @@ class Utils {
 			"M2003J15SC Build/RP1A.200720.011; wv",
 			"MI 13 Build/OPR1.170623.027; wv",
 		];
+		/* 安卓版本 */
 		let androidVersion = UtilsContext.getRandomValue(12, 14);
+		/* 手机型号 */
 		let randomMobile = UtilsContext.getRandomValue(mobileNameList);
-		let chromeVersion1 = UtilsContext.getRandomValue(115, 127);
+		/* chrome大版本号 */
+		let chromeVersion1 = UtilsContext.getRandomValue(120, 132);
 		let chromeVersion2 = UtilsContext.getRandomValue(0, 0);
 		let chromeVersion3 = UtilsContext.getRandomValue(2272, 6099);
 		let chromeVersion4 = UtilsContext.getRandomValue(1, 218);
 		return `Mozilla/5.0 (Linux; Android ${androidVersion}; ${randomMobile}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion1}.${chromeVersion2}.${chromeVersion3}.${chromeVersion4} Mobile Safari/537.36`;
+	}
+	/**
+	 * 获取随机的电脑端User-Agent
+	 * + Mozilla/5.0：以前用于Netscape浏览器，目前大多数浏览器UA都会带有
+	 * + Windows NT 13：代表Window11系统
+	 * + Windows NT 10.0：代表Window10系统
+	 * + Windows NT 6.1：代表windows7系统
+	 * + WOW64：Windows-on-Windows 64-bit，32位的应用程序运行于此64位处理器上
+	 * + Win64：64位
+	 * + AppleWebKit/537.36：浏览器内核
+	 * + KHTML：HTML排版引擎
+	 * + like Gecko：这不是Geckeo 浏览器，但是运行起来像Geckeo浏览器
+	 * + Chrome/106.0.5068.19：Chrome版本号
+	 * + Safari/537.36：宣称自己是Safari？
+	 * @returns 返回随机字符串
+	 * @example
+	 * Utils.getRandomPCUA();
+	 * > 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.5068.19 Safari/537.36'
+	 **/
+	getRandomPCUA(): string {
+		let UtilsContext = this;
+		/* chrome大版本号 */
+		let chromeVersion1 = UtilsContext.getRandomValue(120, 132);
+		let chromeVersion2 = UtilsContext.getRandomValue(0, 0);
+		let chromeVersion3 = UtilsContext.getRandomValue(2272, 6099);
+		let chromeVersion4 = UtilsContext.getRandomValue(1, 218);
+		return `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion1}.${chromeVersion2}.${chromeVersion3}.${chromeVersion4} Safari/537.36`;
 	}
 	/**
 	 * 获取随机值
@@ -1492,32 +1521,6 @@ class Utils {
 				return paramData;
 			}
 		}
-	}
-	/**
-	 * 获取随机的电脑端User-Agent
-	 * + Mozilla/5.0：以前用于Netscape浏览器，目前大多数浏览器UA都会带有
-	 * + Windows NT 13：代表Window11系统
-	 * + Windows NT 10.0：代表Window10系统
-	 * + Windows NT 6.1：代表windows7系统
-	 * + WOW64：Windows-on-Windows 64-bit，32位的应用程序运行于此64位处理器上
-	 * + Win64：64位
-	 * + AppleWebKit/537.36：浏览器内核
-	 * + KHTML：HTML排版引擎
-	 * + like Gecko：这不是Geckeo 浏览器，但是运行起来像Geckeo浏览器
-	 * + Chrome/106.0.5068.19：Chrome版本号
-	 * + Safari/537.36：宣称自己是Safari？
-	 * @returns 返回随机字符串
-	 * @example
-	 * Utils.getRandomPCUA();
-	 * > 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.5068.19 Safari/537.36'
-	 **/
-	getRandomPCUA(): string {
-		let UtilsContext = this;
-		let chromeVersion1 = UtilsContext.getRandomValue(115, 127);
-		let chromeVersion2 = UtilsContext.getRandomValue(0, 0);
-		let chromeVersion3 = UtilsContext.getRandomValue(2272, 6099);
-		let chromeVersion4 = UtilsContext.getRandomValue(1, 218);
-		return `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion1}.${chromeVersion2}.${chromeVersion3}.${chromeVersion4} Safari/537.36`;
 	}
 	/**
 	 * 获取元素上的使用React框架的实例属性，目前包括reactFiber、reactProps、reactEvents、reactEventHandlers、reactInternalInstance

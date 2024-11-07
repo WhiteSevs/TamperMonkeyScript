@@ -470,6 +470,25 @@ declare class Utils {
      **/
     getRandomAndroidUA(): string;
     /**
+     * 获取随机的电脑端User-Agent
+     * + Mozilla/5.0：以前用于Netscape浏览器，目前大多数浏览器UA都会带有
+     * + Windows NT 13：代表Window11系统
+     * + Windows NT 10.0：代表Window10系统
+     * + Windows NT 6.1：代表windows7系统
+     * + WOW64：Windows-on-Windows 64-bit，32位的应用程序运行于此64位处理器上
+     * + Win64：64位
+     * + AppleWebKit/537.36：浏览器内核
+     * + KHTML：HTML排版引擎
+     * + like Gecko：这不是Geckeo 浏览器，但是运行起来像Geckeo浏览器
+     * + Chrome/106.0.5068.19：Chrome版本号
+     * + Safari/537.36：宣称自己是Safari？
+     * @returns 返回随机字符串
+     * @example
+     * Utils.getRandomPCUA();
+     * > 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.5068.19 Safari/537.36'
+     **/
+    getRandomPCUA(): string;
+    /**
      * 获取随机值
      * @example
      * Utils.getRandomValue(1,9,6,99)
@@ -500,25 +519,6 @@ declare class Utils {
      * > {1: 1}
      */
     getRandomValue<T extends any>(val_1: UtilsOwnObject<T>, val_2: UtilsOwnObject<T>): T;
-    /**
-     * 获取随机的电脑端User-Agent
-     * + Mozilla/5.0：以前用于Netscape浏览器，目前大多数浏览器UA都会带有
-     * + Windows NT 13：代表Window11系统
-     * + Windows NT 10.0：代表Window10系统
-     * + Windows NT 6.1：代表windows7系统
-     * + WOW64：Windows-on-Windows 64-bit，32位的应用程序运行于此64位处理器上
-     * + Win64：64位
-     * + AppleWebKit/537.36：浏览器内核
-     * + KHTML：HTML排版引擎
-     * + like Gecko：这不是Geckeo 浏览器，但是运行起来像Geckeo浏览器
-     * + Chrome/106.0.5068.19：Chrome版本号
-     * + Safari/537.36：宣称自己是Safari？
-     * @returns 返回随机字符串
-     * @example
-     * Utils.getRandomPCUA();
-     * > 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.5068.19 Safari/537.36'
-     **/
-    getRandomPCUA(): string;
     /**
      * 获取元素上的使用React框架的实例属性，目前包括reactFiber、reactProps、reactEvents、reactEventHandlers、reactInternalInstance
      * @param element 需要获取的目标元素

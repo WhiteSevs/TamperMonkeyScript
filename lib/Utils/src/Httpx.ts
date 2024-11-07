@@ -275,7 +275,7 @@ class Httpx {
 			let that = this;
 			let requestOption = <Required<HttpxRequestOption>>{
 				url: userRequestOption.url || this.context.#defaultDetails.url,
-				method: (method || "GET").toString().toUpperCase(),
+				method: (method || "GET").toString().toUpperCase().trim(),
 				timeout:
 					userRequestOption.timeout || this.context.#defaultDetails.timeout,
 				responseType:
@@ -510,13 +510,21 @@ class Httpx {
 						// GET类型，data如果有，那么需要转为searchParams
 						let urlObj = new URL(requestOption.url);
 						let urlSearch = "";
+						let isHandler = false;
 						if (typeof requestOption.data === "string") {
+							isHandler = true;
 							urlSearch = requestOption.data;
 						} else if (typeof requestOption.data === "object") {
+							isHandler = true;
 							// URLSearchParams参数可以转普通的string:string，包括FormData
 							// @ts-ignore
 							let searchParams = new URLSearchParams(requestOption.data);
 							urlSearch = searchParams.toString();
+						}
+						if (isHandler) {
+							// GET/HEAD请求不支持data参数
+							// 对data进行处理了才可以删除
+							Reflect.deleteProperty(requestOption, "data");
 						}
 						if (urlSearch != "") {
 							if (urlObj.search === "") {
@@ -580,6 +588,7 @@ class Httpx {
 			} catch (error) {
 				console.warn("Httpx ==> 转换data参数错误", error);
 			}
+
 			return requestOption;
 		},
 		/**
