@@ -187,6 +187,13 @@ const MSettingUIBlog: PopsPanelContentConfig = {
 									void 0,
 									"开启后底部工具栏不随下滑滚动而隐藏"
 								),
+								UISwitch(
+									"优化收藏按钮",
+									"m-csdn-blog-bottom-toolbar-optimizationCollectButton",
+									false,
+									void 0,
+									"可以自行选择收藏夹"
+								),
 							],
 						},
 					],

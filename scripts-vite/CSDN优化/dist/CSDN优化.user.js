@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.6
+// @version      2024.11.7
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -9,9 +9,9 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.csdn.net/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
 // @grant        GM_deleteValue
 // @grant        GM_getValue
@@ -845,6 +845,13 @@
                     false,
                     void 0,
                     "开启后底部工具栏不随下滑滚动而隐藏"
+                  ),
+                  UISwitch(
+                    "优化收藏按钮",
+                    "m-csdn-blog-bottom-toolbar-optimizationCollectButton",
+                    false,
+                    void 0,
+                    "可以自行选择收藏夹"
                   )
                 ]
               }
@@ -2599,6 +2606,98 @@
   };
   const ShieldCSS$1 = ".view_comment_box,\r\n.weixin-shadowbox.wap-shadowbox,\r\n.feed-Sign-span,\r\n.user-desc.user-desc-fix,\r\n.comment_read_more_box,\r\n#content_views pre.set-code-hide .hide-preCode-box,\r\n/* 登录弹窗 */\r\n.passport-login-container,\r\n.hljs-button[data-title='登录后复制'],\r\n.article-show-more,\r\n#treeSkill,\r\ndiv.btn_open_app_prompt_div,\r\ndiv.readall_box,\r\ndiv.aside-header-fixed,\r\ndiv.feed-Sign-weixin,\r\ndiv.ios-shadowbox {\r\n	display: none !important;\r\n}\r\n";
   const MBlogCSS = "#mainBox {\r\n  width: auto;\r\n}\r\n.user-desc.user-desc-fix {\r\n  height: auto !important;\r\n  overflow: auto !important;\r\n}\r\n.component-box .praise {\r\n  background: #ff5722;\r\n  border-radius: 5px;\r\n  padding: 0px 8px;\r\n  height: auto;\r\n}\r\n.component-box .praise,\r\n.component-box .share {\r\n  color: #fff;\r\n}\r\n.component-box a {\r\n  display: inline-block;\r\n  font-size: xx-small;\r\n}\r\n.component-box {\r\n  display: inline;\r\n  margin: 0;\r\n  position: relative;\r\n  white-space: nowrap;\r\n}\r\n.csdn-edu-title {\r\n  background: #4d6de1;\r\n  border-radius: 5px;\r\n  padding: 0px 8px;\r\n  height: auto;\r\n  color: #fff !important;\r\n}\r\n\r\n.GM-csdn-dl {\r\n  padding: 0.24rem 0.32rem;\r\n  width: 100%;\r\n  justify-content: space-between;\r\n  -webkit-box-pack: justify;\r\n  border-bottom: 1px solid #f5f6f7 !important;\r\n}\r\n.GM-csdn-title {\r\n  font-size: 0.3rem;\r\n  color: #222226;\r\n  letter-spacing: 0;\r\n  line-height: 0.44rem;\r\n  font-weight: 600;\r\n  /*max-height: .88rem;*/\r\n  word-break: break-all;\r\n  overflow: hidden;\r\n  display: -webkit-box;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-line-clamp: 2;\r\n}\r\n.GM-csdn-title a {\r\n  word-break: break-all;\r\n  color: #222226;\r\n  font-weight: 600;\r\n}\r\n.GM-csdn-title em,\r\n.GM-csdn-content em {\r\n  font-style: normal;\r\n  color: #fc5531;\r\n}\r\n.GM-csdn-content {\r\n  /*max-width: 5.58rem;*/\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  display: -webkit-box;\r\n  -webkit-line-clamp: 1;\r\n  -webkit-box-orient: vertical;\r\n  color: #555666;\r\n  font-size: 0.24rem;\r\n  line-height: 0.34rem;\r\n  max-height: 0.34rem;\r\n  word-break: break-all;\r\n  -webkit-box-flex: 1;\r\n  -ms-flex: 1;\r\n  flex: 1;\r\n  margin-top: 0.16rem;\r\n}\r\n.GM-csdn-img img {\r\n  width: 2.18rem;\r\n  height: 1.58rem;\r\n  /*margin-left: .16rem*/\r\n}\r\n";
+  const ApiResponseCheck = {
+    isSuccessResponse(data) {
+      if (data == null) {
+        return false;
+      }
+      if (typeof data === "string") {
+        data = utils.toJSON(data);
+      }
+      return (data == null ? void 0 : data.code) === 200;
+    }
+  };
+  const CSDNFavoriteApi = {
+    /**
+     * 获取收藏夹信息
+     * @param url 当前url
+     */
+    async folderListWithCheck(url) {
+      let response = await httpx.get(
+        `https://mp-action.csdn.net/interact/wrapper/pc/favorite/v1/api/folderListWithCheck`,
+        {
+          data: {
+            url
+          },
+          fetch: true,
+          allowInterceptConfig: false,
+          headers: {
+            "User-Agent": utils.getRandomPCUA()
+          }
+        }
+      );
+      if (!response.status || !ApiResponseCheck.isSuccessResponse(response.data.responseText)) {
+        log.error("获取收藏夹信息失败，请求异常", response);
+        Qmsg.error("获取收藏夹信息失败");
+        return;
+      }
+      let data = utils.toJSON(response.data.responseText);
+      return data.data.result;
+    },
+    /**
+     * 添加到某个收藏夹
+     */
+    async addFavoriteInFolds(requestData) {
+      let response = await httpx.post(
+        "https://mp-action.csdn.net/interact/wrapper/pc/favorite/v1/api/addFavoriteInFolds",
+        {
+          fetch: true,
+          data: requestData,
+          headers: {
+            "Content-Type": "application/json",
+            "User-Agent": utils.getRandomPCUA()
+          },
+          allowInterceptConfig: false
+        }
+      );
+      if (!response.status || !ApiResponseCheck.isSuccessResponse(response.data.responseText)) {
+        log.error("添加收藏失败，请求异常", response);
+        Qmsg.error("添加收藏失败，请求异常");
+        return;
+      }
+      return true;
+    },
+    /**
+     * 检查收藏夹信息
+     * @param url
+     * @returns
+     * + true 已收藏
+     * + false 未收藏
+     */
+    async checkFavoriteByUrl(url) {
+      debugger;
+      let response = await httpx.get(
+        `https://mp-action.csdn.net/interact/wrapper/pc/favorite/v1/api/checkFavoriteByUrl`,
+        {
+          data: {
+            url
+          },
+          fetch: true,
+          allowInterceptConfig: false,
+          headers: {
+            "User-Agent": utils.getRandomPCUA()
+          }
+        }
+      );
+      if (!response.status || !ApiResponseCheck.isSuccessResponse(response.data.responseText)) {
+        log.error("检查收藏夹状态失败，请求异常", response);
+        Qmsg.error("检查收藏夹状态失败，请求异常");
+        return;
+      }
+      let data = utils.toJSON(response.data.responseText);
+      return data.data;
+    }
+  };
   const M_CSDNBlog = {
     init() {
       this.addCSS();
@@ -2659,6 +2758,12 @@
         PopsPanel.execMenuOnce("m-csdn-blog-unBlockCopy", () => {
           CSDNBlog.unBlockCopy();
         });
+        PopsPanel.execMenuOnce(
+          "m-csdn-blog-bottom-toolbar-optimizationCollectButton",
+          () => {
+            this.optimizationCollectButton();
+          }
+        );
       });
     },
     addCSS() {
@@ -2694,10 +2799,7 @@
      */
     refactoringRecommendation() {
       function refactoring() {
-        log.info("重构底部推荐");
-        document.querySelectorAll(
-          ".container-fluid"
-        ).forEach((item) => {
+        document.querySelectorAll(".container-fluid").forEach((item) => {
           var _a2, _b;
           let url = "";
           let title = "";
@@ -2718,19 +2820,16 @@
               });
             }
           } else {
-            log.info("节点上无data-url");
             url = item.querySelector("a[data-type]").getAttribute("href");
             title = item.querySelector(".recommend_title div.left").innerHTML;
             content = item.querySelector(".text").innerHTML;
           }
           var _URL_ = new URL(url);
           if (_URL_.host === "download.csdn.net" || _URL_.host === "www.iteye.com" && _URL_.pathname.match(/^\/resource/gi)) {
-            log.info("该链接为csdn资源下载");
             isCSDNDownload = true;
             title = `<div class="component-box"><a class="praise" href="javascript:;">CSDN下载</a></div>` + title;
           } else if (_URL_.origin.match(/edu.csdn.net/gi)) {
             isCSDNEduDownload = true;
-            log.info("该链接为csdn学院下载");
             title = `<div class="component-box"><a class="csdn-edu-title" href="javascript:;">CSDN学院</a></div>` + title;
           }
           item.setAttribute("class", "GM-csdn-dl");
@@ -2871,6 +2970,317 @@
 			}
 			`
       );
+    },
+    /**
+     * 优化收藏按钮
+     */
+    optimizationCollectButton() {
+      log.info(`优化收藏按钮`);
+      utils.waitNode("#operate .collect-btn", 1e4).then(($collectBtn) => {
+        if (!$collectBtn) {
+          return;
+        }
+        domutils.on(
+          $collectBtn,
+          "click",
+          async (event) => {
+            utils.preventEvent(event);
+            let $isCollect = $collectBtn.querySelector(".collect");
+            let $unCollect = $collectBtn.querySelector(".uncollect");
+            let folderInfo = await CSDNFavoriteApi.folderListWithCheck(
+              window.location.origin + window.location.pathname
+            );
+            if (!folderInfo) {
+              return;
+            }
+            let isFavoriteFolderIdList = [];
+            folderInfo.forEach((item) => {
+              if (item.IsFavorite) {
+                isFavoriteFolderIdList.push(item.ID);
+              }
+            });
+            let createCollectItem = (data) => {
+              let folderId = data.ID;
+              let $item = domutils.createElement(
+                "li",
+                {
+                  className: "csdn-collection-item",
+                  innerHTML: (
+                    /*html*/
+                    `
+									<div class="csdn-collection-item_left">
+										<div class="csdn-collection-item_title">
+											<span class="title-m">${data.Name}</span>
+										</div>
+										<span class="csdn-collection-item_ext">
+											<span class="csdn-collection-item_length">${data.FavoriteNum}条内容</span>
+											<span class="dot">・</span>
+											<span class="csdn-collection-controls">${data.IsPrivate ? "私密" : "公开"}</span>
+										</span>
+									</div>
+									<span class="collect-btn">${data.IsFavorite ? "已收藏" : "收藏"}</span>
+								`
+                  )
+                },
+                {
+                  "data-is-collect": data.IsFavorite
+                }
+              );
+              $item.querySelector(".title-m");
+              let $contentLength = $item.querySelector(
+                ".csdn-collection-item_length"
+              );
+              $item.querySelector(
+                ".csdn-collection-controls"
+              );
+              let $collectBtn2 = $item.querySelector(".collect-btn");
+              domutils.on($collectBtn2, "click", async (event2) => {
+                let articleDetailUrl = _unsafeWindow.articleDetailUrl;
+                if (articleDetailUrl == null) {
+                  articleDetailUrl = window.location.origin + window.location.pathname;
+                }
+                let articleId = _unsafeWindow.articleId;
+                if (articleId == null) {
+                  log.error("获取文章ID失败");
+                  Qmsg.error("获取文章ID失败");
+                  return;
+                }
+                let username = _unsafeWindow.username;
+                if (username == null) {
+                  log.error("获取文章作者失败");
+                  Qmsg.error("获取文章作者失败");
+                  return;
+                }
+                let articleTitle = _unsafeWindow.articleTitle;
+                if (articleTitle == null) {
+                  articleTitle = document.title.replace(/-CSDN博客$/, "");
+                }
+                if (articleTitle == null) {
+                  log.error("获取文章标题失败");
+                  Qmsg.error("获取文章标题失败");
+                  return;
+                }
+                let articleDesc = _unsafeWindow.articleDesc;
+                if (articleDesc == null) {
+                  let $meta = $("meta[name='description']");
+                  if ($meta) {
+                    articleDesc = $meta.getAttribute("content");
+                  }
+                }
+                if (articleDesc == null) {
+                  log.error("获取文章描述失败");
+                  Qmsg.error("获取文章描述失败");
+                  return;
+                }
+                let folderIdList = [...isFavoriteFolderIdList];
+                let $loading = Qmsg.loading("处理中...");
+                try {
+                  let checkResponse = await CSDNFavoriteApi.checkFavoriteByUrl(
+                    articleDetailUrl
+                  );
+                  if (checkResponse == null) {
+                    return;
+                  }
+                  log.info(folderId, checkResponse);
+                  let toCollect = !checkResponse[folderId];
+                  if (toCollect) {
+                    log.info(`添加收藏`);
+                    folderIdList.push(folderId);
+                  } else {
+                    log.info(`取消收藏`);
+                    folderIdList.splice(folderIdList.indexOf(folderId), 1);
+                  }
+                  let response = await CSDNFavoriteApi.addFavoriteInFolds({
+                    author: username,
+                    url: articleDetailUrl,
+                    source: "blog",
+                    sourceId: articleId,
+                    title: articleTitle,
+                    description: articleDesc,
+                    fromType: "PC",
+                    username: data.Username,
+                    folderIdList
+                  });
+                  if (!response) {
+                    return;
+                  }
+                  let check_isCollect = await CSDNFavoriteApi.checkFavoriteByUrl(articleDetailUrl);
+                  if (check_isCollect == null) {
+                    return;
+                  }
+                  log.info(folderId, check_isCollect);
+                  $item.setAttribute(
+                    "data-is-collect",
+                    (!!check_isCollect[folderId]).toString()
+                  );
+                  if (toCollect) {
+                    if (!check_isCollect[folderId]) {
+                      log.error("收藏失败", check_isCollect, folderId);
+                      Qmsg.error("收藏失败");
+                    } else {
+                      log.success("收藏成功");
+                      Qmsg.success("收藏成功");
+                      domutils.text($collectBtn2, "已收藏");
+                      if (!isFavoriteFolderIdList.includes(folderId)) {
+                        isFavoriteFolderIdList.push(folderId);
+                      }
+                      data.FavoriteNum++;
+                    }
+                  } else {
+                    if (!check_isCollect[folderId]) {
+                      log.success("取消收藏成功");
+                      Qmsg.success("取消收藏成功");
+                      domutils.text($collectBtn2, "收藏");
+                      if (isFavoriteFolderIdList.includes(folderId)) {
+                        isFavoriteFolderIdList.splice(
+                          isFavoriteFolderIdList.indexOf(folderId),
+                          1
+                        );
+                      }
+                      data.FavoriteNum--;
+                    } else {
+                      log.error("取消收藏失败", check_isCollect, folderId);
+                      Qmsg.error("取消收藏失败");
+                    }
+                  }
+                  domutils.text($contentLength, `${data.FavoriteNum}条内容`);
+                  let findValue = Object.values(check_isCollect).find(
+                    (item) => item
+                  );
+                  if (findValue) {
+                    domutils.show($isCollect, false);
+                    domutils.hide($unCollect, false);
+                  } else {
+                    domutils.show($unCollect, false);
+                    domutils.hide($isCollect, false);
+                  }
+                } catch (error) {
+                  log.error(error);
+                } finally {
+                  $loading.close();
+                }
+              });
+              return $item;
+            };
+            let $alert = __pops.alert({
+              title: {
+                text: "添加收藏夹",
+                position: "center"
+              },
+              content: {
+                text: (
+                  /*html*/
+                  `
+									<ul class="csdn-collection-items"></ul>
+								`
+                ),
+                html: true
+              },
+              btn: {
+                ok: {
+                  enable: false
+                }
+              },
+              width: PanelUISize.setting.width,
+              height: PanelUISize.setting.height,
+              drag: true,
+              mask: {
+                enable: true
+              },
+              style: (
+                /*css*/
+                `
+								.csdn-collection-items{
+									--font-size: 16px;
+								}
+								.csdn-collection-items{
+									font-size: var(--font-size);
+									font-weight: 400;
+									padding: 0 20px 0;
+									margin: 24px 0;
+									overflow: auto;
+									-ms-scroll-chaining: none;
+									overscroll-behavior: contain;
+								}
+								.csdn-collection-item{
+									width: 100%;
+    								height: 62px;
+									line-height: normal;
+									position: relative;
+									padding: 8px 12px;
+									cursor: pointer;
+									display: -webkit-box;
+									display: -ms-flexbox;
+									display: flex;
+									-webkit-box-align: center;
+									-ms-flex-align: center;
+									align-items: center;
+									-webkit-box-pack: justify;
+									-ms-flex-pack: justify;
+									justify-content: space-between;
+									border-bottom: 1px solid #f0f0f5;
+								}
+								.csdn-collection-item_left{
+									line-height: normal;
+									flex: 1;
+									overflow: hidden;
+								}
+								.csdn-collection-item_title{
+									overflow: hidden;
+									text-overflow: ellipsis;
+									white-space: nowrap;
+									width: 100%;
+								}
+								.csdn-collection-item_ext{
+									font-weight: 400;
+									color: #999aaa;
+									line-height: 17px;
+									margin-top: 8px;
+									font-size: .8em;
+									overflow: hidden;
+									text-overflow: ellipsis;
+									white-space: nowrap;
+									width: 100%;
+									display: inline-flex;
+									align-items: center;
+								}
+								.collect-btn{
+									color: #555666;
+									font-size: var(--font-size);
+									width: 64px;
+									height: 30px;
+									line-height: 30px;
+									border-radius: 20px;
+									text-align: center;
+									-webkit-transition: all .2s;
+									transition: all .2s;
+									border: 1px solid #ccccd8;
+								}
+								.csdn-collection-item[data-is-collect="true"] .collect-btn{
+									color: #999aaa;
+									background: rgba(232, 232, 237, .3);
+									border: 1px solid #e8e8ed;
+								}
+								/* .csdn-collection-item:hover{
+									background: #f5f6f7;
+								}
+								.csdn-collection-item:hover .collect-btn{
+									border: 1px solid #555666;
+								} */
+							`
+              )
+            });
+            let $collectionContainer = $alert.$shadowRoot.querySelector(
+              ".csdn-collection-items"
+            );
+            folderInfo.forEach((folderInfoItem) => {
+              let $item = createCollectItem(folderInfoItem);
+              $collectionContainer.appendChild($item);
+            });
+          },
+          { capture: true }
+        );
+      });
     }
   };
   const ShieldCSS = "/* 右下角的买一年送3个月的广告图标 */\r\n.blind_box {\r\n  display: none !important;\r\n}\r\n";

@@ -29,7 +29,6 @@ export const CSDNFavoriteApi = {
 				data: {
 					url: url,
 				},
-				processData: true,
 				fetch: true,
 				allowInterceptConfig: false,
 				headers: {
@@ -62,7 +61,7 @@ export const CSDNFavoriteApi = {
 		/** 来源 */
 		source: "blog";
 		/** 资源id */
-		sourceId: 136138157;
+		sourceId: number;
 		/** 文章作者 */
 		author: string;
 		/** 文章标题 */
@@ -81,7 +80,6 @@ export const CSDNFavoriteApi = {
 			{
 				fetch: true,
 				data: requestData,
-				processData: true,
 				headers: {
 					"Content-Type": "application/json",
 					"User-Agent": utils.getRandomPCUA(),
@@ -100,12 +98,16 @@ export const CSDNFavoriteApi = {
 		return true;
 	},
 	/**
-	 * 检查收藏夹是否成功收藏
+	 * 检查收藏夹信息
 	 * @param url
+	 * @returns
+	 * + true 已收藏
+	 * + false 未收藏
 	 */
 	async checkFavoriteByUrl(url: string) {
+		debugger;
 		let response = await httpx.get(
-			"https://mp-action.csdn.net/interact/wrapper/pc/favorite/v1/api/checkFavoriteByUrl",
+			`https://mp-action.csdn.net/interact/wrapper/pc/favorite/v1/api/checkFavoriteByUrl`,
 			{
 				data: {
 					url: url,
@@ -123,16 +125,16 @@ export const CSDNFavoriteApi = {
 		) {
 			log.error("检查收藏夹状态失败，请求异常", response);
 			Qmsg.error("检查收藏夹状态失败，请求异常");
-			return false;
+			return;
 		}
-		let data = utils.toJSON(response.data.responseText);
-		let findValue = Array.from<number>(Object.values(data["data"])).find(
-			(item) => item != 0
-		);
-		if (findValue) {
-			return false;
-		} else {
-			return true;
-		}
+		let data = utils.toJSON(response.data.responseText) as {
+			data: {
+				[folderId: string]: number;
+			};
+			msg: string;
+			total: number;
+			code: number;
+		};
+		return data.data;
 	},
 };
