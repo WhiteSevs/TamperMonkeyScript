@@ -5,7 +5,7 @@ import { LoadingView } from "@/utils/LoadingView";
 import { TiebaCore } from "./TiebaCore";
 import Qmsg from "qmsg";
 import { TiebaBaNei } from "./BaNei/TiebaBaNei";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 interface SearchResultInfo {
 	url: string;
@@ -1019,7 +1019,7 @@ const TiebaSearch = {
 			data["title"] = data["title"].replaceAll(text, "<em>" + text + "</em>");
 		});
 
-		let postUrlObj = new URL(CommonUtils.fixUrl(data["url"]));
+		let postUrlObj = new URL(CommonUtil.fixUrl(data["url"]));
 		/** 帖子链接地址 */
 		// 这里处理是因为新版uni-app帖子后面如果多了个定位评论的锚点参数，那么会导致白屏
 		let postUrl = postUrlObj.origin + postUrlObj.pathname;

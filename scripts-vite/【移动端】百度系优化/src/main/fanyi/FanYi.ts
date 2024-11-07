@@ -1,7 +1,7 @@
 import { addStyle, log, utils } from "@/env";
 import FanYiShieldCSS from "./shield.css?raw";
 import { PopsPanel } from "@/setting/setting";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 const BaiduFanYi = {
 	init() {
@@ -22,14 +22,14 @@ const BaiduFanYi = {
 	 */
 	shieldRecommendBottom() {
 		log.info("屏蔽底部推荐");
-		return CommonUtils.addBlockCSS("section.article.android-style");
+		return CommonUtil.addBlockCSS("section.article.android-style");
 	},
 	/**
 	 * 屏蔽底部
 	 */
 	shieldBottom() {
 		log.info("屏蔽底部");
-		return CommonUtils.addBlockCSS(".trans-other-wrap.clearfix");
+		return CommonUtil.addBlockCSS(".trans-other-wrap.clearfix");
 	},
 	/**
 	 * 自动聚焦输入框

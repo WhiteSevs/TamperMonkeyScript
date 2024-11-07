@@ -1,7 +1,7 @@
 import { DOMUtils, addStyle, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { TiebaUrlApi } from "../api/TiebaApi";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 import Qmsg from "qmsg";
 import { VueUtils } from "@/utils/VueUtils";
 
@@ -17,7 +17,7 @@ const TiebaHybrid = {
 	 */
 	blockAds() {
 		return [
-			CommonUtils.addBlockCSS(
+			CommonUtil.addBlockCSS(
 				/* 顶部横幅 */
 				".tb-index-navbar .fix-nav-guide-bar",
 				/* 底部的百度贴吧app内打开 */

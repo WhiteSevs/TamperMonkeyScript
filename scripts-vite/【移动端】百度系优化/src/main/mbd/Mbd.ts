@@ -2,7 +2,7 @@ import { addStyle, log } from "@/env";
 import MbdShieldCSS from "./shield.css?raw";
 import { PopsPanel } from "@/setting/setting";
 import { BaiduMbdHook } from "./MbdHook";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 const BaiduMbd = {
 	init() {
@@ -29,7 +29,7 @@ const BaiduMbd = {
 	 */
 	blockExcitingComments() {
 		log.info("屏蔽最热评论");
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			"div#commentModule",
 			"#comment",
 			'#page_wrapper > div > div[class^="borderBottom-"]'
@@ -41,7 +41,7 @@ const BaiduMbd = {
 	blockExcitingRecommendations() {
 		log.info("屏蔽最热推荐");
 		return [
-			CommonUtils.addBlockCSS(
+			CommonUtil.addBlockCSS(
 				'div[class^="relateTitle"]',
 				".infinite-scroll-component__outerdiv",
 				"div#fuseVideo + div[class]",
@@ -50,7 +50,7 @@ const BaiduMbd = {
 				/* 简单UA下精彩推荐的文字 */
 				"#page_wrapper .searchCraft #content_wrapper + div"
 			),
-			CommonUtils.addBlockCSS(
+			CommonUtil.addBlockCSS(
 				/* Gecko下的简单UA下精彩推荐 */
 				"#page_wrapper > div > div:nth-child(6)"
 			),
@@ -61,7 +61,7 @@ const BaiduMbd = {
 	 */
 	shieldBottomToolbar() {
 		log.info("屏蔽底部工具栏");
-		return CommonUtils.addBlockCSS("div#wise-invoke-interact-bar");
+		return CommonUtil.addBlockCSS("div#wise-invoke-interact-bar");
 	},
 };
 

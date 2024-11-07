@@ -1,7 +1,7 @@
 import { BilibiliPCData } from "@/data/BlibiliData";
 import { addStyle, log } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 export const BilibiliReadMobile = {
 	init() {
@@ -11,7 +11,7 @@ export const BilibiliReadMobile = {
 		});
 	},
 	removeAds() {
-		CommonUtils.addBlockCSS(
+		CommonUtil.addBlockCSS(
 			/* 底部的打开客户端阅读 */
 			"body>.h5-download-bar"
 		);
@@ -28,7 +28,7 @@ export const BilibiliReadMobile = {
 				max-height: unset !important;
 			}`),
 			// 屏蔽 【展开阅读全文】
-			CommonUtils.addBlockCSS(
+			CommonUtil.addBlockCSS(
 				BilibiliPCData.className.read.mobile + " .read-more"
 			),
 		];

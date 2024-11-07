@@ -1,6 +1,6 @@
 import { log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 import Qmsg from "qmsg";
 
 // 屏蔽元素
@@ -18,7 +18,7 @@ export const BaiduSearchVideoBlockNode = {
 	 */
 	blockBottomRecommendVideo() {
 		log.info("【屏蔽】底部推荐视频");
-		return CommonUtils.addBlockCSS(".short-mini-wrapper");
+		return CommonUtil.addBlockCSS(".short-mini-wrapper");
 	},
 };
 

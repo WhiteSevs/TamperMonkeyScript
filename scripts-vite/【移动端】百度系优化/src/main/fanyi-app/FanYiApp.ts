@@ -1,7 +1,7 @@
 import { addStyle, log, utils } from "@/env";
 import FanYiAppShieldCSS from "./shield.css?raw";
 import { PopsPanel } from "@/setting/setting";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 const BaiduFanYiApp = {
 	init() {
@@ -35,21 +35,21 @@ const BaiduFanYiApp = {
 	 */
 	shieldColumnInformation() {
 		log.info("隐藏专栏信息");
-		return CommonUtils.addBlockCSS("div.fanyi-zhuan-lan-wrapper");
+		return CommonUtil.addBlockCSS("div.fanyi-zhuan-lan-wrapper");
 	},
 	/**
 	 * 隐藏推荐
 	 */
 	shieldRecommendedForYou() {
 		log.info("隐藏推荐");
-		return CommonUtils.addBlockCSS("#fr-section");
+		return CommonUtil.addBlockCSS("#fr-section");
 	},
 	/**
 	 * 隐藏需要跟随
 	 */
 	shieldINeedToFollowAlong() {
 		log.info("隐藏需要跟随");
-		return CommonUtils.addBlockCSS(".cover-all .daily-bottom");
+		return CommonUtil.addBlockCSS(".cover-all .daily-bottom");
 	},
 };
 

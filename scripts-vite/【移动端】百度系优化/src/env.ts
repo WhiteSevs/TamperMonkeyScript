@@ -16,9 +16,9 @@ import Utils from "@whitesev/utils";
 import DOMUtils from "@whitesev/domutils";
 import { HttpxCookieManager } from "./utils/HttpxCookieManager";
 import { PopsPanel } from "./setting/setting";
-import { CommonUtils } from "./utils/CommonUtils";
-import { GM_RESOURCE_MAP } from "./GM_Resource_Map";
 import pops from "@whitesev/pops";
+import { CommonUtil } from "./utils/CommonUtil";
+import { GM_RESOURCE_MAPPING } from "./GM_Resource_Mapping";
 
 const _SCRIPT_NAME_ = "【移动端】百度系优化";
 const utils = Utils.noConflict();
@@ -185,12 +185,7 @@ const MountVue = async function (targetApp: any, plugin: any[] = []) {
 		});
 		app.mount($mount);
 	});
-	if (import.meta.env.DEV) {
-		let elementPlusCSS = await import("element-plus/dist/index.css?raw");
-		addStyle(elementPlusCSS.default);
-	} else {
-		CommonUtils.setGMResourceCSS(GM_RESOURCE_MAP.ElementPlus);
-	}
+	CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.ElementPlus);
 };
 
 // 开发测试使用

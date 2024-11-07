@@ -1,7 +1,7 @@
 import { DOMUtils, addStyle, log, utils } from "@/env";
 import ChatShieldCSS from "./shield.css?raw";
 import { PopsPanel } from "@/setting/setting";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 const BaiduChat = {
 	init() {
@@ -18,7 +18,7 @@ const BaiduChat = {
 	 */
 	removeAiMask() {
 		log.info("去除AI的遮罩");
-		CommonUtils.addBlockCSS(
+		CommonUtil.addBlockCSS(
 			".bot-body .watermark",
 			'#searchChatApp div[class^="watermark"]'
 		);

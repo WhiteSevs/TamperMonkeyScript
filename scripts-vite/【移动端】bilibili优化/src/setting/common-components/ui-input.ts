@@ -1,6 +1,10 @@
-import { PopsPanel } from "@/setting/setting";
-import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY } from "../config";
+import {
+	ATTRIBUTE_DEFAULT_VALUE,
+	ATTRIBUTE_KEY,
+	PROPS_STORAGE_API,
+} from "../config";
 import { PopsPanelInputDetails } from "@whitesev/pops/dist/types/src/components/panel/inputType";
+import { PopsPanel } from "../setting";
 
 /**
  * 获取输入框配置
@@ -12,9 +16,8 @@ import { PopsPanelInputDetails } from "@whitesev/pops/dist/types/src/components/
  * @param placeholder 输入框的默认提示内容
  * @param isNumber 是否是数字框
  * @param isPassword 是否是密码框
- * @returns
  */
-const UIInput = function (
+export const UIInput = function (
 	text: string,
 	key: string,
 	defaultValue: string,
@@ -35,11 +38,11 @@ const UIInput = function (
 		type: "input",
 		isNumber: Boolean(isNumber),
 		isPassword: Boolean(isPassword),
-		attributes: {} as { [key: string]: any },
+		props: {},
+		attributes: {},
 		description: description,
 		getValue() {
-			let localValue = PopsPanel.getValue(key, defaultValue);
-			return localValue;
+			return (this.props as any)[PROPS_STORAGE_API].get(key, defaultValue);
 		},
 		callback(event, value) {
 			if (typeof changeCallBack === "function") {
@@ -47,15 +50,19 @@ const UIInput = function (
 					return;
 				}
 			}
-			PopsPanel.setValue(key, value);
+			(this.props as any)[PROPS_STORAGE_API].set(key, value);
 		},
 		placeholder: placeholder,
 	};
-	if (result.attributes) {
-		result.attributes[ATTRIBUTE_KEY] = key;
-		result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
-	}
+	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
+	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+	Reflect.set(result.props!, PROPS_STORAGE_API, {
+		get<T>(key: string, defaultValue: T) {
+			return PopsPanel.getValue(key, defaultValue);
+		},
+		set(key: string, value: any) {
+			PopsPanel.setValue(key, value);
+		},
+	});
 	return result;
 };
-
-export { UIInput };

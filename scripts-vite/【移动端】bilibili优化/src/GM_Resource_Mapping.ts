@@ -1,5 +1,5 @@
 /** 使用GM_getResourceText存储的映射 */
-export const GM_RESOURCE_MAP = {
+export const GM_RESOURCE_MAPPING = {
 	ElementPlus: {
 		keyName: "ElementPlusResourceCSS",
 		url: "https://fastly.jsdelivr.net/npm/element-plus@latest/dist/index.min.css",
@@ -7,5 +7,9 @@ export const GM_RESOURCE_MAP = {
 	Viewer: {
 		keyName: "ViewerCSS",
 		url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css",
+	},
+	Hljs: {
+		keyName: "HljsCSS",
+		url: "https://fastly.jsdelivr.net/npm/highlight.js@latest/styles/github-dark.min.css",
 	},
 };

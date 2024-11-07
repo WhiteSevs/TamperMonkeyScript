@@ -2,7 +2,7 @@ import { PopsPanel } from "@/setting/setting";
 import { BaiduHaoKanHook } from "./HaoKanHook";
 import { DOMUtils, addStyle, log, utils } from "@/env";
 import HaoKanShieldCSS from "./shield.css?raw";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 const BaiduHaoKan = {
 	init() {
@@ -67,21 +67,21 @@ const BaiduHaoKan = {
 	 */
 	shieldMayAlsoLike() {
 		log.info("屏蔽可能感兴趣");
-		return CommonUtils.addBlockCSS("div.top-video-list-container");
+		return CommonUtil.addBlockCSS("div.top-video-list-container");
 	},
 	/**
 	 * 屏蔽今日热门
 	 */
 	shieldTodayHotList() {
 		log.info("屏蔽今日热门");
-		return CommonUtils.addBlockCSS(".hot-rank-video");
+		return CommonUtil.addBlockCSS(".hot-rank-video");
 	},
 	/**
 	 * 屏蔽右侧视频操作
 	 */
 	shieldRightVideoAction() {
 		log.info("屏蔽右侧视频操作");
-		return CommonUtils.addBlockCSS(".video-author-info-mask .new-video-action");
+		return CommonUtil.addBlockCSS(".video-author-info-mask .new-video-action");
 	},
 };
 

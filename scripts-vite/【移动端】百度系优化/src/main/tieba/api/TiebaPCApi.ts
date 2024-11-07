@@ -1,5 +1,5 @@
 import { DOMUtils, httpx, utils } from "@/env";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 export const TiebaPCApi = {
 	/**
@@ -71,7 +71,7 @@ export const TiebaPCApi = {
 				// 没有其它页了，退出循环
 				break;
 			} else {
-				let nextPageUrl = CommonUtils.fixUrl($nextPage.href);
+				let nextPageUrl = CommonUtil.fixUrl($nextPage.href);
 				let nextPageUrlObj = new URL(nextPageUrl);
 				let nextPagePn = new URLSearchParams(nextPageUrlObj.search);
 				if (nextPagePn.has("pn")) {

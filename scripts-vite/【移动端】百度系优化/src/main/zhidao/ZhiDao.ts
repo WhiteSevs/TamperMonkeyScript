@@ -1,7 +1,7 @@
 import { DOMUtils, addStyle, log } from "@/env";
 import ZhiDaoShieldCSS from "./shield.css?raw";
 import { PopsPanel } from "@/setting/setting";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 const BaiduZhiDao = {
 	init() {
@@ -38,7 +38,7 @@ const BaiduZhiDao = {
 	 */
 	blockRecommendMoreExcitingContent() {
 		log.info("屏蔽顶部悬浮工具栏");
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			".feed-recommend-title",
 			"#feed-recommend",
 			".mm-content-box.mm-content-line.feed-recommend"
@@ -49,14 +49,14 @@ const BaiduZhiDao = {
 	 */
 	blockOtherAnswers() {
 		log.info("屏蔽其他回答");
-		return CommonUtils.addBlockCSS(".replies-container + div");
+		return CommonUtil.addBlockCSS(".replies-container + div");
 	},
 	/**
 	 * 屏蔽相关问题
 	 */
 	blockRelatedIssues() {
 		log.info("屏蔽相关问题");
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			"div[id^=wahsd]",
 			'div[class^="w-question-list"]'
 		);
@@ -66,7 +66,7 @@ const BaiduZhiDao = {
 	 */
 	shieldTopFloatToolBar() {
 		log.info("屏蔽顶部悬浮工具栏");
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			".iknow-root-dom-element .question-answer-container .question-answer-layer.fixed"
 		);
 	},

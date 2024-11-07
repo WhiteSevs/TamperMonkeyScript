@@ -1,7 +1,7 @@
 import { addStyle, DOMUtils, log, utils } from "@/env";
 import { WeiBoRouter } from "@/router/WeiBoRouter";
 import { PopsPanel } from "@/setting/setting";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 import { VueUtils } from "@/utils/VueUtils";
 import Qmsg from "qmsg";
 
@@ -23,7 +23,8 @@ export const WeiBoHome = {
 	 * 屏蔽右上角的信息红点（登录后）
 	 */
 	blockMessageCount() {
-		return CommonUtils.addBlockCSS(".nav-right .m-bubble");
+		log.info(`屏蔽右上角的信息红点（登录后）`);
+		return CommonUtil.addBlockCSS(".nav-right .m-bubble");
 	},
 	/**
 	 * 新增Tab - 超话

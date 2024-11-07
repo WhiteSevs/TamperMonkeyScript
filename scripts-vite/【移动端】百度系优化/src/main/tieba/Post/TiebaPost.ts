@@ -2,7 +2,6 @@ import { DOMUtils, MountVue, addStyle, httpx, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { TiebaComment } from "./TiebaComment";
 import { TiebaData } from "../Home/data";
-import { CommonUtils } from "@/utils/CommonUtils";
 import { TieBaApi } from "../api/TiebaApi";
 import { TiebaCore } from "../TiebaCore";
 import Qmsg from "qmsg";
@@ -11,10 +10,11 @@ import { TiebaReply } from "./TiebaReply";
 import App from "./App.vue";
 import pinia from "./stores";
 import { VueUtils } from "@/utils/VueUtils";
-import { GM_RESOURCE_MAP } from "@/GM_Resource_Map";
 import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import { GestureBack } from "@/utils/GestureBack";
 import { GeastureBackHashConfig } from "../uni-app-post/TiebaUniAppPost";
+import { CommonUtil } from "@/utils/CommonUtil";
+import { GM_RESOURCE_MAPPING } from "@/GM_Resource_Mapping";
 
 interface PostImg {
 	bsize: string;
@@ -43,7 +43,7 @@ const TiebaPost = {
 			this.overrideVueRouterMatch();
 		});
 		PopsPanel.execMenu("baidu-tieba-blockCommentInput", () => {
-			CommonUtils.addBlockCSS(".comment-box-wrap");
+			CommonUtil.addBlockCSS(".comment-box-wrap");
 		});
 		PopsPanel.execMenu("baidu_tieba_optimize_see_comments", () => {
 			log.success("优化查看评论");
@@ -51,7 +51,7 @@ const TiebaPost = {
 			if (!PopsPanel.getValue("baidu-tieba-blockCommentInput")) {
 				/* 非屏蔽才启用 */
 				if (PopsPanel.getValue("baidu_tieba_optimize_comments_toolbar")) {
-					CommonUtils.addBlockCSS(".comment-box-wrap");
+					CommonUtil.addBlockCSS(".comment-box-wrap");
 					TiebaReply.waitCommentBoxWrap(() => {
 						MountVue(App, [pinia]);
 					});
@@ -66,13 +66,7 @@ const TiebaPost = {
 	 */
 	optimizeImagePreview() {
 		log.success("优化图片预览");
-		if (import.meta.env.DEV) {
-			import("viewerjs/dist/viewer.css?raw").then((ViewerCSS) => {
-				addStyle(ViewerCSS.default);
-			});
-		} else {
-			CommonUtils.setGMResourceCSS(GM_RESOURCE_MAP.Viewer);
-		}
+		CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
 		let gestureback: typeof GestureBack.prototype | null = null;
 		if (PopsPanel.getValue("baidu_tieba_optimize_image_preview")) {
 			// 启用手势返回
@@ -357,7 +351,7 @@ const TiebaPost = {
 				capture: true,
 			}
 		);
-		CommonUtils.addBlockCSS(
+		CommonUtil.addBlockCSS(
 			/* 图片右上角的APP专享 */
 			"div.img-sudoku .img-desc"
 		);

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.1
+// @version      2024.11.7
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -13,10 +13,10 @@
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/488179/1413254/showdown.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.4.33/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.9/lib/index.iife.min.js
@@ -1967,7 +1967,7 @@ match-attr##srcid##sp_purc_atom
     };
     return result;
   };
-  const CommonUtils = {
+  const CommonUtil = {
     /**
      * 添加屏蔽CSS
      * @param args
@@ -1996,20 +1996,30 @@ match-attr##srcid##sp_purc_atom
     /**
      * 设置GM_getResourceText的style内容
      * @param resourceMapData 资源数据
+     * @example
+     * setGMResourceCSS({
+     *   keyName: "ViewerCSS",
+     *   url: "https://example.com/example.css",
+     *   devUrl: "viewerjs/dist/viewer.css",
+     * })
      */
     setGMResourceCSS(resourceMapData) {
-      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
-      if (typeof cssText === "string" && cssText) {
-        addStyle(cssText);
-      } else {
-        CommonUtils.addLinkNode(resourceMapData.url);
+      {
+        let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+        if (typeof cssText === "string" && cssText) {
+          addStyle(cssText);
+        } else {
+          CommonUtil.loadStyleLink(resourceMapData.url);
+        }
       }
     },
     /**
      * 添加<link>标签
      * @param url
+     * @example
+     * loadStyleLink("https://example.com/example.css")
      */
-    async addLinkNode(url) {
+    async loadStyleLink(url) {
       let $link = document.createElement("link");
       $link.rel = "stylesheet";
       $link.type = "text/css";
@@ -2019,8 +2029,38 @@ match-attr##srcid##sp_purc_atom
       });
     },
     /**
-     * 将url修复，例如只有search的链接/sss/xxx?sss=xxxx修复为https://xxx.xxx.xxx/sss/xxx?sss=xxxx
+     * 添加<script>标签
+     * @param url
+     * @example
+     * loadStyleLink("https://example.com/example.js")
+     */
+    async loadScript(url) {
+      let $script = document.createElement("script");
+      $script.src = url;
+      return new Promise((resolve) => {
+        $script.onload = () => {
+          resolve(null);
+        };
+        (document.head || document.documentElement).appendChild($script);
+      });
+    },
+    /**
+     * 将url修复，例如只有search的链接修复为完整的链接
+     *
+     * 注意：不包括http转https
      * @param url 需要修复的链接
+     * @example
+     * 修复前：`/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`//xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
      */
     fixUrl(url) {
       url = url.trim();
@@ -2037,6 +2077,12 @@ match-attr##srcid##sp_purc_atom
     /**
      * http转https
      * @param url 需要修复的链接
+     * @example
+     * 修复前：
+     * 修复后：
+     * @example
+     * 修复前：
+     * 修复后：
      */
     fixHttps(url) {
       if (url.startsWith("https://")) {
@@ -2104,7 +2150,7 @@ match-attr##srcid##sp_purc_atom
         if ($nextPage == null) {
           break;
         } else {
-          let nextPageUrl = CommonUtils.fixUrl($nextPage.href);
+          let nextPageUrl = CommonUtil.fixUrl($nextPage.href);
           let nextPageUrlObj = new URL(nextPageUrl);
           let nextPagePn = new URLSearchParams(nextPageUrlObj.search);
           if (nextPagePn.has("pn")) {
@@ -5322,7 +5368,7 @@ match-attr##srcid##sp_purc_atom
       }
     }
   };
-  const GM_RESOURCE_MAP = {
+  const GM_RESOURCE_MAPPING = {
     ElementPlus: {
       keyName: "ElementPlusResourceCSS",
       url: "https://fastly.jsdelivr.net/npm/element-plus@latest/dist/index.min.css"
@@ -5330,6 +5376,10 @@ match-attr##srcid##sp_purc_atom
     Viewer: {
       keyName: "ViewerCSS",
       url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css"
+    },
+    Hljs: {
+      keyName: "HljsCSS",
+      url: "https://fastly.jsdelivr.net/npm/highlight.js@latest/styles/github-dark.min.css"
     }
   };
   const _SCRIPT_NAME_ = "【移动端】百度系优化";
@@ -5459,9 +5509,7 @@ match-attr##srcid##sp_purc_atom
       });
       app.mount($mount);
     });
-    {
-      CommonUtils.setGMResourceCSS(GM_RESOURCE_MAP.ElementPlus);
-    }
+    CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.ElementPlus);
   };
   const SearchShieldCSS = `.c-container.na-ec-item,\r
 .c-container.ec-container,\r
@@ -5669,7 +5717,7 @@ div[class^="new-summary-container_"] {\r
      */
     shieldOtherInfo() {
       log.info("【屏蔽】底部其它信息");
-      return CommonUtils.addBlockCSS(
+      return CommonUtil.addBlockCSS(
         'article[class] > div[class^="index_container"]',
         // 2024.7.31 https://m.baidu.com/bh/m/detail/ar_5737243699133678027
         '#main > div[class^="index_container"]'
@@ -5680,7 +5728,7 @@ div[class^="new-summary-container_"] {\r
      */
     shieldServiceButtonsRow() {
       log.info("【屏蔽】底部工具栏");
-      return CommonUtils.addBlockCSS(
+      return CommonUtil.addBlockCSS(
         'article[class] > div[class^="index_healthServiceButtonsRow"]',
         // 2024.7.31 https://m.baidu.com/bh/m/detail/ar_5737243699133678027
         '#main > div[class^="index_interactWrap"]'
@@ -6970,7 +7018,7 @@ div[class^="new-summary-container_"] {\r
         return;
       }
       this.initPageLineCSS();
-      CommonUtils.addBlockCSS(
+      CommonUtil.addBlockCSS(
         /* 隐藏分页控制器 */
         "#page-controller"
       );
@@ -7092,7 +7140,7 @@ div[class^="new-summary-container_"] {\r
       let $nextPageOnly = $doc.querySelector(".new-nextpage-only");
       let nextPageUrl = ($nextPage == null ? void 0 : $nextPage.getAttribute("href")) || ($nextPage == null ? void 0 : $nextPage.getAttribute("data-sflink")) || ($nextPageOnly == null ? void 0 : $nextPageOnly.getAttribute("href")) || ($nextPageOnly == null ? void 0 : $nextPageOnly.getAttribute("data-sflink"));
       if (nextPageUrl) {
-        nextPageUrl = CommonUtils.fixUrl(nextPageUrl);
+        nextPageUrl = CommonUtil.fixUrl(nextPageUrl);
         let param_pn_match = new URL(nextPageUrl).searchParams;
         if (!param_pn_match.has("pn")) {
           log.warn("获取不到pn参数");
@@ -7626,7 +7674,7 @@ div[class^="new-summary-container_"] {\r
      */
     blockBottomRecommendVideo() {
       log.info("【屏蔽】底部推荐视频");
-      return CommonUtils.addBlockCSS(".short-mini-wrapper");
+      return CommonUtil.addBlockCSS(".short-mini-wrapper");
     }
   };
   const BaiduSearchVideo = {
@@ -8428,7 +8476,7 @@ div[class^="new-summary-container_"] {\r
     shieldRecommendArticle() {
       log.info("【屏蔽】推荐文章");
       return [
-        CommonUtils.addBlockCSS(
+        CommonUtil.addBlockCSS(
           ".infinite-scroll-component__outerdiv",
           "div#page_wrapper > div > div:nth-child(5)",
           "div:has(+ .infinite-scroll-component__outerdiv)",
@@ -8446,16 +8494,16 @@ div[class^="new-summary-container_"] {\r
 			}`
         ),
         /* 某些情况下的CSS */
-        CommonUtils.addBlockCSS(
+        CommonUtil.addBlockCSS(
           '#page_wrapper > div.other > div[class=""]:nth-child(4)'
         ),
         /* 简单UA&链接参数wfr=spide下的精彩推荐 */
-        CommonUtils.addBlockCSS(
+        CommonUtil.addBlockCSS(
           '#page_wrapper div.spider > div[class=""]:nth-child(4)',
           'page_wrapper div.spider > div[class=""]:nth-child(5)'
         ),
         /* Gecko的简单UA下的精彩推荐 */
-        CommonUtils.addBlockCSS('#page_wrapper .searchCraft > div[class=""]')
+        CommonUtil.addBlockCSS('#page_wrapper .searchCraft > div[class=""]')
       ];
     },
     /**
@@ -8463,14 +8511,14 @@ div[class^="new-summary-container_"] {\r
      */
     shieldUserComment() {
       log.info("【屏蔽】用户评论");
-      return CommonUtils.addBlockCSS("#commentModule");
+      return CommonUtil.addBlockCSS("#commentModule");
     },
     /**
      * 【屏蔽】底部悬浮工具栏
      */
     shieldBottomToolBar() {
       log.info("【屏蔽】底部悬浮工具栏");
-      return CommonUtils.addBlockCSS("div#wise-invoke-interact-bar");
+      return CommonUtil.addBlockCSS("div#wise-invoke-interact-bar");
     }
   };
   const TieBaShieldCSS = ".tb-backflow-defensive,\r\n.fixed-nav-bar-defensive,\r\n.post-cut-guide,\r\n.ertiao-wrap-defensive,\r\n.feed-warp.gray-background,\r\n.pb-page-wrapper.app-view.transition-fade nav:first-child,\r\n.only-lz,\r\n.nav-bar-v2 .nav-bar-bottom,\r\n.more-image-desc,\r\n.fengchao-banner-defensive,\r\n/*.wake-app,*/\r\n.banner-wrapper-defensive,\r\n.open-app,\r\n.topic-share-page-v2 .bav-bar-top,\r\n/* 打开APP查看更多评论 */\r\n.cmt-large-cut-guide,\r\n/* 底部评论滚动栏 */\r\ndiv.diy-guide-wrapper,\r\n/* 底部评论滚动栏上面的空白 */\r\n.individuality,\r\n/* 吧内的广告 */\r\n.tb-threadlist__wrapper .tb-banner-wrapper-defensive,\r\n/* 首页-我的-底部的 年轻人的潮流文化社区 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .desc,\r\n/* 首页-我的-底部的 立即下载 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .download-btn,\r\n/* 帖子内预览图片模式下底部的打开App查看高清大图 */\r\n.img-preview .operate .wake-app {\r\n	display: none !important;\r\n}\r\nbody.tb-modal-open {\r\n	overflow: auto !important;\r\n}\r\n";
@@ -8523,7 +8571,7 @@ div[class^="new-summary-container_"] {\r
      */
     blockAds() {
       return [
-        CommonUtils.addBlockCSS(
+        CommonUtil.addBlockCSS(
           /* 顶部横幅 */
           ".tb-index-navbar .fix-nav-guide-bar",
           /* 底部的百度贴吧app内打开 */
@@ -9910,7 +9958,7 @@ div[class^="new-summary-container_"] {\r
       splitText.forEach((text) => {
         data["title"] = data["title"].replaceAll(text, "<em>" + text + "</em>");
       });
-      let postUrlObj = new URL(CommonUtils.fixUrl(data["url"]));
+      let postUrlObj = new URL(CommonUtil.fixUrl(data["url"]));
       let postUrl = postUrlObj.origin + postUrlObj.pathname;
       let authorHomeUrl = data["authorHomeUrl"];
       let postForum = data["forum"];
@@ -10612,16 +10660,16 @@ div[class^="new-summary-container_"] {\r
       }
       let info = result["info"];
       if (typeof info.pic_ab_url_auth === "string") {
-        info.pic_ab_url_auth = CommonUtils.fixHttps(info.pic_ab_url_auth);
+        info.pic_ab_url_auth = CommonUtil.fixHttps(info.pic_ab_url_auth);
       }
       if (typeof info.pic_url_auth === "string") {
-        info.pic_url_auth = CommonUtils.fixHttps(info.pic_url_auth);
+        info.pic_url_auth = CommonUtil.fixHttps(info.pic_url_auth);
       }
       if (typeof info.pic_url_auth === "string") {
-        info.pic_url_auth = CommonUtils.fixHttps(info.pic_url_auth);
+        info.pic_url_auth = CommonUtil.fixHttps(info.pic_url_auth);
       }
       if (typeof info.pic_water === "string") {
-        info.pic_water = CommonUtils.fixHttps(info.pic_water);
+        info.pic_water = CommonUtil.fixHttps(info.pic_water);
       }
       return info;
     }
@@ -20925,14 +20973,14 @@ div[class^="new-summary-container_"] {\r
         this.overrideVueRouterMatch();
       });
       PopsPanel.execMenu("baidu-tieba-blockCommentInput", () => {
-        CommonUtils.addBlockCSS(".comment-box-wrap");
+        CommonUtil.addBlockCSS(".comment-box-wrap");
       });
       PopsPanel.execMenu("baidu_tieba_optimize_see_comments", () => {
         log.success("优化查看评论");
         TiebaComment.init();
         if (!PopsPanel.getValue("baidu-tieba-blockCommentInput")) {
           if (PopsPanel.getValue("baidu_tieba_optimize_comments_toolbar")) {
-            CommonUtils.addBlockCSS(".comment-box-wrap");
+            CommonUtil.addBlockCSS(".comment-box-wrap");
             TiebaReply.waitCommentBoxWrap(() => {
               MountVue(_sfc_main$a, [pinia]);
             });
@@ -20946,9 +20994,7 @@ div[class^="new-summary-container_"] {\r
      */
     optimizeImagePreview() {
       log.success("优化图片预览");
-      {
-        CommonUtils.setGMResourceCSS(GM_RESOURCE_MAP.Viewer);
-      }
+      CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
       let gestureback = null;
       if (PopsPanel.getValue("baidu_tieba_optimize_image_preview")) {
         gestureback = new GestureBack({
@@ -21184,7 +21230,7 @@ div[class^="new-summary-container_"] {\r
           capture: true
         }
       );
-      CommonUtils.addBlockCSS(
+      CommonUtil.addBlockCSS(
         /* 图片右上角的APP专享 */
         "div.img-sudoku .img-desc"
       );
@@ -24254,14 +24300,14 @@ div[class^="new-summary-container_"] {\r
     /** 屏蔽会员精选 */
     shieldVipPicks() {
       log.info("屏蔽会员精选");
-      return CommonUtils.addBlockCSS(
+      return CommonUtil.addBlockCSS(
         'div[class*="vip-choice_"][data-ait-action="vipChoiceShow"]'
       );
     },
     /** 屏蔽APP精选 */
     shieldAppPicks() {
       log.info("屏蔽APP精选");
-      return CommonUtils.addBlockCSS(
+      return CommonUtil.addBlockCSS(
         'div[class*="app-choice_"][data-ait-action="appChoiceNewShow"]',
         "div.folder-wrap.invite-clipboard[data-clipboard-text]"
       );
@@ -24269,7 +24315,7 @@ div[class^="new-summary-container_"] {\r
     /** 屏蔽相关文档 */
     shieldRelatedDocuments() {
       log.info("屏蔽相关文档");
-      return CommonUtils.addBlockCSS(
+      return CommonUtil.addBlockCSS(
         "div.fold-page-conversion",
         "div.newrecom-list.invite-clipboard[data-clipboard-text]"
       );
@@ -24277,17 +24323,17 @@ div[class^="new-summary-container_"] {\r
     /** 屏蔽底部工具栏 */
     shieldBottomToolBar() {
       log.info("屏蔽底部工具栏");
-      return CommonUtils.addBlockCSS("div.barbottom");
+      return CommonUtil.addBlockCSS("div.barbottom");
     },
     /** 屏蔽下一篇按钮 */
     shieldNextArticleButton() {
       log.info("屏蔽下一篇按钮");
-      return CommonUtils.addBlockCSS("div.next-page-container");
+      return CommonUtil.addBlockCSS("div.next-page-container");
     },
     /** 【屏蔽】文档助手 */
     blockDocumentAssistant() {
       log.info("【屏蔽】文档助手");
-      return CommonUtils.addBlockCSS(".ai-chat-wrap");
+      return CommonUtil.addBlockCSS(".ai-chat-wrap");
     }
   };
   const JingYanShieldCSS = ".article-feed-next,\r\n.wgt-rel-exp-feed,\r\n.article-feed-btn-fixed,\r\n.read-whole-mask.app,\r\n.asp-self-rander,\r\n.baobao-image-item,\r\n#wgt-ad-guess {\r\n  display: none !important;\r\n}\r\n.exp-content-container {\r\n  max-height: 100% !important;\r\n  overflow: auto !important;\r\n}\r\n";
@@ -24434,7 +24480,7 @@ div[class^="new-summary-container_"] {\r
      */
     blockRecommendMoreExcitingContent() {
       log.info("屏蔽顶部悬浮工具栏");
-      return CommonUtils.addBlockCSS(
+      return CommonUtil.addBlockCSS(
         ".feed-recommend-title",
         "#feed-recommend",
         ".mm-content-box.mm-content-line.feed-recommend"
@@ -24445,14 +24491,14 @@ div[class^="new-summary-container_"] {\r
      */
     blockOtherAnswers() {
       log.info("屏蔽其他回答");
-      return CommonUtils.addBlockCSS(".replies-container + div");
+      return CommonUtil.addBlockCSS(".replies-container + div");
     },
     /**
      * 屏蔽相关问题
      */
     blockRelatedIssues() {
       log.info("屏蔽相关问题");
-      return CommonUtils.addBlockCSS(
+      return CommonUtil.addBlockCSS(
         "div[id^=wahsd]",
         'div[class^="w-question-list"]'
       );
@@ -24462,7 +24508,7 @@ div[class^="new-summary-container_"] {\r
      */
     shieldTopFloatToolBar() {
       log.info("屏蔽顶部悬浮工具栏");
-      return CommonUtils.addBlockCSS(
+      return CommonUtil.addBlockCSS(
         ".iknow-root-dom-element .question-answer-container .question-answer-layer.fixed"
       );
     }
@@ -24487,14 +24533,14 @@ div[class^="new-summary-container_"] {\r
      */
     shieldRecommendBottom() {
       log.info("屏蔽底部推荐");
-      return CommonUtils.addBlockCSS("section.article.android-style");
+      return CommonUtil.addBlockCSS("section.article.android-style");
     },
     /**
      * 屏蔽底部
      */
     shieldBottom() {
       log.info("屏蔽底部");
-      return CommonUtils.addBlockCSS(".trans-other-wrap.clearfix");
+      return CommonUtil.addBlockCSS(".trans-other-wrap.clearfix");
     },
     /**
      * 自动聚焦输入框
@@ -24541,21 +24587,21 @@ div[class^="new-summary-container_"] {\r
      */
     shieldColumnInformation() {
       log.info("隐藏专栏信息");
-      return CommonUtils.addBlockCSS("div.fanyi-zhuan-lan-wrapper");
+      return CommonUtil.addBlockCSS("div.fanyi-zhuan-lan-wrapper");
     },
     /**
      * 隐藏推荐
      */
     shieldRecommendedForYou() {
       log.info("隐藏推荐");
-      return CommonUtils.addBlockCSS("#fr-section");
+      return CommonUtil.addBlockCSS("#fr-section");
     },
     /**
      * 隐藏需要跟随
      */
     shieldINeedToFollowAlong() {
       log.info("隐藏需要跟随");
-      return CommonUtils.addBlockCSS(".cover-all .daily-bottom");
+      return CommonUtil.addBlockCSS(".cover-all .daily-bottom");
     }
   };
   const ImageShieldCSS = "#boxBanner {\r\n  display: none !important;\r\n}\r\n";
@@ -24675,7 +24721,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
      */
     blockExcitingComments() {
       log.info("屏蔽最热评论");
-      return CommonUtils.addBlockCSS(
+      return CommonUtil.addBlockCSS(
         "div#commentModule",
         "#comment",
         '#page_wrapper > div > div[class^="borderBottom-"]'
@@ -24687,7 +24733,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
     blockExcitingRecommendations() {
       log.info("屏蔽最热推荐");
       return [
-        CommonUtils.addBlockCSS(
+        CommonUtil.addBlockCSS(
           'div[class^="relateTitle"]',
           ".infinite-scroll-component__outerdiv",
           "div#fuseVideo + div[class]",
@@ -24696,7 +24742,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           /* 简单UA下精彩推荐的文字 */
           "#page_wrapper .searchCraft #content_wrapper + div"
         ),
-        CommonUtils.addBlockCSS(
+        CommonUtil.addBlockCSS(
           /* Gecko下的简单UA下精彩推荐 */
           "#page_wrapper > div > div:nth-child(6)"
         )
@@ -24707,7 +24753,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
      */
     shieldBottomToolbar() {
       log.info("屏蔽底部工具栏");
-      return CommonUtils.addBlockCSS("div#wise-invoke-interact-bar");
+      return CommonUtil.addBlockCSS("div#wise-invoke-interact-bar");
     }
   };
   const XueShieldCSS = ".sc-dkcEsn,\r\n.sc-fHSyak,\r\n.sc-gikAfH,\r\nswan-view.strategy-institution-list,\r\nswan-view.strategy-wrapper,\r\n.swan-spider-tap,\r\n.booking,\r\n.head-bar,\r\n.head-bar-placeholder {\r\n  display: none !important;\r\n}\r\n.sc-cHGmPC {\r\n  width: auto !important;\r\n}\r\n";
@@ -24745,14 +24791,14 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
      */
     shieldCarousel() {
       log.info("屏蔽轮播图");
-      return CommonUtils.addBlockCSS("div.index-banner-container.van-swipe");
+      return CommonUtil.addBlockCSS("div.index-banner-container.van-swipe");
     },
     /**
      * 屏蔽行业热点新闻
      */
     shieldIndustryHostNews() {
       log.info("屏蔽行业热点新闻");
-      return CommonUtils.addBlockCSS(" div.hot-news");
+      return CommonUtil.addBlockCSS(" div.hot-news");
     }
   };
   const PosShieldCSS = "html,\r\nbody {\r\n  display: none !important;\r\n}\r\n";
@@ -24833,21 +24879,21 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
      */
     shieldMayAlsoLike() {
       log.info("屏蔽可能感兴趣");
-      return CommonUtils.addBlockCSS("div.top-video-list-container");
+      return CommonUtil.addBlockCSS("div.top-video-list-container");
     },
     /**
      * 屏蔽今日热门
      */
     shieldTodayHotList() {
       log.info("屏蔽今日热门");
-      return CommonUtils.addBlockCSS(".hot-rank-video");
+      return CommonUtil.addBlockCSS(".hot-rank-video");
     },
     /**
      * 屏蔽右侧视频操作
      */
     shieldRightVideoAction() {
       log.info("屏蔽右侧视频操作");
-      return CommonUtils.addBlockCSS(".video-author-info-mask .new-video-action");
+      return CommonUtil.addBlockCSS(".video-author-info-mask .new-video-action");
     }
   };
   const BaiduGraphApi = {
@@ -25311,7 +25357,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
      */
     removeAiMask() {
       log.info("去除AI的遮罩");
-      CommonUtils.addBlockCSS(
+      CommonUtil.addBlockCSS(
         ".bot-body .watermark",
         '#searchChatApp div[class^="watermark"]'
       );
@@ -25465,7 +25511,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
      */
     shieldQuestionPaper() {
       log.info("屏蔽题卷");
-      return CommonUtils.addBlockCSS(
+      return CommonUtil.addBlockCSS(
         ".question-shijuan-wrap",
         /* PC端 */
         ".question-cont .timu-wrap .doc-cont-v2 .left"
@@ -25476,14 +25522,14 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
      */
     shieldGoodQuestionsInThisVolume() {
       log.info("屏蔽本卷好题");
-      return CommonUtils.addBlockCSS(".exercise-questions-wrap");
+      return CommonUtil.addBlockCSS(".exercise-questions-wrap");
     },
     /**
      * 屏蔽本卷相关试卷
      */
     shieldRelatedTestPapers() {
       log.info("屏蔽本卷相关试卷");
-      return CommonUtils.addBlockCSS(
+      return CommonUtil.addBlockCSS(
         ".related-papers-wrap",
         /* PC端 */
         ".question-cont .timu-wrap .doc-cont-v2 .right"
@@ -25494,7 +25540,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
      */
     shieldVideoExplanation() {
       log.info("屏蔽视频解析");
-      return CommonUtils.addBlockCSS(
+      return CommonUtil.addBlockCSS(
         ".video-doc-compo",
         /* PC端 */
         ".container #questionVideo"
@@ -25505,14 +25551,14 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
      */
     shieldXuebaNotes() {
       log.info("屏蔽学霸");
-      return CommonUtils.addBlockCSS(".note-list");
+      return CommonUtil.addBlockCSS(".note-list");
     },
     /**
      * 屏蔽底部工具栏
      */
     shieldBottomToolbar() {
       log.info("屏蔽底部工具栏");
-      return CommonUtils.addBlockCSS(
+      return CommonUtil.addBlockCSS(
         ".question-bottom-bar",
         "#app .bgk-question-detail .float-btm"
       );
@@ -25648,7 +25694,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
      */
     shieldBottomToolBar() {
       log.info("屏蔽底部工具栏");
-      return CommonUtils.addBlockCSS(".gt-edu-h5-c-article-bottom");
+      return CommonUtil.addBlockCSS(".gt-edu-h5-c-article-bottom");
     },
     /**
      * 自动展开全文
@@ -25656,7 +25702,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
     autoExpandFullText() {
       log.info("自动展开全文");
       return [
-        CommonUtils.addBlockCSS(
+        CommonUtil.addBlockCSS(
           ".gt-edu-h5-c-article-content .content-wrapper .detail-wrapper .unfold-wrapper"
         ),
         addStyle(
@@ -25699,7 +25745,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
      */
     shieldBottomBarRootContainer() {
       log.info("屏蔽底部免费在线咨询");
-      return CommonUtils.addBlockCSS(
+      return CommonUtil.addBlockCSS(
         ".gt-local-h5-article-bottom-bar-root-container"
       );
     },
@@ -25708,14 +25754,14 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
      */
     shieldRightSeeMoreToolBar() {
       log.info("屏蔽右侧悬浮按钮-查看更多");
-      return CommonUtils.addBlockCSS(".icon-article-list.icon-article-list-exp");
+      return CommonUtil.addBlockCSS(".icon-article-list.icon-article-list-exp");
     },
     /**
      * 屏蔽底部-大家还在看
      */
     shieldArticleBottom() {
       log.info("屏蔽底部-大家还在看");
-      return CommonUtils.addBlockCSS(".article-bottom");
+      return CommonUtil.addBlockCSS(".article-bottom");
     },
     /**
      * 自动展开全文
@@ -25723,7 +25769,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
     autoExpandFullText() {
       log.info("自动展开全文");
       return [
-        CommonUtils.addBlockCSS(
+        CommonUtil.addBlockCSS(
           /* 点击查看全文按钮 */
           ".fold-wrapper"
         ),

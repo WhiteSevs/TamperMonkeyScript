@@ -1,7 +1,7 @@
 import { addStyle, log } from "@/env";
 import AiStudyShieldCSS from "./shield.css?raw";
 import { PopsPanel } from "@/setting/setting";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 const BaiduAiStudy = {
 	init() {
@@ -19,7 +19,7 @@ const BaiduAiStudy = {
 	 */
 	shieldBottomToolBar() {
 		log.info("屏蔽底部工具栏");
-		return CommonUtils.addBlockCSS(".gt-edu-h5-c-article-bottom");
+		return CommonUtil.addBlockCSS(".gt-edu-h5-c-article-bottom");
 	},
 	/**
 	 * 自动展开全文
@@ -28,7 +28,7 @@ const BaiduAiStudy = {
 		log.info("自动展开全文");
 		/* 点击查看全文 */
 		return [
-			CommonUtils.addBlockCSS(
+			CommonUtil.addBlockCSS(
 				".gt-edu-h5-c-article-content .content-wrapper .detail-wrapper .unfold-wrapper"
 			),
 			addStyle(/*css*/ `

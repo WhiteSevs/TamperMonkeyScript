@@ -1,6 +1,6 @@
 import { unsafeWindow } from "ViteGM";
 import { DOMUtils, log, utils } from "@/env";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 import Qmsg from "qmsg";
 import { VueUtils } from "@/utils/VueUtils";
 

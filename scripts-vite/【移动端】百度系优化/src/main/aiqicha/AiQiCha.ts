@@ -2,7 +2,7 @@ import { addStyle, log } from "@/env";
 import AiQiChaShieldCSS from "./shield.css?raw";
 import { unsafeWindow } from "ViteGM";
 import { PopsPanel } from "@/setting/setting";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 const BaiduAiQiCha = {
 	init() {
@@ -31,14 +31,14 @@ const BaiduAiQiCha = {
 	 */
 	shieldCarousel() {
 		log.info("屏蔽轮播图");
-		return CommonUtils.addBlockCSS("div.index-banner-container.van-swipe");
+		return CommonUtil.addBlockCSS("div.index-banner-container.van-swipe");
 	},
 	/**
 	 * 屏蔽行业热点新闻
 	 */
 	shieldIndustryHostNews() {
 		log.info("屏蔽行业热点新闻");
-		return CommonUtils.addBlockCSS(" div.hot-news");
+		return CommonUtil.addBlockCSS(" div.hot-news");
 	},
 };
 export { BaiduAiQiCha };

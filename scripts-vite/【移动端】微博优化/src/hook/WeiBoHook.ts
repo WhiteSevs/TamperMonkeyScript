@@ -6,7 +6,7 @@ import { VueUtils } from "@/utils/VueUtils";
 import Qmsg from "qmsg";
 import { WeiBo } from "@/main/WeiBo";
 import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 const WeiBoHook = {
 	/**
@@ -164,7 +164,7 @@ const WeiBoHook = {
 	hookNetWork() {
 		WeiBoNetWorkHook.ajaxHooker.hook(function (request) {
 			/** 请求的Url */
-			let requestUrl = CommonUtils.fixUrl(request.url);
+			let requestUrl = CommonUtil.fixUrl(request.url);
 			log.info("[ajaxHookr] " + requestUrl);
 			if (
 				requestUrl.startsWith("https://m.weibo.cn/api/config") &&

@@ -1,5 +1,5 @@
 import { DOMUtils, log } from "@/env";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 import Qmsg from "qmsg";
 import { TiebaComment } from "./TiebaComment";
 import { VueUtils } from "@/utils/VueUtils";

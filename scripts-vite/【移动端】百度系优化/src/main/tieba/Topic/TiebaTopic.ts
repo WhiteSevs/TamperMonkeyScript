@@ -1,7 +1,7 @@
 import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { TieBaApi, TiebaUrlApi } from "../api/TiebaApi";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 import { VueUtils } from "@/utils/VueUtils";
 
 const TiebaTopic = {

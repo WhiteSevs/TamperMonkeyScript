@@ -11,7 +11,7 @@ import {
 import { PopsPanel } from "@/setting/setting";
 import { BaiduHandleResultItem } from "./SearchHandleResultItem";
 import { SearchHandleResultEveryOneSearch } from "./SearchHandleResultEveryOneSearch";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 import { BaiduRouter } from "@/router/BaiduRouter";
 
 interface PageInfo {
@@ -74,7 +74,7 @@ const SearchNextPage = {
 			return;
 		}
 		this.initPageLineCSS();
-		CommonUtils.addBlockCSS(
+		CommonUtil.addBlockCSS(
 			/* 隐藏分页控制器 */
 			"#page-controller"
 		);
@@ -204,7 +204,7 @@ const SearchNextPage = {
 			$nextPageOnly?.getAttribute("href") ||
 			$nextPageOnly?.getAttribute("data-sflink");
 		if (nextPageUrl) {
-			nextPageUrl = CommonUtils.fixUrl(nextPageUrl);
+			nextPageUrl = CommonUtil.fixUrl(nextPageUrl);
 			let param_pn_match = new URL(nextPageUrl).searchParams;
 			if (!param_pn_match.has("pn")) {
 				log.warn("获取不到pn参数");

@@ -50,12 +50,12 @@ const SettingUIBangumi: PopsPanelContentConfig = {
 									0,
 									0,
 									50,
-									1,
 									void 0,
 									(value) => {
 										return value + "px";
 									},
-									"可用于全屏横屏适配屏幕"
+									"可用于全屏横屏适配屏幕",
+									1
 								),
 							],
 						},

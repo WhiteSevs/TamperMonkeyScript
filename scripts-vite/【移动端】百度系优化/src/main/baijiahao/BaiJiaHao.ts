@@ -2,7 +2,7 @@ import { addStyle, log } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import BaiJiaHaoShieldCSS from "./shield.css?raw";
 import { BaiJiaHaoHook } from "./BaiJiaHaoHook";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 export const BaiduBaiJiaHao = {
 	init() {
@@ -25,7 +25,7 @@ export const BaiduBaiJiaHao = {
 	shieldRecommendArticle() {
 		log.info("【屏蔽】推荐文章");
 		return [
-			CommonUtils.addBlockCSS(
+			CommonUtil.addBlockCSS(
 				".infinite-scroll-component__outerdiv",
 				"div#page_wrapper > div > div:nth-child(5)",
 				"div:has(+ .infinite-scroll-component__outerdiv)",
@@ -40,16 +40,16 @@ export const BaiduBaiJiaHao = {
 				width: 55% !important;
 			}`),
 			/* 某些情况下的CSS */
-			CommonUtils.addBlockCSS(
+			CommonUtil.addBlockCSS(
 				'#page_wrapper > div.other > div[class=""]:nth-child(4)'
 			),
 			/* 简单UA&链接参数wfr=spide下的精彩推荐 */
-			CommonUtils.addBlockCSS(
+			CommonUtil.addBlockCSS(
 				'#page_wrapper div.spider > div[class=""]:nth-child(4)',
 				'page_wrapper div.spider > div[class=""]:nth-child(5)'
 			),
 			/* Gecko的简单UA下的精彩推荐 */
-			CommonUtils.addBlockCSS('#page_wrapper .searchCraft > div[class=""]'),
+			CommonUtil.addBlockCSS('#page_wrapper .searchCraft > div[class=""]'),
 		];
 	},
 	/**
@@ -57,13 +57,13 @@ export const BaiduBaiJiaHao = {
 	 */
 	shieldUserComment() {
 		log.info("【屏蔽】用户评论");
-		return CommonUtils.addBlockCSS("#commentModule");
+		return CommonUtil.addBlockCSS("#commentModule");
 	},
 	/**
 	 * 【屏蔽】底部悬浮工具栏
 	 */
 	shieldBottomToolBar() {
 		log.info("【屏蔽】底部悬浮工具栏");
-		return CommonUtils.addBlockCSS("div#wise-invoke-interact-bar");
+		return CommonUtil.addBlockCSS("div#wise-invoke-interact-bar");
 	},
 };

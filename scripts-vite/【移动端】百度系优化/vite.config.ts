@@ -73,7 +73,7 @@ const MonkeyOption: Partial<__MonkeyOption__> = {
 		// import资源文件的映射
 		externalResource: {
 			"viewerjs/dist/viewer.css": cdn.jsdelivrFastly(
-				"Viewer",
+				"ViewerCSS",
 				"dist/viewer.min.css"
 			),
 		},

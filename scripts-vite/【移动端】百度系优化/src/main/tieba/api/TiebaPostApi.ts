@@ -1,7 +1,7 @@
 import { httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
 import { Api_getPdData } from "../types/TiebaPostApiType";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 interface TiebaPostApubthreadDetails {
 	/**
@@ -336,19 +336,19 @@ export const TiebaPostApi = {
 		};
 		if (typeof info.pic_ab_url_auth === "string") {
 			// 转https
-			info.pic_ab_url_auth = CommonUtils.fixHttps(info.pic_ab_url_auth);
+			info.pic_ab_url_auth = CommonUtil.fixHttps(info.pic_ab_url_auth);
 		}
 		if (typeof info.pic_url_auth === "string") {
 			// 转https
-			info.pic_url_auth = CommonUtils.fixHttps(info.pic_url_auth);
+			info.pic_url_auth = CommonUtil.fixHttps(info.pic_url_auth);
 		}
 		if (typeof info.pic_url_auth === "string") {
 			// 转https
-			info.pic_url_auth = CommonUtils.fixHttps(info.pic_url_auth);
+			info.pic_url_auth = CommonUtil.fixHttps(info.pic_url_auth);
 		}
 		if (typeof info.pic_water === "string") {
 			// 转https
-			info.pic_water = CommonUtils.fixHttps(info.pic_water);
+			info.pic_water = CommonUtil.fixHttps(info.pic_water);
 		}
 		return info;
 	},

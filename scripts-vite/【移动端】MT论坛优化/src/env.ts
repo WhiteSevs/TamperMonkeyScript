@@ -16,9 +16,9 @@ import Utils from "@whitesev/utils";
 import { PopsPanel } from "./setting/setting";
 import { HttpxCookieManager } from "./utils/HttpxCookieManager";
 import pops from "@whitesev/pops";
-import { CommonUtils } from "./utils/CommonUtils";
-import { GM_RESOURCE_MAP } from "./GM_Resource_Map";
+import { GM_RESOURCE_MAPPING } from "./GM_Resource_Map";
 import "@lib/js-watermark";
+import { CommonUtil } from "./utils/CommonUtil";
 
 /* 脚本名 */
 const _SCRIPT_NAME_ = "【移动端】MT论坛优化";
@@ -144,20 +144,8 @@ const OriginPrototype = {
 
 const addStyle = utils.addStyle.bind(utils);
 
-if (import.meta.env.DEV) {
-	import("viewerjs/dist/viewer.css?raw").then((cssText) => {
-		addStyle(cssText.default);
-	});
-} else {
-	CommonUtils.setGMResourceCSS(GM_RESOURCE_MAP.Viewer);
-}
-if (import.meta.env.DEV) {
-	import("highlight.js/styles/github-dark.min.css?raw").then((cssText) => {
-		addStyle(cssText.default);
-	});
-} else {
-	CommonUtils.setGMResourceCSS(GM_RESOURCE_MAP.Hljs);
-}
+CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
+CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Hljs);
 
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);

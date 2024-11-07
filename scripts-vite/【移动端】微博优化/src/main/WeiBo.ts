@@ -7,7 +7,7 @@ import { WeiBoHuaTi } from "./huati/WeiBoHuaTi";
 import { DOMUtils, addStyle, log, utils } from "@/env";
 import { WeiBoVideo } from "./video/WeiBoVideo";
 import { WeiBoDetail } from "./detail/WeiBoDetail";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 import { WeiBoUserHome } from "./u/WeiBoUserHome";
 import { WeiBoSearch } from "./search/WeiBoSearch";
 import { WeiBoUnlockQuality } from "./WeiBoUnlockQuality";
@@ -111,7 +111,7 @@ const WeiBo = {
 	 */
 	shieldBottomBar() {
 		log.info("【屏蔽】底部工具栏");
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			"#app div.m-tab-bar.m-bar-panel.m-container-max"
 		);
 	},

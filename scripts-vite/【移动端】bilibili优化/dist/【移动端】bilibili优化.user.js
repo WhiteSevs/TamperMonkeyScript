@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.5
+// @version      2024.11.7
 // @author       WhiteSevs
 // @description  免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -12,10 +12,10 @@
 // @match        *://www.bilibili.com/read/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/497907/1413262/QRCodeJS.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/ArtPlayer@78dcae673558915192020103d55bca9fc28b39ec/packages/artplayer-plugin-danmuku/dist/artplayer-plugin-danmuku.js
@@ -29,6 +29,7 @@
 // @connect      hdslb.com
 // @connect      aisubtitle.hdslb.com
 // @grant        GM_addStyle
+// @grant        GM_getResourceText
 // @grant        GM_getValue
 // @grant        GM_info
 // @grant        GM_registerMenuCommand
@@ -48,6 +49,7 @@
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
   var _a;
+  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
   var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
@@ -238,30 +240,43 @@
     setTimeout: _unsafeWindow.setTimeout
   };
   const addStyle = utils.addStyle.bind(utils);
+  document.querySelector.bind(document);
+  document.querySelectorAll.bind(document);
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description) {
+  const PROPS_STORAGE_API = "data-storage-api";
+  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
     let result = {
       text,
       type: "switch",
       description,
       attributes: {},
+      props: {},
       getValue() {
-        return Boolean(PopsPanel.getValue(key, defaultValue));
+        return Boolean(
+          this.props[PROPS_STORAGE_API].get(key, defaultValue)
+        );
       },
-      callback(event, value) {
+      callback(event, __value) {
+        let value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        PopsPanel.setValue(key, Boolean(value));
+        this.props[PROPS_STORAGE_API].set(key, value);
       },
-      afterAddToUListCallBack: void 0
+      afterAddToUListCallBack
     };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
-    }
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
     return result;
   };
   const UITextArea = function(text, key, defaultValue, description, changeCallBack, placeholder = "", disabled) {
@@ -269,21 +284,27 @@
       text,
       type: "textarea",
       attributes: {},
+      props: {},
       description,
       placeholder,
       disabled,
       getValue() {
-        let localValue = PopsPanel.getValue(key, defaultValue);
-        return localValue;
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(event, value) {
-        PopsPanel.setValue(key, value);
+        this.props[PROPS_STORAGE_API].set(key, value);
       }
     };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
-    }
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
     return result;
   };
   const UISelect = function(text, key, defaultValue, data2, callback, description) {
@@ -298,21 +319,30 @@
       type: "select",
       description,
       attributes: {},
+      props: {},
       getValue() {
-        return PopsPanel.getValue(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(event, isSelectedValue, isSelectedText) {
-        PopsPanel.setValue(key, isSelectedValue);
+        let value = isSelectedValue;
+        log.info(`选择：${isSelectedText}`);
+        this.props[PROPS_STORAGE_API].set(key, value);
         if (typeof callback === "function") {
-          callback(event, isSelectedValue, isSelectedText);
+          callback(event, value, isSelectedText);
         }
       },
       data: selectData
     };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
-    }
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
     return result;
   };
   const UIInput = function(text, key, defaultValue, description, changeCallBack, placeholder = "", isNumber, isPassword) {
@@ -321,11 +351,11 @@
       type: "input",
       isNumber: Boolean(isNumber),
       isPassword: Boolean(isPassword),
+      props: {},
       attributes: {},
       description,
       getValue() {
-        let localValue = PopsPanel.getValue(key, defaultValue);
-        return localValue;
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(event, value) {
         if (typeof changeCallBack === "function") {
@@ -333,14 +363,20 @@
             return;
           }
         }
-        PopsPanel.setValue(key, value);
+        this.props[PROPS_STORAGE_API].set(key, value);
       },
       placeholder
     };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
-    }
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
     return result;
   };
   const AppKeyInfo = {
@@ -1360,14 +1396,15 @@
       return serverList;
     }
   };
-  const UISlider = function(text, key, defaultValue, min, max, step, changeCallBack, getToolTipContent, description) {
+  const UISlider = function(text, key, defaultValue, min, max, changeCallBack, getToolTipContent, description, step) {
     let result = {
       text,
       type: "slider",
       description,
       attributes: {},
+      props: {},
       getValue() {
-        return PopsPanel.getValue(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       getToolTipContent(value) {
         if (typeof getToolTipContent === "function") {
@@ -1377,16 +1414,22 @@
         }
       },
       callback(event, value) {
-        PopsPanel.setValue(key, value);
+        this.props[PROPS_STORAGE_API].set(key, value);
       },
       min,
       max,
       step
     };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
-    }
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
     return result;
   };
   const SettingUIVideo = {
@@ -1518,12 +1561,12 @@
                     0,
                     0,
                     50,
-                    1,
                     void 0,
                     (value) => {
                       return value + "px";
                     },
-                    "可用于全屏横屏适配屏幕"
+                    "可用于全屏横屏适配屏幕",
+                    1
                   )
                 ]
               },
@@ -1689,12 +1732,12 @@
                     0,
                     0,
                     50,
-                    1,
                     void 0,
                     (value) => {
                       return value + "px";
                     },
-                    "可用于全屏横屏适配屏幕"
+                    "可用于全屏横屏适配屏幕",
+                    1
                   )
                 ]
               },
@@ -2536,6 +2579,26 @@
       return {
         resumeBack
       };
+    },
+    /**
+     * 固定meta viewport缩放倍率为1
+     */
+    initialScale() {
+      log.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
+      domutils.ready(() => {
+        let meta = domutils.createElement(
+          "meta",
+          {},
+          {
+            name: "viewport",
+            content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"
+          }
+        );
+        domutils.remove("meta[name='viewport']");
+        utils.waitNode("head").then(() => {
+          document.head.appendChild(meta);
+        });
+      });
     }
   };
   const SettingUISpace = {
@@ -2590,6 +2653,29 @@
         ]
       }
     ]
+  };
+  const PanelUISize = {
+    /**
+     * 一般设置界面的尺寸
+     */
+    setting: {
+      width: window.innerWidth < 550 ? "88vw" : "550px",
+      height: window.innerHeight < 450 ? "70vh" : "450px"
+    },
+    /**
+     * 功能丰富，aside铺满了的设置界面，要稍微大一点
+     */
+    settingBig: {
+      width: window.innerWidth < 800 ? "92vw" : "800px",
+      height: window.innerHeight < 600 ? "80vh" : "600px"
+    },
+    /**
+     * 信息界面，一般用于提示信息之类
+     */
+    info: {
+      width: window.innerWidth < 350 ? "350px" : "350px",
+      height: window.innerHeight < 250 ? "250px" : "250px"
+    }
   };
   const PopsPanel = {
     /** 数据 */
@@ -3064,9 +3150,8 @@
             toHide: false
           }
         },
-        isMobile: this.isMobile(),
-        width: this.getWidth(),
-        height: this.getHeight(),
+        width: PanelUISize.setting.width,
+        height: PanelUISize.setting.height,
         drag: true,
         only: true
       });
@@ -7473,76 +7558,13 @@
       });
     }
   };
-  const CommonUtils = {
-    /**
-     * 加载<script>标签到页面
-     */
-    loadScript(src) {
-      let $script = document.createElement("script");
-      $script.src = src;
-      document.head.appendChild($script);
-      return new Promise((resolve) => {
-        $script.onload = function() {
-          log.success("script标签加载完毕：" + src);
-          setTimeout(() => {
-            resolve(true);
-          }, 100);
-        };
-      });
-    },
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args) {
-      let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
-      args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
-      });
-      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
-    },
-    /**
-     * 固定meta viewport缩放倍率为1
-     */
-    initialScale() {
-      log.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
-      domutils.ready(() => {
-        let meta = domutils.createElement(
-          "meta",
-          {},
-          {
-            name: "viewport",
-            content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"
-          }
-        );
-        domutils.remove("meta[name='viewport']");
-        utils.waitNode("head").then(() => {
-          document.head.appendChild(meta);
-        });
-      });
-    }
-  };
   const BilibiliBangumi = {
     $data: {
       art: null
     },
     init() {
       PopsPanel.execMenuOnce("bili-bangumi-initialScale", () => {
-        CommonUtils.initialScale();
+        BilibiliUtils.initialScale();
       });
       PopsPanel.execMenuOnce("bili-bangumi-hook-callApp", () => {
         this.hookCallApp();
@@ -8322,6 +8344,135 @@
       });
     }
   };
+  const CommonUtil = {
+    /**
+     * 添加屏蔽CSS
+     * @param args
+     * @example
+     * addBlockCSS("")
+     * addBlockCSS("","")
+     * addBlockCSS(["",""])
+     */
+    addBlockCSS(...args) {
+      let selectorList = [];
+      if (args.length === 0) {
+        return;
+      }
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+        return;
+      }
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    /**
+     * 设置GM_getResourceText的style内容
+     * @param resourceMapData 资源数据
+     * @example
+     * setGMResourceCSS({
+     *   keyName: "ViewerCSS",
+     *   url: "https://example.com/example.css",
+     *   devUrl: "viewerjs/dist/viewer.css",
+     * })
+     */
+    setGMResourceCSS(resourceMapData) {
+      {
+        let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+        if (typeof cssText === "string" && cssText) {
+          addStyle(cssText);
+        } else {
+          CommonUtil.loadStyleLink(resourceMapData.url);
+        }
+      }
+    },
+    /**
+     * 添加<link>标签
+     * @param url
+     * @example
+     * loadStyleLink("https://example.com/example.css")
+     */
+    async loadStyleLink(url) {
+      let $link = document.createElement("link");
+      $link.rel = "stylesheet";
+      $link.type = "text/css";
+      $link.href = url;
+      domutils.ready(() => {
+        document.head.appendChild($link);
+      });
+    },
+    /**
+     * 添加<script>标签
+     * @param url
+     * @example
+     * loadStyleLink("https://example.com/example.js")
+     */
+    async loadScript(url) {
+      let $script = document.createElement("script");
+      $script.src = url;
+      return new Promise((resolve) => {
+        $script.onload = () => {
+          resolve(null);
+        };
+        (document.head || document.documentElement).appendChild($script);
+      });
+    },
+    /**
+     * 将url修复，例如只有search的链接修复为完整的链接
+     *
+     * 注意：不包括http转https
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：`/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`//xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     */
+    fixUrl(url) {
+      url = url.trim();
+      if (url.match(/^http(s|):\/\//i)) {
+        return url;
+      } else {
+        if (!url.startsWith("/")) {
+          url += "/";
+        }
+        url = window.location.origin + url;
+        return url;
+      }
+    },
+    /**
+     * http转https
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：
+     * 修复后：
+     * @example
+     * 修复前：
+     * 修复后：
+     */
+    fixHttps(url) {
+      if (url.startsWith("https://")) {
+        return url;
+      }
+      if (!url.startsWith("http://")) {
+        return url;
+      }
+      let urlObj = new URL(url);
+      urlObj.protocol = "https:";
+      return urlObj.toString();
+    }
+  };
   const BilibiliLiveBlockNode = {
     init() {
       PopsPanel.execMenuOnce("bili-live-block-chatRoom", () => {
@@ -8339,21 +8490,21 @@
      */
     blockChatRoom() {
       log.info("屏蔽聊天室");
-      return CommonUtils.addBlockCSS("#chat-items");
+      return CommonUtil.addBlockCSS("#chat-items");
     },
     /**
      * 屏蔽xxx进入直播间
      */
     blockBrushPrompt() {
       log.info("屏蔽xxx进入直播间");
-      return CommonUtils.addBlockCSS("#brush-prompt");
+      return CommonUtil.addBlockCSS("#brush-prompt");
     },
     /**
      * 屏蔽底部工具栏
      */
     blockControlPanel() {
       log.info("屏蔽底部工具栏");
-      return CommonUtils.addBlockCSS(".control-panel");
+      return CommonUtil.addBlockCSS(".control-panel");
     }
   };
   const BilibiliLive = {
@@ -8446,7 +8597,7 @@
     automaticallyExpandToReadFullText() {
       log.info("自动展开阅读全文");
       return [
-        CommonUtils.addBlockCSS(BilibiliData.className.opus + " .opus-read-more"),
+        CommonUtil.addBlockCSS(BilibiliData.className.opus + " .opus-read-more"),
         addStyle(
           /*css*/
           `
@@ -9492,7 +9643,7 @@
       });
     },
     removeAds() {
-      CommonUtils.addBlockCSS(
+      CommonUtil.addBlockCSS(
         /* 底部的打开客户端阅读 */
         "body>.h5-download-bar"
       );
@@ -9512,7 +9663,7 @@
 			}`
         ),
         // 屏蔽 【展开阅读全文】
-        CommonUtils.addBlockCSS(
+        CommonUtil.addBlockCSS(
           BilibiliPCData.className.read.mobile + " .read-more"
         )
       ];

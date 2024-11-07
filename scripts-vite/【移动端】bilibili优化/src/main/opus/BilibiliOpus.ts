@@ -3,7 +3,7 @@ import { DOMUtils, Qmsg, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliUrl } from "@/utils/BilibiliUrl";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 import { VueUtils } from "@/utils/VueUtils";
 
 export const BilibiliOpus = {
@@ -57,7 +57,7 @@ export const BilibiliOpus = {
 	automaticallyExpandToReadFullText() {
 		log.info("自动展开阅读全文");
 		return [
-			CommonUtils.addBlockCSS(BilibiliData.className.opus + " .opus-read-more"),
+			CommonUtil.addBlockCSS(BilibiliData.className.opus + " .opus-read-more"),
 			addStyle(/*css*/ `
 			${BilibiliData.className.opus} .opus-module-content{
 				overflow: unset !important;

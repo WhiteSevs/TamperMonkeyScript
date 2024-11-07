@@ -171,6 +171,9 @@ const MountVue = async function (targetApp: any, router?: any) {
 };
 const addStyle = utils.addStyle.bind(utils);
 
+const $ = document.querySelector.bind(document);
+const $$ = document.querySelectorAll.bind(document);
+
 if (import.meta.hot) {
 	Reflect.set(unsafeWindow, "httpx", httpx);
 	Object.defineProperty(unsafeWindow, "PopsPanel", {
@@ -195,4 +198,6 @@ export {
 	addStyle,
 	GMCookie,
 	QRCodeJS,
+	$,
+	$$,
 };

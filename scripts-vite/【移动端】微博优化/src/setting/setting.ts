@@ -20,6 +20,7 @@ import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { SettingUIHome } from "./components/home";
 import { SettingUIOther } from "./components/other";
+import { PanelUISize } from "./panel-ui-size";
 
 const __PopsPanel__ = {
 	data: null as any as UtilsDictionary<string, any>,
@@ -551,9 +552,8 @@ const PopsPanel = {
 					toHide: false,
 				},
 			},
-			isMobile: this.isMobile(),
-			width: this.getWidth(),
-			height: this.getHeight(),
+			width: PanelUISize.setting.width,
+			height: PanelUISize.setting.height,
 			drag: true,
 			only: true,
 			style: /*css*/ `

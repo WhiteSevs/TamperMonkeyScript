@@ -1,7 +1,7 @@
 import { unsafeWindow } from "ViteGM";
 import { DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 import EasyLearnShieldCSS from "./shield.css?raw";
 import { VueUtils } from "@/utils/VueUtils";
 import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
@@ -54,7 +54,7 @@ const BaiduEasyLearn = {
 	 */
 	shieldQuestionPaper() {
 		log.info("屏蔽题卷");
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			".question-shijuan-wrap",
 			/* PC端 */
 			".question-cont .timu-wrap .doc-cont-v2 .left"
@@ -65,14 +65,14 @@ const BaiduEasyLearn = {
 	 */
 	shieldGoodQuestionsInThisVolume() {
 		log.info("屏蔽本卷好题");
-		return CommonUtils.addBlockCSS(".exercise-questions-wrap");
+		return CommonUtil.addBlockCSS(".exercise-questions-wrap");
 	},
 	/**
 	 * 屏蔽本卷相关试卷
 	 */
 	shieldRelatedTestPapers() {
 		log.info("屏蔽本卷相关试卷");
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			".related-papers-wrap",
 			/* PC端 */
 			".question-cont .timu-wrap .doc-cont-v2 .right"
@@ -83,7 +83,7 @@ const BaiduEasyLearn = {
 	 */
 	shieldVideoExplanation() {
 		log.info("屏蔽视频解析");
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			".video-doc-compo",
 			/* PC端 */
 			".container #questionVideo"
@@ -94,14 +94,14 @@ const BaiduEasyLearn = {
 	 */
 	shieldXuebaNotes() {
 		log.info("屏蔽学霸");
-		return CommonUtils.addBlockCSS(".note-list");
+		return CommonUtil.addBlockCSS(".note-list");
 	},
 	/**
 	 * 屏蔽底部工具栏
 	 */
 	shieldBottomToolbar() {
 		log.info("屏蔽底部工具栏");
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			".question-bottom-bar",
 			"#app .bgk-question-detail .float-btm"
 		);

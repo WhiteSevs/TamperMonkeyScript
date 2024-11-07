@@ -1,6 +1,6 @@
 import { PopsPanel } from "@/setting/setting";
 import { addStyle, log } from "@/env";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 import SearchHealthShieldCSS from "./shield.css?raw";
 
 /**
@@ -22,7 +22,7 @@ const BaiduHeadlth = {
 	 */
 	shieldOtherInfo() {
 		log.info("【屏蔽】底部其它信息");
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'article[class] > div[class^="index_container"]',
 			// 2024.7.31 https://m.baidu.com/bh/m/detail/ar_5737243699133678027
 			'#main > div[class^="index_container"]'
@@ -33,7 +33,7 @@ const BaiduHeadlth = {
 	 */
 	shieldServiceButtonsRow() {
 		log.info("【屏蔽】底部工具栏");
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'article[class] > div[class^="index_healthServiceButtonsRow"]',
 			// 2024.7.31 https://m.baidu.com/bh/m/detail/ar_5737243699133678027
 			'#main > div[class^="index_interactWrap"]'

@@ -5,7 +5,7 @@ import { PopsPanel } from "@/setting/setting";
 import { VueUtils } from "@/utils/VueUtils";
 import { GM_addStyle } from "ViteGM";
 import { WeiBoVideoHook } from "./WeiBoVideoHook";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 const WeiBoVideo = {
 	init() {
@@ -25,19 +25,19 @@ const WeiBoVideo = {
 	/** 【屏蔽】底部工具栏 */
 	shieldBottomToolBar() {
 		log.info("【屏蔽】底部工具栏");
-		return CommonUtils.addBlockCSS(".woo-toolBar");
+		return CommonUtil.addBlockCSS(".woo-toolBar");
 	},
 	/** 【屏蔽】相关推荐 */
 	shieldRecommend() {
 		log.info("【屏蔽】相关推荐");
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'#app .woo-panel[class*="Playdetail_card_"]:nth-child(2)'
 		);
 	},
 	/** 【屏蔽】热门评论 */
 	shieldHotComments() {
 		log.info("【屏蔽】热门评论");
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'#app .woo-panel[class*="Playdetail_card_"]:nth-child(3)'
 		);
 	},

@@ -1,6 +1,6 @@
 import { DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 import { VueUtils } from "@/utils/VueUtils";
 
 export const WeiBoCardArticle = {
@@ -28,7 +28,7 @@ export const WeiBoCardArticle = {
 				overflow: unset !important;
 			}    
 			`),
-			CommonUtils.addBlockCSS(".m-container-max .f-art-opt"),
+			CommonUtil.addBlockCSS(".m-container-max .f-art-opt"),
 		];
 	},
 	/**
@@ -36,7 +36,7 @@ export const WeiBoCardArticle = {
 	 */
 	blockComment() {
 		log.info("【屏蔽】评论");
-		return CommonUtils.addBlockCSS(".m-container-max .m-panel1");
+		return CommonUtil.addBlockCSS(".m-container-max .m-panel1");
 	},
 	/**
 	 * 修复文章用户主页跳转

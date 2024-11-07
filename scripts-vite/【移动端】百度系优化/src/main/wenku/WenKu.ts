@@ -1,7 +1,7 @@
 import { addStyle, log } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import WenKuShieldCSS from "./shield.css?raw";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 const BaiduWenKu = {
 	init() {
@@ -35,14 +35,14 @@ const BaiduWenKu = {
 	/** 屏蔽会员精选 */
 	shieldVipPicks() {
 		log.info("屏蔽会员精选");
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'div[class*="vip-choice_"][data-ait-action="vipChoiceShow"]'
 		);
 	},
 	/** 屏蔽APP精选 */
 	shieldAppPicks() {
 		log.info("屏蔽APP精选");
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'div[class*="app-choice_"][data-ait-action="appChoiceNewShow"]',
 			"div.folder-wrap.invite-clipboard[data-clipboard-text]"
 		);
@@ -50,7 +50,7 @@ const BaiduWenKu = {
 	/** 屏蔽相关文档 */
 	shieldRelatedDocuments() {
 		log.info("屏蔽相关文档");
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			"div.fold-page-conversion",
 			"div.newrecom-list.invite-clipboard[data-clipboard-text]"
 		);
@@ -58,17 +58,17 @@ const BaiduWenKu = {
 	/** 屏蔽底部工具栏 */
 	shieldBottomToolBar() {
 		log.info("屏蔽底部工具栏");
-		return CommonUtils.addBlockCSS("div.barbottom");
+		return CommonUtil.addBlockCSS("div.barbottom");
 	},
 	/** 屏蔽下一篇按钮 */
 	shieldNextArticleButton() {
 		log.info("屏蔽下一篇按钮");
-		return CommonUtils.addBlockCSS("div.next-page-container");
+		return CommonUtil.addBlockCSS("div.next-page-container");
 	},
 	/** 【屏蔽】文档助手 */
 	blockDocumentAssistant() {
 		log.info("【屏蔽】文档助手");
-		return CommonUtils.addBlockCSS(".ai-chat-wrap");
+		return CommonUtil.addBlockCSS(".ai-chat-wrap");
 	},
 };
 

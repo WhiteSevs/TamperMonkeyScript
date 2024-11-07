@@ -11,20 +11,20 @@
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/452322/1470429/js-watermark.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.10.0/highlight.min.js
 // @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.10.0/styles/github-dark.min.css
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
 // @connect      *
+// @connect      *
 // @connect      helloimg.com
 // @connect      z4a.net
 // @connect      kggzs.cn
 // @connect      woozooo.com
-// @grant        GM_addStyle
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
 // @grant        GM_getValue
@@ -48,7 +48,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var require_entrance_001 = __commonJS({
-    "entrance-DTvwdkpt.js"(exports, module) {
+    "entrance-CUrhYPfG.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -150,108 +150,7 @@
           }
         }
       };
-      const CommonUtils = {
-        /**
-         * 添加屏蔽CSS
-         * @param args
-         * @example
-         * addBlockCSS("")
-         * addBlockCSS("","")
-         * addBlockCSS(["",""])
-         */
-        addBlockCSS(...args) {
-          let selectorList = [];
-          if (args.length === 0) {
-            return;
-          }
-          if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-            return;
-          }
-          args.forEach((selector) => {
-            if (Array.isArray(selector)) {
-              selectorList = selectorList.concat(selector);
-            } else {
-              selectorList.push(selector);
-            }
-          });
-          addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
-        },
-        /**
-         * 设置GM_getResourceText的style内容
-         * @param resourceMapData 资源数据
-         */
-        setGMResourceCSS(resourceMapData) {
-          let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
-          if (typeof cssText === "string" && cssText) {
-            addStyle(cssText);
-          } else {
-            CommonUtils.addLinkNode(resourceMapData.url);
-          }
-        },
-        /**
-         * 添加<link>标签
-         * @param url
-         */
-        async addLinkNode(url) {
-          let $link = document.createElement("link");
-          $link.rel = "stylesheet";
-          $link.type = "text/css";
-          $link.href = url;
-          domUtils.ready(() => {
-            document.head.appendChild($link);
-          });
-        },
-        /**
-         * 将url修复，例如只有search的链接修复为
-         * @param url 需要修复的链接
-         * @example
-         * 修复前：`/xxx/xxx?ss=ssss`
-         * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-         * @example
-         * 修复前：`//xxx/xxx?ss=ssss`
-         * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-         * @example
-         * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-         * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-         * @example
-         * 修复前：`xxx/xxx?ss=ssss`
-         * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-         */
-        fixUrl(url) {
-          url = url.trim();
-          if (url.match(/^http(s|):\/\//i)) {
-            return url;
-          } else {
-            if (!url.startsWith("/")) {
-              url += "/";
-            }
-            url = window.location.origin + url;
-            return url;
-          }
-        },
-        /**
-         * http转https
-         * @param url 需要修复的链接
-         * @example
-         * 修复前：
-         * 修复后：
-         * @example
-         * 修复前：
-         * 修复后：
-         */
-        fixHttps(url) {
-          if (url.startsWith("https://")) {
-            return url;
-          }
-          if (!url.startsWith("http://")) {
-            return url;
-          }
-          let urlObj = new URL(url);
-          urlObj.protocol = "https:";
-          return urlObj.toString();
-        }
-      };
-      const GM_RESOURCE_MAP = {
+      const GM_RESOURCE_MAPPING = {
         ElementPlus: {
           keyName: "ElementPlusResourceCSS",
           url: "https://fastly.jsdelivr.net/npm/element-plus@latest/dist/index.min.css"
@@ -816,6 +715,135 @@
         };
         return Watermark;
       });
+      const CommonUtil = {
+        /**
+         * 添加屏蔽CSS
+         * @param args
+         * @example
+         * addBlockCSS("")
+         * addBlockCSS("","")
+         * addBlockCSS(["",""])
+         */
+        addBlockCSS(...args) {
+          let selectorList = [];
+          if (args.length === 0) {
+            return;
+          }
+          if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+            return;
+          }
+          args.forEach((selector) => {
+            if (Array.isArray(selector)) {
+              selectorList = selectorList.concat(selector);
+            } else {
+              selectorList.push(selector);
+            }
+          });
+          return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+        },
+        /**
+         * 设置GM_getResourceText的style内容
+         * @param resourceMapData 资源数据
+         * @example
+         * setGMResourceCSS({
+         *   keyName: "ViewerCSS",
+         *   url: "https://example.com/example.css",
+         *   devUrl: "viewerjs/dist/viewer.css",
+         * })
+         */
+        setGMResourceCSS(resourceMapData) {
+          {
+            let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+            if (typeof cssText === "string" && cssText) {
+              addStyle(cssText);
+            } else {
+              CommonUtil.loadStyleLink(resourceMapData.url);
+            }
+          }
+        },
+        /**
+         * 添加<link>标签
+         * @param url
+         * @example
+         * loadStyleLink("https://example.com/example.css")
+         */
+        async loadStyleLink(url) {
+          let $link = document.createElement("link");
+          $link.rel = "stylesheet";
+          $link.type = "text/css";
+          $link.href = url;
+          domUtils.ready(() => {
+            document.head.appendChild($link);
+          });
+        },
+        /**
+         * 添加<script>标签
+         * @param url
+         * @example
+         * loadStyleLink("https://example.com/example.js")
+         */
+        async loadScript(url) {
+          let $script = document.createElement("script");
+          $script.src = url;
+          return new Promise((resolve) => {
+            $script.onload = () => {
+              resolve(null);
+            };
+            (document.head || document.documentElement).appendChild($script);
+          });
+        },
+        /**
+         * 将url修复，例如只有search的链接修复为完整的链接
+         *
+         * 注意：不包括http转https
+         * @param url 需要修复的链接
+         * @example
+         * 修复前：`/xxx/xxx?ss=ssss`
+         * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+         * @example
+         * 修复前：`//xxx/xxx?ss=ssss`
+         * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+         * @example
+         * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+         * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+         * @example
+         * 修复前：`xxx/xxx?ss=ssss`
+         * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+         */
+        fixUrl(url) {
+          url = url.trim();
+          if (url.match(/^http(s|):\/\//i)) {
+            return url;
+          } else {
+            if (!url.startsWith("/")) {
+              url += "/";
+            }
+            url = window.location.origin + url;
+            return url;
+          }
+        },
+        /**
+         * http转https
+         * @param url 需要修复的链接
+         * @example
+         * 修复前：
+         * 修复后：
+         * @example
+         * 修复前：
+         * 修复后：
+         */
+        fixHttps(url) {
+          if (url.startsWith("https://")) {
+            return url;
+          }
+          if (!url.startsWith("http://")) {
+            return url;
+          }
+          let urlObj = new URL(url);
+          urlObj.protocol = "https:";
+          return urlObj.toString();
+        }
+      };
       const _SCRIPT_NAME_ = "【移动端】MT论坛优化";
       const utils = Utils.noConflict();
       const domUtils = DOMUtils.noConflict();
@@ -915,12 +943,8 @@
         setTimeout: _unsafeWindow.setTimeout
       });
       const addStyle = utils.addStyle.bind(utils);
-      {
-        CommonUtils.setGMResourceCSS(GM_RESOURCE_MAP.Viewer);
-      }
-      {
-        CommonUtils.setGMResourceCSS(GM_RESOURCE_MAP.Hljs);
-      }
+      CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
+      CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Hljs);
       const $ = document.querySelector.bind(document);
       const $$ = document.querySelectorAll.bind(document);
       const KEY = "GM_Panel";
