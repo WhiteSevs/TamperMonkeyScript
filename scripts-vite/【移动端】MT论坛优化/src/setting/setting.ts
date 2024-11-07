@@ -20,6 +20,7 @@ import { Component_Search } from "./components/search";
 import { Component_Sign } from "./components/sign";
 import { Component_Space } from "./components/space";
 import { Component_Guide } from "./components/guide";
+import { PanelUISize } from "./panel-ui-size";
 
 type PosPanelListenerData = {
 	id: number;
@@ -591,9 +592,8 @@ export const PopsPanel = {
 					toHide: false,
 				},
 			},
-			isMobile: true,
-			width: this.getWidth(),
-			height: this.getHeight(),
+			width: PanelUISize.setting.width,
+			height: PanelUISize.setting.height,
 			drag: true,
 			only: true,
 		});
