@@ -250,18 +250,16 @@ export class QmsgMsg {
 			}
 		}
 		/* 监听动画完成 */
-		let animationendEvent = function (event: AnimationEvent) {
-			let target = event.target as HTMLDivElement,
-				animationName = event.animationName;
-			if (animationName === QmsgAnimation.$state.closing) {
-				// 设置关闭时间
+		let animationendEvent = (event: AnimationEvent) => {
+			let animationNameValue = QmsgAnimation.getStyleAnimationNameValue(
+				QmsgContext.$Qmsg
+			);
+			if (animationNameValue === QmsgAnimation.$state.closing) {
+				// 当前触发的是关闭
 				QmsgContext.endTime = Date.now();
-				if (QmsgContext.timeId != null) {
-					clearTimeout(QmsgContext.timeId);
-				}
 				QmsgContext.destroy();
 			}
-			QmsgAnimation.setStyleAnimationName(target);
+			QmsgAnimation.setStyleAnimationName(QmsgContext.$Qmsg);
 		};
 
 		QmsgAnimation.$name.endNameList.forEach(function (animationendName) {
@@ -360,7 +358,6 @@ export class QmsgMsg {
 	 * 设置元素动画状态 开启/关闭
 	 * @param QmsgMsg
 	 * @param state
-	 * @returns
 	 */
 	private setState(element: HTMLDivElement, state: keyof QmsgAnimationState) {
 		if (!state || !QmsgAnimation.$state[state]) return;

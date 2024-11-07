@@ -70,7 +70,6 @@ export declare class QmsgMsg {
      * 设置元素动画状态 开启/关闭
      * @param QmsgMsg
      * @param state
-     * @returns
      */
     private setState;
     /**

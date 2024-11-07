@@ -36,6 +36,6 @@ export const QmsgConfig = {
 	 * 是否支持动画属性
 	 */
 	CAN_ANIMATION: Boolean(
-		QmsgAnimation.getStyleAnimationName(document.createElement("div")) != null
+		QmsgAnimation.getStyleAnimationNameValue(document.createElement("div")) != null
 	),
 };

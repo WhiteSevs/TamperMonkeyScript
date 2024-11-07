@@ -34,11 +34,12 @@ export const QmsgAnimation = {
 	 * 获取元素上的animationName属性
 	 * @param element
 	 */
-	getStyleAnimationName(element: HTMLElement) {
+	getStyleAnimationNameValue(element: HTMLElement) {
 		for (let index = 0; index < this.$name.startNameList.length; index++) {
 			let animationName = this.$name.startNameList[index];
-			if (typeof (element.style as any)[animationName] !== "undefined") {
-				return (element.style as any)[animationName];
+			let animationNameValue = (element.style as any)[animationName];
+			if (animationNameValue != null) {
+				return animationNameValue;
 			}
 		}
 	},
@@ -47,7 +48,10 @@ export const QmsgAnimation = {
 	 * @param element
 	 * @param animationNameValue
 	 */
-	setStyleAnimationName(element: HTMLElement, animationNameValue = "") {
+	setStyleAnimationName(
+		element: HTMLElement,
+		animationNameValue: QmsgAnimationState[keyof QmsgAnimationState] = ""
+	) {
 		this.$name.startNameList.forEach((animationName) => {
 			if (animationName in element.style) {
 				(element.style as any)[animationName] = animationNameValue;

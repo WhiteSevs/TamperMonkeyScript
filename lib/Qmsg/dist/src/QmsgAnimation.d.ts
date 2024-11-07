@@ -17,11 +17,11 @@ export declare const QmsgAnimation: {
      * 获取元素上的animationName属性
      * @param element
      */
-    getStyleAnimationName(element: HTMLElement): any;
+    getStyleAnimationNameValue(element: HTMLElement): any;
     /**
      * 设置元素上的animationName属性
      * @param element
      * @param animationNameValue
      */
-    setStyleAnimationName(element: HTMLElement, animationNameValue?: string): void;
+    setStyleAnimationName(element: HTMLElement, animationNameValue?: QmsgAnimationState[keyof QmsgAnimationState]): void;
 };
