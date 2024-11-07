@@ -3154,6 +3154,7 @@
                     domutils.show($unCollect, false);
                     domutils.hide($isCollect, false);
                   }
+                  $loading.close();
                 } catch (error) {
                   log.error(error);
                 } finally {

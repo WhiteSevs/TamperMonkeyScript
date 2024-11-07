@@ -517,6 +517,7 @@ export const M_CSDNBlog = {
 										DOMUtils.show($unCollect, false);
 										DOMUtils.hide($isCollect, false);
 									}
+									$loading.close();
 								} catch (error) {
 									log.error(error);
 								} finally {
