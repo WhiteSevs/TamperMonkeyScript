@@ -1,6 +1,6 @@
 import { utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 import type { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
 
 export const DouYinNetWorkHook = {
@@ -19,7 +19,7 @@ export const DouYinNetWorkHook = {
 	 */
 	commentReply() {
 		this.ajaxHooker.hook((request) => {
-			let url = CommonUtils.fixUrl(request.url);
+			let url = CommonUtil.fixUrl(request.url);
 			let urlObj = new URL(url);
 			if (urlObj.pathname.startsWith("/aweme/v1/web/comment/list/reply")) {
 				urlObj.searchParams.delete("whale_cut_token");

@@ -1,6 +1,6 @@
 import { log } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 export const DouYinVideoBlockMouseHoverTip = {
 	init() {
@@ -56,7 +56,7 @@ export const DouYinVideoBlockMouseHoverTip_RightToolBar = {
 	 */
 	blockEnterUserHomeMouseHoverTip() {
 		log.info(`禁用进入作者主页按钮的悬浮提示`);
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			` div > div:has( >a[data-e2e="video-avatar"]) + .semi-portal`
 		);
 	},
@@ -65,7 +65,7 @@ export const DouYinVideoBlockMouseHoverTip_RightToolBar = {
 	 */
 	blockFollowMouseHoverTip() {
 		log.info(`禁用关注按钮的悬浮提示`);
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			`div[data-e2e="feed-follow-icon"]  .semi-portal`
 		);
 	},
@@ -74,7 +74,7 @@ export const DouYinVideoBlockMouseHoverTip_RightToolBar = {
 	 */
 	blockAddLikeMouseHoverTip() {
 		log.info(`禁用点赞按钮的悬浮提示`);
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			`div[data-e2e="video-player-digg"] + .semi-portal`
 		);
 	},
@@ -83,7 +83,7 @@ export const DouYinVideoBlockMouseHoverTip_RightToolBar = {
 	 */
 	blockCommentMouseHoverTip() {
 		log.info(`禁用评论按钮的悬浮提示`);
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			`div[data-e2e="feed-comment-icon"] + .semi-portal`
 		);
 	},
@@ -92,7 +92,7 @@ export const DouYinVideoBlockMouseHoverTip_RightToolBar = {
 	 */
 	blockCollectMouseHoverTip() {
 		log.info(`禁用收藏按钮的悬浮提示`);
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			`div[data-e2e="video-player-collect"] + .semi-always-dark`
 		);
 	},
@@ -101,14 +101,14 @@ export const DouYinVideoBlockMouseHoverTip_RightToolBar = {
 	 */
 	blockShareMouseHoverTip() {
 		log.info(`禁用分享按钮的悬浮提示`);
-		return CommonUtils.addBlockCSS(`div[data-e2e="video-share-container"]`);
+		return CommonUtil.addBlockCSS(`div[data-e2e="video-share-container"]`);
 	},
 	/**
 	 * 禁用看相关推荐按钮的悬浮提示
 	 */
 	blockSeeCorrelationMouseHoverTip() {
 		log.info(`禁用看相关推荐按钮的悬浮提示`);
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			`div:has(+[data-e2e="video-play-more"]) .semi-portal`
 		);
 	},
@@ -152,7 +152,7 @@ export const DouYinVideoBlockMouseHoverTip_BottomToolBar = {
 	 */
 	blockAutomaticBroadcast() {
 		log.info(`禁用自动连播按钮的悬浮提示`);
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			`div[data-e2e="video-player-auto-play"] + .xgTips`
 		);
 	},
@@ -161,7 +161,7 @@ export const DouYinVideoBlockMouseHoverTip_BottomToolBar = {
 	 */
 	blockClearScreenMouseHoverTip() {
 		log.info(`禁用清屏按钮的悬浮提示`);
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			`.xgplayer-immersive-switch-setting .xgTips`
 		);
 	},
@@ -170,7 +170,7 @@ export const DouYinVideoBlockMouseHoverTip_BottomToolBar = {
 	 */
 	blockWatchLaterMouseHoverTip() {
 		log.info(`禁用稍后再看按钮的悬浮提示`);
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			`.xgplayer-watch-later .xgTips`,
 			`.xgplayer-watch-later-item + .xgTips`
 		);
@@ -180,13 +180,13 @@ export const DouYinVideoBlockMouseHoverTip_BottomToolBar = {
 	 */
 	blockPageFullScreenMouseHoverTip() {
 		log.info(`禁用网页全屏按钮的悬浮提示`);
-		return CommonUtils.addBlockCSS(`.xgplayer-page-full-screen .xgTips`);
+		return CommonUtil.addBlockCSS(`.xgplayer-page-full-screen .xgTips`);
 	},
 	/**
 	 * 禁用全屏按钮的悬浮提示
 	 */
 	blockFullScreenMouseHoverTip() {
 		log.info(`禁用全屏按钮的悬浮提示`);
-		return CommonUtils.addBlockCSS(`.xgplayer-fullscreen .xg-tips`);
+		return CommonUtil.addBlockCSS(`.xgplayer-fullscreen .xg-tips`);
 	},
 };

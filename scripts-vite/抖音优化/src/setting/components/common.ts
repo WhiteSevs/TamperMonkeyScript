@@ -476,6 +476,13 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 									"屏蔽元素"
 								),
 								UISwitch(
+									"【屏蔽】短剧",
+									"shieldLeftNavigator-tab-series",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
 									"【屏蔽】知识",
 									"shieldLeftNavigator-tab-channel_300203",
 									false,

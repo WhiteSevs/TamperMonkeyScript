@@ -1,17 +1,32 @@
+const url = globalThis.location.href;
+const urlObj = new URL(url);
+const host = urlObj.hostname;
+const pathname = urlObj.pathname;
+const searchParams = urlObj.searchParams;
+
 export const DouYinRouter = {
 	/** 直播 */
 	isLive() {
-		return window.location.hostname === "live.douyin.com";
+		return host === "live.douyin.com";
+	},
+	/**
+	 * 是否是抖音主站
+	 */
+	isIndex() {
+		return host === "www.douyin.com";
 	},
 	/** 视频 */
 	isVideo() {
-		return window.location.hostname === "www.douyin.com";
+		return this.isIndex();
 	},
 	/** 搜索 */
 	isSearch() {
-		return (
-			window.location.hostname === "www.douyin.com" &&
-			window.location.pathname.startsWith("/search")
-		);
+		return this.isIndex() && window.location.pathname.startsWith("/search");
+	},
+	/**
+	 * 用户主页
+	 */
+	isUser() {
+		return this.isIndex() && window.location.pathname.startsWith("/user");
 	},
 };

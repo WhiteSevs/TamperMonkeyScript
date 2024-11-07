@@ -1,6 +1,7 @@
 import { PopsPanel } from "@/setting/setting";
 import { addStyle, log } from "@/env";
 import { DouYinUtils } from "@/utils/DouYinUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 export const DouYinSearchHideElement = {
 	init() {
@@ -14,7 +15,7 @@ export const DouYinSearchHideElement = {
 	shieldReleatedSearches() {
 		log.info("【屏蔽】相关搜索");
 		return [
-			DouYinUtils.addBlockCSS("#search-content-area > div > div:nth-child(2)"),
+			CommonUtil.addBlockCSS("#search-content-area > div > div:nth-child(2)"),
 			addStyle(/*css*/ `
 			#search-content-area > div > div:nth-child(1) > div:nth-child(1){
 				width: 100vw;

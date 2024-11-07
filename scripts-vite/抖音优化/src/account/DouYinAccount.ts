@@ -2,6 +2,7 @@ import { log, utils } from "@/env";
 import { DouYinElement } from "../utils/DouYinElement";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { DouYinUtils } from "@/utils/DouYinUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 export const DouYinAccount = {
 	/**
@@ -147,7 +148,7 @@ export const DouYinAccount = {
 	 */
 	watchLoginDialogToClose() {
 		log.info("监听登录弹窗并关闭");
-		DouYinUtils.addBlockCSS('div[id^="login-full-panel-"]');
+		CommonUtil.addBlockCSS('div[id^="login-full-panel-"]');
 		utils.waitNode<HTMLBodyElement>("body").then(() => {
 			utils.mutationObserver(document.body, {
 				config: {

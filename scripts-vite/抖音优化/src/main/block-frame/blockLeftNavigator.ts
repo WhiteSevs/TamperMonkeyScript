@@ -1,6 +1,7 @@
 import { addStyle, log } from "@/env";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { PopsPanel } from "@/setting/setting";
+import { CommonUtil } from "@/utils/CommonUtil";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 
 export const BlockLeftNavigator = {
@@ -61,6 +62,9 @@ export const BlockLeftNavigator = {
 		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-vs", () => {
 			return this.block_tab_vs();
 		});
+		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-series", () => {
+			return this.block_tab_series();
+		});
 		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-channel_300203", () => {
 			return this.block_tab_channel_300203();
 		});
@@ -83,7 +87,7 @@ export const BlockLeftNavigator = {
 	shieldLeftNavigator() {
 		log.info("【屏蔽】左侧导航栏");
 		let result = [];
-		result.push(DouYinUtils.addBlockCSS("#douyin-navigation"));
+		result.push(CommonUtil.addBlockCSS("#douyin-navigation"));
 		result.push(
 			addStyle(/*css*/ `
 			/* 修复顶部导航栏的宽度 */
@@ -98,7 +102,7 @@ export const BlockLeftNavigator = {
 	 */
 	block_tab_home() {
 		log.info("【屏蔽】首页");
-		return DouYinUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-discover)'
 		);
 	},
@@ -107,7 +111,7 @@ export const BlockLeftNavigator = {
 	 */
 	block_tab_recommend() {
 		log.info("【屏蔽】推荐");
-		return DouYinUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-recommend)'
 		);
 	},
@@ -116,7 +120,7 @@ export const BlockLeftNavigator = {
 	 */
 	block_tab_follow() {
 		log.info("【屏蔽】关注");
-		return DouYinUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-follow)'
 		);
 	},
@@ -125,7 +129,7 @@ export const BlockLeftNavigator = {
 	 */
 	block_tab_friend() {
 		log.info("【屏蔽】朋友");
-		return DouYinUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-friend)'
 		);
 	},
@@ -134,7 +138,7 @@ export const BlockLeftNavigator = {
 	 */
 	block_tab_user_self() {
 		log.info("【屏蔽】我的");
-		return DouYinUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self)'
 		);
 	},
@@ -143,7 +147,7 @@ export const BlockLeftNavigator = {
 	 */
 	block_tab_user_self_like() {
 		log.info("【屏蔽】喜欢");
-		return DouYinUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self_like)'
 		);
 	},
@@ -152,7 +156,7 @@ export const BlockLeftNavigator = {
 	 */
 	block_tab_user_self_collection() {
 		log.info("【屏蔽】收藏");
-		return DouYinUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self_collection)'
 		);
 	},
@@ -161,7 +165,7 @@ export const BlockLeftNavigator = {
 	 */
 	block_tab_user_self_record() {
 		log.info("【屏蔽】观看历史");
-		return DouYinUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self_record)'
 		);
 	},
@@ -170,7 +174,7 @@ export const BlockLeftNavigator = {
 	 */
 	block_tab_olympics() {
 		log.info("【屏蔽】看奥运");
-		return DouYinUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-olympics)'
 		);
 	},
@@ -179,7 +183,7 @@ export const BlockLeftNavigator = {
 	 */
 	block_tab_live() {
 		log.info("【屏蔽】直播");
-		return DouYinUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-live)'
 		);
 	},
@@ -188,8 +192,17 @@ export const BlockLeftNavigator = {
 	 */
 	block_tab_vs() {
 		log.info("【屏蔽】放映厅");
-		return DouYinUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-vs)'
+		);
+	},
+	/**
+	 * 【屏蔽】短剧
+	 */
+	block_tab_series() {
+		log.info(`短剧`);
+		return CommonUtil.addBlockCSS(
+			'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-series)'
 		);
 	},
 	/**
@@ -197,7 +210,7 @@ export const BlockLeftNavigator = {
 	 */
 	block_tab_channel_300203() {
 		log.info("【屏蔽】知识");
-		return DouYinUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300203)'
 		);
 	},
@@ -206,7 +219,7 @@ export const BlockLeftNavigator = {
 	 */
 	block_tab_channel_300205() {
 		log.info("【屏蔽】游戏");
-		return DouYinUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300205)'
 		);
 	},
@@ -215,7 +228,7 @@ export const BlockLeftNavigator = {
 	 */
 	block_tab_channel_300206() {
 		log.info("【屏蔽】二次元");
-		return DouYinUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300206)'
 		);
 	},
@@ -224,7 +237,7 @@ export const BlockLeftNavigator = {
 	 */
 	block_tab_channel_300209() {
 		log.info("【屏蔽】音乐");
-		return DouYinUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300209)'
 		);
 	},
@@ -233,7 +246,7 @@ export const BlockLeftNavigator = {
 	 */
 	block_tab_channel_300204() {
 		log.info("【屏蔽】美食");
-		return DouYinUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300204)'
 		);
 	},

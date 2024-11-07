@@ -4,6 +4,7 @@ import { DouYinUtils } from "@/utils/DouYinUtils";
 import { PopsPanel } from "@/setting/setting";
 import Qmsg from "qmsg";
 import { DouYinUrlUtils } from "@/utils/DouYinUrlUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 export const MDouYinShareNote = {
 	init() {
@@ -41,21 +42,21 @@ export const MDouYinShareNote = {
 	 */
 	blockRecommend() {
 		log.info("【屏蔽】相关推荐");
-		return DouYinUtils.addBlockCSS(".recommend-con");
+		return CommonUtil.addBlockCSS(".recommend-con");
 	},
 	/**
 	 * 【屏蔽】评论
 	 */
 	blockComment() {
 		log.info("【屏蔽】评论");
-		return DouYinUtils.addBlockCSS(".comment-con");
+		return CommonUtil.addBlockCSS(".comment-con");
 	},
 	/**
 	 * 【屏蔽】底部工具栏
 	 */
 	blockFooterToobar() {
 		log.info("【屏蔽】底部工具栏");
-		return DouYinUtils.addBlockCSS(".footer-con");
+		return CommonUtil.addBlockCSS(".footer-con");
 	},
 	/**
 	 * 覆盖相关推荐的点击事件

@@ -1,5 +1,6 @@
 import { addStyle, log } from "@/env";
 import { PopsPanel } from "@/setting/setting";
+import { CommonUtil } from "@/utils/CommonUtil";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 
 export const DouYinLiveChatRoomBlock = {
@@ -29,7 +30,7 @@ export const DouYinLiveChatRoomBlock = {
 	shieldChatRoom() {
 		log.info("【屏蔽】评论区（聊天室）");
 		return [
-			DouYinUtils.addBlockCSS("#chatroom"),
+			CommonUtil.addBlockCSS("#chatroom"),
 			addStyle(`
             div[data-e2e="living-container"],
             div[data-e2e="living-container"] > div{
@@ -43,7 +44,7 @@ export const DouYinLiveChatRoomBlock = {
 	shielChatRoomVipSeats() {
 		log.info("【屏蔽】评论区的贵宾席");
 		return [
-			DouYinUtils.addBlockCSS(
+			CommonUtil.addBlockCSS(
 				"#chatroom > div > div:has(#audiencePanelScrollId)"
 			),
 		];
@@ -54,7 +55,7 @@ export const DouYinLiveChatRoomBlock = {
 	shieldUserLevelIcon() {
 		log.info("【屏蔽】用户等级图标");
 		return [
-			DouYinUtils.addBlockCSS(
+			CommonUtil.addBlockCSS(
 				'#chatroom .webcast-chatroom___item span:has(>img[src*="level"])'
 			),
 		];
@@ -65,7 +66,7 @@ export const DouYinLiveChatRoomBlock = {
 	shieldUserVIPIcon() {
 		log.info("【屏蔽】VIP图标");
 		return [
-			DouYinUtils.addBlockCSS(
+			CommonUtil.addBlockCSS(
 				'#chatroom .webcast-chatroom___item span:has(>img[src*="subscribe"])'
 			),
 		];
@@ -76,7 +77,7 @@ export const DouYinLiveChatRoomBlock = {
 	shieldUserFansIcon() {
 		log.info("【屏蔽】粉丝牌");
 		return [
-			DouYinUtils.addBlockCSS(
+			CommonUtil.addBlockCSS(
 				'#chatroom .webcast-chatroom___item span:has(>div[style*="fansclub"])',
 				'#chatroom .webcast-chatroom___item span:has(>img[src*="fansclub"])'
 			),
@@ -88,7 +89,7 @@ export const DouYinLiveChatRoomBlock = {
 	shieldMessage() {
 		log.info("【屏蔽】信息播报");
 		return [
-			DouYinUtils.addBlockCSS(
+			CommonUtil.addBlockCSS(
 				"#chatroom .webcast-chatroom___bottom-message",
 				// 上面的滚动播报，xxx加入了直播间
 				'#chatroom >div>div>div:has(>div[elementtiming="element-timing"])'
@@ -109,7 +110,7 @@ export const DouYinLiveDanmuBlock = {
 	 */
 	shieldDanmu() {
 		log.info("屏蔽弹幕");
-		return [DouYinUtils.addBlockCSS("xg-danmu.xgplayer-danmu")];
+		return [CommonUtil.addBlockCSS("xg-danmu.xgplayer-danmu")];
 	},
 };
 
@@ -137,7 +138,7 @@ export const DouYinLiveBlock = {
 	shieldGiftColumn() {
 		log.info("屏蔽底部的礼物栏");
 		return [
-			DouYinUtils.addBlockCSS(
+			CommonUtil.addBlockCSS(
 				'div[data-e2e="living-container"] >div> :last-child',
 				/* 全屏状态下的礼物栏 */
 				'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"])'
@@ -156,7 +157,7 @@ export const DouYinLiveBlock = {
 	shieldTopToolBarInfo() {
 		log.info("【屏蔽】顶栏信息");
 		return [
-			DouYinUtils.addBlockCSS(
+			CommonUtil.addBlockCSS(
 				'div[data-e2e="living-container"] > div > pace-island[id^="island_"]'
 			),
 		];
@@ -167,7 +168,7 @@ export const DouYinLiveBlock = {
 	shieldGiftEffects() {
 		log.info("【屏蔽】礼物特效");
 		return [
-			DouYinUtils.addBlockCSS(
+			CommonUtil.addBlockCSS(
 				// ↓该屏蔽会把连麦的用户也屏蔽了
 				// '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div>div)'
 				'.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div:not([class*="video_layout_container"])>div)'
@@ -180,7 +181,7 @@ export const DouYinLiveBlock = {
 	shieldYellowCar() {
 		log.info("【屏蔽】小黄车");
 		return [
-			DouYinUtils.addBlockCSS(
+			CommonUtil.addBlockCSS(
 				'div[id^="living_room_player_container"] .basicPlayer  > div:has(div[data-e2e="yellowCart-container"])'
 			),
 		];

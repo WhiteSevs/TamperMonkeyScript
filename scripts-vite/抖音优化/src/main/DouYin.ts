@@ -15,6 +15,7 @@ import { DouYinGestureBackClearHash } from "./DouYinGestureBackConfig";
 import blockCSS from "./css/block.css?raw";
 import { DouYinFollowingApi } from "@/api/DouYinFollowingApi";
 import { DouYinQueryApi } from "@/api/DouYinQueryApi";
+import { DouYinUser } from "./user/DouYinUser";
 
 export const DouYin = {
 	init() {
@@ -41,15 +42,24 @@ export const DouYin = {
 		if (DouYinRouter.isLive()) {
 			log.info("Router: 直播");
 			DouYinLive.init();
-		} else if (DouYinRouter.isVideo()) {
-			log.info("Router: 推荐视频");
-			DouYinVideo.init();
+		} else if (DouYinRouter.isIndex()) {
+			if (DouYinRouter.isVideo()) {
+				// 通用的
+				log.info("Router: 视频页面");
+				DouYinVideo.init();
+			}
+
 			if (DouYinRouter.isSearch()) {
-				log.info("Router: 推荐视频-搜索");
+				log.info("Router: 搜索");
 				DouYinSearch.init();
+			} else if (DouYinRouter.isUser()) {
+				log.info(`Router: 用户页面`);
+				DouYinUser.init();
+			} else {
+				log.error("未适配router: " + window.location.hostname);
 			}
 		} else {
-			log.error("未知router: " + window.location.hostname);
+			log.error("未适配router: " + window.location.hostname);
 		}
 	},
 	/**

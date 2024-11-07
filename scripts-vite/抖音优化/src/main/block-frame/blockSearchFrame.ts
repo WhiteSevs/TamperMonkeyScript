@@ -1,6 +1,7 @@
 import { PopsPanel } from "@/setting/setting";
 import { addStyle, log } from "@/env";
 import { DouYinUtils } from "@/utils/DouYinUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 export const BlockSearchFrame = {
 	init() {
@@ -22,7 +23,7 @@ export const BlockSearchFrame = {
 	 */
 	shieldSearch() {
 		log.info("【屏蔽】搜索框");
-		return DouYinUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div:has(input[data-e2e="searchbar-input"])'
 		);
 	},
@@ -33,7 +34,7 @@ export const BlockSearchFrame = {
 		log.info("【屏蔽】搜索框的提示");
 		let result = [];
 		result.push(
-			DouYinUtils.addBlockCSS(
+			CommonUtil.addBlockCSS(
 				'#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div div:has( + input[data-e2e="searchbar-input"])'
 			)
 		);
@@ -50,7 +51,7 @@ export const BlockSearchFrame = {
 	 */
 	shieldSearchGuessYouWantToSearch() {
 		log.info("【屏蔽】搜索-猜你想搜");
-		return DouYinUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-guess-container"])',
 			'button[data-e2e="searchbar-button"] + div div[data-e2e="search-guess-container"]'
 		);
@@ -60,7 +61,7 @@ export const BlockSearchFrame = {
 	 */
 	shieldSearchTiktokHotspot() {
 		log.info("【屏蔽】搜索-抖音热点");
-		return DouYinUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-hot-container"])',
 			'button[data-e2e="searchbar-button"] + div div[data-e2e="search-hot-container"]'
 		);

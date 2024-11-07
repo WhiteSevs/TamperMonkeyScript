@@ -15,6 +15,7 @@ import { GestureBack } from "@/utils/GestureBack";
 import { ReactUtils } from "@/utils/ReactUtils";
 import { DouYinGestureBackHashConfig } from "../DouYinGestureBackConfig";
 import { DouYinVideoBlockMouseHoverTip } from "./DouYinVideoBlockMouseHoverTip";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 export type VideoRate = "0.75" | "1" | "1.25" | "1.5" | "1.75" | "2" | "3";
 
@@ -101,7 +102,7 @@ export const DouYinVideo = {
 		log.info("全屏");
 		let result = [];
 		result.push(
-			DouYinUtils.addBlockCSS(
+			CommonUtil.addBlockCSS(
 				/* 右侧工具栏 */
 				".slider-video .positionBox",
 				/* 中间底部的视频信息（描述、作者、话题等） */
@@ -515,7 +516,7 @@ export const DouYinVideo = {
 		DouYin.initialScale();
 		/* 屏蔽底部视频工具栏右侧的?帮助反馈按钮 */
 		result.push(
-			DouYinUtils.addBlockCSS("img#douyin-temp-sidebar")!,
+			CommonUtil.addBlockCSS("img#douyin-temp-sidebar")!,
 			addStyle(MobileCSS)
 		);
 		PopsPanel.onceExec("repairProgressBar", () => {

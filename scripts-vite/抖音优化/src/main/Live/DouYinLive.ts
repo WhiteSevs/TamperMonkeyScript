@@ -216,31 +216,28 @@ export const DouYinLive = {
 				let $rect = utils.getReactObj($ele);
 				if (typeof $rect.reactContainer === "object") {
 					let closeDialogFn =
-						DouYinUtils.getObjectPropertiesInDepth(
-							$rect.reactContainer,
-							(obj) => {
-								// 不要用onMaskClick，该函数调用不会关闭弹窗
-								if (typeof obj["onClose"] === "function") {
-									return {
-										isFind: true,
-										data: obj["onClose"],
-									};
-								} else if (
-									typeof obj?.["memoizedProps"]?.["onClose"] === "function"
-								) {
-									return {
-										isFind: true,
-										data: obj?.["memoizedProps"]?.["onClose"],
-									};
-								} else {
-									// 未找到，进入下一层
-									return {
-										isFind: false,
-										data: obj["child"],
-									};
-								}
+						utils.queryProperty($rect.reactContainer, (obj) => {
+							// 不要用onMaskClick，该函数调用不会关闭弹窗
+							if (typeof obj["onClose"] === "function") {
+								return {
+									isFind: true,
+									data: obj["onClose"],
+								};
+							} else if (
+								typeof obj?.["memoizedProps"]?.["onClose"] === "function"
+							) {
+								return {
+									isFind: true,
+									data: obj?.["memoizedProps"]?.["onClose"],
+								};
+							} else {
+								// 未找到，进入下一层
+								return {
+									isFind: false,
+									data: obj["child"],
+								};
 							}
-						) ||
+						}) ||
 						$rect?.reactContainer?.memoizedState?.element?.props?.children
 							?.props?.onClose;
 					if (typeof closeDialogFn === "function") {
