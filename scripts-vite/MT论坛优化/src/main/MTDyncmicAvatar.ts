@@ -126,6 +126,7 @@ export const MTDyncmicAvatar = {
 								"User-Agent": utils.getRandomPCUA(),
 							},
 						});
+						$confirm.close();
 						if (!response.status) {
 							return;
 						}
@@ -135,10 +136,6 @@ export const MTDyncmicAvatar = {
 							) != -1
 						) {
 							Qmsg.success("上传成功");
-							$confirm.close();
-							setTimeout(() => {
-								window.location.reload();
-							}, 1500);
 						} else {
 							log.error(response);
 							Qmsg.error(response.data.responseText);
@@ -300,14 +297,14 @@ export const MTDyncmicAvatar = {
 			return;
 		}
 		if (utils.isNull(response.data.responseText)) {
-			Qmsg.error("获取PC数据失败");
+			Qmsg.error("动态头像：获取上传地址失败");
 			return;
 		}
 		let dataMatch = response.data.responseText.match(
 			/var[\s]*data[\s]*=[\s]*"(.+?)"/
 		);
 		if (dataMatch == null || dataMatch.length != 2) {
-			Qmsg.error("获取变量-data失败");
+			Qmsg.error("动态头像：获取变量data失败");
 			return;
 		}
 		let data = dataMatch[dataMatch.length - 1];
@@ -316,7 +313,7 @@ export const MTDyncmicAvatar = {
 			"images/camera.swf?inajax=1",
 			"index.php?m=user&a=rectavatar&base64=yes"
 		);
-
+		log.info(`上传地址：` + uploadUrl);
 		return uploadUrl;
 	},
 };
