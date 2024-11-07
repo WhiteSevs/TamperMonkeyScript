@@ -283,7 +283,7 @@ class Pops {
 	 * 提示框
 	 * @param details 配置
 	 */
-	tooltip = <T extends PopsToolTipDetails>(details: T) => {
+	tooltip = <T extends PopsToolTipDetails=PopsToolTipDetails>(details: T) => {
 		let popsTooltip = new PopsTooltip(details) as PopsTooltipResult<T>;
 		return popsTooltip;
 	};

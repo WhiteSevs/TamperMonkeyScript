@@ -1107,15 +1107,19 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 	}
 	/**
 	 * 实现jQuery中的$().offset();
-	 * @param {HTMLElement} element
-	 * @returns
+	 * @param element
+	 * @param calcScroll 计算滚动距离
 	 */
-	offset(element: HTMLElement) {
+	offset(element: HTMLElement, calcScroll: boolean = true) {
 		let rect = element.getBoundingClientRect();
 		let win = element.ownerDocument.defaultView;
 		let resultRect = new DOMRect(
-			parseFloat((rect.left + (win?.pageXOffset || 0)).toString()),
-			parseFloat((rect.top + (win?.pageYOffset || 0)).toString()),
+			calcScroll
+				? parseFloat((rect.left + (win?.pageXOffset || 0)).toString())
+				: rect.left,
+			calcScroll
+				? parseFloat((rect.top + (win?.pageYOffset || 0)).toString())
+				: rect.top,
 			rect.width,
 			rect.height
 		);

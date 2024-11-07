@@ -339,10 +339,10 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
     getTransitionEndNameList(): string[];
     /**
      * 实现jQuery中的$().offset();
-     * @param {HTMLElement} element
-     * @returns
+     * @param element
+     * @param calcScroll 计算滚动距离
      */
-    offset(element: HTMLElement): DOMRect;
+    offset(element: HTMLElement, calcScroll?: boolean): DOMRect;
     /**
      * 获取元素的宽度
      * @param element 要获取宽度的元素

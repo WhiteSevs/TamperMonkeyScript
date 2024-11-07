@@ -130,39 +130,39 @@ export declare class ToolTip {
     /**
      * 动画结束事件
      */
-    animationFinishEvent(): void;
+    toolTipAnimationFinishEvent(): void;
     /**
-     * 监听动画结束
+     * 监听tooltip的动画结束
      */
-    onAnimationFinishEvent(): void;
+    onToolTipAnimationFinishEvent(): void;
     /**
-     * 取消监听动画结束
+     * 取消tooltip监听动画结束
      */
-    offAnimationFinishEvent(): void;
+    offToolTipAnimationFinishEvent(): void;
     /**
      * 鼠标|触摸进入事件
      */
-    mouseEnterEvent(): void;
+    toolTipMouseEnterEvent(): void;
     /**
      * 监听鼠标|触摸事件
      */
-    onMouseEnterEvent(): void;
+    onToolTipMouseEnterEvent(): void;
     /**
      * 取消监听鼠标|触摸事件
      */
-    offMouseEnterEvent(): void;
+    offToolTipMouseEnterEvent(): void;
     /**
      * 鼠标|触摸离开事件
      */
-    mouseLeaveEvent(): void;
+    toolTipMouseLeaveEvent(): void;
     /**
      * 监听鼠标|触摸离开事件
      */
-    onMouseLeaveEvent(): void;
+    onToolTipMouseLeaveEvent(): void;
     /**
      * 取消监听鼠标|触摸离开事件
      */
-    offMouseLeaveEvent(): void;
+    offToolTipMouseLeaveEvent(): void;
 }
 export type PopsTooltipResult<T extends PopsToolTipDetails> = {
     guid: string;

@@ -23,6 +23,12 @@ export interface PopsToolTipDetails {
 	 */
 	className?: string;
 	/**
+	 * 是否使用fixed定位，默认是absolute
+	 * 
+	 * @default false
+	 */
+	isFixed?:boolean;
+	/**
 	 * 是否总是显示，默认为false
 	 * + true 设置的triggerShowEventName、triggerCloseEventName将无效
 	 *        返回提供show和close函数，取消on和off

@@ -5,9 +5,9 @@ export const PopsTooltipConfig = (): Required<PopsToolTipDetails> => {
 		// @ts-ignore
 		target: null,
 		content: "默认文字",
-
 		position: "top",
 		className: "",
+		isFixed: false,
 		alwaysShow: false,
 		triggerShowEventName: "mouseenter touchstart",
 		triggerCloseEventName: "mouseleave touchend",

@@ -86,7 +86,7 @@ declare class Pops {
         DOMUtils: {
             getAnimationEndNameList(): string[];
             getTransitionEndNameList(): string[];
-            offset(element: HTMLElement): DOMRect;
+            offset(element: HTMLElement, calcScroll?: boolean): DOMRect;
             width(element: HTMLElement | string | Window | Document | typeof globalThis, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
             height(element: HTMLElement | string | Window | Document | typeof globalThis, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
             outerWidth(element: HTMLElement | string | Window | Document, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
@@ -289,7 +289,7 @@ declare class Pops {
      * 提示框
      * @param details 配置
      */
-    tooltip: <T extends PopsToolTipDetails>(details: T) => PopsTooltipResult<T>;
+    tooltip: <T extends PopsToolTipDetails = PopsToolTipDetails>(details: T) => PopsTooltipResult<T>;
     /**
      * 抽屉
      * @param details 配置

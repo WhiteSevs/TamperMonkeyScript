@@ -980,6 +980,7 @@ export const PanelHandleContentDetails = () => {
 						zIndex: () => {
 							return PopsInstanceUtils.getPopsMaxZIndex().zIndex;
 						},
+						isFixed: true,
 						className: "github-tooltip",
 						only: false,
 						eventOption: {
@@ -1000,7 +1001,6 @@ export const PanelHandleContentDetails = () => {
 							}
 						},
 						alwaysShow: false,
-						// only: false,
 						position: "top",
 						arrowDistance: 10,
 					});

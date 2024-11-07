@@ -13,7 +13,6 @@
 	--tooltip-arrow--after-width: 12px;
 	--tooltip-arrow--after-height: 12px;
 
-	position: absolute;
 	padding: var(--tooltip-padding-top) var(--tooltip-padding-right)
 		var(--tooltip-padding-bottom) var(--tooltip-padding-left);
 	max-width: 400px;
@@ -23,6 +22,12 @@
 	box-shadow: 0 1.5px 4px rgba(0, 0, 0, 0.24), 0 1.5px 6px rgba(0, 0, 0, 0.12);
 	color: var(--tooltip-color);
 	font-size: var(--tooltip-font-size);
+}
+.pops-tip[data-position="absolute"] {
+	position: absolute;
+}
+.pops-tip[data-position="fixed"] {
+	position: fixed;
 }
 /* github的样式 */
 .pops-tip.github-tooltip {

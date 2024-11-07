@@ -56,13 +56,20 @@ export class ToolTip {
 	 * 创建提示元素
 	 */
 	createToolTip() {
-		let $toolTipContainer = popsDOMUtils.createElement("div", {
-			className: "pops-tip",
-			innerHTML: /*html*/ `
+		let $toolTipContainer = popsDOMUtils.createElement(
+			"div",
+			{
+				className: "pops-tip",
+				innerHTML: /*html*/ `
 				<div class="pops-tip-content" style="text-align: center;"></div>
 				<div class="pops-tip-arrow"></div>
 			`,
-		});
+			},
+			{
+				"data-position": this.$data.config.isFixed ? "fixed" : "absolute",
+				"data-guid": this.$data.guid,
+			}
+		);
 		/** 内容 */
 		let $toolTipContent =
 			$toolTipContainer.querySelector<HTMLElement>(".pops-tip-content")!;
@@ -77,8 +84,6 @@ export class ToolTip {
 		) {
 			popsDOMUtils.addClassName($toolTipContainer, this.$data.config.className);
 		}
-		// 添加attr
-		$toolTipContainer.setAttribute("data-guid", this.$data.guid);
 		// 添加z-index
 		$toolTipContainer.style.zIndex = PopsHandler.handleZIndex(
 			this.$data.config.zIndex
@@ -140,14 +145,22 @@ export class ToolTip {
 		arrowDistance: number,
 		otherDistance: number
 	) {
-		let targetElement_width = popsDOMUtils.offset(targetElement).width;
-		let targetElement_height = popsDOMUtils.offset(targetElement).height;
-		let targetElement_top = popsDOMUtils.offset(targetElement).top;
+		let offsetInfo = popsDOMUtils.offset(
+			targetElement,
+			!this.$data.config.isFixed
+		);
+		// 目标 宽
+		let targetElement_width = offsetInfo.width;
+		// 目标 高
+		let targetElement_height = offsetInfo.height;
+		// 目标 顶部距离
+		let targetElement_top = offsetInfo.top;
 
-		// let targetElement_bottom = popsDOMUtils.offset(targetElement).bottom;
-		let targetElement_left = popsDOMUtils.offset(targetElement).left;
+		// let targetElement_bottom = offsetInfo.bottom;
+		// 目标 左边距离
+		let targetElement_left = offsetInfo.left;
 
-		// let targetElement_right = popsDOMUtils.offset(targetElement).right;
+		// let targetElement_right = offsetInfo.right;
 
 		let toolTipElement_width = popsDOMUtils.outerWidth(this.$el.$toolTip);
 		let toolTipElement_height = popsDOMUtils.outerHeight(this.$el.$toolTip);
