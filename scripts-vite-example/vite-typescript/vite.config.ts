@@ -35,7 +35,7 @@ const isVueProject = false;
 const MonkeyOption: Partial<__MonkeyOption__> = {
 	userscript: {
 		// GM_xmlhttpRequest允许访问的域
-		connect: [],
+		connect: ["*"],
 		// 脚本描述
 		description: "",
 		// 脚本图标
@@ -57,7 +57,7 @@ const MonkeyOption: Partial<__MonkeyOption__> = {
 		// import资源文件的映射
 		externalResource: {
 			// "viewerjs/dist/viewer.css": cdn.jsdelivrFastly(
-			// 	"Viewer",
+			// 	"ViewerCSS",
 			// 	"dist/viewer.min.css"
 			// ),
 		},
@@ -85,7 +85,7 @@ let DefaultMonkeyOption: __MonkeyOption__ = {
 		// 许可证
 		license: "GPL-3.0-only",
 		// GM_xmlhttpRequest允许访问的域
-		connect: ["*"],
+		connect: [],
 	},
 	clientAlias: "ViteGM",
 	server: {

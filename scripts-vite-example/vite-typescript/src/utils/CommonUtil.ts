@@ -51,9 +51,19 @@ export const CommonUtil = {
 	}) {
 		if (import.meta.hot && typeof resourceMapData.devUrl === "string") {
 			// 当前是开发环境，使用devUrl
-			import(resourceMapData.devUrl).then((cssText) => {
-				addStyle(cssText);
-			});
+			let devUrl = resourceMapData.devUrl;
+			if (devUrl.endsWith(".css")) {
+				devUrl += "?raw";
+			}
+			import(devUrl)
+				.then((cssText) => {
+					addStyle(cssText);
+				})
+				.catch((error) => {
+					console.error(error);
+					Reflect.deleteProperty(resourceMapData, "devUrl");
+					this.setGMResourceCSS(resourceMapData);
+				});
 		} else {
 			let cssText =
 				typeof GM_getResourceText === "function"
@@ -99,7 +109,7 @@ export const CommonUtil = {
 	},
 	/**
 	 * 将url修复，例如只有search的链接修复为完整的链接
-	 * 
+	 *
 	 * 注意：不包括http转https
 	 * @param url 需要修复的链接
 	 * @example
