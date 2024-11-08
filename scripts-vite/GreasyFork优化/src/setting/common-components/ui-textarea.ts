@@ -1,6 +1,10 @@
-import { PopsPanel } from "@/setting/setting";
-import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY } from "../config";
+import {
+	ATTRIBUTE_DEFAULT_VALUE,
+	ATTRIBUTE_KEY,
+	PROPS_STORAGE_API,
+} from "../config";
 import { PopsPanelTextAreaDetails } from "@whitesev/pops/dist/types/src/components/panel/textareaType";
+import { PopsPanel } from "../setting";
 
 /**
  * 获取多行输入框配置
@@ -24,13 +28,13 @@ export const UITextArea = function (
 	let result: PopsPanelTextAreaDetails = {
 		text: text,
 		type: "textarea",
-		attributes: {} as { [key: string]: any },
+		attributes: {},
+		props: {},
 		description: description,
 		placeholder: placeholder,
 		disabled: disabled,
 		getValue() {
-			let localValue = PopsPanel.getValue(key, defaultValue);
-			return localValue;
+			return (this.props as any)[PROPS_STORAGE_API].get(key, defaultValue);
 		},
 		callback(event, value) {
 			if (typeof changeCallBack === "function") {
@@ -38,12 +42,20 @@ export const UITextArea = function (
 					return;
 				}
 			}
-			PopsPanel.setValue(key, value);
+			(this.props as any)[PROPS_STORAGE_API].set(key, value);
 		},
 	};
-	if (result.attributes) {
-		result.attributes[ATTRIBUTE_KEY] = key;
-		result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
-	}
+
+	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
+	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+	Reflect.set(result.props!, PROPS_STORAGE_API, {
+		get<T>(key: string, defaultValue: T) {
+			return PopsPanel.getValue(key, defaultValue);
+		},
+		set(key: string, value: any) {
+			PopsPanel.setValue(key, value);
+		},
+	});
+
 	return result;
 };

@@ -1,7 +1,7 @@
 import { PopsPanel } from "@/setting/setting";
 import XHSShieldCSS from "./shield.css?raw";
 import { addStyle, DOMUtils, log, utils } from "@/env";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 const XHS_Shield = {
 	init() {
@@ -25,7 +25,7 @@ const XHS_Shield = {
 	 */
 	shieldLoginContainer() {
 		log.info("添加屏蔽登录弹窗CSS，监听登录弹窗出现");
-		CommonUtils.addBlockCSS(".login-container");
+		CommonUtil.addBlockCSS(".login-container");
 		/* 观察内容加载并关闭弹窗 */
 		utils.mutationObserver(document.body, {
 			config: {
@@ -48,7 +48,7 @@ const XHS_Shield = {
 	 */
 	shieldSelectTextVisibleSearchPosition() {
 		log.info("屏蔽选择文字弹出的搜索提示");
-		return CommonUtils.addBlockCSS(".search-position");
+		return CommonUtil.addBlockCSS(".search-position");
 	},
 	/**
 	 * 【屏蔽】顶部工具栏
@@ -56,7 +56,7 @@ const XHS_Shield = {
 	shieldTopToolbar() {
 		log.info("【屏蔽】顶部工具栏");
 		return [
-			CommonUtils.addBlockCSS("#headerContainer"),
+			CommonUtil.addBlockCSS("#headerContainer"),
 			addStyle(/*css*/ `
 			/* 主内容去除padding */
 			#mfContainer{

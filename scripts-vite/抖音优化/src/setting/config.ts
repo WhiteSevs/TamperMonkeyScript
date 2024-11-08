@@ -8,6 +8,8 @@ const ATTRIBUTE_KEY = "data-key";
 const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
 /** 配置多项默认值时调用 */
 const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+/** 存储值的api */
+const PROPS_STORAGE_API = "data-storage-api";
 
 export {
 	KEY,
@@ -15,4 +17,5 @@ export {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_INIT,
 	ATTRIBUTE_INIT_MORE_VALUE,
+	PROPS_STORAGE_API,
 };

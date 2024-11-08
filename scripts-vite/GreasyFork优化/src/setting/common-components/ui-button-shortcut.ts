@@ -4,7 +4,6 @@ import { ATTRIBUTE_INIT } from "../config";
 import { ShortCut, ShortCutKeyboardOption } from "@/utils/ShortCut";
 import Qmsg from "qmsg";
 import { log } from "@/env";
-import i18next from "i18next";
 
 /**
  * 获取录入快捷键配置
@@ -61,17 +60,17 @@ export const UIButtonShortCut = function (
 				.closest(".pops-panel-button")
 				?.querySelector<HTMLSpanElement>("span")!;
 			if (shortCut.isWaitPress) {
-				Qmsg.warning(i18next.t("请先执行当前的录入操作"));
+				Qmsg.warning("请先执行当前的录入操作");
 				return;
 			}
 			if (shortCut.hasOptionValue(key)) {
 				// 存在快捷键
 				shortCut.emptyOption(key);
-				Qmsg.success(i18next.t("清空快捷键"));
+				Qmsg.success("清空快捷键");
 			} else {
 				// 不存在快捷键
 				// 录入快捷键
-				let loadingQmsg = Qmsg.loading(i18next.t("请按下快捷键..."), {
+				let loadingQmsg = Qmsg.loading("请按下快捷键...", {
 					showClose: true,
 				});
 				let {
@@ -82,13 +81,12 @@ export const UIButtonShortCut = function (
 				loadingQmsg.close();
 				if (status) {
 					log.success(["成功录入快捷键", option]);
-					Qmsg.success(i18next.t("成功录入"));
+					Qmsg.success("成功录入");
 				} else {
 					Qmsg.error(
-						i18next.t(`快捷键 {{key}} 已被 {{isUsedKey}} 占用`, {
-							key: shortCut.translateKeyboardValueToButtonText(option),
-							isUsedKey: isUsedKey,
-						})
+						`快捷键 ${shortCut.translateKeyboardValueToButtonText(
+							option
+						)} 已被 ${isUsedKey} 占用`
 					);
 				}
 			}

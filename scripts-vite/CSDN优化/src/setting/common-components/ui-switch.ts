@@ -1,15 +1,22 @@
 import { log } from "@/env";
-import { PopsPanel } from "@/setting/setting";
-import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY } from "../config";
+import {
+	ATTRIBUTE_DEFAULT_VALUE,
+	ATTRIBUTE_KEY,
+	PROPS_STORAGE_API,
+} from "../config";
 import { PopsPanelSwitchDetails } from "@whitesev/pops/dist/types/src/components/panel/switchType";
+import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import type { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/commonType";
+import { PopsPanel } from "../setting";
 
 /**
  * 获取checkbox按钮配置
  * @param text 文字
  * @param key 键
  * @param defaultValue 默认值
- * @param clickCallBack （可选）点击回调
- * @param description （可选）左边的文字下面的描述
+ * @param clickCallBack 点击回调
+ * @param description 左边的文字下面的描述，可以是html格式
+ * @param afterAddToUListCallBack 在添加到元素后触发该回调
  */
 export const UISwitch = function (
 	text: string,
@@ -18,30 +25,48 @@ export const UISwitch = function (
 	clickCallBack?:
 		| ((event: MouseEvent | PointerEvent, value: boolean) => boolean | void)
 		| undefined,
-	description?: string | undefined
-): PopsPanelSwitchDetails {
+	description?: string | undefined,
+	afterAddToUListCallBack?:
+		| ((
+				formConfig: PopsPanelFormsTotalDetails,
+				container: PopsPanelRightAsideContainerOptions
+		  ) => void)
+		| undefined
+) {
 	let result: PopsPanelSwitchDetails = {
 		text: text,
 		type: "switch",
 		description: description,
-		attributes: {} as { [key: string]: any },
+		attributes: {},
+		props: {},
 		getValue() {
-			return Boolean(PopsPanel.getValue(key, defaultValue));
+			return Boolean(
+				(this.props as any)[PROPS_STORAGE_API].get(key, defaultValue)
+			);
 		},
-		callback(event: MouseEvent | PointerEvent, value: boolean) {
+		callback(event: MouseEvent | PointerEvent, __value: boolean) {
+			let value = Boolean(__value);
 			log.success(`${value ? "开启" : "关闭"} ${text}`);
 			if (typeof clickCallBack === "function") {
 				if (clickCallBack(event, value)) {
 					return;
 				}
 			}
-			PopsPanel.setValue(key, Boolean(value));
+			(this.props as any)[PROPS_STORAGE_API].set(key, value);
 		},
-		afterAddToUListCallBack: void 0,
+		afterAddToUListCallBack: afterAddToUListCallBack,
 	};
-	if (result.attributes) {
-		result.attributes[ATTRIBUTE_KEY] = key;
-		result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
-	}
+
+	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
+	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+	Reflect.set(result.props!, PROPS_STORAGE_API, {
+		get<T>(key: string, defaultValue: T) {
+			return PopsPanel.getValue(key, defaultValue);
+		},
+		set(key: string, value: any) {
+			PopsPanel.setValue(key, value);
+		},
+	});
+
 	return result;
 };

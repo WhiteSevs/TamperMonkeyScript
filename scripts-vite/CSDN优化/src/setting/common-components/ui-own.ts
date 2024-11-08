@@ -1,9 +1,7 @@
 import { PopsPanelOwnDetails } from "@whitesev/pops/dist/types/src/components/panel/ownType";
-import { ATTRIBUTE_INIT, ATTRIBUTE_INIT_MORE_VALUE } from "../config";
+import { ATTRIBUTE_INIT } from "../config";
 import { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/commonType";
 import { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { PopsPanel } from "../setting";
-import { log } from "@/env";
 
 /**
  * 自定义配置
@@ -24,27 +22,25 @@ export const UIOwn = function (
 		| undefined
 ): PopsPanelOwnDetails {
 	let result: PopsPanelOwnDetails = {
-		attributes: {} as { [key: string]: any },
 		type: "own",
+		attributes: {},
 		props: props,
 		getLiElementCallBack: getLiElementCallBack,
 		afterAddToUListCallBack: afterAddToUListCallBack,
 	};
 
-	if (result.attributes) {
-		result.attributes[ATTRIBUTE_INIT] = () => {
-			if (initConfig) {
-				Object.keys(initConfig).forEach((key) => {
-					let defaultValue = initConfig[key];
-					/* 存储到内存中 */
-					if (PopsPanel.$data.data.has(key)) {
-						log.warn("请检查该key(已存在): " + key);
-					}
-					PopsPanel.$data.data.set(key, defaultValue);
-				});
-			}
-			return false;
-		};
-	}
+	Reflect.set(result.attributes!, ATTRIBUTE_INIT, () => {
+		if (initConfig) {
+			// Object.keys(initConfig).forEach((key) => {
+			// 	let defaultValue = initConfig[key];
+			// 	/* 存储到内存中 */
+			// 	if (PopsPanel.$data.data.has(key)) {
+			// 		log.warn("请检查该key(已存在): " + key);
+			// 	}
+			// 	PopsPanel.$data.data.set(key, defaultValue);
+			// });
+		}
+		return false;
+	});
 	return result;
 };

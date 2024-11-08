@@ -1,6 +1,6 @@
 import { DOMUtils, log, pops, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 import i18next from "i18next";
 import { GreasyforkScriptsList } from "../scripts/GreasyforkScriptsList";
 import { GreasyforkScriptsFilter } from "../scripts/GreasyforkScriptsFilter";
@@ -22,7 +22,7 @@ export const GreasyforkUsers = {
 	 */
 	changeConsoleToTopNavigator() {
 		log.info("迁移【控制台】到顶部导航栏");
-		CommonUtils.addBlockCSS("#about-user");
+		CommonUtil.addBlockCSS("#about-user");
 		DOMUtils.ready(() => {
 			let $aboutUser = document.querySelector<HTMLElement>("#about-user");
 			let $siteNav = document.querySelector<HTMLElement>("#site-nav nav");

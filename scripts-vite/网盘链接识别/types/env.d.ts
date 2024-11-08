@@ -24,4 +24,4 @@ declare type ExtractElementType<T> = T extends Array<infer U> ? U : never;
 /**
  * 全局变量-加密库
  */
-declare var CryptoJS: typeof import("@库/CryptoJS/index");
+declare var CryptoJS: typeof import("@lib/CryptoJS/index");

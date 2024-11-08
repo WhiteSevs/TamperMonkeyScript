@@ -23,6 +23,7 @@ import {
 import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { PanelRecommendVideoConfig } from "./components/recommend";
+import { PanelUISize } from "./panel-ui-size";
 
 type PosPanelListenerData = {
 	id: number;
@@ -608,9 +609,8 @@ const PopsPanel = {
 					toHide: false,
 				},
 			},
-			isMobile: true,
-			width: this.getWidth(),
-			height: this.getHeight(),
+			width: PanelUISize.setting.width,
+			height: PanelUISize.setting.height,
 			drag: true,
 			only: true,
 		});
@@ -634,9 +634,8 @@ const PopsPanel = {
 					toHide: false,
 				},
 			},
-			isMobile: this.isMobile(),
-			width: this.getWidth(),
-			height: this.getHeight(),
+			width: PanelUISize.setting.width,
+			height: PanelUISize.setting.height,
 			drag: true,
 			only: true,
 		});

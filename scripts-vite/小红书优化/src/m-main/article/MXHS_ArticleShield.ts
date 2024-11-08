@@ -1,5 +1,5 @@
 import { addStyle, log } from "@/env";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 const MXHS_ArticleShield = {
 	/**
@@ -19,7 +19,7 @@ const MXHS_ArticleShield = {
 	 */
 	shieldBottomSearchFind() {
 		log.info("屏蔽底部搜索发现");
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			".hotlist-container",
 			/* 一大块空白区域 */
 			".safe-area-bottom.margin-placeholder"
@@ -30,14 +30,14 @@ const MXHS_ArticleShield = {
 	 */
 	shieldBottomToorBar() {
 		log.info("屏蔽底部工具栏");
-		return CommonUtils.addBlockCSS(".engage-bar-container");
+		return CommonUtil.addBlockCSS(".engage-bar-container");
 	},
 	/**
 	 * 屏蔽视频笔记的作者热门笔记
 	 */
 	shieldAuthorHotNote() {
 		log.info("屏蔽视频笔记的作者热门笔记");
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			".user-notes-box.user-notes-clo-layout-container"
 		);
 	},
@@ -46,7 +46,7 @@ const MXHS_ArticleShield = {
 	 */
 	shieldHotRecommendNote() {
 		log.info("屏蔽视频笔记的热门推荐");
-		return CommonUtils.addBlockCSS("#new-note-view-container .recommend-box");
+		return CommonUtil.addBlockCSS("#new-note-view-container .recommend-box");
 	},
 };
 

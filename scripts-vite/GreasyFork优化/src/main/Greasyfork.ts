@@ -19,7 +19,7 @@ import { GreasyforkForum as GreasyforkDiscussions } from "./navigator/discussion
 import i18next from "i18next";
 import { GreasyforkScripts } from "./navigator/scripts/GreasyforkScripts";
 import { GreasyforkScriptsList } from "./navigator/scripts/GreasyforkScriptsList";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 import { GreasyforkUsers } from "./navigator/users/GreasyforkUsers";
 import { GreasyforkShortCut } from "./GreasyforkShortCut";
 import { GreasyforkConversations } from "./navigator/users/conversations/GreasyforkConversations";
@@ -429,7 +429,7 @@ const Greasyfork = {
 					className: "github-tooltip",
 					alwaysShow: true,
 				});
-				tooltip.toolTip.onAnimationFinishEvent();
+				tooltip.toolTip.onToolTipAnimationFinishEvent();
 				setTimeout(() => {
 					clipboardCopyElement.removeAttribute("success");
 					octiconCheckCopyElement.setAttribute("aria-hidden", "true");
@@ -553,7 +553,7 @@ const Greasyfork = {
 	addOperationPanelBtnWithNavigator() {
 		log.info("添加【操作面板】按钮");
 		// 隐藏右侧列表
-		CommonUtils.addBlockCSS(
+		CommonUtil.addBlockCSS(
 			".sidebarred .sidebar",
 			".sidebarred-main-content .open-sidebar"
 		);

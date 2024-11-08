@@ -16,6 +16,7 @@ import Utils from "@whitesev/utils";
 import { PopsPanel } from "./setting/setting";
 import { HttpxCookieManager } from "./utils/HttpxCookieManager";
 import pops from "@whitesev/pops";
+import Viewer from "viewerjs";
 import { GM_RESOURCE_MAPPING } from "./GM_Resource_Map";
 import { createApp } from "vue";
 import "@lib/js-watermark";
@@ -26,8 +27,7 @@ const _SCRIPT_NAME_ = "【移动端】MT论坛优化";
 const utils = Utils.noConflict();
 const domUtils = DOMUtils.noConflict();
 const __pops = pops;
-// const Viewer: typeof import("@lib/Viewer") =
-// 	(monkeyWindow as any).Viewer || (unsafeWindow as any).Viewer;
+const __viewer = Viewer;
 // const showdown: typeof import("@库/showdown") =
 // 	(monkeyWindow as any).showdown || (unsafeWindow as any).showdown;
 const log = new utils.Log(
@@ -200,14 +200,14 @@ if (import.meta.env.DEV) {
 }
 
 export {
+	__pops as pops,
+	__viewer as Viewer,
 	utils,
 	domUtils as DOMUtils,
-	__pops as pops,
 	log,
 	GM_Menu,
 	SCRIPT_NAME,
 	OriginPrototype,
-	// Viewer,
 	// showdown,
 	httpx,
 	addStyle,

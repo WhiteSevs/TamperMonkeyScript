@@ -566,7 +566,6 @@ const PopsPanel = {
 					toHide: false,
 				},
 			},
-			isMobile: this.isMobile(),
 			width: PanelUISize.setting.width,
 			height: PanelUISize.setting.height,
 			drag: true,
@@ -575,9 +574,6 @@ const PopsPanel = {
 			${UIScriptListCSS}
 			`,
 		});
-	},
-	isMobile() {
-		return window.innerWidth < 550;
 	},
 	/**
 	 * 获取配置内容

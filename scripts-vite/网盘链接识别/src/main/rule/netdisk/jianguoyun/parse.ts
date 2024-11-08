@@ -8,7 +8,7 @@ import { NetDiskParseObject } from "@/main/parse/NetDiskParseObject";
 import type {
 	HttpxRequestOption,
 	HttpxResponse,
-} from "@库/Utils/dist/types/src/types/Httpx";
+} from "@whitesev/Utils/dist/types/src/types/Httpx";
 
 export class NetDiskParse_Jianguoyun extends NetDiskParseObject {
 	errorCode = {

@@ -1,6 +1,11 @@
-import { PopsPanel } from "@/setting/setting";
-import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY } from "../config";
+import {
+	ATTRIBUTE_DEFAULT_VALUE,
+	ATTRIBUTE_KEY,
+	PROPS_STORAGE_API,
+} from "../config";
 import { PopsPanelSelectDetails } from "@whitesev/pops/dist/types/src/components/panel/selectType";
+import { log } from "@/env";
+import { PopsPanel } from "../setting";
 
 /**
  * 下拉列表
@@ -47,21 +52,30 @@ export const UISelect = function <T extends any>(
 		text: text,
 		type: "select",
 		description: description,
-		attributes: {} as { [key: string]: any },
+		attributes: {},
+		props: {},
 		getValue() {
-			return PopsPanel.getValue(key, defaultValue);
+			return (this.props as any)[PROPS_STORAGE_API].get(key, defaultValue);
 		},
 		callback(event, isSelectedValue, isSelectedText) {
-			PopsPanel.setValue(key, isSelectedValue);
+			let value = isSelectedValue;
+			log.info(`选择：${isSelectedText}`);
+			(this.props as any)[PROPS_STORAGE_API].set(key, value);
 			if (typeof callback === "function") {
-				callback(event, isSelectedValue, isSelectedText);
+				callback(event, value, isSelectedText);
 			}
 		},
 		data: selectData,
 	};
-	if (result.attributes) {
-		result.attributes[ATTRIBUTE_KEY] = key;
-		result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
-	}
+	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
+	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+	Reflect.set(result.props!, PROPS_STORAGE_API, {
+		get<T>(key: string, defaultValue: T) {
+			return PopsPanel.getValue(key, defaultValue);
+		},
+		set(key: string, value: any) {
+			PopsPanel.setValue(key, value);
+		},
+	});
 	return result;
 };

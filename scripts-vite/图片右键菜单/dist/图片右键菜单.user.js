@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         图片右键菜单
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.27
+// @version      2024.11.8
 // @author       WhiteSevs
 // @description  在浏览器预览图片页面添加全局右键菜单，右键直接复制该图片的Uri编码，支持自动判断图片类型，包括：jpg、jpeg、png、gif、webp、ico，支持手动判断图片类型，包括：jpg、jpeg、png、gif。
 // @license      GPL-3.0-only
@@ -9,10 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @grant        GM_getValue
 // @grant        GM_info
 // @grant        GM_registerMenuCommand
@@ -20,7 +20,7 @@
 // @grant        GM_unregisterMenuCommand
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
-// @run-at       document-end
+// @run-at       document-start
 // ==/UserScript==
 
 (function (Qmsg, DOMUtils, Utils, pops) {
@@ -77,7 +77,7 @@
         zIndex: {
           get() {
             let maxZIndex = Utils.getMaxZIndex();
-            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
+            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
             return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
           }
         }
@@ -95,7 +95,7 @@
     return data;
   });
   httpx.interceptors.response.use(void 0, (data) => {
-    log.error(["拦截器-请求错误", data]);
+    log.error("拦截器-请求错误", data);
     if (data.type === "onabort") {
       Qmsg.warning("请求取消");
     } else if (data.type === "onerror") {
@@ -123,30 +123,44 @@
     },
     setTimeout: _unsafeWindow.setTimeout
   });
+  utils.addStyle.bind(utils);
+  document.querySelector.bind(document);
+  document.querySelectorAll.bind(document);
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description) {
+  const PROPS_STORAGE_API = "data-storage-api";
+  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
     let result = {
       text,
       type: "switch",
       description,
       attributes: {},
+      props: {},
       getValue() {
-        return Boolean(PopsPanel.getValue(key, defaultValue));
+        return Boolean(
+          this.props[PROPS_STORAGE_API].get(key, defaultValue)
+        );
       },
-      callback(event, value) {
+      callback(event, __value) {
+        let value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        PopsPanel.setValue(key, Boolean(value));
+        this.props[PROPS_STORAGE_API].set(key, value);
       },
-      afterAddToUListCallBack: void 0
+      afterAddToUListCallBack
     };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
-    }
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
     return result;
   };
   const UISelect = function(text, key, defaultValue, data, callback, description) {
@@ -161,21 +175,30 @@
       type: "select",
       description,
       attributes: {},
+      props: {},
       getValue() {
-        return PopsPanel.getValue(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(event, isSelectedValue, isSelectedText) {
-        PopsPanel.setValue(key, isSelectedValue);
+        let value = isSelectedValue;
+        log.info(`选择：${isSelectedText}`);
+        this.props[PROPS_STORAGE_API].set(key, value);
         if (typeof callback === "function") {
-          callback(event, isSelectedValue, isSelectedText);
+          callback(event, value, isSelectedText);
         }
       },
       data: selectData
     };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
-    }
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
     return result;
   };
   const Component_Common = {
@@ -272,6 +295,29 @@
         ]
       }
     ]
+  };
+  const PanelUISize = {
+    /**
+     * 一般设置界面的尺寸
+     */
+    setting: {
+      width: window.innerWidth < 550 ? "88vw" : "550px",
+      height: window.innerHeight < 450 ? "70vh" : "450px"
+    },
+    /**
+     * 功能丰富，aside铺满了的设置界面，要稍微大一点
+     */
+    settingBig: {
+      width: window.innerWidth < 800 ? "92vw" : "800px",
+      height: window.innerHeight < 600 ? "80vh" : "600px"
+    },
+    /**
+     * 信息界面，一般用于提示信息之类
+     */
+    info: {
+      width: window.innerWidth < 350 ? "350px" : "350px",
+      height: window.innerHeight < 250 ? "250px" : "250px"
+    }
   };
   const PopsPanel = {
     /** 数据 */
@@ -715,38 +761,11 @@
             toHide: false
           }
         },
-        isMobile: this.isMobile(),
-        width: this.getWidth(),
-        height: this.getHeight(),
+        width: PanelUISize.setting.width,
+        height: PanelUISize.setting.height,
         drag: true,
         only: true
       });
-    },
-    /**
-     * 判断是否是移动端
-     */
-    isMobile() {
-      return window.innerWidth < 550;
-    },
-    /**
-     * 获取设置面板的宽度
-     */
-    getWidth() {
-      if (window.innerWidth < 550) {
-        return "92vw";
-      } else {
-        return "550px";
-      }
-    },
-    /**
-     * 获取设置面板的高度
-     */
-    getHeight() {
-      if (window.innerHeight > 450) {
-        return "80vh";
-      } else {
-        return "450px";
-      }
     },
     /**
      * 获取配置内容

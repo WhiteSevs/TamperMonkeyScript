@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.7
+// @version      2024.11.8
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,10 +10,10 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.9/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @connect      *
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
@@ -49,6 +49,7 @@
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+  const PROPS_STORAGE_API = "data-storage-api";
   const UISelect = function(text, key, defaultValue, data, callback, description) {
     let selectData = [];
     if (typeof data === "function") {
@@ -61,42 +62,61 @@
       type: "select",
       description,
       attributes: {},
+      props: {},
       getValue() {
-        return PopsPanel.getValue(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(event, isSelectedValue, isSelectedText) {
-        PopsPanel.setValue(key, isSelectedValue);
+        let value = isSelectedValue;
+        log.info(`选择：${isSelectedText}`);
+        this.props[PROPS_STORAGE_API].set(key, value);
         if (typeof callback === "function") {
-          callback(event, isSelectedValue, isSelectedText);
+          callback(event, value, isSelectedText);
         }
       },
       data: selectData
     };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
-    }
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
     return result;
   };
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description) {
+  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
     let result = {
       text,
       type: "switch",
       description,
       attributes: {},
+      props: {},
       getValue() {
-        return Boolean(PopsPanel.getValue(key, defaultValue));
+        return Boolean(
+          this.props[PROPS_STORAGE_API].get(key, defaultValue)
+        );
       },
-      callback(event, value) {
+      callback(event, __value) {
+        let value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        PopsPanel.setValue(key, Boolean(value));
+        this.props[PROPS_STORAGE_API].set(key, value);
       },
-      afterAddToUListCallBack: void 0
+      afterAddToUListCallBack
     };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
-    }
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
     return result;
   };
   const afterEnterDeepMenuCallBack = (formConfig, container) => {
@@ -1090,6 +1110,8 @@
     },
     /**
      * 将url修复，例如只有search的链接修复为完整的链接
+     *
+     * 注意：不包括http转https
      * @param url 需要修复的链接
      * @example
      * 修复前：`/xxx/xxx?ss=ssss`
@@ -4531,8 +4553,9 @@
       type: "slider",
       description,
       attributes: {},
+      props: {},
       getValue() {
-        return PopsPanel.getValue(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       getToolTipContent(value) {
         if (typeof getToolTipContent === "function") {
@@ -4542,16 +4565,22 @@
         }
       },
       callback(event, value) {
-        PopsPanel.setValue(key, value);
+        this.props[PROPS_STORAGE_API].set(key, value);
       },
       min,
       max,
       step
     };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
-    }
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
     return result;
   };
   const PanelVideoConfig = {
@@ -5711,6 +5740,29 @@
       }
     ]
   };
+  const PanelUISize = {
+    /**
+     * 一般设置界面的尺寸
+     */
+    setting: {
+      width: window.innerWidth < 550 ? "88vw" : "550px",
+      height: window.innerHeight < 450 ? "70vh" : "450px"
+    },
+    /**
+     * 功能丰富，aside铺满了的设置界面，要稍微大一点
+     */
+    settingBig: {
+      width: window.innerWidth < 800 ? "92vw" : "800px",
+      height: window.innerHeight < 600 ? "80vh" : "600px"
+    },
+    /**
+     * 信息界面，一般用于提示信息之类
+     */
+    info: {
+      width: window.innerWidth < 350 ? "350px" : "350px",
+      height: window.innerHeight < 250 ? "250px" : "250px"
+    }
+  };
   const PopsPanel = {
     /** 数据 */
     $data: {
@@ -6167,9 +6219,8 @@
             toHide: false
           }
         },
-        isMobile: true,
-        width: this.getWidth(),
-        height: this.getHeight(),
+        width: PanelUISize.setting.width,
+        height: PanelUISize.setting.height,
         drag: true,
         only: true
       });
@@ -6193,9 +6244,8 @@
             toHide: false
           }
         },
-        isMobile: this.isMobile(),
-        width: this.getWidth(),
-        height: this.getHeight(),
+        width: PanelUISize.setting.width,
+        height: PanelUISize.setting.height,
         drag: true,
         only: true
       });

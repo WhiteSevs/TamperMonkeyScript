@@ -16,13 +16,14 @@
 		"allowJs": true,
 		"checkJs": true,
 		"allowSyntheticDefaultImports": true,
+		/* 移除 未使用的 import */
 		"importsNotUsedAsValues": "remove",
-		"sourceMap": true,
+		"sourceMap": false,
+		"typeRoots": ["types"],
 		"paths": {
 			"@/*": ["./src/*"],
-			"@库/*": ["./../../lib/*"],
-		},
-		"typeRoots": ["types"]
+			"@lib/*": ["./../../lib/*"]
+		}
 	},
 	"include": ["src", "types"],
 	"references": [

@@ -7,7 +7,7 @@ import { NetDiskRuleData } from "../data/NetDiskRuleData";
 import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import { NetDisk } from "../NetDisk";
 import { NetDiskRuleUtils } from "../rule/NetDiskRuleUtils";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { NetDiskHandlerUtil } from "@/utils/NetDiskHandlerUtil";
 
 /** 点击动作 */
 export type NetDiskRuleSettingConfigurationInterface_linkClickMode =
@@ -42,7 +42,7 @@ export const NetDiskLinkClickModeUtils = {
 				accessCode: accessCode,
 			});
 		} else {
-			blankUrl = CommonUtils.replaceText(
+			blankUrl = NetDiskHandlerUtil.replaceText(
 				blankUrl,
 				NetDisk.$extraRule.noAccessCodeRegExp,
 				""
@@ -93,7 +93,7 @@ export const NetDiskLinkClickModeUtils = {
 				accessCode: accessCode,
 			});
 		} else {
-			copyUrl = CommonUtils.replaceText(
+			copyUrl = NetDiskHandlerUtil.replaceText(
 				copyUrl,
 				NetDisk.$extraRule.noAccessCodeRegExp,
 				""

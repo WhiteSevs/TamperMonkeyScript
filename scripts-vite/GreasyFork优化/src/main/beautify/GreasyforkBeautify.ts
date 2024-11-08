@@ -10,7 +10,7 @@ import compatibleBeautifyCSS from "./css/compatibleBeautify.css?raw";
 import beautifyTopNavigationBarCSS from "./css/beautifyTopNavigationBar.css?raw";
 import { DOMUtils, log, utils } from "@/env";
 import i18next from "i18next";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 export const GreasyforkBeautify = {
 	init() {
@@ -209,7 +209,7 @@ export const GreasyforkBeautify = {
 		let result = [];
 		result.push(GM_addStyle(beautifyTopNavigationBarCSS));
 		if (window.outerWidth > 550) {
-			result.push(CommonUtils.addBlockCSS(".with-submenu"));
+			result.push(CommonUtil.addBlockCSS(".with-submenu"));
 			DOMUtils.ready(() => {
 				let $siteNav = document.querySelector<HTMLElement>("#site-nav")!;
 				let $siteNavNav = $siteNav.querySelector<HTMLElement>("nav")!;

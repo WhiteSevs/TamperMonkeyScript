@@ -3,7 +3,7 @@ import { NetDisk } from "../NetDisk";
 import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import { NetDiskUI } from "../ui/NetDiskUI";
 import { NetDiskSuspensionConfig } from "../view/suspension/NetDiskSuspensionView";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { NetDiskHandlerUtil } from "@/utils/NetDiskHandlerUtil";
 import { NetDiskRuleUtils } from "../rule/NetDiskRuleUtils";
 import { NetDiskWorkerUtils } from "./NetDiskWorkerUtils";
 import { NetDiskRuleData } from "../data/NetDiskRuleData";
@@ -608,7 +608,7 @@ export const NetDiskWorker = {
 			const startTime = Date.now();
 			if (readClipboard) {
 				try {
-					NetDisk.$data.clipboardText = await CommonUtils.getClipboardText();
+					NetDisk.$data.clipboardText = await NetDiskHandlerUtil.getClipboardText();
 				} catch (error) {
 					// 获取剪贴板内容失败
 				}

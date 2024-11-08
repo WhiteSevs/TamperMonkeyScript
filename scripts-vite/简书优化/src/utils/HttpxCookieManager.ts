@@ -1,6 +1,6 @@
 import { log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { HttpxDetails } from "@whitesev/utils/dist/types/src/Httpx";
+import type { HttpxRequestOption } from "@whitesev/utils/dist/types/src/types/Httpx";
 
 interface HttpxCookieManagerRule {
 	/** PopsPanel存储的键名 */
@@ -19,6 +19,14 @@ export const HttpxCookieManager = {
 		get useDocumentCookie() {
 			return PopsPanel.getValue<boolean>("httpx-use-document-cookie");
 		},
+		/**
+		 * cookie规则，在这里填入
+		 * @example
+		 * {
+		 *     key: "",
+		 *     hostname: "",
+		 * }
+		 */
 		cookieRule: <HttpxCookieManagerRule[]>[],
 	},
 	/**
@@ -51,7 +59,7 @@ export const HttpxCookieManager = {
 	 * @param details
 	 * @returns
 	 */
-	handle(details: Required<HttpxDetails>) {
+	handle(details: Required<HttpxRequestOption>) {
 		if (details.fetch) {
 			// fetch不做处理
 			return;

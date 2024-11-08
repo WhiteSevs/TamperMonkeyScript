@@ -1,6 +1,6 @@
 import { DOMUtils, pops, utils } from "@/env";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
-import type { PopsConfirmDetails } from "@库/pops/dist/types/src/components/confirm/indexType";
+import type { PopsConfirmDetails } from "@whitesev/pops/dist/types/src/components/confirm/indexType";
 
 type RuleEditViewOption<T> = {
 	/** 标题 */

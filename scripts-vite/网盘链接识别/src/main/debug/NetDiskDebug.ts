@@ -2,7 +2,7 @@ import { log, utils } from "@/env";
 import { NetDisk } from "../NetDisk";
 import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import { NetDiskRuleUtils } from "../rule/NetDiskRuleUtils";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { NetDiskHandlerUtil } from "@/utils/NetDiskHandlerUtil";
 
 export const NetDiskDebug = {
 	/**
@@ -272,7 +272,7 @@ export const NetDiskDebug = {
 				],
 			});
 		} else {
-			uiLink = CommonUtils.replaceText(
+			uiLink = NetDiskHandlerUtil.replaceText(
 				uiLink,
 				NetDisk.$extraRule.noAccessCodeRegExp,
 				""
@@ -358,7 +358,7 @@ export const NetDiskDebug = {
 				],
 			});
 		} else {
-			blankUrl = CommonUtils.replaceText(
+			blankUrl = NetDiskHandlerUtil.replaceText(
 				blankUrl,
 				NetDisk.$extraRule.noAccessCodeRegExp,
 				""
@@ -443,7 +443,7 @@ export const NetDiskDebug = {
 				],
 			});
 		} else {
-			copyUrl = CommonUtils.replaceText(
+			copyUrl = NetDiskHandlerUtil.replaceText(
 				copyUrl,
 				NetDisk.$extraRule.noAccessCodeRegExp,
 				""

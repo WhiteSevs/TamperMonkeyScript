@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.10.27
+// @version      2024.11.8
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -9,11 +9,12 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://www.xiaohongshu.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/449471/1413235/Viewer.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.3.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
+// @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
 // @connect      edith.xiaohongshu.com
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
@@ -27,7 +28,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (Qmsg, Utils, DOMUtils, pops) {
+(function (Qmsg, Utils, DOMUtils, pops, Viewer) {
   'use strict';
 
   var _a;
@@ -41,11 +42,154 @@
   var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
   var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
+  const GM_RESOURCE_MAPPING = {
+    ElementPlus: {
+      keyName: "ElementPlusResourceCSS",
+      url: "https://fastly.jsdelivr.net/npm/element-plus@latest/dist/index.min.css"
+    },
+    Viewer: {
+      keyName: "ViewerCSS",
+      url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css"
+    },
+    Hljs: {
+      keyName: "HljsCSS",
+      url: "https://fastly.jsdelivr.net/npm/highlight.js@latest/styles/github-dark.min.css"
+    }
+  };
+  const CommonUtil = {
+    /**
+     * 添加屏蔽CSS
+     * @param args
+     * @example
+     * addBlockCSS("")
+     * addBlockCSS("","")
+     * addBlockCSS(["",""])
+     */
+    addBlockCSS(...args) {
+      let selectorList = [];
+      if (args.length === 0) {
+        return;
+      }
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+        return;
+      }
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    /**
+     * 设置GM_getResourceText的style内容
+     * @param resourceMapData 资源数据
+     * @example
+     * setGMResourceCSS({
+     *   keyName: "ViewerCSS",
+     *   url: "https://example.com/example.css",
+     *   devUrl: "viewerjs/dist/viewer.css",
+     * })
+     */
+    setGMResourceCSS(resourceMapData) {
+      {
+        let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+        if (typeof cssText === "string" && cssText) {
+          addStyle(cssText);
+        } else {
+          CommonUtil.loadStyleLink(resourceMapData.url);
+        }
+      }
+    },
+    /**
+     * 添加<link>标签
+     * @param url
+     * @example
+     * loadStyleLink("https://example.com/example.css")
+     */
+    async loadStyleLink(url) {
+      let $link = document.createElement("link");
+      $link.rel = "stylesheet";
+      $link.type = "text/css";
+      $link.href = url;
+      domutils.ready(() => {
+        document.head.appendChild($link);
+      });
+    },
+    /**
+     * 添加<script>标签
+     * @param url
+     * @example
+     * loadStyleLink("https://example.com/example.js")
+     */
+    async loadScript(url) {
+      let $script = document.createElement("script");
+      $script.src = url;
+      return new Promise((resolve) => {
+        $script.onload = () => {
+          resolve(null);
+        };
+        (document.head || document.documentElement).appendChild($script);
+      });
+    },
+    /**
+     * 将url修复，例如只有search的链接修复为完整的链接
+     *
+     * 注意：不包括http转https
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：`/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`//xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     */
+    fixUrl(url) {
+      url = url.trim();
+      if (url.match(/^http(s|):\/\//i)) {
+        return url;
+      } else {
+        if (!url.startsWith("/")) {
+          url += "/";
+        }
+        url = window.location.origin + url;
+        return url;
+      }
+    },
+    /**
+     * http转https
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：
+     * 修复后：
+     * @example
+     * 修复前：
+     * 修复后：
+     */
+    fixHttps(url) {
+      if (url.startsWith("https://")) {
+        return url;
+      }
+      if (!url.startsWith("http://")) {
+        return url;
+      }
+      let urlObj = new URL(url);
+      urlObj.protocol = "https:";
+      return urlObj.toString();
+    }
+  };
   const _SCRIPT_NAME_ = "小红书优化";
   const utils = Utils.noConflict();
   const domutils = DOMUtils.noConflict();
   const __pops = pops;
-  const Viewer = _monkeyWindow.Viewer || _unsafeWindow.Viewer;
+  const __viewer = Viewer;
   const log = new utils.Log(
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
@@ -84,7 +228,7 @@
         zIndex: {
           get() {
             let maxZIndex = Utils.getMaxZIndex();
-            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
+            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
             return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
           }
         }
@@ -99,7 +243,7 @@
   });
   const httpx = new utils.Httpx(_GM_xmlhttpRequest);
   httpx.interceptors.response.use(void 0, (data) => {
-    log.error(["拦截器-请求错误", data]);
+    log.error("拦截器-请求错误", data);
     if (data.type === "onabort") {
       Qmsg.warning("请求取消");
     } else if (data.type === "onerror") {
@@ -128,30 +272,43 @@
     setTimeout: _unsafeWindow.setTimeout
   });
   const addStyle = utils.addStyle.bind(utils);
+  document.querySelector.bind(document);
+  document.querySelectorAll.bind(document);
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description) {
+  const PROPS_STORAGE_API = "data-storage-api";
+  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
     let result = {
       text,
       type: "switch",
       description,
       attributes: {},
+      props: {},
       getValue() {
-        return Boolean(PopsPanel.getValue(key, defaultValue));
+        return Boolean(
+          this.props[PROPS_STORAGE_API].get(key, defaultValue)
+        );
       },
-      callback(event, value) {
+      callback(event, __value) {
+        let value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        PopsPanel.setValue(key, Boolean(value));
+        this.props[PROPS_STORAGE_API].set(key, value);
       },
-      afterAddToUListCallBack: void 0
+      afterAddToUListCallBack
     };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
-    }
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
     return result;
   };
   const MSettingUI_Home = {
@@ -307,21 +464,30 @@
       type: "select",
       description,
       attributes: {},
+      props: {},
       getValue() {
-        return PopsPanel.getValue(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(event, isSelectedValue, isSelectedText) {
-        PopsPanel.setValue(key, isSelectedValue);
+        let value = isSelectedValue;
+        log.info(`选择：${isSelectedText}`);
+        this.props[PROPS_STORAGE_API].set(key, value);
         if (typeof callback === "function") {
-          callback(event, isSelectedValue, isSelectedText);
+          callback(event, value, isSelectedText);
         }
       },
       data: selectData
     };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
-    }
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
     return result;
   };
   const SettingUI_Common = {
@@ -548,8 +714,9 @@
       type: "slider",
       description,
       attributes: {},
+      props: {},
       getValue() {
-        return PopsPanel.getValue(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       getToolTipContent(value) {
         if (typeof getToolTipContent === "function") {
@@ -564,16 +731,22 @@
             return;
           }
         }
-        PopsPanel.setValue(key, value);
+        this.props[PROPS_STORAGE_API].set(key, value);
       },
       min,
       max,
       step
     };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
-    }
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
     return result;
   };
   const SettingUI_Article = {
@@ -790,6 +963,29 @@
         ]
       }
     ]
+  };
+  const PanelUISize = {
+    /**
+     * 一般设置界面的尺寸
+     */
+    setting: {
+      width: window.innerWidth < 550 ? "88vw" : "550px",
+      height: window.innerHeight < 450 ? "70vh" : "450px"
+    },
+    /**
+     * 功能丰富，aside铺满了的设置界面，要稍微大一点
+     */
+    settingBig: {
+      width: window.innerWidth < 800 ? "92vw" : "800px",
+      height: window.innerHeight < 600 ? "80vh" : "600px"
+    },
+    /**
+     * 信息界面，一般用于提示信息之类
+     */
+    info: {
+      width: window.innerWidth < 350 ? "350px" : "350px",
+      height: window.innerHeight < 250 ? "250px" : "250px"
+    }
   };
   const PopsPanel = {
     /** 数据 */
@@ -1247,9 +1443,8 @@
             toHide: false
           }
         },
-        isMobile: this.isMobile(),
-        width: this.getWidth(),
-        height: this.getHeight(),
+        width: PanelUISize.setting.width,
+        height: PanelUISize.setting.height,
         drag: true,
         only: true
       });
@@ -1273,38 +1468,11 @@
             toHide: false
           }
         },
-        isMobile: this.isMobile(),
-        width: this.getWidth(),
-        height: this.getHeight(),
+        width: PanelUISize.setting.width,
+        height: PanelUISize.setting.height,
         drag: true,
         only: true
       });
-    },
-    /**
-     * 判断是否是移动端
-     */
-    isMobile() {
-      return window.innerWidth < 550;
-    },
-    /**
-     * 获取设置面板的宽度
-     */
-    getWidth() {
-      if (window.innerWidth < 550) {
-        return "92vw";
-      } else {
-        return "550px";
-      }
-    },
-    /**
-     * 获取设置面板的高度
-     */
-    getHeight() {
-      if (window.innerHeight < 450) {
-        return "80vh";
-      } else {
-        return "450px";
-      }
     },
     /**
      * 获取配置内容
@@ -1561,75 +1729,6 @@
       return data.data.sug_items;
     }
   };
-  const CommonUtils = {
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args) {
-      let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
-      args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
-      });
-      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
-    },
-    /**
-     * 设置GM_getResourceText的style内容
-     * @param resourceMapData 资源数据
-     */
-    setGMResourceCSS(resourceMapData) {
-      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
-      if (typeof cssText === "string" && cssText) {
-        addStyle(cssText);
-      } else {
-        CommonUtils.addLinkNode(resourceMapData.url);
-      }
-    },
-    /**
-     * 添加<link>标签
-     * @param url
-     */
-    async addLinkNode(url) {
-      let $link = document.createElement("link");
-      $link.rel = "stylesheet";
-      $link.type = "text/css";
-      $link.href = url;
-      domutils.ready(() => {
-        document.head.appendChild($link);
-      });
-      return $link;
-    },
-    /**
-     * 将url修复，例如只有search的链接/sss/xxx?sss=xxxx
-     * @param url 需要修复的链接
-     */
-    fixUrl(url) {
-      url = url.trim();
-      if (url.match(/^http(s|):\/\//i)) {
-        return url;
-      } else {
-        if (!url.startsWith("/")) {
-          url += "/";
-        }
-        url = window.location.origin + url;
-        return url;
-      }
-    }
-  };
   const MXHS_ArticleShield = {
     /**
      * 允许复制
@@ -1651,7 +1750,7 @@
      */
     shieldBottomSearchFind() {
       log.info("屏蔽底部搜索发现");
-      return CommonUtils.addBlockCSS(
+      return CommonUtil.addBlockCSS(
         ".hotlist-container",
         /* 一大块空白区域 */
         ".safe-area-bottom.margin-placeholder"
@@ -1662,14 +1761,14 @@
      */
     shieldBottomToorBar() {
       log.info("屏蔽底部工具栏");
-      return CommonUtils.addBlockCSS(".engage-bar-container");
+      return CommonUtil.addBlockCSS(".engage-bar-container");
     },
     /**
      * 屏蔽视频笔记的作者热门笔记
      */
     shieldAuthorHotNote() {
       log.info("屏蔽视频笔记的作者热门笔记");
-      return CommonUtils.addBlockCSS(
+      return CommonUtil.addBlockCSS(
         ".user-notes-box.user-notes-clo-layout-container"
       );
     },
@@ -1678,7 +1777,7 @@
      */
     shieldHotRecommendNote() {
       log.info("屏蔽视频笔记的热门推荐");
-      return CommonUtils.addBlockCSS("#new-note-view-container .recommend-box");
+      return CommonUtil.addBlockCSS("#new-note-view-container .recommend-box");
     }
   };
   const MXHS_VideoArticle = {
@@ -2124,6 +2223,7 @@
      */
     optimizeImageBrowsing() {
       log.info("优化图片浏览");
+      CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
       function viewIMG(imgSrcList = [], index = 0) {
         let viewerULNodeHTML = "";
         imgSrcList.forEach((item) => {
@@ -2132,7 +2232,7 @@
         let viewerULNode = domutils.createElement("ul", {
           innerHTML: viewerULNodeHTML
         });
-        let viewer = new Viewer(viewerULNode, {
+        let viewer = new __viewer(viewerULNode, {
           inline: false,
           url: "data-src",
           zIndex: utils.getMaxZIndex() + 100,
@@ -2278,7 +2378,7 @@
      */
     shieldLoginContainer() {
       log.info("添加屏蔽登录弹窗CSS，监听登录弹窗出现");
-      CommonUtils.addBlockCSS(".login-container");
+      CommonUtil.addBlockCSS(".login-container");
       utils.mutationObserver(document.body, {
         config: {
           subtree: true,
@@ -2300,7 +2400,7 @@
      */
     shieldSelectTextVisibleSearchPosition() {
       log.info("屏蔽选择文字弹出的搜索提示");
-      return CommonUtils.addBlockCSS(".search-position");
+      return CommonUtil.addBlockCSS(".search-position");
     },
     /**
      * 【屏蔽】顶部工具栏
@@ -2308,7 +2408,7 @@
     shieldTopToolbar() {
       log.info("【屏蔽】顶部工具栏");
       return [
-        CommonUtils.addBlockCSS("#headerContainer"),
+        CommonUtil.addBlockCSS("#headerContainer"),
         addStyle(
           /*css*/
           `
@@ -2563,4 +2663,4 @@
     }
   }
 
-})(Qmsg, Utils, DOMUtils, pops);
+})(Qmsg, Utils, DOMUtils, pops, Viewer);

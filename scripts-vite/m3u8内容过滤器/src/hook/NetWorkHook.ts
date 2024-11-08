@@ -1,6 +1,6 @@
 import { log, utils } from "@/env";
 import { M3U8Rule } from "@/main/M3U8Rule";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 import type { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
 
 export const NetWorkHook = {
@@ -15,7 +15,7 @@ export const NetWorkHook = {
 	},
 	hook() {
 		this.ajaxHooker.hook((request) => {
-			let url = CommonUtils.fixUrl(request.url);
+			let url = CommonUtil.fixUrl(request.url);
 			try {
 				let urlObj = new URL(url);
 				let pathName = urlObj.pathname;

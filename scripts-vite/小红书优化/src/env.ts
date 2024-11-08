@@ -9,20 +9,21 @@ import {
 	GM_xmlhttpRequest,
 	GM_getResourceText,
 } from "ViteGM";
-import ElementPlus from "element-plus/es/index";
 import { createApp } from "vue";
 import Qmsg from "qmsg";
 import Utils from "@whitesev/utils";
 import DOMUtils from "@whitesev/domutils";
 import { PopsPanel } from "./setting/setting";
 import pops from "@whitesev/pops";
+import { GM_RESOURCE_MAPPING } from "./GM_Resource_Mapping";
+import { CommonUtil } from "./utils/CommonUtil";
+import Viewer from "viewerjs";
 
 const _SCRIPT_NAME_ = "小红书优化";
 const utils = Utils.noConflict();
 const domutils = DOMUtils.noConflict();
 const __pops = pops;
-const Viewer: typeof import("viewerjs").default =
-	(monkeyWindow as any).Viewer || (unsafeWindow as any).Viewer;
+const __viewer = Viewer;
 const log = new utils.Log(
 	GM_info,
 	(unsafeWindow as any).console || (monkeyWindow as any).console
@@ -69,7 +70,7 @@ Qmsg.config(
 				get() {
 					let maxZIndex = Utils.getMaxZIndex();
 					let popsMaxZIndex =
-						pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
+						pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
 					return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
 				},
 			},
@@ -89,7 +90,7 @@ const httpx = new utils.Httpx(GM_xmlhttpRequest);
 
 // 添加响应拦截器
 httpx.interceptors.response.use(void 0, (data) => {
-	log.error(["拦截器-请求错误", data]);
+	log.error("拦截器-请求错误", data);
 	if (data.type === "onabort") {
 		Qmsg.warning("请求取消");
 	} else if (data.type === "onerror") {
@@ -122,12 +123,16 @@ const OriginPrototype = {
 
 const addStyle = utils.addStyle.bind(utils);
 
+const $ = document.querySelector.bind(document);
+const $$ = document.querySelectorAll.bind(document);
+
 const VUE_ELE_NAME_ID = "vite-app";
 /**
  * 注册vue、element-plus、element-plus/icons-vue
- * @param targetApp
+ * @param targetApp vue实例
+ * @param plugin 插件之类的，如vue-router、Element-Plus
  */
-const MountVue = async function (targetApp: any, router?: any) {
+const MountVue = async function (targetApp: any, plugin: any[] = []) {
 	DOMUtils.ready(async () => {
 		const app = createApp(targetApp);
 		let $mount = DOMUtils.createElement("div", {
@@ -151,29 +156,36 @@ const MountVue = async function (targetApp: any, router?: any) {
 			}
 		}
 		document.body.appendChild($mount);
-		app.use(router);
-		app.use(ElementPlus);
+		plugin.forEach((item) => {
+			app.use(item);
+		});
 		app.mount($mount);
 	});
-	if (import.meta.env.DEV) {
-		let elementPlusCSS = await import("element-plus/dist/index.css?raw");
-		addStyle(elementPlusCSS.default);
-	} else {
-		addStyle(GM_getResourceText("ElementPlusResourceCSS"));
-	}
+	CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.ElementPlus);
 };
+
+// 开发测试使用
+if (import.meta.env.DEV) {
+	// @ts-ignore
+	unsafeWindow.httpx = httpx;
+	httpx.config({
+		logDetails: true,
+	});
+}
 
 export {
 	utils,
 	domutils as DOMUtils,
 	__pops as pops,
+	__viewer as Viewer,
 	log,
 	GM_Menu,
 	SCRIPT_NAME,
 	OriginPrototype,
-	Viewer,
 	httpx,
+	addStyle,
+	$,
+	$$,
 	MountVue,
 	VUE_ELE_NAME_ID,
-	addStyle,
 };

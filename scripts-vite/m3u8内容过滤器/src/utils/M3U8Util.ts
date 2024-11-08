@@ -1,6 +1,6 @@
 import { DOMUtils } from "@/env";
 
-export const CommonUtils = {
+export const M3U8Util = {
 	/**
 	 * 把时长转为字符串文本
 	 *
@@ -63,69 +63,5 @@ export const CommonUtils = {
 		let res = 1 - d[n][m] / l;
 		// return res.toFixed(f);
 		return res;
-	},
-	/**
-	 * 添加<link>标签
-	 * @param url
-	 */
-	async addLinkNode(url: string) {
-		let $link = document.createElement("link");
-		$link.rel = "stylesheet";
-		$link.type = "text/css";
-		$link.href = url;
-		DOMUtils.ready(() => {
-			document.head.appendChild($link);
-		});
-	},
-	/**
-	 * 将url修复，例如只有search的链接修复为
-	 * @param url 需要修复的链接
-	 * @example
-	 * 修复前：`/xxx/xxx?ss=ssss`
-	 * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-	 * @example
-	 * 修复前：`//xxx/xxx?ss=ssss`
-	 * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-	 * @example
-	 * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-	 * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-	 * @example
-	 * 修复前：`xxx/xxx?ss=ssss`
-	 * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-	 */
-	fixUrl(url: string) {
-		url = url.trim();
-		if (url.match(/^http(s|):\/\//i)) {
-			return url;
-		} else {
-			if (!url.startsWith("/")) {
-				url += "/";
-			}
-			url = window.location.origin + url;
-			return url;
-		}
-	},
-	/**
-	 * http转https
-	 * @param url 需要修复的链接
-	 * @example
-	 * 修复前：
-	 * 修复后：
-	 * @example
-	 * 修复前：
-	 * 修复后：
-	 */
-	fixHttps(url: string) {
-		if (url.startsWith("https://")) {
-			// 已经是https
-			return url;
-		}
-		if (!url.startsWith("http://")) {
-			// 不是http链接
-			return url;
-		}
-		let urlObj = new URL(url);
-		urlObj.protocol = "https:";
-		return urlObj.toString();
 	},
 };

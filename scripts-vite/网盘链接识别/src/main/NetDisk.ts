@@ -7,7 +7,7 @@ import { NetDiskRuleConfig, type NetDiskRuleSetting } from "./rule/NetDiskRule";
 import Utils from "@whitesev/utils";
 import { WebsiteRule } from "./website-rule/WebsiteRule";
 import { WebsiteRuleDataKey } from "./data/NetDiskRuleDataKey";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { NetDiskHandlerUtil } from "@/utils/NetDiskHandlerUtil";
 import { CharacterMapping } from "./character-mapping/CharacterMapping";
 
 export const NetDisk = {
@@ -342,7 +342,7 @@ export const NetDisk = {
 				accessCode: accessCode,
 			});
 		} else {
-			uiLink = CommonUtils.replaceText(
+			uiLink = NetDiskHandlerUtil.replaceText(
 				uiLink,
 				NetDisk.$extraRule.noAccessCodeRegExp,
 				""

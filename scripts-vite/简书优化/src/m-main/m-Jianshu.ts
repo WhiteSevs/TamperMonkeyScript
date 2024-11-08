@@ -1,7 +1,7 @@
 import { addStyle, log } from "@/env";
 import { Jianshu } from "@/main/Jianshu";
 import { PopsPanel } from "@/setting/setting";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 import { unsafeWindow } from "ViteGM";
 
 const M_Jianshu = {
@@ -38,7 +38,7 @@ const M_Jianshu = {
 	 */
 	removeFooterRecommendRead() {
 		log.info("屏蔽底部推荐阅读");
-		return CommonUtils.addBlockCSS("#recommended-notes");
+		return CommonUtil.addBlockCSS("#recommended-notes");
 	},
 	/**
 	 * 处理原型
@@ -67,7 +67,7 @@ const M_Jianshu = {
 	 */
 	shieldUserComments() {
 		log.info("屏蔽评论区");
-		return CommonUtils.addBlockCSS("#comment-main");
+		return CommonUtil.addBlockCSS("#comment-main");
 	},
 };
 

@@ -6,6 +6,8 @@ import { unsafeWindow } from "ViteGM";
 import { MXHS_ArticleShield } from "./MXHS_ArticleShield";
 import { MXHS_VideoArticle } from "./MXHS_VideoArticle";
 import Qmsg from "qmsg";
+import { CommonUtil } from "@/utils/CommonUtil";
+import { GM_RESOURCE_MAPPING } from "@/GM_Resource_Mapping";
 
 interface CommentDataInfo {
 	user_id: string;
@@ -476,6 +478,7 @@ const MXHS_Article = {
 	 */
 	optimizeImageBrowsing() {
 		log.info("优化图片浏览");
+		CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
 		/**
 		 * 查看图片
 		 * @param imgSrcList

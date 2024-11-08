@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.7.22
+// @version      2024.11.8
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -9,11 +9,14 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.csdn.net/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
+// @connect      blog.csdn.net
+// @connect      mp-action.csdn.net
 // @grant        GM_deleteValue
+// @grant        GM_getResourceText
 // @grant        GM_getValue
 // @grant        GM_info
 // @grant        GM_registerMenuCommand
@@ -29,6 +32,7 @@
 
   var _a;
   var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
+  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
   var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
@@ -37,6 +41,146 @@
   var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
   var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
+  const CommonUtil = {
+    /**
+     * 移除元素（未出现也可以等待出现）
+     * @param selector 元素选择器
+     */
+    waitRemove(...args) {
+      args.forEach((selector) => {
+        utils.waitNodeList(selector).then((nodeList) => {
+          nodeList.forEach((item) => item.remove());
+        });
+      });
+    },
+    /**
+     * 添加屏蔽CSS
+     * @param args
+     * @example
+     * addBlockCSS("")
+     * addBlockCSS("","")
+     * addBlockCSS(["",""])
+     */
+    addBlockCSS(...args) {
+      let selectorList = [];
+      if (args.length === 0) {
+        return;
+      }
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+        return;
+      }
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    /**
+     * 设置GM_getResourceText的style内容
+     * @param resourceMapData 资源数据
+     * @example
+     * setGMResourceCSS({
+     *   keyName: "ViewerCSS",
+     *   url: "https://example.com/example.css",
+     *   devUrl: "viewerjs/dist/viewer.css",
+     * })
+     */
+    setGMResourceCSS(resourceMapData) {
+      {
+        let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+        if (typeof cssText === "string" && cssText) {
+          addStyle(cssText);
+        } else {
+          CommonUtil.loadStyleLink(resourceMapData.url);
+        }
+      }
+    },
+    /**
+     * 添加<link>标签
+     * @param url
+     * @example
+     * loadStyleLink("https://example.com/example.css")
+     */
+    async loadStyleLink(url) {
+      let $link = document.createElement("link");
+      $link.rel = "stylesheet";
+      $link.type = "text/css";
+      $link.href = url;
+      domutils.ready(() => {
+        document.head.appendChild($link);
+      });
+    },
+    /**
+     * 添加<script>标签
+     * @param url
+     * @example
+     * loadStyleLink("https://example.com/example.js")
+     */
+    async loadScript(url) {
+      let $script = document.createElement("script");
+      $script.src = url;
+      return new Promise((resolve) => {
+        $script.onload = () => {
+          resolve(null);
+        };
+        (document.head || document.documentElement).appendChild($script);
+      });
+    },
+    /**
+     * 将url修复，例如只有search的链接修复为完整的链接
+     *
+     * 注意：不包括http转https
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：`/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`//xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     */
+    fixUrl(url) {
+      url = url.trim();
+      if (url.match(/^http(s|):\/\//i)) {
+        return url;
+      } else {
+        if (!url.startsWith("/")) {
+          url += "/";
+        }
+        url = window.location.origin + url;
+        return url;
+      }
+    },
+    /**
+     * http转https
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：
+     * 修复后：
+     * @example
+     * 修复前：
+     * 修复后：
+     */
+    fixHttps(url) {
+      if (url.startsWith("https://")) {
+        return url;
+      }
+      if (!url.startsWith("http://")) {
+        return url;
+      }
+      let urlObj = new URL(url);
+      urlObj.protocol = "https:";
+      return urlObj.toString();
+    }
+  };
   const _SCRIPT_NAME_ = "CSDN优化";
   const utils = Utils.noConflict();
   const domutils = DOMUtils.noConflict();
@@ -79,7 +223,7 @@
         zIndex: {
           get() {
             let maxZIndex = Utils.getMaxZIndex();
-            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
+            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
             return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
           }
         }
@@ -94,7 +238,7 @@
   });
   const httpx = new utils.Httpx(_GM_xmlhttpRequest);
   httpx.interceptors.response.use(void 0, (data) => {
-    log.error(["拦截器-请求错误", data]);
+    log.error("拦截器-请求错误", data);
     if (data.type === "onabort") {
       Qmsg.warning("请求取消");
     } else if (data.type === "onerror") {
@@ -130,6 +274,7 @@
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+  const PROPS_STORAGE_API = "data-storage-api";
   const CSDNRouter = {
     /**
      * 判断是否是华为云联盟
@@ -189,8 +334,9 @@
       type: "slider",
       description,
       attributes: {},
+      props: {},
       getValue() {
-        return PopsPanel.getValue(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       getToolTipContent(value) {
         if (typeof getToolTipContent === "function") {
@@ -205,42 +351,58 @@
             return;
           }
         }
-        PopsPanel.setValue(key, value);
+        this.props[PROPS_STORAGE_API].set(key, value);
       },
       min,
       max,
       step
     };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
-    }
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
     return result;
   };
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description) {
+  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
     let result = {
       text,
       type: "switch",
       description,
       attributes: {},
+      props: {},
       getValue() {
-        return Boolean(PopsPanel.getValue(key, defaultValue));
+        return Boolean(
+          this.props[PROPS_STORAGE_API].get(key, defaultValue)
+        );
       },
-      callback(event, value) {
+      callback(event, __value) {
+        let value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
         if (typeof clickCallBack === "function") {
           if (clickCallBack(event, value)) {
             return;
           }
         }
-        PopsPanel.setValue(key, Boolean(value));
+        this.props[PROPS_STORAGE_API].set(key, value);
       },
-      afterAddToUListCallBack: void 0
+      afterAddToUListCallBack
     };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
-    }
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
     return result;
   };
   const SettingUIBlog = {
@@ -995,21 +1157,30 @@
       type: "select",
       description,
       attributes: {},
+      props: {},
       getValue() {
-        return PopsPanel.getValue(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(event, isSelectedValue, isSelectedText) {
-        PopsPanel.setValue(key, isSelectedValue);
+        let value = isSelectedValue;
+        log.info(`选择：${isSelectedText}`);
+        this.props[PROPS_STORAGE_API].set(key, value);
         if (typeof callback === "function") {
-          callback(event, isSelectedValue, isSelectedText);
+          callback(event, value, isSelectedText);
         }
       },
       data: selectData
     };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
-    }
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
     return result;
   };
   const SettingUICommon = {
@@ -1782,32 +1953,6 @@
       });
     },
     /**
-     * 判断是否是移动端
-     */
-    isMobile() {
-      return window.innerWidth < 550;
-    },
-    /**
-     * 获取设置面板的宽度
-     */
-    getWidth() {
-      if (window.innerWidth < 550) {
-        return "92vw";
-      } else {
-        return "550px";
-      }
-    },
-    /**
-     * 获取设置面板的高度
-     */
-    getHeight() {
-      if (window.innerHeight > 450) {
-        return "80vh";
-      } else {
-        return "450px";
-      }
-    },
-    /**
      * 获取配置内容
      */
     getPanelContentConfig() {
@@ -1838,44 +1983,6 @@
     }
   };
   const ShieldCSS$4 = "/* 底部免费抽xxx奖品广告 */\r\ndiv.siderbar-box,\r\n/* 华为开发者联盟加入社区 */\r\ndiv.user-desc.user-desc-fix {\r\n  display: none !important;\r\n}\r\n";
-  const CommonUtil = {
-    /**
-     * 移除元素（未出现也可以等待出现）
-     * @param selector 元素选择器
-     */
-    waitRemove(...args) {
-      args.forEach((selector) => {
-        utils.waitNodeList(selector).then((nodeList) => {
-          nodeList.forEach((item) => item.remove());
-        });
-      });
-    },
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args) {
-      let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
-      args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
-      });
-      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
-    }
-  };
   const CSDNHuaWeiCloud = {
     init() {
       addStyle(ShieldCSS$4);

@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.11.3
+// @version            2024.11.8
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -11,10 +11,10 @@
 // @supportURL         https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match              *://greasyfork.org/*
 // @require            https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.5/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.3.8/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.6/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.1/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.9/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require            https://fastly.jsdelivr.net/npm/i18next@23.15.1/i18next.min.js
 // @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
@@ -559,6 +559,7 @@
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+  const PROPS_STORAGE_API = "data-storage-api";
   const LanguageInit = function() {
     let settingPanel = _GM_getValue(KEY, {});
     let lng = settingPanel["setting-language"] || "zh-CN";
@@ -575,6 +576,135 @@
         }
       }
     });
+  };
+  const CommonUtil = {
+    /**
+     * 添加屏蔽CSS
+     * @param args
+     * @example
+     * addBlockCSS("")
+     * addBlockCSS("","")
+     * addBlockCSS(["",""])
+     */
+    addBlockCSS(...args) {
+      let selectorList = [];
+      if (args.length === 0) {
+        return;
+      }
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+        return;
+      }
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    /**
+     * 设置GM_getResourceText的style内容
+     * @param resourceMapData 资源数据
+     * @example
+     * setGMResourceCSS({
+     *   keyName: "ViewerCSS",
+     *   url: "https://example.com/example.css",
+     *   devUrl: "viewerjs/dist/viewer.css",
+     * })
+     */
+    setGMResourceCSS(resourceMapData) {
+      {
+        let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+        if (typeof cssText === "string" && cssText) {
+          addStyle(cssText);
+        } else {
+          CommonUtil.loadStyleLink(resourceMapData.url);
+        }
+      }
+    },
+    /**
+     * 添加<link>标签
+     * @param url
+     * @example
+     * loadStyleLink("https://example.com/example.css")
+     */
+    async loadStyleLink(url2) {
+      let $link = document.createElement("link");
+      $link.rel = "stylesheet";
+      $link.type = "text/css";
+      $link.href = url2;
+      domUtils.ready(() => {
+        document.head.appendChild($link);
+      });
+    },
+    /**
+     * 添加<script>标签
+     * @param url
+     * @example
+     * loadStyleLink("https://example.com/example.js")
+     */
+    async loadScript(url2) {
+      let $script = document.createElement("script");
+      $script.src = url2;
+      return new Promise((resolve) => {
+        $script.onload = () => {
+          resolve(null);
+        };
+        (document.head || document.documentElement).appendChild($script);
+      });
+    },
+    /**
+     * 将url修复，例如只有search的链接修复为完整的链接
+     *
+     * 注意：不包括http转https
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：`/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`//xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     */
+    fixUrl(url2) {
+      url2 = url2.trim();
+      if (url2.match(/^http(s|):\/\//i)) {
+        return url2;
+      } else {
+        if (!url2.startsWith("/")) {
+          url2 += "/";
+        }
+        url2 = window.location.origin + url2;
+        return url2;
+      }
+    },
+    /**
+     * http转https
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：
+     * 修复后：
+     * @example
+     * 修复前：
+     * 修复后：
+     */
+    fixHttps(url2) {
+      if (url2.startsWith("https://")) {
+        return url2;
+      }
+      if (!url2.startsWith("http://")) {
+        return url2;
+      }
+      let urlObj2 = new URL(url2);
+      urlObj2.protocol = "https:";
+      return urlObj2.toString();
+    }
   };
   LanguageInit();
   _GM_getValue(KEY, {});
@@ -620,7 +750,7 @@
         zIndex: {
           get() {
             let maxZIndex = Utils.getMaxZIndex();
-            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
+            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
             return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
           }
         }
@@ -635,7 +765,7 @@
   });
   const httpx = new utils.Httpx(_GM_xmlhttpRequest);
   httpx.interceptors.response.use(void 0, (data) => {
-    log.error(["拦截器-请求错误", data]);
+    log.error("拦截器-请求错误", data);
     if (data.type === "onabort") {
       Qmsg.warning(i18next.t("请求取消"));
     } else if (data.type === "onerror") {
@@ -664,6 +794,8 @@
     setTimeout: _unsafeWindow.setTimeout
   });
   const addStyle = utils.addStyle.bind(utils);
+  document.querySelector.bind(document);
+  document.querySelectorAll.bind(document);
   const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack) {
     let result = {
       text,
@@ -689,42 +821,58 @@
       type: "input",
       isNumber: Boolean(isNumber),
       isPassword: Boolean(isPassword),
+      props: {},
       attributes: {},
       description,
       getValue() {
-        let localValue = PopsPanel.getValue(key, defaultValue);
-        return localValue;
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(event, value) {
-        PopsPanel.setValue(key, value);
+        this.props[PROPS_STORAGE_API].set(key, value);
       },
       placeholder
     };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
-    }
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
     return result;
   };
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description) {
+  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
     let result = {
       text,
       type: "switch",
       description,
       attributes: {},
+      props: {},
       getValue() {
-        return Boolean(PopsPanel.getValue(key, defaultValue));
+        return Boolean(
+          this.props[PROPS_STORAGE_API].get(key, defaultValue)
+        );
       },
-      callback(event, value) {
+      callback(event, __value) {
+        let value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        PopsPanel.setValue(key, Boolean(value));
+        this.props[PROPS_STORAGE_API].set(key, value);
       },
-      afterAddToUListCallBack: void 0
+      afterAddToUListCallBack
     };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
-    }
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
     return result;
   };
   const GreasyforkApi = {
@@ -1401,21 +1549,30 @@
       type: "select",
       description,
       attributes: {},
+      props: {},
       getValue() {
-        return PopsPanel.getValue(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(event, isSelectedValue, isSelectedText) {
-        PopsPanel.setValue(key, isSelectedValue);
+        let value = isSelectedValue;
+        log.info(`选择：${isSelectedText}`);
+        this.props[PROPS_STORAGE_API].set(key, value);
         if (typeof callback === "function") {
-          callback(event, isSelectedValue, isSelectedText);
+          callback(event, value, isSelectedText);
         }
       },
       data: selectData
     };
-    if (result.attributes) {
-      result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
-    }
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
     return result;
   };
   const UIButtonShortCut = function(text, description, key, defaultValue, defaultButtonText, buttonType = "default", shortCut) {
@@ -1439,14 +1596,14 @@
         let $click = event.target;
         let $btn = (_a2 = $click.closest(".pops-panel-button")) == null ? void 0 : _a2.querySelector("span");
         if (shortCut.isWaitPress) {
-          Qmsg.warning(i18next.t("请先执行当前的录入操作"));
+          Qmsg.warning("请先执行当前的录入操作");
           return;
         }
         if (shortCut.hasOptionValue(key)) {
           shortCut.emptyOption(key);
-          Qmsg.success(i18next.t("清空快捷键"));
+          Qmsg.success("清空快捷键");
         } else {
-          let loadingQmsg = Qmsg.loading(i18next.t("请按下快捷键..."), {
+          let loadingQmsg = Qmsg.loading("请按下快捷键...", {
             showClose: true
           });
           let {
@@ -1457,13 +1614,12 @@
           loadingQmsg.close();
           if (status) {
             log.success(["成功录入快捷键", option]);
-            Qmsg.success(i18next.t("成功录入"));
+            Qmsg.success("成功录入");
           } else {
             Qmsg.error(
-              i18next.t(`快捷键 {{key}} 已被 {{isUsedKey}} 占用`, {
-                key: shortCut.translateKeyboardValueToButtonText(option),
-                isUsedKey
-              })
+              `快捷键 ${shortCut.translateKeyboardValueToButtonText(
+              option
+            )} 已被 ${isUsedKey} 占用`
             );
           }
         }
@@ -2208,75 +2364,6 @@
     }
   };
   const beautifyVersionsPageCSS = 'ul.history_versions,\r\nul.history_versions li {\r\n	width: 100%;\r\n}\r\nul.history_versions li {\r\n	display: flex;\r\n	flex-direction: column;\r\n	margin: 25px 0px;\r\n}\r\n.diff-controls input[type="radio"]:nth-child(2) {\r\n	margin-left: 5px;\r\n}\r\n.flex-align-item-center {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n.script-tag {\r\n	margin-bottom: 8px;\r\n}\r\n.script-tag-version a {\r\n	color: #656d76;\r\n	fill: #656d76;\r\n	text-decoration: none;\r\n	width: fit-content;\r\n	width: -moz-fit-content;\r\n}\r\n.script-tag-version a:hover svg {\r\n	color: #00a3f5;\r\n	fill: #00a3f5;\r\n}\r\n.script-tag-version a > span {\r\n	margin-left: 0.25rem;\r\n}\r\n.script-note-box-body {\r\n	border-radius: 0.375rem;\r\n	border-style: solid;\r\n	border-width: max(1px, 0.0625rem);\r\n	border-color: #d0d7de;\r\n	color: #1f2328;\r\n	padding: 16px;\r\n	overflow-wrap: anywhere;\r\n}\r\n.script-note-box-body p {\r\n	margin-bottom: unset;\r\n}\r\n';
-  const CommonUtils = {
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args) {
-      let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
-      args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
-      });
-      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
-    },
-    /**
-     * 设置GM_getResourceText的style内容
-     * @param resourceMapData 资源数据
-     */
-    setGMResourceCSS(resourceMapData) {
-      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
-      if (typeof cssText === "string" && cssText) {
-        addStyle(cssText);
-      } else {
-        CommonUtils.addLinkNode(resourceMapData.url);
-      }
-    },
-    /**
-     * 添加<link>标签
-     * @param url
-     */
-    async addLinkNode(url2) {
-      let $link = document.createElement("link");
-      $link.rel = "stylesheet";
-      $link.type = "text/css";
-      $link.href = url2;
-      domUtils.ready(() => {
-        document.head.appendChild($link);
-      });
-      return $link;
-    },
-    /**
-     * 将url修复，例如只有search的链接/sss/xxx?sss=xxxx
-     * @param url 需要修复的链接
-     */
-    fixUrl(url2) {
-      url2 = url2.trim();
-      if (url2.match(/^http(s|):\/\//i)) {
-        return url2;
-      } else {
-        if (!url2.startsWith("/")) {
-          url2 += "/";
-        }
-        url2 = window.location.origin + url2;
-        return url2;
-      }
-    }
-  };
   const GreasyforkVersions = {
     init() {
       PopsPanel.execMenuOnce("beautifyHistoryVersionPage", () => {
@@ -2294,7 +2381,7 @@
       let result = [];
       result.push(_GM_addStyle(beautifyVersionsPageCSS));
       result.push(
-        CommonUtils.addBlockCSS(
+        CommonUtil.addBlockCSS(
           ".version-number",
           ".version-date",
           ".version-changelog"
@@ -5503,7 +5590,6 @@
             toHide: false
           }
         },
-        isMobile: this.isMobile(),
         width: PanelUISize.setting.width,
         height: PanelUISize.setting.height,
         drag: true,
@@ -5512,9 +5598,6 @@
 			${UIScriptListCSS}
 			`
       });
-    },
-    isMobile() {
-      return window.innerWidth < 550;
     },
     /**
      * 获取配置内容
@@ -5726,7 +5809,7 @@
       let result = [];
       result.push(_GM_addStyle(beautifyTopNavigationBarCSS));
       if (window.outerWidth > 550) {
-        result.push(CommonUtils.addBlockCSS(".with-submenu"));
+        result.push(CommonUtil.addBlockCSS(".with-submenu"));
         domUtils.ready(() => {
           let $siteNav = document.querySelector("#site-nav");
           let $siteNavNav = $siteNav.querySelector("nav");
@@ -5989,7 +6072,7 @@
      */
     changeConsoleToTopNavigator() {
       log.info("迁移【控制台】到顶部导航栏");
-      CommonUtils.addBlockCSS("#about-user");
+      CommonUtil.addBlockCSS("#about-user");
       domUtils.ready(() => {
         let $aboutUser = document.querySelector("#about-user");
         let $siteNav = document.querySelector("#site-nav nav");
@@ -6682,7 +6765,7 @@
             className: "github-tooltip",
             alwaysShow: true
           });
-          tooltip.toolTip.onAnimationFinishEvent();
+          tooltip.toolTip.onToolTipAnimationFinishEvent();
           setTimeout(() => {
             clipboardCopyElement.removeAttribute("success");
             octiconCheckCopyElement.setAttribute("aria-hidden", "true");
@@ -6793,7 +6876,7 @@
      */
     addOperationPanelBtnWithNavigator() {
       log.info("添加【操作面板】按钮");
-      CommonUtils.addBlockCSS(
+      CommonUtil.addBlockCSS(
         ".sidebarred .sidebar",
         ".sidebarred-main-content .open-sidebar"
       );

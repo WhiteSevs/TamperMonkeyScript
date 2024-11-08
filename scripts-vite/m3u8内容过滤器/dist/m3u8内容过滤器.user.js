@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         m3u8内容过滤器
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.6
+// @version      2024.11.8
 // @author       WhiteSevs
 // @description  自定义规则对网页中的m3u8的请求内容进行过滤
 // @license      GPL-3.0-only
@@ -9,11 +9,12 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @grant        GM_deleteValue
+// @grant        GM_getResourceText
 // @grant        GM_getValue
 // @grant        GM_info
 // @grant        GM_registerMenuCommand
@@ -32,6 +33,7 @@
   var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
   var _a;
   var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
+  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
   var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
@@ -720,38 +722,11 @@
             toHide: false
           }
         },
-        isMobile: this.isMobile(),
         width: PanelUISize.setting.width,
         height: PanelUISize.setting.height,
         drag: true,
         only: true
       });
-    },
-    /**
-     * 判断是否是移动端
-     */
-    isMobile() {
-      return window.innerWidth < 550;
-    },
-    /**
-     * 获取设置面板的宽度
-     */
-    getWidth() {
-      if (window.innerWidth < 550) {
-        return "92vw";
-      } else {
-        return "550px";
-      }
-    },
-    /**
-     * 获取设置面板的高度
-     */
-    getHeight() {
-      if (window.innerHeight < 450) {
-        return "80vh";
-      } else {
-        return "450px";
-      }
     },
     /**
      * 获取配置内容
@@ -854,6 +829,135 @@
       }
     }
   };
+  const CommonUtil = {
+    /**
+     * 添加屏蔽CSS
+     * @param args
+     * @example
+     * addBlockCSS("")
+     * addBlockCSS("","")
+     * addBlockCSS(["",""])
+     */
+    addBlockCSS(...args) {
+      let selectorList = [];
+      if (args.length === 0) {
+        return;
+      }
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+        return;
+      }
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    /**
+     * 设置GM_getResourceText的style内容
+     * @param resourceMapData 资源数据
+     * @example
+     * setGMResourceCSS({
+     *   keyName: "ViewerCSS",
+     *   url: "https://example.com/example.css",
+     *   devUrl: "viewerjs/dist/viewer.css",
+     * })
+     */
+    setGMResourceCSS(resourceMapData) {
+      {
+        let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+        if (typeof cssText === "string" && cssText) {
+          addStyle(cssText);
+        } else {
+          CommonUtil.loadStyleLink(resourceMapData.url);
+        }
+      }
+    },
+    /**
+     * 添加<link>标签
+     * @param url
+     * @example
+     * loadStyleLink("https://example.com/example.css")
+     */
+    async loadStyleLink(url) {
+      let $link = document.createElement("link");
+      $link.rel = "stylesheet";
+      $link.type = "text/css";
+      $link.href = url;
+      domUtils.ready(() => {
+        document.head.appendChild($link);
+      });
+    },
+    /**
+     * 添加<script>标签
+     * @param url
+     * @example
+     * loadStyleLink("https://example.com/example.js")
+     */
+    async loadScript(url) {
+      let $script = document.createElement("script");
+      $script.src = url;
+      return new Promise((resolve) => {
+        $script.onload = () => {
+          resolve(null);
+        };
+        (document.head || document.documentElement).appendChild($script);
+      });
+    },
+    /**
+     * 将url修复，例如只有search的链接修复为完整的链接
+     *
+     * 注意：不包括http转https
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：`/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`//xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     */
+    fixUrl(url) {
+      url = url.trim();
+      if (url.match(/^http(s|):\/\//i)) {
+        return url;
+      } else {
+        if (!url.startsWith("/")) {
+          url += "/";
+        }
+        url = window.location.origin + url;
+        return url;
+      }
+    },
+    /**
+     * http转https
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：
+     * 修复后：
+     * @example
+     * 修复前：
+     * 修复后：
+     */
+    fixHttps(url) {
+      if (url.startsWith("https://")) {
+        return url;
+      }
+      if (!url.startsWith("http://")) {
+        return url;
+      }
+      let urlObj = new URL(url);
+      urlObj.protocol = "https:";
+      return urlObj.toString();
+    }
+  };
   const _SCRIPT_NAME_ = "m3u8内容过滤器";
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
@@ -943,131 +1047,9 @@
     },
     setTimeout: _unsafeWindow.setTimeout
   });
-  utils.addStyle.bind(utils);
+  const addStyle = utils.addStyle.bind(utils);
   document.querySelector.bind(document);
   document.querySelectorAll.bind(document);
-  const CommonUtils = {
-    /**
-     * 把时长转为字符串文本
-     *
-     * @example
-     * 126
-     * > 02:06:00
-     */
-    duration2Text(duration) {
-      const hours = Math.floor(duration / 3600);
-      const minutes = Math.floor(duration % 3600 / 60);
-      const secs = parseInt((duration % 60).toString());
-      return [
-        hours.toString().padStart(2, "0"),
-        minutes.toString().padStart(2, "0"),
-        secs.toString().padStart(2, "0")
-      ].join(":");
-    },
-    /**
-     * 计算字符串的相似度
-     * @param sourceText 源文本
-     * @param targetText 比较文本
-     */
-    similar(sourceText, targetText) {
-      if (!sourceText || !targetText) {
-        return 0;
-      }
-      var l = sourceText.length > targetText.length ? sourceText.length : targetText.length;
-      var n = sourceText.length;
-      var m = targetText.length;
-      var d = [];
-      var min = function(a, b, c) {
-        return a < b ? a < c ? a : c : b < c ? b : c;
-      };
-      var i, j, si, tj, cost;
-      if (n === 0) return m;
-      if (m === 0) return n;
-      for (i = 0; i <= n; i++) {
-        d[i] = [];
-        d[i][0] = i;
-      }
-      for (j = 0; j <= m; j++) {
-        d[0][j] = j;
-      }
-      for (i = 1; i <= n; i++) {
-        si = sourceText.charAt(i - 1);
-        for (j = 1; j <= m; j++) {
-          tj = targetText.charAt(j - 1);
-          if (si === tj) {
-            cost = 0;
-          } else {
-            cost = 1;
-          }
-          d[i][j] = min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
-        }
-      }
-      let res = 1 - d[n][m] / l;
-      return res;
-    },
-    /**
-     * 添加<link>标签
-     * @param url
-     */
-    async addLinkNode(url) {
-      let $link = document.createElement("link");
-      $link.rel = "stylesheet";
-      $link.type = "text/css";
-      $link.href = url;
-      domUtils.ready(() => {
-        document.head.appendChild($link);
-      });
-    },
-    /**
-     * 将url修复，例如只有search的链接修复为
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：`/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`//xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     */
-    fixUrl(url) {
-      url = url.trim();
-      if (url.match(/^http(s|):\/\//i)) {
-        return url;
-      } else {
-        if (!url.startsWith("/")) {
-          url += "/";
-        }
-        url = window.location.origin + url;
-        return url;
-      }
-    },
-    /**
-     * http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：
-     * 修复后：
-     * @example
-     * 修复前：
-     * 修复后：
-     */
-    fixHttps(url) {
-      if (url.startsWith("https://")) {
-        return url;
-      }
-      if (!url.startsWith("http://")) {
-        return url;
-      }
-      let urlObj = new URL(url);
-      urlObj.protocol = "https:";
-      return urlObj.toString();
-    }
-  };
   const NetWorkHook = {
     get ajaxHooker() {
       if (this.__ajaxHooker == null) {
@@ -1077,7 +1059,7 @@
     },
     hook() {
       this.ajaxHooker.hook((request) => {
-        let url = CommonUtils.fixUrl(request.url);
+        let url = CommonUtil.fixUrl(request.url);
         try {
           let urlObj = new URL(url);
           let pathName = urlObj.pathname;
@@ -1800,6 +1782,66 @@
       editView.showView();
     }
   }
+  const M3U8Util = {
+    /**
+     * 把时长转为字符串文本
+     *
+     * @example
+     * 126
+     * > 02:06:00
+     */
+    duration2Text(duration) {
+      const hours = Math.floor(duration / 3600);
+      const minutes = Math.floor(duration % 3600 / 60);
+      const secs = parseInt((duration % 60).toString());
+      return [
+        hours.toString().padStart(2, "0"),
+        minutes.toString().padStart(2, "0"),
+        secs.toString().padStart(2, "0")
+      ].join(":");
+    },
+    /**
+     * 计算字符串的相似度
+     * @param sourceText 源文本
+     * @param targetText 比较文本
+     */
+    similar(sourceText, targetText) {
+      if (!sourceText || !targetText) {
+        return 0;
+      }
+      var l = sourceText.length > targetText.length ? sourceText.length : targetText.length;
+      var n = sourceText.length;
+      var m = targetText.length;
+      var d = [];
+      var min = function(a, b, c) {
+        return a < b ? a < c ? a : c : b < c ? b : c;
+      };
+      var i, j, si, tj, cost;
+      if (n === 0) return m;
+      if (m === 0) return n;
+      for (i = 0; i <= n; i++) {
+        d[i] = [];
+        d[i][0] = i;
+      }
+      for (j = 0; j <= m; j++) {
+        d[0][j] = j;
+      }
+      for (i = 1; i <= n; i++) {
+        si = sourceText.charAt(i - 1);
+        for (j = 1; j <= m; j++) {
+          tj = targetText.charAt(j - 1);
+          if (si === tj) {
+            cost = 0;
+          } else {
+            cost = 1;
+          }
+          d[i][j] = min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
+        }
+      }
+      let res = 1 - d[n][m] / l;
+      return res;
+    }
+  };
   const M3U8Menu = {
     /**
      * 添加已匹配到的规则数量
@@ -1940,7 +1982,7 @@
           if (findIndex != -1) {
             let adsSegmentInfo = adsSegmentIndexList[findIndex];
             log.info(
-              `通杀1：过滤广告片段 ==> 索引：${index + indexOffset} 文件名：${adsSegmentInfo.data.filePath} 开始：${CommonUtils.duration2Text(
+              `通杀1：过滤广告片段 ==> 索引：${index + indexOffset} 文件名：${adsSegmentInfo.data.filePath} 开始：${M3U8Util.duration2Text(
               adsSegmentInfo.data.startDuration
             )} 持续时长：${adsSegmentInfo.data.duration}s`
             );
@@ -2011,7 +2053,7 @@
         let iteratorSegmentsParseInfoList = segmentsParseInfoList;
         for (let iteratorIndex = 0; iteratorIndex < iteratorSegmentsParseInfoList.length; iteratorIndex++) {
           const compareSegmentInfo = iteratorSegmentsParseInfoList[iteratorIndex];
-          let similar = CommonUtils.similar(
+          let similar = M3U8Util.similar(
             segmentInfo.filePath,
             compareSegmentInfo.filePath
           );
@@ -2026,7 +2068,7 @@
         if (isAdsSegment) {
           isFilterSegmentsInfoList.push(segmentInfo);
           log.info(
-            `通杀2：过滤广告片段 ==> 索引：${segmentInfo.index} 文件名：${segmentInfo.filePath} 开始：${CommonUtils.duration2Text(
+            `通杀2：过滤广告片段 ==> 索引：${segmentInfo.index} 文件名：${segmentInfo.filePath} 开始：${M3U8Util.duration2Text(
             segmentInfo.startDuration
           )} 持续时长：${segmentInfo.duration}s`
           );

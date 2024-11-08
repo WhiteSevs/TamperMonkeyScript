@@ -1,5 +1,5 @@
 import { log, utils } from "@/env";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { M3U8Util } from "@/utils/M3U8Util";
 import { M3U8Menu } from "./M3U8Menu";
 import { M3U8Parser } from "./M3U8Parser";
 
@@ -131,7 +131,7 @@ export const M3U8Filter = {
 					log.info(
 						`通杀1：过滤广告片段 ==> 索引：${index + indexOffset} 文件名：${
 							adsSegmentInfo.data.filePath
-						} 开始：${CommonUtils.duration2Text(
+						} 开始：${M3U8Util.duration2Text(
 							adsSegmentInfo.data.startDuration
 						)} 持续时长：${adsSegmentInfo.data.duration}s`
 					);
@@ -241,7 +241,7 @@ export const M3U8Filter = {
 				iteratorIndex++
 			) {
 				const compareSegmentInfo = iteratorSegmentsParseInfoList[iteratorIndex];
-				let similar = CommonUtils.similar(
+				let similar = M3U8Util.similar(
 					segmentInfo.filePath,
 					compareSegmentInfo.filePath
 				);
@@ -267,7 +267,7 @@ export const M3U8Filter = {
 				log.info(
 					`通杀2：过滤广告片段 ==> 索引：${segmentInfo.index} 文件名：${
 						segmentInfo.filePath
-					} 开始：${CommonUtils.duration2Text(
+					} 开始：${M3U8Util.duration2Text(
 						segmentInfo.startDuration
 					)} 持续时长：${segmentInfo.duration}s`
 				);

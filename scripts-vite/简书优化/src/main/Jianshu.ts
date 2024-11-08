@@ -2,7 +2,7 @@ import ShieldCSS from "./shield.css?raw";
 import { PopsPanel } from "@/setting/setting";
 import { addStyle, log, utils } from "@/env";
 import { JianshuRouter } from "@/router/JianshuRouter";
-import { CommonUtils } from "@/utils/CommonUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 /**
  * 移除元素（未出现也可以等待出现）
@@ -61,7 +61,7 @@ const Jianshu = {
 		log.info("全文居中");
 		let result = [];
 		result.push(
-			CommonUtils.addBlockCSS("div[role=main] aside", "div._3Pnjry"),
+			CommonUtil.addBlockCSS("div[role=main] aside", "div._3Pnjry"),
 			addStyle(/*css*/ `
 			div[role=main] aside,
 			div._3Pnjry{
@@ -157,7 +157,7 @@ const Jianshu = {
 	 */
 	shieldRelatedArticles() {
 		log.info("屏蔽相关文章");
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'div[role="main"] > div > section:nth-child(2)'
 		);
 	},
@@ -166,7 +166,7 @@ const Jianshu = {
 	 */
 	shieldClientDialog() {
 		log.info("【屏蔽】客户端弹窗");
-		CommonUtils.addBlockCSS(
+		CommonUtil.addBlockCSS(
 			'div:has(>div[class*="-mask"]:not([class*="-mask-hidden"]) + div[tabindex="-1"][role="dialog"])'
 		);
 		utils
@@ -200,14 +200,14 @@ const Jianshu = {
 	 */
 	shieldUserComments() {
 		log.info("屏蔽评论区");
-		return CommonUtils.addBlockCSS("div#note-page-comment");
+		return CommonUtil.addBlockCSS("div#note-page-comment");
 	},
 	/**
 	 * 屏蔽底部推荐阅读
 	 */
 	shieldRecommendedReading() {
 		log.info("屏蔽底部推荐阅读");
-		return CommonUtils.addBlockCSS(
+		return CommonUtil.addBlockCSS(
 			'div[role="main"] > div > section:last-child'
 		);
 	},
@@ -216,14 +216,14 @@ const Jianshu = {
 	 */
 	shieldTopNav() {
 		log.info("【屏蔽】顶部导航栏");
-		return CommonUtils.addBlockCSS("header");
+		return CommonUtil.addBlockCSS("header");
 	},
 	/**
 	 * 【屏蔽】底部工具栏
 	 */
 	shieldBottomToolbar() {
 		log.info("【屏蔽】底部工具栏");
-		return CommonUtils.addBlockCSS("footer");
+		return CommonUtil.addBlockCSS("footer");
 	},
 };
 
