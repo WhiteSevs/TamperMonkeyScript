@@ -16,7 +16,7 @@ type FilterOption = {
 	 */
 	enable: boolean;
 	/**
-	 * 是否处理回复评论
+	 * 是否处理回复引用
 	 * @default false
 	 */
 	replyFlag: boolean;
@@ -74,6 +74,9 @@ export const MTCommentFilter = {
 		this.registerMenu();
 		if (Router.isPost()) {
 			let allData = this.getData();
+			if (!allData.enable) {
+				return;
+			}
 			let lockFn = new utils.LockFunction(() => {
 				this.runFilter(allData);
 			});
@@ -276,8 +279,14 @@ export const MTCommentFilter = {
 						enable_template
 					);
 
-				// 是否处理回复评论
-				let replyFlag_template = UISwitch("处理回复评论", "replyFlag", false);
+				// 是否处理回复引用
+				let replyFlag_template = UISwitch(
+					"处理回复引用",
+					"replyFlag",
+					false,
+					void 0,
+					"移除引用"
+				);
 				Reflect.set(
 					replyFlag_template.props!,
 					PROPS_STORAGE_API,
@@ -486,6 +495,10 @@ export const MTCommentFilter = {
             .pops-panel-textarea textarea{
                 height: 150px;
             }
+			.comiis_postli_top h2,
+			.comiis_postli_top .top_lev{
+				height: auto;
+			}
             `,
 		});
 		view.showView();

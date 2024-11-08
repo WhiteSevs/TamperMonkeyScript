@@ -37,7 +37,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (Qmsg, DOMUtils, Utils, pops, hljs, Viewer) {
+(function (Qmsg, DOMUtils, Utils, pops, Viewer, hljs) {
   'use strict';
 
   var __defProp = Object.defineProperty;
@@ -48,7 +48,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var require_entrance_001 = __commonJS({
-    "entrance-D_85adE6.js"(exports, module) {
+    "entrance-6DJZQap3.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -11907,6 +11907,9 @@
           this.registerMenu();
           if (Router.isPost()) {
             let allData = this.getData();
+            if (!allData.enable) {
+              return;
+            }
             let lockFn = new utils.LockFunction(() => {
               this.runFilter(allData);
             });
@@ -12044,7 +12047,13 @@
               let $enable = popsPanelContentUtils.createSectionContainerItem_switch(
                 enable_template
               );
-              let replyFlag_template = UISwitch("处理回复评论", "replyFlag", false);
+              let replyFlag_template = UISwitch(
+                "处理回复引用",
+                "replyFlag",
+                false,
+                void 0,
+                "移除引用"
+              );
               Reflect.set(
                 replyFlag_template.props,
                 PROPS_STORAGE_API,
@@ -12236,6 +12245,10 @@
             .pops-panel-textarea textarea{
                 height: 150px;
             }
+			.comiis_postli_top h2,
+			.comiis_postli_top .top_lev{
+				height: auto;
+			}
             `
             )
           });
@@ -13196,4 +13209,4 @@
   });
   require_entrance_001();
 
-})(Qmsg, DOMUtils, Utils, pops, hljs, Viewer);
+})(Qmsg, DOMUtils, Utils, pops, Viewer, hljs);
