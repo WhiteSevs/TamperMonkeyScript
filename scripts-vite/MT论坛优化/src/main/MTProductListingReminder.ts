@@ -7,7 +7,7 @@ import {
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
 } from "@/setting/config";
-import { ElementUtils } from "@/utils/ElementUtils";
+import { MTElementUtil } from "@/utils/MTElementUtil";
 import { RuleView } from "@/utils/RuleView";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";

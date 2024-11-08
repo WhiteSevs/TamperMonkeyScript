@@ -1,19 +1,19 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.7
+// @version      2024.11.8
 // @author       WhiteSevs
-// @description  MT论坛效果增强，如自动签到、自动展开帖子等
+// @description  MT论坛效果增强，如自动签到、自动展开帖子、用户状态查看、美化导航、动态头像上传、最新发表、评论过滤器等
 // @license      GPL-3.0-only
 // @icon         data:image/png;base64,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
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.4.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.10.0/highlight.min.js
 // @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.10.0/styles/github-dark.min.css
@@ -32,7 +32,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(a=>{if(typeof GM_addStyle=="function"){GM_addStyle(a);return}function t(d){let e=document.createElement("style");return e.innerHTML=d,document.head?document.head.appendChild(e):document.documentElement.appendChild(e),e}t(a)})(" .pls .avatar img,.avtm img{border-radius:10%}.pls .avatar img{--avatar-size: 90px;width:var(--avatar-size);height:var(--avatar-size)} ");
+(t=>{function n(d){if(typeof d!="string")throw new TypeError("cssText must be a string");let e=document.createElement("style");return e.setAttribute("type","text/css"),e.innerHTML=d,document.head?document.head.appendChild(e):document.body?document.body.appendChild(e):document.documentElement.childNodes.length===0?document.documentElement.appendChild(e):document.documentElement.insertBefore(e,document.documentElement.childNodes[0]),e}if(typeof GM_addStyle=="function"){GM_addStyle(t);return}n(t)})(" .pls .avatar img,.avtm img{border-radius:10%}.pls .avatar img{--avatar-size: 90px;width:var(--avatar-size);height:var(--avatar-size)} ");
 
 (function (Qmsg, DOMUtils, Utils, pops, hljs, Viewer) {
   'use strict';
@@ -45,7 +45,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
   var require_entrance_001 = __commonJS({
-    "entrance-Dj465F-Z.js"(exports, module) {
+    "entrance-BLnpYkN0.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -142,7 +142,7 @@
           }
         }
       };
-      const CommonUtils = {
+      const CommonUtil = {
         /**
          * 添加屏蔽CSS
          * @param args
@@ -166,25 +166,35 @@
               selectorList.push(selector);
             }
           });
-          addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+          return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
         },
         /**
          * 设置GM_getResourceText的style内容
          * @param resourceMapData 资源数据
+         * @example
+         * setGMResourceCSS({
+         *   keyName: "ViewerCSS",
+         *   url: "https://example.com/example.css",
+         *   devUrl: "viewerjs/dist/viewer.css",
+         * })
          */
         setGMResourceCSS(resourceMapData) {
-          let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
-          if (typeof cssText === "string" && cssText) {
-            addStyle(cssText);
-          } else {
-            CommonUtils.addLinkNode(resourceMapData.url);
+          {
+            let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+            if (typeof cssText === "string" && cssText) {
+              addStyle(cssText);
+            } else {
+              CommonUtil.loadStyleLink(resourceMapData.url);
+            }
           }
         },
         /**
          * 添加<link>标签
          * @param url
+         * @example
+         * loadStyleLink("https://example.com/example.css")
          */
-        async addLinkNode(url) {
+        async loadStyleLink(url) {
           let $link = document.createElement("link");
           $link.rel = "stylesheet";
           $link.type = "text/css";
@@ -194,7 +204,25 @@
           });
         },
         /**
-         * 将url修复，例如只有search的链接修复为
+         * 添加<script>标签
+         * @param url
+         * @example
+         * loadStyleLink("https://example.com/example.js")
+         */
+        async loadScript(url) {
+          let $script = document.createElement("script");
+          $script.src = url;
+          return new Promise((resolve) => {
+            $script.onload = () => {
+              resolve(null);
+            };
+            (document.head || document.documentElement).appendChild($script);
+          });
+        },
+        /**
+         * 将url修复，例如只有search的链接修复为完整的链接
+         *
+         * 注意：不包括http转https
          * @param url 需要修复的链接
          * @example
          * 修复前：`/xxx/xxx?ss=ssss`
@@ -908,10 +936,10 @@
       });
       const addStyle = utils.addStyle.bind(utils);
       {
-        CommonUtils.setGMResourceCSS(GM_RESOURCE_MAP.Viewer);
+        CommonUtil.setGMResourceCSS(GM_RESOURCE_MAP.Viewer);
       }
       {
-        CommonUtils.setGMResourceCSS(GM_RESOURCE_MAP.Hljs);
+        CommonUtil.setGMResourceCSS(GM_RESOURCE_MAP.Hljs);
       }
       const $ = document.querySelector.bind(document);
       const $$ = document.querySelectorAll.bind(document);
@@ -2088,6 +2116,29 @@
           }
         ]
       };
+      const PanelUISize = {
+        /**
+         * 一般设置界面的尺寸
+         */
+        setting: {
+          width: window.innerWidth < 550 ? "88vw" : "550px",
+          height: window.innerHeight < 450 ? "70vh" : "450px"
+        },
+        /**
+         * 功能丰富，aside铺满了的设置界面，要稍微大一点
+         */
+        settingBig: {
+          width: window.innerWidth < 800 ? "92vw" : "800px",
+          height: window.innerHeight < 600 ? "80vh" : "600px"
+        },
+        /**
+         * 信息界面，一般用于提示信息之类
+         */
+        info: {
+          width: window.innerWidth < 350 ? "350px" : "350px",
+          height: window.innerHeight < 250 ? "250px" : "250px"
+        }
+      };
       const PopsPanel = {
         /** 数据 */
         $data: {
@@ -2547,38 +2598,11 @@
                 toHide: false
               }
             },
-            isMobile: true,
-            width: this.getWidth(),
-            height: this.getHeight(),
+            width: PanelUISize.setting.width,
+            height: PanelUISize.setting.height,
             drag: true,
             only: true
           });
-        },
-        /**
-         * 判断是否是移动端
-         */
-        isMobile() {
-          return window.innerWidth < 550;
-        },
-        /**
-         * 获取设置面板的宽度
-         */
-        getWidth() {
-          if (window.innerWidth < 550) {
-            return "88vw";
-          } else {
-            return "550px";
-          }
-        },
-        /**
-         * 获取设置面板的高度
-         */
-        getHeight() {
-          if (window.innerHeight > 450) {
-            return "450px";
-          } else {
-            return "88vh";
-          }
         },
         /**
          * 获取配置内容
@@ -3805,6 +3829,9 @@
           this.registerMenu();
           if (Router.isPost()) {
             let allData = this.getData();
+            if (!allData.enable) {
+              return;
+            }
             let lockFn = new utils.LockFunction(() => {
               this.runFilter(allData);
             });
@@ -3867,13 +3894,14 @@
               userName: ((_a2 = item.querySelector(".pls .authi a")) == null ? void 0 : _a2.innerText) || "",
               userUID: ((_e = (_d = (_c = (_b = item.querySelector(".pls .authi a")) == null ? void 0 : _b.href) == null ? void 0 : _c.match(MTRegExp.uid)) == null ? void 0 : _d[1]) == null ? void 0 : _e.trim()) || "",
               content: ((_g = (_f = item.querySelector(".plc td.t_f")) == null ? void 0 : _f.innerText) == null ? void 0 : _g.trim()) || "",
-              isAuthor: Boolean(item.querySelector("span.top_lev"))
+              // PC端无法实现
+              isAuthor: false
             };
             if (isWhiteListUser(postForumInfo)) {
               return;
             }
-            if (filterData["replyFlag"] && item.querySelector(".comiis_quote")) {
-              let comiis_quote_Element = item.querySelector(".comiis_quote");
+            if (filterData["replyFlag"] && item.querySelector(".quote")) {
+              let comiis_quote_Element = item.querySelector(".quote");
               this.$el.isFilterElementHTML.push(comiis_quote_Element.outerHTML);
               comiis_quote_Element.remove();
             }
@@ -3946,7 +3974,13 @@
               let $enable = popsPanelContentUtils.createSectionContainerItem_switch(
                 enable_template
               );
-              let replyFlag_template = UISwitch("处理回复评论", "replyFlag", false);
+              let replyFlag_template = UISwitch(
+                "处理回复引用",
+                "replyFlag",
+                false,
+                void 0,
+                "移除引用"
+              );
               Reflect.set(
                 replyFlag_template.props,
                 PROPS_STORAGE_API,

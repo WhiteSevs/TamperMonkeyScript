@@ -14,10 +14,11 @@ import {
 } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
-import { ElementUtils } from "@/utils/ElementUtils";
+import { MTElementUtil } from "@/utils/MTElementUtil";
 import { Component_ForumPost } from "./components/post";
 import { Component_Sign } from "./components/sign";
 import { Component_Guide } from "./components/guide";
+import { PanelUISize } from "./panel-ui-size";
 
 type PosPanelListenerData = {
 	id: number;
@@ -580,38 +581,11 @@ export const PopsPanel = {
 					toHide: false,
 				},
 			},
-			isMobile: true,
-			width: this.getWidth(),
-			height: this.getHeight(),
+			width: PanelUISize.setting.width,
+			height: PanelUISize.setting.height,
 			drag: true,
 			only: true,
 		});
-	},
-	/**
-	 * 判断是否是移动端
-	 */
-	isMobile() {
-		return window.innerWidth < 550;
-	},
-	/**
-	 * 获取设置面板的宽度
-	 */
-	getWidth() {
-		if (window.innerWidth < 550) {
-			return "88vw";
-		} else {
-			return "550px";
-		}
-	},
-	/**
-	 * 获取设置面板的高度
-	 */
-	getHeight() {
-		if (window.innerHeight > 450) {
-			return "450px";
-		} else {
-			return "88vh";
-		}
 	},
 	/**
 	 * 获取配置内容

@@ -1,7 +1,7 @@
 import { addStyle, DOMUtils } from "@/env";
 import { GM_getResourceText } from "ViteGM";
 
-export const CommonUtils = {
+export const CommonUtil = {
 	/**
 	 * 添加屏蔽CSS
 	 * @param args
@@ -29,28 +29,60 @@ export const CommonUtils = {
 				selectorList.push(selector);
 			}
 		});
-		addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+		return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
 	},
 	/**
 	 * 设置GM_getResourceText的style内容
 	 * @param resourceMapData 资源数据
+	 * @example
+	 * setGMResourceCSS({
+	 *   keyName: "ViewerCSS",
+	 *   url: "https://example.com/example.css",
+	 *   devUrl: "viewerjs/dist/viewer.css",
+	 * })
 	 */
-	setGMResourceCSS(resourceMapData: { keyName: string; url: string }) {
-		let cssText =
-			typeof GM_getResourceText === "function"
-				? GM_getResourceText(resourceMapData.keyName)
-				: "";
-		if (typeof cssText === "string" && cssText) {
-			addStyle(cssText);
+	setGMResourceCSS(resourceMapData: {
+		/** 使用@resource定义的名字 */
+		keyName: string;
+		/** 使用@resource引用的地址 */
+		url: string;
+		/** 开发时的库的CSS地址 */
+		devUrl?: string;
+	}) {
+		if (import.meta.hot && typeof resourceMapData.devUrl === "string") {
+			// 当前是开发环境，使用devUrl
+			let devUrl = resourceMapData.devUrl;
+			if (devUrl.endsWith(".css")) {
+				devUrl += "?raw";
+			}
+			import(devUrl)
+				.then((cssText) => {
+					addStyle(cssText);
+				})
+				.catch((error) => {
+					console.error(error);
+					Reflect.deleteProperty(resourceMapData, "devUrl");
+					this.setGMResourceCSS(resourceMapData);
+				});
 		} else {
-			CommonUtils.addLinkNode(resourceMapData.url);
+			let cssText =
+				typeof GM_getResourceText === "function"
+					? GM_getResourceText(resourceMapData.keyName)
+					: "";
+			if (typeof cssText === "string" && cssText) {
+				addStyle(cssText);
+			} else {
+				CommonUtil.loadStyleLink(resourceMapData.url);
+			}
 		}
 	},
 	/**
 	 * 添加<link>标签
 	 * @param url
+	 * @example
+	 * loadStyleLink("https://example.com/example.css")
 	 */
-	async addLinkNode(url: string) {
+	async loadStyleLink(url: string) {
 		let $link = document.createElement("link");
 		$link.rel = "stylesheet";
 		$link.type = "text/css";
@@ -60,7 +92,25 @@ export const CommonUtils = {
 		});
 	},
 	/**
-	 * 将url修复，例如只有search的链接修复为
+	 * 添加<script>标签
+	 * @param url
+	 * @example
+	 * loadStyleLink("https://example.com/example.js")
+	 */
+	async loadScript(url: string) {
+		let $script = document.createElement("script");
+		$script.src = url;
+		return new Promise<null>((resolve) => {
+			$script.onload = () => {
+				resolve(null);
+			};
+			(document.head || document.documentElement).appendChild($script);
+		});
+	},
+	/**
+	 * 将url修复，例如只有search的链接修复为完整的链接
+	 *
+	 * 注意：不包括http转https
 	 * @param url 需要修复的链接
 	 * @example
 	 * 修复前：`/xxx/xxx?ss=ssss`

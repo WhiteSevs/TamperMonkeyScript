@@ -4,7 +4,7 @@ import { UIInput } from "@/setting/common-components/ui-input";
 import { UISwitch } from "@/setting/common-components/ui-switch";
 import { UITextArea } from "@/setting/common-components/ui-textarea";
 import { PROPS_STORAGE_API } from "@/setting/config";
-import { ElementUtils } from "@/utils/ElementUtils";
+import { MTElementUtil } from "@/utils/MTElementUtil";
 import { MTRegExp } from "@/utils/MTRegExp";
 import { RuleEditView } from "@/utils/RuleEditView";
 import { GM_getValue, GM_setValue } from "ViteGM";
@@ -16,7 +16,7 @@ type FilterOption = {
 	 */
 	enable: boolean;
 	/**
-	 * 是否处理回复评论
+	 * 是否处理回复引用
 	 * @default false
 	 */
 	replyFlag: boolean;
@@ -74,6 +74,9 @@ export const MTCommentFilter = {
 		this.registerMenu();
 		if (Router.isPost()) {
 			let allData = this.getData();
+			if (!allData.enable) {
+				return;
+			}
 			let lockFn = new utils.LockFunction(() => {
 				this.runFilter(allData);
 			});
@@ -158,16 +161,16 @@ export const MTCommentFilter = {
 				content:
 					item.querySelector<HTMLElement>(".plc td.t_f")?.innerText?.trim() ||
 					"",
-				isAuthor: Boolean(item.querySelector<HTMLElement>("span.top_lev")),
+				// PC端无法实现
+				isAuthor: false,
 			};
 			/* 判断是否是白名单用户 */
 			if (isWhiteListUser(postForumInfo)) {
 				return;
 			}
 			/* 如果是回复评论则去除别人的回复 */
-			if (filterData["replyFlag"] && item.querySelector(".comiis_quote")) {
-				let comiis_quote_Element =
-					item.querySelector<HTMLElement>(".comiis_quote")!;
+			if (filterData["replyFlag"] && item.querySelector(".quote")) {
+				let comiis_quote_Element = item.querySelector<HTMLElement>(".quote")!;
 				this.$el.isFilterElementHTML.push(comiis_quote_Element.outerHTML);
 				comiis_quote_Element.remove();
 			}
@@ -277,8 +280,14 @@ export const MTCommentFilter = {
 						enable_template
 					);
 
-				// 是否处理回复评论
-				let replyFlag_template = UISwitch("处理回复评论", "replyFlag", false);
+				// 是否处理回复引用
+				let replyFlag_template = UISwitch(
+					"处理回复引用",
+					"replyFlag",
+					false,
+					void 0,
+					"移除引用"
+				);
 				Reflect.set(
 					replyFlag_template.props!,
 					PROPS_STORAGE_API,
@@ -454,7 +463,7 @@ export const MTCommentFilter = {
 							mask: {
 								enable: true,
 							},
-							style: /*css*/`
+							style: /*css*/ `
 							.plhin{
 								width: 100%;
 							}

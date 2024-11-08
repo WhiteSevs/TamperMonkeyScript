@@ -16,7 +16,7 @@ import Utils from "@whitesev/utils";
 import { PopsPanel } from "./setting/setting";
 import { HttpxCookieManager } from "./utils/HttpxCookieManager";
 import pops from "@whitesev/pops";
-import { CommonUtils } from "./utils/CommonUtils";
+import { CommonUtil } from "./utils/CommonUtil";
 import { GM_RESOURCE_MAP } from "./GM_Resource_Map";
 import "@lib/js-watermark";
 
@@ -149,14 +149,14 @@ if (import.meta.env.DEV) {
 		addStyle(cssText.default);
 	});
 } else {
-	CommonUtils.setGMResourceCSS(GM_RESOURCE_MAP.Viewer);
+	CommonUtil.setGMResourceCSS(GM_RESOURCE_MAP.Viewer);
 }
 if (import.meta.env.DEV) {
 	import("highlight.js/styles/github-dark.min.css?raw").then((cssText) => {
 		addStyle(cssText.default);
 	});
 } else {
-	CommonUtils.setGMResourceCSS(GM_RESOURCE_MAP.Hljs);
+	CommonUtil.setGMResourceCSS(GM_RESOURCE_MAP.Hljs);
 }
 
 const $ = document.querySelector.bind(document);

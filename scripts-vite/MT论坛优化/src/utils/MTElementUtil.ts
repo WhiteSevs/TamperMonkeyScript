@@ -1,6 +1,6 @@
 import { DOMUtils, log, utils } from "@/env";
 
-export const ElementUtils = {
+export const MTElementUtil = {
 	/**
 	 * 在左侧菜单注册功能
 	 */
