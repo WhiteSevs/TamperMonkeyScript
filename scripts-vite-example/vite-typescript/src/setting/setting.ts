@@ -86,17 +86,18 @@ export const PopsPanel = {
 		},
 	},
 	init() {
-		this.initPanelDefaultValue();
-		this.initExtensionsMenu();
+		let contentConfigList = this.getPanelContentConfig();
+		this.initPanelConfigDefaultValue([...contentConfigList]);
+		this.registerMenu();
 	},
 	/** 判断是否是顶层窗口 */
 	isTopWindow() {
 		return unsafeWindow.top === unsafeWindow.self;
 	},
 	/** 初始化进行注册油猴菜单 */
-	initExtensionsMenu() {
+	registerMenu() {
+		/* 不允许在iframe内重复注册 */
 		if (!this.isTopWindow()) {
-			/* 不允许在iframe内重复注册 */
 			return;
 		}
 		GM_Menu.add([
@@ -115,7 +116,7 @@ export const PopsPanel = {
 		]);
 	},
 	/** 初始化菜单项的默认值保存到本地数据中 */
-	initPanelDefaultValue() {
+	initPanelConfigDefaultValue(contentConfigList: PopsPanelContentConfig[]) {
 		let that = this;
 		/**
 		 * 设置默认值
@@ -177,7 +178,6 @@ export const PopsPanel = {
 				}
 			}
 		}
-		let contentConfigList = this.getPanelContentConfig();
 		for (let index = 0; index < contentConfigList.length; index++) {
 			let leftContentConfigItem = contentConfigList[index];
 			if (!leftContentConfigItem.forms) {

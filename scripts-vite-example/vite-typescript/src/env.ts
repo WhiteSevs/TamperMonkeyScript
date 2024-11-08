@@ -15,10 +15,11 @@ import DOMUtils from "@whitesev/domutils";
 import Utils from "@whitesev/utils";
 import pops from "@whitesev/pops";
 import { PopsPanel } from "./setting/setting";
-import { HttpxCookieManager } from "./utils/HttpxCookieManager";
+import { httpxCookieManager } from "./utils/HttpxCookieManager";
 import { CommonUtil } from "./utils/CommonUtil";
 import { GM_RESOURCE_MAPPING } from "./GM_Resource_Mapping";
 import { createApp } from "vue";
+import { PanelSettingConfig } from "./setting/panel-setting-config";
 
 /**
  * 脚本名
@@ -62,17 +63,26 @@ Qmsg.config(
 		{
 			position: {
 				get() {
-					return PopsPanel.getValue("qmsg-config-position", "bottom");
+					return PopsPanel.getValue(
+						PanelSettingConfig.qmsg_config_position.key,
+						PanelSettingConfig.qmsg_config_position.defaultValue
+					);
 				},
 			},
 			maxNums: {
 				get() {
-					return PopsPanel.getValue("qmsg-config-maxnums", 5);
+					return PopsPanel.getValue(
+						PanelSettingConfig.qmsg_config_maxnums.key,
+						PanelSettingConfig.qmsg_config_maxnums.defaultValue
+					);
 				},
 			},
 			showReverse: {
 				get() {
-					return PopsPanel.getValue("qmsg-config-showreverse", true);
+					return PopsPanel.getValue(
+						PanelSettingConfig.qmsg_config_showreverse.key,
+						PanelSettingConfig.qmsg_config_showreverse.defaultValue
+					);
 				},
 			},
 			zIndex: {
@@ -99,7 +109,7 @@ const httpx = new utils.Httpx(GM_xmlhttpRequest);
 
 // 添加请求拦截器
 httpx.interceptors.request.use((data) => {
-	HttpxCookieManager.handle(data);
+	httpxCookieManager.handle(data);
 	return data;
 });
 

@@ -1,4 +1,5 @@
 import { log, utils } from "@/env";
+import { PanelSettingConfig } from "@/setting/panel-setting-config";
 import { PopsPanel } from "@/setting/setting";
 import type { HttpxRequestOption } from "@whitesev/utils/dist/types/src/types/Httpx";
 
@@ -9,26 +10,49 @@ interface HttpxCookieManagerRule {
 	hostname: RegExp | string;
 }
 
-export const HttpxCookieManager = {
-	$data: {
+class HttpxCookieManager {
+	$data = {
 		/** 是否启用 */
 		get enable() {
-			return PopsPanel.getValue<boolean>("httpx-use-cookie-enable");
+			return PopsPanel.getValue<boolean>(
+				PanelSettingConfig.httpx_cookie_manager_enable.key,
+				PanelSettingConfig.httpx_cookie_manager_enable.defaultValue
+			);
 		},
-		/** 是否使用document.cookie */
+		/**
+		 * 是否使用document.cookie
+		 * + true 使用document.cookie额外添加cookie的header
+		 */
 		get useDocumentCookie() {
-			return PopsPanel.getValue<boolean>("httpx-use-document-cookie");
+			return PopsPanel.getValue<boolean>(
+				PanelSettingConfig.httpx_cookie_manager_use_document_cookie.key,
+				PanelSettingConfig.httpx_cookie_manager_use_document_cookie.defaultValue
+			);
 		},
 		/**
 		 * cookie规则，在这里填入
 		 * @example
 		 * {
-		 *     key: "",
-		 *     hostname: "",
+		 *     key: "cookie-example-com",
+		 *     hostname: "example.com",
 		 * }
 		 */
 		cookieRule: <HttpxCookieManagerRule[]>[],
-	},
+	};
+	/**
+	 * cookie规则，在这里填入
+	 * @param cookieRule
+	 * @example
+	 * {
+	 *     key: "cookie-example-com",
+	 *     hostname: "example.com",
+	 * }
+	 */
+	constructor(cookieRule: HttpxCookieManagerRule[]) {
+		if (Array.isArray(cookieRule)) {
+			this.$data.cookieRule = cookieRule;
+		}
+	}
 	/**
 	 * 补充cookie末尾分号
 	 */
@@ -38,7 +62,7 @@ export const HttpxCookieManager = {
 			str += ";";
 		}
 		return str;
-	},
+	}
 	/**
 	 * 合并两个cookie
 	 */
@@ -53,7 +77,7 @@ export const HttpxCookieManager = {
 			newCookie = newCookie.substring(1);
 		}
 		return targetCookie.concat(newCookie);
-	},
+	}
 	/**
 	 * 处理cookie
 	 * @param details
@@ -119,5 +143,7 @@ export const HttpxCookieManager = {
 			// 删除该设置
 			delete details.headers.Cookie;
 		}
-	},
-};
+	}
+}
+
+export const httpxCookieManager = new HttpxCookieManager([]);

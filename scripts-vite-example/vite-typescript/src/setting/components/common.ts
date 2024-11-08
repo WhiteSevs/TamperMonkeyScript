@@ -3,6 +3,7 @@ import { UISwitch } from "../common-components/ui-switch";
 import { UITextArea } from "../common-components/ui-textarea";
 import { UISelect } from "../common-components/ui-select";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { PanelSettingConfig } from "../panel-setting-config";
 
 export const Component_Common: PopsPanelContentConfig = {
 	id: "component-common",
@@ -14,8 +15,8 @@ export const Component_Common: PopsPanelContentConfig = {
 			forms: [
 				UISelect(
 					"Toast位置",
-					"qmsg-config-position",
-					"bottom",
+					PanelSettingConfig.qmsg_config_position.key,
+					PanelSettingConfig.qmsg_config_position.defaultValue,
 					[
 						{
 							value: "topleft",
@@ -61,8 +62,8 @@ export const Component_Common: PopsPanelContentConfig = {
 				),
 				UISelect(
 					"最多显示的数量",
-					"qmsg-config-maxnums",
-					3,
+					PanelSettingConfig.qmsg_config_maxnums.key,
+					PanelSettingConfig.qmsg_config_maxnums.defaultValue,
 					[
 						{
 							value: 1,
@@ -90,8 +91,8 @@ export const Component_Common: PopsPanelContentConfig = {
 				),
 				UISwitch(
 					"逆序弹出",
-					"qmsg-config-showreverse",
-					false,
+					PanelSettingConfig.qmsg_config_showreverse.key,
+					PanelSettingConfig.qmsg_config_showreverse.defaultValue,
 					void 0,
 					"修改Toast弹出的顺序"
 				),
@@ -103,15 +104,16 @@ export const Component_Common: PopsPanelContentConfig = {
 			forms: [
 				UISwitch(
 					"启用",
-					"httpx-use-cookie-enable",
-					false,
+					PanelSettingConfig.httpx_cookie_manager_enable.key,
+					PanelSettingConfig.httpx_cookie_manager_enable.defaultValue,
 					void 0,
 					"启用后，将根据下面的配置进行添加cookie"
 				),
 				UISwitch(
 					"使用document.cookie",
-					"httpx-use-document-cookie",
-					false,
+					PanelSettingConfig.httpx_cookie_manager_use_document_cookie.key,
+					PanelSettingConfig.httpx_cookie_manager_use_document_cookie
+						.defaultValue,
 					void 0,
 					"自动根据请求的域名来设置对应的cookie"
 				),

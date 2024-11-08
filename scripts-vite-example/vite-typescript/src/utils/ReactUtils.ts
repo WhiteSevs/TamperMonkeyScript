@@ -1,4 +1,4 @@
-import { DOMUtils, log, utils } from "@/env";
+import { log, utils } from "@/env";
 
 /** react在元素上储存的对象 */
 type ReactInstance = {
