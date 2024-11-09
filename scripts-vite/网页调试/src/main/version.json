@@ -1,0 +1,26 @@
+{
+  "eruda": {
+    "version": "3.4.0",
+    "plugin": {
+      "eruda-monitor": "1.1.1",
+      "eruda-features": "2.1.0",
+      "eruda-timing": "2.0.1",
+      "eruda-code": "2.2.0",
+      "eruda-benchmark": "2.0.1",
+      "eruda-orientation": "2.1.1",
+      "eruda-vue": "1.1.1",
+      "eruda-touches": "2.1.0",
+      "eruda-outline-plugin": "0.0.5",
+      "eruda-pixel": "1.0.13"
+    }
+  },
+  "vconsole": {
+    "version": "3.15.1",
+    "plugin": {
+      "vue-vconsole-devtools": "1.0.9"
+    }
+  },
+  "@huolala-tech/page-spy-browser": {
+    "version": "1.9.14"
+  }
+}

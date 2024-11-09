@@ -1,0 +1,193 @@
+import { pops, utils } from "@/env";
+import { ToolsConfig } from "@/main/ToolsConfig";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { UIButton } from "../common-components/ui-button";
+import { UISwitch } from "../common-components/ui-switch";
+import { UIInput } from "../common-components/ui-input";
+import { PanelUISize } from "../panel-ui-size";
+import { UISelect } from "../common-components/ui-select";
+import { PanelSettingConfig } from "../panel-setting-config";
+
+export const PanelUI_pagespy: PopsPanelContentConfig = {
+	id: "debug-panel-config-pagespy",
+	title: "PageSpy",
+	headerTitle: `<a href='${ToolsConfig.pageSpy.settingDocUrl}' target='_blank'>PageSpy设置</a>`,
+	forms: [
+		{
+			text: "功能",
+			type: "forms",
+			forms: [
+				{
+					text: "注意！隐私保护！",
+					type: "button",
+					buttonType: "danger",
+					buttonText: "了解详情",
+					callback(event) {
+						pops.confirm({
+							title: {
+								text: "提示",
+								position: "center",
+							},
+							content: {
+								text: `下面默认配置的${ToolsConfig.pageSpy.defaultConfig.api}是仅供测试使用的，其他人也可以看到你的调试信息，包括Cookie等信息，如果想用，请自己搭建一个调试端`,
+							},
+							btn: {
+								reverse: true,
+								position: "end",
+								ok: {
+									text: "前往了解更多",
+									callback() {
+										window.open(
+											"https://github.com/HuolalaTech/page-spy-web/wiki/%F0%9F%90%9E-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E8%A7%A3%E7%AD%94#user-content-testjikejishucom-%E6%98%AF%E5%AE%98%E6%96%B9%E6%8F%90%E4%BE%9B%E7%9A%84%E5%9F%9F%E5%90%8D%E5%90%97%E4%B8%80%E7%9B%B4%E5%8F%AF%E4%BB%A5%E7%94%A8%E5%90%97",
+											"_blank"
+										);
+									},
+								},
+							},
+							mask: {
+								enable: true,
+							},
+							width: PanelUISize.info.width,
+							height: PanelUISize.info.height,
+						});
+					},
+				},
+				UIButton(
+					"当前版本",
+					"",
+					ToolsConfig.pageSpy.version,
+					void 0,
+					false,
+					false,
+					"primary",
+					(event) => {
+						utils.preventEvent(event);
+						window.open(ToolsConfig.pageSpy.homeUrl, "_blank");
+					}
+				),
+				{
+					type: "own",
+					getLiElementCallBack(liElement) {
+						let $left = document.createElement("div");
+						$left.className = "pops-panel-item-left-text";
+						$left.innerHTML = /*html*/ `
+                            <p class="pops-panel-item-left-main-text">最新版本</p>
+                        `;
+						let $right = document.createElement("div");
+						$right.className = "pops-panel-item-right-text";
+						$right.innerHTML = /*html*/ `
+                        <a href="${ToolsConfig.pageSpy.homeUrl}" target="_blank">
+                            <img src="https://img.shields.io/npm/v/@huolala-tech/page-spy-browser?label=page-spy-browser" alt="page-spy-browser">
+                        </a>
+                        `;
+						liElement.appendChild($left);
+						liElement.appendChild($right);
+						return liElement;
+					},
+				},
+				UISwitch(
+					"禁止在调试端运行",
+					PanelSettingConfig.pagespy_disable_run_in_debug_client.key,
+					PanelSettingConfig.pagespy_disable_run_in_debug_client.defaultValue,
+					void 0,
+					"调试端是下面配置的api/clientOrigin地址"
+				),
+			],
+		},
+		{
+			text: "配置",
+			type: "forms",
+			forms: [
+				UIInput(
+					"api",
+					PanelSettingConfig.pagespy_api.key,
+					PanelSettingConfig.pagespy_api.defaultValue,
+					"",
+					void 0,
+					"服务器地址的 Host"
+				),
+				UIInput(
+					"clientOrigin",
+					PanelSettingConfig.pagespy_clientOrigin.key,
+					PanelSettingConfig.pagespy_clientOrigin.defaultValue,
+					"",
+					void 0,
+					"服务器地址的 Origin"
+				),
+				UIInput(
+					"project",
+					PanelSettingConfig.pagespy_project.key,
+					PanelSettingConfig.pagespy_project.defaultValue,
+					void 0,
+					void 0,
+					"项目名称"
+				),
+				UIInput(
+					"title",
+					PanelSettingConfig.pagespy_title.key,
+					PanelSettingConfig.pagespy_title.defaultValue,
+					void 0,
+					void 0,
+					"自定义标题"
+				),
+				UISwitch(
+					"autoRender",
+					PanelSettingConfig.pagespy_autoRender.key,
+					PanelSettingConfig.pagespy_autoRender.defaultValue,
+					void 0,
+					"自动渲染「圆形白底带 Logo」"
+				),
+				UISelect(
+					"enableSSL",
+					PanelSettingConfig.pagespy_enableSSL.key,
+					PanelSettingConfig.pagespy_enableSSL.defaultValue,
+					[
+						{
+							value: null,
+							text: "默认(自动分析)",
+						},
+						{
+							value: true,
+							text: "开启",
+						},
+						{
+							value: false,
+							text: "关闭",
+						},
+					],
+					void 0,
+					"是否https"
+				),
+				UISwitch(
+					"offline",
+					PanelSettingConfig.pagespy_offline.key,
+					PanelSettingConfig.pagespy_offline.defaultValue,
+					void 0,
+					`是否进入 "离线模式"，具体表现为 PageSpy 不会创建房间、建立 WebSocket 连接。`
+				),
+				UISwitch(
+					"serializeData",
+					PanelSettingConfig.pagespy_serializeData.key,
+					PanelSettingConfig.pagespy_serializeData.defaultValue,
+					void 0,
+					`是否允许 SDK 在收集离线日志时，序列化非基本类型的数据，序列化的目的是方便在回放时查看`
+				),
+				UISwitch(
+					"useSecret",
+					PanelSettingConfig.pagespy_useSecret.key,
+					PanelSettingConfig.pagespy_useSecret.defaultValue,
+					void 0,
+					`是否启用权限认证功能。启用后，SDK 会生成 6 位数的随机 “密钥”；调试端进入房间时要求输入对应的密钥`
+				),
+				UIInput(
+					"messageCapacity",
+					PanelSettingConfig.pagespy_messageCapacity.key,
+					PanelSettingConfig.pagespy_messageCapacity.defaultValue,
+					"调试端进入房间后可以看到之前的数据量的大小",
+					void 0,
+					`指定 SDK 在本地最多缓存多少条数据记录`
+				),
+			],
+		},
+	],
+};
