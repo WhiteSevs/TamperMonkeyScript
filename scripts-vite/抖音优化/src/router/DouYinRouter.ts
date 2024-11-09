@@ -7,7 +7,11 @@ const searchParams = urlObj.searchParams;
 export const DouYinRouter = {
 	/** 直播 */
 	isLive() {
-		return host === "live.douyin.com";
+		return host === "live.douyin.com" || this.isFollowLive();
+	},
+	/** 关注-直播 */
+	isFollowLive() {
+		return this.isIndex() && pathname.startsWith("/follow/live/");
 	},
 	/**
 	 * 是否是抖音主站
@@ -21,12 +25,12 @@ export const DouYinRouter = {
 	},
 	/** 搜索 */
 	isSearch() {
-		return this.isIndex() && window.location.pathname.startsWith("/search");
+		return this.isIndex() && pathname.startsWith("/search");
 	},
 	/**
 	 * 用户主页
 	 */
 	isUser() {
-		return this.isIndex() && window.location.pathname.startsWith("/user");
+		return this.isIndex() && pathname.startsWith("/user");
 	},
 };
