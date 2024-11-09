@@ -35,8 +35,8 @@ export const DebugToolConfig = {
 			"https://github.com/HuolalaTech/page-spy-web/blob/main/README_ZH.md",
 		/** 默认配置 */
 		defaultConfig: {
-			api: "test.jikejishu.com",
-			cliennOrigin: "https://test.jikejishu.com",
+			api: "pagespy.jikejishu.com",
+			cliennOrigin: "https://pagespy.jikejishu.com",
 		},
 	},
 	chii: {

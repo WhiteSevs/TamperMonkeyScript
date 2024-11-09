@@ -8,7 +8,7 @@ import type {
 import { Eruda } from "./Eruda/Eruda";
 import { vConsole } from "./vConsole/vConsole";
 import { PageSpy } from "./PageSpy/PageSpy";
-import { Chii } from "./chii/Chii";
+import { Chii } from "./Chii/Chii";
 
 export const DebugTool = {
 	$data: {

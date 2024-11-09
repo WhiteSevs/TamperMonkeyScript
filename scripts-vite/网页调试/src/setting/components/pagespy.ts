@@ -81,7 +81,7 @@ export const PanelUI_pagespy: PopsPanelContentConfig = {
 						$right.className = "pops-panel-item-right-text";
 						$right.innerHTML = /*html*/ `
                         <a href="${DebugToolConfig.pageSpy.homeUrl}" target="_blank">
-                            <img src="https://img.shields.io/npm/v/@huolala-tech/page-spy-browser?label=page-spy-browser" alt="page-spy-browser">
+                            <img src="https://img.shields.io/npm/v/@huolala-tech/page-spy-browser?label=pagespy" alt="page-spy-browser">
                         </a>
                         `;
 						liElement.appendChild($left);

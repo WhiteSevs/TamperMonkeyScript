@@ -92,8 +92,8 @@
       settingDocUrl: "https://github.com/HuolalaTech/page-spy-web/blob/main/README_ZH.md",
       /** 默认配置 */
       defaultConfig: {
-        api: "test.jikejishu.com",
-        cliennOrigin: "https://test.jikejishu.com"
+        api: "pagespy.jikejishu.com",
+        cliennOrigin: "https://pagespy.jikejishu.com"
       }
     },
     chii: {
@@ -1624,7 +1624,7 @@
               $right.innerHTML = /*html*/
               `
                         <a href="${DebugToolConfig.pageSpy.homeUrl}" target="_blank">
-                            <img src="https://img.shields.io/npm/v/@huolala-tech/page-spy-browser?label=page-spy-browser" alt="page-spy-browser">
+                            <img src="https://img.shields.io/npm/v/@huolala-tech/page-spy-browser?label=pagespy" alt="page-spy-browser">
                         </a>
                         `;
               liElement.appendChild($left);
@@ -2387,16 +2387,34 @@
      * @param args
      */
     evalPlugin: (...args) => {
-      const coverCMD = `
-		try{let exports=void 0}catch(error){console.warn(error)}
-		try{let module=void 0}catch(error){console.warn(error)}
-		try{let define=void 0}catch(error){console.warn(error)}
-		`;
       if (args.length === 0) {
         return;
       }
       const codeText = args.join("\n");
-      return unsafeWin.eval(coverCMD + "\n" + codeText);
+      return unsafeWin.eval(`
+(()=>{
+	try{
+		var exports=void 0;
+	}catch(error){
+		console.warn(error);
+	}
+
+	try{
+		var module=void 0;
+	}catch(error){
+		console.warn(error);
+	}
+
+	try{
+		var define=void 0;
+	}catch(error){
+		console.warn(error);
+	}
+		
+	${codeText}
+		
+})()
+`);
     }
   };
   const Eruda = () => {
