@@ -17,10 +17,10 @@ import { PopsPanel } from "../setting";
  * @param isNumber 是否是数字框
  * @param isPassword 是否是密码框
  */
-export const UIInput = function (
+export const UIInput = function <T extends boolean>(
 	text: string,
 	key: string,
-	defaultValue: string,
+	defaultValue: T extends true ? number : string,
 	description?: string | undefined,
 	changeCallBack?:
 		| ((
@@ -30,7 +30,7 @@ export const UIInput = function (
 		  ) => void | boolean)
 		| undefined,
 	placeholder = "",
-	isNumber?: boolean,
+	isNumber?: T,
 	isPassword?: boolean
 ) {
 	let result: PopsPanelInputDetails = {
