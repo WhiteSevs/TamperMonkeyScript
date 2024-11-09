@@ -580,6 +580,11 @@ export const PopsPanel = {
 					toHide: false,
 				},
 			},
+			zIndex() {
+				let maxZIndex = Utils.getMaxZIndex();
+				let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+				return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+			},
 			width: PanelUISize.setting.width,
 			height: PanelUISize.setting.height,
 			drag: true,
