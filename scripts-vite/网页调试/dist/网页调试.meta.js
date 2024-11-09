@@ -9,9 +9,9 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/483694/1461756/Eruda-2.js
-// @require      https://update.greasyfork.org/scripts/483695/1413250/vConsole-2.js
-// @require      https://update.greasyfork.org/scripts/483696/1461757/PageSpy-2.js
+// @require      https://update.greasyfork.org/scripts/483694/1480442/Eruda-2.js
+// @require      https://update.greasyfork.org/scripts/483695/1480443/vConsole-2.js
+// @require      https://update.greasyfork.org/scripts/483696/1480444/PageSpy-2.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.9/dist/index.umd.js
