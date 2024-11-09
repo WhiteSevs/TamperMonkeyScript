@@ -1,3 +1,4 @@
+
 # 介绍
 
 可自定义PageSpy的对象名，用于适配一些网页上重复的对象名
@@ -27,7 +28,7 @@
 ## 信息
 
 - 最新版本：[![npm version](https://img.shields.io/npm/v/@huolala-tech/page-spy-browser?label=page-spy-browser)](https://www.npmjs.com/package/@huolala-tech/page-spy-browser)
-- 当前版本：`1.9.12`
+- 当前版本：`1.9.14`
 - 项目主页
 [https://github.com/HuolalaTech/page-spy-web](https://github.com/HuolalaTech/page-spy-web)
 - SDK地址
