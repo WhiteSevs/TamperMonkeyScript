@@ -1,5 +1,5 @@
 import { PopsPanel } from "@/setting/setting";
-import { console, copy, GM_Menu, unsafeWin, utils } from "@/env";
+import { console, copy, DOMUtils, GM_Menu, unsafeWin, utils } from "@/env";
 import { PanelSettingConfig } from "@/setting/panel-setting-config";
 import type {
 	UtilsGMMenuClickCallBackData,
@@ -8,6 +8,7 @@ import type {
 import { ToolsConfig } from "./ToolsConfig";
 import { WebSiteDebugUtil } from "@/utils/WebSiteDebugUtil";
 import { GM_getResourceText } from "ViteGM";
+import { vConsolePlugin } from "./vConsole/vConsolePlugin";
 
 export const Tools = {
 	$data: {
@@ -669,6 +670,33 @@ export const Tools = {
 		console.log($pageSpy);
 		ToolsConfig.pageSpy.version = unsafeWin.$pageSpy.version;
 		console.log("PageSpy全局变量：$pageSpy");
+
+		// 自定义添加图标点击事件
+		utils.waitNode("#__pageSpy .page-spy-modal", 10000).then(($modal) => {
+			if (!$modal) {
+				console.error("未找到PageSpy的按钮");
+				return;
+			}
+			DOMUtils.on(
+				$modal,
+				"click",
+				(event) => {
+					utils.preventEvent(event);
+					if ($modal.classList.contains("show")) {
+						$modal.classList.remove("show"),
+							$modal.classList.add("leaving"),
+							setTimeout(() => {
+								$modal.classList.remove("leaving");
+							}, 300);
+					} else {
+						$modal.classList.add("show");
+					}
+				},
+				{
+					capture: true,
+				}
+			);
+		});
 		utils
 			.waitPropertyByInterval(
 				unsafeWin.$pageSpy,
@@ -679,8 +707,9 @@ export const Tools = {
 				10000
 			)
 			.then(() => {
-				let contentElement: HTMLElement =
-					unsafeWin.$pageSpy.root.querySelector(".page-spy-content");
+				let contentElement: HTMLElement = (
+					unsafeWin.$pageSpy?.root || document
+				).querySelector(".page-spy-content");
 				let goToRoomListElement = document.createElement("div");
 				let goToDebugElement = document.createElement("div");
 				goToDebugElement.className = "page-spy-content__btn";
@@ -689,7 +718,8 @@ export const Tools = {
 				goToRoomListElement.innerHTML = "前往房间列表";
 				goToDebugElement.addEventListener(
 					"click",
-					function () {
+					function (event) {
+						utils.preventEvent(event);
 						window.open(
 							`${clientOrigin}/#/devtools?${utils.toSearchParamsStr({
 								version: unsafeWin.$pageSpy.name,
@@ -704,7 +734,8 @@ export const Tools = {
 				);
 				goToRoomListElement.addEventListener(
 					"click",
-					function () {
+					function (event) {
+						utils.preventEvent(event);
 						window.open(`${clientOrigin}/#/room-list`, "_blank");
 					},
 					{

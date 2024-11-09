@@ -5,6 +5,7 @@ import { PopsPanel } from "../setting";
 import { UIInput } from "../common-components/ui-input";
 import { PanelSettingConfig } from "../panel-setting-config";
 import { UISlider } from "../common-components/ui-slider";
+import { UIButton } from "../common-components/ui-button";
 
 export const PanelUI_chii: PopsPanelContentConfig = {
 	id: "debug-panel-config-chii",
@@ -15,20 +16,31 @@ export const PanelUI_chii: PopsPanelContentConfig = {
 			text: "功能",
 			type: "forms",
 			forms: [
-				{
-					text: "调试页面",
-					type: "button",
-					buttonType: "primary",
-					buttonText: "前往",
-					disable: Boolean(PopsPanel.getValue("chii-script-embedded", true)),
-					callback(event) {
+				UIButton(
+					"调试页面",
+					"",
+					"前往",
+					void 0,
+					false,
+					false,
+					"primary",
+					(event) => {
 						let url = PopsPanel.getValue(
 							"chii-debug-url",
 							ToolsConfig.chii.defaultConfig.url
 						);
 						window.open(url, "_blank");
 					},
-				},
+					void 0,
+					() => {
+						return Boolean(
+							PopsPanel.getValue(
+								PanelSettingConfig.chii_script_embedded.key,
+								PanelSettingConfig.chii_script_embedded.defaultValue
+							)
+						);
+					}
+				),
 			],
 		},
 		{

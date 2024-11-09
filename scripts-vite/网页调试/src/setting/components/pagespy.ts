@@ -17,12 +17,15 @@ export const PanelUI_pagespy: PopsPanelContentConfig = {
 			text: "功能",
 			type: "forms",
 			forms: [
-				{
-					text: "注意！隐私保护！",
-					type: "button",
-					buttonType: "danger",
-					buttonText: "了解详情",
-					callback(event) {
+				UIButton(
+					"注意！隐私保护！",
+					"",
+					"了解详情",
+					void 0,
+					false,
+					false,
+					"danger",
+					(event) => {
 						pops.confirm({
 							title: {
 								text: "提示",
@@ -51,7 +54,8 @@ export const PanelUI_pagespy: PopsPanelContentConfig = {
 							height: PanelUISize.info.height,
 						});
 					},
-				},
+					void 0
+				),
 				UIButton(
 					"当前版本",
 					"",

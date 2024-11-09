@@ -57,7 +57,6 @@ declare const initEruda: Function;
 declare const initPageSpy: any;
 declare const ChiiHeight: any;
 declare const initVConsole: any;
-declare const vConsolePlugin: any;
 declare const erudaMonitor: any;
 declare const erudaFeatures: any;
 declare const erudaTiming: any;

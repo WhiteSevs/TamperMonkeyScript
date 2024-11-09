@@ -46,7 +46,7 @@
 
   var __defProp = Object.defineProperty;
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
+  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var _a;
   var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
@@ -491,7 +491,7 @@
   const console$1 = unsafeWin.console;
   const _SCRIPT_NAME_ = "网页调试";
   const utils = Utils.noConflict();
-  DOMUtils.noConflict();
+  const domUtils = DOMUtils.noConflict();
   const __pops = pops;
   const log = new utils.Log(
     _GM_info,
@@ -743,10 +743,11 @@
       }
     ]
   };
-  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack) {
+  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack, disable) {
     let result = {
       text,
       type: "button",
+      attributes: {},
       description,
       buttonIcon,
       buttonIsRightIcon,
@@ -760,6 +761,11 @@
       },
       afterAddToUListCallBack
     };
+    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
+      result.disable = Boolean(
+        typeof disable === "function" ? disable() : disable
+      );
+    });
     return result;
   };
   const UIInput = function(text, key, defaultValue, description, changeCallBack, placeholder = "", isNumber, isPassword) {
@@ -1552,12 +1558,15 @@
         text: "功能",
         type: "forms",
         forms: [
-          {
-            text: "注意！隐私保护！",
-            type: "button",
-            buttonType: "danger",
-            buttonText: "了解详情",
-            callback(event) {
+          UIButton(
+            "注意！隐私保护！",
+            "",
+            "了解详情",
+            void 0,
+            false,
+            false,
+            "danger",
+            (event) => {
               __pops.confirm({
                 title: {
                   text: "提示",
@@ -1585,8 +1594,9 @@
                 width: PanelUISize.info.width,
                 height: PanelUISize.info.height
               });
-            }
-          },
+            },
+            void 0
+          ),
           UIButton(
             "当前版本",
             "",
@@ -1773,20 +1783,31 @@
         text: "功能",
         type: "forms",
         forms: [
-          {
-            text: "调试页面",
-            type: "button",
-            buttonType: "primary",
-            buttonText: "前往",
-            disable: Boolean(PopsPanel.getValue("chii-script-embedded", true)),
-            callback(event) {
+          UIButton(
+            "调试页面",
+            "",
+            "前往",
+            void 0,
+            false,
+            false,
+            "primary",
+            (event) => {
               let url = PopsPanel.getValue(
                 "chii-debug-url",
                 ToolsConfig.chii.defaultConfig.url
               );
               window.open(url, "_blank");
+            },
+            void 0,
+            () => {
+              return Boolean(
+                PopsPanel.getValue(
+                  PanelSettingConfig.chii_script_embedded.key,
+                  PanelSettingConfig.chii_script_embedded.defaultValue
+                )
+              );
             }
-          }
+          )
         ]
       },
       {
@@ -1972,7 +1993,9 @@
         }
         let needInitConfigList = Object.keys(needInitConfig);
         if (!needInitConfigList.length) {
-          log.warn(["请先配置键", config]);
+          if (config.type !== "button") {
+            log.warn("请先配置键", config);
+          }
           return;
         }
         needInitConfigList.forEach((__key) => {
@@ -2369,6 +2392,382 @@
       }
       const codeText = args.join("\n");
       return unsafeWin.eval(coverCMD + "\n" + codeText);
+    }
+  };
+  const vConsolePlugin = {
+    State(vConsole, VConsole) {
+      const Stats = function() {
+        var mode = 0;
+        var localPositionStorageKey = "vConsole-Plugin-Stats-Position";
+        function getLocalPositionStorage() {
+          return _GM_getValue(localPositionStorageKey, {
+            top: 0,
+            left: 0
+          });
+        }
+        function setLocalPositionStorage(left, top2) {
+          _GM_setValue(localPositionStorageKey, {
+            left,
+            top: top2
+          });
+        }
+        var container = document.createElement("div");
+        let oldPosition = getLocalPositionStorage();
+        container.style.cssText = `position:fixed;top:${oldPosition.top}px;left:${oldPosition.left}px;cursor:pointer;opacity:0.9;z-index:10000`;
+        container.addEventListener(
+          "click",
+          function(event) {
+            event.preventDefault();
+            showPanel(++mode % container.children.length);
+          },
+          {
+            capture: true
+          }
+        );
+        function addPanel(panel) {
+          container.appendChild(panel.dom);
+          return panel;
+        }
+        function showPanel(id) {
+          for (var i = 0; i < container.children.length; i++) {
+            container.children[i].style.display = i === id ? "block" : "none";
+          }
+          mode = id;
+        }
+        function drag() {
+          __pops.config.InstanceUtils.drag(container, {
+            dragElement: container,
+            limit: true,
+            extraDistance: 2,
+            moveCallBack(moveElement, left, top2) {
+              setLocalPositionStorage(left, top2);
+            }
+          });
+        }
+        var beginTime = (performance || Date).now(), prevTime = beginTime, frames = 0;
+        var fpsPanel = addPanel(new Stats.Panel("FPS", "#0ff", "#002"));
+        var msPanel = addPanel(new Stats.Panel("MS", "#0f0", "#020"));
+        if (self.performance && self.performance.memory) {
+          var memPanel = addPanel(new Stats.Panel("MB", "#f08", "#201"));
+        }
+        showPanel(0);
+        drag();
+        return {
+          REVISION: 16,
+          dom: container,
+          addPanel,
+          showPanel,
+          begin: function() {
+            beginTime = (performance || Date).now();
+          },
+          end: function() {
+            frames++;
+            var time = (performance || Date).now();
+            msPanel.update(time - beginTime, 200);
+            if (time >= prevTime + 1e3) {
+              fpsPanel.update(frames * 1e3 / (time - prevTime), 100);
+              prevTime = time;
+              frames = 0;
+              if (memPanel) {
+                var memory = performance.memory;
+                memPanel.update(
+                  memory.usedJSHeapSize / 1048576,
+                  memory.jsHeapSizeLimit / 1048576
+                );
+              }
+            }
+            return time;
+          },
+          update: function() {
+            beginTime = this.end();
+          },
+          // Backwards Compatibility
+          domElement: container,
+          setMode: showPanel
+        };
+      };
+      Stats.Panel = function(name, fg, bg) {
+        var min = Infinity, max = 0, round = Math.round;
+        var PR = round(window.devicePixelRatio || 1);
+        var WIDTH = 80 * PR, HEIGHT = 48 * PR, TEXT_X = 3 * PR, TEXT_Y = 2 * PR, GRAPH_X = 3 * PR, GRAPH_Y = 15 * PR, GRAPH_WIDTH = 74 * PR, GRAPH_HEIGHT = 30 * PR;
+        var canvas = document.createElement("canvas");
+        canvas.width = WIDTH;
+        canvas.height = HEIGHT;
+        canvas.style.cssText = "width:80px;height:48px";
+        var context = canvas.getContext("2d");
+        context.font = "bold " + 9 * PR + "px Helvetica,Arial,sans-serif";
+        context.textBaseline = "top";
+        context.fillStyle = bg;
+        context.fillRect(0, 0, WIDTH, HEIGHT);
+        context.fillStyle = fg;
+        context.fillText(name, TEXT_X, TEXT_Y);
+        context.fillRect(GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT);
+        context.fillStyle = bg;
+        context.globalAlpha = 0.9;
+        context.fillRect(GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT);
+        return {
+          dom: canvas,
+          update: function(value, maxValue) {
+            min = Math.min(min, value);
+            max = Math.max(max, value);
+            context.fillStyle = bg;
+            context.globalAlpha = 1;
+            context.fillRect(0, 0, WIDTH, GRAPH_Y);
+            context.fillStyle = fg;
+            context.fillText(
+              round(value) + " " + name + " (" + round(min) + "-" + round(max) + ")",
+              TEXT_X,
+              TEXT_Y
+            );
+            context.drawImage(
+              canvas,
+              GRAPH_X + PR,
+              GRAPH_Y,
+              GRAPH_WIDTH - PR,
+              GRAPH_HEIGHT,
+              GRAPH_X,
+              GRAPH_Y,
+              GRAPH_WIDTH - PR,
+              GRAPH_HEIGHT
+            );
+            context.fillRect(
+              GRAPH_X + GRAPH_WIDTH - PR,
+              GRAPH_Y,
+              PR,
+              GRAPH_HEIGHT
+            );
+            context.fillStyle = bg;
+            context.globalAlpha = 0.9;
+            context.fillRect(
+              GRAPH_X + GRAPH_WIDTH - PR,
+              GRAPH_Y,
+              PR,
+              round((1 - value / maxValue) * GRAPH_HEIGHT)
+            );
+          }
+        };
+      };
+      class VConsoleStatsPlugin {
+        constructor(vConsole2, VConsole2) {
+          __publicField(this, "vConsole");
+          __publicField(this, "VConsole");
+          __publicField(this, "dom");
+          __publicField(this, "requestID");
+          __publicField(this, "stats");
+          __publicField(this, "addStyle", (target) => {
+            if (target == null) {
+              target = document.head || document.body || document.documentElement;
+            }
+            const cssNode = document.createElement("style");
+            cssNode.setAttribute("type", "text/css");
+            cssNode.innerHTML = /*css*/
+            `
+                .vc-stats-button{
+                    margin: 10px 10px;
+                    background-color: #fbf9fe;
+                    padding: 2px 4px;
+                    cursor: pointer;
+                    border-radius: 4px;
+                    border: 1px solid;
+                }
+                .vc-button-container{
+                    display: flex;
+                    align-items: center;
+                }
+                .vc-description{
+                    display: flex;
+                    flex-direction: column;
+                }
+                .vc-description a.vc-link{
+                    color: blue;
+                }`;
+            target.appendChild(cssNode);
+          });
+          __publicField(this, "show", () => {
+            if (!this.stats) {
+              this.stats = new Stats();
+              this.stats.showPanel(1);
+              this.dom = this.stats.dom;
+              document.body.appendChild(this.dom);
+              this.requestID = requestAnimationFrame(this.loop);
+            }
+          });
+          __publicField(this, "changePanel", (type) => {
+            if (!this.stats) {
+              this.show();
+            }
+            this.stats.setMode(Number(type));
+          });
+          __publicField(this, "loop", () => {
+            this.stats.update();
+            this.requestID = requestAnimationFrame(this.loop);
+          });
+          __publicField(this, "close", () => {
+            if (this.requestID) {
+              cancelAnimationFrame(this.requestID);
+            }
+            if (this.dom) {
+              document.body.removeChild(this.dom);
+            }
+            this.stats = null;
+            this.requestID = null;
+            this.dom = null;
+          });
+          this.vConsole = vConsole2;
+          this.VConsole = VConsole2;
+          this.dom = null;
+          this.requestID = null;
+          this.stats = null;
+          return this.init();
+        }
+        init() {
+          this.addStyle();
+          const vConsoleStats = new this.VConsole.VConsolePlugin(
+            "Stats",
+            "Stats"
+          );
+          vConsoleStats.on("ready", () => {
+            document.querySelectorAll(".vc-stats-buttons").forEach((statusButton) => {
+              statusButton.addEventListener("click", (event) => {
+                const currentType = event.target.dataset.type;
+                if (currentType.toString() === "2" && // @ts-ignore
+                !(self.performance && self.performance.memory)) {
+                  console$1.error(
+                    "浏览器不支持window.performance或者window.performance.memory"
+                  );
+                  return;
+                }
+                this.changePanel(currentType);
+              });
+            });
+          });
+          vConsoleStats.on("renderTab", (callback) => {
+            const statsHTML = (
+              /*html*/
+              `
+                    <div class="vc-stats-buttons">
+                        <div class="vc-button-container">
+                            <button class="vc-stats-button" data-type="0">show FPS</button>
+                            <div class="vc-description">
+                            <span>最后一秒渲染的帧。数字越高越好</span>
+                            </div>
+                        </div>
+                        <div class="vc-button-container">
+                            <button class="vc-stats-button" data-type="1">show MS</button>
+                            <div class="vc-description">
+                            <span>渲染帧所需的毫秒数。数字越低越好</span>
+                            </div>
+                        </div>
+                        <div class="vc-button-container">
+                            <button class="vc-stats-button" data-type="2">show MB</button>
+                            <div class="vc-description">
+                            <span>内存分配(MB)</span>
+                            <a class="vc-link" href="https://caniuse.com/mdn-api_performance_memory" target="_blank">performance.memory兼容性查看</a>
+                            <span>Chrome启用方式: --enable-precise-memory-info</span>
+                            </div>
+                        </div>
+                    </div>`
+            );
+            callback(statsHTML);
+          });
+          vConsoleStats.on("addTool", (callback) => {
+            const buttons = [
+              {
+                name: "Show Stats",
+                onClick: this.show
+              },
+              {
+                name: "Close Stats",
+                onClick: this.close
+              }
+            ];
+            callback(buttons);
+          });
+          this.vConsole.addPlugin(vConsoleStats);
+          return vConsoleStats;
+        }
+      }
+      return new VConsoleStatsPlugin(vConsole, VConsole);
+    },
+    exportLog(vConsole, VConsole) {
+      class VConsoleOutputLogsPlugin {
+        constructor(vConsole2, VConsole2, logItemSelector) {
+          __publicField(this, "vConsole");
+          __publicField(this, "VConsole");
+          __publicField(this, "$");
+          __publicField(this, "dom");
+          __publicField(this, "logItemSelector");
+          __publicField(this, "funDownload", (content, filename) => {
+            var eleLink = document.createElement("a");
+            eleLink.download = filename;
+            eleLink.style.display = "none";
+            var blob = new Blob([content]);
+            eleLink.href = URL.createObjectURL(blob);
+            document.body.appendChild(eleLink);
+            eleLink.click();
+            document.body.removeChild(eleLink);
+          });
+          __publicField(this, "getAllLogContent", () => {
+            let logRowsElement = document.querySelectorAll(this.logItemSelector);
+            let logText = "";
+            for (let index = 0; index < logRowsElement.length; index++) {
+              const ele = logRowsElement[index];
+              logText += `${ele.textContent}
+`;
+            }
+            return logText;
+          });
+          __publicField(this, "export", () => {
+            let logText = this.getAllLogContent();
+            this.funDownload(
+              logText,
+              `${(/* @__PURE__ */ new Date()).toLocaleDateString() + " " + (/* @__PURE__ */ new Date()).toLocaleTimeString()}.log`
+            );
+          });
+          __publicField(this, "copyText", () => {
+            let logText = this.getAllLogContent();
+            utils.setClip(logText);
+          });
+          this.vConsole = vConsole2;
+          this.VConsole = VConsole2;
+          this.$ = vConsole2.$;
+          this.dom = null;
+          this.logItemSelector = logItemSelector || ".vc-content #__vc_plug_default .vc-log-row";
+          return this.init();
+        }
+        init() {
+          const vConsoleExportLogs = new this.VConsole.VConsolePlugin(
+            "exportLog",
+            "exportLog"
+          );
+          vConsoleExportLogs.on("ready", () => {
+            console$1.log("[vConsole-exportlog-plugin] -- load");
+          });
+          vConsoleExportLogs.on("renderTab", (callback) => {
+            const html = (
+              /*html*/
+              `<div class="vconsole-exportlog"></div>`
+            );
+            callback(html);
+          });
+          vConsoleExportLogs.on("addTool", (callback) => {
+            const buttons = [
+              {
+                name: "exportLogs",
+                onClick: this.export
+              },
+              {
+                name: "copyLogs",
+                onClick: this.copyText
+              }
+            ];
+            callback(buttons);
+          });
+          this.vConsole.addPlugin(vConsoleExportLogs);
+          return vConsoleExportLogs;
+        }
+      }
+      return new VConsoleOutputLogsPlugin(vConsole, VConsole);
     }
   };
   const Tools = {
@@ -2957,6 +3356,29 @@
       console$1.log($pageSpy);
       ToolsConfig.pageSpy.version = unsafeWin.$pageSpy.version;
       console$1.log("PageSpy全局变量：$pageSpy");
+      utils.waitNode("#__pageSpy .page-spy-modal", 1e4).then(($modal) => {
+        if (!$modal) {
+          console$1.error("未找到PageSpy的按钮");
+          return;
+        }
+        domUtils.on(
+          $modal,
+          "click",
+          (event) => {
+            utils.preventEvent(event);
+            if ($modal.classList.contains("show")) {
+              $modal.classList.remove("show"), $modal.classList.add("leaving"), setTimeout(() => {
+                $modal.classList.remove("leaving");
+              }, 300);
+            } else {
+              $modal.classList.add("show");
+            }
+          },
+          {
+            capture: true
+          }
+        );
+      });
       utils.waitPropertyByInterval(
         unsafeWin.$pageSpy,
         function() {
@@ -2965,7 +3387,8 @@
         250,
         1e4
       ).then(() => {
-        let contentElement = unsafeWin.$pageSpy.root.querySelector(".page-spy-content");
+        var _a2;
+        let contentElement = (((_a2 = unsafeWin.$pageSpy) == null ? void 0 : _a2.root) || document).querySelector(".page-spy-content");
         let goToRoomListElement = document.createElement("div");
         let goToDebugElement = document.createElement("div");
         goToDebugElement.className = "page-spy-content__btn";
@@ -2974,7 +3397,8 @@
         goToRoomListElement.innerHTML = "前往房间列表";
         goToDebugElement.addEventListener(
           "click",
-          function() {
+          function(event) {
+            utils.preventEvent(event);
             window.open(
               `${clientOrigin}/#/devtools?${utils.toSearchParamsStr({
               version: unsafeWin.$pageSpy.name,
@@ -2989,7 +3413,8 @@
         );
         goToRoomListElement.addEventListener(
           "click",
-          function() {
+          function(event) {
+            utils.preventEvent(event);
             window.open(`${clientOrigin}/#/room-list`, "_blank");
           },
           {
