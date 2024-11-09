@@ -1,3 +1,4 @@
+
 # 可自定义Eruda的对象名，用于适配一些网页上重复的对象名
 
 - 最新版本：[![npm version](https://img.shields.io/npm/v/eruda/latest.svg)](https://www.npmjs.com/package/eruda)
