@@ -22,14 +22,15 @@ export const ChiiPluginHeight = {
 		}
 		this.setLocalHeight(height);
 	},
-	isExistLocalHeight() {
-		return typeof this.getLocalHeight() === "number";
-	},
 	/**
 	 *
 	 */
 	getLocalHeight() {
-		return globalThis.localStorage.getItem(this.$data.key);
+		let value = Number(globalThis.localStorage.getItem(this.$data.key));
+		if (isNaN(value)) {
+			return null;
+		}
+		return value;
 	},
 	/**
 	 *
@@ -40,12 +41,11 @@ export const ChiiPluginHeight = {
 			console.log(value);
 			throw new TypeError(`${this.$data.key}的值必须是number`);
 		}
-		// @ts-ignore
-		globalThis.localStorage.setItem(this.$data.key, value);
+		let storageValue = value.toString();
+		globalThis.localStorage.setItem(this.$data.key, storageValue);
 		let localHeight = this.getLocalHeight();
-		// @ts-ignore
-		if (localHeight !== value) {
-			globalThis.localStorage[this.$data.key] = value;
+		if (!localHeight || localHeight.toString() !== storageValue) {
+			globalThis.localStorage[this.$data.key] = storageValue;
 		}
 	},
 	isExistGMLocalHeight() {

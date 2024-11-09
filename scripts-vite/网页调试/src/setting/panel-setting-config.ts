@@ -257,6 +257,10 @@ export const PanelSettingConfig = {
 		key: "chii-target-js",
 		defaultValue: DebugToolConfig.chii.defaultConfig.scriptJs,
 	},
+	chii_embedded_height_enable: {
+		key: "chii-embedded-height-enable",
+		defaultValue: false,
+	},
 	chii_embedded_height: {
 		key: "chii-embedded-height",
 		defaultValue: parseInt((window.innerHeight / 2).toString()),

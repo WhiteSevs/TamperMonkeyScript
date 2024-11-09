@@ -365,6 +365,10 @@
       key: "chii-target-js",
       defaultValue: DebugToolConfig.chii.defaultConfig.scriptJs
     },
+    chii_embedded_height_enable: {
+      key: "chii-embedded-height-enable",
+      defaultValue: false
+    },
     chii_embedded_height: {
       key: "chii-embedded-height",
       defaultValue: parseInt((window.innerHeight / 2).toString())
@@ -1756,6 +1760,11 @@
         }
       },
       callback(event, value) {
+        if (typeof changeCallBack === "function") {
+          if (changeCallBack(event, value)) {
+            return;
+          }
+        }
         this.props[PROPS_STORAGE_API].set(key, value);
       },
       min,
@@ -1867,15 +1876,27 @@
         text: "本页展示的配置",
         type: "forms",
         forms: [
+          UISwitch(
+            "锁定高度",
+            PanelSettingConfig.chii_embedded_height_enable.key,
+            PanelSettingConfig.chii_embedded_height_enable.defaultValue,
+            void 0,
+            "开启后将自动覆盖面板高度"
+          ),
           UISlider(
-            "高度",
+            "高度设定",
             PanelSettingConfig.chii_embedded_height.key,
             PanelSettingConfig.chii_embedded_height.defaultValue,
             0,
             parseInt(window.innerHeight.toString()),
-            void 0,
+            (_, value) => {
+              let $chobitsu = document.querySelector(
+                ".__chobitsu-hide__:has(iframe)"
+              );
+              $chobitsu && ($chobitsu.style.height = value + "px");
+            },
             (value) => value + "px",
-            "移动端不好拖拽，使用这个配置高度",
+            "可覆盖当前页面Chii面板的高度",
             1
           )
         ]
@@ -3283,14 +3304,15 @@
       }
       this.setLocalHeight(height);
     },
-    isExistLocalHeight() {
-      return typeof this.getLocalHeight() === "number";
-    },
     /**
      *
      */
     getLocalHeight() {
-      return globalThis.localStorage.getItem(this.$data.key);
+      let value = Number(globalThis.localStorage.getItem(this.$data.key));
+      if (isNaN(value)) {
+        return null;
+      }
+      return value;
     },
     /**
      *
@@ -3301,10 +3323,11 @@
         console$1.log(value);
         throw new TypeError(`${this.$data.key}的值必须是number`);
       }
-      globalThis.localStorage.setItem(this.$data.key, value);
+      let storageValue = value.toString();
+      globalThis.localStorage.setItem(this.$data.key, storageValue);
       let localHeight = this.getLocalHeight();
-      if (localHeight !== value) {
-        globalThis.localStorage[this.$data.key] = value;
+      if (!localHeight || localHeight.toString() !== storageValue) {
+        globalThis.localStorage[this.$data.key] = storageValue;
       }
     },
     isExistGMLocalHeight() {
@@ -3340,7 +3363,9 @@
       console$1.log("禁止在调试端运行 ==> href包含debugUrl");
       return;
     }
-    ChiiPluginHeight.init();
+    PopsPanel.execMenu(PanelSettingConfig.chii_embedded_height_enable.key, () => {
+      ChiiPluginHeight.init();
+    });
     if (PopsPanel.getValue(PanelSettingConfig.chii_check_script_load.key)) {
       let checkChiiScriptLoad = function(event) {
         if (event.target === scriptNode) {

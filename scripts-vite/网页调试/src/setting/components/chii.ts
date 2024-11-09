@@ -101,15 +101,27 @@ export const PanelUI_chii: PopsPanelContentConfig = {
 			text: "本页展示的配置",
 			type: "forms",
 			forms: [
+				UISwitch(
+					"锁定高度",
+					PanelSettingConfig.chii_embedded_height_enable.key,
+					PanelSettingConfig.chii_embedded_height_enable.defaultValue,
+					void 0,
+					"开启后将自动覆盖面板高度"
+				),
 				UISlider(
-					"高度",
+					"高度设定",
 					PanelSettingConfig.chii_embedded_height.key,
 					PanelSettingConfig.chii_embedded_height.defaultValue,
 					0,
 					parseInt(window.innerHeight.toString()),
-					void 0,
+					(_, value) => {
+						let $chobitsu = document.querySelector<HTMLElement>(
+							".__chobitsu-hide__:has(iframe)"
+						);
+						$chobitsu && ($chobitsu.style.height = value + "px");
+					},
 					(value) => value + "px",
-					"移动端不好拖拽，使用这个配置高度",
+					"可覆盖当前页面Chii面板的高度",
 					1
 				),
 			],

@@ -18,7 +18,9 @@ export const Chii = () => {
 		console.log("禁止在调试端运行 ==> href包含debugUrl");
 		return;
 	}
-	ChiiPluginHeight.init();
+	PopsPanel.execMenu(PanelSettingConfig.chii_embedded_height_enable.key, () => {
+		ChiiPluginHeight.init();
+	});
 	if (PopsPanel.getValue(PanelSettingConfig.chii_check_script_load.key)) {
 		function checkChiiScriptLoad(event: any) {
 			if (event.target === scriptNode) {
