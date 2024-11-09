@@ -15,6 +15,7 @@ import {
 import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { PanelUISize } from "./panel-ui-size";
+import Utils from "@whitesev/utils";
 
 type PosPanelListenerData = {
 	id: number;
