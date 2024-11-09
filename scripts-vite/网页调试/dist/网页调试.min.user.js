@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         网页调试
-// @namespace    `https://greasyfork.org/zh-CN/scripts/475228
+// @namespace    https://greasyfork.org/zh-CN/scripts/475228
 // @version      2024.11.9
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置

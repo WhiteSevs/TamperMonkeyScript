@@ -195,7 +195,7 @@ function getResource() {
 // 油猴插件配置
 const MonkeyOption: Partial<__MonkeyOption__> = {
 	userscript: {
-		namespace: "`https://greasyfork.org/zh-CN/scripts/475228",
+		namespace: "https://greasyfork.org/zh-CN/scripts/475228",
 		// GM_xmlhttpRequest允许访问的域
 		connect: ["*"],
 		// 脚本描述
