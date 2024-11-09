@@ -9,6 +9,7 @@ import { ToolsConfig } from "./ToolsConfig";
 import { WebSiteDebugUtil } from "@/utils/WebSiteDebugUtil";
 import { GM_getResourceText } from "ViteGM";
 import { vConsolePlugin } from "./vConsole/vConsolePlugin";
+import { ChiiPluginHeight } from "./chii/ChiiPluginHeight";
 
 export const Tools = {
 	$data: {
@@ -761,7 +762,7 @@ export const Tools = {
 			console.log("禁止在调试端运行");
 			return;
 		}
-		ChiiHeight.init();
+		ChiiPluginHeight.init();
 		if (PopsPanel.getValue(PanelSettingConfig.chii_check_script_load.key)) {
 			function checkChiiScriptLoad(event: any) {
 				if (event.target === scriptNode) {

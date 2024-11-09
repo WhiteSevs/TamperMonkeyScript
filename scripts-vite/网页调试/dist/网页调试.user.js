@@ -2770,6 +2770,70 @@
       return new VConsoleOutputLogsPlugin(vConsole, VConsole);
     }
   };
+  const ChiiPluginHeight = {
+    $data: {
+      get key() {
+        return PanelSettingConfig.chii_embedded_height.key;
+      },
+      winHeight: parseInt(window.innerHeight.toString()),
+      get winHalfHeight() {
+        return PanelSettingConfig.chii_embedded_height.defaultValue;
+      }
+    },
+    init() {
+      let height = this.$data.winHalfHeight;
+      if (!this.isExistGMLocalHeight()) {
+        this.setGMLocalHeight(height);
+      } else {
+        height = this.getGMLocalHeight();
+      }
+      this.setLocalHeight(height);
+    },
+    isExistLocalHeight() {
+      return typeof this.getLocalHeight() === "number";
+    },
+    /**
+     *
+     */
+    getLocalHeight() {
+      return globalThis.localStorage.getItem(this.$data.key);
+    },
+    /**
+     *
+     * @param value
+     */
+    setLocalHeight(value) {
+      if (typeof value !== "number") {
+        console$1.log(value);
+        throw new TypeError(`${this.$data.key}的值必须是number`);
+      }
+      globalThis.localStorage.setItem(this.$data.key, value);
+      let localHeight = this.getLocalHeight();
+      if (localHeight !== value) {
+        globalThis.localStorage[this.$data.key] = value;
+      }
+    },
+    isExistGMLocalHeight() {
+      return typeof this.getGMLocalHeight() === "number";
+    },
+    /**
+     *
+     */
+    getGMLocalHeight() {
+      return PopsPanel.getValue(this.$data.key);
+    },
+    /**
+     *
+     * @param value
+     */
+    setGMLocalHeight(value) {
+      if (typeof value !== "number") {
+        console$1.log(value);
+        throw new TypeError(`${this.$data.key}的值必须是number`);
+      }
+      PopsPanel.setValue(this.$data.key, value);
+    }
+  };
   const Tools = {
     $data: {
       /** 当前的调试工具是否已执行 */
@@ -3437,7 +3501,7 @@
         console$1.log("禁止在调试端运行");
         return;
       }
-      ChiiHeight.init();
+      ChiiPluginHeight.init();
       if (PopsPanel.getValue(PanelSettingConfig.chii_check_script_load.key)) {
         let checkChiiScriptLoad = function(event) {
           if (event.target === scriptNode) {
