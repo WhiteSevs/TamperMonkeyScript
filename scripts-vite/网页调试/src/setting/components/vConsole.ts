@@ -1,18 +1,18 @@
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { UIButton } from "../common-components/ui-button";
-import { ToolsConfig } from "@/main/ToolsConfig";
+import { DebugToolConfig } from "@/main/DebugToolConfig";
 import { utils } from "@/env";
 import { UISwitch } from "../common-components/ui-switch";
 import { UISelect } from "../common-components/ui-select";
 import { PopsPanel } from "../setting";
 import { UIInput } from "../common-components/ui-input";
 import { PanelSettingConfig } from "../panel-setting-config";
-import { ToolVersionInfo } from "@/main/ToolVersionInfo";
+import { DebugToolVersionConfig } from "@/main/DebugToolVersionConfig";
 
 export const PanelUI_vConsole: PopsPanelContentConfig = {
 	id: "debug-panel-config-vconsole",
 	title: "vConsole",
-	headerTitle: `<a href='${ToolsConfig.vConsole.settingDocUrl}' target='_blank'>vConsole设置</a>`,
+	headerTitle: `<a href='${DebugToolConfig.vConsole.settingDocUrl}' target='_blank'>vConsole设置</a>`,
 	forms: [
 		{
 			text: "功能",
@@ -21,14 +21,14 @@ export const PanelUI_vConsole: PopsPanelContentConfig = {
 				UIButton(
 					"当前版本",
 					"",
-					ToolsConfig.vConsole.version,
+					DebugToolConfig.vConsole.version,
 					void 0,
 					false,
 					false,
 					"primary",
 					(event) => {
 						utils.preventEvent(event);
-						window.open(ToolsConfig.vConsole.homeUrl, "_blank");
+						window.open(DebugToolConfig.vConsole.homeUrl, "_blank");
 					}
 				),
 				{
@@ -42,7 +42,7 @@ export const PanelUI_vConsole: PopsPanelContentConfig = {
 						let $right = document.createElement("div");
 						$right.className = "pops-panel-item-right-text";
 						$right.innerHTML = /*html*/ `
-                        <a href="${ToolsConfig.vConsole.homeUrl}" target="_blank">
+                        <a href="${DebugToolConfig.vConsole.homeUrl}" target="_blank">
                             <img src="https://img.shields.io/npm/v/vconsole/latest.svg?label=vConsole" alt="vConsole">
                         </a>
                         `;
@@ -291,7 +291,7 @@ export const PanelUI_vConsole: PopsPanelContentConfig = {
 						.defaultValue,
 					void 0,
 					`
-                        v${ToolVersionInfo.vconsole.plugin["vue-vconsole-devtools"]}
+                        v${DebugToolVersionConfig.vconsole.plugin["vue-vconsole-devtools"]}
                         <br>
                         Vue-vConsole-devtools 是一款vConsole插件，把Vue.js官方调试工具vue-devtools移植到移动端，可以直接在移动端查看调试Vue.js应用
                     `

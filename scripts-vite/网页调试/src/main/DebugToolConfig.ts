@@ -1,10 +1,10 @@
-import { ToolVersionInfo } from "./ToolVersionInfo";
+import { DebugToolVersionConfig } from "./DebugToolVersionConfig";
 
 /** 全局调试工具的配置 */
-export const ToolsConfig = {
+export const DebugToolConfig = {
 	eruda: {
 		/** 版本号 */
-		version: ToolVersionInfo.eruda.version,
+		version: DebugToolVersionConfig.eruda.version,
 		/** 项目地址 */
 		homeUrl: "https://github.com/liriliri/eruda",
 		/** 项目最新的js文件地址 */
@@ -14,7 +14,7 @@ export const ToolsConfig = {
 	},
 	vConsole: {
 		/** 版本号 */
-		version: ToolVersionInfo.vconsole.version,
+		version: DebugToolVersionConfig.vconsole.version,
 		/** 项目地址 */
 		homeUrl: "https://github.com/Tencent/vConsole",
 		/** 项目最新的js文件地址 */
@@ -24,7 +24,7 @@ export const ToolsConfig = {
 	},
 	pageSpy: {
 		/** 版本号 */
-		version: ToolVersionInfo["@huolala-tech/page-spy-browser"].version,
+		version: DebugToolVersionConfig["@huolala-tech/page-spy-browser"].version,
 		/** 项目地址 */
 		homeUrl: "https://github.com/HuolalaTech/page-spy-web",
 		/** 项目最新的js文件地址 */

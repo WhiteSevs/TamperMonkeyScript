@@ -59,11 +59,11 @@
   var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
   const versionJSON = '{\n  "eruda": {\n    "version": "3.4.0",\n    "plugin": {\n      "eruda-monitor": "1.1.1",\n      "eruda-features": "2.1.0",\n      "eruda-timing": "2.0.1",\n      "eruda-code": "2.2.0",\n      "eruda-benchmark": "2.0.1",\n      "eruda-orientation": "2.1.1",\n      "eruda-vue": "1.1.1",\n      "eruda-touches": "2.1.0",\n      "eruda-outline-plugin": "0.0.5",\n      "eruda-pixel": "1.0.13"\n    }\n  },\n  "vconsole": {\n    "version": "3.15.1",\n    "plugin": {\n      "vue-vconsole-devtools": "1.0.9"\n    }\n  },\n  "@huolala-tech/page-spy-browser": {\n    "version": "1.9.14"\n  }\n}';
-  const ToolVersionInfo = JSON.parse(versionJSON);
-  const ToolsConfig = {
+  const DebugToolVersionConfig = JSON.parse(versionJSON);
+  const DebugToolConfig = {
     eruda: {
       /** 版本号 */
-      version: ToolVersionInfo.eruda.version,
+      version: DebugToolVersionConfig.eruda.version,
       /** 项目地址 */
       homeUrl: "https://github.com/liriliri/eruda",
       /** 项目最新的js文件地址 */
@@ -73,7 +73,7 @@
     },
     vConsole: {
       /** 版本号 */
-      version: ToolVersionInfo.vconsole.version,
+      version: DebugToolVersionConfig.vconsole.version,
       /** 项目地址 */
       homeUrl: "https://github.com/Tencent/vConsole",
       /** 项目最新的js文件地址 */
@@ -83,7 +83,7 @@
     },
     pageSpy: {
       /** 版本号 */
-      version: ToolVersionInfo["@huolala-tech/page-spy-browser"].version,
+      version: DebugToolVersionConfig["@huolala-tech/page-spy-browser"].version,
       /** 项目地址 */
       homeUrl: "https://github.com/HuolalaTech/page-spy-web",
       /** 项目最新的js文件地址 */
@@ -307,11 +307,11 @@
     },
     pagespy_api: {
       key: "pagespy-api",
-      defaultValue: ToolsConfig.pageSpy.defaultConfig.api
+      defaultValue: DebugToolConfig.pageSpy.defaultConfig.api
     },
     pagespy_clientOrigin: {
       key: "pagespy-clientOrigin",
-      defaultValue: ToolsConfig.pageSpy.defaultConfig.cliennOrigin
+      defaultValue: DebugToolConfig.pageSpy.defaultConfig.cliennOrigin
     },
     pagespy_project: {
       key: "pagespy-project",
@@ -359,11 +359,11 @@
     },
     chii_debug_url: {
       key: "chii-debug-url",
-      defaultValue: ToolsConfig.chii.defaultConfig.url
+      defaultValue: DebugToolConfig.chii.defaultConfig.url
     },
     chii_target_js: {
       key: "chii-target-js",
-      defaultValue: ToolsConfig.chii.defaultConfig.scriptJs
+      defaultValue: DebugToolConfig.chii.defaultConfig.scriptJs
     },
     chii_embedded_height: {
       key: "chii-embedded-height",
@@ -800,7 +800,7 @@
   const PanelUI_vConsole = {
     id: "debug-panel-config-vconsole",
     title: "vConsole",
-    headerTitle: `<a href='${ToolsConfig.vConsole.settingDocUrl}' target='_blank'>vConsole设置</a>`,
+    headerTitle: `<a href='${DebugToolConfig.vConsole.settingDocUrl}' target='_blank'>vConsole设置</a>`,
     forms: [
       {
         text: "功能",
@@ -809,14 +809,14 @@
           UIButton(
             "当前版本",
             "",
-            ToolsConfig.vConsole.version,
+            DebugToolConfig.vConsole.version,
             void 0,
             false,
             false,
             "primary",
             (event) => {
               utils.preventEvent(event);
-              window.open(ToolsConfig.vConsole.homeUrl, "_blank");
+              window.open(DebugToolConfig.vConsole.homeUrl, "_blank");
             }
           ),
           {
@@ -832,7 +832,7 @@
               $right.className = "pops-panel-item-right-text";
               $right.innerHTML = /*html*/
               `
-                        <a href="${ToolsConfig.vConsole.homeUrl}" target="_blank">
+                        <a href="${DebugToolConfig.vConsole.homeUrl}" target="_blank">
                             <img src="https://img.shields.io/npm/v/vconsole/latest.svg?label=vConsole" alt="vConsole">
                         </a>
                         `;
@@ -1072,7 +1072,7 @@
             PanelSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.defaultValue,
             void 0,
             `
-                        v${ToolVersionInfo.vconsole.plugin["vue-vconsole-devtools"]}
+                        v${DebugToolVersionConfig.vconsole.plugin["vue-vconsole-devtools"]}
                         <br>
                         Vue-vConsole-devtools 是一款vConsole插件，把Vue.js官方调试工具vue-devtools移植到移动端，可以直接在移动端查看调试Vue.js应用
                     `
@@ -1084,7 +1084,7 @@
   const PanelUI_eruda = {
     id: "debug-panel-config-eruda",
     title: "Eruda",
-    headerTitle: `<a href='${ToolsConfig.eruda.settingDocUrl}' target='_blank'>Eruda设置</a>`,
+    headerTitle: `<a href='${DebugToolConfig.eruda.settingDocUrl}' target='_blank'>Eruda设置</a>`,
     forms: [
       {
         text: "功能",
@@ -1093,14 +1093,14 @@
           UIButton(
             "当前版本",
             "",
-            ToolsConfig.eruda.version,
+            DebugToolConfig.eruda.version,
             void 0,
             false,
             false,
             "primary",
             (event) => {
               utils.preventEvent(event);
-              window.open(ToolsConfig.eruda.homeUrl, "_blank");
+              window.open(DebugToolConfig.eruda.homeUrl, "_blank");
             }
           ),
           {
@@ -1116,7 +1116,7 @@
               $right.className = "pops-panel-item-right-text";
               $right.innerHTML = /*html*/
               `
-                        <a href="${ToolsConfig.eruda.homeUrl}" target="_blank">
+                        <a href="${DebugToolConfig.eruda.homeUrl}" target="_blank">
                             <img src="https://img.shields.io/npm/v/eruda/latest.svg?label=eruda" alt="eruda">
                         </a>
                         `;
@@ -1380,7 +1380,7 @@
             PanelSettingConfig.eruda_plugin_Resource_erudaMonitor.defaultValue,
             void 0,
             `
-						v${ToolVersionInfo.eruda.plugin["eruda-monitor"]}
+						v${DebugToolVersionConfig.eruda.plugin["eruda-monitor"]}
 						<br>
 						展示页面的 fps 和内存信息
                     `
@@ -1397,7 +1397,7 @@
             PanelSettingConfig.eruda_plugin_Resource_erudaFeatures.defaultValue,
             void 0,
             `
-						v${ToolVersionInfo.eruda.plugin["eruda-features"]}
+						v${DebugToolVersionConfig.eruda.plugin["eruda-features"]}
 						<br>
 						浏览器特性检测
                     `
@@ -1414,7 +1414,7 @@
             PanelSettingConfig.eruda_plugin_Resource_erudaTiming.defaultValue,
             void 0,
             `
-						v${ToolVersionInfo["eruda"]["plugin"]["eruda-timing"]}
+						v${DebugToolVersionConfig["eruda"]["plugin"]["eruda-timing"]}
 						<br>
 						展示性能资源数据
                     `
@@ -1431,7 +1431,7 @@
             PanelSettingConfig.eruda_plugin_Resource_erudaCode.defaultValue,
             void 0,
             `
-						v${ToolVersionInfo.eruda.plugin["eruda-code"]}
+						v${DebugToolVersionConfig.eruda.plugin["eruda-code"]}
 						<br>
 						运行 JavaScript 代码
                     `
@@ -1448,7 +1448,7 @@
             PanelSettingConfig.eruda_plugin_Resource_erudaBenchmark.defaultValue,
             void 0,
             `
-						v${ToolVersionInfo.eruda.plugin["eruda-benchmark"]}
+						v${DebugToolVersionConfig.eruda.plugin["eruda-benchmark"]}
 						<br>
 						运行 JavaScript 性能测试
                     `
@@ -1472,7 +1472,7 @@
             PanelSettingConfig.eruda_plugin_Resource_erudaOrientation.defaultValue,
             void 0,
             `
-						v${ToolVersionInfo.eruda.plugin["eruda-orientation"]}
+						v${DebugToolVersionConfig.eruda.plugin["eruda-orientation"]}
 						<br>
 						测试重力感应接口
                     `
@@ -1489,7 +1489,7 @@
             PanelSettingConfig.eruda_plugin_Resource_erudaVue.defaultValue,
             void 0,
             `
-						v${ToolVersionInfo.eruda.plugin["eruda-vue"]}
+						v${DebugToolVersionConfig.eruda.plugin["eruda-vue"]}
 						<br>
 						Vue调试工具
                     `
@@ -1506,7 +1506,7 @@
             PanelSettingConfig.eruda_plugin_Resource_erudaTouches.defaultValue,
             void 0,
             `
-						v${ToolVersionInfo.eruda.plugin["eruda-touches"]}
+						v${DebugToolVersionConfig.eruda.plugin["eruda-touches"]}
 						<br>
 						可视化屏幕 Touch 事件触发
                     `
@@ -1523,7 +1523,7 @@
             PanelSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.defaultValue,
             void 0,
             `
-						v${ToolVersionInfo.eruda.plugin["eruda-outline-plugin"]}
+						v${DebugToolVersionConfig.eruda.plugin["eruda-outline-plugin"]}
 						<br>
 						给页面的元素添加边框
 					`
@@ -1540,7 +1540,7 @@
             PanelSettingConfig.eruda_plugin_Resource_erudaPixel.defaultValue,
             void 0,
             `
-						v${ToolVersionInfo.eruda.plugin["eruda-pixel"]}
+						v${DebugToolVersionConfig.eruda.plugin["eruda-pixel"]}
 						<br>
 						高精度的UI恢复辅助工具
                     `
@@ -1552,7 +1552,7 @@
   const PanelUI_pagespy = {
     id: "debug-panel-config-pagespy",
     title: "PageSpy",
-    headerTitle: `<a href='${ToolsConfig.pageSpy.settingDocUrl}' target='_blank'>PageSpy设置</a>`,
+    headerTitle: `<a href='${DebugToolConfig.pageSpy.settingDocUrl}' target='_blank'>PageSpy设置</a>`,
     forms: [
       {
         text: "功能",
@@ -1573,7 +1573,7 @@
                   position: "center"
                 },
                 content: {
-                  text: `下面默认配置的${ToolsConfig.pageSpy.defaultConfig.api}是仅供测试使用的，其他人也可以看到你的调试信息，包括Cookie等信息，如果想用，请自己搭建一个调试端`
+                  text: `下面默认配置的${DebugToolConfig.pageSpy.defaultConfig.api}是仅供测试使用的，其他人也可以看到你的调试信息，包括Cookie等信息，如果想用，请自己搭建一个调试端`
                 },
                 btn: {
                   reverse: true,
@@ -1600,14 +1600,14 @@
           UIButton(
             "当前版本",
             "",
-            ToolsConfig.pageSpy.version,
+            DebugToolConfig.pageSpy.version,
             void 0,
             false,
             false,
             "primary",
             (event) => {
               utils.preventEvent(event);
-              window.open(ToolsConfig.pageSpy.homeUrl, "_blank");
+              window.open(DebugToolConfig.pageSpy.homeUrl, "_blank");
             }
           ),
           {
@@ -1623,7 +1623,7 @@
               $right.className = "pops-panel-item-right-text";
               $right.innerHTML = /*html*/
               `
-                        <a href="${ToolsConfig.pageSpy.homeUrl}" target="_blank">
+                        <a href="${DebugToolConfig.pageSpy.homeUrl}" target="_blank">
                             <img src="https://img.shields.io/npm/v/@huolala-tech/page-spy-browser?label=page-spy-browser" alt="page-spy-browser">
                         </a>
                         `;
@@ -1777,7 +1777,7 @@
   const PanelUI_chii = {
     id: "debug-panel-config-chii",
     title: "Chii",
-    headerTitle: `<a href='${ToolsConfig.chii.settingDocUrl}' target='_blank'>Chii设置</a>`,
+    headerTitle: `<a href='${DebugToolConfig.chii.settingDocUrl}' target='_blank'>Chii设置</a>`,
     forms: [
       {
         text: "功能",
@@ -1794,7 +1794,7 @@
             (event) => {
               let url = PopsPanel.getValue(
                 "chii-debug-url",
-                ToolsConfig.chii.defaultConfig.url
+                DebugToolConfig.chii.defaultConfig.url
               );
               window.open(url, "_blank");
             },
@@ -2394,381 +2394,846 @@
       return unsafeWin.eval(coverCMD + "\n" + codeText);
     }
   };
-  const vConsolePlugin = {
-    State(vConsole, VConsole) {
-      const Stats = function() {
-        var mode = 0;
-        var localPositionStorageKey = "vConsole-Plugin-Stats-Position";
-        function getLocalPositionStorage() {
-          return _GM_getValue(localPositionStorageKey, {
-            top: 0,
-            left: 0
-          });
-        }
-        function setLocalPositionStorage(left, top2) {
-          _GM_setValue(localPositionStorageKey, {
-            left,
-            top: top2
-          });
-        }
-        var container = document.createElement("div");
-        let oldPosition = getLocalPositionStorage();
-        container.style.cssText = `position:fixed;top:${oldPosition.top}px;left:${oldPosition.left}px;cursor:pointer;opacity:0.9;z-index:10000`;
-        container.addEventListener(
-          "click",
-          function(event) {
-            event.preventDefault();
-            showPanel(++mode % container.children.length);
-          },
-          {
-            capture: true
-          }
+  const Eruda = () => {
+    initEruda("Eruda", unsafeWin);
+    let Eruda2 = unsafeWin.Eruda || globalThis.Eruda;
+    if (!Eruda2) {
+      alert("调试工具【eruda】注册全局失败，请反馈开发者");
+      return;
+    }
+    let inintPanelList = [];
+    if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_console.key)) {
+      inintPanelList.push("console");
+    }
+    if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_elements.key)) {
+      inintPanelList.push("elements");
+    }
+    if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_network.key)) {
+      inintPanelList.push("network");
+    }
+    if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_resources.key)) {
+      inintPanelList.push("resources");
+    }
+    if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_sources.key)) {
+      inintPanelList.push("sources");
+    }
+    if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_info.key)) {
+      inintPanelList.push("info");
+    }
+    if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_snippets.key)) {
+      inintPanelList.push("snippets");
+    }
+    DebugToolConfig.eruda.version = Eruda2.version;
+    Eruda2.init({
+      tool: inintPanelList
+    });
+    console.log(`eruda当前版本：${Eruda2.version}`);
+    console.log(`eruda项目地址：${DebugToolConfig.eruda.homeUrl}`);
+    console.log("eruda的全局变量名: Eruda");
+    if (PopsPanel.getValue(
+      PanelSettingConfig.eruda_plugin_Resource_erudaMonitor.key
+    )) {
+      try {
+        WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(
+            PanelSettingConfig.eruda_plugin_Resource_erudaMonitor.resource
+          )
         );
-        function addPanel(panel) {
-          container.appendChild(panel.dom);
-          return panel;
+        Eruda2.add(erudaMonitor);
+      } catch (error) {
+        console.error("插件【eruda-monitor】加载失败，原因：", error);
+      }
+    }
+    if (PopsPanel.getValue(
+      PanelSettingConfig.eruda_plugin_Resource_erudaFeatures.key
+    )) {
+      try {
+        WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(
+            PanelSettingConfig.eruda_plugin_Resource_erudaFeatures.resource
+          )
+        );
+        Eruda2.add(erudaFeatures);
+      } catch (error) {
+        console.error("插件【eruda-features】加载失败，原因：", error);
+      }
+    }
+    if (PopsPanel.getValue(PanelSettingConfig.eruda_plugin_Resource_erudaTiming.key)) {
+      try {
+        WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(
+            PanelSettingConfig.eruda_plugin_Resource_erudaTiming.resource
+          )
+        );
+        Eruda2.add(erudaTiming);
+      } catch (error) {
+        console.error("插件【eruda-timing】加载失败，原因：", error);
+      }
+    }
+    if (PopsPanel.getValue(PanelSettingConfig.eruda_plugin_Resource_erudaCode.key)) {
+      try {
+        WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(
+            PanelSettingConfig.eruda_plugin_Resource_erudaCode.resource
+          )
+        );
+        Eruda2.add(erudaCode);
+      } catch (error) {
+        console.error("插件【eruda-code】加载失败，原因：", error);
+      }
+    }
+    if (PopsPanel.getValue(
+      PanelSettingConfig.eruda_plugin_Resource_erudaBenchmark.key
+    )) {
+      try {
+        WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(
+            PanelSettingConfig.eruda_plugin_Resource_erudaBenchmark.resource
+          )
+        );
+        Eruda2.add(erudaBenchmark);
+      } catch (error) {
+        console.error("插件【eruda-benchmark】加载失败，原因：", error);
+      }
+    }
+    if (PopsPanel.getValue(
+      PanelSettingConfig.eruda_plugin_Resource_erudaGeolocation.key
+    )) {
+      try {
+        WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(
+            PanelSettingConfig.eruda_plugin_Resource_erudaGeolocation.resource
+          )
+        );
+        Eruda2.add(erudaGeolocation);
+      } catch (error) {
+        console.error("插件【eruda-geolocation】加载失败，原因：", error);
+      }
+    }
+    if (PopsPanel.getValue(
+      PanelSettingConfig.eruda_plugin_Resource_erudaOrientation.key
+    )) {
+      try {
+        WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(
+            PanelSettingConfig.eruda_plugin_Resource_erudaOrientation.resource
+          )
+        );
+        Eruda2.add(erudaOrientation);
+      } catch (error) {
+        console.error("插件【eruda-orientation】加载失败，原因：", error);
+      }
+    }
+    if (PopsPanel.getValue(
+      PanelSettingConfig.eruda_plugin_Resource_erudaTouches.key
+    )) {
+      try {
+        WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(
+            PanelSettingConfig.eruda_plugin_Resource_erudaTouches.resource
+          )
+        );
+        Eruda2.add(erudaTouches);
+      } catch (error) {
+        console.error("插件【eruda-touches】加载失败，原因：", error);
+      }
+    }
+    if (PopsPanel.getValue(
+      PanelSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.key
+    )) {
+      try {
+        WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(
+            PanelSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.resource
+          )
+        );
+        Eruda2.add(erudaOutlinePlugin);
+      } catch (error) {
+        console.error("插件【eruda-outline-plugin】加载失败，原因：", error);
+      }
+    }
+    if (PopsPanel.getValue(PanelSettingConfig.eruda_plugin_Resource_erudaPixel.key)) {
+      try {
+        WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(
+            PanelSettingConfig.eruda_plugin_Resource_erudaPixel.resource
+          )
+        );
+        Eruda2.add(erudaPixel);
+      } catch (error) {
+        console.error("插件【eruda-pixel】加载失败，原因：", error);
+      }
+    }
+    if (PopsPanel.getValue(PanelSettingConfig.eruda_plugin_Resource_erudaVue.key)) {
+      try {
+        WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(
+            PanelSettingConfig.eruda_plugin_Resource_erudaVue.resource
+          )
+        );
+        Eruda2.add(erudaVue);
+      } catch (error) {
+        console.error("插件【eruda-vue】加载失败，原因：", error);
+      }
+    }
+    if (PopsPanel.getValue(PanelSettingConfig.eruda_auto_open_panel.key)) {
+      let defaultShowName = PopsPanel.getValue(
+        PanelSettingConfig.eruda_default_show_panel_name.key,
+        PanelSettingConfig.eruda_default_show_panel_name.defaultValue
+      );
+      Eruda2.show();
+      setTimeout(() => {
+        Eruda2.show(defaultShowName);
+      }, 250);
+    }
+  };
+  const vConsolePluginState = (vConsole2, VConsole) => {
+    const Stats = function() {
+      var mode = 0;
+      var localPositionStorageKey = "vConsole-Plugin-Stats-Position";
+      function getLocalPositionStorage() {
+        return _GM_getValue(localPositionStorageKey, {
+          top: 0,
+          left: 0
+        });
+      }
+      function setLocalPositionStorage(left, top2) {
+        _GM_setValue(localPositionStorageKey, {
+          left,
+          top: top2
+        });
+      }
+      var container = document.createElement("div");
+      let oldPosition = getLocalPositionStorage();
+      container.style.cssText = `position:fixed;top:${oldPosition.top}px;left:${oldPosition.left}px;cursor:pointer;opacity:0.9;z-index:10000`;
+      container.addEventListener(
+        "click",
+        function(event) {
+          event.preventDefault();
+          showPanel(++mode % container.children.length);
+        },
+        {
+          capture: true
         }
-        function showPanel(id) {
-          for (var i = 0; i < container.children.length; i++) {
-            container.children[i].style.display = i === id ? "block" : "none";
+      );
+      function addPanel(panel) {
+        container.appendChild(panel.dom);
+        return panel;
+      }
+      function showPanel(id) {
+        for (var i = 0; i < container.children.length; i++) {
+          container.children[i].style.display = i === id ? "block" : "none";
+        }
+        mode = id;
+      }
+      function drag() {
+        __pops.config.InstanceUtils.drag(container, {
+          dragElement: container,
+          limit: true,
+          extraDistance: 2,
+          moveCallBack(moveElement, left, top2) {
+            setLocalPositionStorage(left, top2);
           }
-          mode = id;
-        }
-        function drag() {
-          __pops.config.InstanceUtils.drag(container, {
-            dragElement: container,
-            limit: true,
-            extraDistance: 2,
-            moveCallBack(moveElement, left, top2) {
-              setLocalPositionStorage(left, top2);
+        });
+      }
+      var beginTime = (performance || Date).now(), prevTime = beginTime, frames = 0;
+      var fpsPanel = addPanel(new Stats.Panel("FPS", "#0ff", "#002"));
+      var msPanel = addPanel(new Stats.Panel("MS", "#0f0", "#020"));
+      if (self.performance && self.performance.memory) {
+        var memPanel = addPanel(new Stats.Panel("MB", "#f08", "#201"));
+      }
+      showPanel(0);
+      drag();
+      return {
+        REVISION: 16,
+        dom: container,
+        addPanel,
+        showPanel,
+        begin: function() {
+          beginTime = (performance || Date).now();
+        },
+        end: function() {
+          frames++;
+          var time = (performance || Date).now();
+          msPanel.update(time - beginTime, 200);
+          if (time >= prevTime + 1e3) {
+            fpsPanel.update(frames * 1e3 / (time - prevTime), 100);
+            prevTime = time;
+            frames = 0;
+            if (memPanel) {
+              var memory = performance.memory;
+              memPanel.update(
+                memory.usedJSHeapSize / 1048576,
+                memory.jsHeapSizeLimit / 1048576
+              );
             }
-          });
-        }
-        var beginTime = (performance || Date).now(), prevTime = beginTime, frames = 0;
-        var fpsPanel = addPanel(new Stats.Panel("FPS", "#0ff", "#002"));
-        var msPanel = addPanel(new Stats.Panel("MS", "#0f0", "#020"));
-        if (self.performance && self.performance.memory) {
-          var memPanel = addPanel(new Stats.Panel("MB", "#f08", "#201"));
-        }
-        showPanel(0);
-        drag();
-        return {
-          REVISION: 16,
-          dom: container,
-          addPanel,
-          showPanel,
-          begin: function() {
-            beginTime = (performance || Date).now();
-          },
-          end: function() {
-            frames++;
-            var time = (performance || Date).now();
-            msPanel.update(time - beginTime, 200);
-            if (time >= prevTime + 1e3) {
-              fpsPanel.update(frames * 1e3 / (time - prevTime), 100);
-              prevTime = time;
-              frames = 0;
-              if (memPanel) {
-                var memory = performance.memory;
-                memPanel.update(
-                  memory.usedJSHeapSize / 1048576,
-                  memory.jsHeapSizeLimit / 1048576
-                );
-              }
-            }
-            return time;
-          },
-          update: function() {
-            beginTime = this.end();
-          },
-          // Backwards Compatibility
-          domElement: container,
-          setMode: showPanel
-        };
-      };
-      Stats.Panel = function(name, fg, bg) {
-        var min = Infinity, max = 0, round = Math.round;
-        var PR = round(window.devicePixelRatio || 1);
-        var WIDTH = 80 * PR, HEIGHT = 48 * PR, TEXT_X = 3 * PR, TEXT_Y = 2 * PR, GRAPH_X = 3 * PR, GRAPH_Y = 15 * PR, GRAPH_WIDTH = 74 * PR, GRAPH_HEIGHT = 30 * PR;
-        var canvas = document.createElement("canvas");
-        canvas.width = WIDTH;
-        canvas.height = HEIGHT;
-        canvas.style.cssText = "width:80px;height:48px";
-        var context = canvas.getContext("2d");
-        context.font = "bold " + 9 * PR + "px Helvetica,Arial,sans-serif";
-        context.textBaseline = "top";
-        context.fillStyle = bg;
-        context.fillRect(0, 0, WIDTH, HEIGHT);
-        context.fillStyle = fg;
-        context.fillText(name, TEXT_X, TEXT_Y);
-        context.fillRect(GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT);
-        context.fillStyle = bg;
-        context.globalAlpha = 0.9;
-        context.fillRect(GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT);
-        return {
-          dom: canvas,
-          update: function(value, maxValue) {
-            min = Math.min(min, value);
-            max = Math.max(max, value);
-            context.fillStyle = bg;
-            context.globalAlpha = 1;
-            context.fillRect(0, 0, WIDTH, GRAPH_Y);
-            context.fillStyle = fg;
-            context.fillText(
-              round(value) + " " + name + " (" + round(min) + "-" + round(max) + ")",
-              TEXT_X,
-              TEXT_Y
-            );
-            context.drawImage(
-              canvas,
-              GRAPH_X + PR,
-              GRAPH_Y,
-              GRAPH_WIDTH - PR,
-              GRAPH_HEIGHT,
-              GRAPH_X,
-              GRAPH_Y,
-              GRAPH_WIDTH - PR,
-              GRAPH_HEIGHT
-            );
-            context.fillRect(
-              GRAPH_X + GRAPH_WIDTH - PR,
-              GRAPH_Y,
-              PR,
-              GRAPH_HEIGHT
-            );
-            context.fillStyle = bg;
-            context.globalAlpha = 0.9;
-            context.fillRect(
-              GRAPH_X + GRAPH_WIDTH - PR,
-              GRAPH_Y,
-              PR,
-              round((1 - value / maxValue) * GRAPH_HEIGHT)
-            );
           }
-        };
+          return time;
+        },
+        update: function() {
+          beginTime = this.end();
+        },
+        // Backwards Compatibility
+        domElement: container,
+        setMode: showPanel
       };
-      class VConsoleStatsPlugin {
-        constructor(vConsole2, VConsole2) {
-          __publicField(this, "vConsole");
-          __publicField(this, "VConsole");
-          __publicField(this, "dom");
-          __publicField(this, "requestID");
-          __publicField(this, "stats");
-          __publicField(this, "addStyle", (target) => {
-            if (target == null) {
-              target = document.head || document.body || document.documentElement;
-            }
-            const cssNode = document.createElement("style");
-            cssNode.setAttribute("type", "text/css");
-            cssNode.innerHTML = /*css*/
-            `
-                .vc-stats-button{
-                    margin: 10px 10px;
-                    background-color: #fbf9fe;
-                    padding: 2px 4px;
-                    cursor: pointer;
-                    border-radius: 4px;
-                    border: 1px solid;
-                }
-                .vc-button-container{
-                    display: flex;
-                    align-items: center;
-                }
-                .vc-description{
-                    display: flex;
-                    flex-direction: column;
-                }
-                .vc-description a.vc-link{
-                    color: blue;
-                }`;
-            target.appendChild(cssNode);
-          });
-          __publicField(this, "show", () => {
-            if (!this.stats) {
-              this.stats = new Stats();
-              this.stats.showPanel(1);
-              this.dom = this.stats.dom;
-              document.body.appendChild(this.dom);
-              this.requestID = requestAnimationFrame(this.loop);
-            }
-          });
-          __publicField(this, "changePanel", (type) => {
-            if (!this.stats) {
-              this.show();
-            }
-            this.stats.setMode(Number(type));
-          });
-          __publicField(this, "loop", () => {
-            this.stats.update();
-            this.requestID = requestAnimationFrame(this.loop);
-          });
-          __publicField(this, "close", () => {
-            if (this.requestID) {
-              cancelAnimationFrame(this.requestID);
-            }
-            if (this.dom) {
-              document.body.removeChild(this.dom);
-            }
-            this.stats = null;
-            this.requestID = null;
-            this.dom = null;
-          });
-          this.vConsole = vConsole2;
-          this.VConsole = VConsole2;
-          this.dom = null;
-          this.requestID = null;
-          this.stats = null;
-          return this.init();
-        }
-        init() {
-          this.addStyle();
-          const vConsoleStats = new this.VConsole.VConsolePlugin(
-            "Stats",
-            "Stats"
+    };
+    Stats.Panel = function(name, fg, bg) {
+      var min = Infinity, max = 0, round = Math.round;
+      var PR = round(window.devicePixelRatio || 1);
+      var WIDTH = 80 * PR, HEIGHT = 48 * PR, TEXT_X = 3 * PR, TEXT_Y = 2 * PR, GRAPH_X = 3 * PR, GRAPH_Y = 15 * PR, GRAPH_WIDTH = 74 * PR, GRAPH_HEIGHT = 30 * PR;
+      var canvas = document.createElement("canvas");
+      canvas.width = WIDTH;
+      canvas.height = HEIGHT;
+      canvas.style.cssText = "width:80px;height:48px";
+      var context = canvas.getContext("2d");
+      context.font = "bold " + 9 * PR + "px Helvetica,Arial,sans-serif";
+      context.textBaseline = "top";
+      context.fillStyle = bg;
+      context.fillRect(0, 0, WIDTH, HEIGHT);
+      context.fillStyle = fg;
+      context.fillText(name, TEXT_X, TEXT_Y);
+      context.fillRect(GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT);
+      context.fillStyle = bg;
+      context.globalAlpha = 0.9;
+      context.fillRect(GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT);
+      return {
+        dom: canvas,
+        update: function(value, maxValue) {
+          min = Math.min(min, value);
+          max = Math.max(max, value);
+          context.fillStyle = bg;
+          context.globalAlpha = 1;
+          context.fillRect(0, 0, WIDTH, GRAPH_Y);
+          context.fillStyle = fg;
+          context.fillText(
+            round(value) + " " + name + " (" + round(min) + "-" + round(max) + ")",
+            TEXT_X,
+            TEXT_Y
           );
-          vConsoleStats.on("ready", () => {
-            document.querySelectorAll(".vc-stats-buttons").forEach((statusButton) => {
-              statusButton.addEventListener("click", (event) => {
-                const currentType = event.target.dataset.type;
-                if (currentType.toString() === "2" && // @ts-ignore
-                !(self.performance && self.performance.memory)) {
-                  console$1.error(
-                    "浏览器不支持window.performance或者window.performance.memory"
-                  );
-                  return;
-                }
-                this.changePanel(currentType);
-              });
+          context.drawImage(
+            canvas,
+            GRAPH_X + PR,
+            GRAPH_Y,
+            GRAPH_WIDTH - PR,
+            GRAPH_HEIGHT,
+            GRAPH_X,
+            GRAPH_Y,
+            GRAPH_WIDTH - PR,
+            GRAPH_HEIGHT
+          );
+          context.fillRect(GRAPH_X + GRAPH_WIDTH - PR, GRAPH_Y, PR, GRAPH_HEIGHT);
+          context.fillStyle = bg;
+          context.globalAlpha = 0.9;
+          context.fillRect(
+            GRAPH_X + GRAPH_WIDTH - PR,
+            GRAPH_Y,
+            PR,
+            round((1 - value / maxValue) * GRAPH_HEIGHT)
+          );
+        }
+      };
+    };
+    class VConsoleStatsPlugin {
+      constructor(vConsole22, VConsole2) {
+        __publicField(this, "vConsole");
+        __publicField(this, "VConsole");
+        __publicField(this, "dom");
+        __publicField(this, "requestID");
+        __publicField(this, "stats");
+        __publicField(this, "addStyle", (target) => {
+          if (target == null) {
+            target = document.head || document.body || document.documentElement;
+          }
+          const cssNode = document.createElement("style");
+          cssNode.setAttribute("type", "text/css");
+          cssNode.innerHTML = /*css*/
+          `
+            .vc-stats-button{
+                margin: 10px 10px;
+                background-color: #fbf9fe;
+                padding: 2px 4px;
+                cursor: pointer;
+                border-radius: 4px;
+                border: 1px solid;
+            }
+            .vc-button-container{
+                display: flex;
+                align-items: center;
+            }
+            .vc-description{
+                display: flex;
+                flex-direction: column;
+            }
+            .vc-description a.vc-link{
+                color: blue;
+            }`;
+          target.appendChild(cssNode);
+        });
+        __publicField(this, "show", () => {
+          if (!this.stats) {
+            this.stats = new Stats();
+            this.stats.showPanel(1);
+            this.dom = this.stats.dom;
+            document.body.appendChild(this.dom);
+            this.requestID = requestAnimationFrame(this.loop);
+          }
+        });
+        __publicField(this, "changePanel", (type) => {
+          if (!this.stats) {
+            this.show();
+          }
+          this.stats.setMode(Number(type));
+        });
+        __publicField(this, "loop", () => {
+          this.stats.update();
+          this.requestID = requestAnimationFrame(this.loop);
+        });
+        __publicField(this, "close", () => {
+          if (this.requestID) {
+            cancelAnimationFrame(this.requestID);
+          }
+          if (this.dom) {
+            document.body.removeChild(this.dom);
+          }
+          this.stats = null;
+          this.requestID = null;
+          this.dom = null;
+        });
+        this.vConsole = vConsole22;
+        this.VConsole = VConsole2;
+        this.dom = null;
+        this.requestID = null;
+        this.stats = null;
+        return this.init();
+      }
+      init() {
+        this.addStyle();
+        const vConsoleStats = new this.VConsole.VConsolePlugin("Stats", "Stats");
+        vConsoleStats.on("ready", () => {
+          document.querySelectorAll(".vc-stats-buttons").forEach((statusButton) => {
+            statusButton.addEventListener("click", (event) => {
+              const currentType = event.target.dataset.type;
+              if (currentType.toString() === "2" && // @ts-ignore
+              !(self.performance && self.performance.memory)) {
+                console.error(
+                  "浏览器不支持window.performance或者window.performance.memory"
+                );
+                return;
+              }
+              this.changePanel(currentType);
             });
           });
-          vConsoleStats.on("renderTab", (callback) => {
-            const statsHTML = (
-              /*html*/
-              `
-                    <div class="vc-stats-buttons">
-                        <div class="vc-button-container">
-                            <button class="vc-stats-button" data-type="0">show FPS</button>
-                            <div class="vc-description">
-                            <span>最后一秒渲染的帧。数字越高越好</span>
-                            </div>
+        });
+        vConsoleStats.on("renderTab", (callback) => {
+          const statsHTML = (
+            /*html*/
+            `
+                <div class="vc-stats-buttons">
+                    <div class="vc-button-container">
+                        <button class="vc-stats-button" data-type="0">show FPS</button>
+                        <div class="vc-description">
+                        <span>最后一秒渲染的帧。数字越高越好</span>
                         </div>
-                        <div class="vc-button-container">
-                            <button class="vc-stats-button" data-type="1">show MS</button>
-                            <div class="vc-description">
-                            <span>渲染帧所需的毫秒数。数字越低越好</span>
-                            </div>
+                    </div>
+                    <div class="vc-button-container">
+                        <button class="vc-stats-button" data-type="1">show MS</button>
+                        <div class="vc-description">
+                        <span>渲染帧所需的毫秒数。数字越低越好</span>
                         </div>
-                        <div class="vc-button-container">
-                            <button class="vc-stats-button" data-type="2">show MB</button>
-                            <div class="vc-description">
-                            <span>内存分配(MB)</span>
-                            <a class="vc-link" href="https://caniuse.com/mdn-api_performance_memory" target="_blank">performance.memory兼容性查看</a>
-                            <span>Chrome启用方式: --enable-precise-memory-info</span>
-                            </div>
+                    </div>
+                    <div class="vc-button-container">
+                        <button class="vc-stats-button" data-type="2">show MB</button>
+                        <div class="vc-description">
+                        <span>内存分配(MB)</span>
+                        <a class="vc-link" href="https://caniuse.com/mdn-api_performance_memory" target="_blank">performance.memory兼容性查看</a>
+                        <span>Chrome启用方式: --enable-precise-memory-info</span>
                         </div>
-                    </div>`
-            );
-            callback(statsHTML);
-          });
-          vConsoleStats.on("addTool", (callback) => {
-            const buttons = [
-              {
-                name: "Show Stats",
-                onClick: this.show
-              },
-              {
-                name: "Close Stats",
-                onClick: this.close
-              }
-            ];
-            callback(buttons);
-          });
-          this.vConsole.addPlugin(vConsoleStats);
-          return vConsoleStats;
-        }
-      }
-      return new VConsoleStatsPlugin(vConsole, VConsole);
-    },
-    exportLog(vConsole, VConsole) {
-      class VConsoleOutputLogsPlugin {
-        constructor(vConsole2, VConsole2, logItemSelector) {
-          __publicField(this, "vConsole");
-          __publicField(this, "VConsole");
-          __publicField(this, "$");
-          __publicField(this, "dom");
-          __publicField(this, "logItemSelector");
-          __publicField(this, "funDownload", (content, filename) => {
-            var eleLink = document.createElement("a");
-            eleLink.download = filename;
-            eleLink.style.display = "none";
-            var blob = new Blob([content]);
-            eleLink.href = URL.createObjectURL(blob);
-            document.body.appendChild(eleLink);
-            eleLink.click();
-            document.body.removeChild(eleLink);
-          });
-          __publicField(this, "getAllLogContent", () => {
-            let logRowsElement = document.querySelectorAll(this.logItemSelector);
-            let logText = "";
-            for (let index = 0; index < logRowsElement.length; index++) {
-              const ele = logRowsElement[index];
-              logText += `${ele.textContent}
-`;
-            }
-            return logText;
-          });
-          __publicField(this, "export", () => {
-            let logText = this.getAllLogContent();
-            this.funDownload(
-              logText,
-              `${(/* @__PURE__ */ new Date()).toLocaleDateString() + " " + (/* @__PURE__ */ new Date()).toLocaleTimeString()}.log`
-            );
-          });
-          __publicField(this, "copyText", () => {
-            let logText = this.getAllLogContent();
-            utils.setClip(logText);
-          });
-          this.vConsole = vConsole2;
-          this.VConsole = VConsole2;
-          this.$ = vConsole2.$;
-          this.dom = null;
-          this.logItemSelector = logItemSelector || ".vc-content #__vc_plug_default .vc-log-row";
-          return this.init();
-        }
-        init() {
-          const vConsoleExportLogs = new this.VConsole.VConsolePlugin(
-            "exportLog",
-            "exportLog"
+                    </div>
+                </div>`
           );
-          vConsoleExportLogs.on("ready", () => {
-            console$1.log("[vConsole-exportlog-plugin] -- load");
-          });
-          vConsoleExportLogs.on("renderTab", (callback) => {
-            const html = (
-              /*html*/
-              `<div class="vconsole-exportlog"></div>`
-            );
-            callback(html);
-          });
-          vConsoleExportLogs.on("addTool", (callback) => {
-            const buttons = [
-              {
-                name: "exportLogs",
-                onClick: this.export
-              },
-              {
-                name: "copyLogs",
-                onClick: this.copyText
-              }
-            ];
-            callback(buttons);
-          });
-          this.vConsole.addPlugin(vConsoleExportLogs);
-          return vConsoleExportLogs;
-        }
+          callback(statsHTML);
+        });
+        vConsoleStats.on("addTool", (callback) => {
+          const buttons = [
+            {
+              name: "Show Stats",
+              onClick: this.show
+            },
+            {
+              name: "Close Stats",
+              onClick: this.close
+            }
+          ];
+          callback(buttons);
+        });
+        this.vConsole.addPlugin(vConsoleStats);
+        return vConsoleStats;
       }
-      return new VConsoleOutputLogsPlugin(vConsole, VConsole);
     }
+    return new VConsoleStatsPlugin(vConsole2, VConsole);
+  };
+  const vConsolePluginExportLog = (vConsole2, VConsole) => {
+    class VConsoleOutputLogsPlugin {
+      constructor(vConsole22, VConsole2, logItemSelector) {
+        __publicField(this, "vConsole");
+        __publicField(this, "VConsole");
+        __publicField(this, "$");
+        __publicField(this, "dom");
+        __publicField(this, "logItemSelector");
+        __publicField(this, "funDownload", (content, filename) => {
+          var eleLink = document.createElement("a");
+          eleLink.download = filename;
+          eleLink.style.display = "none";
+          var blob = new Blob([content]);
+          eleLink.href = URL.createObjectURL(blob);
+          document.body.appendChild(eleLink);
+          eleLink.click();
+          document.body.removeChild(eleLink);
+        });
+        __publicField(this, "getAllLogContent", () => {
+          let logRowsElement = document.querySelectorAll(this.logItemSelector);
+          let logText = "";
+          for (let index = 0; index < logRowsElement.length; index++) {
+            const ele = logRowsElement[index];
+            logText += `${ele.textContent}
+`;
+          }
+          return logText;
+        });
+        __publicField(this, "export", () => {
+          let logText = this.getAllLogContent();
+          this.funDownload(
+            logText,
+            `${(/* @__PURE__ */ new Date()).toLocaleDateString() + " " + (/* @__PURE__ */ new Date()).toLocaleTimeString()}.log`
+          );
+        });
+        __publicField(this, "copyText", () => {
+          let logText = this.getAllLogContent();
+          utils.setClip(logText);
+        });
+        this.vConsole = vConsole22;
+        this.VConsole = VConsole2;
+        this.$ = vConsole22.$;
+        this.dom = null;
+        this.logItemSelector = logItemSelector || ".vc-content #__vc_plug_default .vc-log-row";
+        return this.init();
+      }
+      init() {
+        const vConsoleExportLogs = new this.VConsole.VConsolePlugin(
+          "exportLog",
+          "exportLog"
+        );
+        vConsoleExportLogs.on("ready", () => {
+          console.log("[vConsole-exportlog-plugin] -- load");
+        });
+        vConsoleExportLogs.on("renderTab", (callback) => {
+          const html = (
+            /*html*/
+            `<div class="vconsole-exportlog"></div>`
+          );
+          callback(html);
+        });
+        vConsoleExportLogs.on("addTool", (callback) => {
+          const buttons = [
+            {
+              name: "exportLogs",
+              onClick: this.export
+            },
+            {
+              name: "copyLogs",
+              onClick: this.copyText
+            }
+          ];
+          callback(buttons);
+        });
+        this.vConsole.addPlugin(vConsoleExportLogs);
+        return vConsoleExportLogs;
+      }
+    }
+    return new VConsoleOutputLogsPlugin(vConsole2, VConsole);
+  };
+  const vConsole = () => {
+    initVConsole("VConsole", unsafeWin);
+    let VConsole = unsafeWin.VConsole || globalThis.VConsole;
+    if (!VConsole) {
+      alert("调试工具【vConsole】注册全局失败，请反馈开发者");
+      return;
+    }
+    let initPanelList = [];
+    if (PopsPanel.getValue(PanelSettingConfig.vConsole_panel_system.key)) {
+      initPanelList.push("system");
+    }
+    if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_network.key)) {
+      initPanelList.push("network");
+    }
+    if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_elements.key)) {
+      initPanelList.push("element");
+    }
+    if (PopsPanel.getValue(PanelSettingConfig.vConsole_panel_storage.key)) {
+      initPanelList.push("storage");
+    }
+    if (PopsPanel.getValue(PanelSettingConfig.vConsole_theme.key) === "auto") {
+      if (utils.isThemeDark()) ;
+    } else {
+      PopsPanel.getValue(PanelSettingConfig.vConsole_theme.key);
+    }
+    let defaultStorages = [];
+    if (PopsPanel.getValue(
+      PanelSettingConfig.vConsole_storage_defaultStorages_cookies.key
+    )) {
+      defaultStorages.push("cookies");
+    }
+    if (PopsPanel.getValue(
+      PanelSettingConfig.vConsole_storage_defaultStorages_localStorage.key
+    )) {
+      defaultStorages.push("localStorage");
+    }
+    if (PopsPanel.getValue(
+      PanelSettingConfig.vConsole_storage_defaultStorages_sessionStorage.key
+    )) {
+      defaultStorages.push("sessionStorage");
+    }
+    let vConsole2 = new VConsole({
+      defaultPlugins: initPanelList,
+      theme: "light",
+      onReady() {
+        if (PopsPanel.getValue(PanelSettingConfig.vconsole_auto_open_panel.key)) {
+          vConsole2.show();
+        }
+      },
+      disableLogScrolling: PopsPanel.getValue(
+        PanelSettingConfig.vconsole_disableLogScrolling.key
+      ),
+      log: {
+        maxLogNumber: PopsPanel.getValue(
+          PanelSettingConfig.vconsole_maxLogNumber.key,
+          PanelSettingConfig.vconsole_maxLogNumber.defaultValue
+        ),
+        showTimestamps: PopsPanel.getValue(
+          PanelSettingConfig.vconsole_showTimestamps.key
+        ),
+        maxNetworkNumber: PopsPanel.getValue(
+          PanelSettingConfig.vconsole_maxNetworkNumber.key,
+          PanelSettingConfig.vconsole_maxNetworkNumber.defaultValue
+        )
+      },
+      storage: {
+        defaultStorages
+      }
+    });
+    DebugToolConfig.vConsole.version = vConsole2.version;
+    unsafeWin.vConsole = vConsole2;
+    console.log(`VConsole当前版本：${vConsole2.version}`);
+    console.log(`VConsole项目地址：${DebugToolConfig.vConsole.homeUrl}`);
+    console.log("VConsole的实例化的全局变量名: vConsole");
+    if (PopsPanel.getValue(
+      PanelSettingConfig.vConsole_plugin_Resource_vConsole_Stats.key
+    )) {
+      try {
+        vConsolePluginState(vConsole2, VConsole);
+      } catch (error) {
+        console.error("插件【vconsole-stats-plugin】加载失败，原因：", error);
+      }
+    }
+    if (PopsPanel.getValue(
+      PanelSettingConfig.vConsole_plugin_Resource_vConsole_ExportLog.key
+    )) {
+      try {
+        vConsolePluginExportLog(vConsole2, VConsole);
+      } catch (error) {
+        console.error("插件【vconsole-outputlog-plugin】加载失败，原因：", error);
+      }
+    }
+    if (PopsPanel.getValue(
+      PanelSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.key
+    )) {
+      try {
+        WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(
+            PanelSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.resource
+          )
+        );
+        const Devtools = unsafeWin.vueVconsoleDevtools;
+        Devtools.initPlugin(vConsole2);
+      } catch (error) {
+        console.error(
+          "插件【vconsole-vue-devtools-plugin】加载失败，原因：",
+          error
+        );
+      }
+    }
+    if (PopsPanel.getValue(PanelSettingConfig.vconsole_auto_open_panel.key)) {
+      let defaultShowName = PopsPanel.getValue(
+        PanelSettingConfig.vconsole_default_show_panel_name.key,
+        PanelSettingConfig.vconsole_default_show_panel_name.defaultValue
+      );
+      vConsole2.show();
+      setTimeout(() => {
+        vConsole2.showPlugin(defaultShowName);
+      }, 250);
+    }
+  };
+  const PageSpy = () => {
+    let api = PopsPanel.getValue(
+      PanelSettingConfig.pagespy_api.key,
+      PanelSettingConfig.pagespy_api.defaultValue
+    );
+    let clientOrigin = PopsPanel.getValue(
+      PanelSettingConfig.pagespy_clientOrigin.key,
+      PanelSettingConfig.pagespy_clientOrigin.defaultValue
+    );
+    if (PopsPanel.getValue(
+      PanelSettingConfig.pagespy_disable_run_in_debug_client.key
+    )) {
+      if (window.location.hostname.includes(api)) {
+        return;
+      }
+      if (window.location.origin.includes(clientOrigin)) {
+        return;
+      }
+    }
+    let __pageSpy__ = new initPageSpy(unsafeWin);
+    if (!__pageSpy__) {
+      alert("调试工具【PageSpy】获取失败，请反馈开发者");
+      return;
+    }
+    let $pageSpy = new __pageSpy__({
+      // SDK 会从引入的路径自动分析并决定 Server 的地址（api）和调试端的地址（clientOrigin）
+      // 假设你从 https://example.com/page-spy/index.min.js 引入，那么 SDK 会在内部设置：
+      //   - api: "example.com"
+      //   - clientOrigin: "https://example.com"
+      // 如果你的服务部署在别处，就需要在这里手动指定去覆盖。
+      api,
+      clientOrigin,
+      // project 作为信息的一种聚合，可以在调试端房间列表进行搜索
+      project: PopsPanel.getValue(
+        PanelSettingConfig.pagespy_project.key,
+        PanelSettingConfig.pagespy_project.defaultValue
+      ),
+      // title 供用户提供自定义参数，可以用于区分当前调试的客户端
+      // 对应的信息显示在每个调试连接面板的「设备id」下方
+      title: PopsPanel.getValue(
+        PanelSettingConfig.pagespy_title.key,
+        PanelSettingConfig.pagespy_title.defaultValue
+      ),
+      // 指示 SDK 初始化完成，是否自动在客户端左下角渲染「圆形白底带 Logo」的控件
+      // 如果设置为 false, 可以调用 window.$pageSpy.render() 手动渲染
+      autoRender: PopsPanel.getValue(
+        PanelSettingConfig.pagespy_autoRender.key,
+        PanelSettingConfig.pagespy_autoRender.defaultValue
+      ),
+      // 手动指定 PageSpy 服务的 scheme。
+      // 这在 SDK 无法正确分析出 scheme 可以使用，例如 PageSpy 的浏览器插件
+      // 是通过 chrome-extension://xxx/sdk/index.min.js 引入 SDK，这会
+      // 被 SDK 解析成无效的 "chrome-extension://" 并回退到 ["http://", "ws://"]。
+      //   - （默认）传值 undefined 或者 null：SDK 会自动分析；
+      //   - 传递 boolean 值：
+      //     - true：SDK 将通过 ["https://", "wss://"] 访问 PageSpy 服务
+      //     - false：SDK 将通过 ["http://", "ws://"] 访问 PageSpy 服务
+      enableSSL: PopsPanel.getValue(
+        PanelSettingConfig.pagespy_enableSSL.key,
+        PanelSettingConfig.pagespy_enableSSL.defaultValue
+      ),
+      // 在 PageSpy@1.7.4 支持离线回放功能后，客户端集成的 SDK 可以不用和调试端建立连接，
+      // 通过 DataHarborPlugin 收集数据、导出离线日志，成为新的使用方式。
+      // 默认值 false。用户设置为其他值时，会进入 "离线模式"，具体表现为 PageSpy 不会创建房间、建立 WebSocket 连接。
+      // 仅适用浏览器环境的 SDK
+      offline: PopsPanel.getValue(
+        PanelSettingConfig.pagespy_offline.key,
+        PanelSettingConfig.pagespy_offline.defaultValue
+      ),
+      // PageSpy 内置的插件都是开箱即用的，你可以手动指定禁用哪些插件
+      // disabledPlugins: [],
+      // 是否允许 SDK 在收集离线日志时，序列化非基本类型的数据，序列化的目的是方便在回放时查看
+      serializeData: PopsPanel.getValue(
+        PanelSettingConfig.pagespy_serializeData.key,
+        PanelSettingConfig.pagespy_serializeData.defaultValue
+      ),
+      // 是否启用权限认证功能。启用后，SDK 会生成 6 位数的随机 “密钥”；调试端进入房间时要求输入对应的密钥
+      useSecret: PopsPanel.getValue(
+        PanelSettingConfig.pagespy_useSecret.key,
+        PanelSettingConfig.pagespy_useSecret.defaultValue
+      ),
+      // SDK 在调试端进入房间之前会在内存中缓存数据，以便于调试端进入房间后可以看到之前的数据。
+      // 但数据体积会越来越大，因此可以指定 SDK 在本地最多缓存多少条数据记录。
+      messageCapacity: PopsPanel.getValue(
+        PanelSettingConfig.pagespy_messageCapacity.key,
+        PanelSettingConfig.pagespy_messageCapacity.defaultValue
+      )
+    });
+    unsafeWin.$pageSpy = $pageSpy;
+    console.log($pageSpy);
+    DebugToolConfig.pageSpy.version = unsafeWin.$pageSpy.version;
+    console.log("PageSpy全局变量：$pageSpy");
+    utils.waitNode("#__pageSpy .page-spy-modal", 1e4).then(($modal) => {
+      if (!$modal) {
+        console.error("未找到PageSpy的按钮");
+        return;
+      }
+      domUtils.on(
+        $modal,
+        "click",
+        (event) => {
+          utils.preventEvent(event);
+          if ($modal.classList.contains("show")) {
+            $modal.classList.remove("show"), $modal.classList.add("leaving"), setTimeout(() => {
+              $modal.classList.remove("leaving");
+            }, 300);
+          } else {
+            $modal.classList.add("show");
+          }
+        },
+        {
+          capture: true
+        }
+      );
+    });
+    utils.waitPropertyByInterval(
+      unsafeWin.$pageSpy,
+      function() {
+        return unsafeWin.$pageSpy.root != null;
+      },
+      250,
+      1e4
+    ).then(() => {
+      var _a2;
+      let contentElement = (((_a2 = unsafeWin.$pageSpy) == null ? void 0 : _a2.root) || document).querySelector(".page-spy-content");
+      let goToRoomListElement = document.createElement("div");
+      let goToDebugElement = document.createElement("div");
+      goToDebugElement.className = "page-spy-content__btn";
+      goToDebugElement.innerHTML = "前往调试";
+      goToRoomListElement.className = "page-spy-content__btn";
+      goToRoomListElement.innerHTML = "前往房间列表";
+      goToDebugElement.addEventListener(
+        "click",
+        function(event) {
+          utils.preventEvent(event);
+          window.open(
+            `${clientOrigin}/#/devtools?${utils.toSearchParamsStr({
+            version: unsafeWin.$pageSpy.name,
+            address: unsafeWin.$pageSpy.address
+          })}`,
+            "_blank"
+          );
+        },
+        {
+          capture: true
+        }
+      );
+      goToRoomListElement.addEventListener(
+        "click",
+        function(event) {
+          utils.preventEvent(event);
+          window.open(`${clientOrigin}/#/room-list`, "_blank");
+        },
+        {
+          capture: true
+        }
+      );
+      contentElement.appendChild(goToRoomListElement);
+      contentElement.appendChild(goToDebugElement);
+    });
   };
   const ChiiPluginHeight = {
     $data: {
@@ -2834,7 +3299,55 @@
       PopsPanel.setValue(this.$data.key, value);
     }
   };
-  const Tools = {
+  const Chii = () => {
+    let debugUrl = PopsPanel.getValue(
+      PanelSettingConfig.chii_debug_url.key,
+      PanelSettingConfig.chii_debug_url.defaultValue
+    );
+    if (window.location.href.startsWith(debugUrl) && PopsPanel.getValue(
+      PanelSettingConfig.chii_check_script_load.key,
+      PanelSettingConfig.chii_disable_run_in_debug_url.defaultValue
+    )) {
+      console.log("禁止在调试端运行");
+      return;
+    }
+    ChiiPluginHeight.init();
+    if (PopsPanel.getValue(PanelSettingConfig.chii_check_script_load.key)) {
+      let checkChiiScriptLoad = function(event) {
+        if (event.target === scriptNode) {
+          globalThis.alert(
+            `调试工具【Chii】脚本加载失败
+      可能原因1：CSP策略阻止了加载第三方域的js文件
+      可能原因2：目标js无效`
+          );
+          unsafeWin.removeEventListener("error", checkChiiScriptLoad, {
+            capture: true
+          });
+        }
+      };
+      unsafeWin.addEventListener("error", checkChiiScriptLoad, {
+        capture: true
+      });
+    }
+    let scriptJsUrl = PopsPanel.getValue(
+      PanelSettingConfig.chii_target_js.key,
+      PanelSettingConfig.chii_target_js.defaultValue
+    );
+    let scriptEmbedded = PopsPanel.getValue(
+      PanelSettingConfig.chii_script_embedded.key,
+      PanelSettingConfig.chii_script_embedded.defaultValue
+    );
+    let scriptNode = document.createElement("script");
+    scriptNode.src = scriptJsUrl;
+    scriptNode.setAttribute("type", "application/javascript");
+    if (scriptEmbedded) {
+      scriptNode.setAttribute("embedded", "true");
+    }
+    (document.head || document.body || document.documentElement).appendChild(
+      scriptNode
+    );
+  };
+  const DebugTool = {
     $data: {
       /** 当前的调试工具是否已执行 */
       isLoadDebugTool: false,
@@ -2850,7 +3363,7 @@
     /**
      * 处理当在iframe内加载时，是否允许执行，如果允许，那么把url添加到菜单中
      */
-    handleIframe() {
+    handleToolWithIframe() {
       if (PopsPanel.isTopWindow()) {
         return true;
       }
@@ -2880,7 +3393,7 @@
     /**
      * 执行当前的调试工具
      */
-    runDebugTool() {
+    execDebugTool() {
       let debugTool = PopsPanel.getValue(
         PanelSettingConfig.debugTool.key
       );
@@ -2889,19 +3402,19 @@
       if (debugTool === "vconsole") {
         this.$data.isLoadDebugTool = true;
         this.$data.loadDebugToolName = "vconsole";
-        this.vConsole();
+        vConsole();
       } else if (debugTool === "pagespy") {
         this.$data.isLoadDebugTool = true;
         this.$data.loadDebugToolName = "pagespy";
-        this.pageSpy();
+        PageSpy();
       } else if (debugTool === "eruda") {
         this.$data.isLoadDebugTool = true;
         this.$data.loadDebugToolName = "eruda";
-        this.eruda();
+        Eruda();
       } else if (debugTool === "chii") {
         this.$data.isLoadDebugTool = true;
         this.$data.loadDebugToolName = "chii";
-        this.chii();
+        Chii();
       } else {
         console$1.error("当前未配置该调试工具的运行");
       }
@@ -2909,7 +3422,7 @@
     /**
      * 在脚本菜单中添加控制当前的调试工具状态的菜单按钮
      */
-    addControlDebugToolScriptMenu() {
+    registerDebugToolMenuControls() {
       if (!PopsPanel.isTopWindow()) {
         console$1.warn("不在iframe内重复添加菜单按钮");
         return;
@@ -2927,18 +3440,18 @@
         }
       };
       const changeMenu = (data) => {
-        if (Tools.$data.isLoadDebugTool) {
-          if (Tools.$ele.hideDebugToolCSSNode) {
-            this.showDebugTool();
+        if (DebugTool.$data.isLoadDebugTool) {
+          if (DebugTool.$ele.hideDebugToolCSSNode) {
+            this.showCurrentDebugTool();
             menuData.text = "🌑 隐藏调试工具";
             GM_Menu.update(menuData);
           } else {
-            this.hideDebugTool();
+            this.hideCurrentDebugTool();
             menuData.text = "🌕 显示调试工具";
             GM_Menu.update(menuData);
           }
         } else {
-          this.showDebugTool();
+          this.showCurrentDebugTool();
           menuData.text = "🌑 隐藏调试工具";
           GM_Menu.update(menuData);
         }
@@ -2949,7 +3462,7 @@
      * 判断页面中是否已存在隐藏调试工具的CSS元素节点
      * @returns
      */
-    hasHideDebugToolCSSNode() {
+    isInjectDebugToolHideCSS() {
       return Boolean(
         this.$ele.hideDebugToolCSSNode && document.documentElement.contains(this.$ele.hideDebugToolCSSNode)
       );
@@ -2958,37 +3471,41 @@
      * 创建隐藏调试工具的CSS元素
      * @returns
      */
-    createHideDebugToolCSSNode() {
-      let cssNode = document.createElement("style");
-      cssNode.setAttribute("type", "text/css");
-      cssNode.setAttribute("data-from", "hide-debug-tool");
-      cssNode.innerHTML = /*css*/
+    createDebugToolHideCSS() {
+      let $css = document.createElement("style");
+      $css.setAttribute("type", "text/css");
+      $css.setAttribute("data-from", "hide-debug-tool");
+      $css.innerHTML = /*css*/
       `
+		/* Eruda的按钮 */
         #eruda{
             display: none !important;
         }
+		/* vConsole的按钮 */
         #__vconsole{
             display: none !important;
         }
+		/* PageSpy的按钮 */
         #__pageSpy{
             display: none !important;
         }
+		/* Chii的面板 */
         .__chobitsu-hide__ > iframe,
         .__chobitsu-hide__:has(iframe){
             display: none !important;
         }
         `;
-      return cssNode;
+      return $css;
     },
     /**
      * 隐藏当前的调试工具
      */
-    hideDebugTool() {
+    hideCurrentDebugTool() {
       if (this.$ele.hideDebugToolCSSNode == null) {
         console$1.log("未创建隐藏【调试工具】的style元素 => 创建元素");
-        this.$ele.hideDebugToolCSSNode = this.createHideDebugToolCSSNode();
+        this.$ele.hideDebugToolCSSNode = this.createDebugToolHideCSS();
       }
-      if (!this.hasHideDebugToolCSSNode()) {
+      if (!this.isInjectDebugToolHideCSS()) {
         console$1.log("页面不存在隐藏【调试工具】的style元素 => 添加元素");
         document.documentElement.appendChild(this.$ele.hideDebugToolCSSNode);
       }
@@ -2996,7 +3513,7 @@
     /**
      * 显示当前的调试工具
      */
-    showDebugTool() {
+    showCurrentDebugTool() {
       if (this.$ele.hideDebugToolCSSNode) {
         console$1.log("页面存在隐藏【调试工具】的style元素 => 移除元素");
         document.documentElement.removeChild(this.$ele.hideDebugToolCSSNode);
@@ -3004,547 +3521,17 @@
       }
       if (!this.$data.isLoadDebugTool) {
         console$1.log("尚未运行【调试工具】 => 运行调试工具");
-        this.runDebugTool();
+        this.execDebugTool();
       }
-    },
-    eruda() {
-      initEruda("Eruda", unsafeWin);
-      let Eruda = unsafeWin.Eruda || globalThis.Eruda;
-      if (!Eruda) {
-        alert("调试工具【eruda】注册全局失败，请反馈开发者");
-        return;
-      }
-      let inintPanelList = [];
-      if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_console.key)) {
-        inintPanelList.push("console");
-      }
-      if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_elements.key)) {
-        inintPanelList.push("elements");
-      }
-      if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_network.key)) {
-        inintPanelList.push("network");
-      }
-      if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_resources.key)) {
-        inintPanelList.push("resources");
-      }
-      if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_sources.key)) {
-        inintPanelList.push("sources");
-      }
-      if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_info.key)) {
-        inintPanelList.push("info");
-      }
-      if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_snippets.key)) {
-        inintPanelList.push("snippets");
-      }
-      ToolsConfig.eruda.version = Eruda.version;
-      Eruda.init({
-        tool: inintPanelList
-      });
-      console$1.log(`eruda当前版本：${Eruda.version}`);
-      console$1.log(`eruda项目地址：${ToolsConfig.eruda.homeUrl}`);
-      console$1.log("eruda的全局变量名: Eruda");
-      if (PopsPanel.getValue(
-        PanelSettingConfig.eruda_plugin_Resource_erudaMonitor.key
-      )) {
-        try {
-          WebSiteDebugUtil.evalPlugin(
-            _GM_getResourceText(
-              PanelSettingConfig.eruda_plugin_Resource_erudaMonitor.resource
-            )
-          );
-          Eruda.add(erudaMonitor);
-        } catch (error) {
-          console$1.error("插件【eruda-monitor】加载失败，原因：", error);
-        }
-      }
-      if (PopsPanel.getValue(
-        PanelSettingConfig.eruda_plugin_Resource_erudaFeatures.key
-      )) {
-        try {
-          WebSiteDebugUtil.evalPlugin(
-            _GM_getResourceText(
-              PanelSettingConfig.eruda_plugin_Resource_erudaFeatures.resource
-            )
-          );
-          Eruda.add(erudaFeatures);
-        } catch (error) {
-          console$1.error("插件【eruda-features】加载失败，原因：", error);
-        }
-      }
-      if (PopsPanel.getValue(
-        PanelSettingConfig.eruda_plugin_Resource_erudaTiming.key
-      )) {
-        try {
-          WebSiteDebugUtil.evalPlugin(
-            _GM_getResourceText(
-              PanelSettingConfig.eruda_plugin_Resource_erudaTiming.resource
-            )
-          );
-          Eruda.add(erudaTiming);
-        } catch (error) {
-          console$1.error("插件【eruda-timing】加载失败，原因：", error);
-        }
-      }
-      if (PopsPanel.getValue(PanelSettingConfig.eruda_plugin_Resource_erudaCode.key)) {
-        try {
-          WebSiteDebugUtil.evalPlugin(
-            _GM_getResourceText(
-              PanelSettingConfig.eruda_plugin_Resource_erudaCode.resource
-            )
-          );
-          Eruda.add(erudaCode);
-        } catch (error) {
-          console$1.error("插件【eruda-code】加载失败，原因：", error);
-        }
-      }
-      if (PopsPanel.getValue(
-        PanelSettingConfig.eruda_plugin_Resource_erudaBenchmark.key
-      )) {
-        try {
-          WebSiteDebugUtil.evalPlugin(
-            _GM_getResourceText(
-              PanelSettingConfig.eruda_plugin_Resource_erudaBenchmark.resource
-            )
-          );
-          Eruda.add(erudaBenchmark);
-        } catch (error) {
-          console$1.error("插件【eruda-benchmark】加载失败，原因：", error);
-        }
-      }
-      if (PopsPanel.getValue(
-        PanelSettingConfig.eruda_plugin_Resource_erudaGeolocation.key
-      )) {
-        try {
-          WebSiteDebugUtil.evalPlugin(
-            _GM_getResourceText(
-              PanelSettingConfig.eruda_plugin_Resource_erudaGeolocation.resource
-            )
-          );
-          Eruda.add(erudaGeolocation);
-        } catch (error) {
-          console$1.error("插件【eruda-geolocation】加载失败，原因：", error);
-        }
-      }
-      if (PopsPanel.getValue(
-        PanelSettingConfig.eruda_plugin_Resource_erudaOrientation.key
-      )) {
-        try {
-          WebSiteDebugUtil.evalPlugin(
-            _GM_getResourceText(
-              PanelSettingConfig.eruda_plugin_Resource_erudaOrientation.resource
-            )
-          );
-          Eruda.add(erudaOrientation);
-        } catch (error) {
-          console$1.error("插件【eruda-orientation】加载失败，原因：", error);
-        }
-      }
-      if (PopsPanel.getValue(
-        PanelSettingConfig.eruda_plugin_Resource_erudaTouches.key
-      )) {
-        try {
-          WebSiteDebugUtil.evalPlugin(
-            _GM_getResourceText(
-              PanelSettingConfig.eruda_plugin_Resource_erudaTouches.resource
-            )
-          );
-          Eruda.add(erudaTouches);
-        } catch (error) {
-          console$1.error("插件【eruda-touches】加载失败，原因：", error);
-        }
-      }
-      if (PopsPanel.getValue(
-        PanelSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.key
-      )) {
-        try {
-          WebSiteDebugUtil.evalPlugin(
-            _GM_getResourceText(
-              PanelSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.resource
-            )
-          );
-          Eruda.add(erudaOutlinePlugin);
-        } catch (error) {
-          console$1.error("插件【eruda-outline-plugin】加载失败，原因：", error);
-        }
-      }
-      if (PopsPanel.getValue(
-        PanelSettingConfig.eruda_plugin_Resource_erudaPixel.key
-      )) {
-        try {
-          WebSiteDebugUtil.evalPlugin(
-            _GM_getResourceText(
-              PanelSettingConfig.eruda_plugin_Resource_erudaPixel.resource
-            )
-          );
-          Eruda.add(erudaPixel);
-        } catch (error) {
-          console$1.error("插件【eruda-pixel】加载失败，原因：", error);
-        }
-      }
-      if (PopsPanel.getValue(PanelSettingConfig.eruda_plugin_Resource_erudaVue.key)) {
-        try {
-          WebSiteDebugUtil.evalPlugin(
-            _GM_getResourceText(
-              PanelSettingConfig.eruda_plugin_Resource_erudaVue.resource
-            )
-          );
-          Eruda.add(erudaVue);
-        } catch (error) {
-          console$1.error("插件【eruda-vue】加载失败，原因：", error);
-        }
-      }
-      if (PopsPanel.getValue(PanelSettingConfig.eruda_auto_open_panel.key)) {
-        let defaultShowName = PopsPanel.getValue(
-          PanelSettingConfig.eruda_default_show_panel_name.key,
-          PanelSettingConfig.eruda_default_show_panel_name.defaultValue
-        );
-        Eruda.show();
-        setTimeout(() => {
-          Eruda.show(defaultShowName);
-        }, 250);
-      }
-    },
-    vConsole() {
-      initVConsole("VConsole", unsafeWin);
-      let VConsole = unsafeWin.VConsole || globalThis.VConsole;
-      if (!VConsole) {
-        alert("调试工具【vConsole】注册全局失败，请反馈开发者");
-        return;
-      }
-      let initPanelList = [];
-      if (PopsPanel.getValue(PanelSettingConfig.vConsole_panel_system.key)) {
-        initPanelList.push("system");
-      }
-      if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_network.key)) {
-        initPanelList.push("network");
-      }
-      if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_elements.key)) {
-        initPanelList.push("element");
-      }
-      if (PopsPanel.getValue(PanelSettingConfig.vConsole_panel_storage.key)) {
-        initPanelList.push("storage");
-      }
-      if (PopsPanel.getValue(PanelSettingConfig.vConsole_theme.key) === "auto") {
-        if (utils.isThemeDark()) ;
-      } else {
-        PopsPanel.getValue(PanelSettingConfig.vConsole_theme.key);
-      }
-      let defaultStorages = [];
-      if (PopsPanel.getValue(
-        PanelSettingConfig.vConsole_storage_defaultStorages_cookies.key
-      )) {
-        defaultStorages.push("cookies");
-      }
-      if (PopsPanel.getValue(
-        PanelSettingConfig.vConsole_storage_defaultStorages_localStorage.key
-      )) {
-        defaultStorages.push("localStorage");
-      }
-      if (PopsPanel.getValue(
-        PanelSettingConfig.vConsole_storage_defaultStorages_sessionStorage.key
-      )) {
-        defaultStorages.push("sessionStorage");
-      }
-      let vConsole = new VConsole({
-        defaultPlugins: initPanelList,
-        theme: "light",
-        onReady() {
-          if (PopsPanel.getValue(PanelSettingConfig.vconsole_auto_open_panel.key)) {
-            vConsole.show();
-          }
-        },
-        disableLogScrolling: PopsPanel.getValue(
-          PanelSettingConfig.vconsole_disableLogScrolling.key
-        ),
-        log: {
-          maxLogNumber: PopsPanel.getValue(
-            PanelSettingConfig.vconsole_maxLogNumber.key,
-            PanelSettingConfig.vconsole_maxLogNumber.defaultValue
-          ),
-          showTimestamps: PopsPanel.getValue(
-            PanelSettingConfig.vconsole_showTimestamps.key
-          ),
-          maxNetworkNumber: PopsPanel.getValue(
-            PanelSettingConfig.vconsole_maxNetworkNumber.key,
-            PanelSettingConfig.vconsole_maxNetworkNumber.defaultValue
-          )
-        },
-        storage: {
-          defaultStorages
-        }
-      });
-      ToolsConfig.vConsole.version = vConsole.version;
-      unsafeWin.vConsole = vConsole;
-      console$1.log(`VConsole当前版本：${vConsole.version}`);
-      console$1.log(`VConsole项目地址：${ToolsConfig.vConsole.homeUrl}`);
-      console$1.log("VConsole的实例化的全局变量名: vConsole");
-      if (PopsPanel.getValue(
-        PanelSettingConfig.vConsole_plugin_Resource_vConsole_Stats.key
-      )) {
-        try {
-          vConsolePlugin.State(vConsole, VConsole);
-        } catch (error) {
-          console$1.error("插件【vconsole-stats-plugin】加载失败，原因：", error);
-        }
-      }
-      if (PopsPanel.getValue(
-        PanelSettingConfig.vConsole_plugin_Resource_vConsole_ExportLog.key
-      )) {
-        try {
-          vConsolePlugin.exportLog(vConsole, VConsole);
-        } catch (error) {
-          console$1.error(
-            "插件【vconsole-outputlog-plugin】加载失败，原因：",
-            error
-          );
-        }
-      }
-      if (PopsPanel.getValue(
-        PanelSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.key
-      )) {
-        try {
-          WebSiteDebugUtil.evalPlugin(
-            _GM_getResourceText(
-              PanelSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.resource
-            )
-          );
-          const Devtools = unsafeWin.vueVconsoleDevtools;
-          Devtools.initPlugin(vConsole);
-        } catch (error) {
-          console$1.error(
-            "插件【vconsole-vue-devtools-plugin】加载失败，原因：",
-            error
-          );
-        }
-      }
-      if (PopsPanel.getValue(PanelSettingConfig.vconsole_auto_open_panel.key)) {
-        let defaultShowName = PopsPanel.getValue(
-          PanelSettingConfig.vconsole_default_show_panel_name.key,
-          PanelSettingConfig.vconsole_default_show_panel_name.defaultValue
-        );
-        vConsole.show();
-        setTimeout(() => {
-          vConsole.showPlugin(defaultShowName);
-        }, 250);
-      }
-    },
-    pageSpy() {
-      let api = PopsPanel.getValue(
-        PanelSettingConfig.pagespy_api.key,
-        PanelSettingConfig.pagespy_api.defaultValue
-      );
-      let clientOrigin = PopsPanel.getValue(
-        PanelSettingConfig.pagespy_clientOrigin.key,
-        PanelSettingConfig.pagespy_clientOrigin.defaultValue
-      );
-      if (PopsPanel.getValue(
-        PanelSettingConfig.pagespy_disable_run_in_debug_client.key
-      )) {
-        if (window.location.hostname.includes(api)) {
-          return;
-        }
-        if (window.location.origin.includes(clientOrigin)) {
-          return;
-        }
-      }
-      let __pageSpy__ = new initPageSpy(unsafeWin);
-      if (!__pageSpy__) {
-        alert("调试工具【PageSpy】获取失败，请反馈开发者");
-        return;
-      }
-      let $pageSpy = new __pageSpy__({
-        // SDK 会从引入的路径自动分析并决定 Server 的地址（api）和调试端的地址（clientOrigin）
-        // 假设你从 https://example.com/page-spy/index.min.js 引入，那么 SDK 会在内部设置：
-        //   - api: "example.com"
-        //   - clientOrigin: "https://example.com"
-        // 如果你的服务部署在别处，就需要在这里手动指定去覆盖。
-        api,
-        clientOrigin,
-        // project 作为信息的一种聚合，可以在调试端房间列表进行搜索
-        project: PopsPanel.getValue(
-          PanelSettingConfig.pagespy_project.key,
-          PanelSettingConfig.pagespy_project.defaultValue
-        ),
-        // title 供用户提供自定义参数，可以用于区分当前调试的客户端
-        // 对应的信息显示在每个调试连接面板的「设备id」下方
-        title: PopsPanel.getValue(
-          PanelSettingConfig.pagespy_title.key,
-          PanelSettingConfig.pagespy_title.defaultValue
-        ),
-        // 指示 SDK 初始化完成，是否自动在客户端左下角渲染「圆形白底带 Logo」的控件
-        // 如果设置为 false, 可以调用 window.$pageSpy.render() 手动渲染
-        autoRender: PopsPanel.getValue(
-          PanelSettingConfig.pagespy_autoRender.key,
-          PanelSettingConfig.pagespy_autoRender.defaultValue
-        ),
-        // 手动指定 PageSpy 服务的 scheme。
-        // 这在 SDK 无法正确分析出 scheme 可以使用，例如 PageSpy 的浏览器插件
-        // 是通过 chrome-extension://xxx/sdk/index.min.js 引入 SDK，这会
-        // 被 SDK 解析成无效的 "chrome-extension://" 并回退到 ["http://", "ws://"]。
-        //   - （默认）传值 undefined 或者 null：SDK 会自动分析；
-        //   - 传递 boolean 值：
-        //     - true：SDK 将通过 ["https://", "wss://"] 访问 PageSpy 服务
-        //     - false：SDK 将通过 ["http://", "ws://"] 访问 PageSpy 服务
-        enableSSL: PopsPanel.getValue(
-          PanelSettingConfig.pagespy_enableSSL.key,
-          PanelSettingConfig.pagespy_enableSSL.defaultValue
-        ),
-        // 在 PageSpy@1.7.4 支持离线回放功能后，客户端集成的 SDK 可以不用和调试端建立连接，
-        // 通过 DataHarborPlugin 收集数据、导出离线日志，成为新的使用方式。
-        // 默认值 false。用户设置为其他值时，会进入 "离线模式"，具体表现为 PageSpy 不会创建房间、建立 WebSocket 连接。
-        // 仅适用浏览器环境的 SDK
-        offline: PopsPanel.getValue(
-          PanelSettingConfig.pagespy_offline.key,
-          PanelSettingConfig.pagespy_offline.defaultValue
-        ),
-        // PageSpy 内置的插件都是开箱即用的，你可以手动指定禁用哪些插件
-        // disabledPlugins: [],
-        // 是否允许 SDK 在收集离线日志时，序列化非基本类型的数据，序列化的目的是方便在回放时查看
-        serializeData: PopsPanel.getValue(
-          PanelSettingConfig.pagespy_serializeData.key,
-          PanelSettingConfig.pagespy_serializeData.defaultValue
-        ),
-        // 是否启用权限认证功能。启用后，SDK 会生成 6 位数的随机 “密钥”；调试端进入房间时要求输入对应的密钥
-        useSecret: PopsPanel.getValue(
-          PanelSettingConfig.pagespy_useSecret.key,
-          PanelSettingConfig.pagespy_useSecret.defaultValue
-        ),
-        // SDK 在调试端进入房间之前会在内存中缓存数据，以便于调试端进入房间后可以看到之前的数据。
-        // 但数据体积会越来越大，因此可以指定 SDK 在本地最多缓存多少条数据记录。
-        messageCapacity: PopsPanel.getValue(
-          PanelSettingConfig.pagespy_messageCapacity.key,
-          PanelSettingConfig.pagespy_messageCapacity.defaultValue
-        )
-      });
-      unsafeWin.$pageSpy = $pageSpy;
-      console$1.log($pageSpy);
-      ToolsConfig.pageSpy.version = unsafeWin.$pageSpy.version;
-      console$1.log("PageSpy全局变量：$pageSpy");
-      utils.waitNode("#__pageSpy .page-spy-modal", 1e4).then(($modal) => {
-        if (!$modal) {
-          console$1.error("未找到PageSpy的按钮");
-          return;
-        }
-        domUtils.on(
-          $modal,
-          "click",
-          (event) => {
-            utils.preventEvent(event);
-            if ($modal.classList.contains("show")) {
-              $modal.classList.remove("show"), $modal.classList.add("leaving"), setTimeout(() => {
-                $modal.classList.remove("leaving");
-              }, 300);
-            } else {
-              $modal.classList.add("show");
-            }
-          },
-          {
-            capture: true
-          }
-        );
-      });
-      utils.waitPropertyByInterval(
-        unsafeWin.$pageSpy,
-        function() {
-          return unsafeWin.$pageSpy.root != null;
-        },
-        250,
-        1e4
-      ).then(() => {
-        var _a2;
-        let contentElement = (((_a2 = unsafeWin.$pageSpy) == null ? void 0 : _a2.root) || document).querySelector(".page-spy-content");
-        let goToRoomListElement = document.createElement("div");
-        let goToDebugElement = document.createElement("div");
-        goToDebugElement.className = "page-spy-content__btn";
-        goToDebugElement.innerHTML = "前往调试";
-        goToRoomListElement.className = "page-spy-content__btn";
-        goToRoomListElement.innerHTML = "前往房间列表";
-        goToDebugElement.addEventListener(
-          "click",
-          function(event) {
-            utils.preventEvent(event);
-            window.open(
-              `${clientOrigin}/#/devtools?${utils.toSearchParamsStr({
-              version: unsafeWin.$pageSpy.name,
-              address: unsafeWin.$pageSpy.address
-            })}`,
-              "_blank"
-            );
-          },
-          {
-            capture: true
-          }
-        );
-        goToRoomListElement.addEventListener(
-          "click",
-          function(event) {
-            utils.preventEvent(event);
-            window.open(`${clientOrigin}/#/room-list`, "_blank");
-          },
-          {
-            capture: true
-          }
-        );
-        contentElement.appendChild(goToRoomListElement);
-        contentElement.appendChild(goToDebugElement);
-      });
-    },
-    chii() {
-      let debugUrl = PopsPanel.getValue(
-        PanelSettingConfig.chii_debug_url.key,
-        PanelSettingConfig.chii_debug_url.defaultValue
-      );
-      if (window.location.href.startsWith(debugUrl) && PopsPanel.getValue(
-        PanelSettingConfig.chii_check_script_load.key,
-        PanelSettingConfig.chii_disable_run_in_debug_url.defaultValue
-      )) {
-        console$1.log("禁止在调试端运行");
-        return;
-      }
-      ChiiPluginHeight.init();
-      if (PopsPanel.getValue(PanelSettingConfig.chii_check_script_load.key)) {
-        let checkChiiScriptLoad = function(event) {
-          if (event.target === scriptNode) {
-            globalThis.alert(
-              `调试工具【Chii】脚本加载失败
-          可能原因1：CSP策略阻止了加载第三方域的js文件
-          可能原因2：目标js无效`
-            );
-            unsafeWin.removeEventListener("error", checkChiiScriptLoad, {
-              capture: true
-            });
-          }
-        };
-        unsafeWin.addEventListener("error", checkChiiScriptLoad, {
-          capture: true
-        });
-      }
-      let scriptJsUrl = PopsPanel.getValue(
-        PanelSettingConfig.chii_target_js.key,
-        PanelSettingConfig.chii_target_js.defaultValue
-      );
-      let scriptEmbedded = PopsPanel.getValue(
-        PanelSettingConfig.chii_script_embedded.key,
-        PanelSettingConfig.chii_script_embedded.defaultValue
-      );
-      let scriptNode = document.createElement("script");
-      scriptNode.src = scriptJsUrl;
-      scriptNode.setAttribute("type", "application/javascript");
-      if (scriptEmbedded) {
-        scriptNode.setAttribute("embedded", "true");
-      }
-      (document.head || document.body || document.documentElement).appendChild(
-        scriptNode
-      );
     }
   };
   const WebSiteDebug = {
     init() {
-      if (Tools.handleIframe()) {
+      if (DebugTool.handleToolWithIframe()) {
         if (PopsPanel.getValue(PanelSettingConfig.autoLoadDebugTool.key)) {
-          Tools.runDebugTool();
+          DebugTool.execDebugTool();
         } else {
-          Tools.addControlDebugToolScriptMenu();
+          DebugTool.registerDebugToolMenuControls();
         }
       }
     }

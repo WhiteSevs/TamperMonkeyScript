@@ -1,4 +1,4 @@
-import { ToolsConfig } from "@/main/ToolsConfig";
+import { DebugToolConfig } from "@/main/DebugToolConfig";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { UIButton } from "../common-components/ui-button";
 import { utils } from "@/env";
@@ -6,12 +6,12 @@ import { UISwitch } from "../common-components/ui-switch";
 import { UISelect } from "../common-components/ui-select";
 import { PopsPanel } from "../setting";
 import { PanelSettingConfig } from "../panel-setting-config";
-import { ToolVersionInfo } from "@/main/ToolVersionInfo";
+import { DebugToolVersionConfig } from "@/main/DebugToolVersionConfig";
 
 export const PanelUI_eruda: PopsPanelContentConfig = {
 	id: "debug-panel-config-eruda",
 	title: "Eruda",
-	headerTitle: `<a href='${ToolsConfig.eruda.settingDocUrl}' target='_blank'>Eruda设置</a>`,
+	headerTitle: `<a href='${DebugToolConfig.eruda.settingDocUrl}' target='_blank'>Eruda设置</a>`,
 	forms: [
 		{
 			text: "功能",
@@ -20,14 +20,14 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 				UIButton(
 					"当前版本",
 					"",
-					ToolsConfig.eruda.version,
+					DebugToolConfig.eruda.version,
 					void 0,
 					false,
 					false,
 					"primary",
 					(event) => {
 						utils.preventEvent(event);
-						window.open(ToolsConfig.eruda.homeUrl, "_blank");
+						window.open(DebugToolConfig.eruda.homeUrl, "_blank");
 					}
 				),
 				{
@@ -41,7 +41,7 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 						let $right = document.createElement("div");
 						$right.className = "pops-panel-item-right-text";
 						$right.innerHTML = /*html*/ `
-                        <a href="${ToolsConfig.eruda.homeUrl}" target="_blank">
+                        <a href="${DebugToolConfig.eruda.homeUrl}" target="_blank">
                             <img src="https://img.shields.io/npm/v/eruda/latest.svg?label=eruda" alt="eruda">
                         </a>
                         `;
@@ -305,7 +305,7 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 					PanelSettingConfig.eruda_plugin_Resource_erudaMonitor.defaultValue,
 					void 0,
 					`
-						v${ToolVersionInfo.eruda.plugin["eruda-monitor"]}
+						v${DebugToolVersionConfig.eruda.plugin["eruda-monitor"]}
 						<br>
 						展示页面的 fps 和内存信息
                     `
@@ -321,7 +321,7 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 					PanelSettingConfig.eruda_plugin_Resource_erudaFeatures.defaultValue,
 					void 0,
 					`
-						v${ToolVersionInfo.eruda.plugin["eruda-features"]}
+						v${DebugToolVersionConfig.eruda.plugin["eruda-features"]}
 						<br>
 						浏览器特性检测
                     `
@@ -337,7 +337,7 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 					PanelSettingConfig.eruda_plugin_Resource_erudaTiming.defaultValue,
 					void 0,
 					`
-						v${ToolVersionInfo["eruda"]["plugin"]["eruda-timing"]}
+						v${DebugToolVersionConfig["eruda"]["plugin"]["eruda-timing"]}
 						<br>
 						展示性能资源数据
                     `
@@ -353,7 +353,7 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 					PanelSettingConfig.eruda_plugin_Resource_erudaCode.defaultValue,
 					void 0,
 					`
-						v${ToolVersionInfo.eruda.plugin["eruda-code"]}
+						v${DebugToolVersionConfig.eruda.plugin["eruda-code"]}
 						<br>
 						运行 JavaScript 代码
                     `
@@ -369,7 +369,7 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 					PanelSettingConfig.eruda_plugin_Resource_erudaBenchmark.defaultValue,
 					void 0,
 					`
-						v${ToolVersionInfo.eruda.plugin["eruda-benchmark"]}
+						v${DebugToolVersionConfig.eruda.plugin["eruda-benchmark"]}
 						<br>
 						运行 JavaScript 性能测试
                     `
@@ -394,7 +394,7 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 						.defaultValue,
 					void 0,
 					`
-						v${ToolVersionInfo.eruda.plugin["eruda-orientation"]}
+						v${DebugToolVersionConfig.eruda.plugin["eruda-orientation"]}
 						<br>
 						测试重力感应接口
                     `
@@ -410,7 +410,7 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 					PanelSettingConfig.eruda_plugin_Resource_erudaVue.defaultValue,
 					void 0,
 					`
-						v${ToolVersionInfo.eruda.plugin["eruda-vue"]}
+						v${DebugToolVersionConfig.eruda.plugin["eruda-vue"]}
 						<br>
 						Vue调试工具
                     `
@@ -426,7 +426,7 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 					PanelSettingConfig.eruda_plugin_Resource_erudaTouches.defaultValue,
 					void 0,
 					`
-						v${ToolVersionInfo.eruda.plugin["eruda-touches"]}
+						v${DebugToolVersionConfig.eruda.plugin["eruda-touches"]}
 						<br>
 						可视化屏幕 Touch 事件触发
                     `
@@ -443,7 +443,7 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 						.defaultValue,
 					void 0,
 					`
-						v${ToolVersionInfo.eruda.plugin["eruda-outline-plugin"]}
+						v${DebugToolVersionConfig.eruda.plugin["eruda-outline-plugin"]}
 						<br>
 						给页面的元素添加边框
 					`
@@ -459,7 +459,7 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 					PanelSettingConfig.eruda_plugin_Resource_erudaPixel.defaultValue,
 					void 0,
 					`
-						v${ToolVersionInfo.eruda.plugin["eruda-pixel"]}
+						v${DebugToolVersionConfig.eruda.plugin["eruda-pixel"]}
 						<br>
 						高精度的UI恢复辅助工具
                     `

@@ -1,5 +1,5 @@
 import { pops, utils } from "@/env";
-import { ToolsConfig } from "@/main/ToolsConfig";
+import { DebugToolConfig } from "@/main/DebugToolConfig";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { UIButton } from "../common-components/ui-button";
 import { UISwitch } from "../common-components/ui-switch";
@@ -11,7 +11,7 @@ import { PanelSettingConfig } from "../panel-setting-config";
 export const PanelUI_pagespy: PopsPanelContentConfig = {
 	id: "debug-panel-config-pagespy",
 	title: "PageSpy",
-	headerTitle: `<a href='${ToolsConfig.pageSpy.settingDocUrl}' target='_blank'>PageSpy设置</a>`,
+	headerTitle: `<a href='${DebugToolConfig.pageSpy.settingDocUrl}' target='_blank'>PageSpy设置</a>`,
 	forms: [
 		{
 			text: "功能",
@@ -32,7 +32,7 @@ export const PanelUI_pagespy: PopsPanelContentConfig = {
 								position: "center",
 							},
 							content: {
-								text: `下面默认配置的${ToolsConfig.pageSpy.defaultConfig.api}是仅供测试使用的，其他人也可以看到你的调试信息，包括Cookie等信息，如果想用，请自己搭建一个调试端`,
+								text: `下面默认配置的${DebugToolConfig.pageSpy.defaultConfig.api}是仅供测试使用的，其他人也可以看到你的调试信息，包括Cookie等信息，如果想用，请自己搭建一个调试端`,
 							},
 							btn: {
 								reverse: true,
@@ -59,14 +59,14 @@ export const PanelUI_pagespy: PopsPanelContentConfig = {
 				UIButton(
 					"当前版本",
 					"",
-					ToolsConfig.pageSpy.version,
+					DebugToolConfig.pageSpy.version,
 					void 0,
 					false,
 					false,
 					"primary",
 					(event) => {
 						utils.preventEvent(event);
-						window.open(ToolsConfig.pageSpy.homeUrl, "_blank");
+						window.open(DebugToolConfig.pageSpy.homeUrl, "_blank");
 					}
 				),
 				{
@@ -80,7 +80,7 @@ export const PanelUI_pagespy: PopsPanelContentConfig = {
 						let $right = document.createElement("div");
 						$right.className = "pops-panel-item-right-text";
 						$right.innerHTML = /*html*/ `
-                        <a href="${ToolsConfig.pageSpy.homeUrl}" target="_blank">
+                        <a href="${DebugToolConfig.pageSpy.homeUrl}" target="_blank">
                             <img src="https://img.shields.io/npm/v/@huolala-tech/page-spy-browser?label=page-spy-browser" alt="page-spy-browser">
                         </a>
                         `;

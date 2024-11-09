@@ -1,14 +1,14 @@
 import { PopsPanel } from "@/setting/setting";
-import { Tools } from "./Tools";
+import { DebugTool } from "./DebugTool";
 import { PanelSettingConfig } from "@/setting/panel-setting-config";
 
 export const WebSiteDebug = {
 	init() {
-		if (Tools.handleIframe()) {
+		if (DebugTool.handleToolWithIframe()) {
 			if (PopsPanel.getValue(PanelSettingConfig.autoLoadDebugTool.key)) {
-				Tools.runDebugTool();
+				DebugTool.execDebugTool();
 			} else {
-				Tools.addControlDebugToolScriptMenu();
+				DebugTool.registerDebugToolMenuControls();
 			}
 		}
 	},

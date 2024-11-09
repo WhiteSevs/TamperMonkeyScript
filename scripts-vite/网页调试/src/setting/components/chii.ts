@@ -1,4 +1,4 @@
-import { ToolsConfig } from "@/main/ToolsConfig";
+import { DebugToolConfig } from "@/main/DebugToolConfig";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { UISwitch } from "../common-components/ui-switch";
 import { PopsPanel } from "../setting";
@@ -10,7 +10,7 @@ import { UIButton } from "../common-components/ui-button";
 export const PanelUI_chii: PopsPanelContentConfig = {
 	id: "debug-panel-config-chii",
 	title: "Chii",
-	headerTitle: `<a href='${ToolsConfig.chii.settingDocUrl}' target='_blank'>Chii设置</a>`,
+	headerTitle: `<a href='${DebugToolConfig.chii.settingDocUrl}' target='_blank'>Chii设置</a>`,
 	forms: [
 		{
 			text: "功能",
@@ -27,7 +27,7 @@ export const PanelUI_chii: PopsPanelContentConfig = {
 					(event) => {
 						let url = PopsPanel.getValue(
 							"chii-debug-url",
-							ToolsConfig.chii.defaultConfig.url
+							DebugToolConfig.chii.defaultConfig.url
 						);
 						window.open(url, "_blank");
 					},

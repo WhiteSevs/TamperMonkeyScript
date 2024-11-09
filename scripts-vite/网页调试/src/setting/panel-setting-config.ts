@@ -1,4 +1,4 @@
-import { ToolsConfig } from "@/main/ToolsConfig";
+import { DebugToolConfig } from "@/main/DebugToolConfig";
 
 export const PanelSettingConfig = {
 	qmsg_config_position: {
@@ -199,11 +199,11 @@ export const PanelSettingConfig = {
 	},
 	pagespy_api: {
 		key: "pagespy-api",
-		defaultValue: ToolsConfig.pageSpy.defaultConfig.api,
+		defaultValue: DebugToolConfig.pageSpy.defaultConfig.api,
 	},
 	pagespy_clientOrigin: {
 		key: "pagespy-clientOrigin",
-		defaultValue: ToolsConfig.pageSpy.defaultConfig.cliennOrigin,
+		defaultValue: DebugToolConfig.pageSpy.defaultConfig.cliennOrigin,
 	},
 	pagespy_project: {
 		key: "pagespy-project",
@@ -251,11 +251,11 @@ export const PanelSettingConfig = {
 	},
 	chii_debug_url: {
 		key: "chii-debug-url",
-		defaultValue: ToolsConfig.chii.defaultConfig.url,
+		defaultValue: DebugToolConfig.chii.defaultConfig.url,
 	},
 	chii_target_js: {
 		key: "chii-target-js",
-		defaultValue: ToolsConfig.chii.defaultConfig.scriptJs,
+		defaultValue: DebugToolConfig.chii.defaultConfig.scriptJs,
 	},
 	chii_embedded_height: {
 		key: "chii-embedded-height",
