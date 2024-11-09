@@ -1,7 +1,7 @@
 import { PanelSettingConfig } from "@/setting/panel-setting-config";
 import { PopsPanel } from "@/setting/setting";
 import { ChiiPluginHeight } from "./plugin/ChiiPluginHeight";
-import { unsafeWin } from "@/env";
+import { unsafeWin, console } from "@/env";
 
 export const Chii = () => {
 	let debugUrl = PopsPanel.getValue(
@@ -15,7 +15,7 @@ export const Chii = () => {
 			PanelSettingConfig.chii_disable_run_in_debug_url.defaultValue
 		)
 	) {
-		console.log("禁止在调试端运行");
+		console.log("禁止在调试端运行 ==> href包含debugUrl");
 		return;
 	}
 	ChiiPluginHeight.init();

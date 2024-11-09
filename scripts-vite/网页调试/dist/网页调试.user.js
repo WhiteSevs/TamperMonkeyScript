@@ -2347,6 +2347,11 @@
         height: PanelUISize.setting.height,
         drag: true,
         only: true,
+        zIndex() {
+          let maxZIndex = Utils.getMaxZIndex();
+          let popsMaxZIndex = __pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+          return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+        },
         style: (
           /*css*/
           `
@@ -2427,9 +2432,9 @@
     Eruda2.init({
       tool: inintPanelList
     });
-    console.log(`eruda当前版本：${Eruda2.version}`);
-    console.log(`eruda项目地址：${DebugToolConfig.eruda.homeUrl}`);
-    console.log("eruda的全局变量名: Eruda");
+    console$1.log(`eruda当前版本：${Eruda2.version}`);
+    console$1.log(`eruda项目地址：${DebugToolConfig.eruda.homeUrl}`);
+    console$1.log("eruda的全局变量名: Eruda");
     if (PopsPanel.getValue(
       PanelSettingConfig.eruda_plugin_Resource_erudaMonitor.key
     )) {
@@ -2441,7 +2446,7 @@
         );
         Eruda2.add(erudaMonitor);
       } catch (error) {
-        console.error("插件【eruda-monitor】加载失败，原因：", error);
+        console$1.error("插件【eruda-monitor】加载失败，原因：", error);
       }
     }
     if (PopsPanel.getValue(
@@ -2455,7 +2460,7 @@
         );
         Eruda2.add(erudaFeatures);
       } catch (error) {
-        console.error("插件【eruda-features】加载失败，原因：", error);
+        console$1.error("插件【eruda-features】加载失败，原因：", error);
       }
     }
     if (PopsPanel.getValue(PanelSettingConfig.eruda_plugin_Resource_erudaTiming.key)) {
@@ -2467,7 +2472,7 @@
         );
         Eruda2.add(erudaTiming);
       } catch (error) {
-        console.error("插件【eruda-timing】加载失败，原因：", error);
+        console$1.error("插件【eruda-timing】加载失败，原因：", error);
       }
     }
     if (PopsPanel.getValue(PanelSettingConfig.eruda_plugin_Resource_erudaCode.key)) {
@@ -2479,7 +2484,7 @@
         );
         Eruda2.add(erudaCode);
       } catch (error) {
-        console.error("插件【eruda-code】加载失败，原因：", error);
+        console$1.error("插件【eruda-code】加载失败，原因：", error);
       }
     }
     if (PopsPanel.getValue(
@@ -2493,7 +2498,7 @@
         );
         Eruda2.add(erudaBenchmark);
       } catch (error) {
-        console.error("插件【eruda-benchmark】加载失败，原因：", error);
+        console$1.error("插件【eruda-benchmark】加载失败，原因：", error);
       }
     }
     if (PopsPanel.getValue(
@@ -2507,7 +2512,7 @@
         );
         Eruda2.add(erudaGeolocation);
       } catch (error) {
-        console.error("插件【eruda-geolocation】加载失败，原因：", error);
+        console$1.error("插件【eruda-geolocation】加载失败，原因：", error);
       }
     }
     if (PopsPanel.getValue(
@@ -2521,7 +2526,7 @@
         );
         Eruda2.add(erudaOrientation);
       } catch (error) {
-        console.error("插件【eruda-orientation】加载失败，原因：", error);
+        console$1.error("插件【eruda-orientation】加载失败，原因：", error);
       }
     }
     if (PopsPanel.getValue(
@@ -2535,7 +2540,7 @@
         );
         Eruda2.add(erudaTouches);
       } catch (error) {
-        console.error("插件【eruda-touches】加载失败，原因：", error);
+        console$1.error("插件【eruda-touches】加载失败，原因：", error);
       }
     }
     if (PopsPanel.getValue(
@@ -2549,7 +2554,7 @@
         );
         Eruda2.add(erudaOutlinePlugin);
       } catch (error) {
-        console.error("插件【eruda-outline-plugin】加载失败，原因：", error);
+        console$1.error("插件【eruda-outline-plugin】加载失败，原因：", error);
       }
     }
     if (PopsPanel.getValue(PanelSettingConfig.eruda_plugin_Resource_erudaPixel.key)) {
@@ -2561,7 +2566,7 @@
         );
         Eruda2.add(erudaPixel);
       } catch (error) {
-        console.error("插件【eruda-pixel】加载失败，原因：", error);
+        console$1.error("插件【eruda-pixel】加载失败，原因：", error);
       }
     }
     if (PopsPanel.getValue(PanelSettingConfig.eruda_plugin_Resource_erudaVue.key)) {
@@ -2573,7 +2578,7 @@
         );
         Eruda2.add(erudaVue);
       } catch (error) {
-        console.error("插件【eruda-vue】加载失败，原因：", error);
+        console$1.error("插件【eruda-vue】加载失败，原因：", error);
       }
     }
     if (PopsPanel.getValue(PanelSettingConfig.eruda_auto_open_panel.key)) {
@@ -2816,7 +2821,7 @@
               const currentType = event.target.dataset.type;
               if (currentType.toString() === "2" && // @ts-ignore
               !(self.performance && self.performance.memory)) {
-                console.error(
+                console$1.error(
                   "浏览器不支持window.performance或者window.performance.memory"
                 );
                 return;
@@ -2925,7 +2930,7 @@
           "exportLog"
         );
         vConsoleExportLogs.on("ready", () => {
-          console.log("[vConsole-exportlog-plugin] -- load");
+          console$1.log("[vConsole-exportlog-plugin] -- load");
         });
         vConsoleExportLogs.on("renderTab", (callback) => {
           const html = (
@@ -3024,16 +3029,16 @@
     });
     DebugToolConfig.vConsole.version = vConsole2.version;
     unsafeWin.vConsole = vConsole2;
-    console.log(`VConsole当前版本：${vConsole2.version}`);
-    console.log(`VConsole项目地址：${DebugToolConfig.vConsole.homeUrl}`);
-    console.log("VConsole的实例化的全局变量名: vConsole");
+    console$1.log(`VConsole当前版本：${vConsole2.version}`);
+    console$1.log(`VConsole项目地址：${DebugToolConfig.vConsole.homeUrl}`);
+    console$1.log("VConsole的实例化的全局变量名: vConsole");
     if (PopsPanel.getValue(
       PanelSettingConfig.vConsole_plugin_Resource_vConsole_Stats.key
     )) {
       try {
         vConsolePluginState(vConsole2, VConsole);
       } catch (error) {
-        console.error("插件【vconsole-stats-plugin】加载失败，原因：", error);
+        console$1.error("插件【vconsole-stats-plugin】加载失败，原因：", error);
       }
     }
     if (PopsPanel.getValue(
@@ -3042,7 +3047,7 @@
       try {
         vConsolePluginExportLog(vConsole2, VConsole);
       } catch (error) {
-        console.error("插件【vconsole-outputlog-plugin】加载失败，原因：", error);
+        console$1.error("插件【vconsole-outputlog-plugin】加载失败，原因：", error);
       }
     }
     if (PopsPanel.getValue(
@@ -3057,7 +3062,7 @@
         const Devtools = unsafeWin.vueVconsoleDevtools;
         Devtools.initPlugin(vConsole2);
       } catch (error) {
-        console.error(
+        console$1.error(
           "插件【vconsole-vue-devtools-plugin】加载失败，原因：",
           error
         );
@@ -3087,9 +3092,11 @@
       PanelSettingConfig.pagespy_disable_run_in_debug_client.key
     )) {
       if (window.location.hostname.includes(api)) {
+        console$1.log("禁止在调试端运行 ==> hostname包含api");
         return;
       }
       if (window.location.origin.includes(clientOrigin)) {
+        console$1.log("禁止在调试端运行 ==> origin包含clientOrigin");
         return;
       }
     }
@@ -3163,19 +3170,26 @@
       )
     });
     unsafeWin.$pageSpy = $pageSpy;
-    console.log($pageSpy);
+    console$1.log($pageSpy);
     DebugToolConfig.pageSpy.version = unsafeWin.$pageSpy.version;
-    console.log("PageSpy全局变量：$pageSpy");
-    utils.waitNode("#__pageSpy .page-spy-modal", 1e4).then(($modal) => {
-      if (!$modal) {
-        console.error("未找到PageSpy的按钮");
+    console$1.log("PageSpy全局变量：$pageSpy");
+    utils.waitNode("#__pageSpy .page-spy-logo", 1e4).then(($log) => {
+      if (!$log) {
+        console$1.error("未找到PageSpy的按钮");
         return;
       }
       domUtils.on(
-        $modal,
+        $log,
         "click",
         (event) => {
           utils.preventEvent(event);
+          let $modal = document.querySelector(
+            "#__pageSpy .page-spy-modal"
+          );
+          if (!$modal) {
+            console$1.error("未找到PageSpy的弹窗");
+            return;
+          }
           if ($modal.classList.contains("show")) {
             $modal.classList.remove("show"), $modal.classList.add("leaving"), setTimeout(() => {
               $modal.classList.remove("leaving");
@@ -3189,23 +3203,30 @@
         }
       );
     });
-    utils.waitPropertyByInterval(
-      unsafeWin.$pageSpy,
-      function() {
-        return unsafeWin.$pageSpy.root != null;
-      },
-      250,
-      1e4
-    ).then(() => {
-      var _a2;
-      let contentElement = (((_a2 = unsafeWin.$pageSpy) == null ? void 0 : _a2.root) || document).querySelector(".page-spy-content");
-      let goToRoomListElement = document.createElement("div");
-      let goToDebugElement = document.createElement("div");
-      goToDebugElement.className = "page-spy-content__btn";
-      goToDebugElement.innerHTML = "前往调试";
-      goToRoomListElement.className = "page-spy-content__btn";
-      goToRoomListElement.innerHTML = "前往房间列表";
-      goToDebugElement.addEventListener(
+    utils.waitNode("#__pageSpy .page-spy-modal .page-spy-content", 1e4).then(($modalContent) => {
+      if (!$modalContent) {
+        console$1.error("未找到PageSpy的弹窗");
+        return;
+      }
+      let $goToRoomList = domUtils.createElement("div", {
+        className: "page-spy-content__btn",
+        innerHTML: "前往房间列表"
+      });
+      let $goToDebugRoom = domUtils.createElement("div", {
+        className: "page-spy-content__btn",
+        innerHTML: "前往调试"
+      });
+      $goToRoomList.addEventListener(
+        "click",
+        function(event) {
+          utils.preventEvent(event);
+          window.open(`${clientOrigin}/#/room-list`, "_blank");
+        },
+        {
+          capture: true
+        }
+      );
+      $goToDebugRoom.addEventListener(
         "click",
         function(event) {
           utils.preventEvent(event);
@@ -3221,18 +3242,8 @@
           capture: true
         }
       );
-      goToRoomListElement.addEventListener(
-        "click",
-        function(event) {
-          utils.preventEvent(event);
-          window.open(`${clientOrigin}/#/room-list`, "_blank");
-        },
-        {
-          capture: true
-        }
-      );
-      contentElement.appendChild(goToRoomListElement);
-      contentElement.appendChild(goToDebugElement);
+      $modalContent.appendChild($goToRoomList);
+      $modalContent.appendChild($goToDebugRoom);
     });
   };
   const ChiiPluginHeight = {
@@ -3308,7 +3319,7 @@
       PanelSettingConfig.chii_check_script_load.key,
       PanelSettingConfig.chii_disable_run_in_debug_url.defaultValue
     )) {
-      console.log("禁止在调试端运行");
+      console$1.log("禁止在调试端运行 ==> href包含debugUrl");
       return;
     }
     ChiiPluginHeight.init();

@@ -1,4 +1,4 @@
-import { DOMUtils, unsafeWin, utils } from "@/env";
+import { DOMUtils, unsafeWin, utils, console } from "@/env";
 import { PanelSettingConfig } from "@/setting/panel-setting-config";
 import { PopsPanel } from "@/setting/setting";
 import { DebugToolConfig } from "../DebugToolConfig";
@@ -18,9 +18,11 @@ export const PageSpy = () => {
 		)
 	) {
 		if (window.location.hostname.includes(api)) {
+			console.log("禁止在调试端运行 ==> hostname包含api");
 			return;
 		}
 		if (window.location.origin.includes(clientOrigin)) {
+			console.log("禁止在调试端运行 ==> origin包含clientOrigin");
 			return;
 		}
 	}
@@ -108,16 +110,23 @@ export const PageSpy = () => {
 	console.log("PageSpy全局变量：$pageSpy");
 
 	// 自定义添加图标点击事件
-	utils.waitNode("#__pageSpy .page-spy-modal", 10000).then(($modal) => {
-		if (!$modal) {
+	utils.waitNode("#__pageSpy .page-spy-logo", 10000).then(($log) => {
+		if (!$log) {
 			console.error("未找到PageSpy的按钮");
 			return;
 		}
 		DOMUtils.on(
-			$modal,
+			$log,
 			"click",
 			(event) => {
 				utils.preventEvent(event);
+				let $modal = document.querySelector<HTMLElement>(
+					"#__pageSpy .page-spy-modal"
+				);
+				if (!$modal) {
+					console.error("未找到PageSpy的弹窗");
+					return;
+				}
 				if ($modal.classList.contains("show")) {
 					$modal.classList.remove("show"),
 						$modal.classList.add("leaving"),
@@ -134,25 +143,31 @@ export const PageSpy = () => {
 		);
 	});
 	utils
-		.waitPropertyByInterval(
-			unsafeWin.$pageSpy,
-			function () {
-				return unsafeWin.$pageSpy.root != null;
-			},
-			250,
-			10000
-		)
-		.then(() => {
-			let contentElement: HTMLElement = (
-				unsafeWin.$pageSpy?.root || document
-			).querySelector(".page-spy-content");
-			let goToRoomListElement = document.createElement("div");
-			let goToDebugElement = document.createElement("div");
-			goToDebugElement.className = "page-spy-content__btn";
-			goToDebugElement.innerHTML = "前往调试";
-			goToRoomListElement.className = "page-spy-content__btn";
-			goToRoomListElement.innerHTML = "前往房间列表";
-			goToDebugElement.addEventListener(
+		.waitNode("#__pageSpy .page-spy-modal .page-spy-content", 10000)
+		.then(($modalContent) => {
+			if (!$modalContent) {
+				console.error("未找到PageSpy的弹窗");
+				return;
+			}
+			let $goToRoomList = DOMUtils.createElement("div", {
+				className: "page-spy-content__btn",
+				innerHTML: "前往房间列表",
+			});
+			let $goToDebugRoom = DOMUtils.createElement("div", {
+				className: "page-spy-content__btn",
+				innerHTML: "前往调试",
+			});
+			$goToRoomList.addEventListener(
+				"click",
+				function (event) {
+					utils.preventEvent(event);
+					window.open(`${clientOrigin}/#/room-list`, "_blank");
+				},
+				{
+					capture: true,
+				}
+			);
+			$goToDebugRoom.addEventListener(
 				"click",
 				function (event) {
 					utils.preventEvent(event);
@@ -168,17 +183,7 @@ export const PageSpy = () => {
 					capture: true,
 				}
 			);
-			goToRoomListElement.addEventListener(
-				"click",
-				function (event) {
-					utils.preventEvent(event);
-					window.open(`${clientOrigin}/#/room-list`, "_blank");
-				},
-				{
-					capture: true,
-				}
-			);
-			contentElement.appendChild(goToRoomListElement);
-			contentElement.appendChild(goToDebugElement);
+			$modalContent.appendChild($goToRoomList);
+			$modalContent.appendChild($goToDebugRoom);
 		});
 };

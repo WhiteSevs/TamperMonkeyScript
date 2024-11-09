@@ -1,4 +1,4 @@
-import { utils } from "@/env";
+import { utils, console } from "@/env";
 
 export const vConsolePluginExportLog = (vConsole: any, VConsole: any) => {
 	class VConsoleOutputLogsPlugin {

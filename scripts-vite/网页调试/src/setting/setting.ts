@@ -19,6 +19,7 @@ import { PanelUI_vConsole } from "./components/vConsole";
 import { PanelUI_eruda } from "./components/eruda";
 import { PanelUI_pagespy } from "./components/pagespy";
 import { PanelUI_chii } from "./components/chii";
+import Utils from "@whitesev/utils";
 
 type PosPanelListenerData = {
 	id: number;
@@ -588,6 +589,11 @@ export const PopsPanel = {
 			height: PanelUISize.setting.height,
 			drag: true,
 			only: true,
+			zIndex() {
+				let maxZIndex = Utils.getMaxZIndex();
+				let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+				return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+			},
 			style: /*css*/ `
 				aside.pops-panel-aside{
 					width: 20%;

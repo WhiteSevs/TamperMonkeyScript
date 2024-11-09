@@ -3,7 +3,7 @@ import { PopsPanel } from "@/setting/setting";
 import { WebSiteDebugUtil } from "@/utils/WebSiteDebugUtil";
 import { GM_getResourceText } from "ViteGM";
 import { DebugToolConfig } from "../DebugToolConfig";
-import { unsafeWin } from "@/env";
+import { unsafeWin, console } from "@/env";
 
 export const Eruda = () => {
 	initEruda("Eruda", unsafeWin);

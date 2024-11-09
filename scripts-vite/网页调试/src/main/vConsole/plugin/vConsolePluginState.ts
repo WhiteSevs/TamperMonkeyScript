@@ -1,4 +1,4 @@
-import { pops } from "@/env";
+import { pops, console } from "@/env";
 import { GM_getValue, GM_setValue } from "ViteGM";
 
 export const vConsolePluginState = (vConsole: any, VConsole: any) => {

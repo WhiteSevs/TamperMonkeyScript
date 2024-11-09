@@ -1,4 +1,4 @@
-import { unsafeWin, utils } from "@/env";
+import { unsafeWin, utils, console } from "@/env";
 import { PanelSettingConfig } from "@/setting/panel-setting-config";
 import { PopsPanel } from "@/setting/setting";
 import { WebSiteDebugUtil } from "@/utils/WebSiteDebugUtil";
