@@ -142,6 +142,13 @@ export const GreasyforkDiscussionsFilter = {
 	 * 解析出元素上的属性
 	 */
 	parseDiscuessionListContainerInfo($listContainer: HTMLElement) {
+		let discussionUrl =
+			$listContainer.querySelector<HTMLAnchorElement>("a.discussion-title")!
+				.href!;
+		let discuessionIdMatch = discussionUrl.match(
+			/\/discussions(|\/greasyfork)\/([\d]+)/
+		);
+		let discuessionId = discuessionIdMatch![discuessionIdMatch!.length - 1];
 		const info = {
 			/** 脚本名 */
 			scriptName: $listContainer.querySelector<HTMLDivElement>(
@@ -174,10 +181,10 @@ export const GreasyforkDiscussionsFilter = {
 					.querySelector<HTMLElement>("relative-time")!
 					.getAttribute("datetime") as any
 			),
+			/**  发布的id */
+			snippetId: discuessionId,
 			/** 发布的地址*/
-			snippetUrl:
-				$listContainer.querySelector<HTMLAnchorElement>("a.discussion-title")!
-					.href,
+			snippetUrl: discussionUrl,
 			/** 发布的内容片段*/
 			snippet:
 				$listContainer.querySelector<HTMLSpanElement>("span.discussion-snippet")

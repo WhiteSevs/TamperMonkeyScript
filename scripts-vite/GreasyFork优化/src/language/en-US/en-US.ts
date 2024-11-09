@@ -241,9 +241,12 @@ export const en_US_language = {
 	"在版本下面添加【安装】、【查看代码】按钮":
 		"Add 【 Install 】 and 【 View Code 】 buttons under the version",
 	查看代码: "View Code",
-	添加快捷操作按钮: "Add shortcut operation button",
+	"添加【过滤】按钮": "Add [Filter] button",
+	"添加【举报】按钮": "Add [Report] button",
 	"在每一行讨论的最后面添加【过滤】按钮，需开启过滤功能才会生效":
 		"Add a 'Filter' button at the end of each discussion line. The filtering features needs to be enabled for it to take effect",
+	"在每一行讨论的最后面添加【举报】按钮":
+		"Add a Report button at the end of each line of discussion",
 	选择需要过滤的选项: "Select the options that need to be filtered",
 	"确定{{type}}：{{filterId}}？": "Are you sure {{type}}：{{filterId}}？",
 	"该收藏集未包含：{{scriptId}}":
@@ -314,4 +317,10 @@ export const en_US_language = {
 	"名称-全词匹配": "Name - Full word match",
 	"描述-全词匹配": "Description - Full word match",
 	"作者名称-全词匹配": "Author name - Full word match",
+	获取举报表单信息失败: "Failed to obtain report form information. Procedure",
+	发送举报表单失败: "Failed to send the report form. Procedure",
+	举报: "Report",
+	"举报讨论：": "Report discussion:",
+	"举报脚本：": "Report script:",
+	"举报用户：": "Report user:",
 };

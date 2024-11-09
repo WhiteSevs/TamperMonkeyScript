@@ -25,6 +25,7 @@ import { GreasyforkShortCut } from "./GreasyforkShortCut";
 import { GreasyforkConversations } from "./navigator/users/conversations/GreasyforkConversations";
 import { GreasyforkRememberFormTextArea } from "./GreasyforkRememberFormTextArea";
 import { GreasyforkScriptsSearch } from "./navigator/scripts-search/GreasyforkScriptsSearch";
+import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 
 const Greasyfork = {
 	init() {
@@ -473,7 +474,7 @@ const Greasyfork = {
 			return;
 		} else {
 			let timer = null as any;
-			let url = GreasyforkApi.getSwitchLanguageUrl(localeLanguage);
+			let url = GreasyforkUrlUtils.getSwitchLanguageUrl(localeLanguage);
 			GreasyforkApi.switchLanguage(url);
 			log.success("新Url：" + url);
 			Qmsg.loading(

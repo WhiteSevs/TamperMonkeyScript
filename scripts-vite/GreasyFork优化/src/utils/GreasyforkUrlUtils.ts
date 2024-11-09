@@ -75,6 +75,15 @@ export const GreasyforkUrlUtils = {
 		return (text || window.location.pathname).match(/\/users\/([\d]+)/i)?.[1];
 	},
 	/**
+	 * 获取举报地址
+	 */
+	getReportUrl(
+		item_class: "script" | "discussion" | "user",
+		item_id: string | number
+	) {
+		return `${window.location.origin}/reports/new?item_class=${item_class}&item_id=${item_id}`;
+	},
+	/**
 	 * 从字符串中提取脚本名
 	 * @param text
 	 */

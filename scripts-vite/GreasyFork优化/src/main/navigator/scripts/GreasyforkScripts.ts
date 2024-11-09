@@ -487,16 +487,15 @@ export const GreasyforkScripts = {
 			return;
 		}
 		log.info("脚本首页新增【今日检查】");
-		let scriptStatsJSONInfo = await GreasyforkApi.getScriptStats(
+		let scriptStatsJSON = await GreasyforkApi.getScriptStats(
 			GreasyforkUrlUtils.getScriptId() as string
 		);
-		if (!scriptStatsJSONInfo) {
+		if (!scriptStatsJSON) {
 			return;
 		}
-		let scriptStatsJSON = utils.toJSON(scriptStatsJSONInfo.responseText);
-		log.info(["统计信息", scriptStatsJSON]);
+		log.info("统计信息", scriptStatsJSON);
 		let todayStatsJSON =
-			scriptStatsJSON[utils.formatTime(undefined, "yyyy-MM-dd")];
+			scriptStatsJSON[utils.formatTime(void 0, "yyyy-MM-dd")];
 		if (!todayStatsJSON) {
 			log.error("今日份的统计信息不存在");
 			return;

@@ -7,6 +7,7 @@ import { PopsPanel } from "@/setting/setting";
 import { GM_addStyle } from "ViteGM";
 import i18next from "i18next";
 import Qmsg from "qmsg";
+import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 
 export const GreasyforkForum = {
 	init() {
@@ -17,6 +18,9 @@ export const GreasyforkForum = {
 			});
 			PopsPanel.execMenuOnce("discussions-addShortcutOperationButton", () => {
 				this.addShortcutOperationButton();
+			});
+			PopsPanel.execMenuOnce("discussions-addReportButton", () => {
+				this.addReportButton();
 			});
 		});
 	},
@@ -40,10 +44,10 @@ export const GreasyforkForum = {
         `);
 	},
 	/**
-	 * 添加快捷操作按钮
+	 * 添加【过滤】按钮
 	 */
 	addShortcutOperationButton() {
-		log.info("添加快捷操作按钮");
+		log.info("添加【过滤】按钮");
 		GreasyforkDiscussionsFilter.getElementList().forEach(($listContainer) => {
 			if (
 				$listContainer.querySelector<HTMLAnchorElement>(
@@ -56,12 +60,18 @@ export const GreasyforkForum = {
 				".discussion-list-item"
 			)!;
 			let $meta = $listItem.querySelector<HTMLElement>(".discussion-meta")!;
-			let $ownMetaItem = DOMUtils.createElement("div", {
-				className: "discussion-meta-item",
-				innerHTML: `
+			let $ownMetaItem = DOMUtils.createElement(
+				"div",
+				{
+					className: "discussion-meta-item",
+					innerHTML: `
 					<button class="discussion-filter-button">${i18next.t("过滤")}</button>
 					`,
-			});
+				},
+				{
+					style: "flex: 0;",
+				}
+			);
 			let $button = $ownMetaItem.querySelector<HTMLButtonElement>(
 				".discussion-filter-button"
 			)!;
@@ -105,6 +115,11 @@ export const GreasyforkForum = {
 						enable: true,
 						clickEvent: {
 							toClose: true,
+						},
+					},
+					btn: {
+						ok: {
+							enable: false,
 						},
 					},
 					drag: true,
@@ -173,6 +188,139 @@ export const GreasyforkForum = {
 						Qmsg.success(i18next.t("添加成功"));
 					}
 				);
+			});
+		});
+	},
+	/**
+	 * 添加【举报】按钮
+	 */
+	addReportButton() {
+		log.info(`添加【举报】按钮`);
+		GreasyforkDiscussionsFilter.getElementList().forEach(($listContainer) => {
+			if ($listContainer.querySelector(".discussion-report-button")) {
+				return;
+			}
+			let $listItem = $listContainer.querySelector<HTMLElement>(
+				".discussion-list-item"
+			)!;
+			let $meta = $listItem.querySelector<HTMLElement>(".discussion-meta")!;
+			let $ownMetaItem = DOMUtils.createElement(
+				"div",
+				{
+					className: "discussion-meta-item",
+					innerHTML: `
+					<button class="discussion-report-button" style="border-color: #ff4d4d;background-color: #ffe6e6;color: red;">${i18next.t(
+						"举报"
+					)}</button>
+					`,
+				},
+				{
+					style: "flex: 0;",
+				}
+			);
+			let $button = $ownMetaItem.querySelector<HTMLButtonElement>(
+				".discussion-report-button"
+			)!;
+			$meta.appendChild($ownMetaItem);
+
+			DOMUtils.on($button, "click", (event) => {
+				utils.preventEvent(event);
+
+				const discussionInfo =
+					GreasyforkDiscussionsFilter.parseDiscuessionListContainerInfo(
+						$listContainer
+					);
+				let attr_filter_key = "data-filter-key";
+				let attr_filter_value = "data-filter-value";
+				let $dialog = pops.alert({
+					title: {
+						text: i18next.t("举报"),
+						position: "center",
+						html: false,
+					},
+					content: {
+						text: /*html*/ `
+						<div class="report-item">
+							${i18next.t("举报讨论：")}
+							<a href="${GreasyforkUrlUtils.getReportUrl(
+								"discussion",
+								discussionInfo.snippetId!
+							)}" target="_blank">${discussionInfo.snippet}</a>
+						</div>
+						${
+							discussionInfo.scriptId
+								? /*html*/ `
+							<div class="report-item">
+							${i18next.t("举报脚本：")}
+							<a href="${GreasyforkUrlUtils.getReportUrl(
+								"script",
+								discussionInfo.scriptId
+							)}" target="_blank">${discussionInfo.scriptName}</a>
+						</div>
+						`
+								: ""
+						}
+						
+						<div class="report-item">
+							${i18next.t("举报用户：")}
+							<a href="${GreasyforkUrlUtils.getReportUrl(
+								"user",
+								discussionInfo.postUserId!
+							)}" target="_blank">${discussionInfo.postUserName}</a>
+						</div>
+						${
+							discussionInfo.replyUserId &&
+							discussionInfo.replyUserId != discussionInfo.postUserId
+								? /*html*/ `
+								<div class="report-item">
+									${i18next.t("举报用户：")}
+									<a href="${GreasyforkUrlUtils.getReportUrl(
+										"user",
+										discussionInfo.replyUserId!
+									)}" target="_blank">${discussionInfo.replyUserName}</a>
+								</div>
+								`
+								: ""
+						}
+							
+								`,
+						html: true,
+					},
+					btn: {
+						ok: {
+							enable: false,
+						},
+					},
+					mask: {
+						enable: true,
+						clickEvent: {
+							toClose: true,
+						},
+					},
+					drag: true,
+					dragLimit: true,
+					width: "350px",
+					height: "300px",
+					style: /*css*/ `
+							.pops-alert-content{
+								display: flex;
+								flex-direction: column;
+								gap: 20px;
+							}
+							.pops-alert-content .report-item{
+								text-wrap: wrap;
+								padding: 8px;
+								height: auto;
+								text-align: left;
+								margin: var(--button-margin-top) var(--button-margin-right)
+								var(--button-margin-bottom) var(--button-margin-left);
+								border-radius: var(--button-radius);
+								color: var(--button-color);
+								border-color: var(--button-bd-color);
+   								background-color: var(--button-bg-color);
+							}
+							`,
+				});
 			});
 		});
 	},

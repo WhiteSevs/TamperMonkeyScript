@@ -22,6 +22,7 @@ import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { GithubUrl2WebhookUrl } from "@/main/GithubUrl2WebhookUrl";
 import { PanelUISize } from "./panel-ui-size";
 import { SettingUIScriptSearch } from "./components/script-search";
+import Utils from "@whitesev/utils";
 
 type PosPanelListenerData = {
 	id: number;
@@ -565,6 +566,11 @@ const PopsPanel = {
 					toClose: true,
 					toHide: false,
 				},
+			},
+			zIndex() {
+				let maxZIndex = Utils.getMaxZIndex();
+				let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+				return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
 			},
 			width: PanelUISize.setting.width,
 			height: PanelUISize.setting.height,

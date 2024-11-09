@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.11.8
+// @version            2024.11.9
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -490,8 +490,10 @@
     添加额外的标签按钮: "Add additional label button",
     "在版本下面添加【安装】、【查看代码】按钮": "Add 【 Install 】 and 【 View Code 】 buttons under the version",
     查看代码: "View Code",
-    添加快捷操作按钮: "Add shortcut operation button",
+    "添加【过滤】按钮": "Add [Filter] button",
+    "添加【举报】按钮": "Add [Report] button",
     "在每一行讨论的最后面添加【过滤】按钮，需开启过滤功能才会生效": "Add a 'Filter' button at the end of each discussion line. The filtering features needs to be enabled for it to take effect",
+    "在每一行讨论的最后面添加【举报】按钮": "Add a Report button at the end of each line of discussion",
     选择需要过滤的选项: "Select the options that need to be filtered",
     "确定{{type}}：{{filterId}}？": "Are you sure {{type}}：{{filterId}}？",
     "该收藏集未包含：{{scriptId}}": "This collection does not include:{{scriptId}}",
@@ -552,7 +554,13 @@
     "该Checkbox按钮开启后，自动过滤出包含搜索关键词的脚本": "When the Checkbox button is turned on, it automatically filters out scripts that contain search terms",
     "名称-全词匹配": "Name - Full word match",
     "描述-全词匹配": "Description - Full word match",
-    "作者名称-全词匹配": "Author name - Full word match"
+    "作者名称-全词匹配": "Author name - Full word match",
+    获取举报表单信息失败: "Failed to obtain report form information. Procedure",
+    发送举报表单失败: "Failed to send the report form. Procedure",
+    举报: "Report",
+    "举报讨论：": "Report discussion:",
+    "举报脚本：": "Report script:",
+    "举报用户：": "Report user:"
   };
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
@@ -877,60 +885,37 @@
   };
   const GreasyforkApi = {
     /**
-     * 获取需要切换语言的Url
-     */
-    getSwitchLanguageUrl(localeLanguage = "zh-CN") {
-      let url2 = window.location.origin;
-      let urlSplit = window.location.pathname.split("/");
-      urlSplit[1] = localeLanguage;
-      url2 = url2 + urlSplit.join("/");
-      url2 += window.location.search;
-      if (window.location.search === "") {
-        url2 += "?locale_override=1";
-      } else if (!window.location.search.includes("locale_override=1")) {
-        url2 += "&locale_override=1";
-      }
-      return url2;
-    },
-    /**
      * 获取脚本统计数据
      * @param scriptId
      */
     async getScriptStats(scriptId) {
-      return new Promise(async (resolve) => {
-        let scriptStatsRequest = await httpx.get({
-          url: `https://greasyfork.org/scripts/${scriptId}/stats.json`,
-          fetch: true,
-          onerror() {
-          },
-          ontimeout() {
-          }
-        });
-        if (!scriptStatsRequest.status) {
-          resolve(null);
-          return;
-        }
-        let scriptStatsJSON = scriptStatsRequest.data;
-        resolve(scriptStatsJSON);
+      let response = await httpx.get(`/scripts/${scriptId}/stats.json`, {
+        fetch: true,
+        allowInterceptConfig: false
       });
+      log.info(response);
+      if (!response.status) {
+        log.error(i18next.t("获取脚本统计数据失败"));
+        return;
+      }
+      let scriptStatsJSON = utils.toJSON(response.data.responseText);
+      return scriptStatsJSON;
     },
     /**
      * 解析并获取admin内的源代码同步的配置表单
      * @param scriptId
      */
     async getSourceCodeSyncFormData(scriptId) {
-      let getResp = await httpx.get(
-        `https://greasyfork.org/zh-CN/scripts/${scriptId}/admin`,
-        {
-          fetch: true
-        }
-      );
-      log.success(getResp);
-      if (!getResp.status) {
+      let response = await httpx.get(`/scripts/${scriptId}/admin`, {
+        fetch: true,
+        allowInterceptConfig: false
+      });
+      log.info(response);
+      if (!response.status) {
         Qmsg.error(i18next.t("请求admin内容失败"));
         return;
       }
-      let adminHTML = getResp.data.responseText;
+      let adminHTML = response.data.responseText;
       let adminHTMLElement = domUtils.parseHTML(adminHTML, false, true);
       let formElement = adminHTMLElement.querySelector("form.edit_script");
       if (!formElement) {
@@ -946,36 +931,32 @@
      * @param data
      */
     async sourceCodeSync(scriptId, data) {
-      let postResp = await httpx.post(
-        `https://greasyfork.org/zh-CN/scripts/${scriptId}/sync_update`,
-        {
-          fetch: true,
-          data
-        }
-      );
-      log.success(postResp);
-      if (!postResp.status) {
+      let response = await httpx.post(`/scripts/${scriptId}/sync_update`, {
+        fetch: true,
+        data,
+        allowInterceptConfig: false
+      });
+      log.info(response);
+      if (!response.status) {
         Qmsg.error(i18next.t("源代码同步失败"));
         return;
       }
-      return postResp;
+      return response;
     },
     /**
      * 获取用户的信息，包括脚本列表、未上架的脚本、库
      */
     async getUserInfo(userId) {
-      let getResp = await httpx.get(
-        `https://greasyfork.org/zh-CN/users/${userId}.json`,
-        {
-          fetch: true
-        }
-      );
-      log.success(getResp);
-      if (!getResp.status) {
+      let response = await httpx.get(`/users/${userId}.json`, {
+        fetch: true,
+        allowInterceptConfig: false
+      });
+      log.success(response);
+      if (!response.status) {
         Qmsg.error(i18next.t("获取用户信息失败"));
         return;
       }
-      let data = utils.toJSON(getResp.data.responseText);
+      let data = utils.toJSON(response.data.responseText);
       data["scriptList"] = [];
       data["scriptLibraryList"] = [];
       data["scripts"].forEach((scriptInfo) => {
@@ -992,18 +973,16 @@
      * @param userId
      */
     async getUserCollection(userId) {
-      let getResp = await httpx.get(
-        `https://greasyfork.org/zh-CN/users/${userId}`,
-        {
-          fetch: true
-        }
-      );
-      log.info(["获取用户的收藏集", getResp]);
-      if (!getResp.status) {
+      let response = await httpx.get(`/users/${userId}`, {
+        fetch: true,
+        allowInterceptConfig: false
+      });
+      log.info("获取用户的收藏集", response);
+      if (!response.status) {
         Qmsg.error(i18next.t("获取用户的收藏集失败"));
         return;
       }
-      let respText = getResp.data.responseText;
+      let respText = response.data.responseText;
       let respDocument = domUtils.parseHTML(respText, true, true);
       let userScriptSets = respDocument.querySelector("#user-script-sets");
       if (!userScriptSets) {
@@ -1036,17 +1015,16 @@
      * @param setsId 收藏集id
      */
     async getUserCollectionInfo(userId, setsId) {
-      let getResp = await httpx.get(
-        `https://greasyfork.org/zh-CN/users/${userId}/sets/${setsId}/edit`,
-        {
-          fetch: true
-        }
-      );
-      if (!getResp.status) {
+      let response = await httpx.get(`/users/${userId}/sets/${setsId}/edit`, {
+        fetch: true,
+        allowInterceptConfig: false
+      });
+      log.info(response);
+      if (!response.status) {
         Qmsg.error(i18next.t("获取收藏集{{setsId}}失败", { setsId }));
         return;
       }
-      let respText = getResp.data.responseText;
+      let respText = response.data.responseText;
       let respDocument = domUtils.parseHTML(respText, true, true);
       let $edit_script_set_form = respDocument.querySelector(
         'form[id^="edit_script_set"]'
@@ -1078,28 +1056,27 @@
      * @param data
      */
     async updateUserSetsInfo(userId, setsId, data) {
-      let postResp = await httpx.post(
-        `https://greasyfork.org/zh-CN/users/${userId}/sets/${setsId}`,
-        {
-          fetch: true,
-          headers: {
-            accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-            "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
-            "cache-control": "no-cache",
-            "content-type": "application/x-www-form-urlencoded",
-            pragma: "no-cache"
-          },
-          fetchInit: {
-            referrerPolicy: "strict-origin-when-cross-origin"
-          },
-          data
-        }
-      );
-      if (!postResp.status) {
+      let response = await httpx.post(`/users/${userId}/sets/${setsId}`, {
+        fetch: true,
+        allowInterceptConfig: false,
+        headers: {
+          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+          "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+          "Cache-Control": "no-cache",
+          "Content-Type": "application/x-www-form-urlencoded",
+          Pragma: "no-cache"
+        },
+        fetchInit: {
+          referrerPolicy: "strict-origin-when-cross-origin"
+        },
+        data
+      });
+      log.info(response);
+      if (!response.status) {
         Qmsg.error(i18next.t("更新收藏集表单请求失败"));
         return;
       }
-      let respText = postResp.data.responseText;
+      let respText = response.data.responseText;
       let respDocument = domUtils.parseHTML(respText, true, true);
       return respDocument;
     },
@@ -1108,16 +1085,16 @@
      * @param url
      */
     async switchLanguage(url2) {
-      let getResp = await httpx.get(url2, {
+      let response = await httpx.get(url2, {
         fetch: true,
         headers: {
           "Upgrade-Insecure-Requests": "1"
         }
       });
-      if (!getResp.status) {
+      log.info(response);
+      if (!response.status) {
         return;
       }
-      log.info(getResp);
     }
   };
   const url = globalThis.location.href;
@@ -1317,6 +1294,12 @@
     getUserId(text) {
       var _a2;
       return (_a2 = (text || window.location.pathname).match(/\/users\/([\d]+)/i)) == null ? void 0 : _a2[1];
+    },
+    /**
+     * 获取举报地址
+     */
+    getReportUrl(item_class, item_id) {
+      return `${window.location.origin}/reports/new?item_class=${item_class}&item_id=${item_id}`;
     },
     /**
      * 从字符串中提取脚本名
@@ -2941,14 +2924,13 @@
         return;
       }
       log.info("脚本首页新增【今日检查】");
-      let scriptStatsJSONInfo = await GreasyforkApi.getScriptStats(
+      let scriptStatsJSON = await GreasyforkApi.getScriptStats(
         GreasyforkUrlUtils.getScriptId()
       );
-      if (!scriptStatsJSONInfo) {
+      if (!scriptStatsJSON) {
         return;
       }
-      let scriptStatsJSON = utils.toJSON(scriptStatsJSONInfo.responseText);
-      log.info(["统计信息", scriptStatsJSON]);
+      log.info("统计信息", scriptStatsJSON);
       let todayStatsJSON = scriptStatsJSON[utils.formatTime(void 0, "yyyy-MM-dd")];
       if (!todayStatsJSON) {
         log.error("今日份的统计信息不存在");
@@ -4647,6 +4629,11 @@
      */
     parseDiscuessionListContainerInfo($listContainer) {
       var _a2, _b, _c, _d;
+      let discussionUrl = $listContainer.querySelector("a.discussion-title").href;
+      let discuessionIdMatch = discussionUrl.match(
+        /\/discussions(|\/greasyfork)\/([\d]+)/
+      );
+      let discuessionId = discuessionIdMatch[discuessionIdMatch.length - 1];
       const info = {
         /** 脚本名 */
         scriptName: $listContainer.querySelector(
@@ -4674,8 +4661,10 @@
         postTimeStamp: new Date(
           $listContainer.querySelector("relative-time").getAttribute("datetime")
         ),
+        /**  发布的id */
+        snippetId: discuessionId,
         /** 发布的地址*/
-        snippetUrl: $listContainer.querySelector("a.discussion-title").href,
+        snippetUrl: discussionUrl,
         /** 发布的内容片段*/
         snippet: ((_c = $listContainer.querySelector("span.discussion-snippet")) == null ? void 0 : _c.innerText) || "",
         /** （如果有）回复的用户名*/
@@ -4823,13 +4812,20 @@
                     }
                   },
                   UISwitch(
-                    i18next.t("添加快捷操作按钮"),
+                    i18next.t("添加【过滤】按钮"),
                     "discussions-addShortcutOperationButton",
                     true,
                     void 0,
                     i18next.t(
                       "在每一行讨论的最后面添加【过滤】按钮，需开启过滤功能才会生效"
                     )
+                  ),
+                  UISwitch(
+                    i18next.t("添加【举报】按钮"),
+                    "discussions-addReportButton",
+                    true,
+                    void 0,
+                    i18next.t("在每一行讨论的最后面添加【举报】按钮")
                   )
                 ]
               }
@@ -5590,6 +5586,11 @@
             toHide: false
           }
         },
+        zIndex() {
+          let maxZIndex = Utils.getMaxZIndex();
+          let popsMaxZIndex = __pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+          return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+        },
         width: PanelUISize.setting.width,
         height: PanelUISize.setting.height,
         drag: true,
@@ -5898,6 +5899,9 @@
         PopsPanel.execMenuOnce("discussions-addShortcutOperationButton", () => {
           this.addShortcutOperationButton();
         });
+        PopsPanel.execMenuOnce("discussions-addReportButton", () => {
+          this.addReportButton();
+        });
       });
     },
     /**
@@ -5923,10 +5927,10 @@
       );
     },
     /**
-     * 添加快捷操作按钮
+     * 添加【过滤】按钮
      */
     addShortcutOperationButton() {
-      log.info("添加快捷操作按钮");
+      log.info("添加【过滤】按钮");
       GreasyforkDiscussionsFilter.getElementList().forEach(($listContainer) => {
         if ($listContainer.querySelector(
           ".discussion-filter-button"
@@ -5937,12 +5941,18 @@
           ".discussion-list-item"
         );
         let $meta = $listItem.querySelector(".discussion-meta");
-        let $ownMetaItem = domUtils.createElement("div", {
-          className: "discussion-meta-item",
-          innerHTML: `
+        let $ownMetaItem = domUtils.createElement(
+          "div",
+          {
+            className: "discussion-meta-item",
+            innerHTML: `
 					<button class="discussion-filter-button">${i18next.t("过滤")}</button>
 					`
-        });
+          },
+          {
+            style: "flex: 0;"
+          }
+        );
         let $button = $ownMetaItem.querySelector(
           ".discussion-filter-button"
         );
@@ -5986,6 +5996,11 @@
               enable: true,
               clickEvent: {
                 toClose: true
+              }
+            },
+            btn: {
+              ok: {
+                enable: false
               }
             },
             drag: true,
@@ -6051,6 +6066,137 @@
               Qmsg.success(i18next.t("添加成功"));
             }
           );
+        });
+      });
+    },
+    /**
+     * 添加【举报】按钮
+     */
+    addReportButton() {
+      log.info(`添加【举报】按钮`);
+      GreasyforkDiscussionsFilter.getElementList().forEach(($listContainer) => {
+        if ($listContainer.querySelector(".discussion-report-button")) {
+          return;
+        }
+        let $listItem = $listContainer.querySelector(
+          ".discussion-list-item"
+        );
+        let $meta = $listItem.querySelector(".discussion-meta");
+        let $ownMetaItem = domUtils.createElement(
+          "div",
+          {
+            className: "discussion-meta-item",
+            innerHTML: `
+					<button class="discussion-report-button" style="border-color: #ff4d4d;background-color: #ffe6e6;color: red;">${i18next.t(
+            "举报"
+          )}</button>
+					`
+          },
+          {
+            style: "flex: 0;"
+          }
+        );
+        let $button = $ownMetaItem.querySelector(
+          ".discussion-report-button"
+        );
+        $meta.appendChild($ownMetaItem);
+        domUtils.on($button, "click", (event) => {
+          utils.preventEvent(event);
+          const discussionInfo = GreasyforkDiscussionsFilter.parseDiscuessionListContainerInfo(
+            $listContainer
+          );
+          __pops.alert({
+            title: {
+              text: i18next.t("举报"),
+              position: "center",
+              html: false
+            },
+            content: {
+              text: (
+                /*html*/
+                `
+						<div class="report-item">
+							${i18next.t("举报讨论：")}
+							<a href="${GreasyforkUrlUtils.getReportUrl(
+                "discussion",
+                discussionInfo.snippetId
+              )}" target="_blank">${discussionInfo.snippet}</a>
+						</div>
+						${discussionInfo.scriptId ? (
+                /*html*/
+                `
+							<div class="report-item">
+							${i18next.t("举报脚本：")}
+							<a href="${GreasyforkUrlUtils.getReportUrl(
+                  "script",
+                  discussionInfo.scriptId
+                )}" target="_blank">${discussionInfo.scriptName}</a>
+						</div>
+						`
+              ) : ""}
+						
+						<div class="report-item">
+							${i18next.t("举报用户：")}
+							<a href="${GreasyforkUrlUtils.getReportUrl(
+                "user",
+                discussionInfo.postUserId
+              )}" target="_blank">${discussionInfo.postUserName}</a>
+						</div>
+						${discussionInfo.replyUserId && discussionInfo.replyUserId != discussionInfo.postUserId ? (
+                /*html*/
+                `
+								<div class="report-item">
+									${i18next.t("举报用户：")}
+									<a href="${GreasyforkUrlUtils.getReportUrl(
+                  "user",
+                  discussionInfo.replyUserId
+                )}" target="_blank">${discussionInfo.replyUserName}</a>
+								</div>
+								`
+              ) : ""}
+							
+								`
+              ),
+              html: true
+            },
+            btn: {
+              ok: {
+                enable: false
+              }
+            },
+            mask: {
+              enable: true,
+              clickEvent: {
+                toClose: true
+              }
+            },
+            drag: true,
+            dragLimit: true,
+            width: "350px",
+            height: "300px",
+            style: (
+              /*css*/
+              `
+							.pops-alert-content{
+								display: flex;
+								flex-direction: column;
+								gap: 20px;
+							}
+							.pops-alert-content .report-item{
+								text-wrap: wrap;
+								padding: 8px;
+								height: auto;
+								text-align: left;
+								margin: var(--button-margin-top) var(--button-margin-right)
+								var(--button-margin-bottom) var(--button-margin-left);
+								border-radius: var(--button-radius);
+								color: var(--button-color);
+								border-color: var(--button-bd-color);
+   								background-color: var(--button-bg-color);
+							}
+							`
+            )
+          });
         });
       });
     }
@@ -6806,7 +6952,7 @@
         return;
       } else {
         let timer = null;
-        let url2 = GreasyforkApi.getSwitchLanguageUrl(localeLanguage);
+        let url2 = GreasyforkUrlUtils.getSwitchLanguageUrl(localeLanguage);
         GreasyforkApi.switchLanguage(url2);
         log.success("新Url：" + url2);
         Qmsg.loading(

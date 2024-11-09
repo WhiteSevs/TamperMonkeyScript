@@ -69,13 +69,20 @@ export const SettingUIDiscuessions: PopsPanelContentConfig = {
 									},
 								},
 								UISwitch(
-									i18next.t("添加快捷操作按钮"),
+									i18next.t("添加【过滤】按钮"),
 									"discussions-addShortcutOperationButton",
 									true,
 									void 0,
 									i18next.t(
 										"在每一行讨论的最后面添加【过滤】按钮，需开启过滤功能才会生效"
 									)
+								),
+								UISwitch(
+									i18next.t("添加【举报】按钮"),
+									"discussions-addReportButton",
+									true,
+									void 0,
+									i18next.t("在每一行讨论的最后面添加【举报】按钮")
 								),
 							],
 						},
