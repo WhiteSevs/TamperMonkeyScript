@@ -1,5 +1,6 @@
 import path from "path";
 import fs from "fs";
+import { execSync } from "child_process";
 
 const originDirName = __dirname;
 export class ViteUtils {
@@ -229,8 +230,20 @@ export class ViteUtils {
 			let scriptInfo = await fetch(
 				`https://update.greasyfork.org/scripts/${libId}.json`
 			).then((res) => res.json());
-			console.log(`获取库: ${scriptInfo?.name}`);
-			return scriptInfo?.code_url as string;
+			let name: string = scriptInfo?.name;
+			let code_url: string = scriptInfo?.code_url;
+			let code_url_split = code_url.split("/");
+			let findIndex = code_url_split.findIndex(
+				(item) => item == libId.toString()
+			);
+			console.log(`gf库: ${name}`);
+			if (findIndex != -1) {
+				console.log(`版本: ${code_url_split[findIndex + 1]}`);
+			} else {
+				console.log(`版本: 解析失败`);
+			}
+			console.log("");
+			return code_url;
 		} catch (error) {
 			if (reTry) {
 				return await this.getGreasyForkLibLatestVersionUrl(libId, false);
@@ -258,7 +271,7 @@ export class ViteUtils {
 			let fileVersionTime = new Date(fileVersionInfo["time"]);
 			let fileVersionTimeNumber = fileVersionTime.getTime();
 			if (useFileVersion) {
-				console.log("直接使用文件的版本号: " + fileVersionInfo["version"]);
+				console.log("使用已有的版本号: " + fileVersionInfo["version"]);
 				return fileVersionInfo["version"];
 			}
 			if (fileVersionTimeNumber <= versionInfo.time) {
@@ -290,8 +303,17 @@ export class ViteUtils {
 				encoding: "utf-8",
 			}
 		);
-		console.log("版本号: " + versionInfo.version);
+		console.log("脚本构建的版本号: " + versionInfo.version);
 		return versionInfo.version;
+	}
+	/**
+	 * 获取npm上发布的包的版本号
+	 * @param libName
+	 */
+	getNpmLibVersion(libName: string) {
+		let version:string = execSync(`npm view ${libName.trim()} version`).toString().trim();
+		console.log(`npm库: ${libName}\n版 本: ${version}\n`);
+		return version;
 	}
 }
 
