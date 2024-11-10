@@ -319,7 +319,7 @@ const M4SAudio = {
 				M4SAudio.$data.latestSyncTime = videoTime;
 
 				M4SAudioUtils.intervalHandler(() => {
-					M4SAudio.handler.syncTime(0.666);
+					M4SAudio.handler.syncTime(0.777);
 				}, 1);
 			}
 		},
