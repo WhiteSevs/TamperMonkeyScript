@@ -313,6 +313,9 @@ const SubTitle = {
 		for (let index = 0; index < subTitleUrlInfoList.length; index++) {
 			const subTitleUrlInfo = subTitleUrlInfoList[index];
 			console.log(TAG + "请求字幕链接信息：" + subTitleUrlInfo.subtitle_url);
+			if (utils.isNull(subTitleUrlInfo.subtitle_url)) {
+				continue;
+			}
 			const subTitleInfoResponse = await httpx.get(
 				subTitleUrlInfo.subtitle_url,
 				{

@@ -5,7 +5,7 @@ import type { Events } from "artplayer/types/events";
 import type { Setting } from "artplayer/types/setting";
 import { unsafeWindow } from "ViteGM";
 
-const TAG = "[artplayer-plugin-bilibiliCCSubTitle]：";
+const TAG = "[artplayer-plugin-m4sAudioSupport]：";
 
 /** 控制面板key */
 const ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY = "setting-bilibili-m4sAudio";
@@ -57,16 +57,16 @@ const M4SAudioUtils = {
 	 * @param delayTime 重复执行的间隔时间
 	 */
 	intervalHandler(fn: Function, count: number = 2, delayTime: number = 900) {
-		if (this.$flag.isIntervaling) {
+		if (M4SAudioUtils.$flag.isIntervaling) {
 			return;
 		}
-		this.$flag.isIntervaling = true;
+		M4SAudioUtils.$flag.isIntervaling = true;
 		/** 已经循环的次数 */
 		let intervalCount = 0;
 		let intervalId: undefined | number = void 0;
 		let callback = () => {
 			if (intervalCount > count) {
-				this.$flag.isIntervaling = false;
+				M4SAudioUtils.$flag.isIntervaling = false;
 				clearInterval(intervalId);
 				return;
 			}
@@ -84,7 +84,7 @@ const M4SAudioUtils = {
 			// 2次以上（包括2次）就循环
 			intervalId = setInterval(callback, delayTime);
 		} else {
-			this.$flag.isIntervaling = false;
+			M4SAudioUtils.$flag.isIntervaling = false;
 		}
 	},
 };
@@ -98,6 +98,8 @@ const M4SAudio = {
 		art: null as any as Artplayer,
 		/** 播放的音频 */
 		audio: new Audio(),
+		/** 上次同步的所在的进度 */
+		latestSyncTime: 0,
 		/** 音频的重新连接的配置 */
 		reconnectConfig: {
 			/** 最大连接的次数 */
@@ -123,11 +125,13 @@ const M4SAudio = {
 		 * 同步进度 - 同步音量 - 播放音频
 		 */
 		play: () => {
-			// console.log(TAG + "play");
+			if (import.meta.hot) {
+				console.log(TAG + "play");
+			}
+			M4SAudio.handler.play();
 			M4SAudioUtils.intervalHandler(() => {
 				M4SAudio.handler.syncTime();
 			}, 1);
-			M4SAudio.handler.play();
 		},
 		/**
 		 * 视频进度更新（主动改变的，而不是播放的改变）
@@ -136,6 +140,9 @@ const M4SAudio = {
 		 * @param currentTime 当前的进度
 		 */
 		seek: (currentTime) => {
+			if (import.meta.hot) {
+				console.log(TAG + "seek：" + currentTime);
+			}
 			M4SAudioUtils.intervalHandler(() => {
 				M4SAudio.handler.syncTime();
 				M4SAudio.handler.syncPlayState();
@@ -147,7 +154,9 @@ const M4SAudio = {
 		 * 音频暂停
 		 */
 		pause: () => {
-			// console.log(TAG + "pause");
+			if (import.meta.hot) {
+				console.log(TAG + "pause");
+			}
 			M4SAudioUtils.intervalHandler(() => {
 				M4SAudio.handler.syncTime();
 			}, 1);
@@ -160,7 +169,9 @@ const M4SAudio = {
 		 * @param url
 		 */
 		restart: (url) => {
-			// console.log(TAG + "restart", url);
+			if (import.meta.hot) {
+				console.log(TAG + "restart", url);
+			}
 			if (typeof M4SAudio.userEvent.onRestart === "function") {
 				let newAudioUrl = M4SAudio.userEvent.onRestart(url);
 				// 更新audio的url
@@ -176,7 +187,9 @@ const M4SAudio = {
 		 * @param state
 		 */
 		muted: (state) => {
-			// console.log(TAG + "muted",state);
+			if (import.meta.hot) {
+				console.log(TAG + "muted", state);
+			}
 			M4SAudio.handler.syncVolume();
 			M4SAudio.handler.syncMuted();
 		},
@@ -186,7 +199,9 @@ const M4SAudio = {
 		 * 音频暂停
 		 */
 		destroy: () => {
-			// console.log(TAG + "destory");
+			if (import.meta.hot) {
+				console.log(TAG + "destory");
+			}
 			M4SAudio.handler.pause();
 		},
 		/**
@@ -197,7 +212,9 @@ const M4SAudio = {
 		 * @param reconnectTime
 		 */
 		error: (error, reconnectTime) => {
-			// console.log(TAG + "error", error, reconnectTime);
+			if (import.meta.hot) {
+				console.log(TAG + "error", error, reconnectTime);
+			}
 			M4SAudio.handler.pause();
 		},
 		/**
@@ -206,6 +223,9 @@ const M4SAudio = {
 		 * 可能会音视频不停步
 		 */
 		resize: () => {
+			if (import.meta.hot) {
+				console.log(TAG + "resize");
+			}
 			M4SAudioUtils.intervalHandler(() => {
 				M4SAudio.handler.syncTime();
 			});
@@ -216,6 +236,9 @@ const M4SAudio = {
 		 * 可能会音视频不停步
 		 */
 		fullscreen: () => {
+			if (import.meta.hot) {
+				console.log("fullscreen");
+			}
 			M4SAudioUtils.intervalHandler(() => {
 				M4SAudio.handler.syncTime();
 			});
@@ -226,7 +249,9 @@ const M4SAudio = {
 		 * 音频暂停
 		 */
 		"video:ended": () => {
-			// console.log(TAG + "video:ended");
+			if (import.meta.hot) {
+				console.log(TAG + "video:ended");
+			}
 			M4SAudio.handler.pause();
 		},
 		/**
@@ -235,7 +260,9 @@ const M4SAudio = {
 		 * 同步视频的倍速
 		 */
 		"video:ratechange": () => {
-			// console.log(TAG + "video:ratechange");
+			if (import.meta.hot) {
+				console.log(TAG + "video:ratechange");
+			}
 			M4SAudio.handler.syncPlayBackRate();
 		},
 		/**
@@ -244,14 +271,18 @@ const M4SAudio = {
 		 * 音频暂停 然后同步进度
 		 */
 		"video:waiting": () => {
-			// console.log(TAG + "video:waiting");
+			if (import.meta.hot) {
+				console.log(TAG + "video:waiting");
+			}
 			M4SAudio.handler.pause();
 		},
 		/**
 		 * 视频缓冲恢复，音频也恢复
 		 */
 		"video:playing": () => {
-			// console.log(TAG + "video:playing");
+			if (import.meta.hot) {
+				console.log(TAG + "video:playing");
+			}
 			M4SAudioUtils.intervalHandler(() => {
 				M4SAudio.handler.syncTime();
 			}, 1);
@@ -261,7 +292,9 @@ const M4SAudio = {
 		 * 切换页面视频会被暂停
 		 */
 		"video:pause": () => {
-			// console.log(TAG + "video:pause");
+			if (import.meta.hot) {
+				console.log(TAG + "video:pause");
+			}
 			M4SAudio.handler.pause();
 			M4SAudioUtils.intervalHandler(() => {
 				M4SAudio.handler.syncTime();
@@ -271,22 +304,22 @@ const M4SAudio = {
 		 * 同步音量
 		 */
 		"video:volumechange": () => {
-			// console.log(TAG + "video:volumechange");
-			M4SAudioUtils.intervalHandler(() => {
-				M4SAudio.handler.syncTime();
-			}, 1);
+			if (import.meta.hot) {
+				console.log(TAG + "video:volumechange");
+			}
+			M4SAudio.handler.syncVolume();
 		},
 		/**
-		 * 应该是主动切换的视频，首次播放时可能音频不同步
+		 * 视频更新进度
 		 */
 		"video:timeupdate": () => {
-			if (
-				2 <= M4SAudio.$data.art.currentTime &&
-				M4SAudio.$data.art.currentTime <= 4
-			) {
-				// 2~4秒内同步音频
+			let videoTime = M4SAudio.$data.art.currentTime;
+			if (Math.abs(videoTime - M4SAudio.$data.latestSyncTime) >= 3) {
+				// 每3秒同步一次进度
+				M4SAudio.$data.latestSyncTime = videoTime;
+
 				M4SAudioUtils.intervalHandler(() => {
-					M4SAudio.handler.syncTime();
+					M4SAudio.handler.syncTime(0.233);
 				}, 1);
 			}
 		},
@@ -299,6 +332,7 @@ const M4SAudio = {
 			// 重置重连信息
 			M4SAudio.$data.reconnectInfo.count = 0;
 			M4SAudio.$data.reconnectInfo.url = "";
+			M4SAudio.$data.latestSyncTime = 0;
 
 			// 同步音量、进度
 			M4SAudio.handler.syncPlayState();
@@ -391,24 +425,28 @@ const M4SAudio = {
 				this.pause();
 			}
 		},
-		/** 音频同步视频进度 */
-		syncTime() {
+		/**
+		 * 音频同步视频进度
+		 * @param offset 差距大小
+		 */
+		syncTime(offset: number = 0.1) {
 			let videoTime = M4SAudio.$data.art.currentTime;
 			let audioTime = M4SAudio.$data.audio.currentTime;
-			if (videoTime - audioTime >= 0.1 || audioTime - videoTime >= 0.1) {
-				// 视频进度比音频进度快0.1以上
-				// 视频进度比音频进度慢0.1以上
+			if (Math.abs(videoTime - audioTime) >= Math.abs(offset)) {
+				// 视频进度和音频进度的差距超过设定的偏移
 				M4SAudio.$data.audio.currentTime = videoTime;
 				// 同步音量
 				this.syncVolume();
 				// 同步静音状态
 				this.syncMuted();
-				// console.log(
-				// 	TAG +
-				// 		`同步进度，视频：${videoTime} 音频：${audioTime} 差距：${
-				// 			videoTime - audioTime
-				// 		}`
-				// );
+				if (import.meta.hot) {
+					console.log(
+						TAG +
+							`同步进度，视频：${videoTime} 音频：${audioTime} 差距：${
+								videoTime - audioTime
+							}`
+					);
+				}
 			} else {
 				// console.warn(
 				// 	TAG +
@@ -448,6 +486,7 @@ const M4SAudio = {
 	update(option: ArtPlayerPluginM4SAudioSupportUpdateOption) {
 		this.unbind();
 		this.unbindAudio();
+		this.$data.latestSyncTime = 0;
 		const that = this;
 
 		if (option.audioList?.length) {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.10
+// @version      2024.11.10.19
 // @author       WhiteSevs
 // @description  免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -3558,7 +3558,7 @@
       );
     }
   }
-  const TAG$4 = "[artplayer-plugin-bilibiliCCSubTitle]：";
+  const TAG$4 = "[artplayer-plugin-m4sAudioSupport]：";
   const ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY = "setting-bilibili-m4sAudio";
   const M4SAudioUtils = {
     $flag: {
@@ -3574,15 +3574,15 @@
      * @param delayTime 重复执行的间隔时间
      */
     intervalHandler(fn, count = 2, delayTime = 900) {
-      if (this.$flag.isIntervaling) {
+      if (M4SAudioUtils.$flag.isIntervaling) {
         return;
       }
-      this.$flag.isIntervaling = true;
+      M4SAudioUtils.$flag.isIntervaling = true;
       let intervalCount = 0;
       let intervalId = void 0;
       let callback = () => {
         if (intervalCount > count) {
-          this.$flag.isIntervaling = false;
+          M4SAudioUtils.$flag.isIntervaling = false;
           clearInterval(intervalId);
           return;
         }
@@ -3599,7 +3599,7 @@
       if (count > 1) {
         intervalId = setInterval(callback, delayTime);
       } else {
-        this.$flag.isIntervaling = false;
+        M4SAudioUtils.$flag.isIntervaling = false;
       }
     }
   };
@@ -3612,6 +3612,8 @@
       art: null,
       /** 播放的音频 */
       audio: new Audio(),
+      /** 上次同步的所在的进度 */
+      latestSyncTime: 0,
       /** 音频的重新连接的配置 */
       reconnectConfig: {
         /** 最大连接的次数 */
@@ -3637,10 +3639,10 @@
        * 同步进度 - 同步音量 - 播放音频
        */
       play: () => {
+        M4SAudio.handler.play();
         M4SAudioUtils.intervalHandler(() => {
           M4SAudio.handler.syncTime();
         }, 1);
-        M4SAudio.handler.play();
       },
       /**
        * 视频进度更新（主动改变的，而不是播放的改变）
@@ -3773,17 +3775,17 @@
        * 同步音量
        */
       "video:volumechange": () => {
-        M4SAudioUtils.intervalHandler(() => {
-          M4SAudio.handler.syncTime();
-        }, 1);
+        M4SAudio.handler.syncVolume();
       },
       /**
-       * 应该是主动切换的视频，首次播放时可能音频不同步
+       * 视频更新进度
        */
       "video:timeupdate": () => {
-        if (2 <= M4SAudio.$data.art.currentTime && M4SAudio.$data.art.currentTime <= 4) {
+        let videoTime = M4SAudio.$data.art.currentTime;
+        if (Math.abs(videoTime - M4SAudio.$data.latestSyncTime) >= 3) {
+          M4SAudio.$data.latestSyncTime = videoTime;
           M4SAudioUtils.intervalHandler(() => {
-            M4SAudio.handler.syncTime();
+            M4SAudio.handler.syncTime(0.233);
           }, 1);
         }
       }
@@ -3793,6 +3795,7 @@
         console.log(TAG$4 + "Audio预加载完成");
         M4SAudio.$data.reconnectInfo.count = 0;
         M4SAudio.$data.reconnectInfo.url = "";
+        M4SAudio.$data.latestSyncTime = 0;
         M4SAudio.handler.syncPlayState();
         M4SAudio.handler.syncMuted();
         M4SAudio.handler.syncPlayBackRate();
@@ -3868,11 +3871,14 @@
           this.pause();
         }
       },
-      /** 音频同步视频进度 */
-      syncTime() {
+      /**
+       * 音频同步视频进度
+       * @param offset 差距大小
+       */
+      syncTime(offset = 0.1) {
         let videoTime = M4SAudio.$data.art.currentTime;
         let audioTime = M4SAudio.$data.audio.currentTime;
-        if (videoTime - audioTime >= 0.1 || audioTime - videoTime >= 0.1) {
+        if (Math.abs(videoTime - audioTime) >= Math.abs(offset)) {
           M4SAudio.$data.audio.currentTime = videoTime;
           this.syncVolume();
           this.syncMuted();
@@ -3907,6 +3913,7 @@
       var _a2;
       this.unbind();
       this.unbindAudio();
+      this.$data.latestSyncTime = 0;
       const that = this;
       if ((_a2 = option.audioList) == null ? void 0 : _a2.length) {
         let firstAudioInfo = option.audioList[0];
@@ -4600,6 +4607,9 @@
       for (let index = 0; index < subTitleUrlInfoList.length; index++) {
         const subTitleUrlInfo = subTitleUrlInfoList[index];
         console.log(TAG$3 + "请求字幕链接信息：" + subTitleUrlInfo.subtitle_url);
+        if (utils.isNull(subTitleUrlInfo.subtitle_url)) {
+          continue;
+        }
         const subTitleInfoResponse = await httpx.get(
           subTitleUrlInfo.subtitle_url,
           {
