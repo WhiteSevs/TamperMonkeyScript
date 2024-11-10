@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.8
+// @version      2024.11.10
 // @author       WhiteSevs
 // @description  免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -3579,6 +3579,7 @@
       }
       this.$flag.isIntervaling = true;
       let intervalCount = 0;
+      let intervalId = void 0;
       let callback = () => {
         if (intervalCount > count) {
           this.$flag.isIntervaling = false;
@@ -3595,7 +3596,11 @@
         intervalCount++;
       };
       callback();
-      let intervalId = setInterval(callback, delayTime);
+      if (count > 1) {
+        intervalId = setInterval(callback, delayTime);
+      } else {
+        this.$flag.isIntervaling = false;
+      }
     }
   };
   const M4SAudio = {
@@ -3632,7 +3637,9 @@
        * 同步进度 - 同步音量 - 播放音频
        */
       play: () => {
-        M4SAudio.handler.syncTime();
+        M4SAudioUtils.intervalHandler(() => {
+          M4SAudio.handler.syncTime();
+        }, 1);
         M4SAudio.handler.play();
       },
       /**
@@ -3653,7 +3660,9 @@
        * 音频暂停
        */
       pause: () => {
-        M4SAudio.handler.syncTime();
+        M4SAudioUtils.intervalHandler(() => {
+          M4SAudio.handler.syncTime();
+        }, 1);
         M4SAudio.handler.pause();
       },
       /**
@@ -3667,7 +3676,9 @@
           let newAudioUrl = M4SAudio.userEvent.onRestart(url);
           M4SAudio.handler.playUrl(newAudioUrl);
         }
-        M4SAudio.handler.syncTime();
+        M4SAudioUtils.intervalHandler(() => {
+          M4SAudio.handler.syncTime();
+        }, 1);
         M4SAudio.handler.syncPlayState();
       },
       /**
@@ -3744,7 +3755,9 @@
        * 视频缓冲恢复，音频也恢复
        */
       "video:playing": () => {
-        M4SAudio.handler.syncTime();
+        M4SAudioUtils.intervalHandler(() => {
+          M4SAudio.handler.syncTime();
+        }, 1);
         M4SAudio.handler.play();
       },
       /**
@@ -3752,20 +3765,26 @@
        */
       "video:pause": () => {
         M4SAudio.handler.pause();
-        M4SAudio.handler.syncTime();
+        M4SAudioUtils.intervalHandler(() => {
+          M4SAudio.handler.syncTime();
+        }, 1);
       },
       /**
        * 同步音量
        */
       "video:volumechange": () => {
-        M4SAudio.handler.syncTime();
+        M4SAudioUtils.intervalHandler(() => {
+          M4SAudio.handler.syncTime();
+        }, 1);
       },
       /**
        * 应该是主动切换的视频，首次播放时可能音频不同步
        */
       "video:timeupdate": () => {
         if (2 <= M4SAudio.$data.art.currentTime && M4SAudio.$data.art.currentTime <= 4) {
-          M4SAudio.handler.syncTime();
+          M4SAudioUtils.intervalHandler(() => {
+            M4SAudio.handler.syncTime();
+          }, 1);
         }
       }
     },
@@ -8377,17 +8396,14 @@
      * setGMResourceCSS({
      *   keyName: "ViewerCSS",
      *   url: "https://example.com/example.css",
-     *   devUrl: "viewerjs/dist/viewer.css",
      * })
      */
     setGMResourceCSS(resourceMapData) {
-      {
-        let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
-        if (typeof cssText === "string" && cssText) {
-          addStyle(cssText);
-        } else {
-          CommonUtil.loadStyleLink(resourceMapData.url);
-        }
+      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+      if (typeof cssText === "string" && cssText) {
+        addStyle(cssText);
+      } else {
+        CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
     /**
