@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.10
+// @version      2024.11.10.21
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1064,17 +1064,14 @@
      * setGMResourceCSS({
      *   keyName: "ViewerCSS",
      *   url: "https://example.com/example.css",
-     *   devUrl: "viewerjs/dist/viewer.css",
      * })
      */
     setGMResourceCSS(resourceMapData) {
-      {
-        let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
-        if (typeof cssText === "string" && cssText) {
-          addStyle(cssText);
-        } else {
-          CommonUtil.loadStyleLink(resourceMapData.url);
-        }
+      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+      if (typeof cssText === "string" && cssText) {
+        addStyle(cssText);
+      } else {
+        CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
     /**
@@ -1160,6 +1157,90 @@
       return urlObj2.toString();
     }
   };
+  const DouYinLiveBlock = {
+    init() {
+      PopsPanel.execMenuOnce("live-shieldGiftColumn", () => {
+        return this.shieldGiftColumn();
+      });
+      PopsPanel.execMenuOnce("live-shieldTopToolBarInfo", () => {
+        return this.shieldTopToolBarInfo();
+      });
+      PopsPanel.execMenuOnce("live-shieldGiftEffects", () => {
+        return this.shieldGiftEffects();
+      });
+      PopsPanel.execMenuOnce("live-shielYellowCar", () => {
+        return this.shieldYellowCar();
+      });
+      PopsPanel.execMenuOnce("live-shieldDanmuku", () => {
+        return this.shieldDanmu();
+      });
+      DouYinLiveChatRoomBlock.init();
+      DouYinLiveVideoAreaRightMenu.init();
+    },
+    /**
+     * 屏蔽弹幕
+     */
+    shieldDanmu() {
+      log.info("屏蔽弹幕");
+      return [CommonUtil.addBlockCSS("xg-danmu.xgplayer-danmu")];
+    },
+    /**
+     * 【屏蔽】顶栏信息
+     * 包括直播作者、右侧的礼物展馆
+     */
+    shieldTopToolBarInfo() {
+      log.info("【屏蔽】顶栏信息");
+      return [
+        CommonUtil.addBlockCSS(
+          'div[data-e2e="living-container"] div[id*="living_room_player_container"] > pace-island[id^="island_"]',
+          // 全屏状态下的
+          'div[data-e2e="living-container"] xg-bar.xg-top-bar'
+        )
+      ];
+    },
+    /**
+     * 【屏蔽】礼物特效
+     */
+    shieldGiftEffects() {
+      log.info("【屏蔽】礼物特效");
+      return [
+        CommonUtil.addBlockCSS(
+          // ↓该屏蔽会把连麦的用户也屏蔽了
+          // '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div>div)'
+          '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div:not([class*="video_layout_container"])>div)'
+        )
+      ];
+    },
+    /**
+     * 【屏蔽】小黄车
+     */
+    shieldYellowCar() {
+      log.info("【屏蔽】小黄车");
+      return [
+        CommonUtil.addBlockCSS(
+          'div[id^="living_room_player_container"] .basicPlayer  > div:has(div[data-e2e="yellowCart-container"])'
+        )
+      ];
+    },
+    /**
+     * 【屏蔽】底部的礼物栏
+     */
+    shieldGiftColumn() {
+      log.info("屏蔽底部的礼物栏");
+      return [
+        CommonUtil.addBlockCSS(
+          'div[data-e2e="living-container"] >div> div:has(.gitBarOptimizeEnabled)',
+          // 全屏状态下的
+          'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"])'
+        ),
+        addStyle(`
+            /* 去除全屏状态下的礼物栏后，上面的工具栏bottom也去除 */
+            div[data-e2e="living-container"] xg-controls xg-inner-controls:has(+div div[data-e2e="gifts-container"]){
+                bottom: 0 !important;
+            }`)
+      ];
+    }
+  };
   const DouYinLiveChatRoomBlock = {
     init() {
       PopsPanel.execMenuOnce("live-shieldChatRoom", () => {
@@ -1202,7 +1283,9 @@
       log.info("【屏蔽】评论区的贵宾席");
       return [
         CommonUtil.addBlockCSS(
-          "#chatroom > div > div:has(#audiencePanelScrollId)"
+          "#chatroom > div > div:has(#audiencePanelScrollId)",
+          // Firefox上的CSS，多了个pace-island
+          "#chatroom > pace-island > div > div:has(#audiencePanelScrollId)"
         )
       ];
     },
@@ -1249,96 +1332,28 @@
         CommonUtil.addBlockCSS(
           "#chatroom .webcast-chatroom___bottom-message",
           // 上面的滚动播报，xxx加入了直播间
-          '#chatroom >div>div>div:has(>div[elementtiming="element-timing"])'
+          "#chatroom >div:nth-child(2)>div>div:nth-child(3)",
+          // Firefox的，多了个pace-island
+          "#chatroom >pace-island>div>div:first-child>div:nth-child(3)"
         )
       ];
     }
   };
-  const DouYinLiveDanmuBlock = {
+  const DouYinLiveVideoAreaRightMenu = {
     init() {
-      PopsPanel.execMenuOnce("live-shieldDanmuku", () => {
-        return this.shieldDanmu();
+      PopsPanel.execMenuOnce("dy-live-blockVideoRightMenu-downloadClient", () => {
+        return this.blockDownloadClient();
       });
     },
     /**
-     * 屏蔽弹幕
+     * 【屏蔽】右键菜单-下载客户端
      */
-    shieldDanmu() {
-      log.info("屏蔽弹幕");
-      return [CommonUtil.addBlockCSS("xg-danmu.xgplayer-danmu")];
-    }
-  };
-  const DouYinLiveBlock = {
-    init() {
-      PopsPanel.execMenuOnce("live-shieldGiftColumn", () => {
-        return this.shieldGiftColumn();
-      });
-      PopsPanel.execMenuOnce("live-shieldTopToolBarInfo", () => {
-        return this.shieldTopToolBarInfo();
-      });
-      PopsPanel.execMenuOnce("live-shieldGiftEffects", () => {
-        return this.shieldGiftEffects();
-      });
-      PopsPanel.execMenuOnce("live-shielYellowCar", () => {
-        return this.shieldYellowCar();
-      });
-      DouYinLiveChatRoomBlock.init();
-      DouYinLiveDanmuBlock.init();
-    },
-    /**
-     * 【屏蔽】顶栏信息
-     * 包括直播作者、右侧的礼物展馆
-     */
-    shieldTopToolBarInfo() {
-      log.info("【屏蔽】顶栏信息");
+    blockDownloadClient() {
+      log.info(`【屏蔽】右键菜单-下载客户端`);
       return [
         CommonUtil.addBlockCSS(
-          'div[data-e2e="living-container"] > div > pace-island[id^="island_"]',
-          // 全屏状态下的
-          'div[data-e2e="living-container"] xg-bar.xg-top-bar'
+          '.__menu_container_className:has(>a[href*="douyin-pc-web"])'
         )
-      ];
-    },
-    /**
-     * 【屏蔽】礼物特效
-     */
-    shieldGiftEffects() {
-      log.info("【屏蔽】礼物特效");
-      return [
-        CommonUtil.addBlockCSS(
-          // ↓该屏蔽会把连麦的用户也屏蔽了
-          // '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div>div)'
-          '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div:not([class*="video_layout_container"])>div)'
-        )
-      ];
-    },
-    /**
-     * 【屏蔽】小黄车
-     */
-    shieldYellowCar() {
-      log.info("【屏蔽】小黄车");
-      return [
-        CommonUtil.addBlockCSS(
-          'div[id^="living_room_player_container"] .basicPlayer  > div:has(div[data-e2e="yellowCart-container"])'
-        )
-      ];
-    },
-    /**
-     * 【屏蔽】底部的礼物栏
-     */
-    shieldGiftColumn() {
-      log.info("屏蔽底部的礼物栏");
-      return [
-        CommonUtil.addBlockCSS(
-          'div[data-e2e="living-container"] >div> div:has(>.gitBarOptimizeEnabled)',
-          // 全屏状态下的
-          'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"])'
-        ),
-        addStyle(`
-            /* 去除全屏状态下的礼物栏后，上面的工具栏bottom也去除 */
-            div[data-e2e="living-container"] xg-controls xg-inner-controls:has(+div div[data-e2e="gifts-container"]){
-                bottom: 0 !important;
-            }`)
       ];
     }
   };
@@ -2373,6 +2388,19 @@
                     false,
                     void 0,
                     "屏蔽元素"
+                  )
+                ]
+              },
+              {
+                type: "forms",
+                text: "右键菜单",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】下载客户端",
+                    "dy-live-blockVideoRightMenu-downloadClient",
+                    true,
+                    void 0,
+                    "屏蔽右键菜单项"
                   )
                 ]
               }
