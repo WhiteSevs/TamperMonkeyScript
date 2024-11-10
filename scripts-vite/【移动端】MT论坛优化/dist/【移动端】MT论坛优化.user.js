@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359
-// @version      2024.11.8
+// @version      2024.11.10
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -48,7 +48,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var require_entrance_001 = __commonJS({
-    "entrance-6DJZQap3.js"(exports, module) {
+    "entrance-CHjuCMr6.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -7174,10 +7174,11 @@
             inajax: 1,
             ajaxtarget: "midaben_sign"
           };
+          let useFetch = Boolean(PopsPanel.getValue("mt-auto-sign-useFetch"));
           let response = await httpx.get(
             `/k_misign-sign.html?${utils.toSearchParamsStr(searchParamsData)}`,
             {
-              fetch: Boolean(PopsPanel.getValue("mt-auto-sign-useFetch")),
+              fetch: useFetch,
               headers: {
                 "User-Agent": utils.getRandomPCUA()
               },
@@ -7191,7 +7192,8 @@
           }
           this.setSignTime();
           log.info("签到信息：", response);
-          let CDATA = utils.parseCDATA(response.data.responseText);
+          let responseText = response.data.responseText;
+          let CDATA = utils.parseCDATA(responseText);
           let CDATAElement = domUtils.parseHTML(`<div>${CDATA}</div>`, true, false);
           let content = domUtils.text(CDATAElement);
           if (content.includes("需要先登录")) {
@@ -7208,12 +7210,13 @@
           } else if (content.includes("今日已签")) {
             Qmsg.info("签到：" + content);
             return;
-          } else if (response.data.responseText.includes(
-            "您当前的访问请求当中含有非法字符，已经被系统拒绝"
-          )) {
+          } else if (responseText.includes("您当前的访问请求当中含有非法字符，已经被系统拒绝")) {
             Qmsg.error("签到: 您当前的访问请求当中含有非法字符，已经被系统拒绝", {
               timeout: 6e3
             });
+            return;
+          } else if (useFetch && "location" in utils.toJSON(responseText)) {
+            Qmsg.success("签到: 签到成功");
             return;
           }
           let signIn_con = CDATAElement.querySelector(".con");

@@ -36,11 +36,12 @@ export const CSDNFavoriteApi = {
 				},
 			}
 		);
+		log.info(response);
 		if (
 			!response.status ||
 			!ApiResponseCheck.isSuccessResponse(response.data.responseText)
 		) {
-			log.error("获取收藏夹信息失败，请求异常", response);
+			log.error("获取收藏夹信息失败，请求异常");
 			Qmsg.error("获取收藏夹信息失败");
 			return;
 		}
@@ -87,6 +88,7 @@ export const CSDNFavoriteApi = {
 				allowInterceptConfig: false,
 			}
 		);
+		log.info(response);
 		if (
 			!response.status ||
 			!ApiResponseCheck.isSuccessResponse(response.data.responseText)
@@ -119,11 +121,12 @@ export const CSDNFavoriteApi = {
 				},
 			}
 		);
+		log.info(response);
 		if (
 			!response.status ||
 			!ApiResponseCheck.isSuccessResponse(response.data.responseText)
 		) {
-			log.error("检查收藏夹状态失败，请求异常", response);
+			log.error("检查收藏夹状态失败，请求异常");
 			Qmsg.error("检查收藏夹状态失败，请求异常");
 			return;
 		}
@@ -135,6 +138,60 @@ export const CSDNFavoriteApi = {
 			total: number;
 			code: number;
 		};
+		return data.data;
+	},
+	/**
+	 * 创建收藏夹
+	 */
+	async createFolder(config: {
+		name: string;
+		source: "blog";
+		description: string;
+		isPrivate: 0 | 1;
+		isDefault: 0 | 1;
+		username: string;
+	}) {
+		let response = await httpx.post(
+			`https://mp-action.csdn.net/interact/wrapper/pc/favorite/v1/api/createFolder`,
+			{
+				data: config,
+				fetch: true,
+				headers: {
+					Accept: "application/json, text/javascript, */*; q=0.01",
+					"Content-Type": "application/json",
+					"User-Agent": utils.getRandomPCUA(),
+				},
+				allowInterceptConfig: false,
+			}
+		);
+		log.info(response);
+		if (
+			!response.status ||
+			!ApiResponseCheck.isSuccessResponse(response.data.responseText)
+		) {
+			Qmsg.error("创建收藏夹失败");
+			return;
+		}
+		let data = utils.toJSON(response.data.responseText) as {
+			data: {
+				id: number;
+				name: string;
+				favoriteNum: number;
+				followNum: number;
+				username: string;
+				description: string;
+				isPrivate: number;
+				createdAt: null;
+				updatedAt: null;
+				createTime: null;
+				updateTime: null;
+				isDefault: 1;
+			};
+			msg: string;
+			total: number;
+			code: number;
+		};
+
 		return data.data;
 	},
 };
