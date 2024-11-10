@@ -131,10 +131,11 @@ export const MTAutoSignIn = {
 			inajax: 1,
 			ajaxtarget: "midaben_sign",
 		};
+		let useFetch = Boolean(PopsPanel.getValue("mt-auto-sign-useFetch"));
 		let response = await httpx.get(
 			`/k_misign-sign.html?${utils.toSearchParamsStr(searchParamsData)}`,
 			{
-				fetch: Boolean(PopsPanel.getValue("mt-auto-sign-useFetch")),
+				fetch: useFetch,
 				headers: {
 					"User-Agent": utils.getRandomPCUA(),
 				},
@@ -151,7 +152,8 @@ export const MTAutoSignIn = {
 		this.setSignTime();
 		log.info("签到信息：", response);
 
-		let CDATA = utils.parseCDATA(response.data.responseText);
+		let responseText = response.data.responseText;
+		let CDATA = utils.parseCDATA(responseText);
 		let CDATAElement = DOMUtils.parseHTML(`<div>${CDATA}</div>`, true, false);
 		let content = DOMUtils.text(CDATAElement);
 		if (content.includes("需要先登录")) {
@@ -174,15 +176,19 @@ export const MTAutoSignIn = {
 			Qmsg.info("签到：" + content);
 			return;
 		} else if (
-			response.data.responseText.includes(
-				"您当前的访问请求当中含有非法字符，已经被系统拒绝"
-			)
+			responseText.includes("您当前的访问请求当中含有非法字符，已经被系统拒绝")
 		) {
 			Qmsg.error("签到: 您当前的访问请求当中含有非法字符，已经被系统拒绝", {
 				timeout: 6000,
 			});
 			return;
+		} else if (useFetch && "location" in utils.toJSON(responseText)) {
+			// fetch请求
+			// 签到成功返回{"location":null}
+			Qmsg.success("签到: 签到成功");
+			return;
 		}
+		// 输出签到的具体奖励信息
 		/* 签到奖励 */
 		let signIn_con = CDATAElement.querySelector<HTMLElement>(".con");
 		/* 签到排名 */
