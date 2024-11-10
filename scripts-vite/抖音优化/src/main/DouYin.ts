@@ -6,7 +6,7 @@ import { DouYinHook } from "../hook/DouYinHook";
 import { DouYinAccount } from "../account/DouYinAccount";
 import { DouYinVideo } from "./video/DouYinVideo";
 import { DouYinRouter } from "@/router/DouYinRouter";
-import { DouYinLive } from "./live/DouYinLive";
+import { DouYinLive } from "./livelive/DouYinLive";
 import { DouYinRedirect } from "./DouYinRedirect";
 import { DouYinSearch } from "./search/DouYinSearch";
 import { BlockLeftNavigator } from "./block-frame/blockLeftNavigator";

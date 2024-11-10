@@ -1,13 +1,13 @@
 import { DOMUtils, log, utils } from "@/env";
 import { UISwitch } from "../common-components/ui-switch";
-import { DouYinDanmuFilter } from "@/main/live/DouYinLiveDanmuku";
+import { DouYinDanmuFilter } from "@/main/livelive/DouYinLiveDanmuku";
 import { PopsPanel } from "../setting";
 import { UISelect } from "../common-components/ui-select";
-import { VideoQualityMap } from "@/main/live/DouYinLive";
+import { VideoQualityMap } from "@/main/livelive/DouYinLive";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { AutoOpenOrClose } from "../utils/all-open-or-close";
 import { UIButtonShortCut } from "../common-components/ui-button-shortcut";
-import { DouYinLiveShortCut } from "@/main/live/DouYinLiveShortCut";
+import { DouYinLiveShortCut } from "@/main/livelive/DouYinLiveShortCut";
 
 const PanelLiveConfig: PopsPanelContentConfig = {
 	id: "panel-config-live",
@@ -308,6 +308,19 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 									false,
 									void 0,
 									"屏蔽元素"
+								),
+							],
+						},
+						{
+							type: "forms",
+							text: "右键菜单",
+							forms: [
+								UISwitch(
+									"【屏蔽】下载客户端",
+									"dy-live-blockVideoRightMenu-downloadClient",
+									true,
+									void 0,
+									"屏蔽右键菜单项"
 								),
 							],
 						},
