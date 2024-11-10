@@ -49,7 +49,6 @@ export const CommonUtil = {
 	 * setGMResourceCSS({
 	 *   keyName: "ViewerCSS",
 	 *   url: "https://example.com/example.css",
-	 *   devUrl: "viewerjs/dist/viewer.css",
 	 * })
 	 */
 	setGMResourceCSS(resourceMapData: {
@@ -57,34 +56,15 @@ export const CommonUtil = {
 		keyName: string;
 		/** 使用@resource引用的地址 */
 		url: string;
-		/** 开发时的库的CSS地址 */
-		devUrl?: string;
 	}) {
-		if (import.meta.hot && typeof resourceMapData.devUrl === "string") {
-			// 当前是开发环境，使用devUrl
-			let devUrl = resourceMapData.devUrl;
-			if (devUrl.endsWith(".css")) {
-				devUrl += "?raw";
-			}
-			import(devUrl)
-				.then((cssText) => {
-					addStyle(cssText);
-				})
-				.catch((error) => {
-					console.error(error);
-					Reflect.deleteProperty(resourceMapData, "devUrl");
-					this.setGMResourceCSS(resourceMapData);
-				});
+		let cssText =
+			typeof GM_getResourceText === "function"
+				? GM_getResourceText(resourceMapData.keyName)
+				: "";
+		if (typeof cssText === "string" && cssText) {
+			addStyle(cssText);
 		} else {
-			let cssText =
-				typeof GM_getResourceText === "function"
-					? GM_getResourceText(resourceMapData.keyName)
-					: "";
-			if (typeof cssText === "string" && cssText) {
-				addStyle(cssText);
-			} else {
-				CommonUtil.loadStyleLink(resourceMapData.url);
-			}
+			CommonUtil.loadStyleLink(resourceMapData.url);
 		}
 	},
 	/**
