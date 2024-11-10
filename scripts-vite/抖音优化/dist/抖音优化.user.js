@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.9
+// @version      2024.11.10
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1286,24 +1286,6 @@
       DouYinLiveDanmuBlock.init();
     },
     /**
-     * 【屏蔽】底部的礼物栏
-     */
-    shieldGiftColumn() {
-      log.info("屏蔽底部的礼物栏");
-      return [
-        CommonUtil.addBlockCSS(
-          'div[data-e2e="living-container"] >div> :last-child',
-          /* 全屏状态下的礼物栏 */
-          'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"])'
-        ),
-        addStyle(`
-            /* 去除全屏状态下的礼物栏后，上面的工具栏bottom也去除 */
-            div[data-e2e="living-container"] xg-controls xg-inner-controls:has(+div div[data-e2e="gifts-container"]){
-                bottom: 0 !important;
-            }`)
-      ];
-    },
-    /**
      * 【屏蔽】顶栏信息
      * 包括直播作者、右侧的礼物展馆
      */
@@ -1311,7 +1293,9 @@
       log.info("【屏蔽】顶栏信息");
       return [
         CommonUtil.addBlockCSS(
-          'div[data-e2e="living-container"] > div > pace-island[id^="island_"]'
+          'div[data-e2e="living-container"] > div > pace-island[id^="island_"]',
+          // 全屏状态下的
+          'div[data-e2e="living-container"] xg-bar.xg-top-bar'
         )
       ];
     },
@@ -1337,6 +1321,24 @@
         CommonUtil.addBlockCSS(
           'div[id^="living_room_player_container"] .basicPlayer  > div:has(div[data-e2e="yellowCart-container"])'
         )
+      ];
+    },
+    /**
+     * 【屏蔽】底部的礼物栏
+     */
+    shieldGiftColumn() {
+      log.info("屏蔽底部的礼物栏");
+      return [
+        CommonUtil.addBlockCSS(
+          'div[data-e2e="living-container"] >div> div:has(>.gitBarOptimizeEnabled)',
+          // 全屏状态下的
+          'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"])'
+        ),
+        addStyle(`
+            /* 去除全屏状态下的礼物栏后，上面的工具栏bottom也去除 */
+            div[data-e2e="living-container"] xg-controls xg-inner-controls:has(+div div[data-e2e="gifts-container"]){
+                bottom: 0 !important;
+            }`)
       ];
     }
   };
@@ -2596,7 +2598,7 @@
      * @param awemeInfo 视频信息结构
      */
     checkAwemeInfoIsFilter(awemeInfo) {
-      let awemeInfoTagDict = this.getAwemeInfoDictData(awemeInfo, true);
+      let awemeInfoTagDict = this.getAwemeInfoDictData(awemeInfo);
       let flag = false;
       if (!flag) {
         if (this.$flag.isBlockLiveVideo && awemeInfoTagDict.isLive) {

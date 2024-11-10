@@ -4,7 +4,7 @@ import { DouYinElement } from "@/utils/DouYinElement";
 import {
 	DouYinVideoFilter,
 	type DouYinVideoAwemeInfo,
-} from "../DouYinVideoFilter";
+} from "../video/DouYinVideoFilter";
 import { DouYinRecommendVideo } from "./DouYinRecommendVideo";
 
 export interface DouYinShieldTagMap {

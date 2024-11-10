@@ -4,7 +4,7 @@ import {
 	DouYinVideoFilter,
 	type DouYinShieldTagMap,
 	type DouYinVideoAwemeInfo,
-} from "../DouYinVideoFilter";
+} from "../video/DouYinVideoFilter";
 import { DOMUtils, log, pops, utils } from "@/env";
 
 export const DouYinRecommendVideoFilterDebug = {

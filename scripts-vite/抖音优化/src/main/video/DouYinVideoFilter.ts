@@ -276,7 +276,7 @@ export class DouYinVideoFilter {
 	 * @param awemeInfo 视频信息结构
 	 */
 	checkAwemeInfoIsFilter(awemeInfo: DouYinVideoAwemeInfo): boolean {
-		let awemeInfoTagDict = this.getAwemeInfoDictData(awemeInfo, true);
+		let awemeInfoTagDict = this.getAwemeInfoDictData(awemeInfo);
 		let flag = false;
 		if (!flag) {
 			if (this.$flag.isBlockLiveVideo && awemeInfoTagDict.isLive) {
