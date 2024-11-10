@@ -3785,7 +3785,7 @@
         if (Math.abs(videoTime - M4SAudio.$data.latestSyncTime) >= 3) {
           M4SAudio.$data.latestSyncTime = videoTime;
           M4SAudioUtils.intervalHandler(() => {
-            M4SAudio.handler.syncTime(0.233);
+            M4SAudio.handler.syncTime(0.666);
           }, 1);
         }
       }
