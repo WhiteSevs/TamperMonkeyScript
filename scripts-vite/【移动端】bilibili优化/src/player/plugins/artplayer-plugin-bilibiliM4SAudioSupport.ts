@@ -63,6 +63,7 @@ const M4SAudioUtils = {
 		this.$flag.isIntervaling = true;
 		/** 已经循环的次数 */
 		let intervalCount = 0;
+		let intervalId: undefined | number = void 0;
 		let callback = () => {
 			if (intervalCount > count) {
 				this.$flag.isIntervaling = false;
@@ -79,7 +80,12 @@ const M4SAudioUtils = {
 			intervalCount++;
 		};
 		callback();
-		let intervalId = setInterval(callback, delayTime);
+		if (count > 1) {
+			// 2次以上（包括2次）就循环
+			intervalId = setInterval(callback, delayTime);
+		} else {
+			this.$flag.isIntervaling = false;
+		}
 	},
 };
 
@@ -118,7 +124,9 @@ const M4SAudio = {
 		 */
 		play: () => {
 			// console.log(TAG + "play");
-			M4SAudio.handler.syncTime();
+			M4SAudioUtils.intervalHandler(() => {
+				M4SAudio.handler.syncTime();
+			}, 1);
 			M4SAudio.handler.play();
 		},
 		/**
@@ -140,7 +148,9 @@ const M4SAudio = {
 		 */
 		pause: () => {
 			// console.log(TAG + "pause");
-			M4SAudio.handler.syncTime();
+			M4SAudioUtils.intervalHandler(() => {
+				M4SAudio.handler.syncTime();
+			}, 1);
 			M4SAudio.handler.pause();
 		},
 		/**
@@ -156,7 +166,9 @@ const M4SAudio = {
 				// 更新audio的url
 				M4SAudio.handler.playUrl(newAudioUrl);
 			}
-			M4SAudio.handler.syncTime();
+			M4SAudioUtils.intervalHandler(() => {
+				M4SAudio.handler.syncTime();
+			}, 1);
 			M4SAudio.handler.syncPlayState();
 		},
 		/**
@@ -240,7 +252,9 @@ const M4SAudio = {
 		 */
 		"video:playing": () => {
 			// console.log(TAG + "video:playing");
-			M4SAudio.handler.syncTime();
+			M4SAudioUtils.intervalHandler(() => {
+				M4SAudio.handler.syncTime();
+			}, 1);
 			M4SAudio.handler.play();
 		},
 		/**
@@ -249,14 +263,18 @@ const M4SAudio = {
 		"video:pause": () => {
 			// console.log(TAG + "video:pause");
 			M4SAudio.handler.pause();
-			M4SAudio.handler.syncTime();
+			M4SAudioUtils.intervalHandler(() => {
+				M4SAudio.handler.syncTime();
+			}, 1);
 		},
 		/**
 		 * 同步音量
 		 */
 		"video:volumechange": () => {
 			// console.log(TAG + "video:volumechange");
-			M4SAudio.handler.syncTime();
+			M4SAudioUtils.intervalHandler(() => {
+				M4SAudio.handler.syncTime();
+			}, 1);
 		},
 		/**
 		 * 应该是主动切换的视频，首次播放时可能音频不同步
@@ -267,7 +285,9 @@ const M4SAudio = {
 				M4SAudio.$data.art.currentTime <= 4
 			) {
 				// 2~4秒内同步音频
-				M4SAudio.handler.syncTime();
+				M4SAudioUtils.intervalHandler(() => {
+					M4SAudio.handler.syncTime();
+				}, 1);
 			}
 		},
 	} as {
