@@ -59,6 +59,7 @@ Tampermonkey 为了顺应 Chrome 的 Manifest V3 要求，在 v5.0.0 版本中�
 ```text
 git clone https://github.com/WhiteSevs/TamperMonkeyScript.git
 cd ./TamperMonkeyScript
+code .
 pnpm i
 ```
 
@@ -67,6 +68,12 @@ pnpm i
 ```text
 pnpm run build:all
 
+```
+
+构建所有的脚本且版本号为为三位
+
+```text
+pnpm run build:all-new
 ```
 
 ## 兼容事项
