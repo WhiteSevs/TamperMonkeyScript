@@ -1,5 +1,5 @@
 import { log, utils } from "@/env";
-import type { DouYinVideoAwemeInfo } from "../DouYinVideoFilter";
+import type { DouYinVideoAwemeInfo } from "../video/DouYinVideoFilter";
 
 export const DouYinRecommendVideo = {
 	/**

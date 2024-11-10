@@ -4,7 +4,7 @@ import { PopsPanel } from "@/setting/setting";
 import {
 	DouYinVideoFilter,
 	type DouYinVideoAwemeInfo,
-} from "../DouYinVideoFilter";
+} from "../video/DouYinVideoFilter";
 
 export const DouYinSearchFilter = {
 	__videoFilter: null as any as DouYinVideoFilter,
