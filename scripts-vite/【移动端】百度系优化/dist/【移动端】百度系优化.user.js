@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.8
+// @version      2024.11.11
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -2000,17 +2000,14 @@ match-attr##srcid##sp_purc_atom
      * setGMResourceCSS({
      *   keyName: "ViewerCSS",
      *   url: "https://example.com/example.css",
-     *   devUrl: "viewerjs/dist/viewer.css",
      * })
      */
     setGMResourceCSS(resourceMapData) {
-      {
-        let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
-        if (typeof cssText === "string" && cssText) {
-          addStyle(cssText);
-        } else {
-          CommonUtil.loadStyleLink(resourceMapData.url);
-        }
+      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+      if (typeof cssText === "string" && cssText) {
+        addStyle(cssText);
+      } else {
+        CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
     /**
@@ -4746,22 +4743,34 @@ match-attr##srcid##sp_purc_atom
      * 一般设置界面的尺寸
      */
     setting: {
-      width: window.innerWidth < 550 ? "88vw" : "550px",
-      height: window.innerHeight < 450 ? "70vh" : "450px"
+      get width() {
+        return window.innerWidth < 550 ? "88vw" : "550px";
+      },
+      get height() {
+        return window.innerHeight < 450 ? "70vh" : "450px";
+      }
     },
     /**
      * 功能丰富，aside铺满了的设置界面，要稍微大一点
      */
     settingBig: {
-      width: window.innerWidth < 800 ? "92vw" : "800px",
-      height: window.innerHeight < 600 ? "80vh" : "600px"
+      get width() {
+        return window.innerWidth < 800 ? "92vw" : "800px";
+      },
+      get height() {
+        return window.innerHeight < 600 ? "80vh" : "600px";
+      }
     },
     /**
      * 信息界面，一般用于提示信息之类
      */
     info: {
-      width: window.innerWidth < 350 ? "350px" : "350px",
-      height: window.innerHeight < 250 ? "250px" : "250px"
+      get width() {
+        return window.innerWidth < 350 ? "350px" : "350px";
+      },
+      get height() {
+        return window.innerHeight < 250 ? "250px" : "250px";
+      }
     }
   };
   const PopsPanel = {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359
-// @version      2024.11.10
+// @version      2024.11.11
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -48,7 +48,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var require_entrance_001 = __commonJS({
-    "entrance-CHjuCMr6.js"(exports, module) {
+    "entrance-C7-K055d.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -748,17 +748,14 @@
          * setGMResourceCSS({
          *   keyName: "ViewerCSS",
          *   url: "https://example.com/example.css",
-         *   devUrl: "viewerjs/dist/viewer.css",
          * })
          */
         setGMResourceCSS(resourceMapData) {
-          {
-            let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
-            if (typeof cssText === "string" && cssText) {
-              addStyle(cssText);
-            } else {
-              CommonUtil.loadStyleLink(resourceMapData.url);
-            }
+          let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+          if (typeof cssText === "string" && cssText) {
+            addStyle(cssText);
+          } else {
+            CommonUtil.loadStyleLink(resourceMapData.url);
           }
         },
         /**
@@ -7385,22 +7382,34 @@
          * 一般设置界面的尺寸
          */
         setting: {
-          width: window.innerWidth < 550 ? "88vw" : "550px",
-          height: window.innerHeight < 450 ? "70vh" : "450px"
+          get width() {
+            return window.innerWidth < 550 ? "88vw" : "550px";
+          },
+          get height() {
+            return window.innerHeight < 450 ? "70vh" : "450px";
+          }
         },
         /**
          * 功能丰富，aside铺满了的设置界面，要稍微大一点
          */
         settingBig: {
-          width: window.innerWidth < 800 ? "92vw" : "800px",
-          height: window.innerHeight < 600 ? "80vh" : "600px"
+          get width() {
+            return window.innerWidth < 800 ? "92vw" : "800px";
+          },
+          get height() {
+            return window.innerHeight < 600 ? "80vh" : "600px";
+          }
         },
         /**
          * 信息界面，一般用于提示信息之类
          */
         info: {
-          width: window.innerWidth < 350 ? "350px" : "350px",
-          height: window.innerHeight < 250 ? "250px" : "250px"
+          get width() {
+            return window.innerWidth < 350 ? "350px" : "350px";
+          },
+          get height() {
+            return window.innerHeight < 250 ? "250px" : "250px";
+          }
         }
       };
       const PopsPanel = {

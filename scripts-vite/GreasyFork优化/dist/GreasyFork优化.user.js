@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.11.9
+// @version            2024.11.11
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -618,17 +618,14 @@
      * setGMResourceCSS({
      *   keyName: "ViewerCSS",
      *   url: "https://example.com/example.css",
-     *   devUrl: "viewerjs/dist/viewer.css",
      * })
      */
     setGMResourceCSS(resourceMapData) {
-      {
-        let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
-        if (typeof cssText === "string" && cssText) {
-          addStyle(cssText);
-        } else {
-          CommonUtil.loadStyleLink(resourceMapData.url);
-        }
+      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+      if (typeof cssText === "string" && cssText) {
+        addStyle(cssText);
+      } else {
+        CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
     /**
@@ -2465,22 +2462,34 @@
      * 一般设置界面的尺寸
      */
     setting: {
-      width: window.innerWidth < 550 ? "88vw" : "550px",
-      height: window.innerHeight < 450 ? "70vh" : "450px"
+      get width() {
+        return window.innerWidth < 550 ? "88vw" : "550px";
+      },
+      get height() {
+        return window.innerHeight < 450 ? "70vh" : "450px";
+      }
     },
     /**
      * 功能丰富，aside铺满了的设置界面，要稍微大一点
      */
     settingBig: {
-      width: window.innerWidth < 800 ? "92vw" : "800px",
-      height: window.innerHeight < 600 ? "80vh" : "600px"
+      get width() {
+        return window.innerWidth < 800 ? "92vw" : "800px";
+      },
+      get height() {
+        return window.innerHeight < 600 ? "80vh" : "600px";
+      }
     },
     /**
      * 信息界面，一般用于提示信息之类
      */
     info: {
-      width: window.innerWidth < 350 ? "350px" : "350px",
-      height: window.innerHeight < 250 ? "250px" : "250px"
+      get width() {
+        return window.innerWidth < 350 ? "350px" : "350px";
+      },
+      get height() {
+        return window.innerHeight < 250 ? "250px" : "250px";
+      }
     }
   };
   let userCollection = [];

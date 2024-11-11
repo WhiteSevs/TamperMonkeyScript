@@ -1,6 +1,6 @@
 {
   "eruda": {
-    "version": "3.4.0",
+    "version": "3.4.1",
     "plugin": {
       "eruda-monitor": "1.1.1",
       "eruda-features": "2.1.0",

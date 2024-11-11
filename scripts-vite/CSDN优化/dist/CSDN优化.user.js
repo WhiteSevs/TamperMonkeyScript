@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.8
+// @version      2024.11.11
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -85,17 +85,14 @@
      * setGMResourceCSS({
      *   keyName: "ViewerCSS",
      *   url: "https://example.com/example.css",
-     *   devUrl: "viewerjs/dist/viewer.css",
      * })
      */
     setGMResourceCSS(resourceMapData) {
-      {
-        let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
-        if (typeof cssText === "string" && cssText) {
-          addStyle(cssText);
-        } else {
-          CommonUtil.loadStyleLink(resourceMapData.url);
-        }
+      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+      if (typeof cssText === "string" && cssText) {
+        addStyle(cssText);
+      } else {
+        CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
     /**
@@ -1434,22 +1431,34 @@
      * 一般设置界面的尺寸
      */
     setting: {
-      width: window.innerWidth < 550 ? "88vw" : "550px",
-      height: window.innerHeight < 450 ? "70vh" : "450px"
+      get width() {
+        return window.innerWidth < 550 ? "88vw" : "550px";
+      },
+      get height() {
+        return window.innerHeight < 450 ? "70vh" : "450px";
+      }
     },
     /**
      * 功能丰富，aside铺满了的设置界面，要稍微大一点
      */
     settingBig: {
-      width: window.innerWidth < 800 ? "92vw" : "800px",
-      height: window.innerHeight < 600 ? "80vh" : "600px"
+      get width() {
+        return window.innerWidth < 800 ? "92vw" : "800px";
+      },
+      get height() {
+        return window.innerHeight < 600 ? "80vh" : "600px";
+      }
     },
     /**
      * 信息界面，一般用于提示信息之类
      */
     info: {
-      width: window.innerWidth < 350 ? "350px" : "350px",
-      height: window.innerHeight < 250 ? "250px" : "250px"
+      get width() {
+        return window.innerWidth < 350 ? "350px" : "350px";
+      },
+      get height() {
+        return window.innerHeight < 250 ? "250px" : "250px";
+      }
     }
   };
   const PopsPanel = {
@@ -2743,8 +2752,9 @@
           }
         }
       );
+      log.info(response);
       if (!response.status || !ApiResponseCheck.isSuccessResponse(response.data.responseText)) {
-        log.error("获取收藏夹信息失败，请求异常", response);
+        log.error("获取收藏夹信息失败，请求异常");
         Qmsg.error("获取收藏夹信息失败");
         return;
       }
@@ -2767,6 +2777,7 @@
           allowInterceptConfig: false
         }
       );
+      log.info(response);
       if (!response.status || !ApiResponseCheck.isSuccessResponse(response.data.responseText)) {
         log.error("添加收藏失败，请求异常", response);
         Qmsg.error("添加收藏失败，请求异常");
@@ -2796,9 +2807,35 @@
           }
         }
       );
+      log.info(response);
       if (!response.status || !ApiResponseCheck.isSuccessResponse(response.data.responseText)) {
-        log.error("检查收藏夹状态失败，请求异常", response);
+        log.error("检查收藏夹状态失败，请求异常");
         Qmsg.error("检查收藏夹状态失败，请求异常");
+        return;
+      }
+      let data = utils.toJSON(response.data.responseText);
+      return data.data;
+    },
+    /**
+     * 创建收藏夹
+     */
+    async createFolder(config) {
+      let response = await httpx.post(
+        `https://mp-action.csdn.net/interact/wrapper/pc/favorite/v1/api/createFolder`,
+        {
+          data: config,
+          fetch: true,
+          headers: {
+            Accept: "application/json, text/javascript, */*; q=0.01",
+            "Content-Type": "application/json",
+            "User-Agent": utils.getRandomPCUA()
+          },
+          allowInterceptConfig: false
+        }
+      );
+      log.info(response);
+      if (!response.status || !ApiResponseCheck.isSuccessResponse(response.data.responseText)) {
+        Qmsg.error("创建收藏夹失败");
         return;
       }
       let data = utils.toJSON(response.data.responseText);
