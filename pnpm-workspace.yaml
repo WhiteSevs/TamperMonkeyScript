@@ -1,3 +1,4 @@
 packages:
   - "scripts-vite/*"
   - "scripts-vite-example/*"
+  - "!scripts-vite/油猴Api测试/*"
