@@ -75,7 +75,7 @@ export const DouYinLiveBlock = {
 		log.info("屏蔽底部的礼物栏");
 		return [
 			CommonUtil.addBlockCSS(
-				'div[data-e2e="living-container"] >div> div:has(.gitBarOptimizeEnabled)',
+				'div[data-e2e="living-container"] >div> div:has(>.gitBarOptimizeEnabled)',
 				// 全屏状态下的
 				'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"])'
 			),
@@ -179,9 +179,9 @@ export const DouYinLiveChatRoomBlock = {
 			CommonUtil.addBlockCSS(
 				"#chatroom .webcast-chatroom___bottom-message",
 				// 上面的滚动播报，xxx加入了直播间
-				'#chatroom >div:nth-child(2)>div>div:nth-child(3)',
+				"#chatroom >div:nth-child(2)>div>div:nth-child(3)",
 				// Firefox的，多了个pace-island
-				'#chatroom >pace-island>div>div:first-child>div:nth-child(3)'
+				"#chatroom >pace-island>div>div:first-child>div:nth-child(3)"
 			),
 		];
 	},

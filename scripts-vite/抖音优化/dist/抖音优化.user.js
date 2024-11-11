@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.10.21
+// @version      2024.11.11
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1229,7 +1229,7 @@
       log.info("屏蔽底部的礼物栏");
       return [
         CommonUtil.addBlockCSS(
-          'div[data-e2e="living-container"] >div> div:has(.gitBarOptimizeEnabled)',
+          'div[data-e2e="living-container"] >div> div:has(>.gitBarOptimizeEnabled)',
           // 全屏状态下的
           'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"])'
         ),
@@ -5779,22 +5779,34 @@
      * 一般设置界面的尺寸
      */
     setting: {
-      width: window.innerWidth < 550 ? "88vw" : "550px",
-      height: window.innerHeight < 450 ? "70vh" : "450px"
+      get width() {
+        return window.innerWidth < 550 ? "88vw" : "550px";
+      },
+      get height() {
+        return window.innerHeight < 450 ? "70vh" : "450px";
+      }
     },
     /**
      * 功能丰富，aside铺满了的设置界面，要稍微大一点
      */
     settingBig: {
-      width: window.innerWidth < 800 ? "92vw" : "800px",
-      height: window.innerHeight < 600 ? "80vh" : "600px"
+      get width() {
+        return window.innerWidth < 800 ? "92vw" : "800px";
+      },
+      get height() {
+        return window.innerHeight < 600 ? "80vh" : "600px";
+      }
     },
     /**
      * 信息界面，一般用于提示信息之类
      */
     info: {
-      width: window.innerWidth < 350 ? "350px" : "350px",
-      height: window.innerHeight < 250 ? "250px" : "250px"
+      get width() {
+        return window.innerWidth < 350 ? "350px" : "350px";
+      },
+      get height() {
+        return window.innerHeight < 250 ? "250px" : "250px";
+      }
     }
   };
   const PopsPanel = {
