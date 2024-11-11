@@ -10,6 +10,7 @@
 		"build": "pnpm recursive run build",
 		"build:min": "pnpm recursive run build:min",
 		"build:all": "pnpm recursive run build:all",
+		"build:all-new": "pnpm recursive run build:all-new",
 		"build:no-cache": "pnpm recursive run build:no-cache",
 		"clear": "pnpm recursive run clear",
 		"update": "pnpm update --latest"
