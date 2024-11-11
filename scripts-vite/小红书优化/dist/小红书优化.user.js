@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.11
+// @version      2024.11.11.20
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -2365,7 +2365,7 @@
     }
   };
   const XHSShieldCSS = "";
-  const XHS_Shield = {
+  const XHSBlock = {
     init() {
       PopsPanel.execMenuOnce("pc-xhs-shieldAd", () => {
         return addStyle(XHSShieldCSS);
@@ -2539,16 +2539,16 @@
   };
   const XHS = {
     init() {
-      PopsPanel.execMenu("pc-xhs-hook-vue", () => {
+      PopsPanel.execMenuOnce("pc-xhs-hook-vue", () => {
         XHS_Hook.webPackVue();
       });
-      PopsPanel.execMenu("pc-xhs-allowCopy", () => {
+      PopsPanel.execMenuOnce("pc-xhs-allowCopy", () => {
         XHS.allowPCCopy();
       });
-      PopsPanel.execMenu("pc-xhs-open-blank-article", () => {
+      PopsPanel.execMenuOnce("pc-xhs-open-blank-article", () => {
         XHS.openBlankArticle();
       });
-      XHS_Shield.init();
+      XHSBlock.init();
       if (ScriptRouter.isArticle()) {
         log.info("Router: 笔记页面");
         XHS_Article.init();
@@ -2590,7 +2590,7 @@
         function(event) {
           utils.preventEvent(event);
           let $click = event.target;
-          let $url = $click.querySelector("a[href]");
+          let $url = $click.querySelector("a.cover[href]");
           if ($url && $url.href) {
             log.info("跳转文章: " + $url.href);
             window.open($url.href, "_blank");

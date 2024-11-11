@@ -3,7 +3,7 @@ import XHSShieldCSS from "./shield.css?raw";
 import { addStyle, DOMUtils, log, utils } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
 
-const XHS_Shield = {
+export const XHSBlock = {
 	init() {
 		PopsPanel.execMenuOnce("pc-xhs-shieldAd", () => {
 			return addStyle(XHSShieldCSS);
@@ -74,5 +74,3 @@ const XHS_Shield = {
 		];
 	},
 };
-
-export { XHS_Shield };

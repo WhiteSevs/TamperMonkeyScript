@@ -1,7 +1,7 @@
 import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { unsafeWindow } from "ViteGM";
-import { XHS_Shield } from "./XHS_Shield";
+import { XHSBlock } from "./XHSBlock";
 import { XHS_Hook } from "@/hook/hook";
 import { XHS_Article } from "./article/XHS_Article";
 import Qmsg from "qmsg";
@@ -9,16 +9,16 @@ import { ScriptRouter } from "@/router/router";
 
 const XHS = {
 	init() {
-		PopsPanel.execMenu("pc-xhs-hook-vue", () => {
+		PopsPanel.execMenuOnce("pc-xhs-hook-vue", () => {
 			XHS_Hook.webPackVue();
 		});
-		PopsPanel.execMenu("pc-xhs-allowCopy", () => {
+		PopsPanel.execMenuOnce("pc-xhs-allowCopy", () => {
 			XHS.allowPCCopy();
 		});
-		PopsPanel.execMenu("pc-xhs-open-blank-article", () => {
+		PopsPanel.execMenuOnce("pc-xhs-open-blank-article", () => {
 			XHS.openBlankArticle();
 		});
-		XHS_Shield.init();
+		XHSBlock.init();
 		if (ScriptRouter.isArticle()) {
 			log.info("Router: 笔记页面");
 			XHS_Article.init();
@@ -60,7 +60,7 @@ const XHS = {
 			function (event) {
 				utils.preventEvent(event);
 				let $click = event.target as HTMLDivElement;
-				let $url = $click.querySelector("a[href]") as HTMLAnchorElement;
+				let $url = $click.querySelector("a.cover[href]") as HTMLAnchorElement;
 				if ($url && $url.href) {
 					log.info("跳转文章: " + $url.href);
 					window.open($url.href, "_blank");
