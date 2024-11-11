@@ -21,6 +21,13 @@ ul[data-e2e="scroll-list"] {
 #search-content-area {
 	margin-top: 65px;
 }
+/* 从其它页面进入搜索页面，例如路径是/root/search，会出现返回按钮 */
+#douyin-header header{
+	flex-direction: row-reverse !important;
+}
+#douyin-header header > div:nth-child(2) {
+	position: unset !important;
+}
 /* 调整视频列表的宽度 */
 @media screen and (max-width: 550px) {
 	#sliderVideo {

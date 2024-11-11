@@ -9,7 +9,6 @@ import Qmsg from "qmsg";
 import { DouYin } from "../DouYin";
 import { DouYinVideoBlockElement } from "./DouYinVideoBlockElement";
 import { DouYinVideoShortcut } from "./DouYinVideoShortCut";
-import { DouYinVideoComment } from "./DouYinVideoComment";
 import { DouYinRecommendVideoFilter } from "../recommend/DouYinRecommendVideoFilter";
 import { GestureBack } from "@/utils/GestureBack";
 import { ReactUtils } from "@/utils/ReactUtils";
@@ -22,8 +21,9 @@ export type VideoRate = "0.75" | "1" | "1.25" | "1.5" | "1.75" | "2" | "3";
 export const DouYinVideo = {
 	init() {
 		DouYinVideoBlockElement.init();
-		DouYinVideoShortcut.init();
-		DouYinVideoComment.init();
+		PopsPanel.onceExec("dy-short-cut", () => {
+			DouYinVideoShortcut.init();
+		});
 		DouYinVideoBlockMouseHoverTip.init();
 		if (!DouYinRouter.isSearch()) {
 			PopsPanel.execMenuOnce("shieldVideo", () => {
@@ -86,9 +86,6 @@ export const DouYinVideo = {
 			);
 			PopsPanel.execMenuOnce("mobileMode", () => {
 				this.mobileMode();
-				if (DouYinRouter.isSearch()) {
-					DouYinSearch.mobileMode();
-				}
 			});
 			PopsPanel.execMenuOnce("dy-video-titleInfoAutoHide", () => {
 				this.titleInfoAutoHide();

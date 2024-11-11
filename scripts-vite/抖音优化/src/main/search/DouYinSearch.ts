@@ -8,6 +8,9 @@ import { DouYinSearchFilter } from "./DouYinSearchFilter";
 export const DouYinSearch = {
 	init() {
 		DouYinSearchHideElement.init();
+		PopsPanel.execMenuOnce("mobileMode", () => {
+			return this.mobileMode();
+		});
 		PopsPanel.execMenuOnce("search-shieldVideo", () => {
 			DouYinSearchFilter.init();
 		});
@@ -96,6 +99,8 @@ export const DouYinSearch = {
 					}`)
 				);
 			});
+
+		return result;
 	},
 	/**
 	 * 禁止点击视频区域进入全屏

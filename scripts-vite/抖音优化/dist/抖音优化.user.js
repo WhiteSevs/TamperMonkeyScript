@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.11.13
+// @version      2024.11.11.14
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1080,11 +1080,11 @@
      * @example
      * loadStyleLink("https://example.com/example.css")
      */
-    async loadStyleLink(url2) {
+    async loadStyleLink(url) {
       let $link = document.createElement("link");
       $link.rel = "stylesheet";
       $link.type = "text/css";
-      $link.href = url2;
+      $link.href = url;
       domUtils.ready(() => {
         document.head.appendChild($link);
       });
@@ -1095,9 +1095,9 @@
      * @example
      * loadStyleLink("https://example.com/example.js")
      */
-    async loadScript(url2) {
+    async loadScript(url) {
       let $script = document.createElement("script");
-      $script.src = url2;
+      $script.src = url;
       return new Promise((resolve) => {
         $script.onload = () => {
           resolve(null);
@@ -1123,16 +1123,16 @@
      * 修复前：`xxx/xxx?ss=ssss`
      * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
      */
-    fixUrl(url2) {
-      url2 = url2.trim();
-      if (url2.match(/^http(s|):\/\//i)) {
-        return url2;
+    fixUrl(url) {
+      url = url.trim();
+      if (url.match(/^http(s|):\/\//i)) {
+        return url;
       } else {
-        if (!url2.startsWith("/")) {
-          url2 += "/";
+        if (!url.startsWith("/")) {
+          url += "/";
         }
-        url2 = window.location.origin + url2;
-        return url2;
+        url = window.location.origin + url;
+        return url;
       }
     },
     /**
@@ -1145,16 +1145,16 @@
      * 修复前：
      * 修复后：
      */
-    fixHttps(url2) {
-      if (url2.startsWith("https://")) {
-        return url2;
+    fixHttps(url) {
+      if (url.startsWith("https://")) {
+        return url;
       }
-      if (!url2.startsWith("http://")) {
-        return url2;
+      if (!url.startsWith("http://")) {
+        return url;
       }
-      let urlObj2 = new URL(url2);
-      urlObj2.protocol = "https:";
-      return urlObj2.toString();
+      let urlObj = new URL(url);
+      urlObj.protocol = "https:";
+      return urlObj.toString();
     }
   };
   const DouYinLiveBlock = {
@@ -2482,28 +2482,368 @@
       return !window.screen.orientation.type.includes("landscape");
     }
   };
-  const MobileCSS$1 = '/* 去除顶部的padding距离 */\r\n#douyin-right-container {\r\n	padding-top: 0;\r\n}\r\n/* 放大放大顶部的综合、视频、用户等header的宽度 */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) {\r\n	width: 100vw;\r\n}\r\n/* 放大顶部的综合、视频、用户等header */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) > div {\r\n	transform: scale(0.8);\r\n}\r\n/* 视频宽度 */\r\nul[data-e2e="scroll-list"] {\r\n	padding: 0px 10px;\r\n}\r\n#sliderVideo {\r\n	width: -webkit-fill-available;\r\n}\r\n/* 距离是顶部导航栏的高度 */\r\n#search-content-area {\r\n	margin-top: 65px;\r\n}\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#sliderVideo {\r\n		width: 100%;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#component-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: -webkit-fill-available;\r\n		padding-right: 0;\r\n	}\r\n}\r\n';
-  const DouYinSearchHideElement = {
+  const DouYinRouter = {
+    /** 直播 */
+    isLive() {
+      return window.location.hostname === "live.douyin.com" || this.isFollowLive();
+    },
+    /** 关注-直播 */
+    isFollowLive() {
+      return this.isIndex() && window.location.pathname.startsWith("/follow/live/");
+    },
+    /**
+     * 是否是抖音主站
+     */
+    isIndex() {
+      return window.location.hostname === "www.douyin.com";
+    },
+    /** 视频 */
+    isVideo() {
+      return this.isIndex();
+    },
+    /** 搜索 */
+    isSearch() {
+      return this.isIndex() && (window.location.pathname.startsWith("/search") || window.location.pathname.startsWith("/root/search"));
+    },
+    /**
+     * 用户主页
+     */
+    isUser() {
+      return this.isIndex() && window.location.pathname.startsWith("/user");
+    }
+  };
+  const MobileCSS$1 = '/* 右侧工具栏放大 */\r\n.basePlayerContainer .positionBox {\r\n	bottom: 80px !important;\r\n	padding-right: 5px !important;\r\n	scale: unset !important;\r\n	transform: scale3d(1.12, 1.12, 1.12) !important;\r\n}\r\n/* 右侧工具栏的svg再放大 */\r\n.basePlayerContainer .positionBox svg {\r\n	transform: scale3d(1.12, 1.12, 1.12);\r\n}\r\n/* 重置关注按钮的scale */\r\n.basePlayerContainer\r\n	.positionBox\r\n	.dy-tip-container\r\n	div[data-e2e="feed-follow-icon"]\r\n	svg {\r\n	scale: unset !important;\r\n}\r\n/* 设备处于横向方向，即宽度大于高度。 */\r\n@media screen and (orientation: landscape) {\r\n	/* 右侧工具栏放大 */\r\n	.basePlayerContainer .positionBox {\r\n		/*transform: scale(0.95) !important;\r\n		bottom: 42px !important;*/\r\n		padding-right: 10px !important;\r\n	}\r\n}\r\n/* 该设备是纵向的，即高度大于或等于宽度 */\r\n@media screen and (orientation: portrait) {\r\n	/* /video/xxx页面 */\r\n	/* 点赞、评论、分享偏移 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.basePlayerContainer\r\n		.positionBox {\r\n		padding-right: 30px !important;\r\n	}\r\n	/* 底部工具栏右侧的按钮 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.xgplayer.xgplayer-pc\r\n		.xg-right-grid {\r\n		margin-right: 35px !important;\r\n	}\r\n	/* 评论区全屏 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n		width: 100vw !important;\r\n	}\r\n}\r\n\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#slidelist {\r\n		width: 100vw;\r\n		height: 100vh;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: 150px;\r\n		padding-right: 0;\r\n		max-width: unset;\r\n	}\r\n	/* 搜索框获取焦点时自动放大宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]:focus) {\r\n		width: 100vw;\r\n		width: 100dvw;\r\n	}\r\n	/* 去除设置min-width超出浏览器宽度的问题 */\r\n	body {\r\n		min-width: 100% !important;\r\n	}\r\n	/* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n	#douyin-right-container #douyin-header {\r\n		width: 100%;\r\n	}\r\n	/* 去除设置 */\r\n	#douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n		min-width: 100%;\r\n	}\r\n}\r\n';
+  const DouYinVideoCommentBlockElement = {
     init() {
-      PopsPanel.execMenuOnce("douyin-search-shieldReleatedSearches", () => {
-        return this.shieldReleatedSearches();
+      PopsPanel.execMenuOnce("dy-video-shieldUserCommentToolBar", () => {
+        return this.shieldUserCommentToolBar();
+      });
+      PopsPanel.execMenuOnce(
+        "dy-video-shieldUserCommentEveryOneAllSearch",
+        () => {
+          return this.shieldUserCommentEveryOneAllSearch();
+        }
+      );
+    },
+    /**
+     * 【屏蔽】评论工具栏
+     */
+    shieldUserCommentToolBar() {
+      log.info("【屏蔽】评论工具栏");
+      return [CommonUtil.addBlockCSS(".comment-input-container")];
+    },
+    /**
+     * 【屏蔽】大家都在搜
+     */
+    shieldUserCommentEveryOneAllSearch() {
+      log.info("【屏蔽】大家都在搜");
+      return [CommonUtil.addBlockCSS(".comment-header-with-search")];
+    }
+  };
+  const DouYinVideoBlockElement_BottomToolbar = {
+    init() {
+      PopsPanel.execMenuOnce("shieldBottomVideoToolBar", () => {
+        return this.shieldBottomVideoToolBar();
+      });
+      PopsPanel.execMenuOnce("dy-video-bottom-shieldVideoInfoWrap", () => {
+        return this.shieldVideoInfoWrap();
+      });
+      PopsPanel.execMenuOnce("shieldBottomVideoToolbarDanmuContainer", () => {
+        return this.shieldBottomVideoToolbarDanmuContainer();
       });
     },
     /**
-     * 【屏蔽】相关搜索
+     * 【屏蔽】底部视频工具栏
      */
-    shieldReleatedSearches() {
-      log.info("【屏蔽】相关搜索");
+    shieldBottomVideoToolBar() {
+      log.info("【屏蔽】底部视频工具栏");
       return [
-        CommonUtil.addBlockCSS("#search-content-area > div > div:nth-child(2)"),
+        CommonUtil.addBlockCSS("xg-controls.xgplayer-controls"),
+        // 修复底部工具栏因屏蔽导致的空白区域
         addStyle(
           /*css*/
           `
-			#search-content-area > div > div:nth-child(1) > div:nth-child(1){
-				width: 100vw;
+			#sliderVideo[data-e2e="feed-active-video"] div:has( > div > #video-info-wrap),
+			div:has( > div > pace-island > #video-info-wrap ),
+			xg-video-container.xg-video-container{
+				bottom: 0 !important;
 			}`
         )
       ];
+    },
+    /**
+     * 【屏蔽】视频信息
+     */
+    shieldVideoInfoWrap() {
+      log.info("【屏蔽】视频信息");
+      return [CommonUtil.addBlockCSS("#video-info-wrap")];
+    },
+    /**
+     * 【屏蔽】底部视频工具栏的弹幕容器
+     */
+    shieldBottomVideoToolbarDanmuContainer() {
+      log.info("【屏蔽】底部视频工具栏的弹幕容器");
+      return [
+        CommonUtil.addBlockCSS(
+          'xg-controls xg-inner-controls .danmakuContainer[data-e2e="danmaku-container"]'
+        )
+      ];
+    }
+  };
+  const DouYinVideoBlockElement_RightToolbar = {
+    init() {
+      PopsPanel.execMenuOnce("shieldPlaySwitchButton", () => {
+        return this.shieldPlaySwitchButton();
+      });
+      PopsPanel.execMenuOnce("shieldAuthorAvatar", () => {
+        return this.shieldAuthorAvatar();
+      });
+      PopsPanel.execMenuOnce("shieldLikeButton", () => {
+        return this.shieldLikeButton();
+      });
+      PopsPanel.execMenuOnce("shieldCommentButton", () => {
+        return this.shieldCommentButton();
+      });
+      PopsPanel.execMenuOnce("shieldCollectionButton", () => {
+        return this.shieldCollectionButton();
+      });
+      PopsPanel.execMenuOnce("shieldSharenButton", () => {
+        return this.shieldSharenButton();
+      });
+      PopsPanel.execMenuOnce("shieldRelatedRecommendationsButton", () => {
+        return this.shieldRelatedRecommendationsButton();
+      });
+      PopsPanel.execMenuOnce("shieldMoreButton", () => {
+        return this.shieldMoreButton();
+      });
+    },
+    /**
+     * 【屏蔽】切换播放
+     */
+    shieldPlaySwitchButton() {
+      log.info("【屏蔽】切换播放");
+      return [
+        CommonUtil.addBlockCSS(
+          '.positionBox  .xgplayer-playswitch[data-state="normal"]',
+          "div.xgplayer-playswitch",
+          /* 全屏下的右侧的切换播放 */
+          ".xgplayer-playswitch"
+        ),
+        addStyle(
+          /*css*/
+          `
+			div[data-e2e="slideList"]{
+				/* 修复屏蔽后的视频宽度占据 */
+				padding: 0px !important;
+			}
+			`
+        )
+      ];
+    },
+    /**
+     * 【屏蔽】作者头像
+     */
+    shieldAuthorAvatar() {
+      log.info("【屏蔽】作者头像");
+      return [
+        CommonUtil.addBlockCSS(
+          'div.dy-tip-container:has([data-e2e="video-avatar"])',
+          // 2024.7.2 新增其它的样式匹配
+          '.basePlayerContainer div[aria-describedby]:has([data-e2e="video-avatar"])'
+        )
+      ];
+    },
+    /**
+     * 【屏蔽】点赞
+     */
+    shieldLikeButton() {
+      log.info("【屏蔽】点赞");
+      return [
+        CommonUtil.addBlockCSS(
+          'div.dy-tip-container:has([data-e2e="video-player-digg"])',
+          // 2024.7.2 新增其它的样式匹配
+          '.basePlayerContainer div[aria-describedby]:has([data-e2e="video-player-digg"])'
+        )
+      ];
+    },
+    /**
+     * 【屏蔽】评论
+     */
+    shieldCommentButton() {
+      log.info("【屏蔽】评论");
+      return [
+        CommonUtil.addBlockCSS(
+          'div.dy-tip-container:has([data-e2e="feed-comment-icon"])',
+          // 2024.7.2 新增其它的样式匹配
+          '.basePlayerContainer div[aria-describedby]:has([data-e2e="feed-comment-icon"])'
+        )
+      ];
+    },
+    /**
+     * 【屏蔽】收藏
+     */
+    shieldCollectionButton() {
+      log.info("【屏蔽】收藏");
+      return [
+        CommonUtil.addBlockCSS(
+          'div.dy-tip-container:has([data-e2e="video-player-collect"])',
+          // 2024.7.2 新增其它的样式匹配
+          '.basePlayerContainer div[data-e2e="video-player-collect"][data-e2e-state="video-player-no-collect"]'
+        )
+      ];
+    },
+    /**
+     * 【屏蔽】分享
+     */
+    shieldSharenButton() {
+      log.info("【屏蔽】分享");
+      return [
+        CommonUtil.addBlockCSS(
+          'div.dy-tip-container:has([data-e2e="video-player-share"])',
+          // 2024.7.2 新增其它的样式匹配
+          '.basePlayerContainer div:has(>div[data-e2e="video-player-share"])'
+        )
+      ];
+    },
+    /**
+     * 【屏蔽】看相关
+     */
+    shieldRelatedRecommendationsButton() {
+      log.info("【屏蔽】看相关");
+      return [
+        CommonUtil.addBlockCSS(
+          'div.dy-tip-container:has(path[d="M14 8a8 8 0 00-8 8v4a8 8 0 008 8h8a8 8 0 008-8v-4a8 8 0 00-8-8h-8zm8.5 10.866a1 1 0 000-1.732l-6-3.464a1 1 0 00-1.5.866v6.928a1 1 0 001.5.866l6-3.464z"])',
+          'div.dy-tip-container:has(path[d=" M-4,-10 C-4,-10 4,-10 4,-10 C8.418000221252441,-10 12,-6.418000221252441 12,-2 C12,-2 12,2 12,2 C12,6.418000221252441 8.418000221252441,10 4,10 C4,10 -4,10 -4,10 C-8.418000221252441,10 -12,6.418000221252441 -12,2 C-12,2 -12,-2 -12,-2 C-12,-6.418000221252441 -8.418000221252441,-10 -4,-10z M4.5,0.8659999966621399 C5.166999816894531,0.48100000619888306 5.166999816894531,-0.48100000619888306 4.5,-0.8659999966621399 C4.5,-0.8659999966621399 -1.5,-4.329999923706055 -1.5,-4.329999923706055 C-2.1670000553131104,-4.715000152587891 -3,-4.234000205993652 -3,-3.4639999866485596 C-3,-3.4639999866485596 -3,3.4639999866485596 -3,3.4639999866485596 C-3,4.234000205993652 -2.1670000553131104,4.715000152587891 -1.5,4.329999923706055 C-1.5,4.329999923706055 4.5,0.8659999966621399 4.5,0.8659999966621399z"])',
+          // 2024.7.2 新增其它的样式匹配
+          '.basePlayerContainer div[aria-describedby]:has(path[d="M14 8a8 8 0 00-8 8v4a8 8 0 008 8h8a8 8 0 008-8v-4a8 8 0 00-8-8h-8zm8.5 10.866a1 1 0 000-1.732l-6-3.464a1 1 0 00-1.5.866v6.928a1 1 0 001.5.866l6-3.464z"])',
+          // 2024.7.15
+          '.basePlayerContainer div[aria-describedby]:has(path[d="M14 8a8 8 0 0 0-8 8v4a8 8 0 0 0 8 8h8a8 8 0 0 0 8-8v-4a8 8 0 0 0-8-8h-8zm8.5 10.866a1 1 0 0 0 0-1.732l-6-3.464a1 1 0 0 0-1.5.866v6.928a1 1 0 0 0 1.5.866l6-3.464z"])',
+          // 2024.7.16 移动端的屏蔽规则
+          '.basePlayerContainer div[aria-describedby]:has(path[d=" M-4,-10 C-4,-10 4,-10 4,-10 C8.418000221252441,-10 12,-6.418000221252441 12,-2 C12,-2 12,2 12,2 C12,6.418000221252441 8.418000221252441,10 4,10 C4,10 -4,10 -4,10 C-8.418000221252441,10 -12,6.418000221252441 -12,2 C-12,2 -12,-2 -12,-2 C-12,-6.418000221252441 -8.418000221252441,-10 -4,-10z M4.5,0.8659999966621399 C5.166999816894531,0.48100000619888306 5.166999816894531,-0.48100000619888306 4.5,-0.8659999966621399 C4.5,-0.8659999966621399 -1.5,-4.329999923706055 -1.5,-4.329999923706055 C-2.1670000553131104,-4.715000152587891 -3,-4.234000205993652 -3,-3.4639999866485596 C-3,-3.4639999866485596 -3,3.4639999866485596 -3,3.4639999866485596 C-3,4.234000205993652 -2.1670000553131104,4.715000152587891 -1.5,4.329999923706055 C-1.5,4.329999923706055 4.5,0.8659999966621399 4.5,0.8659999966621399z"])'
+        ),
+        addStyle(
+          /*css*/
+          `
+				/* 修复分享的悬浮框距离底部的高度 */
+				div[data-e2e="video-share-container"] > div:first-child{
+					bottom: 0px !important;
+				}
+			`
+        )
+      ];
+    },
+    /**
+     * 【屏蔽】更多
+     */
+    shieldMoreButton() {
+      log.info("【屏蔽】更多");
+      return [
+        CommonUtil.addBlockCSS(
+          'div.dy-tip-container:has([data-e2e="video-play-more"])',
+          // 2024.7.2 新增其它的样式匹配
+          '.basePlayerContainer div[data-e2e="video-play-more"]'
+        ),
+        addStyle(
+          /*css*/
+          `
+				/* 修复分享的悬浮框距离底部的高度 */
+				div[data-e2e="video-share-container"] > div:first-child{
+					bottom: 0px !important;
+				}
+			`
+        )
+      ];
+    }
+  };
+  const DouYinVideoBlockElement = {
+    init() {
+      PopsPanel.execMenuOnce("shieldRightExpandCommentButton", () => {
+        return this.shieldRightExpandCommentButton();
+      });
+      PopsPanel.execMenuOnce("shieldSearchFloatingBar", () => {
+        return this.shieldSearchFloatingBar();
+      });
+      PopsPanel.execMenuOnce("shieldCloseFullScreenButton", () => {
+        return this.shieldCloseFullScreenButton();
+      });
+      PopsPanel.execMenuOnce("dy-video-blockShopInfo", () => {
+        return this.blockShopInfo();
+      });
+      DouYinVideoBlockElement_BottomToolbar.init();
+      DouYinVideoBlockElement_RightToolbar.init();
+      DouYinVideoCommentBlockElement.init();
+    },
+    /**
+     * 【屏蔽】右侧的展开评论按钮
+     */
+    shieldRightExpandCommentButton() {
+      log.info("【屏蔽】右侧的展开评论按钮");
+      return [
+        CommonUtil.addBlockCSS(
+          '#sliderVideo[data-e2e="feed-active-video"] > div > div > button[type="button"]',
+          '.playerContainer button[type=button] svg > g[filter] > path[d="M21.316 29.73a1.393 1.393 0 01-1.97 0l-5.056-5.055a1.393 1.393 0 010-1.97l.012-.011 5.044-5.045a1.393 1.393 0 011.97 1.97l-4.07 4.071 4.07 4.071a1.393 1.393 0 010 1.97z"]'
+        ),
+        addStyle(
+          /*css*/
+          `
+			.basePlayerContainer .positionBox{
+				padding-right: 20px !important;
+			}`
+        )
+      ];
+    },
+    /**
+     * 左上角的鼠标的快捷搜索热点的悬浮栏
+     * 【屏蔽】搜索悬浮栏
+     */
+    shieldSearchFloatingBar() {
+      log.info("【屏蔽】搜索悬浮栏");
+      let result = [];
+      result.push(
+        CommonUtil.addBlockCSS(
+          /* 看相关页面的 */
+          "#slideMode + div",
+          // 2024.7.16
+          '.playerContainer .slider-video>div>div:has([data-e2e="searchbar-button"])'
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            // 2024.7.30
+            '#douyin-right-container> div>div>div> div:has( div> input[data-e2e="searchbar-input"])'
+          )
+        );
+      }
+      return result;
+    },
+    /**
+     * 【屏蔽】网页全屏关闭按钮
+     */
+    shieldCloseFullScreenButton() {
+      log.info("【屏蔽】网页全屏关闭按钮");
+      let result = [];
+      result.push(
+        CommonUtil.addBlockCSS(
+          // 2024.7.16
+          '.playerContainer .slider-video>div>div:has(path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            '#douyin-right-container div>div:has(>svg>path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
+          )
+        );
+      }
+      return result;
+    },
+    /**
+     * 【屏蔽】购物信息
+     */
+    blockShopInfo() {
+      log.info(`【屏蔽】购物信息`);
+      return CommonUtil.addBlockCSS(`.xgplayer-shop-anchor`);
     }
   };
   const DouYinElement = {
@@ -2857,631 +3197,6 @@
       _GM_deleteValue(this.key);
     }
   }
-  const DouYinSearchFilter = {
-    __videoFilter: null,
-    get videoFilter() {
-      if (this.__videoFilter == null) {
-        const KEY2 = "douyin-search-shield-rule";
-        const isBlockLiveVideo = PopsPanel.getValue(
-          "search-shieldVideo-live"
-        );
-        const isBlockAdsVideo = PopsPanel.getValue(
-          "search-shieldVideo-ads"
-        );
-        this.__videoFilter = new DouYinVideoFilter({
-          key: KEY2,
-          isBlockLiveVideo,
-          isBlockAdsVideo
-        });
-      }
-      return this.__videoFilter;
-    },
-    init() {
-      DouYinElement.watchVideDataListChange(
-        utils.debounce((osElement) => {
-          var _a2, _b, _c, _d;
-          let $searchContentAreaScrollList = Array.from(
-            document.querySelectorAll(
-              '#search-content-area ul[data-e2e="scroll-list"] li'
-            )
-          );
-          if (!$searchContentAreaScrollList.length) {
-            log.error("未获取到搜索视频列表元素");
-            return;
-          }
-          for (let index = 0; index < $searchContentAreaScrollList.length; index++) {
-            const $searchContentAreaScrollItem = $searchContentAreaScrollList[index];
-            let reactProps = (_a2 = utils.getReactObj(
-              $searchContentAreaScrollItem
-            )) == null ? void 0 : _a2.reactProps;
-            if (reactProps == null) {
-              log.error([
-                "元素上不存在reactProps属性",
-                $searchContentAreaScrollItem
-              ]);
-              return;
-            }
-            let awemeInfo = (_d = (_c = (_b = reactProps == null ? void 0 : reactProps.children) == null ? void 0 : _b.props) == null ? void 0 : _c.data) == null ? void 0 : _d.awemeInfo;
-            if (awemeInfo == null) {
-              log.error([
-                "元素上不存在awemeInfo属性",
-                $searchContentAreaScrollItem
-              ]);
-              return;
-            }
-            let flag = this.videoFilter.checkAwemeInfoIsFilter(awemeInfo);
-            if (flag) {
-              $searchContentAreaScrollItem.remove();
-              index--;
-            }
-          }
-        }, 50)
-      );
-    },
-    get() {
-      return this.videoFilter.get();
-    },
-    set(value) {
-      this.videoFilter.set(value);
-    }
-  };
-  const DouYinSearch = {
-    init() {
-      DouYinSearchHideElement.init();
-      PopsPanel.execMenuOnce("search-shieldVideo", () => {
-        DouYinSearchFilter.init();
-      });
-      PopsPanel.execMenuOnce("dy-search-disableClickToEnterFullScreen", () => {
-        this.disableClickToEnterFullScreen();
-      });
-      PopsPanel.execMenuOnce(
-        "live-setSearchResultFilterWithVideoStyle",
-        (value) => {
-          return this.setSearchResultFilterWithVideoStyle(value);
-        }
-      );
-    },
-    /**
-     * 手机模式
-     * (由通用统一调用，勿放在本函数的init内)
-     */
-    mobileMode() {
-      log.info("搜索-手机模式");
-      let result = [];
-      result.push(addStyle(MobileCSS$1));
-      result.push(
-        addStyle(
-          /*css*/
-          `
-			@media screen and (max-width: 550px){
-				div#search-body-container {
-					display: flex;
-				}
-				div#search-body-container #component-Navigation {
-					flex: 0;
-				}
-				div#search-body-container #douyin-right-container {
-					flex: 1 auto;
-				}
-				div#search-body-container #douyin-right-container #search-content-area > div {
-					width: 100% !important;
-				}
-				div#search-body-container #douyin-right-container #search-content-area > div > div > div {
-					width: 100% !important;
-					margin-left: 0px;
-					margin-right: 0px;
-					padding-left: 0px;
-					padding-right: 0px;
-				}
-				/* 上面的搜索结果筛选 */
-				#search-content-area > div >div> div:first-child > div:first-child > div:last-child{
-					overflow: auto;
-					text-wrap: nowrap;
-					height: auto;
-				}
-				/* 视频右侧的TA的作品↓ */
-				#searchSideCard{
-					width: unset !important;
-				}
-				#searchSideCard > div{
-					padding: 0px !important;
-				}
-				#searchSideCard > div:has(>div+svg),
-				#searchSideCard ul[data-e2e="scroll-list"]{
-					padding: 0px 10px !important;
-				}
-				#searchSideCard ul[data-e2e="scroll-list"] .video-playing-item > div{
-					width: auto;
-				}
-				/* 视频右侧的TA的作品↑ */
-				/* 悬浮的筛选 */
-				#douyin-right-container #douyin-header{
-        			background-color: var(--color-bg-b0);
-				}
-				xg-right-grid{
-					margin: auto !important;
-				}
-			}
-		`
-        )
-      );
-      utils.waitNode("#relatedVideoCard").then(($relatedVideoCard) => {
-        log.info("评论区展开的className：" + $relatedVideoCard.className);
-        result.push(
-          addStyle(
-            /*css*/
-            `
-					html[data-vertical-screen]
-						#sliderVideo[data-e2e="feed-active-video"]
-						#videoSideBar:has(#relatedVideoCard[class="${$relatedVideoCard.className}"]) {
-							width: 100vw !important;
-					}`
-          )
-        );
-      });
-    },
-    /**
-     * 禁止点击视频区域进入全屏
-     */
-    disableClickToEnterFullScreen() {
-      log.info("搜索-禁止点击视频区域进入全屏");
-      domUtils.on(
-        document,
-        "click",
-        ".focusPanel",
-        (event) => {
-          var _a2;
-          utils.preventEvent(event);
-          let $click = event.target;
-          let $parent = (_a2 = $click.parentElement) == null ? void 0 : _a2.parentElement;
-          let $video = $parent.querySelector("video");
-          if ($video) {
-            if ($video.paused) {
-              log.info(".focusPanel：播放视频");
-              $video.play();
-            } else {
-              log.info(".focusPanel：视频暂停");
-              $video.pause();
-            }
-          } else {
-            log.error(".focusPanel未找到<video>标签");
-            Qmsg.error(".focusPanel未找到<video>标签", {
-              isHTML: false
-            });
-          }
-        },
-        {
-          capture: true
-        }
-      );
-      domUtils.on(
-        document,
-        "click",
-        "xg-video-container",
-        (event) => {
-          utils.preventEvent(event);
-          let $click = event.target;
-          let $video = $click.querySelector("video");
-          if ($video) {
-            if ($video.paused) {
-              log.info("xg-video-container：播放视频");
-              $video.play();
-            } else {
-              log.info("xg-video-container：视频暂停");
-              $video.pause();
-            }
-          } else {
-            log.error("xg-video-container未找到<video>标签");
-            Qmsg.error("xg-video-container未找到<video>标签", {
-              isHTML: false
-            });
-          }
-        },
-        {
-          capture: true
-        }
-      );
-    },
-    /**
-     * 设置搜索结果-按视频过滤的显示样式
-     * @param lineMode 单列/双列
-     */
-    setSearchResultFilterWithVideoStyle(lineMode = "one") {
-      log.info(`设置搜索结果-按视频过滤的显示样式：${lineMode}`);
-      if (lineMode === "one") {
-        return addStyle(
-          /*css*/
-          `
-			@media screen and (max-width: 800px){
-				.search-horizontal-new-layout ul[data-e2e="scroll-list"] li{
-					width: calc(100% - 21px);
-				}
-			}
-			`
-        );
-      } else if (lineMode === "double") {
-        return addStyle(
-          /*css*/
-          `	
-			@media screen and (max-width: 800px){
-				.search-horizontal-new-layout ul[data-e2e="scroll-list"] li{
-					width: calc(50% - 21px);
-				}
-			}
-			`
-        );
-      }
-    }
-  };
-  const url = globalThis.location.href;
-  const urlObj = new URL(url);
-  const host = urlObj.hostname;
-  const pathname = urlObj.pathname;
-  urlObj.searchParams;
-  const DouYinRouter = {
-    /** 直播 */
-    isLive() {
-      return host === "live.douyin.com" || this.isFollowLive();
-    },
-    /** 关注-直播 */
-    isFollowLive() {
-      return this.isIndex() && pathname.startsWith("/follow/live/");
-    },
-    /**
-     * 是否是抖音主站
-     */
-    isIndex() {
-      return host === "www.douyin.com";
-    },
-    /** 视频 */
-    isVideo() {
-      return this.isIndex();
-    },
-    /** 搜索 */
-    isSearch() {
-      return this.isIndex() && pathname.startsWith("/search");
-    },
-    /**
-     * 用户主页
-     */
-    isUser() {
-      return this.isIndex() && pathname.startsWith("/user");
-    }
-  };
-  const MobileCSS = '/* 右侧工具栏放大 */\r\n.basePlayerContainer .positionBox {\r\n	bottom: 80px !important;\r\n	padding-right: 5px !important;\r\n	scale: unset !important;\r\n	transform: scale3d(1.12, 1.12, 1.12) !important;\r\n}\r\n/* 右侧工具栏的svg再放大 */\r\n.basePlayerContainer .positionBox svg {\r\n	transform: scale3d(1.12, 1.12, 1.12);\r\n}\r\n/* 重置关注按钮的scale */\r\n.basePlayerContainer\r\n	.positionBox\r\n	.dy-tip-container\r\n	div[data-e2e="feed-follow-icon"]\r\n	svg {\r\n	scale: unset !important;\r\n}\r\n/* 设备处于横向方向，即宽度大于高度。 */\r\n@media screen and (orientation: landscape) {\r\n	/* 右侧工具栏放大 */\r\n	.basePlayerContainer .positionBox {\r\n		/*transform: scale(0.95) !important;\r\n		bottom: 42px !important;*/\r\n		padding-right: 10px !important;\r\n	}\r\n}\r\n/* 该设备是纵向的，即高度大于或等于宽度 */\r\n@media screen and (orientation: portrait) {\r\n	/* /video/xxx页面 */\r\n	/* 点赞、评论、分享偏移 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.basePlayerContainer\r\n		.positionBox {\r\n		padding-right: 30px !important;\r\n	}\r\n	/* 底部工具栏右侧的按钮 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.xgplayer.xgplayer-pc\r\n		.xg-right-grid {\r\n		margin-right: 35px !important;\r\n	}\r\n	/* 评论区全屏 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n		width: 100vw !important;\r\n	}\r\n}\r\n\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#slidelist {\r\n		width: 100vw;\r\n		height: 100vh;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: 150px;\r\n		padding-right: 0;\r\n		max-width: unset;\r\n	}\r\n	/* 搜索框获取焦点时自动放大宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]:focus) {\r\n		width: 100vw;\r\n		width: 100dvw;\r\n	}\r\n	/* 去除设置min-width超出浏览器宽度的问题 */\r\n	body {\r\n		min-width: 100% !important;\r\n	}\r\n	/* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n	#douyin-right-container #douyin-header {\r\n		width: 100%;\r\n	}\r\n	/* 去除设置 */\r\n	#douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n		min-width: 100%;\r\n	}\r\n}\r\n';
-  const DouYinVideoCommentBlockElement = {
-    init() {
-      PopsPanel.execMenuOnce("dy-video-shieldUserCommentToolBar", () => {
-        return this.shieldUserCommentToolBar();
-      });
-      PopsPanel.execMenuOnce(
-        "dy-video-shieldUserCommentEveryOneAllSearch",
-        () => {
-          return this.shieldUserCommentEveryOneAllSearch();
-        }
-      );
-    },
-    /**
-     * 【屏蔽】评论工具栏
-     */
-    shieldUserCommentToolBar() {
-      log.info("【屏蔽】评论工具栏");
-      return [CommonUtil.addBlockCSS(".comment-input-container")];
-    },
-    /**
-     * 【屏蔽】大家都在搜
-     */
-    shieldUserCommentEveryOneAllSearch() {
-      log.info("【屏蔽】大家都在搜");
-      return [CommonUtil.addBlockCSS(".comment-header-with-search")];
-    }
-  };
-  const DouYinVideoBlockElement_BottomToolbar = {
-    init() {
-      PopsPanel.execMenuOnce("shieldBottomVideoToolBar", () => {
-        return this.shieldBottomVideoToolBar();
-      });
-      PopsPanel.execMenuOnce("dy-video-bottom-shieldVideoInfoWrap", () => {
-        return this.shieldVideoInfoWrap();
-      });
-      PopsPanel.execMenuOnce("shieldBottomVideoToolbarDanmuContainer", () => {
-        return this.shieldBottomVideoToolbarDanmuContainer();
-      });
-    },
-    /**
-     * 【屏蔽】底部视频工具栏
-     */
-    shieldBottomVideoToolBar() {
-      log.info("【屏蔽】底部视频工具栏");
-      return [
-        CommonUtil.addBlockCSS("xg-controls.xgplayer-controls"),
-        // 修复底部工具栏因屏蔽导致的空白区域
-        addStyle(
-          /*css*/
-          `
-			#sliderVideo[data-e2e="feed-active-video"] div:has( > div > #video-info-wrap),
-			div:has( > div > pace-island > #video-info-wrap ),
-			xg-video-container.xg-video-container{
-				bottom: 0 !important;
-			}`
-        )
-      ];
-    },
-    /**
-     * 【屏蔽】视频信息
-     */
-    shieldVideoInfoWrap() {
-      log.info("【屏蔽】视频信息");
-      return [CommonUtil.addBlockCSS("#video-info-wrap")];
-    },
-    /**
-     * 【屏蔽】底部视频工具栏的弹幕容器
-     */
-    shieldBottomVideoToolbarDanmuContainer() {
-      log.info("【屏蔽】底部视频工具栏的弹幕容器");
-      return [
-        CommonUtil.addBlockCSS(
-          'xg-controls xg-inner-controls .danmakuContainer[data-e2e="danmaku-container"]'
-        )
-      ];
-    }
-  };
-  const DouYinVideoBlockElement_RightToolbar = {
-    init() {
-      PopsPanel.execMenuOnce("shieldPlaySwitchButton", () => {
-        return this.shieldPlaySwitchButton();
-      });
-      PopsPanel.execMenuOnce("shieldAuthorAvatar", () => {
-        return this.shieldAuthorAvatar();
-      });
-      PopsPanel.execMenuOnce("shieldLikeButton", () => {
-        return this.shieldLikeButton();
-      });
-      PopsPanel.execMenuOnce("shieldCommentButton", () => {
-        return this.shieldCommentButton();
-      });
-      PopsPanel.execMenuOnce("shieldCollectionButton", () => {
-        return this.shieldCollectionButton();
-      });
-      PopsPanel.execMenuOnce("shieldSharenButton", () => {
-        return this.shieldSharenButton();
-      });
-      PopsPanel.execMenuOnce("shieldRelatedRecommendationsButton", () => {
-        return this.shieldRelatedRecommendationsButton();
-      });
-      PopsPanel.execMenuOnce("shieldMoreButton", () => {
-        return this.shieldMoreButton();
-      });
-    },
-    /**
-     * 【屏蔽】切换播放
-     */
-    shieldPlaySwitchButton() {
-      log.info("【屏蔽】切换播放");
-      return [
-        CommonUtil.addBlockCSS(
-          '.positionBox  .xgplayer-playswitch[data-state="normal"]',
-          "div.xgplayer-playswitch",
-          /* 全屏下的右侧的切换播放 */
-          ".xgplayer-playswitch"
-        ),
-        addStyle(
-          /*css*/
-          `
-			div[data-e2e="slideList"]{
-				/* 修复屏蔽后的视频宽度占据 */
-				padding: 0px !important;
-			}
-			`
-        )
-      ];
-    },
-    /**
-     * 【屏蔽】作者头像
-     */
-    shieldAuthorAvatar() {
-      log.info("【屏蔽】作者头像");
-      return [
-        CommonUtil.addBlockCSS(
-          'div.dy-tip-container:has([data-e2e="video-avatar"])',
-          // 2024.7.2 新增其它的样式匹配
-          '.basePlayerContainer div[aria-describedby]:has([data-e2e="video-avatar"])'
-        )
-      ];
-    },
-    /**
-     * 【屏蔽】点赞
-     */
-    shieldLikeButton() {
-      log.info("【屏蔽】点赞");
-      return [
-        CommonUtil.addBlockCSS(
-          'div.dy-tip-container:has([data-e2e="video-player-digg"])',
-          // 2024.7.2 新增其它的样式匹配
-          '.basePlayerContainer div[aria-describedby]:has([data-e2e="video-player-digg"])'
-        )
-      ];
-    },
-    /**
-     * 【屏蔽】评论
-     */
-    shieldCommentButton() {
-      log.info("【屏蔽】评论");
-      return [
-        CommonUtil.addBlockCSS(
-          'div.dy-tip-container:has([data-e2e="feed-comment-icon"])',
-          // 2024.7.2 新增其它的样式匹配
-          '.basePlayerContainer div[aria-describedby]:has([data-e2e="feed-comment-icon"])'
-        )
-      ];
-    },
-    /**
-     * 【屏蔽】收藏
-     */
-    shieldCollectionButton() {
-      log.info("【屏蔽】收藏");
-      return [
-        CommonUtil.addBlockCSS(
-          'div.dy-tip-container:has([data-e2e="video-player-collect"])',
-          // 2024.7.2 新增其它的样式匹配
-          '.basePlayerContainer div[data-e2e="video-player-collect"][data-e2e-state="video-player-no-collect"]'
-        )
-      ];
-    },
-    /**
-     * 【屏蔽】分享
-     */
-    shieldSharenButton() {
-      log.info("【屏蔽】分享");
-      return [
-        CommonUtil.addBlockCSS(
-          'div.dy-tip-container:has([data-e2e="video-player-share"])',
-          // 2024.7.2 新增其它的样式匹配
-          '.basePlayerContainer div:has(>div[data-e2e="video-player-share"])'
-        )
-      ];
-    },
-    /**
-     * 【屏蔽】看相关
-     */
-    shieldRelatedRecommendationsButton() {
-      log.info("【屏蔽】看相关");
-      return [
-        CommonUtil.addBlockCSS(
-          'div.dy-tip-container:has(path[d="M14 8a8 8 0 00-8 8v4a8 8 0 008 8h8a8 8 0 008-8v-4a8 8 0 00-8-8h-8zm8.5 10.866a1 1 0 000-1.732l-6-3.464a1 1 0 00-1.5.866v6.928a1 1 0 001.5.866l6-3.464z"])',
-          'div.dy-tip-container:has(path[d=" M-4,-10 C-4,-10 4,-10 4,-10 C8.418000221252441,-10 12,-6.418000221252441 12,-2 C12,-2 12,2 12,2 C12,6.418000221252441 8.418000221252441,10 4,10 C4,10 -4,10 -4,10 C-8.418000221252441,10 -12,6.418000221252441 -12,2 C-12,2 -12,-2 -12,-2 C-12,-6.418000221252441 -8.418000221252441,-10 -4,-10z M4.5,0.8659999966621399 C5.166999816894531,0.48100000619888306 5.166999816894531,-0.48100000619888306 4.5,-0.8659999966621399 C4.5,-0.8659999966621399 -1.5,-4.329999923706055 -1.5,-4.329999923706055 C-2.1670000553131104,-4.715000152587891 -3,-4.234000205993652 -3,-3.4639999866485596 C-3,-3.4639999866485596 -3,3.4639999866485596 -3,3.4639999866485596 C-3,4.234000205993652 -2.1670000553131104,4.715000152587891 -1.5,4.329999923706055 C-1.5,4.329999923706055 4.5,0.8659999966621399 4.5,0.8659999966621399z"])',
-          // 2024.7.2 新增其它的样式匹配
-          '.basePlayerContainer div[aria-describedby]:has(path[d="M14 8a8 8 0 00-8 8v4a8 8 0 008 8h8a8 8 0 008-8v-4a8 8 0 00-8-8h-8zm8.5 10.866a1 1 0 000-1.732l-6-3.464a1 1 0 00-1.5.866v6.928a1 1 0 001.5.866l6-3.464z"])',
-          // 2024.7.15
-          '.basePlayerContainer div[aria-describedby]:has(path[d="M14 8a8 8 0 0 0-8 8v4a8 8 0 0 0 8 8h8a8 8 0 0 0 8-8v-4a8 8 0 0 0-8-8h-8zm8.5 10.866a1 1 0 0 0 0-1.732l-6-3.464a1 1 0 0 0-1.5.866v6.928a1 1 0 0 0 1.5.866l6-3.464z"])',
-          // 2024.7.16 移动端的屏蔽规则
-          '.basePlayerContainer div[aria-describedby]:has(path[d=" M-4,-10 C-4,-10 4,-10 4,-10 C8.418000221252441,-10 12,-6.418000221252441 12,-2 C12,-2 12,2 12,2 C12,6.418000221252441 8.418000221252441,10 4,10 C4,10 -4,10 -4,10 C-8.418000221252441,10 -12,6.418000221252441 -12,2 C-12,2 -12,-2 -12,-2 C-12,-6.418000221252441 -8.418000221252441,-10 -4,-10z M4.5,0.8659999966621399 C5.166999816894531,0.48100000619888306 5.166999816894531,-0.48100000619888306 4.5,-0.8659999966621399 C4.5,-0.8659999966621399 -1.5,-4.329999923706055 -1.5,-4.329999923706055 C-2.1670000553131104,-4.715000152587891 -3,-4.234000205993652 -3,-3.4639999866485596 C-3,-3.4639999866485596 -3,3.4639999866485596 -3,3.4639999866485596 C-3,4.234000205993652 -2.1670000553131104,4.715000152587891 -1.5,4.329999923706055 C-1.5,4.329999923706055 4.5,0.8659999966621399 4.5,0.8659999966621399z"])'
-        ),
-        addStyle(
-          /*css*/
-          `
-				/* 修复分享的悬浮框距离底部的高度 */
-				div[data-e2e="video-share-container"] > div:first-child{
-					bottom: 0px !important;
-				}
-			`
-        )
-      ];
-    },
-    /**
-     * 【屏蔽】更多
-     */
-    shieldMoreButton() {
-      log.info("【屏蔽】更多");
-      return [
-        CommonUtil.addBlockCSS(
-          'div.dy-tip-container:has([data-e2e="video-play-more"])',
-          // 2024.7.2 新增其它的样式匹配
-          '.basePlayerContainer div[data-e2e="video-play-more"]'
-        ),
-        addStyle(
-          /*css*/
-          `
-				/* 修复分享的悬浮框距离底部的高度 */
-				div[data-e2e="video-share-container"] > div:first-child{
-					bottom: 0px !important;
-				}
-			`
-        )
-      ];
-    }
-  };
-  const DouYinVideoBlockElement = {
-    init() {
-      PopsPanel.execMenuOnce("shieldRightExpandCommentButton", () => {
-        return this.shieldRightExpandCommentButton();
-      });
-      PopsPanel.execMenuOnce("shieldSearchFloatingBar", () => {
-        return this.shieldSearchFloatingBar();
-      });
-      PopsPanel.execMenuOnce("shieldCloseFullScreenButton", () => {
-        return this.shieldCloseFullScreenButton();
-      });
-      PopsPanel.execMenuOnce("dy-video-blockShopInfo", () => {
-        return this.blockShopInfo();
-      });
-      DouYinVideoBlockElement_BottomToolbar.init();
-      DouYinVideoBlockElement_RightToolbar.init();
-      DouYinVideoCommentBlockElement.init();
-    },
-    /**
-     * 【屏蔽】右侧的展开评论按钮
-     */
-    shieldRightExpandCommentButton() {
-      log.info("【屏蔽】右侧的展开评论按钮");
-      return [
-        CommonUtil.addBlockCSS(
-          '#sliderVideo[data-e2e="feed-active-video"] > div > div > button[type="button"]',
-          '.playerContainer button[type=button] svg > g[filter] > path[d="M21.316 29.73a1.393 1.393 0 01-1.97 0l-5.056-5.055a1.393 1.393 0 010-1.97l.012-.011 5.044-5.045a1.393 1.393 0 011.97 1.97l-4.07 4.071 4.07 4.071a1.393 1.393 0 010 1.97z"]'
-        ),
-        addStyle(
-          /*css*/
-          `
-			.basePlayerContainer .positionBox{
-				padding-right: 20px !important;
-			}`
-        )
-      ];
-    },
-    /**
-     * 左上角的鼠标的快捷搜索热点的悬浮栏
-     * 【屏蔽】搜索悬浮栏
-     */
-    shieldSearchFloatingBar() {
-      log.info("【屏蔽】搜索悬浮栏");
-      let result = [];
-      result.push(
-        CommonUtil.addBlockCSS(
-          /* 看相关页面的 */
-          "#slideMode + div",
-          // 2024.7.16
-          '.playerContainer .slider-video>div>div:has([data-e2e="searchbar-button"])'
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(
-          CommonUtil.addBlockCSS(
-            // 2024.7.30
-            '#douyin-right-container> div>div>div> div:has( div> input[data-e2e="searchbar-input"])'
-          )
-        );
-      }
-      return result;
-    },
-    /**
-     * 【屏蔽】网页全屏关闭按钮
-     */
-    shieldCloseFullScreenButton() {
-      log.info("【屏蔽】网页全屏关闭按钮");
-      let result = [];
-      result.push(
-        CommonUtil.addBlockCSS(
-          // 2024.7.16
-          '.playerContainer .slider-video>div>div:has(path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(
-          CommonUtil.addBlockCSS(
-            '#douyin-right-container div>div:has(>svg>path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
-          )
-        );
-      }
-      return result;
-    },
-    /**
-     * 【屏蔽】购物信息
-     */
-    blockShopInfo() {
-      log.info(`【屏蔽】购物信息`);
-      return CommonUtil.addBlockCSS(`.xgplayer-shop-anchor`);
-    }
-  };
   const DouYinRecommendVideo = {
     /**
      * 获取当前播放的视频信息
@@ -3859,7 +3574,9 @@
   const DouYinVideo = {
     init() {
       DouYinVideoBlockElement.init();
-      DouYinVideoShortcut.init();
+      PopsPanel.onceExec("dy-short-cut", () => {
+        DouYinVideoShortcut.init();
+      });
       DouYinVideoBlockMouseHoverTip.init();
       if (!DouYinRouter.isSearch()) {
         PopsPanel.execMenuOnce("shieldVideo", () => {
@@ -3918,9 +3635,6 @@
         );
         PopsPanel.execMenuOnce("mobileMode", () => {
           this.mobileMode();
-          if (DouYinRouter.isSearch()) {
-            DouYinSearch.mobileMode();
-          }
         });
         PopsPanel.execMenuOnce("dy-video-titleInfoAutoHide", () => {
           this.titleInfoAutoHide();
@@ -4200,10 +3914,10 @@
       log.info("让下载按钮变成解析视频");
       function showParseInfoDialog(srcList) {
         let contentHTML = "";
-        srcList.forEach((url2) => {
+        srcList.forEach((url) => {
           contentHTML += /*html*/
           `
-          		<div class="douyin-video-link-item"><a href="${url2}" target="_blank">${url2}</a></div>
+          		<div class="douyin-video-link-item"><a href="${url}" target="_blank">${url}</a></div>
             	`;
         });
         contentHTML = /*html*/
@@ -4334,7 +4048,7 @@
       DouYin.initialScale();
       result.push(
         CommonUtil.addBlockCSS("img#douyin-temp-sidebar"),
-        addStyle(MobileCSS)
+        addStyle(MobileCSS$1)
       );
       PopsPanel.onceExec("repairProgressBar", () => {
         this.repairVideoProgressBar();
@@ -5094,6 +4808,73 @@
         ]
       }
     ]
+  };
+  const DouYinSearchFilter = {
+    __videoFilter: null,
+    get videoFilter() {
+      if (this.__videoFilter == null) {
+        const KEY2 = "douyin-search-shield-rule";
+        const isBlockLiveVideo = PopsPanel.getValue(
+          "search-shieldVideo-live"
+        );
+        const isBlockAdsVideo = PopsPanel.getValue(
+          "search-shieldVideo-ads"
+        );
+        this.__videoFilter = new DouYinVideoFilter({
+          key: KEY2,
+          isBlockLiveVideo,
+          isBlockAdsVideo
+        });
+      }
+      return this.__videoFilter;
+    },
+    init() {
+      DouYinElement.watchVideDataListChange(
+        utils.debounce((osElement) => {
+          var _a2, _b, _c, _d;
+          let $searchContentAreaScrollList = Array.from(
+            document.querySelectorAll(
+              '#search-content-area ul[data-e2e="scroll-list"] li'
+            )
+          );
+          if (!$searchContentAreaScrollList.length) {
+            return;
+          }
+          for (let index = 0; index < $searchContentAreaScrollList.length; index++) {
+            const $searchContentAreaScrollItem = $searchContentAreaScrollList[index];
+            let reactProps = (_a2 = utils.getReactObj(
+              $searchContentAreaScrollItem
+            )) == null ? void 0 : _a2.reactProps;
+            if (reactProps == null) {
+              log.error([
+                "元素上不存在reactProps属性",
+                $searchContentAreaScrollItem
+              ]);
+              return;
+            }
+            let awemeInfo = (_d = (_c = (_b = reactProps == null ? void 0 : reactProps.children) == null ? void 0 : _b.props) == null ? void 0 : _c.data) == null ? void 0 : _d.awemeInfo;
+            if (awemeInfo == null) {
+              log.error([
+                "元素上不存在awemeInfo属性",
+                $searchContentAreaScrollItem
+              ]);
+              return;
+            }
+            let flag = this.videoFilter.checkAwemeInfoIsFilter(awemeInfo);
+            if (flag) {
+              $searchContentAreaScrollItem.remove();
+              index--;
+            }
+          }
+        }, 50)
+      );
+    },
+    get() {
+      return this.videoFilter.get();
+    },
+    set(value) {
+      this.videoFilter.set(value);
+    }
   };
   const PanelSearchConfig = {
     id: "panel-config-search",
@@ -6302,32 +6083,6 @@
       });
     },
     /**
-     * 判断是否是移动端
-     */
-    isMobile() {
-      return window.innerWidth < 550;
-    },
-    /**
-     * 获取设置面板的宽度
-     */
-    getWidth() {
-      if (window.innerWidth < 550) {
-        return "92vw";
-      } else {
-        return "550px";
-      }
-    },
-    /**
-     * 获取设置面板的高度
-     */
-    getHeight() {
-      if (window.innerHeight < 450) {
-        return "80vh";
-      } else {
-        return "450px";
-      }
-    },
-    /**
      * 获取配置内容
      */
     getPanelContentConfig() {
@@ -6616,9 +6371,9 @@
       log.info("【屏蔽】通知");
       let result = [];
       result.push(
-        // 2024.8.12
+        // 2024.11.11
         CommonUtil.addBlockCSS(
-          '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
+          '#douyin-right-container #douyin-header-menuCt pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
         )
       );
       if (DouYinRouter.isSearch()) {
@@ -7576,6 +7331,222 @@
       }
     }
   };
+  const MobileCSS = '/* 去除顶部的padding距离 */\r\n#douyin-right-container {\r\n	padding-top: 0;\r\n}\r\n/* 放大放大顶部的综合、视频、用户等header的宽度 */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) {\r\n	width: 100vw;\r\n}\r\n/* 放大顶部的综合、视频、用户等header */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) > div {\r\n	transform: scale(0.8);\r\n}\r\n/* 视频宽度 */\r\nul[data-e2e="scroll-list"] {\r\n	padding: 0px 10px;\r\n}\r\n#sliderVideo {\r\n	width: -webkit-fill-available;\r\n}\r\n/* 距离是顶部导航栏的高度 */\r\n#search-content-area {\r\n	margin-top: 65px;\r\n}\r\n/* 从其它页面进入搜索页面，例如路径是/root/search，会出现返回按钮 */\r\n#douyin-header header{\r\n	flex-direction: row-reverse !important;\r\n}\r\n#douyin-header header > div:nth-child(2) {\r\n	position: unset !important;\r\n}\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#sliderVideo {\r\n		width: 100%;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#component-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: -webkit-fill-available;\r\n		padding-right: 0;\r\n	}\r\n}\r\n';
+  const DouYinSearchHideElement = {
+    init() {
+      PopsPanel.execMenuOnce("douyin-search-shieldReleatedSearches", () => {
+        return this.shieldReleatedSearches();
+      });
+    },
+    /**
+     * 【屏蔽】相关搜索
+     */
+    shieldReleatedSearches() {
+      log.info("【屏蔽】相关搜索");
+      return [
+        CommonUtil.addBlockCSS("#search-content-area > div > div:nth-child(2)"),
+        addStyle(
+          /*css*/
+          `
+			#search-content-area > div > div:nth-child(1) > div:nth-child(1){
+				width: 100vw;
+			}`
+        )
+      ];
+    }
+  };
+  const DouYinSearch = {
+    init() {
+      DouYinSearchHideElement.init();
+      PopsPanel.execMenuOnce("mobileMode", () => {
+        return this.mobileMode();
+      });
+      PopsPanel.execMenuOnce("search-shieldVideo", () => {
+        DouYinSearchFilter.init();
+      });
+      PopsPanel.execMenuOnce("dy-search-disableClickToEnterFullScreen", () => {
+        this.disableClickToEnterFullScreen();
+      });
+      PopsPanel.execMenuOnce(
+        "live-setSearchResultFilterWithVideoStyle",
+        (value) => {
+          return this.setSearchResultFilterWithVideoStyle(value);
+        }
+      );
+    },
+    /**
+     * 手机模式
+     * (由通用统一调用，勿放在本函数的init内)
+     */
+    mobileMode() {
+      log.info("搜索-手机模式");
+      let result = [];
+      result.push(addStyle(MobileCSS));
+      result.push(
+        addStyle(
+          /*css*/
+          `
+			@media screen and (max-width: 550px){
+				div#search-body-container {
+					display: flex;
+				}
+				div#search-body-container #component-Navigation {
+					flex: 0;
+				}
+				div#search-body-container #douyin-right-container {
+					flex: 1 auto;
+				}
+				div#search-body-container #douyin-right-container #search-content-area > div {
+					width: 100% !important;
+				}
+				div#search-body-container #douyin-right-container #search-content-area > div > div > div {
+					width: 100% !important;
+					margin-left: 0px;
+					margin-right: 0px;
+					padding-left: 0px;
+					padding-right: 0px;
+				}
+				/* 上面的搜索结果筛选 */
+				#search-content-area > div >div> div:first-child > div:first-child > div:last-child{
+					overflow: auto;
+					text-wrap: nowrap;
+					height: auto;
+				}
+				/* 视频右侧的TA的作品↓ */
+				#searchSideCard{
+					width: unset !important;
+				}
+				#searchSideCard > div{
+					padding: 0px !important;
+				}
+				#searchSideCard > div:has(>div+svg),
+				#searchSideCard ul[data-e2e="scroll-list"]{
+					padding: 0px 10px !important;
+				}
+				#searchSideCard ul[data-e2e="scroll-list"] .video-playing-item > div{
+					width: auto;
+				}
+				/* 视频右侧的TA的作品↑ */
+				/* 悬浮的筛选 */
+				#douyin-right-container #douyin-header{
+        			background-color: var(--color-bg-b0);
+				}
+				xg-right-grid{
+					margin: auto !important;
+				}
+			}
+		`
+        )
+      );
+      utils.waitNode("#relatedVideoCard").then(($relatedVideoCard) => {
+        log.info("评论区展开的className：" + $relatedVideoCard.className);
+        result.push(
+          addStyle(
+            /*css*/
+            `
+					html[data-vertical-screen]
+						#sliderVideo[data-e2e="feed-active-video"]
+						#videoSideBar:has(#relatedVideoCard[class="${$relatedVideoCard.className}"]) {
+							width: 100vw !important;
+					}`
+          )
+        );
+      });
+      return result;
+    },
+    /**
+     * 禁止点击视频区域进入全屏
+     */
+    disableClickToEnterFullScreen() {
+      log.info("搜索-禁止点击视频区域进入全屏");
+      domUtils.on(
+        document,
+        "click",
+        ".focusPanel",
+        (event) => {
+          var _a2;
+          utils.preventEvent(event);
+          let $click = event.target;
+          let $parent = (_a2 = $click.parentElement) == null ? void 0 : _a2.parentElement;
+          let $video = $parent.querySelector("video");
+          if ($video) {
+            if ($video.paused) {
+              log.info(".focusPanel：播放视频");
+              $video.play();
+            } else {
+              log.info(".focusPanel：视频暂停");
+              $video.pause();
+            }
+          } else {
+            log.error(".focusPanel未找到<video>标签");
+            Qmsg.error(".focusPanel未找到<video>标签", {
+              isHTML: false
+            });
+          }
+        },
+        {
+          capture: true
+        }
+      );
+      domUtils.on(
+        document,
+        "click",
+        "xg-video-container",
+        (event) => {
+          utils.preventEvent(event);
+          let $click = event.target;
+          let $video = $click.querySelector("video");
+          if ($video) {
+            if ($video.paused) {
+              log.info("xg-video-container：播放视频");
+              $video.play();
+            } else {
+              log.info("xg-video-container：视频暂停");
+              $video.pause();
+            }
+          } else {
+            log.error("xg-video-container未找到<video>标签");
+            Qmsg.error("xg-video-container未找到<video>标签", {
+              isHTML: false
+            });
+          }
+        },
+        {
+          capture: true
+        }
+      );
+    },
+    /**
+     * 设置搜索结果-按视频过滤的显示样式
+     * @param lineMode 单列/双列
+     */
+    setSearchResultFilterWithVideoStyle(lineMode = "one") {
+      log.info(`设置搜索结果-按视频过滤的显示样式：${lineMode}`);
+      if (lineMode === "one") {
+        return addStyle(
+          /*css*/
+          `
+			@media screen and (max-width: 800px){
+				.search-horizontal-new-layout ul[data-e2e="scroll-list"] li{
+					width: calc(100% - 21px);
+				}
+			}
+			`
+        );
+      } else if (lineMode === "double") {
+        return addStyle(
+          /*css*/
+          `	
+			@media screen and (max-width: 800px){
+				.search-horizontal-new-layout ul[data-e2e="scroll-list"] li{
+					width: calc(50% - 21px);
+				}
+			}
+			`
+        );
+      }
+    }
+  };
   const BlockLeftNavigator = {
     init() {
       PopsPanel.execInheritMenuOnce(
@@ -7831,7 +7802,9 @@
   };
   const DouYin = {
     init() {
-      addStyle(blockCSS$6);
+      PopsPanel.onceExec("dy-global-block-css", () => {
+        addStyle(blockCSS$6);
+      });
       DouYinGestureBackClearHash();
       DouYinHook.init();
       DouYinRedirect.init();
@@ -7865,10 +7838,10 @@
           log.info(`Router: 用户页面`);
           DouYinUser.init();
         } else {
-          log.error("未适配router: " + window.location.hostname);
+          log.error("未适配router: " + window.location.pathname);
         }
       } else {
-        log.error("未适配router: " + window.location.hostname);
+        log.error("未适配router: " + window.location.href);
       }
     },
     /**
@@ -8030,8 +8003,8 @@
             return;
           }
           let currentPlaylet = playletList[index];
-          let url2 = DouYinUrlUtils.getCollectionUrl(currentPlaylet["mix_id"]);
-          window.open(url2, "_blank");
+          let url = DouYinUrlUtils.getCollectionUrl(currentPlaylet["mix_id"]);
+          window.open(url, "_blank");
         },
         {
           capture: true
@@ -8052,8 +8025,8 @@
           let $click = event.target;
           let reactFiber = (_a2 = utils.getReactObj($click)) == null ? void 0 : _a2.reactFiber;
           if ((_c = (_b = reactFiber == null ? void 0 : reactFiber.return) == null ? void 0 : _b.memoizedProps) == null ? void 0 : _c.productionUrl) {
-            let url2 = (_e = (_d = reactFiber == null ? void 0 : reactFiber.return) == null ? void 0 : _d.memoizedProps) == null ? void 0 : _e.productionUrl;
-            window.open(url2, "_blank");
+            let url = (_e = (_d = reactFiber == null ? void 0 : reactFiber.return) == null ? void 0 : _d.memoizedProps) == null ? void 0 : _e.productionUrl;
+            window.open(url, "_blank");
           } else {
             Qmsg.error("获取视频链接失败");
           }
@@ -8166,8 +8139,8 @@
             return;
           }
           let awemeId = rectFiber.return.memoizedProps.awemeId;
-          let url2 = DouYinUrlUtils.getNoteUrl(awemeId);
-          window.open(url2, "_blank");
+          let url = DouYinUrlUtils.getNoteUrl(awemeId);
+          window.open(url, "_blank");
         },
         { capture: true }
       );
@@ -8191,8 +8164,8 @@
             return;
           }
           let sec_id = rectFiber.return.return.memoizedProps.video.authorInfo.sec_uid;
-          let url2 = DouYinUrlUtils.getUserHomeUrl(sec_id);
-          window.open(url2, "_blank");
+          let url = DouYinUrlUtils.getUserHomeUrl(sec_id);
+          window.open(url, "_blank");
         },
         { capture: true }
       );
@@ -8219,8 +8192,8 @@
           let splitStrArr = rectFiber.return.return.return.return.memoizedProps.video.splitStrArr;
           let currentSplitStr = splitStrArr[index];
           let hashtagId = currentSplitStr["hashtagId"];
-          let url2 = DouYinUrlUtils.getHashTagUrl(hashtagId);
-          window.open(url2, "_blank");
+          let url = DouYinUrlUtils.getHashTagUrl(hashtagId);
+          window.open(url, "_blank");
         },
         { capture: true }
       );
@@ -8244,8 +8217,8 @@
             return;
           }
           let musicId = rectFiber.return.return.memoizedProps.video.musicId;
-          let url2 = DouYinUrlUtils.getMusicUrl(musicId);
-          window.open(url2, "_blank");
+          let url = DouYinUrlUtils.getMusicUrl(musicId);
+          window.open(url, "_blank");
         },
         { capture: true }
       );
@@ -8270,8 +8243,8 @@
           }
           let itemData = rectFiber.return.memoizedProps.itemData;
           let awemeId = itemData["awemeId"];
-          let url2 = DouYinUrlUtils.getNoteUrl(awemeId);
-          window.open(url2, "_blank");
+          let url = DouYinUrlUtils.getNoteUrl(awemeId);
+          window.open(url, "_blank");
         },
         { capture: true }
       );
@@ -8333,8 +8306,8 @@
           let listData = rectFiber.return.return.return.memoizedProps.listData;
           let index = rectFiber.index;
           let currentList = listData[index];
-          let url2 = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
-          window.open(url2, "_blank");
+          let url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
+          window.open(url, "_blank");
         },
         {
           capture: true
@@ -8371,8 +8344,8 @@
           let listData = rectFiber.return.return.return.memoizedProps.listData;
           let index = rectFiber.index;
           let currentList = listData[index];
-          let url2 = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
-          window.open(url2, "_blank");
+          let url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
+          window.open(url, "_blank");
         },
         {
           capture: true

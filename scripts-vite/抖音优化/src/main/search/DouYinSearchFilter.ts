@@ -35,7 +35,6 @@ export const DouYinSearchFilter = {
 					)
 				);
 				if (!$searchContentAreaScrollList.length) {
-					log.error("未获取到搜索视频列表元素");
 					return;
 				}
 

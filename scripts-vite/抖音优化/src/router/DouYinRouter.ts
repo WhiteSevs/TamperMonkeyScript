@@ -1,23 +1,21 @@
-const url = globalThis.location.href;
-const urlObj = new URL(url);
-const host = urlObj.hostname;
-const pathname = urlObj.pathname;
-const searchParams = urlObj.searchParams;
-
 export const DouYinRouter = {
 	/** 直播 */
 	isLive() {
-		return host === "live.douyin.com" || this.isFollowLive();
+		return (
+			window.location.hostname === "live.douyin.com" || this.isFollowLive()
+		);
 	},
 	/** 关注-直播 */
 	isFollowLive() {
-		return this.isIndex() && pathname.startsWith("/follow/live/");
+		return (
+			this.isIndex() && window.location.pathname.startsWith("/follow/live/")
+		);
 	},
 	/**
 	 * 是否是抖音主站
 	 */
 	isIndex() {
-		return host === "www.douyin.com";
+		return window.location.hostname === "www.douyin.com";
 	},
 	/** 视频 */
 	isVideo() {
@@ -25,12 +23,16 @@ export const DouYinRouter = {
 	},
 	/** 搜索 */
 	isSearch() {
-		return this.isIndex() && pathname.startsWith("/search");
+		return (
+			this.isIndex() &&
+			(window.location.pathname.startsWith("/search") ||
+				window.location.pathname.startsWith("/root/search"))
+		);
 	},
 	/**
 	 * 用户主页
 	 */
 	isUser() {
-		return this.isIndex() && pathname.startsWith("/user");
+		return this.isIndex() && window.location.pathname.startsWith("/user");
 	},
 };

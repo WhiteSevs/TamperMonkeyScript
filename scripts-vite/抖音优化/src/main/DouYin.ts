@@ -16,10 +16,13 @@ import blockCSS from "./css/block.css?raw";
 import { DouYinFollowingApi } from "@/api/DouYinFollowingApi";
 import { DouYinQueryApi } from "@/api/DouYinQueryApi";
 import { DouYinUser } from "./user/DouYinUser";
+import { unsafeWindow } from "ViteGM";
 
 export const DouYin = {
 	init() {
-		addStyle(blockCSS);
+		PopsPanel.onceExec("dy-global-block-css", () => {
+			addStyle(blockCSS);
+		});
 		DouYinGestureBackClearHash();
 		DouYinHook.init();
 		// DouYinNetWorkHook.init();
@@ -56,10 +59,10 @@ export const DouYin = {
 				log.info(`Router: 用户页面`);
 				DouYinUser.init();
 			} else {
-				log.error("未适配router: " + window.location.hostname);
+				log.error("未适配router: " + window.location.pathname);
 			}
 		} else {
-			log.error("未适配router: " + window.location.hostname);
+			log.error("未适配router: " + window.location.href);
 		}
 	},
 	/**
