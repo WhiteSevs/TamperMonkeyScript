@@ -21,7 +21,9 @@
 
 ## 画质解锁的限制
 
-番剧画质解锁需要设置`Referer`和`User-Agent`鉴权，但`Referer`和`User-Agent`无法通过油猴脚本设置，所以只能通过插件设置
+番剧画质解锁需要设置`Referer`和`User-Agent`鉴权，但`Referer`和`User-Agent`无法通过油猴脚本设置，所以只能通过插件设置。
+
+套壳类浏览器例如：`Via浏览器`、`X浏览器`可以把`m.bilibili.com`设定`浏览器标识(UserAgent)`为`iPhone`
 
 ## 画质解锁
 
