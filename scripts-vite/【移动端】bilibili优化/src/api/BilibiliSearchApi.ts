@@ -1,5 +1,5 @@
 import { httpx, log, utils } from "@/env";
-import { BilibiliResponseCheck } from "./BilibiliResponseCheck";
+import { BilibiliApiResponseCheck } from "./BilibiliApiResponseCheck";
 import { BilibiliQrCodeLogin } from "@/account/BilibiliQrCodeLogin";
 
 /** 搜索结果番剧实体 */
@@ -313,7 +313,7 @@ export const BilibiliSearchApi = {
 		if (import.meta.hot) {
 			console.log(responseData);
 		}
-		if (!BilibiliResponseCheck.isWebApiSuccess(responseData)) {
+		if (!BilibiliApiResponseCheck.isWebApiSuccess(responseData)) {
 			return;
 		}
 		return responseData.data as {
@@ -365,7 +365,7 @@ export const BilibiliSearchApi = {
 		if (import.meta.hot) {
 			console.log(data);
 		}
-		if (!BilibiliResponseCheck.isWebApiSuccess(data)) {
+		if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) {
 			// 检测请求的数据是否是成功的
 			log.error(`请求失败，当前代理服务器信息：${JSON.stringify(config.host)}`);
 			log.error(`请求失败，当前请求的响应信息：${JSON.stringify(data)}`);

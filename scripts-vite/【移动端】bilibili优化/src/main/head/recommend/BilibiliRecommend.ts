@@ -5,7 +5,7 @@ import BilibiliRecommendCSS from "./BilibiliRecommend.css?raw";
 import { android } from "@/define/BilibiliRecommendDefine";
 import { av2bv } from "@mgdn/bvid";
 import { PopsPanel } from "@/setting/setting";
-import { BilibiliResponseCheck } from "@/api/BilibiliResponseCheck";
+import { BilibiliApiResponseCheck } from "@/api/BilibiliApiResponseCheck";
 import { AppKeyInfo } from "@/common/config";
 
 /**
@@ -261,7 +261,7 @@ export const BilibiliRecommend = {
 		let data = utils.toJSON<android.AppRecommendJson>(
 			getResp.data.responseText
 		);
-		if (!BilibiliResponseCheck.isWebApiSuccess(data)) {
+		if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) {
 			Qmsg.error(data["message"]);
 			return;
 		}

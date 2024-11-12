@@ -1,7 +1,7 @@
 import { GMCookie, httpx, log, Qmsg, utils } from "@/env";
-import { BilibiliRequestCheck } from "./BilibiliRequestCheck";
+import { BilibiliApiRequestCheck } from "./BilibiliApiRequestCheck";
 import { BilibiliApiConfig } from "./BilibiliApiConfig";
-import { BilibiliResponseCheck } from "./BilibiliResponseCheck";
+import { BilibiliApiResponseCheck } from "./BilibiliApiResponseCheck";
 import { VideoQualityNameMap } from "@/video-info/VideoDict";
 
 type BilibliPlayUrlCommonConfig = {
@@ -154,7 +154,7 @@ export const BilibiliVideoApi = {
 			// 该值是用来请求可以在移动端播放的链接的
 			Reflect.set(searchParamsData, "platform", "html5");
 		}
-		BilibiliRequestCheck.mergeAidOrBvidSearchParamsData(
+		BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(
 			searchParamsData,
 			config
 		);
@@ -198,7 +198,7 @@ export const BilibiliVideoApi = {
 		let searchParamsData = {
 			cid: config.cid,
 		};
-		BilibiliRequestCheck.mergeAidOrBvidSearchParamsData(
+		BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(
 			searchParamsData,
 			config
 		);
@@ -215,7 +215,7 @@ export const BilibiliVideoApi = {
 			return;
 		}
 		let data = utils.toJSON(httpxResponse.data.responseText);
-		if (!BilibiliResponseCheck.isWebApiSuccess(data)) {
+		if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) {
 			log.error(`获取在线观看人数失败: ${JSON.stringify(data)}`);
 		}
 
@@ -243,7 +243,7 @@ export const BilibiliVideoApi = {
 			csrf: GMCookie.get("bili_jct")?.value || "",
 		};
 
-		BilibiliRequestCheck.mergeAidOrBvidSearchParamsData(
+		BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(
 			searchParamsData,
 			config
 		);

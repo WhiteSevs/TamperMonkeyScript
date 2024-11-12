@@ -1,7 +1,7 @@
 import { AppKeyInfo } from "@/common/config";
 import { appSign } from "@/common/sign";
 import { httpx, utils, GMCookie, Qmsg, log } from "@/env";
-import { BilibiliResponseCheck } from "./BilibiliResponseCheck";
+import { BilibiliApiResponseCheck } from "./BilibiliApiResponseCheck";
 
 export const BilibiliLoginApi = {
 	/**
@@ -97,7 +97,7 @@ export const BilibiliLoginApi = {
 			"86090": "二维码已扫码未确认",
 		};
 
-		if (!BilibiliResponseCheck.isWebApiSuccess(json)) {
+		if (!BilibiliApiResponseCheck.isWebApiSuccess(json)) {
 			const code = json.code.toString();
 			const message = json.message || msgMap[code] || "未知错误";
 

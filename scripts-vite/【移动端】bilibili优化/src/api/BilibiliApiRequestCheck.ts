@@ -1,7 +1,7 @@
 /**
  * 请求参数检测
  */
-export const BilibiliRequestCheck = {
+export const BilibiliApiRequestCheck = {
 	/**
 	 * 合并并检查是否传入aid或者bvid
 	 */

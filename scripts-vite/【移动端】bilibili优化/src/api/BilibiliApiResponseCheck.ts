@@ -1,6 +1,6 @@
 import type { BilibiliFailResponse } from "./BilibiliApiConfig";
 
-export const BilibiliResponseCheck = {
+export const BilibiliApiResponseCheck = {
 	/**
 	 * check json has {code: 0, message: "0"}
 	 */

@@ -1,4 +1,4 @@
-import { BilibiliResponseCheck } from "@/api/BilibiliResponseCheck";
+import { BilibiliApiResponseCheck } from "@/api/BilibiliApiResponseCheck";
 import { BilibiliApiConfig } from "@/api/BilibiliApiConfig";
 import { httpx, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
@@ -286,7 +286,7 @@ const SubTitle = {
 		const videoInfoResultJSON = utils.toJSON(
 			videoInfoResponse.data.responseText
 		);
-		if (!BilibiliResponseCheck.isWebApiSuccess(videoInfoResultJSON)) {
+		if (!BilibiliApiResponseCheck.isWebApiSuccess(videoInfoResultJSON)) {
 			console.error(TAG + "获取视频的字幕信息失败", videoInfoResultJSON);
 			return;
 		}

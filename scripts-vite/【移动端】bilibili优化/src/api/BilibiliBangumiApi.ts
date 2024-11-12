@@ -5,7 +5,7 @@ import {
 	BilibiliApiConfig,
 	type BilibiliFailResponse,
 } from "./BilibiliApiConfig";
-import { BilibiliResponseCheck } from "./BilibiliResponseCheck";
+import { BilibiliApiResponseCheck } from "./BilibiliApiResponseCheck";
 
 /**
  * 番剧视频播放地址信息
@@ -266,8 +266,8 @@ export const BilibiliBangumiApi = {
 			let responseResult =
 				responseData.result as BilibiliTypeBangumiVideoPlayeInfo;
 			if (
-				!BilibiliResponseCheck.isWebApiSuccess(responseData) ||
-				BilibiliResponseCheck.isAreaLimit(responseData)
+				!BilibiliApiResponseCheck.isWebApiSuccess(responseData) ||
+				BilibiliApiResponseCheck.isAreaLimit(responseData)
 			) {
 				// 检测请求的数据是否是成功的
 				// 是否是区域限制
@@ -342,7 +342,7 @@ export const BilibiliBangumiApi = {
 		if (import.meta.hot) {
 			console.log(responseData);
 		}
-		if (!BilibiliResponseCheck.isWebApiSuccess(responseData)) {
+		if (!BilibiliApiResponseCheck.isWebApiSuccess(responseData)) {
 			// 检测请求的数据是否是成功的
 			BilibiliLogUtils.failToast(responseData);
 			return;
