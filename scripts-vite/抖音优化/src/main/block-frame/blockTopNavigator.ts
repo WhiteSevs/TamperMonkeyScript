@@ -127,7 +127,9 @@ export const BlockTopNavigator = {
 			CommonUtil.addBlockCSS(
 				'#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container',
 				// 2024.7.15
-				'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[download^="douyin-downloader"])'
+				'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[download^="douyin-downloader"])',
+				// ios
+				'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[href*="/douyin-pc-web/"])'
 			)
 		);
 		if (DouYinRouter.isSearch()) {
