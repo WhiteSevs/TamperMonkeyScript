@@ -82,7 +82,7 @@ declare class Utils {
      * 复制formData数据
      * @param formData 需要clone的数据
      */
-    cloneFormData<T extends FormData>(formData: T): T;
+    cloneFormData<T extends FormData>(formData: T, filterFn?: (key: string, value: string | Blob) => boolean): T;
     /**
      * 函数重载实现
      * @example

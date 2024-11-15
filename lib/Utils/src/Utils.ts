@@ -29,7 +29,7 @@ class Utils {
 		this.windowApi = new WindowApi(option);
 	}
 	/** 版本号 */
-	version = "2024.11.6";
+	version = "2024.11.16";
 
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
@@ -309,10 +309,17 @@ class Utils {
 	 * 复制formData数据
 	 * @param formData 需要clone的数据
 	 */
-	cloneFormData<T extends FormData>(formData: T): T;
-	cloneFormData<T extends FormData>(formData: T) {
-		let clonedFormData = new FormData();
+	cloneFormData<T extends FormData>(
+		formData: T,
+		filterFn?: (key: string, value: string | Blob) => boolean
+	): T {
+		let clonedFormData = new FormData() as T;
 		for (let [key, value] of (formData as any).entries()) {
+			let isFilter =
+				typeof filterFn === "function" ? filterFn(key, value) : false;
+			if (typeof isFilter === "boolean" && isFilter) {
+				continue;
+			}
 			clonedFormData.append(key, value);
 		}
 		return clonedFormData;
