@@ -129,7 +129,7 @@ export const GreasyforkDiscussionsFilter = {
 					if (discussionInfo[ruleName] != null) {
 						let scriptInfoString = String(discussionInfo[ruleName]);
 						if (scriptInfoString.match(ruleValueRegExp)) {
-							log.info(["触发论坛过滤规则", localRule, discussionInfo]);
+							log.info("触发论坛过滤规则", localRule, discussionInfo);
 							$listContainer.remove();
 							return;
 						}

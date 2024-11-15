@@ -249,8 +249,7 @@ export const en_US_language = {
 		"Add a Report button at the end of each line of discussion",
 	选择需要过滤的选项: "Select the options that need to be filtered",
 	"确定{{type}}：{{filterId}}？": "Are you sure {{type}}：{{filterId}}？",
-	"该收藏集未包含：{{scriptId}}":
-		"This collection does not include:{{scriptId}}",
+	"已删除：{{scriptId}}": "Deleted: {{scriptId}}",
 	帮助文档: "Help document",
 	"请输入规则，每行一个": "Please enter a rule, one per line",
 	选择过滤的选项: "Select filtering options",
@@ -323,4 +322,10 @@ export const en_US_language = {
 	"举报讨论：": "Report discussion:",
 	"举报脚本：": "Report script:",
 	"举报用户：": "Report user:",
+	"添加失败，表单数据中不包含该脚本":
+		"Failed to add, script id not included in form data",
+	"删除失败，表单数据中仍包含该脚本":
+		"The deletion failed and the script is still included in the form data",
+	"删除失败，{{selector}}元素不存在":
+		"Failed to delete. {{selector}} element does not exist",
 };

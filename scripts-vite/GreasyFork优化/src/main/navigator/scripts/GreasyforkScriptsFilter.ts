@@ -79,14 +79,14 @@ export const GreasyforkScriptsFilter = {
 					if (ruleValue.startsWith(">")) {
 						/* 大于 */
 						if (data.scriptRatingScore > userRatingScoreValue) {
-							log.info(["触发脚本过滤规则", [localRule, data]]);
+							log.info("触发脚本过滤规则", [localRule, data]);
 							$scriptList.remove();
 							break;
 						}
 					} else if (ruleValue.startsWith("<")) {
 						/* 小于 */
 						if (data.scriptRatingScore < userRatingScoreValue) {
-							log.info(["触发脚本过滤规则", [localRule, data]]);
+							log.info("触发脚本过滤规则", [localRule, data]);
 							$scriptList.remove();
 							break;
 						}
@@ -98,7 +98,7 @@ export const GreasyforkScriptsFilter = {
 					let ruleValueRegExp = new RegExp(ruleValue, "ig");
 					let scriptInfoString = String((data as any)[ruleName]);
 					if (scriptInfoString.match(ruleValueRegExp)) {
-						log.info(["触发脚本过滤规则", localRule, data]);
+						log.info("触发脚本过滤规则", localRule, data);
 						$scriptList.remove();
 						break;
 					}

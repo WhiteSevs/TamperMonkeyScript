@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.11.11
+// @version            2024.11.16
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -11,7 +11,7 @@
 // @supportURL         https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match              *://greasyfork.org/*
 // @require            https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.1/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.2/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.9/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
@@ -245,7 +245,7 @@
     "在每一行讨论的最后面添加【过滤】按钮，需开启过滤功能才会生效": "在每一行讨论的最后面添加【过滤】按钮，需开启过滤功能才会生效",
     选择需要过滤的选项: "选择需要过滤的选项",
     "确定{{type}}：{{filterId}}？": "确定{{type}}：{{filterId}}？",
-    "该收藏集未包含：{{scriptId}}": "该收藏集未包含：{{scriptId}}",
+    "已删除：{{scriptId}}": "已删除：{{scriptId}}",
     帮助文档: "帮助文档",
     "请输入规则，每行一个": "请输入规则，每行一个",
     选择过滤的选项: "选择过滤的选项",
@@ -496,7 +496,7 @@
     "在每一行讨论的最后面添加【举报】按钮": "Add a Report button at the end of each line of discussion",
     选择需要过滤的选项: "Select the options that need to be filtered",
     "确定{{type}}：{{filterId}}？": "Are you sure {{type}}：{{filterId}}？",
-    "该收藏集未包含：{{scriptId}}": "This collection does not include:{{scriptId}}",
+    "已删除：{{scriptId}}": "Deleted: {{scriptId}}",
     帮助文档: "Help document",
     "请输入规则，每行一个": "Please enter a rule, one per line",
     选择过滤的选项: "Select filtering options",
@@ -560,7 +560,10 @@
     举报: "Report",
     "举报讨论：": "Report discussion:",
     "举报脚本：": "Report script:",
-    "举报用户：": "Report user:"
+    "举报用户：": "Report user:",
+    "添加失败，表单数据中不包含该脚本": "Failed to add, script id not included in form data",
+    "删除失败，表单数据中仍包含该脚本": "The deletion failed and the script is still included in the form data",
+    "删除失败，{{selector}}元素不存在": "Failed to delete. {{selector}} element does not exist"
   };
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
@@ -1593,7 +1596,7 @@
           } = await shortCut.enterShortcutKeys(key);
           loadingQmsg.close();
           if (status) {
-            log.success(["成功录入快捷键", option]);
+            log.success("成功录入快捷键", option);
             Qmsg.success("成功录入");
           } else {
             Qmsg.error(
@@ -1834,7 +1837,7 @@
             });
             if (findShortcutIndex != -1) {
               let findShortcut = localOptions[findShortcutIndex];
-              log.info(["调用快捷键", findShortcut]);
+              log.info("调用快捷键", findShortcut);
               if (findShortcut.key in option) {
                 option[findShortcut.key].callback();
               }
@@ -1981,7 +1984,7 @@
         if (!$replySubmit) {
           return;
         }
-        log.success([`开始监听form --- 记住回复内容`, $form]);
+        log.success(`开始监听form --- 记住回复内容`, $form);
         this.$data.db.get(this.$key.DB_KEY).then((result) => {
           if (!result.success) {
             return;
@@ -2031,7 +2034,7 @@
               this.$data.db.save(this.$key.DB_KEY, result.data).then((result2) => {
                 if (result2.success) ;
                 else {
-                  log.error(["保存失败", result2]);
+                  log.error("保存失败", result2);
                 }
               });
             });
@@ -2084,7 +2087,7 @@
           log.success("表单记录：成功清除");
           _GM_deleteValue(KEY2);
         } else {
-          log.error(["表单记录：清除失败", result]);
+          log.error("表单记录：清除失败", result);
         }
       }
     },
@@ -2221,7 +2224,7 @@
           buttonElement.querySelector("button").setAttribute("disabled", "true");
         }
         domUtils.on(buttonElement, "click", void 0, async function() {
-          log.success(["同步", scriptInfo]);
+          log.success("同步", scriptInfo);
           let btn = buttonElement.querySelector("button");
           let span = buttonElement.querySelector(
             "button span"
@@ -2517,6 +2520,17 @@
       }
     }
     let alertHTML = "";
+    const checkFavoriteFormInfo = (form, scriptId2) => {
+      let flag = false;
+      scriptId2 = scriptId2.toString().trim();
+      for (const [key, value] of form.entries()) {
+        if (key === "scripts-included[]" && value.toString().trim() === scriptId2) {
+          flag = true;
+          break;
+        }
+      }
+      return flag;
+    };
     userCollection.forEach((userCollectInfo) => {
       alertHTML += /*html*/
       `
@@ -2607,93 +2621,82 @@
         let setsId = $userCollectItem.dataset.id;
         $userCollectItem.dataset.name;
         let loading = Qmsg.loading(i18next.t("添加中..."));
-        let formData = await GreasyforkApi.getUserCollectionInfo(userId, setsId);
-        if (!formData) {
-          loading.close();
-          return;
-        }
-        let editForm = utils.cloneFormData(formData);
-        let saveEditForm = utils.cloneFormData(formData);
-        let isCollect = false;
-        for (const [key, value] of formData.entries()) {
-          if (key === "scripts-included[]" && String(value).trim() === String(scriptId).trim()) {
-            isCollect = true;
-            break;
-          } else {
-            saveEditForm.append(key, value);
-            editForm.append(key, value);
+        try {
+          let formData = await GreasyforkApi.getUserCollectionInfo(
+            userId,
+            setsId
+          );
+          if (!formData) {
+            return;
           }
-        }
-        if (isCollect) {
-          Qmsg.warning(i18next.t("该脚本已经在该收藏集中"));
-          loading.close();
-          return;
-        }
-        editForm.set("add-script", scriptId.toString());
-        editForm.set("script-action", "i");
-        saveEditForm.append("scripts-included[]", scriptId.toString());
-        saveEditForm.set("save", "1");
-        let addFormDataSearchParams = new URLSearchParams(editForm);
-        let saveFormDataSearchParams = new URLSearchParams(saveEditForm);
-        let addData = Array.from(addFormDataSearchParams).map(
-          // @ts-ignore
-          ([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
-        ).join("&");
-        let saveData = Array.from(saveFormDataSearchParams).map(
-          // @ts-ignore
-          ([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
-        ).join("&");
-        log.info(["添加的数据", addData]);
-        log.info(["保存的数据", saveData]);
-        let addResult = await GreasyforkApi.updateUserSetsInfo(
-          userId,
-          setsId,
-          addData
-        );
-        if (!addResult) {
-          loading.close();
-          return;
-        }
-        let changeScriptSet = addResult.querySelector(".change-script-set");
-        if (!changeScriptSet) {
-          Qmsg.error(
-            i18next.t("添加失败，{{selector}}元素不存在", {
-              selector: ".change-script-set"
-            })
+          if (checkFavoriteFormInfo(formData, scriptId)) {
+            Qmsg.warning(i18next.t("该脚本已经在该收藏集中"));
+            return;
+          }
+          let editForm = utils.cloneFormData(formData);
+          let saveEditForm = utils.cloneFormData(formData);
+          editForm.set("add-script", scriptId.toString());
+          editForm.set("script-action", "i");
+          saveEditForm.append("scripts-included[]", scriptId.toString());
+          saveEditForm.set("save", "1");
+          let addFormDataSearchParams = new URLSearchParams(editForm);
+          let saveFormDataSearchParams = new URLSearchParams(saveEditForm);
+          let addData = Array.from(addFormDataSearchParams).map(
+            // @ts-ignore
+            ([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+          ).join("&");
+          let saveData = Array.from(saveFormDataSearchParams).map(
+            // @ts-ignore
+            ([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+          ).join("&");
+          log.info("添加的数据", addData);
+          log.info("保存的数据", saveData);
+          let changeResultDoc = await GreasyforkApi.updateUserSetsInfo(
+            userId,
+            setsId,
+            addData
           );
-          loading.close();
-          return;
-        }
-        let section = changeScriptSet.querySelector("section");
-        if (!section) {
-          Qmsg.error(
-            i18next.t("添加失败，{{selector}}元素不存在", {
-              selector: "section"
-            })
-          );
-          loading.close();
-          return;
-        }
-        let alertElement = section.querySelector(".alert");
-        if (alertElement) {
-          __pops.alert({
-            title: {
-              text: i18next.t("添加失败"),
-              position: "center"
-            },
-            content: {
-              text: alertElement.innerHTML,
-              html: true
-            },
-            mask: {
-              enable: true,
-              clickEvent: {
-                toClose: true
-              }
-            },
-            style: (
-              /*css*/
-              `
+          if (!changeResultDoc) {
+            return;
+          }
+          let $changeScriptSet = changeResultDoc.querySelector(".change-script-set");
+          if (!$changeScriptSet) {
+            Qmsg.error(
+              i18next.t("添加失败，{{selector}}元素不存在", {
+                selector: ".change-script-set"
+              })
+            );
+            return;
+          }
+          let $section = $changeScriptSet.querySelector("section");
+          if (!$section) {
+            Qmsg.error(
+              i18next.t("添加失败，{{selector}}元素不存在", {
+                selector: "section"
+              })
+            );
+            return;
+          }
+          let $alertElement = $section.querySelector(".alert");
+          if ($alertElement) {
+            __pops.alert({
+              title: {
+                text: i18next.t("添加失败"),
+                position: "center"
+              },
+              content: {
+                text: $alertElement.innerHTML,
+                html: true
+              },
+              mask: {
+                enable: true,
+                clickEvent: {
+                  toClose: true
+                }
+              },
+              style: (
+                /*css*/
+                `
 					.pops-alert-content{
 						font-style: italic;
 						background-color: #ffc;
@@ -2702,17 +2705,28 @@
 						padding: .5em;
 					}
 					`
-            ),
-            drag: true,
-            dragLimit: true,
-            width: PanelUISize.info.width,
-            height: PanelUISize.info.height
-          });
-        } else {
+              ),
+              drag: true,
+              dragLimit: true,
+              width: PanelUISize.info.width,
+              height: PanelUISize.info.height
+            });
+            return;
+          }
+          let changeScriptForm = new FormData($changeScriptSet);
+          let changeFlag = checkFavoriteFormInfo(changeScriptForm, scriptId);
+          if (!changeFlag) {
+            log.error("添加失败，提交的添加请求中不包含该脚本id");
+            Qmsg.error(i18next.t("添加失败，表单数据中不包含该脚本"));
+            return;
+          }
           await GreasyforkApi.updateUserSetsInfo(userId, setsId, saveData);
           Qmsg.success(i18next.t("添加成功"));
+        } catch (error) {
+          console.error(error);
+        } finally {
+          loading.close();
         }
-        loading.close();
       }
     );
     domUtils.on(
@@ -2726,59 +2740,73 @@
         let setsId = $collectItem.dataset.id;
         $collectItem.dataset.name;
         let loading = Qmsg.loading(i18next.t("删除中..."));
-        let formData = await GreasyforkApi.getUserCollectionInfo(userId, setsId);
-        if (!formData) {
-          loading.close();
-          return;
-        }
-        let editForm = new FormData();
-        let saveEditForm = new FormData();
-        let isCollect = false;
-        for (const [key, value] of formData.entries()) {
-          if (String(key).trim() === "scripts-included[]" && String(value).trim() === String(scriptId).trim()) {
-            isCollect = true;
-            continue;
-          }
-          saveEditForm.append(key, value);
-          editForm.append(key, value);
-        }
-        if (!isCollect) {
-          Qmsg.warning(
-            i18next.t("该收藏集未包含：{{scriptId}}", {
-              scriptId
-            })
+        try {
+          let formData = await GreasyforkApi.getUserCollectionInfo(
+            userId,
+            setsId
           );
+          if (!formData) {
+            return;
+          }
+          if (!checkFavoriteFormInfo(formData, scriptId)) {
+            Qmsg.info(
+              i18next.t("已删除：{{scriptId}}", {
+                scriptId
+              })
+            );
+            return;
+          }
+          let editForm = utils.cloneFormData(formData, (key, value) => {
+            return key === "scripts-included[]" && typeof value === "string" && value.toString().trim() === scriptId.toString().trim();
+          });
+          let saveEditForm = utils.cloneFormData(editForm);
+          editForm.set("remove-scripts-included[]", scriptId.toString());
+          editForm.set("remove-selected-scripts", "i");
+          editForm.delete("script-action");
+          saveEditForm.set("save", "1");
+          let deleteFormDataSearchParams = new URLSearchParams(editForm);
+          let saveFormDataSearchParams = new URLSearchParams(saveEditForm);
+          let removeData = Array.from(deleteFormDataSearchParams).map(
+            // @ts-ignore
+            ([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+          ).join("&");
+          let saveData = Array.from(saveFormDataSearchParams).map(
+            // @ts-ignore
+            ([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+          ).join("&");
+          log.info("删除的数据", removeData);
+          log.info("保存的数据", saveData);
+          let changeResultDoc = await GreasyforkApi.updateUserSetsInfo(
+            userId,
+            setsId,
+            removeData
+          );
+          if (!changeResultDoc) {
+            return;
+          }
+          let $changeScriptSet = changeResultDoc.querySelector(".change-script-set");
+          if (!$changeScriptSet) {
+            Qmsg.error(
+              i18next.t("删除失败，{{selector}}元素不存在", {
+                selector: ".change-script-set"
+              })
+            );
+            return;
+          }
+          let changeScriptForm = new FormData($changeScriptSet);
+          let changeFlag = checkFavoriteFormInfo(changeScriptForm, scriptId);
+          if (changeFlag) {
+            log.error("删除失败，提交的删除请求中包含该脚本id");
+            Qmsg.error(i18next.t("删除失败，表单数据中仍包含该脚本"));
+            return;
+          }
+          await GreasyforkApi.updateUserSetsInfo(userId, setsId, saveData);
+          Qmsg.success(i18next.t("删除成功"));
+        } catch (error) {
+          console.error(error);
+        } finally {
           loading.close();
-          return;
         }
-        editForm.set("remove-scripts-included[]", scriptId.toString());
-        editForm.set("remove-selected-scripts", "i");
-        editForm.delete("script-action");
-        saveEditForm.set("save", "1");
-        let deleteFormDataSearchParams = new URLSearchParams(editForm);
-        let saveFormDataSearchParams = new URLSearchParams(saveEditForm);
-        let removeData = Array.from(deleteFormDataSearchParams).map(
-          // @ts-ignore
-          ([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
-        ).join("&");
-        let saveData = Array.from(saveFormDataSearchParams).map(
-          // @ts-ignore
-          ([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
-        ).join("&");
-        log.info(["删除的数据", removeData]);
-        log.info(["保存的数据", saveData]);
-        let removeResult = await GreasyforkApi.updateUserSetsInfo(
-          userId,
-          setsId,
-          removeData
-        );
-        if (!removeResult) {
-          loading.close();
-          return;
-        }
-        await GreasyforkApi.updateUserSetsInfo(userId, setsId, saveData);
-        Qmsg.success(i18next.t("删除成功"));
-        loading.close();
       }
     );
   };
@@ -2826,7 +2854,7 @@
         domUtils.on($collectBtn, "click", () => {
           let scriptIdMatch = window.location.pathname.match(/scripts\/([\d]+)/i);
           if (!scriptIdMatch) {
-            log.error([scriptIdMatch, window.location.pathname]);
+            log.error(scriptIdMatch, window.location.pathname);
             Qmsg.error(i18next.t("获取脚本id失败"));
             return;
           }
@@ -2914,7 +2942,7 @@
         domUtils.on(searchBtn, "click", async function() {
           let scriptIdMatch = window.location.pathname.match(/scripts\/([\d]+)/i);
           if (!scriptIdMatch) {
-            log.error([scriptIdMatch, window.location.pathname]);
+            log.error(scriptIdMatch, window.location.pathname);
             Qmsg.error(i18next.t("获取脚本id失败"));
             return;
           }
@@ -2946,7 +2974,7 @@
         return;
       }
       let update_checks = todayStatsJSON["update_checks"];
-      log.info(["今日统计信息", todayStatsJSON]);
+      log.info("今日统计信息", todayStatsJSON);
       domUtils.after(
         "dd.script-show-daily-installs",
         domUtils.createElement("dt", {
@@ -2992,7 +3020,7 @@
           }
           let respJSON = utils.toJSON(getResp.data.responseText);
           let code_url = respJSON["code_url"];
-          log.success(["代码地址：", code_url]);
+          log.success("代码地址：", code_url);
           let scriptJS = await httpx.get(code_url);
           if (!scriptJS.status) {
             loading.close();
@@ -3662,13 +3690,13 @@
             let userRatingScoreValue = parseFloat(ruleValue.slice(1));
             if (ruleValue.startsWith(">")) {
               if (data.scriptRatingScore > userRatingScoreValue) {
-                log.info(["触发脚本过滤规则", [localRule, data]]);
+                log.info("触发脚本过滤规则", [localRule, data]);
                 $scriptList.remove();
                 break;
               }
             } else if (ruleValue.startsWith("<")) {
               if (data.scriptRatingScore < userRatingScoreValue) {
-                log.info(["触发脚本过滤规则", [localRule, data]]);
+                log.info("触发脚本过滤规则", [localRule, data]);
                 $scriptList.remove();
                 break;
               }
@@ -3680,7 +3708,7 @@
             let ruleValueRegExp = new RegExp(ruleValue, "ig");
             let scriptInfoString = String(data[ruleName]);
             if (scriptInfoString.match(ruleValueRegExp)) {
-              log.info(["触发脚本过滤规则", localRule, data]);
+              log.info("触发脚本过滤规则", localRule, data);
               $scriptList.remove();
               break;
             }
@@ -4624,7 +4652,7 @@
             if (discussionInfo[ruleName] != null) {
               let scriptInfoString = String(discussionInfo[ruleName]);
               if (scriptInfoString.match(ruleValueRegExp)) {
-                log.info(["触发论坛过滤规则", localRule, discussionInfo]);
+                log.info("触发论坛过滤规则", localRule, discussionInfo);
                 $listContainer.remove();
                 return;
               }
@@ -5257,7 +5285,7 @@
         }
         let needInitConfigList = Object.keys(needInitConfig);
         if (!needInitConfigList.length) {
-          log.warn(["请先配置键", config]);
+          log.warn("请先配置键", config);
           return;
         }
         needInitConfigList.forEach((__key) => {
@@ -5763,7 +5791,7 @@
             if (chooseImageFiles.length === 0) {
               return;
             }
-            log.info(["选择的图片", chooseImageFiles]);
+            log.info("选择的图片", chooseImageFiles);
             if (chooseImageFiles.length > 5) {
               domUtils.after(
                 $input,
@@ -5802,7 +5830,7 @@
         ];
         $textAreaSelectorString.forEach((selector) => {
           domUtils.on(selector, "paste", (event) => {
-            log.info(["触发粘贴事件", event]);
+            log.info("触发粘贴事件", event);
             setTimeout(() => {
               domUtils.trigger($fileInputList, "input");
             }, 100);
@@ -6719,7 +6747,7 @@
             imgList.push(currentImgSrc);
             imgIndex = 0;
           }
-          log.success(["点击浏览图片👉", imgList, imgIndex]);
+          log.success("点击浏览图片👉", imgList, imgIndex);
           viewIMG(imgList, imgIndex);
         }
       );

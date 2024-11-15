@@ -149,7 +149,7 @@ export const GreasyforkBeautify = {
 					if (chooseImageFiles.length === 0) {
 						return;
 					}
-					log.info(["选择的图片", chooseImageFiles]);
+					log.info("选择的图片", chooseImageFiles);
 					if (chooseImageFiles.length > 5) {
 						DOMUtils.after(
 							$input,
@@ -191,7 +191,7 @@ export const GreasyforkBeautify = {
 			];
 			$textAreaSelectorString.forEach((selector) => {
 				DOMUtils.on(selector, "paste", (event) => {
-					log.info(["触发粘贴事件", event]);
+					log.info("触发粘贴事件", event);
 					setTimeout(() => {
 						/* 主动触发input */
 						DOMUtils.trigger($fileInputList, "input");

@@ -67,7 +67,7 @@ export const GreasyforkRememberFormTextArea = {
 				// 不存在发表回复按钮
 				return;
 			}
-			log.success([`开始监听form --- 记住回复内容`, $form]);
+			log.success(`开始监听form --- 记住回复内容`, $form);
 			// 将indexeDB中的数据放入textarea中
 			this.$data.db
 				.get<IndexedDBReplaceRecordData[]>(this.$key.DB_KEY)
@@ -135,7 +135,7 @@ export const GreasyforkRememberFormTextArea = {
 									if (result.success) {
 										// 成功保存
 									} else {
-										log.error(["保存失败", result]);
+										log.error("保存失败", result);
 									}
 								});
 						});
@@ -195,7 +195,7 @@ export const GreasyforkRememberFormTextArea = {
 				log.success("表单记录：成功清除");
 				GM_deleteValue(KEY);
 			} else {
-				log.error(["表单记录：清除失败", result]);
+				log.error("表单记录：清除失败", result);
 			}
 		}
 	},

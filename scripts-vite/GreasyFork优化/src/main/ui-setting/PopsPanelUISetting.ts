@@ -99,7 +99,7 @@ export const PopsPanelUISetting = {
 			}
 
 			DOMUtils.on(buttonElement, "click", undefined, async function () {
-				log.success(["同步", scriptInfo]);
+				log.success("同步", scriptInfo);
 				let btn = buttonElement.querySelector("button") as HTMLButtonElement;
 				let span = buttonElement.querySelector(
 					"button span"

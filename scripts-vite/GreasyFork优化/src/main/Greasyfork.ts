@@ -226,7 +226,7 @@ const Greasyfork = {
 					imgIndex = 0;
 				}
 
-				log.success(["点击浏览图片👉", imgList, imgIndex]);
+				log.success("点击浏览图片👉", imgList, imgIndex);
 				viewIMG(imgList, imgIndex);
 			}
 		);
