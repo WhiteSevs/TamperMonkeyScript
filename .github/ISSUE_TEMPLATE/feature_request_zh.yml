@@ -33,22 +33,18 @@ body:
       options:
         - 【移动端】百度系优化
         - 【移动端】微博优化
-        - 【移动端】小红书优化
         - 【移动端】bilibili优化
-        - 图片右键菜单
-        - 蛋仔乐消除
-        - 调试
+        - 【移动端】MT论坛优化
         - 抖音优化
-        - 简书优化
-        - 模拟竖屏
-        - 贴吧优化
+        - 简书优化  
+        - 图片右键菜单
         - 网盘链接识别
-        - 网页调试
+        - 小红书优化
         - CSDN优化
         - GreasyFork优化
-        - ImageViewer
-        - MT论坛
-        - ImmortalWrt-passwall优化
+        - MT论坛优化
+        - 网页调试
+        - 模拟竖屏
         - 其它(请在下方填写脚本名称)
     validations:
       required: true
