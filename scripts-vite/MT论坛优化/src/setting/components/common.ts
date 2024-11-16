@@ -189,71 +189,68 @@ export const Component_Common: PopsPanelContentConfig = {
 									let $left = DOMUtils.createElement("div", {
 										className: "pops-panel-item-left-text",
 										innerHTML: /*html*/ `
-											<p class="pops-panel-item-left-main-text">小头像</p>
+											<p class="pops-panel-item-left-main-text">头像（有缓存）</p>
+											<p class="pops-panel-item-left-desc-text">小、中、大</p>
 											`,
 									});
 									let $right = DOMUtils.createElement("div", {
 										className: "pops-panel-avatar-img",
 										innerHTML: /*html*/ `
 											<img 
-												loading="lazy"
-												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=small&ts=1"
-												style="
-													width: 30px;
-													height: 30px;
-													border-radius: 50%;
-													overflow: hidden;
-												">
+												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=small"
+												class="avatar-img" data-size="small">
+											<img 
+												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=middle"
+												class="avatar-img" data-size="middle">
+											<img 
+												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=big"
+												class="avatar-img" data-size="big">
 											`,
 									});
+									let $style = DOMUtils.createElement("style", {
+										innerHTML: /*css*/ `
+											.avatar-img {
+												width: 30px;
+												height: 30px;
+												border-radius: 50%;
+												overflow: hidden;
+											}
+										`,
+									});
+									let $small = $right.querySelector<HTMLImageElement>(
+										".avatar-img[data-size='small']"
+									)!;
+									let $middle = $right.querySelector<HTMLImageElement>(
+										".avatar-img[data-size='middle']"
+									)!;
+									let $big = $right.querySelector<HTMLImageElement>(
+										".avatar-img[data-size='big']"
+									)!;
 									$li.appendChild($left);
 									$li.appendChild($right);
+									$li.appendChild($style);
 									return $li;
 								}),
 								UIOwn(($li) => {
 									let $left = DOMUtils.createElement("div", {
 										className: "pops-panel-item-left-text",
 										innerHTML: /*html*/ `
-											<p class="pops-panel-item-left-main-text">中头像</p>
+											<p class="pops-panel-item-left-main-text">头像</p>
+											<p class="pops-panel-item-left-desc-text">小、中、大</p>
 											`,
 									});
 									let $right = DOMUtils.createElement("div", {
 										className: "pops-panel-avatar-img",
 										innerHTML: /*html*/ `
 											<img 
-												loading="lazy"
-												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=middle&ts=1"
-												style="
-													width: 30px;
-													height: 30px;
-													border-radius: 50%;
-													overflow: hidden;
-												">
-											`,
-									});
-									$li.appendChild($left);
-									$li.appendChild($right);
-									return $li;
-								}),
-								UIOwn(($li) => {
-									let $left = DOMUtils.createElement("div", {
-										className: "pops-panel-item-left-text",
-										innerHTML: /*html*/ `
-											<p class="pops-panel-item-left-main-text">大头像</p>
-											`,
-									});
-									let $right = DOMUtils.createElement("div", {
-										className: "pops-panel-avatar-img",
-										innerHTML: /*html*/ `
+												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=small&ts=${Date.now()}"
+												class="avatar-img" data-size="small">
 											<img 
-												loading="lazy"
-												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=big&ts=1"
-												style="
-													width: 30px;
-													height: 30px;
-													border-radius: 50%;
-													overflow: hidden;
-												">
+												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=middle&ts=${Date.now()}"
+												class="avatar-img" data-size="middle">
+											<img 
+												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=big&ts=${Date.now()}"
+												class="avatar-img" data-size="big">
 											`,
 									});
 									$li.appendChild($left);

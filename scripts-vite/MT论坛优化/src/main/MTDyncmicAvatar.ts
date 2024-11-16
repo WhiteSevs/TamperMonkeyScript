@@ -1,4 +1,5 @@
 import { DOMUtils, httpx, log, pops, utils } from "@/env";
+import { CommonUtil } from "@/utils/CommonUtil";
 import { MTUtils } from "@/utils/Utils";
 import Qmsg from "qmsg";
 
@@ -116,14 +117,16 @@ export const MTDyncmicAvatar = {
 						formData.append("avatar2", dataArr[1]);
 						formData.append("avatar3", dataArr[2]);
 						formData.append("formhash", formhash);
-
 						let response = await httpx.post(uploadUrl, {
 							data: formData,
+							processData: false,
 							headers: {
-								Referer: `${window.location.origin}/home.php?mod=spacecp&ac=avatar`,
 								Accept:
 									"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+								"Cache-Control": "no-cache",
 								"User-Agent": utils.getRandomPCUA(),
+								Referer: `${window.location.origin}/home.php?mod=spacecp&ac=avatar`,
+								Pragma: "no-cache",
 							},
 						});
 						$confirm.close();

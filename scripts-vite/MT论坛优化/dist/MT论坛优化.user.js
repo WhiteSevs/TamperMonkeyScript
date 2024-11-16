@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.11
+// @version      2024.11.16.16
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、用户状态查看、美化导航、动态头像上传、最新发表、评论过滤器等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.10.0/highlight.min.js
@@ -45,7 +45,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
   var require_entrance_001 = __commonJS({
-    "entrance-BlPfdIIf.js"(exports, module) {
+    "entrance-CEdgXYGj.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -1249,10 +1249,13 @@
                   formData.append("formhash", formhash);
                   let response = await httpx.post(uploadUrl, {
                     data: formData,
+                    processData: false,
                     headers: {
-                      Referer: `${window.location.origin}/home.php?mod=spacecp&ac=avatar`,
                       Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-                      "User-Agent": utils.getRandomPCUA()
+                      "Cache-Control": "no-cache",
+                      "User-Agent": utils.getRandomPCUA(),
+                      Referer: `${window.location.origin}/home.php?mod=spacecp&ac=avatar`,
+                      Pragma: "no-cache"
                     }
                   });
                   $confirm.close();
@@ -1615,7 +1618,8 @@
                           innerHTML: (
                             /*html*/
                             `
-											<p class="pops-panel-item-left-main-text">小头像</p>
+											<p class="pops-panel-item-left-main-text">头像（有缓存）</p>
+											<p class="pops-panel-item-left-desc-text">小、中、大</p>
 											`
                           )
                         });
@@ -1625,19 +1629,42 @@
                             /*html*/
                             `
 											<img 
-												loading="lazy"
-												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=small&ts=1"
-												style="
-													width: 30px;
-													height: 30px;
-													border-radius: 50%;
-													overflow: hidden;
-												">
+												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=small"
+												class="avatar-img" data-size="small">
+											<img 
+												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=middle"
+												class="avatar-img" data-size="middle">
+											<img 
+												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=big"
+												class="avatar-img" data-size="big">
 											`
                           )
                         });
+                        let $style = domUtils.createElement("style", {
+                          innerHTML: (
+                            /*css*/
+                            `
+											.avatar-img {
+												width: 30px;
+												height: 30px;
+												border-radius: 50%;
+												overflow: hidden;
+											}
+										`
+                          )
+                        });
+                        $right.querySelector(
+                          ".avatar-img[data-size='small']"
+                        );
+                        $right.querySelector(
+                          ".avatar-img[data-size='middle']"
+                        );
+                        $right.querySelector(
+                          ".avatar-img[data-size='big']"
+                        );
                         $li.appendChild($left);
                         $li.appendChild($right);
+                        $li.appendChild($style);
                         return $li;
                       }),
                       UIOwn(($li) => {
@@ -1646,7 +1673,8 @@
                           innerHTML: (
                             /*html*/
                             `
-											<p class="pops-panel-item-left-main-text">中头像</p>
+											<p class="pops-panel-item-left-main-text">头像</p>
+											<p class="pops-panel-item-left-desc-text">小、中、大</p>
 											`
                           )
                         });
@@ -1656,45 +1684,14 @@
                             /*html*/
                             `
 											<img 
-												loading="lazy"
-												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=middle&ts=1"
-												style="
-													width: 30px;
-													height: 30px;
-													border-radius: 50%;
-													overflow: hidden;
-												">
-											`
-                          )
-                        });
-                        $li.appendChild($left);
-                        $li.appendChild($right);
-                        return $li;
-                      }),
-                      UIOwn(($li) => {
-                        let $left = domUtils.createElement("div", {
-                          className: "pops-panel-item-left-text",
-                          innerHTML: (
-                            /*html*/
-                            `
-											<p class="pops-panel-item-left-main-text">大头像</p>
-											`
-                          )
-                        });
-                        let $right = domUtils.createElement("div", {
-                          className: "pops-panel-avatar-img",
-                          innerHTML: (
-                            /*html*/
-                            `
+												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=small&ts=${Date.now()}"
+												class="avatar-img" data-size="small">
 											<img 
-												loading="lazy"
-												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=big&ts=1"
-												style="
-													width: 30px;
-													height: 30px;
-													border-radius: 50%;
-													overflow: hidden;
-												">
+												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=middle&ts=${Date.now()}"
+												class="avatar-img" data-size="middle">
+											<img 
+												src="/uc_server/avatar.php?uid=${MTUtils.getCurrentUID()}&size=big&ts=${Date.now()}"
+												class="avatar-img" data-size="big">
 											`
                           )
                         });
