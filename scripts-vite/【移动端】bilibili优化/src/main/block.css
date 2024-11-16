@@ -56,7 +56,8 @@
 #app .m-opus .float-openapp.opus-float-btn,
 #app .m-opus .float-openapp.opus-float-btn,
 #app .m-opus .v-switcher .launch-app-btn.list-more,
-#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp {
+#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,
+#app .m-opus .m-navbar .m-nav-openapp {
 	display: none !important;
 }
 
