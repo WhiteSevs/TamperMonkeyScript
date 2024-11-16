@@ -40,6 +40,17 @@ export const MTDyncmicAvatar = {
 		$middleStatus: null as any as HTMLElement,
 		$bigStatus: null as any as HTMLElement,
 	},
+	$avatar: {
+		get small() {
+			return MTDyncmicAvatar.$el.$smallUpload.files![0];
+		},
+		get middle() {
+			return MTDyncmicAvatar.$el.$middleUpload.files![0];
+		},
+		get big() {
+			return MTDyncmicAvatar.$el.$bigUpload.files![0];
+		},
+	},
 	init() {
 		this.showView();
 	},
@@ -82,15 +93,14 @@ export const MTDyncmicAvatar = {
 							return;
 						}
 						let $loading = Qmsg.loading("正在处理数据中...");
-
 						let smallAvatarBase64 = await utils.parseFileToBase64(
-							this.$el.$smallUpload.files![0]
+							this.$avatar.small
 						);
 						let middleAvatarBase64 = await utils.parseFileToBase64(
-							this.$el.$middleUpload.files![0]
+							this.$avatar.middle
 						);
 						let bigAvatarBase64 = await utils.parseFileToBase64(
-							this.$el.$bigUpload.files![0]
+							this.$avatar.big
 						);
 						let avatarBase64List = [
 							bigAvatarBase64,
@@ -98,7 +108,7 @@ export const MTDyncmicAvatar = {
 							smallAvatarBase64,
 						];
 						/* 拿到3个头像的Base64字符串 */
-						const dataArr = avatarBase64List.map((str) =>
+						const handlerAvatarBase64List = avatarBase64List.map((str) =>
 							str.substring(str.indexOf(",") + 1)
 						);
 						let uploadUrl = await this.getUploadUrl();
@@ -112,21 +122,23 @@ export const MTDyncmicAvatar = {
 							return;
 						}
 						let formData = new FormData();
-						formData.append("Filedata", "");
-						formData.append("avatar1", dataArr[0]);
-						formData.append("avatar2", dataArr[1]);
-						formData.append("avatar3", dataArr[2]);
+						formData.append("Filedata", this.$avatar.big || "");
+						formData.append("confirm", "确定");
+						formData.append("avatar1", handlerAvatarBase64List[0]);
+						formData.append("avatar2", handlerAvatarBase64List[1]);
+						formData.append("avatar3", handlerAvatarBase64List[2]);
 						formData.append("formhash", formhash);
+						log.info(`头像的base64字符串`, handlerAvatarBase64List);
 						let response = await httpx.post(uploadUrl, {
 							data: formData,
 							processData: false,
 							headers: {
 								Accept:
 									"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-								"Cache-Control": "no-cache",
 								"User-Agent": utils.getRandomPCUA(),
+								Host: window.location.hostname,
+								Origin: window.location.origin,
 								Referer: `${window.location.origin}/home.php?mod=spacecp&ac=avatar`,
-								Pragma: "no-cache",
 							},
 						});
 						$confirm.close();
@@ -140,8 +152,12 @@ export const MTDyncmicAvatar = {
 						) {
 							Qmsg.success("上传成功");
 						} else {
-							log.error(response);
-							Qmsg.error(response.data.responseText);
+							log.error("上传失败", response);
+							Qmsg.error(response.data.responseText, {
+								timeout: 6000,
+								isHTML: false,
+								html: false,
+							});
 						}
 					},
 				},

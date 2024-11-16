@@ -38,9 +38,6 @@ export const MT = {
 		PopsPanel.execMenuOnce("mt-ownBlock", () => {
 			MTOwnBlock.init();
 		});
-		PopsPanel.execMenuOnce("mt-link-text-to-hyperlink", () => {
-			MTIdentifyLinks();
-		});
 		PopsPanel.execMenuOnce("mt-post-comment-filter", () => {
 			MTCommentFilter.init();
 		});
@@ -97,6 +94,9 @@ export const MT = {
 		}
 
 		DOMUtils.ready(() => {
+			PopsPanel.execMenuOnce("mt-link-text-to-hyperlink", () => {
+				MTIdentifyLinks();
+			});
 			PopsPanel.execMenu("mt-auto-sign", () => {
 				MTAutoSignIn.init();
 			});

@@ -20,9 +20,6 @@ export const MT = {
 		PopsPanel.onceExec("mt-MTProductListingReminder", () => {
 			MTProductListingReminder.init();
 		});
-		PopsPanel.execMenuOnce("mt-link-text-to-hyperlink", () => {
-			MTIdentifyLinks();
-		});
 		if (Router.isPost()) {
 			log.info(`Router: 帖子`);
 			MTForumPost.init();
@@ -34,6 +31,9 @@ export const MT = {
 		}
 
 		DOMUtils.ready(() => {
+			PopsPanel.execMenuOnce("mt-link-text-to-hyperlink", () => {
+				MTIdentifyLinks();
+			});
 			PopsPanel.execMenuOnce("mt-addLatestPostBtn", () => {
 				this.addLatestPostBtn();
 			});
