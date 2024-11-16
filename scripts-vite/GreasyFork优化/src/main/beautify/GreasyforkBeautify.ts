@@ -1,5 +1,4 @@
 import { PopsPanel } from "@/setting/setting";
-import { GM_addStyle } from "ViteGM";
 import beautifyMarkdownCSS from "./css/beautifyMarkdown.css?raw";
 import beautifyButtonCSS from "./css/beautifyButton.css?raw";
 import beautifyRadioCSS from "./css/beautifyRadio.css?raw";
@@ -8,9 +7,12 @@ import beautifyTextAreaCSS from "./css/beautifyTextArea.css?raw";
 import beautifyUploadImageCSS from "./css/beautifyUploadImage.css?raw";
 import compatibleBeautifyCSS from "./css/compatibleBeautify.css?raw";
 import beautifyTopNavigationBarCSS from "./css/beautifyTopNavigationBar.css?raw";
-import { DOMUtils, log, utils } from "@/env";
+import beautifyHomeCSS from "./css/beautifyHome.css?raw";
+import beautifyFeedbackCSS from "./css/beautifyFeedback.css?raw";
+import { addStyle, DOMUtils, log, utils } from "@/env";
 import i18next from "i18next";
 import { CommonUtil } from "@/utils/CommonUtil";
+import { GreasyforkRouter } from "@/router/GreasyforkRouter";
 
 export const GreasyforkBeautify = {
 	init() {
@@ -34,13 +36,13 @@ export const GreasyforkBeautify = {
 	beautifyPageElement() {
 		log.info("美化页面元素");
 		let result = [];
-		result.push(GM_addStyle(beautifyMarkdownCSS));
-		result.push(GM_addStyle(beautifyButtonCSS));
-		result.push(GM_addStyle(beautifyRadioCSS));
-		result.push(GM_addStyle(beautifyInputCSS));
-		result.push(GM_addStyle(beautifyTextAreaCSS));
+		result.push(addStyle(beautifyMarkdownCSS));
+		result.push(addStyle(beautifyButtonCSS));
+		result.push(addStyle(beautifyRadioCSS));
+		result.push(addStyle(beautifyInputCSS));
+		result.push(addStyle(beautifyTextAreaCSS));
 		result.push(
-			GM_addStyle(/*css*/ `
+			addStyle(/*css*/ `
 			p:has(input[type="submit"][name="update-and-sync"]){
 			  margin-top: 10px;
 			}
@@ -59,17 +61,58 @@ export const GreasyforkBeautify = {
 				);
 			}
 
-			if (
-				globalThis.location.pathname.endsWith("/admin") &&
-				!document.querySelector('input[type="submit"][name="update-only"]')
-			) {
-				result.push(
-					GM_addStyle(/*css*/ `
+			if (GreasyforkRouter.isHome()) {
+				result.push(addStyle(beautifyHomeCSS));
+			} else if (GreasyforkRouter.isScriptsFeedback()) {
+				result.push(addStyle(beautifyFeedbackCSS));
+				let $noRating = document.querySelector<HTMLElement>(
+					'.radio-label[for*="discussion_rating_0"]'
+				);
+				if ($noRating) {
+					$noRating.innerHTML = $noRating.innerHTML.replace(
+						"不评分",
+						'<span class="rating-icon rating-icon-none">不评分</span>'
+					);
+				}
+				let $badRating = document.querySelector<HTMLElement>(
+					'.radio-label[for*="discussion_rating_2"]'
+				);
+				if ($badRating) {
+					$badRating.innerHTML = $badRating.innerHTML.replace(
+						"差评",
+						'<span class="rating-icon rating-icon-bad">差评</span>'
+					);
+				}
+				let $okRating = document.querySelector<HTMLElement>(
+					'.radio-label[for*="discussion_rating_3"]'
+				);
+				if ($okRating) {
+					$okRating.innerHTML = $okRating.innerHTML.replace(
+						"一般",
+						'<span class="rating-icon rating-icon-ok">一般</span>'
+					);
+				}
+				let $goodRating = document.querySelector<HTMLElement>(
+					'.radio-label[for*="discussion_rating_4"]'
+				);
+				if ($goodRating) {
+					$goodRating.innerHTML = $goodRating.innerHTML.replace(
+						"好评",
+						'<span class="rating-icon rating-icon-good">好评</span>'
+					);
+				}
+			} else if (GreasyforkRouter.isScriptAdmin()) {
+				if (
+					!document.querySelector('input[type="submit"][name="update-only"]')
+				) {
+					result.push(
+						addStyle(/*css*/ `
 					.indented{
 						padding-left: unset;
 					}
 					`)
-				);
+					);
+				}
 			}
 		});
 
@@ -81,11 +124,11 @@ export const GreasyforkBeautify = {
 	beautifyGreasyforkBeautify() {
 		log.info("美化 Greasyfork Beautify脚本");
 		let result = [];
-		result.push(GM_addStyle(compatibleBeautifyCSS));
+		result.push(addStyle(compatibleBeautifyCSS));
 		if (utils.isPhone()) {
 			/* 移动端 */
 			result.push(
-				GM_addStyle(/*css*/ `
+				addStyle(/*css*/ `
 				section#script-info,
 				section.text-content,
 				div.width-constraint table.text-content.log-table{
@@ -101,7 +144,7 @@ export const GreasyforkBeautify = {
 			);
 		} else {
 			result.push(
-				GM_addStyle(/*css*/ `
+				addStyle(/*css*/ `
 				section#script-info{
 					margin-top: 10px;
 				}`)
@@ -115,7 +158,7 @@ export const GreasyforkBeautify = {
 	beautifyUploadImage() {
 		log.info("美化上传图片");
 		let result = [];
-		result.push(GM_addStyle(beautifyUploadImageCSS));
+		result.push(addStyle(beautifyUploadImageCSS));
 		DOMUtils.ready(() => {
 			/**
 			 * 清空错误的提示
@@ -207,7 +250,7 @@ export const GreasyforkBeautify = {
 	beautifyTopNavigationBar() {
 		log.info("美化顶部导航栏");
 		let result = [];
-		result.push(GM_addStyle(beautifyTopNavigationBarCSS));
+		result.push(addStyle(beautifyTopNavigationBarCSS));
 		if (window.outerWidth > 550) {
 			result.push(CommonUtil.addBlockCSS(".with-submenu"));
 			DOMUtils.ready(() => {

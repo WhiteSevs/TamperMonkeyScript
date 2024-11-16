@@ -1,8 +1,6 @@
-import { GreasyforkApi } from "@/api/GreasyForkApi";
-import { DOMUtils, log, utils } from "@/env";
+import { addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
-import { GM_addStyle } from "ViteGM";
 import i18next from "i18next";
 
 export type DiscuessionsFilterRule = {
@@ -29,7 +27,7 @@ export const GreasyforkDiscussionsFilter = {
 	},
 	init() {
 		log.info("论坛-过滤");
-		GM_addStyle(/*css*/ `
+		addStyle(/*css*/ `
         .discussion-list-container {
           --discusstion-repeat-color: #ffa700;
         }

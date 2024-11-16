@@ -1,10 +1,9 @@
-import { DOMUtils, log, pops, utils } from "@/env";
+import { addStyle, DOMUtils, log, pops, utils } from "@/env";
 import {
 	DiscuessionsFilterRule,
 	GreasyforkDiscussionsFilter,
 } from "./GreasyforkDiscussionsFilter";
 import { PopsPanel } from "@/setting/setting";
-import { GM_addStyle } from "ViteGM";
 import i18next from "i18next";
 import Qmsg from "qmsg";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
@@ -37,7 +36,7 @@ export const GreasyforkForum = {
 	readBgColor() {
 		log.info("设置已读背景颜色");
 		let color = PopsPanel.getValue("discussions-readBgColor");
-		GM_addStyle(/*css*/ `
+		return addStyle(/*css*/ `
         .discussion-read{
             background: ${color} !important;
         }

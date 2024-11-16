@@ -16,7 +16,7 @@ import { GreasyforkRememberFormTextArea } from "@/main/GreasyforkRememberFormTex
 import { PopsPanelUISetting } from "@/main/ui-setting/PopsPanelUISetting";
 import { GreasyforkScriptsFilter } from "@/main/navigator/scripts/GreasyforkScriptsFilter";
 
-export const SettingUIGeneral: PopsPanelContentConfig = {
+export const SettingUICommon: PopsPanelContentConfig = {
 	id: "greasy-fork-panel-config-account",
 	title: i18next.t("通用"),
 	forms: [

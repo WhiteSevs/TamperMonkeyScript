@@ -1,7 +1,6 @@
-import { DOMUtils, log, utils } from "@/env";
+import { addStyle, DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import beautifyVersionsPageCSS from "./beautifyVersionsPage.css?raw";
-import { GM_addStyle } from "ViteGM";
 import { CommonUtil } from "@/utils/CommonUtil";
 import i18next from "i18next";
 import Qmsg from "qmsg";
@@ -23,7 +22,7 @@ export const GreasyforkVersions = {
 		log.info("美化 历史版本 页面");
 		let result = [];
 		/* 美化version页面 */
-		result.push(GM_addStyle(beautifyVersionsPageCSS));
+		result.push(addStyle(beautifyVersionsPageCSS));
 		result.push(
 			CommonUtil.addBlockCSS(
 				".version-number",

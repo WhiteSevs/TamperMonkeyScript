@@ -1,14 +1,9 @@
 import { PopsPanel } from "@/setting/setting";
 import "./css/OwnCSS.css";
-import { DOMUtils, httpx, log, pops, utils } from "@/env";
+import { addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
 import Qmsg from "qmsg";
 import { GreasyforkApi } from "@/api/GreasyForkApi";
-import {
-	GM_addStyle,
-	GM_getResourceText,
-	GM_getValue,
-	GM_setValue,
-} from "ViteGM";
+import { GM_getResourceText, GM_getValue, GM_setValue } from "ViteGM";
 import { GreasyforkBeautify } from "./beautify/GreasyforkBeautify";
 import { GreasyforkMenu } from "./GreasyforkMenu";
 import { GreasyforkRouter } from "@/router/GreasyforkRouter";
@@ -29,6 +24,10 @@ import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 
 const Greasyfork = {
 	init() {
+		if (GreasyforkRouter.isImageSource()) {
+			log.info(`Router: 资源界面，不执行脚本功能`);
+			return;
+		}
 		PopsPanel.execMenu("checkPage", () => {
 			this.checkPage();
 		});
@@ -91,7 +90,7 @@ const Greasyfork = {
 	fixImageWidth() {
 		if (window.innerWidth < window.innerHeight) {
 			log.info("修复图片显示问题");
-			GM_addStyle(/*css*/ `
+			addStyle(/*css*/ `
             img.lum-img{
                 width: 100% !important;
                 height: 100% !important;
@@ -105,11 +104,11 @@ const Greasyfork = {
 	optimizeImageBrowsing() {
 		log.info("优化图片浏览");
 		if (import.meta.env.DEV) {
-			GM_addStyle(ViewerCSS);
+			addStyle(ViewerCSS);
 		} else {
-			GM_addStyle(GM_getResourceText("ViewerCSS"));
+			addStyle(GM_getResourceText("ViewerCSS"));
 		}
-		GM_addStyle(/*css*/ `
+		addStyle(/*css*/ `
         @media (max-width: 460px) {
           .lum-lightbox-image-wrapper {
               display:flex;
@@ -292,14 +291,14 @@ const Greasyfork = {
 	 */
 	addMarkdownCopyButton() {
 		log.info("在Markdown右上角添加复制按钮");
-		GM_addStyle(/*css*/ `
+		addStyle(/*css*/ `
         pre{
           position: relative;
           margin-bottom: 0px !important;
           width: 100%;
         }
         `);
-		GM_addStyle(/*css*/ `
+		addStyle(/*css*/ `
         .snippet-clipboard-content{
           display: flex;
           justify-content: space-between;
@@ -368,7 +367,7 @@ const Greasyfork = {
           transition: none;
         }
         `);
-		GM_addStyle(/*css*/ `
+		addStyle(/*css*/ `
         .pops-tip.github-tooltip {
           border-radius: 6px;
           padding: 6px 8px;
@@ -564,7 +563,7 @@ const Greasyfork = {
 			".sidebarred .sidebar",
 			".sidebarred-main-content .open-sidebar"
 		);
-		GM_addStyle(/*css*/ `
+		addStyle(/*css*/ `
 		.sidebarred .sidebarred-main-content{
 			max-width: 100%;
 		}	

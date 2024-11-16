@@ -7,7 +7,7 @@ import {
 	KEY,
 } from "@/setting/config";
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
-import { SettingUIGeneral } from "./components/general";
+import { SettingUICommon } from "./components/common";
 import { SettingUIScripts } from "./components/scripts";
 import { SettingUIDiscuessions } from "./components/discussions";
 import UIScriptListCSS from "@/main/css/UIScriptListCSS.css?raw";
@@ -586,7 +586,7 @@ const PopsPanel = {
 	 */
 	getPanelContentConfig() {
 		let configList: PopsPanelContentConfig[] = [
-			SettingUIGeneral,
+			SettingUICommon,
 			SettingUIScripts,
 			SettingUIScriptSearch,
 			SettingUIDiscuessions,

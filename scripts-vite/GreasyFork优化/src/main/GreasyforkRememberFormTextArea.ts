@@ -72,7 +72,7 @@ export const GreasyforkRememberFormTextArea = {
 			this.$data.db
 				.get<IndexedDBReplaceRecordData[]>(this.$key.DB_KEY)
 				.then((result) => {
-					if (!result.success) {
+					if (!result.data) {
 						// 数据库是空的
 						return;
 					}
@@ -171,7 +171,7 @@ export const GreasyforkRememberFormTextArea = {
 			let result = await this.$data.db.get<IndexedDBReplaceRecordData[]>(
 				this.$key.DB_KEY
 			);
-			if (!result.success) {
+			if (!result.data) {
 				// 数据库是空的
 				log.info("表单记录：数据库是空的");
 				return;

@@ -7,8 +7,6 @@ import {
 	GM_registerMenuCommand,
 	GM_unregisterMenuCommand,
 	GM_xmlhttpRequest,
-	GM_addStyle,
-	GM_getResourceText,
 } from "ViteGM";
 import Qmsg from "qmsg";
 import DOMUtils from "@whitesev/domutils";

@@ -1,15 +1,14 @@
 import { GreasyforkApi } from "@/api/GreasyForkApi";
-import { DOMUtils, httpx, log, pops, utils } from "@/env";
+import { addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
 import { GreasyforkMenu } from "@/main/GreasyforkMenu";
 import { GreasyforkRouter } from "@/router/GreasyforkRouter";
 import { PopsPanel } from "@/setting/setting";
 import i18next from "i18next";
 import Qmsg from "qmsg";
 import { GreasyforkScriptsCode } from "./code/GreasyforkScriptsCode";
-import { GM_addStyle, unsafeWindow } from "ViteGM";
+import { unsafeWindow } from "ViteGM";
 import { GreasyforkVersions } from "./versions/GreasyforkVersions";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
-import { GreasyforkUtils } from "@/utils/GreasyforkUtils";
 import { PanelUISize } from "@/setting/panel-ui-size";
 
 let userCollection: {
@@ -416,7 +415,7 @@ export const GreasyforkScripts = {
 	 */
 	fullScreenOptimization() {
 		log.info("F11全屏，F键代码全屏");
-		GM_addStyle(/*css*/ `
+		addStyle(/*css*/ `
         .code-wide-screen{
           position: absolute;
           top: 0;
