@@ -1244,9 +1244,9 @@ class Utils {
 	} {
 		deviation = Number.isNaN(deviation) ? 1 : deviation;
 		const UtilsContext = this;
-		// 最大值2147483647
+		// 最大值 2147483647
 		const maxZIndex = Math.pow(2, 31) - 1;
-		// 比较值2000000000
+		// 比较值 2000000000
 		const maxZIndexCompare = 2 * Math.pow(10, 9);
 		// 当前页面最大的z-index
 		let zIndex = 0;
@@ -1298,7 +1298,7 @@ class Utils {
 		zIndex += deviation;
 		if (zIndex >= maxZIndexCompare) {
 			// 最好不要超过最大值
-			zIndex = maxZIndex;
+			zIndex = maxZIndexCompare;
 		}
 		return {
 			node: maxZIndexNode,
