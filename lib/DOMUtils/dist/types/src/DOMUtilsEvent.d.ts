@@ -411,6 +411,9 @@ export declare class DOMUtilsEvent {
      * @example
      * DOMUtils.selectorAll("div:regexp('^xxxx$')")
      * > [div.xxx]
+     * @example
+     * DOMUtils.selectorAll("div:regexp(/^xxx/ig)")
+     * > [div.xxx]
      */
     selectorAll<K extends keyof HTMLElementTagNameMap>(selector: K): HTMLElementTagNameMap[K][];
     selectorAll<E extends Element = Element>(selector: string): E[];
