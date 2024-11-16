@@ -62,6 +62,8 @@ export const PopsHandler = {
 	},
 	/**
 	 * 处理遮罩层
+	 *
+	 * + 设置遮罩层的点击事件
 	 * @param details 传递的配置
 	 */
 	handleMask(
@@ -130,27 +132,32 @@ export const PopsHandler = {
 			}
 			return false;
 		}
-		function isAnimElement(element: HTMLDivElement) {
-			return Boolean(
-				element?.localName?.toLowerCase() === "div" &&
-					element.className &&
-					element.className === "pops-anim" &&
-					element.hasAttribute("anim")
-			);
-		}
+		// 判断是否启用了遮罩层点击动作
 		if (
 			details.config.mask.clickEvent!.toClose ||
 			details.config.mask.clickEvent!.toHide
 		) {
+			/**
+			 * 判断点击的元素是否是动画层的元素
+			 * @param element
+			 * @returns
+			 */
+			function isAnimElement(element: HTMLElement) {
+				return Boolean(
+					element?.localName?.toLowerCase() === "div" &&
+						element.className &&
+						element.className === "pops-anim" &&
+						element.hasAttribute("anim")
+				);
+			}
 			/* 判断按下的元素是否是pops-anim */
 			popsDOMUtils.on(
 				details.animElement,
 				["touchstart", "mousedown"],
 				void 0,
 				(event) => {
-					isMaskClick = isAnimElement(
-						event.composedPath()[0] as HTMLDivElement
-					);
+					let $click = event.composedPath()[0] as HTMLElement;
+					isMaskClick = isAnimElement($click);
 				}
 			);
 			/* 如果有动画层，在动画层上监听点击事件 */
@@ -159,10 +166,8 @@ export const PopsHandler = {
 				"click",
 				void 0,
 				(event) => {
-					if (
-						isAnimElement(event.composedPath()[0] as HTMLDivElement) &&
-						isMaskClick
-					) {
+					let $click = event.composedPath()[0] as HTMLElement;
+					if (isAnimElement($click) && isMaskClick) {
 						return clickEvent(event);
 					}
 				}
@@ -183,7 +188,7 @@ export const PopsHandler = {
 	},
 	/**
 	 * 处理获取元素
-	 * @param {HTMLDivElement} animElement
+	 * @param animElement
 	 * @param type
 	 */
 	handleQueryElement(animElement: HTMLDivElement, type: PopsType) {

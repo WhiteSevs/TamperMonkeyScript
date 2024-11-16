@@ -17,6 +17,8 @@ export const PopsInstanceUtils = {
 	/**
 	 * 获取页面中最大的z-index的元素信息
 	 * @param deviation 获取最大的z-index值的偏移，默认是+1
+	 * @param node 进行判断的元素，默认是document
+	 * @param ignoreCallBack 执行元素处理时调用的函数，返回false可忽略不想要处理的元素
 	 * @example
 	 * Utils.getMaxZIndexNodeInfo();
 	 * > {
@@ -24,14 +26,20 @@ export const PopsInstanceUtils = {
 	 *   zIndex: 1001
 	 * }
 	 **/
-	getMaxZIndexNodeInfo(deviation = 1): {
+	getMaxZIndexNodeInfo(
+		deviation = 1,
+		target: Element | ShadowRoot | Document = PopsCore.document,
+		ignoreCallBack?: (
+			$ele: Element | HTMLElement | ShadowRoot
+		) => boolean | void
+	): {
 		node: Element;
 		zIndex: number;
 	} {
 		deviation = Number.isNaN(deviation) ? 1 : deviation;
-		// 最大值2147483647
-		const maxZIndex = Math.pow(2, 31) - 1;
-		// 比较值2000000000
+		// 最大值 2147483647
+		// const maxZIndex = Math.pow(2, 31) - 1;
+		// 比较值 2000000000
 		const maxZIndexCompare = 2 * Math.pow(10, 9);
 		// 当前页面最大的z-index
 		let zIndex = 0;
@@ -51,6 +59,12 @@ export const PopsInstanceUtils = {
 		 * @param $ele
 		 */
 		function queryMaxZIndex($ele: Element) {
+			if (typeof ignoreCallBack === "function") {
+				let ignoreResult = ignoreCallBack($ele);
+				if (typeof ignoreResult === "boolean" && !ignoreResult) {
+					return;
+				}
+			}
 			/** 元素的样式 */
 			const nodeStyle = PopsCore.window.getComputedStyle($ele);
 			/* 不对position为static和display为none的元素进行获取它们的z-index */
@@ -71,13 +85,13 @@ export const PopsInstanceUtils = {
 				}
 			}
 		}
-		PopsCore.document.querySelectorAll("*").forEach(($ele, index) => {
+		target.querySelectorAll("*").forEach(($ele, index) => {
 			queryMaxZIndex($ele);
 		});
 		zIndex += deviation;
 		if (zIndex >= maxZIndexCompare) {
 			// 最好不要超过最大值
-			zIndex = maxZIndex;
+			zIndex = maxZIndexCompare;
 		}
 		return {
 			node: maxZIndexNode,
@@ -85,36 +99,35 @@ export const PopsInstanceUtils = {
 		};
 	},
 	/**
-	 * 获取页面中最大的z-index
-	 * @param deviation 获取最大的z-index值的偏移，默认是+1
-	 * @example
-	 * Utils.getMaxZIndex();
-	 * > 1001
-	 **/
-	getMaxZIndex(deviation = 1): number {
-		return this.getMaxZIndexNodeInfo(deviation).zIndex;
-	},
-	/**
 	 * 获取pops所有弹窗中的最大的z-index
 	 * @param deviation
 	 */
 	getPopsMaxZIndex(deviation: number = 1) {
 		deviation = Number.isNaN(deviation) ? 1 : deviation;
-		// 最大值2147483647
-		let maxZIndex = Math.pow(2, 31) - 1;
-
+		// 最大值 2147483647
+		// 最大值 2147483647
+		// const maxZIndex = Math.pow(2, 31) - 1;
+		// 比较值 2000000000
+		const maxZIndexCompare = 2 * Math.pow(10, 9);
 		// 当前页面最大的z-index
 		let zIndex = 0;
 		// 当前的最大z-index的元素，调试使用
 		let maxZIndexNode = null as HTMLDivElement | null;
 
+		/**
+		 * 元素是否可见
+		 * @param $css
+		 */
+		function isVisibleNode($css: CSSStyleDeclaration): boolean {
+			return $css.position !== "static" && $css.display !== "none";
+		}
 		Object.keys(pops.config.layer).forEach((layerName) => {
 			let layerList = pops.config.layer[layerName as PopsLayerMode];
 			for (let index = 0; index < layerList.length; index++) {
 				const layer = layerList[index];
 				let nodeStyle = window.getComputedStyle(layer.animElement);
 				/* 不对position为static和display为none的元素进行获取它们的z-index */
-				if (nodeStyle.position !== "static" && nodeStyle.display !== "none") {
+				if (isVisibleNode(nodeStyle)) {
 					let nodeZIndex = parseInt(nodeStyle.zIndex);
 					if (!isNaN(nodeZIndex)) {
 						if (nodeZIndex > zIndex) {
@@ -126,13 +139,21 @@ export const PopsInstanceUtils = {
 			}
 		});
 		zIndex += deviation;
-		// 用于比较的值2000000000，大于该值就取该值
-		let maxZIndexCompare = 2 * Math.pow(10, 9);
 		if (zIndex >= maxZIndexCompare) {
 			// 最好不要超过最大值
-			zIndex = maxZIndex;
+			zIndex = maxZIndexCompare;
 		}
 		return { zIndex: zIndex, animElement: maxZIndexNode };
+	},
+	/**
+	 * 获取页面中最大的z-index
+	 * @param deviation 获取最大的z-index值的偏移，默认是+1
+	 * @example
+	 * Utils.getMaxZIndex();
+	 * > 1001
+	 **/
+	getMaxZIndex(deviation = 1): number {
+		return this.getMaxZIndexNodeInfo(deviation).zIndex;
 	},
 	/**
 	 * 获取CSS Rule

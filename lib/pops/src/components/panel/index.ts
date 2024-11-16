@@ -93,19 +93,19 @@ export class PopsPanel {
 		/**
 		 * 已创建的元素列表
 		 */
-		let elementList: HTMLElement[] = [$anim];
+		let isCreatedElementList: HTMLElement[] = [$anim];
 
 		/* 遮罩层元素 */
 		if (config.mask.enable) {
-			let _handleMask_ = PopsHandler.handleMask({
+			let { maskElement } = PopsHandler.handleMask({
 				type: PopsType,
 				guid: guid,
 				config: config,
 				animElement: $anim,
 				maskHTML: maskHTML,
 			});
-			$mask = _handleMask_.maskElement;
-			elementList.push($mask);
+			$mask = maskElement;
+			isCreatedElementList.push($mask);
 		}
 
 		/* 处理返回的配置 */
@@ -128,7 +128,7 @@ export class PopsPanel {
 		);
 
 		/* 创建到页面中 */
-		popsDOMUtils.append($shadowRoot, elementList);
+		popsDOMUtils.append($shadowRoot, isCreatedElementList);
 		if (typeof config.beforeAppendToPageCallBack === "function") {
 			config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
 		}

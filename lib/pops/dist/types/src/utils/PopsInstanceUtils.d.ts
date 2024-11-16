@@ -12,6 +12,8 @@ export declare const PopsInstanceUtils: {
     /**
      * 获取页面中最大的z-index的元素信息
      * @param deviation 获取最大的z-index值的偏移，默认是+1
+     * @param node 进行判断的元素，默认是document
+     * @param ignoreCallBack 执行元素处理时调用的函数，返回false可忽略不想要处理的元素
      * @example
      * Utils.getMaxZIndexNodeInfo();
      * > {
@@ -19,9 +21,17 @@ export declare const PopsInstanceUtils: {
      *   zIndex: 1001
      * }
      **/
-    getMaxZIndexNodeInfo(deviation?: number): {
+    getMaxZIndexNodeInfo(deviation?: number, target?: Element | ShadowRoot | Document, ignoreCallBack?: ($ele: Element | HTMLElement | ShadowRoot) => boolean | void): {
         node: Element;
         zIndex: number;
+    };
+    /**
+     * 获取pops所有弹窗中的最大的z-index
+     * @param deviation
+     */
+    getPopsMaxZIndex(deviation?: number): {
+        zIndex: number;
+        animElement: HTMLDivElement | null;
     };
     /**
      * 获取页面中最大的z-index
@@ -31,14 +41,6 @@ export declare const PopsInstanceUtils: {
      * > 1001
      **/
     getMaxZIndex(deviation?: number): number;
-    /**
-     * 获取pops所有弹窗中的最大的z-index
-     * @param deviation
-     */
-    getPopsMaxZIndex(deviation?: number): {
-        zIndex: number;
-        animElement: HTMLDivElement | null;
-    };
     /**
      * 获取CSS Rule
      * @param sheet

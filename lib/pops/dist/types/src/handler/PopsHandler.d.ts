@@ -25,6 +25,8 @@ export declare const PopsHandler: {
     handleInit($shadowRoot?: ShadowRoot, cssText?: string | string[]): void;
     /**
      * 处理遮罩层
+     *
+     * + 设置遮罩层的点击事件
      * @param details 传递的配置
      */
     handleMask(details?: {
@@ -38,7 +40,7 @@ export declare const PopsHandler: {
     };
     /**
      * 处理获取元素
-     * @param {HTMLDivElement} animElement
+     * @param animElement
      * @param type
      */
     handleQueryElement(animElement: HTMLDivElement, type: PopsType): {

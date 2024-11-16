@@ -146,15 +146,15 @@ declare class Pops {
         };
         /** pops创建的实例使用的工具类 */
         InstanceUtils: {
-            getMaxZIndexNodeInfo(deviation?: number): {
+            getMaxZIndexNodeInfo(deviation?: number, target?: Element | ShadowRoot | Document, ignoreCallBack?: ($ele: Element | HTMLElement | ShadowRoot) => boolean | void): {
                 node: Element;
                 zIndex: number;
             };
-            getMaxZIndex(deviation?: number): number;
             getPopsMaxZIndex(deviation?: number): {
                 zIndex: number;
                 animElement: HTMLDivElement | null;
             };
+            getMaxZIndex(deviation?: number): number;
             getKeyFrames(sheet: CSSStyleSheet): {};
             removeInstance(moreLayerConfigList: PopsLayerCommonConfig[][], guid: string, isAll?: boolean): PopsLayerCommonConfig[][];
             hide(popsType: PopsLayerMode, layerConfigList: PopsLayerCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement, maskElement: HTMLElement): void;
