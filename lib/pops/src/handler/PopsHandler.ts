@@ -658,20 +658,13 @@ export const PopsHandler = {
 		} else {
 			// 对配置进行处理
 			// 选择配置的z-index和已有的pops实例的最大z-index值
-			if (typeof config.zIndex === "function") {
-				let originZIndexFn = config.zIndex;
-				config.zIndex = () => {
-					const { zIndex: maxZIndex } = PopsInstanceUtils.getPopsMaxZIndex(
-						PopsHandler.handleZIndex(originZIndexFn) + 100
-					);
-					return maxZIndex;
-				};
-			} else {
+			let originZIndex = config.zIndex;
+			config.zIndex = () => {
 				const { zIndex: maxZIndex } = PopsInstanceUtils.getPopsMaxZIndex(
-					PopsHandler.handleZIndex(config.zIndex) + 100
+					PopsHandler.handleZIndex(originZIndex) + 100
 				);
-				config.zIndex = maxZIndex;
-			}
+				return maxZIndex;
+			};
 		}
 		return config;
 	},

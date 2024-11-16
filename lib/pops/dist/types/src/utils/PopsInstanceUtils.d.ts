@@ -32,12 +32,13 @@ export declare const PopsInstanceUtils: {
     getPopsMaxZIndex(deviation?: number): {
         zIndex: number;
         animElement: HTMLDivElement | null;
+        isOverMaxZIndex: boolean;
     };
     /**
      * 获取页面中最大的z-index
      * @param deviation 获取最大的z-index值的偏移，默认是+1
      * @example
-     * Utils.getMaxZIndex();
+     * getMaxZIndex();
      * > 1001
      **/
     getMaxZIndex(deviation?: number): number;

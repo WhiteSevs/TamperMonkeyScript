@@ -105,10 +105,9 @@ export const PopsInstanceUtils = {
 	getPopsMaxZIndex(deviation: number = 1) {
 		deviation = Number.isNaN(deviation) ? 1 : deviation;
 		// 最大值 2147483647
-		// 最大值 2147483647
-		// const maxZIndex = Math.pow(2, 31) - 1;
+		// const browserMaxZIndex = Math.pow(2, 31) - 1;
 		// 比较值 2000000000
-		const maxZIndexCompare = 2 * Math.pow(10, 9);
+		const maxZIndex = 2 * Math.pow(10, 9);
 		// 当前页面最大的z-index
 		let zIndex = 0;
 		// 当前的最大z-index的元素，调试使用
@@ -139,17 +138,18 @@ export const PopsInstanceUtils = {
 			}
 		});
 		zIndex += deviation;
-		if (zIndex >= maxZIndexCompare) {
-			// 最好不要超过最大值
-			zIndex = maxZIndexCompare;
+		let isOverMaxZIndex = zIndex >= maxZIndex;
+		if (isOverMaxZIndex) {
+			// 超出z-index最大值
+			zIndex = maxZIndex;
 		}
-		return { zIndex: zIndex, animElement: maxZIndexNode };
+		return { zIndex: zIndex, animElement: maxZIndexNode, isOverMaxZIndex };
 	},
 	/**
 	 * 获取页面中最大的z-index
 	 * @param deviation 获取最大的z-index值的偏移，默认是+1
 	 * @example
-	 * Utils.getMaxZIndex();
+	 * getMaxZIndex();
 	 * > 1001
 	 **/
 	getMaxZIndex(deviation = 1): number {

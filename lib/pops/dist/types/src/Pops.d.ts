@@ -153,6 +153,7 @@ declare class Pops {
             getPopsMaxZIndex(deviation?: number): {
                 zIndex: number;
                 animElement: HTMLDivElement | null;
+                isOverMaxZIndex: boolean;
             };
             getMaxZIndex(deviation?: number): number;
             getKeyFrames(sheet: CSSStyleSheet): {};
