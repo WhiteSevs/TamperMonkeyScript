@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.11.16
+// @version            2024.11.16.12
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -11,9 +11,9 @@
 // @supportURL         https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match              *://greasyfork.org/*
 // @require            https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.2/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.3/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@1.8.9/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.0/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require            https://fastly.jsdelivr.net/npm/i18next@23.15.1/i18next.min.js
@@ -2697,14 +2697,14 @@
               style: (
                 /*css*/
                 `
-					.pops-alert-content{
-						font-style: italic;
-						background-color: #ffc;
-						border: none;
-						border-left: 6px solid #FFEB3B;
-						padding: .5em;
-					}
-					`
+						.pops-alert-content{
+							font-style: italic;
+							background-color: #ffc;
+							border: none;
+							border-left: 6px solid #FFEB3B;
+							padding: .5em;
+						}
+						`
               ),
               drag: true,
               dragLimit: true,
@@ -6681,7 +6681,7 @@
         }
         `
       );
-      function viewIMG(imgList = [], _index_ = 0) {
+      function viewIMG(imgList = [], viewIndex = 0) {
         let viewerULNodeHTML = "";
         imgList.forEach((item) => {
           viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
@@ -6697,8 +6697,8 @@
             viewer.destroy();
           }
         });
-        _index_ = _index_ < 0 ? 0 : _index_;
-        viewer.view(_index_);
+        viewIndex = viewIndex < 0 ? 0 : viewIndex;
+        viewer.view(viewIndex);
         viewer.zoomTo(1);
         viewer.show();
       }
@@ -6711,23 +6711,27 @@
         "img",
         function(event) {
           var _a2;
-          let imgElement = event.target;
-          if (((_a2 = imgElement.parentElement) == null ? void 0 : _a2.localName) === "a" && imgElement.hasAttribute("data-screenshots")) {
+          let $img = event.target;
+          if (((_a2 = $img.parentElement) == null ? void 0 : _a2.localName) === "a" && $img.hasAttribute("data-screenshots")) {
             return;
           }
-          if (imgElement.closest(".viewer-container")) {
+          if ($img.closest(".viewer-container")) {
             return;
           }
-          if (imgElement.closest(".lum-lightbox-position-helper")) {
+          if ($img.closest(".lum-lightbox-position-helper")) {
             return;
           }
-          let userContentElement = imgElement.closest(".user-content");
+          let userContentElement = $img.closest(".user-content");
           let imgList = [];
           let imgIndex = 0;
           let imgElementList = [];
-          let currentImgSrc = getImgElementSrc(imgElement);
-          if (currentImgSrc == null ? void 0 : currentImgSrc.startsWith("https://img.shields.io")) {
-            return;
+          let currentImgSrc = getImgElementSrc($img);
+          if (currentImgSrc) {
+            if (currentImgSrc.startsWith("https://img.shields.io")) {
+              return;
+            } else if (currentImgSrc.startsWith("/vite/assets/")) {
+              return;
+            }
           }
           if (userContentElement) {
             userContentElement.querySelectorAll("img").forEach((childImgElement) => {
@@ -6739,7 +6743,7 @@
               }
               imgList.push(imgSrc);
             });
-            imgIndex = imgElementList.indexOf(imgElement);
+            imgIndex = imgElementList.indexOf($img);
             if (imgIndex === -1) {
               imgIndex = 0;
             }

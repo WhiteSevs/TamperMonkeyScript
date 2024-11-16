@@ -228,14 +228,14 @@ export const GreasyforkScriptsCollectEvent = async function (
 							},
 						},
 						style: /*css*/ `
-					.pops-alert-content{
-						font-style: italic;
-						background-color: #ffc;
-						border: none;
-						border-left: 6px solid #FFEB3B;
-						padding: .5em;
-					}
-					`,
+						.pops-alert-content{
+							font-style: italic;
+							background-color: #ffc;
+							border: none;
+							border-left: 6px solid #FFEB3B;
+							padding: .5em;
+						}
+						`,
 						drag: true,
 						dragLimit: true,
 						width: PanelUISize.info.width,

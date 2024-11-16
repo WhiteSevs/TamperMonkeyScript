@@ -136,9 +136,9 @@ const Greasyfork = {
 		/**
 		 * 查看图片
 		 * @param imgList
-		 * @param _index_
+		 * @param viewIndex
 		 */
-		function viewIMG(imgList: string[] = [], _index_ = 0) {
+		function viewIMG(imgList: string[] = [], viewIndex = 0) {
 			let viewerULNodeHTML = "";
 			imgList.forEach((item) => {
 				viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
@@ -154,8 +154,8 @@ const Greasyfork = {
 					viewer.destroy();
 				},
 			});
-			_index_ = _index_ < 0 ? 0 : _index_;
-			viewer.view(_index_);
+			viewIndex = viewIndex < 0 ? 0 : viewIndex;
+			viewer.view(viewIndex);
 			viewer.zoomTo(1);
 			viewer.show();
 		}
@@ -175,24 +175,24 @@ const Greasyfork = {
 			"click",
 			"img",
 			function (event) {
-				let imgElement = event.target as HTMLImageElement;
+				let $img = event.target as HTMLImageElement;
 				/* 在超链接标签里 */
 				if (
-					imgElement.parentElement?.localName === "a" &&
-					imgElement.hasAttribute("data-screenshots")
+					$img.parentElement?.localName === "a" &&
+					$img.hasAttribute("data-screenshots")
 				) {
 					return;
 				}
 				/* Viewer的图片浏览 */
-				if (imgElement.closest(".viewer-container")) {
+				if ($img.closest(".viewer-container")) {
 					return;
 				}
 				/* GreasFork自带的图片浏览 */
-				if (imgElement.closest(".lum-lightbox-position-helper")) {
+				if ($img.closest(".lum-lightbox-position-helper")) {
 					return;
 				}
 				/* 判断是否是user-content内的，如果是，多图片模式 */
-				let userContentElement = imgElement.closest(".user-content");
+				let userContentElement = $img.closest(".user-content");
 				/* 图片链接数组 */
 				let imgList: string[] = [];
 				/* 当前图片的下标 */
@@ -200,11 +200,17 @@ const Greasyfork = {
 				/* 图片元素数组 */
 				let imgElementList: HTMLImageElement[] = [];
 				/* 当前的图片的链接 */
-				let currentImgSrc = getImgElementSrc(imgElement);
-				if (currentImgSrc?.startsWith("https://img.shields.io")) {
-					/** shields.io的图标 */
-					return;
+				let currentImgSrc = getImgElementSrc($img);
+				if (currentImgSrc) {
+					if (currentImgSrc.startsWith("https://img.shields.io")) {
+						/** shields.io的图标 */
+						return;
+					} else if (currentImgSrc.startsWith("/vite/assets/")) {
+						// gf的资源
+						return;
+					}
 				}
+
 				if (userContentElement) {
 					userContentElement
 						.querySelectorAll("img")
@@ -217,7 +223,7 @@ const Greasyfork = {
 							}
 							imgList.push(imgSrc as string);
 						});
-					imgIndex = imgElementList.indexOf(imgElement);
+					imgIndex = imgElementList.indexOf($img);
 					if (imgIndex === -1) {
 						imgIndex = 0;
 					}
