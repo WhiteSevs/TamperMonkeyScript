@@ -3,7 +3,7 @@ import { $, DOMUtils, addStyle, log, pops, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 import { DouYinRouter } from "@/router/DouYinRouter";
-import MobileCSS from "./mobile.css?raw";
+import MobileCSS from "./css/mobile.css?raw";
 import Qmsg from "qmsg";
 import { DouYin } from "../DouYin";
 import { DouYinVideoPlayerBlockElement } from "./DouYinVideoPlayerBlockElement";

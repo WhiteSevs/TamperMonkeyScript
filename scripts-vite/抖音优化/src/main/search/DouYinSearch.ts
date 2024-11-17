@@ -1,5 +1,5 @@
 import { DOMUtils, addStyle, log, utils } from "@/env";
-import MobileCSS from "./mobile.css?raw";
+import MobileCSS from "./css/mobile.css?raw";
 import { DouYinSearchHideElement } from "./DouYinSearchHideElement";
 import Qmsg from "qmsg";
 import { PopsPanel } from "@/setting/setting";
