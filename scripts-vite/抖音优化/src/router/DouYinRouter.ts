@@ -17,8 +17,10 @@ export const DouYinRouter = {
 	isIndex() {
 		return window.location.hostname === "www.douyin.com";
 	},
-	/** 视频 */
-	isVideo() {
+	/**
+	 * 推荐视频
+	 */
+	isRecommend() {
 		return this.isIndex();
 	},
 	/** 搜索 */
@@ -35,4 +37,10 @@ export const DouYinRouter = {
 	isUser() {
 		return this.isIndex() && window.location.pathname.startsWith("/user");
 	},
+	/**
+	 * 
+	 */
+	isVideo(){
+		return this.isIndex() && window.location.pathname.startsWith("/video");
+	}
 };

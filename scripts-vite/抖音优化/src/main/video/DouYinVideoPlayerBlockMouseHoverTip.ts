@@ -2,17 +2,17 @@ import { log } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { CommonUtil } from "@/utils/CommonUtil";
 
-export const DouYinVideoBlockMouseHoverTip = {
+export const DouYinVideoPlayerBlockMouseHoverTip = {
 	init() {
 		// 右侧工具栏的
-		DouYinVideoBlockMouseHoverTip_RightToolBar.init();
+		DouYinVideoPlayerBlockMouseHoverTip_RightToolBar.init();
 
 		// 底部工具栏的
-		DouYinVideoBlockMouseHoverTip_BottomToolBar.init();
+		DouYinVideoPlayerBlockMouseHoverTip_BottomToolBar.init();
 	},
 };
 
-export const DouYinVideoBlockMouseHoverTip_RightToolBar = {
+export const DouYinVideoPlayerBlockMouseHoverTip_RightToolBar = {
 	init() {
 		PopsPanel.execMenuOnce(
 			"dy-video-mouseHoverTip-rightToolBar-enterUserHome",
@@ -114,7 +114,7 @@ export const DouYinVideoBlockMouseHoverTip_RightToolBar = {
 	},
 };
 
-export const DouYinVideoBlockMouseHoverTip_BottomToolBar = {
+export const DouYinVideoPlayerBlockMouseHoverTip_BottomToolBar = {
 	init() {
 		PopsPanel.execMenuOnce(
 			"dy-video-mouseHoverTip-bottomToolBar-automaticBroadcast",

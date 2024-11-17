@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.16
+// @version      2024.11.17.17
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @match        *://*.iesdouyin.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @connect      *
@@ -2497,8 +2497,10 @@
     isIndex() {
       return window.location.hostname === "www.douyin.com";
     },
-    /** 视频 */
-    isVideo() {
+    /**
+     * 推荐视频
+     */
+    isRecommend() {
       return this.isIndex();
     },
     /** 搜索 */
@@ -2510,10 +2512,16 @@
      */
     isUser() {
       return this.isIndex() && window.location.pathname.startsWith("/user");
+    },
+    /**
+     * 
+     */
+    isVideo() {
+      return this.isIndex() && window.location.pathname.startsWith("/video");
     }
   };
   const MobileCSS$1 = '/* 右侧工具栏放大 */\r\n.basePlayerContainer .positionBox {\r\n	bottom: 80px !important;\r\n	padding-right: 5px !important;\r\n	scale: unset !important;\r\n	transform: scale3d(1.12, 1.12, 1.12) !important;\r\n}\r\n/* 右侧工具栏的svg再放大 */\r\n.basePlayerContainer .positionBox svg {\r\n	transform: scale3d(1.12, 1.12, 1.12);\r\n}\r\n/* 重置关注按钮的scale */\r\n.basePlayerContainer\r\n	.positionBox\r\n	.dy-tip-container\r\n	div[data-e2e="feed-follow-icon"]\r\n	svg {\r\n	scale: unset !important;\r\n}\r\n/* 设备处于横向方向，即宽度大于高度。 */\r\n@media screen and (orientation: landscape) {\r\n	/* 右侧工具栏放大 */\r\n	.basePlayerContainer .positionBox {\r\n		/*transform: scale(0.95) !important;\r\n		bottom: 42px !important;*/\r\n		padding-right: 10px !important;\r\n	}\r\n}\r\n/* 该设备是纵向的，即高度大于或等于宽度 */\r\n@media screen and (orientation: portrait) {\r\n	/* /video/xxx页面 */\r\n	/* 点赞、评论、分享偏移 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.basePlayerContainer\r\n		.positionBox {\r\n		padding-right: 30px !important;\r\n	}\r\n	/* 底部工具栏右侧的按钮 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.xgplayer.xgplayer-pc\r\n		.xg-right-grid {\r\n		margin-right: 35px !important;\r\n	}\r\n	/* 评论区全屏 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n		width: 100vw !important;\r\n	}\r\n}\r\n\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#slidelist {\r\n		width: 100vw;\r\n		height: 100vh;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: 150px;\r\n		padding-right: 0;\r\n		max-width: unset;\r\n	}\r\n	/* 搜索框获取焦点时自动放大宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]:focus) {\r\n		width: 100vw;\r\n		width: 100dvw;\r\n	}\r\n	/* 去除设置min-width超出浏览器宽度的问题 */\r\n	body {\r\n		min-width: 100% !important;\r\n	}\r\n	/* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n	#douyin-right-container #douyin-header {\r\n		width: 100%;\r\n	}\r\n	/* 去除设置 */\r\n	#douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n		min-width: 100%;\r\n	}\r\n}\r\n';
-  const DouYinVideoCommentBlockElement = {
+  const DouYinVideoPlayerCommentBlockElement = {
     init() {
       PopsPanel.execMenuOnce("dy-video-shieldUserCommentToolBar", () => {
         return this.shieldUserCommentToolBar();
@@ -2540,7 +2548,7 @@
       return [CommonUtil.addBlockCSS(".comment-header-with-search")];
     }
   };
-  const DouYinVideoBlockElement_BottomToolbar = {
+  const DouYinVideoPlayerBlockElement_BottomToolbar = {
     init() {
       PopsPanel.execMenuOnce("shieldBottomVideoToolBar", () => {
         return this.shieldBottomVideoToolBar();
@@ -2590,7 +2598,7 @@
       ];
     }
   };
-  const DouYinVideoBlockElement_RightToolbar = {
+  const DouYinVideoPlayerBlockElement_RightToolbar = {
     init() {
       PopsPanel.execMenuOnce("shieldPlaySwitchButton", () => {
         return this.shieldPlaySwitchButton();
@@ -2755,7 +2763,7 @@
       ];
     }
   };
-  const DouYinVideoBlockElement = {
+  const DouYinVideoPlayerBlockElement = {
     init() {
       PopsPanel.execMenuOnce("shieldRightExpandCommentButton", () => {
         return this.shieldRightExpandCommentButton();
@@ -2769,9 +2777,9 @@
       PopsPanel.execMenuOnce("dy-video-blockShopInfo", () => {
         return this.blockShopInfo();
       });
-      DouYinVideoBlockElement_BottomToolbar.init();
-      DouYinVideoBlockElement_RightToolbar.init();
-      DouYinVideoCommentBlockElement.init();
+      DouYinVideoPlayerBlockElement_BottomToolbar.init();
+      DouYinVideoPlayerBlockElement_RightToolbar.init();
+      DouYinVideoPlayerCommentBlockElement.init();
     },
     /**
      * 【屏蔽】右侧的展开评论按钮
@@ -3197,7 +3205,52 @@
       _GM_deleteValue(this.key);
     }
   }
-  const DouYinRecommendVideo = {
+  const DouYinRecommendVideoFilter = {
+    __videoFilter: null,
+    get videoFilter() {
+      if (this.__videoFilter == null) {
+        const KEY2 = "douyin-shield-rule";
+        const isBlockLiveVideo = PopsPanel.getValue("shieldVideo-live");
+        const isBlockAdsVideo = PopsPanel.getValue("shieldVideo-ads");
+        this.__videoFilter = new DouYinVideoFilter({
+          key: KEY2,
+          isBlockLiveVideo,
+          isBlockAdsVideo
+        });
+      }
+      return this.__videoFilter;
+    },
+    init() {
+      let errorFindCount = 0;
+      DouYinElement.watchVideDataListChange(
+        utils.debounce((osElement, observer) => {
+          let awemeInfoList = DouYinRecommendVideoFilter.getAllVideoAwemeInfo();
+          if (!awemeInfoList.length) {
+            errorFindCount++;
+            if (errorFindCount >= 50) {
+              observer.disconnect();
+              log.error("未获取到视频列表元素次数超过50次, 停止监听");
+            }
+            log.error("未获取到视频列表元素");
+            return;
+          }
+          for (let index = 0; index < awemeInfoList.length; index++) {
+            let awemeInfo = awemeInfoList[index];
+            let flag = this.videoFilter.checkAwemeInfoIsFilter(awemeInfo);
+            if (flag) {
+              if (awemeInfoList.length === 1) {
+                log.warn(
+                  "检测到视频列表只剩最后一个，删除的话无法触发更新，暂不删除"
+                );
+                break;
+              }
+              awemeInfoList.splice(index, 1);
+              index--;
+            }
+          }
+        }, 50)
+      );
+    },
     /**
      * 获取当前播放的视频信息
      */
@@ -3236,53 +3289,6 @@
       }
       let awemeInfoList = reactFiber == null ? void 0 : reactFiber.return.memoizedProps.data;
       return awemeInfoList;
-    }
-  };
-  const DouYinRecommendVideoFilter = {
-    __videoFilter: null,
-    get videoFilter() {
-      if (this.__videoFilter == null) {
-        const KEY2 = "douyin-shield-rule";
-        const isBlockLiveVideo = PopsPanel.getValue("shieldVideo-live");
-        const isBlockAdsVideo = PopsPanel.getValue("shieldVideo-ads");
-        this.__videoFilter = new DouYinVideoFilter({
-          key: KEY2,
-          isBlockLiveVideo,
-          isBlockAdsVideo
-        });
-      }
-      return this.__videoFilter;
-    },
-    init() {
-      let errorFindCount = 0;
-      DouYinElement.watchVideDataListChange(
-        utils.debounce((osElement, observer) => {
-          let awemeInfoList = DouYinRecommendVideo.getAllVideoAwemeInfo();
-          if (!awemeInfoList.length) {
-            errorFindCount++;
-            if (errorFindCount >= 50) {
-              observer.disconnect();
-              log.error("未获取到视频列表元素次数超过50次, 停止监听");
-            }
-            log.error("未获取到视频列表元素");
-            return;
-          }
-          for (let index = 0; index < awemeInfoList.length; index++) {
-            let awemeInfo = awemeInfoList[index];
-            let flag = this.videoFilter.checkAwemeInfoIsFilter(awemeInfo);
-            if (flag) {
-              if (awemeInfoList.length === 1) {
-                log.warn(
-                  "检测到视频列表只剩最后一个，删除的话无法触发更新，暂不删除"
-                );
-                break;
-              }
-              awemeInfoList.splice(index, 1);
-              index--;
-            }
-          }
-        }, 50)
-      );
     },
     get() {
       return this.videoFilter.get();
@@ -3388,13 +3394,13 @@
       log.success(`发现残留的手势返回hash，已清理 ==> ` + findValue);
     }
   };
-  const DouYinVideoBlockMouseHoverTip = {
+  const DouYinVideoPlayerBlockMouseHoverTip = {
     init() {
-      DouYinVideoBlockMouseHoverTip_RightToolBar.init();
-      DouYinVideoBlockMouseHoverTip_BottomToolBar.init();
+      DouYinVideoPlayerBlockMouseHoverTip_RightToolBar.init();
+      DouYinVideoPlayerBlockMouseHoverTip_BottomToolBar.init();
     }
   };
-  const DouYinVideoBlockMouseHoverTip_RightToolBar = {
+  const DouYinVideoPlayerBlockMouseHoverTip_RightToolBar = {
     init() {
       PopsPanel.execMenuOnce(
         "dy-video-mouseHoverTip-rightToolBar-enterUserHome",
@@ -3495,7 +3501,7 @@
       );
     }
   };
-  const DouYinVideoBlockMouseHoverTip_BottomToolBar = {
+  const DouYinVideoPlayerBlockMouseHoverTip_BottomToolBar = {
     init() {
       PopsPanel.execMenuOnce(
         "dy-video-mouseHoverTip-bottomToolBar-automaticBroadcast",
@@ -3571,26 +3577,26 @@
       return CommonUtil.addBlockCSS(`.xgplayer-fullscreen .xg-tips`);
     }
   };
-  const DouYinVideo = {
+  const DouYinVideoPlayer = {
     init() {
-      DouYinVideoBlockElement.init();
+      DouYinVideoPlayerBlockElement.init();
       PopsPanel.onceExec("dy-short-cut", () => {
-        DouYinVideoShortcut.init();
+        DouYinVideoPlayerShortCut.init();
       });
-      DouYinVideoBlockMouseHoverTip.init();
+      DouYinVideoPlayerBlockMouseHoverTip.init();
       if (!DouYinRouter.isSearch()) {
         PopsPanel.execMenuOnce("shieldVideo", () => {
           DouYinRecommendVideoFilter.init();
         });
       }
       PopsPanel.execMenuOnce("changeCommentToBottom", () => {
-        DouYinVideo.changeCommentToBottom();
+        DouYinVideoPlayer.changeCommentToBottom();
       });
       PopsPanel.execMenuOnce("fullScreen", () => {
         return this.fullScreen();
       });
       PopsPanel.execMenuOnce("parseVideo", () => {
-        DouYinVideo.parseVideo();
+        DouYinVideoPlayer.parseVideo();
       });
       PopsPanel.execInheritMenuOnce(
         "autoEnterElementFullScreen",
@@ -3630,7 +3636,7 @@
         this.gestureBackCloseComment();
       });
       domUtils.ready(() => {
-        DouYinVideo.chooseVideoDefinition(
+        DouYinVideoPlayer.chooseVideoDefinition(
           PopsPanel.getValue("chooseVideoDefinition")
         );
         PopsPanel.execMenuOnce("mobileMode", () => {
@@ -3657,7 +3663,7 @@
           "xg-controls.xgplayer-controls"
         )
       );
-      result.push(DouYinVideoBlockElement.shieldSearchFloatingBar());
+      result.push(DouYinVideoPlayerBlockElement.shieldSearchFloatingBar());
       result.push(
         addStyle(
           /*css*/
@@ -3710,7 +3716,7 @@
           (event) => {
             if (isDouble) {
               isDouble = false;
-              DouYinVideo.autoEnterElementFullScreen(true);
+              DouYinVideoPlayer.autoEnterElementFullScreen(true);
             } else {
               isDouble = true;
               setTimeout(() => {
@@ -4238,7 +4244,7 @@
       );
     }
   };
-  const DouYinVideoShortcut = {
+  const DouYinVideoPlayerShortCut = {
     shortCut: new ShortCut("video-short-cut"),
     $data: {
       rateMap: ["0.75", "1", "1.25", "1.5", "1.75", "2", "3"]
@@ -4253,7 +4259,7 @@
           callback() {
             log.info("快捷键 ==> 调用倍速：小");
             let currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
-            let findIndex = DouYinVideoShortcut.$data.rateMap.findIndex(
+            let findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex(
               (rate) => {
                 return rate === currentRate;
               }
@@ -4262,9 +4268,9 @@
               log.warn("快捷键 ==> 已是最小倍速: " + currentRate);
               return;
             }
-            let prevRate = DouYinVideoShortcut.$data.rateMap[findIndex - 1];
+            let prevRate = DouYinVideoPlayerShortCut.$data.rateMap[findIndex - 1];
             log.info("快捷键 ==> 设置倍速: " + prevRate);
-            DouYinVideo.chooseVideoRate(prevRate);
+            DouYinVideoPlayer.chooseVideoRate(prevRate);
           }
         },
         "dy-video-rate-up": {
@@ -4272,18 +4278,18 @@
           callback() {
             log.info("快捷键 ==> 调用倍速：大");
             let currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
-            let findIndex = DouYinVideoShortcut.$data.rateMap.findIndex(
+            let findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex(
               (rate) => {
                 return rate === currentRate;
               }
             );
-            if (findIndex === DouYinVideoShortcut.$data.rateMap.length - 1) {
+            if (findIndex === DouYinVideoPlayerShortCut.$data.rateMap.length - 1) {
               log.warn("快捷键 ==> 已是最大倍速: " + currentRate);
               return;
             }
-            let nextRate = DouYinVideoShortcut.$data.rateMap[findIndex + 1];
+            let nextRate = DouYinVideoPlayerShortCut.$data.rateMap[findIndex + 1];
             log.info("快捷键 ==> 设置倍速: " + nextRate);
-            DouYinVideo.chooseVideoRate(nextRate);
+            DouYinVideoPlayer.chooseVideoRate(nextRate);
           }
         },
         "dy-video-shortcut-immersionMode": {
@@ -4293,7 +4299,7 @@
             let value = PopsPanel.getValue("fullScreen");
             PopsPanel.setValue("fullScreen", !value);
             PopsPanel.execMenuOnce("fullScreen", () => {
-              return DouYinVideo.fullScreen();
+              return DouYinVideoPlayer.fullScreen();
             });
           }
         }
@@ -4577,7 +4583,7 @@
                     void 0,
                     "点击录入快捷键",
                     void 0,
-                    DouYinVideoShortcut.shortCut
+                    DouYinVideoPlayerShortCut.shortCut
                   ),
                   UIButtonShortCut(
                     "倍速 -> 大",
@@ -4586,7 +4592,7 @@
                     void 0,
                     "点击录入快捷键",
                     void 0,
-                    DouYinVideoShortcut.shortCut
+                    DouYinVideoPlayerShortCut.shortCut
                   ),
                   UIButtonShortCut(
                     "沉浸模式",
@@ -4595,7 +4601,7 @@
                     void 0,
                     "点击录入快捷键",
                     void 0,
-                    DouYinVideoShortcut.shortCut
+                    DouYinVideoPlayerShortCut.shortCut
                   )
                 ]
               }
@@ -5350,7 +5356,7 @@
       );
       let awemeInfo = void 0;
       if (choose === "1" || choose === "3") {
-        awemeInfo = DouYinRecommendVideo.getCurrentActiveVideoInfo();
+        awemeInfo = DouYinRecommendVideoFilter.getCurrentActiveVideoInfo();
         if (awemeInfo == null) {
           Qmsg.error("获取当前播放的视频信息失败，详情请看控制台");
           return;
@@ -5366,10 +5372,12 @@
             4
           );
         } else if (choose === "2") {
-          let allAwemeInfoList = DouYinRecommendVideo.getAllVideoAwemeInfo();
+          let allAwemeInfoList = DouYinRecommendVideoFilter.getAllVideoAwemeInfo();
           let allAwemeDictInfoList = [];
           allAwemeInfoList.forEach((awemeInfo2) => {
-            allAwemeDictInfoList.push(videoFilter.getAwemeInfoDictData(awemeInfo2));
+            allAwemeDictInfoList.push(
+              videoFilter.getAwemeInfoDictData(awemeInfo2)
+            );
           });
           log.info(["全部的awemeInfo信息↓", allAwemeInfoList]);
           log.info(["解析出全部的awemeInfo的字典信息↓", allAwemeDictInfoList]);
@@ -6918,7 +6926,7 @@
       PopsPanel.execMenu("dy-cookie-remove__ac__", () => {
         this.removeCookie();
       });
-      if (DouYinRouter.isVideo()) {
+      if (DouYinRouter.isRecommend()) {
         PopsPanel.execMenuOnce("dy-video-disableDoubleClickLike", () => {
           DouYinHook.disableDoubleClickLike();
         });
@@ -7090,7 +7098,7 @@
                 code: ["KeyN"]
               }
             ];
-            if (DouYinRouter.isVideo()) {
+            if (DouYinRouter.isRecommend()) {
               keyboardConfigList.push(
                 {
                   enableKey: "dy-keyboard-hook-arrowUp-w",
@@ -7795,9 +7803,15 @@
       );
     }
   };
-  const blockCSS$6 = "/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */\r\n#douyin-web-download-guide-container {\r\n	display: none !important;\r\n}\r\n";
-  const blockCSS$5 = '/* 资料右边的 下载桌面客户端，桌面快捷访问 */\r\ndiv[data-e2e="user-detail"] div:has(> div > a[href*="douyin-pc"]) {\r\n	display: none !important;\r\n}\r\n';
+  const blockCSS$7 = "/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */\r\n#douyin-web-download-guide-container {\r\n	display: none !important;\r\n}\r\n";
+  const blockCSS$6 = '/* 资料右边的 下载桌面客户端，桌面快捷访问 */\r\ndiv[data-e2e="user-detail"] div:has(> div > a[href*="douyin-pc"]) {\r\n	display: none !important;\r\n}\r\n';
   const DouYinUser = {
+    init() {
+      addStyle(blockCSS$6);
+    }
+  };
+  const blockCSS$5 = '/* 单个视频页面右侧的 下载客户端，桌面快捷访问 */\r\ndiv[data-e2e="video-detail"] div>:has(>div:last-child> a[href*="douyin-pc-web"]){\r\n	display: none !important;\r\n}\r\n';
+  const DouYinVideo = {
     init() {
       addStyle(blockCSS$5);
     }
@@ -7805,7 +7819,7 @@
   const DouYin = {
     init() {
       PopsPanel.onceExec("dy-global-block-css", () => {
-        addStyle(blockCSS$6);
+        addStyle(blockCSS$7);
       });
       DouYinGestureBackClearHash();
       DouYinHook.init();
@@ -7829,16 +7843,16 @@
         log.info("Router: 直播");
         DouYinLive.init();
       } else if (DouYinRouter.isIndex()) {
-        if (DouYinRouter.isVideo()) {
-          log.info("Router: 视频页面");
-          DouYinVideo.init();
-        }
+        DouYinVideoPlayer.init();
         if (DouYinRouter.isSearch()) {
           log.info("Router: 搜索");
           DouYinSearch.init();
         } else if (DouYinRouter.isUser()) {
           log.info(`Router: 用户页面`);
           DouYinUser.init();
+        } else if (DouYinRouter.isVideo()) {
+          log.info(`Router: 单个视频页面`);
+          DouYinVideo.init();
         } else {
           log.error("未适配router: " + window.location.pathname);
         }

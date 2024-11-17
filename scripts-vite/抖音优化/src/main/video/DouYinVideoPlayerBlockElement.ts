@@ -4,7 +4,7 @@ import { DouYinUtils } from "@/utils/DouYinUtils";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { CommonUtil } from "@/utils/CommonUtil";
 
-export const DouYinVideoCommentBlockElement = {
+export const DouYinVideoPlayerCommentBlockElement = {
 	init() {
 		PopsPanel.execMenuOnce("dy-video-shieldUserCommentToolBar", () => {
 			return this.shieldUserCommentToolBar();
@@ -33,7 +33,7 @@ export const DouYinVideoCommentBlockElement = {
 	},
 };
 
-export const DouYinVideoBlockElement_BottomToolbar = {
+export const DouYinVideoPlayerBlockElement_BottomToolbar = {
 	init() {
 		PopsPanel.execMenuOnce("shieldBottomVideoToolBar", () => {
 			return this.shieldBottomVideoToolBar();
@@ -83,7 +83,7 @@ export const DouYinVideoBlockElement_BottomToolbar = {
 	},
 };
 
-export const DouYinVideoBlockElement_RightToolbar = {
+export const DouYinVideoPlayerBlockElement_RightToolbar = {
 	init() {
 		PopsPanel.execMenuOnce("shieldPlaySwitchButton", () => {
 			return this.shieldPlaySwitchButton();
@@ -239,7 +239,7 @@ export const DouYinVideoBlockElement_RightToolbar = {
 		];
 	},
 };
-export const DouYinVideoBlockElement = {
+export const DouYinVideoPlayerBlockElement = {
 	init() {
 		PopsPanel.execMenuOnce("shieldRightExpandCommentButton", () => {
 			return this.shieldRightExpandCommentButton();
@@ -253,9 +253,9 @@ export const DouYinVideoBlockElement = {
 		PopsPanel.execMenuOnce("dy-video-blockShopInfo", () => {
 			return this.blockShopInfo();
 		});
-		DouYinVideoBlockElement_BottomToolbar.init();
-		DouYinVideoBlockElement_RightToolbar.init();
-		DouYinVideoCommentBlockElement.init();
+		DouYinVideoPlayerBlockElement_BottomToolbar.init();
+		DouYinVideoPlayerBlockElement_RightToolbar.init();
+		DouYinVideoPlayerCommentBlockElement.init();
 	},
 	/**
 	 * 【屏蔽】右侧的展开评论按钮

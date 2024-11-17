@@ -2,7 +2,10 @@ import { log, utils } from "@/env";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 
-export interface DouYinShieldTagMap {
+/**
+ * 视频信息处理过后的数据结构
+ */
+export interface DouYinVideoHandlerInfo {
 	/** 作者名 */
 	nickname?: string;
 	/** 作者uid */
@@ -155,7 +158,7 @@ export class DouYinVideoFilter {
 
 	$data = {
 		__rule: null as any as UtilsDictionary<
-			keyof DouYinShieldTagMap,
+			keyof DouYinVideoHandlerInfo,
 			RegExp | string
 		>,
 		/**
@@ -164,7 +167,7 @@ export class DouYinVideoFilter {
 		get rule() {
 			if (this.__rule == null) {
 				this.__rule = new utils.Dictionary<
-					keyof DouYinShieldTagMap,
+					keyof DouYinVideoHandlerInfo,
 					RegExp | string
 				>();
 			}
@@ -175,7 +178,7 @@ export class DouYinVideoFilter {
 		 */
 		moreRule: <
 			{
-				[k in keyof DouYinShieldTagMap]?: RegExp | string;
+				[k in keyof DouYinVideoHandlerInfo]?: RegExp | string;
 			}[]
 		>[],
 	};
@@ -328,7 +331,7 @@ export class DouYinVideoFilter {
 						break;
 					}
 					/** 解析出的标签的名字 */
-					let tagKey = ruleKey as keyof DouYinShieldTagMap;
+					let tagKey = ruleKey as keyof DouYinVideoHandlerInfo;
 					/** 解析出的标签的值 */
 					let tagValue = awemeInfoTagDict[tagKey];
 
@@ -366,7 +369,7 @@ export class DouYinVideoFilter {
 	getAwemeInfoDictData(
 		awemeInfo: DouYinVideoAwemeInfo,
 		showLog: boolean = false
-	): DouYinShieldTagMap {
+	): DouYinVideoHandlerInfo {
 		/** 视频作者名字 */
 		let nickname: string = awemeInfo?.["authorInfo"]?.["nickname"]?.toString();
 		/** 视频作者uid */

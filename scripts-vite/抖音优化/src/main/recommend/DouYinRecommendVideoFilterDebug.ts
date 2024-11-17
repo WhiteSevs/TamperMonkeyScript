@@ -1,11 +1,11 @@
 import Qmsg from "qmsg";
-import { DouYinRecommendVideo } from "./DouYinRecommendVideo";
 import {
 	DouYinVideoFilter,
-	type DouYinShieldTagMap,
+	type DouYinVideoHandlerInfo,
 	type DouYinVideoAwemeInfo,
 } from "../video/DouYinVideoFilter";
 import { DOMUtils, log, pops, utils } from "@/env";
+import { DouYinRecommendVideoFilter } from "./DouYinRecommendVideoFilter";
 
 export const DouYinRecommendVideoFilterDebug = {
 	init() {
@@ -29,7 +29,7 @@ export const DouYinRecommendVideoFilterDebug = {
 		);
 		let awemeInfo: DouYinVideoAwemeInfo | undefined = void 0;
 		if (choose === "1" || choose === "3") {
-			awemeInfo = DouYinRecommendVideo.getCurrentActiveVideoInfo();
+			awemeInfo = DouYinRecommendVideoFilter.getCurrentActiveVideoInfo();
 			if (awemeInfo == null) {
 				Qmsg.error("获取当前播放的视频信息失败，详情请看控制台");
 				return;
@@ -45,10 +45,13 @@ export const DouYinRecommendVideoFilterDebug = {
 					4
 				);
 			} else if (choose === "2") {
-				let allAwemeInfoList = DouYinRecommendVideo.getAllVideoAwemeInfo();
-				let allAwemeDictInfoList: DouYinShieldTagMap[] = [];
+				let allAwemeInfoList =
+					DouYinRecommendVideoFilter.getAllVideoAwemeInfo();
+				let allAwemeDictInfoList: DouYinVideoHandlerInfo[] = [];
 				allAwemeInfoList.forEach((awemeInfo) => {
-					allAwemeDictInfoList.push(videoFilter.getAwemeInfoDictData(awemeInfo));
+					allAwemeDictInfoList.push(
+						videoFilter.getAwemeInfoDictData(awemeInfo)
+					);
 				});
 				log.info(["全部的awemeInfo信息↓", allAwemeInfoList]);
 				log.info(["解析出全部的awemeInfo的字典信息↓", allAwemeDictInfoList]);

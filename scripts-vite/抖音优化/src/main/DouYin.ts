@@ -4,7 +4,7 @@ import { BlockTopNavigator } from "./block-frame/blockTopNavigator";
 import { BlockSearchFrame } from "./block-frame/blockSearchFrame";
 import { DouYinHook } from "../hook/DouYinHook";
 import { DouYinAccount } from "../account/DouYinAccount";
-import { DouYinVideo } from "./video/DouYinVideo";
+import { DouYinVideoPlayer } from "./video/DouYinVideoPlayer";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { DouYinLive } from "./live/DouYinLive";
 import { DouYinRedirect } from "./DouYinRedirect";
@@ -17,6 +17,7 @@ import { DouYinFollowingApi } from "@/api/DouYinFollowingApi";
 import { DouYinQueryApi } from "@/api/DouYinQueryApi";
 import { DouYinUser } from "./user/DouYinUser";
 import { unsafeWindow } from "ViteGM";
+import { DouYinVideo } from "./video/DouYinVideo";
 
 export const DouYin = {
 	init() {
@@ -46,11 +47,7 @@ export const DouYin = {
 			log.info("Router: 直播");
 			DouYinLive.init();
 		} else if (DouYinRouter.isIndex()) {
-			if (DouYinRouter.isVideo()) {
-				// 通用的
-				log.info("Router: 视频页面");
-				DouYinVideo.init();
-			}
+			DouYinVideoPlayer.init();
 
 			if (DouYinRouter.isSearch()) {
 				log.info("Router: 搜索");
@@ -58,6 +55,9 @@ export const DouYin = {
 			} else if (DouYinRouter.isUser()) {
 				log.info(`Router: 用户页面`);
 				DouYinUser.init();
+			} else if (DouYinRouter.isVideo()) {
+				log.info(`Router: 单个视频页面`);
+				DouYinVideo.init();
 			} else {
 				log.error("未适配router: " + window.location.pathname);
 			}

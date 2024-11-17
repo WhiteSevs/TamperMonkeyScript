@@ -2,7 +2,7 @@ import { DOMUtils, log, utils } from "@/env";
 import { UISelect } from "../common-components/ui-select";
 import { UISwitch } from "../common-components/ui-switch";
 import { UIButton } from "../common-components/ui-button";
-import { DouYinVideoShortcut } from "@/main/video/DouYinVideoShortCut";
+import { DouYinVideoPlayerShortCut } from "@/main/video/DouYinVideoPlayerShortCut";
 import { PopsPanel } from "../setting";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import Qmsg from "qmsg";
@@ -246,7 +246,7 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									void 0,
 									"点击录入快捷键",
 									void 0,
-									DouYinVideoShortcut.shortCut
+									DouYinVideoPlayerShortCut.shortCut
 								),
 								UIButtonShortCut(
 									"倍速 -> 大",
@@ -255,7 +255,7 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									void 0,
 									"点击录入快捷键",
 									void 0,
-									DouYinVideoShortcut.shortCut
+									DouYinVideoPlayerShortCut.shortCut
 								),
 								UIButtonShortCut(
 									"沉浸模式",
@@ -264,7 +264,7 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									void 0,
 									"点击录入快捷键",
 									void 0,
-									DouYinVideoShortcut.shortCut
+									DouYinVideoPlayerShortCut.shortCut
 								),
 							],
 						},

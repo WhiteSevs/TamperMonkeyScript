@@ -22,7 +22,7 @@ export const DouYinHook = {
 		PopsPanel.execMenu("dy-cookie-remove__ac__", () => {
 			this.removeCookie();
 		});
-		if (DouYinRouter.isVideo()) {
+		if (DouYinRouter.isRecommend()) {
 			PopsPanel.execMenuOnce("dy-video-disableDoubleClickLike", () => {
 				DouYinHook.disableDoubleClickLike();
 			});
@@ -207,7 +207,7 @@ export const DouYinHook = {
 						},
 					];
 
-					if (DouYinRouter.isVideo()) {
+					if (DouYinRouter.isRecommend()) {
 						keyboardConfigList.push(
 							{
 								enableKey: "dy-keyboard-hook-arrowUp-w",
