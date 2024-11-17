@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.17.17
+// @version      2024.11.17
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -305,6 +305,13 @@
                     "Safari使用，移除顶部横幅【Open in the 抖音 app】"
                   ),
                   UISwitch(
+                    "监听Router改变",
+                    "dy-common-listenRouterChange",
+                    true,
+                    void 0,
+                    "功能重载"
+                  ),
+                  UISwitch(
                     "移除某些Cookie",
                     "dy-cookie-remove__ac__",
                     false,
@@ -312,15 +319,9 @@
                     ""
                   )
                 ]
-              }
-            ]
-          },
-          {
-            text: "Url重定向",
-            type: "deepMenu",
-            forms: [
+              },
               {
-                text: "",
+                text: "Url重定向",
                 type: "forms",
                 forms: [
                   UISwitch(
@@ -3221,35 +3222,29 @@
       return this.__videoFilter;
     },
     init() {
-      let errorFindCount = 0;
-      DouYinElement.watchVideDataListChange(
-        utils.debounce((osElement, observer) => {
-          let awemeInfoList = DouYinRecommendVideoFilter.getAllVideoAwemeInfo();
-          if (!awemeInfoList.length) {
-            errorFindCount++;
-            if (errorFindCount >= 50) {
-              observer.disconnect();
-              log.error("未获取到视频列表元素次数超过50次, 停止监听");
-            }
-            log.error("未获取到视频列表元素");
-            return;
+      let lockFn = new utils.LockFunction((observer) => {
+        let awemeInfoList = DouYinRecommendVideoFilter.getAllVideoAwemeInfo();
+        if (!awemeInfoList.length) {
+          return;
+        }
+        for (let index = 0; index < awemeInfoList.length; index++) {
+          if (awemeInfoList.length === 1) {
+            log.warn(
+              "检测到视频列表只剩最后一个，删除的话无法触发更新，暂不删除"
+            );
+            break;
           }
-          for (let index = 0; index < awemeInfoList.length; index++) {
-            let awemeInfo = awemeInfoList[index];
-            let flag = this.videoFilter.checkAwemeInfoIsFilter(awemeInfo);
-            if (flag) {
-              if (awemeInfoList.length === 1) {
-                log.warn(
-                  "检测到视频列表只剩最后一个，删除的话无法触发更新，暂不删除"
-                );
-                break;
-              }
-              awemeInfoList.splice(index, 1);
-              index--;
-            }
+          let awemeInfo = awemeInfoList[index];
+          let flag = this.videoFilter.checkAwemeInfoIsFilter(awemeInfo);
+          if (flag) {
+            awemeInfoList.splice(index, 1);
+            index--;
           }
-        }, 50)
-      );
+        }
+      }, 50);
+      DouYinElement.watchVideDataListChange(($os, observer) => {
+        lockFn.run(observer);
+      });
     },
     /**
      * 获取当前播放的视频信息
@@ -4835,45 +4830,40 @@
       return this.__videoFilter;
     },
     init() {
-      DouYinElement.watchVideDataListChange(
-        utils.debounce((osElement) => {
-          var _a2, _b, _c, _d;
-          let $searchContentAreaScrollList = Array.from(
-            document.querySelectorAll(
-              '#search-content-area ul[data-e2e="scroll-list"] li'
-            )
-          );
-          if (!$searchContentAreaScrollList.length) {
+      let lockFn = new utils.LockFunction(() => {
+        var _a2, _b, _c, _d;
+        let $searchContentAreaScrollList = Array.from(
+          document.querySelectorAll(
+            '#search-content-area ul[data-e2e="scroll-list"] li'
+          )
+        );
+        if (!$searchContentAreaScrollList.length) {
+          return;
+        }
+        for (let index = 0; index < $searchContentAreaScrollList.length; index++) {
+          const $searchContentAreaScrollItem = $searchContentAreaScrollList[index];
+          let reactProps = (_a2 = utils.getReactObj(
+            $searchContentAreaScrollItem
+          )) == null ? void 0 : _a2.reactProps;
+          if (reactProps == null) {
+            log.error("元素上不存在reactProps属性", $searchContentAreaScrollItem);
             return;
           }
-          for (let index = 0; index < $searchContentAreaScrollList.length; index++) {
-            const $searchContentAreaScrollItem = $searchContentAreaScrollList[index];
-            let reactProps = (_a2 = utils.getReactObj(
-              $searchContentAreaScrollItem
-            )) == null ? void 0 : _a2.reactProps;
-            if (reactProps == null) {
-              log.error([
-                "元素上不存在reactProps属性",
-                $searchContentAreaScrollItem
-              ]);
-              return;
-            }
-            let awemeInfo = (_d = (_c = (_b = reactProps == null ? void 0 : reactProps.children) == null ? void 0 : _b.props) == null ? void 0 : _c.data) == null ? void 0 : _d.awemeInfo;
-            if (awemeInfo == null) {
-              log.error([
-                "元素上不存在awemeInfo属性",
-                $searchContentAreaScrollItem
-              ]);
-              return;
-            }
-            let flag = this.videoFilter.checkAwemeInfoIsFilter(awemeInfo);
-            if (flag) {
-              $searchContentAreaScrollItem.remove();
-              index--;
-            }
+          let awemeInfo = (_d = (_c = (_b = reactProps == null ? void 0 : reactProps.children) == null ? void 0 : _b.props) == null ? void 0 : _c.data) == null ? void 0 : _d.awemeInfo;
+          if (awemeInfo == null) {
+            log.error("元素上不存在awemeInfo属性", $searchContentAreaScrollItem);
+            return;
           }
-        }, 50)
-      );
+          let flag = this.videoFilter.checkAwemeInfoIsFilter(awemeInfo);
+          if (flag) {
+            $searchContentAreaScrollItem.remove();
+            index--;
+          }
+        }
+      }, 50);
+      DouYinElement.watchVideDataListChange(($os, observer) => {
+        lockFn.run();
+      });
     },
     get() {
       return this.videoFilter.get();
@@ -7236,18 +7226,21 @@
         setLogin($os);
       });
       utils.waitNode("#root div[class*='-os']", WAIT_TIME).then(() => {
+        let lockFn = new utils.LockFunction(() => {
+          let $os = DouYinElement.getOSElement();
+          if (!$os) {
+            return;
+          }
+          setLogin($os);
+        }, 70);
         utils.mutationObserver(document.body, {
           config: {
             subtree: true,
             childList: true
           },
-          callback: utils.debounce(() => {
-            let $os = DouYinElement.getOSElement();
-            if (!$os) {
-              return;
-            }
-            setLogin($os);
-          }, 70)
+          callback: () => {
+            lockFn.run();
+          }
         });
       }).catch((err) => {
       });
@@ -7257,16 +7250,19 @@
           `#douyin-header div:has(.dy-tip-container)`,
           WAIT_TIME
         ).then(() => {
+          let lockFn = new utils.LockFunction(() => {
+            setLogin(
+              document.querySelector(`#douyin-header`)
+            );
+          }, 70);
           utils.mutationObserver(document.body, {
             config: {
               subtree: true,
               childList: true
             },
-            callback: utils.debounce(() => {
-              setLogin(
-                document.querySelector(`#douyin-header`)
-              );
-            }, 70)
+            callback: () => {
+              lockFn.run();
+            }
           });
         });
       } else if (DouYinRouter.isSearch()) {
@@ -7288,14 +7284,17 @@
             log.error("#root > div获取失败");
             return;
           }
-          utils.mutationObserver(document.body, {
+          let lockFn = new utils.LockFunction(() => {
+            setUserInfoBySearch($rootDiv);
+          }, 70);
+          utils.mutationObserver(document, {
             config: {
               subtree: true,
               childList: true
             },
-            callback: utils.debounce((mutation, observer) => {
-              setUserInfoBySearch($rootDiv);
-            }, 70)
+            callback: () => {
+              lockFn.run();
+            }
           });
         });
       }
@@ -7839,6 +7838,9 @@
       BlockLeftNavigator.init();
       BlockTopNavigator.init();
       BlockSearchFrame.init();
+      PopsPanel.execMenuOnce("dy-common-listenRouterChange", () => {
+        this.listenRouterChange();
+      });
       if (DouYinRouter.isLive()) {
         log.info("Router: 直播");
         DouYinLive.init();
@@ -7894,6 +7896,16 @@
         $metaList.forEach(($meta) => {
           $meta.remove();
         });
+      });
+    },
+    /**
+     * 监听Router重载
+     */
+    listenRouterChange() {
+      log.info(`监听Router重载`);
+      domUtils.on(window, "wb_url_change", (event) => {
+        log.info(`Router Change`);
+        this.init();
       });
     }
   };

@@ -27,53 +27,48 @@ export const DouYinSearchFilter = {
 		return this.__videoFilter;
 	},
 	init() {
-		DouYinElement.watchVideDataListChange(
-			utils.debounce((osElement) => {
-				let $searchContentAreaScrollList = Array.from(
-					document.querySelectorAll<HTMLLIElement>(
-						'#search-content-area ul[data-e2e="scroll-list"] li'
-					)
-				);
-				if (!$searchContentAreaScrollList.length) {
+		let lockFn = new utils.LockFunction(() => {
+			let $searchContentAreaScrollList = Array.from(
+				document.querySelectorAll<HTMLLIElement>(
+					'#search-content-area ul[data-e2e="scroll-list"] li'
+				)
+			);
+			if (!$searchContentAreaScrollList.length) {
+				return;
+			}
+
+			// 搜索页面的视频列表
+			for (
+				let index = 0;
+				index < $searchContentAreaScrollList.length;
+				index++
+			) {
+				const $searchContentAreaScrollItem =
+					$searchContentAreaScrollList[index];
+				let reactProps = utils.getReactObj(
+					$searchContentAreaScrollItem
+				)?.reactProps;
+				if (reactProps == null) {
+					log.error("元素上不存在reactProps属性", $searchContentAreaScrollItem);
+					return;
+				}
+				let awemeInfo = reactProps?.children?.props?.data
+					?.awemeInfo as DouYinVideoAwemeInfo;
+				if (awemeInfo == null) {
+					log.error("元素上不存在awemeInfo属性", $searchContentAreaScrollItem);
 					return;
 				}
 
-				// 搜索页面的视频列表
-				for (
-					let index = 0;
-					index < $searchContentAreaScrollList.length;
-					index++
-				) {
-					const $searchContentAreaScrollItem =
-						$searchContentAreaScrollList[index];
-					let reactProps = utils.getReactObj(
-						$searchContentAreaScrollItem
-					)?.reactProps;
-					if (reactProps == null) {
-						log.error([
-							"元素上不存在reactProps属性",
-							$searchContentAreaScrollItem,
-						]);
-						return;
-					}
-					let awemeInfo = reactProps?.children?.props?.data
-						?.awemeInfo as DouYinVideoAwemeInfo;
-					if (awemeInfo == null) {
-						log.error([
-							"元素上不存在awemeInfo属性",
-							$searchContentAreaScrollItem,
-						]);
-						return;
-					}
-
-					let flag = this.videoFilter.checkAwemeInfoIsFilter(awemeInfo);
-					if (flag) {
-						$searchContentAreaScrollItem.remove();
-						index--;
-					}
+				let flag = this.videoFilter.checkAwemeInfoIsFilter(awemeInfo);
+				if (flag) {
+					$searchContentAreaScrollItem.remove();
+					index--;
 				}
-			}, 50)
-		);
+			}
+		}, 50);
+		DouYinElement.watchVideDataListChange(($os, observer) => {
+			lockFn.run();
+		});
 	},
 	get() {
 		return this.videoFilter.get();

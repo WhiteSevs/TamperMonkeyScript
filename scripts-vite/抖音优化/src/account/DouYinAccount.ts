@@ -70,18 +70,21 @@ export const DouYinAccount = {
 		utils
 			.waitNode<HTMLDivElement>("#root div[class*='-os']", WAIT_TIME)
 			.then(() => {
+				let lockFn = new utils.LockFunction(() => {
+					let $os = DouYinElement.getOSElement();
+					if (!$os) {
+						return;
+					}
+					setLogin($os);
+				}, 70);
 				utils.mutationObserver(document.body, {
 					config: {
 						subtree: true,
 						childList: true,
 					},
-					callback: utils.debounce(() => {
-						let $os = DouYinElement.getOSElement();
-						if (!$os) {
-							return;
-						}
-						setLogin($os);
-					}, 70),
+					callback: () => {
+						lockFn.run();
+					},
 				});
 			})
 			.catch((err) => {});
@@ -94,16 +97,19 @@ export const DouYinAccount = {
 					WAIT_TIME
 				)
 				.then(() => {
+					let lockFn = new utils.LockFunction(() => {
+						setLogin(
+							document.querySelector(`#douyin-header`) as HTMLDivElement
+						);
+					}, 70);
 					utils.mutationObserver(document.body, {
 						config: {
 							subtree: true,
 							childList: true,
 						},
-						callback: utils.debounce(() => {
-							setLogin(
-								document.querySelector(`#douyin-header`) as HTMLDivElement
-							);
-						}, 70),
+						callback: () => {
+							lockFn.run();
+						},
 					});
 				});
 		} else if (DouYinRouter.isSearch()) {
@@ -131,14 +137,17 @@ export const DouYinAccount = {
 						log.error("#root > div获取失败");
 						return;
 					}
-					utils.mutationObserver(document.body, {
+					let lockFn = new utils.LockFunction(() => {
+						setUserInfoBySearch($rootDiv);
+					}, 70);
+					utils.mutationObserver(document, {
 						config: {
 							subtree: true,
 							childList: true,
 						},
-						callback: utils.debounce((mutation, observer) => {
-							setUserInfoBySearch($rootDiv);
-						}, 70),
+						callback: () => {
+							lockFn.run();
+						},
 					});
 				});
 		}

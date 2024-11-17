@@ -43,6 +43,11 @@ export const DouYin = {
 		BlockLeftNavigator.init();
 		BlockTopNavigator.init();
 		BlockSearchFrame.init();
+
+		PopsPanel.execMenuOnce("dy-common-listenRouterChange", () => {
+			this.listenRouterChange();
+		});
+
 		if (DouYinRouter.isLive()) {
 			log.info("Router: 直播");
 			DouYinLive.init();
@@ -103,5 +108,15 @@ export const DouYin = {
 					$meta.remove();
 				});
 			});
+	},
+	/**
+	 * 监听Router重载
+	 */
+	listenRouterChange() {
+		log.info(`监听Router重载`);
+		DOMUtils.on(window, "wb_url_change", (event) => {
+			log.info(`Router Change`);
+			this.init();
+		});
 	},
 };

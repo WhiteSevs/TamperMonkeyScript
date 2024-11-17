@@ -35,35 +35,29 @@ export const DouYinRecommendVideoFilter = {
 		return this.__videoFilter;
 	},
 	init() {
-		let errorFindCount = 0;
-		DouYinElement.watchVideDataListChange(
-			utils.debounce((osElement, observer) => {
-				let awemeInfoList = DouYinRecommendVideoFilter.getAllVideoAwemeInfo();
-				if (!awemeInfoList.length) {
-					errorFindCount++;
-					if (errorFindCount >= 50) {
-						observer.disconnect();
-						log.error("未获取到视频列表元素次数超过50次, 停止监听");
-					}
-					log.error("未获取到视频列表元素");
-					return;
+		let lockFn = new utils.LockFunction((observer) => {
+			let awemeInfoList = DouYinRecommendVideoFilter.getAllVideoAwemeInfo();
+			if (!awemeInfoList.length) {
+				return;
+			}
+			for (let index = 0; index < awemeInfoList.length; index++) {
+				if (awemeInfoList.length === 1) {
+					log.warn(
+						"检测到视频列表只剩最后一个，删除的话无法触发更新，暂不删除"
+					);
+					break;
 				}
-				for (let index = 0; index < awemeInfoList.length; index++) {
-					let awemeInfo = awemeInfoList[index];
-					let flag = this.videoFilter.checkAwemeInfoIsFilter(awemeInfo);
-					if (flag) {
-						if (awemeInfoList.length === 1) {
-							log.warn(
-								"检测到视频列表只剩最后一个，删除的话无法触发更新，暂不删除"
-							);
-							break;
-						}
-						awemeInfoList.splice(index, 1);
-						index--;
-					}
+				let awemeInfo = awemeInfoList[index];
+				let flag = this.videoFilter.checkAwemeInfoIsFilter(awemeInfo);
+				if (flag) {
+					awemeInfoList.splice(index, 1);
+					index--;
 				}
-			}, 50)
-		);
+			}
+		}, 50);
+		DouYinElement.watchVideDataListChange(($os, observer) => {
+			lockFn.run(observer);
+		});
 	},
 	/**
 	 * 获取当前播放的视频信息

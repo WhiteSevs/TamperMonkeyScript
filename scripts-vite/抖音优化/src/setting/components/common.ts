@@ -143,6 +143,13 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 									"Safari使用，移除顶部横幅【Open in the 抖音 app】"
 								),
 								UISwitch(
+									"监听Router改变",
+									"dy-common-listenRouterChange",
+									true,
+									void 0,
+									"功能重载"
+								),
+								UISwitch(
 									"移除某些Cookie",
 									"dy-cookie-remove__ac__",
 									false,
@@ -151,14 +158,8 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 								),
 							],
 						},
-					],
-				},
-				{
-					text: "Url重定向",
-					type: "deepMenu",
-					forms: [
 						{
-							text: "",
+							text: "Url重定向",
 							type: "forms",
 							forms: [
 								UISwitch(
