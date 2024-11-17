@@ -385,10 +385,9 @@ const Greasyfork = {
         `);
 		/**
 		 * 获取复制按钮元素
-		 * @returns {HTMLElement}
 		 */
-		function getCopyElement() {
-			let copyElement = DOMUtils.createElement("div", {
+		function createCopyElement() {
+			let $copy = DOMUtils.createElement("div", {
 				className: "zeroclipboard-container",
 				innerHTML: /*html*/ `
 				<clipboard-copy class="js-clipboard-copy">
@@ -401,30 +400,32 @@ const Greasyfork = {
 				</clipboard-copy>
             `,
 			});
-			let clipboardCopyElement = copyElement.querySelector<HTMLElement>(
+			let clipboardCopyElement = $copy.querySelector<HTMLElement>(
 				".js-clipboard-copy"
 			) as HTMLElement;
-			let octiconCopyElement = copyElement.querySelector<HTMLElement>(
+			let octiconCopyElement = $copy.querySelector<HTMLElement>(
 				".octicon-copy"
 			) as HTMLElement;
-			let octiconCheckCopyElement = copyElement.querySelector<HTMLElement>(
+			let octiconCheckCopyElement = $copy.querySelector<HTMLElement>(
 				".octicon-check-copy"
 			) as HTMLElement;
-			DOMUtils.on(copyElement, "click", function () {
-				let codeElement =
-					copyElement.parentElement!.querySelector<HTMLElement>("code");
-				if (
-					!codeElement &&
-					copyElement.parentElement!.className.includes("prettyprinted")
-				) {
+			DOMUtils.on($copy, "click", () => {
+				// .snippet-clipboard-content
+				let $parent = DOMUtils.parent($copy);
+				let $code = $parent.querySelector<HTMLElement>("code");
+				if (!$code && $parent.className.includes("prettyprinted")) {
 					/* 在gf的/code的复制 */
-					codeElement = copyElement.parentElement;
+					$code = $copy.parentElement;
 				}
-				if (!codeElement) {
+				if (!$code) {
+					// <code>元素也没有，只有<pre>
+					$code = $parent.querySelector<HTMLElement>("pre");
+				}
+				if (!$code) {
 					Qmsg.error(i18next.t("未找到{{selector}}元素", { selector: "code" }));
 					return;
 				}
-				utils.setClip(codeElement.innerText || codeElement.textContent);
+				utils.setClip(DOMUtils.text($code));
 				clipboardCopyElement.setAttribute("success", "true");
 				octiconCopyElement.setAttribute("aria-hidden", "true");
 				octiconCheckCopyElement.removeAttribute("aria-hidden");
@@ -443,7 +444,7 @@ const Greasyfork = {
 					tooltip.toolTip.close();
 				}, 2000);
 			});
-			return copyElement;
+			return $copy;
 		}
 
 		document.querySelectorAll<HTMLPreElement>("pre").forEach((preElement) => {
@@ -453,7 +454,7 @@ const Greasyfork = {
 			if (zeroclipboardElement) {
 				return;
 			}
-			let copyElement = getCopyElement();
+			let copyElement = createCopyElement();
 			let snippetClipboardContentElement = DOMUtils.createElement("div", {
 				className: "snippet-clipboard-content",
 			});

@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.11.16.21
+// @version            2024.11.17
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -6980,8 +6980,8 @@
         }
         `
       );
-      function getCopyElement() {
-        let copyElement = domUtils.createElement("div", {
+      function createCopyElement() {
+        let $copy = domUtils.createElement("div", {
           className: "zeroclipboard-container",
           innerHTML: (
             /*html*/
@@ -6997,25 +6997,29 @@
             `
           )
         });
-        let clipboardCopyElement = copyElement.querySelector(
+        let clipboardCopyElement = $copy.querySelector(
           ".js-clipboard-copy"
         );
-        let octiconCopyElement = copyElement.querySelector(
+        let octiconCopyElement = $copy.querySelector(
           ".octicon-copy"
         );
-        let octiconCheckCopyElement = copyElement.querySelector(
+        let octiconCheckCopyElement = $copy.querySelector(
           ".octicon-check-copy"
         );
-        domUtils.on(copyElement, "click", function() {
-          let codeElement = copyElement.parentElement.querySelector("code");
-          if (!codeElement && copyElement.parentElement.className.includes("prettyprinted")) {
-            codeElement = copyElement.parentElement;
+        domUtils.on($copy, "click", () => {
+          let $parent = domUtils.parent($copy);
+          let $code = $parent.querySelector("code");
+          if (!$code && $parent.className.includes("prettyprinted")) {
+            $code = $copy.parentElement;
           }
-          if (!codeElement) {
+          if (!$code) {
+            $code = $parent.querySelector("pre");
+          }
+          if (!$code) {
             Qmsg.error(i18next.t("未找到{{selector}}元素", { selector: "code" }));
             return;
           }
-          utils.setClip(codeElement.innerText || codeElement.textContent);
+          utils.setClip(domUtils.text($code));
           clipboardCopyElement.setAttribute("success", "true");
           octiconCopyElement.setAttribute("aria-hidden", "true");
           octiconCheckCopyElement.removeAttribute("aria-hidden");
@@ -7034,7 +7038,7 @@
             tooltip.toolTip.close();
           }, 2e3);
         });
-        return copyElement;
+        return $copy;
       }
       document.querySelectorAll("pre").forEach((preElement) => {
         let zeroclipboardElement = preElement.querySelector(
@@ -7043,7 +7047,7 @@
         if (zeroclipboardElement) {
           return;
         }
-        let copyElement = getCopyElement();
+        let copyElement = createCopyElement();
         let snippetClipboardContentElement = domUtils.createElement("div", {
           className: "snippet-clipboard-content"
         });
