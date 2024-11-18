@@ -251,7 +251,7 @@ export const Component_Common: PopsPanelContentConfig = {
 					type: "deepMenu",
 					forms: [
 						{
-							text: "",
+							text: "<a href='https://ezgif.com/resize' target='_blank'>Resize Image</a>",
 							type: "forms",
 							forms: [
 								UIOwn(($li) => {

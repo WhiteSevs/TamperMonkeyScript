@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359
-// @version      2024.11.16.17
+// @version      2024.11.18
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/452322/1470429/js-watermark.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
@@ -48,7 +48,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var require_entrance_001 = __commonJS({
-    "entrance-BCJWA3Ku.js"(exports, module) {
+    "entrance-CdrlscQD.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -1220,6 +1220,7 @@
          * 显示视图
          */
         showView() {
+          const that = this;
           let $confirm = __pops.confirm({
             title: {
               text: "修改头像",
@@ -1252,71 +1253,85 @@
               ok: {
                 text: "上传",
                 callback: async () => {
-                  if (!MTDyncmicAvatar.$upload.small || !MTDyncmicAvatar.$upload.middle || !MTDyncmicAvatar.$upload.big) {
-                    Qmsg.error("校验失败");
+                  if (!that.$upload.small) {
+                    Qmsg.error("请上传小头像");
+                    return;
+                  }
+                  if (!that.$upload.middle) {
+                    Qmsg.error("请上传中头像");
+                    return;
+                  }
+                  if (!that.$upload.big) {
+                    Qmsg.error("请上传大头像");
                     return;
                   }
                   let $loading = Qmsg.loading("正在处理数据中...");
-                  let smallAvatarBase64 = await utils.parseFileToBase64(
-                    this.$avatar.small
-                  );
-                  let middleAvatarBase64 = await utils.parseFileToBase64(
-                    this.$avatar.middle
-                  );
-                  let bigAvatarBase64 = await utils.parseFileToBase64(
-                    this.$avatar.big
-                  );
-                  let avatarBase64List = [
-                    bigAvatarBase64,
-                    middleAvatarBase64,
-                    smallAvatarBase64
-                  ];
-                  const handlerAvatarBase64List = avatarBase64List.map(
-                    (str) => str.substring(str.indexOf(",") + 1)
-                  );
-                  let uploadUrl = await this.getUploadUrl();
-                  $loading.close();
-                  if (uploadUrl == null) {
-                    return;
-                  }
-                  let formhash = MTUtils.getCurrentFormHash();
-                  if (formhash == null) {
-                    Qmsg.error("获取formhash失败");
-                    return;
-                  }
-                  let formData = new FormData();
-                  formData.append("Filedata", this.$avatar.big || "");
-                  formData.append("confirm", "确定");
-                  formData.append("avatar1", handlerAvatarBase64List[0]);
-                  formData.append("avatar2", handlerAvatarBase64List[1]);
-                  formData.append("avatar3", handlerAvatarBase64List[2]);
-                  formData.append("formhash", formhash);
-                  let response = await httpx.post(uploadUrl, {
-                    data: formData,
-                    processData: false,
-                    headers: {
-                      Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-                      "User-Agent": utils.getRandomPCUA(),
-                      Host: window.location.hostname,
-                      Origin: window.location.origin,
-                      Referer: `${window.location.origin}/home.php?mod=spacecp&ac=avatar`
+                  try {
+                    let uploadUrl = await this.getUploadUrl();
+                    if (uploadUrl == null) {
+                      return;
                     }
-                  });
-                  $confirm.close();
-                  if (!response.status) {
-                    return;
-                  }
-                  if (response.data.responseText.indexOf(
-                    "window.parent.postMessage('success','*')"
-                  ) != -1) {
-                    Qmsg.success("上传成功");
-                  } else {
-                    log.error("上传失败", response);
-                    Qmsg.error(response.data.responseText, {
-                      timeout: 6e3,
-                      isHTML: false,
-                      html: false
+                    let formhash = MTUtils.getCurrentFormHash();
+                    if (formhash == null) {
+                      Qmsg.error("获取formhash失败");
+                      return;
+                    }
+                    let avatarInfo = {
+                      big: {
+                        base64: await utils.parseFileToBase64(this.$avatar.small)
+                      },
+                      middle: {
+                        base64: await utils.parseFileToBase64(this.$avatar.middle)
+                      },
+                      small: {
+                        base64: await utils.parseFileToBase64(this.$avatar.small)
+                      }
+                    };
+                    Object.keys(avatarInfo).forEach((keyName) => {
+                      let value = avatarInfo[keyName];
+                      value.base64 = value.base64.substring(
+                        value.base64.indexOf(",") + 1
+                      );
                     });
+                    let formData = new FormData();
+                    formData.append("Filedata", this.$avatar.big || "");
+                    formData.append("confirm", "确定");
+                    formData.append("avatar1", avatarInfo.big.base64);
+                    formData.append("avatar2", avatarInfo.middle.base64);
+                    formData.append("avatar3", avatarInfo.small.base64);
+                    formData.append("formhash", formhash);
+                    log.info(`头像的base64字符串`, avatarInfo);
+                    let response = await httpx.post(uploadUrl, {
+                      data: formData,
+                      processData: false,
+                      headers: {
+                        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                        "User-Agent": utils.getRandomPCUA(),
+                        Host: window.location.hostname,
+                        Origin: window.location.origin,
+                        Referer: `${window.location.origin}/home.php?mod=spacecp&ac=avatar`
+                      }
+                    });
+                    if (!response.status) {
+                      return;
+                    }
+                    if (response.data.responseText.indexOf(
+                      "window.parent.postMessage('success','*')"
+                    ) != -1) {
+                      $confirm.close();
+                      Qmsg.success("上传成功");
+                    } else {
+                      log.error("上传失败", response);
+                      Qmsg.error(response.data.responseText, {
+                        timeout: 6e3,
+                        isHTML: false,
+                        html: false
+                      });
+                    }
+                  } catch (error) {
+                    log.error(error);
+                  } finally {
+                    $loading.close();
                   }
                 }
               }
@@ -1725,7 +1740,7 @@
                 type: "deepMenu",
                 forms: [
                   {
-                    text: "",
+                    text: "<a href='https://ezgif.com/resize' target='_blank'>Resize Image</a>",
                     type: "forms",
                     forms: [
                       UIOwn(($li) => {

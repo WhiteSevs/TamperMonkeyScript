@@ -54,6 +54,7 @@ export const MTDyncmicAvatar = {
 	 * 显示视图
 	 */
 	showView() {
+		const that = this;
 		let $confirm = pops.confirm({
 			title: {
 				text: "修改头像",
@@ -83,80 +84,94 @@ export const MTDyncmicAvatar = {
 				ok: {
 					text: "上传",
 					callback: async () => {
-						if (
-							!MTDyncmicAvatar.$upload.small ||
-							!MTDyncmicAvatar.$upload.middle ||
-							!MTDyncmicAvatar.$upload.big
-						) {
-							Qmsg.error("校验失败");
+						if (!that.$upload.small) {
+							Qmsg.error("请上传小头像");
+							return;
+						}
+						if (!that.$upload.middle) {
+							Qmsg.error("请上传中头像");
+							return;
+						}
+						if (!that.$upload.big) {
+							Qmsg.error("请上传大头像");
 							return;
 						}
 						let $loading = Qmsg.loading("正在处理数据中...");
-
-						let smallAvatarBase64 = await utils.parseFileToBase64(
-							this.$avatar.small
-						);
-						let middleAvatarBase64 = await utils.parseFileToBase64(
-							this.$avatar.middle
-						);
-						let bigAvatarBase64 = await utils.parseFileToBase64(
-							this.$avatar.big
-						);
-						let avatarBase64List = [
-							bigAvatarBase64,
-							middleAvatarBase64,
-							smallAvatarBase64,
-						];
-						/* 拿到3个头像的Base64字符串 */
-						const handlerAvatarBase64List = avatarBase64List.map((str) =>
-							str.substring(str.indexOf(",") + 1)
-						);
-						let uploadUrl = await this.getUploadUrl();
-						$loading.close();
-						if (uploadUrl == null) {
-							return;
-						}
-						let formhash = MTUtils.getCurrentFormHash();
-						if (formhash == null) {
-							Qmsg.error("获取formhash失败");
-							return;
-						}
-						let formData = new FormData();
-						formData.append("Filedata", this.$avatar.big || "");
-						formData.append("confirm", "确定");
-						formData.append("avatar1", handlerAvatarBase64List[0]);
-						formData.append("avatar2", handlerAvatarBase64List[1]);
-						formData.append("avatar3", handlerAvatarBase64List[2]);
-						formData.append("formhash", formhash);
-						let response = await httpx.post(uploadUrl, {
-							data: formData,
-							processData: false,
-							headers: {
-								Accept:
-									"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-								"User-Agent": utils.getRandomPCUA(),
-								Host: window.location.hostname,
-								Origin: window.location.origin,
-								Referer: `${window.location.origin}/home.php?mod=spacecp&ac=avatar`,
-							},
-						});
-						$confirm.close();
-						if (!response.status) {
-							return;
-						}
-						if (
-							response.data.responseText.indexOf(
-								"window.parent.postMessage('success','*')"
-							) != -1
-						) {
-							Qmsg.success("上传成功");
-						} else {
-							log.error("上传失败", response);
-							Qmsg.error(response.data.responseText, {
-								timeout: 6000,
-								isHTML: false,
-								html: false,
+						try {
+							// 获取上传头像的地址
+							let uploadUrl = await this.getUploadUrl();
+							if (uploadUrl == null) {
+								return;
+							}
+							// 获取当前登录用户的formhash
+							let formhash = MTUtils.getCurrentFormHash();
+							if (formhash == null) {
+								Qmsg.error("获取formhash失败");
+								return;
+							}
+							let avatarInfo = {
+								big: {
+									base64: await utils.parseFileToBase64(this.$avatar.small),
+								},
+								middle: {
+									base64: await utils.parseFileToBase64(this.$avatar.middle),
+								},
+								small: {
+									base64: await utils.parseFileToBase64(this.$avatar.small),
+								},
+							};
+							Object.keys(avatarInfo).forEach((keyName) => {
+								let value =
+									avatarInfo[keyName as any as keyof typeof avatarInfo];
+								value.base64 = value.base64.substring(
+									value.base64.indexOf(",") + 1
+								);
 							});
+							let formData = new FormData();
+							formData.append("Filedata", this.$avatar.big || "");
+							formData.append("confirm", "确定");
+							// 大
+							formData.append("avatar1", avatarInfo.big.base64);
+							// 中
+							formData.append("avatar2", avatarInfo.middle.base64);
+							// 小
+							formData.append("avatar3", avatarInfo.small.base64);
+							formData.append("formhash", formhash);
+							log.info(`头像的base64字符串`, avatarInfo);
+							let response = await httpx.post(uploadUrl, {
+								data: formData,
+								processData: false,
+								headers: {
+									Accept:
+										"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+									"User-Agent": utils.getRandomPCUA(),
+									Host: window.location.hostname,
+									Origin: window.location.origin,
+									Referer: `${window.location.origin}/home.php?mod=spacecp&ac=avatar`,
+								},
+							});
+							if (!response.status) {
+								return;
+							}
+							if (
+								response.data.responseText.indexOf(
+									"window.parent.postMessage('success','*')"
+								) != -1
+							) {
+								$confirm.close();
+								Qmsg.success("上传成功");
+							} else {
+								log.error("上传失败", response);
+								Qmsg.error(response.data.responseText, {
+									timeout: 6000,
+									isHTML: false,
+									html: false,
+								});
+							}
+						} catch (error) {
+							log.error(error);
+						} finally {
+							$loading.close();
 						}
 					},
 				},
