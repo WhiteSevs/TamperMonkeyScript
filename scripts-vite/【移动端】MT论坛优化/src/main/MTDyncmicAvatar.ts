@@ -111,7 +111,7 @@ export const MTDyncmicAvatar = {
 							}
 							let avatarInfo = {
 								big: {
-									base64: await utils.parseFileToBase64(this.$avatar.small),
+									base64: await utils.parseFileToBase64(this.$avatar.big),
 								},
 								middle: {
 									base64: await utils.parseFileToBase64(this.$avatar.middle),

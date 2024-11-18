@@ -1,5 +1,4 @@
 import { DOMUtils, httpx, log, pops, utils } from "@/env";
-import { CommonUtil } from "@/utils/CommonUtil";
 import { MTUtils } from "@/utils/Utils";
 import Qmsg from "qmsg";
 
@@ -112,7 +111,7 @@ export const MTDyncmicAvatar = {
 							}
 							let avatarInfo = {
 								big: {
-									base64: await utils.parseFileToBase64(this.$avatar.small),
+									base64: await utils.parseFileToBase64(this.$avatar.big),
 								},
 								middle: {
 									base64: await utils.parseFileToBase64(this.$avatar.middle),
