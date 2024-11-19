@@ -7,12 +7,14 @@ import { unsafeWindow } from "ViteGM";
 
 export const MTSign = {
 	init() {
-		PopsPanel.execMenuOnce("mt-sign-showTodaySignStar", () => {
-			this.showTodaySignStar();
-		});
-		PopsPanel.execMenuOnce("mt-sign-showTodayRanking", () => {
-			this.showTodayRanking();
-		});
+		DOMUtils.ready(()=>{
+			PopsPanel.execMenuOnce("mt-sign-showTodaySignStar", () => {
+				this.showTodaySignStar();
+			});
+			PopsPanel.execMenuOnce("mt-sign-showTodayRanking", () => {
+				this.showTodayRanking();
+			});
+		})
 	},
 	/**
 	 * 显示【今日签到之星】

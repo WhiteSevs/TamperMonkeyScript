@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359
-// @version      2024.11.18.17
+// @version      2024.11.19
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -48,7 +48,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var require_entrance_001 = __commonJS({
-    "entrance-Db985Mmg.js"(exports, module) {
+    "entrance-DChS9ctf.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -8572,13 +8572,13 @@
           PopsPanel.execMenuOnce("mt-forum-post-repairImageWidth", () => {
             return this.repairImageWidth();
           });
-          PopsPanel.execMenu("mt-forum-post-removeFontStyle", () => {
-            this.removeFontStyle();
-          });
-          PopsPanel.execMenu("mt-forum-post-removeCommentFontStyle", () => {
-            this.removeCommentFontStyle();
-          });
           domUtils.ready(() => {
+            PopsPanel.execMenu("mt-forum-post-removeFontStyle", () => {
+              this.removeFontStyle();
+            });
+            PopsPanel.execMenu("mt-forum-post-removeCommentFontStyle", () => {
+              this.removeCommentFontStyle();
+            });
             PopsPanel.execMenu("mt-forum-post-addCommentOnBtn", () => {
               this.addCommentOnBtn();
             });
@@ -8630,16 +8630,16 @@
          */
         removeFontStyle() {
           log.info(`移除帖子字体效果`);
-          let $messageTable = document.querySelector(
+          let $messageTable = $(
             ".comiis_a.comiis_message_table"
           );
           if (!$messageTable) {
             return;
           }
-          $messageTable.innerHTML = $messageTable.innerHTML.replace(
+          domUtils.html($messageTable, domUtils.html($messageTable).replace(
             MTRegExp.fontSpecial,
             ""
-          );
+          ));
         },
         /**
          * 移除评论区的字体效果
@@ -8647,18 +8647,18 @@
         removeCommentFontStyle() {
           var _a2;
           log.info(`移除评论区的字体效果`);
-          document.querySelectorAll("font");
-          var postForumMain = ((_a2 = document.querySelector(".comiis_postlist .comiis_postli")) == null ? void 0 : _a2.innerHTML) || "";
-          if (postForumMain !== "") {
-            document.querySelectorAll("font").forEach(($font) => {
-              if (!postForumMain.includes($font.innerHTML)) {
+          let $fontList = document.querySelectorAll("font");
+          let $postForumMainContent = ((_a2 = document.querySelector(".comiis_postlist .comiis_postli")) == null ? void 0 : _a2.innerHTML) || "";
+          if ($postForumMainContent !== "") {
+            $fontList.forEach(($font) => {
+              if (!$postForumMainContent.includes($font.innerHTML)) {
                 $font.removeAttribute("color");
                 $font.removeAttribute("style");
                 $font.removeAttribute("size");
               }
             });
-            document.querySelectorAll(".comiis_message.message").forEach(($message) => {
-              if (postForumMain.includes($message.innerHTML)) {
+            $$(".comiis_message.message").forEach(($message) => {
+              if ($postForumMainContent.includes($message.innerHTML)) {
                 $message.innerHTML = $message.innerHTML.replace(
                   MTRegExp.fontSpecial,
                   ""
@@ -8670,7 +8670,7 @@
               }
             });
           }
-          document.querySelectorAll(".comiis_postli.comiis_list_readimgs.nfqsqi").forEach((item) => {
+          $$(".comiis_postli.comiis_list_readimgs.nfqsqi").forEach((item) => {
             let $parent = item.parentElement;
             if ($parent && $parent.localName === "strike") {
               $parent.outerHTML = $parent.outerHTML.replace(/^<strike>(\n|)/g, "").replace(/<\/strike>$/g, "");
@@ -9258,10 +9258,10 @@
         }
         `
           );
-          PopsPanel.execMenuOnce("mt-search-showSearchHistory", () => {
-            this.showSearchHistory();
-          });
           DOMUtils.ready(() => {
+            PopsPanel.execMenuOnce("mt-search-showSearchHistory", () => {
+              this.showSearchHistory();
+            });
             PopsPanel.execMenuOnce("mt-search-repairClearBtn", () => {
               this.repairClearBtn();
             });
@@ -9276,8 +9276,8 @@
         async showSearchHistory() {
           log.info(`显示搜索历史`);
           let searchHistoryList = _GM_getValue("search_history", []);
-          let $input = document.querySelector("#scform_srchtxt");
-          let $submit = document.querySelector("#searchform");
+          let $input = $("#scform_srchtxt");
+          let $submit = $("#searchform");
           let suggestion = __pops.searchSuggestion({
             target: $input,
             inputTarget: $input,
@@ -9396,11 +9396,13 @@
       };
       const MTSign = {
         init() {
-          PopsPanel.execMenuOnce("mt-sign-showTodaySignStar", () => {
-            this.showTodaySignStar();
-          });
-          PopsPanel.execMenuOnce("mt-sign-showTodayRanking", () => {
-            this.showTodayRanking();
+          domUtils.ready(() => {
+            PopsPanel.execMenuOnce("mt-sign-showTodaySignStar", () => {
+              this.showTodaySignStar();
+            });
+            PopsPanel.execMenuOnce("mt-sign-showTodayRanking", () => {
+              this.showTodayRanking();
+            });
           });
         },
         /**
@@ -13111,27 +13113,6 @@
           showUserUID_initCSS: false
         },
         init() {
-          PopsPanel.execMenuOnce("mt-black-home", () => {
-            MTBlackHome.init();
-          });
-          PopsPanel.execMenuOnce("mt-online-user", () => {
-            MTOnlineUser.init();
-          });
-          PopsPanel.execMenuOnce("mt-post-paidThemePost", () => {
-            MTPaidThemePost.init();
-          });
-          PopsPanel.execMenuOnce("mt-ownBlock", () => {
-            MTOwnBlock.init();
-          });
-          PopsPanel.execMenuOnce("mt-post-comment-filter", () => {
-            MTCommentFilter.init();
-          });
-          PopsPanel.execMenuOnce("mt-productListingReminder", () => {
-            MTProductListingReminder.init();
-          });
-          PopsPanel.execMenuOnce("mt-customizeUserLabels", () => {
-            MTCustomizeUserLabels.init();
-          });
           if (Router.isPage() || Router.isGuide() || Router.isPlate() || Router.isPost() || Router.isSearch() || Router.isSpace()) {
             PopsPanel.execMenuOnce("mt-show-user-uid", () => {
               this.showUserUID();
@@ -13164,6 +13145,27 @@
             log.error(`Router: 未适配的链接 ==> ` + window.location.href);
           }
           domUtils.ready(() => {
+            PopsPanel.execMenuOnce("mt-black-home", () => {
+              MTBlackHome.init();
+            });
+            PopsPanel.execMenuOnce("mt-online-user", () => {
+              MTOnlineUser.init();
+            });
+            PopsPanel.execMenuOnce("mt-post-paidThemePost", () => {
+              MTPaidThemePost.init();
+            });
+            PopsPanel.execMenuOnce("mt-ownBlock", () => {
+              MTOwnBlock.init();
+            });
+            PopsPanel.execMenuOnce("mt-post-comment-filter", () => {
+              MTCommentFilter.init();
+            });
+            PopsPanel.execMenuOnce("mt-productListingReminder", () => {
+              MTProductListingReminder.init();
+            });
+            PopsPanel.execMenuOnce("mt-customizeUserLabels", () => {
+              MTCustomizeUserLabels.init();
+            });
             PopsPanel.execMenuOnce("mt-link-text-to-hyperlink", () => {
               MTIdentifyLinks();
             });

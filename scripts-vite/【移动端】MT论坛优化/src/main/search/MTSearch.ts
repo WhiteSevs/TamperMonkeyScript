@@ -1,4 +1,4 @@
-import { addStyle, log, pops, utils } from "@/env";
+import { $, addStyle, log, pops, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import DOMUtils from "@whitesev/domutils";
 import Qmsg from "qmsg";
@@ -16,10 +16,10 @@ export const MTSearch = {
             display: block !important;
         }
         `);
-		PopsPanel.execMenuOnce("mt-search-showSearchHistory", () => {
-			this.showSearchHistory();
-		});
 		DOMUtils.ready(() => {
+			PopsPanel.execMenuOnce("mt-search-showSearchHistory", () => {
+				this.showSearchHistory();
+			});
 			PopsPanel.execMenuOnce("mt-search-repairClearBtn", () => {
 				this.repairClearBtn();
 			});
@@ -34,8 +34,8 @@ export const MTSearch = {
 	async showSearchHistory() {
 		log.info(`显示搜索历史`);
 		let searchHistoryList = GM_getValue<string[]>("search_history", []);
-		let $input = document.querySelector<HTMLInputElement>("#scform_srchtxt")!;
-		let $submit = document.querySelector<HTMLFormElement>("#searchform")!;
+		let $input = $<HTMLInputElement>("#scform_srchtxt")!;
+		let $submit = $<HTMLFormElement>("#searchform")!;
 		let suggestion = pops.searchSuggestion({
 			target: $input,
 			inputTarget: $input,

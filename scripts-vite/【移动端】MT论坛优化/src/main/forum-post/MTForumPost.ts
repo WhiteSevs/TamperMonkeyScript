@@ -1,4 +1,4 @@
-import { addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
+import { $, $$, addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { MTRegExp } from "@/utils/MTRegExp";
 import hljs, { type HLJSApi, type Language } from "highlight.js";
@@ -17,14 +17,14 @@ export const MTForumPost = {
 		PopsPanel.execMenuOnce("mt-forum-post-repairImageWidth", () => {
 			return this.repairImageWidth();
 		});
-		PopsPanel.execMenu("mt-forum-post-removeFontStyle", () => {
-			this.removeFontStyle();
-		});
-		PopsPanel.execMenu("mt-forum-post-removeCommentFontStyle", () => {
-			this.removeCommentFontStyle();
-		});
 
 		DOMUtils.ready(() => {
+			PopsPanel.execMenu("mt-forum-post-removeFontStyle", () => {
+				this.removeFontStyle();
+			});
+			PopsPanel.execMenu("mt-forum-post-removeCommentFontStyle", () => {
+				this.removeCommentFontStyle();
+			});
 			PopsPanel.execMenu("mt-forum-post-addCommentOnBtn", () => {
 				this.addCommentOnBtn();
 			});
@@ -70,31 +70,31 @@ export const MTForumPost = {
 	 */
 	removeFontStyle() {
 		log.info(`移除帖子字体效果`);
-		let $messageTable = document.querySelector<HTMLElement>(
+		let $messageTable = $<HTMLElement>(
 			".comiis_a.comiis_message_table"
 		);
 		if (!$messageTable) {
 			return;
 		}
-		$messageTable.innerHTML = $messageTable.innerHTML.replace(
+		DOMUtils.html($messageTable,DOMUtils.html($messageTable).replace(
 			MTRegExp.fontSpecial,
 			""
-		);
+		))
 	},
 	/**
 	 * 移除评论区的字体效果
 	 */
 	removeCommentFontStyle() {
 		log.info(`移除评论区的字体效果`);
-		var fontNodeList = document.querySelectorAll("font");
+		let $fontList = document.querySelectorAll("font");
 		/* 帖子主内容 */
-		var postForumMain =
+		let $postForumMainContent =
 			document.querySelector(".comiis_postlist .comiis_postli")?.innerHTML ||
 			"";
-		if (postForumMain !== "") {
-			document.querySelectorAll("font").forEach(($font) => {
+		if ($postForumMainContent !== "") {
+			$fontList.forEach(($font) => {
 				/* font元素是帖子主内容的移除字体效果 */
-				if (!postForumMain.includes($font.innerHTML)) {
+				if (!$postForumMainContent.includes($font.innerHTML)) {
 					/* log.info(hide[i].innerHTML); */
 					$font.removeAttribute("color");
 					$font.removeAttribute("style");
@@ -102,10 +102,9 @@ export const MTForumPost = {
 				}
 			});
 			/* 帖子评论 */
-			document
-				.querySelectorAll<HTMLElement>(".comiis_message.message")
+			$$<HTMLElement>(".comiis_message.message")
 				.forEach(($message) => {
-					if (postForumMain.includes($message.innerHTML)) {
+					if ($postForumMainContent.includes($message.innerHTML)) {
 						$message.innerHTML = $message.innerHTML.replace(
 							MTRegExp.fontSpecial,
 							""
@@ -120,8 +119,7 @@ export const MTForumPost = {
 				});
 		}
 		/* 所有评论，包括帖子主体 */
-		document
-			.querySelectorAll(".comiis_postli.comiis_list_readimgs.nfqsqi")
+		$$(".comiis_postli.comiis_list_readimgs.nfqsqi")
 			.forEach((item) => {
 				let $parent = item.parentElement;
 				if ($parent && $parent.localName === "strike") {

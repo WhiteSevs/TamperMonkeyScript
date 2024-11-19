@@ -26,27 +26,6 @@ export const MT = {
 		showUserUID_initCSS: false,
 	},
 	init() {
-		PopsPanel.execMenuOnce("mt-black-home", () => {
-			MTBlackHome.init();
-		});
-		PopsPanel.execMenuOnce("mt-online-user", () => {
-			MTOnlineUser.init();
-		});
-		PopsPanel.execMenuOnce("mt-post-paidThemePost", () => {
-			MTPaidThemePost.init();
-		});
-		PopsPanel.execMenuOnce("mt-ownBlock", () => {
-			MTOwnBlock.init();
-		});
-		PopsPanel.execMenuOnce("mt-post-comment-filter", () => {
-			MTCommentFilter.init();
-		});
-		PopsPanel.execMenuOnce("mt-productListingReminder", () => {
-			MTProductListingReminder.init();
-		});
-		PopsPanel.execMenuOnce("mt-customizeUserLabels", () => {
-			MTCustomizeUserLabels.init();
-		});
 		if (
 			Router.isPage() ||
 			Router.isGuide() ||
@@ -94,6 +73,27 @@ export const MT = {
 		}
 
 		DOMUtils.ready(() => {
+			PopsPanel.execMenuOnce("mt-black-home", () => {
+				MTBlackHome.init();
+			});
+			PopsPanel.execMenuOnce("mt-online-user", () => {
+				MTOnlineUser.init();
+			});
+			PopsPanel.execMenuOnce("mt-post-paidThemePost", () => {
+				MTPaidThemePost.init();
+			});
+			PopsPanel.execMenuOnce("mt-ownBlock", () => {
+				MTOwnBlock.init();
+			});
+			PopsPanel.execMenuOnce("mt-post-comment-filter", () => {
+				MTCommentFilter.init();
+			});
+			PopsPanel.execMenuOnce("mt-productListingReminder", () => {
+				MTProductListingReminder.init();
+			});
+			PopsPanel.execMenuOnce("mt-customizeUserLabels", () => {
+				MTCustomizeUserLabels.init();
+			});
 			PopsPanel.execMenuOnce("mt-link-text-to-hyperlink", () => {
 				MTIdentifyLinks();
 			});
