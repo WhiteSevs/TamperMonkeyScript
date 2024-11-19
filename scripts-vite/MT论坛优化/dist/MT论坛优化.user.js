@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.18.17
+// @version      2024.11.19
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、用户状态查看、美化导航、动态头像上传、最新发表、评论过滤器等
 // @license      GPL-3.0-only
@@ -45,7 +45,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
   var require_entrance_001 = __commonJS({
-    "entrance-DQTw25Nb.js"(exports, module) {
+    "entrance-CsOmNUo_.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -2971,16 +2971,16 @@
           PopsPanel.execMenuOnce("mt-forum-post-repairImageWidth", () => {
             return this.repairImageWidth();
           });
-          PopsPanel.execMenu("mt-forum-post-removeFontStyle", () => {
-            this.removeFontStyle();
-          });
-          PopsPanel.execMenu("mt-forum-post-removeCommentFontStyle", () => {
-            this.removeCommentFontStyle();
-          });
           PopsPanel.execMenuOnce("mt-forum-post-hideBottomInfoBlock", () => {
             return this.hideBottomInfoBlock();
           });
           domUtils.ready(() => {
+            PopsPanel.execMenu("mt-forum-post-removeFontStyle", () => {
+              this.removeFontStyle();
+            });
+            PopsPanel.execMenu("mt-forum-post-removeCommentFontStyle", () => {
+              this.removeCommentFontStyle();
+            });
             PopsPanel.execMenuOnce("mt-forum-post-loadNextPageComment", () => {
               this.loadNextPageComment();
             });
@@ -3031,17 +3031,17 @@
          * 移除帖子字体效果
          */
         removeFontStyle() {
-          log.info(`移除帖子字体效果`);
           let $messageTable = document.querySelector(
             ".comiis_a.comiis_message_table"
           );
           if (!$messageTable) {
             return;
           }
-          $messageTable.innerHTML = $messageTable.innerHTML.replace(
+          log.info(`移除帖子字体效果`);
+          domUtils.html($messageTable, domUtils.html($messageTable).replace(
             MTRegExp.fontSpecial,
             ""
-          );
+          ));
         },
         /**
          * 移除评论区的字体效果
@@ -3049,18 +3049,18 @@
         removeCommentFontStyle() {
           var _a2;
           log.info(`移除评论区的字体效果`);
-          document.querySelectorAll("font");
-          var postForumMain = ((_a2 = document.querySelector(".comiis_postlist .comiis_postli")) == null ? void 0 : _a2.innerHTML) || "";
-          if (postForumMain !== "") {
-            document.querySelectorAll("font").forEach(($font) => {
-              if (!postForumMain.includes($font.innerHTML)) {
+          let $fontList = $$("font");
+          let $postForumMainContent = ((_a2 = $(".comiis_postlist .comiis_postli")) == null ? void 0 : _a2.innerHTML) || "";
+          if ($postForumMainContent !== "") {
+            $fontList.forEach(($font) => {
+              if (!$postForumMainContent.includes($font.innerHTML)) {
                 $font.removeAttribute("color");
                 $font.removeAttribute("style");
                 $font.removeAttribute("size");
               }
             });
-            document.querySelectorAll(".comiis_message.message").forEach(($message) => {
-              if (postForumMain.includes($message.innerHTML)) {
+            $$(".comiis_message.message").forEach(($message) => {
+              if ($postForumMainContent.includes($message.innerHTML)) {
                 $message.innerHTML = $message.innerHTML.replace(
                   MTRegExp.fontSpecial,
                   ""
@@ -3072,7 +3072,7 @@
               }
             });
           }
-          document.querySelectorAll(".comiis_postli.comiis_list_readimgs.nfqsqi").forEach((item) => {
+          $$(".comiis_postli.comiis_list_readimgs.nfqsqi").forEach((item) => {
             let $parent = item.parentElement;
             if ($parent && $parent.localName === "strike") {
               $parent.outerHTML = $parent.outerHTML.replace(/^<strike>(\n|)/g, "").replace(/<\/strike>$/g, "");
@@ -3121,7 +3121,7 @@
               if (pageInfo) {
                 if (!pageInfo["url"]) {
                   log.error("最后一页，取消监听");
-                  domUtils.off(document, "scroll", lockFn.run);
+                  domUtils.off(document, ["scroll", "wheel"], lockFn.run);
                   domUtils.remove(".pgbtn");
                 }
                 if (pageInfo["postlist"]) {
@@ -3144,7 +3144,7 @@
               await scrollEvent();
             }
           });
-          domUtils.on(document, "scroll", lockFn.run);
+          domUtils.on(document, ["scroll", "wheel"], lockFn.run);
         },
         /**
          * 代码块优化
@@ -3629,8 +3629,10 @@
       };
       const MTGuide = {
         init() {
-          PopsPanel.execMenuOnce("mt-guide-beautifyPage", () => {
-            return this.beautifyPage();
+          domUtils.ready(() => {
+            PopsPanel.execMenuOnce("mt-guide-beautifyPage", () => {
+              return this.beautifyPage();
+            });
           });
         },
         /**
@@ -5190,9 +5192,6 @@
           PopsPanel.onceExec("mt-MTCommentFilter", () => {
             MTCommentFilter.init();
           });
-          PopsPanel.onceExec("mt-MTProductListingReminder", () => {
-            MTProductListingReminder.init();
-          });
           if (Router.isPost()) {
             log.info(`Router: 帖子`);
             MTForumPost.init();
@@ -5203,6 +5202,9 @@
             log.error(`Router: 未适配的链接 ==> ` + window.location.href);
           }
           domUtils.ready(() => {
+            PopsPanel.onceExec("mt-MTProductListingReminder", () => {
+              MTProductListingReminder.init();
+            });
             PopsPanel.execMenuOnce("mt-link-text-to-hyperlink", () => {
               MTIdentifyLinks();
             });
