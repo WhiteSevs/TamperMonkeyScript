@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.16
+// @version      2024.11.19
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -14,7 +14,7 @@
 // @match        *://weibo.com/l/wblive/m/show/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @connect      *
@@ -1939,32 +1939,6 @@
 			`
         )
       });
-    },
-    /**
-     * 判断是否是移动端
-     */
-    isMobile() {
-      return window.innerWidth < 550;
-    },
-    /**
-     * 获取设置面板的宽度
-     */
-    getWidth() {
-      if (window.innerWidth < 550) {
-        return "92vw";
-      } else {
-        return "550px";
-      }
-    },
-    /**
-     * 获取设置面板的高度
-     */
-    getHeight() {
-      if (window.innerHeight > 450) {
-        return "80vh";
-      } else {
-        return "450px";
-      }
     },
     /**
      * 获取配置内容
