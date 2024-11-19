@@ -1,8 +1,9 @@
-import { DOMUtils, log, utils } from "@/env";
+import { addStyle, DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import { VueUtils } from "@/utils/VueUtils";
 import { BilibiliHead } from "./head/BilibiliHead";
+import { BilibiliRouter } from "@/router/BilibiliRouter";
 
 export const BilibiliVueProp = {
 	init() {
@@ -168,6 +169,14 @@ export const BilibiliVueProp = {
 				set(vueIns) {
 					vueIns.$store.state.common.tinyApp = true;
 					log.success("成功设置参数 $store.state.common.tinyApp=true");
+					PopsPanel.onceExec("bili-tinyApp-init-css",()=>{
+						// 开启tinyApp后会隐藏输入框
+						addStyle(/*css*/ `
+							.tiny-app .reply-input,.tiny-app .reply-item .info .name .right,.tiny-app .reply-item .info .toolbar,.tiny-app .sub-reply-input {
+								display: block;
+							}
+						`);
+					})
 				},
 			},
 		]);
