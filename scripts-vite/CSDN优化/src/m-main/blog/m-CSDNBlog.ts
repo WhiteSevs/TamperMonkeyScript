@@ -224,16 +224,18 @@ export const M_CSDNBlog = {
 	 */
 	removeAds() {
 		log.info("去除广告");
-		/* 登录窗口 */
-		CommonUtil.waitRemove(".passport-login-container");
-		/* 打开APP */
-		CommonUtil.waitRemove(".btn_open_app_prompt_box.detail-open-removed");
-		/* 广告 */
-		CommonUtil.waitRemove(".add-firstAd");
-		/* 打开CSDN APP 小程序看全文 */
-		CommonUtil.waitRemove("div.feed-Sign-weixin");
-		/* ios版本提示 */
-		CommonUtil.waitRemove("div.ios-shadowbox");
+		return [
+			/* 登录窗口 */
+			CommonUtil.waitRemove(".passport-login-container"),
+			/* 打开APP */
+			CommonUtil.waitRemove(".btn_open_app_prompt_box.detail-open-removed"),
+			/* 广告 */
+			CommonUtil.waitRemove(".add-firstAd"),
+			/* 打开CSDN APP 小程序看全文 */
+			CommonUtil.waitRemove("div.feed-Sign-weixin"),
+			/* ios版本提示 */
+			CommonUtil.waitRemove("div.ios-shadowbox"),
+		];
 	},
 	/**
 	 * 不限制代码块最大高度

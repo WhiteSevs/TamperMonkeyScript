@@ -6,8 +6,8 @@ import { CommonUtil } from "@/utils/CommonUtil";
 const M_CSDNWenKu = {
 	init() {
 		addStyle(ShieldCSS);
-		PopsPanel.execMenu("m-csdn-wenku-shieldBottomToolbar", () => {
-			this.shieldBottomToolbar();
+		PopsPanel.execMenuOnce("m-csdn-wenku-shieldBottomToolbar", () => {
+			return this.shieldBottomToolbar();
 		});
 	},
 	/**
@@ -15,7 +15,7 @@ const M_CSDNWenKu = {
 	 */
 	shieldBottomToolbar() {
 		log.info("【屏蔽】底部工具栏");
-		CommonUtil.addBlockCSS(`.page-container > div.btn`);
+		return CommonUtil.addBlockCSS(`.page-container > div.btn`);
 	},
 };
 

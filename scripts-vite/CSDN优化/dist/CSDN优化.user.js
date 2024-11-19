@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.16
+// @version      2024.11.19
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -10,7 +10,7 @@
 // @match        *://*.csdn.net/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @connect      blog.csdn.net
@@ -3022,11 +3022,18 @@
      */
     removeAds() {
       log.info("去除广告");
-      CommonUtil.waitRemove(".passport-login-container");
-      CommonUtil.waitRemove(".btn_open_app_prompt_box.detail-open-removed");
-      CommonUtil.waitRemove(".add-firstAd");
-      CommonUtil.waitRemove("div.feed-Sign-weixin");
-      CommonUtil.waitRemove("div.ios-shadowbox");
+      return [
+        /* 登录窗口 */
+        CommonUtil.waitRemove(".passport-login-container"),
+        /* 打开APP */
+        CommonUtil.waitRemove(".btn_open_app_prompt_box.detail-open-removed"),
+        /* 广告 */
+        CommonUtil.waitRemove(".add-firstAd"),
+        /* 打开CSDN APP 小程序看全文 */
+        CommonUtil.waitRemove("div.feed-Sign-weixin"),
+        /* ios版本提示 */
+        CommonUtil.waitRemove("div.ios-shadowbox")
+      ];
     },
     /**
      * 不限制代码块最大高度
@@ -3432,8 +3439,8 @@
   const M_CSDNWenKu = {
     init() {
       addStyle(ShieldCSS);
-      PopsPanel.execMenu("m-csdn-wenku-shieldBottomToolbar", () => {
-        this.shieldBottomToolbar();
+      PopsPanel.execMenuOnce("m-csdn-wenku-shieldBottomToolbar", () => {
+        return this.shieldBottomToolbar();
       });
     },
     /**
@@ -3441,7 +3448,7 @@
      */
     shieldBottomToolbar() {
       log.info("【屏蔽】底部工具栏");
-      CommonUtil.addBlockCSS(`.page-container > div.btn`);
+      return CommonUtil.addBlockCSS(`.page-container > div.btn`);
     }
   };
   const CSDNBlockCSS = "/* 右下角悬浮图标 买1年送3个月 */\r\n.page-container .blind_box,\r\n/* 底部工具栏右边的 开会员按钮（低至xx元/次） */\r\n.page-container .btn .ml-12,\r\n/* 登录弹窗 */\r\n.passport-login-container,\r\n/* 通用广告className匹配 */\r\n.ads {\r\n	display: none !important;\r\n}\r\n";

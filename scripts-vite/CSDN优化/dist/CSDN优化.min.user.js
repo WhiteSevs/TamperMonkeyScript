@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.16
+// @version      2024.11.19
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -10,7 +10,7 @@
 // @match        *://*.csdn.net/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @connect      blog.csdn.net
@@ -355,7 +355,7 @@ div.ios-shadowbox {\r
 			  margin-top: .32rem !important;
 			  padding-top: unset !important;
 			}
-			`)]},refactoringRecommendation(){function e(){document.querySelectorAll(".container-fluid").forEach(o=>{var d,u;let l="",a="",s="",m="",h=!1,g=!1;if(o.hasAttribute("data-url")){if(l=o.getAttribute("data-url"),a=(d=o.querySelector(".recommend_title div.left"))==null?void 0:d.innerHTML,!o.querySelector(".text"))return;s=(u=o.querySelector(".text"))==null?void 0:u.innerHTML,o.querySelectorAll(".recommend-img").length&&o.querySelectorAll(".recommend-img").forEach(S=>{m+=S.innerHTML;});}else l=o.querySelector("a[data-type]").getAttribute("href"),a=o.querySelector(".recommend_title div.left").innerHTML,s=o.querySelector(".text").innerHTML;var c=new URL(l);c.host==="download.csdn.net"||c.host==="www.iteye.com"&&c.pathname.match(/^\/resource/gi)?(h=!0,a='<div class="component-box"><a class="praise" href="javascript:;">CSDN下载</a></div>'+a):c.origin.match(/edu.csdn.net/gi)&&(g=!0,a='<div class="component-box"><a class="csdn-edu-title" href="javascript:;">CSDN学院</a></div>'+a),o.setAttribute("class","GM-csdn-dl"),o.setAttribute("data-url",l),o.innerHTML=`<div class="GM-csdn-title"><div class="left">${a}</div></div><div class="GM-csdn-content">${s}</div><div class="GM-csdn-img">${m}</div>`,o.addEventListener("click",function(){r.getValue("m-csdn-blog-openNewTab")?window.open(l,"_blank"):window.location.href=l;}),(h||g)&&r.getValue("m-csdn-blog-removeResourceArticle")&&o.remove();});}let t=new f.LockFunction(e,50);f.waitNode("#recommend").then(o=>{n.info("重构底部推荐"),t.run(),f.mutationObserver(o,{callback:()=>{t.run();},config:{childList:!0,subtree:!0,attributes:!0}});});},blockBottomArticle(){return n.info("屏蔽底部文章"),p.addBlockCSS("#recommend")},blockComment(){return n.info("屏蔽评论"),p.addBlockCSS("#comment")},removeAds(){n.info("去除广告"),p.waitRemove(".passport-login-container"),p.waitRemove(".btn_open_app_prompt_box.detail-open-removed"),p.waitRemove(".add-firstAd"),p.waitRemove("div.feed-Sign-weixin"),p.waitRemove("div.ios-shadowbox");},notLimitCodePreMaxHeight(){return n.info("不限制代码块最大高度"),b(`
+			`)]},refactoringRecommendation(){function e(){document.querySelectorAll(".container-fluid").forEach(o=>{var d,u;let l="",a="",s="",m="",h=!1,g=!1;if(o.hasAttribute("data-url")){if(l=o.getAttribute("data-url"),a=(d=o.querySelector(".recommend_title div.left"))==null?void 0:d.innerHTML,!o.querySelector(".text"))return;s=(u=o.querySelector(".text"))==null?void 0:u.innerHTML,o.querySelectorAll(".recommend-img").length&&o.querySelectorAll(".recommend-img").forEach(S=>{m+=S.innerHTML;});}else l=o.querySelector("a[data-type]").getAttribute("href"),a=o.querySelector(".recommend_title div.left").innerHTML,s=o.querySelector(".text").innerHTML;var c=new URL(l);c.host==="download.csdn.net"||c.host==="www.iteye.com"&&c.pathname.match(/^\/resource/gi)?(h=!0,a='<div class="component-box"><a class="praise" href="javascript:;">CSDN下载</a></div>'+a):c.origin.match(/edu.csdn.net/gi)&&(g=!0,a='<div class="component-box"><a class="csdn-edu-title" href="javascript:;">CSDN学院</a></div>'+a),o.setAttribute("class","GM-csdn-dl"),o.setAttribute("data-url",l),o.innerHTML=`<div class="GM-csdn-title"><div class="left">${a}</div></div><div class="GM-csdn-content">${s}</div><div class="GM-csdn-img">${m}</div>`,o.addEventListener("click",function(){r.getValue("m-csdn-blog-openNewTab")?window.open(l,"_blank"):window.location.href=l;}),(h||g)&&r.getValue("m-csdn-blog-removeResourceArticle")&&o.remove();});}let t=new f.LockFunction(e,50);f.waitNode("#recommend").then(o=>{n.info("重构底部推荐"),t.run(),f.mutationObserver(o,{callback:()=>{t.run();},config:{childList:!0,subtree:!0,attributes:!0}});});},blockBottomArticle(){return n.info("屏蔽底部文章"),p.addBlockCSS("#recommend")},blockComment(){return n.info("屏蔽评论"),p.addBlockCSS("#comment")},removeAds(){return n.info("去除广告"),[p.waitRemove(".passport-login-container"),p.waitRemove(".btn_open_app_prompt_box.detail-open-removed"),p.waitRemove(".add-firstAd"),p.waitRemove("div.feed-Sign-weixin"),p.waitRemove("div.ios-shadowbox")]},notLimitCodePreMaxHeight(){return n.info("不限制代码块最大高度"),b(`
         pre{
             max-height: unset !important;
         }
@@ -481,7 +481,7 @@ div.ios-shadowbox {\r
 .blind_box {\r
   display: none !important;\r
 }\r
-`,Ke={init(){b(ze),r.execMenu("m-csdn-wenku-shieldBottomToolbar",()=>{this.shieldBottomToolbar();});},shieldBottomToolbar(){n.info("【屏蔽】底部工具栏"),p.addBlockCSS(".page-container > div.btn");}},Je=`/* 右下角悬浮图标 买1年送3个月 */\r
+`,Ke={init(){b(ze),r.execMenuOnce("m-csdn-wenku-shieldBottomToolbar",()=>this.shieldBottomToolbar());},shieldBottomToolbar(){return n.info("【屏蔽】底部工具栏"),p.addBlockCSS(".page-container > div.btn")}},Je=`/* 右下角悬浮图标 买1年送3个月 */\r
 .page-container .blind_box,\r
 /* 底部工具栏右边的 开会员按钮（低至xx元/次） */\r
 .page-container .btn .ml-12,\r
