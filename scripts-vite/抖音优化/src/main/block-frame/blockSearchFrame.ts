@@ -1,6 +1,5 @@
 import { PopsPanel } from "@/setting/setting";
 import { addStyle, log } from "@/env";
-import { DouYinUtils } from "@/utils/DouYinUtils";
 import { CommonUtil } from "@/utils/CommonUtil";
 
 export const BlockSearchFrame = {

@@ -2,7 +2,6 @@ import { addStyle, log } from "@/env";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { PopsPanel } from "@/setting/setting";
 import { CommonUtil } from "@/utils/CommonUtil";
-import { DouYinUtils } from "@/utils/DouYinUtils";
 
 export const BlockLeftNavigator = {
 	init() {

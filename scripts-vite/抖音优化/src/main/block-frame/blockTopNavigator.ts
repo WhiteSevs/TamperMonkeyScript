@@ -1,7 +1,6 @@
 import { PopsPanel } from "@/setting/setting";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { addStyle, log, utils } from "@/env";
-import { DouYinUtils } from "@/utils/DouYinUtils";
 import { CommonUtil } from "@/utils/CommonUtil";
 
 /** 顶部导航栏屏蔽 */
