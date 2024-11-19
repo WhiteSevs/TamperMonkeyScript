@@ -2,11 +2,11 @@ import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import Qmsg from "qmsg";
 
-const MXHS_Home = {
+export const M_XHSHome = {
 	init() {
 		DOMUtils.ready(() => {
 			PopsPanel.execMenuOnce("little-red-book-repariClick", () => {
-				MXHS_Home.repariClick();
+				M_XHSHome.repariClick();
 			});
 		});
 	},
@@ -67,5 +67,3 @@ const MXHS_Home = {
 		);
 	},
 };
-
-export { MXHS_Home };

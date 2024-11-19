@@ -1,7 +1,7 @@
 import { addStyle, log } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
 
-const MXHS_ArticleShield = {
+export const M_XHSArticleBlock = {
 	/**
 	 * 允许复制
 	 */
@@ -17,7 +17,7 @@ const MXHS_ArticleShield = {
 	/**
 	 * 屏蔽底部搜索发现
 	 */
-	shieldBottomSearchFind() {
+	blockBottomSearchFind() {
 		log.info("屏蔽底部搜索发现");
 		return CommonUtil.addBlockCSS(
 			".hotlist-container",
@@ -28,14 +28,14 @@ const MXHS_ArticleShield = {
 	/**
 	 * 屏蔽底部工具栏
 	 */
-	shieldBottomToorBar() {
+	blockBottomToorBar() {
 		log.info("屏蔽底部工具栏");
 		return CommonUtil.addBlockCSS(".engage-bar-container");
 	},
 	/**
 	 * 屏蔽视频笔记的作者热门笔记
 	 */
-	shieldAuthorHotNote() {
+	blockAuthorHotNote() {
 		log.info("屏蔽视频笔记的作者热门笔记");
 		return CommonUtil.addBlockCSS(
 			".user-notes-box.user-notes-clo-layout-container"
@@ -44,10 +44,8 @@ const MXHS_ArticleShield = {
 	/**
 	 * 屏蔽视频笔记的热门推荐
 	 */
-	shieldHotRecommendNote() {
+	blockHotRecommendNote() {
 		log.info("屏蔽视频笔记的热门推荐");
 		return CommonUtil.addBlockCSS("#new-note-view-container .recommend-box");
 	},
 };
-
-export { MXHS_ArticleShield };

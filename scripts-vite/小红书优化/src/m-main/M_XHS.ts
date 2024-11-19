@@ -1,12 +1,12 @@
 import { XHS_Hook } from "@/hook/hook";
 import { PopsPanel } from "@/setting/setting";
-import MXiaoHongShuSheldCSS from "./shield.css?raw";
+import blockCSS from "./css/block.css?raw";
 import { ScriptRouter } from "@/router/router";
-import { MXHS_Article } from "./article/MXHS_Article";
-import { MXHS_Home } from "./home/MXHS-Home";
+import { M_XHSArticle } from "./article/M_XHSArticle";
+import { M_XHSHome } from "./home/M_XHSHome";
 import { addStyle, log } from "@/env";
 
-const MXHS = {
+export const M_XHS = {
 	init() {
 		PopsPanel.execMenu("little-red-book-hijack-vue", () => {
 			log.info("劫持页面的Vue");
@@ -14,17 +14,17 @@ const MXHS = {
 		});
 		PopsPanel.execMenuOnce("little-red-book-shieldAd", () => {
 			log.info("注入默认屏蔽CSS");
-			return addStyle(MXiaoHongShuSheldCSS);
+			return addStyle(blockCSS);
 		});
 		PopsPanel.execMenuOnce("little-red-book-allowCopy", () => {
-			return MXHS.allowCopy();
+			return M_XHS.allowCopy();
 		});
 		if (ScriptRouter.isArticle()) {
 			/* 笔记页面 */
-			MXHS_Article.init();
+			M_XHSArticle.init();
 		} else if (ScriptRouter.isUserHome()) {
 			/* 用户主页 */
-			MXHS_Home.init();
+			M_XHSHome.init();
 		}
 	},
 	/**
@@ -32,7 +32,7 @@ const MXHS = {
 	 */
 	allowCopy() {
 		log.info("允许复制文字");
-		return addStyle(`
+		return addStyle(/*css*/ `
         *{
             -webkit-user-select: unset;
             user-select: unset;
@@ -40,5 +40,3 @@ const MXHS = {
         `);
 	},
 };
-
-export { MXHS };

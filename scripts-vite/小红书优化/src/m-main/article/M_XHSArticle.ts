@@ -1,13 +1,14 @@
 import { XHSApi } from "@/api/XHSApi";
-import { DOMUtils, Viewer, log, utils } from "@/env";
+import { DOMUtils, Viewer, addStyle, log, utils } from "@/env";
 import { XHS_Hook } from "@/hook/hook";
 import { PopsPanel } from "@/setting/setting";
 import { unsafeWindow } from "ViteGM";
-import { MXHS_ArticleShield } from "./MXHS_ArticleShield";
-import { MXHS_VideoArticle } from "./MXHS_VideoArticle";
+import { M_XHSArticleBlock } from "./M_XHSArticleBlock";
+import { M_XHSArticleVideo } from "./M_XHSArticleVideo";
 import Qmsg from "qmsg";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { GM_RESOURCE_MAPPING } from "@/GM_Resource_Mapping";
+import blockCSS from "./css/block.css?raw";
 
 interface CommentDataInfo {
 	user_id: string;
@@ -17,8 +18,9 @@ interface CommentDataInfo {
 	create_time: string | number;
 	ip_location: string;
 }
-const MXHS_Article = {
+export const M_XHSArticle = {
 	init() {
+		addStyle(blockCSS);
 		if (
 			PopsPanel.getValue("little-red-book-hijack-webpack-mask") ||
 			PopsPanel.getValue("little-red-book-hijack-webpack-scheme")
@@ -27,26 +29,26 @@ const MXHS_Article = {
 			XHS_Hook.webpackChunkranchi();
 		}
 		PopsPanel.execMenuOnce("little-red-book-shieldBottomSearchFind", () => {
-			return MXHS_ArticleShield.shieldBottomSearchFind();
+			return M_XHSArticleBlock.blockBottomSearchFind();
 		});
 		PopsPanel.execMenuOnce("little-red-book-shieldBottomToorBar", () => {
-			return MXHS_ArticleShield.shieldBottomToorBar();
+			return M_XHSArticleBlock.blockBottomToorBar();
 		});
 		PopsPanel.execMenuOnce("little-red-book-optimizeImageBrowsing", () => {
-			MXHS_Article.optimizeImageBrowsing();
+			M_XHSArticle.optimizeImageBrowsing();
 		});
 		PopsPanel.execMenuOnce("little-red-book-optimizeVideoNoteDesc", () => {
-			return MXHS_VideoArticle.optimizeVideoNoteDesc();
+			return M_XHSArticleVideo.optimizeVideoNoteDesc();
 		});
 		PopsPanel.execMenuOnce("little-red-book-shieldAuthorHotNote", () => {
-			return MXHS_ArticleShield.shieldAuthorHotNote();
+			return M_XHSArticleBlock.blockAuthorHotNote();
 		});
 		PopsPanel.execMenuOnce("little-red-book-shieldHotRecommendNote", () => {
-			return MXHS_ArticleShield.shieldHotRecommendNote();
+			return M_XHSArticleBlock.blockHotRecommendNote();
 		});
 		DOMUtils.ready(function () {
 			PopsPanel.execMenu("little-red-book-optimizeCommentBrowsing", () => {
-				MXHS_Article.optimizeCommentBrowsing();
+				M_XHSArticle.optimizeCommentBrowsing();
 			});
 		});
 	},
@@ -538,5 +540,3 @@ const MXHS_Article = {
 		});
 	},
 };
-
-export { MXHS_Article };

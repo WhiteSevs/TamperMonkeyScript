@@ -7,7 +7,7 @@ import { XHS_Article } from "./article/XHS_Article";
 import Qmsg from "qmsg";
 import { ScriptRouter } from "@/router/router";
 
-const XHS = {
+export const XHS = {
 	init() {
 		PopsPanel.execMenuOnce("pc-xhs-hook-vue", () => {
 			XHS_Hook.webPackVue();
@@ -74,5 +74,3 @@ const XHS = {
 		);
 	},
 };
-
-export { XHS };

@@ -1,7 +1,6 @@
 import { addStyle, log } from "@/env";
 
-const MXHS_VideoArticle = {
-	init() {},
+export const M_XHSArticleVideo = {
 	/**
 	 * 优化视频笔记的描述（可滚动）
 	 */
@@ -18,5 +17,3 @@ const MXHS_VideoArticle = {
     }`);
 	},
 };
-
-export { MXHS_VideoArticle };

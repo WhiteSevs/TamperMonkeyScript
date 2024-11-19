@@ -20,7 +20,7 @@ import Qmsg from "qmsg";
  *
  */
 
-const XHS_Article = {
+export const XHS_Article = {
 	init() {
 		if (
 			PopsPanel.getValue("pc-xhs-search-open-blank-btn") ||
@@ -117,5 +117,3 @@ const XHS_Article = {
 		`);
 	},
 };
-
-export { XHS_Article };

@@ -1,5 +1,0 @@
-/* 视频笔记 */
-/* 底部评论区的- 打开小红书查看全部评论  */
-#new-note-view-container .comment-box .comment-items .button-launch {
-  display: none !important;
-}

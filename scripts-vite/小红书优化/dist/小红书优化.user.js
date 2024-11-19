@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.16
+// @version      2024.11.19
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -10,7 +10,7 @@
 // @match        *://www.xiaohongshu.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
@@ -1601,7 +1601,7 @@
       };
     }
   };
-  const MXiaoHongShuSheldCSS = "/* 底部的App内打开 */\r\n.bottom-button-box,\r\n/* 顶部的打开看看 */\r\n.nav-bar-box,\r\n/* 首页-顶部的打开看看 */\r\n.launch-app-container {\r\n  display: none !important;\r\n}\r\n";
+  const blockCSS$2 = "/* 用户主页 */\r\n/* 底部的-App内打开 */\r\n.launch-app-container.bottom-bar,\r\n/* 顶部的-打开看看 */\r\n.main-container > .scroll-view-container > .launch-app-container:first-child,\r\n/* 底部的-打开小红书看更多精彩内容 */\r\n.bottom-launch-app-tip.show-bottom-bar {\r\n  display: none !important;\r\n}\r\n";
   const ScriptRouter = {
     /**
      * 判断是否是笔记页面
@@ -1738,7 +1738,7 @@
       return data.data.sug_items;
     }
   };
-  const MXHS_ArticleShield = {
+  const M_XHSArticleBlock = {
     /**
      * 允许复制
      */
@@ -1757,7 +1757,7 @@
     /**
      * 屏蔽底部搜索发现
      */
-    shieldBottomSearchFind() {
+    blockBottomSearchFind() {
       log.info("屏蔽底部搜索发现");
       return CommonUtil.addBlockCSS(
         ".hotlist-container",
@@ -1768,14 +1768,14 @@
     /**
      * 屏蔽底部工具栏
      */
-    shieldBottomToorBar() {
+    blockBottomToorBar() {
       log.info("屏蔽底部工具栏");
       return CommonUtil.addBlockCSS(".engage-bar-container");
     },
     /**
      * 屏蔽视频笔记的作者热门笔记
      */
-    shieldAuthorHotNote() {
+    blockAuthorHotNote() {
       log.info("屏蔽视频笔记的作者热门笔记");
       return CommonUtil.addBlockCSS(
         ".user-notes-box.user-notes-clo-layout-container"
@@ -1784,14 +1784,12 @@
     /**
      * 屏蔽视频笔记的热门推荐
      */
-    shieldHotRecommendNote() {
+    blockHotRecommendNote() {
       log.info("屏蔽视频笔记的热门推荐");
       return CommonUtil.addBlockCSS("#new-note-view-container .recommend-box");
     }
   };
-  const MXHS_VideoArticle = {
-    init() {
-    },
+  const M_XHSArticleVideo = {
     /**
      * 优化视频笔记的描述（可滚动）
      */
@@ -1811,33 +1809,35 @@
       );
     }
   };
-  const MXHS_Article = {
+  const blockCSS$1 = "/* 底部的App内打开 */\r\n.bottom-button-box,\r\n/* 顶部的打开看看 */\r\n.nav-bar-box {\r\n  display: none !important;\r\n}\r\n";
+  const M_XHSArticle = {
     init() {
+      addStyle(blockCSS$1);
       if (PopsPanel.getValue("little-red-book-hijack-webpack-mask") || PopsPanel.getValue("little-red-book-hijack-webpack-scheme")) {
         log.info("劫持webpack");
         XHS_Hook.webpackChunkranchi();
       }
       PopsPanel.execMenuOnce("little-red-book-shieldBottomSearchFind", () => {
-        return MXHS_ArticleShield.shieldBottomSearchFind();
+        return M_XHSArticleBlock.blockBottomSearchFind();
       });
       PopsPanel.execMenuOnce("little-red-book-shieldBottomToorBar", () => {
-        return MXHS_ArticleShield.shieldBottomToorBar();
+        return M_XHSArticleBlock.blockBottomToorBar();
       });
       PopsPanel.execMenuOnce("little-red-book-optimizeImageBrowsing", () => {
-        MXHS_Article.optimizeImageBrowsing();
+        M_XHSArticle.optimizeImageBrowsing();
       });
       PopsPanel.execMenuOnce("little-red-book-optimizeVideoNoteDesc", () => {
-        return MXHS_VideoArticle.optimizeVideoNoteDesc();
+        return M_XHSArticleVideo.optimizeVideoNoteDesc();
       });
       PopsPanel.execMenuOnce("little-red-book-shieldAuthorHotNote", () => {
-        return MXHS_ArticleShield.shieldAuthorHotNote();
+        return M_XHSArticleBlock.blockAuthorHotNote();
       });
       PopsPanel.execMenuOnce("little-red-book-shieldHotRecommendNote", () => {
-        return MXHS_ArticleShield.shieldHotRecommendNote();
+        return M_XHSArticleBlock.blockHotRecommendNote();
       });
       domutils.ready(function() {
         PopsPanel.execMenu("little-red-book-optimizeCommentBrowsing", () => {
-          MXHS_Article.optimizeCommentBrowsing();
+          M_XHSArticle.optimizeCommentBrowsing();
         });
       });
     },
@@ -2280,11 +2280,11 @@
       });
     }
   };
-  const MXHS_Home = {
+  const M_XHSHome = {
     init() {
       domutils.ready(() => {
         PopsPanel.execMenuOnce("little-red-book-repariClick", () => {
-          MXHS_Home.repariClick();
+          M_XHSHome.repariClick();
         });
       });
     },
@@ -2332,7 +2332,7 @@
       );
     }
   };
-  const MXHS = {
+  const M_XHS = {
     init() {
       PopsPanel.execMenu("little-red-book-hijack-vue", () => {
         log.info("劫持页面的Vue");
@@ -2340,15 +2340,15 @@
       });
       PopsPanel.execMenuOnce("little-red-book-shieldAd", () => {
         log.info("注入默认屏蔽CSS");
-        return addStyle(MXiaoHongShuSheldCSS);
+        return addStyle(blockCSS$2);
       });
       PopsPanel.execMenuOnce("little-red-book-allowCopy", () => {
-        return MXHS.allowCopy();
+        return M_XHS.allowCopy();
       });
       if (ScriptRouter.isArticle()) {
-        MXHS_Article.init();
+        M_XHSArticle.init();
       } else if (ScriptRouter.isUserHome()) {
-        MXHS_Home.init();
+        M_XHSHome.init();
       }
     },
     /**
@@ -2356,36 +2356,39 @@
      */
     allowCopy() {
       log.info("允许复制文字");
-      return addStyle(`
+      return addStyle(
+        /*css*/
+        `
         *{
             -webkit-user-select: unset;
             user-select: unset;
         }
-        `);
+        `
+      );
     }
   };
-  const XHSShieldCSS = "";
+  const blockCSS = "";
   const XHSBlock = {
     init() {
       PopsPanel.execMenuOnce("pc-xhs-shieldAd", () => {
-        return addStyle(XHSShieldCSS);
+        return addStyle(blockCSS);
       });
       PopsPanel.execMenuOnce("pc-xhs-shield-select-text-search-position", () => {
-        return this.shieldSelectTextVisibleSearchPosition();
+        return this.blockSelectTextVisibleSearchPosition();
       });
       PopsPanel.execMenuOnce("pc-xhs-shield-topToolbar", () => {
-        return this.shieldTopToolbar();
+        return this.blockTopToolbar();
       });
       domutils.ready(() => {
         PopsPanel.execMenuOnce("pc-xhs-shield-login-dialog", () => {
-          this.shieldLoginContainer();
+          this.blockLoginContainer();
         });
       });
     },
     /**
      * 屏蔽登录弹窗显示
      */
-    shieldLoginContainer() {
+    blockLoginContainer() {
       log.info("添加屏蔽登录弹窗CSS，监听登录弹窗出现");
       CommonUtil.addBlockCSS(".login-container");
       utils.mutationObserver(document.body, {
@@ -2407,14 +2410,14 @@
     /**
      * 屏蔽选择文字弹出的搜索提示
      */
-    shieldSelectTextVisibleSearchPosition() {
+    blockSelectTextVisibleSearchPosition() {
       log.info("屏蔽选择文字弹出的搜索提示");
       return CommonUtil.addBlockCSS(".search-position");
     },
     /**
      * 【屏蔽】顶部工具栏
      */
-    shieldTopToolbar() {
+    blockTopToolbar() {
       log.info("【屏蔽】顶部工具栏");
       return [
         CommonUtil.addBlockCSS("#headerContainer"),
@@ -2655,7 +2658,7 @@
   if (chooseMode != null) {
     log.info(`手动判定为${chooseMode === 1 ? "移动端" : "PC端"}`);
     if (chooseMode == 1) {
-      MXHS.init();
+      M_XHS.init();
     } else if (chooseMode == 2) {
       XHS.init();
     } else {
@@ -2665,7 +2668,7 @@
   } else {
     if (isMobile) {
       log.info("自动判定为移动端");
-      MXHS.init();
+      M_XHS.init();
     } else {
       log.info("自动判定为PC端");
       XHS.init();

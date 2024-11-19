@@ -1,6 +1,6 @@
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 import { PopsPanel } from "@/setting/setting";
-import { MXHS } from "./m-main/MXHS";
+import { M_XHS } from "./m-main/M_XHS";
 import { addStyle, GM_Menu, log, utils } from "./env";
 import { XHS } from "./main/XHS";
 import Qmsg from "qmsg";
@@ -58,7 +58,7 @@ GM_Menu.add({
 if (chooseMode != null) {
 	log.info(`手动判定为${chooseMode === 1 ? "移动端" : "PC端"}`);
 	if (chooseMode == 1) {
-		MXHS.init();
+		M_XHS.init();
 	} else if (chooseMode == 2) {
 		XHS.init();
 	} else {
@@ -68,7 +68,7 @@ if (chooseMode != null) {
 } else {
 	if (isMobile) {
 		log.info("自动判定为移动端");
-		MXHS.init();
+		M_XHS.init();
 	} else {
 		log.info("自动判定为PC端");
 		XHS.init();

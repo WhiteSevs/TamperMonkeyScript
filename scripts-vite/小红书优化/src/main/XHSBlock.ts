@@ -1,29 +1,29 @@
 import { PopsPanel } from "@/setting/setting";
-import XHSShieldCSS from "./shield.css?raw";
+import blockCSS from "./css/block.css?raw";
 import { addStyle, DOMUtils, log, utils } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
 
 export const XHSBlock = {
 	init() {
 		PopsPanel.execMenuOnce("pc-xhs-shieldAd", () => {
-			return addStyle(XHSShieldCSS);
+			return addStyle(blockCSS);
 		});
 		PopsPanel.execMenuOnce("pc-xhs-shield-select-text-search-position", () => {
-			return this.shieldSelectTextVisibleSearchPosition();
+			return this.blockSelectTextVisibleSearchPosition();
 		});
 		PopsPanel.execMenuOnce("pc-xhs-shield-topToolbar", () => {
-			return this.shieldTopToolbar();
+			return this.blockTopToolbar();
 		});
 		DOMUtils.ready(() => {
 			PopsPanel.execMenuOnce("pc-xhs-shield-login-dialog", () => {
-				this.shieldLoginContainer();
+				this.blockLoginContainer();
 			});
 		});
 	},
 	/**
 	 * 屏蔽登录弹窗显示
 	 */
-	shieldLoginContainer() {
+	blockLoginContainer() {
 		log.info("添加屏蔽登录弹窗CSS，监听登录弹窗出现");
 		CommonUtil.addBlockCSS(".login-container");
 		/* 观察内容加载并关闭弹窗 */
@@ -46,14 +46,14 @@ export const XHSBlock = {
 	/**
 	 * 屏蔽选择文字弹出的搜索提示
 	 */
-	shieldSelectTextVisibleSearchPosition() {
+	blockSelectTextVisibleSearchPosition() {
 		log.info("屏蔽选择文字弹出的搜索提示");
 		return CommonUtil.addBlockCSS(".search-position");
 	},
 	/**
 	 * 【屏蔽】顶部工具栏
 	 */
-	shieldTopToolbar() {
+	blockTopToolbar() {
 		log.info("【屏蔽】顶部工具栏");
 		return [
 			CommonUtil.addBlockCSS("#headerContainer"),
