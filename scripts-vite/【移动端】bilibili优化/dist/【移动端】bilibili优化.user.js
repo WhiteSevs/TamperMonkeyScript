@@ -6095,12 +6095,6 @@
       PopsPanel.execMenuOnce("bili-video-repairVideoBottomAreaHeight", () => {
         return this.repairVideoBottomAreaHeight();
       });
-      PopsPanel.execMenuOnce(
-        "bili-video-autoClickContinueToWatchOnTheWebpage",
-        () => {
-          this.autoClickContinueToWatchOnTheWebpage();
-        }
-      );
       PopsPanel.execMenu("bili-video-beautify", () => {
         this.beautify();
       });
@@ -6289,27 +6283,6 @@
 			}
 		}
 		`
-      );
-    },
-    /**
-     * 自动点击【继续在网页观看】
-     */
-    autoClickContinueToWatchOnTheWebpage() {
-      domutils.on(
-        document,
-        "click",
-        BilibiliData.className.video + " .main-info .btn",
-        function() {
-          log.info("触发点击【立即播放】，自动等待弹窗出现");
-          utils.waitNode(".to-see", 1e4).then(($toSee) => {
-            if (!$toSee) {
-              log.error("弹窗按钮【继续在网页观看】10秒内未出现，取消等待");
-              return;
-            }
-            log.success("自动点击 继续在网页观看");
-            $toSee.click();
-          });
-        }
       );
     },
     /**
@@ -9983,7 +9956,7 @@
       });
       PopsPanel.execMenuOnce("bili-head-beautify", () => {
         log.info("添加美化CSS");
-        addStyle(BilibiliBeautifyCSS);
+        return addStyle(BilibiliBeautifyCSS);
       });
       if (BilibiliRouter.isVideo()) {
         log.info("Router: 视频稿件");

@@ -51,7 +51,7 @@ const Bilibili = {
 		});
 		PopsPanel.execMenuOnce("bili-head-beautify", () => {
 			log.info("添加美化CSS");
-			addStyle(BilibiliBeautifyCSS);
+			return addStyle(BilibiliBeautifyCSS);
 		});
 
 		if (BilibiliRouter.isVideo()) {

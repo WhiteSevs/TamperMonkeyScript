@@ -19,12 +19,6 @@ const BilibiliVideo = {
 		PopsPanel.execMenuOnce("bili-video-repairVideoBottomAreaHeight", () => {
 			return this.repairVideoBottomAreaHeight();
 		});
-		PopsPanel.execMenuOnce(
-			"bili-video-autoClickContinueToWatchOnTheWebpage",
-			() => {
-				this.autoClickContinueToWatchOnTheWebpage();
-			}
-		);
 		PopsPanel.execMenu("bili-video-beautify", () => {
 			this.beautify();
 		});
@@ -248,27 +242,6 @@ const BilibiliVideo = {
 			}
 		}
 		`);
-	},
-	/**
-	 * 自动点击【继续在网页观看】
-	 */
-	autoClickContinueToWatchOnTheWebpage() {
-		DOMUtils.on<MouseEvent | PointerEvent>(
-			document,
-			"click",
-			BilibiliData.className.video + " .main-info .btn",
-			function () {
-				log.info("触发点击【立即播放】，自动等待弹窗出现");
-				utils.waitNode<HTMLDivElement>(".to-see", 10000).then(($toSee) => {
-					if (!$toSee) {
-						log.error("弹窗按钮【继续在网页观看】10秒内未出现，取消等待");
-						return;
-					}
-					log.success("自动点击 继续在网页观看");
-					$toSee.click();
-				});
-			}
-		);
 	},
 	/**
 	 * 覆盖视频标题区域的点击事件
