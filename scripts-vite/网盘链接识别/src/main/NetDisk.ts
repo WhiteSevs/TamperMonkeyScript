@@ -1,5 +1,5 @@
 import { NetDiskGlobalData } from "./data/NetDiskGlobalData";
-import { log, utils } from "@/env";
+import { GM_Menu, log, utils } from "@/env";
 import Qmsg from "qmsg";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { NetDiskRuleUtils } from "./rule/NetDiskRuleUtils";
@@ -106,13 +106,47 @@ export const NetDisk = {
 		});
 
 		// 这里是输出信息用的，无其它的作用
-		let matchedUrlRuleList = WebsiteRule.getUrlMatchedRule();
+		let matchedUrlRuleList = WebsiteRule.getUrlMatchedRule().filter(
+			(item) => item.enable
+		);
 		if (matchedUrlRuleList.length) {
 			log.info("成功命中网站规则 ==> ", matchedUrlRuleList);
+			GM_Menu.add({
+				key: "matchedUrlRuleList",
+				text: `🌏 命中网站规则 ${matchedUrlRuleList.length} 条`,
+				autoReload: false,
+				isStoreValue: false,
+				showText(text) {
+					return text;
+				},
+				callback: () => {
+					alert(
+						"以下是命中的规则名：\n" +
+							matchedUrlRuleList.map((item) => item.name).join("\n")
+					);
+				},
+			});
 		}
-		let characterMapping = CharacterMapping.getMappingData();
+		let characterMapping = CharacterMapping.getUrlMatchedRule().filter(
+			(item) => item.enable
+		);
 		if (characterMapping.length) {
 			log.info("成功命中字符规则 ==> ", characterMapping);
+			GM_Menu.add({
+				key: "characterMapping",
+				text: `🌏 命中字符规则 ${characterMapping.length} 条`,
+				autoReload: false,
+				isStoreValue: false,
+				showText(text) {
+					return text;
+				},
+				callback: () => {
+					alert(
+						"以下是命中的规则名：\n" +
+							characterMapping.map((item) => item.name).join("\n")
+					);
+				},
+			});
 		}
 	},
 	/**

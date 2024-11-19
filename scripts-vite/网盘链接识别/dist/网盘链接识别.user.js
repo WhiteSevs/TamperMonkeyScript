@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2024.11.16
+// @version      2024.11.19
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @require      https://update.greasyfork.org/scripts/456470/1413242/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js
 // @require      https://update.greasyfork.org/scripts/486152/1448081/Crypto-JS.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @connect      *
@@ -866,39 +866,46 @@
       ruleView.showView();
     },
     /**
+     * 根据url获取匹配的规则
+     *
+     * 注意：不会处理是否启用的情况
+     * @param url 需要匹配的url
+     */
+    getUrlMatchedRule(url = window.location.href) {
+      let allData = this.getData();
+      return allData.filter((rule) => {
+        return Boolean(url.match(rule.data.url));
+      });
+    },
+    /**
      * 获取格式化可用的规则
      * @param url 匹配网址
      */
     getMappingData(url = window.location.href) {
-      let allData = this.getData();
-      let mappingList = [];
-      allData.forEach((data) => {
+      let matchedRule = this.getUrlMatchedRule();
+      return matchedRule.map((data) => {
         if (!data.enable) {
-          return;
-        }
-        if (!url.match(data.data.url)) {
           return;
         }
         if (data.data.isRegExp) {
           try {
-            mappingList.push({
+            return {
               searchValue: new RegExp(
                 data.data.searchValue,
                 data.data.regExpFlag
               ),
               replaceValue: data.data.replaceValue
-            });
+            };
           } catch (error) {
             log.error("字符映射规则转换发生错误：", error);
           }
         } else {
-          mappingList.push({
+          return {
             searchValue: data.data.searchValue,
             replaceValue: data.data.replaceValue
-          });
+          };
         }
-      });
-      return mappingList;
+      }).filter((item) => item != null);
     },
     /**
      * 获取数据
@@ -1048,13 +1055,45 @@
         this.$match.blackMatchedInfo.set(netDiskName, new utils.Dictionary());
         this.$match.tempMatchedInfo.set(netDiskName, new utils.Dictionary());
       });
-      let matchedUrlRuleList = WebsiteRule.getUrlMatchedRule();
+      let matchedUrlRuleList = WebsiteRule.getUrlMatchedRule().filter(
+        (item) => item.enable
+      );
       if (matchedUrlRuleList.length) {
         log.info("成功命中网站规则 ==> ", matchedUrlRuleList);
+        GM_Menu.add({
+          key: "matchedUrlRuleList",
+          text: `🌏 命中网站规则 ${matchedUrlRuleList.length} 条`,
+          autoReload: false,
+          isStoreValue: false,
+          showText(text) {
+            return text;
+          },
+          callback: () => {
+            alert(
+              "以下是命中的规则名：\n" + matchedUrlRuleList.map((item) => item.name).join("\n")
+            );
+          }
+        });
       }
-      let characterMapping = CharacterMapping.getMappingData();
+      let characterMapping = CharacterMapping.getUrlMatchedRule().filter(
+        (item) => item.enable
+      );
       if (characterMapping.length) {
         log.info("成功命中字符规则 ==> ", characterMapping);
+        GM_Menu.add({
+          key: "characterMapping",
+          text: `🌏 命中字符规则 ${characterMapping.length} 条`,
+          autoReload: false,
+          isStoreValue: false,
+          showText(text) {
+            return text;
+          },
+          callback: () => {
+            alert(
+              "以下是命中的规则名：\n" + characterMapping.map((item) => item.name).join("\n")
+            );
+          }
+        });
       }
     },
     /**
@@ -15868,7 +15907,9 @@
       return allRule;
     },
     /**
-     * 根据url获取匹配的网站
+     * 根据url获取匹配的规则
+     * 
+     * 注意：不会处理是否启用的情况
      * @param url 需要匹配的url
      */
     getUrlMatchedRule(url = window.location.href) {

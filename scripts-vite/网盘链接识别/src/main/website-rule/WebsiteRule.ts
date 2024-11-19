@@ -585,7 +585,9 @@ export const WebsiteRule = {
 		return allRule;
 	},
 	/**
-	 * 根据url获取匹配的网站
+	 * 根据url获取匹配的规则
+	 * 
+	 * 注意：不会处理是否启用的情况
 	 * @param url 需要匹配的url
 	 */
 	getUrlMatchedRule(url: string = window.location.href) {

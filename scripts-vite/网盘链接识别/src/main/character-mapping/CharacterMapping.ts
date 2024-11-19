@@ -343,6 +343,18 @@ export const CharacterMapping = {
 		ruleView.showView();
 	},
 	/**
+	 * 根据url获取匹配的规则
+	 *
+	 * 注意：不会处理是否启用的情况
+	 * @param url 需要匹配的url
+	 */
+	getUrlMatchedRule(url = window.location.href) {
+		let allData = this.getData();
+		return allData.filter((rule) => {
+			return Boolean(url.match(rule.data.url));
+		});
+	},
+	/**
 	 * 获取格式化可用的规则
 	 * @param url 匹配网址
 	 */
@@ -350,43 +362,35 @@ export const CharacterMapping = {
 		searchValue: RegExp | string;
 		replaceValue: string;
 	}[] {
-		let allData = this.getData();
-		let mappingList: {
-			searchValue: RegExp | string;
-			replaceValue: string;
-		}[] = [];
-		allData.forEach((data) => {
-			if (!data.enable) {
-				// 得启用
-				return;
-			}
-			if (!url.match(data.data.url)) {
-				// 网址得对应
-				return;
-			}
-			if (data.data.isRegExp) {
-				// 正则替换
-				try {
-					mappingList.push({
-						searchValue: new RegExp(
-							data.data.searchValue,
-							data.data.regExpFlag
-						),
-						replaceValue: data.data.replaceValue,
-					});
-				} catch (error) {
-					log.error("字符映射规则转换发生错误：", error);
+		let matchedRule = this.getUrlMatchedRule();
+		return matchedRule
+			.map((data) => {
+				if (!data.enable) {
+					// 得启用
+					return;
 				}
-			} else {
-				// 普通字符
-				mappingList.push({
-					searchValue: data.data.searchValue,
-					replaceValue: data.data.replaceValue,
-				});
-			}
-		});
-
-		return mappingList;
+				if (data.data.isRegExp) {
+					// 正则替换
+					try {
+						return {
+							searchValue: new RegExp(
+								data.data.searchValue,
+								data.data.regExpFlag
+							),
+							replaceValue: data.data.replaceValue,
+						};
+					} catch (error) {
+						log.error("字符映射规则转换发生错误：", error);
+					}
+				} else {
+					// 普通字符
+					return {
+						searchValue: data.data.searchValue,
+						replaceValue: data.data.replaceValue,
+					};
+				}
+			})
+			.filter((item) => item != null);
 	},
 	/**
 	 * 获取数据
