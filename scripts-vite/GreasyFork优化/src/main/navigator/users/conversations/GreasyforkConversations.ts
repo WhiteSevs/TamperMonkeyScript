@@ -20,8 +20,7 @@ export const GreasyforkConversations = {
 	 */
 	beautifyDialogBox() {
 		log.info("美化对话框");
-		let result = [];
-		result.push(addStyle(beautifyContentCSS));
+		return addStyle(beautifyContentCSS);
 	},
 	/**
 	 * 美化私信列表

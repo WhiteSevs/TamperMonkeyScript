@@ -375,8 +375,10 @@ export const GreasyforkScripts = {
 		PopsPanel.execMenuOnce("addFindReferenceButton", () => {
 			this.setFindCodeSearchBtn();
 		});
-		PopsPanel.execMenuOnce("scriptHomepageAddedTodaySUpdate", () => {
-			this.scriptHomepageAddedTodaySUpdate();
+		DOMUtils.ready(() => {
+			PopsPanel.execMenuOnce("scriptHomepageAddedTodaySUpdate", () => {
+				this.scriptHomepageAddedTodaySUpdate();
+			});
 		});
 	},
 	/**
