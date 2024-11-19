@@ -1,10 +1,10 @@
-import { addStyle, log } from "@/env";
+import { log } from "@/env";
 import { Jianshu } from "@/main/Jianshu";
 import { PopsPanel } from "@/setting/setting";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { unsafeWindow } from "ViteGM";
 
-const M_Jianshu = {
+export const M_Jianshu = {
 	init() {
 		this.addCSS();
 		PopsPanel.execMenu("JianShuAutoJumpRedirect_Mobile", () => {
@@ -21,10 +21,10 @@ const M_Jianshu = {
 			Jianshu.autoExpandFullText();
 		});
 		PopsPanel.execMenuOnce("JianShuremoveFooterRecommendRead", () => {
-			return this.removeFooterRecommendRead();
+			return this.blockeFooterRecommendRead();
 		});
 		PopsPanel.execMenu("JianShuShieldUserCommentsMobile", () => {
-			return this.shieldUserComments();
+			return this.blockUserComments();
 		});
 	},
 	/**
@@ -36,7 +36,7 @@ const M_Jianshu = {
 	/**
 	 * 手机-屏蔽底部推荐阅读
 	 */
-	removeFooterRecommendRead() {
+	blockeFooterRecommendRead() {
 		log.info("屏蔽底部推荐阅读");
 		return CommonUtil.addBlockCSS("#recommended-notes");
 	},
@@ -65,10 +65,8 @@ const M_Jianshu = {
 	/**
 	 * 屏蔽评论区
 	 */
-	shieldUserComments() {
+	blockUserComments() {
 		log.info("屏蔽评论区");
 		return CommonUtil.addBlockCSS("#comment-main");
 	},
 };
-
-export { M_Jianshu };

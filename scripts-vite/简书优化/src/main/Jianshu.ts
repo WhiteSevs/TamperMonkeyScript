@@ -1,4 +1,4 @@
-import ShieldCSS from "./shield.css?raw";
+import blockCSS from "./css/block.css?raw";
 import { PopsPanel } from "@/setting/setting";
 import { addStyle, log, utils } from "@/env";
 import { JianshuRouter } from "@/router/JianshuRouter";
@@ -8,12 +8,12 @@ import { CommonUtil } from "@/utils/CommonUtil";
  * 移除元素（未出现也可以等待出现）
  * @param selectorText 元素选择器
  */
-const waitForElementToRemove = function (selectorText = "") {
+export const waitForElementToRemove = function (selectorText = "") {
 	utils.waitNodeList<NodeListOf<HTMLElement>>(selectorText).then((nodeList) => {
 		nodeList.forEach((item) => item.remove());
 	});
 };
-const Jianshu = {
+export const Jianshu = {
 	init() {
 		this.addCSS();
 		PopsPanel.execMenu("JianShuAutoJumpRedirect_PC", () => {
@@ -29,22 +29,22 @@ const Jianshu = {
 			return this.articleCenter();
 		});
 		PopsPanel.execMenu("JianShuShieldRelatedArticles", () => {
-			return this.shieldRelatedArticles();
+			return this.blockRelatedArticles();
 		});
 		PopsPanel.execMenu("jianshu-shieldClientDialog", () => {
-			this.shieldClientDialog();
+			this.blockClientDialog();
 		});
 		PopsPanel.execMenuOnce("JianShuShieldUserComments", () => {
-			return this.shieldUserComments();
+			return this.blockUserComments();
 		});
 		PopsPanel.execMenuOnce("JianShuShieldRecommendedReading", () => {
-			return this.shieldRecommendedReading();
+			return this.blockRecommendedReading();
 		});
 		PopsPanel.execMenuOnce("jianshu-shieldTopNav", () => {
-			return this.shieldTopNav();
+			return this.blockTopNav();
 		});
 		PopsPanel.execMenuOnce("jianshu-shieldBottomToolbar", () => {
-			return this.shieldBottomToolbar();
+			return this.blockBottomToolbar();
 		});
 	},
 	/**
@@ -52,7 +52,7 @@ const Jianshu = {
 	 */
 	addCSS() {
 		log.info("添加屏蔽CSS");
-		return addStyle(ShieldCSS);
+		return addStyle(blockCSS);
 	},
 	/**
 	 * 全文居中
@@ -155,7 +155,7 @@ const Jianshu = {
 	/**
 	 * 屏蔽相关文章
 	 */
-	shieldRelatedArticles() {
+	blockRelatedArticles() {
 		log.info("屏蔽相关文章");
 		return CommonUtil.addBlockCSS(
 			'div[role="main"] > div > section:nth-child(2)'
@@ -164,7 +164,7 @@ const Jianshu = {
 	/**
 	 * 【屏蔽】客户端弹窗
 	 */
-	shieldClientDialog() {
+	blockClientDialog() {
 		log.info("【屏蔽】客户端弹窗");
 		CommonUtil.addBlockCSS(
 			'div:has(>div[class*="-mask"]:not([class*="-mask-hidden"]) + div[tabindex="-1"][role="dialog"])'
@@ -198,14 +198,14 @@ const Jianshu = {
 	/**
 	 * 屏蔽评论区
 	 */
-	shieldUserComments() {
+	blockUserComments() {
 		log.info("屏蔽评论区");
 		return CommonUtil.addBlockCSS("div#note-page-comment");
 	},
 	/**
 	 * 屏蔽底部推荐阅读
 	 */
-	shieldRecommendedReading() {
+	blockRecommendedReading() {
 		log.info("屏蔽底部推荐阅读");
 		return CommonUtil.addBlockCSS(
 			'div[role="main"] > div > section:last-child'
@@ -214,17 +214,15 @@ const Jianshu = {
 	/**
 	 * 【屏蔽】顶部导航栏
 	 */
-	shieldTopNav() {
+	blockTopNav() {
 		log.info("【屏蔽】顶部导航栏");
 		return CommonUtil.addBlockCSS("header");
 	},
 	/**
 	 * 【屏蔽】底部工具栏
 	 */
-	shieldBottomToolbar() {
+	blockBottomToolbar() {
 		log.info("【屏蔽】底部工具栏");
 		return CommonUtil.addBlockCSS("footer");
 	},
 };
-
-export { Jianshu, waitForElementToRemove };

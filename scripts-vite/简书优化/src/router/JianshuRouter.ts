@@ -1,4 +1,4 @@
-const JianshuRouter = {
+export const JianshuRouter = {
 	/**
 	 * 简书拦截跳转的网址
 	 */
@@ -6,5 +6,3 @@ const JianshuRouter = {
 		return window.location.pathname === "/go-wild";
 	},
 };
-
-export { JianshuRouter };

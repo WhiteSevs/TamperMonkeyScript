@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         简书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.16
+// @version      2024.11.19
 // @author       WhiteSevs
 // @description  支持手机端和PC端、屏蔽广告、优化浏览体验、重定向链接、全文居中、自动展开全文、允许复制文字、劫持唤醒/跳转App、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @match        *://*.jianshu.io/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @connect      *
@@ -1093,7 +1093,7 @@
       return configList;
     }
   };
-  const ShieldCSS = `.download-app-guidance,\r
+  const blockCSS = `.download-app-guidance,\r
 .call-app-btn,\r
 .collapse-tips,\r
 .note-graceful-button,\r
@@ -1171,22 +1171,22 @@ footer > div > div {\r
         return this.articleCenter();
       });
       PopsPanel.execMenu("JianShuShieldRelatedArticles", () => {
-        return this.shieldRelatedArticles();
+        return this.blockRelatedArticles();
       });
       PopsPanel.execMenu("jianshu-shieldClientDialog", () => {
-        this.shieldClientDialog();
+        this.blockClientDialog();
       });
       PopsPanel.execMenuOnce("JianShuShieldUserComments", () => {
-        return this.shieldUserComments();
+        return this.blockUserComments();
       });
       PopsPanel.execMenuOnce("JianShuShieldRecommendedReading", () => {
-        return this.shieldRecommendedReading();
+        return this.blockRecommendedReading();
       });
       PopsPanel.execMenuOnce("jianshu-shieldTopNav", () => {
-        return this.shieldTopNav();
+        return this.blockTopNav();
       });
       PopsPanel.execMenuOnce("jianshu-shieldBottomToolbar", () => {
-        return this.shieldBottomToolbar();
+        return this.blockBottomToolbar();
       });
     },
     /**
@@ -1194,7 +1194,7 @@ footer > div > div {\r
      */
     addCSS() {
       log.info("添加屏蔽CSS");
-      return addStyle(ShieldCSS);
+      return addStyle(blockCSS);
     },
     /**
      * 全文居中
@@ -1290,7 +1290,7 @@ footer > div > div {\r
     /**
      * 屏蔽相关文章
      */
-    shieldRelatedArticles() {
+    blockRelatedArticles() {
       log.info("屏蔽相关文章");
       return CommonUtil.addBlockCSS(
         'div[role="main"] > div > section:nth-child(2)'
@@ -1299,7 +1299,7 @@ footer > div > div {\r
     /**
      * 【屏蔽】客户端弹窗
      */
-    shieldClientDialog() {
+    blockClientDialog() {
       log.info("【屏蔽】客户端弹窗");
       CommonUtil.addBlockCSS(
         'div:has(>div[class*="-mask"]:not([class*="-mask-hidden"]) + div[tabindex="-1"][role="dialog"])'
@@ -1329,14 +1329,14 @@ footer > div > div {\r
     /**
      * 屏蔽评论区
      */
-    shieldUserComments() {
+    blockUserComments() {
       log.info("屏蔽评论区");
       return CommonUtil.addBlockCSS("div#note-page-comment");
     },
     /**
      * 屏蔽底部推荐阅读
      */
-    shieldRecommendedReading() {
+    blockRecommendedReading() {
       log.info("屏蔽底部推荐阅读");
       return CommonUtil.addBlockCSS(
         'div[role="main"] > div > section:last-child'
@@ -1345,14 +1345,14 @@ footer > div > div {\r
     /**
      * 【屏蔽】顶部导航栏
      */
-    shieldTopNav() {
+    blockTopNav() {
       log.info("【屏蔽】顶部导航栏");
       return CommonUtil.addBlockCSS("header");
     },
     /**
      * 【屏蔽】底部工具栏
      */
-    shieldBottomToolbar() {
+    blockBottomToolbar() {
       log.info("【屏蔽】底部工具栏");
       return CommonUtil.addBlockCSS("footer");
     }
@@ -1373,10 +1373,10 @@ footer > div > div {\r
         Jianshu.autoExpandFullText();
       });
       PopsPanel.execMenuOnce("JianShuremoveFooterRecommendRead", () => {
-        return this.removeFooterRecommendRead();
+        return this.blockeFooterRecommendRead();
       });
       PopsPanel.execMenu("JianShuShieldUserCommentsMobile", () => {
-        return this.shieldUserComments();
+        return this.blockUserComments();
       });
     },
     /**
@@ -1388,7 +1388,7 @@ footer > div > div {\r
     /**
      * 手机-屏蔽底部推荐阅读
      */
-    removeFooterRecommendRead() {
+    blockeFooterRecommendRead() {
       log.info("屏蔽底部推荐阅读");
       return CommonUtil.addBlockCSS("#recommended-notes");
     },
@@ -1411,7 +1411,7 @@ footer > div > div {\r
     /**
      * 屏蔽评论区
      */
-    shieldUserComments() {
+    blockUserComments() {
       log.info("屏蔽评论区");
       return CommonUtil.addBlockCSS("#comment-main");
     }
