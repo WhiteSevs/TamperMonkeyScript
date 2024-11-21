@@ -5,13 +5,13 @@ type RuleEditViewOption<T> = {
 	/** 标题 */
 	title: string;
 	/** 获取当前的数据 */
-	data: () => T;
+	data: () => IPromise<T>;
 	/** 弹窗关闭的回调 */
-	dialogCloseCallBack: (isSubmit: boolean) => void;
+	dialogCloseCallBack: (isSubmit: boolean) => IPromise<void>;
 	/**
 	 * <form>内的html内容
 	 */
-	getView: (data: T) => DocumentFragment;
+	getView: (data: T) => IPromise<DocumentFragment>;
 	/**
 	 * 自定义的style
 	 */
@@ -28,10 +28,10 @@ type RuleEditViewOption<T> = {
 	(
 		$form: HTMLFormElement,
 		data: T
-	) => {
+	) => IPromise<{
 		success: boolean;
 		data: T;
-	};
+	}>;
 	btn?: PopsConfirmDetails["btn"];
 };
 
@@ -43,7 +43,7 @@ export class RuleEditView<T> {
 	/**
 	 * 显示视图
 	 */
-	showView() {
+	async showView() {
 		let $dialog = pops.confirm({
 			title: {
 				text: this.option.title,
@@ -63,8 +63,8 @@ export class RuleEditView<T> {
 			btn: utils.assign(
 				{
 					ok: {
-						callback() {
-							submitSaveOption();
+						callback: async () => {
+							await submitSaveOption();
 						},
 					},
 				},
@@ -115,18 +115,18 @@ export class RuleEditView<T> {
 			)!;
 		let $ulist =
 			$dialog.$shadowRoot.querySelector<HTMLUListElement>(".rule-form-ulist")!;
-		let view = this.option.getView(this.option.data());
+		let view = await this.option.getView(await this.option.data());
 		$ulist.appendChild(view);
 		/**
 		 * 保存配置的回调
 		 */
-		const submitSaveOption = () => {
-			let result = this.option.onsubmit($form, this.option.data());
+		const submitSaveOption = async () => {
+			let result = await this.option.onsubmit($form, await this.option.data());
 			if (!result.success) {
 				return;
 			}
 			$dialog.close();
-			this.option.dialogCloseCallBack(true);
+			await this.option.dialogCloseCallBack(true);
 		};
 	}
 }
