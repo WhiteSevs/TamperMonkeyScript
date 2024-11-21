@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.19
+// @version      2024.11.21
 // @author       WhiteSevs
 // @description  免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -10,6 +10,7 @@
 // @match        *://m.bilibili.com/*
 // @match        *://live.bilibili.com/*
 // @match        *://www.bilibili.com/read/*
+// @match        *://www.bilibili.com/h5/comment/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/497907/1413262/QRCodeJS.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.3/dist/index.umd.js
@@ -29,6 +30,7 @@
 // @connect      hdslb.com
 // @connect      aisubtitle.hdslb.com
 // @grant        GM_addStyle
+// @grant        GM_deleteValue
 // @grant        GM_getResourceText
 // @grant        GM_getValue
 // @grant        GM_info
@@ -47,8 +49,9 @@
 
   var __defProp = Object.defineProperty;
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
+  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var _a;
+  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
   var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
@@ -192,7 +195,7 @@
         zIndex: {
           get() {
             let maxZIndex = Utils.getMaxZIndex();
-            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
+            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
             return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
           }
         }
@@ -211,7 +214,7 @@
     return data2;
   });
   httpx.interceptors.response.use(void 0, (data2) => {
-    log.error(["拦截器-请求错误", data2]);
+    log.error("拦截器-请求错误", data2);
     if (data2.type === "onabort") {
       Qmsg.warning("请求取消");
     } else if (data2.type === "onerror") {
@@ -241,7 +244,20 @@
   };
   const addStyle = utils.addStyle.bind(utils);
   document.querySelector.bind(document);
-  document.querySelectorAll.bind(document);
+  const $$ = document.querySelectorAll.bind(document);
+  pops.GlobalConfig.setGlobalConfig({
+    mask: {
+      enable: true,
+      clickEvent: {
+        toClose: true
+      }
+    },
+    zIndex() {
+      let maxZIndex = Utils.getMaxZIndex();
+      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+    }
+  });
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
@@ -289,7 +305,11 @@
       placeholder,
       disabled,
       getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        let value = this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        if (Array.isArray(value)) {
+          return value.join("\n");
+        }
+        return value;
       },
       callback(event, value) {
         this.props[PROPS_STORAGE_API].set(key, value);
@@ -702,6 +722,1260 @@
       return ((_a2 = this.getAccessTokenInfo()) == null ? void 0 : _a2.access_token) || "";
     }
   };
+  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack) {
+    let result = {
+      text,
+      type: "button",
+      description,
+      buttonIcon,
+      buttonIsRightIcon,
+      buttonIconIsLoading,
+      buttonType,
+      buttonText,
+      callback(event) {
+        if (typeof clickCallBack === "function") {
+          clickCallBack(event);
+        }
+      },
+      afterAddToUListCallBack
+    };
+    return result;
+  };
+  const PanelUISize = {
+    /**
+     * 一般设置界面的尺寸
+     */
+    setting: {
+      get width() {
+        return window.innerWidth < 550 ? "88vw" : "550px";
+      },
+      get height() {
+        return window.innerHeight < 450 ? "70vh" : "450px";
+      }
+    },
+    /**
+     * 功能丰富，aside铺满了的设置界面，要稍微大一点
+     */
+    settingBig: {
+      get width() {
+        return window.innerWidth < 800 ? "92vw" : "800px";
+      },
+      get height() {
+        return window.innerHeight < 600 ? "80vh" : "600px";
+      }
+    },
+    /**
+     * 信息界面，一般用于提示信息之类
+     */
+    info: {
+      get width() {
+        return window.innerWidth < 350 ? "350px" : "350px";
+      },
+      get height() {
+        return window.innerHeight < 250 ? "250px" : "250px";
+      }
+    }
+  };
+  class RuleEditView {
+    constructor(option) {
+      __publicField(this, "option");
+      this.option = option;
+    }
+    /**
+     * 显示视图
+     */
+    showView() {
+      var _a2;
+      let $dialog = __pops.confirm({
+        title: {
+          text: this.option.title,
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+                    <form class="rule-form-container" onsubmit="return false">
+                        <ul class="rule-form-ulist">
+                            
+                        </ul>
+                        <input type="submit" style="display: none;" />
+                    </form>
+                    `
+          ),
+          html: true
+        },
+        btn: utils.assign(
+          {
+            ok: {
+              callback() {
+                submitSaveOption();
+              }
+            }
+          },
+          this.option.btn || {},
+          true
+        ),
+        mask: {
+          enable: true
+        },
+        style: (
+          /*css*/
+          `
+                ${__pops.config.cssText.panelCSS}
+                
+                .rule-form-container {
+                    
+                }
+                .rule-form-container li{
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 5px 20px;
+                    gap: 10px;
+                }
+                .pops-panel-item-left-main-text{
+                    max-width: 150px;
+                }
+                .pops-panel-item-right-text{
+                    padding-left: 30px;
+                }
+                .pops-panel-item-right-text,
+                .pops-panel-item-right-main-text{
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    white-space: nowrap;
+                }
+
+                ${((_a2 = this.option) == null ? void 0 : _a2.style) ?? ""}
+            `
+        ),
+        width: window.innerWidth > 500 ? "500px" : "88vw",
+        height: window.innerHeight > 500 ? "500px" : "80vh"
+      });
+      let $form = $dialog.$shadowRoot.querySelector(
+        ".rule-form-container"
+      );
+      $dialog.$shadowRoot.querySelector(
+        "input[type=submit]"
+      );
+      let $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
+      let view = this.option.getView(this.option.data());
+      $ulist.appendChild(view);
+      const submitSaveOption = () => {
+        let result = this.option.onsubmit($form, this.option.data());
+        if (!result.success) {
+          return;
+        }
+        $dialog.close();
+        this.option.dialogCloseCallBack(true);
+      };
+    }
+  }
+  class RuleFilterView {
+    constructor(option) {
+      __publicField(this, "option");
+      this.option = option;
+    }
+    showView() {
+      let $alert = __pops.alert({
+        title: {
+          text: this.option.title,
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+                <div class="filter-container"></div>
+                `
+          )
+        },
+        btn: {
+          ok: {
+            text: "关闭",
+            type: "default"
+          }
+        },
+        mask: {
+          enable: true
+        },
+        width: window.innerWidth > 500 ? "350px" : "80vw",
+        height: window.innerHeight > 500 ? "300px" : "70vh",
+        style: (
+          /*css*/
+          `
+            .filter-container{
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            .filter-container button{
+                text-wrap: wrap;
+                padding: 8px;
+                height: auto;
+                text-align: left;
+            }
+            `
+        )
+      });
+      let $filterContainer = $alert.$shadowRoot.querySelector(".filter-container");
+      let $fragment = document.createDocumentFragment();
+      this.option.filterOption.forEach((filterOption) => {
+        let $button = document.createElement("button");
+        $button.innerText = filterOption.name;
+        let execFilterAndCloseDialog = () => {
+          this.option.getAllRuleInfo().forEach((ruleInfo) => {
+            if (!filterOption.filterCallBack(ruleInfo.data)) {
+              domutils.hide(ruleInfo.$el, false);
+            } else {
+              domutils.show(ruleInfo.$el, false);
+            }
+          });
+          if (typeof this.option.execFilterCallBack === "function") {
+            this.option.execFilterCallBack();
+          }
+          $alert.close();
+        };
+        domutils.on($button, "click", (event) => {
+          utils.preventEvent(event);
+          if (typeof filterOption.callback === "function") {
+            let result = filterOption.callback(event, execFilterAndCloseDialog);
+            if (!result) {
+              return;
+            }
+          }
+          execFilterAndCloseDialog();
+        });
+        $fragment.appendChild($button);
+      });
+      $filterContainer.appendChild($fragment);
+    }
+  }
+  class RuleView {
+    constructor(option) {
+      __publicField(this, "option");
+      this.option = option;
+    }
+    /**
+     * 显示视图
+     */
+    showView() {
+      var _a2, _b, _c, _d, _e, _f, _g, _h, _i;
+      let $popsConfirm = __pops.confirm({
+        title: {
+          text: this.option.title,
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+                    <div class="rule-view-container">
+                    </div>
+                    `
+          ),
+          html: true
+        },
+        btn: {
+          merge: true,
+          reverse: false,
+          position: "space-between",
+          ok: {
+            enable: ((_c = (_b = (_a2 = this.option) == null ? void 0 : _a2.bottomControls) == null ? void 0 : _b.add) == null ? void 0 : _c.enable) || true,
+            type: "primary",
+            text: "添加",
+            callback: (event) => {
+              this.showEditView(
+                $popsConfirm.$shadowRoot,
+                false,
+                this.option.getAddData()
+              );
+            }
+          },
+          close: {
+            enable: true,
+            callback(event) {
+              $popsConfirm.close();
+            }
+          },
+          cancel: {
+            enable: ((_f = (_e = (_d = this.option) == null ? void 0 : _d.bottomControls) == null ? void 0 : _e.filter) == null ? void 0 : _f.enable) || false,
+            type: "default",
+            text: "过滤",
+            callback: (details, event) => {
+              var _a3, _b2, _c2, _d2, _e2, _f2, _g2;
+              if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.filter) == null ? void 0 : _c2.callback) === "function") {
+                this.option.bottomControls.filter.callback();
+              }
+              let getAllRuleElement = () => {
+                return Array.from(
+                  $popsConfirm.$shadowRoot.querySelectorAll(
+                    ".rule-view-container .rule-item"
+                  )
+                );
+              };
+              let $button = event.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
+              if (domutils.text($button).includes("取消")) {
+                getAllRuleElement().forEach(($el) => {
+                  domutils.show($el, false);
+                });
+                domutils.text($button, "过滤");
+              } else {
+                let ruleFilterView = new RuleFilterView({
+                  title: ((_e2 = (_d2 = this.option.bottomControls) == null ? void 0 : _d2.filter) == null ? void 0 : _e2.title) ?? "过滤规则",
+                  filterOption: ((_g2 = (_f2 = this.option.bottomControls) == null ? void 0 : _f2.filter) == null ? void 0 : _g2.option) || [],
+                  execFilterCallBack() {
+                    domutils.text($button, "取消过滤");
+                  },
+                  getAllRuleInfo: () => {
+                    return getAllRuleElement().map(($el) => {
+                      return {
+                        data: this.parseRuleItemElement($el).data,
+                        $el
+                      };
+                    });
+                  }
+                });
+                ruleFilterView.showView();
+              }
+            }
+          },
+          other: {
+            enable: ((_i = (_h = (_g = this.option) == null ? void 0 : _g.bottomControls) == null ? void 0 : _h.clear) == null ? void 0 : _i.enable) || true,
+            type: "xiaomi-primary",
+            text: `清空所有(${this.option.data().length})`,
+            callback: (event) => {
+              let $askDialog = __pops.confirm({
+                title: {
+                  text: "提示",
+                  position: "center"
+                },
+                content: {
+                  text: "确定清空所有的数据？",
+                  html: false
+                },
+                btn: {
+                  ok: {
+                    enable: true,
+                    callback: (popsEvent) => {
+                      var _a3, _b2, _c2;
+                      log.success("清空所有");
+                      if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.clear) == null ? void 0 : _c2.callback) === "function") {
+                        this.option.bottomControls.clear.callback();
+                      }
+                      if (this.option.data().length) {
+                        Qmsg.error("清理失败");
+                        return;
+                      } else {
+                        Qmsg.success("清理成功");
+                      }
+                      this.updateDeleteAllBtnText($popsConfirm.$shadowRoot);
+                      this.clearContent($popsConfirm.$shadowRoot);
+                      $askDialog.close();
+                    }
+                  },
+                  cancel: {
+                    text: "取消",
+                    enable: true
+                  }
+                },
+                mask: { enable: true },
+                width: "300px",
+                height: "200px"
+              });
+            }
+          }
+        },
+        mask: {
+          enable: true
+        },
+        width: window.innerWidth > 500 ? "500px" : "88vw",
+        height: window.innerHeight > 500 ? "500px" : "80vh",
+        style: (
+          /*css*/
+          `
+            ${__pops.config.cssText.panelCSS}
+            
+            .rule-item{
+                display: flex;
+                align-items: center;
+                line-height: normal;
+                font-size: 16px;
+                padding: 4px 4px;
+                gap: 6px;
+            }
+            .rule-name{
+                flex: 1;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
+            .rule-controls{
+                display: flex;
+                align-items: center;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+                gap: 8px;
+                padding: 0px 4px;
+            }
+            .rule-controls-enable{
+                
+            }
+            .rule-controls-edit{
+                
+            }
+            .rule-controls-delete{
+                
+            }
+            .rule-controls-edit,
+            .rule-controls-delete{
+                width: 16px;
+                height: 16px;
+                cursor: pointer;
+            }
+            `
+        )
+      });
+      let allData = this.option.data();
+      allData.forEach((data2) => {
+        this.appendRuleItemElement($popsConfirm.$shadowRoot, data2);
+      });
+    }
+    /**
+     * 解析弹窗内的各个元素
+     */
+    parseViewElement($shadowRoot) {
+      let $container = $shadowRoot.querySelector(
+        ".rule-view-container"
+      );
+      let $deleteBtn = $shadowRoot.querySelector(
+        ".pops-confirm-btn button.pops-confirm-btn-other"
+      );
+      return {
+        /** 容器 */
+        $container,
+        /** 左下角的清空按钮 */
+        $deleteBtn
+      };
+    }
+    /**
+     * 解析每一项的元素
+     */
+    parseRuleItemElement($ruleElement) {
+      let $enable = $ruleElement.querySelector(
+        ".rule-controls-enable"
+      );
+      let $enableSwitch = $enable.querySelector(".pops-panel-switch");
+      let $enableSwitchInput = $enable.querySelector(
+        ".pops-panel-switch__input"
+      );
+      let $enableSwitchCore = $enable.querySelector(
+        ".pops-panel-switch__core"
+      );
+      let $edit = $ruleElement.querySelector(".rule-controls-edit");
+      let $delete = $ruleElement.querySelector(
+        ".rule-controls-delete"
+      );
+      return {
+        /** 启用开关 */
+        $enable,
+        /** 启用开关的container */
+        $enableSwitch,
+        /** 启用开关的input */
+        $enableSwitchInput,
+        /** 启用开关的core */
+        $enableSwitchCore,
+        /** 编辑按钮 */
+        $edit,
+        /** 删除按钮 */
+        $delete,
+        /** 存储在元素上的数据 */
+        data: Reflect.get($ruleElement, "data-rule")
+      };
+    }
+    /**
+     * 创建一条规则元素
+     */
+    createRuleItemElement(data2, $shadowRoot) {
+      let name = this.option.getDataItemName(data2);
+      let $ruleItem = domutils.createElement("div", {
+        className: "rule-item",
+        innerHTML: (
+          /*html*/
+          `
+			<div class="rule-name">${name}</div>
+			<div class="rule-controls">
+				<div class="rule-controls-enable">
+					<div class="pops-panel-switch">
+						<input class="pops-panel-switch__input" type="checkbox">
+						<span class="pops-panel-switch__core">
+							<div class="pops-panel-switch__action">
+							</div>
+						</span>
+					</div>
+				</div>
+				<div class="rule-controls-edit">
+					${__pops.config.iconSVG.edit}
+				</div>
+				<div class="rule-controls-delete">
+					${__pops.config.iconSVG.delete}
+				</div>
+			</div>
+			`
+        )
+      });
+      Reflect.set($ruleItem, "data-rule", data2);
+      let switchCheckedClassName = "pops-panel-switch-is-checked";
+      const {
+        $enable,
+        $enableSwitch,
+        $enableSwitchCore,
+        $enableSwitchInput,
+        $delete,
+        $edit
+      } = this.parseRuleItemElement($ruleItem);
+      if (this.option.itemControls.enable.enable) {
+        domutils.on($enableSwitchCore, "click", (event) => {
+          let isChecked = false;
+          if ($enableSwitch.classList.contains(switchCheckedClassName)) {
+            $enableSwitch.classList.remove(switchCheckedClassName);
+            isChecked = false;
+          } else {
+            $enableSwitch.classList.add(switchCheckedClassName);
+            isChecked = true;
+          }
+          $enableSwitchInput.checked = isChecked;
+          this.option.itemControls.enable.callback(data2, isChecked);
+        });
+        if (this.option.itemControls.enable.getEnable(data2)) {
+          $enableSwitch.classList.add(switchCheckedClassName);
+        }
+      } else {
+        $enable.remove();
+      }
+      if (this.option.itemControls.edit.enable) {
+        domutils.on($edit, "click", (event) => {
+          utils.preventEvent(event);
+          this.showEditView($shadowRoot, true, data2, $ruleItem, (newData) => {
+            data2 = null;
+            data2 = newData;
+          });
+        });
+      } else {
+        $edit.remove();
+      }
+      if (this.option.itemControls.delete.enable) {
+        domutils.on($delete, "click", (event) => {
+          utils.preventEvent(event);
+          let $askDialog = __pops.confirm({
+            title: {
+              text: "提示",
+              position: "center"
+            },
+            content: {
+              text: "确定删除该条数据？",
+              html: false
+            },
+            btn: {
+              ok: {
+                enable: true,
+                callback: (popsEvent) => {
+                  log.success("删除数据");
+                  let flag = this.option.itemControls.delete.deleteCallBack(data2);
+                  if (flag) {
+                    Qmsg.success("成功删除该数据");
+                    $ruleItem.remove();
+                    this.updateDeleteAllBtnText($shadowRoot);
+                    $askDialog.close();
+                  } else {
+                    Qmsg.error("删除该数据失败");
+                  }
+                }
+              },
+              cancel: {
+                text: "取消",
+                enable: true
+              }
+            },
+            mask: {
+              enable: true
+            },
+            width: "300px",
+            height: "200px"
+          });
+        });
+      } else {
+        $delete.remove();
+      }
+      return $ruleItem;
+    }
+    /**
+     * 添加一个规则元素
+     */
+    appendRuleItemElement($shadowRoot, data2) {
+      const { $container } = this.parseViewElement($shadowRoot);
+      if (Array.isArray(data2)) {
+        for (let index = 0; index < data2.length; index++) {
+          const item = data2[index];
+          $container.appendChild(this.createRuleItemElement(item, $shadowRoot));
+        }
+      } else {
+        $container.appendChild(this.createRuleItemElement(data2, $shadowRoot));
+      }
+      this.updateDeleteAllBtnText($shadowRoot);
+    }
+    /**
+     * 更新弹窗内容的元素
+     */
+    updateRuleContaienrElement($shadowRoot) {
+      this.clearContent($shadowRoot);
+      this.parseViewElement($shadowRoot);
+      let data2 = this.option.data();
+      this.appendRuleItemElement($shadowRoot, data2);
+      this.updateDeleteAllBtnText($shadowRoot);
+    }
+    /**
+     * 更新规则元素
+     */
+    updateRuleItemElement(data2, $oldRuleItem, $shadowRoot) {
+      let $newRuleItem = this.createRuleItemElement(data2, $shadowRoot);
+      $oldRuleItem.after($newRuleItem);
+      $oldRuleItem.remove();
+    }
+    /**
+     * 清空内容
+     */
+    clearContent($shadowRoot) {
+      const { $container } = this.parseViewElement($shadowRoot);
+      domutils.html($container, "");
+    }
+    /**
+     * 设置删除按钮的文字
+     */
+    setDeleteBtnText($shadowRoot, text, isHTML = false) {
+      const { $deleteBtn } = this.parseViewElement($shadowRoot);
+      if (isHTML) {
+        domutils.html($deleteBtn, text);
+      } else {
+        domutils.text($deleteBtn, text);
+      }
+    }
+    /**
+     * 更新【清空所有】的按钮的文字
+     */
+    updateDeleteAllBtnText($shadowRoot) {
+      let data2 = this.option.data();
+      this.setDeleteBtnText($shadowRoot, `清空所有(${data2.length})`);
+    }
+    /**
+     * 显示编辑视图
+     * @param isEdit 是否是编辑状态
+     */
+    showEditView($parentShadowRoot, isEdit, editData, $editRuleItemElement, updateDataCallBack) {
+      let dialogCloseCallBack = (isSubmit) => {
+        if (isSubmit) ;
+        else {
+          if (!isEdit) {
+            this.option.deleteData(editData);
+          }
+          if (typeof updateDataCallBack === "function") {
+            let newData = this.option.getData(editData);
+            updateDataCallBack(newData);
+          }
+        }
+      };
+      let editView = new RuleEditView({
+        title: isEdit ? "编辑" : "添加",
+        data: () => {
+          return editData;
+        },
+        dialogCloseCallBack,
+        getView: (data2) => {
+          return this.option.itemControls.edit.getView(data2, isEdit);
+        },
+        btn: {
+          ok: {
+            enable: true,
+            text: isEdit ? "修改" : "添加"
+          },
+          cancel: {
+            callback(details, event) {
+              details.close();
+              dialogCloseCallBack(false);
+            }
+          },
+          close: {
+            callback(details, event) {
+              details.close();
+              dialogCloseCallBack(false);
+            }
+          }
+        },
+        onsubmit: ($form, data2) => {
+          let result = this.option.itemControls.edit.onsubmit(
+            $form,
+            isEdit,
+            data2
+          );
+          if (result.success) {
+            if (isEdit) {
+              Qmsg.success("修改成功");
+              this.updateRuleItemElement(
+                result.data,
+                $editRuleItemElement,
+                $parentShadowRoot
+              );
+            } else {
+              this.appendRuleItemElement($parentShadowRoot, result.data);
+            }
+          } else {
+            if (isEdit) {
+              Qmsg.error("修改失败");
+            }
+          }
+          return result;
+        },
+        style: this.option.itemControls.edit.style
+      });
+      editView.showView();
+    }
+  }
+  const BilibiliComponentDetectionRule = {
+    $data: {
+      /** 白名单用户id */
+      whiteList: [],
+      /** 规则数据 */
+      ruleData: []
+    },
+    $key: {
+      STORAGE_KEY: "bili-componentDetection-rule"
+    },
+    /** 初始化数据 */
+    init() {
+      this.$data.whiteList = [];
+      this.$data.ruleData = [];
+      let allData = this.getData();
+      allData.forEach((data2) => {
+        if (!data2.enable) {
+          return;
+        }
+        this.$data.ruleData.push(data2);
+      });
+    },
+    /**
+     * 显示视图
+     */
+    showView() {
+      let popsPanelContentUtils = __pops.config.panelHandleContentUtils();
+      function generateStorageApi(data2, handler) {
+        return {
+          get(key, defaultValue) {
+            return data2[key] ?? defaultValue;
+          },
+          set(key, value) {
+            data2[key] = value;
+          }
+        };
+      }
+      let ruleView = new RuleView({
+        title: "成分检测",
+        data: () => {
+          return this.getData();
+        },
+        getAddData: () => {
+          return this.getTemplateData();
+        },
+        getDataItemName: (data2) => {
+          return data2["name"];
+        },
+        updateData: (data2) => {
+          return this.updateData(data2);
+        },
+        deleteData: (data2) => {
+          return this.deleteData(data2);
+        },
+        getData: (data2) => {
+          let allData = this.getData();
+          let findValue = allData.find((item) => item.uuid === data2.uuid);
+          return findValue ?? data2;
+        },
+        itemControls: {
+          enable: {
+            enable: true,
+            getEnable(data2) {
+              return data2.enable;
+            },
+            callback: (data2, enable) => {
+              data2.enable = enable;
+              this.updateData(data2);
+            }
+          },
+          edit: {
+            enable: true,
+            getView: (data2, isEdit) => {
+              let $fragment = document.createDocumentFragment();
+              let templateData = this.getTemplateData();
+              if (!isEdit) {
+                data2 = templateData;
+              }
+              let enable_template = UISwitch(
+                "启用",
+                "enable",
+                templateData.enable
+              );
+              Reflect.set(
+                enable_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data2)
+              );
+              let $enable = popsPanelContentUtils.createSectionContainerItem_switch(
+                enable_template
+              );
+              let name_template = UIInput(
+                "规则名称",
+                "name",
+                "",
+                templateData.name,
+                void 0,
+                "必填"
+              );
+              Reflect.set(
+                name_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data2)
+              );
+              let $name = popsPanelContentUtils.createSectionContainerItem_input(
+                name_template
+              );
+              let isShowDisplayName_template = UISwitch(
+                "显示标签名称",
+                "isShowDisplayName",
+                templateData.data.isShowDisplayName
+              );
+              Reflect.set(
+                isShowDisplayName_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data2.data)
+              );
+              let $isShowDisplayName = popsPanelContentUtils.createSectionContainerItem_switch(
+                isShowDisplayName_template
+              );
+              let displayName_template = UIInput(
+                "显示标签名称",
+                "displayName",
+                templateData.data.displayName,
+                ""
+              );
+              Reflect.set(
+                displayName_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data2.data)
+              );
+              let $displayName = popsPanelContentUtils.createSectionContainerItem_input(
+                displayName_template
+              );
+              let isShowDisplayIcon_template = UISwitch(
+                "显示标签图标",
+                "isShowDisplayIcon",
+                templateData.data.isShowDisplayIcon
+              );
+              Reflect.set(
+                isShowDisplayIcon_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data2.data)
+              );
+              let $isShowDisplayIcon = popsPanelContentUtils.createSectionContainerItem_switch(
+                isShowDisplayIcon_template
+              );
+              let displayIcon_template = UIInput(
+                "显示的标签图标",
+                "displayIcon",
+                templateData.data.displayIcon,
+                ""
+              );
+              Reflect.set(
+                displayIcon_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data2.data)
+              );
+              let $displayIcon = popsPanelContentUtils.createSectionContainerItem_input(
+                displayIcon_template
+              );
+              let keywords_template = UITextArea(
+                "关键词",
+                "keywords",
+                "",
+                "",
+                void 0,
+                "多个关键词换行"
+              );
+              Reflect.set(keywords_template.props, PROPS_STORAGE_API, {
+                get(key, defaultValue) {
+                  let value = data2.data[key] ?? defaultValue;
+                  if (typeof value === "string") {
+                    return value.split("\n");
+                  }
+                  return value;
+                },
+                set(key, value) {
+                  if (typeof value === "string") {
+                    value = value.split("\n");
+                  }
+                  data2.data[key] = value;
+                }
+              });
+              let $keywords = popsPanelContentUtils.createSectionContainerItem_textarea(
+                keywords_template
+              );
+              let followings_template = UITextArea(
+                "关注的用户",
+                "followings",
+                "",
+                "",
+                void 0,
+                "多个用户id换行"
+              );
+              Reflect.set(followings_template.props, PROPS_STORAGE_API, {
+                get(key, defaultValue) {
+                  let value = data2.data[key] ?? defaultValue;
+                  if (typeof value === "string") {
+                    return value.split("\n").map((it) => Number(it)).filter((it) => !isNaN(it));
+                  }
+                  return value;
+                },
+                set(key, value) {
+                  if (typeof value === "string") {
+                    value = value.split("\n").map((it) => Number(it)).filter((it) => !isNaN(it));
+                  }
+                  data2.data[key] = value;
+                }
+              });
+              let $followings = popsPanelContentUtils.createSectionContainerItem_textarea(
+                followings_template
+              );
+              let blacklist_template = UITextArea(
+                "黑名单",
+                "blacklist",
+                "",
+                "",
+                void 0,
+                "多个用户id换行"
+              );
+              Reflect.set(blacklist_template.props, PROPS_STORAGE_API, {
+                get(key, defaultValue) {
+                  let value = data2.data[key] ?? defaultValue;
+                  if (typeof value === "string") {
+                    return value.split("\n").map((it) => Number(it)).filter((it) => !isNaN(it));
+                  }
+                  return value;
+                },
+                set(key, value) {
+                  if (typeof value === "string") {
+                    value = value.split("\n").map((it) => Number(it)).filter((it) => !isNaN(it));
+                  }
+                  data2.data[key] = value;
+                }
+              });
+              let $blacklist = popsPanelContentUtils.createSectionContainerItem_textarea(
+                blacklist_template
+              );
+              $fragment.append(
+                $enable,
+                $name,
+                $isShowDisplayName,
+                $displayName,
+                $isShowDisplayIcon,
+                $displayIcon,
+                $keywords,
+                $followings,
+                $blacklist
+              );
+              return $fragment;
+            },
+            onsubmit: ($form, isEdit, editData) => {
+              let $ulist_li = $form.querySelectorAll(
+                ".rule-form-ulist > li"
+              );
+              let data2 = this.getTemplateData();
+              if (isEdit) {
+                data2.uuid = editData.uuid;
+              }
+              try {
+                $ulist_li.forEach(($li) => {
+                  let formConfig = Reflect.get($li, "__formConfig__");
+                  let attrs = Reflect.get(formConfig, "attributes");
+                  let storageApi = Reflect.get($li, PROPS_STORAGE_API);
+                  let key = Reflect.get(attrs, ATTRIBUTE_KEY);
+                  let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
+                  let value = storageApi.get(key, defaultValue);
+                  if (Reflect.has(data2, key)) {
+                    Reflect.set(data2, key, value);
+                  } else if (Reflect.has(data2.data, key)) {
+                    Reflect.set(data2.data, key, value);
+                  } else {
+                    log.error(`${key}不在数据中`);
+                  }
+                });
+                if (data2.name.trim() === "") {
+                  Qmsg.error("规则名称不能为空");
+                  return {
+                    success: false,
+                    data: data2
+                  };
+                }
+                if (isEdit) {
+                  return {
+                    success: this.updateData(data2),
+                    data: data2
+                  };
+                } else {
+                  return {
+                    success: this.addData(data2),
+                    data: data2
+                  };
+                }
+              } catch (error) {
+                log.error(error);
+                return {
+                  success: false,
+                  data: data2
+                };
+              } finally {
+                this.init();
+              }
+            },
+            style: (
+              /*css*/
+              `
+                    .pops-panel-textarea textarea{
+                        height: 150px;
+                    }
+                    `
+            )
+          },
+          delete: {
+            enable: true,
+            deleteCallBack: (data2) => {
+              return this.deleteData(data2);
+            }
+          }
+        }
+      });
+      ruleView.showView();
+    },
+    /**
+     * 获取模板数据
+     */
+    getTemplateData() {
+      return {
+        uuid: utils.generateUUID(),
+        enable: true,
+        name: "",
+        data: {
+          isShowDisplayIcon: true,
+          displayIcon: "",
+          isShowDisplayName: true,
+          displayName: "",
+          keywords: [],
+          blacklist: [],
+          followings: []
+        }
+      };
+    },
+    /**
+     * 获取数据
+     */
+    getData() {
+      return _GM_getValue(this.$key.STORAGE_KEY, []);
+    },
+    /**
+     * 设置数据
+     * @param data
+     */
+    setData(data2) {
+      _GM_setValue(this.$key.STORAGE_KEY, data2);
+    },
+    /**
+     * 添加数据
+     * @param data
+     */
+    addData(data2) {
+      let localData = this.getData();
+      let findIndex = localData.findIndex((item) => item.uuid == data2.uuid);
+      if (findIndex === -1) {
+        localData.push(data2);
+        _GM_setValue(this.$key.STORAGE_KEY, localData);
+        return true;
+      } else {
+        return false;
+      }
+    },
+    /**
+     * 更新数据
+     * @param data
+     */
+    updateData(data2) {
+      let localData = this.getData();
+      let index = localData.findIndex((item) => item.uuid == data2.uuid);
+      let updateFlag = false;
+      if (index !== -1) {
+        updateFlag = true;
+        localData[index] = data2;
+      }
+      this.setData(localData);
+      return updateFlag;
+    },
+    /**
+     * 删除数据
+     * @param data
+     */
+    deleteData(data2) {
+      let localData = this.getData();
+      let index = localData.findIndex((item) => item.uuid == data2.uuid);
+      let deleteFlag = false;
+      if (index !== -1) {
+        deleteFlag = true;
+        localData.splice(index, 1);
+      }
+      this.setData(localData);
+      return deleteFlag;
+    },
+    /**
+     * 清空数据
+     */
+    clearData() {
+      _GM_deleteValue(this.$key.STORAGE_KEY);
+    },
+    /**
+     * 导出规则
+     */
+    exportRule(fileName = "rule.json") {
+      let allRule = this.getData();
+      let blob = new Blob([JSON.stringify(allRule, null, 4)]);
+      let blobUrl = window.URL.createObjectURL(blob);
+      let $a = document.createElement("a");
+      $a.href = blobUrl;
+      $a.download = fileName;
+      $a.click();
+      setTimeout(() => {
+        window.URL.revokeObjectURL(blobUrl);
+      }, 1500);
+    },
+    /**
+     * 导入规则
+     */
+    importRule() {
+      let $alert = __pops.alert({
+        title: {
+          text: "请选择导入方式",
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+                    <div class="import-mode" data-mode="local">本地导入</div>
+                    <div class="import-mode" data-mode="network">网络导入</div>
+                `
+          ),
+          html: true
+        },
+        width: PanelUISize.info.width,
+        height: PanelUISize.info.height,
+        style: (
+          /*css*/
+          `
+                .import-mode{
+                    display: inline-block;
+                    margin: 10px;
+                    padding: 10px;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    cursor: pointer;
+                }
+            `
+        )
+      });
+      let $local = $alert.$shadowRoot.querySelector(
+        ".import-mode[data-mode='local']"
+      );
+      let $network = $alert.$shadowRoot.querySelector(
+        ".import-mode[data-mode='network']"
+      );
+      domutils.on($local, "click", (event) => {
+        utils.preventEvent(event);
+        $alert.close();
+        let $input = domutils.createElement("input", {
+          type: "file",
+          accept: ".json"
+        });
+        domutils.on($input, ["propertychange", "input"], (event2) => {
+          var _a2;
+          if (!((_a2 = $input.files) == null ? void 0 : _a2.length)) {
+            return;
+          }
+          let uploadFile = $input.files[0];
+          let fileReader = new FileReader();
+          fileReader.onload = () => {
+            let data2 = utils.toJSON(fileReader.result);
+            if (!Array.isArray(data2)) {
+              log.error("不是正确的规则文件", data2);
+              Qmsg.error("不是正确的规则文件");
+              return;
+            }
+            this.setData(data2);
+            Qmsg.success(`成功导入 ${data2.length}条规则`);
+          };
+          fileReader.readAsText(uploadFile, "UTF-8");
+        });
+        $input.click();
+      });
+      domutils.on($network, "click", (event) => {
+        utils.preventEvent(event);
+        $alert.close();
+        __pops.prompt({
+          title: {
+            text: "网络导入",
+            position: "center"
+          },
+          content: {
+            text: "",
+            placeholder: "url",
+            focus: true
+          },
+          btn: {
+            ok: {
+              callback: async (eventDetails, event2) => {
+                let url = eventDetails.text;
+                if (utils.isNull(url)) {
+                  Qmsg.error("请填入完整的url");
+                  return;
+                }
+                let response = await httpx.get(url);
+                if (!response.status) {
+                  return;
+                }
+                let data2 = utils.toJSON(response.data.responseText);
+                if (!Array.isArray(data2)) {
+                  log.error("不是正确的规则文件", response, data2);
+                  Qmsg.error("不是正确的规则文件");
+                  return;
+                }
+                this.setData(data2);
+                eventDetails.close();
+                Qmsg.success(`成功导入 ${data2.length}条规则`);
+              }
+            }
+          },
+          width: PanelUISize.info.width,
+          height: "auto"
+        });
+      });
+    }
+  };
   const SettingUICommon = {
     id: "panel-common",
     title: "通用",
@@ -811,6 +2085,67 @@
                     true,
                     void 0,
                     "阻止自动调用App"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            type: "deepMenu",
+            text: "成分检测",
+            forms: [
+              {
+                type: "forms",
+                text: "",
+                forms: [
+                  UISwitch(
+                    "启用",
+                    "bili-componentDetection",
+                    false,
+                    void 0,
+                    "启用后可检测用户的成分信息"
+                  ),
+                  UIButton(
+                    "自定义规则",
+                    "检测用户成分的规则",
+                    "管理",
+                    void 0,
+                    false,
+                    false,
+                    "primary",
+                    () => {
+                      BilibiliComponentDetectionRule.showView();
+                    }
+                  )
+                ]
+              },
+              {
+                type: "forms",
+                text: "",
+                forms: [
+                  UIButton(
+                    "数据导入",
+                    "导入自定义规则数据",
+                    "导入",
+                    void 0,
+                    false,
+                    false,
+                    "primary",
+                    () => {
+                      BilibiliComponentDetectionRule.importRule();
+                    }
+                  ),
+                  UIButton(
+                    "数据导出",
+                    "导出自定义规则数据",
+                    "导出",
+                    void 0,
+                    false,
+                    false,
+                    "primary",
+                    () => {
+                      BilibiliComponentDetectionRule.exportRule("成分检测.json");
+                    }
                   )
                 ]
               }
@@ -2654,41 +3989,6 @@
       }
     ]
   };
-  const PanelUISize = {
-    /**
-     * 一般设置界面的尺寸
-     */
-    setting: {
-      get width() {
-        return window.innerWidth < 550 ? "88vw" : "550px";
-      },
-      get height() {
-        return window.innerHeight < 450 ? "70vh" : "450px";
-      }
-    },
-    /**
-     * 功能丰富，aside铺满了的设置界面，要稍微大一点
-     */
-    settingBig: {
-      get width() {
-        return window.innerWidth < 800 ? "92vw" : "800px";
-      },
-      get height() {
-        return window.innerHeight < 600 ? "80vh" : "600px";
-      }
-    },
-    /**
-     * 信息界面，一般用于提示信息之类
-     */
-    info: {
-      get width() {
-        return window.innerWidth < 350 ? "350px" : "350px";
-      },
-      get height() {
-        return window.innerHeight < 250 ? "250px" : "250px";
-      }
-    }
-  };
   const PopsPanel = {
     /** 数据 */
     $data: {
@@ -3167,32 +4467,6 @@
         drag: true,
         only: true
       });
-    },
-    /**
-     * 判断是否是移动端
-     */
-    isMobile() {
-      return window.innerWidth < 550;
-    },
-    /**
-     * 获取设置面板的宽度
-     */
-    getWidth() {
-      if (window.innerWidth < 550) {
-        return "92vw";
-      } else {
-        return "550px";
-      }
-    },
-    /**
-     * 获取设置面板的高度
-     */
-    getHeight() {
-      if (window.innerHeight < 550) {
-        return "80vh";
-      } else {
-        return "450px";
-      }
     },
     /**
      * 获取配置内容
@@ -8607,7 +9881,7 @@
      */
     automaticallyExpandToReadFullText() {
       log.info("自动展开阅读全文");
-      return [
+      let result = [
         CommonUtil.addBlockCSS(BilibiliData.className.opus + " .opus-read-more"),
         addStyle(
           /*css*/
@@ -8619,6 +9893,18 @@
 			`
         )
       ];
+      domutils.ready(() => {
+        VueUtils.waitVuePropToSet(".m-opus", {
+          msg: "自动展开阅读全文 ==> 等待vue属性isLimit出现",
+          check(vueInstance) {
+            return typeof (vueInstance == null ? void 0 : vueInstance.isLimit) === "boolean";
+          },
+          set(vueInstance) {
+            vueInstance.isLimit = false;
+          }
+        });
+      });
+      return result;
     },
     /**
      * 覆盖header点击事件
@@ -9922,6 +11208,632 @@
       ]);
     }
   };
+  const BilibiliUserApi = {
+    /**
+     * 获取用户空间动态
+     * @param mid 用户id
+     * @param offset 分页偏移，默认是""
+     */
+    async space(mid, offset = "") {
+      let response = await httpx.get(
+        "https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space",
+        {
+          data: {
+            host_mid: mid,
+            offset
+          },
+          fetch: true
+        }
+      );
+      if (!response.status) {
+        return;
+      }
+      let data2 = utils.toJSON(response.data.responseText);
+      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
+        return;
+      }
+      return data2["data"];
+    },
+    /**
+     * 查询用户关注明细
+     * @param mid 用户id
+     * @param pn 页码 默认为 1
+     * @param ps 每页项数 默认为 50
+     */
+    async following(mid, pn = 1, ps = 50) {
+      let response = await httpx.get(
+        "https://api.bilibili.com/x/relation/followings",
+        {
+          data: {
+            vmid: mid,
+            ps,
+            pn
+          },
+          fetch: true
+        }
+      );
+      if (!response.status) {
+        return;
+      }
+      let data2 = utils.toJSON(response.data.responseText);
+      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
+        return data2["message"];
+      }
+      return data2["data"];
+    }
+  };
+  const BilibiliComponentDetection = {
+    $data: {
+      /** 查询图标svg */
+      searchIcon: (
+        /*html*/
+        `
+            <svg viewBox="0 0 24 24" fill="none">
+                <path d="M15.7955 15.8111L21 21M18 10.5C18 14.6421 14.6421 18 10.5 18C6.35786 18 3 14.6421 3 10.5C3 6.35786 6.35786 3 10.5 3C14.6421 3 18 6.35786 18 10.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+        `
+      )
+    },
+    init() {
+      BilibiliComponentDetectionRule.init();
+      addStyle(
+        /*css*/
+        `
+            .composition-checkable,
+			.composition-checked{
+                display: inline-flex;
+                vertical-align: middle;
+            }
+			/* 查询按钮 */
+			.composition-checkable .composition-badge-control {
+				display: inline-flex;
+				justify-content: center;
+				align-items: center;
+				width: fit-content;
+				background: #574AB830;
+				border-radius: 8px;
+				margin: 0 0 0 6px;
+				font-family: PingFang SC, HarmonyOS_Regular, Helvetica Neue, Microsoft YaHei, sans-serif;
+			}
+
+			.composition-checkable .composition-name-control {
+				color: #7367F0;
+				padding: 2px 8px;
+                font-size: 0.8rem;
+                display: flex;
+                align-items: center;
+                height: 20px;
+                line-height: normal;
+			}
+            
+			.composition-checkable .composition-name-control svg {
+				vertical-align: middle;
+                width: 1em;
+                height: 1em;
+			}
+			/* ↑查询按钮 */
+
+			/* 标签按钮 */
+			.composition-checked .composition-badge {
+				display: inline-flex;
+ 				justify-content: center;
+ 				align-items: center;
+				width: fit-content;
+ 				background: #574AB825;
+ 				border-radius: 10px;
+ 				margin: 0 6px 0 6px;
+ 				font-family: PingFang SC, HarmonyOS_Regular, Helvetica Neue, Microsoft YaHei, sans-serif;
+				font-weight: normal;
+				cursor: pointer;
+			}
+
+			.composition-checked .composition-name {
+				color: #574AB8;
+				padding: 2px 8px;
+                font-size: 0.8rem;
+			}
+
+			.composition-checked .composition-icon {
+				color: #574AB8 !important;
+				background: transparent !important;
+				border-radius: 50% !important;
+				width: 1.44rem !important;
+				height: 1.44rem !important;
+				border: 2px solid #574AB880 !important;
+				margin: -6px;
+				display: flex !important;
+				justify-content: center !important;
+				align-items: center !important;
+				font-size: 1rem !important;
+			}
+			.composition-checked .composition-badge > *:first-child{
+				margin-left: 6px;
+			}
+			.composition-checked .composition-badge > *:last-child{
+				margin-right: 6px;
+			}
+			.composition-checked .composition-badge .composition-icon,
+			.composition-checked .composition-badge .composition-name{
+				margin: 0;
+			}
+        `
+      );
+      domutils.ready(() => {
+        let lockFn = new utils.LockFunction(async () => {
+          $$(".reply-item:not([data-is-inject-search-label])").forEach(
+            ($replyItem) => {
+              $replyItem.setAttribute("data-is-inject-search-label", "");
+              let $floorTime = $replyItem.querySelector(".info .floor-time");
+              let { $container, $compositionNameControl } = this.createSearchButton(() => {
+                let vueIns = VueUtils.getVue($replyItem);
+                if (!vueIns) {
+                  throw new TypeError("获取vue属性失败");
+                }
+                let mid = vueIns.info.mid;
+                if (mid == null) {
+                  throw new TypeError("获取mid失败");
+                }
+                return mid;
+              });
+              domutils.after($floorTime, $container);
+            }
+          );
+          $$(
+            ".reply-item .member-link[data-url]:not([data-is-inject-search-label])"
+          ).forEach(($memberLink) => {
+            $memberLink.setAttribute("data-is-inject-search-label", "");
+            let {
+              $container: $memberContainer,
+              $compositionNameControl: $memberCompositionNameControl
+            } = this.createSearchButton(() => {
+              var _a2;
+              let spaceUrl = $memberLink.getAttribute("data-url");
+              let mid = (_a2 = spaceUrl.match(/space.bilibili.com\/([\d]+)/i)) == null ? void 0 : _a2[1];
+              if (mid == null) {
+                throw new TypeError("获取mid失败");
+              }
+              return mid;
+            });
+            domutils.after($memberLink, $memberContainer);
+          });
+          $$(
+            ".m-space-info .base:not([data-is-inject-search-label])"
+          ).forEach(($base) => {
+            $base.setAttribute("data-is-inject-search-label", "");
+            let $spaceInfo = $base.closest(".m-space-info");
+            let { $container } = this.createSearchButton(() => {
+              let vueIns = VueUtils.getVue($spaceInfo);
+              if (!vueIns) {
+                throw new TypeError("获取vue属性失败");
+              }
+              let mid = vueIns.info.mid;
+              if (mid == null) {
+                throw new TypeError("获取mid失败");
+              }
+              return mid;
+            });
+            domutils.after($base, $container);
+          });
+        });
+        utils.mutationObserver(document, {
+          config: {
+            subtree: true,
+            childList: true
+          },
+          immediate: true,
+          callback: () => {
+            lockFn.run();
+          }
+        });
+      });
+    },
+    /**
+     * 查询用户信息
+     *
+     * 即提取需要判断的信息
+     * @param mid
+     */
+    async queryUserInfo(mid) {
+      let followingPN = 1;
+      let allFollowingData = [];
+      while (true) {
+        log.info(`正在获取用户的关注：${mid} ==> 第${followingPN}页`);
+        let followingData = await BilibiliUserApi.following(mid, followingPN);
+        if (!followingData) {
+          log.error("获取关注列表失败");
+          break;
+        }
+        if (typeof followingData === "string") {
+          log.error("获取关注列表失败，原因：" + followingData);
+          break;
+        }
+        if (!followingData.list.length) {
+          break;
+        }
+        allFollowingData = allFollowingData.concat(followingData.list);
+        if (followingData.list.length === followingData.total && followingPN === 1) {
+          break;
+        }
+        followingPN++;
+        utils.sleep(250);
+      }
+      let spaceOffset = "";
+      let spacePNCount = 1;
+      let allSpaceContentData = [];
+      while (true) {
+        log.info(`正在获取用户的空间动态：${mid} ==> 偏移：${spaceOffset}`);
+        let spaceData = await BilibiliUserApi.space(mid, spaceOffset);
+        if (!spaceData) {
+          log.error("获取用户空间动态数据失败");
+          break;
+        }
+        if (typeof spaceData === "string") {
+          log.error("获取用户空间动态数据失败，原因：" + spaceData);
+          break;
+        }
+        if (spaceOffset === spaceData.offset && spaceOffset != "") {
+          break;
+        }
+        spaceOffset = spaceData.offset;
+        allSpaceContentData = allSpaceContentData.concat(spaceData.items);
+        if (!spaceData.has_more) {
+          break;
+        }
+        spacePNCount++;
+        if (spacePNCount > 5) {
+          log.info(`最多请求5页空间动态的数据`);
+          break;
+        }
+        utils.sleep(250);
+      }
+      let result = {
+        /** 关注列表信息 */
+        following: [],
+        /** 空间动态信息 */
+        space: []
+      };
+      allFollowingData.forEach((followingData) => {
+        result.following.push({
+          name: followingData.uname,
+          mid: followingData.mid,
+          sign: followingData.sign
+        });
+      });
+      allSpaceContentData.forEach((spaceData) => {
+        var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o;
+        if (spaceData.orig == null) {
+          let contentInfo = {
+            title: (_b = (_a2 = spaceData.modules.module_dynamic.major) == null ? void 0 : _a2.archive) == null ? void 0 : _b.title,
+            desc: ((_d = (_c = spaceData.modules.module_dynamic.major) == null ? void 0 : _c.archive) == null ? void 0 : _d.desc) || ((_e = spaceData.modules.module_dynamic.desc) == null ? void 0 : _e.text),
+            pub_ts: spaceData.modules.module_author.pub_ts * 1e3,
+            id_str: spaceData.id_str
+          };
+          result.space.push({
+            contentInfo
+          });
+        } else {
+          let contentInfo = {
+            title: null,
+            desc: (_f = spaceData.modules.module_dynamic.desc) == null ? void 0 : _f.text,
+            pub_ts: spaceData.modules.module_author.pub_ts * 1e3,
+            id_str: spaceData.id_str
+          };
+          let forwardInfo = {
+            mid: spaceData.orig.modules.module_author.mid,
+            name: spaceData.orig.modules.module_author.name,
+            title: (
+              // 转发的内容的标题
+              ((_i = (_h = (_g = spaceData.orig.modules.module_dynamic) == null ? void 0 : _g.major) == null ? void 0 : _h.archive) == null ? void 0 : _i.title) || null
+            ),
+            desc: ((_j = spaceData.orig.modules.module_dynamic.desc) == null ? void 0 : _j.text) ?? // 转发的内容的描述
+            ((_m = (_l = (_k = spaceData.orig.modules.module_dynamic) == null ? void 0 : _k.major) == null ? void 0 : _l.archive) == null ? void 0 : _m.desc),
+            pub_ts: spaceData.orig.modules.module_author.pub_ts * 1e3,
+            id_str: spaceData.orig.id_str
+          };
+          if (typeof forwardInfo.desc === "string" && Array.isArray(
+            (_o = (_n = spaceData.orig.modules.module_dynamic) == null ? void 0 : _n.desc) == null ? void 0 : _o.rich_text_nodes
+          )) {
+            spaceData.orig.modules.module_dynamic.desc.rich_text_nodes.forEach(
+              (richInfo) => {
+                var _a3;
+                if (richInfo.type === "RICH_TEXT_NODE_TYPE_AT") {
+                  forwardInfo.desc = (_a3 = forwardInfo.desc) == null ? void 0 : _a3.replace(richInfo.text, "");
+                }
+              }
+            );
+          }
+          result.space.push({
+            contentInfo,
+            forwardInfo
+          });
+        }
+      });
+      return result;
+    },
+    /**
+     * 创建查询按钮
+     * @param queryMIDFn 查询mid的函数
+     */
+    createSearchButton(queryMIDFn) {
+      let $compositionCheckable = domutils.createElement("div", {
+        className: "composition-checkable",
+        innerHTML: (
+          /*html*/
+          `
+                <div class="composition-badge-control">
+                    <span class="composition-name-control">
+                        ${this.$data.searchIcon}
+                    </span>
+                </div>
+            `
+        )
+      });
+      let $compositionNameControl = $compositionCheckable.querySelector(
+        ".composition-name-control"
+      );
+      domutils.on($compositionCheckable, "click", async (event) => {
+        utils.preventEvent(event);
+        if ($compositionCheckable.hasAttribute("data-is-searching")) {
+          log.error("正在搜索中，请稍后再试");
+          return;
+        }
+        $compositionCheckable.setAttribute("data-is-searching", "");
+        domutils.html($compositionNameControl, "...");
+        try {
+          let mid = queryMIDFn();
+          this.clearLabel($compositionCheckable);
+          let userInfo = await this.queryUserInfo(mid);
+          this.handleShowLabel(mid, userInfo, $compositionCheckable);
+          domutils.html($compositionNameControl, this.$data.searchIcon);
+        } catch (error) {
+          log.error(error);
+          Qmsg.error(error.message, {
+            timeout: 3500
+          });
+          domutils.html($compositionNameControl, "重试");
+        } finally {
+          $compositionCheckable.removeAttribute("data-is-searching");
+        }
+      });
+      return {
+        $container: $compositionCheckable,
+        $compositionNameControl
+      };
+    },
+    /**
+     * 创建标签
+     * @param data
+     */
+    createLabel(data2) {
+      let $label = domutils.createElement("div", {
+        className: "composition-checked",
+        innerHTML: (
+          /*html*/
+          `
+				<div class="composition-badge">
+				</div>
+			`
+        )
+      });
+      let $badge = $label.querySelector(".composition-badge");
+      if (data2.rule.data.isShowDisplayName) {
+        let $compositionName = domutils.createElement("span", {
+          className: "composition-name",
+          innerHTML: data2.rule.data.displayName
+        });
+        domutils.append($badge, $compositionName);
+      }
+      if (data2.rule.data.isShowDisplayIcon) {
+        let $compositionIcon = null;
+        if (data2.rule.data.displayIcon.startsWith("http")) {
+          $compositionIcon = domutils.createElement(
+            "img",
+            {
+              className: "composition-icon",
+              src: data2.rule.data.displayIcon
+            },
+            {
+              referrer: "no-referrer",
+              referrerPolicy: "no-referrer"
+            }
+          );
+        } else {
+          $compositionIcon = domutils.createElement("span", {
+            className: "composition-icon",
+            innerHTML: data2.rule.data.displayIcon
+          });
+        }
+        domutils.append($badge, $compositionIcon);
+      }
+      domutils.on($badge, "click", (event) => {
+        utils.preventEvent(event);
+        __pops.alert({
+          title: {
+            text: "识别信息",
+            html: false,
+            position: "center"
+          },
+          content: {
+            text: (
+              /*html*/
+              `
+						${data2.matchedInfoList.map((it) => {
+              let $el = domutils.createElement("div", {
+                className: "reason-container",
+                innerHTML: (
+                  /*html*/
+                  `
+										<div class="reason-text"><span>原因：</span>${it.reason}</div>
+										<div class="reason-text"><span>匹配：</span>${typeof it.reasonLink === "string" ? (
+                    /*html*/
+                    `
+											<a href="${it.reasonLink}" target="_blank">${it.reasonText}</a>
+										`
+                  ) : it.reasonText}</div>
+									`
+                )
+              });
+              if (typeof it.reasonTime === "number") {
+                let $reasonTime = domutils.createElement("div", {
+                  className: "reason-text",
+                  innerHTML: (
+                    /*html*/
+                    `
+										<span>时间：</span>${utils.formatTime(it.reasonTime)}
+										`
+                  )
+                });
+                domutils.append($el, $reasonTime);
+              }
+              return $el.outerHTML;
+            }).join("\n")}
+					`
+            ),
+            html: true
+          },
+          btn: {
+            ok: { enable: false }
+          },
+          mask: {
+            enable: true,
+            clickEvent: {
+              toClose: true
+            }
+          },
+          width: PanelUISize.setting.width,
+          height: PanelUISize.setting.height,
+          style: (
+            /*css*/
+            `
+					.reason-container{
+						color: #7367F0;
+						margin: 10px 10px;
+					}
+				`
+          )
+        });
+      });
+      return $label;
+    },
+    /**
+     * 清空标签
+     * @param $ele
+     */
+    clearLabel($ele) {
+      var _a2;
+      while (true) {
+        let $prev = domutils.prev($ele);
+        if (!$prev) {
+          break;
+        }
+        if ((_a2 = $prev == null ? void 0 : $prev.classList) == null ? void 0 : _a2.contains("composition-checked")) {
+          $prev.remove();
+        } else {
+          break;
+        }
+      }
+    },
+    /**
+     * 处理并显示标签
+     * @param mid 用户mid
+     * @param data
+     * @param $searchContainer
+     */
+    handleShowLabel(mid, data2, $searchContainer) {
+      mid = mid.toString();
+      if (BilibiliComponentDetectionRule.$data.whiteList.includes(mid)) {
+        return;
+      }
+      let matchedAllRule = [];
+      let pushMatchedRule = (rule, matchedInfo) => {
+        let findValue = matchedAllRule.find((it) => it.rule === rule);
+        if (findValue) {
+          findValue.matchedInfoList.push(matchedInfo);
+        } else {
+          matchedAllRule.push({
+            rule,
+            matchedInfoList: [matchedInfo]
+          });
+        }
+      };
+      BilibiliComponentDetectionRule.$data.ruleData.forEach((ruleData) => {
+        if (Array.isArray(ruleData.data.blacklist) && ruleData.data.blacklist.find((it) => it.toString() === mid)) {
+          pushMatchedRule(ruleData, {
+            reason: "黑名单用户",
+            reasonText: mid,
+            reasonLink: BilibiliUrl.getUserSpaceUrl(mid),
+            reasonTime: null
+          });
+          return;
+        }
+        if (Array.isArray(ruleData.data.followings)) {
+          let reason = "关注列表";
+          let reasonText = "";
+          let checkFlag = ruleData.data.followings.some((followId) => {
+            let __check__flag__ = data2.following.some((followingData) => {
+              return followingData.mid.toString() === followId.toString();
+            });
+            if (__check__flag__) {
+              reasonText = followId.toString();
+            }
+            return __check__flag__;
+          });
+          if (checkFlag) {
+            pushMatchedRule(ruleData, {
+              reason,
+              reasonText,
+              reasonLink: BilibiliUrl.getUserSpaceUrl(reasonText),
+              reasonTime: null
+            });
+          }
+        }
+        if (Array.isArray(ruleData.data.keywords)) {
+          ruleData.data.keywords.forEach((keyword) => {
+            var _a2, _b;
+            for (let spaceIndex = 0; spaceIndex < data2.space.length; spaceIndex++) {
+              const spaceData = data2.space[spaceIndex];
+              let reason = "";
+              let reasonText = keyword;
+              let reasonLink = `/opus/${spaceData.contentInfo.id_str}`;
+              let reasonTime = spaceData.contentInfo.pub_ts;
+              if (spaceData.forwardInfo == null) {
+                if (typeof spaceData.contentInfo.desc === "string" && spaceData.contentInfo.desc.match(keyword)) {
+                  reason = "空间动态内容";
+                }
+              } else {
+                if (typeof spaceData.contentInfo.desc === "string" && spaceData.contentInfo.desc.match(keyword)) {
+                  reason = "空间动态转发";
+                } else if (typeof ((_a2 = spaceData.forwardInfo) == null ? void 0 : _a2.title) === "string" && spaceData.forwardInfo.title.match(keyword)) {
+                  reason = "空间动态视频标题";
+                } else if (typeof ((_b = spaceData.forwardInfo) == null ? void 0 : _b.desc) === "string" && spaceData.forwardInfo.desc.match(keyword)) {
+                  reason = "空间动态视频简介";
+                }
+              }
+              if (reason !== "") {
+                pushMatchedRule(ruleData, {
+                  reason,
+                  reasonText,
+                  reasonLink,
+                  reasonTime
+                });
+              }
+            }
+          });
+        }
+      });
+      utils.sortListByProperty(
+        matchedAllRule,
+        (value) => {
+          return value.matchedInfoList.length;
+        },
+        true
+      );
+      matchedAllRule.forEach((it) => {
+        let $label = this.createLabel(it);
+        domutils.before($searchContainer, $label);
+      });
+    }
+  };
   const Bilibili = {
     init() {
       BilibiliVueProp.init();
@@ -9957,6 +11869,9 @@
       PopsPanel.execMenuOnce("bili-head-beautify", () => {
         log.info("添加美化CSS");
         return addStyle(BilibiliBeautifyCSS);
+      });
+      PopsPanel.execMenuOnce("bili-componentDetection", () => {
+        BilibiliComponentDetection.init();
       });
       if (BilibiliRouter.isVideo()) {
         log.info("Router: 视频稿件");
@@ -10094,6 +12009,13 @@ aside.pops-panel-aside .pops-is-visited, aside.pops-panel-aside ul li:hover{
 .pops-panel-switch.pops-panel-switch-is-checked span.pops-panel-switch__core{
     border-color: rgb(var(--bili-color-rgb),var(--pops-bd-opacity));
     background-color: rgb(var(--bili-color-rgb),var(--pops-bg-opacity));
+}
+.pops button[type="primary"],
+.pops button[type="primary"]:active ,
+.pops button[type="primary"]:hover{
+    --button-color: #ffffff;
+    --button-bd-color: var(--bili-color);
+    --button-bg-color: var(--bili-color);
 }
 `  ;
 

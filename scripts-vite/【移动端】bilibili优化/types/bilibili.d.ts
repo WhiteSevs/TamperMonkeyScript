@@ -450,3 +450,96 @@ declare interface BilibiliUserInfoType {
 	 */
 	name_render: null;
 }
+
+declare interface BilibiliUserSpaceInfoType {
+	/** 是否还有数据 */
+	has_more: boolean;
+	items: {
+		basic: {
+			comment_id_str: string;
+			comment_type: number;
+			like_icon: {
+				action_url: string;
+				end_url: string;
+				id: number;
+				start_url: string;
+			};
+			rid_str: string;
+			[key: string]: any;
+		};
+		id_str: string;
+		modules: {
+			module_author: {
+				/** 用户名 */
+				name: string;
+				/** 投稿的时间 */
+				pub_ts: number;
+				mid: number;
+				[key: string]: any;
+			};
+			module_dynamic: {
+				additional: null | string;
+				desc: null | {
+					text: string;
+					rich_text_nodes?: {
+						/**
+						 * + RICH_TEXT_NODE_TYPE_AT \@用户
+						 * + RICH_TEXT_NODE_TYPE_TEXT
+						 * + RICH_TEXT_NODE_TYPE_TOPIC 话题
+						 * + RICH_TEXT_NODE_TYPE_LOTTERY 抽奖之类的
+						 * + RICH_TEXT_NODE_TYPE_EMOJI 表情
+						 */
+						type: string;
+						text: string;
+						[key: string]: any;
+					}[];
+				};
+				major: {
+					type: string;
+					archive?: {
+						aid: string;
+						bvid: string;
+						cover: string;
+						desc: string;
+						title: string;
+						jump_url: string;
+						[key: string]: any;
+					};
+					draw?: any;
+				} | null;
+				topic: null | string;
+				[key: string]: any;
+			};
+			[key: string]: any;
+		};
+		/**
+		 * 有这个属性就是转发的内容
+		 *
+		 * 没有的话就是自己投稿的内容
+		 */
+		orig?: BilibiliUserSpaceInfoType["items"][0];
+		type: string;
+		visible: boolean;
+		[key: string]: any;
+	}[];
+	/** 用于请求下一页的偏移量 */
+	offset: string;
+	update_baseline: string;
+	update_num: number;
+}
+
+declare interface BilibiliUserFollowingInfoType {
+	face: string;
+	follow_time: string;
+	mid: number;
+	mtime: number;
+	/** 个性签名 */
+	sign: string;
+	/** 用户名 */
+	uname: string;
+	official_verify: {
+		type: number;
+		desc: string;
+	};
+	[key: string]: any;
+}

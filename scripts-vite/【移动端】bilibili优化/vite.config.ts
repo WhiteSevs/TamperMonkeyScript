@@ -55,6 +55,7 @@ const MonkeyOption: Partial<__MonkeyOption__> = {
 			"*://m.bilibili.com/*",
 			"*://live.bilibili.com/*",
 			"*://www.bilibili.com/read/*",
+			"*://www.bilibili.com/h5/comment/*",
 		],
 		// 引用库
 		require: [...(await GetLib(["QRCode"]))],

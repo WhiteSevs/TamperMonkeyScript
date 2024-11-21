@@ -1,9 +1,9 @@
-import "./block.css";
-import "./common.css";
-import BilibiliBeautifyCSS from "./BilibiliBeautify.css?raw";
+import "./css/block.css";
+import "./css/common.css";
+import BilibiliBeautifyCSS from "./css/beautify.css?raw";
 import { BilibiliPCRouter, BilibiliRouter } from "@/router/BilibiliRouter";
 import { BilibiliVideo } from "./video/BilibiliVideo";
-import { addStyle, DOMUtils, log, Qmsg, utils } from "@/env";
+import { addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliBangumi } from "./bangumi/BilibiliBangumi";
 import { BilibiliSearch } from "./search/BilibiliSearch";
@@ -18,6 +18,7 @@ import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import { BilibiliSpace } from "./space/BilibiliSpace";
 import { VueUtils } from "@/utils/VueUtils";
 import { BilibiliVueProp } from "./BilibiliVueProp";
+import { BilibiliComponentDetection } from "./BilibiliComponentDetection";
 
 const Bilibili = {
 	init() {
@@ -52,6 +53,9 @@ const Bilibili = {
 		PopsPanel.execMenuOnce("bili-head-beautify", () => {
 			log.info("添加美化CSS");
 			return addStyle(BilibiliBeautifyCSS);
+		});
+		PopsPanel.execMenuOnce("bili-componentDetection", () => {
+			BilibiliComponentDetection.init();
 		});
 
 		if (BilibiliRouter.isVideo()) {

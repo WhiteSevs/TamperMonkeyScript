@@ -56,7 +56,7 @@ export const BilibiliOpus = {
 	 */
 	automaticallyExpandToReadFullText() {
 		log.info("自动展开阅读全文");
-		return [
+		let result = [
 			CommonUtil.addBlockCSS(BilibiliData.className.opus + " .opus-read-more"),
 			addStyle(/*css*/ `
 			${BilibiliData.className.opus} .opus-module-content{
@@ -65,6 +65,18 @@ export const BilibiliOpus = {
 			}
 			`),
 		];
+		DOMUtils.ready(() => {
+			VueUtils.waitVuePropToSet(".m-opus", {
+				msg: "自动展开阅读全文 ==> 等待vue属性isLimit出现",
+				check(vueInstance) {
+					return typeof vueInstance?.isLimit === "boolean";
+				},
+				set(vueInstance) {
+					vueInstance.isLimit = false;
+				},
+			});
+		});
+		return result;
 	},
 	/**
 	 * 覆盖header点击事件

@@ -605,32 +605,6 @@ export const PopsPanel = {
 		});
 	},
 	/**
-	 * 判断是否是移动端
-	 */
-	isMobile() {
-		return window.innerWidth < 550;
-	},
-	/**
-	 * 获取设置面板的宽度
-	 */
-	getWidth() {
-		if (window.innerWidth < 550) {
-			return "92vw";
-		} else {
-			return "550px";
-		}
-	},
-	/**
-	 * 获取设置面板的高度
-	 */
-	getHeight() {
-		if (window.innerHeight < 550) {
-			return "80vh";
-		} else {
-			return "450px";
-		}
-	},
-	/**
 	 * 获取配置内容
 	 */
 	getPanelContentConfig() {

@@ -5,6 +5,8 @@ import { UISelect } from "../common-components/ui-select";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { UIInput } from "../common-components/ui-input";
 import { BilibiliQrCodeLogin } from "@/account/BilibiliQrCodeLogin";
+import { UIButton } from "../common-components/ui-button";
+import { BilibiliComponentDetectionRule } from "@/main/BilibiliComponentDetectionRule";
 
 const SettingUICommon: PopsPanelContentConfig = {
 	id: "panel-common",
@@ -115,6 +117,67 @@ const SettingUICommon: PopsPanelContentConfig = {
 									true,
 									void 0,
 									"阻止自动调用App"
+								),
+							],
+						},
+					],
+				},
+				{
+					type: "deepMenu",
+					text: "成分检测",
+					forms: [
+						{
+							type: "forms",
+							text: "",
+							forms: [
+								UISwitch(
+									"启用",
+									"bili-componentDetection",
+									false,
+									void 0,
+									"启用后可检测用户的成分信息"
+								),
+								UIButton(
+									"自定义规则",
+									"检测用户成分的规则",
+									"管理",
+									void 0,
+									false,
+									false,
+									"primary",
+									() => {
+										BilibiliComponentDetectionRule.showView();
+									}
+								),
+							],
+						},
+						{
+							type: "forms",
+							text: "",
+							forms: [
+								UIButton(
+									"数据导入",
+									"导入自定义规则数据",
+									"导入",
+									void 0,
+									false,
+									false,
+									"primary",
+									() => {
+										BilibiliComponentDetectionRule.importRule();
+									}
+								),
+								UIButton(
+									"数据导出",
+									"导出自定义规则数据",
+									"导出",
+									void 0,
+									false,
+									false,
+									"primary",
+									() => {
+										BilibiliComponentDetectionRule.exportRule("成分检测.json");
+									}
 								),
 							],
 						},

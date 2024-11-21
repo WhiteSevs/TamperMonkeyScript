@@ -34,7 +34,13 @@ export const UITextArea = function (
 		placeholder: placeholder,
 		disabled: disabled,
 		getValue() {
-			return (this.props as any)[PROPS_STORAGE_API].get(key, defaultValue);
+			let value = (this.props as any)[PROPS_STORAGE_API].get(key, defaultValue);
+			if (Array.isArray(value)) {
+				// 处理数组的情况
+				// 一般是换行合并
+				return value.join("\n");
+			}
+			return value;
 		},
 		callback(event, value) {
 			if (typeof changeCallBack === "function") {

@@ -72,7 +72,7 @@ Qmsg.config(
 				get() {
 					let maxZIndex = Utils.getMaxZIndex();
 					let popsMaxZIndex =
-						pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
+						pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
 					return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
 				},
 			},
@@ -98,7 +98,7 @@ httpx.interceptors.request.use((data) => {
 
 // 添加响应拦截器
 httpx.interceptors.response.use(void 0, (data) => {
-	log.error(["拦截器-请求错误", data]);
+	log.error("拦截器-请求错误", data);
 	if (data.type === "onabort") {
 		Qmsg.warning("请求取消");
 	} else if (data.type === "onerror") {
@@ -182,7 +182,19 @@ if (import.meta.hot) {
 		},
 	});
 }
-
+pops.GlobalConfig.setGlobalConfig({
+	mask: {
+		enable: true,
+		clickEvent: {
+			toClose: true,
+		},
+	},
+	zIndex() {
+		let maxZIndex = Utils.getMaxZIndex();
+		let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+		return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+	},
+});
 export {
 	utils,
 	domutils as DOMUtils,

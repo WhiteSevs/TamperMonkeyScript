@@ -27,4 +27,11 @@ aside.pops-panel-aside .pops-is-visited, aside.pops-panel-aside ul li:hover{
     border-color: rgb(var(--bili-color-rgb),var(--pops-bd-opacity));
     background-color: rgb(var(--bili-color-rgb),var(--pops-bg-opacity));
 }
+.pops button[type="primary"],
+.pops button[type="primary"]:active ,
+.pops button[type="primary"]:hover{
+    --button-color: #ffffff;
+    --button-bd-color: var(--bili-color);
+    --button-bg-color: var(--bili-color);
+}
 `;
