@@ -19,8 +19,7 @@ export class PopsDrawer {
 			pops.config.cssText.common,
 			pops.config.cssText.drawerCSS,
 		]);
-
-		let config: Required<PopsDrawerDetails> = PopsDrawerConfig();
+		let config = PopsDrawerConfig();
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
 		let guid = popsUtils.getRandomGUID();

@@ -1,7 +1,7 @@
 import type { PopsSearchSuggestionDetails } from "./indexType";
 
 export const searchSuggestionConfig =
-	(): Required<PopsSearchSuggestionDetails> => {
+	(): DeepRequired<PopsSearchSuggestionDetails> => {
 		return {
 			// @ts-ignore
 			target: null,

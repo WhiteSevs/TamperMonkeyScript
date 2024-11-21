@@ -1,6 +1,6 @@
 import type { PopsPromptDetails } from "./indexType";
 
-export const PopsPromptConfig = (): Required<PopsPromptDetails> => {
+export const PopsPromptConfig = (): DeepRequired<PopsPromptDetails> => {
 	return {
 		title: {
 			text: "默认标题",
@@ -24,54 +24,44 @@ export const PopsPromptConfig = (): Required<PopsPromptDetails> => {
 			position: "flex-end",
 			ok: {
 				enable: true,
-
-				size: void 0,
-
-				icon: void 0,
+				size: void 0 as any,
+				icon: void 0 as any,
 				rightIcon: false,
 				iconIsLoading: false,
 				text: "确定",
 				type: "success",
-				callback(event) {
-					console.log(event);
-					event.close();
+				callback(detail) {
+					detail.close();
 				},
 			},
 			cancel: {
 				enable: true,
-
-				size: void 0,
-
-				icon: void 0,
+				size: void 0 as any,
+				icon: void 0 as any,
 				rightIcon: false,
 				iconIsLoading: false,
 				text: "关闭",
 				type: "default",
-				callback(event) {
-					console.log(event);
-					event.close();
+				callback(detail) {
+					detail.close();
 				},
 			},
 			other: {
 				enable: false,
-
-				size: void 0,
-
-				icon: void 0,
+				size: void 0 as any,
+				icon: void 0 as any,
 				rightIcon: false,
 				iconIsLoading: false,
 				text: "其它按钮",
 				type: "default",
-				callback(event) {
-					console.log(event);
-					event.close();
+				callback(detail) {
+					detail.close();
 				},
 			},
 			close: {
 				enable: true,
-				callback(event) {
-					console.log(event);
-					event.close();
+				callback(detail) {
+					detail.close();
 				},
 			},
 		},
@@ -88,8 +78,7 @@ export const PopsPromptConfig = (): Required<PopsPromptDetails> => {
 				toClose: false,
 				toHide: false,
 			},
-
-			clickCallBack: void 0,
+			clickCallBack: null,
 		},
 		drag: false,
 		dragLimit: true,

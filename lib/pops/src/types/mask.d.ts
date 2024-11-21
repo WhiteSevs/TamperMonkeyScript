@@ -24,15 +24,18 @@ export interface PopsMaskDetails {
 	 * @param originalRun 当toClose为true，它是关闭弹窗，当toHide为true，它是隐藏弹窗
 	 * @param config 配置信息
 	 */
-	clickCallBack?: (
-		originalRun: () => void,
-		config:
-			| PopsAlertDetails
-			| PopsDrawerDetails
-			| PopsIframeDetails
-			| PopsPromptDetails
-			| PopsFolderDetails
-			| PopsLoadingDetails
-			| PopsPanelDetails
-	) => void;
+	clickCallBack?:
+		| ((
+				originalRun: () => void,
+				config:
+					| PopsAlertDetails
+					| PopsDrawerDetails
+					| PopsIframeDetails
+					| PopsPromptDetails
+					| PopsFolderDetails
+					| PopsLoadingDetails
+					| PopsPanelDetails
+		  ) => void)
+		| undefined
+		| null;
 }

@@ -1,6 +1,6 @@
 import type { PopsLoadingDetails } from "./indexType";
 
-export const PopsLoadingConfig = (): Required<PopsLoadingDetails> => {
+export const PopsLoadingConfig = (): DeepRequired<PopsLoadingDetails> => {
 	return {
 		parent: document.body,
 		content: {
@@ -17,8 +17,7 @@ export const PopsLoadingConfig = (): Required<PopsLoadingDetails> => {
 				toClose: false,
 				toHide: false,
 			},
-
-			clickCallBack: void 0,
+			clickCallBack: null,
 		},
 		animation: "pops-anim-fadein-zoom",
 		forbiddenScroll: false,

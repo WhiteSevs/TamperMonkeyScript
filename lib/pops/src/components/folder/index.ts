@@ -22,7 +22,7 @@ export class PopsFolder {
 			pops.config.cssText.folderCSS,
 		]);
 
-		let config: Required<PopsFolderDetails> = PopsFolderConfig();
+		let config = PopsFolderConfig();
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
 
@@ -86,6 +86,7 @@ export class PopsFolder {
 		});
 
 		if (details?.folder) {
+			// @ts-ignore
 			config.folder = details.folder;
 		}
 		let guid = popsUtils.getRandomGUID();

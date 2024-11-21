@@ -20,7 +20,7 @@ export class PopsConfirm {
 			pops.config.cssText.common,
 			pops.config.cssText.confirmCSS,
 		]);
-		let config: Required<PopsConfirmDetails> = PopsConfirmConfig();
+		let config = PopsConfirmConfig();
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
 		let guid = popsUtils.getRandomGUID();

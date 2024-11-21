@@ -9,7 +9,7 @@ import type { PopsLoadingDetails } from "./indexType";
 
 export class PopsLoading {
 	constructor(details: PopsLoadingDetails) {
-		let config: Required<PopsLoadingDetails> = PopsLoadingConfig();
+		let config = PopsLoadingConfig();
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
 		let guid = popsUtils.getRandomGUID();

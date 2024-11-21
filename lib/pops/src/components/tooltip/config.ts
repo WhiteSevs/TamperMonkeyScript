@@ -1,9 +1,9 @@
 import type { PopsToolTipDetails } from "./indexType";
 
-export const PopsTooltipConfig = (): Required<PopsToolTipDetails> => {
+export const PopsTooltipConfig = (): DeepRequired<PopsToolTipDetails> => {
+	// @ts-ignore
 	return {
-		// @ts-ignore
-		target: null,
+		target: null as any,
 		content: "默认文字",
 		position: "top",
 		className: "",
@@ -22,10 +22,11 @@ export const PopsTooltipConfig = (): Required<PopsToolTipDetails> => {
 		showAfterCallBack() {},
 		closeBeforeCallBack() {},
 		closeAfterCallBack() {},
+		delayCloseTime: 100,
+		showArrow: true,
 		arrowDistance: 12.5,
 		otherDistance: 0,
-
 		style: "",
 		beforeAppendToPageCallBack() {},
-	};
+	} as Required<PopsToolTipDetails>;
 };

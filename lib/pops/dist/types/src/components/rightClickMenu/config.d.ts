@@ -1,2 +1,2 @@
 import type { PopsRightClickMenuDetails } from "./indexType";
-export declare const rightClickMenuConfig: () => Required<PopsRightClickMenuDetails>;
+export declare const rightClickMenuConfig: () => DeepRequired<PopsRightClickMenuDetails>;

@@ -15,8 +15,7 @@ export class PopsSearchSuggestion {
 			pops.config.cssText.common,
 		]);
 
-		let config: Required<PopsSearchSuggestionDetails> =
-			PopsSearchSuggestionConfig();
+		let config = PopsSearchSuggestionConfig();
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
 		if (config.target == null) {

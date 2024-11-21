@@ -1,6 +1,6 @@
 import type { PopsPanelDetails } from "./indexType";
 
-export const PopsPanelConfig = (): Required<PopsPanelDetails> => {
+export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 	return {
 		title: {
 			text: "默认标题",
@@ -31,6 +31,9 @@ export const PopsPanelConfig = (): Required<PopsPanelDetails> => {
 								className: "panel-switch",
 								text: "switch",
 								type: "switch",
+								// @ts-ignore
+								props: {},
+								disabled: false,
 								attributes: [],
 								getValue() {
 									return true;
@@ -43,6 +46,8 @@ export const PopsPanelConfig = (): Required<PopsPanelDetails> => {
 								className: "panel-slider",
 								text: "slider",
 								type: "slider",
+								// @ts-ignore
+								props: {},
 								attributes: [],
 								getValue() {
 									return 50;
@@ -57,6 +62,8 @@ export const PopsPanelConfig = (): Required<PopsPanelDetails> => {
 								className: "panel-button",
 								text: "button",
 								type: "button",
+								// @ts-ignore
+								props: {},
 								attributes: [],
 								buttonIcon: "eleme",
 								buttonIconIsLoading: true,
@@ -69,6 +76,8 @@ export const PopsPanelConfig = (): Required<PopsPanelDetails> => {
 							{
 								className: "panel-button",
 								text: "button",
+								// @ts-ignore
+								props: {},
 								type: "button",
 								attributes: [],
 								buttonIcon: "chromeFilled",
@@ -84,6 +93,8 @@ export const PopsPanelConfig = (): Required<PopsPanelDetails> => {
 								text: "button",
 								type: "button",
 								attributes: [],
+								// @ts-ignore
+								props: {},
 								buttonIcon: "upload",
 								buttonIconIsLoading: false,
 								buttonType: "info",
@@ -112,6 +123,8 @@ export const PopsPanelConfig = (): Required<PopsPanelDetails> => {
 						className: "panel-input",
 						text: "input",
 						type: "input",
+						// @ts-ignore
+						props: {},
 						attributes: [],
 						getValue() {
 							return "50";
@@ -125,6 +138,8 @@ export const PopsPanelConfig = (): Required<PopsPanelDetails> => {
 						className: "panel-input-password",
 						text: "input-password",
 						type: "input",
+						// @ts-ignore
+						props: {},
 						attributes: [],
 						getValue() {
 							return "123456";
@@ -139,6 +154,8 @@ export const PopsPanelConfig = (): Required<PopsPanelDetails> => {
 						className: "panel-textarea",
 						text: "textarea",
 						type: "textarea",
+						// @ts-ignore
+						props: {},
 						attributes: [],
 						getValue() {
 							return "50";
@@ -152,6 +169,8 @@ export const PopsPanelConfig = (): Required<PopsPanelDetails> => {
 						className: "panel-select",
 						text: "select",
 						type: "select",
+						// @ts-ignore
+						props: {},
 						attributes: [],
 						getValue() {
 							return 50;
@@ -165,14 +184,23 @@ export const PopsPanelConfig = (): Required<PopsPanelDetails> => {
 							{
 								value: "all",
 								text: "所有",
+								disable() {
+									return false;
+								},
 							},
 							{
 								value: "text",
 								text: "文本",
+								disable() {
+									return false;
+								},
 							},
 							{
 								value: "html",
 								text: "超文本",
+								disable() {
+									return false;
+								},
 							},
 						],
 					},
@@ -180,6 +208,8 @@ export const PopsPanelConfig = (): Required<PopsPanelDetails> => {
 						className: "panel-select-multiple",
 						type: "select-multiple",
 						text: "select-multiple",
+						// @ts-ignore
+						props: {},
 
 						attributes: [],
 						placeholder: "请至少选择一个选项",
@@ -199,22 +229,42 @@ export const PopsPanelConfig = (): Required<PopsPanelDetails> => {
 							{
 								value: "select-1",
 								text: "单选1",
+								isHTML: false,
+								disable() {
+									return false;
+								},
 							},
 							{
 								value: "select-2",
 								text: "单选2",
+								isHTML: false,
+								disable() {
+									return false;
+								},
 							},
 							{
 								value: "select-3",
 								text: "单选3",
+								isHTML: false,
+								disable() {
+									return false;
+								},
 							},
 							{
 								value: "select-4",
 								text: "单选4",
+								isHTML: false,
+								disable() {
+									return false;
+								},
 							},
 							{
 								value: "select-5",
 								text: "单选5",
+								isHTML: false,
+								disable() {
+									return false;
+								},
 							},
 						],
 					},
@@ -246,6 +296,8 @@ export const PopsPanelConfig = (): Required<PopsPanelDetails> => {
 												className: "panel-switch",
 												text: "switch",
 												type: "switch",
+												// @ts-ignore
+												props: {},
 												attributes: [],
 												getValue() {
 													return true;
@@ -257,6 +309,8 @@ export const PopsPanelConfig = (): Required<PopsPanelDetails> => {
 											{
 												className: "panel-slider",
 												text: "slider",
+												// @ts-ignore
+												props: {},
 												type: "slider",
 												attributes: [],
 												getValue() {
@@ -271,6 +325,8 @@ export const PopsPanelConfig = (): Required<PopsPanelDetails> => {
 											{
 												className: "panel-button",
 												text: "button",
+												// @ts-ignore
+												props: {},
 												type: "button",
 												attributes: [],
 												buttonIcon: "eleme",
@@ -285,6 +341,8 @@ export const PopsPanelConfig = (): Required<PopsPanelDetails> => {
 												className: "panel-button",
 												text: "button",
 												type: "button",
+												// @ts-ignore
+												props: {},
 												attributes: [],
 												buttonIcon: "chromeFilled",
 												buttonIconIsLoading: true,
@@ -297,6 +355,8 @@ export const PopsPanelConfig = (): Required<PopsPanelDetails> => {
 											{
 												className: "panel-button",
 												text: "button",
+												// @ts-ignore
+												props: {},
 												type: "button",
 												attributes: [],
 												buttonIcon: "upload",
@@ -324,6 +384,8 @@ export const PopsPanelConfig = (): Required<PopsPanelDetails> => {
 							{
 								className: "panel-switch",
 								text: "switch",
+								// @ts-ignore
+								props: {},
 								type: "switch",
 								attributes: [],
 								getValue() {
@@ -352,7 +414,7 @@ export const PopsPanelConfig = (): Required<PopsPanelDetails> => {
 				toClose: false,
 				toHide: false,
 			},
-			clickCallBack: void 0,
+			clickCallBack: null,
 		},
 		class: "",
 		mobileClassName: "pops-panel-is-mobile",

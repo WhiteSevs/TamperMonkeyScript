@@ -21,14 +21,14 @@ export class PopsRightClickMenu {
 			pops.config.cssText.rightClickMenu,
 		]);
 
-		let config: Required<PopsRightClickMenuDetails> =
-			PopsRightClickMenuConfig();
+		let config = PopsRightClickMenuConfig();
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
 		if (config.target == null) {
 			throw "config.target 不能为空";
 		}
 		if (details.data) {
+			// @ts-ignore
 			config.data = details.data;
 		}
 		let guid = popsUtils.getRandomGUID();

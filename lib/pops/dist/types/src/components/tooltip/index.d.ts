@@ -45,12 +45,12 @@ export declare class ToolTip {
      */
     changeZIndex(): void;
     /**
-     * 获取 提示框的位置
+     * 计算 提示框的位置
      * @param targetElement 目标元素
      * @param arrowDistance 箭头和目标元素的距离
      * @param otherDistance 其它位置的偏移
      */
-    getPosition(targetElement: HTMLElement, arrowDistance: number, otherDistance: number): {
+    calcToolTipPosition(targetElement: HTMLElement, arrowDistance: number, otherDistance: number): {
         TOP: {
             left: number;
             top: number;
@@ -154,7 +154,7 @@ export declare class ToolTip {
     /**
      * 鼠标|触摸离开事件
      */
-    toolTipMouseLeaveEvent(): void;
+    toolTipMouseLeaveEvent(event: MouseEvent | PointerEvent): void;
     /**
      * 监听鼠标|触摸离开事件
      */

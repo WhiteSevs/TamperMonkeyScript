@@ -9,3 +9,12 @@ declare module "*.svg" {
 	const content: string;
 	export default content;
 }
+type DeepRequired<T> = T extends Function
+	? T
+	: T extends object
+	? T extends Node
+		? T
+		: {
+				[K in keyof T]-?: DeepRequired<T[K]>;
+		  }
+	: T;

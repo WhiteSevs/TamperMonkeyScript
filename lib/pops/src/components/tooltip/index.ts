@@ -96,6 +96,10 @@ export class ToolTip {
 			});
 			$toolTipContainer.appendChild(cssNode);
 		}
+		// 处理是否显示箭头元素
+		if (!this.$data.config.showArrow) {
+			$toolTipArrow.remove();
+		}
 		return {
 			$toolTipContainer: $toolTipContainer,
 			$toolTipArrow: $toolTipArrow,
@@ -135,12 +139,12 @@ export class ToolTip {
 		this.$el.$toolTip.style.setProperty("z-index", zIndex.toString());
 	}
 	/**
-	 * 获取 提示框的位置
+	 * 计算 提示框的位置
 	 * @param targetElement 目标元素
 	 * @param arrowDistance 箭头和目标元素的距离
 	 * @param otherDistance 其它位置的偏移
 	 */
-	getPosition(
+	calcToolTipPosition(
 		targetElement: HTMLElement,
 		arrowDistance: number,
 		otherDistance: number
@@ -201,7 +205,7 @@ export class ToolTip {
 	 * 动态修改tooltip的位置
 	 */
 	changePosition() {
-		let positionInfo = this.getPosition(
+		let positionInfo = this.calcToolTipPosition(
 			this.$data.config.target,
 			this.$data.config.arrowDistance,
 			this.$data.config.otherDistance
@@ -352,8 +356,8 @@ export class ToolTip {
 		// 其它的如Touch事件不做处理
 		if (event && event instanceof MouseEvent) {
 			let $target = event.composedPath()[0];
-			// 如果是子元素触发的话，忽视
-			if ($target != this.$data.config.target) {
+			// 如果是目标元素的子元素/tooltip元素的子元素触发的话，那就不管
+			if ($target != this.$data.config.target && $target != this.$el.$toolTip) {
 				return;
 			}
 		}
@@ -373,6 +377,10 @@ export class ToolTip {
 		let timeId = setTimeout(() => {
 			// 设置属性触发关闭动画
 			this.clearCloseTimeoutId(eventType, timeId);
+			if (this.$el.$toolTip == null) {
+				// 已清除了
+				return;
+			}
 			this.$el.$toolTip.setAttribute(
 				"data-motion",
 				this.$el.$toolTip
@@ -459,7 +467,10 @@ export class ToolTip {
 	 * 鼠标|触摸进入事件
 	 */
 	toolTipMouseEnterEvent() {
-		this.$el.$toolTip.style.animationPlayState = "paused";
+		this.clearCloseTimeoutId("MouseEvent");
+		this.clearCloseTimeoutId("TouchEvent");
+		// 重置动画状态
+		// this.$el.$toolTip.style.animationPlayState = "paused";
 		// if (parseInt(getComputedStyle(toolTipElement)) > 0.5) {
 		// toolTipElement.style.animationPlayState = "paused";
 		// }
@@ -491,8 +502,9 @@ export class ToolTip {
 	/**
 	 * 鼠标|触摸离开事件
 	 */
-	toolTipMouseLeaveEvent() {
-		this.$el.$toolTip.style.animationPlayState = "running";
+	toolTipMouseLeaveEvent(event: MouseEvent | PointerEvent) {
+		this.close(event);
+		// this.$el.$toolTip.style.animationPlayState = "running";
 	}
 	/**
 	 * 监听鼠标|触摸离开事件
@@ -536,7 +548,7 @@ export class PopsTooltip {
 			pops.config.cssText.tooltipCSS,
 		]);
 
-		let config: Required<PopsToolTipDetails> = PopsTooltipConfig();
+		let config = PopsTooltipConfig();
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
 		if (!(config.target instanceof HTMLElement)) {

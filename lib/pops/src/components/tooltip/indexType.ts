@@ -14,20 +14,23 @@ export interface PopsToolTipDetails {
 	 */
 	content: string | (() => string);
 	/**
-	 * 位置，默认top
+	 * 位置
+	 * @default "top"
 	 */
 	position?: PopsTooltipPosition;
 	/**
-	 * 自定义className，默认为空
-	 * + github-tooltip
+	 * 自定义className
+	 *
+	 * + github-tooltip github的样式
+	 * @default ""
 	 */
 	className?: string;
 	/**
 	 * 是否使用fixed定位，默认是absolute
-	 * 
+	 *
 	 * @default false
 	 */
-	isFixed?:boolean;
+	isFixed?: boolean;
 	/**
 	 * 是否总是显示，默认为false
 	 * + true 设置的triggerShowEventName、triggerCloseEventName将无效
@@ -42,18 +45,22 @@ export interface PopsToolTipDetails {
 	delayCloseTime?: number;
 	/**
 	 * 触发显示事件的名称，默认mouseenter touchstart，如果是多个事件，按空格分割
+	 * @default  "mouseenter touchstart"
 	 */
 	triggerShowEventName?: string;
 	/**
 	 * 触发关闭事件的名称，默认mouseleave touchend，如果是多个事件，按空格分割
+	 * @default  "mouseleave touchend"
 	 */
 	triggerCloseEventName?: string;
 	/**
-	 * z-index，默认10000
+	 * z-index
+	 * @default 10000
 	 */
 	zIndex?: number | (() => number);
 	/**
-	 * 是否唯一，默认false
+	 * 是否唯一
+	 * @default false
 	 */
 	only?: boolean;
 	/**
@@ -72,22 +79,35 @@ export interface PopsToolTipDetails {
 	showAfterCallBack?: ($toolTip: HTMLElement) => void;
 	/**
 	 * 触发关闭前的回调
-	 * @returns
-	 * + false 可阻止关闭
 	 */
-	closeBeforeCallBack?: ($toolTip: HTMLElement) => false | void;
+	closeBeforeCallBack?: (
+		/**
+		 *
+		 * @returns
+		 * + false 可阻止关闭
+		 */
+		$toolTip: HTMLElement
+	) => false | void;
 	/**
 	 * 触发关闭后的回调
 	 */
 	closeAfterCallBack?: ($toolTip: HTMLElement) => void;
 	/**
-	 * 箭头与目标的的距离，默认12.5(px)
+	 * 是否显示箭头
+	 * @default true
+	 */
+	showArrow?: boolean;
+	/**
+	 * 箭头与目标的的距离(px)
+	 *
+	 * @default 12.5
 	 */
 	arrowDistance?: number;
 	/**
-	 * 其它的距离，默认0(px)
+	 * 其它的距离(px)
 	 * + 当position为left或者right，这个距离是上、下距离
 	 * + 当position为top或者bottom，这个距离是左、右距离
+	 * @default 0
 	 */
 	otherDistance?: number;
 	/**

@@ -21,8 +21,7 @@ export class PopsAlert {
 			pops.config.cssText.common,
 			pops.config.cssText.alertCSS,
 		]);
-
-		let config: Required<PopsAlertDetails> = PopsAlertConfig();
+		let config = PopsAlertConfig();
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
 		let guid = popsUtils.getRandomGUID();

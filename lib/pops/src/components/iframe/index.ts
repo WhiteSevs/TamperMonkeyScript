@@ -21,7 +21,7 @@ export class PopsIframe {
 			pops.config.cssText.common,
 			pops.config.cssText.iframeCSS,
 		]);
-		let config: Required<PopsIframeDetails> = PopsIframeConfig();
+		let config = PopsIframeConfig();
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
 		if (config.url == null) {

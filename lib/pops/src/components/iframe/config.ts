@@ -1,6 +1,6 @@
 import type { PopsIframeDetails } from "./indexType";
 
-export const PopsIframeConfig = (): Required<PopsIframeDetails> => {
+export const PopsIframeConfig = (): DeepRequired<PopsIframeDetails> => {
 	return {
 		title: {
 			position: "center",
@@ -23,8 +23,7 @@ export const PopsIframeConfig = (): Required<PopsIframeDetails> => {
 				toClose: false,
 				toHide: false,
 			},
-
-			clickCallBack: void 0,
+			clickCallBack: null,
 		},
 		animation: "pops-anim-fadein-zoom",
 		position: "center",

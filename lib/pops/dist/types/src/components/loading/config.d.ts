@@ -1,2 +1,2 @@
 import type { PopsLoadingDetails } from "./indexType";
-export declare const PopsLoadingConfig: () => Required<PopsLoadingDetails>;
+export declare const PopsLoadingConfig: () => DeepRequired<PopsLoadingDetails>;

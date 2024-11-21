@@ -1,6 +1,6 @@
 import type { PopsAlertDetails } from "./indexType";
 
-export const PopsAlertConfig = (): Required<PopsAlertDetails> => {
+export const PopsAlertConfig = (): DeepRequired<PopsAlertDetails> => {
 	return {
 		title: {
 			text: "默认标题",
@@ -16,21 +16,21 @@ export const PopsAlertConfig = (): Required<PopsAlertDetails> => {
 		btn: {
 			position: "flex-end",
 			ok: {
-				size: void 0,
+				size: void 0 as any,
 				enable: true,
-				icon: void 0,
+				icon: void 0 as any,
 				rightIcon: false,
 				iconIsLoading: false,
 				text: "确定",
 				type: "primary",
-				callback: function (event) {
-					event.close();
+				callback: function (details: any) {
+					details.close();
 				},
 			},
 			close: {
 				enable: true,
-				callback: function (event) {
-					event.close();
+				callback: function (details: any) {
+					details.close();
 				},
 			},
 		},
@@ -47,7 +47,7 @@ export const PopsAlertConfig = (): Required<PopsAlertDetails> => {
 				toClose: false,
 				toHide: false,
 			},
-			clickCallBack: void 0,
+			clickCallBack: null,
 		},
 		drag: false,
 		dragLimit: true,
@@ -57,5 +57,5 @@ export const PopsAlertConfig = (): Required<PopsAlertDetails> => {
 		forbiddenScroll: false,
 		style: null,
 		beforeAppendToPageCallBack() {},
-	};
+	} as DeepRequired<PopsAlertDetails>;
 };

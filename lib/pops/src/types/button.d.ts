@@ -85,15 +85,18 @@ export interface PopsButtonDetails<T = {}> {
 	 */
 	rightIcon: boolean;
 	/**
-	 * 图标按钮是否是旋转360°，默认false
+	 * 图标按钮是否是旋转360°
+	 * @default false
 	 */
 	iconIsLoading: boolean;
 	/**
-	 * 按钮尺寸大小，默认为空
+	 * 按钮尺寸大小
+	 * @default ""
 	 */
-	size: PopsButtonSize;
+	size: PopsButtonSize | "";
 	/**
-	 * 按钮样式类型，默认为default
+	 * 按钮样式类型
+	 * @default "default"
 	 */
 	type: PopsButtonStyleType;
 	/**
@@ -126,11 +129,13 @@ export interface PopsButtonDetailsAnyType<T = {}> {
 	 */
 	rightIcon: boolean;
 	/**
-	 * 图标按钮是否是旋转360°，默认false
+	 * 图标按钮是否是旋转360°
+	 * @default false
 	 */
 	iconIsLoading: boolean;
 	/**
-	 * 按钮尺寸大小，默认为空
+	 * 按钮尺寸大小
+	 * @default ""
 	 */
 	size: PopsButtonSize;
 	/**
@@ -138,7 +143,8 @@ export interface PopsButtonDetailsAnyType<T = {}> {
 	 */
 	type: string;
 	/**
-	 * 按钮文字，默认为空
+	 * 按钮文字
+	 * @default ""
 	 */
 	text: string;
 	/**
@@ -204,18 +210,6 @@ export interface PopsHeaderCloseButtonDetails {
 	 * 是否启用按钮
 	 */
 	enable?: boolean;
-	/**
-	 * 按钮尺寸大小，默认为空
-	 */
-	size?: PopsButtonSize;
-	/**
-	 * 按钮样式类型，默认为default
-	 */
-	type?: PopsButtonStyleType;
-	/**
-	 * 按钮文字，默认为空
-	 */
-	text?: string;
 	/**
 	 * 按钮点击的回调
 	 */
