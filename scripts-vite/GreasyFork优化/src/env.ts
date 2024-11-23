@@ -191,4 +191,6 @@ export {
 	// showdown,
 	httpx,
 	addStyle,
+	$,
+	$$,
 };

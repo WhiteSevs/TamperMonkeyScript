@@ -1,6 +1,6 @@
 import { addStyle, DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import beautifyVersionsPageCSS from "./beautifyVersionsPage.css?raw";
+import beautifyVersionsPageCSS from "./css/beautifyVersionsPage.css?raw";
 import { CommonUtil } from "@/utils/CommonUtil";
 import i18next from "i18next";
 import Qmsg from "qmsg";

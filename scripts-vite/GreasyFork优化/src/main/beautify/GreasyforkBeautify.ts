@@ -9,7 +9,7 @@ import compatibleBeautifyCSS from "./css/compatibleBeautify.css?raw";
 import beautifyTopNavigationBarCSS from "./css/beautifyTopNavigationBar.css?raw";
 import beautifyHomeCSS from "./css/beautifyHome.css?raw";
 import beautifyFeedbackCSS from "./css/beautifyFeedback.css?raw";
-import { addStyle, DOMUtils, log, utils } from "@/env";
+import { $, $$, addStyle, DOMUtils, log, utils } from "@/env";
 import i18next from "i18next";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { GreasyforkRouter } from "@/router/GreasyforkRouter";
@@ -29,7 +29,6 @@ export const GreasyforkBeautify = {
 			return this.beautifyTopNavigationBar();
 		});
 	},
-
 	/**
 	 * 美化页面元素
 	 */
@@ -249,18 +248,17 @@ export const GreasyforkBeautify = {
 	 */
 	beautifyTopNavigationBar() {
 		log.info("美化顶部导航栏");
-		let result = [];
+		let result: (HTMLStyleElement | undefined)[] = [];
 		result.push(addStyle(beautifyTopNavigationBarCSS));
 		if (window.outerWidth > 550) {
 			result.push(CommonUtil.addBlockCSS(".with-submenu"));
 			DOMUtils.ready(() => {
-				let $siteNav = document.querySelector<HTMLElement>("#site-nav")!;
+				let $siteNav = $<HTMLElement>("#site-nav")!;
 				let $siteNavNav = $siteNav.querySelector<HTMLElement>("nav")!;
-				document
-					.querySelectorAll<HTMLLIElement>(".with-submenu nav li")
-					.forEach(($ele) => {
-						$siteNavNav.appendChild($ele);
-					});
+				// 把更多的内容添加到顶部导航栏中
+				$$<HTMLLIElement>(".with-submenu nav li").forEach(($ele) => {
+					$siteNavNav.appendChild($ele);
+				});
 			});
 		}
 

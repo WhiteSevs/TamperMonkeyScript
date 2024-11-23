@@ -21,6 +21,7 @@ import { GreasyforkConversations } from "./navigator/users/conversations/Greasyf
 import { GreasyforkRememberFormTextArea } from "./GreasyforkRememberFormTextArea";
 import { GreasyforkScriptsSearch } from "./navigator/scripts-search/GreasyforkScriptsSearch";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
+import { GreasyforkElementUtils } from "@/utils/GreasyforkElementUtils";
 
 const Greasyfork = {
 	init() {
@@ -586,116 +587,105 @@ const Greasyfork = {
 				true
 			) as HTMLDivElement;
 			$scriptsOptionGroups.classList.add("option-panel-groups");
-			if (!$nav) {
-				log.error("元素#site-nav nav不存在");
-				return;
-			}
-			let $filterBtn = DOMUtils.createElement("li", {
+			GreasyforkElementUtils.registerTopNavMenu({
+				name: i18next.t("操作面板"),
 				className: "filter-scripts",
-				innerHTML: `
-                <a href="javascript:;">${i18next.t("操作面板")}</a>
-                `,
+				clickEvent(event) {
+					let $drawer = pops.drawer({
+						title: {
+							enable: false,
+						},
+						content: {
+							text: "",
+							html: true,
+						},
+						direction: "top",
+						size: "80%",
+						zIndex: utils.getMaxZIndex(100),
+						style: /*css*/ `
+						.pops-drawer-content div:first-child{
+							margin: 20px;
+						}
+						.option-panel-groups > div{
+						
+						}
+						.option-panel-groups ul{
+							margin: .5em 0 0;
+							list-style-type: none;
+							padding: 1em 0;
+							box-shadow: 0 0 5px #ddd;
+							border: 1px solid #BBBBBB;
+							border-radius: 5px;
+							background-color: #fff;
+						}
+						.option-panel-groups ul li{
+						
+						}
+						li.list-current{
+							border-left: 7px solid #800;
+							box-shadow: inset 0 1px #0000001a, inset 0 -1px #0000001a;
+							margin: 0 0 0 -4px;
+							padding: .4em 1em .4em calc(1em - 3px);
+							background: linear-gradient(#fff, #eee);
+						}
+						.list-option-group a {
+							padding: .35em 1em;
+							display: block;
+						}
+						.list-option-group {
+							margin-bottom: 1em;
+						}
+						form.sidebar-search{
+							display: flex;
+							align-items: center;
+							gap: 10px;
+						}
+						form.sidebar-search input[type="search"]{
+							display: inline-flex;
+							justify-content: center;
+							align-items: center;
+							line-height: 1;
+							height: 32px;
+							white-space: nowrap;
+							cursor: text;
+							text-align: center;
+							box-sizing: border-box;
+							outline: 0;
+							transition: 0.1s;
+							font-weight: 500;
+							user-select: none;
+							-webkit-user-select: none;
+							-moz-user-select: none;
+							-ms-user-select: none;
+							vertical-align: middle;
+							-webkit-appearance: none;
+							appearance: none;
+							background-color: transparent;
+							border: 0;
+							padding: 8px 8px;
+							font-size: 14px;
+							text-align: start;
+							/* width: 100%; */
+							// flex: 1;
+							display: flex;
+							align-items: center;
+							border: 1px solid #dcdfe6;
+							border-radius: 4px;
+							background-color: #ffffff;
+						}
+						form.sidebar-search input[type="submit"]{
+							width: 32px;
+							height: 32px;
+						}
+						`,
+					});
+					let $drawerContent =
+						$drawer.$shadowRoot.querySelector<HTMLDivElement>(
+							".pops-drawer-content"
+						)!;
+					$drawerContent.appendChild($scriptsOptionGroups);
+				},
 			});
-			DOMUtils.on($filterBtn, "click", (event) => {
-				utils.preventEvent(event);
-				let $drawer = pops.drawer({
-					title: {
-						enable: false,
-					},
-					content: {
-						text: "",
-						html: true,
-					},
-					direction: "top",
-					size: "80%",
-					zIndex: utils.getMaxZIndex(100),
-					style: /*css*/ `
-                    .pops-drawer-content div:first-child{
-                        margin: 20px;
-                    }
-                    .option-panel-groups > div{
-                    
-                    }
-                    .option-panel-groups ul{
-                        margin: .5em 0 0;
-                        list-style-type: none;
-                        padding: 1em 0;
-                        box-shadow: 0 0 5px #ddd;
-                        border: 1px solid #BBBBBB;
-                        border-radius: 5px;
-                        background-color: #fff;
-                    }
-                    .option-panel-groups ul li{
-                    
-                    }
-                    li.list-current{
-                        border-left: 7px solid #800;
-                        box-shadow: inset 0 1px #0000001a, inset 0 -1px #0000001a;
-                        margin: 0 0 0 -4px;
-                        padding: .4em 1em .4em calc(1em - 3px);
-                        background: linear-gradient(#fff, #eee);
-                    }
-                    .list-option-group a {
-                        padding: .35em 1em;
-                        display: block;
-                    }
-                    .list-option-group {
-                        margin-bottom: 1em;
-                    }
-                    form.sidebar-search{
-                        display: flex;
-                        align-items: center;
-                        gap: 10px;
-                    }
-                    form.sidebar-search input[type="search"]{
-                        display: inline-flex;
-                        justify-content: center;
-                        align-items: center;
-                        line-height: 1;
-                        height: 32px;
-                        white-space: nowrap;
-                        cursor: text;
-                        text-align: center;
-                        box-sizing: border-box;
-                        outline: 0;
-                        transition: 0.1s;
-                        font-weight: 500;
-                        user-select: none;
-                        -webkit-user-select: none;
-                        -moz-user-select: none;
-                        -ms-user-select: none;
-                        vertical-align: middle;
-                        -webkit-appearance: none;
-                        appearance: none;
-                        background-color: transparent;
-                        border: 0;
-                        padding: 8px 8px;
-                        font-size: 14px;
-                        text-align: start;
-                        /* width: 100%; */
-                        // flex: 1;
-                        display: flex;
-                        align-items: center;
-                        border: 1px solid #dcdfe6;
-                        border-radius: 4px;
-                        background-color: #ffffff;
-                    }
-                    form.sidebar-search input[type="submit"]{
-                        width: 32px;
-                        height: 32px;
-                    }
-                    `,
-				});
-				let $drawerContent = $drawer.$shadowRoot.querySelector<HTMLDivElement>(
-					".pops-drawer-content"
-				)!;
-				$drawerContent.appendChild($scriptsOptionGroups);
-			});
-			if ($subNav && $subNav.children.length) {
-				$subNav.appendChild($filterBtn);
-			} else {
-				$nav.appendChild($filterBtn);
-			}
 		});
 	},
 };

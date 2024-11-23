@@ -1,5 +1,5 @@
 import { PopsPanel } from "@/setting/setting";
-import beautifyContentCSS from "./beautifyContent.css?raw";
+import beautifyContentCSS from "./css/beautifyContent.css?raw";
 import { addStyle, DOMUtils, log, utils } from "@/env";
 import i18next from "i18next";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";

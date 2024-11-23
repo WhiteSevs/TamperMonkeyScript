@@ -1,6 +1,7 @@
 #language-selector {
 	display: none;
 }
+/* PC端 */
 @media screen and (min-width: 600px) {
 	body {
 		--header-height: 50px;
@@ -94,5 +95,24 @@
 		display: flex;
 		flex-wrap: nowrap;
 		align-items: center;
+	}
+}
+/* mobile端 */
+@media screen and (max-width: 600px) {
+	header#main-header #site-name-text h1 {
+		line-height: normal;
+		padding-bottom: 0;
+	}
+	/* 美化移动端顶部导航栏的更多 */
+	#mobile-nav nav {
+		font-size: 1rem !important;
+	}
+	/* 添加鼠标悬浮效果 */
+	#mobile-nav nav li:hover {
+		background: #840404;
+	}
+	/* 去除链接下划线 */
+	#mobile-nav nav li a {
+		text-decoration: none;
 	}
 }

@@ -7,7 +7,7 @@ import { PopsPanel } from "@/setting/setting";
 import DOMUtils from "@whitesev/domutils";
 import i18next from "i18next";
 import { GreasyforkScriptsCollectEvent } from "./GreasyforkScripts";
-import beautifyCenterContentCSS from "./beautifyCenterContent.css?raw";
+import beautifyCenterContentCSS from "./css/beautifyCenterContent.css?raw";
 import Qmsg from "qmsg";
 import { GreasyforkCheckVersion } from "@/utils/GreasyforkCheckVersion";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
