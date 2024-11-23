@@ -1,5 +1,5 @@
 import { unsafeWindow } from "ViteGM";
-import { $, DOMUtils, addStyle, log, pops, utils } from "@/env";
+import { $, $$, DOMUtils, addStyle, log, pops, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 import { DouYinRouter } from "@/router/DouYinRouter";
@@ -89,11 +89,11 @@ export const DouYinVideoPlayer = {
 			this.gestureBackCloseComment();
 		});
 		DOMUtils.ready(() => {
-			DouYinVideoPlayer.chooseVideoDefinition(
+			DouYinVideoPlayer.chooseQuality(
 				PopsPanel.getValue("chooseVideoDefinition")
 			);
 			PopsPanel.execMenuOnce("mobileMode", () => {
-				this.mobileMode();
+				return this.mobileMode();
 			});
 			PopsPanel.execMenuOnce("dy-video-titleInfoAutoHide", () => {
 				this.titleInfoAutoHide();
@@ -237,20 +237,33 @@ export const DouYinVideoPlayer = {
 	 * 选择视频清晰度
 	 * @param [mode=0] 视频播放模式
 	 */
-	chooseVideoDefinition(mode = 0) {
+	chooseQuality(mode = 0) {
 		log.info("选择视频清晰度: " + mode);
 		let Definition_Key = "MANUAL_SWITCH";
+		let clarityReal = [
+			"normal_1080_0",
+			"normal_720_0",
+			"low_720_0",
+			"normal_540_0",
+			"low_540_0",
+			"adapt_low_540_0",
+			"lower_540_0",
+		];
+		let clarityReal2 = [
+			"normal_1080_0",
+			"low_540_0",
+			"low_720_0",
+			"normal_720_0",
+			"normal_540_0",
+			"adapt_low_540_0",
+			"lower_540_0",
+			"adapt_lowest_720_1",
+			"adapt_540_1",
+			"adapt_lower_540_1",
+		];
 		let definition = [
 			{
-				clarityReal: [
-					"normal_1080_0",
-					"normal_720_0",
-					"low_720_0",
-					"normal_540_0",
-					"low_540_0",
-					"adapt_low_540_0",
-					"lower_540_0",
-				],
+				clarityReal: clarityReal,
 				done: 1,
 				gearClarity: "5",
 				gearName: "高清",
@@ -258,18 +271,7 @@ export const DouYinVideoPlayer = {
 				qualityType: 1,
 			},
 			{
-				clarityReal: [
-					"normal_1080_0",
-					"low_540_0",
-					"low_720_0",
-					"normal_720_0",
-					"normal_540_0",
-					"adapt_low_540_0",
-					"lower_540_0",
-					"adapt_lowest_720_1",
-					"adapt_540_1",
-					"adapt_lower_540_1",
-				],
+				clarityReal: clarityReal2,
 				done: 1,
 				gearClarity: "4",
 				gearName: "清晰",
@@ -277,18 +279,7 @@ export const DouYinVideoPlayer = {
 				qualityType: 15,
 			},
 			{
-				clarityReal: [
-					"normal_1080_0",
-					"low_540_0",
-					"low_720_0",
-					"normal_720_0",
-					"normal_540_0",
-					"adapt_low_540_0",
-					"lower_540_0",
-					"adapt_lowest_720_1",
-					"adapt_540_1",
-					"adapt_lower_540_1",
-				],
+				clarityReal: clarityReal2,
 				done: 1,
 				gearClarity: "3",
 				gearName: "流畅",
@@ -296,18 +287,7 @@ export const DouYinVideoPlayer = {
 				qualityType: 28,
 			},
 			{
-				clarityReal: [
-					"normal_1080_0",
-					"low_540_0",
-					"low_720_0",
-					"normal_720_0",
-					"normal_540_0",
-					"adapt_low_540_0",
-					"lower_540_0",
-					"adapt_lowest_720_1",
-					"adapt_540_1",
-					"adapt_lower_540_1",
-				],
+				clarityReal: clarityReal2,
 				done: 1,
 				gearClarity: "2",
 				gearName: "极速",
@@ -315,18 +295,7 @@ export const DouYinVideoPlayer = {
 				qualityType: 21,
 			},
 			{
-				clarityReal: [
-					"normal_1080_0",
-					"low_540_0",
-					"low_720_0",
-					"normal_720_0",
-					"normal_540_0",
-					"adapt_low_540_0",
-					"lower_540_0",
-					"adapt_lowest_720_1",
-					"adapt_540_1",
-					"adapt_lower_540_1",
-				],
+				clarityReal: clarityReal2,
 				done: 1,
 				gearClarity: "0",
 				gearName: "智能",
@@ -334,7 +303,11 @@ export const DouYinVideoPlayer = {
 			},
 		];
 		let choose = definition.find((item) => item.gearType === mode);
-		function setStorage(value: any) {
+		/**
+		 * 抖音清晰度读取是来自session的
+		 * @param value
+		 */
+		function setStorage(value: string) {
 			unsafeWindow.sessionStorage.setItem(Definition_Key, value);
 		}
 		if (choose) {
@@ -358,14 +331,20 @@ export const DouYinVideoPlayer = {
 	 */
 	chooseVideoRate(rate: VideoPlayerRate = "1") {
 		let Definition_Key = "player_playbackratio";
+		/**
+		 * 设置播放倍速
+		 *
+		 * 先设置session的值，再调用更新函数
+		 * @param value
+		 */
 		function setRate(value: VideoPlayerRate = "1") {
 			unsafeWindow.sessionStorage.setItem(Definition_Key, value);
-			document
-				.querySelectorAll<HTMLLIElement>("xg-icon.xgplayer-playback-setting")
-				.forEach(($playbackSetting) => {
+			$$<HTMLLIElement>("xg-icon.xgplayer-playback-setting").forEach(
+				($playbackSetting) => {
 					let $container = utils.getReactObj($playbackSetting).reactContainer;
 					$container?.memoizedState?.element?.props?.xgCase?.updatePlayBackRatio();
-				});
+				}
+			);
 		}
 		setRate(rate);
 	},
@@ -527,6 +506,7 @@ export const DouYinVideoPlayer = {
 		PopsPanel.onceExec("repairProgressBar", () => {
 			this.repairVideoProgressBar();
 		});
+		return result;
 	},
 	/**
 	 * 修复进度条按钮
