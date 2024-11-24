@@ -513,7 +513,7 @@ export const NetDiskView = {
 			},
 			[$iconImg, $link]
 		);
-		
+
 		return {
 			$viewBox,
 			$urlDiv,
@@ -747,7 +747,9 @@ export const NetDiskView = {
 	/**
 	 * 设置点击图标按钮导航至该网盘链接所在网页中位置
 	 */
-	registerIconGotoPagePosition(targetElement: ShadowRoot | Document) {
+	registerIconGotoPagePosition(
+		targetElement: ShadowRoot | Document | HTMLElement
+	) {
 		let findGenerator:
 			| Generator<HTMLElement | ChildNode, void, any>
 			| undefined = void 0;

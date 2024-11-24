@@ -8,12 +8,14 @@ export type RuleFilterViewOption<T> = {
 	/** 标题 */
 	title: string;
 	/** 所有的配置项信息 */
-	getAllRuleInfo: () => {
-		data: T;
-		$el: HTMLElement;
-	}[];
+	getAllRuleInfo: () => IPromise<
+		{
+			data: T;
+			$el: HTMLElement;
+		}[]
+	>;
 	/** 执行过滤的回调 */
-	execFilterCallBack?: () => void;
+	execFilterCallBack?: () => IPromise<void>;
 	/** 过滤配置 */
 	filterOption: {
 		/** 过滤类型名 */
@@ -24,7 +26,7 @@ export type RuleFilterViewOption<T> = {
 		 * + true 需要的
 		 * + false 不需要的
 		 */
-		filterCallBack: (data: T) => boolean;
+		filterCallBack: (data: T) => IPromise<boolean>;
 		/**
 		 * 点击项回调
 		 * @returns
@@ -35,7 +37,7 @@ export type RuleFilterViewOption<T> = {
 			event: MouseEvent | PointerEvent,
 			/** 执行过滤并关闭弹窗 */
 			closeDialog: () => void
-		) => boolean;
+		) => IPromise<boolean>;
 	}[];
 };
 
@@ -61,6 +63,9 @@ export class RuleFilterView<T> {
 					type: "default",
 				},
 			},
+			mask: {
+				enable: true,
+			},
 			width: window.innerWidth > 500 ? "350px" : "80vw",
 			height: window.innerHeight > 500 ? "300px" : "70vh",
 			style: /*css*/ `
@@ -84,30 +89,34 @@ export class RuleFilterView<T> {
 		this.option.filterOption.forEach((filterOption) => {
 			let $button = document.createElement("button");
 			$button.innerText = filterOption.name;
-			let execFilterAndCloseDialog = () => {
-				this.option.getAllRuleInfo().forEach((ruleInfo) => {
-					if (filterOption.filterCallBack(ruleInfo.data)) {
-						// 需要
-						DOMUtils.show(ruleInfo.$el, false);
-					} else {
+			let execFilterAndCloseDialog = async () => {
+				let allRuleInfo = await this.option.getAllRuleInfo();
+				allRuleInfo.forEach(async (ruleInfo) => {
+					let filterResult = await filterOption.filterCallBack(ruleInfo.data);
+					if (!filterResult) {
 						// 不需要
 						DOMUtils.hide(ruleInfo.$el, false);
+					} else {
+						DOMUtils.show(ruleInfo.$el, false);
 					}
 				});
 				if (typeof this.option.execFilterCallBack === "function") {
-					this.option.execFilterCallBack();
+					await this.option.execFilterCallBack();
 				}
 				$alert.close();
 			};
-			DOMUtils.on($button, "click", (event) => {
+			DOMUtils.on($button, "click", async (event) => {
 				utils.preventEvent(event);
 				if (typeof filterOption.callback === "function") {
-					let result = filterOption.callback(event, execFilterAndCloseDialog);
+					let result = await filterOption.callback(
+						event,
+						execFilterAndCloseDialog
+					);
 					if (!result) {
 						return;
 					}
 				}
-				execFilterAndCloseDialog();
+				await execFilterAndCloseDialog();
 			});
 			$fragment.appendChild($button);
 		});

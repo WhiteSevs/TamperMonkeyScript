@@ -325,7 +325,7 @@ export class RuleView<T> {
 	/**
 	 * 解析弹窗内的各个元素
 	 */
-	parseViewElement($shadowRoot: ShadowRoot) {
+	parseViewElement($shadowRoot: ShadowRoot| HTMLElement) {
 		let $container = $shadowRoot.querySelector<HTMLElement>(
 			".rule-view-container"
 		)!;
@@ -381,7 +381,7 @@ export class RuleView<T> {
 	/**
 	 * 创建一条规则元素
 	 */
-	async createRuleItemElement(data: T, $shadowRoot: ShadowRoot) {
+	async createRuleItemElement(data: T, $shadowRoot: ShadowRoot| HTMLElement) {
 		const that = this;
 		let name = await this.option.getDataItemName(data);
 		let $ruleItem = DOMUtils.createElement("div", {
@@ -508,7 +508,7 @@ export class RuleView<T> {
 	/**
 	 * 添加一个规则元素
 	 */
-	async appendRuleItemElement($shadowRoot: ShadowRoot, data: T | T[]) {
+	async appendRuleItemElement($shadowRoot: ShadowRoot| HTMLElement, data: T | T[]) {
 		const { $container } = this.parseViewElement($shadowRoot);
 		// 添加到页面中
 		if (Array.isArray(data)) {
@@ -528,7 +528,7 @@ export class RuleView<T> {
 	/**
 	 * 更新弹窗内容的元素
 	 */
-	async updateRuleContaienrElement($shadowRoot: ShadowRoot) {
+	async updateRuleContaienrElement($shadowRoot: ShadowRoot| HTMLElement) {
 		this.clearContent($shadowRoot);
 		const { $container } = this.parseViewElement($shadowRoot);
 		let data = await this.option.data();
@@ -541,7 +541,7 @@ export class RuleView<T> {
 	async updateRuleItemElement(
 		data: T,
 		$oldRuleItem: HTMLDivElement,
-		$shadowRoot: ShadowRoot
+		$shadowRoot: ShadowRoot| HTMLElement
 	) {
 		let $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
 		$oldRuleItem.after($newRuleItem);
@@ -550,7 +550,7 @@ export class RuleView<T> {
 	/**
 	 * 清空内容
 	 */
-	clearContent($shadowRoot: ShadowRoot) {
+	clearContent($shadowRoot: ShadowRoot| HTMLElement) {
 		const { $container } = this.parseViewElement($shadowRoot);
 		DOMUtils.html($container, "");
 	}
@@ -558,7 +558,7 @@ export class RuleView<T> {
 	 * 设置删除按钮的文字
 	 */
 	setDeleteBtnText(
-		$shadowRoot: ShadowRoot,
+		$shadowRoot: ShadowRoot| HTMLElement,
 		text: string,
 		isHTML: boolean = false
 	) {
@@ -572,7 +572,7 @@ export class RuleView<T> {
 	/**
 	 * 更新【清空所有】的按钮的文字
 	 */
-	async updateDeleteAllBtnText($shadowRoot: ShadowRoot) {
+	async updateDeleteAllBtnText($shadowRoot: ShadowRoot| HTMLElement) {
 		let data = await this.option.data();
 		this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
 	}
@@ -581,7 +581,7 @@ export class RuleView<T> {
 	 * @param isEdit 是否是编辑状态
 	 */
 	showEditView(
-		$parentShadowRoot: ShadowRoot,
+		$parentShadowRoot: ShadowRoot| HTMLElement,
 		isEdit: boolean,
 		editData: T,
 		$editRuleItemElement?: HTMLDivElement,

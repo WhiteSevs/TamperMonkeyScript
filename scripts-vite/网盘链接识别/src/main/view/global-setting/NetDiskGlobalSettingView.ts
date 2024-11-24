@@ -57,7 +57,7 @@ export const NetDiskGlobalSettingView = {
 	/**
 	 * 设置自定义规则顶部的编辑|删除的点击事件
 	 */
-	setRuleHeaderControlsClickEvent($shadowRoot: ShadowRoot) {
+	setRuleHeaderControlsClickEvent($shadowRoot: ShadowRoot | HTMLElement) {
 		DOMUtils.on(
 			$shadowRoot,
 			"click",

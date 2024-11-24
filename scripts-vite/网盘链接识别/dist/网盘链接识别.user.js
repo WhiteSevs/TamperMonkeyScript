@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2024.11.19
+// @version      2024.11.24
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -14,7 +14,7 @@
 // @require      https://update.greasyfork.org/scripts/486152/1448081/Crypto-JS.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @connect      *
 // @connect      lanzoub.com
@@ -8734,7 +8734,7 @@
      */
     needAccessCode: {
       code: 201,
-      msg: "缺失提取码",
+      msg: "需要提取码",
       setView($ele, checkInfo, msg) {
         NetDiskCheckLinkValidity.setViewCheckValid(
           $ele,
@@ -14726,7 +14726,7 @@
     /**
      * 显示视图
      */
-    showView() {
+    async showView() {
       var _a2;
       let $dialog = NetDiskPops.confirm({
         title: {
@@ -14750,14 +14750,17 @@
         btn: utils.assign(
           {
             ok: {
-              callback() {
-                submitSaveOption();
+              callback: async () => {
+                await submitSaveOption();
               }
             }
           },
           this.option.btn || {},
           true
         ),
+        mask: {
+          enable: true
+        },
         style: (
           /*css*/
           `
@@ -14799,15 +14802,15 @@
         "input[type=submit]"
       );
       let $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
-      let view = this.option.getView(this.option.data());
+      let view = await this.option.getView(await this.option.data());
       $ulist.appendChild(view);
-      const submitSaveOption = () => {
-        let result = this.option.onsubmit($form, this.option.data());
+      const submitSaveOption = async () => {
+        let result = await this.option.onsubmit($form, await this.option.data());
         if (!result.success) {
           return;
         }
         $dialog.close();
-        this.option.dialogCloseCallBack(true);
+        await this.option.dialogCloseCallBack(true);
       };
     }
   }
@@ -14836,6 +14839,9 @@
             type: "default"
           }
         },
+        mask: {
+          enable: true
+        },
         width: window.innerWidth > 500 ? "350px" : "80vw",
         height: window.innerHeight > 500 ? "300px" : "70vh",
         style: (
@@ -14861,28 +14867,33 @@
       this.option.filterOption.forEach((filterOption) => {
         let $button = document.createElement("button");
         $button.innerText = filterOption.name;
-        let execFilterAndCloseDialog = () => {
-          this.option.getAllRuleInfo().forEach((ruleInfo) => {
-            if (filterOption.filterCallBack(ruleInfo.data)) {
-              domUtils.show(ruleInfo.$el, false);
-            } else {
+        let execFilterAndCloseDialog = async () => {
+          let allRuleInfo = await this.option.getAllRuleInfo();
+          allRuleInfo.forEach(async (ruleInfo) => {
+            let filterResult = await filterOption.filterCallBack(ruleInfo.data);
+            if (!filterResult) {
               domUtils.hide(ruleInfo.$el, false);
+            } else {
+              domUtils.show(ruleInfo.$el, false);
             }
           });
           if (typeof this.option.execFilterCallBack === "function") {
-            this.option.execFilterCallBack();
+            await this.option.execFilterCallBack();
           }
           $alert.close();
         };
-        domUtils.on($button, "click", (event) => {
+        domUtils.on($button, "click", async (event) => {
           utils.preventEvent(event);
           if (typeof filterOption.callback === "function") {
-            let result = filterOption.callback(event, execFilterAndCloseDialog);
+            let result = await filterOption.callback(
+              event,
+              execFilterAndCloseDialog
+            );
             if (!result) {
               return;
             }
           }
-          execFilterAndCloseDialog();
+          await execFilterAndCloseDialog();
         });
         $fragment.appendChild($button);
       });
@@ -14897,7 +14908,7 @@
     /**
      * 显示视图
      */
-    showView() {
+    async showView() {
       var _a2, _b, _c, _d, _e, _f, _g, _h, _i;
       let $popsConfirm = NetDiskPops.confirm({
         title: {
@@ -14922,11 +14933,11 @@
             enable: ((_c = (_b = (_a2 = this.option) == null ? void 0 : _a2.bottomControls) == null ? void 0 : _b.add) == null ? void 0 : _c.enable) || true,
             type: "primary",
             text: "添加",
-            callback: (event) => {
+            callback: async (event) => {
               this.showEditView(
                 $popsConfirm.$shadowRoot,
                 false,
-                this.option.getAddData()
+                await this.option.getAddData()
               );
             }
           },
@@ -14981,57 +14992,52 @@
           other: {
             enable: ((_i = (_h = (_g = this.option) == null ? void 0 : _g.bottomControls) == null ? void 0 : _h.clear) == null ? void 0 : _i.enable) || true,
             type: "xiaomi-primary",
-            text: `清空所有(${this.option.data().length})`,
+            text: `清空所有(${(await this.option.data()).length})`,
             callback: (event) => {
-              let $askDialog = NetDiskPops.confirm(
-                {
-                  title: {
-                    text: "提示",
-                    position: "center"
-                  },
-                  content: {
-                    text: "确定清空所有的数据？",
-                    html: false
-                  },
-                  btn: {
-                    ok: {
-                      enable: true,
-                      callback: (popsEvent) => {
-                        var _a3, _b2, _c2;
-                        log.success("清空所有");
-                        if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.clear) == null ? void 0 : _c2.callback) === "function") {
-                          this.option.bottomControls.clear.callback();
-                        }
-                        if (this.option.data().length) {
-                          Qmsg.error("清理失败");
-                          return;
-                        } else {
-                          Qmsg.success("清理成功");
-                        }
-                        this.updateDeleteAllBtnText($popsConfirm.$shadowRoot);
-                        this.clearContent($popsConfirm.$shadowRoot);
-                        $askDialog.close();
+              let $askDialog = NetDiskPops.confirm({
+                title: {
+                  text: "提示",
+                  position: "center"
+                },
+                content: {
+                  text: "确定清空所有的数据？",
+                  html: false
+                },
+                btn: {
+                  ok: {
+                    enable: true,
+                    callback: async (popsEvent) => {
+                      var _a3, _b2, _c2;
+                      log.success("清空所有");
+                      if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.clear) == null ? void 0 : _c2.callback) === "function") {
+                        this.option.bottomControls.clear.callback();
                       }
-                    },
-                    cancel: {
-                      text: "取消",
-                      enable: true
+                      let data = await this.option.data();
+                      if (data.length) {
+                        Qmsg.error("清理失败");
+                        return;
+                      } else {
+                        Qmsg.success("清理成功");
+                      }
+                      await this.updateDeleteAllBtnText($popsConfirm.$shadowRoot);
+                      this.clearContent($popsConfirm.$shadowRoot);
+                      $askDialog.close();
                     }
+                  },
+                  cancel: {
+                    text: "取消",
+                    enable: true
                   }
                 },
-                {
-                  Mobile: {
-                    width: "300px",
-                    height: "200px"
-                  },
-                  PC: {
-                    width: "300px",
-                    height: "200px"
-                  }
-                }
-              );
+                mask: { enable: true },
+                width: "300px",
+                height: "200px"
+              });
             }
           }
+        },
+        mask: {
+          enable: true
         },
         width: window.innerWidth > 500 ? "500px" : "88vw",
         height: window.innerHeight > 500 ? "500px" : "80vh",
@@ -15081,10 +15087,13 @@
             `
         )
       });
-      let allData = this.option.data();
-      allData.forEach((data) => {
-        this.appendRuleItemElement($popsConfirm.$shadowRoot, data);
-      });
+      let allData = await this.option.data();
+      for (let index = 0; index < allData.length; index++) {
+        await this.appendRuleItemElement(
+          $popsConfirm.$shadowRoot,
+          allData[index]
+        );
+      }
     }
     /**
      * 解析弹窗内的各个元素
@@ -15141,8 +15150,8 @@
     /**
      * 创建一条规则元素
      */
-    createRuleItemElement(data, $shadowRoot) {
-      let name = this.option.getDataItemName(data);
+    async createRuleItemElement(data, $shadowRoot) {
+      let name = await this.option.getDataItemName(data);
       let $ruleItem = domUtils.createElement("div", {
         className: "rule-item",
         innerHTML: (
@@ -15180,7 +15189,7 @@
         $edit
       } = this.parseRuleItemElement($ruleItem);
       if (this.option.itemControls.enable.enable) {
-        domUtils.on($enableSwitchCore, "click", (event) => {
+        domUtils.on($enableSwitchCore, "click", async (event) => {
           let isChecked = false;
           if ($enableSwitch.classList.contains(switchCheckedClassName)) {
             $enableSwitch.classList.remove(switchCheckedClassName);
@@ -15190,9 +15199,9 @@
             isChecked = true;
           }
           $enableSwitchInput.checked = isChecked;
-          this.option.itemControls.enable.callback(data, isChecked);
+          await this.option.itemControls.enable.callback(data, isChecked);
         });
-        if (this.option.itemControls.enable.getEnable(data)) {
+        if (await this.option.itemControls.enable.getEnable(data)) {
           $enableSwitch.classList.add(switchCheckedClassName);
         }
       } else {
@@ -15212,49 +15221,44 @@
       if (this.option.itemControls.delete.enable) {
         domUtils.on($delete, "click", (event) => {
           utils.preventEvent(event);
-          let $askDialog = NetDiskPops.confirm(
-            {
-              title: {
-                text: "提示",
-                position: "center"
-              },
-              content: {
-                text: "确定删除该条数据？",
-                html: false
-              },
-              btn: {
-                ok: {
-                  enable: true,
-                  callback: (popsEvent) => {
-                    log.success("删除数据");
-                    let flag = this.option.itemControls.delete.deleteCallBack(data);
-                    if (flag) {
-                      Qmsg.success("成功删除该数据");
-                      $ruleItem.remove();
-                      this.updateDeleteAllBtnText($shadowRoot);
-                      $askDialog.close();
-                    } else {
-                      Qmsg.error("删除该数据失败");
-                    }
+          let $askDialog = NetDiskPops.confirm({
+            title: {
+              text: "提示",
+              position: "center"
+            },
+            content: {
+              text: "确定删除该条数据？",
+              html: false
+            },
+            btn: {
+              ok: {
+                enable: true,
+                callback: async (popsEvent) => {
+                  log.success("删除数据");
+                  let flag = await this.option.itemControls.delete.deleteCallBack(
+                    data
+                  );
+                  if (flag) {
+                    Qmsg.success("成功删除该数据");
+                    $ruleItem.remove();
+                    await this.updateDeleteAllBtnText($shadowRoot);
+                    $askDialog.close();
+                  } else {
+                    Qmsg.error("删除该数据失败");
                   }
-                },
-                cancel: {
-                  text: "取消",
-                  enable: true
                 }
+              },
+              cancel: {
+                text: "取消",
+                enable: true
               }
             },
-            {
-              Mobile: {
-                width: "300px",
-                height: "200px"
-              },
-              PC: {
-                width: "300px",
-                height: "200px"
-              }
-            }
-          );
+            mask: {
+              enable: true
+            },
+            width: "300px",
+            height: "200px"
+          });
         });
       } else {
         $delete.remove();
@@ -15264,33 +15268,37 @@
     /**
      * 添加一个规则元素
      */
-    appendRuleItemElement($shadowRoot, data) {
+    async appendRuleItemElement($shadowRoot, data) {
       const { $container } = this.parseViewElement($shadowRoot);
       if (Array.isArray(data)) {
         for (let index = 0; index < data.length; index++) {
           const item = data[index];
-          $container.appendChild(this.createRuleItemElement(item, $shadowRoot));
+          $container.appendChild(
+            await this.createRuleItemElement(item, $shadowRoot)
+          );
         }
       } else {
-        $container.appendChild(this.createRuleItemElement(data, $shadowRoot));
+        $container.appendChild(
+          await this.createRuleItemElement(data, $shadowRoot)
+        );
       }
-      this.updateDeleteAllBtnText($shadowRoot);
+      await this.updateDeleteAllBtnText($shadowRoot);
     }
     /**
      * 更新弹窗内容的元素
      */
-    updateRuleContaienrElement($shadowRoot) {
+    async updateRuleContaienrElement($shadowRoot) {
       this.clearContent($shadowRoot);
       this.parseViewElement($shadowRoot);
-      let data = this.option.data();
-      this.appendRuleItemElement($shadowRoot, data);
-      this.updateDeleteAllBtnText($shadowRoot);
+      let data = await this.option.data();
+      await this.appendRuleItemElement($shadowRoot, data);
+      await this.updateDeleteAllBtnText($shadowRoot);
     }
     /**
      * 更新规则元素
      */
-    updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
-      let $newRuleItem = this.createRuleItemElement(data, $shadowRoot);
+    async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
+      let $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
       $oldRuleItem.after($newRuleItem);
       $oldRuleItem.remove();
     }
@@ -15315,8 +15323,8 @@
     /**
      * 更新【清空所有】的按钮的文字
      */
-    updateDeleteAllBtnText($shadowRoot) {
-      let data = this.option.data();
+    async updateDeleteAllBtnText($shadowRoot) {
+      let data = await this.option.data();
       this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
     }
     /**
@@ -15324,14 +15332,14 @@
      * @param isEdit 是否是编辑状态
      */
     showEditView($parentShadowRoot, isEdit, editData, $editRuleItemElement, updateDataCallBack) {
-      let dialogCloseCallBack = (isSubmit) => {
+      let dialogCloseCallBack = async (isSubmit) => {
         if (isSubmit) ;
         else {
           if (!isEdit) {
-            this.option.deleteData(editData);
+            await this.option.deleteData(editData);
           }
           if (typeof updateDataCallBack === "function") {
-            let newData = this.option.getData(editData);
+            let newData = await this.option.getData(editData);
             updateDataCallBack(newData);
           }
         }
@@ -15342,8 +15350,8 @@
           return editData;
         },
         dialogCloseCallBack,
-        getView: (data) => {
-          return this.option.itemControls.edit.getView(data, isEdit);
+        getView: async (data) => {
+          return await this.option.itemControls.edit.getView(data, isEdit);
         },
         btn: {
           ok: {
@@ -15351,20 +15359,20 @@
             text: isEdit ? "修改" : "添加"
           },
           cancel: {
-            callback(details, event) {
-              details.close();
-              dialogCloseCallBack(false);
+            callback: async (detail, event) => {
+              detail.close();
+              await dialogCloseCallBack(false);
             }
           },
           close: {
-            callback(details, event) {
-              details.close();
-              dialogCloseCallBack(false);
+            callback: async (detail, event) => {
+              detail.close();
+              await dialogCloseCallBack(false);
             }
           }
         },
-        onsubmit: ($form, data) => {
-          let result = this.option.itemControls.edit.onsubmit(
+        onsubmit: async ($form, data) => {
+          let result = await this.option.itemControls.edit.onsubmit(
             $form,
             isEdit,
             data
@@ -15372,13 +15380,13 @@
           if (result.success) {
             if (isEdit) {
               Qmsg.success("修改成功");
-              this.updateRuleItemElement(
+              await this.updateRuleItemElement(
                 result.data,
                 $editRuleItemElement,
                 $parentShadowRoot
               );
             } else {
-              this.appendRuleItemElement($parentShadowRoot, result.data);
+              await this.appendRuleItemElement($parentShadowRoot, result.data);
             }
           } else {
             if (isEdit) {

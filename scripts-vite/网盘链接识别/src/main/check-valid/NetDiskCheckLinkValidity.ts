@@ -109,7 +109,7 @@ export const NetDiskCheckLinkValidityStatus = {
 	 */
 	needAccessCode: <NetDiskCheckLinkValidityStatusObj>{
 		code: 201,
-		msg: "缺失提取码",
+		msg: "需要提取码",
 		setView($ele, checkInfo, msg?: string) {
 			NetDiskCheckLinkValidity.setViewCheckValid(
 				$ele,
