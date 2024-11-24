@@ -32,7 +32,7 @@ type RuleViewOption<T> = {
 	 */
 	updateData: (data: T) => IPromise<void | boolean>;
 	/**
-	 * 删除单个规则
+	 * 删除单个规则，用于删除getAddData创建时的数据
 	 * @param data
 	 */
 	deleteData: (data: T) => IPromise<void | boolean>;

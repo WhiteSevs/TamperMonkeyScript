@@ -227,24 +227,9 @@ export const NetDiskRule = {
 			let asideTitle = netDiskRuleConfig.setting.name;
 			if (NetDiskUI.src.hasIcon(ruleKey)) {
 				// 添加图标
-				if (pops.isPhone()) {
-					asideTitle = /*html*/ `
-					<div style="
-						width: 20px;
-						height: 20px;
-						background: url(${NetDiskUI.src.icon[ruleKey]}) no-repeat;
-						background-size: 100% 100%;
-						">`;
-				} else {
-					asideTitle = /*html*/ `
-					<div style="
-						width: 20px;
-						height: 20px;
-						background: url(${NetDiskUI.src.icon[ruleKey]}) no-repeat;
-						background-size: 100% 100%;
-						"></div>
-					<div style="margin-left: 4px;">${ruleName}</div>`;
-				}
+				asideTitle = /*html*/ `
+					<div class="netdisk-aside-icon" style="background-image: url(${NetDiskUI.src.icon[ruleKey]});"></div>
+					<div class="netdisk-aside-text">${ruleName}</div>`;
 			}
 
 			let headerTitleText = ruleName;

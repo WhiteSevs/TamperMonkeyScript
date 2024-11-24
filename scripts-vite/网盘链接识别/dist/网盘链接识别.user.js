@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2024.11.24
+// @version      2024.11.24.18
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -3354,7 +3354,7 @@
       }
     }
   }
-  const indexCSS$5 = '.netdisk-url-box {\r\n	border-bottom: 1px solid #e4e6eb;\r\n}\r\n.netdisk-url-div {\r\n	display: flex;\r\n	align-items: center;\r\n	width: 100%;\r\n	padding: 5px 0px 5px 0px;\r\n}\r\n.netdisk-icon {\r\n	display: contents;\r\n}\r\n.netdisk-icon .netdisk-icon-img {\r\n	cursor: pointer;\r\n	width: 28px;\r\n	height: 28px;\r\n	min-width: 28px;\r\n	min-height: 28px;\r\n	font-size: 0.8em;\r\n	margin: 0px 10px;\r\n}\r\n.netdisk-url-div .netdisk-icon,\r\n.netdisk-url-div .netdisk-status {\r\n	flex: 0 0 auto;\r\n}\r\n.netdisk-url-div .netdisk-url {\r\n	flex: 1;\r\n}\r\n.netdisk-icon .netdisk-icon-img {\r\n	border-radius: 10px;\r\n	box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%),\r\n		0 1.3px 2.5px rgb(0 0 0 / 10%), 0 2.2px 4.5px rgb(0 0 0 / 12%),\r\n		0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);\r\n}\r\n.netdisk-status[data-check-failed] {\r\n	padding: 5px 5px;\r\n}\r\n.netdisk-url {\r\n	padding: 5px 5px;\r\n}\r\n.netdisk-url a {\r\n	color: #ff4848 !important;\r\n	min-height: 28px;\r\n	overflow-x: hidden;\r\n	overflow-y: auto;\r\n	font-size: 0.8em;\r\n	border: none;\r\n	display: flex;\r\n	align-items: center;\r\n	width: 100%;\r\n	height: 100%;\r\n	padding: 0px;\r\n	word-break: break-word;\r\n	text-align: left;\r\n}\r\n.netdisk-status {\r\n	display: none;\r\n}\r\n.netdisk-status[data-check-valid] {\r\n	display: flex;\r\n	align-items: center;\r\n	width: 15px;\r\n	height: 15px;\r\n}\r\n\r\n.netdisk-status[data-check-valid="failed"] {\r\n	color: red;\r\n}\r\n\r\n.netdisk-status[data-check-valid="partial-violation"] {\r\n	color: orange;\r\n}\r\n\r\n.netdisk-status[data-check-valid="error"] {\r\n	cursor: pointer;\r\n}\r\n\r\n.netdisk-status[data-check-valid="success"] {\r\n	color: green;\r\n}\r\n\r\n.netdisk-status[data-check-valid="loading"] svg {\r\n	animation: rotating 2s linear infinite;\r\n}\r\n\r\n.netdisk-url-box:has(.netdisk-status[data-check-valid="failed"]) {\r\n	text-decoration: line-through;\r\n}\r\n\r\n.whitesevPop-whitesevPopSetting :focus-visible {\r\n	outline-offset: 0;\r\n	outline: 0;\r\n}\r\n.netdisk-url a[isvisited="true"] {\r\n	color: #8b8888 !important;\r\n}\r\n.netdisk-url a:active {\r\n	box-shadow: 0 0 0 1px #616161 inset;\r\n}\r\n.netdisk-url a:focus-visible {\r\n	outline: 0;\r\n}\r\n.whitesevPop-content p[pop] {\r\n	text-indent: 0;\r\n}\r\n.whitesevPop-button[type="primary"] {\r\n	border-color: #2d8cf0;\r\n	background-color: #2d8cf0;\r\n}\r\n';
+  const indexCSS$4 = '.netdisk-url-box {\r\n	border-bottom: 1px solid #e4e6eb;\r\n}\r\n.netdisk-url-div {\r\n	display: flex;\r\n	align-items: center;\r\n	width: 100%;\r\n	padding: 5px 0px 5px 0px;\r\n}\r\n.netdisk-icon {\r\n	display: contents;\r\n}\r\n.netdisk-icon .netdisk-icon-img {\r\n	cursor: pointer;\r\n	width: 28px;\r\n	height: 28px;\r\n	min-width: 28px;\r\n	min-height: 28px;\r\n	font-size: 0.8em;\r\n	margin: 0px 10px;\r\n}\r\n.netdisk-url-div .netdisk-icon,\r\n.netdisk-url-div .netdisk-status {\r\n	flex: 0 0 auto;\r\n}\r\n.netdisk-url-div .netdisk-url {\r\n	flex: 1;\r\n}\r\n.netdisk-icon .netdisk-icon-img {\r\n	border-radius: 10px;\r\n	box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%),\r\n		0 1.3px 2.5px rgb(0 0 0 / 10%), 0 2.2px 4.5px rgb(0 0 0 / 12%),\r\n		0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);\r\n}\r\n.netdisk-status[data-check-failed] {\r\n	padding: 5px 5px;\r\n}\r\n.netdisk-url {\r\n	padding: 5px 5px;\r\n}\r\n.netdisk-url a {\r\n	color: #ff4848 !important;\r\n	min-height: 28px;\r\n	overflow-x: hidden;\r\n	overflow-y: auto;\r\n	font-size: 0.8em;\r\n	border: none;\r\n	display: flex;\r\n	align-items: center;\r\n	width: 100%;\r\n	height: 100%;\r\n	padding: 0px;\r\n	word-break: break-word;\r\n	text-align: left;\r\n}\r\n.netdisk-status {\r\n	display: none;\r\n}\r\n.netdisk-status[data-check-valid] {\r\n	display: flex;\r\n	align-items: center;\r\n	width: 15px;\r\n	height: 15px;\r\n}\r\n\r\n.netdisk-status[data-check-valid="failed"] {\r\n	color: red;\r\n}\r\n\r\n.netdisk-status[data-check-valid="partial-violation"] {\r\n	color: orange;\r\n}\r\n\r\n.netdisk-status[data-check-valid="error"] {\r\n	cursor: pointer;\r\n}\r\n\r\n.netdisk-status[data-check-valid="success"] {\r\n	color: green;\r\n}\r\n\r\n.netdisk-status[data-check-valid="loading"] svg {\r\n	animation: rotating 2s linear infinite;\r\n}\r\n\r\n.netdisk-url-box:has(.netdisk-status[data-check-valid="failed"]) {\r\n	text-decoration: line-through;\r\n}\r\n\r\n.whitesevPop-whitesevPopSetting :focus-visible {\r\n	outline-offset: 0;\r\n	outline: 0;\r\n}\r\n.netdisk-url a[isvisited="true"] {\r\n	color: #8b8888 !important;\r\n}\r\n.netdisk-url a:active {\r\n	box-shadow: 0 0 0 1px #616161 inset;\r\n}\r\n.netdisk-url a:focus-visible {\r\n	outline: 0;\r\n}\r\n.whitesevPop-content p[pop] {\r\n	text-indent: 0;\r\n}\r\n.whitesevPop-button[type="primary"] {\r\n	border-color: #2d8cf0;\r\n	background-color: #2d8cf0;\r\n}\r\n';
   const GenerateData = function(key, defaultValue) {
     return {
       /** 键名 */
@@ -3553,7 +3553,7 @@
             style: (
               /*css*/
               `
-                    ${indexCSS$5}
+                    ${indexCSS$4}
 
                     .pops {
                         --container-title-height: 35px;
@@ -3652,13 +3652,21 @@
               }
             },
             class: "whitesevPop",
-            style: `
-                    ${indexCSS$5}
+            style: (
+              /*css*/
+              `
+                    ${indexCSS$4}
 
                     .pops {
-                        max-height: ${__pops.isPhone() ? "50vh" : "60vh"};
+                        max-height: 60vh;
                     }
+					@media screen and (max-width: 600px) {
+						.pops {
+                       		max-height: 50vh;
+                    	}
+					}
                     `
+            )
           },
           NetDiskUI.popsStyle.mainView
         );
@@ -10903,26 +10911,10 @@
         let viewConfig = this.parseRuleSetting(netDiskRuleConfig);
         let asideTitle = netDiskRuleConfig.setting.name;
         if (NetDiskUI.src.hasIcon(ruleKey)) {
-          if (__pops.isPhone()) {
-            asideTitle = /*html*/
-            `
-					<div style="
-						width: 20px;
-						height: 20px;
-						background: url(${NetDiskUI.src.icon[ruleKey]}) no-repeat;
-						background-size: 100% 100%;
-						">`;
-          } else {
-            asideTitle = /*html*/
-            `
-					<div style="
-						width: 20px;
-						height: 20px;
-						background: url(${NetDiskUI.src.icon[ruleKey]}) no-repeat;
-						background-size: 100% 100%;
-						"></div>
-					<div style="margin-left: 4px;">${ruleName}</div>`;
-          }
+          asideTitle = /*html*/
+          `
+					<div class="netdisk-aside-icon" style="background-image: url(${NetDiskUI.src.icon[ruleKey]});"></div>
+					<div class="netdisk-aside-text">${ruleName}</div>`;
         }
         let headerTitleText = ruleName;
         if (netDiskRuleConfig.isUserRule) {
@@ -11852,7 +11844,7 @@
       return result;
     }
   };
-  const indexCSS$4 = '.whitesevPopNetDiskHistoryMatch .pops-confirm-content ul {\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content li {\r\n	display: flex;\r\n	flex-direction: column;\r\n	justify-content: center;\r\n	border-radius: 10px;\r\n	box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%),\r\n		0 1.3px 2.5px rgb(0 0 0 / 10%), 0 2.2px 4.5px rgb(0 0 0 / 12%),\r\n		0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);\r\n	margin: 20px 10px;\r\n	padding: 10px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search {\r\n	height: 11%;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-table {\r\n	height: calc(85% - 40px);\r\n	overflow: auto;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-page {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	margin-top: 10px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-search\r\n	input {\r\n	border: none;\r\n	border-bottom: 1px solid #000000;\r\n	padding: 0px 5px;\r\n	line-height: normal;\r\n	width: -moz-available;\r\n	width: -webkit-fill-available;\r\n	width: fill-available;\r\n	margin: 5px 5px 0px 5px;\r\n	background: none;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-search\r\n	input:focus-visible {\r\n	outline: none;\r\n	border-bottom: 1px solid #0009ff;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link {\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link a {\r\n	color: #ff4848;\r\n	font-size: 0.8em;\r\n	border: none;\r\n	word-break: break-word;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-link\r\n	a[isvisited="true"] {\r\n	color: #8b8888;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon {\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-icon\r\n	.netdisk-icon-img {\r\n	width: 28px;\r\n	height: 28px;\r\n	min-width: 28px;\r\n	min-height: 28px;\r\n	font-size: 0.8em;\r\n	border-radius: 10px;\r\n	box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%),\r\n		0 1.3px 2.5px rgb(0 0 0 / 10%), 0 2.2px 4.5px rgb(0 0 0 / 12%),\r\n		0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url {\r\n	color: #000;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url {\r\n	color: #000;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-functions\r\n	button.btn-delete {\r\n	background: #263cf3;\r\n	color: #fff;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-functions\r\n	button.btn-delete:active {\r\n	background: #6e7be8;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time,\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-update-time,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url-title,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions {\r\n	display: flex;\r\n	margin: 5px 0px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time p,\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-update-time\r\n	p,\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-url-title\r\n	p,\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-functions\r\n	p {\r\n	min-width: 80px;\r\n	max-width: 80px;\r\n	align-self: center;\r\n}\r\n';
+  const indexCSS$3 = '.whitesevPopNetDiskHistoryMatch .pops-confirm-content ul {\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content li {\r\n	display: flex;\r\n	flex-direction: column;\r\n	justify-content: center;\r\n	border-radius: 10px;\r\n	box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%),\r\n		0 1.3px 2.5px rgb(0 0 0 / 10%), 0 2.2px 4.5px rgb(0 0 0 / 12%),\r\n		0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);\r\n	margin: 20px 10px;\r\n	padding: 10px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search {\r\n	height: 11%;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-table {\r\n	height: calc(85% - 40px);\r\n	overflow: auto;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-page {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	margin-top: 10px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-search\r\n	input {\r\n	border: none;\r\n	border-bottom: 1px solid #000000;\r\n	padding: 0px 5px;\r\n	line-height: normal;\r\n	width: -moz-available;\r\n	width: -webkit-fill-available;\r\n	width: fill-available;\r\n	margin: 5px 5px 0px 5px;\r\n	background: none;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-search\r\n	input:focus-visible {\r\n	outline: none;\r\n	border-bottom: 1px solid #0009ff;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link {\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link a {\r\n	color: #ff4848;\r\n	font-size: 0.8em;\r\n	border: none;\r\n	word-break: break-word;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-link\r\n	a[isvisited="true"] {\r\n	color: #8b8888;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon {\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-icon\r\n	.netdisk-icon-img {\r\n	width: 28px;\r\n	height: 28px;\r\n	min-width: 28px;\r\n	min-height: 28px;\r\n	font-size: 0.8em;\r\n	border-radius: 10px;\r\n	box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%),\r\n		0 1.3px 2.5px rgb(0 0 0 / 10%), 0 2.2px 4.5px rgb(0 0 0 / 12%),\r\n		0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url {\r\n	color: #000;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url {\r\n	color: #000;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-functions\r\n	button.btn-delete {\r\n	background: #263cf3;\r\n	color: #fff;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-functions\r\n	button.btn-delete:active {\r\n	background: #6e7be8;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time,\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-update-time,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url-title,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions {\r\n	display: flex;\r\n	margin: 5px 0px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time p,\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-update-time\r\n	p,\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-url-title\r\n	p,\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-functions\r\n	p {\r\n	min-width: 80px;\r\n	max-width: 80px;\r\n	align-self: center;\r\n}\r\n';
   const NetDiskHistoryMatchView = {
     /**
      * 本地存储的keyName
@@ -11976,7 +11968,7 @@
             }
           },
           class: "whitesevPopNetDiskHistoryMatch",
-          style: indexCSS$4
+          style: indexCSS$3
         },
         NetDiskUI.popsStyle.historyMatchView
       );
@@ -13549,7 +13541,7 @@
       }
     }
   };
-  const indexCSS$3 = 'div[class^="netdisk-custom-rule-"] {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-left: 10px;\r\n	cursor: pointer;\r\n}\r\ndiv[class^="netdisk-custom-rule-"] svg,\r\ndiv[class^="netdisk-custom-rule-"] svg {\r\n	width: 1.2em;\r\n	height: 1.2em;\r\n}\r\n/* 控件被禁用的颜色 */\r\naside.pops-panel-aside li[data-key][data-function-enable="false"] {\r\n	color: #a8abb2;\r\n	filter: grayscale(100%);\r\n}\r\n';
+  const panelIndexCSS = 'div[class^="netdisk-custom-rule-"] {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-left: 10px;\r\n	cursor: pointer;\r\n}\r\ndiv[class^="netdisk-custom-rule-"] svg,\r\ndiv[class^="netdisk-custom-rule-"] svg {\r\n	width: 1.2em;\r\n	height: 1.2em;\r\n}\r\n/* 控件被禁用的颜色 */\r\naside.pops-panel-aside li[data-key][data-function-enable="false"] {\r\n	color: #a8abb2;\r\n	filter: grayscale(100%);\r\n}\r\n/* 左侧网盘图标 */\r\naside.pops-panel-aside .netdisk-aside-icon {\r\n	width: 20px;\r\n	height: 20px;\r\n	background-size: 100% 100%;\r\n	background-repeat: no-repeat;\r\n}\r\n/* 设置间隔 */\r\naside.pops-panel-aside ul li {\r\n	gap: 4px;\r\n}\r\n\r\n/* mobile模式 */\r\n@media screen and (max-width: 600px) {\r\n	/* 隐藏左侧网盘图标 */\r\n	aside.pops-panel-aside .netdisk-aside-text {\r\n		display: none;\r\n	}\r\n}\r\n';
   const NetDiskGlobalSettingView = {
     show() {
       var _a2;
@@ -13584,7 +13576,7 @@
             }
           },
           class: "whitesevPopSetting",
-          style: indexCSS$3
+          style: panelIndexCSS
         },
         NetDiskUI.popsStyle.settingView
       );
@@ -15460,6 +15452,7 @@
     show() {
       const that = this;
       let popsPanelContentUtils = __pops.config.panelHandleContentUtils();
+      let addData = this.getTemplateData();
       function generateStorageApi(data) {
         return {
           get(key, defaultValue) {
@@ -15473,11 +15466,12 @@
       function generatePanelStorageApi(uuid) {
         return {
           get(key, defaultValue) {
-            let currentRule = WebsiteRule.getRule(uuid);
-            return Reflect.get(currentRule.data, key) ?? defaultValue;
+            let currentRule = WebsiteRule.getRule(uuid) ?? addData;
+            let panelValue = PopsPanel.getValue(key, defaultValue);
+            return (currentRule && Reflect.get(currentRule.data, key)) ?? panelValue;
           },
           set(key, value) {
-            let currentRule = WebsiteRule.getRule(uuid);
+            let currentRule = WebsiteRule.getRule(uuid) ?? addData;
             Reflect.set(currentRule.data, key, value);
             WebsiteRule.updateRule(currentRule);
           }
@@ -15489,7 +15483,7 @@
           return this.getAllRule();
         },
         getAddData: () => {
-          return this.getTemplateData();
+          return addData;
         },
         getDataItemName: (data) => {
           return data["name"] ?? data.url;
@@ -15523,7 +15517,7 @@
               that.$data.isShowEditView = true;
               let $fragment = document.createDocumentFragment();
               if (!isEdit) {
-                data = this.getTemplateData();
+                data = addData;
               }
               let enable_template = UISwitch("启用", "enable", true);
               Reflect.set(
@@ -15692,6 +15686,8 @@
                       style: (
                         /*css*/
                         `
+										${panelIndexCSS}
+										
 										${panelSettingCSS}
 
 
@@ -15723,7 +15719,7 @@
               let $ulist_li = $form.querySelectorAll(
                 ".rule-form-ulist > li"
               );
-              let data = this.getTemplateData();
+              let data = addData;
               if (isEdit) {
                 data.uuid = editData.uuid;
               }
@@ -15845,7 +15841,7 @@
      */
     getRuleDataValue(uuid, key, defaultValue) {
       let ruleData = this.getRuleData(uuid);
-      return Reflect.get(ruleData, key) ?? defaultValue;
+      return (ruleData && Reflect.get(ruleData, key)) ?? defaultValue;
     },
     /**
      * 更新单个规则
@@ -15916,7 +15912,7 @@
     },
     /**
      * 根据url获取匹配的规则
-     * 
+     *
      * 注意：不会处理是否启用的情况
      * @param url 需要匹配的url
      */

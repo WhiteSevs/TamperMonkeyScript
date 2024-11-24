@@ -14,3 +14,22 @@ aside.pops-panel-aside li[data-key][data-function-enable="false"] {
 	color: #a8abb2;
 	filter: grayscale(100%);
 }
+/* 左侧网盘图标 */
+aside.pops-panel-aside .netdisk-aside-icon {
+	width: 20px;
+	height: 20px;
+	background-size: 100% 100%;
+	background-repeat: no-repeat;
+}
+/* 设置间隔 */
+aside.pops-panel-aside ul li {
+	gap: 4px;
+}
+
+/* mobile模式 */
+@media screen and (max-width: 600px) {
+	/* 隐藏左侧网盘图标 */
+	aside.pops-panel-aside .netdisk-aside-text {
+		display: none;
+	}
+}

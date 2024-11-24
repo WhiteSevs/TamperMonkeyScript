@@ -22,6 +22,7 @@ import {
 } from "../data/NetDiskRuleDataKey";
 import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 import panelSettingCSS from "./css/index.css?raw";
+import panelIndexCSS from "./../view/global-setting/index.css?raw";
 function deepCopy<T>(obj: T): T {
 	if (obj === null || typeof obj !== "object") {
 		return obj;
@@ -62,7 +63,7 @@ export const WebsiteRule = {
 	show() {
 		const that = this;
 		let popsPanelContentUtils = pops.config.panelHandleContentUtils();
-
+		let addData = this.getTemplateData();
 		/**
 		 * 自定义存储api的配置
 		 * @param uuid
@@ -84,11 +85,14 @@ export const WebsiteRule = {
 		function generatePanelStorageApi(uuid: string) {
 			return {
 				get(key: string, defaultValue: any) {
-					let currentRule = WebsiteRule.getRule(uuid)!;
-					return Reflect.get(currentRule.data, key) ?? defaultValue;
+					let currentRule = WebsiteRule.getRule(uuid) ?? addData;
+					let panelValue = PopsPanel.getValue(key, defaultValue);
+					return (
+						(currentRule && Reflect.get(currentRule.data, key)) ?? panelValue
+					);
 				},
 				set(key: string, value: any) {
-					let currentRule = WebsiteRule.getRule(uuid)!;
+					let currentRule = WebsiteRule.getRule(uuid) ?? addData;
 					Reflect.set(currentRule.data, key, value);
 					WebsiteRule.updateRule(currentRule);
 				},
@@ -100,7 +104,7 @@ export const WebsiteRule = {
 				return this.getAllRule();
 			},
 			getAddData: () => {
-				return this.getTemplateData();
+				return addData;
 			},
 			getDataItemName: (data) => {
 				return data["name"] ?? data.url;
@@ -135,7 +139,7 @@ export const WebsiteRule = {
 						let $fragment = document.createDocumentFragment();
 						if (!isEdit) {
 							// @ts-ignore
-							data = this.getTemplateData();
+							data = addData;
 						}
 
 						// 启用
@@ -359,6 +363,8 @@ export const WebsiteRule = {
 										only: false,
 										class: "whitesevPopSetting",
 										style: /*css*/ `
+										${panelIndexCSS}
+										
 										${panelSettingCSS}
 
 
@@ -392,7 +398,7 @@ export const WebsiteRule = {
 						let $ulist_li = $form.querySelectorAll<HTMLLIElement>(
 							".rule-form-ulist > li"
 						);
-						let data = this.getTemplateData();
+						let data = addData;
 						if (isEdit) {
 							data.uuid = editData!.uuid;
 						}
@@ -513,7 +519,7 @@ export const WebsiteRule = {
 	 */
 	getRuleDataValue<T>(uuid: string, key: string, defaultValue: T) {
 		let ruleData = this.getRuleData(uuid);
-		return Reflect.get(ruleData, key) ?? defaultValue;
+		return (ruleData && Reflect.get(ruleData, key)) ?? defaultValue;
 	},
 	/**
 	 * 更新单个规则
@@ -586,7 +592,7 @@ export const WebsiteRule = {
 	},
 	/**
 	 * 根据url获取匹配的规则
-	 * 
+	 *
 	 * 注意：不会处理是否启用的情况
 	 * @param url 需要匹配的url
 	 */

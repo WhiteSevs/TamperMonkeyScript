@@ -341,12 +341,17 @@ export const NetDiskView = {
 						},
 					},
 					class: "whitesevPop",
-					style: `
+					style: /*css*/ `
                     ${indexCSS}
 
                     .pops {
-                        max-height: ${pops.isPhone() ? "50vh" : "60vh"};
+                        max-height: 60vh;
                     }
+					@media screen and (max-width: 600px) {
+						.pops {
+                       		max-height: 50vh;
+                    	}
+					}
                     `,
 				},
 				NetDiskUI.popsStyle.mainView
