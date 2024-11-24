@@ -3,6 +3,7 @@ import type { PopsToolTipDetails } from "./indexType";
 export const PopsTooltipConfig = (): DeepRequired<PopsToolTipDetails> => {
 	// @ts-ignore
 	return {
+		useShadowRoot: true,
 		target: null as any,
 		content: "默认文字",
 		position: "top",

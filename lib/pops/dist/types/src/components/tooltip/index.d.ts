@@ -3,7 +3,7 @@ type ToolTipEventTypeName = "MouseEvent" | "TouchEvent";
 export declare class ToolTip {
     $el: {
         $shadowContainer: HTMLDivElement;
-        $shadowRoot: ShadowRoot;
+        $shadowRoot: ShadowRoot | HTMLElement;
         $toolTip: HTMLElement;
         $content: HTMLElement;
         $arrow: HTMLElement;
@@ -16,7 +16,7 @@ export declare class ToolTip {
     };
     constructor(config: Required<PopsToolTipDetails>, guid: string, ShadowInfo: {
         $shadowContainer: HTMLDivElement;
-        $shadowRoot: ShadowRoot;
+        $shadowRoot: ShadowRoot | HTMLElement;
     });
     init(): void;
     /**

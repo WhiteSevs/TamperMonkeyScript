@@ -28,7 +28,7 @@ export declare const PopsElementHandler: {
      * @param type
      * @param config
      */
-    getBottomBtnHTML(type: PopsTypeSupportBottomBtn, config: PopsSupportBottomBtn[keyof PopsSupportBottomBtn]): string;
+    getBottomBtnHTML(type: PopsTypeSupportBottomBtn, config: Omit<PopsSupportBottomBtn[keyof PopsSupportBottomBtn], "content">): string;
     /**
      * 获取标题style
      * @param type

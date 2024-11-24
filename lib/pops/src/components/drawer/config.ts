@@ -70,6 +70,7 @@ export const PopsDrawerConfig = (): DeepRequired<PopsDrawerDetails> => {
 			},
 			clickCallBack: null,
 		},
+		useShadowRoot: true,
 		class: "",
 		zIndex: 10000,
 		only: false,

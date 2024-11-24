@@ -8,6 +8,7 @@ export const PopsLoadingConfig = (): DeepRequired<PopsLoadingDetails> => {
 			icon: "loading",
 			style: "",
 		},
+		useShadowRoot: true,
 		class: "",
 		only: false,
 		zIndex: 10000,

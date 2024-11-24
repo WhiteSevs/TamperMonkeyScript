@@ -36,7 +36,7 @@ export interface PopsEventDetails {
 	/** 最外层包裹的元素 */
 	$shadowContainer: HTMLDivElement;
 	/** ShadowRoot */
-	$shadowRoot: ShadowRoot;
+	$shadowRoot: ShadowRoot | HTMLElement;
 	/** -> 动画层 */
 	element: HTMLDivElement;
 	/** 动画层 */

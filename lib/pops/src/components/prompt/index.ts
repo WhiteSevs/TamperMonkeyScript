@@ -10,7 +10,16 @@ import type { PopsPromptDetails } from "./indexType";
 
 export class PopsPrompt {
 	constructor(details: PopsPromptDetails) {
-		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow();
+		const guid = popsUtils.getRandomGUID();
+		// 设置当前类型
+		const PopsType = "prompt";
+
+		let config = PopsPromptConfig();
+		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
+		config = popsUtils.assign(config, details);
+		config = PopsHandler.handleOnly(PopsType, config);
+
+		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
 			pops.config.cssText.index,
 			pops.config.cssText.ninePalaceGridPosition,
@@ -20,13 +29,6 @@ export class PopsPrompt {
 			pops.config.cssText.common,
 			pops.config.cssText.promptCSS,
 		]);
-		let config = PopsPromptConfig();
-		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-		config = popsUtils.assign(config, details);
-		let guid = popsUtils.getRandomGUID();
-		const PopsType = "prompt";
-
-		config = PopsHandler.handleOnly(PopsType, config);
 
 		// 先把z-index提取出来
 		let zIndex = PopsHandler.handleZIndex(config.zIndex);

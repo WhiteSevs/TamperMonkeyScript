@@ -16,6 +16,7 @@ export declare const GlobalConfig: {
     getGlobalConfig(): {
         style?: string | undefined;
         zIndex?: string | number | undefined;
+        useShadowRoot?: boolean | undefined;
         class?: string | undefined;
         only?: boolean | undefined;
         width?: string | undefined;

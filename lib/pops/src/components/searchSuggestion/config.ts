@@ -25,6 +25,7 @@ export const searchSuggestionConfig =
 					liElement.remove();
 				},
 			},
+			useShadowRoot: true,
 			className: "",
 			isAbsolute: true,
 			isAnimation: true,

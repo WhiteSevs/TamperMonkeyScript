@@ -10,7 +10,15 @@ import type { PopsConfirmDetails } from "./indexType";
 
 export class PopsConfirm {
 	constructor(details: PopsConfirmDetails) {
-		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow();
+		const guid = popsUtils.getRandomGUID();
+		// 设置当前类型
+		const PopsType = "confirm";
+		let config = PopsConfirmConfig();
+		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
+		config = popsUtils.assign(config, details);
+		config = PopsHandler.handleOnly(PopsType, config);
+
+		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
 			pops.config.cssText.index,
 			pops.config.cssText.ninePalaceGridPosition,
@@ -20,14 +28,6 @@ export class PopsConfirm {
 			pops.config.cssText.common,
 			pops.config.cssText.confirmCSS,
 		]);
-		let config = PopsConfirmConfig();
-		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-		config = popsUtils.assign(config, details);
-		let guid = popsUtils.getRandomGUID();
-		// 设置当前类型
-		const PopsType = "confirm";
-
-		config = PopsHandler.handleOnly(PopsType, config);
 
 		// 先把z-index提取出来
 		let zIndex = PopsHandler.handleZIndex(config.zIndex);

@@ -8,12 +8,9 @@ import { GlobalConfig } from "../../GlobalConfig";
 
 export class PopsSearchSuggestion {
 	constructor(details: PopsSearchSuggestionDetails) {
-		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow();
-		PopsHandler.handleInit($shadowRoot, [
-			pops.config.cssText.index,
-			pops.config.cssText.anim,
-			pops.config.cssText.common,
-		]);
+		const guid = popsUtils.getRandomGUID();
+		// 设置当前类型
+		const PopsType = "searchSuggestion";
 
 		let config = PopsSearchSuggestionConfig();
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
@@ -28,8 +25,13 @@ export class PopsSearchSuggestion {
 		if (details.data) {
 			config.data = details.data;
 		}
-		const guid = popsUtils.getRandomGUID();
-		const PopsType = "searchSuggestion";
+
+		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
+		PopsHandler.handleInit($shadowRoot, [
+			pops.config.cssText.index,
+			pops.config.cssText.anim,
+			pops.config.cssText.common,
+		]);
 
 		if (config.style != null) {
 			let cssNode = document.createElement("style");

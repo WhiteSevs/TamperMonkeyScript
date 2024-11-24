@@ -1,3 +1,4 @@
+import type { PopsCommonConfig } from "../../types/components";
 import type { PopsIcon } from "../../types/icon";
 
 /**
@@ -40,11 +41,20 @@ export interface PopsRightClickMenuDataDetails {
 /**
  * pops.rightClickMenu
  */
-export interface PopsRightClickMenuDetails {
+export interface PopsRightClickMenuDetails
+	extends Pick<
+		PopsCommonConfig,
+		"useShadowRoot" | "beforeAppendToPageCallBack" | "zIndex" | "style" | "only"
+	> {
 	/**
-	 * 目标，默认为document.documentElement
+	 * 目标，默认为document.documentElement G
 	 */
-	target?: HTMLElement | typeof globalThis | Window | EventTarget | Node;
+	target?:
+		| HTMLElement
+		| (typeof globalThis & Window)
+		| Window
+		| EventTarget
+		| Node;
 	/**
 	 * 目标的子元素选择器，默认为空
 	 */
@@ -58,32 +68,11 @@ export interface PopsRightClickMenuDetails {
 	 */
 	className?: string;
 	/**
-	 * 是否是唯一的弹窗，默认false
-	 */
-	only?: boolean;
-	/**
 	 * 是否启用动画，默认true
 	 */
 	isAnimation?: boolean;
 	/**
-	 * 弹窗的显示层级，默认10000
-	 */
-	zIndex?: number | (() => number);
-	/**
 	 * 是否阻止默认contextmenu事件
 	 */
 	preventDefault?: boolean;
-	/**
-	 * （可选）自定义style
-	 */
-	style?: string | null;
-	/**
-	 * 在元素添加到页面前的事件
-	 * @param $shadowRoot 根元素
-	 * @param $shadowContainer 容器
-	 */
-	beforeAppendToPageCallBack?: (
-		$shadowRoot: ShadowRoot,
-		$shadowContainer: HTMLDivElement
-	) => void;
 }

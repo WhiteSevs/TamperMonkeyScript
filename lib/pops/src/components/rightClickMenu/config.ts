@@ -116,6 +116,7 @@ export const rightClickMenuConfig =
 					],
 				},
 			],
+			useShadowRoot: true,
 			className: "",
 			isAnimation: true,
 			only: false,

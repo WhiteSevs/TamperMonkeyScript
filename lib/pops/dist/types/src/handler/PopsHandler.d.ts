@@ -6,6 +6,7 @@ import type { PopsIframeDetails } from "../components/iframe/indexType";
 import type { PopsLoadingDetails } from "../components/loading/indexType";
 import type { PopsPanelDetails } from "../components/panel/indexType";
 import type { PopsPromptDetails } from "../components/prompt/indexType";
+import type { PopsCommonConfig } from "../types/components";
 import { PopsEventDetails, PopsHandlerEventDetails } from "../types/event";
 import { PopsLayerCommonConfig } from "../types/layer";
 import type { PopsAllDetails, PopsLayerMode, PopsMode, PopsType } from "../types/main";
@@ -13,16 +14,19 @@ export declare const PopsHandler: {
     /**
      * 创建shadow
      */
-    handlerShadow(): {
+    handlerShadow(config: Pick<PopsCommonConfig, "useShadowRoot">): {
         $shadowContainer: HTMLDivElement;
         $shadowRoot: ShadowRoot;
+    } | {
+        $shadowContainer: HTMLDivElement;
+        $shadowRoot: HTMLDivElement;
     };
     /**
      * 处理初始化
      * @param $shadowRoot 所在的shadowRoot
      * @param cssText 添加进ShadowRoot的CSS
      */
-    handleInit($shadowRoot?: ShadowRoot, cssText?: string | string[]): void;
+    handleInit($shadowRoot?: ShadowRoot | HTMLElement, cssText?: string | string[]): void;
     /**
      * 处理遮罩层
      *
@@ -156,7 +160,7 @@ export declare const PopsHandler: {
      * @param maskElement 遮罩层
      * @param config 当前配置
      */
-    handleEventDetails(guid: string, $shadowContainer: HTMLDivElement, $shadowRoot: ShadowRoot, mode: PopsLayerMode, animElement: HTMLDivElement, popsElement: HTMLDivElement, maskElement: HTMLDivElement, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails): PopsEventDetails;
+    handleEventDetails(guid: string, $shadowContainer: HTMLDivElement, $shadowRoot: ShadowRoot | HTMLElement, mode: PopsLayerMode, animElement: HTMLDivElement, popsElement: HTMLDivElement, maskElement: HTMLDivElement, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails): PopsEventDetails;
     /**
      * 获取loading的事件配置
      * @param guid

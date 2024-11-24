@@ -154,36 +154,50 @@ export interface PopsDragConfig {
  */
 export interface PopsCommonConfig {
 	/**
-	 * 自定义的className，默认为空
+	 * 是否使用shadowRoot
+	 *
+	 * @default true
+	 */
+	useShadowRoot?: boolean;
+	/**
+	 * 自定义的className
+	 *
+	 * @default ""
 	 */
 	class?: string;
 	/**
-	 * 是否是唯一的，默认false
+	 * 是否是唯一的
+	 *
 	 * @default false
 	 */
 	only?: boolean;
 	/**
-	 *  宽度，默认350px
-	 * @default 350
+	 *  宽度
+	 *
+	 * @default "350px"
 	 */
 	width: string;
 	/**
-	 *  高度，默认200px
-	 * @default 200
+	 *  高度
+	 *
+	 * @default "200px"
 	 */
 	height: string;
 	/**
-	 * 位置，默认center
+	 * 位置
+	 *
 	 * @default "center"
 	 */
 	position?: PopsPosition;
 	/**
-	 * 动画，默认pops-anim-fadein-zoom
+	 * 动画
+	 *
 	 * @default "pops-anim-fadein-zoom"
 	 */
 	animation?: PopsAnimation;
 	/**
-	 * z-index显示层级，默认10000
+	 * z-index显示层级
+	 *
 	 * @default 10000
 	 */
 	zIndex?: number | (() => number);
@@ -192,9 +206,10 @@ export interface PopsCommonConfig {
 	 */
 	mask?: PopsMaskDetails;
 	/**
-	 * 是否禁用页面滚动，默认false
+	 * 是否禁用页面滚动
 	 *
 	 * 暂时不会生效
+	 *
 	 * @default false
 	 */
 	forbiddenScroll?: boolean;
@@ -208,7 +223,7 @@ export interface PopsCommonConfig {
 	 * @param $shadowContainer 容器
 	 */
 	beforeAppendToPageCallBack?: (
-		$shadowRoot: ShadowRoot,
+		$shadowRoot: ShadowRoot | HTMLElement,
 		$shadowContainer: HTMLDivElement
 	) => void;
 }

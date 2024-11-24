@@ -11,7 +11,15 @@ import type { PopsAlertDetails } from "./indexType";
 
 export class PopsAlert {
 	constructor(details: PopsAlertDetails) {
-		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow();
+		const guid = popsUtils.getRandomGUID();
+		// 设置当前类型
+		const PopsType: PopsMode = "alert";
+		let config = PopsAlertConfig();
+		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
+		config = popsUtils.assign(config, details);
+		config = PopsHandler.handleOnly(PopsType, config);
+
+		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
 			pops.config.cssText.index,
 			pops.config.cssText.ninePalaceGridPosition,
@@ -21,13 +29,6 @@ export class PopsAlert {
 			pops.config.cssText.common,
 			pops.config.cssText.alertCSS,
 		]);
-		let config = PopsAlertConfig();
-		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-		config = popsUtils.assign(config, details);
-		let guid = popsUtils.getRandomGUID();
-		// 设置当前类型
-		const PopsType: PopsMode = "alert";
-		config = PopsHandler.handleOnly(PopsType, config);
 
 		// 先把z-index提取出来
 		let zIndex = PopsHandler.handleZIndex(config.zIndex);

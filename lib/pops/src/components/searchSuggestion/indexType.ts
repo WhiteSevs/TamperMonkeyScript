@@ -1,8 +1,11 @@
+import type { PopsCommonConfig } from "../../types/components";
+
 /**
  * 搜索建议悬浮窗
  * pops.searchSuggestion
  */
-export interface PopsSearchSuggestionDetails<T = any> {
+export interface PopsSearchSuggestionDetails<T = any>
+	extends Pick<PopsCommonConfig, "useShadowRoot" | "zIndex" | "style"> {
 	/**
 	 * 当前的环境，可以是document，可以是shadowroot，默认是document
 	 * @default document
@@ -83,11 +86,6 @@ export interface PopsSearchSuggestionDetails<T = any> {
 	 */
 	positionTopToReverse?: boolean;
 	/**
-	 * 层级，默认10000
-	 * @default 10000
-	 */
-	zIndex?: number | (() => number);
-	/**
 	 * 搜索中的提示
 	 *
 	 * 前提：inputTarget是input/textarea
@@ -146,10 +144,6 @@ export interface PopsSearchSuggestionDetails<T = any> {
 		liElement: HTMLLIElement,
 		data: T
 	) => void;
-	/**
-	 * （可选）自定义style
-	 */
-	style?: string;
 }
 
 /**

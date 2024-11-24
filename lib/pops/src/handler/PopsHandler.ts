@@ -8,6 +8,7 @@ import type { PopsPanelDetails } from "../components/panel/indexType";
 import type { PopsPromptDetails } from "../components/prompt/indexType";
 import { PopsCore } from "../Core";
 import { pops } from "../Pops";
+import type { PopsCommonConfig } from "../types/components";
 import { PopsEventDetails, PopsHandlerEventDetails } from "../types/event";
 import { PopsLayerCommonConfig } from "../types/layer";
 import type {
@@ -24,21 +25,31 @@ export const PopsHandler = {
 	/**
 	 * 创建shadow
 	 */
-	handlerShadow() {
+	handlerShadow(config: Pick<PopsCommonConfig, "useShadowRoot">) {
 		let $shadowContainer = document.createElement("div");
 		$shadowContainer.className = "pops-shadow-container";
-		let $shadowRoot = $shadowContainer.attachShadow({ mode: "open" });
-		return {
-			$shadowContainer,
-			$shadowRoot,
-		};
+		if (config.useShadowRoot) {
+			let $shadowRoot = $shadowContainer.attachShadow({ mode: "open" });
+			return {
+				$shadowContainer,
+				$shadowRoot,
+			};
+		} else {
+			return {
+				$shadowContainer,
+				$shadowRoot: $shadowContainer,
+			};
+		}
 	},
 	/**
 	 * 处理初始化
 	 * @param $shadowRoot 所在的shadowRoot
 	 * @param cssText 添加进ShadowRoot的CSS
 	 */
-	handleInit($shadowRoot?: ShadowRoot, cssText?: string | string[]) {
+	handleInit(
+		$shadowRoot?: ShadowRoot | HTMLElement,
+		cssText?: string | string[]
+	) {
 		pops.init();
 		if (!arguments.length) {
 			return;
@@ -364,7 +375,7 @@ export const PopsHandler = {
 	handleEventDetails(
 		guid: string,
 		$shadowContainer: HTMLDivElement,
-		$shadowRoot: ShadowRoot,
+		$shadowRoot: ShadowRoot | HTMLElement,
 		mode: PopsLayerMode,
 		animElement: HTMLDivElement,
 		popsElement: HTMLDivElement,

@@ -11,7 +11,19 @@ import { GlobalConfig } from "../../GlobalConfig";
 
 export class PopsPanel {
 	constructor(details: PopsPanelDetails) {
-		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow();
+		const guid = popsUtils.getRandomGUID();
+		// 设置当前类型
+		const PopsType = "panel";
+
+		let config: Required<PopsPanelDetails> = PopsPanelConfig();
+		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
+		config = popsUtils.assign(config, details);
+		if (details && Array.isArray(details.content)) {
+			config.content = details.content;
+		}
+		config = PopsHandler.handleOnly(PopsType, config);
+
+		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
 			pops.config.cssText.index,
 			pops.config.cssText.ninePalaceGridPosition,
@@ -21,16 +33,6 @@ export class PopsPanel {
 			pops.config.cssText.common,
 			pops.config.cssText.panelCSS,
 		]);
-
-		let config: Required<PopsPanelDetails> = PopsPanelConfig();
-		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-		config = popsUtils.assign(config, details);
-		if (details && Array.isArray(details.content)) {
-			config.content = details.content;
-		}
-		let guid = popsUtils.getRandomGUID();
-		const PopsType = "panel";
-		config = PopsHandler.handleOnly(PopsType, config);
 
 		// 先把z-index提取出来
 		let zIndex = PopsHandler.handleZIndex(config.zIndex);

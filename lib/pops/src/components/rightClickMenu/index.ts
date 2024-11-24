@@ -13,17 +13,14 @@ import type {
 
 export class PopsRightClickMenu {
 	constructor(details: PopsRightClickMenuDetails) {
-		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow();
-		PopsHandler.handleInit($shadowRoot, [
-			pops.config.cssText.index,
-			pops.config.cssText.anim,
-			pops.config.cssText.common,
-			pops.config.cssText.rightClickMenu,
-		]);
+		const guid = popsUtils.getRandomGUID();
+		// 设置当前类型
+		const PopsType = "rightClickMenu";
 
 		let config = PopsRightClickMenuConfig();
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
+		config = PopsHandler.handleOnly(PopsType, config);
 		if (config.target == null) {
 			throw "config.target 不能为空";
 		}
@@ -31,9 +28,13 @@ export class PopsRightClickMenu {
 			// @ts-ignore
 			config.data = details.data;
 		}
-		let guid = popsUtils.getRandomGUID();
-		const PopsType = "rightClickMenu";
-		config = PopsHandler.handleOnly(PopsType, config);
+		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
+		PopsHandler.handleInit($shadowRoot, [
+			pops.config.cssText.index,
+			pops.config.cssText.anim,
+			pops.config.cssText.common,
+			pops.config.cssText.rightClickMenu,
+		]);
 
 		if (config.style != null) {
 			let cssNode = document.createElement("style");

@@ -65,7 +65,7 @@ export const PopsElementHandler = {
 		<div 
 			class="pops-anim"
 			anim="${__config.animation || ""}"
-			style="${popsAnimStyle};"
+			style="${popsAnimStyle}"
 			data-guid="${guid}">
             ${
 							config.style != null
@@ -140,7 +140,7 @@ export const PopsElementHandler = {
 	 */
 	getBottomBtnHTML(
 		type: PopsTypeSupportBottomBtn,
-		config: PopsSupportBottomBtn[keyof PopsSupportBottomBtn]
+		config: Omit<PopsSupportBottomBtn[keyof PopsSupportBottomBtn], "content">
 	): string {
 		if (!config.btn) {
 			// 未设置btn参数

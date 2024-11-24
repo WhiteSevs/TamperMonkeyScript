@@ -11,7 +11,7 @@ type ToolTipEventTypeName = "MouseEvent" | "TouchEvent";
 export class ToolTip {
 	$el = {
 		$shadowContainer: null as unknown as HTMLDivElement,
-		$shadowRoot: null as unknown as ShadowRoot,
+		$shadowRoot: null as unknown as ShadowRoot | HTMLElement,
 		$toolTip: null as unknown as HTMLElement,
 		$content: null as unknown as HTMLElement,
 		$arrow: null as unknown as HTMLElement,
@@ -27,7 +27,7 @@ export class ToolTip {
 		guid: string,
 		ShadowInfo: {
 			$shadowContainer: HTMLDivElement;
-			$shadowRoot: ShadowRoot;
+			$shadowRoot: ShadowRoot | HTMLElement;
 		}
 	) {
 		this.$data.config = config;
@@ -540,13 +540,9 @@ export type PopsTooltipResult<T extends PopsToolTipDetails> = {
 
 export class PopsTooltip {
 	constructor(details: PopsToolTipDetails) {
-		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow();
-		PopsHandler.handleInit($shadowRoot, [
-			pops.config.cssText.index,
-			pops.config.cssText.anim,
-			pops.config.cssText.common,
-			pops.config.cssText.tooltipCSS,
-		]);
+		const guid = popsUtils.getRandomGUID();
+		// 设置当前类型
+		const PopsType = "tooltip";
 
 		let config = PopsTooltipConfig();
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
@@ -554,10 +550,15 @@ export class PopsTooltip {
 		if (!(config.target instanceof HTMLElement)) {
 			throw "config.target 必须是HTMLElement类型";
 		}
-		let guid = popsUtils.getRandomGUID();
-		const PopsType = "tooltip";
-
 		config = PopsHandler.handleOnly(PopsType, config);
+
+		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
+		PopsHandler.handleInit($shadowRoot, [
+			pops.config.cssText.index,
+			pops.config.cssText.anim,
+			pops.config.cssText.common,
+			pops.config.cssText.tooltipCSS,
+		]);
 
 		let toolTip = new ToolTip(config, guid, {
 			$shadowContainer,

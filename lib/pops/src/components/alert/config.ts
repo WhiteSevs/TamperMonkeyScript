@@ -34,6 +34,7 @@ export const PopsAlertConfig = (): DeepRequired<PopsAlertDetails> => {
 				},
 			},
 		},
+		useShadowRoot: true,
 		class: "",
 		only: false,
 		width: "350px",

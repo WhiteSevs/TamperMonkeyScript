@@ -12,7 +12,19 @@ import type { PopsIframeDetails } from "./indexType";
 
 export class PopsIframe {
 	constructor(details: PopsIframeDetails) {
-		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow();
+		const guid = popsUtils.getRandomGUID();
+		// 设置当前类型
+		const PopsType = "iframe";
+
+		let config = PopsIframeConfig();
+		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
+		config = popsUtils.assign(config, details);
+		if (config.url == null) {
+			throw "config.url不能为空";
+		}
+		config = PopsHandler.handleOnly(PopsType, config);
+
+		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
 			pops.config.cssText.index,
 			pops.config.cssText.ninePalaceGridPosition,
@@ -21,18 +33,10 @@ export class PopsIframe {
 			pops.config.cssText.common,
 			pops.config.cssText.iframeCSS,
 		]);
-		let config = PopsIframeConfig();
-		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-		config = popsUtils.assign(config, details);
-		if (config.url == null) {
-			throw "config.url不能为空";
-		}
-		let guid = popsUtils.getRandomGUID();
-		const PopsType = "iframe";
 
-		config = PopsHandler.handleOnly(PopsType, config);
 		let maskExtraStyle =
-			config.animation != null && (config as any).animation != ""
+			// @ts-ignore
+			config.animation != null && config.animation != ""
 				? "position:absolute;"
 				: "";
 

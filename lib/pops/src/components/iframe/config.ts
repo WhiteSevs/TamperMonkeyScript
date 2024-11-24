@@ -13,6 +13,7 @@ export const PopsIframeConfig = (): DeepRequired<PopsIframeDetails> => {
 			icon: true,
 			text: "",
 		},
+		useShadowRoot: true,
 		class: "",
 		url: window.location.href,
 		only: false,

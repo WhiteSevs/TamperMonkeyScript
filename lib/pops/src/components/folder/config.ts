@@ -105,6 +105,7 @@ export const PopsFolderConfig = (): DeepRequired<PopsFolderDetails> => {
 				},
 			},
 		},
+		useShadowRoot: true,
 		class: "",
 		only: false,
 		width: "500px",

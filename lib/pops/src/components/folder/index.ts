@@ -11,7 +11,16 @@ import type { PopsFolderDataConfig, PopsFolderDetails } from "./indexType";
 
 export class PopsFolder {
 	constructor(details: PopsFolderDetails) {
-		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow();
+		const guid = popsUtils.getRandomGUID();
+		// 设置当前类型
+		const PopsType = "folder";
+
+		let config = PopsFolderConfig();
+		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
+		config = popsUtils.assign(config, details);
+		config = PopsHandler.handleOnly(PopsType, config);
+
+		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
 			pops.config.cssText.index,
 			pops.config.cssText.ninePalaceGridPosition,
@@ -22,17 +31,19 @@ export class PopsFolder {
 			pops.config.cssText.folderCSS,
 		]);
 
-		let config = PopsFolderConfig();
-		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-		config = popsUtils.assign(config, details);
-
 		/* 办公几件套 */
-		(Folder_ICON as any).docx = Folder_ICON.doc;
-		(Folder_ICON as any).rtf = Folder_ICON.doc;
-		(Folder_ICON as any).xlsx = Folder_ICON.xls;
-		(Folder_ICON as any).pptx = Folder_ICON.ppt;
-		(Folder_ICON as any).dmg = Folder_ICON.ipa;
-		(Folder_ICON as any).json = Folder_ICON.js;
+		// @ts-ignore
+		Folder_ICON.docx = Folder_ICON.doc;
+		// @ts-ignore;
+		Folder_ICON.rtf = Folder_ICON.doc;
+		// @ts-ignore
+		Folder_ICON.xlsx = Folder_ICON.xls;
+		// @ts-ignore
+		Folder_ICON.pptx = Folder_ICON.ppt;
+		// @ts-ignore;
+		Folder_ICON.dmg = Folder_ICON.ipa;
+		// @ts-ignore
+		Folder_ICON.json = Folder_ICON.js;
 
 		/* 压缩包 */
 		let zipIconList = [
@@ -73,39 +84,35 @@ export class PopsFolder {
 		let androidIconList = ["apk", "apkm", "xapk"];
 
 		zipIconList.forEach((keyName) => {
-			(Folder_ICON as any)[keyName] = Folder_ICON.zip;
+			// @ts-ignore
+			Folder_ICON[keyName] = Folder_ICON.zip;
 		});
 		imageIconList.forEach((keyName) => {
-			(Folder_ICON as any)[keyName] = Folder_ICON.png;
+			// @ts-ignore
+			Folder_ICON[keyName] = Folder_ICON.png;
 		});
 		codeLanguageIconList.forEach((keyName) => {
-			(Folder_ICON as any)[keyName] = Folder_ICON.html;
+			// @ts-ignore
+			Folder_ICON[keyName] = Folder_ICON.html;
 		});
 		androidIconList.forEach((keyName) => {
-			(Folder_ICON as any)[keyName] = Folder_ICON.apk;
+			// @ts-ignore
+			Folder_ICON[keyName] = Folder_ICON.apk;
 		});
 
 		if (details?.folder) {
 			// @ts-ignore
 			config.folder = details.folder;
 		}
-		let guid = popsUtils.getRandomGUID();
-		const PopsType = "folder";
-
-		config = PopsHandler.handleOnly(PopsType, config);
 
 		// 先把z-index提取出来
 		let zIndex = PopsHandler.handleZIndex(config.zIndex);
 		let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
 
 		let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(PopsType, config);
-		let bottomBtnHTML = PopsElementHandler.getBottomBtnHTML(
-			PopsType,
-			config as any
-		);
+		let bottomBtnHTML = PopsElementHandler.getBottomBtnHTML(PopsType, config);
 		let { headerStyle, headerPStyle } = PopsElementHandler.getHeaderStyle(
 			PopsType,
-
 			config
 		);
 		let animHTML = PopsElementHandler.getAnimHTML(

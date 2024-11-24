@@ -16,7 +16,7 @@ export interface PopsLayerCommonConfig extends PopsLayerConfig {
 	/** shadow容器 */
 	$shadowContainer: HTMLDivElement;
 	/** shadow容器的shandowRoot */
-	$shadowRoot: ShadowRoot;
+	$shadowRoot: ShadowRoot | HTMLElement;
 	/** 移除实例前的回调函数 */
 	beforeRemoveCallBack?: (layerCommonConfig: PopsLayerCommonConfig) => void;
 }

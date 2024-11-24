@@ -65,6 +65,7 @@ export const PopsPromptConfig = (): DeepRequired<PopsPromptDetails> => {
 				},
 			},
 		},
+		useShadowRoot: true,
 		class: "",
 		only: false,
 		width: "350px",

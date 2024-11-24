@@ -416,6 +416,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 			},
 			clickCallBack: null,
 		},
+		useShadowRoot: true,
 		class: "",
 		mobileClassName: "pops-panel-is-mobile",
 		isMobile: false,

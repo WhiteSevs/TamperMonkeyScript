@@ -61,6 +61,7 @@ export const PopsConfirmConfig = (): DeepRequired<PopsConfirmDetails> => {
 				},
 			},
 		},
+		useShadowRoot: true,
 		class: "",
 		only: false,
 		width: "350px",

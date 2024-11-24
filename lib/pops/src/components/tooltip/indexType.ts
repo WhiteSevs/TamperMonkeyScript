@@ -1,10 +1,16 @@
+import type { PopsCommonConfig } from "../../types/components";
+
 /** tooltip的出现位置 */
 export type PopsTooltipPosition = "top" | "right" | "bottom" | "left";
 
 /**
  * pops.tooltip
  */
-export interface PopsToolTipDetails {
+export interface PopsToolTipDetails
+	extends Pick<
+		PopsCommonConfig,
+		"useShadowRoot" | "only" | "zIndex" | "style" | "beforeAppendToPageCallBack"
+	> {
 	/**
 	 * 目标元素
 	 */
@@ -54,19 +60,11 @@ export interface PopsToolTipDetails {
 	 */
 	triggerCloseEventName?: string;
 	/**
-	 * z-index
-	 * @default 10000
-	 */
-	zIndex?: number | (() => number);
-	/**
-	 * 是否唯一
-	 * @default false
-	 */
-	only?: boolean;
-	/**
 	 * 监听的事件配置
 	 */
-	eventOption?: AddEventListenerOptions;
+	eventOption?: {
+		[P in keyof AddEventListenerOptions]: AddEventListenerOptions[P];
+	};
 	/**
 	 * 触发显示前的回调
 	 * @returns
@@ -110,19 +108,4 @@ export interface PopsToolTipDetails {
 	 * @default 0
 	 */
 	otherDistance?: number;
-	/**
-	 * （可选）自定义style
-	 */
-	style?: string;
-	/**
-	 * 在元素添加到页面前的事件
-	 *
-	 * 当tooltip添加到ShadowRoot内时也会触发
-	 * @param $shadowRoot 根元素
-	 * @param $shadowContainer 容器
-	 */
-	beforeAppendToPageCallBack?: (
-		$shadowRoot: ShadowRoot,
-		$shadowContainer: HTMLDivElement
-	) => void;
 }
