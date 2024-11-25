@@ -89,7 +89,7 @@ export const MTBlackHome = {
 						}
 					},
 				},
-				close: {
+				cancel: {
 					text: "关闭",
 				},
 			},
