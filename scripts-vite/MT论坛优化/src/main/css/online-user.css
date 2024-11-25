@@ -1,0 +1,75 @@
+.pops-alert-content{
+	display: flex;
+	flex-direction: column;
+}
+.pops-alert-content > .online-user-info{
+	text-align: center;
+	padding: 0px 6px;
+}
+.online-user-filter input {
+	width: -webkit-fill-available;
+	width: -moz-available;
+	height: 30px;
+	margin: 8px 20px;
+	border: 0;
+	border-bottom: 1px solid;
+}
+.online-user-filter input:focus-within {
+	outline: none;
+}
+.online-user-list {
+	flex: 1;
+	overflow-y: auto;
+}
+.online-user-list li {
+	margin: 18px 0;
+}
+.online-user {
+	display: flex;
+	margin: 2px 20px;
+	align-items: center;
+}
+.online-user img[data-avatar] {
+	width: 45px;
+	height: 45px;
+	border-radius: 45px;
+}
+.online-user-list .online-user-info {
+	margin: 2px 14px;
+}
+.online-user-list .online-user-info p[data-name] {
+	margin-bottom: 4px;
+}
+.online-user-list .online-user-info span[data-sf] {
+	border-radius: 4px;
+	padding: 2px 4px;
+	font-weight: 500;
+	font-size: 14px;
+}
+.online-user-list .online-user-info span[data-uid] {
+	border: 1px solid #ff7600;
+	color: #ff7600;
+	border-radius: 4px;
+	padding: 2px 4px;
+	font-weight: 500;
+	font-size: 14px;
+	width: fit-content;
+	width: -moz-fit-content;
+	margin: 10px 0;
+}
+.online-user-list .online-user-info span[data-sf="会员"] {
+	color: #88b500;
+	border: 1px solid #88b500;
+}
+.online-user-list .online-user-info span[data-sf="版主"] {
+	color: #2db5e3;
+	border: 1px solid #2db5e3;
+}
+.online-user-list .online-user-info span[data-sf="超级版主"] {
+	color: #e89e38;
+	border: 1px solid #e89e38;
+}
+.online-user-list .online-user-info span[data-sf="管理员"] {
+	color: #ff5416;
+	border: 1px solid #ff5416;
+}

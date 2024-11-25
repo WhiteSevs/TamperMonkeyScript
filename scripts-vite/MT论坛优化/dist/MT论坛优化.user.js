@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.19
+// @version      2024.11.25
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、用户状态查看、美化导航、动态头像上传、最新发表、评论过滤器等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.10.0/highlight.min.js
@@ -45,7 +45,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
   var require_entrance_001 = __commonJS({
-    "entrance-CsOmNUo_.js"(exports, module) {
+    "entrance-DI0r7PUi.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -3769,7 +3769,7 @@
         /**
          * 显示视图
          */
-        showView() {
+        async showView() {
           var _a2;
           let $dialog = __pops.confirm({
             title: {
@@ -3793,8 +3793,8 @@
             btn: utils.assign(
               {
                 ok: {
-                  callback() {
-                    submitSaveOption();
+                  callback: async () => {
+                    await submitSaveOption();
                   }
                 }
               },
@@ -3845,15 +3845,15 @@
             "input[type=submit]"
           );
           let $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
-          let view = this.option.getView(this.option.data());
+          let view = await this.option.getView(await this.option.data());
           $ulist.appendChild(view);
-          const submitSaveOption = () => {
-            let result = this.option.onsubmit($form, this.option.data());
+          const submitSaveOption = async () => {
+            let result = await this.option.onsubmit($form, await this.option.data());
             if (!result.success) {
               return;
             }
             $dialog.close();
-            this.option.dialogCloseCallBack(true);
+            await this.option.dialogCloseCallBack(true);
           };
         }
       }
@@ -4305,28 +4305,33 @@
           this.option.filterOption.forEach((filterOption) => {
             let $button = document.createElement("button");
             $button.innerText = filterOption.name;
-            let execFilterAndCloseDialog = () => {
-              this.option.getAllRuleInfo().forEach((ruleInfo) => {
-                if (!filterOption.filterCallBack(ruleInfo.data)) {
+            let execFilterAndCloseDialog = async () => {
+              let allRuleInfo = await this.option.getAllRuleInfo();
+              allRuleInfo.forEach(async (ruleInfo) => {
+                let filterResult = await filterOption.filterCallBack(ruleInfo.data);
+                if (!filterResult) {
                   domUtils.hide(ruleInfo.$el, false);
                 } else {
                   domUtils.show(ruleInfo.$el, false);
                 }
               });
               if (typeof this.option.execFilterCallBack === "function") {
-                this.option.execFilterCallBack();
+                await this.option.execFilterCallBack();
               }
               $alert.close();
             };
-            domUtils.on($button, "click", (event) => {
+            domUtils.on($button, "click", async (event) => {
               utils.preventEvent(event);
               if (typeof filterOption.callback === "function") {
-                let result = filterOption.callback(event, execFilterAndCloseDialog);
+                let result = await filterOption.callback(
+                  event,
+                  execFilterAndCloseDialog
+                );
                 if (!result) {
                   return;
                 }
               }
-              execFilterAndCloseDialog();
+              await execFilterAndCloseDialog();
             });
             $fragment.appendChild($button);
           });
@@ -4341,7 +4346,7 @@
         /**
          * 显示视图
          */
-        showView() {
+        async showView() {
           var _a2, _b, _c, _d, _e, _f, _g, _h, _i;
           let $popsConfirm = __pops.confirm({
             title: {
@@ -4366,11 +4371,11 @@
                 enable: ((_c = (_b = (_a2 = this.option) == null ? void 0 : _a2.bottomControls) == null ? void 0 : _b.add) == null ? void 0 : _c.enable) || true,
                 type: "primary",
                 text: "添加",
-                callback: (event) => {
+                callback: async (event) => {
                   this.showEditView(
                     $popsConfirm.$shadowRoot,
                     false,
-                    this.option.getAddData()
+                    await this.option.getAddData()
                   );
                 }
               },
@@ -4425,7 +4430,7 @@
               other: {
                 enable: ((_i = (_h = (_g = this.option) == null ? void 0 : _g.bottomControls) == null ? void 0 : _h.clear) == null ? void 0 : _i.enable) || true,
                 type: "xiaomi-primary",
-                text: `清空所有(${this.option.data().length})`,
+                text: `清空所有(${(await this.option.data()).length})`,
                 callback: (event) => {
                   let $askDialog = __pops.confirm({
                     title: {
@@ -4439,19 +4444,20 @@
                     btn: {
                       ok: {
                         enable: true,
-                        callback: (popsEvent) => {
+                        callback: async (popsEvent) => {
                           var _a3, _b2, _c2;
                           log.success("清空所有");
                           if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.clear) == null ? void 0 : _c2.callback) === "function") {
                             this.option.bottomControls.clear.callback();
                           }
-                          if (this.option.data().length) {
+                          let data = await this.option.data();
+                          if (data.length) {
                             Qmsg.error("清理失败");
                             return;
                           } else {
                             Qmsg.success("清理成功");
                           }
-                          this.updateDeleteAllBtnText($popsConfirm.$shadowRoot);
+                          await this.updateDeleteAllBtnText($popsConfirm.$shadowRoot);
                           this.clearContent($popsConfirm.$shadowRoot);
                           $askDialog.close();
                         }
@@ -4519,10 +4525,13 @@
             `
             )
           });
-          let allData = this.option.data();
-          allData.forEach((data) => {
-            this.appendRuleItemElement($popsConfirm.$shadowRoot, data);
-          });
+          let allData = await this.option.data();
+          for (let index = 0; index < allData.length; index++) {
+            await this.appendRuleItemElement(
+              $popsConfirm.$shadowRoot,
+              allData[index]
+            );
+          }
         }
         /**
          * 解析弹窗内的各个元素
@@ -4579,8 +4588,8 @@
         /**
          * 创建一条规则元素
          */
-        createRuleItemElement(data, $shadowRoot) {
-          let name = this.option.getDataItemName(data);
+        async createRuleItemElement(data, $shadowRoot) {
+          let name = await this.option.getDataItemName(data);
           let $ruleItem = domUtils.createElement("div", {
             className: "rule-item",
             innerHTML: (
@@ -4618,7 +4627,7 @@
             $edit
           } = this.parseRuleItemElement($ruleItem);
           if (this.option.itemControls.enable.enable) {
-            domUtils.on($enableSwitchCore, "click", (event) => {
+            domUtils.on($enableSwitchCore, "click", async (event) => {
               let isChecked = false;
               if ($enableSwitch.classList.contains(switchCheckedClassName)) {
                 $enableSwitch.classList.remove(switchCheckedClassName);
@@ -4628,9 +4637,9 @@
                 isChecked = true;
               }
               $enableSwitchInput.checked = isChecked;
-              this.option.itemControls.enable.callback(data, isChecked);
+              await this.option.itemControls.enable.callback(data, isChecked);
             });
-            if (this.option.itemControls.enable.getEnable(data)) {
+            if (await this.option.itemControls.enable.getEnable(data)) {
               $enableSwitch.classList.add(switchCheckedClassName);
             }
           } else {
@@ -4662,13 +4671,15 @@
                 btn: {
                   ok: {
                     enable: true,
-                    callback: (popsEvent) => {
+                    callback: async (popsEvent) => {
                       log.success("删除数据");
-                      let flag = this.option.itemControls.delete.deleteCallBack(data);
+                      let flag = await this.option.itemControls.delete.deleteCallBack(
+                        data
+                      );
                       if (flag) {
                         Qmsg.success("成功删除该数据");
                         $ruleItem.remove();
-                        this.updateDeleteAllBtnText($shadowRoot);
+                        await this.updateDeleteAllBtnText($shadowRoot);
                         $askDialog.close();
                       } else {
                         Qmsg.error("删除该数据失败");
@@ -4695,33 +4706,37 @@
         /**
          * 添加一个规则元素
          */
-        appendRuleItemElement($shadowRoot, data) {
+        async appendRuleItemElement($shadowRoot, data) {
           const { $container } = this.parseViewElement($shadowRoot);
           if (Array.isArray(data)) {
             for (let index = 0; index < data.length; index++) {
               const item = data[index];
-              $container.appendChild(this.createRuleItemElement(item, $shadowRoot));
+              $container.appendChild(
+                await this.createRuleItemElement(item, $shadowRoot)
+              );
             }
           } else {
-            $container.appendChild(this.createRuleItemElement(data, $shadowRoot));
+            $container.appendChild(
+              await this.createRuleItemElement(data, $shadowRoot)
+            );
           }
-          this.updateDeleteAllBtnText($shadowRoot);
+          await this.updateDeleteAllBtnText($shadowRoot);
         }
         /**
          * 更新弹窗内容的元素
          */
-        updateRuleContaienrElement($shadowRoot) {
+        async updateRuleContaienrElement($shadowRoot) {
           this.clearContent($shadowRoot);
           this.parseViewElement($shadowRoot);
-          let data = this.option.data();
-          this.appendRuleItemElement($shadowRoot, data);
-          this.updateDeleteAllBtnText($shadowRoot);
+          let data = await this.option.data();
+          await this.appendRuleItemElement($shadowRoot, data);
+          await this.updateDeleteAllBtnText($shadowRoot);
         }
         /**
          * 更新规则元素
          */
-        updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
-          let $newRuleItem = this.createRuleItemElement(data, $shadowRoot);
+        async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
+          let $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
           $oldRuleItem.after($newRuleItem);
           $oldRuleItem.remove();
         }
@@ -4746,8 +4761,8 @@
         /**
          * 更新【清空所有】的按钮的文字
          */
-        updateDeleteAllBtnText($shadowRoot) {
-          let data = this.option.data();
+        async updateDeleteAllBtnText($shadowRoot) {
+          let data = await this.option.data();
           this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
         }
         /**
@@ -4755,14 +4770,14 @@
          * @param isEdit 是否是编辑状态
          */
         showEditView($parentShadowRoot, isEdit, editData, $editRuleItemElement, updateDataCallBack) {
-          let dialogCloseCallBack = (isSubmit) => {
+          let dialogCloseCallBack = async (isSubmit) => {
             if (isSubmit) ;
             else {
               if (!isEdit) {
-                this.option.deleteData(editData);
+                await this.option.deleteData(editData);
               }
               if (typeof updateDataCallBack === "function") {
-                let newData = this.option.getData(editData);
+                let newData = await this.option.getData(editData);
                 updateDataCallBack(newData);
               }
             }
@@ -4773,8 +4788,8 @@
               return editData;
             },
             dialogCloseCallBack,
-            getView: (data) => {
-              return this.option.itemControls.edit.getView(data, isEdit);
+            getView: async (data) => {
+              return await this.option.itemControls.edit.getView(data, isEdit);
             },
             btn: {
               ok: {
@@ -4782,20 +4797,20 @@
                 text: isEdit ? "修改" : "添加"
               },
               cancel: {
-                callback(details, event) {
-                  details.close();
-                  dialogCloseCallBack(false);
+                callback: async (detail, event) => {
+                  detail.close();
+                  await dialogCloseCallBack(false);
                 }
               },
               close: {
-                callback(details, event) {
-                  details.close();
-                  dialogCloseCallBack(false);
+                callback: async (detail, event) => {
+                  detail.close();
+                  await dialogCloseCallBack(false);
                 }
               }
             },
-            onsubmit: ($form, data) => {
-              let result = this.option.itemControls.edit.onsubmit(
+            onsubmit: async ($form, data) => {
+              let result = await this.option.itemControls.edit.onsubmit(
                 $form,
                 isEdit,
                 data
@@ -4803,13 +4818,13 @@
               if (result.success) {
                 if (isEdit) {
                   Qmsg.success("修改成功");
-                  this.updateRuleItemElement(
+                  await this.updateRuleItemElement(
                     result.data,
                     $editRuleItemElement,
                     $parentShadowRoot
                   );
                 } else {
-                  this.appendRuleItemElement($parentShadowRoot, result.data);
+                  await this.appendRuleItemElement($parentShadowRoot, result.data);
                 }
               } else {
                 if (isEdit) {
@@ -5184,6 +5199,520 @@
           _GM_deleteValue(this.$key.STORAGE_KEY);
         }
       };
+      const blackHomeCSS = ".pops-confirm-content {\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n.blackhome-user-filter input {\r\n	width: -moz-available;\r\n	width: -webkit-fill-available;\r\n	height: 30px;\r\n	margin: 8px 20px;\r\n	border: 0;\r\n	border-bottom: 1px solid;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n	white-space: nowrap;\r\n}\r\n.blackhome-user-filter input:focus-within {\r\n	outline: none;\r\n}\r\n.blackhome-user-list {\r\n	flex: 1;\r\n	overflow-y: auto;\r\n}\r\n.blackhome-user-list .blackhome-user-item {\r\n	margin: 15px 10px;\r\n	padding: 10px;\r\n	border-radius: 8px;\r\n	box-shadow: 0 0 0.6rem #c8d0e7, -0.2rem -0.2rem 0.5rem #fff;\r\n}\r\n.blackhome-user {\r\n	display: flex;\r\n}\r\n.blackhome-user img {\r\n	width: 45px;\r\n	height: 45px;\r\n	border-radius: 45px;\r\n}\r\n.blackhome-user-info {\r\n	margin-left: 10px;\r\n}\r\n.blackhome-user-info p:nth-child(1) {\r\n	margin-bottom: 5px;\r\n}\r\n.blackhome-user-info p:nth-child(2) {\r\n	font-size: 14px;\r\n}\r\n.blackhome-user-action {\r\n	display: flex;\r\n	margin: 10px 0;\r\n}\r\n.blackhome-user-action p:nth-child(1),\r\n.blackhome-user-action p:nth-child(2) {\r\n	border: 1px solid red;\r\n	color: red;\r\n	border-radius: 4px;\r\n	padding: 2px 4px;\r\n	font-weight: 500;\r\n	font-size: 14px;\r\n	place-self: center;\r\n}\r\n.blackhome-user-action p:nth-child(2) {\r\n	border: 1px solid #ff4b4b;\r\n	color: #ff4b4b;\r\n	margin-left: 8px;\r\n}\r\n.blackhome-user-uuid {\r\n	border: 1px solid #ff7600;\r\n	color: #ff7600;\r\n	border-radius: 4px;\r\n	padding: 2px 4px;\r\n	font-weight: 500;\r\n	font-size: 14px;\r\n	width: fit-content;\r\n	width: -moz-fit-content;\r\n	margin: 10px 0;\r\n}\r\n.blackhome-operator {\r\n	padding: 10px;\r\n	background-color: #efefef;\r\n	border-radius: 6px;\r\n}\r\n.blackhome-operator-user {\r\n	display: flex;\r\n}\r\n.blackhome-operator-user img {\r\n	width: 35px;\r\n	height: 35px;\r\n	border-radius: 35px;\r\n}\r\n.blackhome-operator-user p {\r\n	align-self: center;\r\n	margin-left: 10px;\r\n}\r\n.blackhome-operator-user-info {\r\n	margin: 10px 0;\r\n	font-weight: 500;\r\n}\r\n";
+      const MTBlackHome = {
+        $data: {
+          cid: ""
+        },
+        init() {
+          this.registerMenu();
+        },
+        /**
+         * 注册菜单
+         */
+        registerMenu() {
+          GM_Menu.add({
+            key: "black-home",
+            text: "⚙ 小黑屋",
+            autoReload: false,
+            isStoreValue: false,
+            showText(text) {
+              return text;
+            },
+            callback: () => {
+              this.showBlackHome();
+            }
+          });
+        },
+        /**
+         * 显示小黑屋dialog
+         */
+        async showBlackHome() {
+          let $loading = Qmsg.loading("正在获取小黑屋名单中...");
+          let blackListInfo = await this.getBlackListInfo("");
+          $loading.close();
+          if (!blackListInfo) {
+            return;
+          }
+          if (blackListInfo.data.length === 0) {
+            Qmsg.error("获取小黑屋名单为空");
+            return;
+          }
+          this.$data.cid = blackListInfo.next_cid;
+          let $confirm = __pops.confirm({
+            title: {
+              text: "小黑屋名单",
+              position: "center"
+            },
+            content: {
+              text: (
+                /*html*/
+                `
+                <div class="blackhome-user-filter">
+                    <input placeholder="过滤用户名/操作人员/UID(可正则)">
+                </div>
+                <div class="blackhome-user-list"></div>
+                `
+              ),
+              html: true
+            },
+            btn: {
+              ok: {
+                text: "下一页",
+                callback: async () => {
+                  let $loading2 = Qmsg.loading("正在获取小黑屋名单中...");
+                  log.info("下一页的cid: ", this.$data.cid);
+                  let nextBlackListInfo2 = await this.getBlackListInfo(this.$data.cid);
+                  $loading2.close();
+                  if (!nextBlackListInfo2) {
+                    return;
+                  }
+                  this.$data.cid = nextBlackListInfo2.next_cid;
+                  nextBlackListInfo2.data.forEach((item) => {
+                    let $item = this.createListViewItem(item);
+                    $list.appendChild($item);
+                  });
+                  if (nextBlackListInfo2.data.length === 0) {
+                    Qmsg.error("获取小黑屋名单为空");
+                  } else {
+                    Qmsg.success(`成功获取 ${nextBlackListInfo2.data.length}条数据`);
+                  }
+                }
+              },
+              cancel: {
+                text: "关闭"
+              }
+            },
+            width: PanelUISize.settingBig.width,
+            height: PanelUISize.settingBig.height,
+            style: blackHomeCSS,
+            mask: {
+              enable: true
+            }
+          });
+          let $list = $confirm.$shadowRoot.querySelector(
+            ".blackhome-user-list"
+          );
+          let $filterInput = $confirm.$shadowRoot.querySelector(
+            ".blackhome-user-filter input"
+          );
+          blackListInfo.data.forEach((item) => {
+            let $item = this.createListViewItem(item);
+            $list.appendChild($item);
+          });
+          Qmsg.success(`成功获取 ${blackListInfo.data.length}条数据`);
+          let isSeaching = false;
+          domUtils.on(
+            $filterInput,
+            ["input", "propertychange"],
+            utils.debounce(() => {
+              let inputText = $filterInput.value.trim();
+              if (isSeaching) {
+                return;
+              }
+              isSeaching = true;
+              if (inputText == "") {
+                $confirm.$shadowRoot.querySelectorAll(".blackhome-user-item").forEach((item) => {
+                  item.removeAttribute("style");
+                });
+                isSeaching = false;
+                return;
+              }
+              $confirm.$shadowRoot.querySelectorAll(".blackhome-user-item").forEach((item) => {
+                if (item.getAttribute("data-name").match(new RegExp(inputText, "ig")) || item.getAttribute("data-uid").trim().match(new RegExp(inputText, "ig")) || item.getAttribute("data-operator").match(new RegExp(inputText, "ig"))) {
+                  item.removeAttribute("style");
+                } else {
+                  item.setAttribute("style", "display:none;");
+                }
+              });
+              isSeaching = false;
+            })
+          );
+          let nextBlackListInfo = await this.getBlackListInfo(this.$data.cid);
+          if (!nextBlackListInfo) {
+            return;
+          }
+          this.$data.cid = nextBlackListInfo.next_cid;
+        },
+        /**
+         * 获取小黑屋名单信息
+         */
+        async getBlackListInfo(cid = "") {
+          let searchParamsData = {
+            mod: "misc",
+            action: "showdarkroom",
+            cid,
+            ajaxdata: "json"
+          };
+          let response = await httpx.get(
+            `/forum.php?${utils.toSearchParamsStr(searchParamsData)}`,
+            {
+              headers: {
+                "User-Agent": utils.getRandomPCUA()
+              },
+              responseType: "json"
+            }
+          );
+          if (!response.status) {
+            return;
+          }
+          let data = utils.toJSON(response.data.responseText);
+          let cidSplit = data["message"].split("|");
+          let next_cid = cidSplit[cidSplit.length - 1];
+          let blackListData = utils.parseObjectToArray(data["data"]);
+          let new_blackListData = [];
+          let new_blackListData_noTime = [];
+          blackListData.forEach((item) => {
+            let date = item["dateline"].match(
+              /([0-9]{4}-[0-9]{1,2}-[0-9]{1,2}[\s]*[0-9]{1,2}:[0-9]{1,2})/g
+            );
+            if (date == null) {
+              let _time_ = parseInt((Date.now() / 1e3).toString());
+              let _time_after_count_ = 0;
+              let sec_data = item["dateline"].match(/([0-9]+|半)[\s\S]*秒前/);
+              let min_data = item["dateline"].match(/([0-9]+|半)[\s\S]*分钟前/);
+              let hour_data = item["dateline"].match(/([0-9]+|半)[\s\S]*小时前/);
+              let yesterday_time_data = item["dateline"].match(
+                /昨天[\s\S]*(\d{2}):(\d{2})/
+              );
+              let before_yesterday_time_data = item["dateline"].match(
+                /前天[\s\S]*(\d{2}):(\d{2})/
+              );
+              let day_data = item["dateline"].match(/([0-9]+|半)[\s\S]*天前/);
+              if (sec_data) {
+                sec_data = sec_data[sec_data.length - 1];
+                sec_data = sec_data.replace(/半/g, 0.5);
+                sec_data = parseFloat(sec_data);
+                _time_after_count_ = _time_ - sec_data;
+              } else if (min_data) {
+                min_data = min_data[min_data.length - 1];
+                min_data = min_data.replace(/半/g, 0.5);
+                min_data = parseFloat(min_data);
+                _time_after_count_ = _time_ - min_data * 60;
+              } else if (hour_data) {
+                hour_data = hour_data[hour_data.length - 1];
+                hour_data = hour_data.replace(/半/g, 0.5);
+                hour_data = parseFloat(hour_data);
+                _time_after_count_ = _time_ - hour_data * 60 * 60;
+              } else if (yesterday_time_data) {
+                let yesterday_hour_data = yesterday_time_data[1];
+                let yesterday_min_data = yesterday_time_data[2];
+                _time_after_count_ = _time_ - 86400 - parseInt(yesterday_hour_data) * 3600 - parseInt(yesterday_min_data) * 60;
+              } else if (before_yesterday_time_data) {
+                let before_yesterday_hour_data = before_yesterday_time_data[1];
+                let before_yesterday_min_data = before_yesterday_time_data[2];
+                _time_after_count_ = _time_ - 86400 * 2 - parseInt(before_yesterday_hour_data) * 3600 - parseInt(before_yesterday_min_data) * 60;
+              } else if (day_data) {
+                day_data = day_data[day_data.length - 1];
+                day_data = day_data.replace(/半/g, 0.5);
+                day_data = parseFloat(day_data);
+                _time_after_count_ = _time_ - day_data * 60 * 60 * 24;
+              }
+              item["time"] = parseInt(_time_after_count_.toString()) * 1e3;
+              new_blackListData = new_blackListData.concat(item);
+              return;
+            } else {
+              date = date[0];
+            }
+            item["time"] = utils.formatToTimeStamp(date);
+            new_blackListData = new_blackListData.concat(item);
+          });
+          utils.sortListByProperty(new_blackListData, "time");
+          utils.sortListByProperty(new_blackListData_noTime, "time", false);
+          new_blackListData = new_blackListData.concat(new_blackListData_noTime);
+          return {
+            next_cid,
+            data: new_blackListData
+          };
+        },
+        /**
+         * 创建黑名单节点
+         */
+        createListViewItem(userInfo) {
+          let $item = domUtils.createElement(
+            "div",
+            {
+              className: "blackhome-user-item",
+              innerHTML: (
+                /*html*/
+                `
+                <div class="blackhome-user-avatar">
+                    <div class="blackhome-user">
+                    <img src="${MTUtils.getAvatar(
+                userInfo["uid"],
+                "big"
+              )}" loading="lazy">
+                    <div class="blackhome-user-info">
+                        <p>${userInfo["username"]}</p>
+                        <p>${userInfo["dateline"]}</p>
+                    </div>
+                    </div>
+                    <div class="blackhome-user-action">
+                    <p>${userInfo["action"]}</p>
+                    <p>到期: ${userInfo["groupexpiry"]}</p>
+                    </div>
+                    <div class="blackhome-user-uuid">UID: ${userInfo["uid"]}</div>
+                    <div class="blackhome-operator">
+                    <div class="blackhome-operator-user">
+                        <img loading="lazy" src="${MTUtils.getAvatar(
+                userInfo["operatorid"],
+                "big"
+              )}">
+                        <p>${userInfo["operator"]}</p>
+                    </div>
+                    <div class="blackhome-operator-user-info">
+                    ${userInfo["reason"]}
+                    </div>
+                    </div>
+                </div>
+                `
+              )
+            },
+            {
+              "data-name": userInfo.username,
+              "data-uid": userInfo.uid,
+              "data-operator": userInfo.operator,
+              "data-operator-uid": userInfo.operatorid
+            }
+          );
+          domUtils.on(
+            $item,
+            "click",
+            ".blackhome-user img",
+            function() {
+              window.open(
+                `home.php?mod=space&uid=${userInfo.uid}&do=profile`,
+                "_blank"
+              );
+            }
+          );
+          domUtils.on(
+            $item,
+            "click",
+            ".blackhome-operator-user img",
+            function() {
+              window.open(
+                `home.php?mod=space&uid=${userInfo.operatorid}&do=profile`,
+                "_blank"
+              );
+            }
+          );
+          return $item;
+        }
+      };
+      const onlineUserCSS = '.pops-alert-content{\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n.pops-alert-content > .online-user-info{\r\n	text-align: center;\r\n	padding: 0px 6px;\r\n}\r\n.online-user-filter input {\r\n	width: -webkit-fill-available;\r\n	width: -moz-available;\r\n	height: 30px;\r\n	margin: 8px 20px;\r\n	border: 0;\r\n	border-bottom: 1px solid;\r\n}\r\n.online-user-filter input:focus-within {\r\n	outline: none;\r\n}\r\n.online-user-list {\r\n	flex: 1;\r\n	overflow-y: auto;\r\n}\r\n.online-user-list li {\r\n	margin: 18px 0;\r\n}\r\n.online-user {\r\n	display: flex;\r\n	margin: 2px 20px;\r\n	align-items: center;\r\n}\r\n.online-user img[data-avatar] {\r\n	width: 45px;\r\n	height: 45px;\r\n	border-radius: 45px;\r\n}\r\n.online-user-list .online-user-info {\r\n	margin: 2px 14px;\r\n}\r\n.online-user-list .online-user-info p[data-name] {\r\n	margin-bottom: 4px;\r\n}\r\n.online-user-list .online-user-info span[data-sf] {\r\n	border-radius: 4px;\r\n	padding: 2px 4px;\r\n	font-weight: 500;\r\n	font-size: 14px;\r\n}\r\n.online-user-list .online-user-info span[data-uid] {\r\n	border: 1px solid #ff7600;\r\n	color: #ff7600;\r\n	border-radius: 4px;\r\n	padding: 2px 4px;\r\n	font-weight: 500;\r\n	font-size: 14px;\r\n	width: fit-content;\r\n	width: -moz-fit-content;\r\n	margin: 10px 0;\r\n}\r\n.online-user-list .online-user-info span[data-sf="会员"] {\r\n	color: #88b500;\r\n	border: 1px solid #88b500;\r\n}\r\n.online-user-list .online-user-info span[data-sf="版主"] {\r\n	color: #2db5e3;\r\n	border: 1px solid #2db5e3;\r\n}\r\n.online-user-list .online-user-info span[data-sf="超级版主"] {\r\n	color: #e89e38;\r\n	border: 1px solid #e89e38;\r\n}\r\n.online-user-list .online-user-info span[data-sf="管理员"] {\r\n	color: #ff5416;\r\n	border: 1px solid #ff5416;\r\n}\r\n';
+      const MTOnlineUser = {
+        $data: {},
+        init() {
+          this.registerMenu();
+        },
+        /**
+         * 注册菜单
+         */
+        registerMenu() {
+          GM_Menu.add({
+            key: "online-user",
+            text: "⚙ 在线用户",
+            autoReload: false,
+            isStoreValue: false,
+            showText(text) {
+              return text;
+            },
+            callback: () => {
+              this.showOnlineUser();
+            }
+          });
+        },
+        /**
+         * 显示在线用户dialog
+         */
+        async showOnlineUser() {
+          let $loading = Qmsg.loading("正在获取在线用户名单中...");
+          let onlineUserInfo = await this.getOnlineUserListInfo();
+          $loading.close();
+          if (!onlineUserInfo) {
+            return;
+          }
+          let $alert = __pops.alert({
+            title: {
+              text: "在线用户",
+              position: "center"
+            },
+            content: {
+              text: (
+                /*html*/
+                `
+                <div class="online-user-info">${onlineUserInfo.totalOnline} 人在线 - ${onlineUserInfo.onlineUser} 会员${onlineUserInfo.invisibleUser == 0 ? "" : `(${onlineUserInfo.invisibleUser}隐身)`} - ${onlineUserInfo.noRegisterUser} 位游客</div>
+                <div class="online-user-filter">
+                    <input placeholder="过滤用户名/身份/UID(可正则)"></div>
+                <div class="online-user-list"></div>
+                `
+              ),
+              html: true
+            },
+            btn: {
+              ok: {
+                text: "关闭",
+                type: "default"
+              }
+            },
+            width: PanelUISize.settingBig.width,
+            height: PanelUISize.settingBig.height,
+            style: onlineUserCSS,
+            mask: {
+              enable: true
+            }
+          });
+          let $list = $alert.$shadowRoot.querySelector(".online-user-list");
+          let $filterInput = $alert.$shadowRoot.querySelector(
+            ".online-user-filter input"
+          );
+          onlineUserInfo.data.forEach((item) => {
+            let $item = this.createListViewItem(item);
+            $list.appendChild($item);
+          });
+          Qmsg.success(`成功获取 ${onlineUserInfo.data.length}条数据`);
+          let isSeaching = false;
+          DOMUtils.on(
+            $filterInput,
+            ["propertychange", "input"],
+            utils.debounce(() => {
+              let inputText = $filterInput.value.trim();
+              if (isSeaching) {
+                return;
+              }
+              isSeaching = true;
+              if (inputText == "") {
+                $alert.$shadowRoot.querySelectorAll(".online-user-list .online-item").forEach((item) => {
+                  item.removeAttribute("style");
+                });
+                isSeaching = false;
+                return;
+              }
+              $alert.$shadowRoot.querySelectorAll(".online-user-list .online-item").forEach((item) => {
+                if (item.getAttribute("data-name").match(new RegExp(inputText, "ig")) || item.getAttribute("data-sf").match(new RegExp(inputText, "ig")) || item.getAttribute("data-uid").match(new RegExp(inputText, "ig"))) {
+                  item.removeAttribute("style");
+                } else {
+                  item.setAttribute("style", "display:none;");
+                }
+              });
+              isSeaching = false;
+            })
+          );
+        },
+        /**
+         * 获取在线用户名单信息
+         */
+        async getOnlineUserListInfo() {
+          let searchParamsData = {
+            showoldetails: "yes"
+          };
+          let response = await httpx.get(
+            `/forum.php?${utils.toSearchParamsStr(searchParamsData)}`,
+            {
+              headers: {
+                "User-Agent": utils.getRandomPCUA()
+              }
+            }
+          );
+          if (!response.status) {
+            return;
+          }
+          let pageHTML = utils.parseFromString(
+            response.data.responseText,
+            "text/html"
+          );
+          let result = {
+            data: [],
+            totalOnline: 0,
+            onlineUser: 0,
+            noRegisterUser: 0,
+            invisibleUser: 0
+          };
+          let onlineList = pageHTML.querySelectorAll("#onlinelist ul li");
+          onlineList.forEach((item) => {
+            let uid = item.querySelector("a").getAttribute("href").match("uid-(.+?).html")[1];
+            let avatar = MTUtils.getAvatar(uid, "middle");
+            let name = item.querySelector("a").innerText;
+            let sf = "";
+            let space = item.querySelector("a").getAttribute("href");
+            let memberSrc = item.querySelector("img").src;
+            if (memberSrc.indexOf("online_member") != -1) {
+              sf = "会员";
+            } else if (memberSrc.indexOf("online_moderator") != -1) {
+              sf = "版主";
+            } else if (memberSrc.indexOf("online_supermod") != -1) {
+              sf = "超级版主";
+            } else if (memberSrc.indexOf("online_admin") != -1) {
+              sf = "管理员";
+            } else {
+              sf = "未知身份";
+            }
+            result.data.push({
+              uid,
+              avatar,
+              name,
+              sf,
+              space
+            });
+          });
+          let onlineInfo = pageHTML.querySelector("#online div.bm_h span.xs1").textContent;
+          result.totalOnline = utils.parseInt(
+            onlineInfo.match(/([0-9]*)\s*人在线/i),
+            0
+          );
+          result.onlineUser = utils.parseInt(
+            onlineInfo.match(/([0-9]*)\s*会员/i),
+            0
+          );
+          result.noRegisterUser = utils.parseInt(
+            onlineInfo.match(/([0-9]*)\s*位游客/i),
+            0
+          );
+          result.invisibleUser = utils.parseInt(
+            onlineInfo.match(/([0-9]*)\s*隐身/i),
+            0
+          );
+          return result;
+        },
+        /**
+         * 创建在线用户节点
+         */
+        createListViewItem(userInfo) {
+          let $item = DOMUtils.createElement(
+            "div",
+            {
+              className: "online-item",
+              innerHTML: (
+                /*html*/
+                `
+                <div class="online-user">
+                    <img data-avatar src="${userInfo["avatar"]}" loading="lazy" class="online-user-avatar">
+                    <div class="online-user-info">
+                        <p data-name>${userInfo["name"]}</p>
+                        <span data-sf="${userInfo["sf"]}">${userInfo["sf"]}</span>
+                        <span data-uid>UID: ${userInfo["uid"]}</span>
+                    </div>
+                </div>
+            `
+              )
+            },
+            {
+              "data-name": userInfo.name,
+              "data-uid": userInfo.uid,
+              "data-sf": userInfo.sf
+            }
+          );
+          DOMUtils.on($item, "click", ".online-user-avatar", (event) => {
+            utils.preventEvent(event);
+            window.open(
+              `home.php?mod=space&uid=${userInfo.uid}&do=profile`,
+              "_blank"
+            );
+          });
+          return $item;
+        }
+      };
       const MT = {
         $flag: {
           showUserUID_initCSS: false
@@ -5204,6 +5733,12 @@
           domUtils.ready(() => {
             PopsPanel.onceExec("mt-MTProductListingReminder", () => {
               MTProductListingReminder.init();
+            });
+            PopsPanel.onceExec("mt-blackHome", () => {
+              MTBlackHome.init();
+            });
+            PopsPanel.onceExec("mt-onlineUser", () => {
+              MTOnlineUser.init();
             });
             PopsPanel.execMenuOnce("mt-link-text-to-hyperlink", () => {
               MTIdentifyLinks();

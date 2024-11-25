@@ -8,6 +8,8 @@ import { MTGuide } from "./guide/MTGuide";
 import { MTCommentFilter } from "./forum-post/MTCommentFilter";
 import { MTProductListingReminder } from "./MTProductListingReminder";
 import { unsafeWindow } from "ViteGM";
+import { MTBlackHome } from "./MTBlackHome";
+import { MTOnlineUser } from "./MTOnlineUser";
 
 export const MT = {
 	$flag: {
@@ -30,6 +32,12 @@ export const MT = {
 		DOMUtils.ready(() => {
 			PopsPanel.onceExec("mt-MTProductListingReminder", () => {
 				MTProductListingReminder.init();
+			});
+			PopsPanel.onceExec("mt-blackHome", () => {
+				MTBlackHome.init();
+			});
+			PopsPanel.onceExec("mt-onlineUser", () => {
+				MTOnlineUser.init();
 			});
 			PopsPanel.execMenuOnce("mt-link-text-to-hyperlink", () => {
 				MTIdentifyLinks();
