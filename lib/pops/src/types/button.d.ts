@@ -105,6 +105,8 @@ export interface PopsButtonDetails<T = {}> {
 	text: string;
 	/**
 	 * 按钮点击的回调
+	 * 
+	 * 如果传入该值，那么将不会自动关闭弹窗
 	 */
 	callback(
 		eventDetails: PopsHandlerEventDetails & T,
@@ -149,6 +151,8 @@ export interface PopsButtonDetailsAnyType<T = {}> {
 	text: string;
 	/**
 	 * 按钮点击的回调
+	 * 
+	 * 如果传入该值，那么将不会自动关闭弹窗
 	 */
 	callback(
 		eventDetails: PopsHandlerEventDetails & T,
@@ -212,6 +216,8 @@ export interface PopsHeaderCloseButtonDetails {
 	enable?: boolean;
 	/**
 	 * 按钮点击的回调
+	 *
+	 * 如果传入该值，那么将不会自动关闭弹窗
 	 */
 	callback?: (
 		details: PopsEventDetails,
