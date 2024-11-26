@@ -118,7 +118,7 @@ export interface PopsCallResult {
 	/** 影子元素 */
 	$shadowContainer: HTMLDivElement;
 	/** 影子元素的根节点 */
-	$shadowRoot: ShadowRoot;
+	$shadowRoot: ShadowRoot | HTMLElement;
 	/** 元素 */
 	element: HTMLDivElement;
 	/** 动画层元素 */
