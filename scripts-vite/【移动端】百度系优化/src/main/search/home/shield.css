@@ -1,0 +1,4 @@
+/* 右上角的 banner 热播爆款好剧 */
+#index-card #userinfo-wrap .index-banner {
+	display: none !important;
+}

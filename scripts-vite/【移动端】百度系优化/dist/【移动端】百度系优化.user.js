@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.19
+// @version      2024.11.26.21
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -15,7 +15,7 @@
 // @require      https://update.greasyfork.org/scripts/488179/1413254/showdown.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.4.33/dist/vue.global.prod.js
@@ -2198,7 +2198,7 @@ match-attr##srcid##sp_purc_atom
     /**
      * 显示视图
      */
-    showView() {
+    async showView() {
       var _a3;
       let $dialog = __pops.confirm({
         title: {
@@ -2222,8 +2222,8 @@ match-attr##srcid##sp_purc_atom
         btn: utils.assign(
           {
             ok: {
-              callback() {
-                submitSaveOption();
+              callback: async () => {
+                await submitSaveOption();
               }
             }
           },
@@ -2274,15 +2274,15 @@ match-attr##srcid##sp_purc_atom
         "input[type=submit]"
       );
       let $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
-      let view = this.option.getView(this.option.data());
+      let view = await this.option.getView(await this.option.data());
       $ulist.appendChild(view);
-      const submitSaveOption = () => {
-        let result = this.option.onsubmit($form, this.option.data());
+      const submitSaveOption = async () => {
+        let result = await this.option.onsubmit($form, await this.option.data());
         if (!result.success) {
           return;
         }
         $dialog.close();
-        this.option.dialogCloseCallBack(true);
+        await this.option.dialogCloseCallBack(true);
       };
     }
   }
@@ -2339,28 +2339,33 @@ match-attr##srcid##sp_purc_atom
       this.option.filterOption.forEach((filterOption) => {
         let $button = document.createElement("button");
         $button.innerText = filterOption.name;
-        let execFilterAndCloseDialog = () => {
-          this.option.getAllRuleInfo().forEach((ruleInfo) => {
-            if (!filterOption.filterCallBack(ruleInfo.data)) {
+        let execFilterAndCloseDialog = async () => {
+          let allRuleInfo = await this.option.getAllRuleInfo();
+          allRuleInfo.forEach(async (ruleInfo) => {
+            let filterResult = await filterOption.filterCallBack(ruleInfo.data);
+            if (!filterResult) {
               domutils.hide(ruleInfo.$el, false);
             } else {
               domutils.show(ruleInfo.$el, false);
             }
           });
           if (typeof this.option.execFilterCallBack === "function") {
-            this.option.execFilterCallBack();
+            await this.option.execFilterCallBack();
           }
           $alert.close();
         };
-        domutils.on($button, "click", (event) => {
+        domutils.on($button, "click", async (event) => {
           utils.preventEvent(event);
           if (typeof filterOption.callback === "function") {
-            let result = filterOption.callback(event, execFilterAndCloseDialog);
+            let result = await filterOption.callback(
+              event,
+              execFilterAndCloseDialog
+            );
             if (!result) {
               return;
             }
           }
-          execFilterAndCloseDialog();
+          await execFilterAndCloseDialog();
         });
         $fragment.appendChild($button);
       });
@@ -2375,7 +2380,7 @@ match-attr##srcid##sp_purc_atom
     /**
      * 显示视图
      */
-    showView() {
+    async showView() {
       var _a3, _b, _c, _d, _e, _f, _g, _h, _i;
       let $popsConfirm = __pops.confirm({
         title: {
@@ -2400,11 +2405,11 @@ match-attr##srcid##sp_purc_atom
             enable: ((_c = (_b = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b.add) == null ? void 0 : _c.enable) || true,
             type: "primary",
             text: "添加",
-            callback: (event) => {
+            callback: async (event) => {
               this.showEditView(
                 $popsConfirm.$shadowRoot,
                 false,
-                this.option.getAddData()
+                await this.option.getAddData()
               );
             }
           },
@@ -2459,7 +2464,7 @@ match-attr##srcid##sp_purc_atom
           other: {
             enable: ((_i = (_h = (_g = this.option) == null ? void 0 : _g.bottomControls) == null ? void 0 : _h.clear) == null ? void 0 : _i.enable) || true,
             type: "xiaomi-primary",
-            text: `清空所有(${this.option.data().length})`,
+            text: `清空所有(${(await this.option.data()).length})`,
             callback: (event) => {
               let $askDialog = __pops.confirm({
                 title: {
@@ -2473,19 +2478,20 @@ match-attr##srcid##sp_purc_atom
                 btn: {
                   ok: {
                     enable: true,
-                    callback: (popsEvent) => {
+                    callback: async (popsEvent) => {
                       var _a4, _b2, _c2;
                       log.success("清空所有");
                       if (typeof ((_c2 = (_b2 = (_a4 = this.option) == null ? void 0 : _a4.bottomControls) == null ? void 0 : _b2.clear) == null ? void 0 : _c2.callback) === "function") {
                         this.option.bottomControls.clear.callback();
                       }
-                      if (this.option.data().length) {
+                      let data = await this.option.data();
+                      if (data.length) {
                         Qmsg.error("清理失败");
                         return;
                       } else {
                         Qmsg.success("清理成功");
                       }
-                      this.updateDeleteAllBtnText($popsConfirm.$shadowRoot);
+                      await this.updateDeleteAllBtnText($popsConfirm.$shadowRoot);
                       this.clearContent($popsConfirm.$shadowRoot);
                       $askDialog.close();
                     }
@@ -2553,10 +2559,13 @@ match-attr##srcid##sp_purc_atom
             `
         )
       });
-      let allData = this.option.data();
-      allData.forEach((data) => {
-        this.appendRuleItemElement($popsConfirm.$shadowRoot, data);
-      });
+      let allData = await this.option.data();
+      for (let index = 0; index < allData.length; index++) {
+        await this.appendRuleItemElement(
+          $popsConfirm.$shadowRoot,
+          allData[index]
+        );
+      }
     }
     /**
      * 解析弹窗内的各个元素
@@ -2613,8 +2622,8 @@ match-attr##srcid##sp_purc_atom
     /**
      * 创建一条规则元素
      */
-    createRuleItemElement(data, $shadowRoot) {
-      let name = this.option.getDataItemName(data);
+    async createRuleItemElement(data, $shadowRoot) {
+      let name = await this.option.getDataItemName(data);
       let $ruleItem = domutils.createElement("div", {
         className: "rule-item",
         innerHTML: (
@@ -2652,7 +2661,7 @@ match-attr##srcid##sp_purc_atom
         $edit
       } = this.parseRuleItemElement($ruleItem);
       if (this.option.itemControls.enable.enable) {
-        domutils.on($enableSwitchCore, "click", (event) => {
+        domutils.on($enableSwitchCore, "click", async (event) => {
           let isChecked = false;
           if ($enableSwitch.classList.contains(switchCheckedClassName)) {
             $enableSwitch.classList.remove(switchCheckedClassName);
@@ -2662,9 +2671,9 @@ match-attr##srcid##sp_purc_atom
             isChecked = true;
           }
           $enableSwitchInput.checked = isChecked;
-          this.option.itemControls.enable.callback(data, isChecked);
+          await this.option.itemControls.enable.callback(data, isChecked);
         });
-        if (this.option.itemControls.enable.getEnable(data)) {
+        if (await this.option.itemControls.enable.getEnable(data)) {
           $enableSwitch.classList.add(switchCheckedClassName);
         }
       } else {
@@ -2696,13 +2705,15 @@ match-attr##srcid##sp_purc_atom
             btn: {
               ok: {
                 enable: true,
-                callback: (popsEvent) => {
+                callback: async (popsEvent) => {
                   log.success("删除数据");
-                  let flag = this.option.itemControls.delete.deleteCallBack(data);
+                  let flag = await this.option.itemControls.delete.deleteCallBack(
+                    data
+                  );
                   if (flag) {
                     Qmsg.success("成功删除该数据");
                     $ruleItem.remove();
-                    this.updateDeleteAllBtnText($shadowRoot);
+                    await this.updateDeleteAllBtnText($shadowRoot);
                     $askDialog.close();
                   } else {
                     Qmsg.error("删除该数据失败");
@@ -2729,33 +2740,37 @@ match-attr##srcid##sp_purc_atom
     /**
      * 添加一个规则元素
      */
-    appendRuleItemElement($shadowRoot, data) {
+    async appendRuleItemElement($shadowRoot, data) {
       const { $container } = this.parseViewElement($shadowRoot);
       if (Array.isArray(data)) {
         for (let index = 0; index < data.length; index++) {
           const item = data[index];
-          $container.appendChild(this.createRuleItemElement(item, $shadowRoot));
+          $container.appendChild(
+            await this.createRuleItemElement(item, $shadowRoot)
+          );
         }
       } else {
-        $container.appendChild(this.createRuleItemElement(data, $shadowRoot));
+        $container.appendChild(
+          await this.createRuleItemElement(data, $shadowRoot)
+        );
       }
-      this.updateDeleteAllBtnText($shadowRoot);
+      await this.updateDeleteAllBtnText($shadowRoot);
     }
     /**
      * 更新弹窗内容的元素
      */
-    updateRuleContaienrElement($shadowRoot) {
+    async updateRuleContaienrElement($shadowRoot) {
       this.clearContent($shadowRoot);
       this.parseViewElement($shadowRoot);
-      let data = this.option.data();
-      this.appendRuleItemElement($shadowRoot, data);
-      this.updateDeleteAllBtnText($shadowRoot);
+      let data = await this.option.data();
+      await this.appendRuleItemElement($shadowRoot, data);
+      await this.updateDeleteAllBtnText($shadowRoot);
     }
     /**
      * 更新规则元素
      */
-    updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
-      let $newRuleItem = this.createRuleItemElement(data, $shadowRoot);
+    async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
+      let $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
       $oldRuleItem.after($newRuleItem);
       $oldRuleItem.remove();
     }
@@ -2780,8 +2795,8 @@ match-attr##srcid##sp_purc_atom
     /**
      * 更新【清空所有】的按钮的文字
      */
-    updateDeleteAllBtnText($shadowRoot) {
-      let data = this.option.data();
+    async updateDeleteAllBtnText($shadowRoot) {
+      let data = await this.option.data();
       this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
     }
     /**
@@ -2789,14 +2804,14 @@ match-attr##srcid##sp_purc_atom
      * @param isEdit 是否是编辑状态
      */
     showEditView($parentShadowRoot, isEdit, editData, $editRuleItemElement, updateDataCallBack) {
-      let dialogCloseCallBack = (isSubmit) => {
+      let dialogCloseCallBack = async (isSubmit) => {
         if (isSubmit) ;
         else {
           if (!isEdit) {
-            this.option.deleteData(editData);
+            await this.option.deleteData(editData);
           }
           if (typeof updateDataCallBack === "function") {
-            let newData = this.option.getData(editData);
+            let newData = await this.option.getData(editData);
             updateDataCallBack(newData);
           }
         }
@@ -2807,8 +2822,8 @@ match-attr##srcid##sp_purc_atom
           return editData;
         },
         dialogCloseCallBack,
-        getView: (data) => {
-          return this.option.itemControls.edit.getView(data, isEdit);
+        getView: async (data) => {
+          return await this.option.itemControls.edit.getView(data, isEdit);
         },
         btn: {
           ok: {
@@ -2816,20 +2831,20 @@ match-attr##srcid##sp_purc_atom
             text: isEdit ? "修改" : "添加"
           },
           cancel: {
-            callback(details, event) {
-              details.close();
-              dialogCloseCallBack(false);
+            callback: async (detail, event) => {
+              detail.close();
+              await dialogCloseCallBack(false);
             }
           },
           close: {
-            callback(details, event) {
-              details.close();
-              dialogCloseCallBack(false);
+            callback: async (detail, event) => {
+              detail.close();
+              await dialogCloseCallBack(false);
             }
           }
         },
-        onsubmit: ($form, data) => {
-          let result = this.option.itemControls.edit.onsubmit(
+        onsubmit: async ($form, data) => {
+          let result = await this.option.itemControls.edit.onsubmit(
             $form,
             isEdit,
             data
@@ -2837,13 +2852,13 @@ match-attr##srcid##sp_purc_atom
           if (result.success) {
             if (isEdit) {
               Qmsg.success("修改成功");
-              this.updateRuleItemElement(
+              await this.updateRuleItemElement(
                 result.data,
                 $editRuleItemElement,
                 $parentShadowRoot
               );
             } else {
-              this.appendRuleItemElement($parentShadowRoot, result.data);
+              await this.appendRuleItemElement($parentShadowRoot, result.data);
             }
           } else {
             if (isEdit) {
@@ -8419,7 +8434,7 @@ div[class^="new-summary-container_"] {\r
       });
     }
   };
-  const SearchHomeShieldCSS = "";
+  const SearchHomeShieldCSS = "/* 右上角的 banner 热播爆款好剧 */\r\n#index-card #userinfo-wrap .index-banner {\r\n	display: none !important;\r\n}\r\n";
   const SearchHomeMinificationShieldCSS = "html,\r\nbody,\r\ndiv#header {\r\n  height: calc(100vh - 120px);\r\n}\r\nform#index-form {\r\n  position: static;\r\n  top: 0;\r\n  right: 0;\r\n  bottom: 0;\r\n  left: 0;\r\n  margin: auto !important;\r\n  width: 90%;\r\n}\r\ndiv#navs ~ div,\r\n#login-wraps,\r\na.square-enterance,\r\ndiv#ts-image-uploader-icon,\r\ndiv.baiduappcall-wrap div.voice.call,\r\ndiv.tab_news,\r\ndiv#navs {\r\n  display: none !important;\r\n}\r\n/* 图片logo往下移40px */\r\n#logo {\r\n  padding-top: 40px;\r\n}\r\n";
   const BaiduSearchHome = {
     init() {
