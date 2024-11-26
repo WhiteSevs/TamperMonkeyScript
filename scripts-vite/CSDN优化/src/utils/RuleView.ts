@@ -10,31 +10,31 @@ type RuleViewOption<T> = {
 	/** 标题 */
 	title: string;
 	/** 获取所有数据 */
-	data: () => T[];
+	data: () => IPromise<T[]>;
 	/**
 	 * 获取添加的数据
 	 */
-	getAddData: () => T;
+	getAddData: () => IPromise<T>;
 	/**
 	 * 获取单个规则当前的数据
 	 * @param data
 	 */
-	getData: (data: T) => T;
+	getData: (data: T) => IPromise<T>;
 	/**
 	 * 获取单个数据的名字，用户显示在列表中
 	 * @param data
 	 */
-	getDataItemName: (data: T) => string;
+	getDataItemName: (data: T) => IPromise<string>;
 	/**
 	 * 更新单个规则
 	 * @param data
 	 */
-	updateData: (data: T) => void | boolean;
+	updateData: (data: T) => IPromise<void | boolean>;
 	/**
 	 * 删除单个规则
 	 * @param data
 	 */
-	deleteData: (data: T) => void | boolean;
+	deleteData: (data: T) => IPromise<void | boolean>;
 	/**
 	 * 规则控制按钮
 	 */
@@ -49,12 +49,12 @@ type RuleViewOption<T> = {
 			 * 获取规则的启用状态
 			 * @param data
 			 */
-			getEnable: (data: T) => boolean;
+			getEnable: (data: T) => IPromise<boolean>;
 			/**
 			 * 启用状态回调
 			 * @param enable
 			 */
-			callback: (data: T, enable: boolean) => void;
+			callback: (data: T, enable: boolean) => IPromise<void>;
 		};
 		/**
 		 * 编辑按钮
@@ -65,7 +65,7 @@ type RuleViewOption<T> = {
 			/**
 			 * <form>内的html内容
 			 */
-			getView: (data: T, isEdit: boolean) => DocumentFragment;
+			getView: (data: T, isEdit: boolean) => IPromise<DocumentFragment>;
 			/**
 			 * 自定义的style
 			 */
@@ -84,10 +84,10 @@ type RuleViewOption<T> = {
 				$form: HTMLFormElement,
 				isEdit: boolean,
 				data?: T
-			) => {
+			) => IPromise<{
 				success: boolean;
 				data: T;
-			};
+			}>;
 		};
 		/**
 		 * 删除按钮
@@ -99,7 +99,7 @@ type RuleViewOption<T> = {
 			 * 删除的回调函数
 			 * @param data
 			 */
-			deleteCallBack: (data: T) => boolean;
+			deleteCallBack: (data: T) => IPromise<boolean>;
 		};
 	};
 	bottomControls?: {
@@ -133,7 +133,7 @@ export class RuleView<T> {
 	/**
 	 * 显示视图
 	 */
-	showView() {
+	async showView() {
 		let $popsConfirm = pops.confirm({
 			title: {
 				text: this.option.title,
@@ -154,11 +154,11 @@ export class RuleView<T> {
 					enable: this.option?.bottomControls?.add?.enable || true,
 					type: "primary",
 					text: "添加",
-					callback: (event) => {
+					callback: async (event) => {
 						this.showEditView(
 							$popsConfirm.$shadowRoot,
 							false,
-							this.option.getAddData()
+							await this.option.getAddData()
 						);
 					},
 				},
@@ -220,7 +220,7 @@ export class RuleView<T> {
 				other: {
 					enable: this.option?.bottomControls?.clear?.enable || true,
 					type: "xiaomi-primary",
-					text: `清空所有(${this.option.data().length})`,
+					text: `清空所有(${(await this.option.data()).length})`,
 					callback: (event) => {
 						let $askDialog = pops.confirm({
 							title: {
@@ -234,7 +234,7 @@ export class RuleView<T> {
 							btn: {
 								ok: {
 									enable: true,
-									callback: (popsEvent) => {
+									callback: async (popsEvent) => {
 										log.success("清空所有");
 										if (
 											typeof this.option?.bottomControls?.clear?.callback ===
@@ -242,13 +242,14 @@ export class RuleView<T> {
 										) {
 											this.option.bottomControls.clear.callback();
 										}
-										if (this.option.data().length) {
+										let data = await this.option.data();
+										if (data.length) {
 											Qmsg.error("清理失败");
 											return;
 										} else {
 											Qmsg.success("清理成功");
 										}
-										this.updateDeleteAllBtnText($popsConfirm.$shadowRoot);
+										await this.updateDeleteAllBtnText($popsConfirm.$shadowRoot);
 										this.clearContent($popsConfirm.$shadowRoot);
 										$askDialog.close();
 									},
@@ -313,15 +314,18 @@ export class RuleView<T> {
             }
             `,
 		});
-		let allData = this.option.data();
-		allData.forEach((data) => {
-			this.appendRuleItemElement($popsConfirm.$shadowRoot, data);
-		});
+		let allData = await this.option.data();
+		for (let index = 0; index < allData.length; index++) {
+			await this.appendRuleItemElement(
+				$popsConfirm.$shadowRoot,
+				allData[index]
+			);
+		}
 	}
 	/**
 	 * 解析弹窗内的各个元素
 	 */
-	parseViewElement($shadowRoot: ShadowRoot) {
+	parseViewElement($shadowRoot: ShadowRoot| HTMLElement) {
 		let $container = $shadowRoot.querySelector<HTMLElement>(
 			".rule-view-container"
 		)!;
@@ -377,9 +381,9 @@ export class RuleView<T> {
 	/**
 	 * 创建一条规则元素
 	 */
-	createRuleItemElement(data: T, $shadowRoot: ShadowRoot) {
+	async createRuleItemElement(data: T, $shadowRoot: ShadowRoot| HTMLElement) {
 		const that = this;
-		let name = this.option.getDataItemName(data);
+		let name = await this.option.getDataItemName(data);
 		let $ruleItem = DOMUtils.createElement("div", {
 			className: "rule-item",
 			innerHTML: /*html*/ `
@@ -417,7 +421,7 @@ export class RuleView<T> {
 		} = this.parseRuleItemElement($ruleItem);
 		if (this.option.itemControls.enable.enable) {
 			// 给switch添加点击事件
-			DOMUtils.on($enableSwitchCore, "click", (event) => {
+			DOMUtils.on($enableSwitchCore, "click", async (event) => {
 				let isChecked = false;
 				if ($enableSwitch.classList.contains(switchCheckedClassName)) {
 					// 关
@@ -429,9 +433,9 @@ export class RuleView<T> {
 					isChecked = true;
 				}
 				$enableSwitchInput.checked = isChecked;
-				this.option.itemControls.enable.callback(data, isChecked);
+				await this.option.itemControls.enable.callback(data, isChecked);
 			});
-			if (this.option.itemControls.enable.getEnable(data)) {
+			if (await this.option.itemControls.enable.getEnable(data)) {
 				// 开
 				$enableSwitch.classList.add(switchCheckedClassName);
 			}
@@ -467,15 +471,17 @@ export class RuleView<T> {
 					btn: {
 						ok: {
 							enable: true,
-							callback: (popsEvent) => {
+							callback: async (popsEvent) => {
 								log.success("删除数据");
-								let flag = this.option.itemControls.delete.deleteCallBack(data);
+								let flag = await this.option.itemControls.delete.deleteCallBack(
+									data
+								);
 								if (flag) {
 									Qmsg.success("成功删除该数据");
 									// 移除该条元素
 									$ruleItem.remove();
 									// 更新左下角的删除按钮文字
-									this.updateDeleteAllBtnText($shadowRoot);
+									await this.updateDeleteAllBtnText($shadowRoot);
 									$askDialog.close();
 								} else {
 									Qmsg.error("删除该数据失败");
@@ -502,45 +508,49 @@ export class RuleView<T> {
 	/**
 	 * 添加一个规则元素
 	 */
-	appendRuleItemElement($shadowRoot: ShadowRoot, data: T | T[]) {
+	async appendRuleItemElement($shadowRoot: ShadowRoot| HTMLElement, data: T | T[]) {
 		const { $container } = this.parseViewElement($shadowRoot);
 		// 添加到页面中
 		if (Array.isArray(data)) {
 			for (let index = 0; index < data.length; index++) {
 				const item = data[index];
-				$container.appendChild(this.createRuleItemElement(item, $shadowRoot));
+				$container.appendChild(
+					await this.createRuleItemElement(item, $shadowRoot)
+				);
 			}
 		} else {
-			$container.appendChild(this.createRuleItemElement(data, $shadowRoot));
+			$container.appendChild(
+				await this.createRuleItemElement(data, $shadowRoot)
+			);
 		}
-		this.updateDeleteAllBtnText($shadowRoot);
+		await this.updateDeleteAllBtnText($shadowRoot);
 	}
 	/**
 	 * 更新弹窗内容的元素
 	 */
-	updateRuleContaienrElement($shadowRoot: ShadowRoot) {
+	async updateRuleContaienrElement($shadowRoot: ShadowRoot| HTMLElement) {
 		this.clearContent($shadowRoot);
 		const { $container } = this.parseViewElement($shadowRoot);
-		let data = this.option.data();
-		this.appendRuleItemElement($shadowRoot, data);
-		this.updateDeleteAllBtnText($shadowRoot);
+		let data = await this.option.data();
+		await this.appendRuleItemElement($shadowRoot, data);
+		await this.updateDeleteAllBtnText($shadowRoot);
 	}
 	/**
 	 * 更新规则元素
 	 */
-	updateRuleItemElement(
+	async updateRuleItemElement(
 		data: T,
 		$oldRuleItem: HTMLDivElement,
-		$shadowRoot: ShadowRoot
+		$shadowRoot: ShadowRoot| HTMLElement
 	) {
-		let $newRuleItem = this.createRuleItemElement(data, $shadowRoot);
+		let $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
 		$oldRuleItem.after($newRuleItem);
 		$oldRuleItem.remove();
 	}
 	/**
 	 * 清空内容
 	 */
-	clearContent($shadowRoot: ShadowRoot) {
+	clearContent($shadowRoot: ShadowRoot| HTMLElement) {
 		const { $container } = this.parseViewElement($shadowRoot);
 		DOMUtils.html($container, "");
 	}
@@ -548,7 +558,7 @@ export class RuleView<T> {
 	 * 设置删除按钮的文字
 	 */
 	setDeleteBtnText(
-		$shadowRoot: ShadowRoot,
+		$shadowRoot: ShadowRoot| HTMLElement,
 		text: string,
 		isHTML: boolean = false
 	) {
@@ -562,8 +572,8 @@ export class RuleView<T> {
 	/**
 	 * 更新【清空所有】的按钮的文字
 	 */
-	updateDeleteAllBtnText($shadowRoot: ShadowRoot) {
-		let data = this.option.data();
+	async updateDeleteAllBtnText($shadowRoot: ShadowRoot| HTMLElement) {
+		let data = await this.option.data();
 		this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
 	}
 	/**
@@ -571,21 +581,21 @@ export class RuleView<T> {
 	 * @param isEdit 是否是编辑状态
 	 */
 	showEditView(
-		$parentShadowRoot: ShadowRoot,
+		$parentShadowRoot: ShadowRoot| HTMLElement,
 		isEdit: boolean,
 		editData: T,
 		$editRuleItemElement?: HTMLDivElement,
 		updateDataCallBack?: (data: T) => void
 	) {
-		let dialogCloseCallBack = (isSubmit: boolean) => {
+		let dialogCloseCallBack = async (isSubmit: boolean) => {
 			if (isSubmit) {
 			} else {
 				if (!isEdit) {
 					// 添加规则，关闭时清理掉规则
-					this.option.deleteData(editData!);
+					await this.option.deleteData(editData!);
 				}
 				if (typeof updateDataCallBack === "function") {
-					let newData = this.option.getData(editData!);
+					let newData = await this.option.getData(editData!);
 					updateDataCallBack(newData);
 				}
 			}
@@ -596,8 +606,8 @@ export class RuleView<T> {
 				return editData!;
 			},
 			dialogCloseCallBack: dialogCloseCallBack,
-			getView: (data) => {
-				return this.option.itemControls.edit.getView(data, isEdit);
+			getView: async (data) => {
+				return await this.option.itemControls.edit.getView(data, isEdit);
 			},
 			btn: {
 				ok: {
@@ -605,20 +615,20 @@ export class RuleView<T> {
 					text: isEdit ? "修改" : "添加",
 				},
 				cancel: {
-					callback(details, event) {
-						details.close();
-						dialogCloseCallBack(false);
+					callback: async (detail, event) => {
+						detail.close();
+						await dialogCloseCallBack(false);
 					},
 				},
 				close: {
-					callback(details, event) {
-						details.close();
-						dialogCloseCallBack(false);
+					callback: async (detail, event) => {
+						detail.close();
+						await dialogCloseCallBack(false);
 					},
 				},
 			},
-			onsubmit: ($form, data) => {
-				let result = this.option.itemControls.edit.onsubmit(
+			onsubmit: async ($form, data) => {
+				let result = await this.option.itemControls.edit.onsubmit(
 					$form,
 					isEdit,
 					data
@@ -628,7 +638,7 @@ export class RuleView<T> {
 						Qmsg.success("修改成功");
 						// 当前是编辑规则
 						// 给外面的弹窗更新元素
-						this.updateRuleItemElement(
+						await this.updateRuleItemElement(
 							result.data,
 							$editRuleItemElement!,
 							$parentShadowRoot
@@ -636,7 +646,7 @@ export class RuleView<T> {
 					} else {
 						// 当前是添加规则
 						// 给外面的弹窗添加元素
-						this.appendRuleItemElement($parentShadowRoot, result.data);
+						await this.appendRuleItemElement($parentShadowRoot, result.data);
 					}
 				} else {
 					if (isEdit) {
