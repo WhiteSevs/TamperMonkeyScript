@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.17
+// @version      2024.11.26
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @connect      *
 // @grant        GM_deleteValue
@@ -2508,6 +2508,10 @@
     isSearch() {
       return this.isIndex() && (window.location.pathname.startsWith("/search") || window.location.pathname.startsWith("/root/search"));
     },
+    /** 精选 */
+    isDiscover() {
+      return this.isIndex() && window.location.pathname.startsWith("/discover");
+    },
     /**
      * 用户主页
      */
@@ -2515,7 +2519,7 @@
       return this.isIndex() && window.location.pathname.startsWith("/user");
     },
     /**
-     * 
+     *
      */
     isVideo() {
       return this.isIndex() && window.location.pathname.startsWith("/video");
@@ -2816,7 +2820,7 @@
           '.playerContainer .slider-video>div>div:has([data-e2e="searchbar-button"])'
         )
       );
-      if (DouYinRouter.isSearch()) {
+      if (DouYinRouter.isSearch() || DouYinRouter.isDiscover()) {
         result.push(
           CommonUtil.addBlockCSS(
             // 2024.7.30
@@ -2838,7 +2842,7 @@
           '.playerContainer .slider-video>div>div:has(path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
         )
       );
-      if (DouYinRouter.isSearch()) {
+      if (DouYinRouter.isSearch() || DouYinRouter.isDiscover()) {
         result.push(
           CommonUtil.addBlockCSS(
             '#douyin-right-container div>div:has(>svg>path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
@@ -3631,11 +3635,11 @@
         this.gestureBackCloseComment();
       });
       domUtils.ready(() => {
-        DouYinVideoPlayer.chooseVideoDefinition(
+        DouYinVideoPlayer.chooseQuality(
           PopsPanel.getValue("chooseVideoDefinition")
         );
         PopsPanel.execMenuOnce("mobileMode", () => {
-          this.mobileMode();
+          return this.mobileMode();
         });
         PopsPanel.execMenuOnce("dy-video-titleInfoAutoHide", () => {
           this.titleInfoAutoHide();
@@ -3777,20 +3781,33 @@
      * 选择视频清晰度
      * @param [mode=0] 视频播放模式
      */
-    chooseVideoDefinition(mode = 0) {
+    chooseQuality(mode = 0) {
       log.info("选择视频清晰度: " + mode);
       let Definition_Key = "MANUAL_SWITCH";
+      let clarityReal = [
+        "normal_1080_0",
+        "normal_720_0",
+        "low_720_0",
+        "normal_540_0",
+        "low_540_0",
+        "adapt_low_540_0",
+        "lower_540_0"
+      ];
+      let clarityReal2 = [
+        "normal_1080_0",
+        "low_540_0",
+        "low_720_0",
+        "normal_720_0",
+        "normal_540_0",
+        "adapt_low_540_0",
+        "lower_540_0",
+        "adapt_lowest_720_1",
+        "adapt_540_1",
+        "adapt_lower_540_1"
+      ];
       let definition = [
         {
-          clarityReal: [
-            "normal_1080_0",
-            "normal_720_0",
-            "low_720_0",
-            "normal_540_0",
-            "low_540_0",
-            "adapt_low_540_0",
-            "lower_540_0"
-          ],
+          clarityReal,
           done: 1,
           gearClarity: "5",
           gearName: "高清",
@@ -3798,18 +3815,7 @@
           qualityType: 1
         },
         {
-          clarityReal: [
-            "normal_1080_0",
-            "low_540_0",
-            "low_720_0",
-            "normal_720_0",
-            "normal_540_0",
-            "adapt_low_540_0",
-            "lower_540_0",
-            "adapt_lowest_720_1",
-            "adapt_540_1",
-            "adapt_lower_540_1"
-          ],
+          clarityReal: clarityReal2,
           done: 1,
           gearClarity: "4",
           gearName: "清晰",
@@ -3817,18 +3823,7 @@
           qualityType: 15
         },
         {
-          clarityReal: [
-            "normal_1080_0",
-            "low_540_0",
-            "low_720_0",
-            "normal_720_0",
-            "normal_540_0",
-            "adapt_low_540_0",
-            "lower_540_0",
-            "adapt_lowest_720_1",
-            "adapt_540_1",
-            "adapt_lower_540_1"
-          ],
+          clarityReal: clarityReal2,
           done: 1,
           gearClarity: "3",
           gearName: "流畅",
@@ -3836,18 +3831,7 @@
           qualityType: 28
         },
         {
-          clarityReal: [
-            "normal_1080_0",
-            "low_540_0",
-            "low_720_0",
-            "normal_720_0",
-            "normal_540_0",
-            "adapt_low_540_0",
-            "lower_540_0",
-            "adapt_lowest_720_1",
-            "adapt_540_1",
-            "adapt_lower_540_1"
-          ],
+          clarityReal: clarityReal2,
           done: 1,
           gearClarity: "2",
           gearName: "极速",
@@ -3855,18 +3839,7 @@
           qualityType: 21
         },
         {
-          clarityReal: [
-            "normal_1080_0",
-            "low_540_0",
-            "low_720_0",
-            "normal_720_0",
-            "normal_540_0",
-            "adapt_low_540_0",
-            "lower_540_0",
-            "adapt_lowest_720_1",
-            "adapt_540_1",
-            "adapt_lower_540_1"
-          ],
+          clarityReal: clarityReal2,
           done: 1,
           gearClarity: "0",
           gearName: "智能",
@@ -3900,11 +3873,13 @@
       let Definition_Key = "player_playbackratio";
       function setRate(value = "1") {
         _unsafeWindow.sessionStorage.setItem(Definition_Key, value);
-        document.querySelectorAll("xg-icon.xgplayer-playback-setting").forEach(($playbackSetting) => {
-          var _a2, _b, _c, _d;
-          let $container = utils.getReactObj($playbackSetting).reactContainer;
-          (_d = (_c = (_b = (_a2 = $container == null ? void 0 : $container.memoizedState) == null ? void 0 : _a2.element) == null ? void 0 : _b.props) == null ? void 0 : _c.xgCase) == null ? void 0 : _d.updatePlayBackRatio();
-        });
+        $$("xg-icon.xgplayer-playback-setting").forEach(
+          ($playbackSetting) => {
+            var _a2, _b, _c, _d;
+            let $container = utils.getReactObj($playbackSetting).reactContainer;
+            (_d = (_c = (_b = (_a2 = $container == null ? void 0 : $container.memoizedState) == null ? void 0 : _a2.element) == null ? void 0 : _b.props) == null ? void 0 : _c.xgCase) == null ? void 0 : _d.updatePlayBackRatio();
+          }
+        );
       }
       setRate(rate);
     },
@@ -4054,6 +4029,7 @@
       PopsPanel.onceExec("repairProgressBar", () => {
         this.repairVideoProgressBar();
       });
+      return result;
     },
     /**
      * 修复进度条按钮
@@ -6169,7 +6145,7 @@
   });
   const addStyle = utils.addStyle.bind(utils);
   const $ = document.querySelector.bind(document);
-  document.querySelectorAll.bind(document);
+  const $$ = document.querySelectorAll.bind(document);
   const BlockTopNavigator = {
     init() {
       PopsPanel.execInheritMenuOnce(

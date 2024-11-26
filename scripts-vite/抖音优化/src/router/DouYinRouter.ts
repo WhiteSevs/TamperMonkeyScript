@@ -31,6 +31,10 @@ export const DouYinRouter = {
 				window.location.pathname.startsWith("/root/search"))
 		);
 	},
+	/** 精选 */
+	isDiscover() {
+		return this.isIndex() && window.location.pathname.startsWith("/discover");
+	},
 	/**
 	 * 用户主页
 	 */
@@ -38,9 +42,9 @@ export const DouYinRouter = {
 		return this.isIndex() && window.location.pathname.startsWith("/user");
 	},
 	/**
-	 * 
+	 *
 	 */
-	isVideo(){
+	isVideo() {
 		return this.isIndex() && window.location.pathname.startsWith("/video");
-	}
+	},
 };
