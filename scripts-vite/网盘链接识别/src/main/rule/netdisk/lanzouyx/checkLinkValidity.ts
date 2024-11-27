@@ -14,18 +14,24 @@ export const NetDiskCheckLinkValidity_lanzouyx: NetDiskCheckLinkValidityEntrance
 		 */
 		async init(netDiskIndex: number, shareCode: string, accessCode: string) {
 			let LanZouYX = new NetDiskParse.netDisk.lanzouyx();
-			LanZouYX.uuid = LanZouYX.getEncodeUUID();
 			LanZouYX.shareCodeId = LanZouYX.getDecodeShareCodeId(shareCode);
-			let devType = 3;
-			let devModel = "Chrome";
-			let extra = 2;
 			let timestamp = LanZouYX.getEncodeTimeStamp();
-			let type = 0;
-
-			let offset = 1;
-			let limit = 60;
+			let uuid = LanZouYX.getEncodeUUID();
 			let response = await httpx.post(
-				`https://api.ilanzou.com/unproved/recommend/list?devType=${devType}&devModel=${devModel}&uuid=${LanZouYX.uuid}&extra=${extra}&timestamp=${timestamp}&shareId=${LanZouYX.shareCodeId}&type=${type}&offset=${offset}&limit=${limit}`,
+				`https://api.ilanzou.com/unproved/recommend/list?${utils.toSearchParamsStr(
+					{
+						devType: LanZouYX.$data.devType,
+						devModel: LanZouYX.$data.devModel,
+						uuid: uuid,
+						extra: LanZouYX.$data.extra,
+						timestamp: timestamp,
+						code: accessCode,
+						shareId: shareCode,
+						type: LanZouYX.$data.type,
+						offset: LanZouYX.$data.offset,
+						limit: LanZouYX.$data.limit,
+					}
+				)}`,
 				{
 					headers: {
 						Accept: "application/json, text/plain, */*",
@@ -54,6 +60,7 @@ export const NetDiskCheckLinkValidity_lanzouyx: NetDiskCheckLinkValidityEntrance
 				};
 			}
 			if (!data["list"].length) {
+				// 获取是空的
 				return {
 					...NetDiskCheckLinkValidity.status.failed,
 					data: data,

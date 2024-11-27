@@ -1,4 +1,4 @@
-import { httpx, log, utils } from "@/env";
+import { httpx, log, utils, Cryptojs } from "@/env";
 import type { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/indexType";
 import Qmsg from "qmsg";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
@@ -120,6 +120,14 @@ const LanZouUtils = {
 	},
 };
 export class NetDiskParse_Lanzouyx extends NetDiskParseObject {
+	$data = {
+		devType: 6,
+		devModel: "Chrome",
+		extra: 2,
+		type: 0,
+		offset: 1,
+		limit: 60,
+	};
 	/**
 	 * 获取的uuid
 	 */
@@ -128,6 +136,9 @@ export class NetDiskParse_Lanzouyx extends NetDiskParseObject {
 	 * 获取的userId
 	 **/
 	userId = void 0 as any as string;
+	/**
+	 * 加密后的shareCode
+	 */
 	shareCodeId = void 0 as any as number;
 	/**
 	 * 入口
@@ -144,15 +155,15 @@ export class NetDiskParse_Lanzouyx extends NetDiskParseObject {
 		that.shareCodeId = that.getDecodeShareCodeId(shareCode);
 		that.uuid = that.getEncodeUUID();
 		let linkInfo = await this.recommendList(
-			3,
-			"Chrome",
+			that.$data.devType,
+			that.$data.devModel,
 			that.uuid,
-			2,
+			that.$data.extra,
 			that.getEncodeTimeStamp(),
-			that.shareCodeId,
-			0,
-			1,
-			60
+			that.shareCode,
+			that.$data.type,
+			that.$data.offset,
+			that.$data.limit
 		);
 		if (!linkInfo) {
 			return;
@@ -210,8 +221,8 @@ export class NetDiskParse_Lanzouyx extends NetDiskParseObject {
 	}
 	/**
 	 * 获取直链弹窗的文件夹信息
-	 * @param {object} infoList
-	 * @param {number} index
+	 * @param infoList
+	 * @param index
 	 */
 	parseFolderInfo(infoList: any[], index: number) {
 		const that = this;
@@ -230,19 +241,18 @@ export class NetDiskParse_Lanzouyx extends NetDiskParseObject {
 					isFolder: true,
 					index: index,
 					async clickEvent(event, config) {
-						let nowTime = Date.now();
-						let timestamp = that.getEncodeTimeStamp(nowTime);
+						let timestamp = that.getEncodeTimeStamp();
 						let folderId = item["folderId"];
 						let folderInfo = await that.getFolderInfo(
-							3,
-							"Chrome",
+							that.$data.devType,
+							that.$data.devModel,
 							that.uuid,
-							2,
+							that.$data.extra,
 							timestamp,
-							that.shareCodeId,
+							that.shareCode,
 							folderId,
-							1,
-							60
+							that.$data.offset,
+							that.$data.limit
 						);
 						if (folderInfo && folderInfo["list"]) {
 							return that.parseFolderInfo(folderInfo["list"], index + 1);
@@ -293,11 +303,11 @@ export class NetDiskParse_Lanzouyx extends NetDiskParseObject {
 				});
 			}
 		});
-		tempFolderInfoList.sort((a, b) =>
-			a["fileName"].localeCompare(b["fileName"])
+		tempFolderInfoList.sort((leftData, rightData) =>
+			leftData["fileName"].localeCompare(rightData["fileName"])
 		);
-		tempFolderFileInfoList.sort((a, b) =>
-			a["fileName"].localeCompare(b["fileName"])
+		tempFolderFileInfoList.sort((leftData, rightData) =>
+			leftData["fileName"].localeCompare(rightData["fileName"])
 		);
 		folderInfoList = folderInfoList.concat(tempFolderInfoList);
 		folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
@@ -305,30 +315,42 @@ export class NetDiskParse_Lanzouyx extends NetDiskParseObject {
 	}
 	/**
 	 * 获取列表信息
-	 * @param {number} devType
-	 * @param {string} devModel
-	 * @param {string} uuid
-	 * @param {number} extra
-	 * @param {string} timestamp
-	 * @param {number|string} shareId
-	 * @param {number} type
-	 * @param {number} offset
-	 * @param {number} limit
-	 * @returns
+	 * @param devType
+	 * @param devModel
+	 * @param uuid
+	 * @param extra
+	 * @param timestamp
+	 * @param shareId
+	 * @param type
+	 * @param offset
+	 * @param limit
 	 */
 	async recommendList(
-		devType: number = 3,
-		devModel: string = "Chrome",
+		devType: number = this.$data.devType,
+		devModel: string = this.$data.devModel,
 		uuid: string = "",
-		extra: number = 2,
+		extra: number = this.$data.extra,
 		timestamp: string = "",
 		shareId: string | number = "",
-		type: number = 0,
-		offset: number = 1,
-		limit: number = 60
+		type: number = this.$data.type,
+		offset: number = this.$data.offset,
+		limit: number = this.$data.limit
 	) {
-		let postResp = await httpx.post(
-			`https://api.ilanzou.com/unproved/recommend/list?devType=${devType}&devModel=${devModel}&uuid=${uuid}&extra=${extra}&timestamp=${timestamp}&shareId=${shareId}&type=${type}&offset=${offset}&limit=${limit}`,
+		let response = await httpx.post(
+			`https://api.ilanzou.com/unproved/recommend/list?${utils.toSearchParamsStr(
+				{
+					devType: devType,
+					devModel: devModel,
+					uuid: uuid,
+					extra: extra,
+					timestamp: timestamp,
+					shareId: shareId,
+					code: this.accessCode,
+					type: type,
+					offset: offset,
+					limit: limit,
+				}
+			)}`,
 			{
 				headers: {
 					Accept: "application/json, text/plain, */*",
@@ -341,10 +363,10 @@ export class NetDiskParse_Lanzouyx extends NetDiskParseObject {
 				responseType: "json",
 			}
 		);
-		if (!postResp.status) {
+		if (!response.status) {
 			return;
 		}
-		let data = utils.toJSON(postResp.data.responseText);
+		let data = utils.toJSON(response.data.responseText);
 		log.success("获取链接信息：", data);
 		if (data["code"] !== 200) {
 			Qmsg.error("请求链接信息失败");
@@ -358,29 +380,40 @@ export class NetDiskParse_Lanzouyx extends NetDiskParseObject {
 	}
 	/**
 	 * 获取文件夹信息
-	 * @param {number} devType
-	 * @param {string} devModel
-	 * @param {string} uuid
-	 * @param {number} extra
-	 * @param {string} timestamp
-	 * @param {number|string} shareId
-	 * @param {number|string} folderId
-	 * @param {number} offset
-	 * @param {number} limit
+	 * @param devType
+	 * @param devModel
+	 * @param uuid
+	 * @param extra
+	 * @param timestamp
+	 * @param shareId
+	 * @param folderId
+	 * @param offset
+	 * @param limit
 	 */
 	async getFolderInfo(
-		devType: number = 6,
-		devModel: string = "Chrome",
+		devType: number = this.$data.devType,
+		devModel: string = this.$data.devModel,
 		uuid: string = "",
-		extra: number = 2,
+		extra: number = this.$data.extra,
 		timestamp: string = "",
 		shareId: number | string = "",
 		folderId: number | string = "",
-		offset: number = 1,
-		limit: number = 60
+		offset: number = this.$data.offset,
+		limit: number = this.$data.limit
 	) {
-		let postResp = await httpx.post(
-			`https://api.ilanzou.com/unproved/share/list?devType=${devType}&devModel=${devModel}&uuid=${uuid}&extra=${extra}&timestamp=${timestamp}&shareId=${shareId}&folderId=${folderId}&offset=${offset}&limit=${limit}`,
+		let response = await httpx.post(
+			`https://api.ilanzou.com/unproved/share/list?${utils.toSearchParamsStr({
+				devType: devType,
+				devModel: devModel,
+				uuid: uuid,
+				extra: extra,
+				timestamp: timestamp,
+				shareId: shareId,
+				code: this.accessCode,
+				folderId: folderId,
+				offset: offset,
+				limit: limit,
+			})}`,
 			{
 				headers: {
 					Accept: "application/json, text/plain, */*",
@@ -392,10 +425,10 @@ export class NetDiskParse_Lanzouyx extends NetDiskParseObject {
 				},
 			}
 		);
-		if (!postResp.status) {
+		if (!response.status) {
 			return;
 		}
-		let data = utils.toJSON(postResp.data.responseText);
+		let data = utils.toJSON(response.data.responseText);
 		log.success("获取文件列表信息：", data);
 		if (data["code"] === 200) {
 			return data;
@@ -407,35 +440,44 @@ export class NetDiskParse_Lanzouyx extends NetDiskParseObject {
 	 * 获取下载链接
 	 */
 	async getDownloadFileUrl(
-		downloadId = "",
-		enable = 1,
-		devType = 6,
-		uuid = "",
-		timestamp = "",
-		auth = ""
+		downloadId: string = "",
+		enable: number = 1,
+		devType: number = this.$data.devType,
+		uuid: string = "",
+		timestamp: string = "",
+		auth: string = "",
+		shareId: string = this.shareCode
 	) {
-		let getResp = await httpx.options(
-			`https://api.ilanzou.com/unproved/file/redirect?downloadId=${downloadId}&enable=${enable}&devType=${devType}&uuid=${uuid}&timestamp=${timestamp}&auth=${auth}`,
-			{}
-		);
-		if (!getResp.status) {
+		let url = `https://api.ilanzou.com/unproved/file/redirect?${utils.toSearchParamsStr(
+			{
+				downloadId: downloadId,
+				enable: enable,
+				devType: devType,
+				uuid: uuid,
+				timestamp: timestamp,
+				auth: auth,
+				shareId: shareId,
+			}
+		)}`;
+		return url;
+		let response = await httpx.options(url);
+		if (!response.status) {
 			return;
 		}
-		log.success(getResp);
-		if (getResp.data.responseText) {
-			let errorData = utils.toJSON(getResp.data.responseText);
+		log.success(response);
+		if (response.data.responseText) {
+			let errorData = utils.toJSON(response.data.responseText);
 			log.error(errorData);
 			Qmsg.error(errorData["msg"]);
 			return;
 		}
-		return getResp.data.finalUrl;
+		return response.data.finalUrl;
 	}
 	/**
 	 * 获取加密的uuid
-	 * @param {number} e
-	 * @returns
+	 * @param timestamp
 	 */
-	getEncodeUUID(e: number = 21) {
+	getEncodeUUID(timestamp: number = 21) {
 		let r = (e = 21) =>
 			crypto
 				.getRandomValues(new Uint8Array(e))
@@ -454,7 +496,7 @@ export class NetDiskParse_Lanzouyx extends NetDiskParseObject {
 					),
 					""
 				);
-		return r(e);
+		return r(timestamp);
 	}
 	/**
 	 * 获取shareCode转换后的id
@@ -464,26 +506,33 @@ export class NetDiskParse_Lanzouyx extends NetDiskParseObject {
 	}
 	/**
 	 * 获取加密后的timestamp
-	 * @param {number} time
+	 * @param time
 	 */
 	getEncodeTimeStamp(time = Date.now()) {
 		return LanZouUtils.encryptHex(time);
 	}
 	/**
 	 * 获取下载文件的参数
-	 * @param {string} fileId 文件id
-	 * @param {string} userId 用户id
-	 * @param {?string} uuid 用户登录生成的uuid
+	 * @param fileId 文件id
+	 * @param userId 用户id
+	 * @param uuid 用户登录生成的uuid
 	 */
 	getDownloadFileParams(fileId: string, userId: string = "", uuid?: string) {
 		const that = this;
 		let nowTime = Date.now();
 		let downloadId = LanZouUtils.encryptHex(fileId + "|" + userId),
 			enable = 1,
-			devType = 6,
 			timestamp = that.getEncodeTimeStamp(nowTime),
 			auth = LanZouUtils.encryptHex(fileId + "|" + nowTime);
-		return [downloadId, enable, devType, uuid, timestamp, auth];
+		return [
+			downloadId,
+			enable,
+			this.$data.devType,
+			uuid,
+			timestamp,
+			auth,
+			that.shareCode,
+		];
 	}
 	/**
 	 * 前往登录

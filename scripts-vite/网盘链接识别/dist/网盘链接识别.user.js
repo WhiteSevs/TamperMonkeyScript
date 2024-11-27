@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2024.11.26
+// @version      2024.11.27
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -5457,6 +5457,14 @@
   class NetDiskParse_Lanzouyx extends NetDiskParseObject {
     constructor() {
       super(...arguments);
+      __publicField(this, "$data", {
+        devType: 6,
+        devModel: "Chrome",
+        extra: 2,
+        type: 0,
+        offset: 1,
+        limit: 60
+      });
       /**
        * 获取的uuid
        */
@@ -5465,6 +5473,9 @@
        * 获取的userId
        **/
       __publicField(this, "userId");
+      /**
+       * 加密后的shareCode
+       */
       __publicField(this, "shareCodeId");
     }
     /**
@@ -5483,15 +5494,15 @@
       that.shareCodeId = that.getDecodeShareCodeId(shareCode);
       that.uuid = that.getEncodeUUID();
       let linkInfo = await this.recommendList(
-        3,
-        "Chrome",
+        that.$data.devType,
+        that.$data.devModel,
         that.uuid,
-        2,
+        that.$data.extra,
         that.getEncodeTimeStamp(),
-        that.shareCodeId,
-        0,
-        1,
-        60
+        that.shareCode,
+        that.$data.type,
+        that.$data.offset,
+        that.$data.limit
       );
       if (!linkInfo) {
         return;
@@ -5545,8 +5556,8 @@
     }
     /**
      * 获取直链弹窗的文件夹信息
-     * @param {object} infoList
-     * @param {number} index
+     * @param infoList
+     * @param index
      */
     parseFolderInfo(infoList, index) {
       const that = this;
@@ -5564,19 +5575,18 @@
             isFolder: true,
             index,
             async clickEvent(event, config) {
-              let nowTime = Date.now();
-              let timestamp = that.getEncodeTimeStamp(nowTime);
+              let timestamp = that.getEncodeTimeStamp();
               let folderId = item["folderId"];
               let folderInfo = await that.getFolderInfo(
-                3,
-                "Chrome",
+                that.$data.devType,
+                that.$data.devModel,
                 that.uuid,
-                2,
+                that.$data.extra,
                 timestamp,
-                that.shareCodeId,
+                that.shareCode,
                 folderId,
-                1,
-                60
+                that.$data.offset,
+                that.$data.limit
               );
               if (folderInfo && folderInfo["list"]) {
                 return that.parseFolderInfo(folderInfo["list"], index + 1);
@@ -5627,10 +5637,10 @@
         }
       });
       tempFolderInfoList.sort(
-        (a, b) => a["fileName"].localeCompare(b["fileName"])
+        (leftData, rightData) => leftData["fileName"].localeCompare(rightData["fileName"])
       );
       tempFolderFileInfoList.sort(
-        (a, b) => a["fileName"].localeCompare(b["fileName"])
+        (leftData, rightData) => leftData["fileName"].localeCompare(rightData["fileName"])
       );
       folderInfoList = folderInfoList.concat(tempFolderInfoList);
       folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
@@ -5638,20 +5648,32 @@
     }
     /**
      * 获取列表信息
-     * @param {number} devType
-     * @param {string} devModel
-     * @param {string} uuid
-     * @param {number} extra
-     * @param {string} timestamp
-     * @param {number|string} shareId
-     * @param {number} type
-     * @param {number} offset
-     * @param {number} limit
-     * @returns
+     * @param devType
+     * @param devModel
+     * @param uuid
+     * @param extra
+     * @param timestamp
+     * @param shareId
+     * @param type
+     * @param offset
+     * @param limit
      */
-    async recommendList(devType = 3, devModel = "Chrome", uuid = "", extra = 2, timestamp = "", shareId = "", type = 0, offset = 1, limit = 60) {
-      let postResp = await httpx.post(
-        `https://api.ilanzou.com/unproved/recommend/list?devType=${devType}&devModel=${devModel}&uuid=${uuid}&extra=${extra}&timestamp=${timestamp}&shareId=${shareId}&type=${type}&offset=${offset}&limit=${limit}`,
+    async recommendList(devType = this.$data.devType, devModel = this.$data.devModel, uuid = "", extra = this.$data.extra, timestamp = "", shareId = "", type = this.$data.type, offset = this.$data.offset, limit = this.$data.limit) {
+      let response = await httpx.post(
+        `https://api.ilanzou.com/unproved/recommend/list?${utils.toSearchParamsStr(
+        {
+          devType,
+          devModel,
+          uuid,
+          extra,
+          timestamp,
+          shareId,
+          code: this.accessCode,
+          type,
+          offset,
+          limit
+        }
+      )}`,
         {
           headers: {
             Accept: "application/json, text/plain, */*",
@@ -5664,10 +5686,10 @@
           responseType: "json"
         }
       );
-      if (!postResp.status) {
+      if (!response.status) {
         return;
       }
-      let data = utils.toJSON(postResp.data.responseText);
+      let data = utils.toJSON(response.data.responseText);
       log.success("获取链接信息：", data);
       if (data["code"] !== 200) {
         Qmsg.error("请求链接信息失败");
@@ -5681,19 +5703,30 @@
     }
     /**
      * 获取文件夹信息
-     * @param {number} devType
-     * @param {string} devModel
-     * @param {string} uuid
-     * @param {number} extra
-     * @param {string} timestamp
-     * @param {number|string} shareId
-     * @param {number|string} folderId
-     * @param {number} offset
-     * @param {number} limit
+     * @param devType
+     * @param devModel
+     * @param uuid
+     * @param extra
+     * @param timestamp
+     * @param shareId
+     * @param folderId
+     * @param offset
+     * @param limit
      */
-    async getFolderInfo(devType = 6, devModel = "Chrome", uuid = "", extra = 2, timestamp = "", shareId = "", folderId = "", offset = 1, limit = 60) {
-      let postResp = await httpx.post(
-        `https://api.ilanzou.com/unproved/share/list?devType=${devType}&devModel=${devModel}&uuid=${uuid}&extra=${extra}&timestamp=${timestamp}&shareId=${shareId}&folderId=${folderId}&offset=${offset}&limit=${limit}`,
+    async getFolderInfo(devType = this.$data.devType, devModel = this.$data.devModel, uuid = "", extra = this.$data.extra, timestamp = "", shareId = "", folderId = "", offset = this.$data.offset, limit = this.$data.limit) {
+      let response = await httpx.post(
+        `https://api.ilanzou.com/unproved/share/list?${utils.toSearchParamsStr({
+        devType,
+        devModel,
+        uuid,
+        extra,
+        timestamp,
+        shareId,
+        code: this.accessCode,
+        folderId,
+        offset,
+        limit
+      })}`,
         {
           headers: {
             Accept: "application/json, text/plain, */*",
@@ -5705,10 +5738,10 @@
           }
         }
       );
-      if (!postResp.status) {
+      if (!response.status) {
         return;
       }
-      let data = utils.toJSON(postResp.data.responseText);
+      let data = utils.toJSON(response.data.responseText);
       log.success("获取文件列表信息：", data);
       if (data["code"] === 200) {
         return data;
@@ -5719,34 +5752,30 @@
     /**
      * 获取下载链接
      */
-    async getDownloadFileUrl(downloadId = "", enable = 1, devType = 6, uuid = "", timestamp = "", auth = "") {
-      let getResp = await httpx.options(
-        `https://api.ilanzou.com/unproved/file/redirect?downloadId=${downloadId}&enable=${enable}&devType=${devType}&uuid=${uuid}&timestamp=${timestamp}&auth=${auth}`,
-        {}
-      );
-      if (!getResp.status) {
-        return;
+    async getDownloadFileUrl(downloadId = "", enable = 1, devType = this.$data.devType, uuid = "", timestamp = "", auth = "", shareId = this.shareCode) {
+      let url = `https://api.ilanzou.com/unproved/file/redirect?${utils.toSearchParamsStr(
+      {
+        downloadId,
+        enable,
+        devType,
+        uuid,
+        timestamp,
+        auth,
+        shareId
       }
-      log.success(getResp);
-      if (getResp.data.responseText) {
-        let errorData = utils.toJSON(getResp.data.responseText);
-        log.error(errorData);
-        Qmsg.error(errorData["msg"]);
-        return;
-      }
-      return getResp.data.finalUrl;
+    )}`;
+      return url;
     }
     /**
      * 获取加密的uuid
-     * @param {number} e
-     * @returns
+     * @param timestamp
      */
-    getEncodeUUID(e = 21) {
-      let r = (e2 = 21) => crypto.getRandomValues(new Uint8Array(e2)).reduce(
-        (e3, t) => (t &= 63, e3 += t < 36 ? t.toString(36) : t < 62 ? (t - 26).toString(36).toUpperCase() : t > 62 ? "-" : "_", e3),
+    getEncodeUUID(timestamp = 21) {
+      let r = (e = 21) => crypto.getRandomValues(new Uint8Array(e)).reduce(
+        (e2, t) => (t &= 63, e2 += t < 36 ? t.toString(36) : t < 62 ? (t - 26).toString(36).toUpperCase() : t > 62 ? "-" : "_", e2),
         ""
       );
-      return r(e);
+      return r(timestamp);
     }
     /**
      * 获取shareCode转换后的id
@@ -5756,22 +5785,30 @@
     }
     /**
      * 获取加密后的timestamp
-     * @param {number} time
+     * @param time
      */
     getEncodeTimeStamp(time = Date.now()) {
       return LanZouUtils.encryptHex(time);
     }
     /**
      * 获取下载文件的参数
-     * @param {string} fileId 文件id
-     * @param {string} userId 用户id
-     * @param {?string} uuid 用户登录生成的uuid
+     * @param fileId 文件id
+     * @param userId 用户id
+     * @param uuid 用户登录生成的uuid
      */
     getDownloadFileParams(fileId, userId = "", uuid) {
       const that = this;
       let nowTime = Date.now();
-      let downloadId = LanZouUtils.encryptHex(fileId + "|" + userId), enable = 1, devType = 6, timestamp = that.getEncodeTimeStamp(nowTime), auth = LanZouUtils.encryptHex(fileId + "|" + nowTime);
-      return [downloadId, enable, devType, uuid, timestamp, auth];
+      let downloadId = LanZouUtils.encryptHex(fileId + "|" + userId), enable = 1, timestamp = that.getEncodeTimeStamp(nowTime), auth = LanZouUtils.encryptHex(fileId + "|" + nowTime);
+      return [
+        downloadId,
+        enable,
+        this.$data.devType,
+        uuid,
+        timestamp,
+        auth,
+        that.shareCode
+      ];
     }
     /**
      * 前往登录
@@ -7838,17 +7875,24 @@
      */
     async init(netDiskIndex, shareCode, accessCode) {
       let LanZouYX = new NetDiskParse.netDisk.lanzouyx();
-      LanZouYX.uuid = LanZouYX.getEncodeUUID();
       LanZouYX.shareCodeId = LanZouYX.getDecodeShareCodeId(shareCode);
-      let devType = 3;
-      let devModel = "Chrome";
-      let extra = 2;
       let timestamp = LanZouYX.getEncodeTimeStamp();
-      let type = 0;
-      let offset = 1;
-      let limit = 60;
+      let uuid = LanZouYX.getEncodeUUID();
       let response = await httpx.post(
-        `https://api.ilanzou.com/unproved/recommend/list?devType=${devType}&devModel=${devModel}&uuid=${LanZouYX.uuid}&extra=${extra}&timestamp=${timestamp}&shareId=${LanZouYX.shareCodeId}&type=${type}&offset=${offset}&limit=${limit}`,
+        `https://api.ilanzou.com/unproved/recommend/list?${utils.toSearchParamsStr(
+        {
+          devType: LanZouYX.$data.devType,
+          devModel: LanZouYX.$data.devModel,
+          uuid,
+          extra: LanZouYX.$data.extra,
+          timestamp,
+          code: accessCode,
+          shareId: shareCode,
+          type: LanZouYX.$data.type,
+          offset: LanZouYX.$data.offset,
+          limit: LanZouYX.$data.limit
+        }
+      )}`,
         {
           headers: {
             Accept: "application/json, text/plain, */*",
@@ -9269,7 +9313,7 @@
       return {
         rule,
         NetDiskRequire,
-        CryptoJS: Cryptojs$1,
+        CryptoJS: Cryptojs,
         httpx,
         utils,
         DOMUtils: domUtils,
@@ -16153,7 +16197,7 @@
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
   const __pops = pops;
-  const Cryptojs$1 = CryptoJS ?? window.CryptoJS ?? _unsafeWindow.CryptoJS;
+  const Cryptojs = CryptoJS ?? window.CryptoJS ?? _unsafeWindow.CryptoJS;
   const __DataPaging = (
     // @ts-ignore
     DataPaging ?? window.DataPaging ?? _unsafeWindow.DataPaging
