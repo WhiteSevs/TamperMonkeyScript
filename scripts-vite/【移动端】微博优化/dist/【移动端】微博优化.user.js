@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.26
+// @version      2024.11.27
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -102,19 +102,19 @@
         return;
       }
       let ownCookie = "";
-      let url2 = details.url;
-      if (url2.startsWith("//")) {
-        url2 = window.location.protocol + url2;
+      let url = details.url;
+      if (url.startsWith("//")) {
+        url = window.location.protocol + url;
       }
-      let urlObj2 = new URL(url2);
-      if (this.$data.useDocumentCookie && urlObj2.hostname.endsWith(
+      let urlObj = new URL(url);
+      if (this.$data.useDocumentCookie && urlObj.hostname.endsWith(
         window.location.hostname.split(".").slice(-2).join(".")
       )) {
         ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
       }
       for (let index = 0; index < this.$data.cookieRule.length; index++) {
         let rule = this.$data.cookieRule[index];
-        if (urlObj2.hostname.match(rule.hostname)) {
+        if (urlObj.hostname.match(rule.hostname)) {
           let cookie = PopsPanel.getValue(rule.key);
           if (utils.isNull(cookie)) {
             break;
@@ -187,11 +187,11 @@
      * @example
      * loadStyleLink("https://example.com/example.css")
      */
-    async loadStyleLink(url2) {
+    async loadStyleLink(url) {
       let $link = document.createElement("link");
       $link.rel = "stylesheet";
       $link.type = "text/css";
-      $link.href = url2;
+      $link.href = url;
       domUtils.ready(() => {
         document.head.appendChild($link);
       });
@@ -202,9 +202,9 @@
      * @example
      * loadStyleLink("https://example.com/example.js")
      */
-    async loadScript(url2) {
+    async loadScript(url) {
       let $script = document.createElement("script");
-      $script.src = url2;
+      $script.src = url;
       return new Promise((resolve) => {
         $script.onload = () => {
           resolve(null);
@@ -230,16 +230,16 @@
      * 修复前：`xxx/xxx?ss=ssss`
      * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
      */
-    fixUrl(url2) {
-      url2 = url2.trim();
-      if (url2.match(/^http(s|):\/\//i)) {
-        return url2;
+    fixUrl(url) {
+      url = url.trim();
+      if (url.match(/^http(s|):\/\//i)) {
+        return url;
       } else {
-        if (!url2.startsWith("/")) {
-          url2 += "/";
+        if (!url.startsWith("/")) {
+          url += "/";
         }
-        url2 = window.location.origin + url2;
-        return url2;
+        url = window.location.origin + url;
+        return url;
       }
     },
     /**
@@ -252,16 +252,16 @@
      * 修复前：
      * 修复后：
      */
-    fixHttps(url2) {
-      if (url2.startsWith("https://")) {
-        return url2;
+    fixHttps(url) {
+      if (url.startsWith("https://")) {
+        return url;
       }
-      if (!url2.startsWith("http://")) {
-        return url2;
+      if (!url.startsWith("http://")) {
+        return url;
       }
-      let urlObj2 = new URL(url2);
-      urlObj2.protocol = "https:";
-      return urlObj2.toString();
+      let urlObj = new URL(url);
+      urlObj.protocol = "https:";
+      return urlObj.toString();
     }
   };
   const _SCRIPT_NAME_ = "【移动端】微博优化";
@@ -377,7 +377,7 @@
       let api = `https://www.weibo.com/tv/api/component?${utils.toSearchParamsStr(
       postParams
     )}`;
-      let postResp = await httpx.post(api, {
+      let response = await httpx.post(api, {
         data: utils.toSearchParamsStr(postData),
         headers: {
           Accept: "application/json, text/plain, */*",
@@ -389,11 +389,12 @@
           "User-Agent": utils.getRandomPCUA()
         }
       });
-      if (!postResp.status) {
+      if (!response.status) {
         return;
       }
-      let data = utils.toJSON(postResp.data.responseText);
+      let data = utils.toJSON(response.data.responseText);
       if (data["code"] !== "100000") {
+        log.info(`获取播放信息失败`, response);
         Qmsg.error("获取播放信息失败");
         return;
       }
@@ -2255,47 +2256,43 @@
       );
     }
   };
-  const url = globalThis.location.href;
-  const urlObj = new URL(url);
-  const hostname = urlObj.hostname;
-  const pathname = urlObj.pathname;
   const WeiBoRouter = {
     /**
      * 移动端微博
      * @returns
      */
     isMWeiBo() {
-      return hostname === "m.weibo.cn";
+      return window.location.hostname === "m.weibo.cn";
     },
     /**
      * 移动端微博-首页
      */
     isMWeiBoHome() {
-      return this.isMWeiBo() && pathname === "/";
+      return this.isMWeiBo() && window.location.pathname === "/";
     },
     /**
      * 移动端微博-微博正文
      */
     isMWeiBo_detail() {
-      return this.isMWeiBo() && pathname.startsWith("/detail/");
+      return this.isMWeiBo() && window.location.pathname.startsWith("/detail/");
     },
     /**
      * 移动端微博-微博正文
      */
     isMWeiBo_status() {
-      return this.isMWeiBo() && pathname.startsWith("/status/");
+      return this.isMWeiBo() && window.location.pathname.startsWith("/status/");
     },
     /**
      * 移动端微博-用户主页
      */
     isMWeiBo_userHome() {
-      return this.isMWeiBo() && pathname.startsWith("/u/");
+      return this.isMWeiBo() && window.location.pathname.startsWith("/u/");
     },
     /**
      * 移动端微博-搜索
      */
     isMWeiBo_search() {
-      return this.isMWeiBo() && pathname.startsWith("/search");
+      return this.isMWeiBo() && window.location.pathname.startsWith("/search");
     },
     /**
      * 移动端微博-微博热搜
@@ -2303,37 +2300,37 @@
     isMWeiBo_HotSearch() {
       let searchParams = new URLSearchParams(globalThis.location.search);
       let containerid = searchParams.get("containerid");
-      return this.isMWeiBo() && pathname.startsWith("/p/index") && typeof containerid === "string" && containerid.startsWith("106003");
+      return this.isMWeiBo() && window.location.pathname.startsWith("/p/index") && typeof containerid === "string" && containerid.startsWith("106003");
     },
     /**
      * 话题
      */
     isHuaTi() {
-      return hostname === "huati.weibo.cn";
+      return window.location.hostname === "huati.weibo.cn";
     },
     /**
      * 视频页
      */
     isVideo() {
-      return hostname === "h5.video.weibo.com";
+      return window.location.hostname === "h5.video.weibo.com";
     },
     /**
      * 头条
      */
     isCard() {
-      return hostname === "card.weibo.com";
+      return window.location.hostname === "card.weibo.com";
     },
     /**
      * 头条文章
      */
     isCardArticle() {
-      return this.isCard() && pathname.startsWith("/article/");
+      return this.isCard() && window.location.pathname.startsWith("/article/");
     },
     /**
      * 微博直播页面
      */
     isLive() {
-      return hostname === "weibo.com" && pathname.startsWith("/l/wblive/m/show/");
+      return window.location.hostname === "weibo.com" && window.location.pathname.startsWith("/l/wblive/m/show/");
     }
   };
   const WeiBoHuaTi = {
@@ -2674,9 +2671,9 @@
                 Qmsg.error("没有找到对应的id");
                 return;
               }
-              let url2 = `${window.location.origin}/detail/${id}`;
-              log.info(`新标签页打开：${url2}`);
-              window.open(url2, "_blank");
+              let url = `${window.location.origin}/detail/${id}`;
+              log.info(`新标签页打开：${url}`);
+              window.open(url, "_blank");
             });
             let $diyBtnList = $footerCtrl.querySelectorAll(".m-diy-btn");
             if ($diyBtnList.length) {
@@ -2748,8 +2745,8 @@
           let jQueryEvent = $click[jQueryEventName];
           let data = jQueryEvent["events"]["click"][0]["data"];
           log.success(["跳转信息：", data]);
-          let url2 = data["url"] || data["target_url"];
-          window.open(url2, "_blank");
+          let url = data["url"] || data["target_url"];
+          window.open(url, "_blank");
         },
         {
           capture: true
@@ -2849,9 +2846,9 @@
                 Qmsg.error("没有找到对应的id");
                 return;
               }
-              let url2 = `${window.location.origin}/detail/${id}`;
-              log.info(`新标签页打开：${url2}`);
-              window.open(url2, "_blank");
+              let url = `${window.location.origin}/detail/${id}`;
+              log.info(`新标签页打开：${url}`);
+              window.open(url, "_blank");
             });
             let $diyBtnList = $footerCtrl.querySelectorAll(".m-diy-btn");
             if ($diyBtnList.length) {

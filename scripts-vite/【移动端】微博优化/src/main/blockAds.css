@@ -5,6 +5,8 @@
  /* 底部悬浮的在微博内打开 */
  #app .woo-frame.blog-config-page div.weibo-btn-box,
  /* 顶部的新闻信息流 */
- #app .woo-frame div.woo-panel-container.news-banner {
+ #app .woo-frame div.woo-panel-container.news-banner,
+ /* 夹杂在card中间的图片横幅，不确定是否会误伤其它正常内容 */
+ .card .card-main .m-img-box {
 	display: none !important;
 }

@@ -1,4 +1,4 @@
-import { httpx, utils } from "@/env";
+import { httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
 
 interface Api_Component_Play_Playinfo {
@@ -31,7 +31,7 @@ export const WeiBoApi = {
 		let api = `https://www.weibo.com/tv/api/component?${utils.toSearchParamsStr(
 			postParams
 		)}`;
-		let postResp = await httpx.post(api, {
+		let response = await httpx.post(api, {
 			data: utils.toSearchParamsStr(postData),
 			headers: {
 				Accept: "application/json, text/plain, */*",
@@ -43,11 +43,12 @@ export const WeiBoApi = {
 				"User-Agent": utils.getRandomPCUA(),
 			},
 		});
-		if (!postResp.status) {
+		if (!response.status) {
 			return;
 		}
-		let data = utils.toJSON(postResp.data.responseText);
+		let data = utils.toJSON(response.data.responseText);
 		if (data["code"] !== "100000") {
+			log.info(`获取播放信息失败`, response);
 			Qmsg.error("获取播放信息失败");
 			return;
 		}
