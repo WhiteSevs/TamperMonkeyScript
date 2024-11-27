@@ -112,7 +112,12 @@ export const DouYinLive = {
 	 */
 	chooseQuality(quality = "origin") {
 		ReactUtils.waitReactPropsToSet(
-			'xg-inner-controls xg-right-grid >div:has([data-e2e="quality-selector"])',
+			// compatible with chrome < 105
+			// which has no :has selector support
+			// e.g. obs studio using chrome 103
+			// 'xg-inner-controls xg-right-grid >div:has([data-e2e="quality-selector"])',
+			() => Array.from(document.querySelectorAll("xg-inner-controls xg-right-grid >div"))
+				.filter(ele => ele.querySelector('[data-e2e="quality-selector"]'))[0] as HTMLElement,
 			"reactProps",
 			[
 				{
