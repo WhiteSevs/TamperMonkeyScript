@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.27
+// @version      2024.11.28
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -1959,7 +1959,7 @@
       return configList;
     }
   };
-  const blockAdsCSS$1 = "/* 底部中间的 登录/注册按钮 */\r\n#app div.main-wrap div.login-box,\r\n /* 主内容底部的小程序横幅推荐 */\r\n #app > div.lite-page-wrap > div > div.main > div > div.wrap,\r\n /* 底部悬浮的在微博内打开 */\r\n #app .woo-frame.blog-config-page div.weibo-btn-box,\r\n /* 顶部的新闻信息流 */\r\n #app .woo-frame div.woo-panel-container.news-banner {\r\n	display: none !important;\r\n}\r\n";
+  const blockAdsCSS$1 = "/* 底部中间的 登录/注册按钮 */\r\n#app div.main-wrap div.login-box,\r\n/* 主内容底部的小程序横幅推荐 */\r\n#app > div.lite-page-wrap > div > div.main > div > div.wrap,\r\n/* 底部悬浮的在微博内打开 */\r\n#app .woo-frame.blog-config-page div.weibo-btn-box,\r\n/* 顶部的新闻信息流 */\r\n#app .woo-frame div.woo-panel-container.news-banner,\r\n/* 夹杂在card中间的图片横幅，不确定是否会误伤其它正常内容 */\r\n.card .card-main .m-img-box > ul {\r\n	display: none !important;\r\n}\r\n";
   let _ajaxHooker_ = null;
   const WeiBoNetWorkHook = {
     get ajaxHooker() {
