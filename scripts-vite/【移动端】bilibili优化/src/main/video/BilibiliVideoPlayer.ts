@@ -1,4 +1,4 @@
-import { addStyle, DOMUtils, log, utils } from "@/env";
+import { $, addStyle, DOMUtils, log, utils } from "@/env";
 import artPlayerCSS from "./artplayer/index.css?raw";
 import artPlayerCommonCSS from "@/player/player.css?raw";
 import { VueUtils } from "@/utils/VueUtils";
@@ -19,6 +19,7 @@ import type Artplayer from "artplayer";
 import { unsafeWindow } from "ViteGM";
 import type { VIDEO_EP_LIST, VIDEO_PART } from "./TypeVideo";
 import type { ArtPlayerPluginQualityOption } from "@/player/plugins/artplayer-plugin-quality";
+import { BilibiliData } from "@/data/BlibiliData";
 
 type VideoInfo = {
 	/** 视频的bvid */
@@ -349,7 +350,7 @@ export const BilibiliVideoPlayer = {
 		} else {
 			addStyle(/*css*/ `
             /* 隐藏原本的播放器 */
-			#app .video .m-video-player .player-container{
+			${BilibiliData.className.video} .m-video-player .player-container{
 				display: none !important;
 			}
 			
@@ -389,181 +390,187 @@ export const BilibiliVideoPlayer = {
 	 */
 	updateArtPlayerVideoInfo(videoInfo?: VideoInfo, isEpChoose?: boolean) {
 		let that = this;
-		VueUtils.waitVuePropToSet("#app .video .m-video-player", {
-			msg: "等待m-video-player加载完成",
-			check(vueInstance) {
-				if (!isEpChoose && BilibiliVideoArtPlayer.$data.currentOption != null) {
-					// 暂停视频 等待页面参数更新完毕
-					BilibiliVideoArtPlayer.$data.art.pause();
-					return (
-						typeof vueInstance?.info?.aid === "number" &&
-						BilibiliVideoArtPlayer.$data.currentOption.aid !==
-							vueInstance.info.aid &&
-						typeof vueInstance?.info?.bvid === "string" &&
-						typeof vueInstance?.info?.cid === "number"
-					);
-				} else {
-					return (
-						typeof vueInstance?.info?.aid === "number" &&
-						typeof vueInstance?.info?.bvid === "string" &&
-						typeof vueInstance?.info?.cid === "number"
-					);
-				}
-			},
-			async set(vueInstance) {
-				const $mVideoPlayer = document.querySelector<HTMLDivElement>(
-					"#app .video .m-video-player"
-				)!;
-				// info中获取似乎有滞后性，对分p的视频不起作用
-				let { aid, bvid, cid, pic, title } = vueInstance;
-				aid = aid || vueInstance.info.aid;
-				bvid = bvid || vueInstance.info.bvid;
-				cid = cid || vueInstance.info.cid;
-				pic = pic || vueInstance.info.pic;
-				title = title || vueInstance.info.title;
-
-				/** 分集信息 */
-				let epInfoList: VIDEO_EP_LIST[] = [];
-				// 获取页面中的分集信息
-				const $seasonNew = document.querySelector<HTMLElement>(
-					".m-video-season-new"
-				);
-				// 获取页面中的分p信息
-				const $partNew =
-					document.querySelector<HTMLElement>(".m-video-part-new");
-				if ($seasonNew && VueUtils.getVue($seasonNew)) {
-					// 分集 > 分p信息
-					let seasonVueIns = VueUtils.getVue($seasonNew)!;
-					let videoList = seasonVueIns?.videoList;
-					if (Array.isArray(videoList)) {
-						epInfoList = videoList;
-					}
-				} else if ($partNew && VueUtils.getVue($partNew)) {
-					// 分p信息
-					let partVueIns = VueUtils.getVue($partNew)!;
-					let info = partVueIns?.info;
-					let currentPage = partVueIns?.p;
-					let pages = partVueIns?.pages || partVueIns?.info?.pages;
-					// 将分p数据和info合并为EP_LIST数据
-					if (Array.isArray(pages)) {
-						epInfoList.push({
-							season_id: 0,
-							section_id: 0,
-							id: 0,
-							aid: aid || info.aid,
-							bvid: bvid || info.bvid,
-							cid: cid || info.cid,
-							title: title || info.title,
-							attribute: 0,
-							arc: {
-								aid: aid || info.aid,
-								videos: info?.videos,
-								type_id: 0,
-								type_name: "",
-								copyright: info?.copyright,
-								pic: info?.pic,
-								title: info?.title,
-								pubdate: info?.pubdate,
-								ctime: info?.ctime,
-								desc: info?.desc,
-								state: info?.state,
-								duration: info?.duration,
-								rights: info?.rights,
-								author: info?.owner,
-								stat: info?.stat,
-								dynamic: info?.dynamic,
-								dimension: info?.dimension,
-								desc_v2: info?.desc_v2,
-								is_chargeable_season: info?.is_chargeable_season,
-								is_blooper: info?.is_blooper,
-								enable_vt: info?.enable_vt,
-								vt_display: info?.vt_display,
-							},
-							page: info?.pages?.[currentPage],
-							pages: info?.pages,
-						});
-					}
-				}
-
-				if (videoInfo == null) {
-					// 如果是空值，那应该是页面切换的
-					// 如果有值，那应该是切换分集的，先预留这个接口
-					videoInfo = {
-						aid,
-						bvid,
-						cid,
-						pic,
-						title,
-						epList: epInfoList,
-					};
-				}
-				log.info(`视频播放信息 => aid：${aid} bvid：${bvid} cid：${cid}`);
-				// 生成配置信息
-				const artPlayerOption = await GenerateArtPlayerOption(videoInfo);
-				if (artPlayerOption == null) {
-					// 生成失败
-					return;
-				}
-
-				// 创建播放器元素
-				let $artPlayer = document.querySelector<HTMLDivElement>("#artplayer");
-				// 如果页面不存在的话，添加到页面中
-				if (!$artPlayer) {
-					// 接下来就是添加播放器到页面中
-					const $artPlayerContainer = DOMUtils.createElement("div", {
-						className: "artplayer-container",
-						innerHTML: /*html*/ `
-						<div id="artplayer"></div>
-						`,
-					});
-					// 生成的art播放器
-					$artPlayer =
-						$artPlayerContainer.querySelector<HTMLDivElement>("#artplayer")!;
-					DOMUtils.append($mVideoPlayer, $artPlayerContainer);
-				}
-				// 设置container参数
-				artPlayerOption!.container = $artPlayer;
-
-				// 初始化artplayer播放器
-				if (BilibiliVideoPlayer.$data.art == null) {
-					let art = await BilibiliVideoArtPlayer.init(artPlayerOption);
-					if (art) {
-						BilibiliVideoPlayer.$data.art = art;
+		VueUtils.waitVuePropToSet(
+			BilibiliData.className.video + " .m-video-player",
+			{
+				msg: "等待m-video-player加载完成",
+				check(vueInstance) {
+					if (
+						!isEpChoose &&
+						BilibiliVideoArtPlayer.$data.currentOption != null
+					) {
+						// 暂停视频 等待页面参数更新完毕
+						BilibiliVideoArtPlayer.$data.art.pause();
+						return (
+							typeof vueInstance?.info?.aid === "number" &&
+							BilibiliVideoArtPlayer.$data.currentOption.aid !==
+								vueInstance.info.aid &&
+							typeof vueInstance?.info?.bvid === "string" &&
+							typeof vueInstance?.info?.cid === "number"
+						);
 					} else {
+						return (
+							typeof vueInstance?.info?.aid === "number" &&
+							typeof vueInstance?.info?.bvid === "string" &&
+							typeof vueInstance?.info?.cid === "number"
+						);
+					}
+				},
+				async set(vueInstance) {
+					const $mVideoPlayer = $<HTMLDivElement>(
+						BilibiliData.className.video + " .m-video-player"
+					)!;
+					// info中获取似乎有滞后性，对分p的视频不起作用
+					let { aid, bvid, cid, pic, title } = vueInstance;
+					aid = aid || vueInstance.info.aid;
+					bvid = bvid || vueInstance.info.bvid;
+					cid = cid || vueInstance.info.cid;
+					pic = pic || vueInstance.info.pic;
+					title = title || vueInstance.info.title;
+
+					/** 分集信息 */
+					let epInfoList: VIDEO_EP_LIST[] = [];
+					// 获取页面中的分集信息
+					const $seasonNew = document.querySelector<HTMLElement>(
+						".m-video-season-new"
+					);
+					// 获取页面中的分p信息
+					const $partNew =
+						document.querySelector<HTMLElement>(".m-video-part-new");
+					if ($seasonNew && VueUtils.getVue($seasonNew)) {
+						// 分集 > 分p信息
+						let seasonVueIns = VueUtils.getVue($seasonNew)!;
+						let videoList = seasonVueIns?.videoList;
+						if (Array.isArray(videoList)) {
+							epInfoList = videoList;
+						}
+					} else if ($partNew && VueUtils.getVue($partNew)) {
+						// 分p信息
+						let partVueIns = VueUtils.getVue($partNew)!;
+						let info = partVueIns?.info;
+						let currentPage = partVueIns?.p;
+						let pages = partVueIns?.pages || partVueIns?.info?.pages;
+						// 将分p数据和info合并为EP_LIST数据
+						if (Array.isArray(pages)) {
+							epInfoList.push({
+								season_id: 0,
+								section_id: 0,
+								id: 0,
+								aid: aid || info.aid,
+								bvid: bvid || info.bvid,
+								cid: cid || info.cid,
+								title: title || info.title,
+								attribute: 0,
+								arc: {
+									aid: aid || info.aid,
+									videos: info?.videos,
+									type_id: 0,
+									type_name: "",
+									copyright: info?.copyright,
+									pic: info?.pic,
+									title: info?.title,
+									pubdate: info?.pubdate,
+									ctime: info?.ctime,
+									desc: info?.desc,
+									state: info?.state,
+									duration: info?.duration,
+									rights: info?.rights,
+									author: info?.owner,
+									stat: info?.stat,
+									dynamic: info?.dynamic,
+									dimension: info?.dimension,
+									desc_v2: info?.desc_v2,
+									is_chargeable_season: info?.is_chargeable_season,
+									is_blooper: info?.is_blooper,
+									enable_vt: info?.enable_vt,
+									vt_display: info?.vt_display,
+								},
+								page: info?.pages?.[currentPage],
+								pages: info?.pages,
+							});
+						}
+					}
+
+					if (videoInfo == null) {
+						// 如果是空值，那应该是页面切换的
+						// 如果有值，那应该是切换分集的，先预留这个接口
+						videoInfo = {
+							aid,
+							bvid,
+							cid,
+							pic,
+							title,
+							epList: epInfoList,
+						};
+					}
+					log.info(`视频播放信息 => aid：${aid} bvid：${bvid} cid：${cid}`);
+					// 生成配置信息
+					const artPlayerOption = await GenerateArtPlayerOption(videoInfo);
+					if (artPlayerOption == null) {
+						// 生成失败
 						return;
 					}
-					if (import.meta.hot) {
-						Reflect.set(unsafeWindow, "art", BilibiliVideoPlayer.$data.art);
-					}
-					// 强制初始化音量为1
-					BilibiliVideoPlayer.$data.art.volume = 1;
-					that.$data.art.once("ready", () => {
-						PopsPanel.execMenu(
-							"bili-video-playerAutoPlayVideoFullScreen",
-							async () => {
-								log.info(`自动进入全屏`);
-								that.$data.art.fullscreen = true;
-								that.$data.art.once("fullscreenError", () => {
-									log.warn(
-										"未成功进入全屏，需要用户交互操作，使用网页全屏代替"
-									);
-									that.$data.art.fullscreenWeb = true;
-								});
-							}
-						);
-					});
-				} else {
-					// 更新artplayer播放信息
-					await BilibiliVideoArtPlayer.update(
-						BilibiliVideoPlayer.$data.art,
-						artPlayerOption
-					);
-				}
 
-				// 如果开启了滚动固钉tab，当滚动到底部推荐视频进行切换视频时，当前视频paddingTop是0，会导致视频不能归位
-				// 需要重置paddingTop
-				$mVideoPlayer.style.paddingTop = "";
-			},
-		});
+					// 创建播放器元素
+					let $artPlayer = document.querySelector<HTMLDivElement>("#artplayer");
+					// 如果页面不存在的话，添加到页面中
+					if (!$artPlayer) {
+						// 接下来就是添加播放器到页面中
+						const $artPlayerContainer = DOMUtils.createElement("div", {
+							className: "artplayer-container",
+							innerHTML: /*html*/ `
+						<div id="artplayer"></div>
+						`,
+						});
+						// 生成的art播放器
+						$artPlayer =
+							$artPlayerContainer.querySelector<HTMLDivElement>("#artplayer")!;
+						DOMUtils.append($mVideoPlayer, $artPlayerContainer);
+					}
+					// 设置container参数
+					artPlayerOption!.container = $artPlayer;
+
+					// 初始化artplayer播放器
+					if (BilibiliVideoPlayer.$data.art == null) {
+						let art = await BilibiliVideoArtPlayer.init(artPlayerOption);
+						if (art) {
+							BilibiliVideoPlayer.$data.art = art;
+						} else {
+							return;
+						}
+						if (import.meta.hot) {
+							Reflect.set(unsafeWindow, "art", BilibiliVideoPlayer.$data.art);
+						}
+						// 强制初始化音量为1
+						BilibiliVideoPlayer.$data.art.volume = 1;
+						that.$data.art.once("ready", () => {
+							PopsPanel.execMenu(
+								"bili-video-playerAutoPlayVideoFullScreen",
+								async () => {
+									log.info(`自动进入全屏`);
+									that.$data.art.fullscreen = true;
+									that.$data.art.once("fullscreenError", () => {
+										log.warn(
+											"未成功进入全屏，需要用户交互操作，使用网页全屏代替"
+										);
+										that.$data.art.fullscreenWeb = true;
+									});
+								}
+							);
+						});
+					} else {
+						// 更新artplayer播放信息
+						await BilibiliVideoArtPlayer.update(
+							BilibiliVideoPlayer.$data.art,
+							artPlayerOption
+						);
+					}
+
+					// 如果开启了滚动固钉tab，当滚动到底部推荐视频进行切换视频时，当前视频paddingTop是0，会导致视频不能归位
+					// 需要重置paddingTop
+					$mVideoPlayer.style.paddingTop = "";
+				},
+			}
+		);
 	},
 };

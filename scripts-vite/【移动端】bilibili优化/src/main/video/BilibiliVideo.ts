@@ -3,7 +3,6 @@ import { PopsPanel } from "@/setting/setting";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliUrl } from "@/utils/BilibiliUrl";
 import { BilibiliData } from "@/data/BlibiliData";
-import BilibiliVideoBeautifyCSS from "./BilibiliVideoBeautify.css?raw";
 import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import { VueUtils } from "@/utils/VueUtils";
 import { BilibiliVideoPlayer } from "./BilibiliVideoPlayer";
@@ -48,7 +47,134 @@ const BilibiliVideo = {
 		/* 先添加美化CSS */
 		if (!this.$data.isAddBeautifyCSS) {
 			this.$data.isAddBeautifyCSS = true;
-			addStyle(BilibiliVideoBeautifyCSS);
+			addStyle(/*css*/ `
+				@charset "UTF-8";
+				${BilibiliData.className.video} .video-list .card-box {
+					--left-card-width: 33%;
+					--right-child-padding: 1.333vmin;
+					/* 开启了bili-video-beautify */
+				}
+				${BilibiliData.className.video} .video-list .card-box .v-card-toapp {
+					width: 100%;
+					border-bottom: 1px solid #b5b5b5;
+					padding-left: 0;
+					padding-right: 0;
+				}
+				${BilibiliData.className.video} .video-list .card-box .v-card-toapp > a {
+					display: flex;
+					flex-wrap: nowrap;
+					gap: var(--right-child-padding);
+				}
+				${BilibiliData.className.video} .video-list .card-box .v-card-toapp > a .card {
+					width: var(--left-card-width);
+					height: 80px;
+					flex: 0 auto;
+				}
+				${BilibiliData.className.video} .video-list .card-box .v-card-toapp > a .card .count {
+					background: transparent;
+				}
+				${BilibiliData.className.video} .video-list .card-box .v-card-toapp > a .card .count .left {
+					display: list-item;
+				}
+				${BilibiliData.className.video} .video-list .card-box .v-card-toapp > a .card .count .left span.item {
+					display: none;
+				}
+				${BilibiliData.className.video} .video-list .card-box .v-card-toapp > a .card .count .duration {
+					background: rgba(0, 0, 0, 0.4);
+					border-radius: 0.6vmin;
+					padding: 0px 0.5vmin;
+					right: 1vmin;
+					bottom: 1vmin;
+				}
+				${BilibiliData.className.video} .video-list .card-box .v-card-toapp > a .title {
+					/*flex: 1;*/
+					/*padding: var(--right-child-padding);*/
+					padding-top: 0;
+					margin-top: 0;
+					display: -webkit-box;
+					-webkit-line-clamp: 2;
+					-webkit-box-orient: vertical;
+					overflow: hidden;
+				}
+				${BilibiliData.className.video} .video-list .card-box .gm-right-container {
+					display: flex;
+					flex-direction: column;
+					width: calc(100% - var(--left-card-width));
+					justify-content: space-between;
+				}
+				${BilibiliData.className.video} .video-list .card-box .gm-right-container > * {
+					padding: var(--right-child-padding);
+					padding-bottom: 0;
+				}
+				${BilibiliData.className.video} .video-list .card-box .gm-right-container .left {
+					gap: 1rem;
+				}
+				${BilibiliData.className.video} .video-list .card-box .gm-right-container .left span {
+					display: flex;
+					align-items: safe center;
+					gap: 1vmin;
+				}
+				${BilibiliData.className.video} .video-list .card-box .gm-right-container .gm-up-name,
+				${BilibiliData.className.video} .video-list .card-box .gm-right-container .left {
+					color: #999;
+					font-size: 3vmin;
+					transform-origin: left;
+					display: flex;
+					/*align-items: safe center;*/
+					align-items: safe flex-end;
+				}
+				${BilibiliData.className.video} .video-list .card-box .gm-right-container .gm-up-name svg {
+					width: 3vmin;
+					height: 3vmin;
+				}
+				${BilibiliData.className.video} .video-list .card-box .gm-right-container .gm-up-name-text {
+					margin-left: 1vmin;
+				}
+				${BilibiliData.className.video} .video-list .card-box .gm-right-container .num {
+					margin-right: 4vmin;
+				}
+				${BilibiliData.className.video} .video-list .card-box > a.v-card {
+					width: 100%;
+					border-bottom: 1px solid #b5b5b5;
+					padding-left: 0;
+					padding-right: 0;
+					display: flex;
+					flex-wrap: nowrap;
+				}
+				${BilibiliData.className.video} .video-list .card-box > a.v-card .card {
+					width: var(--left-card-width);
+					height: 100%;
+					flex: 0 auto;
+				}
+				${BilibiliData.className.video} .video-list .card-box > a.v-card .card .count {
+					background: transparent;
+				}
+				${BilibiliData.className.video} .video-list .card-box > a.v-card .card .count span {
+					display: none;
+				}
+				${BilibiliData.className.video} .video-list .card-box > a.v-card .card .count .duration {
+					background-color: rgba(0, 0, 0, 0.3);
+					border-radius: 4px;
+					color: #fff;
+					font-size: 12px;
+					height: 16px;
+					line-height: 16px;
+					margin-left: auto;
+					padding-left: 4px;
+					padding-right: 4px;
+				}
+				${BilibiliData.className.video} .video-list .card-box > a.v-card .title {
+					flex: 1;
+					/*padding: var(--right-child-padding);*/
+					padding-top: 0;
+					margin-top: 0;
+					display: -webkit-box;
+					-webkit-line-clamp: 2;
+					-webkit-box-orient: vertical;
+					overflow: hidden;
+				}
+
+			`);
 		}
 
 		utils
