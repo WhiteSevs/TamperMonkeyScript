@@ -94,3 +94,14 @@
 	margin: 10px 0;
 	font-weight: 500;
 }
+
+@media screen and (min-width: 800px) {
+	.blackhome-user-list {
+		display: flex;
+		flex-wrap: wrap;
+	}
+	.blackhome-user-list .blackhome-user-item {
+		flex: 1 1 250px;
+		max-width: calc(50% - 10px - 10px);
+	}
+}

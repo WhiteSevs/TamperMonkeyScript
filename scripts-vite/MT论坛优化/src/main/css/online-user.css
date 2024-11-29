@@ -1,8 +1,8 @@
-.pops-alert-content{
+.pops-alert-content {
 	display: flex;
 	flex-direction: column;
 }
-.pops-alert-content > .online-user-info{
+.pops-alert-content > .online-user-info {
 	text-align: center;
 	padding: 0px 6px;
 }
@@ -72,4 +72,14 @@
 .online-user-list .online-user-info span[data-sf="管理员"] {
 	color: #ff5416;
 	border: 1px solid #ff5416;
+}
+
+@media screen and (min-width: 800px) {
+	.online-user-list {
+		display: flex;
+		flex-wrap: wrap;
+	}
+	.online-user-list .online-item {
+		flex: 1 1 250px;
+	}
 }
