@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.28
+// @version      2024.11.29
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -131,7 +131,7 @@
         } else {
           details.headers["Cookie"] = ownCookie;
         }
-        log.info(["Httpx => 设置cookie:", details]);
+        log.info("Httpx => 设置cookie:", details);
       }
       if (details.headers && details.headers.Cookie != null && utils.isNull(details.headers.Cookie)) {
         delete details.headers.Cookie;
@@ -325,7 +325,7 @@
     return data;
   });
   httpx.interceptors.response.use(void 0, (data) => {
-    log.error(["拦截器-请求错误", data]);
+    log.error("拦截器-请求错误", data);
     if (data.type === "onabort") {
       Qmsg.warning("请求取消");
     } else if (data.type === "onerror") {
@@ -561,7 +561,7 @@
               let name = args[0];
               if (name === "qualityButton") {
                 let qualityInfo = args[1];
-                log.info(["锁定视频清晰度", qualityInfo]);
+                log.info("锁定视频清晰度", qualityInfo);
                 qualityInfo["qualityList"].find((item) => {
                   if (!(item.sign === 1 && that.$data.videoQualityMap.has(item.src))) {
                     return false;
@@ -578,7 +578,7 @@
                         sign: videoQualityMapInfo.sign,
                         src: videoQualityMapInfo.src
                       };
-                      log.success(["添加新的视频清晰度", newQuality]);
+                      log.success("添加新的视频清晰度", newQuality);
                       qualityInfo["qualityList"].push(newQuality);
                     }
                   });
@@ -700,11 +700,11 @@
                         let newSrcInfo = VideoQualityMap[srcName];
                         if (newSrcInfo.name in urls) {
                         } else {
-                          log.success(["新增清晰度：", newSrcInfo]);
+                          log.success("新增清晰度：", newSrcInfo);
                           urls[newSrcInfo.name] = src;
                         }
                       } else {
-                        log.error(["视频清晰度映射尚未补充", { srcName, src }]);
+                        log.error("视频清晰度映射尚未补充", { srcName, src });
                       }
                     });
                   } catch (error) {
@@ -1591,7 +1591,7 @@
         }
         let needInitConfigList = Object.keys(needInitConfig);
         if (!needInitConfigList.length) {
-          log.warn(["请先配置键", config]);
+          log.warn("请先配置键", config);
           return;
         }
         needInitConfigList.forEach((__key) => {
@@ -1959,7 +1959,7 @@
       return configList;
     }
   };
-  const blockAdsCSS$1 = "/* 底部中间的 登录/注册按钮 */\r\n#app div.main-wrap div.login-box,\r\n/* 主内容底部的小程序横幅推荐 */\r\n#app > div.lite-page-wrap > div > div.main > div > div.wrap,\r\n/* 底部悬浮的在微博内打开 */\r\n#app .woo-frame.blog-config-page div.weibo-btn-box,\r\n/* 顶部的新闻信息流 */\r\n#app .woo-frame div.woo-panel-container.news-banner,\r\n/* 夹杂在card中间的图片横幅，不确定是否会误伤其它正常内容 */\r\n.card .card-main .m-img-box > ul {\r\n	display: none !important;\r\n}\r\n";
+  const blockAdsCSS$1 = "/* 底部中间的 登录/注册按钮 */\r\n#app div.main-wrap div.login-box,\r\n/* 主内容底部的小程序横幅推荐 */\r\n#app > div.lite-page-wrap > div > div.main > div > div.wrap,\r\n/* 底部悬浮的在微博内打开 */\r\n#app .woo-frame.blog-config-page div.weibo-btn-box,\r\n/* 顶部的新闻信息流 */\r\n#app .woo-frame div.woo-panel-container.news-banner,\r\n/* 夹杂在card中间的图片横幅，不确定是否会误伤其它正常内容 */\r\n.card .card-main .m-img-box > ul {\r\n	display: none !important;\r\n}\r\n/* 搜索域名下的 */\r\n.card.m-panel:has(+ .simple),\r\n.card.m-panel.simple {\r\n	display: none !important;\r\n}\r\n";
   let _ajaxHooker_ = null;
   const WeiBoNetWorkHook = {
     get ajaxHooker() {
@@ -2030,14 +2030,14 @@
             });
           });
         } else if (ApiPath.startsWith("profile/info") && PopsPanel.getValue("weibo_apply_profile_info")) {
-          log.success(["优化跳转xx微博主页", ApiSearchParams]);
+          log.success("优化跳转xx微博主页", ApiSearchParams);
           let uidHomeUrl = `https://weibo.com/${ApiSearchParams["uid"]}`;
           log.success("跳转微博主页：" + uidHomeUrl);
           window.location.href = uidHomeUrl;
           return null;
         } else if (ApiPath === "comments/hotflow" && PopsPanel.getValue("weibo_apply_comments_hotflow")) {
           if (!("id" in ApiSearchParams && "max_id_type" in ApiSearchParams && "mid" in ApiSearchParams) || "id" in ApiSearchParams && "max_id" in ApiSearchParams && "max_id_type" in ApiSearchParams && "mid" in ApiSearchParams) {
-            log.success(["拦截下拉加载更多评论跳转登录", ApiSearchParams]);
+            log.success("拦截下拉加载更多评论跳转登录", ApiSearchParams);
             return new Promise((resolve) => {
               resolve({
                 ok: 1,
@@ -2050,10 +2050,10 @@
           }
         } else if (ApiPath === "comments/hotFlowChild" && PopsPanel.getValue("weibo_apply_comments_hotFlowChild")) {
           if ("max_id" in ApiSearchParams && ApiSearchParams["max_id"] !== 0) {
-            log.success([
+            log.success(
               "拦截评论中的评论下拉加载更多评论跳转登录",
               ApiSearchParams
-            ]);
+            );
             return new Promise((resolve) => {
               resolve({
                 data: {
@@ -2066,7 +2066,7 @@
             });
           }
         } else if (ApiPath === "api/statuses/repostTimeline" && PopsPanel.getValue("weibo_apply_statuses_repostTimeline")) {
-          log.success(["拦截查看转发数据，因为需登录", ApiSearchParams]);
+          log.success("拦截查看转发数据，因为需登录", ApiSearchParams);
           return new Promise((resolve) => {
             resolve({
               data: {
@@ -2111,10 +2111,7 @@
           request.response = function(originResponse) {
             let originResponseData = utils.toJSON(originResponse.responseText);
             if (originResponseData.ok !== 1) {
-              log.error([
-                "由于尚未登录，获取不到更多评论数据",
-                originResponseData
-              ]);
+              log.error("由于尚未登录，获取不到更多评论数据", originResponseData);
               originResponseData = {
                 ok: 1
               };
@@ -2125,7 +2122,7 @@
           request.response = function(originResponse) {
             let originResponseData = utils.toJSON(originResponse.responseText);
             Reflect.set(originResponse, "json", {});
-            log.info([`重构/status/push响应`, originResponseData]);
+            log.info(`重构/status/push响应`, originResponseData);
             originResponse.responseText = JSON.stringify(originResponseData);
           };
         } else if (requestUrl.startsWith("https://m.weibo.cn/api/container/getIndex") && PopsPanel.getValue("weibo-request-blockArticleAds")) {
@@ -2249,7 +2246,7 @@
         {
           get() {
             return function(...args) {
-              log.success(["劫持navigator.serviceWorker.register: ", args]);
+              log.success("劫持navigator.serviceWorker.register: ", args);
             };
           }
         }
@@ -2368,7 +2365,7 @@
      */
     hookNetWorkWithGetMoreCelebrityCalendarInformation() {
       WeiBoNetWorkHook.ajaxHooker.hook((request) => {
-        log.info(["ajaxHookr: ", request.url]);
+        log.info("ajaxHookr: ", request.url);
         if (!request.url.startsWith("/ajax/super/starschedule?")) {
           return;
         }
@@ -2406,9 +2403,9 @@
       log.info("劫持webpack");
       WeiBoHook.hookWebpack("webpackJsonp", "chunk-common", (webpackExports) => {
         if (typeof (webpackExports == null ? void 0 : webpackExports.exports) === "object" && typeof webpackExports.exports["a"] === "object" && typeof webpackExports.exports["a"]["gotoApp"] === "function" && PopsPanel.getValue("weibo_video_webpack_gotoApp")) {
-          log.success(["成功劫持webpack调用函数", webpackExports]);
+          log.success("成功劫持webpack调用函数", webpackExports);
           webpackExports.exports["a"]["gotoApp"] = function(...args) {
-            log.info(["阻止唤醒App：", args]);
+            log.info("阻止唤醒App：", args);
           };
           return webpackExports;
         }
@@ -2744,7 +2741,7 @@
           utils.preventEvent(event);
           let jQueryEvent = $click[jQueryEventName];
           let data = jQueryEvent["events"]["click"][0]["data"];
-          log.success(["跳转信息：", data]);
+          log.success("跳转信息：", data);
           let url = data["url"] || data["target_url"];
           window.open(url, "_blank");
         },

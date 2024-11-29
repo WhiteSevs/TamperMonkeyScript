@@ -122,7 +122,7 @@ export class WeiBoUnlockQuality {
 						let name = args[0];
 						if (name === "qualityButton") {
 							let qualityInfo = args[1];
-							log.info(["锁定视频清晰度", qualityInfo]);
+							log.info("锁定视频清晰度", qualityInfo);
 							qualityInfo["qualityList"].find((item: any) => {
 								if (
 									!(item.sign === 1 && that.$data.videoQualityMap.has(item.src))
@@ -145,7 +145,7 @@ export class WeiBoUnlockQuality {
 												sign: videoQualityMapInfo.sign,
 												src: videoQualityMapInfo.src,
 											} as any;
-											log.success(["添加新的视频清晰度", newQuality]);
+											log.success("添加新的视频清晰度", newQuality);
 											qualityInfo["qualityList"].push(newQuality);
 										}
 									});
@@ -239,7 +239,7 @@ export class WeiBoUnlockQuality {
 										if (!componentInfo) {
 											return;
 										}
-										// log.info(["获取组件信息成功", componentInfo]);
+										// log.info("获取组件信息成功", componentInfo);
 										if (!componentInfo.urls) {
 											log.error("获取组件信息urls失败");
 											Qmsg.error("获取组件信息urls失败");
@@ -289,11 +289,11 @@ export class WeiBoUnlockQuality {
 												if (newSrcInfo.name in urls) {
 													// 该清晰度已存在
 												} else {
-													log.success(["新增清晰度：", newSrcInfo]);
+													log.success("新增清晰度：", newSrcInfo);
 													urls[newSrcInfo.name] = src;
 												}
 											} else {
-												log.error(["视频清晰度映射尚未补充", { srcName, src }]);
+												log.error("视频清晰度映射尚未补充", { srcName, src });
 											}
 										});
 									} catch (error) {

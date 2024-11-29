@@ -38,7 +38,7 @@ const WeiBoHuaTi = {
 	 */
 	hookNetWorkWithGetMoreCelebrityCalendarInformation() {
 		WeiBoNetWorkHook.ajaxHooker.hook((request) => {
-			log.info(["ajaxHookr: ", request.url]);
+			log.info("ajaxHookr: ", request.url);
 			if (!request.url.startsWith("/ajax/super/starschedule?")) {
 				return;
 			}

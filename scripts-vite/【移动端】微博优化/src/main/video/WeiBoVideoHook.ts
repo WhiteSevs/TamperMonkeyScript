@@ -18,9 +18,9 @@ export const WeiBoVideoHook = {
 				typeof webpackExports.exports["a"]["gotoApp"] === "function" &&
 				PopsPanel.getValue("weibo_video_webpack_gotoApp")
 			) {
-				log.success(["成功劫持webpack调用函数", webpackExports]);
+				log.success("成功劫持webpack调用函数", webpackExports);
 				webpackExports.exports["a"]["gotoApp"] = function (...args: any[]) {
-					log.info(["阻止唤醒App：", args]);
+					log.info("阻止唤醒App：", args);
 				};
 				return webpackExports;
 			}

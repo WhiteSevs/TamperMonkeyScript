@@ -85,7 +85,7 @@ const WeiBoHook = {
 				ApiPath.startsWith("profile/info") &&
 				PopsPanel.getValue("weibo_apply_profile_info")
 			) {
-				log.success(["优化跳转xx微博主页", ApiSearchParams]);
+				log.success("优化跳转xx微博主页", ApiSearchParams);
 				let uidHomeUrl = `https://weibo.com/${ApiSearchParams["uid"]}`;
 				log.success("跳转微博主页：" + uidHomeUrl);
 				window.location.href = uidHomeUrl;
@@ -105,7 +105,7 @@ const WeiBoHook = {
 						"max_id_type" in ApiSearchParams &&
 						"mid" in ApiSearchParams)
 				) {
-					log.success(["拦截下拉加载更多评论跳转登录", ApiSearchParams]);
+					log.success("拦截下拉加载更多评论跳转登录", ApiSearchParams);
 					return new Promise((resolve) => {
 						resolve({
 							ok: 1,
@@ -121,10 +121,10 @@ const WeiBoHook = {
 				PopsPanel.getValue("weibo_apply_comments_hotFlowChild")
 			) {
 				if ("max_id" in ApiSearchParams && ApiSearchParams["max_id"] !== 0) {
-					log.success([
+					log.success(
 						"拦截评论中的评论下拉加载更多评论跳转登录",
-						ApiSearchParams,
-					]);
+						ApiSearchParams
+					);
 					return new Promise((resolve) => {
 						resolve({
 							data: {
@@ -140,7 +140,7 @@ const WeiBoHook = {
 				ApiPath === "api/statuses/repostTimeline" &&
 				PopsPanel.getValue("weibo_apply_statuses_repostTimeline")
 			) {
-				log.success(["拦截查看转发数据，因为需登录", ApiSearchParams]);
+				log.success("拦截查看转发数据，因为需登录", ApiSearchParams);
 				return new Promise((resolve) => {
 					resolve({
 						data: {
@@ -153,7 +153,7 @@ const WeiBoHook = {
 					});
 				});
 			} else {
-				//log.info(["请求API：", ApiPath, ApiSearchParams]);
+				//log.info("请求API：", ApiPath, ApiSearchParams);
 			}
 			return Reflect.apply(target, this, args);
 		};
@@ -202,10 +202,7 @@ const WeiBoHook = {
 				request.response = function (originResponse) {
 					let originResponseData = utils.toJSON(originResponse.responseText);
 					if (originResponseData.ok !== 1) {
-						log.error([
-							"由于尚未登录，获取不到更多评论数据",
-							originResponseData,
-						]);
+						log.error("由于尚未登录，获取不到更多评论数据", originResponseData);
 						originResponseData = {
 							ok: 1,
 						};
@@ -222,7 +219,7 @@ const WeiBoHook = {
 				request.response = function (originResponse) {
 					let originResponseData = utils.toJSON(originResponse.responseText);
 					Reflect.set(originResponse, "json", {});
-					log.info([`重构/status/push响应`, originResponseData]);
+					log.info(`重构/status/push响应`, originResponseData);
 					originResponse.responseText = JSON.stringify(originResponseData);
 				};
 			} else if (
@@ -367,7 +364,7 @@ const WeiBoHook = {
 			{
 				get() {
 					return function (...args: any[]) {
-						log.success(["劫持navigator.serviceWorker.register: ", args]);
+						log.success("劫持navigator.serviceWorker.register: ", args);
 					};
 				},
 			}

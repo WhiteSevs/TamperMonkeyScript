@@ -10,3 +10,8 @@
 .card .card-main .m-img-box > ul {
 	display: none !important;
 }
+/* 搜索域名下的 */
+.card.m-panel:has(+ .simple),
+.card.m-panel.simple {
+	display: none !important;
+}

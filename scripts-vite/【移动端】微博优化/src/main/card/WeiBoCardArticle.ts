@@ -58,7 +58,7 @@ export const WeiBoCardArticle = {
 				utils.preventEvent(event);
 				let jQueryEvent = ($click as any)[jQueryEventName];
 				let data = jQueryEvent["events"]["click"][0]["data"];
-				log.success(["跳转信息：", data]);
+				log.success("跳转信息：", data);
 				let url = data["url"] || data["target_url"];
 				window.open(url, "_blank");
 			},
