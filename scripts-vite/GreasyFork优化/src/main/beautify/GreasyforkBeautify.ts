@@ -30,7 +30,7 @@ export const GreasyforkBeautify = {
 		});
 	},
 	/**
-	 * 美化页面元素
+	 * 美化页面元素，包括Markdown
 	 */
 	beautifyPageElement() {
 		log.info("美化页面元素");
@@ -47,18 +47,44 @@ export const GreasyforkBeautify = {
 			}
 			`)
 		);
-		DOMUtils.ready(function () {
-			let markupChoiceELement = document.querySelector<HTMLAnchorElement>(
+		DOMUtils.ready(() => {
+			let $markupChoice = $<HTMLAnchorElement>(
 				'a[target="markup_choice"][href*="daringfireball.net"]'
 			);
-			if (markupChoiceELement) {
-				markupChoiceELement.parentElement!.replaceChild(
+			if ($markupChoice) {
+				$markupChoice.parentElement!.replaceChild(
 					DOMUtils.createElement("span", {
 						textContent: "Markdown",
 					}),
-					markupChoiceELement
+					$markupChoice
 				);
 			}
+
+			// markdown 解析任务列表并转换
+			// [x]
+			// []
+			$$<HTMLLIElement>(".user-content ul li").forEach(($li) => {
+				let $first = $li.firstChild;
+				if ($first?.nodeName === "#text") {
+					if ($first.textContent?.startsWith("[x] ")) {
+						$first.textContent = $first.textContent!.replace("[x] ", "");
+						DOMUtils.prepend(
+							$li,
+							/*html*/ `
+							<input type="checkbox" disabled="" class="task-list-item-checkbox" checked="">
+						`
+						);
+					} else if ($first.textContent?.startsWith("[ ] ")) {
+						$first.textContent = $first.textContent!.replace("[ ] ", "");
+						DOMUtils.prepend(
+							$li,
+							/*html*/ `
+							<input type="checkbox" disabled="" class="task-list-item-checkbox">
+						`
+						);
+					}
+				}
+			});
 
 			if (GreasyforkRouter.isHome()) {
 				result.push(addStyle(beautifyHomeCSS));

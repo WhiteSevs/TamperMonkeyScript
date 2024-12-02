@@ -1,3 +1,6 @@
+:root {
+	--borderColor-muted: #d1d9e0b3;
+}
 code {
 	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 	font-size: 0.85em;
@@ -349,4 +352,24 @@ code {
 	background-color: rgba(150, 150, 150, 0.66);
 	border: 4px solid rgba(150, 150, 150, 0.66);
 	background-clip: content-box;
+}
+
+html body h1 {
+	padding-bottom: 0.3em;
+	font-size: 2em;
+	border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));
+}
+html body h2 {
+	padding-bottom: 0.3em;
+	font-size: 1.5em;
+	border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));
+}
+/* 任务列表样式 */
+.task-list-item-checkbox {
+	margin: 0 0.2em 0.25em -1.4em;
+	vertical-align: middle;
+}
+/* 隐藏标记框 */
+ul li:has(> .task-list-item-checkbox)::marker {
+	content: "";
 }
