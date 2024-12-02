@@ -54,27 +54,32 @@ Tampermonkey 为了顺应 Chrome 的 Manifest V3 要求，在 v5.0.0 版本中�
 
 ****
 
-## 开发
+## 开发指引
 
-```text
-git clone https://github.com/WhiteSevs/TamperMonkeyScript.git
-cd ./TamperMonkeyScript
-code .
-pnpm i
-```
+- 初始化
 
-构建所有的脚本
+    ```sh
+    git clone https://github.com/WhiteSevs/TamperMonkeyScript.git
+    cd ./TamperMonkeyScript
+    code .
+    pnpm i
+    ```
 
-```text
-pnpm run build:all
+- 构建所有的脚本
 
-```
+    ```sh
+    pnpm run build:all
 
-构建所有的脚本且版本号为为三位
+    ```
 
-```text
-pnpm run build:all-new
-```
+- 构建所有的脚本且版本号为为三位
+
+    ```sh
+    pnpm run build:all-new
+    ```
+
+- 脚手架
+[vite-plugin-monkey](https://github.com/lisonge/vite-plugin-monkey)
 
 ## 兼容事项
 
@@ -85,6 +90,11 @@ pnpm run build:all-new
 ## 插件`vite-plugin-mkcert`的使用事项
 
 如果想要局域网其它设备信任该证书，需要把`%USERPROFILE%\.vite-plugin-mkcert`下的`rootCA.pem`安装到该设备中
+
+## 赞赏支持
+
+<img src="https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/asset/img/wx_zsm.png" alt="微信赞赏" width="250" height="250">
+<img src="https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/asset/img/zfb_skm.png" alt="支付宝赞赏" width="250" height="250">
 
 ## License
 

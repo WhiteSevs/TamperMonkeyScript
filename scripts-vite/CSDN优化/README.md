@@ -1,69 +1,39 @@
-# Vite + TypeScript
+# CSDN优化
 
-## 🎁菜单截图
+> 注：并非所有功能都是默认开启，有些功能需要到油猴菜单中打开【设置】，手动开启功能。
+>
 
-![PixPin_2024-03-17_13-58-07.png](https://vip.helloimg.com/i/2024/03/17/65f686435f752.png)
+一个对桌面端和移动端CSDN进行优化的油猴脚本。
 
-![PixPin_2024-03-17_14-09-00.png](https://vip.helloimg.com/i/2024/03/17/65f6886b57569.png)
+## 特性
 
-![PixPin_2024-03-17_13-58-31.png](https://vip.helloimg.com/i/2024/03/17/65f686295122c.png)
+- [x] 屏蔽广告、登录弹窗
+- [x] 去除 CTRL+C 劫持文字
+- [x] 去除禁止点击复制按钮
+- [x] 自动展开全文
+- [x] 在右边按钮点击前往评论，自动滚动到评论区域
+- [x] 全文居中
+- [x] 自动展开内容块
+- [x] 隐藏目录
+- [x] 隐藏侧边栏
+- [x] 重定向链接
+- [x] 优化收藏弹窗
+- [x] 等其它功能...
 
-![PixPin_2024-03-17_13-58-38.png](https://vip.helloimg.com/i/2024/03/17/65f68640bd5d1.png)
+## 安装
 
-## ![https://favicon.yandex.net/favicon/v2/https://www.csdn.net/?size=32](https://favicon.yandex.net/favicon/v2/https://www.csdn.net/?size=32) CSDN-桌面端
+> 注：建议使用浏览器扩展执行本脚本。
+>
+> - 浏览器扩展的功能和Api更完整
+> - 非浏览器扩展使用脚本会遇到更多使用上的问题（跨域问题、脚本冲突等）
+>
 
-- 屏蔽广告
-- 屏蔽登录
-- 屏蔽关注博主查看全文
-- 屏蔽发文章得原力分图片提示
-- 悬浮在登录上的的未登录提示
-- 去除 CTRL+C 劫持文字
-- 去除禁止点击复制按钮
-- 底部文章标识 CSDN 下载
-- 自动展开全文
-- 点击代码块自动展开
-- 恢复评论到正确位置
-- 在右边按钮点击前往评论，自动滚动到评论区域
-- 可在菜单中开启 屏蔽底部推荐文章的 CSDN 下载
-- 可在菜单中开启 屏蔽登录弹窗(动态屏蔽)
-- 可在菜单中开启 屏蔽右侧悬浮按钮
-- 可在菜单中开启 全文居中(默认开启)
-- 可在菜单中开启 自动展开内容块
-- 可在菜单中开启 隐藏目录
-- 可在菜单中开启 隐藏侧边栏
-- 可在菜单中 前往C知道
-- 当在C知道网址时，新增菜单，【屏蔽】背景水印
+- [x] 浏览器扩展
+  - [x] Chrome/Edge [TamperMonkey](https://microsoftedge.microsoft.com/addons/detail/%E7%AF%A1%E6%94%B9%E7%8C%B4/iikmkjmpaadaobahmlepeloendndfphd?hl=zh-CN)、[ViolentMonkey](https://microsoftedge.microsoft.com/addons/detail/%E6%9A%B4%E5%8A%9B%E7%8C%B4/eeagobfjdenkkddmbclomhiblgggliao?hl=zh-CN)、[ScriptCat](https://microsoftedge.microsoft.com/addons/detail/%E8%84%9A%E6%9C%AC%E7%8C%AB/liilgpjgabokdklappibcjfablkpcekh?hl=zh-CN)
+  - [x] Firefox [TamperMonkey](https://addons.mozilla.org/zh-CN/firefox/addon/tampermonkey/)、[ViolentMonkey](https://addons.mozilla.org/zh-CN/firefox/addon/violentmonkey/)、[ScriptCat](https://addons.mozilla.org/zh-CN/firefox/addon/scriptcat/)
+  - [x] Safari [Stay](https://apps.apple.com/cn/app/stay-for-safari-%E6%B5%8F%E8%A7%88%E5%99%A8%E4%BC%B4%E4%BE%A3/id1591620171)
 
-## ![https://favicon.yandex.net/favicon/v2/https://m.csdn.net/?size=32](https://favicon.yandex.net/favicon/v2/https://m.csdn.net/?size=32) CSDN-移动端
+## 赞赏支持
 
-- 屏蔽 广告
-- 屏蔽 登录
-- 屏蔽 APP 打开
-- 屏蔽 关注博主查看全文
-- 屏蔽 底部输入框
-- 屏蔽 打开 CSDN APP，看更多技术内容
-- 屏蔽 CSDN 前往
-- 屏蔽 顶部的作者横栏
-- 屏蔽 打开 CSDN APP | 小程序看全文
-- 屏蔽 阅读终点，创作起航，您可以撰写心得或摘录文章要点写篇博文。
-- 屏蔽 觉得还不错? 一键收藏
-- 允许复制
-- 底部文章标识 CSDN 下载
-- 自动展开全文
-- 自动展开代码块
-- 可在菜单中开启 标识处理过的底部推荐文章
-- 可在菜单中开启 底部推荐文章新标签页打开
-- 可在菜单中开启 移除文章底部的 CSDN 下载
-- 可在菜单中 前往C知道
-- 当在C知道网址时，新增菜单，【屏蔽】背景水印
-
-## ![https://favicon.yandex.net/favicon/v2/https://huaweicloud.csdn.net/?size=32](https://favicon.yandex.net/favicon/v2/https://huaweicloud.csdn.net/?size=32) CSDN-华为云开发者联盟（桌面端&移动端）
-
-- 屏蔽 底部免费抽xxx奖品广告
-- 屏蔽 华为开发者联盟加入社区
-- 自动展开全文
-- 可在菜单中开启 屏蔽云开发者任务挑战活动
-- 可在菜单中开启 屏蔽左侧悬浮按钮 包括当前阅读量、点赞按钮、评论按钮、分享按钮
-- 可在菜单中开启 屏蔽右侧栏 包括相关产品-活动日历-运营活动-热门标签
-- 可在菜单中开启 屏蔽底部推荐内容
-- 可在菜单中开启 屏蔽底部更多推荐
+<img src="https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/asset/img/wx_zsm.png" alt="微信赞赏" width="250" height="250">
+<img src="https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/asset/img/zfb_skm.png" alt="支付宝赞赏" width="250" height="250">

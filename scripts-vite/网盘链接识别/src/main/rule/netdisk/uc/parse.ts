@@ -10,10 +10,9 @@ import { NetDiskParseObject } from "@/main/parse/NetDiskParseObject";
 export class NetDiskParse_UC extends NetDiskParseObject {
 	/**
 	 * 入口
-	 * @param {number} netDiskIndex 网盘名称索引下标
-	 * @param {string} shareCode
-	 * @param {string} accessCode
-	 * @returns
+	 * @param netDiskIndex 网盘名称索引下标
+	 * @param shareCode
+	 * @param accessCode
 	 */
 	async init(netDiskIndex: number, shareCode: string, accessCode: string) {
 		const that = this;
@@ -85,7 +84,6 @@ export class NetDiskParse_UC extends NetDiskParseObject {
 	}
 	/**
 	 * 判断是否已登录UC网盘
-	 * @returns {Promise<?(string|boolean)>}
 	 */
 	async isLogin() {
 		const that = this;
@@ -106,11 +104,8 @@ export class NetDiskParse_UC extends NetDiskParseObject {
 	}
 	/**
 	 * 下载文件
-	 * @param {string} fileName 文件名
-	 * @param {string} downloadUrl 下载链接
-	 * @return { {
-	 * abort: Function
-	 * } }
+	 * @param fileName 文件名
+	 * @param downloadUrl 下载链接
 	 */
 	downloadFile(fileName: string, downloadUrl: string) {
 		log.info(`调用【GM_download】下载：`, arguments);
@@ -165,7 +160,7 @@ export class NetDiskParse_UC extends NetDiskParseObject {
 	}
 	/**
 	 * 前往登录
-	 * @param {string} text 弹窗的显示的内容
+	 * @param text 弹窗的显示的内容
 	 */
 	gotoLogin(text = "") {
 		const that = this;
@@ -196,9 +191,8 @@ export class NetDiskParse_UC extends NetDiskParseObject {
 	}
 	/**
 	 * 获取stoken
-	 * @param {string} pwd_id 分享码
-	 * @param {string} passcode 访问码
-	 * @returns {Promise<?string>}
+	 * @param pwd_id 分享码
+	 * @param passcode 访问码
 	 */
 	async getStoken(pwd_id: string, passcode: string) {
 		const that = this;
@@ -243,16 +237,16 @@ export class NetDiskParse_UC extends NetDiskParseObject {
 
 	/**
 	 * 获取stoken
-	 * @param {string} pwd_id 分享码
-	 * @param {string} passcode 访问码
-	 * @param {string} stoken 获取的stoken
-	 * @param {string} [pdir_fid=0] 父fid，默认为0，如果为文件夹，那么它的fid就是这个值
-	 * @param {number} [force=0]
-	 * @param {number} [_page=1]
-	 * @param {number} [_size=50]
-	 * @param {number} [_fetch_banner=0]
-	 * @param {number} [_fetch_share=0]
-	 * @param {number} [_fetch_total=1]
+	 * @param pwd_id 分享码
+	 * @param passcode 访问码
+	 * @param stoken 获取的stoken
+	 * @param pdir_fid 父fid，默认为0，如果为文件夹，那么它的fid就是这个值
+	 * @param force
+	 * @param _page
+	 * @param _size=
+	 * @param _fetch_banner
+	 * @param _fetch_share
+	 * @param _fetch_total
 	 */
 	async getDetail(
 		pwd_id: string,
@@ -316,61 +310,10 @@ export class NetDiskParse_UC extends NetDiskParseObject {
 	}
 	/**
 	 * 获取下载信息
-	 * @param {string} pwd_id 分享码
-	 * @param {string} stoken 获取的stoken
-	 * @param {string} fids 通过获取到的detail获取到的fid
-	 * @param {string} share_fid_token 通过获取到的detail获取到的share_fid_token
-	 * @returns {Promise< ?{
-	 * backup_sign: number,
-	 * backup_source: boolean,
-	 * ban: boolean,
-	 * big_thumbnail: string,
-	 * category: number,
-	 * created_at: number,
-	 * creator_ucid_or_default: string,
-	 * cur_version_or_default: number,
-	 * dir: boolean,
-	 * download_url: string,
-	 * duration: number,
-	 * event_extra: {
-	 *    recent_created_at: number
-	 * },
-	 * extra: string,
-	 * fid: string,
-	 * file: boolean,
-	 * file_name: string,
-	 * file_name_hl_end: number,
-	 * file_name_hl_start: number,
-	 * file_source: string,
-	 * file_type: number,
-	 * format_type: string,
-	 * l_created_at: number,
-	 * l_updated_at: number,
-	 * last_update_at: number,
-	 * like: number,
-	 * md5: string,
-	 * name_space: number,
-	 * obj_category: string,
-	 * offline_source: boolean,
-	 * operated_at: number,
-	 * owner_drive_type_or_default: number,
-	 * owner_ucid: string,
-	 * pdir_fid: string,
-	 * preview_url: string,
-	 * range_size: number,
-	 * raw_name_space: number,
-	 * risk_type: number,
-	 * save_as_source: boolean,
-	 * share_fid_token: string,
-	 * size: number,
-	 * status: number,
-	 * thumbnail: string,
-	 * updated_at: number,
-	 * video_height: number,
-	 * video_max_resolution: string,
-	 * video_width: number,
-	 * _extra: {},
-	 * } []>}
+	 * @param pwd_id 分享码
+	 * @param stoken 获取的stoken
+	 * @param fids 通过获取到的detail获取到的fid
+	 * @param share_fid_token 通过获取到的detail获取到的share_fid_token
 	 */
 	async getDownload(
 		pwd_id: string,
@@ -412,80 +355,67 @@ export class NetDiskParse_UC extends NetDiskParseObject {
 			Qmsg.error("获取download detail失败失败");
 			return;
 		}
-		return data["data"];
+		return data["data"] as {
+			backup_sign: number;
+			backup_source: boolean;
+			ban: boolean;
+			big_thumbnail: string;
+			category: number;
+			created_at: number;
+			creator_ucid_or_default: string;
+			cur_version_or_default: number;
+			dir: boolean;
+			download_url: string;
+			duration: number;
+			event_extra: {
+				recent_created_at: number;
+			};
+			extra: string;
+			fid: string;
+			file: boolean;
+			file_name: string;
+			file_name_hl_end: number;
+			file_name_hl_start: number;
+			file_source: string;
+			file_type: number;
+			format_type: string;
+			l_created_at: number;
+			l_updated_at: number;
+			last_update_at: number;
+			like: number;
+			md5: string;
+			name_space: number;
+			obj_category: string;
+			offline_source: boolean;
+			operated_at: number;
+			owner_drive_type_or_default: number;
+			owner_ucid: string;
+			pdir_fid: string;
+			preview_url: string;
+			range_size: number;
+			raw_name_space: number;
+			risk_type: number;
+			save_as_source: boolean;
+			share_fid_token: string;
+			size: number;
+			status: number;
+			thumbnail: string;
+			updated_at: number;
+			video_height: number;
+			video_max_resolution: string;
+			video_width: number;
+			_extra: {};
+		}[];
 	}
 
 	/**
 	 * 获取文件夹信息
-	 * @param {{
-	 * backup_sign: number,
-	 * backup_source: boolean,
-	 * ban: boolean,
-	 * category: number,
-	 * created_at: number,
-	 * creator_ucid_or_default: string,
-	 * cur_version_or_default: number,
-	 * dir: boolean,
-	 * duration: number,
-	 * event_extra: {
-	 *    recent_created_at: number
-	 * },
-	 * extra: string,
-	 * fid: string,
-	 * file: boolean,
-	 * file_name: string,
-	 * file_name_hl_end: number,
-	 * file_name_hl_start: number,
-	 * file_source: string,
-	 * file_struct: {
-	 *    fir_source: string,
-	 *    platform_source: string,
-	 *    sec_source: string,
-	 *    thi_source: string,
-	 *    upload_dm: string,
-	 *    upload_mi: string,
-	 * },
-	 * file_type: number,
-	 * format_type: string,
-	 * include_items:  number,
-	 * l_created_at:  number,
-	 * l_updated_at:  number,
-	 * last_update_at:  number,
-	 * like:  number,
-	 * name_space:  number,
-	 * offline_source: boolean,
-	 * operated_at:  number,
-	 * owner_drive_type_or_default:  number,
-	 * owner_ucid: string,
-	 * pdir_fid: string,
-	 * raw_name_space:  number,
-	 * risk_type:  number,
-	 * save_as_source: boolean,
-	 * share_fid_token: string,
-	 * size:  number,
-	 * status:  number,
-	 * tags: string,
-	 * updated_at:  number,
-	 * _extra: {},
-	 * }[]} infoList
-	 * @return {Promise<{
-	 * fileName: string,
-	 * fileSize: string|number,
-	 * fileType: ?string,
-	 * createTime: ?string,
-	 * latestTime: ?string,
-	 * isFolder: boolean,
-	 * index: ?number,
-	 * clickCallBack: ?(event:Event,_config_: object)=>{}
-	 * }[]>}
+	 * @param infoList
 	 */
 	getFolderInfo(infoList: any, stoken: string, index = 0) {
 		const that = this;
 		let folderInfoList: PopsFolderDataConfig[] = [];
 		let tempFolderInfoList: PopsFolderDataConfig[] = [];
-		/**
-		 * @type {PopsFolderDataConfig[]}
-		 */
 		let tempFolderFileInfoList: PopsFolderDataConfig[] = [];
 		infoList.forEach((item: any) => {
 			if (item.dir == false && item.file_type === 1) {
@@ -499,15 +429,16 @@ export class NetDiskParse_UC extends NetDiskParseObject {
 					isFolder: false,
 					index: index,
 					async clickEvent() {
-						let fileDownloadUrl = await that.getDownload(
+						let fileDownloadUrl = "";
+						let fileDownloadUrlInfo = await that.getDownload(
 							that.shareCode,
 							stoken,
 							item.fid,
 							item.share_fid_token
 						);
-						if (fileDownloadUrl) {
-							if (fileDownloadUrl.length) {
-								fileDownloadUrl = fileDownloadUrl[0].download_url;
+						if (fileDownloadUrlInfo) {
+							if (fileDownloadUrlInfo.length) {
+								fileDownloadUrl = fileDownloadUrlInfo[0].download_url;
 							} else {
 								fileDownloadUrl = "";
 							}
