@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.26
+// @version      2024.12.2
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -254,7 +254,9 @@ div.btn_open_app_prompt_div,\r
 div.readall_box,\r
 div.aside-header-fixed,\r
 div.feed-Sign-weixin,\r
-div.ios-shadowbox {\r
+div.ios-shadowbox,\r
+/* 底部评论工具栏的抢沙发图片 */\r
+.comment-sofa-flag {\r
 	display: none !important;\r
 }\r
 `,Fe=`#mainBox {\r

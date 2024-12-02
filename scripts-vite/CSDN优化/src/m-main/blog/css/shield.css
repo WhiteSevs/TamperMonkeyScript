@@ -13,6 +13,8 @@ div.btn_open_app_prompt_div,
 div.readall_box,
 div.aside-header-fixed,
 div.feed-Sign-weixin,
-div.ios-shadowbox {
+div.ios-shadowbox,
+/* 底部评论工具栏的抢沙发图片 */
+.comment-sofa-flag {
 	display: none !important;
 }
