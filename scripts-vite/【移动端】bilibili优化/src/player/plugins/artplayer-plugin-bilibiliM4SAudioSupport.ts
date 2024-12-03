@@ -311,6 +311,10 @@ const M4SAudio = {
 			}
 			M4SAudio.handler.syncVolume();
 			M4SAudio.handler.syncMuted();
+			// 如果video设置了autoplay，那么在play函数中可能无法让Audio播放，尤其是在移动端webview上
+			// 这时候手动取消静音成功，但因为audio未播放，所以需要同步播放状态
+			// 这里需要同步播放状态
+			M4SAudio.handler.syncPlayState();
 		},
 		/**
 		 * 视频更新进度
@@ -466,11 +470,8 @@ const M4SAudio = {
 		/** 同步静音状态 */
 		syncMuted() {
 			let artMuted = M4SAudio.$data.art.muted;
-			let audioMuted = M4SAudio.$data.audio.muted;
-			if (artMuted !== audioMuted) {
-				// 同步
-				M4SAudio.$data.audio.muted = artMuted;
-			}
+			// 同步
+			M4SAudio.$data.audio.muted = artMuted;
 		},
 		/** 同步播放倍速 */
 		syncPlayBackRate() {
