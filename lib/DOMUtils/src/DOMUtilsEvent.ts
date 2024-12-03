@@ -6,6 +6,7 @@ import type {
 	DOMUtils_Event,
 	DOMUtils_EventType,
 	DOMUtilsElementEventType,
+	DOMUtilsEventListenerOption,
 	DOMUtilsEventListenerOptionsAttribute,
 } from "./types/DOMUtilsEvent";
 import type { DOMUtilsTargetElementType } from "./types/global";
@@ -38,8 +39,8 @@ export class DOMUtilsEvent {
 	on<T extends DOMUtils_EventType>(
 		element: DOMUtilsElementEventType,
 		eventType: T | T[],
-		callback: (event: DOMUtils_Event[T]) => void,
-		option?: boolean | AddEventListenerOptions
+		callback: (this: HTMLElement, event: DOMUtils_Event[T]) => void,
+		option?: DOMUtilsEventListenerOption | boolean
 	): void;
 	/**
 	 * 绑定事件
@@ -62,8 +63,8 @@ export class DOMUtilsEvent {
 	on<T extends Event>(
 		element: DOMUtilsElementEventType,
 		eventType: string,
-		callback: (event: T) => void,
-		option?: boolean | AddEventListenerOptions
+		callback: (this: HTMLElement, event: T) => void,
+		option?: DOMUtilsEventListenerOption | boolean
 	): void;
 	/**
 	 * 绑定事件
@@ -93,8 +94,8 @@ export class DOMUtilsEvent {
 		element: DOMUtilsElementEventType,
 		eventType: T | T[],
 		selector: string | string[] | undefined | null,
-		callback: (event: DOMUtils_Event[T]) => void,
-		option?: boolean | AddEventListenerOptions
+		callback: (this: HTMLElement, event: DOMUtils_Event[T]) => void,
+		option?: DOMUtilsEventListenerOption | boolean
 	): void;
 	/**
 	 * 绑定事件
@@ -124,8 +125,8 @@ export class DOMUtilsEvent {
 		element: DOMUtilsElementEventType,
 		eventType: string,
 		selector: string | string[] | (() => string | string[]) | undefined | null,
-		callback: (event: T) => void,
-		option?: boolean | AddEventListenerOptions
+		callback: (this: HTMLElement, event: T) => void,
+		option?: DOMUtilsEventListenerOption | boolean
 	): void;
 	on<T extends Event>(
 		element:
@@ -139,9 +140,17 @@ export class DOMUtilsEvent {
 			| null
 			| typeof globalThis,
 		eventType: DOMUtils_EventType | DOMUtils_EventType[] | string,
-		selector: string | undefined | string[] | ((event: T) => void) | null,
-		callback?: ((event: T) => void) | boolean | AddEventListenerOptions,
-		option?: boolean | AddEventListenerOptions
+		selector:
+			| string
+			| undefined
+			| string[]
+			| ((this: HTMLElement, event: T) => void)
+			| null,
+		callback?:
+			| ((this: HTMLElement, event: T) => void)
+			| DOMUtilsEventListenerOption
+			| boolean,
+		option?: DOMUtilsEventListenerOption | boolean
 	) {
 		/**
 		 * 获取option配置
@@ -152,10 +161,11 @@ export class DOMUtilsEvent {
 		function getOption(
 			args: IArguments,
 			startIndex: number,
-			option: AddEventListenerOptions
+			option: DOMUtilsEventListenerOption
 		) {
-			if (typeof args[startIndex] === "boolean") {
-				option.capture = args[startIndex];
+			let currentParam = args[startIndex];
+			if (typeof currentParam === "boolean") {
+				option.capture = currentParam;
 				if (typeof args[startIndex + 1] === "boolean") {
 					option.once = args[startIndex + 1];
 				}
@@ -163,14 +173,16 @@ export class DOMUtilsEvent {
 					option.passive = args[startIndex + 2];
 				}
 			} else if (
-				typeof args[startIndex] === "object" &&
-				("capture" in args[startIndex] ||
-					"once" in args[startIndex] ||
-					"passive" in args[startIndex])
+				typeof currentParam === "object" &&
+				("capture" in currentParam ||
+					"once" in currentParam ||
+					"passive" in currentParam ||
+					"isComposedPath" in currentParam)
 			) {
-				option.capture = args[startIndex].capture;
-				option.once = args[startIndex].once;
-				option.passive = args[startIndex].passive;
+				option.capture = currentParam.capture;
+				option.once = currentParam.once;
+				option.passive = currentParam.passive;
+				option.isComposedPath = currentParam.isComposedPath;
 			}
 			return option;
 		}
@@ -205,26 +217,28 @@ export class DOMUtilsEvent {
 			selectorList.push(selector);
 		}
 		// 事件回调
-		let _callback_: (event: Event) => void = callback as any;
+		let listenerCallBack: (this: HTMLElement, event: Event) => void =
+			callback as any;
 		// 事件配置
-		let _option_: AddEventListenerOptions = {
+		let listenerOption: DOMUtilsEventListenerOption = {
 			capture: false,
 			once: false,
 			passive: false,
+			isComposedPath: false,
 		};
 		if (typeof selector === "function") {
 			/* 这是为没有selector的情况 */
-			_callback_ = selector as any;
-			_option_ = getOption(args, 3, _option_);
+			listenerCallBack = selector as any;
+			listenerOption = getOption(args, 3, listenerOption);
 		} else {
 			/* 这是存在selector的情况 */
-			_option_ = getOption(args, 4, _option_);
+			listenerOption = getOption(args, 4, listenerOption);
 		}
 		/**
 		 * 如果是once，那么删除该监听和元素上的事件和监听
 		 */
 		function checkOptionOnceToRemoveEventListener() {
-			if (_option_.once) {
+			if (listenerOption.once) {
 				DOMUtilsContext.off(
 					element,
 					eventType as any,
@@ -240,38 +254,41 @@ export class DOMUtilsEvent {
 			 * @param event
 			 */
 			function domUtilsEventCallBack(event: Event) {
-				let target = event.target as HTMLElement;
+				let eventTarget = listenerOption.isComposedPath
+					? (event.composedPath()[0] as HTMLElement)
+					: (event.target as HTMLElement);
 				if (selectorList.length) {
-					/* 存在自定义子元素选择器 */
+					/* 存在子元素选择器 */
 					let totalParent = DOMUtilsCommonUtils.isWin(elementItem)
 						? DOMUtilsContext.windowApi.document.documentElement
 						: elementItem;
 					for (let index = 0; index < selectorList.length; index++) {
 						const selectorItem = selectorList[index];
-						if (target.matches(selectorItem)) {
+						if (eventTarget.matches(selectorItem)) {
 							/* 当前目标可以被selector所匹配到 */
-							_callback_.call(target, event as any);
+							listenerCallBack.call(eventTarget, event as any);
 							checkOptionOnceToRemoveEventListener();
 							break;
-						} else if (
-							target.closest(selectorItem) &&
-							totalParent.contains(target.closest(selectorItem))
-						) {
+						} else {
 							/* 在上层与主元素之间寻找可以被selector所匹配到的 */
-							let closestElement = target.closest(selectorItem);
-							/* event的target值不能直接修改 */
-							OriginPrototype.Object.defineProperty(event, "target", {
-								get() {
-									return closestElement;
-								},
-							});
-							_callback_.call(closestElement, event as any);
-							checkOptionOnceToRemoveEventListener();
-							break;
+							let $closestMatches = eventTarget.closest(
+								selectorItem
+							) as HTMLElement | null;
+							if ($closestMatches && totalParent.contains($closestMatches)) {
+								/* event的target值不能直接修改 */
+								OriginPrototype.Object.defineProperty(event, "target", {
+									get() {
+										return $closestMatches;
+									},
+								});
+								listenerCallBack.call($closestMatches, event as any);
+								checkOptionOnceToRemoveEventListener();
+								break;
+							}
 						}
 					}
 				} else {
-					_callback_.call(elementItem, event as any);
+					listenerCallBack.call(elementItem, event as any);
 					checkOptionOnceToRemoveEventListener();
 				}
 			}
@@ -281,7 +298,7 @@ export class DOMUtilsEvent {
 				elementItem.addEventListener(
 					eventName,
 					domUtilsEventCallBack,
-					_option_
+					listenerOption
 				);
 				/* 获取对象上的事件 */
 				let elementEvents: {
@@ -292,9 +309,9 @@ export class DOMUtilsEvent {
 				elementEvents[eventName] = elementEvents[eventName] || [];
 				elementEvents[eventName].push({
 					selector: selectorList,
-					option: _option_,
+					option: listenerOption,
 					callback: domUtilsEventCallBack,
-					originCallBack: _callback_,
+					originCallBack: listenerCallBack,
 				});
 				/* 覆盖事件 */
 				// @ts-ignore
@@ -311,15 +328,15 @@ export class DOMUtilsEvent {
 	 * + capture 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
 	 * @param filter (可选)过滤函数，对元素属性上的事件进行过滤出想要删除的事件
 	 * @example
-	 * // 取消监听元素a.xx的click事件
+	 * // 取消监听元素a.xx所有的click事件
 	 * DOMUtils.off(document.querySelector("a.xx"),"click")
 	 * DOMUtils.off("a.xx","click")
 	 */
 	off<T extends DOMUtils_EventType>(
 		element: DOMUtilsElementEventType,
 		eventType: T | T[],
-		callback?: (event: DOMUtils_Event[T]) => void,
-		option?: boolean | AddEventListenerOptions,
+		callback?: (this: HTMLElement, event: DOMUtils_Event[T]) => void,
+		option?: boolean | EventListenerOptions,
 		filter?: (
 			value: DOMUtilsEventListenerOptionsAttribute,
 			index: number,
@@ -342,8 +359,8 @@ export class DOMUtilsEvent {
 	off<T extends Event>(
 		element: DOMUtilsElementEventType,
 		eventType: string,
-		callback?: (event: T) => void,
-		option?: boolean | AddEventListenerOptions,
+		callback?: (this: HTMLElement, event: T) => void,
+		option?: boolean | EventListenerOptions,
 		filter?: (
 			value: DOMUtilsEventListenerOptionsAttribute,
 			index: number,
@@ -368,8 +385,8 @@ export class DOMUtilsEvent {
 		element: DOMUtilsElementEventType,
 		eventType: T | T[],
 		selector?: DOMUtilsEventListenerOptionsAttribute["selector"] | undefined,
-		callback?: (event: DOMUtils_Event[T]) => void,
-		option?: boolean | AddEventListenerOptions,
+		callback?: (this: HTMLElement, event: DOMUtils_Event[T]) => void,
+		option?: boolean | EventListenerOptions,
 		filter?: (
 			value: DOMUtilsEventListenerOptionsAttribute,
 			index: number,
@@ -394,8 +411,8 @@ export class DOMUtilsEvent {
 		element: DOMUtilsElementEventType,
 		eventType: string,
 		selector?: DOMUtilsEventListenerOptionsAttribute["selector"] | undefined,
-		callback?: (event: T) => void,
-		option?: boolean | AddEventListenerOptions,
+		callback?: (this: HTMLElement, event: T) => void,
+		option?: boolean | EventListenerOptions,
 		filter?: (
 			value: DOMUtilsEventListenerOptionsAttribute,
 			index: number,
@@ -417,11 +434,14 @@ export class DOMUtilsEvent {
 		selector?:
 			| DOMUtilsEventListenerOptionsAttribute["selector"]
 			| undefined
-			| ((event: T) => void),
-		callback?: ((event: T) => void) | boolean | AddEventListenerOptions,
+			| ((this: HTMLElement, event: T) => void),
+		callback?:
+			| ((this: HTMLElement, event: T) => void)
+			| boolean
+			| EventListenerOptions,
 		option?:
 			| boolean
-			| AddEventListenerOptions
+			| EventListenerOptions
 			| ((
 					value: DOMUtilsEventListenerOptionsAttribute,
 					index: number,
@@ -444,13 +464,14 @@ export class DOMUtilsEvent {
 			startIndex: number,
 			option: EventListenerOptions
 		) {
-			if (typeof args1[startIndex] === "boolean") {
-				option.capture = args1[startIndex];
+			let currentParam: boolean | EventListenerOptions = args1[startIndex];
+			if (typeof currentParam === "boolean") {
+				option.capture = currentParam;
 			} else if (
-				typeof args1[startIndex] === "object" &&
-				"capture" in args1[startIndex]
+				typeof currentParam === "object" &&
+				"capture" in currentParam
 			) {
-				option.capture = args1[startIndex].capture;
+				option.capture = currentParam.capture;
 			}
 			return option;
 		}
@@ -485,20 +506,33 @@ export class DOMUtilsEvent {
 		/**
 		 * 事件的回调函数
 		 */
-		let _callback_: (event: T) => void = callback as any;
+		let listenerCallBack: (this: HTMLElement, event: T) => void =
+			callback as any;
 
 		/**
 		 * 事件的配置
 		 */
-		let _option_: EventListenerOptions = {
+		let listenerOption: EventListenerOptions = {
 			capture: false,
 		};
 		if (typeof selector === "function") {
 			/* 这是为没有selector的情况 */
-			_callback_ = selector;
-			_option_ = getOption(args, 3, _option_);
+			listenerCallBack = selector;
+			listenerOption = getOption(args, 3, listenerOption);
 		} else {
-			_option_ = getOption(args, 4, _option_);
+			listenerOption = getOption(args, 4, listenerOption);
+		}
+		// 是否移除所有事件
+		let isRemoveAll = false;
+		if (args.length === 2) {
+			// 目标函数、事件名
+			isRemoveAll = true;
+		} else if (
+			(args.length === 3 && typeof args[2] === "string") ||
+			Array.isArray(args[2])
+		) {
+			// 目标函数、事件名、子元素选择器
+			isRemoveAll = true;
 		}
 		elementList.forEach((elementItem) => {
 			/* 获取对象上的事件 */
@@ -512,34 +546,32 @@ export class DOMUtilsEvent {
 				}
 				for (let index = 0; index < handlers.length; index++) {
 					let handler = handlers[index];
-					let flag = false;
-					if (!selectorList.length) {
-						// selectorList是空的，默认移除
-						flag = true;
-					} else {
+					let flag = true;
+					if (
+						flag &&
+						listenerCallBack &&
+						handler.originCallBack !== listenerCallBack
+					) {
+						// callback不同
+						flag = false;
+					}
+					if (flag && selectorList.length && Array.isArray(handler.selector)) {
 						if (
-							Array.isArray(handler.selector) &&
-							JSON.stringify(handler.selector) === JSON.stringify(selectorList)
+							JSON.stringify(handler.selector) !== JSON.stringify(selectorList)
 						) {
-							// 元素上的selectorList不为空且和传入的相同
-							flag = true;
+							// 子元素选择器不同
+							flag = false;
 						}
 					}
-
-					if (
-						!_callback_ ||
-						handler.callback === _callback_ ||
-						handler.originCallBack === _callback_
-					) {
-						/* callback不为空，且callback相同 */
-						flag = true;
+					if (flag && listenerOption.capture !== handler.option.capture) {
+						// 事件的配置项不同
+						flag = false;
 					}
-
-					if (flag) {
+					if (flag || isRemoveAll) {
 						elementItem.removeEventListener(
 							eventName,
 							handler.callback,
-							_option_
+							handler.option
 						);
 						handlers.splice(index--, 1);
 					}
@@ -830,7 +862,7 @@ export class DOMUtilsEvent {
 	 * */
 	click(
 		element: DOMUtilsTargetElementType | typeof globalThis | Window,
-		handler?: (event: DOMUtils_Event["click"]) => void,
+		handler?: (this: HTMLElement, event: DOMUtils_Event["click"]) => void,
 		details?: any,
 		useDispatchToTriggerEvent?: boolean
 	) {
@@ -880,7 +912,7 @@ export class DOMUtilsEvent {
 	 * */
 	blur(
 		element: DOMUtilsTargetElementType | typeof globalThis | Window,
-		handler?: (event: DOMUtils_Event["blur"]) => void,
+		handler?: (this: HTMLElement, event: DOMUtils_Event["blur"]) => void,
 		details?: object,
 		useDispatchToTriggerEvent?: boolean
 	) {
@@ -935,7 +967,7 @@ export class DOMUtilsEvent {
 	 * */
 	focus(
 		element: DOMUtilsTargetElementType | typeof globalThis | Window,
-		handler?: (event: DOMUtils_Event["focus"]) => void,
+		handler?: (this: HTMLElement, event: DOMUtils_Event["focus"]) => void,
 		details?: object,
 		useDispatchToTriggerEvent?: boolean
 	) {
@@ -985,8 +1017,8 @@ export class DOMUtilsEvent {
 	 */
 	hover(
 		element: DOMUtilsTargetElementType,
-		handler: (event: DOMUtils_Event["hover"]) => void,
-		option?: boolean | AddEventListenerOptions
+		handler: (this: HTMLElement, event: DOMUtils_Event["hover"]) => void,
+		option?: boolean | DOMUtilsEventListenerOption
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
@@ -1022,8 +1054,8 @@ export class DOMUtilsEvent {
 	 */
 	keyup(
 		element: DOMUtilsTargetElementType | Window | typeof globalThis,
-		handler: (event: DOMUtils_Event["keyup"]) => void,
-		option?: boolean | AddEventListenerOptions
+		handler: (this: HTMLElement, event: DOMUtils_Event["keyup"]) => void,
+		option?: boolean | DOMUtilsEventListenerOption
 	) {
 		let DOMUtilsContext = this;
 		if (element == null) {
@@ -1058,8 +1090,8 @@ export class DOMUtilsEvent {
 	 */
 	keydown(
 		element: DOMUtilsTargetElementType | Window | typeof globalThis,
-		handler: (event: DOMUtils_Event["keydown"]) => void,
-		option?: boolean | AddEventListenerOptions
+		handler: (this: HTMLElement, event: DOMUtils_Event["keydown"]) => void,
+		option?: boolean | DOMUtilsEventListenerOption
 	) {
 		let DOMUtilsContext = this;
 		if (element == null) {
@@ -1094,8 +1126,8 @@ export class DOMUtilsEvent {
 	 */
 	keypress(
 		element: DOMUtilsTargetElementType | Window | typeof globalThis,
-		handler: (event: DOMUtils_Event["keypress"]) => void,
-		option?: boolean | AddEventListenerOptions
+		handler: (this: HTMLElement, event: DOMUtils_Event["keypress"]) => void,
+		option?: boolean | DOMUtilsEventListenerOption
 	) {
 		let DOMUtilsContext = this;
 		if (element == null) {
@@ -1186,7 +1218,7 @@ export class DOMUtilsEvent {
 			otherCodeList: string[],
 			event: KeyboardEvent
 		) => void,
-		options?: AddEventListenerOptions | boolean
+		options?: DOMUtilsEventListenerOption | boolean
 	): {
 		removeListen(): void;
 	} {

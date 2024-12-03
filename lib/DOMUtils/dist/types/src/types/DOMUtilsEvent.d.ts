@@ -211,7 +211,7 @@ export declare interface DOMUtilsEventListenerOptionsAttribute {
 	/**
 	 * 属性配置
 	 */
-	option: AddEventListenerOptions;
+	option: DOMUtilsEventListenerOption;
 	/**
 	 * 用户添加的事件
 	 */
@@ -222,6 +222,17 @@ export declare interface DOMUtilsEventListenerOptionsAttribute {
 	selector?: string[];
 }
 
+/**
+ * 事件的额外配置
+ */
+export declare type DOMUtilsEventListenerOption = AddEventListenerOptions & {
+	/**
+	 * 是否使用 event.composedPath() 来代替 event.target
+	 *
+	 * 一般用于设置了selector参数
+	 */
+	isComposedPath?: boolean;
+};
 export declare type DOMUtilsElementEventType =
 	| HTMLElement
 	| string
