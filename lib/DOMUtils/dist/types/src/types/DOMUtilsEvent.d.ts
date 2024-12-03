@@ -205,9 +205,9 @@ export declare type DOMUtils_EventType = keyof DOMUtils_Event;
  */
 export declare interface DOMUtilsEventListenerOptionsAttribute {
 	/**
-	 * 自定义的ownCallBack
+	 * DOMUtils的ownCallBack，元素上的监听事件就是它，移除事件时也需要传入这个函数
 	 */
-	callback: () => void;
+	callback: (event: Event) => void;
 	/**
 	 * 属性配置
 	 */
@@ -215,11 +215,11 @@ export declare interface DOMUtilsEventListenerOptionsAttribute {
 	/**
 	 * 用户添加的事件
 	 */
-	originCallBack: () => void;
+	originCallBack: (event: Event) => void;
 	/**
 	 * 子元素选择器
 	 */
-	selector?: string;
+	selector?: string[];
 }
 
 export declare type DOMUtilsElementEventType =
