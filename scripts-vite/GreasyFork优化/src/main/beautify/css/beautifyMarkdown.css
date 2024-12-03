@@ -354,12 +354,12 @@ code {
 	background-clip: content-box;
 }
 
-html body h1 {
+.user-content h1 {
 	padding-bottom: 0.3em;
 	font-size: 2em;
 	border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));
 }
-html body h2 {
+.user-content h2 {
 	padding-bottom: 0.3em;
 	font-size: 1.5em;
 	border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));
