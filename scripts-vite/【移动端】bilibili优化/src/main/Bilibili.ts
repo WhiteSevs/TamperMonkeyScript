@@ -3,7 +3,7 @@ import "./css/common.css";
 import BilibiliBeautifyCSS from "./css/beautify.css?raw";
 import { BilibiliPCRouter, BilibiliRouter } from "@/router/BilibiliRouter";
 import { BilibiliVideo } from "./video/BilibiliVideo";
-import { addStyle, log, utils } from "@/env";
+import { addStyle, DOMUtils, GMCookie, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliBangumi } from "./bangumi/BilibiliBangumi";
 import { BilibiliSearch } from "./search/BilibiliSearch";
@@ -91,6 +91,32 @@ const Bilibili = {
 		} else {
 			log.error("该Router暂未适配，可能是首页之类：" + window.location.href);
 		}
+
+		DOMUtils.ready(() => {
+			PopsPanel.execMenu("common_auto_delete_cookie_buvid3", () => {
+				let intervalCount = 0;
+				let intervalId = setInterval(() => {
+					intervalCount++;
+					if (intervalCount > 10) {
+						clearInterval(intervalId);
+						return;
+					}
+					GMCookie.delete(
+						{
+							name: "buvid3",
+							firstPartyDomain: ".bilibili.com",
+						},
+						(error) => {
+							if (error) {
+								log.error("删除buvid3失败", error);
+							} else {
+								log.success("删除buvid3成功");
+							}
+						}
+					);
+				}, 1000);
+			});
+		});
 	},
 	/**
 	 * 监听路由变化

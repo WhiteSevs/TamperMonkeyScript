@@ -46,10 +46,6 @@ export class ArtPlayerDanmakuOptionHelper {
 		return this.$data.localArtDanmakuOption;
 	}
 	repairBrowserNoResponse(art: Artplayer) {
-		console.warn(
-			TAG +
-				"目前尚未知晓导致浏览器卡死的原因是哪里的问题，但是启用该弹幕插件100%复现，复现操作：点击播放，点击全屏，再点击屏幕隐藏播放器的setting，使用浏览器手势后退退出全屏，这时候浏览器直接卡死"
-		);
 	}
 	onConfigChange(art: Artplayer) {
 		art.on(

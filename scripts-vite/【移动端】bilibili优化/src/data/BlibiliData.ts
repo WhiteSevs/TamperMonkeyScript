@@ -6,6 +6,7 @@ export const BilibiliData = {
 		search: "#app .m-search",
 		"topic-detail": "#app .topic-detail",
 		video: "#app .video",
+		mVideo: "#app .m-video",
 		head: "#app .m-head",
 	},
 	/** 主题色 */

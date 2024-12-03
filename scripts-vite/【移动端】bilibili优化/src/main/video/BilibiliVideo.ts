@@ -346,7 +346,8 @@ const BilibiliVideo = {
 	repairVideoBottomAreaHeight() {
 		log.info("修复视频底部区域高度");
 		return addStyle(/*css*/ `
-		${BilibiliData.className.video} {
+		${BilibiliData.className.video},
+		${BilibiliData.className.mVideo} {
 			/* 修复视频区域底部的高度 */
 			.natural-module .fixed-module-margin {
 				margin-top: 55.13333vmin;
@@ -361,7 +362,8 @@ const BilibiliVideo = {
 			}
 		}
 		html.tiny-app{
-			${BilibiliData.className.video}{
+			${BilibiliData.className.video},
+			${BilibiliData.className.mVideo}{
 				.m-video-info-new{
 					margin-top: 72vmin;
 				}
@@ -377,7 +379,10 @@ const BilibiliVideo = {
 		DOMUtils.on<MouseEvent | PointerEvent>(
 			document,
 			"click",
-			BilibiliData.className.video + " .list-view .card-box .launch-app-btn",
+			[
+				BilibiliData.className.video + " .list-view .card-box .launch-app-btn",
+				BilibiliData.className.mVideo + " .list-view .card-box .launch-app-btn",
+			],
 			function (event) {
 				let $click = event.target as HTMLDivElement;
 				let vueObj = VueUtils.getVue($click);
@@ -431,8 +436,12 @@ const BilibiliVideo = {
 		DOMUtils.on<MouseEvent | PointerEvent>(
 			document,
 			"click",
-			BilibiliData.className.video +
-				" .m-video-season-new .video-card .launch-app-btn",
+			[
+				BilibiliData.className.video +
+					" .m-video-season-new .video-card .launch-app-btn",
+				BilibiliData.className.mVideo +
+					" .m-video-season-new .video-card .launch-app-btn",
+			],
 			ClickCallBack,
 			{
 				capture: true,
@@ -442,8 +451,12 @@ const BilibiliVideo = {
 		DOMUtils.on<MouseEvent | PointerEvent>(
 			document,
 			"click",
-			BilibiliData.className.video +
-				" .m-video-season-panel .season-video-item .launch-app-btn",
+			[
+				BilibiliData.className.video +
+					" .m-video-season-panel .season-video-item .launch-app-btn",
+				BilibiliData.className.mVideo +
+					" .m-video-season-panel .season-video-item .launch-app-btn",
+			],
 			ClickCallBack,
 			{
 				capture: true,

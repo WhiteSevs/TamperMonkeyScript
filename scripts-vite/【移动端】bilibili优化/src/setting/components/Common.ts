@@ -52,6 +52,11 @@ const SettingUICommon: PopsPanelContentConfig = {
 									void 0,
 									"一般用于处理楼层的回复弹窗内无法选中复制问题"
 								),
+								UISwitch(
+									"自动删除Cookie buvid3",
+									"common_auto_delete_cookie_buvid3",
+									false
+								),
 							],
 						},
 					],

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.26
+// @version      2024.12.3
 // @author       WhiteSevs
 // @description  免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,8 +13,8 @@
 // @match        *://www.bilibili.com/h5/comment/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/497907/1413262/QRCodeJS.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
@@ -243,7 +243,7 @@
     setTimeout: _unsafeWindow.setTimeout
   };
   const addStyle = utils.addStyle.bind(utils);
-  document.querySelector.bind(document);
+  const $ = document.querySelector.bind(document);
   const $$ = document.querySelectorAll.bind(document);
   pops.GlobalConfig.setGlobalConfig({
     mask: {
@@ -2034,6 +2034,11 @@
                     true,
                     void 0,
                     "一般用于处理楼层的回复弹窗内无法选中复制问题"
+                  ),
+                  UISwitch(
+                    "自动删除Cookie buvid3",
+                    "common_auto_delete_cookie_buvid3",
+                    false
                   )
                 ]
               }
@@ -4541,6 +4546,7 @@
       search: "#app .m-search",
       "topic-detail": "#app .topic-detail",
       video: "#app .video",
+      mVideo: "#app .m-video",
       head: "#app .m-head"
     },
     /** 主题色 */
@@ -4553,7 +4559,6 @@
       }
     }
   };
-  const BilibiliVideoBeautifyCSS = '@charset "UTF-8";\r\n#app .video {\r\n	/* 下面的推荐视频卡片 */\r\n}\r\n#app .video .video-list .card-box {\r\n	--left-card-width: 33%;\r\n	--right-child-padding: 1.333vmin;\r\n	/* 开启了bili-video-beautify */\r\n}\r\n#app .video .video-list .card-box .v-card-toapp {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a {\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n	gap: var(--right-child-padding);\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card {\r\n	width: var(--left-card-width);\r\n	height: 80px;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .left {\r\n	display: list-item;\r\n}\r\n#app\r\n	.video\r\n	.video-list\r\n	.card-box\r\n	.v-card-toapp\r\n	> a\r\n	.card\r\n	.count\r\n	.left\r\n	span.item {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .card .count .duration {\r\n	background: rgba(0, 0, 0, 0.4);\r\n	border-radius: 0.6vmin;\r\n	padding: 0px 0.5vmin;\r\n	right: 1vmin;\r\n	bottom: 1vmin;\r\n}\r\n#app .video .video-list .card-box .v-card-toapp > a .title {\r\n	/*flex: 1;*/\r\n	/*padding: var(--right-child-padding);*/\r\n	padding-top: 0;\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n#app .video .video-list .card-box .gm-right-container {\r\n	display: flex;\r\n	flex-direction: column;\r\n	width: calc(100% - var(--left-card-width));\r\n	justify-content: space-between;\r\n}\r\n#app .video .video-list .card-box .gm-right-container > * {\r\n	padding: var(--right-child-padding);\r\n	padding-bottom: 0;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	gap: 1rem;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .left span {\r\n	display: flex;\r\n	align-items: safe center;\r\n	gap: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name,\r\n#app .video .video-list .card-box .gm-right-container .left {\r\n	color: #999;\r\n	font-size: 3vmin;\r\n	transform-origin: left;\r\n	display: flex;\r\n	/*align-items: safe center;*/\r\n	align-items: safe flex-end;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name svg {\r\n	width: 3vmin;\r\n	height: 3vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .gm-up-name-text {\r\n	margin-left: 1vmin;\r\n}\r\n#app .video .video-list .card-box .gm-right-container .num {\r\n	margin-right: 4vmin;\r\n}\r\n#app .video .video-list .card-box > a.v-card {\r\n	width: 100%;\r\n	border-bottom: 1px solid #b5b5b5;\r\n	padding-left: 0;\r\n	padding-right: 0;\r\n	display: flex;\r\n	flex-wrap: nowrap;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card {\r\n	width: var(--left-card-width);\r\n	height: 100%;\r\n	flex: 0 auto;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count {\r\n	background: transparent;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count span {\r\n	display: none;\r\n}\r\n#app .video .video-list .card-box > a.v-card .card .count .duration {\r\n	background-color: rgba(0, 0, 0, 0.3);\r\n	border-radius: 4px;\r\n	color: #fff;\r\n	font-size: 12px;\r\n	height: 16px;\r\n	line-height: 16px;\r\n	margin-left: auto;\r\n	padding-left: 4px;\r\n	padding-right: 4px;\r\n}\r\n#app .video .video-list .card-box > a.v-card .title {\r\n	flex: 1;\r\n	/*padding: var(--right-child-padding);*/\r\n	padding-top: 0;\r\n	margin-top: 0;\r\n	display: -webkit-box;\r\n	-webkit-line-clamp: 2;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n';
   const artPlayerCSS$1 = ".artplayer-container {\r\n	position: absolute;\r\n	width: 100%;\r\n	height: 100%;\r\n	top: 0;\r\n	left: 0;\r\n	overflow: hidden;\r\n}";
   const artPlayerCommonCSS = "/* 设置播放器基础宽高 */\r\n#artplayer {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n/* 通用隐藏class */\r\n.art-video-player .art-common-hide {\r\n	display: none !important;\r\n}\r\n/* 设置播放器基础宽高 */\r\n.art-video-player {\r\n	width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n	display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n	backdrop-filter: unset !important;\r\n}\r\n/* 底部的设置菜单当前选中的提示文字设置文字溢出省略号 */\r\n.art-settings .art-setting-item .art-setting-item-right-tooltip {\r\n	max-width: 100px;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n}\r\n\r\n/* 竖屏 宽度小于550px */\r\n@media (orientation: portrait) and (max-width: 550px) {\r\n	/* 隐藏 弹幕设置按钮 */\r\n	.artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		display: none !important;\r\n	}\r\n	/* 弹幕库靠右对齐 */\r\n	.artplayer-plugin-danmuku {\r\n		justify-content: right;\r\n	}\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n	/* 限制弹幕输入框的最大宽度 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		max-width: 260px;\r\n	}\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-lock .art-layer-top-wrap {\r\n	/* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */\r\n	display: none !important;\r\n}\r\n.art-layer-top-wrap {\r\n	--layer-top-wrap-follow-text-font-size: 0.8em;\r\n	--layer-top-wrap-follow-icon-size: 1em;\r\n	width: 100%;\r\n	position: absolute;\r\n	top: 0px;\r\n	right: 0px;\r\n	color: #fff;\r\n	display: -webkit-box;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	left: 0;\r\n	-webkit-transition: all 0.2s ease-in-out;\r\n	transition: all 0.2s ease-in-out;\r\n	width: 100%;\r\n	background: linear-gradient(to bottom, #000, transparent);\r\n	padding: 10px calc(var(--art-padding));\r\n	z-index: 60;\r\n}\r\n.art-player-top-wrap {\r\n	width: 100%;\r\n}\r\n.art-player-top-wrap .art-player-top-title-text {\r\n	white-space: nowrap;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n	max-width: 100%;\r\n}\r\n/* 面板隐藏时，顶部toolbar也隐藏 */\r\n.art-hide-cursor .art-layer-top-wrap {\r\n	transform: translateY(-60px);\r\n}\r\n/*.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}*/\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n	margin-top: var(--art-padding);\r\n	gap: var(--layer-top-wrap-follow-text-font-size);\r\n	font-size: var(--layer-top-wrap-follow-text-font-size);\r\n	display: flex;\r\n	align-items: center;\r\n	position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n	width: var(--layer-top-wrap-follow-icon-size);\r\n	height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n	text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n\r\n/* 插件-锁定 */\r\n.art-video-player .art-layers .art-layer.art-layer-lock {\r\n	/* 放在右边 */\r\n	right: 0;\r\n	left: calc(100% - 20px - var(--art-lock-size) - var(--art-lock-left-size));\r\n}\r\n/* 插件-锁定 */\r\n";
   const BilibiliApiRequestCheck = {
@@ -4838,9 +4843,6 @@
       return this.$data.localArtDanmakuOption;
     }
     repairBrowserNoResponse(art) {
-      console.warn(
-        TAG$5 + "目前尚未知晓导致浏览器卡死的原因是哪里的问题，但是启用该弹幕插件100%复现，复现操作：点击播放，点击全屏，再点击屏幕隐藏播放器的setting，使用浏览器手势后退退出全屏，这时候浏览器直接卡死"
-      );
     }
     onConfigChange(art) {
       art.on(
@@ -7182,14 +7184,15 @@
      * 覆盖播放器
      */
     coverVideoPlayer() {
-      if (document.querySelector("#artplayer")) {
-        log.warn("已存在播放器，更新播放信息");
+      if ($("#artplayer")) {
+        log.warn("已使用ArtPlayer覆盖原播放器，更新播放信息");
       } else {
         addStyle(
           /*css*/
           `
             /* 隐藏原本的播放器 */
-			#app .video .m-video-player .player-container{
+			${BilibiliData.className.video} .m-video-player .player-container,
+			${BilibiliData.className.mVideo} .m-video-player .player-container{
 				display: none !important;
 			}
 			
@@ -7233,7 +7236,10 @@
      */
     updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
       let that = this;
-      VueUtils.waitVuePropToSet("#app .video .m-video-player", {
+      let queryMVideoPlayer = () => {
+        return $(BilibiliData.className.video + " .m-video-player") || $(BilibiliData.className.mVideo + " .m-video-player");
+      };
+      VueUtils.waitVuePropToSet(queryMVideoPlayer, {
         msg: "等待m-video-player加载完成",
         check(vueInstance) {
           var _a2, _b, _c, _d, _e, _f;
@@ -7246,9 +7252,7 @@
         },
         async set(vueInstance) {
           var _a2, _b;
-          const $mVideoPlayer = document.querySelector(
-            "#app .video .m-video-player"
-          );
+          const $mVideoPlayer = queryMVideoPlayer();
           let { aid, bvid, cid, pic, title } = vueInstance;
           aid = aid || vueInstance.info.aid;
           bvid = bvid || vueInstance.info.bvid;
@@ -7256,10 +7260,8 @@
           pic = pic || vueInstance.info.pic;
           title = title || vueInstance.info.title;
           let epInfoList = [];
-          const $seasonNew = document.querySelector(
-            ".m-video-season-new"
-          );
-          const $partNew = document.querySelector(".m-video-part-new");
+          const $seasonNew = $(".m-video-season-new");
+          const $partNew = $(".m-video-part-new");
           if ($seasonNew && VueUtils.getVue($seasonNew)) {
             let seasonVueIns = VueUtils.getVue($seasonNew);
             let videoList = seasonVueIns == null ? void 0 : seasonVueIns.videoList;
@@ -7325,15 +7327,15 @@
           if (artPlayerOption == null) {
             return;
           }
-          let $artPlayer = document.querySelector("#artplayer");
+          let $artPlayer = $("#artplayer");
           if (!$artPlayer) {
             const $artPlayerContainer = domutils.createElement("div", {
               className: "artplayer-container",
               innerHTML: (
                 /*html*/
                 `
-						<div id="artplayer"></div>
-						`
+								<div id="artplayer"></div>
+							`
               )
             });
             $artPlayer = $artPlayerContainer.querySelector("#artplayer");
@@ -7412,7 +7414,137 @@
       log.info("美化显示");
       if (!this.$data.isAddBeautifyCSS) {
         this.$data.isAddBeautifyCSS = true;
-        addStyle(BilibiliVideoBeautifyCSS);
+        addStyle(
+          /*css*/
+          `
+				@charset "UTF-8";
+				${BilibiliData.className.video} .video-list .card-box {
+					--left-card-width: 33%;
+					--right-child-padding: 1.333vmin;
+					/* 开启了bili-video-beautify */
+				}
+				${BilibiliData.className.video} .video-list .card-box .v-card-toapp {
+					width: 100%;
+					border-bottom: 1px solid #b5b5b5;
+					padding-left: 0;
+					padding-right: 0;
+				}
+				${BilibiliData.className.video} .video-list .card-box .v-card-toapp > a {
+					display: flex;
+					flex-wrap: nowrap;
+					gap: var(--right-child-padding);
+				}
+				${BilibiliData.className.video} .video-list .card-box .v-card-toapp > a .card {
+					width: var(--left-card-width);
+					height: 80px;
+					flex: 0 auto;
+				}
+				${BilibiliData.className.video} .video-list .card-box .v-card-toapp > a .card .count {
+					background: transparent;
+				}
+				${BilibiliData.className.video} .video-list .card-box .v-card-toapp > a .card .count .left {
+					display: list-item;
+				}
+				${BilibiliData.className.video} .video-list .card-box .v-card-toapp > a .card .count .left span.item {
+					display: none;
+				}
+				${BilibiliData.className.video} .video-list .card-box .v-card-toapp > a .card .count .duration {
+					background: rgba(0, 0, 0, 0.4);
+					border-radius: 0.6vmin;
+					padding: 0px 0.5vmin;
+					right: 1vmin;
+					bottom: 1vmin;
+				}
+				${BilibiliData.className.video} .video-list .card-box .v-card-toapp > a .title {
+					/*flex: 1;*/
+					/*padding: var(--right-child-padding);*/
+					padding-top: 0;
+					margin-top: 0;
+					display: -webkit-box;
+					-webkit-line-clamp: 2;
+					-webkit-box-orient: vertical;
+					overflow: hidden;
+				}
+				${BilibiliData.className.video} .video-list .card-box .gm-right-container {
+					display: flex;
+					flex-direction: column;
+					width: calc(100% - var(--left-card-width));
+					justify-content: space-between;
+				}
+				${BilibiliData.className.video} .video-list .card-box .gm-right-container > * {
+					padding: var(--right-child-padding);
+					padding-bottom: 0;
+				}
+				${BilibiliData.className.video} .video-list .card-box .gm-right-container .left {
+					gap: 1rem;
+				}
+				${BilibiliData.className.video} .video-list .card-box .gm-right-container .left span {
+					display: flex;
+					align-items: safe center;
+					gap: 1vmin;
+				}
+				${BilibiliData.className.video} .video-list .card-box .gm-right-container .gm-up-name,
+				${BilibiliData.className.video} .video-list .card-box .gm-right-container .left {
+					color: #999;
+					font-size: 3vmin;
+					transform-origin: left;
+					display: flex;
+					/*align-items: safe center;*/
+					align-items: safe flex-end;
+				}
+				${BilibiliData.className.video} .video-list .card-box .gm-right-container .gm-up-name svg {
+					width: 3vmin;
+					height: 3vmin;
+				}
+				${BilibiliData.className.video} .video-list .card-box .gm-right-container .gm-up-name-text {
+					margin-left: 1vmin;
+				}
+				${BilibiliData.className.video} .video-list .card-box .gm-right-container .num {
+					margin-right: 4vmin;
+				}
+				${BilibiliData.className.video} .video-list .card-box > a.v-card {
+					width: 100%;
+					border-bottom: 1px solid #b5b5b5;
+					padding-left: 0;
+					padding-right: 0;
+					display: flex;
+					flex-wrap: nowrap;
+				}
+				${BilibiliData.className.video} .video-list .card-box > a.v-card .card {
+					width: var(--left-card-width);
+					height: 100%;
+					flex: 0 auto;
+				}
+				${BilibiliData.className.video} .video-list .card-box > a.v-card .card .count {
+					background: transparent;
+				}
+				${BilibiliData.className.video} .video-list .card-box > a.v-card .card .count span {
+					display: none;
+				}
+				${BilibiliData.className.video} .video-list .card-box > a.v-card .card .count .duration {
+					background-color: rgba(0, 0, 0, 0.3);
+					border-radius: 4px;
+					color: #fff;
+					font-size: 12px;
+					height: 16px;
+					line-height: 16px;
+					margin-left: auto;
+					padding-left: 4px;
+					padding-right: 4px;
+				}
+				${BilibiliData.className.video} .video-list .card-box > a.v-card .title {
+					flex: 1;
+					/*padding: var(--right-child-padding);*/
+					padding-top: 0;
+					margin-top: 0;
+					display: -webkit-box;
+					-webkit-line-clamp: 2;
+					-webkit-box-orient: vertical;
+					overflow: hidden;
+				}
+
+			`
+        );
       }
       utils.waitNode(
         BilibiliData.className.video + " .bottom-tab .list-view .card-box",
@@ -7550,7 +7682,8 @@
       return addStyle(
         /*css*/
         `
-		${BilibiliData.className.video} {
+		${BilibiliData.className.video},
+		${BilibiliData.className.mVideo} {
 			/* 修复视频区域底部的高度 */
 			.natural-module .fixed-module-margin {
 				margin-top: 55.13333vmin;
@@ -7565,7 +7698,8 @@
 			}
 		}
 		html.tiny-app{
-			${BilibiliData.className.video}{
+			${BilibiliData.className.video},
+			${BilibiliData.className.mVideo}{
 				.m-video-info-new{
 					margin-top: 72vmin;
 				}
@@ -7582,7 +7716,10 @@
       domutils.on(
         document,
         "click",
-        BilibiliData.className.video + " .list-view .card-box .launch-app-btn",
+        [
+          BilibiliData.className.video + " .list-view .card-box .launch-app-btn",
+          BilibiliData.className.mVideo + " .list-view .card-box .launch-app-btn"
+        ],
         function(event) {
           let $click = event.target;
           let vueObj = VueUtils.getVue($click);
@@ -7632,7 +7769,10 @@
       domutils.on(
         document,
         "click",
-        BilibiliData.className.video + " .m-video-season-new .video-card .launch-app-btn",
+        [
+          BilibiliData.className.video + " .m-video-season-new .video-card .launch-app-btn",
+          BilibiliData.className.mVideo + " .m-video-season-new .video-card .launch-app-btn"
+        ],
         ClickCallBack,
         {
           capture: true
@@ -7641,7 +7781,10 @@
       domutils.on(
         document,
         "click",
-        BilibiliData.className.video + " .m-video-season-panel .season-video-item .launch-app-btn",
+        [
+          BilibiliData.className.video + " .m-video-season-panel .season-video-item .launch-app-btn",
+          BilibiliData.className.mVideo + " .m-video-season-panel .season-video-item .launch-app-btn"
+        ],
         ClickCallBack,
         {
           capture: true
@@ -11920,6 +12063,31 @@
       } else {
         log.error("该Router暂未适配，可能是首页之类：" + window.location.href);
       }
+      domutils.ready(() => {
+        PopsPanel.execMenu("common_auto_delete_cookie_buvid3", () => {
+          let intervalCount = 0;
+          let intervalId = setInterval(() => {
+            intervalCount++;
+            if (intervalCount > 10) {
+              clearInterval(intervalId);
+              return;
+            }
+            GMCookie.delete(
+              {
+                name: "buvid3",
+                firstPartyDomain: ".bilibili.com"
+              },
+              (error) => {
+                if (error) {
+                  log.error("删除buvid3失败", error);
+                } else {
+                  log.success("删除buvid3成功");
+                }
+              }
+            );
+          }, 1e3);
+        });
+      });
     },
     /**
      * 监听路由变化
