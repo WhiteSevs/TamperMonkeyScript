@@ -1,6 +1,6 @@
 {
 	"name": "@whitesev/utils",
-	"version": "2.5.3",
+	"version": "2.5.4",
 	"description": "一个常用的工具库",
 	"main": "dist/index.cjs.js",
 	"module": "dist/index.esm.js",
@@ -22,7 +22,8 @@
 	"scripts": {
 		"dev": "rollup --config --watch",
 		"build": "rollup --config",
-		"build:all": "rollup --config"
+		"build:all": "rollup --config",
+		"build:all-new": "rollup --config"
 	},
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"

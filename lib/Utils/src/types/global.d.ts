@@ -22,3 +22,6 @@ export declare interface AnyObject {
 	[key: string]: any | AnyObject;
 	toString(): string;
 }
+export type PartialKeys<T, K extends keyof T> = {
+	[P in K]?: T[P];
+};

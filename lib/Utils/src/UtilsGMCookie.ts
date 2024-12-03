@@ -54,27 +54,27 @@ class UtilsGMCookie {
 	}
 	/**
 	 *  获取多组Cookie
-	 * @param paramDetails 配置
+	 * @param option 配置
 	 * @param callback 获取操作后的回调
 	 * + cookies object[]
 	 * + error string|undefined
 	 **/
 	list(
-		paramDetails: Partial<UtilsGMCookieListOptions>,
+		option: UtilsGMCookieListOptions,
 		callback?: (data: UtilsGMCookieResult[], error?: Error) => void
 	) {
-		if (paramDetails == null) {
+		if (option == null) {
 			throw new Error("Utils.GMCookie.list 参数不能为空");
 		}
 		let resultData: UtilsGMCookieResult[] = [];
 		try {
-			let details: Partial<UtilsGMCookieListOptions> = {
+			let defaultOption: Required<UtilsGMCookieListOptions> = {
 				url: this.windowApi.window.location.href,
 				domain: this.windowApi.window.location.hostname,
 				name: "",
 				path: "/",
 			};
-			details = Utils.assign(details, paramDetails);
+			defaultOption = Utils.assign(defaultOption, option);
 			let cookies = this.windowApi.document.cookie.split(";");
 			cookies.forEach((item) => {
 				item = item.trim();
@@ -83,9 +83,9 @@ class UtilsGMCookie {
 				itemSplit.splice(0, 1);
 				let itemValue = decodeURIComponent(itemSplit.join(""));
 				let nameRegexp =
-					(details.name as RegExp) instanceof RegExp
-						? details.name
-						: new RegExp("^" + details.name, "g");
+					(defaultOption.name as RegExp) instanceof RegExp
+						? defaultOption.name
+						: new RegExp("^" + defaultOption.name, "g");
 				if (itemName.match(nameRegexp as RegExp)) {
 					resultData.push({
 						domain: this.windowApi.window.location.hostname,
@@ -112,22 +112,20 @@ class UtilsGMCookie {
 	}
 	/**
 	 *  获取多组Cookie
-	 * @param paramDetails 配置
+	 * @param option 配置
 	 **/
-	getList(
-		paramDetails: Partial<UtilsGMCookieListOptions>
-	): UtilsGMCookieResult[] {
-		if (paramDetails == null) {
+	getList(option: UtilsGMCookieListOptions): UtilsGMCookieResult[] {
+		if (option == null) {
 			throw new Error("Utils.GMCookie.list 参数不能为空");
 		}
 		let resultData: UtilsGMCookieResult[] = [];
-		let details: Partial<UtilsGMCookieListOptions> = {
+		let defaultOption: Required<UtilsGMCookieListOptions> = {
 			url: this.windowApi.window.location.href,
 			domain: this.windowApi.window.location.hostname,
 			name: "",
 			path: "/",
 		};
-		details = Utils.assign(details, paramDetails);
+		defaultOption = Utils.assign(defaultOption, option);
 		let cookies = this.windowApi.document.cookie.split(";");
 		cookies.forEach((item) => {
 			item = item.trim();
@@ -136,9 +134,9 @@ class UtilsGMCookie {
 			itemSplit.splice(0, 1);
 			let itemValue = decodeURIComponent(itemSplit.join(""));
 			let nameRegexp =
-				(details.name as RegExp) instanceof RegExp
-					? details.name
-					: new RegExp("^" + details.name, "g");
+				(defaultOption.name as RegExp) instanceof RegExp
+					? defaultOption.name
+					: new RegExp("^" + defaultOption.name, "g");
 			if (itemName.match(nameRegexp as RegExp)) {
 				resultData.push({
 					domain: this.windowApi.window.location.hostname,
@@ -158,15 +156,13 @@ class UtilsGMCookie {
 	}
 	/**
 	 * 设置Cookie
-	 * @param paramDetails 配置
+	 * @param option 配置
 	 * @param callback 设置操作后的回调(成功/失败)
 	 */
-	set(
-		paramDetails: Partial<UtilsGMCookieSetOptions>,
-		callback = (error?: Error) => {}
-	) {
+	set(option: UtilsGMCookieSetOptions, callback?: (error?: Error) => void) {
+		let errorInfo;
 		try {
-			let details: Partial<UtilsGMCookieSetOptions> = {
+			let defaultOption: Required<UtilsGMCookieSetOptions> = {
 				url: this.windowApi.window.location.href,
 				name: "",
 				value: "",
@@ -179,46 +175,52 @@ class UtilsGMCookie {
 				 */
 				expirationDate: Math.floor(Date.now()) + 60 * 60 * 24 * 30,
 			};
-			details = Utils.assign(details, paramDetails);
-			let life = details.expirationDate
-				? details.expirationDate
+			defaultOption = Utils.assign(defaultOption, option);
+			let life = defaultOption.expirationDate
+				? defaultOption.expirationDate
 				: Math.floor(Date.now()) + 60 * 60 * 24 * 30;
 			let cookieStr =
-				details.name +
+				defaultOption.name +
 				"=" +
-				decodeURIComponent(details.value as string) +
+				decodeURIComponent(defaultOption.value as string) +
 				";expires=" +
 				(new Date(life) as any).toGMTString() +
 				"; path=/";
 			this.windowApi.document.cookie = cookieStr;
-			callback();
 		} catch (error: any) {
-			callback(error);
+			errorInfo = error;
+		} finally {
+			if (typeof callback === "function") {
+				callback(errorInfo);
+			}
 		}
 	}
 	/**
 	 * 删除Cookie
-	 * @param paramDetails 配置
+	 * @param option 配置
 	 * @param callback 删除操作后的回调(成功/失败)
 	 */
 	delete(
-		paramDetails: Partial<UtilsGMCookieDeleteOptions>,
-		callback = (error?: Error) => {}
+		option: UtilsGMCookieDeleteOptions,
+		callback?: (error?: Error) => void
 	) {
+		let errorInfo;
 		try {
-			let details: Partial<UtilsGMCookieDeleteOptions> = {
+			let defaultOption: Required<UtilsGMCookieDeleteOptions> = {
 				url: this.windowApi.window.location.href,
 				name: "",
-				// @ts-ignore
-				firstPartyDomain: "",
+				path: "/",
+				firstPartyDomain: this.windowApi.window.location.hostname,
 			};
-			details = Utils.assign(details, paramDetails);
-			let cookieStr =
-				details.name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+			defaultOption = Utils.assign(defaultOption, option);
+			let cookieStr = `${defaultOption.name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${defaultOption.path}; domain=${defaultOption.firstPartyDomain};`;
 			this.windowApi.document.cookie = cookieStr;
-			callback();
 		} catch (error: any) {
-			callback(error);
+			errorInfo = error;
+		} finally {
+			if (typeof callback === "function") {
+				callback(errorInfo);
+			}
 		}
 	}
 }
