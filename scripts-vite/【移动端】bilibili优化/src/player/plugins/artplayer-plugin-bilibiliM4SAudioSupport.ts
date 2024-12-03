@@ -129,6 +129,8 @@ const M4SAudio = {
 				console.log(TAG + "play");
 			}
 			M4SAudio.handler.play();
+			M4SAudio.handler.syncVolume();
+			M4SAudio.handler.syncMuted();
 			M4SAudioUtils.intervalHandler(() => {
 				M4SAudio.handler.syncTime();
 			}, 1);
@@ -308,6 +310,7 @@ const M4SAudio = {
 				console.log(TAG + "video:volumechange");
 			}
 			M4SAudio.handler.syncVolume();
+			M4SAudio.handler.syncMuted();
 		},
 		/**
 		 * 视频更新进度
@@ -336,9 +339,9 @@ const M4SAudio = {
 
 			// 同步音量、进度
 			M4SAudio.handler.syncPlayState();
-			M4SAudio.handler.syncMuted();
 			M4SAudio.handler.syncPlayBackRate();
 			M4SAudio.handler.syncVolume();
+			M4SAudio.handler.syncMuted();
 			M4SAudioUtils.intervalHandler(() => {
 				M4SAudio.handler.syncTime();
 			});
@@ -662,6 +665,7 @@ export const artplayerPluginM4SAudioSupport = (
 			update(...args) {
 				M4SAudio.update(...args);
 				M4SAudio.handler.syncVolume();
+				M4SAudio.handler.syncMuted();
 				M4SAudio.handler.syncTime();
 			},
 		};

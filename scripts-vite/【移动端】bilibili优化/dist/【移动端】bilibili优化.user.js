@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.3
+// @version      2024.12.3.17
 // @author       WhiteSevs
 // @description  免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -4943,6 +4943,8 @@
        */
       play: () => {
         M4SAudio.handler.play();
+        M4SAudio.handler.syncVolume();
+        M4SAudio.handler.syncMuted();
         M4SAudioUtils.intervalHandler(() => {
           M4SAudio.handler.syncTime();
         }, 1);
@@ -5079,6 +5081,7 @@
        */
       "video:volumechange": () => {
         M4SAudio.handler.syncVolume();
+        M4SAudio.handler.syncMuted();
       },
       /**
        * 视频更新进度
@@ -5100,9 +5103,9 @@
         M4SAudio.$data.reconnectInfo.url = "";
         M4SAudio.$data.latestSyncTime = 0;
         M4SAudio.handler.syncPlayState();
-        M4SAudio.handler.syncMuted();
         M4SAudio.handler.syncPlayBackRate();
         M4SAudio.handler.syncVolume();
+        M4SAudio.handler.syncMuted();
         M4SAudioUtils.intervalHandler(() => {
           M4SAudio.handler.syncTime();
         });
@@ -5361,6 +5364,7 @@
         update(...args) {
           M4SAudio.update(...args);
           M4SAudio.handler.syncVolume();
+          M4SAudio.handler.syncMuted();
           M4SAudio.handler.syncTime();
         }
       };
