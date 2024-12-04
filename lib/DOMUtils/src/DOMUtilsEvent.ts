@@ -94,7 +94,11 @@ export class DOMUtilsEvent {
 		element: DOMUtilsElementEventType,
 		eventType: T | T[],
 		selector: string | string[] | undefined | null,
-		callback: (this: HTMLElement, event: DOMUtils_Event[T]) => void,
+		callback: (
+			this: HTMLElement,
+			event: DOMUtils_Event[T],
+			selectorTarget?: HTMLElement
+		) => void,
 		option?: DOMUtilsEventListenerOption | boolean
 	): void;
 	/**
@@ -125,7 +129,11 @@ export class DOMUtilsEvent {
 		element: DOMUtilsElementEventType,
 		eventType: string,
 		selector: string | string[] | (() => string | string[]) | undefined | null,
-		callback: (this: HTMLElement, event: T) => void,
+		callback: (
+			this: HTMLElement,
+			event: T,
+			selectorTarget?: HTMLElement
+		) => void,
 		option?: DOMUtilsEventListenerOption | boolean
 	): void;
 	on<T extends Event>(
@@ -144,10 +152,10 @@ export class DOMUtilsEvent {
 			| string
 			| undefined
 			| string[]
-			| ((this: HTMLElement, event: T) => void)
+			| ((this: HTMLElement, event: T, selectorTarget?: HTMLElement) => void)
 			| null,
 		callback?:
-			| ((this: HTMLElement, event: T) => void)
+			| ((this: HTMLElement, event: T, selectorTarget?: HTMLElement) => void)
 			| DOMUtilsEventListenerOption
 			| boolean,
 		option?: DOMUtilsEventListenerOption | boolean
@@ -217,8 +225,11 @@ export class DOMUtilsEvent {
 			selectorList.push(selector);
 		}
 		// 事件回调
-		let listenerCallBack: (this: HTMLElement, event: Event) => void =
-			callback as any;
+		let listenerCallBack: (
+			this: HTMLElement,
+			event: Event,
+			selectorTarget?: HTMLElement
+		) => void = callback as any;
 		// 事件配置
 		let listenerOption: DOMUtilsEventListenerOption = {
 			capture: false,
@@ -266,7 +277,7 @@ export class DOMUtilsEvent {
 						const selectorItem = selectorList[index];
 						if (eventTarget.matches(selectorItem)) {
 							/* 当前目标可以被selector所匹配到 */
-							listenerCallBack.call(eventTarget, event as any);
+							listenerCallBack.call(eventTarget, event as any, eventTarget);
 							checkOptionOnceToRemoveEventListener();
 							break;
 						} else {
@@ -276,12 +287,19 @@ export class DOMUtilsEvent {
 							) as HTMLElement | null;
 							if ($closestMatches && totalParent.contains($closestMatches)) {
 								/* event的target值不能直接修改 */
-								OriginPrototype.Object.defineProperty(event, "target", {
-									get() {
-										return $closestMatches;
-									},
-								});
-								listenerCallBack.call($closestMatches, event as any);
+								// 这里尝试使用defineProperty修改event的target值
+								try {
+									OriginPrototype.Object.defineProperty(event, "target", {
+										get() {
+											return $closestMatches;
+										},
+									});
+								} catch (error) {}
+								listenerCallBack.call(
+									$closestMatches,
+									event as any,
+									$closestMatches
+								);
 								checkOptionOnceToRemoveEventListener();
 								break;
 							}
@@ -335,7 +353,11 @@ export class DOMUtilsEvent {
 	off<T extends DOMUtils_EventType>(
 		element: DOMUtilsElementEventType,
 		eventType: T | T[],
-		callback?: (this: HTMLElement, event: DOMUtils_Event[T]) => void,
+		callback?: (
+			this: HTMLElement,
+			event: DOMUtils_Event[T],
+			selectorTarget?: HTMLElement
+		) => void,
 		option?: boolean | EventListenerOptions,
 		filter?: (
 			value: DOMUtilsEventListenerOptionsAttribute,
@@ -359,7 +381,11 @@ export class DOMUtilsEvent {
 	off<T extends Event>(
 		element: DOMUtilsElementEventType,
 		eventType: string,
-		callback?: (this: HTMLElement, event: T) => void,
+		callback?: (
+			this: HTMLElement,
+			event: T,
+			selectorTarget?: HTMLElement
+		) => void,
 		option?: boolean | EventListenerOptions,
 		filter?: (
 			value: DOMUtilsEventListenerOptionsAttribute,
@@ -385,7 +411,11 @@ export class DOMUtilsEvent {
 		element: DOMUtilsElementEventType,
 		eventType: T | T[],
 		selector?: DOMUtilsEventListenerOptionsAttribute["selector"] | undefined,
-		callback?: (this: HTMLElement, event: DOMUtils_Event[T]) => void,
+		callback?: (
+			this: HTMLElement,
+			event: DOMUtils_Event[T],
+			selectorTarget?: HTMLElement
+		) => void,
 		option?: boolean | EventListenerOptions,
 		filter?: (
 			value: DOMUtilsEventListenerOptionsAttribute,
@@ -411,7 +441,11 @@ export class DOMUtilsEvent {
 		element: DOMUtilsElementEventType,
 		eventType: string,
 		selector?: DOMUtilsEventListenerOptionsAttribute["selector"] | undefined,
-		callback?: (this: HTMLElement, event: T) => void,
+		callback?: (
+			this: HTMLElement,
+			event: T,
+			selectorTarget?: HTMLElement
+		) => void,
 		option?: boolean | EventListenerOptions,
 		filter?: (
 			value: DOMUtilsEventListenerOptionsAttribute,
@@ -434,9 +468,9 @@ export class DOMUtilsEvent {
 		selector?:
 			| DOMUtilsEventListenerOptionsAttribute["selector"]
 			| undefined
-			| ((this: HTMLElement, event: T) => void),
+			| ((this: HTMLElement, event: T, selectorTarget?: HTMLElement) => void),
 		callback?:
-			| ((this: HTMLElement, event: T) => void)
+			| ((this: HTMLElement, event: T, selectorTarget?: HTMLElement) => void)
 			| boolean
 			| EventListenerOptions,
 		option?:
