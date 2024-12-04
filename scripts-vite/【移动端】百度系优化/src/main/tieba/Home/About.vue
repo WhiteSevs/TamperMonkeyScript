@@ -55,6 +55,18 @@ const arrowLeftClickEvent = () => {
                     <el-text type="info" class="user-desc-key">吧龄</el-text>
                     <el-text type="info" class="user-end-text">{{ props.UserData.level }}年</el-text>
                 </div>
+                <div class="user-info-item">
+                    <el-text type="info" class="user-desc-key">id</el-text>
+                    <el-text type="info" class="user-end-text">{{ props.UserData.id }}</el-text>
+                </div>
+                <div class="user-info-item">
+                    <el-text type="info" class="user-desc-key">portrait</el-text>
+                    <el-text type="info" class="user-end-text">{{ props.UserData.portrait }}</el-text>
+                </div>
+                <div class="user-info-item">
+                    <el-text type="info" class="user-desc-key">tbs</el-text>
+                    <el-text type="info" class="user-end-text">{{ props.UserData.tbs }}</el-text>
+                </div>
             </div>
         </el-main>
     </el-container>
@@ -70,19 +82,23 @@ const arrowLeftClickEvent = () => {
     text-align: center;
     padding: 10px;
 }
-.user-avatar{
+
+.user-avatar {
     text-align: center;
     padding-bottom: 20px;
 }
-.user-info-item{
+
+.user-info-item {
     display: flex;
     padding: 10px;
 }
-.user-desc-key{
+
+.user-desc-key {
     width: 60px;
     display: block;
 }
-.user-end-text{
+
+.user-end-text {
     padding: 0px 20px;
 }
 </style>

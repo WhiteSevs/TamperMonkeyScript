@@ -150,6 +150,9 @@ const OriginPrototype = {
 
 const addStyle = utils.addStyle.bind(utils);
 
+const $ = document.querySelector.bind(document);
+const $$ = document.querySelectorAll.bind(document);
+
 const VUE_ELE_NAME_ID = "vite-app";
 /**
  * 注册vue、element-plus、element-plus/icons-vue
@@ -211,4 +214,6 @@ export {
 	MountVue,
 	VUE_ELE_NAME_ID,
 	addStyle,
+	$,
+	$$,
 };

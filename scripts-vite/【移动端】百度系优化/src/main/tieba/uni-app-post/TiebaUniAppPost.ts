@@ -9,6 +9,7 @@ import { TiebaPostApi } from "../api/TiebaPostApi";
 import { GestureBack } from "@/utils/GestureBack";
 import { TiebaPost } from "../Post/TiebaPost";
 import { TiebaUniAppCommentFilter } from "./TiebaUniAppCommentFilter";
+import { TiebaUniAppComponentDetection } from "./TiebaUniAppComponentDetection";
 
 /**
  * 手势返回使用的hash参数
@@ -125,6 +126,9 @@ export const TiebaUniAppPost = {
 						this.optimizationImagePreviewBackGestureReturn();
 					}
 				);
+				PopsPanel.execMenuOnce("baidu-tieba-componentDetection", () => {
+					TiebaUniAppComponentDetection.init();
+				});
 				this.repairSearch();
 			});
 		});
@@ -306,9 +310,9 @@ export const TiebaUniAppPost = {
 			document,
 			"click",
 			".player-line-left",
-			(event) => {
+			(event, selectorTarget) => {
 				utils.preventEvent(event);
-				let $click = event.target as HTMLDivElement;
+				let $click = selectorTarget!;
 				let vue3Ins = VueUtils.getVue3($click);
 				if (typeof vue3Ins?.props?.playerInfo?.portrait === "string") {
 					let portrait = vue3Ins.props.playerInfo.portrait;
@@ -322,13 +326,10 @@ export const TiebaUniAppPost = {
 						let url = TiebaUrlApi.getUserHome(portrait);
 						window.open(url, "_blank");
 					} else {
-						log.error("获取portrait失败", $click);
+						log.error("获取portrait失败", $click, vueIns);
 						Qmsg.error("获取portrait失败");
 					}
 				}
-			},
-			{
-				capture: true,
 			}
 		);
 	},

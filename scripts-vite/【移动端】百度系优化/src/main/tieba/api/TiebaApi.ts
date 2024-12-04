@@ -188,7 +188,8 @@ interface ChatUserInfo {
 	portrait: string;
 	show_nickname: string;
 	uid: number;
-	uname: string;
+	/** 当为数字时，查不到信息 */
+	uname: string | number;
 	unread: number;
 }
 /**
@@ -372,6 +373,7 @@ const TieBaApi = {
 			errmsg: string;
 		}>(getResp.data.responseText);
 		if (data.errno !== 0) {
+			log.error(data);
 			return;
 		}
 		return data.chatUser;
@@ -623,7 +625,9 @@ const TiebaPageDataApi = {
 		}
 	},
 };
-
+if (import.meta.hot) {
+	Reflect.set(window, "TieBaApi", TieBaApi);
+}
 export {
 	TieBaApi,
 	TiebaUrlApi,

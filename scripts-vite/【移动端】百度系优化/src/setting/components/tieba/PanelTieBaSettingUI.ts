@@ -7,6 +7,7 @@ import Qmsg from "qmsg";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { TiebaPCApi } from "@/main/tieba/api/TiebaPCApi";
 import { TiebaUniAppCommentFilter } from "@/main/tieba/uni-app-post/TiebaUniAppCommentFilter";
+import { TiebaUniAppComponentDetectionRule } from "@/main/tieba/uni-app-post/TiebaUniAppComponentDetectionRule";
 
 const PanelTieBaSettingUI: PopsPanelContentConfig = {
 	id: "baidu-panel-config-tieba",
@@ -346,6 +347,69 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 						// 		),
 						// 	],
 						// },
+					],
+				},
+				{
+					type: "deepMenu",
+					text: "成分检测",
+					forms: [
+						{
+							type: "forms",
+							text: "",
+							forms: [
+								UISwitch(
+									"启用",
+									"baidu-tieba-componentDetection",
+									false,
+									void 0,
+									"启用后可检测用户的成分信息"
+								),
+								UIButton(
+									"自定义规则",
+									"检测用户成分的规则",
+									"管理",
+									void 0,
+									false,
+									false,
+									"primary",
+									() => {
+										TiebaUniAppComponentDetectionRule.showView();
+									}
+								),
+							],
+						},
+						{
+							type: "forms",
+							text: "",
+							forms: [
+								UIButton(
+									"数据导入",
+									"导入自定义规则数据",
+									"导入",
+									void 0,
+									false,
+									false,
+									"primary",
+									() => {
+										TiebaUniAppComponentDetectionRule.importRule();
+									}
+								),
+								UIButton(
+									"数据导出",
+									"导出自定义规则数据",
+									"导出",
+									void 0,
+									false,
+									false,
+									"primary",
+									() => {
+										TiebaUniAppComponentDetectionRule.exportRule(
+											"成分检测.json"
+										);
+									}
+								),
+							],
+						},
 					],
 				},
 			],

@@ -2,7 +2,7 @@
 import { VNodeRef, ref, watch } from 'vue';
 import TemplateFollowUser from './Template/TemplateFollowUser.vue';
 import { TiebaHomeData, UserInfo } from './data/TiebaHomeData';
-import { TiebaHomeApi, UserFollowInfo } from './api/TiebaHomeApi';
+import { TiebaHomeApi, UserFollowInfo } from '../api/TiebaHomeApi';
 import { TiebaRouter } from './router';
 import { DOMUtils, log, utils } from '@/env';
 

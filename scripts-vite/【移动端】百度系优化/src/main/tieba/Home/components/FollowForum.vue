@@ -2,7 +2,7 @@
 import { VNodeRef, reactive, ref, watch } from "vue";
 import { UserInfo } from "../data/TiebaHomeData";
 import TemplateFollowForum from "../Template/TemplateFollowForum.vue";
-import { TiebaHomeApi, UserConcernInfo } from "../api/TiebaHomeApi";
+import { TiebaHomeApi, UserConcernInfo } from "../../api/TiebaHomeApi";
 import { log, utils } from "@/env";
 
 const props = defineProps<{
