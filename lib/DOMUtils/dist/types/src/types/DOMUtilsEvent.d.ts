@@ -215,7 +215,7 @@ export declare interface DOMUtilsEventListenerOptionsAttribute {
 	/**
 	 * 用户添加的事件
 	 */
-	originCallBack: (event: Event) => void;
+	originCallBack: (event: Event, selectorTarget?: HTMLElement) => void;
 	/**
 	 * 子元素选择器
 	 */

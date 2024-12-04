@@ -97,7 +97,7 @@ export class DOMUtilsEvent {
 		callback: (
 			this: HTMLElement,
 			event: DOMUtils_Event[T],
-			selectorTarget?: HTMLElement
+			selectorTarget: HTMLElement
 		) => void,
 		option?: DOMUtilsEventListenerOption | boolean
 	): void;
@@ -132,7 +132,7 @@ export class DOMUtilsEvent {
 		callback: (
 			this: HTMLElement,
 			event: T,
-			selectorTarget?: HTMLElement
+			selectorTarget: HTMLElement
 		) => void,
 		option?: DOMUtilsEventListenerOption | boolean
 	): void;
@@ -152,10 +152,10 @@ export class DOMUtilsEvent {
 			| string
 			| undefined
 			| string[]
-			| ((this: HTMLElement, event: T, selectorTarget?: HTMLElement) => void)
+			| ((this: HTMLElement, event: T, selectorTarget: HTMLElement) => void)
 			| null,
 		callback?:
-			| ((this: HTMLElement, event: T, selectorTarget?: HTMLElement) => void)
+			| ((this: HTMLElement, event: T, selectorTarget: HTMLElement) => void)
 			| DOMUtilsEventListenerOption
 			| boolean,
 		option?: DOMUtilsEventListenerOption | boolean
@@ -356,7 +356,7 @@ export class DOMUtilsEvent {
 		callback?: (
 			this: HTMLElement,
 			event: DOMUtils_Event[T],
-			selectorTarget?: HTMLElement
+			selectorTarget: HTMLElement
 		) => void,
 		option?: boolean | EventListenerOptions,
 		filter?: (
@@ -384,7 +384,7 @@ export class DOMUtilsEvent {
 		callback?: (
 			this: HTMLElement,
 			event: T,
-			selectorTarget?: HTMLElement
+			selectorTarget: HTMLElement
 		) => void,
 		option?: boolean | EventListenerOptions,
 		filter?: (
@@ -414,7 +414,7 @@ export class DOMUtilsEvent {
 		callback?: (
 			this: HTMLElement,
 			event: DOMUtils_Event[T],
-			selectorTarget?: HTMLElement
+			selectorTarget: HTMLElement
 		) => void,
 		option?: boolean | EventListenerOptions,
 		filter?: (
@@ -444,7 +444,7 @@ export class DOMUtilsEvent {
 		callback?: (
 			this: HTMLElement,
 			event: T,
-			selectorTarget?: HTMLElement
+			selectorTarget: HTMLElement
 		) => void,
 		option?: boolean | EventListenerOptions,
 		filter?: (
@@ -468,9 +468,9 @@ export class DOMUtilsEvent {
 		selector?:
 			| DOMUtilsEventListenerOptionsAttribute["selector"]
 			| undefined
-			| ((this: HTMLElement, event: T, selectorTarget?: HTMLElement) => void),
+			| ((this: HTMLElement, event: T, selectorTarget: HTMLElement) => void),
 		callback?:
-			| ((this: HTMLElement, event: T, selectorTarget?: HTMLElement) => void)
+			| ((this: HTMLElement, event: T, selectorTarget: HTMLElement) => void)
 			| boolean
 			| EventListenerOptions,
 		option?:
@@ -540,8 +540,11 @@ export class DOMUtilsEvent {
 		/**
 		 * 事件的回调函数
 		 */
-		let listenerCallBack: (this: HTMLElement, event: T) => void =
-			callback as any;
+		let listenerCallBack: (
+			this: HTMLElement,
+			event: T,
+			selectorTarget: HTMLElement
+		) => void = callback as any;
 
 		/**
 		 * 事件的配置

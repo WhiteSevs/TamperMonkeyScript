@@ -67,7 +67,7 @@ export declare class DOMUtilsEvent {
      *    console.log("事件触发",event)
      * })
      */
-    on<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], selector: string | string[] | undefined | null, callback: (this: HTMLElement, event: DOMUtils_Event[T], selectorTarget?: HTMLElement) => void, option?: DOMUtilsEventListenerOption | boolean): void;
+    on<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], selector: string | string[] | undefined | null, callback: (this: HTMLElement, event: DOMUtils_Event[T], selectorTarget: HTMLElement) => void, option?: DOMUtilsEventListenerOption | boolean): void;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
@@ -92,7 +92,7 @@ export declare class DOMUtilsEvent {
      *    console.log("事件触发",event)
      * })
      */
-    on<T extends Event>(element: DOMUtilsElementEventType, eventType: string, selector: string | string[] | (() => string | string[]) | undefined | null, callback: (this: HTMLElement, event: T, selectorTarget?: HTMLElement) => void, option?: DOMUtilsEventListenerOption | boolean): void;
+    on<T extends Event>(element: DOMUtilsElementEventType, eventType: string, selector: string | string[] | (() => string | string[]) | undefined | null, callback: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void, option?: DOMUtilsEventListenerOption | boolean): void;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -106,7 +106,7 @@ export declare class DOMUtilsEvent {
      * DOMUtils.off(document.querySelector("a.xx"),"click")
      * DOMUtils.off("a.xx","click")
      */
-    off<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], callback?: (this: HTMLElement, event: DOMUtils_Event[T], selectorTarget?: HTMLElement) => void, option?: boolean | EventListenerOptions, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], callback?: (this: HTMLElement, event: DOMUtils_Event[T], selectorTarget: HTMLElement) => void, option?: boolean | EventListenerOptions, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -120,7 +120,7 @@ export declare class DOMUtilsEvent {
      * DOMUtils.off(document.querySelector("a.xx"),"click")
      * DOMUtils.off("a.xx","click")
      */
-    off<T extends Event>(element: DOMUtilsElementEventType, eventType: string, callback?: (this: HTMLElement, event: T, selectorTarget?: HTMLElement) => void, option?: boolean | EventListenerOptions, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends Event>(element: DOMUtilsElementEventType, eventType: string, callback?: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void, option?: boolean | EventListenerOptions, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -135,7 +135,7 @@ export declare class DOMUtilsEvent {
      * DOMUtils.off(document.querySelector("a.xx"),"click tap hover")
      * DOMUtils.off("a.xx",["click","tap","hover"])
      */
-    off<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], selector?: DOMUtilsEventListenerOptionsAttribute["selector"] | undefined, callback?: (this: HTMLElement, event: DOMUtils_Event[T], selectorTarget?: HTMLElement) => void, option?: boolean | EventListenerOptions, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], selector?: DOMUtilsEventListenerOptionsAttribute["selector"] | undefined, callback?: (this: HTMLElement, event: DOMUtils_Event[T], selectorTarget: HTMLElement) => void, option?: boolean | EventListenerOptions, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -150,7 +150,7 @@ export declare class DOMUtilsEvent {
      * DOMUtils.off(document.querySelector("a.xx"),"click tap hover")
      * DOMUtils.off("a.xx",["click","tap","hover"])
      */
-    off<T extends Event>(element: DOMUtilsElementEventType, eventType: string, selector?: DOMUtilsEventListenerOptionsAttribute["selector"] | undefined, callback?: (this: HTMLElement, event: T, selectorTarget?: HTMLElement) => void, option?: boolean | EventListenerOptions, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends Event>(element: DOMUtilsElementEventType, eventType: string, selector?: DOMUtilsEventListenerOptionsAttribute["selector"] | undefined, callback?: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void, option?: boolean | EventListenerOptions, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定所有的事件
      * @param element 需要取消绑定的元素|元素数组
