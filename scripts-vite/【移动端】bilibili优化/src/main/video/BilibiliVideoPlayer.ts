@@ -21,7 +21,7 @@ import type { VIDEO_EP_LIST, VIDEO_PART } from "./TypeVideo";
 import type { ArtPlayerPluginQualityOption } from "@/player/plugins/artplayer-plugin-quality";
 import { BilibiliData } from "@/data/BlibiliData";
 
-type VideoInfo = {
+export type VideoInfo = {
 	/** 视频的bvid */
 	aid: number;
 	/** 视频bvid（必须）其实可以aid，但是好像没有该数据 */
@@ -36,7 +36,7 @@ type VideoInfo = {
 	epList?: VIDEO_EP_LIST[];
 };
 
-type VideoQualityInfo = {
+export type VideoQualityInfo = {
 	/** 画质文字 */
 	name: string;
 	/** 链接 */
@@ -55,7 +55,7 @@ type VideoQualityInfo = {
  * 对获取视频的信息的数组中过滤掉重复的画质
  * @param arr
  */
-function filterArrayWithMaxSize<T>(arr: T[]): T[] {
+export function filterArrayWithMaxSize<T>(arr: T[]): T[] {
 	// 创建一个对象用来存储每个id对应的最大size的对象
 	const map = {};
 	// 遍历输入数组
@@ -75,7 +75,7 @@ function filterArrayWithMaxSize<T>(arr: T[]): T[] {
 /**
  * 从请求的信息中过滤出需要的视频信息
  */
-function filterDashVideoQualityInfo(
+export function filterDashVideoQualityInfo(
 	dashInfo: {
 		accept_quality: TypeBilibiliVideoInfo_m4s["accept_quality"];
 		support_formats: TypeBilibiliVideoInfo_m4s["support_formats"];
@@ -126,7 +126,7 @@ function filterDashVideoQualityInfo(
 /**
  * 生成artPlayer配置信息
  */
-const GenerateArtPlayerOption = async (option: VideoInfo) => {
+export const GenerateArtPlayerOption = async (option: VideoInfo) => {
 	// m4s的音频信息
 	const audioInfo: {
 		/** 链接 */
@@ -528,18 +528,18 @@ export const BilibiliVideoPlayer = {
 				artPlayerOption!.container = $artPlayer;
 
 				// 初始化artplayer播放器
-				if (BilibiliVideoPlayer.$data.art == null) {
+				if (that.$data.art == null) {
 					let art = await BilibiliVideoArtPlayer.init(artPlayerOption);
 					if (art) {
-						BilibiliVideoPlayer.$data.art = art;
+						that.$data.art = art;
 					} else {
 						return;
 					}
 					if (import.meta.hot) {
-						Reflect.set(unsafeWindow, "art", BilibiliVideoPlayer.$data.art);
+						Reflect.set(unsafeWindow, "art", that.$data.art);
 					}
 					// 强制初始化音量为1
-					BilibiliVideoPlayer.$data.art.volume = 1;
+					that.$data.art.volume = 1;
 					that.$data.art.once("ready", () => {
 						PopsPanel.execMenu(
 							"bili-video-playerAutoPlayVideoFullScreen",
@@ -557,10 +557,7 @@ export const BilibiliVideoPlayer = {
 					});
 				} else {
 					// 更新artplayer播放信息
-					await BilibiliVideoArtPlayer.update(
-						BilibiliVideoPlayer.$data.art,
-						artPlayerOption
-					);
+					await BilibiliVideoArtPlayer.update(that.$data.art, artPlayerOption);
 				}
 
 				// 如果开启了滚动固钉tab，当滚动到底部推荐视频进行切换视频时，当前视频paddingTop是0，会导致视频不能归位

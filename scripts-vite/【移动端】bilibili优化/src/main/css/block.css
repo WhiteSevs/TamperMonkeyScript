@@ -79,3 +79,12 @@
 #app .read-app-main bili-open-app {
 	display: none !important;
 }
+
+/* 播放列表 */
+#app .playlist > .open-app-wp {
+	display: none !important;
+}
+/* 修复因屏蔽了广告导致的往上偏移 */
+#app .playlist > .open-app-wp + div {
+	padding-top: 56.25%;
+}

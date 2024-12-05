@@ -75,6 +75,13 @@ export const BilibiliRouter = {
 	isSpace() {
 		return window.location.pathname.startsWith("/space");
 	},
+	/**
+	 * 播放列表
+	 * + /playlist
+	 */
+	isPlayList() {
+		return window.location.pathname.startsWith("/playlist");
+	},
 };
 
 export const BilibiliPCRouter = {

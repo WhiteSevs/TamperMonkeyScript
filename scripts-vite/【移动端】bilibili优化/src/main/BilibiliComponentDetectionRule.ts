@@ -172,7 +172,7 @@ export const BilibiliComponentDetectionRule = {
 
 						// 是否显示标签名称
 						let isShowDisplayName_template = UISwitch(
-							"显示标签名称",
+							"是否显示标签名称",
 							"isShowDisplayName",
 							templateData.data.isShowDisplayName
 						);
@@ -188,7 +188,7 @@ export const BilibiliComponentDetectionRule = {
 
 						// 显示的标签名称
 						let displayName_template = UIInput(
-							"显示标签名称",
+							"标签名称",
 							"displayName",
 							templateData.data.displayName,
 							""
@@ -205,7 +205,7 @@ export const BilibiliComponentDetectionRule = {
 
 						// 是否显示标签图标
 						let isShowDisplayIcon_template = UISwitch(
-							"显示标签图标",
+							"是否显示标签图标",
 							"isShowDisplayIcon",
 							templateData.data.isShowDisplayIcon
 						);
@@ -221,7 +221,7 @@ export const BilibiliComponentDetectionRule = {
 
 						// 显示的标签图标
 						let displayIcon_template = UIInput(
-							"显示的标签图标",
+							"标签图标",
 							"displayIcon",
 							templateData.data.displayIcon,
 							""

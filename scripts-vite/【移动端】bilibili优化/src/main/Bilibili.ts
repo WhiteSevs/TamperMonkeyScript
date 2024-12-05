@@ -19,6 +19,7 @@ import { BilibiliSpace } from "./space/BilibiliSpace";
 import { VueUtils } from "@/utils/VueUtils";
 import { BilibiliVueProp } from "./BilibiliVueProp";
 import { BilibiliComponentDetection } from "./BilibiliComponentDetection";
+import { BilibiliPlayList } from "./playlist/BilibiliPlayList";
 
 const Bilibili = {
 	init() {
@@ -88,6 +89,9 @@ const Bilibili = {
 		} else if (BilibiliRouter.isSpace()) {
 			log.info("Router: 个人空间");
 			BilibiliSpace.init();
+		} else if (BilibiliRouter.isPlayList()) {
+			log.info(`Router: 播放列表`);
+			BilibiliPlayList.init();
 		} else {
 			log.error("该Router暂未适配，可能是首页之类：" + window.location.href);
 		}

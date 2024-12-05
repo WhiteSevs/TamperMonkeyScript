@@ -24,9 +24,9 @@ export type VIDEO_EP_LIST = {
 		/** 视频标题 */
 		title: string;
 		/** 视频上传时间 */
-		pubdate: 1704877200;
+		pubdate: number;
 		/** 视频修改时间 */
-		ctime: 1704877200;
+		ctime: number;
 		/** 描述 */
 		desc: string;
 		state: string;

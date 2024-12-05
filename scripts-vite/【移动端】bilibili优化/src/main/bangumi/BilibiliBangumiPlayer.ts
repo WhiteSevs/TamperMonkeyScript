@@ -7,7 +7,7 @@ import { BilibiliCDNProxy } from "@/api/BilibiliCDNProxy";
 import { BilibiliBangumi } from "./BilibiliBangumi";
 import { unsafeWindow } from "ViteGM";
 import { VueUtils } from "@/utils/VueUtils";
-import { DOMUtils, log } from "@/env";
+import { $, DOMUtils, log } from "@/env";
 import {
 	BilibiliBangumiArtPlayer,
 	type BilibiliBangumiArtPlayerOption,
@@ -422,10 +422,14 @@ export const GenerateArtPlayerOption = async (
 	return artPlayerOption;
 };
 export const BlibiliBangumiPlayer = {
+	$data: {
+		art: null as any as Artplayer,
+	},
 	/**
 	 * 更新播放器的信息
 	 */
 	updateArtPlayerVideoInfo(ep_info?: EP_INFO, ep_list?: EP_LIST) {
+		const that = this;
 		VueUtils.waitVuePropToSet(".player-wrapper", {
 			msg: "等待player-wrapper加载完成",
 			check(vueInstance) {
@@ -436,8 +440,7 @@ export const BlibiliBangumiPlayer = {
 				);
 			},
 			async set(vueInstance) {
-				const $playerWrapper =
-					document.querySelector<HTMLDivElement>(".player-wrapper")!;
+				const $playerWrapper = $<HTMLDivElement>(".player-wrapper")!;
 				if (ep_info == null) {
 					ep_info = vueInstance.EP_INFO as EP_INFO;
 				}
@@ -450,7 +453,7 @@ export const BlibiliBangumiPlayer = {
 					// 生成失败
 					return;
 				}
-				let $artPlayer = document.querySelector<HTMLDivElement>("#artplayer");
+				let $artPlayer = $<HTMLDivElement>("#artplayer");
 				// 如果页面不存在的话，添加到页面中
 				if (!$artPlayer) {
 					// 接下来就是添加播放器到页面中
@@ -469,24 +472,21 @@ export const BlibiliBangumiPlayer = {
 				artPlayerOption!.container = $artPlayer;
 
 				// 初始化artplayer播放器
-				if (BilibiliBangumi.$data.art == null) {
+				if (that.$data.art == null) {
 					let art = await BilibiliBangumiArtPlayer.init(artPlayerOption);
 					if (art) {
-						BilibiliBangumi.$data.art = art;
+						that.$data.art = art;
 					} else {
 						return;
 					}
 					if (import.meta.hot) {
-						Reflect.set(unsafeWindow, "art", BilibiliBangumi.$data.art);
+						Reflect.set(window, "art", that.$data.art);
 					}
 					// 强制初始化音量为1
-					BilibiliBangumi.$data.art.volume = 1;
+					that.$data.art.volume = 1;
 				} else {
 					// 更新artplayer播放信息
-					BilibiliBangumiArtPlayer.update(
-						BilibiliBangumi.$data.art,
-						artPlayerOption
-					);
+					BilibiliBangumiArtPlayer.update(that.$data.art, artPlayerOption);
 				}
 			},
 		});

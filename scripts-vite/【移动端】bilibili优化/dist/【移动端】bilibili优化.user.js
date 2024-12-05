@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.3.19
+// @version      2024.12.5
 // @author       WhiteSevs
 // @description  免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -14,7 +14,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/497907/1413262/QRCodeJS.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
@@ -42,7 +42,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(a=>{function e(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let p=document.createElement("style");return p.setAttribute("type","text/css"),p.innerHTML=n,document.head?document.head.appendChild(p):document.body?document.body.appendChild(p):document.documentElement.childNodes.length===0?document.documentElement.appendChild(p):document.documentElement.insertBefore(p,document.documentElement.childNodes[0]),p}if(typeof GM_addStyle=="function"){GM_addStyle(a);return}e(a)})(' @charset "UTF-8";.m-video2-awaken-btn,.openapp-dialog,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .m-opus .m-navbar .m-nav-openapp,#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#app .read-app-main bili-open-app{display:none!important}html{--bili-color: #fb7299;--bili-color-rgb: 251, 114, 153} ');
+(a=>{function e(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let p=document.createElement("style");return p.setAttribute("type","text/css"),p.innerHTML=n,document.head?document.head.appendChild(p):document.body?document.body.appendChild(p):document.documentElement.childNodes.length===0?document.documentElement.appendChild(p):document.documentElement.insertBefore(p,document.documentElement.childNodes[0]),p}if(typeof GM_addStyle=="function"){GM_addStyle(a);return}e(a)})(' @charset "UTF-8";.m-video2-awaken-btn,.openapp-dialog,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .m-opus .m-navbar .m-nav-openapp,#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#app .read-app-main bili-open-app{display:none!important}#app .playlist>.open-app-wp{display:none!important}#app .playlist>.open-app-wp+div{padding-top:56.25%}html{--bili-color: #fb7299;--bili-color-rgb: 251, 114, 153} ');
 
 (function (Qmsg, Utils, DOMUtils, pops, md5, Artplayer, artplayerPluginDanmuku, flvjs) {
   'use strict';
@@ -1566,7 +1566,7 @@
                 name_template
               );
               let isShowDisplayName_template = UISwitch(
-                "显示标签名称",
+                "是否显示标签名称",
                 "isShowDisplayName",
                 templateData.data.isShowDisplayName
               );
@@ -1579,7 +1579,7 @@
                 isShowDisplayName_template
               );
               let displayName_template = UIInput(
-                "显示标签名称",
+                "标签名称",
                 "displayName",
                 templateData.data.displayName,
                 ""
@@ -1593,7 +1593,7 @@
                 displayName_template
               );
               let isShowDisplayIcon_template = UISwitch(
-                "显示标签图标",
+                "是否显示标签图标",
                 "isShowDisplayIcon",
                 templateData.data.isShowDisplayIcon
               );
@@ -1606,7 +1606,7 @@
                 isShowDisplayIcon_template
               );
               let displayIcon_template = UIInput(
-                "显示的标签图标",
+                "标签图标",
                 "displayIcon",
                 templateData.data.displayIcon,
                 ""
@@ -2410,6 +2410,13 @@
      */
     isSpace() {
       return window.location.pathname.startsWith("/space");
+    },
+    /**
+     * 播放列表
+     * + /playlist
+     */
+    isPlayList() {
+      return window.location.pathname.startsWith("/playlist");
     }
   };
   const BilibiliPCRouter = {
@@ -4547,7 +4554,8 @@
       "topic-detail": "#app .topic-detail",
       video: "#app .video",
       mVideo: "#app .m-video",
-      head: "#app .m-head"
+      head: "#app .m-head",
+      playlist: "#app .playlist"
     },
     /** 主题色 */
     theme: "#FB7299"
@@ -7344,14 +7352,14 @@
             domutils.append($mVideoPlayer, $artPlayerContainer);
           }
           artPlayerOption.container = $artPlayer;
-          if (BilibiliVideoPlayer.$data.art == null) {
+          if (that.$data.art == null) {
             let art = await BilibiliVideoArtPlayer.init(artPlayerOption);
             if (art) {
-              BilibiliVideoPlayer.$data.art = art;
+              that.$data.art = art;
             } else {
               return;
             }
-            BilibiliVideoPlayer.$data.art.volume = 1;
+            that.$data.art.volume = 1;
             that.$data.art.once("ready", () => {
               PopsPanel.execMenu(
                 "bili-video-playerAutoPlayVideoFullScreen",
@@ -7368,10 +7376,7 @@
               );
             });
           } else {
-            await BilibiliVideoArtPlayer.update(
-              BilibiliVideoPlayer.$data.art,
-              artPlayerOption
-            );
+            await BilibiliVideoArtPlayer.update(that.$data.art, artPlayerOption);
           }
           $mVideoPlayer.style.paddingTop = "";
         }
@@ -8951,10 +8956,14 @@
     return artPlayerOption;
   };
   const BlibiliBangumiPlayer = {
+    $data: {
+      art: null
+    },
     /**
      * 更新播放器的信息
      */
     updateArtPlayerVideoInfo(ep_info, ep_list) {
+      const that = this;
       VueUtils.waitVuePropToSet(".player-wrapper", {
         msg: "等待player-wrapper加载完成",
         check(vueInstance) {
@@ -8962,7 +8971,7 @@
           return typeof ((_a2 = vueInstance == null ? void 0 : vueInstance.EP_INFO) == null ? void 0 : _a2.aid) === "number" && typeof ((_b = vueInstance == null ? void 0 : vueInstance.EP_INFO) == null ? void 0 : _b.cid) === "number" && typeof ((_c = vueInstance == null ? void 0 : vueInstance.EP_INFO) == null ? void 0 : _c.ep_id) === "number";
         },
         async set(vueInstance) {
-          const $playerWrapper = document.querySelector(".player-wrapper");
+          const $playerWrapper = $(".player-wrapper");
           if (ep_info == null) {
             ep_info = vueInstance.EP_INFO;
           }
@@ -8973,7 +8982,7 @@
           if (artPlayerOption == null) {
             return;
           }
-          let $artPlayer = document.querySelector("#artplayer");
+          let $artPlayer = $("#artplayer");
           if (!$artPlayer) {
             const $artPlayerContainer = domutils.createElement("div", {
               className: "artplayer-container",
@@ -8988,19 +8997,16 @@
             domutils.after($playerWrapper, $artPlayerContainer);
           }
           artPlayerOption.container = $artPlayer;
-          if (BilibiliBangumi.$data.art == null) {
+          if (that.$data.art == null) {
             let art = await BilibiliBangumiArtPlayer.init(artPlayerOption);
             if (art) {
-              BilibiliBangumi.$data.art = art;
+              that.$data.art = art;
             } else {
               return;
             }
-            BilibiliBangumi.$data.art.volume = 1;
+            that.$data.art.volume = 1;
           } else {
-            BilibiliBangumiArtPlayer.update(
-              BilibiliBangumi.$data.art,
-              artPlayerOption
-            );
+            BilibiliBangumiArtPlayer.update(that.$data.art, artPlayerOption);
           }
         }
       });
@@ -11994,6 +12000,191 @@
       });
     }
   };
+  const BilibiliPlayListPlayer = {
+    $flag: {
+      isWatchVideoChange: false
+    },
+    $data: {
+      art: null
+    },
+    init() {
+    },
+    /**
+     * 更新播放信息
+     * @param videoInfo
+     * @param isEpChoose 是否是从选集内调用的
+     */
+    updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
+      const that = this;
+      VueUtils.waitVuePropToSet(
+        BilibiliData.className.playlist + " .playlist-player",
+        {
+          msg: "等待覆盖playlist播放器",
+          check(vueInstance) {
+            return typeof (vueInstance == null ? void 0 : vueInstance.aid) === "number" && typeof (vueInstance == null ? void 0 : vueInstance.cid) === "number" && typeof (vueInstance == null ? void 0 : vueInstance.bvid) === "string";
+          },
+          async set(vueInstance) {
+            var _a2;
+            (_a2 = $(".playlist-player .player-container")) == null ? void 0 : _a2.remove();
+            let $player = $(
+              BilibiliData.className.playlist + " .playlist-player"
+            );
+            let $playerContainer = $(
+              BilibiliData.className.playlist
+            );
+            let playerContainerVueInstance = VueUtils.getVue($playerContainer);
+            let { aid, cid, bvid } = vueInstance;
+            let { title, cover: pic } = playerContainerVueInstance.video;
+            log.info(`视频播放信息 => aid：${aid} bvid：${bvid} cid：${cid}`);
+            if (videoInfo == null) {
+              videoInfo = {
+                aid,
+                bvid,
+                cid,
+                pic,
+                title
+              };
+            }
+            const artPlayerOption = await GenerateArtPlayerOption$1(videoInfo);
+            if (artPlayerOption == null) {
+              return;
+            }
+            let $artPlayer = $("#artplayer");
+            if (!$artPlayer) {
+              const $artPlayerContainer = domutils.createElement("div", {
+                className: "artplayer-container",
+                innerHTML: (
+                  /*html*/
+                  `
+								<div id="artplayer"></div>
+							`
+                )
+              });
+              $artPlayer = $artPlayerContainer.querySelector("#artplayer");
+              domutils.append($player, $artPlayerContainer);
+            }
+            artPlayerOption.container = $artPlayer;
+            if (that.$data.art == null) {
+              let art = await BilibiliVideoArtPlayer.init(artPlayerOption);
+              if (art) {
+                that.$data.art = art;
+              } else {
+                return;
+              }
+              that.$data.art.volume = 1;
+              that.$data.art.once("ready", () => {
+                PopsPanel.execMenu(
+                  "bili-video-playerAutoPlayVideoFullScreen",
+                  async () => {
+                    log.info(`自动进入全屏`);
+                    that.$data.art.fullscreen = true;
+                    that.$data.art.once("fullscreenError", () => {
+                      log.warn(
+                        "未成功进入全屏，需要用户交互操作，使用网页全屏代替"
+                      );
+                      that.$data.art.fullscreenWeb = true;
+                    });
+                  }
+                );
+              });
+              that.$data.art.on("video:ended", () => {
+                log.info("视频播放结束，自动下一集");
+                let $controlPanel = $(
+                  BilibiliData.className.playlist + " .control-panel"
+                );
+                if (!$controlPanel) {
+                  log.error("未找到播放列表，无法自动播放下一集");
+                  return;
+                }
+                let controlVueInstance = VueUtils.getVue($controlPanel);
+                if (controlVueInstance == null) {
+                  log.error("未找到播放列表的Vue实例，无法自动播放下一集");
+                  return;
+                }
+                let { playMode, mediaList, videoIndex } = vueInstance.$store.state.playlist;
+                if (videoIndex >= mediaList.length - 1) {
+                  log.info(`播放列表已播放完毕`);
+                } else {
+                  let $currentVideoCard = $(
+                    `.video-card[index="${videoIndex}"]`
+                  );
+                  let currentVideoCardVueInstance = VueUtils.getVue($currentVideoCard);
+                  let p = currentVideoCardVueInstance.p;
+                  if (p >= currentVideoCardVueInstance.video.page) {
+                    let $nextVideoCard = $(
+                      `.video-card[index="${videoIndex + 1}"]`
+                    );
+                    let nextVideoCardVueInstance = VueUtils.getVue($nextVideoCard);
+                    nextVideoCardVueInstance.changeVideo();
+                    log.info(
+                      `当前播放列表共：${mediaList.length - 1}个，即将播放下一个视频，第${videoIndex + 2}个`
+                    );
+                  } else {
+                    p++;
+                    currentVideoCardVueInstance.changeVideo(p);
+                    log.info(
+                      `当前播放列表共：${mediaList.length - 1}个，即将播放第${videoIndex + 2}-${p}`
+                    );
+                  }
+                }
+              });
+            } else {
+              await BilibiliVideoArtPlayer.update(
+                that.$data.art,
+                artPlayerOption
+              );
+            }
+          }
+        }
+      );
+      VueUtils.waitVuePropToSet(
+        BilibiliData.className.playlist + " .playlist-player",
+        {
+          msg: "等待监听playlist播放列表改变",
+          check(vueInstance) {
+            return typeof vueInstance.$watch === "function";
+          },
+          set(vueInstance) {
+            if (!that.$flag.isWatchVideoChange) {
+              that.$flag.isWatchVideoChange = true;
+              vueInstance.$watch("cid", (newVal, oldVal) => {
+                log.info(`切换播放视频`);
+                that.updateArtPlayerVideoInfo();
+              });
+            }
+          }
+        }
+      );
+    }
+  };
+  const BilibiliPlayList = {
+    init() {
+      this.coverVideoPlayer();
+    },
+    /**
+     * 覆盖视频播放器
+     */
+    coverVideoPlayer() {
+      if (document.querySelector("#artplayer")) {
+        log.warn("已存在播放器，更新播放信息");
+      } else {
+        addStyle(
+          /*css*/
+          `
+			#app .playlist .playlist-player .player-container{
+				display: none !important;
+			}
+			
+			${artPlayerCommonCSS}
+			
+			${artPlayerCSS$1}
+			
+			`
+        );
+      }
+      BilibiliPlayListPlayer.updateArtPlayerVideoInfo();
+    }
+  };
   const Bilibili = {
     init() {
       BilibiliVueProp.init();
@@ -12062,6 +12253,9 @@
       } else if (BilibiliRouter.isSpace()) {
         log.info("Router: 个人空间");
         BilibiliSpace.init();
+      } else if (BilibiliRouter.isPlayList()) {
+        log.info(`Router: 播放列表`);
+        BilibiliPlayList.init();
       } else {
         log.error("该Router暂未适配，可能是首页之类：" + window.location.href);
       }

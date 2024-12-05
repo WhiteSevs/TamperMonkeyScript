@@ -8,6 +8,7 @@ export const BilibiliData = {
 		video: "#app .video",
 		mVideo: "#app .m-video",
 		head: "#app .m-head",
+		playlist: "#app .playlist",
 	},
 	/** 主题色 */
 	theme: "#FB7299",
