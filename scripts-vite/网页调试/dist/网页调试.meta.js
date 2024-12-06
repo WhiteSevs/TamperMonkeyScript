@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网页调试
 // @namespace    https://greasyfork.org/zh-CN/scripts/475228
-// @version      2024.11.26
+// @version      2024.12.6
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @license      GPL-3.0-only
@@ -11,9 +11,9 @@
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/483694/1485014/Eruda-2.js
 // @require      https://update.greasyfork.org/scripts/483695/1485015/vConsole-2.js
-// @require      https://update.greasyfork.org/scripts/483696/1485013/PageSpy-2.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.2/dist/index.umd.js
+// @require      https://update.greasyfork.org/scripts/483696/1497766/PageSpy-2.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
 // @resource     Resource_erudaBenchmark       https://fastly.jsdelivr.net/npm/eruda-benchmark@2.0.1
