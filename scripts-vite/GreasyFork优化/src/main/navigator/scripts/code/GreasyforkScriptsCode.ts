@@ -116,7 +116,7 @@ export const GreasyforkScriptsCode = {
 						overviewRulerBorder: true, // 滚动条的边框
 						scrollBeyondLastLine: true,
 						theme: "vs-dark", // 主题
-						fontSize: 14, // 字体
+						fontSize: window.innerWidth > 600 ? 14 : 12, // 字体
 						wordWrap: "off", // 换行
 						language: "javascript", // 语言
 					});

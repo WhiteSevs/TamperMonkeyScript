@@ -140,4 +140,38 @@ export const CommonUtil = {
 		urlObj.protocol = "https:";
 		return urlObj.toString();
 	},
+
+	/**
+	 * 禁止页面滚动，默认锁定html和body
+	 * @example
+	 * lockScroll();
+	 * @example
+	 * lockScroll(document.body);
+	 */
+	lockScroll(...args: HTMLElement[]) {
+		let $hidden = document.createElement("style");
+		$hidden.innerHTML = /*css*/ `
+			.pops-overflow-hidden-important {
+				overflow: hidden !important;
+			}
+		`;
+		let $elList = [document.documentElement, document.body].concat(
+			...(args || [])
+		);
+		$elList.forEach(($el) => {
+			$el.classList.add("pops-overflow-hidden-important");
+		});
+		(document.head || document.documentElement).appendChild($hidden);
+		return {
+			/**
+			 * 解除锁定
+			 */
+			recovery() {
+				$elList.forEach(($el) => {
+					$el.classList.remove("pops-overflow-hidden-important");
+				});
+				$hidden.remove();
+			},
+		};
+	},
 };

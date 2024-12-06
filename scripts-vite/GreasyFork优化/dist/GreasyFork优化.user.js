@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.12.6
+// @version            2024.12.6.22
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -718,6 +718,40 @@
       let urlObj = new URL(url);
       urlObj.protocol = "https:";
       return urlObj.toString();
+    },
+    /**
+     * 禁止页面滚动，默认锁定html和body
+     * @example
+     * lockScroll();
+     * @example
+     * lockScroll(document.body);
+     */
+    lockScroll(...args) {
+      let $hidden = document.createElement("style");
+      $hidden.innerHTML = /*css*/
+      `
+			.pops-overflow-hidden-important {
+				overflow: hidden !important;
+			}
+		`;
+      let $elList = [document.documentElement, document.body].concat(
+        ...args || []
+      );
+      $elList.forEach(($el) => {
+        $el.classList.add("pops-overflow-hidden-important");
+      });
+      (document.head || document.documentElement).appendChild($hidden);
+      return {
+        /**
+         * 解除锁定
+         */
+        recovery() {
+          $elList.forEach(($el) => {
+            $el.classList.remove("pops-overflow-hidden-important");
+          });
+          $hidden.remove();
+        }
+      };
     }
   };
   LanguageInit();
@@ -2460,7 +2494,7 @@
               scrollBeyondLastLine: true,
               theme: "vs-dark",
               // 主题
-              fontSize: 14,
+              fontSize: window.innerWidth > 600 ? 14 : 12,
               // 字体
               wordWrap: "off",
               // 换行
@@ -2680,6 +2714,7 @@
                 }
                 compareRightText = compareRightResponse.data.responseText;
                 loading.close();
+                let { recovery } = CommonUtil.lockScroll();
                 let $alert = __pops.alert({
                   title: {
                     text: i18next.t("代码对比"),
@@ -2700,12 +2735,19 @@
                   mask: {
                     enable: true,
                     clickEvent: {
-                      toClose: true
+                      toClose: false,
+                      toHide: false
                     }
                   },
                   btn: {
                     ok: {
                       enable: false
+                    },
+                    close: {
+                      callback(details, event2) {
+                        details.close();
+                        recovery();
+                      }
                     }
                   },
                   zIndex() {
@@ -2759,7 +2801,7 @@
                   scrollBeyondLastLine: true,
                   theme: "vs-dark",
                   // 主题
-                  fontSize: 14,
+                  fontSize: window.innerWidth > 600 ? 14 : 12,
                   // 字体
                   wordWrap: "off",
                   // 换行
