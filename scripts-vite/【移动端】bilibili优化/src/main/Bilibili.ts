@@ -126,104 +126,103 @@ const Bilibili = {
 	 * 监听路由变化
 	 */
 	listenRouterChange() {
-		utils.waitNode<HTMLDivElement>("#app").then(($app: any) => {
-			let check = function (vueObj: Vue2Instance) {
-				return typeof vueObj?.$router?.afterEach === "function";
-			};
-			utils.waitVueByInterval($app, check).then(() => {
-				let vueObj = VueUtils.getVue($app);
-				if (vueObj == null) {
-					return;
-				}
-				if (check(vueObj)) {
-					log.success("成功设置监听路由变化");
-					$app.__vue__.$router.beforeEach(
-						(
-							to: Vue2Instance["$route"],
-							from: Vue2Instance["$route"],
-							next: Function
-						) => {
-							log.info("路由变化 => 更新前", {
-								to,
-								from,
-							});
-							if (
-								to["hash"] === "#/seeCommentReply" ||
-								from["hash"] === "#/seeCommentReply"
-							) {
-								log.info("该路由变化判定为#/seeCommentReply");
-								next();
-								return;
-							}
-							if (PopsPanel.getValue("bili-repairVueRouter404")) {
-								if (to.name === "space") {
-									// 修复空间跳转404
-									window.location.href = to.fullPath;
-									return;
-								}
-							}
-							// 前往视频页面
-							if (to.fullPath.startsWith("/video")) {
-								if (
-									from.fullPath.startsWith("/video") &&
-									PopsPanel.getValue(
-										"bili-video-forceThisPageToRefreshAndRedirect"
-									)
-								) {
-									// 强制本页刷新
-									window.location.href = to.fullPath;
-									return;
-								} else if (
-									BilibiliRouter.isHead() &&
-									PopsPanel.getValue("bili-head-openVideoInNewTab")
-								) {
-									// 当前是首页，新标签页打开
-									window.open(to.fullPath, "_blank");
-									return;
-								} else if (PopsPanel.getValue("bili-video-enableArtPlayer")) {
-									// 启用了ArtPlayer，强制本页刷新，不然会有内存泄露
-									window.location.href = to.fullPath;
-									return;
-								}
-							} else if (to.fullPath.startsWith("/bangumi")) {
-								// 前往番剧
-								if (from.fullPath.startsWith("/bangumi")) {
-									// 番剧=>番剧
-									// 启用了ArtPlayer，强制本页刷新，不然会有内存泄露
-									window.location.href = to.fullPath;
-									return;
-								} else if (
-									BilibiliRouter.isHead() &&
-									PopsPanel.getValue("bili-head-openVideoInNewTab")
-								) {
-									// 首页 => 番剧
-									window.open(to.fullPath, "_blank");
-									return;
-								}
-							}
+		VueUtils.waitVuePropToSet("#app", {
+			msg: "监听路由变化",
+			check: (vueInstance: any) => {
+				return typeof vueInstance?.$router?.afterEach === "function";
+			},
+			set: (vueInstance) => {
+				log.success("成功设置监听路由变化");
+				vueInstance.$router.beforeHooks.splice(
+					0,
+					0,
+					(
+						to: Vue2Instance["$route"],
+						from: Vue2Instance["$route"],
+						next: Function
+					) => {
+						log.info("路由变化 => 更新前", {
+							to,
+							from,
+						});
+						if (
+							to["hash"] === "#/seeCommentReply" ||
+							from["hash"] === "#/seeCommentReply"
+						) {
+							log.info("该路由变化判定为#/seeCommentReply");
 							next();
+							return;
 						}
-					);
-					$app.__vue__.$router.afterEach(
-						(to: Vue2Instance["$route"], from: Vue2Instance["$route"]) => {
-							log.info("路由变化 => 更新后", {
-								to,
-								from,
-							});
-							if (
-								to["hash"] === "#/seeCommentReply" ||
-								from["hash"] === "#/seeCommentReply"
-							) {
-								log.info("该路由变化判定为#/seeCommentReply，不重载");
+						if (PopsPanel.getValue("bili-repairVueRouter404")) {
+							if (to.name === "space") {
+								// 修复空间跳转404
+								log.info(`修复空间跳转404`);
+								window.location.href = to.fullPath;
 								return;
 							}
-							PopsPanel.execMenu("bili-listenRouterChange", () => {
-								Bilibili.init();
-							});
 						}
-					);
-				}
-			});
+						// 前往视频页面
+						if (to.fullPath.startsWith("/video")) {
+							if (
+								from.fullPath.startsWith("/video") &&
+								PopsPanel.getValue(
+									"bili-video-forceThisPageToRefreshAndRedirect"
+								)
+							) {
+								// 强制本页刷新
+								log.info(`强制本页刷新`);
+								window.location.href = to.fullPath;
+								return;
+							} else if (
+								BilibiliRouter.isHead() &&
+								PopsPanel.getValue("bili-head-openVideoInNewTab")
+							) {
+								// 当前是首页，新标签页打开
+								log.info(`当前是首页，新标签页打开`);
+								window.open(to.fullPath, "_blank");
+								return;
+							}
+						} else if (to.fullPath.startsWith("/bangumi")) {
+							// 前往番剧
+							if (from.fullPath.startsWith("/bangumi")) {
+								// 番剧=>番剧
+								log.info(`番剧 => 番剧`);
+								window.location.href = to.fullPath;
+								return;
+							} else if (
+								BilibiliRouter.isHead() &&
+								PopsPanel.getValue("bili-head-openVideoInNewTab")
+							) {
+								// 首页 => 番剧
+								log.info(`首页 => 番剧`);
+								window.open(to.fullPath, "_blank");
+								return;
+							}
+						}
+						next();
+					}
+				);
+				vueInstance.$router.afterHooks.splice(
+					0,
+					0,
+					(to: Vue2Instance["$route"], from: Vue2Instance["$route"]) => {
+						log.info("路由变化 => 更新后", {
+							to,
+							from,
+						});
+						if (
+							to["hash"] === "#/seeCommentReply" ||
+							from["hash"] === "#/seeCommentReply"
+						) {
+							log.info("该路由变化判定为#/seeCommentReply，不重载");
+							return;
+						}
+						PopsPanel.execMenu("bili-listenRouterChange", () => {
+							Bilibili.init();
+						});
+					}
+				);
+			},
 		});
 	},
 };

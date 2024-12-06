@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.5
+// @version      2024.12.6
 // @author       WhiteSevs
 // @description  免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -16,7 +16,7 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/ArtPlayer@78dcae673558915192020103d55bca9fc28b39ec/packages/artplayer-plugin-danmuku/dist/artplayer-plugin-danmuku.js
@@ -12289,77 +12289,78 @@
      * 监听路由变化
      */
     listenRouterChange() {
-      utils.waitNode("#app").then(($app) => {
-        let check = function(vueObj) {
+      VueUtils.waitVuePropToSet("#app", {
+        msg: "监听路由变化",
+        check: (vueInstance) => {
           var _a2;
-          return typeof ((_a2 = vueObj == null ? void 0 : vueObj.$router) == null ? void 0 : _a2.afterEach) === "function";
-        };
-        utils.waitVueByInterval($app, check).then(() => {
-          let vueObj = VueUtils.getVue($app);
-          if (vueObj == null) {
-            return;
-          }
-          if (check(vueObj)) {
-            log.success("成功设置监听路由变化");
-            $app.__vue__.$router.beforeEach(
-              (to, from, next) => {
-                log.info("路由变化 => 更新前", {
-                  to,
-                  from
-                });
-                if (to["hash"] === "#/seeCommentReply" || from["hash"] === "#/seeCommentReply") {
-                  log.info("该路由变化判定为#/seeCommentReply");
-                  next();
-                  return;
-                }
-                if (PopsPanel.getValue("bili-repairVueRouter404")) {
-                  if (to.name === "space") {
-                    window.location.href = to.fullPath;
-                    return;
-                  }
-                }
-                if (to.fullPath.startsWith("/video")) {
-                  if (from.fullPath.startsWith("/video") && PopsPanel.getValue(
-                    "bili-video-forceThisPageToRefreshAndRedirect"
-                  )) {
-                    window.location.href = to.fullPath;
-                    return;
-                  } else if (BilibiliRouter.isHead() && PopsPanel.getValue("bili-head-openVideoInNewTab")) {
-                    window.open(to.fullPath, "_blank");
-                    return;
-                  } else if (PopsPanel.getValue("bili-video-enableArtPlayer")) {
-                    window.location.href = to.fullPath;
-                    return;
-                  }
-                } else if (to.fullPath.startsWith("/bangumi")) {
-                  if (from.fullPath.startsWith("/bangumi")) {
-                    window.location.href = to.fullPath;
-                    return;
-                  } else if (BilibiliRouter.isHead() && PopsPanel.getValue("bili-head-openVideoInNewTab")) {
-                    window.open(to.fullPath, "_blank");
-                    return;
-                  }
-                }
+          return typeof ((_a2 = vueInstance == null ? void 0 : vueInstance.$router) == null ? void 0 : _a2.afterEach) === "function";
+        },
+        set: (vueInstance) => {
+          log.success("成功设置监听路由变化");
+          vueInstance.$router.beforeHooks.splice(
+            0,
+            0,
+            (to, from, next) => {
+              log.info("路由变化 => 更新前", {
+                to,
+                from
+              });
+              if (to["hash"] === "#/seeCommentReply" || from["hash"] === "#/seeCommentReply") {
+                log.info("该路由变化判定为#/seeCommentReply");
                 next();
+                return;
               }
-            );
-            $app.__vue__.$router.afterEach(
-              (to, from) => {
-                log.info("路由变化 => 更新后", {
-                  to,
-                  from
-                });
-                if (to["hash"] === "#/seeCommentReply" || from["hash"] === "#/seeCommentReply") {
-                  log.info("该路由变化判定为#/seeCommentReply，不重载");
+              if (PopsPanel.getValue("bili-repairVueRouter404")) {
+                if (to.name === "space") {
+                  log.info(`修复空间跳转404`);
+                  window.location.href = to.fullPath;
                   return;
                 }
-                PopsPanel.execMenu("bili-listenRouterChange", () => {
-                  Bilibili.init();
-                });
               }
-            );
-          }
-        });
+              if (to.fullPath.startsWith("/video")) {
+                if (from.fullPath.startsWith("/video") && PopsPanel.getValue(
+                  "bili-video-forceThisPageToRefreshAndRedirect"
+                )) {
+                  log.info(`强制本页刷新`);
+                  window.location.href = to.fullPath;
+                  return;
+                } else if (BilibiliRouter.isHead() && PopsPanel.getValue("bili-head-openVideoInNewTab")) {
+                  log.info(`当前是首页，新标签页打开`);
+                  window.open(to.fullPath, "_blank");
+                  return;
+                }
+              } else if (to.fullPath.startsWith("/bangumi")) {
+                if (from.fullPath.startsWith("/bangumi")) {
+                  log.info(`番剧 => 番剧`);
+                  window.location.href = to.fullPath;
+                  return;
+                } else if (BilibiliRouter.isHead() && PopsPanel.getValue("bili-head-openVideoInNewTab")) {
+                  log.info(`首页 => 番剧`);
+                  window.open(to.fullPath, "_blank");
+                  return;
+                }
+              }
+              next();
+            }
+          );
+          vueInstance.$router.afterHooks.splice(
+            0,
+            0,
+            (to, from) => {
+              log.info("路由变化 => 更新后", {
+                to,
+                from
+              });
+              if (to["hash"] === "#/seeCommentReply" || from["hash"] === "#/seeCommentReply") {
+                log.info("该路由变化判定为#/seeCommentReply，不重载");
+                return;
+              }
+              PopsPanel.execMenu("bili-listenRouterChange", () => {
+                Bilibili.init();
+              });
+            }
+          );
+        }
       });
     }
   };
