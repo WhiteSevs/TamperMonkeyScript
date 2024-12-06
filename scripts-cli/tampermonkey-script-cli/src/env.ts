@@ -97,6 +97,31 @@ Qmsg.config(
 	)
 );
 
+/* 配置pops的默认选项 */
+__pops.GlobalConfig.setGlobalConfig({
+	zIndex: () => {
+		let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
+			if (($ele as HTMLElement)?.classList?.contains("qmsg-shadow-container")) {
+				return false;
+			}
+			if (
+				($ele as HTMLElement)?.closest("qmsg") &&
+				$ele.getRootNode() instanceof ShadowRoot
+			) {
+				return false;
+			}
+		});
+		let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+		return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+	},
+	mask: {
+		enable: true,
+		clickEvent: {
+			toClose: false,
+			toHide: false,
+		},
+	},
+});
 /** 油猴菜单 */
 const GM_Menu = new utils.GM_Menu({
 	GM_getValue,
