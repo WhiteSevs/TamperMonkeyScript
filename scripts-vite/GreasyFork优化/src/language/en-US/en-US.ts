@@ -328,4 +328,13 @@ export const en_US_language = {
 		"The deletion failed and the script is still included in the form data",
 	"删除失败，{{selector}}元素不存在":
 		"Failed to delete. {{selector}} element does not exist",
+	"对比选中版本差异（monacoEditor）":
+		"Compare the differences between selected versions (monacoEditor)",
+	"正在加载monaco中...": "Loading monaco...",
+	"正在获取对比文本中...": "Retrieving comparison text...",
+	代码对比: "Code Comparison",
+	添加代码对比按钮: "Add code comparison button",
+	"版本号相同，不需要比较源码":
+		"The version numbers are the same, no need to compare source code",
+	使用Monaco编辑器: "Use Monaco Editor",
 };

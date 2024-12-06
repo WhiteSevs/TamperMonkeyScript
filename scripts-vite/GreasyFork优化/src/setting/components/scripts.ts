@@ -39,9 +39,16 @@ export const SettingUIScripts: PopsPanelContentConfig = {
 								UISwitch(
 									i18next.t("修复代码行号显示"),
 									"code-repairCodeLineNumber",
-									true,
+									false,
 									void 0,
 									i18next.t("修复代码行数超过1k行号显示不全问题")
+								),
+								UISwitch(
+									"monacoEditor",
+									"code-use-monaco-editor",
+									true,
+									void 0,
+									i18next.t("使用Monaco编辑器")
 								),
 							],
 						},
@@ -61,6 +68,13 @@ export const SettingUIScripts: PopsPanelContentConfig = {
 									true,
 									void 0,
 									i18next.t("在版本下面添加【安装】、【查看代码】按钮")
+								),
+								UISwitch(
+									i18next.t("添加代码对比按钮"),
+									"scripts-versions-addCompareCodeButton",
+									true,
+									void 0,
+									i18next.t("monacoEditor")
 								),
 							],
 						},

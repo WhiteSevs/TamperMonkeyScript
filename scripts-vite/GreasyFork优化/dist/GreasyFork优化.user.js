@@ -14,7 +14,7 @@
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.4/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.7/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.4/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require            https://fastly.jsdelivr.net/npm/i18next@23.15.1/i18next.min.js
 // @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
@@ -562,7 +562,14 @@
     "举报用户：": "Report user:",
     "添加失败，表单数据中不包含该脚本": "Failed to add, script id not included in form data",
     "删除失败，表单数据中仍包含该脚本": "The deletion failed and the script is still included in the form data",
-    "删除失败，{{selector}}元素不存在": "Failed to delete. {{selector}} element does not exist"
+    "删除失败，{{selector}}元素不存在": "Failed to delete. {{selector}} element does not exist",
+    "对比选中版本差异（monacoEditor）": "Compare the differences between selected versions (monacoEditor)",
+    "正在加载monaco中...": "Loading monaco...",
+    "正在获取对比文本中...": "Retrieving comparison text...",
+    代码对比: "Code Comparison",
+    添加代码对比按钮: "Add code comparison button",
+    "版本号相同，不需要比较源码": "The version numbers are the same, no need to compare source code",
+    使用Monaco编辑器: "Use Monaco Editor"
   };
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
@@ -2336,6 +2343,9 @@
       PopsPanel.execMenuOnce("code-repairCodeLineNumber", () => {
         this.repairCodeLineNumber();
       });
+      PopsPanel.execMenuOnce("code-use-monaco-editor", () => {
+        this.coverEditorWithMonaco();
+      });
     },
     /**
      * 修复代码的行号显示不够问题
@@ -2370,6 +2380,97 @@
           );
         }
       });
+    },
+    /**
+     * 使用monacoEditor替换编辑器
+     */
+    coverEditorWithMonaco() {
+      log.info(`使用monacoEditor替换编辑器`);
+      addStyle(
+        /*css*/
+        `
+			@font-face {
+				font-family: 'codicon';
+				src: url('https://fastly.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs/base/browser/ui/codicons/codicon/codicon.ttf') format('truetype');
+			}
+			`
+      );
+      addStyle(
+        /*css*/
+        `
+			.monaco-editor{
+				height: calc(100vh - 54px);
+			}
+		`
+      );
+      CommonUtil.addBlockCSS("#script-content .code-container > pre");
+      let $monacoScript = domUtils.createElement("script", {
+        type: "module",
+        innerHTML: `
+			import * as monaco from "https://fastly.jsdelivr.net/npm/monaco-editor@0.52.0/+esm";
+			window.monaco = monaco;
+			window.dispatchEvent(new CustomEvent("monaco-editor-ready"));
+			`
+      });
+      domUtils.append(document.head || document.documentElement, $monacoScript);
+      domUtils.append(document.head || document.documentElement, $monacoScript);
+      domUtils.on(
+        window,
+        "monaco-editor-ready",
+        async () => {
+          let monaco2 = _unsafeWindow.monaco;
+          let response = await httpx.get(window.location.href, { fetch: true });
+          if (!response.status) {
+            return;
+          }
+          let doc = domUtils.parseHTML(response.data.responseText, true, true);
+          let $originCodeContainer = doc.querySelector(
+            "#script-content .code-container > pre"
+          );
+          if (!$originCodeContainer) {
+            return;
+          }
+          let codeText = domUtils.text($originCodeContainer);
+          domUtils.ready(async () => {
+            let $codeContainer = await utils.waitNode(
+              "#script-content .code-container > pre",
+              1e4
+            );
+            if (!$codeContainer) {
+              return;
+            }
+            let $monacoEditor = domUtils.createElement("div", {
+              className: "monaco-editor"
+            });
+            domUtils.after($codeContainer, $monacoEditor);
+            monaco2.editor.create($monacoEditor, {
+              value: codeText,
+              minimap: { enabled: true },
+              // 小地图
+              automaticLayout: true,
+              // 自动布局,
+              codeLens: true,
+              colorDecorators: true,
+              contextmenu: false,
+              readOnly: true,
+              //是否只读
+              formatOnPaste: true,
+              overviewRulerBorder: true,
+              // 滚动条的边框
+              scrollBeyondLastLine: true,
+              theme: "vs-dark",
+              // 主题
+              fontSize: 14,
+              // 字体
+              wordWrap: "off",
+              // 换行
+              language: "javascript"
+              // 语言
+            });
+          });
+        },
+        { once: true }
+      );
     }
   };
   const beautifyVersionsPageCSS = 'ul.history_versions,\r\nul.history_versions li {\r\n	width: 100%;\r\n}\r\nul.history_versions li {\r\n	display: flex;\r\n	flex-direction: column;\r\n	margin: 25px 0px;\r\n}\r\n.diff-controls input[type="radio"]:nth-child(2) {\r\n	margin-left: 5px;\r\n}\r\n.flex-align-item-center {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n.script-tag {\r\n	margin-bottom: 8px;\r\n}\r\n.script-tag-version a {\r\n	color: #656d76;\r\n	fill: #656d76;\r\n	text-decoration: none;\r\n	width: fit-content;\r\n	width: -moz-fit-content;\r\n}\r\n.script-tag-version a:hover svg {\r\n	color: #00a3f5;\r\n	fill: #00a3f5;\r\n}\r\n.script-tag-version a > span {\r\n	margin-left: 0.25rem;\r\n}\r\n.script-note-box-body {\r\n	border-radius: 0.375rem;\r\n	border-style: solid;\r\n	border-width: max(1px, 0.0625rem);\r\n	border-color: #d0d7de;\r\n	color: #1f2328;\r\n	padding: 16px;\r\n	overflow-wrap: anywhere;\r\n}\r\n.script-note-box-body p {\r\n	margin-bottom: unset;\r\n}\r\n';
@@ -2380,6 +2481,9 @@
       });
       PopsPanel.execMenuOnce("scripts-versions-addExtraTagButton", () => {
         this.addExtraTagButton();
+      });
+      PopsPanel.execMenuOnce("scripts-versions-addCompareCodeButton", () => {
+        this.sourceDiffMonacoEditor();
       });
     },
     /**
@@ -2484,6 +2588,202 @@
           domUtils.after($tagVersion, $buttonTag);
         });
       });
+    },
+    /**
+     * 源码对比（monacoEditor）
+     */
+    sourceDiffMonacoEditor() {
+      log.info(`源码对比（monacoEditor）`);
+      addStyle(
+        /*css*/
+        `
+		@font-face {
+			font-family: 'codicon';
+			src: url('https://fastly.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs/base/browser/ui/codicons/codicon/codicon.ttf') format('truetype');
+		}
+		`
+      );
+      let $monacoScript = domUtils.createElement("script", {
+        type: "module",
+        innerHTML: `
+			import * as monaco from "https://fastly.jsdelivr.net/npm/monaco-editor@0.52.0/+esm";
+			window.monaco = monaco;
+			window.dispatchEvent(new CustomEvent("monaco-editor-ready"));
+			`
+      });
+      domUtils.append(document.head || document.documentElement, $monacoScript);
+      domUtils.on(
+        window,
+        "monaco-editor-ready",
+        () => {
+          let monaco2 = unsafeWindow.monaco;
+          domUtils.ready(() => {
+            $$(
+              `#script-content form[action*="/diff"] input[type="submit"]`
+            ).forEach(($submit) => {
+              let $compareButton = domUtils.createElement(
+                "input",
+                {
+                  type: "button",
+                  value: i18next.t("对比选中版本差异（monacoEditor）")
+                },
+                {
+                  style: "margin-left: 10px;"
+                }
+              );
+              domUtils.after($submit, $compareButton);
+              domUtils.on($compareButton, "click", async (event) => {
+                utils.preventEvent(event);
+                let $form = $submit.closest("form");
+                let formData = new FormData($form);
+                let compareLeftVersion = formData.get("v1");
+                let compareRighttVersion = formData.get("v2");
+                if (compareLeftVersion === compareRighttVersion) {
+                  Qmsg.warning(i18next.t("版本号相同，不需要比较源码"));
+                  return;
+                }
+                let loading = Qmsg.loading(i18next.t("正在获取对比文本中..."));
+                let scriptId = GreasyforkUrlUtils.getScriptId();
+                let response = await httpx.get(
+                  `https://greasyfork.org/zh-CN/scripts/${scriptId}.json`,
+                  {
+                    fetch: true,
+                    responseType: "json"
+                  }
+                );
+                if (!response.status) {
+                  loading.close();
+                  return;
+                }
+                let respJSON = utils.toJSON(response.data.responseText);
+                let code_url = respJSON["code_url"];
+                let compareLeftUrl = code_url.replace(
+                  `/${scriptId}`,
+                  `/${scriptId}/${compareLeftVersion}`
+                );
+                let compareRightUrl = code_url.replace(
+                  `/${scriptId}`,
+                  `/${scriptId}/${compareRighttVersion}`
+                );
+                let compareLeftText = "";
+                let compareRightText = "";
+                let compareLeftResponse = await httpx.get(compareLeftUrl);
+                if (!compareLeftResponse.status) {
+                  loading.close();
+                  return;
+                }
+                compareLeftText = compareLeftResponse.data.responseText;
+                let compareRightResponse = await httpx.get(compareRightUrl);
+                if (!compareRightResponse.status) {
+                  loading.close();
+                  return;
+                }
+                compareRightText = compareRightResponse.data.responseText;
+                loading.close();
+                let $alert = __pops.alert({
+                  title: {
+                    text: i18next.t("代码对比"),
+                    html: false,
+                    position: "center"
+                  },
+                  content: {
+                    html: true,
+                    text: (
+                      /*html*/
+                      `
+								<div class="monaco-editor-diff-container">
+									<div class="monaco-editor-diff"></div>
+								</div>
+								`
+                    )
+                  },
+                  mask: {
+                    enable: true,
+                    clickEvent: {
+                      toClose: true
+                    }
+                  },
+                  btn: {
+                    ok: {
+                      enable: false
+                    }
+                  },
+                  zIndex() {
+                    let maxZIndex = utils.getMaxZIndex();
+                    let popsMaxZIndex = __pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+                    return utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+                  },
+                  useShadowRoot: false,
+                  width: "90vw",
+                  height: "90vh",
+                  drag: true,
+                  style: (
+                    /*css*/
+                    `
+								.monaco-editor-diff-container{
+									width: 100%;
+									height: 100%;
+								}
+								.monaco-editor-diff{
+									width: 100%;
+									height: 100%;
+								}
+								.pops[type-value="alert"] .pops-alert-title{
+									--container-title-height: 40px;
+								}
+							`
+                  )
+                });
+                $alert.$shadowRoot.querySelector(
+                  ".monaco-editor-diff-container"
+                );
+                let $monacoEditor = $alert.$shadowRoot.querySelector(
+                  ".monaco-editor-diff"
+                );
+                let monacoEditor = monaco2.editor.createDiffEditor($monacoEditor, {
+                  hideUnchangedRegions: {
+                    enabled: true
+                  },
+                  minimap: { enabled: true },
+                  // 小地图
+                  automaticLayout: true,
+                  // 自动布局,
+                  codeLens: true,
+                  colorDecorators: true,
+                  contextmenu: false,
+                  readOnly: true,
+                  //是否只读
+                  formatOnPaste: true,
+                  overviewRulerBorder: true,
+                  // 滚动条的边框
+                  scrollBeyondLastLine: true,
+                  theme: "vs-dark",
+                  // 主题
+                  fontSize: 14,
+                  // 字体
+                  wordWrap: "off",
+                  // 换行
+                  language: "javascript"
+                  // 语言
+                });
+                const originModel = monaco2.editor.createModel(
+                  compareLeftText,
+                  "javascript"
+                );
+                const modifyModel = monaco2.editor.createModel(
+                  compareRightText,
+                  "javascript"
+                );
+                monacoEditor.setModel({
+                  original: originModel,
+                  modified: modifyModel
+                });
+              });
+            });
+          });
+        },
+        { once: true }
+      );
     }
   };
   const PanelUISize = {
@@ -2900,20 +3200,20 @@
         /*css*/
         `
         .code-wide-screen{
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          margin: 0;
-          padding: 0;
-          width: 100%;
-          height: 100%;
-          min-width: 100%;
-          min-height: 100%;
-          max-width: 100%;
-          max-height: 100%;
-          z-index: 10000;
+			position: absolute !important;
+			top: 0 !important;
+			left: 0 !important;
+			right: 0 !important;
+			bottom: 0 !important;
+			margin: 0 !important;
+			padding: 0 !important;
+			width: 100% !important;
+			height: 100% !important;
+			min-width: 100% !important;
+			min-height: 100% !important;
+			max-width: 100% !important;
+			max-height: 100% !important;
+			z-index: 1000000 !important;
         }
         `
       );
@@ -2922,23 +3222,23 @@
         _unsafeWindow,
         function(event) {
           if (event.key.toLowerCase() === "f") {
-            let codeElement = document.querySelector(
-              "#script-content div.code-container code"
-            );
+            let $code = $(".monaco-editor") || $("#script-content div.code-container code");
             if (event.altKey && event.shiftKey) {
+              log.info(`宽屏`);
               utils.preventEvent(event);
-              if (codeElement.classList.contains("code-wide-screen")) {
-                codeElement.classList.remove("code-wide-screen");
+              if ($code.classList.contains("code-wide-screen")) {
+                $code.classList.remove("code-wide-screen");
               } else {
-                codeElement.classList.add("code-wide-screen");
+                $code.classList.add("code-wide-screen");
               }
             } else if (!event.altKey && !event.ctrlKey && !event.shiftKey && !event.metaKey) {
+              log.info(`全屏`);
               utils.preventEvent(event);
               if (isFullScreen) {
-                utils.exitFullScreen(codeElement);
+                utils.exitFullScreen($code);
                 isFullScreen = false;
               } else {
-                utils.enterFullScreen(codeElement);
+                utils.enterFullScreen($code);
                 isFullScreen = true;
               }
             }
@@ -4548,9 +4848,16 @@
                   UISwitch(
                     i18next.t("修复代码行号显示"),
                     "code-repairCodeLineNumber",
-                    true,
+                    false,
                     void 0,
                     i18next.t("修复代码行数超过1k行号显示不全问题")
+                  ),
+                  UISwitch(
+                    "monacoEditor",
+                    "code-use-monaco-editor",
+                    true,
+                    void 0,
+                    i18next.t("使用Monaco编辑器")
                   )
                 ]
               }
@@ -4570,6 +4877,13 @@
                     true,
                     void 0,
                     i18next.t("在版本下面添加【安装】、【查看代码】按钮")
+                  ),
+                  UISwitch(
+                    i18next.t("添加代码对比按钮"),
+                    "scripts-versions-addCompareCodeButton",
+                    true,
+                    void 0,
+                    i18next.t("monacoEditor")
                   )
                 ]
               },
@@ -5735,7 +6049,7 @@
     }
   };
   const beautifyMarkdownCSS = ':root {\r\n	--borderColor-muted: #d1d9e0b3;\r\n}\r\ncode {\r\n	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;\r\n	font-size: 0.85em;\r\n	color: #000;\r\n	background-color: #f0f0f0;\r\n	border-radius: 3px;\r\n	padding: 0.2em 0;\r\n}\r\ntable {\r\n	text-indent: initial;\r\n}\r\ntable {\r\n	margin: 10px 0 15px 0;\r\n	border-collapse: collapse;\r\n	border-spacing: 0;\r\n	display: block;\r\n	width: 100%;\r\n	overflow: auto;\r\n	word-break: normal;\r\n	word-break: keep-all;\r\n}\r\ncode,\r\npre {\r\n	color: #333;\r\n	background: 0 0;\r\n	font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;\r\n	text-align: left;\r\n	white-space: pre;\r\n	word-spacing: normal;\r\n	word-break: normal;\r\n	word-wrap: normal;\r\n	line-height: 1.4;\r\n	-moz-tab-size: 8;\r\n	-o-tab-size: 8;\r\n	tab-size: 8;\r\n	-webkit-hyphens: none;\r\n	-moz-hyphens: none;\r\n	-ms-hyphens: none;\r\n	hyphens: none;\r\n}\r\npre {\r\n	padding: 0.8em;\r\n	overflow: auto;\r\n	border-radius: 3px;\r\n	background: #f5f5f5;\r\n}\r\n:not(pre) > code {\r\n	padding: 0.1em;\r\n	border-radius: 0.3em;\r\n	white-space: normal;\r\n	background: #f5f5f5;\r\n}\r\nhtml body {\r\n	font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans,\r\n		sans-serif;\r\n	font-size: 16px;\r\n	line-height: 1.6;\r\n	color: #333;\r\n	background-color: #fff;\r\n	overflow: initial;\r\n	box-sizing: border-box;\r\n	word-wrap: break-word;\r\n}\r\nhtml body > :first-child {\r\n	margin-top: 0;\r\n}\r\nhtml body h1,\r\nhtml body h2,\r\nhtml body h3,\r\nhtml body h4,\r\nhtml body h5,\r\nhtml body h6 {\r\n	line-height: 1.2;\r\n	margin-top: 1em;\r\n	margin-bottom: 16px;\r\n	color: #000;\r\n}\r\nhtml body h1 {\r\n	font-size: 2.25em;\r\n	font-weight: 300;\r\n	padding-bottom: 0.3em;\r\n}\r\nhtml body h2 {\r\n	font-size: 1.75em;\r\n	font-weight: 400;\r\n	padding-bottom: 0.3em;\r\n}\r\nhtml body h3 {\r\n	font-size: 1.5em;\r\n	font-weight: 500;\r\n}\r\nhtml body h4 {\r\n	font-size: 1.25em;\r\n	font-weight: 600;\r\n}\r\nhtml body h5 {\r\n	font-size: 1.1em;\r\n	font-weight: 600;\r\n}\r\nhtml body h6 {\r\n	font-size: 1em;\r\n	font-weight: 600;\r\n}\r\nhtml body h1,\r\nhtml body h2,\r\nhtml body h3,\r\nhtml body h4,\r\nhtml body h5 {\r\n	font-weight: 600;\r\n}\r\nhtml body h5 {\r\n	font-size: 1em;\r\n}\r\nhtml body h6 {\r\n	color: #5c5c5c;\r\n}\r\nhtml body strong {\r\n	color: #000;\r\n}\r\nhtml body del {\r\n	color: #5c5c5c;\r\n}\r\nhtml body a:not([href]) {\r\n	color: inherit;\r\n}\r\nhtml body a {\r\n	text-decoration: underline;\r\n	text-underline-offset: 0.2rem;\r\n}\r\nhtml body a:hover {\r\n	color: #00a3f5;\r\n}\r\nhtml body img {\r\n	max-width: 100%;\r\n}\r\nhtml body > p {\r\n	margin-top: 0;\r\n	margin-bottom: 16px;\r\n	word-wrap: break-word;\r\n}\r\nhtml body > ol,\r\nhtml body > ul {\r\n	margin-bottom: 16px;\r\n}\r\nhtml body ol,\r\nhtml body ul {\r\n	padding-left: 2em;\r\n}\r\nhtml body ol.no-list,\r\nhtml body ul.no-list {\r\n	padding: 0;\r\n	list-style-type: none;\r\n}\r\nhtml body ol ol,\r\nhtml body ol ul,\r\nhtml body ul ol,\r\nhtml body ul ul {\r\n	margin-top: 0;\r\n	margin-bottom: 0;\r\n}\r\nhtml body li {\r\n	margin-bottom: 0;\r\n}\r\nhtml body li.task-list-item {\r\n	list-style: none;\r\n}\r\nhtml body li > p {\r\n	margin-top: 0;\r\n	margin-bottom: 0;\r\n}\r\nhtml body .task-list-item-checkbox {\r\n	margin: 0 0.2em 0.25em -1.8em;\r\n	vertical-align: middle;\r\n}\r\nhtml body .task-list-item-checkbox:hover {\r\n	cursor: pointer;\r\n}\r\nhtml body blockquote {\r\n	margin: 16px 0;\r\n	font-size: inherit;\r\n	padding: 0 15px;\r\n	color: #5c5c5c;\r\n	background-color: #f0f0f0;\r\n	border-left: 4px solid #d6d6d6 !important;\r\n}\r\nhtml body blockquote > :first-child {\r\n	margin-top: 0;\r\n}\r\nhtml body blockquote > :last-child {\r\n	margin-bottom: 0;\r\n}\r\nhtml body hr {\r\n	height: 4px;\r\n	margin: 32px 0;\r\n	background-color: #d6d6d6;\r\n	border: 0 none;\r\n}\r\nhtml body table {\r\n	margin: 10px 0 15px 0;\r\n	border-collapse: collapse;\r\n	border-spacing: 0;\r\n	display: block;\r\n	width: 100%;\r\n	overflow: auto;\r\n	word-break: normal;\r\n	word-break: keep-all;\r\n}\r\nhtml body table th {\r\n	font-weight: 700;\r\n	color: #000;\r\n}\r\nhtml body table td,\r\nhtml body table th {\r\n	border: 1px solid #d6d6d6;\r\n	padding: 6px 13px;\r\n}\r\nhtml body dl {\r\n	padding: 0;\r\n}\r\nhtml body dl dt {\r\n	padding: 0;\r\n	margin-top: 16px;\r\n	font-size: 1em;\r\n	font-style: italic;\r\n	font-weight: 700;\r\n}\r\nhtml body dl dd {\r\n	padding: 0 16px;\r\n	margin-bottom: 16px;\r\n}\r\nhtml body code {\r\n	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;\r\n	font-size: 0.85em;\r\n	color: #000;\r\n	background-color: #f0f0f0;\r\n	border-radius: 3px;\r\n	padding: 0.2em 0;\r\n}\r\nhtml body code::after,\r\nhtml body code::before {\r\n	letter-spacing: -0.2em;\r\n	content: "\\00a0";\r\n}\r\nhtml body pre > code {\r\n	padding: 0;\r\n	margin: 0;\r\n	word-break: normal;\r\n	white-space: pre;\r\n	background: 0 0;\r\n	border: 0;\r\n}\r\nhtml body .highlight {\r\n	margin-bottom: 16px;\r\n}\r\nhtml body .highlight pre,\r\nhtml body pre {\r\n	padding: 1em;\r\n	overflow: auto;\r\n	line-height: 1.45;\r\n	border: #d6d6d6;\r\n	border-radius: 3px;\r\n}\r\nhtml body .highlight pre {\r\n	margin-bottom: 0;\r\n	word-break: normal;\r\n}\r\nhtml body pre code,\r\nhtml body pre tt {\r\n	display: inline;\r\n	max-width: initial;\r\n	padding: 0;\r\n	margin: 0;\r\n	overflow: initial;\r\n	line-height: inherit;\r\n	word-wrap: normal;\r\n	background-color: transparent;\r\n	border: 0;\r\n}\r\nhtml body pre code:after,\r\nhtml body pre code:before,\r\nhtml body pre tt:after,\r\nhtml body pre tt:before {\r\n	content: normal;\r\n}\r\nhtml body blockquote,\r\nhtml body dl,\r\nhtml body ol,\r\nhtml body p,\r\nhtml body pre,\r\nhtml body ul {\r\n	margin-top: 0;\r\n	margin-bottom: 16px;\r\n}\r\nhtml body kbd {\r\n	color: #000;\r\n	border: 1px solid #d6d6d6;\r\n	border-bottom: 2px solid #c7c7c7;\r\n	padding: 2px 4px;\r\n	background-color: #f0f0f0;\r\n	border-radius: 3px;\r\n}\r\n@media print {\r\n	html body {\r\n		background-color: #fff;\r\n	}\r\n	html body h1,\r\n	html body h2,\r\n	html body h3,\r\n	html body h4,\r\n	html body h5,\r\n	html body h6 {\r\n		color: #000;\r\n		page-break-after: avoid;\r\n	}\r\n	html body blockquote {\r\n		color: #5c5c5c;\r\n	}\r\n	html body pre {\r\n		page-break-inside: avoid;\r\n	}\r\n	html body table {\r\n		display: table;\r\n	}\r\n	html body img {\r\n		display: block;\r\n		max-width: 100%;\r\n		max-height: 100%;\r\n	}\r\n	html body code,\r\n	html body pre {\r\n		word-wrap: break-word;\r\n		white-space: pre;\r\n	}\r\n}\r\n/* 强制换行 */\r\ncode {\r\n	text-wrap: wrap !important;\r\n}\r\n\r\n.scrollbar-style::-webkit-scrollbar {\r\n	width: 8px;\r\n}\r\n.scrollbar-style::-webkit-scrollbar-track {\r\n	border-radius: 10px;\r\n	background-color: transparent;\r\n}\r\n.scrollbar-style::-webkit-scrollbar-thumb {\r\n	border-radius: 5px;\r\n	background-color: rgba(150, 150, 150, 0.66);\r\n	border: 4px solid rgba(150, 150, 150, 0.66);\r\n	background-clip: content-box;\r\n}\r\n\r\n/* 上面是通用 */\r\n\r\n/* 下面是自定义 */\r\n.user-content {\r\n	background: #ffffff !important;\r\n	border-left-color: #ffffff !important;\r\n}\r\n.user-content a {\r\n	color: #0969da;\r\n}\r\n.user-content h1 {\r\n	padding-bottom: 0.3em;\r\n	font-size: 2em;\r\n	border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));\r\n}\r\n.user-content h2 {\r\n	padding-bottom: 0.3em;\r\n	font-size: 1.5em;\r\n	border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));\r\n}\r\n/* 任务列表样式 */\r\n.task-list-item-checkbox {\r\n	margin: 0 0.2em 0.25em -1.4em;\r\n	vertical-align: middle;\r\n}\r\n/* 隐藏标记框 */\r\nul li:has(> .task-list-item-checkbox)::marker {\r\n	content: "";\r\n}\r\n\r\n/* 警告列表 */\r\n.markdown-alert {\r\n	--borderColor-default: #d1d9e0;\r\n	padding: 0.5rem 1rem;\r\n	margin-bottom: 1rem;\r\n	color: inherit;\r\n	border-left: 0.25em solid var(--borderColor-default);\r\n	border-left-color: var(--fgColor-accent);\r\n}\r\n.markdown-alert-title {\r\n	display: flex;\r\n	font-weight: 500;\r\n	align-items: center;\r\n	line-height: 1;\r\n	color: var(--fgColor-accent);\r\n}\r\n.markdown-alert > :last-child {\r\n	margin-bottom: 0;\r\n}\r\n.markdown-alert-title .octicon {\r\n	display: inline-block;\r\n	overflow: visible !important;\r\n	vertical-align: text-bottom;\r\n	fill: currentColor;\r\n}\r\n.markdown-alert-title .mr-2 {\r\n	margin-right: 0.5rem !important;\r\n}\r\n.markdown-alert[data-type="NOTE"] {\r\n	--fgColor-accent: #0969da;\r\n}\r\n\r\n.markdown-alert[data-type="TIP"] {\r\n	--fgColor-accent: #1a7f37;\r\n}\r\n.markdown-alert[data-type="IMPORTANT"] {\r\n	--fgColor-accent: #8250df;\r\n}\r\n.markdown-alert[data-type="WARNING"] {\r\n	--fgColor-accent: #9a6700;\r\n}\r\n.markdown-alert[data-type="CAUTION"] {\r\n	--fgColor-accent: #d1242f;\r\n}\r\n';
-  const beautifyButtonCSS = '/* 美化按钮 */\r\ninput[type="submit"],\r\nbutton {\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	line-height: 1;\r\n	height: 32px;\r\n	white-space: nowrap;\r\n	cursor: pointer;\r\n	/* color: #606266; */\r\n	text-align: center;\r\n	box-sizing: border-box;\r\n	outline: none;\r\n	transition: 0.1s;\r\n	font-weight: 500;\r\n	user-select: none;\r\n	vertical-align: middle;\r\n	appearance: none;\r\n	-webkit-appearance: none;\r\n	background-color: #ffffff;\r\n	border: 1px solid #dcdfe6;\r\n	border-color: #dcdfe6;\r\n	padding: 8px 15px;\r\n	font-size: 14px;\r\n	border-radius: 4px;\r\n}\r\n\r\ninput[type="submit"]:hover,\r\ninput[type="submit"]:focus,\r\nbutton:hover,\r\nbutton:focus {\r\n	color: #409eff;\r\n	border-color: #c6e2ff;\r\n	background-color: #ecf5ff;\r\n	outline: none;\r\n}\r\n\r\ninput[type="url"] {\r\n	position: relative;\r\n	font-size: 14px;\r\n	display: inline-flex;\r\n	line-height: 32px;\r\n	box-sizing: border-box;\r\n	vertical-align: middle;\r\n	appearance: none;\r\n	-webkit-appearance: none;\r\n	/* color: #606266; */\r\n	padding: 0;\r\n	outline: none;\r\n	border: none;\r\n	background: none;\r\n	flex-grow: 1;\r\n	align-items: center;\r\n	justify-content: center;\r\n	padding: 1px 11px;\r\n	background-color: #ffffff;\r\n	background-image: none;\r\n	border-radius: 4px;\r\n	cursor: text;\r\n	transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n	transform: translateZ(0);\r\n	box-shadow: 0 0 0 1px #dcdfe6 inset;\r\n\r\n	width: 100%;\r\n	width: -moz-available;\r\n	width: -webkit-fill-available;\r\n	width: fill-available;\r\n}\r\n\r\ninput[type="url"]::placeholder {\r\n	color: #a8abb2;\r\n}\r\n\r\ninput[type="url"]:hover {\r\n	box-shadow: 0 0 0 1px #c0c4cc inset;\r\n}\r\n\r\ninput[type="url"]:focus {\r\n	box-shadow: 0 0 0 1px #409eff inset;\r\n}\r\n';
+  const beautifyButtonCSS = '/* 美化按钮 */\r\ninput[type="submit"],\r\ninput[type="button"],\r\nbutton {\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	line-height: 1;\r\n	height: 32px;\r\n	white-space: nowrap;\r\n	cursor: pointer;\r\n	/* color: #606266; */\r\n	text-align: center;\r\n	box-sizing: border-box;\r\n	outline: none;\r\n	transition: 0.1s;\r\n	font-weight: 500;\r\n	user-select: none;\r\n	vertical-align: middle;\r\n	appearance: none;\r\n	-webkit-appearance: none;\r\n	background-color: #ffffff;\r\n	border: 1px solid #dcdfe6;\r\n	border-color: #dcdfe6;\r\n	padding: 8px 15px;\r\n	font-size: 14px;\r\n	border-radius: 4px;\r\n}\r\n\r\ninput[type="submit"]:hover,\r\ninput[type="submit"]:focus,\r\ninput[type="button"]:hover,\r\ninput[type="button"]:focus,\r\nbutton:hover,\r\nbutton:focus {\r\n	color: #409eff;\r\n	border-color: #c6e2ff;\r\n	background-color: #ecf5ff;\r\n	outline: none;\r\n}\r\n\r\ninput[type="url"] {\r\n	position: relative;\r\n	font-size: 14px;\r\n	display: inline-flex;\r\n	line-height: 32px;\r\n	box-sizing: border-box;\r\n	vertical-align: middle;\r\n	appearance: none;\r\n	-webkit-appearance: none;\r\n	/* color: #606266; */\r\n	padding: 0;\r\n	outline: none;\r\n	border: none;\r\n	background: none;\r\n	flex-grow: 1;\r\n	align-items: center;\r\n	justify-content: center;\r\n	padding: 1px 11px;\r\n	background-color: #ffffff;\r\n	background-image: none;\r\n	border-radius: 4px;\r\n	cursor: text;\r\n	transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n	transform: translateZ(0);\r\n	box-shadow: 0 0 0 1px #dcdfe6 inset;\r\n\r\n	width: 100%;\r\n	width: -moz-available;\r\n	width: -webkit-fill-available;\r\n	width: fill-available;\r\n}\r\n\r\ninput[type="url"]::placeholder {\r\n	color: #a8abb2;\r\n}\r\n\r\ninput[type="url"]:hover {\r\n	box-shadow: 0 0 0 1px #c0c4cc inset;\r\n}\r\n\r\ninput[type="url"]:focus {\r\n	box-shadow: 0 0 0 1px #409eff inset;\r\n}\r\n';
   const beautifyRadioCSS = 'label.radio-label {\r\n	font-weight: 500;\r\n	position: relative;\r\n	cursor: pointer;\r\n	display: inline-flex;\r\n	align-items: center;\r\n	white-space: normal;\r\n	outline: none;\r\n	font-size: 14px;\r\n	user-select: none;\r\n	margin-right: 32px;\r\n	height: 32px;\r\n	padding: 4px;\r\n	border-radius: 4px;\r\n	box-sizing: border-box;\r\n}\r\nlabel:has(input[type="radio"]:checked),\r\nlabel:has(input[type="radio"]:checked) a {\r\n	color: #409eff;\r\n}\r\nlabel.radio-label input[type="radio"] {\r\n	margin-right: 4px;\r\n	width: 14px;\r\n	height: 14px;\r\n}\r\nlabel.radio-label input[type="radio"]:checked {\r\n	-webkit-appearance: none;\r\n	-moz-appearance: none;\r\n	appearance: none;\r\n	border-radius: 50%;\r\n	width: 14px;\r\n	height: 14px;\r\n	outline: none;\r\n	border: 4px solid #409eff;\r\n	cursor: pointer;\r\n}\r\nlabel.radio-label input[type="radio"]:checked + span {\r\n	color: #409eff;\r\n}\r\n';
   const beautifyInputCSS = 'input[type="search"],\r\ninput[type="text"],\r\ninput[type="password"] {\r\n	justify-content: center;\r\n	align-items: center;\r\n	/* line-height: 1; */\r\n	/* height: 32px; */\r\n	white-space: nowrap;\r\n	cursor: text;\r\n	text-align: center;\r\n	box-sizing: border-box;\r\n	outline: 0;\r\n	transition: 0.1s;\r\n	/* font-weight: 500; */\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	vertical-align: middle;\r\n	-webkit-appearance: none;\r\n	appearance: none;\r\n	background-color: transparent;\r\n	border: 0;\r\n	padding: 8px 8px;\r\n	/* font-size: 14px; */\r\n	text-align: start;\r\n	/* width: 100%; */\r\n	flex: 1;\r\n	border: 1px solid #dcdfe6;\r\n	border-radius: 4px;\r\n}\r\ninput[type="search"]:hover,\r\ninput[type="text"]:hover,\r\ninput[type="password"]:hover {\r\n	box-shadow: 0 0 0 1px #c0c4cc;\r\n}\r\ninput[type="search"]:focus,\r\ninput[type="text"]:focus,\r\ninput[type="password"]:focus {\r\n	outline: 0;\r\n	border: 1px solid #409eff;\r\n	border-radius: 4px;\r\n	box-shadow: none;\r\n}\r\n';
   const beautifyTextAreaCSS = "textarea {\r\n	display: block;\r\n	position: relative;\r\n	/*vertical-align: bottom;*/\r\n	position: relative;\r\n	resize: vertical;\r\n	padding: 5px 11px;\r\n	line-height: 1.5;\r\n	box-sizing: border-box;\r\n	width: 100%;\r\n	font-size: inherit;\r\n	font-family: inherit;\r\n	/* color: #606266; */\r\n	background-color: #ffffff;\r\n	background-image: none;\r\n	appearance: none;\r\n	-webkit-appearance: none;\r\n	box-shadow: 0 0 0 1px #dcdfe6 inset;\r\n	border-radius: 4px;\r\n	transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n	border: none;\r\n}\r\ntextarea:focus {\r\n	outline: none;\r\n	box-shadow: 0 0 0 1px #409eff inset;\r\n}\r\n";

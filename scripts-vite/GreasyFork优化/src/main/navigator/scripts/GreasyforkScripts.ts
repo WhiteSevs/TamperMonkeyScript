@@ -1,5 +1,5 @@
 import { GreasyforkApi } from "@/api/GreasyForkApi";
-import { addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
+import { $, addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
 import { GreasyforkMenu } from "@/main/GreasyforkMenu";
 import { GreasyforkRouter } from "@/router/GreasyforkRouter";
 import { PopsPanel } from "@/setting/setting";
@@ -419,20 +419,20 @@ export const GreasyforkScripts = {
 		log.info("F11全屏，F键代码全屏");
 		addStyle(/*css*/ `
         .code-wide-screen{
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          margin: 0;
-          padding: 0;
-          width: 100%;
-          height: 100%;
-          min-width: 100%;
-          min-height: 100%;
-          max-width: 100%;
-          max-height: 100%;
-          z-index: 10000;
+			position: absolute !important;
+			top: 0 !important;
+			left: 0 !important;
+			right: 0 !important;
+			bottom: 0 !important;
+			margin: 0 !important;
+			padding: 0 !important;
+			width: 100% !important;
+			height: 100% !important;
+			min-width: 100% !important;
+			min-height: 100% !important;
+			max-width: 100% !important;
+			max-height: 100% !important;
+			z-index: 1000000 !important;
         }
         `);
 		let isFullScreen = false;
@@ -440,18 +440,18 @@ export const GreasyforkScripts = {
 			unsafeWindow,
 			function (event) {
 				if (event.key.toLowerCase() === "f") {
-					let codeElement = document.querySelector<HTMLElement>(
-						"#script-content div.code-container code"
-					);
+					let $code =
+						$<HTMLElement>(".monaco-editor") ||
+						$<HTMLElement>("#script-content div.code-container code");
 					if (event.altKey && event.shiftKey) {
-						/* 宽屏 */
+						log.info(`宽屏`);
 						utils.preventEvent(event);
-						if (codeElement!.classList.contains("code-wide-screen")) {
+						if ($code!.classList.contains("code-wide-screen")) {
 							/* 当前处于宽屏状态，退出宽屏 */
-							codeElement!.classList.remove("code-wide-screen");
+							$code!.classList.remove("code-wide-screen");
 						} else {
 							/* 进入宽屏 */
-							codeElement!.classList.add("code-wide-screen");
+							$code!.classList.add("code-wide-screen");
 						}
 					} else if (
 						!event.altKey &&
@@ -459,15 +459,15 @@ export const GreasyforkScripts = {
 						!event.shiftKey &&
 						!event.metaKey
 					) {
-						/* 全屏 */
+						log.info(`全屏`);
 						utils.preventEvent(event);
 						if (isFullScreen) {
 							/* 退出全屏 */
-							utils.exitFullScreen(codeElement as HTMLElement);
+							utils.exitFullScreen($code as HTMLElement);
 							isFullScreen = false;
 						} else {
 							/* 进入全屏 */
-							utils.enterFullScreen(codeElement as HTMLElement);
+							utils.enterFullScreen($code as HTMLElement);
 							isFullScreen = true;
 						}
 					}
