@@ -354,6 +354,16 @@ code {
 	background-clip: content-box;
 }
 
+/* 上面是通用 */
+
+/* 下面是自定义 */
+.user-content {
+	background: #ffffff !important;
+	border-left-color: #ffffff !important;
+}
+.user-content a {
+	color: #0969da;
+}
 .user-content h1 {
 	padding-bottom: 0.3em;
 	font-size: 2em;
@@ -372,4 +382,49 @@ code {
 /* 隐藏标记框 */
 ul li:has(> .task-list-item-checkbox)::marker {
 	content: "";
+}
+
+/* 警告列表 */
+.markdown-alert {
+	--borderColor-default: #d1d9e0;
+	padding: 0.5rem 1rem;
+	margin-bottom: 1rem;
+	color: inherit;
+	border-left: 0.25em solid var(--borderColor-default);
+	border-left-color: var(--fgColor-accent);
+}
+.markdown-alert-title {
+	display: flex;
+	font-weight: 500;
+	align-items: center;
+	line-height: 1;
+	color: var(--fgColor-accent);
+}
+.markdown-alert > :last-child {
+	margin-bottom: 0;
+}
+.markdown-alert-title .octicon {
+	display: inline-block;
+	overflow: visible !important;
+	vertical-align: text-bottom;
+	fill: currentColor;
+}
+.markdown-alert-title .mr-2 {
+	margin-right: 0.5rem !important;
+}
+.markdown-alert[data-type="NOTE"] {
+	--fgColor-accent: #0969da;
+}
+
+.markdown-alert[data-type="TIP"] {
+	--fgColor-accent: #1a7f37;
+}
+.markdown-alert[data-type="IMPORTANT"] {
+	--fgColor-accent: #8250df;
+}
+.markdown-alert[data-type="WARNING"] {
+	--fgColor-accent: #9a6700;
+}
+.markdown-alert[data-type="CAUTION"] {
+	--fgColor-accent: #d1242f;
 }
