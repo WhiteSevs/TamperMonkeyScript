@@ -1,6 +1,6 @@
 import { PopsPanel } from "@/setting/setting";
 import "./css/OwnCSS.css";
-import { addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
+import { $$, addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
 import Qmsg from "qmsg";
 import { GreasyforkApi } from "@/api/GreasyForkApi";
 import { GM_getResourceText, GM_getValue, GM_setValue } from "ViteGM";
@@ -301,23 +301,24 @@ const Greasyfork = {
         `);
 		addStyle(/*css*/ `
         .snippet-clipboard-content{
-          display: flex;
-          justify-content: space-between;
-          background: rgb(246, 248, 250);
-          margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            background: rgb(246, 248, 250);
+            margin-bottom: 16px;
+            position: relative;
         }
         .zeroclipboard-container {
-          /* right: 0;
-          top: 0;
-          position: absolute; */
-          box-sizing: border-box;
-          display: flex;
-          font-size: 16px;
-          line-height: 24px;
-          text-size-adjust: 100%;
-          overflow-wrap: break-word;
-          width: fit-content;
-          height: fit-content;
+            right: 0;
+            top: 0;
+            position: absolute;
+            box-sizing: border-box;
+            display: flex;
+            font-size: 16px;
+            line-height: 24px;
+            text-size-adjust: 100%;
+            overflow-wrap: break-word;
+            width: fit-content;
+            height: fit-content;
         }
         .zeroclipboard-container svg{
             vertical-align: text-bottom;
@@ -327,61 +328,61 @@ const Greasyfork = {
             margin: 8px;
         }
         .zeroclipboard-container svg[aria-hidden="true"]{
-          display: none;
+            display: none;
         }
         clipboard-copy.js-clipboard-copy {
-          position: relative;
-          padding: 0px;
-          color: rgb(36, 41, 47);
-          background-color: rgb(246, 248, 250);
-          transition: 80ms cubic-bezier(0.33, 1, 0.68, 1);
-          transition-property: color,background-color,box-shadow,border-color;
-          display: inline-block;
-          font-size: 14px;
-          line-height: 20px;
-          white-space: nowrap;
-          vertical-align: middle;
-          cursor: pointer;
-          -webkit-user-select: none;
-          user-select: none;
-          border: 1px solid rgba(31, 35, 40, 0.15);
-          -webkit-appearance: none;
-          appearance: none;
-          box-shadow: rgba(31, 35, 40, 0.04) 0px 1px 0px 0px, rgba(255, 255, 255, 0.25) 0px 1px 0px 0px inset;
-          margin: 8px;
-          overflow-wrap: break-word;
-          text-wrap: nowrap;
-          border-radius: 6px;
+            position: relative;
+            padding: 0px;
+            color: rgb(36, 41, 47);
+            background-color: rgb(246, 248, 250);
+            transition: 80ms cubic-bezier(0.33, 1, 0.68, 1);
+            transition-property: color,background-color,box-shadow,border-color;
+            display: inline-block;
+            font-size: 14px;
+            line-height: 20px;
+            white-space: nowrap;
+            vertical-align: middle;
+            cursor: pointer;
+            -webkit-user-select: none;
+            user-select: none;
+            border: 1px solid rgba(31, 35, 40, 0.15);
+            -webkit-appearance: none;
+            appearance: none;
+            box-shadow: rgba(31, 35, 40, 0.04) 0px 1px 0px 0px, rgba(255, 255, 255, 0.25) 0px 1px 0px 0px inset;
+            margin: 8px;
+            overflow-wrap: break-word;
+            text-wrap: nowrap;
+            border-radius: 6px;
         }
         clipboard-copy.js-clipboard-copy[success]{
-          border-color: rgb(31, 136, 61);
-          box-shadow: 0 0 0 0.2em rgba(52,208,88,.4);
+            border-color: rgb(31, 136, 61);
+            box-shadow: 0 0 0 0.2em rgba(52,208,88,.4);
         }
         clipboard-copy.js-clipboard-copy:hover{
-          background-color: rgb(243, 244, 246);
-          border-color: rgba(31, 35, 40, 0.15);
-          transition-duration: .1s;
+            background-color: rgb(243, 244, 246);
+            border-color: rgba(31, 35, 40, 0.15);
+            transition-duration: .1s;
         }
         clipboard-copy.js-clipboard-copy:active{
-          background-color: rgb(235, 236, 240);
-          border-color: rgba(31, 35, 40, 0.15);
-          transition: none;
+            background-color: rgb(235, 236, 240);
+            border-color: rgba(31, 35, 40, 0.15);
+            transition: none;
         }
         `);
 		addStyle(/*css*/ `
         .pops-tip.github-tooltip {
-          border-radius: 6px;
-          padding: 6px 8px;
+            border-radius: 6px;
+            padding: 6px 8px;
         }
         
         .pops-tip.github-tooltip, .pops-tip.github-tooltip .pops-tip-arrow::after {
-          background: rgb(36, 41, 47);
-          color: #fff;
+            background: rgb(36, 41, 47);
+            color: #fff;
         }
         
         .pops-tip.github-tooltip .pops-tip-arrow::after {
-          width: 8px;
-          height: 8px;
+            width: 8px;
+            height: 8px;
         }
         `);
 		/**
@@ -448,7 +449,7 @@ const Greasyfork = {
 			return $copy;
 		}
 
-		document.querySelectorAll<HTMLPreElement>("pre").forEach((preElement) => {
+		$$<HTMLPreElement>("pre").forEach((preElement) => {
 			let zeroclipboardElement = preElement.querySelector(
 				"div.zeroclipboard-container"
 			);
