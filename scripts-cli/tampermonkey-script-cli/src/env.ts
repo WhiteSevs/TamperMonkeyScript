@@ -122,6 +122,7 @@ __pops.GlobalConfig.setGlobalConfig({
 		},
 	},
 });
+
 /** 油猴菜单 */
 const GM_Menu = new utils.GM_Menu({
 	GM_getValue,
