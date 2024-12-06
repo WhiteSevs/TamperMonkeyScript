@@ -156,7 +156,7 @@ export const MSettingUI_Common: PopsPanelContentConfig = {
 								UISwitch(
 									"劫持Vue",
 									"little-red-book-hijack-vue",
-									false,
+									true,
 									void 0,
 									"恢复__vue__属性"
 								),
