@@ -23,12 +23,12 @@ export type QmsgLimitWidthWrap = "no-wrap" | "wrap" | "ellipsis";
 export interface QmsgOption {
 	/**
 	 * 是否使用动画
-	 * + 默认：true
+	 * @default true
 	 */
 	animation?: boolean;
 	/**
 	 * 是否自动关闭，注意在type为loading的时候自动关闭为false
-	 * + 默认：true
+	 * @default true
 	 */
 	autoClose?: boolean;
 	/**
@@ -37,28 +37,28 @@ export interface QmsgOption {
 	content?: string;
 	/**
 	 * 内容是否是html
-	 * + 默认：false
+	 * @default false
 	 * @deprecated 建议使用isHTML
 	 */
 	html?: boolean;
 	/**
 	 * 内容是否是html
-	 * + 默认：false
+	 * @default false
 	 */
 	isHTML?: boolean;
 	/**
 	 * 弹出的位置
-	 * + 默认：center
+	 * @default "center"
 	 */
 	position?: QmsgPosition;
 	/**
 	 * 是否显示关闭图标
-	 * + 默认：false
+	 * @default false
 	 */
 	showClose?: boolean;
 	/**
 	 * 最大显示的数量
-	 * + 默认：5
+	 * @default 5
 	 */
 	maxNums?: number;
 	/**
@@ -67,22 +67,22 @@ export interface QmsgOption {
 	onClose?: (<T extends QmsgMsg>(this: T) => void) | null;
 	/**
 	 * 是否显示左边的icon图标
-	 * + 默认：true
+	 * @default true
 	 */
 	showIcon?: boolean;
 	/**
 	 * 是否使内容进行换行显示
-	 * + 默认：false
+	 * @default false
 	 */
 	showMoreContent?: boolean;
 	/**
 	 * 弹出顺序是否逆反
-	 * + 默认：false
+	 * @default false
 	 */
 	showReverse?: boolean;
 	/**
 	 * 最大显示的时长(ms)
-	 * + 默认：2500
+	 * @default 2500
 	 */
 	timeout?: number;
 	/**
@@ -91,7 +91,7 @@ export interface QmsgOption {
 	type: QmsgType;
 	/**
 	 * 元素层级
-	 * + 默认：50000
+	 * @default 50000
 	 */
 	zIndex?: number | (() => number);
 	/**
@@ -104,19 +104,24 @@ export interface QmsgOption {
 	customClass?: string;
 	/**
 	 * 是否限制宽度
-	 * + 默认：false
+	 * @default false
 	 */
 	isLimitWidth?: boolean;
 	/**
 	 * 限制宽度的数值
-	 * + 默认：200
+	 * @default 200
 	 */
 	limitWidthNum?: number | string;
 	/**
 	 * 当超出限制宽度时，是否换行还是显示为省略号
-	 * + 默认："wrap"
+	 * @default "wrap"
 	 */
 	limitWidthWrap?: "no-wrap" | "wrap" | "ellipsis";
+	/**
+	 * 是否在控制台打印content信息
+	 * @default false
+	 */
+	consoleLogContent?: boolean;
 }
 
 export interface QmsgDetails extends Partial<QmsgOption> {}
@@ -206,7 +211,7 @@ class Qmsg {
 	$eventUtils: typeof QmsgEvent;
 	constructor() {
 		this.$data = {
-			version: "2024.11.7",
+			version: "2024.12.6",
 			config: QmsgConfig,
 			icon: QmsgIcon,
 			instanceStorage: QmsgInstanceStorage,

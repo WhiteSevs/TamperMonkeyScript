@@ -58,6 +58,11 @@ export class QmsgMsg {
 
 		this.detectionType();
 		this.init();
+
+		if (this.setting.consoleLogContent) {
+			// 控制台输出content
+			console.log(this.setting.content);
+		}
 	}
 	/**
 	 * 获取当前配置

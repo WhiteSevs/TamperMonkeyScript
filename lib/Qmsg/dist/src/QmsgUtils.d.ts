@@ -37,6 +37,20 @@ export declare const QmsgUtils: {
      * @param other_obj 获取的其它对象
      */
     toDynamicObject<T1 extends unknown, T2 extends any[]>(obj: T1, ...other_objs: T2): T1 & (T2 extends Array<infer U> ? U : never);
+    /**
+     * 自动使用 Worker 执行 setTimeout
+     */
     setTimeout(callback: Function, timeout: number): number;
+    /**
+     * 配合 QmsgUtils.setTimeout 使用
+     */
     clearTimeout(timeId: number | undefined): void;
+    /**
+     * 自动使用 Worker 执行 setInterval
+     */
+    setInterval(callback: Function, timeout: number): number;
+    /**
+     * 配合 QmsgUtils.setInterval 使用
+     */
+    clearInterval(timeId: number | undefined): void;
 };

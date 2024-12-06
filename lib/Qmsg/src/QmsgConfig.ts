@@ -1,6 +1,5 @@
 import { QmsgOption } from "./Qmsg";
 import { QmsgAnimation } from "./QmsgAnimation";
-import { QmsgUtils } from "./QmsgUtils";
 
 export const QmsgConfig = {
 	/** 声明插件名称 */
@@ -10,7 +9,7 @@ export const QmsgConfig = {
 	/** 实例配置的固定的默认值 */
 	INS_DEFAULT: {},
 	/** 固定的默认值 */
-	DEFAULT: <Required<QmsgOption>>{
+	DEFAULT: {
 		animation: true,
 		autoClose: true,
 		content: "",
@@ -31,11 +30,13 @@ export const QmsgConfig = {
 		isLimitWidth: false,
 		limitWidthNum: 200,
 		limitWidthWrap: "no-wrap",
-	},
+		consoleLogContent: false,
+	} as Required<QmsgOption>,
 	/**
 	 * 是否支持动画属性
 	 */
 	CAN_ANIMATION: Boolean(
-		QmsgAnimation.getStyleAnimationNameValue(document.createElement("div")) != null
+		QmsgAnimation.getStyleAnimationNameValue(document.createElement("div")) !=
+			null
 	),
 };

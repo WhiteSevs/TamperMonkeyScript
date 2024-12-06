@@ -2,7 +2,6 @@
 
 + 最新版本：[![npm version](https://img.shields.io/npm/v/qmsg)](https://www.npmjs.com/package/qmsg)
 
-
 **插件描述：**
 一款优雅的原生JS页面消息提示插件，兼容性良好，无任何依赖。
 
@@ -49,7 +48,7 @@ pnpm add qmsg
 
 通过`Qmsg.config({})`来动态修改全局配置
 
-```javascript
+```js
 Qmsg.config({
     showClose:true,
     timeout: 5000
@@ -80,11 +79,11 @@ Qmsg.config({
 | isLimitWidth    | Boolean                          | 是否限制宽度                                                                                        | false     |
 | limitWidthNum   | Number                           | 限制宽度的数值                                                                                      | 200       |
 | limitWidthWrap  | "no-wrap" \| "wrap"\| "ellipsis" | 当超出限制宽度时，是否换行还是显示为省略号                                                          | "no-wrap" |
-
+| consoleLogContent      | Boolean                          | 是否在控制台打印信息                                                                                | false     |
 
 **Qmsg支持的方法**
 
-```javascript
+```js
 // 配置
 Qmsg.config()
 // 信息
@@ -101,7 +100,7 @@ Qmsg.loading()
 
 以上方法均可传递 1-2 个参数，如下：
 
-```javascript
+```js
 Qmsg.loading("我是加载条");
 Qmsg.info("给你个眼神，你懂得",{
     showClose:true,
@@ -117,7 +116,7 @@ Qmsg.error({
 
 **注意：**`Qmsg.loading()`默认设置`autoClose = false`，一般来说需要手动关闭：
 
-```javascript
+```js
 var loadingMsg = Qmsg.loading('我是加载条');
 // do something
 loadingMsg.close();
@@ -125,7 +124,7 @@ loadingMsg.close();
 
 如需要自动关闭则需要如下调用:
 
-```javascript
+```js
 Qmsg.loading("我是加载条",{
     autoClose:true
 })
@@ -140,7 +139,7 @@ Qmsg.loading({
 
 关闭所有消息，包括`autoClose = false`的消息
 
-```javascript
+```js
 var aMsg = Qmsg.info("这是个info消息")
 ```
 
@@ -148,7 +147,7 @@ var aMsg = Qmsg.info("这是个info消息")
 
 关闭当前消息，会触发`onClose`回调函数。
 
-```javascript
+```js
 aMsg.close()
 ```
 
@@ -156,14 +155,14 @@ aMsg.close()
 
 销毁消息，不会触发`onClose`回调函数。
 
-```javascript
+```js
 aMsg.destroy()
 ```
 **setText(text:String)**
 
 对已弹出的内容进行修改
 
-```javascript
+```js
 aMsg.setText("这是进行修改的info消息")
 ```
 
@@ -171,13 +170,13 @@ aMsg.setText("这是进行修改的info消息")
 
 对已弹出的内容进行修改
 
-```javascript
+```js
 aMsg.setHTML("<a href='javascript:;' target='_blank'>这是进行修改的info消息超链接</a>")
 ```
 
 **关闭左边的图标显示**
 
-```javascript
+```js
 Qmsg.config({
     showIcon: false
 })
@@ -190,7 +189,7 @@ Qmsg.info("这个没有图标",{
 
 **设置九宫格位置弹出**
 
-```javascript
+```js
 Qmsg.info("左上角",{
     position: "topleft"
 })

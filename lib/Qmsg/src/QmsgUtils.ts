@@ -58,13 +58,23 @@ export const QmsgUtils = {
 		if (arguments.length === 0) {
 			return opts;
 		}
-		if (typeof content === "object" && content != null) {
-			return Object.assign(opts, content);
+		if (config != null) {
+			// 传入了2个参数
+			// string object
+			// object object
+			opts.content = content;
+			if (typeof config === "object" && config != null) {
+				return Object.assign(opts, config);
+			}
 		} else {
-			opts.content = content.toString();
-		}
-		if (typeof config === "object" && config != null) {
-			return Object.assign(opts, config);
+			// 传入了1个参数
+			// object
+			// string
+			if (typeof content === "object" && content != null) {
+				return Object.assign(opts, content);
+			} else {
+				opts.content = content;
+			}
 		}
 		return opts;
 	},
@@ -157,6 +167,9 @@ export const QmsgUtils = {
 		});
 		return __obj__ as any;
 	},
+	/**
+	 * 自动使用 Worker 执行 setTimeout
+	 */
 	setTimeout(callback: Function, timeout: number) {
 		try {
 			return setTimeout(callback, timeout);
@@ -164,6 +177,9 @@ export const QmsgUtils = {
 			return globalThis.setTimeout(callback, timeout);
 		}
 	},
+	/**
+	 * 配合 QmsgUtils.setTimeout 使用
+	 */
 	clearTimeout(timeId: number | undefined) {
 		try {
 			if (timeId != null) {
@@ -172,6 +188,29 @@ export const QmsgUtils = {
 		} catch (error) {
 		} finally {
 			globalThis.clearTimeout(timeId);
+		}
+	},
+	/**
+	 * 自动使用 Worker 执行 setInterval
+	 */
+	setInterval(callback: Function, timeout: number) {
+		try {
+			return setInterval(callback, timeout);
+		} catch (error) {
+			return globalThis.setInterval(callback, timeout);
+		}
+	},
+	/**
+	 * 配合 QmsgUtils.setInterval 使用
+	 */
+	clearInterval(timeId: number | undefined) {
+		try {
+			if (timeId != null) {
+				clearInterval(timeId);
+			}
+		} catch (error) {
+		} finally {
+			globalThis.clearInterval(timeId);
 		}
 	},
 };
