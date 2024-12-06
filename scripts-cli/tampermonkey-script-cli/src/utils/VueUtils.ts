@@ -19,11 +19,28 @@ type VueWaitSetOption = {
 };
 export const VueUtils = {
 	/**
-	 * 获取元素上的__vue__属性
+	 * 获取vue2实例
 	 * @param element
+	 * @returns
 	 */
-	getVue(element: HTMLElement | Node | Element): Vue2Instance | null {
-		return (element as any)?.__vue__ as Vue2Instance | null;
+	getVue(element: Element | null | EventTarget) {
+		if (element == null) {
+			return;
+		}
+		return ((element as NestedObjectWithToString)["__vue__"] ||
+			(element as NestedObjectWithToString)["__Ivue__"] ||
+			(element as NestedObjectWithToString)["__IVue__"]) as Vue2Instance;
+	},
+	/**
+	 * 获取vue3实例
+	 * @param element
+	 * @returns
+	 */
+	getVue3(element: Element | null | EventTarget) {
+		if (element == null) {
+			return;
+		}
+		return (element as any)["__vueParentComponent"];
 	},
 	/**
 	 * 等待vue属性并进行设置
