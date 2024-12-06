@@ -1,6 +1,7 @@
 import { XHSUrlApi } from "@/api/XHSUrlApi";
-import { addStyle, DOMUtils, log, utils } from "@/env";
+import { $, $$, addStyle, DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
+import { VueUtils } from "@/utils/VueUtils";
 import Qmsg from "qmsg";
 
 /**
@@ -115,5 +116,54 @@ export const XHS_Article = {
 			width: ${noteContainerWidth}vw;
 		}
 		`);
+	},
+	/**
+	 * 转换笔记发布时间
+	 */
+	transformPublishTime() {
+		log.info(`转换笔记发布时间`);
+		let lockFn = new utils.LockFunction(() => {
+			$$<HTMLElement>(".note-content:not([data-edit-date])").forEach(
+				($noteContent) => {
+					let vueInstance = VueUtils.getVue($noteContent);
+					if (!vueInstance) {
+						return;
+					}
+					let note = vueInstance?._?.props?.note;
+					if (note == null) {
+						return;
+					}
+					let publishTime = note.time;
+					let lastUpdateTime = note.lastUpdateTime;
+					let ipLocation = note.ipLocation;
+					if (typeof publishTime === "number") {
+						let detailTimeLocationInfo = [];
+						detailTimeLocationInfo.push(
+							`发布：${utils.formatTime(publishTime)}`
+						);
+						if (typeof lastUpdateTime === "number") {
+							detailTimeLocationInfo.push(
+								`修改：${utils.formatTime(lastUpdateTime)}`
+							);
+						}
+						if (typeof ipLocation === "string" && utils.isNotNull(ipLocation)) {
+							detailTimeLocationInfo.push(ipLocation);
+						}
+						let $date = $noteContent.querySelector<HTMLElement>(".date")!;
+						DOMUtils.html($date, detailTimeLocationInfo.join("<br>"));
+						$noteContent.setAttribute("data-edit-date", "");
+					}
+				}
+			);
+		});
+		utils.mutationObserver(document, {
+			config: {
+				subtree: true,
+				childList: true,
+			},
+			callback: () => {
+				lockFn.run();
+			},
+		});
 	},
 };

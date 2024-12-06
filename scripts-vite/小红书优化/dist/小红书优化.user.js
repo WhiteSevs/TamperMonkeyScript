@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.26
+// @version      2024.12.6
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -9,10 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://www.xiaohongshu.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
 // @connect      edith.xiaohongshu.com
@@ -270,7 +270,7 @@
   });
   const addStyle = utils.addStyle.bind(utils);
   document.querySelector.bind(document);
-  document.querySelectorAll.bind(document);
+  const $$ = document.querySelectorAll.bind(document);
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
@@ -598,7 +598,7 @@
                   UISwitch(
                     "劫持Vue",
                     "pc-xhs-hook-vue",
-                    false,
+                    true,
                     void 0,
                     "恢复__vue__属性"
                   )
@@ -751,47 +751,48 @@
     title: "笔记",
     forms: [
       {
-        text: "",
+        type: "forms",
+        text: "功能",
+        forms: [
+          UISwitch(
+            "显示发布、修改的绝对时间",
+            "pc-xhs-article-showPubsliushTime",
+            false,
+            void 0,
+            ""
+          )
+        ]
+      },
+      {
+        text: "笔记宽屏",
         type: "forms",
         forms: [
-          {
-            text: "笔记宽屏",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "启用",
-                    "pc-xhs-article-fullWidth",
-                    false,
-                    void 0,
-                    `让笔记占据宽屏，当页面可视宽度>=960px时才会触发该功能，当前页面可视宽度: ${window.innerWidth}px`
-                  ),
-                  UISlider(
-                    "占据范围",
-                    "pc-xhs-article-fullWidth-widthSize",
-                    90,
-                    30,
-                    100,
-                    (event, value) => {
-                      let $noteContainer = document.querySelector("#noteContainer");
-                      if (!$noteContainer) {
-                        log.error("未找到笔记容器");
-                        return;
-                      }
-                      $noteContainer.style.width = `${value}vw`;
-                    },
-                    (value) => {
-                      return `${value}%，默认：90%`;
-                    },
-                    "调整笔记页面占据的页面范围"
-                  )
-                ]
+          UISwitch(
+            "启用",
+            "pc-xhs-article-fullWidth",
+            false,
+            void 0,
+            `让笔记占据宽屏，当页面可视宽度>=960px时才会触发该功能，当前页面可视宽度: ${window.innerWidth}px`
+          ),
+          UISlider(
+            "占据范围",
+            "pc-xhs-article-fullWidth-widthSize",
+            90,
+            30,
+            100,
+            (event, value) => {
+              let $noteContainer = document.querySelector("#noteContainer");
+              if (!$noteContainer) {
+                log.error("未找到笔记容器");
+                return;
               }
-            ]
-          }
+              $noteContainer.style.width = `${value}vw`;
+            },
+            (value) => {
+              return `${value}%，默认：90%`;
+            },
+            "调整笔记页面占据的页面范围"
+          )
         ]
       }
     ]
@@ -2451,6 +2452,166 @@
       return `https://www.xiaohongshu.com/search_result?keyword=${searchText}&source=web_explore_feed`;
     }
   };
+  const VueUtils = {
+    /**
+     * 获取vue2实例
+     * @param element
+     * @returns
+     */
+    getVue(element) {
+      if (element == null) {
+        return;
+      }
+      return element["__vue__"] || element["__Ivue__"] || element["__IVue__"];
+    },
+    /**
+     * 获取vue3实例
+     * @param element
+     * @returns
+     */
+    getVue3(element) {
+      if (element == null) {
+        return;
+      }
+      return element["__vueParentComponent"];
+    },
+    /**
+     * 等待vue属性并进行设置
+     * @param $target 目标对象
+     * @param needSetList 需要设置的配置
+     */
+    waitVuePropToSet($target, needSetList) {
+      if (!Array.isArray(needSetList)) {
+        VueUtils.waitVuePropToSet($target, [needSetList]);
+        return;
+      }
+      function getTarget() {
+        let __target__ = null;
+        if (typeof $target === "string") {
+          __target__ = document.querySelector($target);
+        } else if (typeof $target === "function") {
+          __target__ = $target();
+        } else if ($target instanceof HTMLElement) {
+          __target__ = $target;
+        }
+        return __target__;
+      }
+      needSetList.forEach((needSetOption) => {
+        if (typeof needSetOption.msg === "string") {
+          log.info(needSetOption.msg);
+        }
+        function checkVue() {
+          let target = getTarget();
+          if (target == null) {
+            return false;
+          }
+          let vueObj = VueUtils.getVue(target);
+          if (vueObj == null) {
+            return false;
+          }
+          let needOwnCheck = needSetOption.check(vueObj);
+          return Boolean(needOwnCheck);
+        }
+        utils.waitVueByInterval(
+          () => {
+            return getTarget();
+          },
+          checkVue,
+          250,
+          1e4
+        ).then((result) => {
+          if (!result) {
+            return;
+          }
+          let target = getTarget();
+          let vueObj = VueUtils.getVue(target);
+          if (vueObj == null) {
+            return;
+          }
+          needSetOption.set(vueObj);
+        });
+      });
+    },
+    /**
+     * 前往网址
+     * @param $vueNode 包含vue属性的元素
+     * @param path 需要跳转的路径
+     * @param [useRouter=false] 是否强制使用Vue的Router来进行跳转
+     */
+    goToUrl($vueNode, path, useRouter = false) {
+      if ($vueNode == null) {
+        Qmsg.error("跳转Url: 获取根元素#app失败");
+        log.error("跳转Url: 获取根元素#app失败：" + path);
+        return;
+      }
+      let vueObj = VueUtils.getVue($vueNode);
+      if (vueObj == null) {
+        log.error("获取vue属性失败");
+        Qmsg.error("获取vue属性失败");
+        return;
+      }
+      let $router = vueObj.$router;
+      let isBlank = true;
+      log.info("即将跳转URL：" + path);
+      if (useRouter) {
+        isBlank = false;
+      }
+      if (isBlank) {
+        window.open(path, "_blank");
+      } else {
+        if (path.startsWith("http") || path.startsWith("//")) {
+          if (path.startsWith("//")) {
+            path = window.location.protocol + path;
+          }
+          let urlObj = new URL(path);
+          if (urlObj.origin === window.location.origin) {
+            path = urlObj.pathname + urlObj.search + urlObj.hash;
+          } else {
+            log.info("不同域名，直接本页打开，不用Router：" + path);
+            window.location.href = path;
+            return;
+          }
+        }
+        log.info("$router push跳转Url：" + path);
+        $router.push(path);
+      }
+    },
+    /**
+     * 手势返回
+     * @param option 配置
+     */
+    hookGestureReturnByVueRouter(option) {
+      function popstateEvent() {
+        log.success("触发popstate事件");
+        resumeBack(true);
+      }
+      function banBack() {
+        log.success("监听地址改变");
+        option.vueInstance.$router.history.push(option.hash);
+        domutils.on(window, "popstate", popstateEvent);
+      }
+      async function resumeBack(isFromPopState = false) {
+        domutils.off(window, "popstate", popstateEvent);
+        let callbackResult = option.callback(isFromPopState);
+        if (callbackResult) {
+          return;
+        }
+        while (1) {
+          if (option.vueInstance.$router.history.current.hash === option.hash) {
+            log.info("后退！");
+            option.vueInstance.$router.back();
+            await utils.sleep(250);
+          } else {
+            return;
+          }
+        }
+      }
+      banBack();
+      return {
+        resumeBack
+      };
+    }
+  };
   const XHS_Article = {
     init() {
       if (PopsPanel.getValue("pc-xhs-search-open-blank-btn") || PopsPanel.getValue("pc-xhs-search-open-blank-keyboard-enter")) {
@@ -2538,6 +2699,56 @@
 		}
 		`
       );
+    },
+    /**
+     * 转换笔记发布时间
+     */
+    transformPublishTime() {
+      log.info(`转换笔记发布时间`);
+      let lockFn = new utils.LockFunction(() => {
+        $$(".note-content:not([data-edit-date])").forEach(
+          ($noteContent) => {
+            var _a2, _b;
+            let vueInstance = VueUtils.getVue($noteContent);
+            if (!vueInstance) {
+              return;
+            }
+            let note = (_b = (_a2 = vueInstance == null ? void 0 : vueInstance._) == null ? void 0 : _a2.props) == null ? void 0 : _b.note;
+            if (note == null) {
+              return;
+            }
+            let publishTime = note.time;
+            let lastUpdateTime = note.lastUpdateTime;
+            let ipLocation = note.ipLocation;
+            if (typeof publishTime === "number") {
+              let detailTimeLocationInfo = [];
+              detailTimeLocationInfo.push(
+                `发布：${utils.formatTime(publishTime)}`
+              );
+              if (typeof lastUpdateTime === "number") {
+                detailTimeLocationInfo.push(
+                  `修改：${utils.formatTime(lastUpdateTime)}`
+                );
+              }
+              if (typeof ipLocation === "string" && utils.isNotNull(ipLocation)) {
+                detailTimeLocationInfo.push(ipLocation);
+              }
+              let $date = $noteContent.querySelector(".date");
+              domutils.html($date, detailTimeLocationInfo.join("<br>"));
+              $noteContent.setAttribute("data-edit-date", "");
+            }
+          }
+        );
+      });
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        callback: () => {
+          lockFn.run();
+        }
+      });
     }
   };
   const XHS = {
@@ -2552,6 +2763,9 @@
         XHS.openBlankArticle();
       });
       XHSBlock.init();
+      PopsPanel.execMenuOnce("pc-xhs-article-showPubsliushTime", () => {
+        XHS_Article.transformPublishTime();
+      });
       if (ScriptRouter.isArticle()) {
         log.info("Router: 笔记页面");
         XHS_Article.init();

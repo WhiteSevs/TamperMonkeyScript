@@ -19,6 +19,9 @@ export const XHS = {
 			XHS.openBlankArticle();
 		});
 		XHSBlock.init();
+		PopsPanel.execMenuOnce("pc-xhs-article-showPubsliushTime", () => {
+			XHS_Article.transformPublishTime();
+		});
 		if (ScriptRouter.isArticle()) {
 			log.info("Router: 笔记页面");
 			XHS_Article.init();

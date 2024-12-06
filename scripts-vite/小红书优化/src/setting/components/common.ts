@@ -114,7 +114,7 @@ const SettingUI_Common: PopsPanelContentConfig = {
 								UISwitch(
 									"劫持Vue",
 									"pc-xhs-hook-vue",
-									false,
+									true,
 									void 0,
 									"恢复__vue__属性"
 								),
