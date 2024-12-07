@@ -560,6 +560,7 @@ export const BilibiliComponentDetection = {
 		data: Awaited<ReturnType<typeof this.queryUserInfo>>,
 		$searchContainer: HTMLElement
 	) {
+		log.info(`用户数据：`, data);
 		mid = mid.toString();
 		if (BilibiliComponentDetectionRule.$data.whiteList.includes(mid)) {
 			// 白名单用户
@@ -641,8 +642,14 @@ export const BilibiliComponentDetection = {
 								typeof spaceData.contentInfo.desc === "string" &&
 								spaceData.contentInfo.desc.match(keyword)
 							) {
-								// 转发的评论内容中存在关键词
-								reason = "空间动态内容";
+								// 视频简介中存在关键词
+								reason = "投稿视频简介";
+							} else if (
+								typeof spaceData.contentInfo.title === "string" &&
+								spaceData.contentInfo.title.match(keyword)
+							) {
+								// 视频标题中存在关键词
+								reason = "投稿视频标题";
 							}
 						} else {
 							// 转发
