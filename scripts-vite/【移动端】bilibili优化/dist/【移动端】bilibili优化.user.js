@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.6
+// @version      2024.12.7
 // @author       WhiteSevs
 // @description  免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -14,7 +14,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/497907/1413262/QRCodeJS.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
@@ -2840,6 +2840,13 @@
                     false,
                     void 0,
                     "用于处理内存泄露问题"
+                  ),
+                  UISwitch(
+                    "修复链接跳转",
+                    "bili-video-repairLinkJump",
+                    true,
+                    void 0,
+                    "如@用户、搜索"
                   )
                 ]
               },
@@ -7405,6 +7412,9 @@
       PopsPanel.execMenuOnce("bili-video-cover-seasonNew", () => {
         this.coverSeasonNew();
       });
+      PopsPanel.execMenuOnce("bili-video-repairLinkJump", () => {
+        this.repairLinkJump();
+      });
       domutils.ready(() => {
         PopsPanel.execMenuOnce("bili-video-optimizationScroll", () => {
           this.optimizationScroll();
@@ -7797,6 +7807,32 @@
           capture: true
         }
       );
+    },
+    /**
+     * 修复链接跳转
+     */
+    repairLinkJump() {
+      log.info(`修复链接跳转`);
+      let lockFn = new utils.LockFunction(() => {
+        [
+          "a.member-link:not([href])[data-url]",
+          "a.jump-link:not([href])[data-url]"
+        ].forEach((selector) => {
+          console.log(selector);
+          $$(selector).forEach(($el) => {
+            $el.href = $el.getAttribute("data-url");
+          });
+        });
+      });
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        callback: () => {
+          lockFn.run();
+        }
+      });
     },
     /**
      * 手势返回关闭评论区
@@ -11906,6 +11942,7 @@
      * @param $searchContainer
      */
     handleShowLabel(mid, data2, $searchContainer) {
+      log.info(`用户数据：`, data2);
       mid = mid.toString();
       if (BilibiliComponentDetectionRule.$data.whiteList.includes(mid)) {
         return;
@@ -11964,7 +12001,9 @@
               let reasonTime = spaceData.contentInfo.pub_ts;
               if (spaceData.forwardInfo == null) {
                 if (typeof spaceData.contentInfo.desc === "string" && spaceData.contentInfo.desc.match(keyword)) {
-                  reason = "空间动态内容";
+                  reason = "投稿视频简介";
+                } else if (typeof spaceData.contentInfo.title === "string" && spaceData.contentInfo.title.match(keyword)) {
+                  reason = "投稿视频标题";
                 }
               } else {
                 if (typeof spaceData.contentInfo.desc === "string" && spaceData.contentInfo.desc.match(keyword)) {

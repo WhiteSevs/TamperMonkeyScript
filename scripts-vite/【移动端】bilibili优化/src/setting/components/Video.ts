@@ -52,6 +52,13 @@ const SettingUIVideo: PopsPanelContentConfig = {
 									void 0,
 									"用于处理内存泄露问题"
 								),
+								UISwitch(
+									"修复链接跳转",
+									"bili-video-repairLinkJump",
+									true,
+									void 0,
+									"如@用户、搜索"
+								),
 							],
 						},
 						{

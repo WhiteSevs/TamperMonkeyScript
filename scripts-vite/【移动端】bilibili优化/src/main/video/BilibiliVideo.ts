@@ -1,4 +1,4 @@
-import { DOMUtils, Qmsg, addStyle, log, utils } from "@/env";
+import { $$, DOMUtils, Qmsg, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliUrl } from "@/utils/BilibiliUrl";
@@ -29,6 +29,9 @@ const BilibiliVideo = {
 		});
 		PopsPanel.execMenuOnce("bili-video-cover-seasonNew", () => {
 			this.coverSeasonNew();
+		});
+		PopsPanel.execMenuOnce("bili-video-repairLinkJump", () => {
+			this.repairLinkJump();
 		});
 		DOMUtils.ready(() => {
 			PopsPanel.execMenuOnce("bili-video-optimizationScroll", () => {
@@ -462,6 +465,32 @@ const BilibiliVideo = {
 				capture: true,
 			}
 		);
+	},
+	/**
+	 * 修复链接跳转
+	 */
+	repairLinkJump() {
+		log.info(`修复链接跳转`);
+		let lockFn = new utils.LockFunction(() => {
+			[
+				"a.member-link:not([href])[data-url]",
+				"a.jump-link:not([href])[data-url]",
+			].forEach((selector) => {
+				console.log(selector);
+				$$<HTMLAnchorElement>(selector).forEach(($el) => {
+					$el.href = $el.getAttribute("data-url")!;
+				});
+			});
+		});
+		utils.mutationObserver(document, {
+			config: {
+				subtree: true,
+				childList: true,
+			},
+			callback: () => {
+				lockFn.run();
+			},
+		});
 	},
 	/**
 	 * 手势返回关闭评论区
