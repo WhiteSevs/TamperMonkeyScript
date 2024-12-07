@@ -11941,7 +11941,6 @@
      * @param $searchContainer
      */
     handleShowLabel(mid, data2, $searchContainer) {
-      log.info(`用户数据：`, data2);
       mid = mid.toString();
       if (BilibiliComponentDetectionRule.$data.whiteList.includes(mid)) {
         return;

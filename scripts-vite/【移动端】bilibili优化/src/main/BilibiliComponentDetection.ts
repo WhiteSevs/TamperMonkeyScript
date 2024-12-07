@@ -560,7 +560,9 @@ export const BilibiliComponentDetection = {
 		data: Awaited<ReturnType<typeof this.queryUserInfo>>,
 		$searchContainer: HTMLElement
 	) {
-		log.info(`用户数据：`, data);
+		if (import.meta.hot) {
+			log.info(`用户数据：`, data);
+		}
 		mid = mid.toString();
 		if (BilibiliComponentDetectionRule.$data.whiteList.includes(mid)) {
 			// 白名单用户
