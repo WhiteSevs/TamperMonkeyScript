@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.26.21
+// @version      2024.12.7
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,10 +10,10 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @connect      *
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
@@ -437,7 +437,11 @@ div[data-e2e="user-detail"] div:has(> div > a[href*="douyin-pc"]) {\r
 	display: none !important;\r
 }\r
 `,Rt={init(){x(Ot);}},Dt=`/* 单个视频页面右侧的 下载客户端，桌面快捷访问 */\r
-div[data-e2e="video-detail"] div>:has(>div:last-child> a[href*="douyin-pc-web"]){\r
+div[data-e2e="video-detail"]\r
+	div\r
+	> :has(> div:last-child > a[href*="douyin-pc-web"]),\r
+/* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */\r
+.basePlayerContainer xg-bar.xg-right-bar + div {\r
 	display: none !important;\r
 }\r
 `,At={init(){x(Dt);}},Re={init(){c.onceExec("dy-global-block-css",()=>{x(Vt);}),at(),ne.init(),Mt.init(),c.execMenuOnce("watchLoginDialogToClose",()=>{_e.watchLoginDialogToClose();}),c.execMenuOnce("disguiseLogin",()=>{_e.disguiseLogin();}),c.execMenuOnce("dy-initialScale",()=>{this.initialScale();}),c.execMenu("dy-apple-removeMetaAppleItunesApp",()=>{this.removeMetaAppleItunesApp();}),Tt.init(),wt.init(),_t.init(),c.execMenuOnce("dy-common-listenRouterChange",()=>{this.listenRouterChange();}),C.isLive()?(n.info("Router: 直播"),Ze.init()):C.isIndex()?(D.init(),C.isSearch()?(n.info("Router: 搜索"),Et.init()):C.isUser()?(n.info("Router: 用户页面"),Rt.init()):C.isVideo()?(n.info("Router: 单个视频页面"),At.init()):n.error("未适配router: "+window.location.pathname)):n.error("未适配router: "+window.location.href);},initialScale(){n.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>"),g.ready(()=>{let e=g.createElement("meta",{},{name:"viewport",content:"width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"});g.remove("meta[name='viewport']"),p.waitNode("head").then(()=>{document.head.appendChild(e);});});},removeMetaAppleItunesApp(){p.waitNodeList(['meta[name="apple-itunes-app"]'],1e4).then(e=>{e&&e.forEach(t=>{t.remove();});});},listenRouterChange(){n.info("监听Router重载"),g.on(window,"wb_url_change",e=>{n.info("Router Change"),this.init();});}},H={isMDouYin(){return window.location.hostname==="m.douyin.com"||window.location.hostname==="www.iesdouyin.com"},isShareUser(){return this.isMDouYin()&&window.location.pathname.startsWith("/share/user/")},isShareVideo(){return this.isMDouYin()&&window.location.pathname.startsWith("/share/video/")},isShareNote(){return this.isMDouYin()&&window.location.pathname.startsWith("/share/note/")},isShareMusic(){return this.isMDouYin()&&window.location.pathname.startsWith("/share/music/")},isShareChallenge(){return this.isMDouYin()&&window.location.pathname.startsWith("/share/challenge/")}},Pt=`/* 顶部 打开看看 登录 */\r

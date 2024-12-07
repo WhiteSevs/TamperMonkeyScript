@@ -23,6 +23,7 @@ export const DouYinElement = {
 							childList: true,
 							subtree: true,
 						},
+						immediate: true,
 						callback: (mutations, observer) => {
 							if (!$os) {
 								$os = this.getOSElement();
@@ -33,7 +34,6 @@ export const DouYinElement = {
 							}
 							callback($os, observer);
 						},
-						immediate: true,
 					});
 				});
 		});
