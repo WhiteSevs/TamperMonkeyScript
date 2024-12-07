@@ -7818,7 +7818,6 @@
           "a.member-link:not([href])[data-url]",
           "a.jump-link:not([href])[data-url]"
         ].forEach((selector) => {
-          console.log(selector);
           $$(selector).forEach(($el) => {
             $el.href = $el.getAttribute("data-url");
           });

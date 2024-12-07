@@ -476,7 +476,6 @@ const BilibiliVideo = {
 				"a.member-link:not([href])[data-url]",
 				"a.jump-link:not([href])[data-url]",
 			].forEach((selector) => {
-				console.log(selector);
 				$$<HTMLAnchorElement>(selector).forEach(($el) => {
 					$el.href = $el.getAttribute("data-url")!;
 				});
