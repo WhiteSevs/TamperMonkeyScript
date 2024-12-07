@@ -1,10 +1,10 @@
 import { MDouYinRouter } from "@/router/MDouYinRouter";
-import { MDouYinShareUser } from "./user/MDouYinShareUser";
+import { MDouYinShareUser } from "./share/user/MDouYinShareUser";
 import { log } from "@/env";
-import { MDouYinShareVideo } from "./video/MDouYinShareVideo";
-import { MDouYinShareNote } from "./note/MDouYinShareNote";
-import { MDouYinShareChallenge } from "./challenge/MDouYinShareChallenge";
-import { MDouYinShareMusic } from "./music/MDouYinShareMusic";
+import { MDouYinShareVideo } from "./share/video/MDouYinShareVideo";
+import { MDouYinShareNote } from "./share/note/MDouYinShareNote";
+import { MDouYinShareChallenge } from "./share/challenge/MDouYinShareChallenge";
+import { MDouYinShareMusic } from "./share/music/MDouYinShareMusic";
 
 export const MDouYin = {
 	init() {
