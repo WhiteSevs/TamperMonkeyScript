@@ -265,47 +265,44 @@ export class DOMUtilsEvent {
 			 * @param event
 			 */
 			function domUtilsEventCallBack(event: Event) {
-				let eventTarget = listenerOption.isComposedPath
-					? (event.composedPath()[0] as HTMLElement)
-					: (event.target as HTMLElement);
 				if (selectorList.length) {
 					/* 存在子元素选择器 */
+					// 这时候的this和target都是子元素选择器的元素
+					let eventTarget = listenerOption.isComposedPath
+						? (event.composedPath()[0] as HTMLElement)
+						: (event.target as HTMLElement);
 					let totalParent = DOMUtilsCommonUtils.isWin(elementItem)
 						? DOMUtilsContext.windowApi.document.documentElement
 						: elementItem;
-					for (let index = 0; index < selectorList.length; index++) {
-						const selectorItem = selectorList[index];
+					let findValue = selectorList.find((selectorItem) => {
+						// 判断目标元素是否匹配选择器
 						if (eventTarget.matches(selectorItem)) {
 							/* 当前目标可以被selector所匹配到 */
-							listenerCallBack.call(eventTarget, event as any, eventTarget);
-							checkOptionOnceToRemoveEventListener();
-							break;
-						} else {
-							/* 在上层与主元素之间寻找可以被selector所匹配到的 */
-							let $closestMatches = eventTarget.closest(
-								selectorItem
-							) as HTMLElement | null;
-							if ($closestMatches && totalParent.contains($closestMatches)) {
-								/* event的target值不能直接修改 */
-								// 这里尝试使用defineProperty修改event的target值
-								try {
-									OriginPrototype.Object.defineProperty(event, "target", {
-										get() {
-											return $closestMatches;
-										},
-									});
-								} catch (error) {}
-								listenerCallBack.call(
-									$closestMatches,
-									event as any,
-									$closestMatches
-								);
-								checkOptionOnceToRemoveEventListener();
-								break;
-							}
+							return true;
 						}
+						/* 在上层与主元素之间寻找可以被selector所匹配到的 */
+						let $closestMatches =
+							eventTarget.closest<HTMLElement>(selectorItem);
+						if ($closestMatches && totalParent.contains($closestMatches)) {
+							eventTarget = $closestMatches;
+							return true;
+						}
+						return false;
+					});
+					if (findValue) {
+						// 这里尝试使用defineProperty修改event的target值
+						try {
+							OriginPrototype.Object.defineProperty(event, "target", {
+								get() {
+									return eventTarget;
+								},
+							});
+						} catch (error) {}
+						listenerCallBack.call(eventTarget, event as any, eventTarget);
+						checkOptionOnceToRemoveEventListener();
 					}
 				} else {
+					// 这时候的this指向监听的元素
 					listenerCallBack.call(elementItem, event as any);
 					checkOptionOnceToRemoveEventListener();
 				}
