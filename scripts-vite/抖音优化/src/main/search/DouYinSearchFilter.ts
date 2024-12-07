@@ -1,12 +1,16 @@
-import { log, utils } from "@/env";
+import { $$, log, utils } from "@/env";
 import { DouYinElement } from "@/utils/DouYinElement";
 import { PopsPanel } from "@/setting/setting";
 import {
 	DouYinVideoFilter,
 	type DouYinVideoAwemeInfo,
 } from "../video/DouYinVideoFilter";
+import type { LockFunction } from "@whitesev/utils/dist/types/src/LockFunction";
 
 export const DouYinSearchFilter = {
+	$data: {
+		lockFn: null as any as typeof LockFunction.prototype,
+	},
 	__videoFilter: null as any as DouYinVideoFilter,
 	get videoFilter() {
 		if (this.__videoFilter == null) {
@@ -27,48 +31,52 @@ export const DouYinSearchFilter = {
 		return this.__videoFilter;
 	},
 	init() {
-		let lockFn = new utils.LockFunction(() => {
-			let $searchContentAreaScrollList = Array.from(
-				document.querySelectorAll<HTMLLIElement>(
-					'#search-content-area ul[data-e2e="scroll-list"] li'
-				)
-			);
-			if (!$searchContentAreaScrollList.length) {
-				return;
-			}
+		if (this.$data.lockFn == null) {
+			this.$data.lockFn = new utils.LockFunction(() => {
+				let $searchContentAreaScrollList = Array.from(
+					$$<HTMLLIElement>(
+						'#search-content-area ul[data-e2e="scroll-list"] li'
+					)
+				);
+				for (
+					let index = 0;
+					index < $searchContentAreaScrollList.length;
+					index++
+				) {
+					const $searchContentAreaScrollItem =
+						$searchContentAreaScrollList[index];
+					let reactProps = utils.getReactObj(
+						$searchContentAreaScrollItem
+					)?.reactProps;
+					if (reactProps == null) {
+						log.error(
+							"元素上不存在reactProps属性",
+							$searchContentAreaScrollItem
+						);
+						break;
+					}
+					let awemeInfo = reactProps?.children?.props?.data
+						?.awemeInfo as DouYinVideoAwemeInfo;
+					if (awemeInfo == null) {
+						log.error(
+							"元素上不存在awemeInfo属性",
+							$searchContentAreaScrollItem
+						);
+						break;
+					}
 
-			// 搜索页面的视频列表
-			for (
-				let index = 0;
-				index < $searchContentAreaScrollList.length;
-				index++
-			) {
-				const $searchContentAreaScrollItem =
-					$searchContentAreaScrollList[index];
-				let reactProps = utils.getReactObj(
-					$searchContentAreaScrollItem
-				)?.reactProps;
-				if (reactProps == null) {
-					log.error("元素上不存在reactProps属性", $searchContentAreaScrollItem);
-					return;
+					let flag = this.videoFilter.checkAwemeInfoIsFilter(awemeInfo);
+					if (flag) {
+						$searchContentAreaScrollItem.remove();
+						index--;
+					}
 				}
-				let awemeInfo = reactProps?.children?.props?.data
-					?.awemeInfo as DouYinVideoAwemeInfo;
-				if (awemeInfo == null) {
-					log.error("元素上不存在awemeInfo属性", $searchContentAreaScrollItem);
-					return;
-				}
-
-				let flag = this.videoFilter.checkAwemeInfoIsFilter(awemeInfo);
-				if (flag) {
-					$searchContentAreaScrollItem.remove();
-					index--;
-				}
-			}
-		}, 50);
-		DouYinElement.watchVideDataListChange(($os, observer) => {
-			lockFn.run();
-		});
+			}, 50);
+			DouYinElement.watchVideDataListChange(($os, observer) => {
+				this.$data.lockFn.run();
+			});
+		}
+		this.$data.lockFn.run();
 	},
 	get() {
 		return this.videoFilter.get();

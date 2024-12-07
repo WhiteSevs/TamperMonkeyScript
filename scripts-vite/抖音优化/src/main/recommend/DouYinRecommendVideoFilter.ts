@@ -5,6 +5,7 @@ import {
 	DouYinVideoFilter,
 	type DouYinVideoAwemeInfo,
 } from "../video/DouYinVideoFilter";
+import type { LockFunction } from "@whitesev/utils/dist/types/src/LockFunction";
 
 export interface DouYinShieldTagMap {
 	nickname?: string;
@@ -19,6 +20,9 @@ export interface DouYinShieldTagMap {
 }
 
 export const DouYinRecommendVideoFilter = {
+	$data: {
+		lockFn: null as any as typeof LockFunction.prototype,
+	},
 	__videoFilter: null as any as DouYinVideoFilter,
 	get videoFilter() {
 		if (this.__videoFilter == null) {
@@ -35,29 +39,29 @@ export const DouYinRecommendVideoFilter = {
 		return this.__videoFilter;
 	},
 	init() {
-		let lockFn = new utils.LockFunction((observer) => {
-			let awemeInfoList = DouYinRecommendVideoFilter.getAllVideoAwemeInfo();
-			if (!awemeInfoList.length) {
-				return;
-			}
-			for (let index = 0; index < awemeInfoList.length; index++) {
-				if (awemeInfoList.length === 1) {
-					log.warn(
-						"检测到视频列表只剩最后一个，删除的话无法触发更新，暂不删除"
-					);
-					break;
+		if (this.$data.lockFn == null) {
+			this.$data.lockFn = new utils.LockFunction(() => {
+				let awemeInfoList = DouYinRecommendVideoFilter.getAllVideoAwemeInfo();
+				for (let index = 0; index < awemeInfoList.length; index++) {
+					if (awemeInfoList.length === 1) {
+						log.warn(
+							"检测到视频列表只剩最后一个，删除的话无法触发更新，暂不删除"
+						);
+						break;
+					}
+					let awemeInfo = awemeInfoList[index];
+					let flag = this.videoFilter.checkAwemeInfoIsFilter(awemeInfo);
+					if (flag) {
+						awemeInfoList.splice(index--, 1);
+					}
 				}
-				let awemeInfo = awemeInfoList[index];
-				let flag = this.videoFilter.checkAwemeInfoIsFilter(awemeInfo);
-				if (flag) {
-					awemeInfoList.splice(index, 1);
-					index--;
-				}
-			}
-		}, 50);
-		DouYinElement.watchVideDataListChange(($os, observer) => {
-			lockFn.run(observer);
-		});
+			}, 50);
+			DouYinElement.watchVideDataListChange(($os, observer) => {
+				this.$data.lockFn.run();
+			});
+		}
+
+		this.$data.lockFn.run();
 	},
 	/**
 	 * 获取当前播放的视频信息

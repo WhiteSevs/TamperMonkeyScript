@@ -8,6 +8,8 @@ import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components
 import { AutoOpenOrClose } from "../utils/all-open-or-close";
 import { UIButtonShortCut } from "../common-components/ui-button-shortcut";
 import { DouYinLiveShortCut } from "@/main/live/DouYinLiveShortCut";
+import { UIButton } from "../common-components/ui-button";
+import Qmsg from "qmsg";
 
 const PanelLiveConfig: PopsPanelContentConfig = {
 	id: "panel-config-live",
@@ -167,6 +169,19 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 									void 0,
 									"启用自定义的弹幕过滤规则"
 								),
+								UIButton(
+									"初始化规则",
+									"解析并重置规则",
+									"重置",
+									void 0,
+									false,
+									false,
+									"primary",
+									() => {
+										DouYinDanmuFilter.init();
+										Qmsg.success("更新完毕");
+									}
+								),
 								{
 									type: "own",
 									getLiElementCallBack(liElement: HTMLLIElement) {
@@ -180,16 +195,14 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 												style: "width: 100%;",
 											}
 										);
-										let textarea = textareaDiv.querySelector(
-											"textarea"
-										) as HTMLTextAreaElement;
+										let textarea = textareaDiv.querySelector("textarea")!;
 										textarea.value = DouYinDanmuFilter.get();
 										DOMUtils.on(
 											textarea,
 											["input", "propertychange"],
 											utils.debounce(function () {
 												DouYinDanmuFilter.set(textarea.value);
-											}, 200)
+											}, 1000)
 										);
 										liElement.appendChild(textareaDiv);
 										return liElement;

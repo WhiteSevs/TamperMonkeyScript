@@ -61,6 +61,13 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									void 0,
 									"浏览器手势返回时关闭评论区"
 								),
+								UISwitch(
+									"监听并关闭【长时间无操作，已暂停播放】弹窗",
+									"dy-video-waitToRemovePauseDialog",
+									true,
+									void 0,
+									"自动监听并检测弹窗"
+								),
 							],
 						},
 						{

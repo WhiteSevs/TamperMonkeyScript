@@ -1,4 +1,4 @@
-import { DOMUtils, GM_Menu, addStyle, log, pops, utils } from "@/env";
+import { $$, DOMUtils, GM_Menu, addStyle, log, pops, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { DouYinLiveChatRoom } from "./DouYinLiveChatRoom";
 import { DouYinLiveDanmuku } from "./DouYinLiveDanmuku";
@@ -208,11 +208,12 @@ export const DouYinLive = {
 		 * + "1"
 		 * + "2"
 		 */
-		function checkDialogToClose($ele: HTMLElement, from: string) {
-			let eleText = $ele.textContent || $ele.innerText;
+		let checkDialogToClose = ($ele: HTMLElement, from: string) => {
+			let eleText = DOMUtils.text($ele);
 			if (eleText.includes("长时间无操作") && eleText.includes("暂停播放")) {
-				log.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
-				Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
+				Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`, {
+					consoleLogContent: true,
+				});
 				let $rect = utils.getReactObj($ele);
 				if (typeof $rect.reactContainer === "object") {
 					let closeDialogFn =
@@ -241,13 +242,14 @@ export const DouYinLive = {
 						$rect?.reactContainer?.memoizedState?.element?.props?.children
 							?.props?.onClose;
 					if (typeof closeDialogFn === "function") {
-						log.success(`检测${from}：调用函数关闭弹窗`);
-						Qmsg.success(`检测${from}：调用函数关闭弹窗`);
+						Qmsg.success(`检测${from}：调用函数关闭弹窗`, {
+							consoleLogContent: true,
+						});
 						closeDialogFn();
 					}
 				}
 			}
-		}
+		};
 		DOMUtils.ready(() => {
 			utils.mutationObserver(document.body, {
 				config: {
@@ -255,18 +257,14 @@ export const DouYinLive = {
 					childList: true,
 				},
 				callback() {
-					document
-						.querySelectorAll<HTMLDivElement>(
-							"body > div[elementtiming='element-timing']"
-						)
-						.forEach(($elementTiming) => {
-							checkDialogToClose($elementTiming, "1");
-						});
-					document
-						.querySelectorAll<HTMLDivElement>('body > div:not([id="root"])')
-						.forEach(($ele) => {
-							checkDialogToClose($ele, "2");
-						});
+					$$<HTMLDivElement>(
+						"body > div[elementtiming='element-timing']"
+					).forEach(($elementTiming) => {
+						checkDialogToClose($elementTiming, "1");
+					});
+					$$<HTMLDivElement>('body > div:not([id="root"])').forEach(($ele) => {
+						checkDialogToClose($ele, "2");
+					});
 				},
 			});
 		});

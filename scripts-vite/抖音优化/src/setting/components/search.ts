@@ -4,6 +4,9 @@ import { UISelect } from "../common-components/ui-select";
 import { DOMUtils, utils } from "@/env";
 import { DouYinSearchFilter } from "@/main/search/DouYinSearchFilter";
 import { AutoOpenOrClose } from "../utils/all-open-or-close";
+import { UIButton } from "../common-components/ui-button";
+import Qmsg from "qmsg";
+import { PopsPanel } from "../setting";
 
 const PanelSearchConfig: PopsPanelContentConfig = {
 	id: "panel-config-search",
@@ -103,6 +106,22 @@ const PanelSearchConfig: PopsPanelContentConfig = {
 									void 0,
 									"过滤掉广告"
 								),
+								UIButton(
+									"初始化规则",
+									"重新解析并初始化规则",
+									"更新",
+									void 0,
+									false,
+									false,
+									"primary",
+									() => {
+										DouYinSearchFilter.videoFilter.initLocalRule();
+										Qmsg.success("更新完毕");
+										PopsPanel.execMenu("search-shieldVideo", () => {
+											DouYinSearchFilter.init();
+										});
+									}
+								),
 								{
 									type: "own",
 									getLiElementCallBack(liElement: HTMLLIElement) {
@@ -116,16 +135,14 @@ const PanelSearchConfig: PopsPanelContentConfig = {
 												style: "width: 100%;",
 											}
 										);
-										let textarea = textareaDiv.querySelector(
-											"textarea"
-										) as HTMLTextAreaElement;
+										let textarea = textareaDiv.querySelector("textarea")!;
 										textarea.value = DouYinSearchFilter.get();
 										DOMUtils.on(
 											textarea,
 											["input", "propertychange"],
 											utils.debounce(function () {
 												DouYinSearchFilter.set(textarea.value);
-											}, 200)
+											}, 80)
 										);
 										liElement.appendChild(textareaDiv);
 										return liElement;

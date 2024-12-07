@@ -155,7 +155,6 @@ type CheckRuleDetail = {
 export class DouYinVideoFilter {
 	/** 存储的键 */
 	key: string;
-
 	$data = {
 		__rule: null as any as UtilsDictionary<
 			keyof DouYinVideoHandlerInfo,
@@ -494,13 +493,17 @@ export class DouYinVideoFilter {
 							Reflect.set(moreRule, ruleKey, regExpKeyValue);
 						}
 					} catch (error) {
-						log.error(["多组-自定义视频过滤规则-正则解析错误：" + error]);
+						log.error("多组-自定义视频过滤规则-正则解析错误：" + error);
 						log.error("多组-错误的规则：" + item);
 					}
 				}
 				this.$data.moreRule.push(moreRule);
 			} else {
 				let keyValue = itemSplit.join("");
+				if (keyValue.trim() === "") {
+					// 忽略空值
+					return;
+				}
 				try {
 					if (keyValue.match(/^>|<|=/g)) {
 						// 数值比较的
@@ -511,7 +514,7 @@ export class DouYinVideoFilter {
 						this.$data.rule.set(keyName as any, regExpKeyValue);
 					}
 				} catch (error) {
-					log.error(["自定义视频过滤规则-正则解析错误：" + error]);
+					log.error("自定义视频过滤规则-正则解析错误：" + error);
 					log.error("错误的规则：" + item);
 				}
 			}

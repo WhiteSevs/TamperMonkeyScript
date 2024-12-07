@@ -1,4 +1,4 @@
-import { addStyle, DOMUtils, log, utils } from "@/env";
+import { $$, addStyle, DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BlockTopNavigator } from "./block-frame/blockTopNavigator";
 import { BlockSearchFrame } from "./block-frame/blockSearchFrame";

@@ -4,6 +4,9 @@ import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components
 import { UISwitch } from "../common-components/ui-switch";
 import { UIButton } from "../common-components/ui-button";
 import { DouYinRecommendVideoFilterDebug } from "@/main/recommend/DouYinRecommendVideoFilterDebug";
+import Qmsg from "qmsg";
+import { DouYinRouter } from "@/router/DouYinRouter";
+import { PopsPanel } from "../setting";
 
 export const PanelRecommendVideoConfig: PopsPanelContentConfig = {
 	id: "panel-config-recommend-video",
@@ -54,6 +57,24 @@ export const PanelRecommendVideoConfig: PopsPanelContentConfig = {
 									void 0,
 									"过滤掉广告"
 								),
+								UIButton(
+									"初始化规则",
+									"重新解析并初始化规则",
+									"更新",
+									void 0,
+									false,
+									false,
+									"primary",
+									() => {
+										DouYinRecommendVideoFilter.videoFilter.initLocalRule();
+										Qmsg.success("更新完毕");
+										if (!DouYinRouter.isSearch()) {
+											PopsPanel.execMenu("shieldVideo", () => {
+												DouYinRecommendVideoFilter.init();
+											});
+										}
+									}
+								),
 								{
 									type: "own",
 									getLiElementCallBack(liElement: HTMLLIElement) {
@@ -61,22 +82,20 @@ export const PanelRecommendVideoConfig: PopsPanelContentConfig = {
 											"div",
 											{
 												className: "pops-panel-textarea",
-												innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>`,
+												innerHTML: /*html*/ `<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>`,
 											},
 											{
 												style: "width: 100%;",
 											}
 										);
-										let textarea = textareaDiv.querySelector(
-											"textarea"
-										) as HTMLTextAreaElement;
+										let textarea = textareaDiv.querySelector("textarea")!;
 										textarea.value = DouYinRecommendVideoFilter.get();
 										DOMUtils.on(
 											textarea,
 											["input", "propertychange"],
 											utils.debounce(function () {
 												DouYinRecommendVideoFilter.set(textarea.value);
-											}, 200)
+											}, 80)
 										);
 										liElement.appendChild(textareaDiv);
 										return liElement;

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.7
+// @version      2024.12.7.23
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -888,12 +888,13 @@
       isFilterAttrName: "data-is-filter"
     },
     init() {
-      this.parseRule();
+      this.resetRule();
+      this.initRule();
     },
     /**
-     * 解析规则
+     * 初始化解析规则
      */
-    parseRule() {
+    initRule() {
       let localRule = this.get().trim();
       let localRuleSplit = localRule.split("\n");
       localRuleSplit.forEach((item) => {
@@ -902,6 +903,12 @@
         let itemRegExp = new RegExp(item.trim());
         this.$data.rule.push(itemRegExp);
       });
+    },
+    /**
+     * 重置规则数据
+     */
+    resetRule() {
+      this.$data.rule = [];
     },
     /**
      * 通知弹幕改变(可能是新增)
@@ -1934,12 +1941,13 @@
      */
     waitToRemovePauseDialog() {
       log.info("监听【长时间无操作，已暂停播放】弹窗");
-      function checkDialogToClose($ele, from) {
+      let checkDialogToClose = ($ele, from) => {
         var _a2, _b, _c, _d, _e, _f;
-        let eleText = $ele.textContent || $ele.innerText;
+        let eleText = domUtils.text($ele);
         if (eleText.includes("长时间无操作") && eleText.includes("暂停播放")) {
-          log.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
-          Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
+          Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`, {
+            consoleLogContent: true
+          });
           let $rect = utils.getReactObj($ele);
           if (typeof $rect.reactContainer === "object") {
             let closeDialogFn = utils.queryProperty($rect.reactContainer, (obj) => {
@@ -1962,13 +1970,14 @@
               }
             }) || ((_f = (_e = (_d = (_c = (_b = (_a2 = $rect == null ? void 0 : $rect.reactContainer) == null ? void 0 : _a2.memoizedState) == null ? void 0 : _b.element) == null ? void 0 : _c.props) == null ? void 0 : _d.children) == null ? void 0 : _e.props) == null ? void 0 : _f.onClose);
             if (typeof closeDialogFn === "function") {
-              log.success(`检测${from}：调用函数关闭弹窗`);
-              Qmsg.success(`检测${from}：调用函数关闭弹窗`);
+              Qmsg.success(`检测${from}：调用函数关闭弹窗`, {
+                consoleLogContent: true
+              });
               closeDialogFn();
             }
           }
         }
-      }
+      };
       domUtils.ready(() => {
         utils.mutationObserver(document.body, {
           config: {
@@ -1976,12 +1985,12 @@
             childList: true
           },
           callback() {
-            document.querySelectorAll(
+            $$(
               "body > div[elementtiming='element-timing']"
             ).forEach(($elementTiming) => {
               checkDialogToClose($elementTiming, "1");
             });
-            document.querySelectorAll('body > div:not([id="root"])').forEach(($ele) => {
+            $$('body > div:not([id="root"])').forEach(($ele) => {
               checkDialogToClose($ele, "2");
             });
           }
@@ -2255,6 +2264,19 @@
                     void 0,
                     "启用自定义的弹幕过滤规则"
                   ),
+                  UIButton(
+                    "初始化规则",
+                    "解析并重置规则",
+                    "重置",
+                    void 0,
+                    false,
+                    false,
+                    "primary",
+                    () => {
+                      DouYinDanmuFilter.init();
+                      Qmsg.success("更新完毕");
+                    }
+                  ),
                   {
                     type: "own",
                     getLiElementCallBack(liElement) {
@@ -2268,16 +2290,14 @@
                           style: "width: 100%;"
                         }
                       );
-                      let textarea = textareaDiv.querySelector(
-                        "textarea"
-                      );
+                      let textarea = textareaDiv.querySelector("textarea");
                       textarea.value = DouYinDanmuFilter.get();
                       domUtils.on(
                         textarea,
                         ["input", "propertychange"],
                         utils.debounce(function() {
                           DouYinDanmuFilter.set(textarea.value);
-                        }, 200)
+                        }, 1e3)
                       );
                       liElement.appendChild(textareaDiv);
                       return liElement;
@@ -2873,22 +2893,20 @@
           '#search-content-area ul[data-e2e="scroll-list"]'
         ]).then(($ele) => {
           log.info(`启用观察器观察加载的视频`);
-          utils.mutationObserver($ele, {
+          utils.mutationObserver(document.body, {
             config: {
               childList: true,
               subtree: true
             },
+            immediate: true,
             callback: (mutations, observer) => {
-              if (!$os) {
-                $os = this.getOSElement();
-              }
+              $os = $os || this.getOSElement();
               if (!$os) {
                 log.error("watchVideDataListChange：获取osElement失败");
                 return;
               }
               callback($os, observer);
-            },
-            immediate: true
+            }
           });
         });
       });
@@ -3157,13 +3175,16 @@
                 Reflect.set(moreRule, ruleKey, regExpKeyValue);
               }
             } catch (error) {
-              log.error(["多组-自定义视频过滤规则-正则解析错误：" + error]);
+              log.error("多组-自定义视频过滤规则-正则解析错误：" + error);
               log.error("多组-错误的规则：" + item);
             }
           }
           this.$data.moreRule.push(moreRule);
         } else {
           let keyValue = itemSplit.join("");
+          if (keyValue.trim() === "") {
+            return;
+          }
           try {
             if (keyValue.match(/^>|<|=/g)) {
               this.$data.rule.set(keyName, keyValue.trim());
@@ -3172,7 +3193,7 @@
               this.$data.rule.set(keyName, regExpKeyValue);
             }
           } catch (error) {
-            log.error(["自定义视频过滤规则-正则解析错误：" + error]);
+            log.error("自定义视频过滤规则-正则解析错误：" + error);
             log.error("错误的规则：" + item);
           }
         }
@@ -3211,6 +3232,9 @@
     }
   }
   const DouYinRecommendVideoFilter = {
+    $data: {
+      lockFn: null
+    },
     __videoFilter: null,
     get videoFilter() {
       if (this.__videoFilter == null) {
@@ -3226,29 +3250,28 @@
       return this.__videoFilter;
     },
     init() {
-      let lockFn = new utils.LockFunction((observer) => {
-        let awemeInfoList = DouYinRecommendVideoFilter.getAllVideoAwemeInfo();
-        if (!awemeInfoList.length) {
-          return;
-        }
-        for (let index = 0; index < awemeInfoList.length; index++) {
-          if (awemeInfoList.length === 1) {
-            log.warn(
-              "检测到视频列表只剩最后一个，删除的话无法触发更新，暂不删除"
-            );
-            break;
+      if (this.$data.lockFn == null) {
+        this.$data.lockFn = new utils.LockFunction(() => {
+          let awemeInfoList = DouYinRecommendVideoFilter.getAllVideoAwemeInfo();
+          for (let index = 0; index < awemeInfoList.length; index++) {
+            if (awemeInfoList.length === 1) {
+              log.warn(
+                "检测到视频列表只剩最后一个，删除的话无法触发更新，暂不删除"
+              );
+              break;
+            }
+            let awemeInfo = awemeInfoList[index];
+            let flag = this.videoFilter.checkAwemeInfoIsFilter(awemeInfo);
+            if (flag) {
+              awemeInfoList.splice(index--, 1);
+            }
           }
-          let awemeInfo = awemeInfoList[index];
-          let flag = this.videoFilter.checkAwemeInfoIsFilter(awemeInfo);
-          if (flag) {
-            awemeInfoList.splice(index, 1);
-            index--;
-          }
-        }
-      }, 50);
-      DouYinElement.watchVideDataListChange(($os, observer) => {
-        lockFn.run(observer);
-      });
+        }, 50);
+        DouYinElement.watchVideDataListChange(($os, observer) => {
+          this.$data.lockFn.run();
+        });
+      }
+      this.$data.lockFn.run();
     },
     /**
      * 获取当前播放的视频信息
@@ -3633,6 +3656,9 @@
       });
       PopsPanel.execMenuOnce("dy-video-gestureBackCloseComment", () => {
         this.gestureBackCloseComment();
+      });
+      PopsPanel.execMenuOnce("dy-video-waitToRemovePauseDialog", () => {
+        this.waitToRemovePauseDialog();
       });
       domUtils.ready(() => {
         DouYinVideoPlayer.chooseQuality(
@@ -4213,6 +4239,59 @@
           capture: true
         }
       );
+    },
+    /**
+     * 信息区域
+     *
+     * 长时间无操作，已暂停播放
+     */
+    waitToRemovePauseDialog() {
+      log.info("监听信息区域【长时间无操作，已暂停播放】弹窗");
+      let checkDialogToClose = ($ele) => {
+        let eleText = domUtils.text($ele);
+        if (eleText.includes("长时间无操作") && eleText.includes("暂停播放")) {
+          Qmsg.info(`出现【长时间无操作，已暂停播放】弹窗`, {
+            consoleLogContent: true
+          });
+          let $rect = utils.getReactObj($ele);
+          if (typeof $rect.reactProps === "object") {
+            let closeDialogFn = utils.queryProperty($rect.reactProps, (obj) => {
+              var _a2, _b;
+              if (typeof ((_a2 = obj == null ? void 0 : obj["props"]) == null ? void 0 : _a2["onClose"]) === "function") {
+                return {
+                  isFind: true,
+                  data: obj["props"]["onClose"]
+                };
+              } else {
+                let children = ((_b = obj == null ? void 0 : obj["props"]) == null ? void 0 : _b["children"]) ?? (obj == null ? void 0 : obj["children"]);
+                return {
+                  isFind: false,
+                  data: Array.isArray(children) ? children[0] : children
+                };
+              }
+            });
+            if (typeof closeDialogFn === "function") {
+              Qmsg.success(`调用函数关闭弹窗`, { consoleLogContent: true });
+              closeDialogFn();
+            }
+          }
+        }
+      };
+      domUtils.ready(() => {
+        utils.mutationObserver(document.body, {
+          config: {
+            subtree: true,
+            childList: true
+          },
+          callback() {
+            $$(
+              `.basePlayerContainer xg-bar.xg-right-bar + div`
+            ).forEach(($elementTiming) => {
+              checkDialogToClose($elementTiming);
+            });
+          }
+        });
+      });
     }
   };
   const DouYinVideoPlayerShortCut = {
@@ -4363,6 +4442,13 @@
                     false,
                     void 0,
                     "浏览器手势返回时关闭评论区"
+                  ),
+                  UISwitch(
+                    "监听并关闭【长时间无操作，已暂停播放】弹窗",
+                    "dy-video-waitToRemovePauseDialog",
+                    true,
+                    void 0,
+                    "自动监听并检测弹窗"
                   )
                 ]
               },
@@ -4787,6 +4873,9 @@
     ]
   };
   const DouYinSearchFilter = {
+    $data: {
+      lockFn: null
+    },
     __videoFilter: null,
     get videoFilter() {
       if (this.__videoFilter == null) {
@@ -4806,40 +4895,46 @@
       return this.__videoFilter;
     },
     init() {
-      let lockFn = new utils.LockFunction(() => {
-        var _a2, _b, _c, _d;
-        let $searchContentAreaScrollList = Array.from(
-          document.querySelectorAll(
-            '#search-content-area ul[data-e2e="scroll-list"] li'
-          )
-        );
-        if (!$searchContentAreaScrollList.length) {
-          return;
-        }
-        for (let index = 0; index < $searchContentAreaScrollList.length; index++) {
-          const $searchContentAreaScrollItem = $searchContentAreaScrollList[index];
-          let reactProps = (_a2 = utils.getReactObj(
-            $searchContentAreaScrollItem
-          )) == null ? void 0 : _a2.reactProps;
-          if (reactProps == null) {
-            log.error("元素上不存在reactProps属性", $searchContentAreaScrollItem);
-            return;
+      if (this.$data.lockFn == null) {
+        this.$data.lockFn = new utils.LockFunction(() => {
+          var _a2, _b, _c, _d;
+          let $searchContentAreaScrollList = Array.from(
+            $$(
+              '#search-content-area ul[data-e2e="scroll-list"] li'
+            )
+          );
+          for (let index = 0; index < $searchContentAreaScrollList.length; index++) {
+            const $searchContentAreaScrollItem = $searchContentAreaScrollList[index];
+            let reactProps = (_a2 = utils.getReactObj(
+              $searchContentAreaScrollItem
+            )) == null ? void 0 : _a2.reactProps;
+            if (reactProps == null) {
+              log.error(
+                "元素上不存在reactProps属性",
+                $searchContentAreaScrollItem
+              );
+              break;
+            }
+            let awemeInfo = (_d = (_c = (_b = reactProps == null ? void 0 : reactProps.children) == null ? void 0 : _b.props) == null ? void 0 : _c.data) == null ? void 0 : _d.awemeInfo;
+            if (awemeInfo == null) {
+              log.error(
+                "元素上不存在awemeInfo属性",
+                $searchContentAreaScrollItem
+              );
+              break;
+            }
+            let flag = this.videoFilter.checkAwemeInfoIsFilter(awemeInfo);
+            if (flag) {
+              $searchContentAreaScrollItem.remove();
+              index--;
+            }
           }
-          let awemeInfo = (_d = (_c = (_b = reactProps == null ? void 0 : reactProps.children) == null ? void 0 : _b.props) == null ? void 0 : _c.data) == null ? void 0 : _d.awemeInfo;
-          if (awemeInfo == null) {
-            log.error("元素上不存在awemeInfo属性", $searchContentAreaScrollItem);
-            return;
-          }
-          let flag = this.videoFilter.checkAwemeInfoIsFilter(awemeInfo);
-          if (flag) {
-            $searchContentAreaScrollItem.remove();
-            index--;
-          }
-        }
-      }, 50);
-      DouYinElement.watchVideDataListChange(($os, observer) => {
-        lockFn.run();
-      });
+        }, 50);
+        DouYinElement.watchVideDataListChange(($os, observer) => {
+          this.$data.lockFn.run();
+        });
+      }
+      this.$data.lockFn.run();
     },
     get() {
       return this.videoFilter.get();
@@ -4946,6 +5041,22 @@
                     void 0,
                     "过滤掉广告"
                   ),
+                  UIButton(
+                    "初始化规则",
+                    "重新解析并初始化规则",
+                    "更新",
+                    void 0,
+                    false,
+                    false,
+                    "primary",
+                    () => {
+                      DouYinSearchFilter.videoFilter.initLocalRule();
+                      Qmsg.success("更新完毕");
+                      PopsPanel.execMenu("search-shieldVideo", () => {
+                        DouYinSearchFilter.init();
+                      });
+                    }
+                  ),
                   {
                     type: "own",
                     getLiElementCallBack(liElement) {
@@ -4962,16 +5073,14 @@
                           style: "width: 100%;"
                         }
                       );
-                      let textarea = textareaDiv.querySelector(
-                        "textarea"
-                      );
+                      let textarea = textareaDiv.querySelector("textarea");
                       textarea.value = DouYinSearchFilter.get();
                       domUtils.on(
                         textarea,
                         ["input", "propertychange"],
                         utils.debounce(function() {
                           DouYinSearchFilter.set(textarea.value);
-                        }, 200)
+                        }, 80)
                       );
                       liElement.appendChild(textareaDiv);
                       return liElement;
@@ -5498,6 +5607,24 @@
                     void 0,
                     "过滤掉广告"
                   ),
+                  UIButton(
+                    "初始化规则",
+                    "重新解析并初始化规则",
+                    "更新",
+                    void 0,
+                    false,
+                    false,
+                    "primary",
+                    () => {
+                      DouYinRecommendVideoFilter.videoFilter.initLocalRule();
+                      Qmsg.success("更新完毕");
+                      if (!DouYinRouter.isSearch()) {
+                        PopsPanel.execMenu("shieldVideo", () => {
+                          DouYinRecommendVideoFilter.init();
+                        });
+                      }
+                    }
+                  ),
                   {
                     type: "own",
                     getLiElementCallBack(liElement) {
@@ -5505,22 +5632,23 @@
                         "div",
                         {
                           className: "pops-panel-textarea",
-                          innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>`
+                          innerHTML: (
+                            /*html*/
+                            `<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>`
+                          )
                         },
                         {
                           style: "width: 100%;"
                         }
                       );
-                      let textarea = textareaDiv.querySelector(
-                        "textarea"
-                      );
+                      let textarea = textareaDiv.querySelector("textarea");
                       textarea.value = DouYinRecommendVideoFilter.get();
                       domUtils.on(
                         textarea,
                         ["input", "propertychange"],
                         utils.debounce(function() {
                           DouYinRecommendVideoFilter.set(textarea.value);
-                        }, 200)
+                        }, 80)
                       );
                       liElement.appendChild(textareaDiv);
                       return liElement;
@@ -7778,14 +7906,14 @@
       );
     }
   };
-  const blockCSS$7 = "/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */\r\n#douyin-web-download-guide-container {\r\n	display: none !important;\r\n}\r\n";
+  const blockCSS$7 = "/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */\r\n#douyin-web-download-guide-container,\r\n/* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */\r\n.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg)) {\r\n	display: none !important;\r\n}\r\n";
   const blockCSS$6 = '/* 资料右边的 下载桌面客户端，桌面快捷访问 */\r\ndiv[data-e2e="user-detail"] div:has(> div > a[href*="douyin-pc"]) {\r\n	display: none !important;\r\n}\r\n';
   const DouYinUser = {
     init() {
       addStyle(blockCSS$6);
     }
   };
-  const blockCSS$5 = '/* 单个视频页面右侧的 下载客户端，桌面快捷访问 */\r\ndiv[data-e2e="video-detail"]\r\n	div\r\n	> :has(> div:last-child > a[href*="douyin-pc-web"]),\r\n/* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */\r\n.basePlayerContainer xg-bar.xg-right-bar + div {\r\n	display: none !important;\r\n}\r\n';
+  const blockCSS$5 = '/* 单个视频页面右侧的 下载客户端，桌面快捷访问 */\r\ndiv[data-e2e="video-detail"]\r\n	div\r\n	> :has(> div:last-child > a[href*="douyin-pc-web"]) {\r\n	display: none !important;\r\n}\r\n';
   const DouYinVideo = {
     init() {
       addStyle(blockCSS$5);

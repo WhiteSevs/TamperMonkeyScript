@@ -1,8 +1,6 @@
 /* 单个视频页面右侧的 下载客户端，桌面快捷访问 */
 div[data-e2e="video-detail"]
 	div
-	> :has(> div:last-child > a[href*="douyin-pc-web"]),
-/* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */
-.basePlayerContainer xg-bar.xg-right-bar + div {
+	> :has(> div:last-child > a[href*="douyin-pc-web"]) {
 	display: none !important;
 }

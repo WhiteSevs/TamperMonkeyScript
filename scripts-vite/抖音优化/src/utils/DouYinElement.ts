@@ -18,16 +18,14 @@ export const DouYinElement = {
 				])
 				.then(($ele) => {
 					log.info(`启用观察器观察加载的视频`);
-					utils.mutationObserver($ele, {
+					utils.mutationObserver(document.body, {
 						config: {
 							childList: true,
 							subtree: true,
 						},
 						immediate: true,
 						callback: (mutations, observer) => {
-							if (!$os) {
-								$os = this.getOSElement();
-							}
+							$os = $os || this.getOSElement();
 							if (!$os) {
 								log.error("watchVideDataListChange：获取osElement失败");
 								return;

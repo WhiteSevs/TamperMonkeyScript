@@ -9,12 +9,13 @@ export const DouYinDanmuFilter = {
 		isFilterAttrName: "data-is-filter",
 	},
 	init() {
-		this.parseRule();
+		this.resetRule();
+		this.initRule();
 	},
 	/**
-	 * 解析规则
+	 * 初始化解析规则
 	 */
-	parseRule() {
+	initRule() {
 		let localRule = this.get().trim();
 		let localRuleSplit = localRule.split("\n");
 		localRuleSplit.forEach((item: string) => {
@@ -23,6 +24,12 @@ export const DouYinDanmuFilter = {
 			let itemRegExp = new RegExp(item.trim());
 			this.$data.rule.push(itemRegExp);
 		});
+	},
+	/**
+	 * 重置规则数据
+	 */
+	resetRule() {
+		this.$data.rule = [];
 	},
 	/**
 	 * 通知弹幕改变(可能是新增)

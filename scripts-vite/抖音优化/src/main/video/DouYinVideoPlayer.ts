@@ -88,6 +88,9 @@ export const DouYinVideoPlayer = {
 		PopsPanel.execMenuOnce("dy-video-gestureBackCloseComment", () => {
 			this.gestureBackCloseComment();
 		});
+		PopsPanel.execMenuOnce("dy-video-waitToRemovePauseDialog", () => {
+			this.waitToRemovePauseDialog();
+		});
 		DOMUtils.ready(() => {
 			DouYinVideoPlayer.chooseQuality(
 				PopsPanel.getValue("chooseVideoDefinition")
@@ -693,5 +696,62 @@ export const DouYinVideoPlayer = {
 				capture: true,
 			}
 		);
+	},
+	/**
+	 * 信息区域
+	 *
+	 * 长时间无操作，已暂停播放
+	 */
+	waitToRemovePauseDialog() {
+		log.info("监听信息区域【长时间无操作，已暂停播放】弹窗");
+		/**
+		 * 检测并关闭弹窗
+		 * @param $ele
+		 */
+		let checkDialogToClose = ($ele: HTMLElement) => {
+			let eleText = DOMUtils.text($ele);
+			if (eleText.includes("长时间无操作") && eleText.includes("暂停播放")) {
+				Qmsg.info(`出现【长时间无操作，已暂停播放】弹窗`, {
+					consoleLogContent: true,
+				});
+				let $rect = utils.getReactObj($ele);
+				if (typeof $rect.reactProps === "object") {
+					let closeDialogFn = utils.queryProperty($rect.reactProps, (obj) => {
+						if (typeof obj?.["props"]?.["onClose"] === "function") {
+							return {
+								isFind: true,
+								data: obj["props"]["onClose"],
+							};
+						} else {
+							// 未找到，进入下一层
+							let children = obj?.["props"]?.["children"] ?? obj?.["children"];
+							return {
+								isFind: false,
+								data: Array.isArray(children) ? children[0] : children,
+							};
+						}
+					});
+					if (typeof closeDialogFn === "function") {
+						Qmsg.success(`调用函数关闭弹窗`, { consoleLogContent: true });
+						closeDialogFn();
+					}
+				}
+			}
+		};
+		DOMUtils.ready(() => {
+			utils.mutationObserver(document.body, {
+				config: {
+					subtree: true,
+					childList: true,
+				},
+				callback() {
+					$$<HTMLDivElement>(
+						`.basePlayerContainer xg-bar.xg-right-bar + div`
+					).forEach(($elementTiming) => {
+						checkDialogToClose($elementTiming);
+					});
+				},
+			});
+		});
 	},
 };
