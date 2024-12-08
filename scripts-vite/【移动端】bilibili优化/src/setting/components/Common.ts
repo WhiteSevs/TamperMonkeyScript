@@ -55,7 +55,7 @@ const SettingUICommon: PopsPanelContentConfig = {
 								UISwitch(
 									"自动删除Cookie buvid3",
 									"common_auto_delete_cookie_buvid3",
-									false
+									true
 								),
 							],
 						},

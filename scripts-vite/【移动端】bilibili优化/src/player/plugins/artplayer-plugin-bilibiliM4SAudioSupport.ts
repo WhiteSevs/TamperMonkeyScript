@@ -9,6 +9,19 @@ const TAG = "[artplayer-plugin-m4sAudioSupport]：";
 
 /** 控制面板key */
 const ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY = "setting-bilibili-m4sAudio";
+
+export type ArtPlayerPluginM4SAudioSupportEvent =
+	| "m4sAudio:loadedmetadata"
+	| "m4sAudio:canplaythrough"
+	| "m4sAudio:error"
+	| "m4sAudio:restart"
+	| "m4sAudio:pause"
+	| "m4sAudio:syncPlayBackRate"
+	| "m4sAudio:syncMuted"
+	| "m4sAudio:syncVolume"
+	| "m4sAudio:syncTime"
+	| "m4sAudio:syncPlayState"
+	| "m4sAudio:play";
 export type ArtPlayerPluginM4SAudioSupportOption = {
 	/** 来源 */
 	from: "video" | "bangumi";
@@ -20,6 +33,14 @@ export type ArtPlayerPluginM4SAudioSupportOption = {
 		soundQualityCode: number;
 		/** 音质代码数字对应的文字 */
 		soundQualityCodeText: string;
+		/** 类型，一般是video/mp4 */
+		mimeType: string;
+		/** 编码信息 */
+		codecs: string;
+		/** 带宽 */
+		bandwidth: number;
+		/** 文件大小 */
+		size: number;
 	}[];
 	/** 是否显示选择音频的菜单 @default true */
 	showSetting: boolean;
@@ -41,6 +62,12 @@ export type ArtPlayerPluginM4SAudioSupportResult = {
 	name: string;
 	/** 主动更新音频 */
 	update(option: ArtPlayerPluginM4SAudioSupportUpdateOption): void;
+	/** 获取Audio元素 */
+	getAudio(): HTMLAudioElement;
+	/** 获取当前播放的音频信息 */
+	getCurrentPlayConfig():
+		| ArtPlayerPluginM4SAudioSupportOption["audioList"]["0"]
+		| undefined;
 };
 
 const M4SAudioUtils = {
@@ -114,6 +141,7 @@ const M4SAudio = {
 			/** 已失败连接的次数 */
 			count: 0,
 		},
+		option: null as any as ArtPlayerPluginM4SAudioSupportOption["audioList"],
 	},
 	userEvent: {
 		onRestart: void 0 as ((url: string) => string) | void,
@@ -335,6 +363,11 @@ const M4SAudio = {
 	},
 	audioEvents: {
 		loadedmetadata: (event) => {
+			M4SAudio.$data.art.emit(
+				// @ts-ignore
+				"m4sAudio:loadedmetadata" as ArtPlayerPluginM4SAudioSupportEvent,
+				event
+			);
 			console.log(TAG + "Audio预加载完成");
 			// 重置重连信息
 			M4SAudio.$data.reconnectInfo.count = 0;
@@ -351,6 +384,11 @@ const M4SAudio = {
 			});
 		},
 		canplaythrough: (event) => {
+			M4SAudio.$data.art.emit(
+				// @ts-ignore
+				"m4sAudio:canplaythrough" as ArtPlayerPluginM4SAudioSupportEvent,
+				event
+			);
 			console.log(
 				TAG + "浏览器估计该音频可以在不停止内容缓冲的情况下播放媒体直到结束"
 			);
@@ -360,6 +398,11 @@ const M4SAudio = {
 			});
 		},
 		error: (event) => {
+			M4SAudio.$data.art.emit(
+				// @ts-ignore
+				"m4sAudio:error" as ArtPlayerPluginM4SAudioSupportEvent,
+				event
+			);
 			console.error(TAG + `Audio加载失败`, event);
 			if (utils.isNull(M4SAudio.$data.reconnectInfo.url)) {
 				M4SAudio.$data.reconnectInfo.url = M4SAudio.$data.audio.src;
@@ -409,17 +452,32 @@ const M4SAudio = {
 			if (utils.isNotNull(url)) {
 				M4SAudio.bindAudio();
 			}
+			M4SAudio.$data.art.emit(
+				// @ts-ignore
+				"m4sAudio:restart" as ArtPlayerPluginM4SAudioSupportEvent,
+				url
+			);
+			M4SAudio.handler.syncTime();
+			M4SAudio.handler.syncPlayState();
 		},
 		/** 播放音频 */
 		play() {
 			if (M4SAudio.$data.audio.paused) {
 				M4SAudio.$data.audio.play();
+				M4SAudio.$data.art.emit(
+					// @ts-ignore
+					"m4sAudio:play" as ArtPlayerPluginM4SAudioSupportEvent
+				);
 			}
 		},
 		/** 暂停音频 */
 		pause() {
 			if (!M4SAudio.$data.audio.paused) {
 				M4SAudio.$data.audio.pause();
+				M4SAudio.$data.art.emit(
+					// @ts-ignore
+					"m4sAudio:pause" as ArtPlayerPluginM4SAudioSupportEvent
+				);
 			}
 		},
 		/** 同步播放状态 */
@@ -431,6 +489,10 @@ const M4SAudio = {
 				// 视频暂停
 				this.pause();
 			}
+			M4SAudio.$data.art.emit(
+				// @ts-ignore
+				"m4sAudio:syncPlayState" as ArtPlayerPluginM4SAudioSupportEvent
+			);
 		},
 		/**
 		 * 音频同步视频进度
@@ -454,6 +516,10 @@ const M4SAudio = {
 							}`
 					);
 				}
+				M4SAudio.$data.art.emit(
+					// @ts-ignore
+					"m4sAudio:syncTime" as ArtPlayerPluginM4SAudioSupportEvent
+				);
 			} else {
 				// console.warn(
 				// 	TAG +
@@ -466,12 +532,20 @@ const M4SAudio = {
 		/** 同步音量 */
 		syncVolume() {
 			M4SAudio.$data.audio.volume = M4SAudio.$data.art.volume;
+			M4SAudio.$data.art.emit(
+				// @ts-ignore
+				"m4sAudio:syncVolume" as ArtPlayerPluginM4SAudioSupportEvent
+			);
 		},
 		/** 同步静音状态 */
 		syncMuted() {
 			let artMuted = M4SAudio.$data.art.muted;
 			// 同步
 			M4SAudio.$data.audio.muted = artMuted;
+			M4SAudio.$data.art.emit(
+				// @ts-ignore
+				"m4sAudio:syncMuted" as ArtPlayerPluginM4SAudioSupportEvent
+			);
 		},
 		/** 同步播放倍速 */
 		syncPlayBackRate() {
@@ -480,6 +554,10 @@ const M4SAudio = {
 			if (artPlayBackRate !== audioPlayBackRate) {
 				// 同步
 				M4SAudio.$data.audio.playbackRate = artPlayBackRate;
+				M4SAudio.$data.art.emit(
+					// @ts-ignore
+					"m4sAudio:syncPlayBackRate" as ArtPlayerPluginM4SAudioSupportEvent
+				);
 			}
 		},
 	},
@@ -490,10 +568,17 @@ const M4SAudio = {
 	update(option: ArtPlayerPluginM4SAudioSupportUpdateOption) {
 		this.unbind();
 		this.unbindAudio();
+		// @ts-ignore
+		this.$data.option = null;
+		this.$data.option = option.audioList;
 		this.$data.latestSyncTime = 0;
 		const that = this;
 
 		if (option.audioList?.length) {
+			// 按音频质量排序（降序）
+			option.audioList.sort((leftItem, rightItem) => {
+				return rightItem.bandwidth - leftItem.bandwidth;
+			});
 			// 如果存在audio选项
 			let firstAudioInfo = option.audioList[0];
 			// 存储键
@@ -538,6 +623,10 @@ const M4SAudio = {
 						url: item.url,
 						soundQualityCode: item.soundQualityCode,
 						soundQualityCodeText: item.soundQualityCodeText,
+						codecs: item.codecs,
+						mimeType: item.mimeType,
+						bandwidth: item.bandwidth,
+						size: item.size,
 					};
 				});
 			// 判断面板是否存在
@@ -611,6 +700,9 @@ const M4SAudio = {
 			);
 		});
 	},
+	/**
+	 * 绑定音频事件
+	 */
 	bindAudio() {
 		Object.keys(this.audioEvents).forEach((eventName) => {
 			this.$data.audio.addEventListener(
@@ -633,6 +725,9 @@ const M4SAudio = {
 			);
 		});
 	},
+	/**
+	 * 取消绑定音频事件
+	 */
 	unbindAudio() {
 		Object.keys(this.audioEvents).forEach((eventName) => {
 			this.$data.audio.removeEventListener(
@@ -668,6 +763,14 @@ export const artplayerPluginM4SAudioSupport = (
 				M4SAudio.handler.syncVolume();
 				M4SAudio.handler.syncMuted();
 				M4SAudio.handler.syncTime();
+			},
+			getAudio() {
+				return M4SAudio.$data.audio;
+			},
+			getCurrentPlayConfig() {
+				return M4SAudio.$data.option.find(
+					(it) => it.url === M4SAudio.$data.audio.src
+				);
 			},
 		};
 	};

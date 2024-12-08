@@ -45,8 +45,6 @@ export class ArtPlayerDanmakuOptionHelper {
 	getLocalArtDanmakuOption() {
 		return this.$data.localArtDanmakuOption;
 	}
-	repairBrowserNoResponse(art: Artplayer) {
-	}
 	onConfigChange(art: Artplayer) {
 		art.on(
 			// @ts-ignore

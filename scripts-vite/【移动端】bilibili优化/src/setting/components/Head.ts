@@ -62,7 +62,7 @@ export const SettingUIHead: PopsPanelContentConfig = {
 								UISwitch(
 									"启用",
 									"bili-head-recommend-enable",
-									false,
+									true,
 									void 0,
 									"添加【推荐】标签，数据来源为App端(如果填入了access_token的话)"
 								),

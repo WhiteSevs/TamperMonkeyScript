@@ -25,7 +25,7 @@ const SettingUISearch: PopsPanelContentConfig = {
 								UISwitch(
 									"搜索框自动获取焦点",
 									"bili-search-inputAutoFocus",
-									false,
+									true,
 									void 0,
 									""
 								),

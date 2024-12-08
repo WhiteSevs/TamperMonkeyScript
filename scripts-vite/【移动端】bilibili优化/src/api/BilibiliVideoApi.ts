@@ -42,6 +42,8 @@ type TypeBilibiliVideoInfo = {
 };
 
 export type TypeBilibiliVideoInfo_mp4 = TypeBilibiliVideoInfo & {
+	format: string;
+	from: string;
 	/** 播放地址信息列表 */
 	durl: {
 		ahead: string;
@@ -55,32 +57,52 @@ export type TypeBilibiliVideoInfo_mp4 = TypeBilibiliVideoInfo & {
 		url: string;
 		vhead: string;
 	}[];
+	/**  */
+	timelength: number;
+	/** 视频编码 */
+	video_codecid: number;
 	[key: string]: any;
 };
 
 export type TypeBilibiliVideoInfo_m4s = TypeBilibiliVideoInfo & {
 	dash: {
 		audio: {
+			SegmentBase: {
+				Initialization: string;
+				indexRange: string;
+			};
 			/** 链接信息 */
 			backupUrl: string[];
 			/** 链接信息 */
 			backup_url: string[];
+			/** 带宽 */
+			bandwidth: number;
 			/** 链接信息 */
 			baseUrl: string;
 			/** 链接信息 */
-			base_url: string;
+			base_url: TypeBilibiliVideoInfo_m4s["dash"]["audio"][0]["baseUrl"];
 			/** 编码格式，一般是0 */
 			codecid: number;
 			/** 编码格式描述 */
 			codecs: string;
+			/** 帧率信息 */
+			frameRate: "";
+			/** 帧率信息 */
+			frame_rate: TypeBilibiliVideoInfo_m4s["dash"]["video"][0]["frameRate"];
+			height: 0;
 			/** 音质代码 */
 			id: number;
 			/** 类型，一般是audio/mp4 */
 			mimeType: string;
 			/** 类型，一般是audio/mp4 */
 			mime_type: string;
-			/** 文件大小 */
+			/** 文件大小（视频没有） */
 			// size: number;
+			sar: "";
+			segment_base: TypeBilibiliVideoInfo_m4s["dash"]["audio"][0]["SegmentBase"];
+			startWithSap: 0;
+			start_with_sap: TypeBilibiliVideoInfo_m4s["dash"]["audio"][0]["startWithSap"];
+			width: 0;
 		}[];
 		dolby: {
 			audio: null;
@@ -90,26 +112,47 @@ export type TypeBilibiliVideoInfo_m4s = TypeBilibiliVideoInfo & {
 		minBufferTime: number;
 		min_buffer_time: number;
 		video: {
+			SegmentBase: {
+				Initialization: string;
+				indexRange: string;
+			};
 			/** 链接信息 */
 			backupUrl: string[];
 			/** 链接信息 */
-			backup_url: string[];
+			backup_url: TypeBilibiliVideoInfo_m4s["dash"]["video"][0]["backupUrl"];
+			/** 带宽 */
+			bandwidth: number;
+			/** 链接信息 */
+			baseUrl: string;
+			/** 链接信息 */
+			base_url: TypeBilibiliVideoInfo_m4s["dash"]["video"][0]["baseUrl"];
 			/** 编码格式 */
 			codecid: number;
 			/** 编码格式描述 */
 			codecs: string;
-			/** 链接信息 */
-			baseUrl: string;
-			/** 链接信息 */
-			base_url: string;
+			/** 帧率信息 */
+			frameRate: string;
+			/** 帧率信息 */
+			frame_rate: TypeBilibiliVideoInfo_m4s["dash"]["video"][0]["frameRate"];
+			/** 视频高度 */
+			height: number;
 			/** 画质代码 */
 			id: number;
 			/** 类型，一般是video/mp4 */
 			mimeType: string;
 			/** 类型，一般是video/mp4 */
-			mime_type: string;
+			mime_type: TypeBilibiliVideoInfo_m4s["dash"]["video"][0]["mimeType"];
 			/** 文件大小 */
 			// size: number;
+			/** 1:1 */
+			sar: string;
+			segment_base: TypeBilibiliVideoInfo_m4s["dash"]["video"][0]["SegmentBase"];
+			/** @default 1 */
+			startWithSap: number;
+			/** @default 1 */
+			start_with_sap: TypeBilibiliVideoInfo_m4s["dash"]["video"][0]["startWithSap"];
+			/** 视频宽度 */
+			width: number;
 		}[];
 	};
 	format: "flv";

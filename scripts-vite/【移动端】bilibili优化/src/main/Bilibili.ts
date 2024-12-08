@@ -113,8 +113,6 @@ const Bilibili = {
 						(error) => {
 							if (error) {
 								log.error("删除buvid3失败", error);
-							} else {
-								log.success("删除buvid3成功");
 							}
 						}
 					);

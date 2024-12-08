@@ -157,7 +157,7 @@ const SettingUIVideo: PopsPanelContentConfig = {
 								UISwitch(
 									"弹幕",
 									"artplayer-plugin-video-danmaku-enable",
-									false,
+									true,
 									void 0,
 									"哔哩哔哩 (゜-゜)つロ 干杯~"
 								),
@@ -188,6 +188,13 @@ const SettingUIVideo: PopsPanelContentConfig = {
 									true,
 									void 0,
 									"显示视频标题和当前观看人数"
+								),
+								UISwitch(
+									"视频统计信息",
+									"artplayer-plugin-video-statistics-enable",
+									true,
+									void 0,
+									"用于显示当前视频信息的弹窗"
 								),
 							],
 						},

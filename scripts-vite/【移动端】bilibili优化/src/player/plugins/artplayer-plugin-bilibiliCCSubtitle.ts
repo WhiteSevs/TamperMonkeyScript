@@ -152,18 +152,6 @@ const SubTitle = {
 				NAME: "setting-bilibili-cc-subtitle",
 			},
 			/**
-			 * 重置菜单
-			 */
-			reset() {
-				// 移除旧的菜单
-				let oldSetting = SubTitle.art.setting.option.find(
-					(item) => item.name === this.config.NAME
-				);
-				if (oldSetting) {
-					SubTitle.art.setting.remove(this.config.NAME);
-				}
-			},
-			/**
 			 * 获取默认的配置项
 			 */
 			getDefaultSettingOption: (): Setting => {
@@ -223,10 +211,65 @@ const SubTitle = {
 					subTitle_data: [],
 				};
 			},
+			/**
+			 * 添加配置菜单
+			 */
+			addSetting(selectorList?: Setting[]) {
+				let settingOption = this.getSettingOption();
+				if (selectorList) {
+					settingOption.selector!.push(...selectorList);
+
+					// 处理菜单中的默认选项
+					let firstSubTitle = settingOption!.selector![0];
+					let currentSelectSubTitle = {
+						index: 0,
+						html: firstSubTitle.html,
+					};
+					// 获取本地存储的上次选的字幕，默认无
+					const storageInfo = that.art.storage.get(
+						STORAGE_KEY
+					) as ArtPlayerPluginBilibiliSubTitleStorageOption | null;
+					if (storageInfo) {
+						// 判断当前的字幕中是否同样的字幕，存在的话就使用这个字幕，默认第一个
+						const findInfoIndex = settingOption.selector!.findIndex(
+							(item: any) => item.subTitle_lan === storageInfo.lan
+						);
+						if (findInfoIndex !== -1) {
+							const findInfo = settingOption.selector![findInfoIndex];
+							console.log(TAG + "选择字幕：" + findInfo.html);
+							currentSelectSubTitle.index = findInfoIndex;
+							currentSelectSubTitle.html = findInfo.html;
+						} else {
+							console.warn(TAG + "没有找到上次选的字幕，使用当前默认无");
+						}
+					}
+					// 更新default
+					for (let index = 0; index < settingOption.selector!.length; index++) {
+						settingOption.selector![index].default =
+							index === currentSelectSubTitle.index;
+					}
+					// 更新tooltip
+					settingOption.tooltip = currentSelectSubTitle.html;
+					// 更新data
+					SubTitleData.currentSelectIndex = currentSelectSubTitle.index;
+				}
+				if (this.isAddSetting()) {
+					console.log(TAG + "更新字幕菜单", selectorList);
+					that.art.setting.update(settingOption);
+				} else {
+					// 添加菜单
+					that.art.setting.add(settingOption);
+				}
+			},
+			/**
+			 * 判断是否已经添加了配置菜单
+			 */
+			isAddSetting() {
+				return that.art.setting.find(this.config.NAME) != null;
+			},
 		};
 
 		SubTitleData.reset();
-		SubTitleSettingLayer.reset();
 		SubTitleEvent.reset();
 
 		// 配置selector列表
@@ -238,10 +281,9 @@ const SubTitle = {
 			lan: defaultSelector.subTitle_lan,
 			data: defaultSelector.subTitle_data,
 		});
-		// 添加菜单
-		this.art.setting.add(SubTitleSettingLayer.getSettingOption());
-		// 设置菜单项
-		const settingOption = SubTitleSettingLayer.getSettingOption();
+		SubTitleSettingLayer.addSetting();
+		// 额外的菜单项
+		const settingSelectorList: Setting[] = [];
 		// 初始化字幕容器
 		this.$el.$subtitle = this.art.template.$subtitle;
 
@@ -349,7 +391,7 @@ const SubTitle = {
 				};
 				SubTitleData.allSubTitleInfo.push(data);
 				// 添加菜单新的信息
-				settingOption.selector!.push({
+				settingSelectorList.push({
 					html: subTitleUrlInfo.lan_doc,
 					subTitle_index: currentIndex,
 					subTitle_lan: subTitleUrlInfo.lan,
@@ -389,7 +431,7 @@ const SubTitle = {
 					data: simpleChineseSubtitleData,
 				});
 				// 动态添加菜单
-				settingOption!.selector!.push({
+				settingSelectorList.push({
 					html: subTitleName,
 					subTitle_index: currentIndex,
 					subTitle_lan: "zh-CN-auto",
@@ -400,39 +442,6 @@ const SubTitle = {
 
 		console.log(TAG + "加载视频CC字幕信息", SubTitleData.allSubTitleInfo);
 
-		// 处理菜单中的默认选项
-		let firstSubTitle = settingOption!.selector![0];
-		let currentSelectSubTitle = {
-			index: 0,
-			html: firstSubTitle.html,
-		};
-		// 获取本地存储的上次选的字幕，默认无
-		const storageInfo = this.art.storage.get(
-			STORAGE_KEY
-		) as ArtPlayerPluginBilibiliSubTitleStorageOption;
-		if (storageInfo) {
-			// 判断当前的字幕中是否同样的字幕，存在的话就使用这个字幕，默认第一个
-			const findInfoIndex = settingOption.selector!.findIndex(
-				(item: any) => item.subTitle_lan === storageInfo.lan
-			);
-			if (findInfoIndex !== -1) {
-				const findInfo = settingOption.selector![findInfoIndex];
-				console.log(TAG + "选择字幕：" + findInfo.html);
-				currentSelectSubTitle.index = findInfoIndex;
-				currentSelectSubTitle.html = findInfo.html;
-			} else {
-				console.warn(TAG + "没有找到上次选的字幕，使用当前默认无");
-			}
-		}
-		// 更新default
-		for (let index = 0; index < settingOption.selector!.length; index++) {
-			settingOption.selector![index].default =
-				index === currentSelectSubTitle.index;
-		}
-		// 更新tooltip
-		settingOption.tooltip = currentSelectSubTitle.html;
-		// 更新data
-		SubTitleData.currentSelectIndex = currentSelectSubTitle.index;
 		if (
 			SubTitleData.allSubTitleInfo[SubTitleData.currentSelectIndex].data ==
 				null ||
@@ -445,7 +454,7 @@ const SubTitle = {
 		}
 
 		// 更新菜单数据
-		this.art.setting.update(settingOption);
+		SubTitleSettingLayer.addSetting(settingSelectorList);
 	},
 	/**
 	 * 清空字幕

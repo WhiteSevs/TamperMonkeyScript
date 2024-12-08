@@ -4,21 +4,18 @@ import {
 	type BilibiliTypeBangumiVideoPlayeInfo,
 } from "@/api/BilibiliBangumiApi";
 import { BilibiliCDNProxy } from "@/api/BilibiliCDNProxy";
-import { BilibiliBangumi } from "./BilibiliBangumi";
-import { unsafeWindow } from "ViteGM";
-import { VueUtils } from "@/utils/VueUtils";
-import { $, DOMUtils, log } from "@/env";
 import {
 	BilibiliBangumiArtPlayer,
 	type BilibiliBangumiArtPlayerOption,
 } from "./artplayer/ArtPlayer";
 import { PopsPanel } from "@/setting/setting";
-import { BangumiArtPlayerVideoConfig } from "./artplayer/ArtPlayerVideoConfig";
 import { VideoSoundQualityCode } from "@/video-info/AudioDict";
 import { BilibiliLogUtils } from "@/utils/BilibiliLogUtils";
 import type { EP_INFO, EP_LIST } from "./TypeBangumi";
 import type { ArtPlayerPluginQualityOption } from "@/player/plugins/artplayer-plugin-quality";
 import type { ArtPlayerPluginAirborneHelperOption } from "@/player/plugins/artplayer-plugin-airborneHelper";
+import { $, DOMUtils, log } from "@/env";
+import { VueUtils } from "@/utils/VueUtils";
 
 type VideoQualityInfo = {
 	/** 画质文字 */
@@ -35,50 +32,28 @@ type VideoQualityInfo = {
 	quality: number;
 	/** 是否需要会员 */
 	vip: boolean;
+	/** 帧率信息 */
+	frameRate: string;
+	/** 编码id */
+	codecid: number;
+	/** 编码信息 */
+	codecs: string;
+	/** 码率 */
+	bandwidth: number;
 };
-/**
- * 对获取视频的信息的数组中过滤掉重复的画质
- * @param arr
- */
-function filterArrayWithMaxSize<T>(arr: T[]): T[] {
-	// 创建一个对象用来存储每个id对应的最大size的对象
-	const map = {};
-	// 遍历输入数组
-	arr.forEach((item) => {
-		// 如果当前id没有被记录过，或者新对象的size比已记录的大，则更新记录
-		// @ts-ignore
-		if (!map[item.id] || item.size > map[item.id].size) {
-			// @ts-ignore
-			map[item.id] = item;
-		}
-	});
-	// 从map中提取结果数组
-	const result = Object.values(map);
-	// @ts-ignore
-	return result;
-}
+
 /**
  * 从请求的信息中过滤出需要的视频信息
  */
-function filterDashVideoQualityInfo(
-	dashInfo: {
-		accept_quality: BilibiliTypeBangumiVideoPlayeInfo["accept_quality"];
-		support_formats: BilibiliTypeBangumiVideoPlayeInfo["support_formats"];
-		video: BilibiliTypeBangumiVideoPlayeInfo["dash"]["video"];
-	},
-	config: {
-		/** 需要的视频编码 */
-		codecid?: number;
-	}
-) {
+function handleDashVideoQualityInfo(dashInfo: {
+	accept_quality: BilibiliTypeBangumiVideoPlayeInfo["accept_quality"];
+	support_formats: BilibiliTypeBangumiVideoPlayeInfo["support_formats"];
+	video: BilibiliTypeBangumiVideoPlayeInfo["dash"]["video"];
+}) {
 	let result: VideoQualityInfo[] = [];
 	dashInfo.video.forEach((dashVideoInfo) => {
 		if (!dashInfo.accept_quality.includes(dashVideoInfo.id)) {
 			// 必须是允许的画质
-			return;
-		}
-		if (config.codecid != null && dashVideoInfo.codecid !== config.codecid) {
-			// 必须是允许的编码格式
 			return;
 		}
 		//  找到画质代码对应的文字名称
@@ -104,6 +79,10 @@ function filterDashVideoQualityInfo(
 			size: dashVideoInfo.size,
 			quality: dashVideoInfo.id,
 			vip: Boolean(findSupportFormat?.need_vip),
+			bandwidth: dashVideoInfo.bandwidth,
+			frameRate: dashVideoInfo.frameRate,
+			codecid: dashVideoInfo.codecid,
+			codecs: dashVideoInfo.codecs,
 		});
 	});
 
@@ -135,16 +114,11 @@ const handleQueryVideoQualityData = (
 		// dash
 		let dashBangumiInfo = bangumiInfo as BilibiliTypeBangumiVideoPlayeInfo;
 		qualityInfoList = [
-			...filterDashVideoQualityInfo(
-				{
-					accept_quality: dashBangumiInfo.accept_quality,
-					support_formats: dashBangumiInfo.support_formats,
-					video: dashBangumiInfo.dash.video,
-				},
-				{
-					codecid: userChooseVideoCodingCode!,
-				}
-			),
+			...handleDashVideoQualityInfo({
+				accept_quality: dashBangumiInfo.accept_quality,
+				support_formats: dashBangumiInfo.support_formats,
+				video: dashBangumiInfo.dash.video,
+			}),
 		];
 		if (qualityInfoList.length === 0) {
 			// 可能是请求到的视频的编码格式没有一个符合自定义的视频编码的格式
@@ -152,26 +126,15 @@ const handleQueryVideoQualityData = (
 				log.warn(
 					`当前选择的视频编码id为: ${userChooseVideoCodingCode}，但是过滤出的视频没有一个符合的，所以直接放弃使用自定义选择视频编码`
 				);
-				qualityInfoList = [];
 				qualityInfoList = [
-					...filterDashVideoQualityInfo(
-						{
-							accept_quality: dashBangumiInfo.accept_quality,
-							support_formats: dashBangumiInfo.support_formats,
-							video: dashBangumiInfo.dash.video,
-						},
-						{}
-					),
+					...handleDashVideoQualityInfo({
+						accept_quality: dashBangumiInfo.accept_quality,
+						support_formats: dashBangumiInfo.support_formats,
+						video: dashBangumiInfo.dash.video,
+					}),
 				];
 			}
 		}
-
-		// 过滤掉重复画质
-		qualityInfoList = filterArrayWithMaxSize(qualityInfoList);
-		// 按画质排序（降序）
-		qualityInfoList.sort((leftItem, rightItem) => {
-			return rightItem.quality - leftItem.quality;
-		});
 	} else {
 		// mp4
 		let mp4BangumiInfo = bangumiInfo as BilibiliTypeBangumiVideoPlayeHtml5Info;
@@ -216,6 +179,10 @@ const handleQueryVideoQualityData = (
 				size: currentDurl.size,
 				quality: durlInfo.quality,
 				vip: Boolean(findSupportFormat?.need_vip),
+				bandwidth: 0,
+				frameRate: "",
+				codecid: 0,
+				codecs: "",
 			});
 		});
 	}
@@ -247,6 +214,12 @@ export const GenerateArtPlayerOption = async (
 		text: string;
 		/** 文件大小 */
 		size: number;
+		/** 带宽 */
+		bandwidth: number;
+		/** 编码 */
+		codecs: string;
+		/** 类型 */
+		mimeType: string;
 	}[] = [];
 
 	// 解析清晰度信息
@@ -282,9 +255,6 @@ export const GenerateArtPlayerOption = async (
 				// @ts-ignore
 				bangumiInfo.clip_info as ArtPlayerPluginAirborneHelperOption["clip_info_list"];
 		}
-		// 遍历视频
-		let userChooseVideoCodingCode =
-			BangumiArtPlayerVideoConfig.getUserChooseVideoCodingCode();
 
 		if (bangumiInfo.type.toLowerCase() === "flv") {
 			isFlv = true;
@@ -329,18 +299,17 @@ export const GenerateArtPlayerOption = async (
 					id: item.id,
 					size: item.size,
 					text: VideoSoundQualityCode[item.id] || "",
+					bandwidth: item.bandwidth,
+					codecs: item.codecs,
+					mimeType: item.mimeType || item.mime_type,
 				});
 			});
 
-			// 按音频质量排序（降序）
-			audioInfo.sort((leftItem, rightItem) => {
-				return rightItem.id - leftItem.id;
-			});
 			log.info(`ArtPlayer: 获取的音频信息`, audioInfo);
 
 			// 筛选视频
 			qualityInfo = qualityInfo.concat(
-				handleQueryVideoQualityData(bangumiInfo, userChooseVideoCodingCode)
+				handleQueryVideoQualityData(bangumiInfo)
 			);
 			log.info(`ArtPlayer: 获取的视频画质信息`, qualityInfo);
 		} else {
@@ -383,6 +352,11 @@ export const GenerateArtPlayerOption = async (
 				html: item.name,
 				url: item.url,
 				quality: item.quality,
+				mimeType: item.type,
+				codecid: item.codecid,
+				codecs: item.codecs,
+				frameRate: item.frameRate,
+				bandwidth: item.bandwidth,
 			};
 		});
 	const artPlayerOption: BilibiliBangumiArtPlayerOption = {
@@ -415,6 +389,10 @@ export const GenerateArtPlayerOption = async (
 				url: item.url,
 				soundQualityCode: item.id,
 				soundQualityCodeText: item.text,
+				bandwidth: item.bandwidth,
+				codecs: item.codecs,
+				mimeType: item.mimeType,
+				size: item.size,
 			};
 		});
 	}

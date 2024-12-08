@@ -40,6 +40,7 @@ import {
 	type ArtPlayerPluginQualityResult,
 } from "@/player/plugins/artplayer-plugin-quality";
 import { artplayerPluginToast } from "@/player/plugins/artplayer-plugin-toast";
+import { artplayerPluginVideoStatistics } from "@/player/plugins/artplayer-plugin-videoStatistics";
 
 export interface BilibiliVideoArtPlayerOption {
 	/** 容器 */
@@ -166,37 +167,7 @@ export const BilibiliVideoArtPlayer = {
 			/** 视频封面 */
 			poster: option.poster,
 			/** 自定义设置列表 */
-			settings: [
-				{
-					name: "video-playback-codeid",
-					html: "播放策略",
-					tooltip: "默认",
-					icon: `<svg t="1727413004405" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3183" width="24" height="24"><path d="M170.666667 256h682.666666c23.466667 0 42.666667 19.2 42.666667 42.666667v170.666666h85.333333V256c0-46.933333-38.4-85.333333-85.333333-85.333333H128c-46.933333 0-85.333333 38.4-85.333333 85.333333v512c0 46.933333 38.4 85.333333 85.333333 85.333333h384v-85.333333H170.666667c-23.466667 0-42.666667-19.2-42.666667-42.666667V298.666667c0-23.466667 19.2-42.666667 42.666667-42.666667z" p-id="3184"></path><path d="M640 512L384 341.333333v341.333334zM968.96 786.346667c1.28-12.373333 1.706667-24.746667 0.426667-36.693334l45.653333-36.266666c4.266667-3.413333 5.12-8.96 2.56-13.653334l-43.946667-76.373333c-2.56-4.693333-8.106667-6.4-13.226666-4.693333l-54.613334 21.333333a146.773333 146.773333 0 0 0-32-17.92l-8.533333-58.026667a10.624 10.624 0 0 0-10.666667-9.386666h-88.32c-5.12 0-9.813333 3.84-10.666666 8.96l-8.533334 58.026666c-11.093333 4.693333-21.76 11.093333-31.573333 17.92l-54.613333-21.333333c-5.12-2.133333-10.666667 0-13.226667 4.693333l-43.946667 76.373334c-2.56 4.693333-1.706667 10.24 2.56 13.653333l45.653334 36.693333c-1.28 12.373333-1.706667 24.746667-0.426667 36.693334l-45.653333 36.266666c-4.266667 3.413333-5.12 8.96-2.56 13.653334l43.946666 76.373333c2.56 4.693333 8.106667 6.4 13.226667 4.693333l54.186667-21.333333c9.813333 7.253333 20.48 13.226667 32 17.92l8.533333 58.026667c0.853333 5.12 5.12 8.96 10.666667 8.96h88.32c5.12 0 9.813333-3.84 10.666666-8.96l8.533334-58.026667c11.093333-4.693333 21.76-11.093333 31.573333-17.92l54.613333 21.333333c5.12 2.133333 10.666667 0 13.226667-4.693333l43.946667-76.373333c2.56-4.693333 1.706667-10.24-2.56-13.653334l-45.226667-36.266666zM810.666667 832c-35.413333 0-64-28.586667-64-64s28.586667-64 64-64 64 28.586667 64 64-28.586667 64-64 64z" p-id="3185"></path></svg>`,
-					selector: [
-						{
-							default: true,
-							html: "默认",
-							value: BilibiliVideoCodingCode["AV1"],
-						},
-						{
-							html: "AV1",
-							value: BilibiliVideoCodingCode["AV1"],
-						},
-						{
-							html: "HEVC",
-							value: BilibiliVideoCodingCode["HEVC"],
-						},
-						{
-							html: "AVC",
-							value: BilibiliVideoCodingCode["AVC"],
-						},
-					],
-					onSelect: function (item: any) {
-						PopsPanel.setValue("bili-bangumi-videoCodingCode", item.value);
-						return item.html;
-					},
-				},
-			],
+			settings: [],
 			plugins: [
 				artplayerPluginToast(),
 				artplayPluginQuality({
@@ -317,6 +288,14 @@ export const BilibiliVideoArtPlayer = {
 			);
 		}
 
+		if (PopsPanel.getValue("artplayer-plugin-video-statistics-enable")) {
+			artOption.plugins!.push(
+				artplayerPluginVideoStatistics({
+					data: [],
+				})
+			);
+		}
+
 		if (PopsPanel.getValue("bili-video-playerAutoPlayVideo")) {
 			// 自动播放视频
 			// 静音才能自动播放
@@ -325,10 +304,6 @@ export const BilibiliVideoArtPlayer = {
 		}
 
 		this.$data.art = new Artplayer(artOption);
-
-		if (PopsPanel.getValue("artplayer-plugin-video-danmaku-enable")) {
-			artPlayerDanmakuOptionHelper.repairBrowserNoResponse(this.$data.art);
-		}
 
 		artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
 		return this.$data.art;

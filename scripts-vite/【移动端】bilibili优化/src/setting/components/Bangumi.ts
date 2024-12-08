@@ -66,7 +66,7 @@ const SettingUIBangumi: PopsPanelContentConfig = {
 								UISwitch(
 									"弹幕",
 									"artplayer-plugin-bangumi-danmaku-enable",
-									false,
+									true,
 									void 0,
 									"哔哩哔哩 (゜-゜)つロ 干杯~"
 								),
@@ -101,9 +101,16 @@ const SettingUIBangumi: PopsPanelContentConfig = {
 								UISwitch(
 									"空降助手",
 									"artplayer-plugin-bangumi-airborneHelper-enable",
-									false,
+									true,
 									void 0,
 									"如果获取到的信息中存在空降信息，如跳过片头片尾，那么会自动跳过"
+								),
+								UISwitch(
+									"视频统计信息",
+									"artplayer-plugin-bangumi-statistics-enable",
+									true,
+									void 0,
+									"用于显示当前视频信息的弹窗"
 								),
 							],
 						},
@@ -121,7 +128,7 @@ const SettingUIBangumi: PopsPanelContentConfig = {
 								UISwitch(
 									"生成简中字幕",
 									"bili-bangumi-generateSimpleChineseSubtitle",
-									false,
+									true,
 									void 0,
 									"根据繁体字幕自动生成简体中文字幕"
 								),

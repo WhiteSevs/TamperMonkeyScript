@@ -55,26 +55,48 @@ export type BilibiliTypeBangumiVideoPlayeInfo = {
 	dash: {
 		/** 音频信息 */
 		audio: {
+			SegmentBase: {
+				Initialization: string;
+				indexRange: string;
+			};
 			/** 链接信息 */
 			backupUrl: string[];
 			/** 链接信息 */
-			backup_url: string[];
+			backup_url: BilibiliTypeBangumiVideoPlayeInfo["dash"]["audio"]["0"]["backupUrl"];
+			/** 带宽 */
+			bandwidth: number;
 			/** 链接信息 */
 			baseUrl: string;
 			/** 链接信息 */
-			base_url: string;
-			/** 编码格式，一般是0 */
+			base_url: BilibiliTypeBangumiVideoPlayeInfo["dash"]["audio"]["0"]["baseUrl"];
+			/** 编码格式，一般是 @default 0 */
 			codecid: number;
 			/** 编码格式描述 */
 			codecs: string;
+			/** 帧率 */
+			frameRate: "";
+			/** 帧率 */
+			frame_rate: BilibiliTypeBangumiVideoPlayeInfo["dash"]["audio"]["0"]["frameRate"];
+			/**  */
+			height: 0;
 			/** 音质代码 */
 			id: number;
+			/** @default "" */
+			md5: string;
 			/** 类型，一般是audio/mp4 */
 			mimeType: string;
 			/** 类型，一般是audio/mp4 */
 			mime_type: string;
+			/** @default "" */
+			sar: string;
 			/** 文件大小 */
 			size: number;
+			/**  */
+			startWithSAP: 0;
+			/**  */
+			start_with_sap: 0;
+			/**  */
+			width: 0;
 		}[];
 		/** 杜比音质 */
 		dolby: {
@@ -83,26 +105,49 @@ export type BilibiliTypeBangumiVideoPlayeInfo = {
 		};
 		/** 视频信息 */
 		video: {
+			SegmentBase: {
+				Initialization: string;
+				indexRange: string;
+			};
 			/** 链接信息 */
 			backupUrl: string[];
 			/** 链接信息 */
-			backup_url: string[];
+			backup_url: BilibiliTypeBangumiVideoPlayeInfo["dash"]["video"]["0"]["backupUrl"];
+			/** 带宽 */
+			bandwidth: number;
+			/** 链接信息 */
+			baseUrl: string;
+			/** 链接信息 */
+			base_url: BilibiliTypeBangumiVideoPlayeInfo["dash"]["video"]["0"]["baseUrl"];
 			/** 编码格式 */
 			codecid: number;
 			/** 编码格式描述 */
 			codecs: string;
-			/** 链接信息 */
-			baseUrl: string;
-			/** 链接信息 */
-			base_url: string;
+			/** 帧率 */
+			frameRate: string;
+			/** 帧率 */
+			frame_rate: BilibiliTypeBangumiVideoPlayeInfo["dash"]["video"]["0"]["frameRate"];
+			/** 视频高度 */
+			height: number;
 			/** 画质代码 */
 			id: number;
+			/** @default "" */
+			md5: string;
 			/** 类型，一般是video/mp4 */
 			mimeType: string;
 			/** 类型，一般是video/mp4 */
-			mime_type: string;
+			mime_type: BilibiliTypeBangumiVideoPlayeInfo["dash"]["video"]["0"]["mimeType"];
+			/** @default "1:1" */
+			sar: string;
+			segment_base: BilibiliTypeBangumiVideoPlayeInfo["dash"]["video"]["0"]["SegmentBase"];
 			/** 文件大小 */
 			size: number;
+			/** @default 1 */
+			startWithSAP: number;
+			/** @default 1 */
+			start_with_sap: number;
+			/** 视频宽度 */
+			width: number;
 		}[];
 	};
 	/** 实际请求到的最高的清晰度 */
