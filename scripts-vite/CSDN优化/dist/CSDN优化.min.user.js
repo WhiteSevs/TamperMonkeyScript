@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.2
+// @version      2024.12.8
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -9,10 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.csdn.net/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @connect      blog.csdn.net
 // @connect      mp-action.csdn.net
 // @grant        GM_deleteValue
@@ -191,7 +191,10 @@ aside.blog_container_aside[style*="position: fixed;"] {\r
 		width: 560px;\r
 	}\r
 }\r
-`,Ne={init(){r.execMenuOnce("csdn-blog-rightToolbarEnable",()=>this.shieldRightToolbar(),(e,t)=>!t,(e,t)=>!t),r.execMenuOnce("csdn-blog-rightToolbarCreativeCenter",()=>this.shieldCreativeCenter()),r.execMenuOnce("csdn-blog-rightToolbarShowOrSidebar",()=>this.shieldShowOrSidebar()),r.execMenuOnce("csdn-blog-rightToolbarBeginnerGuidance",()=>this.shieldBeginnerGuidance()),r.execMenuOnce("csdn-blog-rightToolbarCustomerService",()=>this.shieldCustomerService()),r.execMenuOnce("csdn-blog-rightToolbarReport",()=>this.shieldReport()),r.execMenuOnce("csdn-blog-rightToolbarBackToTop",()=>this.shieldBackToTop()),this.initRightToolbarOffset(),C.ready(()=>{r.execMenuOnce("csdn-blog-addGotoRecommandButton",()=>{this.addGotoRecommandButton();});});},addGotoRecommandButton(){n.info("【添加】前往评论按钮，在返回顶部的上面");let e=document.createElement("a");e.className="option-box",e.setAttribute("data-type","gorecommand"),e.innerHTML='<span class="show-txt" style="display:flex;opacity:100;">前往<br>评论</span>',e.addEventListener("click",function(){let t=document.querySelector("#toolBarBox");if(!t||!t.getClientRects().length){let m=le("#pcCommentBox");if(m&&m.getClientRects().length)t=m;else {n.error("评论区处于隐藏状态");return}}n.info("滚动到评论");let o=t.getBoundingClientRect().top+window.scrollY,l=document.querySelector("#csdn-toolbar"),a=window.getComputedStyle(l),s=l.clientHeight-parseFloat(a.paddingTop)-parseFloat(a.paddingBottom);window.scrollTo({top:o-s-8,left:0,behavior:"smooth"});}),f.waitNode(".csdn-side-toolbar").then(()=>{let t=document.querySelector(".csdn-side-toolbar a:nth-last-child(2)");t.parentElement.insertBefore(e,t.nextSibling);});},initRightToolbarOffset(){n.info("初始化右侧工具栏的偏移（top、right）"),b(`
+`,Ne={init(){r.execMenuOnce("csdn-blog-rightToolbarEnable",()=>this.shieldRightToolbar(),(e,t)=>!t,(e,t)=>!t),r.execMenuOnce("csdn-blog-rightToolbarCreativeCenter",()=>this.shieldCreativeCenter()),r.execMenuOnce("csdn-blog-rightToolbarShowOrSidebar",()=>this.shieldShowOrSidebar()),r.execMenuOnce("csdn-blog-rightToolbarBeginnerGuidance",()=>this.shieldBeginnerGuidance()),r.execMenuOnce("csdn-blog-rightToolbarCustomerService",()=>this.shieldCustomerService()),r.execMenuOnce("csdn-blog-rightToolbarReport",()=>this.shieldReport()),r.execMenuOnce("csdn-blog-rightToolbarBackToTop",()=>this.shieldBackToTop()),this.initRightToolbarOffset(),C.ready(()=>{r.execMenuOnce("csdn-blog-addGotoRecommandButton",()=>{this.addGotoRecommandButton();});});},addGotoRecommandButton(){n.info("【添加】前往评论按钮，在返回顶部的上面");let e=document.createElement("a");e.className="option-box",e.setAttribute("data-type","gorecommand"),e.innerHTML=`
+		<img src="https://g.csdnimg.cn/side-toolbar/3.6/images/customer.png" alt="" srcset="">
+		<span class="show-txt" style="opacity:100;">前往<br>评论</span>
+		`,e.addEventListener("click",function(){let t=document.querySelector("#toolBarBox");if(!t||!t.getClientRects().length){let m=le("#pcCommentBox");if(m&&m.getClientRects().length)t=m;else {n.error("评论区处于隐藏状态");return}}n.info("滚动到评论");let o=t.getBoundingClientRect().top+window.scrollY,l=document.querySelector("#csdn-toolbar"),a=window.getComputedStyle(l),s=l.clientHeight-parseFloat(a.paddingTop)-parseFloat(a.paddingBottom);window.scrollTo({top:o-s-8,left:0,behavior:"smooth"});}),f.waitNode(".csdn-side-toolbar").then(()=>{let t=document.querySelector(".csdn-side-toolbar a:nth-last-child(2)");t.parentElement.insertBefore(e,t.nextSibling);});},initRightToolbarOffset(){n.info("初始化右侧工具栏的偏移（top、right）"),b(`
         .csdn-side-toolbar{
           left: unset !important;
         }

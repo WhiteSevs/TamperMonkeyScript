@@ -49,7 +49,10 @@ const CSDNBlogRightToolBar = {
 		let gotoRecommandNode = document.createElement("a");
 		gotoRecommandNode.className = "option-box";
 		gotoRecommandNode.setAttribute("data-type", "gorecommand");
-		gotoRecommandNode.innerHTML = `<span class="show-txt" style="display:flex;opacity:100;">前往<br>评论</span>`;
+		gotoRecommandNode.innerHTML = /*html*/ `
+		<img src="https://g.csdnimg.cn/side-toolbar/3.6/images/customer.png" alt="" srcset="">
+		<span class="show-txt" style="opacity:100;">前往<br>评论</span>
+		`;
 		gotoRecommandNode.addEventListener("click", function () {
 			let toolbarBoxElement =
 				document.querySelector<HTMLDivElement>("#toolBarBox");
@@ -124,7 +127,9 @@ const CSDNBlogRightToolBar = {
 	 */
 	shieldCreativeCenter() {
 		log.info("【屏蔽】创作中心");
-		return CommonUtil.addBlockCSS(".csdn-side-toolbar .sidetool-writeguide-box");
+		return CommonUtil.addBlockCSS(
+			".csdn-side-toolbar .sidetool-writeguide-box"
+		);
 	},
 	/**
 	 * 【屏蔽】显示/隐藏侧栏
