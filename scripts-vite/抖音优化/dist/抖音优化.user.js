@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.7.23
+// @version      2024.12.8
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -2936,7 +2936,7 @@
         moreRule: []
       });
       __publicField(this, "$flag", {
-        /** 是否屏蔽在直播 */
+        /** 是否屏蔽直播 */
         isBlockLiveVideo: false,
         /** 是否屏蔽广告 */
         isBlockAdsVideo: false
@@ -2970,7 +2970,7 @@
       } else if (typeof details.videoInfoValue === "number" && typeof details.ruleValue === "string") {
         let compareNumberMatch = details.ruleValue.match(/(\d+)/);
         if (!compareNumberMatch) {
-          log.warn(["过滤器-解析比较大小的数字失败: ", details]);
+          log.warn("过滤器-解析比较大小的数字失败: ", details);
           return false;
         }
         let compareNumber = Number(compareNumberMatch[1]);
@@ -2991,9 +2991,12 @@
             return true;
           }
         } else {
-          log.warn(["过滤器-自定义屏蔽-未经允许的比较符号: ", details]);
+          log.warn("过滤器-自定义屏蔽-未经允许的比较符号: ", details);
           return false;
         }
+      } else if (typeof details.videoInfoValue === "boolean" && typeof details.ruleValue === "string") {
+        let trimRuleValue = details.ruleValue.trim();
+        return details.videoInfoValue.toString() === trimRuleValue;
       }
       return false;
     }
@@ -3032,7 +3035,7 @@
           let checkFlag = this.checkFilterWithRule(details);
           if (checkFlag) {
             flag = true;
-            log.success(["过滤器-自定义屏蔽: ", details]);
+            log.success(["过滤器-自定义屏蔽: ", details, awemeInfoTagDict]);
             break;
           }
         }
@@ -3078,7 +3081,7 @@
      * @param showLog 是否显示日志输出
      */
     getAwemeInfoDictData(awemeInfo, showLog = false) {
-      var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n;
+      var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o;
       let nickname = (_b = (_a2 = awemeInfo == null ? void 0 : awemeInfo["authorInfo"]) == null ? void 0 : _a2["nickname"]) == null ? void 0 : _b.toString();
       let uid = (_d = (_c = awemeInfo == null ? void 0 : awemeInfo["authorInfo"]) == null ? void 0 : _c["uid"]) == null ? void 0 : _d.toString();
       let desc = (_e = awemeInfo == null ? void 0 : awemeInfo["desc"]) == null ? void 0 : _e.toString();
@@ -3086,11 +3089,12 @@
       let commentCount = (_g = awemeInfo == null ? void 0 : awemeInfo["stats"]) == null ? void 0 : _g["commentCount"];
       let diggCount = (_h = awemeInfo == null ? void 0 : awemeInfo["stats"]) == null ? void 0 : _h["diggCount"];
       let shareCount = (_i = awemeInfo == null ? void 0 : awemeInfo["stats"]) == null ? void 0 : _i["shareCount"];
+      let duration = (_j = awemeInfo == null ? void 0 : awemeInfo["video"]) == null ? void 0 : _j["duration"];
       let textExtra = [];
       let isLive = false;
       let isAds = false;
       if (typeof (awemeInfo == null ? void 0 : awemeInfo["textExtra"]) === "object" && Array.isArray(awemeInfo == null ? void 0 : awemeInfo["textExtra"])) {
-        (_j = awemeInfo == null ? void 0 : awemeInfo["textExtra"]) == null ? void 0 : _j.forEach((item) => {
+        (_k = awemeInfo == null ? void 0 : awemeInfo["textExtra"]) == null ? void 0 : _k.forEach((item) => {
           textExtra.push(item["hashtagName"]);
         });
       }
@@ -3116,12 +3120,12 @@
         if (showLog) {
           log.success("广告：rawAdData is not null");
         }
-      } else if ((_l = (_k = awemeInfo["webRawData"]) == null ? void 0 : _k["brandAd"]) == null ? void 0 : _l["is_ad"]) {
+      } else if ((_m = (_l = awemeInfo["webRawData"]) == null ? void 0 : _l["brandAd"]) == null ? void 0 : _m["is_ad"]) {
         isAds = true;
         if (showLog) {
           log.success("广告：webRawData.brandAd.is_ad is true");
         }
-      } else if ((_n = (_m = awemeInfo["webRawData"]) == null ? void 0 : _m["insertInfo"]) == null ? void 0 : _n["is_ad"]) {
+      } else if ((_o = (_n = awemeInfo["webRawData"]) == null ? void 0 : _n["insertInfo"]) == null ? void 0 : _o["is_ad"]) {
         isAds = true;
         if (showLog) {
           log.success("广告：webRawData.insertInfo.is_ad is true");
@@ -3137,6 +3141,7 @@
         commentCount,
         diggCount,
         shareCount,
+        duration,
         isLive,
         isAds
       };
@@ -3237,16 +3242,18 @@
     },
     __videoFilter: null,
     get videoFilter() {
+      const isBlockLiveVideo = PopsPanel.getValue("shieldVideo-live");
+      const isBlockAdsVideo = PopsPanel.getValue("shieldVideo-ads");
       if (this.__videoFilter == null) {
         const KEY2 = "douyin-shield-rule";
-        const isBlockLiveVideo = PopsPanel.getValue("shieldVideo-live");
-        const isBlockAdsVideo = PopsPanel.getValue("shieldVideo-ads");
         this.__videoFilter = new DouYinVideoFilter({
           key: KEY2,
           isBlockLiveVideo,
           isBlockAdsVideo
         });
       }
+      this.__videoFilter.$flag.isBlockLiveVideo = isBlockLiveVideo;
+      this.__videoFilter.$flag.isBlockAdsVideo = isBlockAdsVideo;
       return this.__videoFilter;
     },
     init() {
@@ -4878,20 +4885,22 @@
     },
     __videoFilter: null,
     get videoFilter() {
+      const isBlockLiveVideo = PopsPanel.getValue(
+        "search-shieldVideo-live"
+      );
+      const isBlockAdsVideo = PopsPanel.getValue(
+        "search-shieldVideo-ads"
+      );
       if (this.__videoFilter == null) {
         const KEY2 = "douyin-search-shield-rule";
-        const isBlockLiveVideo = PopsPanel.getValue(
-          "search-shieldVideo-live"
-        );
-        const isBlockAdsVideo = PopsPanel.getValue(
-          "search-shieldVideo-ads"
-        );
         this.__videoFilter = new DouYinVideoFilter({
           key: KEY2,
           isBlockLiveVideo,
           isBlockAdsVideo
         });
       }
+      this.__videoFilter.$flag.isBlockLiveVideo = isBlockLiveVideo;
+      this.__videoFilter.$flag.isBlockAdsVideo = isBlockAdsVideo;
       return this.__videoFilter;
     },
     init() {

@@ -13,21 +13,22 @@ export const DouYinSearchFilter = {
 	},
 	__videoFilter: null as any as DouYinVideoFilter,
 	get videoFilter() {
+		const isBlockLiveVideo = PopsPanel.getValue<boolean>(
+			"search-shieldVideo-live"
+		);
+		const isBlockAdsVideo = PopsPanel.getValue<boolean>(
+			"search-shieldVideo-ads"
+		);
 		if (this.__videoFilter == null) {
 			const KEY = "douyin-search-shield-rule";
-			const isBlockLiveVideo = PopsPanel.getValue<boolean>(
-				"search-shieldVideo-live"
-			);
-			const isBlockAdsVideo = PopsPanel.getValue<boolean>(
-				"search-shieldVideo-ads"
-			);
 			this.__videoFilter = new DouYinVideoFilter({
 				key: KEY,
-				isBlockLiveVideo: isBlockLiveVideo,
-				isBlockAdsVideo: isBlockAdsVideo,
+				isBlockLiveVideo,
+				isBlockAdsVideo,
 			});
 		}
-
+		this.__videoFilter.$flag.isBlockLiveVideo = isBlockLiveVideo;
+		this.__videoFilter.$flag.isBlockAdsVideo = isBlockAdsVideo;
 		return this.__videoFilter;
 	},
 	init() {

@@ -25,17 +25,18 @@ export const DouYinRecommendVideoFilter = {
 	},
 	__videoFilter: null as any as DouYinVideoFilter,
 	get videoFilter() {
+		const isBlockLiveVideo = PopsPanel.getValue<boolean>("shieldVideo-live");
+		const isBlockAdsVideo = PopsPanel.getValue<boolean>("shieldVideo-ads");
 		if (this.__videoFilter == null) {
 			const KEY = "douyin-shield-rule";
-			const isBlockLiveVideo = PopsPanel.getValue<boolean>("shieldVideo-live");
-			const isBlockAdsVideo = PopsPanel.getValue<boolean>("shieldVideo-ads");
 			this.__videoFilter = new DouYinVideoFilter({
 				key: KEY,
-				isBlockLiveVideo: isBlockLiveVideo,
-				isBlockAdsVideo: isBlockAdsVideo,
+				isBlockLiveVideo,
+				isBlockAdsVideo,
 			});
 		}
-
+		this.__videoFilter.$flag.isBlockLiveVideo = isBlockLiveVideo;
+		this.__videoFilter.$flag.isBlockAdsVideo = isBlockAdsVideo;
 		return this.__videoFilter;
 	},
 	init() {

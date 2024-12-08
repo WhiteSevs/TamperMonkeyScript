@@ -668,4 +668,7 @@ const PopsPanel = {
 	},
 };
 
+if (import.meta.hot) {
+	Reflect.set(unsafeWindow, "PopsPanel", PopsPanel);
+}
 export { PopsPanel };

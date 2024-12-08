@@ -24,6 +24,8 @@ export interface DouYinVideoHandlerInfo {
 	diggCount: number;
 	/** 分享数量 */
 	shareCount: number;
+	/** 视频时长（单位：毫秒） */
+	duration: number;
 	/** 是否是直播 */
 	isLive: boolean;
 	/** 是否是广告 */
@@ -103,8 +105,17 @@ export type DouYinVideoAwemeInfo = {
 	desc: string;
 	/** 是否是广告 */
 	isAds: boolean;
+	isFriendLimit: boolean;
+	isPrivate: boolean;
 	/** 广告信息(如果存在) */
 	rawAdData: string | undefined;
+	seriesInfo: {};
+	shareInfo: {
+		/** 视频分享链接的描述 */
+		shareLinkDesc: string;
+		/** 视频分享链接 */
+		shareUrl: string;
+	};
 	stats: {
 		/** 评论数量 */
 		commentCount: number;
@@ -122,14 +133,124 @@ export type DouYinVideoAwemeInfo = {
 		/** 在线观看数量 */
 		liveWatchCount: number;
 	};
-	shareInfo: {
-		/** 视频分享链接的描述 */
-		shareLinkDesc: string;
-		/** 视频分享链接 */
-		shareUrl: string;
-	};
+	suggestWords: [
+		{
+			scene: string;
+			words: {
+				word: string;
+				wordId: string;
+				info: string;
+			}[];
+			hintText: string;
+			iconUrl: string;
+		}
+	][];
 	/**话题 */
 	textExtra: [];
+	video: {
+		/** 视频宽度 */
+		width: number;
+		/** 视频高度 */
+		height: number;
+		/** 视频分辨率 */
+		ratio: string;
+		/** 视频时长（单位：毫秒） */
+		duration: number;
+		/** 视频大小（单位：字节） */
+		dataSize: number;
+		uri: string;
+		playAddr: {
+			src: string;
+		}[];
+		/** 视频播放地址大小 */
+		playAddrSize: number;
+		playAddrFileHash: string;
+		playApi: string;
+		playAddrH265: {
+			src: string;
+		}[];
+		/** 视频播放地址大小 */
+		playAddrH265Size: number;
+		playAddrH265FileHash: string;
+		playApiH265: string;
+		bitRateList: {
+			uri: string;
+			dataSize: number;
+			width: number;
+			height: number;
+			playAddr: {
+				src: string;
+			}[];
+			playApi: string;
+			isH265: number;
+			qualityType: number;
+			bitRate: number;
+			videoFormat: string;
+			gearName: string;
+			fps: number;
+			playerAccessKey: string;
+			featureId: string;
+			format: string;
+			fileId: string;
+			pktOffsetMap: {
+				time: number;
+				offset: number;
+			}[];
+			realBitrate: number;
+		}[];
+		bitRateAudioList: {
+			realBitrate: number;
+			audioQuality: number;
+			bitrate: number;
+			codecType: string;
+			fileHash: string;
+			fileId: string;
+			logoType: string;
+			mediaType: string;
+			quality: string;
+			size: number;
+			qualityDesc: string;
+			urlList: {
+				src: string;
+			}[];
+			indexRange: string;
+			initRange: string;
+			checkInfo: string;
+			firstSegmentRange: string;
+		}[];
+		/** 视频封面 */
+		cover: string;
+		/** 视频封面url数组 */
+		coverUrlList: string[];
+		/** 视频封面uri */
+		dynamicCover: string;
+		/** 视频封面uri */
+		coverUri: string;
+		/** 原始封面 */
+		originCover: string;
+		/** 原始封面 */
+		rawCover: string;
+		/** 原始封面url数组 */
+		originCoverUrlList: string[];
+		/** 高斯模糊封面 */
+		gaussianCover: string;
+		meta: {};
+		bigThumbs: {
+			duration: number;
+			fext: string;
+			img_num: number;
+			img_url: string[];
+			img_urls: string[];
+			img_x_len: number;
+			img_x_size: number;
+			img_y_len: number;
+			img_y_size: number;
+			interval: number;
+			uri: string;
+			uris: string[];
+		}[];
+		videoModel: null;
+	};
 	/** 视频标签 */
 	videoTag: [];
 	webRawData: {
@@ -182,7 +303,7 @@ export class DouYinVideoFilter {
 		>[],
 	};
 	$flag = {
-		/** 是否屏蔽在直播 */
+		/** 是否屏蔽直播 */
 		isBlockLiveVideo: false,
 		/** 是否屏蔽广告 */
 		isBlockAdsVideo: false,
@@ -238,7 +359,7 @@ export class DouYinVideoFilter {
 			/* 自定义规则的值是数字，用于比较 */
 			let compareNumberMatch = details.ruleValue.match(/(\d+)/);
 			if (!compareNumberMatch) {
-				log.warn(["过滤器-解析比较大小的数字失败: ", details]);
+				log.warn("过滤器-解析比较大小的数字失败: ", details);
 				return false;
 			}
 			let compareNumber = Number(compareNumberMatch[1]);
@@ -267,9 +388,16 @@ export class DouYinVideoFilter {
 				}
 			} else {
 				// 未经允许的比较符号
-				log.warn(["过滤器-自定义屏蔽-未经允许的比较符号: ", details]);
+				log.warn("过滤器-自定义屏蔽-未经允许的比较符号: ", details);
 				return false;
 			}
+		} else if (
+			typeof details.videoInfoValue === "boolean" &&
+			typeof details.ruleValue === "string"
+		) {
+			/* awemeInfo的值是boolean */
+			let trimRuleValue = details.ruleValue.trim();
+			return details.videoInfoValue.toString() === trimRuleValue;
 		}
 		return false;
 	}
@@ -312,7 +440,7 @@ export class DouYinVideoFilter {
 				let checkFlag = this.checkFilterWithRule(details);
 				if (checkFlag) {
 					flag = true;
-					log.success(["过滤器-自定义屏蔽: ", details]);
+					log.success(["过滤器-自定义屏蔽: ", details, awemeInfoTagDict]);
 					break;
 				}
 			}
@@ -383,6 +511,8 @@ export class DouYinVideoFilter {
 		let diggCount: number = awemeInfo?.["stats"]?.["diggCount"];
 		/** 分享数量 */
 		let shareCount: number = awemeInfo?.["stats"]?.["shareCount"];
+		/** 视频时长 */
+		let duration: number = awemeInfo?.["video"]?.["duration"];
 		/** 视频标签 */
 		let textExtra: string[] = [];
 		/** 是否是直播间 */
@@ -448,6 +578,7 @@ export class DouYinVideoFilter {
 			commentCount,
 			diggCount,
 			shareCount,
+			duration,
 			isLive,
 			isAds,
 		};
