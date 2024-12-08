@@ -1068,4 +1068,11 @@ section.pops-panel-container
 	align-items: center;
 	cursor: pointer;
 }
+/* 修复safari上图标大小未正常显示 */
+.pops-panel-deepMenu-container
+	.pops-panel-deepMenu-container-left-arrow-icon
+	> svg {
+	width: inherit;
+	height: inherit;
+}
 /* deepMenu的css */
