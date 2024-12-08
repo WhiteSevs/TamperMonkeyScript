@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.8
+// @version      2024.12.8.23
 // @author       WhiteSevs
 // @description  免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -6570,6 +6570,9 @@
       let qualityList = this.$data.qualityOption.qualityList.filter(
         (item) => item.codecid === userChooseVideoCodingCode
       );
+      if (qualityList.length === 0) {
+        qualityList = this.$data.qualityOption.qualityList;
+      }
       qualityList.sort((leftItem, rightItem) => {
         return rightItem.quality - leftItem.quality;
       });
@@ -7228,15 +7231,16 @@
      * 绑定layer更新事件
      */
     bindUpdateLayerEvent() {
-      this.art.on("play", this.updateLayerEvent_interval.bind(this));
-      this.art.on("restart", this.updateLayerEvent_once.bind(this));
+      this.art.on("play", this.updateLayerEvent_interval, this);
+      this.art.on("restart", this.updateLayerEvent_once, this);
       this.art.on(
         // @ts-ignore
         "m4sAudio:loadedmetadata",
-        this.updateLayerEvent_once.bind(this)
+        this.updateLayerEvent_once,
+        this
       );
-      this.art.on("pause", this.updateLayerEvent_clear_interval.bind(this));
-      this.art.on("video:ended", this.updateLayerEvent_clear_interval.bind(this));
+      this.art.on("pause", this.updateLayerEvent_clear_interval, this);
+      this.art.on("video:ended", this.updateLayerEvent_clear_interval, this);
       if (this.art.playing) {
         this.updateLayerEvent_interval();
       }
@@ -7245,18 +7249,15 @@
      * 取消绑定layer更新事件
      */
     unbindUpdateLayerEvent() {
-      this.art.off("play", this.updateLayerEvent_interval.bind(this));
-      this.art.off("restart", this.updateLayerEvent_once.bind(this));
+      this.art.off("play", this.updateLayerEvent_interval);
+      this.art.off("restart", this.updateLayerEvent_once);
       this.art.off(
         // @ts-ignore
         "m4sAudio:loadedmetadata",
-        this.updateLayerEvent_once.bind(this)
+        this.updateLayerEvent_once
       );
-      this.art.off("pause", this.updateLayerEvent_clear_interval.bind(this));
-      this.art.off(
-        "video:ended",
-        this.updateLayerEvent_clear_interval.bind(this)
-      );
+      this.art.off("pause", this.updateLayerEvent_clear_interval);
+      this.art.off("video:ended", this.updateLayerEvent_clear_interval);
     }
     /**
      * layer更新事件

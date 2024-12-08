@@ -284,6 +284,11 @@ class VideoQuality extends VideoEncoding {
 		let qualityList = this.$data.qualityOption.qualityList.filter(
 			(item) => item.codecid === userChooseVideoCodingCode
 		);
+		if (qualityList.length === 0) {
+			// 未登录的情况
+			// mp4的情况
+			qualityList = this.$data.qualityOption.qualityList;
+		}
 		// 按画质排序（降序）
 		qualityList.sort((leftItem, rightItem) => {
 			return rightItem.quality - leftItem.quality;

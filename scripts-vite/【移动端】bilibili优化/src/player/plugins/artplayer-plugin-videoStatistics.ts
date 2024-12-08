@@ -328,15 +328,16 @@ class VideoStatistics {
 	 * 绑定layer更新事件
 	 */
 	bindUpdateLayerEvent() {
-		this.art.on("play", this.updateLayerEvent_interval.bind(this));
-		this.art.on("restart", this.updateLayerEvent_once.bind(this));
+		this.art.on("play", this.updateLayerEvent_interval, this);
+		this.art.on("restart", this.updateLayerEvent_once, this);
 		this.art.on(
 			// @ts-ignore
 			"m4sAudio:loadedmetadata" as ArtPlayerPluginM4SAudioSupportEvent,
-			this.updateLayerEvent_once.bind(this)
+			this.updateLayerEvent_once,
+			this
 		);
-		this.art.on("pause", this.updateLayerEvent_clear_interval.bind(this));
-		this.art.on("video:ended", this.updateLayerEvent_clear_interval.bind(this));
+		this.art.on("pause", this.updateLayerEvent_clear_interval, this);
+		this.art.on("video:ended", this.updateLayerEvent_clear_interval, this);
 		if (this.art.playing) {
 			this.updateLayerEvent_interval();
 		}
@@ -345,18 +346,15 @@ class VideoStatistics {
 	 * 取消绑定layer更新事件
 	 */
 	unbindUpdateLayerEvent() {
-		this.art.off("play", this.updateLayerEvent_interval.bind(this));
-		this.art.off("restart", this.updateLayerEvent_once.bind(this));
+		this.art.off("play", this.updateLayerEvent_interval);
+		this.art.off("restart", this.updateLayerEvent_once);
 		this.art.off(
 			// @ts-ignore
 			"m4sAudio:loadedmetadata" as ArtPlayerPluginM4SAudioSupportEvent,
-			this.updateLayerEvent_once.bind(this)
+			this.updateLayerEvent_once
 		);
-		this.art.off("pause", this.updateLayerEvent_clear_interval.bind(this));
-		this.art.off(
-			"video:ended",
-			this.updateLayerEvent_clear_interval.bind(this)
-		);
+		this.art.off("pause", this.updateLayerEvent_clear_interval);
+		this.art.off("video:ended", this.updateLayerEvent_clear_interval);
 	}
 	/**
 	 * layer更新事件
