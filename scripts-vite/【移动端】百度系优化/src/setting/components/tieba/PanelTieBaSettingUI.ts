@@ -360,7 +360,7 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 								UISwitch(
 									"启用",
 									"baidu-tieba-componentDetection",
-									false,
+									true,
 									void 0,
 									"启用后可检测用户的成分信息"
 								),

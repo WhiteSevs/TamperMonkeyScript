@@ -214,7 +214,9 @@ export const TiebaUniAppComponentDetectionRule = {
 						let isShowDisplayIcon_template = UISwitch(
 							"是否显示标签图标",
 							"isShowDisplayIcon",
-							templateData.data.isShowDisplayIcon
+							templateData.data.isShowDisplayIcon,
+							void 0,
+							""
 						);
 						Reflect.set(
 							isShowDisplayIcon_template.props!,
@@ -231,7 +233,7 @@ export const TiebaUniAppComponentDetectionRule = {
 							"标签图标",
 							"displayIcon",
 							templateData.data.displayIcon,
-							""
+							"Url或base64"
 						);
 						Reflect.set(
 							displayIcon_template.props!,
@@ -248,7 +250,7 @@ export const TiebaUniAppComponentDetectionRule = {
 							"关键词",
 							"keywords",
 							"",
-							"",
+							"用于匹配发布的帖子的标题、内容",
 							void 0,
 							"多个关键词换行"
 						);

@@ -356,6 +356,7 @@ export const TiebaUniAppComponentDetection = {
 						userAllInfo,
 						$compositionCheckable
 					);
+					// 重置状态为搜索图标
 					DOMUtils.html($compositionNameControl, this.$data.searchIcon);
 				} catch (error: any) {
 					log.error(error);
@@ -511,6 +512,10 @@ export const TiebaUniAppComponentDetection = {
 		data: Exclude<Awaited<ReturnType<typeof this.queryUserAllInfo>>, undefined>,
 		$searchContainer: HTMLElement
 	) {
+		if (TiebaUniAppComponentDetectionRule.$data.ruleData.length === 0) {
+			Qmsg.warning("未配置规则，请在设置中进行添加");
+			return;
+		}
 		let userId = chatUserInfo.uid.toString();
 		if (TiebaUniAppComponentDetectionRule.$data.whiteList.includes(userId)) {
 			// 白名单用户
