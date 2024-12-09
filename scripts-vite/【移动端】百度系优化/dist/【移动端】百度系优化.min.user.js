@@ -342,6 +342,7 @@ match-attr##srcid##note_lead`),w.getValue("baidu-search-enable-default-intercept
 						margin-top: 6px;
 						font-size: 0.8em;
 						color: rgb(108, 108, 108);
+						max-width: 100px;
 					}
                     `},delete:{enable:!0,deleteCallBack:n=>this.deleteData(n)}}}).showView();},getTemplateData(){return {uuid:f.generateUUID(),enable:!0,name:"",data:{isShowDisplayIcon:!0,displayIcon:"",isShowDisplayName:!0,displayName:"",keywords:[],blacklist:[],followings:[],followingForums:[]}}},getData(){return st(this.$key.STORAGE_KEY,[])},setData(e){ft(this.$key.STORAGE_KEY,e);},addData(e){let t=this.getData();return t.findIndex(n=>n.uuid==e.uuid)===-1?(t.push(e),ft(this.$key.STORAGE_KEY,t),!0):!1},updateData(e){let t=this.getData(),r=t.findIndex(a=>a.uuid==e.uuid),n=!1;return r!==-1&&(n=!0,t[r]=e),this.setData(t),n},deleteData(e){let t=this.getData(),r=t.findIndex(a=>a.uuid==e.uuid),n=!1;return r!==-1&&(n=!0,t.splice(r,1)),this.setData(t),n},clearData(){fa(this.$key.STORAGE_KEY);},exportRule(e="rule.json"){let t=this.getData(),r=new Blob([JSON.stringify(t,null,4)]),n=window.URL.createObjectURL(r),a=document.createElement("a");a.href=n,a.download=e,a.click(),setTimeout(()=>{window.URL.revokeObjectURL(n);},1500);},importRule(){let e=ke.alert({title:{text:"请选择导入方式",position:"center"},content:{text:`
                     <div class="import-mode" data-mode="local">本地导入</div>

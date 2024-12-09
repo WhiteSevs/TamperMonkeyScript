@@ -416,6 +416,7 @@ export const BilibiliComponentDetectionRule = {
 						margin-top: 6px;
 						font-size: 0.8em;
 						color: rgb(108, 108, 108);
+						max-width: 100px;
 					}
                     `,
 				},
