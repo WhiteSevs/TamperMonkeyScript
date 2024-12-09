@@ -138,7 +138,7 @@ const SettingUICommon: PopsPanelContentConfig = {
 								UISwitch(
 									"启用",
 									"bili-componentDetection",
-									false,
+									true,
 									void 0,
 									"启用后可检测用户的成分信息"
 								),

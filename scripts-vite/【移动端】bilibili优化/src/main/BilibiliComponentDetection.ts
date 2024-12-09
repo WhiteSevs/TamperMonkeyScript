@@ -409,6 +409,7 @@ export const BilibiliComponentDetection = {
 				this.clearLabel($compositionCheckable);
 				let userInfo = await this.queryUserInfo(mid);
 				this.handleShowLabel(mid, userInfo, $compositionCheckable);
+				// 重置状态为搜索图标
 				DOMUtils.html($compositionNameControl, this.$data.searchIcon);
 			} catch (error: any) {
 				log.error(error);
@@ -562,6 +563,11 @@ export const BilibiliComponentDetection = {
 	) {
 		if (import.meta.hot) {
 			log.info(`用户数据：`, data);
+		}
+		if (BilibiliComponentDetectionRule.$data.ruleData.length === 0) {
+			// 没有规则
+			Qmsg.warning("未配置规则，请在设置中进行添加");
+			return;
 		}
 		mid = mid.toString();
 		if (BilibiliComponentDetectionRule.$data.whiteList.includes(mid)) {

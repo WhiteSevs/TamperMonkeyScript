@@ -191,7 +191,7 @@ export const BilibiliComponentDetectionRule = {
 							"标签名称",
 							"displayName",
 							templateData.data.displayName,
-							""
+							"例如：原神"
 						);
 						Reflect.set(
 							displayName_template.props!,
@@ -224,7 +224,7 @@ export const BilibiliComponentDetectionRule = {
 							"标签图标",
 							"displayIcon",
 							templateData.data.displayIcon,
-							""
+							"Url或base64"
 						);
 						Reflect.set(
 							displayIcon_template.props!,
@@ -241,7 +241,7 @@ export const BilibiliComponentDetectionRule = {
 							"关键词",
 							"keywords",
 							"",
-							"",
+							"用于匹配标题、简介、转发内容的关键词",
 							void 0,
 							"多个关键词换行"
 						);
@@ -272,7 +272,7 @@ export const BilibiliComponentDetectionRule = {
 							"关注的用户",
 							"followings",
 							"",
-							"",
+							"用户id",
 							void 0,
 							"多个用户id换行"
 						);
