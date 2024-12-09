@@ -119,6 +119,8 @@ export const GreasyforkScriptsCode = {
 						fontSize: window.innerWidth > 600 ? 14 : 12, // 字体
 						wordWrap: "off", // 换行
 						language: "javascript", // 语言
+						folding: true, // 是否启用代码折叠
+						foldingStrategy: "indentation", // 代码可分小段折叠
 					});
 				});
 			},

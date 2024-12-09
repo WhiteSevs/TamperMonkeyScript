@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.12.9
+// @version            2024.12.9.20
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -2498,8 +2498,12 @@
               // 字体
               wordWrap: "off",
               // 换行
-              language: "javascript"
+              language: "javascript",
               // 语言
+              folding: true,
+              // 是否启用代码折叠
+              foldingStrategy: "indentation"
+              // 代码可分小段折叠
             });
           });
         },
@@ -3241,6 +3245,9 @@
       addStyle(
         /*css*/
         `
+		.code-container:has(.code-wide-screen){
+			height: auto !important;
+		}
         .code-wide-screen{
 			position: absolute !important;
 			top: 0 !important;

@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.12.9
+// @version            2024.12.9.20
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -93,7 +93,7 @@
 			import * as monaco from "https://fastly.jsdelivr.net/npm/monaco-editor@0.52.0/+esm";
 			window.monaco = monaco;
 			window.dispatchEvent(new CustomEvent("monaco-editor-ready"));
-			`});d.append(document.head||document.documentElement,t),d.append(document.head||document.documentElement,t),d.on(window,"monaco-editor-ready",async()=>{let e=B.monaco,A=await E.get(window.location.href,{fetch:!0});if(!A.status)return;let o=d.parseHTML(A.data.responseText,!0,!0).querySelector("#script-content .code-container > pre");if(!o)return;let a=d.text(o);d.ready(async()=>{let i=await v.waitNode("#script-content .code-container > pre",1e4);if(!i)return;let s=d.createElement("div",{className:"monaco-editor"});d.after(i,s),e.editor.create(s,{value:a,minimap:{enabled:!0},automaticLayout:!0,codeLens:!0,colorDecorators:!0,contextmenu:!1,readOnly:!0,formatOnPaste:!0,overviewRulerBorder:!0,scrollBeyondLastLine:!0,theme:"vs-dark",fontSize:window.innerWidth>600?14:12,wordWrap:"off",language:"javascript"});});},{once:!0});}},Ft=`ul.history_versions,\r
+			`});d.append(document.head||document.documentElement,t),d.append(document.head||document.documentElement,t),d.on(window,"monaco-editor-ready",async()=>{let e=B.monaco,A=await E.get(window.location.href,{fetch:!0});if(!A.status)return;let o=d.parseHTML(A.data.responseText,!0,!0).querySelector("#script-content .code-container > pre");if(!o)return;let a=d.text(o);d.ready(async()=>{let i=await v.waitNode("#script-content .code-container > pre",1e4);if(!i)return;let s=d.createElement("div",{className:"monaco-editor"});d.after(i,s),e.editor.create(s,{value:a,minimap:{enabled:!0},automaticLayout:!0,codeLens:!0,colorDecorators:!0,contextmenu:!1,readOnly:!0,formatOnPaste:!0,overviewRulerBorder:!0,scrollBeyondLastLine:!0,theme:"vs-dark",fontSize:window.innerWidth>600?14:12,wordWrap:"off",language:"javascript",folding:!0,foldingStrategy:"indentation"});});},{once:!0});}},Ft=`ul.history_versions,\r
 ul.history_versions li {\r
 	width: 100%;\r
 }\r
@@ -229,6 +229,9 @@ ul.history_versions li {\r
 					<a href="javascript:;">
 						<span>${r.t("收藏")}</span>
 					</a>`});d.append(document.querySelector("ul#script-links"),t),d.on(t,"click",()=>{let e=window.location.pathname.match(/scripts\/([\d]+)/i);if(!e){u.error(e,window.location.pathname),g.error(r.t("获取脚本id失败"));return}let A=e[e.length-1];kt(A);});});},fullScreenOptimization(){u.info("F11全屏，F键代码全屏"),b(`
+		.code-container:has(.code-wide-screen){
+			height: auto !important;
+		}
         .code-wide-screen{
 			position: absolute !important;
 			top: 0 !important;
