@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.4
+// @version      2024.12.9
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -14,9 +14,9 @@
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/488179/1413254/showdown.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.4.33/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.9/lib/index.iife.min.js
@@ -3464,7 +3464,9 @@ match-attr##srcid##sp_purc_atom
               let isShowDisplayIcon_template = UISwitch(
                 "是否显示标签图标",
                 "isShowDisplayIcon",
-                templateData.data.isShowDisplayIcon
+                templateData.data.isShowDisplayIcon,
+                void 0,
+                ""
               );
               Reflect.set(
                 isShowDisplayIcon_template.props,
@@ -3478,7 +3480,7 @@ match-attr##srcid##sp_purc_atom
                 "标签图标",
                 "displayIcon",
                 templateData.data.displayIcon,
-                ""
+                "Url或base64"
               );
               Reflect.set(
                 displayIcon_template.props,
@@ -3492,7 +3494,7 @@ match-attr##srcid##sp_purc_atom
                 "关键词",
                 "keywords",
                 "",
-                "",
+                "用于匹配发布的帖子的标题、内容",
                 void 0,
                 "多个关键词换行"
               );
@@ -4239,7 +4241,7 @@ match-attr##srcid##sp_purc_atom
                   UISwitch(
                     "启用",
                     "baidu-tieba-componentDetection",
-                    false,
+                    true,
                     void 0,
                     "启用后可检测用户的成分信息"
                   ),
@@ -14622,6 +14624,10 @@ div[class^="new-summary-container_"] {\r
      * @param $searchContainer
      */
     handleShowLabel(chatUserInfo, data, $searchContainer) {
+      if (TiebaUniAppComponentDetectionRule.$data.ruleData.length === 0) {
+        Qmsg.warning("未配置规则，请在设置中进行添加");
+        return;
+      }
       let userId = chatUserInfo.uid.toString();
       if (TiebaUniAppComponentDetectionRule.$data.whiteList.includes(userId)) {
         return;

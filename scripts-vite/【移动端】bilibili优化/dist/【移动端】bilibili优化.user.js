@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.8.23
+// @version      2024.12.9
 // @author       WhiteSevs
 // @description  免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -15,7 +15,7 @@
 // @require      https://update.greasyfork.org/scripts/497907/1413262/QRCodeJS.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
@@ -1582,7 +1582,7 @@
                 "标签名称",
                 "displayName",
                 templateData.data.displayName,
-                ""
+                "例如：原神"
               );
               Reflect.set(
                 displayName_template.props,
@@ -1609,7 +1609,7 @@
                 "标签图标",
                 "displayIcon",
                 templateData.data.displayIcon,
-                ""
+                "Url或base64"
               );
               Reflect.set(
                 displayIcon_template.props,
@@ -1623,7 +1623,7 @@
                 "关键词",
                 "keywords",
                 "",
-                "",
+                "用于匹配标题、简介、转发内容的关键词",
                 void 0,
                 "多个关键词换行"
               );
@@ -1649,7 +1649,7 @@
                 "关注的用户",
                 "followings",
                 "",
-                "",
+                "用户id",
                 void 0,
                 "多个用户id换行"
               );
@@ -2121,7 +2121,7 @@
                   UISwitch(
                     "启用",
                     "bili-componentDetection",
-                    false,
+                    true,
                     void 0,
                     "启用后可检测用户的成分信息"
                   ),
@@ -12463,6 +12463,10 @@
      * @param $searchContainer
      */
     handleShowLabel(mid, data2, $searchContainer) {
+      if (BilibiliComponentDetectionRule.$data.ruleData.length === 0) {
+        Qmsg.warning("未配置规则，请在设置中进行添加");
+        return;
+      }
       mid = mid.toString();
       if (BilibiliComponentDetectionRule.$data.whiteList.includes(mid)) {
         return;
