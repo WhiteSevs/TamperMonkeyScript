@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.11.29
+// @version      2024.12.9
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、用户状态查看、美化导航、动态头像上传、最新发表、评论过滤器等
 // @license      GPL-3.0-only
@@ -10,10 +10,10 @@
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.10.0/highlight.min.js
 // @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.10.0/styles/github-dark.min.css
@@ -130,7 +130,7 @@
 						width="26" 
 						style="position:absolute;top:10px;left:11px">
 			</a>
-			`,f.prepend(t,i);});},quickReplyOptimization(){x.waitNode('#scrolltop a[title="快速回复"]',1e4).then(t=>{t&&(w.info("快捷回复优化"),f.on(t,"click",function(){U.showWindow("reply",this.href),w.info("等待弹窗出现"),x.waitNode("#moreconf",1e4).then(e=>{if(!e)return;w.success("弹出出现，添加按钮");let r=f.createElement("button",{innerText:"一键空格",type:"button",id:"insertspace2"},{style:"float: left;"});f.on(r,"click",l=>{x.preventEvent(l),f.val(K("#postmessage"),f.val(K("#postmessage"))+"           ");}),f.append(e,r);});}));});}},we={$flag:{isSetHljsCSS:!1},init(){Ve.init(),v.execMenuOnce("mt-forum-post-autoExpandContent",()=>this.autoExpandContent()),v.execMenuOnce("mt-forum-post-repairImageWidth",()=>this.repairImageWidth()),v.execMenuOnce("mt-forum-post-hideBottomInfoBlock",()=>this.hideBottomInfoBlock()),f.ready(()=>{v.execMenu("mt-forum-post-removeFontStyle",()=>{this.removeFontStyle();}),v.execMenu("mt-forum-post-removeCommentFontStyle",()=>{this.removeCommentFontStyle();}),v.execMenuOnce("mt-forum-post-loadNextPageComment",()=>{this.loadNextPageComment();}),v.execMenuOnce("mt-forum-post-codeQuoteOptimization",()=>{this.codeQuoteOptimization();}),v.execMenuOnce("mt-forum-post-optimizationImagePreview",()=>{this.optimizationImagePreview();}),v.execMenuOnce("mt-forum-post-interceptionAttachment",()=>{this.setAttachmentsClickTip();}),v.execMenu("mt-forum-post-detectingUserOnlineStatus",()=>{this.detectingUserOnlineStatus();}),v.execMenu("mt-forum-post-showUserLevel",()=>{this.showUserLevel();});});},autoExpandContent(){return w.info("自动展开帖子内容"),N(`
+			`,f.prepend(t,i);});},quickReplyOptimization(){x.waitNode('#scrolltop a[title="快速回复"]',1e4).then(t=>{t&&(w.info("快捷回复优化"),f.on(t,"click",function(){U.showWindow("reply",t.href),w.info("等待弹窗出现"),x.waitNode("#moreconf",1e4).then(e=>{if(!e)return;w.success("弹出出现，添加按钮");let r=f.createElement("button",{innerText:"一键空格",type:"button",id:"insertspace2"},{style:"float: left;"});f.on(r,"click",l=>{x.preventEvent(l),f.val(K("#postmessage"),f.val(K("#postmessage"))+"           ");}),f.append(e,r);});}));});}},we={$flag:{isSetHljsCSS:!1},init(){Ve.init(),v.execMenuOnce("mt-forum-post-autoExpandContent",()=>this.autoExpandContent()),v.execMenuOnce("mt-forum-post-repairImageWidth",()=>this.repairImageWidth()),v.execMenuOnce("mt-forum-post-hideBottomInfoBlock",()=>this.hideBottomInfoBlock()),f.ready(()=>{v.execMenu("mt-forum-post-removeFontStyle",()=>{this.removeFontStyle();}),v.execMenu("mt-forum-post-removeCommentFontStyle",()=>{this.removeCommentFontStyle();}),v.execMenuOnce("mt-forum-post-loadNextPageComment",()=>{this.loadNextPageComment();}),v.execMenuOnce("mt-forum-post-codeQuoteOptimization",()=>{this.codeQuoteOptimization();}),v.execMenuOnce("mt-forum-post-optimizationImagePreview",()=>{this.optimizationImagePreview();}),v.execMenuOnce("mt-forum-post-interceptionAttachment",()=>{this.setAttachmentsClickTip();}),v.execMenu("mt-forum-post-detectingUserOnlineStatus",()=>{this.detectingUserOnlineStatus();}),v.execMenu("mt-forum-post-showUserLevel",()=>{this.showUserLevel();});});},autoExpandContent(){return w.info("自动展开帖子内容"),N(`
         div.comiis_message.bg_f.view_one.b_b.cl.message>div.comiis_messages.comiis_aimg_show.cl{max-height:inherit!important;overflow-y:inherit!important;position:inherit!important}
         .comiis_lookfulltext_bg,.comiis_lookfulltext_key{display:none!important} 
         `)},repairImageWidth(){return w.info("修复图片宽度"),N(`

@@ -65,8 +65,8 @@ export const MTForumPostRightToolBar = {
 					return;
 				}
 				log.info(`快捷回复优化`);
-				DOMUtils.on($ele, "click", function (this: HTMLAnchorElement) {
-					unsafeWindow.showWindow("reply", this.href);
+				DOMUtils.on($ele, "click", function () {
+					unsafeWindow.showWindow("reply", $ele.href);
 					log.info(`等待弹窗出现`);
 					utils
 						.waitNode<HTMLDivElement>("#moreconf", 10000)

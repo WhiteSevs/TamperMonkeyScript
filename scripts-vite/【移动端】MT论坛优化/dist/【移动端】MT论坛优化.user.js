@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359
-// @version      2024.11.26
+// @version      2024.12.9
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -11,10 +11,10 @@
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/452322/1470429/js-watermark.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.10.0/highlight.min.js
 // @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.10.0/styles/github-dark.min.css
@@ -48,7 +48,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var require_entrance_001 = __commonJS({
-    "entrance-Ba2iaBB7.js"(exports, module) {
+    "entrance-CHJk8O1j.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -5467,16 +5467,11 @@
           );
           domUtils.attr("#filedata", "multiple", true);
           domUtils.remove(".gm_plugin_chartbed .comiis_over_box.comiis_input_style");
-          domUtils.on(
-            document,
-            "#comiis_pictitle_key li",
-            "click",
-            function() {
-              domUtils.removeClass("#comiis_pictitle_key li", "bg_f");
-              domUtils.addClass(this, "bg_f");
-              _unsafeWindow.$(".gm_plugin_chartbed .comiis_upbox").hide().eq(_unsafeWindow.$(this).index()).fadeIn();
-            }
-          );
+          domUtils.on(document, "#comiis_pictitle_key li", "click", function() {
+            domUtils.removeClass("#comiis_pictitle_key li", "bg_f");
+            domUtils.addClass(this, "bg_f");
+            _unsafeWindow.$(".gm_plugin_chartbed .comiis_upbox").hide().eq(_unsafeWindow.$(this).index()).fadeIn();
+          });
           let top_height = parseInt(domUtils.css("#comiis_head", "height")) || 0;
           let fatie_toupiao = parseInt(domUtils.css("#comiis_sub", "height")) || 0;
           let extra_margin_bottom = $("#pollm_c_1") ? 60 : 0;
@@ -6490,19 +6485,15 @@
             "#comiis_mh_sub .swiper-wrapper.comiis_post_ico",
             imageBtnHTML
           );
-          domUtils.on(
-            ".comiis_pictitle",
-            "click",
-            function(event) {
-              let $click = this;
-              let $font = $click.querySelector("i.comiis_font");
-              if (!$font.classList.contains("f_0")) {
-                domUtils.show(".gm_plugin_chartbed", false);
-              } else {
-                domUtils.hide(".gm_plugin_chartbed", false);
-              }
+          domUtils.on(".comiis_pictitle", "click", function() {
+            let $click = this;
+            let $font = $click.querySelector("i.comiis_font");
+            if (!$font.classList.contains("f_0")) {
+              domUtils.show(".gm_plugin_chartbed", false);
+            } else {
+              domUtils.hide(".gm_plugin_chartbed", false);
             }
-          );
+          });
           domUtils.append(
             "#comiis_post_tab",
             /*html*/
@@ -8227,28 +8218,18 @@
               "data-operator-uid": userInfo.operatorid
             }
           );
-          domUtils.on(
-            $item,
-            "click",
-            ".blackhome-user img",
-            function() {
-              window.open(
-                `home.php?mod=space&uid=${userInfo.uid}&do=profile`,
-                "_blank"
-              );
-            }
-          );
-          domUtils.on(
-            $item,
-            "click",
-            ".blackhome-operator-user img",
-            function() {
-              window.open(
-                `home.php?mod=space&uid=${userInfo.operatorid}&do=profile`,
-                "_blank"
-              );
-            }
-          );
+          domUtils.on($item, "click", ".blackhome-user img", function() {
+            window.open(
+              `home.php?mod=space&uid=${userInfo.uid}&do=profile`,
+              "_blank"
+            );
+          });
+          domUtils.on($item, "click", ".blackhome-operator-user img", function() {
+            window.open(
+              `home.php?mod=space&uid=${userInfo.operatorid}&do=profile`,
+              "_blank"
+            );
+          });
           return $item;
         }
       };

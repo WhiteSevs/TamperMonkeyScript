@@ -702,21 +702,16 @@ export const MTEditorOptimization = {
 		/* 添加上传多个文件功能 */
 		DOMUtils.attr("#filedata", "multiple", true);
 		DOMUtils.remove(".gm_plugin_chartbed .comiis_over_box.comiis_input_style");
-		DOMUtils.on(
-			document,
-			"#comiis_pictitle_key li",
-			"click",
-			function (this: HTMLLIElement) {
-				/* 图床-各个菜单点击事件 */
-				DOMUtils.removeClass("#comiis_pictitle_key li", "bg_f");
-				DOMUtils.addClass(this, "bg_f");
-				unsafeWindow
-					.$(".gm_plugin_chartbed .comiis_upbox")
-					.hide()
-					.eq(unsafeWindow.$(this).index())
-					.fadeIn();
-			}
-		);
+		DOMUtils.on(document, "#comiis_pictitle_key li", "click", function () {
+			/* 图床-各个菜单点击事件 */
+			DOMUtils.removeClass("#comiis_pictitle_key li", "bg_f");
+			DOMUtils.addClass(this, "bg_f");
+			unsafeWindow
+				.$(".gm_plugin_chartbed .comiis_upbox")
+				.hide()
+				.eq(unsafeWindow.$(this).index())
+				.fadeIn();
+		});
 
 		let top_height = parseInt(DOMUtils.css("#comiis_head", "height")) || 0;
 		let fatie_toupiao = parseInt(DOMUtils.css("#comiis_sub", "height")) || 0;
@@ -1742,7 +1737,7 @@ export const MTEditorOptimization = {
 		DOMUtils.on(
 			"#comiis_post_tab .comiis_input_style .comiis_post_urlico li",
 			"click",
-			function (this: HTMLLIElement) {
+			function () {
 				DOMUtils.removeClass(
 					"#comiis_post_tab .comiis_input_style .comiis_post_urlico li a",
 					"f_0"
@@ -1862,21 +1857,17 @@ export const MTEditorOptimization = {
 			imageBtnHTML
 		);
 
-		DOMUtils.on(
-			".comiis_pictitle",
-			"click",
-			function (this: HTMLAnchorElement, event) {
-				let $click = this;
-				let $font = $click.querySelector("i.comiis_font")!;
-				if (!$font.classList.contains("f_0")) {
-					// 显示
-					DOMUtils.show(".gm_plugin_chartbed", false);
-				} else {
-					// 隐藏
-					DOMUtils.hide(".gm_plugin_chartbed", false);
-				}
+		DOMUtils.on(".comiis_pictitle", "click", function () {
+			let $click = this;
+			let $font = $click.querySelector("i.comiis_font")!;
+			if (!$font.classList.contains("f_0")) {
+				// 显示
+				DOMUtils.show(".gm_plugin_chartbed", false);
+			} else {
+				// 隐藏
+				DOMUtils.hide(".gm_plugin_chartbed", false);
 			}
-		);
+		});
 		DOMUtils.append(
 			"#comiis_post_tab",
 			/*html*/ `
@@ -2026,7 +2017,7 @@ export const MTEditorOptimization = {
             </li>
             `
 		);
-		DOMUtils.on("#immersiveinput", "click", function (this: HTMLInputElement) {
+		DOMUtils.on("#immersiveinput", "click", function () {
 			let $click = this;
 			let code_obj =
 				DOMUtils.parent($click).querySelector<HTMLElement>(".comiis_checkbox")!;

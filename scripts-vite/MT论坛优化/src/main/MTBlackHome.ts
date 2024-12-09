@@ -358,7 +358,7 @@ export const MTBlackHome = {
 			$item,
 			"click",
 			".blackhome-user img",
-			function (this: HTMLImageElement) {
+			function () {
 				window.open(
 					`home.php?mod=space&uid=${userInfo.uid}&do=profile`,
 					"_blank"
@@ -370,7 +370,7 @@ export const MTBlackHome = {
 			$item,
 			"click",
 			".blackhome-operator-user img",
-			function (this: HTMLImageElement) {
+			function () {
 				window.open(
 					`home.php?mod=space&uid=${userInfo.operatorid}&do=profile`,
 					"_blank"
