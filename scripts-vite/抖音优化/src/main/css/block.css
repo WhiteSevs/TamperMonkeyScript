@@ -1,6 +1,7 @@
 /* 从顶部往下弹出的下载抖音电脑版的drawer提示 */
-#douyin-web-download-guide-container,
+#douyin-web-download-guide-container
 /* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */
-.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg)) {
+/* 但是这个CSS又会屏蔽右键菜单 */
+/*.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg))*/ {
 	display: none !important;
 }
