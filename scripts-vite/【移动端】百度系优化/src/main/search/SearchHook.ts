@@ -24,7 +24,7 @@ const BaiduSearchHook = {
 			BaiduHook.functionApply("copy");
 		});
 		PopsPanel.execMenuOnce("baidu_search_hijack_setTimeout", () => {
-			BaiduHook.setTimeout("getGeoLocation|loopPlay()");
+			BaiduHook.setTimeout("getGeoLocation|loopPlay()|.videoAutoplay");
 		});
 	},
 };
