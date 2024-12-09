@@ -418,6 +418,9 @@ export const GreasyforkScripts = {
 	fullScreenOptimization() {
 		log.info("F11全屏，F键代码全屏");
 		addStyle(/*css*/ `
+		.code-container:has(.code-wide-screen){
+			height: auto !important;
+		}
         .code-wide-screen{
 			position: absolute !important;
 			top: 0 !important;
