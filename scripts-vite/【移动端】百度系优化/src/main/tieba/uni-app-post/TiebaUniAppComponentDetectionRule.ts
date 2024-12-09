@@ -440,6 +440,12 @@ export const TiebaUniAppComponentDetectionRule = {
                     .pops-panel-textarea textarea{
                         height: 150px;
                     }
+					.pops-panel-item-left-desc-text{
+						line-height: normal;
+						margin-top: 6px;
+						font-size: 0.8em;
+						color: rgb(108, 108, 108);
+					}
                     `,
 				},
 				delete: {

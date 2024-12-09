@@ -178,6 +178,12 @@
                     .pops-panel-textarea textarea{
                         height: 150px;
                     }
+					.pops-panel-item-left-desc-text{
+						line-height: normal;
+						margin-top: 6px;
+						font-size: 0.8em;
+						color: rgb(108, 108, 108);
+					}
                     `},delete:{enable:!0,deleteCallBack:i=>this.deleteData(i)}}}).showView();},getTemplateData(){return {uuid:p.generateUUID(),enable:!0,name:"",data:{isShowDisplayIcon:!0,displayIcon:"",isShowDisplayName:!0,displayName:"",keywords:[],blacklist:[],followings:[]}}},getData(){return ne(this.$key.STORAGE_KEY,[])},setData(e){ve(this.$key.STORAGE_KEY,e);},addData(e){let t=this.getData();return t.findIndex(i=>i.uuid==e.uuid)===-1?(t.push(e),ve(this.$key.STORAGE_KEY,t),!0):!1},updateData(e){let t=this.getData(),u=t.findIndex(a=>a.uuid==e.uuid),i=!1;return u!==-1&&(i=!0,t[u]=e),this.setData(t),i},deleteData(e){let t=this.getData(),u=t.findIndex(a=>a.uuid==e.uuid),i=!1;return u!==-1&&(i=!0,t.splice(u,1)),this.setData(t),i},clearData(){Ht(this.$key.STORAGE_KEY);},exportRule(e="rule.json"){let t=this.getData(),u=new Blob([JSON.stringify(t,null,4)]),i=window.URL.createObjectURL(u),a=document.createElement("a");a.href=i,a.download=e,a.click(),setTimeout(()=>{window.URL.revokeObjectURL(i);},1500);},importRule(){let e=I.alert({title:{text:"请选择导入方式",position:"center"},content:{text:`
                     <div class="import-mode" data-mode="local">本地导入</div>
                     <div class="import-mode" data-mode="network">网络导入</div>
