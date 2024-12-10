@@ -641,6 +641,7 @@ export const PopsPanel = {
 				display: flex;
 				align-items: center;
 				width: 200px;
+				max-width: 200px !important;
     			justify-content: space-between;
 				cursor: pointer;
 				transition: all ease-out .1s;
