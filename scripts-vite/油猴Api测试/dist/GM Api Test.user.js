@@ -19785,10 +19785,10 @@
       if (document.body) {
         injectDocumentTime = `<html>
     <head>
-	...
+	    ...${document.head.children.length} elements
 	</head>
     <body>
-    ...
+        ...${document.body.children.length} elements
     </body>
 </html>
 
@@ -19798,7 +19798,7 @@
         if (document.head.children.length) {
           injectDocumentTime = `<html>
 	<head>
-	...
+	    ...${document.head.children.length} elements
 	</head>
 </html>
 		
