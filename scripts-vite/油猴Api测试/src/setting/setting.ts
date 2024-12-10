@@ -6,7 +6,7 @@ import {
 	ATTRIBUTE_KEY,
 	KEY,
 } from "@/setting/config";
-import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
+import { unsafeWindow } from "ViteGM";
 import { Component_Common } from "./components/common";
 import {
 	PopsPanelContentConfig,
@@ -43,6 +43,8 @@ import { PanelUI_GM_removeValueChangeListener } from "./components/GM_removeValu
 import { PanelUI_GM_xmlhttpRequest } from "./components/GM_xmlhttpRequest";
 import { PanelUI_GM_webRequest } from "./components/GM_webRequest";
 import { PanelUI_GM_cookie } from "./components/GM_cookie";
+import { ApiSupportTest } from "@/main/ApiSupportTest";
+import { StorageApi } from "@/main/StorageApi";
 
 type PosPanelListenerData = {
 	id: number;
@@ -123,7 +125,11 @@ export const PopsPanel = {
 	},
 	/** 判断是否是顶层窗口 */
 	isTopWindow() {
-		return unsafeWindow.top === unsafeWindow.self;
+		if (ApiSupportTest.unsafeWindow()) {
+			return unsafeWindow.top === unsafeWindow.self;
+		} else {
+			return window.top === window.self;
+		}
 	},
 	/** 初始化进行注册油猴菜单 */
 	initExtensionsMenu() {
@@ -229,10 +235,10 @@ export const PopsPanel = {
 	 * @param value 值
 	 */
 	setValue(key: string, value: any) {
-		let locaData = GM_getValue(KEY, {}) as any;
+		let locaData = StorageApi.get(KEY, {}) as any;
 		let oldValue = locaData[key];
 		locaData[key] = value;
-		GM_setValue(KEY, locaData);
+		StorageApi.set(KEY, locaData);
 		if (this.$listener.listenData.has(key)) {
 			this.$listener.listenData.get(key)!.callback(key, oldValue, value);
 		}
@@ -243,7 +249,7 @@ export const PopsPanel = {
 	 * @param defaultValue 默认值
 	 */
 	getValue<T extends any>(key: string, defaultValue?: T): T {
-		let locaData = GM_getValue(KEY, {}) as any;
+		let locaData = StorageApi.get(KEY, {}) as any;
 		let localValue = locaData[key];
 		if (localValue == null) {
 			/* 值不存在或值为null/undefined或只有键但无值 */
@@ -261,10 +267,10 @@ export const PopsPanel = {
 	 * @param key 键
 	 */
 	deleteValue(key: string) {
-		let locaData = GM_getValue(KEY, {}) as any;
+		let locaData = StorageApi.get(KEY, {}) as any;
 		let oldValue = locaData[key];
 		Reflect.deleteProperty(locaData, key);
-		GM_setValue(KEY, locaData);
+		StorageApi.set(KEY, locaData);
 		if (this.$listener.listenData.has(key)) {
 			this.$listener.listenData.get(key)!.callback(key, oldValue, void 0);
 		}
@@ -342,7 +348,7 @@ export const PopsPanel = {
 	 * @param key 键
 	 */
 	hasKey(key: string) {
-		let locaData = GM_getValue(KEY, {}) as any;
+		let locaData = StorageApi.get(KEY, {}) as any;
 		return key in locaData;
 	},
 	/**

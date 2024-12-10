@@ -19485,252 +19485,6 @@
     }
   }
   const pops = new Pops();
-  const _SCRIPT_NAME_ = "Monkey Api Test";
-  const utils = utils$1.noConflict();
-  const domUtils = domUtils$1.noConflict();
-  const __pops = pops;
-  const log = new utils.Log(
-    _GM_info,
-    _unsafeWindow.console || _monkeyWindow.console
-  );
-  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
-  const DEBUG = false;
-  log.config({
-    debug: DEBUG,
-    logMaxCount: 1e3,
-    autoClearConsole: true,
-    tag: true
-  });
-  qmsg.config(
-    Object.defineProperties(
-      {
-        html: true,
-        autoClose: true,
-        showClose: false
-      },
-      {
-        position: {
-          get() {
-            return PopsPanel.getValue("qmsg-config-position", "bottom");
-          }
-        },
-        maxNums: {
-          get() {
-            return PopsPanel.getValue("qmsg-config-maxnums", 5);
-          }
-        },
-        showReverse: {
-          get() {
-            return PopsPanel.getValue("qmsg-config-showreverse", true);
-          }
-        },
-        zIndex: {
-          get() {
-            let maxZIndex = utils$1.getMaxZIndex();
-            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
-            return utils$1.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-          }
-        }
-      }
-    )
-  );
-  const GM_Menu = new utils.GM_Menu({
-    GM_getValue: _GM_getValue,
-    GM_setValue: _GM_setValue,
-    GM_registerMenuCommand: _GM_registerMenuCommand,
-    GM_unregisterMenuCommand: _GM_unregisterMenuCommand
-  });
-  const httpx = new utils.Httpx(_GM_xmlhttpRequest);
-  httpx.interceptors.request.use((data) => {
-    return data;
-  });
-  httpx.interceptors.response.use(void 0, (data) => {
-    log.error("拦截器-请求错误", data);
-    if (data.type === "onabort") {
-      qmsg.warning("请求取消");
-    } else if (data.type === "onerror") {
-      qmsg.error("请求异常");
-    } else if (data.type === "ontimeout") {
-      qmsg.error("请求超时");
-    } else {
-      qmsg.error("其它错误");
-    }
-    return data;
-  });
-  httpx.config({
-    logDetails: DEBUG
-  });
-  ({
-    Object: {
-      defineProperty: _unsafeWindow.Object.defineProperty
-    },
-    Function: {
-      apply: _unsafeWindow.Function.prototype.apply,
-      call: _unsafeWindow.Function.prototype.call
-    },
-    Element: {
-      appendChild: _unsafeWindow.Element.prototype.appendChild
-    },
-    setTimeout: _unsafeWindow.setTimeout
-  });
-  const addStyle = utils.addStyle.bind(utils);
-  document.querySelector.bind(document);
-  document.querySelectorAll.bind(document);
-  let injectDocumentTime = "";
-  if (document.documentElement) {
-    if (document.head) {
-      if (document.body) {
-        injectDocumentTime = `<html>
-    <head>
-	...
-	</head>
-    <body>
-    ...
-    </body>
-</html>
-
-似乎注入到页面有点慢
-`;
-      } else {
-        if (document.head.children.length) {
-          injectDocumentTime = `<html>
-	<head>
-	...
-	</head>
-</html>
-		
-注入到页面很快`;
-        } else {
-          injectDocumentTime = `<html>
-	<head></head>
-</html>
-
-注入到页面非常快`;
-        }
-      }
-    } else {
-      injectDocumentTime = `<html>
-</html>
-
-注入到页面超级快`;
-    }
-  } else {
-    injectDocumentTime = `document.documentElement is null
-	
-注入到页面超级无敌快`;
-  }
-  const KEY = "GM_Panel";
-  const ATTRIBUTE_INIT = "data-init";
-  const ATTRIBUTE_KEY = "data-key";
-  const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
-  const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
-  const Tag = {
-    success: "√ ",
-    error: "× ",
-    warn: "!!! ",
-    info: ""
-  };
-  const UIInfo = (config) => {
-    let result2 = {
-      type: "own",
-      getLiElementCallBack(liElement) {
-        let detail = config();
-        let $item = domUtils.createElement("div", {
-          innerHTML: detail.tag == null ? detail.text : Tag[detail.tag] + detail.text
-        });
-        let classNameList = ["support-info"];
-        if (detail.tag != null) {
-          classNameList.push(detail.tag);
-        }
-        domUtils.addClass($item, classNameList);
-        liElement.appendChild($item);
-        return liElement;
-      },
-      afterAddToUListCallBack(formConfig, container) {
-        let detail = config();
-        if (typeof detail.afterRender === "function") {
-          detail.afterRender(container);
-        }
-      }
-    };
-    return result2;
-  };
-  const CommonUtil = {
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args2) {
-      let selectorList = [];
-      if (args2.length === 0) {
-        return;
-      }
-      if (args2.length === 1 && typeof args2[0] === "string" && args2[0].trim() === "") {
-        return;
-      }
-      args2.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
-      });
-      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
-    },
-    /**
-     * 设置GM_getResourceText的style内容
-     * @param resourceMapData 资源数据
-     */
-    setGMResourceCSS(resourceMapData) {
-      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
-      if (typeof cssText === "string" && cssText) {
-        addStyle(cssText);
-      } else {
-        CommonUtil.addLinkNode(resourceMapData.url);
-      }
-    },
-    /**
-     * 添加<link>标签
-     * @param url
-     */
-    async addLinkNode(url) {
-      let $link = document.createElement("link");
-      $link.rel = "stylesheet";
-      $link.type = "text/css";
-      $link.href = url;
-      domUtils.ready(() => {
-        document.head.appendChild($link);
-      });
-      return $link;
-    },
-    /**
-     * 将url修复，例如只有search的链接/sss/xxx?sss=xxxx
-     * @param url 需要修复的链接
-     */
-    fixUrl(url) {
-      url = url.trim();
-      if (url.match(/^http(s|):\/\//i)) {
-        return url;
-      } else {
-        if (!url.startsWith("/")) {
-          url += "/";
-        }
-        url = window.location.origin + url;
-        return url;
-      }
-    },
-    /**
-     * html转义
-     * @param unsafe
-     */
-    escapeHtml(unsafe) {
-      return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
-    }
-  };
   const ApiSupportTest = {
     unsafeWindow() {
       return typeof _unsafeWindow === "object" && _unsafeWindow != null;
@@ -19966,6 +19720,218 @@
       } else {
         LocalStorageApi.delete(key);
       }
+    }
+  };
+  const _SCRIPT_NAME_ = "Monkey Api Test";
+  const utils = utils$1.noConflict();
+  const domUtils = domUtils$1.noConflict();
+  const __pops = pops;
+  const log = new utils.Log(_GM_info, window.console);
+  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
+  const DEBUG = false;
+  log.config({
+    debug: DEBUG,
+    logMaxCount: 1e3,
+    autoClearConsole: true,
+    tag: true
+  });
+  qmsg.config(
+    Object.defineProperties(
+      {
+        html: true,
+        autoClose: true,
+        showClose: false
+      },
+      {
+        position: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-position", "bottom");
+          }
+        },
+        maxNums: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-maxnums", 5);
+          }
+        },
+        showReverse: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-showreverse", true);
+          }
+        },
+        zIndex: {
+          get() {
+            let maxZIndex = utils$1.getMaxZIndex();
+            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
+            return utils$1.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+          }
+        }
+      }
+    )
+  );
+  const GM_Menu = new utils.GM_Menu({
+    GM_getValue: ApiSupportTest.getValue() ? _GM_getValue : StorageApi.get,
+    GM_setValue: ApiSupportTest.setValue() ? _GM_setValue : StorageApi.set,
+    GM_registerMenuCommand: ApiSupportTest.registerMenuCommand() ? _GM_registerMenuCommand : () => {
+    },
+    GM_unregisterMenuCommand: ApiSupportTest.unregisterMenuCommand() ? _GM_unregisterMenuCommand : () => {
+    }
+  });
+  const addStyle = utils.addStyle.bind(utils);
+  document.querySelector.bind(document);
+  document.querySelectorAll.bind(document);
+  let injectDocumentTime = "";
+  if (document.documentElement) {
+    if (document.head) {
+      if (document.body) {
+        injectDocumentTime = `<html>
+    <head>
+	...
+	</head>
+    <body>
+    ...
+    </body>
+</html>
+
+似乎注入到页面有点慢
+`;
+      } else {
+        if (document.head.children.length) {
+          injectDocumentTime = `<html>
+	<head>
+	...
+	</head>
+</html>
+		
+注入到页面很快`;
+        } else {
+          injectDocumentTime = `<html>
+	<head></head>
+</html>
+
+注入到页面非常快`;
+        }
+      }
+    } else {
+      injectDocumentTime = `<html>
+</html>
+
+注入到页面超级快`;
+    }
+  } else {
+    injectDocumentTime = `document.documentElement is null
+	
+注入到页面超级无敌快`;
+  }
+  const KEY = "GM_Panel";
+  const ATTRIBUTE_INIT = "data-init";
+  const ATTRIBUTE_KEY = "data-key";
+  const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
+  const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+  const Tag = {
+    success: "√ ",
+    error: "× ",
+    warn: "!!! ",
+    info: ""
+  };
+  const UIInfo = (config) => {
+    let result2 = {
+      type: "own",
+      getLiElementCallBack(liElement) {
+        let detail = config();
+        let $item = domUtils.createElement("div", {
+          innerHTML: detail.tag == null ? detail.text : Tag[detail.tag] + detail.text
+        });
+        let classNameList = ["support-info"];
+        if (detail.tag != null) {
+          classNameList.push(detail.tag);
+        }
+        domUtils.addClass($item, classNameList);
+        liElement.appendChild($item);
+        return liElement;
+      },
+      afterAddToUListCallBack(formConfig, container) {
+        let detail = config();
+        if (typeof detail.afterRender === "function") {
+          detail.afterRender(container);
+        }
+      }
+    };
+    return result2;
+  };
+  const CommonUtil = {
+    /**
+     * 添加屏蔽CSS
+     * @param args
+     * @example
+     * addBlockCSS("")
+     * addBlockCSS("","")
+     * addBlockCSS(["",""])
+     */
+    addBlockCSS(...args2) {
+      let selectorList = [];
+      if (args2.length === 0) {
+        return;
+      }
+      if (args2.length === 1 && typeof args2[0] === "string" && args2[0].trim() === "") {
+        return;
+      }
+      args2.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    /**
+     * 设置GM_getResourceText的style内容
+     * @param resourceMapData 资源数据
+     */
+    setGMResourceCSS(resourceMapData) {
+      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+      if (typeof cssText === "string" && cssText) {
+        addStyle(cssText);
+      } else {
+        CommonUtil.addLinkNode(resourceMapData.url);
+      }
+    },
+    /**
+     * 添加<link>标签
+     * @param url
+     */
+    async addLinkNode(url) {
+      let $link = document.createElement("link");
+      $link.rel = "stylesheet";
+      $link.type = "text/css";
+      $link.href = url;
+      domUtils.ready(() => {
+        document.head.appendChild($link);
+      });
+      return $link;
+    },
+    /**
+     * 将url修复，例如只有search的链接/sss/xxx?sss=xxxx
+     * @param url 需要修复的链接
+     */
+    fixUrl(url) {
+      url = url.trim();
+      if (url.match(/^http(s|):\/\//i)) {
+        return url;
+      } else {
+        if (!url.startsWith("/")) {
+          url += "/";
+        }
+        url = window.location.origin + url;
+        return url;
+      }
+    },
+    /**
+     * html转义
+     * @param unsafe
+     */
+    escapeHtml(unsafe) {
+      return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
     }
   };
   const PanelKeyConfig = {
@@ -22066,7 +22032,11 @@
     },
     /** 判断是否是顶层窗口 */
     isTopWindow() {
-      return _unsafeWindow.top === _unsafeWindow.self;
+      if (ApiSupportTest.unsafeWindow()) {
+        return _unsafeWindow.top === _unsafeWindow.self;
+      } else {
+        return window.top === window.self;
+      }
     },
     /** 初始化进行注册油猴菜单 */
     initExtensionsMenu() {
@@ -22152,10 +22122,10 @@
      * @param value 值
      */
     setValue(key, value) {
-      let locaData = _GM_getValue(KEY, {});
+      let locaData = StorageApi.get(KEY, {});
       let oldValue = locaData[key];
       locaData[key] = value;
-      _GM_setValue(KEY, locaData);
+      StorageApi.set(KEY, locaData);
       if (this.$listener.listenData.has(key)) {
         this.$listener.listenData.get(key).callback(key, oldValue, value);
       }
@@ -22166,7 +22136,7 @@
      * @param defaultValue 默认值
      */
     getValue(key, defaultValue) {
-      let locaData = _GM_getValue(KEY, {});
+      let locaData = StorageApi.get(KEY, {});
       let localValue = locaData[key];
       if (localValue == null) {
         if (this.$data.data.has(key)) {
@@ -22181,10 +22151,10 @@
      * @param key 键
      */
     deleteValue(key) {
-      let locaData = _GM_getValue(KEY, {});
+      let locaData = StorageApi.get(KEY, {});
       let oldValue = locaData[key];
       Reflect.deleteProperty(locaData, key);
-      _GM_setValue(KEY, locaData);
+      StorageApi.set(KEY, locaData);
       if (this.$listener.listenData.has(key)) {
         this.$listener.listenData.get(key).callback(key, oldValue, void 0);
       }
@@ -22254,7 +22224,7 @@
      * @param key 键
      */
     hasKey(key) {
-      let locaData = _GM_getValue(KEY, {});
+      let locaData = StorageApi.get(KEY, {});
       return key in locaData;
     },
     /**
