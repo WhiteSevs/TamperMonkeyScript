@@ -8,5 +8,3 @@ pnpm-lock.yaml
 scripts-local
 vite.config.ts.timestamp*
 /**/*.meta.local.user.js
-scripts-vite/油猴Api测试/*
-scripts-vite/油猴Api测试
