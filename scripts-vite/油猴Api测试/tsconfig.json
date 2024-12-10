@@ -1,0 +1,31 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"useDefineForClassFields": true,
+		"module": "ESNext",
+		"moduleResolution": "Node",
+		"strict": true,
+		"jsx": "preserve",
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"esModuleInterop": true,
+		"lib": ["ESNext", "DOM"],
+		"skipLibCheck": true,
+		"noEmit": true,
+		/* 上面是初始化默认的 */
+		"allowJs": true,
+		"checkJs": true,
+		"allowSyntheticDefaultImports": true,
+		"sourceMap": true,
+		"paths": {
+			"@/*": ["./src/*"]
+		},
+		"typeRoots": ["types"]
+	},
+	"include": ["src", "types"],
+	"references": [
+		{
+			"path": "./tsconfig.node.json"
+		}
+	]
+}
