@@ -103,10 +103,10 @@ let DefaultMonkeyOption: __MonkeyOption__ = {
 		autoGrant: true,
 		// import库的文件映射
 		externalGlobals: {
-			"@whitesev/utils": cdn.jsdelivrFastly("Utils", "dist/index.umd.js"),
-			"@whitesev/domutils": cdn.jsdelivrFastly("DOMUtils", "dist/index.umd.js"),
-			"@whitesev/pops": cdn.jsdelivrFastly("pops", "dist/index.umd.js"),
-			qmsg: cdn.jsdelivrFastly("Qmsg", "dist/index.umd.js"),
+			// "@whitesev/utils": cdn.jsdelivrFastly("Utils", "dist/index.umd.js"),
+			// "@whitesev/domutils": cdn.jsdelivrFastly("DOMUtils", "dist/index.umd.js"),
+			// "@whitesev/pops": cdn.jsdelivrFastly("pops", "dist/index.umd.js"),
+			// qmsg: cdn.jsdelivrFastly("Qmsg", "dist/index.umd.js"),
 		},
 		// import资源文件的映射
 		externalResource: {},
@@ -313,39 +313,11 @@ if (isVueProject) {
 	// 添加vue的油猴配置
 	const VueMonkeyOption: Partial<__MonkeyOption__> = {
 		userscript: {
-			resource: {
-				/**
-				 * 添加element-plus资源引用
-				 *
-				 * @link file://./src/GM_Resource_Mapping.ts
-				 */
-				ElementPlusResourceCSS: `https://fastly.jsdelivr.net/npm/element-plus@${pkg.devDependencies["element-plus"]}/dist/index.min.css`,
-			},
+			resource: {},
 		},
 		build: {
-			externalResource: {
-				"element-plus/dist/index.css": (pkg) =>
-					`https://cdn.jsdelivr.net/npm/${pkg.name}@${pkg.version}}/dist/index.css`,
-			},
-			externalGlobals: {
-				vue: cdn.jsdelivrFastly("Vue", "dist/vue.global.prod.js"),
-				"vue-demi": cdn.jsdelivrFastly("VueDemi", "lib/index.iife.min.js"),
-				pinia: cdn.jsdelivrFastly("Pinia", "dist/pinia.iife.prod.js"),
-				"vue-router": cdn.jsdelivrFastly(
-					"VueRouter",
-					"dist/vue-router.global.js"
-				),
-				"element-plus": [
-					"ElementPlus",
-					await (async () => {
-						return await GetLib("Element-Plus");
-					})(),
-				],
-				"@element-plus/icons-vue": cdn.jsdelivrFastly(
-					"ElementPlusIconsVue",
-					"dist/index.iife.min.js"
-				),
-			},
+			externalResource: {},
+			externalGlobals: {},
 		},
 	};
 	DefaultMonkeyOption = viteUtils.assign(
