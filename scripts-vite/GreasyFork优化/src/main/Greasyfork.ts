@@ -22,6 +22,7 @@ import { GreasyforkRememberFormTextArea } from "./GreasyforkRememberFormTextArea
 import { GreasyforkScriptsSearch } from "./navigator/scripts-search/GreasyforkScriptsSearch";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 import { GreasyforkElementUtils } from "@/utils/GreasyforkElementUtils";
+import { PanelUISize } from "@/setting/panel-ui-size";
 
 const Greasyfork = {
 	init() {
@@ -592,16 +593,28 @@ const Greasyfork = {
 				name: i18next.t("操作面板"),
 				className: "filter-scripts",
 				clickEvent(event) {
-					let $drawer = pops.drawer({
+					let $dialog = pops.alert({
 						title: {
-							enable: false,
+							text: i18next.t("操作面板"),
+							position: "center",
 						},
 						content: {
 							text: "",
 							html: true,
 						},
-						direction: "top",
-						size: "80%",
+						btn: {
+							ok: { enable: false },
+						},
+						mask: {
+							enable: true,
+							clickEvent: {
+								toClose: true,
+							},
+						},
+						drag: true,
+						useShadowRoot: true,
+						width: PanelUISize.setting.width,
+						height: PanelUISize.setting.height,
 						zIndex: utils.getMaxZIndex(100),
 						style: /*css*/ `
 						.pops-drawer-content div:first-child{
@@ -680,11 +693,10 @@ const Greasyfork = {
 						}
 						`,
 					});
-					let $drawerContent =
-						$drawer.$shadowRoot.querySelector<HTMLDivElement>(
-							".pops-drawer-content"
-						)!;
-					$drawerContent.appendChild($scriptsOptionGroups);
+					let $content = $dialog.$shadowRoot.querySelector<HTMLDivElement>(
+						".pops-alert-content"
+					)!;
+					$content.appendChild($scriptsOptionGroups);
 				},
 			});
 		});

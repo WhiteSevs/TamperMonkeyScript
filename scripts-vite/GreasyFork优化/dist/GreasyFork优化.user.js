@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.12.9.20
+// @version            2024.12.10
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -2485,7 +2485,7 @@
               // 自动布局,
               codeLens: true,
               colorDecorators: true,
-              contextmenu: false,
+              contextmenu: true,
               readOnly: true,
               //是否只读
               formatOnPaste: true,
@@ -3450,6 +3450,24 @@
       return containerStatus;
     },
     /**
+     * 获取已注册的脚本容器名
+     */
+    getRegisterScriptContainerNameList() {
+      let allScriptContainerStatus = this.getScriptContainerStatus();
+      let isRegisterScriptContainer = allScriptContainerStatus;
+      let scriptContainerNameList = [];
+      Object.keys(isRegisterScriptContainer).forEach((containerName) => {
+        let containerEnable = Reflect.get(
+          isRegisterScriptContainer,
+          containerName
+        );
+        if (containerEnable) {
+          scriptContainerNameList.push(containerName);
+        }
+      });
+      return scriptContainerNameList;
+    },
+    /**
      * 获取脚本安装的版本号
      * @param name 脚本名
      * @param namespace 脚本命名空间
@@ -3934,6 +3952,7 @@
         let hasScriptContainer = Object.values(allScriptContainerStatus).find(
           (item) => item
         );
+        let isRegisterScriptContainerNameList = GreasyforkCheckVersion.getRegisterScriptContainerNameList();
         let isForceUseNameSpace = PopsPanel.getValue(
           "beautifyCenterContent-queryNameSpace"
         );
@@ -3941,7 +3960,7 @@
           log.error("脚本容器未暴露external信息", window.external);
         } else {
           log.info(
-            "当前暴露的external信息：" + Object.keys(allScriptContainerStatus).map((item) => `【${item}】`).join("、")
+            "当前暴露的external信息：" + isRegisterScriptContainerNameList.map((it) => `【${it}】`).join("、")
           );
         }
         for (let index = 0; index < $installLinkList.length; index++) {
@@ -6882,20 +6901,42 @@
           name: i18next.t("控制台"),
           className: "scripts-console",
           clickEvent(event) {
-            let $drawer = __pops.drawer({
+            let $dialog = __pops.alert({
               title: {
-                enable: false
+                text: i18next.t("控制台"),
+                position: "center"
               },
               content: {
                 text: "",
                 html: true
               },
-              size: "auto",
-              direction: "top",
+              btn: {
+                ok: { enable: false }
+              },
+              mask: {
+                enable: true,
+                clickEvent: {
+                  toClose: true
+                }
+              },
+              drag: true,
+              useShadowRoot: true,
+              width: PanelUISize.setting.width,
+              height: PanelUISize.setting.height,
               zIndex: utils.getMaxZIndex(100),
               style: (
                 /*css*/
                 `
+						#about-user{
+							border: 0;
+							box-shadow: none;
+						}
+						#about-user a{
+							color: #670000;
+						}
+						#about-user a:hover{
+							color: #00a3f5;
+						}
 						.text-content{
 							list-style-type: none;
 							box-shadow: rgb(221, 221, 221) 0px 0px 5px;
@@ -6916,13 +6957,25 @@
 							margin-right: 16px;
 							margin-top: 8px;
 						}
+						.notification-widget{
+							display: inline-block;
+							width: 1.2em;
+							height: 1.2em;
+							text-align: center;
+							line-height: 1.2em;
+							padding: 0;
+							background-color: #31708f;
+							border-radius: 50%;
+							color: #fff;
+							text-decoration: none;
+						}
 						`
               )
             });
-            let $drawerContent = $drawer.$shadowRoot.querySelector(
-              ".pops-drawer-content"
+            let $content = $dialog.$shadowRoot.querySelector(
+              ".pops-alert-content"
             );
-            $drawerContent.appendChild($aboutUser);
+            $content.appendChild($aboutUser);
           }
         });
       });
@@ -7709,16 +7762,28 @@
           name: i18next.t("操作面板"),
           className: "filter-scripts",
           clickEvent(event) {
-            let $drawer = __pops.drawer({
+            let $dialog = __pops.alert({
               title: {
-                enable: false
+                text: i18next.t("操作面板"),
+                position: "center"
               },
               content: {
                 text: "",
                 html: true
               },
-              direction: "top",
-              size: "80%",
+              btn: {
+                ok: { enable: false }
+              },
+              mask: {
+                enable: true,
+                clickEvent: {
+                  toClose: true
+                }
+              },
+              drag: true,
+              useShadowRoot: true,
+              width: PanelUISize.setting.width,
+              height: PanelUISize.setting.height,
               zIndex: utils.getMaxZIndex(100),
               style: (
                 /*css*/
@@ -7800,10 +7865,10 @@
 						`
               )
             });
-            let $drawerContent = $drawer.$shadowRoot.querySelector(
-              ".pops-drawer-content"
+            let $content = $dialog.$shadowRoot.querySelector(
+              ".pops-alert-content"
             );
-            $drawerContent.appendChild($scriptsOptionGroups);
+            $content.appendChild($scriptsOptionGroups);
           }
         });
       });

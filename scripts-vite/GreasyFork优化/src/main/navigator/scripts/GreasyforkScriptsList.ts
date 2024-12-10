@@ -356,6 +356,9 @@ export const GreasyforkScriptsList = {
 			let hasScriptContainer = Object.values(allScriptContainerStatus).find(
 				(item) => item
 			);
+			/** 获取当前已注册的脚本容器 */
+			let isRegisterScriptContainerNameList =
+				GreasyforkCheckVersion.getRegisterScriptContainerNameList();
 			/** 是否强制使用命名空间来查询信息 */
 			let isForceUseNameSpace = PopsPanel.getValue<boolean>(
 				"beautifyCenterContent-queryNameSpace"
@@ -366,8 +369,8 @@ export const GreasyforkScriptsList = {
 			} else {
 				log.info(
 					"当前暴露的external信息：" +
-						Object.keys(allScriptContainerStatus)
-							.map((item) => `【${item}】`)
+						isRegisterScriptContainerNameList
+							.map((it) => `【${it}】`)
 							.join("、")
 				);
 			}

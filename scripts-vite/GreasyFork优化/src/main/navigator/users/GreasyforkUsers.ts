@@ -5,6 +5,7 @@ import i18next from "i18next";
 import { GreasyforkScriptsList } from "../scripts/GreasyforkScriptsList";
 import { GreasyforkScriptsFilter } from "../scripts/GreasyforkScriptsFilter";
 import { GreasyforkElementUtils } from "@/utils/GreasyforkElementUtils";
+import { PanelUISize } from "@/setting/panel-ui-size";
 
 export const GreasyforkUsers = {
 	init() {
@@ -35,18 +36,40 @@ export const GreasyforkUsers = {
 				name: i18next.t("控制台"),
 				className: "scripts-console",
 				clickEvent(event) {
-					let $drawer = pops.drawer({
+					let $dialog = pops.alert({
 						title: {
-							enable: false,
+							text: i18next.t("控制台"),
+							position: "center",
 						},
 						content: {
 							text: "",
 							html: true,
 						},
-						size: "auto",
-						direction: "top",
+						btn: {
+							ok: { enable: false },
+						},
+						mask: {
+							enable: true,
+							clickEvent: {
+								toClose: true,
+							},
+						},
+						drag: true,
+						useShadowRoot: true,
+						width: PanelUISize.setting.width,
+						height: PanelUISize.setting.height,
 						zIndex: utils.getMaxZIndex(100),
 						style: /*css*/ `
+						#about-user{
+							border: 0;
+							box-shadow: none;
+						}
+						#about-user a{
+							color: #670000;
+						}
+						#about-user a:hover{
+							color: #00a3f5;
+						}
 						.text-content{
 							list-style-type: none;
 							box-shadow: rgb(221, 221, 221) 0px 0px 5px;
@@ -67,12 +90,24 @@ export const GreasyforkUsers = {
 							margin-right: 16px;
 							margin-top: 8px;
 						}
+						.notification-widget{
+							display: inline-block;
+							width: 1.2em;
+							height: 1.2em;
+							text-align: center;
+							line-height: 1.2em;
+							padding: 0;
+							background-color: #31708f;
+							border-radius: 50%;
+							color: #fff;
+							text-decoration: none;
+						}
 						`,
 					});
-					let $drawerContent = $drawer.$shadowRoot.querySelector<HTMLElement>(
-						".pops-drawer-content"
+					let $content = $dialog.$shadowRoot.querySelector<HTMLElement>(
+						".pops-alert-content"
 					)!;
-					$drawerContent.appendChild($aboutUser);
+					$content.appendChild($aboutUser);
 				},
 			});
 		});

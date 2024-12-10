@@ -110,7 +110,7 @@ export const GreasyforkScriptsCode = {
 						automaticLayout: true, // 自动布局,
 						codeLens: true,
 						colorDecorators: true,
-						contextmenu: false,
+						contextmenu: true,
 						readOnly: true, //是否只读
 						formatOnPaste: true,
 						overviewRulerBorder: true, // 滚动条的边框

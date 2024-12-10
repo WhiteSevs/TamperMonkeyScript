@@ -107,6 +107,25 @@ export const GreasyforkCheckVersion = {
 		return containerStatus;
 	},
 	/**
+	 * 获取已注册的脚本容器名
+	 */
+	getRegisterScriptContainerNameList() {
+		let allScriptContainerStatus = this.getScriptContainerStatus();
+		/** 获取当前已注册的脚本容器 */
+		let isRegisterScriptContainer = allScriptContainerStatus;
+		let scriptContainerNameList: string[] = [];
+		Object.keys(isRegisterScriptContainer).forEach((containerName) => {
+			let containerEnable = Reflect.get(
+				isRegisterScriptContainer,
+				containerName
+			) as (typeof isRegisterScriptContainer)[keyof typeof isRegisterScriptContainer];
+			if (containerEnable) {
+				scriptContainerNameList.push(containerName);
+			}
+		});
+		return scriptContainerNameList;
+	},
+	/**
 	 * 获取脚本安装的版本号
 	 * @param name 脚本名
 	 * @param namespace 脚本命名空间
