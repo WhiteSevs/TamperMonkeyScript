@@ -22279,12 +22279,14 @@
         if (apiAsyncInfo.isSupport) {
           supportApiNameList.push({
             name: apiAsyncInfo.name,
-            isSupport: apiAsyncInfo.isSupport
+            isSupport: apiAsyncInfo.isSupport,
+            leftTargetSelector: "#aside-" + apiName
           });
         } else {
           notSupportApiNameList.push({
             name: apiAsyncInfo.name,
-            isSupport: apiAsyncInfo.isSupport
+            isSupport: apiAsyncInfo.isSupport,
+            leftTargetSelector: "#aside-" + apiName
           });
         }
       }
@@ -22322,9 +22324,8 @@
       domUtils.on($item, "click", (event) => {
         utils.preventEvent(event);
         let shadowRoot = $item.getRootNode();
-        let $left = shadowRoot.querySelector(
-          "#aside-" + config.name
-        );
+        let selector = utils.isNotNull(config.leftTargetSelector) ? config.leftTargetSelector : "#aside-" + config.name;
+        let $left = shadowRoot.querySelector(selector);
         if ($left) {
           $left.click();
           $left.scrollIntoView({ behavior: "smooth" });

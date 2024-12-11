@@ -9,6 +9,7 @@ import { GMTotal } from "@/main/GMTotal";
 type ApiSupportUIConfig = {
 	name: string;
 	isSupport: boolean;
+	leftTargetSelector?: string;
 };
 export const Component_Common = (): PopsPanelContentConfig => {
 	/** 支持的api名称列表 */
@@ -36,11 +37,13 @@ export const Component_Common = (): PopsPanelContentConfig => {
 				supportApiNameList.push({
 					name: apiAsyncInfo.name,
 					isSupport: apiAsyncInfo.isSupport,
+					leftTargetSelector: "#aside-" + apiName,
 				});
 			} else {
 				notSupportApiNameList.push({
 					name: apiAsyncInfo.name,
 					isSupport: apiAsyncInfo.isSupport,
+					leftTargetSelector: "#aside-" + apiName,
 				});
 			}
 		}
@@ -76,9 +79,10 @@ export const Component_Common = (): PopsPanelContentConfig => {
 		DOMUtils.on($item, "click", (event) => {
 			utils.preventEvent(event);
 			let shadowRoot = $item.getRootNode() as ShadowRoot;
-			let $left = shadowRoot.querySelector<HTMLElement>(
-				"#aside-" + config.name
-			);
+			let selector = utils.isNotNull(config.leftTargetSelector)
+				? config.leftTargetSelector
+				: "#aside-" + config.name;
+			let $left = shadowRoot.querySelector<HTMLElement>(selector);
 			if ($left) {
 				$left.click();
 				$left.scrollIntoView({ behavior: "smooth" });
