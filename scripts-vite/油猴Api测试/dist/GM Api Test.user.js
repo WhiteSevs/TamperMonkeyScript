@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.10
+// @version      2024.12.11
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -19485,348 +19485,17 @@
     }
   }
   const pops = new Pops();
-  const ApiSupportTest = {
-    unsafeWindow() {
-      return typeof _unsafeWindow === "object" && _unsafeWindow != null;
-    },
-    GM() {
+  class ApiTestBase {
+    /**
+     * 是否支持GM函数
+     */
+    isSupportGM() {
       return typeof _GM === "object" && _GM != null;
-    },
-    addElement() {
-      return typeof _GM_addElement === "function";
-    },
-    addElement_async() {
-      return this.GM() && typeof _GM.addElement === "function";
-    },
-    addStyle() {
-      return typeof _GM_addStyle === "function";
-    },
-    addStyle_async() {
-      return this.GM() && typeof _GM.addStyle === "function";
-    },
-    addValueChangeListener() {
-      return typeof _GM_addValueChangeListener === "function";
-    },
-    addValueChangeListener_async() {
-      return this.GM() && typeof _GM.addValueChangeListener === "function";
-    },
-    removeValueChangeListener() {
-      return typeof _GM_removeValueChangeListener === "function";
-    },
-    removeValueChangeListener_async() {
-      return this.GM() && typeof _GM.removeValueChangeListener === "function";
-    },
-    cookie() {
-      return typeof _GM_cookie === "function";
-    },
-    cookie_async() {
-      return this.GM() && typeof _GM.cookie === "object";
-    },
-    deleteValue() {
-      return typeof _GM_deleteValue === "function";
-    },
-    deleteValue_async() {
-      return this.GM() && typeof _GM.deleteValue === "function";
-    },
-    deleteValues() {
-      return typeof _GM_deleteValues === "function";
-    },
-    deleteValues_async() {
-      return this.GM() && typeof _GM.deleteValues === "function";
-    },
-    download() {
-      return typeof _GM_download === "function";
-    },
-    download_async() {
-      return this.GM() && typeof _GM.download === "function";
-    },
-    getResourceText() {
-      return typeof _GM_getResourceText === "function";
-    },
-    getResourceText_async() {
-      return this.GM() && typeof _GM.getResourceText === "function";
-    },
-    getResourceUrl() {
-      return typeof _GM_getResourceURL === "function";
-    },
-    getResourceUrl_async() {
-      return this.GM() && typeof _GM.getResourceUrl === "function";
-    },
-    getTab() {
-      return typeof _GM_getTab === "function";
-    },
-    getTab_async() {
-      return this.GM() && typeof _GM.getTab === "function";
-    },
-    getTabs() {
-      return typeof _GM_getTabs === "function";
-    },
-    getTabs_async() {
-      return this.GM() && typeof _GM.getTabs === "function";
-    },
-    getValue() {
-      return typeof _GM_getValue === "function";
-    },
-    getValue_async() {
-      return this.GM() && typeof _GM.getValue === "function";
-    },
-    setValue() {
-      return typeof _GM_setValue === "function";
-    },
-    setValue_async() {
-      return this.GM() && typeof _GM.setValue === "function";
-    },
-    getValues() {
-      return typeof _GM_getValues === "function";
-    },
-    getValues_async() {
-      return this.GM() && typeof _GM.getValues === "function";
-    },
-    setValues() {
-      return typeof _GM_setValues === "function";
-    },
-    setValues_async() {
-      return this.GM() && typeof _GM.setValues === "function";
-    },
-    info() {
-      return typeof _GM_info === "object" && _GM_info != null;
-    },
-    info_async() {
-      return this.GM() && typeof _GM.info === "object";
-    },
-    listValues() {
-      return typeof _GM_listValues === "function";
-    },
-    listValues_async() {
-      return this.GM() && typeof _GM.listValues === "function";
-    },
-    log() {
-      return typeof _GM_log === "function";
-    },
-    log_async() {
-      return this.GM() && typeof _GM.log === "function";
-    },
-    notification() {
-      return typeof _GM_notification === "function";
-    },
-    notification_async() {
-      return this.GM() && typeof _GM.notification === "function";
-    },
-    openInTab() {
-      return typeof _GM_openInTab === "function";
-    },
-    openInTab_async() {
-      return this.GM() && typeof _GM.openInTab === "function";
-    },
-    registerMenuCommand() {
-      return typeof _GM_registerMenuCommand === "function";
-    },
-    registerMenuCommand_async() {
-      return this.GM() && typeof _GM.registerMenuCommand === "function";
-    },
-    unregisterMenuCommand() {
-      return typeof _GM_unregisterMenuCommand === "function";
-    },
-    unregisterMenuCommand_async() {
-      return this.GM() && typeof _GM.unregisterMenuCommand === "function";
-    },
-    saveTab() {
-      return typeof _GM_saveTab === "function";
-    },
-    saveTab_async() {
-      return this.GM() && typeof _GM.saveTab === "function";
-    },
-    setClipboard() {
-      return typeof _GM_setClipboard === "function";
-    },
-    setClipboard_async() {
-      return this.GM() && typeof _GM.setClipboard === "function";
-    },
-    webRequest() {
-      return typeof _GM_webRequest === "function";
-    },
-    webRequest_async() {
-      return this.GM() && typeof _GM.webRequest === "function";
-    },
-    xmlHttpRequest() {
-      return typeof _GM_xmlhttpRequest === "function";
-    },
-    xmlHttpRequest_async() {
-      return this.GM() && typeof _GM.xmlHttpRequest === "function";
     }
-  };
-  const LocalStorageApi = {
-    $storageKey: "gm-api-test-storage-config",
-    set(key, value) {
-      let config = window.localStorage.getItem(LocalStorageApi.$storageKey) ?? "{}";
-      let configJSON = utils.toJSON(config);
-      configJSON[key] = value;
-      window.localStorage.setItem(
-        LocalStorageApi.$storageKey,
-        JSON.stringify(configJSON, (key2, value2) => {
-          return typeof value2 === "function" ? value2.tString() : value2;
-        })
-      );
-    },
-    get(key, defaultValue) {
-      let config = window.localStorage.getItem(LocalStorageApi.$storageKey) ?? "{}";
-      let configJSON = utils.toJSON(config);
-      return configJSON[key] ?? defaultValue;
-    },
-    delete(key) {
-      let config = window.localStorage.getItem(LocalStorageApi.$storageKey) ?? "{}";
-      let configJSON = utils.toJSON(config);
-      Reflect.deleteProperty(configJSON, key);
-      window.localStorage.setItem(
-        LocalStorageApi.$storageKey,
-        JSON.stringify(configJSON, (key2, value) => {
-          return typeof value === "function" ? value.tString() : value;
-        })
-      );
-    }
-  };
-  const StorageApi = {
-    /**
-     * 存储值
-     * @param key 键
-     * @param value 值
-     */
-    set(key, value) {
-      if (ApiSupportTest.setValue() && ApiSupportTest.getValue() && ApiSupportTest.deleteValue()) {
-        _GM_setValue(key, value);
-      } else {
-        LocalStorageApi.set(key, value);
-      }
-    },
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    get(key, defaultValue) {
-      if (ApiSupportTest.setValue() && ApiSupportTest.getValue() && ApiSupportTest.deleteValue()) {
-        return _GM_getValue(key, defaultValue);
-      } else {
-        return LocalStorageApi.get(key, defaultValue);
-      }
-    },
-    /**
-     * 删除值
-     * @param key 键
-     */
-    delete(key) {
-      if (ApiSupportTest.setValue() && ApiSupportTest.getValue() && ApiSupportTest.deleteValue()) {
-        _GM_deleteValue(key);
-      } else {
-        LocalStorageApi.delete(key);
-      }
-    }
-  };
-  const _SCRIPT_NAME_ = "Monkey Api Test";
-  const utils = utils$1.noConflict();
-  const domUtils = domUtils$1.noConflict();
-  const __pops = pops;
-  const log = new utils.Log(_GM_info, window.console);
-  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
-  const DEBUG = false;
-  log.config({
-    debug: DEBUG,
-    logMaxCount: 1e3,
-    autoClearConsole: true,
-    tag: true
-  });
-  qmsg.config(
-    Object.defineProperties(
-      {
-        html: true,
-        autoClose: true,
-        showClose: false
-      },
-      {
-        position: {
-          get() {
-            return PopsPanel.getValue("qmsg-config-position", "bottom");
-          }
-        },
-        maxNums: {
-          get() {
-            return PopsPanel.getValue("qmsg-config-maxnums", 5);
-          }
-        },
-        showReverse: {
-          get() {
-            return PopsPanel.getValue("qmsg-config-showreverse", true);
-          }
-        },
-        zIndex: {
-          get() {
-            let maxZIndex = utils$1.getMaxZIndex();
-            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
-            return utils$1.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-          }
-        }
-      }
-    )
-  );
-  const GM_Menu = new utils.GM_Menu({
-    GM_getValue: ApiSupportTest.getValue() ? _GM_getValue : StorageApi.get,
-    GM_setValue: ApiSupportTest.setValue() ? _GM_setValue : StorageApi.set,
-    GM_registerMenuCommand: ApiSupportTest.registerMenuCommand() ? _GM_registerMenuCommand : () => {
-    },
-    GM_unregisterMenuCommand: ApiSupportTest.unregisterMenuCommand() ? _GM_unregisterMenuCommand : () => {
-    }
-  });
-  const addStyle = utils.addStyle.bind(utils);
-  document.querySelector.bind(document);
-  document.querySelectorAll.bind(document);
-  let injectDocumentTime = "";
-  if (document.documentElement) {
-    if (document.head) {
-      if (document.body) {
-        injectDocumentTime = `<html>
-    <head>
-	    ...${document.head.children.length} elements
-	</head>
-    <body>
-        ...${document.body.children.length} elements
-    </body>
-</html>
-
-似乎注入到页面有点慢
-`;
-      } else {
-        if (document.head.children.length) {
-          injectDocumentTime = `<html>
-	<head>
-	    ...${document.head.children.length} elements
-	</head>
-</html>
-		
-注入到页面很快`;
-        } else {
-          injectDocumentTime = `<html>
-	<head></head>
-</html>
-
-注入到页面非常快`;
-        }
-      }
-    } else {
-      injectDocumentTime = `<html>
-</html>
-
-注入到页面超级快`;
-    }
-  } else {
-    injectDocumentTime = `document.documentElement is null
-	
-注入到页面超级无敌快`;
   }
-  const KEY = "GM_Panel";
-  const ATTRIBUTE_INIT = "data-init";
-  const ATTRIBUTE_KEY = "data-key";
-  const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
-  const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+  const PanelKeyConfig = {
+    asideLastVisit: "aside-last-visit"
+  };
   const Tag = {
     success: "√ ",
     error: "× ",
@@ -19934,299 +19603,2635 @@
       return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
     }
   };
-  const PanelKeyConfig = {
-    asideLastVisit: "aside-last-visit"
+  const GlobalUtil = {
+    getWindow() {
+      return GMTotal.unsafeWindow.isSupport() ? _unsafeWindow : window;
+    }
   };
+  class ApiTest_addElement extends ApiTestBase {
+    getApiName() {
+      return "GM_addElement";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.addElement",
+        isSupport: this.isSupportGM() && typeof _GM.addElement === "function"
+      };
+    }
+    isSupport() {
+      return typeof _GM_addElement === "function";
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            let $test = null;
+            let $page_test = null;
+            try {
+              let win = GlobalUtil.getWindow();
+              let element_id = "GM_addElement_test_script_exec";
+              $test = _GM_addElement("script", {
+                id: element_id,
+                textContent: 'window.GM_addElement_test_str = "bar";'
+              });
+              $page_test = document.querySelector("#" + element_id);
+              if ($test == null) {
+                return {
+                  text: "GM_addElement is not retrun element",
+                  tag: "error"
+                };
+              }
+              if (typeof win["GM_addElement_test_str"] !== "string") {
+                return {
+                  text: "GM_addElement script element is not work",
+                  tag: "error"
+                };
+              }
+              Reflect.deleteProperty(win, "GM_addElement_test_str");
+              return {
+                text: CommonUtil.escapeHtml("支持添加<script>元素且执行js"),
+                tag: "success"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+              $page_test == null ? void 0 : $page_test.remove();
+            }
+          }),
+          UIInfo(() => {
+            let $test = null;
+            let $page_test = null;
+            try {
+              let element_id = "GM_addElement_test2";
+              $test = _GM_addElement(document.body, "div", {
+                // @ts-ignore
+                "data-src": "https://example.com/image.png",
+                id: element_id
+              });
+              $page_test = document.querySelector("#" + element_id);
+              if (!$page_test) {
+                return {
+                  text: "不支持3个参数",
+                  tag: "error"
+                };
+              }
+              const shadowRoot = $page_test.attachShadow({ mode: "closed" });
+              _GM_addElement(shadowRoot, "style", {
+                textContent: "div { color: black; };"
+              });
+              if (!shadowRoot.querySelector("style")) {
+                return {
+                  text: "不支持3个参数的shadowRoot",
+                  tag: "error"
+                };
+              }
+              if ($test == null) {
+                return {
+                  text: "传入3个参数但是返回为空",
+                  tag: "error"
+                };
+              }
+              if (!$page_test.hasAttribute("data-src")) {
+                return {
+                  text: "不支持设置自定义属性data-src",
+                  tag: "error"
+                };
+              }
+              return {
+                text: "支持3个参数并返回元素对象",
+                tag: "success"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+              $page_test == null ? void 0 : $page_test.remove();
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_addStyle extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_addStyle === "function";
+    }
+    getApiName() {
+      return "GM_addStyle";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.addStyle",
+        isSupport: this.isSupportGM() && typeof _GM.addStyle === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-GM_addStyle" + apiName,
+        title: apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            let $test = null;
+            let $testCSS = null;
+            try {
+              $test = domUtils.createElement("div", {
+                id: apiName,
+                innerText: apiName + " test"
+              });
+              document.body.appendChild($test);
+              $testCSS = _GM_addStyle(
+                /*css*/
+                `
+                            #${apiName} {
+                                background-color: rgb(255, 0, 0);
+                            }
+                        `
+              );
+              if ($testCSS == null) {
+                return {
+                  text: apiName + " returns is null",
+                  tag: "error"
+                };
+              }
+              const computedStyle = window.getComputedStyle($test);
+              if (computedStyle.backgroundColor !== "rgb(255, 0, 0)") {
+                return {
+                  text: apiName + " test element background is not rgb(255, 0, 0)",
+                  tag: "error"
+                };
+              }
+              return {
+                text: CommonUtil.escapeHtml("支持添加CSS字符串"),
+                tag: "success"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+              $test == null ? void 0 : $test.remove();
+              $testCSS == null ? void 0 : $testCSS.remove();
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_addValueChangeListener extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_addValueChangeListener === "function";
+    }
+    getApiName() {
+      return "GM_addValueChangeListener";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.addValueChangeListener",
+        isSupport: this.isSupportGM() && typeof _GM.addValueChangeListener === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_cookie extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_cookie === "function";
+    }
+    getApiName() {
+      return "GM_cookie";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.cookie",
+        isSupport: this.isSupportGM() && typeof _GM.cookie === "object",
+        isSupportList: this.isSupportGM() && typeof _GM.cookie.list === "function",
+        isSupportSet: this.isSupportGM() && typeof _GM.cookie.set === "function",
+        isSupportDelete: this.isSupportGM() && typeof _GM.cookie.delete === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      let firstFormList = result2["forms"][0].forms;
+      if (apiAsyncInfo.isSupport) {
+        firstFormList.push(
+          UIInfo(() => {
+            return apiAsyncInfo.isSupportList ? {
+              text: `支持 ${apiAsyncInfo.name}.list`,
+              tag: "success"
+            } : {
+              text: `不支持 ${apiAsyncInfo.name}.list`,
+              tag: "error"
+            };
+          }),
+          UIInfo(() => {
+            return apiAsyncInfo.isSupportSet ? {
+              text: `支持 ${apiAsyncInfo.name}.set`,
+              tag: "success"
+            } : {
+              text: `不支持 ${apiAsyncInfo.name}.set`,
+              tag: "error"
+            };
+          }),
+          UIInfo(() => {
+            return apiAsyncInfo.isSupportDelete ? {
+              text: `支持 ${apiAsyncInfo.name}.delete`,
+              tag: "success"
+            } : {
+              text: `不支持 ${apiAsyncInfo.name}.delete`,
+              tag: "error"
+            };
+          })
+        );
+      } else {
+        firstFormList.push(
+          UIInfo(() => {
+            return { text: "不支持 " + apiAsyncInfo.name, tag: "error" };
+          })
+        );
+      }
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_deleteValue extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_deleteValue === "function";
+    }
+    getApiName() {
+      return "GM_deleteValue";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.deleteValue",
+        isSupport: this.isSupportGM() && typeof _GM.deleteValue === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.name ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_deleteValues extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_deleteValues === "function";
+    }
+    getApiName() {
+      return "GM_deleteValues";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.deleteValues",
+        isSupport: this.isSupportGM() && typeof _GM.deleteValues === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_download extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_download === "function";
+    }
+    getApiName() {
+      return "GM_download";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.download",
+        isSupport: this.isSupportGM() && typeof _GM.download === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            return {
+              text: CommonUtil.escapeHtml("TODO..."),
+              tag: "info",
+              afterRender(container) {
+                var _a2;
+                (_a2 = container.target) == null ? void 0 : _a2.querySelector(".support-info");
+              }
+            };
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_getResourceText extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_getResourceText === "function";
+    }
+    getApiName() {
+      return "GM_getResourceText";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.getResourceText",
+        isSupport: this.isSupportGM() && typeof _GM.getResourceText === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_getResourceUrl extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_getResourceURL === "function";
+    }
+    getApiName() {
+      return "GM_getResourceURL";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.getResourceUrl",
+        isSupport: this.isSupportGM() && typeof _GM.getResourceUrl === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_getTab extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_getTab === "function";
+    }
+    getApiName() {
+      return "GM_getTab";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.getTab",
+        isSupport: this.isSupportGM() && typeof _GM.getTab === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_getTabs extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_getTabs === "function";
+    }
+    getApiName() {
+      return "GM_getTabs";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.getTabs",
+        isSupport: this.isSupportGM() && typeof _GM.getTabs === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_getValue extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_getValue === "function";
+    }
+    getApiName() {
+      return "GM_getValue";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.getValue",
+        isSupport: this.isSupportGM() && typeof _GM.getValue === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_getValues extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_getValues === "function";
+    }
+    getApiName() {
+      return "GM_getValues";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.getValues",
+        isSupport: this.isSupportGM() && typeof _GM.getValues === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_info extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_info === "object" && _GM_info != null;
+    }
+    getApiName() {
+      return "GM_info";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.info",
+        isSupport: this.isSupportGM() && typeof _GM.info === "object"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_listValues extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_listValues === "function";
+    }
+    getApiName() {
+      return "GM_listValues";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.listValues",
+        isSupport: this.isSupportGM() && typeof _GM.listValues === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_log extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_log === "function";
+    }
+    getApiName() {
+      return "GM_log";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.log",
+        isSupport: this.isSupportGM() && typeof _GM.log === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_notification extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_notification === "function";
+    }
+    getApiName() {
+      return "GM_notification";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.notification",
+        isSupport: this.isSupportGM() && typeof _GM.notification === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_openInTab extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_openInTab === "function";
+    }
+    getApiName() {
+      return "GM_openInTab";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.openInTab",
+        isSupport: this.isSupportGM() && typeof _GM.openInTab === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_registerMenuCommand extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_registerMenuCommand === "function";
+    }
+    getApiName() {
+      return "GM_registerMenuCommand";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.registerMenuCommand",
+        isSupport: this.isSupportGM() && typeof _GM.registerMenuCommand === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_removeValueChangeListener extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_removeValueChangeListener === "function";
+    }
+    getApiName() {
+      return "GM_removeValueChangeListener";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.removeValueChangeListener",
+        isSupport: this.isSupportGM() && typeof _GM.removeValueChangeListener === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_saveTab extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_saveTab === "function";
+    }
+    getApiName() {
+      return "GM_saveTab";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.saveTab",
+        isSupport: this.isSupportGM() && typeof _GM.saveTab === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_setClipboard extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_setClipboard === "function";
+    }
+    getApiName() {
+      return "GM_setClipboard";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.setClipboard",
+        isSupport: this.isSupportGM() && typeof _GM.setClipboard === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_setValue extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_setValue === "function";
+    }
+    getApiName() {
+      return "GM_setValue";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.setValue",
+        isSupport: this.isSupportGM() && typeof _GM.setValue === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_setValues extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_setValues === "function";
+    }
+    getApiName() {
+      return "GM_setValues";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.setValues",
+        isSupport: this.isSupportGM() && typeof _GM.setValues === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_unregisterMenuCommand extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_unregisterMenuCommand === "function";
+    }
+    getApiName() {
+      return "GM_unregisterMenuCommand";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.unregisterMenuCommand",
+        isSupport: this.isSupportGM() && typeof _GM.unregisterMenuCommand === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_unsafeWindow extends ApiTestBase {
+    getApiName() {
+      return "unsafeWindow";
+    }
+    getAsyncApiOption() {
+      return void 0;
+    }
+    isSupport() {
+      return typeof _unsafeWindow === "object" && _unsafeWindow != null;
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: apiName,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            let key = "test-gm-window";
+            let flag = _monkeyWindow == _unsafeWindow;
+            _monkeyWindow[key] = key;
+            flag = typeof _unsafeWindow[key] !== "string";
+            Reflect.deleteProperty(_monkeyWindow, key);
+            if (flag) {
+              return {
+                text: "window已被Proxy代理",
+                tag: "success"
+              };
+            } else {
+              return {
+                text: "window未被Proxy代理，定义全局变量时会影响到页面变量",
+                tag: "warn"
+              };
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_webRequest extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_webRequest === "function";
+    }
+    getApiName() {
+      return "GM_webRequest";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.webRequest",
+        isSupport: this.isSupportGM() && typeof _GM.webRequest === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_xmlHttpRequest extends ApiTestBase {
+    isSupport() {
+      return typeof _GM_xmlhttpRequest === "function";
+    }
+    getApiName() {
+      return "GM_xmlHttpRequest";
+    }
+    getAsyncApiOption() {
+      return {
+        name: "GM.xmlHttpRequest",
+        isSupport: this.isSupportGM() && typeof _GM.xmlHttpRequest === "function"
+      };
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let apiAsyncInfo = this.getAsyncApiOption();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "函数测试",
+            forms: [
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiName,
+                  tag: "error"
+                }
+              ),
+              UIInfo(
+                () => apiAsyncInfo.isSupport ? {
+                  text: "支持 " + apiAsyncInfo.name,
+                  tag: "success"
+                } : {
+                  text: "不支持 " + apiAsyncInfo.name,
+                  tag: "error"
+                }
+              )
+            ]
+          },
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: []
+          }
+        ]
+      };
+      if (this.isSupport()) {
+        result2["forms"][1].forms.push(
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("TODO"),
+                tag: "info"
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          })
+        );
+      }
+      return result2;
+    }
+  }
+  class ApiTest_GM extends ApiTestBase {
+    getApiName() {
+      return "GM";
+    }
+    getAsyncApiOption() {
+      return void 0;
+    }
+    isSupport() {
+      return typeof _GM === "object" && _GM != null;
+    }
+    getUIOption() {
+      return void 0;
+    }
+  }
+  const GMTotal = {
+    unsafeWindow: new ApiTest_unsafeWindow(),
+    GM: new ApiTest_GM(),
+    addElement: new ApiTest_addElement(),
+    addStyle: new ApiTest_addStyle(),
+    download: new ApiTest_download(),
+    getResourceText: new ApiTest_getResourceText(),
+    getResourceUrl: new ApiTest_getResourceUrl(),
+    info: new ApiTest_info(),
+    log: new ApiTest_log(),
+    notification: new ApiTest_notification(),
+    openInTab: new ApiTest_openInTab(),
+    registerMenuCommand: new ApiTest_registerMenuCommand(),
+    unregisterMenuCommand: new ApiTest_unregisterMenuCommand(),
+    setClipboard: new ApiTest_setClipboard(),
+    getTab: new ApiTest_getTab(),
+    saveTab: new ApiTest_saveTab(),
+    getTabs: new ApiTest_getTabs(),
+    setValue: new ApiTest_setValue(),
+    getValue: new ApiTest_getValue(),
+    deleteValue: new ApiTest_deleteValue(),
+    listValues: new ApiTest_listValues(),
+    setValues: new ApiTest_setValues(),
+    getValues: new ApiTest_getValues(),
+    deleteValues: new ApiTest_deleteValues(),
+    addValueChangeListener: new ApiTest_addValueChangeListener(),
+    removeValueChangeListener: new ApiTest_removeValueChangeListener(),
+    xmlHttpRequest: new ApiTest_xmlHttpRequest(),
+    webRequest: new ApiTest_webRequest(),
+    cookie: new ApiTest_cookie()
+  };
+  const LocalStorageApi = {
+    $storageKey: "gm-api-test-storage-config",
+    set(key, value) {
+      let config = window.localStorage.getItem(LocalStorageApi.$storageKey) ?? "{}";
+      let configJSON = utils.toJSON(config);
+      configJSON[key] = value;
+      window.localStorage.setItem(
+        LocalStorageApi.$storageKey,
+        JSON.stringify(configJSON, (key2, value2) => {
+          return typeof value2 === "function" ? value2.tString() : value2;
+        })
+      );
+    },
+    get(key, defaultValue) {
+      let config = window.localStorage.getItem(LocalStorageApi.$storageKey) ?? "{}";
+      let configJSON = utils.toJSON(config);
+      return configJSON[key] ?? defaultValue;
+    },
+    delete(key) {
+      let config = window.localStorage.getItem(LocalStorageApi.$storageKey) ?? "{}";
+      let configJSON = utils.toJSON(config);
+      Reflect.deleteProperty(configJSON, key);
+      window.localStorage.setItem(
+        LocalStorageApi.$storageKey,
+        JSON.stringify(configJSON, (key2, value) => {
+          return typeof value === "function" ? value.tString() : value;
+        })
+      );
+    }
+  };
+  const StorageApi = {
+    /**
+     * 存储值
+     * @param key 键
+     * @param value 值
+     */
+    set(key, value) {
+      if (GMTotal.setValue.isSupport() && GMTotal.getValue.isSupport() && GMTotal.deleteValue.isSupport()) {
+        _GM_setValue(key, value);
+      } else {
+        LocalStorageApi.set(key, value);
+      }
+    },
+    /**
+     * 获取值
+     * @param key 键
+     * @param defaultValue 默认值
+     */
+    get(key, defaultValue) {
+      if (GMTotal.setValue.isSupport() && GMTotal.getValue.isSupport() && GMTotal.deleteValue.isSupport()) {
+        return _GM_getValue(key, defaultValue);
+      } else {
+        return LocalStorageApi.get(key, defaultValue);
+      }
+    },
+    /**
+     * 删除值
+     * @param key 键
+     */
+    delete(key) {
+      if (GMTotal.setValue.isSupport() && GMTotal.getValue.isSupport() && GMTotal.deleteValue.isSupport()) {
+        _GM_deleteValue(key);
+      } else {
+        LocalStorageApi.delete(key);
+      }
+    }
+  };
+  const _SCRIPT_NAME_ = "Monkey Api Test";
+  const utils = utils$1.noConflict();
+  const domUtils = domUtils$1.noConflict();
+  const __pops = pops;
+  const log = new utils.Log(_GM_info, window.console);
+  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
+  const DEBUG = false;
+  log.config({
+    debug: DEBUG,
+    logMaxCount: 1e3,
+    autoClearConsole: true,
+    tag: true
+  });
+  qmsg.config(
+    Object.defineProperties(
+      {
+        html: true,
+        autoClose: true,
+        showClose: false
+      },
+      {
+        position: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-position", "bottom");
+          }
+        },
+        maxNums: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-maxnums", 5);
+          }
+        },
+        showReverse: {
+          get() {
+            return PopsPanel.getValue("qmsg-config-showreverse", true);
+          }
+        },
+        zIndex: {
+          get() {
+            let maxZIndex = utils$1.getMaxZIndex();
+            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
+            return utils$1.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+          }
+        }
+      }
+    )
+  );
+  const GM_Menu = new utils.GM_Menu({
+    GM_getValue: GMTotal.getValue.isSupport() ? _GM_getValue : StorageApi.get,
+    GM_setValue: GMTotal.setValue.isSupport() ? _GM_setValue : StorageApi.set,
+    GM_registerMenuCommand: GMTotal.registerMenuCommand.isSupport() ? _GM_registerMenuCommand : () => {
+    },
+    GM_unregisterMenuCommand: GMTotal.unregisterMenuCommand.isSupport() ? _GM_unregisterMenuCommand : () => {
+    }
+  });
+  const addStyle = utils.addStyle.bind(utils);
+  document.querySelector.bind(document);
+  document.querySelectorAll.bind(document);
+  let injectDocumentTime = "";
+  if (document.documentElement) {
+    if (document.head) {
+      if (document.body) {
+        injectDocumentTime = `<html>
+    <head>
+	    ...${document.head.childNodes.length} nodes
+	</head>
+    <body>
+        ...${document.body.childNodes.length} nodes
+    </body>
+</html>
+
+似乎注入到页面有点慢
+`;
+      } else {
+        if (document.head.childNodes.length) {
+          injectDocumentTime = `<html>
+	<head>
+	    ...${document.head.childNodes.length} nodes
+	</head>
+</html>
+		
+注入到页面很快`;
+        } else {
+          injectDocumentTime = `<html>
+	<head></head>
+</html>
+
+注入到页面非常快`;
+        }
+      }
+    } else {
+      injectDocumentTime = `<html>
+</html>
+
+注入到页面超级快`;
+    }
+  } else {
+    injectDocumentTime = `document.documentElement is null
+	
+注入到页面超级无敌快`;
+  }
+  const KEY = "GM_Panel";
+  const ATTRIBUTE_INIT = "data-init";
+  const ATTRIBUTE_KEY = "data-key";
+  const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
+  const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const Component_Common = () => {
     let supportApiNameList = [];
     let notSupportApiNameList = [];
-    let apiList = [
-      {
-        name: "unsafeWindow",
-        isSupport: ApiSupportTest.unsafeWindow(),
-        leftAsideSelector: "#aside-unsafewindow"
-      },
-      {
-        name: "GM",
-        isSupport: ApiSupportTest.GM(),
-        leftAsideSelector: ""
-      },
-      {
-        name: "GM_addElement",
-        isSupport: ApiSupportTest.addElement(),
-        leftAsideSelector: "#aside-GM_addElement"
-      },
-      {
-        name: "GM.addElement",
-        isSupport: ApiSupportTest.addElement_async(),
-        leftAsideSelector: "#aside-GM_addElement"
-      },
-      {
-        name: "GM_addStyle",
-        isSupport: ApiSupportTest.addStyle(),
-        leftAsideSelector: "#aside-GM_addStyle"
-      },
-      {
-        name: "GM.addStyle",
-        isSupport: ApiSupportTest.addStyle_async(),
-        leftAsideSelector: "#aside-GM_addStyle"
-      },
-      {
-        name: "GM_download",
-        isSupport: ApiSupportTest.download(),
-        leftAsideSelector: "#aside-GM_download"
-      },
-      {
-        name: "GM.download",
-        isSupport: ApiSupportTest.download_async(),
-        leftAsideSelector: "#aside-GM_download"
-      },
-      {
-        name: "GM_getResourceText",
-        isSupport: ApiSupportTest.getResourceText(),
-        leftAsideSelector: "#aside-GM_getResourceText"
-      },
-      {
-        name: "GM.getResourceText",
-        isSupport: ApiSupportTest.getResourceText_async(),
-        leftAsideSelector: "#aside-GM_getResourceText"
-      },
-      {
-        name: "GM_getResourceURL",
-        isSupport: ApiSupportTest.getResourceUrl(),
-        leftAsideSelector: "#aside-GM_getResourceURL"
-      },
-      {
-        name: "GM.getResourceUrl",
-        isSupport: ApiSupportTest.getResourceUrl_async(),
-        leftAsideSelector: "#aside-GM_getResourceURL"
-      },
-      {
-        name: "GM_info",
-        isSupport: ApiSupportTest.info(),
-        leftAsideSelector: "#aside-GM_info"
-      },
-      {
-        name: "GM.info",
-        isSupport: ApiSupportTest.info_async(),
-        leftAsideSelector: "#aside-GM_info"
-      },
-      {
-        name: "GM_log",
-        isSupport: ApiSupportTest.log(),
-        leftAsideSelector: "#aside-GM_log"
-      },
-      {
-        name: "GM.log",
-        isSupport: ApiSupportTest.log_async(),
-        leftAsideSelector: "#aside-GM_log"
-      },
-      {
-        name: "GM_notification",
-        isSupport: ApiSupportTest.notification(),
-        leftAsideSelector: "#aside-GM_notification"
-      },
-      {
-        name: "GM.notification",
-        isSupport: ApiSupportTest.notification_async(),
-        leftAsideSelector: "#aside-GM_notification"
-      },
-      {
-        name: "GM_openInTab",
-        isSupport: ApiSupportTest.openInTab(),
-        leftAsideSelector: "#aside-GM_openInTab"
-      },
-      {
-        name: "GM.openInTab",
-        isSupport: ApiSupportTest.openInTab_async(),
-        leftAsideSelector: "#aside-GM_openInTab"
-      },
-      {
-        name: "GM_registerMenuCommand",
-        isSupport: ApiSupportTest.registerMenuCommand(),
-        leftAsideSelector: "#aside-GM_registerMenuCommand"
-      },
-      {
-        name: "GM.registerMenuCommand",
-        isSupport: ApiSupportTest.registerMenuCommand_async(),
-        leftAsideSelector: "#aside-GM_registerMenuCommand"
-      },
-      {
-        name: "GM_unregisterMenuCommand",
-        isSupport: ApiSupportTest.unregisterMenuCommand(),
-        leftAsideSelector: "#aside-GM_unregisterMenuCommand"
-      },
-      {
-        name: "GM.unregisterMenuCommand",
-        isSupport: ApiSupportTest.unregisterMenuCommand_async(),
-        leftAsideSelector: "#aside-GM_unregisterMenuCommand"
-      },
-      {
-        name: "GM_setClipboard",
-        isSupport: ApiSupportTest.setClipboard(),
-        leftAsideSelector: "#aside-GM_setClipboard"
-      },
-      {
-        name: "GM.setClipboard",
-        isSupport: ApiSupportTest.setClipboard_async(),
-        leftAsideSelector: "#aside-GM_setClipboard"
-      },
-      {
-        name: "GM_getTab",
-        isSupport: ApiSupportTest.getTab(),
-        leftAsideSelector: "#aside-GM_getTab"
-      },
-      {
-        name: "GM.getTab",
-        isSupport: ApiSupportTest.getTab_async(),
-        leftAsideSelector: "#aside-GM_getTab"
-      },
-      {
-        name: "GM_saveTab",
-        isSupport: ApiSupportTest.saveTab(),
-        leftAsideSelector: "#aside-GM_saveTab"
-      },
-      {
-        name: "GM.saveTab",
-        isSupport: ApiSupportTest.saveTab_async(),
-        leftAsideSelector: "#aside-GM_saveTab"
-      },
-      {
-        name: "GM_getTabs",
-        isSupport: ApiSupportTest.getTabs(),
-        leftAsideSelector: "#aside-GM_getTabs"
-      },
-      {
-        name: "GM.getTabs",
-        isSupport: ApiSupportTest.getTabs_async(),
-        leftAsideSelector: "#aside-GM_getTabs"
-      },
-      {
-        name: "GM_setValue",
-        isSupport: ApiSupportTest.setValue(),
-        leftAsideSelector: "#aside-GM_setValue"
-      },
-      {
-        name: "GM.setValue",
-        isSupport: ApiSupportTest.setValue_async(),
-        leftAsideSelector: "#aside-GM_setValue"
-      },
-      {
-        name: "GM_getValue",
-        isSupport: ApiSupportTest.getValue(),
-        leftAsideSelector: "#aside-GM_getValue"
-      },
-      {
-        name: "GM.getValue",
-        isSupport: ApiSupportTest.getValue_async(),
-        leftAsideSelector: "#aside-GM_getValue"
-      },
-      {
-        name: "GM_deleteValue",
-        isSupport: ApiSupportTest.deleteValue(),
-        leftAsideSelector: "#aside-GM_deleteValue"
-      },
-      {
-        name: "GM.deleteValue",
-        isSupport: ApiSupportTest.deleteValue_async(),
-        leftAsideSelector: "#aside-GM_deleteValue"
-      },
-      {
-        name: "GM_listValues",
-        isSupport: ApiSupportTest.listValues(),
-        leftAsideSelector: "#aside-GM_listValues"
-      },
-      {
-        name: "GM.listValues",
-        isSupport: ApiSupportTest.listValues_async(),
-        leftAsideSelector: "#aside-GM_listValues"
-      },
-      {
-        name: "GM_setValues",
-        isSupport: ApiSupportTest.setValues(),
-        leftAsideSelector: "#aside-GM_setValues"
-      },
-      {
-        name: "GM.setValues",
-        isSupport: ApiSupportTest.setValues_async(),
-        leftAsideSelector: "#aside-GM_setValues"
-      },
-      {
-        name: "GM_getValues",
-        isSupport: ApiSupportTest.getValues(),
-        leftAsideSelector: "#aside-GM_getValues"
-      },
-      {
-        name: "GM.getValues",
-        isSupport: ApiSupportTest.getValues_async(),
-        leftAsideSelector: "#aside-GM_getValues"
-      },
-      {
-        name: "GM_deleteValues",
-        isSupport: ApiSupportTest.deleteValues(),
-        leftAsideSelector: "#aside-GM_deleteValues"
-      },
-      {
-        name: "GM.deleteValues",
-        isSupport: ApiSupportTest.deleteValues_async(),
-        leftAsideSelector: "#aside-GM_deleteValues"
-      },
-      {
-        name: "GM_addValueChangeListener",
-        isSupport: ApiSupportTest.addValueChangeListener(),
-        leftAsideSelector: "#aside-GM_addValueChangeListener"
-      },
-      {
-        name: "GM.addValueChangeListener",
-        isSupport: ApiSupportTest.addValueChangeListener_async(),
-        leftAsideSelector: "#aside-GM_addValueChangeListener"
-      },
-      {
-        name: "GM_removeValueChangeListener",
-        isSupport: ApiSupportTest.removeValueChangeListener(),
-        leftAsideSelector: "#aside-GM_removeValueChangeListener"
-      },
-      {
-        name: "GM.removeValueChangeListener",
-        isSupport: ApiSupportTest.removeValueChangeListener_async(),
-        leftAsideSelector: "#aside-GM_removeValueChangeListener"
-      },
-      {
-        name: "GM_xmlhttpRequest",
-        isSupport: ApiSupportTest.xmlHttpRequest(),
-        leftAsideSelector: "#aside-GM_xmlhttpRequest"
-      },
-      {
-        name: "GM.xmlHttpRequest",
-        isSupport: ApiSupportTest.xmlHttpRequest_async(),
-        leftAsideSelector: "#aside-GM_xmlhttpRequest"
-      },
-      {
-        name: "GM_webRequest",
-        isSupport: ApiSupportTest.webRequest(),
-        leftAsideSelector: "#aside-GM_webRequest"
-      },
-      {
-        name: "GM.webRequest",
-        isSupport: ApiSupportTest.webRequest_async(),
-        leftAsideSelector: "#aside-GM_webRequest"
-      },
-      {
-        name: "GM_cookie",
-        isSupport: ApiSupportTest.cookie(),
-        leftAsideSelector: "#aside-GM_cookie"
-      },
-      {
-        name: "GM.cookie",
-        isSupport: ApiSupportTest.cookie_async(),
-        leftAsideSelector: "#aside-GM_cookie"
-      }
-    ];
-    apiList.forEach((api) => {
-      if (api.isSupport) {
-        supportApiNameList.push(api);
+    Object.keys(GMTotal).forEach((keyName) => {
+      let value = GMTotal[keyName];
+      let apiName = value.getApiName();
+      let isSupport = value.isSupport();
+      if (isSupport) {
+        supportApiNameList.push({
+          name: apiName,
+          isSupport
+        });
       } else {
-        notSupportApiNameList.push(api);
+        notSupportApiNameList.push({
+          name: apiName,
+          isSupport
+        });
       }
     });
     let createFeatureItem = (config) => {
@@ -20261,15 +22266,13 @@
       });
       domUtils.on($item, "click", (event) => {
         utils.preventEvent(event);
-        if (utils.isNotNull(config.leftAsideSelector)) {
-          let shadowRoot = $item.getRootNode();
-          let $left = shadowRoot.querySelector(
-            config.leftAsideSelector
-          );
-          if ($left) {
-            $left.click();
-            $left.scrollIntoView({ behavior: "smooth" });
-          }
+        let shadowRoot = $item.getRootNode();
+        let $left = shadowRoot.querySelector(
+          "#aside-" + config.name
+        );
+        if ($left) {
+          $left.click();
+          $left.scrollIntoView({ behavior: "smooth" });
         }
       });
       return $item;
@@ -20366,65 +22369,6 @@
       ]
     };
   };
-  const PanelUI_unsafeWindow = () => {
-    let isSupport = ApiSupportTest.unsafeWindow();
-    let result2 = {
-      id: "aside-unsafewindow",
-      title: "unsafeWindow",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "unsafewindow";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "unsafewindow");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 unsafewindow",
-                tag: "success"
-              } : {
-                text: "不支持 unsafewindow",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    if (isSupport) {
-      result2["forms"][1].forms.push(
-        UIInfo(() => {
-          let key = "test-gm-window";
-          let flag = _monkeyWindow == _unsafeWindow;
-          _monkeyWindow[key] = key;
-          flag = typeof _unsafeWindow[key] !== "string";
-          Reflect.deleteProperty(_monkeyWindow, key);
-          if (flag) {
-            return {
-              text: "window是ProxyWindow",
-              tag: "success"
-            };
-          } else {
-            return {
-              text: "window不是ProxyWindow，全局变量会覆盖页面",
-              tag: "warn"
-            };
-          }
-        })
-      );
-    }
-    return result2;
-  };
   const PanelUISize = {
     /**
      * 一般设置界面的尺寸
@@ -20459,1511 +22403,6 @@
         return window.innerHeight < 250 ? "250px" : "250px";
       }
     }
-  };
-  const PanelUI_GM_addElement = () => {
-    let isSupport = ApiSupportTest.addElement();
-    let isSupportAsync = ApiSupportTest.addElement_async();
-    let result2 = {
-      id: "aside-GM_addElement",
-      title: "GM_addElement",
-      headerTitle: "GM_addElement & GM.addElement",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_addElement";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_addElement");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_addElement",
-                tag: "success"
-              } : {
-                text: "不支持 GM_addElement",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.addElement",
-                tag: "success"
-              } : {
-                text: "不支持 GM.addElement",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    if (isSupport) {
-      result2["forms"][1].forms.push(
-        UIInfo(() => {
-          let $test = null;
-          let $page_test = null;
-          try {
-            let element_id = "GM_addElement_test_script_exec";
-            $test = _GM_addElement("script", {
-              id: element_id,
-              textContent: 'window.GM_addElement_test_str = "bar";'
-            });
-            $page_test = document.querySelector("#" + element_id);
-            if ($test == null) {
-              return {
-                text: "GM_addElement is not retrun element",
-                tag: "error"
-              };
-            }
-            if (typeof _unsafeWindow["GM_addElement_test_str"] !== "string") {
-              return {
-                text: "GM_addElement script element is not work",
-                tag: "error"
-              };
-            }
-            Reflect.deleteProperty(_unsafeWindow, "GM_addElement_test_str");
-            return {
-              text: CommonUtil.escapeHtml("支持添加<script>元素且执行js"),
-              tag: "success"
-            };
-          } catch (error2) {
-            console.error(error2);
-            return {
-              text: "执行错误 " + error2,
-              tag: "error"
-            };
-          } finally {
-            $page_test == null ? void 0 : $page_test.remove();
-          }
-        }),
-        UIInfo(() => {
-          let $test = null;
-          let $page_test = null;
-          try {
-            let element_id = "GM_addElement_test2";
-            $test = _GM_addElement(document.body, "div", {
-              // @ts-ignore
-              "data-src": "https://example.com/image.png",
-              id: element_id
-            });
-            $page_test = document.querySelector("#" + element_id);
-            if (!$page_test) {
-              return {
-                text: "不支持3个参数",
-                tag: "error"
-              };
-            }
-            const shadowRoot = $page_test.attachShadow({ mode: "closed" });
-            _GM_addElement(shadowRoot, "style", {
-              textContent: "div { color: black; };"
-            });
-            if (!shadowRoot.querySelector("style")) {
-              return {
-                text: "不支持3个参数的shadowRoot",
-                tag: "error"
-              };
-            }
-            if ($test == null) {
-              return {
-                text: "传入3个参数但是返回为空",
-                tag: "error"
-              };
-            }
-            if (!$page_test.hasAttribute("data-src")) {
-              return {
-                text: "不支持设置自定义属性data-src",
-                tag: "error"
-              };
-            }
-            return {
-              text: "支持3个参数并返回元素对象",
-              tag: "success"
-            };
-          } catch (error2) {
-            console.error(error2);
-            return {
-              text: "执行错误 " + error2,
-              tag: "error"
-            };
-          } finally {
-            $page_test == null ? void 0 : $page_test.remove();
-          }
-        })
-      );
-    }
-    return result2;
-  };
-  const PanelUI_GM_addStyle = () => {
-    let isSupport = ApiSupportTest.addStyle();
-    let isSupportAsync = ApiSupportTest.addStyle_async();
-    let result2 = {
-      id: "aside-GM_addStyle",
-      title: "GM_addStyle",
-      headerTitle: "GM_addStyle & GM.addStyle",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_addStyle";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_addStyle");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_addStyle",
-                tag: "success"
-              } : {
-                text: "不支持 GM_addStyle",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.addStyle",
-                tag: "success"
-              } : {
-                text: "不支持 GM.addStyle",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    if (isSupport) {
-      result2["forms"][1].forms.push(
-        UIInfo(() => {
-          let $test = null;
-          let $testCSS = null;
-          try {
-            $test = domUtils.createElement("div", {
-              id: "GM_addStyle",
-              innerText: "GM_addStyle test"
-            });
-            document.body.appendChild($test);
-            $testCSS = _GM_addStyle(
-              /*css*/
-              `
-                        #GM_addStyle {
-                            background-color: rgb(255, 0, 0);
-                        }
-                    `
-            );
-            if ($testCSS == null) {
-              return {
-                text: "GM_addStyle returns is null",
-                tag: "error"
-              };
-            }
-            const computedStyle = window.getComputedStyle($test);
-            if (computedStyle.backgroundColor !== "rgb(255, 0, 0)") {
-              return {
-                text: "GM_addStyle test element background is not rgb(255, 0, 0)",
-                tag: "error"
-              };
-            }
-            return {
-              text: CommonUtil.escapeHtml("支持添加CSS字符串"),
-              tag: "success"
-            };
-          } catch (error2) {
-            console.error(error2);
-            return {
-              text: "执行错误 " + error2,
-              tag: "error"
-            };
-          } finally {
-            $test == null ? void 0 : $test.remove();
-            $testCSS == null ? void 0 : $testCSS.remove();
-          }
-        })
-      );
-    }
-    return result2;
-  };
-  const PanelUI_GM_download = () => {
-    let isSupport = ApiSupportTest.download();
-    let isSupportAsync = ApiSupportTest.download_async();
-    let result2 = {
-      id: "aside-GM_download",
-      title: "GM_download",
-      headerTitle: "GM_download & GM.download",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_download";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_download");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_download",
-                tag: "success"
-              } : {
-                text: "不支持 GM_download",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.download",
-                tag: "success"
-              } : {
-                text: "不支持 GM.download",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    if (isSupport) {
-      result2["forms"][1].forms.push(
-        UIInfo(() => {
-          return {
-            text: CommonUtil.escapeHtml("TODO..."),
-            tag: "info",
-            afterRender(container) {
-              var _a2;
-              (_a2 = container.target) == null ? void 0 : _a2.querySelector(".support-info");
-            }
-          };
-        })
-      );
-    }
-    return result2;
-  };
-  const PanelUI_GM_getResourceText = () => {
-    let isSupport = ApiSupportTest.getResourceText();
-    let isSupportAsync = ApiSupportTest.getResourceText_async();
-    let result2 = {
-      id: "aside-GM_getResourceText",
-      title: "GM_getResourceText",
-      headerTitle: "GM_getResourceText & GM.getResourceText",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_getResourceText";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_getResourceText");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_getResourceText",
-                tag: "success"
-              } : {
-                text: "不支持 GM_getResourceText",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.getResourceText",
-                tag: "success"
-              } : {
-                text: "不支持 GM.getResourceText",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    return result2;
-  };
-  const PanelUI_GM_getResourceURL = () => {
-    let isSupport = ApiSupportTest.getResourceUrl();
-    let isSupportAsync = ApiSupportTest.getResourceUrl_async();
-    let result2 = {
-      id: "aside-GM_getResourceURL",
-      title: "GM_getResourceURL",
-      headerTitle: "GM_getResourceURL & GM.getResourceUrl",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_getResourceURL";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_getResourceURL");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_getResourceURL",
-                tag: "success"
-              } : {
-                text: "不支持 GM_getResourceURL",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.getResourceUrl",
-                tag: "success"
-              } : {
-                text: "不支持 GM.getResourceUrl",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    return result2;
-  };
-  const PanelUI_GM_info = () => {
-    let isSupport = ApiSupportTest.info();
-    let isSupportAsync = ApiSupportTest.info_async();
-    let result2 = {
-      id: "aside-GM_info",
-      title: "GM_info",
-      headerTitle: "GM_info & GM.info",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_info";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_info");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_info",
-                tag: "success"
-              } : {
-                text: "不支持 GM_info",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.info",
-                tag: "success"
-              } : {
-                text: "不支持 GM.info",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    return result2;
-  };
-  const PanelUI_GM_log = () => {
-    let isSupport = ApiSupportTest.log();
-    let isSupportAsync = ApiSupportTest.log_async();
-    let result2 = {
-      id: "aside-GM_log",
-      title: "GM_log",
-      headerTitle: "GM_log & GM.log",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_log";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_log");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_log",
-                tag: "success"
-              } : {
-                text: "不支持 GM_log",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.log",
-                tag: "success"
-              } : {
-                text: "不支持 GM.log",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    if (isSupport) {
-      result2["forms"][1].forms.push(
-        UIInfo(() => {
-          return {
-            text: CommonUtil.escapeHtml("TODO..."),
-            tag: "info",
-            afterRender(container) {
-              var _a2;
-              (_a2 = container.target) == null ? void 0 : _a2.querySelector(".support-info");
-            }
-          };
-        })
-      );
-    }
-    return result2;
-  };
-  const PanelUI_GM_notification = () => {
-    let isSupport = ApiSupportTest.notification();
-    let isSupportAsync = ApiSupportTest.notification_async();
-    let result2 = {
-      id: "aside-GM_notification",
-      title: "GM_notification",
-      headerTitle: "GM_notification & GM.notification",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_notification";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_notification");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_notification",
-                tag: "success"
-              } : {
-                text: "不支持 GM_notification",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.notification",
-                tag: "success"
-              } : {
-                text: "不支持 GM.notification",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    return result2;
-  };
-  const PanelUI_GM_openInTab = () => {
-    let isSupport = ApiSupportTest.openInTab();
-    let isSupportAsync = ApiSupportTest.openInTab_async();
-    let result2 = {
-      id: "aside-GM_openInTab",
-      title: "GM_openInTab",
-      headerTitle: "GM_openInTab & GM.openInTab",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_openInTab";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_openInTab");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_openInTab",
-                tag: "success"
-              } : {
-                text: "不支持 GM_openInTab",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.openInTab",
-                tag: "success"
-              } : {
-                text: "不支持 GM.openInTab",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    return result2;
-  };
-  const PanelUI_GM_registerMenuCommand = () => {
-    let isSupport = ApiSupportTest.registerMenuCommand();
-    let isSupportAsync = ApiSupportTest.registerMenuCommand_async();
-    let result2 = {
-      id: "aside-GM_registerMenuCommand",
-      title: "GM_registerMenuCommand",
-      headerTitle: "GM_registerMenuCommand & GM.registerMenuCommand",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_registerMenuCommand";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_registerMenuCommand");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_registerMenuCommand",
-                tag: "success"
-              } : {
-                text: "不支持 GM_registerMenuCommand",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.registerMenuCommand",
-                tag: "success"
-              } : {
-                text: "不支持 GM.registerMenuCommand",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    return result2;
-  };
-  const PanelUI_GM_unregisterMenuCommand = () => {
-    let isSupport = ApiSupportTest.unregisterMenuCommand();
-    let isSupportAsync = ApiSupportTest.unregisterMenuCommand_async();
-    let result2 = {
-      id: "aside-GM_unregisterMenuCommand",
-      title: "GM_unregisterMenuCommand",
-      headerTitle: "GM_unregisterMenuCommand & GM.unregisterMenuCommand",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_unregisterMenuCommand";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_unregisterMenuCommand");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_unregisterMenuCommand",
-                tag: "success"
-              } : {
-                text: "不支持 GM_unregisterMenuCommand",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.unregisterMenuCommand",
-                tag: "success"
-              } : {
-                text: "不支持 GM.unregisterMenuCommand",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    return result2;
-  };
-  const PanelUI_GM_setClipboard = () => {
-    let isSupport = ApiSupportTest.setClipboard();
-    let isSupportAsync = ApiSupportTest.setClipboard_async();
-    let result2 = {
-      id: "aside-GM_setClipboard",
-      title: "GM_setClipboard",
-      headerTitle: "GM_setClipboard & GM.setClipboard",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_setClipboard";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_setClipboard");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_setClipboard",
-                tag: "success"
-              } : {
-                text: "不支持 GM_setClipboard",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.setClipboard",
-                tag: "success"
-              } : {
-                text: "不支持 GM.setClipboard",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    return result2;
-  };
-  const PanelUI_GM_getTab = () => {
-    let isSupport = ApiSupportTest.getTab();
-    let isSupportAsync = ApiSupportTest.getTab_async();
-    let result2 = {
-      id: "aside-GM_getTab",
-      title: "GM_getTab",
-      headerTitle: "GM_getTab & GM.getTab",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_getTab";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_getTab");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_getTab",
-                tag: "success"
-              } : {
-                text: "不支持 GM_getTab",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.getTab",
-                tag: "success"
-              } : {
-                text: "不支持 GM.getTab",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    return result2;
-  };
-  const PanelUI_GM_saveTab = () => {
-    let isSupport = ApiSupportTest.saveTab();
-    let isSupportAsync = ApiSupportTest.saveTab_async();
-    let result2 = {
-      id: "aside-GM_saveTab",
-      title: "GM_saveTab",
-      headerTitle: "GM_saveTab & GM.saveTab",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_saveTab";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_saveTab");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_saveTab",
-                tag: "success"
-              } : {
-                text: "不支持 GM_saveTab",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.saveTab",
-                tag: "success"
-              } : {
-                text: "不支持 GM.saveTab",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    return result2;
-  };
-  const PanelUI_GM_getTabs = () => {
-    let isSupport = ApiSupportTest.getTabs();
-    let isSupportAsync = ApiSupportTest.getTabs_async();
-    let result2 = {
-      id: "aside-GM_getTabs",
-      title: "GM_getTabs",
-      headerTitle: "GM_getTabs & GM.getTabs",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_getTabs";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_getTabs");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_getTabs",
-                tag: "success"
-              } : {
-                text: "不支持 GM_getTabs",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.getTabs",
-                tag: "success"
-              } : {
-                text: "不支持 GM.getTabs",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    return result2;
-  };
-  const PanelUI_GM_setValue = () => {
-    let isSupport = ApiSupportTest.setValue();
-    let isSupportAsync = ApiSupportTest.setValue_async();
-    let result2 = {
-      id: "aside-GM_setValue",
-      title: "GM_setValue",
-      headerTitle: "GM_setValue & GM.setValue",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_setValue";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_setValue");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_setValue",
-                tag: "success"
-              } : {
-                text: "不支持 GM_setValue",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.setValue",
-                tag: "success"
-              } : {
-                text: "不支持 GM.setValue",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    return result2;
-  };
-  const PanelUI_GM_getValue = () => {
-    let isSupport = ApiSupportTest.getValue();
-    let isSupportAsync = ApiSupportTest.getValue_async();
-    let result2 = {
-      id: "aside-GM_getValue",
-      title: "GM_getValue",
-      headerTitle: "GM_getValue & GM.getValue",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_getValue";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_getValue");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_getValue",
-                tag: "success"
-              } : {
-                text: "不支持 GM_getValue",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.getValue",
-                tag: "success"
-              } : {
-                text: "不支持 GM.getValue",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    return result2;
-  };
-  const PanelUI_GM_deleteValue = () => {
-    let isSupport = ApiSupportTest.deleteValue();
-    let isSupportAsync = ApiSupportTest.deleteValue_async();
-    let result2 = {
-      id: "aside-GM_deleteValue",
-      title: "GM_deleteValue",
-      headerTitle: "GM_deleteValue & GM.deleteValue",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_deleteValue";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_deleteValue");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_deleteValue",
-                tag: "success"
-              } : {
-                text: "不支持 GM_deleteValue",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.deleteValue",
-                tag: "success"
-              } : {
-                text: "不支持 GM.deleteValue",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    return result2;
-  };
-  const PanelUI_GM_listValues = () => {
-    let isSupport = ApiSupportTest.listValues();
-    let isSupportAsync = ApiSupportTest.listValues_async();
-    let result2 = {
-      id: "aside-GM_listValues",
-      title: "GM_listValues",
-      headerTitle: "GM_listValues & GM.listValues",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_listValues";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_listValues");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_listValues",
-                tag: "success"
-              } : {
-                text: "不支持 GM_listValues",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.listValues",
-                tag: "success"
-              } : {
-                text: "不支持 GM.listValues",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    return result2;
-  };
-  const PanelUI_GM_setValues = () => {
-    let isSupport = ApiSupportTest.setValues();
-    let isSupportAsync = ApiSupportTest.setValues_async();
-    let result2 = {
-      id: "aside-GM_setValues",
-      title: "GM_setValues",
-      headerTitle: "GM_setValues & GM.setValues",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_setValues";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_setValues");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_setValues",
-                tag: "success"
-              } : {
-                text: "不支持 GM_setValues",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.setValues",
-                tag: "success"
-              } : {
-                text: "不支持 GM.setValues",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    return result2;
-  };
-  const PanelUI_GM_getValues = () => {
-    let isSupport = ApiSupportTest.getValues();
-    let isSupportAsync = ApiSupportTest.getValues_async();
-    let result2 = {
-      id: "aside-GM_getValues",
-      title: "GM_getValues",
-      headerTitle: "GM_getValues & GM.getValues",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_getValues";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_getValues");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_getValues",
-                tag: "success"
-              } : {
-                text: "不支持 GM_getValues",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.getValues",
-                tag: "success"
-              } : {
-                text: "不支持 GM.getValues",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    return result2;
-  };
-  const PanelUI_GM_deleteValues = () => {
-    let isSupport = ApiSupportTest.deleteValues();
-    let isSupportAsync = ApiSupportTest.deleteValues_async();
-    let result2 = {
-      id: "aside-GM_deleteValues",
-      title: "GM_deleteValues",
-      headerTitle: "GM_deleteValues & GM.deleteValues",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_deleteValues";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_deleteValues");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_deleteValues",
-                tag: "success"
-              } : {
-                text: "不支持 GM_deleteValues",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.deleteValues",
-                tag: "success"
-              } : {
-                text: "不支持 GM.deleteValues",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    return result2;
-  };
-  const PanelUI_GM_addValueChangeListener = () => {
-    let isSupport = ApiSupportTest.addValueChangeListener();
-    let isSupportAsync = ApiSupportTest.addValueChangeListener_async();
-    let result2 = {
-      id: "aside-GM_addValueChangeListener",
-      title: "GM_addValueChangeListener",
-      headerTitle: "GM_addValueChangeListener & GM.addValueChangeListener",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_addValueChangeListener";
-      },
-      callback(data) {
-        StorageApi.set(
-          PanelKeyConfig.asideLastVisit,
-          "GM_addValueChangeListener"
-        );
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_addValueChangeListener",
-                tag: "success"
-              } : {
-                text: "不支持 GM_addValueChangeListener",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.addValueChangeListener",
-                tag: "success"
-              } : {
-                text: "不支持 GM.addValueChangeListener",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    return result2;
-  };
-  const PanelUI_GM_removeValueChangeListener = () => {
-    let isSupport = ApiSupportTest.removeValueChangeListener();
-    let isSupportAsync = ApiSupportTest.removeValueChangeListener_async();
-    let result2 = {
-      id: "aside-GM_removeValueChangeListener",
-      title: "GM_removeValueChangeListener",
-      headerTitle: "GM_removeValueChangeListener & GM.removeValueChangeListener",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_removeValueChangeListener";
-      },
-      callback(data) {
-        StorageApi.set(
-          PanelKeyConfig.asideLastVisit,
-          "GM_removeValueChangeListener"
-        );
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_removeValueChangeListener",
-                tag: "success"
-              } : {
-                text: "不支持 GM_removeValueChangeListener",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.removeValueChangeListener",
-                tag: "success"
-              } : {
-                text: "不支持 GM.removeValueChangeListener",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    return result2;
-  };
-  const PanelUI_GM_xmlhttpRequest = () => {
-    let isSupport = ApiSupportTest.xmlHttpRequest();
-    let isSupportAsync = ApiSupportTest.xmlHttpRequest_async();
-    let result2 = {
-      id: "aside-GM_xmlhttpRequest",
-      title: "GM_xmlhttpRequest",
-      headerTitle: "GM_xmlhttpRequest & GM.xmlHttpRequest",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_xmlhttpRequest";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_xmlhttpRequest");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_xmlhttpRequest",
-                tag: "success"
-              } : {
-                text: "不支持 GM_xmlhttpRequest",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.xmlHttpRequest",
-                tag: "success"
-              } : {
-                text: "不支持 GM.xmlHttpRequest",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    return result2;
-  };
-  const PanelUI_GM_webRequest = () => {
-    let isSupport = ApiSupportTest.webRequest();
-    let isSupportAsync = ApiSupportTest.webRequest_async();
-    let result2 = {
-      id: "aside-GM_webRequest",
-      title: "GM_webRequest",
-      headerTitle: "GM_webRequest & GM.webRequest",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_webRequest";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_webRequest");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_webRequest",
-                tag: "success"
-              } : {
-                text: "不支持 GM_webRequest",
-                tag: "error"
-              }
-            ),
-            UIInfo(
-              () => isSupportAsync ? {
-                text: "支持 GM.webRequest",
-                tag: "success"
-              } : {
-                text: "不支持 GM.webRequest",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    return result2;
-  };
-  const PanelUI_GM_cookie = () => {
-    let isSupport = ApiSupportTest.cookie();
-    let isSupportAsync = ApiSupportTest.cookie_async();
-    let isSupportAsync_list = isSupportAsync && typeof _GM.cookie.list === "function";
-    let isSupportAsync_set = isSupportAsync && typeof _GM.cookie.set === "function";
-    let isSupportAsync_delete = isSupportAsync && typeof _GM.cookie.delete === "function";
-    let result2 = {
-      id: "aside-GM_cookie",
-      title: "GM_cookie",
-      headerTitle: "GM_cookie & GM.cookie",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "GM_cookie";
-      },
-      callback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "GM_cookie");
-      },
-      forms: [
-        {
-          type: "forms",
-          text: "函数测试",
-          forms: [
-            UIInfo(
-              () => isSupport ? {
-                text: "支持 GM_cookie",
-                tag: "success"
-              } : {
-                text: "不支持 GM_cookie",
-                tag: "error"
-              }
-            )
-          ]
-        },
-        {
-          type: "forms",
-          text: "功能测试",
-          forms: []
-        }
-      ]
-    };
-    let firstFormList = result2["forms"][0].forms;
-    if (isSupportAsync) {
-      firstFormList.push(
-        UIInfo(() => {
-          return isSupportAsync_list ? {
-            text: "支持 GM.cookie.list",
-            tag: "success"
-          } : {
-            text: "不支持 GM.cookie.list",
-            tag: "error"
-          };
-        }),
-        UIInfo(() => {
-          return isSupportAsync_set ? {
-            text: "支持 GM.cookie.set",
-            tag: "success"
-          } : {
-            text: "不支持 GM.cookie.set",
-            tag: "error"
-          };
-        }),
-        UIInfo(() => {
-          return isSupportAsync_delete ? {
-            text: "支持 GM.cookie.delete",
-            tag: "success"
-          } : {
-            text: "不支持 GM.cookie.delete",
-            tag: "error"
-          };
-        })
-      );
-    } else {
-      firstFormList.push(
-        UIInfo(() => {
-          return { text: "不支持 GM.cookie", tag: "error" };
-        })
-      );
-    }
-    return result2;
   };
   const PopsPanel = {
     /** 数据 */
@@ -22032,7 +22471,7 @@
     },
     /** 判断是否是顶层窗口 */
     isTopWindow() {
-      if (ApiSupportTest.unsafeWindow()) {
+      if (GMTotal.unsafeWindow.isSupport()) {
         return _unsafeWindow.top === _unsafeWindow.self;
       } else {
         return window.top === window.self;
@@ -22491,37 +22930,14 @@
      * 获取配置内容
      */
     getPanelContentConfig() {
-      let configList = [
-        Component_Common(),
-        PanelUI_unsafeWindow(),
-        PanelUI_GM_addElement(),
-        PanelUI_GM_addStyle(),
-        PanelUI_GM_download(),
-        PanelUI_GM_getResourceText(),
-        PanelUI_GM_getResourceURL(),
-        PanelUI_GM_info(),
-        PanelUI_GM_log(),
-        PanelUI_GM_notification(),
-        PanelUI_GM_openInTab(),
-        PanelUI_GM_registerMenuCommand(),
-        PanelUI_GM_unregisterMenuCommand(),
-        PanelUI_GM_setClipboard(),
-        PanelUI_GM_getTab(),
-        PanelUI_GM_saveTab(),
-        PanelUI_GM_getTabs(),
-        PanelUI_GM_setValue(),
-        PanelUI_GM_getValue(),
-        PanelUI_GM_deleteValue(),
-        PanelUI_GM_listValues(),
-        PanelUI_GM_setValues(),
-        PanelUI_GM_getValues(),
-        PanelUI_GM_deleteValues(),
-        PanelUI_GM_addValueChangeListener(),
-        PanelUI_GM_removeValueChangeListener(),
-        PanelUI_GM_xmlhttpRequest(),
-        PanelUI_GM_webRequest(),
-        PanelUI_GM_cookie()
-      ];
+      let configList = [Component_Common()];
+      Object.keys(GMTotal).forEach((keyName) => {
+        let value = GMTotal[keyName];
+        let option = value.getUIOption();
+        if (option) {
+          configList.push(option);
+        }
+      });
       return configList;
     }
   };
