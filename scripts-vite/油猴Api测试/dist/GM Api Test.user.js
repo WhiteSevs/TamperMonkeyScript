@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.11.14
+// @version      2024.12.11.21
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -9,6 +9,7 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
+// @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
 // @connect      *
 // @grant        GM.addElement
 // @grant        GM.addStyle
@@ -19857,7 +19858,7 @@
                 };
               }
               return {
-                text: CommonUtil.escapeHtml("支持添加CSS字符串"),
+                text: CommonUtil.escapeHtml("支持添加CSS字符串并返回元素对象"),
                 tag: "success"
               };
             } catch (error2) {
@@ -20412,10 +20413,20 @@
         result2["forms"][1].forms.push(
           UIInfo(() => {
             try {
-              return {
-                text: CommonUtil.escapeHtml("TODO"),
-                tag: "info"
-              };
+              let resourceText = _GM_getResourceText("ViewerCSS");
+              if (typeof resourceText === "string") {
+                return {
+                  text: CommonUtil.escapeHtml("支持通过@resource引用资源字符串"),
+                  tag: "success"
+                };
+              } else {
+                return {
+                  text: CommonUtil.escapeHtml(
+                    "GM_getResourceText return is not string"
+                  ),
+                  tag: "error"
+                };
+              }
             } catch (error2) {
               console.error(error2);
               return {
@@ -20493,6 +20504,30 @@
         result2["forms"][1].forms.push(
           UIInfo(() => {
             try {
+              let resourceUrl = _GM_getResourceURL("ViewerCSS");
+              if (typeof resourceUrl === "string") {
+                if (resourceUrl.trim().startsWith("data:text/css;base64")) {
+                  return {
+                    text: CommonUtil.escapeHtml(
+                      "支持通过@resource引用资源并进行base64编码"
+                    ),
+                    tag: "success"
+                  };
+                }
+                return {
+                  text: CommonUtil.escapeHtml(
+                    "支持通过@resource引用资源，但是未对资源进行base64编码"
+                  ),
+                  tag: "warn"
+                };
+              } else {
+                return {
+                  text: CommonUtil.escapeHtml(
+                    "GM_getResourceURL return is not string"
+                  ),
+                  tag: "error"
+                };
+              }
               return {
                 text: CommonUtil.escapeHtml("TODO"),
                 tag: "info"
@@ -20849,6 +20884,7 @@
       };
     }
     getUIOption() {
+      var _a2, _b;
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
       let result2 = {
@@ -20896,21 +20932,61 @@
       };
       if (this.isSupport()) {
         result2["forms"][1].forms.push(
-          UIInfo(() => {
-            try {
-              return {
-                text: CommonUtil.escapeHtml("TODO"),
-                tag: "info"
-              };
-            } catch (error2) {
-              console.error(error2);
-              return {
-                text: "执行错误 " + error2,
-                tag: "error"
-              };
-            } finally {
+          ...[
+            {
+              value: _GM_info == null ? void 0 : _GM_info.scriptHandler,
+              type: "string",
+              text: "GM_info.scriptHandler"
+            },
+            {
+              value: _GM_info == null ? void 0 : _GM_info.scriptMetaStr,
+              type: "string",
+              text: "GM_info.scriptMetaStr"
+            },
+            {
+              value: _GM_info == null ? void 0 : _GM_info.version,
+              type: "string",
+              text: "GM_info.version"
+            },
+            {
+              value: _GM_info == null ? void 0 : _GM_info.script,
+              type: "object",
+              text: "GM_info.script"
+            },
+            {
+              value: (_a2 = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a2.name,
+              type: "string",
+              text: "GM_info.script.name"
+            },
+            {
+              value: (_b = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _b.version,
+              type: "string",
+              text: "GM_info.script.version"
             }
-          })
+          ].map(
+            (it) => UIInfo(() => {
+              try {
+                if (it.value != null && typeof it.value === it.type) {
+                  return {
+                    text: "支持 " + it.text + " 类型：" + it.type,
+                    tag: "success"
+                  };
+                } else {
+                  return {
+                    text: "不支持 " + it.text + " 类型：" + it.type,
+                    tag: "error"
+                  };
+                }
+              } catch (error2) {
+                console.error(error2);
+                return {
+                  text: "执行错误 " + error2,
+                  tag: "error"
+                };
+              } finally {
+              }
+            })
+          )
         );
       }
       return result2;
@@ -21060,9 +21136,33 @@
         result2["forms"][1].forms.push(
           UIInfo(() => {
             try {
+              let logText = "test GM_log";
               return {
-                text: CommonUtil.escapeHtml("TODO"),
-                tag: "info"
+                text: CommonUtil.escapeHtml("请在控制台查看输出：" + logText),
+                tag: "info",
+                afterRender(container) {
+                  let $info = container.target.querySelector(
+                    ".support-info"
+                  );
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击执行</span>
+										</button>
+									</div>
+								`,
+                    false,
+                    false
+                  );
+                  domUtils.on($button, "click", (event) => {
+                    utils.preventEvent(event);
+                    _GM_log(logText);
+                  });
+                  domUtils.after($info, $button);
+                }
               };
             } catch (error2) {
               console.error(error2);
@@ -21141,9 +21241,87 @@
         result2["forms"][1].forms.push(
           UIInfo(() => {
             try {
+              let $target = void 0;
+              let $info = void 0;
+              let isClick = false;
+              let isPrevent = false;
+              let isDone = false;
+              let updateText = utils.debounce(() => {
+                console.log("update");
+                let text = "";
+                let tag = "success";
+                if (isClick) {
+                  text += "支持 onclick 函数";
+                  if (isPrevent) {
+                    text = text.trim();
+                    text += "且支持提供 event 参数";
+                  } else {
+                    text += "但是不支持提供 event 参数";
+                    tag = "warn";
+                  }
+                } else {
+                  text += "不支持 onclick 函数";
+                  tag = "error";
+                }
+                if (isDone) {
+                  text += "<br>支持 ondone 函数";
+                } else {
+                  text += "<br>不支持 ondone 函数";
+                  tag = "error";
+                }
+                domUtils.removeClass($info, "info");
+                domUtils.removeClass($info, "warn");
+                domUtils.removeClass($info, "error");
+                domUtils.removeClass($info, "success");
+                domUtils.addClass($info, tag);
+                domUtils.html($info, text);
+                isClick = false;
+                isDone = false;
+                isPrevent = false;
+              }, 800);
               return {
-                text: CommonUtil.escapeHtml("TODO"),
-                tag: "info"
+                text: CommonUtil.escapeHtml("点击通知的内容用于测试函数是否生效"),
+                tag: "info",
+                afterRender(container) {
+                  $target = container.target;
+                  $info = container.target.querySelector(
+                    ".support-info"
+                  );
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击测试</span>
+										</button>
+									</div>
+								`,
+                    false,
+                    false
+                  );
+                  domUtils.on($button, "click", (event) => {
+                    utils.preventEvent(event);
+                    _GM_notification({
+                      title: "测试 GM_notification 标题",
+                      text: "测试 GM_notification 内容",
+                      url: "https:/example.com/",
+                      onclick: (event2) => {
+                        isClick = true;
+                        if (event2) {
+                          isPrevent = true;
+                          event2.preventDefault();
+                        }
+                        updateText();
+                      },
+                      ondone() {
+                        isDone = true;
+                        updateText();
+                      }
+                    });
+                  });
+                  domUtils.after($info, $button);
+                }
               };
             } catch (error2) {
               console.error(error2);
@@ -21152,6 +21330,48 @@
                 tag: "error"
               };
             } finally {
+            }
+          }),
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("点击通知的内容跳转链接"),
+                tag: "info",
+                afterRender(container) {
+                  let $target = container.target;
+                  let $info = container.target.querySelector(
+                    ".support-info"
+                  );
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击测试</span>
+										</button>
+									</div>
+								`,
+                    false,
+                    false
+                  );
+                  domUtils.on($button, "click", (event) => {
+                    utils.preventEvent(event);
+                    _GM_notification({
+                      title: "测试 GM_notification 标题",
+                      text: "测试 GM_notification 内容",
+                      url: "https:/example.com/"
+                    });
+                  });
+                  domUtils.after($info, $button);
+                }
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
             }
           })
         );

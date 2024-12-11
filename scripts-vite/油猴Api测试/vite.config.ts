@@ -46,7 +46,7 @@ const MonkeyOption: Partial<__MonkeyOption__> = {
 		require: [],
 		// 资源引用
 		resource: {
-			// ViewerCSS: `https://fastly.jsdelivr.net/npm/viewerjs@${pkg.dependencies["viewerjs"]}/dist/viewer.min.css`,
+			ViewerCSS: `https://fastly.jsdelivr.net/npm/viewerjs@${pkg.dependencies["viewerjs"]}/dist/viewer.min.css`,
 		},
 	},
 	build: {

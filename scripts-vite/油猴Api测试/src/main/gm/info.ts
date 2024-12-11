@@ -75,21 +75,61 @@ export class ApiTest_info extends ApiTestBase {
 		};
 		if (this.isSupport()) {
 			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
-				UIInfo(() => {
-					try {
-						return {
-							text: CommonUtil.escapeHtml("TODO"),
-							tag: "info",
-						};
-					} catch (error) {
-						console.error(error);
-						return {
-							text: "执行错误 " + error,
-							tag: "error",
-						};
-					} finally {
-					}
-				})
+				...[
+					{
+						value: GM_info?.scriptHandler,
+						type: "string",
+						text: "GM_info.scriptHandler",
+					},
+					{
+						value: GM_info?.scriptMetaStr,
+						type: "string",
+						text: "GM_info.scriptMetaStr",
+					},
+					{
+						value: GM_info?.version,
+						type: "string",
+						text: "GM_info.version",
+					},
+					{
+						value: GM_info?.script,
+						type: "object",
+						text: "GM_info.script",
+					},
+					{
+						value: GM_info?.script?.name,
+						type: "string",
+						text: "GM_info.script.name",
+					},
+					{
+						value: GM_info?.script?.version,
+						type: "string",
+						text: "GM_info.script.version",
+					},
+				].map((it) =>
+					UIInfo(() => {
+						try {
+							if (it.value != null && typeof it.value === it.type) {
+								return {
+									text: "支持 " + it.text + " 类型：" + it.type,
+									tag: "success",
+								};
+							} else {
+								return {
+									text: "不支持 " + it.text + " 类型：" + it.type,
+									tag: "error",
+								};
+							}
+						} catch (error) {
+							console.error(error);
+							return {
+								text: "执行错误 " + error,
+								tag: "error",
+							};
+						} finally {
+						}
+					})
+				)
 			);
 		}
 		return result;

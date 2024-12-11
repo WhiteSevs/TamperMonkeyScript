@@ -102,7 +102,7 @@ export class ApiTest_addStyle extends ApiTestBase {
 							};
 						}
 						return {
-							text: CommonUtil.escapeHtml("支持添加CSS字符串"),
+							text: CommonUtil.escapeHtml("支持添加CSS字符串并返回元素对象"),
 							tag: "success",
 						};
 					} catch (error) {

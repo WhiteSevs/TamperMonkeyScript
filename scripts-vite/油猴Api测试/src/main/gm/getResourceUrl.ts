@@ -77,6 +77,30 @@ export class ApiTest_getResourceUrl extends ApiTestBase {
 			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
 				UIInfo(() => {
 					try {
+						let resourceUrl = GM_getResourceURL("ViewerCSS");
+						if (typeof resourceUrl === "string") {
+							if (resourceUrl.trim().startsWith("data:text/css;base64")) {
+								return {
+									text: CommonUtil.escapeHtml(
+										"支持通过@resource引用资源并进行base64编码"
+									),
+									tag: "success",
+								};
+							}
+							return {
+								text: CommonUtil.escapeHtml(
+									"支持通过@resource引用资源，但是未对资源进行base64编码"
+								),
+								tag: "warn",
+							};
+						} else {
+							return {
+								text: CommonUtil.escapeHtml(
+									"GM_getResourceURL return is not string"
+								),
+								tag: "error",
+							};
+						}
 						return {
 							text: CommonUtil.escapeHtml("TODO"),
 							tag: "info",

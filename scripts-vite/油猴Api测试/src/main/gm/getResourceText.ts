@@ -77,10 +77,20 @@ export class ApiTest_getResourceText extends ApiTestBase {
 			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
 				UIInfo(() => {
 					try {
-						return {
-							text: CommonUtil.escapeHtml("TODO"),
-							tag: "info",
-						};
+						let resourceText = GM_getResourceText("ViewerCSS");
+						if (typeof resourceText === "string") {
+							return {
+								text: CommonUtil.escapeHtml("支持通过@resource引用资源字符串"),
+								tag: "success",
+							};
+						} else {
+							return {
+								text: CommonUtil.escapeHtml(
+									"GM_getResourceText return is not string"
+								),
+								tag: "error",
+							};
+						}
 					} catch (error) {
 						console.error(error);
 						return {

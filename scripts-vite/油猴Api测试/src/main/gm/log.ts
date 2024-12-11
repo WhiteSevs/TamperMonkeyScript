@@ -5,7 +5,7 @@ import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/common-components/ui-info";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
-import { DOMUtils } from "@/env";
+import { DOMUtils, utils } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
 
 export class ApiTest_log extends ApiTestBase {
@@ -77,9 +77,33 @@ export class ApiTest_log extends ApiTestBase {
 			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
 				UIInfo(() => {
 					try {
+						let logText = "test GM_log";
 						return {
-							text: CommonUtil.escapeHtml("TODO"),
+							text: CommonUtil.escapeHtml("请在控制台查看输出：" + logText),
 							tag: "info",
+							afterRender(container) {
+								let $info =
+									container.target!.querySelector<HTMLElement>(
+										".support-info"
+									)!;
+								let $button = DOMUtils.parseHTML(
+									/*html*/ `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击执行</span>
+										</button>
+									</div>
+								`,
+									false,
+									false
+								);
+								DOMUtils.on($button, "click", (event) => {
+									utils.preventEvent(event);
+									GM_log(logText);
+								});
+								DOMUtils.after($info!, $button);
+							},
 						};
 					} catch (error) {
 						console.error(error);
