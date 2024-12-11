@@ -10,7 +10,12 @@ import { CommonUtil } from "@/utils/CommonUtil";
 
 export class ApiTest_cookie extends ApiTestBase {
 	public isSupport() {
-		return typeof GM_cookie === "function";
+		return (
+			GM_cookie != null &&
+			typeof GM_cookie?.delete === "function" &&
+			typeof GM_cookie?.list === "function" &&
+			typeof GM_cookie?.set === "function"
+		);
 	}
 	public getApiName() {
 		return "GM_cookie";

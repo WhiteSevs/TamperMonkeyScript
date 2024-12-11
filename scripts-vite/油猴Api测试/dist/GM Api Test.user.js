@@ -19959,7 +19959,7 @@
   }
   class ApiTest_cookie extends ApiTestBase {
     isSupport() {
-      return typeof _GM_cookie === "function";
+      return _GM_cookie != null && typeof (_GM_cookie == null ? void 0 : _GM_cookie.delete) === "function" && typeof (_GM_cookie == null ? void 0 : _GM_cookie.list) === "function" && typeof (_GM_cookie == null ? void 0 : _GM_cookie.set) === "function";
     }
     getApiName() {
       return "GM_cookie";
