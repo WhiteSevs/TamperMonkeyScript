@@ -21,8 +21,3 @@ uni-app .operate-btn-wake {
 uni-app .swiper-content {
 	max-height: unset !important;
 }
-
-/* 调整顶部navbar的样式 */
-uni-app .nav-bar-fixed {
-	padding: 20px 0px !important;
-}

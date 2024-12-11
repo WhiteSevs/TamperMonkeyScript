@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.9.20
+// @version      2024.12.11
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -674,7 +674,7 @@
   const BaiduSearchBlockRule = {
     defaultRule: `
 // 百度健康
-match-href##expert.baidu.com
+// match-href##expert.baidu.com
 // 大家还在搜
 match-href##recommend_list.baidu.com&&&&match-attr##tpl##recommend_list
 // 大家还在搜:隐藏的(点击后，跳出来的)
@@ -9186,7 +9186,7 @@ div[class^="new-summary-container_"] {\r
     }
   };
   const TieBaShieldCSS = ".tb-backflow-defensive,\r\n.fixed-nav-bar-defensive,\r\n.post-cut-guide,\r\n.ertiao-wrap-defensive,\r\n.feed-warp.gray-background,\r\n.pb-page-wrapper.app-view.transition-fade nav:first-child,\r\n.only-lz,\r\n.nav-bar-v2 .nav-bar-bottom,\r\n.more-image-desc,\r\n.fengchao-banner-defensive,\r\n/*.wake-app,*/\r\n.banner-wrapper-defensive,\r\n.open-app,\r\n.topic-share-page-v2 .bav-bar-top,\r\n/* 打开APP查看更多评论 */\r\n.cmt-large-cut-guide,\r\n/* 底部评论滚动栏 */\r\ndiv.diy-guide-wrapper,\r\n/* 底部评论滚动栏上面的空白 */\r\n.individuality,\r\n/* 吧内的广告 */\r\n.tb-threadlist__wrapper .tb-banner-wrapper-defensive,\r\n/* 首页-我的-底部的 年轻人的潮流文化社区 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .desc,\r\n/* 首页-我的-底部的 立即下载 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .download-btn,\r\n/* 帖子内预览图片模式下底部的打开App查看高清大图 */\r\n.img-preview .operate .wake-app {\r\n	display: none !important;\r\n}\r\nbody.tb-modal-open {\r\n	overflow: auto !important;\r\n}\r\n";
-  const UniTieBaShieldCSS = "/* 热门推荐、相关推荐 */\r\nuni-app .recom-layout-container,\r\n/* 热门推荐、相关推荐 */\r\nuni-app #pbRecomContainer,\r\n/* 猜你还想搜（标题） */\r\nuni-app .guess-title,\r\n/* 猜你还想搜 */\r\nuni-app .guess-container,\r\n/* 底部工具栏 来贴吧畅享精彩内容 */\r\nuni-app .operation-chat,\r\n/* 图片右滑最后一个 来贴吧畅享精彩内容 */\r\nuni-app .pic-popup-guide-title,\r\n/* 图片右滑最后一个 下面的按钮 打开APP */\r\nuni-app .operate-group .wake-app:has(.external-btn-class),\r\n/* 顶部右上角的 App内查看 */\r\nuni-app .operate-btn-wake {\r\n	display: none !important;\r\n}\r\n\r\n/* 评论内容高度 */\r\nuni-app .swiper-content {\r\n	max-height: unset !important;\r\n}\r\n\r\n/* 调整顶部navbar的样式 */\r\nuni-app .nav-bar-fixed {\r\n	padding: 20px 0px !important;\r\n}\r\n";
+  const UniTieBaShieldCSS = "/* 热门推荐、相关推荐 */\r\nuni-app .recom-layout-container,\r\n/* 热门推荐、相关推荐 */\r\nuni-app #pbRecomContainer,\r\n/* 猜你还想搜（标题） */\r\nuni-app .guess-title,\r\n/* 猜你还想搜 */\r\nuni-app .guess-container,\r\n/* 底部工具栏 来贴吧畅享精彩内容 */\r\nuni-app .operation-chat,\r\n/* 图片右滑最后一个 来贴吧畅享精彩内容 */\r\nuni-app .pic-popup-guide-title,\r\n/* 图片右滑最后一个 下面的按钮 打开APP */\r\nuni-app .operate-group .wake-app:has(.external-btn-class),\r\n/* 顶部右上角的 App内查看 */\r\nuni-app .operate-btn-wake {\r\n	display: none !important;\r\n}\r\n\r\n/* 评论内容高度 */\r\nuni-app .swiper-content {\r\n	max-height: unset !important;\r\n}\r\n";
   const TiebaTopic = {
     init() {
       PopsPanel.execMenu("baidu_tieba_topic_redirect_jump", () => {

@@ -19,7 +19,7 @@ interface BaiduSearchRuleConfig extends BaiDuSearchRuleDetail {
 export const BaiduSearchBlockRule = {
 	defaultRule: `
 // 百度健康
-match-href##expert.baidu.com
+// match-href##expert.baidu.com
 // 大家还在搜
 match-href##recommend_list.baidu.com&&&&match-attr##tpl##recommend_list
 // 大家还在搜:隐藏的(点击后，跳出来的)
@@ -201,11 +201,17 @@ match-attr##srcid##sp_purc_atom
 			if (ruleItem.moreRule) {
 				for (const oneRule of ruleItem.moreRule) {
 					if (handleOneRule(oneRule)) {
+						if (import.meta.hot) {
+							console.log("自定义规则：", ruleItem);
+						}
 						return true;
 					}
 				}
 			} else {
 				if (handleOneRule(ruleItem)) {
+					if (import.meta.hot) {
+						console.log("自定义规则：", ruleItem);
+					}
 					return true;
 				}
 			}
