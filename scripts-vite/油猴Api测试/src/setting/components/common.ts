@@ -19,6 +19,7 @@ export const Component_Common = (): PopsPanelContentConfig => {
 		let value = GMTotal[keyName as keyof typeof GMTotal];
 		let apiName = value.getApiName();
 		let isSupport = value.isSupport();
+		let apiAsyncInfo = value.getAsyncApiOption();
 		if (isSupport) {
 			supportApiNameList.push({
 				name: apiName,
@@ -29,6 +30,19 @@ export const Component_Common = (): PopsPanelContentConfig => {
 				name: apiName,
 				isSupport: isSupport,
 			});
+		}
+		if (apiAsyncInfo) {
+			if (apiAsyncInfo.isSupport) {
+				supportApiNameList.push({
+					name: apiAsyncInfo.name,
+					isSupport: apiAsyncInfo.isSupport,
+				});
+			} else {
+				notSupportApiNameList.push({
+					name: apiAsyncInfo.name,
+					isSupport: apiAsyncInfo.isSupport,
+				});
+			}
 		}
 	});
 	/**

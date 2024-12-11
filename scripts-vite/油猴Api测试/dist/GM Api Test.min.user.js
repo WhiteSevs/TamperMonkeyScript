@@ -5715,7 +5715,7 @@ i.pops-rightClickMenu-icon[is-loading="true"] {\r
 
 注入到页面超级快`:injectDocumentTime=`document.documentElement is null
 	
-注入到页面超级无敌快`;const KEY="GM_Panel",ATTRIBUTE_INIT="data-init",ATTRIBUTE_KEY="data-key",ATTRIBUTE_DEFAULT_VALUE="data-default-value",ATTRIBUTE_INIT_MORE_VALUE="data-init-more-value",Component_Common=()=>{let S=[],w=[];Object.keys(GMTotal).forEach(C=>{let E=GMTotal[C],T=E.getApiName(),k=E.isSupport();k?S.push({name:T,isSupport:k}):w.push({name:T,isSupport:k});});let A=C=>{let E=domUtils.createElement("div",{className:"gm-api-features-item",innerHTML:`
+注入到页面超级无敌快`;const KEY="GM_Panel",ATTRIBUTE_INIT="data-init",ATTRIBUTE_KEY="data-key",ATTRIBUTE_DEFAULT_VALUE="data-default-value",ATTRIBUTE_INIT_MORE_VALUE="data-init-more-value",Component_Common=()=>{let S=[],w=[];Object.keys(GMTotal).forEach(C=>{let E=GMTotal[C],T=E.getApiName(),k=E.isSupport(),U=E.getAsyncApiOption();k?S.push({name:T,isSupport:k}):w.push({name:T,isSupport:k}),U&&(U.isSupport?S.push({name:U.name,isSupport:U.isSupport}):w.push({name:U.name,isSupport:U.isSupport}));});let A=C=>{let E=domUtils.createElement("div",{className:"gm-api-features-item",innerHTML:`
 				<div class="gm-api-features-item__label">${C.name}</div>
 				<div class="gm-api-features-item__value">
 					<span style="font-size: 16px; font-weight: 700;">

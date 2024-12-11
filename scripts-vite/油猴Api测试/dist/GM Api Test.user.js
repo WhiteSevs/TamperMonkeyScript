@@ -22263,6 +22263,7 @@
       let value = GMTotal[keyName];
       let apiName = value.getApiName();
       let isSupport = value.isSupport();
+      let apiAsyncInfo = value.getAsyncApiOption();
       if (isSupport) {
         supportApiNameList.push({
           name: apiName,
@@ -22273,6 +22274,19 @@
           name: apiName,
           isSupport
         });
+      }
+      if (apiAsyncInfo) {
+        if (apiAsyncInfo.isSupport) {
+          supportApiNameList.push({
+            name: apiAsyncInfo.name,
+            isSupport: apiAsyncInfo.isSupport
+          });
+        } else {
+          notSupportApiNameList.push({
+            name: apiAsyncInfo.name,
+            isSupport: apiAsyncInfo.isSupport
+          });
+        }
       }
     });
     let createFeatureItem = (config) => {
