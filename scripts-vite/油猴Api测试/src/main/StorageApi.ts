@@ -1,6 +1,6 @@
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
-import { ApiSupportTest } from "./ApiSupportTest";
 import { utils } from "@/env";
+import { GMTotal } from "./GMTotal";
 
 const LocalStorageApi = {
 	$storageKey: "gm-api-test-storage-config",
@@ -44,9 +44,9 @@ export const StorageApi = {
 	 */
 	set(key: string, value: any) {
 		if (
-			ApiSupportTest.setValue() &&
-			ApiSupportTest.getValue() &&
-			ApiSupportTest.deleteValue()
+			GMTotal.setValue.isSupport() &&
+			GMTotal.getValue.isSupport() &&
+			GMTotal.deleteValue.isSupport()
 		) {
 			GM_setValue(key, value);
 		} else {
@@ -60,9 +60,9 @@ export const StorageApi = {
 	 */
 	get<K extends any>(key: string, defaultValue?: K): K {
 		if (
-			ApiSupportTest.setValue() &&
-			ApiSupportTest.getValue() &&
-			ApiSupportTest.deleteValue()
+			GMTotal.setValue.isSupport() &&
+			GMTotal.getValue.isSupport() &&
+			GMTotal.deleteValue.isSupport()
 		) {
 			return GM_getValue(key, defaultValue);
 		} else {
@@ -75,9 +75,9 @@ export const StorageApi = {
 	 */
 	delete(key: string) {
 		if (
-			ApiSupportTest.setValue() &&
-			ApiSupportTest.getValue() &&
-			ApiSupportTest.deleteValue()
+			GMTotal.setValue.isSupport() &&
+			GMTotal.getValue.isSupport() &&
+			GMTotal.deleteValue.isSupport()
 		) {
 			GM_deleteValue(key);
 		} else {

@@ -1,311 +1,34 @@
 import { DOMUtils, injectDocumentTime, log, utils } from "@/env";
-import { UISwitch } from "../common-components/ui-switch";
-import { UITextArea } from "../common-components/ui-textarea";
-import { UISelect } from "../common-components/ui-select";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { UIInfo } from "../common-components/ui-info";
 import { CommonUtil } from "@/utils/CommonUtil";
-import { ApiSupportTest } from "@/main/ApiSupportTest";
 import { StorageApi } from "@/main/StorageApi";
 import { PanelKeyConfig } from "../panel-key-config";
+import { GMTotal } from "@/main/GMTotal";
 
 type ApiSupportUIConfig = {
 	name: string;
 	isSupport: boolean;
-	leftAsideSelector: string;
 };
 export const Component_Common = (): PopsPanelContentConfig => {
 	/** 支持的api名称列表 */
 	let supportApiNameList: ApiSupportUIConfig[] = [];
 	/** 不支持的api名称列表 */
 	let notSupportApiNameList: ApiSupportUIConfig[] = [];
-	let apiList: ApiSupportUIConfig[] = [
-		{
-			name: "unsafeWindow",
-			isSupport: ApiSupportTest.unsafeWindow(),
-			leftAsideSelector: "#aside-unsafewindow",
-		},
-		{
-			name: "GM",
-			isSupport: ApiSupportTest.GM(),
-			leftAsideSelector: "",
-		},
-		{
-			name: "GM_addElement",
-			isSupport: ApiSupportTest.addElement(),
-			leftAsideSelector: "#aside-GM_addElement",
-		},
-		{
-			name: "GM.addElement",
-			isSupport: ApiSupportTest.addElement_async(),
-			leftAsideSelector: "#aside-GM_addElement",
-		},
-		{
-			name: "GM_addStyle",
-			isSupport: ApiSupportTest.addStyle(),
-			leftAsideSelector: "#aside-GM_addStyle",
-		},
-		{
-			name: "GM.addStyle",
-			isSupport: ApiSupportTest.addStyle_async(),
-			leftAsideSelector: "#aside-GM_addStyle",
-		},
-		{
-			name: "GM_download",
-			isSupport: ApiSupportTest.download(),
-			leftAsideSelector: "#aside-GM_download",
-		},
-		{
-			name: "GM.download",
-			isSupport: ApiSupportTest.download_async(),
-			leftAsideSelector: "#aside-GM_download",
-		},
-		{
-			name: "GM_getResourceText",
-			isSupport: ApiSupportTest.getResourceText(),
-			leftAsideSelector: "#aside-GM_getResourceText",
-		},
-		{
-			name: "GM.getResourceText",
-			isSupport: ApiSupportTest.getResourceText_async(),
-			leftAsideSelector: "#aside-GM_getResourceText",
-		},
-		{
-			name: "GM_getResourceURL",
-			isSupport: ApiSupportTest.getResourceUrl(),
-			leftAsideSelector: "#aside-GM_getResourceURL",
-		},
-		{
-			name: "GM.getResourceUrl",
-			isSupport: ApiSupportTest.getResourceUrl_async(),
-			leftAsideSelector: "#aside-GM_getResourceURL",
-		},
-		{
-			name: "GM_info",
-			isSupport: ApiSupportTest.info(),
-			leftAsideSelector: "#aside-GM_info",
-		},
-		{
-			name: "GM.info",
-			isSupport: ApiSupportTest.info_async(),
-			leftAsideSelector: "#aside-GM_info",
-		},
-		{
-			name: "GM_log",
-			isSupport: ApiSupportTest.log(),
-			leftAsideSelector: "#aside-GM_log",
-		},
-		{
-			name: "GM.log",
-			isSupport: ApiSupportTest.log_async(),
-			leftAsideSelector: "#aside-GM_log",
-		},
-		{
-			name: "GM_notification",
-			isSupport: ApiSupportTest.notification(),
-			leftAsideSelector: "#aside-GM_notification",
-		},
-		{
-			name: "GM.notification",
-			isSupport: ApiSupportTest.notification_async(),
-			leftAsideSelector: "#aside-GM_notification",
-		},
-		{
-			name: "GM_openInTab",
-			isSupport: ApiSupportTest.openInTab(),
-			leftAsideSelector: "#aside-GM_openInTab",
-		},
-		{
-			name: "GM.openInTab",
-			isSupport: ApiSupportTest.openInTab_async(),
-			leftAsideSelector: "#aside-GM_openInTab",
-		},
-		{
-			name: "GM_registerMenuCommand",
-			isSupport: ApiSupportTest.registerMenuCommand(),
-			leftAsideSelector: "#aside-GM_registerMenuCommand",
-		},
-		{
-			name: "GM.registerMenuCommand",
-			isSupport: ApiSupportTest.registerMenuCommand_async(),
-			leftAsideSelector: "#aside-GM_registerMenuCommand",
-		},
-		{
-			name: "GM_unregisterMenuCommand",
-			isSupport: ApiSupportTest.unregisterMenuCommand(),
-			leftAsideSelector: "#aside-GM_unregisterMenuCommand",
-		},
-		{
-			name: "GM.unregisterMenuCommand",
-			isSupport: ApiSupportTest.unregisterMenuCommand_async(),
-			leftAsideSelector: "#aside-GM_unregisterMenuCommand",
-		},
-		{
-			name: "GM_setClipboard",
-			isSupport: ApiSupportTest.setClipboard(),
-			leftAsideSelector: "#aside-GM_setClipboard",
-		},
-		{
-			name: "GM.setClipboard",
-			isSupport: ApiSupportTest.setClipboard_async(),
-			leftAsideSelector: "#aside-GM_setClipboard",
-		},
-		{
-			name: "GM_getTab",
-			isSupport: ApiSupportTest.getTab(),
-			leftAsideSelector: "#aside-GM_getTab",
-		},
-		{
-			name: "GM.getTab",
-			isSupport: ApiSupportTest.getTab_async(),
-			leftAsideSelector: "#aside-GM_getTab",
-		},
-		{
-			name: "GM_saveTab",
-			isSupport: ApiSupportTest.saveTab(),
-			leftAsideSelector: "#aside-GM_saveTab",
-		},
-		{
-			name: "GM.saveTab",
-			isSupport: ApiSupportTest.saveTab_async(),
-			leftAsideSelector: "#aside-GM_saveTab",
-		},
-		{
-			name: "GM_getTabs",
-			isSupport: ApiSupportTest.getTabs(),
-			leftAsideSelector: "#aside-GM_getTabs",
-		},
-		{
-			name: "GM.getTabs",
-			isSupport: ApiSupportTest.getTabs_async(),
-			leftAsideSelector: "#aside-GM_getTabs",
-		},
-		{
-			name: "GM_setValue",
-			isSupport: ApiSupportTest.setValue(),
-			leftAsideSelector: "#aside-GM_setValue",
-		},
-		{
-			name: "GM.setValue",
-			isSupport: ApiSupportTest.setValue_async(),
-			leftAsideSelector: "#aside-GM_setValue",
-		},
-		{
-			name: "GM_getValue",
-			isSupport: ApiSupportTest.getValue(),
-			leftAsideSelector: "#aside-GM_getValue",
-		},
-		{
-			name: "GM.getValue",
-			isSupport: ApiSupportTest.getValue_async(),
-			leftAsideSelector: "#aside-GM_getValue",
-		},
-		{
-			name: "GM_deleteValue",
-			isSupport: ApiSupportTest.deleteValue(),
-			leftAsideSelector: "#aside-GM_deleteValue",
-		},
-		{
-			name: "GM.deleteValue",
-			isSupport: ApiSupportTest.deleteValue_async(),
-			leftAsideSelector: "#aside-GM_deleteValue",
-		},
-		{
-			name: "GM_listValues",
-			isSupport: ApiSupportTest.listValues(),
-			leftAsideSelector: "#aside-GM_listValues",
-		},
-		{
-			name: "GM.listValues",
-			isSupport: ApiSupportTest.listValues_async(),
-			leftAsideSelector: "#aside-GM_listValues",
-		},
-		{
-			name: "GM_setValues",
-			isSupport: ApiSupportTest.setValues(),
-			leftAsideSelector: "#aside-GM_setValues",
-		},
-		{
-			name: "GM.setValues",
-			isSupport: ApiSupportTest.setValues_async(),
-			leftAsideSelector: "#aside-GM_setValues",
-		},
-		{
-			name: "GM_getValues",
-			isSupport: ApiSupportTest.getValues(),
-			leftAsideSelector: "#aside-GM_getValues",
-		},
-		{
-			name: "GM.getValues",
-			isSupport: ApiSupportTest.getValues_async(),
-			leftAsideSelector: "#aside-GM_getValues",
-		},
-		{
-			name: "GM_deleteValues",
-			isSupport: ApiSupportTest.deleteValues(),
-			leftAsideSelector: "#aside-GM_deleteValues",
-		},
-		{
-			name: "GM.deleteValues",
-			isSupport: ApiSupportTest.deleteValues_async(),
-			leftAsideSelector: "#aside-GM_deleteValues",
-		},
-		{
-			name: "GM_addValueChangeListener",
-			isSupport: ApiSupportTest.addValueChangeListener(),
-			leftAsideSelector: "#aside-GM_addValueChangeListener",
-		},
-		{
-			name: "GM.addValueChangeListener",
-			isSupport: ApiSupportTest.addValueChangeListener_async(),
-			leftAsideSelector: "#aside-GM_addValueChangeListener",
-		},
-		{
-			name: "GM_removeValueChangeListener",
-			isSupport: ApiSupportTest.removeValueChangeListener(),
-			leftAsideSelector: "#aside-GM_removeValueChangeListener",
-		},
-		{
-			name: "GM.removeValueChangeListener",
-			isSupport: ApiSupportTest.removeValueChangeListener_async(),
-			leftAsideSelector: "#aside-GM_removeValueChangeListener",
-		},
-		{
-			name: "GM_xmlhttpRequest",
-			isSupport: ApiSupportTest.xmlHttpRequest(),
-			leftAsideSelector: "#aside-GM_xmlhttpRequest",
-		},
-		{
-			name: "GM.xmlHttpRequest",
-			isSupport: ApiSupportTest.xmlHttpRequest_async(),
-			leftAsideSelector: "#aside-GM_xmlhttpRequest",
-		},
-		{
-			name: "GM_webRequest",
-			isSupport: ApiSupportTest.webRequest(),
-			leftAsideSelector: "#aside-GM_webRequest",
-		},
-		{
-			name: "GM.webRequest",
-			isSupport: ApiSupportTest.webRequest_async(),
-			leftAsideSelector: "#aside-GM_webRequest",
-		},
-		{
-			name: "GM_cookie",
-			isSupport: ApiSupportTest.cookie(),
-			leftAsideSelector: "#aside-GM_cookie",
-		},
-		{
-			name: "GM.cookie",
-			isSupport: ApiSupportTest.cookie_async(),
-			leftAsideSelector: "#aside-GM_cookie",
-		},
-	];
-	apiList.forEach((api) => {
-		if (api.isSupport) {
-			supportApiNameList.push(api);
+	Object.keys(GMTotal).forEach((keyName) => {
+		let value = GMTotal[keyName as keyof typeof GMTotal];
+		let apiName = value.getApiName();
+		let isSupport = value.isSupport();
+		if (isSupport) {
+			supportApiNameList.push({
+				name: apiName,
+				isSupport: isSupport,
+			});
 		} else {
-			notSupportApiNameList.push(api);
+			notSupportApiNameList.push({
+				name: apiName,
+				isSupport: isSupport,
+			});
 		}
 	});
 	/**
@@ -338,15 +61,13 @@ export const Component_Common = (): PopsPanelContentConfig => {
 		});
 		DOMUtils.on($item, "click", (event) => {
 			utils.preventEvent(event);
-			if (utils.isNotNull(config.leftAsideSelector)) {
-				let shadowRoot = $item.getRootNode() as ShadowRoot;
-				let $left = shadowRoot.querySelector<HTMLElement>(
-					config.leftAsideSelector
-				);
-				if ($left) {
-					$left.click();
-					$left.scrollIntoView({ behavior: "smooth" });
-				}
+			let shadowRoot = $item.getRootNode() as ShadowRoot;
+			let $left = shadowRoot.querySelector<HTMLElement>(
+				"#aside-" + config.name
+			);
+			if ($left) {
+				$left.click();
+				$left.scrollIntoView({ behavior: "smooth" });
 			}
 		});
 		return $item;

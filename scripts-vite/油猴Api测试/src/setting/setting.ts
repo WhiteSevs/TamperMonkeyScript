@@ -14,37 +14,9 @@ import {
 } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
-import { PanelUI_unsafeWindow } from "./components/unsafeWindow";
 import { PanelUISize } from "./panel-ui-size";
-import { PanelUI_GM_addElement } from "./components/GM_addElement";
-import { PanelUI_GM_addStyle } from "./components/GM_addStyle";
-import { PanelUI_GM_download } from "./components/GM_download";
-import { PanelUI_GM_getResourceText } from "./components/GM_getResourceText";
-import { PanelUI_GM_getResourceURL } from "./components/GM_getResourceURL";
-import { PanelUI_GM_info } from "./components/GM_info";
-import { PanelUI_GM_log } from "./components/GM_log";
-import { PanelUI_GM_notification } from "./components/GM_notification";
-import { PanelUI_GM_openInTab } from "./components/GM_openInTab";
-import { PanelUI_GM_registerMenuCommand } from "./components/GM_registerMenuCommand";
-import { PanelUI_GM_unregisterMenuCommand } from "./components/GM_unregisterMenuCommand";
-import { PanelUI_GM_setClipboard } from "./components/GM_setClipboard";
-import { PanelUI_GM_getTab } from "./components/GM_getTab";
-import { PanelUI_GM_saveTab } from "./components/GM_saveTab";
-import { PanelUI_GM_getTabs } from "./components/GM_getTabs";
-import { PanelUI_GM_setValue } from "./components/GM_setValue";
-import { PanelUI_GM_getValue } from "./components/GM_getValue";
-import { PanelUI_GM_deleteValue } from "./components/GM_deleteValue";
-import { PanelUI_GM_listValues } from "./components/GM_listValues";
-import { PanelUI_GM_setValues } from "./components/GM_setValues";
-import { PanelUI_GM_getValues } from "./components/GM_getValues";
-import { PanelUI_GM_deleteValues } from "./components/GM_deleteValues";
-import { PanelUI_GM_addValueChangeListener } from "./components/GM_addValueChangeListener";
-import { PanelUI_GM_removeValueChangeListener } from "./components/GM_removeValueChangeListener";
-import { PanelUI_GM_xmlhttpRequest } from "./components/GM_xmlhttpRequest";
-import { PanelUI_GM_webRequest } from "./components/GM_webRequest";
-import { PanelUI_GM_cookie } from "./components/GM_cookie";
-import { ApiSupportTest } from "@/main/ApiSupportTest";
 import { StorageApi } from "@/main/StorageApi";
+import { GMTotal } from "@/main/GMTotal";
 
 type PosPanelListenerData = {
 	id: number;
@@ -125,7 +97,7 @@ export const PopsPanel = {
 	},
 	/** 判断是否是顶层窗口 */
 	isTopWindow() {
-		if (ApiSupportTest.unsafeWindow()) {
+		if (GMTotal.unsafeWindow.isSupport()) {
 			return unsafeWindow.top === unsafeWindow.self;
 		} else {
 			return window.top === window.self;
@@ -671,37 +643,14 @@ export const PopsPanel = {
 	 * 获取配置内容
 	 */
 	getPanelContentConfig() {
-		let configList: PopsPanelContentConfig[] = [
-			Component_Common(),
-			PanelUI_unsafeWindow(),
-			PanelUI_GM_addElement(),
-			PanelUI_GM_addStyle(),
-			PanelUI_GM_download(),
-			PanelUI_GM_getResourceText(),
-			PanelUI_GM_getResourceURL(),
-			PanelUI_GM_info(),
-			PanelUI_GM_log(),
-			PanelUI_GM_notification(),
-			PanelUI_GM_openInTab(),
-			PanelUI_GM_registerMenuCommand(),
-			PanelUI_GM_unregisterMenuCommand(),
-			PanelUI_GM_setClipboard(),
-			PanelUI_GM_getTab(),
-			PanelUI_GM_saveTab(),
-			PanelUI_GM_getTabs(),
-			PanelUI_GM_setValue(),
-			PanelUI_GM_getValue(),
-			PanelUI_GM_deleteValue(),
-			PanelUI_GM_listValues(),
-			PanelUI_GM_setValues(),
-			PanelUI_GM_getValues(),
-			PanelUI_GM_deleteValues(),
-			PanelUI_GM_addValueChangeListener(),
-			PanelUI_GM_removeValueChangeListener(),
-			PanelUI_GM_xmlhttpRequest(),
-			PanelUI_GM_webRequest(),
-			PanelUI_GM_cookie(),
-		];
+		let configList: PopsPanelContentConfig[] = [Component_Common()];
+		Object.keys(GMTotal).forEach((keyName) => {
+			let value = GMTotal[keyName as keyof typeof GMTotal];
+			let option = value.getUIOption();
+			if (option) {
+				configList.push(option);
+			}
+		});
 		return configList;
 	},
 };

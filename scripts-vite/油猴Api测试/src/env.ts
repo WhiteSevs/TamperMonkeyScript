@@ -10,8 +10,8 @@ import DOMUtils from "@whitesev/domutils";
 import Utils from "@whitesev/utils";
 import { PopsPanel } from "./setting/setting";
 import pops from "@whitesev/pops";
-import { ApiSupportTest } from "./main/ApiSupportTest";
 import { StorageApi } from "./main/StorageApi";
+import { GMTotal } from "./main/GMTotal";
 
 /* 脚本名 */
 const _SCRIPT_NAME_ = "Monkey Api Test";
@@ -75,12 +75,12 @@ Qmsg.config(
 
 /** 油猴菜单 */
 const GM_Menu = new utils.GM_Menu({
-	GM_getValue: ApiSupportTest.getValue() ? GM_getValue : StorageApi.get,
-	GM_setValue: ApiSupportTest.setValue() ? GM_setValue : StorageApi.set,
-	GM_registerMenuCommand: ApiSupportTest.registerMenuCommand()
+	GM_getValue: GMTotal.getValue.isSupport() ? GM_getValue : StorageApi.get,
+	GM_setValue: GMTotal.setValue.isSupport() ? GM_setValue : StorageApi.set,
+	GM_registerMenuCommand: GMTotal.registerMenuCommand.isSupport()
 		? GM_registerMenuCommand
 		: () => {},
-	GM_unregisterMenuCommand: ApiSupportTest.unregisterMenuCommand()
+	GM_unregisterMenuCommand: GMTotal.unregisterMenuCommand.isSupport()
 		? GM_unregisterMenuCommand
 		: () => {},
 });
@@ -136,20 +136,20 @@ if (document.documentElement) {
 		if (document.body) {
 			injectDocumentTime = `<html>
     <head>
-	    ...${document.head.children.length} elements
+	    ...${document.head.childNodes.length} nodes
 	</head>
     <body>
-        ...${document.body.children.length} elements
+        ...${document.body.childNodes.length} nodes
     </body>
 </html>
 
 似乎注入到页面有点慢
 `;
 		} else {
-			if (document.head.children.length) {
+			if (document.head.childNodes.length) {
 				injectDocumentTime = `<html>
 	<head>
-	    ...${document.head.children.length} elements
+	    ...${document.head.childNodes.length} nodes
 	</head>
 </html>
 		
