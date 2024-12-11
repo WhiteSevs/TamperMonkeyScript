@@ -37,10 +37,10 @@ ol.script-list li {
 }
 /* 安装按钮 */
 .install-link {
-	border-radius: 0.25rem 0.25rem 0.25rem 0.25rem;
+	border-radius: 0.25rem 0.25rem 0.25rem 0.25rem !important;
 }
 .install-link:has(+ .install-help-link) {
-	border-radius: 0.25rem 0 0 0.25rem;
+	border-radius: 0.25rem 0 0 0.25rem !important;
 }
 /* 加载圆圈动画 */
 .install-link.lum-lightbox-loader {
@@ -59,6 +59,6 @@ ol.script-list li {
 	width: 1em;
 	height: 1em;
 	margin-top: -0.5em;
-	border-radius: 1em;
+	border-radius: 1em !important;
 	background: hsla(0, 0%, 100%, 0.5);
 }
