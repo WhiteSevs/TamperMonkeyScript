@@ -20002,33 +20002,15 @@
             type: "forms",
             text: "函数测试",
             forms: [
-              UIInfo(() => {
-                return apiInfo.isSupportList ? {
-                  text: `支持 ${apiName}.list`,
+              UIInfo(
+                () => this.isSupport() ? {
+                  text: "支持 " + apiName,
                   tag: "success"
                 } : {
-                  text: `不支持 ${apiName}.list`,
+                  text: "不支持 " + apiName,
                   tag: "error"
-                };
-              }),
-              UIInfo(() => {
-                return apiInfo.isSupportSet ? {
-                  text: `支持 ${apiName}.set`,
-                  tag: "success"
-                } : {
-                  text: `不支持 ${apiName}.set`,
-                  tag: "error"
-                };
-              }),
-              UIInfo(() => {
-                return apiInfo.isSupportDelete ? {
-                  text: `支持 ${apiName}.delete`,
-                  tag: "success"
-                } : {
-                  text: `不支持 ${apiName}.delete`,
-                  tag: "error"
-                };
-              })
+                }
+              )
             ]
           },
           {
@@ -20039,6 +20021,37 @@
         ]
       };
       let firstFormList = result2["forms"][0].forms;
+      if (this.isSupport()) {
+        firstFormList.push(
+          UIInfo(() => {
+            return apiInfo.isSupportList ? {
+              text: `支持 ${apiName}.list`,
+              tag: "success"
+            } : {
+              text: `不支持 ${apiName}.list`,
+              tag: "error"
+            };
+          }),
+          UIInfo(() => {
+            return apiInfo.isSupportSet ? {
+              text: `支持 ${apiName}.set`,
+              tag: "success"
+            } : {
+              text: `不支持 ${apiName}.set`,
+              tag: "error"
+            };
+          }),
+          UIInfo(() => {
+            return apiInfo.isSupportDelete ? {
+              text: `支持 ${apiName}.delete`,
+              tag: "success"
+            } : {
+              text: `不支持 ${apiName}.delete`,
+              tag: "error"
+            };
+          })
+        );
+      }
       if (apiAsyncInfo.isSupport) {
         firstFormList.push(
           UIInfo(() => {
