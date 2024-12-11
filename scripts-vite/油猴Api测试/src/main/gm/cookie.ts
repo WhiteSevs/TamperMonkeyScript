@@ -16,13 +16,14 @@ export class ApiTest_cookie extends ApiTestBase {
 		return "GM_cookie";
 	}
 	public getAsyncApiOption() {
+		let isSupportAsync =
+			this.isSupportGM() && typeof GM.cookie === "object" && GM.cookie != null;
 		return {
 			name: "GM.cookie",
-			isSupport: this.isSupportGM() && typeof GM.cookie === "object",
-			isSupportList: this.isSupportGM() && typeof GM.cookie.list === "function",
-			isSupportSet: this.isSupportGM() && typeof GM.cookie.set === "function",
-			isSupportDelete:
-				this.isSupportGM() && typeof GM.cookie.delete === "function",
+			isSupport: isSupportAsync,
+			isSupportList: isSupportAsync && typeof GM.cookie.list === "function",
+			isSupportSet: isSupportAsync && typeof GM.cookie.set === "function",
+			isSupportDelete: isSupportAsync && typeof GM.cookie.delete === "function",
 		};
 	}
 	public getUIOption() {

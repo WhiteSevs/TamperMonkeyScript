@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.11
+// @version      2024.12.11.14
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -19965,12 +19965,13 @@
       return "GM_cookie";
     }
     getAsyncApiOption() {
+      let isSupportAsync = this.isSupportGM() && typeof _GM.cookie === "object" && _GM.cookie != null;
       return {
         name: "GM.cookie",
-        isSupport: this.isSupportGM() && typeof _GM.cookie === "object",
-        isSupportList: this.isSupportGM() && typeof _GM.cookie.list === "function",
-        isSupportSet: this.isSupportGM() && typeof _GM.cookie.set === "function",
-        isSupportDelete: this.isSupportGM() && typeof _GM.cookie.delete === "function"
+        isSupport: isSupportAsync,
+        isSupportList: isSupportAsync && typeof _GM.cookie.list === "function",
+        isSupportSet: isSupportAsync && typeof _GM.cookie.set === "function",
+        isSupportDelete: isSupportAsync && typeof _GM.cookie.delete === "function"
       };
     }
     getUIOption() {
