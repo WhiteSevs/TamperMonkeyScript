@@ -19959,7 +19959,15 @@
   }
   class ApiTest_cookie extends ApiTestBase {
     isSupport() {
-      return _GM_cookie != null && typeof (_GM_cookie == null ? void 0 : _GM_cookie.delete) === "function" && typeof (_GM_cookie == null ? void 0 : _GM_cookie.list) === "function" && typeof (_GM_cookie == null ? void 0 : _GM_cookie.set) === "function";
+      return (typeof _GM_cookie === "object" || typeof _GM_cookie === "function") && _GM_cookie != null;
+    }
+    getApiOption() {
+      let isSupport = this.isSupport();
+      return {
+        isSupportList: isSupport && typeof _GM_cookie.list === "function",
+        isSupportSet: isSupport && typeof _GM_cookie.set === "function",
+        isSupportDelete: isSupport && typeof _GM_cookie.delete === "function"
+      };
     }
     getApiName() {
       return "GM_cookie";
@@ -19976,6 +19984,7 @@
     }
     getUIOption() {
       let apiName = this.getApiName();
+      let apiInfo = this.getApiOption();
       let apiAsyncInfo = this.getAsyncApiOption();
       let result2 = {
         id: "aside-" + apiName,
@@ -19993,15 +20002,33 @@
             type: "forms",
             text: "函数测试",
             forms: [
-              UIInfo(
-                () => this.isSupport() ? {
-                  text: "支持 " + apiName,
+              UIInfo(() => {
+                return apiInfo.isSupportList ? {
+                  text: `支持 ${apiName}.list`,
                   tag: "success"
                 } : {
-                  text: "不支持 " + apiName,
+                  text: `不支持 ${apiName}.list`,
                   tag: "error"
-                }
-              )
+                };
+              }),
+              UIInfo(() => {
+                return apiInfo.isSupportSet ? {
+                  text: `支持 ${apiName}.set`,
+                  tag: "success"
+                } : {
+                  text: `不支持 ${apiName}.set`,
+                  tag: "error"
+                };
+              }),
+              UIInfo(() => {
+                return apiInfo.isSupportDelete ? {
+                  text: `支持 ${apiName}.delete`,
+                  tag: "success"
+                } : {
+                  text: `不支持 ${apiName}.delete`,
+                  tag: "error"
+                };
+              })
             ]
           },
           {

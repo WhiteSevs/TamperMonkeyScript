@@ -11,11 +11,17 @@ import { CommonUtil } from "@/utils/CommonUtil";
 export class ApiTest_cookie extends ApiTestBase {
 	public isSupport() {
 		return (
-			GM_cookie != null &&
-			typeof GM_cookie?.delete === "function" &&
-			typeof GM_cookie?.list === "function" &&
-			typeof GM_cookie?.set === "function"
+			(typeof GM_cookie === "object" || typeof GM_cookie === "function") &&
+			GM_cookie != null
 		);
+	}
+	public getApiOption() {
+		let isSupport = this.isSupport();
+		return {
+			isSupportList: isSupport && typeof GM_cookie.list === "function",
+			isSupportSet: isSupport && typeof GM_cookie.set === "function",
+			isSupportDelete: isSupport && typeof GM_cookie.delete === "function",
+		};
 	}
 	public getApiName() {
 		return "GM_cookie";
@@ -34,6 +40,7 @@ export class ApiTest_cookie extends ApiTestBase {
 	public getUIOption() {
 		const that = this;
 		let apiName = this.getApiName();
+		let apiInfo = this.getApiOption();
 		let apiAsyncInfo = this.getAsyncApiOption();
 
 		let result: PopsPanelContentConfig = {
@@ -52,17 +59,39 @@ export class ApiTest_cookie extends ApiTestBase {
 					type: "forms",
 					text: "函数测试",
 					forms: [
-						UIInfo(() =>
-							this.isSupport()
+						UIInfo(() => {
+							return apiInfo.isSupportList
 								? {
-										text: "支持 " + apiName,
+										text: `支持 ${apiName}.list`,
 										tag: "success",
 								  }
 								: {
-										text: "不支持 " + apiName,
+										text: `不支持 ${apiName}.list`,
 										tag: "error",
+								  };
+						}),
+						UIInfo(() => {
+							return apiInfo.isSupportSet
+								? {
+										text: `支持 ${apiName}.set`,
+										tag: "success",
 								  }
-						),
+								: {
+										text: `不支持 ${apiName}.set`,
+										tag: "error",
+								  };
+						}),
+						UIInfo(() => {
+							return apiInfo.isSupportDelete
+								? {
+										text: `支持 ${apiName}.delete`,
+										tag: "success",
+								  }
+								: {
+										text: `不支持 ${apiName}.delete`,
+										tag: "error",
+								  };
+						}),
 					],
 				},
 				{
