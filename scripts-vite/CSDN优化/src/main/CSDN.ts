@@ -1,9 +1,10 @@
 import { GM_Menu, log, utils } from "@/env";
 import { CSDNRouter } from "@/router/CSDNRouter";
 import { CSDNHuaWeiCloud } from "./huaWeiCloud/CSDNHuaWeiCloud";
-import { CSDNBlog } from "./blog/CSDNBlog";
+import { CSDNBlogArticle } from "./blog/CSDNBlogArticle";
 import { CSDNWenKu } from "./wenku/CSDNWenKu";
 import { CSDNLink } from "./link/CSDNLink";
+import { CSDNBlog } from "./blog/CSDNBlog";
 
 export const CSDN = {
 	init() {
@@ -16,6 +17,11 @@ export const CSDN = {
 		} else if (CSDNRouter.isBlog()) {
 			log.info("Router: 博客");
 			CSDNBlog.init();
+
+			if (CSDNRouter.isBlogArticle()) {
+				log.info("Router: 帖子");
+				CSDNBlogArticle.init();
+			}
 		} else if (CSDNRouter.isWenKu()) {
 			log.info("Router: 文库");
 			CSDNWenKu.init();

@@ -1,7 +1,7 @@
 import { DOMUtils, log } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 
-export const M_CSDNBlogRightToolBar = {
+export const M_CSDNBlogArticleRightToolBar = {
 	init() {
 		DOMUtils.ready(() => {
 			let $toolbar = this.createRightToolBar();

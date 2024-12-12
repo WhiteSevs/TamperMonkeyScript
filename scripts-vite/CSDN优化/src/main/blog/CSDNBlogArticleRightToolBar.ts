@@ -2,7 +2,7 @@ import { $, DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { CommonUtil } from "@/utils/CommonUtil";
 
-const CSDNBlogRightToolBar = {
+const CSDNBlogArticleRightToolBar = {
 	init() {
 		PopsPanel.execMenuOnce(
 			"csdn-blog-rightToolbarEnable",
@@ -176,4 +176,4 @@ const CSDNBlogRightToolBar = {
 	},
 };
 
-export { CSDNBlogRightToolBar };
+export { CSDNBlogArticleRightToolBar as CSDNBlogRightToolBar };

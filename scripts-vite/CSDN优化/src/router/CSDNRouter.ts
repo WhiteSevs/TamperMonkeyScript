@@ -13,6 +13,14 @@ export const CSDNRouter = {
 	isBlog() {
 		return Boolean(/blog.csdn.net/i.test(window.location.origin));
 	},
+	/** 
+	 * 博客帖子
+	 */
+	isBlogArticle() {
+		return (
+			this.isBlog() && window.location.pathname.includes("/article/details/")
+		);
+	},
 	/**
 	 * 判断是否是文库
 	 * + wenku.csdn.net
