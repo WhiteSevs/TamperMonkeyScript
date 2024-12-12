@@ -22,7 +22,6 @@ import {
 } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
-import { PanelRecommendVideoConfig } from "./components/recommend";
 import { PanelUISize } from "./panel-ui-size";
 
 type PosPanelListenerData = {
@@ -647,7 +646,6 @@ const PopsPanel = {
 		let configList: PopsPanelContentConfig[] = [
 			PanelCommonConfig,
 			PanelVideoConfig,
-			PanelRecommendVideoConfig,
 			PanelSearchConfig,
 			PanelLiveConfig,
 		];

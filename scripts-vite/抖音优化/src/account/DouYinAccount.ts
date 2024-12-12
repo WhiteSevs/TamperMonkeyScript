@@ -64,7 +64,7 @@ export const DouYinAccount = {
 				});
 			});
 		}
-		DouYinElement.watchVideDataListChange(($os) => {
+		DouYinElement.watchFeedVideoListChange(($os) => {
 			setLogin($os);
 		});
 		utils

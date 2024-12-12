@@ -8,11 +8,9 @@ import { DouYinSearchFilter } from "./DouYinSearchFilter";
 export const DouYinSearch = {
 	init() {
 		DouYinSearchHideElement.init();
+		DouYinSearchFilter.init();
 		PopsPanel.execMenuOnce("mobileMode", () => {
 			return this.mobileMode();
-		});
-		PopsPanel.execMenuOnce("search-shieldVideo", () => {
-			DouYinSearchFilter.init();
 		});
 		PopsPanel.execMenuOnce("dy-search-disableClickToEnterFullScreen", () => {
 			this.disableClickToEnterFullScreen();

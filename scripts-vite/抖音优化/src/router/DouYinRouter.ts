@@ -31,6 +31,10 @@ export const DouYinRouter = {
 				window.location.pathname.startsWith("/root/search"))
 		);
 	},
+	/** 例如：知识、二次元、游戏、美食等 */
+	isChannel() {
+		return this.isIndex() && window.location.pathname.startsWith("/channel");
+	},
 	/** 精选 */
 	isDiscover() {
 		return this.isIndex() && window.location.pathname.startsWith("/discover");

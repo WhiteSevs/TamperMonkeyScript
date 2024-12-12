@@ -1,13 +1,13 @@
 import Qmsg from "qmsg";
 import {
-	DouYinVideoFilter,
+	DouYinVideoFilterBase,
 	type DouYinVideoHandlerInfo,
 	type DouYinVideoAwemeInfo,
-} from "../video/DouYinVideoFilter";
+} from "./DouYinVideoFilterBase";
 import { DOMUtils, log, pops, utils } from "@/env";
-import { DouYinRecommendVideoFilter } from "./DouYinRecommendVideoFilter";
+import { DouYinVideoFilter } from "./DouYinVideoFilter";
 
-export const DouYinRecommendVideoFilterDebug = {
+export const DouYinVideoFilterDebug = {
 	init() {
 		this.show();
 	},
@@ -16,7 +16,7 @@ export const DouYinRecommendVideoFilterDebug = {
 	 */
 	show() {
 		const KEY = "temp-debug-recommend-video-filter-rule";
-		let videoFilter = new DouYinVideoFilter({
+		let videoFilter = new DouYinVideoFilterBase({
 			key: KEY,
 		});
 		videoFilter.clear();
@@ -29,7 +29,7 @@ export const DouYinRecommendVideoFilterDebug = {
 		);
 		let awemeInfo: DouYinVideoAwemeInfo | undefined = void 0;
 		if (choose === "1" || choose === "3") {
-			awemeInfo = DouYinRecommendVideoFilter.getCurrentActiveVideoInfo();
+			awemeInfo = DouYinVideoFilter.getCurrentActiveVideoInfo();
 			if (awemeInfo == null) {
 				Qmsg.error("获取当前播放的视频信息失败，详情请看控制台");
 				return;
@@ -45,8 +45,7 @@ export const DouYinRecommendVideoFilterDebug = {
 					4
 				);
 			} else if (choose === "2") {
-				let allAwemeInfoList =
-					DouYinRecommendVideoFilter.getAllVideoAwemeInfo();
+				let allAwemeInfoList = DouYinVideoFilter.getAllFeedVideoAwemeInfo();
 				let allAwemeDictInfoList: DouYinVideoHandlerInfo[] = [];
 				allAwemeInfoList.forEach((awemeInfo) => {
 					allAwemeDictInfoList.push(

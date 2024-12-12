@@ -1,11 +1,11 @@
-import { DOMUtils, log, utils } from "@/env";
+import { $, DOMUtils, log, utils } from "@/env";
 
 export const DouYinElement = {
 	/**
 	 * 观察 #slidelist的加载每条视频
 	 * @param callback
 	 */
-	watchVideDataListChange(
+	watchFeedVideoListChange(
 		callback: (osElement: HTMLDivElement, observer: MutationObserver) => void
 	) {
 		let $os = null as HTMLDivElement | null;
@@ -18,6 +18,14 @@ export const DouYinElement = {
 				])
 				.then(($ele) => {
 					log.info(`启用观察器观察加载的视频`);
+					let lockFn = new utils.LockFunction((observer) => {
+						$os = $os || this.getOSElement();
+						if (!$os) {
+							log.error("watchVideDataListChange：获取osElement失败");
+							return;
+						}
+						callback($os, observer);
+					}, 50);
 					utils.mutationObserver(document.body, {
 						config: {
 							childList: true,
@@ -25,12 +33,7 @@ export const DouYinElement = {
 						},
 						immediate: true,
 						callback: (mutations, observer) => {
-							$os = $os || this.getOSElement();
-							if (!$os) {
-								log.error("watchVideDataListChange：获取osElement失败");
-								return;
-							}
-							callback($os, observer);
+							lockFn.run(observer);
 						},
 					});
 				});
@@ -38,8 +41,8 @@ export const DouYinElement = {
 	},
 	getOSElement() {
 		return (
-			document.querySelector<HTMLDivElement>("#root div[class*='-os']") ||
-			document.querySelector<HTMLDivElement>("#douyin-right-container")
+			$<HTMLDivElement>("#root div[class*='-os']") ||
+			$<HTMLDivElement>("#douyin-right-container")
 		);
 	},
 };

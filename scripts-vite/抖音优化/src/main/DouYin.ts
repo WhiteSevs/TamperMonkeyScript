@@ -14,6 +14,7 @@ import { DouYinGestureBackClearHash } from "./DouYinGestureBackConfig";
 import blockCSS from "./css/block.css?raw";
 import { DouYinUser } from "./user/DouYinUser";
 import { DouYinVideo } from "./video/DouYinVideo";
+import { DouYinChannel } from "./channel/DouYinChannel";
 
 export const DouYin = {
 	init() {
@@ -59,6 +60,9 @@ export const DouYin = {
 			} else if (DouYinRouter.isVideo()) {
 				log.info(`Router: 单个视频页面`);
 				DouYinVideo.init();
+			} else if (DouYinRouter.isChannel()) {
+				log.info(`Router: Channel页面`);
+				DouYinChannel.init();
 			} else {
 				log.error("未适配router: " + window.location.pathname);
 			}
