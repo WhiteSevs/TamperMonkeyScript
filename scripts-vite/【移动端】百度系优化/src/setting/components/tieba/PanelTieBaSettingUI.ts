@@ -68,6 +68,44 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 					],
 				},
 				{
+					type: "deepMenu",
+					text: "热搜榜单",
+					forms: [
+						{
+							type: "forms",
+							text: "功能",
+							forms: [
+								UISwitch(
+									"覆盖openApp函数",
+									"tieba-hot-topic-coverOpenApp",
+									true,
+									void 0,
+									"用于阻止唤醒App"
+								),
+								UISwitch(
+									"设置isTiebaApp为true",
+									"tieba-hot-topic-isTiebaApp",
+									true,
+									void 0
+								),
+								UISwitch(
+									"设置isHarmony为true",
+									"tieba-hot-topic-isHarmony",
+									true,
+									void 0
+								),
+								UISwitch(
+									"新标签页打开",
+									"tieba-hot-topic-openBlank",
+									false,
+									void 0,
+									"新标签页打开帖子"
+								),
+							],
+						},
+					],
+				},
+				{
 					text: "搜索综合",
 					type: "deepMenu",
 					forms: [

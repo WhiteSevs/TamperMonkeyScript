@@ -10,6 +10,7 @@ import { GestureBack } from "@/utils/GestureBack";
 import { TiebaPost } from "../Post/TiebaPost";
 import { TiebaUniAppCommentFilter } from "./TiebaUniAppCommentFilter";
 import { TiebaUniAppComponentDetection } from "./TiebaUniAppComponentDetection";
+import { TiebaCore } from "../TiebaCore";
 
 /**
  * 手势返回使用的hash参数
@@ -78,15 +79,6 @@ export const TiebaUniAppPost = {
 				"baidu-tieba-uni-app-post-addScrollTopButtonInForum",
 				(value) => {
 					return this.addScrollTopButton(value);
-				}
-			);
-			PopsPanel.execMenuOnce(
-				"baidu-tieba-uni-app-post-addScrollTopButtonInForum",
-				(value) => {
-					return this.addScrollTopButton(value);
-				},
-				(key, value) => {
-					return !!value;
 				}
 			);
 			PopsPanel.execMenuOnce(
@@ -250,6 +242,7 @@ export const TiebaUniAppPost = {
 	addScrollTopButton(enable: boolean) {
 		if (enable) {
 			log.info(`uni-app ===> 添加滚动到顶部按钮`);
+			TiebaCore.addScrollTopButton();
 			// 修复按钮的样式
 			return addStyle(/*css*/ `
 				.whitesev-tb-totop{

@@ -4,7 +4,7 @@ import UniTieBaShieldCSS from "./uni-app-shield.css?raw";
 import { PopsPanel } from "@/setting/setting";
 import { BaiduRouter } from "@/router/BaiduRouter";
 import { BaiduHook } from "@/hook/BaiduHook";
-import { TiebaTopic } from "./Topic/TiebaTopic";
+import { TiebaTopicTemplate } from "./TopicTemplate/TiebaTopicTemplate";
 import { TiebaHybrid } from "./Hybrid/TiebaHybrid";
 import { TiebaBaNei } from "./BaNei/TiebaBaNei";
 import { TiebaSearch } from "./TiebaSearch";
@@ -17,6 +17,7 @@ import Qmsg from "qmsg";
 import { VueUtils } from "@/utils/VueUtils";
 import { TiebaUniAppPost } from "./uni-app-post/TiebaUniAppPost";
 import { TiebaCheckUrl } from "./CheckUrl/TiebaCheckUrl";
+import { TiebaHotTopic } from "./HotTopic/TiebaHotTopic";
 
 /**
  * 百度贴吧
@@ -59,12 +60,12 @@ const BaiduTieBa = {
 		}
         `);
 		log.info("插入CSS规则");
-		PopsPanel.execMenu(
-			"baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",
-			() => {
-				TiebaCore.addAuthorClickEvent();
-			}
-		);
+		// PopsPanel.execMenu(
+		// 	"baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",
+		// 	() => {
+		// 		TiebaCore.addAuthorClickEvent();
+		// 	}
+		// );
 		PopsPanel.execMenu("baidu_tieba_autoJumpToMainHost", () => {
 			TiebaCore.autoJumpToMainHost();
 		});
@@ -89,7 +90,11 @@ const BaiduTieBa = {
 		} else if (BaiduRouter.isTieBaNewTopic()) {
 			/* 话题热议 */
 			log.success("Router: 话题热议");
-			TiebaTopic.init();
+			TiebaTopicTemplate.init();
+		} else if (BaiduRouter.isTieBaHottopic()) {
+			/* 热搜榜 */
+			log.success("Router: 热搜榜");
+			TiebaHotTopic.init();
 		} else if (BaiduRouter.isTieBaHybrid()) {
 			/* 搜索综合 */
 			log.success("Router: 搜索综合");
@@ -111,9 +116,9 @@ const BaiduTieBa = {
 		} else {
 			log.error("Router: 未知");
 		}
-		PopsPanel.execMenu("baidu_tieba_add_scroll_top_button_in_forum", () => {
-			TiebaCore.addScrollTopButton();
-		});
+		// PopsPanel.execMenu("baidu_tieba_add_scroll_top_button_in_forum", () => {
+		// 	TiebaCore.addScrollTopButton();
+		// });
 		PopsPanel.execMenu("baidu_tieba_add_search", () => {
 			TiebaSearch.init();
 		});

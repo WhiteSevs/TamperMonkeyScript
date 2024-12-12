@@ -548,7 +548,7 @@ const TiebaUrlApi = {
 	 * @param id
 	 */
 	getPost(id: string | number) {
-		return `https://tieba.baidu.com/p/${id}`;
+		return `https://tieba.baidu.com/p/${id}#/`;
 	},
 	/**
 	 * 获取搜索综合的地址

@@ -114,6 +114,15 @@ const BaiduRouter = {
 		);
 	},
 	/**
+	 * 贴吧 - 热搜榜
+	 */
+	isTieBaHottopic() {
+		return Boolean(
+			this.isTieBa() &&
+				window.location.pathname.startsWith("/hottopic/browse/hottopic")
+		);
+	},
+	/**
 	 * 贴吧 - 搜索结果界面
 	 */
 	isTieBaHybrid() {

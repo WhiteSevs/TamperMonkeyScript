@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.11
+// @version      2024.12.12
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -175,6 +175,14 @@
     isTieBaNewTopic() {
       return Boolean(
         this.isTieBa() && window.location.pathname.startsWith("/mo/q/newtopic/topicTemplate")
+      );
+    },
+    /**
+     * 贴吧 - 热搜榜
+     */
+    isTieBaHottopic() {
+      return Boolean(
+        this.isTieBa() && window.location.pathname.startsWith("/hottopic/browse/hottopic")
       );
     },
     /**
@@ -1877,7 +1885,7 @@ match-attr##srcid##sp_purc_atom
      * @param id
      */
     getPost(id) {
-      return `https://tieba.baidu.com/p/${id}`;
+      return `https://tieba.baidu.com/p/${id}#/`;
     },
     /**
      * 获取搜索综合的地址
@@ -3947,6 +3955,44 @@ match-attr##srcid##sp_purc_atom
                   UISwitch(
                     "新标签页打开",
                     "baidu_tieba_topic_openANewTab",
+                    false,
+                    void 0,
+                    "新标签页打开帖子"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            type: "deepMenu",
+            text: "热搜榜单",
+            forms: [
+              {
+                type: "forms",
+                text: "功能",
+                forms: [
+                  UISwitch(
+                    "覆盖openApp函数",
+                    "tieba-hot-topic-coverOpenApp",
+                    true,
+                    void 0,
+                    "用于阻止唤醒App"
+                  ),
+                  UISwitch(
+                    "设置isTiebaApp为true",
+                    "tieba-hot-topic-isTiebaApp",
+                    true,
+                    void 0
+                  ),
+                  UISwitch(
+                    "设置isHarmony为true",
+                    "tieba-hot-topic-isHarmony",
+                    true,
+                    void 0
+                  ),
+                  UISwitch(
+                    "新标签页打开",
+                    "tieba-hot-topic-openBlank",
                     false,
                     void 0,
                     "新标签页打开帖子"
@@ -9187,10 +9233,10 @@ div[class^="new-summary-container_"] {\r
   };
   const TieBaShieldCSS = ".tb-backflow-defensive,\r\n.fixed-nav-bar-defensive,\r\n.post-cut-guide,\r\n.ertiao-wrap-defensive,\r\n.feed-warp.gray-background,\r\n.pb-page-wrapper.app-view.transition-fade nav:first-child,\r\n.only-lz,\r\n.nav-bar-v2 .nav-bar-bottom,\r\n.more-image-desc,\r\n.fengchao-banner-defensive,\r\n/*.wake-app,*/\r\n.banner-wrapper-defensive,\r\n.open-app,\r\n.topic-share-page-v2 .bav-bar-top,\r\n/* 打开APP查看更多评论 */\r\n.cmt-large-cut-guide,\r\n/* 底部评论滚动栏 */\r\ndiv.diy-guide-wrapper,\r\n/* 底部评论滚动栏上面的空白 */\r\n.individuality,\r\n/* 吧内的广告 */\r\n.tb-threadlist__wrapper .tb-banner-wrapper-defensive,\r\n/* 首页-我的-底部的 年轻人的潮流文化社区 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .desc,\r\n/* 首页-我的-底部的 立即下载 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .download-btn,\r\n/* 帖子内预览图片模式下底部的打开App查看高清大图 */\r\n.img-preview .operate .wake-app {\r\n	display: none !important;\r\n}\r\nbody.tb-modal-open {\r\n	overflow: auto !important;\r\n}\r\n";
   const UniTieBaShieldCSS = "/* 热门推荐、相关推荐 */\r\nuni-app .recom-layout-container,\r\n/* 热门推荐、相关推荐 */\r\nuni-app #pbRecomContainer,\r\n/* 猜你还想搜（标题） */\r\nuni-app .guess-title,\r\n/* 猜你还想搜 */\r\nuni-app .guess-container,\r\n/* 底部工具栏 来贴吧畅享精彩内容 */\r\nuni-app .operation-chat,\r\n/* 图片右滑最后一个 来贴吧畅享精彩内容 */\r\nuni-app .pic-popup-guide-title,\r\n/* 图片右滑最后一个 下面的按钮 打开APP */\r\nuni-app .operate-group .wake-app:has(.external-btn-class),\r\n/* 顶部右上角的 App内查看 */\r\nuni-app .operate-btn-wake {\r\n	display: none !important;\r\n}\r\n\r\n/* 评论内容高度 */\r\nuni-app .swiper-content {\r\n	max-height: unset !important;\r\n}\r\n";
-  const TiebaTopic = {
+  const TiebaTopicTemplate = {
     init() {
       PopsPanel.execMenu("baidu_tieba_topic_redirect_jump", () => {
-        TiebaTopic.redirectJump();
+        this.redirectJump();
       });
     },
     /**
@@ -14820,15 +14866,6 @@ div[class^="new-summary-container_"] {\r
           }
         );
         PopsPanel.execMenuOnce(
-          "baidu-tieba-uni-app-post-addScrollTopButtonInForum",
-          (value) => {
-            return this.addScrollTopButton(value);
-          },
-          (key, value) => {
-            return !!value;
-          }
-        );
-        PopsPanel.execMenuOnce(
           "baidu-tieba-uni-app-post-repairAnchorLink",
           () => {
             this.repairAnchorLink();
@@ -14988,6 +15025,7 @@ div[class^="new-summary-container_"] {\r
     addScrollTopButton(enable) {
       if (enable) {
         log.info(`uni-app ===> 添加滚动到顶部按钮`);
+        TiebaCore.addScrollTopButton();
         return addStyle(
           /*css*/
           `
@@ -25234,6 +25272,121 @@ div[class^="new-summary-container_"] {\r
       }
     }
   };
+  const TiebaHotTopic = {
+    init() {
+      PopsPanel.onceExec("tieba-hot-topic-blockAds", () => {
+        CommonUtil.addBlockCSS(
+          "body > .page-content .wise-swan-publish",
+          "body > .page-content .wise-navigation .right-action"
+        );
+      });
+      PopsPanel.execMenu("tieba-hot-topic-coverOpenApp", () => {
+        this.coverOpenApp();
+      });
+      PopsPanel.execMenu("tieba-hot-topic-isTiebaApp", () => {
+        this.isTiebaApp();
+      });
+      PopsPanel.execMenuOnce("tieba-hot-topic-isHarmony", () => {
+        this.coverCard_isHarmony();
+      });
+      PopsPanel.execMenuOnce("tieba-hot-topic-openBlank", () => {
+        this.openBlank();
+      });
+    },
+    /**
+     * 覆盖openApp函数
+     */
+    coverOpenApp() {
+      VueUtils.waitVuePropToSet("body > .page-content", {
+        msg: "等待元素.page-content用于覆盖openApp函数",
+        check(vueIns) {
+          var _a3;
+          return typeof ((_a3 = vueIns == null ? void 0 : vueIns.wakeupApp) == null ? void 0 : _a3.openApp) === "function";
+        },
+        set(vueIns) {
+          log.success(`成功覆盖函数openApp`);
+          vueIns.wakeupApp.openApp = () => {
+            log.success(`阻止调用唤醒App`);
+          };
+        }
+      });
+    },
+    /**
+     * 设置isTiebaApp=true
+     */
+    isTiebaApp() {
+      VueUtils.waitVuePropToSet("body > .page-content .top-title", {
+        msg: "等待元素.top-title",
+        check(vueIns) {
+          return typeof (vueIns == null ? void 0 : vueIns.isTiebaApp) === "boolean";
+        },
+        set(vueIns) {
+          log.success(`成功设置isTiebaApp = true`);
+          vueIns.isTiebaApp = true;
+        }
+      });
+    },
+    /**
+     * 覆盖所有帖子的isHarmony=true
+     */
+    coverCard_isHarmony() {
+      let lockFn = new utils.LockFunction(() => {
+        $$(
+          ".topic-cards .card-wrapper:not([data-is-cover-harmony])"
+        ).forEach(($cardWrapper) => {
+          let vueIns = VueUtils.getVue($cardWrapper);
+          if (!vueIns) {
+            return;
+          }
+          if (typeof (vueIns == null ? void 0 : vueIns.isHarmony) === "boolean") {
+            vueIns.isHarmony = true;
+            $cardWrapper.setAttribute("data-is-cover-harmony", "");
+          }
+        });
+      });
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        callback: () => {
+          lockFn.run();
+        }
+      });
+    },
+    /**
+     * 新标签页打开链接
+     */
+    openBlank() {
+      log.info(`新标签页打开链接`);
+      domutils.on(
+        document,
+        "click",
+        "body > .page-content .topic-cards .card-wrapper",
+        (event, $cardWrapper) => {
+          var _a3;
+          let vueIns = VueUtils.getVue($cardWrapper);
+          if (!vueIns) {
+            log.info($cardWrapper);
+            Qmsg.error("未找到vue实例", { consoleLogContent: true });
+            return;
+          }
+          let cardType = vueIns.cardType;
+          if (cardType === "hot-thread") {
+            utils.preventEvent(event);
+            let id = (_a3 = vueIns == null ? void 0 : vueIns.cardData) == null ? void 0 : _a3.id;
+            if (typeof id !== "number") {
+              Qmsg.error("获取帖子id失败", { consoleLogContent: true });
+              return;
+            }
+            let url = TiebaUrlApi.getPost(id);
+            window.open(url, "_blank");
+          }
+        },
+        { capture: true }
+      );
+    }
+  };
   const BaiduTieBa = {
     init() {
       addStyle(TieBaShieldCSS);
@@ -25257,12 +25410,6 @@ div[class^="new-summary-container_"] {\r
         `
       );
       log.info("插入CSS规则");
-      PopsPanel.execMenu(
-        "baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",
-        () => {
-          TiebaCore.addAuthorClickEvent();
-        }
-      );
       PopsPanel.execMenu("baidu_tieba_autoJumpToMainHost", () => {
         TiebaCore.autoJumpToMainHost();
       });
@@ -25283,7 +25430,10 @@ div[class^="new-summary-container_"] {\r
         TiebaUniAppPost.init();
       } else if (BaiduRouter.isTieBaNewTopic()) {
         log.success("Router: 话题热议");
-        TiebaTopic.init();
+        TiebaTopicTemplate.init();
+      } else if (BaiduRouter.isTieBaHottopic()) {
+        log.success("Router: 热搜榜");
+        TiebaHotTopic.init();
       } else if (BaiduRouter.isTieBaHybrid()) {
         log.success("Router: 搜索综合");
         TiebaHybrid.init();
@@ -25301,9 +25451,6 @@ div[class^="new-summary-container_"] {\r
       } else {
         log.error("Router: 未知");
       }
-      PopsPanel.execMenu("baidu_tieba_add_scroll_top_button_in_forum", () => {
-        TiebaCore.addScrollTopButton();
-      });
       PopsPanel.execMenu("baidu_tieba_add_search", () => {
         TiebaSearch.init();
       });
