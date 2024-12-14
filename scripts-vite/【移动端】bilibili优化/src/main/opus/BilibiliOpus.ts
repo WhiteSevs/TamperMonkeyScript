@@ -5,15 +5,18 @@ import { BilibiliUrl } from "@/utils/BilibiliUrl";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { VueUtils } from "@/utils/VueUtils";
+import { BilibiliOpusVariable } from "./BilibiliOpusVariable";
 
 export const BilibiliOpus = {
 	init() {
+		BilibiliOpusVariable.init();
 		PopsPanel.execMenuOnce("bili-opus-cover-topicJump", () => {
 			this.coverTopicJump();
 		});
 		PopsPanel.execMenuOnce(
 			"bili-opus-automaticallyExpandToReadFullText",
 			() => {
+				BilibiliOpusVariable.isLimit();
 				return this.automaticallyExpandToReadFullText();
 			}
 		);
@@ -65,17 +68,6 @@ export const BilibiliOpus = {
 			}
 			`),
 		];
-		DOMUtils.ready(() => {
-			VueUtils.waitVuePropToSet(".m-opus", {
-				msg: "自动展开阅读全文 ==> 等待vue属性isLimit出现",
-				check(vueInstance) {
-					return typeof vueInstance?.isLimit === "boolean";
-				},
-				set(vueInstance) {
-					vueInstance.isLimit = false;
-				},
-			});
-		});
 		return result;
 	},
 	/**

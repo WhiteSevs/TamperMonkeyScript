@@ -57,7 +57,9 @@
 #app .m-opus .float-openapp.opus-float-btn,
 #app .m-opus .v-switcher .launch-app-btn.list-more,
 #app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,
-#app .m-opus .m-navbar .m-nav-openapp {
+#app .m-opus .m-navbar .m-nav-openapp,
+/* 底部悬浮 打开App，查看更多精彩内容 */
+#app .m-opus m-open-app.m-open-app.fixed-openapp {
 	display: none !important;
 }
 

@@ -33,6 +33,39 @@ export const SettingUIOpus: PopsPanelContentConfig = {
 					],
 				},
 				{
+					text: "变量设置",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"autoOpenApp",
+									"bili-opus-variable-autoOpenApp",
+									true,
+									void 0,
+									"autoOpenApp函数置空"
+								),
+								UISwitch(
+									"go404",
+									"bili-opus-variable-go404",
+									true,
+									void 0,
+									"go404函数置空，可禁止前往404页面"
+								),
+								UISwitch(
+									"handleFallback",
+									"bili-opus-variable-handleFallback",
+									true,
+									void 0,
+									"禁止前往404页面"
+								),
+							],
+						},
+					],
+				},
+				{
 					text: "覆盖点击事件",
 					type: "deepMenu",
 					forms: [

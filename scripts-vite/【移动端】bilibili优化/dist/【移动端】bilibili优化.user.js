@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.9
+// @version      2024.12.14
 // @author       WhiteSevs
 // @description  免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @match        *://www.bilibili.com/h5/comment/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/497907/1413262/QRCodeJS.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
@@ -42,7 +42,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(a=>{function e(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let p=document.createElement("style");return p.setAttribute("type","text/css"),p.innerHTML=n,document.head?document.head.appendChild(p):document.body?document.body.appendChild(p):document.documentElement.childNodes.length===0?document.documentElement.appendChild(p):document.documentElement.insertBefore(p,document.documentElement.childNodes[0]),p}if(typeof GM_addStyle=="function"){GM_addStyle(a);return}e(a)})(' @charset "UTF-8";.m-video2-awaken-btn,.openapp-dialog,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .m-opus .m-navbar .m-nav-openapp,#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#app .read-app-main bili-open-app{display:none!important}#app .playlist>.open-app-wp{display:none!important}#app .playlist>.open-app-wp+div{padding-top:56.25%}html{--bili-color: #fb7299;--bili-color-rgb: 251, 114, 153} ');
+(a=>{function e(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let p=document.createElement("style");return p.setAttribute("type","text/css"),p.innerHTML=n,document.head?document.head.appendChild(p):document.body?document.body.appendChild(p):document.documentElement.childNodes.length===0?document.documentElement.appendChild(p):document.documentElement.insertBefore(p,document.documentElement.childNodes[0]),p}if(typeof GM_addStyle=="function"){GM_addStyle(a);return}e(a)})(' @charset "UTF-8";.m-video2-awaken-btn,.openapp-dialog,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn{display:none!important}#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .m-opus .m-navbar .m-nav-openapp,#app .m-opus m-open-app.m-open-app.fixed-openapp{display:none!important}#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#app .read-app-main bili-open-app{display:none!important}#app .playlist>.open-app-wp{display:none!important}#app .playlist>.open-app-wp+div{padding-top:56.25%}html{--bili-color: #fb7299;--bili-color-rgb: 251, 114, 153} ');
 
 (function (Qmsg, Utils, DOMUtils, pops, md5, Artplayer, artplayerPluginDanmuku, flvjs) {
   'use strict';
@@ -3537,6 +3537,39 @@
             ]
           },
           {
+            text: "变量设置",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "autoOpenApp",
+                    "bili-opus-variable-autoOpenApp",
+                    true,
+                    void 0,
+                    "autoOpenApp函数置空"
+                  ),
+                  UISwitch(
+                    "go404",
+                    "bili-opus-variable-go404",
+                    true,
+                    void 0,
+                    "go404函数置空，可禁止前往404页面"
+                  ),
+                  UISwitch(
+                    "handleFallback",
+                    "bili-opus-variable-handleFallback",
+                    true,
+                    void 0,
+                    "禁止前往404页面"
+                  )
+                ]
+              }
+            ]
+          },
+          {
             text: "覆盖点击事件",
             type: "deepMenu",
             forms: [
@@ -3701,11 +3734,26 @@
   };
   const VueUtils = {
     /**
-     * 获取元素上的__vue__属性
+     * 获取vue2实例
      * @param element
+     * @returns
      */
     getVue(element) {
-      return element == null ? void 0 : element.__vue__;
+      if (element == null) {
+        return;
+      }
+      return element["__vue__"] || element["__Ivue__"] || element["__IVue__"];
+    },
+    /**
+     * 获取vue3实例
+     * @param element
+     * @returns
+     */
+    getVue3(element) {
+      if (element == null) {
+        return;
+      }
+      return element["__vueParentComponent"];
     },
     /**
      * 等待vue属性并进行设置
@@ -3765,6 +3813,52 @@
       });
     },
     /**
+     * 观察vue属性的变化
+     * @param $target 目标对象
+     * @param key 需要观察的属性
+     * @param callback 监听回调
+     * @param watchConfig 监听配置
+     */
+    watchVuePropChange($target, key, callback, watchConfig) {
+      let config = utils.assign(
+        {
+          immediate: true,
+          deep: false
+        },
+        watchConfig || {}
+      );
+      return new Promise((resolve) => {
+        VueUtils.waitVuePropToSet($target, {
+          check(vueInstance) {
+            return typeof (vueInstance == null ? void 0 : vueInstance.$watch) === "function";
+          },
+          set(vueInstance) {
+            let removeWatch = null;
+            if (typeof key === "function") {
+              removeWatch = vueInstance.$watch(
+                () => {
+                  return key(vueInstance);
+                },
+                (newValue, oldValue) => {
+                  callback(vueInstance, newValue, oldValue);
+                },
+                config
+              );
+            } else {
+              removeWatch = vueInstance.$watch(
+                key,
+                (newValue, oldValue) => {
+                  callback(vueInstance, newValue, oldValue);
+                },
+                config
+              );
+            }
+            resolve(removeWatch);
+          }
+        });
+      });
+    },
+    /**
      * 前往网址
      * @param $vueNode 包含vue属性的元素
      * @param path 需要跳转的路径
@@ -3772,14 +3866,13 @@
      */
     goToUrl($vueNode, path, useRouter = false) {
       if ($vueNode == null) {
-        Qmsg.error("跳转Url: 获取根元素#app失败");
-        log.error("跳转Url: 获取根元素#app失败：" + path);
+        Qmsg.error("跳转Url: $vueNode为空");
+        log.error("跳转Url: $vueNode为空：" + path);
         return;
       }
       let vueObj = VueUtils.getVue($vueNode);
       if (vueObj == null) {
-        log.error("获取vue属性失败");
-        Qmsg.error("获取vue属性失败");
+        Qmsg.error("获取vue属性失败", { consoleLogContent: true });
         return;
       }
       let $router = vueObj.$router;
@@ -3820,10 +3913,10 @@
       function banBack() {
         log.success("监听地址改变");
         option.vueInstance.$router.history.push(option.hash);
-        domutils.on(window, "popstate", popstateEvent);
+        domutils.on(_unsafeWindow, "popstate", popstateEvent);
       }
       async function resumeBack(isFromPopState = false) {
-        domutils.off(window, "popstate", popstateEvent);
+        domutils.off(_unsafeWindow, "popstate", popstateEvent);
         let callbackResult = option.callback(isFromPopState);
         if (callbackResult) {
           return;
@@ -10560,14 +10653,159 @@
       });
     }
   };
+  const BilibiliOpusVariable = {
+    $data: {
+      dispatchCallBackList: []
+    },
+    init() {
+      PopsPanel.execMenu("bili-opus-variable-autoOpenApp", () => {
+        this.autoOpenApp();
+      });
+      PopsPanel.execMenu("bili-opus-variable-go404", () => {
+        this.go404();
+      });
+      PopsPanel.execMenu("bili-opus-variable-handleFallback", () => {
+        this.dispatch((vueInstance, fnName) => {
+          if (typeof fnName === "string" && fnName === "opus/handleFallback" && ![1, 2].includes(vueInstance.fallback.type)) {
+            log.success(`禁止调用handleFallback函数前往404`);
+            if (typeof (vueInstance == null ? void 0 : vueInstance.showComment) === "boolean" && vueInstance.showComment && typeof (vueInstance == null ? void 0 : vueInstance.initFullComment) === "function") {
+              vueInstance.initFullComment();
+            }
+            return false;
+          }
+        });
+      });
+    },
+    /**
+     * isLimit=false
+     *
+     * 作用：自动展开全文
+     */
+    isLimit() {
+      log.info(`等待 观察并覆盖变量isLimit`);
+      VueUtils.watchVuePropChange(
+        BilibiliData.className.opus,
+        (vueInstance) => vueInstance.isLimit,
+        (vueInstance) => {
+          vueInstance.isLimit = false;
+          log.success(`观察者：覆盖变量isLimit=false`);
+        }
+      );
+    },
+    /**
+     * 覆盖函数autoOpenApp
+     */
+    autoOpenApp() {
+      VueUtils.waitVuePropToSet(BilibiliData.className.opus, {
+        msg: "等待 覆盖函数autoOpenApp",
+        check(vueInstance) {
+          return typeof (vueInstance == null ? void 0 : vueInstance.autoOpenApp) === "function";
+        },
+        set(vueInstance) {
+          log.success(`成功 覆盖函数autoOpenApp`);
+          vueInstance.autoOpenApp = function() {
+            log.success(`禁止调用autoOpenApp函数`);
+          };
+        }
+      });
+    },
+    /**
+     * 覆盖函数go404
+     */
+    go404() {
+      VueUtils.waitVuePropToSet(BilibiliData.className.opus, {
+        msg: "等待 覆盖函数go404",
+        check(vueInstance) {
+          return typeof (vueInstance == null ? void 0 : vueInstance.go404) === "function";
+        },
+        set(vueInstance) {
+          log.success(`成功 覆盖函数go404`);
+          vueInstance.go404 = function() {
+            log.success(`禁止调用go404函数`);
+          };
+        }
+      });
+    },
+    /**
+     * 覆盖对象fallback
+     *
+     */
+    fallback() {
+      VueUtils.waitVuePropToSet(BilibiliData.className.opus, {
+        msg: "等待 覆盖对象fallback",
+        check(vueInstance) {
+          var _a2;
+          return typeof ((_a2 = vueInstance == null ? void 0 : vueInstance.fallback) == null ? void 0 : _a2.type) === "number";
+        },
+        set(vueInstance) {
+          log.success(`成功 覆盖对象fallback`);
+          vueInstance.$watch(
+            () => vueInstance == null ? void 0 : vueInstance.fallback,
+            () => {
+              vueInstance.fallback = null;
+              log.success(`覆盖对象fallback`);
+            },
+            {
+              deep: true,
+              immediate: true
+            }
+          );
+        }
+      });
+    },
+    /**
+     * 覆盖函数dispatch
+     */
+    dispatch(callback) {
+      let callbackStr = callback.toString();
+      for (let index = 0; index < this.$data.dispatchCallBackList.length; index++) {
+        const fn = this.$data.dispatchCallBackList[index];
+        if (fn.toString() === callbackStr) {
+          return;
+        }
+      }
+      log.info(`添加dispatch回调判断`);
+      this.$data.dispatchCallBackList.push(callback);
+      if (this.$data.dispatchCallBackList.length > 1) {
+        return;
+      }
+      const that = this;
+      VueUtils.waitVuePropToSet(BilibiliData.className.opus, {
+        msg: "等待 覆盖函数dispatch",
+        check(vueInstance) {
+          var _a2;
+          return typeof ((_a2 = vueInstance == null ? void 0 : vueInstance.$store) == null ? void 0 : _a2.dispatch) === "function";
+        },
+        set(vueInstance) {
+          log.success(`成功 覆盖函数dispatch`);
+          let originDispatch = vueInstance.$store.dispatch;
+          vueInstance.$store.dispatch = function(...args) {
+            let fnName = args[0];
+            for (let index = 0; index < that.$data.dispatchCallBackList.length; index++) {
+              const fn = that.$data.dispatchCallBackList[index];
+              if (typeof fn === "function") {
+                let result = fn(vueInstance, fnName);
+                if (typeof result === "boolean" && !result) {
+                  return;
+                }
+              }
+            }
+            return Reflect.apply(originDispatch, this, args);
+          };
+        }
+      });
+    }
+  };
   const BilibiliOpus = {
     init() {
+      BilibiliOpusVariable.init();
       PopsPanel.execMenuOnce("bili-opus-cover-topicJump", () => {
         this.coverTopicJump();
       });
       PopsPanel.execMenuOnce(
         "bili-opus-automaticallyExpandToReadFullText",
         () => {
+          BilibiliOpusVariable.isLimit();
           return this.automaticallyExpandToReadFullText();
         }
       );
@@ -10623,17 +10861,6 @@
 			`
         )
       ];
-      domutils.ready(() => {
-        VueUtils.waitVuePropToSet(".m-opus", {
-          msg: "自动展开阅读全文 ==> 等待vue属性isLimit出现",
-          check(vueInstance) {
-            return typeof (vueInstance == null ? void 0 : vueInstance.isLimit) === "boolean";
-          },
-          set(vueInstance) {
-            vueInstance.isLimit = false;
-          }
-        });
-      });
       return result;
     },
     /**
