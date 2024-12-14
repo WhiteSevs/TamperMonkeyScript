@@ -43,3 +43,8 @@ ul.history_versions li {
 .script-note-box-body p {
 	margin-bottom: unset;
 }
+
+/* 安装按钮 */
+.install-link {
+	border-radius: 0.25rem 0.25rem 0.25rem 0.25rem !important;
+}

@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.12.11
+// @version            2024.12.14
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -11,7 +11,7 @@
 // @supportURL         https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match              *://greasyfork.org/*
 // @require            https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.4/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.5/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.5/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
@@ -137,6 +137,11 @@ ul.history_versions li {\r
 }\r
 .script-note-box-body p {\r
 	margin-bottom: unset;\r
+}\r
+\r
+/* 安装按钮 */\r
+.install-link {\r
+	border-radius: 0.25rem 0.25rem 0.25rem 0.25rem !important;\r
 }\r
 `,Zt={init(){p.execMenuOnce("beautifyHistoryVersionPage",()=>this.beautifyHistoryVersionPage()),p.execMenuOnce("scripts-versions-addExtraTagButton",()=>{this.addExtraTagButton();}),p.execMenuOnce("scripts-versions-addCompareCodeButton",()=>{this.sourceDiffMonacoEditor();});},beautifyHistoryVersionPage(){u.info("美化 历史版本 页面");let t=[];return t.push(y(Yt)),t.push(_.addBlockCSS(".version-number",".version-date",".version-changelog")),d.ready(function(){let e=document.querySelector("ul.history_versions");if(!e){m.error(r.t("未找到history_versions元素列表"));return}Array.from(e.children).forEach(A=>{var f,g;let n=A.querySelector(".version-number a").href,o=A.querySelector(".version-number a").innerText,a=(f=A.querySelector(".version-date"))==null?void 0:f.getAttribute("datetime"),i=((g=A.querySelector(".version-changelog"))==null?void 0:g.innerHTML)||"",s=d.createElement("span",{className:"script-version-date",innerHTML:v.formatTime(a,r.t("yyyy年MM月dd日 HH:mm:ss"))}),l=d.createElement("div",{className:"script-tag",innerHTML:`
                     <div class="script-tag-version">
