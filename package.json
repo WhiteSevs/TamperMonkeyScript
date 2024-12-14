@@ -21,7 +21,7 @@
 		"@types/md5": "^2.3.5",
 		"@whitesev/domutils": "^1.4.8",
 		"@whitesev/pops": "^1.9.5",
-		"@whitesev/utils": "^2.5.4",
+		"@whitesev/utils": "^2.5.5",
 		"artplayer": "^5.2.1",
 		"artplayer-plugin-danmuku": "^5.1.4",
 		"flv.js": "^1.6.2",
