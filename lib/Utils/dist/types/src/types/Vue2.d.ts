@@ -129,7 +129,7 @@ export declare interface Vue2Instance {
 
 	$watch: (
 		key: string | string[] | (() => any),
-		handler: (this: any, newVal: any, oldVal: any) => void,
+		handler: (this: Vue2Instance, newVal: any, oldVal: any) => void,
 		options?: {
 			immediate?: boolean;
 			deep?: boolean;
