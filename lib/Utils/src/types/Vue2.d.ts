@@ -121,17 +121,29 @@ export declare interface Vue2Instance {
 		back: () => void;
 		go: (...args: any[]) => void;
 		replace: (...args: any[]) => void;
+		/** 添加路由 */
 		addRoute: (...args: any[]) => void;
 		addRoutes: (...args: any[]) => void;
 		[key: string]: any;
 	};
 	$ssrContext: any;
-
+	/** 观察者 @returns 取消观察者 */
 	$watch: (
+		/** 需要观察的属性 */
 		key: string | string[] | (() => any),
-		handler: (this: Vue2Instance, newVal: any, oldVal: any) => void,
+		/** 属性改变时触发的回调 */
+		handler: (
+			this: Vue2Instance,
+			/** 新值，也就是改变后的值 */
+			newVal: any,
+			/** 旧值，也就是改变前的值 */
+			oldVal: any
+		) => void,
+		/** 监听配置 */
 		options?: {
+			/** 是否立即执行handler */
 			immediate?: boolean;
+			/** 是否深度监听 */
 			deep?: boolean;
 		}
 	) => Function;
