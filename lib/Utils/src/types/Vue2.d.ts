@@ -134,7 +134,7 @@ export declare interface Vue2Instance {
 			immediate?: boolean;
 			deep?: boolean;
 		}
-	) => void;
+	) => Function;
 
 	[key: string]: any;
 }
