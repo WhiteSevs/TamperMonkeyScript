@@ -1,6 +1,7 @@
 import { DOMUtils, addStyle, log, utils } from "@/env";
 import Qmsg from "qmsg";
 import type { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
+import { unsafeWindow } from "ViteGM";
 
 /** 等待设置vue某个值的配置 */
 type VueWaitSetOption = {
@@ -105,6 +106,62 @@ export const VueUtils = {
 		});
 	},
 	/**
+	 * 观察vue属性的变化
+	 * @param $target 目标对象
+	 * @param key 需要观察的属性
+	 * @param callback 监听回调
+	 * @param watchConfig 监听配置
+	 */
+	watchVuePropChange(
+		$target: HTMLElement | (() => HTMLElement | null) | string,
+		key: string | string[] | ((vueInstance: Vue2Instance) => any),
+		callback: (vueInstance: Vue2Instance, newValue: any, oldValue: any) => void,
+		watchConfig?: {
+			/** 是否立即执行 @default true */
+			immediate?: boolean;
+			/** 是否深度监听 @default false */
+			deep?: boolean;
+		}
+	) {
+		let config = utils.assign(
+			{
+				immediate: true,
+				deep: false,
+			},
+			watchConfig || {}
+		);
+		return new Promise<Function | null>((resolve) => {
+			VueUtils.waitVuePropToSet($target, {
+				check(vueInstance) {
+					return typeof vueInstance?.$watch === "function";
+				},
+				set(vueInstance) {
+					let removeWatch = null;
+					if (typeof key === "function") {
+						removeWatch = vueInstance.$watch(
+							() => {
+								return key(vueInstance);
+							},
+							(newValue, oldValue) => {
+								callback(vueInstance, newValue, oldValue);
+							},
+							config
+						);
+					} else {
+						removeWatch = vueInstance.$watch(
+							key,
+							(newValue, oldValue) => {
+								callback(vueInstance, newValue, oldValue);
+							},
+							config
+						);
+					}
+					resolve(removeWatch);
+				},
+			});
+		});
+	},
+	/**
 	 * 前往网址
 	 * @param $vueNode 包含vue属性的元素
 	 * @param path 需要跳转的路径
@@ -112,14 +169,13 @@ export const VueUtils = {
 	 */
 	goToUrl($vueNode: Element, path: string, useRouter = false) {
 		if ($vueNode == null) {
-			Qmsg.error("跳转Url: 获取根元素#app失败");
-			log.error("跳转Url: 获取根元素#app失败：" + path);
+			Qmsg.error("跳转Url: $vueNode为空");
+			log.error("跳转Url: $vueNode为空：" + path);
 			return;
 		}
 		let vueObj = VueUtils.getVue($vueNode);
 		if (vueObj == null) {
-			log.error("获取vue属性失败");
-			Qmsg.error("获取vue属性失败");
+			Qmsg.error("获取vue属性失败", { consoleLogContent: true });
 			return;
 		}
 		let $router = vueObj.$router;
@@ -156,7 +212,9 @@ export const VueUtils = {
 	 * @param option 配置
 	 */
 	hookGestureReturnByVueRouter(option: {
+		/** vue实例 */
 		vueInstance: Vue2Instance;
+		/** 改变的hash值 */
 		hash: string;
 		/**
 		 *
@@ -180,7 +238,7 @@ export const VueUtils = {
 			/* 监听地址改变 */
 			log.success("监听地址改变");
 			option.vueInstance.$router.history.push(option.hash);
-			DOMUtils.on(window, "popstate", popstateEvent);
+			DOMUtils.on(unsafeWindow, "popstate", popstateEvent);
 		}
 
 		/**
@@ -188,7 +246,7 @@ export const VueUtils = {
 		 * @param [isFromPopState=false] 是否由popstate触发
 		 */
 		async function resumeBack(isFromPopState = false) {
-			DOMUtils.off(window, "popstate", popstateEvent);
+			DOMUtils.off(unsafeWindow, "popstate", popstateEvent);
 			let callbackResult = option.callback(isFromPopState);
 			if (callbackResult) {
 				return;
