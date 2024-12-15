@@ -50,6 +50,7 @@ export const GreasyforkDiscussionsFilter = {
 				subtree: true,
 				childList: true,
 			},
+			immediate: true,
 			callback: () => {
 				lockFunction.run();
 			},

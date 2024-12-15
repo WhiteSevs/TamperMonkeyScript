@@ -147,6 +147,15 @@ const GreasyforkRouter = {
 		return Boolean(window.location.pathname.match(/\/code-search(\/|)$/));
 	},
 	/**
+	 * 库列表搜索
+	 *
+	 * + /scripts/libraries?q=
+	 */
+	isScriptLibraryListSearch() {
+		let searchParams = new URLSearchParams(window.location.search);
+		return this.isScriptLibraryList() && searchParams.has("q");
+	},
+	/**
 	 * 讨论页面
 	 *
 	 * （严格比较）

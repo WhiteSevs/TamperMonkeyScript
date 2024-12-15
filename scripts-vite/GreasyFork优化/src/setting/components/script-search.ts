@@ -11,8 +11,15 @@ export const SettingUIScriptSearch: PopsPanelContentConfig = {
 			text: "",
 			forms: [
 				UISwitch(
+					i18next.t("新增【关键词】搜索框"),
+					"gf-script-search-addFilterSearchInput",
+					true,
+					void 0,
+					i18next.t("输入自定义关键词后自动执行过滤")
+				),
+				UISwitch(
 					i18next.t("新增【{{buttonText}}】按钮", {
-						buttonText: i18next.t("名称-全词匹配"),
+						buttonText: i18next.t("名称"),
 					}),
 					"gf-script-search-filterScriptTitleWholeWordMatching",
 					true,
@@ -21,7 +28,7 @@ export const SettingUIScriptSearch: PopsPanelContentConfig = {
 				),
 				UISwitch(
 					i18next.t("新增【{{buttonText}}】按钮", {
-						buttonText: i18next.t("描述-全词匹配"),
+						buttonText: i18next.t("描述"),
 					}),
 					"gf-script-search-filterScriptDescWholeWordMatching",
 					true,
@@ -30,7 +37,16 @@ export const SettingUIScriptSearch: PopsPanelContentConfig = {
 				),
 				UISwitch(
 					i18next.t("新增【{{buttonText}}】按钮", {
-						buttonText: i18next.t("作者名称-全词匹配"),
+						buttonText: i18next.t("名称/描述"),
+					}),
+					"gf-script-search-filterScriptTitleOrDescWholeWordMatching",
+					true,
+					void 0,
+					i18next.t("该Checkbox按钮开启后，自动过滤出包含搜索关键词的脚本")
+				),
+				UISwitch(
+					i18next.t("新增【{{buttonText}}】按钮", {
+						buttonText: i18next.t("作者名称"),
 					}),
 					"gf-script-search-filterScriptAuthorNameWholeWordMatching",
 					true,

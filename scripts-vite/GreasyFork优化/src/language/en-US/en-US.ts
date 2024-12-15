@@ -313,9 +313,9 @@ export const en_US_language = {
 	"新增【{{buttonText}}】按钮": "Added [{{buttonText}}] button",
 	"该Checkbox按钮开启后，自动过滤出包含搜索关键词的脚本":
 		"When the Checkbox button is turned on, it automatically filters out scripts that contain search terms",
-	"名称-全词匹配": "Name - Full word match",
-	"描述-全词匹配": "Description - Full word match",
-	"作者名称-全词匹配": "Author name - Full word match",
+	名称: "Name",
+	描述: "Description",
+	作者名称: "Author name",
 	获取举报表单信息失败: "Failed to obtain report form information. Procedure",
 	发送举报表单失败: "Failed to send the report form. Procedure",
 	举报: "Report",
@@ -327,7 +327,7 @@ export const en_US_language = {
 	"删除失败，表单数据中仍包含该脚本":
 		"The deletion failed and the script is still included in the form data",
 	"删除失败，{{selector}}元素不存在":
-		"Failed to delete. {{selector}} element does not exist",
+		"Failed to delete. {{selector}} el名称ement does not exist",
 	"对比选中版本差异（monacoEditor）":
 		"Compare the differences between selected versions (monacoEditor)",
 	"正在加载monaco中...": "Loading monaco...",
@@ -337,4 +337,8 @@ export const en_US_language = {
 	"版本号相同，不需要比较源码":
 		"The version numbers are the same, no need to compare source code",
 	使用Monaco编辑器: "Use Monaco Editor",
+	全词匹配: "Full word match",
+	获取搜索关键词失败: "Failed to obtain search keyword",
+	"名称/描述": "Name/Description",
+	任一全词匹配: "Any full word match",
 };

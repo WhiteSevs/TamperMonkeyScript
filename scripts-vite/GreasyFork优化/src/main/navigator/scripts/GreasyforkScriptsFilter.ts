@@ -1,4 +1,4 @@
-import { DOMUtils, log, utils } from "@/env";
+import { $$, DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { parseScriptListInfo } from "./GreasyforkScriptsList";
 import { GreasyforkUtils } from "@/utils/GreasyforkUtils";
@@ -39,6 +39,7 @@ export const GreasyforkScriptsFilter = {
 					subtree: true,
 					childList: true,
 				},
+				immediate: true,
 				callback: () => {
 					lockFunction.run();
 				},
@@ -50,10 +51,9 @@ export const GreasyforkScriptsFilter = {
 	 * 获取脚本列表元素
 	 */
 	getElementList() {
-		let scriptList: HTMLLIElement[] = [];
-		scriptList = scriptList.concat(
-			Array.from(document.querySelectorAll<HTMLLIElement>("ol.script-list li"))
-		);
+		let scriptList: HTMLLIElement[] = [
+			...Array.from($$<HTMLLIElement>("ol.script-list li[data-script-name]")),
+		];
 		return scriptList;
 	},
 	/**

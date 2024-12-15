@@ -15,11 +15,23 @@ export const GreasyforkForum = {
 			PopsPanel.execMenuOnce("greasyfork-discussions-filter-enable", () => {
 				this.filterEnable();
 			});
-			PopsPanel.execMenuOnce("discussions-addShortcutOperationButton", () => {
-				this.addShortcutOperationButton();
+			let lockFn = new utils.LockFunction(() => {
+				PopsPanel.execMenu("discussions-addShortcutOperationButton", () => {
+					this.addShortcutOperationButton();
+				});
+				PopsPanel.execMenu("discussions-addReportButton", () => {
+					this.addReportButton();
+				});
 			});
-			PopsPanel.execMenuOnce("discussions-addReportButton", () => {
-				this.addReportButton();
+			utils.mutationObserver(document.body, {
+				config: {
+					subtree: true,
+					childList: true,
+				},
+				immediate: true,
+				callback: () => {
+					lockFn.run();
+				},
 			});
 		});
 	},

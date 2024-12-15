@@ -46,6 +46,7 @@ const Greasyfork = {
 		) {
 			GreasyforkScriptsList.init();
 		}
+
 		if (GreasyforkRouter.isDiscuessions()) {
 			log.info(`Router: 讨论页面`);
 			GreasyforkDiscussions.init();
@@ -56,7 +57,12 @@ const Greasyfork = {
 				log.info(`Router-next: 私聊用户页面`);
 				GreasyforkConversations.init();
 			}
-		} else if (GreasyforkRouter.isScriptSearch()) {
+		} else if (
+			GreasyforkRouter.isScriptSearch() ||
+			GreasyforkRouter.isScriptsBySite() ||
+			GreasyforkRouter.isScriptCodeSearch() ||
+			GreasyforkRouter.isScriptLibraryListSearch()
+		) {
 			log.info(`Router: 脚本搜索页面`);
 			GreasyforkScriptsSearch.init();
 		}

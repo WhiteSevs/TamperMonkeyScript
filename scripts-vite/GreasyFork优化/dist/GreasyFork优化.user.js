@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.12.14
+// @version            2024.12.15
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -551,9 +551,9 @@
     搜索: "Search",
     "新增【{{buttonText}}】按钮": "Added [{{buttonText}}] button",
     "该Checkbox按钮开启后，自动过滤出包含搜索关键词的脚本": "When the Checkbox button is turned on, it automatically filters out scripts that contain search terms",
-    "名称-全词匹配": "Name - Full word match",
-    "描述-全词匹配": "Description - Full word match",
-    "作者名称-全词匹配": "Author name - Full word match",
+    名称: "Name",
+    描述: "Description",
+    作者名称: "Author name",
     获取举报表单信息失败: "Failed to obtain report form information. Procedure",
     发送举报表单失败: "Failed to send the report form. Procedure",
     举报: "Report",
@@ -562,14 +562,18 @@
     "举报用户：": "Report user:",
     "添加失败，表单数据中不包含该脚本": "Failed to add, script id not included in form data",
     "删除失败，表单数据中仍包含该脚本": "The deletion failed and the script is still included in the form data",
-    "删除失败，{{selector}}元素不存在": "Failed to delete. {{selector}} element does not exist",
+    "删除失败，{{selector}}元素不存在": "Failed to delete. {{selector}} el名称ement does not exist",
     "对比选中版本差异（monacoEditor）": "Compare the differences between selected versions (monacoEditor)",
     "正在加载monaco中...": "Loading monaco...",
     "正在获取对比文本中...": "Retrieving comparison text...",
     代码对比: "Code Comparison",
     添加代码对比按钮: "Add code comparison button",
     "版本号相同，不需要比较源码": "The version numbers are the same, no need to compare source code",
-    使用Monaco编辑器: "Use Monaco Editor"
+    使用Monaco编辑器: "Use Monaco Editor",
+    全词匹配: "Full word match",
+    获取搜索关键词失败: "Failed to obtain search keyword",
+    "名称/描述": "Name/Description",
+    任一全词匹配: "Any full word match"
   };
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
@@ -1274,6 +1278,15 @@
      */
     isScriptCodeSearch() {
       return Boolean(window.location.pathname.match(/\/code-search(\/|)$/));
+    },
+    /**
+     * 库列表搜索
+     *
+     * + /scripts/libraries?q=
+     */
+    isScriptLibraryListSearch() {
+      let searchParams = new URLSearchParams(window.location.search);
+      return this.isScriptLibraryList() && searchParams.has("q");
     },
     /**
      * 讨论页面
@@ -3700,254 +3713,7 @@
       result.push(addStyle(beautifyCenterContentCSS));
       const lodingClassName = "lum-lightbox-loader";
       const noInstallBtnText = i18next.t("安装此脚本");
-      DOMUtils.ready(async () => {
-        let allScriptsList = GreasyforkScriptsFilter.getElementList();
-        allScriptsList.forEach(($scriptList) => {
-          if ($scriptList.querySelector(".script-list-operation")) {
-            return;
-          }
-          let scriptInfo = parseScriptListInfo($scriptList);
-          let $inlineStats = $scriptList.querySelector(
-            ".inline-script-stats"
-          );
-          if (!$inlineStats) {
-            log.error("美化脚本列表失败，未获取到.inline-script-stats");
-            return;
-          }
-          let code_url = scriptInfo.codeUrl;
-          let $ratingScoreLeft = DOMUtils.createElement("dt", {
-            className: "script-list-rating-score",
-            innerHTML: `<span>${i18next.t("评分")}</span>`
-          });
-          let $ratingScoreRight = DOMUtils.createElement(
-            "dd",
-            {
-              className: "script-list-rating-score",
-              innerHTML: `<span>${scriptInfo.scriptRatingScore}</span>`
-            },
-            {
-              "data-position": "right"
-            }
-          );
-          let $goodRatingCount = $scriptList.querySelector(
-            "dd.script-list-ratings .good-rating-count"
-          );
-          let $okRatingCount = $scriptList.querySelector(
-            "dd.script-list-ratings .ok-rating-count"
-          );
-          let $badRatingCount = $scriptList.querySelector(
-            "dd.script-list-ratings .bad-rating-count"
-          );
-          if ($goodRatingCount && $okRatingCount && $badRatingCount) {
-            let goodRatingCount = parseInt($goodRatingCount.innerText);
-            let okRatingCount = parseInt($okRatingCount.innerText);
-            let badRatingCount = parseInt($badRatingCount.innerText);
-            let totalRatingCount = goodRatingCount + okRatingCount + badRatingCount;
-            if (totalRatingCount >= 10) {
-              if (goodRatingCount / totalRatingCount >= 0.6) {
-                $ratingScoreRight.classList.add("good-rating-count");
-              } else {
-                $ratingScoreRight.classList.add("bad-rating-count");
-              }
-            } else if (totalRatingCount == 0) {
-              $ratingScoreRight.classList.add("good-rating-count");
-            } else {
-              if (goodRatingCount > okRatingCount + badRatingCount) {
-                $ratingScoreRight.classList.add("good-rating-count");
-              } else {
-                $ratingScoreRight.classList.add("bad-rating-count");
-              }
-            }
-          }
-          let $versionLeft = DOMUtils.createElement("dt", {
-            className: "script-list-version",
-            innerHTML: (
-              /*html*/
-              `<span>${i18next.t("版本")}</span>`
-            )
-          });
-          let $versionRight = DOMUtils.createElement(
-            "dd",
-            {
-              className: "script-list-version",
-              innerHTML: (
-                /*html*/
-                `<span>${scriptInfo.scriptVersion}</span>`
-              )
-            },
-            {
-              "data-position": "right"
-            }
-          );
-          let $operationLeft = DOMUtils.createElement("dt", {
-            className: "script-list-operation",
-            innerHTML: `<span>${i18next.t("操作")}</span>`
-          });
-          let $operationRight = DOMUtils.createElement(
-            "dd",
-            {
-              className: "script-list-operation",
-              innerHTML: (
-                /*html*/
-                `
-						<a
-							target="_blank"
-							class="install-link"
-							data-install-format="js"
-							data-script-name="${scriptInfo.scriptName}"
-							data-script-namespace=""
-							data-script-version="${scriptInfo.scriptVersion}"
-							data-update-label="${i18next.t("更新到 {{version}} 版本", {
-                version: scriptInfo.scriptVersion
-              })}"
-							data-downgrade-label="${i18next.t("降级到 {{version}} 版本", {
-                version: scriptInfo.scriptVersion
-              })}"
-							data-reinstall-label="${i18next.t("重新安装 {{version}} 版本", {
-                version: scriptInfo.scriptVersion
-              })}"
-							href="${code_url}"></a>
-						<button class="script-collect-btn">${i18next.t("收藏")}</button>
-						`
-              )
-            },
-            {
-              "data-position": "right",
-              style: "gap:10px;display: flex;flex-wrap: wrap;align-items: center;"
-            }
-          );
-          let $collect = $operationRight.querySelector(
-            ".script-collect-btn"
-          );
-          let $installLink = $operationRight.querySelector(".install-link");
-          $installLink["data-script-info"] = scriptInfo;
-          DOMUtils.addClass($installLink, lodingClassName);
-          if (scriptInfo.scriptType === "library") {
-            $installLink.remove();
-          }
-          DOMUtils.on($collect, "click", (event) => {
-            utils.preventEvent(event);
-            GreasyforkScriptsCollectEvent(scriptInfo.scriptId);
-          });
-          if (PopsPanel.getValue("gf-scripts-filter-enable")) {
-            let $filter = DOMUtils.createElement("button", {
-              className: "script-filter-btn",
-              innerHTML: i18next.t("过滤")
-            });
-            let attr_filter_key = "data-filter-key";
-            let attr_filter_value = "data-filter-value";
-            DOMUtils.on($filter, "click", (event) => {
-              utils.preventEvent(event);
-              let $dialog = __pops.alert({
-                title: {
-                  text: i18next.t("选择需要过滤的选项"),
-                  position: "center"
-                },
-                content: {
-                  text: (
-                    /*html*/
-                    `
-									<button ${attr_filter_key}="scriptId" ${attr_filter_value}="^${scriptInfo.scriptId}$">${i18next.t("脚本id：{{text}}", {
-                    text: scriptInfo.scriptId
-                  })}</button>
-									<button ${attr_filter_key}="scriptName" ${attr_filter_value}="^${utils.parseStringToRegExpString(
-                    scriptInfo.scriptName
-                  )}$">${i18next.t("脚本名：{{text}}", {
-                    text: scriptInfo.scriptName
-                  })}</button>
-									`
-                  ),
-                  html: true
-                },
-                mask: {
-                  enable: true,
-                  clickEvent: {
-                    toClose: true
-                  }
-                },
-                width: "350px",
-                height: "300px",
-                drag: true,
-                dragLimit: true,
-                style: (
-                  /*css*/
-                  `
-								.pops-alert-content{
-									display: flex;
-									flex-direction: column;
-    								gap: 20px;
-								}
-								.pops-alert-content button{
-									text-wrap: wrap;
-									padding: 8px;
-									height: auto;
-									text-align: left;
-								}
-								`
-                )
-              });
-              let $content = $dialog.$shadowRoot.querySelector(
-                ".pops-alert-content"
-              );
-              scriptInfo.scriptAuthors.forEach((scriptAuthorInfo) => {
-                let $authorIdButton = DOMUtils.createElement("button", {
-                  innerHTML: i18next.t("作者id：{{text}}", {
-                    text: scriptAuthorInfo.authorId
-                  })
-                });
-                $authorIdButton.setAttribute(attr_filter_key, "scriptAuthorId");
-                $authorIdButton.setAttribute(
-                  attr_filter_value,
-                  "^" + scriptAuthorInfo.authorId + "$"
-                );
-                let $authorNameButton = DOMUtils.createElement("button", {
-                  innerHTML: i18next.t("作者名：{{text}}", {
-                    text: scriptAuthorInfo.authorName
-                  })
-                });
-                $authorNameButton.setAttribute(
-                  attr_filter_key,
-                  "scriptAuthorName"
-                );
-                $authorNameButton.setAttribute(
-                  attr_filter_value,
-                  "^" + utils.parseStringToRegExpString(scriptAuthorInfo.authorName) + "$"
-                );
-                $content.appendChild($authorIdButton);
-                $content.appendChild($authorNameButton);
-              });
-              DOMUtils.on(
-                $dialog.$shadowRoot,
-                "click",
-                `button[${attr_filter_key}]`,
-                (event2) => {
-                  utils.preventEvent(event2);
-                  let $click = event2.target;
-                  let key = $click.getAttribute(
-                    attr_filter_key
-                  );
-                  let value = $click.getAttribute(attr_filter_value);
-                  GreasyforkScriptsFilter.addValue(key, value);
-                  $dialog.close();
-                  GreasyforkScriptsFilter.filter();
-                  Qmsg.success(i18next.t("添加成功"));
-                }
-              );
-            });
-            $operationRight.appendChild($filter);
-          }
-          $inlineStats.appendChild($ratingScoreLeft);
-          $inlineStats.appendChild($ratingScoreRight);
-          $inlineStats.appendChild($versionLeft);
-          $inlineStats.appendChild($versionRight);
-          $inlineStats.appendChild($operationLeft);
-          $inlineStats.appendChild($operationRight);
-        });
-        let $installLinkList = Array.from(
-          document.querySelectorAll(
-            ".install-link[data-install-format=js]"
-          )
-        );
+      DOMUtils.ready(() => {
         let allScriptContainerStatus = GreasyforkCheckVersion.getScriptContainerStatus();
         let hasScriptContainer = Object.values(allScriptContainerStatus).find(
           (item) => item
@@ -3963,43 +3729,307 @@
             "当前暴露的external信息：" + isRegisterScriptContainerNameList.map((it) => `【${it}】`).join("、")
           );
         }
-        for (let index = 0; index < $installLinkList.length; index++) {
-          const $installLink = $installLinkList[index];
-          let scriptInfo = Reflect.get(
-            $installLink,
-            "data-script-info"
-          );
-          if (hasScriptContainer) {
-            if (isForceUseNameSpace) {
-              let response = await httpx.get(
-                GreasyforkUrlUtils.getScriptInfoUrl(scriptInfo.scriptId),
-                {
-                  fetch: true
-                }
-              );
-              if (response.status) {
-                let data = utils.toJSON(
-                  response.data.responseText
-                );
-                $installLink.setAttribute(
-                  "data-script-namespace",
-                  data.namespace
-                );
-              }
+        let lockFn = new utils.LockFunction(() => {
+          let allScriptsList = GreasyforkScriptsFilter.getElementList();
+          allScriptsList.forEach(($scriptList) => {
+            if ($scriptList.querySelector(".script-list-operation")) {
+              return;
             }
-            GreasyforkCheckVersion.checkForUpdatesJS($installLink, true).then(
-              (checkResult) => {
-                DOMUtils.removeClass($installLink, lodingClassName);
-                if (!checkResult) {
-                  DOMUtils.text($installLink, noInstallBtnText);
-                }
+            let scriptInfo = parseScriptListInfo($scriptList);
+            let $inlineStats = $scriptList.querySelector(
+              ".inline-script-stats"
+            );
+            if (!$inlineStats) {
+              return;
+            }
+            let code_url = scriptInfo.codeUrl;
+            let $ratingScoreLeft = DOMUtils.createElement("dt", {
+              className: "script-list-rating-score",
+              innerHTML: `<span>${i18next.t("评分")}</span>`
+            });
+            let $ratingScoreRight = DOMUtils.createElement(
+              "dd",
+              {
+                className: "script-list-rating-score",
+                innerHTML: `<span>${scriptInfo.scriptRatingScore}</span>`
+              },
+              {
+                "data-position": "right"
               }
             );
-          } else {
-            DOMUtils.removeClass($installLink, lodingClassName);
-            DOMUtils.text($installLink, noInstallBtnText);
+            let $goodRatingCount = $scriptList.querySelector(
+              "dd.script-list-ratings .good-rating-count"
+            );
+            let $okRatingCount = $scriptList.querySelector(
+              "dd.script-list-ratings .ok-rating-count"
+            );
+            let $badRatingCount = $scriptList.querySelector(
+              "dd.script-list-ratings .bad-rating-count"
+            );
+            if ($goodRatingCount && $okRatingCount && $badRatingCount) {
+              let goodRatingCount = parseInt($goodRatingCount.innerText);
+              let okRatingCount = parseInt($okRatingCount.innerText);
+              let badRatingCount = parseInt($badRatingCount.innerText);
+              let totalRatingCount = goodRatingCount + okRatingCount + badRatingCount;
+              if (totalRatingCount >= 10) {
+                if (goodRatingCount / totalRatingCount >= 0.6) {
+                  $ratingScoreRight.classList.add("good-rating-count");
+                } else {
+                  $ratingScoreRight.classList.add("bad-rating-count");
+                }
+              } else if (totalRatingCount == 0) {
+                $ratingScoreRight.classList.add("good-rating-count");
+              } else {
+                if (goodRatingCount > okRatingCount + badRatingCount) {
+                  $ratingScoreRight.classList.add("good-rating-count");
+                } else {
+                  $ratingScoreRight.classList.add("bad-rating-count");
+                }
+              }
+            }
+            let $versionLeft = DOMUtils.createElement("dt", {
+              className: "script-list-version",
+              innerHTML: (
+                /*html*/
+                `<span>${i18next.t("版本")}</span>`
+              )
+            });
+            let $versionRight = DOMUtils.createElement(
+              "dd",
+              {
+                className: "script-list-version",
+                innerHTML: (
+                  /*html*/
+                  `<span>${scriptInfo.scriptVersion}</span>`
+                )
+              },
+              {
+                "data-position": "right"
+              }
+            );
+            let $operationLeft = DOMUtils.createElement("dt", {
+              className: "script-list-operation",
+              innerHTML: `<span>${i18next.t("操作")}</span>`
+            });
+            let $operationRight = DOMUtils.createElement(
+              "dd",
+              {
+                className: "script-list-operation",
+                innerHTML: (
+                  /*html*/
+                  `
+						<a
+							target="_blank"
+							class="install-link"
+							data-install-format="js"
+							data-script-name="${scriptInfo.scriptName}"
+							data-script-namespace=""
+							data-script-version="${scriptInfo.scriptVersion}"
+							data-update-label="${i18next.t("更新到 {{version}} 版本", {
+                  version: scriptInfo.scriptVersion
+                })}"
+							data-downgrade-label="${i18next.t("降级到 {{version}} 版本", {
+                  version: scriptInfo.scriptVersion
+                })}"
+							data-reinstall-label="${i18next.t("重新安装 {{version}} 版本", {
+                  version: scriptInfo.scriptVersion
+                })}"
+							href="${code_url}"></a>
+						<button class="script-collect-btn">${i18next.t("收藏")}</button>
+						`
+                )
+              },
+              {
+                "data-position": "right",
+                style: "gap:10px;display: flex;flex-wrap: wrap;align-items: center;"
+              }
+            );
+            let $collect = $operationRight.querySelector(
+              ".script-collect-btn"
+            );
+            let $installLink = $operationRight.querySelector(".install-link");
+            $installLink["data-script-info"] = scriptInfo;
+            DOMUtils.addClass($installLink, lodingClassName);
+            if (scriptInfo.scriptType === "library") {
+              $installLink.remove();
+            }
+            DOMUtils.on($collect, "click", (event) => {
+              utils.preventEvent(event);
+              GreasyforkScriptsCollectEvent(scriptInfo.scriptId);
+            });
+            if (PopsPanel.getValue("gf-scripts-filter-enable")) {
+              let $filter = DOMUtils.createElement("button", {
+                className: "script-filter-btn",
+                innerHTML: i18next.t("过滤")
+              });
+              let attr_filter_key = "data-filter-key";
+              let attr_filter_value = "data-filter-value";
+              DOMUtils.on($filter, "click", (event) => {
+                utils.preventEvent(event);
+                let $dialog = __pops.alert({
+                  title: {
+                    text: i18next.t("选择需要过滤的选项"),
+                    position: "center"
+                  },
+                  content: {
+                    text: (
+                      /*html*/
+                      `
+									<button ${attr_filter_key}="scriptId" ${attr_filter_value}="^${scriptInfo.scriptId}$">${i18next.t("脚本id：{{text}}", {
+                      text: scriptInfo.scriptId
+                    })}</button>
+									<button ${attr_filter_key}="scriptName" ${attr_filter_value}="^${utils.parseStringToRegExpString(
+                      scriptInfo.scriptName
+                    )}$">${i18next.t("脚本名：{{text}}", {
+                      text: scriptInfo.scriptName
+                    })}</button>
+									`
+                    ),
+                    html: true
+                  },
+                  mask: {
+                    enable: true,
+                    clickEvent: {
+                      toClose: true
+                    }
+                  },
+                  width: "350px",
+                  height: "300px",
+                  drag: true,
+                  dragLimit: true,
+                  style: (
+                    /*css*/
+                    `
+								.pops-alert-content{
+									display: flex;
+									flex-direction: column;
+    								gap: 20px;
+								}
+								.pops-alert-content button{
+									text-wrap: wrap;
+									padding: 8px;
+									height: auto;
+									text-align: left;
+								}
+								`
+                  )
+                });
+                let $content = $dialog.$shadowRoot.querySelector(
+                  ".pops-alert-content"
+                );
+                scriptInfo.scriptAuthors.forEach((scriptAuthorInfo) => {
+                  let $authorIdButton = DOMUtils.createElement("button", {
+                    innerHTML: i18next.t("作者id：{{text}}", {
+                      text: scriptAuthorInfo.authorId
+                    })
+                  });
+                  $authorIdButton.setAttribute(attr_filter_key, "scriptAuthorId");
+                  $authorIdButton.setAttribute(
+                    attr_filter_value,
+                    "^" + scriptAuthorInfo.authorId + "$"
+                  );
+                  let $authorNameButton = DOMUtils.createElement("button", {
+                    innerHTML: i18next.t("作者名：{{text}}", {
+                      text: scriptAuthorInfo.authorName
+                    })
+                  });
+                  $authorNameButton.setAttribute(
+                    attr_filter_key,
+                    "scriptAuthorName"
+                  );
+                  $authorNameButton.setAttribute(
+                    attr_filter_value,
+                    "^" + utils.parseStringToRegExpString(
+                      scriptAuthorInfo.authorName
+                    ) + "$"
+                  );
+                  $content.appendChild($authorIdButton);
+                  $content.appendChild($authorNameButton);
+                });
+                DOMUtils.on(
+                  $dialog.$shadowRoot,
+                  "click",
+                  `button[${attr_filter_key}]`,
+                  (event2) => {
+                    utils.preventEvent(event2);
+                    let $click = event2.target;
+                    let key = $click.getAttribute(
+                      attr_filter_key
+                    );
+                    let value = $click.getAttribute(attr_filter_value);
+                    GreasyforkScriptsFilter.addValue(key, value);
+                    $dialog.close();
+                    GreasyforkScriptsFilter.filter();
+                    Qmsg.success(i18next.t("添加成功"));
+                  }
+                );
+              });
+              $operationRight.appendChild($filter);
+            }
+            $inlineStats.appendChild($ratingScoreLeft);
+            $inlineStats.appendChild($ratingScoreRight);
+            $inlineStats.appendChild($versionLeft);
+            $inlineStats.appendChild($versionRight);
+            $inlineStats.appendChild($operationLeft);
+            $inlineStats.appendChild($operationRight);
+          });
+        }, 100);
+        let lockFn2 = new utils.LockFunction(async () => {
+          let $installLinkList = Array.from(
+            $$(
+              ".install-link[data-install-format=js]:not([gm-is-check-install-status])"
+            )
+          );
+          for (let index = 0; index < $installLinkList.length; index++) {
+            const $installLink = $installLinkList[index];
+            $installLink.setAttribute("gm-is-check-install-status", "");
+            let scriptInfo = Reflect.get(
+              $installLink,
+              "data-script-info"
+            );
+            if (hasScriptContainer) {
+              if (isForceUseNameSpace) {
+                let response = await httpx.get(
+                  GreasyforkUrlUtils.getScriptInfoUrl(scriptInfo.scriptId),
+                  {
+                    fetch: true
+                  }
+                );
+                if (response.status) {
+                  let data = utils.toJSON(
+                    response.data.responseText
+                  );
+                  $installLink.setAttribute(
+                    "data-script-namespace",
+                    data.namespace
+                  );
+                }
+              }
+              GreasyforkCheckVersion.checkForUpdatesJS($installLink, true).then(
+                (checkResult) => {
+                  DOMUtils.removeClass($installLink, lodingClassName);
+                  if (!checkResult) {
+                    DOMUtils.text($installLink, noInstallBtnText);
+                  }
+                }
+              );
+            } else {
+              DOMUtils.removeClass($installLink, lodingClassName);
+              DOMUtils.text($installLink, noInstallBtnText);
+            }
           }
-        }
+        });
+        utils.mutationObserver(document, {
+          config: {
+            subtree: true,
+            childList: true
+          },
+          immediate: true,
+          callback: () => {
+            lockFn.run();
+            lockFn2.run();
+          }
+        });
       });
       return result;
     }
@@ -4108,6 +4138,7 @@
             subtree: true,
             childList: true
           },
+          immediate: true,
           callback: () => {
             lockFunction.run();
           }
@@ -4119,10 +4150,9 @@
      * 获取脚本列表元素
      */
     getElementList() {
-      let scriptList = [];
-      scriptList = scriptList.concat(
-        Array.from(document.querySelectorAll("ol.script-list li"))
-      );
+      let scriptList = [
+        ...Array.from($$("ol.script-list li[data-script-name]"))
+      ];
       return scriptList;
     },
     /**
@@ -5052,6 +5082,7 @@
           subtree: true,
           childList: true
         },
+        immediate: true,
         callback: () => {
           lockFunction.run();
         }
@@ -5599,8 +5630,15 @@
         text: "",
         forms: [
           UISwitch(
+            i18next.t("新增【关键词】搜索框"),
+            "gf-script-search-addFilterSearchInput",
+            true,
+            void 0,
+            i18next.t("输入自定义关键词后自动执行过滤")
+          ),
+          UISwitch(
             i18next.t("新增【{{buttonText}}】按钮", {
-              buttonText: i18next.t("名称-全词匹配")
+              buttonText: i18next.t("名称")
             }),
             "gf-script-search-filterScriptTitleWholeWordMatching",
             true,
@@ -5609,7 +5647,7 @@
           ),
           UISwitch(
             i18next.t("新增【{{buttonText}}】按钮", {
-              buttonText: i18next.t("描述-全词匹配")
+              buttonText: i18next.t("描述")
             }),
             "gf-script-search-filterScriptDescWholeWordMatching",
             true,
@@ -5618,7 +5656,16 @@
           ),
           UISwitch(
             i18next.t("新增【{{buttonText}}】按钮", {
-              buttonText: i18next.t("作者名称-全词匹配")
+              buttonText: i18next.t("名称/描述")
+            }),
+            "gf-script-search-filterScriptTitleOrDescWholeWordMatching",
+            true,
+            void 0,
+            i18next.t("该Checkbox按钮开启后，自动过滤出包含搜索关键词的脚本")
+          ),
+          UISwitch(
+            i18next.t("新增【{{buttonText}}】按钮", {
+              buttonText: i18next.t("作者名称")
             }),
             "gf-script-search-filterScriptAuthorNameWholeWordMatching",
             true,
@@ -6567,11 +6614,23 @@
         PopsPanel.execMenuOnce("greasyfork-discussions-filter-enable", () => {
           this.filterEnable();
         });
-        PopsPanel.execMenuOnce("discussions-addShortcutOperationButton", () => {
-          this.addShortcutOperationButton();
+        let lockFn = new utils.LockFunction(() => {
+          PopsPanel.execMenu("discussions-addShortcutOperationButton", () => {
+            this.addShortcutOperationButton();
+          });
+          PopsPanel.execMenu("discussions-addReportButton", () => {
+            this.addReportButton();
+          });
         });
-        PopsPanel.execMenuOnce("discussions-addReportButton", () => {
-          this.addReportButton();
+        utils.mutationObserver(document.body, {
+          config: {
+            subtree: true,
+            childList: true
+          },
+          immediate: true,
+          callback: () => {
+            lockFn.run();
+          }
         });
       });
     },
@@ -7076,11 +7135,26 @@
      */
     addFilterControls($scriptList) {
       function getControls() {
-        var _a2;
-        let $el = document.querySelector(
-          "#gm-script-filter-controls"
+        let $el = $("#gm-script-filter-controls");
+        if (!$el) {
+          return;
+        }
+        let shadowRoot2 = $el == null ? void 0 : $el.shadowRoot;
+        if (!shadowRoot2) {
+          return;
+        }
+        let $filterControl2 = shadowRoot2.querySelector(
+          ".pops-filter-controls_inner"
         );
-        return (_a2 = $el == null ? void 0 : $el.shadowRoot) == null ? void 0 : _a2.querySelector(".pops");
+        let $search2 = shadowRoot2.querySelector(
+          ".pops-filter-search-container"
+        );
+        if ($filterControl2 && $search2) {
+          return {
+            $filterControl: $filterControl2,
+            $search: $search2
+          };
+        }
       }
       let $controls = getControls();
       if ($controls) {
@@ -7110,16 +7184,23 @@
             /*css*/
             `
                 .pops{
+					display: flex;
+					flex-direction: column;
+					gap: 10px;
+					padding: 10px;
+                }
+				.pops-filter-controls_inner{
                     display: flex;
                     align-items: center;
                     flex-direction: row;
                     gap: 10px;
-                    padding: 10px;
-                }
+					flex-wrap: wrap;
+				}
                 .pops .gm-script-control-item{
                     display: flex;
                     align-items: center;
                     gap: 10px;
+					width: 150px;
                 }
                 .pops .pops-panel-item-left-main-text{
                     display: flex;
@@ -7127,16 +7208,40 @@
                     margin: 0px;
                     padding: 0px;
                 }
+				.pops .pops-panel-item-left-desc-text{
+					line-height: normal;
+					margin-top: 6px;
+					font-size: 0.8em;
+					color: rgb(108, 108, 108);
+				}
+				.gm-script-search-input{
+					display: flex;
+					align-items: center;
+					gap: 20px;
+				}
             `
           )
         })
       );
       let $pops = domUtils.createElement("div", {
-        className: "pops"
+        className: "pops pops-filter-controls-container",
+        innerHTML: (
+          /*html*/
+          `
+				<div class="pops-filter-search-container"></div>
+				<div class="pops-filter-controls_inner"></div>
+			`
+        )
       });
+      let $filterControl = $pops.querySelector(
+        ".pops-filter-controls_inner"
+      );
+      let $search = $pops.querySelector(
+        ".pops-filter-search-container"
+      );
       shadowRoot.appendChild($pops);
       domUtils.before($scriptList, $controlsContainer);
-      return $pops;
+      return { $filterControl, $search };
     }
   };
   const GreasyforkScriptsSearch = {
@@ -7147,51 +7252,108 @@
             log.error("未找到脚本列表节点，无法继续执行");
             return;
           }
-          let $filterControlsContainer = GreasyforkScriptsSearchElement.addFilterControls($scriptList);
-          this.addFilterControlsItem($filterControlsContainer);
+          PopsPanel.onceExec("GreasyforkScriptsSearch", () => {
+            let { $filterControl, $search } = GreasyforkScriptsSearchElement.addFilterControls($scriptList);
+            this.addFilterControlsItem($search, $filterControl);
+          });
         });
       });
     },
     /**
      * 添加过滤项
      */
-    addFilterControlsItem($filterControlsContainer) {
+    addFilterControlsItem($search, $filterControlsContainer) {
+      let panelHandleContentUtils = __pops.config.panelHandleContentUtils();
       let controlsConfig = [
         {
-          name: i18next.t("名称-全词匹配"),
+          name: i18next.t("名称"),
+          desc: i18next.t("全词匹配"),
           ENABLE_KEY: "gf-script-search-filterScriptTitleWholeWordMatching",
           STORAGE_KEY: "gf-script-search-filterScriptTitleWholeWordMatching-enable",
           callback: (searchText, scriptInfo) => {
-            return !scriptInfo.scriptName.includes(searchText);
-          }
+            try {
+              return !scriptInfo.scriptName.match(new RegExp(searchText, "i"));
+            } catch (error) {
+              log.error(error);
+              return !scriptInfo.scriptName.match(searchText);
+            }
+          },
+          mutualExclusionSwitch: [
+            `.gm-script-control-item[data-storage-key="gf-script-search-filterScriptTitleOrDescWholeWordMatching-enable"]`
+          ]
         },
         {
-          name: i18next.t("描述-全词匹配"),
+          name: i18next.t("描述"),
+          desc: i18next.t("全词匹配"),
           ENABLE_KEY: "gf-script-search-filterScriptDescWholeWordMatching",
           STORAGE_KEY: "gf-script-search-filterScriptDescWholeWordMatching-enable",
           callback: (searchText, scriptInfo) => {
-            return !scriptInfo.scriptDescription.includes(searchText);
-          }
+            try {
+              return !scriptInfo.scriptDescription.match(
+                new RegExp(searchText, "i")
+              );
+            } catch (error) {
+              return !scriptInfo.scriptDescription.match(searchText);
+            }
+          },
+          mutualExclusionSwitch: [
+            `.gm-script-control-item[data-storage-key="gf-script-search-filterScriptTitleOrDescWholeWordMatching-enable"]`
+          ]
         },
         {
-          name: i18next.t("作者名称-全词匹配"),
+          name: i18next.t("名称/描述"),
+          desc: i18next.t("任一全词匹配"),
+          ENABLE_KEY: "gf-script-search-filterScriptTitleOrDescWholeWordMatching",
+          STORAGE_KEY: "gf-script-search-filterScriptTitleOrDescWholeWordMatching-enable",
+          callback: (searchText, scriptInfo) => {
+            let isFilterNameFlag = controlsConfig.find(
+              (it) => it.ENABLE_KEY === "gf-script-search-filterScriptTitleWholeWordMatching"
+            ).callback(searchText, scriptInfo);
+            let isFilterDescFlag = controlsConfig.find(
+              (it) => it.ENABLE_KEY === "gf-script-search-filterScriptDescWholeWordMatching"
+            ).callback(searchText, scriptInfo);
+            return isFilterNameFlag && isFilterDescFlag;
+          },
+          mutualExclusionSwitch: [
+            `.gm-script-control-item[data-storage-key="gf-script-search-filterScriptTitleWholeWordMatching-enable"]`,
+            `.gm-script-control-item[data-storage-key="gf-script-search-filterScriptDescWholeWordMatching-enable"]`
+          ]
+        },
+        {
+          name: i18next.t("作者名称"),
+          desc: i18next.t("全词匹配"),
           ENABLE_KEY: "gf-script-search-filterScriptAuthorNameWholeWordMatching",
           STORAGE_KEY: "gf-script-search-filterScriptAuthorNameWholeWordMatching-enable",
           callback: (searchText, scriptInfo) => {
-            return !scriptInfo.scriptAuthorName.includes(searchText);
+            try {
+              return !scriptInfo.scriptAuthorName.match(
+                new RegExp(searchText, "i")
+              );
+            } catch (error) {
+              return !scriptInfo.scriptAuthorName.match(searchText);
+            }
           }
         }
       ];
-      function callback() {
-        let searchParams = new URLSearchParams(window.location.search);
-        let searchText = searchParams.get("q").trim();
-        if (searchText == "") {
-          return;
+      let querySearchText = () => {
+        var _a2, _b;
+        let $ownSearchInput = $search.querySelector("input");
+        if ($ownSearchInput) {
+          return $ownSearchInput.value;
         }
+        let searchParams = new URLSearchParams(window.location.search);
+        let searchText = ((_a2 = searchParams.get("q")) == null ? void 0 : _a2.trim()) || ((_b = searchParams.get("c")) == null ? void 0 : _b.trim()) || "";
+        return searchText;
+      };
+      let execTotalFilter = () => {
+        let searchText = querySearchText();
         let allScriptsList = GreasyforkScriptsFilter.getElementList();
         allScriptsList.forEach(($scriptList) => {
           let scriptInfo = parseScriptListInfo($scriptList);
           let fitlerFlagList = controlsConfig.map((controlsConfig2) => {
+            if (searchText == "") {
+              return false;
+            }
             let enable = _GM_getValue(controlsConfig2.STORAGE_KEY);
             if (!enable) {
               return;
@@ -7212,25 +7374,67 @@
             domUtils.show($scriptList, false);
           }
         });
+      };
+      if (PopsPanel.getValue("gf-script-search-addFilterSearchInput")) {
+        let $searchInner = panelHandleContentUtils.createSectionContainerItem_input({
+          type: "input",
+          className: "gm-script-search-input",
+          getValue() {
+            let queryText = querySearchText();
+            return PopsPanel.getValue(
+              "gf-script-search-addFilterSearchInput-text"
+            ) || queryText || "";
+          },
+          description: i18next.t("自动执行过滤"),
+          placeholder: i18next.t("过滤的关键词"),
+          text: i18next.t("关键词"),
+          callback: utils.debounce((event, value) => {
+            PopsPanel.setValue(
+              "gf-script-search-addFilterSearchInput-text",
+              value.toString()
+            );
+            execTotalFilter();
+          }, 500)
+        });
+        domUtils.append($search, $searchInner);
       }
       controlsConfig.forEach((controlConfig) => {
         if (!PopsPanel.getValue(controlConfig.ENABLE_KEY)) {
           return;
         }
         log.info(`添加按钮${controlConfig.name}`);
-        let panelHandleContentUtils = __pops.config.panelHandleContentUtils();
         let $controlContainer = panelHandleContentUtils.createSectionContainerItem_switch({
           type: "switch",
           className: "gm-script-control-item",
           text: controlConfig.name,
+          description: controlConfig.desc,
+          attributes: {
+            "data-storage-key": controlConfig.STORAGE_KEY
+          },
           getValue() {
             let value = _GM_getValue(controlConfig.STORAGE_KEY, false);
-            callback();
+            value = Boolean(value);
+            execTotalFilter();
             return value;
           },
           callback(event, value) {
             _GM_setValue(controlConfig.STORAGE_KEY, value);
-            callback();
+            execTotalFilter();
+            if (value && Array.isArray(controlConfig.mutualExclusionSwitch)) {
+              let $pops = $controlContainer.closest(".pops");
+              controlConfig.mutualExclusionSwitch.forEach((selector) => {
+                let $switch = $pops.querySelector(selector);
+                if ($switch) {
+                  let $input = $switch.querySelector("input");
+                  if ($input == null ? void 0 : $input.checked) {
+                    let $core = $switch.querySelector(
+                      ".pops-panel-switch__core"
+                    );
+                    $core == null ? void 0 : $core.click();
+                  }
+                }
+              });
+            }
           }
         });
         domUtils.append($filterControlsContainer, $controlContainer);
@@ -7264,7 +7468,7 @@
           log.info(`Router-next: 私聊用户页面`);
           GreasyforkConversations.init();
         }
-      } else if (GreasyforkRouter.isScriptSearch()) {
+      } else if (GreasyforkRouter.isScriptSearch() || GreasyforkRouter.isScriptsBySite() || GreasyforkRouter.isScriptCodeSearch() || GreasyforkRouter.isScriptLibraryListSearch()) {
         log.info(`Router: 脚本搜索页面`);
         GreasyforkScriptsSearch.init();
       }
