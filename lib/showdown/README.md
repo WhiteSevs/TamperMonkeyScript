@@ -12,6 +12,6 @@ Showdown.js 是一个基于 JavaScript 开发环境的 MarkDown 语法解释工�
 
 ## 链接地址
 
+- 当前版本：`2.1.0`
 - 最新版本：[![npm version](https://img.shields.io/npm/v/showdown/latest.svg)](https://www.npmjs.com/package/showdown)
-
-[https://cdn.jsdelivr.net/npm/showdown@2.1.0/dist/showdown.min.js](https://cdn.jsdelivr.net/npm/showdown@2.1.0/dist/showdown.min.js)
+- 文件地址[https://cdn.jsdelivr.net/npm/showdown@latest/dist/showdown.min.js](https://cdn.jsdelivr.net/npm/showdown@latest/dist/showdown.min.js)
