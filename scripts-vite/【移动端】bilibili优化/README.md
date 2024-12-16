@@ -35,12 +35,12 @@
   - [x] Firefox [TamperMonkey](https://addons.mozilla.org/zh-CN/firefox/addon/tampermonkey/)、[ViolentMonkey](https://addons.mozilla.org/zh-CN/firefox/addon/violentmonkey/)、[ScriptCat](https://addons.mozilla.org/zh-CN/firefox/addon/scriptcat/)
   - [x] Safari [Stay](https://apps.apple.com/cn/app/stay-for-safari-%E6%B5%8F%E8%A7%88%E5%99%A8%E4%BC%B4%E4%BE%A3/id1591620171)
 
-## 画质解锁
+## dash & 番剧
 
 > 注：番剧画质解锁需要设置`Referer`和`User-Agent`鉴权，但`Referer`和`User-Agent`无法通过油猴脚本设置，所以只能通过插件设置。
 >
-> - 套壳类浏览器例如：`Via浏览器`、`X浏览器`可以把`m.bilibili.com`设定`浏览器标识(UserAgent)`为`iPhone`
-> - 可安装扩展的浏览器例如：`可拓`、`Kiwi`、`狐猴`等，需安装插件`Header Editor`
+> - 套壳类浏览器，例如：`Via浏览器`、`X浏览器`需要对`m.bilibili.com`设定`浏览器标识(UserAgent)`为`iPhone`
+> - 可安装扩展的浏览器，例如：`可拓`、`Kiwi`、`狐猴`等，需安装插件`Header Editor`
 >
 
 | 商店名  | `Header Editor`插件的链接                                                                                                                                                                            |
@@ -51,9 +51,11 @@
 
 将下面的规则自行创建一个`xxx.json`文件，粘贴进去，导入到插件即可，或者复制链接
 
-[复制配置链接(fastly节点)](https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/scripts-vite/%E3%80%90%E7%A7%BB%E5%8A%A8%E7%AB%AF%E3%80%91bilibili%E4%BC%98%E5%8C%96/HeaderEditor_bangumiRule.json)
-[复制配置链接(testingcf节点)](https://testingcf.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/scripts-vite/%E3%80%90%E7%A7%BB%E5%8A%A8%E7%AB%AF%E3%80%91bilibili%E4%BC%98%E5%8C%96/HeaderEditor_bangumiRule.json)
-[复制配置链接(gcore节点)](https://gcore.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/scripts-vite/%E3%80%90%E7%A7%BB%E5%8A%A8%E7%AB%AF%E3%80%91bilibili%E4%BC%98%E5%8C%96/HeaderEditor_bangumiRule.json)
+[规则文件(fastly节点)](https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/scripts-vite/%E3%80%90%E7%A7%BB%E5%8A%A8%E7%AB%AF%E3%80%91bilibili%E4%BC%98%E5%8C%96/HeaderEditor_bangumiRule.json)
+
+[规则文件(testingcf节点)](https://testingcf.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/scripts-vite/%E3%80%90%E7%A7%BB%E5%8A%A8%E7%AB%AF%E3%80%91bilibili%E4%BC%98%E5%8C%96/HeaderEditor_bangumiRule.json)
+
+[规则文件(gcore节点)](https://gcore.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/scripts-vite/%E3%80%90%E7%A7%BB%E5%8A%A8%E7%AB%AF%E3%80%91bilibili%E4%BC%98%E5%8C%96/HeaderEditor_bangumiRule.json)
 
 ```json
 {
