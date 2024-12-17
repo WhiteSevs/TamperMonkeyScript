@@ -16,7 +16,7 @@ export class PopsDrawer {
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
 		config = PopsHandler.handleOnly(PopsType, config);
-		
+
 		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
 			pops.config.cssText.index,
@@ -121,7 +121,6 @@ export class PopsDrawer {
 			$shadowContainer,
 			$shadowRoot,
 			PopsType,
-
 			$anim,
 			$pops,
 			$mask!,
@@ -243,11 +242,8 @@ export class PopsDrawer {
 
 		PopsHandler.handlePush(PopsType, {
 			guid: guid,
-
 			animElement: $anim,
-
 			popsElement: $pops,
-
 			maskElement: $mask!,
 			$shadowContainer: $shadowContainer,
 			$shadowRoot: $shadowRoot,

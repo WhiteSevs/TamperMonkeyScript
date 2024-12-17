@@ -496,16 +496,7 @@ export const PopsHandler = {
 	/**
 	 * 处理返回的配置，针对popsHandler.handleEventDetails
 	 */
-	handleResultDetails(details: any): {
-		$shadowContainer: HTMLDivElement;
-		$shadowRoot: ShadowRoot;
-		animElement: HTMLElement;
-		popsElement: HTMLElement;
-		maskElement: HTMLElement;
-		close: () => void;
-		hide: () => void;
-		show: () => void;
-	} {
+	handleResultDetails<T extends any>(details: T): Omit<T, "type" | "function"> {
 		let resultDetails = Object.assign({}, details);
 		popsUtils.delete(resultDetails, "type");
 		popsUtils.delete(resultDetails, "function");
