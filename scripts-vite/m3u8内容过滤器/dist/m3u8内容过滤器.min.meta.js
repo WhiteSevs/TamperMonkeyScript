@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         m3u8内容过滤器
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.9
+// @version      2024.12.17
 // @author       WhiteSevs
 // @description  自定义规则对网页中的m3u8的请求内容进行过滤
 // @license      GPL-3.0-only
@@ -9,7 +9,7 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
