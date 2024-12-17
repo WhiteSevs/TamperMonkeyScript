@@ -1,5 +1,5 @@
 import { WeiBoApi } from "@/api/WeiBoApi";
-import { log, utils } from "@/env";
+import { $$, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { VueUtils } from "@/utils/VueUtils";
 import Qmsg from "qmsg";
@@ -202,11 +202,8 @@ export class WeiBoUnlockQuality {
 		// 任务队列
 		let taskQueue: Function[] = [];
 
-		document
-			.querySelectorAll<HTMLDivElement>(
-				".weibo-media-wraps:not([data-unlock-quality])"
-			)
-			.forEach(($ele) => {
+		$$<HTMLDivElement>(".weibo-media-wraps:not([data-unlock-quality])").forEach(
+			($ele) => {
 				$ele.setAttribute("data-unlock-quality", "true");
 				let taskFunc = function () {
 					return new Promise<void>((resolve, reject) => {
@@ -221,7 +218,7 @@ export class WeiBoUnlockQuality {
 									}
 									return typeof vueObj?.item?.object_id === "string";
 								},
-								close() {
+								failWait() {
 									resolve();
 								},
 								async set(vueObj) {
@@ -307,7 +304,8 @@ export class WeiBoUnlockQuality {
 					});
 				};
 				taskQueue.push(taskFunc);
-			});
+			}
+		);
 		for (const taskIterator of taskQueue) {
 			taskIterator();
 			await utils.sleep(100);

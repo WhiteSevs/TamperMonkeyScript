@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.14
+// @version      2024.12.17
 // @author       WhiteSevs
 // @description  免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -3785,11 +3785,11 @@
           if (target == null) {
             return false;
           }
-          let vueObj = VueUtils.getVue(target);
-          if (vueObj == null) {
+          let vueInstance = VueUtils.getVue(target);
+          if (vueInstance == null) {
             return false;
           }
-          let needOwnCheck = needSetOption.check(vueObj);
+          let needOwnCheck = needSetOption.check(vueInstance);
           return Boolean(needOwnCheck);
         }
         utils.waitVueByInterval(
@@ -3801,14 +3801,20 @@
           1e4
         ).then((result) => {
           if (!result) {
+            if (typeof needSetOption.failWait === "function") {
+              needSetOption.failWait(true);
+            }
             return;
           }
           let target = getTarget();
-          let vueObj = VueUtils.getVue(target);
-          if (vueObj == null) {
+          let vueInstance = VueUtils.getVue(target);
+          if (vueInstance == null) {
+            if (typeof needSetOption.failWait === "function") {
+              needSetOption.failWait(false);
+            }
             return;
           }
-          needSetOption.set(vueObj);
+          needSetOption.set(vueInstance);
         });
       });
     },
@@ -3818,8 +3824,9 @@
      * @param key 需要观察的属性
      * @param callback 监听回调
      * @param watchConfig 监听配置
+     * @param failWait 当检测失败/超时触发该回调
      */
-    watchVuePropChange($target, key, callback, watchConfig) {
+    watchVuePropChange($target, key, callback, watchConfig, failWait) {
       let config = utils.assign(
         {
           immediate: true,
@@ -3854,7 +3861,8 @@
               );
             }
             resolve(removeWatch);
-          }
+          },
+          failWait
         });
       });
     },

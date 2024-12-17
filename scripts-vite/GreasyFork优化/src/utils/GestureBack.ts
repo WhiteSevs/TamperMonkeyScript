@@ -22,12 +22,13 @@ export class GestureBack {
 	 * 是否正在后退
 	 */
 	isBacking = false;
-	config: GestureBackConfig;
+	config: Required<GestureBackConfig>;
 	constructor(config: GestureBackConfig) {
+		// @ts-ignore
 		this.config = config;
-		this.enterGestureBackMode.bind(this);
-		this.quitGestureBackMode.bind(this);
-		this.popStateEvent.bind(this);
+		this.enterGestureBackMode = this.enterGestureBackMode.bind(this);
+		this.quitGestureBackMode = this.quitGestureBackMode.bind(this);
+		this.popStateEvent = this.popStateEvent.bind(this);
 		if (
 			typeof this.config.backDelayTime !== "number" ||
 			isNaN(this.config.backDelayTime)
@@ -67,14 +68,14 @@ export class GestureBack {
 		}
 		if (this.config.useUrl) {
 			pushUrl =
-				this.config.win!.location.origin +
-				this.config.win!.location.pathname +
-				this.config.win!.location.search +
+				this.config.win.location.origin +
+				this.config.win.location.pathname +
+				this.config.win.location.search +
 				pushUrl;
 		}
-		this.config.win!.history.pushState({}, "", pushUrl);
+		this.config.win.history.pushState({}, "", pushUrl);
 		log.success("监听popstate事件");
-		DOMUtils.on(this.config.win!, "popstate", this.popStateEvent.bind(this), {
+		DOMUtils.on(this.config.win, "popstate", this.popStateEvent, {
 			capture: true,
 		});
 	}
@@ -94,16 +95,16 @@ export class GestureBack {
 				log.error("未知情况，history.back()失败，无法退出手势模式");
 				break;
 			}
-			if (this.config.win!.location.hash.endsWith(this.config.hash)) {
+			if (this.config.win.location.hash.endsWith(this.config.hash)) {
 				log.info("history.back()");
-				this.config.win!.history.back();
+				this.config.win.history.back();
 				await utils.sleep(this.config.backDelayTime || 150);
 			} else {
 				break;
 			}
 		}
 		log.success("移除popstate事件");
-		DOMUtils.off(this.config.win!, "popstate", this.popStateEvent.bind(this), {
+		DOMUtils.off(this.config.win, "popstate", this.popStateEvent, {
 			capture: true,
 		});
 		this.isBacking = false;

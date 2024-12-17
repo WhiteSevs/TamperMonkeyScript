@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.9
+// @version      2024.12.17
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -9,12 +9,12 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://www.xiaohongshu.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
-// @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
+// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
+// @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      edith.xiaohongshu.com
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
@@ -2505,11 +2505,11 @@
           if (target == null) {
             return false;
           }
-          let vueObj = VueUtils.getVue(target);
-          if (vueObj == null) {
+          let vueInstance = VueUtils.getVue(target);
+          if (vueInstance == null) {
             return false;
           }
-          let needOwnCheck = needSetOption.check(vueObj);
+          let needOwnCheck = needSetOption.check(vueInstance);
           return Boolean(needOwnCheck);
         }
         utils.waitVueByInterval(
@@ -2521,14 +2521,68 @@
           1e4
         ).then((result) => {
           if (!result) {
+            if (typeof needSetOption.failWait === "function") {
+              needSetOption.failWait(true);
+            }
             return;
           }
           let target = getTarget();
-          let vueObj = VueUtils.getVue(target);
-          if (vueObj == null) {
+          let vueInstance = VueUtils.getVue(target);
+          if (vueInstance == null) {
+            if (typeof needSetOption.failWait === "function") {
+              needSetOption.failWait(false);
+            }
             return;
           }
-          needSetOption.set(vueObj);
+          needSetOption.set(vueInstance);
+        });
+      });
+    },
+    /**
+     * 观察vue属性的变化
+     * @param $target 目标对象
+     * @param key 需要观察的属性
+     * @param callback 监听回调
+     * @param watchConfig 监听配置
+     * @param failWait 当检测失败/超时触发该回调
+     */
+    watchVuePropChange($target, key, callback, watchConfig, failWait) {
+      let config = utils.assign(
+        {
+          immediate: true,
+          deep: false
+        },
+        watchConfig || {}
+      );
+      return new Promise((resolve) => {
+        VueUtils.waitVuePropToSet($target, {
+          check(vueInstance) {
+            return typeof (vueInstance == null ? void 0 : vueInstance.$watch) === "function";
+          },
+          set(vueInstance) {
+            let removeWatch = null;
+            if (typeof key === "function") {
+              removeWatch = vueInstance.$watch(
+                () => {
+                  return key(vueInstance);
+                },
+                (newValue, oldValue) => {
+                  callback(vueInstance, newValue, oldValue);
+                },
+                config
+              );
+            } else {
+              removeWatch = vueInstance.$watch(
+                key,
+                (newValue, oldValue) => {
+                  callback(vueInstance, newValue, oldValue);
+                },
+                config
+              );
+            }
+            resolve(removeWatch);
+          },
+          failWait
         });
       });
     },
@@ -2540,14 +2594,13 @@
      */
     goToUrl($vueNode, path, useRouter = false) {
       if ($vueNode == null) {
-        Qmsg.error("跳转Url: 获取根元素#app失败");
-        log.error("跳转Url: 获取根元素#app失败：" + path);
+        Qmsg.error("跳转Url: $vueNode为空");
+        log.error("跳转Url: $vueNode为空：" + path);
         return;
       }
       let vueObj = VueUtils.getVue($vueNode);
       if (vueObj == null) {
-        log.error("获取vue属性失败");
-        Qmsg.error("获取vue属性失败");
+        Qmsg.error("获取vue属性失败", { consoleLogContent: true });
         return;
       }
       let $router = vueObj.$router;
@@ -2588,10 +2641,10 @@
       function banBack() {
         log.success("监听地址改变");
         option.vueInstance.$router.history.push(option.hash);
-        domutils.on(window, "popstate", popstateEvent);
+        domutils.on(_unsafeWindow, "popstate", popstateEvent);
       }
       async function resumeBack(isFromPopState = false) {
-        domutils.off(window, "popstate", popstateEvent);
+        domutils.off(_unsafeWindow, "popstate", popstateEvent);
         let callbackResult = option.callback(isFromPopState);
         if (callbackResult) {
           return;

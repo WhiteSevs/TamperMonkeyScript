@@ -1,4 +1,4 @@
-import { addStyle, log, utils } from "@/env";
+import { $, $$, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import blockAdsCSS from "./blockAds.css?raw";
 import { VueUtils } from "@/utils/VueUtils";
@@ -27,7 +27,7 @@ export const WeiBoDetail = {
 				function handleCardMainTime() {
 					// 其它区域，如首页
 					Array.from(
-						document.querySelectorAll<HTMLElement>(
+						$$<HTMLElement>(
 							".card.m-panel .m-text-cut .time:not([data-gm-absolute-time])"
 						)
 					).forEach(($time) => {
@@ -56,13 +56,12 @@ export const WeiBoDetail = {
 				 * 处理正文楼中楼的时间
 				 */
 				function handleCardLzlTime() {
-					let $litePageWrap =
-						document.querySelector<HTMLElement>(".lite-page-wrap")!;
+					let $litePageWrap = $<HTMLElement>(".lite-page-wrap")!;
 					let litePageWrapVueIns = VueUtils.getVue($litePageWrap);
 					if (litePageWrapVueIns) {
 						let curWeiboData = litePageWrapVueIns?.curWeiboData;
 						let $timeList = Array.from(
-							document.querySelectorAll<HTMLElement>(
+							$$<HTMLElement>(
 								".lite-page-comment .card .card-main .m-box .time"
 							)
 						);
@@ -107,7 +106,7 @@ export const WeiBoDetail = {
 				 */
 				function handleCardCommentTime() {
 					Array.from(
-						document.querySelectorAll<HTMLElement>(
+						$$<HTMLElement>(
 							".comment-content .card .m-box .time:not([data-gm-absolute-time])"
 						)
 					).forEach(($time) => {

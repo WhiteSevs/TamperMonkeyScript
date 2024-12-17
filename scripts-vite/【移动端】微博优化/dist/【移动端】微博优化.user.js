@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.9
+// @version      2024.12.17
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @match        *://card.weibo.com/*
 // @match        *://weibo.com/l/wblive/m/show/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
@@ -354,8 +354,8 @@
     setTimeout: _unsafeWindow.setTimeout
   });
   const addStyle = utils.addStyle.bind(utils);
-  document.querySelector.bind(document);
-  document.querySelectorAll.bind(document);
+  const $ = document.querySelector.bind(document);
+  const $$ = document.querySelectorAll.bind(document);
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
@@ -404,7 +404,7 @@
   };
   const VueUtils = {
     /**
-     * 获取vue实例
+     * 获取vue2实例
      * @param element
      * @returns
      */
@@ -415,9 +415,26 @@
       return element["__vue__"] || element["__Ivue__"] || element["__IVue__"];
     },
     /**
+     * 获取vue3实例
+     * @param element
+     * @returns
+     */
+    getVue3(element) {
+      if (element == null) {
+        return;
+      }
+      return element["__vueParentComponent"];
+    },
+    /**
      * 等待vue属性并进行设置
+     * @param $target 目标对象
+     * @param needSetList 需要设置的配置
      */
     waitVuePropToSet($target, needSetList) {
+      if (!Array.isArray(needSetList)) {
+        VueUtils.waitVuePropToSet($target, [needSetList]);
+        return;
+      }
       function getTarget() {
         let __target__ = null;
         if (typeof $target === "string") {
@@ -429,48 +446,173 @@
         }
         return __target__;
       }
-      if (Array.isArray(needSetList)) {
-        needSetList.forEach((needSetOption) => {
-          if (typeof needSetOption.msg === "string") {
-            log.info(needSetOption.msg);
+      needSetList.forEach((needSetOption) => {
+        if (typeof needSetOption.msg === "string") {
+          log.info(needSetOption.msg);
+        }
+        function checkVue() {
+          let target = getTarget();
+          if (target == null) {
+            return false;
           }
-          function checkVue() {
-            let target = getTarget();
-            if (target == null) {
-              return false;
-            }
-            let vueObj = VueUtils.getVue(target);
-            if (vueObj == null) {
-              return false;
-            }
-            let needOwnCheck = needSetOption.check(vueObj);
-            return Boolean(needOwnCheck);
+          let vueInstance = VueUtils.getVue(target);
+          if (vueInstance == null) {
+            return false;
           }
-          utils.waitVueByInterval(
-            () => {
-              return getTarget();
-            },
-            checkVue,
-            250,
-            1e4
-          ).then((result) => {
-            if (!result) {
-              if (typeof needSetOption.close === "function") {
-                needSetOption.close();
-              }
-              return;
+          let needOwnCheck = needSetOption.check(vueInstance);
+          return Boolean(needOwnCheck);
+        }
+        utils.waitVueByInterval(
+          () => {
+            return getTarget();
+          },
+          checkVue,
+          250,
+          1e4
+        ).then((result) => {
+          if (!result) {
+            if (typeof needSetOption.failWait === "function") {
+              needSetOption.failWait(true);
             }
-            let target = getTarget();
-            let vueObj = VueUtils.getVue(target);
-            if (vueObj == null) {
-              return;
+            return;
+          }
+          let target = getTarget();
+          let vueInstance = VueUtils.getVue(target);
+          if (vueInstance == null) {
+            if (typeof needSetOption.failWait === "function") {
+              needSetOption.failWait(false);
             }
-            needSetOption.set(vueObj);
-          });
+            return;
+          }
+          needSetOption.set(vueInstance);
         });
-      } else {
-        this.waitVuePropToSet($target, [needSetList]);
+      });
+    },
+    /**
+     * 观察vue属性的变化
+     * @param $target 目标对象
+     * @param key 需要观察的属性
+     * @param callback 监听回调
+     * @param watchConfig 监听配置
+     * @param failWait 当检测失败/超时触发该回调
+     */
+    watchVuePropChange($target, key, callback, watchConfig, failWait) {
+      let config = utils.assign(
+        {
+          immediate: true,
+          deep: false
+        },
+        watchConfig || {}
+      );
+      return new Promise((resolve) => {
+        VueUtils.waitVuePropToSet($target, {
+          check(vueInstance) {
+            return typeof (vueInstance == null ? void 0 : vueInstance.$watch) === "function";
+          },
+          set(vueInstance) {
+            let removeWatch = null;
+            if (typeof key === "function") {
+              removeWatch = vueInstance.$watch(
+                () => {
+                  return key(vueInstance);
+                },
+                (newValue, oldValue) => {
+                  callback(vueInstance, newValue, oldValue);
+                },
+                config
+              );
+            } else {
+              removeWatch = vueInstance.$watch(
+                key,
+                (newValue, oldValue) => {
+                  callback(vueInstance, newValue, oldValue);
+                },
+                config
+              );
+            }
+            resolve(removeWatch);
+          },
+          failWait
+        });
+      });
+    },
+    /**
+     * 前往网址
+     * @param $vueNode 包含vue属性的元素
+     * @param path 需要跳转的路径
+     * @param [useRouter=false] 是否强制使用Vue的Router来进行跳转
+     */
+    goToUrl($vueNode, path, useRouter = false) {
+      if ($vueNode == null) {
+        Qmsg.error("跳转Url: $vueNode为空");
+        log.error("跳转Url: $vueNode为空：" + path);
+        return;
       }
+      let vueObj = VueUtils.getVue($vueNode);
+      if (vueObj == null) {
+        Qmsg.error("获取vue属性失败", { consoleLogContent: true });
+        return;
+      }
+      let $router = vueObj.$router;
+      let isBlank = true;
+      log.info("即将跳转URL：" + path);
+      if (useRouter) {
+        isBlank = false;
+      }
+      if (isBlank) {
+        window.open(path, "_blank");
+      } else {
+        if (path.startsWith("http") || path.startsWith("//")) {
+          if (path.startsWith("//")) {
+            path = window.location.protocol + path;
+          }
+          let urlObj = new URL(path);
+          if (urlObj.origin === window.location.origin) {
+            path = urlObj.pathname + urlObj.search + urlObj.hash;
+          } else {
+            log.info("不同域名，直接本页打开，不用Router：" + path);
+            window.location.href = path;
+            return;
+          }
+        }
+        log.info("$router push跳转Url：" + path);
+        $router.push(path);
+      }
+    },
+    /**
+     * 手势返回
+     * @param option 配置
+     */
+    hookGestureReturnByVueRouter(option) {
+      function popstateEvent() {
+        log.success("触发popstate事件");
+        resumeBack(true);
+      }
+      function banBack() {
+        log.success("监听地址改变");
+        option.vueInstance.$router.history.push(option.hash);
+        domUtils.on(_unsafeWindow, "popstate", popstateEvent);
+      }
+      async function resumeBack(isFromPopState = false) {
+        domUtils.off(_unsafeWindow, "popstate", popstateEvent);
+        let callbackResult = option.callback(isFromPopState);
+        if (callbackResult) {
+          return;
+        }
+        while (1) {
+          if (option.vueInstance.$router.history.current.hash === option.hash) {
+            log.info("后退！");
+            option.vueInstance.$router.back();
+            await utils.sleep(250);
+          } else {
+            return;
+          }
+        }
+      }
+      banBack();
+      return {
+        resumeBack
+      };
     }
   };
   const VideoQualityMap_Mobile = {
@@ -627,98 +769,98 @@
     async unlockVideoHigherQuality() {
       let that = this;
       let taskQueue = [];
-      document.querySelectorAll(
-        ".weibo-media-wraps:not([data-unlock-quality])"
-      ).forEach(($ele) => {
-        $ele.setAttribute("data-unlock-quality", "true");
-        let taskFunc = function() {
-          return new Promise((resolve, reject) => {
-            VueUtils.waitVuePropToSet($ele, [
-              {
-                check(vueObj) {
-                  var _a2, _b, _c;
-                  if (typeof ((_a2 = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _a2.type) === "string" && ((_b = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _b.type) !== "video") {
-                    return true;
-                  }
-                  return typeof ((_c = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _c.object_id) === "string";
-                },
-                close() {
-                  resolve();
-                },
-                async set(vueObj) {
-                  try {
-                    if (vueObj.item.type !== "video") {
-                      return;
+      $$(".weibo-media-wraps:not([data-unlock-quality])").forEach(
+        ($ele) => {
+          $ele.setAttribute("data-unlock-quality", "true");
+          let taskFunc = function() {
+            return new Promise((resolve, reject) => {
+              VueUtils.waitVuePropToSet($ele, [
+                {
+                  check(vueObj) {
+                    var _a2, _b, _c;
+                    if (typeof ((_a2 = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _a2.type) === "string" && ((_b = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _b.type) !== "video") {
+                      return true;
                     }
-                    let object_id = vueObj.item.object_id;
-                    let urls = vueObj.item.urls;
-                    let componentInfo = await WeiBoApi.component(object_id);
-                    if (!componentInfo) {
-                      return;
-                    }
-                    if (!componentInfo.urls) {
-                      log.error("获取组件信息urls失败");
-                      Qmsg.error("获取组件信息urls失败");
-                      return;
-                    }
-                    if (typeof componentInfo.urls !== "object") {
-                      log.error("组件信息urls不是一个对象");
-                      Qmsg.error("组件信息urls不是一个对象");
-                      return;
-                    }
-                    if (!Object.keys(componentInfo.urls).length) {
-                      log.error("组件信息urls为空");
-                      Qmsg.error("组件信息urls为空");
-                      return;
-                    }
-                    Object.keys(componentInfo.urls).forEach((srcName) => {
-                      let src = componentInfo.urls[srcName];
-                      if (that.$data.newQualityNameList.includes(srcName)) {
-                        let mapInfo = {
-                          label: that.$src[srcName].label,
-                          name: that.$src[srcName].name,
-                          sign: that.$src[srcName].sign,
-                          src
-                        };
-                        let ld_mp4_url = urls["mp4_ld_mp4"];
-                        if (ld_mp4_url) {
-                          if (!that.$data.videoQualityMap.has(ld_mp4_url)) {
-                            that.$data.videoQualityMap.set(ld_mp4_url, [
-                              mapInfo
-                            ]);
-                          } else {
-                            let currentMapInfo = that.$data.videoQualityMap.get(ld_mp4_url);
-                            currentMapInfo.push(mapInfo);
-                            that.$data.videoQualityMap.set(
-                              ld_mp4_url,
-                              currentMapInfo
-                            );
+                    return typeof ((_c = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _c.object_id) === "string";
+                  },
+                  failWait() {
+                    resolve();
+                  },
+                  async set(vueObj) {
+                    try {
+                      if (vueObj.item.type !== "video") {
+                        return;
+                      }
+                      let object_id = vueObj.item.object_id;
+                      let urls = vueObj.item.urls;
+                      let componentInfo = await WeiBoApi.component(object_id);
+                      if (!componentInfo) {
+                        return;
+                      }
+                      if (!componentInfo.urls) {
+                        log.error("获取组件信息urls失败");
+                        Qmsg.error("获取组件信息urls失败");
+                        return;
+                      }
+                      if (typeof componentInfo.urls !== "object") {
+                        log.error("组件信息urls不是一个对象");
+                        Qmsg.error("组件信息urls不是一个对象");
+                        return;
+                      }
+                      if (!Object.keys(componentInfo.urls).length) {
+                        log.error("组件信息urls为空");
+                        Qmsg.error("组件信息urls为空");
+                        return;
+                      }
+                      Object.keys(componentInfo.urls).forEach((srcName) => {
+                        let src = componentInfo.urls[srcName];
+                        if (that.$data.newQualityNameList.includes(srcName)) {
+                          let mapInfo = {
+                            label: that.$src[srcName].label,
+                            name: that.$src[srcName].name,
+                            sign: that.$src[srcName].sign,
+                            src
+                          };
+                          let ld_mp4_url = urls["mp4_ld_mp4"];
+                          if (ld_mp4_url) {
+                            if (!that.$data.videoQualityMap.has(ld_mp4_url)) {
+                              that.$data.videoQualityMap.set(ld_mp4_url, [
+                                mapInfo
+                              ]);
+                            } else {
+                              let currentMapInfo = that.$data.videoQualityMap.get(ld_mp4_url);
+                              currentMapInfo.push(mapInfo);
+                              that.$data.videoQualityMap.set(
+                                ld_mp4_url,
+                                currentMapInfo
+                              );
+                            }
                           }
                         }
-                      }
-                      if (srcName in VideoQualityMap) {
-                        let newSrcInfo = VideoQualityMap[srcName];
-                        if (newSrcInfo.name in urls) {
+                        if (srcName in VideoQualityMap) {
+                          let newSrcInfo = VideoQualityMap[srcName];
+                          if (newSrcInfo.name in urls) {
+                          } else {
+                            log.success("新增清晰度：", newSrcInfo);
+                            urls[newSrcInfo.name] = src;
+                          }
                         } else {
-                          log.success("新增清晰度：", newSrcInfo);
-                          urls[newSrcInfo.name] = src;
+                          log.error("视频清晰度映射尚未补充", { srcName, src });
                         }
-                      } else {
-                        log.error("视频清晰度映射尚未补充", { srcName, src });
-                      }
-                    });
-                  } catch (error) {
-                    log.error(error);
-                  } finally {
-                    resolve();
+                      });
+                    } catch (error) {
+                      log.error(error);
+                    } finally {
+                      resolve();
+                    }
                   }
                 }
-              }
-            ]);
-          });
-        };
-        taskQueue.push(taskFunc);
-      });
+              ]);
+            });
+          };
+          taskQueue.push(taskFunc);
+        }
+      );
       for (const taskIterator of taskQueue) {
         taskIterator();
         await utils.sleep(100);
@@ -2468,7 +2610,7 @@
         callback: () => {
           function handleCardMainTime() {
             Array.from(
-              document.querySelectorAll(
+              $$(
                 ".card.m-panel .m-text-cut .time:not([data-gm-absolute-time])"
               )
             ).forEach(($time) => {
@@ -2495,12 +2637,12 @@
             });
           }
           function handleCardLzlTime() {
-            let $litePageWrap = document.querySelector(".lite-page-wrap");
+            let $litePageWrap = $(".lite-page-wrap");
             let litePageWrapVueIns = VueUtils.getVue($litePageWrap);
             if (litePageWrapVueIns) {
               let curWeiboData = litePageWrapVueIns == null ? void 0 : litePageWrapVueIns.curWeiboData;
               let $timeList = Array.from(
-                document.querySelectorAll(
+                $$(
                   ".lite-page-comment .card .card-main .m-box .time"
                 )
               );
@@ -2539,7 +2681,7 @@
           }
           function handleCardCommentTime() {
             Array.from(
-              document.querySelectorAll(
+              $$(
                 ".comment-content .card .m-box .time:not([data-gm-absolute-time])"
               )
             ).forEach(($time) => {
@@ -3018,9 +3160,7 @@
       selectorList.forEach((selector) => {
         domUtils.on(document, "click", selector, (event) => {
           event.target;
-          let $closeButton = document.querySelector(
-            ".pswp .pswp__button--close"
-          );
+          let $closeButton = $(".pswp .pswp__button--close");
           if ($closeButton) {
             $closeButton.click();
           } else {

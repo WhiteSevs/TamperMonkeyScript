@@ -27,7 +27,7 @@ export const BaiduSearchToolBar = {
 	$data: {
 		gestureBack: new GestureBack({
 			hash: "global-search",
-			beforeHistoryBackCallBack() {
+			beforeHistoryBackCallBack(isUrlChange) {
 				BaiduSearchToolBar.hideToolBar();
 			},
 		}),

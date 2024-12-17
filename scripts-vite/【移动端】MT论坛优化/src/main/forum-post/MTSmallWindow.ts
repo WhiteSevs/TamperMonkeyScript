@@ -4,6 +4,7 @@ import smallWindowCSS from "./css/small-window.css?raw";
 import Qmsg from "qmsg";
 import Viewer from "viewerjs";
 import { GestureBack } from "@/utils/GestureBack";
+import { unsafeWindow } from "ViteGM";
 
 const MTSmallWindowIcon = {
 	/** 锁图标 */
@@ -216,12 +217,11 @@ export const MTSmallWindow = {
 				}
 			}
 		});
-
 		let getureBack = new GestureBack({
-			win: self,
 			hash: this.$key.smallWindow,
 			useUrl: true,
-			beforeHistoryBackCallBack: () => {
+			win: unsafeWindow,
+			beforeHistoryBackCallBack: (isUrlChange) => {
 				$drawer.close();
 			},
 		});

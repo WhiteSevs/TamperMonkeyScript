@@ -4,7 +4,7 @@ import blockAdsCSS from "./blockAds.css?raw";
 import { WeiBoHook } from "@/hook/WeiBoHook";
 import { WeiBoRouter } from "@/router/WeiBoRouter";
 import { WeiBoHuaTi } from "./huati/WeiBoHuaTi";
-import { DOMUtils, addStyle, log, utils } from "@/env";
+import { $, DOMUtils, addStyle, log, utils } from "@/env";
 import { WeiBoVideo } from "./video/WeiBoVideo";
 import { WeiBoDetail } from "./detail/WeiBoDetail";
 import { CommonUtil } from "@/utils/CommonUtil";
@@ -142,9 +142,7 @@ const WeiBo = {
 		selectorList.forEach((selector) => {
 			DOMUtils.on(document, "click", selector, (event) => {
 				let $clickTarget = event.target as HTMLElement;
-				let $closeButton = document.querySelector<HTMLElement>(
-					".pswp .pswp__button--close"
-				)!;
+				let $closeButton = $<HTMLElement>(".pswp .pswp__button--close")!;
 				if ($closeButton) {
 					$closeButton.click();
 				} else {

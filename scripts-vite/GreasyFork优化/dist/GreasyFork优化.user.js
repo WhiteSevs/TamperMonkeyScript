@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.12.15
+// @version            2024.12.17
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -15,9 +15,9 @@
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.5/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
-// @require            https://fastly.jsdelivr.net/npm/i18next@23.15.1/i18next.min.js
-// @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
+// @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
+// @require            https://fastly.jsdelivr.net/npm/i18next@24.1.0/i18next.min.js
+// @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect            greasyfork.org
 // @grant              GM_addStyle
 // @grant              GM_deleteValue
@@ -3592,14 +3592,17 @@
       }
       installButton.removeAttribute("data-ping-url");
       switch (this.compareVersions(installedVersion, version)) {
+        // Upgrade
         case -1:
           installButton.textContent = installButton.getAttribute("data-update-label");
           break;
+        // Downgrade
         case 1:
           installButton.textContent = installButton.getAttribute(
             "data-downgrade-label"
           );
           break;
+        // Equal
         case 0:
           installButton.textContent = installButton.getAttribute(
             "data-reinstall-label"

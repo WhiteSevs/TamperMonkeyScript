@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359
-// @version      2024.12.9
+// @version      2024.12.17
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -11,14 +11,14 @@
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/452322/1470429/js-watermark.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
-// @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.10.0/highlight.min.js
-// @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.10.0/styles/github-dark.min.css
-// @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
+// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
+// @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.0/highlight.min.js
+// @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.11.0/styles/github-dark.min.css
+// @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      *
 // @connect      *
 // @connect      helloimg.com
@@ -48,7 +48,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var require_entrance_001 = __commonJS({
-    "entrance-CHJk8O1j.js"(exports, module) {
+    "entrance-CZ8XgvVO.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -10215,9 +10215,9 @@
           __publicField(this, "isBacking", false);
           __publicField(this, "config");
           this.config = config;
-          this.enterGestureBackMode.bind(this);
-          this.quitGestureBackMode.bind(this);
-          this.popStateEvent.bind(this);
+          this.enterGestureBackMode = this.enterGestureBackMode.bind(this);
+          this.quitGestureBackMode = this.quitGestureBackMode.bind(this);
+          this.popStateEvent = this.popStateEvent.bind(this);
           if (typeof this.config.backDelayTime !== "number" || isNaN(this.config.backDelayTime)) {
             this.config.backDelayTime = 150;
           }
@@ -10253,7 +10253,7 @@
           }
           this.config.win.history.pushState({}, "", pushUrl);
           log.success("监听popstate事件");
-          domUtils.on(this.config.win, "popstate", this.popStateEvent.bind(this), {
+          domUtils.on(this.config.win, "popstate", this.popStateEvent, {
             capture: true
           });
         }
@@ -10282,7 +10282,7 @@
             }
           }
           log.success("移除popstate事件");
-          domUtils.off(this.config.win, "popstate", this.popStateEvent.bind(this), {
+          domUtils.off(this.config.win, "popstate", this.popStateEvent, {
             capture: true
           });
           this.isBacking = false;
@@ -10506,10 +10506,10 @@
             }
           });
           let getureBack = new GestureBack({
-            win: self,
             hash: this.$key.smallWindow,
             useUrl: true,
-            beforeHistoryBackCallBack: () => {
+            win: _unsafeWindow,
+            beforeHistoryBackCallBack: (isUrlChange) => {
               $drawer.close();
             }
           });
