@@ -540,6 +540,13 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 									"屏蔽元素"
 								),
 								UISwitch(
+									"【屏蔽】右侧菜单栏",
+									"shield-topNav-rightMenu",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
 									"【屏蔽】客户端提示",
 									"shieldClientTip",
 									true,
@@ -591,6 +598,20 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 								UISwitch(
 									"【屏蔽】壁纸",
 									"shieldWallpaper",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
+									"【屏蔽】更多",
+									"shield-topNav-rightMenu-more",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
+									"【屏蔽】登录头像",
+									"shield-topNav-rightMenu-loginAvatar",
 									false,
 									void 0,
 									"屏蔽元素"

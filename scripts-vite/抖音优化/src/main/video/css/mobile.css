@@ -69,6 +69,7 @@
 		width: 150px;
 		padding-right: 0;
 		max-width: unset;
+		flex: 1;
 	}
 	/* 搜索框获取焦点时自动放大宽度 */
 	#douyin-header
