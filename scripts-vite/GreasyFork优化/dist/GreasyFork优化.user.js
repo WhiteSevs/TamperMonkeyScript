@@ -2385,6 +2385,128 @@
       }
     }
   };
+  const GreasyforkElementUtils = {
+    /**
+     * 获取当前登录用户id
+     */
+    getCurrentLoginUserId() {
+      let $anchor = document.querySelector(
+        "#nav-user-info .user-profile-link a"
+      );
+      if (!$anchor) {
+        return;
+      }
+      let userId = GreasyforkUrlUtils.getUserId($anchor.href);
+      if (userId == null) {
+        return;
+      }
+      return userId;
+    },
+    /**
+     * 注册顶部导航菜单
+     */
+    registerTopNavMenu(config) {
+      domUtils.ready(() => {
+        let $nav = $("#site-nav nav");
+        let $subNav = $("#site-nav .with-submenu nav");
+        if (!$nav) {
+          log.error("元素#site-nav nav不存在");
+          return;
+        }
+        let $menuLink = domUtils.createElement("li", {
+          className: config.className,
+          innerHTML: (
+            /*html*/
+            `
+                <a href="javascript:;">${config.name}</a>
+                `
+          )
+        });
+        domUtils.on($menuLink, "click", (event) => {
+          utils.preventEvent(event);
+          config.clickEvent(event);
+        });
+        if ($subNav && $subNav.children.length) {
+          $subNav.appendChild($menuLink);
+        } else {
+          $nav.appendChild($menuLink);
+        }
+        let $mobileMenuLink = domUtils.createElement("li", {
+          className: config.className,
+          innerHTML: (
+            /*html*/
+            `
+                <a href="javascript:;">${config.name}</a>
+                `
+          )
+        });
+        domUtils.on($mobileMenuLink, "click", (event) => {
+          utils.preventEvent(event);
+          config.clickEvent(event);
+        });
+        let $mobileNav = $("#mobile-nav nav");
+        let $multiLinkNav = $("#mobile-nav nav .multi-link-nav");
+        if ($multiLinkNav) {
+          domUtils.before($multiLinkNav, $mobileMenuLink);
+        } else {
+          if ($mobileNav) {
+            domUtils.append($mobileNav, $mobileMenuLink);
+          } else {
+            log.error("元素#mobile-nav nav不存在");
+          }
+        }
+      });
+    }
+  };
+  let isRegisdterMonacoEditorCSS = false;
+  const GreasyforkUtils = {
+    /**
+     * 判断是否是当前已登录账户的主页
+     */
+    isCurrentLoginUserHome() {
+      let currentLoginUserId = GreasyforkElementUtils.getCurrentLoginUserId();
+      if (currentLoginUserId != null && GreasyforkRouter.isUsers() && window.location.pathname.includes("/" + currentLoginUserId)) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+    /**
+     * 加载monaco编辑器
+     */
+    async monacoEditor() {
+      const MonacoVersion = "0.52.0";
+      if (!isRegisdterMonacoEditorCSS) {
+        isRegisdterMonacoEditorCSS = true;
+        addStyle(`
+			@font-face {
+				font-family: 'codicon';
+				src: url('https://fastly.jsdelivr.net/npm/monaco-editor@${MonacoVersion}/min/vs/base/browser/ui/codicons/codicon/codicon.ttf') format('truetype');
+			}
+		`);
+      }
+      let $monacoScript = domUtils.createElement("script", {
+        type: "module",
+        innerHTML: `
+					import * as monaco from "https://fastly.jsdelivr.net/npm/monaco-editor@${MonacoVersion}/+esm";
+					window.monaco = monaco;
+					window.dispatchEvent(new CustomEvent("monaco-editor-ready"));
+				`
+      });
+      domUtils.append(document.head || document.documentElement, $monacoScript);
+      return new Promise((resolve) => {
+        domUtils.on(
+          _unsafeWindow,
+          "monaco-editor-ready",
+          () => {
+            let monaco = _unsafeWindow.monaco;
+            resolve(monaco);
+          },
+          { once: true }
+        );
+      });
+    }
+  };
   const GreasyforkScriptsCode = {
     init() {
       PopsPanel.execMenuOnce("code-repairCodeLineNumber", () => {
@@ -2436,15 +2558,6 @@
       addStyle(
         /*css*/
         `
-			@font-face {
-				font-family: 'codicon';
-				src: url('https://fastly.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs/base/browser/ui/codicons/codicon/codicon.ttf') format('truetype');
-			}
-			`
-      );
-      addStyle(
-        /*css*/
-        `
 			.monaco-editor{
 				height: calc(100vh - 54px);
 			}
@@ -2454,77 +2567,62 @@
 		`
       );
       CommonUtil.addBlockCSS("#script-content .code-container > pre");
-      let $monacoScript = domUtils.createElement("script", {
-        type: "module",
-        innerHTML: `
-			import * as monaco from "https://fastly.jsdelivr.net/npm/monaco-editor@0.52.0/+esm";
-			window.monaco = monaco;
-			window.dispatchEvent(new CustomEvent("monaco-editor-ready"));
-			`
-      });
-      domUtils.append(document.head || document.documentElement, $monacoScript);
-      domUtils.append(document.head || document.documentElement, $monacoScript);
-      domUtils.on(
-        window,
-        "monaco-editor-ready",
-        async () => {
-          let monaco2 = _unsafeWindow.monaco;
-          let response = await httpx.get(window.location.href, { fetch: true });
-          if (!response.status) {
-            return;
-          }
-          let doc = domUtils.parseHTML(response.data.responseText, true, true);
-          let $originCodeContainer = doc.querySelector(
-            "#script-content .code-container > pre"
+      GreasyforkUtils.monacoEditor().then(async (monaco) => {
+        let response = await httpx.get(window.location.href, { fetch: true });
+        if (!response.status) {
+          return;
+        }
+        let doc = domUtils.parseHTML(response.data.responseText, true, true);
+        let $originCodeContainer = doc.querySelector(
+          "#script-content .code-container > pre"
+        );
+        if (!$originCodeContainer) {
+          Qmsg.error("未解析出脚本代码", { consoleLogContent: true });
+          return;
+        }
+        let codeText = domUtils.text($originCodeContainer);
+        domUtils.ready(async () => {
+          let $codeContainer = await utils.waitNode(
+            "#script-content .code-container > pre",
+            1e4
           );
-          if (!$originCodeContainer) {
+          if (!$codeContainer) {
             return;
           }
-          let codeText = domUtils.text($originCodeContainer);
-          domUtils.ready(async () => {
-            let $codeContainer = await utils.waitNode(
-              "#script-content .code-container > pre",
-              1e4
-            );
-            if (!$codeContainer) {
-              return;
-            }
-            let $monacoEditor = domUtils.createElement("div", {
-              className: "monaco-editor"
-            });
-            domUtils.after($codeContainer, $monacoEditor);
-            monaco2.editor.create($monacoEditor, {
-              value: codeText,
-              minimap: { enabled: true },
-              // 小地图
-              automaticLayout: true,
-              // 自动布局,
-              codeLens: true,
-              colorDecorators: true,
-              contextmenu: true,
-              readOnly: true,
-              //是否只读
-              formatOnPaste: true,
-              overviewRulerBorder: true,
-              // 滚动条的边框
-              scrollBeyondLastLine: true,
-              theme: "vs-dark",
-              // 主题
-              fontSize: window.innerWidth > 600 ? 14 : 12,
-              // 字体
-              wordWrap: "off",
-              // 换行
-              language: "javascript",
-              // 语言
-              folding: true,
-              // 是否启用代码折叠
-              foldingStrategy: "indentation"
-              // 代码可分小段折叠
-            });
+          let $monacoEditor = domUtils.createElement("div", {
+            className: "monaco-editor"
           });
-        },
-        { once: true }
-      );
+          domUtils.after($codeContainer, $monacoEditor);
+          monaco.editor.create($monacoEditor, {
+            value: codeText,
+            minimap: { enabled: true },
+            // 小地图
+            automaticLayout: true,
+            // 自动布局,
+            codeLens: true,
+            colorDecorators: true,
+            contextmenu: true,
+            readOnly: true,
+            //是否只读
+            formatOnPaste: true,
+            overviewRulerBorder: true,
+            // 滚动条的边框
+            scrollBeyondLastLine: true,
+            theme: "vs-dark",
+            // 主题
+            fontSize: window.innerWidth > 600 ? 14 : 12,
+            // 字体
+            wordWrap: "off",
+            // 换行
+            language: "javascript",
+            // 语言
+            folding: true,
+            // 是否启用代码折叠
+            foldingStrategy: "indentation"
+            // 代码可分小段折叠
+          });
+        });
+      });
     }
   };
   const beautifyVersionsPageCSS = 'ul.history_versions,\r\nul.history_versions li {\r\n	width: 100%;\r\n}\r\nul.history_versions li {\r\n	display: flex;\r\n	flex-direction: column;\r\n	margin: 25px 0px;\r\n}\r\n.diff-controls input[type="radio"]:nth-child(2) {\r\n	margin-left: 5px;\r\n}\r\n.flex-align-item-center {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n.script-tag {\r\n	margin-bottom: 8px;\r\n}\r\n.script-tag-version a {\r\n	color: #656d76;\r\n	fill: #656d76;\r\n	text-decoration: none;\r\n	width: fit-content;\r\n	width: -moz-fit-content;\r\n}\r\n.script-tag-version a:hover svg {\r\n	color: #00a3f5;\r\n	fill: #00a3f5;\r\n}\r\n.script-tag-version a > span {\r\n	margin-left: 0.25rem;\r\n}\r\n.script-note-box-body {\r\n	border-radius: 0.375rem;\r\n	border-style: solid;\r\n	border-width: max(1px, 0.0625rem);\r\n	border-color: #d0d7de;\r\n	color: #1f2328;\r\n	padding: 16px;\r\n	overflow-wrap: anywhere;\r\n}\r\n.script-note-box-body p {\r\n	margin-bottom: unset;\r\n}\r\n\r\n/* 安装按钮 */\r\n.install-link {\r\n	border-radius: 0.25rem 0.25rem 0.25rem 0.25rem !important;\r\n}\r\n';
@@ -2648,204 +2746,180 @@
      */
     sourceDiffMonacoEditor() {
       log.info(`源码对比（monacoEditor）`);
-      addStyle(
-        /*css*/
-        `
-		@font-face {
-			font-family: 'codicon';
-			src: url('https://fastly.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs/base/browser/ui/codicons/codicon/codicon.ttf') format('truetype');
-		}
-		`
-      );
-      let $monacoScript = domUtils.createElement("script", {
-        type: "module",
-        innerHTML: `
-			import * as monaco from "https://fastly.jsdelivr.net/npm/monaco-editor@0.52.0/+esm";
-			window.monaco = monaco;
-			window.dispatchEvent(new CustomEvent("monaco-editor-ready"));
-			`
-      });
-      domUtils.append(document.head || document.documentElement, $monacoScript);
-      domUtils.on(
-        window,
-        "monaco-editor-ready",
-        () => {
-          let monaco2 = unsafeWindow.monaco;
-          domUtils.ready(() => {
-            $$(
-              `#script-content form[action*="/diff"] input[type="submit"]`
-            ).forEach(($submit) => {
-              let $compareButton = domUtils.createElement(
-                "input",
+      GreasyforkUtils.monacoEditor().then((monaco) => {
+        domUtils.ready(() => {
+          $$(
+            `#script-content form[action*="/diff"] input[type="submit"]`
+          ).forEach(($submit) => {
+            let $compareButton = domUtils.createElement(
+              "input",
+              {
+                type: "button",
+                value: i18next.t("对比选中版本差异（monacoEditor）")
+              },
+              {
+                style: "margin-left: 10px;"
+              }
+            );
+            domUtils.after($submit, $compareButton);
+            domUtils.on($compareButton, "click", async (event) => {
+              utils.preventEvent(event);
+              let $form = $submit.closest("form");
+              let formData = new FormData($form);
+              let compareLeftVersion = formData.get("v1");
+              let compareRighttVersion = formData.get("v2");
+              if (compareLeftVersion === compareRighttVersion) {
+                Qmsg.warning(i18next.t("版本号相同，不需要比较源码"));
+                return;
+              }
+              let loading = Qmsg.loading(i18next.t("正在获取对比文本中..."));
+              let scriptId = GreasyforkUrlUtils.getScriptId();
+              let response = await httpx.get(
+                `https://greasyfork.org/zh-CN/scripts/${scriptId}.json`,
                 {
-                  type: "button",
-                  value: i18next.t("对比选中版本差异（monacoEditor）")
-                },
-                {
-                  style: "margin-left: 10px;"
+                  fetch: true,
+                  responseType: "json"
                 }
               );
-              domUtils.after($submit, $compareButton);
-              domUtils.on($compareButton, "click", async (event) => {
-                utils.preventEvent(event);
-                let $form = $submit.closest("form");
-                let formData = new FormData($form);
-                let compareLeftVersion = formData.get("v1");
-                let compareRighttVersion = formData.get("v2");
-                if (compareLeftVersion === compareRighttVersion) {
-                  Qmsg.warning(i18next.t("版本号相同，不需要比较源码"));
-                  return;
-                }
-                let loading = Qmsg.loading(i18next.t("正在获取对比文本中..."));
-                let scriptId = GreasyforkUrlUtils.getScriptId();
-                let response = await httpx.get(
-                  `https://greasyfork.org/zh-CN/scripts/${scriptId}.json`,
-                  {
-                    fetch: true,
-                    responseType: "json"
-                  }
-                );
-                if (!response.status) {
-                  loading.close();
-                  return;
-                }
-                let respJSON = utils.toJSON(response.data.responseText);
-                let code_url = respJSON["code_url"];
-                let compareLeftUrl = code_url.replace(
-                  `/${scriptId}`,
-                  `/${scriptId}/${compareLeftVersion}`
-                );
-                let compareRightUrl = code_url.replace(
-                  `/${scriptId}`,
-                  `/${scriptId}/${compareRighttVersion}`
-                );
-                let compareLeftText = "";
-                let compareRightText = "";
-                let compareLeftResponse = await httpx.get(compareLeftUrl);
-                if (!compareLeftResponse.status) {
-                  loading.close();
-                  return;
-                }
-                compareLeftText = compareLeftResponse.data.responseText;
-                let compareRightResponse = await httpx.get(compareRightUrl);
-                if (!compareRightResponse.status) {
-                  loading.close();
-                  return;
-                }
-                compareRightText = compareRightResponse.data.responseText;
+              if (!response.status) {
                 loading.close();
-                let { recovery } = CommonUtil.lockScroll();
-                let $alert = __pops.alert({
-                  title: {
-                    text: i18next.t("代码对比"),
-                    html: false,
-                    position: "center"
-                  },
-                  content: {
-                    html: true,
-                    text: (
-                      /*html*/
-                      `
-								<div class="monaco-editor-diff-container">
-									<div class="monaco-editor-diff"></div>
-								</div>
-								`
-                    )
-                  },
-                  mask: {
-                    enable: true,
-                    clickEvent: {
-                      toClose: false,
-                      toHide: false
-                    }
-                  },
-                  btn: {
-                    ok: {
-                      enable: false
-                    },
-                    close: {
-                      callback(details, event2) {
-                        details.close();
-                        recovery();
-                      }
-                    }
-                  },
-                  zIndex() {
-                    let maxZIndex = utils.getMaxZIndex();
-                    let popsMaxZIndex = __pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-                    return utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-                  },
-                  useShadowRoot: false,
-                  width: "90vw",
-                  height: "90vh",
-                  drag: true,
-                  style: (
-                    /*css*/
+                return;
+              }
+              let respJSON = utils.toJSON(response.data.responseText);
+              let code_url = respJSON["code_url"];
+              let compareLeftUrl = code_url.replace(
+                `/${scriptId}`,
+                `/${scriptId}/${compareLeftVersion}`
+              );
+              let compareRightUrl = code_url.replace(
+                `/${scriptId}`,
+                `/${scriptId}/${compareRighttVersion}`
+              );
+              let compareLeftText = "";
+              let compareRightText = "";
+              let compareLeftResponse = await httpx.get(compareLeftUrl);
+              if (!compareLeftResponse.status) {
+                loading.close();
+                return;
+              }
+              compareLeftText = compareLeftResponse.data.responseText;
+              let compareRightResponse = await httpx.get(compareRightUrl);
+              if (!compareRightResponse.status) {
+                loading.close();
+                return;
+              }
+              compareRightText = compareRightResponse.data.responseText;
+              loading.close();
+              let { recovery } = CommonUtil.lockScroll();
+              let $alert = __pops.alert({
+                title: {
+                  text: i18next.t("代码对比"),
+                  html: false,
+                  position: "center"
+                },
+                content: {
+                  html: true,
+                  text: (
+                    /*html*/
                     `
-								.monaco-editor-diff-container{
-									width: 100%;
-									height: 100%;
-								}
-								.monaco-editor-diff{
-									width: 100%;
-									height: 100%;
-								}
-								.pops[type-value="alert"] .pops-alert-title{
-									--container-title-height: 40px;
-								}
+							<div class="monaco-editor-diff-container">
+								<div class="monaco-editor-diff"></div>
+							</div>
 							`
                   )
-                });
-                $alert.$shadowRoot.querySelector(
-                  ".monaco-editor-diff-container"
-                );
-                let $monacoEditor = $alert.$shadowRoot.querySelector(
-                  ".monaco-editor-diff"
-                );
-                let monacoEditor = monaco2.editor.createDiffEditor($monacoEditor, {
-                  hideUnchangedRegions: {
-                    enabled: true
+                },
+                mask: {
+                  enable: true,
+                  clickEvent: {
+                    toClose: false,
+                    toHide: false
+                  }
+                },
+                btn: {
+                  ok: {
+                    enable: false
                   },
-                  minimap: { enabled: true },
-                  // 小地图
-                  automaticLayout: true,
-                  // 自动布局,
-                  codeLens: true,
-                  colorDecorators: true,
-                  contextmenu: false,
-                  readOnly: true,
-                  //是否只读
-                  formatOnPaste: true,
-                  overviewRulerBorder: true,
-                  // 滚动条的边框
-                  scrollBeyondLastLine: true,
-                  theme: "vs-dark",
-                  // 主题
-                  fontSize: window.innerWidth > 600 ? 14 : 12,
-                  // 字体
-                  wordWrap: "off",
-                  // 换行
-                  language: "javascript"
-                  // 语言
-                });
-                const originModel = monaco2.editor.createModel(
-                  compareLeftText,
-                  "javascript"
-                );
-                const modifyModel = monaco2.editor.createModel(
-                  compareRightText,
-                  "javascript"
-                );
-                monacoEditor.setModel({
-                  original: originModel,
-                  modified: modifyModel
-                });
+                  close: {
+                    callback(details, event2) {
+                      details.close();
+                      recovery();
+                    }
+                  }
+                },
+                zIndex() {
+                  let maxZIndex = utils.getMaxZIndex();
+                  let popsMaxZIndex = __pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+                  return utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+                },
+                useShadowRoot: false,
+                width: "90vw",
+                height: "90vh",
+                drag: true,
+                style: (
+                  /*css*/
+                  `
+							.monaco-editor-diff-container{
+								width: 100%;
+								height: 100%;
+							}
+							.monaco-editor-diff{
+								width: 100%;
+								height: 100%;
+							}
+							.pops[type-value="alert"] .pops-alert-title{
+								--container-title-height: 40px;
+							}
+						`
+                )
+              });
+              $alert.$shadowRoot.querySelector(
+                ".monaco-editor-diff-container"
+              );
+              let $monacoEditor = $alert.$shadowRoot.querySelector(
+                ".monaco-editor-diff"
+              );
+              let monacoEditor = monaco.editor.createDiffEditor($monacoEditor, {
+                hideUnchangedRegions: {
+                  enabled: true
+                },
+                minimap: { enabled: true },
+                // 小地图
+                automaticLayout: true,
+                // 自动布局,
+                codeLens: true,
+                colorDecorators: true,
+                contextmenu: false,
+                readOnly: true,
+                //是否只读
+                formatOnPaste: true,
+                overviewRulerBorder: true,
+                // 滚动条的边框
+                scrollBeyondLastLine: true,
+                theme: "vs-dark",
+                // 主题
+                fontSize: window.innerWidth > 600 ? 14 : 12,
+                // 字体
+                wordWrap: "off",
+                // 换行
+                language: "javascript"
+                // 语言
+              });
+              const originModel = monaco.editor.createModel(
+                compareLeftText,
+                "javascript"
+              );
+              const modifyModel = monaco.editor.createModel(
+                compareRightText,
+                "javascript"
+              );
+              monacoEditor.setModel({
+                original: originModel,
+                modified: modifyModel
               });
             });
           });
-        },
-        { once: true }
-      );
+        });
+      });
     }
   };
   const PanelUISize = {
@@ -4038,92 +4112,6 @@
         });
       });
       return result;
-    }
-  };
-  const GreasyforkElementUtils = {
-    /**
-     * 获取当前登录用户id
-     */
-    getCurrentLoginUserId() {
-      let $anchor = document.querySelector(
-        "#nav-user-info .user-profile-link a"
-      );
-      if (!$anchor) {
-        return;
-      }
-      let userId = GreasyforkUrlUtils.getUserId($anchor.href);
-      if (userId == null) {
-        return;
-      }
-      return userId;
-    },
-    /**
-     * 注册顶部导航菜单
-     */
-    registerTopNavMenu(config) {
-      domUtils.ready(() => {
-        let $nav = $("#site-nav nav");
-        let $subNav = $("#site-nav .with-submenu nav");
-        if (!$nav) {
-          log.error("元素#site-nav nav不存在");
-          return;
-        }
-        let $menuLink = domUtils.createElement("li", {
-          className: config.className,
-          innerHTML: (
-            /*html*/
-            `
-                <a href="javascript:;">${config.name}</a>
-                `
-          )
-        });
-        domUtils.on($menuLink, "click", (event) => {
-          utils.preventEvent(event);
-          config.clickEvent(event);
-        });
-        if ($subNav && $subNav.children.length) {
-          $subNav.appendChild($menuLink);
-        } else {
-          $nav.appendChild($menuLink);
-        }
-        let $mobileMenuLink = domUtils.createElement("li", {
-          className: config.className,
-          innerHTML: (
-            /*html*/
-            `
-                <a href="javascript:;">${config.name}</a>
-                `
-          )
-        });
-        domUtils.on($mobileMenuLink, "click", (event) => {
-          utils.preventEvent(event);
-          config.clickEvent(event);
-        });
-        let $mobileNav = $("#mobile-nav nav");
-        let $multiLinkNav = $("#mobile-nav nav .multi-link-nav");
-        if ($multiLinkNav) {
-          domUtils.before($multiLinkNav, $mobileMenuLink);
-        } else {
-          if ($mobileNav) {
-            domUtils.append($mobileNav, $mobileMenuLink);
-          } else {
-            log.error("元素#mobile-nav nav不存在");
-          }
-        }
-      });
-    }
-  };
-  const GreasyforkUtils = {
-    /**
-     * 判断是否是当前已登录账户的主页
-     */
-    isCurrentLoginUserHome() {
-      let currentLoginUserId = GreasyforkElementUtils.getCurrentLoginUserId();
-      if (currentLoginUserId != null && GreasyforkRouter.isUsers() && window.location.pathname.includes("/" + currentLoginUserId)) {
-        return true;
-      } else {
-        return false;
-      }
     }
   };
   const GreasyforkScriptsFilter = {
