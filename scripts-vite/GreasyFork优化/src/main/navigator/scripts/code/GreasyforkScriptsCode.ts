@@ -61,6 +61,9 @@ export const GreasyforkScriptsCode = {
 			.monaco-editor{
 				height: calc(100vh - 54px);
 			}
+			#script-info{
+				padding-bottom: 0px !important;
+			}
 		`);
 		CommonUtil.addBlockCSS("#script-content .code-container > pre");
 
