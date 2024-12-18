@@ -62,8 +62,8 @@ Qmsg.config({
 | animation       | Boolean                          | 是否使用弹出动画                                                                                    | true      |
 | autoClose       | Boolean                          | 是否自动关闭                                                                                        | true      |
 | content         | Number                           | 提示的消息内容                                                                                      | 空        |
-| html            | String                           | 是否将内容作为 html 渲染                                                                            | false     |
-| isHTML          | String                           | （同上）是否将内容作为 html 渲染                                                                    | false     |
+| html            | Boolean                           | 是否将内容作为 html 渲染                                                                            | false     |
+| isHTML          | Boolean                           | （同上）是否将内容作为 html 渲染                                                                    | false     |
 | position        | String                           | 弹出位置 topleft、top、topright、left、center、right、bottomleft、bottom、bottomright，不区分大小写 | top       |
 | maxNums         | Number                           | 页面中最多显示消息(autoClose: true)的数量                                                           | 5         |
 | onClose         | Function                         | 关闭时的回调函数                                                                                    | null      |
