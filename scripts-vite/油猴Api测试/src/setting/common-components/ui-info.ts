@@ -1,6 +1,6 @@
 import { DOMUtils } from "@/env";
 import type { PopsPanelOwnDetails } from "@whitesev/pops/dist/types/src/components/panel/ownType";
-import { Tag } from "../tag";
+import { Tag, type TagName } from "../tag";
 import type { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/commonType";
 
 export type UIInfoResultConfig = {
@@ -9,14 +9,19 @@ export type UIInfoResultConfig = {
 	/** 描述 */
 	description?: string;
 	/** 显示的tag */
-	tag?: keyof typeof Tag;
+	tag?: TagName;
 	/** 渲染到页面中时触发回调 */
-	afterRender?: (container: PopsPanelRightAsideContainerOptions) => void;
+	afterRender?: (
+		container: PopsPanelRightAsideContainerOptions & {
+			$leftContainer: HTMLElement;
+			$leftText: HTMLElement;
+			$leftDesc: HTMLElement;
+		}
+	) => void;
 };
 export const UIInfo = (
 	config: () => UIInfoResultConfig
 ): PopsPanelOwnDetails => {
-	let flag = false;
 	let result: PopsPanelOwnDetails = {
 		type: "own",
 		getLiElementCallBack(liElement) {
@@ -27,27 +32,41 @@ export const UIInfo = (
 					<p class="pops-panel-item-left-main-text">${
 						detail.tag == null ? detail.text : Tag[detail.tag] + detail.text
 					}</p>
-					${
-						detail.description == null || detail.description === ""
-							? ""
-							: /*html*/ `
-						<p class="pops-panel-item-left-desc-text">${detail.description || ""}</p>
-					`
-					}
+					<p class="pops-panel-item-left-desc-text" style="${
+						detail.description == null || detail.description === "" ? "display: none;" : ""
+					}">${detail.description || ""}</p>
 				`,
 			});
+			let $leftText = $item.querySelector<HTMLElement>(
+				".pops-panel-item-left-main-text"
+			)!;
 			let classNameList = ["support-info"];
 			if (detail.tag != null) {
 				classNameList.push(detail.tag);
 			}
-			DOMUtils.addClass($item, classNameList);
+			DOMUtils.addClass($leftText, classNameList);
 			liElement.appendChild($item);
 			return liElement;
 		},
 		afterAddToUListCallBack(formConfig, container) {
 			let detail = config();
 			if (typeof detail.afterRender === "function") {
-				detail.afterRender(container);
+				let $target = container.target!;
+				let $leftContainer = $target.querySelector<HTMLElement>(
+					".pops-panel-item-left-text"
+				)!;
+				let $text = $target.querySelector<HTMLElement>(
+					".pops-panel-item-left-main-text"
+				)!;
+				let $desc = $target.querySelector<HTMLElement>(
+					".pops-panel-item-left-desc-text"
+				)!;
+				detail.afterRender({
+					...container,
+					$leftContainer: $leftContainer,
+					$leftText: $text,
+					$leftDesc: $desc,
+				});
 			}
 		},
 	};

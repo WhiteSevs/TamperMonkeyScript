@@ -7,6 +7,7 @@ import { UIInfo } from "@/setting/common-components/ui-info";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
 import { DOMUtils, utils } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
+import { TagUtil, type TagName } from "@/setting/tag";
 
 export class ApiTest_notification extends ApiTestBase {
 	public isSupport() {
@@ -83,50 +84,13 @@ export class ApiTest_notification extends ApiTestBase {
 						let isPrevent = false;
 						let isDone = false;
 
-						let updateText = utils.debounce(() => {
-							console.log("update");
-							let text = "";
-							let tag = "success";
-							if (isClick) {
-								text += "支持 onclick 函数";
-								if (isPrevent) {
-									text = text.trim();
-									text += "且支持提供 event 参数";
-								} else {
-									text += "但是不支持提供 event 参数";
-									tag = "warn";
-								}
-							} else {
-								text += "不支持 onclick 函数";
-								tag = "error";
-							}
-							if (isDone) {
-								text += "<br>支持 ondone 函数";
-							} else {
-								text += "<br>不支持 ondone 函数";
-								tag = "error";
-							}
-							DOMUtils.removeClass($info!, "info");
-							DOMUtils.removeClass($info!, "warn");
-							DOMUtils.removeClass($info!, "error");
-							DOMUtils.removeClass($info!, "success");
-							DOMUtils.addClass($info!, tag);
-							DOMUtils.html($info!, text);
-
-							// 重置参数
-							isClick = false;
-							isDone = false;
-							isPrevent = false;
-						}, 800);
 						return {
-							text: CommonUtil.escapeHtml("点击通知的内容用于测试函数是否生效"),
+							text: "点击通知的内容用于测试函数是否生效",
+							description: "",
 							tag: "info",
 							afterRender(container) {
 								$target = container.target!;
-								$info =
-									container.target!.querySelector<HTMLElement>(
-										".support-info"
-									)!;
+								$info = container.$leftContainer;
 								let $button = DOMUtils.parseHTML(
 									/*html*/ `
 									<div class="pops-panel-button pops-panel-button-no-icon">
@@ -139,8 +103,72 @@ export class ApiTest_notification extends ApiTestBase {
 									false,
 									false
 								);
+								let timeId: number | undefined = void 0;
+								let intervalId: number | undefined = void 0;
+								let updateText = utils.debounce(() => {
+									clearTimeout(timeId);
+									clearInterval(intervalId);
+									let clickText = "";
+									let clickTag: TagName = "success";
+									let doneText = "";
+									let doneTag: TagName = "success";
+									if (isClick) {
+										clickText += "支持 onclick 函数";
+										if (isPrevent) {
+											clickText = clickText.trim();
+											clickText += "且支持提供 event 参数";
+										} else {
+											clickText += "但是不支持提供 event 参数";
+											clickTag = "warn";
+										}
+									} else {
+										clickText += "不支持 onclick 函数";
+										clickTag = "error";
+									}
+									if (isDone) {
+										doneText += "支持 ondone 函数";
+									} else {
+										doneText += "不支持 ondone 函数";
+										doneTag = "error";
+									}
+									DOMUtils.html(
+										container.$leftText,
+										/*html*/ `
+										<p class="${clickTag}">${clickText}</p>
+										<p class="${doneTag}">${doneText}</p>
+									`
+									);
+
+									// 重置参数
+									isClick = false;
+									isDone = false;
+									isPrevent = false;
+								}, 800);
 								DOMUtils.on($button, "click", (event) => {
 									utils.preventEvent(event);
+									clearTimeout(timeId);
+									clearInterval(intervalId);
+									let timeCount = 10;
+									let calcTimeCount = timeCount;
+									let tipInfoText = () => {
+										let result = `正在等待触发回调，请在规定时间内点击弹窗的【关闭】按钮或者内容：${calcTimeCount}s`;
+										calcTimeCount--;
+										return result;
+									};
+									DOMUtils.text(container.$leftText, tipInfoText());
+									DOMUtils.text(container.$leftDesc, this.text);
+									DOMUtils.show(container.$leftDesc, false);
+									timeId = setTimeout(() => {
+										clearInterval(intervalId);
+										TagUtil.setTag(
+											container.$leftText,
+											"error",
+											"测试超时，未触发回调"
+										);
+									}, timeCount * 1000);
+									intervalId = setInterval(() => {
+										DOMUtils.text(container.$leftText, tipInfoText());
+									}, 1000);
 									GM_notification({
 										title: "测试 GM_notification 标题",
 										text: "测试 GM_notification 内容",
@@ -180,10 +208,6 @@ export class ApiTest_notification extends ApiTestBase {
 							tag: "info",
 							afterRender(container) {
 								let $target = container.target!;
-								let $info =
-									container.target!.querySelector<HTMLElement>(
-										".support-info"
-									)!;
 								let $button = DOMUtils.parseHTML(
 									/*html*/ `
 									<div class="pops-panel-button pops-panel-button-no-icon">
@@ -204,7 +228,7 @@ export class ApiTest_notification extends ApiTestBase {
 										url: "https:/example.com/",
 									});
 								});
-								DOMUtils.after($info!, $button);
+								DOMUtils.after(container.$leftContainer, $button);
 							},
 						};
 					} catch (error) {

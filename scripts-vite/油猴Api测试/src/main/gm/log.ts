@@ -79,13 +79,10 @@ export class ApiTest_log extends ApiTestBase {
 					try {
 						let logText = "test GM_log";
 						return {
-							text: CommonUtil.escapeHtml("请在控制台查看输出：" + logText),
+							text: CommonUtil.escapeHtml("请在控制台查看输出"),
 							tag: "info",
+							description: "test GM_log",
 							afterRender(container) {
-								let $info =
-									container.target!.querySelector<HTMLElement>(
-										".support-info"
-									)!;
 								let $button = DOMUtils.parseHTML(
 									/*html*/ `
 									<div class="pops-panel-button pops-panel-button-no-icon">
@@ -102,7 +99,7 @@ export class ApiTest_log extends ApiTestBase {
 									utils.preventEvent(event);
 									GM_log(logText);
 								});
-								DOMUtils.after($info!, $button);
+								DOMUtils.after(container.$leftContainer, $button);
 							},
 						};
 					} catch (error) {

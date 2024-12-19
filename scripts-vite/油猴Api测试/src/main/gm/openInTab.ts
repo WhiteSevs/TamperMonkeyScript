@@ -1,4 +1,4 @@
-import { GM, GM_openInTab } from "ViteGM";
+import { GM, GM_openInTab, unsafeWindow } from "ViteGM";
 import { ApiTestBase } from "../ApiTestBase";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { StorageApi } from "../StorageApi";
@@ -8,6 +8,7 @@ import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/t
 import { DOMUtils, utils } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
 import Qmsg from "qmsg";
+import { TagUtil } from "@/setting/tag";
 
 export class ApiTest_openInTab extends ApiTestBase {
 	public isSupport() {
@@ -79,15 +80,10 @@ export class ApiTest_openInTab extends ApiTestBase {
 				UIInfo(() => {
 					try {
 						return {
-							text: CommonUtil.escapeHtml("后台打开新标签页"),
-							description: "https://www.example.com/",
+							text: "后台打开：https://www.example.com/",
 							tag: "info",
 							afterRender(container) {
 								let $target = container.target!;
-								let $info =
-									container.target!.querySelector<HTMLElement>(
-										".support-info"
-									)!;
 								let $button = DOMUtils.parseHTML(
 									/*html*/ `
 									<div class="pops-panel-button pops-panel-button-no-icon">
@@ -102,6 +98,8 @@ export class ApiTest_openInTab extends ApiTestBase {
 								);
 								DOMUtils.on($button, "click", (event) => {
 									utils.preventEvent(event);
+									DOMUtils.text(container.$leftDesc, this.text);
+									DOMUtils.show(container.$leftDesc, false);
 									let result = GM_openInTab("https://www.example.com/");
 									if (typeof result === "object" && result != null) {
 										let support_close =
@@ -109,26 +107,31 @@ export class ApiTest_openInTab extends ApiTestBase {
 										let support_closed =
 											"closed" in result && typeof result.closed === "boolean";
 										let support_onclose = "onclose" in result;
-										Qmsg.info(
+
+										DOMUtils.html(
+											container.$leftText,
 											/*html*/ `
-											<div style="text-align: left;">
-												<p>GM_openInTab 返回的对象属性</p>
-												<p>close:Function ${support_close}</p>
-												<p>closed:Boolean ${support_closed}</p>
-												<p>onclose ${support_onclose}</p>
-											</div>`,
-											{
-												isHTML: true,
-												timeout: 6000,
-											}
+											<p class="${support_close ? "success" : "error"}">${
+												support_close ? "支持 .close()" : "不支持 .close()"
+											}</p>
+											<p class="${support_closed ? "success" : "error"}">${
+												support_close ? "支持 .closed" : "不支持 .closed"
+											}</p>
+											<p class="${support_onclose ? "success" : "error"}">${
+												support_close
+													? "支持设置属性 .onclose"
+													: "不支持设置属性 .onclose"
+											}</p>
+										`
 										);
 									} else {
-										Qmsg.error(
-											"GM_openInTab 不支持返回object对象或返回值为null"
-										);
+										if (result == null) {
+											container.$leftContainer;
+										} else {
+										}
 									}
 								});
-								DOMUtils.after($info!, $button);
+								DOMUtils.after(container.$leftContainer, $button);
 							},
 						};
 					} catch (error) {
@@ -142,15 +145,11 @@ export class ApiTest_openInTab extends ApiTestBase {
 				UIInfo(() => {
 					try {
 						return {
-							text: CommonUtil.escapeHtml("配置 active: true"),
-							description: "https://www.example.com/",
+							text: "配置 active: true",
+							description: "",
 							tag: "info",
 							afterRender(container) {
 								let $target = container.target!;
-								let $info =
-									container.target!.querySelector<HTMLElement>(
-										".support-info"
-									)!;
 								let $button = DOMUtils.parseHTML(
 									/*html*/ `
 									<div class="pops-panel-button pops-panel-button-no-icon">
@@ -159,17 +158,52 @@ export class ApiTest_openInTab extends ApiTestBase {
 											<span class="pops-panel-button-text">点击测试</span>
 										</button>
 									</div>
-								`,
+									`,
 									false,
 									false
 								);
+								let timeId: number;
+								let blurEvent = () => {
+									clearTimeout(timeId);
+									TagUtil.setTag(
+										container.$leftText,
+										"success",
+										"测试新标签页打开成功"
+									);
+								};
 								DOMUtils.on($button, "click", (event) => {
 									utils.preventEvent(event);
+									DOMUtils.off(unsafeWindow, "blur", blurEvent, {
+										capture: true,
+									});
+									clearTimeout(timeId);
+									TagUtil.setTag(
+										container.$leftText,
+										"info",
+										"等待页面失去焦点..."
+									);
+									DOMUtils.text(container.$leftDesc, this.text);
+									DOMUtils.show(container.$leftDesc, false);
+
+									DOMUtils.on(unsafeWindow, "blur", blurEvent, {
+										capture: true,
+										once: true,
+									});
 									GM_openInTab("https://www.example.com/", {
 										active: true,
 									});
+									timeId = setTimeout(() => {
+										DOMUtils.off(unsafeWindow, "blur", blurEvent, {
+											capture: true,
+										});
+										TagUtil.setTag(
+											container.$leftText,
+											"error",
+											"测试超时，未打开新标签页并获取焦点"
+										);
+									}, 3000);
 								});
-								DOMUtils.after($info!, $button);
+								DOMUtils.after(container.$leftContainer, $button);
 							},
 						};
 					} catch (error) {
@@ -183,15 +217,10 @@ export class ApiTest_openInTab extends ApiTestBase {
 				UIInfo(() => {
 					try {
 						return {
-							text: CommonUtil.escapeHtml("测试调用返回值 .close()"),
-							description: "https://www.example.com/",
+							text: "测试调用返回值 .close()",
 							tag: "info",
 							afterRender(container) {
 								let $target = container.target!;
-								let $info =
-									container.target!.querySelector<HTMLElement>(
-										".support-info"
-									)!;
 								let $button = DOMUtils.parseHTML(
 									/*html*/ `
 									<div class="pops-panel-button pops-panel-button-no-icon">
@@ -204,23 +233,44 @@ export class ApiTest_openInTab extends ApiTestBase {
 									false,
 									false
 								);
+								let timeId: number;
 								DOMUtils.on($button, "click", (event) => {
 									utils.preventEvent(event);
+									clearTimeout(timeId);
+									TagUtil.setTag(
+										container.$leftText,
+										"info",
+										"等待调用 .close()"
+									);
+									DOMUtils.text(container.$leftDesc, this.text);
+									DOMUtils.show(container.$leftDesc, false);
 									let result = GM_openInTab("https://www.example.com/");
 									if (result && typeof result?.close === "function") {
-										setTimeout(() => {
+										timeId = setTimeout(() => {
 											try {
 												result.close();
-												Qmsg.success("成功调用 .close() 方法");
+												TagUtil.setTag(
+													container.$leftText,
+													"success",
+													"成功调用 .close()"
+												);
 											} catch (error) {
-												Qmsg.error("调用 .close() 方法失败 " + error);
+												TagUtil.setTag(
+													container.$leftText,
+													"error",
+													"调用 .close() 方法失败 " + error
+												);
 											}
 										}, 1000);
 									} else {
-										Qmsg.error("返回对象中不支持 .close() 方法");
+										TagUtil.setTag(
+											container.$leftText,
+											"error",
+											"返回对象中不支持 .close() 方法"
+										);
 									}
 								});
-								DOMUtils.after($info!, $button);
+								DOMUtils.after(container.$leftContainer, $button);
 							},
 						};
 					} catch (error) {
@@ -234,15 +284,10 @@ export class ApiTest_openInTab extends ApiTestBase {
 				UIInfo(() => {
 					try {
 						return {
-							text: CommonUtil.escapeHtml("测试监听关闭是否生效 .onclose"),
-							description: "https://www.example.com/",
+							text: "测试监听关闭是否生效 .onclose",
 							tag: "info",
 							afterRender(container) {
 								let $target = container.target!;
-								let $info =
-									container.target!.querySelector<HTMLElement>(
-										".support-info"
-									)!;
 								let $button = DOMUtils.parseHTML(
 									/*html*/ `
 									<div class="pops-panel-button pops-panel-button-no-icon">
@@ -255,32 +300,59 @@ export class ApiTest_openInTab extends ApiTestBase {
 									false,
 									false
 								);
+								let timeId: number;
+								let timeId2: number;
 								DOMUtils.on($button, "click", (event) => {
 									utils.preventEvent(event);
+									clearTimeout(timeId2);
+									clearTimeout(timeId);
+									TagUtil.setTag(
+										container.$leftText,
+										"info",
+										"等待触发监听 .onclose"
+									);
+									DOMUtils.text(container.$leftDesc, this.text);
+									DOMUtils.show(container.$leftDesc, false);
 									let result = GM_openInTab("https://www.example.com/");
-									let timeId: undefined | number = void 0;
 									if (typeof result === "object" && result != null) {
 										result.onclose = () => {
-											Qmsg.success("成功触发 .onclose");
 											clearTimeout(timeId);
+											clearTimeout(timeId2);
+											TagUtil.setTag(
+												container.$leftText,
+												"success",
+												"成功触发 .onclose"
+											);
 										};
 									}
 									if (result && typeof result?.close === "function") {
-										setTimeout(() => {
+										timeId = setTimeout(() => {
 											try {
 												result.close();
-												timeId = setTimeout(() => {
-													Qmsg.error("测试超时，未触发回调 .onclose");
+												timeId2 = setTimeout(() => {
+													TagUtil.setTag(
+														container.$leftText,
+														"error",
+														"测试超时，未触发回调 .onclose"
+													);
 												}, 2000);
 											} catch (error) {
-												Qmsg.error("调用 .close() 方法失败 " + error);
+												TagUtil.setTag(
+													container.$leftText,
+													"error",
+													"调用 .close() 方法失败 " + error
+												);
 											}
 										}, 1000);
 									} else {
-										Qmsg.error("返回对象中不支持 .close() 方法");
+										TagUtil.setTag(
+											container.$leftText,
+											"error",
+											"返回对象中不支持 .close() 方法"
+										);
 									}
 								});
-								DOMUtils.after($info!, $button);
+								DOMUtils.after(container.$leftContainer, $button);
 							},
 						};
 					} catch (error) {
