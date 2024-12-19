@@ -1,5 +1,5 @@
 import { DOMUtils, httpx, log, pops, utils } from "@/env";
-import { MTUtils } from "@/utils/Utils";
+import { MTUtils } from "@/utils/MTUtils";
 import Qmsg from "qmsg";
 
 /**
@@ -104,7 +104,7 @@ export const MTDyncmicAvatar = {
 								return;
 							}
 							// 获取当前登录用户的formhash
-							let formhash = MTUtils.getCurrentFormHash();
+							let formhash = MTUtils.getFormHash();
 							if (formhash == null) {
 								Qmsg.error("获取formhash失败");
 								return;

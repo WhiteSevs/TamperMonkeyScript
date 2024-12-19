@@ -1,8 +1,8 @@
-import { DOMUtils, httpx, log, utils } from "@/env";
+import { $, DOMUtils, httpx, log, utils } from "@/env";
 import { Router } from "@/router/router";
 import { PopsPanel } from "@/setting/setting";
 import { MTRegExp } from "@/utils/MTRegExp";
-import { MTUtils } from "@/utils/Utils";
+import { MTUtils } from "@/utils/MTUtils";
 import pops from "@whitesev/pops";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
@@ -52,63 +52,26 @@ export const MTAutoSignIn = {
 	/**
 	 * 检测是否登录
 	 */
-	async checkLogin() {
+	checkLogin() {
 		if (MTUtils.envIsMobile()) {
 			/* 移动端的退出按钮，不登录是不会出现的 */
-			let mobile_login_exitBtn = document.querySelector<HTMLAnchorElement>(
+			let mobile_login_exitBtn = $<HTMLAnchorElement>(
 				".sidenv_exit a[href*='member.php?mod=logging&action=logout']"
 			);
 			return mobile_login_exitBtn;
 		} else {
 			/* 桌面端登录 */
-			let pc_login = document.querySelector("#comiis_key");
+			let pc_login = $("#comiis_key");
 			return pc_login;
 		}
-	},
-	/**
-	 * 获取账号的formhash
-	 */
-	getFormHash() {
-		let $inputFormHash = (
-			top || globalThis
-		).document.querySelector<HTMLInputElement>("input[name=formhash]");
-		/* 退出按钮(登录状态才有)，电脑版的 */
-		let sidenv_exit = (
-			top || globalThis
-		).document.querySelector<HTMLAnchorElement>("div[class=sidenv_exit]>a");
-		let sidenv_exit_match = null;
-		/* 论坛浏览图片下的点赞按钮，获取formhash */
-		let comiis_recommend_addkey = (
-			top || globalThis
-		).document.querySelector<HTMLAnchorElement>("a.comiis_recommend_addkey");
-		let comiis_recommend_addkey_match = null;
-		let inputFormHash = $inputFormHash ? $inputFormHash.value : null;
-		if (sidenv_exit) {
-			sidenv_exit_match = sidenv_exit.href.match(MTRegExp.formhash);
-			sidenv_exit_match = sidenv_exit_match
-				? sidenv_exit_match[sidenv_exit_match.length - 1]
-				: null;
-		}
-		if (comiis_recommend_addkey) {
-			comiis_recommend_addkey_match = comiis_recommend_addkey.href.match(
-				MTRegExp.hash
-			);
-			comiis_recommend_addkey_match = comiis_recommend_addkey_match
-				? comiis_recommend_addkey_match[
-						comiis_recommend_addkey_match.length - 1
-				  ]
-				: null;
-		}
-
-		return inputFormHash || sidenv_exit_match || comiis_recommend_addkey_match;
 	},
 	/**
 	 * 签到
 	 */
 	async sign() {
-		let formHash = this.getFormHash();
+		let formHash = MTUtils.getFormHash();
 		if (formHash == null) {
-			if (document.querySelector("#comiis_picshowbox")) {
+			if ($("#comiis_picshowbox")) {
 				/* 当前为评论区的看图模式 */
 				log.info("当前为评论区的看图模式 ");
 				return;
@@ -125,15 +88,16 @@ export const MTAutoSignIn = {
 			return;
 		}
 		let searchParamsData = {
+			id: "k_misign:sign",
 			operation: "qiandao",
-			format: "button",
 			formhash: formHash,
+			format: "empty",
 			inajax: 1,
-			ajaxtarget: "midaben_sign",
+			ajaxtarget: "",
 		};
 		let useFetch = Boolean(PopsPanel.getValue("mt-auto-sign-useFetch"));
 		let response = await httpx.get(
-			`/k_misign-sign.html?${utils.toSearchParamsStr(searchParamsData)}`,
+			`/plugin.php?${utils.toSearchParamsStr(searchParamsData)}`,
 			{
 				fetch: useFetch,
 				headers: {
@@ -172,7 +136,10 @@ export const MTAutoSignIn = {
 				timeout: 5000,
 			});
 			return;
-		} else if (content.includes("今日已签")) {
+		} else if (
+			content.includes("今日已签") ||
+			content.includes("今日已经签到")
+		) {
 			Qmsg.info("签到：" + content);
 			return;
 		} else if (

@@ -3,7 +3,7 @@ import optimizationCSS from "./css/editor-optimization.css?raw";
 import { GM_deleteValue, GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
 import Qmsg from "qmsg";
 import Utils from "@whitesev/utils";
-import { MTUtils } from "@/utils/Utils";
+import { MTUtils } from "@/utils/MTUtils";
 import { Router } from "@/router/router";
 import { PopsPanel } from "@/setting/setting";
 import { MTSmiliesDict } from "./MTSmiliesDict";

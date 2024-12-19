@@ -2,7 +2,7 @@ import { addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
 import { ElementUtils } from "@/utils/ElementUtils";
 import Qmsg from "qmsg";
 import blackHomeCSS from "./css/black-home.css?raw";
-import { MTUtils } from "@/utils/Utils";
+import { MTUtils } from "@/utils/MTUtils";
 
 type BlackUserInfo = {
 	action: string;

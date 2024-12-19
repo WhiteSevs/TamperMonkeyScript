@@ -1,4 +1,4 @@
-import { log, pops, utils } from "@/env";
+import { $$, log, pops, utils } from "@/env";
 import { Router } from "@/router/router";
 import { UIInput } from "@/setting/common-components/ui-input";
 import { UISwitch } from "@/setting/common-components/ui-switch";
@@ -140,83 +140,77 @@ export const MTCommentFilter = {
 			}
 			return false;
 		};
-		document
-			.querySelectorAll<HTMLElement>(".comiis_postlist .comiis_postli")
-			.forEach((item) => {
-				if (item.querySelector("#comiis_allreplies")) {
-					/* 是主内容 */
-					return;
-				}
-				let postForumInfo: PostInfo = {
-					userName:
-						item.querySelector<HTMLAnchorElement>("a.top_user")?.innerText ||
-						"",
-					userUID:
-						item
-							.querySelector<HTMLAnchorElement>("a.top_user")
-							?.href?.match(MTRegExp.uid)?.[1]
-							?.trim() || "",
-					content:
-						item
-							.querySelector<HTMLElement>(".comiis_message_table")
-							?.innerText?.trim() || "",
-					isAuthor: Boolean(item.querySelector<HTMLElement>("span.top_lev")),
-				};
-				/* 判断是否是白名单用户 */
-				if (isWhiteListUser(postForumInfo)) {
-					return;
-				}
-				/* 如果是回复评论则去除别人的回复 */
-				if (filterData["replyFlag"] && item.querySelector(".comiis_quote")) {
-					let comiis_quote_Element =
-						item.querySelector<HTMLElement>(".comiis_quote")!;
-					this.$el.isFilterElementHTML.push(comiis_quote_Element.outerHTML);
-					comiis_quote_Element.remove();
-				}
-				if (postForumInfo.isAuthor && !filterData["avatarFlag"]) {
-					/* 当前内容是楼主发的但是不处理楼主 */
-					return;
-				}
+		$$<HTMLElement>(".comiis_postlist .comiis_postli").forEach((item) => {
+			if (item.querySelector("#comiis_allreplies")) {
+				/* 是主内容 */
+				return;
+			}
+			let $topUser = item.querySelector<HTMLAnchorElement>("a.top_user")!;
+			let uidMatch = $topUser.href.match(MTRegExp.uid)!;
+			let postForumInfo: PostInfo = {
+				userName: $topUser?.innerText || "",
+				userUID: uidMatch ? uidMatch[uidMatch?.length - 1]?.trim() || "" : "",
+				content:
+					item
+						.querySelector<HTMLElement>(".comiis_message_table")
+						?.innerText?.trim() || "",
+				isAuthor: Boolean(item.querySelector<HTMLElement>("span.top_lev")),
+			};
+			/* 判断是否是白名单用户 */
+			if (isWhiteListUser(postForumInfo)) {
+				return;
+			}
+			/* 如果是回复评论则去除别人的回复 */
+			if (filterData["replyFlag"] && item.querySelector(".comiis_quote")) {
+				let comiis_quote_Element =
+					item.querySelector<HTMLElement>(".comiis_quote")!;
+				this.$el.isFilterElementHTML.push(comiis_quote_Element.outerHTML);
+				comiis_quote_Element.remove();
+			}
+			if (postForumInfo.isAuthor && !filterData["avatarFlag"]) {
+				/* 当前内容是楼主发的但是不处理楼主 */
+				return;
+			}
 
-				/* 判断是否是黑名单用户 */
-				if (isBlackListUser(postForumInfo)) {
+			/* 判断是否是黑名单用户 */
+			if (isBlackListUser(postForumInfo)) {
+				this.$el.isFilterElementHTML.push(item.outerHTML);
+				item.remove();
+				return;
+			}
+
+			/* 排除小于此长度的评论 */
+			if (
+				typeof filterData["minLength"] === "number" &&
+				filterData["minLength"] > postForumInfo.content.length
+			) {
+				return;
+			}
+
+			/* 排除大于此长度的评论 */
+			if (
+				typeof filterData["keywordLength"] === "number" &&
+				filterData["keywordLength"] < postForumInfo.content.length
+			) {
+				return;
+			}
+
+			/* 关键字判断 */
+			for (const keywordItem of filterData["keywords"]) {
+				if (typeof keywordItem !== "string") {
+					/* ？关键字不是字符串 */
+					continue;
+				}
+				let keywordPattern = new RegExp(keywordItem);
+				if (postForumInfo.content.match(keywordPattern)) {
+					/* 成功匹配关键字 */
+					console.log("评论过滤器：", postForumInfo);
 					this.$el.isFilterElementHTML.push(item.outerHTML);
 					item.remove();
 					return;
 				}
-
-				/* 排除小于此长度的评论 */
-				if (
-					typeof filterData["minLength"] === "number" &&
-					filterData["minLength"] > postForumInfo.content.length
-				) {
-					return;
-				}
-
-				/* 排除大于此长度的评论 */
-				if (
-					typeof filterData["keywordLength"] === "number" &&
-					filterData["keywordLength"] < postForumInfo.content.length
-				) {
-					return;
-				}
-
-				/* 关键字判断 */
-				for (const keywordItem of filterData["keywords"]) {
-					if (typeof keywordItem !== "string") {
-						/* ？关键字不是字符串 */
-						continue;
-					}
-					let keywordPattern = new RegExp(keywordItem);
-					if (postForumInfo.content.match(keywordPattern)) {
-						/* 成功匹配关键字 */
-						console.log("评论过滤器：", postForumInfo);
-						this.$el.isFilterElementHTML.push(item.outerHTML);
-						item.remove();
-						return;
-					}
-				}
-			});
+			}
+		});
 	},
 	/**
 	 * 显示视图

@@ -4,7 +4,7 @@ import { MTEditorSmilies } from "./MTEditorSmilies";
 import { unsafeWindow } from "ViteGM";
 import Qmsg from "qmsg";
 import { MTRegExp } from "@/utils/MTRegExp";
-import { MTUtils } from "@/utils/Utils";
+import { MTUtils } from "@/utils/MTUtils";
 import { MTEditorImageBed_Hello } from "./MTEditorImageBed_Hello";
 import { PopsPanel } from "@/setting/setting";
 import { MTEditorImageBed_MT } from "./MTEditorImageBed_MT";

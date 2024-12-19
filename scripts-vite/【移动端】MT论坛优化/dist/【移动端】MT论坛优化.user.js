@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359
-// @version      2024.12.17
+// @version      2024.12.19
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @require      https://update.greasyfork.org/scripts/452322/1470429/js-watermark.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.0/highlight.min.js
@@ -48,7 +48,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var require_entrance_001 = __commonJS({
-    "entrance-CZ8XgvVO.js"(exports, module) {
+    "entrance-Ck1ftXaC.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -1079,6 +1079,22 @@
         });
         return result;
       };
+      const MTRegExp = {
+        /** 论坛账号的凭证 */
+        formhash: /formhash=([0-9a-zA-Z]+)/,
+        /** 论坛账号的凭证 */
+        hash: /hash=(.+)&/,
+        /** 用户uid */
+        uid: /uid(=|-)(\d+)/,
+        /** 帖子内特殊字体格式 */
+        fontSpecial: /<font.*?>|<\/font>|<strike>|<strong>|<i>|<u>|align=".*?"|<br>[\s]*<br>[\s]*<br>/g,
+        /** 帖子链接的ptid参数 */
+        ptid: /&ptid=([\d]+)/i,
+        /** 帖子链接的pid参数 */
+        pid: /&pid=([\d]+)/i,
+        /** 链接的tid参数 */
+        tid: /&tid=([\d]+)/i
+      };
       const MTUtils = {
         /**
          * 根据UID获取小|中|大头像
@@ -1107,16 +1123,34 @@
           }
         },
         /**
-         * 获取当前已登录用户的formhash
+         * 获取账号的formhash
          */
-        getCurrentFormHash() {
-          let $exit = document.querySelector(
-            '.sidenv_exit a[href*="formhash="]'
+        getFormHash() {
+          let $inputFormHashList = Array.from(
+            (top || globalThis).document.querySelectorAll(
+              "input[name=formhash]"
+            )
           );
-          if ($exit) {
-            let formHashMatch = $exit.href.match(/formhash=([0-9a-zA-Z]+)/);
-            if (formHashMatch) {
-              return formHashMatch[formHashMatch.length - 1];
+          for (let index = 0; index < $inputFormHashList.length; index++) {
+            const $input = $inputFormHashList[index];
+            let formHash = $input.value;
+            if (formHash) {
+              return formHash;
+            }
+          }
+          let $anchorFormHashList = Array.from(
+            (top || globalThis).document.querySelectorAll(
+              'a[href*="formhash="]'
+            )
+          );
+          for (let index = 0; index < $anchorFormHashList.length; index++) {
+            const $anchorFormHash = $anchorFormHashList[index];
+            let anchorFormHashMatch = $anchorFormHash.href.match(MTRegExp.formhash);
+            if (anchorFormHashMatch) {
+              let formHash = anchorFormHashMatch[anchorFormHashMatch.length - 1];
+              if (formHash) {
+                return formHash;
+              }
             }
           }
         },
@@ -1271,7 +1305,7 @@
                     if (uploadUrl == null) {
                       return;
                     }
-                    let formhash = MTUtils.getCurrentFormHash();
+                    let formhash = MTUtils.getFormHash();
                     if (formhash == null) {
                       Qmsg.error("获取formhash失败");
                       return;
@@ -2218,22 +2252,6 @@
             "[w威武]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/88.png"
           }
         ];
-      };
-      const MTRegExp = {
-        /** 论坛账号的凭证 */
-        formhash: /formhash=(.+)&/,
-        /** 论坛账号的凭证 */
-        hash: /hash=(.+)&/,
-        /** 用户uid */
-        uid: /uid=(\d+)/,
-        /** 帖子内特殊字体格式 */
-        fontSpecial: /<font.*?>|<\/font>|<strike>|<strong>|<i>|<u>|align=".*?"|<br>[\s]*<br>[\s]*<br>/g,
-        /** 帖子链接的ptid参数 */
-        ptid: /&ptid=([\d]+)/i,
-        /** 帖子链接的pid参数 */
-        pid: /&pid=([\d]+)/i,
-        /** 链接的tid参数 */
-        tid: /&tid=([\d]+)/i
       };
       const GlobalImageDelete = [];
       class MTEditorImageBed {
@@ -7129,46 +7147,24 @@
         /**
          * 检测是否登录
          */
-        async checkLogin() {
+        checkLogin() {
           if (MTUtils.envIsMobile()) {
-            let mobile_login_exitBtn = document.querySelector(
+            let mobile_login_exitBtn = $(
               ".sidenv_exit a[href*='member.php?mod=logging&action=logout']"
             );
             return mobile_login_exitBtn;
           } else {
-            let pc_login = document.querySelector("#comiis_key");
+            let pc_login = $("#comiis_key");
             return pc_login;
           }
-        },
-        /**
-         * 获取账号的formhash
-         */
-        getFormHash() {
-          let $inputFormHash = (top || globalThis).document.querySelector("input[name=formhash]");
-          let sidenv_exit = (top || globalThis).document.querySelector("div[class=sidenv_exit]>a");
-          let sidenv_exit_match = null;
-          let comiis_recommend_addkey = (top || globalThis).document.querySelector("a.comiis_recommend_addkey");
-          let comiis_recommend_addkey_match = null;
-          let inputFormHash = $inputFormHash ? $inputFormHash.value : null;
-          if (sidenv_exit) {
-            sidenv_exit_match = sidenv_exit.href.match(MTRegExp.formhash);
-            sidenv_exit_match = sidenv_exit_match ? sidenv_exit_match[sidenv_exit_match.length - 1] : null;
-          }
-          if (comiis_recommend_addkey) {
-            comiis_recommend_addkey_match = comiis_recommend_addkey.href.match(
-              MTRegExp.hash
-            );
-            comiis_recommend_addkey_match = comiis_recommend_addkey_match ? comiis_recommend_addkey_match[comiis_recommend_addkey_match.length - 1] : null;
-          }
-          return inputFormHash || sidenv_exit_match || comiis_recommend_addkey_match;
         },
         /**
          * 签到
          */
         async sign() {
-          let formHash = this.getFormHash();
+          let formHash = MTUtils.getFormHash();
           if (formHash == null) {
-            if (document.querySelector("#comiis_picshowbox")) {
+            if ($("#comiis_picshowbox")) {
               log.info("当前为评论区的看图模式 ");
               return;
             }
@@ -7184,15 +7180,16 @@
             return;
           }
           let searchParamsData = {
+            id: "k_misign:sign",
             operation: "qiandao",
-            format: "button",
             formhash: formHash,
+            format: "empty",
             inajax: 1,
-            ajaxtarget: "midaben_sign"
+            ajaxtarget: ""
           };
           let useFetch = Boolean(PopsPanel.getValue("mt-auto-sign-useFetch"));
           let response = await httpx.get(
-            `/k_misign-sign.html?${utils.toSearchParamsStr(searchParamsData)}`,
+            `/plugin.php?${utils.toSearchParamsStr(searchParamsData)}`,
             {
               fetch: useFetch,
               headers: {
@@ -7223,7 +7220,7 @@
               timeout: 5e3
             });
             return;
-          } else if (content.includes("今日已签")) {
+          } else if (content.includes("今日已签") || content.includes("今日已经签到")) {
             Qmsg.info("签到：" + content);
             return;
           } else if (responseText.includes("您当前的访问请求当中含有非法字符，已经被系统拒绝")) {
@@ -11786,11 +11783,13 @@
             this.getData();
             document.querySelectorAll(".comiis_forumlist .forumlist_li").forEach((item) => {
               var _a2;
+              let $topUser = item.querySelector("a.top_user");
+              let uidMatch = $topUser.href.match(MTRegExp.uid);
               let postForumInfo = {
                 /* 用户名 */
-                userName: item.querySelector("a.top_user").innerText,
+                userName: $topUser.innerText,
                 /* 用户UID */
-                userUID: item.querySelector("a.top_user").href.match(MTRegExp.uid)[1].trim(),
+                userUID: uidMatch[uidMatch.length - 1].trim(),
                 /* 用户等级 */
                 userLevel: item.querySelector("span.top_lev").innerText.replace("Lv.", ""),
                 /* 帖子Url */
@@ -11818,11 +11817,13 @@
               }
             });
             document.querySelectorAll(".comiis_postlist .comiis_postli").forEach((item) => {
+              let $topUser = item.querySelector("a.top_user");
+              let uidMatch = $topUser.href.match(MTRegExp.uid);
               let postForumInfo = {
                 /* 用户名 */
-                userName: item.querySelector("a.top_user").innerText,
+                userName: $topUser.innerText,
                 /* 用户UID */
-                userUID: item.querySelector("a.top_user").href.match(MTRegExp.uid)[1].trim(),
+                userUID: uidMatch[uidMatch.length - 1].trim(),
                 /* 用户等级 */
                 userLevel: item.querySelector("a.top_lev").innerText.replace("Lv.", ""),
                 /* 帖子Url */
@@ -11843,30 +11844,33 @@
           }
           if (Router.isMessageList()) {
             this.getData();
-            document.querySelectorAll(".comiis_pms_box .comiis_pmlist ul li").forEach((item) => {
-              let postForumInfo = {
-                /* 用户名 */
-                userName: item.querySelector("h2").innerText.replace(
-                  item.querySelector("h2 span").innerText,
-                  ""
-                ).replace(/\s*/, ""),
-                /* 用户UID */
-                userUID: item.querySelector("a.b_b").href.match(MTRegExp.uid)[1].trim(),
-                /* 用户等级 */
-                userLevel: void 0,
-                /* 帖子Url */
-                postUrl: item.querySelector("a.b_b").href,
-                /* 帖子标题 */
-                postTitle: void 0,
-                /* 帖子内容(缩略) */
-                postContent: item.querySelector("p.f_c").innerText.trim(),
-                /* 帖子板块 */
-                postPlateName: void 0
-              };
-              if (checkIsFilter(postForumInfo)) {
-                item.remove();
+            $$(".comiis_pms_box .comiis_pmlist ul li").forEach(
+              (item) => {
+                let uidMatch = item.querySelector("a.b_b").href.match(MTRegExp.uid);
+                let postForumInfo = {
+                  /* 用户名 */
+                  userName: item.querySelector("h2").innerText.replace(
+                    item.querySelector("h2 span").innerText,
+                    ""
+                  ).replace(/\s*/, ""),
+                  /* 用户UID */
+                  userUID: uidMatch[uidMatch.length - 1].trim(),
+                  /* 用户等级 */
+                  userLevel: void 0,
+                  /* 帖子Url */
+                  postUrl: item.querySelector("a.b_b").href,
+                  /* 帖子标题 */
+                  postTitle: void 0,
+                  /* 帖子内容(缩略) */
+                  postContent: item.querySelector("p.f_c").innerText.trim(),
+                  /* 帖子板块 */
+                  postPlateName: void 0
+                };
+                if (checkIsFilter(postForumInfo)) {
+                  item.remove();
+                }
               }
-            });
+            );
           }
         },
         /**
@@ -11997,15 +12001,17 @@
             }
             return false;
           };
-          document.querySelectorAll(".comiis_postlist .comiis_postli").forEach((item) => {
-            var _a2, _b, _c, _d, _e, _f, _g;
+          $$(".comiis_postlist .comiis_postli").forEach((item) => {
+            var _a2, _b, _c;
             if (item.querySelector("#comiis_allreplies")) {
               return;
             }
+            let $topUser = item.querySelector("a.top_user");
+            let uidMatch = $topUser.href.match(MTRegExp.uid);
             let postForumInfo = {
-              userName: ((_a2 = item.querySelector("a.top_user")) == null ? void 0 : _a2.innerText) || "",
-              userUID: ((_e = (_d = (_c = (_b = item.querySelector("a.top_user")) == null ? void 0 : _b.href) == null ? void 0 : _c.match(MTRegExp.uid)) == null ? void 0 : _d[1]) == null ? void 0 : _e.trim()) || "",
-              content: ((_g = (_f = item.querySelector(".comiis_message_table")) == null ? void 0 : _f.innerText) == null ? void 0 : _g.trim()) || "",
+              userName: ($topUser == null ? void 0 : $topUser.innerText) || "",
+              userUID: uidMatch ? ((_a2 = uidMatch[(uidMatch == null ? void 0 : uidMatch.length) - 1]) == null ? void 0 : _a2.trim()) || "" : "",
+              content: ((_c = (_b = item.querySelector(".comiis_message_table")) == null ? void 0 : _b.innerText) == null ? void 0 : _c.trim()) || "",
               isAuthor: Boolean(item.querySelector("span.top_lev"))
             };
             if (isWhiteListUser(postForumInfo)) {

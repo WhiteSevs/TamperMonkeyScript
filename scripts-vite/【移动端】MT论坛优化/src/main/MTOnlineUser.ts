@@ -3,7 +3,7 @@ import onlineUserCSS from "./css/online-user.css?raw";
 import Qmsg from "qmsg";
 import { httpx, pops, utils } from "@/env";
 import DOMUtils from "@whitesev/domutils";
-import { MTUtils } from "@/utils/Utils";
+import { MTUtils } from "@/utils/MTUtils";
 
 type OnlineUserInfo = {
 	uid: string;

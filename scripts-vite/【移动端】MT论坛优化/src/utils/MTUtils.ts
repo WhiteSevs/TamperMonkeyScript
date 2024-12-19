@@ -1,4 +1,5 @@
 import { unsafeWindow } from "ViteGM";
+import { MTRegExp } from "./MTRegExp";
 
 export const MTUtils = {
 	/**
@@ -28,16 +29,35 @@ export const MTUtils = {
 		}
 	},
 	/**
-	 * 获取当前已登录用户的formhash
+	 * 获取账号的formhash
 	 */
-	getCurrentFormHash() {
-		let $exit = document.querySelector<HTMLAnchorElement>(
-			'.sidenv_exit a[href*="formhash="]'
+	getFormHash() {
+		let $inputFormHashList = Array.from(
+			(top || globalThis).document.querySelectorAll<HTMLInputElement>(
+				"input[name=formhash]"
+			)
 		);
-		if ($exit) {
-			let formHashMatch = $exit.href.match(/formhash=([0-9a-zA-Z]+)/);
-			if (formHashMatch) {
-				return formHashMatch[formHashMatch.length - 1];
+		for (let index = 0; index < $inputFormHashList.length; index++) {
+			const $input = $inputFormHashList[index];
+			let formHash = $input.value;
+			if (formHash) {
+				return formHash;
+			}
+		}
+		/* 退出按钮(登录状态才有)，电脑版的 */
+		let $anchorFormHashList = Array.from(
+			(top || globalThis).document.querySelectorAll<HTMLAnchorElement>(
+				'a[href*="formhash="]'
+			)
+		);
+		for (let index = 0; index < $anchorFormHashList.length; index++) {
+			const $anchorFormHash = $anchorFormHashList[index];
+			let anchorFormHashMatch = $anchorFormHash.href.match(MTRegExp.formhash);
+			if (anchorFormHashMatch) {
+				let formHash = anchorFormHashMatch[anchorFormHashMatch.length - 1];
+				if (formHash) {
+					return formHash;
+				}
 			}
 		}
 	},

@@ -1,4 +1,4 @@
-import { log, pops, utils } from "@/env";
+import { $$, log, pops, utils } from "@/env";
 import { Router } from "@/router/router";
 import { UIInput } from "@/setting/common-components/ui-input";
 import { UISwitch } from "@/setting/common-components/ui-switch";
@@ -424,15 +424,13 @@ export const MTOwnBlock = {
 			document
 				.querySelectorAll<HTMLElement>(".comiis_forumlist .forumlist_li")
 				.forEach((item) => {
+					let $topUser = item.querySelector<HTMLAnchorElement>("a.top_user")!;
+					let uidMatch = $topUser.href.match(MTRegExp.uid)!;
 					let postForumInfo: BlockOption["data"] = {
 						/* 用户名 */
-						userName:
-							item.querySelector<HTMLAnchorElement>("a.top_user")!.innerText,
+						userName: $topUser.innerText,
 						/* 用户UID */
-						userUID: item
-							.querySelector<HTMLAnchorElement>("a.top_user")!
-							.href.match(MTRegExp.uid)![1]!
-							.trim(),
+						userUID: uidMatch[uidMatch.length - 1].trim(),
 						/* 用户等级 */
 						userLevel: item
 							.querySelector<HTMLSpanElement>("span.top_lev")!
@@ -486,15 +484,13 @@ export const MTOwnBlock = {
 			document
 				.querySelectorAll<HTMLElement>(".comiis_postlist .comiis_postli")
 				.forEach((item) => {
+					let $topUser = item.querySelector<HTMLAnchorElement>("a.top_user")!;
+					let uidMatch = $topUser.href.match(MTRegExp.uid)!;
 					let postForumInfo: BlockOption["data"] = {
 						/* 用户名 */
-						userName:
-							item.querySelector<HTMLAnchorElement>("a.top_user")!.innerText!,
+						userName: $topUser.innerText!,
 						/* 用户UID */
-						userUID: item
-							.querySelector<HTMLAnchorElement>("a.top_user")!
-							.href.match(MTRegExp.uid)![1]
-							.trim(),
+						userUID: uidMatch[uidMatch.length - 1].trim(),
 						/* 用户等级 */
 						userLevel: item
 							.querySelector<HTMLAnchorElement>("a.top_lev")!
@@ -525,9 +521,11 @@ export const MTOwnBlock = {
 		if (Router.isMessageList()) {
 			// 消息列表
 			let shieldUserList = this.getData();
-			document
-				.querySelectorAll<HTMLLIElement>(".comiis_pms_box .comiis_pmlist ul li")
-				.forEach((item) => {
+			$$<HTMLLIElement>(".comiis_pms_box .comiis_pmlist ul li").forEach(
+				(item) => {
+					let uidMatch = item
+						.querySelector<HTMLAnchorElement>("a.b_b")!
+						.href.match(MTRegExp.uid)!;
 					let postForumInfo: BlockOption["data"] = {
 						/* 用户名 */
 						userName: item
@@ -538,12 +536,9 @@ export const MTOwnBlock = {
 							)
 							.replace(/\s*/, ""),
 						/* 用户UID */
-						userUID: item
-							.querySelector<HTMLAnchorElement>("a.b_b")!
-							.href.match(MTRegExp.uid)![1]
-							.trim(),
+						userUID: uidMatch[uidMatch.length - 1].trim(),
 						/* 用户等级 */
-						userLevel: undefined as any,
+						userLevel: void 0 as any,
 						/* 帖子Url */
 						postUrl: item.querySelector<HTMLAnchorElement>("a.b_b")!.href,
 						/* 帖子标题 */
@@ -563,7 +558,8 @@ export const MTOwnBlock = {
 					if (checkIsFilter(postForumInfo)) {
 						item.remove();
 					}
-				});
+				}
+			);
 		}
 	},
 	/**

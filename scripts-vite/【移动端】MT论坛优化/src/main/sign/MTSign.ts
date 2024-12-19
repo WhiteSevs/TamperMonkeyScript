@@ -2,7 +2,7 @@ import { addStyle, DOMUtils, httpx, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { MTAutoSignIn } from "./MTAutoSignIn";
 import Qmsg from "qmsg";
-import { MTUtils } from "@/utils/Utils";
+import { MTUtils } from "@/utils/MTUtils";
 import { unsafeWindow } from "ViteGM";
 
 export const MTSign = {
