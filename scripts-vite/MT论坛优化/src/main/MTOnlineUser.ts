@@ -2,7 +2,7 @@ import onlineUserCSS from "./css/online-user.css?raw";
 import Qmsg from "qmsg";
 import { GM_Menu, httpx, pops, utils } from "@/env";
 import DOMUtils from "@whitesev/domutils";
-import { MTUtils } from "@/utils/Utils";
+import { MTUtils } from "@/utils/MTUtils";
 import { PanelUISize } from "@/setting/panel-ui-size";
 
 type OnlineUserInfo = {

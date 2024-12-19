@@ -14,9 +14,7 @@ import {
 } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
-import { MTElementUtil } from "@/utils/MTElementUtil";
 import { Component_ForumPost } from "./components/post";
-import { Component_Sign } from "./components/sign";
 import { Component_Guide } from "./components/guide";
 import { PanelUISize } from "./panel-ui-size";
 
@@ -594,7 +592,6 @@ export const PopsPanel = {
 		let configList: PopsPanelContentConfig[] = [
 			Component_Common,
 			Component_ForumPost,
-			Component_Sign,
 			Component_Guide,
 		];
 		return configList;

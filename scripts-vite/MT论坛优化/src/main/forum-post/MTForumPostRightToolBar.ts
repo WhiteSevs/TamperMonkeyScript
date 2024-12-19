@@ -1,7 +1,8 @@
 import { $, DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { MTUtils } from "@/utils/Utils";
+import { MTUtils } from "@/utils/MTUtils";
 import { unsafeWindow } from "ViteGM";
+import { MTAutoSignIn } from "../sign/MTAutoSignIn";
 
 export const MTForumPostRightToolBar = {
 	init() {
@@ -23,9 +24,7 @@ export const MTForumPostRightToolBar = {
 			if (!$scrollTop) {
 				return;
 			}
-			let formhash = $<HTMLInputElement>(
-				'#scform input[name="formhash"]'
-			)!.value;
+			let formhash = MTUtils.getFormHash();
 			let threadId = MTUtils.getThreadId(window.location.href)!;
 			// 收藏的链接
 			let collectUrl = `/home.php?${utils.toSearchParamsStr({

@@ -1,4 +1,4 @@
-import { GM_Menu, log, pops, utils } from "@/env";
+import { $$, GM_Menu, log, pops, utils } from "@/env";
 import { Router } from "@/router/router";
 import { UIInput } from "@/setting/common-components/ui-input";
 import { UISwitch } from "@/setting/common-components/ui-switch";
@@ -144,20 +144,15 @@ export const MTCommentFilter = {
 			}
 			return false;
 		};
-		document.querySelectorAll<HTMLElement>(".comiis_vrx").forEach((item) => {
+		$$<HTMLElement>(".comiis_vrx").forEach((item) => {
 			if (item.querySelector(".plc .pti .authi .show")) {
 				/* 是主内容 */
 				return;
 			}
+			let $name = item.querySelector<HTMLAnchorElement>(".pls .authi a");
 			let postForumInfo: PostInfo = {
-				userName:
-					item.querySelector<HTMLAnchorElement>(".pls .authi a")?.innerText ||
-					"",
-				userUID:
-					item
-						.querySelector<HTMLAnchorElement>(".pls .authi a")
-						?.href?.match(MTRegExp.uid)?.[1]
-						?.trim() || "",
+				userName: $name?.innerText || "",
+				userUID: $name?.href?.match(MTRegExp.uid)?.[2]?.trim() || "",
 				content:
 					item.querySelector<HTMLElement>(".plc td.t_f")?.innerText?.trim() ||
 					"",

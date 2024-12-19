@@ -1,7 +1,7 @@
 import { addStyle, DOMUtils, GM_Menu, httpx, log, pops, utils } from "@/env";
 import Qmsg from "qmsg";
 import blackHomeCSS from "./css/black-home.css?raw";
-import { MTUtils } from "@/utils/Utils";
+import { MTUtils } from "@/utils/MTUtils";
 import { PanelUISize } from "@/setting/panel-ui-size";
 
 type BlackUserInfo = {

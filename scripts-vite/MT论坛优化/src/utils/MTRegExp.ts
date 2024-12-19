@@ -1,10 +1,10 @@
 export const MTRegExp = {
 	/** 论坛账号的凭证 */
-	formhash: /formhash=(.+)&/,
+	formhash: /formhash=([0-9a-zA-Z]+)/,
 	/** 论坛账号的凭证 */
 	hash: /hash=(.+)&/,
 	/** 用户uid */
-	uid: /uid=(\d+)/,
+	uid: /uid(=|-)(\d+)/,
 	/** 帖子内特殊字体格式 */
 	fontSpecial:
 		/<font.*?>|<\/font>|<strike>|<strong>|<i>|<u>|align=".*?"|<br>[\s]*<br>[\s]*<br>/g,
