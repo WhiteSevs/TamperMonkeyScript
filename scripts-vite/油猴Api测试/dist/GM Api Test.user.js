@@ -21534,24 +21534,33 @@
                     domUtils.text(container.$leftDesc, this.text);
                     domUtils.show(container.$leftDesc, false);
                     let result22 = _GM_openInTab("https://www.example.com/");
-                    if (typeof result22 === "object" && result22 != null) {
-                      let support_close = "close" in result22 && typeof result22.close === "function";
-                      let support_closed = "closed" in result22 && typeof result22.closed === "boolean";
-                      let support_onclose = "onclose" in result22;
-                      domUtils.html(
-                        container.$leftText,
-                        /*html*/
-                        `
+                    if (typeof result22 === "object") {
+                      if (result22 == null) {
+                        TagUtil.setTag(
+                          container.$leftText,
+                          "error",
+                          "返回值为null"
+                        );
+                      } else {
+                        let support_close = "close" in result22 && typeof result22.close === "function";
+                        let support_closed = "closed" in result22 && typeof result22.closed === "boolean";
+                        let support_onclose = "onclose" in result22;
+                        domUtils.html(
+                          container.$leftText,
+                          /*html*/
+                          `
 											<p class="${support_close ? "success" : "error"}">${support_close ? "支持 .close()" : "不支持 .close()"}</p>
 											<p class="${support_closed ? "success" : "error"}">${support_close ? "支持 .closed" : "不支持 .closed"}</p>
 											<p class="${support_onclose ? "success" : "error"}">${support_close ? "支持设置属性 .onclose" : "不支持设置属性 .onclose"}</p>
 										`
-                      );
-                    } else {
-                      if (result22 == null) {
-                        container.$leftContainer;
-                      } else {
+                        );
                       }
+                    } else {
+                      TagUtil.setTag(
+                        container.$leftText,
+                        "error",
+                        "返回值不是对象：" + typeof result22
+                      );
                     }
                   });
                   domUtils.after(container.$leftContainer, $button);

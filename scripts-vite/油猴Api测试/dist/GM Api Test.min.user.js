@@ -5725,11 +5725,11 @@ i.pops-rightClickMenu-icon[is-loading="true"] {\r
 											<span class="pops-panel-button-text">点击测试</span>
 										</button>
 									</div>
-									`,!1,!1);domUtils.on(k,"click",U=>{utils.preventEvent(U),domUtils.text(T.$leftDesc,this.text),domUtils.show(T.$leftDesc,!1);let I=_GM_openInTab("https://www.example.com/");if(typeof I=="object"&&I!=null){let L="close"in I&&typeof I.close=="function",_="closed"in I&&typeof I.closed=="boolean",P="onclose"in I;domUtils.html(T.$leftText,`
+									`,!1,!1);domUtils.on(k,"click",U=>{utils.preventEvent(U),domUtils.text(T.$leftDesc,this.text),domUtils.show(T.$leftDesc,!1);let I=_GM_openInTab("https://www.example.com/");if(typeof I=="object")if(I==null)TagUtil.setTag(T.$leftText,"error","返回值为null");else {let L="close"in I&&typeof I.close=="function",_="closed"in I&&typeof I.closed=="boolean",P="onclose"in I;domUtils.html(T.$leftText,`
 											<p class="${L?"success":"error"}">${L?"支持 .close()":"不支持 .close()"}</p>
 											<p class="${_?"success":"error"}">${L?"支持 .closed":"不支持 .closed"}</p>
 											<p class="${P?"success":"error"}">${L?"支持设置属性 .onclose":"不支持设置属性 .onclose"}</p>
-										`);}else I==null&&T.$leftContainer;}),domUtils.after(T.$leftContainer,k);}}}catch(T){return console.error(T),{text:"执行错误 "+T,tag:"error"}}}),UIInfo(()=>{try{return {text:"配置 active: true",description:"",tag:"info",afterRender(T){let E=T.target,k=domUtils.parseHTML(`
+										`);}else TagUtil.setTag(T.$leftText,"error","返回值不是对象："+typeof I);}),domUtils.after(T.$leftContainer,k);}}}catch(T){return console.error(T),{text:"执行错误 "+T,tag:"error"}}}),UIInfo(()=>{try{return {text:"配置 active: true",description:"",tag:"info",afterRender(T){let E=T.target,k=domUtils.parseHTML(`
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>

@@ -101,34 +101,44 @@ export class ApiTest_openInTab extends ApiTestBase {
 									DOMUtils.text(container.$leftDesc, this.text);
 									DOMUtils.show(container.$leftDesc, false);
 									let result = GM_openInTab("https://www.example.com/");
-									if (typeof result === "object" && result != null) {
-										let support_close =
-											"close" in result && typeof result.close === "function";
-										let support_closed =
-											"closed" in result && typeof result.closed === "boolean";
-										let support_onclose = "onclose" in result;
-
-										DOMUtils.html(
-											container.$leftText,
-											/*html*/ `
-											<p class="${support_close ? "success" : "error"}">${
-												support_close ? "支持 .close()" : "不支持 .close()"
-											}</p>
-											<p class="${support_closed ? "success" : "error"}">${
-												support_close ? "支持 .closed" : "不支持 .closed"
-											}</p>
-											<p class="${support_onclose ? "success" : "error"}">${
-												support_close
-													? "支持设置属性 .onclose"
-													: "不支持设置属性 .onclose"
-											}</p>
-										`
-										);
-									} else {
+									if (typeof result === "object") {
 										if (result == null) {
-											container.$leftContainer;
+											TagUtil.setTag(
+												container.$leftText,
+												"error",
+												"返回值为null"
+											);
 										} else {
+											let support_close =
+												"close" in result && typeof result.close === "function";
+											let support_closed =
+												"closed" in result &&
+												typeof result.closed === "boolean";
+											let support_onclose = "onclose" in result;
+
+											DOMUtils.html(
+												container.$leftText,
+												/*html*/ `
+											<p class="${support_close ? "success" : "error"}">${
+													support_close ? "支持 .close()" : "不支持 .close()"
+												}</p>
+											<p class="${support_closed ? "success" : "error"}">${
+													support_close ? "支持 .closed" : "不支持 .closed"
+												}</p>
+											<p class="${support_onclose ? "success" : "error"}">${
+													support_close
+														? "支持设置属性 .onclose"
+														: "不支持设置属性 .onclose"
+												}</p>
+										`
+											);
 										}
+									} else {
+										TagUtil.setTag(
+											container.$leftText,
+											"error",
+											"返回值不是对象：" + typeof result
+										);
 									}
 								});
 								DOMUtils.after(container.$leftContainer, $button);
