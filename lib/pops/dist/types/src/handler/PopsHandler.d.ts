@@ -174,16 +174,7 @@ export declare const PopsHandler: {
     /**
      * 处理返回的配置，针对popsHandler.handleEventDetails
      */
-    handleResultDetails(details: any): {
-        $shadowContainer: HTMLDivElement;
-        $shadowRoot: ShadowRoot;
-        animElement: HTMLElement;
-        popsElement: HTMLElement;
-        maskElement: HTMLElement;
-        close: () => void;
-        hide: () => void;
-        show: () => void;
-    };
+    handleResultDetails<T extends unknown>(details: T): Omit<T, "type" | "function">;
     /**
      * 处理点击事件
      * @param type 当前按钮类型

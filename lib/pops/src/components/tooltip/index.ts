@@ -34,7 +34,12 @@ export class ToolTip {
 		this.$data.guid = guid;
 		this.$el.$shadowContainer = ShadowInfo.$shadowContainer;
 		this.$el.$shadowRoot = ShadowInfo.$shadowRoot;
-
+		this.show = this.show.bind(this);
+		this.close = this.close.bind(this);
+		this.toolTipAnimationFinishEvent =
+			this.toolTipAnimationFinishEvent.bind(this);
+		this.toolTipMouseEnterEvent = this.toolTipMouseEnterEvent.bind(this);
+		this.toolTipMouseLeaveEvent = this.toolTipMouseLeaveEvent.bind(this);
 		this.init();
 	}
 	init() {
@@ -328,7 +333,7 @@ export class ToolTip {
 		popsDOMUtils.on(
 			this.$data.config.target,
 			this.$data.config.triggerShowEventName,
-			this.show.bind(this),
+			this.show,
 			this.$data.config.eventOption
 		);
 	}
@@ -339,7 +344,7 @@ export class ToolTip {
 		popsDOMUtils.off(
 			this.$data.config.target,
 			this.$data.config.triggerShowEventName,
-			this.show.bind(this),
+			this.show,
 			{
 				capture: true,
 			}
@@ -400,7 +405,7 @@ export class ToolTip {
 		popsDOMUtils.on(
 			this.$data.config.target,
 			this.$data.config.triggerCloseEventName,
-			this.close.bind(this),
+			this.close,
 			this.$data.config.eventOption
 		);
 	}
@@ -411,7 +416,7 @@ export class ToolTip {
 		popsDOMUtils.off(
 			this.$data.config.target,
 			this.$data.config.triggerCloseEventName,
-			this.close.bind(this),
+			this.close,
 			{
 				capture: true,
 			}
@@ -450,7 +455,7 @@ export class ToolTip {
 		popsDOMUtils.on(
 			this.$el.$toolTip,
 			popsDOMUtils.getAnimationEndNameList(),
-			this.toolTipAnimationFinishEvent.bind(this)
+			this.toolTipAnimationFinishEvent
 		);
 	}
 	/**
@@ -460,7 +465,7 @@ export class ToolTip {
 		popsDOMUtils.off(
 			this.$el.$toolTip,
 			popsDOMUtils.getAnimationEndNameList(),
-			this.toolTipAnimationFinishEvent.bind(this)
+			this.toolTipAnimationFinishEvent
 		);
 	}
 	/**
@@ -484,7 +489,7 @@ export class ToolTip {
 		popsDOMUtils.on(
 			this.$el.$toolTip,
 			"mouseenter touchstart",
-			this.toolTipMouseEnterEvent.bind(this),
+			this.toolTipMouseEnterEvent,
 			this.$data.config.eventOption
 		);
 	}
@@ -495,7 +500,7 @@ export class ToolTip {
 		popsDOMUtils.off(
 			this.$el.$toolTip,
 			"mouseenter touchstart",
-			this.toolTipMouseEnterEvent.bind(this),
+			this.toolTipMouseEnterEvent,
 			this.$data.config.eventOption
 		);
 	}
@@ -513,7 +518,7 @@ export class ToolTip {
 		popsDOMUtils.on(
 			this.$el.$toolTip,
 			"mouseleave touchend",
-			this.toolTipMouseLeaveEvent.bind(this),
+			this.toolTipMouseLeaveEvent,
 			this.$data.config.eventOption
 		);
 	}
@@ -524,7 +529,7 @@ export class ToolTip {
 		popsDOMUtils.off(
 			this.$el.$toolTip,
 			"mouseleave touchend",
-			this.toolTipMouseLeaveEvent.bind(this),
+			this.toolTipMouseLeaveEvent,
 			this.$data.config.eventOption
 		);
 	}
