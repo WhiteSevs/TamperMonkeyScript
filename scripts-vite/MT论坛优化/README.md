@@ -3,7 +3,7 @@
 > 注：并非所有功能都是默认开启，有些功能需要到油猴菜单中打开【设置】，手动开启功能。
 >
 
-一个用于MT论坛进行优化的油猴脚本。
+一个用于`discuz论坛`的[克米-橙色小米社区](https://addon.dismall.com/templates/comiis_xiaomi.html)模板进行优化的油猴脚本。例如：[MT论坛](https://bbs.binmt.cc/)、[油猴中文网](https://bbs.tampermonkey.net.cn/)
 
 ## 特性
 
@@ -17,6 +17,7 @@
 - [x] 附件点击拦截
 - [x] 小黑屋
 - [x] 在线用户查看
+- [x] 自动签到（仅适用于[百变每日签到](https://addon.dismall.com/plugins/k_misign.41405.html)插件）
 - [x] 等其它功能...
 
 ## 安装
