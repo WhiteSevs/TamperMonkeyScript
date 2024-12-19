@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.17
+// @version      2024.12.19
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -19509,7 +19509,19 @@
       getLiElementCallBack(liElement) {
         let detail = config();
         let $item = domUtils.createElement("div", {
-          innerHTML: detail.tag == null ? detail.text : Tag[detail.tag] + detail.text
+          className: "pops-panel-item-left-text",
+          innerHTML: (
+            /*html*/
+            `
+					<p class="pops-panel-item-left-main-text">${detail.tag == null ? detail.text : Tag[detail.tag] + detail.text}</p>
+					${detail.description == null || detail.description === "" ? "" : (
+            /*html*/
+            `
+						<p class="pops-panel-item-left-desc-text">${detail.description || ""}</p>
+					`
+          )}
+				`
+          )
         });
         let classNameList = ["support-info"];
         if (detail.tag != null) {
@@ -20337,7 +20349,7 @@
         result2["forms"][1].forms.push(
           UIInfo(() => {
             return {
-              text: CommonUtil.escapeHtml("TODO..."),
+              text: CommonUtil.escapeHtml("TODO"),
               tag: "info",
               afterRender(container) {
                 var _a2;
@@ -21443,8 +21455,56 @@
           UIInfo(() => {
             try {
               return {
-                text: CommonUtil.escapeHtml("TODO"),
-                tag: "info"
+                text: CommonUtil.escapeHtml("后台打开新标签页"),
+                description: "https://www.example.com/",
+                tag: "info",
+                afterRender(container) {
+                  let $target = container.target;
+                  let $info = container.target.querySelector(
+                    ".support-info"
+                  );
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击测试</span>
+										</button>
+									</div>
+									`,
+                    false,
+                    false
+                  );
+                  domUtils.on($button, "click", (event) => {
+                    utils.preventEvent(event);
+                    let result22 = _GM_openInTab("https://www.example.com/");
+                    if (typeof result22 === "object" && result22 != null) {
+                      let support_close = "close" in result22 && typeof result22.close === "function";
+                      let support_closed = "closed" in result22 && typeof result22.closed === "boolean";
+                      let support_onclose = "onclose" in result22;
+                      qmsg.info(
+                        /*html*/
+                        `
+											<div style="text-align: left;">
+												<p>GM_openInTab 返回的对象属性</p>
+												<p>close:Function ${support_close}</p>
+												<p>closed:Boolean ${support_closed}</p>
+												<p>onclose ${support_onclose}</p>
+											</div>`,
+                        {
+                          isHTML: true,
+                          timeout: 6e3
+                        }
+                      );
+                    } else {
+                      qmsg.error(
+                        "GM_openInTab 不支持返回object对象或返回值为null"
+                      );
+                    }
+                  });
+                  domUtils.after($info, $button);
+                }
               };
             } catch (error2) {
               console.error(error2);
@@ -21452,7 +21512,158 @@
                 text: "执行错误 " + error2,
                 tag: "error"
               };
-            } finally {
+            }
+          }),
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("配置 active: true"),
+                description: "https://www.example.com/",
+                tag: "info",
+                afterRender(container) {
+                  let $target = container.target;
+                  let $info = container.target.querySelector(
+                    ".support-info"
+                  );
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击测试</span>
+										</button>
+									</div>
+								`,
+                    false,
+                    false
+                  );
+                  domUtils.on($button, "click", (event) => {
+                    utils.preventEvent(event);
+                    _GM_openInTab("https://www.example.com/", {
+                      active: true
+                    });
+                  });
+                  domUtils.after($info, $button);
+                }
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            }
+          }),
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("测试调用返回值 .close()"),
+                description: "https://www.example.com/",
+                tag: "info",
+                afterRender(container) {
+                  let $target = container.target;
+                  let $info = container.target.querySelector(
+                    ".support-info"
+                  );
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击测试</span>
+										</button>
+									</div>
+								`,
+                    false,
+                    false
+                  );
+                  domUtils.on($button, "click", (event) => {
+                    utils.preventEvent(event);
+                    let result22 = _GM_openInTab("https://www.example.com/");
+                    if (result22 && typeof (result22 == null ? void 0 : result22.close) === "function") {
+                      setTimeout(() => {
+                        try {
+                          result22.close();
+                          qmsg.success("成功调用 .close() 方法");
+                        } catch (error2) {
+                          qmsg.error("调用 .close() 方法失败 " + error2);
+                        }
+                      }, 1e3);
+                    } else {
+                      qmsg.error("返回对象中不支持 .close() 方法");
+                    }
+                  });
+                  domUtils.after($info, $button);
+                }
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            }
+          }),
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("测试监听关闭是否生效 .onclose"),
+                description: "https://www.example.com/",
+                tag: "info",
+                afterRender(container) {
+                  let $target = container.target;
+                  let $info = container.target.querySelector(
+                    ".support-info"
+                  );
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击测试</span>
+										</button>
+									</div>
+								`,
+                    false,
+                    false
+                  );
+                  domUtils.on($button, "click", (event) => {
+                    utils.preventEvent(event);
+                    let result22 = _GM_openInTab("https://www.example.com/");
+                    let timeId = void 0;
+                    if (typeof result22 === "object" && result22 != null) {
+                      result22.onclose = () => {
+                        qmsg.success("成功触发 .onclose");
+                        clearTimeout(timeId);
+                      };
+                    }
+                    if (result22 && typeof (result22 == null ? void 0 : result22.close) === "function") {
+                      setTimeout(() => {
+                        try {
+                          result22.close();
+                          timeId = setTimeout(() => {
+                            qmsg.error("测试超时，未触发回调 .onclose");
+                          }, 2e3);
+                        } catch (error2) {
+                          qmsg.error("调用 .close() 方法失败 " + error2);
+                        }
+                      }, 1e3);
+                    } else {
+                      qmsg.error("返回对象中不支持 .close() 方法");
+                    }
+                  });
+                  domUtils.after($info, $button);
+                }
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
             }
           })
         );

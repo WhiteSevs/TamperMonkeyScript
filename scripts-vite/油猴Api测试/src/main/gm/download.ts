@@ -77,7 +77,7 @@ export class ApiTest_download extends ApiTestBase {
 			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
 				UIInfo(() => {
 					return {
-						text: CommonUtil.escapeHtml("TODO..."),
+						text: CommonUtil.escapeHtml("TODO"),
 						tag: "info",
 						afterRender(container) {
 							let $info =
