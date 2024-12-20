@@ -88,16 +88,15 @@ export const MTAutoSignIn = {
 			return;
 		}
 		let searchParamsData = {
-			id: "k_misign:sign",
 			operation: "qiandao",
+			format: "button",
 			formhash: formHash,
-			format: "empty",
 			inajax: 1,
-			ajaxtarget: "",
+			ajaxtarget: "midaben_sign",
 		};
 		let useFetch = Boolean(PopsPanel.getValue("mt-auto-sign-useFetch"));
 		let response = await httpx.get(
-			`/plugin.php?${utils.toSearchParamsStr(searchParamsData)}`,
+			`/k_misign-sign.html?${utils.toSearchParamsStr(searchParamsData)}`,
 			{
 				fetch: useFetch,
 				headers: {

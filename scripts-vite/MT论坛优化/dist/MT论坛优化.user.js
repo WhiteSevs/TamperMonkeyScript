@@ -45,7 +45,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
   var require_entrance_001 = __commonJS({
-    "entrance-0X0CAcQ4.js"(exports, module) {
+    "entrance-DuqJJ09r.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -1572,16 +1572,15 @@
             return;
           }
           let searchParamsData = {
-            id: "k_misign:sign",
             operation: "qiandao",
+            format: "button",
             formhash: formHash,
-            format: "empty",
             inajax: 1,
-            ajaxtarget: ""
+            ajaxtarget: "midaben_sign"
           };
           let useFetch = Boolean(PopsPanel.getValue("mt-auto-sign-useFetch"));
           let response = await httpx.get(
-            `/plugin.php?${utils.toSearchParamsStr(searchParamsData)}`,
+            `/k_misign-sign.html?${utils.toSearchParamsStr(searchParamsData)}`,
             {
               fetch: useFetch,
               headers: {

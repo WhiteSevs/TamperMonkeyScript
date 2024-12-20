@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359
-// @version      2024.12.19
+// @version      2024.12.20
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -48,7 +48,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var require_entrance_001 = __commonJS({
-    "entrance-Ck1ftXaC.js"(exports, module) {
+    "entrance-B1kBPrGi.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -7180,16 +7180,15 @@
             return;
           }
           let searchParamsData = {
-            id: "k_misign:sign",
             operation: "qiandao",
+            format: "button",
             formhash: formHash,
-            format: "empty",
             inajax: 1,
-            ajaxtarget: ""
+            ajaxtarget: "midaben_sign"
           };
           let useFetch = Boolean(PopsPanel.getValue("mt-auto-sign-useFetch"));
           let response = await httpx.get(
-            `/plugin.php?${utils.toSearchParamsStr(searchParamsData)}`,
+            `/k_misign-sign.html?${utils.toSearchParamsStr(searchParamsData)}`,
             {
               fetch: useFetch,
               headers: {
