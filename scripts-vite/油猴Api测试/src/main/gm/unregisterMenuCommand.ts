@@ -1,12 +1,14 @@
-import { GM, GM_unregisterMenuCommand } from "ViteGM";
+import { GM, GM_registerMenuCommand, GM_unregisterMenuCommand } from "ViteGM";
 import { ApiTestBase } from "../ApiTestBase";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/common-components/ui-info";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
-import { DOMUtils } from "@/env";
+import { DOMUtils, utils } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
+import { TagUtil } from "@/setting/tag";
+import Qmsg from "qmsg";
 
 export class ApiTest_unregisterMenuCommand extends ApiTestBase {
 	public isSupport() {
@@ -79,8 +81,43 @@ export class ApiTest_unregisterMenuCommand extends ApiTestBase {
 				UIInfo(() => {
 					try {
 						return {
-							text: CommonUtil.escapeHtml("TODO"),
+							text: "注册并卸载菜单 ==> Test UnRegister Menu",
+							description: "请自行验证是否成功卸载菜单",
 							tag: "info",
+							afterRender(container) {
+								let $button = DOMUtils.parseHTML(
+									/*html*/ `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击测试</span>
+										</button>
+									</div>
+								`,
+									false,
+									false
+								);
+								DOMUtils.after(container.$leftContainer, $button);
+								// 点击事件
+								let timeId: number;
+								DOMUtils.on($button, "click", (event) => {
+									utils.preventEvent(event);
+									clearTimeout(timeId);
+
+									const menuCommandId = GM_registerMenuCommand(
+										"Test UnRegister Menu",
+										(event) => {}
+									);
+									Qmsg.info("已注册菜单，10s后自动执行卸载", {
+										timeout: 5 * 1000,
+									});
+									clearTimeout(timeId);
+									timeId = setTimeout(() => {
+										GM_unregisterMenuCommand(menuCommandId);
+										Qmsg.success("已执行卸载菜单命令，请自行验证");
+									}, 10 * 1000);
+								});
+							},
 						};
 					} catch (error) {
 						console.error(error);

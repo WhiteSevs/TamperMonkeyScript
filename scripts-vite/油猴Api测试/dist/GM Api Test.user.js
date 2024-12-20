@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.19.17
+// @version      2024.12.20
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -18867,6 +18867,11 @@
       this.$data.guid = guid;
       this.$el.$shadowContainer = ShadowInfo.$shadowContainer;
       this.$el.$shadowRoot = ShadowInfo.$shadowRoot;
+      this.show = this.show.bind(this);
+      this.close = this.close.bind(this);
+      this.toolTipAnimationFinishEvent = this.toolTipAnimationFinishEvent.bind(this);
+      this.toolTipMouseEnterEvent = this.toolTipMouseEnterEvent.bind(this);
+      this.toolTipMouseLeaveEvent = this.toolTipMouseLeaveEvent.bind(this);
       this.init();
     }
     init() {
@@ -19096,13 +19101,13 @@
      * 绑定 显示事件
      */
     onShowEvent() {
-      popsDOMUtils.on(this.$data.config.target, this.$data.config.triggerShowEventName, this.show.bind(this), this.$data.config.eventOption);
+      popsDOMUtils.on(this.$data.config.target, this.$data.config.triggerShowEventName, this.show, this.$data.config.eventOption);
     }
     /**
      * 取消绑定 显示事件
      */
     offShowEvent() {
-      popsDOMUtils.off(this.$data.config.target, this.$data.config.triggerShowEventName, this.show.bind(this), {
+      popsDOMUtils.off(this.$data.config.target, this.$data.config.triggerShowEventName, this.show, {
         capture: true
       });
     }
@@ -19143,13 +19148,13 @@
      * 绑定 关闭事件
      */
     onCloseEvent() {
-      popsDOMUtils.on(this.$data.config.target, this.$data.config.triggerCloseEventName, this.close.bind(this), this.$data.config.eventOption);
+      popsDOMUtils.on(this.$data.config.target, this.$data.config.triggerCloseEventName, this.close, this.$data.config.eventOption);
     }
     /**
      * 取消绑定 关闭事件
      */
     offCloseEvent() {
-      popsDOMUtils.off(this.$data.config.target, this.$data.config.triggerCloseEventName, this.close.bind(this), {
+      popsDOMUtils.off(this.$data.config.target, this.$data.config.triggerCloseEventName, this.close, {
         capture: true
       });
     }
@@ -19180,13 +19185,13 @@
      * 监听tooltip的动画结束
      */
     onToolTipAnimationFinishEvent() {
-      popsDOMUtils.on(this.$el.$toolTip, popsDOMUtils.getAnimationEndNameList(), this.toolTipAnimationFinishEvent.bind(this));
+      popsDOMUtils.on(this.$el.$toolTip, popsDOMUtils.getAnimationEndNameList(), this.toolTipAnimationFinishEvent);
     }
     /**
      * 取消tooltip监听动画结束
      */
     offToolTipAnimationFinishEvent() {
-      popsDOMUtils.off(this.$el.$toolTip, popsDOMUtils.getAnimationEndNameList(), this.toolTipAnimationFinishEvent.bind(this));
+      popsDOMUtils.off(this.$el.$toolTip, popsDOMUtils.getAnimationEndNameList(), this.toolTipAnimationFinishEvent);
     }
     /**
      * 鼠标|触摸进入事件
@@ -19201,13 +19206,13 @@
     onToolTipMouseEnterEvent() {
       this.clearCloseTimeoutId("MouseEvent");
       this.clearCloseTimeoutId("TouchEvent");
-      popsDOMUtils.on(this.$el.$toolTip, "mouseenter touchstart", this.toolTipMouseEnterEvent.bind(this), this.$data.config.eventOption);
+      popsDOMUtils.on(this.$el.$toolTip, "mouseenter touchstart", this.toolTipMouseEnterEvent, this.$data.config.eventOption);
     }
     /**
      * 取消监听鼠标|触摸事件
      */
     offToolTipMouseEnterEvent() {
-      popsDOMUtils.off(this.$el.$toolTip, "mouseenter touchstart", this.toolTipMouseEnterEvent.bind(this), this.$data.config.eventOption);
+      popsDOMUtils.off(this.$el.$toolTip, "mouseenter touchstart", this.toolTipMouseEnterEvent, this.$data.config.eventOption);
     }
     /**
      * 鼠标|触摸离开事件
@@ -19219,13 +19224,13 @@
      * 监听鼠标|触摸离开事件
      */
     onToolTipMouseLeaveEvent() {
-      popsDOMUtils.on(this.$el.$toolTip, "mouseleave touchend", this.toolTipMouseLeaveEvent.bind(this), this.$data.config.eventOption);
+      popsDOMUtils.on(this.$el.$toolTip, "mouseleave touchend", this.toolTipMouseLeaveEvent, this.$data.config.eventOption);
     }
     /**
      * 取消监听鼠标|触摸离开事件
      */
     offToolTipMouseLeaveEvent() {
-      popsDOMUtils.off(this.$el.$toolTip, "mouseleave touchend", this.toolTipMouseLeaveEvent.bind(this), this.$data.config.eventOption);
+      popsDOMUtils.off(this.$el.$toolTip, "mouseleave touchend", this.toolTipMouseLeaveEvent, this.$data.config.eventOption);
     }
   }
   class PopsTooltip {
@@ -21866,8 +21871,147 @@
           UIInfo(() => {
             try {
               return {
-                text: CommonUtil.escapeHtml("TODO"),
-                tag: "info"
+                text: "注册菜单 ==> Test Menu",
+                tag: "info",
+                afterRender(container) {
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击测试</span>
+										</button>
+									</div>
+								`,
+                    false,
+                    false
+                  );
+                  domUtils.after(container.$leftContainer, $button);
+                  let timeId;
+                  let intervalId;
+                  domUtils.on($button, "click", (event) => {
+                    utils.preventEvent(event);
+                    clearTimeout(timeId);
+                    clearInterval(intervalId);
+                    domUtils.text(container.$leftDesc, this.text);
+                    domUtils.show(container.$leftDesc, false);
+                    let intervalCheckCount = 10;
+                    let setCheckText = () => {
+                      let result22 = `已执行注册菜单，请在${intervalCheckCount}s内点击菜单项`;
+                      intervalCheckCount--;
+                      return result22;
+                    };
+                    TagUtil.setTag(container.$leftText, "info", setCheckText());
+                    intervalId = setInterval(() => {
+                      TagUtil.setTag(container.$leftText, "info", setCheckText());
+                    }, 1e3);
+                    timeId = setTimeout(() => {
+                      clearInterval(intervalId);
+                      TagUtil.setTag(
+                        container.$leftText,
+                        "error",
+                        "测试超时，未触发回调"
+                      );
+                    }, 10 * 1e3);
+                    const menuCommandId = _GM_registerMenuCommand(
+                      "Test Menu",
+                      (event2) => {
+                        clearInterval(intervalId);
+                        clearTimeout(timeId);
+                        TagUtil.clearTag(container.$leftText);
+                        let checkResultText = [];
+                        checkResultText.push({
+                          tag: "success",
+                          text: "支持注册菜单"
+                        });
+                        if (event2) {
+                          checkResultText.push({
+                            tag: "success",
+                            text: "支持点击回调且有event参数"
+                          });
+                        } else {
+                          checkResultText.push({
+                            tag: "warn",
+                            text: "支持点击回调但是没有event参数"
+                          });
+                        }
+                        if (typeof menuCommandId === "number" || typeof menuCommandId === "string") {
+                          checkResultText.push({
+                            tag: "success",
+                            text: "函数返回值是string|number"
+                          });
+                        } else {
+                          checkResultText.push({
+                            tag: "error",
+                            text: "函数返回值不是string|number：" + typeof menuCommandId
+                          });
+                        }
+                        domUtils.html(
+                          container.$leftText,
+                          checkResultText.map((it) => `<p class="${it.tag}">${it.text}</p>`).join("\n")
+                        );
+                      }
+                    );
+                  });
+                }
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          }),
+          UIInfo(() => {
+            try {
+              return {
+                text: "注册并更新菜单 ==> Test Update Menu",
+                description: "请自行验证是否成功更新菜单文字为：Test Update Menu Success!!!",
+                tag: "info",
+                afterRender(container) {
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击测试</span>
+										</button>
+									</div>
+								`,
+                    false,
+                    false
+                  );
+                  domUtils.after(container.$leftContainer, $button);
+                  let timeId;
+                  domUtils.on($button, "click", (event) => {
+                    utils.preventEvent(event);
+                    clearTimeout(timeId);
+                    const menuCommandId = _GM_registerMenuCommand(
+                      "Test Update Menu",
+                      (event2) => {
+                      }
+                    );
+                    qmsg.info("已注册菜单，3s后自动更新", {
+                      timeout: 3e3
+                    });
+                    clearTimeout(timeId);
+                    timeId = setTimeout(() => {
+                      _GM_registerMenuCommand(
+                        "Test Update Menu Success!!!",
+                        () => {
+                        },
+                        {
+                          id: menuCommandId
+                        }
+                      );
+                      qmsg.success("已执行更新菜单命令，请自行验证");
+                    }, 3e3);
+                  });
+                }
               };
             } catch (error2) {
               console.error(error2);
@@ -22352,8 +22496,43 @@
           UIInfo(() => {
             try {
               return {
-                text: CommonUtil.escapeHtml("TODO"),
-                tag: "info"
+                text: "注册并卸载菜单 ==> Test UnRegister Menu",
+                description: "请自行验证是否成功卸载菜单",
+                tag: "info",
+                afterRender(container) {
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击测试</span>
+										</button>
+									</div>
+								`,
+                    false,
+                    false
+                  );
+                  domUtils.after(container.$leftContainer, $button);
+                  let timeId;
+                  domUtils.on($button, "click", (event) => {
+                    utils.preventEvent(event);
+                    clearTimeout(timeId);
+                    const menuCommandId = _GM_registerMenuCommand(
+                      "Test UnRegister Menu",
+                      (event2) => {
+                      }
+                    );
+                    qmsg.info("已注册菜单，10s后自动执行卸载", {
+                      timeout: 5 * 1e3
+                    });
+                    clearTimeout(timeId);
+                    timeId = setTimeout(() => {
+                      _GM_unregisterMenuCommand(menuCommandId);
+                      qmsg.success("已执行卸载菜单命令，请自行验证");
+                    }, 10 * 1e3);
+                  });
+                }
               };
             } catch (error2) {
               console.error(error2);
