@@ -168,6 +168,20 @@ export const MTForumPost = {
 			if (nextURL) {
 				let pageInfo = await getPageInfo(nextURL);
 				if (pageInfo) {
+					if (
+						pageInfo["postlist"]
+							?.querySelector(".comiis_vrx")
+							?.querySelector(".km1")
+					) {
+						// [楼主]标签
+						// 这种情况可能是请求的第2页的内容返回的还是第一页的内容
+						Object.keys(pageInfo).forEach((it) => {
+							pageInfo[it as keyof typeof pageInfo] = null;
+						});
+						log.warn(
+							`检测到请求的本页内容中存在【楼主】标识，判断为重复页请求`
+						);
+					}
 					if (!pageInfo["url"] || pageInfo["url"] == nextURL) {
 						log.error("最后一页，取消监听");
 						DOMUtils.off(document, ["scroll", "wheel"], lockFn.run);

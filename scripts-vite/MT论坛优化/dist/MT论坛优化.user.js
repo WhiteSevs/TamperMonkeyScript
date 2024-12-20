@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.19
+// @version      2024.12.20
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、用户状态查看、美化导航、动态头像上传、最新发表、评论过滤器等
 // @license      GPL-3.0-only
@@ -45,7 +45,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
   var require_entrance_001 = __commonJS({
-    "entrance-Bt8yn_2O.js"(exports, module) {
+    "entrance-0X0CAcQ4.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -3113,10 +3113,19 @@
             };
           };
           var scrollEvent = async function() {
+            var _a2, _b;
             var nextURL = $(".pgbtn a").getAttribute("href");
             if (nextURL) {
               let pageInfo = await getPageInfo(nextURL);
               if (pageInfo) {
+                if ((_b = (_a2 = pageInfo["postlist"]) == null ? void 0 : _a2.querySelector(".comiis_vrx")) == null ? void 0 : _b.querySelector(".km1")) {
+                  Object.keys(pageInfo).forEach((it) => {
+                    pageInfo[it] = null;
+                  });
+                  log.warn(
+                    `检测到请求的本页内容中存在【楼主】标识，判断为重复页请求`
+                  );
+                }
                 if (!pageInfo["url"] || pageInfo["url"] == nextURL) {
                   log.error("最后一页，取消监听");
                   domUtils.off(document, ["scroll", "wheel"], lockFn.run);
