@@ -1,5 +1,5 @@
 import { GM, GM_notification } from "ViteGM";
-import { ApiTestBase } from "../ApiTestBase";
+import { ApiTestBase } from "../base/ApiTestBase";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
@@ -8,8 +8,9 @@ import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/t
 import { DOMUtils, utils } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { TagUtil, type TagName } from "@/setting/tag";
+import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 
-export class ApiTest_notification extends ApiTestBase {
+export class ApiTest_notification extends ApiAsyncTestBase {
 	public isSupport() {
 		return typeof GM_notification === "function";
 	}

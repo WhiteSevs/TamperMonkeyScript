@@ -1,5 +1,4 @@
 import { GM, GM_addElement } from "ViteGM";
-import { ApiTestBase } from "../ApiTestBase";
 import type {
 	PopsPanelContentConfig,
 	PopsPanelFormsTotalDetails,
@@ -9,8 +8,9 @@ import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/common-components/ui-info";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { GlobalUtil } from "../GlobalUtil";
+import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 
-export class ApiTest_addElement extends ApiTestBase {
+export class ApiTest_addElement extends ApiAsyncTestBase {
 	public getApiName() {
 		return "GM_addElement";
 	}

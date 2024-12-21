@@ -1,5 +1,4 @@
 import { GM, GM_download } from "ViteGM";
-import { ApiTestBase } from "../ApiTestBase";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
@@ -7,15 +6,16 @@ import { UIInfo } from "@/setting/common-components/ui-info";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
 import { DOMUtils } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
+import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 
-export class ApiTest_download extends ApiTestBase {
-	public isSupport(): boolean {
+export class ApiTest_download extends ApiAsyncTestBase {
+	public isSupport() {
 		return typeof GM_download === "function";
 	}
 	public getApiName() {
 		return "GM_download";
 	}
-	public getAsyncApiOption(): { name: string; isSupport: boolean } {
+	public getAsyncApiOption() {
 		return {
 			name: "GM.download",
 			isSupport: this.isSupportGM() && typeof GM.download === "function",

@@ -1,5 +1,5 @@
 import { GM, GM_openInTab, unsafeWindow } from "ViteGM";
-import { ApiTestBase } from "../ApiTestBase";
+import { ApiTestBase } from "../base/ApiTestBase";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
@@ -9,8 +9,9 @@ import { DOMUtils, utils } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
 import Qmsg from "qmsg";
 import { TagUtil } from "@/setting/tag";
+import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 
-export class ApiTest_openInTab extends ApiTestBase {
+export class ApiTest_openInTab extends ApiAsyncTestBase {
 	public isSupport() {
 		return typeof GM_openInTab === "function";
 	}

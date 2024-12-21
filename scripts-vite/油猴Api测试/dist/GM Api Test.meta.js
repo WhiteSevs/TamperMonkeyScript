@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.20
+// @version      2024.12.21
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -66,5 +66,8 @@
 // @grant        GM_webRequest
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
+// @grant        window.close
+// @grant        window.focus
+// @grant        window.onurlchange
 // @run-at       document-start
 // ==/UserScript==

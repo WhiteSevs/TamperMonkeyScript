@@ -17,6 +17,9 @@ import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { PanelUISize } from "./panel-ui-size";
 import { StorageApi } from "@/main/StorageApi";
 import { GMTotal } from "@/main/GMTotal";
+import { GrantTest_onurlchange } from "@/main/grant/onurlchange";
+import { GrantTest_close } from "@/main/grant/close";
+import { GrantTest_focus } from "@/main/grant/focus";
 
 type PosPanelListenerData = {
 	id: number;
@@ -651,6 +654,9 @@ export const PopsPanel = {
 				configList.push(option);
 			}
 		});
+		configList.push(new GrantTest_onurlchange().getUIOption());
+		configList.push(new GrantTest_close().getUIOption());
+		configList.push(new GrantTest_focus().getUIOption());
 		return configList;
 	},
 };

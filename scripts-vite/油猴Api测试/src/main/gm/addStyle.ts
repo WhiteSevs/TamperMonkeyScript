@@ -1,5 +1,4 @@
 import { GM, GM_addStyle } from "ViteGM";
-import { ApiTestBase } from "../ApiTestBase";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
@@ -7,15 +6,16 @@ import { UIInfo } from "@/setting/common-components/ui-info";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
 import { DOMUtils } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
+import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 
-export class ApiTest_addStyle extends ApiTestBase {
-	public isSupport(): boolean {
+export class ApiTest_addStyle extends ApiAsyncTestBase {
+	public isSupport() {
 		return typeof GM_addStyle === "function";
 	}
 	public getApiName() {
 		return "GM_addStyle";
 	}
-	public getAsyncApiOption(): { name: string; isSupport: boolean } {
+	public getAsyncApiOption() {
 		return {
 			name: "GM.addStyle",
 			isSupport: this.isSupportGM() && typeof GM.addStyle === "function",

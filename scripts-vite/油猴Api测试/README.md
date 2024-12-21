@@ -32,6 +32,9 @@
 - [x] GM_xmlhttpRequest/GM.xmlHttpRequest
 - [x] GM_webRequest/GM.webRequest
 - [x] GM_cookie/GM.cookie
+- [x] window.onurlchange
+- [x] window.close
+- [x] window.focus
 
 ## 赞赏支持
 

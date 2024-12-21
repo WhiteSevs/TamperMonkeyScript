@@ -1,14 +1,13 @@
 import { GM, GM_getTab } from "ViteGM";
-import { ApiTestBase } from "../ApiTestBase";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/common-components/ui-info";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
-import { DOMUtils } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
+import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 
-export class ApiTest_getTab extends ApiTestBase {
+export class ApiTest_getTab extends ApiAsyncTestBase {
 	public isSupport() {
 		return typeof GM_getTab === "function";
 	}

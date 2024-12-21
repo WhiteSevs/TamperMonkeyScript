@@ -2,23 +2,24 @@ import type {
 	PopsPanelContentConfig,
 	PopsPanelFormsTotalDetails,
 } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { ApiTestBase } from "../ApiTestBase";
+import { ApiTestBase } from "../base/ApiTestBase";
 import { monkeyWindow, unsafeWindow } from "ViteGM";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/common-components/ui-info";
+import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 
-export class ApiTest_unsafeWindow extends ApiTestBase {
-	public getApiName(): string {
+export class ApiTest_unsafeWindow extends ApiAsyncTestBase {
+	public getApiName() {
 		return "unsafeWindow";
 	}
-	public getAsyncApiOption(): { name: string; isSupport: boolean } | undefined {
+	public getAsyncApiOption() {
 		return void 0;
 	}
-	public isSupport(): boolean {
+	public isSupport() {
 		return typeof unsafeWindow === "object" && unsafeWindow != null;
 	}
-	public getUIOption(): PopsPanelContentConfig {
+	public getUIOption() {
 		const that = this;
 		let apiName = this.getApiName();
 		let result: PopsPanelContentConfig = {

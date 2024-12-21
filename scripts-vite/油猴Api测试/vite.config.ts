@@ -44,6 +44,7 @@ const MonkeyOption: Partial<__MonkeyOption__> = {
 		match: ["*://*/*"],
 		// 引用库
 		require: [],
+		grant: ["window.onurlchange", "window.focus", "window.close"],
 		// 资源引用
 		resource: {
 			ViewerCSS: `https://fastly.jsdelivr.net/npm/viewerjs@${pkg.dependencies["viewerjs"]}/dist/viewer.min.css`,

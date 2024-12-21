@@ -1,6 +1,6 @@
 import { DOMUtils } from "@/env";
 import type { PopsPanelOwnDetails } from "@whitesev/pops/dist/types/src/components/panel/ownType";
-import { Tag, type TagName } from "../tag";
+import { Tag, TagUtil, type TagName } from "../tag";
 import type { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/commonType";
 
 export type UIInfoResultConfig = {
@@ -33,7 +33,9 @@ export const UIInfo = (
 						detail.tag == null ? detail.text : Tag[detail.tag] + detail.text
 					}</p>
 					<p class="pops-panel-item-left-desc-text" style="${
-						detail.description == null || detail.description === "" ? "display: none;" : ""
+						detail.description == null || detail.description === ""
+							? "display: none;"
+							: ""
 					}">${detail.description || ""}</p>
 				`,
 			});
@@ -61,12 +63,17 @@ export const UIInfo = (
 				let $desc = $target.querySelector<HTMLElement>(
 					".pops-panel-item-left-desc-text"
 				)!;
-				detail.afterRender({
-					...container,
-					$leftContainer: $leftContainer,
-					$leftText: $text,
-					$leftDesc: $desc,
-				});
+				try {
+					detail.afterRender({
+						...container,
+						$leftContainer: $leftContainer,
+						$leftText: $text,
+						$leftDesc: $desc,
+					});
+				} catch (error) {
+					console.log(error);
+					TagUtil.setTag($text, "error", "afterRender 函数执行错误" + error);
+				}
 			}
 		},
 	};

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.20
+// @version      2024.12.21
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -66,6 +66,9 @@
 // @grant        GM_webRequest
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
+// @grant        window.close
+// @grant        window.focus
+// @grant        window.onurlchange
 // @run-at       document-start
 // ==/UserScript==
 
@@ -19491,14 +19494,6 @@
     }
   }
   const pops = new Pops();
-  class ApiTestBase {
-    /**
-     * 是否支持GM函数
-     */
-    isSupportGM() {
-      return typeof _GM === "object" && _GM != null;
-    }
-  }
   const PanelKeyConfig = {
     asideLastVisit: "aside-last-visit"
   };
@@ -19567,12 +19562,17 @@
           let $desc = $target.querySelector(
             ".pops-panel-item-left-desc-text"
           );
-          detail.afterRender({
-            ...container,
-            $leftContainer,
-            $leftText: $text,
-            $leftDesc: $desc
-          });
+          try {
+            detail.afterRender({
+              ...container,
+              $leftContainer,
+              $leftText: $text,
+              $leftDesc: $desc
+            });
+          } catch (error2) {
+            console.log(error2);
+            TagUtil.setTag($text, "error", "afterRender 函数执行错误" + error2);
+          }
         }
       }
     };
@@ -19659,7 +19659,19 @@
       return GMTotal.unsafeWindow.isSupport() ? _unsafeWindow : window;
     }
   };
-  class ApiTest_addElement extends ApiTestBase {
+  class TestUIBase {
+  }
+  class ApiTestBase extends TestUIBase {
+    /**
+     * 是否支持GM函数
+     */
+    isSupportGM() {
+      return typeof _GM === "object" && _GM != null;
+    }
+  }
+  class ApiAsyncTestBase extends ApiTestBase {
+  }
+  class ApiTest_addElement extends ApiAsyncTestBase {
     getApiName() {
       return "GM_addElement";
     }
@@ -19816,7 +19828,7 @@
       return result2;
     }
   }
-  class ApiTest_addStyle extends ApiTestBase {
+  class ApiTest_addStyle extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_addStyle === "function";
     }
@@ -19927,7 +19939,7 @@
       return result2;
     }
   }
-  class ApiTest_addValueChangeListener extends ApiTestBase {
+  class ApiTest_addValueChangeListener extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_addValueChangeListener === "function";
     }
@@ -20008,7 +20020,7 @@
       return result2;
     }
   }
-  class ApiTest_cookie extends ApiTestBase {
+  class ApiTest_cookie extends ApiAsyncTestBase {
     isSupport() {
       return (typeof _GM_cookie === "object" || typeof _GM_cookie === "function") && _GM_cookie != null;
     }
@@ -20162,7 +20174,7 @@
       return result2;
     }
   }
-  class ApiTest_deleteValue extends ApiTestBase {
+  class ApiTest_deleteValue extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_deleteValue === "function";
     }
@@ -20243,7 +20255,7 @@
       return result2;
     }
   }
-  class ApiTest_deleteValues extends ApiTestBase {
+  class ApiTest_deleteValues extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_deleteValues === "function";
     }
@@ -20324,7 +20336,7 @@
       return result2;
     }
   }
-  class ApiTest_download extends ApiTestBase {
+  class ApiTest_download extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_download === "function";
     }
@@ -20400,7 +20412,7 @@
       return result2;
     }
   }
-  class ApiTest_getResourceText extends ApiTestBase {
+  class ApiTest_getResourceText extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_getResourceText === "function";
     }
@@ -20491,7 +20503,7 @@
       return result2;
     }
   }
-  class ApiTest_getResourceUrl extends ApiTestBase {
+  class ApiTest_getResourceUrl extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_getResourceURL === "function";
     }
@@ -20596,7 +20608,7 @@
       return result2;
     }
   }
-  class ApiTest_getTab extends ApiTestBase {
+  class ApiTest_getTab extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_getTab === "function";
     }
@@ -20677,7 +20689,7 @@
       return result2;
     }
   }
-  class ApiTest_getTabs extends ApiTestBase {
+  class ApiTest_getTabs extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_getTabs === "function";
     }
@@ -20758,7 +20770,7 @@
       return result2;
     }
   }
-  class ApiTest_getValue extends ApiTestBase {
+  class ApiTest_getValue extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_getValue === "function";
     }
@@ -20839,7 +20851,7 @@
       return result2;
     }
   }
-  class ApiTest_getValues extends ApiTestBase {
+  class ApiTest_getValues extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_getValues === "function";
     }
@@ -20920,7 +20932,7 @@
       return result2;
     }
   }
-  class ApiTest_info extends ApiTestBase {
+  class ApiTest_info extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_info === "object" && _GM_info != null;
     }
@@ -21042,7 +21054,7 @@
       return result2;
     }
   }
-  class ApiTest_listValues extends ApiTestBase {
+  class ApiTest_listValues extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_listValues === "function";
     }
@@ -21123,7 +21135,7 @@
       return result2;
     }
   }
-  class ApiTest_log extends ApiTestBase {
+  class ApiTest_log extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_log === "function";
     }
@@ -21226,7 +21238,7 @@
       return result2;
     }
   }
-  class ApiTest_notification extends ApiTestBase {
+  class ApiTest_notification extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_notification === "function";
     }
@@ -21453,7 +21465,7 @@
       return result2;
     }
   }
-  class ApiTest_openInTab extends ApiTestBase {
+  class ApiTest_openInTab extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_openInTab === "function";
     }
@@ -21807,7 +21819,7 @@
       return result2;
     }
   }
-  class ApiTest_registerMenuCommand extends ApiTestBase {
+  class ApiTest_registerMenuCommand extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_registerMenuCommand === "function";
     }
@@ -22027,7 +22039,7 @@
       return result2;
     }
   }
-  class ApiTest_removeValueChangeListener extends ApiTestBase {
+  class ApiTest_removeValueChangeListener extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_removeValueChangeListener === "function";
     }
@@ -22108,7 +22120,7 @@
       return result2;
     }
   }
-  class ApiTest_saveTab extends ApiTestBase {
+  class ApiTest_saveTab extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_saveTab === "function";
     }
@@ -22189,7 +22201,7 @@
       return result2;
     }
   }
-  class ApiTest_setClipboard extends ApiTestBase {
+  class ApiTest_setClipboard extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_setClipboard === "function";
     }
@@ -22251,26 +22263,54 @@
       if (this.isSupport()) {
         result2["forms"][1].forms.push(
           UIInfo(() => {
-            try {
-              return {
-                text: CommonUtil.escapeHtml("TODO"),
-                tag: "info"
-              };
-            } catch (error2) {
-              console.error(error2);
-              return {
-                text: "执行错误 " + error2,
-                tag: "error"
-              };
-            } finally {
-            }
+            return {
+              text: "复制内容到剪贴板：Test GM_setClipboard",
+              tag: "info",
+              afterRender(container) {
+                let $button = domUtils.parseHTML(
+                  /*html*/
+                  `
+								<div class="pops-panel-button pops-panel-button-no-icon">
+									<button class="pops-panel-button_inner" type="default">
+										<i class="pops-bottom-icon" is-loading="false"></i>
+										<span class="pops-panel-button-text">点击测试</span>
+									</button>
+								</div>
+							`,
+                  false,
+                  false
+                );
+                domUtils.after(container.$leftContainer, $button);
+                let timeId;
+                domUtils.on($button, "click", (event) => {
+                  utils.preventEvent(event);
+                  clearTimeout(timeId);
+                  qmsg.info("等待3s内触发成功复制的回调");
+                  timeId = setTimeout(() => {
+                    TagUtil.setTag(
+                      container.$leftText,
+                      "error",
+                      "不支持触发回调函数"
+                    );
+                  }, 3e3);
+                  _GM_setClipboard("Test GM_setClipboard", "text", () => {
+                    clearTimeout(timeId);
+                    TagUtil.setTag(
+                      container.$leftText,
+                      "success",
+                      "支持触发回调函数"
+                    );
+                  });
+                });
+              }
+            };
           })
         );
       }
       return result2;
     }
   }
-  class ApiTest_setValue extends ApiTestBase {
+  class ApiTest_setValue extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_setValue === "function";
     }
@@ -22351,7 +22391,7 @@
       return result2;
     }
   }
-  class ApiTest_setValues extends ApiTestBase {
+  class ApiTest_setValues extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_setValues === "function";
     }
@@ -22432,7 +22472,7 @@
       return result2;
     }
   }
-  class ApiTest_unregisterMenuCommand extends ApiTestBase {
+  class ApiTest_unregisterMenuCommand extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_unregisterMenuCommand === "function";
     }
@@ -22548,7 +22588,7 @@
       return result2;
     }
   }
-  class ApiTest_unsafeWindow extends ApiTestBase {
+  class ApiTest_unsafeWindow extends ApiAsyncTestBase {
     getApiName() {
       return "unsafeWindow";
     }
@@ -22618,7 +22658,7 @@
       return result2;
     }
   }
-  class ApiTest_webRequest extends ApiTestBase {
+  class ApiTest_webRequest extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_webRequest === "function";
     }
@@ -22699,7 +22739,7 @@
       return result2;
     }
   }
-  class ApiTest_xmlHttpRequest extends ApiTestBase {
+  class ApiTest_xmlHttpRequest extends ApiAsyncTestBase {
     isSupport() {
       return typeof _GM_xmlhttpRequest === "function";
     }
@@ -22780,7 +22820,7 @@
       return result2;
     }
   }
-  class ApiTest_GM extends ApiTestBase {
+  class ApiTest_GM extends ApiAsyncTestBase {
     getApiName() {
       return "GM";
     }
@@ -23201,6 +23241,135 @@
       }
     }
   };
+  class GrantTest_onurlchange extends ApiTestBase {
+    getApiName() {
+      return "window.onurlchange ";
+    }
+    getAsyncApiOption() {
+      return void 0;
+    }
+    isSupport() {
+      return true;
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: [
+              UIInfo(() => {
+                return {
+                  text: "TODO",
+                  tag: "info",
+                  afterRender(container) {
+                  }
+                };
+              })
+            ]
+          }
+        ]
+      };
+      return result2;
+    }
+  }
+  class GrantTest_close extends ApiTestBase {
+    getApiName() {
+      return "window.close ";
+    }
+    getAsyncApiOption() {
+      return void 0;
+    }
+    isSupport() {
+      return true;
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: [
+              UIInfo(() => {
+                return {
+                  text: "TODO",
+                  tag: "info",
+                  afterRender(container) {
+                  }
+                };
+              })
+            ]
+          }
+        ]
+      };
+      return result2;
+    }
+  }
+  class GrantTest_focus extends ApiTestBase {
+    getApiName() {
+      return "window.focus ";
+    }
+    getAsyncApiOption() {
+      return void 0;
+    }
+    isSupport() {
+      return true;
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let result2 = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${apiName}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        callback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        forms: [
+          {
+            type: "forms",
+            text: "功能测试",
+            forms: [
+              UIInfo(() => {
+                return {
+                  text: "TODO",
+                  tag: "info",
+                  afterRender(container) {
+                  }
+                };
+              })
+            ]
+          }
+        ]
+      };
+      return result2;
+    }
+  }
   const PopsPanel = {
     /** 数据 */
     $data: {
@@ -23735,6 +23904,9 @@
           configList.push(option);
         }
       });
+      configList.push(new GrantTest_onurlchange().getUIOption());
+      configList.push(new GrantTest_close().getUIOption());
+      configList.push(new GrantTest_focus().getUIOption());
       return configList;
     }
   };

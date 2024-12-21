@@ -1,18 +1,14 @@
-import type {
-	PopsPanelContentConfig,
-	PopsPanelFormsTotalDetails,
-} from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { ApiTestBase } from "../ApiTestBase";
+import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import { GM } from "ViteGM";
 
-export class ApiTest_GM extends ApiTestBase {
-	public getApiName(): string {
+export class ApiTest_GM extends ApiAsyncTestBase {
+	public getApiName() {
 		return "GM";
 	}
-	public getAsyncApiOption(): { name: string; isSupport: boolean } | undefined {
+	public getAsyncApiOption() {
 		return void 0;
 	}
-	public isSupport(): boolean {
+	public isSupport() {
 		return typeof GM === "object" && GM != null;
 	}
 	public getUIOption() {
