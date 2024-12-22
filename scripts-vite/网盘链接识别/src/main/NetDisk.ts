@@ -9,6 +9,7 @@ import { WebsiteRule } from "./website-rule/WebsiteRule";
 import { WebsiteRuleDataKey } from "./data/NetDiskRuleDataKey";
 import { NetDiskHandlerUtil } from "@/utils/NetDiskHandlerUtil";
 import { CharacterMapping } from "./character-mapping/CharacterMapping";
+import { PopsPanel } from "@/setting/setting";
 
 export const NetDisk = {
 	$data: {
@@ -120,6 +121,10 @@ export const NetDisk = {
 					return text;
 				},
 				callback: () => {
+					log.info("当前网址：" + self.location.href);
+					if (!PopsPanel.isTopWindow()) {
+						return;
+					}
 					alert(
 						"以下是命中的规则名：\n" +
 							matchedUrlRuleList.map((item) => item.name).join("\n")
@@ -141,6 +146,10 @@ export const NetDisk = {
 					return text;
 				},
 				callback: () => {
+					log.info("当前网址：" + self.location.href);
+					if (!PopsPanel.isTopWindow()) {
+						return;
+					}
 					alert(
 						"以下是命中的规则名：\n" +
 							characterMapping.map((item) => item.name).join("\n")
