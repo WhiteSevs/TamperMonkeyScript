@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.21
+// @version      2024.12.22
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -21219,7 +21219,11 @@
                   );
                   domUtils.on($button, "click", (event) => {
                     utils.preventEvent(event);
-                    _GM_log(logText);
+                    try {
+                      _GM_log(logText);
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    }
                   });
                   domUtils.after(container.$leftContainer, $button);
                 }
@@ -21329,85 +21333,93 @@
                   let timeId = void 0;
                   let intervalId = void 0;
                   let updateText = utils.debounce(() => {
-                    clearTimeout(timeId);
-                    clearInterval(intervalId);
-                    let clickText = "";
-                    let clickTag = "success";
-                    let doneText = "";
-                    let doneTag = "success";
-                    if (isClick) {
-                      clickText += "支持 onclick 函数";
-                      if (isPrevent) {
-                        clickText = clickText.trim();
-                        clickText += "且支持提供 event 参数";
+                    try {
+                      clearTimeout(timeId);
+                      clearInterval(intervalId);
+                      let clickText = "";
+                      let clickTag = "success";
+                      let doneText = "";
+                      let doneTag = "success";
+                      if (isClick) {
+                        clickText += "支持 onclick 函数";
+                        if (isPrevent) {
+                          clickText = clickText.trim();
+                          clickText += "且支持提供 event 参数";
+                        } else {
+                          clickText += "但是不支持提供 event 参数";
+                          clickTag = "warn";
+                        }
                       } else {
-                        clickText += "但是不支持提供 event 参数";
-                        clickTag = "warn";
+                        clickText += "不支持 onclick 函数";
+                        clickTag = "error";
                       }
-                    } else {
-                      clickText += "不支持 onclick 函数";
-                      clickTag = "error";
-                    }
-                    if (isDone) {
-                      doneText += "支持 ondone 函数";
-                    } else {
-                      doneText += "不支持 ondone 函数";
-                      doneTag = "error";
-                    }
-                    domUtils.html(
-                      container.$leftText,
-                      /*html*/
-                      `
+                      if (isDone) {
+                        doneText += "支持 ondone 函数";
+                      } else {
+                        doneText += "不支持 ondone 函数";
+                        doneTag = "error";
+                      }
+                      domUtils.html(
+                        container.$leftText,
+                        /*html*/
+                        `
 										<p class="${clickTag}">${clickText}</p>
 										<p class="${doneTag}">${doneText}</p>
 									`
-                    );
-                    isClick = false;
-                    isDone = false;
-                    isPrevent = false;
+                      );
+                      isClick = false;
+                      isDone = false;
+                      isPrevent = false;
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    }
                   }, 800);
                   domUtils.on($button, "click", (event) => {
-                    utils.preventEvent(event);
-                    clearTimeout(timeId);
-                    clearInterval(intervalId);
-                    let timeCount = 10;
-                    let calcTimeCount = timeCount;
-                    let tipInfoText = () => {
-                      let result22 = `正在等待触发回调，请在规定时间内点击弹窗的【关闭】按钮或者内容：${calcTimeCount}s`;
-                      calcTimeCount--;
-                      return result22;
-                    };
-                    domUtils.text(container.$leftText, tipInfoText());
-                    domUtils.text(container.$leftDesc, this.text);
-                    domUtils.show(container.$leftDesc, false);
-                    timeId = setTimeout(() => {
+                    try {
+                      utils.preventEvent(event);
+                      clearTimeout(timeId);
                       clearInterval(intervalId);
-                      TagUtil.setTag(
-                        container.$leftText,
-                        "error",
-                        "测试超时，未触发回调"
-                      );
-                    }, timeCount * 1e3);
-                    intervalId = setInterval(() => {
+                      let timeCount = 10;
+                      let calcTimeCount = timeCount;
+                      let tipInfoText = () => {
+                        let result22 = `正在等待触发回调，请在规定时间内点击弹窗的【关闭】按钮或者内容：${calcTimeCount}s`;
+                        calcTimeCount--;
+                        return result22;
+                      };
                       domUtils.text(container.$leftText, tipInfoText());
-                    }, 1e3);
-                    _GM_notification({
-                      title: "测试 GM_notification 标题",
-                      text: "测试 GM_notification 内容",
-                      url: "https:/example.com/",
-                      onclick: (event2) => {
-                        isClick = true;
-                        if (event2) {
-                          isPrevent = true;
-                          event2.preventDefault();
+                      domUtils.text(container.$leftDesc, this.text);
+                      domUtils.show(container.$leftDesc, false);
+                      timeId = setTimeoutLog(() => {
+                        clearInterval(intervalId);
+                        TagUtil.setTag(
+                          container.$leftText,
+                          "error",
+                          "测试超时，未触发回调"
+                        );
+                      }, timeCount * 1e3);
+                      intervalId = setInterval(() => {
+                        domUtils.text(container.$leftText, tipInfoText());
+                      }, 1e3);
+                      _GM_notification({
+                        title: "测试 GM_notification 标题",
+                        text: "测试 GM_notification 内容",
+                        url: "https:/example.com/",
+                        onclick: (event2) => {
+                          isClick = true;
+                          if (event2) {
+                            isPrevent = true;
+                            event2.preventDefault();
+                          }
+                          updateText();
+                        },
+                        ondone() {
+                          isDone = true;
+                          updateText();
                         }
-                        updateText();
-                      },
-                      ondone() {
-                        isDone = true;
-                        updateText();
-                      }
-                    });
+                      });
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    }
                   });
                   domUtils.after($info, $button);
                 }
@@ -21443,11 +21455,15 @@
                   );
                   domUtils.on($button, "click", (event) => {
                     utils.preventEvent(event);
-                    _GM_notification({
-                      title: "测试 GM_notification 标题",
-                      text: "测试 GM_notification 内容",
-                      url: "https:/example.com/"
-                    });
+                    try {
+                      _GM_notification({
+                        title: "测试 GM_notification 标题",
+                        text: "测试 GM_notification 内容",
+                        url: "https:/example.com/"
+                      });
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    }
                   });
                   domUtils.after(container.$leftContainer, $button);
                 }
@@ -21547,37 +21563,41 @@
                     false
                   );
                   domUtils.on($button, "click", (event) => {
-                    utils.preventEvent(event);
-                    domUtils.text(container.$leftDesc, this.text);
-                    domUtils.show(container.$leftDesc, false);
-                    let result22 = _GM_openInTab("https://www.example.com/");
-                    if (typeof result22 === "object") {
-                      if (result22 == null) {
-                        TagUtil.setTag(
-                          container.$leftText,
-                          "error",
-                          "返回值为null"
-                        );
-                      } else {
-                        let support_close = "close" in result22 && typeof result22.close === "function";
-                        let support_closed = "closed" in result22 && typeof result22.closed === "boolean";
-                        let support_onclose = "onclose" in result22;
-                        domUtils.html(
-                          container.$leftText,
-                          /*html*/
-                          `
+                    try {
+                      utils.preventEvent(event);
+                      domUtils.text(container.$leftDesc, this.text);
+                      domUtils.show(container.$leftDesc, false);
+                      let result22 = _GM_openInTab("https://www.example.com/");
+                      if (typeof result22 === "object") {
+                        if (result22 == null) {
+                          TagUtil.setTag(
+                            container.$leftText,
+                            "error",
+                            "返回值为null"
+                          );
+                        } else {
+                          let support_close = "close" in result22 && typeof result22.close === "function";
+                          let support_closed = "closed" in result22 && typeof result22.closed === "boolean";
+                          let support_onclose = "onclose" in result22;
+                          domUtils.html(
+                            container.$leftText,
+                            /*html*/
+                            `
 											<p class="${support_close ? "success" : "error"}">${support_close ? "支持 .close()" : "不支持 .close()"}</p>
 											<p class="${support_closed ? "success" : "error"}">${support_close ? "支持 .closed" : "不支持 .closed"}</p>
 											<p class="${support_onclose ? "success" : "error"}">${support_close ? "支持设置属性 .onclose" : "不支持设置属性 .onclose"}</p>
 										`
+                          );
+                        }
+                      } else {
+                        TagUtil.setTag(
+                          container.$leftText,
+                          "error",
+                          "返回值不是对象：" + typeof result22
                         );
                       }
-                    } else {
-                      TagUtil.setTag(
-                        container.$leftText,
-                        "error",
-                        "返回值不是对象：" + typeof result22
-                      );
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), { consoleLogContent: true });
                     }
                   });
                   domUtils.after(container.$leftContainer, $button);
@@ -21622,35 +21642,39 @@
                     );
                   };
                   domUtils.on($button, "click", (event) => {
-                    utils.preventEvent(event);
-                    domUtils.off(_unsafeWindow, "blur", blurEvent, {
-                      capture: true
-                    });
-                    clearTimeout(timeId);
-                    TagUtil.setTag(
-                      container.$leftText,
-                      "info",
-                      "等待页面失去焦点..."
-                    );
-                    domUtils.text(container.$leftDesc, this.text);
-                    domUtils.show(container.$leftDesc, false);
-                    domUtils.on(_unsafeWindow, "blur", blurEvent, {
-                      capture: true,
-                      once: true
-                    });
-                    _GM_openInTab("https://www.example.com/", {
-                      active: true
-                    });
-                    timeId = setTimeout(() => {
+                    try {
+                      utils.preventEvent(event);
                       domUtils.off(_unsafeWindow, "blur", blurEvent, {
                         capture: true
                       });
+                      clearTimeout(timeId);
                       TagUtil.setTag(
                         container.$leftText,
-                        "error",
-                        "测试超时，未打开新标签页并获取焦点"
+                        "info",
+                        "等待页面失去焦点..."
                       );
-                    }, 3e3);
+                      domUtils.text(container.$leftDesc, this.text);
+                      domUtils.show(container.$leftDesc, false);
+                      domUtils.on(_unsafeWindow, "blur", blurEvent, {
+                        capture: true,
+                        once: true
+                      });
+                      _GM_openInTab("https://www.example.com/", {
+                        active: true
+                      });
+                      timeId = setTimeoutLog(() => {
+                        domUtils.off(_unsafeWindow, "blur", blurEvent, {
+                          capture: true
+                        });
+                        TagUtil.setTag(
+                          container.$leftText,
+                          "error",
+                          "测试超时，未打开新标签页并获取焦点"
+                        );
+                      }, 3e3);
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    }
                   });
                   domUtils.after(container.$leftContainer, $button);
                 }
@@ -21685,39 +21709,43 @@
                   );
                   let timeId;
                   domUtils.on($button, "click", (event) => {
-                    utils.preventEvent(event);
-                    clearTimeout(timeId);
-                    TagUtil.setTag(
-                      container.$leftText,
-                      "info",
-                      "等待调用 .close()"
-                    );
-                    domUtils.text(container.$leftDesc, this.text);
-                    domUtils.show(container.$leftDesc, false);
-                    let result22 = _GM_openInTab("https://www.example.com/");
-                    if (result22 && typeof (result22 == null ? void 0 : result22.close) === "function") {
-                      timeId = setTimeout(() => {
-                        try {
-                          result22.close();
-                          TagUtil.setTag(
-                            container.$leftText,
-                            "success",
-                            "成功调用 .close()"
-                          );
-                        } catch (error2) {
-                          TagUtil.setTag(
-                            container.$leftText,
-                            "error",
-                            "调用 .close() 方法失败 " + error2
-                          );
-                        }
-                      }, 1e3);
-                    } else {
+                    try {
+                      utils.preventEvent(event);
+                      clearTimeout(timeId);
                       TagUtil.setTag(
                         container.$leftText,
-                        "error",
-                        "返回对象中不支持 .close() 方法"
+                        "info",
+                        "等待调用 .close()"
                       );
+                      domUtils.text(container.$leftDesc, this.text);
+                      domUtils.show(container.$leftDesc, false);
+                      let result22 = _GM_openInTab("https://www.example.com/");
+                      if (result22 && typeof (result22 == null ? void 0 : result22.close) === "function") {
+                        timeId = setTimeoutLog(() => {
+                          try {
+                            result22.close();
+                            TagUtil.setTag(
+                              container.$leftText,
+                              "success",
+                              "成功调用 .close()"
+                            );
+                          } catch (error2) {
+                            TagUtil.setTag(
+                              container.$leftText,
+                              "error",
+                              "调用 .close() 方法失败 " + error2
+                            );
+                          }
+                        }, 1e3);
+                      } else {
+                        TagUtil.setTag(
+                          container.$leftText,
+                          "error",
+                          "返回对象中不支持 .close() 方法"
+                        );
+                      }
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), { consoleLogContent: true });
                     }
                   });
                   domUtils.after(container.$leftContainer, $button);
@@ -21754,53 +21782,57 @@
                   let timeId;
                   let timeId2;
                   domUtils.on($button, "click", (event) => {
-                    utils.preventEvent(event);
-                    clearTimeout(timeId2);
-                    clearTimeout(timeId);
-                    TagUtil.setTag(
-                      container.$leftText,
-                      "info",
-                      "等待触发监听 .onclose"
-                    );
-                    domUtils.text(container.$leftDesc, this.text);
-                    domUtils.show(container.$leftDesc, false);
-                    let result22 = _GM_openInTab("https://www.example.com/");
-                    if (typeof result22 === "object" && result22 != null) {
-                      result22.onclose = () => {
-                        clearTimeout(timeId);
-                        clearTimeout(timeId2);
-                        TagUtil.setTag(
-                          container.$leftText,
-                          "success",
-                          "成功触发 .onclose"
-                        );
-                      };
-                    }
-                    if (result22 && typeof (result22 == null ? void 0 : result22.close) === "function") {
-                      timeId = setTimeout(() => {
-                        try {
-                          result22.close();
-                          timeId2 = setTimeout(() => {
+                    try {
+                      utils.preventEvent(event);
+                      clearTimeout(timeId2);
+                      clearTimeout(timeId);
+                      TagUtil.setTag(
+                        container.$leftText,
+                        "info",
+                        "等待触发监听 .onclose"
+                      );
+                      domUtils.text(container.$leftDesc, this.text);
+                      domUtils.show(container.$leftDesc, false);
+                      let result22 = _GM_openInTab("https://www.example.com/");
+                      if (typeof result22 === "object" && result22 != null) {
+                        result22.onclose = () => {
+                          clearTimeout(timeId);
+                          clearTimeout(timeId2);
+                          TagUtil.setTag(
+                            container.$leftText,
+                            "success",
+                            "成功触发 .onclose"
+                          );
+                        };
+                      }
+                      if (result22 && typeof (result22 == null ? void 0 : result22.close) === "function") {
+                        timeId = setTimeoutLog(() => {
+                          try {
+                            result22.close();
+                            timeId2 = setTimeoutLog(() => {
+                              TagUtil.setTag(
+                                container.$leftText,
+                                "error",
+                                "测试超时，未触发回调 .onclose"
+                              );
+                            }, 2e3);
+                          } catch (error2) {
                             TagUtil.setTag(
                               container.$leftText,
                               "error",
-                              "测试超时，未触发回调 .onclose"
+                              "调用 .close() 方法失败 " + error2
                             );
-                          }, 2e3);
-                        } catch (error2) {
-                          TagUtil.setTag(
-                            container.$leftText,
-                            "error",
-                            "调用 .close() 方法失败 " + error2
-                          );
-                        }
-                      }, 1e3);
-                    } else {
-                      TagUtil.setTag(
-                        container.$leftText,
-                        "error",
-                        "返回对象中不支持 .close() 方法"
-                      );
+                          }
+                        }, 1e3);
+                      } else {
+                        TagUtil.setTag(
+                          container.$leftText,
+                          "error",
+                          "返回对象中不支持 .close() 方法"
+                        );
+                      }
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), { consoleLogContent: true });
                     }
                   });
                   domUtils.after(container.$leftContainer, $button);
@@ -21903,68 +21935,84 @@
                   let timeId;
                   let intervalId;
                   domUtils.on($button, "click", (event) => {
-                    utils.preventEvent(event);
-                    clearTimeout(timeId);
-                    clearInterval(intervalId);
-                    domUtils.text(container.$leftDesc, this.text);
-                    domUtils.show(container.$leftDesc, false);
-                    let intervalCheckCount = 10;
-                    let setCheckText = () => {
-                      let result22 = `已执行注册菜单，请在${intervalCheckCount}s内点击菜单项`;
-                      intervalCheckCount--;
-                      return result22;
-                    };
-                    TagUtil.setTag(container.$leftText, "info", setCheckText());
-                    intervalId = setInterval(() => {
-                      TagUtil.setTag(container.$leftText, "info", setCheckText());
-                    }, 1e3);
-                    timeId = setTimeout(() => {
+                    try {
+                      utils.preventEvent(event);
+                      clearTimeout(timeId);
                       clearInterval(intervalId);
-                      TagUtil.setTag(
-                        container.$leftText,
-                        "error",
-                        "测试超时，未触发回调"
-                      );
-                    }, 10 * 1e3);
-                    const menuCommandId = _GM_registerMenuCommand(
-                      "Test Menu",
-                      (event2) => {
-                        clearInterval(intervalId);
-                        clearTimeout(timeId);
-                        TagUtil.clearTag(container.$leftText);
-                        let checkResultText = [];
-                        checkResultText.push({
-                          tag: "success",
-                          text: "支持注册菜单"
-                        });
-                        if (event2) {
-                          checkResultText.push({
-                            tag: "success",
-                            text: "支持点击回调且有event参数"
-                          });
-                        } else {
-                          checkResultText.push({
-                            tag: "warn",
-                            text: "支持点击回调但是没有event参数"
-                          });
-                        }
-                        if (typeof menuCommandId === "number" || typeof menuCommandId === "string") {
-                          checkResultText.push({
-                            tag: "success",
-                            text: "函数返回值是string|number"
-                          });
-                        } else {
-                          checkResultText.push({
-                            tag: "error",
-                            text: "函数返回值不是string|number：" + typeof menuCommandId
-                          });
-                        }
-                        domUtils.html(
+                      domUtils.text(container.$leftDesc, this.text);
+                      domUtils.show(container.$leftDesc, false);
+                      let intervalCheckCount = 10;
+                      let setCheckText = () => {
+                        let result22 = `已执行注册菜单，请在${intervalCheckCount}s内点击菜单项`;
+                        intervalCheckCount--;
+                        return result22;
+                      };
+                      TagUtil.setTag(container.$leftText, "info", setCheckText());
+                      intervalId = setInterval(() => {
+                        TagUtil.setTag(
                           container.$leftText,
-                          checkResultText.map((it) => `<p class="${it.tag}">${it.text}</p>`).join("\n")
+                          "info",
+                          setCheckText()
                         );
-                      }
-                    );
+                      }, 1e3);
+                      timeId = setTimeoutLog(() => {
+                        clearInterval(intervalId);
+                        TagUtil.setTag(
+                          container.$leftText,
+                          "error",
+                          "测试超时，未触发回调"
+                        );
+                      }, 10 * 1e3);
+                      const menuCommandId = _GM_registerMenuCommand(
+                        "Test Menu",
+                        (event2) => {
+                          try {
+                            clearInterval(intervalId);
+                            clearTimeout(timeId);
+                            TagUtil.clearTag(container.$leftText);
+                            let checkResultText = [];
+                            checkResultText.push({
+                              tag: "success",
+                              text: "支持注册菜单"
+                            });
+                            if (event2) {
+                              checkResultText.push({
+                                tag: "success",
+                                text: "支持点击回调且有event参数"
+                              });
+                            } else {
+                              checkResultText.push({
+                                tag: "warn",
+                                text: "支持点击回调但是没有event参数"
+                              });
+                            }
+                            if (typeof menuCommandId === "number" || typeof menuCommandId === "string") {
+                              checkResultText.push({
+                                tag: "success",
+                                text: "函数返回值是string|number"
+                              });
+                            } else {
+                              checkResultText.push({
+                                tag: "error",
+                                text: "函数返回值不是string|number：" + typeof menuCommandId
+                              });
+                            }
+                            domUtils.html(
+                              container.$leftText,
+                              checkResultText.map(
+                                (it) => `<p class="${it.tag}">${it.text}</p>`
+                              ).join("\n")
+                            );
+                          } catch (error2) {
+                            qmsg.error(error2.toString(), {
+                              consoleLogContent: true
+                            });
+                          }
+                        }
+                      );
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    }
                   });
                 }
               };
@@ -22000,28 +22048,32 @@
                   domUtils.after(container.$leftContainer, $button);
                   let timeId;
                   domUtils.on($button, "click", (event) => {
-                    utils.preventEvent(event);
-                    clearTimeout(timeId);
-                    const menuCommandId = _GM_registerMenuCommand(
-                      "Test Update Menu",
-                      (event2) => {
-                      }
-                    );
-                    qmsg.info("已注册菜单，3s后自动更新", {
-                      timeout: 3e3
-                    });
-                    clearTimeout(timeId);
-                    timeId = setTimeout(() => {
-                      _GM_registerMenuCommand(
-                        "Test Update Menu Success!!!",
-                        () => {
-                        },
-                        {
-                          id: menuCommandId
+                    try {
+                      utils.preventEvent(event);
+                      clearTimeout(timeId);
+                      const menuCommandId = _GM_registerMenuCommand(
+                        "Test Update Menu",
+                        (event2) => {
                         }
                       );
-                      qmsg.success("已执行更新菜单命令，请自行验证");
-                    }, 3e3);
+                      qmsg.info("已注册菜单，3s后自动更新", {
+                        timeout: 3e3
+                      });
+                      clearTimeout(timeId);
+                      timeId = setTimeoutLog(() => {
+                        _GM_registerMenuCommand(
+                          "Test Update Menu Success!!!",
+                          () => {
+                          },
+                          {
+                            id: menuCommandId
+                          }
+                        );
+                        qmsg.success("已执行更新菜单命令，请自行验证");
+                      }, 3e3);
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    }
                   });
                 }
               };
@@ -22283,24 +22335,28 @@
                 domUtils.after(container.$leftContainer, $button);
                 let timeId;
                 domUtils.on($button, "click", (event) => {
-                  utils.preventEvent(event);
-                  clearTimeout(timeId);
-                  qmsg.info("等待3s内触发成功复制的回调");
-                  timeId = setTimeout(() => {
-                    TagUtil.setTag(
-                      container.$leftText,
-                      "error",
-                      "不支持触发回调函数"
-                    );
-                  }, 3e3);
-                  _GM_setClipboard("Test GM_setClipboard", "text", () => {
+                  try {
+                    utils.preventEvent(event);
                     clearTimeout(timeId);
-                    TagUtil.setTag(
-                      container.$leftText,
-                      "success",
-                      "支持触发回调函数"
-                    );
-                  });
+                    qmsg.info("等待3s内触发成功复制的回调");
+                    timeId = setTimeoutLog(() => {
+                      TagUtil.setTag(
+                        container.$leftText,
+                        "error",
+                        "不支持触发回调函数"
+                      );
+                    }, 3e3);
+                    _GM_setClipboard("Test GM_setClipboard", "text", () => {
+                      clearTimeout(timeId);
+                      TagUtil.setTag(
+                        container.$leftText,
+                        "success",
+                        "支持触发回调函数"
+                      );
+                    });
+                  } catch (error2) {
+                    qmsg.error(error2.toString(), { consoleLogContent: true });
+                  }
                 });
               }
             };
@@ -22371,20 +22427,87 @@
       };
       if (this.isSupport()) {
         result2["forms"][1].forms.push(
-          UIInfo(() => {
-            try {
-              return {
-                text: CommonUtil.escapeHtml("TODO"),
-                tag: "info"
-              };
-            } catch (error2) {
-              console.error(error2);
-              return {
-                text: "执行错误 " + error2,
-                tag: "error"
-              };
-            } finally {
+          ...[
+            {
+              key: "Test boolean",
+              value: true,
+              text: function() {
+                return `存储boolean类型 ==> "${this.key}": ${this.value}`;
+              }
+            },
+            {
+              key: "Test number",
+              value: 1,
+              text: function() {
+                return `存储number类型 ==> "${this.key}": ${this.value}`;
+              }
+            },
+            {
+              key: "Test string",
+              value: "测试字符串",
+              text: function() {
+                return `存储string类型 ==> "${this.key}": "${this.value}"`;
+              }
+            },
+            {
+              key: "Test undefined",
+              value: void 0,
+              text: function() {
+                return `存储undefined类型 ==> "${this.key}": ${this.value}`;
+              }
+            },
+            {
+              key: "Test null",
+              value: null,
+              text: function() {
+                return `存储object类型的null ==> "${this.key}": ${this.value}`;
+              }
+            },
+            {
+              key: "Test object",
+              value: { "object key": "object value" },
+              text: function() {
+                return `存储object类型 ==> "${this.key}": ${JSON.stringify(
+                this.value
+              )}`;
+              }
             }
+          ].map((it) => {
+            return (() => {
+              let localStorageDataKey = it.key;
+              let localStorageDataValue = it.value;
+              return UIInfo(() => {
+                return {
+                  text: it.text(),
+                  tag: "info",
+                  afterRender(container) {
+                    let $button = domUtils.parseHTML(
+                      /*html*/
+                      `
+										<div class="pops-panel-button pops-panel-button-no-icon">
+											<button class="pops-panel-button_inner" type="default">
+												<i class="pops-bottom-icon" is-loading="false"></i>
+												<span class="pops-panel-button-text">点击测试</span>
+											</button>
+										</div>
+									`,
+                      false,
+                      false
+                    );
+                    domUtils.after(container.$leftContainer, $button);
+                    domUtils.on($button, "click", (event) => {
+                      utils.preventEvent(event);
+                      try {
+                        _GM_setValue(localStorageDataKey, localStorageDataValue);
+                        qmsg.info("执行写入完毕，请自行查看是否成功写入");
+                      } catch (error2) {
+                        qmsg.error(error2.toString(), { consoleLogContent: true });
+                      }
+                    });
+                  }
+                };
+              });
+            })();
           })
         );
       }
@@ -22556,21 +22679,25 @@
                   domUtils.after(container.$leftContainer, $button);
                   let timeId;
                   domUtils.on($button, "click", (event) => {
-                    utils.preventEvent(event);
-                    clearTimeout(timeId);
-                    const menuCommandId = _GM_registerMenuCommand(
-                      "Test UnRegister Menu",
-                      (event2) => {
-                      }
-                    );
-                    qmsg.info("已注册菜单，10s后自动执行卸载", {
-                      timeout: 5 * 1e3
-                    });
-                    clearTimeout(timeId);
-                    timeId = setTimeout(() => {
-                      _GM_unregisterMenuCommand(menuCommandId);
-                      qmsg.success("已执行卸载菜单命令，请自行验证");
-                    }, 10 * 1e3);
+                    try {
+                      utils.preventEvent(event);
+                      clearTimeout(timeId);
+                      const menuCommandId = _GM_registerMenuCommand(
+                        "Test UnRegister Menu",
+                        (event2) => {
+                        }
+                      );
+                      qmsg.info("已注册菜单，10s后自动执行卸载", {
+                        timeout: 5 * 1e3
+                      });
+                      clearTimeout(timeId);
+                      timeId = setTimeoutLog(() => {
+                        _GM_unregisterMenuCommand(menuCommandId);
+                        qmsg.success("已执行卸载菜单命令，请自行验证");
+                      }, 10 * 1e3);
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    }
                   });
                 }
               };
@@ -23032,6 +23159,15 @@
 	
 注入到页面超级无敌快`;
   }
+  const setTimeoutLog = (handler, timeout, ...args2) => {
+    return setTimeout(() => {
+      try {
+        handler(...args2);
+      } catch (error2) {
+        qmsg.error(error2.toString(), { consoleLogContent: true });
+      }
+    }, timeout);
+  };
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";

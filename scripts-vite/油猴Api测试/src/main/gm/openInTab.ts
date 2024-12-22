@@ -5,7 +5,7 @@ import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/common-components/ui-info";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
-import { DOMUtils, utils } from "@/env";
+import { DOMUtils, setTimeoutLog, utils } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
 import Qmsg from "qmsg";
 import { TagUtil } from "@/setting/tag";
@@ -98,48 +98,53 @@ export class ApiTest_openInTab extends ApiAsyncTestBase {
 									false
 								);
 								DOMUtils.on($button, "click", (event) => {
-									utils.preventEvent(event);
-									DOMUtils.text(container.$leftDesc, this.text);
-									DOMUtils.show(container.$leftDesc, false);
-									let result = GM_openInTab("https://www.example.com/");
-									if (typeof result === "object") {
-										if (result == null) {
+									try {
+										utils.preventEvent(event);
+										DOMUtils.text(container.$leftDesc, this.text);
+										DOMUtils.show(container.$leftDesc, false);
+										let result = GM_openInTab("https://www.example.com/");
+										if (typeof result === "object") {
+											if (result == null) {
+												TagUtil.setTag(
+													container.$leftText,
+													"error",
+													"返回值为null"
+												);
+											} else {
+												let support_close =
+													"close" in result &&
+													typeof result.close === "function";
+												let support_closed =
+													"closed" in result &&
+													typeof result.closed === "boolean";
+												let support_onclose = "onclose" in result;
+
+												DOMUtils.html(
+													container.$leftText,
+													/*html*/ `
+											<p class="${support_close ? "success" : "error"}">${
+														support_close ? "支持 .close()" : "不支持 .close()"
+													}</p>
+											<p class="${support_closed ? "success" : "error"}">${
+														support_close ? "支持 .closed" : "不支持 .closed"
+													}</p>
+											<p class="${support_onclose ? "success" : "error"}">${
+														support_close
+															? "支持设置属性 .onclose"
+															: "不支持设置属性 .onclose"
+													}</p>
+										`
+												);
+											}
+										} else {
 											TagUtil.setTag(
 												container.$leftText,
 												"error",
-												"返回值为null"
-											);
-										} else {
-											let support_close =
-												"close" in result && typeof result.close === "function";
-											let support_closed =
-												"closed" in result &&
-												typeof result.closed === "boolean";
-											let support_onclose = "onclose" in result;
-
-											DOMUtils.html(
-												container.$leftText,
-												/*html*/ `
-											<p class="${support_close ? "success" : "error"}">${
-													support_close ? "支持 .close()" : "不支持 .close()"
-												}</p>
-											<p class="${support_closed ? "success" : "error"}">${
-													support_close ? "支持 .closed" : "不支持 .closed"
-												}</p>
-											<p class="${support_onclose ? "success" : "error"}">${
-													support_close
-														? "支持设置属性 .onclose"
-														: "不支持设置属性 .onclose"
-												}</p>
-										`
+												"返回值不是对象：" + typeof result
 											);
 										}
-									} else {
-										TagUtil.setTag(
-											container.$leftText,
-											"error",
-											"返回值不是对象：" + typeof result
-										);
+									} catch (error: any) {
+										Qmsg.error(error.toString(), { consoleLogContent: true });
 									}
 								});
 								DOMUtils.after(container.$leftContainer, $button);
@@ -183,36 +188,40 @@ export class ApiTest_openInTab extends ApiAsyncTestBase {
 									);
 								};
 								DOMUtils.on($button, "click", (event) => {
-									utils.preventEvent(event);
-									DOMUtils.off(unsafeWindow, "blur", blurEvent, {
-										capture: true,
-									});
-									clearTimeout(timeId);
-									TagUtil.setTag(
-										container.$leftText,
-										"info",
-										"等待页面失去焦点..."
-									);
-									DOMUtils.text(container.$leftDesc, this.text);
-									DOMUtils.show(container.$leftDesc, false);
-
-									DOMUtils.on(unsafeWindow, "blur", blurEvent, {
-										capture: true,
-										once: true,
-									});
-									GM_openInTab("https://www.example.com/", {
-										active: true,
-									});
-									timeId = setTimeout(() => {
+									try {
+										utils.preventEvent(event);
 										DOMUtils.off(unsafeWindow, "blur", blurEvent, {
 											capture: true,
 										});
+										clearTimeout(timeId);
 										TagUtil.setTag(
 											container.$leftText,
-											"error",
-											"测试超时，未打开新标签页并获取焦点"
+											"info",
+											"等待页面失去焦点..."
 										);
-									}, 3000);
+										DOMUtils.text(container.$leftDesc, this.text);
+										DOMUtils.show(container.$leftDesc, false);
+
+										DOMUtils.on(unsafeWindow, "blur", blurEvent, {
+											capture: true,
+											once: true,
+										});
+										GM_openInTab("https://www.example.com/", {
+											active: true,
+										});
+										timeId = setTimeoutLog(() => {
+											DOMUtils.off(unsafeWindow, "blur", blurEvent, {
+												capture: true,
+											});
+											TagUtil.setTag(
+												container.$leftText,
+												"error",
+												"测试超时，未打开新标签页并获取焦点"
+											);
+										}, 3000);
+									} catch (error: any) {
+										Qmsg.error(error.toString(), { consoleLogContent: true });
+									}
 								});
 								DOMUtils.after(container.$leftContainer, $button);
 							},
@@ -246,39 +255,43 @@ export class ApiTest_openInTab extends ApiAsyncTestBase {
 								);
 								let timeId: number;
 								DOMUtils.on($button, "click", (event) => {
-									utils.preventEvent(event);
-									clearTimeout(timeId);
-									TagUtil.setTag(
-										container.$leftText,
-										"info",
-										"等待调用 .close()"
-									);
-									DOMUtils.text(container.$leftDesc, this.text);
-									DOMUtils.show(container.$leftDesc, false);
-									let result = GM_openInTab("https://www.example.com/");
-									if (result && typeof result?.close === "function") {
-										timeId = setTimeout(() => {
-											try {
-												result.close();
-												TagUtil.setTag(
-													container.$leftText,
-													"success",
-													"成功调用 .close()"
-												);
-											} catch (error) {
-												TagUtil.setTag(
-													container.$leftText,
-													"error",
-													"调用 .close() 方法失败 " + error
-												);
-											}
-										}, 1000);
-									} else {
+									try {
+										utils.preventEvent(event);
+										clearTimeout(timeId);
 										TagUtil.setTag(
 											container.$leftText,
-											"error",
-											"返回对象中不支持 .close() 方法"
+											"info",
+											"等待调用 .close()"
 										);
+										DOMUtils.text(container.$leftDesc, this.text);
+										DOMUtils.show(container.$leftDesc, false);
+										let result = GM_openInTab("https://www.example.com/");
+										if (result && typeof result?.close === "function") {
+											timeId = setTimeoutLog(() => {
+												try {
+													result.close();
+													TagUtil.setTag(
+														container.$leftText,
+														"success",
+														"成功调用 .close()"
+													);
+												} catch (error) {
+													TagUtil.setTag(
+														container.$leftText,
+														"error",
+														"调用 .close() 方法失败 " + error
+													);
+												}
+											}, 1000);
+										} else {
+											TagUtil.setTag(
+												container.$leftText,
+												"error",
+												"返回对象中不支持 .close() 方法"
+											);
+										}
+									} catch (error: any) {
+										Qmsg.error(error.toString(), { consoleLogContent: true });
 									}
 								});
 								DOMUtils.after(container.$leftContainer, $button);
@@ -314,53 +327,57 @@ export class ApiTest_openInTab extends ApiAsyncTestBase {
 								let timeId: number;
 								let timeId2: number;
 								DOMUtils.on($button, "click", (event) => {
-									utils.preventEvent(event);
-									clearTimeout(timeId2);
-									clearTimeout(timeId);
-									TagUtil.setTag(
-										container.$leftText,
-										"info",
-										"等待触发监听 .onclose"
-									);
-									DOMUtils.text(container.$leftDesc, this.text);
-									DOMUtils.show(container.$leftDesc, false);
-									let result = GM_openInTab("https://www.example.com/");
-									if (typeof result === "object" && result != null) {
-										result.onclose = () => {
-											clearTimeout(timeId);
-											clearTimeout(timeId2);
-											TagUtil.setTag(
-												container.$leftText,
-												"success",
-												"成功触发 .onclose"
-											);
-										};
-									}
-									if (result && typeof result?.close === "function") {
-										timeId = setTimeout(() => {
-											try {
-												result.close();
-												timeId2 = setTimeout(() => {
+									try {
+										utils.preventEvent(event);
+										clearTimeout(timeId2);
+										clearTimeout(timeId);
+										TagUtil.setTag(
+											container.$leftText,
+											"info",
+											"等待触发监听 .onclose"
+										);
+										DOMUtils.text(container.$leftDesc, this.text);
+										DOMUtils.show(container.$leftDesc, false);
+										let result = GM_openInTab("https://www.example.com/");
+										if (typeof result === "object" && result != null) {
+											result.onclose = () => {
+												clearTimeout(timeId);
+												clearTimeout(timeId2);
+												TagUtil.setTag(
+													container.$leftText,
+													"success",
+													"成功触发 .onclose"
+												);
+											};
+										}
+										if (result && typeof result?.close === "function") {
+											timeId = setTimeoutLog(() => {
+												try {
+													result.close();
+													timeId2 = setTimeoutLog(() => {
+														TagUtil.setTag(
+															container.$leftText,
+															"error",
+															"测试超时，未触发回调 .onclose"
+														);
+													}, 2000);
+												} catch (error) {
 													TagUtil.setTag(
 														container.$leftText,
 														"error",
-														"测试超时，未触发回调 .onclose"
+														"调用 .close() 方法失败 " + error
 													);
-												}, 2000);
-											} catch (error) {
-												TagUtil.setTag(
-													container.$leftText,
-													"error",
-													"调用 .close() 方法失败 " + error
-												);
-											}
-										}, 1000);
-									} else {
-										TagUtil.setTag(
-											container.$leftText,
-											"error",
-											"返回对象中不支持 .close() 方法"
-										);
+												}
+											}, 1000);
+										} else {
+											TagUtil.setTag(
+												container.$leftText,
+												"error",
+												"返回对象中不支持 .close() 方法"
+											);
+										}
+									} catch (error: any) {
+										Qmsg.error(error.toString(), { consoleLogContent: true });
 									}
 								});
 								DOMUtils.after(container.$leftContainer, $button);

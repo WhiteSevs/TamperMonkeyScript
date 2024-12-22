@@ -8,6 +8,7 @@ import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/t
 import { DOMUtils, utils } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
+import Qmsg from "qmsg";
 
 export class ApiTest_log extends ApiAsyncTestBase {
 	public isSupport() {
@@ -98,7 +99,11 @@ export class ApiTest_log extends ApiAsyncTestBase {
 								);
 								DOMUtils.on($button, "click", (event) => {
 									utils.preventEvent(event);
-									GM_log(logText);
+									try {
+										GM_log(logText);
+									} catch (error: any) {
+										Qmsg.error(error.toString(), { consoleLogContent: true });
+									}
 								});
 								DOMUtils.after(container.$leftContainer, $button);
 							},

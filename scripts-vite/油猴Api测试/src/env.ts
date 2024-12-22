@@ -173,6 +173,22 @@ if (document.documentElement) {
 	
 注入到页面超级无敌快`;
 }
+/**
+ * 延迟执行，并捕捉异常
+ */
+const setTimeoutLog = (
+	handler: (...args: any[]) => void,
+	timeout: number,
+	...args: any[]
+) => {
+	return setTimeout(() => {
+		try {
+			handler(...args);
+		} catch (error: any) {
+			Qmsg.error(error.toString(), { consoleLogContent: true });
+		}
+	}, timeout);
+};
 
 export {
 	utils,
@@ -189,4 +205,5 @@ export {
 	$,
 	$$,
 	injectDocumentTime,
+	setTimeoutLog,
 };

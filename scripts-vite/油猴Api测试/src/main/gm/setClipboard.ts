@@ -1,11 +1,10 @@
 import { GM, GM_setClipboard } from "ViteGM";
-import { ApiTestBase } from "../base/ApiTestBase";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/common-components/ui-info";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
-import { DOMUtils, utils } from "@/env";
+import { DOMUtils, setTimeoutLog, utils } from "@/env";
 import { TagUtil } from "@/setting/tag";
 import Qmsg from "qmsg";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
@@ -98,24 +97,28 @@ export class ApiTest_setClipboard extends ApiAsyncTestBase {
 							// 点击事件
 							let timeId: number;
 							DOMUtils.on($button, "click", (event) => {
-								utils.preventEvent(event);
-								clearTimeout(timeId);
-								Qmsg.info("等待3s内触发成功复制的回调");
-								timeId = setTimeout(() => {
-									TagUtil.setTag(
-										container.$leftText,
-										"error",
-										"不支持触发回调函数"
-									);
-								}, 3000);
-								GM_setClipboard("Test GM_setClipboard", "text", () => {
+								try {
+									utils.preventEvent(event);
 									clearTimeout(timeId);
-									TagUtil.setTag(
-										container.$leftText,
-										"success",
-										"支持触发回调函数"
-									);
-								});
+									Qmsg.info("等待3s内触发成功复制的回调");
+									timeId = setTimeoutLog(() => {
+										TagUtil.setTag(
+											container.$leftText,
+											"error",
+											"不支持触发回调函数"
+										);
+									}, 3000);
+									GM_setClipboard("Test GM_setClipboard", "text", () => {
+										clearTimeout(timeId);
+										TagUtil.setTag(
+											container.$leftText,
+											"success",
+											"支持触发回调函数"
+										);
+									});
+								} catch (error: any) {
+									Qmsg.error(error.toString(), { consoleLogContent: true });
+								}
 							});
 						},
 					};

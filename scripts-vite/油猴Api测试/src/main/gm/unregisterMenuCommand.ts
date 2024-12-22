@@ -5,7 +5,7 @@ import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/common-components/ui-info";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
-import { DOMUtils, utils } from "@/env";
+import { DOMUtils, setTimeoutLog, utils } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { TagUtil } from "@/setting/tag";
 import Qmsg from "qmsg";
@@ -102,21 +102,25 @@ export class ApiTest_unregisterMenuCommand extends ApiAsyncTestBase {
 								// 点击事件
 								let timeId: number;
 								DOMUtils.on($button, "click", (event) => {
-									utils.preventEvent(event);
-									clearTimeout(timeId);
+									try {
+										utils.preventEvent(event);
+										clearTimeout(timeId);
 
-									const menuCommandId = GM_registerMenuCommand(
-										"Test UnRegister Menu",
-										(event) => {}
-									);
-									Qmsg.info("已注册菜单，10s后自动执行卸载", {
-										timeout: 5 * 1000,
-									});
-									clearTimeout(timeId);
-									timeId = setTimeout(() => {
-										GM_unregisterMenuCommand(menuCommandId);
-										Qmsg.success("已执行卸载菜单命令，请自行验证");
-									}, 10 * 1000);
+										const menuCommandId = GM_registerMenuCommand(
+											"Test UnRegister Menu",
+											(event) => {}
+										);
+										Qmsg.info("已注册菜单，10s后自动执行卸载", {
+											timeout: 5 * 1000,
+										});
+										clearTimeout(timeId);
+										timeId = setTimeoutLog(() => {
+											GM_unregisterMenuCommand(menuCommandId);
+											Qmsg.success("已执行卸载菜单命令，请自行验证");
+										}, 10 * 1000);
+									} catch (error: any) {
+										Qmsg.error(error.toString(), { consoleLogContent: true });
+									}
 								});
 							},
 						};

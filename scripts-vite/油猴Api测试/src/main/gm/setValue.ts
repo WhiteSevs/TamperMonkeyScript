@@ -5,9 +5,10 @@ import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/common-components/ui-info";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
-import { DOMUtils } from "@/env";
+import { DOMUtils, utils } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
+import Qmsg from "qmsg";
 
 export class ApiTest_setValue extends ApiAsyncTestBase {
 	public isSupport() {
@@ -76,20 +77,87 @@ export class ApiTest_setValue extends ApiAsyncTestBase {
 		};
 		if (this.isSupport()) {
 			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
-				UIInfo(() => {
-					try {
-						return {
-							text: CommonUtil.escapeHtml("TODO"),
-							tag: "info",
-						};
-					} catch (error) {
-						console.error(error);
-						return {
-							text: "执行错误 " + error,
-							tag: "error",
-						};
-					} finally {
-					}
+				...[
+					{
+						key: "Test boolean",
+						value: true,
+						text: function () {
+							return `存储boolean类型 ==> "${this.key}": ${this.value}`;
+						},
+					},
+					{
+						key: "Test number",
+						value: 1,
+						text: function () {
+							return `存储number类型 ==> "${this.key}": ${this.value}`;
+						},
+					},
+					{
+						key: "Test string",
+						value: "测试字符串",
+						text: function () {
+							return `存储string类型 ==> "${this.key}": "${this.value}"`;
+						},
+					},
+					{
+						key: "Test undefined",
+						value: undefined,
+						text: function () {
+							return `存储undefined类型 ==> "${this.key}": ${this.value}`;
+						},
+					},
+					{
+						key: "Test null",
+						value: null,
+						text: function () {
+							return `存储object类型的null ==> "${this.key}": ${this.value}`;
+						},
+					},
+					{
+						key: "Test object",
+						value: { "object key": "object value" },
+						text: function () {
+							return `存储object类型 ==> "${this.key}": ${JSON.stringify(
+								this.value
+							)}`;
+						},
+					},
+				].map((it) => {
+					return (() => {
+						let localStorageDataKey = it.key;
+						let localStorageDataValue = it.value;
+						return UIInfo(() => {
+							return {
+								text: it.text(),
+								tag: "info",
+								afterRender(container) {
+									let $button = DOMUtils.parseHTML(
+										/*html*/ `
+										<div class="pops-panel-button pops-panel-button-no-icon">
+											<button class="pops-panel-button_inner" type="default">
+												<i class="pops-bottom-icon" is-loading="false"></i>
+												<span class="pops-panel-button-text">点击测试</span>
+											</button>
+										</div>
+									`,
+										false,
+										false
+									);
+									DOMUtils.after(container.$leftContainer, $button);
+									// 点击事件
+									DOMUtils.on($button, "click", (event) => {
+										utils.preventEvent(event);
+										try {
+											GM_setValue(localStorageDataKey, localStorageDataValue);
+											Qmsg.info("执行写入完毕，请自行查看是否成功写入");
+										} catch (error: any) {
+											Qmsg.error(error.toString(), { consoleLogContent: true });
+										}
+									});
+								},
+							};
+						});
+					})();
 				})
 			);
 		}

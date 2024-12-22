@@ -5,10 +5,11 @@ import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/common-components/ui-info";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
-import { DOMUtils, utils } from "@/env";
+import { DOMUtils, setTimeoutLog, utils } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { TagUtil, type TagName } from "@/setting/tag";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
+import Qmsg from "qmsg";
 
 export class ApiTest_notification extends ApiAsyncTestBase {
 	public isSupport() {
@@ -107,88 +108,96 @@ export class ApiTest_notification extends ApiAsyncTestBase {
 								let timeId: number | undefined = void 0;
 								let intervalId: number | undefined = void 0;
 								let updateText = utils.debounce(() => {
-									clearTimeout(timeId);
-									clearInterval(intervalId);
-									let clickText = "";
-									let clickTag: TagName = "success";
-									let doneText = "";
-									let doneTag: TagName = "success";
-									if (isClick) {
-										clickText += "支持 onclick 函数";
-										if (isPrevent) {
-											clickText = clickText.trim();
-											clickText += "且支持提供 event 参数";
+									try {
+										clearTimeout(timeId);
+										clearInterval(intervalId);
+										let clickText = "";
+										let clickTag: TagName = "success";
+										let doneText = "";
+										let doneTag: TagName = "success";
+										if (isClick) {
+											clickText += "支持 onclick 函数";
+											if (isPrevent) {
+												clickText = clickText.trim();
+												clickText += "且支持提供 event 参数";
+											} else {
+												clickText += "但是不支持提供 event 参数";
+												clickTag = "warn";
+											}
 										} else {
-											clickText += "但是不支持提供 event 参数";
-											clickTag = "warn";
+											clickText += "不支持 onclick 函数";
+											clickTag = "error";
 										}
-									} else {
-										clickText += "不支持 onclick 函数";
-										clickTag = "error";
-									}
-									if (isDone) {
-										doneText += "支持 ondone 函数";
-									} else {
-										doneText += "不支持 ondone 函数";
-										doneTag = "error";
-									}
-									DOMUtils.html(
-										container.$leftText,
-										/*html*/ `
+										if (isDone) {
+											doneText += "支持 ondone 函数";
+										} else {
+											doneText += "不支持 ondone 函数";
+											doneTag = "error";
+										}
+										DOMUtils.html(
+											container.$leftText,
+											/*html*/ `
 										<p class="${clickTag}">${clickText}</p>
 										<p class="${doneTag}">${doneText}</p>
 									`
-									);
+										);
 
-									// 重置参数
-									isClick = false;
-									isDone = false;
-									isPrevent = false;
+										// 重置参数
+										isClick = false;
+										isDone = false;
+										isPrevent = false;
+									} catch (error: any) {
+										Qmsg.error(error.toString(), { consoleLogContent: true });
+									}
 								}, 800);
 								DOMUtils.on($button, "click", (event) => {
-									utils.preventEvent(event);
-									clearTimeout(timeId);
-									clearInterval(intervalId);
-									let timeCount = 10;
-									let calcTimeCount = timeCount;
-									let tipInfoText = () => {
-										let result = `正在等待触发回调，请在规定时间内点击弹窗的【关闭】按钮或者内容：${calcTimeCount}s`;
-										calcTimeCount--;
-										return result;
-									};
-									DOMUtils.text(container.$leftText, tipInfoText());
-									DOMUtils.text(container.$leftDesc, this.text);
-									DOMUtils.show(container.$leftDesc, false);
-									timeId = setTimeout(() => {
+									try {
+										utils.preventEvent(event);
+										clearTimeout(timeId);
 										clearInterval(intervalId);
-										TagUtil.setTag(
-											container.$leftText,
-											"error",
-											"测试超时，未触发回调"
-										);
-									}, timeCount * 1000);
-									intervalId = setInterval(() => {
+										let timeCount = 10;
+										let calcTimeCount = timeCount;
+										let tipInfoText = () => {
+											let result = `正在等待触发回调，请在规定时间内点击弹窗的【关闭】按钮或者内容：${calcTimeCount}s`;
+											calcTimeCount--;
+											return result;
+										};
 										DOMUtils.text(container.$leftText, tipInfoText());
-									}, 1000);
-									GM_notification({
-										title: "测试 GM_notification 标题",
-										text: "测试 GM_notification 内容",
-										url: "https:/example.com/",
-										onclick: (event) => {
-											// The userscript is still running, so don't open example.com
-											isClick = true;
-											if (event) {
-												isPrevent = true;
-												event.preventDefault();
-											}
-											// Display an alert message instead
-											updateText();
-										},
-										ondone() {
-											isDone = true;
-											updateText();
-										},
-									});
+										DOMUtils.text(container.$leftDesc, this.text);
+										DOMUtils.show(container.$leftDesc, false);
+										timeId = setTimeoutLog(() => {
+											clearInterval(intervalId);
+											TagUtil.setTag(
+												container.$leftText,
+												"error",
+												"测试超时，未触发回调"
+											);
+										}, timeCount * 1000);
+										intervalId = setInterval(() => {
+											DOMUtils.text(container.$leftText, tipInfoText());
+										}, 1000);
+										GM_notification({
+											title: "测试 GM_notification 标题",
+											text: "测试 GM_notification 内容",
+											url: "https:/example.com/",
+											onclick: (event) => {
+												// The userscript is still running, so don't open example.com
+												isClick = true;
+												if (event) {
+													isPrevent = true;
+													event.preventDefault();
+												}
+												// Display an alert message instead
+												updateText();
+											},
+											ondone() {
+												isDone = true;
+												updateText();
+											},
+										});
+									} catch (error: any) {
+										Qmsg.error(error.toString(), { consoleLogContent: true });
+									}
 								});
 								DOMUtils.after($info!, $button);
 							},
@@ -223,11 +232,15 @@ export class ApiTest_notification extends ApiAsyncTestBase {
 								);
 								DOMUtils.on($button, "click", (event) => {
 									utils.preventEvent(event);
-									GM_notification({
-										title: "测试 GM_notification 标题",
-										text: "测试 GM_notification 内容",
-										url: "https:/example.com/",
-									});
+									try {
+										GM_notification({
+											title: "测试 GM_notification 标题",
+											text: "测试 GM_notification 内容",
+											url: "https:/example.com/",
+										});
+									} catch (error: any) {
+										Qmsg.error(error.toString(), { consoleLogContent: true });
+									}
 								});
 								DOMUtils.after(container.$leftContainer, $button);
 							},
