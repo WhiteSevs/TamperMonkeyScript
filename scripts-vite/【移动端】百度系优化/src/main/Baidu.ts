@@ -26,6 +26,7 @@ import { BaiduEasyLearn } from "./easylearn/EasyLearn";
 import { BaiduAiStudy } from "./aistudy/AiStudy";
 import { BaiduISite } from "./isite/ISite";
 import { log } from "@/env";
+import { SmartAppsTieba } from "./smartapps/tieba/SmartAppsTieba";
 
 const Baidu = {
 	init() {
@@ -109,6 +110,9 @@ const Baidu = {
 		} else if (BaiduRouter.isISite()) {
 			log.success("Router: 百度基木鱼");
 			BaiduISite.init();
+		} else if (BaiduRouter.isSmartApps_Tieba()) {
+			log.success(`Router: 小程序 - 百度贴吧`);
+			SmartAppsTieba.init();
 		} else {
 			log.error("该Router暂未适配，请联系开发者：" + window.location.href);
 		}

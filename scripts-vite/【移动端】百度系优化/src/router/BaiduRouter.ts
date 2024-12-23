@@ -326,6 +326,12 @@ const BaiduRouter = {
 			window.location.href.match(/^http(s|):\/\/aistudy.baidu.com/g)
 		);
 	},
+	/**
+	 * 贴吧 - 小程序
+	 */
+	isSmartApps_Tieba() {
+		return Boolean(window.location.hostname === "byokpg.smartapps.baidu.com");
+	},
 };
 
 export { BaiduRouter };

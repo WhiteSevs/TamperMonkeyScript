@@ -663,7 +663,7 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 					],
 				},
 				{
-					text: "屏蔽",
+					text: "布局屏蔽",
 					type: "deepMenu",
 					forms: [
 						{

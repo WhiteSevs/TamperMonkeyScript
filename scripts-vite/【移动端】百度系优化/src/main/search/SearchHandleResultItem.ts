@@ -36,6 +36,8 @@ export const BaiduHandleResultItem = {
 	isBlackList(url: string) {
 		let blackList = [
 			/^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/productcard/,
+			// 貌似是贴吧类
+			/^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/pages\/pb\/pb/,
 			/^http(s|):\/\/ks.baidu.com/,
 			/^http(s|):\/\/mbd.baidu.com\/ma\/tips/,
 		];

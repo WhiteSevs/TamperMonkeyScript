@@ -1,0 +1,6 @@
+/* 底部 继续访问 百度贴吧|手机百度 */
+swan-slient-wake-popup,
+/* 帖子内底部的推荐帖子 */
+swan-recommend-list {
+	display: none !important;
+}

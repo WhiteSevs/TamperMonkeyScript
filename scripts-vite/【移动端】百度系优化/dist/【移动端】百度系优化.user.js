@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.17
+// @version      2024.12.23
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -15,7 +15,7 @@
 // @require      https://update.greasyfork.org/scripts/488179/1413254/showdown.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.5.13/dist/vue.global.prod.js
@@ -388,6 +388,12 @@
       return Boolean(
         window.location.href.match(/^http(s|):\/\/aistudy.baidu.com/g)
       );
+    },
+    /**
+     * 贴吧 - 小程序
+     */
+    isSmartApps_Tieba() {
+      return Boolean(window.location.hostname === "byokpg.smartapps.baidu.com");
     }
   };
   class LoadingView {
@@ -4681,7 +4687,7 @@ match-attr##srcid##sp_purc_atom
             ]
           },
           {
-            text: "屏蔽",
+            text: "布局屏蔽",
             type: "deepMenu",
             forms: [
               {
@@ -7250,6 +7256,8 @@ div[class^="new-summary-container_"] {\r
     isBlackList(url) {
       let blackList = [
         /^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/productcard/,
+        // 貌似是贴吧类
+        /^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/pages\/pb\/pb/,
         /^http(s|):\/\/ks.baidu.com/,
         /^http(s|):\/\/mbd.baidu.com\/ma\/tips/
       ];
@@ -27946,6 +27954,45 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
       ];
     }
   };
+  const blockCSS = "/* 底部 继续访问 百度贴吧|手机百度 */\r\nswan-slient-wake-popup,\r\n/* 帖子内底部的推荐帖子 */\r\nswan-recommend-list {\r\n	display: none !important;\r\n}\r\n";
+  const SmartAppsTieba = {
+    init() {
+      PopsPanel.onceExec("smartapps-tieba-blockAds", () => {
+        return this.removeAds();
+      });
+    },
+    /**
+     * 屏蔽广告
+     */
+    removeAds() {
+      log.info(`屏蔽广告`);
+      let result = [addStyle(blockCSS)];
+      let selectorList = [
+        "swan-wake-app:has(swan-view):contains('App内看更多评论')",
+        "swan-wake-app:has(swan-view):contains('App内查看')",
+        "swan-wake-app:has(swan-view):contains('来贴吧参与讨论')",
+        "swan-wake-app:has(swan-view):contains('打开App查看高清大图')"
+      ];
+      let lockFn = new utils.LockFunction(() => {
+        selectorList.forEach((selector) => {
+          DOMUtils.selectorAll(selector).forEach(($el) => {
+            $el.remove();
+          });
+        });
+      });
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        }
+      });
+      return result;
+    }
+  };
   const Baidu = {
     init() {
       if (BaiduRouter.isSearch()) {
@@ -28028,6 +28075,9 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
       } else if (BaiduRouter.isISite()) {
         log.success("Router: 百度基木鱼");
         BaiduISite.init();
+      } else if (BaiduRouter.isSmartApps_Tieba()) {
+        log.success(`Router: 小程序 - 百度贴吧`);
+        SmartAppsTieba.init();
       } else {
         log.error("该Router暂未适配，请联系开发者：" + window.location.href);
       }
