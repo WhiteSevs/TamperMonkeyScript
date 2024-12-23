@@ -79,47 +79,63 @@ export class ApiTest_setValue extends ApiAsyncTestBase {
 			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
 				...[
 					{
-						key: "Test boolean",
+						key: "Test GM_setValue boolean",
 						value: true,
 						text: function () {
-							return `存储boolean类型 ==> "${this.key}": ${this.value}`;
+							return `存储boolean类型`;
+						},
+						desc: function () {
+							return `"${this.key}": ${this.value}`;
 						},
 					},
 					{
-						key: "Test number",
+						key: "Test GM_setValue number",
 						value: 1,
 						text: function () {
-							return `存储number类型 ==> "${this.key}": ${this.value}`;
+							return `存储number类型`;
+						},
+						desc: function () {
+							return `"${this.key}": ${this.value}`;
 						},
 					},
 					{
-						key: "Test string",
+						key: "Test GM_setValue string",
 						value: "测试字符串",
 						text: function () {
-							return `存储string类型 ==> "${this.key}": "${this.value}"`;
+							return `存储string类型`;
+						},
+						desc: function () {
+							return `"${this.key}": "${this.value}"`;
 						},
 					},
 					{
-						key: "Test undefined",
+						key: "Test GM_setValue undefined",
 						value: undefined,
 						text: function () {
-							return `存储undefined类型 ==> "${this.key}": ${this.value}`;
+							return `存储undefined类型`;
+						},
+						desc: function () {
+							return `"${this.key}": ${this.value}`;
 						},
 					},
 					{
-						key: "Test null",
+						key: "Test GM_setValue null",
 						value: null,
 						text: function () {
-							return `存储object类型的null ==> "${this.key}": ${this.value}`;
+							return `存储object类型的null`;
+						},
+						desc: function () {
+							return `"${this.key}": ${this.value}`;
 						},
 					},
 					{
-						key: "Test object",
+						key: "Test GM_setValue object",
 						value: { "object key": "object value" },
 						text: function () {
-							return `存储object类型 ==> "${this.key}": ${JSON.stringify(
-								this.value
-							)}`;
+							return `存储object类型`;
+						},
+						desc: function () {
+							return `"${this.key}": ${JSON.stringify(this.value)}`;
 						},
 					},
 				].map((it) => {
@@ -129,6 +145,7 @@ export class ApiTest_setValue extends ApiAsyncTestBase {
 						return UIInfo(() => {
 							return {
 								text: it.text(),
+								description: it.desc(),
 								tag: "info",
 								afterRender(container) {
 									let $button = DOMUtils.parseHTML(

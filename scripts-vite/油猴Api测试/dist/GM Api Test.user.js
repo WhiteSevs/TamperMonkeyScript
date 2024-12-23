@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.22
+// @version      2024.12.23
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -20831,21 +20831,203 @@
       };
       if (this.isSupport()) {
         result2["forms"][1].forms.push(
-          UIInfo(() => {
-            try {
-              return {
-                text: CommonUtil.escapeHtml("TODO"),
-                tag: "info"
-              };
-            } catch (error2) {
-              console.error(error2);
-              return {
-                text: "执行错误 " + error2,
-                tag: "error"
-              };
-            } finally {
+          ...[
+            {
+              key: "Test GM_getValue boolean",
+              value: true,
+              text: function() {
+                return `存储boolean类型并读取`;
+              },
+              desc: function() {
+                return `"${this.key}": ${this.value}`;
+              }
+            },
+            {
+              key: "Test GM_getValue number",
+              value: 1,
+              text: function() {
+                return `存储number类型并读取`;
+              },
+              desc: function() {
+                return `"${this.key}": ${this.value}`;
+              }
+            },
+            {
+              key: "Test GM_getValue string",
+              value: "测试字符串",
+              text: function() {
+                return `存储string类型并读取`;
+              },
+              desc: function() {
+                return `"${this.key}": "${this.value}"`;
+              }
+            },
+            {
+              key: "Test GM_getValue undefined",
+              value: void 0,
+              text: function() {
+                return `存储undefined类型并读取`;
+              },
+              desc: function() {
+                return `"${this.key}": ${this.value}`;
+              }
+            },
+            {
+              key: "Test GM_getValue null",
+              value: null,
+              text: function() {
+                return `存储object类型的null并读取`;
+              },
+              desc: function() {
+                return `"${this.key}": ${this.value}`;
+              }
+            },
+            {
+              key: "Test GM_getValue object",
+              value: { "object key": "object value" },
+              text: function() {
+                return `存储object类型并读取`;
+              },
+              desc: function() {
+                return `"${this.key}": ${JSON.stringify(this.value)}`;
+              }
             }
-          })
+          ].map((it) => {
+            return (() => {
+              let localStorageDataKey = it.key;
+              let localStorageDataValue = it.value;
+              return UIInfo(() => {
+                return {
+                  text: it.text(),
+                  description: it.desc(),
+                  tag: "info",
+                  afterRender(container) {
+                    let $button = domUtils.parseHTML(
+                      /*html*/
+                      `
+										<div class="pops-panel-button pops-panel-button-no-icon">
+											<button class="pops-panel-button_inner" type="default">
+												<i class="pops-bottom-icon" is-loading="false"></i>
+												<span class="pops-panel-button-text">点击测试</span>
+											</button>
+										</div>
+									`,
+                      false,
+                      false
+                    );
+                    domUtils.after(container.$leftContainer, $button);
+                    domUtils.on($button, "click", (event) => {
+                      utils.preventEvent(event);
+                      try {
+                        _GM_setValue(localStorageDataKey, localStorageDataValue);
+                        let value = _GM_getValue(localStorageDataKey);
+                        if (typeof value === typeof localStorageDataValue) {
+                          if (localStorageDataValue === null && localStorageDataValue != value) {
+                            qmsg.error(
+                              "读取成功，但存储类型和读取类型不同，存储类型为null，但读取类型不为null"
+                            );
+                            return;
+                          }
+                          qmsg.success("读取成功，存储类型和读取类型一致");
+                        } else {
+                          qmsg.error("读取成功，但存储类型和读取类型不同");
+                        }
+                      } catch (error2) {
+                        qmsg.error(error2.toString(), { consoleLogContent: true });
+                      }
+                    });
+                  }
+                };
+              });
+            })();
+          }),
+          (() => {
+            let localStorageDataKey = "Test GM_getValue null with defaultValue";
+            let localStorageDefaultValue = 123;
+            return UIInfo(() => {
+              return {
+                text: "存储object类型的null，读取时指定默认值为" + localStorageDefaultValue,
+                description: `GM_getValue("${localStorageDataKey}", ${localStorageDefaultValue})`,
+                tag: "info",
+                afterRender(container) {
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+										<div class="pops-panel-button pops-panel-button-no-icon">
+											<button class="pops-panel-button_inner" type="default">
+												<i class="pops-bottom-icon" is-loading="false"></i>
+												<span class="pops-panel-button-text">点击测试</span>
+											</button>
+										</div>
+									`,
+                    false,
+                    false
+                  );
+                  domUtils.after(container.$leftContainer, $button);
+                  domUtils.on($button, "click", (event) => {
+                    utils.preventEvent(event);
+                    try {
+                      _GM_setValue(localStorageDataKey, null);
+                      let value = _GM_getValue(
+                        localStorageDataKey,
+                        localStorageDefaultValue
+                      );
+                      if (typeof value === "object" && value == null) {
+                        qmsg.success("读取的值是存储的值：" + value);
+                      } else {
+                        qmsg.error("读取的值不是存储的值：" + value);
+                      }
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    }
+                  });
+                }
+              };
+            });
+          })(),
+          (() => {
+            let localStorageDataKey = "Test GM_getValue defaultValue";
+            let localStorageDefaultValue = 123;
+            return UIInfo(() => {
+              return {
+                text: "不存储，测试调用默认值",
+                description: `GM_getValue("${localStorageDataKey}", ${localStorageDefaultValue})`,
+                tag: "info",
+                afterRender(container) {
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+										<div class="pops-panel-button pops-panel-button-no-icon">
+											<button class="pops-panel-button_inner" type="default">
+												<i class="pops-bottom-icon" is-loading="false"></i>
+												<span class="pops-panel-button-text">点击测试</span>
+											</button>
+										</div>
+									`,
+                    false,
+                    false
+                  );
+                  domUtils.after(container.$leftContainer, $button);
+                  domUtils.on($button, "click", (event) => {
+                    utils.preventEvent(event);
+                    try {
+                      let value = _GM_getValue(
+                        localStorageDataKey,
+                        localStorageDefaultValue
+                      );
+                      if (typeof value === typeof localStorageDefaultValue) {
+                        qmsg.success("读取的值是默认值：" + value);
+                      } else {
+                        qmsg.error("读取的值不是默认值：" + value);
+                      }
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    }
+                  });
+                }
+              };
+            });
+          })()
         );
       }
       return result2;
@@ -22429,47 +22611,63 @@
         result2["forms"][1].forms.push(
           ...[
             {
-              key: "Test boolean",
+              key: "Test GM_setValue boolean",
               value: true,
               text: function() {
-                return `存储boolean类型 ==> "${this.key}": ${this.value}`;
+                return `存储boolean类型`;
+              },
+              desc: function() {
+                return `"${this.key}": ${this.value}`;
               }
             },
             {
-              key: "Test number",
+              key: "Test GM_setValue number",
               value: 1,
               text: function() {
-                return `存储number类型 ==> "${this.key}": ${this.value}`;
+                return `存储number类型`;
+              },
+              desc: function() {
+                return `"${this.key}": ${this.value}`;
               }
             },
             {
-              key: "Test string",
+              key: "Test GM_setValue string",
               value: "测试字符串",
               text: function() {
-                return `存储string类型 ==> "${this.key}": "${this.value}"`;
+                return `存储string类型`;
+              },
+              desc: function() {
+                return `"${this.key}": "${this.value}"`;
               }
             },
             {
-              key: "Test undefined",
+              key: "Test GM_setValue undefined",
               value: void 0,
               text: function() {
-                return `存储undefined类型 ==> "${this.key}": ${this.value}`;
+                return `存储undefined类型`;
+              },
+              desc: function() {
+                return `"${this.key}": ${this.value}`;
               }
             },
             {
-              key: "Test null",
+              key: "Test GM_setValue null",
               value: null,
               text: function() {
-                return `存储object类型的null ==> "${this.key}": ${this.value}`;
+                return `存储object类型的null`;
+              },
+              desc: function() {
+                return `"${this.key}": ${this.value}`;
               }
             },
             {
-              key: "Test object",
+              key: "Test GM_setValue object",
               value: { "object key": "object value" },
               text: function() {
-                return `存储object类型 ==> "${this.key}": ${JSON.stringify(
-                this.value
-              )}`;
+                return `存储object类型`;
+              },
+              desc: function() {
+                return `"${this.key}": ${JSON.stringify(this.value)}`;
               }
             }
           ].map((it) => {
@@ -22479,6 +22677,7 @@
               return UIInfo(() => {
                 return {
                   text: it.text(),
+                  description: it.desc(),
                   tag: "info",
                   afterRender(container) {
                     let $button = domUtils.parseHTML(
