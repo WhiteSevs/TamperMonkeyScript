@@ -8,6 +8,7 @@ import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components
 import { TiebaPCApi } from "@/main/tieba/api/TiebaPCApi";
 import { TiebaUniAppCommentFilter } from "@/main/tieba/uni-app-post/TiebaUniAppCommentFilter";
 import { TiebaUniAppComponentDetectionRule } from "@/main/tieba/uni-app-post/TiebaUniAppComponentDetectionRule";
+import { UIInput } from "@/setting/common-components/ui-input";
 
 const PanelTieBaSettingUI: PopsPanelContentConfig = {
 	id: "baidu-panel-config-tieba",
@@ -36,6 +37,25 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 									false,
 									void 0,
 									"新标签页打开帖子"
+								),
+							],
+						},
+						{
+							text: "消息",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"启用",
+									"baidu_tieba_index_add_msgtab",
+									true,
+									void 0,
+									"新增【消息】按钮入口，可查看当前已登录账号的点赞、回复、@用户"
+								),
+								UIInput(
+									"MAWEBCUID",
+									"baidu_tieba_index_msg_cuid",
+									"",
+									"必填，可在Cookie中看到具体的值"
 								),
 							],
 						},

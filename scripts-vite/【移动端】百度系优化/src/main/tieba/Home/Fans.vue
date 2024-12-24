@@ -51,7 +51,7 @@ const cancleScrollListener = () => {
     observe.disconnect();
     showIsLoading.value = false;
     isLoadingEnd.value = true;
-    log.info(["移除滚动监听"]);
+    log.info("移除滚动监听");
 }
 
 const loadMore = async () => {

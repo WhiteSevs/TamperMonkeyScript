@@ -7,7 +7,13 @@ import { log } from "@/env";
 let UserData = ref<UserInfo>({});
 
 onMounted(async () => {
+    const loading = ElLoading.service({
+        lock: true,
+        text: 'Loading',
+        background: 'rgba(0, 0, 0, 0.7)',
+    })
 	let userData = await TiebaHomeData.getUserData();
+	loading.close();
 	if (userData) {
 		log.info(["用户信息", userData])
 		Object.assign(UserData.value, userData);

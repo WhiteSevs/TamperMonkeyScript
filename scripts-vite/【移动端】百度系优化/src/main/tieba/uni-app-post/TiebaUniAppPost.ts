@@ -87,6 +87,9 @@ export const TiebaUniAppPost = {
 					this.repairAnchorLink();
 				}
 			);
+			PopsPanel.execMenu("baidu_tieba_add_search", () => {
+				this.repairSearch();
+			});
 			DOMUtils.ready(() => {
 				PopsPanel.execMenuOnce(
 					"baidu-tieba-uni-app-post-rememberChooseSeeCommentSort",
@@ -121,7 +124,6 @@ export const TiebaUniAppPost = {
 				PopsPanel.execMenuOnce("baidu-tieba-componentDetection", () => {
 					TiebaUniAppComponentDetection.init();
 				});
-				this.repairSearch();
 			});
 		});
 	},

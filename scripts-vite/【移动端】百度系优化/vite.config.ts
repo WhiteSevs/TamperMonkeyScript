@@ -45,6 +45,7 @@ const MonkeyOption: Partial<__MonkeyOption__> = {
 			"chat.baidu.com",
 			"chat-ws.baidu.com",
 			"wappass.baidu.com",
+			"tiebaswan.baidu.com",
 		],
 		// 脚本描述
 		description:

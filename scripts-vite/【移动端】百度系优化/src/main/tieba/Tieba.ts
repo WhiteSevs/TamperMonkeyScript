@@ -18,6 +18,8 @@ import { VueUtils } from "@/utils/VueUtils";
 import { TiebaUniAppPost } from "./uni-app-post/TiebaUniAppPost";
 import { TiebaCheckUrl } from "./CheckUrl/TiebaCheckUrl";
 import { TiebaHotTopic } from "./HotTopic/TiebaHotTopic";
+import { TiebaSmallAppApi } from "./api/TiebaSmallAppApi";
+import { TiebaMsgTab } from "./msgtab/TiebaMsgTab";
 
 /**
  * 百度贴吧
@@ -81,6 +83,37 @@ const BaiduTieBa = {
 			log.success("Router: 首页");
 			PopsPanel.execMenu("baidu_tieba_index_openANewTab", () => {
 				TiebaBaNei.openANewTab();
+			});
+			PopsPanel.execMenu("baidu_tieba_index_add_msgtab", () => {
+				if (window.location.pathname.startsWith("/index/tbwise/msgtab")) {
+					log.info(`Router: 魔改自定义的消息页面`);
+					TiebaMsgTab.init();
+				} else {
+					utils
+						.waitNode<HTMLElement>(
+							".tb-index-navbar .navbar-box li:nth-child(2)",
+							10000
+						)
+						.then(($navbarBox) => {
+							if (!$navbarBox) {
+								return;
+							}
+							if (
+								$navbarBox.nextElementSibling &&
+								$navbarBox.nextElementSibling.matches(".navbar-item-msgtab")
+							) {
+								return;
+							}
+							DOMUtils.after(
+								$navbarBox,
+								/*html*/ `
+								<li class="navbar-item navbar-item-msgtab" style="margin-right: .24rem;">
+									<a href="/index/tbwise/msgtab">消息</a>
+								</li>
+							`
+							);
+						});
+				}
 			});
 		} else if (BaiduRouter.isTieBaPost()) {
 			/* 帖子 */
@@ -326,7 +359,7 @@ const BaiduTieBa = {
 							--user-info-font-color: #ffffff;
 						}
 						.pops-drawer-title{
-							background: url(https://api.chongss.com/pc.php?category=bing);
+							background: url(https://imgapi.xl0408.top/index.php);
 							// background-size: cover;
 							background-size: 100% 100%;
 							background-position: center;
