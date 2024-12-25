@@ -223,6 +223,27 @@ class UtilsGMCookie {
 			}
 		}
 	}
+	/**
+	 * 解析cookie字符串
+	 * 例如：document.cookie
+	 * @param cookieStr 
+	 */
+	parseCookie(cookieStr: string) {
+		let cookies = cookieStr.split(";");
+		let result: { key: string; value: string }[] = [];
+		for (const cookieItem of cookies) {
+			let item = cookieItem.trim();
+			let itemSplit = item.split("=");
+			let itemName = itemSplit[0];
+			itemSplit.splice(0, 1);
+			let itemValue = decodeURIComponent(itemSplit.join(""));
+			result.push({
+				key: itemName,
+				value: itemValue,
+			});
+		}
+		return result;
+	}
 }
 
 export { UtilsGMCookie };

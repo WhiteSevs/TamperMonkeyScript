@@ -32,5 +32,14 @@ declare class UtilsGMCookie {
      * @param callback 删除操作后的回调(成功/失败)
      */
     delete(option: UtilsGMCookieDeleteOptions, callback?: (error?: Error) => void): void;
+    /**
+     * 解析cookie字符串
+     * 例如：document.cookie
+     * @param cookieStr
+     */
+    parseCookie(cookieStr: string): {
+        key: string;
+        value: string;
+    }[];
 }
 export { UtilsGMCookie };

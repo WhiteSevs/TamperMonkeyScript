@@ -29,7 +29,7 @@ class Utils {
 		this.windowApi = new WindowApi(option);
 	}
 	/** 版本号 */
-	version = "2024.12.3";
+	version = "2024.12.25";
 
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
@@ -1245,7 +1245,7 @@ class Utils {
 		deviation = Number.isNaN(deviation) ? 1 : deviation;
 		const UtilsContext = this;
 		// 最大值 2147483647
-		const maxZIndex = Math.pow(2, 31) - 1;
+		// const maxZIndex = Math.pow(2, 31) - 1;
 		// 比较值 2000000000
 		const maxZIndexCompare = 2 * Math.pow(10, 9);
 		// 当前页面最大的z-index
