@@ -1,13 +1,18 @@
 :root {
 	--borderColor-muted: #d1d9e0b3;
+	--markdown-pre-color: #000;
+	--markdown-pre-bg-color: #f5f5f5;
+	--markdown-code-color: #000;
+	--markdown-code-bg-color: #f0f0f0;
 }
 code {
 	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 	font-size: 0.85em;
-	color: #000;
-	background-color: #f0f0f0;
+	color: var(--markdown-code-color);
+	background-color: var(--markdown-code-bg-color);
 	border-radius: 3px;
 	padding: 0.2em 0;
+	border: 0;
 }
 table {
 	text-indent: initial;
@@ -24,7 +29,7 @@ table {
 }
 code,
 pre {
-	color: #333;
+	color: var(--markdown-pre-color);
 	background: 0 0;
 	font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
 	text-align: left;
@@ -45,13 +50,13 @@ pre {
 	padding: 0.8em;
 	overflow: auto;
 	border-radius: 3px;
-	background: #f5f5f5;
+	background: var(--markdown-pre-bg-color);
 }
 :not(pre) > code {
 	padding: 0.1em;
 	border-radius: 0.3em;
 	white-space: normal;
-	background: #f5f5f5;
+	background: var(--markdown-pre-bg-color);
 }
 html body {
 	font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans,
@@ -244,6 +249,9 @@ html body code::before {
 	letter-spacing: -0.2em;
 	content: "\00a0";
 }
+html body pre {
+	background: #f6f8fa;
+}
 html body pre > code {
 	padding: 0;
 	margin: 0;
@@ -354,6 +362,10 @@ code {
 	background-clip: content-box;
 }
 
+/* 表格每隔1行的背景色 */
+table tr:nth-child(2n) {
+	background: #f6f8fa;
+}
 /* 上面是通用 */
 
 /* 下面是自定义 */

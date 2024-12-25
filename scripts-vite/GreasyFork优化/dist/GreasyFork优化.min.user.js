@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.12.17.15
+// @version            2024.12.25
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -11,12 +11,12 @@
 // @supportURL         https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match              *://greasyfork.org/*
 // @require            https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.5/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.6/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.5/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.6/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
-// @require            https://fastly.jsdelivr.net/npm/i18next@24.1.0/i18next.min.js
+// @require            https://fastly.jsdelivr.net/npm/i18next@24.2.0/i18next.min.js
 // @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect            greasyfork.org
 // @grant              GM_addStyle
@@ -476,14 +476,19 @@ li[data-key="pwd"] .pops-panel-input {\r
 			${ne}
 			`});},getPanelContentConfig(){return [ee,Ae,ae,re,oe]}},se=`:root {\r
 	--borderColor-muted: #d1d9e0b3;\r
+	--markdown-pre-color: #000;\r
+	--markdown-pre-bg-color: #f5f5f5;\r
+	--markdown-code-color: #000;\r
+	--markdown-code-bg-color: #f0f0f0;\r
 }\r
 code {\r
 	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;\r
 	font-size: 0.85em;\r
-	color: #000;\r
-	background-color: #f0f0f0;\r
+	color: var(--markdown-code-color);\r
+	background-color: var(--markdown-code-bg-color);\r
 	border-radius: 3px;\r
 	padding: 0.2em 0;\r
+	border: 0;\r
 }\r
 table {\r
 	text-indent: initial;\r
@@ -500,7 +505,7 @@ table {\r
 }\r
 code,\r
 pre {\r
-	color: #333;\r
+	color: var(--markdown-pre-color);\r
 	background: 0 0;\r
 	font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;\r
 	text-align: left;\r
@@ -521,13 +526,13 @@ pre {\r
 	padding: 0.8em;\r
 	overflow: auto;\r
 	border-radius: 3px;\r
-	background: #f5f5f5;\r
+	background: var(--markdown-pre-bg-color);\r
 }\r
 :not(pre) > code {\r
 	padding: 0.1em;\r
 	border-radius: 0.3em;\r
 	white-space: normal;\r
-	background: #f5f5f5;\r
+	background: var(--markdown-pre-bg-color);\r
 }\r
 html body {\r
 	font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans,\r
@@ -720,6 +725,9 @@ html body code::before {\r
 	letter-spacing: -0.2em;\r
 	content: "\\00a0";\r
 }\r
+html body pre {\r
+	background: #f6f8fa;\r
+}\r
 html body pre > code {\r
 	padding: 0;\r
 	margin: 0;\r
@@ -830,6 +838,10 @@ code {\r
 	background-clip: content-box;\r
 }\r
 \r
+/* 表格每隔1行的背景色 */\r
+table tr:nth-child(2n) {\r
+	background: #f6f8fa;\r
+}\r
 /* 上面是通用 */\r
 \r
 /* 下面是自定义 */\r
