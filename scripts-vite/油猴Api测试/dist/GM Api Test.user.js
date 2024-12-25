@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.23
+// @version      2024.12.25
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -3802,6 +3802,27 @@
         }
       }
     }
+    /**
+     * 解析cookie字符串
+     * 例如：document.cookie
+     * @param cookieStr
+     */
+    parseCookie(cookieStr) {
+      let cookies = cookieStr.split(";");
+      let result2 = [];
+      for (const cookieItem of cookies) {
+        let item = cookieItem.trim();
+        let itemSplit = item.split("=");
+        let itemName = itemSplit[0];
+        itemSplit.splice(0, 1);
+        let itemValue = decodeURIComponent(itemSplit.join(""));
+        result2.push({
+          key: itemName,
+          value: itemValue
+        });
+      }
+      return result2;
+    }
   }
   const AjaxHooker = function() {
     return function() {
@@ -7122,7 +7143,7 @@
     constructor(option) {
       __publicField(this, "windowApi");
       /** 版本号 */
-      __publicField(this, "version", "2024.12.3");
+      __publicField(this, "version", "2024.12.25");
       /**
        * ajax劫持库，支持xhr和fetch劫持。
        * + 来源：https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
@@ -20217,10 +20238,10 @@
               ),
               UIInfo(
                 () => apiAsyncInfo.name ? {
-                  text: "支持 " + apiName,
+                  text: "支持 " + apiAsyncInfo.name,
                   tag: "success"
                 } : {
-                  text: "不支持 " + apiName,
+                  text: "不支持 " + apiAsyncInfo.name,
                   tag: "error"
                 }
               )
@@ -20235,21 +20256,48 @@
       };
       if (this.isSupport()) {
         result2["forms"][1].forms.push(
-          UIInfo(() => {
-            try {
+          (() => {
+            let localStorageDataKey = "Test GM_deleteValue null";
+            let localStorageDataValue = null;
+            return UIInfo(() => {
               return {
-                text: CommonUtil.escapeHtml("TODO"),
-                tag: "info"
+                text: "测试存储null值并删除",
+                description: `"${localStorageDataKey}": ${localStorageDataValue}`,
+                tag: "info",
+                afterRender(container) {
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+										<div class="pops-panel-button pops-panel-button-no-icon">
+											<button class="pops-panel-button_inner" type="default">
+												<i class="pops-bottom-icon" is-loading="false"></i>
+												<span class="pops-panel-button-text">点击测试</span>
+											</button>
+										</div>
+									`,
+                    false,
+                    false
+                  );
+                  domUtils.after(container.$leftContainer, $button);
+                  domUtils.on($button, "click", (event) => {
+                    utils.preventEvent(event);
+                    try {
+                      _GM_setValue(localStorageDataKey, localStorageDataValue);
+                      _GM_deleteValue(localStorageDataKey);
+                      let value = _GM_getValue(localStorageDataKey);
+                      if (typeof value === "object" && value === null) {
+                        qmsg.error("该值未删除，读取的值：" + value);
+                      } else {
+                        qmsg.success("成功删除该值");
+                      }
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    }
+                  });
+                }
               };
-            } catch (error2) {
-              console.error(error2);
-              return {
-                text: "执行错误 " + error2,
-                tag: "error"
-              };
-            } finally {
-            }
-          })
+            });
+          })()
         );
       }
       return result2;
