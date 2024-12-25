@@ -355,7 +355,7 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 			type: "forms",
 			forms: [
 				{
-					text: "屏蔽-通用",
+					text: "布局屏蔽-通用",
 					type: "deepMenu",
 					afterEnterDeepMenuCallBack:
 						AutoOpenOrClose.afterEnterDeepMenuCallBack,
@@ -383,7 +383,7 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 					],
 				},
 				{
-					text: "屏蔽-左侧导航栏",
+					text: "布局屏蔽-左侧导航栏",
 					type: "deepMenu",
 					afterEnterDeepMenuCallBack:
 						AutoOpenOrClose.afterEnterDeepMenuCallBack,
@@ -518,12 +518,19 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 									void 0,
 									"屏蔽元素"
 								),
+								UISwitch(
+									"【屏蔽】美好跨年季",
+									"shieldLeftNavigator-tab-activity_2644292",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
 							],
 						},
 					],
 				},
 				{
-					text: "屏蔽-顶部导航栏",
+					text: "布局屏蔽-顶部导航栏",
 					type: "deepMenu",
 					afterEnterDeepMenuCallBack:
 						AutoOpenOrClose.afterEnterDeepMenuCallBack,
@@ -621,7 +628,7 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 					],
 				},
 				{
-					text: "屏蔽-搜索",
+					text: "布局屏蔽-搜索",
 					type: "deepMenu",
 					afterEnterDeepMenuCallBack:
 						AutoOpenOrClose.afterEnterDeepMenuCallBack,
@@ -664,7 +671,7 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 				},
 				{
 					type: "deepMenu",
-					text: "屏蔽-鼠标悬浮提示",
+					text: "布局屏蔽-鼠标悬浮提示",
 					afterEnterDeepMenuCallBack:
 						AutoOpenOrClose.afterEnterDeepMenuCallBack,
 					forms: [

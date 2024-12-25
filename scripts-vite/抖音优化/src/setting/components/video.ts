@@ -278,6 +278,15 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									void 0,
 									DouYinVideoPlayerShortCut.shortCut
 								),
+								UIButtonShortCut(
+									"切换静音状态",
+									"切换video标签的muted属性",
+									"dy-video-shortcut-changeVideoMuted",
+									void 0,
+									"点击录入快捷键",
+									void 0,
+									DouYinVideoPlayerShortCut.shortCut
+								),
 							],
 						},
 					],
@@ -592,7 +601,7 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 			type: "forms",
 			forms: [
 				{
-					text: "屏蔽-视频区域内",
+					text: "布局屏蔽-视频区域内",
 					type: "deepMenu",
 					afterEnterDeepMenuCallBack:
 						AutoOpenOrClose.afterEnterDeepMenuCallBack,
@@ -606,7 +615,7 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									"shieldPlaySwitchButton",
 									false,
 									void 0,
-									"屏蔽元素，在右侧作者头像上方"
+									"屏蔽元素，在右侧作者头像上方或者是在右侧区域"
 								),
 								UISwitch(
 									"【屏蔽】作者头像",
@@ -723,7 +732,7 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 					],
 				},
 				{
-					text: "屏蔽-评论区域内",
+					text: "布局屏蔽-评论区域内",
 					type: "deepMenu",
 					afterEnterDeepMenuCallBack:
 						AutoOpenOrClose.afterEnterDeepMenuCallBack,

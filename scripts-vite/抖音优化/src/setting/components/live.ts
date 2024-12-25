@@ -278,7 +278,7 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 			type: "forms",
 			forms: [
 				{
-					text: "屏蔽-视频区域内",
+					text: "布局屏蔽-视频区域内",
 					type: "deepMenu",
 					afterEnterDeepMenuCallBack:
 						AutoOpenOrClose.afterEnterDeepMenuCallBack,
@@ -340,7 +340,7 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 					],
 				},
 				{
-					text: "屏蔽-聊天室",
+					text: "布局屏蔽-聊天室",
 					type: "deepMenu",
 					afterEnterDeepMenuCallBack:
 						AutoOpenOrClose.afterEnterDeepMenuCallBack,

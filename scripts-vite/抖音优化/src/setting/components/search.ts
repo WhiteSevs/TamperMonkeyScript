@@ -84,7 +84,7 @@ const PanelSearchConfig: PopsPanelContentConfig = {
 			type: "forms",
 			forms: [
 				{
-					text: "屏蔽",
+					text: "布局屏蔽",
 					type: "deepMenu",
 					afterEnterDeepMenuCallBack:
 						AutoOpenOrClose.afterEnterDeepMenuCallBack,
@@ -105,7 +105,7 @@ const PanelSearchConfig: PopsPanelContentConfig = {
 					],
 				},
 				{
-					text: "屏蔽-主框架",
+					text: "布局屏蔽-主框架",
 					type: "deepMenu",
 					forms: [
 						{

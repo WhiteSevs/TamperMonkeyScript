@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.17
+// @version      2024.12.25
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @connect      *
 // @grant        GM_deleteValue
@@ -516,7 +516,7 @@
         type: "forms",
         forms: [
           {
-            text: "屏蔽-通用",
+            text: "布局屏蔽-通用",
             type: "deepMenu",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             forms: [
@@ -543,7 +543,7 @@
             ]
           },
           {
-            text: "屏蔽-左侧导航栏",
+            text: "布局屏蔽-左侧导航栏",
             type: "deepMenu",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             forms: [
@@ -676,13 +676,20 @@
                     false,
                     void 0,
                     "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】美好跨年季",
+                    "shieldLeftNavigator-tab-activity_2644292",
+                    false,
+                    void 0,
+                    "屏蔽元素"
                   )
                 ]
               }
             ]
           },
           {
-            text: "屏蔽-顶部导航栏",
+            text: "布局屏蔽-顶部导航栏",
             type: "deepMenu",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             forms: [
@@ -693,6 +700,13 @@
                   UISwitch(
                     "【屏蔽】顶部导航栏",
                     "shieldTopNavigator",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】右侧菜单栏",
+                    "shield-topNav-rightMenu",
                     false,
                     void 0,
                     "屏蔽元素"
@@ -752,13 +766,27 @@
                     false,
                     void 0,
                     "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】更多",
+                    "shield-topNav-rightMenu-more",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】登录头像",
+                    "shield-topNav-rightMenu-loginAvatar",
+                    false,
+                    void 0,
+                    "屏蔽元素"
                   )
                 ]
               }
             ]
           },
           {
-            text: "屏蔽-搜索",
+            text: "布局屏蔽-搜索",
             type: "deepMenu",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             forms: [
@@ -800,7 +828,7 @@
           },
           {
             type: "deepMenu",
-            text: "屏蔽-鼠标悬浮提示",
+            text: "布局屏蔽-鼠标悬浮提示",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             forms: [
               {
@@ -2372,7 +2400,7 @@
         type: "forms",
         forms: [
           {
-            text: "屏蔽-视频区域内",
+            text: "布局屏蔽-视频区域内",
             type: "deepMenu",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             forms: [
@@ -2433,7 +2461,7 @@
             ]
           },
           {
-            text: "屏蔽-聊天室",
+            text: "布局屏蔽-聊天室",
             type: "deepMenu",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             forms: [
@@ -2549,7 +2577,7 @@
       return this.isIndex() && window.location.pathname.startsWith("/video");
     }
   };
-  const MobileCSS$1 = '/* 右侧工具栏放大 */\r\n.basePlayerContainer .positionBox {\r\n	bottom: 80px !important;\r\n	padding-right: 5px !important;\r\n	scale: unset !important;\r\n	transform: scale3d(1.12, 1.12, 1.12) !important;\r\n}\r\n/* 右侧工具栏的svg再放大 */\r\n.basePlayerContainer .positionBox svg {\r\n	transform: scale3d(1.12, 1.12, 1.12);\r\n}\r\n/* 重置关注按钮的scale */\r\n.basePlayerContainer\r\n	.positionBox\r\n	.dy-tip-container\r\n	div[data-e2e="feed-follow-icon"]\r\n	svg {\r\n	scale: unset !important;\r\n}\r\n/* 设备处于横向方向，即宽度大于高度。 */\r\n@media screen and (orientation: landscape) {\r\n	/* 右侧工具栏放大 */\r\n	.basePlayerContainer .positionBox {\r\n		/*transform: scale(0.95) !important;\r\n		bottom: 42px !important;*/\r\n		padding-right: 10px !important;\r\n	}\r\n}\r\n/* 该设备是纵向的，即高度大于或等于宽度 */\r\n@media screen and (orientation: portrait) {\r\n	/* /video/xxx页面 */\r\n	/* 点赞、评论、分享偏移 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.basePlayerContainer\r\n		.positionBox {\r\n		padding-right: 30px !important;\r\n	}\r\n	/* 底部工具栏右侧的按钮 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.xgplayer.xgplayer-pc\r\n		.xg-right-grid {\r\n		margin-right: 35px !important;\r\n	}\r\n	/* 评论区全屏 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n		width: 100vw !important;\r\n	}\r\n}\r\n\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#slidelist {\r\n		width: 100vw;\r\n		height: 100vh;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: 150px;\r\n		padding-right: 0;\r\n		max-width: unset;\r\n	}\r\n	/* 搜索框获取焦点时自动放大宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]:focus) {\r\n		width: 100vw;\r\n		width: 100dvw;\r\n	}\r\n	/* 去除设置min-width超出浏览器宽度的问题 */\r\n	body {\r\n		min-width: 100% !important;\r\n	}\r\n	/* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n	#douyin-right-container #douyin-header {\r\n		width: 100%;\r\n	}\r\n	/* 去除设置 */\r\n	#douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n		min-width: 100%;\r\n	}\r\n}\r\n';
+  const MobileCSS$1 = '/* 右侧工具栏放大 */\r\n.basePlayerContainer .positionBox {\r\n	bottom: 80px !important;\r\n	padding-right: 5px !important;\r\n	scale: unset !important;\r\n	transform: scale3d(1.12, 1.12, 1.12) !important;\r\n}\r\n/* 右侧工具栏的svg再放大 */\r\n.basePlayerContainer .positionBox svg {\r\n	transform: scale3d(1.12, 1.12, 1.12);\r\n}\r\n/* 重置关注按钮的scale */\r\n.basePlayerContainer\r\n	.positionBox\r\n	.dy-tip-container\r\n	div[data-e2e="feed-follow-icon"]\r\n	svg {\r\n	scale: unset !important;\r\n}\r\n/* 设备处于横向方向，即宽度大于高度。 */\r\n@media screen and (orientation: landscape) {\r\n	/* 右侧工具栏放大 */\r\n	.basePlayerContainer .positionBox {\r\n		/*transform: scale(0.95) !important;\r\n		bottom: 42px !important;*/\r\n		padding-right: 10px !important;\r\n	}\r\n}\r\n/* 该设备是纵向的，即高度大于或等于宽度 */\r\n@media screen and (orientation: portrait) {\r\n	/* /video/xxx页面 */\r\n	/* 点赞、评论、分享偏移 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.basePlayerContainer\r\n		.positionBox {\r\n		padding-right: 30px !important;\r\n	}\r\n	/* 底部工具栏右侧的按钮 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.xgplayer.xgplayer-pc\r\n		.xg-right-grid {\r\n		margin-right: 35px !important;\r\n	}\r\n	/* 评论区全屏 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n		width: 100vw !important;\r\n	}\r\n}\r\n\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#slidelist {\r\n		width: 100vw;\r\n		height: 100vh;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: 150px;\r\n		padding-right: 0;\r\n		max-width: unset;\r\n		flex: 1;\r\n	}\r\n	/* 搜索框获取焦点时自动放大宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]:focus) {\r\n		width: 100vw;\r\n		width: 100dvw;\r\n	}\r\n	/* 去除设置min-width超出浏览器宽度的问题 */\r\n	body {\r\n		min-width: 100% !important;\r\n	}\r\n	/* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n	#douyin-right-container #douyin-header {\r\n		width: 100%;\r\n	}\r\n	/* 去除设置 */\r\n	#douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n		min-width: 100%;\r\n	}\r\n}\r\n';
   const DouYinVideoPlayerCommentBlockElement = {
     init() {
       PopsPanel.execMenuOnce("dy-video-shieldUserCommentToolBar", () => {
@@ -4355,7 +4383,15 @@
   const DouYinVideoPlayerShortCut = {
     shortCut: new ShortCut("video-short-cut"),
     $data: {
-      rateMap: ["0.75", "1", "1.25", "1.5", "1.75", "2", "3"]
+      rateMap: [
+        "0.75",
+        "1",
+        "1.25",
+        "1.5",
+        "1.75",
+        "2",
+        "3"
+      ]
     },
     init() {
       this.shortCut.initGlobalKeyboardListener(this.getShortCutMap());
@@ -4365,7 +4401,7 @@
         "dy-video-rate-low": {
           target: "window",
           callback() {
-            log.info("快捷键 ==> 调用倍速：小");
+            log.info("触发快捷键 ==> 调用倍速：小");
             let currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
             let findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex(
               (rate) => {
@@ -4373,18 +4409,18 @@
               }
             );
             if (findIndex === 0) {
-              log.warn("快捷键 ==> 已是最小倍速: " + currentRate);
+              log.warn("触发快捷键 ==> 已是最小倍速: " + currentRate);
               return;
             }
             let prevRate = DouYinVideoPlayerShortCut.$data.rateMap[findIndex - 1];
-            log.info("快捷键 ==> 设置倍速: " + prevRate);
+            log.info("触发快捷键 ==> 设置倍速: " + prevRate);
             DouYinVideoPlayer.chooseVideoRate(prevRate);
           }
         },
         "dy-video-rate-up": {
           target: "window",
           callback() {
-            log.info("快捷键 ==> 调用倍速：大");
+            log.info("触发快捷键 ==> 调用倍速：大");
             let currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
             let findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex(
               (rate) => {
@@ -4392,22 +4428,33 @@
               }
             );
             if (findIndex === DouYinVideoPlayerShortCut.$data.rateMap.length - 1) {
-              log.warn("快捷键 ==> 已是最大倍速: " + currentRate);
+              log.warn("触发快捷键 ==> 已是最大倍速: " + currentRate);
               return;
             }
             let nextRate = DouYinVideoPlayerShortCut.$data.rateMap[findIndex + 1];
-            log.info("快捷键 ==> 设置倍速: " + nextRate);
+            log.info("触发快捷键 ==> 设置倍速: " + nextRate);
             DouYinVideoPlayer.chooseVideoRate(nextRate);
           }
         },
         "dy-video-shortcut-immersionMode": {
           target: "window",
           callback() {
-            log.info("快捷键 ==> 沉浸模式");
+            log.info("触发快捷键 ==> 沉浸模式");
             let value = PopsPanel.getValue("fullScreen");
             PopsPanel.setValue("fullScreen", !value);
             PopsPanel.execMenuOnce("fullScreen", () => {
               return DouYinVideoPlayer.fullScreen();
+            });
+          }
+        },
+        "dy-video-shortcut-changeVideoMuted": {
+          target: "window",
+          callback() {
+            log.info(`触发快捷键 ==> 切换静音状态`);
+            $$("video").forEach(($video) => {
+              let muted = !$video.muted;
+              log.success(`切换video标签的静音状态为 ${muted}`);
+              $video.muted = muted;
             });
           }
         }
@@ -5006,6 +5053,15 @@
                     "点击录入快捷键",
                     void 0,
                     DouYinVideoPlayerShortCut.shortCut
+                  ),
+                  UIButtonShortCut(
+                    "切换静音状态",
+                    "切换video标签的muted属性",
+                    "dy-video-shortcut-changeVideoMuted",
+                    void 0,
+                    "点击录入快捷键",
+                    void 0,
+                    DouYinVideoPlayerShortCut.shortCut
                   )
                 ]
               }
@@ -5321,7 +5377,7 @@
         type: "forms",
         forms: [
           {
-            text: "屏蔽-视频区域内",
+            text: "布局屏蔽-视频区域内",
             type: "deepMenu",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             forms: [
@@ -5334,7 +5390,7 @@
                     "shieldPlaySwitchButton",
                     false,
                     void 0,
-                    "屏蔽元素，在右侧作者头像上方"
+                    "屏蔽元素，在右侧作者头像上方或者是在右侧区域"
                   ),
                   UISwitch(
                     "【屏蔽】作者头像",
@@ -5451,7 +5507,7 @@
             ]
           },
           {
-            text: "屏蔽-评论区域内",
+            text: "布局屏蔽-评论区域内",
             type: "deepMenu",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             forms: [
@@ -5557,7 +5613,7 @@
         type: "forms",
         forms: [
           {
-            text: "屏蔽",
+            text: "布局屏蔽",
             type: "deepMenu",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             forms: [
@@ -5577,7 +5633,7 @@
             ]
           },
           {
-            text: "屏蔽-主框架",
+            text: "布局屏蔽-主框架",
             type: "deepMenu",
             forms: [
               {
@@ -6525,6 +6581,15 @@
       PopsPanel.execMenuOnce("shieldBottomQuestionButton", () => {
         return this.shieldBottomQuestionButton();
       });
+      PopsPanel.execMenuOnce("shield-topNav-rightMenu", () => {
+        return this.shieldRightMenu();
+      });
+      PopsPanel.execMenuOnce("shield-topNav-rightMenu-more", () => {
+        return this.shieldRightMenuMore();
+      });
+      PopsPanel.execMenuOnce("shield-topNav-rightMenu-loginAvatar", () => {
+        return this.shieldRightMenuLoginAvatar();
+      });
     },
     /**
      * 【屏蔽】顶部导航栏
@@ -6826,6 +6891,34 @@
         /* 推荐视频右下角的？按钮 */
         "#douyin-temp-sidebar"
       ]);
+    },
+    /**
+     * 【屏蔽】右侧菜单栏
+     */
+    shieldRightMenu() {
+      log.info(`【屏蔽】右侧菜单栏`);
+      return CommonUtil.addBlockCSS(`div[id^="douyin-header-menu"]`);
+    },
+    /**
+     * 【屏蔽】更多
+     */
+    shieldRightMenuMore() {
+      log.info(`【屏蔽】更多`);
+      return CommonUtil.addBlockCSS(
+        `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M17 8.75H7V7.25H17V8.75ZM17 12.75H7V11.25H17V12.75ZM7 16.75H17V15.25H7V16.75Z"])`
+      );
+    },
+    /**
+     * 【屏蔽】登录头像
+     */
+    shieldRightMenuLoginAvatar() {
+      log.info(`【屏蔽】登录头像`);
+      return CommonUtil.addBlockCSS(
+        // 未登录
+        `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M6.484 43.177c4.765-5.408 11.743-8.821 19.517-8.821 7.775 0 14.753 3.413 19.517 8.821C40.754 48.587 33.776 52 26.001 52c-7.774 0-14.752-3.413-19.517-8.822zM35.287 21.356a9.286 9.286 0 1 1-18.571 0 9.286 9.286 0 0 1 18.571 0z"])`,
+        // 已登录
+        `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has([data-e2e="live-avatar"])`
+      );
     }
   };
   const BlockSearchFrame = {
@@ -7936,6 +8029,9 @@
       PopsPanel.execMenuOnce("shieldLeftNavigator-tab-channel_300204", () => {
         return this.block_tab_channel_300204();
       });
+      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-activity_2644292", () => {
+        return this.block_tab_activity_2644292();
+      });
     },
     /**
      * 【屏蔽】左侧导航栏
@@ -8107,6 +8203,15 @@
       log.info("【屏蔽】美食");
       return CommonUtil.addBlockCSS(
         'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300204)'
+      );
+    },
+    /**
+     * 【屏蔽】美好跨年季
+     */
+    block_tab_activity_2644292() {
+      log.info(`【屏蔽】美好跨年季`);
+      return CommonUtil.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-activity_2644292)'
       );
     }
   };
@@ -8381,7 +8486,7 @@
       );
     }
   };
-  const blockCSS$3 = "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 视频描述信息区域中的 打开抖音看精彩视频 */\r\n.footer .img-button,\r\n/* 登录页面 */\r\n.login-page {\r\n	display: none !important;\r\n}\r\n";
+  const blockCSS$3 = "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 视频描述信息区域中的 打开抖音看精彩视频 */\r\n.footer .img-button,\r\n/* 登录页面 */\r\n.login-page ,\r\n/* 底部左下角 打开抖音看精彩视频 */\r\n.footer .bottom-btn-con-new,\r\n/* 合集 打开抖音看精彩视频 */\r\n.container .end-page-info-button {\r\n	display: none !important;\r\n}\r\n";
   const beautifyCSS = ".video-container {\r\n	height: 100% !important;\r\n	margin-top: 0 !important;\r\n}\r\n.footer {\r\n	bottom: 50px !important;\r\n}\r\n.mix-info {\r\n	bottom: 0px !important;\r\n}\r\n";
   const MDouYinShareVideo = {
     init() {

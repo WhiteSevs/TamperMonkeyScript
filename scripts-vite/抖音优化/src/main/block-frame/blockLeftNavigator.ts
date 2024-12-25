@@ -79,6 +79,9 @@ export const BlockLeftNavigator = {
 		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-channel_300204", () => {
 			return this.block_tab_channel_300204();
 		});
+		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-activity_2644292", () => {
+			return this.block_tab_activity_2644292();
+		});
 	},
 	/**
 	 * 【屏蔽】左侧导航栏
@@ -247,6 +250,15 @@ export const BlockLeftNavigator = {
 		log.info("【屏蔽】美食");
 		return CommonUtil.addBlockCSS(
 			'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300204)'
+		);
+	},
+	/**
+	 * 【屏蔽】美好跨年季
+	 */
+	block_tab_activity_2644292() {
+		log.info(`【屏蔽】美好跨年季`);
+		return CommonUtil.addBlockCSS(
+			'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-activity_2644292)'
 		);
 	},
 };
