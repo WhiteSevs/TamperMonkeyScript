@@ -18,7 +18,6 @@ import { VueUtils } from "@/utils/VueUtils";
 import { TiebaUniAppPost } from "./uni-app-post/TiebaUniAppPost";
 import { TiebaCheckUrl } from "./CheckUrl/TiebaCheckUrl";
 import { TiebaHotTopic } from "./HotTopic/TiebaHotTopic";
-import { TiebaSmallAppApi } from "./api/TiebaSmallAppApi";
 import { TiebaMsgTab } from "./msgtab/TiebaMsgTab";
 
 /**

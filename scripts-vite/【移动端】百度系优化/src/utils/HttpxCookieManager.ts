@@ -23,7 +23,7 @@ export const HttpxCookieManager = {
 			{
 				key: "httpx-cookie-tieba.baidu.com",
 				hostname:
-					/(tieba.baidu|www.tieba|ala.baidu|static.tieba.baidu|nba.baidu).com/g,
+					/(tieba.baidu|www.tieba|ala.baidu|static.tieba.baidu|nba.baidu|tiebaswan.baidu|byokpg.smartapps.baidu).com/g,
 			},
 		],
 	},

@@ -98,7 +98,11 @@ onMounted(async () => {
         text: 'Loading',
         background: 'rgba(0, 0, 0, 0.7)',
     })
-    await loadMore()
+    try {
+        await loadMore()
+    } catch (error) {
+        log.error(error)
+    }
     loading.close()
 })
 </script>
@@ -146,12 +150,14 @@ onMounted(async () => {
     color: #434343;
     border-radius: 6px;
 }
+
 .post-info__inner {
-	display: flex;
-	align-items: center;
-	height: 100px;
+    display: flex;
+    align-items: center;
+    height: 100px;
     width: 100%;
 }
+
 .post-content {
     overflow: hidden;
     line-clamp: 2;

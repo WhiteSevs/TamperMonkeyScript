@@ -7,7 +7,19 @@ import { unsafeWindow } from "ViteGM";
 let tbs = "";
 let cuid = () => {
 	let __cuid__ = PopsPanel.getValue("baidu_tieba_index_msg_cuid");
-	console.log(__cuid__);
+	let cookie = PopsPanel.getValue<string | null>(
+		"httpx-cookie-tieba.baidu.com"
+	);
+	if (utils.isNull(__cuid__) && typeof cookie === "string") {
+		let gmCookie = new utils.GM_Cookie();
+		let cookieList = gmCookie.parseCookie(cookie);
+		let findValue = cookieList.find((item) => {
+			return item.key === "MAWEBCUID";
+		});
+		if (findValue) {
+			__cuid__ = findValue.value;
+		}
+	}
 	if (utils.isNull(__cuid__)) {
 		Qmsg.error("请在设置面板中填入【MAWEBCUID】的值");
 		throw new TypeError("请在设置面板中填入【MAWEBCUID】的值");

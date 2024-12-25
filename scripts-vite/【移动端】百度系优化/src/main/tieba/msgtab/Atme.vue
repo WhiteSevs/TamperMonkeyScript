@@ -84,7 +84,11 @@ onMounted(async () => {
         text: "Loading",
         background: "rgba(0, 0, 0, 0.7)",
     });
-    await loadMore();
+    try {
+        await loadMore()
+    } catch (error) {
+        log.error(error)
+    }
     loading.close();
 });
 </script>
