@@ -9,6 +9,7 @@ export const TiebaMsgTab = {
 	$data: {
 		appName: "vite-app",
 	},
+	pathname: "/index/tbwise/msgtab",
 	init() {
 		TiebaMsgTabRouter.init();
 		// 屏蔽错误提示

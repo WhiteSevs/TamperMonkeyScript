@@ -1,11 +1,12 @@
 import { DOMUtils, addStyle, httpx, log, pops, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { TieBaApi, TiebaUrlApi } from "./api/TiebaApi";
 import { LoadingView } from "@/utils/LoadingView";
 import { TiebaCore } from "./TiebaCore";
 import Qmsg from "qmsg";
 import { TiebaBaNei } from "./BaNei/TiebaBaNei";
 import { CommonUtil } from "@/utils/CommonUtil";
+import { TieBaApi } from "./api/TiebaApi";
+import { TiebaUrlHandler } from "./handler/TiebaUrlHandler";
 
 interface SearchResultInfo {
 	url: string;
@@ -1083,7 +1084,7 @@ const TiebaSearch = {
 				if (!userHomeInfo) {
 					return;
 				}
-				$userAvatarElement.src = TiebaUrlApi.getUserAvatar(
+				$userAvatarElement.src = TiebaUrlHandler.getUserAvatar(
 					userHomeInfo["portrait"]
 				);
 				$userNameElement.innerText = userHomeInfo["show_nickname"];
@@ -1095,7 +1096,7 @@ const TiebaSearch = {
 			{ element: [$titleElement, $contentElement], url: postUrl },
 			{
 				element: $bottomToolBarElement,
-				url: TiebaUrlApi.getForum(postForum),
+				url: TiebaUrlHandler.getForum(postForum),
 			},
 		];
 		/* 对元素进行点击链接跳转处理 */
@@ -1157,7 +1158,7 @@ const TiebaSearch = {
 					return;
 				}
 				let imagePathName = new URL($BDE_Smiley.src).pathname;
-				$BDE_Smiley.src = TiebaUrlApi.getImageSmiley(imagePathName);
+				$BDE_Smiley.src = TiebaUrlHandler.getImageSmiley(imagePathName);
 			});
 		return $resultElement;
 	},

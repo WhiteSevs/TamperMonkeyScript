@@ -10,17 +10,17 @@
 
 <script lang="ts" setup>
 import { $, log, utils } from "@/env";
-import { TiebaUrlApi } from "../api/TiebaApi";
 import { TiebaSmallAppApi } from "../api/TiebaSmallAppApi";
+import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
 
 let pn = ref(1);
 let isFirstLoad = ref(false);
 let isLoading = ref(false);
 let hasMore = ref(true);
-let postList = ref<Exclude<
+let postList = ref<Required<Exclude<
     Awaited<ReturnType<typeof TiebaSmallAppApi.atme>>,
     undefined
->["at_list"][0][]>([])
+>>["at_list"][0][]>([])
 
 
 
@@ -67,13 +67,13 @@ let loadMore = async () => {
     }
 };
 let gotoUserHome = function (portrait: string) {
-    window.open(TiebaUrlApi.getUserHome(portrait), "_blank");
+    window.open(TiebaUrlHandler.getUserHome(portrait), "_blank");
 };
 let gotoPost = function (postId: string | number) {
-    window.open(TiebaUrlApi.getPost(postId), "_blank");
+    window.open(TiebaUrlHandler.getPost(postId), "_blank");
 };
 let gotoForum = function (fName: string) {
-    window.open(TiebaUrlApi.getForum(fName), "_blank");
+    window.open(TiebaUrlHandler.getForum(fName), "_blank");
 };
 
 

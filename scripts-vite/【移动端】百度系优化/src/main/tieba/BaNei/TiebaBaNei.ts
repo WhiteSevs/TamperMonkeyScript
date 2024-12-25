@@ -1,9 +1,10 @@
 import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { TieBaApi, TiebaUrlApi } from "../api/TiebaApi";
+import { TieBaApi } from "../api/TiebaApi";
 import Qmsg from "qmsg";
 import { VueUtils } from "@/utils/VueUtils";
 import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
+import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
 
 interface BaNeiPostInfo {
 	abstract: [
@@ -130,7 +131,7 @@ const TiebaBaNei = {
 				if (pbUrl) {
 					newUrl = window.location.origin + pbUrl;
 				} else if (tid || id) {
-					newUrl = TiebaUrlApi.getPost(tid ?? id);
+					newUrl = TiebaUrlHandler.getPost(tid ?? id);
 				} else {
 					Qmsg.error("获取帖子链接失败");
 					return;

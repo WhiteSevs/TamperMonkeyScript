@@ -3,7 +3,7 @@ import { PopsPanel } from "@/setting/setting";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { VueUtils } from "@/utils/VueUtils";
 import Qmsg from "qmsg";
-import { TiebaUrlApi } from "../api/TiebaApi";
+import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
 
 export const TiebaHotTopic = {
 	init() {
@@ -111,7 +111,7 @@ export const TiebaHotTopic = {
 						Qmsg.error("获取帖子id失败", { consoleLogContent: true });
 						return;
 					}
-					let url = TiebaUrlApi.getPost(id);
+					let url = TiebaUrlHandler.getPost(id);
 					window.open(url, "_blank");
 				}
 			},

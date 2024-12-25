@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { VNodeRef, onMounted, ref, shallowRef, watch, watchEffect } from 'vue';
 import TemplatePostsItem from '../Template/TemplatePostsItem.vue';
-import { TieBaApi, HomePostsInfo, TiebaUrlApi } from '../../api/TiebaApi';
+import { TieBaApi, HomePostsInfo } from '../../api/TiebaApi';
 import { TiebaHomeData, UserInfo } from '../data/TiebaHomeData';
 import { ChromeFilled } from '@element-plus/icons-vue'
 import { log } from '@/env';
+import { TiebaUrlHandler } from '../../handler/TiebaUrlHandler';
 
 const props = defineProps<{
     UserData: UserInfo;
@@ -45,7 +46,7 @@ const handlePostItemClick = (postsItem: HomePostsInfo) => {
     window.open(postsItem.url, "_blank")
 }
 const handlePostForumButtonClick = function (postsItem: HomePostsInfo) {
-    let url = TiebaUrlApi.getForum(postsItem.forumName)
+    let url = TiebaUrlHandler.getForum(postsItem.forumName)
     window.open(url, "_blank")
 }
 const loadMore = async () => {

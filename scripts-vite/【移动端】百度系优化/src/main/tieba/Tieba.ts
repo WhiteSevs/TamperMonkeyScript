@@ -12,13 +12,13 @@ import { TiebaData } from "./Home/data";
 import { TiebaCore } from "./TiebaCore";
 import { TiebaPost } from "./Post/TiebaPost";
 import { TiebaHome } from "./Home/TiebaHome";
-import { TiebaUrlApi } from "./api/TiebaApi";
 import Qmsg from "qmsg";
 import { VueUtils } from "@/utils/VueUtils";
 import { TiebaUniAppPost } from "./uni-app-post/TiebaUniAppPost";
 import { TiebaCheckUrl } from "./CheckUrl/TiebaCheckUrl";
 import { TiebaHotTopic } from "./HotTopic/TiebaHotTopic";
 import { TiebaMsgTab } from "./msgtab/TiebaMsgTab";
+import { TiebaUrlHandler } from "./handler/TiebaUrlHandler";
 
 /**
  * 百度贴吧
@@ -84,7 +84,7 @@ const BaiduTieBa = {
 				TiebaBaNei.openANewTab();
 			});
 			PopsPanel.execMenu("baidu_tieba_index_add_msgtab", () => {
-				if (window.location.pathname.startsWith("/index/tbwise/msgtab")) {
+				if (window.location.pathname.startsWith(TiebaMsgTab.pathname)) {
 					log.info(`Router: 魔改自定义的消息页面`);
 					TiebaMsgTab.init();
 				} else {
@@ -107,7 +107,7 @@ const BaiduTieBa = {
 								$navbarBox,
 								/*html*/ `
 								<li class="navbar-item navbar-item-msgtab" style="margin-right: .24rem;">
-									<a href="/index/tbwise/msgtab">消息</a>
+									<a href="${TiebaMsgTab.pathname}">消息</a>
 								</li>
 							`
 							);
@@ -279,7 +279,8 @@ const BaiduTieBa = {
 						clickCallBack(event: MouseEvent | PointerEvent) {
 							let userInput = prompt("请输入需要搜索的内容");
 							if (userInput) {
-								window.location.href = TiebaUrlApi.getHybridSearch(userInput);
+								window.location.href =
+									TiebaUrlHandler.getHybridSearch(userInput);
 							}
 						},
 					},
@@ -288,7 +289,7 @@ const BaiduTieBa = {
 						icon: '<svg fill="#F37D7D" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4247"><path d="M840.937 780.573h-173.721l-140.376 151.009-44.542-151.009c-100.088 0-181.253-82.372-181.253-184.022l-0-76.793c0-101.649 81.165-184.022 181.253-184.022h358.639c100.108 0 181.252 82.373 181.252 184.022v76.792c0 101.65-81.144 184.023-181.252 184.023zM469.343 303.194c-100.089 0-201.581 79.641-201.581 181.271v81.846c0 99.892 28.075 153.273 65.339 178.753l-72.147 77.614-51.45-174.46c-115.657 0-209.404-95.173-209.404-212.587v-90.157c0-117.414 93.747-212.604 209.404-212.604h419.318c99.383 0 182.421 70.374 203.843 164.667-6.4 3.336-13.54 5.677-22.319 5.677l-341.002-0.019z" p-id="4248"></path></svg>',
 						text: "进吧",
 						clickCallBack(event: MouseEvent | PointerEvent) {
-							window.location.href = TiebaUrlApi.getGoToForum();
+							window.location.href = TiebaUrlHandler.getGoToForum();
 						},
 					},
 					{
@@ -296,10 +297,20 @@ const BaiduTieBa = {
 						icon: '<svg fill="#DA99DB" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4291" width="128" height="128"><path d="M678.4 537.6c76.8-51.2 128-140.8 128-243.2 0-162.133333-132.266667-294.4-294.4-294.4s-294.4 132.266667-294.4 294.4c0 102.4 51.2 192 128 243.2-179.2 68.266667-302.933333 238.933333-302.933333 439.466667 0 25.6 17.066667 42.666667 42.666666 42.666666s42.666667-17.066667 42.666667-42.666666c0-209.066667 174.933333-384 384-384s384 170.666667 384 384c0 25.6 17.066667 42.666667 42.666667 42.666666s42.666667-21.333333 42.666666-42.666666c0-200.533333-128-371.2-302.933333-439.466667z m-375.466667-238.933333c0-115.2 93.866667-209.066667 209.066667-209.066667s209.066667 93.866667 209.066667 209.066667-93.866667 209.066667-209.066667 209.066666-209.066667-93.866667-209.066667-209.066666z" p-id="4292"></path></svg>',
 						text: "我的",
 						clickCallBack(event: MouseEvent | PointerEvent) {
-							window.location.href = TiebaUrlApi.getMine();
+							window.location.href = TiebaUrlHandler.getMine();
 						},
 					},
 				];
+				if (PopsPanel.getValue("baidu_tieba_index_add_msgtab")) {
+					menuListInfo.splice(4, 0, {
+						"data-to": "msgtab",
+						icon: '<svg t="1735104902045" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4127"><path d="M896 806.976v-320A384.32 384.32 0 0 0 544.128 104.64V5.056h-64v99.52A384.32 384.32 0 0 0 128 487.008v320H16v64h322.464a175.744 175.744 0 0 0 347.072 0H1008v-64z m-384 147.968a111.904 111.904 0 0 1-108-83.968h216A111.904 111.904 0 0 1 512 954.944zM192 806.976v-320a320 320 0 0 1 640 0v320z" fill="#191D2B" p-id="4128"></path><path d="M436.576 244.8a257.984 257.984 0 0 0-149.248 124.864 32 32 0 0 0 56.64 29.824 193.408 193.408 0 0 1 111.872-93.664 32 32 0 0 0-19.264-61.024z" fill="#191D2B" p-id="4129"></path></svg>',
+						text: "消息",
+						clickCallBack(event: MouseEvent | PointerEvent) {
+							window.location.href = TiebaMsgTab.pathname;
+						},
+					});
+				}
 				DOMUtils.on($logoWrapper, "click", () => {
 					let $drawer = pops.drawer({
 						title: {
@@ -484,7 +495,7 @@ const BaiduTieBa = {
 						});
 						$menuList.appendChild($menuItem);
 					});
-					$avatar.src = TiebaUrlApi.getUserAvatar("null");
+					$avatar.src = TiebaUrlHandler.getUserAvatar("null");
 					let $ele =
 						document.querySelector<HTMLDivElement>(".app-view") ||
 						document.querySelector<HTMLDivElement>(".tb-mobile-viewport");
@@ -499,7 +510,7 @@ const BaiduTieBa = {
 									eleVueObj.user.show_nickname ||
 									eleVueObj.user.name_show ||
 									eleVueObj.user.name;
-								$avatar.src = TiebaUrlApi.getUserAvatar(portrait);
+								$avatar.src = TiebaUrlHandler.getUserAvatar(portrait);
 								$tieba_user_nologin_tip_center.innerText = showName;
 								DOMUtils.hide($tieba_user_nologin_tip_bottom);
 							} else if (eleVueObj?.$store?.state?.common?.isLogin) {
@@ -507,7 +518,7 @@ const BaiduTieBa = {
 								isLogin = true;
 								DOMUtils.hide($tieba_user_nologin_tip_bottom);
 								$tieba_user_nologin_tip_center.innerText = "未知";
-								$avatar.src = TiebaUrlApi.getUserAvatar(
+								$avatar.src = TiebaUrlHandler.getUserAvatar(
 									eleVueObj?.$store?.state?.common?.portrait
 								);
 							}
@@ -518,7 +529,7 @@ const BaiduTieBa = {
 						if (isLogin) {
 							return;
 						}
-						window.open(TiebaUrlApi.getLoginUrl(), "_blank");
+						window.open(TiebaUrlHandler.getLoginUrl(), "_blank");
 					});
 				});
 			});

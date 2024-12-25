@@ -25,7 +25,16 @@ div.diy-guide-wrapper,
 /* 首页-我的-底部的 立即下载 */
 .app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .download-btn,
 /* 帖子内预览图片模式下底部的打开App查看高清大图 */
-.img-preview .operate .wake-app {
+.img-preview .operate .wake-app,
+/* 帖子 ?share=xxx 顶部的 横幅 立即打开 */
+#app_container .pblist-part-wrap .top-guide,
+#app_container .pblist-part-wrap .top-ad-bg,
+/* 帖子 ?share=xxx 底部的 APP内打开 */
+#app_container .bottom-guide,
+/* 帖子 ?share=xxx 猜你喜欢*/
+#app_container .guessyoulikegraphic-wrap,
+/* 帖子 ?share=xxx 打开贴吧APP查看全部回复 */
+#app_container .pb-share-post-list .open-tb-bar {
 	display: none !important;
 }
 body.tb-modal-open {

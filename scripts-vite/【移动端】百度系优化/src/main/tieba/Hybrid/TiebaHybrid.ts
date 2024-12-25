@@ -1,9 +1,9 @@
 import { DOMUtils, addStyle, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { TiebaUrlApi } from "../api/TiebaApi";
 import { CommonUtil } from "@/utils/CommonUtil";
 import Qmsg from "qmsg";
 import { VueUtils } from "@/utils/VueUtils";
+import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
 
 const TiebaHybrid = {
 	init() {
@@ -51,7 +51,7 @@ const TiebaHybrid = {
 					Qmsg.error("获取帖子的tid失败");
 					return;
 				}
-				window.open(TiebaUrlApi.getPost(tid), "_blank");
+				window.open(TiebaUrlHandler.getPost(tid), "_blank");
 			},
 			{
 				capture: true,

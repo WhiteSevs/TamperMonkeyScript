@@ -1,7 +1,6 @@
 import { addStyle, DOMUtils, log, utils } from "@/env";
 import { VueUtils } from "@/utils/VueUtils";
 import Qmsg from "qmsg";
-import { TiebaUrlApi } from "../api/TiebaApi";
 import { PopsPanel } from "@/setting/setting";
 import { GM_getValue, GM_setValue } from "ViteGM";
 import { TiebaUniAppComment } from "./TiebaUniAppComment";
@@ -11,6 +10,7 @@ import { TiebaPost } from "../Post/TiebaPost";
 import { TiebaUniAppCommentFilter } from "./TiebaUniAppCommentFilter";
 import { TiebaUniAppComponentDetection } from "./TiebaUniAppComponentDetection";
 import { TiebaCore } from "../TiebaCore";
+import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
 
 /**
  * 手势返回使用的hash参数
@@ -284,7 +284,7 @@ export const TiebaUniAppPost = {
 					vue2Ins?.$props?.config?.param?.tid ||
 					vue3Ins?.props?.config?.param?.tid;
 				if (typeof tid === "number") {
-					let url = TiebaUrlApi.getPost(tid);
+					let url = TiebaUrlHandler.getPost(tid);
 					window.open(url, "_blank");
 				} else {
 					log.error("获取tid失败", $click);
@@ -311,14 +311,14 @@ export const TiebaUniAppPost = {
 				let vue3Ins = VueUtils.getVue3($click);
 				if (typeof vue3Ins?.props?.playerInfo?.portrait === "string") {
 					let portrait = vue3Ins.props.playerInfo.portrait;
-					let url = TiebaUrlApi.getUserHome(portrait);
+					let url = TiebaUrlHandler.getUserHome(portrait);
 					window.open(url, "_blank");
 				} else {
 					let $wakeApp = $click.querySelector(".wake-app");
 					let vueIns = VueUtils.getVue($wakeApp);
 					let portrait = vueIns?.config?.param?.portrait;
 					if (typeof portrait === "string") {
-						let url = TiebaUrlApi.getUserHome(portrait);
+						let url = TiebaUrlHandler.getUserHome(portrait);
 						window.open(url, "_blank");
 					} else {
 						log.error("获取portrait失败", $click, vueIns);
@@ -707,7 +707,7 @@ export const TiebaUniAppPost = {
 							return;
 						}
 						un = un.replace(/^@/g, "");
-						let userHomeUrl = TiebaUrlApi.getUserHomeByUN(un);
+						let userHomeUrl = TiebaUrlHandler.getUserHomeByUN(un);
 						window.open(userHomeUrl, "_blank");
 					}
 				}

@@ -1,8 +1,8 @@
 import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { TieBaApi, TiebaUrlApi } from "../api/TiebaApi";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { VueUtils } from "@/utils/VueUtils";
+import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
 
 export const TiebaTopicTemplate = {
 	init() {
@@ -25,7 +25,7 @@ export const TiebaTopicTemplate = {
 				window?.stop();
 				let clickNode = event.target;
 				let pid = VueUtils.getVue(clickNode)?.item.tid;
-				let url = TiebaUrlApi.getPost(pid);
+				let url = TiebaUrlHandler.getPost(pid);
 				log.success(`跳转至: ${url}`);
 				if (PopsPanel.getValue("baidu_tieba_topic_openANewTab")) {
 					window.open(url, "_blank");

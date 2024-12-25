@@ -91,13 +91,14 @@ export const TiebaSmallAppApi = {
 	 */
 	async userInfo() {
 		let response = await httpx.get(
-			"https://tiebaswan.baidu.com/mo/q/smallapp/sync",
+			"https://tieba.baidu.com/mo/q/smallapp/sync",
 			{
 				headers: {
 					Referer: "https://tieba.baidu.com/",
 					"User-Agent": utils.getRandomPCUA(),
 				},
 				processData: true,
+				fetch: true,
 			}
 		);
 		log.info(`获取用户信息：`, response);
@@ -144,7 +145,7 @@ export const TiebaSmallAppApi = {
 		};
 		// Object.assign(searchParamsObj, await generateSearchParams());
 		let response = await httpx.get(
-			"https://tiebaswan.baidu.com/mo/q/smallapp/agreeme",
+			"https://tieba.baidu.com/mo/q/smallapp/agreeme",
 			{
 				data: searchParamsObj,
 				headers: {
@@ -152,6 +153,7 @@ export const TiebaSmallAppApi = {
 					"User-Agent": utils.getRandomPCUA(),
 				},
 				processData: true,
+				fetch: true,
 			}
 		);
 		if (!response.status) {
@@ -163,7 +165,7 @@ export const TiebaSmallAppApi = {
 			return;
 		}
 		return data["data"] as {
-			agree_list: {
+			agree_list?: {
 				id: string;
 				thread_id: string;
 				post_id: string;
@@ -223,7 +225,7 @@ export const TiebaSmallAppApi = {
 		};
 		// Object.assign(searchParamsObj, await generateSearchParams());
 		let response = await httpx.get(
-			`https://tiebaswan.baidu.com/mo/q/smallapp/replyme`,
+			`https://tieba.baidu.com/mo/q/smallapp/replyme`,
 			{
 				data: searchParamsObj,
 				headers: {
@@ -231,6 +233,7 @@ export const TiebaSmallAppApi = {
 					"User-Agent": utils.getRandomPCUA(),
 				},
 				processData: true,
+				fetch: true,
 			}
 		);
 		if (!response.status) {
@@ -243,7 +246,7 @@ export const TiebaSmallAppApi = {
 		}
 		return data["data"] as {
 			has_more: 0 | 1;
-			reply_list: {
+			reply_list?: {
 				is_floor: number;
 				type: number;
 				replyer: {
@@ -313,7 +316,7 @@ export const TiebaSmallAppApi = {
 		};
 		Object.assign(searchParamsObj, await generateSearchParams());
 		let response = await httpx.get(
-			`https://tiebaswan.baidu.com/mo/q/smallapp/atme`,
+			`https://tieba.baidu.com/mo/q/smallapp/atme`,
 			{
 				data: searchParamsObj,
 				headers: {
@@ -321,6 +324,7 @@ export const TiebaSmallAppApi = {
 					"User-Agent": utils.getRandomPCUA(),
 				},
 				processData: true,
+				fetch: true,
 			}
 		);
 		if (!response.status) {
@@ -332,7 +336,7 @@ export const TiebaSmallAppApi = {
 			return;
 		}
 		return data["data"] as {
-			at_list: any[];
+			at_list?: any[];
 			has_more: 0 | 1;
 		};
 	},

@@ -12,3 +12,9 @@ type NestedObjectWithToString = {
 };
 
 declare type IPromise<T> = Promise<T> | T;
+
+declare module "*.vue" {
+	import { defineComponent } from "vue";
+	const Component: ReturnType<typeof defineComponent>;
+	export default Component;
+}

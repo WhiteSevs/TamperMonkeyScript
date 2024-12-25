@@ -7,7 +7,7 @@ import {
 	pops,
 	utils,
 } from "@/env";
-import { TieBaApi, TiebaPageDataApi, TiebaUrlApi } from "../api/TiebaApi";
+import { TieBaApi } from "../api/TiebaApi";
 import { PopsPanel } from "@/setting/setting";
 import { TiebaCore } from "../TiebaCore";
 import { TiebaData } from "../Home/data";
@@ -21,6 +21,8 @@ import { VueUtils } from "@/utils/VueUtils";
 import { FloorCommentData, LzlItemData, PageComment } from "../types/PostsType";
 import { CommentData } from "../types/CommentType";
 import { HttpxRequestOption } from "@whitesev/utils/dist/types/src/types/Httpx";
+import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
+import { TiebaPageDataHandler } from "../handler/TiebaPageDataHandler";
 
 interface AffixOption {
 	/**
@@ -1055,10 +1057,10 @@ const TiebaComment = {
 		loadingView.setText("Loading...", true);
 		loadingView.show();
 		let timeStamp = Date.now();
-		let nextPageUrl = TiebaUrlApi.getPost(
+		let nextPageUrl = TiebaUrlHandler.getPost(
 			`${TiebaComment.param_tid}?pn=${TiebaComment.page}${TiebaComment.extraSearchSignParams}`
 		);
-		let nextPageAllCommentUrl = TiebaUrlApi.getPost(
+		let nextPageAllCommentUrl = TiebaUrlHandler.getPost(
 			`totalComment?t=${timeStamp}&tid=${TiebaComment.param_tid}&fid=${TiebaComment.param_forum_id}&pn=${TiebaComment.page}&see_lz=0${TiebaComment.extraSearchSignParams}`
 		);
 		let pageCommentInfo = await TiebaComment.getPageComment(nextPageUrl);
@@ -1097,10 +1099,10 @@ const TiebaComment = {
 		loadingView.setText("Loading...", true);
 		loadingView.show();
 		let timeStamp = Date.now();
-		let pageUrl = TiebaUrlApi.getPost(
+		let pageUrl = TiebaUrlHandler.getPost(
 			`${TiebaComment.param_tid}?pn=${TiebaComment.page}${TiebaComment.extraSearchSignParams}`
 		);
-		let pageAllCommentUrl = TiebaUrlApi.getPost(
+		let pageAllCommentUrl = TiebaUrlHandler.getPost(
 			`totalComment?t=${timeStamp}&tid=${TiebaComment.param_tid}&fid=${TiebaComment.param_forum_id}&pn=${TiebaComment.page}&see_lz=0${TiebaComment.extraSearchSignParams}`
 		);
 		let pageCommentInfo = await TiebaComment.getPageComment(pageUrl);
@@ -2362,7 +2364,7 @@ const TiebaComment = {
 	 */
 	async getLzlCommentReply(tid = "", pid = "", pn: string | number = 1) {
 		let getResp = await httpx.get({
-			url: TiebaUrlApi.getPost(
+			url: TiebaUrlHandler.getPost(
 				`comment?tid=${tid}&pid=${pid}&pn=${pn}&t=${new Date().getTime()}${
 					TiebaComment.extraSearchSignParams
 				}`
@@ -2744,7 +2746,7 @@ const TiebaComment = {
 			log.error(tag + "未找到本页参数p");
 			return;
 		}
-		TiebaComment.param_forum_id = TiebaPageDataApi.getForumId();
+		TiebaComment.param_forum_id = TiebaPageDataHandler.getForumId();
 		if (!TiebaComment.param_forum_id) {
 			log.warn(
 				tag + "param_forum_id参数不存在，尝试从其它地方获取，max-time: 5s"
@@ -2766,7 +2768,7 @@ const TiebaComment = {
 					10000
 				);
 				log.info(tag + "成功等待.recommend-item的data-banner-info属性");
-				TiebaComment.param_forum_id = TiebaPageDataApi.getForumId();
+				TiebaComment.param_forum_id = TiebaPageDataHandler.getForumId();
 				if (!TiebaComment.param_forum_id) {
 					log.error(tag + "获取参数data-banner-info失败");
 					Qmsg.error("获取参数data-banner-info失败");
@@ -2793,13 +2795,13 @@ const TiebaComment = {
 		loadingView.setText("Loading...", true);
 		loadingView.show();
 		// 获取所有评论的接口
-		let url = TiebaUrlApi.getPost(
+		let url = TiebaUrlHandler.getPost(
 			`totalComment?t=${Date.now()}&tid=${TiebaComment.param_tid}&fid=${
 				TiebaComment.param_forum_id
 			}&pn=${TiebaComment.page}&see_lz=0${TiebaComment.extraSearchSignParams}`
 		);
 		// 获取帖子链接，目的是解析页面的内容
-		let pcPageUrl = TiebaUrlApi.getPost(
+		let pcPageUrl = TiebaUrlHandler.getPost(
 			`${TiebaComment.param_tid}?pn=${TiebaComment.page}${TiebaComment.extraSearchSignParams}`
 		);
 		// 解析页面内容

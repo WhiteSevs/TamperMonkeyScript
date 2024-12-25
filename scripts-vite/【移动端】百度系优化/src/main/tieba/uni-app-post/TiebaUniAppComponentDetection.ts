@@ -6,7 +6,7 @@ import {
 	type TiebaUserLabelRule,
 } from "./TiebaUniAppComponentDetectionRule";
 import Qmsg from "qmsg";
-import { TieBaApi, TiebaPageDataApi, TiebaUrlApi } from "../api/TiebaApi";
+import { TieBaApi } from "../api/TiebaApi";
 import {
 	TiebaHomeApi,
 	type UserConcernInfo,
@@ -14,6 +14,7 @@ import {
 	type UserPostInfo,
 } from "../api/TiebaHomeApi";
 import { TiebaPCApi } from "../api/TiebaPCApi";
+import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
 
 /** 匹配信息 */
 type MatchedInfo = {
@@ -557,7 +558,7 @@ export const TiebaUniAppComponentDetection = {
 				pushMatchedRule(ruleData, {
 					reason: "黑名单用户",
 					reasonText: userId,
-					reasonLink: TiebaUrlApi.getUserHomeByUN(userId),
+					reasonLink: TiebaUrlHandler.getUserHomeByUN(userId),
 					reasonTime: null,
 				});
 				return;
@@ -579,7 +580,7 @@ export const TiebaUniAppComponentDetection = {
 					pushMatchedRule(ruleData, {
 						reason: reason,
 						reasonText: reasonText,
-						reasonLink: TiebaUrlApi.getUserHome(chatUserInfo.portrait),
+						reasonLink: TiebaUrlHandler.getUserHome(chatUserInfo.portrait),
 						reasonTime: null,
 					});
 				}
@@ -605,7 +606,7 @@ export const TiebaUniAppComponentDetection = {
 					pushMatchedRule(ruleData, {
 						reason: reason,
 						reasonText: reasonText,
-						reasonLink: TiebaUrlApi.getForum(reasonText),
+						reasonLink: TiebaUrlHandler.getForum(reasonText),
 						reasonTime: null,
 					});
 				}
