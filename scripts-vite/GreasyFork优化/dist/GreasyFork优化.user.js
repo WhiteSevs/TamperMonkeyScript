@@ -2905,11 +2905,11 @@
                 // 语言
               });
               const originModel = monaco.editor.createModel(
-                compareLeftText,
+                compareRightText,
                 "javascript"
               );
               const modifyModel = monaco.editor.createModel(
-                compareRightText,
+                compareLeftText,
                 "javascript"
               );
               monacoEditor.setModel({

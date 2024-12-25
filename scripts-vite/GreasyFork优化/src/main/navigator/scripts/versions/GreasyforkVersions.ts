@@ -280,12 +280,13 @@ export const GreasyforkVersions = {
 							wordWrap: "off", // 换行
 							language: "javascript", // 语言
 						});
+						// 跟gf默认的相同，左边的是新的，右边的是旧的
 						const originModel = monaco.editor.createModel(
-							compareLeftText,
+							compareRightText,
 							"javascript"
 						);
 						const modifyModel = monaco.editor.createModel(
-							compareRightText,
+							compareLeftText,
 							"javascript"
 						);
 						monacoEditor.setModel({
