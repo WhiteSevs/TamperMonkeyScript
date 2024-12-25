@@ -208,10 +208,10 @@ export const GreasyforkVersions = {
 							content: {
 								html: true,
 								text: /*html*/ `
-							<div class="monaco-editor-diff-container">
-								<div class="monaco-editor-diff"></div>
-							</div>
-							`,
+								<div class="monaco-editor-diff-container">
+									<div class="monaco-editor-diff"></div>
+								</div>
+								`,
 							},
 							mask: {
 								enable: true,
@@ -249,6 +249,9 @@ export const GreasyforkVersions = {
 							.monaco-editor-diff{
 								width: 100%;
 								height: 100%;
+							}
+							.pops{
+								border-radius: 0px;
 							}
 							.pops[type-value="alert"] .pops-alert-title{
 								--container-title-height: 40px;

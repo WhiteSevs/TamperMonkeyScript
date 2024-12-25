@@ -162,10 +162,10 @@ ul.history_versions li {\r
 						<a class="script-btn-install install-link" data-install-format="js" target="_blank" href="${o}">${r.t("安装此脚本")}</a>
 						<a class="script-btn-see-code" target="_blank" href="${s}">${r.t("查看代码")}</a>
 						`});d.after(t,l);});});},sourceDiffMonacoEditor(){u.info("源码对比（monacoEditor）"),ht.monacoEditor().then(t=>{d.ready(()=>{Z('#script-content form[action*="/diff"] input[type="submit"]').forEach(e=>{let A=d.createElement("input",{type:"button",value:r.t("对比选中版本差异（monacoEditor）")},{style:"margin-left: 10px;"});d.after(e,A),d.on(A,"click",async n=>{g.preventEvent(n);let i=e.closest("form"),a=new FormData(i),o=a.get("v1"),s=a.get("v2");if(o===s){m.warning(r.t("版本号相同，不需要比较源码"));return}let l=m.loading(r.t("正在获取对比文本中...")),c=z.getScriptId(),p=await E.get(`https://greasyfork.org/zh-CN/scripts/${c}.json`,{fetch:!0,responseType:"json"});if(!p.status){l.close();return}let h=g.toJSON(p.data.responseText).code_url,w=h.replace(`/${c}`,`/${c}/${o}`),x=h.replace(`/${c}`,`/${c}/${s}`),P="",M="",k=await E.get(w);if(!k.status){l.close();return}P=k.data.responseText;let Q=await E.get(x);if(!Q.status){l.close();return}M=Q.data.responseText,l.close();let{recovery:U}=_.lockScroll(),I=S.alert({title:{text:r.t("代码对比"),html:!1,position:"center"},content:{html:!0,text:`
-							<div class="monaco-editor-diff-container">
-								<div class="monaco-editor-diff"></div>
-							</div>
-							`},mask:{enable:!0,clickEvent:{toClose:!1,toHide:!1}},btn:{ok:{enable:!1},close:{callback(K,X){K.close(),U();}}},zIndex(){let K=g.getMaxZIndex(),X=S.config.InstanceUtils.getPopsMaxZIndex().zIndex;return g.getMaxValue(K,X)+100},useShadowRoot:!1,width:"90vw",height:"90vh",drag:!0,style:`
+								<div class="monaco-editor-diff-container">
+									<div class="monaco-editor-diff"></div>
+								</div>
+								`},mask:{enable:!0,clickEvent:{toClose:!1,toHide:!1}},btn:{ok:{enable:!1},close:{callback(K,X){K.close(),U();}}},zIndex(){let K=g.getMaxZIndex(),X=S.config.InstanceUtils.getPopsMaxZIndex().zIndex;return g.getMaxValue(K,X)+100},useShadowRoot:!1,width:"90vw",height:"90vh",drag:!0,style:`
 							.monaco-editor-diff-container{
 								width: 100%;
 								height: 100%;
@@ -173,6 +173,9 @@ ul.history_versions li {\r
 							.monaco-editor-diff{
 								width: 100%;
 								height: 100%;
+							}
+							.pops{
+								border-radius: 0px;
 							}
 							.pops[type-value="alert"] .pops-alert-title{
 								--container-title-height: 40px;
