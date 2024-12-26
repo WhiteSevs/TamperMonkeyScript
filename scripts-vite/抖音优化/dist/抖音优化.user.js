@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.25
+// @version      2024.12.26
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1229,6 +1229,8 @@
       return [
         CommonUtil.addBlockCSS(
           'div[data-e2e="living-container"] div[id*="living_room_player_container"] > pace-island[id^="island_"]',
+          // 2024.12.26
+          'div[data-e2e="living-container"] div[id*="living_room_player_container"] >div>div>pace-island[id^="island_"]:has(.__isFullPlayer)',
           // 全屏状态下的
           'div[data-e2e="living-container"] xg-bar.xg-top-bar'
         )
@@ -1262,10 +1264,12 @@
      * 【屏蔽】底部的礼物栏
      */
     shieldGiftColumn() {
-      log.info("屏蔽底部的礼物栏");
+      log.info("【屏蔽】底部的礼物栏");
       return [
         CommonUtil.addBlockCSS(
           'div[data-e2e="living-container"] >div> div:has(>.gitBarOptimizeEnabled)',
+          // 2024.12.26
+          'div[data-e2e="living-container"] >div> div:has(pace-island >.gitBarOptimizeEnabled)',
           // Firefox上的CSS，多了个pace-island
           'div[data-e2e="living-container"] >div> div:has(>pace-island >.gitBarOptimizeEnabled)',
           // 全屏状态下的
