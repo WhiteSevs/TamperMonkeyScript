@@ -5,9 +5,10 @@ import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/common-components/ui-info";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
-import { DOMUtils } from "@/env";
+import { DOMUtils, utils } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
+import Qmsg from "qmsg";
 
 export class ApiTest_listValues extends ApiAsyncTestBase {
 	public isSupport() {
@@ -77,19 +78,46 @@ export class ApiTest_listValues extends ApiAsyncTestBase {
 		if (this.isSupport()) {
 			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
 				UIInfo(() => {
-					try {
-						return {
-							text: CommonUtil.escapeHtml("TODO"),
-							tag: "info",
-						};
-					} catch (error) {
-						console.error(error);
-						return {
-							text: "执行错误 " + error,
-							tag: "error",
-						};
-					} finally {
-					}
+					return {
+						text: "查看存储的所有键名",
+						tag: "info",
+						afterRender(container) {
+							let $button = DOMUtils.parseHTML(
+								/*html*/ `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击测试</span>
+										</button>
+									</div>
+								`,
+								false,
+								false
+							);
+							DOMUtils.after(container.$leftContainer, $button);
+							// 点击事件
+							DOMUtils.on($button, "click", (event) => {
+								utils.preventEvent(event);
+								try {
+									let data = GM_listValues();
+									if (Array.isArray(data)) {
+										let isNotTotalStr = data.find(
+											(it) => typeof it !== "string"
+										);
+										if (isNotTotalStr) {
+											Qmsg.error("返回值数组中存在非string类型");
+										} else {
+											alert(JSON.stringify(data, null, 4));
+										}
+									} else {
+										Qmsg.error("返回值不是数组");
+									}
+								} catch (error: any) {
+									Qmsg.error(error.toString(), { consoleLogContent: true });
+								}
+							});
+						},
+					};
 				})
 			);
 		}
