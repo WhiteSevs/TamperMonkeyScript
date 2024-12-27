@@ -720,6 +720,7 @@ export const MTForumPost = {
 					case "超级版主":
 					case "网站编辑":
 					case "高级研究员":
+					case "荣誉开发者":
 						userLevel = "8级";
 						break;
 					case "管理员":

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.20
+// @version      2024.12.27
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、用户状态查看、美化导航、动态头像上传、最新发表、评论过滤器等
 // @license      GPL-3.0-only
@@ -10,7 +10,7 @@
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
@@ -45,7 +45,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
   var require_entrance_001 = __commonJS({
-    "entrance-DuqJJ09r.js"(exports, module) {
+    "entrance-DfuMZFbd.js"(exports, module) {
       var _a;
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -3619,6 +3619,7 @@
                 case "超级版主":
                 case "网站编辑":
                 case "高级研究员":
+                case "荣誉开发者":
                   userLevel = "8级";
                   break;
                 case "管理员":
