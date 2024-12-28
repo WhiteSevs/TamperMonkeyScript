@@ -2,7 +2,7 @@ import { addStyle, log } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { CommonUtil } from "@/utils/CommonUtil";
 
-/** 
+/**
  * 需验证以下状态下的屏蔽情况，防止误杀
  * 1. Chrome、Firefox浏览器下
  * 2. 普通播放情况下
@@ -19,6 +19,9 @@ export const DouYinLiveBlock = {
 		});
 		PopsPanel.execMenuOnce("live-shieldGiftEffects", () => {
 			return this.shieldGiftEffects();
+		});
+		PopsPanel.execMenuOnce("live-shieldLucky", () => {
+			return this.shieldLucky();
 		});
 		PopsPanel.execMenuOnce("live-shielYellowCar", () => {
 			return this.shieldYellowCar();
@@ -61,7 +64,19 @@ export const DouYinLiveBlock = {
 			CommonUtil.addBlockCSS(
 				// ↓该屏蔽会把连麦的用户也屏蔽了
 				// '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div>div)'
-				'.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div:not([class*="video_layout_container"])>div)'
+				// 排除掉福袋
+				'.basicPlayer[data-e2e="basicPlayer"] > pace-island[id^="island_"]:not(:has(.ShortTouchContainer)):has(>div > div:not([class*="video_layout_container"]) > div)'
+			),
+		];
+	},
+	/**
+	 * 【屏蔽】福袋
+	 */
+	shieldLucky() {
+		log.info("【屏蔽】福袋");
+		return [
+			CommonUtil.addBlockCSS(
+				'.basicPlayer[data-e2e="basicPlayer"] > pace-island[id^="island_"]:has(.ShortTouchContainer):has(>div > div:not([class*="video_layout_container"]) > div)'
 			),
 		];
 	},

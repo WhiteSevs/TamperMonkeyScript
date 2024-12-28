@@ -309,6 +309,13 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 									"屏蔽元素"
 								),
 								UISwitch(
+									"【屏蔽】福袋",
+									"live-shieldLucky",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
 									"【屏蔽】弹幕",
 									"live-shieldDanmuku",
 									false,

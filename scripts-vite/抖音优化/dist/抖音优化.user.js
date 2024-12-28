@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.27
+// @version      2024.12.28
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1204,6 +1204,9 @@
       PopsPanel.execMenuOnce("live-shieldGiftEffects", () => {
         return this.shieldGiftEffects();
       });
+      PopsPanel.execMenuOnce("live-shieldLucky", () => {
+        return this.shieldLucky();
+      });
       PopsPanel.execMenuOnce("live-shielYellowCar", () => {
         return this.shieldYellowCar();
       });
@@ -1245,7 +1248,19 @@
         CommonUtil.addBlockCSS(
           // ↓该屏蔽会把连麦的用户也屏蔽了
           // '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div>div)'
-          '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div:not([class*="video_layout_container"])>div)'
+          // 排除掉福袋
+          '.basicPlayer[data-e2e="basicPlayer"] > pace-island[id^="island_"]:not(:has(.ShortTouchContainer)):has(>div > div:not([class*="video_layout_container"]) > div)'
+        )
+      ];
+    },
+    /**
+     * 【屏蔽】福袋
+     */
+    shieldLucky() {
+      log.info("【屏蔽】福袋");
+      return [
+        CommonUtil.addBlockCSS(
+          '.basicPlayer[data-e2e="basicPlayer"] > pace-island[id^="island_"]:has(.ShortTouchContainer):has(>div > div:not([class*="video_layout_container"]) > div)'
         )
       ];
     },
@@ -2429,6 +2444,13 @@
                   UISwitch(
                     "【屏蔽】礼物特效",
                     "live-shieldGiftEffects",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】福袋",
+                    "live-shieldLucky",
                     false,
                     void 0,
                     "屏蔽元素"
