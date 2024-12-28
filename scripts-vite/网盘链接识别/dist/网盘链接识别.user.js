@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2024.12.22
+// @version      2024.12.28
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://update.greasyfork.org/scripts/465550/1448580/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js
 // @require      https://update.greasyfork.org/scripts/456470/1413242/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js
 // @require      https://update.greasyfork.org/scripts/486152/1448081/Crypto-JS.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
@@ -66,6 +66,7 @@
 // @connect      sharepoint.com
 // @grant        GM_deleteValue
 // @grant        GM_download
+// @grant        GM_getResourceText
 // @grant        GM_getValue
 // @grant        GM_info
 // @grant        GM_registerMenuCommand
@@ -85,6 +86,7 @@
   var _a;
   var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
   var _GM_download = /* @__PURE__ */ (() => typeof GM_download != "undefined" ? GM_download : void 0)();
+  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
   var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
@@ -5848,6 +5850,147 @@
       );
     }
   }
+  const CommonUtil = {
+    /**
+     * 添加屏蔽CSS
+     * @param args
+     * @example
+     * addBlockCSS("")
+     * addBlockCSS("","")
+     * addBlockCSS(["",""])
+     */
+    addBlockCSS(...args) {
+      let selectorList = [];
+      if (args.length === 0) {
+        return;
+      }
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+        return;
+      }
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    /**
+     * 设置GM_getResourceText的style内容
+     * @param resourceMapData 资源数据
+     * @example
+     * setGMResourceCSS({
+     *   keyName: "ViewerCSS",
+     *   url: "https://example.com/example.css",
+     * })
+     */
+    setGMResourceCSS(resourceMapData) {
+      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+      if (typeof cssText === "string" && cssText) {
+        addStyle(cssText);
+      } else {
+        CommonUtil.loadStyleLink(resourceMapData.url);
+      }
+    },
+    /**
+     * 添加<link>标签
+     * @param url
+     * @example
+     * loadStyleLink("https://example.com/example.css")
+     */
+    async loadStyleLink(url) {
+      let $link = document.createElement("link");
+      $link.rel = "stylesheet";
+      $link.type = "text/css";
+      $link.href = url;
+      domUtils.ready(() => {
+        document.head.appendChild($link);
+      });
+    },
+    /**
+     * 添加<script>标签
+     * @param url
+     * @example
+     * loadStyleLink("https://example.com/example.js")
+     */
+    async loadScript(url) {
+      let $script = document.createElement("script");
+      $script.src = url;
+      return new Promise((resolve) => {
+        $script.onload = () => {
+          resolve(null);
+        };
+        (document.head || document.documentElement).appendChild($script);
+      });
+    },
+    /**
+     * 将url修复，例如只有search的链接修复为完整的链接
+     *
+     * 注意：不包括http转https
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：`/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`//xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     */
+    fixUrl(url) {
+      url = url.trim();
+      if (url.match(/^http(s|):\/\//i)) {
+        return url;
+      } else {
+        if (!url.startsWith("/")) {
+          url += "/";
+        }
+        url = window.location.origin + url;
+        return url;
+      }
+    },
+    /**
+     * http转https
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：
+     * 修复后：
+     * @example
+     * 修复前：
+     * 修复后：
+     */
+    fixHttps(url) {
+      if (url.startsWith("https://")) {
+        return url;
+      }
+      if (!url.startsWith("http://")) {
+        return url;
+      }
+      let urlObj = new URL(url);
+      urlObj.protocol = "https:";
+      return urlObj.toString();
+    },
+    /**
+     * 测试是否支持GM_download
+     */
+    isSupport_GM_download() {
+      try {
+        if (typeof _GM_download === "undefined" || _GM_download == null) {
+          return false;
+        } else {
+          return true;
+        }
+      } catch (error) {
+        console.error(error);
+        return false;
+      }
+    }
+  };
   class NetDiskParse_nainiu extends NetDiskParseObject {
     constructor() {
       super(...arguments);
@@ -6261,18 +6404,17 @@
     }
     /**
      * 下载文件
-     * @param {string} fileName 文件名
-     * @param {string} fileDownloadUrl 下载地址
+     * @param fileName 文件名
+     * @param downloadUrl 下载地址
      */
-    async downloadFile(fileName, fileDownloadUrl) {
-      const that = this;
-      log.info("下载文件：", fileName, fileDownloadUrl);
-      Qmsg.info(`调用【GM_download】下载：${fileName}`);
-      if (typeof _GM_download === "undefined") {
-        Qmsg.error("当前脚本环境缺失API 【GM_download】");
+    async downloadFile(fileName, downloadUrl) {
+      log.info("下载文件：", fileName, downloadUrl);
+      if (CommonUtil.isSupport_GM_download()) {
+        Qmsg.error("当前脚本环境不支持API 【GM_download】");
         return;
       }
-      let abortDownload = void 0;
+      Qmsg.info(`调用【GM_download】下载：${fileName}`);
+      let abortDownload = null;
       let downloadingQmsg = Qmsg.loading("下载中...", {
         showClose: true,
         onClose() {
@@ -6282,11 +6424,11 @@
         }
       });
       let isDownloadEnd = false;
-      let GM_download_Result = _GM_download({
-        url: fileDownloadUrl,
+      let result = _GM_download({
+        url: downloadUrl,
         name: fileName,
         headers: {
-          Referer: "https://cowtransfer.com/s/" + that.shareCode
+          Referer: "https://cowtransfer.com/s/" + this.shareCode
         },
         onload() {
           downloadingQmsg.close();
@@ -6318,8 +6460,8 @@
           Qmsg.error(`下载 ${fileName} 请求超时`);
         }
       });
-      if (typeof GM_download_Result === "object" && "abort" in GM_download_Result) {
-        abortDownload = GM_download_Result["abort"];
+      if (typeof result === "object" && result != null && "abort" in result) {
+        abortDownload = result["abort"];
       }
     }
   }
@@ -6893,14 +7035,22 @@
      */
     downloadFile(fileName, downloadUrl) {
       log.info(`调用【GM_download】下载：`, arguments);
-      Qmsg.info(`调用【GM_download】下载：${fileName}`);
-      if (typeof _GM_download === "undefined") {
-        Qmsg.error("当前脚本环境缺失API 【GM_download】");
+      if (CommonUtil.isSupport_GM_download()) {
+        Qmsg.error("当前脚本环境不支持API 【GM_download】");
         return;
       }
-      let downloadingQmsg = Qmsg.loading("下载中...");
+      Qmsg.info(`调用【GM_download】下载：${fileName}`);
+      let abortDownload = null;
+      let downloadingQmsg = Qmsg.loading("下载中...", {
+        showClose: true,
+        onClose() {
+          if (typeof abortDownload === "function") {
+            abortDownload();
+          }
+        }
+      });
       let isDownloadEnd = false;
-      return _GM_download({
+      let result = _GM_download({
         url: downloadUrl,
         name: fileName,
         headers: {
@@ -6936,6 +7086,9 @@
           Qmsg.error(`下载 ${fileName} 请求超时`);
         }
       });
+      if (typeof result === "object" && result != null && "abort" in result) {
+        abortDownload = result["abort"];
+      }
     }
     /**
      * 前往登录
@@ -10042,10 +10195,10 @@
     /** 规则 */
     rule: [
       {
-        link_innerText: `(wenshushu.cn/f/([a-zA-Z0-9_-]{8,14})|wenshushu.cn/k/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
-        link_innerHTML: `(wenshushu.cn/f/([a-zA-Z0-9_-]{8,14})|wenshushu.cn/k/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
-        shareCode: /wenshushu.cn\/f\/([a-zA-Z0-9_-]{8,14})|wenshushu.cn\/k\/([a-zA-Z0-9_-]{8,14})/gi,
-        shareCodeNeedRemoveStr: /wenshushu.cn\/f\/|wenshushu.cn\/k\//gi,
+        link_innerText: `(wenshushu.cn|wss.ink|ws28.cn|wss1.cn|ws59.cn|wss.cc)/f/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+        link_innerHTML: `(wenshushu.cn|wss.ink|ws28.cn|wss1.cn|ws59.cn|wss.cc)/f/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+        shareCode: /(wenshushu.cn|wss.ink|ws28.cn|wss1.cn|ws59.cn|wss.cc)\/f\/([a-zA-Z0-9_-]{8,14})/gi,
+        shareCodeNeedRemoveStr: /(wenshushu.cn|wss.ink|ws28.cn|wss1.cn|ws59.cn|wss.cc)\/f\//gi,
         checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
         accessCode: /[0-9a-zA-Z]{4}/gi,
         uiLinkShow: "www.wenshushu.cn/f/{#shareCode#} 提取码: {#accessCode#}",
@@ -10053,15 +10206,15 @@
         copyUrl: "https://www.wenshushu.cn/f/{#shareCode#}\n密码：{#accessCode#}"
       },
       {
-        link_innerText: `(wss.ink/f/([a-zA-Z0-9_-]{8,14})|ws28.cn/f/([a-zA-Z0-9_-]{8,14})|wss1.cn/f/([a-zA-Z0-9_-]{8,14})|ws59.cn/f/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
-        link_innerHTML: `(wss.ink/f/([a-zA-Z0-9_-]{8,14})|ws28.cn/f/([a-zA-Z0-9_-]{8,14})|wss1.cn/f/([a-zA-Z0-9_-]{8,14})|ws59.cn/f/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
-        shareCode: /wss.ink\/f\/([a-zA-Z0-9_-]{8,14})|ws28.cn\/f\/([a-zA-Z0-9_-]{8,14})|wss1.cn\/f\/([a-zA-Z0-9_-]{8,14})|ws59.cn\/f\/([a-zA-Z0-9_-]{8,14})/gi,
-        shareCodeNeedRemoveStr: /wss.ink\/f\/|ws28.cn\/f\/|wss1.cn\/f\/|ws59.cn\/f\//gi,
+        link_innerText: `wenshushu.cn/k/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+        link_innerHTML: `wenshushu.cn/k/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+        shareCode: /wenshushu.cn\/k\/([a-zA-Z0-9_-]{8,14})/gi,
+        shareCodeNeedRemoveStr: /wenshushu.cn\/k\//gi,
         checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
         accessCode: /[0-9a-zA-Z]{4}/gi,
-        uiLinkShow: "www.wenshushu.cn/f/{#shareCode#} 提取码: {#accessCode#}",
-        blank: "https://www.wenshushu.cn/f/{#shareCode#}",
-        copyUrl: "https://www.wenshushu.cn/f/{#shareCode#}\n密码：{#accessCode#}"
+        uiLinkShow: "www.wenshushu.cn/k/{#shareCode#} 提取码: {#accessCode#}",
+        blank: "https://www.wenshushu.cn/k/{#shareCode#}",
+        copyUrl: "https://www.wenshushu.cn/k/{#shareCode#}\n密码：{#accessCode#}"
       }
     ],
     /** 设置项 */
@@ -12930,7 +13083,7 @@
           let clipboardText = NetDisk.$data.clipboardText;
           toMatchedTextList.push(clipboardText);
         }
-        if (NetDiskGlobalData.match.allowMatchLocationHref) {
+        {
           let decodeComponentUrl = NetDiskRuleUtils.getDecodeComponentUrl();
           toMatchedTextList.push(decodeComponentUrl);
         }
@@ -12986,14 +13139,14 @@
             return;
           }
         }
-        if (NetDiskGlobalData.match.toBeMatchedWithInputElementValue) {
+        {
           let inputValueList = NetDiskWorkerUtils.getInputElementValue(
             document.documentElement,
             isDepthAcquisitionWithShadowRoot
           );
           toMatchedTextList.push(...inputValueList);
         }
-        if (NetDiskGlobalData.match.toBeMatchedTextAreaElementValue) {
+        {
           let textAreaValueList = NetDiskWorkerUtils.getTextAreaElementValue(
             document.documentElement,
             isDepthAcquisitionWithShadowRoot
@@ -16182,7 +16335,7 @@
     },
     setTimeout: _unsafeWindow.setTimeout
   });
-  utils.addStyle.bind(utils);
+  const addStyle = utils.addStyle.bind(utils);
   document.querySelector.bind(document);
   document.querySelectorAll.bind(document);
   const UIButtonShortCut = function(text, description, key, defaultValue, defaultButtonText, buttonType = "default", shortCut) {

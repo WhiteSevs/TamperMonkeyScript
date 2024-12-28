@@ -6,6 +6,7 @@ import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskParseObject } from "@/main/parse/NetDiskParseObject";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 export class NetDiskParse_UC extends NetDiskParseObject {
 	/**
@@ -109,14 +110,22 @@ export class NetDiskParse_UC extends NetDiskParseObject {
 	 */
 	downloadFile(fileName: string, downloadUrl: string) {
 		log.info(`调用【GM_download】下载：`, arguments);
-		Qmsg.info(`调用【GM_download】下载：${fileName}`);
-		if (typeof GM_download === "undefined") {
-			Qmsg.error("当前脚本环境缺失API 【GM_download】");
+		if (CommonUtil.isSupport_GM_download()) {
+			Qmsg.error("当前脚本环境不支持API 【GM_download】");
 			return;
 		}
-		let downloadingQmsg = Qmsg.loading("下载中...");
+		Qmsg.info(`调用【GM_download】下载：${fileName}`);
+		let abortDownload: null | Function = null;
+		let downloadingQmsg = Qmsg.loading("下载中...", {
+			showClose: true,
+			onClose() {
+				if (typeof abortDownload === "function") {
+					abortDownload();
+				}
+			},
+		});
 		let isDownloadEnd = false;
-		return GM_download({
+		let result = GM_download({
 			url: downloadUrl,
 			name: fileName,
 			headers: {
@@ -157,6 +166,9 @@ export class NetDiskParse_UC extends NetDiskParseObject {
 				Qmsg.error(`下载 ${fileName} 请求超时`);
 			},
 		});
+		if (typeof result === "object" && result != null && "abort" in result) {
+			abortDownload = result["abort"];
+		}
 	}
 	/**
 	 * 前往登录

@@ -5,6 +5,7 @@ import { GM_download } from "ViteGM";
 import { NetDiskParseObject } from "../../../parse/NetDiskParseObject";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 export class NetDiskParse_nainiu extends NetDiskParseObject {
 	panelList = [];
@@ -449,18 +450,17 @@ export class NetDiskParse_nainiu extends NetDiskParseObject {
 	}
 	/**
 	 * 下载文件
-	 * @param {string} fileName 文件名
-	 * @param {string} fileDownloadUrl 下载地址
+	 * @param fileName 文件名
+	 * @param downloadUrl 下载地址
 	 */
-	async downloadFile(fileName: string, fileDownloadUrl: string) {
-		const that = this;
-		log.info("下载文件：", fileName, fileDownloadUrl);
-		Qmsg.info(`调用【GM_download】下载：${fileName}`);
-		if (typeof GM_download === "undefined") {
-			Qmsg.error("当前脚本环境缺失API 【GM_download】");
+	async downloadFile(fileName: string, downloadUrl: string) {
+		log.info("下载文件：", fileName, downloadUrl);
+		if (CommonUtil.isSupport_GM_download()) {
+			Qmsg.error("当前脚本环境不支持API 【GM_download】");
 			return;
 		}
-		let abortDownload = void 0 as any;
+		Qmsg.info(`调用【GM_download】下载：${fileName}`);
+		let abortDownload: null | Function = null;
 		let downloadingQmsg = Qmsg.loading("下载中...", {
 			showClose: true,
 			onClose() {
@@ -470,11 +470,11 @@ export class NetDiskParse_nainiu extends NetDiskParseObject {
 			},
 		});
 		let isDownloadEnd = false;
-		let GM_download_Result = GM_download({
-			url: fileDownloadUrl,
+		let result = GM_download({
+			url: downloadUrl,
 			name: fileName,
 			headers: {
-				Referer: "https://cowtransfer.com/s/" + that.shareCode,
+				Referer: "https://cowtransfer.com/s/" + this.shareCode,
 			},
 			onload() {
 				downloadingQmsg.close();
@@ -511,11 +511,8 @@ export class NetDiskParse_nainiu extends NetDiskParseObject {
 				Qmsg.error(`下载 ${fileName} 请求超时`);
 			},
 		});
-		if (
-			typeof GM_download_Result === "object" &&
-			"abort" in GM_download_Result
-		) {
-			abortDownload = GM_download_Result["abort"];
+		if (typeof result === "object" && result != null && "abort" in result) {
+			abortDownload = result["abort"];
 		}
 	}
 }

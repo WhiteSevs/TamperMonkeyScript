@@ -1,5 +1,5 @@
 import { addStyle, DOMUtils } from "@/env";
-import { GM_getResourceText } from "ViteGM";
+import { GM_download, GM_getResourceText } from "ViteGM";
 
 export const CommonUtil = {
 	/**
@@ -139,5 +139,20 @@ export const CommonUtil = {
 		let urlObj = new URL(url);
 		urlObj.protocol = "https:";
 		return urlObj.toString();
+	},
+	/**
+	 * 测试是否支持GM_download
+	 */
+	isSupport_GM_download() {
+		try {
+			if (typeof GM_download === "undefined" || GM_download == null) {
+				return false;
+			} else {
+				return true;
+			}
+		} catch (error) {
+			console.error(error);
+			return false;
+		}
 	},
 };
