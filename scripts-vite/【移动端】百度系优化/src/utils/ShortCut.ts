@@ -31,6 +31,8 @@ export type ShortCutOptionWindow = {
 export type ShortCutOptionElement = {
 	/**
 	 * 需要触发的目标 元素选择器
+	 *
+	 * target不能为document，因为会先触发window的事件
 	 */
 	target: string | Element | (() => IPromise<Element | void>);
 	/** 触发该快捷键的回调 */
@@ -46,12 +48,22 @@ export type ShortCutOption = {
 export class ShortCut {
 	/** 存储的键 */
 	private key: string = "short-cut";
+	/** 配置 */
+	private $data;
 	/** 是否存在等待按下的按键 */
 	isWaitPress: boolean = false;
 	constructor(key?: string) {
 		if (typeof key === "string") {
 			this.key = key;
 		}
+		this.$data = {
+			/**
+			 * 其它实例的快捷键的配置
+			 *
+			 * 这里一般是用于在录入快捷键时判断是否存在重复的快捷键
+			 */
+			otherShortCutOptions: [] as ShortCutLocalStorageOption[],
+		};
 	}
 	/**
 	 * 初始化配置默认值
@@ -161,7 +173,6 @@ export class ShortCut {
 	/**
 	 * 把配置的快捷键转成文字
 	 * @param keyboardValue
-	 * @returns
 	 */
 	translateKeyboardValueToButtonText(keyboardValue: ShortCutKeyboardOption) {
 		let result = "";
@@ -212,6 +223,9 @@ export class ShortCut {
 					};
 					const shortcutJSONString = JSON.stringify(currentOption);
 					const allOptions = this.getLocalAllOptions();
+					if (Array.isArray(this.$data.otherShortCutOptions)) {
+						allOptions.push(...this.$data.otherShortCutOptions);
+					}
 					for (let index = 0; index < allOptions.length; index++) {
 						let localValue = allOptions[index];
 						if (localValue.key === key) {
@@ -255,23 +269,42 @@ export class ShortCut {
 	/**
 	 * 初始化全局键盘监听
 	 * @param shortCutOption 快捷键配置 一般是{ "键名": { callback: ()=>{}}}，键名是本地存储的自定义快捷键的键名
+	 * @param config 配置
 	 */
-	initGlobalKeyboardListener(shortCutOption: ShortCutOption) {
+	initGlobalKeyboardListener(
+		shortCutOption: ShortCutOption,
+		config?: {
+			/** 是否阻止默认行为 */
+			isPrevent?: boolean;
+			/** 是否使用捕获 */
+			capture?: boolean;
+		}
+	) {
 		let localOptions = this.getLocalAllOptions();
 		if (!localOptions.length) {
 			log.warn("没有设置快捷键");
 			return;
 		}
-		let that = this;
+		const that = this;
+		/**
+		 * 设置监听事件
+		 * @param $ele 监听目标
+		 * @param option 监听的配置
+		 */
 		function setListenKeyboard($ele: Element | Window, option: ShortCutOption) {
 			DOMUtils.listenKeyboard(
 				$ele,
 				"keydown",
-				(keyName, keyValue, ohterCodeList) => {
+				(keyName, keyValue, ohterCodeList, event) => {
 					if (that.isWaitPress) {
 						return;
 					}
+					if (config?.isPrevent) {
+						utils.preventEvent(event);
+					}
+					/** 获取本地存储的已有的配置 */
 					localOptions = that.getLocalAllOptions();
+					// 判断是否存在对应的快捷键配置
 					let findShortcutIndex = localOptions.findIndex((item) => {
 						let option = item.value;
 						let tempOption = {
@@ -285,11 +318,14 @@ export class ShortCut {
 					});
 					if (findShortcutIndex != -1) {
 						let findShortcut = localOptions[findShortcutIndex];
-						log.info(["调用快捷键", findShortcut]);
 						if (findShortcut.key in option) {
+							log.info(["调用快捷键", findShortcut]);
 							option[findShortcut.key].callback();
 						}
 					}
+				},
+				{
+					capture: Boolean(config?.capture),
 				}
 			);
 		}
@@ -328,7 +364,7 @@ export class ShortCut {
 						if (!$ele) {
 							return;
 						}
-						let __option = {};
+						let __option: ShortCutOption = {};
 						Reflect.set(__option, localKey, option);
 						setListenKeyboard($ele, __option);
 					});
@@ -337,11 +373,11 @@ export class ShortCut {
 					if (target == null) {
 						return;
 					}
-					let __option = {};
+					let __option: ShortCutOption = {};
 					Reflect.set(__option, localKey, option);
 					setListenKeyboard(target, __option);
 				} else {
-					let __option = {};
+					let __option: ShortCutOption = {};
 					Reflect.set(__option, localKey, option);
 					setListenKeyboard(option.target, __option);
 				}
