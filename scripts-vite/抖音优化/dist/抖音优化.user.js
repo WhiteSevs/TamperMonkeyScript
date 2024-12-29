@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.29
+// @version      2024.12.29.17
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -316,7 +316,7 @@
                     "dy-cookie-remove__ac__",
                     false,
                     void 0,
-                    ""
+                    "阻止触发验证弹窗（maybe）"
                   )
                 ]
               },
@@ -1847,6 +1847,17 @@
             let flag = PopsPanel.getValue("live-shieldGiftEffects");
             PopsPanel.setValue("live-shieldGiftEffects", !flag);
           }
+        },
+        "dy-live-shortcut-changeVideoMuted": {
+          target: "window",
+          callback() {
+            log.info(`触发快捷键 ==> 切换静音状态`);
+            $$("video").forEach(($video) => {
+              let muted = !$video.muted;
+              log.success(`切换video标签的静音状态为 ${muted}`);
+              $video.muted = muted;
+            });
+          }
         }
       };
     }
@@ -2394,6 +2405,15 @@
                     "【屏蔽】礼物特效",
                     "",
                     "dy-live-shieldGiftEffects",
+                    void 0,
+                    "点击录入快捷键",
+                    void 0,
+                    DouYinLiveShortCut.shortCut
+                  ),
+                  UIButtonShortCut(
+                    "切换静音状态",
+                    "切换video标签的muted属性",
+                    "dy-live-shortcut-changeVideoMuted",
                     void 0,
                     "点击录入快捷键",
                     void 0,
@@ -8278,7 +8298,8 @@
     block_tab_activity_2644292() {
       log.info(`【屏蔽】美好跨年季`);
       return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-activity_2644292)'
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-activity_2644292)',
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-activity_2646930)'
       );
     }
   };

@@ -154,7 +154,7 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 									"dy-cookie-remove__ac__",
 									false,
 									void 0,
-									""
+									"阻止触发验证弹窗（maybe）"
 								),
 							],
 						},

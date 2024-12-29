@@ -238,6 +238,15 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 									void 0,
 									DouYinLiveShortCut.shortCut
 								),
+								UIButtonShortCut(
+									"切换静音状态",
+									"切换video标签的muted属性",
+									"dy-live-shortcut-changeVideoMuted",
+									void 0,
+									"点击录入快捷键",
+									void 0,
+									DouYinLiveShortCut.shortCut
+								),
 							],
 						},
 					],
