@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.28
+// @version      2024.12.29
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -516,7 +516,7 @@
         type: "forms",
         forms: [
           {
-            text: "布局屏蔽-通用",
+            text: "布局屏蔽-全局",
             type: "deepMenu",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             forms: [
@@ -1534,11 +1534,21 @@
     constructor(key) {
       /** 存储的键 */
       __publicField(this, "key", "short-cut");
+      /** 配置 */
+      __publicField(this, "$data");
       /** 是否存在等待按下的按键 */
       __publicField(this, "isWaitPress", false);
       if (typeof key === "string") {
         this.key = key;
       }
+      this.$data = {
+        /**
+         * 其它实例的快捷键的配置
+         *
+         * 这里一般是用于在录入快捷键时判断是否存在重复的快捷键
+         */
+        otherShortCutOptions: []
+      };
     }
     /**
      * 初始化配置默认值
@@ -1641,7 +1651,6 @@
     /**
      * 把配置的快捷键转成文字
      * @param keyboardValue
-     * @returns
      */
     translateKeyboardValueToButtonText(keyboardValue) {
       let result = "";
@@ -1686,6 +1695,9 @@
             };
             const shortcutJSONString = JSON.stringify(currentOption);
             const allOptions = this.getLocalAllOptions();
+            if (Array.isArray(this.$data.otherShortCutOptions)) {
+              allOptions.push(...this.$data.otherShortCutOptions);
+            }
             for (let index = 0; index < allOptions.length; index++) {
               let localValue = allOptions[index];
               if (localValue.key === key) {
@@ -1722,21 +1734,25 @@
     /**
      * 初始化全局键盘监听
      * @param shortCutOption 快捷键配置 一般是{ "键名": { callback: ()=>{}}}，键名是本地存储的自定义快捷键的键名
+     * @param config 配置
      */
-    initGlobalKeyboardListener(shortCutOption) {
+    initGlobalKeyboardListener(shortCutOption, config) {
       let localOptions = this.getLocalAllOptions();
       if (!localOptions.length) {
         log.warn("没有设置快捷键");
         return;
       }
-      let that = this;
+      const that = this;
       function setListenKeyboard($ele, option) {
         domUtils.listenKeyboard(
           $ele,
           "keydown",
-          (keyName, keyValue, ohterCodeList) => {
+          (keyName, keyValue, ohterCodeList, event) => {
             if (that.isWaitPress) {
               return;
+            }
+            if (config == null ? void 0 : config.isPrevent) {
+              utils.preventEvent(event);
             }
             localOptions = that.getLocalAllOptions();
             let findShortcutIndex = localOptions.findIndex((item) => {
@@ -1752,11 +1768,14 @@
             });
             if (findShortcutIndex != -1) {
               let findShortcut = localOptions[findShortcutIndex];
-              log.info(["调用快捷键", findShortcut]);
               if (findShortcut.key in option) {
+                log.info(["调用快捷键", findShortcut]);
                 option[findShortcut.key].callback();
               }
             }
+          },
+          {
+            capture: Boolean(config == null ? void 0 : config.capture)
           }
         );
       }
@@ -2558,11 +2577,17 @@
     }
   };
   const DouYinRouter = {
-    /** 直播 */
+    /**
+     * 直播
+     */
     isLive() {
       return window.location.hostname === "live.douyin.com" || this.isFollowLive();
     },
-    /** 关注-直播 */
+    /** 
+     * 关注-直播
+     * 
+     * + /follow/live/
+     */
     isFollowLive() {
       return this.isIndex() && window.location.pathname.startsWith("/follow/live/");
     },
@@ -2574,30 +2599,50 @@
     },
     /**
      * 推荐视频
+     *
+     * + /?recommend=1
      */
     isRecommend() {
-      return this.isIndex();
+      let searchParams = new URLSearchParams(window.location.search);
+      return this.isIndex() && searchParams.has("recommend");
     },
-    /** 搜索 */
+    /** 
+     * 搜索
+     * 
+     * + /search
+     * + /root/search
+     */
     isSearch() {
       return this.isIndex() && (window.location.pathname.startsWith("/search") || window.location.pathname.startsWith("/root/search"));
     },
-    /** 例如：知识、二次元、游戏、美食等 */
+    /** 
+     * 例如：知识、二次元、游戏、美食等
+     * 
+     * + /channel
+     */
     isChannel() {
       return this.isIndex() && window.location.pathname.startsWith("/channel");
     },
-    /** 精选 */
+    /** 
+     * 精选
+     * 
+     * + /discover
+     */
     isDiscover() {
       return this.isIndex() && window.location.pathname.startsWith("/discover");
     },
     /**
      * 用户主页
+     * 
+     * + /user
      */
     isUser() {
       return this.isIndex() && window.location.pathname.startsWith("/user");
     },
     /**
-     *
+     * 单个视频，一般是分享的视频链接
+     * 
+     * + /video
      */
     isVideo() {
       return this.isIndex() && window.location.pathname.startsWith("/video");
@@ -3378,10 +3423,7 @@
               DouYinElement.watchFeedVideoListChange(($os, observer) => {
                 let awemeInfoList = DouYinVideoFilter.getAllFeedVideoAwemeInfo();
                 for (let index = 0; index < awemeInfoList.length; index++) {
-                  if (awemeInfoList.length === 1) {
-                    log.warn(
-                      "feed ==> 检测到视频列表只剩最后一个，删除的话无法触发更新，暂不删除"
-                    );
+                  if (awemeInfoList.length === 2) {
                     break;
                   }
                   let awemeInfo = awemeInfoList[index];
@@ -4782,10 +4824,7 @@
               );
               for (let index = 0; index < $awemeInfoList.length; index++) {
                 const $li = $awemeInfoList[index];
-                if ($awemeInfoList.length === 1) {
-                  log.warn(
-                    "channel => 检测到视频列表只剩最后一个，删除的话无法触发更新，暂不删除"
-                  );
+                if ($awemeInfoList.length === 2) {
                   break;
                 }
                 if (!document.contains($li)) {
@@ -6286,6 +6325,8 @@
     },
     /**
      * 自动判断菜单是否启用，然后执行回调，只会执行一次
+     * 
+     * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
      * @param key
      * @param callback 回调
      * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
@@ -7345,7 +7386,7 @@
       PopsPanel.execMenu("dy-cookie-remove__ac__", () => {
         this.removeCookie();
       });
-      if (DouYinRouter.isRecommend()) {
+      if (DouYinRouter.isIndex()) {
         PopsPanel.execMenuOnce("dy-video-disableDoubleClickLike", () => {
           DouYinHook.disableDoubleClickLike();
         });
@@ -7517,7 +7558,7 @@
                 code: ["KeyN"]
               }
             ];
-            if (DouYinRouter.isRecommend()) {
+            if (DouYinRouter.isIndex()) {
               keyboardConfigList.push(
                 {
                   enableKey: "dy-keyboard-hook-arrowUp-w",

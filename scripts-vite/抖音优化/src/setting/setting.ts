@@ -420,6 +420,8 @@ const PopsPanel = {
 	},
 	/**
 	 * 自动判断菜单是否启用，然后执行回调，只会执行一次
+	 * 
+	 * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
 	 * @param key
 	 * @param callback 回调
 	 * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调

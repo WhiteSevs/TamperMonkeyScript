@@ -50,10 +50,7 @@ export const DouYinVideoFilter = {
 						DouYinElement.watchFeedVideoListChange(($os, observer) => {
 							let awemeInfoList = DouYinVideoFilter.getAllFeedVideoAwemeInfo();
 							for (let index = 0; index < awemeInfoList.length; index++) {
-								if (awemeInfoList.length === 1) {
-									log.warn(
-										"feed ==> 检测到视频列表只剩最后一个，删除的话无法触发更新，暂不删除"
-									);
+								if (awemeInfoList.length === 2) {
 									break;
 								}
 								let awemeInfo = awemeInfoList[index];
