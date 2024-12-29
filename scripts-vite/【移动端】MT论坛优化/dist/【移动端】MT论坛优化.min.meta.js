@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359
-// @version      2024.12.20
+// @version      2024.12.29
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/452322/1470429/js-watermark.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js

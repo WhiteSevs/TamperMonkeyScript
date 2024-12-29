@@ -102,7 +102,7 @@ httpx.interceptors.request.use((data) => {
 
 // 添加响应拦截器
 httpx.interceptors.response.use(void 0, (data) => {
-	log.error(["拦截器-请求错误", data]);
+	log.error("拦截器-请求错误", data);
 	if (data.type === "onabort") {
 		Qmsg.warning("请求取消");
 	} else if (data.type === "onerror") {
@@ -150,7 +150,6 @@ CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Hljs);
 
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
-
 
 const VUE_ELE_NAME_ID = "vite-app";
 /**

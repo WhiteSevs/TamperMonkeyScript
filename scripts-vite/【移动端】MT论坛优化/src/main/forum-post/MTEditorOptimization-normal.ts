@@ -473,6 +473,7 @@ export const MTEditorOptimizationNormal = {
 					headers: {
 						Accept: "application/xml, text/xml, */*; q=0.01",
 					},
+					fetch: true,
 					allowInterceptConfig: false,
 				});
 				if (!response.status) {
@@ -496,6 +497,7 @@ export const MTEditorOptimizationNormal = {
 							headers: {
 								Accept: "application/xml, text/xml, */*; q=0.01",
 							},
+							fetch: true,
 							allowInterceptConfig: false,
 						}
 					);
