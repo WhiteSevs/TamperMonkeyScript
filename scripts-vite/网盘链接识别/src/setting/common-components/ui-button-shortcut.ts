@@ -72,6 +72,9 @@ export const UIButtonShortCut = function (
 				// 录入快捷键
 				let loadingQmsg = Qmsg.loading("请按下快捷键...", {
 					showClose: true,
+					onClose() {
+						shortCut.cancelEnterShortcutKeys();
+					},
 				});
 				let {
 					status,
@@ -80,7 +83,7 @@ export const UIButtonShortCut = function (
 				} = await shortCut.enterShortcutKeys(key);
 				loadingQmsg.close();
 				if (status) {
-					log.success("成功录入快捷键", option);
+					log.success(["成功录入快捷键", option]);
 					Qmsg.success("成功录入");
 				} else {
 					Qmsg.error(

@@ -72,6 +72,9 @@ export const UIButtonShortCut = function (
 				// 录入快捷键
 				let loadingQmsg = Qmsg.loading("请按下快捷键...", {
 					showClose: true,
+					onClose() {
+						shortCut.cancelEnterShortcutKeys();
+					},
 				});
 				let {
 					status,

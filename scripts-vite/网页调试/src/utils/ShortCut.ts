@@ -52,6 +52,10 @@ export class ShortCut {
 	private $data;
 	/** 是否存在等待按下的按键 */
 	isWaitPress: boolean = false;
+	/**
+	 * 当前等待按下的按键实例
+	 */
+	private currentWaitEnterPressInstanceHandler: Function | null = null;
 	constructor(key?: string) {
 		if (typeof key === "string") {
 			this.key = key;
@@ -206,10 +210,14 @@ export class ShortCut {
 	 * @param key 本地存储的快捷键键名
 	 */
 	async enterShortcutKeys(key: string): Promise<{
+		/** 是否成功录入 */
 		status: boolean;
+		/** 设置面板中的键名 */
 		key: string;
+		/** 快捷键配置 */
 		option: ShortCutKeyboardOption;
 	}> {
+		const that = this;
 		return new Promise((resolve) => {
 			this.isWaitPress = true;
 			let keyboardListener = DOMUtils.listenKeyboard(
@@ -221,50 +229,74 @@ export class ShortCut {
 						keyValue: keyValue,
 						ohterCodeList: ohterCodeList,
 					};
-					const shortcutJSONString = JSON.stringify(currentOption);
-					const allOptions = this.getLocalAllOptions();
-					if (Array.isArray(this.$data.otherShortCutOptions)) {
-						allOptions.push(...this.$data.otherShortCutOptions);
+					let result = {} as Awaited<ReturnType<typeof this.enterShortcutKeys>>;
+					try {
+						const shortcutJSONString = JSON.stringify(currentOption);
+						const allOptions = this.getLocalAllOptions();
+						if (Array.isArray(this.$data.otherShortCutOptions)) {
+							allOptions.push(...this.$data.otherShortCutOptions);
+						}
+						for (let index = 0; index < allOptions.length; index++) {
+							let localValue = allOptions[index];
+							if (localValue.key === key) {
+								// 同一个配置的就不做判断了
+								continue;
+							}
+							const localShortCutJSONString = JSON.stringify(localValue.value);
+							// 是否被其它快捷键占用
+							let isUsedByOtherOption = false;
+							if (
+								localValue.value != null &&
+								shortcutJSONString === localShortCutJSONString
+							) {
+								// .value不为null且相同
+								isUsedByOtherOption = true;
+							}
+							if (isUsedByOtherOption) {
+								// 快捷键被占用
+								result = {
+									status: false,
+									key: localValue.key,
+									option: currentOption,
+								};
+								return;
+							}
+						}
+						this.setOption(key, currentOption);
+						result = {
+							status: true,
+							key: key,
+							option: currentOption,
+						};
+					} catch (error) {
+						console.log(error);
+						result = {
+							status: false,
+							key: key,
+							option: currentOption,
+						};
+					} finally {
+						that.isWaitPress = false;
+						keyboardListener.removeListen();
+						that.currentWaitEnterPressInstanceHandler = null;
+						resolve(result);
 					}
-					for (let index = 0; index < allOptions.length; index++) {
-						let localValue = allOptions[index];
-						if (localValue.key === key) {
-							// 同一个配置的就不做判断了
-							continue;
-						}
-						const localShortCutJSONString = JSON.stringify(localValue.value);
-						// 是否被其它快捷键占用
-						let isUsedByOtherOption = false;
-						if (
-							localValue.value != null &&
-							shortcutJSONString === localShortCutJSONString
-						) {
-							// .value不为null且相同
-							isUsedByOtherOption = true;
-						}
-						if (isUsedByOtherOption) {
-							// 快捷键被占用
-							this.isWaitPress = false;
-							keyboardListener.removeListen();
-							resolve({
-								status: false,
-								key: localValue.key,
-								option: currentOption,
-							});
-							return;
-						}
-					}
-					this.setOption(key, currentOption);
-					this.isWaitPress = false;
-					keyboardListener.removeListen();
-					resolve({
-						status: true,
-						key: key,
-						option: currentOption,
-					});
 				}
 			);
+			that.currentWaitEnterPressInstanceHandler = null;
+			that.currentWaitEnterPressInstanceHandler = () => {
+				that.isWaitPress = false;
+				keyboardListener.removeListen();
+			};
 		});
+	}
+	/**
+	 * 取消当前的录入快捷键操作
+	 */
+	cancelEnterShortcutKeys() {
+		if (typeof this.currentWaitEnterPressInstanceHandler === "function") {
+			this.currentWaitEnterPressInstanceHandler();
+		}
 	}
 	/**
 	 * 初始化全局键盘监听

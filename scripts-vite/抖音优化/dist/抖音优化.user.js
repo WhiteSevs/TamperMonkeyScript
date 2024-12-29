@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.29.17
+// @version      2024.12.29.18
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1538,6 +1538,10 @@
       __publicField(this, "$data");
       /** 是否存在等待按下的按键 */
       __publicField(this, "isWaitPress", false);
+      /**
+       * 当前等待按下的按键实例
+       */
+      __publicField(this, "currentWaitEnterPressInstanceHandler", null);
       if (typeof key === "string") {
         this.key = key;
       }
@@ -1682,6 +1686,7 @@
      * @param key 本地存储的快捷键键名
      */
     async enterShortcutKeys(key) {
+      const that = this;
       return new Promise((resolve) => {
         this.isWaitPress = true;
         let keyboardListener = domUtils.listenKeyboard(
@@ -1693,43 +1698,67 @@
               keyValue,
               ohterCodeList
             };
-            const shortcutJSONString = JSON.stringify(currentOption);
-            const allOptions = this.getLocalAllOptions();
-            if (Array.isArray(this.$data.otherShortCutOptions)) {
-              allOptions.push(...this.$data.otherShortCutOptions);
+            let result = {};
+            try {
+              const shortcutJSONString = JSON.stringify(currentOption);
+              const allOptions = this.getLocalAllOptions();
+              if (Array.isArray(this.$data.otherShortCutOptions)) {
+                allOptions.push(...this.$data.otherShortCutOptions);
+              }
+              for (let index = 0; index < allOptions.length; index++) {
+                let localValue = allOptions[index];
+                if (localValue.key === key) {
+                  continue;
+                }
+                const localShortCutJSONString = JSON.stringify(localValue.value);
+                let isUsedByOtherOption = false;
+                if (localValue.value != null && shortcutJSONString === localShortCutJSONString) {
+                  isUsedByOtherOption = true;
+                }
+                if (isUsedByOtherOption) {
+                  result = {
+                    status: false,
+                    key: localValue.key,
+                    option: currentOption
+                  };
+                  return;
+                }
+              }
+              this.setOption(key, currentOption);
+              result = {
+                status: true,
+                key,
+                option: currentOption
+              };
+            } catch (error) {
+              console.log(error);
+              result = {
+                status: false,
+                key,
+                option: currentOption
+              };
+            } finally {
+              that.isWaitPress = false;
+              keyboardListener.removeListen();
+              that.currentWaitEnterPressInstanceHandler = null;
+              resolve(result);
             }
-            for (let index = 0; index < allOptions.length; index++) {
-              let localValue = allOptions[index];
-              if (localValue.key === key) {
-                continue;
-              }
-              const localShortCutJSONString = JSON.stringify(localValue.value);
-              let isUsedByOtherOption = false;
-              if (localValue.value != null && shortcutJSONString === localShortCutJSONString) {
-                isUsedByOtherOption = true;
-              }
-              if (isUsedByOtherOption) {
-                this.isWaitPress = false;
-                keyboardListener.removeListen();
-                resolve({
-                  status: false,
-                  key: localValue.key,
-                  option: currentOption
-                });
-                return;
-              }
-            }
-            this.setOption(key, currentOption);
-            this.isWaitPress = false;
-            keyboardListener.removeListen();
-            resolve({
-              status: true,
-              key,
-              option: currentOption
-            });
           }
         );
+        that.currentWaitEnterPressInstanceHandler = null;
+        that.currentWaitEnterPressInstanceHandler = () => {
+          that.isWaitPress = false;
+          keyboardListener.removeListen();
+        };
       });
+    }
+    /**
+     * 取消当前的录入快捷键操作
+     */
+    cancelEnterShortcutKeys() {
+      if (typeof this.currentWaitEnterPressInstanceHandler === "function") {
+        this.currentWaitEnterPressInstanceHandler();
+      }
     }
     /**
      * 初始化全局键盘监听
@@ -2157,7 +2186,10 @@
           Qmsg.success("清空快捷键");
         } else {
           let loadingQmsg = Qmsg.loading("请按下快捷键...", {
-            showClose: true
+            showClose: true,
+            onClose() {
+              shortCut.cancelEnterShortcutKeys();
+            }
           });
           let {
             status,
