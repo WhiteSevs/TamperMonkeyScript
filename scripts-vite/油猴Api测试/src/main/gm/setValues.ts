@@ -5,9 +5,10 @@ import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/common-components/ui-info";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
-import { DOMUtils } from "@/env";
+import { DOMUtils, utils } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
+import Qmsg from "qmsg";
 
 export class ApiTest_setValues extends ApiAsyncTestBase {
 	public isSupport() {
@@ -76,21 +77,41 @@ export class ApiTest_setValues extends ApiAsyncTestBase {
 		};
 		if (this.isSupport()) {
 			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
-				UIInfo(() => {
-					try {
+				(() => {
+					let localStorageDataValue = { foo: 1, bar: 2 };
+					return UIInfo(() => {
 						return {
-							text: CommonUtil.escapeHtml("TODO"),
+							text: "测试存储对象",
+							description: JSON.stringify(localStorageDataValue),
 							tag: "info",
+							afterRender(container) {
+								let $button = DOMUtils.parseHTML(
+									/*html*/ `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击测试</span>
+										</button>
+									</div>
+								`,
+									false,
+									false
+								);
+								DOMUtils.after(container.$leftContainer, $button);
+								// 点击事件
+								DOMUtils.on($button, "click", (event) => {
+									utils.preventEvent(event);
+									try {
+										GM_setValues(localStorageDataValue);
+										Qmsg.info("执行写入完毕，请自行查看是否成功写入");
+									} catch (error: any) {
+										Qmsg.error(error.toString(), { consoleLogContent: true });
+									}
+								});
+							},
 						};
-					} catch (error) {
-						console.error(error);
-						return {
-							text: "执行错误 " + error,
-							tag: "error",
-						};
-					} finally {
-					}
-				})
+					});
+				})()
 			);
 		}
 		return result;

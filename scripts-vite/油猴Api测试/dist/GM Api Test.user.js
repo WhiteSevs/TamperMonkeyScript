@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.26
+// @version      2024.12.31
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -22849,21 +22849,41 @@
       };
       if (this.isSupport()) {
         result2["forms"][1].forms.push(
-          UIInfo(() => {
-            try {
+          (() => {
+            let localStorageDataValue = { foo: 1, bar: 2 };
+            return UIInfo(() => {
               return {
-                text: CommonUtil.escapeHtml("TODO"),
-                tag: "info"
+                text: "测试存储对象",
+                description: JSON.stringify(localStorageDataValue),
+                tag: "info",
+                afterRender(container) {
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击测试</span>
+										</button>
+									</div>
+								`,
+                    false,
+                    false
+                  );
+                  domUtils.after(container.$leftContainer, $button);
+                  domUtils.on($button, "click", (event) => {
+                    utils.preventEvent(event);
+                    try {
+                      _GM_setValues(localStorageDataValue);
+                      qmsg.info("执行写入完毕，请自行查看是否成功写入");
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    }
+                  });
+                }
               };
-            } catch (error2) {
-              console.error(error2);
-              return {
-                text: "执行错误 " + error2,
-                tag: "error"
-              };
-            } finally {
-            }
-          })
+            });
+          })()
         );
       }
       return result2;
