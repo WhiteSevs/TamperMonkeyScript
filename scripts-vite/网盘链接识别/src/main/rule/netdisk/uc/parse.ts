@@ -110,7 +110,7 @@ export class NetDiskParse_UC extends NetDiskParseObject {
 	 */
 	downloadFile(fileName: string, downloadUrl: string) {
 		log.info(`调用【GM_download】下载：`, arguments);
-		if (CommonUtil.isSupport_GM_download()) {
+		if (!CommonUtil.isSupport_GM_download()) {
 			Qmsg.error("当前脚本环境不支持API 【GM_download】");
 			return;
 		}

@@ -3450,14 +3450,14 @@
                 enable: false
               },
               close: {
-                callback(event) {
+                callback(detail) {
                   if (NetDiskGlobalData.features["netdisk-behavior-mode"].value.toLowerCase().includes("suspension")) {
                     NetDiskSuspensionConfig.mode.current_suspension_smallwindow_mode.value = "suspension";
-                    event.hide();
+                    detail.hide();
                     NetDiskUI.suspension.show();
                   } else {
                     NetDiskUI.Alias.uiLinkAlias = void 0;
-                    event.close();
+                    detail.close();
                   }
                 }
               }
@@ -5982,11 +5982,7 @@
      */
     isSupport_GM_download() {
       try {
-        if (typeof _GM_download === "undefined" || _GM_download == null) {
-          return false;
-        } else {
-          return true;
-        }
+        return typeof _GM_download === "function";
       } catch (error) {
         console.error(error);
         return false;
@@ -6411,7 +6407,7 @@
      */
     async downloadFile(fileName, downloadUrl) {
       log.info("下载文件：", fileName, downloadUrl);
-      if (CommonUtil.isSupport_GM_download()) {
+      if (!CommonUtil.isSupport_GM_download()) {
         Qmsg.error("当前脚本环境不支持API 【GM_download】");
         return;
       }
@@ -7037,7 +7033,7 @@
      */
     downloadFile(fileName, downloadUrl) {
       log.info(`调用【GM_download】下载：`, arguments);
-      if (CommonUtil.isSupport_GM_download()) {
+      if (!CommonUtil.isSupport_GM_download()) {
         Qmsg.error("当前脚本环境不支持API 【GM_download】");
         return;
       }

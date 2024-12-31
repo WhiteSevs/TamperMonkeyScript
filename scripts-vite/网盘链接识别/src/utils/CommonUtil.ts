@@ -145,11 +145,7 @@ export const CommonUtil = {
 	 */
 	isSupport_GM_download() {
 		try {
-			if (typeof GM_download === "undefined" || GM_download == null) {
-				return false;
-			} else {
-				return true;
-			}
+			return typeof GM_download === "function";
 		} catch (error) {
 			console.error(error);
 			return false;

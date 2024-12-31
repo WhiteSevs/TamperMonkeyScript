@@ -455,7 +455,7 @@ export class NetDiskParse_nainiu extends NetDiskParseObject {
 	 */
 	async downloadFile(fileName: string, downloadUrl: string) {
 		log.info("下载文件：", fileName, downloadUrl);
-		if (CommonUtil.isSupport_GM_download()) {
+		if (!CommonUtil.isSupport_GM_download()) {
 			Qmsg.error("当前脚本环境不支持API 【GM_download】");
 			return;
 		}
