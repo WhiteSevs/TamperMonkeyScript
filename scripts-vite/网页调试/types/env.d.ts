@@ -32,8 +32,6 @@ declare module "*.vue" {
 	export default Component;
 }
 
-
-
 declare type ToolVersionInfo = {
 	eruda: {
 		version: string;
@@ -61,7 +59,6 @@ declare type ToolVersionInfo = {
 	};
 	[key: string]: any;
 };
-
 
 declare const initEruda: Function;
 declare const initPageSpy: any;

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网页调试
 // @namespace    https://greasyfork.org/zh-CN/scripts/475228
-// @version      2024.12.17
+// @version      2024.12.31
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @license      GPL-3.0-only
@@ -12,9 +12,9 @@
 // @require      https://update.greasyfork.org/scripts/483694/1499312/Eruda-2.js
 // @require      https://update.greasyfork.org/scripts/483695/1485015/vConsole-2.js
 // @require      https://update.greasyfork.org/scripts/483696/1499313/PageSpy-2.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @resource     Resource_erudaBenchmark       https://fastly.jsdelivr.net/npm/eruda-benchmark@2.0.1
 // @resource     Resource_erudaCode            https://fastly.jsdelivr.net/npm/eruda-code@2.2.0
@@ -495,7 +495,7 @@
   const console$1 = unsafeWin.console;
   const _SCRIPT_NAME_ = "网页调试";
   const utils = Utils.noConflict();
-  const domUtils = DOMUtils.noConflict();
+  DOMUtils.noConflict();
   const __pops = pops;
   const log = new utils.Log(
     _GM_info,
@@ -3224,78 +3224,6 @@
     console$1.log($pageSpy);
     DebugToolConfig.pageSpy.version = unsafeWin.$pageSpy.version;
     console$1.log("PageSpy全局变量：$pageSpy");
-    utils.waitNode("#__pageSpy .page-spy-logo", 1e4).then(($log) => {
-      if (!$log) {
-        console$1.error("未找到PageSpy的按钮");
-        return;
-      }
-      domUtils.on(
-        $log,
-        "click",
-        (event) => {
-          utils.preventEvent(event);
-          let $modal = document.querySelector(
-            "#__pageSpy .page-spy-modal"
-          );
-          if (!$modal) {
-            console$1.error("未找到PageSpy的弹窗");
-            return;
-          }
-          if ($modal.classList.contains("show")) {
-            $modal.classList.remove("show"), $modal.classList.add("leaving"), setTimeout(() => {
-              $modal.classList.remove("leaving");
-            }, 300);
-          } else {
-            $modal.classList.add("show");
-          }
-        },
-        {
-          capture: true
-        }
-      );
-    });
-    utils.waitNode("#__pageSpy .page-spy-modal .page-spy-content", 1e4).then(($modalContent) => {
-      if (!$modalContent) {
-        console$1.error("未找到PageSpy的弹窗");
-        return;
-      }
-      let $goToRoomList = domUtils.createElement("div", {
-        className: "page-spy-content__btn",
-        innerHTML: "前往房间列表"
-      });
-      let $goToDebugRoom = domUtils.createElement("div", {
-        className: "page-spy-content__btn",
-        innerHTML: "前往调试"
-      });
-      $goToRoomList.addEventListener(
-        "click",
-        function(event) {
-          utils.preventEvent(event);
-          window.open(`${clientOrigin}/#/room-list`, "_blank");
-        },
-        {
-          capture: true
-        }
-      );
-      $goToDebugRoom.addEventListener(
-        "click",
-        function(event) {
-          utils.preventEvent(event);
-          window.open(
-            `${clientOrigin}/#/devtools?${utils.toSearchParamsStr({
-            version: unsafeWin.$pageSpy.name,
-            address: unsafeWin.$pageSpy.address
-          })}`,
-            "_blank"
-          );
-        },
-        {
-          capture: true
-        }
-      );
-      $modalContent.appendChild($goToRoomList);
-      $modalContent.appendChild($goToDebugRoom);
-    });
   };
   const ChiiPluginHeight = {
     $data: {

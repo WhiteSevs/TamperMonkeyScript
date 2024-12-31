@@ -1,4 +1,4 @@
-import { DOMUtils, unsafeWin, utils, console } from "@/env";
+import { DOMUtils, unsafeWin, utils, console, $ } from "@/env";
 import { PanelSettingConfig } from "@/setting/panel-setting-config";
 import { PopsPanel } from "@/setting/setting";
 import { DebugToolConfig } from "../DebugToolConfig";
@@ -108,82 +108,4 @@ export const PageSpy = () => {
 	console.log($pageSpy);
 	DebugToolConfig.pageSpy.version = unsafeWin.$pageSpy.version;
 	console.log("PageSpy全局变量：$pageSpy");
-
-	// 自定义添加图标点击事件
-	utils.waitNode("#__pageSpy .page-spy-logo", 10000).then(($log) => {
-		if (!$log) {
-			console.error("未找到PageSpy的按钮");
-			return;
-		}
-		DOMUtils.on(
-			$log,
-			"click",
-			(event) => {
-				utils.preventEvent(event);
-				let $modal = document.querySelector<HTMLElement>(
-					"#__pageSpy .page-spy-modal"
-				);
-				if (!$modal) {
-					console.error("未找到PageSpy的弹窗");
-					return;
-				}
-				if ($modal.classList.contains("show")) {
-					$modal.classList.remove("show"),
-						$modal.classList.add("leaving"),
-						setTimeout(() => {
-							$modal.classList.remove("leaving");
-						}, 300);
-				} else {
-					$modal.classList.add("show");
-				}
-			},
-			{
-				capture: true,
-			}
-		);
-	});
-	utils
-		.waitNode("#__pageSpy .page-spy-modal .page-spy-content", 10000)
-		.then(($modalContent) => {
-			if (!$modalContent) {
-				console.error("未找到PageSpy的弹窗");
-				return;
-			}
-			let $goToRoomList = DOMUtils.createElement("div", {
-				className: "page-spy-content__btn",
-				innerHTML: "前往房间列表",
-			});
-			let $goToDebugRoom = DOMUtils.createElement("div", {
-				className: "page-spy-content__btn",
-				innerHTML: "前往调试",
-			});
-			$goToRoomList.addEventListener(
-				"click",
-				function (event) {
-					utils.preventEvent(event);
-					window.open(`${clientOrigin}/#/room-list`, "_blank");
-				},
-				{
-					capture: true,
-				}
-			);
-			$goToDebugRoom.addEventListener(
-				"click",
-				function (event) {
-					utils.preventEvent(event);
-					window.open(
-						`${clientOrigin}/#/devtools?${utils.toSearchParamsStr({
-							version: unsafeWin.$pageSpy.name,
-							address: unsafeWin.$pageSpy.address,
-						})}`,
-						"_blank"
-					);
-				},
-				{
-					capture: true,
-				}
-			);
-			$modalContent.appendChild($goToRoomList);
-			$modalContent.appendChild($goToDebugRoom);
-		});
 };
