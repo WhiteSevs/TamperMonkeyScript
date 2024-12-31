@@ -113,7 +113,7 @@ export const NetDiskView = {
 							enable: false,
 						},
 						close: {
-							callback(event) {
+							callback(detail) {
 								if (
 									NetDiskGlobalData.features["netdisk-behavior-mode"].value
 										.toLowerCase()
@@ -121,12 +121,12 @@ export const NetDiskView = {
 								) {
 									NetDiskSuspensionConfig.mode.current_suspension_smallwindow_mode.value =
 										"suspension";
-									event.hide();
+									detail.hide();
 									NetDiskUI.suspension.show();
 								} else {
 									// @ts-ignore
 									NetDiskUI.Alias.uiLinkAlias = void 0;
-									event.close();
+									detail.close();
 								}
 							},
 						},
@@ -137,10 +137,12 @@ export const NetDiskView = {
 					// @ts-ignore
 					animation: "",
 					beforeAppendToPageCallBack($shadowRoot, $shadowContainer) {
-						let buttonHeaderControl = $shadowRoot.querySelector<HTMLElement>(
+						let $headerControl = $shadowRoot.querySelector<HTMLElement>(
 							".pops-header-control"
 						)!;
-						let alertContent = $shadowRoot.querySelector<HTMLElement>(
+						let $title =
+							$shadowRoot.querySelector<HTMLElement>(".pops-alert-title")!;
+						let $content = $shadowRoot.querySelector<HTMLElement>(
 							".pops-alert-content"
 						)!;
 						/* 展开 */
@@ -181,17 +183,18 @@ export const NetDiskView = {
 								"data-header": true,
 							}
 						);
-						DOMUtils.before(buttonHeaderControl, launchIcon);
-						DOMUtils.before(buttonHeaderControl, shrinkIcon);
+						DOMUtils.before($headerControl, launchIcon);
+						DOMUtils.before($headerControl, shrinkIcon);
 						DOMUtils.on(
 							launchIcon,
 							"click",
 							void 0,
 							function () {
 								/* 展开-切换为收缩图标 */
-								launchIcon.classList.add("pops-hide-important");
-								shrinkIcon.classList.remove("pops-hide-important");
-								alertContent.classList.remove("pops-hide-important");
+								DOMUtils.addClass(launchIcon, "pops-hide-important");
+								DOMUtils.removeClass(shrinkIcon, "pops-hide-important");
+								DOMUtils.removeClass($title, "pops-no-border-important");
+								DOMUtils.removeClass($content, "pops-hide-important");
 								NetDiskViewConfig.view[
 									"netdisl-small-window-shrink-status"
 								].value = false;
@@ -206,10 +209,10 @@ export const NetDiskView = {
 							void 0,
 							function () {
 								/* 收缩-切换为展开图标 */
-								shrinkIcon.classList.add("pops-hide-important");
-								launchIcon.classList.remove("pops-hide-important");
-								alertContent.classList.add("pops-hide-important");
-								alertContent.classList.add("pops-no-border-important");
+								DOMUtils.removeClass(launchIcon, "pops-hide-important");
+								DOMUtils.addClass(shrinkIcon, "pops-hide-important");
+								DOMUtils.addClass($title, "pops-no-border-important");
+								DOMUtils.addClass($content, "pops-hide-important");
 								NetDiskViewConfig.view[
 									"netdisl-small-window-shrink-status"
 								].value = true;

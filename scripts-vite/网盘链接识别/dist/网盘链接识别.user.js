@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2024.12.28
+// @version      2024.12.31
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -3468,10 +3468,11 @@
             // @ts-ignore
             animation: "",
             beforeAppendToPageCallBack($shadowRoot, $shadowContainer) {
-              let buttonHeaderControl = $shadowRoot.querySelector(
+              let $headerControl = $shadowRoot.querySelector(
                 ".pops-header-control"
               );
-              let alertContent = $shadowRoot.querySelector(
+              let $title = $shadowRoot.querySelector(".pops-alert-title");
+              let $content = $shadowRoot.querySelector(
                 ".pops-alert-content"
               );
               let launchIcon = domUtils.createElement(
@@ -3516,16 +3517,17 @@
                   "data-header": true
                 }
               );
-              domUtils.before(buttonHeaderControl, launchIcon);
-              domUtils.before(buttonHeaderControl, shrinkIcon);
+              domUtils.before($headerControl, launchIcon);
+              domUtils.before($headerControl, shrinkIcon);
               domUtils.on(
                 launchIcon,
                 "click",
                 void 0,
                 function() {
-                  launchIcon.classList.add("pops-hide-important");
-                  shrinkIcon.classList.remove("pops-hide-important");
-                  alertContent.classList.remove("pops-hide-important");
+                  domUtils.addClass(launchIcon, "pops-hide-important");
+                  domUtils.removeClass(shrinkIcon, "pops-hide-important");
+                  domUtils.removeClass($title, "pops-no-border-important");
+                  domUtils.removeClass($content, "pops-hide-important");
                   NetDiskViewConfig.view["netdisl-small-window-shrink-status"].value = false;
                 },
                 {
@@ -3537,10 +3539,10 @@
                 "click",
                 void 0,
                 function() {
-                  shrinkIcon.classList.add("pops-hide-important");
-                  launchIcon.classList.remove("pops-hide-important");
-                  alertContent.classList.add("pops-hide-important");
-                  alertContent.classList.add("pops-no-border-important");
+                  domUtils.removeClass(launchIcon, "pops-hide-important");
+                  domUtils.addClass(shrinkIcon, "pops-hide-important");
+                  domUtils.addClass($title, "pops-no-border-important");
+                  domUtils.addClass($content, "pops-hide-important");
                   NetDiskViewConfig.view["netdisl-small-window-shrink-status"].value = true;
                 },
                 {
@@ -16364,7 +16366,10 @@
           Qmsg.success("清空快捷键");
         } else {
           let loadingQmsg = Qmsg.loading("请按下快捷键...", {
-            showClose: true
+            showClose: true,
+            onClose() {
+              shortCut.cancelEnterShortcutKeys();
+            }
           });
           let {
             status,
@@ -16373,7 +16378,7 @@
           } = await shortCut.enterShortcutKeys(key);
           loadingQmsg.close();
           if (status) {
-            log.success("成功录入快捷键", option);
+            log.success(["成功录入快捷键", option]);
             Qmsg.success("成功录入");
           } else {
             Qmsg.error(
@@ -16396,11 +16401,25 @@
     constructor(key) {
       /** 存储的键 */
       __publicField(this, "key", "short-cut");
+      /** 配置 */
+      __publicField(this, "$data");
       /** 是否存在等待按下的按键 */
       __publicField(this, "isWaitPress", false);
+      /**
+       * 当前等待按下的按键实例
+       */
+      __publicField(this, "currentWaitEnterPressInstanceHandler", null);
       if (typeof key === "string") {
         this.key = key;
       }
+      this.$data = {
+        /**
+         * 其它实例的快捷键的配置
+         *
+         * 这里一般是用于在录入快捷键时判断是否存在重复的快捷键
+         */
+        otherShortCutOptions: []
+      };
     }
     /**
      * 初始化配置默认值
@@ -16503,7 +16522,6 @@
     /**
      * 把配置的快捷键转成文字
      * @param keyboardValue
-     * @returns
      */
     translateKeyboardValueToButtonText(keyboardValue) {
       let result = "";
@@ -16535,6 +16553,7 @@
      * @param key 本地存储的快捷键键名
      */
     async enterShortcutKeys(key) {
+      const that = this;
       return new Promise((resolve) => {
         this.isWaitPress = true;
         let keyboardListener = domUtils.listenKeyboard(
@@ -16546,59 +16565,90 @@
               keyValue,
               ohterCodeList
             };
-            const shortcutJSONString = JSON.stringify(currentOption);
-            const allOptions = this.getLocalAllOptions();
-            for (let index = 0; index < allOptions.length; index++) {
-              let localValue = allOptions[index];
-              if (localValue.key === key) {
-                continue;
+            let result = {};
+            try {
+              const shortcutJSONString = JSON.stringify(currentOption);
+              const allOptions = this.getLocalAllOptions();
+              if (Array.isArray(this.$data.otherShortCutOptions)) {
+                allOptions.push(...this.$data.otherShortCutOptions);
               }
-              const localShortCutJSONString = JSON.stringify(localValue.value);
-              let isUsedByOtherOption = false;
-              if (localValue.value != null && shortcutJSONString === localShortCutJSONString) {
-                isUsedByOtherOption = true;
+              for (let index = 0; index < allOptions.length; index++) {
+                let localValue = allOptions[index];
+                if (localValue.key === key) {
+                  continue;
+                }
+                const localShortCutJSONString = JSON.stringify(localValue.value);
+                let isUsedByOtherOption = false;
+                if (localValue.value != null && shortcutJSONString === localShortCutJSONString) {
+                  isUsedByOtherOption = true;
+                }
+                if (isUsedByOtherOption) {
+                  result = {
+                    status: false,
+                    key: localValue.key,
+                    option: currentOption
+                  };
+                  return;
+                }
               }
-              if (isUsedByOtherOption) {
-                this.isWaitPress = false;
-                keyboardListener.removeListen();
-                resolve({
-                  status: false,
-                  key: localValue.key,
-                  option: currentOption
-                });
-                return;
-              }
+              this.setOption(key, currentOption);
+              result = {
+                status: true,
+                key,
+                option: currentOption
+              };
+            } catch (error) {
+              console.log(error);
+              result = {
+                status: false,
+                key,
+                option: currentOption
+              };
+            } finally {
+              that.isWaitPress = false;
+              keyboardListener.removeListen();
+              that.currentWaitEnterPressInstanceHandler = null;
+              resolve(result);
             }
-            this.setOption(key, currentOption);
-            this.isWaitPress = false;
-            keyboardListener.removeListen();
-            resolve({
-              status: true,
-              key,
-              option: currentOption
-            });
           }
         );
+        that.currentWaitEnterPressInstanceHandler = null;
+        that.currentWaitEnterPressInstanceHandler = () => {
+          that.isWaitPress = false;
+          keyboardListener.removeListen();
+        };
       });
+    }
+    /**
+     * 取消当前的录入快捷键操作
+     */
+    cancelEnterShortcutKeys() {
+      if (typeof this.currentWaitEnterPressInstanceHandler === "function") {
+        this.currentWaitEnterPressInstanceHandler();
+      }
     }
     /**
      * 初始化全局键盘监听
      * @param shortCutOption 快捷键配置 一般是{ "键名": { callback: ()=>{}}}，键名是本地存储的自定义快捷键的键名
+     * @param config 配置
      */
-    initGlobalKeyboardListener(shortCutOption) {
+    initGlobalKeyboardListener(shortCutOption, config) {
       let localOptions = this.getLocalAllOptions();
       if (!localOptions.length) {
         log.warn("没有设置快捷键");
         return;
       }
-      let that = this;
+      const that = this;
       function setListenKeyboard($ele, option) {
         domUtils.listenKeyboard(
           $ele,
           "keydown",
-          (keyName, keyValue, ohterCodeList) => {
+          (keyName, keyValue, ohterCodeList, event) => {
             if (that.isWaitPress) {
               return;
+            }
+            if (config == null ? void 0 : config.isPrevent) {
+              utils.preventEvent(event);
             }
             localOptions = that.getLocalAllOptions();
             let findShortcutIndex = localOptions.findIndex((item) => {
@@ -16614,11 +16664,14 @@
             });
             if (findShortcutIndex != -1) {
               let findShortcut = localOptions[findShortcutIndex];
-              log.info("调用快捷键", findShortcut);
               if (findShortcut.key in option) {
+                log.info(["调用快捷键", findShortcut]);
                 option[findShortcut.key].callback();
               }
             }
+          },
+          {
+            capture: Boolean(config == null ? void 0 : config.capture)
           }
         );
       }
