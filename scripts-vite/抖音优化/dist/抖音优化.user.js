@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.30
+// @version      2024.12.31
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -8326,8 +8326,7 @@
     block_tab_activity_2644292() {
       log.info(`【屏蔽】美好跨年季`);
       return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-activity_2644292)',
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-activity_2646930)'
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-activity_"] img[alt="抖音美好跨年季"])'
       );
     }
   };

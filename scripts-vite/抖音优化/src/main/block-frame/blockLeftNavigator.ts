@@ -258,8 +258,7 @@ export const BlockLeftNavigator = {
 	block_tab_activity_2644292() {
 		log.info(`【屏蔽】美好跨年季`);
 		return CommonUtil.addBlockCSS(
-			'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-activity_2644292)',
-			'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-activity_2646930)'
+			'div[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-activity_"] img[alt="抖音美好跨年季"])'
 		);
 	},
 };
