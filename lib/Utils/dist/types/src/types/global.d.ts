@@ -25,3 +25,4 @@ export declare interface AnyObject {
 export type PartialKeys<T, K extends keyof T> = {
 	[P in K]?: T[P];
 };
+export type Values<T> = T[keyof T];

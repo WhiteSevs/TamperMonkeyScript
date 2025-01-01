@@ -29,7 +29,7 @@ class Utils {
 		this.windowApi = new WindowApi(option);
 	}
 	/** 版本号 */
-	version = "2024.12.25";
+	version = "2025.1.1";
 
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
@@ -4096,6 +4096,113 @@ class Utils {
 		);
 	}
 	/**
+	 * 等待任意事件成立
+	 *
+	 * 运行方式为根据页面元素的改变而触发回调
+	 * @param checkFn 检测的函数
+	 * @param timeout 超时时间，默认0
+	 * @param parent （可选）父元素，默认document
+	 * @example
+	 * Utils.wait(()=> {
+	 *   let $test = document.querySelector("#test");
+	 *   return {
+	 *     success: $test !== null,
+	 *     data:  $test
+	 *   }
+	 * })
+	 */
+	wait<T extends any>(
+		checkFn: (...args: any[]) => {
+			/**
+			 * 是否检测成功
+			 */
+			success: boolean;
+			/**
+			 * 返回的值
+			 */
+			data: T;
+		},
+		timeout?: null | undefined,
+		parent?: Node | Element | Document | HTMLElement
+	): Promise<T>;
+	wait<T extends any>(
+		checkFn: (...args: any[]) => {
+			/**
+			 * 是否检测成功
+			 */
+			success: boolean;
+			/**
+			 * 返回的值
+			 */
+			data: T;
+		},
+		timeout?: number,
+		parent?: Node | Element | Document | HTMLElement
+	): Promise<T | null>;
+	wait<T extends any>(
+		checkFn: (...args: any[]) => {
+			/**
+			 * 是否检测成功
+			 */
+			success: boolean;
+			/**
+			 * 返回的值
+			 */
+			data: T;
+		},
+		timeout?: number | null | undefined,
+		parent?: Node | Element | Document | HTMLElement
+	): Promise<T | null> {
+		const UtilsContext = this;
+		let __timeout__ = typeof timeout === "number" ? timeout : 0;
+		return new Promise((resolve) => {
+			let observer = UtilsContext.mutationObserver(
+				parent || UtilsContext.windowApi.document,
+				{
+					config: {
+						subtree: true,
+						childList: true,
+						attributes: true,
+					},
+					immediate: true,
+					callback(mutations, __observer__) {
+						let result = checkFn();
+						if (result.success) {
+							// 取消观察器
+							if (typeof __observer__?.disconnect === "function") {
+								__observer__.disconnect();
+							}
+							resolve(result.data);
+						}
+					},
+				}
+			);
+			if (__timeout__ > 0) {
+				setTimeout(() => {
+					// 取消观察器
+					if (typeof observer?.disconnect === "function") {
+						observer.disconnect();
+					}
+					resolve(null as T);
+				}, __timeout__);
+			}
+		});
+	}
+	/**
+	 * 等待元素出现
+	 * @param selectorFn 获取元素的函数
+	 * @param timeout 超时时间，默认0
+	 * @example
+	 * Utils.waitNode(()=>document.querySelector("div"), 1000).then( $div =>{
+	 *  console.log($div); // $div => HTMLDivELement | null
+	 * })
+	 */
+	waitNode<K extends any>(selectorFn: () => K | null | undefined): Promise<K>;
+	waitNode<K extends any>(
+		selectorFn: () => K | null | undefined,
+		timeout: number
+	): Promise<K | null | undefined>;
+	/**
 	 * 等待元素出现
 	 * @param selector CSS选择器
 	 * @param parent （可选）父元素，默认document
@@ -4103,7 +4210,7 @@ class Utils {
 	 * Utils.waitNode("div").then( $div =>{
 	 *  console.log($div); // div => HTMLDivELement
 	 * })
-	 * Utils.waitNode("div",document).then( $div =>{
+	 * Utils.waitNode("div", document).then( $div =>{
 	 *  console.log($div); // div => HTMLDivELement
 	 * })
 	 */
@@ -4123,7 +4230,7 @@ class Utils {
 	 * Utils.waitNode(["div"]).then( ([$div]) =>{
 	 *  console.log($div); // div => HTMLDivELement[]
 	 * })
-	 * Utils.waitNode(["div"],document).then( ([$div]) =>{
+	 * Utils.waitNode(["div"], document).then( ([$div]) =>{
 	 *  console.log($div); // div => HTMLDivELement[]
 	 * })
 	 */
@@ -4141,7 +4248,7 @@ class Utils {
 	 * @param parent 父元素，默认document
 	 * @param timeout 超时时间，默认0
 	 * @example
-	 * Utils.waitNode("div",document,1000).then( $div =>{
+	 * Utils.waitNode("div", document, 1000).then( $div =>{
 	 *  console.log($div); // $div => HTMLDivELement | null
 	 * })
 	 */
@@ -4161,7 +4268,7 @@ class Utils {
 	 * @param parent 父元素，默认document
 	 * @param timeout 超时时间，默认0
 	 * @example
-	 * Utils.waitNode(["div"],document,1000).then( ([$div]) =>{
+	 * Utils.waitNode(["div"], document, 1000).then( ([$div]) =>{
 	 *  console.log($div); // $div => HTMLDivELement[] | null
 	 * })
 	 */
@@ -4180,7 +4287,7 @@ class Utils {
 	 * @param selector CSS选择器
 	 * @param timeout 超时时间，默认0
 	 * @example
-	 * Utils.waitNode("div",1000).then( $div =>{
+	 * Utils.waitNode("div", 1000).then( $div =>{
 	 *  console.log($div); // $div => HTMLDivELement | null
 	 * })
 	 */
@@ -4197,7 +4304,7 @@ class Utils {
 	 * @param selectorList CSS选择器数组
 	 * @param timeout 超时时间，默认0
 	 * @example
-	 * Utils.waitNode(["div"],1000).then( [$div] =>{
+	 * Utils.waitNode(["div"], 1000).then( [$div] =>{
 	 *  console.log($div); // $div => HTMLDivELement[] | null
 	 * })
 	 */
@@ -4214,13 +4321,19 @@ class Utils {
 		args = args.filter((arg) => arg !== void 0);
 		let UtilsContext = this;
 		// 选择器
-		let selector = args[0] as unknown as string | string[];
+		let selector = args[0] as unknown as string | string[] | Function;
 		// 父元素（监听的元素）
 		let parent: Element = UtilsContext.windowApi.document as any as Element;
 		// 超时时间
 		let timeout = 0;
-		if (typeof args[0] !== "string" && !Array.isArray(args[0])) {
-			throw new TypeError("Utils.waitNode 第一个参数必须是string|string[]");
+		if (
+			typeof args[0] !== "string" &&
+			!Array.isArray(args[0]) &&
+			typeof args[0] !== "function"
+		) {
+			throw new TypeError(
+				"Utils.waitNode 第一个参数必须是string|string[]|Function"
+			);
 		}
 		if (args.length === 1) {
 			// 上面已做处理
@@ -4257,52 +4370,42 @@ class Utils {
 		} else {
 			throw new TypeError("Utils.waitNode 参数个数错误");
 		}
-		return new Promise((resolve) => {
-			function getNode() {
-				if (Array.isArray(selector)) {
-					let result: T[] = [];
-					for (let index = 0; index < selector.length; index++) {
-						let node = parent.querySelector(selector[index]);
-						if (node) {
-							result.push(node as any);
-						}
-					}
-					if (result.length === selector.length) {
-						return result;
-					}
-				} else {
-					return parent.querySelector(selector);
-				}
-			}
-			var observer = UtilsContext.mutationObserver(parent, {
-				config: {
-					subtree: true,
-					childList: true,
-					attributes: true,
-				},
-				callback() {
-					let node = getNode();
+		function getNode() {
+			if (Array.isArray(selector)) {
+				let result: T[] = [];
+				for (let index = 0; index < selector.length; index++) {
+					let node = parent.querySelector(selector[index]);
 					if (node) {
-						// 取消观察器
-						if (typeof observer?.disconnect === "function") {
-							observer.disconnect();
-						}
-						resolve(node as any as T);
-						return;
+						result.push(node as any);
 					}
-				},
-				immediate: true,
-			});
-			if (timeout > 0) {
-				setTimeout(() => {
-					// 取消观察器
-					if (typeof observer?.disconnect === "function") {
-						observer.disconnect();
-					}
-					resolve(null);
-				}, timeout);
+				}
+				if (result.length === selector.length) {
+					return result;
+				}
+			} else if (typeof selector === "function") {
+				return selector();
+			} else {
+				return parent.querySelector(selector);
 			}
-		});
+		}
+		return UtilsContext.wait(
+			() => {
+				let node = getNode();
+				if (node) {
+					return {
+						success: true,
+						data: node,
+					};
+				} else {
+					return {
+						success: false,
+						data: node,
+					};
+				}
+			},
+			timeout,
+			parent
+		);
 	}
 	/**
 	 * 等待任意元素出现
@@ -4312,7 +4415,7 @@ class Utils {
 	 * Utils.waitAnyNode(["div","div"]).then( $div =>{
 	 *  console.log($div); // $div => HTMLDivELement 这里是第一个
 	 * })
-	 * Utils.waitAnyNode(["a","div"],document).then( $a =>{
+	 * Utils.waitAnyNode(["a","div"], document).then( $a =>{
 	 *  console.log($a); // $a => HTMLAnchorElement 这里是第一个
 	 * })
 	 */
@@ -4330,7 +4433,7 @@ class Utils {
 	 * @param parent 父元素，默认document
 	 * @param timeout 超时时间，默认0
 	 * @example
-	 * Utils.waitAnyNode(["div","div"],document,10000).then( $div =>{
+	 * Utils.waitAnyNode(["div","div"], document, 10000).then( $div =>{
 	 *  console.log($div); // $div => HTMLDivELement | null
 	 * })
 	 */
@@ -4349,7 +4452,7 @@ class Utils {
 	 * @param selectorList CSS选择器数组
 	 * @param timeout 超时时间，默认0
 	 * @example
-	 * Utils.waitAnyNode(["div","div"],10000).then( $div =>{
+	 * Utils.waitAnyNode(["div","div"], 10000).then( $div =>{
 	 *  console.log($div); // $div => HTMLDivELement | null
 	 * })
 	 */
@@ -4414,7 +4517,6 @@ class Utils {
 		});
 		return Promise.any(promiseList);
 	}
-
 	/**
 	 * 等待元素数组出现
 	 * @param selector CSS选择器
@@ -4423,7 +4525,7 @@ class Utils {
 	 * Utils.waitNodeList("div").then( $result =>{
 	 *  console.log($result); // $result => NodeListOf<HTMLDivElement>
 	 * })
-	 * Utils.waitNodeList("div",document).then( $result =>{
+	 * Utils.waitNodeList("div", document).then( $result =>{
 	 *  console.log($result); // $result => NodeListOf<HTMLDivElement>
 	 * })
 	 */
@@ -4443,7 +4545,7 @@ class Utils {
 	 * Utils.waitNodeList(["div"]).then( $result =>{
 	 *  console.log($result); // $result => NodeListOf<HTMLDivElement>[]
 	 * })
-	 * Utils.waitNodeList(["div"],document).then( $result =>{
+	 * Utils.waitNodeList(["div"], document).then( $result =>{
 	 *  console.log($result); // $result => NodeListOf<HTMLDivElement>[]
 	 * })
 	 */
@@ -4461,7 +4563,7 @@ class Utils {
 	 * @param parent 监听的父元素
 	 * @param timeout 超时时间，默认0
 	 * @example
-	 * Utils.waitNodeList("div",document,10000).then( $result =>{
+	 * Utils.waitNodeList("div", document, 10000).then( $result =>{
 	 *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
 	 * })
 	 */
@@ -4481,7 +4583,7 @@ class Utils {
 	 * @param parent 监听的父元素
 	 * @param timeout 超时时间，默认0
 	 * @example
-	 * Utils.waitNodeList(["div"],document,10000).then( $result =>{
+	 * Utils.waitNodeList(["div"], document, 10000).then( $result =>{
 	 *  console.log($result); // $result => NodeListOf<HTMLDivElement>[] | null
 	 * })
 	 */
@@ -4500,7 +4602,7 @@ class Utils {
 	 * @param selector CSS选择器数组
 	 * @param timeout 超时时间，默认0
 	 * @example
-	 * Utils.waitNodeList("div",10000).then( $result =>{
+	 * Utils.waitNodeList("div", 10000).then( $result =>{
 	 *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
 	 * })
 	 */
@@ -4517,7 +4619,7 @@ class Utils {
 	 * @param selectorList CSS选择器数组
 	 * @param timeout 超时时间，默认0
 	 * @example
-	 * Utils.waitNodeList(["div"],10000).then( $result =>{
+	 * Utils.waitNodeList(["div"], 10000).then( $result =>{
 	 *  console.log($result); // $result => NodeListOf<HTMLDivElement>[] | null
 	 * })
 	 */
@@ -4579,57 +4681,45 @@ class Utils {
 		} else {
 			throw new TypeError("Utils.waitNodeList 参数个数错误");
 		}
-		return new Promise((resolve) => {
-			function getNodeList() {
-				if (Array.isArray(selector)) {
-					let result: T[] = [];
-					for (let index = 0; index < selector.length; index++) {
-						let nodeList = (parent as Element).querySelectorAll(
-							selector[index]
-						) as T;
-						if (nodeList.length) {
-							result.push(nodeList);
-						}
-					}
-					if (result.length === selector.length) {
-						return result;
-					}
-				} else {
-					let nodeList = (parent as Element).querySelectorAll(selector) as T;
+		function getNodeList() {
+			if (Array.isArray(selector)) {
+				let result: T[] = [];
+				for (let index = 0; index < selector.length; index++) {
+					let nodeList = (parent as Element).querySelectorAll(
+						selector[index]
+					) as T;
 					if (nodeList.length) {
-						return nodeList;
+						result.push(nodeList);
 					}
 				}
+				if (result.length === selector.length) {
+					return result;
+				}
+			} else {
+				let nodeList = (parent as Element).querySelectorAll(selector) as T;
+				if (nodeList.length) {
+					return nodeList;
+				}
 			}
-			var observer = UtilsContext.mutationObserver(parent, {
-				config: {
-					subtree: true,
-					childList: true,
-					attributes: true,
-				},
-				callback() {
-					let node = getNodeList();
-					if (node) {
-						// 取消观察器
-						try {
-							observer.disconnect();
-						} catch (error) {}
-						resolve(node as T);
-						return;
-					}
-				},
-				immediate: true,
-			});
-			if (timeout > 0) {
-				setTimeout(() => {
-					// 取消观察器
-					if (typeof observer?.disconnect === "function") {
-						observer.disconnect();
-					}
-					resolve(null);
-				}, timeout);
-			}
-		});
+		}
+		return UtilsContext.wait<any>(
+			() => {
+				let node = getNodeList();
+				if (node) {
+					return {
+						success: true,
+						data: node,
+					};
+				} else {
+					return {
+						success: false,
+						data: node,
+					};
+				}
+			},
+			timeout,
+			parent
+		);
 	}
 	/**
 	 * 等待任意元素数组出现
@@ -4639,7 +4729,7 @@ class Utils {
 	 * Utils.waitAnyNodeList(["div","a"]).then( $result =>{
 	 *  console.log($result); // $result => NodeListOf<HTMLDivElement>
 	 * })
-	 * Utils.waitAnyNodeList(["div","a"],document).then( $result =>{
+	 * Utils.waitAnyNodeList(["div","a"], document).then( $result =>{
 	 *  console.log($result); // $result => NodeListOf<HTMLDivElement>
 	 * })
 	 */
@@ -4657,7 +4747,7 @@ class Utils {
 	 * @param parent 父元素，默认document
 	 * @param timeout 超时时间，默认0
 	 * @example
-	 * Utils.waitAnyNodeList(["div","a"],document,10000).then( $result =>{
+	 * Utils.waitAnyNodeList(["div","a"], document, 10000).then( $result =>{
 	 *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
 	 * })
 	 */
@@ -4676,7 +4766,7 @@ class Utils {
 	 * @param selectorList CSS选择器数组
 	 * @param timeout 超时时间，默认0
 	 * @example
-	 * Utils.waitAnyNodeList(["div","div"],10000).then( $result =>{
+	 * Utils.waitAnyNodeList(["div","div"], 10000).then( $result =>{
 	 *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
 	 * })
 	 */
