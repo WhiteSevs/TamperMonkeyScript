@@ -1,12 +1,7 @@
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { UISwitch } from "../common-components/ui-switch";
 import { UISelect } from "../common-components/ui-select";
-import { DOMUtils, utils } from "@/env";
-import { DouYinSearchFilter } from "@/main/search/DouYinSearchFilter";
 import { AutoOpenOrClose } from "../utils/all-open-or-close";
-import { UIButton } from "../common-components/ui-button";
-import Qmsg from "qmsg";
-import { PopsPanel } from "../setting";
 
 const PanelSearchConfig: PopsPanelContentConfig = {
 	id: "panel-config-search",

@@ -82,6 +82,9 @@ export const BlockLeftNavigator = {
 		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-activity_2644292", () => {
 			return this.block_tab_activity_2644292();
 		});
+		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-activity_2643710", () => {
+			return this.block_tab_activity_2643710();
+		});
 	},
 	/**
 	 * 【屏蔽】左侧导航栏
@@ -259,6 +262,15 @@ export const BlockLeftNavigator = {
 		log.info(`【屏蔽】美好跨年季`);
 		return CommonUtil.addBlockCSS(
 			'div[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-activity_"] img[alt="抖音美好跨年季"])'
+		);
+	},
+	/**
+	 * 【屏蔽】2025新春环游记
+	 */
+	block_tab_activity_2643710() {
+		log.info(`【屏蔽】2025新春环游记`);
+		return CommonUtil.addBlockCSS(
+			'div[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-activity_"] img[alt="2025新春环游记"])'
 		);
 	},
 };

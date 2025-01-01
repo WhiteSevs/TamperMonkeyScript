@@ -8,7 +8,6 @@ import Qmsg from "qmsg";
 import { DouYin } from "../DouYin";
 import { DouYinVideoPlayerBlockElement } from "./DouYinVideoPlayerBlockElement";
 import { DouYinVideoPlayerShortCut } from "./DouYinVideoPlayerShortCut";
-import { DouYinVideoFilter } from "./DouYinVideoFilter";
 import { GestureBack } from "@/utils/GestureBack";
 import { DouYinGestureBackHashConfig } from "../DouYinGestureBackConfig";
 import { DouYinVideoPlayerBlockMouseHoverTip } from "./DouYinVideoPlayerBlockMouseHoverTip";
@@ -33,7 +32,6 @@ export const DouYinVideoPlayer = {
 			DouYinVideoPlayerShortCut.init();
 		});
 		DouYinVideoPlayerBlockMouseHoverTip.init();
-		DouYinVideoFilter.init();
 		PopsPanel.execMenuOnce("changeCommentToBottom", () => {
 			DouYinVideoPlayer.changeCommentToBottom();
 		});

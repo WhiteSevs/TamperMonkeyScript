@@ -15,6 +15,7 @@ import blockCSS from "./css/block.css?raw";
 import { DouYinUser } from "./user/DouYinUser";
 import { DouYinVideo } from "./video/DouYinVideo";
 import { DouYinChannel } from "./channel/DouYinChannel";
+import { DouYinVideoFilter } from "./video/DouYinVideoFilter";
 
 export const DouYin = {
 	init() {
@@ -23,6 +24,7 @@ export const DouYin = {
 		});
 		DouYinGestureBackClearHash();
 		DouYinHook.init();
+		DouYinVideoFilter.init();
 		// DouYinNetWorkHook.init();
 		DouYinRedirect.init();
 		PopsPanel.execMenuOnce("watchLoginDialogToClose", () => {

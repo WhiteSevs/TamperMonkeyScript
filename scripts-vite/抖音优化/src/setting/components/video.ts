@@ -1,19 +1,14 @@
-import { DOMUtils, log, utils } from "@/env";
+import { DOMUtils, log, SCRIPT_NAME, utils } from "@/env";
 import { UISelect } from "../common-components/ui-select";
 import { UISwitch } from "../common-components/ui-switch";
 import { UIButton } from "../common-components/ui-button";
 import { DouYinVideoPlayerShortCut } from "@/main/video/DouYinVideoPlayerShortCut";
 import { PopsPanel } from "../setting";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import Qmsg from "qmsg";
 import { UIButtonShortCut } from "../common-components/ui-button-shortcut";
 import { UISlider } from "../common-components/ui-slider";
 import { AutoOpenOrClose } from "../utils/all-open-or-close";
 import { DouYinVideoFilter } from "@/main/video/DouYinVideoFilter";
-import { DouYinRouter } from "@/router/DouYinRouter";
-import { DouYinVideoFilterDebug } from "@/main/video/DouYinVideoFilterDebug";
-import { DouYinChannelVideoFilter } from "@/main/channel/DouYinChannelVideoFilter";
-import { DouYinSearchFilter } from "@/main/search/DouYinSearchFilter";
 
 const PanelVideoConfig: PopsPanelContentConfig = {
 	id: "panel-config-video",
@@ -334,262 +329,64 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 					],
 				},
 				{
-					text: "视频过滤器",
+					text: "过滤器",
 					type: "deepMenu",
 					forms: [
+						{
+							text: '<a href="https://greasyfork.org/zh-CN/scripts/494643-%E6%8A%96%E9%9F%B3%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
+							type: "forms",
+							forms: [
+								UISwitch(
+									"启用",
+									"shieldVideo-exec-network-enable",
+									true,
+									void 0,
+									"开启后以下功能才会生效"
+								),
+								UIButton(
+									"评论过滤规则",
+									"可过滤评论",
+									"自定义",
+									void 0,
+									false,
+									false,
+									"primary",
+									() => {
+										DouYinVideoFilter.showView();
+									}
+								),
+							],
+						},
 						{
 							type: "forms",
 							text: "",
 							forms: [
-								{
-									type: "deepMenu",
-									text: "作用于feed流",
-									description:
-										"让过滤器在视频半屏/全屏上也生效，例如：推荐页面、可上下键切换视频的页面",
-									forms: [
-										{
-											type: "forms",
-											text: "",
-											forms: [
-												UISwitch(
-													"启用",
-													"shieldVideo",
-													true,
-													void 0,
-													"开启后以下功能才会生效"
-												),
-												UIButton(
-													"调试规则",
-													"测试自定义规则对当前正在播放的视频是否生效",
-													"调试",
-													void 0,
-													false,
-													false,
-													"primary",
-													() => {
-														DouYinVideoFilterDebug.init();
-													}
-												),
-											],
-										},
-										{
-											type: "forms",
-											text: "",
-											forms: [
-												UISwitch(
-													"【屏蔽】直播",
-													"shieldVideo-live",
-													true,
-													void 0,
-													"过滤掉直播"
-												),
-												UISwitch(
-													"【屏蔽】广告",
-													"shieldVideo-ads",
-													true,
-													void 0,
-													"过滤掉广告"
-												),
-												UIButton(
-													"初始化规则",
-													"重新解析并初始化规则",
-													"更新",
-													void 0,
-													false,
-													false,
-													"primary",
-													() => {
-														DouYinVideoFilter.videoFilter.initLocalRule();
-														Qmsg.success("更新完毕");
-													}
-												),
-												{
-													type: "own",
-													getLiElementCallBack(liElement: HTMLLIElement) {
-														let textareaDiv = DOMUtils.createElement(
-															"div",
-															{
-																className: "pops-panel-textarea",
-																innerHTML: /*html*/ `<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>`,
-															},
-															{
-																style: "width: 100%;",
-															}
-														);
-														let textarea =
-															textareaDiv.querySelector("textarea")!;
-														textarea.value =
-															DouYinVideoFilter.videoFilter.get();
-														DOMUtils.on(
-															textarea,
-															["input", "propertychange"],
-															utils.debounce(function () {
-																DouYinVideoFilter.videoFilter.set(
-																	textarea.value
-																);
-															}, 80)
-														);
-														liElement.appendChild(textareaDiv);
-														return liElement;
-													},
-												},
-											],
-										},
-									],
-								},
-								{
-									text: "作用于/search",
-									type: "deepMenu",
-									description: "让过滤器在搜索页面上也生效，用于过滤搜索结果",
-									forms: [
-										{
-											type: "forms",
-											text: '<a href="https://greasyfork.org/zh-CN/scripts/494643-%E6%8A%96%E9%9F%B3%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
-											forms: [
-												UISwitch(
-													"启用",
-													"search-shieldVideo",
-													true,
-													void 0,
-													"开启后以下功能才会生效"
-												),
-											],
-										},
-										{
-											type: "forms",
-											text: "",
-											forms: [
-												UISwitch(
-													"【屏蔽】直播",
-													"search-shieldVideo-live",
-													true,
-													void 0,
-													"过滤掉直播"
-												),
-												UISwitch(
-													"【屏蔽】广告",
-													"search-shieldVideo-ads",
-													true,
-													void 0,
-													"过滤掉广告"
-												),
-												UIButton(
-													"初始化规则",
-													"重新解析并初始化规则",
-													"更新",
-													void 0,
-													false,
-													false,
-													"primary",
-													() => {
-														DouYinSearchFilter.videoFilter.initLocalRule();
-														Qmsg.success("更新完毕");
-													}
-												),
-												{
-													type: "own",
-													getLiElementCallBack(liElement: HTMLLIElement) {
-														let textareaDiv = DOMUtils.createElement(
-															"div",
-															{
-																className: "pops-panel-textarea",
-																innerHTML: /*html*/ `<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>`,
-															},
-															{
-																style: "width: 100%;",
-															}
-														);
-														let textarea =
-															textareaDiv.querySelector("textarea")!;
-														textarea.value =
-															DouYinSearchFilter.videoFilter.get();
-														DOMUtils.on(
-															textarea,
-															["input", "propertychange"],
-															utils.debounce(function () {
-																DouYinSearchFilter.videoFilter.set(
-																	textarea.value
-																);
-															}, 80)
-														);
-														liElement.appendChild(textareaDiv);
-														return liElement;
-													},
-												},
-											],
-										},
-									],
-								},
-								{
-									type: "deepMenu",
-									text: "作用于/channel",
-									description:
-										"让过滤器过滤网络接口/channel的结果，例如：知识、游戏、二次元、音乐、美食页面",
-									forms: [
-										{
-											text: '<a href="https://greasyfork.org/zh-CN/scripts/494643-%E6%8A%96%E9%9F%B3%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
-											type: "forms",
-											forms: [
-												UISwitch(
-													"启用",
-													"shieldVideo-exec-network-channel",
-													true,
-													void 0,
-													"开启后以下功能才会生效"
-												),
-											],
-										},
-										{
-											type: "forms",
-											text: "",
-											forms: [
-												UIButton(
-													"初始化规则",
-													"重新解析并初始化规则",
-													"更新",
-													void 0,
-													false,
-													false,
-													"primary",
-													() => {
-														DouYinChannelVideoFilter.videoFilter.initLocalRule();
-														Qmsg.success("更新完毕");
-													}
-												),
-												{
-													type: "own",
-													getLiElementCallBack(liElement: HTMLLIElement) {
-														let textareaDiv = DOMUtils.createElement(
-															"div",
-															{
-																className: "pops-panel-textarea",
-																innerHTML: /*html*/ `<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>`,
-															},
-															{
-																style: "width: 100%;",
-															}
-														);
-														let textarea =
-															textareaDiv.querySelector("textarea")!;
-														textarea.value =
-															DouYinChannelVideoFilter.videoFilter.get();
-														DOMUtils.on(
-															textarea,
-															["input", "propertychange"],
-															utils.debounce(function () {
-																DouYinChannelVideoFilter.videoFilter.set(
-																	textarea.value
-																);
-															}, 80)
-														);
-														liElement.appendChild(textareaDiv);
-														return liElement;
-													},
-												},
-											],
-										},
-									],
-								},
+								UIButton(
+									"数据导入",
+									"导入自定义规则数据",
+									"导入",
+									void 0,
+									false,
+									false,
+									"primary",
+									() => {
+										DouYinVideoFilter.importRule();
+									}
+								),
+								UIButton(
+									"数据导出",
+									"导出自定义规则数据",
+									"导出",
+									void 0,
+									false,
+									false,
+									"primary",
+									() => {
+										DouYinVideoFilter.exportRule(
+											SCRIPT_NAME + "-视频过滤规则.json"
+										);
+									}
+								),
 							],
 						},
 					],

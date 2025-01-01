@@ -1,4 +1,4 @@
-import { addStyle, log } from "@/env";
+import { addStyle, DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { CommonUtil } from "@/utils/CommonUtil";
 
@@ -60,7 +60,7 @@ export const DouYinLiveBlock = {
 	 */
 	shieldGiftEffects() {
 		log.info("【屏蔽】礼物特效");
-		return [
+		let result: (HTMLStyleElement | undefined)[] = [
 			CommonUtil.addBlockCSS(
 				// ↓该屏蔽会把连麦的用户也屏蔽了
 				// '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div>div)'
@@ -68,6 +68,30 @@ export const DouYinLiveBlock = {
 				'.basicPlayer[data-e2e="basicPlayer"] > pace-island[id^="island_"]:not(:has(.ShortTouchContainer)):has(>div > div:not([class*="video_layout_container"]) > div)'
 			),
 		];
+		DOMUtils.ready(() => {
+			utils
+				.waitNode(() => {
+					return DOMUtils.selector<HTMLElement>(
+						"xg-icon.pluginContainer > div:contains('屏蔽礼物特效')"
+					);
+				}, 10000)
+				.then(($el) => {
+					if (!$el) {
+						log.error("屏蔽礼物特效按钮不存在，获取超时");
+						return;
+					}
+					let { reactFiber } = utils.getReactObj($el);
+					let onClick =
+						reactFiber?.memoizedProps?.children?.[1]?.props?.onClick;
+					if (typeof onClick === "function") {
+						log.info(`调用屏蔽礼物特效按钮的onClick函数`);
+						onClick();
+					} else {
+						log.error(`调用屏蔽礼物特效按钮的onClick函数失败，未获取到`);
+					}
+				});
+		});
+		return result;
 	},
 	/**
 	 * 【屏蔽】福袋

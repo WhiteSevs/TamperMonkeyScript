@@ -3,12 +3,10 @@ import MobileCSS from "./css/mobile.css?raw";
 import { DouYinSearchHideElement } from "./DouYinSearchHideElement";
 import Qmsg from "qmsg";
 import { PopsPanel } from "@/setting/setting";
-import { DouYinSearchFilter } from "./DouYinSearchFilter";
 
 export const DouYinSearch = {
 	init() {
 		DouYinSearchHideElement.init();
-		DouYinSearchFilter.init();
 		PopsPanel.execMenuOnce("mobileMode", () => {
 			return this.mobileMode();
 		});

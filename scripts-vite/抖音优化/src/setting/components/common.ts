@@ -525,6 +525,13 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 									void 0,
 									"屏蔽元素"
 								),
+								UISwitch(
+									"【屏蔽】2025新春环游记",
+									"shieldLeftNavigator-tab-activity_2643710",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
 							],
 						},
 					],

@@ -1,4 +1,4 @@
-import { DOMUtils, pops, utils } from "@/env";
+import { pops, utils } from "@/env";
 import type { PopsConfirmDetails } from "@whitesev/pops/dist/types/src/components/confirm/indexType";
 
 type RuleEditViewOption<T> = {

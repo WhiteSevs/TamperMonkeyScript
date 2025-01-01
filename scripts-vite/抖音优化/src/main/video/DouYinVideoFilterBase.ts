@@ -1,6 +1,5 @@
-import { DOMUtils, log, utils } from "@/env";
-import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
-import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
+import { log, utils } from "@/env";
+import type { DouYinVideoFilterOption } from "./DouYinVideoFilter";
 
 /**
  * 视频信息处理过后的数据结构
@@ -263,6 +262,8 @@ export type DouYinVideoAwemeInfo = {
 	};
 };
 
+/** 抖音视频的api接口的awemeInfo对象信息 */
+export type DouYinVideoNetWorkAwemeInfo = {};
 type CheckRuleDetail = {
 	/** 视频信息的键（awemeInfo） */
 	videoInfoKey: string;
@@ -274,59 +275,12 @@ type CheckRuleDetail = {
 	ruleValue: RegExp | string | undefined | null;
 };
 export class DouYinVideoFilterBase {
-	/** 存储的键 */
-	key: string;
-	$data = {
-		__rule: null as any as UtilsDictionary<
-			keyof DouYinVideoHandlerInfo,
-			RegExp | string
-		>,
-		/**
-		 * 解析出的规则
-		 */
-		get rule() {
-			if (this.__rule == null) {
-				this.__rule = new utils.Dictionary<
-					keyof DouYinVideoHandlerInfo,
-					RegExp | string
-				>();
-			}
-			return this.__rule;
-		},
-		/**
-		 * 多组规则
-		 */
-		moreRule: <
-			{
-				[k in keyof DouYinVideoHandlerInfo]?: RegExp | string;
-			}[]
-		>[],
-	};
-	$flag = {
-		/** 是否屏蔽直播 */
-		isBlockLiveVideo: false,
-		/** 是否屏蔽广告 */
-		isBlockAdsVideo: false,
-	};
-	constructor(config: {
-		/** 存储的键 */
-		key: string;
-		/** 是否屏蔽在直播 */
-		isBlockLiveVideo?: boolean;
-		/** 是否屏蔽广告 */
-		isBlockAdsVideo?: boolean;
-	}) {
-		this.key = config.key;
-		this.$flag.isBlockLiveVideo = Boolean(config.isBlockLiveVideo);
-		this.$flag.isBlockAdsVideo = Boolean(config.isBlockAdsVideo);
-		this.initLocalRule();
-	}
 	/**
 	 * 解析awemeInfo转为规则过滤的字典
 	 * @param awemeInfo
 	 * @param showLog 是否显示日志输出
 	 */
-	getAwemeInfoDictData(
+	parseAwemeInfoDictData(
 		awemeInfo: DouYinVideoAwemeInfo,
 		showLog: boolean = false
 	): DouYinVideoHandlerInfo {
@@ -387,35 +341,55 @@ export class DouYinVideoFilterBase {
 			});
 		}
 
-		if (typeof awemeInfo["cellRoom"] === "object") {
+		if (
+			typeof awemeInfo["cellRoom"] === "object" ||
+			// @ts-ignore
+			typeof awemeInfo["cell_room"] === "object"
+		) {
 			isLive = true;
 			if (showLog) {
 				log.success("直播间：cellRoom is not null");
 			}
 		}
 
-		if (awemeInfo["isAds"]) {
+		if (
+			awemeInfo["isAds"] ||
+			// @ts-ignore
+			awemeInfo["is_ads"]
+		) {
 			isAds = true;
 			if (showLog) {
 				log.success("广告：isAds is true");
 			}
 		} else if (
-			typeof awemeInfo["rawAdData"] === "string" &&
-			utils.isNotNull(awemeInfo["rawAdData"])
+			(typeof awemeInfo["rawAdData"] === "string" &&
+				utils.isNotNull(awemeInfo["rawAdData"])) ||
+			// @ts-ignore
+			(typeof awemeInfo["raw_ad_data"] === "string" &&
+				// @ts-ignore
+				utils.isNotNull(awemeInfo["raw_ad_data"]))
 		) {
 			isAds = true;
 			if (showLog) {
 				log.success("广告：rawAdData is not null");
 			}
-		} else if (awemeInfo["webRawData"]?.["brandAd"]?.["is_ad"]) {
-			isAds = true;
-			if (showLog) {
-				log.success("广告：webRawData.brandAd.is_ad is true");
+		} else if (awemeInfo["webRawData"]) {
+			if (awemeInfo["webRawData"]?.["brandAd"]?.["is_ad"]) {
+				isAds = true;
+				if (showLog) {
+					log.success("广告：webRawData.brandAd.is_ad is true");
+				}
+			} else if (awemeInfo["webRawData"]?.["insertInfo"]?.["is_ad"]) {
+				isAds = true;
+				if (showLog) {
+					log.success("广告：webRawData.insertInfo.is_ad is true");
+				}
 			}
-		} else if (awemeInfo["webRawData"]?.["insertInfo"]?.["is_ad"]) {
-			isAds = true;
-			if (showLog) {
-				log.success("广告：webRawData.insertInfo.is_ad is true");
+			//  @ts-ignore
+		} else if (awemeInfo["web_raw_data"]) {
+			//  @ts-ignore
+			if (typeof awemeInfo["web_raw_data"] === "string") {
+				// 暂无测试用例
 			}
 		}
 		return {
@@ -512,7 +486,7 @@ export class DouYinVideoFilterBase {
 					}
 				} else {
 					// 未经允许的比较符号
-					log.warn("过滤器-自定义屏蔽-未经允许的比较符号: ", details);
+					log.warn("视频过滤器-未经允许的比较符号: ", details);
 					return false;
 				}
 			}
@@ -527,87 +501,36 @@ export class DouYinVideoFilterBase {
 	}
 	/**
 	 * 检测视频是否可以屏蔽，可以屏蔽返回true
+	 * @param rule 规则
 	 * @param awemeInfo 视频信息结构
 	 */
-	checkAwemeInfoIsFilter(awemeInfo: DouYinVideoAwemeInfo): boolean {
-		let awemeInfoTagDict = this.getAwemeInfoDictData(awemeInfo);
+	checkAwemeInfoIsFilter(
+		rule: DouYinVideoFilterOption[],
+		awemeInfo: DouYinVideoAwemeInfo
+	): boolean {
+		let awemeInfoTagDict = this.parseAwemeInfoDictData(awemeInfo);
 		let flag = false;
-		if (!flag) {
-			if (this.$flag.isBlockLiveVideo && awemeInfoTagDict.isLive) {
-				log.success("过滤器-屏蔽直播");
+		for (let index = 0; index < rule.length; index++) {
+			const filterOption = rule[index];
+			if (!Reflect.has(awemeInfoTagDict, filterOption.data.ruleName)) {
+				continue;
+			}
+			/** 解析出的标签的名字 */
+			let tagKey = filterOption.data.ruleName;
+			/** 解析出的标签的值 */
+			let tagValue = awemeInfoTagDict[tagKey as keyof typeof awemeInfoTagDict];
+			/** 配置 */
+			let details = {
+				videoInfoKey: tagKey,
+				videoInfoValue: tagValue,
+				ruleKey: filterOption.data.ruleName,
+				ruleValue: filterOption.data.ruleValue,
+			} as CheckRuleDetail;
+			let checkFlag = this.checkFilterWithRule(details);
+			if (checkFlag) {
 				flag = true;
-			}
-		}
-		if (!flag) {
-			if (this.$flag.isBlockAdsVideo && awemeInfoTagDict.isAds) {
-				log.success("过滤器-屏蔽广告");
-				flag = true;
-			}
-		}
-		/* 遍历自定义规则 */
-		if (!flag) {
-			for (const [ruleKey, ruleValue] of this.$data.rule.entries()) {
-				if (!Reflect.has(awemeInfoTagDict, ruleKey)) {
-					continue;
-				}
-				/** 解析出的标签的名字 */
-				let tagKey = ruleKey;
-				/** 解析出的标签的值 */
-				let tagValue = awemeInfoTagDict[tagKey];
-				/** 配置 */
-				let details = {
-					videoInfoKey: tagKey,
-					videoInfoValue: tagValue,
-					ruleKey: ruleKey,
-					ruleValue: ruleValue,
-				} as CheckRuleDetail;
-				let checkFlag = this.checkFilterWithRule(details);
-				if (checkFlag) {
-					flag = true;
-					log.success(["过滤器-自定义屏蔽: ", details, awemeInfoTagDict]);
-					break;
-				}
-			}
-		}
-		/* 遍历多组自定义规则 */
-		if (!flag) {
-			for (const rule of this.$data.moreRule) {
-				// 循环单条多组规则
-				let moreRuleFlag = true;
-				for (const [ruleKey, ruleValue] of Object.entries(rule)) {
-					// 判断该规则中的key是否存在于视频信息中
-					// 只要有一个不在，那就该条规则不成立
-					if (!Reflect.has(awemeInfoTagDict, ruleKey)) {
-						moreRuleFlag = false;
-						break;
-					}
-					/** 解析出的标签的名字 */
-					let tagKey = ruleKey as keyof DouYinVideoHandlerInfo;
-					/** 解析出的标签的值 */
-					let tagValue = awemeInfoTagDict[tagKey];
-
-					let details = {
-						videoInfoKey: tagKey,
-						videoInfoValue: tagValue,
-						ruleKey: ruleKey,
-						ruleValue: ruleValue,
-					};
-					let checkFlag = this.checkFilterWithRule(details);
-					if (!checkFlag) {
-						// 只要有一个不在，那就该条规则不成立
-						moreRuleFlag = false;
-						break;
-					}
-				}
-				if (moreRuleFlag) {
-					flag = true;
-					log.success([
-						"多组过滤器-自定义屏蔽: ",
-						rule,
-						this.getAwemeInfoDictData(awemeInfo),
-					]);
-					break;
-				}
+				log.success([`视频过滤器 ==> ${tagKey}`, details, awemeInfoTagDict]);
+				break;
 			}
 		}
 		return flag;
@@ -634,104 +557,5 @@ export class DouYinVideoFilterBase {
 				videoList.splice(deleteIndex, 1);
 			}
 		}
-	}
-	/**
-	 * 解析并初始化自定义规则
-	 */
-	initLocalRule() {
-		let localRule = this.get().trim();
-		let localRuleSplit = localRule.split("\n");
-		this.$data.rule.clear();
-		this.$data.moreRule = [];
-		localRuleSplit.forEach((item) => {
-			if (utils.isNull(item)) {
-				return;
-			}
-			/* 去除左右空格 */
-			let trimItem = item.trim();
-			/* 按##分割 */
-			let itemSplit = trimItem.split("##");
-			if (itemSplit.length < 2) {
-				/* 分割出的应该是["tagName",..."tagValue"] */
-				return;
-			}
-			let keyName = itemSplit[0];
-			/* 去除第一个tagName，后面的都是value */
-			itemSplit.shift();
-			if (keyName === "more") {
-				// 多组规则组合
-				let keyValue = itemSplit.join("##");
-				let moreItemSplit = keyValue.split("##");
-				let moreRule = {};
-				for (let index = 0; index < moreItemSplit.length; index += 2) {
-					let ruleKey = moreItemSplit[index];
-					let ruleValue = moreItemSplit[index + 1];
-					try {
-						if (ruleValue.match(/^>|<|=/g)) {
-							// 数值比较的
-							Reflect.set(moreRule, ruleKey, ruleValue.trim());
-						} else {
-							// 正则匹配的
-							let regExpKeyValue = new RegExp(ruleValue, "g");
-							Reflect.set(moreRule, ruleKey, regExpKeyValue);
-						}
-					} catch (error) {
-						log.error("多组-自定义视频过滤规则-正则解析错误：" + error);
-						log.error("多组-错误的规则：" + item);
-					}
-				}
-				this.$data.moreRule.push(moreRule);
-			} else {
-				let keyValue = itemSplit.join("");
-				if (keyValue.trim() === "") {
-					// 忽略空值
-					return;
-				}
-				try {
-					if (keyValue.match(/^>|<|=/g)) {
-						// 数值比较的
-						this.$data.rule.set(keyName as any, keyValue.trim());
-					} else {
-						// 正则匹配的
-						let regExpKeyValue = new RegExp(keyValue, "g");
-						this.$data.rule.set(keyName as any, regExpKeyValue);
-					}
-				} catch (error) {
-					log.error("自定义视频过滤规则-正则解析错误：" + error);
-					log.error("错误的规则：" + item);
-				}
-			}
-		});
-	}
-	/**
-	 * 更新规则
-	 */
-	updateRule(ruleText: string) {
-		ruleText = ruleText.trim();
-		if (ruleText == "") {
-			return;
-		}
-		let localRule = this.get().trim();
-		localRule = localRule + "\n" + ruleText;
-		this.set(localRule);
-		this.initLocalRule();
-	}
-	set(value: string) {
-		GM_setValue(this.key, value);
-	}
-	get() {
-		return GM_getValue(this.key, "");
-	}
-	/**
-	 * 清空存储的值
-	 */
-	clear() {
-		this.set("");
-	}
-	/**
-	 * 销毁存储的值
-	 */
-	destory() {
-		GM_deleteValue(this.key);
 	}
 }
