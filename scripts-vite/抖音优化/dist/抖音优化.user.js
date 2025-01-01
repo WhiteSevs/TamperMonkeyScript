@@ -5322,14 +5322,6 @@
                 response.responseText = JSON.stringify(data);
               }
             };
-          } else if (urlInstance.pathname.startsWith("/aweme/v1/web/channel/feed")) {
-            request.response = (response) => {
-              let filterOptionList = getScopeFilterOptionList("xhr-channel");
-              if (!filterOptionList.length) {
-                return;
-              }
-              utils.toJSON(response.responseText);
-            };
           }
         });
         if (DouYinRouter.isSearch()) {

@@ -193,17 +193,6 @@ export const DouYinVideoFilter = {
 							response.responseText = JSON.stringify(data);
 						}
 					};
-				} else if (
-					urlInstance.pathname.startsWith("/aweme/v1/web/channel/feed")
-				) {
-					// 知识、美食、二次元
-					request.response = (response) => {
-						let filterOptionList = getScopeFilterOptionList("xhr-channel");
-						if (!filterOptionList.length) {
-							return;
-						}
-						let data = utils.toJSON(response.responseText);
-					};
 				}
 			});
 
