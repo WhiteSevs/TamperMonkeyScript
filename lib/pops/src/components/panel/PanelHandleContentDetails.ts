@@ -1325,6 +1325,7 @@ export const PanelHandleContentDetails = () => {
 		 * @param formConfig
 		 */
 		createSectionContainerItem_select(formConfig: PopsPanelSelectDetails<any>) {
+			const that = this;
 			let liElement = document.createElement("li");
 			(liElement as any)["__formConfig__"] = formConfig;
 			this.setElementClassName(liElement, formConfig.className);
@@ -1357,6 +1358,7 @@ export const PanelHandleContentDetails = () => {
 				$eleKey: {
 					disable: "__disable__",
 					value: "__value__",
+					forms: "__forms__",
 				},
 				$data: {
 					defaultValue: formConfig.getValue(),
@@ -1387,14 +1389,23 @@ export const PanelHandleContentDetails = () => {
 				getNodeValue($ele: HTMLElement, key: string) {
 					return Reflect.get($ele, key);
 				},
+				/**
+				 * 禁用选项
+				 */
 				disable() {
 					this.$ele.select.setAttribute("disabled", "true");
 					this.$ele.panelSelect.classList.add("pops-panel-select-disable");
 				},
+				/**
+				 * 取消禁用
+				 */
 				notDisable() {
 					this.$ele.select.removeAttribute("disabled");
 					this.$ele.panelSelect.classList.remove("pops-panel-select-disable");
 				},
+				/**
+				 * 判断是否禁用
+				 */
 				isDisabled() {
 					return (
 						this.$ele.select.hasAttribute("disabled") ||
@@ -1403,6 +1414,9 @@ export const PanelHandleContentDetails = () => {
 						)
 					);
 				},
+				/**
+				 * 初始化选项
+				 */
 				initOption() {
 					formConfig.data.forEach((dataItem) => {
 						// 初始化默认选中
@@ -1417,12 +1431,23 @@ export const PanelHandleContentDetails = () => {
 							this.$eleKey.disable,
 							dataItem.disable
 						);
+						this.setNodeValue(
+							optionElement,
+							this.$eleKey.forms,
+							dataItem.forms
+						);
 						if (dataItem.value === this.$data.defaultValue) {
-							optionElement.setAttribute("selected", "true");
+							this.setOptionSelected(optionElement);
 						}
 						optionElement.innerText = dataItem.text;
 						this.$ele.select.appendChild(optionElement);
 					});
+				},
+				/**
+				 * 设置选项选中
+				 */
+				setOptionSelected($option: HTMLOptionElement) {
+					$option.setAttribute("selected", "true");
 				},
 				/** 检测所有option并设置禁用状态 */
 				setSelectOptionsDisableStatus() {
@@ -1453,9 +1478,14 @@ export const PanelHandleContentDetails = () => {
 				getSelectOptionInfo($option: HTMLOptionElement) {
 					let optionValue = this.getNodeValue($option, this.$eleKey.value);
 					let optionText = $option.innerText || $option.textContent!;
+					let optionForms = this.getNodeValue(
+						$option,
+						this.$eleKey.forms
+					) as (typeof formConfig.data)[0]["forms"];
 					return {
 						value: optionValue,
 						text: optionText,
+						forms: optionForms,
 						$option: $option,
 					};
 				},
@@ -1464,17 +1494,43 @@ export const PanelHandleContentDetails = () => {
 				 */
 				setChangeEvent() {
 					popsDOMUtils.on(this.$ele.select, "change", void 0, (event) => {
+						let $isSelectedElement = (event as any).target[
+							(event as any).target.selectedIndex
+						] as HTMLOptionElement;
+						let selectInfo = this.getSelectOptionInfo($isSelectedElement);
 						this.setSelectOptionsDisableStatus();
 						if (typeof formConfig.callback === "function") {
-							let $isSelectedElement = (event as any).target[
-								(event as any).target.selectedIndex
-							] as HTMLOptionElement;
-							let selectInfo = this.getSelectOptionInfo($isSelectedElement);
 							formConfig.callback(
 								event as any,
 								selectInfo.value,
 								selectInfo.text
 							);
+						}
+						let forms =
+							typeof selectInfo.forms === "function"
+								? selectInfo.forms()
+								: selectInfo.forms;
+						if (Array.isArray(forms)) {
+							/* 如果成功创建，加入到中间容器中 */
+							let childUListClassName = "pops-panel-select-child-forms";
+							// 移除旧的元素
+							while (liElement.nextElementSibling) {
+								if (
+									liElement.nextElementSibling.classList.contains(
+										childUListClassName
+									)
+								) {
+									liElement.nextElementSibling.remove();
+								} else {
+									break;
+								}
+							}
+							let $childUList = document.createElement("ul");
+							$childUList.className = childUListClassName;
+							popsDOMUtils.after(liElement, $childUList);
+							that.uListContainerAddItem(formConfig as any, {
+								ulElement: $childUList,
+							});
 						}
 					});
 				},
@@ -1853,6 +1909,19 @@ export const PanelHandleContentDetails = () => {
 							return $item;
 						}
 						/**
+						 * 设置选择项的禁用状态
+						 */
+						function setSelectItemDisabled($el: HTMLElement) {
+							$el.setAttribute("aria-disabled", "true");
+						}
+						/**
+						 * 移除选择项的禁用状态
+						 */
+						function removeSelectItemDisabled($el: HTMLElement) {
+							$el.removeAttribute("aria-disabled");
+							$el.removeAttribute("disabled");
+						}
+						/**
 						 * 设置选择项的点击事件
 						 */
 						function setSelectElementClickEvent($ele: HTMLElement) {
@@ -1861,6 +1930,9 @@ export const PanelHandleContentDetails = () => {
 								"click",
 								(event) => {
 									popsDOMUtils.preventEvent(event);
+									if ($ele.hasAttribute("disabled") || $ele.ariaDisabled) {
+										return;
+									}
 									if (typeof formConfig.clickCallBack === "function") {
 										let clickResult = formConfig.clickCallBack(
 											event,
@@ -1932,7 +2004,6 @@ export const PanelHandleContentDetails = () => {
 								}
 								.select-item{
 									cursor: pointer;
-									cursor: pointer;
 									font-size: var(--el-font-size-base);
 									padding: 0 32px 0 20px;
 									position: relative;
@@ -1943,6 +2014,12 @@ export const PanelHandleContentDetails = () => {
 									height: 34px;
 									line-height: 34px;
 									box-sizing: border-box;
+								}
+								.select-item[aria-disabled],
+								.select-item[disabled]{
+									cursor: not-allowed;
+									color: #a8abb2;
+									background: unset;
 								}
 								.select-item:hover{
 									background-color: var(--el-fill-color-light);
@@ -1986,6 +2063,17 @@ export const PanelHandleContentDetails = () => {
 							$selectContainer.appendChild($select);
 							// 设置每一项的点击事件
 							setSelectElementClickEvent($select);
+							// 设置禁用状态
+							if (
+								typeof item.disable === "function" &&
+								item.disable(item.value)
+							) {
+								setSelectItemDisabled($select);
+								// 后续不设置元素的选中状态
+								return;
+							}
+							// 移除禁用状态
+							removeSelectItemDisabled($select);
 							let findValue = selectedInfo.find(
 								(value) => value.value === item.value
 							);

@@ -187,6 +187,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 								disable() {
 									return false;
 								},
+								forms: [],
 							},
 							{
 								value: "text",
@@ -194,6 +195,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 								disable() {
 									return false;
 								},
+								forms: [],
 							},
 							{
 								value: "html",
@@ -201,6 +203,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 								disable() {
 									return false;
 								},
+								forms: [],
 							},
 						],
 					},

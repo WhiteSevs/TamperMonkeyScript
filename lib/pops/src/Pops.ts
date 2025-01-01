@@ -83,7 +83,7 @@ class Pops {
 	/** 配置 */
 	config = {
 		/** 版本号 */
-		version: "2024.12.19",
+		version: "2025.1.1",
 		cssText: {
 			/** 主CSS */
 			index: indexCSS,

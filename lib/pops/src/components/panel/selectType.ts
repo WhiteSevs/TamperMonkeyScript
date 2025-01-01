@@ -1,4 +1,6 @@
 import type { PopsPanelCommonDetails } from "./commonType";
+import type { PopsPanelFormsDetails } from "./formsType";
+import type { PopsPanelFormsTotalDetails } from "./indexType";
 
 /**
  * pops.panel的 select
@@ -80,5 +82,11 @@ export interface PopsPanelSelectDetails<T = any>
 		 * + select元素触发change事件
 		 */
 		disable?(value: T): boolean;
+		/**
+		 * 子配置，跟随切换改变
+		 */
+		forms?:
+			| (PopsPanelFormsDetails | PopsPanelFormsTotalDetails)[]
+			| (() => (PopsPanelFormsDetails | PopsPanelFormsTotalDetails)[]);
 	}[];
 }
