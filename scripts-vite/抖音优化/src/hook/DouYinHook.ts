@@ -61,6 +61,7 @@ export const DouYinHook = {
 			cookieHandler.delete(
 				{
 					name: cookieName,
+					firstPartyDomain: "",
 				},
 				(error) => {
 					if (error) {

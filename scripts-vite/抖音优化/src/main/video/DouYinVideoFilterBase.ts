@@ -508,17 +508,19 @@ export class DouYinVideoFilterBase {
 		rule: DouYinVideoFilterOption[],
 		awemeInfo: DouYinVideoAwemeInfo
 	): boolean {
-		let awemeInfoTagDict = this.parseAwemeInfoDictData(awemeInfo);
+		/** 转换过的数据 */
+		let transformAwemeInfo = this.parseAwemeInfoDictData(awemeInfo);
 		let flag = false;
 		for (let index = 0; index < rule.length; index++) {
 			const filterOption = rule[index];
-			if (!Reflect.has(awemeInfoTagDict, filterOption.data.ruleName)) {
+			if (!Reflect.has(transformAwemeInfo, filterOption.data.ruleName)) {
 				continue;
 			}
 			/** 解析出的标签的名字 */
 			let tagKey = filterOption.data.ruleName;
 			/** 解析出的标签的值 */
-			let tagValue = awemeInfoTagDict[tagKey as keyof typeof awemeInfoTagDict];
+			let tagValue =
+				transformAwemeInfo[tagKey as keyof typeof transformAwemeInfo];
 			/** 配置 */
 			let details = {
 				videoInfoKey: tagKey,
@@ -526,10 +528,56 @@ export class DouYinVideoFilterBase {
 				ruleKey: filterOption.data.ruleName,
 				ruleValue: filterOption.data.ruleValue,
 			} as CheckRuleDetail;
-			let checkFlag = this.checkFilterWithRule(details);
-			if (checkFlag) {
-				flag = true;
-				log.success([`视频过滤器 ==> ${tagKey}`, details, awemeInfoTagDict]);
+			flag = this.checkFilterWithRule(details);
+			if (flag) {
+				if (Array.isArray(filterOption.dynamicData)) {
+					// & 动态规则
+					let dynamicDetailsList = [];
+					for (
+						let dynamicIndex = 0;
+						dynamicIndex < filterOption.dynamicData.length;
+						dynamicIndex++
+					) {
+						const dynamicOption = filterOption.dynamicData[dynamicIndex];
+						/** 解析出的标签的名字 */
+						let dynamicTagKey = dynamicOption.ruleName;
+						/** 解析出的标签的值 */
+						let dynamicTagValue =
+							transformAwemeInfo[
+								dynamicTagKey as keyof typeof transformAwemeInfo
+							];
+						/** 配置 */
+						let dynamicDetails = {
+							videoInfoKey: dynamicTagKey,
+							videoInfoValue: dynamicTagValue,
+							ruleKey: dynamicOption.ruleName,
+							ruleValue: dynamicOption.ruleValue,
+						} as CheckRuleDetail;
+						dynamicDetailsList.push(dynamicDetails);
+						let dynamicCheckFlag = this.checkFilterWithRule(dynamicDetails);
+						flag = flag && dynamicCheckFlag;
+						if (!flag) {
+							// 多组的话有一个不成立就退出
+							break;
+						}
+					}
+					if (flag) {
+						log.success([
+							`视频过滤器-多组 ==> ${filterOption.name}`,
+							transformAwemeInfo,
+							details,
+							dynamicDetailsList,
+						]);
+					}
+				} else {
+					log.success([
+						`视频过滤器 ==> ${filterOption.name}`,
+						transformAwemeInfo,
+						details,
+					]);
+				}
+			}
+			if (flag) {
 				break;
 			}
 		}

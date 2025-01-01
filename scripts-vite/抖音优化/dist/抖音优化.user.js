@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.1.1
+// @version      2025.1.1.19
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -2937,14 +2937,16 @@
           '.basePlayerContainer div[aria-describedby]:has(path[d="M14 8a8 8 0 0 0-8 8v4a8 8 0 0 0 8 8h8a8 8 0 0 0 8-8v-4a8 8 0 0 0-8-8h-8zm8.5 10.866a1 1 0 0 0 0-1.732l-6-3.464a1 1 0 0 0-1.5.866v6.928a1 1 0 0 0 1.5.866l6-3.464z"])',
           // 2024.7.16 移动端的屏蔽规则
           '.basePlayerContainer div[aria-describedby]:has(path[d=" M-4,-10 C-4,-10 4,-10 4,-10 C8.418000221252441,-10 12,-6.418000221252441 12,-2 C12,-2 12,2 12,2 C12,6.418000221252441 8.418000221252441,10 4,10 C4,10 -4,10 -4,10 C-8.418000221252441,10 -12,6.418000221252441 -12,2 C-12,2 -12,-2 -12,-2 C-12,-6.418000221252441 -8.418000221252441,-10 -4,-10z M4.5,0.8659999966621399 C5.166999816894531,0.48100000619888306 5.166999816894531,-0.48100000619888306 4.5,-0.8659999966621399 C4.5,-0.8659999966621399 -1.5,-4.329999923706055 -1.5,-4.329999923706055 C-2.1670000553131104,-4.715000152587891 -3,-4.234000205993652 -3,-3.4639999866485596 C-3,-3.4639999866485596 -3,3.4639999866485596 -3,3.4639999866485596 C-3,4.234000205993652 -2.1670000553131104,4.715000152587891 -1.5,4.329999923706055 C-1.5,4.329999923706055 4.5,0.8659999966621399 4.5,0.8659999966621399z"])'
+        ),
+        addStyle(
+          /*css*/
+          `
+				/* 修复分享的悬浮框距离底部的高度 */
+				[data-e2e="video-player-share"]+div[data-e2e="video-share-container"] > div:first-child{
+					bottom: 0px !important;
+				}
+			`
         )
-        // ↓该修复会导致评论区的分享弹窗的位置出现错误
-        // addStyle(/*css*/ `
-        // 	/* 修复分享的悬浮框距离底部的高度 */
-        // 	div[data-e2e="video-share-container"] > div:first-child{
-        // 		bottom: 0px !important;
-        // 	}
-        // `),
       ];
     },
     /**
@@ -2957,14 +2959,16 @@
           'div.dy-tip-container:has([data-e2e="video-play-more"])',
           // 2024.7.2 新增其它的样式匹配
           '.basePlayerContainer div[data-e2e="video-play-more"]'
+        ),
+        addStyle(
+          /*css*/
+          `
+				/* 修复分享的悬浮框距离底部的高度 */
+				[data-e2e="video-player-share"]+div[data-e2e="video-share-container"] > div:first-child{
+					bottom: 0px !important;
+				}
+			`
         )
-        // ↓该修复会导致评论区的分享弹窗的位置出现错误
-        // addStyle(/*css*/ `
-        // 	/* 修复分享的悬浮框距离底部的高度 */
-        // 	div[data-e2e="video-share-container"] > div:first-child{
-        // 		bottom: 0px !important;
-        // 	}
-        // `),
       ];
     }
   };
@@ -5070,25 +5074,59 @@
      * @param awemeInfo 视频信息结构
      */
     checkAwemeInfoIsFilter(rule, awemeInfo) {
-      let awemeInfoTagDict = this.parseAwemeInfoDictData(awemeInfo);
+      let transformAwemeInfo = this.parseAwemeInfoDictData(awemeInfo);
       let flag = false;
       for (let index = 0; index < rule.length; index++) {
         const filterOption = rule[index];
-        if (!Reflect.has(awemeInfoTagDict, filterOption.data.ruleName)) {
+        if (!Reflect.has(transformAwemeInfo, filterOption.data.ruleName)) {
           continue;
         }
         let tagKey = filterOption.data.ruleName;
-        let tagValue = awemeInfoTagDict[tagKey];
+        let tagValue = transformAwemeInfo[tagKey];
         let details = {
           videoInfoKey: tagKey,
           videoInfoValue: tagValue,
           ruleKey: filterOption.data.ruleName,
           ruleValue: filterOption.data.ruleValue
         };
-        let checkFlag = this.checkFilterWithRule(details);
-        if (checkFlag) {
-          flag = true;
-          log.success([`视频过滤器 ==> ${tagKey}`, details, awemeInfoTagDict]);
+        flag = this.checkFilterWithRule(details);
+        if (flag) {
+          if (Array.isArray(filterOption.dynamicData)) {
+            let dynamicDetailsList = [];
+            for (let dynamicIndex = 0; dynamicIndex < filterOption.dynamicData.length; dynamicIndex++) {
+              const dynamicOption = filterOption.dynamicData[dynamicIndex];
+              let dynamicTagKey = dynamicOption.ruleName;
+              let dynamicTagValue = transformAwemeInfo[dynamicTagKey];
+              let dynamicDetails = {
+                videoInfoKey: dynamicTagKey,
+                videoInfoValue: dynamicTagValue,
+                ruleKey: dynamicOption.ruleName,
+                ruleValue: dynamicOption.ruleValue
+              };
+              dynamicDetailsList.push(dynamicDetails);
+              let dynamicCheckFlag = this.checkFilterWithRule(dynamicDetails);
+              flag = flag && dynamicCheckFlag;
+              if (!flag) {
+                break;
+              }
+            }
+            if (flag) {
+              log.success([
+                `视频过滤器-多组 ==> ${filterOption.name}`,
+                transformAwemeInfo,
+                details,
+                dynamicDetailsList
+              ]);
+            }
+          } else {
+            log.success([
+              `视频过滤器 ==> ${filterOption.name}`,
+              transformAwemeInfo,
+              details
+            ]);
+          }
+        }
+        if (flag) {
           break;
         }
       }
@@ -5492,60 +5530,31 @@
               let $scope = popsPanelContentUtils.createSectionContainerItem_select_multiple_new(
                 scope_template
               );
+              let douYinVideoHandlerInfoKey = [
+                "isLive",
+                "isAds",
+                "nickname",
+                "uid",
+                "desc",
+                "textExtra",
+                "videoTag",
+                "collectCount",
+                "commentCount",
+                "diggCount",
+                "shareCount",
+                "duration"
+              ];
+              let ruleNameDefaultValue = "nickname";
               let ruleName_template = UISelect(
                 "属性名",
                 "ruleName",
-                "nickname",
-                [
-                  {
-                    text: "isLive",
-                    value: "isLive"
-                  },
-                  {
-                    text: "isAds",
-                    value: "isAds"
-                  },
-                  {
-                    text: "nickname",
-                    value: "nickname"
-                  },
-                  {
-                    text: "uid",
-                    value: "uid"
-                  },
-                  {
-                    text: "desc",
-                    value: "desc"
-                  },
-                  {
-                    text: "textExtra",
-                    value: "textExtra"
-                  },
-                  {
-                    text: "videoTag",
-                    value: "videoTag"
-                  },
-                  {
-                    text: "collectCount",
-                    value: "collectCount"
-                  },
-                  {
-                    text: "commentCount",
-                    value: "commentCount"
-                  },
-                  {
-                    text: "diggCount",
-                    value: "diggCount"
-                  },
-                  {
-                    text: "shareCount",
-                    value: "shareCount"
-                  },
-                  {
-                    text: "duration",
-                    value: "duration"
-                  }
-                ],
+                ruleNameDefaultValue,
+                douYinVideoHandlerInfoKey.map((item) => {
+                  return {
+                    text: item,
+                    value: item
+                  };
+                }),
                 void 0,
                 "可正则，注意转义"
               );
@@ -5571,7 +5580,127 @@
               let $ruleValue = popsPanelContentUtils.createSectionContainerItem_input(
                 ruleValue_template
               );
-              $fragment.append($enable, $name, $scope, $ruleName, $ruleValue);
+              let $dynamicContainer = domUtils.createElement("div", {
+                className: "rule-form-ulist-dynamic",
+                innerHTML: (
+                  /*html*/
+                  `
+							<div class="rule-form-ulist-dynamic__inner">
+
+							</div>
+							<div class="pops-panel-button pops-panel-button-no-icon">
+								<button class="pops-panel-button_inner" type="default">
+									<i class="pops-bottom-icon" is-loading="false"></i>
+									<span class="pops-panel-button-text">添加额外属性</span>
+								</button>
+							</div>
+							`
+                )
+              });
+              let $dynamicInner = $dynamicContainer.querySelector(
+                ".rule-form-ulist-dynamic__inner"
+              );
+              let $addDynamicButton = $dynamicContainer.querySelector(
+                ".pops-panel-button"
+              );
+              let addDynamicElementItem = (dynamicData = {
+                ruleName: ruleNameDefaultValue,
+                ruleValue: ""
+              }) => {
+                let $dynamicUListContainer = domUtils.createElement("div", {
+                  className: "rule-form-ulist-dynamic__inner-container",
+                  innerHTML: (
+                    /*html*/
+                    `
+									<div class="dynamic-control-delete">
+										<div class="pops-panel-button pops-panel-button-no-icon">
+											<button class="pops-panel-button_inner" type="danger">
+												<i class="pops-bottom-icon" is-loading="false"></i>
+												<span class="pops-panel-button-text">×</span>
+											</button>
+										</div>
+									</div>
+									<ul class="dynamic-forms">
+
+									</ul>
+								`
+                  )
+                });
+                let $dynamicDelete = $dynamicUListContainer.querySelector(
+                  ".dynamic-control-delete"
+                );
+                domUtils.on($dynamicDelete, "click", (event) => {
+                  utils.preventEvent(event);
+                  $dynamicUListContainer.remove();
+                  if (Array.isArray(data.dynamicData)) {
+                    let findIndex = data.dynamicData.findIndex(
+                      (it) => it == dynamicData
+                    );
+                    if (findIndex !== -1) {
+                      data.dynamicData.splice(findIndex, 1);
+                    }
+                  }
+                });
+                let $dynamicUList = $dynamicUListContainer.querySelector(
+                  ".dynamic-forms"
+                );
+                let dynamic_ruleName_template = UISelect(
+                  "属性名",
+                  "ruleName",
+                  dynamicData.ruleName,
+                  douYinVideoHandlerInfoKey.map((item) => {
+                    return {
+                      text: item,
+                      value: item
+                    };
+                  }),
+                  void 0,
+                  "可正则，注意转义"
+                );
+                Reflect.set(
+                  dynamic_ruleName_template.props,
+                  PROPS_STORAGE_API,
+                  generateStorageApi(dynamicData)
+                );
+                let $dynamic_ruleName = popsPanelContentUtils.createSectionContainerItem_select(
+                  dynamic_ruleName_template
+                );
+                let dynamic_ruleValue_template = UIInput(
+                  "属性值",
+                  "ruleValue",
+                  dynamicData.ruleValue,
+                  "如果是字符串，可正则，注意转义"
+                );
+                Reflect.set(
+                  dynamic_ruleValue_template.props,
+                  PROPS_STORAGE_API,
+                  generateStorageApi(dynamicData)
+                );
+                let $dynamic_ruleValue = popsPanelContentUtils.createSectionContainerItem_input(
+                  dynamic_ruleValue_template
+                );
+                $dynamicUList.appendChild($dynamic_ruleName);
+                $dynamicUList.appendChild($dynamic_ruleValue);
+                $dynamicInner.appendChild($dynamicUListContainer);
+              };
+              domUtils.on($addDynamicButton, "click", (event) => {
+                utils.preventEvent(event);
+                addDynamicElementItem();
+              });
+              if (Array.isArray(data.dynamicData)) {
+                for (let index = 0; index < data.dynamicData.length; index++) {
+                  const moreDataItem = data.dynamicData[index];
+                  addDynamicElementItem(moreDataItem);
+                }
+              }
+              $fragment.append(
+                $enable,
+                $name,
+                $scope,
+                $ruleName,
+                $ruleValue,
+                $dynamicContainer
+              );
               return $fragment;
             },
             onsubmit: ($form, isEdit, editData) => {
@@ -5584,7 +5713,13 @@
               }
               $ulist_li.forEach(($li) => {
                 let formConfig = Reflect.get($li, "__formConfig__");
+                if (!formConfig) {
+                  return;
+                }
                 let attrs = Reflect.get(formConfig, "attributes");
+                if (!attrs) {
+                  return;
+                }
                 let storageApi = Reflect.get($li, PROPS_STORAGE_API);
                 let key = Reflect.get(attrs, ATTRIBUTE_KEY);
                 let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
@@ -5596,6 +5731,30 @@
                 } else {
                   log.error(`${key}不在数据中`);
                 }
+              });
+              $form.querySelectorAll(
+                ".rule-form-ulist-dynamic__inner-container"
+              ).forEach(($inner) => {
+                let dynamicData = {};
+                $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
+                  let formConfig = Reflect.get($li, "__formConfig__");
+                  if (!formConfig) {
+                    return;
+                  }
+                  let attrs = Reflect.get(formConfig, "attributes");
+                  if (!attrs) {
+                    return;
+                  }
+                  let storageApi = Reflect.get($li, PROPS_STORAGE_API);
+                  let key = Reflect.get(attrs, ATTRIBUTE_KEY);
+                  let defaultValue = Reflect.get(
+                    attrs,
+                    ATTRIBUTE_DEFAULT_VALUE
+                  );
+                  let value = storageApi.get(key, defaultValue);
+                  Reflect.set(dynamicData, key, value);
+                });
+                data.dynamicData.push(dynamicData);
               });
               if (data.name.trim() === "") {
                 Qmsg.error("规则名称不能为空");
@@ -5612,14 +5771,14 @@
                 };
               }
               if (data.data.ruleName.trim() === "") {
-                Qmsg.error("规则键不能为空");
+                Qmsg.error("请选择属性名");
                 return {
                   success: false,
                   data
                 };
               }
               if (data.data.ruleValue.trim() === "") {
-                Qmsg.error("规则值不能为空");
+                Qmsg.error("属性值不能为空");
                 return {
                   success: false,
                   data
@@ -5648,6 +5807,20 @@
 						margin-top: 6px;
 						font-size: 0.8em;
 						color: rgb(108, 108, 108);
+					}
+					.rule-form-ulist-dynamic{
+						--button-margin-top: 0px;
+						--button-margin-right: 0px;
+						--button-margin-bottom: 0px;
+						--button-margin-left: 0px;
+						display: flex;
+						flex-direction: column;
+						align-items: flex-start;
+						padding: 5px 20px;
+					}
+					.rule-form-ulist-dynamic__inner-container{
+						display: flex;
+						align-items: center;
 					}
                     `
             )
@@ -5691,9 +5864,10 @@
         name: "",
         data: {
           scope: [],
-          ruleName: "",
+          ruleName: "nickname",
           ruleValue: ""
-        }
+        },
+        dynamicData: []
       };
     },
     /**
@@ -8226,7 +8400,8 @@
       cookieNameList.forEach((cookieName) => {
         cookieHandler.delete(
           {
-            name: cookieName
+            name: cookieName,
+            firstPartyDomain: ""
           },
           (error) => {
             if (error) {

@@ -32,6 +32,12 @@ type DouYinVideoFilterOptionScope =
 	| "xhr-familiar"
 	| "xhr-module";
 
+export type DouYinVideoFilterDynamicOption = {
+	/** 属性名 */
+	ruleName: keyof DouYinVideoHandlerInfo;
+	/** 属性值 */
+	ruleValue: string;
+};
 export type DouYinVideoFilterOption = {
 	/** 是否启用 */
 	enable: boolean;
@@ -44,10 +50,12 @@ export type DouYinVideoFilterOption = {
 		/** 作用域（让规则在哪个下面生效） */
 		scope: DouYinVideoFilterOptionScope[];
 		/** 属性名 */
-		ruleName: string;
+		ruleName: keyof DouYinVideoHandlerInfo;
 		/** 属性值 */
 		ruleValue: string;
 	};
+	/** 动态添加的数据 */
+	dynamicData?: DouYinVideoFilterDynamicOption[];
 };
 
 export const DouYinVideoFilter = {
@@ -303,7 +311,6 @@ export const DouYinVideoFilter = {
 					getView: (data, isEdit) => {
 						let $fragment = document.createDocumentFragment();
 						if (!isEdit) {
-							// @ts-ignore
 							data = this.getTemplateData();
 						}
 
@@ -381,61 +388,33 @@ export const DouYinVideoFilter = {
 							popsPanelContentUtils.createSectionContainerItem_select_multiple_new(
 								scope_template
 							);
+						let douYinVideoHandlerInfoKey = <(keyof DouYinVideoHandlerInfo)[]>[
+							"isLive",
+							"isAds",
+							"nickname",
+							"uid",
+							"desc",
+							"textExtra",
+							"videoTag",
+							"collectCount",
+							"commentCount",
+							"diggCount",
+							"shareCount",
+							"duration",
+						];
+						let ruleNameDefaultValue: DouYinVideoFilterOption["data"]["ruleName"] =
+							"nickname";
 						// 属性名
 						let ruleName_template = UISelect<keyof DouYinVideoHandlerInfo>(
 							"属性名",
 							"ruleName",
-							"nickname",
-							[
-								{
-									text: "isLive",
-									value: "isLive",
-								},
-								{
-									text: "isAds",
-									value: "isAds",
-								},
-								{
-									text: "nickname",
-									value: "nickname",
-								},
-								{
-									text: "uid",
-									value: "uid",
-								},
-								{
-									text: "desc",
-									value: "desc",
-								},
-								{
-									text: "textExtra",
-									value: "textExtra",
-								},
-								{
-									text: "videoTag",
-									value: "videoTag",
-								},
-								{
-									text: "collectCount",
-									value: "collectCount",
-								},
-								{
-									text: "commentCount",
-									value: "commentCount",
-								},
-								{
-									text: "diggCount",
-									value: "diggCount",
-								},
-								{
-									text: "shareCount",
-									value: "shareCount",
-								},
-								{
-									text: "duration",
-									value: "duration",
-								},
-							],
+							ruleNameDefaultValue,
+							douYinVideoHandlerInfoKey.map((item) => {
+								return {
+									text: item,
+									value: item,
+								};
+							}),
 							void 0,
 							"可正则，注意转义"
 						);
@@ -467,7 +446,145 @@ export const DouYinVideoFilter = {
 								ruleValue_template
 							);
 
-						$fragment.append($enable, $name, $scope, $ruleName, $ruleValue);
+						let $dynamicContainer = DOMUtils.createElement("div", {
+							className: "rule-form-ulist-dynamic",
+							innerHTML: /*html*/ `
+							<div class="rule-form-ulist-dynamic__inner">
+
+							</div>
+							<div class="pops-panel-button pops-panel-button-no-icon">
+								<button class="pops-panel-button_inner" type="default">
+									<i class="pops-bottom-icon" is-loading="false"></i>
+									<span class="pops-panel-button-text">添加额外属性</span>
+								</button>
+							</div>
+							`,
+						});
+						let $dynamicInner = $dynamicContainer.querySelector<HTMLElement>(
+							".rule-form-ulist-dynamic__inner"
+						)!;
+						let $addDynamicButton =
+							$dynamicContainer.querySelector<HTMLButtonElement>(
+								".pops-panel-button"
+							)!;
+
+						/**
+						 * 添加动态项
+						 */
+						let addDynamicElementItem = (
+							dynamicData: DouYinVideoFilterDynamicOption = {
+								ruleName: ruleNameDefaultValue,
+								ruleValue: "",
+							}
+						) => {
+							let $dynamicUListContainer = DOMUtils.createElement("div", {
+								className: "rule-form-ulist-dynamic__inner-container",
+								innerHTML: /*html*/ `
+									<div class="dynamic-control-delete">
+										<div class="pops-panel-button pops-panel-button-no-icon">
+											<button class="pops-panel-button_inner" type="danger">
+												<i class="pops-bottom-icon" is-loading="false"></i>
+												<span class="pops-panel-button-text">×</span>
+											</button>
+										</div>
+									</div>
+									<ul class="dynamic-forms">
+
+									</ul>
+								`,
+							});
+							/** 删除按钮 */
+							let $dynamicDelete =
+								$dynamicUListContainer.querySelector<HTMLDivElement>(
+									".dynamic-control-delete"
+								)!;
+							// 设置删除事件
+							DOMUtils.on($dynamicDelete, "click", (event) => {
+								utils.preventEvent(event);
+								$dynamicUListContainer.remove();
+								if (Array.isArray(data.dynamicData)) {
+									let findIndex = data.dynamicData.findIndex(
+										(it) => it == dynamicData
+									);
+									if (findIndex !== -1) {
+										data.dynamicData.splice(findIndex, 1);
+									}
+								}
+							});
+							/** 动态添加的项 */
+							let $dynamicUList =
+								$dynamicUListContainer.querySelector<HTMLUListElement>(
+									".dynamic-forms"
+								)!;
+
+							// 属性名
+							let dynamic_ruleName_template = UISelect<
+								keyof DouYinVideoHandlerInfo
+							>(
+								"属性名",
+								"ruleName",
+								dynamicData.ruleName,
+								douYinVideoHandlerInfoKey.map((item) => {
+									return {
+										text: item,
+										value: item,
+									};
+								}),
+								void 0,
+								"可正则，注意转义"
+							);
+							Reflect.set(
+								dynamic_ruleName_template.props!,
+								PROPS_STORAGE_API,
+								generateStorageApi(dynamicData)
+							);
+
+							let $dynamic_ruleName =
+								popsPanelContentUtils.createSectionContainerItem_select(
+									dynamic_ruleName_template
+								);
+
+							let dynamic_ruleValue_template = UIInput(
+								"属性值",
+								"ruleValue",
+								dynamicData.ruleValue,
+								"如果是字符串，可正则，注意转义",
+								void 0
+							);
+							Reflect.set(
+								dynamic_ruleValue_template.props!,
+								PROPS_STORAGE_API,
+								generateStorageApi(dynamicData)
+							);
+							let $dynamic_ruleValue =
+								popsPanelContentUtils.createSectionContainerItem_input(
+									dynamic_ruleValue_template
+								);
+							$dynamicUList.appendChild($dynamic_ruleName);
+							$dynamicUList.appendChild($dynamic_ruleValue);
+							$dynamicInner.appendChild($dynamicUListContainer);
+						};
+						// 设置添加动态项的点击事件
+						DOMUtils.on($addDynamicButton, "click", (event) => {
+							utils.preventEvent(event);
+							addDynamicElementItem();
+						});
+
+						// 初始化的动态项
+						if (Array.isArray(data.dynamicData)) {
+							for (let index = 0; index < data.dynamicData.length; index++) {
+								const moreDataItem = data.dynamicData[index];
+								addDynamicElementItem(moreDataItem);
+							}
+						}
+						$fragment.append(
+							$enable,
+							$name,
+							$scope,
+							$ruleName,
+							$ruleValue,
+							$dynamicContainer
+						);
 						return $fragment;
 					},
 					onsubmit: ($form, isEdit, editData) => {
@@ -481,7 +598,13 @@ export const DouYinVideoFilter = {
 						}
 						$ulist_li.forEach(($li) => {
 							let formConfig = Reflect.get($li, "__formConfig__");
+							if (!formConfig) {
+								return;
+							}
 							let attrs = Reflect.get(formConfig, "attributes");
+							if (!attrs) {
+								return;
+							}
 							let storageApi = Reflect.get($li, PROPS_STORAGE_API);
 							let key = Reflect.get(attrs, ATTRIBUTE_KEY);
 							let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
@@ -494,6 +617,34 @@ export const DouYinVideoFilter = {
 								log.error(`${key}不在数据中`);
 							}
 						});
+						$form
+							.querySelectorAll<HTMLLIElement>(
+								".rule-form-ulist-dynamic__inner-container"
+							)
+							.forEach(($inner) => {
+								let dynamicData = {} as DouYinVideoFilterDynamicOption;
+								$inner
+									.querySelectorAll(".dynamic-forms > li")
+									.forEach(($li) => {
+										let formConfig = Reflect.get($li, "__formConfig__");
+										if (!formConfig) {
+											return;
+										}
+										let attrs = Reflect.get(formConfig, "attributes");
+										if (!attrs) {
+											return;
+										}
+										let storageApi = Reflect.get($li, PROPS_STORAGE_API);
+										let key = Reflect.get(attrs, ATTRIBUTE_KEY);
+										let defaultValue = Reflect.get(
+											attrs,
+											ATTRIBUTE_DEFAULT_VALUE
+										);
+										let value = storageApi.get(key, defaultValue);
+										Reflect.set(dynamicData, key, value);
+									});
+								data.dynamicData!.push(dynamicData);
+							});
 						if (data.name.trim() === "") {
 							Qmsg.error("规则名称不能为空");
 							return {
@@ -509,14 +660,14 @@ export const DouYinVideoFilter = {
 							};
 						}
 						if (data.data.ruleName.trim() === "") {
-							Qmsg.error("规则键不能为空");
+							Qmsg.error("请选择属性名");
 							return {
 								success: false,
 								data: data,
 							};
 						}
 						if (data.data.ruleValue.trim() === "") {
-							Qmsg.error("规则值不能为空");
+							Qmsg.error("属性值不能为空");
 							return {
 								success: false,
 								data: data,
@@ -543,6 +694,20 @@ export const DouYinVideoFilter = {
 						margin-top: 6px;
 						font-size: 0.8em;
 						color: rgb(108, 108, 108);
+					}
+					.rule-form-ulist-dynamic{
+						--button-margin-top: 0px;
+						--button-margin-right: 0px;
+						--button-margin-bottom: 0px;
+						--button-margin-left: 0px;
+						display: flex;
+						flex-direction: column;
+						align-items: flex-start;
+						padding: 5px 20px;
+					}
+					.rule-form-ulist-dynamic__inner-container{
+						display: flex;
+						align-items: center;
 					}
                     `,
 				},
@@ -585,9 +750,10 @@ export const DouYinVideoFilter = {
 			name: "",
 			data: {
 				scope: [],
-				ruleName: "",
+				ruleName: "nickname",
 				ruleValue: "",
 			},
+			dynamicData: [],
 		};
 	},
 	/**
