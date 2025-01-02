@@ -344,8 +344,8 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									"开启后以下功能才会生效"
 								),
 								UIButton(
-									"评论过滤规则",
-									"可过滤评论",
+									"视频过滤规则",
+									"可过滤视频",
 									"自定义",
 									void 0,
 									false,
