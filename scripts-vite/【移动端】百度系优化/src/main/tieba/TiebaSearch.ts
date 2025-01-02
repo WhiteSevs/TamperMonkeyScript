@@ -1,4 +1,4 @@
-import { DOMUtils, addStyle, httpx, log, pops, utils } from "@/env";
+import { $, DOMUtils, addStyle, httpx, log, pops, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { LoadingView } from "@/utils/LoadingView";
 import { TiebaCore } from "./TiebaCore";
@@ -33,7 +33,7 @@ const TiebaSearchSuggestion = {
 	init($input: HTMLInputElement) {
 		this.$ele.$searchInput = $input;
 		this.initSearchSuggestion();
-		let $oldMoreBtnDesc = document.querySelector(".more-btn-desc");
+		let $oldMoreBtnDesc = $(".more-btn-desc");
 		DOMUtils.on($oldMoreBtnDesc, "click", () => {
 			this.enterSeachMode();
 		});
@@ -307,7 +307,7 @@ const TiebaSearch = {
 					id: "search",
 					innerHTML: /*html*/ `
 					<div id="nav-top-search">
-						<div class="nav-bar-wrapper">
+						<div class="nav-search-container">
 							<div class="nav-search-back">
 								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><path fill="currentColor" d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64"></path><path fill="currentColor" d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312z"></path></svg>
 							</div>
@@ -386,9 +386,7 @@ const TiebaSearch = {
 				this.$context.loading.hide();
 				/* 用于判断是否已设置点击事件 */
 				let searchParams = new URLSearchParams(window.location.search);
-				this.$ele.$moreBtnDesc = document.querySelector(
-					".more-btn-desc"
-				) as HTMLDivElement;
+				this.$ele.$moreBtnDesc = $(".more-btn-desc") as HTMLDivElement;
 				if (
 					window.location.pathname === "/f" &&
 					utils.isNotNull(searchParams.get("kw"))
@@ -516,7 +514,7 @@ const TiebaSearch = {
 			background: var(--bg-color);
 			z-index: inherit;
 		}
-		.nav-bar-wrapper{
+		.nav-search-container{
 			position: relative;
 			display: -webkit-box;
 			display: -webkit-flex;
@@ -533,7 +531,7 @@ const TiebaSearch = {
 			-ms-flex-pack: justify;
 			justify-content: space-between;
 		}
-		.nav-bar-wrapper svg{
+		.nav-search-container svg{
 			width: 0.16rem;
 			height: 0.16rem;
 		}

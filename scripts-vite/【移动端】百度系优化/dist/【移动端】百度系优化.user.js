@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.25.14
+// @version      2025.1.2
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -13,9 +13,9 @@
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/488179/1413254/showdown.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.5.13/dist/vue.global.prod.js
@@ -9900,7 +9900,7 @@ div[class^="new-summary-container_"] {\r
     init($input) {
       this.$ele.$searchInput = $input;
       this.initSearchSuggestion();
-      let $oldMoreBtnDesc = document.querySelector(".more-btn-desc");
+      let $oldMoreBtnDesc = $(".more-btn-desc");
       domutils.on($oldMoreBtnDesc, "click", () => {
         this.enterSeachMode();
       });
@@ -10176,7 +10176,7 @@ div[class^="new-summary-container_"] {\r
             /*html*/
             `
 					<div id="nav-top-search">
-						<div class="nav-bar-wrapper">
+						<div class="nav-search-container">
 							<div class="nav-search-back">
 								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><path fill="currentColor" d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64"></path><path fill="currentColor" d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312z"></path></svg>
 							</div>
@@ -10251,9 +10251,7 @@ div[class^="new-summary-container_"] {\r
         }
         this.$context.loading.hide();
         let searchParams = new URLSearchParams(window.location.search);
-        this.$ele.$moreBtnDesc = document.querySelector(
-          ".more-btn-desc"
-        );
+        this.$ele.$moreBtnDesc = $(".more-btn-desc");
         if (window.location.pathname === "/f" && utils.isNotNull(searchParams.get("kw"))) {
           domutils.on(this.$ele.$moreBtnDesc, "click", () => {
             this.enterSeachMode();
@@ -10370,7 +10368,7 @@ div[class^="new-summary-container_"] {\r
 			background: var(--bg-color);
 			z-index: inherit;
 		}
-		.nav-bar-wrapper{
+		.nav-search-container{
 			position: relative;
 			display: -webkit-box;
 			display: -webkit-flex;
@@ -10387,7 +10385,7 @@ div[class^="new-summary-container_"] {\r
 			-ms-flex-pack: justify;
 			justify-content: space-between;
 		}
-		.nav-bar-wrapper svg{
+		.nav-search-container svg{
 			width: 0.16rem;
 			height: 0.16rem;
 		}
@@ -15077,7 +15075,7 @@ div[class^="new-summary-container_"] {\r
      * 判断页面是否是uni-app
      */
     isUniApp() {
-      return Boolean(document.querySelector("uni-app"));
+      return Boolean($("uni-app"));
     },
     /**
      * 允许用户选择文字
@@ -15168,7 +15166,7 @@ div[class^="new-summary-container_"] {\r
         document,
         "scroll",
         utils.debounce(async () => {
-          let $loadMore = document.querySelector("uni-app .load-more");
+          let $loadMore = $("uni-app .load-more");
           if ($loadMore) {
             if (utils.isVisible($loadMore, true)) {
               $loadMore.click();
@@ -15344,9 +15342,7 @@ div[class^="new-summary-container_"] {\r
           return;
         }
         const $tabItemList = Array.from(
-          document.querySelectorAll(
-            "uni-view.reply-top .switch-tab .tab-item"
-          )
+          $$("uni-view.reply-top .switch-tab .tab-item")
         );
         for (let index = 0; index < $tabItemList.length; index++) {
           const $item = $tabItemList[index];
@@ -15433,7 +15429,7 @@ div[class^="new-summary-container_"] {\r
         }
       });
       function closeDialogByUrlChange() {
-        let $lzlCloseIcon = document.querySelector(".lzl-close-icon");
+        let $lzlCloseIcon = $(".lzl-close-icon");
         if ($lzlCloseIcon) {
           $lzlCloseIcon.click();
         } else {
@@ -15473,9 +15469,7 @@ div[class^="new-summary-container_"] {\r
         }
       });
       function closeByUrlChange() {
-        let $closeIcon = document.querySelector(
-          ".img-preview .back-icon-con"
-        );
+        let $closeIcon = $(".img-preview .back-icon-con");
         if ($closeIcon) {
           $closeIcon.click();
         } else {
@@ -15519,10 +15513,10 @@ div[class^="new-summary-container_"] {\r
 				.nav-bar .more-btn-desc{
 					font-size: 15px;
 				}
-				#search .nav-bar-wrapper{
+				#search .nav-search-container{
 					height: 48px;
 				}
-				#search .nav-bar-wrapper svg{
+				#search .nav-search-container svg{
 					width: 16px;
 					height: 16px;
 				}

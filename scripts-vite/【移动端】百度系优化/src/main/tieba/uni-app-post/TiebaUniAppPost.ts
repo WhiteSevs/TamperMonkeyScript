@@ -1,4 +1,4 @@
-import { addStyle, DOMUtils, log, utils } from "@/env";
+import { $, $$, addStyle, DOMUtils, log, utils } from "@/env";
 import { VueUtils } from "@/utils/VueUtils";
 import Qmsg from "qmsg";
 import { PopsPanel } from "@/setting/setting";
@@ -131,7 +131,7 @@ export const TiebaUniAppPost = {
 	 * 判断页面是否是uni-app
 	 */
 	isUniApp() {
-		return Boolean(document.querySelector("uni-app"));
+		return Boolean($("uni-app"));
 	},
 	/**
 	 * 允许用户选择文字
@@ -217,8 +217,7 @@ export const TiebaUniAppPost = {
 			document,
 			"scroll",
 			utils.debounce(async () => {
-				let $loadMore =
-					document.querySelector<HTMLDivElement>("uni-app .load-more");
+				let $loadMore = $<HTMLDivElement>("uni-app .load-more");
 				if ($loadMore) {
 					if (utils.isVisible($loadMore, true)) {
 						$loadMore.click();
@@ -400,9 +399,7 @@ export const TiebaUniAppPost = {
 					return;
 				}
 				const $tabItemList = Array.from(
-					document.querySelectorAll<HTMLDivElement>(
-						"uni-view.reply-top .switch-tab .tab-item"
-					)
+					$$<HTMLDivElement>("uni-view.reply-top .switch-tab .tab-item")
 				);
 				for (let index = 0; index < $tabItemList.length; index++) {
 					const $item = $tabItemList[index];
@@ -502,8 +499,7 @@ export const TiebaUniAppPost = {
 			},
 		});
 		function closeDialogByUrlChange() {
-			let $lzlCloseIcon =
-				document.querySelector<HTMLElement>(".lzl-close-icon");
+			let $lzlCloseIcon = $<HTMLElement>(".lzl-close-icon");
 			if ($lzlCloseIcon) {
 				$lzlCloseIcon.click();
 			} else {
@@ -543,9 +539,7 @@ export const TiebaUniAppPost = {
 			},
 		});
 		function closeByUrlChange() {
-			let $closeIcon = document.querySelector<HTMLElement>(
-				".img-preview .back-icon-con"
-			);
+			let $closeIcon = $<HTMLElement>(".img-preview .back-icon-con");
 			if ($closeIcon) {
 				$closeIcon.click();
 			} else {
@@ -595,10 +589,10 @@ export const TiebaUniAppPost = {
 				.nav-bar .more-btn-desc{
 					font-size: 15px;
 				}
-				#search .nav-bar-wrapper{
+				#search .nav-search-container{
 					height: 48px;
 				}
-				#search .nav-bar-wrapper svg{
+				#search .nav-search-container svg{
 					width: 16px;
 					height: 16px;
 				}
