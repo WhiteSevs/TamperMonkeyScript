@@ -2,6 +2,14 @@
 #douyin-web-download-guide-container
 /* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */
 /* 但是这个CSS又会屏蔽右键菜单 */
-/*.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg))*/ {
+/*.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg))*/ ,
+/* 下载客户端，使用壁纸 */
+div:has(+#wallpaper-modal),
+/* 下载客户端，实时接收消息通知 */
+/* 下载客户端，实时接收好友消息 */
+div:has(> a[download*="douyin-downloade"]):has(+.popShadowAnimation),
+div:has(> a[download*="douyin-downloade"]):has(+div>[data-e2e="listDlgTest-container"]),
+/* 客户端登录访问更便捷 */
+div:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation) {
 	display: none !important;
 }

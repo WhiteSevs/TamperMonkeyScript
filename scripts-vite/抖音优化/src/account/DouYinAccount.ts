@@ -1,8 +1,9 @@
-import { log, utils } from "@/env";
+import { $, log, utils } from "@/env";
 import { DouYinElement } from "../utils/DouYinElement";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 import { CommonUtil } from "@/utils/CommonUtil";
+import { PopsPanel } from "@/setting/setting";
 
 export const DouYinAccount = {
 	/**
@@ -157,7 +158,10 @@ export const DouYinAccount = {
 	 */
 	watchLoginDialogToClose() {
 		log.info("监听登录弹窗并关闭");
-		CommonUtil.addBlockCSS('div[id^="login-full-panel-"]');
+		let result: (HTMLStyleElement | undefined)[] = [
+			CommonUtil.addBlockCSS('div[id^="login-full-panel-"]'),
+		];
+
 		utils.waitNode<HTMLBodyElement>("body").then(() => {
 			utils.mutationObserver(document.body, {
 				config: {
@@ -165,7 +169,10 @@ export const DouYinAccount = {
 					childList: true,
 				},
 				callback() {
-					let accountCloseBtn = document.querySelector(
+					if (!PopsPanel.getValue("watchLoginDialogToClose")) {
+						return;
+					}
+					let accountCloseBtn = $(
 						'body > div[id^="login-full-panel-"] .dy-account-close'
 					) as HTMLDivElement;
 					if (accountCloseBtn) {
@@ -176,5 +183,7 @@ export const DouYinAccount = {
 				},
 			});
 		});
+
+		return result;
 	},
 };

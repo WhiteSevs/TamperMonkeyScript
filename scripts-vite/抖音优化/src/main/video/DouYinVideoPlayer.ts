@@ -236,24 +236,16 @@ export const DouYinVideoPlayer = {
 	 */
 	chooseQuality(mode = 0) {
 		log.info("选择视频清晰度: " + mode);
-		let Definition_Key = "MANUAL_SWITCH";
+		let QualitySessionKey = "MANUAL_SWITCH";
 		let clarityReal = [
 			"normal_1080_0",
-			"normal_720_0",
-			"low_720_0",
 			"normal_540_0",
-			"low_540_0",
-			"adapt_low_540_0",
-			"lower_540_0",
-		];
-		let clarityReal2 = [
-			"normal_1080_0",
-			"low_540_0",
 			"low_720_0",
 			"normal_720_0",
-			"normal_540_0",
-			"adapt_low_540_0",
+			"low_540_0",
 			"lower_540_0",
+			"adapt_low_540_0",
+			"adapt_lowest_1080_1",
 			"adapt_lowest_720_1",
 			"adapt_540_1",
 			"adapt_lower_540_1",
@@ -263,28 +255,28 @@ export const DouYinVideoPlayer = {
 				clarityReal: clarityReal,
 				done: 1,
 				gearClarity: "5",
-				gearName: "高清",
+				gearName: "高清 1080P",
 				gearType: 1,
-				qualityType: 1,
+				qualityType: 2,
 			},
 			{
-				clarityReal: clarityReal2,
+				clarityReal: clarityReal,
 				done: 1,
 				gearClarity: "4",
-				gearName: "清晰",
+				gearName: "高清 720P",
 				gearType: 2,
 				qualityType: 15,
 			},
 			{
-				clarityReal: clarityReal2,
+				clarityReal: clarityReal,
 				done: 1,
 				gearClarity: "3",
-				gearName: "流畅",
+				gearName: "标清 540P",
 				gearType: 3,
-				qualityType: 28,
+				qualityType: 21,
 			},
 			{
-				clarityReal: clarityReal2,
+				clarityReal: clarityReal,
 				done: 1,
 				gearClarity: "2",
 				gearName: "极速",
@@ -292,7 +284,7 @@ export const DouYinVideoPlayer = {
 				qualityType: 21,
 			},
 			{
-				clarityReal: clarityReal2,
+				clarityReal: clarityReal,
 				done: 1,
 				gearClarity: "0",
 				gearName: "智能",
@@ -304,19 +296,17 @@ export const DouYinVideoPlayer = {
 		 * 抖音清晰度读取是来自session的
 		 * @param value
 		 */
-		function setStorage(value: string) {
-			unsafeWindow.sessionStorage.setItem(Definition_Key, value);
+		function setVideoQuality(value: string) {
+			unsafeWindow.sessionStorage.setItem(QualitySessionKey, value);
 		}
 		if (choose) {
-			let count = 0;
 			let chooseStr = JSON.stringify(choose);
-			let interval = setInterval(() => {
-				setStorage(chooseStr);
-				count++;
-				if (count >= 20) {
-					clearInterval(interval);
-				}
-			}, 500);
+			let intervalId = setInterval(() => {
+				setVideoQuality(chooseStr);
+			}, 250);
+			setTimeout(() => {
+				clearInterval(intervalId);
+			}, 10 * 1000);
 			log.success("设置当前视频的清晰度: " + mode);
 		} else {
 			log.error("该清晰度不存在: " + mode);

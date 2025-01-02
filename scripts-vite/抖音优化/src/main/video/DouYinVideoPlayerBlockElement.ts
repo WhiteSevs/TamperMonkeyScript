@@ -52,11 +52,12 @@ export const DouYinVideoPlayerBlockElement_BottomToolbar = {
 		log.info("【屏蔽】底部视频工具栏");
 		return [
 			CommonUtil.addBlockCSS("xg-controls.xgplayer-controls"),
-			// 修复底部工具栏因屏蔽导致的空白区域
+			// 修复屏蔽后视频信息区域未沉底
 			addStyle(/*css*/ `
 			#sliderVideo[data-e2e="feed-active-video"] div:has( > div > #video-info-wrap),
 			div:has( > div > pace-island > #video-info-wrap ),
-			xg-video-container.xg-video-container{
+			xg-video-container.xg-video-container,
+			div:has(> #video-info-wrap){
 				bottom: 0 !important;
 			}`),
 		];

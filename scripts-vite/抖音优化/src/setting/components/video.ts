@@ -176,24 +176,24 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									1,
 									[
 										{
-											text: "智能",
-											value: 0,
+											text: "高清 1080P",
+											value: 1,
+										},
+										{
+											text: "高清 720P",
+											value: 2,
+										},
+										{
+											text: "标清 540P",
+											value: 3,
 										},
 										{
 											text: "极速",
 											value: 4,
 										},
 										{
-											text: "流畅",
-											value: 3,
-										},
-										{
-											text: "清晰",
-											value: 2,
-										},
-										{
-											text: "高清",
-											value: 1,
+											text: "智能",
+											value: 0,
 										},
 									],
 									void 0,

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.1.1.19
+// @version      2025.1.2
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -2776,13 +2776,14 @@
       log.info("【屏蔽】底部视频工具栏");
       return [
         CommonUtil.addBlockCSS("xg-controls.xgplayer-controls"),
-        // 修复底部工具栏因屏蔽导致的空白区域
+        // 修复屏蔽后视频信息区域未沉底
         addStyle(
           /*css*/
           `
 			#sliderVideo[data-e2e="feed-active-video"] div:has( > div > #video-info-wrap),
 			div:has( > div > pace-island > #video-info-wrap ),
-			xg-video-container.xg-video-container{
+			xg-video-container.xg-video-container,
+			div:has(> #video-info-wrap){
 				bottom: 0 !important;
 			}`
         )
@@ -3548,24 +3549,16 @@
      */
     chooseQuality(mode = 0) {
       log.info("选择视频清晰度: " + mode);
-      let Definition_Key = "MANUAL_SWITCH";
+      let QualitySessionKey = "MANUAL_SWITCH";
       let clarityReal = [
         "normal_1080_0",
-        "normal_720_0",
-        "low_720_0",
         "normal_540_0",
-        "low_540_0",
-        "adapt_low_540_0",
-        "lower_540_0"
-      ];
-      let clarityReal2 = [
-        "normal_1080_0",
-        "low_540_0",
         "low_720_0",
         "normal_720_0",
-        "normal_540_0",
-        "adapt_low_540_0",
+        "low_540_0",
         "lower_540_0",
+        "adapt_low_540_0",
+        "adapt_lowest_1080_1",
         "adapt_lowest_720_1",
         "adapt_540_1",
         "adapt_lower_540_1"
@@ -3575,28 +3568,28 @@
           clarityReal,
           done: 1,
           gearClarity: "5",
-          gearName: "高清",
+          gearName: "高清 1080P",
           gearType: 1,
-          qualityType: 1
+          qualityType: 2
         },
         {
-          clarityReal: clarityReal2,
+          clarityReal,
           done: 1,
           gearClarity: "4",
-          gearName: "清晰",
+          gearName: "高清 720P",
           gearType: 2,
           qualityType: 15
         },
         {
-          clarityReal: clarityReal2,
+          clarityReal,
           done: 1,
           gearClarity: "3",
-          gearName: "流畅",
+          gearName: "标清 540P",
           gearType: 3,
-          qualityType: 28
+          qualityType: 21
         },
         {
-          clarityReal: clarityReal2,
+          clarityReal,
           done: 1,
           gearClarity: "2",
           gearName: "极速",
@@ -3604,7 +3597,7 @@
           qualityType: 21
         },
         {
-          clarityReal: clarityReal2,
+          clarityReal,
           done: 1,
           gearClarity: "0",
           gearName: "智能",
@@ -3612,19 +3605,17 @@
         }
       ];
       let choose = definition.find((item) => item.gearType === mode);
-      function setStorage(value) {
-        _unsafeWindow.sessionStorage.setItem(Definition_Key, value);
+      function setVideoQuality(value) {
+        _unsafeWindow.sessionStorage.setItem(QualitySessionKey, value);
       }
       if (choose) {
-        let count = 0;
         let chooseStr = JSON.stringify(choose);
-        let interval = setInterval(() => {
-          setStorage(chooseStr);
-          count++;
-          if (count >= 20) {
-            clearInterval(interval);
-          }
-        }, 500);
+        let intervalId = setInterval(() => {
+          setVideoQuality(chooseStr);
+        }, 250);
+        setTimeout(() => {
+          clearInterval(intervalId);
+        }, 10 * 1e3);
         log.success("设置当前视频的清晰度: " + mode);
       } else {
         log.error("该清晰度不存在: " + mode);
@@ -6232,24 +6223,24 @@
                     1,
                     [
                       {
-                        text: "智能",
-                        value: 0
+                        text: "高清 1080P",
+                        value: 1
+                      },
+                      {
+                        text: "高清 720P",
+                        value: 2
+                      },
+                      {
+                        text: "标清 540P",
+                        value: 3
                       },
                       {
                         text: "极速",
                         value: 4
                       },
                       {
-                        text: "流畅",
-                        value: 3
-                      },
-                      {
-                        text: "清晰",
-                        value: 2
-                      },
-                      {
-                        text: "高清",
-                        value: 1
+                        text: "智能",
+                        value: 0
                       }
                     ],
                     void 0,
@@ -8751,7 +8742,9 @@
      */
     watchLoginDialogToClose() {
       log.info("监听登录弹窗并关闭");
-      CommonUtil.addBlockCSS('div[id^="login-full-panel-"]');
+      let result = [
+        CommonUtil.addBlockCSS('div[id^="login-full-panel-"]')
+      ];
       utils.waitNode("body").then(() => {
         utils.mutationObserver(document.body, {
           config: {
@@ -8760,7 +8753,10 @@
           },
           callback() {
             var _a2, _b;
-            let accountCloseBtn = document.querySelector(
+            if (!PopsPanel.getValue("watchLoginDialogToClose")) {
+              return;
+            }
+            let accountCloseBtn = $(
               'body > div[id^="login-full-panel-"] .dy-account-close'
             );
             if (accountCloseBtn) {
@@ -8769,6 +8765,7 @@
           }
         });
       });
+      return result;
     }
   };
   const DouYinRedirect = {
@@ -9270,7 +9267,7 @@
       );
     }
   };
-  const blockCSS$7 = "/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */\r\n#douyin-web-download-guide-container\r\n/* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */\r\n/* 但是这个CSS又会屏蔽右键菜单 */\r\n/*.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg))*/ {\r\n	display: none !important;\r\n}\r\n";
+  const blockCSS$7 = '/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */\r\n#douyin-web-download-guide-container\r\n/* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */\r\n/* 但是这个CSS又会屏蔽右键菜单 */\r\n/*.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg))*/ ,\r\n/* 下载客户端，使用壁纸 */\r\ndiv:has(+#wallpaper-modal),\r\n/* 下载客户端，实时接收消息通知 */\r\n/* 下载客户端，实时接收好友消息 */\r\ndiv:has(> a[download*="douyin-downloade"]):has(+.popShadowAnimation),\r\ndiv:has(> a[download*="douyin-downloade"]):has(+div>[data-e2e="listDlgTest-container"]),\r\n/* 客户端登录访问更便捷 */\r\ndiv:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation) {\r\n	display: none !important;\r\n}\r\n';
   const blockCSS$6 = '/* 资料右边的 下载桌面客户端，桌面快捷访问 */\r\ndiv[data-e2e="user-detail"] div:has(> div > a[href*="douyin-pc"]) {\r\n	display: none !important;\r\n}\r\n';
   const DouYinUser = {
     init() {
