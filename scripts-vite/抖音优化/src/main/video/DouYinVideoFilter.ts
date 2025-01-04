@@ -416,7 +416,7 @@ export const DouYinVideoFilter = {
 								};
 							}),
 							void 0,
-							"可正则，注意转义"
+							"选择需要的属性名 "
 						);
 						Reflect.set(
 							ruleName_template.props!,
