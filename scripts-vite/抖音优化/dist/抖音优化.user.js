@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.1.4
+// @version      2025.1.5
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -951,7 +951,7 @@
     change() {
       var _a2, _b, _c, _d, _e, _f, _g;
       let danmakuQueue = Array.from(
-        document.querySelectorAll("xg-danmu.xgplayer-danmu > div > div")
+        $$("xg-danmu.xgplayer-danmu > div > div")
       );
       if (!danmakuQueue.length) {
         return;
@@ -1465,7 +1465,7 @@
           return text;
         },
         callback: () => {
-          let $playerIns = document.querySelector(
+          let $playerIns = $(
             `[id^="living_room_player_container"]`
           );
           if (!$playerIns) {
@@ -2662,15 +2662,23 @@
      * 直播
      */
     isLive() {
-      return window.location.hostname === "live.douyin.com" || this.isFollowLive();
+      return window.location.hostname === "live.douyin.com" || this.isFollowLive() || this.isRootLive();
     },
-    /** 
+    /**
      * 关注-直播
-     * 
+     *
      * + /follow/live/
      */
     isFollowLive() {
       return this.isIndex() && window.location.pathname.startsWith("/follow/live/");
+    },
+    /**
+     * 刷视频时的点击进去的直播
+     *
+     * + /root/live
+     */
+    isRootLive() {
+      return this.isIndex() && window.location.pathname.startsWith("/root/live");
     },
     /**
      * 是否是抖音主站
@@ -2687,26 +2695,34 @@
       let searchParams = new URLSearchParams(window.location.search);
       return this.isIndex() && searchParams.has("recommend");
     },
-    /** 
+    /**
      * 搜索
-     * 
+     *
      * + /search
      * + /root/search
      */
     isSearch() {
-      return this.isIndex() && (window.location.pathname.startsWith("/search") || window.location.pathname.startsWith("/root/search"));
+      return this.isIndex() && (window.location.pathname.startsWith("/search") || this.isRootSearch());
     },
-    /** 
+    /**
+     * 其它地方进去的搜索
+     *
+     * + /root/search
+     */
+    isRootSearch() {
+      return this.isIndex() && window.location.pathname.startsWith("/root/search");
+    },
+    /**
      * 例如：知识、二次元、游戏、美食等
-     * 
+     *
      * + /channel
      */
     isChannel() {
       return this.isIndex() && window.location.pathname.startsWith("/channel");
     },
-    /** 
+    /**
      * 精选
-     * 
+     *
      * + /discover
      */
     isDiscover() {
@@ -2714,7 +2730,7 @@
     },
     /**
      * 用户主页
-     * 
+     *
      * + /user
      */
     isUser() {
@@ -2722,7 +2738,7 @@
     },
     /**
      * 单个视频，一般是分享的视频链接
-     * 
+     *
      * + /video
      */
     isVideo() {
@@ -3922,7 +3938,7 @@
       const $closeSelector = `#relatedVideoCard .semi-tabs + div svg:has(path[d="M22.133 23.776a1.342 1.342 0 1 0 1.898-1.898l-4.112-4.113 4.112-4.112a1.342 1.342 0 0 0-1.898-1.898l-4.112 4.112-4.113-4.112a1.342 1.342 0 1 0-1.898 1.898l4.113 4.112-4.113 4.113a1.342 1.342 0 0 0 1.898 1.898l4.113-4.113 4.112 4.113z"])`;
       function closeComment() {
         var _a2;
-        let $close = document.querySelector($closeSelector);
+        let $close = $($closeSelector);
         if ($close) {
           let rect = utils.getReactObj($close);
           if (rect) {
@@ -8689,9 +8705,7 @@
           WAIT_TIME
         ).then(() => {
           let lockFn = new utils.LockFunction(() => {
-            setLogin(
-              document.querySelector(`#douyin-header`)
-            );
+            setLogin($(`#douyin-header`));
           }, 70);
           utils.mutationObserver(document.body, {
             config: {

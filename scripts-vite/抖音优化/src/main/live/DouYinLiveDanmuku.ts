@@ -1,6 +1,5 @@
-import { DOMUtils, log, utils } from "@/env";
+import { $$, DOMUtils, log, utils } from "@/env";
 import { GM_getValue, GM_setValue } from "ViteGM";
-import { DouYinUtils } from "@/utils/DouYinUtils";
 
 export const DouYinDanmuFilter = {
 	key: "douyin-live-danmu-rule",
@@ -36,8 +35,8 @@ export const DouYinDanmuFilter = {
 	 */
 	change() {
 		let danmakuQueue = Array.from(
-			document.querySelectorAll("xg-danmu.xgplayer-danmu > div > div")
-		) as HTMLDivElement[];
+			$$<HTMLDivElement>("xg-danmu.xgplayer-danmu > div > div")
+		);
 		if (!danmakuQueue.length) {
 			return;
 		}

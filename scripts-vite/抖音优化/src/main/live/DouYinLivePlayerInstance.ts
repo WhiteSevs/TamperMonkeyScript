@@ -1,4 +1,4 @@
-import { GM_Menu, log, pops, utils } from "@/env";
+import { $, GM_Menu, log, pops, utils } from "@/env";
 import Qmsg from "qmsg";
 
 type DouYinLivePlayerInstance = {
@@ -56,7 +56,7 @@ export const DouYinLivePlayerInstance = {
 				return text;
 			},
 			callback: () => {
-				let $playerIns = document.querySelector<HTMLDivElement>(
+				let $playerIns = $<HTMLDivElement>(
 					`[id^="living_room_player_container"]`
 				);
 				if (!$playerIns) {

@@ -99,9 +99,7 @@ export const DouYinAccount = {
 				)
 				.then(() => {
 					let lockFn = new utils.LockFunction(() => {
-						setLogin(
-							document.querySelector(`#douyin-header`) as HTMLDivElement
-						);
+						setLogin($<HTMLDivElement>(`#douyin-header`)!);
 					}, 70);
 					utils.mutationObserver(document.body, {
 						config: {

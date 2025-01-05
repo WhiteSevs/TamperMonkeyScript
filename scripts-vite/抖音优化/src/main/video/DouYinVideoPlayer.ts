@@ -632,7 +632,7 @@ export const DouYinVideoPlayer = {
 		 * 关闭评论区
 		 */
 		function closeComment() {
-			let $close = document.querySelector<HTMLElement>($closeSelector);
+			let $close = $<HTMLElement>($closeSelector);
 			if ($close) {
 				let rect = utils.getReactObj($close);
 				if (rect) {
