@@ -238,6 +238,8 @@ export const DouYinVideoPlayer = {
 		log.info("选择视频清晰度: " + mode);
 		let QualitySessionKey = "MANUAL_SWITCH";
 		let clarityReal = [
+			"adapt_lowest_4_1",
+			"adapt_lowest_1440_1",
 			"normal_1080_0",
 			"normal_540_0",
 			"low_720_0",
@@ -250,7 +252,24 @@ export const DouYinVideoPlayer = {
 			"adapt_540_1",
 			"adapt_lower_540_1",
 		];
+		
 		let definition = [
+			{
+				clarityReal: clarityReal,
+				done: 1,
+				gearClarity: "20",
+				gearName: "超清 4K",
+				gearType: -2,
+				qualityType: 72,
+			},
+			{
+				clarityReal: clarityReal,
+				done: 1,
+				gearClarity: "10",
+				gearName: "超清 2K",
+				gearType: -1,
+				qualityType: 7,
+			},
 			{
 				clarityReal: clarityReal,
 				done: 1,

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.1.8
+// @version      2025.1.8.18
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -3576,6 +3576,8 @@
       log.info("选择视频清晰度: " + mode);
       let QualitySessionKey = "MANUAL_SWITCH";
       let clarityReal = [
+        "adapt_lowest_4_1",
+        "adapt_lowest_1440_1",
         "normal_1080_0",
         "normal_540_0",
         "low_720_0",
@@ -3589,6 +3591,22 @@
         "adapt_lower_540_1"
       ];
       let definition = [
+        {
+          clarityReal,
+          done: 1,
+          gearClarity: "20",
+          gearName: "超清 4K",
+          gearType: -2,
+          qualityType: 72
+        },
+        {
+          clarityReal,
+          done: 1,
+          gearClarity: "10",
+          gearName: "超清 2K",
+          gearType: -1,
+          qualityType: 7
+        },
         {
           clarityReal,
           done: 1,
@@ -6295,6 +6313,15 @@
                     "chooseVideoDefinition",
                     1,
                     [
+                      {
+                        text: "超清 4K",
+                        // ↓gearType
+                        value: -2
+                      },
+                      {
+                        text: "超清 2K",
+                        value: -1
+                      },
                       {
                         text: "高清 1080P",
                         value: 1

@@ -176,6 +176,15 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									1,
 									[
 										{
+											text: "超清 4K",
+											// ↓gearType
+											value: -2,
+										},
+										{
+											text: "超清 2K",
+											value: -1,
+										},
+										{
 											text: "高清 1080P",
 											value: 1,
 										},
