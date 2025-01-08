@@ -23,6 +23,7 @@ import {
 import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { PanelUISize } from "./panel-ui-size";
+import { PanelUserConfig } from "./components/user";
 
 type PosPanelListenerData = {
 	id: number;
@@ -420,7 +421,7 @@ const PopsPanel = {
 	},
 	/**
 	 * 自动判断菜单是否启用，然后执行回调，只会执行一次
-	 * 
+	 *
 	 * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
 	 * @param key
 	 * @param callback 回调
@@ -650,6 +651,7 @@ const PopsPanel = {
 			PanelVideoConfig,
 			PanelSearchConfig,
 			PanelLiveConfig,
+			PanelUserConfig,
 		];
 		return configList;
 	},

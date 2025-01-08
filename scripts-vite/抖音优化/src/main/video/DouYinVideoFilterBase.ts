@@ -15,6 +15,22 @@ export interface DouYinVideoHandlerInfo {
 	textExtra: string[];
 	/** 视频标签 */
 	videoTag: string[];
+	/** 视频的背景音乐专辑名 */
+	musicAlbum?: string;
+	/** 视频的背景音乐作者 */
+	musicAuthor?: string;
+	/** 视频的背景音乐标题名称 */
+	musicTitle?: string;
+	/** 风险提示内容 */
+	riskInfoContent?: string;
+	/** 系列名称 */
+	seriesInfoName?: string;
+	/** 系列内容类型 */
+	seriesInfoContentTypes: string[];
+	/** 混合信息的名称 */
+	mixInfoName?: string;
+	/** 混合信息的描述 */
+	mixInfoDesc?: string;
 	/** 收藏数量 */
 	collectCount: number;
 	/** 评论数量 */
@@ -24,11 +40,17 @@ export interface DouYinVideoHandlerInfo {
 	/** 分享数量 */
 	shareCount: number;
 	/** 视频时长（单位：毫秒） */
-	duration: number;
+	duration?: number;
 	/** 是否是直播 */
 	isLive: boolean;
 	/** 是否是广告 */
 	isAds: boolean;
+	/** 是否是系列信息-剧集 */
+	isSeriesInfo: boolean;
+	/** 是否是混合信息-合集 */
+	isMixInfo: boolean;
+	/** 是否是图文 */
+	isPicture: boolean;
 }
 
 /** 抖音视频的awemeInfo对象信息 */
@@ -44,6 +66,8 @@ export type DouYinVideoAwemeInfo = {
 	};
 	/** 视频id */
 	awemeId: string;
+	/** 视频类型，0是视频，68是图文 */
+	awemeType: number;
 	/** 直播间信息（如果存在） */
 	cellRoom:
 		| undefined
@@ -102,13 +126,74 @@ export type DouYinVideoAwemeInfo = {
 	createTime: number;
 	/** 视频描述 */
 	desc: string;
+	/** 音乐信心 */
+	music: {
+		album: string;
+		author: string;
+		id: number;
+		id_str: string;
+		mid: string;
+		title: string;
+	};
 	/** 是否是广告 */
 	isAds: boolean;
 	isFriendLimit: boolean;
 	isPrivate: boolean;
+	mixInfo?: {
+		mixName?: string;
+	};
 	/** 广告信息(如果存在) */
 	rawAdData: string | undefined;
-	seriesInfo: {};
+	riskInfos:
+		| {
+				content?: string;
+		  }
+		| undefined;
+	seriesInfo: {
+		author: {
+			isBlockedV2: boolean;
+			nickname: "";
+			secUid: undefined;
+			secret: 0;
+			uid: "";
+			userNotSee: 0;
+		};
+		chargeCount: undefined;
+		chargeInfo: {
+			buySchema: undefined;
+			chargeCount: undefined;
+			chargeType: undefined;
+			hasPaid: undefined;
+			promiseUpdateTime: undefined;
+			sellType: undefined;
+			unpaidCount: undefined;
+			useDemotion: undefined;
+		};
+		collectVV: undefined;
+		cover: "";
+		currentEpisode: undefined;
+		desc: undefined;
+		hasUpdatedEpisode: 0;
+		horizontalCover: "";
+		isCharge: false;
+		isCollected: 0;
+		isExclusive: undefined;
+		isIaa: false;
+		playVV: undefined;
+		seriesContentTypes: undefined;
+		seriesIcp: undefined;
+		seriesId: undefined;
+		seriesName: undefined;
+		stats: {
+			currentEpisode: undefined;
+			totalEpisode: undefined;
+			updatedToEpisode: undefined;
+		};
+		status: -1;
+		totalEpisode: undefined;
+		watchedEpisode: undefined;
+		watchedItem: undefined;
+	};
 	shareInfo: {
 		/** 视频分享链接的描述 */
 		shareLinkDesc: string;
@@ -263,7 +348,31 @@ export type DouYinVideoAwemeInfo = {
 };
 
 /** 抖音视频的api接口的awemeInfo对象信息 */
-export type DouYinVideoNetWorkAwemeInfo = {};
+export type DouYinVideoNetWorkAwemeInfo = {
+	author: {
+		nickname: string;
+		uid: string;
+		desc: string;
+		sec_uid: string;
+	};
+	statistics: {
+		admire_count: number;
+		collect_count: number;
+		comment_count: number;
+		digg_count: number;
+		play_count: number;
+		share_count: number;
+	};
+	risk_infos: {
+		content: string;
+		icon_url: string;
+		risk_sink: boolean;
+		type: number;
+		vote: boolean;
+		warn: boolean;
+		warn_level: number;
+	};
+};
 type CheckRuleDetail = {
 	/** 视频信息的键（awemeInfo） */
 	videoInfoKey: string;
@@ -294,6 +403,12 @@ export class DouYinVideoFilterBase {
 		let uid: string = authorInfo?.["uid"]?.toString();
 		/** 视频描述 */
 		let desc: string = awemeInfo?.["desc"]?.toString();
+		/** 音乐专辑 */
+		let musicAlbum: string = awemeInfo?.["music"]?.["album"];
+		/** 音乐作者 */
+		let musicAuthor: string = awemeInfo?.["music"]?.["author"];
+		/** 音乐标题 */
+		let musicTitle: string = awemeInfo?.["music"]?.["title"];
 		/** 收藏数量 */
 		let collectCount: number =
 			awemeInfo?.["stats"]?.["collectCount"] ||
@@ -315,7 +430,7 @@ export class DouYinVideoFilterBase {
 			// @ts-ignore
 			awemeInfo?.["statistics"]?.["share_count"];
 		/** 视频时长 */
-		let duration: number = awemeInfo?.["video"]?.["duration"];
+		let duration: number | undefined = awemeInfo?.["video"]?.["duration"];
 		let textExtraObj: any[] =
 			// @ts-ignore
 			awemeInfo?.["textExtra"] || awemeInfo?.["text_extra"];
@@ -325,19 +440,46 @@ export class DouYinVideoFilterBase {
 		let isLive: boolean = false;
 		/** 是否是广告 */
 		let isAds: boolean = false;
-
+		/** 是否是系列-短剧 */
+		let isSeriesInfo: boolean = false;
+		/** 是否是混合信息-合集、短剧 */
+		let isMixInfo: boolean = false;
+		/** 风险提示内容 */
+		let riskInfoContent: string | undefined =
+			awemeInfo?.["riskInfos"]?.content ||
+			// @ts-ignore
+			awemeInfo?.["risk_infos"]?.content;
+		/** 系列名称 */
+		let seriesInfoName: string | undefined = void 0;
+		/** 系列内容类型 */
+		let seriesInfoContentTypes: string[] = [];
+		/** 是否是图文 */
+		let isPicture: boolean =
+			// @ts-ignore
+			awemeInfo?.["aweme_type"] === 68;
 		if (typeof textExtraObj === "object" && Array.isArray(textExtraObj)) {
 			textExtraObj?.forEach((item) => {
-				textExtra.push(item?.["hashtagName"] || item?.["hashtag_name"]);
+				let tagName = item?.["hashtagName"] || item?.["hashtag_name"];
+				if (typeof tagName === "string") {
+					textExtra.push(tagName);
+				}
 			});
 		}
+		/** 混合信息名称 */
+		let mixInfoName: string | undefined = void 0;
+		/** 混合信息描述 */
+		let mixInfoDesc: string | undefined = void 0;
 		let videoTagObj: any[] =
 			// @ts-ignore
 			awemeInfo?.["videoTag"] || awemeInfo?.["video_tag"];
 		let videoTag: string[] = [];
+
 		if (typeof videoTagObj === "object" && Array.isArray(videoTagObj)) {
 			videoTagObj.forEach((item) => {
-				videoTag.push(item?.["tagName"] || item?.["tag_name"]);
+				let tagName = item?.["tagName"] || item?.["tag_name"];
+				if (typeof tagName === "string") {
+					videoTag.push(tagName);
+				}
 			});
 		}
 
@@ -392,12 +534,63 @@ export class DouYinVideoFilterBase {
 				// 暂无测试用例
 			}
 		}
+
+		// 如果风险提示内容是空的，赋值为undefined
+		if (
+			(typeof riskInfoContent === "string" && riskInfoContent.trim() === "") ||
+			typeof riskInfoContent !== "string"
+		) {
+			riskInfoContent = void 0;
+		}
+		/** 短剧信息 */
+		let series_info =
+			awemeInfo?.["seriesInfo"] ||
+			// @ts-ignore
+			awemeInfo?.["series_info"];
+		if (typeof series_info === "object" && series_info != null) {
+			isSeriesInfo = true;
+			seriesInfoName =
+				series_info?.["seriesName"] ||
+				// @ts-ignore
+				series_info?.["series_name"];
+			let series_content_types =
+				series_info?.["seriesContentTypes"] ||
+				// @ts-ignore
+				series_info?.["series_content_types"];
+			if (Array.isArray(series_content_types)) {
+				series_content_types.forEach((it) => {
+					seriesInfoContentTypes.push(it["name"]);
+				});
+			}
+		}
+		/** 混合信息 */
+		let mixInfo =
+			awemeInfo?.["mixInfo"] ||
+			// @ts-ignore
+			awemeInfo?.["mix_info"];
+		if (typeof mixInfo === "object" && utils.isNotNull(mixInfo)) {
+			mixInfoName = mixInfo?.["mixName"] || mixInfo?.["mix_name"];
+			mixInfoDesc = mixInfo?.["desc"];
+		}
+		// 判断是否是图文
+		// 如果是图文，那视频时长则需设置为空
+		if (isPicture) {
+			duration = void 0;
+		}
 		return {
 			nickname,
 			uid,
 			desc,
 			textExtra,
 			videoTag,
+			musicAlbum,
+			musicAuthor,
+			musicTitle,
+			riskInfoContent,
+			seriesInfoName,
+			seriesInfoContentTypes,
+			mixInfoName,
+			mixInfoDesc,
 			collectCount,
 			commentCount,
 			diggCount,
@@ -405,6 +598,9 @@ export class DouYinVideoFilterBase {
 			duration,
 			isLive,
 			isAds,
+			isSeriesInfo,
+			isMixInfo,
+			isPicture,
 		};
 	}
 	/**
@@ -530,7 +726,10 @@ export class DouYinVideoFilterBase {
 			} as CheckRuleDetail;
 			flag = this.checkFilterWithRule(details);
 			if (flag) {
-				if (Array.isArray(filterOption.dynamicData)) {
+				if (
+					Array.isArray(filterOption.dynamicData) &&
+					filterOption.dynamicData.length
+				) {
 					// & 动态规则
 					let dynamicDetailsList = [];
 					for (
@@ -567,6 +766,7 @@ export class DouYinVideoFilterBase {
 							transformAwemeInfo,
 							details,
 							dynamicDetailsList,
+							awemeInfo,
 						]);
 					}
 				} else {
@@ -574,6 +774,7 @@ export class DouYinVideoFilterBase {
 						`视频过滤器 ==> ${filterOption.name}`,
 						transformAwemeInfo,
 						details,
+						awemeInfo,
 					]);
 				}
 			}

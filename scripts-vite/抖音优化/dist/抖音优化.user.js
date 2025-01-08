@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.1.5
+// @version      2025.1.8
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1029,6 +1029,9 @@
           return;
         }
       }
+      if (!Array.isArray(needSetList)) {
+        needSetList = [needSetList];
+      }
       needSetList.forEach((needSetOption) => {
         if (typeof needSetOption.msg === "string") {
           log.info(needSetOption.msg);
@@ -1069,7 +1072,7 @@
           if (targetObjProp == null) {
             return;
           }
-          needSetOption.set(targetObjProp);
+          needSetOption.set(targetObjProp, target);
         });
       });
     }
@@ -1925,25 +1928,25 @@
       label: "自动",
       sign: 0
     },
-    ld: {
-      label: "标清",
-      sign: 1
-    },
-    sd: {
-      label: "高清",
-      sign: 2
-    },
-    hd: {
-      label: "超清",
-      sign: 3
+    origin: {
+      label: "潮汐海灵",
+      sign: 5
     },
     uhd: {
       label: "蓝光",
       sign: 4
     },
-    origin: {
-      label: "潮汐海灵",
-      sign: 5
+    hd: {
+      label: "超清",
+      sign: 3
+    },
+    sd: {
+      label: "高清",
+      sign: 2
+    },
+    ld: {
+      label: "标清",
+      sign: 1
     }
   };
   const DouYinLive = {
@@ -1999,41 +2002,39 @@
       ReactUtils.waitReactPropsToSet(
         'xg-inner-controls xg-right-grid >div:has([data-e2e="quality-selector"])',
         "reactProps",
-        [
-          {
-            check(reactObj) {
-              var _a2, _b, _c, _d, _e, _f, _g, _h, _i;
-              return typeof ((_d = (_c = (_b = (_a2 = reactObj == null ? void 0 : reactObj.children) == null ? void 0 : _a2.props) == null ? void 0 : _b.children) == null ? void 0 : _c.props) == null ? void 0 : _d.qualityHandler) === "object" && typeof ((_i = (_h = (_g = (_f = (_e = reactObj == null ? void 0 : reactObj.children) == null ? void 0 : _e.props) == null ? void 0 : _f.children) == null ? void 0 : _g.props) == null ? void 0 : _h.qualityHandler) == null ? void 0 : _i.getCurrentQualityList) === "function";
-            },
-            set(reactObj) {
-              let qualityHandler = reactObj.children.props.children.props.qualityHandler;
-              let currentQualityList = qualityHandler.getCurrentQualityList();
-              if (currentQualityList.includes(quality)) {
-                qualityHandler.setCurrentQuality(quality);
-                log.success("成功设置画质为【" + quality + "】");
-              } else {
-                let __quality = quality;
-                Qmsg.error(
-                  "当前直播没有【" + __quality + "】画质，自动选择最高画质"
-                );
-                currentQualityList.sort((a, b) => {
-                  if (!VideoQualityMap[a]) {
-                    log.error("画质【" + a + "】不存在");
-                    return 0;
-                  }
-                  if (!VideoQualityMap[b]) {
-                    log.error("画质【" + b + "】不存在");
-                    return 0;
-                  }
-                  return VideoQualityMap[a].sign - VideoQualityMap[b].sign;
-                });
-                __quality = currentQualityList[currentQualityList.length - 1];
-                qualityHandler.setCurrentQuality(quality);
-                log.success("成功设置画质为【" + quality + "】");
-              }
+        {
+          check(reactObj) {
+            var _a2, _b, _c, _d, _e, _f, _g, _h, _i;
+            return typeof ((_d = (_c = (_b = (_a2 = reactObj == null ? void 0 : reactObj.children) == null ? void 0 : _a2.props) == null ? void 0 : _b.children) == null ? void 0 : _c.props) == null ? void 0 : _d.qualityHandler) === "object" && typeof ((_i = (_h = (_g = (_f = (_e = reactObj == null ? void 0 : reactObj.children) == null ? void 0 : _e.props) == null ? void 0 : _f.children) == null ? void 0 : _g.props) == null ? void 0 : _h.qualityHandler) == null ? void 0 : _i.getCurrentQualityList) === "function";
+          },
+          set(reactObj) {
+            let qualityHandler = reactObj.children.props.children.props.qualityHandler;
+            let currentQualityList = qualityHandler.getCurrentQualityList();
+            if (currentQualityList.includes(quality)) {
+              qualityHandler.setCurrentQuality(quality);
+              log.success("成功设置画质为【" + quality + "】");
+            } else {
+              let __quality = quality;
+              Qmsg.error(
+                "当前直播没有【" + __quality + "】画质，自动选择最高画质"
+              );
+              currentQualityList.sort((a, b) => {
+                if (!VideoQualityMap[a]) {
+                  log.error("画质【" + a + "】不存在");
+                  return 0;
+                }
+                if (!VideoQualityMap[b]) {
+                  log.error("画质【" + b + "】不存在");
+                  return 0;
+                }
+                return VideoQualityMap[a].sign - VideoQualityMap[b].sign;
+              });
+              __quality = currentQualityList[currentQualityList.length - 1];
+              qualityHandler.setCurrentQuality(quality);
+              log.success("成功设置画质为【" + quality + "】");
             }
           }
-        ]
+        }
       );
     },
     /**
@@ -2675,10 +2676,10 @@
     /**
      * 刷视频时的点击进去的直播
      *
-     * + /root/live
+     * + /root/live/
      */
     isRootLive() {
-      return this.isIndex() && window.location.pathname.startsWith("/root/live");
+      return this.isIndex() && window.location.pathname.startsWith("/root/live/");
     },
     /**
      * 是否是抖音主站
@@ -2698,51 +2699,59 @@
     /**
      * 搜索
      *
-     * + /search
-     * + /root/search
+     * + /search/
+     * + /root/search/
      */
     isSearch() {
-      return this.isIndex() && (window.location.pathname.startsWith("/search") || this.isRootSearch());
+      return this.isIndex() && (window.location.pathname.startsWith("/search/") || this.isRootSearch());
     },
     /**
      * 其它地方进去的搜索
      *
-     * + /root/search
+     * + /root/search/
      */
     isRootSearch() {
-      return this.isIndex() && window.location.pathname.startsWith("/root/search");
+      return this.isIndex() && window.location.pathname.startsWith("/root/search/");
     },
     /**
      * 例如：知识、二次元、游戏、美食等
      *
-     * + /channel
+     * + /channel/
      */
     isChannel() {
-      return this.isIndex() && window.location.pathname.startsWith("/channel");
+      return this.isIndex() && window.location.pathname.startsWith("/channel/");
     },
     /**
      * 精选
      *
-     * + /discover
+     * + /discover/
      */
     isDiscover() {
-      return this.isIndex() && window.location.pathname.startsWith("/discover");
+      return this.isIndex() && window.location.pathname.startsWith("/discover/");
     },
     /**
      * 用户主页
      *
-     * + /user
+     * + /user/
      */
     isUser() {
-      return this.isIndex() && window.location.pathname.startsWith("/user");
+      return this.isIndex() && window.location.pathname.startsWith("/user/");
     },
     /**
      * 单个视频，一般是分享的视频链接
      *
-     * + /video
+     * + /video/
      */
     isVideo() {
-      return this.isIndex() && window.location.pathname.startsWith("/video");
+      return this.isIndex() && window.location.pathname.startsWith("/video/");
+    },
+    /**
+     * 笔记图文
+     *
+     * + /note/
+     */
+    isNote() {
+      return this.isIndex() && window.location.pathname.startsWith("/note/");
     }
   };
   const MobileCSS$1 = '/* 右侧工具栏放大 */\r\n.basePlayerContainer .positionBox {\r\n	bottom: 80px !important;\r\n	padding-right: 5px !important;\r\n	scale: unset !important;\r\n	transform: scale3d(1.12, 1.12, 1.12) !important;\r\n}\r\n/* 右侧工具栏的svg再放大 */\r\n.basePlayerContainer .positionBox svg {\r\n	transform: scale3d(1.12, 1.12, 1.12);\r\n}\r\n/* 重置关注按钮的scale */\r\n.basePlayerContainer\r\n	.positionBox\r\n	.dy-tip-container\r\n	div[data-e2e="feed-follow-icon"]\r\n	svg {\r\n	scale: unset !important;\r\n}\r\n/* 设备处于横向方向，即宽度大于高度。 */\r\n@media screen and (orientation: landscape) {\r\n	/* 右侧工具栏放大 */\r\n	.basePlayerContainer .positionBox {\r\n		/*transform: scale(0.95) !important;\r\n		bottom: 42px !important;*/\r\n		padding-right: 10px !important;\r\n	}\r\n}\r\n/* 该设备是纵向的，即高度大于或等于宽度 */\r\n@media screen and (orientation: portrait) {\r\n	/* /video/xxx页面 */\r\n	/* 点赞、评论、分享偏移 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.basePlayerContainer\r\n		.positionBox {\r\n		padding-right: 30px !important;\r\n	}\r\n	/* 底部工具栏右侧的按钮 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.xgplayer.xgplayer-pc\r\n		.xg-right-grid {\r\n		margin-right: 35px !important;\r\n	}\r\n	/* 评论区全屏 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n		width: 100vw !important;\r\n	}\r\n}\r\n\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#slidelist {\r\n		width: 100vw;\r\n		height: 100vh;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: 150px;\r\n		padding-right: 0;\r\n		max-width: unset;\r\n		flex: 1;\r\n	}\r\n	/* 搜索框获取焦点时自动放大宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]:focus) {\r\n		width: 100vw;\r\n		width: 100dvw;\r\n	}\r\n	/* 去除设置min-width超出浏览器宽度的问题 */\r\n	body {\r\n		min-width: 100% !important;\r\n	}\r\n	/* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n	#douyin-right-container #douyin-header {\r\n		width: 100%;\r\n	}\r\n	/* 去除设置 */\r\n	#douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n		min-width: 100%;\r\n	}\r\n}\r\n';
@@ -4915,21 +4924,24 @@
      * @param showLog 是否显示日志输出
      */
     parseAwemeInfoDictData(awemeInfo, showLog = false) {
-      var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p;
+      var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u;
       let authorInfo = (awemeInfo == null ? void 0 : awemeInfo["authorInfo"]) || // @ts-ignore
       (awemeInfo == null ? void 0 : awemeInfo["author"]);
       let nickname = (_a2 = authorInfo == null ? void 0 : authorInfo["nickname"]) == null ? void 0 : _a2.toString();
       let uid = (_b = authorInfo == null ? void 0 : authorInfo["uid"]) == null ? void 0 : _b.toString();
       let desc = (_c = awemeInfo == null ? void 0 : awemeInfo["desc"]) == null ? void 0 : _c.toString();
-      let collectCount = ((_d = awemeInfo == null ? void 0 : awemeInfo["stats"]) == null ? void 0 : _d["collectCount"]) || // @ts-ignore
-      ((_e = awemeInfo == null ? void 0 : awemeInfo["statistics"]) == null ? void 0 : _e["collect_count"]);
-      let commentCount = ((_f = awemeInfo == null ? void 0 : awemeInfo["stats"]) == null ? void 0 : _f["commentCount"]) || // @ts-ignore
-      ((_g = awemeInfo == null ? void 0 : awemeInfo["statistics"]) == null ? void 0 : _g["comment_count"]);
-      let diggCount = ((_h = awemeInfo == null ? void 0 : awemeInfo["stats"]) == null ? void 0 : _h["diggCount"]) || // @ts-ignore
-      ((_i = awemeInfo == null ? void 0 : awemeInfo["statistics"]) == null ? void 0 : _i["digg_count"]);
-      let shareCount = ((_j = awemeInfo == null ? void 0 : awemeInfo["stats"]) == null ? void 0 : _j["shareCount"]) || // @ts-ignore
-      ((_k = awemeInfo == null ? void 0 : awemeInfo["statistics"]) == null ? void 0 : _k["share_count"]);
-      let duration = (_l = awemeInfo == null ? void 0 : awemeInfo["video"]) == null ? void 0 : _l["duration"];
+      let musicAlbum = (_d = awemeInfo == null ? void 0 : awemeInfo["music"]) == null ? void 0 : _d["album"];
+      let musicAuthor = (_e = awemeInfo == null ? void 0 : awemeInfo["music"]) == null ? void 0 : _e["author"];
+      let musicTitle = (_f = awemeInfo == null ? void 0 : awemeInfo["music"]) == null ? void 0 : _f["title"];
+      let collectCount = ((_g = awemeInfo == null ? void 0 : awemeInfo["stats"]) == null ? void 0 : _g["collectCount"]) || // @ts-ignore
+      ((_h = awemeInfo == null ? void 0 : awemeInfo["statistics"]) == null ? void 0 : _h["collect_count"]);
+      let commentCount = ((_i = awemeInfo == null ? void 0 : awemeInfo["stats"]) == null ? void 0 : _i["commentCount"]) || // @ts-ignore
+      ((_j = awemeInfo == null ? void 0 : awemeInfo["statistics"]) == null ? void 0 : _j["comment_count"]);
+      let diggCount = ((_k = awemeInfo == null ? void 0 : awemeInfo["stats"]) == null ? void 0 : _k["diggCount"]) || // @ts-ignore
+      ((_l = awemeInfo == null ? void 0 : awemeInfo["statistics"]) == null ? void 0 : _l["digg_count"]);
+      let shareCount = ((_m = awemeInfo == null ? void 0 : awemeInfo["stats"]) == null ? void 0 : _m["shareCount"]) || // @ts-ignore
+      ((_n = awemeInfo == null ? void 0 : awemeInfo["statistics"]) == null ? void 0 : _n["share_count"]);
+      let duration = (_o = awemeInfo == null ? void 0 : awemeInfo["video"]) == null ? void 0 : _o["duration"];
       let textExtraObj = (
         // @ts-ignore
         (awemeInfo == null ? void 0 : awemeInfo["textExtra"]) || (awemeInfo == null ? void 0 : awemeInfo["text_extra"])
@@ -4937,11 +4949,26 @@
       let textExtra = [];
       let isLive = false;
       let isAds = false;
+      let isSeriesInfo = false;
+      let isMixInfo = false;
+      let riskInfoContent = ((_p = awemeInfo == null ? void 0 : awemeInfo["riskInfos"]) == null ? void 0 : _p.content) || // @ts-ignore
+      ((_q = awemeInfo == null ? void 0 : awemeInfo["risk_infos"]) == null ? void 0 : _q.content);
+      let seriesInfoName = void 0;
+      let seriesInfoContentTypes = [];
+      let isPicture = (
+        // @ts-ignore
+        (awemeInfo == null ? void 0 : awemeInfo["aweme_type"]) === 68
+      );
       if (typeof textExtraObj === "object" && Array.isArray(textExtraObj)) {
         textExtraObj == null ? void 0 : textExtraObj.forEach((item) => {
-          textExtra.push((item == null ? void 0 : item["hashtagName"]) || (item == null ? void 0 : item["hashtag_name"]));
+          let tagName = (item == null ? void 0 : item["hashtagName"]) || (item == null ? void 0 : item["hashtag_name"]);
+          if (typeof tagName === "string") {
+            textExtra.push(tagName);
+          }
         });
       }
+      let mixInfoName = void 0;
+      let mixInfoDesc = void 0;
       let videoTagObj = (
         // @ts-ignore
         (awemeInfo == null ? void 0 : awemeInfo["videoTag"]) || (awemeInfo == null ? void 0 : awemeInfo["video_tag"])
@@ -4949,7 +4976,10 @@
       let videoTag = [];
       if (typeof videoTagObj === "object" && Array.isArray(videoTagObj)) {
         videoTagObj.forEach((item) => {
-          videoTag.push((item == null ? void 0 : item["tagName"]) || (item == null ? void 0 : item["tag_name"]));
+          let tagName = (item == null ? void 0 : item["tagName"]) || (item == null ? void 0 : item["tag_name"]);
+          if (typeof tagName === "string") {
+            videoTag.push(tagName);
+          }
         });
       }
       if (typeof awemeInfo["cellRoom"] === "object" || // @ts-ignore
@@ -4973,12 +5003,12 @@
           log.success("广告：rawAdData is not null");
         }
       } else if (awemeInfo["webRawData"]) {
-        if ((_n = (_m = awemeInfo["webRawData"]) == null ? void 0 : _m["brandAd"]) == null ? void 0 : _n["is_ad"]) {
+        if ((_s = (_r = awemeInfo["webRawData"]) == null ? void 0 : _r["brandAd"]) == null ? void 0 : _s["is_ad"]) {
           isAds = true;
           if (showLog) {
             log.success("广告：webRawData.brandAd.is_ad is true");
           }
-        } else if ((_p = (_o = awemeInfo["webRawData"]) == null ? void 0 : _o["insertInfo"]) == null ? void 0 : _p["is_ad"]) {
+        } else if ((_u = (_t = awemeInfo["webRawData"]) == null ? void 0 : _t["insertInfo"]) == null ? void 0 : _u["is_ad"]) {
           isAds = true;
           if (showLog) {
             log.success("广告：webRawData.insertInfo.is_ad is true");
@@ -4987,19 +5017,56 @@
       } else if (awemeInfo["web_raw_data"]) {
         if (typeof awemeInfo["web_raw_data"] === "string") ;
       }
+      if (typeof riskInfoContent === "string" && riskInfoContent.trim() === "" || typeof riskInfoContent !== "string") {
+        riskInfoContent = void 0;
+      }
+      let series_info = (awemeInfo == null ? void 0 : awemeInfo["seriesInfo"]) || // @ts-ignore
+      (awemeInfo == null ? void 0 : awemeInfo["series_info"]);
+      if (typeof series_info === "object" && series_info != null) {
+        isSeriesInfo = true;
+        seriesInfoName = (series_info == null ? void 0 : series_info["seriesName"]) || // @ts-ignore
+        (series_info == null ? void 0 : series_info["series_name"]);
+        let series_content_types = (series_info == null ? void 0 : series_info["seriesContentTypes"]) || // @ts-ignore
+        (series_info == null ? void 0 : series_info["series_content_types"]);
+        if (Array.isArray(series_content_types)) {
+          series_content_types.forEach((it) => {
+            seriesInfoContentTypes.push(it["name"]);
+          });
+        }
+      }
+      let mixInfo = (awemeInfo == null ? void 0 : awemeInfo["mixInfo"]) || // @ts-ignore
+      (awemeInfo == null ? void 0 : awemeInfo["mix_info"]);
+      if (typeof mixInfo === "object" && utils.isNotNull(mixInfo)) {
+        mixInfoName = (mixInfo == null ? void 0 : mixInfo["mixName"]) || (mixInfo == null ? void 0 : mixInfo["mix_name"]);
+        mixInfoDesc = mixInfo == null ? void 0 : mixInfo["desc"];
+      }
+      if (isPicture) {
+        duration = void 0;
+      }
       return {
         nickname,
         uid,
         desc,
         textExtra,
         videoTag,
+        musicAlbum,
+        musicAuthor,
+        musicTitle,
+        riskInfoContent,
+        seriesInfoName,
+        seriesInfoContentTypes,
+        mixInfoName,
+        mixInfoDesc,
         collectCount,
         commentCount,
         diggCount,
         shareCount,
         duration,
         isLive,
-        isAds
+        isAds,
+        isSeriesInfo,
+        isMixInfo,
+        isPicture
       };
     }
     /**
@@ -5098,7 +5165,7 @@
         };
         flag = this.checkFilterWithRule(details);
         if (flag) {
-          if (Array.isArray(filterOption.dynamicData)) {
+          if (Array.isArray(filterOption.dynamicData) && filterOption.dynamicData.length) {
             let dynamicDetailsList = [];
             for (let dynamicIndex = 0; dynamicIndex < filterOption.dynamicData.length; dynamicIndex++) {
               const dynamicOption = filterOption.dynamicData[dynamicIndex];
@@ -5122,14 +5189,16 @@
                 `视频过滤器-多组 ==> ${filterOption.name}`,
                 transformAwemeInfo,
                 details,
-                dynamicDetailsList
+                dynamicDetailsList,
+                awemeInfo
               ]);
             }
           } else {
             log.success([
               `视频过滤器 ==> ${filterOption.name}`,
               transformAwemeInfo,
-              details
+              details,
+              awemeInfo
             ]);
           }
         }
@@ -5180,45 +5249,6 @@
           request.url = urlObj.toString();
         }
       });
-    }
-  };
-  const DouYinElement = {
-    /**
-     * 观察 #slidelist的加载每条视频
-     * @param callback
-     */
-    watchFeedVideoListChange(callback) {
-      let $os = null;
-      domUtils.ready(() => {
-        utils.waitAnyNode([
-          "#slidelist",
-          // 搜索页面的↓搜索结果列表
-          '#search-content-area ul[data-e2e="scroll-list"]'
-        ]).then(($ele) => {
-          log.info(`启用观察器观察加载的视频`);
-          let lockFn = new utils.LockFunction((observer) => {
-            $os = $os || this.getOSElement();
-            if (!$os) {
-              log.error("watchVideDataListChange：获取osElement失败");
-              return;
-            }
-            callback($os, observer);
-          }, 50);
-          utils.mutationObserver(document.body, {
-            config: {
-              childList: true,
-              subtree: true
-            },
-            immediate: true,
-            callback: (mutations, observer) => {
-              lockFn.run(observer);
-            }
-          });
-        });
-      });
-    },
-    getOSElement() {
-      return $("#root div[class*='-os']") || $("#douyin-right-container");
     }
   };
   const PanelUISize = {
@@ -5293,9 +5323,13 @@
         DouYinNetWorkHook.ajaxHooker.hook((request) => {
           let url = CommonUtil.fixUrl(request.url);
           let urlInstance = new URL(url);
-          if (urlInstance.pathname.startsWith("/aweme/v1/web/tab/feed")) {
+          if (urlInstance.pathname.startsWith("/aweme/v1/web/tab/feed") || urlInstance.pathname.startsWith("/aweme/v1/web/aweme/post/") || urlInstance.pathname.startsWith("/aweme/v1/web/mix/aweme/")) {
             request.response = (response) => {
-              let filterOptionList = getScopeFilterOptionList("xhr-tab");
+              let filterOptionList = getScopeFilterOptionList([
+                "xhr-tab",
+                "xhr-userHome",
+                "xhr-mix"
+              ]);
               if (!filterOptionList.length) {
                 return;
               }
@@ -5367,53 +5401,57 @@
                 response.responseText = JSON.stringify(data);
               }
             };
-          }
-        });
-        if (DouYinRouter.isSearch()) {
-          domUtils.ready(() => {
-            DouYinElement.watchFeedVideoListChange(($os, observer) => {
-              var _a2, _b, _c, _d;
-              if (!DouYinRouter.isSearch()) {
-                return;
-              }
-              let filterOptionList = getScopeFilterOptionList("dom-search");
+          } else if (
+            // 搜索-综合
+            urlInstance.pathname.startsWith(
+              "/aweme/v1/web/general/search/single/"
+            ) || // 搜索-视频
+            urlInstance.pathname.startsWith("/aweme/v1/web/search/item/")
+          ) {
+            request.response = (response) => {
+              let filterOptionList = getScopeFilterOptionList(["xhr-search"]);
               if (!filterOptionList.length) {
                 return;
               }
-              let $awemeInfoList = Array.from(
-                $$(
-                  '#search-content-area ul[data-e2e="scroll-list"] li'
-                )
-              );
-              for (let index = 0; index < $awemeInfoList.length; index++) {
-                const $li = $awemeInfoList[index];
-                if ($awemeInfoList.length === 2) {
-                  break;
+              let data = utils.toJSON(response.responseText);
+              let aweme_list = data["data"];
+              if (Array.isArray(aweme_list)) {
+                for (let index = 0; index < aweme_list.length; index++) {
+                  let awemeItem = aweme_list[index];
+                  let awemeInfo = awemeItem["aweme_info"] || {};
+                  let awemeMixInfo = awemeItem == null ? void 0 : awemeItem["aweme_mix_info"];
+                  if (awemeInfo == null && typeof awemeMixInfo && awemeMixInfo != null) {
+                    let awemeMixInfoItems = awemeMixInfo == null ? void 0 : awemeMixInfo["mix_items"];
+                    if (Array.isArray(awemeMixInfoItems)) {
+                      for (let mixIndex = 0; mixIndex < awemeMixInfoItems.length; mixIndex++) {
+                        let mixItem = awemeMixInfoItems[mixIndex];
+                        let flag = filterBase.checkAwemeInfoIsFilter(
+                          filterOptionList,
+                          mixItem
+                        );
+                        if (flag) {
+                          filterBase.removeAweme(awemeMixInfoItems, mixIndex--);
+                        }
+                      }
+                      if (awemeMixInfoItems.length === 0) {
+                        filterBase.removeAweme(aweme_list, index--);
+                      }
+                    }
+                  } else {
+                    let flag = filterBase.checkAwemeInfoIsFilter(
+                      filterOptionList,
+                      awemeInfo
+                    );
+                    if (flag) {
+                      filterBase.removeAweme(aweme_list, index--);
+                    }
+                  }
                 }
-                if (!document.contains($li)) {
-                  continue;
-                }
-                let reactProps = (_a2 = utils.getReactObj($li)) == null ? void 0 : _a2.reactProps;
-                if (reactProps == null) {
-                  log.error("search-result ==> 元素上不存在reactProps属性", $li);
-                  continue;
-                }
-                let awemeInfo = (_d = (_c = (_b = reactProps == null ? void 0 : reactProps.children) == null ? void 0 : _b.props) == null ? void 0 : _c.data) == null ? void 0 : _d.awemeInfo;
-                if (awemeInfo == null) {
-                  log.error("search-result ==> 元素上不存在awemeInfo属性", $li);
-                  continue;
-                }
-                let flag = filterBase.checkAwemeInfoIsFilter(
-                  filterOptionList,
-                  awemeInfo
-                );
-                if (flag) {
-                  filterBase.removeAweme($awemeInfoList, index--);
-                }
+                response.responseText = JSON.stringify(data);
               }
-            });
-          });
-        }
+            };
+          }
+        });
       });
     },
     /**
@@ -5523,7 +5561,15 @@
                   },
                   {
                     text: "搜索",
-                    value: "dom-search"
+                    value: "xhr-search"
+                  },
+                  {
+                    text: "用户主页",
+                    value: "xhr-userHome"
+                  },
+                  {
+                    text: "混合信息",
+                    value: "xhr-mix"
                   }
                 ],
                 void 0,
@@ -5540,11 +5586,22 @@
               let douYinVideoHandlerInfoKey = [
                 "isLive",
                 "isAds",
+                "isSeriesInfo",
+                "isMixInfo",
+                "isPicture",
                 "nickname",
                 "uid",
                 "desc",
                 "textExtra",
                 "videoTag",
+                "musicAlbum",
+                "musicAuthor",
+                "musicTitle",
+                "riskInfoContent",
+                "seriesInfoName",
+                "seriesInfoContentTypes",
+                "mixInfoName",
+                "mixInfoDesc",
                 "collectCount",
                 "commentCount",
                 "diggCount",
@@ -7008,6 +7065,25 @@
       }
     ]
   };
+  const PanelUserConfig = {
+    id: "panel-config-user",
+    title: "用户",
+    forms: [
+      {
+        text: "功能",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "显示UID",
+            "dy-user-addShowUserUID",
+            true,
+            void 0,
+            "在用户信息区域下方显示当前用户的uid"
+          )
+        ]
+      }
+    ]
+  };
   const PopsPanel = {
     /** 数据 */
     $data: {
@@ -7308,7 +7384,7 @@
     },
     /**
      * 自动判断菜单是否启用，然后执行回调，只会执行一次
-     * 
+     *
      * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
      * @param key
      * @param callback 回调
@@ -7505,7 +7581,8 @@
         PanelCommonConfig,
         PanelVideoConfig,
         PanelSearchConfig,
-        PanelLiveConfig
+        PanelLiveConfig,
+        PanelUserConfig
       ];
       return configList;
     },
@@ -8622,6 +8699,45 @@
       });
     }
   };
+  const DouYinElement = {
+    /**
+     * 观察 #slidelist的加载每条视频
+     * @param callback
+     */
+    watchFeedVideoListChange(callback) {
+      let $os = null;
+      domUtils.ready(() => {
+        utils.waitAnyNode([
+          "#slidelist",
+          // 搜索页面的↓搜索结果列表
+          '#search-content-area ul[data-e2e="scroll-list"]'
+        ]).then(($ele) => {
+          log.info(`启用观察器观察加载的视频`);
+          let lockFn = new utils.LockFunction((observer) => {
+            $os = $os || this.getOSElement();
+            if (!$os) {
+              log.error("watchVideDataListChange：获取osElement失败");
+              return;
+            }
+            callback($os, observer);
+          }, 50);
+          utils.mutationObserver(document.body, {
+            config: {
+              childList: true,
+              subtree: true
+            },
+            immediate: true,
+            callback: (mutations, observer) => {
+              lockFn.run(observer);
+            }
+          });
+        });
+      });
+    },
+    getOSElement() {
+      return $("#root div[class*='-os']") || $("#douyin-right-container");
+    }
+  };
   const DouYinAccount = {
     /**
      * 伪装登录
@@ -9281,15 +9397,70 @@
       );
     }
   };
-  const blockCSS$7 = '/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */\r\n#douyin-web-download-guide-container\r\n/* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */\r\n/* 但是这个CSS又会屏蔽右键菜单 */\r\n/*.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg))*/ ,\r\n/* 下载客户端，使用壁纸 */\r\ndiv:has(+#wallpaper-modal),\r\n/* 下载客户端，实时接收消息通知 */\r\n/* 下载客户端，实时接收好友消息 */\r\ndiv:has(> a[download*="douyin-downloade"]):has(+.popShadowAnimation),\r\ndiv:has(> a[download*="douyin-downloade"]):has(+div>[data-e2e="listDlgTest-container"]),\r\n/* 客户端登录访问更便捷 */\r\ndiv:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation) {\r\n	display: none !important;\r\n}\r\n';
-  const blockCSS$6 = '/* 资料右边的 下载桌面客户端，桌面快捷访问 */\r\ndiv[data-e2e="user-detail"] div:has(> div > a[href*="douyin-pc"]) {\r\n	display: none !important;\r\n}\r\n';
+  const blockCSS$8 = '/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */\r\n#douyin-web-download-guide-container\r\n/* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */\r\n/* 但是这个CSS又会屏蔽右键菜单 */\r\n/*.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg))*/ ,\r\n/* 下载客户端，使用壁纸 */\r\ndiv:has(+#wallpaper-modal),\r\n/* 下载客户端，实时接收消息通知 */\r\n/* 下载客户端，实时接收好友消息 */\r\ndiv:has(> a[download*="douyin-downloade"]):has(+.popShadowAnimation),\r\ndiv:has(> a[download*="douyin-downloade"]):has(+div>[data-e2e="listDlgTest-container"]),\r\n/* 客户端登录访问更便捷 */\r\ndiv:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation) {\r\n	display: none !important;\r\n}\r\n';
+  const blockCSS$7 = '/* 资料右边的 下载桌面客户端，桌面快捷访问 */\r\ndiv[data-e2e="user-detail"] div:has(> div > a[href*="douyin-pc"]) {\r\n	display: none !important;\r\n}\r\n';
   const DouYinUser = {
+    init() {
+      addStyle(blockCSS$7);
+      domUtils.ready(() => {
+        PopsPanel.execMenu("dy-user-addShowUserUID", () => {
+          this.addShowUserUID();
+        });
+      });
+    },
+    /**
+     * 显示UID
+     */
+    addShowUserUID() {
+      ReactUtils.waitReactPropsToSet(
+        `[data-e2e="user-detail"] [data-e2e="user-info"]`,
+        "reactFiber",
+        {
+          msg: "显示UID",
+          check(reactInstance) {
+            var _a2, _b, _c;
+            return typeof ((_c = (_b = (_a2 = reactInstance == null ? void 0 : reactInstance.return) == null ? void 0 : _a2.memoizedProps) == null ? void 0 : _b.userInfo) == null ? void 0 : _c.uid) === "string";
+          },
+          set(reactInstance, $target) {
+            var _a2, _b, _c;
+            let uid = (_c = (_b = (_a2 = reactInstance == null ? void 0 : reactInstance.return) == null ? void 0 : _a2.memoizedProps) == null ? void 0 : _b.userInfo) == null ? void 0 : _c.uid;
+            domUtils.remove(
+              $target.querySelectorAll(".gm-user-uid")
+            );
+            let $userUID = domUtils.createElement(
+              "p",
+              {
+                className: "gm-user-uid",
+                innerHTML: (
+                  /*html*/
+                  `
+							<span>UID：${uid}</span>
+						`
+                )
+              },
+              {
+                style: "color: var(--color-text-t3);margin-right: 20px;font-size: 12px;line-height: 20px;cursor: pointer;"
+              }
+            );
+            domUtils.on($userUID, "click", (event) => {
+              utils.preventEvent(event);
+              utils.setClip(uid);
+              Qmsg.success("复制成功");
+            });
+            $target.appendChild($userUID);
+          }
+        }
+      );
+    }
+  };
+  const blockCSS$6 = '/* 单个视频页面右侧的 下载客户端，桌面快捷访问 */\r\ndiv[data-e2e="video-detail"]\r\n	div\r\n	> :has(> div:last-child > a[href*="douyin-pc-web"]) {\r\n	display: none !important;\r\n}\r\n';
+  const DouYinVideo = {
     init() {
       addStyle(blockCSS$6);
     }
   };
-  const blockCSS$5 = '/* 单个视频页面右侧的 下载客户端，桌面快捷访问 */\r\ndiv[data-e2e="video-detail"]\r\n	div\r\n	> :has(> div:last-child > a[href*="douyin-pc-web"]) {\r\n	display: none !important;\r\n}\r\n';
-  const DouYinVideo = {
+  const blockCSS$5 = '/* 右侧视频信息里的 下载客户端，桌面快捷访问 */\r\n[data-e2e="note-detail"]\r\n	div:has(> [data-e2e="user-info"])\r\n	> div:has(a[download*="douyin-downloader"]) {\r\n	display: none !important;\r\n}\r\n';
+  const DouYinNote = {
     init() {
       addStyle(blockCSS$5);
     }
@@ -9297,7 +9468,7 @@
   const DouYin = {
     init() {
       PopsPanel.onceExec("dy-global-block-css", () => {
-        addStyle(blockCSS$7);
+        addStyle(blockCSS$8);
       });
       DouYinGestureBackClearHash();
       DouYinHook.init();
@@ -9337,6 +9508,9 @@
           DouYinVideo.init();
         } else if (DouYinRouter.isChannel()) {
           log.info(`Router: Channel页面`);
+        } else if (DouYinRouter.isNote()) {
+          log.info(`Router:  笔记页面`);
+          DouYinNote.init();
         } else {
           log.error("未适配router: " + window.location.pathname);
         }

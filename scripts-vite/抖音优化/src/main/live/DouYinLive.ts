@@ -3,7 +3,6 @@ import { PopsPanel } from "@/setting/setting";
 import { DouYinLiveChatRoom } from "./DouYinLiveChatRoom";
 import { DouYinLiveDanmuku } from "./DouYinLiveDanmuku";
 import Qmsg from "qmsg";
-import { DouYinUtils } from "@/utils/DouYinUtils";
 import { ReactUtils } from "@/utils/ReactUtils";
 import { DouYinLiveBlock } from "./DouYinLiveBlock";
 import { DouYinLivePlayerInstance } from "./DouYinLivePlayerInstance";
@@ -19,25 +18,25 @@ export const VideoQualityMap: {
 		label: "自动",
 		sign: 0,
 	},
-	ld: {
-		label: "标清",
-		sign: 1,
-	},
-	sd: {
-		label: "高清",
-		sign: 2,
-	},
-	hd: {
-		label: "超清",
-		sign: 3,
+	origin: {
+		label: "潮汐海灵",
+		sign: 5,
 	},
 	uhd: {
 		label: "蓝光",
 		sign: 4,
 	},
-	origin: {
-		label: "潮汐海灵",
-		sign: 5,
+	hd: {
+		label: "超清",
+		sign: 3,
+	},
+	sd: {
+		label: "高清",
+		sign: 2,
+	},
+	ld: {
+		label: "标清",
+		sign: 1,
 	},
 };
 /**
@@ -114,48 +113,46 @@ export const DouYinLive = {
 		ReactUtils.waitReactPropsToSet(
 			'xg-inner-controls xg-right-grid >div:has([data-e2e="quality-selector"])',
 			"reactProps",
-			[
-				{
-					check(reactObj) {
-						return (
-							typeof reactObj?.children?.props?.children?.props
-								?.qualityHandler === "object" &&
-							typeof reactObj?.children?.props?.children?.props?.qualityHandler
-								?.getCurrentQualityList === "function"
-						);
-					},
-					set(reactObj) {
-						let qualityHandler =
-							reactObj.children.props.children.props.qualityHandler;
-						// 当前直播可选的画质
-						let currentQualityList: string[] =
-							qualityHandler.getCurrentQualityList();
-						if (currentQualityList.includes(quality)) {
-							qualityHandler.setCurrentQuality(quality);
-							log.success("成功设置画质为【" + quality + "】");
-						} else {
-							let __quality = quality;
-							Qmsg.error(
-								"当前直播没有【" + __quality + "】画质，自动选择最高画质"
-							);
-							currentQualityList.sort((a, b) => {
-								if (!VideoQualityMap[a]) {
-									log.error("画质【" + a + "】不存在");
-									return 0;
-								}
-								if (!VideoQualityMap[b]) {
-									log.error("画质【" + b + "】不存在");
-									return 0;
-								}
-								return VideoQualityMap[a].sign - VideoQualityMap[b].sign;
-							});
-							__quality = currentQualityList[currentQualityList.length - 1];
-							qualityHandler.setCurrentQuality(quality);
-							log.success("成功设置画质为【" + quality + "】");
-						}
-					},
+			{
+				check(reactObj) {
+					return (
+						typeof reactObj?.children?.props?.children?.props
+							?.qualityHandler === "object" &&
+						typeof reactObj?.children?.props?.children?.props?.qualityHandler
+							?.getCurrentQualityList === "function"
+					);
 				},
-			]
+				set(reactObj) {
+					let qualityHandler =
+						reactObj.children.props.children.props.qualityHandler;
+					// 当前直播可选的画质
+					let currentQualityList: string[] =
+						qualityHandler.getCurrentQualityList();
+					if (currentQualityList.includes(quality)) {
+						qualityHandler.setCurrentQuality(quality);
+						log.success("成功设置画质为【" + quality + "】");
+					} else {
+						let __quality = quality;
+						Qmsg.error(
+							"当前直播没有【" + __quality + "】画质，自动选择最高画质"
+						);
+						currentQualityList.sort((a, b) => {
+							if (!VideoQualityMap[a]) {
+								log.error("画质【" + a + "】不存在");
+								return 0;
+							}
+							if (!VideoQualityMap[b]) {
+								log.error("画质【" + b + "】不存在");
+								return 0;
+							}
+							return VideoQualityMap[a].sign - VideoQualityMap[b].sign;
+						});
+						__quality = currentQualityList[currentQualityList.length - 1];
+						qualityHandler.setCurrentQuality(quality);
+						log.success("成功设置画质为【" + quality + "】");
+					}
+				},
+			}
 		);
 	},
 	/**

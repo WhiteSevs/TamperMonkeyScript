@@ -16,11 +16,11 @@ interface WaitSetOption {
 	/**
 	 * 检测属性的函数
 	 */
-	check(reactObj: any): boolean;
+	check(reactInstance: any): boolean;
 	/**
 	 * 进行设置
 	 */
-	set(reactObj: any): void;
+	set(reactInstance: any, $target: HTMLElement): void;
 }
 
 export const ReactUtils = {
@@ -30,7 +30,7 @@ export const ReactUtils = {
 	async waitReactPropsToSet(
 		$target: HTMLElement | (() => HTMLElement | null) | string,
 		propName: keyof ReactObj,
-		needSetList: WaitSetOption[]
+		needSetList: WaitSetOption[] | WaitSetOption
 	) {
 		function getTarget() {
 			let __target__ = null as HTMLElement | null;
@@ -48,6 +48,9 @@ export const ReactUtils = {
 			if (!$ele) {
 				return;
 			}
+		}
+		if (!Array.isArray(needSetList)) {
+			needSetList = [needSetList];
 		}
 		needSetList.forEach((needSetOption) => {
 			if (typeof needSetOption.msg === "string") {
@@ -91,7 +94,7 @@ export const ReactUtils = {
 					if (targetObjProp == null) {
 						return;
 					}
-					needSetOption.set(targetObjProp);
+					needSetOption.set(targetObjProp, target);
 				});
 		});
 	},

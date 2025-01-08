@@ -22,10 +22,10 @@ export const DouYinRouter = {
 	/**
 	 * 刷视频时的点击进去的直播
 	 *
-	 * + /root/live
+	 * + /root/live/
 	 */
 	isRootLive() {
-		return this.isIndex() && window.location.pathname.startsWith("/root/live");
+		return this.isIndex() && window.location.pathname.startsWith("/root/live/");
 	},
 	/**
 	 * 是否是抖音主站
@@ -45,55 +45,63 @@ export const DouYinRouter = {
 	/**
 	 * 搜索
 	 *
-	 * + /search
-	 * + /root/search
+	 * + /search/
+	 * + /root/search/
 	 */
 	isSearch() {
 		return (
 			this.isIndex() &&
-			(window.location.pathname.startsWith("/search") || this.isRootSearch())
+			(window.location.pathname.startsWith("/search/") || this.isRootSearch())
 		);
 	},
 	/**
 	 * 其它地方进去的搜索
 	 *
-	 * + /root/search
+	 * + /root/search/
 	 */
 	isRootSearch() {
 		return (
-			this.isIndex() && window.location.pathname.startsWith("/root/search")
+			this.isIndex() && window.location.pathname.startsWith("/root/search/")
 		);
 	},
 	/**
 	 * 例如：知识、二次元、游戏、美食等
 	 *
-	 * + /channel
+	 * + /channel/
 	 */
 	isChannel() {
-		return this.isIndex() && window.location.pathname.startsWith("/channel");
+		return this.isIndex() && window.location.pathname.startsWith("/channel/");
 	},
 	/**
 	 * 精选
 	 *
-	 * + /discover
+	 * + /discover/
 	 */
 	isDiscover() {
-		return this.isIndex() && window.location.pathname.startsWith("/discover");
+		return this.isIndex() && window.location.pathname.startsWith("/discover/");
 	},
 	/**
 	 * 用户主页
 	 *
-	 * + /user
+	 * + /user/
 	 */
 	isUser() {
-		return this.isIndex() && window.location.pathname.startsWith("/user");
+		return this.isIndex() && window.location.pathname.startsWith("/user/");
 	},
 	/**
 	 * 单个视频，一般是分享的视频链接
 	 *
-	 * + /video
+	 * + /video/
 	 */
 	isVideo() {
-		return this.isIndex() && window.location.pathname.startsWith("/video");
+		return this.isIndex() && window.location.pathname.startsWith("/video/");
+	},
+	/**
+	 * 笔记图文
+	 *
+	 * + /note/
+	 */
+	isNote() {
+		return this.isIndex() && window.location.pathname.startsWith("/note/");
 	},
 };

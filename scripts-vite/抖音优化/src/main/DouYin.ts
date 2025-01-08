@@ -16,6 +16,7 @@ import { DouYinUser } from "./user/DouYinUser";
 import { DouYinVideo } from "./video/DouYinVideo";
 import { DouYinChannel } from "./channel/DouYinChannel";
 import { DouYinVideoFilter } from "./video/DouYinVideoFilter";
+import { DouYinNote } from "./note/DouYinNote";
 
 export const DouYin = {
 	init() {
@@ -65,6 +66,9 @@ export const DouYin = {
 			} else if (DouYinRouter.isChannel()) {
 				log.info(`Router: Channel页面`);
 				DouYinChannel.init();
+			} else if (DouYinRouter.isNote()) {
+				log.info(`Router:  笔记页面`);
+				DouYinNote.init();
 			} else {
 				log.error("未适配router: " + window.location.pathname);
 			}

@@ -1,0 +1,6 @@
+/* 右侧视频信息里的 下载客户端，桌面快捷访问 */
+[data-e2e="note-detail"]
+	div:has(> [data-e2e="user-info"])
+	> div:has(a[download*="douyin-downloader"]) {
+	display: none !important;
+}
