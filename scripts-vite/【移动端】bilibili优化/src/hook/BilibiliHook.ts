@@ -1,9 +1,10 @@
-import { OriginPrototype, log, utils } from "@/env";
+import { $$, OriginPrototype, log, utils } from "@/env";
+import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { VueUtils } from "@/utils/VueUtils";
 import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import { unsafeWindow } from "ViteGM";
 
-const BilibiliHook = {
+export const BilibiliHook = {
 	$isHook: {
 		windowPlayerAgent: false,
 		hookWebpackJsonp_openApp: false,
@@ -146,29 +147,31 @@ const BilibiliHook = {
 				attributes: true,
 			},
 			callback() {
-				document
-					.querySelectorAll<HTMLDivElement>("bili-open-app")
-					.forEach(($biliOpenApp) => {
-						if ($biliOpenApp.hasAttribute("data-inject-opener-open")) {
-							return;
-						}
-						let opener = Reflect.get($biliOpenApp, "opener");
-						if (opener == null) {
-							return;
-						}
-						let originOpen = opener?.open;
-						if (typeof originOpen === "function") {
-							Reflect.set(opener, "open", (config: any) => {
-								log.success(
-									`拦截bili-open-app.open跳转: ${JSON.stringify(config)}`
-								);
-							});
-							$biliOpenApp.setAttribute("data-inject-opener-open", "true");
-						}
-					});
+				[
+					...Array.from($$<HTMLDivElement>("bili-open-app")),
+					...Array.from($$<HTMLDivElement>("m-open-app")),
+				].forEach(($biliOpenApp) => {
+					if ($biliOpenApp.hasAttribute("data-inject-opener-open")) {
+						return;
+					}
+					let opener = Reflect.get($biliOpenApp, "opener");
+					if (opener == null) {
+						return;
+					}
+					let originOpen = opener?.open;
+					if (typeof originOpen === "function") {
+						Reflect.set(opener, "open", (config: any) => {
+							log.success(
+								`拦截bili-open-app.open跳转: ${JSON.stringify(config)}`
+							);
+							if (typeof config?.universalLink === "string") {
+								BilibiliUtils.goToUrl(config.universalLink);
+							}
+						});
+						$biliOpenApp.setAttribute("data-inject-opener-open", "true");
+					}
+				});
 			},
 		});
 	},
 };
-
-export { BilibiliHook };

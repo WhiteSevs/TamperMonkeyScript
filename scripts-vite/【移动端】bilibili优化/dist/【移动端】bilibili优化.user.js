@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.17
+// @version      2025.1.8
 // @author       WhiteSevs
-// @description  免登录（但登录后可以看更多评论）、阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
+// @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
 // @icon         data:image/png;base64,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
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
@@ -13,9 +13,9 @@
 // @match        *://www.bilibili.com/h5/comment/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/497907/1413262/QRCodeJS.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
@@ -42,7 +42,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(a=>{function e(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let p=document.createElement("style");return p.setAttribute("type","text/css"),p.innerHTML=n,document.head?document.head.appendChild(p):document.body?document.body.appendChild(p):document.documentElement.childNodes.length===0?document.documentElement.appendChild(p):document.documentElement.insertBefore(p,document.documentElement.childNodes[0]),p}if(typeof GM_addStyle=="function"){GM_addStyle(a);return}e(a)})(' @charset "UTF-8";.m-video2-awaken-btn,.openapp-dialog,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn{display:none!important}#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .m-opus .m-navbar .m-nav-openapp,#app .m-opus m-open-app.m-open-app.fixed-openapp{display:none!important}#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#app .read-app-main bili-open-app{display:none!important}#app .playlist>.open-app-wp{display:none!important}#app .playlist>.open-app-wp+div{padding-top:56.25%}html{--bili-color: #fb7299;--bili-color-rgb: 251, 114, 153} ');
+(a=>{function e(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let p=document.createElement("style");return p.setAttribute("type","text/css"),p.innerHTML=n,document.head?document.head.appendChild(p):document.body?document.body.appendChild(p):document.documentElement.childNodes.length===0?document.documentElement.appendChild(p):document.documentElement.insertBefore(p,document.documentElement.childNodes[0]),p}if(typeof GM_addStyle=="function"){GM_addStyle(a);return}e(a)})(' @charset "UTF-8";.m-video2-awaken-btn,.openapp-dialog{display:none!important}.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-head m-open-app{display:none!important}.m-home .launch-app-btn.home-float-openapp{display:none!important}.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp,.m-space m-open-app:has(>.m-fixed-openapp){display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp{display:none!important}#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-dynamic m-open-app:has(>.m-fixed-openapp){display:none!important}#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .m-opus .m-navbar .m-nav-openapp,#app .m-opus m-open-app.m-open-app.fixed-openapp{display:none!important}#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#__next m-open-app[class^=TopBar_download],#__next m-open-app:has([class^=GoApp]){display:none!important}#__next m-open-app[class^=MainButton_btnWrap]{visibility:hidden!important}#app .read-app-main bili-open-app{display:none!important}#app .playlist>.open-app-wp{display:none!important}#app .playlist>.open-app-wp+div{padding-top:56.25%}html{--bili-color: #fb7299;--bili-color-rgb: 251, 114, 153} ');
 
 (function (Qmsg, Utils, DOMUtils, pops, md5, Artplayer, artplayerPluginDanmuku, flvjs) {
   'use strict';
@@ -2041,12 +2041,12 @@
                     true,
                     void 0,
                     "一般用于处理楼层的回复弹窗内无法选中复制问题"
-                  ),
-                  UISwitch(
-                    "自动删除Cookie buvid3",
-                    "common_auto_delete_cookie_buvid3",
-                    true
                   )
+                  // UISwitch(
+                  // 	"自动删除Cookie buvid3",
+                  // 	"common_auto_delete_cookie_buvid3",
+                  // 	true
+                  // ),
                 ]
               }
             ]
@@ -2072,14 +2072,14 @@
                     true,
                     void 0,
                     "$store.state.video.isClient=true<br>$store.state.opus.isClient=true<br>$store.state.playlist.isClient=true<br>$store.state.ver.bili=true<br>$store.state.ver.biliVer=2333"
-                  ),
-                  UISwitch(
-                    "tinyApp",
-                    "bili-setTinyApp",
-                    true,
-                    void 0,
-                    "$store.state.common.tinyApp=true"
                   )
+                  // UISwitch(
+                  // 	"tinyApp",
+                  // 	"bili-setTinyApp",
+                  // 	true,
+                  // 	void 0,
+                  // 	"$store.state.common.tinyApp=true"
+                  // ),
                 ]
               }
             ]
@@ -2104,7 +2104,7 @@
                     "bili-cover-bili-open-app-open",
                     true,
                     void 0,
-                    "覆盖bili-open-app元素上的opener.open函数，可阻止点击唤醒/下载App"
+                    "覆盖bili-open-app/m-open-app元素上的opener.open函数，可阻止点击唤醒/下载App，如果存在有效链接，会自动跳转"
                   ),
                   UISwitch(
                     "劫持setTimeout-autoOpenApp",
@@ -2815,63 +2815,63 @@
                 text: "",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "调整视频底部区域高度",
-                    "bili-video-repairVideoBottomAreaHeight",
-                    true,
-                    void 0,
-                    "添加margin-top"
-                  ),
-                  UISwitch(
-                    "美化底部推荐视频",
-                    "bili-video-beautify",
-                    true,
-                    void 0,
-                    "调整底部推荐视频卡片样式类似哔哩哔哩App"
-                  ),
-                  UISwitch(
-                    "手势返回关闭评论区",
-                    "bili-video-gestureReturnToCloseCommentArea",
-                    true,
-                    void 0,
-                    "当浏览器手势触发浏览器回退页面时，关闭评论区"
-                  ),
+                  // UISwitch(
+                  // 	"调整视频底部区域高度",
+                  // 	"bili-video-repairVideoBottomAreaHeight",
+                  // 	true,
+                  // 	void 0,
+                  // 	"添加margin-top"
+                  // ),
+                  // UISwitch(
+                  // 	"美化底部推荐视频",
+                  // 	"bili-video-beautify",
+                  // 	true,
+                  // 	void 0,
+                  // 	"调整底部推荐视频卡片样式类似哔哩哔哩App"
+                  // ),
+                  // UISwitch(
+                  // 	"手势返回关闭评论区",
+                  // 	"bili-video-gestureReturnToCloseCommentArea",
+                  // 	true,
+                  // 	void 0,
+                  // 	"当浏览器手势触发浏览器回退页面时，关闭评论区"
+                  // ),
                   UISwitch(
                     "强制本页刷新跳转",
                     "bili-video-forceThisPageToRefreshAndRedirect",
                     false,
                     void 0,
                     "用于处理内存泄露问题"
-                  ),
-                  UISwitch(
-                    "修复链接跳转",
-                    "bili-video-repairLinkJump",
-                    true,
-                    void 0,
-                    "如@用户、搜索"
                   )
-                ]
-              },
-              {
-                type: "forms",
-                text: "底部Tab",
-                forms: [
-                  UISwitch(
-                    "滚动固钉Tab",
-                    "bili-video-optimizationScroll",
-                    true,
-                    void 0,
-                    "向下滚动时，自动跳转视频区域大小且对Tab进行吸附处理"
-                  ),
-                  UISwitch(
-                    "禁止滑动切换Tab",
-                    "bili-video-disableSwipeTab",
-                    false,
-                    void 0,
-                    "禁止左右滑动切换Tab"
-                  )
+                  // UISwitch(
+                  // 	"修复链接跳转",
+                  // 	"bili-video-repairLinkJump",
+                  // 	true,
+                  // 	void 0,
+                  // 	"如@用户、搜索"
+                  // ),
                 ]
               }
+              // {
+              // 	type: "forms",
+              // 	text: "底部Tab",
+              // 	forms: [
+              // 		UISwitch(
+              // 			"滚动固钉Tab",
+              // 			"bili-video-optimizationScroll",
+              // 			true,
+              // 			void 0,
+              // 			"向下滚动时，自动跳转视频区域大小且对Tab进行吸附处理"
+              // 		),
+              // 		UISwitch(
+              // 			"禁止滑动切换Tab",
+              // 			"bili-video-disableSwipeTab",
+              // 			false,
+              // 			void 0,
+              // 			"禁止左右滑动切换Tab"
+              // 		),
+              // 	],
+              // },
             ]
           },
           {
@@ -3025,6 +3025,13 @@
                 text: "",
                 type: "forms",
                 forms: [
+                  UISwitch(
+                    "UP主信息",
+                    "bili-video-cover-UpWrapper",
+                    true,
+                    void 0,
+                    "点击UP主头像/名称可跳转至UP主空间"
+                  ),
                   UISwitch(
                     "相关视频",
                     "bili-video-cover-bottomRecommendVideo",
@@ -3949,22 +3956,9 @@
     /**
      * 前往网址
      * @param path
-     * @param [useRouter=false] 是否强制使用Router
+     * @param [useRouter=false] 是否强制使用Router，默认false
      */
     goToUrl(path, useRouter = false) {
-      let $app = document.querySelector("#app");
-      if ($app == null) {
-        Qmsg.error("跳转Url: 获取根元素#app失败");
-        log.error("跳转Url: 获取根元素#app失败：" + path);
-        return;
-      }
-      let vueObj = VueUtils.getVue($app);
-      if (vueObj == null) {
-        log.error("获取#app的vue属性失败");
-        Qmsg.error("获取#app的vue属性失败");
-        return;
-      }
-      let $router = vueObj.$router;
       let isGoToUrlBlank = PopsPanel.getValue("bili-go-to-url-blank");
       log.info("即将跳转URL：" + path);
       if (useRouter) {
@@ -3987,6 +3981,27 @@
           }
         }
         log.info("$router push跳转Url：" + path);
+        let $app = $("#app");
+        if ($app == null) {
+          if (!useRouter) {
+            window.location.href = path;
+            return;
+          }
+          Qmsg.error("跳转Url: 获取根元素#app失败");
+          log.error("跳转Url: 获取根元素#app失败：" + path);
+          return;
+        }
+        let vueInstance = VueUtils.getVue($app);
+        if (vueInstance == null) {
+          if (!useRouter) {
+            window.location.href = path;
+            return;
+          }
+          log.error("获取#app的vue属性失败");
+          Qmsg.error("获取#app的vue属性失败");
+          return;
+        }
+        let $router = vueInstance.$router;
         $router.push(path);
       }
     },
@@ -4672,6 +4687,7 @@
   const BilibiliData = {
     className: {
       bangumi: "#app.main-container",
+      bangumi_new: "body > #__next",
       dynamic: "#app .m-dynamic",
       opus: "#app .m-opus",
       search: "#app .m-search",
@@ -4679,7 +4695,8 @@
       video: "#app .video",
       mVideo: "#app .m-video",
       head: "#app .m-head",
-      playlist: "#app .playlist"
+      playlist: "#app .playlist",
+      space: "#app .m-space"
     },
     /** 主题色 */
     theme: "#FB7299"
@@ -8082,31 +8099,16 @@
     },
     init() {
       BilibiliVideoPlayer.init();
-      PopsPanel.execMenuOnce("bili-video-repairVideoBottomAreaHeight", () => {
-        return this.repairVideoBottomAreaHeight();
-      });
-      PopsPanel.execMenu("bili-video-beautify", () => {
-        this.beautify();
-      });
       PopsPanel.execMenuOnce("bili-video-cover-bottomRecommendVideo", () => {
         this.coverBottomRecommendVideo();
       });
-      PopsPanel.execMenuOnce("bili-video-gestureReturnToCloseCommentArea", () => {
-        this.gestureReturnToCloseCommentArea();
+      PopsPanel.execMenuOnce("bili-video-cover-UpWrapper", () => {
+        this.coverUpWrapper();
       });
       PopsPanel.execMenuOnce("bili-video-cover-seasonNew", () => {
         this.coverSeasonNew();
       });
-      PopsPanel.execMenuOnce("bili-video-repairLinkJump", () => {
-        this.repairLinkJump();
-      });
       domutils.ready(() => {
-        PopsPanel.execMenuOnce("bili-video-optimizationScroll", () => {
-          this.optimizationScroll();
-        });
-        PopsPanel.execMenu("bili-video-disableSwipeTab", () => {
-          this.disableSwipeTab();
-        });
       });
     },
     /**
@@ -8408,6 +8410,43 @@
 			}
 		}
 		`
+      );
+    },
+    /**
+     * 修复up主信息区域的点击事件
+     */
+    coverUpWrapper() {
+      log.info(`修复up主信息区域的点击事件`);
+      domutils.on(
+        document,
+        "click",
+        [
+          BilibiliData.className.video + " .bottom-wrapper .up-wrapper",
+          BilibiliData.className.mVideo + " .bottom-wrapper .up-wrapper"
+        ],
+        function(event) {
+          var _a2, _b;
+          let $click = event.target;
+          let $bottomWrapper = $click.closest(".bottom-wrapper");
+          if (!$bottomWrapper) {
+            log.error("获取元素.bottom-wrapper失败");
+            return;
+          }
+          let vueInstance = VueUtils.getVue($bottomWrapper);
+          if (!vueInstance) {
+            log.error("获取元素.bottom-wrapper的vue实例失败");
+            return;
+          }
+          let mid = (_b = (_a2 = vueInstance == null ? void 0 : vueInstance.upInfo) == null ? void 0 : _a2.card) == null ? void 0 : _b.mid;
+          if (typeof mid === "string") {
+            BilibiliUtils.goToUrl(BilibiliUrl.getUserSpaceUrl(mid));
+          } else {
+            Qmsg.error("获取mid失败");
+          }
+        },
+        {
+          capture: true
+        }
       );
     },
     /**
@@ -8742,7 +8781,7 @@
      */
     jumpToUrl(event) {
       let $click = event.target;
-      let $biliOpenApp = $click.querySelector("bili-open-app");
+      let $biliOpenApp = $click.querySelector("bili-open-app") || $click.querySelector("m-open-app");
       if ($biliOpenApp) {
         let url = BilibiliOpenApp.getUrl($biliOpenApp);
         if (url) {
@@ -9375,6 +9414,86 @@
       }
     }
   };
+  const ReactUtils = {
+    /**
+     * 等待react某个属性并进行设置
+     */
+    async waitReactPropsToSet($target, propName, needSetList) {
+      if (!Array.isArray(needSetList)) {
+        this.waitReactPropsToSet($target, propName, [needSetList]);
+        return;
+      }
+      function getTarget() {
+        let __target__ = null;
+        if (typeof $target === "string") {
+          __target__ = document.querySelector($target);
+        } else if (typeof $target === "function") {
+          __target__ = $target();
+        } else if ($target instanceof HTMLElement) {
+          __target__ = $target;
+        }
+        return __target__;
+      }
+      if (typeof $target === "string") {
+        let $ele = await utils.waitNode($target, 1e4);
+        if (!$ele) {
+          return;
+        }
+      }
+      needSetList.forEach((needSetOption) => {
+        if (typeof needSetOption.msg === "string") {
+          log.info(needSetOption.msg);
+        }
+        function checkObj() {
+          let target = getTarget();
+          if (target == null) {
+            return false;
+          }
+          let targetObj = utils.getReactObj(target);
+          if (targetObj == null) {
+            return false;
+          }
+          let targetObjProp = targetObj[propName];
+          if (targetObjProp == null) {
+            return false;
+          }
+          let needOwnCheck = needSetOption.check(targetObjProp);
+          return Boolean(needOwnCheck);
+        }
+        utils.waitPropertyByInterval(
+          () => {
+            return getTarget();
+          },
+          checkObj,
+          250,
+          1e4
+        ).then(() => {
+          let target = getTarget();
+          if (target == null) {
+            if (typeof needSetOption.overTimeCallBack === "function") {
+              needSetOption.overTimeCallBack();
+            }
+            return;
+          }
+          let targetObj = utils.getReactObj(target);
+          if (targetObj == null) {
+            if (typeof needSetOption.overTimeCallBack === "function") {
+              needSetOption.overTimeCallBack();
+            }
+            return;
+          }
+          let targetObjProp = targetObj[propName];
+          if (targetObjProp == null) {
+            if (typeof needSetOption.overTimeCallBack === "function") {
+              needSetOption.overTimeCallBack();
+            }
+            return;
+          }
+          needSetOption.set(targetObjProp);
+        });
+      });
+    }
+  };
   function handleDashVideoQualityInfo(dashInfo) {
     let result = [];
     dashInfo.video.forEach((dashVideoInfo) => {
@@ -9629,52 +9748,70 @@
      */
     updateArtPlayerVideoInfo(ep_info, ep_list) {
       const that = this;
-      VueUtils.waitVuePropToSet(".player-wrapper", {
-        msg: "等待player-wrapper加载完成",
-        check(vueInstance) {
-          var _a2, _b, _c;
-          return typeof ((_a2 = vueInstance == null ? void 0 : vueInstance.EP_INFO) == null ? void 0 : _a2.aid) === "number" && typeof ((_b = vueInstance == null ? void 0 : vueInstance.EP_INFO) == null ? void 0 : _b.cid) === "number" && typeof ((_c = vueInstance == null ? void 0 : vueInstance.EP_INFO) == null ? void 0 : _c.ep_id) === "number";
-        },
-        async set(vueInstance) {
-          const $playerWrapper = $(".player-wrapper");
-          if (ep_info == null) {
-            ep_info = vueInstance.EP_INFO;
-          }
-          if (ep_list == null) {
-            ep_list = vueInstance.EP_LIST;
-          }
-          const artPlayerOption = await GenerateArtPlayerOption(ep_info, ep_list);
-          if (artPlayerOption == null) {
-            return;
-          }
-          let $artPlayer = $("#artplayer");
-          if (!$artPlayer) {
-            const $artPlayerContainer = domutils.createElement("div", {
-              className: "artplayer-container",
-              innerHTML: (
-                /*html*/
-                `
-						<div id="artplayer"></div>
-						`
-              )
-            });
-            $artPlayer = $artPlayerContainer.querySelector("#artplayer");
-            domutils.after($playerWrapper, $artPlayerContainer);
-          }
-          artPlayerOption.container = $artPlayer;
-          if (that.$data.art == null) {
-            let art = await BilibiliBangumiArtPlayer.init(artPlayerOption);
-            if (art) {
-              that.$data.art = art;
-            } else {
+      ReactUtils.waitReactPropsToSet(
+        BilibiliData.className.bangumi_new + ` [class^="Player_container"]`,
+        "reactFiber",
+        {
+          check(reactInstance) {
+            var _a2, _b, _c, _d, _e, _f;
+            return typeof ((_f = (_e = (_d = (_c = (_b = (_a2 = reactInstance == null ? void 0 : reactInstance.return) == null ? void 0 : _a2.memoizedState) == null ? void 0 : _b.queue) == null ? void 0 : _c.lastRenderedState) == null ? void 0 : _d[0]) == null ? void 0 : _e.epInfo) == null ? void 0 : _f.bvid) === "string";
+          },
+          async set(reactInstance) {
+            var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j;
+            let epInfo = (_e = (_d = (_c = (_b = (_a2 = reactInstance == null ? void 0 : reactInstance.return) == null ? void 0 : _a2.memoizedState) == null ? void 0 : _b.queue) == null ? void 0 : _c.lastRenderedState) == null ? void 0 : _d[0]) == null ? void 0 : _e.epInfo;
+            const $playerWrapper = $("#bilibiliPlayer");
+            if (ep_info == null) {
+              ep_info = epInfo;
+            }
+            if (ep_list == null) {
+              ep_list = [];
+              let $epList = $(
+                BilibiliData.className.bangumi_new + ` [class^="EpisodeList_episodeListWrap"]`
+              );
+              if ($epList) {
+                let react = utils.getReactObj($epList);
+                let epList = (_j = (_i = (_h = (_g = (_f = react == null ? void 0 : react.reactFiber) == null ? void 0 : _f.return) == null ? void 0 : _g.memoizedState) == null ? void 0 : _h.memoizedState) == null ? void 0 : _i[0]) == null ? void 0 : _j.episodes;
+                if (Array.isArray(epList)) {
+                  ep_list = epList;
+                }
+              }
+            }
+            const artPlayerOption = await GenerateArtPlayerOption(
+              ep_info,
+              ep_list
+            );
+            if (artPlayerOption == null) {
               return;
             }
-            that.$data.art.volume = 1;
-          } else {
-            BilibiliBangumiArtPlayer.update(that.$data.art, artPlayerOption);
+            let $artPlayer = $("#artplayer");
+            if (!$artPlayer) {
+              const $artPlayerContainer = domutils.createElement("div", {
+                className: "artplayer-container",
+                innerHTML: (
+                  /*html*/
+                  `
+									<div id="artplayer"></div>
+									`
+                )
+              });
+              $artPlayer = $artPlayerContainer.querySelector("#artplayer");
+              domutils.after($playerWrapper, $artPlayerContainer);
+            }
+            artPlayerOption.container = $artPlayer;
+            if (that.$data.art == null) {
+              let art = await BilibiliBangumiArtPlayer.init(artPlayerOption);
+              if (art) {
+                that.$data.art = art;
+              } else {
+                return;
+              }
+              that.$data.art.volume = 1;
+            } else {
+              BilibiliBangumiArtPlayer.update(that.$data.art, artPlayerOption);
+            }
           }
         }
-      });
+      );
     }
   };
   const BilibiliBangumi = {
@@ -9710,40 +9847,8 @@
           log.success("阻止唤醒App", args);
           return;
         }
-        return oldSetTimeout.apply(this, args);
+        return Reflect.apply(oldSetTimeout, this, args);
       };
-    },
-    /**
-     * 设置已购买番剧(会员？)
-     *
-     * + $store.state.userStat.pay 1
-     * + $store.state.mediaInfo.user_status.pay 1
-     */
-    setPay() {
-      VueUtils.waitVuePropToSet("#app", [
-        {
-          msg: "设置参数 $store.state.userStat.pay",
-          check(vueIns) {
-            var _a2, _b, _c;
-            return typeof typeof ((_c = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.userStat) == null ? void 0 : _c.pay) === "number";
-          },
-          set(vueIns) {
-            log.success("成功设置参数 $store.state.userStat.pay=1");
-            vueIns.$store.state.userStat.pay = 1;
-          }
-        },
-        {
-          msg: "设置参数 $store.state.mediaInfo.user_status.pay",
-          check(vueObj) {
-            var _a2, _b, _c, _d;
-            return typeof ((_d = (_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.mediaInfo) == null ? void 0 : _c.user_status) == null ? void 0 : _d.pay) === "number";
-          },
-          set(vueObj) {
-            log.success("成功设置参数 $store.state.mediaInfo.user_status.pay=1");
-            vueObj.$store.state.mediaInfo.user_status.pay = 1;
-          }
-        }
-      ]);
     },
     /**
      * 覆盖【选集】的点击事件
@@ -9798,9 +9903,30 @@
           }
         );
       });
+      domutils.on(
+        document,
+        "click",
+        [
+          BilibiliData.className.bangumi_new + ` [class^="EpisodeList_episodeListWrap"] m-open-app[universallink]`,
+          BilibiliData.className.bangumi_new + ` [class^="SeasonList_container"] m-open-app[universallink]`
+        ],
+        (event, selectorTarget) => {
+          let url = BilibiliOpenApp.getUrl(selectorTarget);
+          if (!url) {
+            Qmsg.error("获取跳转链接失败");
+            return;
+          }
+          BilibiliUtils.goToUrl(url);
+        },
+        {
+          capture: true
+        }
+      );
     },
     /**
      * 覆盖【PV&其他】、【预告】、【主题曲】的点击事件
+     *
+     * + https://m.bilibili.com/bangumi/play/ss48852
      */
     setClickOtherVideo() {
       utils.waitNode(
@@ -9837,6 +9963,22 @@
           }
         );
       });
+      domutils.on(
+        document,
+        "click",
+        BilibiliData.className.bangumi_new + ` [class^="SectionPanel_container"] m-open-app[universallink]`,
+        (event, selectorTarget) => {
+          let url = BilibiliOpenApp.getUrl(selectorTarget);
+          if (!url) {
+            Qmsg.error("获取跳转链接失败");
+            return;
+          }
+          BilibiliUtils.goToUrl(url);
+        },
+        {
+          capture: true
+        }
+      );
     },
     /**
      * 覆盖【更多推荐】番剧的点击事件
@@ -9859,6 +10001,22 @@
           }
         );
       });
+      domutils.on(
+        document,
+        "click",
+        BilibiliData.className.bangumi_new + ` [class^="Footer_container"] m-open-app[universallink]`,
+        (event, selectorTarget) => {
+          let url = BilibiliOpenApp.getUrl(selectorTarget);
+          if (!url) {
+            Qmsg.error("获取跳转链接失败");
+            return;
+          }
+          BilibiliUtils.goToUrl(url);
+        },
+        {
+          capture: true
+        }
+      );
     },
     /**
      * 覆盖视频播放器
@@ -9871,7 +10029,8 @@
           /*css*/
           `
 			.player-wrapper,
-			.open-app-bar{
+			.open-app-bar,
+			${BilibiliData.className.bangumi_new} [class^="Player_videoWrap"] > div:not(.artplayer-container){
 				display: none !important;
 			}
 			
@@ -9879,6 +10038,10 @@
 			
 			${artPlayerCSS}
 			
+			.artplayer-container{
+				height: -webkit-fill-available;
+				height: 100%;
+			}
 			`
         );
         let controlsPadding = PopsPanel.getValue(
@@ -11179,7 +11342,10 @@
           attributes: true
         },
         callback() {
-          document.querySelectorAll("bili-open-app").forEach(($biliOpenApp) => {
+          [
+            ...Array.from($$("bili-open-app")),
+            ...Array.from($$("m-open-app"))
+          ].forEach(($biliOpenApp) => {
             if ($biliOpenApp.hasAttribute("data-inject-opener-open")) {
               return;
             }
@@ -11193,6 +11359,9 @@
                 log.success(
                   `拦截bili-open-app.open跳转: ${JSON.stringify(config)}`
                 );
+                if (typeof (config == null ? void 0 : config.universalLink) === "string") {
+                  BilibiliUtils.goToUrl(config.universalLink);
+                }
               });
               $biliOpenApp.setAttribute("data-inject-opener-open", "true");
             }
@@ -11713,6 +11882,7 @@
         addStyle(
           /*css*/
           `
+
 			.nav-bar .right{
 				display: -webkit-box;
 				display: -ms-flexbox;
@@ -11818,25 +11988,25 @@
           /*css*/
           `
 			/* 隐藏logo */
-			.m-head .m-navbar .logo,
+			.${BilibiliData.className.head} .m-navbar .logo,
 			/* 隐藏原有的搜索图标 */
-			.m-head .m-navbar .icon-search{
+			.${BilibiliData.className.head} .m-navbar .icon-search{
 				display: none !important;
 			}
 			/* 设置右侧的宽度撑开、逆反 */
-			.m-head .m-navbar .right{
+			.${BilibiliData.className.head} .m-navbar .right{
 				width: 100%;
 				display: flex;
 				flex-direction: row-reverse;
 				justify-content: flex-end;
 			}
 			/* 头像 */
-			.m-head .m-navbar .gm-face{
+			.${BilibiliData.className.head} .m-navbar .gm-face{
 				flex: 0 auto;
 				margin-top: 1.86667vmin;
 			}
 			/* 新的输入框 */
-			.m-head .m-navbar .gm-input-area{
+			.${BilibiliData.className.head} .m-navbar .gm-input-area{
 				flex: 1;
 				margin-top: 1.86667vmin;
 				height: 8vmin;
@@ -11847,13 +12017,13 @@
 				display: flex;
 			}
 			/* 输入框前面的搜索图标 */
-			.m-head .m-navbar .gm-input-area .ic_search_tab{
+			.${BilibiliData.className.head} .m-navbar .gm-input-area .ic_search_tab{
 				color: #a0a0a0;
 				vertical-align: middle;
 				font-size: 4.33333vmin;
 			}
 			/* 输入框内容 */
-			.m-head .m-navbar .gm-input-area input[type="search"]{
+			.${BilibiliData.className.head} .m-navbar .gm-input-area input[type="search"]{
 				font-size: 3.46667vmin;
 				color: #505050;
 				border: none;
@@ -11862,6 +12032,16 @@
 				user-select: none !important;!i;!;
 				padding-left: 2.122vmin;
 				pointer-events: none;
+			}
+			/* 调整首页顶部搜索框的样式 */
+			.${BilibiliData.className.head} .m-navbar .right .search {
+				border: 1px solid #ccc;
+				width: 100% !important;
+				height: auto !important;
+				border-radius: 1rem;
+				display: flex;
+				align-items: center;
+				padding: 2px 6px;
 			}
 			`
         );
@@ -11944,52 +12124,61 @@
      * 修复视频|动态的正确跳转
      */
     repairRealJump() {
-      domutils.on(
-        document,
-        "click",
-        (event) => {
-          let $click = event.target;
-          let $forwardingCard = $click.closest(".main .forwardingCard") || $click.matches(".main .forwardingCard") && $click;
-          if ($forwardingCard) {
-            utils.preventEvent(event);
-            let dynamicId = $forwardingCard.getAttribute("id");
-            log.info(`获取的动态id为：${dynamicId}`);
-            let url = BilibiliUrl.getUserSpaceDynamicUrl(dynamicId);
-            BilibiliUtils.goToUrl(url);
+      let lockFn = new utils.LockFunction(() => {
+        $$(BilibiliData.className.space + " .wx-tag.open-app-wrapper").forEach(
+          ($el) => {
+            let vueIns = VueUtils.getVue($el);
+            if (typeof (vueIns == null ? void 0 : vueIns.disabled) === "boolean") {
+              vueIns.disabled = false;
+            }
           }
+        );
+      });
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
         },
-        {
-          capture: true
+        immediate: true,
+        callback: () => {
+          lockFn.run();
         }
-      );
+      });
+      return;
     },
     /**
      * 覆盖动态视频的点击事件
      */
     coverDynamicStateCardVideo() {
       log.info(`覆盖动态视频的点击事件`);
-      domutils.on(document, "click", ".card-content .main .wings", (event) => {
-        var _a2, _b;
-        let $wings = event.target;
-        let $card = $wings.closest(".card");
-        if (!$card) {
-          Qmsg.error("未找到对应的.card元素");
-          return;
+      domutils.on(
+        document,
+        "click",
+        ".card-content .main .wings",
+        (event) => {
+          var _a2, _b;
+          let $wings = event.target;
+          let $card = $wings.closest(".card");
+          if (!$card) {
+            Qmsg.error("未找到对应的.card元素");
+            return;
+          }
+          let vueIns = VueUtils.getVue($card);
+          if (!vueIns) {
+            Qmsg.error("未找到对应的vue实例");
+            return;
+          }
+          let url = (_b = (_a2 = vueIns == null ? void 0 : vueIns.shareData) == null ? void 0 : _a2.default) == null ? void 0 : _b.url;
+          if (!url) {
+            Qmsg.error("未找到对应的url");
+            return;
+          }
+          BilibiliUtils.goToUrl(url);
+        },
+        {
+          capture: true
         }
-        let vueIns = VueUtils.getVue($card);
-        if (!vueIns) {
-          Qmsg.error("未找到对应的vue实例");
-          return;
-        }
-        let url = (_b = (_a2 = vueIns == null ? void 0 : vueIns.shareData) == null ? void 0 : _a2.default) == null ? void 0 : _b.url;
-        if (!url) {
-          Qmsg.error("未找到对应的url");
-          return;
-        }
-        BilibiliUtils.goToUrl(url);
-      }, {
-        capture: true
-      });
+      );
     }
   };
   const BilibiliVueProp = {
@@ -11999,16 +12188,6 @@
       });
       PopsPanel.execMenu("bili-setIsClient", () => {
         this.setIsClient();
-      });
-      PopsPanel.execMenu("bili-setTinyApp", () => {
-        this.setTinyApp();
-        domutils.ready(() => {
-          BilibiliHead.reconfigurationTinyAppSettingButton().then(() => {
-            PopsPanel.execMenu("bili-beautifyTopNavBar", () => {
-              BilibiliHead.beautifyTopNavBar();
-            });
-          });
-        });
       });
     },
     /**
@@ -13065,27 +13244,6 @@
         log.error("该Router暂未适配，可能是首页之类：" + window.location.href);
       }
       domutils.ready(() => {
-        PopsPanel.execMenu("common_auto_delete_cookie_buvid3", () => {
-          let intervalCount = 0;
-          let intervalId = setInterval(() => {
-            intervalCount++;
-            if (intervalCount > 10) {
-              clearInterval(intervalId);
-              return;
-            }
-            GMCookie.delete(
-              {
-                name: "buvid3",
-                firstPartyDomain: ".bilibili.com"
-              },
-              (error) => {
-                if (error) {
-                  log.error("删除buvid3失败", error);
-                }
-              }
-            );
-          }, 1e3);
-        });
       });
     },
     /**

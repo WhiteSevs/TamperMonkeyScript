@@ -52,11 +52,11 @@ const SettingUICommon: PopsPanelContentConfig = {
 									void 0,
 									"一般用于处理楼层的回复弹窗内无法选中复制问题"
 								),
-								UISwitch(
-									"自动删除Cookie buvid3",
-									"common_auto_delete_cookie_buvid3",
-									true
-								),
+								// UISwitch(
+								// 	"自动删除Cookie buvid3",
+								// 	"common_auto_delete_cookie_buvid3",
+								// 	true
+								// ),
 							],
 						},
 					],
@@ -83,13 +83,13 @@ const SettingUICommon: PopsPanelContentConfig = {
 									void 0,
 									"$store.state.video.isClient=true<br>$store.state.opus.isClient=true<br>$store.state.playlist.isClient=true<br>$store.state.ver.bili=true<br>$store.state.ver.biliVer=2333"
 								),
-								UISwitch(
-									"tinyApp",
-									"bili-setTinyApp",
-									true,
-									void 0,
-									"$store.state.common.tinyApp=true"
-								),
+								// UISwitch(
+								// 	"tinyApp",
+								// 	"bili-setTinyApp",
+								// 	true,
+								// 	void 0,
+								// 	"$store.state.common.tinyApp=true"
+								// ),
 							],
 						},
 					],
@@ -114,7 +114,7 @@ const SettingUICommon: PopsPanelContentConfig = {
 									"bili-cover-bili-open-app-open",
 									true,
 									void 0,
-									"覆盖bili-open-app元素上的opener.open函数，可阻止点击唤醒/下载App"
+									"覆盖bili-open-app/m-open-app元素上的opener.open函数，可阻止点击唤醒/下载App，如果存在有效链接，会自动跳转"
 								),
 								UISwitch(
 									"劫持setTimeout-autoOpenApp",

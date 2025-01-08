@@ -1,9 +1,7 @@
-import { addStyle, DOMUtils, log, utils } from "@/env";
+import { addStyle, DOMUtils, log, Qmsg, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { unsafeWindow } from "ViteGM";
 import { BilibiliData } from "@/data/BlibiliData";
-import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
-import { VueUtils } from "@/utils/VueUtils";
 import artPlayerCSS from "./artplayer/index.css?raw";
 import artPlayerCommonCSS from "@/player/player.css?raw";
 import type Artplayer from "artplayer";
@@ -11,7 +9,7 @@ import { BilibiliOpenApp } from "./BilibiliOpenApp";
 import { BlibiliBangumiPlayer } from "./BilibiliBangumiPlayer";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 
-const BilibiliBangumi = {
+export const BilibiliBangumi = {
 	$data: {
 		art: null as any as Artplayer,
 	},
@@ -38,50 +36,14 @@ const BilibiliBangumi = {
 	 */
 	hookCallApp() {
 		let oldSetTimeout = unsafeWindow.setTimeout;
-		(unsafeWindow as any).setTimeout = function (...args: any[]): any {
+		unsafeWindow.setTimeout = function (...args: any[]): any {
 			let callString = args[0].toString();
 			if (callString.includes("autoOpenApp")) {
 				log.success("阻止唤醒App", args);
 				return;
 			}
-			// @ts-ignore
-			return oldSetTimeout.apply(this, args);
+			return Reflect.apply(oldSetTimeout, this, args);
 		};
-	},
-	/**
-	 * 设置已购买番剧(会员？)
-	 *
-	 * + $store.state.userStat.pay 1
-	 * + $store.state.mediaInfo.user_status.pay 1
-	 */
-	setPay() {
-		VueUtils.waitVuePropToSet("#app", [
-			{
-				msg: "设置参数 $store.state.userStat.pay",
-				check(vueIns: Vue2Instance) {
-					return (
-						typeof typeof vueIns?.$store?.state?.userStat?.pay === "number"
-					);
-				},
-				set(vueIns: Vue2Instance) {
-					log.success("成功设置参数 $store.state.userStat.pay=1");
-					vueIns.$store.state.userStat.pay = 1;
-				},
-			},
-			{
-				msg: "设置参数 $store.state.mediaInfo.user_status.pay",
-				check(vueObj: Vue2Instance) {
-					return (
-						typeof vueObj?.$store?.state?.mediaInfo?.user_status?.pay ===
-						"number"
-					);
-				},
-				set(vueObj: Vue2Instance) {
-					log.success("成功设置参数 $store.state.mediaInfo.user_status.pay=1");
-					vueObj.$store.state.mediaInfo.user_status.pay = 1;
-				},
-			},
-		]);
 	},
 	/**
 	 * 覆盖【选集】的点击事件
@@ -144,9 +106,34 @@ const BilibiliBangumi = {
 					}
 				);
 			});
+
+		// ↓ react框架的
+		DOMUtils.on(
+			document,
+			"click",
+			[
+				BilibiliData.className.bangumi_new +
+					` [class^="EpisodeList_episodeListWrap"] m-open-app[universallink]`,
+				BilibiliData.className.bangumi_new +
+					` [class^="SeasonList_container"] m-open-app[universallink]`,
+			],
+			(event, selectorTarget) => {
+				let url = BilibiliOpenApp.getUrl(selectorTarget);
+				if (!url) {
+					Qmsg.error("获取跳转链接失败");
+					return;
+				}
+				BilibiliUtils.goToUrl(url);
+			},
+			{
+				capture: true,
+			}
+		);
 	},
 	/**
 	 * 覆盖【PV&其他】、【预告】、【主题曲】的点击事件
+	 *
+	 * + https://m.bilibili.com/bangumi/play/ss48852
 	 */
 	setClickOtherVideo() {
 		utils
@@ -188,6 +175,25 @@ const BilibiliBangumi = {
 					}
 				);
 			});
+
+		// ↓ react框架的
+		DOMUtils.on(
+			document,
+			"click",
+			BilibiliData.className.bangumi_new +
+				` [class^="SectionPanel_container"] m-open-app[universallink]`,
+			(event, selectorTarget) => {
+				let url = BilibiliOpenApp.getUrl(selectorTarget);
+				if (!url) {
+					Qmsg.error("获取跳转链接失败");
+					return;
+				}
+				BilibiliUtils.goToUrl(url);
+			},
+			{
+				capture: true,
+			}
+		);
 	},
 	/**
 	 * 覆盖【更多推荐】番剧的点击事件
@@ -212,6 +218,25 @@ const BilibiliBangumi = {
 					}
 				);
 			});
+
+		// ↓ react框架的
+		DOMUtils.on(
+			document,
+			"click",
+			BilibiliData.className.bangumi_new +
+				` [class^="Footer_container"] m-open-app[universallink]`,
+			(event, selectorTarget) => {
+				let url = BilibiliOpenApp.getUrl(selectorTarget);
+				if (!url) {
+					Qmsg.error("获取跳转链接失败");
+					return;
+				}
+				BilibiliUtils.goToUrl(url);
+			},
+			{
+				capture: true,
+			}
+		);
 	},
 	/**
 	 * 覆盖视频播放器
@@ -222,7 +247,8 @@ const BilibiliBangumi = {
 		} else {
 			addStyle(/*css*/ `
 			.player-wrapper,
-			.open-app-bar{
+			.open-app-bar,
+			${BilibiliData.className.bangumi_new} [class^="Player_videoWrap"] > div:not(.artplayer-container){
 				display: none !important;
 			}
 			
@@ -230,6 +256,10 @@ const BilibiliBangumi = {
 			
 			${artPlayerCSS}
 			
+			.artplayer-container{
+				height: -webkit-fill-available;
+				height: 100%;
+			}
 			`);
 			let controlsPadding = PopsPanel.getValue(
 				"bili-bangumi-artplayer-controlsPadding-left-right",
@@ -256,5 +286,3 @@ const BilibiliBangumi = {
 		BlibiliBangumiPlayer.updateArtPlayerVideoInfo();
 	},
 };
-
-export { BilibiliBangumi };

@@ -1,4 +1,4 @@
-import { DOMUtils, addStyle, log, utils } from "@/env";
+import { $, DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import Qmsg from "qmsg";
@@ -8,22 +8,9 @@ export const BilibiliUtils = {
 	/**
 	 * 前往网址
 	 * @param path
-	 * @param [useRouter=false] 是否强制使用Router
+	 * @param [useRouter=false] 是否强制使用Router，默认false
 	 */
 	goToUrl(path: string, useRouter: boolean = false) {
-		let $app = document.querySelector<HTMLDivElement>("#app");
-		if ($app == null) {
-			Qmsg.error("跳转Url: 获取根元素#app失败");
-			log.error("跳转Url: 获取根元素#app失败：" + path);
-			return;
-		}
-		let vueObj = VueUtils.getVue($app);
-		if (vueObj == null) {
-			log.error("获取#app的vue属性失败");
-			Qmsg.error("获取#app的vue属性失败");
-			return;
-		}
-		let $router = vueObj.$router;
 		let isGoToUrlBlank = PopsPanel.getValue("bili-go-to-url-blank");
 		log.info("即将跳转URL：" + path);
 		if (useRouter) {
@@ -49,6 +36,27 @@ export const BilibiliUtils = {
 				}
 			}
 			log.info("$router push跳转Url：" + path);
+			let $app = $<HTMLDivElement>("#app");
+			if ($app == null) {
+				if (!useRouter) {
+					window.location.href = path;
+					return;
+				}
+				Qmsg.error("跳转Url: 获取根元素#app失败");
+				log.error("跳转Url: 获取根元素#app失败：" + path);
+				return;
+			}
+			let vueInstance = VueUtils.getVue($app);
+			if (vueInstance == null) {
+				if (!useRouter) {
+					window.location.href = path;
+					return;
+				}
+				log.error("获取#app的vue属性失败");
+				Qmsg.error("获取#app的vue属性失败");
+				return;
+			}
+			let $router = vueInstance.$router;
 			$router.push(path);
 		}
 	},

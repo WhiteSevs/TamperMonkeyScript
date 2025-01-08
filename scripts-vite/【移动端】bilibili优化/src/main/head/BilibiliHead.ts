@@ -127,6 +127,7 @@ export const BilibiliHead = {
 		if (!this.$flag.isInit_reconfigurationTinyAppSettingButton) {
 			this.$flag.isInit_reconfigurationTinyAppSettingButton = true;
 			addStyle(/*css*/ `
+
 			.nav-bar .right{
 				display: -webkit-box;
 				display: -ms-flexbox;
@@ -238,25 +239,25 @@ export const BilibiliHead = {
 			this.$flag.isInit_beautifyTopNavBar_css = true;
 			addStyle(/*css*/ `
 			/* 隐藏logo */
-			.m-head .m-navbar .logo,
+			.${BilibiliData.className.head} .m-navbar .logo,
 			/* 隐藏原有的搜索图标 */
-			.m-head .m-navbar .icon-search{
+			.${BilibiliData.className.head} .m-navbar .icon-search{
 				display: none !important;
 			}
 			/* 设置右侧的宽度撑开、逆反 */
-			.m-head .m-navbar .right{
+			.${BilibiliData.className.head} .m-navbar .right{
 				width: 100%;
 				display: flex;
 				flex-direction: row-reverse;
 				justify-content: flex-end;
 			}
 			/* 头像 */
-			.m-head .m-navbar .gm-face{
+			.${BilibiliData.className.head} .m-navbar .gm-face{
 				flex: 0 auto;
 				margin-top: 1.86667vmin;
 			}
 			/* 新的输入框 */
-			.m-head .m-navbar .gm-input-area{
+			.${BilibiliData.className.head} .m-navbar .gm-input-area{
 				flex: 1;
 				margin-top: 1.86667vmin;
 				height: 8vmin;
@@ -267,13 +268,13 @@ export const BilibiliHead = {
 				display: flex;
 			}
 			/* 输入框前面的搜索图标 */
-			.m-head .m-navbar .gm-input-area .ic_search_tab{
+			.${BilibiliData.className.head} .m-navbar .gm-input-area .ic_search_tab{
 				color: #a0a0a0;
 				vertical-align: middle;
 				font-size: 4.33333vmin;
 			}
 			/* 输入框内容 */
-			.m-head .m-navbar .gm-input-area input[type="search"]{
+			.${BilibiliData.className.head} .m-navbar .gm-input-area input[type="search"]{
 				font-size: 3.46667vmin;
 				color: #505050;
 				border: none;
@@ -282,6 +283,16 @@ export const BilibiliHead = {
 				user-select: none !important;!i;!;
 				padding-left: 2.122vmin;
 				pointer-events: none;
+			}
+			/* 调整首页顶部搜索框的样式 */
+			.${BilibiliData.className.head} .m-navbar .right .search {
+				border: 1px solid #ccc;
+				width: 100% !important;
+				height: auto !important;
+				border-radius: 1rem;
+				display: flex;
+				align-items: center;
+				padding: 2px 6px;
 			}
 			`);
 		}

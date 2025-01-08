@@ -24,27 +24,27 @@ const SettingUIVideo: PopsPanelContentConfig = {
 							text: "",
 							type: "forms",
 							forms: [
-								UISwitch(
-									"调整视频底部区域高度",
-									"bili-video-repairVideoBottomAreaHeight",
-									true,
-									void 0,
-									"添加margin-top"
-								),
-								UISwitch(
-									"美化底部推荐视频",
-									"bili-video-beautify",
-									true,
-									void 0,
-									"调整底部推荐视频卡片样式类似哔哩哔哩App"
-								),
-								UISwitch(
-									"手势返回关闭评论区",
-									"bili-video-gestureReturnToCloseCommentArea",
-									true,
-									void 0,
-									"当浏览器手势触发浏览器回退页面时，关闭评论区"
-								),
+								// UISwitch(
+								// 	"调整视频底部区域高度",
+								// 	"bili-video-repairVideoBottomAreaHeight",
+								// 	true,
+								// 	void 0,
+								// 	"添加margin-top"
+								// ),
+								// UISwitch(
+								// 	"美化底部推荐视频",
+								// 	"bili-video-beautify",
+								// 	true,
+								// 	void 0,
+								// 	"调整底部推荐视频卡片样式类似哔哩哔哩App"
+								// ),
+								// UISwitch(
+								// 	"手势返回关闭评论区",
+								// 	"bili-video-gestureReturnToCloseCommentArea",
+								// 	true,
+								// 	void 0,
+								// 	"当浏览器手势触发浏览器回退页面时，关闭评论区"
+								// ),
 								UISwitch(
 									"强制本页刷新跳转",
 									"bili-video-forceThisPageToRefreshAndRedirect",
@@ -52,35 +52,35 @@ const SettingUIVideo: PopsPanelContentConfig = {
 									void 0,
 									"用于处理内存泄露问题"
 								),
-								UISwitch(
-									"修复链接跳转",
-									"bili-video-repairLinkJump",
-									true,
-									void 0,
-									"如@用户、搜索"
-								),
+								// UISwitch(
+								// 	"修复链接跳转",
+								// 	"bili-video-repairLinkJump",
+								// 	true,
+								// 	void 0,
+								// 	"如@用户、搜索"
+								// ),
 							],
 						},
-						{
-							type: "forms",
-							text: "底部Tab",
-							forms: [
-								UISwitch(
-									"滚动固钉Tab",
-									"bili-video-optimizationScroll",
-									true,
-									void 0,
-									"向下滚动时，自动跳转视频区域大小且对Tab进行吸附处理"
-								),
-								UISwitch(
-									"禁止滑动切换Tab",
-									"bili-video-disableSwipeTab",
-									false,
-									void 0,
-									"禁止左右滑动切换Tab"
-								),
-							],
-						},
+						// {
+						// 	type: "forms",
+						// 	text: "底部Tab",
+						// 	forms: [
+						// 		UISwitch(
+						// 			"滚动固钉Tab",
+						// 			"bili-video-optimizationScroll",
+						// 			true,
+						// 			void 0,
+						// 			"向下滚动时，自动跳转视频区域大小且对Tab进行吸附处理"
+						// 		),
+						// 		UISwitch(
+						// 			"禁止滑动切换Tab",
+						// 			"bili-video-disableSwipeTab",
+						// 			false,
+						// 			void 0,
+						// 			"禁止左右滑动切换Tab"
+						// 		),
+						// 	],
+						// },
 					],
 				},
 				{
@@ -234,6 +234,13 @@ const SettingUIVideo: PopsPanelContentConfig = {
 							text: "",
 							type: "forms",
 							forms: [
+								UISwitch(
+									"UP主信息",
+									"bili-video-cover-UpWrapper",
+									true,
+									void 0,
+									"点击UP主头像/名称可跳转至UP主空间"
+								),
 								UISwitch(
 									"相关视频",
 									"bili-video-cover-bottomRecommendVideo",

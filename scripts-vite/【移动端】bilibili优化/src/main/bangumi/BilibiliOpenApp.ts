@@ -14,7 +14,9 @@ export const BilibiliOpenApp = {
 	 */
 	jumpToUrl(event: Event) {
 		let $click = event.target as HTMLElement;
-		let $biliOpenApp = $click.querySelector("bili-open-app");
+		let $biliOpenApp =
+			$click.querySelector("bili-open-app") ||
+			$click.querySelector("m-open-app");
 		if ($biliOpenApp) {
 			let url = BilibiliOpenApp.getUrl($biliOpenApp);
 			if (url) {

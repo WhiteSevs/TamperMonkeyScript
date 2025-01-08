@@ -15,31 +15,34 @@ const BilibiliVideo = {
 	init() {
 		BilibiliVideoPlayer.init();
 		/* 执行hook */
-		PopsPanel.execMenuOnce("bili-video-repairVideoBottomAreaHeight", () => {
-			return this.repairVideoBottomAreaHeight();
-		});
-		PopsPanel.execMenu("bili-video-beautify", () => {
-			this.beautify();
-		});
+		// PopsPanel.execMenuOnce("bili-video-repairVideoBottomAreaHeight", () => {
+		// 	return this.repairVideoBottomAreaHeight();
+		// });
+		// PopsPanel.execMenu("bili-video-beautify", () => {
+		// 	this.beautify();
+		// });
 		PopsPanel.execMenuOnce("bili-video-cover-bottomRecommendVideo", () => {
 			this.coverBottomRecommendVideo();
 		});
-		PopsPanel.execMenuOnce("bili-video-gestureReturnToCloseCommentArea", () => {
-			this.gestureReturnToCloseCommentArea();
+		PopsPanel.execMenuOnce("bili-video-cover-UpWrapper", () => {
+			this.coverUpWrapper();
 		});
+		// PopsPanel.execMenuOnce("bili-video-gestureReturnToCloseCommentArea", () => {
+		// 	this.gestureReturnToCloseCommentArea();
+		// });
 		PopsPanel.execMenuOnce("bili-video-cover-seasonNew", () => {
 			this.coverSeasonNew();
 		});
-		PopsPanel.execMenuOnce("bili-video-repairLinkJump", () => {
-			this.repairLinkJump();
-		});
+		// PopsPanel.execMenuOnce("bili-video-repairLinkJump", () => {
+		// 	this.repairLinkJump();
+		// });
 		DOMUtils.ready(() => {
-			PopsPanel.execMenuOnce("bili-video-optimizationScroll", () => {
-				this.optimizationScroll();
-			});
-			PopsPanel.execMenu("bili-video-disableSwipeTab", () => {
-				this.disableSwipeTab();
-			});
+			// PopsPanel.execMenuOnce("bili-video-optimizationScroll", () => {
+			// 	this.optimizationScroll();
+			// });
+			// PopsPanel.execMenu("bili-video-disableSwipeTab", () => {
+			// 	this.disableSwipeTab();
+			// });
 		});
 	},
 	/**
@@ -373,6 +376,42 @@ const BilibiliVideo = {
 			}
 		}
 		`);
+	},
+	/**
+	 * 修复up主信息区域的点击事件
+	 */
+	coverUpWrapper() {
+		log.info(`修复up主信息区域的点击事件`);
+		DOMUtils.on<MouseEvent | PointerEvent>(
+			document,
+			"click",
+			[
+				BilibiliData.className.video + " .bottom-wrapper .up-wrapper",
+				BilibiliData.className.mVideo + " .bottom-wrapper .up-wrapper",
+			],
+			function (event) {
+				let $click = event.target as HTMLElement;
+				let $bottomWrapper = $click.closest<HTMLElement>(".bottom-wrapper")!;
+				if (!$bottomWrapper) {
+					log.error("获取元素.bottom-wrapper失败");
+					return;
+				}
+				let vueInstance = VueUtils.getVue($bottomWrapper);
+				if (!vueInstance) {
+					log.error("获取元素.bottom-wrapper的vue实例失败");
+					return;
+				}
+				let mid = vueInstance?.upInfo?.card?.mid;
+				if (typeof mid === "string") {
+					BilibiliUtils.goToUrl(BilibiliUrl.getUserSpaceUrl(mid));
+				} else {
+					Qmsg.error("获取mid失败");
+				}
+			},
+			{
+				capture: true,
+			}
+		);
 	},
 	/**
 	 * 覆盖视频标题区域的点击事件

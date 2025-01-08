@@ -14,8 +14,10 @@ import { BilibiliLogUtils } from "@/utils/BilibiliLogUtils";
 import type { EP_INFO, EP_LIST } from "./TypeBangumi";
 import type { ArtPlayerPluginQualityOption } from "@/player/plugins/artplayer-plugin-quality";
 import type { ArtPlayerPluginAirborneHelperOption } from "@/player/plugins/artplayer-plugin-airborneHelper";
-import { $, DOMUtils, log } from "@/env";
+import { $, DOMUtils, log, utils } from "@/env";
 import { VueUtils } from "@/utils/VueUtils";
+import { ReactUtils } from "@/utils/ReactUtils";
+import { BilibiliData } from "@/data/BlibiliData";
 
 type VideoQualityInfo = {
 	/** 画质文字 */
@@ -408,65 +410,146 @@ export const BlibiliBangumiPlayer = {
 	 */
 	updateArtPlayerVideoInfo(ep_info?: EP_INFO, ep_list?: EP_LIST) {
 		const that = this;
-		VueUtils.waitVuePropToSet(".player-wrapper", {
-			msg: "等待player-wrapper加载完成",
-			check(vueInstance) {
-				return (
-					typeof vueInstance?.EP_INFO?.aid === "number" &&
-					typeof vueInstance?.EP_INFO?.cid === "number" &&
-					typeof vueInstance?.EP_INFO?.ep_id === "number"
-				);
-			},
-			async set(vueInstance) {
-				const $playerWrapper = $<HTMLDivElement>(".player-wrapper")!;
-				if (ep_info == null) {
-					ep_info = vueInstance.EP_INFO as EP_INFO;
-				}
-				if (ep_list == null) {
-					ep_list = vueInstance.EP_LIST as EP_LIST;
-				}
-				// 生成配置信息
-				const artPlayerOption = await GenerateArtPlayerOption(ep_info, ep_list);
-				if (artPlayerOption == null) {
-					// 生成失败
-					return;
-				}
-				let $artPlayer = $<HTMLDivElement>("#artplayer");
-				// 如果页面不存在的话，添加到页面中
-				if (!$artPlayer) {
-					// 接下来就是添加播放器到页面中
-					const $artPlayerContainer = DOMUtils.createElement("div", {
-						className: "artplayer-container",
-						innerHTML: /*html*/ `
-						<div id="artplayer"></div>
-						`,
-					});
-					// 生成的art播放器
-					$artPlayer =
-						$artPlayerContainer.querySelector<HTMLDivElement>("#artplayer")!;
-					DOMUtils.after($playerWrapper, $artPlayerContainer);
-				}
-				// 设置container参数
-				artPlayerOption!.container = $artPlayer;
+		// VueUtils.waitVuePropToSet(".player-wrapper", {
+		// 	msg: "等待player-wrapper加载完成",
+		// 	check(vueInstance) {
+		// 		return (
+		// 			typeof vueInstance?.EP_INFO?.aid === "number" &&
+		// 			typeof vueInstance?.EP_INFO?.cid === "number" &&
+		// 			typeof vueInstance?.EP_INFO?.ep_id === "number"
+		// 		);
+		// 	},
+		// 	async set(vueInstance) {
+		// 		const $playerWrapper = $<HTMLDivElement>(".player-wrapper")!;
+		// 		if (ep_info == null) {
+		// 			ep_info = vueInstance.EP_INFO as EP_INFO;
+		// 		}
+		// 		if (ep_list == null) {
+		// 			ep_list = vueInstance.EP_LIST as EP_LIST;
+		// 		}
+		// 		// 生成配置信息
+		// 		const artPlayerOption = await GenerateArtPlayerOption(ep_info, ep_list);
+		// 		if (artPlayerOption == null) {
+		// 			// 生成失败
+		// 			return;
+		// 		}
+		// 		let $artPlayer = $<HTMLDivElement>("#artplayer");
+		// 		// 如果页面不存在的话，添加到页面中
+		// 		if (!$artPlayer) {
+		// 			// 接下来就是添加播放器到页面中
+		// 			const $artPlayerContainer = DOMUtils.createElement("div", {
+		// 				className: "artplayer-container",
+		// 				innerHTML: /*html*/ `
+		// 				<div id="artplayer"></div>
+		// 				`,
+		// 			});
+		// 			// 生成的art播放器
+		// 			$artPlayer =
+		// 				$artPlayerContainer.querySelector<HTMLDivElement>("#artplayer")!;
+		// 			DOMUtils.after($playerWrapper, $artPlayerContainer);
+		// 		}
+		// 		// 设置container参数
+		// 		artPlayerOption!.container = $artPlayer;
 
-				// 初始化artplayer播放器
-				if (that.$data.art == null) {
-					let art = await BilibiliBangumiArtPlayer.init(artPlayerOption);
-					if (art) {
-						that.$data.art = art;
-					} else {
+		// 		// 初始化artplayer播放器
+		// 		if (that.$data.art == null) {
+		// 			let art = await BilibiliBangumiArtPlayer.init(artPlayerOption);
+		// 			if (art) {
+		// 				that.$data.art = art;
+		// 			} else {
+		// 				return;
+		// 			}
+		// 			if (import.meta.hot) {
+		// 				Reflect.set(window, "art", that.$data.art);
+		// 			}
+		// 			// 强制初始化音量为1
+		// 			that.$data.art.volume = 1;
+		// 		} else {
+		// 			// 更新artplayer播放信息
+		// 			BilibiliBangumiArtPlayer.update(that.$data.art, artPlayerOption);
+		// 		}
+		// 	},
+		// });
+		ReactUtils.waitReactPropsToSet(
+			BilibiliData.className.bangumi_new + ` [class^="Player_container"]`,
+			"reactFiber",
+			{
+				check(reactInstance) {
+					return (
+						typeof reactInstance?.return?.memoizedState?.queue
+							?.lastRenderedState?.[0]?.epInfo?.bvid === "string"
+					);
+				},
+				async set(reactInstance) {
+					let epInfo =
+						reactInstance?.return?.memoizedState?.queue?.lastRenderedState?.[0]
+							?.epInfo;
+					const $playerWrapper = $<HTMLDivElement>("#bilibiliPlayer")!;
+					if (ep_info == null) {
+						ep_info = epInfo;
+					}
+					if (ep_list == null) {
+						ep_list = [];
+						let $epList = $<HTMLElement>(
+							BilibiliData.className.bangumi_new +
+								` [class^="EpisodeList_episodeListWrap"]`
+						);
+						if ($epList) {
+							let react = utils.getReactObj($epList);
+							let epList =
+								react?.reactFiber?.return?.memoizedState?.memoizedState?.[0]
+									?.episodes;
+							if (Array.isArray(epList)) {
+								ep_list = epList;
+							}
+						}
+					}
+					// 生成配置信息
+					const artPlayerOption = await GenerateArtPlayerOption(
+						ep_info!,
+						ep_list
+					);
+					if (artPlayerOption == null) {
+						// 生成失败
 						return;
 					}
-					if (import.meta.hot) {
-						Reflect.set(window, "art", that.$data.art);
+					let $artPlayer = $<HTMLDivElement>("#artplayer");
+					// 如果页面不存在的话，添加到页面中
+					if (!$artPlayer) {
+						// 接下来就是添加播放器到页面中
+						const $artPlayerContainer = DOMUtils.createElement("div", {
+							className: "artplayer-container",
+							innerHTML: /*html*/ `
+									<div id="artplayer"></div>
+									`,
+						});
+						// 生成的art播放器
+						$artPlayer =
+							$artPlayerContainer.querySelector<HTMLDivElement>("#artplayer")!;
+						DOMUtils.after($playerWrapper, $artPlayerContainer);
 					}
-					// 强制初始化音量为1
-					that.$data.art.volume = 1;
-				} else {
-					// 更新artplayer播放信息
-					BilibiliBangumiArtPlayer.update(that.$data.art, artPlayerOption);
-				}
-			},
-		});
+					// 设置container参数
+					artPlayerOption!.container = $artPlayer;
+
+					// 初始化artplayer播放器
+					if (that.$data.art == null) {
+						let art = await BilibiliBangumiArtPlayer.init(artPlayerOption);
+						if (art) {
+							that.$data.art = art;
+						} else {
+							return;
+						}
+						if (import.meta.hot) {
+							Reflect.set(window, "art", that.$data.art);
+						}
+						// 强制初始化音量为1
+						that.$data.art.volume = 1;
+					} else {
+						// 更新artplayer播放信息
+						BilibiliBangumiArtPlayer.update(that.$data.art, artPlayerOption);
+					}
+				},
+			}
+		);
 	},
 };

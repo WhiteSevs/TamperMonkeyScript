@@ -13,16 +13,16 @@ export const BilibiliVueProp = {
 		PopsPanel.execMenu("bili-setIsClient", () => {
 			this.setIsClient();
 		});
-		PopsPanel.execMenu("bili-setTinyApp", () => {
-			this.setTinyApp();
-			DOMUtils.ready(() => {
-				BilibiliHead.reconfigurationTinyAppSettingButton().then(() => {
-					PopsPanel.execMenu("bili-beautifyTopNavBar", () => {
-						BilibiliHead.beautifyTopNavBar();
-					});
-				});
-			});
-		});
+		// PopsPanel.execMenu("bili-setTinyApp", () => {
+		// 	this.setTinyApp();
+		// 	DOMUtils.ready(() => {
+		// 		BilibiliHead.reconfigurationTinyAppSettingButton().then(() => {
+		// 			PopsPanel.execMenu("bili-beautifyTopNavBar", () => {
+		// 				BilibiliHead.beautifyTopNavBar();
+		// 			});
+		// 		});
+		// 	});
+		// });
 	},
 
 	/**

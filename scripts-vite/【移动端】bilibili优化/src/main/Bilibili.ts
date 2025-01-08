@@ -97,27 +97,27 @@ const Bilibili = {
 		}
 
 		DOMUtils.ready(() => {
-			PopsPanel.execMenu("common_auto_delete_cookie_buvid3", () => {
-				let intervalCount = 0;
-				let intervalId = setInterval(() => {
-					intervalCount++;
-					if (intervalCount > 10) {
-						clearInterval(intervalId);
-						return;
-					}
-					GMCookie.delete(
-						{
-							name: "buvid3",
-							firstPartyDomain: ".bilibili.com",
-						},
-						(error) => {
-							if (error) {
-								log.error("删除buvid3失败", error);
-							}
-						}
-					);
-				}, 1000);
-			});
+			// PopsPanel.execMenu("common_auto_delete_cookie_buvid3", () => {
+			// 	let intervalCount = 0;
+			// 	let intervalId = setInterval(() => {
+			// 		intervalCount++;
+			// 		if (intervalCount > 10) {
+			// 			clearInterval(intervalId);
+			// 			return;
+			// 		}
+			// 		GMCookie.delete(
+			// 			{
+			// 				name: "buvid3",
+			// 				firstPartyDomain: ".bilibili.com",
+			// 			},
+			// 			(error) => {
+			// 				if (error) {
+			// 					log.error("删除buvid3失败", error);
+			// 				}
+			// 			}
+			// 		);
+			// 	}, 1000);
+			// });
 		});
 	},
 	/**

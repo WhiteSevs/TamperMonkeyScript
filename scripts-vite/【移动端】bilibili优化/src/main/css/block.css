@@ -10,7 +10,9 @@
 /* 主页，顶部头 */
 /* 右上角 下载App */
 .m-head .launch-app-btn.m-nav-openapp,
-.m-head .launch-app-btn.home-float-openapp {
+.m-head .launch-app-btn.home-float-openapp,
+/* 打开App，看你感兴趣的视频 */
+.m-head m-open-app {
 	display: none !important;
 }
 
@@ -23,7 +25,8 @@
 /* 空间 */
 /* 底部 打开App */
 .m-space .launch-app-btn.m-space-float-openapp,
-.m-space .launch-app-btn.m-nav-openapp {
+.m-space .launch-app-btn.m-nav-openapp,
+.m-space m-open-app:has(>.m-fixed-openapp) {
 	display: none !important;
 }
 
@@ -47,7 +50,8 @@
 /* 动态 */
 /* 右上角 下载App */
 #app .m-dynamic .launch-app-btn.m-nav-openapp,
-#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn {
+#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,
+#app .m-dynamic m-open-app:has(>.m-fixed-openapp) {
 	display: none !important;
 }
 
@@ -74,6 +78,17 @@
 /* 右上角 下载App */
 #app.main-container bili-open-app.btn-download {
 	display: none !important;
+}
+/* 番剧的react页面的 */
+/* 下载 App */
+#__next m-open-app[class^="TopBar_download"],
+/* 右下角悬浮的 */
+#__next m-open-app:has([class^="GoApp"]) {
+	display: none !important;
+}
+/* 高清更流畅，App内打开观看 */
+#__next m-open-app[class^="MainButton_btnWrap"]{
+	visibility: hidden !important;
 }
 
 /* read mobile */
