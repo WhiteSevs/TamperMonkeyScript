@@ -169,9 +169,7 @@ export const TiebaUniAppPost = {
 			},
 			immediate: true,
 			callback() {
-				document
-					.querySelectorAll(".wake-app-btn")
-					.forEach(($ele) => $ele.remove());
+				$$(".wake-app-btn").forEach(($ele) => $ele.remove());
 			},
 		});
 	},
@@ -180,6 +178,16 @@ export const TiebaUniAppPost = {
 	 */
 	overloadLoadMore() {
 		log.info(`uni-app ===> 覆盖页面的加载更多按钮，可实现加载更多评论`);
+		// 移除加载下一页的按钮
+		// 某些过滤规则会过滤掉该按钮
+		utils
+			.waitNode<HTMLElement>("uni-app .load-more.wake-app", 10000)
+			.then(($el) => {
+				if (!$el) {
+					return;
+				}
+				DOMUtils.removeClass($el, "wake-app");
+			});
 		DOMUtils.on(
 			document,
 			"click",

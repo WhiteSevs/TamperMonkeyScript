@@ -1,5 +1,6 @@
 import { unsafeWindow } from "ViteGM";
 import {
+	$,
 	DOMUtils,
 	GM_Menu,
 	addStyle,
@@ -47,11 +48,11 @@ const SearchNextPage = {
 		 */
 		get pageController() {
 			return (
-				document.querySelector<HTMLDivElement>("#page-controller") ||
-				document.querySelector<HTMLDivElement>("#page-bd") ||
+				$<HTMLDivElement>("#page-controller") ||
+				$<HTMLDivElement>("#page-bd") ||
 				// 问答页面的
 				// https://m.baidu.com/sf/vsearch?pd=wenda_tab&tn=vsearch&pn=10&from=0&word=%E9%B2%8D%E9%B1%BC&sa=vs_np&ms=1&rqid=
-				document.querySelector<HTMLElement>("b-superframe-body")
+				$<HTMLElement>("b-superframe-body")
 			);
 		},
 		/**
@@ -59,8 +60,8 @@ const SearchNextPage = {
 		 */
 		get results() {
 			return (
-				document.querySelector<HTMLElement>("#results")! ||
-				document.querySelector<HTMLElement>("b-superframe-body .sfa-results")
+				$<HTMLElement>("#results")! ||
+				$<HTMLElement>("b-superframe-body .sfa-results")
 			);
 		},
 	},
@@ -386,9 +387,7 @@ const SearchNextPage = {
 				let dataVueSsrIdValue = item.getAttribute(dataVueSsrId) as string;
 				if (
 					utils.isNull(dataVueSsrIdValue) ||
-					!document.querySelector(
-						`style[data-vue-ssr-id="${dataVueSsrIdValue}"]`
-					)
+					!$(`style[data-vue-ssr-id="${dataVueSsrIdValue}"]`)
 				) {
 					let cssDOM = addStyle(item.innerHTML);
 					cssDOM.setAttribute("data-vue-ssr-id", dataVueSsrIdValue);

@@ -1,4 +1,4 @@
-import { DOMUtils, MountVue, addStyle, httpx, log, utils } from "@/env";
+import { $, DOMUtils, MountVue, addStyle, httpx, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { TiebaComment } from "./TiebaComment";
 import { TiebaData } from "../Home/data";
@@ -75,9 +75,7 @@ const TiebaPost = {
 				useUrl: true,
 				beforeHistoryBackCallBack(isUrlChange) {
 					if (isUrlChange) {
-						let $viewerClose = document.querySelector<HTMLElement>(
-							".viewer-button.viewer-close"
-						);
+						let $viewerClose = $<HTMLElement>(".viewer-button.viewer-close");
 						if ($viewerClose) {
 							$viewerClose.click();
 						} else {
@@ -659,7 +657,7 @@ const TiebaPost = {
 				setTimeout(() => {
 					/* 稍微延迟一下 */
 					DOMUtils.append(
-						document.querySelector<HTMLDivElement>(
+						$<HTMLDivElement>(
 							"div.app-view div.thread-main-wrapper .thread-text"
 						)!,
 						postList[0].content[0].text || pageInfo.content

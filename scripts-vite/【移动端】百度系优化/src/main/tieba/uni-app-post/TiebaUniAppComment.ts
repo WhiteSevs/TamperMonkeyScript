@@ -1,4 +1,4 @@
-import { utils } from "@/env";
+import { $$, utils } from "@/env";
 import { VueUtils } from "@/utils/VueUtils";
 
 type TiebaPostUniAppCommentData = {
@@ -231,7 +231,7 @@ export const TiebaUniAppComment = {
 					// 		},
 					// 	});
 					// }
-					const $commentGroup = document.querySelectorAll(".comment-group");
+					const $commentGroup = $$<HTMLElement>(".comment-group");
 					$commentGroup.forEach(($commentGroupItem) => {
 						let vueIns = VueUtils.getVue($commentGroupItem);
 						if (!vueIns) {

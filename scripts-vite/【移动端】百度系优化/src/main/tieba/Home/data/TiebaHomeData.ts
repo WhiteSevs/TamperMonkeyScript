@@ -4,8 +4,7 @@ import {
 	TieBaApi,
 	UserJSON,
 } from "../../api/TiebaApi";
-import { DOMUtils, httpx, log, utils } from "@/env";
-import Qmsg from "qmsg";
+import { $, DOMUtils, httpx, log, utils } from "@/env";
 
 type UserSex = {
 	0: "保密";
@@ -113,46 +112,41 @@ type PCUserInfo = {
 	is_online: boolean;
 };
 const TiebaHomeData = {
+	/**
+	 * 获取移动端用户主页的数据
+	 */
 	async getUserData(): Promise<UserInfo | undefined> {
-		let $name = document.querySelector<HTMLAnchorElement>(
-			".home_card_uname_link"
-		)!;
+		let $name = $<HTMLAnchorElement>(".home_card_uname_link")!;
 		// 获取显示的用户名
-		let $showName = document.querySelector<HTMLAnchorElement>(
-			".home_card_uname_link"
-		)!;
-		let showName = $showName.innerText;
+		let $showName = $<HTMLAnchorElement>(".home_card_uname_link")!;
+		let showName = $showName?.innerText;
 		// 获取用户头像
-		let $avatar = document.querySelector<HTMLImageElement>(
-			"a.home_card_portrait_link img"
-		)!;
+		let $avatar = $<HTMLImageElement>("a.home_card_portrait_link img")!;
 		let avatar = $avatar.src;
 		// 获取关注按钮
-		let $followBtn = document.querySelector<HTMLDivElement>(
-			".home_card_operate_icon_follow"
-		);
+		let $followBtn = $<HTMLDivElement>(".home_card_operate_icon_follow");
 		let isLike = false;
 		if ($followBtn) {
 			isLike = $followBtn.classList.contains("icon_hide");
 		}
 
 		// 获取用户发帖数量
-		let $posts = document.querySelector<HTMLSpanElement>(
+		let $posts = $<HTMLSpanElement>(
 			".home_tab .home_tab_item:nth-child(1) .home_tab_item_num"
 		)!;
 		let postsNum = parseInt($posts.innerText);
 		// 获取用户关注吧的数量
-		let $forum = document.querySelector<HTMLSpanElement>(
+		let $forum = $<HTMLSpanElement>(
 			".home_tab .home_tab_item:nth-child(2) .home_tab_item_num"
 		)!;
 		let forumNum = parseInt($forum.innerText);
 		// 获取用户关注的数量
-		let $follow = document.querySelector<HTMLSpanElement>(
+		let $follow = $<HTMLSpanElement>(
 			".home_tab .home_tab_item:nth-child(3) .home_tab_item_num"
 		)!;
 		let followNum = parseInt($follow.innerText);
 		// 获取用户粉丝的数量
-		let $fans = document.querySelector<HTMLSpanElement>(
+		let $fans = $<HTMLSpanElement>(
 			".home_tab .home_tab_item:nth-child(4) .home_tab_item_num"
 		)!;
 		let fansNum = parseInt($fans.innerText);
@@ -173,21 +167,19 @@ const TiebaHomeData = {
 			return;
 		}
 		// 获取主页JSON数据
-		log.info("获取主页JSON数据");
+		log.info("准备获取主页JSON数据");
 		let panelUserInfo = await TieBaApi.getUserHomeInfo({
 			un: userName,
 		});
 		if (!panelUserInfo) {
 			return;
 		}
-		log.info(["获取主页JSON数据 => ", panelUserInfo]);
-		// 获取用户JSON数据
-		log.info("获取用户JSON数据");
+		log.info(["成功获取主页JSON数据 => ", panelUserInfo]);
 		let userJson = await TieBaApi.getUserJSON(userName);
 		if (!userJson) {
 			return;
 		}
-		log.info(["获取用户JSON数据 => ", userJson]);
+		log.info(["成功获取用户JSON数据 => ", userJson]);
 		let portrait = panelUserInfo.portrait.replace(/\?t=(.+)/, "");
 		// 判断用户性别
 		let sex: keyof UserSex = 0;

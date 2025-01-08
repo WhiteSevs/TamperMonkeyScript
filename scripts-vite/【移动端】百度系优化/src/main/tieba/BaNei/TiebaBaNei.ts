@@ -1,4 +1,4 @@
-import { DOMUtils, log, utils } from "@/env";
+import { $, DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { TieBaApi } from "../api/TiebaApi";
 import Qmsg from "qmsg";
@@ -69,9 +69,7 @@ const TiebaBaNei = {
 	removeForumSignInLimit() {
 		/* 修改页面中的APP内签到 */
 		utils.waitNode<HTMLDivElement>(".tb-mobile-viewport").then(async () => {
-			TiebaBaNei.vueRootView = VueUtils.getVue(
-				document.querySelector(".tb-mobile-viewport")
-			) as Vue2Instance;
+			TiebaBaNei.vueRootView = VueUtils.getVue($(".tb-mobile-viewport"))!;
 			let isLogin = Boolean(TiebaBaNei.vueRootView?.["user"]?.["is_login"]);
 			utils
 				.waitNode<HTMLDivElement>(".tb-forum-user__join-btn")

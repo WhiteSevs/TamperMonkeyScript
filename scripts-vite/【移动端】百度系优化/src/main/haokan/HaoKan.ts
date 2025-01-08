@@ -1,6 +1,6 @@
 import { PopsPanel } from "@/setting/setting";
 import { BaiduHaoKanHook } from "./HaoKanHook";
-import { DOMUtils, addStyle, log, utils } from "@/env";
+import { $, DOMUtils, addStyle, log, utils } from "@/env";
 import HaoKanShieldCSS from "./shield.css?raw";
 import { CommonUtil } from "@/utils/CommonUtil";
 
@@ -26,10 +26,8 @@ const BaiduHaoKan = {
 	 * 覆盖播放按钮的点击事件
 	 */
 	setPlayEvent() {
-		let playBtn = document.querySelector<HTMLDivElement>(".play-btn")!;
-		let playerShade = document.querySelector<HTMLDivElement>(
-			".video-player-shade"
-		)!;
+		let playBtn = $<HTMLDivElement>(".play-btn")!;
+		let playerShade = $<HTMLDivElement>(".video-player-shade")!;
 		log.success("覆盖播放按钮的点击事件");
 		DOMUtils.on(
 			playBtn,
@@ -37,7 +35,7 @@ const BaiduHaoKan = {
 			function (event) {
 				utils.preventEvent(event);
 				DOMUtils.hide(playerShade);
-				let currentPageSee = document.querySelector<HTMLDivElement>(
+				let currentPageSee = $<HTMLDivElement>(
 					".video-player .video-player-pause-btns .continue"
 				)!;
 				setTimeout(() => {
@@ -48,7 +46,7 @@ const BaiduHaoKan = {
 						"baidu_haokan_play_video_and_automatically_enter_full_screen",
 						() => {
 							if (utils.isFullscreenEnabled()) {
-								let videoElement = document.querySelector(
+								let videoElement = $(
 									"#video video.hplayer-video"
 								) as HTMLVideoElement;
 								utils.enterFullScreen(videoElement);

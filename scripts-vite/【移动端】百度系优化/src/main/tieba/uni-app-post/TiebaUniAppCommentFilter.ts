@@ -1,4 +1,4 @@
-import { DOMUtils, log, pops, utils } from "@/env";
+import { $$, DOMUtils, log, pops, utils } from "@/env";
 import { UIInput } from "@/setting/common-components/ui-input";
 import { UISwitch } from "@/setting/common-components/ui-switch";
 import {
@@ -44,7 +44,7 @@ export const TiebaUniAppCommentFilter = {
 		log.success(`评论过滤器-启动！`);
 		let lockFn = new utils.LockFunction(() => {
 			let $commentGroupList = Array.from(
-				document.querySelectorAll<HTMLElement>("uni-app .comment-group")
+				$$<HTMLElement>("uni-app .comment-group")
 			);
 			$commentGroupList.forEach(($commentGroup) => {
 				let vueIns = VueUtils.getVue($commentGroup);

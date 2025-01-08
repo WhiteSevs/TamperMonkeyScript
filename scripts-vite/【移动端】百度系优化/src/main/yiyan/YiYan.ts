@@ -1,5 +1,5 @@
 import { unsafeWindow } from "ViteGM";
-import { DOMUtils, addStyle, log } from "@/env";
+import { $, DOMUtils, addStyle, log } from "@/env";
 import YiYanShieldCSS from "./shield.css?raw";
 import { PopsPanel } from "@/setting/setting";
 import { ReactUtils } from "../../utils/ReactUtils";
@@ -155,7 +155,7 @@ const BaiduYiYan = {
 					Qmsg.error("先登录才可以提问");
 					return;
 				}
-				let $sendBtn = document.querySelector<HTMLSpanElement>(
+				let $sendBtn = $<HTMLSpanElement>(
 					`#eb_model_footer div:has(+footer) span:has(svg[preserveAspectRatio])`
 				);
 				if ($sendBtn) {

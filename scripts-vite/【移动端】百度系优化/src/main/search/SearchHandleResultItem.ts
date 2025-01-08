@@ -1,4 +1,4 @@
-import { DOMUtils, addStyle, log, utils } from "@/env";
+import { $$, DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { SearchHandleResultEveryOneSearch } from "./SearchHandleResultEveryOneSearch";
 import { BaiduSearchBlockRule } from "./SearchBlockRule";
@@ -510,7 +510,7 @@ export const BaiduHandleResultItem = {
 		if (
 			PopsPanel.getValue("baidu_search_blocking_everyone_is_still_searching")
 		) {
-			let $conterEveryOneSearch = document.querySelectorAll<HTMLDivElement>(
+			let $conterEveryOneSearch = $$<HTMLDivElement>(
 				".c-recomm-wrap.new-ux-recom-wrapper.c-bg-color-white.animation"
 			);
 			if ($conterEveryOneSearch.length) {
@@ -518,15 +518,13 @@ export const BaiduHandleResultItem = {
 				log.success(`${TAG}中间 大家都在搜 ${$conterEveryOneSearch.length}个`);
 				DOMUtils.remove($conterEveryOneSearch);
 			}
-			let $bottomEveryOneSearch =
-				document.querySelectorAll<HTMLDivElement>("#page-relative");
+			let $bottomEveryOneSearch = $$<HTMLDivElement>("#page-relative");
 			if ($bottomEveryOneSearch.length) {
 				// 末尾 大家都在搜
 				log.success(`${TAG}末尾 大家都在搜 ${$bottomEveryOneSearch.length}个`);
 				DOMUtils.remove($bottomEveryOneSearch);
 			}
-			let $searchCraftEveryOnceSearch =
-				document.querySelectorAll("#relativewords");
+			let $searchCraftEveryOnceSearch = $$("#relativewords");
 			if ($searchCraftEveryOnceSearch.length) {
 				// 简单搜索 点击【更多结果】出现的 大家都在搜
 				log.success(
@@ -538,33 +536,29 @@ export const BaiduHandleResultItem = {
 			if (SearchHandleResultEveryOneSearch.refactorEveryoneIsStillSearching) {
 				/* 重构大家都在搜 */
 				let $conterEveryOneSearch = Array.from(
-					document.querySelectorAll<HTMLDivElement>(
-						'.c-result.result[tpl^="recommend_list"]'
-					)
+					$$<HTMLDivElement>('.c-result.result[tpl^="recommend_list"]')
 				);
 				if ($conterEveryOneSearch.length) {
 					// 重构中间的 大家还在搜
 					SearchHandleResultEveryOneSearch.handleCenter($conterEveryOneSearch);
 				}
 				let $bottomEveryOneSearch = Array.from(
-					document.querySelectorAll<HTMLDivElement>("#page-relative")
+					$$<HTMLDivElement>("#page-relative")
 				);
 				if ($bottomEveryOneSearch.length) {
 					// 重构底部的 大家还在搜
 					SearchHandleResultEveryOneSearch.handleBottom(
-						Array.from(
-							document.querySelectorAll<HTMLDivElement>("#page-relative")
-						)
+						Array.from($$<HTMLDivElement>("#page-relative"))
 					);
 				}
 			}
 		}
-		let $popUp = document.querySelectorAll<HTMLDivElement>("#pop-up");
+		let $popUp = $$<HTMLDivElement>("#pop-up");
 		if ($popUp.length) {
 			log.success(`${TAG}跳转百度app提示 ${$popUp.length}个`);
 			DOMUtils.remove($popUp);
 		}
-		let $ec_wise_aad = document.querySelectorAll(".ec_wise_ad");
+		let $ec_wise_aad = $$(".ec_wise_ad");
 		if ($ec_wise_aad.length) {
 			log.success(`${TAG}顶部的部分商品广告 ${$ec_wise_aad.length}个`);
 			DOMUtils.remove(DOMUtils.parent($ec_wise_aad));
@@ -659,7 +653,7 @@ export const BaiduHandleResultItem = {
 	 * 重定向顶部的链接，如全部、视频、图片、贴吧、咨询...
 	 */
 	redirectTopLink() {
-		document.querySelectorAll(".se-head-tablink a").forEach((item) => {
+		$$(".se-head-tablink a").forEach((item) => {
 			if (
 				item.hasAttribute("data-sflink") &&
 				!utils.isNull(item.getAttribute("data-sflink")) &&
@@ -682,7 +676,7 @@ export const BaiduHandleResultItem = {
 	 * 删除script标签中的百度APP提示
 	 */
 	replaceScriptBaiDuTip() {
-		document.querySelectorAll("script").forEach((item) => {
+		$$("script").forEach((item) => {
 			if (item.innerText.match(/define\(\"@molecule\/aftclk\/index\",/g)) {
 				item.remove();
 				log.success("删除广告 ==> script元素 跳转百度app提示");
@@ -693,9 +687,7 @@ export const BaiduHandleResultItem = {
 	 * 替换链接
 	 */
 	async replaceLink() {
-		let searchResultList = Array.from(
-			document.querySelectorAll<HTMLDivElement>(".c-result.result")
-		);
+		let searchResultList = Array.from($$<HTMLDivElement>(".c-result.result"));
 		for (const searchResultItem of searchResultList) {
 			let resultItemOriginURL =
 				BaiduHandleResultItem.parseOriginUrlFromDataSet(searchResultItem);

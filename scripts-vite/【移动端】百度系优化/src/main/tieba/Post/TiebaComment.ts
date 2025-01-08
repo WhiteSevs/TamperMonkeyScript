@@ -1,4 +1,6 @@
 import {
+	$,
+	$$,
 	DOMUtils,
 	addStyle,
 	httpx,
@@ -832,8 +834,8 @@ const TiebaComment = {
 					user: user,
 					userPostId: userPostId,
 					successDeleteCallBack() {
-						let $appView = document.querySelector<HTMLDivElement>(".app-view");
-						let $interactionBar = document.querySelector<HTMLDivElement>(
+						let $appView = $<HTMLDivElement>(".app-view");
+						let $interactionBar = $<HTMLDivElement>(
 							".main-thread-content .interaction-bar"
 						);
 						if ($interactionBar) {
@@ -1006,7 +1008,7 @@ const TiebaComment = {
 			);
 			TiebaComment.floor_num++;
 		});
-		let $onlyLz = document.querySelector<HTMLDivElement>(".white-only-lz");
+		let $onlyLz = $<HTMLDivElement>(".white-only-lz");
 		if ($onlyLz && $onlyLz.classList.contains("white-only-lz-qx")) {
 			document
 				.querySelectorAll<HTMLDivElement>(".post-item")
@@ -1526,17 +1528,11 @@ const TiebaComment = {
 			}
 		});
 
-		if (document.querySelector(".post-cut-guide")) {
-			DOMUtils.before(
-				document.querySelector(".post-cut-guide") as HTMLElement,
-				newCommentDOM
-			);
+		if ($(".post-cut-guide")) {
+			DOMUtils.before($(".post-cut-guide") as HTMLElement, newCommentDOM);
 		} else {
 			/* 老版帖子 */
-			DOMUtils.append(
-				document.querySelector(".pb-page-wrapper") as HTMLElement,
-				newCommentDOM
-			);
+			DOMUtils.append($(".pb-page-wrapper") as HTMLElement, newCommentDOM);
 		}
 		/* 如果评论存在不可见的，添加一个 查看全部xx条回复 */
 		let lzlPostElement = newCommentDOM.querySelector(
@@ -2347,9 +2343,7 @@ const TiebaComment = {
 				"height",
 				`calc(100% - ${DOMUtils.height(dialogTitleElement)}px)`
 			);
-			this.vueRootView = document.querySelector(
-				".main-page-wrap"
-			) as HTMLDivElement;
+			this.vueRootView = $(".main-page-wrap") as HTMLDivElement;
 			log.success(["成功获取Vue根元素", VueUtils.getVue(this.vueRootView)]);
 			if (PopsPanel.getValue("baidu_tieba_lzl_ban_global_back")) {
 				setPopStateEvent();
@@ -2553,8 +2547,7 @@ const TiebaComment = {
 			log.info("插入loading");
 			loadingView.initLoadingView();
 			loadingView.hide();
-			let $mainPageWrap =
-				document.querySelector<HTMLDivElement>(".main-page-wrap");
+			let $mainPageWrap = $<HTMLDivElement>(".main-page-wrap");
 			if ($mainPageWrap) {
 				$mainPageWrap.appendChild(loadingView.getLoadingViewElement());
 			} else {
@@ -2566,7 +2559,7 @@ const TiebaComment = {
 	 * 插入只看楼主的按钮
 	 */
 	insertOnlyLZ() {
-		let replyRightContainer = document.querySelector(".reply-right-container");
+		let replyRightContainer = $(".reply-right-container");
 		if (!replyRightContainer) {
 			log.error("元素.reply-right-container不存在");
 			return;
@@ -2602,13 +2595,12 @@ const TiebaComment = {
 		});
 		replyRightContainer.appendChild(onlyLzInnerElement);
 
-		let $whiteOnlyLz = document.querySelector<HTMLDivElement>(".white-only-lz");
+		let $whiteOnlyLz = $<HTMLDivElement>(".white-only-lz");
 		if (!$whiteOnlyLz) {
 			throw new TypeError("$whiteOnlyLz is null");
 		}
 		DOMUtils.on($whiteOnlyLz, "click", (event) => {
-			let $postItemList =
-				document.querySelectorAll<HTMLDivElement>(".post-item");
+			let $postItemList = $$<HTMLDivElement>(".post-item");
 			if (Array.from($whiteOnlyLz.classList).includes("white-only-lz-qx")) {
 				/* 取消只看楼主 => 只看楼主 */
 				$whiteOnlyLz.classList.remove("white-only-lz-qx");
@@ -2632,7 +2624,7 @@ const TiebaComment = {
 	 * 插入 正序=倒序的按钮
 	 */
 	insertReverseBtn() {
-		let replySwitchElement = document.querySelector("#replySwitch");
+		let replySwitchElement = $("#replySwitch");
 		if (!replySwitchElement) {
 			log.error("元素#replySwitch不存在");
 			return;
@@ -2851,7 +2843,7 @@ const TiebaComment = {
 				$pcPageDoc.querySelectorAll<HTMLElement>(".l_post.l_post_bright")
 			);
 			// 先把页面上的原有的评论移除
-			document.querySelectorAll(".post-item").forEach((ele) => ele.remove());
+			$$(".post-item").forEach((ele) => ele.remove());
 			// 移除第一个元素，因为第一个元素是楼主
 			if (TiebaComment.page == 1) {
 				// 如果是第一页，移除第一个元素，因为第一个是主内容

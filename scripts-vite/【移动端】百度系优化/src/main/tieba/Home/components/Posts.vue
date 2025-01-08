@@ -105,7 +105,7 @@ const loadMore = async () => {
                     </div>
                 </el-row>
             </div>
-            <div class="posts-item-title">{{ postItem.title }}</div>
+            <div class="posts-item-title" v-html="postItem.title"></div>
             <div class="posts-item-content">{{ postItem.content }}</div>
             <div class="posts-item-media-container" v-if="postItem.mediaList.length > 0">
                 <el-row @click.stop>

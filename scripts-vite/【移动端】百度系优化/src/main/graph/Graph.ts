@@ -1,4 +1,4 @@
-import { DOMUtils, addStyle, log, utils } from "@/env";
+import { $, DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BaiduGraphApi } from "./GraphApi";
 import GraphShieldCSS from "./shield.css?raw";
@@ -73,11 +73,7 @@ const BaiduGraph = {
 					"-webkit-tap-highlight-color": "transparent",
 				});
 				DOMUtils.on(uploadImageDivDOM, "click", function () {
-					(
-						document.querySelector(
-							"input#whitesev-upload-image"
-						) as HTMLInputElement
-					).click();
+					($("input#whitesev-upload-image") as HTMLInputElement).click();
 				});
 
 				DOMUtils.after($vfHomeBoothCamera, uploadImageDivDOM);
@@ -105,11 +101,7 @@ const BaiduGraph = {
 				"text-align": "center",
 			});
 			DOMUtils.on(divHomeCamera, "click", function () {
-				(
-					document.querySelector(
-						"input#whitesev-upload-image"
-					) as HTMLInputElement
-				).click();
+				($("input#whitesev-upload-image") as HTMLInputElement).click();
 			});
 			DOMUtils.append($viewPage, divHomeCamera);
 			utils.watchObject(
@@ -167,15 +159,9 @@ const BaiduGraph = {
 				});
 				DOMUtils.on(retakeDivDOM, "click", function (event) {
 					utils.preventEvent(event);
-					(
-						document.querySelector(
-							"input#whitesev-upload-image"
-						) as HTMLInputElement
-					).click();
+					($("input#whitesev-upload-image") as HTMLInputElement).click();
 					DOMUtils.trigger(
-						document.querySelector(
-							"input#whitesev-upload-image"
-						) as HTMLInputElement,
+						$("input#whitesev-upload-image") as HTMLInputElement,
 						"click"
 					);
 				});

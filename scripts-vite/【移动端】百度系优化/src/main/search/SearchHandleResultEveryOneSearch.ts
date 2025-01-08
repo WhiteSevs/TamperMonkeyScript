@@ -1,4 +1,4 @@
-import { DOMUtils, log, utils } from "@/env";
+import { $, DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 
 export const SearchHandleResultEveryOneSearch = {
@@ -39,7 +39,7 @@ export const SearchHandleResultEveryOneSearch = {
 				});
 			item.querySelector("div.c-line-clamp1")?.remove();
 			if (!item.closest("#results")) {
-				document.querySelector("#results")?.appendChild(item);
+				$("#results")?.appendChild(item);
 			}
 			DOMUtils.on(item, "click", "div.rw-list-new", function (event) {
 				let searchText = (event.target as HTMLElement)

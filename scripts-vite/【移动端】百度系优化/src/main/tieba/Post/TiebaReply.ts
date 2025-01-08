@@ -1,4 +1,4 @@
-import { DOMUtils, addStyle, log, utils } from "@/env";
+import { $, DOMUtils, addStyle, log, utils } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
 import Qmsg from "qmsg";
 import { TiebaPost } from "./TiebaPost";
@@ -513,7 +513,7 @@ export const TiebaReply = {
 	 * 获取回复框容器元素
 	 */
 	getCommentBoxWrap() {
-		return document.querySelector(".comment-box-wrap") as HTMLDivElement;
+		return $<HTMLDivElement>(".comment-box-wrap")!;
 	},
 	/**
 	 * 等待评论框容器元素
@@ -522,19 +522,21 @@ export const TiebaReply = {
 	 */
 	waitCommentBoxWrap(callback: Function) {
 		DOMUtils.ready(() => {
-			utils.waitNode(".comment-box-wrap", 10000).then(($commentBoxWrap) => {
-				if (TiebaUniAppPost.isUniApp()) {
-					return;
-				}
-				if (!$commentBoxWrap) {
-					log.error("获取不到评论框容器元素.comment-box-wrap");
-					Qmsg.error("获取不到评论框容器元素.comment-box-wrap");
-					return;
-				}
-				setTimeout(() => {
-					callback();
-				}, 200);
-			});
+			utils
+				.waitNode<HTMLElement>(".comment-box-wrap", 10000)
+				.then(($commentBoxWrap) => {
+					if (TiebaUniAppPost.isUniApp()) {
+						return;
+					}
+					if (!$commentBoxWrap) {
+						log.error("获取不到评论框容器元素.comment-box-wrap");
+						Qmsg.error("获取不到评论框容器元素.comment-box-wrap");
+						return;
+					}
+					setTimeout(() => {
+						callback();
+					}, 200);
+				});
 		});
 		return;
 	},
@@ -560,7 +562,7 @@ export const TiebaReply = {
 	 * 获取app-view的vue实例
 	 */
 	getAppViewVue() {
-		let $appView = document.querySelector<HTMLDivElement>(".app-view");
+		let $appView = $<HTMLDivElement>(".app-view");
 		if (!$appView) {
 			log.error("获取不到app-view元素");
 			Qmsg.error("获取不到app-view元素");

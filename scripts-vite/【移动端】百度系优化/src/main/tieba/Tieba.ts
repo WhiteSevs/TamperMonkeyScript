@@ -1,4 +1,4 @@
-import { DOMUtils, addStyle, log, pops, utils } from "@/env";
+import { $, DOMUtils, addStyle, log, pops, utils } from "@/env";
 import TieBaShieldCSS from "./shield.css?raw";
 import UniTieBaShieldCSS from "./uni-app-shield.css?raw";
 import { PopsPanel } from "@/setting/setting";
@@ -208,9 +208,7 @@ const BaiduTieBa = {
 					<svg t="1718595396255" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3147" width="24" height="24"><path d="M128 298.666667h768a42.666667 42.666667 0 0 0 0-85.333334H128a42.666667 42.666667 0 0 0 0 85.333334z m768 170.666666H128a42.666667 42.666667 0 0 0 0 85.333334h768a42.666667 42.666667 0 0 0 0-85.333334z m0 256H128a42.666667 42.666667 0 0 0 0 85.333334h768a42.666667 42.666667 0 0 0 0-85.333334z" p-id="3148"></path></svg>
 				</div>
 				`;
-				let $logoWrapper = document.querySelector<HTMLDivElement>(
-					".nav-bar-top .logo-wrapper"
-				);
+				let $logoWrapper = $<HTMLDivElement>(".nav-bar-top .logo-wrapper");
 				function getHelloText() {
 					var myDate = new Date();
 					var i = myDate.getHours();
@@ -238,9 +236,7 @@ const BaiduTieBa = {
 								// let fid = TiebaData.forumId!;
 								// let tbs = "";
 								// TiebaUrlApi.getPostPage(fname, fid, tbs);
-								let $mobileViewport = document.querySelector<HTMLDivElement>(
-									".tb-mobile-viewport"
-								);
+								let $mobileViewport = $<HTMLDivElement>(".tb-mobile-viewport");
 								if ($mobileViewport) {
 									let vueObj = VueUtils.getVue($mobileViewport);
 									if (vueObj) {
@@ -252,8 +248,7 @@ const BaiduTieBa = {
 									}
 								}
 
-								let $appView =
-									document.querySelector<HTMLDivElement>(".app-view");
+								let $appView = $<HTMLDivElement>(".app-view");
 								if ($appView) {
 									let appViewVueObj = VueUtils.getVue($appView);
 									if (
@@ -497,8 +492,8 @@ const BaiduTieBa = {
 					});
 					$avatar.src = TiebaUrlHandler.getUserAvatar("null");
 					let $ele =
-						document.querySelector<HTMLDivElement>(".app-view") ||
-						document.querySelector<HTMLDivElement>(".tb-mobile-viewport");
+						$<HTMLDivElement>(".app-view") ||
+						$<HTMLDivElement>(".tb-mobile-viewport");
 					if ($ele) {
 						let eleVueObj = VueUtils.getVue($ele);
 						if (eleVueObj) {

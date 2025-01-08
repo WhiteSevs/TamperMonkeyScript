@@ -1,4 +1,4 @@
-import { DOMUtils, log } from "@/env";
+import { $, DOMUtils, log } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
 import Qmsg from "qmsg";
 import { TiebaComment } from "./TiebaComment";
@@ -107,14 +107,14 @@ export const Toolbar = {
 	 * @param event
 	 */
 	goToReplyArea(event: MouseEvent) {
-		let $affixLine = document.querySelector<HTMLDivElement>(".affix-line");
+		let $affixLine = $<HTMLDivElement>(".affix-line");
 		if (!$affixLine) {
 			Qmsg.error("未找到元素.affix-line");
 			return;
 		}
 		let scrollHeight =
 			DOMUtils.offset($affixLine)!.top -
-			DOMUtils.height(document.querySelector<HTMLDivElement>(".nav-bar-top")!);
+			DOMUtils.height($<HTMLDivElement>(".nav-bar-top")!);
 		/* 前往评论区 */
 
 		log.info("前往评论区：" + scrollHeight);
@@ -128,9 +128,7 @@ export const Toolbar = {
 	 */
 	goodClickEvent() {
 		log.info("点赞");
-		let $good = document.querySelector<HTMLDivElement>(
-			".interaction-item.good"
-		);
+		let $good = $<HTMLDivElement>(".interaction-item.good");
 		if (!$good) {
 			Qmsg.error("未找到元素.interaction-item.good");
 			return;

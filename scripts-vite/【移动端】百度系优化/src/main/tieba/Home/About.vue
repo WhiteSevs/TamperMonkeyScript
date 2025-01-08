@@ -91,6 +91,7 @@ const arrowLeftClickEvent = () => {
 .user-info-item {
     display: flex;
     padding: 10px;
+    flex-wrap: wrap;
 }
 
 .user-desc-key {

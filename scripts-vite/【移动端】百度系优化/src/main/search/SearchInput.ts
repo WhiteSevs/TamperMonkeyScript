@@ -1,4 +1,4 @@
-import { DOMUtils, log, utils } from "@/env";
+import { $, $$, DOMUtils, log, utils } from "@/env";
 
 /**
  * 点击输入框，输入其它文字，有提示，禁止百度篡改，且极大地增加搜索速度
@@ -54,31 +54,31 @@ const SearchInputEvent = {
 		DOMUtils.on(searchBtnSelector, "click", function (event) {
 			return SearchInputEvent.searchBtnJump(
 				event as PointerEvent | MouseEvent,
-				document.querySelector(searchInputSelector) as HTMLInputElement
+				$(searchInputSelector) as HTMLInputElement
 			);
 		});
 		/* 顶部搜索输入框 */
 		DOMUtils.on(searchInputSelector, "keydown", function (event) {
 			return SearchInputEvent.enterKeyDownEvent(
 				event as KeyboardEvent,
-				document.querySelector(searchInputSelector) as HTMLInputElement
+				$(searchInputSelector) as HTMLInputElement
 			);
 		});
 		/* 底部搜索按钮 */
 		DOMUtils.on(searchBtn2Selector, "click", function (event) {
 			return SearchInputEvent.searchBtnJump(
 				event as PointerEvent | MouseEvent,
-				document.querySelector(searchInput2Selector) as HTMLInputElement
+				$(searchInput2Selector) as HTMLInputElement
 			);
 		});
 		/* 底部部搜索输入框 */
 		DOMUtils.on(
-			document.querySelector(searchInput2Selector) as HTMLElement,
+			$(searchInput2Selector) as HTMLElement,
 			"keydown",
 			function (event) {
 				return SearchInputEvent.enterKeyDownEvent(
 					event as KeyboardEvent,
-					document.querySelector(searchInput2Selector) as HTMLInputElement
+					$(searchInput2Selector) as HTMLInputElement
 				);
 			}
 		);
@@ -86,14 +86,14 @@ const SearchInputEvent = {
 		DOMUtils.on(searchBtn_HOME_Selector, "click", function (event) {
 			return SearchInputEvent.searchBtnJump(
 				event as MouseEvent | PointerEvent,
-				document.querySelector(searchInput_HOME_Selector) as HTMLInputElement
+				$(searchInput_HOME_Selector) as HTMLInputElement
 			);
 		});
 		/* 百度主页搜索输入框 */
 		DOMUtils.on(searchInput_HOME_Selector, "keydown", function (event) {
 			return SearchInputEvent.enterKeyDownEvent(
 				event as KeyboardEvent,
-				document.querySelector(searchInput_HOME_Selector) as HTMLInputElement
+				$(searchInput_HOME_Selector) as HTMLInputElement
 			);
 		});
 	},
@@ -103,7 +103,7 @@ const SearchInputEvent = {
 	 */
 	mutationObserverFunction(elementSelector: string) {
 		log.success("设置搜索建议自定义click事件");
-		document.querySelectorAll(elementSelector).forEach((item) => {
+		$$(elementSelector).forEach((item) => {
 			DOMUtils.on(item as HTMLElement, "click", function (event) {
 				utils.preventEvent(event);
 				window?.stop();

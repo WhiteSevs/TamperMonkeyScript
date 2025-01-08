@@ -1,4 +1,4 @@
-import { DOMUtils, addStyle, log } from "@/env";
+import { $, $$, DOMUtils, addStyle, log } from "@/env";
 import ZhiDaoShieldCSS from "./shield.css?raw";
 import { PopsPanel } from "@/setting/setting";
 import { CommonUtil } from "@/utils/CommonUtil";
@@ -29,8 +29,8 @@ const BaiduZhiDao = {
 	 */
 	removeAd() {
 		log.info("移除广告.ec-ad");
-		if (document.querySelector(".ec-ad")) {
-			DOMUtils.remove(DOMUtils.parent(document.querySelectorAll(".ec-ad")));
+		if ($(".ec-ad")) {
+			DOMUtils.remove(DOMUtils.parent($$(".ec-ad")));
 		}
 	},
 	/**

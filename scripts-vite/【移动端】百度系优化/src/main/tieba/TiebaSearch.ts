@@ -784,17 +784,6 @@ const TiebaSearch = {
 	 * 如果已在搜索模式（即已显示搜索框），返回undefine，否则成功进入返回true
 	 */
 	enterSeachMode() {
-		// this.getEnterOrQuietSearchModeSelectorList().forEach((selector) => {
-		// 	let $selector = document.querySelector(selector);
-		// 	if ($selector) {
-		// 		$selector.classList.add("gm-hide");
-		// 	}
-		// });
-		// let $uniApp = document.querySelector<HTMLElement>("uni-app");
-		// if ($uniApp) {
-		// 	$uniApp.style.position = "absolute";
-		// 	$uniApp.style.zIndex = "1";
-		// }
 		this.showSearchContainer();
 		// 自动获取焦点
 		setTimeout(() => {
@@ -814,17 +803,6 @@ const TiebaSearch = {
 		/* 搜索框隐藏的话就显示出来 */
 		// 隐藏搜索框
 		this.hideSearchContainer();
-		// this.getEnterOrQuietSearchModeSelectorList().forEach((selector) => {
-		// 	let $selector = document.querySelector(selector);
-		// 	if ($selector) {
-		// 		$selector.classList.remove("gm-hide");
-		// 	}
-		// });
-		// let $uniApp = document.querySelector<HTMLElement>("uni-app");
-		// if ($uniApp) {
-		// 	$uniApp.style.position = "";
-		// 	$uniApp.style.zIndex = "";
-		// }
 	},
 	/**
 	 * 获取搜索内容

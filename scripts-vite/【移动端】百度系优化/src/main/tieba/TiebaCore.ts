@@ -1,5 +1,5 @@
 import { unsafeWindow } from "ViteGM";
-import { DOMUtils, log, utils } from "@/env";
+import { $, DOMUtils, log, utils } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
 import Qmsg from "qmsg";
 import { VueUtils } from "@/utils/VueUtils";
@@ -94,7 +94,7 @@ const TiebaCore = {
 	 */
 	getLandlordInfo() {
 		return (
-			document.querySelector(
+			$(
 				".main-page-wrap .user-line-wrapper.thread-user-line"
 			) as NestedObjectWithToString
 		)?.__vue__?.$props?.author as LandlordInfo;
@@ -103,22 +103,18 @@ const TiebaCore = {
 	 * 获取当前的贴吧名字
 	 */
 	getCurrentForumName(): string {
-		let tbMobileViewport = VueUtils.getVue(
-			document.querySelector(".tb-mobile-viewport")
-		)?.forum?.name;
-
-		let mainPageWrap = VueUtils.getVue(
-			document.querySelector(".main-page-wrap")
-		)?.$children[0]?.$children[0]?.forum?.name;
-
-		let tbForum = VueUtils.getVue(
-			document.querySelector(".tb-mobile-viewport .tb-forum")
-		)?.forum?.name;
-
-		let appView = VueUtils.getVue(document.querySelector(".app-view"))?.forum
+		let tbMobileViewport = VueUtils.getVue($(".tb-mobile-viewport"))?.forum
 			?.name;
 
-		let $uniAppPostNavBarForumName = document.querySelector<HTMLDivElement>(
+		let mainPageWrap = VueUtils.getVue($(".main-page-wrap"))?.$children[0]
+			?.$children[0]?.forum?.name;
+
+		let tbForum = VueUtils.getVue($(".tb-mobile-viewport .tb-forum"))?.forum
+			?.name;
+
+		let appView = VueUtils.getVue($(".app-view"))?.forum?.name;
+
+		let $uniAppPostNavBarForumName = $<HTMLDivElement>(
 			"uni-app .nav-bar .forum-name"
 		);
 		let uniAppPostNavBarForumName =
@@ -136,11 +132,8 @@ const TiebaCore = {
 	 * 获取当前的贴吧的id
 	 */
 	getCurrentForumId(): number {
-		let tbMobileViewport = VueUtils.getVue(
-			document.querySelector(".tb-mobile-viewport")
-		)?.forum?.id;
-		let appView = VueUtils.getVue(document.querySelector(".app-view"))?.forum
-			?.id;
+		let tbMobileViewport = VueUtils.getVue($(".tb-mobile-viewport"))?.forum?.id;
+		let appView = VueUtils.getVue($(".app-view"))?.forum?.id;
 		return tbMobileViewport || appView;
 	},
 	/**
@@ -148,7 +141,7 @@ const TiebaCore = {
 	 */
 	getCurrentForumPostTid(): string {
 		let tid = null;
-		let appViewVue = VueUtils.getVue(document.querySelector(".app-view"));
+		let appViewVue = VueUtils.getVue($(".app-view"));
 		if (appViewVue?.thread?.id !== "" && appViewVue?.thread?.id != null) {
 			tid = appViewVue.thread.id.toString();
 		} else {
@@ -209,7 +202,7 @@ const TiebaCore = {
 		};
 		let hideScrollTopButton = function () {
 			isInsertButton = false;
-			document.querySelector(".whitesev-tb-totop")?.remove();
+			$(".whitesev-tb-totop")?.remove();
 		};
 		let checkScroll = new utils.LockFunction(
 			function () {
@@ -265,7 +258,7 @@ const TiebaCore = {
 	 */
 	checkSkeleton() {
 		setTimeout(() => {
-			let appElement = document.querySelector("#app");
+			let appElement = $("#app");
 			if (appElement && appElement.innerHTML === "") {
 				Qmsg.warning("检测到骨架屏，异常加载，刷新页面", {
 					timeout: 1200,
