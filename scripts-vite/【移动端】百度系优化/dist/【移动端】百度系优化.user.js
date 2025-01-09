@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.1.8
+// @version      2025.1.9
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -4316,6 +4316,13 @@ match-attr##srcid##sp_purc_atom
                     true,
                     void 0,
                     "允许长按选择文字"
+                  ),
+                  UISwitch(
+                    "修改评论内容字体大小",
+                    "baidu-tieba-uni-app-comment-item-font-size",
+                    false,
+                    void 0,
+                    "大小同步为内容的大小：.41063rem"
                   ),
                   UIButton(
                     "评论过滤规则",
@@ -14944,102 +14951,101 @@ div[class^="new-summary-container_"] {\r
   };
   const TiebaUniAppPost = {
     init() {
-      utils.waitNode("uni-app", 1e4).then(($uniApp) => {
-        if (!$uniApp) {
-          return;
-        }
-        log.info(`uni-app ===> 本页面为uni-app页面`);
-        let findHashValue = Object.values(GeastureBackHashConfig).find((item) => {
-          return window.location.hash.endsWith(item);
-        });
-        if (findHashValue) {
-          log.warn(`删除检测到的手势hash参数：${findHashValue}`);
-          window.location.hash = "";
-        }
+      let findHashValue = Object.values(GeastureBackHashConfig).find((item) => {
+        return window.location.hash.endsWith(item);
+      });
+      if (findHashValue) {
+        log.warn(`删除检测到的手势hash参数：${findHashValue}`);
+        window.location.hash = "";
+      }
+      PopsPanel.onceExec("once-exec-tieba-post-uni-app-repairTbErrorPage", () => {
         this.repairTbErrorPage();
-        this.mutationRemoveWakeUpBtn();
-        PopsPanel.onceExec("tieba-post-uni-app-comment-filter", () => {
-          TiebaUniAppCommentFilter.init();
+      });
+      PopsPanel.onceExec(
+        "once-exec-tieba-post-uni-app-mutationRemoveWakeUpBtn",
+        () => {
+          this.mutationRemoveWakeUpBtn();
+        }
+      );
+      PopsPanel.onceExec("tieba-post-uni-app-comment-filter", () => {
+        TiebaUniAppCommentFilter.init();
+      });
+      PopsPanel.execMenuOnce("baidu-tieba-uni-app-comment-item-font-size", () => {
+        return addStyle$1(
+          /*css*/
+          `
+				.pb-rich-text{
+					font-size: .41063rem !important;
+				}
+			`
+        );
+      });
+      PopsPanel.execMenu("baidu_tieba_optimize_image_preview", () => {
+        TiebaPost.optimizeImagePreview();
+      });
+      PopsPanel.execMenuOnce("baidu-tieba-uni-app-post-allow-user-select", () => {
+        return this.allowUserSelect();
+      });
+      PopsPanel.execMenuOnce("baidu-tieba-uni-app-post-overloadLoadMore", () => {
+        this.overloadLoadMore();
+      });
+      PopsPanel.execMenuOnce(
+        "baidu-tieba-uni-app-post-repairPicGuideThreadWrapper",
+        () => {
+          this.repairPicGuideThreadWrapper();
+        }
+      );
+      PopsPanel.execMenuOnce(
+        "baidu-tieba-uni-app-post-repairClickToUserHome",
+        () => {
+          this.repairClickToUserHome();
+        }
+      );
+      PopsPanel.execMenuOnce("baidu-tieba-uni-app-post-preventWakeApp", () => {
+        this.preventWakeApp();
+      });
+      PopsPanel.execMenuOnce(
+        "baidu-tieba-uni-app-post-addScrollTopButtonInForum",
+        (value) => {
+          return this.addScrollTopButton(value);
+        }
+      );
+      PopsPanel.execMenuOnce("baidu-tieba-uni-app-post-repairAnchorLink", () => {
+        this.repairAnchorLink();
+      });
+      PopsPanel.execMenu("baidu_tieba_add_search", () => {
+        this.repairSearch();
+      });
+      domutils.ready(() => {
+        PopsPanel.execMenuOnce(
+          "baidu-tieba-uni-app-post-rememberChooseSeeCommentSort",
+          () => {
+            this.rememberChooseSeeCommentSort();
+          }
+        );
+        PopsPanel.execMenuOnce(
+          "baidu-tieba-uni-app-post-filterDuplicateComments",
+          () => {
+            this.filterDuplicateComments();
+          }
+        );
+        PopsPanel.execMenuOnce("baidu-tieba-uni-app-post-blockTieBaRobot", () => {
+          this.blockTieBaRobot();
         });
-        PopsPanel.execMenu("baidu_tieba_optimize_image_preview", () => {
-          TiebaPost.optimizeImagePreview();
-        });
         PopsPanel.execMenuOnce(
-          "baidu-tieba-uni-app-post-allow-user-select",
+          "baidu-tieba-uni-app-post-optimizationLzlPostBackGestureReturn",
           () => {
-            return this.allowUserSelect();
+            this.optimizationLzlPostBackGestureReturn();
           }
         );
         PopsPanel.execMenuOnce(
-          "baidu-tieba-uni-app-post-overloadLoadMore",
+          "baidu-tieba-uni-app-post-optimizationImagePreviewBackGestureReturn",
           () => {
-            this.overloadLoadMore();
+            this.optimizationImagePreviewBackGestureReturn();
           }
         );
-        PopsPanel.execMenuOnce(
-          "baidu-tieba-uni-app-post-repairPicGuideThreadWrapper",
-          () => {
-            this.repairPicGuideThreadWrapper();
-          }
-        );
-        PopsPanel.execMenuOnce(
-          "baidu-tieba-uni-app-post-repairClickToUserHome",
-          () => {
-            this.repairClickToUserHome();
-          }
-        );
-        PopsPanel.execMenuOnce("baidu-tieba-uni-app-post-preventWakeApp", () => {
-          this.preventWakeApp();
-        });
-        PopsPanel.execMenuOnce(
-          "baidu-tieba-uni-app-post-addScrollTopButtonInForum",
-          (value) => {
-            return this.addScrollTopButton(value);
-          }
-        );
-        PopsPanel.execMenuOnce(
-          "baidu-tieba-uni-app-post-repairAnchorLink",
-          () => {
-            this.repairAnchorLink();
-          }
-        );
-        PopsPanel.execMenu("baidu_tieba_add_search", () => {
-          this.repairSearch();
-        });
-        domutils.ready(() => {
-          PopsPanel.execMenuOnce(
-            "baidu-tieba-uni-app-post-rememberChooseSeeCommentSort",
-            () => {
-              this.rememberChooseSeeCommentSort();
-            }
-          );
-          PopsPanel.execMenuOnce(
-            "baidu-tieba-uni-app-post-filterDuplicateComments",
-            () => {
-              this.filterDuplicateComments();
-            }
-          );
-          PopsPanel.execMenuOnce(
-            "baidu-tieba-uni-app-post-blockTieBaRobot",
-            () => {
-              this.blockTieBaRobot();
-            }
-          );
-          PopsPanel.execMenuOnce(
-            "baidu-tieba-uni-app-post-optimizationLzlPostBackGestureReturn",
-            () => {
-              this.optimizationLzlPostBackGestureReturn();
-            }
-          );
-          PopsPanel.execMenuOnce(
-            "baidu-tieba-uni-app-post-optimizationImagePreviewBackGestureReturn",
-            () => {
-              this.optimizationImagePreviewBackGestureReturn();
-            }
-          );
-          PopsPanel.execMenuOnce("baidu-tieba-componentDetection", () => {
-            TiebaUniAppComponentDetection.init();
-          });
+        PopsPanel.execMenuOnce("baidu-tieba-componentDetection", () => {
+          TiebaUniAppComponentDetection.init();
         });
       });
     },
@@ -15084,14 +15090,16 @@ div[class^="new-summary-container_"] {\r
      * 动态加载移除唤醒按钮，会影响页面点击，比如超链接点击无反应
      */
     mutationRemoveWakeUpBtn() {
-      utils.mutationObserver(document.documentElement, {
+      let lockFn = new utils.LockFunction(() => {
+        $$(".wake-app-btn").forEach(($ele) => $ele.remove());
+      });
+      utils.mutationObserver(document, {
         config: {
           subtree: true,
           childList: true
         },
-        immediate: true,
-        callback() {
-          $$(".wake-app-btn").forEach(($ele) => $ele.remove());
+        callback: () => {
+          lockFn.run();
         }
       });
     },
@@ -15157,7 +15165,11 @@ div[class^="new-summary-container_"] {\r
           once: false
         }
       );
-      utils.dispatchEvent(document, "scroll");
+      domutils.ready(() => {
+        utils.waitNode("uni-app .load-more", 1e4).then(($loadMore) => {
+          utils.dispatchEvent(document, "scroll");
+        });
+      });
     },
     /**
      * 添加滚动到顶部按钮
