@@ -145,11 +145,11 @@ export const DouYinVideoPlayer = {
 			// 点击全屏按钮来触发全屏
 			utils
 				.waitNode<HTMLElement>(
-					'xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon:has([d="M9.75 8.5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12.5a2 2 0 0 0 2-2v-11a2 2 0 0 0-2-2H9.75zM15 11.25h-3.75a1 1 0 0 0-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 0 1-1 1z"])'
+					'xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon'
 				)
-				.then((element) => {
+				.then(($el) => {
 					log.success("自动进入网页全屏");
-					element.click();
+					$el.click();
 				});
 		}
 	},
@@ -252,7 +252,7 @@ export const DouYinVideoPlayer = {
 			"adapt_540_1",
 			"adapt_lower_540_1",
 		];
-		
+
 		let definition = [
 			{
 				clarityReal: clarityReal,
