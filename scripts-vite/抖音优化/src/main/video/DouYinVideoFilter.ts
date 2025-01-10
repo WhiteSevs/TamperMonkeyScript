@@ -19,6 +19,7 @@ import { PopsPanel } from "@/setting/setting";
 import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { PanelUISize } from "@/setting/panel-ui-size";
+import { UITextArea } from "@/setting/common-components/ui-textarea";
 
 type DouYinVideoFilterOptionScope =
 	| "all"
@@ -36,6 +37,8 @@ export type DouYinVideoFilterDynamicOption = {
 	ruleName: keyof DouYinVideoHandlerInfo;
 	/** 属性值 */
 	ruleValue: string;
+	/** 备注 */
+	remarks: string;
 };
 export type DouYinVideoFilterOption = {
 	/** 是否启用 */
@@ -52,6 +55,8 @@ export type DouYinVideoFilterOption = {
 		ruleName: keyof DouYinVideoHandlerInfo;
 		/** 属性值 */
 		ruleValue: string;
+		/** 备注 */
+		remarks: string;
 	};
 	/** 动态添加的数据 */
 	dynamicData?: DouYinVideoFilterDynamicOption[];
@@ -516,12 +521,13 @@ export const DouYinVideoFilter = {
 							generateStorageApi(data.data)
 						);
 
+						// 属性值
 						let $ruleName =
 							popsPanelContentUtils.createSectionContainerItem_select(
 								ruleName_template
 							);
 
-						let ruleValue_template = UIInput(
+						let ruleValue_template = UITextArea(
 							"属性值",
 							"ruleValue",
 							"",
@@ -534,10 +540,29 @@ export const DouYinVideoFilter = {
 							generateStorageApi(data.data)
 						);
 						let $ruleValue =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							popsPanelContentUtils.createSectionContainerItem_textarea(
 								ruleValue_template
 							);
 
+						// 备注
+						let remarks_template = UITextArea(
+							"备注",
+							"remarks",
+							"",
+							"",
+							void 0
+						);
+						Reflect.set(
+							remarks_template.props!,
+							PROPS_STORAGE_API,
+							generateStorageApi(data.data)
+						);
+						let $remarks =
+							popsPanelContentUtils.createSectionContainerItem_textarea(
+								remarks_template
+							);
+
+						// 动态属性
 						let $dynamicContainer = DOMUtils.createElement("div", {
 							className: "rule-form-ulist-dynamic",
 							innerHTML: /*html*/ `
@@ -567,6 +592,7 @@ export const DouYinVideoFilter = {
 							dynamicData: DouYinVideoFilterDynamicOption = {
 								ruleName: ruleNameDefaultValue,
 								ruleValue: "",
+								remarks: "",
 							}
 						) => {
 							let $dynamicUListContainer = DOMUtils.createElement("div", {
@@ -623,7 +649,7 @@ export const DouYinVideoFilter = {
 									};
 								}),
 								void 0,
-								"可正则，注意转义"
+								"如果是字符串，可正则，注意转义"
 							);
 							Reflect.set(
 								dynamic_ruleName_template.props!,
@@ -636,7 +662,7 @@ export const DouYinVideoFilter = {
 									dynamic_ruleName_template
 								);
 
-							let dynamic_ruleValue_template = UIInput(
+							let dynamic_ruleValue_template = UITextArea(
 								"属性值",
 								"ruleValue",
 								dynamicData.ruleValue,
@@ -649,11 +675,30 @@ export const DouYinVideoFilter = {
 								generateStorageApi(dynamicData)
 							);
 							let $dynamic_ruleValue =
-								popsPanelContentUtils.createSectionContainerItem_input(
+								popsPanelContentUtils.createSectionContainerItem_textarea(
 									dynamic_ruleValue_template
+								);
+
+							// 备注
+							let dynamic_remarks_template = UITextArea(
+								"备注",
+								"remarks",
+								"",
+								"",
+								void 0
+							);
+							Reflect.set(
+								dynamic_remarks_template.props!,
+								PROPS_STORAGE_API,
+								generateStorageApi(dynamicData)
+							);
+							let $dynamic_remarks =
+								popsPanelContentUtils.createSectionContainerItem_textarea(
+									dynamic_remarks_template
 								);
 							$dynamicUList.appendChild($dynamic_ruleName);
 							$dynamicUList.appendChild($dynamic_ruleValue);
+							$dynamicUList.appendChild($dynamic_remarks);
 							$dynamicInner.appendChild($dynamicUListContainer);
 						};
 						// 设置添加动态项的点击事件
@@ -675,6 +720,7 @@ export const DouYinVideoFilter = {
 							$scope,
 							$ruleName,
 							$ruleValue,
+							$remarks,
 							$dynamicContainer
 						);
 						return $fragment;
@@ -797,11 +843,29 @@ export const DouYinVideoFilter = {
 						align-items: flex-start;
 						padding: 5px 20px;
 					}
+					.rule-form-ulist-dynamic__inner{
+						width: 100%;
+					}
 					.rule-form-ulist-dynamic__inner-container{
 						display: flex;
 						align-items: center;
 					}
+					.dynamic-forms{
+						width: 100%;
+					}
+					.pops-panel-textarea textarea{
+						height: 60px;
+						min-height: 60px;
+						width: 250px;
+						max-width: 400px;
+						min-width: 250px;
+						resize: auto;
+						transition: unset;
+					}
                     `,
+					width: () => {
+						return window.innerWidth > 700 ? "700px" : "88vw";
+					},
 				},
 				delete: {
 					enable: true,
@@ -844,6 +908,7 @@ export const DouYinVideoFilter = {
 				scope: [],
 				ruleName: "nickname",
 				ruleValue: "",
+				remarks: "",
 			},
 			dynamicData: [],
 		};

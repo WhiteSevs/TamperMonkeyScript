@@ -32,7 +32,18 @@ type RuleEditViewOption<T> = {
 		success: boolean;
 		data: T;
 	}>;
+	/**
+	 * 按钮配置
+	 */
 	btn?: PopsConfirmDetails["btn"];
+	/**
+	 * 添加/编辑框的宽度，注意带单位，px或%
+	 */
+	width?: () => string;
+	/**
+	 * 添加/编辑框的高度，注意带单位，px或%
+	 */
+	height?: () => string;
 };
 
 export class RuleEditView<T> {
@@ -102,8 +113,18 @@ export class RuleEditView<T> {
 
                 ${this.option?.style ?? ""}
             `,
-			width: window.innerWidth > 500 ? "500px" : "88vw",
-			height: window.innerHeight > 500 ? "500px" : "80vh",
+			width:
+				typeof this.option.width === "function"
+					? this.option.width()
+					: window.innerWidth > 500
+					? "500px"
+					: "88vw",
+			height:
+				typeof this.option.height === "function"
+					? this.option.height()
+					: window.innerHeight > 500
+					? "500px"
+					: "80vh",
 		});
 
 		let $form = $dialog.$shadowRoot.querySelector<HTMLFormElement>(

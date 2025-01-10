@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.1.9
+// @version      2025.1.10
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -4327,8 +4327,8 @@
                 ${((_a2 = this.option) == null ? void 0 : _a2.style) ?? ""}
             `
         ),
-        width: window.innerWidth > 500 ? "500px" : "88vw",
-        height: window.innerHeight > 500 ? "500px" : "80vh"
+        width: typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
+        height: typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh"
       });
       let $form = $dialog.$shadowRoot.querySelector(
         ".rule-form-container"
@@ -4930,7 +4930,9 @@
           }
           return result;
         },
-        style: this.option.itemControls.edit.style
+        style: this.option.itemControls.edit.style,
+        width: this.option.itemControls.edit.width,
+        height: this.option.itemControls.edit.height
       });
       editView.showView();
     }
@@ -5304,6 +5306,34 @@
       }
     }
   };
+  const UITextArea = function(text, key, defaultValue, description, changeCallBack, placeholder = "", disabled) {
+    let result = {
+      text,
+      type: "textarea",
+      attributes: {},
+      props: {},
+      description,
+      placeholder,
+      disabled,
+      getValue() {
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+      },
+      callback(event, value) {
+        this.props[PROPS_STORAGE_API].set(key, value);
+      }
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
+    return result;
+  };
   const DouYinVideoFilter = {
     $key: {
       STORAGE_KEY: "dy-video-filter-rule",
@@ -5648,7 +5678,7 @@
               let $ruleName = popsPanelContentUtils.createSectionContainerItem_select(
                 ruleName_template
               );
-              let ruleValue_template = UIInput(
+              let ruleValue_template = UITextArea(
                 "属性值",
                 "ruleValue",
                 "",
@@ -5659,8 +5689,22 @@
                 PROPS_STORAGE_API,
                 generateStorageApi(data.data)
               );
-              let $ruleValue = popsPanelContentUtils.createSectionContainerItem_input(
+              let $ruleValue = popsPanelContentUtils.createSectionContainerItem_textarea(
                 ruleValue_template
+              );
+              let remarks_template = UITextArea(
+                "备注",
+                "remarks",
+                "",
+                ""
+              );
+              Reflect.set(
+                remarks_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data.data)
+              );
+              let $remarks = popsPanelContentUtils.createSectionContainerItem_textarea(
+                remarks_template
               );
               let $dynamicContainer = domUtils.createElement("div", {
                 className: "rule-form-ulist-dynamic",
@@ -5687,7 +5731,8 @@
               );
               let addDynamicElementItem = (dynamicData = {
                 ruleName: ruleNameDefaultValue,
-                ruleValue: ""
+                ruleValue: "",
+                remarks: ""
               }) => {
                 let $dynamicUListContainer = domUtils.createElement("div", {
                   className: "rule-form-ulist-dynamic__inner-container",
@@ -5737,7 +5782,7 @@
                     };
                   }),
                   void 0,
-                  "可正则，注意转义"
+                  "如果是字符串，可正则，注意转义"
                 );
                 Reflect.set(
                   dynamic_ruleName_template.props,
@@ -5747,7 +5792,7 @@
                 let $dynamic_ruleName = popsPanelContentUtils.createSectionContainerItem_select(
                   dynamic_ruleName_template
                 );
-                let dynamic_ruleValue_template = UIInput(
+                let dynamic_ruleValue_template = UITextArea(
                   "属性值",
                   "ruleValue",
                   dynamicData.ruleValue,
@@ -5758,11 +5803,26 @@
                   PROPS_STORAGE_API,
                   generateStorageApi(dynamicData)
                 );
-                let $dynamic_ruleValue = popsPanelContentUtils.createSectionContainerItem_input(
+                let $dynamic_ruleValue = popsPanelContentUtils.createSectionContainerItem_textarea(
                   dynamic_ruleValue_template
+                );
+                let dynamic_remarks_template = UITextArea(
+                  "备注",
+                  "remarks",
+                  "",
+                  ""
+                );
+                Reflect.set(
+                  dynamic_remarks_template.props,
+                  PROPS_STORAGE_API,
+                  generateStorageApi(dynamicData)
+                );
+                let $dynamic_remarks = popsPanelContentUtils.createSectionContainerItem_textarea(
+                  dynamic_remarks_template
                 );
                 $dynamicUList.appendChild($dynamic_ruleName);
                 $dynamicUList.appendChild($dynamic_ruleValue);
+                $dynamicUList.appendChild($dynamic_remarks);
                 $dynamicInner.appendChild($dynamicUListContainer);
               };
               domUtils.on($addDynamicButton, "click", (event) => {
@@ -5781,6 +5841,7 @@
                 $scope,
                 $ruleName,
                 $ruleValue,
+                $remarks,
                 $dynamicContainer
               );
               return $fragment;
@@ -5900,12 +5961,30 @@
 						align-items: flex-start;
 						padding: 5px 20px;
 					}
+					.rule-form-ulist-dynamic__inner{
+						width: 100%;
+					}
 					.rule-form-ulist-dynamic__inner-container{
 						display: flex;
 						align-items: center;
 					}
+					.dynamic-forms{
+						width: 100%;
+					}
+					.pops-panel-textarea textarea{
+						height: 60px;
+						min-height: 60px;
+						width: 250px;
+						max-width: 400px;
+						min-width: 250px;
+						resize: auto;
+						transition: unset;
+					}
                     `
-            )
+            ),
+            width: () => {
+              return window.innerWidth > 700 ? "700px" : "88vw";
+            }
           },
           delete: {
             enable: true,
@@ -5947,7 +6026,8 @@
         data: {
           scope: [],
           ruleName: "nickname",
-          ruleValue: ""
+          ruleValue: "",
+          remarks: ""
         },
         dynamicData: []
       };
