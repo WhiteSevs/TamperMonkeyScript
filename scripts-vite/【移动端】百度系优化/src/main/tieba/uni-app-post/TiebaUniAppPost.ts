@@ -49,7 +49,7 @@ export const TiebaUniAppPost = {
 		PopsPanel.execMenuOnce("baidu-tieba-uni-app-comment-item-font-size", () => {
 			return addStyle(/*css*/ `
 				.pb-rich-text{
-					font-size: .41063rem !important;
+					font-size: inherit !important;
 				}
 			`);
 		});

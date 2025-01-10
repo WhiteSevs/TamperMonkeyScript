@@ -379,11 +379,11 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 									"允许长按选择文字"
 								),
 								UISwitch(
-									"修改评论内容字体大小",
+									"修改pb-rich-text字体大小",
 									"baidu-tieba-uni-app-comment-item-font-size",
 									false,
 									void 0,
-									"大小同步为内容的大小：.41063rem"
+									"大小同步为内容的大小"
 								),
 								UIButton(
 									"评论过滤规则",

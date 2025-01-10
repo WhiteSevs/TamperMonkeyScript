@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.1.9
+// @version      2025.1.10
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -4318,11 +4318,11 @@ match-attr##srcid##sp_purc_atom
                     "允许长按选择文字"
                   ),
                   UISwitch(
-                    "修改评论内容字体大小",
+                    "修改pb-rich-text字体大小",
                     "baidu-tieba-uni-app-comment-item-font-size",
                     false,
                     void 0,
-                    "大小同步为内容的大小：.41063rem"
+                    "大小同步为内容的大小"
                   ),
                   UIButton(
                     "评论过滤规则",
@@ -14975,7 +14975,7 @@ div[class^="new-summary-container_"] {\r
           /*css*/
           `
 				.pb-rich-text{
-					font-size: .41063rem !important;
+					font-size: inherit !important;
 				}
 			`
         );
