@@ -64,6 +64,14 @@ type RuleViewOption<T> = {
 			/** 是否启用 */
 			enable: boolean;
 			/**
+			 * 添加/编辑框的宽度，注意带单位，px或%
+			 */
+			width?: () => string;
+			/**
+			 * 添加/编辑框的高度，注意带单位，px或%
+			 */
+			height?: () => string;
+			/**
 			 * <form>内的html内容
 			 */
 			getView: (data: T, isEdit: boolean) => IPromise<DocumentFragment>;
@@ -660,6 +668,8 @@ export class RuleView<T> {
 				return result;
 			},
 			style: this.option.itemControls.edit.style,
+			width: this.option.itemControls.edit.width,
+			height: this.option.itemControls.edit.height,
 		});
 		editView.showView();
 	}
