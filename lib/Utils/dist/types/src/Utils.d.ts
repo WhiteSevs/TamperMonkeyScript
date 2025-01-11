@@ -14,6 +14,7 @@ import type { UtilsAjaxHookResult } from "./types/ajaxHooker";
 import { Vue } from "./Vue";
 import { type ArgsType, type JSTypeNames, type UtilsOwnObject } from "./types/global";
 import type { WindowApiOption } from "./types/WindowApi";
+import { ModuleRaid } from "./ModuleRaid";
 declare class Utils {
     private windowApi;
     constructor(option?: WindowApiOption);
@@ -1382,8 +1383,8 @@ declare class Utils {
      * > ()=>{throw new Error('测试错误')}出现错误
      */
     tryCatch: (...args: any) => {
-        config(paramDetails: import("./types/TryCatch").UtilsTryCatchConfig): any;
-        error(handler: ((...args: any[]) => any) | string | Function): any;
+        config(paramDetails: import("./types/TryCatch").UtilsTryCatchConfig): /*elided*/ any;
+        error(handler: ((...args: any[]) => any) | string | Function): /*elided*/ any;
         run<A extends any[], R>(callback: ((...args: A) => R) | string | Function, __context__?: any): import("./types/TryCatch").UtilsTryCatchType;
     };
     /**
@@ -1815,6 +1816,7 @@ declare class Utils {
      * > "测试"
      */
     Vue: typeof Vue;
+    ModuleRaid: typeof ModuleRaid;
 }
 declare let utils: Utils;
 export { utils as Utils };

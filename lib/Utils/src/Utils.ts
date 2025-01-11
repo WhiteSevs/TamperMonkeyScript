@@ -22,6 +22,7 @@ import {
 	type UtilsOwnObject,
 } from "./types/global";
 import type { WindowApiOption } from "./types/WindowApi";
+import { ModuleRaid } from "./ModuleRaid";
 
 class Utils {
 	private windowApi: typeof WindowApi.prototype;
@@ -29,7 +30,7 @@ class Utils {
 		this.windowApi = new WindowApi(option);
 	}
 	/** 版本号 */
-	version = "2025.1.1";
+	version = "2025.1.11";
 
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
@@ -5206,6 +5207,7 @@ class Utils {
 	 * > "测试"
 	 */
 	Vue = Vue;
+	ModuleRaid = ModuleRaid;
 }
 
 let utils = new Utils();

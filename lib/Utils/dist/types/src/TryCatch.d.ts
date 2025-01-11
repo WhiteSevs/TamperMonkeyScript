@@ -5,12 +5,12 @@ export declare const TryCatch: (...args: any) => {
      * @param paramDetails 配置
      * @returns
      */
-    config(paramDetails: UtilsTryCatchConfig): any;
+    config(paramDetails: UtilsTryCatchConfig): /*elided*/ any;
     /**
      * 处理错误
      * @param handler
      */
-    error(handler: ((...args: any[]) => any) | string | Function): any;
+    error(handler: ((...args: any[]) => any) | string | Function): /*elided*/ any;
     /**
      * 执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
      * @param callback 待执行函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
