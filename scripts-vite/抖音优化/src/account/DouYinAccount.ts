@@ -12,7 +12,8 @@ export const DouYinAccount = {
 	disguiseLogin() {
 		log.info("伪装登录");
 		const WAIT_TIME = 20000;
-		let uid = parseInt((Math.random() * 1000000).toString());
+		// let uid = parseInt((Math.random() * 1000000).toString());
+		let uid = 996996;
 		let notChangeInfoUid = Object.defineProperty({}, "uid", {
 			value: uid,
 			writable: false,
@@ -83,6 +84,8 @@ export const DouYinAccount = {
 						subtree: true,
 						childList: true,
 					},
+
+					immediate: true,
 					callback: () => {
 						lockFn.run();
 					},
