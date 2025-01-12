@@ -21,7 +21,9 @@ export const MDouYinRouter = {
 	 */
 	isShareVideo() {
 		return (
-			this.isMDouYin() && window.location.pathname.startsWith("/share/video/")
+			this.isMDouYin() &&
+			(window.location.pathname.startsWith("/share/video/") ||
+				window.location.pathname.startsWith("/shipin/"))
 		);
 	},
 	/**
