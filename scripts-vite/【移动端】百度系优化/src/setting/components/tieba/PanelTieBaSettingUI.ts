@@ -1,5 +1,5 @@
 import { TieBaApi } from "@/main/tieba/api/TiebaApi";
-import { utils } from "@/env";
+import { log, utils } from "@/env";
 import { BaiduRouter } from "@/router/BaiduRouter";
 import { UIButton } from "@/setting/common-components/ui-button";
 import { UISwitch } from "@/setting/common-components/ui-switch";
@@ -560,7 +560,7 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 										);
 										for (let index = 0; index < likeForumList.length; index++) {
 											if (isStop) {
-												Qmsg.info("中断");
+												Qmsg.info("中止执行签到");
 												return;
 											}
 											let linkForumInfo = likeForumList[index];
@@ -577,21 +577,21 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 												linkForumInfo.tbs
 											);
 											if (!signResult) {
-												Qmsg.info("2秒后切换至下一个");
-												await utils.sleep(2000);
-												continue;
-											}
-											if (typeof signResult["data"] === "object") {
-												loading.setHTML(
-													getSignInfoHTML(
-														index + 1,
-														likeForumList.length,
-														linkForumInfo.forumName,
-														`今日本吧第${signResult["data"]["finfo"]["current_rank_info"]["sign_count"]}个签到`
-													)
-												);
+												Qmsg.warning("执行签到异常");
+												log.error(signResult);
 											} else {
-												Qmsg.error(signResult["error"] as string);
+												if (typeof signResult["data"] === "object") {
+													loading.setHTML(
+														getSignInfoHTML(
+															index + 1,
+															likeForumList.length,
+															linkForumInfo.forumName,
+															`今日本吧第${signResult["data"]["finfo"]["current_rank_info"]["sign_count"]}个签到`
+														)
+													);
+												} else {
+													Qmsg.error(signResult["error"] as string);
+												}
 											}
 											Qmsg.info("2秒后切换至下一个");
 											await utils.sleep(2000);
