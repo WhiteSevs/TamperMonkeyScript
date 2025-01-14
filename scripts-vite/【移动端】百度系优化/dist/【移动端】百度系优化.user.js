@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.1.10
+// @version      2025.1.14
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/488179/1413254/showdown.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
@@ -24,7 +24,7 @@
 // @require      https://fastly.jsdelivr.net/npm/vue-router@4.5.0/dist/vue-router.global.js
 // @require      https://update.greasyfork.org/scripts/495227/1503382/Element-Plus.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
-// @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.9.1/dist/index.min.css
+// @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.9.3/dist/index.min.css
 // @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      *
 // @connect      www.baidu.com
@@ -58,15 +58,15 @@
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var _a2;
-  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : undefined)();
+  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : undefined)();
+  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : undefined)();
+  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : undefined)();
+  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : undefined)();
+  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : undefined)();
+  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : undefined)();
+  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : undefined)();
+  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : undefined)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
   const BaiduRouter = {
     /**
@@ -415,7 +415,7 @@
         outSideClassName: "whitesev-load-view-icon-outside",
         withInClassName: "whitesev-load-view-icon-within"
       };
-      this.loadingViewElement = void 0;
+      this.loadingViewElement = undefined;
       this.loadingViewHTML = /*html*/
       `
         <div class="${this.config.className}">
@@ -623,7 +623,7 @@
         }
         iconElement.style.display = "";
       } else {
-        (_a3 = this.getIconElement()) == null ? void 0 : _a3.remove();
+        (_a3 = this.getIconElement()) == null ? undefined : _a3.remove();
       }
     }
     /**
@@ -638,7 +638,7 @@
      */
     destory() {
       var _a3;
-      (_a3 = this.getLoadingViewElement()) == null ? void 0 : _a3.remove();
+      (_a3 = this.getLoadingViewElement()) == null ? undefined : _a3.remove();
       this.setLoadingViewElement();
     }
     /**
@@ -845,7 +845,7 @@ match-attr##srcid##sp_purc_atom
             return true;
           }
         } else if (ruleItem.mode === "match-attr") {
-          if (element.hasAttribute(ruleItem.attr) && ((_a3 = element.getAttribute(ruleItem.attr)) == null ? void 0 : _a3.match(ruleItem.matchText))) {
+          if (element.hasAttribute(ruleItem.attr) && ((_a3 = element.getAttribute(ruleItem.attr)) == null ? undefined : _a3.match(ruleItem.matchText))) {
             return true;
           }
         } else if (ruleItem.mode === "contains-child") {
@@ -853,7 +853,7 @@ match-attr##srcid##sp_purc_atom
             return true;
           }
         } else if (ruleItem.mode === "remove-child") {
-          (_b = element.querySelector(ruleItem["matchText"])) == null ? void 0 : _b.remove();
+          (_b = element.querySelector(ruleItem["matchText"])) == null ? undefined : _b.remove();
         }
       }
       for (const ruleItem of this.rule) {
@@ -971,7 +971,7 @@ match-attr##srcid##sp_purc_atom
                     "自动跳转至原网页",
                     "baidu-search-video-autoJumpToOriginUrl",
                     false,
-                    void 0,
+                    undefined,
                     "自动点击【原网页】进行跳转"
                   )
                 ]
@@ -984,7 +984,7 @@ match-attr##srcid##sp_purc_atom
                     "【屏蔽】底部推荐视频",
                     "baidu-search-video-blockBottomRecommendVideo",
                     false,
-                    void 0,
+                    undefined,
                     "屏蔽元素"
                   )
                 ]
@@ -1009,7 +1009,7 @@ match-attr##srcid##sp_purc_atom
                     "isBaiduBox",
                     "baidu_search_vsearch-isBaiduBox",
                     true,
-                    void 0,
+                    undefined,
                     ""
                   )
                 ]
@@ -1056,28 +1056,28 @@ match-attr##srcid##sp_purc_atom
                     "禁止自动播放视频",
                     "baidu-search-blockAutomaticVideoPlayback",
                     false,
-                    void 0,
+                    undefined,
                     "移除video-player元素，可能会导致某些第一个结果是智能卡片时，点击更多按钮无反应(webview/Safari)"
                   ),
                   UISwitch(
                     "处理搜索结果",
                     "baidu_search_handle_search_result",
                     true,
-                    void 0,
+                    undefined,
                     "将百度重定向链接替换为真实地址(存在就替换，不存在的话保持原样)"
                   ),
                   UISwitch(
                     "重定向顶部的链接",
                     "baidu_search_redirect_top_link",
                     true,
-                    void 0,
+                    undefined,
                     "如全部、视频、图片、贴吧、咨询..."
                   ),
                   UISwitch(
                     "重构百度搜索",
                     "baidu_search_refactoring_input_boxes",
                     true,
-                    void 0,
+                    undefined,
                     "重构顶部的输入框、百度一下按钮、搜索建议框，可不出现百度App提示"
                   ),
                   UISwitch(
@@ -1139,14 +1139,14 @@ match-attr##srcid##sp_purc_atom
                     "【优化】大家还在搜",
                     "baidu_search_refactor_everyone_is_still_searching",
                     true,
-                    void 0,
+                    undefined,
                     "正确新标签页打开，避免跳转至App下载页面"
                   ),
                   UISwitch(
                     "新标签页打开",
                     "baidu_search_hijack__onClick_to_blank",
                     false,
-                    void 0,
+                    undefined,
                     "需开启【劫持-_onClick函数】和【处理搜索结果】且能成功劫持到该函数才会生效，否则是提取article的URL链接信息跳转"
                   )
                 ]
@@ -1159,14 +1159,14 @@ match-attr##srcid##sp_purc_atom
                     "启用",
                     "baidu-search-global-searchToolBar",
                     false,
-                    void 0,
+                    undefined,
                     "开启后将在页面右下角添加搜索按钮用于搜索"
                   ),
                   UISwitch(
                     "手势返回关闭搜索框",
                     "baidu-search-global-searchToolBar-gesture-back",
                     true,
-                    void 0,
+                    undefined,
                     "让网页后退触发关闭搜索建议框"
                   )
                 ]
@@ -1185,14 +1185,14 @@ match-attr##srcid##sp_purc_atom
                     "【屏蔽】大家还在搜",
                     "baidu_search_blocking_everyone_is_still_searching",
                     true,
-                    void 0,
+                    undefined,
                     "用于补充下面自定义拦截规则的默认配置的【大家还在搜】"
                   ),
                   UISwitch(
                     "【屏蔽】精选笔记",
                     "baidu-search-blockNoteLead",
                     false,
-                    void 0,
+                    undefined,
                     "屏蔽 精选笔记 搜素结果"
                   )
                 ]
@@ -1211,35 +1211,35 @@ match-attr##srcid##sp_purc_atom
                     "劫持-复制",
                     "baidu_search_hijack_copy",
                     true,
-                    void 0,
+                    undefined,
                     "阻止百度复制xxx到剪贴板"
                   ),
                   UISwitch(
                     "劫持-Scheme唤醒App",
                     "baidu_search_hijack_scheme",
                     true,
-                    void 0,
+                    undefined,
                     "阻止唤醒调用App"
                   ),
                   UISwitch(
                     "劫持-OpenBox函数",
                     "baidu_search_hijack_openbox",
                     true,
-                    void 0,
+                    undefined,
                     "优化搜索结果跳转"
                   ),
                   UISwitch(
                     "劫持-_onClick函数",
                     "baidu_search_hijack__onClick",
                     true,
-                    void 0,
+                    undefined,
                     "优化搜索结果跳转"
                   ),
                   UISwitch(
                     "劫持-setTimeout",
                     "baidu_search_hijack_setTimeout",
                     true,
-                    void 0,
+                    undefined,
                     "可阻止获取定位、视频播放"
                   )
                 ]
@@ -1258,17 +1258,17 @@ match-attr##srcid##sp_purc_atom
                     "启用默认拦截规则",
                     "baidu-search-enable-default-interception-rules",
                     true,
-                    void 0,
+                    undefined,
                     "默认拦截规则"
                   ),
                   {
                     type: "own",
                     afterAddToUListCallBack(formConfig, rightContainerOptions) {
                       var _a3;
-                      let $searchShield = (_a3 = rightContainerOptions == null ? void 0 : rightContainerOptions.formHeaderDivElement) == null ? void 0 : _a3.querySelector(
+                      let $searchShield = (_a3 = rightContainerOptions == null ? undefined : rightContainerOptions.formHeaderDivElement) == null ? undefined : _a3.querySelector(
                         "a.baidu-search-shield-css-reset"
                       );
-                      domutils.on($searchShield, "click", void 0, () => {
+                      domutils.on($searchShield, "click", undefined, () => {
                         BaiduSearchBlockRule.clearLocalRule();
                         let $textArea = rightContainerOptions.ulElement.querySelector(
                           "textarea"
@@ -1303,7 +1303,7 @@ match-attr##srcid##sp_purc_atom
                       domutils.on(
                         $textArea,
                         ["input", "propertychange"],
-                        void 0,
+                        undefined,
                         utils.debounce(function() {
                           BaiduSearchBlockRule.setLocalRule($textArea.value);
                         }, 100)
@@ -1353,7 +1353,7 @@ match-attr##srcid##sp_purc_atom
                       domutils.on(
                         $textArea,
                         ["input", "propertychange"],
-                        void 0,
+                        undefined,
                         utils.debounce(function() {
                           PopsPanel.setValue(
                             "baidu-search-user-style",
@@ -1419,14 +1419,14 @@ match-attr##srcid##sp_purc_atom
                     "劫持-唤醒App",
                     "baijiahao_hijack_wakeup",
                     true,
-                    void 0,
+                    undefined,
                     "阻止唤醒调用App"
                   ),
                   UISwitch(
                     "劫持-iframe唤醒App",
                     "baidu_baijiahao_hijack_iframe",
                     true,
-                    void 0,
+                    undefined,
                     "阻止唤醒调用App"
                   ),
                   UISwitch(
@@ -1477,7 +1477,7 @@ match-attr##srcid##sp_purc_atom
                     "伪装成lite baiduboxapp",
                     "baidu_mbd_camouflage_lite_baiduboxapp",
                     true,
-                    void 0,
+                    undefined,
                     "可以优化浏览体验"
                   )
                 ]
@@ -1490,21 +1490,21 @@ match-attr##srcid##sp_purc_atom
                     "拦截-唤醒App",
                     "baidu_mbd_hijack_wakeup",
                     true,
-                    void 0,
+                    undefined,
                     "阻止唤醒调用App"
                   ),
                   UISwitch(
                     "拦截-iframe唤醒App",
                     "baidu_mbd_hijack_iframe",
                     true,
-                    void 0,
+                    undefined,
                     "阻止唤醒调用App"
                   ),
                   UISwitch(
                     "劫持-BoxJSBefore函数",
                     "baidu_mbd_hijack_BoxJSBefore",
                     true,
-                    void 0,
+                    undefined,
                     "阻止唤醒调用App"
                   )
                 ]
@@ -2101,11 +2101,11 @@ match-attr##srcid##sp_purc_atom
                     white-space: nowrap;
                 }
 
-                ${((_a3 = this.option) == null ? void 0 : _a3.style) ?? ""}
+                ${((_a3 = this.option) == null ? undefined : _a3.style) ?? ""}
             `
         ),
-        width: window.innerWidth > 500 ? "500px" : "88vw",
-        height: window.innerHeight > 500 ? "500px" : "80vh"
+        width: typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
+        height: typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh"
       });
       let $form = $dialog.$shadowRoot.querySelector(
         ".rule-form-container"
@@ -2242,7 +2242,7 @@ match-attr##srcid##sp_purc_atom
           reverse: false,
           position: "space-between",
           ok: {
-            enable: ((_c = (_b = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b.add) == null ? void 0 : _c.enable) || true,
+            enable: ((_c = (_b = (_a3 = this.option) == null ? undefined : _a3.bottomControls) == null ? undefined : _b.add) == null ? undefined : _c.enable) || true,
             type: "primary",
             text: "添加",
             callback: async (event) => {
@@ -2260,12 +2260,12 @@ match-attr##srcid##sp_purc_atom
             }
           },
           cancel: {
-            enable: ((_f = (_e = (_d = this.option) == null ? void 0 : _d.bottomControls) == null ? void 0 : _e.filter) == null ? void 0 : _f.enable) || false,
+            enable: ((_f = (_e = (_d = this.option) == null ? undefined : _d.bottomControls) == null ? undefined : _e.filter) == null ? undefined : _f.enable) || false,
             type: "default",
             text: "过滤",
             callback: (details, event) => {
               var _a4, _b2, _c2, _d2, _e2, _f2, _g2;
-              if (typeof ((_c2 = (_b2 = (_a4 = this.option) == null ? void 0 : _a4.bottomControls) == null ? void 0 : _b2.filter) == null ? void 0 : _c2.callback) === "function") {
+              if (typeof ((_c2 = (_b2 = (_a4 = this.option) == null ? undefined : _a4.bottomControls) == null ? undefined : _b2.filter) == null ? undefined : _c2.callback) === "function") {
                 this.option.bottomControls.filter.callback();
               }
               let getAllRuleElement = () => {
@@ -2283,8 +2283,8 @@ match-attr##srcid##sp_purc_atom
                 domutils.text($button, "过滤");
               } else {
                 let ruleFilterView = new RuleFilterView({
-                  title: ((_e2 = (_d2 = this.option.bottomControls) == null ? void 0 : _d2.filter) == null ? void 0 : _e2.title) ?? "过滤规则",
-                  filterOption: ((_g2 = (_f2 = this.option.bottomControls) == null ? void 0 : _f2.filter) == null ? void 0 : _g2.option) || [],
+                  title: ((_e2 = (_d2 = this.option.bottomControls) == null ? undefined : _d2.filter) == null ? undefined : _e2.title) ?? "过滤规则",
+                  filterOption: ((_g2 = (_f2 = this.option.bottomControls) == null ? undefined : _f2.filter) == null ? undefined : _g2.option) || [],
                   execFilterCallBack() {
                     domutils.text($button, "取消过滤");
                   },
@@ -2302,7 +2302,7 @@ match-attr##srcid##sp_purc_atom
             }
           },
           other: {
-            enable: ((_i = (_h = (_g = this.option) == null ? void 0 : _g.bottomControls) == null ? void 0 : _h.clear) == null ? void 0 : _i.enable) || true,
+            enable: ((_i = (_h = (_g = this.option) == null ? undefined : _g.bottomControls) == null ? undefined : _h.clear) == null ? undefined : _i.enable) || true,
             type: "xiaomi-primary",
             text: `清空所有(${(await this.option.data()).length})`,
             callback: (event) => {
@@ -2321,7 +2321,7 @@ match-attr##srcid##sp_purc_atom
                     callback: async (popsEvent) => {
                       var _a4, _b2, _c2;
                       log.success("清空所有");
-                      if (typeof ((_c2 = (_b2 = (_a4 = this.option) == null ? void 0 : _a4.bottomControls) == null ? void 0 : _b2.clear) == null ? void 0 : _c2.callback) === "function") {
+                      if (typeof ((_c2 = (_b2 = (_a4 = this.option) == null ? undefined : _a4.bottomControls) == null ? undefined : _b2.clear) == null ? undefined : _c2.callback) === "function") {
                         this.option.bottomControls.clear.callback();
                       }
                       let data = await this.option.data();
@@ -2707,7 +2707,9 @@ match-attr##srcid##sp_purc_atom
           }
           return result;
         },
-        style: this.option.itemControls.edit.style
+        style: this.option.itemControls.edit.style,
+        width: this.option.itemControls.edit.width,
+        height: this.option.itemControls.edit.height
       });
       editView.showView();
     }
@@ -2817,7 +2819,7 @@ match-attr##srcid##sp_purc_atom
       return new Promise((resolve) => {
         VueUtils.waitVuePropToSet($target, {
           check(vueInstance) {
-            return typeof (vueInstance == null ? void 0 : vueInstance.$watch) === "function";
+            return typeof (vueInstance == null ? undefined : vueInstance.$watch) === "function";
           },
           set(vueInstance) {
             let removeWatch = null;
@@ -2951,7 +2953,7 @@ match-attr##srcid##sp_purc_atom
           if (!vueIns) {
             return;
           }
-          const sectionData = vueIns == null ? void 0 : vueIns.sectionData;
+          const sectionData = vueIns == null ? undefined : vueIns.sectionData;
           if (!Array.isArray(sectionData)) {
             return;
           }
@@ -2959,13 +2961,13 @@ match-attr##srcid##sp_purc_atom
             const commentInfo = sectionData[sectionDataIndex];
             const commentData = {
               /** 用户id */
-              author_id: ((commentInfo == null ? void 0 : commentInfo.author_id) || ((_a3 = commentInfo == null ? void 0 : commentInfo.author) == null ? void 0 : _a3.id)).toString(),
+              author_id: ((commentInfo == null ? undefined : commentInfo.author_id) || ((_a3 = commentInfo == null ? undefined : commentInfo.author) == null ? undefined : _a3.id)).toString(),
               /** 用户显示的名字 */
-              nameShow: (_b = commentInfo == null ? void 0 : commentInfo.author) == null ? void 0 : _b.name_show,
+              nameShow: (_b = commentInfo == null ? undefined : commentInfo.author) == null ? undefined : _b.name_show,
               /** 用户发布的内容 */
               content: "",
               /** 楼层 */
-              floor: commentInfo == null ? void 0 : commentInfo.floor
+              floor: commentInfo == null ? undefined : commentInfo.floor
             };
             if (Array.isArray(commentInfo.content)) {
               commentInfo.content.forEach((item) => {
@@ -3088,7 +3090,7 @@ match-attr##srcid##sp_purc_atom
                 "name",
                 "",
                 "",
-                void 0,
+                undefined,
                 "必填"
               );
               Reflect.set(
@@ -3104,7 +3106,7 @@ match-attr##srcid##sp_purc_atom
                 "author_id",
                 "",
                 "",
-                void 0,
+                undefined,
                 "完全匹配"
               );
               Reflect.set(
@@ -3120,7 +3122,7 @@ match-attr##srcid##sp_purc_atom
                 "author_nameShow",
                 "",
                 "",
-                void 0,
+                undefined,
                 "可正则，注意转义"
               );
               Reflect.set(
@@ -3475,7 +3477,7 @@ match-attr##srcid##sp_purc_atom
                 "name",
                 "",
                 templateData.name,
-                void 0,
+                undefined,
                 "必填"
               );
               Reflect.set(
@@ -3517,7 +3519,7 @@ match-attr##srcid##sp_purc_atom
                 "是否显示标签图标",
                 "isShowDisplayIcon",
                 templateData.data.isShowDisplayIcon,
-                void 0,
+                undefined,
                 ""
               );
               Reflect.set(
@@ -3547,7 +3549,7 @@ match-attr##srcid##sp_purc_atom
                 "keywords",
                 "",
                 "用于匹配发布的帖子的标题、内容",
-                void 0,
+                undefined,
                 "多个关键词换行"
               );
               Reflect.set(keywords_template.props, PROPS_STORAGE_API, {
@@ -3573,7 +3575,7 @@ match-attr##srcid##sp_purc_atom
                 "followings",
                 "",
                 "",
-                void 0,
+                undefined,
                 "多个用户portrait换行"
               );
               Reflect.set(followings_template.props, PROPS_STORAGE_API, {
@@ -3599,7 +3601,7 @@ match-attr##srcid##sp_purc_atom
                 "followingForums",
                 "",
                 "",
-                void 0,
+                undefined,
                 "多个吧名换行"
               );
               Reflect.set(followingForums_template.props, PROPS_STORAGE_API, {
@@ -3625,7 +3627,7 @@ match-attr##srcid##sp_purc_atom
                 "blacklist",
                 "",
                 "",
-                void 0,
+                undefined,
                 "多个用户id/portrait换行"
               );
               Reflect.set(blacklist_template.props, PROPS_STORAGE_API, {
@@ -3887,7 +3889,7 @@ match-attr##srcid##sp_purc_atom
         });
         domutils.on($input, ["propertychange", "input"], (event2) => {
           var _a3;
-          if (!((_a3 = $input.files) == null ? void 0 : _a3.length)) {
+          if (!((_a3 = $input.files) == null ? undefined : _a3.length)) {
             return;
           }
           let uploadFile = $input.files[0];
@@ -3974,7 +3976,7 @@ match-attr##srcid##sp_purc_atom
                     "新标签页打开",
                     "baidu_tieba_index_openANewTab",
                     false,
-                    void 0,
+                    undefined,
                     "新标签页打开帖子"
                   )
                 ]
@@ -3987,7 +3989,7 @@ match-attr##srcid##sp_purc_atom
                     "启用",
                     "baidu_tieba_index_add_msgtab",
                     true,
-                    void 0,
+                    undefined,
                     "新增【消息】按钮入口，可查看当前已登录账号的点赞、回复、@用户"
                   ),
                   UIInput(
@@ -4012,14 +4014,14 @@ match-attr##srcid##sp_purc_atom
                     "重定向xx吧跳转",
                     "baidu_tieba_topic_redirect_jump",
                     true,
-                    void 0,
+                    undefined,
                     "点击帖子直接跳转"
                   ),
                   UISwitch(
                     "新标签页打开",
                     "baidu_tieba_topic_openANewTab",
                     false,
-                    void 0,
+                    undefined,
                     "新标签页打开帖子"
                   )
                 ]
@@ -4038,26 +4040,26 @@ match-attr##srcid##sp_purc_atom
                     "覆盖openApp函数",
                     "tieba-hot-topic-coverOpenApp",
                     true,
-                    void 0,
+                    undefined,
                     "用于阻止唤醒App"
                   ),
                   UISwitch(
                     "设置isTiebaApp为true",
                     "tieba-hot-topic-isTiebaApp",
                     true,
-                    void 0
+                    undefined
                   ),
                   UISwitch(
                     "设置isHarmony为true",
                     "tieba-hot-topic-isHarmony",
                     true,
-                    void 0
+                    undefined
                   ),
                   UISwitch(
                     "新标签页打开",
                     "tieba-hot-topic-openBlank",
                     false,
-                    void 0,
+                    undefined,
                     "新标签页打开帖子"
                   )
                 ]
@@ -4076,7 +4078,7 @@ match-attr##srcid##sp_purc_atom
                     "新标签页打开",
                     "baidu_tieba_hybrid_search_openANewTab",
                     false,
-                    void 0,
+                    undefined,
                     "新标签页打开帖子"
                   )
                 ]
@@ -4095,28 +4097,28 @@ match-attr##srcid##sp_purc_atom
                     "记住当前选择的看帖排序",
                     "baidu_tieba_remember_user_post_sort",
                     true,
-                    void 0,
+                    undefined,
                     "记住选择的发布/回复"
                   ),
                   UISwitch(
                     "过滤重复帖子",
                     "baidu_tieba_filterDuplicatePosts",
                     false,
-                    void 0,
+                    undefined,
                     "过滤掉重复id的帖"
                   ),
                   UISwitch(
                     "解除签到限制",
                     "baidu_tieba_removeForumSignInLimit",
                     true,
-                    void 0,
+                    undefined,
                     "在登录情况下可点击签到"
                   ),
                   UISwitch(
                     "新标签页打开",
                     "baidu_tieba_openANewTab",
                     false,
-                    void 0,
+                    undefined,
                     "新标签页打开帖子"
                   )
                 ]
@@ -4224,42 +4226,42 @@ match-attr##srcid##sp_purc_atom
                     "阻止.wake-up的点击事件",
                     "baidu-tieba-uni-app-post-preventWakeApp",
                     true,
-                    void 0,
+                    undefined,
                     "阻止点击唤醒App"
                   ),
                   UISwitch(
                     "覆盖【打开App查看更多评论】",
                     "baidu-tieba-uni-app-post-overloadLoadMore",
                     true,
-                    void 0,
+                    undefined,
                     "该文字可直接点击并加载更多评论且新增滚动自动加载更多评论"
                   ),
                   UISwitch(
                     "修复帖内主内容的图片列表中的推荐帖子跳转",
                     "baidu-tieba-uni-app-post-repairPicGuideThreadWrapper",
                     true,
-                    void 0,
+                    undefined,
                     "帖内主内容的图片右滑到最后一个时会出现推荐帖子，点击会正常跳转到该帖"
                   ),
                   UISwitch(
                     "修复点击进入用户主页",
                     "baidu-tieba-uni-app-post-repairClickToUserHome",
                     true,
-                    void 0,
+                    undefined,
                     "包括用户头像、用户名"
                   ),
                   UISwitch(
                     "记住评论排序",
                     "baidu-tieba-uni-app-post-rememberChooseSeeCommentSort",
                     true,
-                    void 0,
+                    undefined,
                     "记住当前选择评论的排序，如热门、正序、倒序"
                   ),
                   UISwitch(
                     "评论去重",
                     "baidu-tieba-uni-app-post-filterDuplicateComments",
                     true,
-                    void 0,
+                    undefined,
                     "加载评论时会有重复的评论出现，启用该功能可过滤掉"
                   ),
                   UISwitch(
@@ -4279,56 +4281,56 @@ match-attr##srcid##sp_purc_atom
                     "优化图片点击预览",
                     "baidu_tieba_optimize_image_preview",
                     true,
-                    void 0,
+                    undefined,
                     "使用Viewer查看图片"
                   ),
                   UISwitch(
                     "图片预览手势返回",
                     "baidu-tieba-uni-app-post-optimizationImagePreviewBackGestureReturn",
                     false,
-                    void 0,
+                    undefined,
                     "使浏览器后退变成退出图片预览模式"
                   ),
                   UISwitch(
                     "新增滚动到顶部按钮",
                     "baidu-tieba-uni-app-post-addScrollTopButtonInForum",
                     true,
-                    void 0,
+                    undefined,
                     "向下滚动的距离>页面高度*2就会出现按钮"
                   ),
                   UISwitch(
                     "屏蔽机器人",
                     "baidu-tieba-uni-app-post-blockTieBaRobot",
                     true,
-                    void 0,
+                    undefined,
                     "屏蔽【贴吧包打听】机器人，回答的评论都是牛头不对马嘴的"
                   ),
                   UISwitch(
                     "修复超链接跳转",
                     "baidu-tieba-uni-app-post-repairAnchorLink",
                     true,
-                    void 0,
+                    undefined,
                     "可修复蓝色的超链接点击不能跳转网页的问题"
                   ),
                   UISwitch(
                     "解除长按选中文字的限制",
                     "baidu-tieba-uni-app-post-allow-user-select",
                     true,
-                    void 0,
+                    undefined,
                     "允许长按选择文字"
                   ),
                   UISwitch(
                     "修改pb-rich-text字体大小",
                     "baidu-tieba-uni-app-comment-item-font-size",
                     false,
-                    void 0,
+                    undefined,
                     "大小同步为内容的大小"
                   ),
                   UIButton(
                     "评论过滤规则",
                     "可过滤评论",
                     "自定义",
-                    void 0,
+                    undefined,
                     false,
                     false,
                     "primary",
@@ -4365,14 +4367,14 @@ match-attr##srcid##sp_purc_atom
                     "启用",
                     "baidu-tieba-componentDetection",
                     true,
-                    void 0,
+                    undefined,
                     "启用后可检测用户的成分信息"
                   ),
                   UIButton(
                     "自定义规则",
                     "检测用户成分的规则",
                     "管理",
-                    void 0,
+                    undefined,
                     false,
                     false,
                     "primary",
@@ -4390,7 +4392,7 @@ match-attr##srcid##sp_purc_atom
                     "数据导入",
                     "导入自定义规则数据",
                     "导入",
-                    void 0,
+                    undefined,
                     false,
                     false,
                     "primary",
@@ -4402,7 +4404,7 @@ match-attr##srcid##sp_purc_atom
                     "数据导出",
                     "导出自定义规则数据",
                     "导出",
-                    void 0,
+                    undefined,
                     false,
                     false,
                     "primary",
@@ -4432,10 +4434,10 @@ match-attr##srcid##sp_purc_atom
                 forms: [
                   UIButton(
                     "签到所有关注的吧",
-                    void 0,
+                    undefined,
                     "签到",
-                    void 0,
-                    void 0,
+                    undefined,
+                    undefined,
                     false,
                     "default",
                     async () => {
@@ -4488,7 +4490,7 @@ match-attr##srcid##sp_purc_atom
                       );
                       for (let index = 0; index < likeForumList.length; index++) {
                         if (isStop) {
-                          Qmsg.info("中断");
+                          Qmsg.info("中止执行签到");
                           return;
                         }
                         let linkForumInfo = likeForumList[index];
@@ -4505,21 +4507,21 @@ match-attr##srcid##sp_purc_atom
                           linkForumInfo.tbs
                         );
                         if (!signResult) {
-                          Qmsg.info("2秒后切换至下一个");
-                          await utils.sleep(2e3);
-                          continue;
-                        }
-                        if (typeof signResult["data"] === "object") {
-                          loading.setHTML(
-                            getSignInfoHTML(
-                              index + 1,
-                              likeForumList.length,
-                              linkForumInfo.forumName,
-                              `今日本吧第${signResult["data"]["finfo"]["current_rank_info"]["sign_count"]}个签到`
-                            )
-                          );
+                          Qmsg.warning("执行签到异常");
+                          log.error(signResult);
                         } else {
-                          Qmsg.error(signResult["error"]);
+                          if (typeof signResult["data"] === "object") {
+                            loading.setHTML(
+                              getSignInfoHTML(
+                                index + 1,
+                                likeForumList.length,
+                                linkForumInfo.forumName,
+                                `今日本吧第${signResult["data"]["finfo"]["current_rank_info"]["sign_count"]}个签到`
+                              )
+                            );
+                          } else {
+                            Qmsg.error(signResult["error"]);
+                          }
                         }
                         Qmsg.info("2秒后切换至下一个");
                         await utils.sleep(2e3);
@@ -4544,21 +4546,21 @@ match-attr##srcid##sp_purc_atom
                     "检测骨架屏",
                     "baidu_tieba_checkSkeleton",
                     true,
-                    void 0,
+                    undefined,
                     "当页面加载完毕后检测到还是骨架屏，将会自动刷新页面"
                   ),
                   UISwitch(
                     "自动重定向至主域名",
                     "baidu_tieba_autoJumpToMainHost",
                     false,
-                    void 0,
+                    undefined,
                     "域名为nba.baidu.com、static.tieba.baidu.com...等时自动重定向至tieba.baidu.com"
                   ),
                   UISwitch(
                     "自动跳转链接",
                     "baidu-tieba-checkUrl-autoJumpUrl",
                     true,
-                    void 0,
+                    undefined,
                     "在链接验证页面自动跳转链接"
                   )
                 ]
@@ -4577,21 +4579,21 @@ match-attr##srcid##sp_purc_atom
                     "启用",
                     "baidu_tieba_add_search",
                     true,
-                    void 0,
+                    undefined,
                     "在贴内和吧内右上角添加搜索按钮"
                   ),
                   UISwitch(
                     "获取详细信息",
                     "baidu_tieba_search_opt_user_info",
                     true,
-                    void 0,
+                    undefined,
                     "将搜索结果的【用户名/头像】替换成请求获取的【用户名/头像】"
                   ),
                   UISwitch(
                     "使用【搜索综合】",
                     "baidu_tieba_use_hybrid_search",
                     false,
-                    void 0,
+                    undefined,
                     "使用贴吧移动端的搜索功能"
                   ),
                   UISwitch(
@@ -4628,7 +4630,7 @@ match-attr##srcid##sp_purc_atom
                     "【屏蔽】评论输入框",
                     "baidu-tieba-blockCommentInput",
                     false,
-                    void 0,
+                    undefined,
                     "屏蔽元素"
                   )
                 ]
@@ -4647,14 +4649,14 @@ match-attr##srcid##sp_purc_atom
                     "劫持-唤醒App",
                     "baidu_tieba_hijack_wake_up",
                     false,
-                    void 0,
+                    undefined,
                     "阻止唤醒调用App"
                   ),
                   UISwitch(
                     "伪装客户端已调用",
                     "baidu_tieba_clientCallMasquerade",
                     true,
-                    void 0,
+                    undefined,
                     "阻止弹窗"
                   )
                 ]
@@ -4693,7 +4695,7 @@ match-attr##srcid##sp_purc_atom
             "【屏蔽】文档助手",
             "baidu_wenku_blockDocumentAssistant",
             false,
-            void 0,
+            undefined,
             "右下角的悬浮按钮"
           )
         ]
@@ -4749,56 +4751,56 @@ match-attr##srcid##sp_purc_atom
                     "isBox",
                     "baidu-baike-Box-isBox",
                     true,
-                    void 0,
+                    undefined,
                     "Box.isBox和Box.$isBox强制返回true"
                   ),
                   UISwitch(
                     "isLiteBox",
                     "baidu-baike-Box-isLiteBox",
                     false,
-                    void 0,
+                    undefined,
                     "Box.isLiteBox和Box.$isLiteBox强制返回true"
                   ),
                   UISwitch(
                     "isInfoBox",
                     "baidu-baike-Box-isInfoBox",
                     false,
-                    void 0,
+                    undefined,
                     "Box.isInfoBox和Box.$isInfoBox强制返回true"
                   ),
                   UISwitch(
                     "isIOS",
                     "baidu-baike-Box-isIOS",
                     false,
-                    void 0,
+                    undefined,
                     "Box.isIOS和Box.$isIOS强制返回true"
                   ),
                   UISwitch(
                     "isAndroid",
                     "baidu-baike-Box-isAndroid",
                     false,
-                    void 0,
+                    undefined,
                     "Box.isAndroid和Box.$isAndroid强制返回true"
                   ),
                   UISwitch(
                     "android.invokeApp",
                     "baidu-baike-Box-android.invokeApp",
                     true,
-                    void 0,
+                    undefined,
                     "Box.android.invokeApp()置空"
                   ),
                   UISwitch(
                     "android.invokeLiteApp",
                     "baidu-baike-Box-android.invokeLiteApp",
                     true,
-                    void 0,
+                    undefined,
                     "Box.android.invokeLiteApp()置空"
                   ),
                   UISwitch(
                     "ios.invokeApp",
                     "baidu-baike-Box-ios.invokeApp",
                     true,
-                    void 0,
+                    undefined,
                     "Box.ios.invokeApp()置空"
                   )
                 ]
@@ -4941,21 +4943,21 @@ match-attr##srcid##sp_purc_atom
             "劫持Element.appendChild",
             "baidu_map_hijack-element-appendChild",
             true,
-            void 0,
+            undefined,
             "阻止唤醒调用App"
           ),
           UISwitch(
             "劫持$.append",
             "baidu_map_hijack-jQuery-append",
             true,
-            void 0,
+            undefined,
             "阻止唤醒调用App"
           ),
           UISwitch(
             "劫持setTimeout",
             "baidu_map_hijack-setTimeout",
             true,
-            void 0,
+            undefined,
             "阻止唤醒调用App和剪贴板复制"
           )
         ]
@@ -5030,7 +5032,7 @@ match-attr##srcid##sp_purc_atom
             "拦截-唤醒App",
             "baidu_haokan_hijack_wakeup",
             true,
-            void 0,
+            undefined,
             "阻止唤醒调用App"
           )
         ]
@@ -5054,28 +5056,28 @@ match-attr##srcid##sp_purc_atom
             "【重构】识图一下",
             "baidu-graph-repairHomeRecognitionPicture",
             true,
-            void 0,
+            undefined,
             "重构主页的识图一下，就可以直接点击上传图片进行搜索"
           ),
           UISwitch(
             "【重构】搜索按钮",
             "baidu-graph-repairSearchButton",
             true,
-            void 0,
+            undefined,
             "重构主页的往下滑动右下角出现的搜索图标按钮"
           ),
           UISwitch(
             "【重构】重拍",
             "baidu-graph-repairRetakeButton",
             true,
-            void 0,
+            undefined,
             "在已搜索出相关结果的界面中的重构【重拍】按钮"
           ),
           UISwitch(
             "修复搜索无结果",
             "baidu-graph-repairSearchNoResult",
             true,
-            void 0,
+            undefined,
             "如果出现识图没结果，重新识别，可能是因为后面参数多了tpl_from=pc的问题"
           )
         ]
@@ -5490,14 +5492,14 @@ match-attr##srcid##sp_purc_atom
                         text: "5"
                       }
                     ],
-                    void 0,
+                    undefined,
                     "限制Toast显示的数量"
                   ),
                   UISwitch(
                     "逆序弹出",
                     "qmsg-config-showreverse",
                     false,
-                    void 0,
+                    undefined,
                     "修改Toast弹出的顺序"
                   )
                 ]
@@ -5516,22 +5518,22 @@ match-attr##srcid##sp_purc_atom
                     "启用",
                     "httpx-use-cookie-enable",
                     false,
-                    void 0,
+                    undefined,
                     "启用后，将根据下面的配置进行添加cookie"
                   ),
                   UISwitch(
                     "使用document.cookie",
                     "httpx-use-document-cookie",
                     false,
-                    void 0,
+                    undefined,
                     "自动根据请求的域名来获取对应的cookie"
                   ),
                   UITextArea(
                     "tieba.baidu.com",
                     "httpx-cookie-tieba.baidu.com",
                     "",
-                    void 0,
-                    void 0,
+                    undefined,
+                    undefined,
                     "Cookie格式：xxx=xxxx;xxx=xxxx"
                   )
                 ]
@@ -5736,7 +5738,7 @@ match-attr##srcid##sp_purc_atom
       Reflect.deleteProperty(locaData, key);
       _GM_setValue(KEY, locaData);
       if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, void 0);
+        this.$listener.listenData.get(key).callback(key, oldValue, undefined);
       }
     },
     /**
@@ -5818,7 +5820,7 @@ match-attr##srcid##sp_purc_atom
       } else {
         runKeyList.push(key);
       }
-      let value = void 0;
+      let value = undefined;
       for (let index = 0; index < runKeyList.length; index++) {
         const runKey = runKeyList[index];
         if (!this.$data.data.has(runKey)) {
@@ -5936,7 +5938,7 @@ match-attr##srcid##sp_purc_atom
         let childValue = that.getValue(childKey2);
         if (typeof replaceValueFn === "function") {
           let changedMainValue = replaceValueFn(mainValue, childValue);
-          if (changedMainValue !== void 0) {
+          if (changedMainValue !== undefined) {
             return changedMainValue;
           }
         }
@@ -6169,7 +6171,7 @@ match-attr##srcid##sp_purc_atom
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
   );
-  const SCRIPT_NAME = ((_a2 = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a2.name) || _SCRIPT_NAME_;
+  const SCRIPT_NAME = ((_a2 = _GM_info == null ? undefined : _GM_info.script) == null ? undefined : _a2.name) || _SCRIPT_NAME_;
   const loadingView = new LoadingView(true);
   const DEBUG = false;
   log.config({
@@ -6213,12 +6215,12 @@ match-attr##srcid##sp_purc_atom
   );
   __pops.GlobalConfig.setGlobalConfig({
     zIndex: () => {
-      let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
+      let maxZIndex = Utils.getMaxZIndex(undefined, undefined, ($ele) => {
         var _a3;
-        if ((_a3 = $ele == null ? void 0 : $ele.classList) == null ? void 0 : _a3.contains("qmsg-shadow-container")) {
+        if ((_a3 = $ele == null ? undefined : $ele.classList) == null ? undefined : _a3.contains("qmsg-shadow-container")) {
           return false;
         }
-        if (($ele == null ? void 0 : $ele.closest("qmsg")) && $ele.getRootNode() instanceof ShadowRoot) {
+        if (($ele == null ? undefined : $ele.closest("qmsg")) && $ele.getRootNode() instanceof ShadowRoot) {
           return false;
         }
       });
@@ -6237,7 +6239,7 @@ match-attr##srcid##sp_purc_atom
     HttpxCookieManager.handle(data);
     return data;
   });
-  httpx.interceptors.response.use(void 0, (data) => {
+  httpx.interceptors.response.use(undefined, (data) => {
     log.error(["拦截器-请求错误", data]);
     if (data.type === "onabort") {
       Qmsg.warning("请求取消");
@@ -6319,9 +6321,11 @@ div:has(p.ivk-private-p),\r
 .c-result-content div[rl-type="stop"]:has(div[data-module="lgsd"]) {\r
 	display: none !important;\r
 }\r
+/* 搜索框 */\r
 .searchboxtop.newsearch-white-style .se-form {\r
 	border-color: #4e6ef2 !important;\r
 }\r
+/* 百度一下 按钮 */\r
 .searchboxtop.newsearch-white-style .se-bn {\r
 	color: #fff !important;\r
 	background: #4e6ef2 !important;\r
@@ -6329,6 +6333,7 @@ div:has(p.ivk-private-p),\r
 .se-head-logo .se-logo img {\r
 	display: inherit !important;\r
 }\r
+/* 选项卡，如综合、笔记、视频等 */\r
 .se-head-tablink {\r
 	border-bottom: 1px solid #e6e6e6 !important;\r
 	/*background-color: #fff !important;*/\r
@@ -6592,7 +6597,7 @@ div[class^="new-summary-container_"] {\r
         var _a3, _b, _c, _d, _e;
         let result = originCall.apply(this, args);
         if (mode === "baijiahao_invoke") {
-          if (args.length === 4 && typeof ((_a3 = args[1]) == null ? void 0 : _a3["exports"]) === "object" && "execCopy" in ((_b = args[1]) == null ? void 0 : _b["exports"]) && "invokeApp" in ((_c = args[1]) == null ? void 0 : _c["exports"]) && "invokeMarket" in ((_d = args[1]) == null ? void 0 : _d["exports"]) && "invokeTpApp" in ((_e = args[1]) == null ? void 0 : _e["exports"])) {
+          if (args.length === 4 && typeof ((_a3 = args[1]) == null ? undefined : _a3["exports"]) === "object" && "execCopy" in ((_b = args[1]) == null ? undefined : _b["exports"]) && "invokeApp" in ((_c = args[1]) == null ? undefined : _c["exports"]) && "invokeMarket" in ((_d = args[1]) == null ? undefined : _d["exports"]) && "invokeTpApp" in ((_e = args[1]) == null ? undefined : _e["exports"])) {
             args[1]["exports"]["execCopy"] = function(...args2) {
               return new Promise((resolve) => {
                 log.success(["阻止调用execCopy", args2]);
@@ -6617,14 +6622,14 @@ div[class^="new-summary-container_"] {\r
                 resolve(null);
               });
             };
-          } else if (args.length === 2 && args[0] === void 0 && args[1] != null && "arg" in args[1] && "delegate" in args[1] && "done" in args[1] && "method" in args[1] && "next" in args[1] && "prev" in args[1]) {
+          } else if (args.length === 2 && args[0] === undefined && args[1] != null && "arg" in args[1] && "delegate" in args[1] && "done" in args[1] && "method" in args[1] && "next" in args[1] && "prev" in args[1]) {
             log.success(["修改参数", args[1]]);
             args[1]["method"] = "return";
             args[1]["next"] = "end";
             args[1]["prev"] = 24;
           }
         } else if (mode === "map") {
-          if (args.length === 2 && args[0] === void 0 && args[1] != null && "arg" in args[1] && "delegate" in args[1] && "done" in args[1] && "method" in args[1] && "next" in args[1] && "prev" in args[1]) {
+          if (args.length === 2 && args[0] === undefined && args[1] != null && "arg" in args[1] && "delegate" in args[1] && "done" in args[1] && "method" in args[1] && "next" in args[1] && "prev" in args[1]) {
             log.success(["修改参数", args[1]]);
             args[1]["method"] = "return";
             args[1]["next"] = "end";
@@ -6648,7 +6653,7 @@ div[class^="new-summary-container_"] {\r
         return;
       }
       let that = this;
-      let safeDefine = void 0;
+      let safeDefine = undefined;
       let unsafeDefine = function(...args) {
         let define_path = args[0];
         let define_requrePathList = args[1];
@@ -6731,7 +6736,7 @@ div[class^="new-summary-container_"] {\r
      */
     elementAppendChild(handleCallBack = function(element) {
       if (element instanceof HTMLIFrameElement) {
-        if (typeof (element == null ? void 0 : element.src) === "string" && !element.src.startsWith("http")) {
+        if (typeof (element == null ? undefined : element.src) === "string" && !element.src.startsWith("http")) {
           log.success(["劫持iframe唤醒：" + element.src, element]);
           return true;
         }
@@ -6862,7 +6867,7 @@ div[class^="new-summary-container_"] {\r
      * @param checkCallBack 如果mainCoreData匹配上，则调用此回调函数
      */
     windowWebPack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
-      let originObject = void 0;
+      let originObject = undefined;
       OriginPrototype.Object.defineProperty(_unsafeWindow, webpackName, {
         get() {
           return originObject;
@@ -6907,9 +6912,9 @@ div[class^="new-summary-container_"] {\r
         "webpackJsonp",
         ["core:0"],
         function(webpackExports) {
-          if (typeof (webpackExports == null ? void 0 : webpackExports.exports) === "object" && typeof webpackExports.exports["getSchema"] === "function" && typeof webpackExports.exports["getToken"] === "function" && typeof webpackExports.exports["init"] === "function" && typeof webpackExports.exports["initDiffer"] === "function") {
+          if (typeof (webpackExports == null ? undefined : webpackExports.exports) === "object" && typeof webpackExports.exports["getSchema"] === "function" && typeof webpackExports.exports["getToken"] === "function" && typeof webpackExports.exports["init"] === "function" && typeof webpackExports.exports["initDiffer"] === "function") {
             log.success(["成功劫持webpack调用函数", webpackExports]);
-            webpackExports == null ? void 0 : webpackExports["i"];
+            webpackExports == null ? undefined : webpackExports["i"];
             webpackExports.exports.getSchema = function(...args) {
             };
             webpackExports.exports.getToken = function(...args) {
@@ -6918,7 +6923,7 @@ div[class^="new-summary-container_"] {\r
             webpackExports.exports.init = function(...args) {
               var _a3;
               log.info(["阻止初始化", ...args]);
-              if (((_a3 = args == null ? void 0 : args[0]) == null ? void 0 : _a3["page"]) === "usercenter") {
+              if (((_a3 = args == null ? undefined : args[0]) == null ? undefined : _a3["page"]) === "usercenter") {
                 let homeUrl = "/home/main?id=" + args[0]["param"]["portrait"];
                 log.info(["跳转至用户空间", homeUrl]);
                 window.open(homeUrl);
@@ -6948,16 +6953,16 @@ div[class^="new-summary-container_"] {\r
         "webpackJsonp",
         [40, 1],
         function(webpackExports) {
-          if (typeof (webpackExports == null ? void 0 : webpackExports.exports) === "object" && typeof webpackExports.exports["LaunchScheme"] === "function" && typeof webpackExports.exports["__esModule"] === "boolean") {
+          if (typeof (webpackExports == null ? undefined : webpackExports.exports) === "object" && typeof webpackExports.exports["LaunchScheme"] === "function" && typeof webpackExports.exports["__esModule"] === "boolean") {
             log.success(["成功劫持webpack调用函数", webpackExports]);
-            webpackExports == null ? void 0 : webpackExports["i"];
+            webpackExports == null ? undefined : webpackExports["i"];
             webpackExports.exports["LaunchScheme"] = function() {
               log.success(["修改参数：LaunchScheme"]);
               return {
                 launch() {
                   return new Promise(function(resolve) {
                     log.success(["修改参数：launch"]);
-                    resolve(void 0);
+                    resolve(undefined);
                   });
                 }
               };
@@ -7065,7 +7070,7 @@ div[class^="new-summary-container_"] {\r
         item.setAttribute("gm-refactor-everyone-search-bottom", "true");
         item.querySelectorAll(".rw-list-container .rw-list-new").forEach((searchItemEle) => {
           var _a4;
-          let searchText = (_a4 = searchItemEle == null ? void 0 : searchItemEle.textContent) == null ? void 0 : _a4.trim();
+          let searchText = (_a4 = searchItemEle == null ? undefined : searchItemEle.textContent) == null ? undefined : _a4.trim();
           searchItemEle.innerHTML = /*html*/
           `
                         <a href="javascript:;" onclick="return false;" target="_self" class="whitesev-gm-refactor-everyone-searching">
@@ -7076,16 +7081,16 @@ div[class^="new-summary-container_"] {\r
             "0.06rem"
           );
         });
-        (_a3 = item.querySelector("div.c-line-clamp1")) == null ? void 0 : _a3.remove();
+        (_a3 = item.querySelector("div.c-line-clamp1")) == null ? undefined : _a3.remove();
         if (!item.closest("#results")) {
-          (_b = $("#results")) == null ? void 0 : _b.appendChild(item);
+          (_b = $("#results")) == null ? undefined : _b.appendChild(item);
         }
         domutils.on(item, "click", "div.rw-list-new", function(event) {
           var _a4, _b2, _c, _d;
-          let searchText = (_b2 = (_a4 = event.target.querySelector("span")) == null ? void 0 : _a4.textContent) == null ? void 0 : _b2.trim();
+          let searchText = (_b2 = (_a4 = event.target.querySelector("span")) == null ? undefined : _a4.textContent) == null ? undefined : _b2.trim();
           log.success("底部 点击大家还在搜 ==> " + searchText);
           utils.preventEvent(event);
-          window.location.href = `https://m.baidu.com/s?word=${(_d = (_c = event.target) == null ? void 0 : _c.textContent) == null ? void 0 : _d.trim()}`;
+          window.location.href = `https://m.baidu.com/s?word=${(_d = (_c = event.target) == null ? undefined : _c.textContent) == null ? undefined : _d.trim()}`;
         });
       });
     },
@@ -7117,7 +7122,7 @@ div[class^="new-summary-container_"] {\r
         }
         innerBottomSmallElementList.forEach((item) => {
           var _a3;
-          let searchText = (_a3 = item.textContent) == null ? void 0 : _a3.trim();
+          let searchText = (_a3 = item.textContent) == null ? undefined : _a3.trim();
           rwListContainerHTML += /*html*/
           `
                 <div class="rw-list-new rw-list-new2" style="padding: 0.06rem;width: 49%;">
@@ -7146,7 +7151,7 @@ div[class^="new-summary-container_"] {\r
           "div.rw-list-new",
           function(event) {
             var _a3, _b;
-            let searchText = (_b = (_a3 = event.target.querySelector("span")) == null ? void 0 : _a3.textContent) == null ? void 0 : _b.trim();
+            let searchText = (_b = (_a3 = event.target.querySelector("span")) == null ? undefined : _a3.textContent) == null ? undefined : _b.trim();
             log.success("中间 点击大家还在搜 ==> " + searchText);
             utils.preventEvent(event);
             window.location.href = `https://m.baidu.com/s?word=${searchText}`;
@@ -7256,7 +7261,7 @@ div[class^="new-summary-container_"] {\r
       if (data["originUrl"]) {
         return data["originUrl"];
       } else if (data["log"]) {
-        let url = void 0;
+        let url = undefined;
         try {
           url = utils.toJSON(data["log"])["mu"];
           utils.isNull(url) && (url = void 0);
@@ -7365,7 +7370,7 @@ div[class^="new-summary-container_"] {\r
         }
       }
       if (this.isNotRlLinkUrl(url)) {
-        let rlLinkDataUrl = ($article == null ? void 0 : $article.getAttribute("rl-link-data-url")) || $target.getAttribute("rl-link-data-url");
+        let rlLinkDataUrl = ($article == null ? undefined : $article.getAttribute("rl-link-data-url")) || $target.getAttribute("rl-link-data-url");
         if (rlLinkDataUrl) {
           url = rlLinkDataUrl;
         }
@@ -7449,7 +7454,7 @@ div[class^="new-summary-container_"] {\r
         }
       }
       if (this.isNotRlLinkUrl(url)) {
-        let articleDataLogStr = $article == null ? void 0 : $article.getAttribute("rl-link-data-log");
+        let articleDataLogStr = $article == null ? undefined : $article.getAttribute("rl-link-data-log");
         if (articleDataLogStr) {
           try {
             let articleDataLog = utils.toJSON(articleDataLogStr);
@@ -7461,7 +7466,7 @@ div[class^="new-summary-container_"] {\r
         }
       }
       if (this.isNotRlLinkUrl(url)) {
-        let articleLinkDataIVKStr = $article == null ? void 0 : $article.getAttribute("rl-link-data-ivk");
+        let articleLinkDataIVKStr = $article == null ? undefined : $article.getAttribute("rl-link-data-ivk");
         if (articleLinkDataIVKStr) {
           try {
             let articleLinkDataIVK = utils.toJSON(articleLinkDataIVKStr);
@@ -7619,7 +7624,7 @@ div[class^="new-summary-container_"] {\r
       document.querySelectorAll(".c-result.result").forEach(($result) => {
         var _a3, _b;
         let dataLog = utils.toJSON($result.getAttribute("data-log"));
-        let searchArticleOriginal_link = dataLog["mu"] || ((_a3 = $result.querySelector("article")) == null ? void 0 : _a3.getAttribute("rl-link-href"));
+        let searchArticleOriginal_link = dataLog["mu"] || ((_a3 = $result.querySelector("article")) == null ? undefined : _a3.getAttribute("rl-link-href"));
         if (utils.isNotNull(searchArticleOriginal_link) && BaiduSearchBlockRule.handleCustomRule(
           $result,
           searchArticleOriginal_link
@@ -7643,13 +7648,13 @@ div[class^="new-summary-container_"] {\r
           "baidu_search_blocking_everyone_is_still_searching"
         )) {
           let $title = $result.querySelector(".rw-little-title");
-          if ($title && ((_b = $title.textContent) == null ? void 0 : _b.startsWith("大家还在搜"))) {
-            $result == null ? void 0 : $result.remove();
+          if ($title && ((_b = $title.textContent) == null ? undefined : _b.startsWith("大家还在搜"))) {
+            $result == null ? undefined : $result.remove();
             log.success(`${TAG}大家都在搜（能看到的）`);
           }
           $result.querySelectorAll("span").forEach((item) => {
             var _a4;
-            let resultParentElement = (_a4 = item == null ? void 0 : item.parentElement) == null ? void 0 : _a4.parentElement;
+            let resultParentElement = (_a4 = item == null ? undefined : item.parentElement) == null ? undefined : _a4.parentElement;
             if (resultParentElement && item.innerText.match(/百度APP内打开/) || resultParentElement && resultParentElement.getAttribute("data-from") === "etpl") {
               resultParentElement.remove();
               log.success(
@@ -7818,7 +7823,7 @@ div[class^="new-summary-container_"] {\r
         domutils.on(
           document,
           "scroll",
-          void 0,
+          undefined,
           async () => {
             if (isLoadingNextPage) {
               return;
@@ -7862,8 +7867,8 @@ div[class^="new-summary-container_"] {\r
         domutils.off(
           document,
           "scroll",
-          void 0,
-          void 0,
+          undefined,
+          undefined,
           {
             capture: true
           },
@@ -7914,7 +7919,7 @@ div[class^="new-summary-container_"] {\r
     parseNextPageInfoWithPageController($doc) {
       let $nextPage = $doc.querySelector(".new-nextpage");
       let $nextPageOnly = $doc.querySelector(".new-nextpage-only");
-      let nextPageUrl = ($nextPage == null ? void 0 : $nextPage.getAttribute("href")) || ($nextPage == null ? void 0 : $nextPage.getAttribute("data-sflink")) || ($nextPageOnly == null ? void 0 : $nextPageOnly.getAttribute("href")) || ($nextPageOnly == null ? void 0 : $nextPageOnly.getAttribute("data-sflink"));
+      let nextPageUrl = ($nextPage == null ? undefined : $nextPage.getAttribute("href")) || ($nextPage == null ? undefined : $nextPage.getAttribute("data-sflink")) || ($nextPageOnly == null ? undefined : $nextPageOnly.getAttribute("href")) || ($nextPageOnly == null ? undefined : $nextPageOnly.getAttribute("data-sflink"));
       if (nextPageUrl) {
         nextPageUrl = CommonUtil.fixUrl(nextPageUrl);
         let param_pn_match = new URL(nextPageUrl).searchParams;
@@ -7964,11 +7969,11 @@ div[class^="new-summary-container_"] {\r
         initPageInfo.pn -= 10;
         return initPageInfo;
       } else {
-        if (typeof ((_b = (_a3 = _unsafeWindow == null ? void 0 : _unsafeWindow.page) == null ? void 0 : _a3.comm) == null ? void 0 : _b.pn) !== "number") {
+        if (typeof ((_b = (_a3 = _unsafeWindow == null ? undefined : _unsafeWindow.page) == null ? undefined : _a3.comm) == null ? undefined : _b.pn) !== "number") {
           log.warn("page.comm.pn参数未定义");
           return;
         }
-        if (typeof ((_d = (_c = _unsafeWindow == null ? void 0 : _unsafeWindow.page) == null ? void 0 : _c.comm) == null ? void 0 : _d.pageNum) !== "number") {
+        if (typeof ((_d = (_c = _unsafeWindow == null ? undefined : _unsafeWindow.page) == null ? undefined : _c.comm) == null ? undefined : _d.pageNum) !== "number") {
           log.warn("page.comm.pageNum参数未定义");
           return;
         }
@@ -8216,7 +8221,7 @@ div[class^="new-summary-container_"] {\r
         domutils.on(
           document,
           "scroll",
-          void 0,
+          undefined,
           async () => {
             if (isLoadingNextPage) {
               return;
@@ -8265,8 +8270,8 @@ div[class^="new-summary-container_"] {\r
         domutils.off(
           document,
           "scroll",
-          void 0,
-          void 0,
+          undefined,
+          undefined,
           {
             capture: true
           },
@@ -8276,7 +8281,7 @@ div[class^="new-summary-container_"] {\r
         );
         log.info("SearchCraft取消监听滚动: scroll", "#f400ff");
       } else {
-        (_a3 = this.intersectionObserver) == null ? void 0 : _a3.disconnect();
+        (_a3 = this.intersectionObserver) == null ? undefined : _a3.disconnect();
         this.intersectionObserver = null;
         log.info("SearchCraft取消监听滚动: IntersectionObserver", "#f400ff");
       }
@@ -8390,7 +8395,7 @@ div[class^="new-summary-container_"] {\r
       $$(elementSelector).forEach((item) => {
         domutils.on(item, "click", function(event) {
           utils.preventEvent(event);
-          window == null ? void 0 : window.stop();
+          window == null ? undefined : window.stop();
           let searchText = event.target.textContent;
           let redirectURL = window.location.origin + "/s?word=" + searchText;
           log.success("点击按钮跳转搜索 -> " + searchText);
@@ -8408,7 +8413,7 @@ div[class^="new-summary-container_"] {\r
      */
     searchBtnJump(event, searchInputElement) {
       utils.preventEvent(event);
-      window == null ? void 0 : window.stop();
+      window == null ? undefined : window.stop();
       let redirectURL = window.location.origin + "/s?word=" + searchInputElement.value;
       log.success("点击按钮跳转搜索 -> " + searchInputElement.value);
       log.success(redirectURL);
@@ -8423,7 +8428,7 @@ div[class^="new-summary-container_"] {\r
      */
     enterKeyDownEvent(event, searchInputElement) {
       if (event.keyCode === 108 || event.keyCode === 13) {
-        window == null ? void 0 : window.stop();
+        window == null ? undefined : window.stop();
         utils.preventEvent(event);
         let redirectURL = window.location.origin + "/s?word=" + searchInputElement.value;
         log.success("回车键跳转搜索 -> " + searchInputElement.value);
@@ -9100,12 +9105,6 @@ div[class^="new-summary-container_"] {\r
             }
             removeAdsLockFunction.run();
           }
-          utils.waitNodeList(
-            "style[class^='vsearch-sigma-style']"
-          ).then((nodeList) => {
-            log.success(["删除sigma的CSS", nodeList]);
-            nodeList.forEach((item) => item.remove());
-          });
           PopsPanel.execMenu("baidu_search_redirect_top_link", () => {
             BaiduHandleResultItem.redirectTopLink();
           });
@@ -9213,7 +9212,7 @@ div[class^="new-summary-container_"] {\r
         log.success("hook: Element.append");
         BaiduHook.elementAppendChild(function(element) {
           var _a3;
-          if (element.localName === "script" && ((_a3 = element == null ? void 0 : element.src) == null ? void 0 : _a3.includes("landing-share"))) {
+          if (element.localName === "script" && ((_a3 = element == null ? undefined : element.src) == null ? undefined : _a3.includes("landing-share"))) {
             log.success("阻止加载：" + element.src);
             return true;
           }
@@ -9397,9 +9396,9 @@ div[class^="new-summary-container_"] {\r
         function(event) {
           var _a3;
           utils.preventEvent(event);
-          window == null ? void 0 : window.stop();
+          window == null ? undefined : window.stop();
           let clickNode = event.target;
-          let pid = (_a3 = VueUtils.getVue(clickNode)) == null ? void 0 : _a3.item.tid;
+          let pid = (_a3 = VueUtils.getVue(clickNode)) == null ? undefined : _a3.item.tid;
           let url = TiebaUrlHandler.getPost(pid);
           log.success(`跳转至: ${url}`);
           if (PopsPanel.getValue("baidu_tieba_topic_openANewTab")) {
@@ -9460,7 +9459,7 @@ div[class^="new-summary-container_"] {\r
           var _a3;
           utils.preventEvent(event);
           let clickNode = event.target;
-          let tid = (_a3 = VueUtils.getVue(clickNode)) == null ? void 0 : _a3.tid;
+          let tid = (_a3 = VueUtils.getVue(clickNode)) == null ? undefined : _a3.tid;
           if (utils.isNull(tid)) {
             Qmsg.error("获取帖子的tid失败");
             return;
@@ -9499,7 +9498,7 @@ div[class^="new-summary-container_"] {\r
       utils.waitNode(".tb-mobile-viewport").then(async () => {
         var _a3, _b;
         TiebaBaNei.vueRootView = VueUtils.getVue($(".tb-mobile-viewport"));
-        let isLogin = Boolean((_b = (_a3 = TiebaBaNei.vueRootView) == null ? void 0 : _a3["user"]) == null ? void 0 : _b["is_login"]);
+        let isLogin = Boolean((_b = (_a3 = TiebaBaNei.vueRootView) == null ? undefined : _a3["user"]) == null ? undefined : _b["is_login"]);
         utils.waitNode(".tb-forum-user__join-btn").then((element) => {
           if (isLogin) {
             element.children[0].innerText = "点击签到";
@@ -9522,7 +9521,7 @@ div[class^="new-summary-container_"] {\r
                     `今日本吧第${signResult["data"]["finfo"]["current_rank_info"]["sign_count"]}个签到`
                   );
                 } else {
-                  Qmsg.error(signResult == null ? void 0 : signResult["error"]);
+                  Qmsg.error(signResult == null ? undefined : signResult["error"]);
                 }
               } else {
                 TiebaBaNei.vueRootView["isShowModal"] = true;
@@ -9547,9 +9546,9 @@ div[class^="new-summary-container_"] {\r
           var _a3, _b;
           utils.preventEvent(event);
           let vueObj = VueUtils.getVue(event.target);
-          let pbUrl = vueObj == null ? void 0 : vueObj.pbUrl;
-          let tid = (vueObj == null ? void 0 : vueObj.tid) ?? ((_a3 = vueObj == null ? void 0 : vueObj.thread) == null ? void 0 : _a3.tid);
-          let id = (vueObj == null ? void 0 : vueObj.id) ?? ((_b = vueObj == null ? void 0 : vueObj.thread) == null ? void 0 : _b.id);
+          let pbUrl = vueObj == null ? undefined : vueObj.pbUrl;
+          let tid = (vueObj == null ? undefined : vueObj.tid) ?? ((_a3 = vueObj == null ? undefined : vueObj.thread) == null ? undefined : _a3.tid);
+          let id = (vueObj == null ? undefined : vueObj.id) ?? ((_b = vueObj == null ? undefined : vueObj.thread) == null ? undefined : _b.id);
           let newUrl = "";
           if (pbUrl) {
             newUrl = window.location.origin + pbUrl;
@@ -9580,7 +9579,7 @@ div[class^="new-summary-container_"] {\r
       );
       utils.waitNode(".tb-page__main .tb-sort .tab-pack").then((element) => {
         var _a3;
-        let originChange = (_a3 = VueUtils.getVue(element)) == null ? void 0 : _a3.change;
+        let originChange = (_a3 = VueUtils.getVue(element)) == null ? undefined : _a3.change;
         originChange(userSortModel);
         element.__vue__.change = function(index) {
           PopsPanel.setValue("baidu-tieba-sort-model", index);
@@ -9597,7 +9596,7 @@ div[class^="new-summary-container_"] {\r
         {
           msg: "等待获取$watch监听帖子列表",
           check(vueObj) {
-            return typeof (vueObj == null ? void 0 : vueObj.$watch) === "function";
+            return typeof (vueObj == null ? undefined : vueObj.$watch) === "function";
           },
           set(vueObj) {
             log.success("监听帖子数量改变");
@@ -9653,7 +9652,7 @@ div[class^="new-summary-container_"] {\r
           log.info("伪装客户端已调用 " + key);
           return JSON.stringify({
             value: 1,
-            date: utils.formatTime(void 0, "yyyyMMdd")
+            date: utils.formatTime(undefined, "yyyyMMdd")
           });
         } else if (key.startsWith("p_w_new_slient") || key.startsWith("f_w_slient") || key.startsWith("f_w_pop_slient") || key.startsWith("f_w_floor") || key.startsWith("t_w_slient") || key.startsWith("t_w_pop_slient") || key.startsWith("auto_slient_wakeup") || key.startsWith("index_home_thread_guide-") || key.startsWith("search_w_pop_slient-")) {
           log.info("伪装客户端已调用 " + key);
@@ -9675,14 +9674,14 @@ div[class^="new-summary-container_"] {\r
       ];
       masqueradeParamsList.forEach((masqueradeParam) => {
         window.localStorage.setItem(
-          masqueradeParam + utils.formatTime(void 0, "yyyy-MM-dd"),
+          masqueradeParam + utils.formatTime(undefined, "yyyy-MM-dd"),
           "1"
         );
       });
       let masqueradeParamsList2 = ["auto_slient_wake_"];
       masqueradeParamsList2.forEach((masqueradeParam) => {
         window.localStorage.setItem(
-          masqueradeParam + utils.formatTime(void 0, "yyyy-MM-dd"),
+          masqueradeParam + utils.formatTime(undefined, "yyyy-MM-dd"),
           JSON.stringify({
             type: "number",
             data: 1
@@ -9692,7 +9691,7 @@ div[class^="new-summary-container_"] {\r
       for (let index = 0; index < window.localStorage.length; index++) {
         let keyName = window.localStorage.key(index);
         [...masqueradeParamsList, ...masqueradeParamsList2].forEach((item) => {
-          if (keyName.startsWith(item) && !keyName.endsWith(utils.formatTime(void 0, "yyyy-MM-dd"))) {
+          if (keyName.startsWith(item) && !keyName.endsWith(utils.formatTime(undefined, "yyyy-MM-dd"))) {
             log.success("删除过期键 ===> " + keyName);
             window.localStorage.removeItem(keyName);
           }
@@ -9706,21 +9705,21 @@ div[class^="new-summary-container_"] {\r
       var _a3, _b, _c;
       return (_c = (_b = (_a3 = $(
         ".main-page-wrap .user-line-wrapper.thread-user-line"
-      )) == null ? void 0 : _a3.__vue__) == null ? void 0 : _b.$props) == null ? void 0 : _c.author;
+      )) == null ? undefined : _a3.__vue__) == null ? undefined : _b.$props) == null ? undefined : _c.author;
     },
     /**
      * 获取当前的贴吧名字
      */
     getCurrentForumName() {
       var _a3, _b, _c, _d, _e, _f, _g, _h, _i, _j;
-      let tbMobileViewport = (_b = (_a3 = VueUtils.getVue($(".tb-mobile-viewport"))) == null ? void 0 : _a3.forum) == null ? void 0 : _b.name;
-      let mainPageWrap = (_f = (_e = (_d = (_c = VueUtils.getVue($(".main-page-wrap"))) == null ? void 0 : _c.$children[0]) == null ? void 0 : _d.$children[0]) == null ? void 0 : _e.forum) == null ? void 0 : _f.name;
-      let tbForum = (_h = (_g = VueUtils.getVue($(".tb-mobile-viewport .tb-forum"))) == null ? void 0 : _g.forum) == null ? void 0 : _h.name;
-      let appView = (_j = (_i = VueUtils.getVue($(".app-view"))) == null ? void 0 : _i.forum) == null ? void 0 : _j.name;
+      let tbMobileViewport = (_b = (_a3 = VueUtils.getVue($(".tb-mobile-viewport"))) == null ? undefined : _a3.forum) == null ? undefined : _b.name;
+      let mainPageWrap = (_f = (_e = (_d = (_c = VueUtils.getVue($(".main-page-wrap"))) == null ? undefined : _c.$children[0]) == null ? undefined : _d.$children[0]) == null ? undefined : _e.forum) == null ? undefined : _f.name;
+      let tbForum = (_h = (_g = VueUtils.getVue($(".tb-mobile-viewport .tb-forum"))) == null ? undefined : _g.forum) == null ? undefined : _h.name;
+      let appView = (_j = (_i = VueUtils.getVue($(".app-view"))) == null ? undefined : _i.forum) == null ? undefined : _j.name;
       let $uniAppPostNavBarForumName = $(
         "uni-app .nav-bar .forum-name"
       );
-      let uniAppPostNavBarForumName = ($uniAppPostNavBarForumName == null ? void 0 : $uniAppPostNavBarForumName.textContent) || "";
+      let uniAppPostNavBarForumName = ($uniAppPostNavBarForumName == null ? undefined : $uniAppPostNavBarForumName.textContent) || "";
       uniAppPostNavBarForumName = uniAppPostNavBarForumName.replace(/吧$/g, "");
       return tbMobileViewport || mainPageWrap || tbForum || appView || uniAppPostNavBarForumName;
     },
@@ -9729,8 +9728,8 @@ div[class^="new-summary-container_"] {\r
      */
     getCurrentForumId() {
       var _a3, _b, _c, _d;
-      let tbMobileViewport = (_b = (_a3 = VueUtils.getVue($(".tb-mobile-viewport"))) == null ? void 0 : _a3.forum) == null ? void 0 : _b.id;
-      let appView = (_d = (_c = VueUtils.getVue($(".app-view"))) == null ? void 0 : _c.forum) == null ? void 0 : _d.id;
+      let tbMobileViewport = (_b = (_a3 = VueUtils.getVue($(".tb-mobile-viewport"))) == null ? undefined : _a3.forum) == null ? undefined : _b.id;
+      let appView = (_d = (_c = VueUtils.getVue($(".app-view"))) == null ? undefined : _c.forum) == null ? undefined : _d.id;
       return tbMobileViewport || appView;
     },
     /**
@@ -9740,10 +9739,10 @@ div[class^="new-summary-container_"] {\r
       var _a3, _b, _c;
       let tid = null;
       let appViewVue = VueUtils.getVue($(".app-view"));
-      if (((_a3 = appViewVue == null ? void 0 : appViewVue.thread) == null ? void 0 : _a3.id) !== "" && ((_b = appViewVue == null ? void 0 : appViewVue.thread) == null ? void 0 : _b.id) != null) {
+      if (((_a3 = appViewVue == null ? undefined : appViewVue.thread) == null ? undefined : _a3.id) !== "" && ((_b = appViewVue == null ? undefined : appViewVue.thread) == null ? undefined : _b.id) != null) {
         tid = appViewVue.thread.id.toString();
       } else {
-        tid = (_c = window.location.pathname.match(/([0-9]+)/g)) == null ? void 0 : _c[0];
+        tid = (_c = window.location.pathname.match(/([0-9]+)/g)) == null ? undefined : _c[0];
       }
       return tid;
     },
@@ -9802,7 +9801,7 @@ div[class^="new-summary-container_"] {\r
       let hideScrollTopButton = function() {
         var _a3;
         isInsertButton = false;
-        (_a3 = $(".whitesev-tb-totop")) == null ? void 0 : _a3.remove();
+        (_a3 = $(".whitesev-tb-totop")) == null ? undefined : _a3.remove();
       };
       let checkScroll = new utils.LockFunction(
         function() {
@@ -9831,7 +9830,7 @@ div[class^="new-summary-container_"] {\r
         log.info("添加顶部的楼主头像/名字的点击事件-直接进入楼主的个人主页");
         domutils.on(element, "click", function() {
           let vueInfo = VueUtils.getVue(element.parentElement) || VueUtils.getVue(element.closest(".user-line-wrapper"));
-          let authorInfo = vueInfo == null ? void 0 : vueInfo.author;
+          let authorInfo = vueInfo == null ? undefined : vueInfo.author;
           if (!authorInfo) {
             log.error(["获取贴主信息失败", vueInfo]);
             return;
@@ -9954,7 +9953,7 @@ div[class^="new-summary-container_"] {\r
           return result;
         }
         log.success(suggestionData);
-        result = (suggestionData == null ? void 0 : suggestionData.query_match.search_data) || [];
+        result = (suggestionData == null ? undefined : suggestionData.query_match.search_data) || [];
         return result;
       }
       let searchSuggestion = __pops.searchSuggestion({
@@ -10717,7 +10716,7 @@ div[class^="new-summary-container_"] {\r
         if (respText.match("wappass.baidu.com") || respText.match(
           "https://seccaptcha.baidu.com/v1/webapi/verint/svcp.html"
         )) {
-          let wappassUrl = (_a3 = respText == null ? void 0 : respText.match(/href="(.*?)"/)) == null ? void 0 : _a3[1];
+          let wappassUrl = (_a3 = respText == null ? undefined : respText.match(/href="(.*?)"/)) == null ? undefined : _a3[1];
           log.error("触发百度校验: " + wappassUrl);
           window.location.href = wappassUrl;
           return {
@@ -10740,7 +10739,7 @@ div[class^="new-summary-container_"] {\r
         };
       }
       let result = [];
-      let nextPageUrl = (_b = searchDoc.querySelector(".pager-search a.next")) == null ? void 0 : _b.href;
+      let nextPageUrl = (_b = searchDoc.querySelector(".pager-search a.next")) == null ? undefined : _b.href;
       searchDoc.querySelectorAll(".s_main .s_post_list .s_post").forEach(($s_post) => {
         if ($s_post.id === "post_user" || $s_post.id === "no_head") {
           return;
@@ -10789,7 +10788,7 @@ div[class^="new-summary-container_"] {\r
       let time = data["time"];
       let newTime = utils.getDaysDifference(
         utils.formatToTimeStamp(time),
-        void 0,
+        undefined,
         "auto"
       );
       if (newTime.endsWith("小时") || newTime.endsWith("分钟") || newTime.endsWith("秒")) {
@@ -10948,7 +10947,7 @@ div[class^="new-summary-container_"] {\r
       var _a3;
       log.error("移除滚动事件");
       this.$context.loading.hide();
-      if ((_a3 = this.$context.lockFunc) == null ? void 0 : _a3.run) {
+      if ((_a3 = this.$context.lockFunc) == null ? undefined : _a3.run) {
         domutils.off(
           this.$ele.$searchResultList,
           "scroll",
@@ -11133,11 +11132,11 @@ div[class^="new-summary-container_"] {\r
     /**
      * 当前吧名
      */
-    forumName: void 0,
+    forumName: undefined,
     /**
      * 当前吧名的id
      */
-    forumId: void 0,
+    forumId: undefined,
     /**
      * 高清图片映射
      */
@@ -11154,7 +11153,7 @@ div[class^="new-summary-container_"] {\r
         {
           msg: "获取参数 thread",
           check(vueObj) {
-            return typeof (vueObj == null ? void 0 : vueObj.interactionNum) === "object" && typeof (vueObj == null ? void 0 : vueObj.interactionStates) === "object";
+            return typeof (vueObj == null ? undefined : vueObj.interactionNum) === "object" && typeof (vueObj == null ? undefined : vueObj.interactionStates) === "object";
           },
           set(vueObj) {
             vueObj.$watch(
@@ -11195,7 +11194,7 @@ div[class^="new-summary-container_"] {\r
           msg: "获取登录用户参数 user",
           check(vueObj) {
             var _a3;
-            return ((_a3 = vueObj == null ? void 0 : vueObj.user) == null ? void 0 : _a3.is_login) != null;
+            return ((_a3 = vueObj == null ? undefined : vueObj.user) == null ? undefined : _a3.is_login) != null;
           },
           set(vueObj) {
             var _a3, _b;
@@ -11203,9 +11202,9 @@ div[class^="new-summary-container_"] {\r
               TiebaComment.userInfo.value.id = vueObj.user.id;
               TiebaComment.userInfo.value.is_login = vueObj.user.is_login;
               TiebaComment.userInfo.value.name = vueObj.user.name;
-              TiebaComment.userInfo.value.name_show = (_a3 = vueObj.user) == null ? void 0 : _a3.name_show;
+              TiebaComment.userInfo.value.name_show = (_a3 = vueObj.user) == null ? undefined : _a3.name_show;
               TiebaComment.userInfo.value.portrait = vueObj.user.portrait;
-              TiebaComment.userInfo.value.show_nickname = (_b = vueObj.user) == null ? void 0 : _b.show_nickname;
+              TiebaComment.userInfo.value.show_nickname = (_b = vueObj.user) == null ? undefined : _b.show_nickname;
               log.success(
                 `更新参数 userId: ${TiebaComment.userInfo.value.id} userName: ${TiebaComment.userInfo.value.name} userShowName: ${TiebaComment.userInfo.value.show_nickname}`
               );
@@ -11216,7 +11215,7 @@ div[class^="new-summary-container_"] {\r
           msg: "获取forum信息",
           check(vueObj) {
             var _a3;
-            return typeof ((_a3 = vueObj == null ? void 0 : vueObj.forum) == null ? void 0 : _a3.id) === "number";
+            return typeof ((_a3 = vueObj == null ? undefined : vueObj.forum) == null ? undefined : _a3.id) === "number";
           },
           set(vueObj) {
             TiebaComment.forumInfo.value.id = vueObj.forum.id;
@@ -11230,7 +11229,7 @@ div[class^="new-summary-container_"] {\r
           msg: "获取 tbs 值",
           check(vueObj) {
             var _a3, _b, _c;
-            return typeof ((_c = (_b = (_a3 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a3.state) == null ? void 0 : _b.common) == null ? void 0 : _c.tbs) === "string";
+            return typeof ((_c = (_b = (_a3 = vueObj == null ? undefined : vueObj.$store) == null ? undefined : _a3.state) == null ? undefined : _b.common) == null ? undefined : _c.tbs) === "string";
           },
           set(vueObj) {
             TiebaComment.tbs = vueObj.$store.state.common.tbs;
@@ -11522,12 +11521,12 @@ div[class^="new-summary-container_"] {\r
      */
     getForumId() {
       var _a3, _b, _c;
-      let dataBannerInfoStr = (_a3 = $(".recommend-item")) == null ? void 0 : _a3.getAttribute("data-banner-info");
+      let dataBannerInfoStr = (_a3 = $(".recommend-item")) == null ? undefined : _a3.getAttribute("data-banner-info");
       let dataBannerInfo = utils.toJSON(dataBannerInfoStr);
       if (dataBannerInfo["forum_id"]) {
         return dataBannerInfo["forum_id"];
       } else {
-        return (_c = (_b = VueUtils.getVue($(".app-view"))) == null ? void 0 : _b.forum) == null ? void 0 : _c.id;
+        return (_c = (_b = VueUtils.getVue($(".app-view"))) == null ? undefined : _b.forum) == null ? undefined : _c.id;
       }
     }
   };
@@ -11746,7 +11745,7 @@ div[class^="new-summary-container_"] {\r
         {
           msg: "设置参数 isHitMedicalPost",
           check(vueObj) {
-            return typeof (vueObj == null ? void 0 : vueObj.isHitMedicalPost) === "boolean";
+            return typeof (vueObj == null ? undefined : vueObj.isHitMedicalPost) === "boolean";
           },
           set(vueObj) {
             vueObj.isHitMedicalPost = false;
@@ -11756,7 +11755,7 @@ div[class^="new-summary-container_"] {\r
         {
           msg: "获取参数 __vue__.postAuthorId",
           check(vueObj) {
-            return typeof (vueObj == null ? void 0 : vueObj.postAuthorId) === "number";
+            return typeof (vueObj == null ? undefined : vueObj.postAuthorId) === "number";
           },
           set(vueObj) {
             TiebaComment.postAuthorId = vueObj.postAuthorId;
@@ -11767,7 +11766,7 @@ div[class^="new-summary-container_"] {\r
           msg: "获取参数 __vue__.currentReplyObj.pid",
           check(vueObj) {
             var _a3;
-            return typeof ((_a3 = vueObj == null ? void 0 : vueObj.currentReplyObj) == null ? void 0 : _a3.pid) === "number";
+            return typeof ((_a3 = vueObj == null ? undefined : vueObj.currentReplyObj) == null ? undefined : _a3.pid) === "number";
           },
           set(vueObj) {
             TiebaComment.pid = vueObj.currentReplyObj.pid;
@@ -12261,7 +12260,7 @@ div[class^="new-summary-container_"] {\r
             });
           });
         } else {
-          $deleteBtn == null ? void 0 : $deleteBtn.remove();
+          $deleteBtn == null ? undefined : $deleteBtn.remove();
         }
       }
       domutils.on(
@@ -12302,7 +12301,7 @@ div[class^="new-summary-container_"] {\r
                 if (!vueObj) {
                   return;
                 }
-                if ((_a3 = vueObj == null ? void 0 : vueObj.interactionNum) == null ? void 0 : _a3.reply) {
+                if ((_a3 = vueObj == null ? undefined : vueObj.interactionNum) == null ? undefined : _a3.reply) {
                   vueObj.interactionNum.reply--;
                 }
               } else if ($appView) {
@@ -12310,7 +12309,7 @@ div[class^="new-summary-container_"] {\r
                 if (!vueObj) {
                   return;
                 }
-                if ((_b = vueObj == null ? void 0 : vueObj.interactionNum) == null ? void 0 : _b.reply) {
+                if ((_b = vueObj == null ? undefined : vueObj.interactionNum) == null ? undefined : _b.reply) {
                   vueObj.interactionNum.reply--;
                 }
               }
@@ -12647,7 +12646,7 @@ div[class^="new-summary-container_"] {\r
             if (childSpanElement.hasAttribute("class")) {
               continue;
             }
-            if (!((_a4 = childSpanElement == null ? void 0 : childSpanElement.textContent) == null ? void 0 : _a4.match("来自|禁言"))) {
+            if (!((_a4 = childSpanElement == null ? undefined : childSpanElement.textContent) == null ? undefined : _a4.match("来自|禁言"))) {
               userIpPosition2 = childSpanElement.textContent;
               break;
             }
@@ -12682,28 +12681,28 @@ div[class^="new-summary-container_"] {\r
       let builderId = data_field["content"]["builderId"];
       let userComment = data_field["content"]["content"];
       if (!userComment) {
-        userComment = ((_a3 = element.querySelector(".d_post_content")) == null ? void 0 : _a3.innerHTML) || "";
+        userComment = ((_a3 = element.querySelector(".d_post_content")) == null ? undefined : _a3.innerHTML) || "";
       }
-      let userHomeUrl = (_b = element.querySelector(".p_author_face")) == null ? void 0 : _b.getAttribute("href");
+      let userHomeUrl = (_b = element.querySelector(".p_author_face")) == null ? undefined : _b.getAttribute("href");
       let userName = data_field["author"]["user_name"];
       let $userShowName = element.querySelector(".p_author_name");
-      let userShowName = ($userShowName == null ? void 0 : $userShowName.textContent) || ((_c = element.querySelector(".p_author_face > img")) == null ? void 0 : _c.getAttribute("username")) || userName;
-      let userAvatar = ((_d = element.querySelector(".p_author_face > img")) == null ? void 0 : _d.getAttribute("data-tb-lazyload")) || ((_e = element.querySelector(".p_author_face > img")) == null ? void 0 : _e.src) || "";
+      let userShowName = ($userShowName == null ? undefined : $userShowName.textContent) || ((_c = element.querySelector(".p_author_face > img")) == null ? undefined : _c.getAttribute("username")) || userName;
+      let userAvatar = ((_d = element.querySelector(".p_author_face > img")) == null ? undefined : _d.getAttribute("data-tb-lazyload")) || ((_e = element.querySelector(".p_author_face > img")) == null ? undefined : _e.src) || "";
       let is_landlord = 0;
       if (user_id == builderId) {
         is_landlord = 1;
       }
       let userForumLevel = -1;
-      let userForumLevelName = void 0;
+      let userForumLevelName = undefined;
       if (element.querySelector(".user_badge .d_badge_lv")) {
         userForumLevel = parseInt(
-          (_f = element.querySelector(".user_badge .d_badge_lv")) == null ? void 0 : _f.textContent
+          (_f = element.querySelector(".user_badge .d_badge_lv")) == null ? undefined : _f.textContent
         );
       }
       if (element.querySelector(".user_badge .d_badge_title")) {
         userForumLevelName = (_g = element.querySelector(
           ".user_badge .d_badge_title"
-        )) == null ? void 0 : _g.textContent;
+        )) == null ? undefined : _g.textContent;
       }
       let { userFloor, userIpPosition, userCommentTime } = parseCommentBottomInfo(element);
       if (userAvatar.startsWith("//")) {
@@ -13208,7 +13207,7 @@ div[class^="new-summary-container_"] {\r
         let isLandlord = Boolean(
           landlordInfo && landlordInfo.id === item["user_id"]
         );
-        let itemUserCommentTime = utils.getDaysDifference(item["now_time"] * 1e3, void 0, "auto") + "前";
+        let itemUserCommentTime = utils.getDaysDifference(item["now_time"] * 1e3, undefined, "auto") + "前";
         let itemUserCommentIp = "";
         if (item["location"] && item["location"]["name"]) {
           itemUserCommentIp = item["location"]["name"];
@@ -13224,7 +13223,7 @@ div[class^="new-summary-container_"] {\r
             "/sys/portrait/item/"
           );
         }
-        let userLikeForum = (_a3 = itemUserInfo == null ? void 0 : itemUserInfo["card"]) == null ? void 0 : _a3["like_forum"];
+        let userLikeForum = (_a3 = itemUserInfo == null ? undefined : itemUserInfo["card"]) == null ? undefined : _a3["like_forum"];
         let lzlUserForumLevel = -1;
         if (userLikeForum) {
           Object.keys(userLikeForum).forEach((itemForumLevel) => {
@@ -13374,7 +13373,7 @@ div[class^="new-summary-container_"] {\r
           var _a3, _b;
           utils.preventEvent(event);
           window.open(
-            "/home/main?id=" + ((_b = (_a3 = event.target) == null ? void 0 : _a3.closest(".whitesev-reply-dialog-user-line")) == null ? void 0 : _b.getAttribute("data-portrait")),
+            "/home/main?id=" + ((_b = (_a3 = event.target) == null ? undefined : _a3.closest(".whitesev-reply-dialog-user-line")) == null ? undefined : _b.getAttribute("data-portrait")),
             "_blank"
           );
         }
@@ -13387,7 +13386,7 @@ div[class^="new-summary-container_"] {\r
           var _a3, _b;
           utils.preventEvent(event);
           window.open(
-            "/home/main?id=" + ((_b = (_a3 = event.target) == null ? void 0 : _a3.closest(".whitesev-reply-dialog-user-line")) == null ? void 0 : _b.getAttribute("data-portrait")),
+            "/home/main?id=" + ((_b = (_a3 = event.target) == null ? undefined : _a3.closest(".whitesev-reply-dialog-user-line")) == null ? undefined : _b.getAttribute("data-portrait")),
             "_blank"
           );
         }
@@ -13488,7 +13487,7 @@ div[class^="new-summary-container_"] {\r
             if (!userInfo) {
               return;
             }
-            let grade = (_a3 = userInfo == null ? void 0 : userInfo["honor"]) == null ? void 0 : _a3["grade"];
+            let grade = (_a3 = userInfo == null ? undefined : userInfo["honor"]) == null ? undefined : _a3["grade"];
             ele.removeAttribute("data-lazy-load-level");
             if (!grade) {
               return;
@@ -13608,8 +13607,8 @@ div[class^="new-summary-container_"] {\r
         let userShowName = dataFieldJSON["showname"];
         let userPostId = dataFieldJSON["spid"];
         let userPortrait = dataFieldJSON["portrait"];
-        let userHomeUrl = (_a3 = item.querySelector("a[data-field]")) == null ? void 0 : _a3.href;
-        let userAvatar = (_b = item.querySelector("a[data-field] img")) == null ? void 0 : _b.src;
+        let userHomeUrl = (_a3 = item.querySelector("a[data-field]")) == null ? undefined : _a3.href;
+        let userAvatar = (_b = item.querySelector("a[data-field] img")) == null ? undefined : _b.src;
         let userReplyContent = item.querySelector("span.lzl_content_main").innerHTML;
         let userReplyTimeStr = item.querySelector("span.lzl_time").innerHTML;
         let userReplyTimeNumber = utils.formatToTimeStamp(userReplyTimeStr);
@@ -13634,9 +13633,9 @@ div[class^="new-summary-container_"] {\r
       });
       parseDOM.querySelectorAll("p.j_pager a").forEach((item) => {
         var _a3, _b;
-        if (((_a3 = item == null ? void 0 : item.textContent) == null ? void 0 : _a3.trim()) === "下一页") {
+        if (((_a3 = item == null ? undefined : item.textContent) == null ? undefined : _a3.trim()) === "下一页") {
           result["nextPage"] = parseInt(
-            (_b = item.getAttribute("href")) == null ? void 0 : _b.replace("#", "")
+            (_b = item.getAttribute("href")) == null ? undefined : _b.replace("#", "")
           );
         }
       });
@@ -14082,7 +14081,7 @@ div[class^="new-summary-container_"] {\r
               if (!vueIns) {
                 return;
               }
-              let sectionData = vueIns == null ? void 0 : vueIns.sectionData;
+              let sectionData = vueIns == null ? undefined : vueIns.sectionData;
               sectionData.forEach((item) => {
                 commentContainerInfoList.push({
                   data: item,
@@ -14464,27 +14463,27 @@ div[class^="new-summary-container_"] {\r
                 if (!vueIns) {
                   throw new TypeError("获取vue属性失败");
                 }
-                let nameShow = (_a3 = vueIns == null ? void 0 : vueIns.nameInfo) == null ? void 0 : _a3.text;
+                let nameShow = (_a3 = vueIns == null ? undefined : vueIns.nameInfo) == null ? undefined : _a3.text;
                 if (nameShow == null) {
                   throw new TypeError("获取nameShow失败");
                 }
-                let sectionData = (_b = vueIns == null ? void 0 : vueIns.$parent) == null ? void 0 : _b.sectionData;
+                let sectionData = (_b = vueIns == null ? undefined : vueIns.$parent) == null ? undefined : _b.sectionData;
                 if (!Array.isArray(sectionData)) {
                   throw new TypeError("获取sectionData失败");
                 }
                 let findValue = sectionData.find(
                   (item) => {
                     var _a4;
-                    return ((_a4 = item == null ? void 0 : item.author) == null ? void 0 : _a4.name_show) === nameShow;
+                    return ((_a4 = item == null ? undefined : item.author) == null ? undefined : _a4.name_show) === nameShow;
                   }
                 );
                 if (!findValue) {
                   throw new TypeError("获取对应的用户信息失败");
                 }
                 return {
-                  id: (_c = findValue == null ? void 0 : findValue.author) == null ? void 0 : _c.id,
-                  portrait: (_d = findValue == null ? void 0 : findValue.author) == null ? void 0 : _d.portrait,
-                  name_show: (_e = findValue == null ? void 0 : findValue.author) == null ? void 0 : _e.name_show
+                  id: (_c = findValue == null ? undefined : findValue.author) == null ? undefined : _c.id,
+                  portrait: (_d = findValue == null ? undefined : findValue.author) == null ? undefined : _d.portrait,
+                  name_show: (_e = findValue == null ? undefined : findValue.author) == null ? undefined : _e.name_show
                 };
               }
             );
@@ -14507,14 +14506,14 @@ div[class^="new-summary-container_"] {\r
                 if (!vueIns) {
                   throw new TypeError("获取vue属性失败");
                 }
-                let commentData = vueIns == null ? void 0 : vueIns.commentData;
+                let commentData = vueIns == null ? undefined : vueIns.commentData;
                 if (!commentData) {
                   throw new TypeError("获取commentData失败");
                 }
                 return {
-                  id: (_a3 = commentData == null ? void 0 : commentData.author) == null ? void 0 : _a3.id,
-                  portrait: (_b = commentData == null ? void 0 : commentData.author) == null ? void 0 : _b.portrait,
-                  name_show: (_c = commentData == null ? void 0 : commentData.author) == null ? void 0 : _c.name_show
+                  id: (_a3 = commentData == null ? undefined : commentData.author) == null ? undefined : _a3.id,
+                  portrait: (_b = commentData == null ? undefined : commentData.author) == null ? undefined : _b.portrait,
+                  name_show: (_c = commentData == null ? undefined : commentData.author) == null ? undefined : _c.name_show
                 };
               }
             );
@@ -15125,7 +15124,7 @@ div[class^="new-summary-container_"] {\r
           let vue3Ins = VueUtils.getVue3($loadMore);
           let vue2Ins = VueUtils.getVue($loadMore);
           if (vue2Ins) {
-            let handleClick = (_a3 = vue2Ins == null ? void 0 : vue2Ins.$listeners) == null ? void 0 : _a3["handle-click"];
+            let handleClick = (_a3 = vue2Ins == null ? undefined : vue2Ins.$listeners) == null ? undefined : _a3["handle-click"];
             if (typeof handleClick === "function") {
               handleClick();
               log.success(`uni-app ===> __vue__ 加载更多评论`);
@@ -15133,7 +15132,7 @@ div[class^="new-summary-container_"] {\r
               log.error("uni-app ==> __vue__ 点击加载更多失败");
             }
           } else if (vue3Ins) {
-            let onHandleClick = (_b = vue3Ins == null ? void 0 : vue3Ins.attrs) == null ? void 0 : _b.onHandleClick;
+            let onHandleClick = (_b = vue3Ins == null ? undefined : vue3Ins.attrs) == null ? undefined : _b.onHandleClick;
             if (typeof onHandleClick === "function") {
               onHandleClick();
               log.success(`uni-app ===> __vueParentComponent 加载更多评论`);
@@ -15218,7 +15217,7 @@ div[class^="new-summary-container_"] {\r
           let $click = event.target;
           let vue2Ins = VueUtils.getVue($click);
           let vue3Ins = VueUtils.getVue3($click);
-          let tid = ((_c = (_b = (_a3 = vue2Ins == null ? void 0 : vue2Ins.$props) == null ? void 0 : _a3.config) == null ? void 0 : _b.param) == null ? void 0 : _c.tid) || ((_f = (_e = (_d = vue3Ins == null ? void 0 : vue3Ins.props) == null ? void 0 : _d.config) == null ? void 0 : _e.param) == null ? void 0 : _f.tid);
+          let tid = ((_c = (_b = (_a3 = vue2Ins == null ? undefined : vue2Ins.$props) == null ? undefined : _a3.config) == null ? undefined : _b.param) == null ? undefined : _c.tid) || ((_f = (_e = (_d = vue3Ins == null ? undefined : vue3Ins.props) == null ? undefined : _d.config) == null ? undefined : _e.param) == null ? undefined : _f.tid);
           if (typeof tid === "number") {
             let url = TiebaUrlHandler.getPost(tid);
             window.open(url, "_blank");
@@ -15246,14 +15245,14 @@ div[class^="new-summary-container_"] {\r
           utils.preventEvent(event);
           let $click = selectorTarget;
           let vue3Ins = VueUtils.getVue3($click);
-          if (typeof ((_b = (_a3 = vue3Ins == null ? void 0 : vue3Ins.props) == null ? void 0 : _a3.playerInfo) == null ? void 0 : _b.portrait) === "string") {
+          if (typeof ((_b = (_a3 = vue3Ins == null ? undefined : vue3Ins.props) == null ? undefined : _a3.playerInfo) == null ? undefined : _b.portrait) === "string") {
             let portrait = vue3Ins.props.playerInfo.portrait;
             let url = TiebaUrlHandler.getUserHome(portrait);
             window.open(url, "_blank");
           } else {
             let $wakeApp = $click.querySelector(".wake-app");
             let vueIns = VueUtils.getVue($wakeApp);
-            let portrait = (_d = (_c = vueIns == null ? void 0 : vueIns.config) == null ? void 0 : _c.param) == null ? void 0 : _d.portrait;
+            let portrait = (_d = (_c = vueIns == null ? undefined : vueIns.config) == null ? undefined : _c.param) == null ? undefined : _d.portrait;
             if (typeof portrait === "string") {
               let url = TiebaUrlHandler.getUserHome(portrait);
               window.open(url, "_blank");
@@ -15394,8 +15393,8 @@ div[class^="new-summary-container_"] {\r
         var _a3, _b, _c, _d;
         for (let index = 0; index < commentContainerInfoList.length; index++) {
           const commentContainerInfo = commentContainerInfoList[index];
-          const author_id = commentContainerInfo.data.author_id || ((_b = (_a3 = commentContainerInfo.data) == null ? void 0 : _a3.author) == null ? void 0 : _b.id);
-          const portrait = (_d = (_c = commentContainerInfo.data) == null ? void 0 : _c.author) == null ? void 0 : _d.portrait;
+          const author_id = commentContainerInfo.data.author_id || ((_b = (_a3 = commentContainerInfo.data) == null ? undefined : _a3.author) == null ? undefined : _b.id);
+          const portrait = (_d = (_c = commentContainerInfo.data) == null ? undefined : _c.author) == null ? undefined : _d.portrait;
           const content = commentContainerInfo.data.content;
           if (TiebaPostApi.isRobot({ id: author_id, portrait })) {
             log.warn(`删除贴吧机器人评论内容：` + JSON.stringify(content));
@@ -15569,14 +15568,14 @@ div[class^="new-summary-container_"] {\r
               utils.preventEvent(event);
               let vue3Ins = VueUtils.getVue3($click);
               let vue2Ins = VueUtils.getVue($click);
-              let link = ((_b = (_a3 = vue3Ins == null ? void 0 : vue3Ins.props) == null ? void 0 : _a3.content) == null ? void 0 : _b.link) || ((_c = vue2Ins == null ? void 0 : vue2Ins.content) == null ? void 0 : _c.link);
+              let link = ((_b = (_a3 = vue3Ins == null ? undefined : vue3Ins.props) == null ? undefined : _a3.content) == null ? undefined : _b.link) || ((_c = vue2Ins == null ? undefined : vue2Ins.content) == null ? undefined : _c.link);
               if (typeof link === "string") {
                 log.info(`点击超链接：` + link);
                 window.open(link, "_blank");
               } else {
                 let $uniText = $click.closest("uni-text.pb-content-item");
                 let vueIns = VueUtils.getVue($uniText);
-                let section = (_h = (_e = (_d = vueIns == null ? void 0 : vueIns.$vnode) == null ? void 0 : _d.context) == null ? void 0 : _e.sectionData) == null ? void 0 : _h[(_g = (_f = vueIns == null ? void 0 : vueIns.$vnode) == null ? void 0 : _f.context) == null ? void 0 : _g.sectionIdx];
+                let section = (_h = (_e = (_d = vueIns == null ? undefined : vueIns.$vnode) == null ? undefined : _d.context) == null ? undefined : _e.sectionData) == null ? undefined : _h[(_g = (_f = vueIns == null ? undefined : vueIns.$vnode) == null ? undefined : _f.context) == null ? undefined : _g.sectionIdx];
                 if (section != null) {
                   let findValue = section["content"].find(
                     (item) => item.type == 1 && item.text == ($click.textContent || $click.innerText)
@@ -15601,8 +15600,8 @@ div[class^="new-summary-container_"] {\r
               log.info("点击@");
               let vue3Ins = VueUtils.getVue3($click);
               let vueIns = VueUtils.getVue($click);
-              let un = ((_j = (_i = vue3Ins == null ? void 0 : vue3Ins.props) == null ? void 0 : _i.content) == null ? void 0 : _j.text) || ((_k = vueIns == null ? void 0 : vueIns.content) == null ? void 0 : _k.text);
-              ((_m = (_l = vue3Ins == null ? void 0 : vue3Ins.props) == null ? void 0 : _l.content) == null ? void 0 : _m.type) || ((_n = vueIns == null ? void 0 : vueIns.content) == null ? void 0 : _n.type);
+              let un = ((_j = (_i = vue3Ins == null ? undefined : vue3Ins.props) == null ? undefined : _i.content) == null ? undefined : _j.text) || ((_k = vueIns == null ? undefined : vueIns.content) == null ? undefined : _k.text);
+              ((_m = (_l = vue3Ins == null ? undefined : vue3Ins.props) == null ? undefined : _l.content) == null ? undefined : _m.type) || ((_n = vueIns == null ? undefined : vueIns.content) == null ? undefined : _n.type);
               if (un == null) {
                 log.error("获取用户un失败");
                 Qmsg.error("获取用户un失败");
@@ -15679,10 +15678,10 @@ div[class^="new-summary-container_"] {\r
       ]);
       commentBoxVueObj.page = "pb";
       Object.keys(currentReplyObj).forEach((key) => {
-        currentReplyObj[key] = void 0;
+        currentReplyObj[key] = undefined;
       });
       Object.keys(replyInfo).forEach((key) => {
-        currentReplyObj[key] = void 0;
+        currentReplyObj[key] = undefined;
       });
       replyInfo.pid = TiebaComment.pid;
       currentReplyObj.pid = TiebaComment.pid;
@@ -15706,10 +15705,10 @@ div[class^="new-summary-container_"] {\r
       ]);
       commentBoxVueObj.page = "pb";
       Object.keys(currentReplyObj).forEach((key) => {
-        currentReplyObj[key] = void 0;
+        currentReplyObj[key] = undefined;
       });
       Object.keys(replyInfo).forEach((key) => {
-        currentReplyObj[key] = void 0;
+        currentReplyObj[key] = undefined;
       });
       replyInfo.pid = pid;
       replyInfo.authorName = authorName;
@@ -15738,10 +15737,10 @@ div[class^="new-summary-container_"] {\r
       ]);
       commentBoxVueObj.page = "lzl";
       Object.keys(currentReplyObj).forEach((key) => {
-        currentReplyObj[key] = void 0;
+        currentReplyObj[key] = undefined;
       });
       Object.keys(replyInfo).forEach((key) => {
-        currentReplyObj[key] = void 0;
+        currentReplyObj[key] = undefined;
       });
       replyInfo.authorName = authorName;
       replyInfo.floor = floor;
@@ -15776,8 +15775,8 @@ div[class^="new-summary-container_"] {\r
           return;
         }
         let $clickContent = event.target;
-        that.$data.replyCommentData.value = void 0;
-        that.$data.type.value = void 0;
+        that.$data.replyCommentData.value = undefined;
+        that.$data.type.value = undefined;
         log.info("点击内容，触发设置当前回复的对象");
         try {
           let $commentBoxWrap = that.getCommentBoxWrap();
@@ -15824,8 +15823,8 @@ div[class^="new-summary-container_"] {\r
           if (!checkNotTriggerReply(event)) {
             return;
           }
-          that.$data.replyLzlCommentData.value = void 0;
-          that.$data.type.value = void 0;
+          that.$data.replyLzlCommentData.value = undefined;
+          that.$data.type.value = undefined;
           log.info("点击楼中楼内容，触发设置当前回复的对象");
           try {
             let $commentBoxWrap = that.getCommentBoxWrap();
@@ -15915,7 +15914,7 @@ div[class^="new-summary-container_"] {\r
           msg: "等待属性 _events['comment-success'][0].fns => handlerCommentSuccess",
           check(vueObj) {
             var _a3, _b, _c;
-            return typeof ((_c = (_b = (_a3 = vueObj == null ? void 0 : vueObj._events) == null ? void 0 : _a3["comment-success"]) == null ? void 0 : _b[0]) == null ? void 0 : _c.fns) === "function";
+            return typeof ((_c = (_b = (_a3 = vueObj == null ? undefined : vueObj._events) == null ? undefined : _a3["comment-success"]) == null ? undefined : _b[0]) == null ? undefined : _c.fns) === "function";
           },
           set(vueObj) {
             log.success("成功覆盖函数  _events['comment-success'][0].fns");
@@ -16313,7 +16312,7 @@ div[class^="new-summary-container_"] {\r
   var objectProto$6 = Object.prototype;
   var hasOwnProperty$5 = objectProto$6.hasOwnProperty;
   var nativeObjectToString$1 = objectProto$6.toString;
-  var symToStringTag$1 = Symbol$1 ? Symbol$1.toStringTag : void 0;
+  var symToStringTag$1 = Symbol$1 ? Symbol$1.toStringTag : undefined;
   function getRawTag(value) {
     var isOwn = hasOwnProperty$5.call(value, symToStringTag$1), tag = value[symToStringTag$1];
     try {
@@ -16337,10 +16336,10 @@ div[class^="new-summary-container_"] {\r
     return nativeObjectToString.call(value);
   }
   var nullTag = "[object Null]", undefinedTag = "[object Undefined]";
-  var symToStringTag = Symbol$1 ? Symbol$1.toStringTag : void 0;
+  var symToStringTag = Symbol$1 ? Symbol$1.toStringTag : undefined;
   function baseGetTag(value) {
     if (value == null) {
-      return value === void 0 ? undefinedTag : nullTag;
+      return value === undefined ? undefinedTag : nullTag;
     }
     return symToStringTag && symToStringTag in Object(value) ? getRawTag(value) : objectToString(value);
   }
@@ -16359,8 +16358,7 @@ div[class^="new-summary-container_"] {\r
     return result;
   }
   var isArray = Array.isArray;
-  var INFINITY$1 = 1 / 0;
-  var symbolProto = Symbol$1 ? Symbol$1.prototype : void 0, symbolToString = symbolProto ? symbolProto.toString : void 0;
+  var symbolProto = Symbol$1 ? Symbol$1.prototype : undefined, symbolToString = symbolProto ? symbolProto.toString : undefined;
   function baseToString(value) {
     if (typeof value == "string") {
       return value;
@@ -16372,7 +16370,7 @@ div[class^="new-summary-container_"] {\r
       return symbolToString ? symbolToString.call(value) : "";
     }
     var result = value + "";
-    return result == "0" && 1 / value == -INFINITY$1 ? "-0" : result;
+    return result == "0" && 1 / value == -Infinity ? "-0" : result;
   }
   var reWhitespace = /\s/;
   function trimmedEndIndex(string) {
@@ -16462,11 +16460,11 @@ div[class^="new-summary-container_"] {\r
     return pattern.test(toSource(value));
   }
   function getValue(object, key) {
-    return object == null ? void 0 : object[key];
+    return object == null ? undefined : object[key];
   }
   function getNative(object, key) {
     var value = getValue(object, key);
-    return baseIsNative(value) ? value : void 0;
+    return baseIsNative(value) ? value : undefined;
   }
   function apply(func, thisArg, args) {
     switch (args.length) {
@@ -16495,7 +16493,7 @@ div[class^="new-summary-container_"] {\r
       } else {
         count = 0;
       }
-      return func.apply(void 0, arguments);
+      return func.apply(undefined, arguments);
     };
   }
   function constant(value) {
@@ -16546,13 +16544,13 @@ div[class^="new-summary-container_"] {\r
   var hasOwnProperty$3 = objectProto$3.hasOwnProperty;
   function assignValue(object, key, value) {
     var objValue = object[key];
-    if (!(hasOwnProperty$3.call(object, key) && eq(objValue, value)) || value === void 0 && !(key in object)) {
+    if (!(hasOwnProperty$3.call(object, key) && eq(objValue, value)) || value === undefined && !(key in object)) {
       baseAssignValue(object, key, value);
     }
   }
   var nativeMax$1 = Math.max;
   function overRest(func, start, transform) {
-    start = nativeMax$1(start === void 0 ? func.length - 1 : start, 0);
+    start = nativeMax$1(start === undefined ? func.length - 1 : start, 0);
     return function() {
       var args = arguments, index = -1, length = nativeMax$1(args.length - start, 0), array = Array(length);
       while (++index < length) {
@@ -16611,21 +16609,21 @@ div[class^="new-summary-container_"] {\r
     var data = this.__data__;
     if (nativeCreate) {
       var result = data[key];
-      return result === HASH_UNDEFINED$1 ? void 0 : result;
+      return result === HASH_UNDEFINED$1 ? undefined : result;
     }
-    return hasOwnProperty$1.call(data, key) ? data[key] : void 0;
+    return hasOwnProperty$1.call(data, key) ? data[key] : undefined;
   }
   var objectProto = Object.prototype;
   var hasOwnProperty = objectProto.hasOwnProperty;
   function hashHas(key) {
     var data = this.__data__;
-    return nativeCreate ? data[key] !== void 0 : hasOwnProperty.call(data, key);
+    return nativeCreate ? data[key] !== undefined : hasOwnProperty.call(data, key);
   }
   var HASH_UNDEFINED = "__lodash_hash_undefined__";
   function hashSet(key, value) {
     var data = this.__data__;
     this.size += this.has(key) ? 0 : 1;
-    data[key] = nativeCreate && value === void 0 ? HASH_UNDEFINED : value;
+    data[key] = nativeCreate && value === undefined ? HASH_UNDEFINED : value;
     return this;
   }
   function Hash(entries) {
@@ -16672,7 +16670,7 @@ div[class^="new-summary-container_"] {\r
   }
   function listCacheGet(key) {
     var data = this.__data__, index = assocIndexOf(data, key);
-    return index < 0 ? void 0 : data[index][1];
+    return index < 0 ? undefined : data[index][1];
   }
   function listCacheHas(key) {
     return assocIndexOf(this.__data__, key) > -1;
@@ -16797,13 +16795,12 @@ div[class^="new-summary-container_"] {\r
     }
     return isKey(value, object) ? [value] : stringToPath(toString(value));
   }
-  var INFINITY = 1 / 0;
   function toKey(value) {
     if (typeof value == "string" || isSymbol(value)) {
       return value;
     }
     var result = value + "";
-    return result == "0" && 1 / value == -INFINITY ? "-0" : result;
+    return result == "0" && 1 / value == -Infinity ? "-0" : result;
   }
   function baseGet(object, path) {
     path = castPath(path, object);
@@ -16811,11 +16808,11 @@ div[class^="new-summary-container_"] {\r
     while (object != null && index < length) {
       object = object[toKey(path[index++])];
     }
-    return index && index == length ? object : void 0;
+    return index && index == length ? object : undefined;
   }
   function get(object, path, defaultValue) {
-    var result = object == null ? void 0 : baseGet(object, path);
-    return result === void 0 ? defaultValue : result;
+    var result = object == null ? undefined : baseGet(object, path);
+    return result === undefined ? defaultValue : result;
   }
   function arrayPush(array, values) {
     var index = -1, length = values.length, offset = array.length;
@@ -16824,7 +16821,7 @@ div[class^="new-summary-container_"] {\r
     }
     return array;
   }
-  var spreadableSymbol = Symbol$1 ? Symbol$1.isConcatSpreadable : void 0;
+  var spreadableSymbol = Symbol$1 ? Symbol$1.isConcatSpreadable : undefined;
   function isFlattenable(value) {
     return isArray(value) || isArguments(value) || !!(spreadableSymbol && value && value[spreadableSymbol]);
   }
@@ -16849,7 +16846,7 @@ div[class^="new-summary-container_"] {\r
     return length ? baseFlatten(array) : [];
   }
   function flatRest(func) {
-    return setToString(overRest(func, void 0, flatten), func + "");
+    return setToString(overRest(func, undefined, flatten), func + "");
   }
   function baseHasIn(object, key) {
     return object != null && key in Object(object);
@@ -16892,7 +16889,7 @@ div[class^="new-summary-container_"] {\r
     }
     function invokeFunc(time) {
       var args = lastArgs, thisArg = lastThis;
-      lastArgs = lastThis = void 0;
+      lastArgs = lastThis = undefined;
       lastInvokeTime = time;
       result = func.apply(thisArg, args);
       return result;
@@ -16908,7 +16905,7 @@ div[class^="new-summary-container_"] {\r
     }
     function shouldInvoke(time) {
       var timeSinceLastCall = time - lastCallTime, timeSinceLastInvoke = time - lastInvokeTime;
-      return lastCallTime === void 0 || timeSinceLastCall >= wait || timeSinceLastCall < 0 || maxing && timeSinceLastInvoke >= maxWait;
+      return lastCallTime === undefined || timeSinceLastCall >= wait || timeSinceLastCall < 0 || maxing && timeSinceLastInvoke >= maxWait;
     }
     function timerExpired() {
       var time = now();
@@ -16918,22 +16915,22 @@ div[class^="new-summary-container_"] {\r
       timerId = setTimeout(timerExpired, remainingWait(time));
     }
     function trailingEdge(time) {
-      timerId = void 0;
+      timerId = undefined;
       if (trailing && lastArgs) {
         return invokeFunc(time);
       }
-      lastArgs = lastThis = void 0;
+      lastArgs = lastThis = undefined;
       return result;
     }
     function cancel() {
-      if (timerId !== void 0) {
+      if (timerId !== undefined) {
         clearTimeout(timerId);
       }
       lastInvokeTime = 0;
-      lastArgs = lastCallTime = lastThis = timerId = void 0;
+      lastArgs = lastCallTime = lastThis = timerId = undefined;
     }
     function flush() {
-      return timerId === void 0 ? result : trailingEdge(now());
+      return timerId === undefined ? result : trailingEdge(now());
     }
     function debounced() {
       var time = now(), isInvoking = shouldInvoke(time);
@@ -16941,7 +16938,7 @@ div[class^="new-summary-container_"] {\r
       lastThis = this;
       lastCallTime = time;
       if (isInvoking) {
-        if (timerId === void 0) {
+        if (timerId === undefined) {
           return leadingEdge(lastCallTime);
         }
         if (maxing) {
@@ -16950,7 +16947,7 @@ div[class^="new-summary-container_"] {\r
           return invokeFunc(lastCallTime);
         }
       }
-      if (timerId === void 0) {
+      if (timerId === undefined) {
         timerId = setTimeout(timerExpired, wait);
       }
       return result;
@@ -16983,8 +16980,8 @@ div[class^="new-summary-container_"] {\r
       }
       if (index != lastIndex) {
         var objValue = nested[key];
-        newValue = void 0;
-        if (newValue === void 0) {
+        newValue = undefined;
+        if (newValue === undefined) {
           newValue = isObject(objValue) ? objValue : isIndex(path[index + 1]) ? [] : {};
         }
       }
@@ -17027,7 +17024,7 @@ div[class^="new-summary-container_"] {\r
       "trailing": trailing
     });
   }
-  const isUndefined = (val) => val === void 0;
+  const isUndefined = (val) => val === undefined;
   const isNumber = (val) => typeof val === "number";
   const isElement = (e) => {
     if (typeof Element === "undefined")
@@ -17065,7 +17062,7 @@ div[class^="new-summary-container_"] {\r
     vueDemi.watchEffect(() => {
       result.value = fn();
     }, __spreadProps$6(__spreadValues$9({}, options), {
-      flush: (_a3 = void 0) != null ? _a3 : "sync"
+      flush: (_a3 = undefined) != null ? _a3 : "sync"
     }));
     return vueDemi.readonly(result);
   }
@@ -17074,7 +17071,7 @@ div[class^="new-summary-container_"] {\r
   const isString = (val) => typeof val === "string";
   const noop = () => {
   };
-  isClient && ((_a = window == null ? void 0 : window.navigator) == null ? void 0 : _a.userAgent) && /iP(ad|hone|od)/.test(window.navigator.userAgent);
+  isClient && ((_a = window == null ? undefined : window.navigator) == null ? undefined : _a.userAgent) && /iP(ad|hone|od)/.test(window.navigator.userAgent);
   function resolveUnref(r) {
     return typeof r === "function" ? r() : vueDemi.unref(r);
   }
@@ -17095,7 +17092,7 @@ div[class^="new-summary-container_"] {\r
     const clear = () => {
       if (timer) {
         clearTimeout(timer);
-        timer = void 0;
+        timer = undefined;
         lastRejector();
         lastRejector = noop;
       }
@@ -17156,10 +17153,10 @@ div[class^="new-summary-container_"] {\r
   function unrefElement(elRef) {
     var _a3;
     const plain = resolveUnref(elRef);
-    return (_a3 = plain == null ? void 0 : plain.$el) != null ? _a3 : plain;
+    return (_a3 = plain == null ? undefined : plain.$el) != null ? _a3 : plain;
   }
-  const defaultWindow = isClient ? window : void 0;
-  const defaultDocument = isClient ? window.document : void 0;
+  const defaultWindow = isClient ? window : undefined;
+  const defaultDocument = isClient ? window.document : undefined;
   function useEventListener(...args) {
     let target;
     let events;
@@ -17242,7 +17239,7 @@ div[class^="new-summary-container_"] {\r
     const cleanup = () => {
       if (observer) {
         observer.disconnect();
-        observer = void 0;
+        observer = undefined;
       }
     };
     const stopWatch = vueDemi.watch(() => unrefElement(target), (el) => {
@@ -17345,7 +17342,7 @@ div[class^="new-summary-container_"] {\r
   const zIndexContextKey = Symbol("zIndexContextKey");
   const useZIndex = (zIndexOverrides) => {
     const increasingInjection = vue.getCurrentInstance() ? vue.inject(ZINDEX_INJECTION_KEY, initial) : initial;
-    const zIndexInjection = zIndexOverrides || (vue.getCurrentInstance() ? vue.inject(zIndexContextKey, void 0) : void 0);
+    const zIndexInjection = zIndexOverrides || (vue.getCurrentInstance() ? vue.inject(zIndexContextKey, undefined) : undefined);
     const initialZIndex = vue.computed(() => {
       const zIndexFromInjection = vue.unref(zIndexInjection);
       return isNumber(zIndexFromInjection) ? zIndexFromInjection : defaultInitialZIndex;
@@ -17545,7 +17542,7 @@ div[class^="new-summary-container_"] {\r
   const buildTranslator = (locale) => (path, option) => translate(path, option, vue.unref(locale));
   const translate = (path, option, locale) => get(locale, path, path).replace(/\{(\w+)\}/g, (_, key) => {
     var _a3;
-    return `${(_a3 = option == null ? void 0 : option[key]) != null ? _a3 : `{${key}}`}`;
+    return `${(_a3 = option == null ? undefined : option[key]) != null ? _a3 : `{${key}}`}`;
   });
   const buildLocaleContext = (locale) => {
     const lang = vue.computed(() => vue.unref(locale).name);
@@ -17585,7 +17582,7 @@ div[class^="new-summary-container_"] {\r
         vue.warn(`Invalid prop: validation failed${key ? ` for prop "${key}"` : ""}. Expected one of [${allowValuesText}], got value ${JSON.stringify(val)}.`);
       }
       return valid;
-    } : void 0;
+    } : undefined;
     const epProp = {
       type,
       required: !!required,
@@ -17618,18 +17615,18 @@ div[class^="new-summary-container_"] {\r
     emptyValues: Array,
     valueOnClear: {
       type: [String, Number, Boolean, Function],
-      default: void 0,
+      default: undefined,
       validator: (val) => isFunction$1(val) ? !val() : !val
     }
   });
   const keysOf = (arr) => Object.keys(arr);
   const globalConfig = vue.ref();
-  function useGlobalConfig(key, defaultValue = void 0) {
+  function useGlobalConfig(key, defaultValue = undefined) {
     const config = vue.getCurrentInstance() ? vue.inject(configProviderContextKey, globalConfig) : globalConfig;
     if (key) {
       return vue.computed(() => {
         var _a3, _b;
-        return (_b = (_a3 = config.value) == null ? void 0 : _a3[key]) != null ? _b : defaultValue;
+        return (_b = (_a3 = config.value) == null ? undefined : _a3[key]) != null ? _b : defaultValue;
       });
     } else {
       return config;
@@ -17639,19 +17636,19 @@ div[class^="new-summary-container_"] {\r
     const config = useGlobalConfig();
     const ns = useNamespace(block, vue.computed(() => {
       var _a3;
-      return ((_a3 = config.value) == null ? void 0 : _a3.namespace) || defaultNamespace;
+      return ((_a3 = config.value) == null ? undefined : _a3.namespace) || defaultNamespace;
     }));
     const locale = useLocale(vue.computed(() => {
       var _a3;
-      return (_a3 = config.value) == null ? void 0 : _a3.locale;
+      return (_a3 = config.value) == null ? undefined : _a3.locale;
     }));
     const zIndex2 = useZIndex(vue.computed(() => {
       var _a3;
-      return ((_a3 = config.value) == null ? void 0 : _a3.zIndex) || defaultInitialZIndex;
+      return ((_a3 = config.value) == null ? undefined : _a3.zIndex) || defaultInitialZIndex;
     }));
     const size = vue.computed(() => {
       var _a3;
-      return vue.unref(sizeFallback) || ((_a3 = config.value) == null ? void 0 : _a3.size) || "";
+      return vue.unref(sizeFallback) || ((_a3 = config.value) == null ? undefined : _a3.size) || "";
     });
     provideGlobalConfig(vue.computed(() => vue.unref(config) || {}));
     return {
@@ -17664,14 +17661,14 @@ div[class^="new-summary-container_"] {\r
   const provideGlobalConfig = (config, app, global2 = false) => {
     var _a3;
     const inSetup = !!vue.getCurrentInstance();
-    const oldConfig = inSetup ? useGlobalConfig() : void 0;
-    const provideFn = (_a3 = void 0) != null ? _a3 : inSetup ? vue.provide : void 0;
+    const oldConfig = inSetup ? useGlobalConfig() : undefined;
+    const provideFn = (_a3 = undefined) != null ? _a3 : inSetup ? vue.provide : undefined;
     if (!provideFn) {
       return;
     }
     const context = vue.computed(() => {
       const cfg = vue.unref(config);
-      if (!(oldConfig == null ? void 0 : oldConfig.value))
+      if (!(oldConfig == null ? undefined : oldConfig.value))
         return cfg;
       return mergeConfig(oldConfig.value, cfg);
     });
@@ -17695,7 +17692,7 @@ div[class^="new-summary-container_"] {\r
     const keys = [.../* @__PURE__ */ new Set([...keysOf(a), ...keysOf(b)])];
     const obj = {};
     for (const key of keys) {
-      obj[key] = b[key] !== void 0 ? b[key] : a[key];
+      obj[key] = b[key] !== undefined ? b[key] : a[key];
     }
     return obj;
   };
@@ -17808,7 +17805,7 @@ div[class^="new-summary-container_"] {\r
         if (!size && !color)
           return {};
         return {
-          fontSize: isUndefined(size) ? void 0 : addUnit(size),
+          fontSize: isUndefined(size) ? undefined : addUnit(size),
           "--color": color
         };
       });
@@ -17846,7 +17843,7 @@ div[class^="new-summary-container_"] {\r
   const useAttrs = (params = {}) => {
     const { excludeListeners = false, excludeKeys } = params;
     const allExcludeKeys = vue.computed(() => {
-      return ((excludeKeys == null ? void 0 : excludeKeys.value) || []).concat(DEFAULT_EXCLUDE_KEYS);
+      return ((excludeKeys == null ? undefined : excludeKeys.value) || []).concat(DEFAULT_EXCLUDE_KEYS);
     });
     const instance = vue.getCurrentInstance();
     if (!instance) {
@@ -17854,7 +17851,7 @@ div[class^="new-summary-container_"] {\r
     }
     return vue.computed(() => {
       var _a3;
-      return fromPairs(Object.entries((_a3 = instance.proxy) == null ? void 0 : _a3.$attrs).filter(([key]) => !allExcludeKeys.value.includes(key) && !(excludeListeners && LISTENER_PREFIX.test(key))));
+      return fromPairs(Object.entries((_a3 = instance.proxy) == null ? undefined : _a3.$attrs).filter(([key]) => !allExcludeKeys.value.includes(key) && !(excludeListeners && LISTENER_PREFIX.test(key))));
     });
   };
   const formContextKey = Symbol("formContextKey");
@@ -17874,8 +17871,8 @@ div[class^="new-summary-container_"] {\r
     return idRef;
   };
   const useFormItem = () => {
-    const form = vue.inject(formContextKey, void 0);
-    const formItem = vue.inject(formItemContextKey, void 0);
+    const form = vue.inject(formContextKey, undefined);
+    const formItem = vue.inject(formItemContextKey, undefined);
     return {
       form,
       formItem
@@ -17885,21 +17882,21 @@ div[class^="new-summary-container_"] {\r
     const vm = vue.getCurrentInstance();
     return vue.computed(() => {
       var _a3, _b;
-      return (_b = (_a3 = vm == null ? void 0 : vm.proxy) == null ? void 0 : _a3.$props) == null ? void 0 : _b[name];
+      return (_b = (_a3 = vm == null ? undefined : vm.proxy) == null ? undefined : _a3.$props) == null ? undefined : _b[name];
     });
   };
   const useFormSize = (fallback, ignore = {}) => {
-    const emptyRef = vue.ref(void 0);
+    const emptyRef = vue.ref(undefined);
     const size = ignore.prop ? emptyRef : useProp("size");
     const globalConfig2 = ignore.global ? emptyRef : useGlobalSize();
-    const form = ignore.form ? { size: void 0 } : vue.inject(formContextKey, void 0);
-    const formItem = ignore.formItem ? { size: void 0 } : vue.inject(formItemContextKey, void 0);
-    return vue.computed(() => size.value || vue.unref(fallback) || (formItem == null ? void 0 : formItem.size) || (form == null ? void 0 : form.size) || globalConfig2.value || "");
+    const form = ignore.form ? { size: undefined } : vue.inject(formContextKey, undefined);
+    const formItem = ignore.formItem ? { size: undefined } : vue.inject(formItemContextKey, undefined);
+    return vue.computed(() => size.value || vue.unref(fallback) || (formItem == null ? undefined : formItem.size) || (form == null ? undefined : form.size) || globalConfig2.value || "");
   };
   const useFormDisabled = (fallback) => {
     const disabled = useProp("disabled");
-    const form = vue.inject(formContextKey, void 0);
-    return vue.computed(() => disabled.value || vue.unref(fallback) || (form == null ? void 0 : form.disabled) || false);
+    const form = vue.inject(formContextKey, undefined);
+    return vue.computed(() => disabled.value || vue.unref(fallback) || (form == null ? undefined : form.disabled) || false);
   };
   const GAP = 4;
   const BAR_MAP = {
@@ -17972,7 +17969,7 @@ div[class^="new-summary-container_"] {\r
         e.stopPropagation();
         if (e.ctrlKey || [1, 2].includes(e.button))
           return;
-        (_a3 = window.getSelection()) == null ? void 0 : _a3.removeAllRanges();
+        (_a3 = window.getSelection()) == null ? undefined : _a3.removeAllRanges();
         startDrag(e);
         const el = e.currentTarget;
         if (!el)
@@ -18095,7 +18092,7 @@ div[class^="new-summary-container_"] {\r
         }
       };
       const update = () => {
-        const wrap = scrollbar == null ? void 0 : scrollbar.wrapElement;
+        const wrap = scrollbar == null ? undefined : scrollbar.wrapElement;
         if (!wrap)
           return;
         const offsetHeight = wrap.offsetHeight - GAP;
@@ -18174,7 +18171,7 @@ div[class^="new-summary-container_"] {\r
     },
     tabindex: {
       type: [String, Number],
-      default: void 0
+      default: undefined
     },
     id: String,
     role: String,
@@ -18197,8 +18194,8 @@ div[class^="new-summary-container_"] {\r
     setup(__props, { expose, emit }) {
       const props = __props;
       const ns = useNamespace("scrollbar");
-      let stopResizeObserver = void 0;
-      let stopResizeListener = void 0;
+      let stopResizeObserver = undefined;
+      let stopResizeListener = undefined;
       let wrapScrollTop = 0;
       let wrapScrollLeft = 0;
       const scrollbarRef = vue.ref();
@@ -18226,7 +18223,7 @@ div[class^="new-summary-container_"] {\r
       const handleScroll = () => {
         var _a3;
         if (wrapRef.value) {
-          (_a3 = barRef.value) == null ? void 0 : _a3.handleScroll(wrapRef.value);
+          (_a3 = barRef.value) == null ? undefined : _a3.handleScroll(wrapRef.value);
           wrapScrollTop = wrapRef.value.scrollTop;
           wrapScrollLeft = wrapRef.value.scrollLeft;
           emit("scroll", {
@@ -18256,12 +18253,12 @@ div[class^="new-summary-container_"] {\r
       };
       const update = () => {
         var _a3;
-        (_a3 = barRef.value) == null ? void 0 : _a3.update();
+        (_a3 = barRef.value) == null ? undefined : _a3.update();
       };
       vue.watch(() => props.noresize, (noresize) => {
         if (noresize) {
-          stopResizeObserver == null ? void 0 : stopResizeObserver();
-          stopResizeListener == null ? void 0 : stopResizeListener();
+          stopResizeObserver == null ? undefined : stopResizeObserver();
+          stopResizeListener == null ? undefined : stopResizeListener();
         } else {
           ({ stop: stopResizeObserver } = useResizeObserver(resizeRef, update));
           stopResizeListener = useEventListener("resize", update);
@@ -18273,7 +18270,7 @@ div[class^="new-summary-container_"] {\r
             var _a3;
             update();
             if (wrapRef.value) {
-              (_a3 = barRef.value) == null ? void 0 : _a3.handleScroll(wrapRef.value);
+              (_a3 = barRef.value) == null ? undefined : _a3.handleScroll(wrapRef.value);
             }
           });
       });
@@ -18345,6 +18342,30 @@ div[class^="new-summary-container_"] {\r
   });
   var Scrollbar = /* @__PURE__ */ _export_sfc(_sfc_main$G, [["__file", "scrollbar.vue"]]);
   const ElScrollbar = withInstall(Scrollbar);
+  const isFocusable = (element) => {
+    if (element.tabIndex > 0 || element.tabIndex === 0 && element.getAttribute("tabIndex") !== null) {
+      return true;
+    }
+    if (element.tabIndex < 0 || element.hasAttribute("disabled") || element.getAttribute("aria-disabled") === "true") {
+      return false;
+    }
+    switch (element.nodeName) {
+      case "A": {
+        return !!element.href && element.rel !== "ignore";
+      }
+      case "INPUT": {
+        return !(element.type === "hidden" || element.type === "file");
+      }
+      case "BUTTON":
+      case "SELECT":
+      case "TEXTAREA": {
+        return true;
+      }
+      default: {
+        return false;
+      }
+    }
+  };
   const FOCUS_AFTER_TRAPPED = "focus-trap.focus-after-trapped";
   const FOCUS_AFTER_RELEASED = "focus-trap.focus-after-released";
   const FOCUSOUT_PREVENTED = "focus-trap.focusout-prevented";
@@ -18407,10 +18428,18 @@ div[class^="new-summary-container_"] {\r
   const tryFocus = (element, shouldSelect) => {
     if (element && element.focus) {
       const prevFocusedElement = document.activeElement;
+      let cleanup = false;
+      if (isElement(element) && !isFocusable(element) && !element.getAttribute("tabindex")) {
+        element.setAttribute("tabindex", "-1");
+        cleanup = true;
+      }
       element.focus({ preventScroll: true });
       lastAutomatedFocusTimestamp.value = window.performance.now();
       if (element !== prevFocusedElement && isSelectable(element) && shouldSelect) {
         element.select();
+      }
+      if (isElement(element) && cleanup) {
+        element.removeAttribute("tabindex");
       }
     }
   };
@@ -18435,7 +18464,7 @@ div[class^="new-summary-container_"] {\r
     const remove = (layer) => {
       var _a3, _b;
       stack = removeFromStack(stack, layer);
-      (_b = (_a3 = stack[0]) == null ? void 0 : _a3.resume) == null ? void 0 : _b.call(_a3);
+      (_b = (_a3 = stack[0]) == null ? undefined : _a3.resume) == null ? undefined : _b.call(_a3);
     };
     return {
       push,
@@ -18764,7 +18793,7 @@ div[class^="new-summary-container_"] {\r
           forwardRef.value.removeEventListener("keydown", onKeydown);
           forwardRef.value.removeEventListener("focusin", onFocusIn);
           forwardRef.value.removeEventListener("focusout", onFocusOut);
-          forwardRef.value = void 0;
+          forwardRef.value = undefined;
         }
       });
       return {
@@ -18854,7 +18883,7 @@ div[class^="new-summary-container_"] {\r
         const { size } = props;
         return isNumber(size) ? ns.cssVarBlock({
           size: addUnit(size) || ""
-        }) : void 0;
+        }) : undefined;
       });
       const fitStyle = vue.computed(() => ({
         objectFit: props.fit
@@ -18919,7 +18948,7 @@ div[class^="new-summary-container_"] {\r
     };
     const handleClick = (event) => {
       var _a3;
-      (_a3 = el.value) == null ? void 0 : _a3.scrollTo({ top: 0, behavior: "smooth" });
+      (_a3 = el.value) == null ? undefined : _a3.scrollTo({ top: 0, behavior: "smooth" });
       emit("click", event);
     };
     const handleScrollThrottled = useThrottleFn(handleScroll, 300, true);
@@ -18929,7 +18958,7 @@ div[class^="new-summary-container_"] {\r
       container.value = document;
       el.value = document.documentElement;
       if (props.target) {
-        el.value = (_a3 = document.querySelector(props.target)) != null ? _a3 : void 0;
+        el.value = (_a3 = document.querySelector(props.target)) != null ? _a3 : undefined;
         if (!el.value) {
           throwError(componentName, `target does not exist: ${props.target}`);
         }
@@ -19003,17 +19032,17 @@ div[class^="new-summary-container_"] {\r
       scope: "props",
       ref: "https://element-plus.org/en-US/component/button.html#button-attributes"
     }, vue.computed(() => props.type === "text"));
-    const buttonGroupContext = vue.inject(buttonGroupContextKey, void 0);
+    const buttonGroupContext = vue.inject(buttonGroupContextKey, undefined);
     const globalConfig2 = useGlobalConfig("button");
     const { form } = useFormItem();
-    const _size = useFormSize(vue.computed(() => buttonGroupContext == null ? void 0 : buttonGroupContext.size));
+    const _size = useFormSize(vue.computed(() => buttonGroupContext == null ? undefined : buttonGroupContext.size));
     const _disabled = useFormDisabled();
     const _ref = vue.ref();
     const slots = vue.useSlots();
-    const _type = vue.computed(() => props.type || (buttonGroupContext == null ? void 0 : buttonGroupContext.type) || "");
+    const _type = vue.computed(() => props.type || (buttonGroupContext == null ? undefined : buttonGroupContext.type) || "");
     const autoInsertSpace = vue.computed(() => {
       var _a3, _b, _c;
-      return (_c = (_b = props.autoInsertSpace) != null ? _b : (_a3 = globalConfig2.value) == null ? void 0 : _a3.autoInsertSpace) != null ? _c : false;
+      return (_c = (_b = props.autoInsertSpace) != null ? _b : (_a3 = globalConfig2.value) == null ? undefined : _a3.autoInsertSpace) != null ? _c : false;
     });
     const _props = vue.computed(() => {
       if (props.tag === "button") {
@@ -19028,10 +19057,10 @@ div[class^="new-summary-container_"] {\r
     });
     const shouldAddSpace = vue.computed(() => {
       var _a3;
-      const defaultSlot = (_a3 = slots.default) == null ? void 0 : _a3.call(slots);
-      if (autoInsertSpace.value && (defaultSlot == null ? void 0 : defaultSlot.length) === 1) {
+      const defaultSlot = (_a3 = slots.default) == null ? undefined : _a3.call(slots);
+      if (autoInsertSpace.value && (defaultSlot == null ? undefined : defaultSlot.length) === 1) {
         const slot = defaultSlot[0];
-        if ((slot == null ? void 0 : slot.type) === vue.Text) {
+        if ((slot == null ? undefined : slot.type) === vue.Text) {
           const text = slot.children;
           return new RegExp("^\\p{Unified_Ideograph}{2}$", "u").test(text.trim());
         }
@@ -19044,7 +19073,7 @@ div[class^="new-summary-container_"] {\r
         return;
       }
       if (props.nativeType === "reset") {
-        form == null ? void 0 : form.resetFields();
+        form == null ? undefined : form.resetFields();
       }
       emit("click", evt);
     };
@@ -19101,7 +19130,7 @@ div[class^="new-summary-container_"] {\r
     dark: Boolean,
     autoInsertSpace: {
       type: Boolean,
-      default: void 0
+      default: undefined
     },
     tag: {
       type: definePropType([String, Object]),
@@ -19606,10 +19635,10 @@ div[class^="new-summary-container_"] {\r
     /** @class */
     function() {
       function TinyColor2(color, opts) {
-        if (color === void 0) {
+        if (color === undefined) {
           color = "";
         }
-        if (opts === void 0) {
+        if (opts === undefined) {
           opts = {};
         }
         var _a3;
@@ -19627,7 +19656,7 @@ div[class^="new-summary-container_"] {\r
         this.b = rgb.b;
         this.a = rgb.a;
         this.roundA = Math.round(100 * this.a) / 100;
-        this.format = (_a3 = opts.format) !== null && _a3 !== void 0 ? _a3 : rgb.format;
+        this.format = (_a3 = opts.format) !== null && _a3 !== undefined ? _a3 : rgb.format;
         this.gradientType = opts.gradientType;
         if (this.r < 1) {
           this.r = Math.round(this.r);
@@ -19710,31 +19739,31 @@ div[class^="new-summary-container_"] {\r
         return this.a === 1 ? "hsl(".concat(h2, ", ").concat(s, "%, ").concat(l, "%)") : "hsla(".concat(h2, ", ").concat(s, "%, ").concat(l, "%, ").concat(this.roundA, ")");
       };
       TinyColor2.prototype.toHex = function(allow3Char) {
-        if (allow3Char === void 0) {
+        if (allow3Char === undefined) {
           allow3Char = false;
         }
         return rgbToHex(this.r, this.g, this.b, allow3Char);
       };
       TinyColor2.prototype.toHexString = function(allow3Char) {
-        if (allow3Char === void 0) {
+        if (allow3Char === undefined) {
           allow3Char = false;
         }
         return "#" + this.toHex(allow3Char);
       };
       TinyColor2.prototype.toHex8 = function(allow4Char) {
-        if (allow4Char === void 0) {
+        if (allow4Char === undefined) {
           allow4Char = false;
         }
         return rgbaToHex(this.r, this.g, this.b, this.a, allow4Char);
       };
       TinyColor2.prototype.toHex8String = function(allow4Char) {
-        if (allow4Char === void 0) {
+        if (allow4Char === undefined) {
           allow4Char = false;
         }
         return "#" + this.toHex8(allow4Char);
       };
       TinyColor2.prototype.toHexShortString = function(allowShortChar) {
-        if (allowShortChar === void 0) {
+        if (allowShortChar === undefined) {
           allowShortChar = false;
         }
         return this.a === 1 ? this.toHexString(allowShortChar) : this.toHex8String(allowShortChar);
@@ -19788,7 +19817,7 @@ div[class^="new-summary-container_"] {\r
       };
       TinyColor2.prototype.toString = function(format) {
         var formatSet = Boolean(format);
-        format = format !== null && format !== void 0 ? format : this.format;
+        format = format !== null && format !== undefined ? format : this.format;
         var formattedString = false;
         var hasAlpha = this.a < 1 && this.a >= 0;
         var needsAlphaFormat = !formatSet && hasAlpha && (format.startsWith("hex") || format === "name");
@@ -19834,7 +19863,7 @@ div[class^="new-summary-container_"] {\r
         return new TinyColor2(this.toString());
       };
       TinyColor2.prototype.lighten = function(amount) {
-        if (amount === void 0) {
+        if (amount === undefined) {
           amount = 10;
         }
         var hsl = this.toHsl();
@@ -19843,7 +19872,7 @@ div[class^="new-summary-container_"] {\r
         return new TinyColor2(hsl);
       };
       TinyColor2.prototype.brighten = function(amount) {
-        if (amount === void 0) {
+        if (amount === undefined) {
           amount = 10;
         }
         var rgb = this.toRgb();
@@ -19853,7 +19882,7 @@ div[class^="new-summary-container_"] {\r
         return new TinyColor2(rgb);
       };
       TinyColor2.prototype.darken = function(amount) {
-        if (amount === void 0) {
+        if (amount === undefined) {
           amount = 10;
         }
         var hsl = this.toHsl();
@@ -19862,19 +19891,19 @@ div[class^="new-summary-container_"] {\r
         return new TinyColor2(hsl);
       };
       TinyColor2.prototype.tint = function(amount) {
-        if (amount === void 0) {
+        if (amount === undefined) {
           amount = 10;
         }
         return this.mix("white", amount);
       };
       TinyColor2.prototype.shade = function(amount) {
-        if (amount === void 0) {
+        if (amount === undefined) {
           amount = 10;
         }
         return this.mix("black", amount);
       };
       TinyColor2.prototype.desaturate = function(amount) {
-        if (amount === void 0) {
+        if (amount === undefined) {
           amount = 10;
         }
         var hsl = this.toHsl();
@@ -19883,7 +19912,7 @@ div[class^="new-summary-container_"] {\r
         return new TinyColor2(hsl);
       };
       TinyColor2.prototype.saturate = function(amount) {
-        if (amount === void 0) {
+        if (amount === undefined) {
           amount = 10;
         }
         var hsl = this.toHsl();
@@ -19901,7 +19930,7 @@ div[class^="new-summary-container_"] {\r
         return new TinyColor2(hsl);
       };
       TinyColor2.prototype.mix = function(color, amount) {
-        if (amount === void 0) {
+        if (amount === undefined) {
           amount = 50;
         }
         var rgb1 = this.toRgb();
@@ -19916,10 +19945,10 @@ div[class^="new-summary-container_"] {\r
         return new TinyColor2(rgba);
       };
       TinyColor2.prototype.analogous = function(results, slices) {
-        if (results === void 0) {
+        if (results === undefined) {
           results = 6;
         }
-        if (slices === void 0) {
+        if (slices === undefined) {
           slices = 30;
         }
         var hsl = this.toHsl();
@@ -19937,7 +19966,7 @@ div[class^="new-summary-container_"] {\r
         return new TinyColor2(hsl);
       };
       TinyColor2.prototype.monochromatic = function(results) {
-        if (results === void 0) {
+        if (results === undefined) {
           results = 6;
         }
         var hsv = this.toHsv();
@@ -20188,7 +20217,7 @@ div[class^="new-summary-container_"] {\r
       var _a3;
       if (isArray$1(child)) {
         result.push(...flattedChildren(child));
-      } else if (vue.isVNode(child) && ((_a3 = child.component) == null ? void 0 : _a3.subTree)) {
+      } else if (vue.isVNode(child) && ((_a3 = child.component) == null ? undefined : _a3.subTree)) {
         result.push(child, ...flattedChildren(child.component.subTree));
       } else if (vue.isVNode(child) && isArray$1(child.children)) {
         result.push(...flattedChildren(child.children));
@@ -20201,7 +20230,7 @@ div[class^="new-summary-container_"] {\r
   const getOrderedChildren = (vm, childComponentName, children) => {
     const nodes = flattedChildren(vm.subTree).filter((n) => {
       var _a3;
-      return vue.isVNode(n) && ((_a3 = n.type) == null ? void 0 : _a3.name) === childComponentName && !!n.component;
+      return vue.isVNode(n) && ((_a3 = n.type) == null ? undefined : _a3.name) === childComponentName && !!n.component;
     });
     const uids = nodes.map((n) => n.component.uid);
     return uids.map((uid) => children[uid]).filter((p) => !!p);
@@ -21009,7 +21038,7 @@ div[class^="new-summary-container_"] {\r
       }
       function onFocusoutPrevented(event) {
         var _a22;
-        if (((_a22 = event.detail) == null ? void 0 : _a22.focusReason) === "pointer") {
+        if (((_a22 = event.detail) == null ? undefined : _a22.focusReason) === "pointer") {
           event.preventDefault();
         }
       }
@@ -21021,7 +21050,7 @@ div[class^="new-summary-container_"] {\r
       vue.watch(currentImg, () => {
         vue.nextTick(() => {
           const $img = imgRefs.value[0];
-          if (!($img == null ? void 0 : $img.complete)) {
+          if (!($img == null ? undefined : $img.complete)) {
             loading.value = true;
           }
         });
@@ -21350,7 +21379,7 @@ div[class^="new-summary-container_"] {\r
         if (isElement(scrollContainer)) {
           _scrollContainer.value = scrollContainer;
         } else if (isString$1(scrollContainer) && scrollContainer !== "") {
-          _scrollContainer.value = (_a3 = document.querySelector(scrollContainer)) != null ? _a3 : void 0;
+          _scrollContainer.value = (_a3 = document.querySelector(scrollContainer)) != null ? _a3 : undefined;
         } else if (container.value) {
           _scrollContainer.value = getScrollContainer(container.value);
         }
@@ -21362,8 +21391,8 @@ div[class^="new-summary-container_"] {\r
       function removeLazyLoadListener() {
         if (!isClient || !_scrollContainer.value || !lazyLoadHandler)
           return;
-        stopScrollListener == null ? void 0 : stopScrollListener();
-        _scrollContainer.value = void 0;
+        stopScrollListener == null ? undefined : stopScrollListener();
+        _scrollContainer.value = undefined;
       }
       function wheelHandler(e) {
         if (!e.ctrlKey)
@@ -21388,7 +21417,7 @@ div[class^="new-summary-container_"] {\r
         emit("show");
       }
       function closeViewer() {
-        stopWheelListener == null ? void 0 : stopWheelListener();
+        stopWheelListener == null ? undefined : stopWheelListener();
         document.body.style.overflow = prevOverflow;
         showViewer.value = false;
         emit("close");
@@ -21425,7 +21454,7 @@ div[class^="new-summary-container_"] {\r
               class: vue.normalizeClass(vue.unref(ns).e("error"))
             }, vue.toDisplayString(vue.unref(t)("el.image.error")), 3)
           ]) : (vue.openBlock(), vue.createElementBlock(vue.Fragment, { key: 1 }, [
-            imageSrc.value !== void 0 ? (vue.openBlock(), vue.createElementBlock("img", vue.mergeProps({ key: 0 }, vue.unref(imgAttrs), {
+            imageSrc.value !== undefined ? (vue.openBlock(), vue.createElementBlock("img", vue.mergeProps({ key: 0 }, vue.unref(imgAttrs), {
               src: imageSrc.value,
               loading: _ctx.loading,
               style: vue.unref(imageStyle),
@@ -21523,8 +21552,8 @@ div[class^="new-summary-container_"] {\r
       return (_ctx, _cache) => {
         return vue.openBlock(), vue.createElementBlock("a", {
           class: vue.normalizeClass(vue.unref(linkKls)),
-          href: _ctx.disabled || !_ctx.href ? void 0 : _ctx.href,
-          target: _ctx.disabled || !_ctx.href ? void 0 : _ctx.target,
+          href: _ctx.disabled || !_ctx.href ? undefined : _ctx.href,
+          target: _ctx.disabled || !_ctx.href ? undefined : _ctx.target,
           onClick: handleClick
         }, [
           _ctx.icon ? (vue.openBlock(), vue.createBlock(vue.unref(ElIcon), { key: 0 }, {
@@ -21974,7 +22003,7 @@ div[class^="new-summary-container_"] {\r
         const position = sizeDir === "x" ? "left" : "top";
         props.tabs.every((tab) => {
           var _a3, _b;
-          const $el = (_b = (_a3 = instance.parent) == null ? void 0 : _a3.refs) == null ? void 0 : _b[`tab-${tab.uid}`];
+          const $el = (_b = (_a3 = instance.parent) == null ? undefined : _a3.refs) == null ? undefined : _b[`tab-${tab.uid}`];
           if (!$el)
             return false;
           if (!tab.active) {
@@ -22000,7 +22029,7 @@ div[class^="new-summary-container_"] {\r
         var _a3;
         saveObserver.forEach((observer) => observer.stop());
         saveObserver.length = 0;
-        const list = (_a3 = instance.parent) == null ? void 0 : _a3.refs;
+        const list = (_a3 = instance.parent) == null ? undefined : _a3.refs;
         if (!list)
           return;
         for (const key in list) {
@@ -22147,7 +22176,7 @@ div[class^="new-summary-container_"] {\r
         var _a3;
         if (!nav$.value || !navScroll$.value)
           return;
-        props.stretch && ((_a3 = tabBarRef.value) == null ? void 0 : _a3.update());
+        props.stretch && ((_a3 = tabBarRef.value) == null ? undefined : _a3.update());
         const navSize = nav$.value[`offset${capitalize(sizeName.value)}`];
         const containerSize = navScroll$.value[`offset${capitalize(sizeName.value)}`];
         const currentOffset = navOffset.value;
@@ -22244,7 +22273,7 @@ div[class^="new-summary-container_"] {\r
           }, {
             default: () => [vue.createVNode(iconsVue.Close, null, null)]
           }) : null;
-          const tabLabelContent = ((_d = (_c = pane.slots).label) == null ? void 0 : _d.call(_c)) || pane.props.label;
+          const tabLabelContent = ((_d = (_c = pane.slots).label) == null ? undefined : _d.call(_c)) || pane.props.label;
           const tabindex = !disabled && pane.active ? 0 : -1;
           return vue.createVNode("div", {
             "ref": `tab-${uid}`,
@@ -22339,18 +22368,24 @@ div[class^="new-summary-container_"] {\r
       const nav$ = vue.ref();
       const currentName = vue.ref((_a3 = props.modelValue) != null ? _a3 : "0");
       const setCurrentName = async (value, trigger = false) => {
-        var _a22, _b, _c;
+        var _a22, _b;
         if (currentName.value === value || isUndefined(value))
           return;
         try {
-          const canLeave = await ((_a22 = props.beforeLeave) == null ? void 0 : _a22.call(props, value, currentName.value));
+          let canLeave;
+          if (props.beforeLeave) {
+            const result = props.beforeLeave(value, currentName.value);
+            canLeave = result instanceof Promise ? await result : result;
+          } else {
+            canLeave = true;
+          }
           if (canLeave !== false) {
             currentName.value = value;
             if (trigger) {
               emit(UPDATE_MODEL_EVENT, value);
               emit("tabChange", value);
             }
-            (_c = (_b = nav$.value) == null ? void 0 : _b.removeFocus) == null ? void 0 : _c.call(_b);
+            (_b = (_a22 = nav$.value) == null ? void 0 : _a22.removeFocus) == null ? void 0 : _b.call(_a22);
           }
         } catch (e) {
         }
@@ -22369,14 +22404,14 @@ div[class^="new-summary-container_"] {\r
         emit("tabRemove", pane.props.name);
       };
       const handleTabAdd = () => {
-        emit("edit", void 0, "add");
+        emit("edit", undefined, "add");
         emit("tabAdd");
       };
       vue.watch(() => props.modelValue, (modelValue) => setCurrentName(modelValue));
       vue.watch(currentName, async () => {
         var _a22;
         await vue.nextTick();
-        (_a22 = nav$.value) == null ? void 0 : _a22.scrollToActiveTab();
+        (_a22 = nav$.value) == null ? undefined : _a22.scrollToActiveTab();
       });
       vue.provide(tabsRootContextKey, {
         props,
@@ -22550,6 +22585,7 @@ div[class^="new-summary-container_"] {\r
     props: textProps,
     setup(__props) {
       const props = __props;
+      const textRef = vue.ref();
       const textSize = useFormSize();
       const ns = useNamespace("text");
       const textKls = vue.computed(() => [
@@ -22559,8 +22595,38 @@ div[class^="new-summary-container_"] {\r
         ns.is("truncated", props.truncated),
         ns.is("line-clamp", !isUndefined(props.lineClamp))
       ]);
+      const inheritTitle = vue.useAttrs().title;
+      const bindTitle = () => {
+        var _a3, _b, _c, _d, _e;
+        if (inheritTitle)
+          return;
+        let shouldAddTitle = false;
+        const text = ((_a3 = textRef.value) == null ? undefined : _a3.textContent) || "";
+        if (props.truncated) {
+          const width = (_b = textRef.value) == null ? undefined : _b.offsetWidth;
+          const scrollWidth = (_c = textRef.value) == null ? undefined : _c.scrollWidth;
+          if (width && scrollWidth && scrollWidth > width) {
+            shouldAddTitle = true;
+          }
+        } else if (!isUndefined(props.lineClamp)) {
+          const height = (_d = textRef.value) == null ? undefined : _d.offsetHeight;
+          const scrollHeight = (_e = textRef.value) == null ? undefined : _e.scrollHeight;
+          if (height && scrollHeight && scrollHeight > height) {
+            shouldAddTitle = true;
+          }
+        }
+        if (shouldAddTitle) {
+          textRef.value.setAttribute("title", text);
+        } else {
+          textRef.value.removeAttribute("title");
+        }
+      };
+      vue.onMounted(bindTitle);
+      vue.onUpdated(bindTitle);
       return (_ctx, _cache) => {
         return vue.openBlock(), vue.createBlock(vue.resolveDynamicComponent(_ctx.tag), {
+          ref_key: "textRef",
+          ref: textRef,
           class: vue.normalizeClass(vue.unref(textKls)),
           style: vue.normalizeStyle({ "-webkit-line-clamp": _ctx.lineClamp })
         }, {
@@ -22605,7 +22671,7 @@ div[class^="new-summary-container_"] {\r
     }
     function removeElLoadingChild() {
       var _a3, _b;
-      (_b = (_a3 = vm.$el) == null ? void 0 : _a3.parentNode) == null ? void 0 : _b.removeChild(vm.$el);
+      (_b = (_a3 = vm.$el) == null ? undefined : _a3.parentNode) == null ? undefined : _b.removeChild(vm.$el);
     }
     function close() {
       var _a3;
@@ -22615,14 +22681,14 @@ div[class^="new-summary-container_"] {\r
       clearTimeout(afterLeaveTimer);
       afterLeaveTimer = setTimeout(handleAfterLeave, 400);
       data.visible = false;
-      (_a3 = options.closed) == null ? void 0 : _a3.call(options);
+      (_a3 = options.closed) == null ? undefined : _a3.call(options);
     }
     function handleAfterLeave() {
       if (!afterLeaveFlag.value)
         return;
       const target = data.parent;
       afterLeaveFlag.value = false;
-      target.vLoadingAddClassList = void 0;
+      target.vLoadingAddClassList = undefined;
       destroySelf();
     }
     const elLoadingComponent = vue.defineComponent({
@@ -22648,7 +22714,7 @@ div[class^="new-summary-container_"] {\r
               fill: "none"
             })
           ]);
-          const spinnerText = data.text ? vue.h("p", { class: ns.b("text") }, [data.text]) : void 0;
+          const spinnerText = data.text ? vue.h("p", { class: ns.b("text") }, [data.text]) : undefined;
           return vue.h(vue.Transition, {
             name: ns.b("fade"),
             onAfterLeave: handleAfterLeave
@@ -22687,10 +22753,10 @@ div[class^="new-summary-container_"] {\r
       }
     };
   }
-  let fullscreenInstance = void 0;
+  let fullscreenInstance = undefined;
   const Loading = function(options = {}) {
     if (!isClient)
-      return void 0;
+      return undefined;
     const resolved = resolveOptions(options);
     if (resolved.fullscreen && fullscreenInstance) {
       return fullscreenInstance;
@@ -22699,9 +22765,9 @@ div[class^="new-summary-container_"] {\r
       ...resolved,
       closed: () => {
         var _a3;
-        (_a3 = resolved.closed) == null ? void 0 : _a3.call(resolved);
+        (_a3 = resolved.closed) == null ? undefined : _a3.call(resolved);
         if (resolved.fullscreen)
-          fullscreenInstance = void 0;
+          fullscreenInstance = undefined;
       }
     });
     addStyle(resolved, resolved.parent, instance);
@@ -22786,9 +22852,9 @@ div[class^="new-summary-container_"] {\r
   const createInstance = (el, binding) => {
     var _a3, _b, _c, _d;
     const vm = binding.instance;
-    const getBindingProp = (key) => isObject$1(binding.value) ? binding.value[key] : void 0;
+    const getBindingProp = (key) => isObject$1(binding.value) ? binding.value[key] : undefined;
     const resolveExpression = (key) => {
-      const data = isString$1(key) && (vm == null ? void 0 : vm[key]) || key;
+      const data = isString$1(key) && (vm == null ? undefined : vm[key]) || key;
       if (data)
         return vue.ref(data);
       else
@@ -22804,7 +22870,7 @@ div[class^="new-summary-container_"] {\r
       background: getProp("background"),
       customClass: getProp("customClass"),
       fullscreen,
-      target: (_b = getBindingProp("target")) != null ? _b : fullscreen ? void 0 : el,
+      target: (_b = getBindingProp("target")) != null ? _b : fullscreen ? undefined : el,
       body: (_c = getBindingProp("body")) != null ? _c : binding.modifiers.body,
       lock: (_d = getBindingProp("lock")) != null ? _d : binding.modifiers.lock
     };
@@ -22834,13 +22900,13 @@ div[class^="new-summary-container_"] {\r
           if (isObject$1(binding.value))
             updateOptions(binding.value, instance.options);
         } else {
-          instance == null ? void 0 : instance.instance.close();
+          instance == null ? undefined : instance.instance.close();
         }
       }
     },
     unmounted(el) {
       var _a3;
-      (_a3 = el[INSTANCE_KEY]) == null ? void 0 : _a3.instance.close();
+      (_a3 = el[INSTANCE_KEY]) == null ? undefined : _a3.instance.close();
       el[INSTANCE_KEY] = null;
     }
   };
@@ -22963,7 +23029,7 @@ div[class^="new-summary-container_"] {\r
           let contentHTML = tipEditor.getHTML();
           let $parseNode = document.createElement("div");
           $parseNode.innerHTML = contentHTML;
-          let $parseContent = (_a3 = $parseNode.firstChild) == null ? void 0 : _a3.cloneNode(true);
+          let $parseContent = (_a3 = $parseNode.firstChild) == null ? undefined : _a3.cloneNode(true);
           let contentList = [];
           let $parseList = Array.from($parseNode.querySelectorAll("& > *"));
           $parseList.forEach(($line, index) => {
@@ -23153,7 +23219,7 @@ div[class^="new-summary-container_"] {\r
             }
             setTimeout(() => {
               var _a3;
-              (_a3 = EditorRef.value) == null ? void 0 : _a3.setEditorFocus();
+              (_a3 = EditorRef.value) == null ? undefined : _a3.setEditorFocus();
             }, 200);
           } else {
             ToolbarHandler.resetReplyUser();
@@ -23168,7 +23234,7 @@ div[class^="new-summary-container_"] {\r
       vue.watch(() => tiptapStore.isLoaded, (newValue) => {
         var _a3;
         log.success("tiptap加载完毕，监听内容！");
-        (_a3 = EditorRef.value) == null ? void 0 : _a3.listenEditorContentChangeEmptyState(updateContentState);
+        (_a3 = EditorRef.value) == null ? undefined : _a3.listenEditorContentChangeEmptyState(updateContentState);
       }, {
         immediate: true,
         deep: true
@@ -23365,7 +23431,7 @@ div[class^="new-summary-container_"] {\r
           if ($ele == null) {
             return false;
           }
-          return Boolean((_a3 = $viteApp.value) == null ? void 0 : _a3.contains($ele));
+          return Boolean((_a3 = $viteApp.value) == null ? undefined : _a3.contains($ele));
         }
       };
       const GlobalEvent = {
@@ -23589,7 +23655,7 @@ div[class^="new-summary-container_"] {\r
         viewer.show();
         log.success("预览图片");
         if (PopsPanel.getValue("baidu_tieba_optimize_image_preview")) {
-          gestureback == null ? void 0 : gestureback.enterGestureBackMode();
+          gestureback == null ? undefined : gestureback.enterGestureBackMode();
         }
       }
       function getImageSrc($img) {
@@ -23612,7 +23678,7 @@ div[class^="new-summary-container_"] {\r
           if ($click.closest(".pic-popup-guide-thread-wrapper")) {
             return;
           }
-          if (currentClickImageUrl == null ? void 0 : currentClickImageUrl.match(
+          if (currentClickImageUrl == null ? undefined : currentClickImageUrl.match(
             /^http(s|):\/\/(tiebapic|imgsa).baidu.com\/forum/g
           )) {
             utils.preventEvent(event);
@@ -23663,7 +23729,7 @@ div[class^="new-summary-container_"] {\r
                 let imgUrlInfo = new URL(imgSrc);
                 if (imgUrlInfo.pathname.startsWith("/forum/")) {
                   let picName = imgUrlInfo.pathname.split("/").pop();
-                  let picIdSplit = picName == null ? void 0 : picName.split(".");
+                  let picIdSplit = picName == null ? undefined : picName.split(".");
                   if (picIdSplit) {
                     let picId = picIdSplit[0];
                     if (TiebaData.imageMap.has(picId)) {
@@ -23701,10 +23767,10 @@ div[class^="new-summary-container_"] {\r
                     )
                   ).map(($el) => $el.src);
                   let pbCommentItemVue3Ins = VueUtils.getVue3($pbCommentItem);
-                  let pbCommentData = (_a3 = pbCommentItemVue3Ins == null ? void 0 : pbCommentItemVue3Ins.props) == null ? void 0 : _a3.commentData;
+                  let pbCommentData = (_a3 = pbCommentItemVue3Ins == null ? undefined : pbCommentItemVue3Ins.props) == null ? undefined : _a3.commentData;
                   let $commentGroup = $pbCommentItem.closest(".comment-group");
                   let commentGroupVue2Ins = VueUtils.getVue($commentGroup);
-                  let sectionData = commentGroupVue2Ins == null ? void 0 : commentGroupVue2Ins.sectionData;
+                  let sectionData = commentGroupVue2Ins == null ? undefined : commentGroupVue2Ins.sectionData;
                   if (pbCommentData) {
                     pbCommentData.content.forEach((item) => {
                       const {
@@ -23802,7 +23868,7 @@ div[class^="new-summary-container_"] {\r
             {
               msg: "等待获取属性 imgs",
               check(vueObj) {
-                return (vueObj == null ? void 0 : vueObj.imgs) != null;
+                return (vueObj == null ? undefined : vueObj.imgs) != null;
               },
               set(vueObj) {
                 TiebaPost.mainPostImgList = vueObj.imgs;
@@ -23831,8 +23897,8 @@ div[class^="new-summary-container_"] {\r
           log.success(["请求本贴图片信息", result]);
           Object.values(result["pic_list"]).forEach((item) => {
             var _a3, _b, _c, _d, _e, _f, _g, _h, _i, _j;
-            let id = ((_b = (_a3 = item == null ? void 0 : item["img"]) == null ? void 0 : _a3["original"]) == null ? void 0 : _b["id"]) || ((_d = (_c = item == null ? void 0 : item["img"]) == null ? void 0 : _c["medium"]) == null ? void 0 : _d["id"]) || ((_f = (_e = item == null ? void 0 : item["img"]) == null ? void 0 : _e["screen"]) == null ? void 0 : _f["id"]);
-            let pictureUrl = ((_h = (_g = item == null ? void 0 : item["img"]) == null ? void 0 : _g["original"]) == null ? void 0 : _h["waterurl"]) || ((_j = (_i = item == null ? void 0 : item["img"]) == null ? void 0 : _i["screen"]) == null ? void 0 : _j["waterurl"]);
+            let id = ((_b = (_a3 = item == null ? undefined : item["img"]) == null ? undefined : _a3["original"]) == null ? undefined : _b["id"]) || ((_d = (_c = item == null ? undefined : item["img"]) == null ? undefined : _c["medium"]) == null ? undefined : _d["id"]) || ((_f = (_e = item == null ? undefined : item["img"]) == null ? undefined : _e["screen"]) == null ? undefined : _f["id"]);
+            let pictureUrl = ((_h = (_g = item == null ? undefined : item["img"]) == null ? undefined : _g["original"]) == null ? undefined : _h["waterurl"]) || ((_j = (_i = item == null ? undefined : item["img"]) == null ? undefined : _i["screen"]) == null ? undefined : _j["waterurl"]);
             if (id != null && pictureUrl != null) {
               TiebaData.imageMap.set(id, pictureUrl);
             }
@@ -23898,7 +23964,7 @@ div[class^="new-summary-container_"] {\r
         }
         let time = ((_a3 = pageDOM.querySelector(
           "#j_p_postlist .post-tail-wrap span.tail-info:nth-child(6)"
-        )) == null ? void 0 : _a3.innerText) || ((_b = field == null ? void 0 : field.content) == null ? void 0 : _b.date) || "";
+        )) == null ? undefined : _a3.innerText) || ((_b = field == null ? undefined : field.content) == null ? undefined : _b.date) || "";
         if (utils.isNotNull(time)) {
           time = utils.formatToTimeStamp(time) / 1e3;
         }
@@ -23909,7 +23975,7 @@ div[class^="new-summary-container_"] {\r
           field,
           PageData,
           time,
-          content: content == null ? void 0 : content.innerHTML
+          content: content == null ? undefined : content.innerHTML
         };
       }
       function getPostList(field, PageData, time) {
@@ -23968,7 +24034,7 @@ div[class^="new-summary-container_"] {\r
           $appView,
           () => {
             var _a3;
-            return typeof ((_a3 = VueUtils.getVue($appView)) == null ? void 0 : _a3.isErrorThread) === "boolean";
+            return typeof ((_a3 = VueUtils.getVue($appView)) == null ? undefined : _a3.isErrorThread) === "boolean";
           },
           250,
           1e4
@@ -24036,7 +24102,7 @@ div[class^="new-summary-container_"] {\r
             ),
             postList[0].content[0].text || pageInfo.content
           );
-          if (appViewVue.interactionNum && typeof ((_b = (_a3 = pageInfo == null ? void 0 : pageInfo.PageData) == null ? void 0 : _a3.thread) == null ? void 0 : _b.reply_num) === "number") {
+          if (appViewVue.interactionNum && typeof ((_b = (_a3 = pageInfo == null ? undefined : pageInfo.PageData) == null ? undefined : _a3.thread) == null ? undefined : _b.reply_num) === "number") {
             appViewVue.interactionNum.reply = pageInfo.PageData.thread.reply_num;
           }
         }, 300);
@@ -24051,7 +24117,7 @@ div[class^="new-summary-container_"] {\r
           msg: "等待获取 root的$router",
           check(vueObj) {
             var _a3, _b, _c;
-            return typeof ((_c = (_b = (_a3 = vueObj == null ? void 0 : vueObj.$root) == null ? void 0 : _a3.$router) == null ? void 0 : _b.matcher) == null ? void 0 : _c.match) === "function";
+            return typeof ((_c = (_b = (_a3 = vueObj == null ? undefined : vueObj.$root) == null ? undefined : _a3.$router) == null ? undefined : _b.matcher) == null ? undefined : _c.match) === "function";
           },
           set(vueObj) {
             let $oldRouterMatch = vueObj.$root.$router.matcher.match;
@@ -24077,7 +24143,7 @@ div[class^="new-summary-container_"] {\r
       var _a3, _b, _c;
       let $name = $(".home_card_uname_link");
       let $showName = $(".home_card_uname_link");
-      $showName == null ? void 0 : $showName.innerText;
+      $showName == null ? undefined : $showName.innerText;
       let $avatar = $("a.home_card_portrait_link img");
       let avatar = $avatar.src;
       let $followBtn = $(".home_card_operate_icon_follow");
@@ -24141,25 +24207,25 @@ div[class^="new-summary-container_"] {\r
         });
       }
       return {
-        id: userJson == null ? void 0 : userJson.id,
-        tbs: userJson == null ? void 0 : userJson.tbs,
+        id: userJson == null ? undefined : userJson.id,
+        tbs: userJson == null ? undefined : userJson.tbs,
         name: userName,
         showName: panelUserInfo.show_nickname || panelUserInfo.name_show,
         sex,
         ip: {
-          location: (_a3 = pcUserInfo.ip) == null ? void 0 : _a3.location
+          location: (_a3 = pcUserInfo.ip) == null ? undefined : _a3.location
         },
         avatar,
         portrait,
         imprint,
         is_vip: panelUserInfo.tb_vip,
         is_like: isLike,
-        is_online: ((_b = userJson == null ? void 0 : userJson.creator) == null ? void 0 : _b.is_online) ?? false,
+        is_online: ((_b = userJson == null ? undefined : userJson.creator) == null ? undefined : _b.is_online) ?? false,
         level: panelUserInfo.tb_age,
         postInfo: {
           fans: fansNum,
           follow: followNum,
-          forum: forumNum || ((_c = pcUserInfo == null ? void 0 : pcUserInfo.postInfo) == null ? void 0 : _c.forum) || 0,
+          forum: forumNum || ((_c = pcUserInfo == null ? undefined : pcUserInfo.postInfo) == null ? undefined : _c.forum) || 0,
           receivedLikes: fansNum,
           post: postsNum
         },
@@ -24271,7 +24337,7 @@ div[class^="new-summary-container_"] {\r
       pcDoc.querySelectorAll(".userinfo_honor a").forEach(($honorIcon) => {
         var _a3;
         let bgStyle = $honorIcon.style.background;
-        let url = ((_a3 = bgStyle.match(/url\((.*)\)/)) == null ? void 0 : _a3[1]) || "";
+        let url = ((_a3 = bgStyle.match(/url\((.*)\)/)) == null ? undefined : _a3[1]) || "";
         if (utils.isNotNull(url)) {
           imprint.push(url);
         }
@@ -24526,7 +24592,7 @@ div[class^="new-summary-container_"] {\r
           if (isFirstLoad && userPostsList.data.length === 0) {
             let userPCPostsList = await TiebaHomeData.getUserDataWithPCDoc();
             log.info(["获取PC个人主页的帖子", userPCPostsList]);
-            if ((_a3 = userPCPostsList == null ? void 0 : userPCPostsList.postInfo) == null ? void 0 : _a3.data) {
+            if ((_a3 = userPCPostsList == null ? undefined : userPCPostsList.postInfo) == null ? undefined : _a3.data) {
               postsInfoList.value = postsInfoList.value.concat(userPCPostsList.postInfo.data);
             }
           } else if (userPostsList.data) {
@@ -24540,7 +24606,7 @@ div[class^="new-summary-container_"] {\r
         } else {
           let userPCPostsList = await TiebaHomeData.getUserDataWithPCDoc();
           log.info(["获取PC个人主页的帖子", userPCPostsList]);
-          if ((_b = userPCPostsList == null ? void 0 : userPCPostsList.postInfo) == null ? void 0 : _b.data) {
+          if ((_b = userPCPostsList == null ? undefined : userPCPostsList.postInfo) == null ? undefined : _b.data) {
             postsInfoList.value = postsInfoList.value.concat(userPCPostsList.postInfo.data);
           }
           cancleLoadMoreObserve();
@@ -25030,7 +25096,7 @@ div[class^="new-summary-container_"] {\r
       const clickReceivedLikesEvent = () => {
         var _a3;
         ElementPlus.ElMessageBox.confirm(
-          `${props.UserData.showName}共获得吧友${(_a3 = props.UserData.postInfo) == null ? void 0 : _a3.receivedLikes}次点赞`,
+          `${props.UserData.showName}共获得吧友${(_a3 = props.UserData.postInfo) == null ? undefined : _a3.receivedLikes}次点赞`,
           "",
           {
             showClose: false,
@@ -25060,7 +25126,7 @@ div[class^="new-summary-container_"] {\r
         props.UserData,
         () => {
           var _a3;
-          if ((_a3 = props.UserData.postInfo) == null ? void 0 : _a3.post) {
+          if ((_a3 = props.UserData.postInfo) == null ? undefined : _a3.post) {
             loadStatus.value = true;
           }
         },
@@ -25197,10 +25263,10 @@ div[class^="new-summary-container_"] {\r
                             var _a3, _b, _c, _d, _e;
                             return [
                               vue.createTextVNode(vue.toDisplayString(props.UserData.showName) + " ", 1),
-                              ((_c = (_b = (_a3 = props.UserData.otherData) == null ? void 0 : _a3.PanelUserInfo) == null ? void 0 : _b.vipInfo) == null ? void 0 : _c.icon_url) ? (vue.openBlock(), vue.createBlock(_component_el_avatar, {
+                              ((_c = (_b = (_a3 = props.UserData.otherData) == null ? undefined : _a3.PanelUserInfo) == null ? undefined : _b.vipInfo) == null ? undefined : _c.icon_url) ? (vue.openBlock(), vue.createBlock(_component_el_avatar, {
                                 key: 0,
                                 size: 14,
-                                src: (_e = (_d = props.UserData.otherData) == null ? void 0 : _d.PanelUserInfo) == null ? void 0 : _e.vipInfo.icon_url,
+                                src: (_e = (_d = props.UserData.otherData) == null ? undefined : _d.PanelUserInfo) == null ? undefined : _e.vipInfo.icon_url,
                                 shape: "square",
                                 style: { "margin": "0px 5px" }
                               }, null, 8, ["src"])) : vue.createCommentVNode("", true)
@@ -25248,7 +25314,7 @@ div[class^="new-summary-container_"] {\r
                             "border-style": "dashed"
                           })) : vue.createCommentVNode("", true),
                           vue.unref(utils).isNotNull(props.UserData.ip) ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_2$7, [
-                            vue.createTextVNode(vue.toDisplayString((_a3 = props.UserData.ip) == null ? void 0 : _a3.location) + " ", 1),
+                            vue.createTextVNode(vue.toDisplayString((_a3 = props.UserData.ip) == null ? undefined : _a3.location) + " ", 1),
                             vue.createVNode(_component_el_icon, { onClick: clickIpHelpEvent }, {
                               default: vue.withCtx(() => [
                                 vue.createVNode(vue.unref(iconsVue.QuestionFilled))
@@ -25296,7 +25362,7 @@ div[class^="new-summary-container_"] {\r
                                   default: vue.withCtx(() => {
                                     var _a3;
                                     return [
-                                      vue.createTextVNode(vue.toDisplayString((_a3 = props.UserData.postInfo) == null ? void 0 : _a3.receivedLikes), 1)
+                                      vue.createTextVNode(vue.toDisplayString((_a3 = props.UserData.postInfo) == null ? undefined : _a3.receivedLikes), 1)
                                     ];
                                   }),
                                   _: 1
@@ -25320,7 +25386,7 @@ div[class^="new-summary-container_"] {\r
                                   default: vue.withCtx(() => {
                                     var _a3;
                                     return [
-                                      vue.createTextVNode(vue.toDisplayString((_a3 = props.UserData.postInfo) == null ? void 0 : _a3.follow), 1)
+                                      vue.createTextVNode(vue.toDisplayString((_a3 = props.UserData.postInfo) == null ? undefined : _a3.follow), 1)
                                     ];
                                   }),
                                   _: 1
@@ -25344,7 +25410,7 @@ div[class^="new-summary-container_"] {\r
                                   default: vue.withCtx(() => {
                                     var _a3;
                                     return [
-                                      vue.createTextVNode(vue.toDisplayString((_a3 = props.UserData.postInfo) == null ? void 0 : _a3.fans), 1)
+                                      vue.createTextVNode(vue.toDisplayString((_a3 = props.UserData.postInfo) == null ? undefined : _a3.fans), 1)
                                     ];
                                   }),
                                   _: 1
@@ -25400,11 +25466,11 @@ div[class^="new-summary-container_"] {\r
                             var _a3, _b, _c, _d;
                             return [
                               vue.createVNode(_component_el_tab_pane, {
-                                label: "帖子" + (((_a3 = props.UserData.postInfo) == null ? void 0 : _a3.post) != null ? " " + ((_b = props.UserData.postInfo) == null ? void 0 : _b.post) : ""),
+                                label: "帖子" + (((_a3 = props.UserData.postInfo) == null ? undefined : _a3.post) != null ? " " + ((_b = props.UserData.postInfo) == null ? undefined : _b.post) : ""),
                                 name: "帖子"
                               }, null, 8, ["label"]),
                               vue.createVNode(_component_el_tab_pane, {
-                                label: "关注的吧" + (((_c = props.UserData.postInfo) == null ? void 0 : _c.forum) != null ? " " + ((_d = props.UserData.postInfo) == null ? void 0 : _d.forum) : ""),
+                                label: "关注的吧" + (((_c = props.UserData.postInfo) == null ? undefined : _c.forum) != null ? " " + ((_d = props.UserData.postInfo) == null ? undefined : _d.forum) : ""),
                                 name: "关注的吧"
                               }, null, 8, ["label"])
                             ];
@@ -26305,7 +26371,7 @@ div[class^="new-summary-container_"] {\r
         msg: "等待元素.page-content用于覆盖openApp函数",
         check(vueIns) {
           var _a3;
-          return typeof ((_a3 = vueIns == null ? void 0 : vueIns.wakeupApp) == null ? void 0 : _a3.openApp) === "function";
+          return typeof ((_a3 = vueIns == null ? undefined : vueIns.wakeupApp) == null ? undefined : _a3.openApp) === "function";
         },
         set(vueIns) {
           log.success(`成功覆盖函数openApp`);
@@ -26322,7 +26388,7 @@ div[class^="new-summary-container_"] {\r
       VueUtils.waitVuePropToSet("body > .page-content .top-title", {
         msg: "等待元素.top-title",
         check(vueIns) {
-          return typeof (vueIns == null ? void 0 : vueIns.isTiebaApp) === "boolean";
+          return typeof (vueIns == null ? undefined : vueIns.isTiebaApp) === "boolean";
         },
         set(vueIns) {
           log.success(`成功设置isTiebaApp = true`);
@@ -26342,7 +26408,7 @@ div[class^="new-summary-container_"] {\r
           if (!vueIns) {
             return;
           }
-          if (typeof (vueIns == null ? void 0 : vueIns.isHarmony) === "boolean") {
+          if (typeof (vueIns == null ? undefined : vueIns.isHarmony) === "boolean") {
             vueIns.isHarmony = true;
             $cardWrapper.setAttribute("data-is-cover-harmony", "");
           }
@@ -26378,7 +26444,7 @@ div[class^="new-summary-container_"] {\r
           let cardType = vueIns.cardType;
           if (cardType === "hot-thread") {
             utils.preventEvent(event);
-            let id = (_a3 = vueIns == null ? void 0 : vueIns.cardData) == null ? void 0 : _a3.id;
+            let id = (_a3 = vueIns == null ? undefined : vueIns.cardData) == null ? undefined : _a3.id;
             if (typeof id !== "number") {
               Qmsg.error("获取帖子id失败", { consoleLogContent: true });
               return;
@@ -26755,7 +26821,7 @@ div[class^="new-summary-container_"] {\r
       md52._blocksize = 16;
       md52._digestsize = 16;
       md5$1.exports = function(message, options) {
-        if (message === void 0 || message === null)
+        if (message === undefined || message === null)
           throw new Error("Illegal argument " + message);
         var digestbytes = crypt2.wordsToBytes(md52(message, options));
         return options && options.asBytes ? digestbytes : options && options.asString ? bin.bytesToString(digestbytes) : crypt2.bytesToHex(digestbytes);
@@ -26998,14 +27064,14 @@ div[class^="new-summary-container_"] {\r
         threshold: 0.2
       });
       const cancleScrollListener = () => {
-        observe == null ? void 0 : observe.disconnect();
+        observe == null ? undefined : observe.disconnect();
         isLoading.value = false;
         log.info("移除滚动监听");
       };
       let loadMore = async () => {
         let data = await TiebaSmallAppApi.agreeme(id.value);
         log.info(data);
-        hasMore.value = Boolean(data == null ? void 0 : data.has_more);
+        hasMore.value = Boolean(data == null ? undefined : data.has_more);
         if (!hasMore.value) {
           cancleScrollListener();
         }
@@ -27074,9 +27140,9 @@ div[class^="new-summary-container_"] {\r
                 onClick: ($event) => vue.unref(gotoPost)(item.thread_info.id)
               }, [
                 vue.createElementVNode("div", _hoisted_11$1, [
-                  ((_c = (_b = (_a3 = item == null ? void 0 : item.thread_info) == null ? void 0 : _a3.media) == null ? void 0 : _b[0]) == null ? void 0 : _c.type) == 3 ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_12$1, [
+                  ((_c = (_b = (_a3 = item == null ? undefined : item.thread_info) == null ? undefined : _a3.media) == null ? undefined : _b[0]) == null ? undefined : _c.type) == 3 ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_12$1, [
                     vue.createElementVNode("img", {
-                      src: (_f = (_e = (_d = item == null ? void 0 : item.thread_info) == null ? void 0 : _d.media) == null ? void 0 : _e[0]) == null ? void 0 : _f.small_pic,
+                      src: (_f = (_e = (_d = item == null ? undefined : item.thread_info) == null ? undefined : _d.media) == null ? undefined : _e[0]) == null ? undefined : _f.small_pic,
                       alt: ""
                     }, null, 8, _hoisted_13$1)
                   ])) : vue.createCommentVNode("", true),
@@ -27151,14 +27217,14 @@ div[class^="new-summary-container_"] {\r
         }
       );
       const cancleScrollListener = () => {
-        observe == null ? void 0 : observe.disconnect();
+        observe == null ? undefined : observe.disconnect();
         isLoading.value = false;
         log.info("移除滚动监听");
       };
       let loadMore = async () => {
         let data = await TiebaSmallAppApi.replyme(pn.value);
         log.info(data);
-        hasMore.value = Boolean(data == null ? void 0 : data.has_more);
+        hasMore.value = Boolean(data == null ? undefined : data.has_more);
         if (!hasMore.value) {
           cancleScrollListener();
         }
@@ -27234,9 +27300,9 @@ div[class^="new-summary-container_"] {\r
                   class: "post-info__inner",
                   onClick: ($event) => vue.unref(gotoPost)(item.thread_id)
                 }, [
-                  (item == null ? void 0 : item.thread_img_url) || ((_a3 = item == null ? void 0 : item.thread_content) == null ? void 0 : _a3.img) ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_13, [
+                  (item == null ? undefined : item.thread_img_url) || ((_a3 = item == null ? undefined : item.thread_content) == null ? undefined : _a3.img) ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_13, [
                     vue.createElementVNode("img", {
-                      src: (item == null ? void 0 : item.thread_img_url) || ((_b = item == null ? void 0 : item.thread_content) == null ? void 0 : _b.img),
+                      src: (item == null ? undefined : item.thread_img_url) || ((_b = item == null ? undefined : item.thread_content) == null ? undefined : _b.img),
                       alt: ""
                     }, null, 8, _hoisted_14)
                   ])) : vue.createCommentVNode("", true),
@@ -27293,14 +27359,14 @@ div[class^="new-summary-container_"] {\r
         }
       );
       const cancleScrollListener = () => {
-        observe == null ? void 0 : observe.disconnect();
+        observe == null ? undefined : observe.disconnect();
         isLoading.value = false;
         log.info("移除滚动监听");
       };
       let loadMore = async () => {
         let data = await TiebaSmallAppApi.atme(pn.value);
         log.info(data);
-        hasMore.value = Boolean(data == null ? void 0 : data.has_more);
+        hasMore.value = Boolean(data == null ? undefined : data.has_more);
         if (!hasMore.value) {
           cancleScrollListener();
         }
@@ -27684,7 +27750,7 @@ div[class^="new-summary-container_"] {\r
                 if ($mobileViewport) {
                   let vueObj = VueUtils.getVue($mobileViewport);
                   if (vueObj) {
-                    let goPost = (vueObj == null ? void 0 : vueObj.goPost) || ((_a3 = vueObj == null ? void 0 : vueObj.$parent) == null ? void 0 : _a3.goPost);
+                    let goPost = (vueObj == null ? undefined : vueObj.goPost) || ((_a3 = vueObj == null ? undefined : vueObj.$parent) == null ? undefined : _a3.goPost);
                     if (typeof goPost === "function") {
                       goPost();
                       return;
@@ -27935,19 +28001,19 @@ div[class^="new-summary-container_"] {\r
           if ($ele2) {
             let eleVueObj = VueUtils.getVue($ele2);
             if (eleVueObj) {
-              if ((_a3 = eleVueObj == null ? void 0 : eleVueObj.user) == null ? void 0 : _a3.is_login) {
+              if ((_a3 = eleVueObj == null ? undefined : eleVueObj.user) == null ? undefined : _a3.is_login) {
                 isLogin = true;
                 let portrait = eleVueObj.user.portrait;
                 let showName = eleVueObj.user.show_nickname || eleVueObj.user.name_show || eleVueObj.user.name;
                 $avatar.src = TiebaUrlHandler.getUserAvatar(portrait);
                 $tieba_user_nologin_tip_center.innerText = showName;
                 domutils.hide($tieba_user_nologin_tip_bottom);
-              } else if ((_d = (_c = (_b = eleVueObj == null ? void 0 : eleVueObj.$store) == null ? void 0 : _b.state) == null ? void 0 : _c.common) == null ? void 0 : _d.isLogin) {
+              } else if ((_d = (_c = (_b = eleVueObj == null ? undefined : eleVueObj.$store) == null ? undefined : _b.state) == null ? undefined : _c.common) == null ? undefined : _d.isLogin) {
                 isLogin = true;
                 domutils.hide($tieba_user_nologin_tip_bottom);
                 $tieba_user_nologin_tip_center.innerText = "未知";
                 $avatar.src = TiebaUrlHandler.getUserAvatar(
-                  (_g = (_f = (_e = eleVueObj == null ? void 0 : eleVueObj.$store) == null ? void 0 : _e.state) == null ? void 0 : _f.common) == null ? void 0 : _g.portrait
+                  (_g = (_f = (_e = eleVueObj == null ? undefined : eleVueObj.$store) == null ? undefined : _e.state) == null ? undefined : _f.common) == null ? undefined : _g.portrait
                 );
               }
             }
@@ -28551,7 +28617,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           );
           setTimeout(() => {
             var _a3;
-            (_a3 = utils.getReactObj(currentPageSee)["reactEventHandlers"]) == null ? void 0 : _a3["onClick"]();
+            (_a3 = utils.getReactObj(currentPageSee)["reactEventHandlers"]) == null ? undefined : _a3["onClick"]();
             PopsPanel.execMenu(
               "baidu_haokan_play_video_and_automatically_enter_full_screen",
               () => {
@@ -28599,7 +28665,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
      */
     async uploadImage(event) {
       var _a3, _b;
-      let uploadImageFile = (_b = (_a3 = event.target) == null ? void 0 : _a3.files) == null ? void 0 : _b[0];
+      let uploadImageFile = (_b = (_a3 = event.target) == null ? undefined : _a3.files) == null ? undefined : _b[0];
       if (!uploadImageFile) {
         alert("似乎并未正确上传图片？");
         return;
@@ -28963,7 +29029,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
         msg: "等待元素#dialogueFooter",
         check(reactInstance) {
           var _a3, _b;
-          return typeof ((_b = (_a3 = reactInstance == null ? void 0 : reactInstance.children) == null ? void 0 : _a3.props) == null ? void 0 : _b.setText) === "function";
+          return typeof ((_b = (_a3 = reactInstance == null ? undefined : reactInstance.children) == null ? undefined : _a3.props) == null ? undefined : _b.setText) === "function";
         },
         set(reactInstance) {
           $loading.close();
@@ -28982,7 +29048,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
               msg: "等待提问按钮元素",
               check(reactInstance2) {
                 var _a3, _b, _c;
-                return typeof ((_c = (_b = (_a3 = reactInstance2 == null ? void 0 : reactInstance2.children) == null ? void 0 : _a3[3]) == null ? void 0 : _b.props) == null ? void 0 : _c.onClick) === "function";
+                return typeof ((_c = (_b = (_a3 = reactInstance2 == null ? undefined : reactInstance2.children) == null ? undefined : _a3[3]) == null ? undefined : _b.props) == null ? undefined : _c.onClick) === "function";
               },
               set(reactInstance2) {
                 let onClick = reactInstance2.children[3].props.onClick;
@@ -29000,12 +29066,12 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
         msg: "等待元素#eb_model_footer",
         check(reactInstance) {
           var _a3, _b, _c, _d, _e, _f, _g, _h, _i;
-          return typeof ((_i = (_h = (_g = (_f = (_e = (_d = (_c = (_b = (_a3 = reactInstance == null ? void 0 : reactInstance.children) == null ? void 0 : _a3[2]) == null ? void 0 : _b.props) == null ? void 0 : _c.children) == null ? void 0 : _d[2]) == null ? void 0 : _e.props) == null ? void 0 : _f.children) == null ? void 0 : _g[0]) == null ? void 0 : _h.props) == null ? void 0 : _i.setText) === "function";
+          return typeof ((_i = (_h = (_g = (_f = (_e = (_d = (_c = (_b = (_a3 = reactInstance == null ? undefined : reactInstance.children) == null ? undefined : _a3[2]) == null ? undefined : _b.props) == null ? undefined : _c.children) == null ? undefined : _d[2]) == null ? undefined : _e.props) == null ? undefined : _f.children) == null ? undefined : _g[0]) == null ? undefined : _h.props) == null ? undefined : _i.setText) === "function";
         },
         set(reactInstance) {
           var _a3, _b, _c, _d, _e, _f, _g, _h;
           $loading.close();
-          let props = (_h = (_g = (_f = (_e = (_d = (_c = (_b = (_a3 = reactInstance == null ? void 0 : reactInstance.children) == null ? void 0 : _a3[2]) == null ? void 0 : _b.props) == null ? void 0 : _c.children) == null ? void 0 : _d[2]) == null ? void 0 : _e.props) == null ? void 0 : _f.children) == null ? void 0 : _g[0]) == null ? void 0 : _h.props;
+          let props = (_h = (_g = (_f = (_e = (_d = (_c = (_b = (_a3 = reactInstance == null ? undefined : reactInstance.children) == null ? undefined : _a3[2]) == null ? undefined : _b.props) == null ? undefined : _c.children) == null ? undefined : _d[2]) == null ? undefined : _e.props) == null ? undefined : _f.children) == null ? undefined : _g[0]) == null ? undefined : _h.props;
           let setText = props.setText;
           let isLogin = props.userInfo.isLogin;
           setText(searchText);
@@ -29124,7 +29190,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             display: none !important;
         }`
       );
-      this.injectIframe(void 0, (iframeGlobal) => {
+      this.injectIframe(undefined, (iframeGlobal) => {
         iframeGlobal.DOMUtils.ready(() => {
           log.info("【屏蔽】底部下拉菜单");
           iframeGlobal.utils.addStyle(hideCSS);
@@ -29142,7 +29208,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             display: none !important;
         }`
       );
-      this.injectIframe(void 0, (iframeGlobal) => {
+      this.injectIframe(undefined, (iframeGlobal) => {
         iframeGlobal.DOMUtils.ready(() => {
           log.info("【屏蔽】大家还在搜");
           iframeGlobal.utils.addStyle(hideCSS);

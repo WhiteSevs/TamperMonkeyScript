@@ -26,9 +26,11 @@ div:has(p.ivk-private-p),
 .c-result-content div[rl-type="stop"]:has(div[data-module="lgsd"]) {
 	display: none !important;
 }
+/* 搜索框 */
 .searchboxtop.newsearch-white-style .se-form {
 	border-color: #4e6ef2 !important;
 }
+/* 百度一下 按钮 */
 .searchboxtop.newsearch-white-style .se-bn {
 	color: #fff !important;
 	background: #4e6ef2 !important;
@@ -36,6 +38,7 @@ div:has(p.ivk-private-p),
 .se-head-logo .se-logo img {
 	display: inherit !important;
 }
+/* 选项卡，如综合、笔记、视频等 */
 .se-head-tablink {
 	border-bottom: 1px solid #e6e6e6 !important;
 	/*background-color: #fff !important;*/

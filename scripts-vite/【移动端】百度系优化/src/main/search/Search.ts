@@ -89,15 +89,16 @@ const BaiduSearch = {
 					removeAdsLockFunction.run();
 				}
 				/* 处理搜索置顶的卡片的style */
-				utils
-					.waitNodeList<NodeListOf<HTMLStyleElement>>(
-						"style[class^='vsearch-sigma-style']"
-					)
-					.then((nodeList) => {
-						/* 这个style标签就是某些搜索置顶的卡片 */
-						log.success(["删除sigma的CSS", nodeList]);
-						nodeList.forEach((item) => item.remove());
-					});
+				// 但是有时候顶部的选项卡背景会没有
+				// utils
+				// 	.waitNodeList<NodeListOf<HTMLStyleElement>>(
+				// 		"style[class^='vsearch-sigma-style']"
+				// 	)
+				// 	.then((nodeList) => {
+				// 		/* 这个style标签就是某些搜索置顶的卡片 */
+				// 		log.success(["删除sigma的CSS", nodeList]);
+				// 		nodeList.forEach((item) => item.remove());
+				// 	});
 				PopsPanel.execMenu("baidu_search_redirect_top_link", () => {
 					BaiduHandleResultItem.redirectTopLink();
 				});
