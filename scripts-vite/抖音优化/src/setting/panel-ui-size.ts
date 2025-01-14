@@ -4,10 +4,22 @@ export const PanelUISize = {
 	 */
 	setting: {
 		get width() {
-			return window.innerWidth < 550 ? "88vw" : "550px";
+			if (window.innerWidth < 550) {
+				return "88vw";
+			} else if (window.innerWidth < 700) {
+				return "550px";
+			} else {
+				return "700px";
+			}
 		},
 		get height() {
-			return window.innerHeight < 450 ? "70vh" : "450px";
+			if (window.innerHeight < 450) {
+				return "70vh";
+			} else if (window.innerHeight < 550) {
+				return "450px";
+			} else {
+				return "550px";
+			}
 		},
 	},
 	/**

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.1.12.17
+// @version      2025.1.14
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -3435,6 +3435,12 @@
         PopsPanel.execMenuOnce("dy-video-titleInfoAutoHide", () => {
           this.titleInfoAutoHide();
         });
+        PopsPanel.execMenuOnce("dy-video-videoControlsAutoHide", () => {
+          this.videoControlsAutoHide();
+        });
+        PopsPanel.execMenuOnce("dy-video-rightToolBarAutoHide", () => {
+          this.rightToolBarAutoHide();
+        });
       });
     },
     /**
@@ -3917,24 +3923,20 @@
         if (!videoInfoList.length) {
           return;
         }
-        videoInfoList.forEach(($currentVideoInfo) => {
-          if (!$currentVideoInfo) {
+        videoInfoList.forEach(($el) => {
+          if (!$el) {
             return;
           }
-          $currentVideoInfo.setAttribute("data-is-inject-mouse-hide", "");
+          $el.setAttribute("data-is-inject-mouse-hide", "");
           let timeId = setTimeout(() => {
-            domUtils.trigger($currentVideoInfo, "mouseleave");
+            domUtils.trigger($el, "mouseleave");
           }, PopsPanel.getValue("dy-video-titleInfoAutoHide-delayTime"));
-          domUtils.on(
-            $currentVideoInfo,
-            ["mouseenter", "touchstart"],
-            (event) => {
-              clearTimeout(timeId);
-              domUtils.css($currentVideoInfo, "opacity", "");
-            }
-          );
-          domUtils.on($currentVideoInfo, ["mouseleave", "touchend"], (event) => {
-            domUtils.css($currentVideoInfo, "opacity", 0);
+          domUtils.on($el, ["mouseenter", "touchstart"], (event) => {
+            clearTimeout(timeId);
+            domUtils.css($el, "opacity", "");
+          });
+          domUtils.on($el, ["mouseleave", "touchend"], (event) => {
+            domUtils.css($el, "opacity", 0);
           });
         });
       });
@@ -3943,6 +3945,113 @@
           subtree: true,
           childList: true
         },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        }
+      });
+    },
+    /**
+     * 自动隐藏视频控件
+     */
+    videoControlsAutoHide() {
+      log.info(`自动隐藏视频控件`);
+      let lockFn = new utils.LockFunction(() => {
+        let videoInfoList = [];
+        videoInfoList.push(
+          // 一般的推荐视频|单个视频的当前观看的视频
+          $(
+            `#sliderVideo[data-e2e="feed-active-video"] xg-controls.xgplayer-controls:not([data-is-inject-mouse-hide])`
+          ),
+          // 进入作者主页后的当前观看的视频
+          $(
+            '#slideMode[data-e2e="feed-active-video"] xg-controls.xgplayer-controls:not([data-is-inject-mouse-hide])'
+          )
+        );
+        if (!videoInfoList.length) {
+          return;
+        }
+        videoInfoList.forEach(($el) => {
+          if (!$el) {
+            return;
+          }
+          $el.setAttribute("data-is-inject-mouse-hide", "");
+          let timeId = setTimeout(() => {
+            domUtils.trigger($el, "mouseleave");
+          }, PopsPanel.getValue("dy-video-videoControlsAutoHide-delayTime"));
+          domUtils.on($el, ["mouseenter", "touchstart"], (event) => {
+            clearTimeout(timeId);
+            domUtils.css($el, "opacity", "");
+          });
+          domUtils.on($el, ["mouseleave", "touchend"], (event) => {
+            domUtils.css($el, "opacity", 0);
+          });
+        });
+      });
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        }
+      });
+    },
+    /**
+     * 自动隐藏右侧工具栏
+     */
+    rightToolBarAutoHide() {
+      log.info(`自动隐藏右侧工具栏`);
+      addStyle(
+        /*css*/
+        `
+			.positionBox{
+				transition: opacity 0.5s;
+			}
+		`
+      );
+      let lockFn = new utils.LockFunction(() => {
+        let videoInfoList = [];
+        videoInfoList.push(
+          // 一般的推荐视频|单个视频的当前观看的视频
+          $(
+            '#sliderVideo[data-e2e="feed-active-video"] .positionBox:not([data-is-inject-mouse-hide])'
+          )
+        );
+        videoInfoList.push(
+          // 进入作者主页后的当前观看的视频
+          $(
+            '#slideMode[data-e2e="feed-active-video"] .positionBox:not([data-is-inject-mouse-hide])'
+          )
+        );
+        if (!videoInfoList.length) {
+          return;
+        }
+        videoInfoList.forEach(($el) => {
+          if (!$el) {
+            return;
+          }
+          $el.setAttribute("data-is-inject-mouse-hide", "");
+          let timeId = setTimeout(() => {
+            domUtils.trigger($el, "mouseleave");
+          }, PopsPanel.getValue("dy-video-titleInfoAutoHide-delayTime"));
+          domUtils.on($el, ["mouseenter", "touchstart"], (event) => {
+            clearTimeout(timeId);
+            domUtils.css($el, "opacity", "");
+          });
+          domUtils.on($el, ["mouseleave", "touchend"], (event) => {
+            domUtils.css($el, "opacity", 0);
+          });
+        });
+      });
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        immediate: true,
         callback: () => {
           lockFn.run();
         }
@@ -5277,10 +5386,22 @@
      */
     setting: {
       get width() {
-        return window.innerWidth < 550 ? "88vw" : "550px";
+        if (window.innerWidth < 550) {
+          return "88vw";
+        } else if (window.innerWidth < 700) {
+          return "550px";
+        } else {
+          return "700px";
+        }
       },
       get height() {
-        return window.innerHeight < 450 ? "70vh" : "450px";
+        if (window.innerHeight < 450) {
+          return "70vh";
+        } else if (window.innerHeight < 550) {
+          return "450px";
+        } else {
+          return "550px";
+        }
       }
     },
     /**
@@ -5657,55 +5778,62 @@
                 "duration"
               ];
               let ruleNameDefaultValue = "nickname";
-              let ruleName_template = UISelect(
-                "属性名",
-                "ruleName",
-                ruleNameDefaultValue,
-                douYinVideoHandlerInfoKey.map((item) => {
-                  return {
-                    text: item,
-                    value: item
-                  };
-                }),
-                undefined,
-                "选择需要的属性名 "
-              );
-              Reflect.set(
-                ruleName_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data.data)
-              );
-              let $ruleName = popsPanelContentUtils.createSectionContainerItem_select(
-                ruleName_template
-              );
-              let ruleValue_template = UITextArea(
-                "属性值",
-                "ruleValue",
-                "",
-                "如果是字符串，可正则，注意转义"
-              );
-              Reflect.set(
-                ruleValue_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data.data)
-              );
-              let $ruleValue = popsPanelContentUtils.createSectionContainerItem_textarea(
-                ruleValue_template
-              );
-              let remarks_template = UITextArea(
-                "备注",
-                "remarks",
-                "",
-                ""
-              );
-              Reflect.set(
-                remarks_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data.data)
-              );
-              let $remarks = popsPanelContentUtils.createSectionContainerItem_textarea(
-                remarks_template
-              );
+              let getDynamicProp = (storageData) => {
+                let ruleName_template = UISelect(
+                  "属性名",
+                  "ruleName",
+                  ruleNameDefaultValue,
+                  douYinVideoHandlerInfoKey.map((item) => {
+                    return {
+                      text: item,
+                      value: item
+                    };
+                  }),
+                  undefined,
+                  "选择需要的属性名 "
+                );
+                Reflect.set(
+                  ruleName_template.props,
+                  PROPS_STORAGE_API,
+                  generateStorageApi(storageData)
+                );
+                let $ruleName2 = popsPanelContentUtils.createSectionContainerItem_select(
+                  ruleName_template
+                );
+                let ruleValue_template = UITextArea(
+                  "属性值",
+                  "ruleValue",
+                  "",
+                  "如果是字符串，可正则，注意转义"
+                );
+                Reflect.set(
+                  ruleValue_template.props,
+                  PROPS_STORAGE_API,
+                  generateStorageApi(storageData)
+                );
+                let $ruleValue2 = popsPanelContentUtils.createSectionContainerItem_textarea(
+                  ruleValue_template
+                );
+                let remarks_template = UITextArea(
+                  "备注",
+                  "remarks",
+                  "",
+                  ""
+                );
+                Reflect.set(
+                  remarks_template.props,
+                  PROPS_STORAGE_API,
+                  generateStorageApi(storageData)
+                );
+                let $remarks2 = popsPanelContentUtils.createSectionContainerItem_textarea(
+                  remarks_template
+                );
+                return {
+                  $ruleName: $ruleName2,
+                  $ruleValue: $ruleValue2,
+                  $remarks: $remarks2
+                };
+              };
               let $dynamicContainer = domUtils.createElement("div", {
                 className: "rule-form-ulist-dynamic",
                 innerHTML: (
@@ -5771,55 +5899,11 @@
                 let $dynamicUList = $dynamicUListContainer.querySelector(
                   ".dynamic-forms"
                 );
-                let dynamic_ruleName_template = UISelect(
-                  "属性名",
-                  "ruleName",
-                  dynamicData.ruleName,
-                  douYinVideoHandlerInfoKey.map((item) => {
-                    return {
-                      text: item,
-                      value: item
-                    };
-                  }),
-                  undefined,
-                  "如果是字符串，可正则，注意转义"
-                );
-                Reflect.set(
-                  dynamic_ruleName_template.props,
-                  PROPS_STORAGE_API,
-                  generateStorageApi(dynamicData)
-                );
-                let $dynamic_ruleName = popsPanelContentUtils.createSectionContainerItem_select(
-                  dynamic_ruleName_template
-                );
-                let dynamic_ruleValue_template = UITextArea(
-                  "属性值",
-                  "ruleValue",
-                  dynamicData.ruleValue,
-                  "如果是字符串，可正则，注意转义"
-                );
-                Reflect.set(
-                  dynamic_ruleValue_template.props,
-                  PROPS_STORAGE_API,
-                  generateStorageApi(dynamicData)
-                );
-                let $dynamic_ruleValue = popsPanelContentUtils.createSectionContainerItem_textarea(
-                  dynamic_ruleValue_template
-                );
-                let dynamic_remarks_template = UITextArea(
-                  "备注",
-                  "remarks",
-                  "",
-                  ""
-                );
-                Reflect.set(
-                  dynamic_remarks_template.props,
-                  PROPS_STORAGE_API,
-                  generateStorageApi(dynamicData)
-                );
-                let $dynamic_remarks = popsPanelContentUtils.createSectionContainerItem_textarea(
-                  dynamic_remarks_template
-                );
+                let {
+                  $ruleName: $dynamic_ruleName,
+                  $ruleValue: $dynamic_ruleValue,
+                  $remarks: $dynamic_remarks
+                } = getDynamicProp(dynamicData);
                 $dynamicUList.appendChild($dynamic_ruleName);
                 $dynamicUList.appendChild($dynamic_ruleValue);
                 $dynamicUList.appendChild($dynamic_remarks);
@@ -5835,6 +5919,7 @@
                   addDynamicElementItem(moreDataItem);
                 }
               }
+              let { $ruleName, $ruleValue, $remarks } = getDynamicProp(data.data);
               $fragment.append(
                 $enable,
                 $name,
@@ -6239,6 +6324,44 @@
                 text: "功能",
                 type: "forms",
                 forms: [
+                  UISelect(
+                    "清晰度",
+                    "chooseVideoDefinition",
+                    1,
+                    [
+                      {
+                        text: "超清 4K",
+                        // ↓gearType
+                        value: -2
+                      },
+                      {
+                        text: "超清 2K",
+                        value: -1
+                      },
+                      {
+                        text: "高清 1080P",
+                        value: 1
+                      },
+                      {
+                        text: "高清 720P",
+                        value: 2
+                      },
+                      {
+                        text: "标清 540P",
+                        value: 3
+                      },
+                      {
+                        text: "极速",
+                        value: 4
+                      },
+                      {
+                        text: "智能",
+                        value: 0
+                      }
+                    ],
+                    undefined,
+                    "自行选择清晰度"
+                  ),
                   UISwitch(
                     "沉浸模式",
                     "fullScreen",
@@ -6251,14 +6374,14 @@
                     "mobileMode",
                     false,
                     undefined,
-                    "放大文字和图标，及自动启用【initial-scale=1】和【修复进度条】功能"
+                    "放大文字和图标，自动启用【initial-scale=1】和【修复进度条】功能"
                   ),
                   UISwitch(
                     "修复进度条",
                     "repairProgressBar",
                     false,
                     undefined,
-                    "修复移动端不能点击拖拽和定位进度的问题(移动端使用)"
+                    "修复移动端不能点击拖拽和定位进度的问题（仅移动端使用）"
                   ),
                   UISwitch(
                     "禁用双击点赞",
@@ -6280,6 +6403,41 @@
                     true,
                     undefined,
                     "自动监听并检测弹窗"
+                  ),
+                  UISwitch(
+                    "视频解析",
+                    "parseVideo",
+                    true,
+                    undefined,
+                    "分享->下载(灰色的也可点击)"
+                  ),
+                  UISwitch(
+                    "评论区移到中间",
+                    "changeCommentToBottom",
+                    true,
+                    undefined,
+                    "修改评论区为中间弹出而非右侧区域"
+                  ),
+                  UISwitch(
+                    "↑自适应评论区位置",
+                    "douyin-video-autoCheckChangeCommentToBottom",
+                    true,
+                    undefined,
+                    "根据window.screen.orientation.type自动判断是否开启【评论区移到中间】"
+                  ),
+                  UISwitch(
+                    "自动进入网页全屏",
+                    "autoEnterElementFullScreen",
+                    false,
+                    undefined,
+                    "网页加载完毕后自动点击网页全屏按钮进入全屏"
+                  ),
+                  UISwitch(
+                    "双击进入网页全屏",
+                    "dy-video-doubleClickEnterElementFullScreen",
+                    false,
+                    undefined,
+                    "双击视频自动进入网页全屏，检测间隔250ms"
                   )
                 ]
               },
@@ -6361,10 +6519,10 @@
                     "dy-video-titleInfoAutoHide",
                     false,
                     undefined,
-                    "自动隐藏视频标题，鼠标移入时自动显示，鼠标移除时自动隐藏"
+                    "鼠标移入时自动显示，鼠标移除时自动隐藏"
                   ),
                   UISlider(
-                    "自动隐藏视频标题的延迟时间",
+                    "延迟自动隐藏的时间",
                     "dy-video-titleInfoAutoHide-delayTime",
                     3e3,
                     0,
@@ -6373,93 +6531,60 @@
                     (value) => {
                       return `${value}ms`;
                     },
-                    "可设置隐藏视频标题的延迟时间，单位为ms",
+                    "设置延迟自动隐藏视频标题的时间，单位（ms）",
                     100
                   )
                 ]
-              }
-            ]
-          },
-          {
-            text: "播放器",
-            type: "deepMenu",
-            forms: [
+              },
               {
-                text: "",
                 type: "forms",
+                text: "底部的视频控件",
                 forms: [
-                  UISelect(
-                    "清晰度",
-                    "chooseVideoDefinition",
-                    1,
-                    [
-                      {
-                        text: "超清 4K",
-                        // ↓gearType
-                        value: -2
-                      },
-                      {
-                        text: "超清 2K",
-                        value: -1
-                      },
-                      {
-                        text: "高清 1080P",
-                        value: 1
-                      },
-                      {
-                        text: "高清 720P",
-                        value: 2
-                      },
-                      {
-                        text: "标清 540P",
-                        value: 3
-                      },
-                      {
-                        text: "极速",
-                        value: 4
-                      },
-                      {
-                        text: "智能",
-                        value: 0
-                      }
-                    ],
-                    undefined,
-                    "自行选择清晰度"
-                  ),
                   UISwitch(
-                    "视频解析",
-                    "parseVideo",
-                    true,
-                    undefined,
-                    "分享->下载(灰色的也可点击)"
-                  ),
-                  UISwitch(
-                    "评论区移到中间",
-                    "changeCommentToBottom",
-                    true,
-                    undefined,
-                    "修改评论区为中间弹出而非右侧区域"
-                  ),
-                  UISwitch(
-                    "↑自适应评论区位置",
-                    "douyin-video-autoCheckChangeCommentToBottom",
-                    true,
-                    undefined,
-                    "根据window.screen.orientation.type自动判断是否开启【评论区移到中间】"
-                  ),
-                  UISwitch(
-                    "自动进入网页全屏",
-                    "autoEnterElementFullScreen",
+                    "自动隐藏视频控件",
+                    "dy-video-videoControlsAutoHide",
                     false,
                     undefined,
-                    "网页加载完毕后自动点击网页全屏按钮进入全屏"
+                    "鼠标移入时自动显示，鼠标移除时自动隐藏"
                   ),
+                  UISlider(
+                    "延迟自动隐藏的时间",
+                    "dy-video-videoControlsAutoHide-delayTime",
+                    3e3,
+                    0,
+                    8e3,
+                    undefined,
+                    (value) => {
+                      return `${value}ms`;
+                    },
+                    "设置延迟自动隐藏视频标题的时间，单位（ms）",
+                    100
+                  )
+                ]
+              },
+              {
+                type: "forms",
+                text: "右侧工具栏",
+                forms: [
                   UISwitch(
-                    "双击进入网页全屏",
-                    "dy-video-doubleClickEnterElementFullScreen",
+                    "自动隐藏右侧工具栏",
+                    "dy-video-rightToolBarAutoHide",
                     false,
                     undefined,
-                    "双击视频自动进入网页全屏，检测间隔250ms"
+                    "鼠标移入时自动显示，鼠标移除时自动隐藏"
+                  ),
+                  UISlider(
+                    "延迟自动隐藏的时间",
+                    "dy-video-rightToolBarAutoHide-delayTime",
+                    3e3,
+                    0,
+                    8e3,
+                    undefined,
+                    (value) => {
+                      return `${value}ms`;
+                    },
+                    "设置延迟自动隐藏视频标题的时间，单位（ms）",
+                    100
                   )
                 ]
               }
@@ -9505,7 +9630,7 @@
       );
     }
   };
-  const blockCSS$8 = '/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */\r\n#douyin-web-download-guide-container\r\n/* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */\r\n/* 但是这个CSS又会屏蔽右键菜单 */\r\n/*.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg))*/ ,\r\n/* 下载客户端，使用壁纸 */\r\ndiv:has(+#wallpaper-modal),\r\n/* 下载客户端，实时接收消息通知 */\r\n/* 下载客户端，实时接收好友消息 */\r\ndiv:has(> a[download*="douyin-downloade"]):has(+.popShadowAnimation),\r\ndiv:has(> a[download*="douyin-downloade"]):has(+div>[data-e2e="listDlgTest-container"]),\r\n/* 客户端登录访问更便捷 */\r\ndiv:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation) {\r\n	display: none !important;\r\n}\r\n';
+  const blockCSS$8 = '/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */\r\n#douyin-web-download-guide-container\r\n/* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */\r\n/* 但是这个CSS又会屏蔽右键菜单 */\r\n/*.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg))*/ ,\r\n/* 下载客户端，使用壁纸 */\r\ndiv:has(+#wallpaper-modal),\r\n/* 下载客户端，实时接收消息通知 */\r\n/* 下载客户端，实时接收好友消息 */\r\ndiv:has(> a[download*="douyin-downloade"]):has(+.popShadowAnimation),\r\ndiv:has(> a[download*="douyin-downloade"]):has(+div>[data-e2e="listDlgTest-container"]),\r\n/* 客户端登录访问更便捷 */\r\ndiv:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation),\r\n/* 前往电脑客户端，即享下载视频 */\r\n[data-e2e="video-share-container"] div:has(>div>div> a[download*="douyin-downloader"]):first-child {\r\n	display: none !important;\r\n}\r\n';
   const blockCSS$7 = '/* 资料右边的 下载桌面客户端，桌面快捷访问 */\r\ndiv[data-e2e="user-detail"] div:has(> div > a[href*="douyin-pc"]) {\r\n	display: none !important;\r\n}\r\n';
   const DouYinUser = {
     init() {

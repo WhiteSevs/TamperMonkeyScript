@@ -474,6 +474,8 @@ export const DouYinVideoFilter = {
 							popsPanelContentUtils.createSectionContainerItem_select_multiple_new(
 								scope_template
 							);
+
+						// 属性名列表
 						let douYinVideoHandlerInfoKey = <(keyof DouYinVideoHandlerInfo)[]>[
 							"isLive",
 							"isAds",
@@ -499,68 +501,82 @@ export const DouYinVideoFilter = {
 							"shareCount",
 							"duration",
 						];
+						// 属性名的默认值
 						let ruleNameDefaultValue: DouYinVideoFilterOption["data"]["ruleName"] =
 							"nickname";
-						// 属性名
-						let ruleName_template = UISelect<keyof DouYinVideoHandlerInfo>(
-							"属性名",
-							"ruleName",
-							ruleNameDefaultValue,
-							douYinVideoHandlerInfoKey.map((item) => {
-								return {
-									text: item,
-									value: item,
-								};
-							}),
-							void 0,
-							"选择需要的属性名 "
-						);
-						Reflect.set(
-							ruleName_template.props!,
-							PROPS_STORAGE_API,
-							generateStorageApi(data.data)
-						);
 
-						// 属性值
-						let $ruleName =
-							popsPanelContentUtils.createSectionContainerItem_select(
-								ruleName_template
+						/**
+						 * 获取动态的元素
+						 * @param storageData 存储的数据
+						 */
+						let getDynamicProp = (storageData: any) => {
+							// 属性名
+							let ruleName_template = UISelect<keyof DouYinVideoHandlerInfo>(
+								"属性名",
+								"ruleName",
+								ruleNameDefaultValue,
+								douYinVideoHandlerInfoKey.map((item) => {
+									return {
+										text: item,
+										value: item,
+									};
+								}),
+								void 0,
+								"选择需要的属性名 "
+							);
+							Reflect.set(
+								ruleName_template.props!,
+								PROPS_STORAGE_API,
+								generateStorageApi(storageData)
 							);
 
-						let ruleValue_template = UITextArea(
-							"属性值",
-							"ruleValue",
-							"",
-							"如果是字符串，可正则，注意转义",
-							void 0
-						);
-						Reflect.set(
-							ruleValue_template.props!,
-							PROPS_STORAGE_API,
-							generateStorageApi(data.data)
-						);
-						let $ruleValue =
-							popsPanelContentUtils.createSectionContainerItem_textarea(
-								ruleValue_template
-							);
+							// 属性值
+							let $ruleName =
+								popsPanelContentUtils.createSectionContainerItem_select(
+									ruleName_template
+								);
 
-						// 备注
-						let remarks_template = UITextArea(
-							"备注",
-							"remarks",
-							"",
-							"",
-							void 0
-						);
-						Reflect.set(
-							remarks_template.props!,
-							PROPS_STORAGE_API,
-							generateStorageApi(data.data)
-						);
-						let $remarks =
-							popsPanelContentUtils.createSectionContainerItem_textarea(
-								remarks_template
+							let ruleValue_template = UITextArea(
+								"属性值",
+								"ruleValue",
+								"",
+								"如果是字符串，可正则，注意转义",
+								void 0
 							);
+							Reflect.set(
+								ruleValue_template.props!,
+								PROPS_STORAGE_API,
+								generateStorageApi(storageData)
+							);
+							let $ruleValue =
+								popsPanelContentUtils.createSectionContainerItem_textarea(
+									ruleValue_template
+								);
+
+							// 备注
+							let remarks_template = UITextArea(
+								"备注",
+								"remarks",
+								"",
+								"",
+								void 0
+							);
+							Reflect.set(
+								remarks_template.props!,
+								PROPS_STORAGE_API,
+								generateStorageApi(storageData)
+							);
+							let $remarks =
+								popsPanelContentUtils.createSectionContainerItem_textarea(
+									remarks_template
+								);
+
+							return {
+								$ruleName,
+								$ruleValue,
+								$remarks,
+							};
+						};
 
 						// 动态属性
 						let $dynamicContainer = DOMUtils.createElement("div", {
@@ -634,68 +650,11 @@ export const DouYinVideoFilter = {
 								$dynamicUListContainer.querySelector<HTMLUListElement>(
 									".dynamic-forms"
 								)!;
-
-							// 属性名
-							let dynamic_ruleName_template = UISelect<
-								keyof DouYinVideoHandlerInfo
-							>(
-								"属性名",
-								"ruleName",
-								dynamicData.ruleName,
-								douYinVideoHandlerInfoKey.map((item) => {
-									return {
-										text: item,
-										value: item,
-									};
-								}),
-								void 0,
-								"如果是字符串，可正则，注意转义"
-							);
-							Reflect.set(
-								dynamic_ruleName_template.props!,
-								PROPS_STORAGE_API,
-								generateStorageApi(dynamicData)
-							);
-
-							let $dynamic_ruleName =
-								popsPanelContentUtils.createSectionContainerItem_select(
-									dynamic_ruleName_template
-								);
-
-							let dynamic_ruleValue_template = UITextArea(
-								"属性值",
-								"ruleValue",
-								dynamicData.ruleValue,
-								"如果是字符串，可正则，注意转义",
-								void 0
-							);
-							Reflect.set(
-								dynamic_ruleValue_template.props!,
-								PROPS_STORAGE_API,
-								generateStorageApi(dynamicData)
-							);
-							let $dynamic_ruleValue =
-								popsPanelContentUtils.createSectionContainerItem_textarea(
-									dynamic_ruleValue_template
-								);
-
-							// 备注
-							let dynamic_remarks_template = UITextArea(
-								"备注",
-								"remarks",
-								"",
-								"",
-								void 0
-							);
-							Reflect.set(
-								dynamic_remarks_template.props!,
-								PROPS_STORAGE_API,
-								generateStorageApi(dynamicData)
-							);
-							let $dynamic_remarks =
-								popsPanelContentUtils.createSectionContainerItem_textarea(
-									dynamic_remarks_template
-								);
+							let {
+								$ruleName: $dynamic_ruleName,
+								$ruleValue: $dynamic_ruleValue,
+								$remarks: $dynamic_remarks,
+							} = getDynamicProp(dynamicData);
 							$dynamicUList.appendChild($dynamic_ruleName);
 							$dynamicUList.appendChild($dynamic_ruleValue);
 							$dynamicUList.appendChild($dynamic_remarks);
@@ -714,6 +673,8 @@ export const DouYinVideoFilter = {
 								addDynamicElementItem(moreDataItem);
 							}
 						}
+
+						let { $ruleName, $ruleValue, $remarks } = getDynamicProp(data.data);
 						$fragment.append(
 							$enable,
 							$name,

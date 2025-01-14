@@ -26,6 +26,44 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 							text: "功能",
 							type: "forms",
 							forms: [
+								UISelect<number>(
+									"清晰度",
+									"chooseVideoDefinition",
+									1,
+									[
+										{
+											text: "超清 4K",
+											// ↓gearType
+											value: -2,
+										},
+										{
+											text: "超清 2K",
+											value: -1,
+										},
+										{
+											text: "高清 1080P",
+											value: 1,
+										},
+										{
+											text: "高清 720P",
+											value: 2,
+										},
+										{
+											text: "标清 540P",
+											value: 3,
+										},
+										{
+											text: "极速",
+											value: 4,
+										},
+										{
+											text: "智能",
+											value: 0,
+										},
+									],
+									void 0,
+									"自行选择清晰度"
+								),
 								UISwitch(
 									"沉浸模式",
 									"fullScreen",
@@ -38,14 +76,14 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									"mobileMode",
 									false,
 									void 0,
-									"放大文字和图标，及自动启用【initial-scale=1】和【修复进度条】功能"
+									"放大文字和图标，自动启用【initial-scale=1】和【修复进度条】功能"
 								),
 								UISwitch(
 									"修复进度条",
 									"repairProgressBar",
 									false,
 									void 0,
-									"修复移动端不能点击拖拽和定位进度的问题(移动端使用)"
+									"修复移动端不能点击拖拽和定位进度的问题（仅移动端使用）"
 								),
 								UISwitch(
 									"禁用双击点赞",
@@ -67,6 +105,41 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									true,
 									void 0,
 									"自动监听并检测弹窗"
+								),
+								UISwitch(
+									"视频解析",
+									"parseVideo",
+									true,
+									void 0,
+									"分享->下载(灰色的也可点击)"
+								),
+								UISwitch(
+									"评论区移到中间",
+									"changeCommentToBottom",
+									true,
+									void 0,
+									"修改评论区为中间弹出而非右侧区域"
+								),
+								UISwitch(
+									"↑自适应评论区位置",
+									"douyin-video-autoCheckChangeCommentToBottom",
+									true,
+									void 0,
+									"根据window.screen.orientation.type自动判断是否开启【评论区移到中间】"
+								),
+								UISwitch(
+									"自动进入网页全屏",
+									"autoEnterElementFullScreen",
+									false,
+									void 0,
+									"网页加载完毕后自动点击网页全屏按钮进入全屏"
+								),
+								UISwitch(
+									"双击进入网页全屏",
+									"dy-video-doubleClickEnterElementFullScreen",
+									false,
+									void 0,
+									"双击视频自动进入网页全屏，检测间隔250ms"
 								),
 							],
 						},
@@ -143,10 +216,10 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									"dy-video-titleInfoAutoHide",
 									false,
 									void 0,
-									"自动隐藏视频标题，鼠标移入时自动显示，鼠标移除时自动隐藏"
+									"鼠标移入时自动显示，鼠标移除时自动隐藏"
 								),
 								UISlider(
-									"自动隐藏视频标题的延迟时间",
+									"延迟自动隐藏的时间",
 									"dy-video-titleInfoAutoHide-delayTime",
 									3000,
 									0,
@@ -155,93 +228,60 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									(value) => {
 										return `${value}ms`;
 									},
-									"可设置隐藏视频标题的延迟时间，单位为ms",
+									"设置延迟自动隐藏视频标题的时间，单位（ms）",
 									100
 								),
 							],
 						},
-					],
-				},
-				{
-					text: "播放器",
-					type: "deepMenu",
-					forms: [
 						{
-							text: "",
 							type: "forms",
+							text: "底部的视频控件",
 							forms: [
-								UISelect<number>(
-									"清晰度",
-									"chooseVideoDefinition",
-									1,
-									[
-										{
-											text: "超清 4K",
-											// ↓gearType
-											value: -2,
-										},
-										{
-											text: "超清 2K",
-											value: -1,
-										},
-										{
-											text: "高清 1080P",
-											value: 1,
-										},
-										{
-											text: "高清 720P",
-											value: 2,
-										},
-										{
-											text: "标清 540P",
-											value: 3,
-										},
-										{
-											text: "极速",
-											value: 4,
-										},
-										{
-											text: "智能",
-											value: 0,
-										},
-									],
-									void 0,
-									"自行选择清晰度"
-								),
 								UISwitch(
-									"视频解析",
-									"parseVideo",
-									true,
-									void 0,
-									"分享->下载(灰色的也可点击)"
-								),
-								UISwitch(
-									"评论区移到中间",
-									"changeCommentToBottom",
-									true,
-									void 0,
-									"修改评论区为中间弹出而非右侧区域"
-								),
-								UISwitch(
-									"↑自适应评论区位置",
-									"douyin-video-autoCheckChangeCommentToBottom",
-									true,
-									void 0,
-									"根据window.screen.orientation.type自动判断是否开启【评论区移到中间】"
-								),
-								UISwitch(
-									"自动进入网页全屏",
-									"autoEnterElementFullScreen",
+									"自动隐藏视频控件",
+									"dy-video-videoControlsAutoHide",
 									false,
 									void 0,
-									"网页加载完毕后自动点击网页全屏按钮进入全屏"
+									"鼠标移入时自动显示，鼠标移除时自动隐藏"
 								),
+								UISlider(
+									"延迟自动隐藏的时间",
+									"dy-video-videoControlsAutoHide-delayTime",
+									3000,
+									0,
+									8000,
+									void 0,
+									(value) => {
+										return `${value}ms`;
+									},
+									"设置延迟自动隐藏视频标题的时间，单位（ms）",
+									100
+								),
+							],
+						},
+						{
+							type: "forms",
+							text: "右侧工具栏",
+							forms: [
 								UISwitch(
-									"双击进入网页全屏",
-									"dy-video-doubleClickEnterElementFullScreen",
+									"自动隐藏右侧工具栏",
+									"dy-video-rightToolBarAutoHide",
 									false,
 									void 0,
-									"双击视频自动进入网页全屏，检测间隔250ms"
+									"鼠标移入时自动显示，鼠标移除时自动隐藏"
+								),
+								UISlider(
+									"延迟自动隐藏的时间",
+									"dy-video-rightToolBarAutoHide-delayTime",
+									3000,
+									0,
+									8000,
+									void 0,
+									(value) => {
+										return `${value}ms`;
+									},
+									"设置延迟自动隐藏视频标题的时间，单位（ms）",
+									100
 								),
 							],
 						},

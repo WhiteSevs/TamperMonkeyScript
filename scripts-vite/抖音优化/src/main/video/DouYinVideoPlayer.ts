@@ -95,6 +95,12 @@ export const DouYinVideoPlayer = {
 			PopsPanel.execMenuOnce("dy-video-titleInfoAutoHide", () => {
 				this.titleInfoAutoHide();
 			});
+			PopsPanel.execMenuOnce("dy-video-videoControlsAutoHide", () => {
+				this.videoControlsAutoHide();
+			});
+			PopsPanel.execMenuOnce("dy-video-rightToolBarAutoHide", () => {
+				this.rightToolBarAutoHide();
+			});
 		});
 	},
 	/**
@@ -600,24 +606,20 @@ export const DouYinVideoPlayer = {
 			if (!videoInfoList.length) {
 				return;
 			}
-			videoInfoList.forEach(($currentVideoInfo) => {
-				if (!$currentVideoInfo) {
+			videoInfoList.forEach(($el) => {
+				if (!$el) {
 					return;
 				}
-				$currentVideoInfo.setAttribute("data-is-inject-mouse-hide", "");
+				$el.setAttribute("data-is-inject-mouse-hide", "");
 				let timeId = setTimeout(() => {
-					DOMUtils.trigger($currentVideoInfo, "mouseleave");
+					DOMUtils.trigger($el, "mouseleave");
 				}, PopsPanel.getValue("dy-video-titleInfoAutoHide-delayTime"));
-				DOMUtils.on(
-					$currentVideoInfo,
-					["mouseenter", "touchstart"],
-					(event) => {
-						clearTimeout(timeId);
-						DOMUtils.css($currentVideoInfo, "opacity", "");
-					}
-				);
-				DOMUtils.on($currentVideoInfo, ["mouseleave", "touchend"], (event) => {
-					DOMUtils.css($currentVideoInfo, "opacity", 0);
+				DOMUtils.on($el, ["mouseenter", "touchstart"], (event) => {
+					clearTimeout(timeId);
+					DOMUtils.css($el, "opacity", "");
+				});
+				DOMUtils.on($el, ["mouseleave", "touchend"], (event) => {
+					DOMUtils.css($el, "opacity", 0);
 				});
 			});
 		});
@@ -626,6 +628,113 @@ export const DouYinVideoPlayer = {
 				subtree: true,
 				childList: true,
 			},
+			immediate: true,
+			callback: () => {
+				lockFn.run();
+			},
+		});
+	},
+	/**
+	 * 自动隐藏视频控件
+	 */
+	videoControlsAutoHide() {
+		log.info(`自动隐藏视频控件`);
+		let lockFn = new utils.LockFunction(() => {
+			/** 视频信息列表 */
+			let videoInfoList: (HTMLElement | null)[] = [];
+			videoInfoList.push(
+				// 一般的推荐视频|单个视频的当前观看的视频
+				$<HTMLElement>(
+					`#sliderVideo[data-e2e="feed-active-video"] xg-controls.xgplayer-controls:not([data-is-inject-mouse-hide])`
+				),
+				// 进入作者主页后的当前观看的视频
+				$<HTMLElement>(
+					'#slideMode[data-e2e="feed-active-video"] xg-controls.xgplayer-controls:not([data-is-inject-mouse-hide])'
+				)
+			);
+			if (!videoInfoList.length) {
+				return;
+			}
+			videoInfoList.forEach(($el) => {
+				if (!$el) {
+					return;
+				}
+				$el.setAttribute("data-is-inject-mouse-hide", "");
+				let timeId = setTimeout(() => {
+					DOMUtils.trigger($el, "mouseleave");
+				}, PopsPanel.getValue("dy-video-videoControlsAutoHide-delayTime"));
+				DOMUtils.on($el, ["mouseenter", "touchstart"], (event) => {
+					clearTimeout(timeId);
+					DOMUtils.css($el, "opacity", "");
+				});
+				DOMUtils.on($el, ["mouseleave", "touchend"], (event) => {
+					DOMUtils.css($el, "opacity", 0);
+				});
+			});
+		});
+		utils.mutationObserver(document, {
+			config: {
+				subtree: true,
+				childList: true,
+			},
+			immediate: true,
+			callback: () => {
+				lockFn.run();
+			},
+		});
+	},
+	/**
+	 * 自动隐藏右侧工具栏
+	 */
+	rightToolBarAutoHide() {
+		log.info(`自动隐藏右侧工具栏`);
+		addStyle(/*css*/ `
+			.positionBox{
+				transition: opacity 0.5s;
+			}
+		`);
+		let lockFn = new utils.LockFunction(() => {
+			/** 视频信息列表 */
+			let videoInfoList: (HTMLElement | null)[] = [];
+
+			videoInfoList.push(
+				// 一般的推荐视频|单个视频的当前观看的视频
+				$<HTMLElement>(
+					'#sliderVideo[data-e2e="feed-active-video"] .positionBox:not([data-is-inject-mouse-hide])'
+				)
+			);
+			videoInfoList.push(
+				// 进入作者主页后的当前观看的视频
+				$<HTMLElement>(
+					'#slideMode[data-e2e="feed-active-video"] .positionBox:not([data-is-inject-mouse-hide])'
+				)
+			);
+			if (!videoInfoList.length) {
+				return;
+			}
+			videoInfoList.forEach(($el) => {
+				if (!$el) {
+					return;
+				}
+				$el.setAttribute("data-is-inject-mouse-hide", "");
+				let timeId = setTimeout(() => {
+					DOMUtils.trigger($el, "mouseleave");
+				}, PopsPanel.getValue("dy-video-titleInfoAutoHide-delayTime"));
+				DOMUtils.on($el, ["mouseenter", "touchstart"], (event) => {
+					clearTimeout(timeId);
+					DOMUtils.css($el, "opacity", "");
+				});
+				DOMUtils.on($el, ["mouseleave", "touchend"], (event) => {
+					DOMUtils.css($el, "opacity", 0);
+				});
+			});
+		});
+		utils.mutationObserver(document, {
+			config: {
+				subtree: true,
+				childList: true,
+			},
+			immediate: true,
 			callback: () => {
 				lockFn.run();
 			},

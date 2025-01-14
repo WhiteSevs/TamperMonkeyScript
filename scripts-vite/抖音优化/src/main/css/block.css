@@ -10,6 +10,8 @@ div:has(+#wallpaper-modal),
 div:has(> a[download*="douyin-downloade"]):has(+.popShadowAnimation),
 div:has(> a[download*="douyin-downloade"]):has(+div>[data-e2e="listDlgTest-container"]),
 /* 客户端登录访问更便捷 */
-div:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation) {
+div:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation),
+/* 前往电脑客户端，即享下载视频 */
+[data-e2e="video-share-container"] div:has(>div>div> a[download*="douyin-downloader"]):first-child {
 	display: none !important;
 }
