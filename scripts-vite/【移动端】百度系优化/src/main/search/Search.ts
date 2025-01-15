@@ -173,6 +173,13 @@ const BaiduSearch = {
 				return;
 			}
 			/* 阻止事件传递 */
+			let urlObj = new URL(url);
+			if (urlObj.hostname === "www.baidu.com") {
+				if (urlObj.pathname.match(/\/[\d]+$/)) {
+					log.warn("不符合新标签页打开的链接");
+					return;
+				}
+			}
 			utils.preventEvent(event);
 			log.success(["新标签页打开-来自click事件", url]);
 			window.open(url, "_blank");
