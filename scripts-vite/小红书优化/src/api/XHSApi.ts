@@ -19,6 +19,7 @@ const XHSApi = {
 	async getPageInfo(
 		note_id: string | number,
 		cursor = "",
+		xsec_token = "",
 		top_comment_id = "",
 		image_formats = "jpg,webp"
 	) {
@@ -28,6 +29,7 @@ const XHSApi = {
 			cursor: cursor,
 			top_comment_id: top_comment_id,
 			image_formats: image_formats,
+			xsec_token: xsec_token,
 		};
 		const SearchParams = Api + "?" + utils.toSearchParamsStr(SearchParamsData);
 		// let signInfo = XHS_Sign(Api);

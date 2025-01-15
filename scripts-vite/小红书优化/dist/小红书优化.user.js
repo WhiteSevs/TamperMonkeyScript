@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.17
+// @version      2025.1.15
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -9,9 +9,9 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://www.xiaohongshu.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
@@ -32,15 +32,15 @@
   'use strict';
 
   var _a;
-  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : undefined)();
+  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : undefined)();
+  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : undefined)();
+  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : undefined)();
+  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : undefined)();
+  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : undefined)();
+  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : undefined)();
+  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : undefined)();
+  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : undefined)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
   const GM_RESOURCE_MAPPING = {
     ElementPlus: {
@@ -191,7 +191,7 @@
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
   );
-  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
+  const SCRIPT_NAME = ((_a = _GM_info == null ? undefined : _GM_info.script) == null ? undefined : _a.name) || _SCRIPT_NAME_;
   const DEBUG = false;
   log.config({
     debug: DEBUG,
@@ -239,7 +239,7 @@
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand
   });
   const httpx = new utils.Httpx(_GM_xmlhttpRequest);
-  httpx.interceptors.response.use(void 0, (data) => {
+  httpx.interceptors.response.use(undefined, (data) => {
     log.error("拦截器-请求错误", data);
     if (data.type === "onabort") {
       Qmsg.warning("请求取消");
@@ -328,7 +328,7 @@
                     "劫持点击事件",
                     "little-red-book-repariClick",
                     true,
-                    void 0,
+                    undefined,
                     "可阻止点击跳转至下载页面"
                   )
                 ]
@@ -359,21 +359,21 @@
                     "优化视频描述",
                     "little-red-book-optimizeVideoNoteDesc",
                     true,
-                    void 0,
+                    undefined,
                     "让视频描述可以滚动显示更多"
                   ),
                   UISwitch(
                     "【屏蔽】作者热门笔记",
                     "little-red-book-shieldAuthorHotNote",
                     true,
-                    void 0,
+                    undefined,
                     "建议开启"
                   ),
                   UISwitch(
                     "【屏蔽】热门推荐",
                     "little-red-book-shieldHotRecommendNote",
                     true,
-                    void 0,
+                    undefined,
                     "建议开启"
                   )
                 ]
@@ -398,21 +398,21 @@
                     "优化评论浏览",
                     "little-red-book-optimizeCommentBrowsing",
                     true,
-                    void 0,
-                    "加载评论，未登录最多查看1页评论(注：楼中楼评论已失效，api无法获取楼中楼评论，需要请求头X-T、X-S、X-B3-Traceid)"
+                    undefined,
+                    "目前仅可加载部分评论"
                   ),
                   UISwitch(
                     "优化图片浏览",
                     "little-red-book-optimizeImageBrowsing",
                     true,
-                    void 0,
+                    undefined,
                     "更方便的浏览图片"
                   ),
                   UISwitch(
                     "允许复制",
                     "little-red-book-allowCopy",
                     true,
-                    void 0,
+                    undefined,
                     "可以复制笔记的内容"
                   )
                 ]
@@ -431,14 +431,14 @@
                     "劫持webpack-弹窗",
                     "little-red-book-hijack-webpack-mask",
                     true,
-                    void 0,
+                    undefined,
                     "如：打开App弹窗、登录弹窗"
                   ),
                   UISwitch(
                     "劫持webpack-唤醒App",
                     "little-red-book-hijack-webpack-scheme",
                     true,
-                    void 0,
+                    undefined,
                     "禁止跳转商店小红书详情页/小红书"
                   )
                 ]
@@ -507,14 +507,14 @@
                     "允许复制",
                     "pc-xhs-allowCopy",
                     true,
-                    void 0,
+                    undefined,
                     "可以选择文字并复制"
                   ),
                   UISwitch(
                     "新标签页打开文章",
                     "pc-xhs-open-blank-article",
                     false,
-                    void 0,
+                    undefined,
                     "点击文章不会在本页展开，会打开新标签页"
                   )
                 ]
@@ -533,14 +533,14 @@
                     "新标签页打开-搜索按钮",
                     "pc-xhs-search-open-blank-btn",
                     false,
-                    void 0,
+                    undefined,
                     "点击右边的搜索按钮直接新标签页打开搜索内容"
                   ),
                   UISwitch(
                     "新标签页打开-回车键",
                     "pc-xhs-search-open-blank-keyboard-enter",
                     false,
-                    void 0,
+                    undefined,
                     "按下回车键直接新标签页打开搜索内容"
                   )
                 ]
@@ -559,28 +559,28 @@
                     "【屏蔽】广告",
                     "pc-xhs-shieldAd",
                     true,
-                    void 0,
+                    undefined,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】登录弹窗",
                     "pc-xhs-shield-login-dialog",
                     true,
-                    void 0,
+                    undefined,
                     "屏蔽会自动弹出的登录弹窗"
                   ),
                   UISwitch(
                     "【屏蔽】选择文字弹出的搜索提示",
                     "pc-xhs-shield-select-text-search-position",
                     false,
-                    void 0,
+                    undefined,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】顶部工具栏",
                     "pc-xhs-shield-topToolbar",
                     false,
-                    void 0,
+                    undefined,
                     "屏蔽元素"
                   )
                 ]
@@ -599,7 +599,7 @@
                     "劫持Vue",
                     "pc-xhs-hook-vue",
                     true,
-                    void 0,
+                    undefined,
                     "恢复__vue__属性"
                   )
                 ]
@@ -687,14 +687,14 @@
                         text: "5"
                       }
                     ],
-                    void 0,
+                    undefined,
                     "限制Toast显示的数量"
                   ),
                   UISwitch(
                     "逆序弹出",
                     "qmsg-config-showreverse",
                     false,
-                    void 0,
+                    undefined,
                     "修改Toast弹出的顺序"
                   )
                 ]
@@ -758,7 +758,7 @@
             "显示发布、修改的绝对时间",
             "pc-xhs-article-showPubsliushTime",
             false,
-            void 0,
+            undefined,
             ""
           )
         ]
@@ -771,7 +771,7 @@
             "启用",
             "pc-xhs-article-fullWidth",
             false,
-            void 0,
+            undefined,
             `让笔记占据宽屏，当页面可视宽度>=960px时才会触发该功能，当前页面可视宽度: ${window.innerWidth}px`
           ),
           UISlider(
@@ -886,14 +886,14 @@
                         text: "5"
                       }
                     ],
-                    void 0,
+                    undefined,
                     "限制Toast显示的数量"
                   ),
                   UISwitch(
                     "逆序弹出",
                     "qmsg-config-showreverse",
                     false,
-                    void 0,
+                    undefined,
                     "修改Toast弹出的顺序"
                   )
                 ]
@@ -918,21 +918,21 @@
                     "【屏蔽】广告",
                     "little-red-book-shieldAd",
                     true,
-                    void 0,
+                    undefined,
                     "如：App内打开"
                   ),
                   UISwitch(
                     "【屏蔽】底部搜索发现",
                     "little-red-book-shieldBottomSearchFind",
                     true,
-                    void 0,
+                    undefined,
                     "建议开启"
                   ),
                   UISwitch(
                     "【屏蔽】底部工具栏",
                     "little-red-book-shieldBottomToorBar",
                     true,
-                    void 0,
+                    undefined,
                     "建议开启"
                   )
                 ]
@@ -951,7 +951,7 @@
                     "劫持Vue",
                     "little-red-book-hijack-vue",
                     true,
-                    void 0,
+                    undefined,
                     "恢复__vue__属性"
                   )
                 ]
@@ -1193,7 +1193,7 @@
       Reflect.deleteProperty(locaData, key);
       _GM_setValue(KEY, locaData);
       if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, void 0);
+        this.$listener.listenData.get(key).callback(key, oldValue, undefined);
       }
     },
     /**
@@ -1275,7 +1275,7 @@
       } else {
         runKeyList.push(key);
       }
-      let value = void 0;
+      let value = undefined;
       for (let index = 0; index < runKeyList.length; index++) {
         const runKey = runKeyList[index];
         if (!this.$data.data.has(runKey)) {
@@ -1393,7 +1393,7 @@
         let childValue = that.getValue(childKey2);
         if (typeof replaceValueFn === "function") {
           let changedMainValue = replaceValueFn(mainValue, childValue);
-          if (changedMainValue !== void 0) {
+          if (changedMainValue !== undefined) {
             return changedMainValue;
           }
         }
@@ -1506,13 +1506,333 @@
       return configList;
     }
   };
+  const Hook = {
+    $data: {
+      document_addEventListener: [],
+      element_addEventListener: [],
+      setTimeout: [],
+      setInterval: [],
+      function_apply: [],
+      function_call: [],
+      defineProperty: []
+    },
+    /**
+     * 劫持 document.addEventListener
+     * @param handler
+     */
+    document_addEventListener(handler) {
+      this.$data.document_addEventListener.push(handler);
+      log.info("document.addEventListener hook新增劫持判断回调");
+      if (this.$data.document_addEventListener.length > 1) {
+        return;
+      }
+      const that = this;
+      let weakMap = /* @__PURE__ */ new WeakMap();
+      const originAddEventListener = _unsafeWindow.document.addEventListener;
+      const originRemoveEventListener = _unsafeWindow.document.removeEventListener;
+      _unsafeWindow.document.addEventListener = function(...args) {
+        let target = this;
+        let eventName = args[0];
+        let listener = args[1];
+        let options = args[2];
+        for (let index = 0; index < that.$data.document_addEventListener.length; index++) {
+          const callback = that.$data.document_addEventListener[index];
+          const result = Reflect.apply(callback, this, [
+            target,
+            eventName,
+            listener,
+            options
+          ]);
+          if (typeof result === "function") {
+            args[1] = result;
+            weakMap.set(listener, {
+              eventName,
+              fn: result,
+              options
+            });
+            break;
+          } else if (typeof result === "boolean" && !result) {
+            return;
+          }
+        }
+        return Reflect.apply(originAddEventListener, this, args);
+      };
+      _unsafeWindow.document.removeEventListener = function(...args) {
+        let eventName = args[0];
+        let listener = args[1];
+        let options = args[2];
+        if (weakMap.has(listener)) {
+          const {
+            eventName: __eventName__,
+            fn: __listener__,
+            options: __options__
+          } = weakMap.get(listener);
+          let flag = false;
+          if (eventName === __eventName__) {
+            if (typeof options === "boolean" && options === __options__) {
+              flag = true;
+            } else if (typeof options === "object" && typeof __options__ === "object" && options["capture"] === __options__["capture"]) {
+              flag = true;
+            } else if (options == options) {
+              flag = true;
+            }
+          }
+          if (flag) {
+            args[1] = __listener__;
+          }
+        }
+        return Reflect.apply(originRemoveEventListener, this, args);
+      };
+    },
+    /**
+     * 劫持 Element.property.addEventListener
+     * @param handler
+     */
+    element_addEventListener(handler) {
+      this.$data.element_addEventListener.push(handler);
+      log.info("Element.prototype.addEventListener hook新增劫持判断回调");
+      if (this.$data.element_addEventListener.length > 1) {
+        return;
+      }
+      const that = this;
+      let weakMap = /* @__PURE__ */ new WeakMap();
+      const originAddEventListener = _unsafeWindow.Element.prototype.addEventListener;
+      const originRemoveEventListener = _unsafeWindow.Element.prototype.removeEventListener;
+      _unsafeWindow.Element.prototype.addEventListener = function(...args) {
+        let target = this;
+        let eventName = args[0];
+        let listener = args[1];
+        let options = args[2];
+        for (let index = 0; index < that.$data.element_addEventListener.length; index++) {
+          const callback = that.$data.element_addEventListener[index];
+          const result = Reflect.apply(callback, this, [
+            target,
+            eventName,
+            listener,
+            options
+          ]);
+          if (typeof result === "function") {
+            args[1] = result;
+            weakMap.set(listener, {
+              eventName,
+              fn: result,
+              options
+            });
+            break;
+          } else if (typeof result === "boolean" && !result) {
+            return;
+          }
+        }
+        return Reflect.apply(originAddEventListener, this, args);
+      };
+      _unsafeWindow.Element.prototype.removeEventListener = function(...args) {
+        let eventName = args[0];
+        let listener = args[1];
+        let options = args[2];
+        if (weakMap.has(listener)) {
+          const {
+            eventName: __eventName__,
+            fn: __listener__,
+            options: __options__
+          } = weakMap.get(listener);
+          let flag = false;
+          if (__eventName__ === eventName) {
+            if (typeof options === "boolean" && options === __options__) {
+              flag = true;
+            } else if (typeof options === "object" && typeof __options__ === "object" && options["capture"] === __options__["capture"]) {
+              flag = true;
+            } else if (options == __options__) {
+              flag = true;
+            }
+          }
+          if (flag) {
+            args[1] = __listener__;
+          }
+        }
+        return Reflect.apply(originRemoveEventListener, this, args);
+      };
+    },
+    /**
+     * 劫持 window.setTimeout
+     *
+     * @param handler
+     */
+    setTimeout(handler) {
+      this.$data.setTimeout.push(handler);
+      log.info("window.setTimeout hook新增劫持");
+      if (this.$data.setTimeout.length > 1) {
+        return;
+      }
+      const that = this;
+      let originSetTimeout = _unsafeWindow.setTimeout;
+      _unsafeWindow.setTimeout = function(...args) {
+        let fn = args[0];
+        let timeout = args[1];
+        for (let index = 0; index < that.$data.setTimeout.length; index++) {
+          const item = that.$data.setTimeout[index];
+          const result = item(fn, timeout);
+          if (typeof result === "boolean" && !result) {
+            return;
+          }
+        }
+        return Reflect.apply(originSetTimeout, this, args);
+      };
+    },
+    /**
+     * 劫持 window.setInterval
+     * @param handler
+     */
+    setInterval(handler) {
+      this.$data.setInterval.push(handler);
+      log.info("window.setInterval hook新增劫持");
+      if (this.$data.setInterval.length > 1) {
+        return;
+      }
+      const that = this;
+      let originSetInterval = _unsafeWindow.setInterval;
+      _unsafeWindow.setInterval = function(...args) {
+        let fn = args[0];
+        let timeout = args[1];
+        for (let index = 0; index < that.$data.setInterval.length; index++) {
+          const item = that.$data.setInterval[index];
+          const result = item(fn, timeout);
+          if (typeof result === "boolean" && !result) {
+            return;
+          }
+        }
+        return Reflect.apply(originSetInterval, this, args);
+      };
+    },
+    /**
+     * 劫持 Function.prototype.apply
+     * @param handler
+     */
+    function_apply(handler) {
+      this.$data.function_apply.push(handler);
+      log.info("Function.prototype.apply hook新增劫持");
+      if (this.$data.function_apply.length > 1) {
+        return;
+      }
+      const that = this;
+      let originFunctionApply = _unsafeWindow.Function.prototype.apply;
+      _unsafeWindow.Function.prototype.apply = function(...args) {
+        let thisArg = args[0];
+        let argArray = args[1];
+        let context = this;
+        for (let index = 0; index < that.$data.function_apply.length; index++) {
+          const item = that.$data.function_apply[index];
+          const result = item(context, thisArg, argArray);
+          if (result != null) {
+            args[0] = result.thisArg;
+            args[1] = result.argArray;
+            context = result.context;
+            break;
+          }
+        }
+        return Reflect.apply(originFunctionApply, context, args);
+      };
+    },
+    /**
+     * 劫持 Function.prototype.call
+     * @param handler
+     */
+    function_call(handler) {
+      this.$data.function_call.push(handler);
+      log.info("Function.prototype.call hook新增劫持");
+      if (this.$data.function_call.length > 1) {
+        return;
+      }
+      const that = this;
+      let originFunctionCall = _unsafeWindow.Function.prototype.call;
+      _unsafeWindow.Function.prototype.call = function(...args) {
+        let thisArg = args[0];
+        let argArray = args.slice(1);
+        let context = this;
+        for (let index = 0; index < that.$data.function_call.length; index++) {
+          const item = that.$data.function_call[index];
+          const result = item(context, thisArg, argArray);
+          if (result != null) {
+            args[0] = result.thisArg;
+            args.splice(1, argArray.length, ...result.argArray);
+            context = result.context;
+            break;
+          }
+        }
+        return Reflect.apply(originFunctionCall, context, args);
+      };
+    },
+    /**
+     * 劫持 Object.defineProperty
+     * @package handler
+     */
+    defineProperty(handler) {
+      this.$data.defineProperty.push(handler);
+      log.info("Object.defineProperty hook新增劫持");
+      if (this.$data.defineProperty.length > 1) {
+        return;
+      }
+      const that = this;
+      let originDefineProperty = _unsafeWindow.Object.defineProperty;
+      _unsafeWindow.Object.defineProperty = function(...args) {
+        let target = args[0];
+        let key = args[1];
+        let attributes = args[2];
+        for (let index = 0; index < that.$data.defineProperty.length; index++) {
+          const item = that.$data.defineProperty[index];
+          const result = item(target, key, attributes);
+          if (result != null) {
+            args[0] = result.target;
+            args[1] = result.key;
+            args[2] = result.attributes;
+            break;
+          }
+        }
+        return Reflect.apply(originDefineProperty, this, args);
+      };
+    },
+    /**
+     * 劫持webpack
+     * @param webpackName 当前全局变量的webpack名
+     * @param mainCoreData 需要劫持的webpack的顶部core
+     * 例如：(window.webpackJsonp = window.webpackJsonp || []).push([["core:0"],{}])
+     * 此时mainCoreData是["core:0"]
+     * @param handler 如果mainCoreData匹配上，则调用此回调函数，替换的话把传入的值进行处理后再返回它就行
+     */
+    window_webpack(webpackName = "webpackJsonp", mainCoreData, handler) {
+      let originObject = undefined;
+      _unsafeWindow.Object.defineProperty(_unsafeWindow, webpackName, {
+        get() {
+          return originObject;
+        },
+        set(newValue) {
+          log.success("成功劫持webpack，当前webpack名：" + webpackName);
+          originObject = newValue;
+          const originPush = originObject.push;
+          originObject.push = function(...args) {
+            let _mainCoreData = args[0][0];
+            if (mainCoreData == _mainCoreData || Array.isArray(mainCoreData) && Array.isArray(_mainCoreData) && JSON.stringify(mainCoreData) === JSON.stringify(_mainCoreData)) {
+              Object.keys(args[0][1]).forEach((keyName) => {
+                let originSwitchFunc = args[0][1][keyName];
+                args[0][1][keyName] = function(..._args) {
+                  let result = originSwitchFunc.call(this, ..._args);
+                  _args[0] = handler(_args[0]);
+                  return result;
+                };
+              });
+            }
+            return Reflect.apply(originPush, this, args);
+          };
+        }
+      });
+    }
+  };
   const XHS_Hook = {
     /**
      * 劫持webpack
      * 笔记的
      */
     webpackChunkranchi() {
-      let originObject = void 0;
+      let originObject = undefined;
       let webpackName = "webpackChunkranchi";
       Object.defineProperty(_unsafeWindow, webpackName, {
         get() {
@@ -1525,11 +1845,7 @@
             args[0][0];
             if (typeof args[0][1] === "object") {
               Object.keys(args[0][1]).forEach((keyName, index) => {
-                if (typeof args[0][1][keyName] === "function" && args[0][1][keyName].toString().includes("是否打开小红书App?") && PopsPanel.getValue("little-red-book-hijack-webpack-mask")) {
-                  log.success(["成功劫持各种弹窗/遮罩层：" + keyName]);
-                  args[0][1][keyName] = function() {
-                  };
-                } else if (typeof args[0][1][keyName] === "function" && args[0][1][keyName].toString().startsWith(
+                if (typeof args[0][1][keyName] === "function" && args[0][1][keyName].toString().startsWith(
                   "function(e,n,t){t.d(n,{Z:function(){return y}});"
                 ) && args[0][1][keyName].toString().includes("jumpToApp") && PopsPanel.getValue("little-red-book-hijack-webpack-scheme")) {
                   let oldFunc = args[0][1][keyName];
@@ -1538,7 +1854,7 @@
                     let oldD = args_1[2].d;
                     args_1[2].d = function(...args_2) {
                       var _a2;
-                      if (args_2.length === 2 && typeof ((_a2 = args_2[1]) == null ? void 0 : _a2["Z"]) === "function") {
+                      if (args_2.length === 2 && typeof ((_a2 = args_2[1]) == null ? undefined : _a2["Z"]) === "function") {
                         let oldZ = args_2[1]["Z"];
                         if (oldZ.toString() === "function(){return y}") {
                           args_2[1]["Z"] = function(...args_3) {
@@ -1549,14 +1865,14 @@
                                   jumpToApp(data) {
                                     var _a3;
                                     log.success(["拦截唤醒", data]);
-                                    if ((_a3 = data["deeplink"]) == null ? void 0 : _a3.startsWith(
+                                    if ((_a3 = data["deeplink"]) == null ? undefined : _a3.startsWith(
                                       "xhsdiscover://user/"
                                     )) {
                                       let userId = data["deeplink"].replace(
                                         /^xhsdiscover:\/\/user\//,
                                         ""
                                       );
-                                      let userHomeUrl = `https://www.xiaohongshu.com/user/profile/${userId}`;
+                                      let userHomeUrl = window.location.origin + `/user/profile/${userId}`;
                                       window.open(userHomeUrl, "_blank");
                                     }
                                   }
@@ -1567,9 +1883,9 @@
                           };
                         }
                       }
-                      oldD.call(this, ...args_2);
+                      return oldD.call(this, ...args_2);
                     };
-                    oldFunc.call(this, ...args_1);
+                    return oldFunc.call(this, ...args_1);
                   };
                 }
               });
@@ -1588,7 +1904,7 @@
       _unsafeWindow.Function.prototype.apply = function(...args) {
         var _a2, _b, _c, _d, _e, _f;
         const result = originApply.call(this, ...args);
-        if (!isHijack && args.length === 2 && ((_a2 = args[0]) == null ? void 0 : _a2.addRoute) && ((_b = args[0]) == null ? void 0 : _b.currentRoute) && ((_c = args[0]) == null ? void 0 : _c.getRoutes) && ((_d = args[0]) == null ? void 0 : _d.hasRoute) && ((_e = args[0]) == null ? void 0 : _e.install) && ((_f = args[0]) == null ? void 0 : _f.removeRoute)) {
+        if (!isHijack && args.length === 2 && ((_a2 = args[0]) == null ? undefined : _a2.addRoute) && ((_b = args[0]) == null ? undefined : _b.currentRoute) && ((_c = args[0]) == null ? undefined : _c.getRoutes) && ((_d = args[0]) == null ? undefined : _d.hasRoute) && ((_e = args[0]) == null ? undefined : _e.install) && ((_f = args[0]) == null ? undefined : _f.removeRoute)) {
           isHijack = true;
           let __vue__ = args[1][0];
           log.success(["成功劫持vue，version版本：", __vue__.version]);
@@ -1600,9 +1916,37 @@
         }
         return result;
       };
+    },
+    /**
+     * 劫持唤醒
+     */
+    setTimeout() {
+      Hook.setTimeout((fn) => {
+        let fnStr = fn.toString();
+        if (fnStr === "function(){r()}") {
+          log.success("成功劫持setTimeout唤醒");
+          return false;
+        }
+      });
+    },
+    /**
+     * 劫持唤醒
+     */
+    call() {
+      Hook.function_call((context, thisArg, argArray) => {
+        var _a2, _b, _c, _d;
+        if (((_a2 = argArray[0]) == null ? undefined : _a2.label) === 0 && Array.isArray((_b = argArray[0]) == null ? undefined : _b.ops) && Array.isArray((_c = argArray[0]) == null ? undefined : _c.trys) && typeof ((_d = argArray[0]) == null ? undefined : _d.sent) === "function") {
+          log.success(`成功劫持call唤醒`);
+          return {
+            argArray: [],
+            context,
+            thisArg
+          };
+        }
+      });
     }
   };
-  const blockCSS$2 = "/* 用户主页 */\r\n/* 底部的-App内打开 */\r\n.launch-app-container.bottom-bar,\r\n/* 顶部的-打开看看 */\r\n.main-container > .scroll-view-container > .launch-app-container:first-child,\r\n/* 底部的-打开小红书看更多精彩内容 */\r\n.bottom-launch-app-tip.show-bottom-bar {\r\n  display: none !important;\r\n}\r\n";
+  const blockCSS$2 = '/* 用户主页 */\r\n/* 底部的-App内打开 */\r\n.launch-app-container.bottom-bar,\r\n/* 顶部的-打开看看 */\r\n.main-container > .scroll-view-container > .launch-app-container:first-child,\r\n/* 底部的-打开小红书看更多精彩内容 */\r\n.bottom-launch-app-tip.show-bottom-bar,\r\n/* 首页-顶部横幅 */\r\n#app .launch-app-container[spm="NewNavBar"],\r\n/* 笔记-顶部横幅 */\r\n.note-view-container .nav-bar-box-expand ,\r\n.note-view-container .nav-bar-box-expand+.placeholder-expand {\r\n	display: none !important;\r\n}\r\n';
   const ScriptRouter = {
     /**
      * 判断是否是笔记页面
@@ -1634,13 +1978,14 @@
     /**
      * 获取页信息
      */
-    async getPageInfo(note_id, cursor = "", top_comment_id = "", image_formats = "jpg,webp") {
+    async getPageInfo(note_id, cursor = "", xsec_token = "", top_comment_id = "", image_formats = "jpg,webp") {
       const Api = `/api/sns/web/v2/comment/page`;
       const SearchParamsData = {
         note_id,
         cursor,
         top_comment_id,
-        image_formats
+        image_formats,
+        xsec_token
       };
       const SearchParams = Api + "?" + utils.toSearchParamsStr(SearchParamsData);
       let getResp = await httpx.get(`${XHS_BASE_URL}${SearchParams}`, {
@@ -1817,6 +2162,8 @@
       if (PopsPanel.getValue("little-red-book-hijack-webpack-mask") || PopsPanel.getValue("little-red-book-hijack-webpack-scheme")) {
         log.info("劫持webpack");
         XHS_Hook.webpackChunkranchi();
+        XHS_Hook.setTimeout();
+        XHS_Hook.call();
       }
       PopsPanel.execMenuOnce("little-red-book-shieldBottomSearchFind", () => {
         return M_XHSArticleBlock.blockBottomSearchFind();
@@ -1848,28 +2195,36 @@
     optimizeCommentBrowsing() {
       log.info("优化评论浏览");
       const Comments = {
-        QmsgLoading: void 0,
-        scrollFunc: void 0,
+        QmsgLoading: undefined,
+        scrollFunc: undefined,
+        noteId: "",
+        xsec_token: "",
         noteData: {},
         commentData: {},
         emojiMap: {},
         emojiNameList: [],
-        currentCursor: void 0,
-        commentContainer: void 0,
+        currentCursor: undefined,
+        commentContainer: undefined,
         init() {
           var _a2;
-          this.emojiMap = ((_a2 = utils.toJSON(_unsafeWindow.localStorage.getItem("redmoji"))) == null ? void 0 : _a2["redmojiMap"]) || {};
+          this.emojiMap = ((_a2 = utils.toJSON(_unsafeWindow.localStorage.getItem("redmoji"))) == null ? undefined : _a2["redmojiMap"]) || {};
           this.emojiNameList = Object.keys(this.emojiMap);
           this.scrollFunc = new utils.LockFunction(this.scrollEvent, this);
-          Comments.noteData = _unsafeWindow["__INITIAL_STATE__"].noteData.data.noteData;
-          Comments.commentData = _unsafeWindow["__INITIAL_STATE__"].noteData.data.commentData;
+          const __INITIAL_STATE__ = (
+            // @ts-ignore
+            _unsafeWindow["__INITIAL_STATE__"]
+          );
+          const noteData = __INITIAL_STATE__.noteData ?? __INITIAL_STATE__.data.noteData;
+          Comments.noteData = noteData.data.noteData;
+          Comments.commentData = noteData.data.commentData;
+          Comments.noteId = Comments.noteData.noteId;
+          Comments.xsec_token = __INITIAL_STATE__.noteData.routeQuery.xsec_token;
           log.info(["笔记数据", Comments.noteData]);
           log.info(["评论数据", Comments.commentData]);
         },
         /**
          *
          * @param data
-         * @returns
          */
         getCommentHTML(data) {
           return (
@@ -1920,7 +2275,7 @@
           let sub_comments = data["sub_comments"] || data["subComments"];
           let user_avatar = (data["user_info"] || data["user"])["image"];
           let user_nickname = (data["user_info"] || data["user"])["nickname"];
-          let user_id = ((_a2 = data == null ? void 0 : data["user_info"]) == null ? void 0 : _a2["user_id"]) || ((_b = data == null ? void 0 : data["user"]) == null ? void 0 : _b["userId"]);
+          let user_id = ((_a2 = data == null ? undefined : data["user_info"]) == null ? undefined : _a2["user_id"]) || ((_b = data == null ? undefined : data["user"]) == null ? undefined : _b["userId"]);
           content = Comments.converContent(content);
           let commentItemElement = domutils.createElement("div", {
             className: "little-red-book-comments-item",
@@ -1964,21 +2319,21 @@
               });
               async function showMoreEvent() {
                 let QmsgLoading = Qmsg.loading("加载中，请稍后...");
-                let pageInfo = await XHSApi.getLzlPageInfo(
-                  Comments.noteData["id"],
+                let pageInfo2 = await XHSApi.getLzlPageInfo(
+                  Comments.noteId,
                   id,
                   10,
                   lzlCursor,
-                  void 0
+                  undefined
                 );
                 QmsgLoading.close();
-                if (!pageInfo) {
+                if (!pageInfo2) {
                   return;
                 }
-                lzlCursor = pageInfo.cursor;
-                endReplyCount = endReplyCount - pageInfo.comments.length;
+                lzlCursor = pageInfo2.cursor;
+                endReplyCount = endReplyCount - pageInfo2.comments.length;
                 showMoreElement.innerText = `展开 ${endReplyCount} 条回复`;
-                pageInfo.comments.forEach((subCommentInfo) => {
+                pageInfo2.comments.forEach((subCommentInfo) => {
                   let subCommentElement = domutils.createElement("div", {
                     className: "little-red-book-comments-reply-container",
                     innerHTML: Comments.getCommentHTML({
@@ -1992,11 +2347,11 @@
                   });
                   domutils.before(showMoreElement, subCommentElement);
                 });
-                if (!pageInfo.has_more) {
+                if (!pageInfo2.has_more) {
                   domutils.off(
                     showMoreElement,
                     "click",
-                    void 0,
+                    undefined,
                     showMoreEvent,
                     {
                       capture: true
@@ -2005,7 +2360,7 @@
                   showMoreElement.remove();
                 }
               }
-              domutils.on(showMoreElement, "click", void 0, showMoreEvent, {
+              domutils.on(showMoreElement, "click", undefined, showMoreEvent, {
                 capture: true
               });
               commentItemElement.appendChild(showMoreElement);
@@ -2038,23 +2393,24 @@
           if (this.QmsgLoading == null) {
             this.QmsgLoading = Qmsg.loading("加载中，请稍后...");
           }
-          let pageInfo = await XHSApi.getPageInfo(
-            Comments.noteData["id"],
-            Comments.currentCursor
+          let pageInfo2 = await XHSApi.getPageInfo(
+            Comments.noteId,
+            Comments.currentCursor,
+            Comments.xsec_token
           );
           if (this.QmsgLoading) {
             this.QmsgLoading.close();
-            this.QmsgLoading = void 0;
+            this.QmsgLoading = undefined;
           }
-          if (!pageInfo) {
+          if (!pageInfo2) {
             return;
           }
-          Comments.currentCursor = pageInfo.cursor;
-          pageInfo.comments.forEach((commentItem) => {
+          Comments.currentCursor = pageInfo2.cursor;
+          pageInfo2.comments.forEach((commentItem) => {
             let commentItemElement = Comments.getCommentElement(commentItem);
             Comments.commentContainer.appendChild(commentItemElement);
           });
-          if (!pageInfo.has_more) {
+          if (!pageInfo2.has_more) {
             Qmsg.info("已加载全部评论");
             Comments.removeScrollEventListener();
             return;
@@ -2065,7 +2421,7 @@
          */
         addSrollEventListener() {
           log.success("添加滚动监听事件");
-          domutils.on(document, "scroll", void 0, Comments.scrollFunc.run, {
+          domutils.on(document, "scroll", undefined, Comments.scrollFunc.run, {
             capture: true,
             once: false,
             passive: true
@@ -2076,7 +2432,7 @@
          */
         removeScrollEventListener() {
           log.success("移除滚动监听事件");
-          domutils.off(document, "scroll", void 0, Comments.scrollFunc.run, {
+          domutils.off(document, "scroll", undefined, Comments.scrollFunc.run, {
             capture: true
           });
         }
@@ -2086,7 +2442,6 @@
         let noteViewContainer = document.querySelector(
           ".note-view-container"
         );
-        let loading = Qmsg.loading("获取评论中，请稍后...");
         let commentContainer = domutils.createElement("div", {
           className: "little-red-book-comments-container",
           innerHTML: (
@@ -2203,28 +2558,16 @@
         Comments.init();
         let totalElement = domutils.createElement("div", {
           className: "little-red-book-comments-total",
-          innerHTML: `共 ${Comments.noteData["comments"]} 条评论`
+          innerHTML: `共 ${Comments.commentData["commentCount"] ?? Comments.noteData["comments"]} 条评论`
         });
         commentContainer.appendChild(totalElement);
-        let pageInfo = await XHSApi.getPageInfo(Comments.noteData["id"]);
-        await utils.sleep(800);
-        if (pageInfo) {
-          Comments.currentCursor = pageInfo.cursor;
-          pageInfo.comments.forEach((commentItem) => {
-            let commentItemElement = Comments.getCommentElement(commentItem);
-            commentContainer.appendChild(commentItemElement);
-          });
-          if (pageInfo.has_more) {
-            Comments.addSrollEventListener();
-          }
-        } else if (Comments.commentData && Comments.commentData["comments"]) {
+        if (Comments.commentData && Comments.commentData["comments"]) {
           log.info("从固定的评论中加载");
           Comments.commentData["comments"].forEach((commentItem) => {
             let commentItemElement = Comments.getCommentElement(commentItem);
             commentContainer.appendChild(commentItemElement);
           });
         }
-        loading.close();
         domutils.append(noteViewContainer, commentContainer);
       });
     },
@@ -2298,26 +2641,26 @@
       domutils.on(
         document,
         "click",
-        void 0,
+        undefined,
         function(event) {
           var _a2, _b, _c, _d, _e;
           let clickElement = event.target;
           log.info(["点击的按钮元素", clickElement]);
-          if ((_a2 = clickElement == null ? void 0 : clickElement.className) == null ? void 0 : _a2.includes("follow-btn")) {
+          if ((_a2 = clickElement == null ? undefined : clickElement.className) == null ? undefined : _a2.includes("follow-btn")) {
             log.success("点击-关注按钮");
-          } else if (clickElement == null ? void 0 : clickElement.closest("button.reds-button.message-btn")) {
+          } else if (clickElement == null ? undefined : clickElement.closest("button.reds-button.message-btn")) {
             log.success("点击-私信按钮");
-          } else if (clickElement == null ? void 0 : clickElement.closest("div.reds-tab-item")) {
+          } else if (clickElement == null ? undefined : clickElement.closest("div.reds-tab-item")) {
             log.success("点击-笔记/收藏按钮");
-          } else if (clickElement == null ? void 0 : clickElement.closest("section.reds-note-card")) {
+          } else if (clickElement == null ? undefined : clickElement.closest("section.reds-note-card")) {
             log.success("点击-笔记卡片");
-            let sectionElement = clickElement == null ? void 0 : clickElement.closest(
+            let sectionElement = clickElement == null ? undefined : clickElement.closest(
               "section.reds-note-card"
             );
-            let note_id = sectionElement.getAttribute("id") || ((_d = (_c = (_b = utils.toJSON(sectionElement.getAttribute("impression"))) == null ? void 0 : _b["noteTarget"]) == null ? void 0 : _c["value"]) == null ? void 0 : _d["noteId"]);
+            let note_id = sectionElement.getAttribute("id") || ((_d = (_c = (_b = utils.toJSON(sectionElement.getAttribute("impression"))) == null ? undefined : _b["noteTarget"]) == null ? undefined : _c["value"]) == null ? undefined : _d["noteId"]);
             if (note_id) {
               window.open(
-                `https://www.xiaohongshu.com/discovery/item/${(_e = clickElement == null ? void 0 : clickElement.closest("section.reds-note-card")) == null ? void 0 : _e.getAttribute("id")}`,
+                `https://www.xiaohongshu.com/discovery/item/${(_e = clickElement == null ? undefined : clickElement.closest("section.reds-note-card")) == null ? undefined : _e.getAttribute("id")}`,
                 "_blank"
               );
             } else {
@@ -2557,7 +2900,7 @@
       return new Promise((resolve) => {
         VueUtils.waitVuePropToSet($target, {
           check(vueInstance) {
-            return typeof (vueInstance == null ? void 0 : vueInstance.$watch) === "function";
+            return typeof (vueInstance == null ? undefined : vueInstance.$watch) === "function";
           },
           set(vueInstance) {
             let removeWatch = null;
@@ -2766,7 +3109,7 @@
             if (!vueInstance) {
               return;
             }
-            let note = (_b = (_a2 = vueInstance == null ? void 0 : vueInstance._) == null ? void 0 : _a2.props) == null ? void 0 : _b.note;
+            let note = (_b = (_a2 = vueInstance == null ? undefined : vueInstance._) == null ? undefined : _a2.props) == null ? undefined : _b.note;
             if (note == null) {
               return;
             }
@@ -2832,7 +3175,7 @@
       domutils.on(
         _unsafeWindow,
         "copy",
-        void 0,
+        undefined,
         function(event) {
           utils.preventEvent(event);
           let selectText = _unsafeWindow.getSelection();

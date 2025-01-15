@@ -61,7 +61,7 @@ const MSettingUI_Notes: PopsPanelContentConfig = {
 									"little-red-book-optimizeCommentBrowsing",
 									true,
 									void 0,
-									"加载评论，未登录最多查看1页评论(注：楼中楼评论已失效，api无法获取楼中楼评论，需要请求头X-T、X-S、X-B3-Traceid)"
+									"目前仅可加载部分评论"
 								),
 								UISwitch(
 									"优化图片浏览",

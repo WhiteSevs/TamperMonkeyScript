@@ -27,6 +27,8 @@ export const M_XHSArticle = {
 		) {
 			log.info("劫持webpack");
 			XHS_Hook.webpackChunkranchi();
+			XHS_Hook.setTimeout();
+			XHS_Hook.call();
 		}
 		PopsPanel.execMenuOnce("little-red-book-shieldBottomSearchFind", () => {
 			return M_XHSArticleBlock.blockBottomSearchFind();
@@ -65,6 +67,8 @@ export const M_XHSArticle = {
 				unlock: () => void;
 				run: () => Promise<void>;
 			},
+			noteId: "",
+			xsec_token: "",
 			noteData: {} as NestedObjectWithToString,
 			commentData: {} as NestedObjectWithToString,
 			emojiMap: {} as NestedObjectWithToString,
@@ -81,21 +85,25 @@ export const M_XHSArticle = {
 				this.emojiNameList = Object.keys(this.emojiMap);
 				/* 滚动事件 */
 				this.scrollFunc = new utils.LockFunction(this.scrollEvent, this);
+				const __INITIAL_STATE__ =
+					// @ts-ignore
+					unsafeWindow["__INITIAL_STATE__"];
+				const noteData =
+					__INITIAL_STATE__.noteData ?? __INITIAL_STATE__.data.noteData;
 				/* 笔记数据 */
-				Comments.noteData = (unsafeWindow as any)[
-					"__INITIAL_STATE__"
-				].noteData.data.noteData;
+				Comments.noteData = noteData.data.noteData;
 				/* 评论数据 */
-				Comments.commentData = (unsafeWindow as any)[
-					"__INITIAL_STATE__"
-				].noteData.data.commentData;
+				Comments.commentData = noteData.data.commentData;
+				/** 笔记id */
+				Comments.noteId = Comments.noteData.noteId;
+				/** 笔记token */
+				Comments.xsec_token = __INITIAL_STATE__.noteData.routeQuery.xsec_token;
 				log.info(["笔记数据", Comments.noteData]);
 				log.info(["评论数据", Comments.commentData]);
 			},
 			/**
 			 *
 			 * @param data
-			 * @returns
 			 */
 			getCommentHTML(data: CommentDataInfo) {
 				return /*html*/ `
@@ -205,7 +213,7 @@ export const M_XHSArticle = {
 						async function showMoreEvent() {
 							let QmsgLoading = Qmsg.loading("加载中，请稍后...");
 							let pageInfo = await XHSApi.getLzlPageInfo(
-								Comments.noteData["id"] as string,
+								Comments.noteId,
 								id,
 								10,
 								lzlCursor,
@@ -283,8 +291,9 @@ export const M_XHSArticle = {
 					this.QmsgLoading = Qmsg.loading("加载中，请稍后...");
 				}
 				let pageInfo = await XHSApi.getPageInfo(
-					Comments.noteData["id"],
-					Comments.currentCursor
+					Comments.noteId,
+					Comments.currentCursor,
+					Comments.xsec_token
 				);
 				if (this.QmsgLoading) {
 					this.QmsgLoading.close();
@@ -333,7 +342,7 @@ export const M_XHSArticle = {
 			let noteViewContainer = document.querySelector(
 				".note-view-container"
 			) as HTMLDivElement;
-			let loading = Qmsg.loading("获取评论中，请稍后...");
+			// let loading = Qmsg.loading("获取评论中，请稍后...");
 			let commentContainer = DOMUtils.createElement("div", {
 				className: "little-red-book-comments-container",
 				innerHTML: /*html*/ `
@@ -447,19 +456,34 @@ export const M_XHSArticle = {
 			Comments.init();
 			let totalElement = DOMUtils.createElement("div", {
 				className: "little-red-book-comments-total",
-				innerHTML: `共 ${Comments.noteData["comments"]} 条评论`,
+				innerHTML: `共 ${
+					Comments.commentData["commentCount"] ?? Comments.noteData["comments"]
+				} 条评论`,
 			});
 			commentContainer.appendChild(totalElement);
-			let pageInfo = await XHSApi.getPageInfo(Comments.noteData["id"]);
-			/* 延迟一会儿 */
-			await utils.sleep(800);
-			if (pageInfo) {
+			// 因为现在获取评论数据需要各种参数，目前暂不支持更多
+			// if (utils.isNull(Comments.noteId)) {
+			// 	Qmsg.error("获取笔记id为空");
+			// 	// loading.close();
+			// 	return;
+			// }
+			// let pageInfo = await XHSApi.getPageInfo(
+			// 	Comments.noteId,
+			// 	"",
+			// 	Comments.xsec_token
+			// );
+			// /* 延迟一会儿 */
+			// await utils.sleep(800);
+			if (false) {
+				// @ts-ignore
 				Comments.currentCursor = pageInfo.cursor;
+				// @ts-ignore
 				pageInfo.comments.forEach((commentItem) => {
 					let commentItemElement = Comments.getCommentElement(commentItem);
 					commentContainer.appendChild(commentItemElement);
 				});
 				/* 评论尚未加载完 */
+				// @ts-ignore
 				if (pageInfo.has_more) {
 					Comments.addSrollEventListener();
 				}
@@ -471,7 +495,7 @@ export const M_XHSArticle = {
 					commentContainer.appendChild(commentItemElement);
 				});
 			}
-			loading.close();
+			// loading.close();
 			DOMUtils.append(noteViewContainer, commentContainer);
 		});
 	},

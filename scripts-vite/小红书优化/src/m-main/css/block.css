@@ -4,6 +4,11 @@
 /* 顶部的-打开看看 */
 .main-container > .scroll-view-container > .launch-app-container:first-child,
 /* 底部的-打开小红书看更多精彩内容 */
-.bottom-launch-app-tip.show-bottom-bar {
-  display: none !important;
+.bottom-launch-app-tip.show-bottom-bar,
+/* 首页-顶部横幅 */
+#app .launch-app-container[spm="NewNavBar"],
+/* 笔记-顶部横幅 */
+.note-view-container .nav-bar-box-expand ,
+.note-view-container .nav-bar-box-expand+.placeholder-expand {
+	display: none !important;
 }
