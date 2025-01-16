@@ -123,13 +123,12 @@ export const DouYinLiveBlock = {
 		log.info("【屏蔽】底部的礼物栏");
 		return [
 			CommonUtil.addBlockCSS(
-				'div[data-e2e="living-container"] >div> div:has(>.gitBarOptimizeEnabled)',
 				// 2024.12.26
 				'div[data-e2e="living-container"] >div> div:not(:has(video)):has(pace-island >.gitBarOptimizeEnabled)',
 				// Firefox上的CSS，多了个pace-island
 				'div[data-e2e="living-container"] >div> div:has(>pace-island >.gitBarOptimizeEnabled)',
 				// 全屏状态下的
-				'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"])'
+				'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"]):not(:has(video))'
 			),
 			addStyle(/*css*/ `
             /* 去除全屏状态下的礼物栏后，上面的工具栏bottom也去除 */
