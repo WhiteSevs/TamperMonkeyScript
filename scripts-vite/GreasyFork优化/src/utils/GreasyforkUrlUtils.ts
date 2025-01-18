@@ -44,10 +44,12 @@ export const GreasyforkUrlUtils = {
 	},
 	/**
 	 * 获取脚本的信息
+	 * 
+	 * 注意是跨域请求
 	 * @param scriptId 脚本id
 	 */
 	getScriptInfoUrl(scriptId: string | number) {
-		return `https://greasyfork.org/scripts/${scriptId}.json`;
+		return `https://api.greasyfork.org/scripts/${scriptId}.json`;
 	},
 	/**
 	 * 获取管理地址

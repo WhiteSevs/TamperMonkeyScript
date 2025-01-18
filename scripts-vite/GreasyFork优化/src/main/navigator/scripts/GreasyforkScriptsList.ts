@@ -394,7 +394,7 @@ export const GreasyforkScriptsList = {
 							let response = await httpx.get(
 								GreasyforkUrlUtils.getScriptInfoUrl(scriptInfo.scriptId),
 								{
-									fetch: true,
+									fetch: false,
 								}
 							);
 							if (response.status) {
