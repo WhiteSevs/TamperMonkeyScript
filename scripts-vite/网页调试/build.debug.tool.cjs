@@ -106,7 +106,7 @@ class Tool {
 	/** 获取npm库的代码文本 */
 	async getNpmText() {
 		let toolText = await (
-			await fetch(`https://cdn.jsdelivr.net/npm/${this.npmName}`)
+			await fetch(`https://fastly.jsdelivr.net/npm/${this.npmName}`)
 		).text();
 		return toolText;
 	}
