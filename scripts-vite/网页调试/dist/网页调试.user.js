@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网页调试
 // @namespace    https://greasyfork.org/zh-CN/scripts/475228
-// @version      2024.12.31
+// @version      2025.1.19
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @license      GPL-3.0-only
@@ -11,10 +11,10 @@
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/483694/1499312/Eruda-2.js
 // @require      https://update.greasyfork.org/scripts/483695/1485015/vConsole-2.js
-// @require      https://update.greasyfork.org/scripts/483696/1499313/PageSpy-2.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.6/dist/index.umd.js
+// @require      https://update.greasyfork.org/scripts/483696/1523168/PageSpy-2.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @resource     Resource_erudaBenchmark       https://fastly.jsdelivr.net/npm/eruda-benchmark@2.0.1
 // @resource     Resource_erudaCode            https://fastly.jsdelivr.net/npm/eruda-code@2.2.0
@@ -48,17 +48,17 @@
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var _a;
-  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_setClipboard = /* @__PURE__ */ (() => typeof GM_setClipboard != "undefined" ? GM_setClipboard : void 0)();
-  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : undefined)();
+  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : undefined)();
+  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : undefined)();
+  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : undefined)();
+  var _GM_setClipboard = /* @__PURE__ */ (() => typeof GM_setClipboard != "undefined" ? GM_setClipboard : undefined)();
+  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : undefined)();
+  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : undefined)();
+  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : undefined)();
+  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : undefined)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
-  const versionJSON = '{\n  "eruda": {\n    "version": "3.4.1",\n    "plugin": {\n      "eruda-monitor": "1.1.1",\n      "eruda-features": "2.1.0",\n      "eruda-timing": "2.0.1",\n      "eruda-code": "2.2.0",\n      "eruda-benchmark": "2.0.1",\n      "eruda-orientation": "2.1.1",\n      "eruda-vue": "1.1.1",\n      "eruda-touches": "2.1.0",\n      "eruda-outline-plugin": "0.0.5",\n      "eruda-pixel": "1.0.13"\n    }\n  },\n  "vconsole": {\n    "version": "3.15.1",\n    "plugin": {\n      "vue-vconsole-devtools": "1.0.9"\n    }\n  },\n  "@huolala-tech/page-spy-browser": {\n    "version": "2.0.2"\n  }\n}';
+  const versionJSON = '{\n  "eruda": {\n    "version": "3.4.1",\n    "plugin": {\n      "eruda-monitor": "1.1.1",\n      "eruda-features": "2.1.0",\n      "eruda-timing": "2.0.1",\n      "eruda-code": "2.2.0",\n      "eruda-benchmark": "2.0.1",\n      "eruda-orientation": "2.1.1",\n      "eruda-vue": "1.1.1",\n      "eruda-touches": "2.1.0",\n      "eruda-outline-plugin": "0.0.5",\n      "eruda-pixel": "1.0.13"\n    }\n  },\n  "vconsole": {\n    "version": "3.15.1",\n    "plugin": {\n      "vue-vconsole-devtools": "1.0.9"\n    }\n  },\n  "@huolala-tech/page-spy-browser": {\n    "version": "2.1.0"\n  }\n}';
   const DebugToolVersionConfig = JSON.parse(versionJSON);
   const DebugToolConfig = {
     eruda: {
@@ -501,7 +501,7 @@
     _GM_info,
     unsafeWin.console || _monkeyWindow.console
   );
-  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
+  const SCRIPT_NAME = ((_a = _GM_info == null ? undefined : _GM_info.script) == null ? undefined : _a.name) || _SCRIPT_NAME_;
   const DEBUG = false;
   log.config({
     debug: DEBUG,
@@ -562,7 +562,7 @@
     httpxCookieManager.handle(data);
     return data;
   });
-  httpx.interceptors.response.use(void 0, (data) => {
+  httpx.interceptors.response.use(undefined, (data) => {
     log.error("拦截器-请求错误", data);
     if (data.type === "onabort") {
       Qmsg.warning("请求取消");
@@ -738,21 +738,21 @@
                 text: "Chii"
               }
             ],
-            void 0,
-            void 0
+            undefined,
+            undefined
           ),
           UISwitch(
             "允许在iframe内加载",
             PanelSettingConfig.allowRunInIframe.key,
             PanelSettingConfig.allowRunInIframe.defaultValue,
-            void 0,
+            undefined,
             "如果指定本脚本的容器并没有在iframe内执行本脚本，那么该功能将不会生效"
           ),
           UISwitch(
             "主动加载调试工具",
             PanelSettingConfig.autoLoadDebugTool.key,
             PanelSettingConfig.autoLoadDebugTool.defaultValue,
-            void 0,
+            undefined,
             "关闭后将会在脚本菜单注册按钮，有3种状态【加载并显示调试工具】、【隐藏调试工具】、【显示调试工具】"
           )
         ]
@@ -826,7 +826,7 @@
             "当前版本",
             "",
             DebugToolConfig.vConsole.version,
-            void 0,
+            undefined,
             false,
             false,
             "primary",
@@ -861,7 +861,7 @@
             "自动打开面板",
             PanelSettingConfig.vconsole_auto_open_panel.key,
             PanelSettingConfig.vconsole_auto_open_panel.defaultValue,
-            void 0,
+            undefined,
             "加载完毕后自动显示面板内容"
           ),
           UISelect(
@@ -937,7 +937,7 @@
                 }
               }
             ],
-            void 0,
+            undefined,
             "开启【自动打开面板】才会生效"
           )
         ]
@@ -950,28 +950,28 @@
             "System",
             PanelSettingConfig.vConsole_panel_system.key,
             PanelSettingConfig.vConsole_panel_system.defaultValue,
-            void 0,
+            undefined,
             "控制台"
           ),
           UISwitch(
             "Network",
             PanelSettingConfig.vConsole_panel_network.key,
             PanelSettingConfig.vConsole_panel_network.defaultValue,
-            void 0,
+            undefined,
             "元素"
           ),
           UISwitch(
             "Element",
             PanelSettingConfig.vConsole_panel_element.key,
             PanelSettingConfig.vConsole_panel_element.defaultValue,
-            void 0,
+            undefined,
             "网络"
           ),
           UISwitch(
             "Storage",
             PanelSettingConfig.vConsole_panel_storage.key,
             PanelSettingConfig.vConsole_panel_storage.defaultValue,
-            void 0,
+            undefined,
             "资源"
           )
         ]
@@ -998,8 +998,8 @@
                 text: "深色主题"
               }
             ],
-            void 0,
-            void 0
+            undefined,
+            undefined
           ),
           UISwitch(
             "禁止Log自动滚动",
@@ -1016,8 +1016,8 @@
             PanelSettingConfig.vconsole_maxLogNumber.key,
             PanelSettingConfig.vconsole_maxLogNumber.defaultValue,
             "请输入数字",
-            void 0,
-            void 0,
+            undefined,
+            undefined,
             true
           ),
           UIInput(
@@ -1025,8 +1025,8 @@
             PanelSettingConfig.vconsole_maxNetworkNumber.key,
             PanelSettingConfig.vconsole_maxNetworkNumber.defaultValue,
             "请输入数字",
-            void 0,
-            void 0,
+            undefined,
+            undefined,
             true
           )
         ]
@@ -1039,21 +1039,21 @@
             "Cookies",
             PanelSettingConfig.vConsole_storage_defaultStorages_cookies.key,
             PanelSettingConfig.vConsole_storage_defaultStorages_cookies.defaultValue,
-            void 0,
+            undefined,
             "显示Cookies"
           ),
           UISwitch(
             "LocalStorage",
             PanelSettingConfig.vConsole_storage_defaultStorages_localStorage.key,
             PanelSettingConfig.vConsole_storage_defaultStorages_localStorage.defaultValue,
-            void 0,
+            undefined,
             "显示LocalStorage"
           ),
           UISwitch(
             "SessionStorage",
             PanelSettingConfig.vConsole_storage_defaultStorages_sessionStorage.key,
             PanelSettingConfig.vConsole_storage_defaultStorages_sessionStorage.defaultValue,
-            void 0,
+            undefined,
             "显示SessionStorage"
           )
         ]
@@ -1066,14 +1066,14 @@
             "vconsole-stats-plugin",
             PanelSettingConfig.vConsole_plugin_Resource_vConsole_Stats.key,
             PanelSettingConfig.vConsole_plugin_Resource_vConsole_Stats.defaultValue,
-            void 0,
+            undefined,
             "A vConsole plugin which can show Stats in front-end."
           ),
           UISwitch(
             "vconsole-outputlog-plugin",
             PanelSettingConfig.vConsole_plugin_Resource_vConsole_ExportLog.key,
             PanelSettingConfig.vConsole_plugin_Resource_vConsole_ExportLog.defaultValue,
-            void 0,
+            undefined,
             "使用该插件可以复制或下载console中打印的log"
           ),
           UISwitch(
@@ -1086,7 +1086,7 @@
                     `,
             PanelSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.key,
             PanelSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.defaultValue,
-            void 0,
+            undefined,
             `
                         v${DebugToolVersionConfig.vconsole.plugin["vue-vconsole-devtools"]}
                         <br>
@@ -1110,7 +1110,7 @@
             "当前版本",
             "",
             DebugToolConfig.eruda.version,
-            void 0,
+            undefined,
             false,
             false,
             "primary",
@@ -1145,7 +1145,7 @@
             "自动打开面板",
             PanelSettingConfig.eruda_auto_open_panel.key,
             PanelSettingConfig.eruda_auto_open_panel.defaultValue,
-            void 0,
+            undefined,
             "加载完毕后自动显示面板内容"
           ),
           UISelect(
@@ -1320,7 +1320,7 @@
                 value: "settings"
               }
             ],
-            void 0,
+            undefined,
             "开启【自动打开面板】才会生效"
           )
         ]
@@ -1333,49 +1333,49 @@
             "Console",
             PanelSettingConfig.eruda_panel_console.key,
             PanelSettingConfig.eruda_panel_console.defaultValue,
-            void 0,
+            undefined,
             "控制台"
           ),
           UISwitch(
             "Elements",
             PanelSettingConfig.eruda_panel_elements.key,
             PanelSettingConfig.eruda_panel_elements.defaultValue,
-            void 0,
+            undefined,
             "元素"
           ),
           UISwitch(
             "Network",
             PanelSettingConfig.eruda_panel_network.key,
             PanelSettingConfig.eruda_panel_network.defaultValue,
-            void 0,
+            undefined,
             "网络"
           ),
           UISwitch(
             "Resources",
             PanelSettingConfig.eruda_panel_resources.key,
             PanelSettingConfig.eruda_panel_resources.defaultValue,
-            void 0,
+            undefined,
             "资源"
           ),
           UISwitch(
             "Sources",
             PanelSettingConfig.eruda_panel_sources.key,
             PanelSettingConfig.eruda_panel_sources.defaultValue,
-            void 0,
+            undefined,
             "源代码"
           ),
           UISwitch(
             "Info",
             PanelSettingConfig.eruda_panel_info.key,
             PanelSettingConfig.eruda_panel_info.defaultValue,
-            void 0,
+            undefined,
             "信息"
           ),
           UISwitch(
             "Snippets",
             PanelSettingConfig.eruda_panel_snippets.key,
             PanelSettingConfig.eruda_panel_snippets.defaultValue,
-            void 0,
+            undefined,
             "拓展"
           )
         ]
@@ -1394,7 +1394,7 @@
                     `,
             PanelSettingConfig.eruda_plugin_Resource_erudaMonitor.key,
             PanelSettingConfig.eruda_plugin_Resource_erudaMonitor.defaultValue,
-            void 0,
+            undefined,
             `
 						v${DebugToolVersionConfig.eruda.plugin["eruda-monitor"]}
 						<br>
@@ -1411,7 +1411,7 @@
                     `,
             PanelSettingConfig.eruda_plugin_Resource_erudaFeatures.key,
             PanelSettingConfig.eruda_plugin_Resource_erudaFeatures.defaultValue,
-            void 0,
+            undefined,
             `
 						v${DebugToolVersionConfig.eruda.plugin["eruda-features"]}
 						<br>
@@ -1428,7 +1428,7 @@
                     `,
             PanelSettingConfig.eruda_plugin_Resource_erudaTiming.key,
             PanelSettingConfig.eruda_plugin_Resource_erudaTiming.defaultValue,
-            void 0,
+            undefined,
             `
 						v${DebugToolVersionConfig["eruda"]["plugin"]["eruda-timing"]}
 						<br>
@@ -1445,7 +1445,7 @@
                     `,
             PanelSettingConfig.eruda_plugin_Resource_erudaCode.key,
             PanelSettingConfig.eruda_plugin_Resource_erudaCode.defaultValue,
-            void 0,
+            undefined,
             `
 						v${DebugToolVersionConfig.eruda.plugin["eruda-code"]}
 						<br>
@@ -1462,7 +1462,7 @@
                     `,
             PanelSettingConfig.eruda_plugin_Resource_erudaBenchmark.key,
             PanelSettingConfig.eruda_plugin_Resource_erudaBenchmark.defaultValue,
-            void 0,
+            undefined,
             `
 						v${DebugToolVersionConfig.eruda.plugin["eruda-benchmark"]}
 						<br>
@@ -1473,7 +1473,7 @@
             "eruda-geolocation",
             PanelSettingConfig.eruda_plugin_Resource_erudaGeolocation.key,
             PanelSettingConfig.eruda_plugin_Resource_erudaGeolocation.defaultValue,
-            void 0,
+            undefined,
             "测试地理位置接口"
           ),
           UISwitch(
@@ -1486,7 +1486,7 @@
                     `,
             PanelSettingConfig.eruda_plugin_Resource_erudaOrientation.key,
             PanelSettingConfig.eruda_plugin_Resource_erudaOrientation.defaultValue,
-            void 0,
+            undefined,
             `
 						v${DebugToolVersionConfig.eruda.plugin["eruda-orientation"]}
 						<br>
@@ -1503,7 +1503,7 @@
                     `,
             PanelSettingConfig.eruda_plugin_Resource_erudaVue.key,
             PanelSettingConfig.eruda_plugin_Resource_erudaVue.defaultValue,
-            void 0,
+            undefined,
             `
 						v${DebugToolVersionConfig.eruda.plugin["eruda-vue"]}
 						<br>
@@ -1520,7 +1520,7 @@
                     `,
             PanelSettingConfig.eruda_plugin_Resource_erudaTouches.key,
             PanelSettingConfig.eruda_plugin_Resource_erudaTouches.defaultValue,
-            void 0,
+            undefined,
             `
 						v${DebugToolVersionConfig.eruda.plugin["eruda-touches"]}
 						<br>
@@ -1537,7 +1537,7 @@
                     `,
             PanelSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.key,
             PanelSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.defaultValue,
-            void 0,
+            undefined,
             `
 						v${DebugToolVersionConfig.eruda.plugin["eruda-outline-plugin"]}
 						<br>
@@ -1554,7 +1554,7 @@
                     `,
             PanelSettingConfig.eruda_plugin_Resource_erudaPixel.key,
             PanelSettingConfig.eruda_plugin_Resource_erudaPixel.defaultValue,
-            void 0,
+            undefined,
             `
 						v${DebugToolVersionConfig.eruda.plugin["eruda-pixel"]}
 						<br>
@@ -1578,7 +1578,7 @@
             "注意！隐私保护！",
             "",
             "了解详情",
-            void 0,
+            undefined,
             false,
             false,
             "danger",
@@ -1611,13 +1611,13 @@
                 height: PanelUISize.info.height
               });
             },
-            void 0
+            undefined
           ),
           UIButton(
             "当前版本",
             "",
             DebugToolConfig.pageSpy.version,
-            void 0,
+            undefined,
             false,
             false,
             "primary",
@@ -1652,7 +1652,7 @@
             "禁止在调试端运行",
             PanelSettingConfig.pagespy_disable_run_in_debug_client.key,
             PanelSettingConfig.pagespy_disable_run_in_debug_client.defaultValue,
-            void 0,
+            undefined,
             "调试端是下面配置的api/clientOrigin地址"
           )
         ]
@@ -1666,7 +1666,7 @@
             PanelSettingConfig.pagespy_api.key,
             PanelSettingConfig.pagespy_api.defaultValue,
             "",
-            void 0,
+            undefined,
             "服务器地址的 Host"
           ),
           UIInput(
@@ -1674,30 +1674,30 @@
             PanelSettingConfig.pagespy_clientOrigin.key,
             PanelSettingConfig.pagespy_clientOrigin.defaultValue,
             "",
-            void 0,
+            undefined,
             "服务器地址的 Origin"
           ),
           UIInput(
             "project",
             PanelSettingConfig.pagespy_project.key,
             PanelSettingConfig.pagespy_project.defaultValue,
-            void 0,
-            void 0,
+            undefined,
+            undefined,
             "项目名称"
           ),
           UIInput(
             "title",
             PanelSettingConfig.pagespy_title.key,
             PanelSettingConfig.pagespy_title.defaultValue,
-            void 0,
-            void 0,
+            undefined,
+            undefined,
             "自定义标题"
           ),
           UISwitch(
             "autoRender",
             PanelSettingConfig.pagespy_autoRender.key,
             PanelSettingConfig.pagespy_autoRender.defaultValue,
-            void 0,
+            undefined,
             "自动渲染「圆形白底带 Logo」"
           ),
           UISelect(
@@ -1718,28 +1718,28 @@
                 text: "关闭"
               }
             ],
-            void 0,
+            undefined,
             "是否https"
           ),
           UISwitch(
             "offline",
             PanelSettingConfig.pagespy_offline.key,
             PanelSettingConfig.pagespy_offline.defaultValue,
-            void 0,
+            undefined,
             `是否进入 "离线模式"，具体表现为 PageSpy 不会创建房间、建立 WebSocket 连接。`
           ),
           UISwitch(
             "serializeData",
             PanelSettingConfig.pagespy_serializeData.key,
             PanelSettingConfig.pagespy_serializeData.defaultValue,
-            void 0,
+            undefined,
             `是否允许 SDK 在收集离线日志时，序列化非基本类型的数据，序列化的目的是方便在回放时查看`
           ),
           UISwitch(
             "useSecret",
             PanelSettingConfig.pagespy_useSecret.key,
             PanelSettingConfig.pagespy_useSecret.defaultValue,
-            void 0,
+            undefined,
             `是否启用权限认证功能。启用后，SDK 会生成 6 位数的随机 “密钥”；调试端进入房间时要求输入对应的密钥`
           ),
           UIInput(
@@ -1747,7 +1747,7 @@
             PanelSettingConfig.pagespy_messageCapacity.key,
             PanelSettingConfig.pagespy_messageCapacity.defaultValue,
             "调试端进入房间后可以看到之前的数据量的大小",
-            void 0,
+            undefined,
             `指定 SDK 在本地最多缓存多少条数据记录`
           )
         ]
@@ -1808,7 +1808,7 @@
             "调试页面",
             "",
             "前往",
-            void 0,
+            undefined,
             false,
             false,
             "primary",
@@ -1819,7 +1819,7 @@
               );
               window.open(url, "_blank");
             },
-            void 0,
+            undefined,
             () => {
               return Boolean(
                 PopsPanel.getValue(
@@ -1856,14 +1856,14 @@
             "禁止在调试端运行",
             PanelSettingConfig.chii_disable_run_in_debug_url.key,
             PanelSettingConfig.chii_disable_run_in_debug_url.defaultValue,
-            void 0,
+            undefined,
             "调试端是下面配置的【调试页面Url】"
           ),
           UISwitch(
             "检测script加载",
             PanelSettingConfig.chii_check_script_load.key,
             PanelSettingConfig.chii_check_script_load.defaultValue,
-            void 0,
+            undefined,
             "失败会有alert提示弹出"
           ),
           UIInput(
@@ -1871,7 +1871,7 @@
             PanelSettingConfig.chii_debug_url.key,
             PanelSettingConfig.chii_debug_url.defaultValue,
             "请输入链接Url",
-            void 0,
+            undefined,
             "配置【调试页面】的Url"
           ),
           UIInput(
@@ -1879,7 +1879,7 @@
             PanelSettingConfig.chii_target_js.key,
             PanelSettingConfig.chii_target_js.defaultValue,
             "请输入目标js文件",
-            void 0,
+            undefined,
             "用于注入页面来进行调试"
           )
         ]
@@ -1892,7 +1892,7 @@
             "锁定高度",
             PanelSettingConfig.chii_embedded_height_enable.key,
             PanelSettingConfig.chii_embedded_height_enable.defaultValue,
-            void 0,
+            undefined,
             "开启后将自动覆盖面板高度"
           ),
           UISlider(
@@ -2100,7 +2100,7 @@
       Reflect.deleteProperty(locaData, key);
       _GM_setValue(KEY, locaData);
       if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, void 0);
+        this.$listener.listenData.get(key).callback(key, oldValue, undefined);
       }
     },
     /**
@@ -2188,7 +2188,7 @@
       } else {
         runKeyList.push(key);
       }
-      let value = void 0;
+      let value = undefined;
       for (let index = 0; index < runKeyList.length; index++) {
         const runKey = runKeyList[index];
         if (!this.$data.data.has(runKey)) {
@@ -3346,13 +3346,13 @@
       /** 当前的调试工具是否已执行 */
       isLoadDebugTool: false,
       /** 当前已执行的调试工具名 */
-      loadDebugToolName: void 0,
+      loadDebugToolName: undefined,
       /** 当前执行了调试工具的iframe */
       iframeUrlList: []
     },
     $ele: {
       /** 隐藏调试工具的style元素 */
-      hideDebugToolCSSNode: void 0
+      hideDebugToolCSSNode: undefined
     },
     /**
      * 处理当在iframe内加载时，是否允许执行，如果允许，那么把url添加到菜单中
@@ -3511,7 +3511,7 @@
       if (this.$ele.hideDebugToolCSSNode) {
         console$1.log("页面存在隐藏【调试工具】的style元素 => 移除元素");
         document.documentElement.removeChild(this.$ele.hideDebugToolCSSNode);
-        this.$ele.hideDebugToolCSSNode = void 0;
+        this.$ele.hideDebugToolCSSNode = undefined;
       }
       if (!this.$data.isLoadDebugTool) {
         console$1.log("尚未运行【调试工具】 => 运行调试工具");
