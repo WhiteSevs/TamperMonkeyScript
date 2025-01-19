@@ -74,17 +74,17 @@ const MonkeyOption: Partial<__MonkeyOption__> = {
 			// 	"artplayerPluginDanmuku",
 			// 	"dist/artplayer-plugin-danmuku.js"
 			// ),
-			// artplayer: cdn.jsdelivrFastly("Artplayer", "dist/artplayer.js"),
+			artplayer: cdn.jsdelivrFastly("Artplayer", "dist/artplayer.js"),
 			"artplayer-plugin-danmuku": [
 				"artplayerPluginDanmuku",
 				() =>
-					`https://fastly.jsdelivr.net/gh/WhiteSevs/ArtPlayer@78dcae673558915192020103d55bca9fc28b39ec/packages/artplayer-plugin-danmuku/dist/artplayer-plugin-danmuku.js`,
+					`https://fastly.jsdelivr.net/gh/WhiteSevs/ArtPlayer@aca6fb3795ea03b9614cd32613e2588e60470524/packages/artplayer-plugin-danmuku/dist/artplayer-plugin-danmuku.js`,
 			],
-			artplayer: [
-				`Artplayer`,
-				() =>
-					`https://fastly.jsdelivr.net/gh/WhiteSevs/ArtPlayer@3cbe20292ddaf3018362944c2e6e06250b463d14/packages/artplayer/dist/artplayer.js`,
-			],
+			// artplayer: [
+			// 	`Artplayer`,
+			// 	() =>
+			// 		`https://fastly.jsdelivr.net/gh/WhiteSevs/ArtPlayer@3cbe20292ddaf3018362944c2e6e06250b463d14/packages/artplayer/dist/artplayer.js`,
+			// ],
 		},
 		// import资源文件的映射
 		externalResource: {
