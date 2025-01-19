@@ -22,8 +22,8 @@
 		"@whitesev/domutils": "^1.4.8",
 		"@whitesev/pops": "^1.9.7",
 		"@whitesev/utils": "^2.5.8",
-		"artplayer": "^5.2.1",
-		"artplayer-plugin-danmuku": "^5.1.4",
+		"artplayer": "^5.2.2",
+		"artplayer-plugin-danmuku": "^5.1.5",
 		"flv.js": "^1.6.2",
 		"highlight.js": "^11.11.1",
 		"i18next": "^24.2.1",
@@ -37,7 +37,7 @@
 		"vue-router": "^4.5.0"
 	},
 	"devDependencies": {
-		"@types/node": "^22.10.6",
+		"@types/node": "^22.10.7",
 		"@vitejs/plugin-vue": "^5.2.1",
 		"element-plus": "^2.9.3",
 		"typescript": "^5.7.3",
