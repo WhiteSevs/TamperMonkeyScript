@@ -70,8 +70,12 @@ export const DouYinDanmuFilter = {
 					// 普通弹幕
 					if (chat_by === "0") {
 						//
-					} else if (chat_by === "9") {
+					} else if (
+						chat_by === "9" &&
+						PopsPanel.getValue("live-danmu-shield-lucky-bag")
+					) {
 						// 来自福袋一键发送
+						// 福袋口令
 						flag = true;
 					} else {
 						// log.info("未知的弹幕chat_by：" + chat_by, $messageIns);
