@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.1.16
+// @version      2025.1.20
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -919,8 +919,7 @@
   const DouYinDanmuFilter = {
     key: "douyin-live-danmu-rule",
     $data: {
-      rule: [],
-      isFilterAttrName: "data-is-filter"
+      rule: []
     },
     init() {
       this.resetRule();
@@ -949,30 +948,44 @@
      * 通知弹幕改变(可能是新增)
      */
     change() {
-      var _a2, _b, _c, _d, _e, _f, _g;
+      var _a2, _b, _c, _d, _e, _f, _g, _h;
       let danmakuQueue = Array.from(
-        $$("xg-danmu.xgplayer-danmu > div > div")
+        $$(
+          "xg-danmu.xgplayer-danmu > div > div:not([data-is-filter])"
+        )
       );
-      if (!danmakuQueue.length) {
-        return;
-      }
       for (let messageIndex = 0; messageIndex < danmakuQueue.length; messageIndex++) {
         let $danmuItem = danmakuQueue[messageIndex];
-        if ($danmuItem.hasAttribute(this.$data.isFilterAttrName)) {
-          continue;
+        let $messageIns = (_d = (_c = (_b = (_a2 = utils.getReactObj($danmuItem)) == null ? undefined : _a2.reactFiber) == null ? undefined : _b.return) == null ? undefined : _c.memoizedProps) == null ? undefined : _d.message;
+        let message = ((_e = $messageIns == null ? undefined : $messageIns.payload) == null ? undefined : _e.content) || ((_g = (_f = $messageIns == null ? undefined : $messageIns.payload) == null ? undefined : _f.common) == null ? undefined : _g.describe);
+        let method = $messageIns.method;
+        let chat_by = (_h = $messageIns == null ? undefined : $messageIns.payload) == null ? undefined : _h.chat_by;
+        let flag = false;
+        if (!flag) {
+          if (method === "WebcastGiftMessage" && PopsPanel.getValue("live-danmu-shield-gift")) {
+            flag = true;
+          } else if (method === "WebcastChatMessage") {
+            if (chat_by === "0") ;
+            else if (chat_by === "9") {
+              flag = true;
+            } else ;
+          } else ;
         }
-        let $messageObj = (_d = (_c = (_b = (_a2 = utils.getReactObj($danmuItem)) == null ? undefined : _a2.reactFiber) == null ? undefined : _b.return) == null ? undefined : _c.memoizedProps) == null ? undefined : _d.message;
-        let message = ((_e = $messageObj == null ? undefined : $messageObj.payload) == null ? undefined : _e.content) || ((_g = (_f = $messageObj == null ? undefined : $messageObj.payload) == null ? undefined : _f.common) == null ? undefined : _g.describe);
-        for (let index = 0; index < this.$data.rule.length; index++) {
-          const ruleRegExp = this.$data.rule[index];
-          if (typeof message === "string") {
-            if (ruleRegExp.test(message)) {
-              log.info("过滤弹幕: " + message);
-              $danmuItem.setAttribute(this.$data.isFilterAttrName, "true");
-              domUtils.hide($danmuItem);
-              break;
-            }
-          }
+        if (!flag) {
+          flag = flag && Boolean(
+            this.$data.rule.find((ruleItem) => {
+              if (typeof message === "string") {
+                if (message.match(ruleItem)) {
+                  log.info("过滤弹幕: " + message);
+                  return true;
+                }
+              }
+            })
+          );
+        }
+        if (flag) {
+          $danmuItem.setAttribute("data-is-filter", "true");
+          domUtils.hide($danmuItem);
         }
       }
     },
@@ -1000,6 +1013,7 @@
             childList: true,
             subtree: true
           },
+          immediate: true,
           callback: () => {
             DouYinDanmuFilter.change();
           }
@@ -2388,7 +2402,7 @@
             ]
           },
           {
-            text: "过滤-弹幕",
+            text: "弹幕过滤器",
             type: "deepMenu",
             forms: [
               {
@@ -2401,6 +2415,20 @@
                     false,
                     undefined,
                     "启用自定义的弹幕过滤规则"
+                  ),
+                  UISwitch(
+                    "【屏蔽】送礼信息",
+                    "live-danmu-shield-gift",
+                    false,
+                    undefined,
+                    ""
+                  ),
+                  UISwitch(
+                    "【屏蔽】福袋口令",
+                    "live-danmu-shield-lucky-bag",
+                    false,
+                    undefined,
+                    ""
                   ),
                   UIButton(
                     "初始化规则",

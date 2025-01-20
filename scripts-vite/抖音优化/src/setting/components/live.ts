@@ -155,7 +155,7 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 					],
 				},
 				{
-					text: "过滤-弹幕",
+					text: "弹幕过滤器",
 					type: "deepMenu",
 					forms: [
 						{
@@ -168,6 +168,20 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 									false,
 									void 0,
 									"启用自定义的弹幕过滤规则"
+								),
+								UISwitch(
+									"【屏蔽】送礼信息",
+									"live-danmu-shield-gift",
+									false,
+									void 0,
+									""
+								),
+								UISwitch(
+									"【屏蔽】福袋口令",
+									"live-danmu-shield-lucky-bag",
+									false,
+									void 0,
+									""
 								),
 								UIButton(
 									"初始化规则",
