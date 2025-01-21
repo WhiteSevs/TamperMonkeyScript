@@ -48,6 +48,31 @@ export const DouYinQueryApi = {
 		}
 		return user_uid;
 	},
+	/**
+	 * 获取当前的webid
+	 */
+	async webid() {
+		let response = await httpx.get(ApiConfig.BASE_URL + "?recommend=1", {
+			fetch: true,
+			allowInterceptConfig: false,
+		});
+		if (!response.status) {
+			log.error(response);
+			return;
+		}
+		if (typeof response.data.responseText !== "string") {
+			log.error(response);
+			return;
+		}
+		let webid = response.data.responseText.match(
+			/\"user_unique_id\\":\\"([\d]+)\\"/
+		);
+		if (webid) {
+			return webid[webid.length - 1];
+		} else {
+			log.error(response);
+		}
+	},
 };
 
 if (import.meta.hot) {

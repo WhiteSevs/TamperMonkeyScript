@@ -4,21 +4,24 @@ export const ApiResponseCheck = {
 	/**
 	 * 接口是否请求成功
 	 * @param responseData
+	 * @param showToast 是否显示toast
 	 */
-	isSuccess(responseData: any) {
+	isSuccess(responseData: any, showToast: boolean = true) {
 		if (responseData == null) {
-			Qmsg.error("接口返回数据为空");
+			showToast && Qmsg.error("接口返回数据为空", { consoleLogContent: true });
 			return false;
 		}
 		if (typeof responseData !== "object") {
-			Qmsg.error("接口返回数据不是JSON");
+			showToast &&
+				Qmsg.error("接口返回数据不是JSON", { consoleLogContent: true });
 			return false;
 		}
 		let status_code = responseData["status_code"];
 		if (status_code == 0) {
 			return true;
 		} else {
-			Qmsg.error("接口返回数据状态码不为0");
+			showToast &&
+				Qmsg.error("接口返回数据状态码不为0", { consoleLogContent: true });
 			return false;
 		}
 	},

@@ -20,6 +20,7 @@ import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { PanelUISize } from "@/setting/panel-ui-size";
 import { UITextArea } from "@/setting/common-components/ui-textarea";
+import { DouYinQueryApi } from "@/api/DouYinQueryApi";
 
 type DouYinVideoFilterOptionScope =
 	| "all"
@@ -75,8 +76,16 @@ export const DouYinVideoFilter = {
 	 */
 	execFilter() {
 		const that = this;
-		PopsPanel.execMenuOnce(this.$key.ENABLE_KEY, () => {
+		PopsPanel.execMenuOnce(this.$key.ENABLE_KEY, async () => {
 			log.info(`执行视频过滤器`);
+			let webid = PopsPanel.getValue("dy-webid");
+			if (utils.isNull(webid)) {
+				let temp_webid = await DouYinQueryApi.webid();
+				if (typeof temp_webid === "string") {
+					webid = temp_webid;
+					PopsPanel.setValue("dy-webid", webid);
+				}
+			}
 			let filterBase = new DouYinVideoFilterBase();
 			/**
 			 * 获取作用域的规则

@@ -30,7 +30,7 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 								UISelect<string>(
 									"清晰度",
 									"live-chooseQuality",
-									"auto",
+									"origin",
 									(() => {
 										return Object.keys(VideoQualityMap).map((key: string) => {
 											let item = VideoQualityMap[key];
@@ -74,7 +74,7 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 								UISwitch(
 									"解析直播信息",
 									"live-parsePlayerInstance",
-									false,
+									true,
 									void 0,
 									"开启后将在油猴菜单中新增菜单【⚙ PlayerInstance】，可解析当前的直播信息"
 								),

@@ -9,6 +9,7 @@ import { UIButtonShortCut } from "../common-components/ui-button-shortcut";
 import { UISlider } from "../common-components/ui-slider";
 import { AutoOpenOrClose } from "../utils/all-open-or-close";
 import { DouYinVideoFilter } from "@/main/video/DouYinVideoFilter";
+import { UIInput } from "../common-components/ui-input";
 
 const PanelVideoConfig: PopsPanelContentConfig = {
 	id: "panel-config-video",
@@ -29,7 +30,7 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 								UISelect<number>(
 									"清晰度",
 									"chooseVideoDefinition",
-									1,
+									-2,
 									[
 										{
 											text: "超清 4K",
@@ -392,6 +393,7 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									void 0,
 									"开启后以下功能才会生效"
 								),
+								UIInput("webid", "dy-webid", "", "自动获取，也可以手动设置"),
 								UIButton(
 									"视频过滤规则",
 									"可过滤视频",

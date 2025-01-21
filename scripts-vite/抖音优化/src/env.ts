@@ -139,6 +139,7 @@ if (import.meta.env.DEV) {
 	});
 }
 
+let cookieManager = new utils.GM_Cookie();
 export {
 	utils,
 	domUtils as DOMUtils,
@@ -153,4 +154,5 @@ export {
 	$$,
 	MountVue,
 	VUE_ELE_NAME_ID,
+	cookieManager,
 };
