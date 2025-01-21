@@ -231,22 +231,25 @@ export const SettingUICommon: PopsPanelContentConfig = {
 												text: i18next.t("无"),
 											},
 										];
-										document
-											.querySelectorAll<HTMLOptionElement>(
-												"select#language-selector-locale option"
-											)
-											.forEach((element) => {
-												let value = element.getAttribute("value") as string;
-												if (value === "help") {
-													return;
-												}
-												let text = (element.innerText ||
-													element.textContent)!.trim();
-												result.push({
-													value: value,
-													text: text,
+										DOMUtils.ready(() => {
+											document
+												.querySelectorAll<HTMLOptionElement>(
+													"select.language-selector-locale option"
+												)
+												.forEach(($languageOption) => {
+													let value = $languageOption.getAttribute(
+														"value"
+													) as string;
+													if (value === "help") {
+														return;
+													}
+													let text = DOMUtils.text($languageOption).trim();
+													result.push({
+														value: value,
+														text: text,
+													});
 												});
-											});
+										});
 										return result;
 									})()
 								),

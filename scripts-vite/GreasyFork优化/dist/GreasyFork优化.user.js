@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.1.18
+// @version            2025.1.21
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -934,7 +934,6 @@
      */
     async getScriptStats(scriptId) {
       let response = await httpx.get(`/scripts/${scriptId}/stats.json`, {
-        fetch: true,
         allowInterceptConfig: false
       });
       log.info(response);
@@ -951,7 +950,6 @@
      */
     async getSourceCodeSyncFormData(scriptId) {
       let response = await httpx.get(`/scripts/${scriptId}/admin`, {
-        fetch: true,
         allowInterceptConfig: false
       });
       log.info(response);
@@ -976,7 +974,6 @@
      */
     async sourceCodeSync(scriptId, data) {
       let response = await httpx.post(`/scripts/${scriptId}/sync_update`, {
-        fetch: true,
         data,
         allowInterceptConfig: false
       });
@@ -992,7 +989,6 @@
      */
     async getUserInfo(userId) {
       let response = await httpx.get(`/users/${userId}.json`, {
-        fetch: true,
         allowInterceptConfig: false
       });
       log.success(response);
@@ -4480,17 +4476,21 @@
                           text: i18next.t("无")
                         }
                       ];
-                      document.querySelectorAll(
-                        "select#language-selector-locale option"
-                      ).forEach((element) => {
-                        let value = element.getAttribute("value");
-                        if (value === "help") {
-                          return;
-                        }
-                        let text = (element.innerText || element.textContent).trim();
-                        result.push({
-                          value,
-                          text
+                      domUtils.ready(() => {
+                        document.querySelectorAll(
+                          "select.language-selector-locale option"
+                        ).forEach(($languageOption) => {
+                          let value = $languageOption.getAttribute(
+                            "value"
+                          );
+                          if (value === "help") {
+                            return;
+                          }
+                          let text = domUtils.text($languageOption).trim();
+                          result.push({
+                            value,
+                            text
+                          });
                         });
                       });
                       return result;

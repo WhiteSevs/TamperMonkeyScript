@@ -1,5 +1,4 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
-import { HttpxResponseData } from "@whitesev/utils/dist/types/src/types/Httpx";
 import i18next from "i18next";
 import Qmsg from "qmsg";
 
@@ -109,7 +108,6 @@ export const GreasyforkApi = {
 	 */
 	async getScriptStats(scriptId: string) {
 		let response = await httpx.get(`/scripts/${scriptId}/stats.json`, {
-			fetch: true,
 			allowInterceptConfig: false,
 		});
 		log.info(response);
@@ -128,7 +126,6 @@ export const GreasyforkApi = {
 		scriptId: string
 	): Promise<FormData | undefined> {
 		let response = await httpx.get(`/scripts/${scriptId}/admin`, {
-			fetch: true,
 			allowInterceptConfig: false,
 		});
 		log.info(response);
@@ -154,7 +151,6 @@ export const GreasyforkApi = {
 	 */
 	async sourceCodeSync(scriptId: string, data: FormData) {
 		let response = await httpx.post(`/scripts/${scriptId}/sync_update`, {
-			fetch: true,
 			data: data,
 			allowInterceptConfig: false,
 		});
@@ -170,7 +166,6 @@ export const GreasyforkApi = {
 	 */
 	async getUserInfo(userId: string) {
 		let response = await httpx.get(`/users/${userId}.json`, {
-			fetch: true,
 			allowInterceptConfig: false,
 		});
 		log.success(response);
