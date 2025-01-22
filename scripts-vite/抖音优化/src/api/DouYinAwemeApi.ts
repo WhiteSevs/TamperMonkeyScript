@@ -38,9 +38,9 @@ export const DouYinAwemeApi = {
 	 * @param webid 浏览器id
 	 */
 	async dislike(aweme_id: string, webid: string) {
-		let verifyFp = cookieManager.get("s_v_web_id");
+		let verifyFp = cookieManager.get("s_v_web_id")?.value;
 		let msToken = generate_msToken();
-		let uifid = cookieManager.get("UIFID");
+		let uifid = cookieManager.get("UIFID")?.value;
 		let postParam = {
 			...ApiConfig.getCommonData(),
 			aweme_id: aweme_id,
@@ -73,10 +73,12 @@ export const DouYinAwemeApi = {
 			}
 		);
 		if (!response.status) {
+			log.error(response);
 			return;
 		}
 		let data = utils.toJSON(response.data.responseText);
 		if (!ApiResponseCheck.isSuccess(data, false)) {
+			log.error(response);
 			return;
 		}
 		return data;

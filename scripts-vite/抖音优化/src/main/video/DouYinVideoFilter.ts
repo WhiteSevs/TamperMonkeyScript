@@ -52,6 +52,8 @@ export type DouYinVideoFilterOption = {
 	data: {
 		/** 作用域（让规则在哪个下面生效） */
 		scope: DouYinVideoFilterOptionScope[];
+		/** 是否自动发送不感兴趣的请求 */
+		// autoSendDisLikeRequest: boolean;
 		/** 属性名 */
 		ruleName: keyof DouYinVideoHandlerInfo;
 		/** 属性值 */
@@ -78,14 +80,14 @@ export const DouYinVideoFilter = {
 		const that = this;
 		PopsPanel.execMenuOnce(this.$key.ENABLE_KEY, async () => {
 			log.info(`执行视频过滤器`);
-			let webid = PopsPanel.getValue("dy-webid");
-			if (utils.isNull(webid)) {
-				let temp_webid = await DouYinQueryApi.webid();
-				if (typeof temp_webid === "string") {
-					webid = temp_webid;
-					PopsPanel.setValue("dy-webid", webid);
-				}
-			}
+			// let webid = PopsPanel.getValue("dy-webid");
+			// if (utils.isNull(webid)) {
+			// 	let temp_webid = await DouYinQueryApi.webid();
+			// 	if (typeof temp_webid === "string") {
+			// 		webid = temp_webid;
+			// 		PopsPanel.setValue("dy-webid", webid);
+			// 	}
+			// }
 			let filterBase = new DouYinVideoFilterBase();
 			/**
 			 * 获取作用域的规则
@@ -138,11 +140,15 @@ export const DouYinVideoFilter = {
 						if (Array.isArray(aweme_list)) {
 							for (let index = 0; index < aweme_list.length; index++) {
 								let awemeInfo = aweme_list[index] || {};
-								let flag = filterBase.checkAwemeInfoIsFilter(
+								let filterResult = filterBase.checkAwemeInfoIsFilter(
 									filterOptionList,
 									awemeInfo
 								);
-								if (flag) {
+								if (filterResult.isFilter) {
+									filterBase.sendDislikeVideo(
+										filterResult.matchedFilterOption!,
+										awemeInfo
+									);
 									filterBase.removeAweme(aweme_list, index--);
 								}
 							}
@@ -179,11 +185,15 @@ export const DouYinVideoFilter = {
 								) {
 									awemeInfo["cell_room"] = awemeItem?.["cell_room"];
 								}
-								let flag = filterBase.checkAwemeInfoIsFilter(
+								let filterResult = filterBase.checkAwemeInfoIsFilter(
 									filterOptionList,
 									awemeInfo
 								);
-								if (flag) {
+								if (filterResult.isFilter) {
+									filterBase.sendDislikeVideo(
+										filterResult.matchedFilterOption!,
+										awemeInfo
+									);
 									filterBase.removeAweme(aweme_list, index--);
 								}
 							}
@@ -209,11 +219,15 @@ export const DouYinVideoFilter = {
 							for (let index = 0; index < cards.length; index++) {
 								let awemeItem = cards[index];
 								let awemeInfo = utils.toJSON(awemeItem?.["aweme"] || "{}");
-								let flag = filterBase.checkAwemeInfoIsFilter(
+								let filterResult = filterBase.checkAwemeInfoIsFilter(
 									filterOptionList,
 									awemeInfo
 								);
-								if (flag) {
+								if (filterResult.isFilter) {
+									filterBase.sendDislikeVideo(
+										filterResult.matchedFilterOption!,
+										awemeInfo
+									);
 									filterBase.removeAweme(cards, index--);
 								}
 							}
@@ -258,11 +272,15 @@ export const DouYinVideoFilter = {
 											mixIndex++
 										) {
 											let mixItem = awemeMixInfoItems[mixIndex];
-											let flag = filterBase.checkAwemeInfoIsFilter(
+											let filterResult = filterBase.checkAwemeInfoIsFilter(
 												filterOptionList,
 												mixItem
 											);
-											if (flag) {
+											if (filterResult.isFilter) {
+												filterBase.sendDislikeVideo(
+													filterResult.matchedFilterOption!,
+													mixItem
+												);
 												filterBase.removeAweme(awemeMixInfoItems, mixIndex--);
 											}
 										}
@@ -273,11 +291,15 @@ export const DouYinVideoFilter = {
 										}
 									}
 								} else {
-									let flag = filterBase.checkAwemeInfoIsFilter(
+									let filterResult = filterBase.checkAwemeInfoIsFilter(
 										filterOptionList,
 										awemeInfo
 									);
-									if (flag) {
+									if (filterResult.isFilter) {
+										filterBase.sendDislikeVideo(
+											filterResult.matchedFilterOption!,
+											awemeInfo
+										);
 										filterBase.removeAweme(aweme_list, index--);
 									}
 								}
@@ -484,6 +506,23 @@ export const DouYinVideoFilter = {
 								scope_template
 							);
 
+						// let autoSendDisLikeRequest_template = UISwitch(
+						// 	"是否自动发送不感兴趣请求",
+						// 	"autoSendDisLikeRequest",
+						// 	false,
+						// 	void 0,
+						// 	"beta测试阶段"
+						// );
+						// Reflect.set(
+						// 	autoSendDisLikeRequest_template.props!,
+						// 	PROPS_STORAGE_API,
+						// 	generateStorageApi(data.data)
+						// );
+						// let $autoSendDisLikeRequest =
+						// 	popsPanelContentUtils.createSectionContainerItem_switch(
+						// 		autoSendDisLikeRequest_template
+						// 	);
+
 						// 属性名列表
 						let douYinVideoHandlerInfoKey = <(keyof DouYinVideoHandlerInfo)[]>[
 							"isLive",
@@ -491,6 +530,7 @@ export const DouYinVideoFilter = {
 							"isSeriesInfo",
 							"isMixInfo",
 							"isPicture",
+							"awemeId",
 							"nickname",
 							"uid",
 							"desc",
@@ -688,6 +728,7 @@ export const DouYinVideoFilter = {
 							$enable,
 							$name,
 							$scope,
+							// $autoSendDisLikeRequest,
 							$ruleName,
 							$ruleValue,
 							$remarks,
@@ -876,6 +917,7 @@ export const DouYinVideoFilter = {
 			name: "",
 			data: {
 				scope: [],
+				// autoSendDisLikeRequest: false,
 				ruleName: "nickname",
 				ruleValue: "",
 				remarks: "",

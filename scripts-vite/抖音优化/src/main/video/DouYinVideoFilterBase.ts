@@ -1,10 +1,15 @@
 import { log, utils } from "@/env";
 import type { DouYinVideoFilterOption } from "./DouYinVideoFilter";
+import { PopsPanel } from "@/setting/setting";
+import { DouYinAwemeApi } from "@/api/DouYinAwemeApi";
+import { ConcurrencyAsyncQueue } from "@/utils/ConcurrencyAsyncQueue";
 
 /**
  * 视频信息处理过后的数据结构
  */
 export interface DouYinVideoHandlerInfo {
+	/** 视频id */
+	awemeId?: string;
 	/** 作者名 */
 	nickname?: string;
 	/** 作者uid */
@@ -384,6 +389,13 @@ type CheckRuleDetail = {
 	ruleValue: RegExp | string | undefined | null;
 };
 export class DouYinVideoFilterBase {
+	$data = {
+		dislike_request_queue: <string[]>[],
+	};
+	concurrencyAsyncQueue;
+	constructor() {
+		this.concurrencyAsyncQueue = new ConcurrencyAsyncQueue(1);
+	}
 	/**
 	 * 解析awemeInfo转为规则过滤的字典
 	 * @param awemeInfo
@@ -473,6 +485,10 @@ export class DouYinVideoFilterBase {
 			// @ts-ignore
 			awemeInfo?.["videoTag"] || awemeInfo?.["video_tag"];
 		let videoTag: string[] = [];
+		/** 视频id */
+		let awemeId =
+			// @ts-ignore
+			awemeInfo?.["aweme_id"] || awemeInfo?.["awemeId"];
 
 		if (typeof videoTagObj === "object" && Array.isArray(videoTagObj)) {
 			videoTagObj.forEach((item) => {
@@ -578,6 +594,7 @@ export class DouYinVideoFilterBase {
 			duration = void 0;
 		}
 		return {
+			awemeId,
 			nickname,
 			uid,
 			desc,
@@ -703,10 +720,11 @@ export class DouYinVideoFilterBase {
 	checkAwemeInfoIsFilter(
 		rule: DouYinVideoFilterOption[],
 		awemeInfo: DouYinVideoAwemeInfo
-	): boolean {
-		/** 转换过的数据 */
+	) {
+		/** 对视频信息进行解析出需要的字典信息 */
 		let transformAwemeInfo = this.parseAwemeInfoDictData(awemeInfo);
 		let flag = false;
+		let matchedFilterOption: DouYinVideoFilterOption | null = null;
 		for (let index = 0; index < rule.length; index++) {
 			const filterOption = rule[index];
 			if (!Reflect.has(transformAwemeInfo, filterOption.data.ruleName)) {
@@ -779,10 +797,58 @@ export class DouYinVideoFilterBase {
 				}
 			}
 			if (flag) {
+				matchedFilterOption = filterOption;
 				break;
 			}
 		}
-		return flag;
+
+		return {
+			/** 是否允许过滤 */
+			isFilter: flag,
+			/** 命中的过滤规则 */
+			matchedFilterOption: matchedFilterOption,
+		};
+	}
+	/**
+	 * 发送请求-不感兴趣
+	 * @param matchedFilterOption 命中的规则
+	 * @param awemeInfo 视频信息结构
+	 */
+	async sendDislikeVideo(
+		matchedFilterOption: DouYinVideoFilterOption,
+		awemeInfo: DouYinVideoAwemeInfo
+	) {
+		// if (!matchedFilterOption) {
+		// 	return;
+		// }
+		// if (!matchedFilterOption.data.autoSendDisLikeRequest) {
+		// 	// 未开启发送不感兴趣的请求
+		// 	return;
+		// }
+		// let webid = PopsPanel.getValue<string>("dy-webid");
+		// if (typeof webid !== "string") {
+		// 	return;
+		// }
+		// if (utils.isNull(webid)) {
+		// 	return;
+		// }
+		// /** 对视频信息进行解析出需要的字典信息 */
+		// let transformAwemeInfo = this.parseAwemeInfoDictData(awemeInfo);
+		// if (transformAwemeInfo.isLive) {
+		// 	// 不对广告进行处理
+		// 	return;
+		// }
+		// if (transformAwemeInfo.isAds) {
+		// 	// 不对直播进行处理
+		// 	return;
+		// }
+		// let awemeId = transformAwemeInfo.awemeId;
+		// if (utils.isNull(awemeId)) {
+		// 	return;
+		// }
+		// this.concurrencyAsyncQueue.enqueue(async () => {
+		// 	await DouYinAwemeApi.dislike(awemeId, webid);
+		// });
 	}
 	/**
 	 * 移除视频

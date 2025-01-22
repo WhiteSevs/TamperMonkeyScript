@@ -393,7 +393,7 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									void 0,
 									"开启后以下功能才会生效"
 								),
-								UIInput("webid", "dy-webid", "", "自动获取，也可以手动设置"),
+								// UIInput("webid", "dy-webid", "", "自动获取，也可以手动设置"),
 								UIButton(
 									"视频过滤规则",
 									"可过滤视频",

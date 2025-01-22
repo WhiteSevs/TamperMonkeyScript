@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.1.20
+// @version      2025.1.22
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1330,6 +1330,8 @@
         CommonUtil.addBlockCSS(
           // 2025.1.16
           'div[data-e2e="living-container"] >div> div:not(:has(video)):not(:has([id^="living_player_container"])):has(pace-island >.gitBarOptimizeEnabled [data-e2e="gifts-container"])',
+          // 2025.1.22
+          'div[data-e2e="living-container"] > [id^="living_room_player_container"] > :last-child:has(>.gitBarOptimizeEnabled )',
           // Firefox上的CSS，多了个pace-island
           'div[data-e2e="living-container"] >div> div:has(>pace-island >.gitBarOptimizeEnabled)',
           // 全屏状态下的
@@ -2279,7 +2281,7 @@
                   UISelect(
                     "清晰度",
                     "live-chooseQuality",
-                    "auto",
+                    "origin",
                     (() => {
                       return Object.keys(VideoQualityMap).map((key) => {
                         let item = VideoQualityMap[key];
@@ -2323,7 +2325,7 @@
                   UISwitch(
                     "解析直播信息",
                     "live-parsePlayerInstance",
-                    false,
+                    true,
                     undefined,
                     "开启后将在油猴菜单中新增菜单【⚙ PlayerInstance】，可解析当前的直播信息"
                   ),
@@ -5073,7 +5075,71 @@
       editView.showView();
     }
   }
+  class ConcurrencyAsyncQueue {
+    /**
+     * @param [concurrency=1] 并发数量
+     * @param [intervalTime=300] 间隔时间
+     */
+    constructor(concurrency = 1, intervalTime = 300) {
+      /**
+       * 请求队列
+       */
+      __publicField(this, "queue");
+      /**
+       * 当前运行的数量
+       */
+      __publicField(this, "runningCount");
+      /**
+       * 请求并发数量
+       */
+      __publicField(this, "concurrency");
+      /**
+       * 间隔时间
+       */
+      __publicField(this, "intervalTime");
+      this.queue = [];
+      this.concurrency = concurrency;
+      this.intervalTime = intervalTime;
+      this.runningCount = 0;
+    }
+    /**
+     * 添加请求
+     */
+    enqueue(task) {
+      this.queue.push(task);
+      this.runNext();
+    }
+    /**
+     * 执行下一个任务
+     */
+    async runNext() {
+      while (this.runningCount < this.concurrency && this.queue.length > 0) {
+        this.runningCount++;
+        const task = this.queue.shift();
+        try {
+          await task();
+          if (this.intervalTime > 0) {
+            await new Promise(
+              (resolve) => setTimeout(resolve, this.intervalTime)
+            );
+          }
+        } catch (error) {
+          console.error(error);
+        } finally {
+          this.runningCount--;
+          this.runNext();
+        }
+      }
+    }
+  }
   class DouYinVideoFilterBase {
+    constructor() {
+      __publicField(this, "$data", {
+        dislike_request_queue: []
+      });
+      __publicField(this, "concurrencyAsyncQueue");
+      this.concurrencyAsyncQueue = new ConcurrencyAsyncQueue(1);
+    }
     /**
      * 解析awemeInfo转为规则过滤的字典
      * @param awemeInfo
@@ -5130,6 +5196,10 @@
         (awemeInfo == null ? undefined : awemeInfo["videoTag"]) || (awemeInfo == null ? undefined : awemeInfo["video_tag"])
       );
       let videoTag = [];
+      let awemeId = (
+        // @ts-ignore
+        (awemeInfo == null ? undefined : awemeInfo["aweme_id"]) || (awemeInfo == null ? undefined : awemeInfo["awemeId"])
+      );
       if (typeof videoTagObj === "object" && Array.isArray(videoTagObj)) {
         videoTagObj.forEach((item) => {
           let tagName = (item == null ? undefined : item["tagName"]) || (item == null ? undefined : item["tag_name"]);
@@ -5200,6 +5270,7 @@
         duration = undefined;
       }
       return {
+        awemeId,
         nickname,
         uid,
         desc,
@@ -5306,6 +5377,7 @@
     checkAwemeInfoIsFilter(rule, awemeInfo) {
       let transformAwemeInfo = this.parseAwemeInfoDictData(awemeInfo);
       let flag = false;
+      let matchedFilterOption = null;
       for (let index = 0; index < rule.length; index++) {
         const filterOption = rule[index];
         if (!Reflect.has(transformAwemeInfo, filterOption.data.ruleName)) {
@@ -5359,10 +5431,23 @@
           }
         }
         if (flag) {
+          matchedFilterOption = filterOption;
           break;
         }
       }
-      return flag;
+      return {
+        /** 是否允许过滤 */
+        isFilter: flag,
+        /** 命中的过滤规则 */
+        matchedFilterOption
+      };
+    }
+    /**
+     * 发送请求-不感兴趣
+     * @param matchedFilterOption 命中的规则
+     * @param awemeInfo 视频信息结构
+     */
+    async sendDislikeVideo(matchedFilterOption, awemeInfo) {
     }
     removeAweme(...args) {
       if (args.length === 1) {
@@ -5495,7 +5580,7 @@
      */
     execFilter() {
       const that = this;
-      PopsPanel.execMenuOnce(this.$key.ENABLE_KEY, () => {
+      PopsPanel.execMenuOnce(this.$key.ENABLE_KEY, async () => {
         log.info(`执行视频过滤器`);
         let filterBase = new DouYinVideoFilterBase();
         let getScopeFilterOptionList = (scopeName) => {
@@ -5534,11 +5619,15 @@
               if (Array.isArray(aweme_list)) {
                 for (let index = 0; index < aweme_list.length; index++) {
                   let awemeInfo = aweme_list[index] || {};
-                  let flag = filterBase.checkAwemeInfoIsFilter(
+                  let filterResult = filterBase.checkAwemeInfoIsFilter(
                     filterOptionList,
                     awemeInfo
                   );
-                  if (flag) {
+                  if (filterResult.isFilter) {
+                    filterBase.sendDislikeVideo(
+                      filterResult.matchedFilterOption,
+                      awemeInfo
+                    );
                     filterBase.removeAweme(aweme_list, index--);
                   }
                 }
@@ -5563,11 +5652,15 @@
                   if (typeof (awemeItem == null ? undefined : awemeItem["cell_room"]) === "object" && (awemeItem == null ? undefined : awemeItem["cell_room"]) != null) {
                     awemeInfo["cell_room"] = awemeItem == null ? undefined : awemeItem["cell_room"];
                   }
-                  let flag = filterBase.checkAwemeInfoIsFilter(
+                  let filterResult = filterBase.checkAwemeInfoIsFilter(
                     filterOptionList,
                     awemeInfo
                   );
-                  if (flag) {
+                  if (filterResult.isFilter) {
+                    filterBase.sendDislikeVideo(
+                      filterResult.matchedFilterOption,
+                      awemeInfo
+                    );
                     filterBase.removeAweme(aweme_list, index--);
                   }
                 }
@@ -5586,11 +5679,15 @@
                 for (let index = 0; index < cards.length; index++) {
                   let awemeItem = cards[index];
                   let awemeInfo = utils.toJSON((awemeItem == null ? undefined : awemeItem["aweme"]) || "{}");
-                  let flag = filterBase.checkAwemeInfoIsFilter(
+                  let filterResult = filterBase.checkAwemeInfoIsFilter(
                     filterOptionList,
                     awemeInfo
                   );
-                  if (flag) {
+                  if (filterResult.isFilter) {
+                    filterBase.sendDislikeVideo(
+                      filterResult.matchedFilterOption,
+                      awemeInfo
+                    );
                     filterBase.removeAweme(cards, index--);
                   }
                 }
@@ -5621,11 +5718,15 @@
                     if (Array.isArray(awemeMixInfoItems)) {
                       for (let mixIndex = 0; mixIndex < awemeMixInfoItems.length; mixIndex++) {
                         let mixItem = awemeMixInfoItems[mixIndex];
-                        let flag = filterBase.checkAwemeInfoIsFilter(
+                        let filterResult = filterBase.checkAwemeInfoIsFilter(
                           filterOptionList,
                           mixItem
                         );
-                        if (flag) {
+                        if (filterResult.isFilter) {
+                          filterBase.sendDislikeVideo(
+                            filterResult.matchedFilterOption,
+                            mixItem
+                          );
                           filterBase.removeAweme(awemeMixInfoItems, mixIndex--);
                         }
                       }
@@ -5634,11 +5735,15 @@
                       }
                     }
                   } else {
-                    let flag = filterBase.checkAwemeInfoIsFilter(
+                    let filterResult = filterBase.checkAwemeInfoIsFilter(
                       filterOptionList,
                       awemeInfo
                     );
-                    if (flag) {
+                    if (filterResult.isFilter) {
+                      filterBase.sendDislikeVideo(
+                        filterResult.matchedFilterOption,
+                        awemeInfo
+                      );
                       filterBase.removeAweme(aweme_list, index--);
                     }
                   }
@@ -5785,6 +5890,7 @@
                 "isSeriesInfo",
                 "isMixInfo",
                 "isPicture",
+                "awemeId",
                 "nickname",
                 "uid",
                 "desc",
@@ -5951,6 +6057,7 @@
                 $enable,
                 $name,
                 $scope,
+                // $autoSendDisLikeRequest,
                 $ruleName,
                 $ruleValue,
                 $remarks,
@@ -6137,6 +6244,7 @@
         name: "",
         data: {
           scope: [],
+          // autoSendDisLikeRequest: false,
           ruleName: "nickname",
           ruleValue: "",
           remarks: ""
@@ -6354,7 +6462,7 @@
                   UISelect(
                     "清晰度",
                     "chooseVideoDefinition",
-                    1,
+                    -2,
                     [
                       {
                         text: "超清 4K",
@@ -6721,6 +6829,7 @@
                     undefined,
                     "开启后以下功能才会生效"
                   ),
+                  // UIInput("webid", "dy-webid", "", "自动获取，也可以手动设置"),
                   UIButton(
                     "视频过滤规则",
                     "可过滤视频",
@@ -7922,6 +8031,7 @@
   const addStyle = utils.addStyle.bind(utils);
   const $ = document.querySelector.bind(document);
   const $$ = document.querySelectorAll.bind(document);
+  new utils.GM_Cookie();
   const BlockTopNavigator = {
     init() {
       PopsPanel.execInheritMenuOnce(
