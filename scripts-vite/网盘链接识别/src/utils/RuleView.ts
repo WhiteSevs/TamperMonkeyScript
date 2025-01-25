@@ -165,9 +165,9 @@ export class RuleView<T> {
 					text: "添加",
 					callback: async (event) => {
 						this.showEditView(
-							$popsConfirm.$shadowRoot,
 							false,
-							await this.option.getAddData()
+							await this.option.getAddData(),
+							$popsConfirm.$shadowRoot
 						);
 					},
 				},
@@ -455,7 +455,7 @@ export class RuleView<T> {
 			// 给编辑按钮添加点击事件
 			DOMUtils.on($edit, "click", (event) => {
 				utils.preventEvent(event);
-				this.showEditView($shadowRoot, true, data, $ruleItem, (newData) => {
+				this.showEditView(true, data, $shadowRoot, $ruleItem, (newData) => {
 					// @ts-ignore
 					data = null;
 					data = newData;
@@ -593,9 +593,9 @@ export class RuleView<T> {
 	 * @param isEdit 是否是编辑状态
 	 */
 	showEditView(
-		$parentShadowRoot: ShadowRoot | HTMLElement,
 		isEdit: boolean,
 		editData: T,
+		$parentShadowRoot?: ShadowRoot | HTMLElement,
 		$editRuleItemElement?: HTMLDivElement,
 		updateDataCallBack?: (data: T) => void
 	) {
@@ -650,15 +650,20 @@ export class RuleView<T> {
 						Qmsg.success("修改成功");
 						// 当前是编辑规则
 						// 给外面的弹窗更新元素
-						await this.updateRuleItemElement(
-							result.data,
-							$editRuleItemElement!,
-							$parentShadowRoot
-						);
+						$parentShadowRoot &&
+							(await this.updateRuleItemElement(
+								result.data,
+								$editRuleItemElement!,
+								$parentShadowRoot
+							));
 					} else {
 						// 当前是添加规则
 						// 给外面的弹窗添加元素
-						await this.appendRuleItemElement($parentShadowRoot, result.data);
+						$parentShadowRoot &&
+							(await this.appendRuleItemElement(
+								$parentShadowRoot,
+								result.data
+							));
 					}
 				} else {
 					if (isEdit) {
