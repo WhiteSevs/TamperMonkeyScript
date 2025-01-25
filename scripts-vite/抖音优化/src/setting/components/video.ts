@@ -393,7 +393,13 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									void 0,
 									"开启后以下功能才会生效"
 								),
-								// UIInput("webid", "dy-webid", "", "自动获取，也可以手动设置"),
+								UISwitch(
+									"新增【过滤器-解析信息】按钮",
+									"shieldVideo-add-parseVideoInfoButton",
+									false,
+									void 0,
+									"在视频的底部的工具栏中显示【过滤器】按钮，用于查看视频信息以便于进行添加过滤规则"
+								),
 								UIButton(
 									"视频过滤规则",
 									"可过滤视频",

@@ -20,6 +20,8 @@ export interface DouYinVideoHandlerInfo {
 	textExtra: string[];
 	/** 视频标签 */
 	videoTag: string[];
+	/** 视频标签的id */
+	videoTagId: string[];
 	/** 视频的背景音乐专辑名 */
 	musicAlbum?: string;
 	/** 视频的背景音乐作者 */
@@ -481,20 +483,31 @@ export class DouYinVideoFilterBase {
 		let mixInfoName: string | undefined = void 0;
 		/** 混合信息描述 */
 		let mixInfoDesc: string | undefined = void 0;
-		let videoTagObj: any[] =
+		/** 视频标签对象 */
+		let videoTagInstance: any[] =
 			// @ts-ignore
 			awemeInfo?.["videoTag"] || awemeInfo?.["video_tag"];
+		/** 视频标签 */
 		let videoTag: string[] = [];
+		/** 视频标签的id */
+		let videoTagId: string[] = [];
 		/** 视频id */
 		let awemeId =
 			// @ts-ignore
 			awemeInfo?.["aweme_id"] || awemeInfo?.["awemeId"];
 
-		if (typeof videoTagObj === "object" && Array.isArray(videoTagObj)) {
-			videoTagObj.forEach((item) => {
+		if (
+			typeof videoTagInstance === "object" &&
+			Array.isArray(videoTagInstance)
+		) {
+			videoTagInstance.forEach((item) => {
 				let tagName = item?.["tagName"] || item?.["tag_name"];
+				let tagId = item?.["tagId"] || item?.["tag_id"];
 				if (typeof tagName === "string") {
 					videoTag.push(tagName);
+				}
+				if (typeof tagId === "number" || typeof tagId === "string") {
+					videoTagId.push(tagId.toString());
 				}
 			});
 		}
@@ -600,6 +613,7 @@ export class DouYinVideoFilterBase {
 			desc,
 			textExtra,
 			videoTag,
+			videoTagId,
 			musicAlbum,
 			musicAuthor,
 			musicTitle,

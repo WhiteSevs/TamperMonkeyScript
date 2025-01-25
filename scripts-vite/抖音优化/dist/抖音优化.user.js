@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.1.22
+// @version      2025.1.25
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -5191,20 +5191,25 @@
       }
       let mixInfoName = undefined;
       let mixInfoDesc = undefined;
-      let videoTagObj = (
+      let videoTagInstance = (
         // @ts-ignore
         (awemeInfo == null ? undefined : awemeInfo["videoTag"]) || (awemeInfo == null ? undefined : awemeInfo["video_tag"])
       );
       let videoTag = [];
+      let videoTagId = [];
       let awemeId = (
         // @ts-ignore
         (awemeInfo == null ? undefined : awemeInfo["aweme_id"]) || (awemeInfo == null ? undefined : awemeInfo["awemeId"])
       );
-      if (typeof videoTagObj === "object" && Array.isArray(videoTagObj)) {
-        videoTagObj.forEach((item) => {
+      if (typeof videoTagInstance === "object" && Array.isArray(videoTagInstance)) {
+        videoTagInstance.forEach((item) => {
           let tagName = (item == null ? undefined : item["tagName"]) || (item == null ? undefined : item["tag_name"]);
+          let tagId = (item == null ? undefined : item["tagId"]) || (item == null ? undefined : item["tag_id"]);
           if (typeof tagName === "string") {
             videoTag.push(tagName);
+          }
+          if (typeof tagId === "number" || typeof tagId === "string") {
+            videoTagId.push(tagId.toString());
           }
         });
       }
@@ -5276,6 +5281,7 @@
         desc,
         textExtra,
         videoTag,
+        videoTagId,
         musicAlbum,
         musicAuthor,
         musicTitle,
@@ -5574,6 +5580,9 @@
     },
     init() {
       this.execFilter();
+      PopsPanel.execMenuOnce("shieldVideo-add-parseVideoInfoButton", () => {
+        this.addParseButton();
+      });
     },
     /**
      * 执行过滤
@@ -5583,7 +5592,7 @@
       PopsPanel.execMenuOnce(this.$key.ENABLE_KEY, async () => {
         log.info(`执行视频过滤器`);
         let filterBase = new DouYinVideoFilterBase();
-        let getScopeFilterOptionList = (scopeName) => {
+        let queryScopeFilterOptionList = (scopeName) => {
           if (!PopsPanel.getValue(that.$key.ENABLE_KEY)) {
             return [];
           }
@@ -5606,7 +5615,7 @@
           let urlInstance = new URL(url);
           if (urlInstance.pathname.startsWith("/aweme/v1/web/tab/feed") || urlInstance.pathname.startsWith("/aweme/v1/web/aweme/post/") || urlInstance.pathname.startsWith("/aweme/v1/web/mix/aweme/")) {
             request.response = (response) => {
-              let filterOptionList = getScopeFilterOptionList([
+              let filterOptionList = queryScopeFilterOptionList([
                 "xhr-tab",
                 "xhr-userHome",
                 "xhr-mix"
@@ -5636,7 +5645,7 @@
             };
           } else if (urlInstance.pathname.startsWith("/aweme/v1/web/follow/feed") || urlInstance.pathname.startsWith("/aweme/v1/web/familiar/feed")) {
             request.response = (response) => {
-              let filterOptionList = getScopeFilterOptionList([
+              let filterOptionList = queryScopeFilterOptionList([
                 "xhr-follow",
                 "xhr-familiar"
               ]);
@@ -5669,7 +5678,7 @@
             };
           } else if (urlInstance.pathname.startsWith("/aweme/v1/web/module/feed")) {
             request.response = (response) => {
-              let filterOptionList = getScopeFilterOptionList("xhr-module");
+              let filterOptionList = queryScopeFilterOptionList("xhr-module");
               if (!filterOptionList.length) {
                 return;
               }
@@ -5702,7 +5711,7 @@
             urlInstance.pathname.startsWith("/aweme/v1/web/search/item/")
           ) {
             request.response = (response) => {
-              let filterOptionList = getScopeFilterOptionList(["xhr-search"]);
+              let filterOptionList = queryScopeFilterOptionList(["xhr-search"]);
               if (!filterOptionList.length) {
                 return;
               }
@@ -5753,6 +5762,97 @@
             };
           }
         });
+      });
+    },
+    /**
+     * 添加解析按钮
+     */
+    addParseButton() {
+      addStyle(
+        /*css*/
+        `
+			.basePlayerContainer .gm-video-filter-parse-btn{
+				height: auto !important;
+				line-height: 1 !important;
+			}
+		`
+      );
+      let filterBase = new DouYinVideoFilterBase();
+      let lockFn = new utils.LockFunction(() => {
+        $$(
+          ".basePlayerContainer xg-right-grid:not(:has(.gm-video-filter-parse-btn))"
+        ).forEach(($xgRightGrid) => {
+          let $gmFilterParseBtn = domUtils.createElement("xg-icon", {
+            className: "gm-video-filter-parse-btn",
+            innerText: "过滤器-解析信息"
+          });
+          domUtils.on($gmFilterParseBtn, "click", (event) => {
+            var _a2, _b, _c, _d;
+            utils.preventEvent(event);
+            let $basePlayerContainer = $xgRightGrid.closest(
+              ".basePlayerContainer"
+            );
+            let awemeInfo = (_d = (_c = (_b = (_a2 = utils.getReactObj($basePlayerContainer)) == null ? undefined : _a2.reactFiber) == null ? undefined : _b.return) == null ? undefined : _c.memoizedProps) == null ? undefined : _d.awemeInfo;
+            if (awemeInfo == null) {
+              Qmsg.error("未获取到awemeInfo信息", { consoleLogContent: true });
+              return;
+            }
+            if (typeof awemeInfo !== "object") {
+              Qmsg.error("获取到的awemeInfo信息不是对象", {
+                consoleLogContent: true
+              });
+              return;
+            }
+            let awemeInfoParsedData = filterBase.parseAwemeInfoDictData(
+              awemeInfo,
+              false
+            );
+            log.info(["视频awemeInfo：", awemeInfo, awemeInfoParsedData]);
+            __pops.alert({
+              title: {
+                text: "视频awemeInfo",
+                position: "center"
+              },
+              content: {
+                text: JSON.stringify(awemeInfoParsedData, null, 4).trim(),
+                html: false
+              },
+              drag: true,
+              btn: {
+                ok: {
+                  enable: false
+                }
+              },
+              mask: {
+                enable: true,
+                clickEvent: {
+                  toClose: true
+                }
+              },
+              width: PanelUISize.setting.width,
+              height: PanelUISize.setting.height,
+              style: (
+                /*css*/
+                `
+							.pops-alert-content p{
+								white-space: break-spaces;
+							}
+						`
+              )
+            });
+          });
+          $xgRightGrid.appendChild($gmFilterParseBtn);
+        });
+      });
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        }
       });
     },
     /**
@@ -5896,6 +5996,7 @@
                 "desc",
                 "textExtra",
                 "videoTag",
+                "videoTagId",
                 "musicAlbum",
                 "musicAuthor",
                 "musicTitle",
@@ -6829,7 +6930,13 @@
                     undefined,
                     "开启后以下功能才会生效"
                   ),
-                  // UIInput("webid", "dy-webid", "", "自动获取，也可以手动设置"),
+                  UISwitch(
+                    "新增【过滤器-解析信息】按钮",
+                    "shieldVideo-add-parseVideoInfoButton",
+                    false,
+                    undefined,
+                    "在视频的底部的工具栏中显示【过滤器】按钮，用于查看视频信息以便于进行添加过滤规则"
+                  ),
                   UIButton(
                     "视频过滤规则",
                     "可过滤视频",

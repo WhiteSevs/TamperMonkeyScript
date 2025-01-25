@@ -1,14 +1,12 @@
 # 抖音优化
 
 > 注：并非所有功能都是默认开启，有些功能需要到油猴菜单中打开【设置】，手动开启功能。
->
 
 一个对抖音进行优化的油猴脚本。
 
 ## 特性
 
 > 注：建议给抖音单独设置`电脑UA`，这样的`网页全屏`后且开启`手机模式`后的底部的工具栏某些按钮不会被隐藏
->
 
 - [x] 伪装登录
 - [x] 移除页面禁止缩放
@@ -31,9 +29,8 @@
 
 > 注：建议使用浏览器扩展执行本脚本。
 >
-> - 浏览器扩展的功能和Api更完整
+> - 浏览器扩展的功能和 Api 更完整
 > - 非浏览器扩展使用脚本会遇到更多使用上的问题（跨域问题、脚本冲突等）
->
 
 - [x] 浏览器扩展
   - [x] Chrome/Edge [TamperMonkey](https://microsoftedge.microsoft.com/addons/detail/%E7%AF%A1%E6%94%B9%E7%8C%B4/iikmkjmpaadaobahmlepeloendndfphd?hl=zh-CN)、[ViolentMonkey](https://microsoftedge.microsoft.com/addons/detail/%E6%9A%B4%E5%8A%9B%E7%8C%B4/eeagobfjdenkkddmbclomhiblgggliao?hl=zh-CN)、[ScriptCat](https://microsoftedge.microsoft.com/addons/detail/%E8%84%9A%E6%9C%AC%E7%8C%AB/liilgpjgabokdklappibcjfablkpcekh?hl=zh-CN)
@@ -44,12 +41,13 @@
 
 | 属性名             | 类型    | 描述                                 | 备注                                 |
 | ------------------ | ------- | ------------------------------------ | ------------------------------------ |
-| awemeId           | String  | 视频id                             |                      |
+| awemeId            | String  | 视频 id                              |                                      |
 | nickname           | String  | 作者名称                             | 发布的视频的作者                     |
-| uid                | String  | 作者的uid                            | 发布的视频的作者的uid                |
+| uid                | String  | 作者的 uid                           | 发布的视频的作者的 uid               |
 | desc               | String  | 视频文案                             | 发布的视频的文案                     |
 | textExtra          | String  | 话题                                 | 发布的视频的话题，类似`#话题`这种    |
 | videoTag           | String  | 视频标签                             |                                      |
+| videoTagId         | String  | 视频标签的 id                        |                                      |
 | musicAlbum         | String  | 视频的背景音乐专辑名                 |                                      |
 | musicAuthor        | String  | 视频的背景音乐作者                   |                                      |
 | musicTitle         | String  | 视频的背景音乐标题名称               |                                      |
@@ -69,7 +67,7 @@
 | isMixInfo          | Boolean | 是否是混合信息，例如：`合集`、`短剧` | 填入的值为`true`或`false`            |
 | isPicture          | Boolean | 是否是图文                           | 填入的值为`true`或`false`            |
 
-***注意某些字符需要进行转义，如`*`、`+`等***
+**注意某些字符需要进行转义，如`_`、`+`等**
 
 ## 赞赏支持
 

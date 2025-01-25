@@ -1,4 +1,4 @@
-import { $$, DOMUtils, httpx, log, pops, utils } from "@/env";
+import { $$, addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
 import { UIInput } from "@/setting/common-components/ui-input";
 import { UISelect } from "@/setting/common-components/ui-select";
 import { UISelectMultiple } from "@/setting/common-components/ui-select-multiple";
@@ -72,6 +72,9 @@ export const DouYinVideoFilter = {
 	},
 	init() {
 		this.execFilter();
+		PopsPanel.execMenuOnce("shieldVideo-add-parseVideoInfoButton", () => {
+			this.addParseButton();
+		});
 	},
 	/**
 	 * 执行过滤
@@ -92,7 +95,7 @@ export const DouYinVideoFilter = {
 			/**
 			 * 获取作用域的规则
 			 */
-			let getScopeFilterOptionList = (
+			let queryScopeFilterOptionList = (
 				scopeName: DouYinVideoFilterOptionScope | DouYinVideoFilterOptionScope[]
 			) => {
 				if (!PopsPanel.getValue(that.$key.ENABLE_KEY)) {
@@ -127,7 +130,7 @@ export const DouYinVideoFilter = {
 					// 推荐
 					// 用户主页视频
 					request.response = (response) => {
-						let filterOptionList = getScopeFilterOptionList([
+						let filterOptionList = queryScopeFilterOptionList([
 							"xhr-tab",
 							"xhr-userHome",
 							"xhr-mix",
@@ -165,7 +168,7 @@ export const DouYinVideoFilter = {
 					// 关注
 					// 朋友
 					request.response = (response) => {
-						let filterOptionList = getScopeFilterOptionList([
+						let filterOptionList = queryScopeFilterOptionList([
 							"xhr-follow",
 							"xhr-familiar",
 						]);
@@ -209,7 +212,7 @@ export const DouYinVideoFilter = {
 					// 精选
 					// 游戏、二次元、音乐、美食、知识、体育从左侧边栏迁移到了这里面
 					request.response = (response) => {
-						let filterOptionList = getScopeFilterOptionList("xhr-module");
+						let filterOptionList = queryScopeFilterOptionList("xhr-module");
 						if (!filterOptionList.length) {
 							return;
 						}
@@ -247,7 +250,7 @@ export const DouYinVideoFilter = {
 				) {
 					// 搜索
 					request.response = (response) => {
-						let filterOptionList = getScopeFilterOptionList(["xhr-search"]);
+						let filterOptionList = queryScopeFilterOptionList(["xhr-search"]);
 						if (!filterOptionList.length) {
 							return;
 						}
@@ -360,6 +363,93 @@ export const DouYinVideoFilter = {
 			// 		});
 			// 	});
 			// }
+		});
+	},
+	/**
+	 * 添加解析按钮
+	 */
+	addParseButton() {
+		addStyle(/*css*/ `
+			.basePlayerContainer .gm-video-filter-parse-btn{
+				height: auto !important;
+				line-height: 1 !important;
+			}
+		`);
+		let filterBase = new DouYinVideoFilterBase();
+		let lockFn = new utils.LockFunction(() => {
+			$$<HTMLElement>(
+				".basePlayerContainer xg-right-grid:not(:has(.gm-video-filter-parse-btn))"
+			).forEach(($xgRightGrid) => {
+				// @ts-ignore
+				let $gmFilterParseBtn = DOMUtils.createElement("xg-icon", {
+					className: "gm-video-filter-parse-btn",
+					innerText: "过滤器-解析信息",
+				});
+				DOMUtils.on($gmFilterParseBtn, "click", (event) => {
+					utils.preventEvent(event);
+					let $basePlayerContainer = $xgRightGrid.closest<HTMLElement>(
+						".basePlayerContainer"
+					)!;
+					let awemeInfo =
+						utils.getReactObj($basePlayerContainer)?.reactFiber?.return
+							?.memoizedProps?.awemeInfo;
+					if (awemeInfo == null) {
+						Qmsg.error("未获取到awemeInfo信息", { consoleLogContent: true });
+						return;
+					}
+					if (typeof awemeInfo !== "object") {
+						Qmsg.error("获取到的awemeInfo信息不是对象", {
+							consoleLogContent: true,
+						});
+						return;
+					}
+					let awemeInfoParsedData = filterBase.parseAwemeInfoDictData(
+						awemeInfo,
+						false
+					);
+					log.info(["视频awemeInfo：", awemeInfo, awemeInfoParsedData]);
+					pops.alert({
+						title: {
+							text: "视频awemeInfo",
+							position: "center",
+						},
+						content: {
+							text: JSON.stringify(awemeInfoParsedData, null, 4).trim(),
+							html: false,
+						},
+						drag: true,
+						btn: {
+							ok: {
+								enable: false,
+							},
+						},
+						mask: {
+							enable: true,
+							clickEvent: {
+								toClose: true,
+							},
+						},
+						width: PanelUISize.setting.width,
+						height: PanelUISize.setting.height,
+						style: /*css*/ `
+							.pops-alert-content p{
+								white-space: break-spaces;
+							}
+						`,
+					});
+				});
+				$xgRightGrid.appendChild($gmFilterParseBtn);
+			});
+		});
+		utils.mutationObserver(document, {
+			config: {
+				subtree: true,
+				childList: true,
+			},
+			immediate: true,
+			callback: () => {
+				lockFn.run();
+			},
 		});
 	},
 	/**
@@ -536,6 +626,7 @@ export const DouYinVideoFilter = {
 							"desc",
 							"textExtra",
 							"videoTag",
+							"videoTagId",
 							"musicAlbum",
 							"musicAuthor",
 							"musicTitle",
