@@ -445,7 +445,7 @@ export class DouYinVideoFilterBase {
 			awemeInfo?.["statistics"]?.["share_count"];
 		/** 视频时长 */
 		let duration: number | undefined = awemeInfo?.["video"]?.["duration"];
-		let textExtraObj: any[] =
+		let textExtraInstance: any[] =
 			// @ts-ignore
 			awemeInfo?.["textExtra"] || awemeInfo?.["text_extra"];
 		/** 视频标签 */
@@ -471,8 +471,8 @@ export class DouYinVideoFilterBase {
 		let isPicture: boolean =
 			// @ts-ignore
 			awemeInfo?.["aweme_type"] === 68;
-		if (typeof textExtraObj === "object" && Array.isArray(textExtraObj)) {
-			textExtraObj?.forEach((item) => {
+		if (typeof textExtraInstance === "object" && Array.isArray(textExtraInstance)) {
+			textExtraInstance?.forEach((item) => {
 				let tagName = item?.["hashtagName"] || item?.["hashtag_name"];
 				if (typeof tagName === "string") {
 					textExtra.push(tagName);
