@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.1.25
+// @version      2025.1.26
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -4608,9 +4608,9 @@
             text: "添加",
             callback: async (event) => {
               this.showEditView(
-                $popsConfirm.$shadowRoot,
                 false,
-                await this.option.getAddData()
+                await this.option.getAddData(),
+                $popsConfirm.$shadowRoot
               );
             }
           },
@@ -4883,7 +4883,7 @@
       if (this.option.itemControls.edit.enable) {
         domUtils.on($edit, "click", (event) => {
           utils.preventEvent(event);
-          this.showEditView($shadowRoot, true, data, $ruleItem, (newData) => {
+          this.showEditView(true, data, $shadowRoot, $ruleItem, (newData) => {
             data = null;
             data = newData;
           });
@@ -4995,6 +4995,7 @@
     }
     /**
      * 更新【清空所有】的按钮的文字
+     * @param $shadowRoot
      */
     async updateDeleteAllBtnText($shadowRoot) {
       let data = await this.option.data();
@@ -5003,8 +5004,9 @@
     /**
      * 显示编辑视图
      * @param isEdit 是否是编辑状态
+     * @param editData 编辑的数据
      */
-    showEditView($parentShadowRoot, isEdit, editData, $editRuleItemElement, updateDataCallBack) {
+    showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack) {
       let dialogCloseCallBack = async (isSubmit) => {
         if (isSubmit) ;
         else {
@@ -5053,13 +5055,16 @@
           if (result.success) {
             if (isEdit) {
               Qmsg.success("修改成功");
-              await this.updateRuleItemElement(
+              $parentShadowRoot && await this.updateRuleItemElement(
                 result.data,
                 $editRuleItemElement,
                 $parentShadowRoot
               );
             } else {
-              await this.appendRuleItemElement($parentShadowRoot, result.data);
+              $parentShadowRoot && await this.appendRuleItemElement(
+                $parentShadowRoot,
+                result.data
+              );
             }
           } else {
             if (isEdit) {
@@ -5164,7 +5169,7 @@
       let shareCount = ((_m = awemeInfo == null ? undefined : awemeInfo["stats"]) == null ? undefined : _m["shareCount"]) || // @ts-ignore
       ((_n = awemeInfo == null ? undefined : awemeInfo["statistics"]) == null ? undefined : _n["share_count"]);
       let duration = (_o = awemeInfo == null ? undefined : awemeInfo["video"]) == null ? undefined : _o["duration"];
-      let textExtraObj = (
+      let textExtraInstance = (
         // @ts-ignore
         (awemeInfo == null ? undefined : awemeInfo["textExtra"]) || (awemeInfo == null ? undefined : awemeInfo["text_extra"])
       );
@@ -5181,8 +5186,8 @@
         // @ts-ignore
         (awemeInfo == null ? undefined : awemeInfo["aweme_type"]) === 68
       );
-      if (typeof textExtraObj === "object" && Array.isArray(textExtraObj)) {
-        textExtraObj == null ? undefined : textExtraObj.forEach((item) => {
+      if (typeof textExtraInstance === "object" && Array.isArray(textExtraInstance)) {
+        textExtraInstance == null ? undefined : textExtraInstance.forEach((item) => {
           let tagName = (item == null ? undefined : item["hashtagName"]) || (item == null ? undefined : item["hashtag_name"]);
           if (typeof tagName === "string") {
             textExtra.push(tagName);
@@ -5440,6 +5445,12 @@
           matchedFilterOption = filterOption;
           break;
         }
+      }
+      let isReverse = PopsPanel.getValue(
+        "shieldVideo-only-show-filtered-video"
+      );
+      if (isReverse) {
+        flag = !flag;
       }
       return {
         /** 是否允许过滤 */
@@ -5778,6 +5789,70 @@
 		`
       );
       let filterBase = new DouYinVideoFilterBase();
+      let awemeInfoClickCallBack = ($basePlayerContainer) => {
+        var _a2, _b, _c, _d;
+        let that = this;
+        let awemeInfo = (_d = (_c = (_b = (_a2 = utils.getReactObj($basePlayerContainer)) == null ? undefined : _a2.reactFiber) == null ? undefined : _b.return) == null ? undefined : _c.memoizedProps) == null ? undefined : _d.awemeInfo;
+        if (awemeInfo == null) {
+          Qmsg.error("未获取到awemeInfo信息", { consoleLogContent: true });
+          return;
+        }
+        if (typeof awemeInfo !== "object") {
+          Qmsg.error("获取到的awemeInfo信息不是对象", {
+            consoleLogContent: true
+          });
+          return;
+        }
+        let awemeInfoParsedData = filterBase.parseAwemeInfoDictData(
+          awemeInfo,
+          false
+        );
+        log.info(["视频awemeInfo：", awemeInfo, awemeInfoParsedData]);
+        __pops.confirm({
+          title: {
+            text: "视频awemeInfo",
+            position: "center"
+          },
+          content: {
+            text: JSON.stringify(awemeInfoParsedData, null, 4).trim(),
+            html: false
+          },
+          drag: true,
+          btn: {
+            ok: {
+              enable: true,
+              text: "添加过滤规则",
+              callback(eventDetails, event) {
+                let ruleView = that.getRuleViewInstance();
+                ruleView.showEditView(false, that.getTemplateData());
+              }
+            },
+            cancel: {
+              enable: true,
+              text: "规则管理器",
+              callback(eventDetails, event) {
+                that.showView();
+              }
+            }
+          },
+          mask: {
+            enable: true,
+            clickEvent: {
+              toClose: true
+            }
+          },
+          width: PanelUISize.setting.width,
+          height: PanelUISize.setting.height,
+          style: (
+            /*css*/
+            `
+				.pops-confirm-content p{
+					white-space: break-spaces;
+				}
+			`
+          )
+        });
+      };
       let lockFn = new utils.LockFunction(() => {
         $$(
           ".basePlayerContainer xg-right-grid:not(:has(.gm-video-filter-parse-btn))"
@@ -5787,59 +5862,11 @@
             innerText: "过滤器-解析信息"
           });
           domUtils.on($gmFilterParseBtn, "click", (event) => {
-            var _a2, _b, _c, _d;
             utils.preventEvent(event);
             let $basePlayerContainer = $xgRightGrid.closest(
               ".basePlayerContainer"
             );
-            let awemeInfo = (_d = (_c = (_b = (_a2 = utils.getReactObj($basePlayerContainer)) == null ? undefined : _a2.reactFiber) == null ? undefined : _b.return) == null ? undefined : _c.memoizedProps) == null ? undefined : _d.awemeInfo;
-            if (awemeInfo == null) {
-              Qmsg.error("未获取到awemeInfo信息", { consoleLogContent: true });
-              return;
-            }
-            if (typeof awemeInfo !== "object") {
-              Qmsg.error("获取到的awemeInfo信息不是对象", {
-                consoleLogContent: true
-              });
-              return;
-            }
-            let awemeInfoParsedData = filterBase.parseAwemeInfoDictData(
-              awemeInfo,
-              false
-            );
-            log.info(["视频awemeInfo：", awemeInfo, awemeInfoParsedData]);
-            __pops.alert({
-              title: {
-                text: "视频awemeInfo",
-                position: "center"
-              },
-              content: {
-                text: JSON.stringify(awemeInfoParsedData, null, 4).trim(),
-                html: false
-              },
-              drag: true,
-              btn: {
-                ok: {
-                  enable: false
-                }
-              },
-              mask: {
-                enable: true,
-                clickEvent: {
-                  toClose: true
-                }
-              },
-              width: PanelUISize.setting.width,
-              height: PanelUISize.setting.height,
-              style: (
-                /*css*/
-                `
-							.pops-alert-content p{
-								white-space: break-spaces;
-							}
-						`
-              )
-            });
+            awemeInfoClickCallBack($basePlayerContainer);
           });
           $xgRightGrid.appendChild($gmFilterParseBtn);
         });
@@ -5856,9 +5883,9 @@
       });
     },
     /**
-     * 显示视图
+     * 获取规则视图实例
      */
-    showView() {
+    getRuleViewInstance() {
       let popsPanelContentUtils = __pops.config.panelHandleContentUtils();
       function generateStorageApi(data) {
         return {
@@ -6333,6 +6360,13 @@
           }
         }
       });
+      return ruleView;
+    },
+    /**
+     * 显示视图
+     */
+    showView() {
+      let ruleView = this.getRuleViewInstance();
       ruleView.showView();
     },
     /**
@@ -6929,6 +6963,13 @@
                     true,
                     undefined,
                     "开启后以下功能才会生效"
+                  ),
+                  UISwitch(
+                    "仅显示被过滤的视频",
+                    "shieldVideo-only-show-filtered-video",
+                    false,
+                    undefined,
+                    "只会显示过滤规则命中的视频"
                   ),
                   UISwitch(
                     "新增【过滤器-解析信息】按钮",

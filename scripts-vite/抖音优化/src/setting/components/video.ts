@@ -394,6 +394,13 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									"开启后以下功能才会生效"
 								),
 								UISwitch(
+									"仅显示被过滤的视频",
+									"shieldVideo-only-show-filtered-video",
+									false,
+									void 0,
+									"只会显示过滤规则命中的视频"
+								),
+								UISwitch(
 									"新增【过滤器-解析信息】按钮",
 									"shieldVideo-add-parseVideoInfoButton",
 									false,

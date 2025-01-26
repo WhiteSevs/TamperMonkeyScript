@@ -471,7 +471,10 @@ export class DouYinVideoFilterBase {
 		let isPicture: boolean =
 			// @ts-ignore
 			awemeInfo?.["aweme_type"] === 68;
-		if (typeof textExtraInstance === "object" && Array.isArray(textExtraInstance)) {
+		if (
+			typeof textExtraInstance === "object" &&
+			Array.isArray(textExtraInstance)
+		) {
 			textExtraInstance?.forEach((item) => {
 				let tagName = item?.["hashtagName"] || item?.["hashtag_name"];
 				if (typeof tagName === "string") {
@@ -816,6 +819,13 @@ export class DouYinVideoFilterBase {
 			}
 		}
 
+		// 当命中过滤规则，如果开启了仅显示被过滤的视频，则修改isFilter值
+		let isReverse = PopsPanel.getValue<boolean>(
+			"shieldVideo-only-show-filtered-video"
+		);
+		if (isReverse) {
+			flag = !flag;
+		}
 		return {
 			/** 是否允许过滤 */
 			isFilter: flag,

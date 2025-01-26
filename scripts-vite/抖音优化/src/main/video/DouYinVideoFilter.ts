@@ -119,6 +119,7 @@ export const DouYinVideoFilter = {
 				);
 				return matchedFilterOptionList;
 			};
+			// xhr hook
 			DouYinNetWorkHook.ajaxHooker.hook((request) => {
 				let url = CommonUtil.fixUrl(request.url);
 				let urlInstance = new URL(url);
@@ -376,6 +377,70 @@ export const DouYinVideoFilter = {
 			}
 		`);
 		let filterBase = new DouYinVideoFilterBase();
+
+		// 按钮的点击回调
+		let awemeInfoClickCallBack = ($basePlayerContainer: HTMLElement) => {
+			let that = this;
+			let awemeInfo =
+				utils.getReactObj($basePlayerContainer)?.reactFiber?.return
+					?.memoizedProps?.awemeInfo;
+			if (awemeInfo == null) {
+				Qmsg.error("未获取到awemeInfo信息", { consoleLogContent: true });
+				return;
+			}
+			if (typeof awemeInfo !== "object") {
+				Qmsg.error("获取到的awemeInfo信息不是对象", {
+					consoleLogContent: true,
+				});
+				return;
+			}
+			let awemeInfoParsedData = filterBase.parseAwemeInfoDictData(
+				awemeInfo,
+				false
+			);
+			log.info(["视频awemeInfo：", awemeInfo, awemeInfoParsedData]);
+			pops.confirm({
+				title: {
+					text: "视频awemeInfo",
+					position: "center",
+				},
+				content: {
+					text: JSON.stringify(awemeInfoParsedData, null, 4).trim(),
+					html: false,
+				},
+				drag: true,
+				btn: {
+					ok: {
+						enable: true,
+						text: "添加过滤规则",
+						callback(eventDetails, event) {
+							let ruleView = that.getRuleViewInstance();
+							ruleView.showEditView(false, that.getTemplateData());
+						},
+					},
+					cancel: {
+						enable: true,
+						text: "规则管理器",
+						callback(eventDetails, event) {
+							that.showView();
+						},
+					},
+				},
+				mask: {
+					enable: true,
+					clickEvent: {
+						toClose: true,
+					},
+				},
+				width: PanelUISize.setting.width,
+				height: PanelUISize.setting.height,
+				style: /*css*/ `
+				.pops-confirm-content p{
+					white-space: break-spaces;
+				}
+			`,
+			});
+		};
 		let lockFn = new utils.LockFunction(() => {
 			$$<HTMLElement>(
 				".basePlayerContainer xg-right-grid:not(:has(.gm-video-filter-parse-btn))"
@@ -390,53 +455,7 @@ export const DouYinVideoFilter = {
 					let $basePlayerContainer = $xgRightGrid.closest<HTMLElement>(
 						".basePlayerContainer"
 					)!;
-					let awemeInfo =
-						utils.getReactObj($basePlayerContainer)?.reactFiber?.return
-							?.memoizedProps?.awemeInfo;
-					if (awemeInfo == null) {
-						Qmsg.error("未获取到awemeInfo信息", { consoleLogContent: true });
-						return;
-					}
-					if (typeof awemeInfo !== "object") {
-						Qmsg.error("获取到的awemeInfo信息不是对象", {
-							consoleLogContent: true,
-						});
-						return;
-					}
-					let awemeInfoParsedData = filterBase.parseAwemeInfoDictData(
-						awemeInfo,
-						false
-					);
-					log.info(["视频awemeInfo：", awemeInfo, awemeInfoParsedData]);
-					pops.alert({
-						title: {
-							text: "视频awemeInfo",
-							position: "center",
-						},
-						content: {
-							text: JSON.stringify(awemeInfoParsedData, null, 4).trim(),
-							html: false,
-						},
-						drag: true,
-						btn: {
-							ok: {
-								enable: false,
-							},
-						},
-						mask: {
-							enable: true,
-							clickEvent: {
-								toClose: true,
-							},
-						},
-						width: PanelUISize.setting.width,
-						height: PanelUISize.setting.height,
-						style: /*css*/ `
-							.pops-alert-content p{
-								white-space: break-spaces;
-							}
-						`,
-					});
+					awemeInfoClickCallBack($basePlayerContainer);
 				});
 				$xgRightGrid.appendChild($gmFilterParseBtn);
 			});
@@ -453,9 +472,9 @@ export const DouYinVideoFilter = {
 		});
 	},
 	/**
-	 * 显示视图
+	 * 获取规则视图实例
 	 */
-	showView() {
+	getRuleViewInstance() {
 		const that = this;
 		let popsPanelContentUtils = pops.config.panelHandleContentUtils();
 		/**
@@ -996,6 +1015,13 @@ export const DouYinVideoFilter = {
 				},
 			},
 		});
+		return ruleView;
+	},
+	/**
+	 * 显示视图
+	 */
+	showView() {
+		let ruleView = this.getRuleViewInstance();
 		ruleView.showView();
 	},
 	/**
