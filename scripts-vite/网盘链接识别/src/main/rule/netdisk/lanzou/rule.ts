@@ -56,6 +56,9 @@ export const NetDiskRule_lanzou = (): NetDiskRuleConfig => {
 						parseFile: {
 							enable: true,
 						},
+						"parseFile-closePopup": {
+							enable: true,
+						},
 					},
 					checkLinkValidity: true,
 					checkLinkValidityHoverTip: true,

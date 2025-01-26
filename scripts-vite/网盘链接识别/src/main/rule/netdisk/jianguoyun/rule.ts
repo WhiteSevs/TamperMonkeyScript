@@ -38,6 +38,9 @@ export const NetDiskRule_jianguoyun: NetDiskRuleConfig = {
 					parseFile: {
 						enable: true,
 					},
+					"parseFile-closePopup": {
+						enable: true,
+					},
 				},
 				checkLinkValidity: true,
 				checkLinkValidityHoverTip: true,

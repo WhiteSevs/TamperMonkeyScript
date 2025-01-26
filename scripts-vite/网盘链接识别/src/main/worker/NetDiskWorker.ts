@@ -7,7 +7,6 @@ import { NetDiskHandlerUtil } from "@/utils/NetDiskHandlerUtil";
 import { NetDiskRuleUtils } from "../rule/NetDiskRuleUtils";
 import { NetDiskWorkerUtils } from "./NetDiskWorkerUtils";
 import { NetDiskRuleData } from "../data/NetDiskRuleData";
-import { NetDiskRuleDataKEY } from "../data/NetDiskRuleDataKey";
 import { NetDiskHistoryMatchView } from "../view/history-match/NetDiskHistoryMatchView";
 import { CharacterMapping } from "../character-mapping/CharacterMapping";
 
@@ -608,7 +607,8 @@ export const NetDiskWorker = {
 			const startTime = Date.now();
 			if (readClipboard) {
 				try {
-					NetDisk.$data.clipboardText = await NetDiskHandlerUtil.getClipboardText();
+					NetDisk.$data.clipboardText =
+						await NetDiskHandlerUtil.getClipboardText();
 				} catch (error) {
 					// 获取剪贴板内容失败
 				}

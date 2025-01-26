@@ -50,6 +50,9 @@ export const NetDiskRule_wenshushu: NetDiskRuleConfig = {
 					parseFile: {
 						enable: true,
 					},
+					"parseFile-closePopup": {
+						enable: true,
+					},
 				},
 				checkLinkValidity: true,
 				checkLinkValidityHoverTip: true,

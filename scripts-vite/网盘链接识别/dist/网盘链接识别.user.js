@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2025.1.25
+// @version      2025.1.26
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -303,7 +303,7 @@
   }
   const NetDiskRuleUtils = {
     /**
-     * 获取点击动作的默认值
+     * 获取点击动作的默认配置
      */
     getDefaultLinkClickMode() {
       let data = {
@@ -312,15 +312,30 @@
           enable: true,
           text: "复制到剪贴板"
         },
+        "copy-closePopup": {
+          default: false,
+          enable: true,
+          text: "复制到剪贴板 & 关闭弹窗"
+        },
         openBlank: {
           default: false,
           enable: true,
           text: "新标签页打开"
         },
+        "openBlank-closePopup": {
+          default: false,
+          enable: true,
+          text: "新标签页打开 & 关闭弹窗"
+        },
         parseFile: {
           default: false,
           enable: false,
           text: "文件解析"
+        },
+        "parseFile-closePopup": {
+          default: false,
+          enable: false,
+          text: "文件解析 & 关闭弹窗"
         },
         own: {
           default: false,
@@ -2362,6 +2377,9 @@
             },
             parseFile: {
               enable: true
+            },
+            "parseFile-closePopup": {
+              enable: true
             }
           },
           checkLinkValidity: true,
@@ -3830,17 +3848,20 @@
       };
     },
     /**
-     * 设置网盘链接点击事件
-     * @param target
+     * 设置网盘链接的点击事件
+     *
+     * 内部执行点击动作
+     * @param $el 触发的元素
      * @param clickNodeSelector 元素选择器
      */
-    setNetDiskUrlClickEvent(target, clickNodeSelector) {
-      domUtils.on(target, "click", clickNodeSelector, (event) => {
+    setNetDiskUrlClickEvent($el, clickNodeSelector) {
+      domUtils.on($el, "click", clickNodeSelector, (event) => {
         let $click = event.target;
         $click.setAttribute("isvisited", "true");
         const data = NetDiskView.praseElementAttributeRuleInfo($click);
         this.netDiskUrlClickEvent({
-          data
+          data,
+          $click
         });
       });
     },
@@ -3851,14 +3872,28 @@
     netDiskUrlClickEvent(option) {
       const { netDiskName, netDiskIndex, shareCode, accessCode } = option.data;
       let linkClickMode = option.clickMode ?? NetDiskRuleData.function.linkClickMode(option.data.netDiskName);
-      if (linkClickMode === "copy") {
+      let closePopup = () => {
+        if (option.$click) {
+          let $pops = option.$click.closest(".pops");
+          if ($pops) {
+            let $close = $pops.querySelector(
+              '.pops-header-control[type="close"]'
+            );
+            $close && $close.click();
+          }
+        }
+      };
+      if (linkClickMode === "copy" || linkClickMode === "copy-closePopup") {
         NetDiskLinkClickMode.copy(
           netDiskName,
           netDiskIndex,
           shareCode,
           accessCode
         );
-      } else if (linkClickMode === "openBlank") {
+        if (linkClickMode === "copy-closePopup") {
+          closePopup();
+        }
+      } else if (linkClickMode === "openBlank" || linkClickMode === "openBlank-closePopup") {
         let url = NetDiskLinkClickModeUtils.getBlankUrl(
           netDiskName,
           netDiskIndex,
@@ -3882,13 +3917,20 @@
             accessCode
           );
         }
-      } else if (linkClickMode === "parseFile") {
+        if (linkClickMode === "openBlank-closePopup") {
+          closePopup();
+        }
+      } else if (linkClickMode === "parseFile" || linkClickMode === "parseFile-closePopup") {
         NetDiskLinkClickMode.parseFile(
           netDiskName,
           netDiskIndex,
           shareCode,
           accessCode
-        );
+        ).then(() => {
+          if (linkClickMode === "parseFile-closePopup") {
+            closePopup();
+          }
+        });
       } else {
         log.error("未知点击动作：" + linkClickMode);
         Qmsg.error("未知点击动作：" + linkClickMode);
@@ -9915,6 +9957,9 @@
               },
               parseFile: {
                 enable: true
+              },
+              "parseFile-closePopup": {
+                enable: true
               }
             },
             checkLinkValidity: true,
@@ -9985,6 +10030,9 @@
             },
             parseFile: {
               enable: true
+            },
+            "parseFile-closePopup": {
+              enable: true
             }
           },
           checkLinkValidity: true,
@@ -10037,6 +10085,9 @@
               default: true
             },
             parseFile: {
+              enable: true
+            },
+            "parseFile-closePopup": {
               enable: true
             }
           },
@@ -10172,6 +10223,9 @@
             },
             parseFile: {
               enable: true
+            },
+            "parseFile-closePopup": {
+              enable: true
             }
           },
           checkLinkValidity: true,
@@ -10236,6 +10290,9 @@
             },
             parseFile: {
               enable: true
+            },
+            "parseFile-closePopup": {
+              enable: true
             }
           },
           checkLinkValidity: true,
@@ -10288,6 +10345,9 @@
               default: true
             },
             parseFile: {
+              enable: true
+            },
+            "parseFile-closePopup": {
               enable: true
             }
           },
@@ -10529,6 +10589,9 @@
             },
             parseFile: {
               enable: true
+            },
+            "parseFile-closePopup": {
+              enable: true
             }
           },
           checkLinkValidity: true,
@@ -10682,6 +10745,9 @@
             },
             parseFile: {
               enable: true
+            },
+            "parseFile-closePopup": {
+              enable: true
             }
           },
           checkLinkValidity: true,
@@ -10784,6 +10850,9 @@
               default: true
             },
             parseFile: {
+              enable: true
+            },
+            "parseFile-closePopup": {
               enable: true
             }
           },

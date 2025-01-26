@@ -37,6 +37,9 @@ export const NetDiskRule_nainiu: NetDiskRuleConfig = {
 					parseFile: {
 						enable: true,
 					},
+					"parseFile-closePopup": {
+						enable: true,
+					},
 				},
 				checkLinkValidity: true,
 				checkLinkValidityHoverTip: true,

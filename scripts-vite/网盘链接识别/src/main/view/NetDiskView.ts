@@ -534,12 +534,14 @@ export const NetDiskView = {
 		};
 	},
 	/**
-	 * 设置网盘链接点击事件
-	 * @param target
+	 * 设置网盘链接的点击事件
+	 *
+	 * 内部执行点击动作
+	 * @param $el 触发的元素
 	 * @param clickNodeSelector 元素选择器
 	 */
-	setNetDiskUrlClickEvent(target: any, clickNodeSelector: string) {
-		DOMUtils.on(target, "click", clickNodeSelector, (event) => {
+	setNetDiskUrlClickEvent($el: any, clickNodeSelector: string) {
+		DOMUtils.on($el, "click", clickNodeSelector, (event) => {
 			let $click = event.target as HTMLElement;
 			$click.setAttribute("isvisited", "true");
 
@@ -547,6 +549,7 @@ export const NetDiskView = {
 			const data = NetDiskView.praseElementAttributeRuleInfo($click);
 			this.netDiskUrlClickEvent({
 				data: data,
+				$click: $click,
 			});
 		});
 	},
@@ -563,13 +566,27 @@ export const NetDiskView = {
 		};
 		/** 自定义的点击动作，优先级最高 */
 		clickMode?: NetDiskRuleSettingConfigurationInterface_linkClickMode;
+		/** 点击的元素 */
+		$click?: HTMLElement;
 	}) {
 		const { netDiskName, netDiskIndex, shareCode, accessCode } = option.data;
 		// 获取对应的点击动作
 		let linkClickMode =
 			option.clickMode ??
 			NetDiskRuleData.function.linkClickMode(option.data.netDiskName);
-		if (linkClickMode === "copy") {
+		/** 关闭弹窗 */
+		let closePopup = () => {
+			if (option.$click) {
+				let $pops = option.$click.closest<HTMLElement>(".pops");
+				if ($pops) {
+					let $close = $pops.querySelector<HTMLElement>(
+						'.pops-header-control[type="close"]'
+					);
+					$close && $close.click();
+				}
+			}
+		};
+		if (linkClickMode === "copy" || linkClickMode === "copy-closePopup") {
 			// 复制
 			NetDiskLinkClickMode.copy(
 				netDiskName,
@@ -577,7 +594,14 @@ export const NetDiskView = {
 				shareCode,
 				accessCode
 			);
-		} else if (linkClickMode === "openBlank") {
+			if (linkClickMode === "copy-closePopup") {
+				// 关闭弹窗
+				closePopup();
+			}
+		} else if (
+			linkClickMode === "openBlank" ||
+			linkClickMode === "openBlank-closePopup"
+		) {
 			// 新页打开
 			let url = NetDiskLinkClickModeUtils.getBlankUrl(
 				netDiskName,
@@ -606,14 +630,26 @@ export const NetDiskView = {
 					accessCode
 				);
 			}
-		} else if (linkClickMode === "parseFile") {
+			if (linkClickMode === "openBlank-closePopup") {
+				// 关闭弹窗
+				closePopup();
+			}
+		} else if (
+			linkClickMode === "parseFile" ||
+			linkClickMode === "parseFile-closePopup"
+		) {
 			// 文件解析
 			NetDiskLinkClickMode.parseFile(
 				netDiskName,
 				netDiskIndex,
 				shareCode,
 				accessCode
-			);
+			).then(() => {
+				if (linkClickMode === "parseFile-closePopup") {
+					// 关闭弹窗
+					closePopup();
+				}
+			});
 		} else {
 			log.error("未知点击动作：" + linkClickMode);
 			Qmsg.error("未知点击动作：" + linkClickMode);

@@ -40,6 +40,9 @@ export const NetDiskRule_tianyiyun: NetDiskRuleConfig = {
 					parseFile: {
 						enable: true,
 					},
+					"parseFile-closePopup": {
+						enable: true,
+					},
 				},
 				checkLinkValidity: true,
 				checkLinkValidityHoverTip: true,

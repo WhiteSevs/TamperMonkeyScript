@@ -1,7 +1,7 @@
 # 网盘链接识别
 
 > 注：并非所有功能都是默认开启，有些功能需要到油猴菜单中打开【设置】，手动开启功能。
-> 当网页存在CSP策略时，执行本脚本会导致CPU占用率高，请自行添加自定义规则将网站匹配模式修改为`Menu`或者将网站添加到脚本管理器的黑名单，例如：bilibili、Youtube
+> 当网页存在 CSP 策略时，会导致 Web Worker 执行失败，从而导致 CPU 占用率高，例如：`bilibili`、`Youtube`，请自行添加自定义规则将网站匹配模式修改为`Menu`或者将网站添加到脚本管理器的黑名单。
 
 一个用于`识别`网页中的网盘链接的油猴脚本。
 
@@ -14,19 +14,18 @@
 - [x] 自定义匹配模式是自定执行的`观察者模式`还是手动执行的`菜单模式`
 - [x] 自动填入识别到的网盘的访问码
 - [x] 自定义匹配页面文本类型
-- [x] 支持匹配网页url、ShadowRoot、Input、TextArea的内容
-- [x] 支持自定义匹配间隔时间（防止间隔时间过短，导致CPU占用率高）
+- [x] 支持匹配网页 url、ShadowRoot、Input、TextArea 的内容
+- [x] 支持自定义匹配间隔时间（防止间隔时间过短，导致 CPU 占用率高）
 - [x] 支持点击网盘图标自动定位到链接所在位置（只有是可见的才能成功定位）
 - [x] 支持保存匹配记录，可在历史匹配记录中查看
 - [x] 等其它功能...
 
-## 🚩安装
+## 🚩 安装
 
 > 注：建议使用浏览器扩展执行本脚本。
 >
-> - 浏览器扩展的功能和Api更完整
+> - 浏览器扩展的功能和 Api 更完整
 > - 非浏览器扩展使用脚本会遇到更多使用上的问题（跨域问题、脚本冲突等）
->
 
 - [x] 浏览器扩展
   - [x] Chrome/Edge [TamperMonkey](https://microsoftedge.microsoft.com/addons/detail/%E7%AF%A1%E6%94%B9%E7%8C%B4/iikmkjmpaadaobahmlepeloendndfphd?hl=zh-CN)、[ViolentMonkey](https://microsoftedge.microsoft.com/addons/detail/%E6%9A%B4%E5%8A%9B%E7%8C%B4/eeagobfjdenkkddmbclomhiblgggliao?hl=zh-CN)、[ScriptCat](https://microsoftedge.microsoft.com/addons/detail/%E8%84%9A%E6%9C%AC%E7%8C%AB/liilgpjgabokdklappibcjfablkpcekh?hl=zh-CN)
@@ -37,34 +36,34 @@
 
 识别出链接时，页面侧边栏会出现一个悬浮按钮。
 
-| 功能             | 设备  | 操作                                      | 备注                                       |
-| ---------------- | :---: | ----------------------------------------- | ------------------------------------------ |
-| 显示链接界面     |  PC   | `点击`                                    |                                            |
-|                  | 手机  | `点击`                                    |                                            |
-| 显示设置界面     |  PC   | `双击/右击`后点击设置                     |                                            |
-|                  | 手机  | `双击`                                    |                                            |
-| 显示历史匹配记录 |  PC   | 油猴菜单中打开/悬浮按钮右击菜单中选择打开 |                                            |
-|                  | 手机  | 油猴菜单中打开                            |                                            |
-| 显示访问码规则   |  PC   | 油猴菜单中打开/悬浮按钮右击菜单中选择打开 |                                            |
-|                  | 手机  | 油猴菜单中打开                            |                                            |
-| 显示网站规则     |  PC   | 油猴菜单中打开/悬浮按钮右击菜单中选择打开 |                                            |
-|                  | 手机  | 油猴菜单中打开                            |                                            |
-| 显示主动识别文本 |  PC   | 油猴菜单中打开/悬浮按钮右击菜单中选择打开 |                                            |
-|                  | 手机  | 油猴菜单中打开                            |                                            |
-| 复制链接         |  PC   | 链接界面/历史匹配记录界面`右击链接`       |                                            |
-|                  | 手机  | 链接界面/历史匹配记录界面`长按链接`       |                                            |
-| 访问链接         |  PC   | 链接界面/历史匹配记录界面`右击链接`       |                                            |
-|                  | 手机  | 链接界面/历史匹配记录界面`长按链接`       |                                            |
-| 修改访问码       |  PC   | 链接界面/历史匹配记录界面`右击链接`       | 修改后的访问码不会被新匹配到的访问码所替换 |
-|                  | 手机  | 链接界面/历史匹配记录界面`长按链接`       |                                            |
+| 功能             | 设备 | 操作                                      | 备注                                       |
+| ---------------- | :--: | ----------------------------------------- | ------------------------------------------ |
+| 显示链接界面     |  PC  | `点击`                                    |                                            |
+|                  | 手机 | `点击`                                    |                                            |
+| 显示设置界面     |  PC  | `双击/右击`后点击设置                     |                                            |
+|                  | 手机 | `双击`                                    |                                            |
+| 显示历史匹配记录 |  PC  | 油猴菜单中打开/悬浮按钮右击菜单中选择打开 |                                            |
+|                  | 手机 | 油猴菜单中打开                            |                                            |
+| 显示访问码规则   |  PC  | 油猴菜单中打开/悬浮按钮右击菜单中选择打开 |                                            |
+|                  | 手机 | 油猴菜单中打开                            |                                            |
+| 显示网站规则     |  PC  | 油猴菜单中打开/悬浮按钮右击菜单中选择打开 |                                            |
+|                  | 手机 | 油猴菜单中打开                            |                                            |
+| 显示主动识别文本 |  PC  | 油猴菜单中打开/悬浮按钮右击菜单中选择打开 |                                            |
+|                  | 手机 | 油猴菜单中打开                            |                                            |
+| 复制链接         |  PC  | 链接界面/历史匹配记录界面`右击链接`       |                                            |
+|                  | 手机 | 链接界面/历史匹配记录界面`长按链接`       |                                            |
+| 访问链接         |  PC  | 链接界面/历史匹配记录界面`右击链接`       |                                            |
+|                  | 手机 | 链接界面/历史匹配记录界面`长按链接`       |                                            |
+| 修改访问码       |  PC  | 链接界面/历史匹配记录界面`右击链接`       | 修改后的访问码不会被新匹配到的访问码所替换 |
+|                  | 手机 | 链接界面/历史匹配记录界面`长按链接`       |                                            |
 
 ## 📢 部分功能介绍
 
 Toast
 
-- `位置`：设置Toast显示的位置，如：顶部、底部、中间
-- `同时显示最多数量`：设置Toast最多同时显示的数量
-- `逆序弹出`：设置Toast显示的顺序
+- `位置`：设置 Toast 显示的位置，如：顶部、底部、中间
+- `同时显示最多数量`：设置 Toast 最多同时显示的数量
+- `逆序弹出`：设置 Toast 显示的顺序
 
 弹窗
 
@@ -94,21 +93,21 @@ Toast
 
 功能
 
-- `匹配模式`：选择MutationObserver是网页加载完毕后自动监听识别链接，选择Menu是会在油猴注册菜单用于手动点击进行识别
-- `行为模式`：当匹配到网盘链接会触发UI显示，该选项可选择需要触发的UI
+- `匹配模式`：选择 MutationObserver 是网页加载完毕后自动监听识别链接，选择 Menu 是会在油猴注册菜单用于手动点击进行识别
+- `行为模式`：当匹配到网盘链接会触发 UI 显示，该选项可选择需要触发的 UI
 - `自动输入访问码`：开启后可通过`右击`或`长按`出现的菜单选项`访问链接`，如果存在访问码，将自动填入访问码，目前存在部分网盘未实现自动填入(没找到这个网盘的存在链接的)
 
 匹配设置
 
 - `匹配规则类型`：自行选择【普通文本】规则还是【超文本】规则
-- `深入ShadowRoot获取匹配文本`：对Shadow内的文本/超文本的内容进行获取
+- `深入ShadowRoot获取匹配文本`：对 Shadow 内的文本/超文本的内容进行获取
 - `匹配剪贴板`：启用后浏览器会申请剪贴板权限用来读取剪贴板内容，并进行网盘链接匹配
-- `匹配当前URL`：启用后会优先匹配当前URL地址，比如在xxx网盘内时
+- `匹配当前URL`：启用后会优先匹配当前 URL 地址，比如在 xxx 网盘内时
 - `匹配input标签的内容`：启用后会对页面上所有的`<input>`标签的内容进行获取
 - `匹配textarea标签的内容`：启用后会对页面上所有的`<textarea>`标签的内容进行获取
 - `删除中文字符`：在进行文本匹配前，会删除掉所有中文字符
 - `删除任何空白字符`：在进行文本匹配前，会删除掉所有空白字符
-- `匹配间隔`：匹配文本完毕后的延迟xxx秒允许下一次匹配
+- `匹配间隔`：匹配文本完毕后的延迟 xxx 秒允许下一次匹配
 - `添加元素时进行匹配`：当监听到页面添加元素时才进行匹配文本
 - `观察器：childList`：子节点的变动（新增、删除或者更改）
 - `观察器：characterData`：节点内容或节点文本的变动
@@ -124,12 +123,12 @@ Toast
 网盘图标
 
 - `点击定位分享码`：在识别的链接弹窗内，点击网盘小图标可以定位到页面中的包含该分享码的元素中的位置并且页面会滚动至元素
-- `选中分享码`：光标选中包含分享码的元素，如果是#text元素，则选中分享码文字
+- `选中分享码`：光标选中包含分享码的元素，如果是#text 元素，则选中分享码文字
 - `循环定位`：关闭则每个包含分享码的元素只定位一次
 
 分享码
 
-- `相同系数`：例如分享码: aaaaaaaabb，它的相同系数是0.8，设置相同系数≥0.8时会被排除
+- `相同系数`：例如分享码: aaaaaaaabb，它的相同系数是 0.8，设置相同系数 ≥0.8 时会被排除
 - `排除分享码`：启用后会根据【相同系数】排除掉匹配到的分享码
 
 访问码
@@ -146,26 +145,26 @@ Toast
 - `【打开】⚙ 识别文本`：点击右边按钮来设置快捷键打开`主动识别文本`界面，如果已存在设置的快捷键，再次点击可删除设置的快捷键
 - `执行文本匹配`：点击右边按钮来设置快捷键主动进行一次页面内容匹配，如果已存在设置的快捷键，再次点击可删除设置的快捷键
 
-| 网盘                                                                                                                                                                                                  | 新标签页打开 |          单文件解析           |          多文件解析           | Scheme转发直链 | 提取码间隔前(Text/HTML) | 提取码间隔后(Text/HTML) | 其它功能         |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------: | :---------------------------: | :---------------------------: | :------------: | :---------------------: | :---------------------: | ---------------- |
-| [![https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=16)](https://pan.baidu.com/) 百度网盘                      |      √       |                               |                               |                |         20/300          |          10/15          |                  |
-| [![https://favicon.yandex.net/favicon/v2/https://www.lanzoux.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.lanzoux.com/?size=16)](https://www.lanzoux.com/) 蓝奏云                  |      √       |               √               |               √               |       √        |         20/300          |          10/15          |                  |
-| [![https://favicon.yandex.net/favicon/v2/https://www.ilanzou.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.ilanzou.com/?size=16)](https://www.ilanzou.com/) 蓝奏云优享              |      √       |               √               |               √               |       √        |         20/300          |          10/15          |                  |
-| [![https://favicon.yandex.net/favicon/v2/https://cloud.189.cn/?size=16](https://favicon.yandex.net/favicon/v2/https://cloud.189.cn/?size=16)](https://cloud.189.cn/) 天翼云                           |      √       |           √(需登录)           |           √(需登录)           |       √        |         20/300          |          10/15          |                  |
-| [![https://favicon.yandex.net/favicon/v2/https://yun.139.com/?size=16](https://favicon.yandex.net/favicon/v2/https://yun.139.com/?size=16)](https://yun.139.com/) 中国移动云盘(原:和彩云)             |      √       |                               |                               |                |         20/300          |          10/15          |                  |
-| [![https://favicon.yandex.net/favicon/v2/https://www.aliyundrive.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.aliyundrive.com/?size=16)](https://www.aliyundrive.com/) 阿里云      |      √       | √(需登录，限制在网盘页面解析) | √(需登录，限制在网盘页面解析) |       √        |         20/300          |          10/15          |                  |
-| [![https://favicon.yandex.net/favicon/v2/https://www.wenshushu.cn/?size=16](https://favicon.yandex.net/favicon/v2/https://www.wenshushu.cn/?size=16)](https://www.wenshushu.cn/) 文叔叔               |      √       |               √               |                               |       √        |         20/300          |          10/15          |                  |
-| [![https://favicon.yandex.net/favicon/v2/https://cowtransfer.com/?size=16](https://favicon.yandex.net/favicon/v2/https://cowtransfer.com/?size=16)](https://cowtransfer.com/) 奶牛快传                |      √       |               √               |               √               |       √        |         20/300          |          10/15          |                  |
-| [![https://favicon.yandex.net/favicon/v2/https://www.123pan.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.123pan.com/?size=16)](https://www.123pan.com/) 123云盘                    |      √       |     √(文件>100MB则需登录)     |     √(文件>100MB则需登录)     |       √        |         20/300          |          10/15          |                  |
-| [![https://favicon.yandex.net/favicon/v2/https://www.weiyun.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.weiyun.com/?size=16)](https://www.weiyun.com/) 腾讯微云                   |      √       |                               |                               |                |         20/300          |          10/15          |                  |
-| [![https://favicon.yandex.net/favicon/v2/https://pan.xunlei.com/?size=16](https://favicon.yandex.net/favicon/v2/https://pan.xunlei.com/?size=16)](https://pan.xunlei.com/) 迅雷网盘                   |      √       |                               |                               |                |         20/300          |          10/15          |                  |
-| [![https://favicon.yandex.net/favicon/v2/http://www.115.com/?size=16](https://favicon.yandex.net/favicon/v2/http://www.115.com/?size=16)](http://www.115.com/) 115网盘                                |      √       |                               |                               |                |         20/300          |          10/15          |                  |
-| [![https://favicon.yandex.net/favicon/v2/https://www.ctfile.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.ctfile.com/?size=16)](https://www.ctfile.com/) 城通网盘                   |      √       |                               |                               |                |         20/300          |          10/15          | 可自行配置解析站 |
-| [![https://favicon.yandex.net/favicon/v2/https://pan.quark.cn/?size=16](https://favicon.yandex.net/favicon/v2/https://pan.quark.cn/?size=16)](https://pan.quark.cn/) 夸克网盘                         |      √       |                               |                               |                |         20/300          |          10/15          |                  |
-| 🚖BT磁力                                                                                                                                                                                               |      √       |                               |                               |       √        |                         |                         | 支持Scheme转发   |
-| [![https://favicon.yandex.net/favicon/v2/https://www.jianguoyun.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.jianguoyun.com/?size=16)](https://www.jianguoyun.com/) 坚果云(需登录) |      √       |               √               |                               |       √        |         20/300          |          10/15          |                  |
-| [![https://favicon.yandex.net/favicon/v2/https://onedrive.live.com/?size=16](https://favicon.yandex.net/favicon/v2/https://onedrive.live.com/?size=16)](https://onedrive.live.com/) OneDrive          |      √       |                               |                               |       √        |         20/300          |          10/15          |                  |
-| [![https://favicon.yandex.net/favicon/v2/https://drive.uc.cn/?size=16](https://favicon.yandex.net/favicon/v2/https://drive.uc.cn/?size=16)](https://drive.uc.cn/) UC网盘                              |      √       |           √(需登录)           |           √(需登录)           |       √        |         20/300          |          10/15          |                  |
+| 网盘                                                                                                                                                                                                  | 新标签页打开 |          单文件解析           |          多文件解析           | Scheme 转发直链 | 提取码间隔前(Text/HTML) | 提取码间隔后(Text/HTML) | 其它功能         |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------: | :---------------------------: | :---------------------------: | :-------------: | :---------------------: | :---------------------: | ---------------- |
+| [![https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=16)](https://pan.baidu.com/) 百度网盘                      |      √       |                               |                               |                 |         20/300          |          10/15          |                  |
+| [![https://favicon.yandex.net/favicon/v2/https://www.lanzoux.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.lanzoux.com/?size=16)](https://www.lanzoux.com/) 蓝奏云                  |      √       |               √               |               √               |        √        |         20/300          |          10/15          |                  |
+| [![https://favicon.yandex.net/favicon/v2/https://www.ilanzou.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.ilanzou.com/?size=16)](https://www.ilanzou.com/) 蓝奏云优享              |      √       |               √               |               √               |        √        |         20/300          |          10/15          |                  |
+| [![https://favicon.yandex.net/favicon/v2/https://cloud.189.cn/?size=16](https://favicon.yandex.net/favicon/v2/https://cloud.189.cn/?size=16)](https://cloud.189.cn/) 天翼云                           |      √       |           √(需登录)           |           √(需登录)           |        √        |         20/300          |          10/15          |                  |
+| [![https://favicon.yandex.net/favicon/v2/https://yun.139.com/?size=16](https://favicon.yandex.net/favicon/v2/https://yun.139.com/?size=16)](https://yun.139.com/) 中国移动云盘(原:和彩云)             |      √       |                               |                               |                 |         20/300          |          10/15          |                  |
+| [![https://favicon.yandex.net/favicon/v2/https://www.aliyundrive.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.aliyundrive.com/?size=16)](https://www.aliyundrive.com/) 阿里云      |      √       | √(需登录，限制在网盘页面解析) | √(需登录，限制在网盘页面解析) |        √        |         20/300          |          10/15          |                  |
+| [![https://favicon.yandex.net/favicon/v2/https://www.wenshushu.cn/?size=16](https://favicon.yandex.net/favicon/v2/https://www.wenshushu.cn/?size=16)](https://www.wenshushu.cn/) 文叔叔               |      √       |               √               |                               |        √        |         20/300          |          10/15          |                  |
+| [![https://favicon.yandex.net/favicon/v2/https://cowtransfer.com/?size=16](https://favicon.yandex.net/favicon/v2/https://cowtransfer.com/?size=16)](https://cowtransfer.com/) 奶牛快传                |      √       |               √               |               √               |        √        |         20/300          |          10/15          |                  |
+| [![https://favicon.yandex.net/favicon/v2/https://www.123pan.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.123pan.com/?size=16)](https://www.123pan.com/) 123 云盘                   |      √       |    √(文件>100MB 则需登录)     |    √(文件>100MB 则需登录)     |        √        |         20/300          |          10/15          |                  |
+| [![https://favicon.yandex.net/favicon/v2/https://www.weiyun.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.weiyun.com/?size=16)](https://www.weiyun.com/) 腾讯微云                   |      √       |                               |                               |                 |         20/300          |          10/15          |                  |
+| [![https://favicon.yandex.net/favicon/v2/https://pan.xunlei.com/?size=16](https://favicon.yandex.net/favicon/v2/https://pan.xunlei.com/?size=16)](https://pan.xunlei.com/) 迅雷网盘                   |      √       |                               |                               |                 |         20/300          |          10/15          |                  |
+| [![https://favicon.yandex.net/favicon/v2/http://www.115.com/?size=16](https://favicon.yandex.net/favicon/v2/http://www.115.com/?size=16)](http://www.115.com/) 115 网盘                               |      √       |                               |                               |                 |         20/300          |          10/15          |                  |
+| [![https://favicon.yandex.net/favicon/v2/https://www.ctfile.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.ctfile.com/?size=16)](https://www.ctfile.com/) 城通网盘                   |      √       |                               |                               |                 |         20/300          |          10/15          | 可自行配置解析站 |
+| [![https://favicon.yandex.net/favicon/v2/https://pan.quark.cn/?size=16](https://favicon.yandex.net/favicon/v2/https://pan.quark.cn/?size=16)](https://pan.quark.cn/) 夸克网盘                         |      √       |                               |                               |                 |         20/300          |          10/15          |                  |
+| 🚖BT 磁力                                                                                                                                                                                             |      √       |                               |                               |        √        |                         |                         | 支持 Scheme 转发 |
+| [![https://favicon.yandex.net/favicon/v2/https://www.jianguoyun.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.jianguoyun.com/?size=16)](https://www.jianguoyun.com/) 坚果云(需登录) |      √       |               √               |                               |        √        |         20/300          |          10/15          |                  |
+| [![https://favicon.yandex.net/favicon/v2/https://onedrive.live.com/?size=16](https://favicon.yandex.net/favicon/v2/https://onedrive.live.com/?size=16)](https://onedrive.live.com/) OneDrive          |      √       |                               |                               |        √        |         20/300          |          10/15          |                  |
+| [![https://favicon.yandex.net/favicon/v2/https://drive.uc.cn/?size=16](https://favicon.yandex.net/favicon/v2/https://drive.uc.cn/?size=16)](https://drive.uc.cn/) UC 网盘                             |      √       |           √(需登录)           |           √(需登录)           |        √        |         20/300          |          10/15          |                  |
 
 ## 🔧 帮助
 
@@ -179,44 +178,44 @@ Toast
 
 |       参数       |                                                值                                                |
 | :--------------: | :----------------------------------------------------------------------------------------------: |
-|   {#package#}    |                                             App包名                                              |
-|   {#activity#}   |                                        App的Activity入口                                         |
-| {#intentAction#} |                   Activity Action Intent常量，一般是android.intent.action.VIEW                   |
+|   {#package#}    |                                             App 包名                                             |
+|   {#activity#}   |                                       App 的 Activity 入口                                       |
+| {#intentAction#} |                  Activity Action Intent 常量，一般是 android.intent.action.VIEW                  |
 | {#intentExtra#}  | 可以为空，若使用，则为`{"参数1":"值1","参数2":"值2"}`，注意`&`换成`{-and-}`，`#`换成`{-number-}` |
 
 下面几个是示例 scheme 链接，可以直接复制粘贴到里面去
 
-- 使用IDM+下载该链接
+- 使用 IDM+下载该链接
 
 ```text
 jumpwsv://go?package=idm.internet.download.manager.plus&activity=idm.internet.download.manager.UrlHandlerDownloader&intentAction=android.intent.action.VIEW&intentData={#intentAction#}&intentExtra=
 ```
 
-- 使用IDM+内部浏览器访问该链接
+- 使用 IDM+内部浏览器访问该链接
 
 ```text
 jumpwsv://go?package=idm.internet.download.manager.plus&activity=acr.browser.lightning.activity.BrowserLauncher&intentAction=android.intent.action.VIEW&intentData={#intentAction#}&intentExtra=
 ```
 
-- 使用IDM+内部浏览器隐身访问该链接
+- 使用 IDM+内部浏览器隐身访问该链接
 
 ```text
 jumpwsv://go?package=idm.internet.download.manager.plus&activity=acr.browser.lightning.activity.IncognitoActivity&intentAction=android.intent.action.VIEW&intentData={#intentAction#}&intentExtra=
 ```
 
-- 使用ADM下载该链接
+- 使用 ADM 下载该链接
 
 ```text
 jumpwsv://go?package=com.dv.adm&activity=com.dv.get.AEditor&intentAction=android.intent.action.VIEW&intentData={#intentAction#}&intentExtra=
 ```
 
-- 使用ADM内部浏览器访问该链接
+- 使用 ADM 内部浏览器访问该链接
 
 ```text
 jumpwsv://go?package=com.dv.adm&activity=com.dv.get.WebBrow&intentAction=android.intent.action.VIEW&intentData={#intentAction#}&intentExtra=
 ```
 
-- 使用手机版迅雷下载该链接(可以是magnet格式)
+- 使用手机版迅雷下载该链接(可以是 magnet 格式)
 
 ```text
 jumpwsv://go?package=com.xunlei.downloadprovider
@@ -261,7 +260,7 @@ abcd
 
 ### 4. 为什么在设置中开启`读取剪贴板`且剪贴板中存在网盘链接，但是并没有成功识别？
 
-浏览器Api兼容性查看：
+浏览器 Api 兼容性查看：
 [https://caniuse.com/mdn-api_permissions_permission_clipboard-read](https://caniuse.com/mdn-api_permissions_permission_clipboard-read)
 [https://caniuse.com/mdn-api_clipboard_readtext](https://caniuse.com/mdn-api_clipboard_readtext)
 
@@ -274,7 +273,7 @@ abcd
 - 只有分享码的
 
 ```js
-{ 
+{
     "key": "test1", // 这是需要识别的网盘的唯一key，如果和脚本里的key重复的话会覆盖，如果用户自定义中存在相同的key，将会合并，即一个key匹配多种网盘链接
     "icon": "", // （可选）用于显示的网盘图标，可以是data:image格式，或者是url图片，如果没有，会是空白图标
     "regexp": { // 匹配规则
@@ -400,7 +399,7 @@ abcd
 }
 ```
 
-## 🎉赞赏支持
+## 🎉 赞赏支持
 
 <img src="https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/asset/img/wx_zsm.png" alt="微信赞赏" width="250" height="250">
 <img src="https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/asset/img/zfb_skm.png" alt="支付宝赞赏" width="250" height="250">

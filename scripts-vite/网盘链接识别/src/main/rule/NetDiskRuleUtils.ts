@@ -6,7 +6,7 @@ import type { NetDiskRuleSettingConfigurationInterface_Function } from "./NetDis
  */
 export const NetDiskRuleUtils = {
 	/**
-	 * 获取点击动作的默认值
+	 * 获取点击动作的默认配置
 	 */
 	getDefaultLinkClickMode() {
 		let data: Required<
@@ -17,15 +17,30 @@ export const NetDiskRuleUtils = {
 				enable: true,
 				text: "复制到剪贴板",
 			},
+			"copy-closePopup": {
+				default: false,
+				enable: true,
+				text: "复制到剪贴板 & 关闭弹窗",
+			},
 			openBlank: {
 				default: false,
 				enable: true,
 				text: "新标签页打开",
 			},
+			"openBlank-closePopup": {
+				default: false,
+				enable: true,
+				text: "新标签页打开 & 关闭弹窗",
+			},
 			parseFile: {
 				default: false,
 				enable: false,
 				text: "文件解析",
+			},
+			"parseFile-closePopup": {
+				default: false,
+				enable: false,
+				text: "文件解析 & 关闭弹窗",
 			},
 			own: {
 				default: false,

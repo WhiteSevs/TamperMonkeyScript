@@ -142,6 +142,9 @@ export const NetDiskRule_chengtong: NetDiskRuleConfig = {
 					parseFile: {
 						enable: true,
 					},
+					"parseFile-closePopup": {
+						enable: true,
+					},
 				},
 				checkLinkValidity: true,
 				checkLinkValidityHoverTip: true,

@@ -4,7 +4,6 @@ import Qmsg from "qmsg";
 import { NetDiskAutoFillAccessCode } from "../auto-fill-accesscode/NetDiskAutoFillAccessCode";
 import { NetDiskFilterScheme } from "../scheme/NetDiskFilterScheme";
 import { NetDiskRuleData } from "../data/NetDiskRuleData";
-import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import { NetDisk } from "../NetDisk";
 import { NetDiskRuleUtils } from "../rule/NetDiskRuleUtils";
 import { NetDiskHandlerUtil } from "@/utils/NetDiskHandlerUtil";
@@ -14,6 +13,9 @@ export type NetDiskRuleSettingConfigurationInterface_linkClickMode =
 	| "copy"
 	| "openBlank"
 	| "parseFile"
+	| "copy-closePopup"
+	| "openBlank-closePopup"
+	| "parseFile-closePopup"
 	| "own";
 
 export const NetDiskLinkClickModeUtils = {
