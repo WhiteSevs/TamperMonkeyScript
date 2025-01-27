@@ -20,7 +20,7 @@ import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { PanelUISize } from "@/setting/panel-ui-size";
 import { UITextArea } from "@/setting/common-components/ui-textarea";
-import { DouYinQueryApi } from "@/api/DouYinQueryApi";
+import Utils from "@whitesev/utils";
 
 type DouYinVideoFilterOptionScope =
 	| "all"
@@ -69,6 +69,21 @@ export const DouYinVideoFilter = {
 	$key: {
 		STORAGE_KEY: "dy-video-filter-rule",
 		ENABLE_KEY: "shieldVideo-exec-network-enable",
+	},
+	$data: {
+		/** 已经过滤的信息 */
+		isFilterAwemeInfoList: new Utils.Dictionary<
+			string,
+			DouYinVideoFilterOption[]
+		>(),
+		/**
+		 * 当命中过滤规则，如果开启了仅显示被过滤的视频，则修改isFilter值
+		 */
+		get isReverse() {
+			return PopsPanel.getValue<boolean>(
+				"shieldVideo-only-show-filtered-video"
+			);
+		},
 	},
 	init() {
 		this.execFilter();
@@ -119,6 +134,32 @@ export const DouYinVideoFilter = {
 				);
 				return matchedFilterOptionList;
 			};
+			/** 经判断为过滤的回调 */
+			let isFilterCallBack = (
+				filterResult: ReturnType<
+					(typeof DouYinVideoFilterBase)["prototype"]["checkAwemeInfoIsFilter"]
+				>
+			) => {
+				// 当命中过滤规则，如果开启了仅显示被过滤的视频，则修改isFilter值
+				// 并添加记录
+				if (that.$data.isReverse) {
+					filterResult.isFilter = !filterResult.isFilter;
+					if (
+						typeof filterResult.transformAwemeInfo.awemeId === "string" &&
+						filterResult.matchedFilterOption
+					) {
+						let filterOptionList: DouYinVideoFilterOption[] =
+							that.$data.isFilterAwemeInfoList.get(
+								filterResult.transformAwemeInfo.awemeId
+							) || [];
+						filterOptionList.push(filterResult.matchedFilterOption);
+						that.$data.isFilterAwemeInfoList.set(
+							filterResult.transformAwemeInfo.awemeId,
+							filterOptionList
+						);
+					}
+				}
+			};
 			// xhr hook
 			DouYinNetWorkHook.ajaxHooker.hook((request) => {
 				let url = CommonUtil.fixUrl(request.url);
@@ -148,6 +189,7 @@ export const DouYinVideoFilter = {
 									filterOptionList,
 									awemeInfo
 								);
+								isFilterCallBack(filterResult);
 								if (filterResult.isFilter) {
 									filterBase.sendDislikeVideo(
 										filterResult.matchedFilterOption!,
@@ -193,6 +235,7 @@ export const DouYinVideoFilter = {
 									filterOptionList,
 									awemeInfo
 								);
+								isFilterCallBack(filterResult);
 								if (filterResult.isFilter) {
 									filterBase.sendDislikeVideo(
 										filterResult.matchedFilterOption!,
@@ -227,6 +270,7 @@ export const DouYinVideoFilter = {
 									filterOptionList,
 									awemeInfo
 								);
+								isFilterCallBack(filterResult);
 								if (filterResult.isFilter) {
 									filterBase.sendDislikeVideo(
 										filterResult.matchedFilterOption!,
@@ -280,6 +324,7 @@ export const DouYinVideoFilter = {
 												filterOptionList,
 												mixItem
 											);
+											isFilterCallBack(filterResult);
 											if (filterResult.isFilter) {
 												filterBase.sendDislikeVideo(
 													filterResult.matchedFilterOption!,
@@ -299,6 +344,7 @@ export const DouYinVideoFilter = {
 										filterOptionList,
 										awemeInfo
 									);
+									isFilterCallBack(filterResult);
 									if (filterResult.isFilter) {
 										filterBase.sendDislikeVideo(
 											filterResult.matchedFilterOption!,
@@ -381,9 +427,10 @@ export const DouYinVideoFilter = {
 		// 按钮的点击回调
 		let awemeInfoClickCallBack = ($basePlayerContainer: HTMLElement) => {
 			let that = this;
+			let reactFiber = utils.getReactObj($basePlayerContainer)?.reactFiber;
 			let awemeInfo =
-				utils.getReactObj($basePlayerContainer)?.reactFiber?.return
-					?.memoizedProps?.awemeInfo;
+				reactFiber?.return?.memoizedProps?.awemeInfo ||
+				reactFiber?.return?.return?.memoizedProps?.awemeInfo;
 			if (awemeInfo == null) {
 				Qmsg.error("未获取到awemeInfo信息", { consoleLogContent: true });
 				return;
@@ -399,6 +446,10 @@ export const DouYinVideoFilter = {
 				false
 			);
 			log.info(["视频awemeInfo：", awemeInfo, awemeInfoParsedData]);
+			/** 命中的规则 */
+			let targetFilterOption =
+				that.$data.isFilterAwemeInfoList.get(awemeInfoParsedData.awemeId!) ||
+				[];
 			pops.confirm({
 				title: {
 					text: "视频awemeInfo",
@@ -410,6 +461,8 @@ export const DouYinVideoFilter = {
 				},
 				drag: true,
 				btn: {
+					merge: targetFilterOption.length ? true : false,
+					position: targetFilterOption.length ? "space-between" : "flex-end",
 					ok: {
 						enable: true,
 						text: "添加过滤规则",
@@ -423,6 +476,19 @@ export const DouYinVideoFilter = {
 						text: "规则管理器",
 						callback(eventDetails, event) {
 							that.showView();
+						},
+					},
+					other: {
+						enable: targetFilterOption.length ? true : false,
+						text: `命中的规则（${targetFilterOption.length}）`,
+						type: "xiaomi-primary",
+						callback(eventDetails, event) {
+							that.getRuleViewInstance().showView((data) => {
+								let find = targetFilterOption.find((it) => {
+									return data.uuid === it.uuid;
+								});
+								return Boolean(find);
+							});
 						},
 					},
 				},
@@ -457,7 +523,7 @@ export const DouYinVideoFilter = {
 					)!;
 					awemeInfoClickCallBack($basePlayerContainer);
 				});
-				$xgRightGrid.appendChild($gmFilterParseBtn);
+				DOMUtils.prepend($xgRightGrid, $gmFilterParseBtn);
 			});
 		});
 		utils.mutationObserver(document, {
@@ -1000,13 +1066,13 @@ export const DouYinVideoFilter = {
 					enable: true,
 					option: [
 						{
-							name: "过滤已启用",
+							name: "过滤-已启用",
 							filterCallBack(data) {
 								return data.enable;
 							},
 						},
 						{
-							name: "过滤未启用",
+							name: "过滤-未启用",
 							filterCallBack(data) {
 								return !data.enable;
 							},

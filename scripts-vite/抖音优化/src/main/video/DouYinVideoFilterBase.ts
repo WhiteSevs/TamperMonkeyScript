@@ -394,10 +394,6 @@ export class DouYinVideoFilterBase {
 	$data = {
 		dislike_request_queue: <string[]>[],
 	};
-	concurrencyAsyncQueue;
-	constructor() {
-		this.concurrencyAsyncQueue = new ConcurrencyAsyncQueue(1);
-	}
 	/**
 	 * 解析awemeInfo转为规则过滤的字典
 	 * @param awemeInfo
@@ -407,6 +403,7 @@ export class DouYinVideoFilterBase {
 		awemeInfo: DouYinVideoAwemeInfo,
 		showLog: boolean = false
 	): DouYinVideoHandlerInfo {
+		/** 视频作者信息 */
 		let authorInfo =
 			awemeInfo?.["authorInfo"] ||
 			// @ts-ignore
@@ -819,18 +816,13 @@ export class DouYinVideoFilterBase {
 			}
 		}
 
-		// 当命中过滤规则，如果开启了仅显示被过滤的视频，则修改isFilter值
-		let isReverse = PopsPanel.getValue<boolean>(
-			"shieldVideo-only-show-filtered-video"
-		);
-		if (isReverse) {
-			flag = !flag;
-		}
 		return {
 			/** 是否允许过滤 */
 			isFilter: flag,
 			/** 命中的过滤规则 */
 			matchedFilterOption: matchedFilterOption,
+			/** 解析出的视频信息 */
+			transformAwemeInfo: transformAwemeInfo,
 		};
 	}
 	/**

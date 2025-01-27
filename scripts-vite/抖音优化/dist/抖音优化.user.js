@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.1.26
+// @version      2025.1.27
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -4580,8 +4580,9 @@
     }
     /**
      * 显示视图
+     * @param filterCallBack 返回值为false隐藏，true则不隐藏（不处理）
      */
-    async showView() {
+    async showView(filterCallBack) {
       var _a2, _b, _c, _d, _e, _f, _g, _h, _i;
       let $popsConfirm = __pops.confirm({
         title: {
@@ -4761,11 +4762,26 @@
         )
       });
       let allData = await this.option.data();
+      let changeButtonText = false;
       for (let index = 0; index < allData.length; index++) {
-        await this.appendRuleItemElement(
+        let item = allData[index];
+        let $ruleItemList = await this.appendRuleItemElement(
           $popsConfirm.$shadowRoot,
-          allData[index]
+          item
         );
+        let flag = typeof filterCallBack === "function" ? filterCallBack(item) : true;
+        if (!flag) {
+          changeButtonText = true;
+          $ruleItemList.forEach(($el) => {
+            domUtils.hide($el, false);
+          });
+        }
+      }
+      if (changeButtonText) {
+        let $button = $popsConfirm.$shadowRoot.querySelector(
+          ".pops-confirm-btn-cancel span"
+        );
+        domUtils.text($button, "取消过滤");
       }
     }
     /**
@@ -4942,20 +4958,17 @@
      * 添加一个规则元素
      */
     async appendRuleItemElement($shadowRoot, data) {
-      const { $container } = this.parseViewElement($shadowRoot);
-      if (Array.isArray(data)) {
-        for (let index = 0; index < data.length; index++) {
-          const item = data[index];
-          $container.appendChild(
-            await this.createRuleItemElement(item, $shadowRoot)
-          );
-        }
-      } else {
-        $container.appendChild(
-          await this.createRuleItemElement(data, $shadowRoot)
-        );
+      let { $container } = this.parseViewElement($shadowRoot);
+      let $ruleItem = [];
+      let iteratorData = Array.isArray(data) ? data : [data];
+      for (let index = 0; index < iteratorData.length; index++) {
+        let item = iteratorData[index];
+        let $item = await this.createRuleItemElement(item, $shadowRoot);
+        $container.appendChild($item);
+        $ruleItem.push($item);
       }
       await this.updateDeleteAllBtnText($shadowRoot);
+      return $ruleItem;
     }
     /**
      * 更新弹窗内容的元素
@@ -5080,70 +5093,11 @@
       editView.showView();
     }
   }
-  class ConcurrencyAsyncQueue {
-    /**
-     * @param [concurrency=1] 并发数量
-     * @param [intervalTime=300] 间隔时间
-     */
-    constructor(concurrency = 1, intervalTime = 300) {
-      /**
-       * 请求队列
-       */
-      __publicField(this, "queue");
-      /**
-       * 当前运行的数量
-       */
-      __publicField(this, "runningCount");
-      /**
-       * 请求并发数量
-       */
-      __publicField(this, "concurrency");
-      /**
-       * 间隔时间
-       */
-      __publicField(this, "intervalTime");
-      this.queue = [];
-      this.concurrency = concurrency;
-      this.intervalTime = intervalTime;
-      this.runningCount = 0;
-    }
-    /**
-     * 添加请求
-     */
-    enqueue(task) {
-      this.queue.push(task);
-      this.runNext();
-    }
-    /**
-     * 执行下一个任务
-     */
-    async runNext() {
-      while (this.runningCount < this.concurrency && this.queue.length > 0) {
-        this.runningCount++;
-        const task = this.queue.shift();
-        try {
-          await task();
-          if (this.intervalTime > 0) {
-            await new Promise(
-              (resolve) => setTimeout(resolve, this.intervalTime)
-            );
-          }
-        } catch (error) {
-          console.error(error);
-        } finally {
-          this.runningCount--;
-          this.runNext();
-        }
-      }
-    }
-  }
   class DouYinVideoFilterBase {
     constructor() {
       __publicField(this, "$data", {
         dislike_request_queue: []
       });
-      __publicField(this, "concurrencyAsyncQueue");
-      this.concurrencyAsyncQueue = new ConcurrencyAsyncQueue(1);
     }
     /**
      * 解析awemeInfo转为规则过滤的字典
@@ -5446,17 +5400,13 @@
           break;
         }
       }
-      let isReverse = PopsPanel.getValue(
-        "shieldVideo-only-show-filtered-video"
-      );
-      if (isReverse) {
-        flag = !flag;
-      }
       return {
         /** 是否允许过滤 */
         isFilter: flag,
         /** 命中的过滤规则 */
-        matchedFilterOption
+        matchedFilterOption,
+        /** 解析出的视频信息 */
+        transformAwemeInfo
       };
     }
     /**
@@ -5589,6 +5539,18 @@
       STORAGE_KEY: "dy-video-filter-rule",
       ENABLE_KEY: "shieldVideo-exec-network-enable"
     },
+    $data: {
+      /** 已经过滤的信息 */
+      isFilterAwemeInfoList: new Utils.Dictionary(),
+      /**
+       * 当命中过滤规则，如果开启了仅显示被过滤的视频，则修改isFilter值
+       */
+      get isReverse() {
+        return PopsPanel.getValue(
+          "shieldVideo-only-show-filtered-video"
+        );
+      }
+    },
     init() {
       this.execFilter();
       PopsPanel.execMenuOnce("shieldVideo-add-parseVideoInfoButton", () => {
@@ -5621,6 +5583,21 @@
           );
           return matchedFilterOptionList;
         };
+        let isFilterCallBack = (filterResult) => {
+          if (that.$data.isReverse) {
+            filterResult.isFilter = !filterResult.isFilter;
+            if (typeof filterResult.transformAwemeInfo.awemeId === "string" && filterResult.matchedFilterOption) {
+              let filterOptionList = that.$data.isFilterAwemeInfoList.get(
+                filterResult.transformAwemeInfo.awemeId
+              ) || [];
+              filterOptionList.push(filterResult.matchedFilterOption);
+              that.$data.isFilterAwemeInfoList.set(
+                filterResult.transformAwemeInfo.awemeId,
+                filterOptionList
+              );
+            }
+          }
+        };
         DouYinNetWorkHook.ajaxHooker.hook((request) => {
           let url = CommonUtil.fixUrl(request.url);
           let urlInstance = new URL(url);
@@ -5643,6 +5620,7 @@
                     filterOptionList,
                     awemeInfo
                   );
+                  isFilterCallBack(filterResult);
                   if (filterResult.isFilter) {
                     filterBase.sendDislikeVideo(
                       filterResult.matchedFilterOption,
@@ -5676,6 +5654,7 @@
                     filterOptionList,
                     awemeInfo
                   );
+                  isFilterCallBack(filterResult);
                   if (filterResult.isFilter) {
                     filterBase.sendDislikeVideo(
                       filterResult.matchedFilterOption,
@@ -5703,6 +5682,7 @@
                     filterOptionList,
                     awemeInfo
                   );
+                  isFilterCallBack(filterResult);
                   if (filterResult.isFilter) {
                     filterBase.sendDislikeVideo(
                       filterResult.matchedFilterOption,
@@ -5742,6 +5722,7 @@
                           filterOptionList,
                           mixItem
                         );
+                        isFilterCallBack(filterResult);
                         if (filterResult.isFilter) {
                           filterBase.sendDislikeVideo(
                             filterResult.matchedFilterOption,
@@ -5759,6 +5740,7 @@
                       filterOptionList,
                       awemeInfo
                     );
+                    isFilterCallBack(filterResult);
                     if (filterResult.isFilter) {
                       filterBase.sendDislikeVideo(
                         filterResult.matchedFilterOption,
@@ -5790,9 +5772,10 @@
       );
       let filterBase = new DouYinVideoFilterBase();
       let awemeInfoClickCallBack = ($basePlayerContainer) => {
-        var _a2, _b, _c, _d;
+        var _a2, _b, _c, _d, _e, _f;
         let that = this;
-        let awemeInfo = (_d = (_c = (_b = (_a2 = utils.getReactObj($basePlayerContainer)) == null ? undefined : _a2.reactFiber) == null ? undefined : _b.return) == null ? undefined : _c.memoizedProps) == null ? undefined : _d.awemeInfo;
+        let reactFiber = (_a2 = utils.getReactObj($basePlayerContainer)) == null ? undefined : _a2.reactFiber;
+        let awemeInfo = ((_c = (_b = reactFiber == null ? undefined : reactFiber.return) == null ? undefined : _b.memoizedProps) == null ? undefined : _c.awemeInfo) || ((_f = (_e = (_d = reactFiber == null ? undefined : reactFiber.return) == null ? undefined : _d.return) == null ? undefined : _e.memoizedProps) == null ? undefined : _f.awemeInfo);
         if (awemeInfo == null) {
           Qmsg.error("未获取到awemeInfo信息", { consoleLogContent: true });
           return;
@@ -5808,6 +5791,7 @@
           false
         );
         log.info(["视频awemeInfo：", awemeInfo, awemeInfoParsedData]);
+        let targetFilterOption = that.$data.isFilterAwemeInfoList.get(awemeInfoParsedData.awemeId) || [];
         __pops.confirm({
           title: {
             text: "视频awemeInfo",
@@ -5819,6 +5803,8 @@
           },
           drag: true,
           btn: {
+            merge: targetFilterOption.length ? true : false,
+            position: targetFilterOption.length ? "space-between" : "flex-end",
             ok: {
               enable: true,
               text: "添加过滤规则",
@@ -5832,6 +5818,19 @@
               text: "规则管理器",
               callback(eventDetails, event) {
                 that.showView();
+              }
+            },
+            other: {
+              enable: targetFilterOption.length ? true : false,
+              text: `命中的规则（${targetFilterOption.length}）`,
+              type: "xiaomi-primary",
+              callback(eventDetails, event) {
+                that.getRuleViewInstance().showView((data) => {
+                  let find = targetFilterOption.find((it) => {
+                    return data.uuid === it.uuid;
+                  });
+                  return Boolean(find);
+                });
               }
             }
           },
@@ -5868,7 +5867,7 @@
             );
             awemeInfoClickCallBack($basePlayerContainer);
           });
-          $xgRightGrid.appendChild($gmFilterParseBtn);
+          domUtils.prepend($xgRightGrid, $gmFilterParseBtn);
         });
       });
       utils.mutationObserver(document, {
@@ -6345,13 +6344,13 @@
             enable: true,
             option: [
               {
-                name: "过滤已启用",
+                name: "过滤-已启用",
                 filterCallBack(data) {
                   return data.enable;
                 }
               },
               {
-                name: "过滤未启用",
+                name: "过滤-未启用",
                 filterCallBack(data) {
                   return !data.enable;
                 }
