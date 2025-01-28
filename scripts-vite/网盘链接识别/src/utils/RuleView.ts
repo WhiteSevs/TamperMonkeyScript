@@ -141,8 +141,9 @@ export class RuleView<T> {
 	}
 	/**
 	 * 显示视图
+	 * @param filterCallBack 返回值为false隐藏，true则不隐藏（不处理）
 	 */
-	async showView() {
+	async showView(filterCallBack?: (data: T) => boolean) {
 		let $popsConfirm = NetDiskPops.confirm({
 			title: {
 				text: this.option.title,
@@ -288,8 +289,8 @@ export class RuleView<T> {
                 align-items: center;
                 line-height: normal;
                 font-size: 16px;
-                padding: 4px 4px;
-                gap: 6px;
+                padding: 4px 8px;
+                gap: 8px;
             }
             .rule-name{
                 flex: 1;
@@ -304,7 +305,7 @@ export class RuleView<T> {
                 overflow: hidden;
                 white-space: nowrap;
                 gap: 8px;
-                padding: 0px 4px;
+                padding: 0px;
             }
             .rule-controls-enable{
                 
@@ -324,11 +325,28 @@ export class RuleView<T> {
             `,
 		});
 		let allData = await this.option.data();
+		let changeButtonText = false;
 		for (let index = 0; index < allData.length; index++) {
-			await this.appendRuleItemElement(
+			let item = allData[index];
+			let $ruleItemList = await this.appendRuleItemElement(
 				$popsConfirm.$shadowRoot,
-				allData[index]
+				item
 			);
+			let flag =
+				typeof filterCallBack === "function" ? filterCallBack(item) : true;
+			if (!flag) {
+				// 隐藏元素
+				changeButtonText = true;
+				$ruleItemList.forEach(($el) => {
+					DOMUtils.hide($el, false);
+				});
+			}
+		}
+		if (changeButtonText) {
+			let $button = $popsConfirm.$shadowRoot.querySelector<HTMLSpanElement>(
+				".pops-confirm-btn-cancel span"
+			)!;
+			DOMUtils.text($button, "取消过滤");
 		}
 	}
 	/**
@@ -521,21 +539,18 @@ export class RuleView<T> {
 		$shadowRoot: ShadowRoot | HTMLElement,
 		data: T | T[]
 	) {
-		const { $container } = this.parseViewElement($shadowRoot);
+		let { $container } = this.parseViewElement($shadowRoot);
+		let $ruleItem: HTMLElement[] = [];
 		// 添加到页面中
-		if (Array.isArray(data)) {
-			for (let index = 0; index < data.length; index++) {
-				const item = data[index];
-				$container.appendChild(
-					await this.createRuleItemElement(item, $shadowRoot)
-				);
-			}
-		} else {
-			$container.appendChild(
-				await this.createRuleItemElement(data, $shadowRoot)
-			);
+		let iteratorData = Array.isArray(data) ? data : [data];
+		for (let index = 0; index < iteratorData.length; index++) {
+			let item = iteratorData[index];
+			let $item = await this.createRuleItemElement(item, $shadowRoot);
+			$container.appendChild($item);
+			$ruleItem.push($item);
 		}
 		await this.updateDeleteAllBtnText($shadowRoot);
+		return $ruleItem;
 	}
 	/**
 	 * 更新弹窗内容的元素
@@ -583,6 +598,7 @@ export class RuleView<T> {
 	}
 	/**
 	 * 更新【清空所有】的按钮的文字
+	 * @param $shadowRoot
 	 */
 	async updateDeleteAllBtnText($shadowRoot: ShadowRoot | HTMLElement) {
 		let data = await this.option.data();
@@ -591,6 +607,7 @@ export class RuleView<T> {
 	/**
 	 * 显示编辑视图
 	 * @param isEdit 是否是编辑状态
+	 * @param editData 编辑的数据
 	 */
 	showEditView(
 		isEdit: boolean,
