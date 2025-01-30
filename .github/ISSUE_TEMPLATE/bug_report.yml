@@ -129,3 +129,5 @@ body:
     attributes:
       label: 复现步骤
       placeholder: "在这里提供问题的具体重现步骤（支持 Markdown 语法）"
+    validations:
+      required: true
