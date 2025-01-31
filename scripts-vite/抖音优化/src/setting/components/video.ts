@@ -401,11 +401,11 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									"只会显示过滤规则命中的视频"
 								),
 								UISwitch(
-									"新增【过滤器-解析信息】按钮",
+									"新增 {...} 按钮",
 									"shieldVideo-add-parseVideoInfoButton",
 									false,
 									void 0,
-									"在视频的底部的工具栏中显示【过滤器】按钮，用于查看视频信息以便于进行添加过滤规则"
+									"在视频的底部的工具栏中显示 {...} 按钮，用于查看视频信息以便于进行添加过滤规则"
 								),
 								UIButton(
 									"视频过滤规则",
