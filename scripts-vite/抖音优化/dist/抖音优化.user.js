@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.1.27
+// @version      2025.1.31
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -4725,8 +4725,8 @@
                 align-items: center;
                 line-height: normal;
                 font-size: 16px;
-                padding: 4px 4px;
-                gap: 6px;
+                padding: 4px 8px;
+                gap: 8px;
             }
             .rule-name{
                 flex: 1;
@@ -4741,7 +4741,7 @@
                 overflow: hidden;
                 white-space: nowrap;
                 gap: 8px;
-                padding: 0px 4px;
+                padding: 0px;
             }
             .rule-controls-enable{
                 
@@ -5765,8 +5765,15 @@
         /*css*/
         `
 			.basePlayerContainer .gm-video-filter-parse-btn{
-				height: auto !important;
-				line-height: 1 !important;
+				margin-left: 4px;
+			}
+			.basePlayerContainer .gm-video-filter-parse-btn .semi-icon{
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+			.basePlayerContainer .gm-video-filter-parse-btn .semi-icon svg{
+				
 			}
 		`
       );
@@ -5858,7 +5865,33 @@
         ).forEach(($xgRightGrid) => {
           let $gmFilterParseBtn = domUtils.createElement("xg-icon", {
             className: "gm-video-filter-parse-btn",
-            innerText: "过滤器-解析信息"
+            innerHTML: (
+              /*html*/
+              `
+						<div class="xgplayer-icon">
+							<span role="img" class="semi-icon semi-icon-default">
+								<svg
+									viewBox="0 0 32 32"
+									width="1em"
+									height="1em"
+									style="font-size: 32px"
+									xmlns="http://www.w3.org/2000/svg"
+									focusable="false"
+									fill="none">
+									<g>
+										<path
+											stroke="null"
+											fill="currentColor"
+											d="m9.78829,8.17117l1.77477,0l0,1.73974l-1.77477,0l0,4.34935a1.77477,1.73974 0 0 1 -1.77477,1.73974a1.77477,1.73974 0 0 1 1.77477,1.73974l0,4.34935l1.77477,0l0,1.73974l-1.77477,0c-0.9495,-0.23486 -1.77477,-0.78288 -1.77477,-1.73974l0,-3.47948a1.77477,1.73974 0 0 0 -1.77477,-1.73974l-0.88739,0l0,-1.73974l0.88739,0a1.77477,1.73974 0 0 0 1.77477,-1.73974l0,-3.47948a1.77477,1.73974 0 0 1 1.77477,-1.73974m12.42342,0a1.77477,1.73974 0 0 1 1.77477,1.73974l0,3.47948a1.77477,1.73974 0 0 0 1.77477,1.73974l0.88739,0l0,1.73974l-0.88739,0a1.77477,1.73974 0 0 0 -1.77477,1.73974l0,3.47948a1.77477,1.73974 0 0 1 -1.77477,1.73974l-1.77477,0l0,-1.73974l1.77477,0l0,-4.34935a1.77477,1.73974 0 0 1 1.77477,-1.73974a1.77477,1.73974 0 0 1 -1.77477,-1.73974l0,-4.34935l-1.77477,0l0,-1.73974l1.77477,0m-6.21171,10.43844a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987m-3.54955,0a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987m7.0991,0a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987z"
+											clip-rule="evenodd"
+											fill-rule="evenodd" />
+									</g>
+								</svg>
+							</span>
+						</div>
+						<div class="xg-tips">解析信息</div>
+					`
+            )
           });
           domUtils.on($gmFilterParseBtn, "click", (event) => {
             utils.preventEvent(event);

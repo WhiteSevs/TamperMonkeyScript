@@ -418,8 +418,15 @@ export const DouYinVideoFilter = {
 	addParseButton() {
 		addStyle(/*css*/ `
 			.basePlayerContainer .gm-video-filter-parse-btn{
-				height: auto !important;
-				line-height: 1 !important;
+				margin-left: 4px;
+			}
+			.basePlayerContainer .gm-video-filter-parse-btn .semi-icon{
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+			.basePlayerContainer .gm-video-filter-parse-btn .semi-icon svg{
+				
 			}
 		`);
 		let filterBase = new DouYinVideoFilterBase();
@@ -514,7 +521,30 @@ export const DouYinVideoFilter = {
 				// @ts-ignore
 				let $gmFilterParseBtn = DOMUtils.createElement("xg-icon", {
 					className: "gm-video-filter-parse-btn",
-					innerText: "过滤器-解析信息",
+					innerHTML: /*html*/ `
+						<div class="xgplayer-icon">
+							<span role="img" class="semi-icon semi-icon-default">
+								<svg
+									viewBox="0 0 32 32"
+									width="1em"
+									height="1em"
+									style="font-size: 32px"
+									xmlns="http://www.w3.org/2000/svg"
+									focusable="false"
+									fill="none">
+									<g>
+										<path
+											stroke="null"
+											fill="currentColor"
+											d="m9.78829,8.17117l1.77477,0l0,1.73974l-1.77477,0l0,4.34935a1.77477,1.73974 0 0 1 -1.77477,1.73974a1.77477,1.73974 0 0 1 1.77477,1.73974l0,4.34935l1.77477,0l0,1.73974l-1.77477,0c-0.9495,-0.23486 -1.77477,-0.78288 -1.77477,-1.73974l0,-3.47948a1.77477,1.73974 0 0 0 -1.77477,-1.73974l-0.88739,0l0,-1.73974l0.88739,0a1.77477,1.73974 0 0 0 1.77477,-1.73974l0,-3.47948a1.77477,1.73974 0 0 1 1.77477,-1.73974m12.42342,0a1.77477,1.73974 0 0 1 1.77477,1.73974l0,3.47948a1.77477,1.73974 0 0 0 1.77477,1.73974l0.88739,0l0,1.73974l-0.88739,0a1.77477,1.73974 0 0 0 -1.77477,1.73974l0,3.47948a1.77477,1.73974 0 0 1 -1.77477,1.73974l-1.77477,0l0,-1.73974l1.77477,0l0,-4.34935a1.77477,1.73974 0 0 1 1.77477,-1.73974a1.77477,1.73974 0 0 1 -1.77477,-1.73974l0,-4.34935l-1.77477,0l0,-1.73974l1.77477,0m-6.21171,10.43844a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987m-3.54955,0a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987m7.0991,0a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987z"
+											clip-rule="evenodd"
+											fill-rule="evenodd" />
+									</g>
+								</svg>
+							</span>
+						</div>
+						<div class="xg-tips">解析信息</div>
+					`,
 				});
 				DOMUtils.on($gmFilterParseBtn, "click", (event) => {
 					utils.preventEvent(event);
