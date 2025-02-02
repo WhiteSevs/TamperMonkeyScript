@@ -374,6 +374,32 @@ const PopsPanel = {
 		return key in locaData;
 	},
 	/**
+	 * 移除已执行的仅执行一次的菜单
+	 * @param key 键
+	 */
+	deleteExecMenuOnce(key: string) {
+		this.$data.oneSuccessExecMenu.delete(key);
+		let flag = false;
+		for (const [
+			listenerId,
+			listenerData,
+		] of this.$listener.listenData.entries()) {
+			if (listenerData.key === key) {
+				flag = true;
+				this.removeValueChangeListener(listenerData.id);
+				break;
+			}
+		}
+		return flag;
+	},
+	/**
+	 * 移除已执行的仅执行一次的菜单
+	 * @param key 键
+	 */
+	deleteOnceExec(key: string) {
+		this.$data.onceExec.delete(key);
+	},
+	/**
 	 * 自动判断菜单是否启用，然后执行回调
 	 * @param key
 	 * @param callback 回调

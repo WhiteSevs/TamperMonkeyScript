@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.1.31
+// @version      2025.2.2
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -5552,6 +5552,10 @@
       }
     },
     init() {
+      if (DouYinRouter.isLive()) {
+        PopsPanel.deleteExecMenuOnce(this.$key.ENABLE_KEY);
+        return;
+      }
       this.execFilter();
       PopsPanel.execMenuOnce("shieldVideo-add-parseVideoInfoButton", () => {
         this.addParseButton();
@@ -7893,6 +7897,32 @@
     hasKey(key) {
       let locaData = _GM_getValue(KEY, {});
       return key in locaData;
+    },
+    /**
+     * 移除已执行的仅执行一次的菜单
+     * @param key 键
+     */
+    deleteExecMenuOnce(key) {
+      this.$data.oneSuccessExecMenu.delete(key);
+      let flag = false;
+      for (const [
+        listenerId,
+        listenerData
+      ] of this.$listener.listenData.entries()) {
+        if (listenerData.key === key) {
+          flag = true;
+          this.removeValueChangeListener(listenerData.id);
+          break;
+        }
+      }
+      return flag;
+    },
+    /**
+     * 移除已执行的仅执行一次的菜单
+     * @param key 键
+     */
+    deleteOnceExec(key) {
+      this.$data.onceExec.delete(key);
     },
     /**
      * 自动判断菜单是否启用，然后执行回调

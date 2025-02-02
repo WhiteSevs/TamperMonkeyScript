@@ -21,6 +21,7 @@ import { CommonUtil } from "@/utils/CommonUtil";
 import { PanelUISize } from "@/setting/panel-ui-size";
 import { UITextArea } from "@/setting/common-components/ui-textarea";
 import Utils from "@whitesev/utils";
+import { DouYinRouter } from "@/router/DouYinRouter";
 
 type DouYinVideoFilterOptionScope =
 	| "all"
@@ -86,6 +87,10 @@ export const DouYinVideoFilter = {
 		},
 	},
 	init() {
+		if (DouYinRouter.isLive()) {
+			PopsPanel.deleteExecMenuOnce(this.$key.ENABLE_KEY);
+			return;
+		}
 		this.execFilter();
 		PopsPanel.execMenuOnce("shieldVideo-add-parseVideoInfoButton", () => {
 			this.addParseButton();
