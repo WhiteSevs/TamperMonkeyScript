@@ -455,21 +455,29 @@ export class NetDiskParse_nainiu extends NetDiskParseObject {
 	 */
 	async downloadFile(fileName: string, downloadUrl: string) {
 		log.info("下载文件：", fileName, downloadUrl);
+		if (window.location.hostname === "cowtransfer.com") {
+			window.open(downloadUrl, "_blank");
+			return;
+		}
 		if (!CommonUtil.isSupport_GM_download()) {
 			Qmsg.error("当前脚本环境不支持API 【GM_download】");
 			return;
 		}
 		Qmsg.info(`调用【GM_download】下载：${fileName}`);
+		/** 取消下载函数 */
 		let abortDownload: null | Function = null;
+		/** 是否成功下载 */
+		let isSuccessDownload = false;
+		/** 是否下载完成 */
+		let isDownloadEnd = false;
 		let downloadingQmsg = Qmsg.loading("下载中...", {
 			showClose: true,
 			onClose() {
-				if (typeof abortDownload === "function") {
+				if (!isSuccessDownload && typeof abortDownload === "function") {
 					abortDownload();
 				}
 			},
 		});
-		let isDownloadEnd = false;
 		let result = GM_download({
 			url: downloadUrl,
 			name: fileName,
@@ -477,8 +485,9 @@ export class NetDiskParse_nainiu extends NetDiskParseObject {
 				Referer: "https://cowtransfer.com/s/" + this.shareCode,
 			},
 			onload() {
+				isSuccessDownload = true;
 				downloadingQmsg.close();
-				Qmsg.success(`下载 ${fileName} 已完成`);
+				Qmsg.success(`下载 ${fileName} 已完成`, { consoleLogContent: true });
 			},
 			onprogress(details) {
 				if (
@@ -501,14 +510,17 @@ export class NetDiskParse_nainiu extends NetDiskParseObject {
 				if (typeof error === "object" && error["error"]) {
 					Qmsg.error(`下载 ${fileName} 失败或已取消 原因：${error["error"]}`, {
 						timeout: 6000,
+						consoleLogContent: true,
 					});
 				} else {
-					Qmsg.error(`下载 ${fileName} 失败或已取消`);
+					Qmsg.error(`下载 ${fileName} 失败或已取消`, {
+						consoleLogContent: true,
+					});
 				}
 			},
 			ontimeout() {
 				downloadingQmsg.close();
-				Qmsg.error(`下载 ${fileName} 请求超时`);
+				Qmsg.error(`下载 ${fileName} 请求超时`, { consoleLogContent: true });
 			},
 		});
 		if (typeof result === "object" && result != null && "abort" in result) {

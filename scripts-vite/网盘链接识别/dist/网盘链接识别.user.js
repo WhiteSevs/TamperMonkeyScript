@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2025.1.26
+// @version      2025.2.3
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -6449,21 +6449,26 @@
      */
     async downloadFile(fileName, downloadUrl) {
       log.info("下载文件：", fileName, downloadUrl);
+      if (window.location.hostname === "cowtransfer.com") {
+        window.open(downloadUrl, "_blank");
+        return;
+      }
       if (!CommonUtil.isSupport_GM_download()) {
         Qmsg.error("当前脚本环境不支持API 【GM_download】");
         return;
       }
       Qmsg.info(`调用【GM_download】下载：${fileName}`);
       let abortDownload = null;
+      let isSuccessDownload = false;
+      let isDownloadEnd = false;
       let downloadingQmsg = Qmsg.loading("下载中...", {
         showClose: true,
         onClose() {
-          if (typeof abortDownload === "function") {
+          if (!isSuccessDownload && typeof abortDownload === "function") {
             abortDownload();
           }
         }
       });
-      let isDownloadEnd = false;
       let result = _GM_download({
         url: downloadUrl,
         name: fileName,
@@ -6471,8 +6476,9 @@
           Referer: "https://cowtransfer.com/s/" + this.shareCode
         },
         onload() {
+          isSuccessDownload = true;
           downloadingQmsg.close();
-          Qmsg.success(`下载 ${fileName} 已完成`);
+          Qmsg.success(`下载 ${fileName} 已完成`, { consoleLogContent: true });
         },
         onprogress(details) {
           if (typeof details === "object" && "loaded" in details && "total" in details && !isDownloadEnd) {
@@ -6489,15 +6495,18 @@
           log.error("下载失败error👉", error);
           if (typeof error === "object" && error["error"]) {
             Qmsg.error(`下载 ${fileName} 失败或已取消 原因：${error["error"]}`, {
-              timeout: 6e3
+              timeout: 6e3,
+              consoleLogContent: true
             });
           } else {
-            Qmsg.error(`下载 ${fileName} 失败或已取消`);
+            Qmsg.error(`下载 ${fileName} 失败或已取消`, {
+              consoleLogContent: true
+            });
           }
         },
         ontimeout() {
           downloadingQmsg.close();
-          Qmsg.error(`下载 ${fileName} 请求超时`);
+          Qmsg.error(`下载 ${fileName} 请求超时`, { consoleLogContent: true });
         }
       });
       if (typeof result === "object" && result != null && "abort" in result) {
@@ -7075,21 +7084,26 @@
      */
     downloadFile(fileName, downloadUrl) {
       log.info(`调用【GM_download】下载：`, arguments);
+      if (window.location.hostname === "drive.uc.cn") {
+        window.open(downloadUrl, "_blank");
+        return;
+      }
       if (!CommonUtil.isSupport_GM_download()) {
         Qmsg.error("当前脚本环境不支持API 【GM_download】");
         return;
       }
       Qmsg.info(`调用【GM_download】下载：${fileName}`);
       let abortDownload = null;
+      let isSuccessDownload = false;
+      let isDownloadEnd = false;
       let downloadingQmsg = Qmsg.loading("下载中...", {
         showClose: true,
         onClose() {
-          if (typeof abortDownload === "function") {
+          if (!isSuccessDownload && typeof abortDownload === "function") {
             abortDownload();
           }
         }
       });
-      let isDownloadEnd = false;
       let result = _GM_download({
         url: downloadUrl,
         name: fileName,
@@ -7097,8 +7111,9 @@
           Referer: "https://drive.uc.cn/"
         },
         onload() {
+          isSuccessDownload = true;
           downloadingQmsg.close();
-          Qmsg.success(`下载 ${fileName} 已完成`);
+          Qmsg.success(`下载 ${fileName} 已完成`, { consoleLogContent: true });
         },
         onprogress(details) {
           if (typeof details === "object" && "loaded" in details && "total" in details && !isDownloadEnd) {
@@ -7115,15 +7130,18 @@
           log.error("下载失败error👉", error);
           if (typeof error === "object" && error["error"]) {
             Qmsg.error(`下载 ${fileName} 失败或已取消 原因：${error["error"]}`, {
-              timeout: 6e3
+              timeout: 6e3,
+              consoleLogContent: true
             });
           } else {
-            Qmsg.error(`下载 ${fileName} 失败或已取消`);
+            Qmsg.error(`下载 ${fileName} 失败或已取消`, {
+              consoleLogContent: true
+            });
           }
         },
         ontimeout() {
           downloadingQmsg.close();
-          Qmsg.error(`下载 ${fileName} 请求超时`);
+          Qmsg.error(`下载 ${fileName} 请求超时`, { consoleLogContent: true });
         }
       });
       if (typeof result === "object" && result != null && "abort" in result) {
@@ -13150,7 +13168,7 @@
           let clipboardText = NetDisk.$data.clipboardText;
           toMatchedTextList.push(clipboardText);
         }
-        {
+        if (NetDiskGlobalData.match.allowMatchLocationHref) {
           let decodeComponentUrl = NetDiskRuleUtils.getDecodeComponentUrl();
           toMatchedTextList.push(decodeComponentUrl);
         }
@@ -13206,14 +13224,14 @@
             return;
           }
         }
-        {
+        if (NetDiskGlobalData.match.toBeMatchedWithInputElementValue) {
           let inputValueList = NetDiskWorkerUtils.getInputElementValue(
             document.documentElement,
             isDepthAcquisitionWithShadowRoot
           );
           toMatchedTextList.push(...inputValueList);
         }
-        {
+        if (NetDiskGlobalData.match.toBeMatchedTextAreaElementValue) {
           let textAreaValueList = NetDiskWorkerUtils.getTextAreaElementValue(
             document.documentElement,
             isDepthAcquisitionWithShadowRoot
@@ -14701,7 +14719,7 @@
             let $boxAll = $linkElement.closest(
               ".netdisk-url-box-all"
             );
-            NetDiskView.praseElementAttributeRuleInfo($linkElement);
+            const { netDiskName, netDiskIndex, shareCode, accessCode } = NetDiskView.praseElementAttributeRuleInfo($linkElement);
             NetDisk.$match.matchedInfo.forEach((netDiskItem, netDiskKeyName) => {
               netDiskItem.clear();
             });
@@ -15055,8 +15073,9 @@
     }
     /**
      * 显示视图
+     * @param filterCallBack 返回值为false隐藏，true则不隐藏（不处理）
      */
-    async showView() {
+    async showView(filterCallBack) {
       var _a2, _b, _c, _d, _e, _f, _g, _h, _i;
       let $popsConfirm = NetDiskPops.confirm({
         title: {
@@ -15199,8 +15218,8 @@
                 align-items: center;
                 line-height: normal;
                 font-size: 16px;
-                padding: 4px 4px;
-                gap: 6px;
+                padding: 4px 8px;
+                gap: 8px;
             }
             .rule-name{
                 flex: 1;
@@ -15215,7 +15234,7 @@
                 overflow: hidden;
                 white-space: nowrap;
                 gap: 8px;
-                padding: 0px 4px;
+                padding: 0px;
             }
             .rule-controls-enable{
                 
@@ -15236,11 +15255,26 @@
         )
       });
       let allData = await this.option.data();
+      let changeButtonText = false;
       for (let index = 0; index < allData.length; index++) {
-        await this.appendRuleItemElement(
+        let item = allData[index];
+        let $ruleItemList = await this.appendRuleItemElement(
           $popsConfirm.$shadowRoot,
-          allData[index]
+          item
         );
+        let flag = typeof filterCallBack === "function" ? filterCallBack(item) : true;
+        if (!flag) {
+          changeButtonText = true;
+          $ruleItemList.forEach(($el) => {
+            domUtils.hide($el, false);
+          });
+        }
+      }
+      if (changeButtonText) {
+        let $button = $popsConfirm.$shadowRoot.querySelector(
+          ".pops-confirm-btn-cancel span"
+        );
+        domUtils.text($button, "取消过滤");
       }
     }
     /**
@@ -15417,27 +15451,24 @@
      * 添加一个规则元素
      */
     async appendRuleItemElement($shadowRoot, data) {
-      const { $container } = this.parseViewElement($shadowRoot);
-      if (Array.isArray(data)) {
-        for (let index = 0; index < data.length; index++) {
-          const item = data[index];
-          $container.appendChild(
-            await this.createRuleItemElement(item, $shadowRoot)
-          );
-        }
-      } else {
-        $container.appendChild(
-          await this.createRuleItemElement(data, $shadowRoot)
-        );
+      let { $container } = this.parseViewElement($shadowRoot);
+      let $ruleItem = [];
+      let iteratorData = Array.isArray(data) ? data : [data];
+      for (let index = 0; index < iteratorData.length; index++) {
+        let item = iteratorData[index];
+        let $item = await this.createRuleItemElement(item, $shadowRoot);
+        $container.appendChild($item);
+        $ruleItem.push($item);
       }
       await this.updateDeleteAllBtnText($shadowRoot);
+      return $ruleItem;
     }
     /**
      * 更新弹窗内容的元素
      */
     async updateRuleContaienrElement($shadowRoot) {
       this.clearContent($shadowRoot);
-      this.parseViewElement($shadowRoot);
+      const { $container } = this.parseViewElement($shadowRoot);
       let data = await this.option.data();
       await this.appendRuleItemElement($shadowRoot, data);
       await this.updateDeleteAllBtnText($shadowRoot);
@@ -15470,6 +15501,7 @@
     }
     /**
      * 更新【清空所有】的按钮的文字
+     * @param $shadowRoot
      */
     async updateDeleteAllBtnText($shadowRoot) {
       let data = await this.option.data();
@@ -15478,6 +15510,7 @@
     /**
      * 显示编辑视图
      * @param isEdit 是否是编辑状态
+     * @param editData 编辑的数据
      */
     showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack) {
       let dialogCloseCallBack = async (isSubmit) => {
