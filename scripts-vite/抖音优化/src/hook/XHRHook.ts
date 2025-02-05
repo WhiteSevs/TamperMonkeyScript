@@ -4,13 +4,13 @@ class XHRHook {
 	$win;
 	$originalXHROpen;
 	$originalXHRSend;
-	$fetch;
+	$originalFetch;
 	$data = {};
 	constructor() {
 		this.$win = unsafeWindow;
 		this.$originalXHROpen = this.$win.XMLHttpRequest.prototype.open;
 		this.$originalXHRSend = this.$win.XMLHttpRequest.prototype.send;
-		this.$fetch = this.$win.fetch;
+		this.$originalFetch = this.$win.fetch;
 
 		this.overrideXHR();
 		this.overrideFetch();
@@ -25,7 +25,7 @@ class XHRHook {
 			Reflect.apply(that.$originalXHROpen, this, args);
 		};
 		unsafeWindow.XMLHttpRequest.prototype.send = function (...args) {
-			return Reflect.apply(that.$originalXHRSend, this, args);
+			Reflect.apply(that.$originalXHRSend, this, args);
 		};
 	}
 	/**
@@ -34,7 +34,9 @@ class XHRHook {
 	private overrideFetch() {
 		const that = this;
 		unsafeWindow.fetch = function (...args) {
-			return Reflect.apply(that.$fetch, this, args);
+			return new Promise((resolve, reject) => {
+				Reflect.apply(that.$originalFetch, this, args);
+			});
 		};
 	}
 	hook() {}

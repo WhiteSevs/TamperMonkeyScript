@@ -70,27 +70,24 @@ export const MTForumPost = {
 	 */
 	removeFontStyle() {
 		log.info(`移除帖子字体效果`);
-		let $messageTable = $<HTMLElement>(
-			".comiis_a.comiis_message_table"
-		);
+		let $messageTable = $<HTMLElement>(".comiis_a.comiis_message_table");
 		if (!$messageTable) {
 			return;
 		}
-		DOMUtils.html($messageTable,DOMUtils.html($messageTable).replace(
-			MTRegExp.fontSpecial,
-			""
-		))
+		DOMUtils.html(
+			$messageTable,
+			DOMUtils.html($messageTable).replace(MTRegExp.fontSpecial, "")
+		);
 	},
 	/**
 	 * 移除评论区的字体效果
 	 */
 	removeCommentFontStyle() {
 		log.info(`移除评论区的字体效果`);
-		let $fontList = document.querySelectorAll("font");
+		let $fontList = $$("font");
 		/* 帖子主内容 */
 		let $postForumMainContent =
-			document.querySelector(".comiis_postlist .comiis_postli")?.innerHTML ||
-			"";
+			$(".comiis_postlist .comiis_postli")?.innerHTML || "";
 		if ($postForumMainContent !== "") {
 			$fontList.forEach(($font) => {
 				/* font元素是帖子主内容的移除字体效果 */
@@ -102,32 +99,30 @@ export const MTForumPost = {
 				}
 			});
 			/* 帖子评论 */
-			$$<HTMLElement>(".comiis_message.message")
-				.forEach(($message) => {
-					if ($postForumMainContent.includes($message.innerHTML)) {
-						$message.innerHTML = $message.innerHTML.replace(
-							MTRegExp.fontSpecial,
-							""
-						);
-						let $next = $message.nextElementSibling;
-						if ($next && $next.localName === "strike") {
-							$next.outerHTML = $next.outerHTML
-								.replace(/^<strike>(\n|)/g, "")
-								.replace(/<\/strike>$/g, "");
-						}
+			$$<HTMLElement>(".comiis_message.message").forEach(($message) => {
+				if ($postForumMainContent.includes($message.innerHTML)) {
+					$message.innerHTML = $message.innerHTML.replace(
+						MTRegExp.fontSpecial,
+						""
+					);
+					let $next = $message.nextElementSibling;
+					if ($next && $next.localName === "strike") {
+						$next.outerHTML = $next.outerHTML
+							.replace(/^<strike>(\n|)/g, "")
+							.replace(/<\/strike>$/g, "");
 					}
-				});
-		}
-		/* 所有评论，包括帖子主体 */
-		$$(".comiis_postli.comiis_list_readimgs.nfqsqi")
-			.forEach((item) => {
-				let $parent = item.parentElement;
-				if ($parent && $parent.localName === "strike") {
-					$parent.outerHTML = $parent.outerHTML
-						.replace(/^<strike>(\n|)/g, "")
-						.replace(/<\/strike>$/g, "");
 				}
 			});
+		}
+		/* 所有评论，包括帖子主体 */
+		$$(".comiis_postli.comiis_list_readimgs.nfqsqi").forEach((item) => {
+			let $parent = item.parentElement;
+			if ($parent && $parent.localName === "strike") {
+				$parent.outerHTML = $parent.outerHTML
+					.replace(/^<strike>(\n|)/g, "")
+					.replace(/<\/strike>$/g, "");
+			}
+		});
 	},
 	/**
 	 * 添加【点评】按钮
@@ -194,11 +189,10 @@ export const MTForumPost = {
 		}
 
 		function getLoadingCommentTip() {
-			return document.querySelector<HTMLElement>("#loading-comment-tip")!;
+			return $<HTMLElement>("#loading-comment-tip")!;
 		}
 		function getLoadingCommentTipParent() {
-			return document.querySelector<HTMLElement>("#loading-comment-tip")!
-				.parentElement!;
+			return $<HTMLElement>("#loading-comment-tip")!.parentElement!;
 		}
 
 		/**
@@ -221,6 +215,19 @@ export const MTForumPost = {
 				DOMUtils.remove($loadingCommentTipParent);
 				return;
 			}
+			/**
+			 * 移除加载监听
+			 */
+			function removeLoadNextCommentsListener() {
+				// 移除分页元素
+				DOMUtils.remove(".comiis_page.bg_f");
+				// 移除加载中的提示
+				DOMUtils.remove($loadingCommentTipParent);
+				// 移除加载中的点击事件
+				DOMUtils.off($loadingCommentTip, "click", loadNextComments);
+				// 移除滚动监听
+				DOMUtils.off(window, "scroll", lockFn.run);
+			}
 
 			async function loadNextComments() {
 				DOMUtils.text($loadingCommentTip, "正在加载评论中...");
@@ -238,29 +245,31 @@ export const MTForumPost = {
 					true,
 					true
 				);
-				let $kqide = document.querySelector<HTMLElement>(
-					".comiis_postlist.kqide"
-				)!;
+				let $kqide = $<HTMLElement>(".comiis_postlist.kqide")!;
 				let $nextPage_kqide = nextPageDoc.querySelector<HTMLElement>(
 					".comiis_postlist.kqide"
 				)!;
 				let $getNextPage = nextPageDoc.querySelector<HTMLAnchorElement>(".nxt");
-				if ($getNextPage) {
+				let queryNextPageUrl =
+					$getNextPage?.getAttribute("href") || $getNextPage?.href;
+				if (queryNextPageUrl) {
 					log.success("成功获取到下一页评论");
-					next_page_url =
-						$getNextPage.getAttribute("href") || $getNextPage.href;
+					if (queryNextPageUrl === next_page_url) {
+						log.warn(
+							"获取到下一页评论的url和上次请求的url相同，判定为已加载完全部评论，移除监听事件"
+						);
+						removeLoadNextCommentsListener();
+						return;
+					}
+					next_page_url = queryNextPageUrl;
 				} else {
-					log.error("评论全部加载完毕，关闭监听事件");
-					DOMUtils.remove(".comiis_page.bg_f");
-					DOMUtils.remove($loadingCommentTipParent);
-					DOMUtils.off($loadingCommentTip, "click", loadNextComments);
-					DOMUtils.off(window, "scroll", lockFn.run);
+					log.error("评论全部加载完毕，移除监听事件");
+					removeLoadNextCommentsListener();
 				}
 				let $pageStrong = $getNextPage?.parentElement!.querySelector("strong");
 				if ($pageStrong) {
 					// 修改页面的页码文字
-					let $pageSelect =
-						document.querySelector<HTMLAnchorElement>("#select_a");
+					let $pageSelect = $<HTMLAnchorElement>("#select_a");
 					if ($pageSelect) {
 						let $pageText = Array.from($pageSelect.childNodes).find(
 							(item) => item.nodeName === "#text"
@@ -300,16 +309,13 @@ export const MTForumPost = {
 			<label class="comiis_loadbtn bg_e f_d" id="loading-comment-tip">正在等待页面加载完毕</label>
 		</div>`;
 		let $tip = DOMUtils.parseHTML(tip_html, true, false);
-		let $bodybox = document.querySelector<HTMLElement>(".comiis_bodybox")!;
+		let $bodybox = $<HTMLElement>(".comiis_bodybox")!;
 		DOMUtils.append($bodybox, $tip);
 		let commentsEle =
-			document.querySelector(".comiis_pltit span.f_d") ||
-			document.querySelector("#comiis_foot_memu .comiis_kmvnum");
+			$(".comiis_pltit span.f_d") || $("#comiis_foot_memu .comiis_kmvnum");
 		if (
-			document.querySelector(".comiis_pltit h2") &&
-			document
-				.querySelector<HTMLElement>(".comiis_pltit h2")
-				?.textContent!.includes("暂无评论")
+			$(".comiis_pltit h2") &&
+			$<HTMLElement>(".comiis_pltit h2")?.textContent!.includes("暂无评论")
 		) {
 			DOMUtils.remove(getLoadingCommentTipParent());
 			log.info("暂无评论");
@@ -469,7 +475,7 @@ export const MTForumPost = {
 				async function (event) {
 					utils.preventEvent(event);
 					let $click = event.target as HTMLElement;
-					let codeElement = document.querySelector<HTMLElement>(
+					let codeElement = $<HTMLElement>(
 						$click.getAttribute("data-code-selector")!
 					)!;
 					await utils.setClip(codeElement.outerText || codeElement.innerText);
@@ -478,15 +484,13 @@ export const MTForumPost = {
 				}
 			);
 		}
-		let comiis_blockcode = document.querySelectorAll<HTMLElement>(
-			".comiis_blockcode.comiis_bodybg"
-		)!;
+		let comiis_blockcode = $$<HTMLElement>(".comiis_blockcode.comiis_bodybg")!;
 		comiis_blockcode.forEach(($comiis_bodybg) => {
 			if ($comiis_bodybg.getAttribute("data-copy")) {
 				return;
 			}
 			$comiis_bodybg.setAttribute("data-copy", "true");
-			let tempDivElement = DOMUtils.createElement(
+			let $temp = DOMUtils.createElement(
 				"div",
 				{
 					innerHTML: /*html*/ `
@@ -517,7 +521,7 @@ export const MTForumPost = {
 						"height: 34px;margin: 14px 0px;display: inline-flex;align-items: flex-end;",
 				}
 			);
-			DOMUtils.before($comiis_bodybg, tempDivElement);
+			DOMUtils.before($comiis_bodybg, $temp);
 
 			/**
 			 * 设置元素高亮
@@ -568,12 +572,12 @@ export const MTForumPost = {
 			});
 			utils.preventEvent(selectElement, "click");
 			selectElementParentDiv.appendChild(selectElement);
-			tempDivElement.append(selectElementParentDiv);
+			$temp.append(selectElementParentDiv);
 			utils.dispatchEvent(selectElement, "change");
 			$comiis_bodybg.className = "hljs";
 			($comiis_bodybg.firstChild as HTMLElement)!.removeAttribute("class");
 
-			tempDivElement
+			$temp
 				.querySelector(".reader-copy-button")!
 				.setAttribute(
 					"data-code-selector",
@@ -744,16 +748,12 @@ export const MTForumPost = {
 		}
 		utils.mutationObserver(document.documentElement, {
 			callback: () => {
-				document
-					.querySelectorAll<HTMLAnchorElement>(".attnm a")
-					.forEach((item) => {
-						handleClick(item);
-					});
-				document
-					.querySelectorAll<HTMLAnchorElement>(".comiis_attach a")
-					.forEach((item) => {
-						handleClick(item);
-					});
+				$$<HTMLAnchorElement>(".attnm a").forEach((item) => {
+					handleClick(item);
+				});
+				$$<HTMLAnchorElement>(".comiis_attach a").forEach((item) => {
+					handleClick(item);
+				});
 			},
 			config: { childList: true, subtree: true },
 		});

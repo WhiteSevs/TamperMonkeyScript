@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359
-// @version      2024.12.29
+// @version      2025.2.5
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -11,13 +11,13 @@
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/452322/1470429/js-watermark.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
-// @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.0/highlight.min.js
-// @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.11.0/styles/github-dark.min.css
+// @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
+// @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      *
 // @connect      *
@@ -48,17 +48,17 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var require_entrance_001 = __commonJS({
-    "entrance-Dn8rrrdJ.js"(exports, module) {
+    "entrance-DusUpp8L.js"(exports, module) {
       var _a;
-      var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-      var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-      var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-      var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-      var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-      var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-      var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-      var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-      var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+      var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : undefined)();
+      var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : undefined)();
+      var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : undefined)();
+      var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : undefined)();
+      var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : undefined)();
+      var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : undefined)();
+      var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : undefined)();
+      var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : undefined)();
+      var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : undefined)();
       var _monkeyWindow = /* @__PURE__ */ (() => window)();
       const HttpxCookieManager = {
         $data: {
@@ -151,10 +151,6 @@
         }
       };
       const GM_RESOURCE_MAPPING = {
-        ElementPlus: {
-          keyName: "ElementPlusResourceCSS",
-          url: "https://fastly.jsdelivr.net/npm/element-plus@latest/dist/index.min.css"
-        },
         Viewer: {
           keyName: "ViewerCSS",
           url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css"
@@ -171,7 +167,7 @@
           global = typeof globalThis !== "undefined" ? globalThis : global || self;
           global.Watermark = factory(global.Watermark);
         }
-      })(typeof window !== "undefined" ? window : void 0, function(AnotherWatermark) {
+      })(typeof window !== "undefined" ? window : undefined, function(AnotherWatermark) {
         let Watermark = function() {
         };
         CanvasRenderingContext2D.prototype.letterSpacingText = function(text, x, y, letterSpacing) {
@@ -849,7 +845,7 @@
         _GM_info,
         _unsafeWindow.console || _monkeyWindow.console
       );
-      const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
+      const SCRIPT_NAME = ((_a = _GM_info == null ? undefined : _GM_info.script) == null ? undefined : _a.name) || _SCRIPT_NAME_;
       const DEBUG = false;
       log.config({
         debug: DEBUG,
@@ -901,7 +897,7 @@
         HttpxCookieManager.handle(data);
         return data;
       });
-      httpx.interceptors.response.use(void 0, (data) => {
+      httpx.interceptors.response.use(undefined, (data) => {
         log.error("拦截器-请求错误", data);
         if (data.type === "onabort") {
           Qmsg.warning("请求取消");
@@ -1082,8 +1078,6 @@
       const MTRegExp = {
         /** 论坛账号的凭证 */
         formhash: /formhash=([0-9a-zA-Z]+)/,
-        /** 论坛账号的凭证 */
-        hash: /hash=(.+)&/,
         /** 用户uid */
         uid: /uid(=|-)(\d+)/,
         /** 帖子内特殊字体格式 */
@@ -1458,7 +1452,7 @@
         setUploadChangeEvent($file, $status, sizeInfo, successCallBack) {
           domUtils.on($file, "change", (event) => {
             var _a2;
-            if (!((_a2 = $file.files) == null ? void 0 : _a2.length)) {
+            if (!((_a2 = $file.files) == null ? undefined : _a2.length)) {
               return;
             }
             domUtils.text($status, "🤡获取文件信息中...");
@@ -1621,14 +1615,14 @@
                             text: "5"
                           }
                         ],
-                        void 0,
+                        undefined,
                         "限制Toast显示的数量"
                       ),
                       UISwitch(
                         "逆序弹出",
                         "qmsg-config-showreverse",
                         false,
-                        void 0,
+                        undefined,
                         "修改Toast弹出的顺序"
                       )
                     ]
@@ -1647,22 +1641,22 @@
                         "启用",
                         "httpx-use-cookie-enable",
                         false,
-                        void 0,
+                        undefined,
                         "启用后，将根据下面的配置进行添加cookie"
                       ),
                       UISwitch(
                         "使用document.cookie",
                         "httpx-use-document-cookie",
                         false,
-                        void 0,
+                        undefined,
                         "自动根据请求的域名来设置对应的cookie"
                       ),
                       UITextArea(
                         "bbs.binmt.cc",
                         "httpx-cookie-bbs.binmt.cc",
                         "",
-                        void 0,
-                        void 0,
+                        undefined,
+                        undefined,
                         "Cookie格式：xxx=xxxx;xxx=xxxx"
                       )
                     ]
@@ -1687,21 +1681,21 @@
                         "链接文本转超链接",
                         "mt-link-text-to-hyperlink",
                         true,
-                        void 0,
+                        undefined,
                         "自动把页面中的链接文本转换为超链接"
                       ),
                       UISwitch(
                         "显示用户UID",
                         "mt-show-user-uid",
                         true,
-                        void 0,
+                        undefined,
                         "格式为UID：xxx"
                       ),
                       UISwitch(
                         "小窗模式",
                         "mt-small-window",
                         true,
-                        void 0,
+                        undefined,
                         "开启后点击帖子右侧区域为小窗打开"
                       )
                     ]
@@ -1720,49 +1714,49 @@
                         "小黑屋",
                         "mt-black-home",
                         true,
-                        void 0,
+                        undefined,
                         "将会在左侧面板添加【小黑屋】菜单"
                       ),
                       UISwitch(
                         "在线用户",
                         "mt-online-user",
                         true,
-                        void 0,
+                        undefined,
                         "将会在左侧面板添加【在线用户】菜单"
                       ),
                       UISwitch(
                         "付费主题白嫖提醒",
                         "mt-post-paidThemePost",
                         true,
-                        void 0,
+                        undefined,
                         "将会在左侧面板添加【付费主题白嫖提醒】菜单"
                       ),
                       UISwitch(
                         "我的屏蔽",
                         "mt-ownBlock",
                         true,
-                        void 0,
+                        undefined,
                         "将会在左侧面板添加【我的屏蔽】菜单"
                       ),
                       UISwitch(
                         "商品上架提醒",
                         "mt-productListingReminder",
                         true,
-                        void 0,
+                        undefined,
                         "将会在左侧面板添加【商品上架提醒】菜单"
                       ),
                       UISwitch(
                         "自定义用户标签",
                         "mt-customizeUserLabels",
                         true,
-                        void 0,
+                        undefined,
                         "将会在左侧面板添加【自定义用户标签】菜单"
                       ),
                       UISwitch(
                         "评论过滤器",
                         "mt-post-comment-filter",
                         true,
-                        void 0,
+                        undefined,
                         "将会在左侧面板添加【评论过滤器】菜单"
                       )
                     ]
@@ -1870,7 +1864,7 @@
                         MTDyncmicAvatar.$data.avatarInfo.maxSize
                       )}`,
                         "上传",
-                        void 0,
+                        undefined,
                         false,
                         false,
                         "primary",
@@ -2885,7 +2879,7 @@
             return;
           }
           let doc = domUtils.parseHTML(response.data.responseText, true, true);
-          let metaCSRFToken = (_a2 = doc.querySelector('meta[name="csrf-token"]')) == null ? void 0 : _a2.getAttribute("content");
+          let metaCSRFToken = (_a2 = doc.querySelector('meta[name="csrf-token"]')) == null ? undefined : _a2.getAttribute("content");
           if (!metaCSRFToken) {
             return;
           }
@@ -3336,7 +3330,7 @@
             }
           },
           selectRange: function(start, end) {
-            if (end === void 0) {
+            if (end === undefined) {
               end = start;
             }
             return this.each(function() {
@@ -3701,12 +3695,12 @@
               that.$el.$btn_submit.setAttribute("data-text", "false");
               (_a2 = $(
                 "#comiis_foot_menu_beautify li[data-attr='回帖'] input"
-              )) == null ? void 0 : _a2.setAttribute("placeholder", "发帖千百度，文明第一步");
+              )) == null ? undefined : _a2.setAttribute("placeholder", "发帖千百度，文明第一步");
             } else {
               that.$el.$btn_submit.setAttribute("data-text", "true");
               (_b = $(
                 "#comiis_foot_menu_beautify li[data-attr='回帖'] input"
-              )) == null ? void 0 : _b.setAttribute("placeholder", "[草稿待发送]");
+              )) == null ? undefined : _b.setAttribute("placeholder", "[草稿待发送]");
             }
             domUtils.css(that.$el.$input, "height", "70px");
             domUtils.css(
@@ -3728,7 +3722,7 @@
             let data = {
               url: window.location.href,
               text: inputText,
-              repquote: replyUrl ? MTUtils.getRepquote(replyUrl) : void 0,
+              repquote: replyUrl ? MTUtils.getRepquote(replyUrl) : undefined,
               forumId: that.$data.tid
             };
             that.$data.db.get("data").then((result) => {
@@ -3763,7 +3757,7 @@
          * @param isUserReply 是否是来自点击回复的
          * @param replyUrl 回复的url
          */
-        async initReplyText(isUserReply = false, replyUrl = void 0) {
+        async initReplyText(isUserReply = false, replyUrl = undefined) {
           const that = this;
           let initResult = await this.$data.db.get(
             "data"
@@ -3778,7 +3772,7 @@
             console.warn(queryResult);
             return;
           }
-          let repquote = void 0;
+          let repquote = undefined;
           if (replyUrl) {
             repquote = MTUtils.getRepquote(replyUrl);
           }
@@ -3821,7 +3815,7 @@
                 response.data.responseText,
                 "text/xml"
               );
-              let resultText = (_b = (_a2 = xmlDoc.lastChild) == null ? void 0 : _a2.firstChild) == null ? void 0 : _b.nodeValue;
+              let resultText = (_b = (_a2 = xmlDoc.lastChild) == null ? undefined : _a2.firstChild) == null ? undefined : _b.nodeValue;
               if (resultText.includes("您已评价过本主题")) {
                 let tid = this.$el.$like.href.match(MTRegExp.tid)[1];
                 let response2 = await httpx.get(
@@ -4024,7 +4018,7 @@
                 response.data.responseText,
                 "text/xml"
               );
-              let xmlText = (_b = (_a2 = xmlDoc.lastChild) == null ? void 0 : _a2.firstChild) == null ? void 0 : _b.nodeValue;
+              let xmlText = (_b = (_a2 = xmlDoc.lastChild) == null ? undefined : _a2.firstChild) == null ? undefined : _b.nodeValue;
               _unsafeWindow.evalscript(xmlText);
               if (this.handle_error(xmlText)) {
                 return;
@@ -4033,7 +4027,7 @@
                 top: domUtils.height(document)
               });
               domUtils.val("#needmessage", "");
-              (_c = $("#comiis_head")) == null ? void 0 : _c.click();
+              (_c = $("#comiis_head")) == null ? undefined : _c.click();
               domUtils.hide(
                 "#comiis_foot_menu_beautify_big .reply_user_content",
                 false
@@ -4082,13 +4076,13 @@
                 response.data.responseText,
                 "text/xml"
               );
-              let xmlText = (_e = (_d = xmlDoc.lastChild) == null ? void 0 : _d.firstChild) == null ? void 0 : _e.nodeValue;
+              let xmlText = (_e = (_d = xmlDoc.lastChild) == null ? undefined : _d.firstChild) == null ? undefined : _e.nodeValue;
               log.info(xmlText);
               _unsafeWindow.evalscript(xmlText);
               if (this.handle_error(xmlText)) {
                 return;
               }
-              (_f = $(xmlText)) == null ? void 0 : _f.click();
+              (_f = $(xmlText)) == null ? undefined : _f.click();
               domUtils.val("#needmessage", "");
               $("#comiis_head").click();
               domUtils.val(
@@ -4141,7 +4135,7 @@
                 response.data.responseText,
                 "text/xml"
               );
-              let xmlText = (_b = (_a2 = xmlDoc.lastChild) == null ? void 0 : _a2.firstChild) == null ? void 0 : _b.nodeValue;
+              let xmlText = (_b = (_a2 = xmlDoc.lastChild) == null ? undefined : _a2.firstChild) == null ? undefined : _b.nodeValue;
               if (this.handle_error(xmlText)) {
                 return;
               }
@@ -4150,7 +4144,7 @@
                 true,
                 false
               );
-              let reply_url = (_c = requestDOM.querySelector(".comiis_tip .tip_tit a")) == null ? void 0 : _c.getAttribute("href");
+              let reply_url = (_c = requestDOM.querySelector(".comiis_tip .tip_tit a")) == null ? undefined : _c.getAttribute("href");
               let reply_user = domUtils.text(
                 requestDOM.querySelector(".comiis_tip span.f_0")
               );
@@ -4176,7 +4170,7 @@
               );
               (_d = $(
                 "#comiis_foot_menu_beautify li[data-attr='回帖'] input"
-              )) == null ? void 0 : _d.click();
+              )) == null ? undefined : _d.click();
               domUtils.focus("#comiis_foot_menu_beautify li[data-attr='回帖'] input");
               domUtils.val("#fastpostsubmitline input", "回复");
               domUtils.attr(
@@ -4226,7 +4220,7 @@
               log.info(`点击的是弹出层，不做处理`);
               MTEditorOptimizationNormal.$data.isUBBCodeInsertClick = false;
               return;
-            } else if (($click == null ? void 0 : $click.classList) && ((_a2 = $click == null ? void 0 : $click.classList) == null ? void 0 : _a2.contains(".dialog_reply")) || ($click == null ? void 0 : $click.closest) && ($click == null ? void 0 : $click.closest(".dialog_reply")) || $click === $('li[data-attr="回帖"] input')) {
+            } else if (($click == null ? undefined : $click.classList) && ((_a2 = $click == null ? undefined : $click.classList) == null ? undefined : _a2.contains(".dialog_reply")) || ($click == null ? undefined : $click.closest) && ($click == null ? undefined : $click.closest(".dialog_reply")) || $click === $('li[data-attr="回帖"] input')) {
               log.info(`点击回复按钮或者是编辑器，显示编辑器`);
               domUtils.hide("#comiis_foot_menu_beautify", false);
               domUtils.show("#comiis_foot_menu_beautify_big", false);
@@ -4454,7 +4448,7 @@
           let result = await this.$data.db.get("data");
           if (result.success) {
             let size = utils.getTextStorageSize(
-              ((_a2 = result == null ? void 0 : result.data) == null ? void 0 : _a2.length) ? JSON.stringify(result.data) : ""
+              ((_a2 = result == null ? undefined : result.data) == null ? undefined : _a2.length) ? JSON.stringify(result.data) : ""
             );
             return size;
           } else {
@@ -4472,7 +4466,7 @@
          * @param isUserReply 是否是来自点击回复的
          * @param replyUrl 回复的url
          */
-        deleteReplyTextStorage(isUserReply = false, replyUrl = void 0) {
+        deleteReplyTextStorage(isUserReply = false, replyUrl = undefined) {
           const that = this;
           this.$data.db.get("data").then((result) => {
             if (!result.success || result.code === 201) {
@@ -5758,7 +5752,7 @@
           let result = await this.$data.db.get("data");
           if (result.success) {
             let size = utils.getTextStorageSize(
-              ((_a2 = result == null ? void 0 : result.data) == null ? void 0 : _a2.length) ? JSON.stringify(result.data) : ""
+              ((_a2 = result == null ? undefined : result.data) == null ? undefined : _a2.length) ? JSON.stringify(result.data) : ""
             );
             return size;
           } else {
@@ -5845,7 +5839,7 @@
                   "textarea[name='message']"
                 );
                 data = {
-                  title: $title == null ? void 0 : $title.value,
+                  title: $title == null ? undefined : $title.value,
                   content: $content.value
                 };
               }
@@ -6717,56 +6711,56 @@
                         "自动展开内容",
                         "mt-forum-post-autoExpandContent",
                         true,
-                        void 0,
+                        undefined,
                         "注入CSS展开帖子的内容"
                       ),
                       UISwitch(
                         "修复图片宽度",
                         "mt-forum-post-repairImageWidth",
                         true,
-                        void 0,
+                        undefined,
                         "修复图片宽度超出页面宽度的问题"
                       ),
                       UISwitch(
                         "移除帖子字体效果",
                         "mt-forum-post-removeFontStyle",
                         false,
-                        void 0,
+                        undefined,
                         ""
                       ),
                       UISwitch(
                         "移除评论区的字体效果",
                         "mt-forum-post-removeCommentFontStyle",
                         false,
-                        void 0,
+                        undefined,
                         ""
                       ),
                       UISwitch(
                         "添加【点评】按钮",
                         "mt-forum-post-addCommentOnBtn",
                         false,
-                        void 0,
+                        undefined,
                         "在评论区的每个评论右下角添加按钮"
                       ),
                       UISwitch(
                         "附件点击提醒",
                         "mt-forum-post-setAttachmentsClickTip",
                         true,
-                        void 0,
+                        undefined,
                         "阻止默认点击附件就会触发附件下载"
                       ),
                       UISwitch(
                         "代码块优化",
                         "mt-forum-post-codeQuoteOptimization",
                         true,
-                        void 0,
+                        undefined,
                         "自动检测代码块语言并设置关键字高亮"
                       ),
                       UISwitch(
                         "图片查看优化",
                         "mt-forum-post-optimizationImagePreview",
                         true,
-                        void 0,
+                        undefined,
                         "使用Viewer查看图片"
                       )
                     ]
@@ -6785,14 +6779,14 @@
                         "自动加载下一页评论",
                         "mt-forum-post-loadNextPageComment",
                         true,
-                        void 0,
+                        undefined,
                         ""
                       ),
                       UISwitch(
                         "同步加载的地址",
                         "mt-forum-post-syncNextPageUrl",
                         false,
-                        void 0,
+                        undefined,
                         "便于刷新页面会停留在当前查看的评论页面"
                       )
                     ]
@@ -6811,21 +6805,21 @@
                         "启用",
                         "mt-forum-post-editorOptimizationNormal",
                         true,
-                        void 0,
+                        undefined,
                         "优化样式，插入bbcode代码等"
                       ),
                       UISwitch(
                         "自动保存输入记录",
                         "mt-forum-post-editorOptimizationNormal-recordInputText",
                         true,
-                        void 0,
+                        undefined,
                         "当回复时会自动清空记录"
                       ),
                       UIButton(
                         "清空回复记录",
                         "当前占用空间大小：计算中",
                         "清理",
-                        void 0,
+                        undefined,
                         false,
                         false,
                         "default",
@@ -6872,21 +6866,21 @@
                         "启用",
                         "mt-forum-post-publish-editorOptimization",
                         true,
-                        void 0,
+                        undefined,
                         "优化样式，插入bbcode代码，双列预览等"
                       ),
                       UISwitch(
                         "自动保存输入记录",
                         "mt-forum-post-editorOptimization-recordInputText",
                         true,
-                        void 0,
+                        undefined,
                         "当回复/发表时会自动清空记录"
                       ),
                       UIButton(
                         "清空回复记录",
                         "当前占用空间大小：计算中",
                         "清理",
-                        void 0,
+                        undefined,
                         false,
                         false,
                         "default",
@@ -6933,7 +6927,7 @@
                         "启用",
                         "mt-image-bed-hello-enable",
                         false,
-                        void 0,
+                        undefined,
                         "启用Hello图床"
                       ),
                       UIInput(
@@ -6941,7 +6935,7 @@
                         "mt-image-bed-hello-account",
                         "",
                         "",
-                        void 0,
+                        undefined,
                         "必填"
                       ),
                       UIInput(
@@ -6949,7 +6943,7 @@
                         "mt-image-bed-hello-password",
                         "",
                         "",
-                        void 0,
+                        undefined,
                         "必填",
                         false,
                         true
@@ -6959,7 +6953,7 @@
                         "mt-image-bed-hello-token",
                         "",
                         "",
-                        void 0,
+                        undefined,
                         "必填",
                         false,
                         true
@@ -6974,7 +6968,7 @@
                         "启用",
                         "mt-image-bed-mt-enable",
                         true,
-                        void 0,
+                        undefined,
                         "启用MT图床"
                       )
                     ]
@@ -6987,14 +6981,14 @@
                         "启用",
                         "mt-image-bed-watermark-enable",
                         false,
-                        void 0,
+                        undefined,
                         "开启后会为图床图片添加文字水印"
                       ),
                       UISwitch(
                         "自动添加水印",
                         "mt-image-bed-watermark-autoAddWaterMark",
                         false,
-                        void 0,
+                        undefined,
                         "开启后会自动添加水印，关闭后会有添加水印后的图片预览"
                       ),
                       UIInput("水印文字", "mt-image-bed-watermark-text", "MT论坛"),
@@ -7002,15 +6996,15 @@
                         "颜色",
                         "mt-image-bed-watermark-text-color",
                         "#000000",
-                        void 0,
-                        void 0,
+                        undefined,
+                        undefined,
                         "",
                         false,
                         false,
                         (formCOnfig, container) => {
                           var _a2, _b;
-                          let $input = (_a2 = container.target) == null ? void 0 : _a2.querySelector("input");
-                          let $suffix = (_b = container.target) == null ? void 0 : _b.querySelector(
+                          let $input = (_a2 = container.target) == null ? undefined : _a2.querySelector("input");
+                          let $suffix = (_b = container.target) == null ? undefined : _b.querySelector(
                             ".pops-panel-input__suffix"
                           );
                           domUtils.hide($suffix, false);
@@ -7026,45 +7020,45 @@
                         "大小",
                         "mt-image-bed-watermark-font-size",
                         16,
-                        void 0,
-                        void 0,
-                        void 0,
+                        undefined,
+                        undefined,
+                        undefined,
                         true
                       ),
                       UIInput(
                         "透明度",
                         "mt-image-bed-watermark-font-opacity",
                         1,
-                        void 0,
-                        void 0,
-                        void 0,
+                        undefined,
+                        undefined,
+                        undefined,
                         true
                       ),
                       UIInput(
                         "左右间距",
                         "mt-image-bed-watermark-left-right-margin",
                         80,
-                        void 0,
-                        void 0,
-                        void 0,
+                        undefined,
+                        undefined,
+                        undefined,
                         true
                       ),
                       UIInput(
                         "上下间距",
                         "mt-image-bed-watermark-top-bottom-margin",
                         80,
-                        void 0,
-                        void 0,
-                        void 0,
+                        undefined,
+                        undefined,
+                        undefined,
                         true
                       ),
                       UIInput(
                         "旋转角度",
                         "mt-image-bed-watermark-rotate",
                         45,
-                        void 0,
-                        void 0,
-                        void 0,
+                        undefined,
+                        undefined,
+                        undefined,
                         true
                       )
                     ]
@@ -7087,21 +7081,21 @@
                 "显示搜索历史",
                 "mt-search-showSearchHistory",
                 true,
-                void 0,
+                undefined,
                 "自动记住搜索历史并显示"
               ),
               UISwitch(
                 "修复清空按钮",
                 "mt-search-repairClearBtn",
                 true,
-                void 0,
+                undefined,
                 "修复点击清空按钮不清空输入框的问题"
               ),
               UISwitch(
                 "搜索框自动获取焦点",
                 "mt-search-searchInputAutoFocus",
                 true,
-                void 0,
+                undefined,
                 ""
               )
             ]
@@ -7285,14 +7279,14 @@
                 "显示【今日签到之星】",
                 "mt-sign-showTodaySignStar",
                 true,
-                void 0,
+                undefined,
                 "在签到按钮上面显示今日签到之星"
               ),
               UISwitch(
                 "显示【今日最先】",
                 "mt-sign-showTodayRanking",
                 true,
-                void 0,
+                undefined,
                 "在签到排名上面新增【今日最先】"
               )
             ]
@@ -7301,15 +7295,15 @@
             text: "自动签到",
             type: "forms",
             forms: [
-              UISwitch("启用", "mt-auto-sign", true, void 0, "自动请求签到"),
-              UISwitch("使用fetch请求", "mt-auto-sign-useFetch", false, void 0, ""),
+              UISwitch("启用", "mt-auto-sign", true, undefined, "自动请求签到"),
+              UISwitch("使用fetch请求", "mt-auto-sign-useFetch", false, undefined, ""),
               UIButton(
                 "签到信息",
                 `上次签到时间：${MTAutoSignIn.getSignTime() == null ? "尚未签到" : Utils.formatTime(MTAutoSignIn.getSignTime())}`,
                 "清空信息",
-                void 0,
-                void 0,
-                void 0,
+                undefined,
+                undefined,
+                undefined,
                 "primary",
                 (event) => {
                   let $click = event.composedPath()[0];
@@ -7361,14 +7355,14 @@
                 "修复无法进入空间",
                 "mt-space-repairEnterSpace",
                 true,
-                void 0,
+                undefined,
                 "修复链接错误导致不能进入空间的问题"
               ),
               UISwitch(
                 "显示帖子回复内容",
                 "mt-space-showCommentContent",
                 true,
-                void 0,
+                undefined,
                 "在帖子-回复下面显示具体评论的内容"
               )
             ]
@@ -7387,7 +7381,7 @@
                 "显示最新帖子",
                 "mt-guide-showLatestPost",
                 true,
-                void 0,
+                undefined,
                 "在最上面显示最新发布的帖子"
               )
             ]
@@ -7404,28 +7398,6 @@
           },
           get height() {
             return window.innerHeight < 450 ? "70vh" : "450px";
-          }
-        },
-        /**
-         * 功能丰富，aside铺满了的设置界面，要稍微大一点
-         */
-        settingBig: {
-          get width() {
-            return window.innerWidth < 800 ? "92vw" : "800px";
-          },
-          get height() {
-            return window.innerHeight < 600 ? "80vh" : "600px";
-          }
-        },
-        /**
-         * 信息界面，一般用于提示信息之类
-         */
-        info: {
-          get width() {
-            return window.innerWidth < 350 ? "350px" : "350px";
-          },
-          get height() {
-            return window.innerHeight < 250 ? "250px" : "250px";
           }
         }
       };
@@ -7621,7 +7593,7 @@
           Reflect.deleteProperty(locaData, key);
           _GM_setValue(KEY, locaData);
           if (this.$listener.listenData.has(key)) {
-            this.$listener.listenData.get(key).callback(key, oldValue, void 0);
+            this.$listener.listenData.get(key).callback(key, oldValue, undefined);
           }
         },
         /**
@@ -7709,7 +7681,7 @@
           } else {
             runKeyList.push(key);
           }
-          let value = void 0;
+          let value = undefined;
           for (let index = 0; index < runKeyList.length; index++) {
             const runKey = runKeyList[index];
             if (!this.$data.data.has(runKey)) {
@@ -8609,16 +8581,14 @@
          */
         removeFontStyle() {
           log.info(`移除帖子字体效果`);
-          let $messageTable = $(
-            ".comiis_a.comiis_message_table"
-          );
+          let $messageTable = $(".comiis_a.comiis_message_table");
           if (!$messageTable) {
             return;
           }
-          domUtils.html($messageTable, domUtils.html($messageTable).replace(
-            MTRegExp.fontSpecial,
-            ""
-          ));
+          domUtils.html(
+            $messageTable,
+            domUtils.html($messageTable).replace(MTRegExp.fontSpecial, "")
+          );
         },
         /**
          * 移除评论区的字体效果
@@ -8626,8 +8596,8 @@
         removeCommentFontStyle() {
           var _a2;
           log.info(`移除评论区的字体效果`);
-          let $fontList = document.querySelectorAll("font");
-          let $postForumMainContent = ((_a2 = document.querySelector(".comiis_postlist .comiis_postli")) == null ? void 0 : _a2.innerHTML) || "";
+          let $fontList = $$("font");
+          let $postForumMainContent = ((_a2 = $(".comiis_postlist .comiis_postli")) == null ? undefined : _a2.innerHTML) || "";
           if ($postForumMainContent !== "") {
             $fontList.forEach(($font) => {
               if (!$postForumMainContent.includes($font.innerHTML)) {
@@ -8673,12 +8643,12 @@
               }
               var replyUrl = replyNode.getAttribute("datahref") || replyNode.getAttribute("data-href") || replyNode.href || "";
               var rewardUrl = replyUrl.replace("mod=post&", "mod=misc&").replace("action=reply&", "action=comment&");
-              var reviewPage = (_a2 = replyUrl == null ? void 0 : replyUrl.match(/&page=([\w]+)/i)) == null ? void 0 : _a2[1];
+              var reviewPage = (_a2 = replyUrl == null ? undefined : replyUrl.match(/&page=([\w]+)/i)) == null ? undefined : _a2[1];
               var reviewsUrl = `${rewardUrl}&extra=page%3D1&page=${reviewPage}`;
-              var $postli = $bottmZhan == null ? void 0 : $bottmZhan.closest(".comiis_postli[id]");
-              var reviewsPID = (_b = $postli.getAttribute("id")) == null ? void 0 : _b.replace("pid", "&pid=");
+              var $postli = $bottmZhan == null ? undefined : $bottmZhan.closest(".comiis_postli[id]");
+              var reviewsPID = (_b = $postli.getAttribute("id")) == null ? undefined : _b.replace("pid", "&pid=");
               reviewsUrl = reviewsUrl + reviewsPID;
-              var reviewsUserName = ((_c = $postli.querySelector(".top_user.f_b")) == null ? void 0 : _c.textContent) || "";
+              var reviewsUserName = ((_c = $postli.querySelector(".top_user.f_b")) == null ? undefined : _c.textContent) || "";
               var reviewsNode = domUtils.parseHTML(
                 /*html*/
                 `
@@ -8712,10 +8682,10 @@
             return;
           }
           function getLoadingCommentTip() {
-            return document.querySelector("#loading-comment-tip");
+            return $("#loading-comment-tip");
           }
           function getLoadingCommentTipParent() {
-            return document.querySelector("#loading-comment-tip").parentElement;
+            return $("#loading-comment-tip").parentElement;
           }
           function autoLoadNextPageComments(post_comments_list) {
             let $loadingCommentTip = getLoadingCommentTip();
@@ -8725,7 +8695,7 @@
               post_comments_list.querySelectorAll("a[href]")
             ).find((item) => {
               var _a3;
-              return ((_a3 = item.textContent) == null ? void 0 : _a3.trim()) === "下一页";
+              return ((_a3 = item.textContent) == null ? undefined : _a3.trim()) === "下一页";
             });
             let next_page_url = $nextPage.href;
             log.info("获取下一页url：", next_page_url);
@@ -8733,6 +8703,12 @@
               log.info("暂无下一页的评论");
               domUtils.remove($loadingCommentTipParent);
               return;
+            }
+            function removeLoadNextCommentsListener() {
+              domUtils.remove(".comiis_page.bg_f");
+              domUtils.remove($loadingCommentTipParent);
+              domUtils.off($loadingCommentTip, "click", loadNextComments);
+              domUtils.off(window, "scroll", lockFn.run);
             }
             async function loadNextComments() {
               domUtils.text($loadingCommentTip, "正在加载评论中...");
@@ -8750,26 +8726,29 @@
                 true,
                 true
               );
-              let $kqide = document.querySelector(
-                ".comiis_postlist.kqide"
-              );
+              let $kqide = $(".comiis_postlist.kqide");
               let $nextPage_kqide = nextPageDoc.querySelector(
                 ".comiis_postlist.kqide"
               );
               let $getNextPage = nextPageDoc.querySelector(".nxt");
-              if ($getNextPage) {
+              let queryNextPageUrl = ($getNextPage == null ? undefined : $getNextPage.getAttribute("href")) || ($getNextPage == null ? undefined : $getNextPage.href);
+              if (queryNextPageUrl) {
                 log.success("成功获取到下一页评论");
-                next_page_url = $getNextPage.getAttribute("href") || $getNextPage.href;
+                if (queryNextPageUrl === next_page_url) {
+                  log.warn(
+                    "获取到下一页评论的url和上次请求的url相同，判定为已加载完全部评论，移除监听事件"
+                  );
+                  removeLoadNextCommentsListener();
+                  return;
+                }
+                next_page_url = queryNextPageUrl;
               } else {
-                log.error("评论全部加载完毕，关闭监听事件");
-                domUtils.remove(".comiis_page.bg_f");
-                domUtils.remove($loadingCommentTipParent);
-                domUtils.off($loadingCommentTip, "click", loadNextComments);
-                domUtils.off(window, "scroll", lockFn.run);
+                log.error("评论全部加载完毕，移除监听事件");
+                removeLoadNextCommentsListener();
               }
-              let $pageStrong = $getNextPage == null ? void 0 : $getNextPage.parentElement.querySelector("strong");
+              let $pageStrong = $getNextPage == null ? undefined : $getNextPage.parentElement.querySelector("strong");
               if ($pageStrong) {
-                let $pageSelect = document.querySelector("#select_a");
+                let $pageSelect = $("#select_a");
                 if ($pageSelect) {
                   let $pageText = Array.from($pageSelect.childNodes).find(
                     (item) => item.nodeName === "#text"
@@ -8780,7 +8759,7 @@
                 }
               }
               PopsPanel.execMenu("mt-forum-post-syncNextPageUrl", () => {
-                if (window === (top == null ? void 0 : top.window)) {
+                if (window === (top == null ? undefined : top.window)) {
                   let urlObj = new URL(url);
                   let setLocationUrl = `${urlObj.pathname}${urlObj.search}`;
                   window.history.pushState("forward", "", setLocationUrl);
@@ -8807,10 +8786,10 @@
 		</div>`
           );
           let $tip = domUtils.parseHTML(tip_html, true, false);
-          let $bodybox = document.querySelector(".comiis_bodybox");
+          let $bodybox = $(".comiis_bodybox");
           domUtils.append($bodybox, $tip);
-          let commentsEle = document.querySelector(".comiis_pltit span.f_d") || document.querySelector("#comiis_foot_memu .comiis_kmvnum");
-          if (document.querySelector(".comiis_pltit h2") && ((_a2 = document.querySelector(".comiis_pltit h2")) == null ? void 0 : _a2.textContent.includes("暂无评论"))) {
+          let commentsEle = $(".comiis_pltit span.f_d") || $("#comiis_foot_memu .comiis_kmvnum");
+          if ($(".comiis_pltit h2") && ((_a2 = $(".comiis_pltit h2")) == null ? undefined : _a2.textContent.includes("暂无评论"))) {
             domUtils.remove(getLoadingCommentTipParent());
             log.info("暂无评论");
             return;
@@ -8968,7 +8947,7 @@
               async function(event) {
                 utils.preventEvent(event);
                 let $click = event.target;
-                let codeElement = document.querySelector(
+                let codeElement = $(
                   $click.getAttribute("data-code-selector")
                 );
                 await utils.setClip(codeElement.outerText || codeElement.innerText);
@@ -8977,15 +8956,13 @@
               }
             );
           }
-          let comiis_blockcode = document.querySelectorAll(
-            ".comiis_blockcode.comiis_bodybg"
-          );
+          let comiis_blockcode = $$(".comiis_blockcode.comiis_bodybg");
           comiis_blockcode.forEach(($comiis_bodybg) => {
             if ($comiis_bodybg.getAttribute("data-copy")) {
               return;
             }
             $comiis_bodybg.setAttribute("data-copy", "true");
-            let tempDivElement = domUtils.createElement(
+            let $temp = domUtils.createElement(
               "div",
               {
                 innerHTML: (
@@ -9018,7 +8995,7 @@
                 style: "height: 34px;margin: 14px 0px;display: inline-flex;align-items: flex-end;"
               }
             );
-            domUtils.before($comiis_bodybg, tempDivElement);
+            domUtils.before($comiis_bodybg, $temp);
             function setElementHighlight(ele, language = "java") {
               if (!ele.oldValue) {
                 ele.oldValue = ele.textContent;
@@ -9052,11 +9029,11 @@
             });
             utils.preventEvent(selectElement, "click");
             selectElementParentDiv.appendChild(selectElement);
-            tempDivElement.append(selectElementParentDiv);
+            $temp.append(selectElementParentDiv);
             utils.dispatchEvent(selectElement, "change");
             $comiis_bodybg.className = "hljs";
             $comiis_bodybg.firstChild.removeAttribute("class");
-            tempDivElement.querySelector(".reader-copy-button").setAttribute(
+            $temp.querySelector(".reader-copy-button").setAttribute(
               "data-code-selector",
               utils.getElementSelector($comiis_bodybg)
             );
@@ -9201,10 +9178,10 @@
           }
           utils.mutationObserver(document.documentElement, {
             callback: () => {
-              document.querySelectorAll(".attnm a").forEach((item) => {
+              $$(".attnm a").forEach((item) => {
                 handleClick(item);
               });
-              document.querySelectorAll(".comiis_attach a").forEach((item) => {
+              $$(".comiis_attach a").forEach((item) => {
                 handleClick(item);
               });
             },
@@ -9742,7 +9719,7 @@
               let divItem = domUtils.createElement("div", {
                 innerHTML: item
               });
-              let url = (_a2 = divItem.querySelector("a")) == null ? void 0 : _a2.getAttribute("href");
+              let url = (_a2 = divItem.querySelector("a")) == null ? undefined : _a2.getAttribute("href");
               let paramPtidMatch = url.match(MTRegExp.ptid);
               let paramPidMatch = url.match(MTRegExp.pid);
               if (!paramPtidMatch) {
@@ -10167,13 +10144,13 @@
             MTPaidThemePost.setTipData(data);
             window.open(tHref, "_blank");
             $click.setAttribute("style", "color: #000000;");
-            if (((_b = (_a2 = $click == null ? void 0 : $click.parentElement) == null ? void 0 : _a2.parentElement) == null ? void 0 : _b.children[0].className) != "icon_msgs bg_del") {
+            if (((_b = (_a2 = $click == null ? undefined : $click.parentElement) == null ? undefined : _a2.parentElement) == null ? undefined : _b.children[0].className) != "icon_msgs bg_del") {
               return;
             }
             $click.parentElement.parentElement.children[0].remove();
             domUtils.append(
               $paymentSubjectReminderIsFreeList,
-              (_f = (_e = (_d = (_c = $click == null ? void 0 : $click.parentElement) == null ? void 0 : _c.parentElement) == null ? void 0 : _d.parentElement) == null ? void 0 : _e.parentElement) == null ? void 0 : _f.parentElement
+              (_f = (_e = (_d = (_c = $click == null ? undefined : $click.parentElement) == null ? undefined : _c.parentElement) == null ? undefined : _d.parentElement) == null ? undefined : _e.parentElement) == null ? undefined : _f.parentElement
             );
             let $del = document.querySelector(
               ".subjectcanvisit summary span.icon_msgs.bg_del.f_f"
@@ -10829,11 +10806,11 @@
                     white-space: nowrap;
                 }
 
-                ${((_a2 = this.option) == null ? void 0 : _a2.style) ?? ""}
+                ${((_a2 = this.option) == null ? undefined : _a2.style) ?? ""}
             `
             ),
-            width: window.innerWidth > 500 ? "500px" : "88vw",
-            height: window.innerHeight > 500 ? "500px" : "80vh"
+            width: typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
+            height: typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh"
           });
           let $form = $dialog.$shadowRoot.querySelector(
             ".rule-form-container"
@@ -10947,8 +10924,9 @@
         }
         /**
          * 显示视图
+         * @param filterCallBack 返回值为false隐藏，true则不隐藏（不处理）
          */
-        async showView() {
+        async showView(filterCallBack) {
           var _a2, _b, _c, _d, _e, _f, _g, _h, _i;
           let $popsConfirm = __pops.confirm({
             title: {
@@ -10970,14 +10948,14 @@
               reverse: false,
               position: "space-between",
               ok: {
-                enable: ((_c = (_b = (_a2 = this.option) == null ? void 0 : _a2.bottomControls) == null ? void 0 : _b.add) == null ? void 0 : _c.enable) || true,
+                enable: ((_c = (_b = (_a2 = this.option) == null ? undefined : _a2.bottomControls) == null ? undefined : _b.add) == null ? undefined : _c.enable) || true,
                 type: "primary",
                 text: "添加",
                 callback: async (event) => {
                   this.showEditView(
-                    $popsConfirm.$shadowRoot,
                     false,
-                    await this.option.getAddData()
+                    await this.option.getAddData(),
+                    $popsConfirm.$shadowRoot
                   );
                 }
               },
@@ -10988,12 +10966,12 @@
                 }
               },
               cancel: {
-                enable: ((_f = (_e = (_d = this.option) == null ? void 0 : _d.bottomControls) == null ? void 0 : _e.filter) == null ? void 0 : _f.enable) || false,
+                enable: ((_f = (_e = (_d = this.option) == null ? undefined : _d.bottomControls) == null ? undefined : _e.filter) == null ? undefined : _f.enable) || false,
                 type: "default",
                 text: "过滤",
                 callback: (details, event) => {
                   var _a3, _b2, _c2, _d2, _e2, _f2, _g2;
-                  if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.filter) == null ? void 0 : _c2.callback) === "function") {
+                  if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? undefined : _a3.bottomControls) == null ? undefined : _b2.filter) == null ? undefined : _c2.callback) === "function") {
                     this.option.bottomControls.filter.callback();
                   }
                   let getAllRuleElement = () => {
@@ -11011,8 +10989,8 @@
                     domUtils.text($button, "过滤");
                   } else {
                     let ruleFilterView = new RuleFilterView({
-                      title: ((_e2 = (_d2 = this.option.bottomControls) == null ? void 0 : _d2.filter) == null ? void 0 : _e2.title) ?? "过滤规则",
-                      filterOption: ((_g2 = (_f2 = this.option.bottomControls) == null ? void 0 : _f2.filter) == null ? void 0 : _g2.option) || [],
+                      title: ((_e2 = (_d2 = this.option.bottomControls) == null ? undefined : _d2.filter) == null ? undefined : _e2.title) ?? "过滤规则",
+                      filterOption: ((_g2 = (_f2 = this.option.bottomControls) == null ? undefined : _f2.filter) == null ? undefined : _g2.option) || [],
                       execFilterCallBack() {
                         domUtils.text($button, "取消过滤");
                       },
@@ -11030,7 +11008,7 @@
                 }
               },
               other: {
-                enable: ((_i = (_h = (_g = this.option) == null ? void 0 : _g.bottomControls) == null ? void 0 : _h.clear) == null ? void 0 : _i.enable) || true,
+                enable: ((_i = (_h = (_g = this.option) == null ? undefined : _g.bottomControls) == null ? undefined : _h.clear) == null ? undefined : _i.enable) || true,
                 type: "xiaomi-primary",
                 text: `清空所有(${(await this.option.data()).length})`,
                 callback: (event) => {
@@ -11049,7 +11027,7 @@
                         callback: async (popsEvent) => {
                           var _a3, _b2, _c2;
                           log.success("清空所有");
-                          if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.clear) == null ? void 0 : _c2.callback) === "function") {
+                          if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? undefined : _a3.bottomControls) == null ? undefined : _b2.clear) == null ? undefined : _c2.callback) === "function") {
                             this.option.bottomControls.clear.callback();
                           }
                           let data = await this.option.data();
@@ -11091,8 +11069,8 @@
                 align-items: center;
                 line-height: normal;
                 font-size: 16px;
-                padding: 4px 4px;
-                gap: 6px;
+                padding: 4px 8px;
+                gap: 8px;
             }
             .rule-name{
                 flex: 1;
@@ -11107,7 +11085,7 @@
                 overflow: hidden;
                 white-space: nowrap;
                 gap: 8px;
-                padding: 0px 4px;
+                padding: 0px;
             }
             .rule-controls-enable{
                 
@@ -11128,11 +11106,26 @@
             )
           });
           let allData = await this.option.data();
+          let changeButtonText = false;
           for (let index = 0; index < allData.length; index++) {
-            await this.appendRuleItemElement(
+            let item = allData[index];
+            let $ruleItemList = await this.appendRuleItemElement(
               $popsConfirm.$shadowRoot,
-              allData[index]
+              item
             );
+            let flag = typeof filterCallBack === "function" ? filterCallBack(item) : true;
+            if (!flag) {
+              changeButtonText = true;
+              $ruleItemList.forEach(($el) => {
+                domUtils.hide($el, false);
+              });
+            }
+          }
+          if (changeButtonText) {
+            let $button = $popsConfirm.$shadowRoot.querySelector(
+              ".pops-confirm-btn-cancel span"
+            );
+            domUtils.text($button, "取消过滤");
           }
         }
         /**
@@ -11250,7 +11243,7 @@
           if (this.option.itemControls.edit.enable) {
             domUtils.on($edit, "click", (event) => {
               utils.preventEvent(event);
-              this.showEditView($shadowRoot, true, data, $ruleItem, (newData) => {
+              this.showEditView(true, data, $shadowRoot, $ruleItem, (newData) => {
                 data = null;
                 data = newData;
               });
@@ -11309,27 +11302,24 @@
          * 添加一个规则元素
          */
         async appendRuleItemElement($shadowRoot, data) {
-          const { $container } = this.parseViewElement($shadowRoot);
-          if (Array.isArray(data)) {
-            for (let index = 0; index < data.length; index++) {
-              const item = data[index];
-              $container.appendChild(
-                await this.createRuleItemElement(item, $shadowRoot)
-              );
-            }
-          } else {
-            $container.appendChild(
-              await this.createRuleItemElement(data, $shadowRoot)
-            );
+          let { $container } = this.parseViewElement($shadowRoot);
+          let $ruleItem = [];
+          let iteratorData = Array.isArray(data) ? data : [data];
+          for (let index = 0; index < iteratorData.length; index++) {
+            let item = iteratorData[index];
+            let $item = await this.createRuleItemElement(item, $shadowRoot);
+            $container.appendChild($item);
+            $ruleItem.push($item);
           }
           await this.updateDeleteAllBtnText($shadowRoot);
+          return $ruleItem;
         }
         /**
          * 更新弹窗内容的元素
          */
         async updateRuleContaienrElement($shadowRoot) {
           this.clearContent($shadowRoot);
-          this.parseViewElement($shadowRoot);
+          const { $container } = this.parseViewElement($shadowRoot);
           let data = await this.option.data();
           await this.appendRuleItemElement($shadowRoot, data);
           await this.updateDeleteAllBtnText($shadowRoot);
@@ -11362,6 +11352,7 @@
         }
         /**
          * 更新【清空所有】的按钮的文字
+         * @param $shadowRoot
          */
         async updateDeleteAllBtnText($shadowRoot) {
           let data = await this.option.data();
@@ -11370,8 +11361,9 @@
         /**
          * 显示编辑视图
          * @param isEdit 是否是编辑状态
+         * @param editData 编辑的数据
          */
-        showEditView($parentShadowRoot, isEdit, editData, $editRuleItemElement, updateDataCallBack) {
+        showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack) {
           let dialogCloseCallBack = async (isSubmit) => {
             if (isSubmit) ;
             else {
@@ -11420,13 +11412,16 @@
               if (result.success) {
                 if (isEdit) {
                   Qmsg.success("修改成功");
-                  await this.updateRuleItemElement(
+                  $parentShadowRoot && await this.updateRuleItemElement(
                     result.data,
                     $editRuleItemElement,
                     $parentShadowRoot
                   );
                 } else {
-                  await this.appendRuleItemElement($parentShadowRoot, result.data);
+                  $parentShadowRoot && await this.appendRuleItemElement(
+                    $parentShadowRoot,
+                    result.data
+                  );
                 }
               } else {
                 if (isEdit) {
@@ -11435,7 +11430,9 @@
               }
               return result;
             },
-            style: this.option.itemControls.edit.style
+            style: this.option.itemControls.edit.style,
+            width: this.option.itemControls.edit.width,
+            height: this.option.itemControls.edit.height
           });
           editView.showView();
         }
@@ -11567,7 +11564,7 @@
                     "name",
                     "",
                     "",
-                    void 0,
+                    undefined,
                     "必填"
                   );
                   Reflect.set(
@@ -11583,7 +11580,7 @@
                     "userName",
                     "",
                     "",
-                    void 0,
+                    undefined,
                     "可正则"
                   );
                   Reflect.set(
@@ -11599,7 +11596,7 @@
                     "userUID",
                     "",
                     "",
-                    void 0,
+                    undefined,
                     "可正则"
                   );
                   Reflect.set(
@@ -11615,7 +11612,7 @@
                     "userLevel",
                     "",
                     "",
-                    void 0,
+                    undefined,
                     "可正则"
                   );
                   Reflect.set(
@@ -11631,7 +11628,7 @@
                     "postUrl",
                     "",
                     "",
-                    void 0,
+                    undefined,
                     "可正则"
                   );
                   Reflect.set(
@@ -11647,7 +11644,7 @@
                     "postTitle",
                     "",
                     "",
-                    void 0,
+                    undefined,
                     "可正则"
                   );
                   Reflect.set(
@@ -11663,7 +11660,7 @@
                     "postContent",
                     "",
                     "",
-                    void 0,
+                    undefined,
                     "可正则"
                   );
                   Reflect.set(
@@ -11679,7 +11676,7 @@
                     "postPlateName",
                     "",
                     "",
-                    void 0,
+                    undefined,
                     "可正则"
                   );
                   Reflect.set(
@@ -11796,7 +11793,7 @@
                 /* 帖子Url */
                 postUrl: item.querySelector(".mmlist_li_box a").getAttribute("href") || item.querySelector(".mmlist_li_box a").getAttribute("data-href"),
                 /* 帖子标题 */
-                postTitle: ((_a2 = item.querySelector(".mmlist_li_box h2 a")) == null ? void 0 : _a2.innerText) || "",
+                postTitle: ((_a2 = item.querySelector(".mmlist_li_box h2 a")) == null ? undefined : _a2.innerText) || "",
                 /* 帖子内容(缩略) */
                 postContent: item.querySelector(
                   ".mmlist_li_box .list_body"
@@ -11828,15 +11825,15 @@
                 /* 用户等级 */
                 userLevel: item.querySelector("a.top_lev").innerText.replace("Lv.", ""),
                 /* 帖子Url */
-                postUrl: void 0,
+                postUrl: undefined,
                 /* 帖子标题 */
-                postTitle: void 0,
+                postTitle: undefined,
                 /* 帖子内容(缩略) */
                 postContent: item.querySelector(
                   ".comiis_message_table"
                 ).innerText,
                 /* 帖子板块 */
-                postPlateName: void 0
+                postPlateName: undefined
               };
               if (checkIsFilter(postForumInfo)) {
                 item.remove();
@@ -11857,15 +11854,15 @@
                   /* 用户UID */
                   userUID: uidMatch[uidMatch.length - 1].trim(),
                   /* 用户等级 */
-                  userLevel: void 0,
+                  userLevel: undefined,
                   /* 帖子Url */
                   postUrl: item.querySelector("a.b_b").href,
                   /* 帖子标题 */
-                  postTitle: void 0,
+                  postTitle: undefined,
                   /* 帖子内容(缩略) */
                   postContent: item.querySelector("p.f_c").innerText.trim(),
                   /* 帖子板块 */
-                  postPlateName: void 0
+                  postPlateName: undefined
                 };
                 if (checkIsFilter(postForumInfo)) {
                   item.remove();
@@ -12010,9 +12007,9 @@
             let $topUser = item.querySelector("a.top_user");
             let uidMatch = $topUser.href.match(MTRegExp.uid);
             let postForumInfo = {
-              userName: ($topUser == null ? void 0 : $topUser.innerText) || "",
-              userUID: uidMatch ? ((_a2 = uidMatch[(uidMatch == null ? void 0 : uidMatch.length) - 1]) == null ? void 0 : _a2.trim()) || "" : "",
-              content: ((_c = (_b = item.querySelector(".comiis_message_table")) == null ? void 0 : _b.innerText) == null ? void 0 : _c.trim()) || "",
+              userName: ($topUser == null ? undefined : $topUser.innerText) || "",
+              userUID: uidMatch ? ((_a2 = uidMatch[(uidMatch == null ? undefined : uidMatch.length) - 1]) == null ? undefined : _a2.trim()) || "" : "",
+              content: ((_c = (_b = item.querySelector(".comiis_message_table")) == null ? undefined : _b.innerText) == null ? undefined : _c.trim()) || "",
               isAuthor: Boolean(item.querySelector("span.top_lev"))
             };
             if (isWhiteListUser(postForumInfo)) {
@@ -12096,7 +12093,7 @@
                 "处理回复引用",
                 "replyFlag",
                 false,
-                void 0,
+                undefined,
                 "移除引用"
               );
               Reflect.set(
@@ -12134,7 +12131,7 @@
                 "minLength",
                 5,
                 "小于此长度的评论就算关键字匹配成功了也不会被排除",
-                void 0,
+                undefined,
                 "",
                 true
               );
@@ -12151,7 +12148,7 @@
                 "keywordLength",
                 8,
                 "大于此长度的评论就算关键字匹配成功了也不会被排除",
-                void 0,
+                undefined,
                 "",
                 true
               );
@@ -12391,7 +12388,7 @@
                   )
                 ),
                 remainingQuantity: parseInt(
-                  ((_b = (_a2 = $taskList.querySelector(".mall-info .mall-count .count-r")) == null ? void 0 : _a2.innerText) == null ? void 0 : _b.replace(/仅剩|件/gi, "")) || "0"
+                  ((_b = (_a2 = $taskList.querySelector(".mall-info .mall-count .count-r")) == null ? undefined : _a2.innerText) == null ? undefined : _b.replace(/仅剩|件/gi, "")) || "0"
                 )
               });
             });
@@ -12540,7 +12537,7 @@
                     "name",
                     "",
                     "",
-                    void 0,
+                    undefined,
                     "必填"
                   );
                   Reflect.set(
@@ -12556,7 +12553,7 @@
                     "productName",
                     "",
                     "",
-                    void 0,
+                    undefined,
                     "可正则，需手动转义"
                   );
                   Reflect.set(
@@ -12794,7 +12791,7 @@
                     "name",
                     "",
                     "",
-                    void 0,
+                    undefined,
                     "必填"
                   );
                   Reflect.set(
@@ -12810,7 +12807,7 @@
                     "userUID",
                     "",
                     "",
-                    void 0,
+                    undefined,
                     "必填，可正则，注意转义"
                   );
                   Reflect.set(
@@ -12826,7 +12823,7 @@
                     "labelName",
                     "",
                     "",
-                    void 0,
+                    undefined,
                     "必填"
                   );
                   Reflect.set(
@@ -12852,7 +12849,7 @@
                     labelColor_template
                   );
                   let $labelColor_input = $labelColor.querySelector("input");
-                  (_a2 = $labelColor.querySelector(".pops-panel-input__suffix")) == null ? void 0 : _a2.remove();
+                  (_a2 = $labelColor.querySelector(".pops-panel-input__suffix")) == null ? undefined : _a2.remove();
                   $labelColor_input.setAttribute("type", "color");
                   domUtils.css($labelColor_input, {
                     margin: "unset",
