@@ -2,6 +2,7 @@ import { ColorConversion } from "./ColorConversion";
 import { GBKEncoder } from "./GBKEncoder";
 import { UtilsGMCookie } from "./UtilsGMCookie";
 import { AjaxHooker } from "./ajaxHooker/ajaxHooker.js";
+import { AjaxHooker1_2_4 } from "./ajaxHooker/ajaxHooker1.2.4";
 import { GMMenu } from "./UtilsGMMenu";
 import { Hooks } from "./Hooks";
 import { Httpx } from "./Httpx";
@@ -23,7 +24,6 @@ import {
 } from "./types/global";
 import type { WindowApiOption } from "./types/WindowApi";
 import { ModuleRaid } from "./ModuleRaid";
-import { AjaxHooker1_2_4 } from "./ajaxHooker/ajaxHooker1.2.4";
 
 class Utils {
 	private windowApi: typeof WindowApi.prototype;
@@ -210,10 +210,11 @@ class Utils {
 	 * + 来源：https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
 	 * + 作者：cxxjackie
 	 * + 版本：1.4.3
+	 * + 旧版本：1.2.4
 	 * + 文档：https://scriptcat.org/zh-CN/script-show-page/637/
 	 * @param useOldVersion 是否使用旧版本，默认false
 	 */
-	ajaxHooker: () => UtilsAjaxHookResult = (useOldVersion: boolean = false) => {
+	ajaxHooker = (useOldVersion: boolean = false): UtilsAjaxHookResult => {
 		if (useOldVersion) {
 			return AjaxHooker1_2_4();
 		} else {
