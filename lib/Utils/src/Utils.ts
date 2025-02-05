@@ -23,6 +23,7 @@ import {
 } from "./types/global";
 import type { WindowApiOption } from "./types/WindowApi";
 import { ModuleRaid } from "./ModuleRaid";
+import { AjaxHooker1_2_4 } from "./ajaxHooker/ajaxHooker1.2.4";
 
 class Utils {
 	private windowApi: typeof WindowApi.prototype;
@@ -208,10 +209,17 @@ class Utils {
 	 * ajax劫持库，支持xhr和fetch劫持。
 	 * + 来源：https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
 	 * + 作者：cxxjackie
-	 * + 版本：1.4.1
+	 * + 版本：1.4.3
 	 * + 文档：https://scriptcat.org/zh-CN/script-show-page/637/
+	 * @param useOldVersion 是否使用旧版本，默认false
 	 */
-	ajaxHooker: () => UtilsAjaxHookResult = AjaxHooker;
+	ajaxHooker: () => UtilsAjaxHookResult = (useOldVersion: boolean = false) => {
+		if (useOldVersion) {
+			return AjaxHooker1_2_4();
+		} else {
+			return AjaxHooker();
+		}
+	};
 	/**
 	 * 根据坐标点击canvas元素的内部位置
 	 * @param canvasElement 画布元素
