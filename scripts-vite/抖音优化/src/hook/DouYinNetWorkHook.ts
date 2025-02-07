@@ -1,30 +1,26 @@
 import { utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
 import { CommonUtil } from "@/utils/CommonUtil";
-import type { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
 
 export const DouYinNetWorkHook = {
-	get ajaxHooker(): UtilsAjaxHookResult {
-		// @ts-ignore
+	__ajaxHooker: null as null | ReturnType<typeof utils.ajaxHooker>,
+	get ajaxHooker(): ReturnType<typeof utils.ajaxHooker> {
 		if (this.__ajaxHooker == null) {
-			// @ts-ignore
-			this.__ajaxHooker = new utils.ajaxHooker();
+			this.__ajaxHooker = utils.ajaxHooker();
 		}
-		// @ts-ignore
-		return this.__ajaxHooker as any;
+		return this.__ajaxHooker;
 	},
 	init() {},
 	/**
-	 * 回复请求
+	 * 评论区的查看评论api
 	 */
 	commentReply() {
 		this.ajaxHooker.hook((request) => {
 			let url = CommonUtil.fixUrl(request.url);
-			let urlObj = new URL(url);
-			if (urlObj.pathname.startsWith("/aweme/v1/web/comment/list/reply")) {
-				urlObj.searchParams.delete("whale_cut_token");
-				urlObj.searchParams.append("whale_cut_token", "");
-				request.url = urlObj.toString();
+			let urlInstance = new URL(url);
+			if (urlInstance.pathname.startsWith("/aweme/v1/web/comment/list/reply")) {
+				urlInstance.searchParams.delete("whale_cut_token");
+				urlInstance.searchParams.append("whale_cut_token", "");
+				request.url = urlInstance.toString();
 			}
 		});
 	},

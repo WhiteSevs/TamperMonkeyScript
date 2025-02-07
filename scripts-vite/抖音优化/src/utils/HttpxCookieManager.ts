@@ -68,10 +68,10 @@ export const HttpxCookieManager = {
 		if (url.startsWith("//")) {
 			url = window.location.protocol + url;
 		}
-		let urlObj = new URL(url);
+		let urlInstance = new URL(url);
 		if (
 			this.$data.useDocumentCookie &&
-			urlObj.hostname.endsWith(
+			urlInstance.hostname.endsWith(
 				window.location.hostname.split(".").slice(-2).join(".")
 			)
 		) {
@@ -80,7 +80,7 @@ export const HttpxCookieManager = {
 		}
 		for (let index = 0; index < this.$data.cookieRule.length; index++) {
 			let rule = this.$data.cookieRule[index];
-			if (urlObj.hostname.match(rule.hostname)) {
+			if (urlInstance.hostname.match(rule.hostname)) {
 				// 域名匹配成功
 				let cookie = PopsPanel.getValue(rule.key) as string;
 				if (utils.isNull(cookie)) {

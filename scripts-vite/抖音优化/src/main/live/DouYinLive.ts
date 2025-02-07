@@ -114,17 +114,17 @@ export const DouYinLive = {
 			'xg-inner-controls xg-right-grid >div:has([data-e2e="quality-selector"])',
 			"reactProps",
 			{
-				check(reactObj) {
+				check(reactInstance) {
 					return (
-						typeof reactObj?.children?.props?.children?.props
+						typeof reactInstance?.children?.props?.children?.props
 							?.qualityHandler === "object" &&
-						typeof reactObj?.children?.props?.children?.props?.qualityHandler
-							?.getCurrentQualityList === "function"
+						typeof reactInstance?.children?.props?.children?.props
+							?.qualityHandler?.getCurrentQualityList === "function"
 					);
 				},
-				set(reactObj) {
+				set(reactInstance) {
 					let qualityHandler =
-						reactObj.children.props.children.props.qualityHandler;
+						reactInstance.children.props.children.props.qualityHandler;
 					// 当前直播可选的画质
 					let currentQualityList: string[] =
 						qualityHandler.getCurrentQualityList();
@@ -170,12 +170,12 @@ export const DouYinLive = {
 				utils.preventEvent(event);
 				let clickNode = event.target as HTMLElement;
 				try {
-					let reactObj = utils.getReactObj(clickNode);
-					let key = reactObj?.reactFiber?.["key"];
+					let reactInstance = utils.getReactObj(clickNode);
+					let key = reactInstance?.reactFiber?.["key"];
 					let parent = clickNode.closest("div[data-index]");
-					let parentReactObj = utils.getReactObj(parent as HTMLDivElement);
+					let parentReactInstance = utils.getReactObj(parent as HTMLDivElement);
 					let current =
-						parentReactObj?.reactProps?.["children"]["ref"]["current"];
+						parentReactInstance?.reactProps?.["children"]["ref"]["current"];
 					log.info("当前选择的画质: " + key);
 					log.info(["所有的画质: ", current.getCurrentQualityList()]);
 					/* getCurrentQuality */

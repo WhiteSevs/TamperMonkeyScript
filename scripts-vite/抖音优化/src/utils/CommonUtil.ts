@@ -136,8 +136,8 @@ export const CommonUtil = {
 			// 不是http链接
 			return url;
 		}
-		let urlObj = new URL(url);
-		urlObj.protocol = "https:";
-		return urlObj.toString();
+		let urlInstance = new URL(url);
+		urlInstance.protocol = "https:";
+		return urlInstance.toString();
 	},
 };

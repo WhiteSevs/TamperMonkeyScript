@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.2.2
+// @version      2025.2.6
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,7 +10,7 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
@@ -4975,7 +4975,7 @@
      */
     async updateRuleContaienrElement($shadowRoot) {
       this.clearContent($shadowRoot);
-      this.parseViewElement($shadowRoot);
+      const { $container } = this.parseViewElement($shadowRoot);
       let data = await this.option.data();
       await this.appendRuleItemElement($shadowRoot, data);
       await this.updateDeleteAllBtnText($shadowRoot);
@@ -5438,25 +5438,9 @@
   const DouYinNetWorkHook = {
     get ajaxHooker() {
       if (this.__ajaxHooker == null) {
-        this.__ajaxHooker = new utils.ajaxHooker();
+        this.__ajaxHooker = utils.ajaxHooker();
       }
       return this.__ajaxHooker;
-    },
-    init() {
-    },
-    /**
-     * 回复请求
-     */
-    commentReply() {
-      this.ajaxHooker.hook((request) => {
-        let url = CommonUtil.fixUrl(request.url);
-        let urlObj = new URL(url);
-        if (urlObj.pathname.startsWith("/aweme/v1/web/comment/list/reply")) {
-          urlObj.searchParams.delete("whale_cut_token");
-          urlObj.searchParams.append("whale_cut_token", "");
-          request.url = urlObj.toString();
-        }
-      });
     }
   };
   const PanelUISize = {
@@ -5481,17 +5465,6 @@
         } else {
           return "550px";
         }
-      }
-    },
-    /**
-     * 功能丰富，aside铺满了的设置界面，要稍微大一点
-     */
-    settingBig: {
-      get width() {
-        return window.innerWidth < 800 ? "92vw" : "800px";
-      },
-      get height() {
-        return window.innerHeight < 600 ? "80vh" : "600px";
       }
     },
     /**

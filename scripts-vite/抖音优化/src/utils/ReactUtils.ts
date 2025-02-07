@@ -1,6 +1,6 @@
 import { DOMUtils, log, utils } from "@/env";
 
-interface ReactObj {
+interface ReactInstance {
 	reactFiber: any;
 	reactProps: any;
 	reactEvents: any;
@@ -29,7 +29,7 @@ export const ReactUtils = {
 	 */
 	async waitReactPropsToSet(
 		$target: HTMLElement | (() => HTMLElement | null) | string,
-		propName: keyof ReactObj,
+		propName: keyof ReactInstance,
 		needSetList: WaitSetOption[] | WaitSetOption
 	) {
 		function getTarget() {
@@ -56,20 +56,20 @@ export const ReactUtils = {
 			if (typeof needSetOption.msg === "string") {
 				log.info(needSetOption.msg);
 			}
-			function checkObj() {
+			function checkReactInstance() {
 				let target = getTarget();
 				if (target == null) {
 					return false;
 				}
-				let targetObj = utils.getReactObj(target);
-				if (targetObj == null) {
+				let targetInstance = utils.getReactObj(target);
+				if (targetInstance == null) {
 					return false;
 				}
-				let targetObjProp = targetObj[propName];
-				if (targetObjProp == null) {
+				let targetInstanceProp = targetInstance[propName];
+				if (targetInstanceProp == null) {
 					return false;
 				}
-				let needOwnCheck = needSetOption.check(targetObjProp);
+				let needOwnCheck = needSetOption.check(targetInstanceProp);
 				return Boolean(needOwnCheck);
 			}
 			utils
@@ -77,7 +77,7 @@ export const ReactUtils = {
 					() => {
 						return getTarget();
 					},
-					checkObj,
+					checkReactInstance,
 					250,
 					10000
 				)
@@ -86,15 +86,15 @@ export const ReactUtils = {
 					if (target == null) {
 						return;
 					}
-					let targetObj = utils.getReactObj(target as HTMLElement);
-					if (targetObj == null) {
+					let targetInstance = utils.getReactObj(target as HTMLElement);
+					if (targetInstance == null) {
 						return;
 					}
-					let targetObjProp = targetObj[propName];
-					if (targetObjProp == null) {
+					let targetInstanceProp = targetInstance[propName];
+					if (targetInstanceProp == null) {
 						return;
 					}
-					needSetOption.set(targetObjProp, target);
+					needSetOption.set(targetInstanceProp, target);
 				});
 		});
 	},
