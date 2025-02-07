@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.27
+// @version      2025.2.7
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、用户状态查看、美化导航、动态头像上传、最新发表、评论过滤器等
 // @license      GPL-3.0-only
@@ -10,13 +10,13 @@
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
-// @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.0/highlight.min.js
-// @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.11.0/styles/github-dark.min.css
+// @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
+// @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      *
 // @grant        GM_addStyle
@@ -45,17 +45,17 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
   var require_entrance_001 = __commonJS({
-    "entrance-DfuMZFbd.js"(exports, module) {
+    "entrance-Dr3GdeWI.js"(exports, module) {
       var _a;
-      var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-      var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-      var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-      var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-      var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-      var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-      var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-      var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-      var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+      var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : undefined)();
+      var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : undefined)();
+      var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : undefined)();
+      var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : undefined)();
+      var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : undefined)();
+      var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : undefined)();
+      var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : undefined)();
+      var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : undefined)();
+      var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : undefined)();
       var _monkeyWindow = /* @__PURE__ */ (() => window)();
       const HttpxCookieManager = {
         $data: {
@@ -269,10 +269,6 @@
         }
       };
       const GM_RESOURCE_MAP = {
-        ElementPlus: {
-          keyName: "ElementPlusResourceCSS",
-          url: "https://fastly.jsdelivr.net/npm/element-plus@latest/dist/index.min.css"
-        },
         Viewer: {
           keyName: "ViewerCSS",
           url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css"
@@ -289,7 +285,7 @@
           global = typeof globalThis !== "undefined" ? globalThis : global || self;
           global.Watermark = factory(global.Watermark);
         }
-      })(typeof window !== "undefined" ? window : void 0, function(AnotherWatermark) {
+      })(typeof window !== "undefined" ? window : undefined, function(AnotherWatermark) {
         let Watermark = function() {
         };
         CanvasRenderingContext2D.prototype.letterSpacingText = function(text, x, y, letterSpacing) {
@@ -841,7 +837,7 @@
         _GM_info,
         _unsafeWindow.console || _monkeyWindow.console
       );
-      const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
+      const SCRIPT_NAME = ((_a = _GM_info == null ? undefined : _GM_info.script) == null ? undefined : _a.name) || _SCRIPT_NAME_;
       const DEBUG = false;
       log.config({
         debug: DEBUG,
@@ -893,7 +889,7 @@
         HttpxCookieManager.handle(data);
         return data;
       });
-      httpx.interceptors.response.use(void 0, (data) => {
+      httpx.interceptors.response.use(undefined, (data) => {
         log.error(["拦截器-请求错误", data]);
         if (data.type === "onabort") {
           Qmsg.warning("请求取消");
@@ -1050,18 +1046,10 @@
       const MTRegExp = {
         /** 论坛账号的凭证 */
         formhash: /formhash=([0-9a-zA-Z]+)/,
-        /** 论坛账号的凭证 */
-        hash: /hash=(.+)&/,
         /** 用户uid */
         uid: /uid(=|-)(\d+)/,
         /** 帖子内特殊字体格式 */
-        fontSpecial: /<font.*?>|<\/font>|<strike>|<strong>|<i>|<u>|align=".*?"|<br>[\s]*<br>[\s]*<br>/g,
-        /** 帖子链接的ptid参数 */
-        ptid: /&ptid=([\d]+)/i,
-        /** 帖子链接的pid参数 */
-        pid: /&pid=([\d]+)/i,
-        /** 链接的tid参数 */
-        tid: /&tid=([\d]+)/i
+        fontSpecial: /<font.*?>|<\/font>|<strike>|<strong>|<i>|<u>|align=".*?"|<br>[\s]*<br>[\s]*<br>/g
       };
       const MTUtils = {
         /**
@@ -1424,7 +1412,7 @@
         setUploadChangeEvent($file, $status, sizeInfo, successCallBack) {
           domUtils.on($file, "change", (event) => {
             var _a2;
-            if (!((_a2 = $file.files) == null ? void 0 : _a2.length)) {
+            if (!((_a2 = $file.files) == null ? undefined : _a2.length)) {
               return;
             }
             domUtils.text($status, "🤡获取文件信息中...");
@@ -1571,96 +1559,199 @@
             log.info("今日已签到");
             return;
           }
-          let searchParamsData = {
-            operation: "qiandao",
-            format: "button",
-            formhash: formHash,
-            inajax: 1,
-            ajaxtarget: "midaben_sign"
-          };
           let useFetch = Boolean(PopsPanel.getValue("mt-auto-sign-useFetch"));
-          let response = await httpx.get(
-            `/k_misign-sign.html?${utils.toSearchParamsStr(searchParamsData)}`,
-            {
-              fetch: useFetch,
-              headers: {
-                "User-Agent": utils.getRandomPCUA()
-              },
-              allowInterceptConfig: false
-            }
-          );
-          if (!response.status) {
-            log.error("签到：网络异常，请求失败");
-            Qmsg.error("签到：网络异常，请求失败");
-            return;
-          }
-          this.setSignTime();
-          log.info("签到信息：", response);
-          let responseText = response.data.responseText;
-          let CDATA = utils.parseCDATA(responseText);
-          let CDATAElement = domUtils.parseHTML(`<div>${CDATA}</div>`, true, false);
-          let content = domUtils.text(CDATAElement);
-          if (content.includes("需要先登录")) {
-            Qmsg.error("签到：请先登录账号", {
-              timeout: 3e3
-            });
+          let userAgent = utils.getRandomPCUA();
+          let signSuccessCallBack = () => {
+            this.setSignTime();
+          };
+          let signFailedCallBack = () => {
             this.clearSignTime();
-            return;
-          } else if (content.includes("请稍后再试") || content.includes("您已经被列入黑名单") || content.includes("绑定手机号后才可以签到") || content.includes("您所在用户组不允许使用")) {
-            Qmsg.error("签到：" + content, {
-              timeout: 5e3
+          };
+          let unknownSignContentCallback = (content) => {
+            let $alert = pops.alert({
+              title: {
+                text: "未知签到内容",
+                position: "center"
+              },
+              content: {
+                text: "",
+                html: false
+              },
+              width: "88vw",
+              height: "300px"
             });
-            return;
-          } else if (content.includes("今日已签") || content.includes("今日已经签到")) {
-            Qmsg.info("签到：" + content);
-            return;
-          } else if (responseText.includes("您当前的访问请求当中含有非法字符，已经被系统拒绝")) {
-            Qmsg.error("签到: 您当前的访问请求当中含有非法字符，已经被系统拒绝", {
-              timeout: 6e3
-            });
-            return;
-          } else if (useFetch && "location" in utils.toJSON(responseText)) {
-            Qmsg.success("签到: 签到成功");
-            return;
-          }
-          let signIn_con = CDATAElement.querySelector(".con");
-          let signIn_line = CDATAElement.querySelector(".line");
-          if (signIn_con && signIn_line) {
-            let conMatch = domUtils.text(signIn_con).match(/([0-9]+)金币/);
-            let lineMatch = domUtils.text(signIn_line).match(/([0-9]+)/);
-            let con = conMatch[conMatch.length - 1];
-            let line = lineMatch[lineMatch.length - 1];
-            log.success(`金币${con}，排名${line}`);
-            Qmsg.info(
-              /*html*/
-              `
-                <div style="display: flex;${!MTUtils.envIsMobile() ? "padding: 20px;" : ""}">
-                    <div style="align-self: center;margin-right: 20px;">签到</div>
-                    <div>排名 ${line}<br>金币 ${con}</div>
-                </div>`,
+            let $content = $alert.$shadowRoot.querySelector(
+              ".pops-alert-content"
+            );
+            $content.innerText = content;
+          };
+          let sign_plugin = [
+            {
+              id: "k_misign",
+              async sign() {
+                let searchParamsData = {
+                  operation: "qiandao",
+                  format: "button",
+                  formhash: formHash,
+                  inajax: 1,
+                  ajaxtarget: "midaben_sign"
+                };
+                let response = await httpx.get(
+                  `/k_misign-sign.html?${utils.toSearchParamsStr(searchParamsData)}`,
+                  {
+                    fetch: useFetch,
+                    headers: {
+                      "User-Agent": userAgent
+                    },
+                    allowInterceptConfig: false
+                  }
+                );
+                if (!response.status) {
+                  Qmsg.error("签到：网络异常，请求失败", {
+                    consoleLogContent: true
+                  });
+                  return;
+                }
+                signSuccessCallBack();
+                log.info("签到信息：", response);
+                let responseText = response.data.responseText;
+                let CDATA = utils.parseCDATA(responseText);
+                let CDATAElement = domUtils.parseHTML(
+                  `<div>${CDATA}</div>`,
+                  true,
+                  false
+                );
+                let content = domUtils.text(CDATAElement);
+                if (content.includes("需要先登录")) {
+                  Qmsg.error("签到：请先登录账号", {
+                    timeout: 3e3,
+                    consoleLogContent: true
+                  });
+                  signFailedCallBack();
+                  return;
+                } else if (content.includes("请稍后再试") || content.includes("您已经被列入黑名单") || content.includes("绑定手机号后才可以签到") || content.includes("您所在用户组不允许使用")) {
+                  Qmsg.error("签到：" + content, {
+                    timeout: 5e3
+                  });
+                  return;
+                } else if (content.includes("今日已签") || content.includes("今日已经签到")) {
+                  Qmsg.info("签到：" + content);
+                  return;
+                } else if (responseText.includes(
+                  "您当前的访问请求当中含有非法字符，已经被系统拒绝"
+                )) {
+                  Qmsg.error(
+                    "签到: 您当前的访问请求当中含有非法字符，已经被系统拒绝",
+                    {
+                      timeout: 6e3
+                    }
+                  );
+                  return;
+                } else if (useFetch && "location" in utils.toJSON(responseText)) {
+                  Qmsg.success("签到: 签到成功");
+                  return;
+                }
+                let signIn_con = CDATAElement.querySelector(".con");
+                let signIn_line = CDATAElement.querySelector(".line");
+                if (signIn_con && signIn_line) {
+                  let conMatch = domUtils.text(signIn_con).match(/([0-9]+)金币/);
+                  let lineMatch = domUtils.text(signIn_line).match(/([0-9]+)/);
+                  let con = conMatch[conMatch.length - 1];
+                  let line = lineMatch[lineMatch.length - 1];
+                  log.success(`金币${con}，排名${line}`);
+                  Qmsg.info(
+                    /*html*/
+                    `
+							<div style="display: flex;${!MTUtils.envIsMobile() ? "padding: 20px;" : ""}">
+								<div style="align-self: center;margin-right: 20px;">签到</div>
+								<div>排名 ${line}<br>金币 ${con}</div>
+							</div>`,
+                    {
+                      timeout: 4e3,
+                      isHTML: true
+                    }
+                  );
+                  return;
+                }
+                unknownSignContentCallback(responseText);
+              }
+            },
+            {
+              id: "dsu_paulsign",
+              async sign() {
+                let searchParamsData = {
+                  id: "dsu_paulsign:sign",
+                  operation: "qiandao",
+                  infloat: 1,
+                  inajax: 1
+                };
+                let response = await httpx.post(
+                  `/plugin.php?${utils.toSearchParamsStr(searchParamsData)}`,
+                  {
+                    data: {
+                      formhash: formHash,
+                      qdxq: "kx",
+                      qdmode: 3,
+                      todaysay: "",
+                      fastreply: 0
+                    },
+                    processData: true,
+                    fetch: useFetch,
+                    headers: {
+                      "User-Agent": userAgent,
+                      "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    allowInterceptConfig: false
+                  }
+                );
+                if (!response.status) {
+                  Qmsg.error("签到：网络异常，请求失败", {
+                    consoleLogContent: true
+                  });
+                  return;
+                }
+                signSuccessCallBack();
+                log.info("签到信息：", response);
+                let responseText = response.data.responseText;
+                if (responseText.includes("签到成功")) {
+                  Qmsg.success("签到：签到成功");
+                  return;
+                }
+                if (responseText.includes("今日已经签到")) {
+                  Qmsg.info("签到：您今日已经签到，请明天再来！");
+                  return;
+                }
+                unknownSignContentCallback(responseText);
+              }
+            }
+          ];
+          for (let index = 0; index < sign_plugin.length; index++) {
+            const signPluginItem = sign_plugin[index];
+            let checkResponse = await httpx.get(
+              `/plugin.php?id=${signPluginItem.id}:sign`,
               {
-                timeout: 4e3,
-                isHTML: true
+                headers: {
+                  "User-Agent": utils.getRandomPCUA()
+                },
+                allowInterceptConfig: false
               }
             );
-            return;
+            if (!checkResponse.status) {
+              log.error("签到：检查签到插件是否启用的请求失败", checkResponse);
+              continue;
+            }
+            let checkDoc = domUtils.parseHTML(
+              checkResponse.data.responseText,
+              true,
+              true
+            );
+            if (checkDoc.querySelector("#messagetext")) {
+              log.error(`插件：${signPluginItem.id} 未启用或不存在`);
+              continue;
+            }
+            await signPluginItem.sign();
+            break;
           }
-          let $alert = pops.alert({
-            title: {
-              text: "未知签到内容",
-              position: "center"
-            },
-            content: {
-              text: "",
-              html: false
-            },
-            width: "88vw",
-            height: "400px"
-          });
-          let $content = $alert.$shadowRoot.querySelector(
-            ".pops-alert-content"
-          );
-          $content.innerText = response.data.responseText;
         }
       };
       const Component_Common = {
@@ -1752,14 +1843,14 @@
                             text: "5"
                           }
                         ],
-                        void 0,
+                        undefined,
                         "限制Toast显示的数量"
                       ),
                       UISwitch(
                         "逆序弹出",
                         "qmsg-config-showreverse",
                         false,
-                        void 0,
+                        undefined,
                         "修改Toast弹出的顺序"
                       )
                     ]
@@ -1818,14 +1909,14 @@
                         "新增【最新发表】",
                         "mt-addLatestPostBtn",
                         true,
-                        void 0,
+                        undefined,
                         "便于快捷跳转"
                       ),
                       UISwitch(
                         "超链接文字转换",
                         "mt-link-text-to-hyperlink",
                         true,
-                        void 0,
+                        undefined,
                         "自动把符合超链接格式的文字转为超链接"
                       )
                     ]
@@ -1840,21 +1931,21 @@
                     text: "",
                     type: "forms",
                     forms: [
-                      UISwitch("启用", "mt-auto-sign", true, void 0, "自动请求签到"),
+                      UISwitch("启用", "mt-auto-sign", true, undefined, "自动请求签到"),
                       UISwitch(
                         "使用fetch请求",
                         "mt-auto-sign-useFetch",
                         false,
-                        void 0,
+                        undefined,
                         ""
                       ),
                       UIButton(
                         "签到信息",
                         `上次签到时间：${MTAutoSignIn.getSignTime() == null ? "尚未签到" : Utils.formatTime(MTAutoSignIn.getSignTime())}`,
                         "清空信息",
-                        void 0,
-                        void 0,
-                        void 0,
+                        undefined,
+                        undefined,
+                        undefined,
                         "primary",
                         (event) => {
                           let $click = event.composedPath()[0];
@@ -1997,7 +2088,7 @@
                         MTDyncmicAvatar.$data.avatarInfo.maxSize
                       )}`,
                         "上传",
-                        void 0,
+                        undefined,
                         false,
                         false,
                         "primary",
@@ -2033,28 +2124,28 @@
                         "拦截附件",
                         "mt-forum-post-interceptionAttachment",
                         true,
-                        void 0,
+                        undefined,
                         "点击附件时弹出提示框进行确认是否下载附件"
                       ),
                       UISwitch(
                         "图片查看优化",
                         "mt-forum-post-optimizationImagePreview",
                         true,
-                        void 0,
+                        undefined,
                         "使用Viewer查看图片"
                       ),
                       UISwitch(
                         "自动加载下一页",
                         "mt-forum-post-loadNextPageComment",
                         true,
-                        void 0,
+                        undefined,
                         "无缝预览下一页"
                       ),
                       UISwitch(
                         "代码块优化",
                         "mt-forum-post-codeQuoteOptimization",
                         true,
-                        void 0,
+                        undefined,
                         "自动检测代码块语言并设置关键字高亮"
                       )
                     ]
@@ -2073,21 +2164,21 @@
                         "探测用户在线状态",
                         "mt-forum-post-detectingUserOnlineStatus",
                         false,
-                        void 0,
+                        undefined,
                         "获取用户在线状态并在用户信息处显示状态表情"
                       ),
                       UISwitch(
                         "显示用户等级",
                         "mt-forum-post-showUserLevel",
                         true,
-                        void 0,
+                        undefined,
                         "在用户信息处显示当前用户的等级"
                       ),
                       UISwitch(
                         "隐藏底部信息块",
                         "mt-forum-post-hideBottomInfoBlock",
                         false,
-                        void 0,
+                        undefined,
                         "包括金币、好评、信誉等信息"
                       )
                     ]
@@ -2106,14 +2197,14 @@
                         "新增【快捷收藏】",
                         "mt-forum-post-quickCollentBtn",
                         true,
-                        void 0,
+                        undefined,
                         "在右侧悬浮工具栏添加【收藏】按钮，用于快捷收藏"
                       ),
                       UISwitch(
                         "快捷回复优化",
                         "mt-forum-post-quickReplyOptimization",
                         true,
-                        void 0,
+                        undefined,
                         "为快捷回复弹窗底部区域添加【一键空格】按钮"
                       )
                     ]
@@ -2136,7 +2227,7 @@
                 "页面美化",
                 "mt-guide-beautifyPage",
                 true,
-                void 0,
+                undefined,
                 "美化样式"
               )
             ]
@@ -2164,17 +2255,6 @@
           },
           get height() {
             return window.innerHeight < 600 ? "80vh" : "600px";
-          }
-        },
-        /**
-         * 信息界面，一般用于提示信息之类
-         */
-        info: {
-          get width() {
-            return window.innerWidth < 350 ? "350px" : "350px";
-          },
-          get height() {
-            return window.innerHeight < 250 ? "250px" : "250px";
           }
         }
       };
@@ -2361,7 +2441,7 @@
           Reflect.deleteProperty(locaData, key);
           _GM_setValue(KEY, locaData);
           if (this.$listener.listenData.has(key)) {
-            this.$listener.listenData.get(key).callback(key, oldValue, void 0);
+            this.$listener.listenData.get(key).callback(key, oldValue, undefined);
           }
         },
         /**
@@ -2449,7 +2529,7 @@
           } else {
             runKeyList.push(key);
           }
-          let value = void 0;
+          let value = undefined;
           for (let index = 0; index < runKeyList.length; index++) {
             const runKey = runKeyList[index];
             if (!this.$data.data.has(runKey)) {
@@ -3049,7 +3129,7 @@
           var _a2;
           log.info(`移除评论区的字体效果`);
           let $fontList = $$("font");
-          let $postForumMainContent = ((_a2 = $(".comiis_postlist .comiis_postli")) == null ? void 0 : _a2.innerHTML) || "";
+          let $postForumMainContent = ((_a2 = $(".comiis_postlist .comiis_postli")) == null ? undefined : _a2.innerHTML) || "";
           if ($postForumMainContent !== "") {
             $fontList.forEach(($font) => {
               if (!$postForumMainContent.includes($font.innerHTML)) {
@@ -3102,8 +3182,8 @@
             }
             var pageHTML = utils.parseFromString(response.data.responseText);
             var nextPageBtn = pageHTML.querySelector(".pgbtn a");
-            (_a2 = pageHTML.querySelector("#postlistreply")) == null ? void 0 : _a2.remove();
-            (_b = pageHTML.querySelector(".bm_h.comiis_snvbt")) == null ? void 0 : _b.remove();
+            (_a2 = pageHTML.querySelector("#postlistreply")) == null ? undefined : _a2.remove();
+            (_b = pageHTML.querySelector(".bm_h.comiis_snvbt")) == null ? undefined : _b.remove();
             return {
               url: nextPageBtn ? nextPageBtn.getAttribute("href") : null,
               postlist: pageHTML.querySelector("#postlist"),
@@ -3117,7 +3197,7 @@
             if (nextURL) {
               let pageInfo = await getPageInfo(nextURL);
               if (pageInfo) {
-                if ((_b = (_a2 = pageInfo["postlist"]) == null ? void 0 : _a2.querySelector(".comiis_vrx")) == null ? void 0 : _b.querySelector(".km1")) {
+                if ((_b = (_a2 = pageInfo["postlist"]) == null ? undefined : _a2.querySelector(".comiis_vrx")) == null ? undefined : _b.querySelector(".km1")) {
                   Object.keys(pageInfo).forEach((it) => {
                     pageInfo[it] = null;
                   });
@@ -3562,7 +3642,7 @@
             let doc = domUtils.parseHTML(response.data.responseText, true, true);
             let $flb = doc.querySelector(".flb");
             if ($flb) {
-              let statusText = (_a2 = domUtils.text($flb)) == null ? void 0 : _a2.trim();
+              let statusText = (_a2 = domUtils.text($flb)) == null ? undefined : _a2.trim();
               let isOffLine = statusText.endsWith("……[离线]");
               setAvatarOnlineStatus($favatar, isOffLine);
             } else {
@@ -3859,11 +3939,11 @@
                     white-space: nowrap;
                 }
 
-                ${((_a2 = this.option) == null ? void 0 : _a2.style) ?? ""}
+                ${((_a2 = this.option) == null ? undefined : _a2.style) ?? ""}
             `
             ),
-            width: window.innerWidth > 500 ? "500px" : "88vw",
-            height: window.innerHeight > 500 ? "500px" : "80vh"
+            width: typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
+            height: typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh"
           });
           let $form = $dialog.$shadowRoot.querySelector(
             ".rule-form-container"
@@ -3958,9 +4038,9 @@
             }
             let $name = item.querySelector(".pls .authi a");
             let postForumInfo = {
-              userName: ($name == null ? void 0 : $name.innerText) || "",
-              userUID: ((_c = (_b = (_a2 = $name == null ? void 0 : $name.href) == null ? void 0 : _a2.match(MTRegExp.uid)) == null ? void 0 : _b[2]) == null ? void 0 : _c.trim()) || "",
-              content: ((_e = (_d = item.querySelector(".plc td.t_f")) == null ? void 0 : _d.innerText) == null ? void 0 : _e.trim()) || "",
+              userName: ($name == null ? undefined : $name.innerText) || "",
+              userUID: ((_c = (_b = (_a2 = $name == null ? undefined : $name.href) == null ? undefined : _a2.match(MTRegExp.uid)) == null ? undefined : _b[2]) == null ? undefined : _c.trim()) || "",
+              content: ((_e = (_d = item.querySelector(".plc td.t_f")) == null ? undefined : _d.innerText) == null ? undefined : _e.trim()) || "",
               // PC端无法实现
               isAuthor: false
             };
@@ -4045,7 +4125,7 @@
                 "处理回复引用",
                 "replyFlag",
                 false,
-                void 0,
+                undefined,
                 "移除引用"
               );
               Reflect.set(
@@ -4083,7 +4163,7 @@
                 "minLength",
                 5,
                 "小于此长度的评论就算关键字匹配成功了也不会被排除",
-                void 0,
+                undefined,
                 "",
                 true
               );
@@ -4100,7 +4180,7 @@
                 "keywordLength",
                 8,
                 "大于此长度的评论就算关键字匹配成功了也不会被排除",
-                void 0,
+                undefined,
                 "",
                 true
               );
@@ -4373,8 +4453,9 @@
         }
         /**
          * 显示视图
+         * @param filterCallBack 返回值为false隐藏，true则不隐藏（不处理）
          */
-        async showView() {
+        async showView(filterCallBack) {
           var _a2, _b, _c, _d, _e, _f, _g, _h, _i;
           let $popsConfirm = __pops.confirm({
             title: {
@@ -4396,14 +4477,14 @@
               reverse: false,
               position: "space-between",
               ok: {
-                enable: ((_c = (_b = (_a2 = this.option) == null ? void 0 : _a2.bottomControls) == null ? void 0 : _b.add) == null ? void 0 : _c.enable) || true,
+                enable: ((_c = (_b = (_a2 = this.option) == null ? undefined : _a2.bottomControls) == null ? undefined : _b.add) == null ? undefined : _c.enable) || true,
                 type: "primary",
                 text: "添加",
                 callback: async (event) => {
                   this.showEditView(
-                    $popsConfirm.$shadowRoot,
                     false,
-                    await this.option.getAddData()
+                    await this.option.getAddData(),
+                    $popsConfirm.$shadowRoot
                   );
                 }
               },
@@ -4414,12 +4495,12 @@
                 }
               },
               cancel: {
-                enable: ((_f = (_e = (_d = this.option) == null ? void 0 : _d.bottomControls) == null ? void 0 : _e.filter) == null ? void 0 : _f.enable) || false,
+                enable: ((_f = (_e = (_d = this.option) == null ? undefined : _d.bottomControls) == null ? undefined : _e.filter) == null ? undefined : _f.enable) || false,
                 type: "default",
                 text: "过滤",
                 callback: (details, event) => {
                   var _a3, _b2, _c2, _d2, _e2, _f2, _g2;
-                  if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.filter) == null ? void 0 : _c2.callback) === "function") {
+                  if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? undefined : _a3.bottomControls) == null ? undefined : _b2.filter) == null ? undefined : _c2.callback) === "function") {
                     this.option.bottomControls.filter.callback();
                   }
                   let getAllRuleElement = () => {
@@ -4437,8 +4518,8 @@
                     domUtils.text($button, "过滤");
                   } else {
                     let ruleFilterView = new RuleFilterView({
-                      title: ((_e2 = (_d2 = this.option.bottomControls) == null ? void 0 : _d2.filter) == null ? void 0 : _e2.title) ?? "过滤规则",
-                      filterOption: ((_g2 = (_f2 = this.option.bottomControls) == null ? void 0 : _f2.filter) == null ? void 0 : _g2.option) || [],
+                      title: ((_e2 = (_d2 = this.option.bottomControls) == null ? undefined : _d2.filter) == null ? undefined : _e2.title) ?? "过滤规则",
+                      filterOption: ((_g2 = (_f2 = this.option.bottomControls) == null ? undefined : _f2.filter) == null ? undefined : _g2.option) || [],
                       execFilterCallBack() {
                         domUtils.text($button, "取消过滤");
                       },
@@ -4456,7 +4537,7 @@
                 }
               },
               other: {
-                enable: ((_i = (_h = (_g = this.option) == null ? void 0 : _g.bottomControls) == null ? void 0 : _h.clear) == null ? void 0 : _i.enable) || true,
+                enable: ((_i = (_h = (_g = this.option) == null ? undefined : _g.bottomControls) == null ? undefined : _h.clear) == null ? undefined : _i.enable) || true,
                 type: "xiaomi-primary",
                 text: `清空所有(${(await this.option.data()).length})`,
                 callback: (event) => {
@@ -4475,7 +4556,7 @@
                         callback: async (popsEvent) => {
                           var _a3, _b2, _c2;
                           log.success("清空所有");
-                          if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.clear) == null ? void 0 : _c2.callback) === "function") {
+                          if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? undefined : _a3.bottomControls) == null ? undefined : _b2.clear) == null ? undefined : _c2.callback) === "function") {
                             this.option.bottomControls.clear.callback();
                           }
                           let data = await this.option.data();
@@ -4517,8 +4598,8 @@
                 align-items: center;
                 line-height: normal;
                 font-size: 16px;
-                padding: 4px 4px;
-                gap: 6px;
+                padding: 4px 8px;
+                gap: 8px;
             }
             .rule-name{
                 flex: 1;
@@ -4533,7 +4614,7 @@
                 overflow: hidden;
                 white-space: nowrap;
                 gap: 8px;
-                padding: 0px 4px;
+                padding: 0px;
             }
             .rule-controls-enable{
                 
@@ -4554,11 +4635,26 @@
             )
           });
           let allData = await this.option.data();
+          let changeButtonText = false;
           for (let index = 0; index < allData.length; index++) {
-            await this.appendRuleItemElement(
+            let item = allData[index];
+            let $ruleItemList = await this.appendRuleItemElement(
               $popsConfirm.$shadowRoot,
-              allData[index]
+              item
             );
+            let flag = typeof filterCallBack === "function" ? filterCallBack(item) : true;
+            if (!flag) {
+              changeButtonText = true;
+              $ruleItemList.forEach(($el) => {
+                domUtils.hide($el, false);
+              });
+            }
+          }
+          if (changeButtonText) {
+            let $button = $popsConfirm.$shadowRoot.querySelector(
+              ".pops-confirm-btn-cancel span"
+            );
+            domUtils.text($button, "取消过滤");
           }
         }
         /**
@@ -4676,7 +4772,7 @@
           if (this.option.itemControls.edit.enable) {
             domUtils.on($edit, "click", (event) => {
               utils.preventEvent(event);
-              this.showEditView($shadowRoot, true, data, $ruleItem, (newData) => {
+              this.showEditView(true, data, $shadowRoot, $ruleItem, (newData) => {
                 data = null;
                 data = newData;
               });
@@ -4735,27 +4831,24 @@
          * 添加一个规则元素
          */
         async appendRuleItemElement($shadowRoot, data) {
-          const { $container } = this.parseViewElement($shadowRoot);
-          if (Array.isArray(data)) {
-            for (let index = 0; index < data.length; index++) {
-              const item = data[index];
-              $container.appendChild(
-                await this.createRuleItemElement(item, $shadowRoot)
-              );
-            }
-          } else {
-            $container.appendChild(
-              await this.createRuleItemElement(data, $shadowRoot)
-            );
+          let { $container } = this.parseViewElement($shadowRoot);
+          let $ruleItem = [];
+          let iteratorData = Array.isArray(data) ? data : [data];
+          for (let index = 0; index < iteratorData.length; index++) {
+            let item = iteratorData[index];
+            let $item = await this.createRuleItemElement(item, $shadowRoot);
+            $container.appendChild($item);
+            $ruleItem.push($item);
           }
           await this.updateDeleteAllBtnText($shadowRoot);
+          return $ruleItem;
         }
         /**
          * 更新弹窗内容的元素
          */
         async updateRuleContaienrElement($shadowRoot) {
           this.clearContent($shadowRoot);
-          this.parseViewElement($shadowRoot);
+          const { $container } = this.parseViewElement($shadowRoot);
           let data = await this.option.data();
           await this.appendRuleItemElement($shadowRoot, data);
           await this.updateDeleteAllBtnText($shadowRoot);
@@ -4788,6 +4881,7 @@
         }
         /**
          * 更新【清空所有】的按钮的文字
+         * @param $shadowRoot
          */
         async updateDeleteAllBtnText($shadowRoot) {
           let data = await this.option.data();
@@ -4796,8 +4890,9 @@
         /**
          * 显示编辑视图
          * @param isEdit 是否是编辑状态
+         * @param editData 编辑的数据
          */
-        showEditView($parentShadowRoot, isEdit, editData, $editRuleItemElement, updateDataCallBack) {
+        showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack) {
           let dialogCloseCallBack = async (isSubmit) => {
             if (isSubmit) ;
             else {
@@ -4846,13 +4941,16 @@
               if (result.success) {
                 if (isEdit) {
                   Qmsg.success("修改成功");
-                  await this.updateRuleItemElement(
+                  $parentShadowRoot && await this.updateRuleItemElement(
                     result.data,
                     $editRuleItemElement,
                     $parentShadowRoot
                   );
                 } else {
-                  await this.appendRuleItemElement($parentShadowRoot, result.data);
+                  $parentShadowRoot && await this.appendRuleItemElement(
+                    $parentShadowRoot,
+                    result.data
+                  );
                 }
               } else {
                 if (isEdit) {
@@ -4861,7 +4959,9 @@
               }
               return result;
             },
-            style: this.option.itemControls.edit.style
+            style: this.option.itemControls.edit.style,
+            width: this.option.itemControls.edit.width,
+            height: this.option.itemControls.edit.height
           });
           editView.showView();
         }
@@ -4932,7 +5032,7 @@
                   )
                 ),
                 remainingQuantity: parseInt(
-                  ((_b = (_a2 = $taskList.querySelector(".mall-info .mall-count .count-r")) == null ? void 0 : _a2.innerText) == null ? void 0 : _b.replace(/仅剩|件/gi, "")) || "0"
+                  ((_b = (_a2 = $taskList.querySelector(".mall-info .mall-count .count-r")) == null ? undefined : _a2.innerText) == null ? undefined : _b.replace(/仅剩|件/gi, "")) || "0"
                 )
               });
             });
@@ -5081,7 +5181,7 @@
                     "name",
                     "",
                     "",
-                    void 0,
+                    undefined,
                     "必填"
                   );
                   Reflect.set(
@@ -5097,7 +5197,7 @@
                     "productName",
                     "",
                     "",
-                    void 0,
+                    undefined,
                     "可正则，需手动转义"
                   );
                   Reflect.set(
