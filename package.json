@@ -21,7 +21,7 @@
 		"@types/md5": "^2.3.5",
 		"@whitesev/domutils": "^1.4.8",
 		"@whitesev/pops": "^1.9.7",
-		"@whitesev/utils": "^2.5.8",
+		"@whitesev/utils": "^2.6.0",
 		"artplayer": "^5.2.2",
 		"artplayer-plugin-danmuku": "^5.1.5",
 		"flv.js": "^1.6.2",
@@ -37,7 +37,7 @@
 		"vue-router": "^4.5.0"
 	},
 	"devDependencies": {
-		"@types/node": "^22.13.0",
+		"@types/node": "^22.13.1",
 		"@vitejs/plugin-vue": "^5.2.1",
 		"element-plus": "^2.9.3",
 		"typescript": "^5.7.3",
