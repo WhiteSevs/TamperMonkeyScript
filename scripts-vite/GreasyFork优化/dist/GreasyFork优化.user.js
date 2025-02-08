@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.1.21
+// @version            2025.2.8
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -10,15 +10,17 @@
 // @icon               data:image/png;base64,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
 // @supportURL         https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match              *://greasyfork.org/*
+// @match              *://sleazyfork.org/*
 // @require            https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.8/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.1/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
-// @require            https://fastly.jsdelivr.net/npm/i18next@24.2.1/i18next.min.js
+// @require            https://fastly.jsdelivr.net/npm/i18next@24.2.2/i18next.min.js
 // @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect            greasyfork.org
+// @connect            sleazyfork.org
 // @grant              GM_addStyle
 // @grant              GM_deleteValue
 // @grant              GM_getResourceText
@@ -41,15 +43,15 @@
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var _a;
-  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : undefined)();
-  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : undefined)();
-  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : undefined)();
-  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : undefined)();
-  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : undefined)();
-  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : undefined)();
-  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : undefined)();
-  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : undefined)();
-  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : undefined)();
+  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
+  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
+  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
+  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
+  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
+  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
+  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
   const zh_CN_language = {
     GreasyFork优化: "GreasyFork优化",
@@ -768,7 +770,7 @@
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
   );
-  const SCRIPT_NAME = ((_a = _GM_info == null ? undefined : _GM_info.script) == null ? undefined : _a.name) || _SCRIPT_NAME_;
+  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
   const DEBUG = false;
   log.config({
     debug: DEBUG,
@@ -816,7 +818,7 @@
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand
   });
   const httpx = new utils.Httpx(_GM_xmlhttpRequest);
-  httpx.interceptors.response.use(undefined, (data) => {
+  httpx.interceptors.response.use(void 0, (data) => {
     log.error("拦截器-请求错误", data);
     if (data.type === "onabort") {
       Qmsg.warning(i18next.t("请求取消"));
@@ -1041,7 +1043,7 @@
           return;
         }
         let setsName = liElement.querySelector("a").innerText;
-        let setsId = (_a2 = setsUrl.match(/\/sets\/([\d]+)\//)) == null ? undefined : _a2[1];
+        let setsId = (_a2 = setsUrl.match(/\/sets\/([\d]+)\//)) == null ? void 0 : _a2[1];
         scriptSetsIdList.push({
           id: setsId,
           name: setsName
@@ -1153,7 +1155,7 @@
      */
     isCode() {
       var _a2;
-      return Boolean((_a2 = window.location.pathname.split("/")) == null ? undefined : _a2.includes("code"));
+      return Boolean((_a2 = window.location.pathname.split("/")) == null ? void 0 : _a2.includes("code"));
     },
     /**
      * 代码页面
@@ -1316,7 +1318,7 @@
       } else {
         scriptName = "";
       }
-      return `https://update.greasyfork.org/scripts/${scriptId}/${scriptVersion}${scriptName}.user.js`;
+      return `https://update.${window.location.hostname}/scripts/${scriptId}/${scriptVersion}${scriptName}.user.js`;
     },
     /**
      * 获取脚本的代码页面链接
@@ -1328,23 +1330,23 @@
       if (utils.isNull(scriptVersion)) {
         scriptVersion = "";
       }
-      return `https://greasyfork.org/scripts/${scriptId}/code?version=${scriptVersion}`;
+      return `/scripts/${scriptId}/code?version=${scriptVersion}`;
     },
     /**
      * 获取代码搜索地址
      * @param url
      */
     getCodeSearchUrl(url) {
-      return "https://greasyfork.org/zh-CN/scripts/code-search?c=" + url;
+      return "/zh-CN/scripts/code-search?c=" + encodeURIComponent(url);
     },
     /**
      * 获取脚本的信息
-     * 
+     *
      * 注意是跨域请求
      * @param scriptId 脚本id
      */
     getScriptInfoUrl(scriptId) {
-      return `https://api.greasyfork.org/scripts/${scriptId}.json`;
+      return `/scripts/${scriptId}.json`;
     },
     /**
      * 获取管理地址
@@ -1360,9 +1362,9 @@
      */
     getScriptId(text) {
       var _a2, _b;
-      return (_b = (_a2 = text || window.location.pathname) == null ? undefined : _a2.match(
+      return (_b = (_a2 = text || window.location.pathname) == null ? void 0 : _a2.match(
         /\/scripts\/([\d]+)/i
-      )) == null ? undefined : _b[1];
+      )) == null ? void 0 : _b[1];
     },
     /**
      * 从字符串中提取用户id
@@ -1371,7 +1373,7 @@
      */
     getUserId(text) {
       var _a2;
-      return (_a2 = (text || window.location.pathname).match(/\/users\/([\d]+)/i)) == null ? undefined : _a2[1];
+      return (_a2 = (text || window.location.pathname).match(/\/users\/([\d]+)/i)) == null ? void 0 : _a2[1];
     },
     /**
      * 获取举报地址
@@ -1655,7 +1657,7 @@
       async (event) => {
         var _a2;
         let $click = event.target;
-        let $btn = (_a2 = $click.closest(".pops-panel-button")) == null ? undefined : _a2.querySelector("span");
+        let $btn = (_a2 = $click.closest(".pops-panel-button")) == null ? void 0 : _a2.querySelector("span");
         if (shortCut.isWaitPress) {
           Qmsg.warning("请先执行当前的录入操作");
           return;
@@ -1755,7 +1757,7 @@
     hasOptionValue(key) {
       if (this.hasOption(key)) {
         let option = this.getOption(key);
-        return !((option == null ? undefined : option.value) == null);
+        return !((option == null ? void 0 : option.value) == null);
       } else {
         return false;
       }
@@ -1946,7 +1948,7 @@
             if (that.isWaitPress) {
               return;
             }
-            if (config == null ? undefined : config.isPrevent) {
+            if (config == null ? void 0 : config.isPrevent) {
               utils.preventEvent(event);
             }
             localOptions = that.getLocalAllOptions();
@@ -1970,7 +1972,7 @@
             }
           },
           {
-            capture: Boolean(config == null ? undefined : config.capture)
+            capture: Boolean(config == null ? void 0 : config.capture)
           }
         );
       }
@@ -2281,7 +2283,7 @@
       }
       let userLinkElement = GreasyforkMenu.getUserLinkElement();
       let userLink = userLinkElement.href;
-      let userId = (_c = (_b = (_a2 = userLink == null ? undefined : userLink.split("/")) == null ? undefined : _a2.pop()) == null ? undefined : _b.match(/([0-9]+)/)) == null ? undefined : _c[0];
+      let userId = (_c = (_b = (_a2 = userLink == null ? void 0 : userLink.split("/")) == null ? void 0 : _a2.pop()) == null ? void 0 : _b.match(/([0-9]+)/)) == null ? void 0 : _c[0];
       let loading = __pops.loading({
         mask: {
           enable: true
@@ -2326,7 +2328,7 @@
 				<div class="w-script-update-time">
 					<p>${i18next.t("更新：")}${utils.getDaysDifference(
             new Date(scriptInfo["code_updated_at"]).getTime(),
-            undefined,
+            void 0,
             "auto"
           )}前</p>
 				</div>
@@ -2352,7 +2354,7 @@
           liElement.classList.add("w-script-deleted");
           buttonElement.querySelector("button").setAttribute("disabled", "true");
         }
-        domUtils.on(buttonElement, "click", undefined, async function() {
+        domUtils.on(buttonElement, "click", void 0, async function() {
           log.success("同步", scriptInfo);
           let btn = buttonElement.querySelector("button");
           let span = buttonElement.querySelector(
@@ -2372,7 +2374,7 @@
           btn.setAttribute("data-icon", "true");
           span.innerText = i18next.t("同步中...");
           domUtils.before(span, iconElement);
-          let scriptId = scriptInfo == null ? undefined : scriptInfo["id"];
+          let scriptId = scriptInfo == null ? void 0 : scriptInfo["id"];
           let codeSyncFormData = await GreasyforkApi.getSourceCodeSyncFormData(
             scriptId.toString()
           );
@@ -2715,8 +2717,8 @@
           let versionNumber = liElement.querySelector(
             ".version-number a"
           ).innerText;
-          let versionDate = (_a2 = liElement.querySelector(".version-date")) == null ? undefined : _a2.getAttribute("datetime");
-          let updateNote = ((_b = liElement.querySelector(".version-changelog")) == null ? undefined : _b.innerHTML) || "";
+          let versionDate = (_a2 = liElement.querySelector(".version-date")) == null ? void 0 : _a2.getAttribute("datetime");
+          let updateNote = ((_b = liElement.querySelector(".version-changelog")) == null ? void 0 : _b.innerHTML) || "";
           let versionDateElement = domUtils.createElement("span", {
             className: "script-version-date",
             innerHTML: utils.formatTime(
@@ -2763,9 +2765,9 @@
             return;
           }
           let urlObj = new URL($anchor.href);
-          let scriptId = (_a2 = urlObj.pathname.match(/\/scripts\/([\d]+)/)) == null ? undefined : _a2[1];
+          let scriptId = (_a2 = urlObj.pathname.match(/\/scripts\/([\d]+)/)) == null ? void 0 : _a2[1];
           let scriptVersion = urlObj.searchParams.get("version");
-          let scriptName = (_b = urlObj.pathname.match(/\/scripts\/[\d]+-(.+)/)) == null ? undefined : _b[1];
+          let scriptName = (_b = urlObj.pathname.match(/\/scripts\/[\d]+-(.+)/)) == null ? void 0 : _b[1];
           let installUrl = GreasyforkUrlUtils.getInstallUrl(
             scriptId,
             scriptVersion,
@@ -2823,13 +2825,10 @@
               }
               let loading = Qmsg.loading(i18next.t("正在获取对比文本中..."));
               let scriptId = GreasyforkUrlUtils.getScriptId();
-              let response = await httpx.get(
-                `https://greasyfork.org/zh-CN/scripts/${scriptId}.json`,
-                {
-                  fetch: true,
-                  responseType: "json"
-                }
-              );
+              let response = await httpx.get(`/zh-CN/scripts/${scriptId}.json`, {
+                fetch: true,
+                responseType: "json"
+              });
               if (!response.status) {
                 loading.close();
                 return;
@@ -2984,17 +2983,6 @@
       },
       get height() {
         return window.innerHeight < 450 ? "70vh" : "450px";
-      }
-    },
-    /**
-     * 功能丰富，aside铺满了的设置界面，要稍微大一点
-     */
-    settingBig: {
-      get width() {
-        return window.innerWidth < 800 ? "92vw" : "800px";
-      },
-      get height() {
-        return window.innerHeight < 600 ? "80vh" : "600px";
       }
     },
     /**
@@ -3467,7 +3455,7 @@
           }
           let scriptId = scriptIdMatch[scriptIdMatch.length - 1];
           window.location.href = GreasyforkUrlUtils.getCodeSearchUrl(
-            `greasyfork.org/scripts/${scriptId}`
+            `/scripts/${scriptId}`
           );
         });
       });
@@ -3487,7 +3475,7 @@
         return;
       }
       log.info("统计信息", scriptStatsJSON);
-      let todayStatsJSON = scriptStatsJSON[utils.formatTime(undefined, "yyyy-MM-dd")];
+      let todayStatsJSON = scriptStatsJSON[utils.formatTime(void 0, "yyyy-MM-dd")];
       if (!todayStatsJSON) {
         log.error("今日份的统计信息不存在");
         return;
@@ -3527,7 +3515,7 @@
         domUtils.on(copyButton, "click", async function() {
           let loading = Qmsg.loading(i18next.t("加载文件中..."));
           let getResp = await httpx.get(
-            `https://greasyfork.org/zh-CN/scripts/${GreasyforkUrlUtils.getScriptId()}.json`,
+            `/zh-CN/scripts/${GreasyforkUrlUtils.getScriptId()}.json`,
             {
               fetch: true,
               responseType: "json"
@@ -3558,17 +3546,17 @@
     /** 获取 TamperMonkey 暴露在window下的函数 */
     getTampermonkey: () => {
       var _a2;
-      return (_a2 = _unsafeWindow.external) == null ? undefined : _a2.Tampermonkey;
+      return (_a2 = _unsafeWindow.external) == null ? void 0 : _a2.Tampermonkey;
     },
     /** 获取 Violentmonkey 暴露在window下的函数 */
     getViolentmonkey: () => {
       var _a2;
-      return (_a2 = _unsafeWindow.external) == null ? undefined : _a2.Violentmonkey;
+      return (_a2 = _unsafeWindow.external) == null ? void 0 : _a2.Violentmonkey;
     },
     /** 获取 ScriptCat 暴露在window下的函数 */
     getScriptCat: () => {
       var _a2;
-      return (_a2 = _unsafeWindow.external) == null ? undefined : _a2.Scriptcat;
+      return (_a2 = _unsafeWindow.external) == null ? void 0 : _a2.Scriptcat;
     },
     /**
      * 获取脚本容器启用状态
@@ -3580,13 +3568,13 @@
         Violentmonkey: false,
         ScriptCat: false
       };
-      if ((_a2 = _unsafeWindow.external) == null ? undefined : _a2.Tampermonkey) {
+      if ((_a2 = _unsafeWindow.external) == null ? void 0 : _a2.Tampermonkey) {
         containerStatus.Tampermonkey = true;
       }
-      if ((_b = _unsafeWindow.external) == null ? undefined : _b.Violentmonkey) {
+      if ((_b = _unsafeWindow.external) == null ? void 0 : _b.Violentmonkey) {
         containerStatus.Violentmonkey = true;
       }
-      if ((_c = _unsafeWindow.external) == null ? undefined : _c.Scriptcat) {
+      if ((_c = _unsafeWindow.external) == null ? void 0 : _c.Scriptcat) {
         containerStatus.ScriptCat = true;
       }
       return containerStatus;
@@ -4352,14 +4340,14 @@
                         text: "5"
                       }
                     ],
-                    undefined,
+                    void 0,
                     i18next.t("限制Toast显示的数量")
                   ),
                   UISwitch(
                     i18next.t("逆序弹出"),
                     "qmsg-config-showreverse",
                     false,
-                    undefined,
+                    void 0,
                     i18next.t("修改Toast弹出的顺序")
                   )
                 ]
@@ -4403,16 +4391,16 @@
                     i18next.t("账号"),
                     "user",
                     "",
-                    undefined,
-                    undefined,
+                    void 0,
+                    void 0,
                     i18next.t("请输入账号")
                   ),
                   UIInput(
                     i18next.t("密码"),
                     "pwd",
                     "",
-                    undefined,
-                    undefined,
+                    void 0,
+                    void 0,
                     i18next.t("请输入密码"),
                     false,
                     true
@@ -4427,15 +4415,15 @@
                     i18next.t("自动登录"),
                     "autoLogin",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("自动登录当前保存的账号")
                   ),
                   UIButton(
                     i18next.t("清空账号/密码"),
-                    undefined,
+                    void 0,
                     i18next.t("点击清空"),
-                    undefined,
-                    undefined,
+                    void 0,
+                    void 0,
                     false,
                     "default",
                     (event) => {
@@ -4500,35 +4488,35 @@
                     i18next.t("修复图片宽度显示问题"),
                     "fixImageWidth",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("修复图片在移动端宽度超出浏览器宽度问题")
                   ),
                   UISwitch(
                     i18next.t("优化图片浏览"),
                     "optimizeImageBrowsing",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("使用Viewer浏览图片")
                   ),
                   UISwitch(
                     i18next.t("覆盖图床图片跳转"),
                     "overlayBedImageClickEvent",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("配合上面的【优化图片浏览】更优雅浏览图片")
                   ),
                   UISwitch(
                     i18next.t("添加【操作面板】按钮"),
                     "scripts-addOperationPanelBtnWithNavigator",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("在脚本列表页面时为顶部导航栏添加【操作面板】按钮")
                   ),
                   UISwitch(
                     i18next.t("给Markdown添加【复制】按钮"),
                     "addMarkdownCopyButton",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t(
                       "在Markdown内容右上角添加【复制】按钮，点击一键复制Markdown内容"
                     )
@@ -4543,7 +4531,7 @@
                     i18next.t("启用"),
                     "checkPage",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t(
                       "检测Greasyfork页面是否正常加载，如加载失败则自动刷新页面"
                     )
@@ -4562,7 +4550,7 @@
                       }
                       return result;
                     })(),
-                    undefined,
+                    void 0,
                     i18next.t(
                       "设置检测上次刷新页面的间隔时间，当距离上次刷新页面的时间超过设置的值，将不再刷新页面"
                     )
@@ -4583,7 +4571,7 @@
                     i18next.t("记住回复内容"),
                     "rememberReplyContent",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t(
                       "监听表单内的textarea内容改变并存储到indexDB中，提交表单将清除保存的数据，误刷新页面时可动态恢复"
                     )
@@ -4632,7 +4620,7 @@
                         value: 180
                       }
                     ],
-                    undefined,
+                    void 0,
                     i18next.t("根据设置的间隔时间自动清理保存的回复内容")
                   ),
                   UIButton(
@@ -4641,9 +4629,9 @@
                     }),
                     i18next.t("当前存储的数据所占用的空间大小"),
                     i18next.t("清空"),
-                    undefined,
-                    undefined,
-                    undefined,
+                    void 0,
+                    void 0,
+                    void 0,
                     "default",
                     async () => {
                       let isClear = await GreasyforkRememberFormTextArea.clearAllRememberReplyContent();
@@ -4690,28 +4678,28 @@
                     i18next.t("美化页面元素"),
                     "beautifyPage",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("如button、input、textarea")
                   ),
                   UISwitch(
                     i18next.t("美化上传图片按钮"),
                     "beautifyUploadImage",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("放大上传区域")
                   ),
                   UISwitch(
                     i18next.t("美化顶部导航栏"),
                     "beautifyTopNavigationBar",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("可能会跟Greasyfork Beautify脚本有冲突")
                   ),
                   UISwitch(
                     i18next.t("美化Greasyfork Beautify脚本"),
                     "beautifyGreasyforkBeautify",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t(
                       '需安装Greasyfork Beautify脚本，<a href="https://greasyfork.org/zh-CN/scripts/446849-greasyfork-beautify" target="_blank">🖐点我安装</a>'
                     )
@@ -4726,14 +4714,14 @@
                     i18next.t("美化脚本列表"),
                     "beautifyCenterContent",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("双列显示且添加脚本卡片操作项（安装、收藏）")
                   ),
                   UISwitch(
                     "↑" + i18next.t("使用namespace查询脚本信息"),
                     "beautifyCenterContent-queryNameSpace",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("开启后检测已安装的脚本信息更准确，但是速度会更慢")
                   )
                 ]
@@ -4760,7 +4748,7 @@
                       ohterCodeList: ["ctrl"]
                     },
                     i18next.t("点击录入快捷键"),
-                    undefined,
+                    void 0,
                     GreasyforkShortCut.shortCut
                   )
                 ]
@@ -4781,7 +4769,7 @@
                     i18next.t("启用"),
                     "gf-scripts-filter-enable",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("作用域：脚本、脚本搜索、用户主页")
                   ),
                   {
@@ -4807,7 +4795,7 @@
                       domUtils.on(
                         $textarea,
                         ["input", "propertychange"],
-                        undefined,
+                        void 0,
                         utils.debounce(function(event) {
                           GreasyforkScriptsFilter.setValue($textarea.value);
                         }, 200)
@@ -4836,10 +4824,10 @@
                 forms: [
                   UIButton(
                     i18next.t("源代码同步【脚本列表】"),
-                    undefined,
+                    void 0,
                     i18next.t("一键同步"),
-                    undefined,
-                    undefined,
+                    void 0,
+                    void 0,
                     false,
                     "primary",
                     (event) => {
@@ -4869,10 +4857,10 @@
                   ),
                   UIButton(
                     i18next.t("源代码同步【未上架的脚本】"),
-                    undefined,
+                    void 0,
                     i18next.t("一键同步"),
-                    undefined,
-                    undefined,
+                    void 0,
+                    void 0,
                     false,
                     "primary",
                     (event) => {
@@ -4902,10 +4890,10 @@
                   ),
                   UIButton(
                     i18next.t("源代码同步【库】"),
-                    undefined,
+                    void 0,
                     i18next.t("一键同步"),
-                    undefined,
-                    undefined,
+                    void 0,
+                    void 0,
                     false,
                     "primary",
                     (event) => {
@@ -4983,28 +4971,28 @@
                     i18next.t("添加复制代码按钮"),
                     "addCopyCodeButton",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("更优雅的复制")
                   ),
                   UISwitch(
                     i18next.t("快捷键"),
                     "fullScreenOptimization",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("【F】键全屏、【Alt+Shift+F】键宽屏")
                   ),
                   UISwitch(
                     i18next.t("修复代码行号显示"),
                     "code-repairCodeLineNumber",
                     false,
-                    undefined,
+                    void 0,
                     i18next.t("修复代码行数超过1k行号显示不全问题")
                   ),
                   UISwitch(
                     "monacoEditor",
                     "code-use-monaco-editor",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("使用Monaco编辑器")
                   )
                 ]
@@ -5023,14 +5011,14 @@
                     i18next.t("添加额外的标签按钮"),
                     "scripts-versions-addExtraTagButton",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("在版本下面添加【安装】、【查看代码】按钮")
                   ),
                   UISwitch(
                     i18next.t("添加代码对比按钮"),
                     "scripts-versions-addCompareCodeButton",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("monacoEditor")
                   )
                 ]
@@ -5043,7 +5031,7 @@
                     i18next.t("美化历史版本页面"),
                     "beautifyHistoryVersionPage",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("更直观的查看版本迭代")
                   )
                 ]
@@ -5068,21 +5056,21 @@
                     i18next.t("添加【寻找引用】按钮"),
                     "addFindReferenceButton",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("在脚本栏添加按钮，一般用于搜索引用该库的相关脚本")
                   ),
                   UISwitch(
                     i18next.t("添加【收藏】按钮"),
                     "addCollectionButton",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("在脚本栏添加按钮，一般用于快捷收藏该脚本/库")
                   ),
                   UISwitch(
                     i18next.t("添加【今日检查】信息块"),
                     "scriptHomepageAddedTodaySUpdate",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("在脚本信息栏添加【今日检查】信息块")
                   )
                 ]
@@ -5225,12 +5213,12 @@
         /** 脚本主页地址 */
         scriptUrl: (_a2 = $listContainer.querySelector(
           ".discussion-meta-item-script-name a"
-        )) == null ? undefined : _a2.href,
+        )) == null ? void 0 : _a2.href,
         /** 脚本id */
         scriptId: GreasyforkUrlUtils.getScriptId(
           (_b = $listContainer.querySelector(
             ".discussion-meta-item-script-name a"
-          )) == null ? undefined : _b.href
+          )) == null ? void 0 : _b.href
         ),
         /** 发布的用户名 */
         postUserName: $listContainer.querySelector("a.user-link").innerText,
@@ -5249,15 +5237,15 @@
         /** 发布的地址*/
         snippetUrl: discussionUrl,
         /** 发布的内容片段*/
-        snippet: ((_c = $listContainer.querySelector("span.discussion-snippet")) == null ? undefined : _c.innerText) || "",
+        snippet: ((_c = $listContainer.querySelector("span.discussion-snippet")) == null ? void 0 : _c.innerText) || "",
         /** （如果有）回复的用户名*/
-        replyUserName: undefined,
+        replyUserName: void 0,
         /** （如果有）回复的用户主页地址*/
-        replyUserHomeUrl: undefined,
+        replyUserHomeUrl: void 0,
         /** （如果有）回复的用户id*/
-        replyUserId: undefined,
+        replyUserId: void 0,
         /** （如果有）回复的时间 */
-        replyTimeStamp: undefined
+        replyTimeStamp: void 0
       };
       if ($listContainer.querySelector(
         ".discussion-meta-item .discussion-meta-item"
@@ -5272,7 +5260,7 @@
         info.replyTimeStamp = new Date(
           (_d = $listContainer.querySelector(
             ".discussion-meta-item .discussion-meta-item relative-time"
-          )) == null ? undefined : _d.getAttribute("datetime")
+          )) == null ? void 0 : _d.getAttribute("datetime")
         );
       }
       return info;
@@ -5398,7 +5386,7 @@
                     i18next.t("添加【过滤】按钮"),
                     "discussions-addShortcutOperationButton",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t(
                       "在每一行讨论的最后面添加【过滤】按钮，需开启过滤功能才会生效"
                     )
@@ -5407,7 +5395,7 @@
                     i18next.t("添加【举报】按钮"),
                     "discussions-addReportButton",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("在每一行讨论的最后面添加【举报】按钮")
                   )
                 ]
@@ -5428,14 +5416,14 @@
                     i18next.t("启用"),
                     "greasyfork-discussions-filter-enable",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("开启后下面的过滤功能才会生效")
                   ),
                   UISwitch(
                     i18next.t("过滤重复的评论"),
                     "greasyfork-discussions-filter-duplicate-comments",
                     false,
-                    undefined,
+                    void 0,
                     i18next.t("过滤掉重复的评论数量(≥2)")
                   ),
                   {
@@ -5461,7 +5449,7 @@
                       domUtils.on(
                         $textarea,
                         ["input", "propertychange"],
-                        undefined,
+                        void 0,
                         utils.debounce(function(event) {
                           GreasyforkDiscussionsFilter.setValue($textarea.value);
                         }, 200)
@@ -5499,7 +5487,7 @@
                     i18next.t("迁移【控制台】到顶部导航栏"),
                     "users-changeConsoleToTopNavigator",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("将【控制台】按钮移动到顶部导航栏，节省空间")
                   )
                 ]
@@ -5518,7 +5506,7 @@
                     i18next.t("美化私信页面"),
                     "conversations-beautifyDialogBox",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("美化为左右对话模式")
                   ),
                   UISwitch(
@@ -5683,7 +5671,7 @@
             i18next.t("新增【关键词】搜索框"),
             "gf-script-search-addFilterSearchInput",
             true,
-            undefined,
+            void 0,
             i18next.t("输入自定义关键词后自动执行过滤")
           ),
           UISwitch(
@@ -5692,7 +5680,7 @@
             }),
             "gf-script-search-filterScriptTitleWholeWordMatching",
             true,
-            undefined,
+            void 0,
             i18next.t("该Checkbox按钮开启后，自动过滤出包含搜索关键词的脚本")
           ),
           UISwitch(
@@ -5701,7 +5689,7 @@
             }),
             "gf-script-search-filterScriptDescWholeWordMatching",
             true,
-            undefined,
+            void 0,
             i18next.t("该Checkbox按钮开启后，自动过滤出包含搜索关键词的脚本")
           ),
           UISwitch(
@@ -5710,7 +5698,7 @@
             }),
             "gf-script-search-filterScriptTitleOrDescWholeWordMatching",
             true,
-            undefined,
+            void 0,
             i18next.t("该Checkbox按钮开启后，自动过滤出包含搜索关键词的脚本")
           ),
           UISwitch(
@@ -5719,7 +5707,7 @@
             }),
             "gf-script-search-filterScriptAuthorNameWholeWordMatching",
             true,
-            undefined,
+            void 0,
             i18next.t("该Checkbox按钮开启后，自动过滤出包含搜索关键词的脚本")
           )
         ]
@@ -5920,7 +5908,7 @@
       Reflect.deleteProperty(locaData, key);
       _GM_setValue(KEY, locaData);
       if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, undefined);
+        this.$listener.listenData.get(key).callback(key, oldValue, void 0);
       }
     },
     /**
@@ -6007,7 +5995,7 @@
       } else {
         runKeyList.push(key);
       }
-      let value = undefined;
+      let value = void 0;
       for (let index = 0; index < runKeyList.length; index++) {
         const runKey = runKeyList[index];
         if (!this.$data.data.has(runKey)) {
@@ -6125,7 +6113,7 @@
         let childValue = that.getValue(childKey2);
         if (typeof replaceValueFn === "function") {
           let changedMainValue = replaceValueFn(mainValue, childValue);
-          if (changedMainValue !== undefined) {
+          if (changedMainValue !== void 0) {
             return changedMainValue;
           }
         }
@@ -6274,8 +6262,8 @@
         $$(".user-content ul li").forEach(($li) => {
           var _a2, _b;
           let $first = $li.firstChild;
-          if (($first == null ? undefined : $first.nodeName) === "#text") {
-            if ((_a2 = $first.textContent) == null ? undefined : _a2.startsWith("[x] ")) {
+          if (($first == null ? void 0 : $first.nodeName) === "#text") {
+            if ((_a2 = $first.textContent) == null ? void 0 : _a2.startsWith("[x] ")) {
               $first.textContent = $first.textContent.replace("[x] ", "");
               domUtils.prepend(
                 $li,
@@ -6284,7 +6272,7 @@
 							<input type="checkbox" disabled="" class="task-list-item-checkbox" checked="">
 						`
               );
-            } else if ((_b = $first.textContent) == null ? undefined : _b.startsWith("[ ] ")) {
+            } else if ((_b = $first.textContent) == null ? void 0 : _b.startsWith("[ ] ")) {
               $first.textContent = $first.textContent.replace("[ ] ", "");
               domUtils.prepend(
                 $li,
@@ -6384,7 +6372,7 @@
               }
             );
             while ($markdownAlertTitle.nextSibling) {
-              if ((_b = (_a2 = $markdownAlertTitle.nextSibling) == null ? undefined : _a2.classList) == null ? undefined : _b.contains("markdown-alert-title")) {
+              if ((_b = (_a2 = $markdownAlertTitle.nextSibling) == null ? void 0 : _a2.classList) == null ? void 0 : _b.contains("markdown-alert-title")) {
                 break;
               }
               domUtils.append(
@@ -6617,20 +6605,17 @@
           return;
         }
         let loginTip = Qmsg.loading(i18next.t("正在登录中..."));
-        let postResp = await httpx.post(
-          "https://greasyfork.org/zh-CN/users/sign_in",
-          {
-            fetch: true,
-            data: encodeURI(
-              `authenticity_token=${csrfToken.getAttribute(
-              "content"
-            )}&user[email]=${user}&user[password]=${pwd}&user[remember_me]=1&commit=登录`
-            ),
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded"
-            }
+        let postResp = await httpx.post("/zh-CN/users/sign_in", {
+          fetch: true,
+          data: encodeURI(
+            `authenticity_token=${csrfToken.getAttribute(
+            "content"
+          )}&user[email]=${user}&user[password]=${pwd}&user[remember_me]=1&commit=登录`
+          ),
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
           }
-        );
+        });
         loginTip.destroy();
         if (!postResp.status) {
           log.error(postResp);
@@ -6808,13 +6793,13 @@
             ".pops-alert-content"
           );
           if (discussionInfo.scriptId == null) {
-            (_a2 = $content.querySelector(`button[${attr_filter_key}="scriptId"]`)) == null ? undefined : _a2.remove();
+            (_a2 = $content.querySelector(`button[${attr_filter_key}="scriptId"]`)) == null ? void 0 : _a2.remove();
           }
           if (discussionInfo.scriptName == null) {
-            (_b = $content.querySelector(`button[${attr_filter_key}="scriptName"]`)) == null ? undefined : _b.remove();
+            (_b = $content.querySelector(`button[${attr_filter_key}="scriptName"]`)) == null ? void 0 : _b.remove();
           }
           if (discussionInfo.postUserId == null) {
-            (_c = $content.querySelector(`button[${attr_filter_key}="postUserId"]`)) == null ? undefined : _c.remove();
+            (_c = $content.querySelector(`button[${attr_filter_key}="postUserId"]`)) == null ? void 0 : _c.remove();
           }
           if (discussionInfo.replyUserId != null) {
             let $replyUserIdButton = domUtils.createElement("button", {
@@ -7144,7 +7129,7 @@
           'a[href*="conversations"]'
         );
         let chatUrl = $user.href;
-        let userName = (_a2 = $user.textContent) == null ? undefined : _a2.split(" ")[1];
+        let userName = (_a2 = $user.textContent) == null ? void 0 : _a2.split(" ")[1];
         let $latestMsgUser = $li.querySelector("a.user-link");
         let latestSendMsgUser = null;
         let latestSendMsgUserHomeUrl = null;
@@ -7189,7 +7174,7 @@
         if (!$el) {
           return;
         }
-        let shadowRoot2 = $el == null ? undefined : $el.shadowRoot;
+        let shadowRoot2 = $el == null ? void 0 : $el.shadowRoot;
         if (!shadowRoot2) {
           return;
         }
@@ -7392,7 +7377,7 @@
           return $ownSearchInput.value;
         }
         let searchParams = new URLSearchParams(window.location.search);
-        let searchText = ((_a2 = searchParams.get("q")) == null ? undefined : _a2.trim()) || ((_b = searchParams.get("c")) == null ? undefined : _b.trim()) || "";
+        let searchText = ((_a2 = searchParams.get("q")) == null ? void 0 : _a2.trim()) || ((_b = searchParams.get("c")) == null ? void 0 : _b.trim()) || "";
         return searchText;
       };
       let execTotalFilter = () => {
@@ -7476,11 +7461,11 @@
                 let $switch = $pops.querySelector(selector);
                 if ($switch) {
                   let $input = $switch.querySelector("input");
-                  if ($input == null ? undefined : $input.checked) {
+                  if ($input == null ? void 0 : $input.checked) {
                     let $core = $switch.querySelector(
                       ".pops-panel-switch__core"
                     );
-                    $core == null ? undefined : $core.click();
+                    $core == null ? void 0 : $core.click();
                   }
                 }
               });
@@ -7630,7 +7615,7 @@
         function(event) {
           var _a2;
           let $img = event.target;
-          if (((_a2 = $img.parentElement) == null ? undefined : _a2.localName) === "a" && $img.hasAttribute("data-screenshots")) {
+          if (((_a2 = $img.parentElement) == null ? void 0 : _a2.localName) === "a" && $img.hasAttribute("data-screenshots")) {
             return;
           }
           if ($img.closest(".viewer-container")) {
@@ -7656,7 +7641,7 @@
               imgElementList.push(childImgElement);
               let imgSrc = getImgElementSrc(childImgElement);
               let $parent = childImgElement.parentElement;
-              if (($parent == null ? undefined : $parent.localName) === "a") {
+              if (($parent == null ? void 0 : $parent.localName) === "a") {
                 imgSrc = $parent.getAttribute("data-href") || $parent.href;
               }
               imgList.push(imgSrc);

@@ -33,20 +33,17 @@ export const GreasyforkAccount = {
 					return;
 				}
 				let loginTip = Qmsg.loading(i18next.t("正在登录中..."));
-				let postResp = await httpx.post(
-					"https://greasyfork.org/zh-CN/users/sign_in",
-					{
-						fetch: true,
-						data: encodeURI(
-							`authenticity_token=${csrfToken.getAttribute(
-								"content"
-							)}&user[email]=${user}&user[password]=${pwd}&user[remember_me]=1&commit=登录`
-						),
-						headers: {
-							"Content-Type": "application/x-www-form-urlencoded",
-						},
-					}
-				);
+				let postResp = await httpx.post("/zh-CN/users/sign_in", {
+					fetch: true,
+					data: encodeURI(
+						`authenticity_token=${csrfToken.getAttribute(
+							"content"
+						)}&user[email]=${user}&user[password]=${pwd}&user[remember_me]=1&commit=登录`
+					),
+					headers: {
+						"Content-Type": "application/x-www-form-urlencoded",
+					},
+				});
 				loginTip.destroy();
 				if (!postResp.status) {
 					log.error(postResp);

@@ -18,7 +18,7 @@ export const GreasyforkUrlUtils = {
 		} else {
 			scriptName = "";
 		}
-		return `https://update.greasyfork.org/scripts/${scriptId}/${scriptVersion}${scriptName}.user.js`;
+		return `https://update.${window.location.hostname}/scripts/${scriptId}/${scriptVersion}${scriptName}.user.js`;
 	},
 	/**
 	 * 获取脚本的代码页面链接
@@ -33,23 +33,23 @@ export const GreasyforkUrlUtils = {
 		if (utils.isNull(scriptVersion)) {
 			scriptVersion = "";
 		}
-		return `https://greasyfork.org/scripts/${scriptId}/code?version=${scriptVersion}`;
+		return `/scripts/${scriptId}/code?version=${scriptVersion}`;
 	},
 	/**
 	 * 获取代码搜索地址
 	 * @param url
 	 */
 	getCodeSearchUrl(url: string) {
-		return "https://greasyfork.org/zh-CN/scripts/code-search?c=" + url;
+		return "/zh-CN/scripts/code-search?c=" + encodeURIComponent(url);
 	},
 	/**
 	 * 获取脚本的信息
-	 * 
+	 *
 	 * 注意是跨域请求
 	 * @param scriptId 脚本id
 	 */
 	getScriptInfoUrl(scriptId: string | number) {
-		return `https://api.greasyfork.org/scripts/${scriptId}.json`;
+		return `/scripts/${scriptId}.json`;
 	},
 	/**
 	 * 获取管理地址

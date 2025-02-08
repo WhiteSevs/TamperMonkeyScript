@@ -162,13 +162,10 @@ export const GreasyforkVersions = {
 						}
 						let loading = Qmsg.loading(i18next.t("正在获取对比文本中..."));
 						let scriptId = GreasyforkUrlUtils.getScriptId();
-						let response = await httpx.get(
-							`https://greasyfork.org/zh-CN/scripts/${scriptId}.json`,
-							{
-								fetch: true,
-								responseType: "json",
-							}
-						);
+						let response = await httpx.get(`/zh-CN/scripts/${scriptId}.json`, {
+							fetch: true,
+							responseType: "json",
+						});
 						if (!response.status) {
 							loading.close();
 							return;

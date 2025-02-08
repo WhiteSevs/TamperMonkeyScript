@@ -511,7 +511,7 @@ export const GreasyforkScripts = {
 					}
 					let scriptId = scriptIdMatch[scriptIdMatch.length - 1];
 					window.location.href = GreasyforkUrlUtils.getCodeSearchUrl(
-						`greasyfork.org/scripts/${scriptId}`
+						`/scripts/${scriptId}`
 					);
 				});
 			});
@@ -574,7 +574,7 @@ export const GreasyforkScripts = {
 				DOMUtils.on(copyButton, "click", async function () {
 					let loading = Qmsg.loading(i18next.t("加载文件中..."));
 					let getResp = await httpx.get(
-						`https://greasyfork.org/zh-CN/scripts/${GreasyforkUrlUtils.getScriptId()}.json`,
+						`/zh-CN/scripts/${GreasyforkUrlUtils.getScriptId()}.json`,
 						{
 							fetch: true,
 							responseType: "json",
