@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.2.8
+// @version      2025.2.10
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -9,7 +9,7 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
-// @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
+// @require      https://update.cn-greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
@@ -5383,7 +5383,8 @@
                 transformAwemeInfo,
                 details,
                 dynamicDetailsList,
-                awemeInfo
+                awemeInfo,
+                filterOption
               ]);
             }
           } else {
@@ -5391,7 +5392,8 @@
               `视频过滤器 ==> ${filterOption.name}`,
               transformAwemeInfo,
               details,
-              awemeInfo
+              awemeInfo,
+              filterOption
             ]);
           }
         }
@@ -5576,161 +5578,172 @@
             }
           }
         };
-        DouYinNetWorkHook.ajaxHooker.hook((request) => {
-          let url = CommonUtil.fixUrl(request.url);
-          let urlInstance = new URL(url);
-          if (urlInstance.pathname.startsWith("/aweme/v1/web/tab/feed") || urlInstance.pathname.startsWith("/aweme/v1/web/aweme/post/") || urlInstance.pathname.startsWith("/aweme/v1/web/mix/aweme/")) {
-            request.response = (response) => {
-              let filterOptionList = queryScopeFilterOptionList([
-                "xhr-tab",
-                "xhr-userHome",
-                "xhr-mix"
-              ]);
-              if (!filterOptionList.length) {
-                return;
-              }
-              let data = utils.toJSON(response.responseText);
-              let aweme_list = data["aweme_list"];
-              if (Array.isArray(aweme_list)) {
-                for (let index = 0; index < aweme_list.length; index++) {
-                  let awemeInfo = aweme_list[index] || {};
-                  let filterResult = filterBase.checkAwemeInfoIsFilter(
-                    filterOptionList,
+        let xhr_hook_callback_1 = (scopeName, request) => {
+          request.response = (response) => {
+            let filterOptionList = queryScopeFilterOptionList(scopeName);
+            if (!filterOptionList.length) {
+              return;
+            }
+            let data = utils.toJSON(response.responseText);
+            let aweme_list = data["aweme_list"];
+            if (Array.isArray(aweme_list)) {
+              for (let index = 0; index < aweme_list.length; index++) {
+                let awemeInfo = aweme_list[index] || {};
+                let filterResult = filterBase.checkAwemeInfoIsFilter(
+                  filterOptionList,
+                  awemeInfo
+                );
+                isFilterCallBack(filterResult);
+                if (filterResult.isFilter) {
+                  filterBase.sendDislikeVideo(
+                    filterResult.matchedFilterOption,
                     awemeInfo
                   );
-                  isFilterCallBack(filterResult);
-                  if (filterResult.isFilter) {
-                    filterBase.sendDislikeVideo(
-                      filterResult.matchedFilterOption,
-                      awemeInfo
-                    );
-                    filterBase.removeAweme(aweme_list, index--);
-                  }
+                  filterBase.removeAweme(aweme_list, index--);
                 }
-                response.responseText = JSON.stringify(data);
               }
-            };
-          } else if (urlInstance.pathname.startsWith("/aweme/v1/web/follow/feed") || urlInstance.pathname.startsWith("/aweme/v1/web/familiar/feed")) {
-            request.response = (response) => {
-              let filterOptionList = queryScopeFilterOptionList([
-                "xhr-follow",
-                "xhr-familiar"
-              ]);
-              if (!filterOptionList.length) {
-                return;
-              }
-              let data = utils.toJSON(response.responseText);
-              let aweme_list = data["data"];
-              if (Array.isArray(aweme_list)) {
-                for (let index = 0; index < aweme_list.length; index++) {
-                  let awemeItem = aweme_list[index];
-                  let awemeInfo = awemeItem["aweme"] || {};
-                  if (typeof (awemeItem == null ? void 0 : awemeItem["cell_room"]) === "object" && (awemeItem == null ? void 0 : awemeItem["cell_room"]) != null) {
-                    awemeInfo["cell_room"] = awemeItem == null ? void 0 : awemeItem["cell_room"];
-                  }
-                  let filterResult = filterBase.checkAwemeInfoIsFilter(
-                    filterOptionList,
+              response.responseText = JSON.stringify(data);
+            }
+          };
+        };
+        let xhr_hook_callback_2 = (scopeName, request) => {
+          request.response = (response) => {
+            let filterOptionList = queryScopeFilterOptionList(scopeName);
+            if (!filterOptionList.length) {
+              return;
+            }
+            let data = utils.toJSON(response.responseText);
+            let aweme_list = data["data"];
+            if (Array.isArray(aweme_list)) {
+              for (let index = 0; index < aweme_list.length; index++) {
+                let awemeItem = aweme_list[index];
+                let awemeInfo = awemeItem["aweme"] || {};
+                if (typeof (awemeItem == null ? void 0 : awemeItem["cell_room"]) === "object" && (awemeItem == null ? void 0 : awemeItem["cell_room"]) != null) {
+                  awemeInfo["cell_room"] = awemeItem == null ? void 0 : awemeItem["cell_room"];
+                }
+                let filterResult = filterBase.checkAwemeInfoIsFilter(
+                  filterOptionList,
+                  awemeInfo
+                );
+                isFilterCallBack(filterResult);
+                if (filterResult.isFilter) {
+                  filterBase.sendDislikeVideo(
+                    filterResult.matchedFilterOption,
                     awemeInfo
                   );
-                  isFilterCallBack(filterResult);
-                  if (filterResult.isFilter) {
-                    filterBase.sendDislikeVideo(
-                      filterResult.matchedFilterOption,
-                      awemeInfo
-                    );
-                    filterBase.removeAweme(aweme_list, index--);
-                  }
+                  filterBase.removeAweme(aweme_list, index--);
                 }
-                response.responseText = JSON.stringify(data);
               }
-            };
-          } else if (urlInstance.pathname.startsWith("/aweme/v1/web/module/feed")) {
-            request.response = (response) => {
-              let filterOptionList = queryScopeFilterOptionList("xhr-module");
-              if (!filterOptionList.length) {
-                return;
-              }
-              let data = utils.toJSON(response.responseText);
-              let cards = data["cards"];
-              if (Array.isArray(cards)) {
-                for (let index = 0; index < cards.length; index++) {
-                  let awemeItem = cards[index];
-                  let awemeInfo = utils.toJSON((awemeItem == null ? void 0 : awemeItem["aweme"]) || "{}");
-                  let filterResult = filterBase.checkAwemeInfoIsFilter(
-                    filterOptionList,
+              response.responseText = JSON.stringify(data);
+            }
+          };
+        };
+        let xhr_hook_callback_3 = (scopeName, request) => {
+          request.response = (response) => {
+            let filterOptionList = queryScopeFilterOptionList(scopeName);
+            if (!filterOptionList.length) {
+              return;
+            }
+            let data = utils.toJSON(response.responseText);
+            let cards = data["cards"];
+            if (Array.isArray(cards)) {
+              for (let index = 0; index < cards.length; index++) {
+                let awemeItem = cards[index];
+                let awemeInfo = utils.toJSON((awemeItem == null ? void 0 : awemeItem["aweme"]) || "{}");
+                let filterResult = filterBase.checkAwemeInfoIsFilter(
+                  filterOptionList,
+                  awemeInfo
+                );
+                isFilterCallBack(filterResult);
+                if (filterResult.isFilter) {
+                  filterBase.sendDislikeVideo(
+                    filterResult.matchedFilterOption,
                     awemeInfo
                   );
-                  isFilterCallBack(filterResult);
-                  if (filterResult.isFilter) {
-                    filterBase.sendDislikeVideo(
-                      filterResult.matchedFilterOption,
-                      awemeInfo
-                    );
-                    filterBase.removeAweme(cards, index--);
-                  }
+                  filterBase.removeAweme(cards, index--);
                 }
-                response.responseText = JSON.stringify(data);
               }
-            };
-          } else if (
-            // 搜索-综合
-            urlInstance.pathname.startsWith(
-              "/aweme/v1/web/general/search/single/"
-            ) || // 搜索-视频
-            urlInstance.pathname.startsWith("/aweme/v1/web/search/item/")
-          ) {
-            request.response = (response) => {
-              let filterOptionList = queryScopeFilterOptionList(["xhr-search"]);
-              if (!filterOptionList.length) {
-                return;
-              }
-              let data = utils.toJSON(response.responseText);
-              let aweme_list = data["data"];
-              if (Array.isArray(aweme_list)) {
-                for (let index = 0; index < aweme_list.length; index++) {
-                  let awemeItem = aweme_list[index];
-                  let awemeInfo = awemeItem["aweme_info"] || {};
-                  let awemeMixInfo = awemeItem == null ? void 0 : awemeItem["aweme_mix_info"];
-                  if (awemeInfo == null && typeof awemeMixInfo && awemeMixInfo != null) {
-                    let awemeMixInfoItems = awemeMixInfo == null ? void 0 : awemeMixInfo["mix_items"];
-                    if (Array.isArray(awemeMixInfoItems)) {
-                      for (let mixIndex = 0; mixIndex < awemeMixInfoItems.length; mixIndex++) {
-                        let mixItem = awemeMixInfoItems[mixIndex];
-                        let filterResult = filterBase.checkAwemeInfoIsFilter(
-                          filterOptionList,
+              response.responseText = JSON.stringify(data);
+            }
+          };
+        };
+        let xhr_hook_callback_4 = (scopeName, request) => {
+          request.response = (response) => {
+            let filterOptionList = queryScopeFilterOptionList(scopeName);
+            if (!filterOptionList.length) {
+              return;
+            }
+            let data = utils.toJSON(response.responseText);
+            let aweme_list = data["data"];
+            if (Array.isArray(aweme_list)) {
+              for (let index = 0; index < aweme_list.length; index++) {
+                let awemeItem = aweme_list[index];
+                let awemeInfo = awemeItem["aweme_info"] || {};
+                let awemeMixInfo = awemeItem == null ? void 0 : awemeItem["aweme_mix_info"];
+                if (awemeInfo == null && typeof awemeMixInfo && awemeMixInfo != null) {
+                  let awemeMixInfoItems = awemeMixInfo == null ? void 0 : awemeMixInfo["mix_items"];
+                  if (Array.isArray(awemeMixInfoItems)) {
+                    for (let mixIndex = 0; mixIndex < awemeMixInfoItems.length; mixIndex++) {
+                      let mixItem = awemeMixInfoItems[mixIndex];
+                      let filterResult = filterBase.checkAwemeInfoIsFilter(
+                        filterOptionList,
+                        mixItem
+                      );
+                      isFilterCallBack(filterResult);
+                      if (filterResult.isFilter) {
+                        filterBase.sendDislikeVideo(
+                          filterResult.matchedFilterOption,
                           mixItem
                         );
-                        isFilterCallBack(filterResult);
-                        if (filterResult.isFilter) {
-                          filterBase.sendDislikeVideo(
-                            filterResult.matchedFilterOption,
-                            mixItem
-                          );
-                          filterBase.removeAweme(awemeMixInfoItems, mixIndex--);
-                        }
-                      }
-                      if (awemeMixInfoItems.length === 0) {
-                        filterBase.removeAweme(aweme_list, index--);
+                        filterBase.removeAweme(awemeMixInfoItems, mixIndex--);
                       }
                     }
-                  } else {
-                    let filterResult = filterBase.checkAwemeInfoIsFilter(
-                      filterOptionList,
-                      awemeInfo
-                    );
-                    isFilterCallBack(filterResult);
-                    if (filterResult.isFilter) {
-                      filterBase.sendDislikeVideo(
-                        filterResult.matchedFilterOption,
-                        awemeInfo
-                      );
+                    if (awemeMixInfoItems.length === 0) {
                       filterBase.removeAweme(aweme_list, index--);
                     }
                   }
+                } else {
+                  let filterResult = filterBase.checkAwemeInfoIsFilter(
+                    filterOptionList,
+                    awemeInfo
+                  );
+                  isFilterCallBack(filterResult);
+                  if (filterResult.isFilter) {
+                    filterBase.sendDislikeVideo(
+                      filterResult.matchedFilterOption,
+                      awemeInfo
+                    );
+                    filterBase.removeAweme(aweme_list, index--);
+                  }
                 }
-                response.responseText = JSON.stringify(data);
               }
-            };
+              response.responseText = JSON.stringify(data);
+            }
+          };
+        };
+        DouYinNetWorkHook.ajaxHooker.hook((request) => {
+          let url = CommonUtil.fixUrl(request.url);
+          let urlInstance = new URL(url);
+          if (urlInstance.pathname.startsWith("/aweme/v1/web/tab/feed")) {
+            xhr_hook_callback_1("xhr-tab", request);
+          } else if (urlInstance.pathname.startsWith("/aweme/v1/web/aweme/post/")) {
+            xhr_hook_callback_1("xhr-userHome", request);
+          } else if (urlInstance.pathname.startsWith("/aweme/v1/web/mix/aweme/")) {
+            xhr_hook_callback_1("xhr-mix", request);
+          } else if (urlInstance.pathname.startsWith("/aweme/v1/web/aweme/related/")) {
+            xhr_hook_callback_1("xhr-related", request);
+          } else if (urlInstance.pathname.startsWith("/aweme/v1/web/follow/feed")) {
+            xhr_hook_callback_2("xhr-follow", request);
+          } else if (urlInstance.pathname.startsWith("/aweme/v1/web/familiar/feed")) {
+            xhr_hook_callback_2("xhr-familiar", request);
+          } else if (urlInstance.pathname.startsWith("/aweme/v1/web/module/feed")) {
+            xhr_hook_callback_3("xhr-module", request);
+          } else if (urlInstance.pathname.startsWith(
+            "/aweme/v1/web/general/search/single/"
+          )) {
+            xhr_hook_callback_4("xhr-search", request);
+          } else if (urlInstance.pathname.startsWith("/aweme/v1/web/search/item/")) {
+            xhr_hook_callback_4("xhr-search", request);
           }
         });
       });
@@ -6008,6 +6021,10 @@
                   {
                     text: "混合信息",
                     value: "xhr-mix"
+                  },
+                  {
+                    text: "相关推荐",
+                    value: "xhr-related"
                   }
                 ],
                 void 0,

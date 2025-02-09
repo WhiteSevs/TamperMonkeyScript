@@ -22,6 +22,7 @@ import { PanelUISize } from "@/setting/panel-ui-size";
 import { UITextArea } from "@/setting/common-components/ui-textarea";
 import Utils from "@whitesev/utils";
 import { DouYinRouter } from "@/router/DouYinRouter";
+import type { UtilsAjaxHookRequestOptions } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
 
 type DouYinVideoFilterOptionScope =
 	| "all"
@@ -32,7 +33,8 @@ type DouYinVideoFilterOptionScope =
 	| "xhr-module"
 	| "xhr-userHome"
 	| "xhr-search"
-	| "xhr-mix";
+	| "xhr-mix"
+	| "xhr-related";
 
 export type DouYinVideoFilterDynamicOption = {
 	/** 属性名 */
@@ -116,7 +118,7 @@ export const DouYinVideoFilter = {
 			 * 获取作用域的规则
 			 */
 			let queryScopeFilterOptionList = (
-				scopeName: DouYinVideoFilterOptionScope | DouYinVideoFilterOptionScope[]
+				scopeName: DouYinVideoFilterOptionScope
 			) => {
 				if (!PopsPanel.getValue(that.$key.ENABLE_KEY)) {
 					return [];
@@ -126,6 +128,7 @@ export const DouYinVideoFilter = {
 					// 无规则，不过滤
 					return [];
 				}
+				// 作用域列表
 				let scopeNameList = Array.isArray(scopeName) ? scopeName : [scopeName];
 				let matchedFilterOptionList = filterOptionList.filter(
 					(it) =>
@@ -165,206 +168,253 @@ export const DouYinVideoFilter = {
 					}
 				}
 			};
+			/**
+			 * 类型1接口结果的hook
+			 */
+			let xhr_hook_callback_1 = (
+				scopeName: DouYinVideoFilterOptionScope,
+				request: UtilsAjaxHookRequestOptions
+			) => {
+				request.response = (response) => {
+					let filterOptionList = queryScopeFilterOptionList(scopeName);
+					if (!filterOptionList.length) {
+						return;
+					}
+					let data = utils.toJSON(response.responseText);
+					let aweme_list = data["aweme_list"];
+					if (Array.isArray(aweme_list)) {
+						for (let index = 0; index < aweme_list.length; index++) {
+							let awemeInfo = aweme_list[index] || {};
+							let filterResult = filterBase.checkAwemeInfoIsFilter(
+								filterOptionList,
+								awemeInfo
+							);
+							isFilterCallBack(filterResult);
+							if (filterResult.isFilter) {
+								filterBase.sendDislikeVideo(
+									filterResult.matchedFilterOption!,
+									awemeInfo
+								);
+								filterBase.removeAweme(aweme_list, index--);
+							}
+						}
+						if (import.meta.hot) {
+							console.log(aweme_list);
+						}
+						response.responseText = JSON.stringify(data);
+					}
+				};
+			};
+
+			/**
+			 * 类型2接口结果的hook
+			 */
+			let xhr_hook_callback_2 = (
+				scopeName: DouYinVideoFilterOptionScope,
+				request: UtilsAjaxHookRequestOptions
+			) => {
+				request.response = (response) => {
+					let filterOptionList = queryScopeFilterOptionList(scopeName);
+					if (!filterOptionList.length) {
+						return;
+					}
+					let data = utils.toJSON(response.responseText);
+					let aweme_list = data["data"];
+					if (Array.isArray(aweme_list)) {
+						for (let index = 0; index < aweme_list.length; index++) {
+							let awemeItem = aweme_list[index];
+							let awemeInfo = awemeItem["aweme"] || {};
+							// 如果cell_room不为空，这时候aweme是空的
+							if (
+								typeof awemeItem?.["cell_room"] === "object" &&
+								awemeItem?.["cell_room"] != null
+							) {
+								awemeInfo["cell_room"] = awemeItem?.["cell_room"];
+							}
+							let filterResult = filterBase.checkAwemeInfoIsFilter(
+								filterOptionList,
+								awemeInfo
+							);
+							isFilterCallBack(filterResult);
+							if (filterResult.isFilter) {
+								filterBase.sendDislikeVideo(
+									filterResult.matchedFilterOption!,
+									awemeInfo
+								);
+								filterBase.removeAweme(aweme_list, index--);
+							}
+						}
+						if (import.meta.hot) {
+							console.log(aweme_list);
+						}
+						response.responseText = JSON.stringify(data);
+					}
+				};
+			};
+
+			/**
+			 * 类型3接口结果的hook
+			 */
+			let xhr_hook_callback_3 = (
+				scopeName: DouYinVideoFilterOptionScope,
+				request: UtilsAjaxHookRequestOptions
+			) => {
+				request.response = (response) => {
+					let filterOptionList = queryScopeFilterOptionList(scopeName);
+					if (!filterOptionList.length) {
+						return;
+					}
+					let data = utils.toJSON(response.responseText);
+					let cards = data["cards"];
+					if (Array.isArray(cards)) {
+						for (let index = 0; index < cards.length; index++) {
+							let awemeItem = cards[index];
+							let awemeInfo = utils.toJSON(awemeItem?.["aweme"] || "{}");
+							let filterResult = filterBase.checkAwemeInfoIsFilter(
+								filterOptionList,
+								awemeInfo
+							);
+							isFilterCallBack(filterResult);
+							if (filterResult.isFilter) {
+								filterBase.sendDislikeVideo(
+									filterResult.matchedFilterOption!,
+									awemeInfo
+								);
+								filterBase.removeAweme(cards, index--);
+							}
+						}
+						if (import.meta.hot) {
+							console.log(cards);
+						}
+						response.responseText = JSON.stringify(data);
+					}
+				};
+			};
+
+			/**
+			 * 类型4接口结果的hook
+			 */
+			let xhr_hook_callback_4 = (
+				scopeName: DouYinVideoFilterOptionScope,
+				request: UtilsAjaxHookRequestOptions
+			) => {
+				request.response = (response) => {
+					let filterOptionList = queryScopeFilterOptionList(scopeName);
+					if (!filterOptionList.length) {
+						return;
+					}
+					let data = utils.toJSON(response.responseText);
+					let aweme_list = data["data"];
+					if (Array.isArray(aweme_list)) {
+						for (let index = 0; index < aweme_list.length; index++) {
+							let awemeItem = aweme_list[index];
+							let awemeInfo = awemeItem["aweme_info"] || {};
+							let awemeMixInfo = awemeItem?.["aweme_mix_info"];
+							if (
+								awemeInfo == null &&
+								typeof awemeMixInfo &&
+								awemeMixInfo != null
+							) {
+								// 对混合的信息进行过滤
+								let awemeMixInfoItems = awemeMixInfo?.["mix_items"];
+								if (Array.isArray(awemeMixInfoItems)) {
+									for (
+										let mixIndex = 0;
+										mixIndex < awemeMixInfoItems.length;
+										mixIndex++
+									) {
+										let mixItem = awemeMixInfoItems[mixIndex];
+										let filterResult = filterBase.checkAwemeInfoIsFilter(
+											filterOptionList,
+											mixItem
+										);
+										isFilterCallBack(filterResult);
+										if (filterResult.isFilter) {
+											filterBase.sendDislikeVideo(
+												filterResult.matchedFilterOption!,
+												mixItem
+											);
+											filterBase.removeAweme(awemeMixInfoItems, mixIndex--);
+										}
+									}
+									// 混合的信息都被过滤掉了
+									if (awemeMixInfoItems.length === 0) {
+										// 移除整个
+										filterBase.removeAweme(aweme_list, index--);
+									}
+								}
+							} else {
+								let filterResult = filterBase.checkAwemeInfoIsFilter(
+									filterOptionList,
+									awemeInfo
+								);
+								isFilterCallBack(filterResult);
+								if (filterResult.isFilter) {
+									filterBase.sendDislikeVideo(
+										filterResult.matchedFilterOption!,
+										awemeInfo
+									);
+									filterBase.removeAweme(aweme_list, index--);
+								}
+							}
+						}
+						if (import.meta.hot) {
+							console.log(aweme_list);
+						}
+						response.responseText = JSON.stringify(data);
+					}
+				};
+			};
 			// xhr hook
 			DouYinNetWorkHook.ajaxHooker.hook((request) => {
 				let url = CommonUtil.fixUrl(request.url);
 				let urlInstance = new URL(url);
-				if (
-					urlInstance.pathname.startsWith("/aweme/v1/web/tab/feed") ||
-					urlInstance.pathname.startsWith("/aweme/v1/web/aweme/post/") ||
+				if (urlInstance.pathname.startsWith("/aweme/v1/web/tab/feed")) {
+					// 推荐
+					xhr_hook_callback_1("xhr-tab", request);
+				} else if (
+					urlInstance.pathname.startsWith("/aweme/v1/web/aweme/post/")
+				) {
+					// 用户主页视频
+					xhr_hook_callback_1("xhr-userHome", request);
+				} else if (
 					urlInstance.pathname.startsWith("/aweme/v1/web/mix/aweme/")
 				) {
-					// 推荐
-					// 用户主页视频
-					request.response = (response) => {
-						let filterOptionList = queryScopeFilterOptionList([
-							"xhr-tab",
-							"xhr-userHome",
-							"xhr-mix",
-						]);
-						if (!filterOptionList.length) {
-							return;
-						}
-						let data = utils.toJSON(response.responseText);
-						let aweme_list = data["aweme_list"];
-						if (Array.isArray(aweme_list)) {
-							for (let index = 0; index < aweme_list.length; index++) {
-								let awemeInfo = aweme_list[index] || {};
-								let filterResult = filterBase.checkAwemeInfoIsFilter(
-									filterOptionList,
-									awemeInfo
-								);
-								isFilterCallBack(filterResult);
-								if (filterResult.isFilter) {
-									filterBase.sendDislikeVideo(
-										filterResult.matchedFilterOption!,
-										awemeInfo
-									);
-									filterBase.removeAweme(aweme_list, index--);
-								}
-							}
-							if (import.meta.hot) {
-								console.log(aweme_list);
-							}
-							response.responseText = JSON.stringify(data);
-						}
-					};
+					// 混合信息
+					xhr_hook_callback_1("xhr-mix", request);
 				} else if (
-					urlInstance.pathname.startsWith("/aweme/v1/web/follow/feed") ||
-					urlInstance.pathname.startsWith("/aweme/v1/web/familiar/feed")
+					urlInstance.pathname.startsWith("/aweme/v1/web/aweme/related/")
+				) {
+					// 相关推荐
+					xhr_hook_callback_1("xhr-related", request);
+				} else if (
+					urlInstance.pathname.startsWith("/aweme/v1/web/follow/feed")
 				) {
 					// 关注
+					xhr_hook_callback_2("xhr-follow", request);
+				} else if (
+					urlInstance.pathname.startsWith("/aweme/v1/web/familiar/feed")
+				) {
 					// 朋友
-					request.response = (response) => {
-						let filterOptionList = queryScopeFilterOptionList([
-							"xhr-follow",
-							"xhr-familiar",
-						]);
-						if (!filterOptionList.length) {
-							return;
-						}
-						let data = utils.toJSON(response.responseText);
-						let aweme_list = data["data"];
-						if (Array.isArray(aweme_list)) {
-							for (let index = 0; index < aweme_list.length; index++) {
-								let awemeItem = aweme_list[index];
-								let awemeInfo = awemeItem["aweme"] || {};
-								// 如果cell_room不为空，这时候aweme是空的
-								if (
-									typeof awemeItem?.["cell_room"] === "object" &&
-									awemeItem?.["cell_room"] != null
-								) {
-									awemeInfo["cell_room"] = awemeItem?.["cell_room"];
-								}
-								let filterResult = filterBase.checkAwemeInfoIsFilter(
-									filterOptionList,
-									awemeInfo
-								);
-								isFilterCallBack(filterResult);
-								if (filterResult.isFilter) {
-									filterBase.sendDislikeVideo(
-										filterResult.matchedFilterOption!,
-										awemeInfo
-									);
-									filterBase.removeAweme(aweme_list, index--);
-								}
-							}
-							if (import.meta.hot) {
-								console.log(aweme_list);
-							}
-							response.responseText = JSON.stringify(data);
-						}
-					};
+					xhr_hook_callback_2("xhr-familiar", request);
 				} else if (
 					urlInstance.pathname.startsWith("/aweme/v1/web/module/feed")
 				) {
 					// 精选
 					// 游戏、二次元、音乐、美食、知识、体育从左侧边栏迁移到了这里面
-					request.response = (response) => {
-						let filterOptionList = queryScopeFilterOptionList("xhr-module");
-						if (!filterOptionList.length) {
-							return;
-						}
-						let data = utils.toJSON(response.responseText);
-						let cards = data["cards"];
-						if (Array.isArray(cards)) {
-							for (let index = 0; index < cards.length; index++) {
-								let awemeItem = cards[index];
-								let awemeInfo = utils.toJSON(awemeItem?.["aweme"] || "{}");
-								let filterResult = filterBase.checkAwemeInfoIsFilter(
-									filterOptionList,
-									awemeInfo
-								);
-								isFilterCallBack(filterResult);
-								if (filterResult.isFilter) {
-									filterBase.sendDislikeVideo(
-										filterResult.matchedFilterOption!,
-										awemeInfo
-									);
-									filterBase.removeAweme(cards, index--);
-								}
-							}
-							if (import.meta.hot) {
-								console.log(cards);
-							}
-							response.responseText = JSON.stringify(data);
-						}
-					};
+					xhr_hook_callback_3("xhr-module", request);
 				} else if (
-					// 搜索-综合
 					urlInstance.pathname.startsWith(
 						"/aweme/v1/web/general/search/single/"
-					) ||
-					// 搜索-视频
+					)
+				) {
+					// 搜索-综合
+					xhr_hook_callback_4("xhr-search", request);
+				} else if (
 					urlInstance.pathname.startsWith("/aweme/v1/web/search/item/")
 				) {
-					// 搜索
-					request.response = (response) => {
-						let filterOptionList = queryScopeFilterOptionList(["xhr-search"]);
-						if (!filterOptionList.length) {
-							return;
-						}
-						let data = utils.toJSON(response.responseText);
-						let aweme_list = data["data"];
-						if (Array.isArray(aweme_list)) {
-							for (let index = 0; index < aweme_list.length; index++) {
-								let awemeItem = aweme_list[index];
-								let awemeInfo = awemeItem["aweme_info"] || {};
-								let awemeMixInfo = awemeItem?.["aweme_mix_info"];
-								if (
-									awemeInfo == null &&
-									typeof awemeMixInfo &&
-									awemeMixInfo != null
-								) {
-									// 对混合的信息进行过滤
-									let awemeMixInfoItems = awemeMixInfo?.["mix_items"];
-									if (Array.isArray(awemeMixInfoItems)) {
-										for (
-											let mixIndex = 0;
-											mixIndex < awemeMixInfoItems.length;
-											mixIndex++
-										) {
-											let mixItem = awemeMixInfoItems[mixIndex];
-											let filterResult = filterBase.checkAwemeInfoIsFilter(
-												filterOptionList,
-												mixItem
-											);
-											isFilterCallBack(filterResult);
-											if (filterResult.isFilter) {
-												filterBase.sendDislikeVideo(
-													filterResult.matchedFilterOption!,
-													mixItem
-												);
-												filterBase.removeAweme(awemeMixInfoItems, mixIndex--);
-											}
-										}
-										// 混合的信息都被过滤掉了
-										if (awemeMixInfoItems.length === 0) {
-											// 移除整个
-											filterBase.removeAweme(aweme_list, index--);
-										}
-									}
-								} else {
-									let filterResult = filterBase.checkAwemeInfoIsFilter(
-										filterOptionList,
-										awemeInfo
-									);
-									isFilterCallBack(filterResult);
-									if (filterResult.isFilter) {
-										filterBase.sendDislikeVideo(
-											filterResult.matchedFilterOption!,
-											awemeInfo
-										);
-										filterBase.removeAweme(aweme_list, index--);
-									}
-								}
-							}
-							if (import.meta.hot) {
-								console.log(aweme_list);
-							}
-							response.responseText = JSON.stringify(data);
-						}
-					};
+					// 搜索-视频
+					xhr_hook_callback_4("xhr-search", request);
 				}
 			});
 
@@ -701,6 +751,10 @@ export const DouYinVideoFilter = {
 								{
 									text: "混合信息",
 									value: "xhr-mix",
+								},
+								{
+									text: "相关推荐",
+									value: "xhr-related",
 								},
 							],
 							void 0,

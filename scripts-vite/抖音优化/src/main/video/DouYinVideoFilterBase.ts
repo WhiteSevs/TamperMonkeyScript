@@ -799,6 +799,7 @@ export class DouYinVideoFilterBase {
 							details,
 							dynamicDetailsList,
 							awemeInfo,
+							filterOption,
 						]);
 					}
 				} else {
@@ -807,6 +808,7 @@ export class DouYinVideoFilterBase {
 						transformAwemeInfo,
 						details,
 						awemeInfo,
+						filterOption,
 					]);
 				}
 			}
