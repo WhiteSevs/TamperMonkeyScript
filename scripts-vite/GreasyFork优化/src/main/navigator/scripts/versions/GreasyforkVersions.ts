@@ -6,6 +6,7 @@ import i18next from "i18next";
 import Qmsg from "qmsg";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 import { GreasyforkUtils } from "@/utils/GreasyforkUtils";
+import { GreasyforkApi } from "@/api/GreasyForkApi";
 
 export const GreasyforkVersions = {
 	init() {
@@ -161,17 +162,13 @@ export const GreasyforkVersions = {
 							return;
 						}
 						let loading = Qmsg.loading(i18next.t("正在获取对比文本中..."));
-						let scriptId = GreasyforkUrlUtils.getScriptId();
-						let response = await httpx.get(`/zh-CN/scripts/${scriptId}.json`, {
-							fetch: true,
-							responseType: "json",
-						});
-						if (!response.status) {
+						let scriptId = GreasyforkUrlUtils.getScriptId()!;
+						let scriptInfo = await GreasyforkApi.getScriptInfo(scriptId);
+						if (!scriptInfo) {
 							loading.close();
 							return;
 						}
-						let respJSON = utils.toJSON(response.data.responseText);
-						let code_url: string = respJSON["code_url"];
+						let code_url: string = scriptInfo["code_url"];
 						let compareLeftUrl = code_url.replace(
 							`/${scriptId}`,
 							`/${scriptId}/${compareLeftVersion}`

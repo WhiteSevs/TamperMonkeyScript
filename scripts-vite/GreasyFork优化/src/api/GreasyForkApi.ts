@@ -1,4 +1,5 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
+import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 import i18next from "i18next";
 import Qmsg from "qmsg";
 
@@ -102,6 +103,21 @@ interface GreasyForkUserInfo {
 }
 
 export const GreasyforkApi = {
+	/**
+	 * 获取脚本信息
+	 * @param scriptId
+	 */
+	async getScriptInfo(scriptId: string | number) {
+		let url = GreasyforkUrlUtils.getScriptInfoUrl(scriptId);
+		let response = await httpx.get(url, {});
+		if (!response.status) {
+			return;
+		}
+		let data = utils.toJSON<GreasyforkScriptUrlInfo>(
+			response.data.responseText
+		);
+		return data;
+	},
 	/**
 	 * 获取脚本统计数据
 	 * @param scriptId

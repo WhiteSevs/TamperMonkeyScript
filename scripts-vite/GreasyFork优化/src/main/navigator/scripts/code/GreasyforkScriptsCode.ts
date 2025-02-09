@@ -1,9 +1,10 @@
-import { $, addStyle, DOMUtils, httpx, log, utils } from "@/env";
+import { GreasyforkApi } from "@/api/GreasyForkApi";
+import { addStyle, DOMUtils, httpx, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { CommonUtil } from "@/utils/CommonUtil";
+import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 import { GreasyforkUtils } from "@/utils/GreasyforkUtils";
 import Qmsg from "qmsg";
-import { unsafeWindow } from "ViteGM";
 
 export const GreasyforkScriptsCode = {
 	init() {
@@ -62,19 +63,24 @@ export const GreasyforkScriptsCode = {
 		CommonUtil.addBlockCSS("#script-content .code-container > pre");
 
 		GreasyforkUtils.monacoEditor().then(async (monaco) => {
-			let response = await httpx.get(window.location.href, { fetch: true });
-			if (!response.status) {
+			let scriptId = GreasyforkUrlUtils.getScriptId(window.location.href);
+			if (!scriptId) {
+				Qmsg.error("未解析出当前脚本ID", { consoleLogContent: true });
 				return;
 			}
-			let doc = DOMUtils.parseHTML(response.data.responseText, true, true);
-			let $originCodeContainer = doc.querySelector<HTMLElement>(
-				"#script-content .code-container > pre"
-			);
-			if (!$originCodeContainer) {
-				Qmsg.error("未解析出脚本代码", { consoleLogContent: true });
+			let scriptInfo = await GreasyforkApi.getScriptInfo(scriptId);
+			let code_url = scriptInfo?.code_url;
+			if (!code_url) {
+				Qmsg.error("请求结果中未解析出脚本代码URL", {
+					consoleLogContent: true,
+				});
 				return;
 			}
-			let codeText = DOMUtils.text($originCodeContainer);
+			let code_text_response = await httpx.get(code_url);
+			if (!code_text_response.status) {
+				return;
+			}
+			let code_text = code_text_response.data.responseText;
 			DOMUtils.ready(async () => {
 				let $codeContainer = await utils.waitNode<HTMLElement>(
 					"#script-content .code-container > pre",
@@ -88,7 +94,7 @@ export const GreasyforkScriptsCode = {
 				});
 				DOMUtils.after($codeContainer, $monacoEditor);
 				monaco.editor.create($monacoEditor, {
-					value: codeText,
+					value: code_text,
 					minimap: { enabled: true }, // 小地图
 					automaticLayout: true, // 自动布局,
 					codeLens: true,

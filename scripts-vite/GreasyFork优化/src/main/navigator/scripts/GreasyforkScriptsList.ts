@@ -11,6 +11,7 @@ import beautifyCenterContentCSS from "./css/beautifyCenterContent.css?raw";
 import Qmsg from "qmsg";
 import { GreasyforkCheckVersion } from "@/utils/GreasyforkCheckVersion";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
+import { GreasyforkApi } from "@/api/GreasyForkApi";
 
 /** 解析出<li>元素上存储的脚本信息 */
 export const parseScriptListInfo = ($scriptList: HTMLLIElement) => {
@@ -383,7 +384,7 @@ export const GreasyforkScriptsList = {
 				for (let index = 0; index < $installLinkList.length; index++) {
 					const $installLink = $installLinkList[index];
 					$installLink.setAttribute("gm-is-check-install-status", "");
-					let scriptInfo = Reflect.get(
+					let scriptLocalInfo = Reflect.get(
 						$installLink,
 						"data-script-info"
 					) as GreasyforkScriptListInfo;
@@ -391,23 +392,17 @@ export const GreasyforkScriptsList = {
 						// 得有脚本容器才可以获取版本号信息嘞
 						if (isForceUseNameSpace) {
 							// 强制获取namespace
-							let response = await httpx.get(
-								GreasyforkUrlUtils.getScriptInfoUrl(scriptInfo.scriptId),
-								{
-									fetch: false,
-								}
+							let scriptInfo = await GreasyforkApi.getScriptInfo(
+								scriptLocalInfo.scriptId
 							);
-							if (response.status) {
-								let data = utils.toJSON<GreasyforkScriptUrlInfo>(
-									response.data.responseText
-								);
+							if (scriptInfo) {
 								// 设置namespace信息
 								$installLink.setAttribute(
 									"data-script-namespace",
-									data.namespace
+									scriptInfo.namespace
 								);
 							} else {
-								// 哦吼，获取失败
+								// 脚本信息获取失败
 							}
 						}
 						// 更新安装信息

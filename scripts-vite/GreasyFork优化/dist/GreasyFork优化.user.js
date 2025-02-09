@@ -931,7 +931,135 @@
     });
     return result;
   };
+  const GreasyforkUrlUtils = {
+    /**
+     * 获取脚本安装的链接
+     * @param scriptId
+     * @param scriptVersion
+     * @param scriptName
+     * @returns
+     */
+    getInstallUrl(scriptId, scriptVersion, scriptName) {
+      if (utils.isNotNull(scriptName)) {
+        scriptName = "/" + scriptName;
+      } else {
+        scriptName = "";
+      }
+      return `https://update.${window.location.hostname}/scripts/${scriptId}/${scriptVersion}${scriptName}.user.js`;
+    },
+    /**
+     * 获取脚本的代码页面链接
+     * @param scriptId
+     * @param scriptVersion
+     * @returns
+     */
+    getCodeUrl(scriptId, scriptVersion) {
+      if (utils.isNull(scriptVersion)) {
+        scriptVersion = "";
+      }
+      return `/scripts/${scriptId}/code?version=${scriptVersion}`;
+    },
+    /**
+     * 获取代码搜索地址
+     * @param url
+     */
+    getCodeSearchUrl(url) {
+      return "/zh-CN/scripts/code-search?c=" + encodeURIComponent(url);
+    },
+    /**
+     * 获取脚本的信息
+     *
+     * 注意是跨域请求
+     * @param scriptId 脚本id
+     */
+    getScriptInfoUrl(scriptId) {
+      return `/scripts/${scriptId}.json`;
+    },
+    /**
+     * 获取管理地址
+     * @param url
+     */
+    getAdminUrl(url) {
+      return url + "/admin";
+    },
+    /**
+     * 从字符串中提取Id
+     * @param text
+     * @default window.location.pathname
+     */
+    getScriptId(text) {
+      var _a2, _b;
+      return (_b = (_a2 = text || window.location.pathname) == null ? void 0 : _a2.match(
+        /\/scripts\/([\d]+)/i
+      )) == null ? void 0 : _b[1];
+    },
+    /**
+     * 从字符串中提取用户id
+     * @param text
+     * @default window.location.pathname
+     */
+    getUserId(text) {
+      var _a2;
+      return (_a2 = (text || window.location.pathname).match(/\/users\/([\d]+)/i)) == null ? void 0 : _a2[1];
+    },
+    /**
+     * 获取举报地址
+     */
+    getReportUrl(item_class, item_id) {
+      return `${window.location.origin}/reports/new?item_class=${item_class}&item_id=${item_id}`;
+    },
+    /**
+     * 从字符串中提取脚本名
+     * @param text
+     */
+    getScriptName(text) {
+      let pathname = window.location.pathname;
+      if (text != null) {
+        pathname = new URL(text).pathname;
+      }
+      pathname = decodeURIComponent(pathname);
+      let pathnameSplit = pathname.split("/");
+      for (const name of pathnameSplit) {
+        let nameMatch = name.match(/[\d]+/);
+        if (nameMatch && nameMatch.length) {
+          return nameMatch[1];
+        }
+      }
+    },
+    /**
+     * 获取需要切换语言的Url
+     * @default "zh-CN"
+     */
+    getSwitchLanguageUrl(localeLanguage = "zh-CN") {
+      let url = window.location.origin;
+      let urlSplit = window.location.pathname.split("/");
+      urlSplit[1] = localeLanguage;
+      url = url + urlSplit.join("/");
+      url += window.location.search;
+      if (window.location.search === "") {
+        url += "?locale_override=1";
+      } else if (!window.location.search.includes("locale_override=1")) {
+        url += "&locale_override=1";
+      }
+      return url;
+    }
+  };
   const GreasyforkApi = {
+    /**
+     * 获取脚本信息
+     * @param scriptId
+     */
+    async getScriptInfo(scriptId) {
+      let url = GreasyforkUrlUtils.getScriptInfoUrl(scriptId);
+      let response = await httpx.get(url, {});
+      if (!response.status) {
+        return;
+      }
+      let data = utils.toJSON(
+        response.data.responseText
+      );
+      return data;
+    },
     /**
      * 获取脚本统计数据
      * @param scriptId
@@ -1304,119 +1432,6 @@
      */
     isImageSource() {
       return window.location.pathname.startsWith("/vite/assets");
-    }
-  };
-  const GreasyforkUrlUtils = {
-    /**
-     * 获取脚本安装的链接
-     * @param scriptId
-     * @param scriptVersion
-     * @param scriptName
-     * @returns
-     */
-    getInstallUrl(scriptId, scriptVersion, scriptName) {
-      if (utils.isNotNull(scriptName)) {
-        scriptName = "/" + scriptName;
-      } else {
-        scriptName = "";
-      }
-      return `https://update.${window.location.hostname}/scripts/${scriptId}/${scriptVersion}${scriptName}.user.js`;
-    },
-    /**
-     * 获取脚本的代码页面链接
-     * @param scriptId
-     * @param scriptVersion
-     * @returns
-     */
-    getCodeUrl(scriptId, scriptVersion) {
-      if (utils.isNull(scriptVersion)) {
-        scriptVersion = "";
-      }
-      return `/scripts/${scriptId}/code?version=${scriptVersion}`;
-    },
-    /**
-     * 获取代码搜索地址
-     * @param url
-     */
-    getCodeSearchUrl(url) {
-      return "/zh-CN/scripts/code-search?c=" + encodeURIComponent(url);
-    },
-    /**
-     * 获取脚本的信息
-     *
-     * 注意是跨域请求
-     * @param scriptId 脚本id
-     */
-    getScriptInfoUrl(scriptId) {
-      return `/scripts/${scriptId}.json`;
-    },
-    /**
-     * 获取管理地址
-     * @param url
-     */
-    getAdminUrl(url) {
-      return url + "/admin";
-    },
-    /**
-     * 从字符串中提取Id
-     * @param text
-     * @default window.location.pathname
-     */
-    getScriptId(text) {
-      var _a2, _b;
-      return (_b = (_a2 = text || window.location.pathname) == null ? void 0 : _a2.match(
-        /\/scripts\/([\d]+)/i
-      )) == null ? void 0 : _b[1];
-    },
-    /**
-     * 从字符串中提取用户id
-     * @param text
-     * @default window.location.pathname
-     */
-    getUserId(text) {
-      var _a2;
-      return (_a2 = (text || window.location.pathname).match(/\/users\/([\d]+)/i)) == null ? void 0 : _a2[1];
-    },
-    /**
-     * 获取举报地址
-     */
-    getReportUrl(item_class, item_id) {
-      return `${window.location.origin}/reports/new?item_class=${item_class}&item_id=${item_id}`;
-    },
-    /**
-     * 从字符串中提取脚本名
-     * @param text
-     */
-    getScriptName(text) {
-      let pathname = window.location.pathname;
-      if (text != null) {
-        pathname = new URL(text).pathname;
-      }
-      pathname = decodeURIComponent(pathname);
-      let pathnameSplit = pathname.split("/");
-      for (const name of pathnameSplit) {
-        let nameMatch = name.match(/[\d]+/);
-        if (nameMatch && nameMatch.length) {
-          return nameMatch[1];
-        }
-      }
-    },
-    /**
-     * 获取需要切换语言的Url
-     * @default "zh-CN"
-     */
-    getSwitchLanguageUrl(localeLanguage = "zh-CN") {
-      let url = window.location.origin;
-      let urlSplit = window.location.pathname.split("/");
-      urlSplit[1] = localeLanguage;
-      url = url + urlSplit.join("/");
-      url += window.location.search;
-      if (window.location.search === "") {
-        url += "?locale_override=1";
-      } else if (!window.location.search.includes("locale_override=1")) {
-        url += "&locale_override=1";
-      }
-      return url;
     }
   };
   const GreasyforkMenu = {
@@ -2621,19 +2636,24 @@
       );
       CommonUtil.addBlockCSS("#script-content .code-container > pre");
       GreasyforkUtils.monacoEditor().then(async (monaco) => {
-        let response = await httpx.get(window.location.href, { fetch: true });
-        if (!response.status) {
+        let scriptId = GreasyforkUrlUtils.getScriptId(window.location.href);
+        if (!scriptId) {
+          Qmsg.error("未解析出当前脚本ID", { consoleLogContent: true });
           return;
         }
-        let doc = domUtils.parseHTML(response.data.responseText, true, true);
-        let $originCodeContainer = doc.querySelector(
-          "#script-content .code-container > pre"
-        );
-        if (!$originCodeContainer) {
-          Qmsg.error("未解析出脚本代码", { consoleLogContent: true });
+        let scriptInfo = await GreasyforkApi.getScriptInfo(scriptId);
+        let code_url = scriptInfo == null ? void 0 : scriptInfo.code_url;
+        if (!code_url) {
+          Qmsg.error("请求结果中未解析出脚本代码URL", {
+            consoleLogContent: true
+          });
           return;
         }
-        let codeText = domUtils.text($originCodeContainer);
+        let code_text_response = await httpx.get(code_url);
+        if (!code_text_response.status) {
+          return;
+        }
+        let code_text = code_text_response.data.responseText;
         domUtils.ready(async () => {
           let $codeContainer = await utils.waitNode(
             "#script-content .code-container > pre",
@@ -2647,7 +2667,7 @@
           });
           domUtils.after($codeContainer, $monacoEditor);
           monaco.editor.create($monacoEditor, {
-            value: codeText,
+            value: code_text,
             minimap: { enabled: true },
             // 小地图
             automaticLayout: true,
@@ -2827,16 +2847,12 @@
               }
               let loading = Qmsg.loading(i18next.t("正在获取对比文本中..."));
               let scriptId = GreasyforkUrlUtils.getScriptId();
-              let response = await httpx.get(`/zh-CN/scripts/${scriptId}.json`, {
-                fetch: true,
-                responseType: "json"
-              });
-              if (!response.status) {
+              let scriptInfo = await GreasyforkApi.getScriptInfo(scriptId);
+              if (!scriptInfo) {
                 loading.close();
                 return;
               }
-              let respJSON = utils.toJSON(response.data.responseText);
-              let code_url = respJSON["code_url"];
+              let code_url = scriptInfo["code_url"];
               let compareLeftUrl = code_url.replace(
                 `/${scriptId}`,
                 `/${scriptId}/${compareLeftVersion}`
@@ -4105,25 +4121,19 @@
           for (let index = 0; index < $installLinkList.length; index++) {
             const $installLink = $installLinkList[index];
             $installLink.setAttribute("gm-is-check-install-status", "");
-            let scriptInfo = Reflect.get(
+            let scriptLocalInfo = Reflect.get(
               $installLink,
               "data-script-info"
             );
             if (hasScriptContainer) {
               if (isForceUseNameSpace) {
-                let response = await httpx.get(
-                  GreasyforkUrlUtils.getScriptInfoUrl(scriptInfo.scriptId),
-                  {
-                    fetch: false
-                  }
+                let scriptInfo = await GreasyforkApi.getScriptInfo(
+                  scriptLocalInfo.scriptId
                 );
-                if (response.status) {
-                  let data = utils.toJSON(
-                    response.data.responseText
-                  );
+                if (scriptInfo) {
                   $installLink.setAttribute(
                     "data-script-namespace",
-                    data.namespace
+                    scriptInfo.namespace
                   );
                 }
               }
