@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         简书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.17
+// @version      2025.2.10
 // @author       WhiteSevs
 // @description  支持手机端和PC端、屏蔽广告、优化浏览体验、重定向链接、全文居中、自动展开全文、允许复制文字、劫持唤醒/跳转App、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -9,10 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.jianshu.com/*
 // @match        *://*.jianshu.io/*
-// @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.5/dist/index.umd.js
+// @require      https://update.cn-greasyfork.org/scripts/494167/1413255/CoverUMD.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @connect      *
 // @grant        GM_deleteValue
@@ -608,28 +608,6 @@
       },
       get height() {
         return window.innerHeight < 450 ? "70vh" : "450px";
-      }
-    },
-    /**
-     * 功能丰富，aside铺满了的设置界面，要稍微大一点
-     */
-    settingBig: {
-      get width() {
-        return window.innerWidth < 800 ? "92vw" : "800px";
-      },
-      get height() {
-        return window.innerHeight < 600 ? "80vh" : "600px";
-      }
-    },
-    /**
-     * 信息界面，一般用于提示信息之类
-     */
-    info: {
-      get width() {
-        return window.innerWidth < 350 ? "350px" : "350px";
-      },
-      get height() {
-        return window.innerHeight < 250 ? "250px" : "250px";
       }
     }
   };

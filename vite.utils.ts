@@ -235,8 +235,8 @@ export class ViteUtils {
 			let codeUrlInstance = new URL(code_url);
 			if (codeUrlInstance.hostname == "update.greasyfork.org") {
 				// 官方域名已被污染
-				// codeUrlInstance.hostname = "update.cn-greasyfork.org";
-				// code_url = codeUrlInstance.toString();
+				codeUrlInstance.hostname = "update.cn-greasyfork.org";
+				code_url = codeUrlInstance.toString();
 			}
 			let code_url_split = code_url.split("/");
 			let findIndex = code_url_split.findIndex(

@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.31
+// @version      2025.2.10
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
 // @icon         data:image/png;base64,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
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
-// @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
+// @require      https://update.cn-greasyfork.org/scripts/494167/1413255/CoverUMD.js
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      *
 // @grant        GM.addElement
@@ -3826,7 +3826,7 @@
   }
   const AjaxHooker = function() {
     return function() {
-      const version = "1.4.3";
+      const version = "1.4.4";
       const hookInst = {
         hookFns: [],
         filters: []
@@ -4326,6 +4326,48 @@
       win.fetch = winAh.fakeFetch;
       resProto.clone = winAh.fakeFetchClone;
       winAh.hookInsts.add(hookInst);
+      class AHFunction {
+        call(thisArg, ...args2) {
+          if (thisArg && thisArg.__ajaxHooker && thisArg.__ajaxHooker.proxyXhr === thisArg) {
+            thisArg = thisArg.__ajaxHooker.originalXhr;
+          }
+          return Reflect.apply(this, thisArg, args2);
+        }
+        apply(thisArg, args2) {
+          if (thisArg && thisArg.__ajaxHooker && thisArg.__ajaxHooker.proxyXhr === thisArg) {
+            thisArg = thisArg.__ajaxHooker.originalXhr;
+          }
+          return Reflect.apply(this, thisArg, args2 || []);
+        }
+      }
+      function hookSecsdk(csrf) {
+        Object.setPrototypeOf(
+          csrf.nativeXMLHttpRequestSetRequestHeader,
+          AHFunction.prototype
+        );
+        Object.setPrototypeOf(
+          csrf.nativeXMLHttpRequestOpen,
+          AHFunction.prototype
+        );
+        Object.setPrototypeOf(
+          csrf.nativeXMLHttpRequestSend,
+          AHFunction.prototype
+        );
+      }
+      if (win.secsdk) {
+        if (win.secsdk.csrf && win.secsdk.csrf.nativeXMLHttpRequestOpen)
+          hookSecsdk(win.secsdk.csrf);
+      } else {
+        defineProp(win, "secsdk", emptyFn, (secsdk) => {
+          delete win.secsdk;
+          win.secsdk = secsdk;
+          defineProp(secsdk, "csrf", emptyFn, (csrf) => {
+            delete secsdk.csrf;
+            secsdk.csrf = csrf;
+            if (csrf.nativeXMLHttpRequestOpen) hookSecsdk(csrf);
+          });
+        });
+      }
       return {
         hook: (fn) => hookInst.hookFns.push(fn),
         filter: (arr) => {
@@ -4344,6 +4386,431 @@
             writable(resProto, "clone", winAh.realFetchClone);
             delete win.__ajaxHooker;
           }
+        }
+      };
+    }();
+  };
+  const AjaxHooker1_2_4 = function() {
+    return function() {
+      const win = window.unsafeWindow || document.defaultView || window;
+      const hookFns = [];
+      const realXhr = win.XMLHttpRequest;
+      const resProto = win.Response.prototype;
+      const toString = Object.prototype.toString;
+      const realFetch = win.fetch;
+      const xhrResponses = ["response", "responseText", "responseXML"];
+      const fetchResponses = ["arrayBuffer", "blob", "formData", "json", "text"];
+      const xhrAsyncEvents = ["readystatechange", "load", "loadend"];
+      let filter;
+      function emptyFn() {
+      }
+      function errorFn(err) {
+        console.error(err);
+      }
+      function defineProp(obj, prop, getter, setter) {
+        Object.defineProperty(obj, prop, {
+          configurable: true,
+          enumerable: true,
+          get: getter,
+          set: setter
+        });
+      }
+      function readonly(obj, prop, value = obj[prop]) {
+        defineProp(obj, prop, () => value, emptyFn);
+      }
+      function writable(obj, prop, value = obj[prop]) {
+        Object.defineProperty(obj, prop, {
+          configurable: true,
+          enumerable: true,
+          writable: true,
+          value
+        });
+      }
+      function toFilterObj(obj) {
+        return {
+          type: obj.type,
+          url: obj.url,
+          method: obj.method && obj.method.toUpperCase()
+        };
+      }
+      function shouldFilter(type, url, method) {
+        return filter && !filter.find(
+          (obj) => (!obj.type || obj.type === type) && (!obj.url || (toString.call(obj.url) === "[object String]" ? url.includes(obj.url) : obj.url.test(url))) && (!obj.method || obj.method === method.toUpperCase())
+        );
+      }
+      function lookupGetter(obj, prop) {
+        let getter;
+        let proto = obj;
+        while (proto) {
+          const descriptor = Object.getOwnPropertyDescriptor(proto, prop);
+          getter = descriptor && descriptor.get;
+          if (getter) break;
+          proto = Object.getPrototypeOf(proto);
+        }
+        return getter ? getter.bind(obj) : emptyFn;
+      }
+      function waitForHookFns(request) {
+        return Promise.all(
+          hookFns.map((fn) => Promise.resolve(fn(request)).then(emptyFn, errorFn))
+        );
+      }
+      function waitForRequestKeys(request, requestClone) {
+        return Promise.all(
+          ["url", "method", "abort", "headers", "data"].map((key) => {
+            return Promise.resolve(request[key]).then(
+              (val) => request[key] = val,
+              () => request[key] = requestClone[key]
+            );
+          })
+        );
+      }
+      function fakeEventSIP() {
+        this.ajaxHooker_stopped = true;
+      }
+      function xhrDelegateEvent(e2) {
+        const xhr = e2.target;
+        e2.stopImmediatePropagation = fakeEventSIP;
+        xhr.__ajaxHooker.hookedEvents[e2.type].forEach(
+          (fn) => !e2.ajaxHooker_stopped && fn.call(xhr, e2)
+        );
+        const onEvent = xhr.__ajaxHooker.hookedEvents["on" + e2.type];
+        typeof onEvent === "function" && onEvent.call(xhr, e2);
+      }
+      function xhrReadyStateChange(e2) {
+        if (e2.target.readyState === 4) {
+          e2.target.dispatchEvent(
+            new CustomEvent("ajaxHooker_responseReady", { detail: e2 })
+          );
+        } else {
+          e2.target.__ajaxHooker.delegateEvent(e2);
+        }
+      }
+      function xhrLoadAndLoadend(e2) {
+        e2.target.__ajaxHooker.delegateEvent(e2);
+      }
+      function fakeXhrOpen(method, url, ...args2) {
+        const ah = this.__ajaxHooker;
+        ah.url = url.toString();
+        ah.method = method.toUpperCase();
+        ah.openArgs = args2;
+        ah.headers = {};
+        return ah.originalMethods.open(method, url, ...args2);
+      }
+      function fakeXhr() {
+        const xhr = new realXhr();
+        let ah = xhr.__ajaxHooker;
+        if (!ah) {
+          ah = xhr.__ajaxHooker = {
+            headers: {},
+            hookedEvents: {
+              readystatechange: /* @__PURE__ */ new Set(),
+              load: /* @__PURE__ */ new Set(),
+              loadend: /* @__PURE__ */ new Set()
+            },
+            delegateEvent: xhrDelegateEvent,
+            originalGetters: {},
+            originalMethods: {}
+          };
+          xhr.addEventListener("readystatechange", xhrReadyStateChange);
+          xhr.addEventListener("load", xhrLoadAndLoadend);
+          xhr.addEventListener("loadend", xhrLoadAndLoadend);
+          for (const key of xhrResponses) {
+            ah.originalGetters[key] = lookupGetter(xhr, key);
+          }
+          for (const method of [
+            "open",
+            "setRequestHeader",
+            "addEventListener",
+            "removeEventListener"
+          ]) {
+            ah.originalMethods[method] = xhr[method].bind(xhr);
+          }
+          xhr.open = fakeXhrOpen;
+          xhr.setRequestHeader = (header, value) => {
+            ah.originalMethods.setRequestHeader(header, value);
+            if (xhr.readyState === 1) {
+              if (ah.headers[header]) {
+                ah.headers[header] += ", " + value;
+              } else {
+                ah.headers[header] = value;
+              }
+            }
+          };
+          xhr.addEventListener = function(...args2) {
+            if (xhrAsyncEvents.includes(args2[0])) {
+              ah.hookedEvents[args2[0]].add(args2[1]);
+            } else {
+              ah.originalMethods.addEventListener(...args2);
+            }
+          };
+          xhr.removeEventListener = function(...args2) {
+            if (xhrAsyncEvents.includes(args2[0])) {
+              ah.hookedEvents[args2[0]].delete(args2[1]);
+            } else {
+              ah.originalMethods.removeEventListener(...args2);
+            }
+          };
+          xhrAsyncEvents.forEach((evt) => {
+            const onEvt = "on" + evt;
+            defineProp(
+              xhr,
+              onEvt,
+              () => {
+                return ah.hookedEvents[onEvt] || null;
+              },
+              (val) => {
+                ah.hookedEvents[onEvt] = typeof val === "function" ? val : null;
+              }
+            );
+          });
+        }
+        const realSend = xhr.send.bind(xhr);
+        xhr.send = function(data) {
+          if (xhr.readyState !== 1) return realSend(data);
+          ah.delegateEvent = xhrDelegateEvent;
+          xhrResponses.forEach((prop) => {
+            delete xhr[prop];
+          });
+          if (shouldFilter("xhr", ah.url, ah.method)) {
+            xhr.addEventListener("ajaxHooker_responseReady", (e2) => {
+              ah.delegateEvent(e2.detail);
+            });
+            return realSend(data);
+          }
+          try {
+            const request = {
+              type: "xhr",
+              url: ah.url,
+              method: ah.method,
+              abort: false,
+              headers: ah.headers,
+              data,
+              response: null
+            };
+            const requestClone = { ...request };
+            waitForHookFns(request).then(() => {
+              waitForRequestKeys(request, requestClone).then(() => {
+                if (request.abort) return;
+                ah.originalMethods.open(
+                  request.method,
+                  request.url,
+                  ...ah.openArgs
+                );
+                for (const header in request.headers) {
+                  ah.originalMethods.setRequestHeader(
+                    header,
+                    request.headers[header]
+                  );
+                }
+                data = request.data;
+                xhr.addEventListener("ajaxHooker_responseReady", (e2) => {
+                  try {
+                    if (typeof request.response === "function") {
+                      const arg = {
+                        finalUrl: xhr.responseURL,
+                        status: xhr.status,
+                        responseHeaders: {}
+                      };
+                      for (const line of xhr.getAllResponseHeaders().trim().split(/[\r\n]+/)) {
+                        const parts = line.split(/:\s*/);
+                        if (parts.length === 2) {
+                          const lheader = parts[0].toLowerCase();
+                          if (arg.responseHeaders[lheader]) {
+                            arg.responseHeaders[lheader] += ", " + parts[1];
+                          } else {
+                            arg.responseHeaders[lheader] = parts[1];
+                          }
+                        }
+                      }
+                      xhrResponses.forEach((prop) => {
+                        defineProp(
+                          arg,
+                          prop,
+                          () => {
+                            return arg[prop] = ah.originalGetters[prop]();
+                          },
+                          (val) => {
+                            delete arg[prop];
+                            arg[prop] = val;
+                          }
+                        );
+                        defineProp(xhr, prop, () => {
+                          const val = ah.originalGetters[prop]();
+                          xhr.dispatchEvent(
+                            new CustomEvent("ajaxHooker_readResponse", {
+                              detail: { prop, val }
+                            })
+                          );
+                          return val;
+                        });
+                      });
+                      xhr.addEventListener("ajaxHooker_readResponse", (e3) => {
+                        arg[e3.detail.prop] = e3.detail.val;
+                      });
+                      const resPromise = Promise.resolve(
+                        request.response(arg)
+                      ).then(() => {
+                        const task = [];
+                        xhrResponses.forEach((prop) => {
+                          const descriptor = Object.getOwnPropertyDescriptor(
+                            arg,
+                            prop
+                          );
+                          if (descriptor && "value" in descriptor) {
+                            task.push(
+                              Promise.resolve(descriptor.value).then((val) => {
+                                arg[prop] = val;
+                                defineProp(xhr, prop, () => {
+                                  xhr.dispatchEvent(
+                                    new CustomEvent("ajaxHooker_readResponse", {
+                                      detail: { prop, val }
+                                    })
+                                  );
+                                  return val;
+                                });
+                              }, emptyFn)
+                            );
+                          }
+                        });
+                        return Promise.all(task);
+                      }, errorFn);
+                      const eventsClone = {};
+                      xhrAsyncEvents.forEach((type) => {
+                        eventsClone[type] = /* @__PURE__ */ new Set([...ah.hookedEvents[type]]);
+                        eventsClone["on" + type] = ah.hookedEvents["on" + type];
+                      });
+                      ah.delegateEvent = (event) => resPromise.then(() => {
+                        event.stopImmediatePropagation = fakeEventSIP;
+                        eventsClone[event.type].forEach(
+                          (fn) => !event.ajaxHooker_stopped && fn.call(xhr, event)
+                        );
+                        const onEvent = eventsClone["on" + event.type];
+                        typeof onEvent === "function" && onEvent.call(xhr, event);
+                      });
+                    }
+                  } catch (err) {
+                    console.error(err);
+                  }
+                  ah.delegateEvent(e2.detail);
+                });
+                realSend(data);
+              });
+            });
+          } catch (err) {
+            console.error(err);
+            realSend(data);
+          }
+        };
+        return xhr;
+      }
+      function hookFetchResponse(response, arg, callback2) {
+        fetchResponses.forEach((prop) => {
+          response[prop] = () => new Promise((resolve, reject) => {
+            resProto[prop].call(response).then((res) => {
+              if (prop in arg) {
+                resolve(arg[prop]);
+              } else {
+                try {
+                  arg[prop] = res;
+                  Promise.resolve(callback2(arg)).then(() => {
+                    if (prop in arg) {
+                      Promise.resolve(arg[prop]).then(
+                        (val) => resolve(arg[prop] = val),
+                        () => resolve(res)
+                      );
+                    } else {
+                      resolve(res);
+                    }
+                  }, errorFn);
+                } catch (err) {
+                  console.error(err);
+                  resolve(res);
+                }
+              }
+            }, reject);
+          });
+        });
+      }
+      function fakeFetch(url, init) {
+        if (url && typeof url.toString === "function") {
+          url = url.toString();
+          init = init || {};
+          init.method = init.method || "GET";
+          init.headers = init.headers || {};
+          if (shouldFilter("fetch", url, init.method))
+            return realFetch.call(win, url, init);
+          const request = {
+            type: "fetch",
+            url,
+            method: init.method.toUpperCase(),
+            abort: false,
+            headers: {},
+            data: init.body,
+            response: null
+          };
+          if (toString.call(init.headers) === "[object Headers]") {
+            for (const [key, val] of init.headers) {
+              request.headers[key] = val;
+            }
+          } else {
+            request.headers = { ...init.headers };
+          }
+          const requestClone = { ...request };
+          return new Promise((resolve, reject) => {
+            try {
+              waitForHookFns(request).then(() => {
+                waitForRequestKeys(request, requestClone).then(() => {
+                  if (request.abort) return reject("aborted");
+                  url = request.url;
+                  init.method = request.method;
+                  init.headers = request.headers;
+                  init.body = request.data;
+                  realFetch.call(win, url, init).then((response) => {
+                    if (typeof request.response === "function") {
+                      const arg = {
+                        finalUrl: response.url,
+                        status: response.status,
+                        responseHeaders: {}
+                      };
+                      for (const [key, val] of response.headers) {
+                        arg.responseHeaders[key] = val;
+                      }
+                      hookFetchResponse(response, arg, request.response);
+                      response.clone = () => {
+                        const resClone = resProto.clone.call(response);
+                        hookFetchResponse(resClone, arg, request.response);
+                        return resClone;
+                      };
+                    }
+                    resolve(response);
+                  }, reject);
+                });
+              });
+            } catch (err) {
+              console.error(err);
+              return realFetch.call(win, url, init);
+            }
+          });
+        } else {
+          return realFetch.call(win, url, init);
+        }
+      }
+      win.XMLHttpRequest = fakeXhr;
+      Object.keys(realXhr).forEach((key) => fakeXhr[key] = realXhr[key]);
+      fakeXhr.prototype = realXhr.prototype;
+      win.fetch = fakeFetch;
+      return {
+        hook: (fn) => hookFns.push(fn),
+        filter: (arr) => {
+          filter = Array.isArray(arr) && arr.map(toFilterObj);
+        },
+        protect: () => {
+          readonly(win, "XMLHttpRequest", fakeXhr);
+          readonly(win, "fetch", fakeFetch);
+        },
+        unhook: () => {
+          writable(win, "XMLHttpRequest", realXhr);
+          writable(win, "fetch", realFetch);
         }
       };
     }();
@@ -7139,19 +7606,389 @@
       return value;
     }
   }
+  // @license      MIT
+  class ModuleRaid {
+    /**
+     * moduleRaid constructor
+     *
+     * @example
+     * Constructing an instance without any arguments:
+     * ```ts
+     * const mR = new ModuleRaid()
+     * ```
+     *
+     * Constructing an instance with the optional `opts` object:
+     * ```ts
+     * const mR = new ModuleRaid({ entrypoint: 'webpackChunk_custom_name' })
+     * ```
+     *
+     * @param opts a object containing options to initialize moduleRaid with
+     *  - **opts:**
+     *    - _target_: the window object being searched for
+     *    - _entrypoint_: the Webpack entrypoint present on the global window object
+     *    - _debug_: whether debug mode is enabled or not
+     *    - _strict_: whether strict mode is enabled or not
+     */
+    constructor(opts) {
+      this.moduleID = Math.random().toString(36).substring(7);
+      this.functionArguments = [
+        [
+          [0],
+          [
+            (_e, _t, i2) => {
+              this.modules = i2.c;
+              this.constructors = i2.m;
+              this.get = i2;
+            }
+          ]
+        ],
+        [
+          [1e3],
+          {
+            [this.moduleID]: (_e, _t, i2) => {
+              this.modules = i2.c;
+              this.constructors = i2.m;
+              this.get = i2;
+            }
+          },
+          [[this.moduleID]]
+        ]
+      ];
+      this.arrayArguments = [
+        [
+          [this.moduleID],
+          {},
+          (e2) => {
+            const mCac = e2.m;
+            Object.keys(mCac).forEach((mod) => {
+              try {
+                this.modules[mod] = e2(mod);
+              } catch (err) {
+                this.log(`[arrayArguments/1] Failed to require(${mod}) with error:
+${err}
+${err.stack}`);
+              }
+            });
+            this.get = e2;
+          }
+        ],
+        this.functionArguments[1]
+      ];
+      this.modules = {};
+      this.constructors = [];
+      let options = {
+        target: window,
+        entrypoint: "webpackJsonp",
+        debug: false,
+        strict: false
+      };
+      if (typeof opts === "object") {
+        options = Object.assign(Object.assign({}, options), opts);
+      }
+      this.target = options.target;
+      this.entrypoint = options.entrypoint;
+      this.debug = options.debug;
+      this.strict = options.strict;
+      this.detectEntrypoint();
+      this.fillModules();
+      this.replaceGet();
+      this.setupPushEvent();
+    }
+    /**
+     * Debug logging method, outputs to the console when {@link ModuleRaid.debug} is true
+     *
+     * @param {*} message The message to be logged
+     * @internal
+     */
+    log(message) {
+      if (this.debug) {
+        console.warn(`[moduleRaid] ${message}`);
+      }
+    }
+    /**
+     * Method to set an alternative getter if we weren't able to extract __webpack_require__
+     * from Webpack
+     * @internal
+     */
+    replaceGet() {
+      if (this.get === null) {
+        this.get = (key) => this.modules[key];
+      }
+    }
+    /**
+     * Method that will try to inject a module into Webpack or get modules
+     * depending on it's success it might be more or less brute about it
+     * @internal
+     */
+    fillModules() {
+      if (typeof this.target[this.entrypoint] === "function") {
+        this.functionArguments.forEach((argument, index) => {
+          try {
+            if (this.modules && Object.keys(this.modules).length > 0)
+              return;
+            this.target[this.entrypoint](...argument);
+          } catch (err) {
+            this.log(`moduleRaid.functionArguments[${index}] failed:
+${err}
+${err.stack}`);
+          }
+        });
+      } else {
+        this.arrayArguments.forEach((argument, index) => {
+          try {
+            if (this.modules && Object.keys(this.modules).length > 0)
+              return;
+            this.target[this.entrypoint].push(argument);
+          } catch (err) {
+            this.log(`Pushing moduleRaid.arrayArguments[${index}] into ${this.entrypoint} failed:
+${err}
+${err.stack}`);
+          }
+        });
+      }
+      if (this.modules && Object.keys(this.modules).length == 0) {
+        let moduleEnd = false;
+        let moduleIterator = 0;
+        if (typeof this.target[this.entrypoint] != "function" || !this.target[this.entrypoint]([], [], [moduleIterator])) {
+          throw Error("Unknown Webpack structure");
+        }
+        while (!moduleEnd) {
+          try {
+            this.modules[moduleIterator] = this.target[this.entrypoint]([], [], [moduleIterator]);
+            moduleIterator++;
+          } catch (err) {
+            moduleEnd = true;
+          }
+        }
+      }
+    }
+    /**
+     * Method to hook into `window[this.entrypoint].push` adding a listener for new
+     * chunks being pushed into Webpack
+     *
+     * @example
+     * You can listen for newly pushed packages using the `moduleraid:webpack-push` event
+     * on `document`
+     *
+     * ```ts
+     * document.addEventListener('moduleraid:webpack-push', (e) => {
+     *   // e.detail contains the arguments push() was called with
+     *   console.log(e.detail)
+     * })
+     * ```
+     * @internal
+     */
+    setupPushEvent() {
+      const originalPush = this.target[this.entrypoint].push;
+      this.target[this.entrypoint].push = (...args2) => {
+        const result2 = Reflect.apply(originalPush, this.target[this.entrypoint], args2);
+        document.dispatchEvent(new CustomEvent("moduleraid:webpack-push", { detail: args2 }));
+        return result2;
+      };
+    }
+    /**
+     * Method to try autodetecting a Webpack JSONP entrypoint based on common naming
+     *
+     * If the default entrypoint, or the entrypoint that's passed to the moduleRaid constructor
+     * already matches, the method exits early
+     *
+     * If `options.strict` has been set in the constructor and the initial entrypoint cannot
+     * be found, this method will error, demanding a strictly set entrypoint
+     * @internal
+     */
+    detectEntrypoint() {
+      if (this.target[this.entrypoint] != void 0) {
+        return;
+      }
+      if (this.strict) {
+        throw Error(`Strict mode is enabled and entrypoint at window.${this.entrypoint} couldn't be found. Please specify the correct one!`);
+      }
+      let windowObjects = Object.keys(this.target);
+      windowObjects = windowObjects.filter((object) => object.toLowerCase().includes("chunk") || object.toLowerCase().includes("webpack")).filter((object) => typeof this.target[object] === "function" || Array.isArray(this.target[object]));
+      if (windowObjects.length > 1) {
+        throw Error(`Multiple possible endpoints have been detected, please create a new moduleRaid instance with a specific one:
+${windowObjects.join(", ")}`);
+      }
+      if (windowObjects.length === 0) {
+        throw Error("No Webpack JSONP entrypoints could be detected");
+      }
+      this.log(`Entrypoint has been detected at window.${windowObjects[0]} and set for injection`);
+      this.entrypoint = windowObjects[0];
+    }
+    /**
+     * Recursive object-search function for modules
+     *
+     * @param object the object to search through
+     * @param query the query the object keys/values are searched for
+     * @returns boolean state of `object` containing `query` somewhere in it
+     * @internal
+     */
+    searchObject(object, query) {
+      for (const key in object) {
+        const value = object[key];
+        const lowerCaseQuery = query.toLowerCase();
+        if (typeof value != "object") {
+          const lowerCaseKey = key.toString().toLowerCase();
+          if (lowerCaseKey.includes(lowerCaseQuery))
+            return true;
+          if (typeof value != "object") {
+            const lowerCaseValue = value.toString().toLowerCase();
+            if (lowerCaseValue.includes(lowerCaseQuery))
+              return true;
+          } else {
+            if (this.searchObject(value, query))
+              return true;
+          }
+        }
+      }
+      return false;
+    }
+    /**
+     * Method to search through the module object, searching for the fitting content
+     * if a string is supplied
+     *
+     * If query is supplied as a function, everything that returns true when passed
+     * to the query function will be returned
+     *
+     * @example
+     * With a string as query argument:
+     * ```ts
+     * const results = mR.findModule('feature')
+     * // => Array of module results
+     * ```
+     *
+     * With a function as query argument:
+     * ```ts
+     * const results = mR.findModule((module) => { typeof module === 'function' })
+     * // => Array of module results
+     * ```
+     *
+     * @param query query to search the module list for
+     * @return a list of modules fitting the query
+     */
+    findModule(query) {
+      const results = [];
+      const modules = Object.keys(this.modules);
+      if (modules.length === 0) {
+        throw new Error("There are no modules to search through!");
+      }
+      modules.forEach((key) => {
+        const module = this.modules[key.toString()];
+        if (module === void 0)
+          return;
+        try {
+          if (typeof query === "string") {
+            query = query.toLowerCase();
+            switch (typeof module) {
+              case "string":
+                if (module.toLowerCase().includes(query))
+                  results.push(module);
+                break;
+              case "function":
+                if (module.toString().toLowerCase().includes(query))
+                  results.push(module);
+                break;
+              case "object":
+                if (this.searchObject(module, query))
+                  results.push(module);
+                break;
+            }
+          } else if (typeof query === "function") {
+            if (query(module))
+              results.push(module);
+          } else {
+            throw new TypeError(`findModule can only find via string and function, ${typeof query} was passed`);
+          }
+        } catch (err) {
+          this.log(`There was an error while searching through module '${key}':
+${err}
+${err.stack}`);
+        }
+      });
+      return results;
+    }
+    /**
+     * Method to search through the constructor array, searching for the fitting content
+     * if a string is supplied
+     *
+     * If query is supplied as a function, everything that returns true when passed
+     * to the query function will be returned
+     *
+     * @example
+     * With a string as query argument:
+     * ```ts
+     * const results = mR.findConstructor('feature')
+     * // => Array of constructor/module tuples
+     * ```
+     *
+     * With a function as query argument:
+     * ```ts
+     * const results = mR.findConstructor((constructor) => { constructor.prototype.value !== undefined })
+     * // => Array of constructor/module tuples
+     * ```
+     *
+     * Accessing the resulting data:
+     * ```ts
+     * // With array destructuring (ES6)
+     * const [constructor, module] = results[0]
+     *
+     * // ...or...
+     *
+     * // regular access
+     * const constructor = results[0][0]
+     * const module = results[0][1]
+     * ```
+     *
+     * @param query query to search the constructor list for
+     * @returns a list of constructor/module tuples fitting the query
+     */
+    findConstructor(query) {
+      const results = [];
+      const constructors = Object.keys(this.constructors);
+      if (constructors.length === 0) {
+        throw new Error("There are no constructors to search through!");
+      }
+      constructors.forEach((key) => {
+        const constructor = this.constructors[key];
+        try {
+          if (typeof query === "string") {
+            query = query.toLowerCase();
+            if (constructor.toString().toLowerCase().includes(query))
+              results.push([this.constructors[key], this.modules[key]]);
+          } else if (typeof query === "function") {
+            if (query(constructor))
+              results.push([this.constructors[key], this.modules[key]]);
+          }
+        } catch (err) {
+          this.log(`There was an error while searching through constructor '${key}':
+${err}
+${err.stack}`);
+        }
+      });
+      return results;
+    }
+  }
   class Utils {
     constructor(option) {
       __publicField(this, "windowApi");
       /** 版本号 */
-      __publicField(this, "version", "2024.12.25");
+      __publicField(this, "version", "2025.2.8");
       /**
        * ajax劫持库，支持xhr和fetch劫持。
        * + 来源：https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
        * + 作者：cxxjackie
-       * + 版本：1.4.1
+       * + 版本：1.4.4
+       * + 旧版本：1.2.4
        * + 文档：https://scriptcat.org/zh-CN/script-show-page/637/
+       * @param useOldVersion 是否使用旧版本，默认false
        */
-      __publicField(this, "ajaxHooker", AjaxHooker);
+      __publicField(this, "ajaxHooker", (useOldVersion = false) => {
+        if (useOldVersion) {
+          return AjaxHooker1_2_4();
+        } else {
+          return AjaxHooker();
+        }
+      });
       /**
        * 颜色转换
        * @returns
@@ -7467,6 +8304,7 @@
        * > "测试"
        */
       __publicField(this, "Vue", Vue);
+      __publicField(this, "ModuleRaid", ModuleRaid);
       this.windowApi = new WindowApi(option);
     }
     addStyle(cssText) {
@@ -9466,14 +10304,45 @@
         await UtilsContext.tryCatch(index, item).run(handleFunc);
       }));
     }
+    wait(checkFn, timeout, parent) {
+      const UtilsContext = this;
+      let __timeout__ = typeof timeout === "number" ? timeout : 0;
+      return new Promise((resolve) => {
+        let observer = UtilsContext.mutationObserver(parent || UtilsContext.windowApi.document, {
+          config: {
+            subtree: true,
+            childList: true,
+            attributes: true
+          },
+          immediate: true,
+          callback(mutations, __observer__) {
+            let result2 = checkFn();
+            if (result2.success) {
+              if (typeof (__observer__ == null ? void 0 : __observer__.disconnect) === "function") {
+                __observer__.disconnect();
+              }
+              resolve(result2.data);
+            }
+          }
+        });
+        if (__timeout__ > 0) {
+          setTimeout(() => {
+            if (typeof (observer == null ? void 0 : observer.disconnect) === "function") {
+              observer.disconnect();
+            }
+            resolve(null);
+          }, __timeout__);
+        }
+      });
+    }
     waitNode(...args2) {
       args2 = args2.filter((arg) => arg !== void 0);
       let UtilsContext = this;
       let selector = args2[0];
       let parent = UtilsContext.windowApi.document;
       let timeout = 0;
-      if (typeof args2[0] !== "string" && !Array.isArray(args2[0])) {
-        throw new TypeError("Utils.waitNode 第一个参数必须是string|string[]");
+      if (typeof args2[0] !== "string" && !Array.isArray(args2[0]) && typeof args2[0] !== "function") {
+        throw new TypeError("Utils.waitNode 第一个参数必须是string|string[]|Function");
       }
       if (args2.length === 1) ;
       else if (args2.length === 2) {
@@ -9501,50 +10370,38 @@
       } else {
         throw new TypeError("Utils.waitNode 参数个数错误");
       }
-      return new Promise((resolve) => {
-        function getNode() {
-          if (Array.isArray(selector)) {
-            let result2 = [];
-            for (let index = 0; index < selector.length; index++) {
-              let node = parent.querySelector(selector[index]);
-              if (node) {
-                result2.push(node);
-              }
-            }
-            if (result2.length === selector.length) {
-              return result2;
-            }
-          } else {
-            return parent.querySelector(selector);
-          }
-        }
-        var observer = UtilsContext.mutationObserver(parent, {
-          config: {
-            subtree: true,
-            childList: true,
-            attributes: true
-          },
-          callback() {
-            let node = getNode();
+      function getNode() {
+        if (Array.isArray(selector)) {
+          let result2 = [];
+          for (let index = 0; index < selector.length; index++) {
+            let node = parent.querySelector(selector[index]);
             if (node) {
-              if (typeof (observer == null ? void 0 : observer.disconnect) === "function") {
-                observer.disconnect();
-              }
-              resolve(node);
-              return;
+              result2.push(node);
             }
-          },
-          immediate: true
-        });
-        if (timeout > 0) {
-          setTimeout(() => {
-            if (typeof (observer == null ? void 0 : observer.disconnect) === "function") {
-              observer.disconnect();
-            }
-            resolve(null);
-          }, timeout);
+          }
+          if (result2.length === selector.length) {
+            return result2;
+          }
+        } else if (typeof selector === "function") {
+          return selector();
+        } else {
+          return parent.querySelector(selector);
         }
-      });
+      }
+      return UtilsContext.wait(() => {
+        let node = getNode();
+        if (node) {
+          return {
+            success: true,
+            data: node
+          };
+        } else {
+          return {
+            success: false,
+            data: node
+          };
+        }
+      }, timeout, parent);
     }
     waitAnyNode(...args2) {
       args2 = args2.filter((arg) => arg !== void 0);
@@ -9621,54 +10478,39 @@
       } else {
         throw new TypeError("Utils.waitNodeList 参数个数错误");
       }
-      return new Promise((resolve) => {
-        function getNodeList() {
-          if (Array.isArray(selector)) {
-            let result2 = [];
-            for (let index = 0; index < selector.length; index++) {
-              let nodeList = parent.querySelectorAll(selector[index]);
-              if (nodeList.length) {
-                result2.push(nodeList);
-              }
-            }
-            if (result2.length === selector.length) {
-              return result2;
-            }
-          } else {
-            let nodeList = parent.querySelectorAll(selector);
+      function getNodeList() {
+        if (Array.isArray(selector)) {
+          let result2 = [];
+          for (let index = 0; index < selector.length; index++) {
+            let nodeList = parent.querySelectorAll(selector[index]);
             if (nodeList.length) {
-              return nodeList;
+              result2.push(nodeList);
             }
           }
+          if (result2.length === selector.length) {
+            return result2;
+          }
+        } else {
+          let nodeList = parent.querySelectorAll(selector);
+          if (nodeList.length) {
+            return nodeList;
+          }
         }
-        var observer = UtilsContext.mutationObserver(parent, {
-          config: {
-            subtree: true,
-            childList: true,
-            attributes: true
-          },
-          callback() {
-            let node = getNodeList();
-            if (node) {
-              try {
-                observer.disconnect();
-              } catch (error2) {
-              }
-              resolve(node);
-              return;
-            }
-          },
-          immediate: true
-        });
-        if (timeout > 0) {
-          setTimeout(() => {
-            if (typeof (observer == null ? void 0 : observer.disconnect) === "function") {
-              observer.disconnect();
-            }
-            resolve(null);
-          }, timeout);
+      }
+      return UtilsContext.wait(() => {
+        let node = getNodeList();
+        if (node) {
+          return {
+            success: true,
+            data: node
+          };
+        } else {
+          return {
+            success: false,
+            data: node
+          };
         }
-      });
+      }, timeout, parent);
     }
     waitAnyNodeList(...args2) {
       args2 = args2.filter((arg) => arg !== void 0);
@@ -9919,12 +10761,6 @@
   }
   let utils$1 = new Utils();
   const SymbolEvents = Symbol("events_" + ((1 + Math.random()) * 65536 | 0).toString(16).substring(1));
-  const PopsCoreDefaultEnv = {
-    document,
-    window,
-    globalThis,
-    self
-  };
   const PopsCoreEnv = {
     document,
     window,
@@ -9932,12 +10768,6 @@
     self
   };
   const PopsCore = {
-    init(option) {
-      if (!option) {
-        option = Object.assign({}, PopsCoreDefaultEnv);
-      }
-      Object.assign(PopsCoreEnv, option);
-    },
     get document() {
       return PopsCoreEnv.document;
     },
@@ -15144,21 +15974,24 @@
                   text: "所有",
                   disable() {
                     return false;
-                  }
+                  },
+                  forms: []
                 },
                 {
                   value: "text",
                   text: "文本",
                   disable() {
                     return false;
-                  }
+                  },
+                  forms: []
                 },
                 {
                   value: "html",
                   text: "超文本",
                   disable() {
                     return false;
-                  }
+                  },
+                  forms: []
                 }
               ]
             },
@@ -16556,6 +17389,7 @@
        * @param formConfig
        */
       createSectionContainerItem_select(formConfig) {
+        const that = this;
         let liElement = document.createElement("li");
         liElement["__formConfig__"] = formConfig;
         this.setElementClassName(liElement, formConfig.className);
@@ -16584,7 +17418,8 @@
           },
           $eleKey: {
             disable: "__disable__",
-            value: "__value__"
+            value: "__value__",
+            forms: "__forms__"
           },
           $data: {
             defaultValue: formConfig.getValue()
@@ -16615,28 +17450,47 @@
           getNodeValue($ele, key) {
             return Reflect.get($ele, key);
           },
+          /**
+           * 禁用选项
+           */
           disable() {
             this.$ele.select.setAttribute("disabled", "true");
             this.$ele.panelSelect.classList.add("pops-panel-select-disable");
           },
+          /**
+           * 取消禁用
+           */
           notDisable() {
             this.$ele.select.removeAttribute("disabled");
             this.$ele.panelSelect.classList.remove("pops-panel-select-disable");
           },
+          /**
+           * 判断是否禁用
+           */
           isDisabled() {
             return this.$ele.select.hasAttribute("disabled") || this.$ele.panelSelect.classList.contains("pops-panel-select-disable");
           },
+          /**
+           * 初始化选项
+           */
           initOption() {
             formConfig.data.forEach((dataItem) => {
               let optionElement = document.createElement("option");
               this.setNodeValue(optionElement, this.$eleKey.value, dataItem.value);
               this.setNodeValue(optionElement, this.$eleKey.disable, dataItem.disable);
+              this.setNodeValue(optionElement, this.$eleKey.forms, dataItem.forms);
               if (dataItem.value === this.$data.defaultValue) {
-                optionElement.setAttribute("selected", "true");
+                this.setOptionSelected(optionElement);
               }
               optionElement.innerText = dataItem.text;
               this.$ele.select.appendChild(optionElement);
             });
+          },
+          /**
+           * 设置选项选中
+           */
+          setOptionSelected($option) {
+            $option.setAttribute("selected", "true");
           },
           /** 检测所有option并设置禁用状态 */
           setSelectOptionsDisableStatus() {
@@ -16664,9 +17518,11 @@
           getSelectOptionInfo($option) {
             let optionValue = this.getNodeValue($option, this.$eleKey.value);
             let optionText = $option.innerText || $option.textContent;
+            let optionForms = this.getNodeValue($option, this.$eleKey.forms);
             return {
               value: optionValue,
               text: optionText,
+              forms: optionForms,
               $option
             };
           },
@@ -16675,11 +17531,28 @@
            */
           setChangeEvent() {
             popsDOMUtils.on(this.$ele.select, "change", void 0, (event) => {
+              let $isSelectedElement = event.target[event.target.selectedIndex];
+              let selectInfo = this.getSelectOptionInfo($isSelectedElement);
               this.setSelectOptionsDisableStatus();
               if (typeof formConfig.callback === "function") {
-                let $isSelectedElement = event.target[event.target.selectedIndex];
-                let selectInfo = this.getSelectOptionInfo($isSelectedElement);
                 formConfig.callback(event, selectInfo.value, selectInfo.text);
+              }
+              let forms = typeof selectInfo.forms === "function" ? selectInfo.forms() : selectInfo.forms;
+              if (Array.isArray(forms)) {
+                let childUListClassName = "pops-panel-select-child-forms";
+                while (liElement.nextElementSibling) {
+                  if (liElement.nextElementSibling.classList.contains(childUListClassName)) {
+                    liElement.nextElementSibling.remove();
+                  } else {
+                    break;
+                  }
+                }
+                let $childUList = document.createElement("ul");
+                $childUList.className = childUListClassName;
+                popsDOMUtils.after(liElement, $childUList);
+                that.uListContainerAddItem(formConfig, {
+                  ulElement: $childUList
+                });
               }
             });
           },
@@ -16973,9 +17846,19 @@
                 Reflect.set($item, "data-info", dataInfo);
                 return $item;
               }
+              function setSelectItemDisabled($el) {
+                $el.setAttribute("aria-disabled", "true");
+              }
+              function removeSelectItemDisabled($el) {
+                $el.removeAttribute("aria-disabled");
+                $el.removeAttribute("disabled");
+              }
               function setSelectElementClickEvent($ele) {
                 popsDOMUtils.on($ele, "click", (event2) => {
                   popsDOMUtils.preventEvent(event2);
+                  if ($ele.hasAttribute("disabled") || $ele.ariaDisabled) {
+                    return;
+                  }
                   if (typeof formConfig.clickCallBack === "function") {
                     let clickResult = formConfig.clickCallBack(event2, getAllSelectedInfo());
                     if (typeof clickResult === "boolean" && !clickResult) {
@@ -17045,7 +17928,6 @@
 								}
 								.select-item{
 									cursor: pointer;
-									cursor: pointer;
 									font-size: var(--el-font-size-base);
 									padding: 0 32px 0 20px;
 									position: relative;
@@ -17056,6 +17938,12 @@
 									height: 34px;
 									line-height: 34px;
 									box-sizing: border-box;
+								}
+								.select-item[aria-disabled],
+								.select-item[disabled]{
+									cursor: not-allowed;
+									color: #a8abb2;
+									background: unset;
 								}
 								.select-item:hover{
 									background-color: var(--el-fill-color-light);
@@ -17092,6 +17980,11 @@
                 let $select = createSelectItemElement(item);
                 $selectContainer.appendChild($select);
                 setSelectElementClickEvent($select);
+                if (typeof item.disable === "function" && item.disable(item.value)) {
+                  setSelectItemDisabled($select);
+                  return;
+                }
+                removeSelectItemDisabled($select);
                 let findValue = selectedInfo.find((value) => value.value === item.value);
                 if (findValue) {
                   setItemSelected($select);
@@ -19296,7 +20189,7 @@
       /** 配置 */
       __publicField(this, "config", {
         /** 版本号 */
-        version: "2024.12.8",
+        version: "2025.1.1",
         cssText: {
           /** 主CSS */
           index: indexCSS,
@@ -23638,17 +24531,6 @@
   };
   const PanelUISize = {
     /**
-     * 一般设置界面的尺寸
-     */
-    setting: {
-      get width() {
-        return window.innerWidth < 550 ? "88vw" : "550px";
-      },
-      get height() {
-        return window.innerHeight < 450 ? "70vh" : "450px";
-      }
-    },
-    /**
      * 功能丰富，aside铺满了的设置界面，要稍微大一点
      */
     settingBig: {
@@ -23657,17 +24539,6 @@
       },
       get height() {
         return window.innerHeight < 600 ? "80vh" : "600px";
-      }
-    },
-    /**
-     * 信息界面，一般用于提示信息之类
-     */
-    info: {
-      get width() {
-        return window.innerWidth < 350 ? "350px" : "350px";
-      },
-      get height() {
-        return window.innerHeight < 250 ? "250px" : "250px";
       }
     }
   };

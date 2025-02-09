@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.12.17
+// @version      2025.2.10
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -12,10 +12,10 @@
 // @match        *://h5.video.weibo.com/*
 // @match        *://card.weibo.com/*
 // @match        *://weibo.com/l/wblive/m/show/*
-// @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.5/dist/index.umd.js
+// @require      https://update.cn-greasyfork.org/scripts/494167/1413255/CoverUMD.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
 // @connect      *
 // @connect      m.weibo.cn
@@ -1597,28 +1597,6 @@
       },
       get height() {
         return window.innerHeight < 450 ? "70vh" : "450px";
-      }
-    },
-    /**
-     * 功能丰富，aside铺满了的设置界面，要稍微大一点
-     */
-    settingBig: {
-      get width() {
-        return window.innerWidth < 800 ? "92vw" : "800px";
-      },
-      get height() {
-        return window.innerHeight < 600 ? "80vh" : "600px";
-      }
-    },
-    /**
-     * 信息界面，一般用于提示信息之类
-     */
-    info: {
-      get width() {
-        return window.innerWidth < 350 ? "350px" : "350px";
-      },
-      get height() {
-        return window.innerHeight < 250 ? "250px" : "250px";
       }
     }
   };

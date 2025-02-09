@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.1.19
+// @version      2025.2.10
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -11,9 +11,9 @@
 // @match        *://live.bilibili.com/*
 // @match        *://www.bilibili.com/read/*
 // @match        *://www.bilibili.com/h5/comment/*
-// @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/497907/1413262/QRCodeJS.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.5.8/dist/index.umd.js
+// @require      https://update.cn-greasyfork.org/scripts/494167/1413255/CoverUMD.js
+// @require      https://update.cn-greasyfork.org/scripts/497907/1413262/QRCodeJS.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
@@ -51,15 +51,15 @@
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var _a;
-  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : undefined)();
-  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : undefined)();
-  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : undefined)();
-  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : undefined)();
-  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : undefined)();
-  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : undefined)();
-  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : undefined)();
-  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : undefined)();
-  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : undefined)();
+  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
+  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
+  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
+  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
+  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
+  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
+  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
   const HttpxCookieManager = {
     $data: {
@@ -160,7 +160,7 @@
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
   );
-  const SCRIPT_NAME = ((_a = _GM_info == null ? undefined : _GM_info.script) == null ? undefined : _a.name) || _SCRIPT_NAME_;
+  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
   const GMCookie = new utils.GM_Cookie();
   const DEBUG = false;
   log.config({
@@ -213,7 +213,7 @@
     HttpxCookieManager.handle(data2);
     return data2;
   });
-  httpx.interceptors.response.use(undefined, (data2) => {
+  httpx.interceptors.response.use(void 0, (data2) => {
     log.error("拦截器-请求错误", data2);
     if (data2.type === "onabort") {
       Qmsg.warning("请求取消");
@@ -400,12 +400,6 @@
     return result;
   };
   const AppKeyInfo = {
-    /** 云视听小电视(TV版) 不过用这个无法解锁番剧 */
-    tv: {
-      appkey: "4409e2ce8ffd12b8",
-      appsec: "59b43e04ad6965f34319062b478f83dd",
-      mobi_app: "android_tv_yst"
-    },
     /** web_ios */
     ios: {
       appkey: "27eb53fc9058f8c3",
@@ -424,7 +418,7 @@
      * check json has {code: 0, message: "0"}
      */
     isWebApiSuccess(json) {
-      return (json == null ? undefined : json.code) === 0 && ((json == null ? undefined : json.message) === "0" || (json == null ? undefined : json.message) === "success");
+      return (json == null ? void 0 : json.code) === 0 && ((json == null ? void 0 : json.message) === "0" || (json == null ? void 0 : json.message) === "success");
     },
     /**
      * 是否是区域限制
@@ -462,7 +456,7 @@
         // sign: "",
         /** 平台标识 会被拼接到返回的 url query */
         mobi_app: AppKeyInfo.ios.mobi_app,
-        csrf: ((_a2 = GMCookie.get("bili_jct")) == null ? undefined : _a2.value) || ""
+        csrf: ((_a2 = GMCookie.get("bili_jct")) == null ? void 0 : _a2.value) || ""
       };
       let sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
       let postResp = await httpx.post(
@@ -518,7 +512,7 @@
         fetch: true
       });
       if (!postResp.status) {
-        return { success: false, message: "网络错误", action: undefined };
+        return { success: false, message: "网络错误", action: void 0 };
       }
       const json = utils.toJSON(postResp.data.responseText);
       log.info(json);
@@ -540,7 +534,7 @@
         if (code === "86039" || code === "86090") {
           return { success: false, message, action: "wait" };
         }
-        return { success: false, message, action: undefined };
+        return { success: false, message, action: void 0 };
       }
       const accessKey = json.data.access_token;
       const accessKeyExpireAt = Date.now() + json.data.expires_in * 1e3;
@@ -645,7 +639,7 @@
         }
         log.info("正在等待扫码登录...");
         let pollInfo = await BilibiliLoginApi.poll(qrcodeInfo.auth_code);
-        if (pollInfo == null ? undefined : pollInfo.success) {
+        if (pollInfo == null ? void 0 : pollInfo.success) {
           this.setAccessTokenInfo({
             access_token: pollInfo.accessKey,
             expireAt: pollInfo.accessKeyExpireAt
@@ -654,7 +648,7 @@
           Qmsg.success("扫码登录成功");
           break;
         } else {
-          if ((pollInfo == null ? undefined : pollInfo.action) === "refresh") {
+          if ((pollInfo == null ? void 0 : pollInfo.action) === "refresh") {
             log.info("刷新二维码");
             Qmsg.info("刷新二维码");
             let qrcodeInfo2 = await this.getQRCodeInfo();
@@ -719,7 +713,7 @@
      */
     getAccessToken() {
       var _a2;
-      return ((_a2 = this.getAccessTokenInfo()) == null ? undefined : _a2.access_token) || "";
+      return ((_a2 = this.getAccessTokenInfo()) == null ? void 0 : _a2.access_token) || "";
     }
   };
   const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack) {
@@ -751,17 +745,6 @@
       },
       get height() {
         return window.innerHeight < 450 ? "70vh" : "450px";
-      }
-    },
-    /**
-     * 功能丰富，aside铺满了的设置界面，要稍微大一点
-     */
-    settingBig: {
-      get width() {
-        return window.innerWidth < 800 ? "92vw" : "800px";
-      },
-      get height() {
-        return window.innerHeight < 600 ? "80vh" : "600px";
       }
     },
     /**
@@ -847,7 +830,7 @@
                     white-space: nowrap;
                 }
 
-                ${((_a2 = this.option) == null ? undefined : _a2.style) ?? ""}
+                ${((_a2 = this.option) == null ? void 0 : _a2.style) ?? ""}
             `
         ),
         width: typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
@@ -965,8 +948,9 @@
     }
     /**
      * 显示视图
+     * @param filterCallBack 返回值为false隐藏，true则不隐藏（不处理）
      */
-    async showView() {
+    async showView(filterCallBack) {
       var _a2, _b, _c, _d, _e, _f, _g, _h, _i;
       let $popsConfirm = __pops.confirm({
         title: {
@@ -988,14 +972,14 @@
           reverse: false,
           position: "space-between",
           ok: {
-            enable: ((_c = (_b = (_a2 = this.option) == null ? undefined : _a2.bottomControls) == null ? undefined : _b.add) == null ? undefined : _c.enable) || true,
+            enable: ((_c = (_b = (_a2 = this.option) == null ? void 0 : _a2.bottomControls) == null ? void 0 : _b.add) == null ? void 0 : _c.enable) || true,
             type: "primary",
             text: "添加",
             callback: async (event) => {
               this.showEditView(
-                $popsConfirm.$shadowRoot,
                 false,
-                await this.option.getAddData()
+                await this.option.getAddData(),
+                $popsConfirm.$shadowRoot
               );
             }
           },
@@ -1006,12 +990,12 @@
             }
           },
           cancel: {
-            enable: ((_f = (_e = (_d = this.option) == null ? undefined : _d.bottomControls) == null ? undefined : _e.filter) == null ? undefined : _f.enable) || false,
+            enable: ((_f = (_e = (_d = this.option) == null ? void 0 : _d.bottomControls) == null ? void 0 : _e.filter) == null ? void 0 : _f.enable) || false,
             type: "default",
             text: "过滤",
             callback: (details, event) => {
               var _a3, _b2, _c2, _d2, _e2, _f2, _g2;
-              if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? undefined : _a3.bottomControls) == null ? undefined : _b2.filter) == null ? undefined : _c2.callback) === "function") {
+              if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.filter) == null ? void 0 : _c2.callback) === "function") {
                 this.option.bottomControls.filter.callback();
               }
               let getAllRuleElement = () => {
@@ -1029,8 +1013,8 @@
                 domutils.text($button, "过滤");
               } else {
                 let ruleFilterView = new RuleFilterView({
-                  title: ((_e2 = (_d2 = this.option.bottomControls) == null ? undefined : _d2.filter) == null ? undefined : _e2.title) ?? "过滤规则",
-                  filterOption: ((_g2 = (_f2 = this.option.bottomControls) == null ? undefined : _f2.filter) == null ? undefined : _g2.option) || [],
+                  title: ((_e2 = (_d2 = this.option.bottomControls) == null ? void 0 : _d2.filter) == null ? void 0 : _e2.title) ?? "过滤规则",
+                  filterOption: ((_g2 = (_f2 = this.option.bottomControls) == null ? void 0 : _f2.filter) == null ? void 0 : _g2.option) || [],
                   execFilterCallBack() {
                     domutils.text($button, "取消过滤");
                   },
@@ -1048,7 +1032,7 @@
             }
           },
           other: {
-            enable: ((_i = (_h = (_g = this.option) == null ? undefined : _g.bottomControls) == null ? undefined : _h.clear) == null ? undefined : _i.enable) || true,
+            enable: ((_i = (_h = (_g = this.option) == null ? void 0 : _g.bottomControls) == null ? void 0 : _h.clear) == null ? void 0 : _i.enable) || true,
             type: "xiaomi-primary",
             text: `清空所有(${(await this.option.data()).length})`,
             callback: (event) => {
@@ -1067,7 +1051,7 @@
                     callback: async (popsEvent) => {
                       var _a3, _b2, _c2;
                       log.success("清空所有");
-                      if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? undefined : _a3.bottomControls) == null ? undefined : _b2.clear) == null ? undefined : _c2.callback) === "function") {
+                      if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.clear) == null ? void 0 : _c2.callback) === "function") {
                         this.option.bottomControls.clear.callback();
                       }
                       let data2 = await this.option.data();
@@ -1109,8 +1093,8 @@
                 align-items: center;
                 line-height: normal;
                 font-size: 16px;
-                padding: 4px 4px;
-                gap: 6px;
+                padding: 4px 8px;
+                gap: 8px;
             }
             .rule-name{
                 flex: 1;
@@ -1125,7 +1109,7 @@
                 overflow: hidden;
                 white-space: nowrap;
                 gap: 8px;
-                padding: 0px 4px;
+                padding: 0px;
             }
             .rule-controls-enable{
                 
@@ -1146,11 +1130,26 @@
         )
       });
       let allData = await this.option.data();
+      let changeButtonText = false;
       for (let index = 0; index < allData.length; index++) {
-        await this.appendRuleItemElement(
+        let item = allData[index];
+        let $ruleItemList = await this.appendRuleItemElement(
           $popsConfirm.$shadowRoot,
-          allData[index]
+          item
         );
+        let flag = typeof filterCallBack === "function" ? filterCallBack(item) : true;
+        if (!flag) {
+          changeButtonText = true;
+          $ruleItemList.forEach(($el) => {
+            domutils.hide($el, false);
+          });
+        }
+      }
+      if (changeButtonText) {
+        let $button = $popsConfirm.$shadowRoot.querySelector(
+          ".pops-confirm-btn-cancel span"
+        );
+        domutils.text($button, "取消过滤");
       }
     }
     /**
@@ -1268,7 +1267,7 @@
       if (this.option.itemControls.edit.enable) {
         domutils.on($edit, "click", (event) => {
           utils.preventEvent(event);
-          this.showEditView($shadowRoot, true, data2, $ruleItem, (newData) => {
+          this.showEditView(true, data2, $shadowRoot, $ruleItem, (newData) => {
             data2 = null;
             data2 = newData;
           });
@@ -1327,27 +1326,24 @@
      * 添加一个规则元素
      */
     async appendRuleItemElement($shadowRoot, data2) {
-      const { $container } = this.parseViewElement($shadowRoot);
-      if (Array.isArray(data2)) {
-        for (let index = 0; index < data2.length; index++) {
-          const item = data2[index];
-          $container.appendChild(
-            await this.createRuleItemElement(item, $shadowRoot)
-          );
-        }
-      } else {
-        $container.appendChild(
-          await this.createRuleItemElement(data2, $shadowRoot)
-        );
+      let { $container } = this.parseViewElement($shadowRoot);
+      let $ruleItem = [];
+      let iteratorData = Array.isArray(data2) ? data2 : [data2];
+      for (let index = 0; index < iteratorData.length; index++) {
+        let item = iteratorData[index];
+        let $item = await this.createRuleItemElement(item, $shadowRoot);
+        $container.appendChild($item);
+        $ruleItem.push($item);
       }
       await this.updateDeleteAllBtnText($shadowRoot);
+      return $ruleItem;
     }
     /**
      * 更新弹窗内容的元素
      */
     async updateRuleContaienrElement($shadowRoot) {
       this.clearContent($shadowRoot);
-      this.parseViewElement($shadowRoot);
+      const { $container } = this.parseViewElement($shadowRoot);
       let data2 = await this.option.data();
       await this.appendRuleItemElement($shadowRoot, data2);
       await this.updateDeleteAllBtnText($shadowRoot);
@@ -1380,6 +1376,7 @@
     }
     /**
      * 更新【清空所有】的按钮的文字
+     * @param $shadowRoot
      */
     async updateDeleteAllBtnText($shadowRoot) {
       let data2 = await this.option.data();
@@ -1388,8 +1385,9 @@
     /**
      * 显示编辑视图
      * @param isEdit 是否是编辑状态
+     * @param editData 编辑的数据
      */
-    showEditView($parentShadowRoot, isEdit, editData, $editRuleItemElement, updateDataCallBack) {
+    showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack) {
       let dialogCloseCallBack = async (isSubmit) => {
         if (isSubmit) ;
         else {
@@ -1438,13 +1436,16 @@
           if (result.success) {
             if (isEdit) {
               Qmsg.success("修改成功");
-              await this.updateRuleItemElement(
+              $parentShadowRoot && await this.updateRuleItemElement(
                 result.data,
                 $editRuleItemElement,
                 $parentShadowRoot
               );
             } else {
-              await this.appendRuleItemElement($parentShadowRoot, result.data);
+              $parentShadowRoot && await this.appendRuleItemElement(
+                $parentShadowRoot,
+                result.data
+              );
             }
           } else {
             if (isEdit) {
@@ -1556,7 +1557,7 @@
                 "name",
                 "",
                 templateData.name,
-                undefined,
+                void 0,
                 "必填"
               );
               Reflect.set(
@@ -1626,7 +1627,7 @@
                 "keywords",
                 "",
                 "用于匹配标题、简介、转发内容的关键词",
-                undefined,
+                void 0,
                 "多个关键词换行"
               );
               Reflect.set(keywords_template.props, PROPS_STORAGE_API, {
@@ -1652,7 +1653,7 @@
                 "followings",
                 "",
                 "用户id",
-                undefined,
+                void 0,
                 "多个用户id换行"
               );
               Reflect.set(followings_template.props, PROPS_STORAGE_API, {
@@ -1678,7 +1679,7 @@
                 "blacklist",
                 "",
                 "",
-                undefined,
+                void 0,
                 "多个用户id换行"
               );
               Reflect.set(blacklist_template.props, PROPS_STORAGE_API, {
@@ -1938,7 +1939,7 @@
         });
         domutils.on($input, ["propertychange", "input"], (event2) => {
           var _a2;
-          if (!((_a2 = $input.files) == null ? undefined : _a2.length)) {
+          if (!((_a2 = $input.files) == null ? void 0 : _a2.length)) {
             return;
           }
           let uploadFile = $input.files[0];
@@ -2020,28 +2021,28 @@
                     "监听路由-重载所有功能",
                     "bili-listenRouterChange",
                     true,
-                    undefined,
+                    void 0,
                     "用于处理页面跳转(本页)时功能不生效问题"
                   ),
                   UISwitch(
                     "修复VueRouter跳转404问题",
                     "bili-repairVueRouter404",
                     true,
-                    undefined,
+                    void 0,
                     "例如：点击UP主正确进入空间"
                   ),
                   UISwitch(
                     "新标签页打开",
                     "bili-go-to-url-blank",
                     false,
-                    undefined,
+                    void 0,
                     "通过开启【覆盖点击事件】相关的设置，通过新标签页打开链接"
                   ),
                   UISwitch(
                     "允许复制",
                     "bili-allowCopy",
                     true,
-                    undefined,
+                    void 0,
                     "一般用于处理楼层的回复弹窗内无法选中复制问题"
                   )
                   // UISwitch(
@@ -2065,14 +2066,14 @@
                     "isLogin",
                     "bili-setLogin",
                     true,
-                    undefined,
+                    void 0,
                     "$store.state.common.noCallApp=true<br>$store.state.common.userInfo.isLogin=true<br>$store.state.loginInfo.isLogin=true"
                   ),
                   UISwitch(
                     "isClient",
                     "bili-setIsClient",
                     true,
-                    undefined,
+                    void 0,
                     "$store.state.video.isClient=true<br>$store.state.opus.isClient=true<br>$store.state.playlist.isClient=true<br>$store.state.ver.bili=true<br>$store.state.ver.biliVer=2333"
                   )
                   // UISwitch(
@@ -2098,21 +2099,21 @@
                     "覆盖.launch-app-btn openApp",
                     "bili-overrideLaunchAppBtn_Vue_openApp",
                     true,
-                    undefined,
+                    void 0,
                     "覆盖.launch-app-btn元素上的openApp函数，可阻止点击唤醒/下载App"
                   ),
                   UISwitch(
                     "覆盖bili-open-app opener.open",
                     "bili-cover-bili-open-app-open",
                     true,
-                    undefined,
+                    void 0,
                     "覆盖bili-open-app/m-open-app元素上的opener.open函数，可阻止点击唤醒/下载App，如果存在有效链接，会自动跳转"
                   ),
                   UISwitch(
                     "劫持setTimeout-autoOpenApp",
                     "bili-hookSetTimeout_autoOpenApp",
                     true,
-                    undefined,
+                    void 0,
                     "阻止自动调用App"
                   )
                 ]
@@ -2131,14 +2132,14 @@
                     "启用",
                     "bili-componentDetection",
                     true,
-                    undefined,
+                    void 0,
                     "启用后可检测用户的成分信息"
                   ),
                   UIButton(
                     "自定义规则",
                     "检测用户成分的规则",
                     "管理",
-                    undefined,
+                    void 0,
                     false,
                     false,
                     "primary",
@@ -2156,7 +2157,7 @@
                     "数据导入",
                     "导入自定义规则数据",
                     "导入",
-                    undefined,
+                    void 0,
                     false,
                     false,
                     "primary",
@@ -2168,7 +2169,7 @@
                     "数据导出",
                     "导出自定义规则数据",
                     "导出",
-                    undefined,
+                    void 0,
                     false,
                     false,
                     "primary",
@@ -2205,7 +2206,7 @@
                         expireAt: BilibiliQrCodeLogin.generateExpireAt()
                       });
                     },
-                    undefined,
+                    void 0,
                     false,
                     true
                   )
@@ -2294,14 +2295,14 @@
                         text: "5"
                       }
                     ],
-                    undefined,
+                    void 0,
                     "限制Toast显示的数量"
                   ),
                   UISwitch(
                     "逆序弹出",
                     "qmsg-config-showreverse",
                     false,
-                    undefined,
+                    void 0,
                     "修改Toast弹出的顺序"
                   )
                 ]
@@ -2320,22 +2321,22 @@
                     "启用",
                     "httpx-use-cookie-enable",
                     false,
-                    undefined,
+                    void 0,
                     "启用后，将根据下面的配置进行添加cookie"
                   ),
                   UISwitch(
                     "使用document.cookie",
                     "httpx-use-document-cookie",
                     false,
-                    undefined,
+                    void 0,
                     "自动根据请求的域名来获取对应的cookie"
                   ),
                   UITextArea(
                     "bilibili.com",
                     "httpx-cookie-bilibili.com",
                     "",
-                    undefined,
-                    undefined,
+                    void 0,
+                    void 0,
                     "Cookie格式：xxx=xxxx;xxx=xxxx"
                   )
                 ]
@@ -2562,7 +2563,7 @@
         from_client: "BROWSER",
         drm_tech_type: 2,
         module: "bangumi",
-        area: (option == null ? undefined : option.area) || "",
+        area: (option == null ? void 0 : option.area) || "",
         access_key: BilibiliQrCodeLogin.getAccessToken()
       };
       return proxyData;
@@ -2842,7 +2843,7 @@
                     "强制本页刷新跳转",
                     "bili-video-forceThisPageToRefreshAndRedirect",
                     false,
-                    undefined,
+                    void 0,
                     "用于处理内存泄露问题"
                   )
                   // UISwitch(
@@ -2888,7 +2889,7 @@
                     "启用",
                     "bili-video-enableArtPlayer",
                     true,
-                    undefined,
+                    void 0,
                     "使用artplayer代替页面的播放器"
                   ),
                   UISelect(
@@ -2905,21 +2906,21 @@
                         value: "dash"
                       }
                     ],
-                    undefined,
+                    void 0,
                     "当选择dash时会有画质更高的选项"
                   ),
                   UISwitch(
                     "自动播放视频",
                     "bili-video-playerAutoPlayVideo",
                     false,
-                    undefined,
+                    void 0,
                     ""
                   ),
                   UISwitch(
                     "自动进入全屏",
                     "bili-video-playerAutoPlayVideoFullScreen",
                     false,
-                    undefined,
+                    void 0,
                     ""
                   )
                 ]
@@ -2934,7 +2935,7 @@
                     0,
                     0,
                     50,
-                    undefined,
+                    void 0,
                     (value) => {
                       return value + "px";
                     },
@@ -2951,42 +2952,42 @@
                     "弹幕",
                     "artplayer-plugin-video-danmaku-enable",
                     true,
-                    undefined,
+                    void 0,
                     "哔哩哔哩 (゜-゜)つロ 干杯~"
                   ),
                   UISwitch(
                     "Dash Audio Support",
                     "artplayer-plugin-video-m4sAudioSupport-enable",
                     true,
-                    undefined,
+                    void 0,
                     "视频类型为dash时，该插件可支持播放音频"
                   ),
                   UISwitch(
                     "选集",
                     "artplayer-plugin-video-epChoose-enable",
                     true,
-                    undefined,
+                    void 0,
                     "当视频播放完毕后会自动连播"
                   ),
                   UISwitch(
                     "CC字幕",
                     "artplayer-plugin-video-cc-subtitle-enable",
                     true,
-                    undefined,
+                    void 0,
                     "字幕支持插件，如果存在繁体字幕，则自动生成简体字幕"
                   ),
                   UISwitch(
                     "顶部工具栏",
                     "artplayer-plugin-video-toptoolbar-enable",
                     true,
-                    undefined,
+                    void 0,
                     "显示视频标题和当前观看人数"
                   ),
                   UISwitch(
                     "视频统计信息",
                     "artplayer-plugin-video-statistics-enable",
                     true,
-                    undefined,
+                    void 0,
                     "用于显示当前视频信息的弹窗"
                   )
                 ]
@@ -3005,14 +3006,14 @@
                         value: item.host
                       };
                     }),
-                    undefined,
+                    void 0,
                     "设置视频流的服务器，可加快视频加载速度"
                   ),
                   UISwitch(
                     "作用于Audio上",
                     "bili-video-uposServerSelect-applyAudio",
                     false,
-                    undefined,
+                    void 0,
                     "把m4s类型的audio也进行upos替换"
                   )
                 ]
@@ -3031,21 +3032,21 @@
                     "UP主信息",
                     "bili-video-cover-UpWrapper",
                     true,
-                    undefined,
+                    void 0,
                     "点击UP主头像/名称可跳转至UP主空间"
                   ),
                   UISwitch(
                     "相关视频",
                     "bili-video-cover-bottomRecommendVideo",
                     true,
-                    undefined,
+                    void 0,
                     "点击下面的相关视频可正确跳转至该视频"
                   ),
                   UISwitch(
                     "选集",
                     "bili-video-cover-seasonNew",
                     true,
-                    undefined,
+                    void 0,
                     "点击下面的选集列表内的视频可正确跳转至该视频"
                   )
                 ]
@@ -3064,7 +3065,7 @@
                     "阻止调用App",
                     "bili-video-hook-callApp",
                     true,
-                    undefined,
+                    void 0,
                     "处理函数: PlayerAgent"
                   )
                 ]
@@ -3098,7 +3099,7 @@
                     "固定缩放倍率",
                     "bili-bangumi-initialScale",
                     true,
-                    undefined,
+                    void 0,
                     ""
                   )
                 ]
@@ -3119,7 +3120,7 @@
                     0,
                     0,
                     50,
-                    undefined,
+                    void 0,
                     (value) => {
                       return value + "px";
                     },
@@ -3136,49 +3137,49 @@
                     "弹幕",
                     "artplayer-plugin-bangumi-danmaku-enable",
                     true,
-                    undefined,
+                    void 0,
                     "哔哩哔哩 (゜-゜)つロ 干杯~"
                   ),
                   UISwitch(
                     "Dash Audio Support",
                     "artplayer-plugin-bangumi-m4sAudioSupport-enable",
                     true,
-                    undefined,
+                    void 0,
                     "视频类型为dash时，该插件可支持播放音频"
                   ),
                   UISwitch(
                     "选集",
                     "artplayer-plugin-bangumi-epChoose-enable",
                     true,
-                    undefined,
+                    void 0,
                     "当视频播放完毕后会自动连播"
                   ),
                   UISwitch(
                     "CC字幕",
                     "artplayer-plugin-bangumi-cc-subtitle-enable",
                     true,
-                    undefined,
+                    void 0,
                     "字幕支持插件，如果存在繁体字幕，则自动生成简体字幕"
                   ),
                   UISwitch(
                     "顶部工具栏",
                     "artplayer-plugin-bangumi-toptoolbar-enable",
                     true,
-                    undefined,
+                    void 0,
                     "显示视频标题和当前观看人数"
                   ),
                   UISwitch(
                     "空降助手",
                     "artplayer-plugin-bangumi-airborneHelper-enable",
                     true,
-                    undefined,
+                    void 0,
                     "如果获取到的信息中存在空降信息，如跳过片头片尾，那么会自动跳过"
                   ),
                   UISwitch(
                     "视频统计信息",
                     "artplayer-plugin-bangumi-statistics-enable",
                     true,
-                    undefined,
+                    void 0,
                     "用于显示当前视频信息的弹窗"
                   )
                 ]
@@ -3191,14 +3192,14 @@
                     "解锁番剧限制",
                     "bili-bangumi-unlockAreaLimit",
                     false,
-                    undefined,
+                    void 0,
                     "使用户可以观看区域外版权番剧"
                   ),
                   UISwitch(
                     "生成简中字幕",
                     "bili-bangumi-generateSimpleChineseSubtitle",
                     true,
-                    undefined,
+                    void 0,
                     "根据繁体字幕自动生成简体中文字幕"
                   )
                 ]
@@ -3217,14 +3218,14 @@
                         value: item.host
                       };
                     }),
-                    undefined,
+                    void 0,
                     "设置解锁番剧的服务器，可加快视频加载速度"
                   ),
                   UISwitch(
                     "作用于Audio上",
                     "bili-bangumi-uposServerSelect-applyAudio",
                     false,
-                    undefined,
+                    void 0,
                     "把m4s类型的audio也进行upos替换"
                   )
                 ]
@@ -3238,7 +3239,7 @@
                     "bili-bangumi-proxyApiServer-default",
                     "",
                     "用于请求播放地址的代理",
-                    undefined,
+                    void 0,
                     "bilibili优化.example.com"
                   ),
                   UIInput(
@@ -3246,7 +3247,7 @@
                     "bili-bangumi-proxyApiServer-hk",
                     "",
                     "用于请求播放地址的代理",
-                    undefined,
+                    void 0,
                     "bilibili优化.example.com"
                   ),
                   UIInput(
@@ -3254,7 +3255,7 @@
                     "bili-bangumi-proxyApiServer-tw",
                     "",
                     "用于请求播放地址的代理",
-                    undefined,
+                    void 0,
                     "bilibili优化.example.com"
                   ),
                   UIInput(
@@ -3262,7 +3263,7 @@
                     "bili-bangumi-proxyApiServer-tha-or-sea",
                     "",
                     "用于请求播放地址的代理",
-                    undefined,
+                    void 0,
                     "bilibili优化.example.com"
                   )
                 ]
@@ -3281,21 +3282,21 @@
                     "【选集】",
                     "bili-bangumi-cover-clicl-event-chooseEp",
                     true,
-                    undefined,
+                    void 0,
                     "让【选集】的视频列表可点击跳转"
                   ),
                   UISwitch(
                     "【其它】",
                     "bili-bangumi-cover-clicl-event-other",
                     true,
-                    undefined,
+                    void 0,
                     "让【PV&其他】、【预告】、【主题曲】、【香境剧场】等的视频列表可点击跳转"
                   ),
                   UISwitch(
                     "【更多推荐】",
                     "bili-bangumi-cover-clicl-event-recommend",
                     true,
-                    undefined,
+                    void 0,
                     "让【更多推荐】的视频列表可点击跳转"
                   )
                 ]
@@ -3314,7 +3315,7 @@
                     "阻止调用App",
                     "bili-bangumi-hook-callApp",
                     true,
-                    undefined,
+                    void 0,
                     ""
                   )
                 ]
@@ -3348,21 +3349,21 @@
                     "搜索框自动获取焦点",
                     "bili-search-inputAutoFocus",
                     true,
-                    undefined,
+                    void 0,
                     ""
                   ),
                   UISwitch(
                     "美化搜索结果",
                     "bili-search-beautifySearchResult",
                     true,
-                    undefined,
+                    void 0,
                     "重构搜索结果的样式"
                   ),
                   UISwitch(
                     "开启其它地区番剧搜索",
                     "bili-search-enableOtherAreaSearchBangumi",
                     false,
-                    undefined,
+                    void 0,
                     "在搜索页面添加其它地区番剧搜索结果，需要解析服务器支持"
                   )
                 ]
@@ -3376,7 +3377,7 @@
                     "bili-search-proxyApiServer-hk",
                     "",
                     "用于搜索番剧结果的代理",
-                    undefined,
+                    void 0,
                     "bilibili优化.example.com"
                   ),
                   UIInput(
@@ -3384,7 +3385,7 @@
                     "bili-search-proxyApiServer-tw",
                     "",
                     "用于搜索番剧结果的代理",
-                    undefined,
+                    void 0,
                     "bilibili优化.example.com"
                   ),
                   UIInput(
@@ -3392,7 +3393,7 @@
                     "bili-search-proxyApiServer-tha-or-sea",
                     "",
                     "用于搜索番剧结果的代理",
-                    undefined,
+                    void 0,
                     "bilibili优化.example.com"
                   )
                 ]
@@ -3411,7 +3412,7 @@
                     "取消",
                     "bili-search-cover-cancel",
                     false,
-                    undefined,
+                    void 0,
                     "点击取消按钮回退至上一页"
                   )
                 ]
@@ -3430,14 +3431,14 @@
                     "noCallApp",
                     "bili-search-vue-prop-noCallApp",
                     true,
-                    undefined,
+                    void 0,
                     "noCallApp = true"
                   ),
                   UISwitch(
                     "openAppDialog",
                     "bili-search-vue-prop-openAppDialog",
                     true,
-                    undefined,
+                    void 0,
                     "openAppDialog = false"
                   )
                 ]
@@ -3471,21 +3472,21 @@
                     "【屏蔽】聊天室",
                     "bili-live-block-chatRoom",
                     false,
-                    undefined,
+                    void 0,
                     "直接不显示底部的聊天室"
                   ),
                   UISwitch(
                     "【屏蔽】xxx进入直播间",
                     "bili-live-block-brush-prompt",
                     false,
-                    undefined,
+                    void 0,
                     "直接不显示底部的xxx进入直播间"
                   ),
                   UISwitch(
                     "【屏蔽】控制面板",
                     "bili-live-block-control-panel",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽底部的发个弹幕、送礼"
                   )
                 ]
@@ -3504,7 +3505,7 @@
                     "阻止open-app-btn元素点击事件触发",
                     "bili-live-prevent-openAppBtn",
                     true,
-                    undefined,
+                    void 0,
                     "开启后可不跳转至唤醒App页面"
                   )
                 ]
@@ -3538,7 +3539,7 @@
                     "自动展开阅读全文",
                     "bili-opus-automaticallyExpandToReadFullText",
                     true,
-                    undefined,
+                    void 0,
                     "屏蔽【展开阅读全文】按钮并自动处理全文高度"
                   )
                 ]
@@ -3557,21 +3558,21 @@
                     "autoOpenApp",
                     "bili-opus-variable-autoOpenApp",
                     true,
-                    undefined,
+                    void 0,
                     "autoOpenApp函数置空"
                   ),
                   UISwitch(
                     "go404",
                     "bili-opus-variable-go404",
                     true,
-                    undefined,
+                    void 0,
                     "go404函数置空，可禁止前往404页面"
                   ),
                   UISwitch(
                     "handleFallback",
                     "bili-opus-variable-handleFallback",
                     true,
-                    undefined,
+                    void 0,
                     "禁止前往404页面"
                   )
                 ]
@@ -3590,14 +3591,14 @@
                     "话题",
                     "bili-opus-cover-topicJump",
                     true,
-                    undefined,
+                    void 0,
                     "点击话题正确跳转"
                   ),
                   UISwitch(
                     "header用户",
                     "bili-opus-cover-header",
                     true,
-                    undefined,
+                    void 0,
                     "点击内容上的发布本动态的用户正确跳转个人空间"
                   )
                 ]
@@ -3631,28 +3632,28 @@
                     "话题",
                     "bili-dynamic-cover-topicJump",
                     true,
-                    undefined,
+                    void 0,
                     "点击话题正确跳转"
                   ),
                   UISwitch(
                     "header用户",
                     "bili-dynamic-cover-header",
                     true,
-                    undefined,
+                    void 0,
                     "点击内容上的发布本动态的用户正确跳转个人空间"
                   ),
                   UISwitch(
                     "@用户",
                     "bili-dynamic-cover-atJump",
                     true,
-                    undefined,
+                    void 0,
                     "点击@用户正确跳转个人空间"
                   ),
                   UISwitch(
                     "引用",
                     "bili-dynamic-cover-referenceJump",
                     true,
-                    undefined,
+                    void 0,
                     "点击引用的视频|用户正确跳转"
                   )
                 ]
@@ -3683,28 +3684,28 @@
                     "美化显示",
                     "bili-head-beautify",
                     true,
-                    undefined,
+                    void 0,
                     "调整瀑布流视频卡片样式类似哔哩哔哩App"
                   ),
                   UISwitch(
                     "美化顶部NavBar",
                     "bili-beautifyTopNavBar",
                     true,
-                    undefined,
+                    void 0,
                     "类似哔哩哔哩App的样式"
                   ),
                   UISwitch(
                     "补充推荐视频信息",
                     "bili-head-supplementaryVideoStreamingInformation",
                     true,
-                    undefined,
+                    void 0,
                     "给视频添加UP主名，当前视频总时长信息"
                   ),
                   UISwitch(
                     "新标签页打开",
                     "bili-head-openVideoInNewTab",
                     false,
-                    undefined,
+                    void 0,
                     "包括视频、番剧"
                   )
                 ]
@@ -3723,14 +3724,14 @@
                     "启用",
                     "bili-head-recommend-enable",
                     true,
-                    undefined,
+                    void 0,
                     "添加【推荐】标签，数据来源为App端(如果填入了access_token的话)"
                   ),
                   UISwitch(
                     "显示【图文】",
                     "bili-head-recommend-push-graphic",
                     true,
-                    undefined,
+                    void 0,
                     "加载App端推送的【图文】卡片"
                   )
                 ]
@@ -3846,7 +3847,7 @@
       return new Promise((resolve) => {
         VueUtils.waitVuePropToSet($target, {
           check(vueInstance) {
-            return typeof (vueInstance == null ? undefined : vueInstance.$watch) === "function";
+            return typeof (vueInstance == null ? void 0 : vueInstance.$watch) === "function";
           },
           set(vueInstance) {
             let removeWatch = null;
@@ -4127,7 +4128,7 @@
                     "修复正确跳转",
                     "bili-space-repairRealJump",
                     true,
-                    undefined,
+                    void 0,
                     "修复视频|动态的正确跳转，避免跳转404"
                   )
                 ]
@@ -4146,7 +4147,7 @@
                     "动态视频",
                     "bili-space-coverDynamicStateCardVideo",
                     true,
-                    undefined,
+                    void 0,
                     "点击发布动态的视频可正常跳转至该视频"
                   )
                 ]
@@ -4363,7 +4364,7 @@
       Reflect.deleteProperty(locaData, key);
       _GM_setValue(KEY, locaData);
       if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, undefined);
+        this.$listener.listenData.get(key).callback(key, oldValue, void 0);
       }
     },
     /**
@@ -4442,7 +4443,7 @@
       } else {
         runKeyList.push(key);
       }
-      let value = undefined;
+      let value = void 0;
       for (let index = 0; index < runKeyList.length; index++) {
         const runKey = runKeyList[index];
         if (!this.$data.data.has(runKey)) {
@@ -4692,8 +4693,6 @@
       bangumi_new: "body > #__next",
       dynamic: "#app .m-dynamic",
       opus: "#app .m-opus",
-      search: "#app .m-search",
-      "topic-detail": "#app .topic-detail",
       video: "#app .video",
       mVideo: "#app .m-video",
       head: "#app .m-head",
@@ -4891,7 +4890,7 @@
       var _a2;
       let searchParamsData = {
         like: config.like,
-        csrf: ((_a2 = GMCookie.get("bili_jct")) == null ? undefined : _a2.value) || ""
+        csrf: ((_a2 = GMCookie.get("bili_jct")) == null ? void 0 : _a2.value) || ""
       };
       BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(
         searchParamsData,
@@ -5011,7 +5010,7 @@
       }
       M4SAudioUtils.$flag.isIntervaling = true;
       let intervalCount = 0;
-      let intervalId = undefined;
+      let intervalId = void 0;
       let callback = () => {
         if (intervalCount > count) {
           M4SAudioUtils.$flag.isIntervaling = false;
@@ -5063,7 +5062,7 @@
       option: null
     },
     userEvent: {
-      onRestart: undefined
+      onRestart: void 0
     },
     events: {
       /**
@@ -5401,7 +5400,7 @@
       this.$data.option = option.audioList;
       this.$data.latestSyncTime = 0;
       const that = this;
-      if ((_a2 = option.audioList) == null ? undefined : _a2.length) {
+      if ((_a2 = option.audioList) == null ? void 0 : _a2.length) {
         option.audioList.sort((leftItem, rightItem) => {
           return rightItem.bandwidth - leftItem.bandwidth;
         });
@@ -5906,7 +5905,7 @@
     event() {
       var _a2;
       let currentTime = SubTitle.art.currentTime;
-      let currentSubTitleData = (_a2 = SubTitleData.allSubTitleInfo[SubTitleData.currentSelectIndex]) == null ? undefined : _a2.data;
+      let currentSubTitleData = (_a2 = SubTitleData.allSubTitleInfo[SubTitleData.currentSelectIndex]) == null ? void 0 : _a2.data;
       if (!currentSubTitleData) {
         return;
       }
@@ -6636,7 +6635,7 @@
       let selectorList = this.$data.qualityOptionList.map((itemInfo, index) => {
         var _a2;
         return {
-          default: index === ((_a2 = this.$data.currentSelectQualityInfo) == null ? undefined : _a2.index),
+          default: index === ((_a2 = this.$data.currentSelectQualityInfo) == null ? void 0 : _a2.index),
           html: itemInfo.html,
           url: itemInfo.url,
           quality: itemInfo.quality,
@@ -7053,7 +7052,7 @@
         function(event) {
           let dataTransition = $toast.getAttribute("data-transition");
           if ($toast.classList.contains(that.$config.hideClassName)) {
-            if (typeof config === "object" && typeof (config == null ? undefined : config.closeCallback) === "function") {
+            if (typeof config === "object" && typeof (config == null ? void 0 : config.closeCallback) === "function") {
               config.closeCallback();
             }
             $toast.remove();
@@ -7091,7 +7090,7 @@
         setting_name: "video-statistics"
       });
       __publicField(this, "$data", {
-        intervalId: undefined
+        intervalId: void 0
       });
       this.art = art;
       this.option = option;
@@ -7223,7 +7222,7 @@
         },
         audioDuration
       ];
-      data2.push(...((_a2 = this == null ? undefined : this.option) == null ? undefined : _a2.data) || []);
+      data2.push(...((_a2 = this == null ? void 0 : this.option) == null ? void 0 : _a2.data) || []);
       return {
         name: this.$key.setting_name,
         html: (
@@ -7441,7 +7440,7 @@
       // 默认弹幕模式: 0: 滚动，1: 顶部，2: 底部
       mode: 0,
       // 弹幕发射器挂载点, 默认为播放器控制栏中部
-      mount: undefined,
+      mount: void 0,
       // 当播放器宽度小于此值时，弹幕发射器置于播放器底部
       width: 800,
       // 热力图数据
@@ -7598,7 +7597,6 @@
         artOption.plugins.push(
           artplayerPluginM4SAudioSupport({
             from: "video",
-            showSetting: true,
             audioList: option.audioList || []
           })
         );
@@ -7749,7 +7747,7 @@
         dashVideoInfo.backupUrl
       );
       videoUrl = BilibiliCDNProxy.replaceVideoCDN(videoUrl);
-      let qualityName = findSupportFormat == null ? undefined : findSupportFormat.new_description;
+      let qualityName = findSupportFormat == null ? void 0 : findSupportFormat.new_description;
       result.push({
         name: qualityName,
         url: videoUrl,
@@ -7790,9 +7788,9 @@
       );
       let videoUrl = BilibiliCDNProxy.findBetterCDN(
         currentDurl.url,
-        currentDurl.url || ((_a2 = currentDurl.backup_url) == null ? undefined : _a2[0])
+        currentDurl.url || ((_a2 = currentDurl.backup_url) == null ? void 0 : _a2[0])
       );
-      let qualityName = findSupportFormat == null ? undefined : findSupportFormat.new_description;
+      let qualityName = findSupportFormat == null ? void 0 : findSupportFormat.new_description;
       qualityInfo.push({
         name: qualityName,
         url: videoUrl,
@@ -7879,7 +7877,7 @@
       danmukuUrl: `https://api.bilibili.com/x/v1/dm/list.so?oid=${option.cid}`,
       quality: currentVideoQuality
     };
-    artPlayerOption.url = (_b = qualityInfo == null ? undefined : qualityInfo[0]) == null ? undefined : _b.url;
+    artPlayerOption.url = (_b = qualityInfo == null ? void 0 : qualityInfo[0]) == null ? void 0 : _b.url;
     if (audioInfo.length) {
       artPlayerOption.audioList = audioInfo.map((item, index) => {
         return {
@@ -7970,9 +7968,9 @@
           var _a2, _b, _c, _d, _e, _f;
           if (!isEpChoose && BilibiliVideoArtPlayer.$data.currentOption != null) {
             BilibiliVideoArtPlayer.$data.art.pause();
-            return typeof ((_a2 = vueInstance == null ? undefined : vueInstance.info) == null ? undefined : _a2.aid) === "number" && BilibiliVideoArtPlayer.$data.currentOption.aid !== vueInstance.info.aid && typeof ((_b = vueInstance == null ? undefined : vueInstance.info) == null ? undefined : _b.bvid) === "string" && typeof ((_c = vueInstance == null ? undefined : vueInstance.info) == null ? undefined : _c.cid) === "number";
+            return typeof ((_a2 = vueInstance == null ? void 0 : vueInstance.info) == null ? void 0 : _a2.aid) === "number" && BilibiliVideoArtPlayer.$data.currentOption.aid !== vueInstance.info.aid && typeof ((_b = vueInstance == null ? void 0 : vueInstance.info) == null ? void 0 : _b.bvid) === "string" && typeof ((_c = vueInstance == null ? void 0 : vueInstance.info) == null ? void 0 : _c.cid) === "number";
           } else {
-            return typeof ((_d = vueInstance == null ? undefined : vueInstance.info) == null ? undefined : _d.aid) === "number" && typeof ((_e = vueInstance == null ? undefined : vueInstance.info) == null ? undefined : _e.bvid) === "string" && typeof ((_f = vueInstance == null ? undefined : vueInstance.info) == null ? undefined : _f.cid) === "number";
+            return typeof ((_d = vueInstance == null ? void 0 : vueInstance.info) == null ? void 0 : _d.aid) === "number" && typeof ((_e = vueInstance == null ? void 0 : vueInstance.info) == null ? void 0 : _e.bvid) === "string" && typeof ((_f = vueInstance == null ? void 0 : vueInstance.info) == null ? void 0 : _f.cid) === "number";
           }
         },
         async set(vueInstance) {
@@ -7989,15 +7987,15 @@
           const $partNew = $(".m-video-part-new");
           if ($seasonNew && VueUtils.getVue($seasonNew)) {
             let seasonVueIns = VueUtils.getVue($seasonNew);
-            let videoList = seasonVueIns == null ? undefined : seasonVueIns.videoList;
+            let videoList = seasonVueIns == null ? void 0 : seasonVueIns.videoList;
             if (Array.isArray(videoList)) {
               epInfoList = videoList;
             }
           } else if ($partNew && VueUtils.getVue($partNew)) {
             let partVueIns = VueUtils.getVue($partNew);
-            let info = partVueIns == null ? undefined : partVueIns.info;
-            let currentPage = partVueIns == null ? undefined : partVueIns.p;
-            let pages = (partVueIns == null ? undefined : partVueIns.pages) || ((_a2 = partVueIns == null ? undefined : partVueIns.info) == null ? undefined : _a2.pages);
+            let info = partVueIns == null ? void 0 : partVueIns.info;
+            let currentPage = partVueIns == null ? void 0 : partVueIns.p;
+            let pages = (partVueIns == null ? void 0 : partVueIns.pages) || ((_a2 = partVueIns == null ? void 0 : partVueIns.info) == null ? void 0 : _a2.pages);
             if (Array.isArray(pages)) {
               epInfoList.push({
                 season_id: 0,
@@ -8010,30 +8008,30 @@
                 attribute: 0,
                 arc: {
                   aid: aid || info.aid,
-                  videos: info == null ? undefined : info.videos,
+                  videos: info == null ? void 0 : info.videos,
                   type_id: 0,
                   type_name: "",
-                  copyright: info == null ? undefined : info.copyright,
-                  pic: info == null ? undefined : info.pic,
-                  title: info == null ? undefined : info.title,
-                  pubdate: info == null ? undefined : info.pubdate,
-                  ctime: info == null ? undefined : info.ctime,
-                  desc: info == null ? undefined : info.desc,
-                  state: info == null ? undefined : info.state,
-                  duration: info == null ? undefined : info.duration,
-                  rights: info == null ? undefined : info.rights,
-                  author: info == null ? undefined : info.owner,
-                  stat: info == null ? undefined : info.stat,
-                  dynamic: info == null ? undefined : info.dynamic,
-                  dimension: info == null ? undefined : info.dimension,
-                  desc_v2: info == null ? undefined : info.desc_v2,
-                  is_chargeable_season: info == null ? undefined : info.is_chargeable_season,
-                  is_blooper: info == null ? undefined : info.is_blooper,
-                  enable_vt: info == null ? undefined : info.enable_vt,
-                  vt_display: info == null ? undefined : info.vt_display
+                  copyright: info == null ? void 0 : info.copyright,
+                  pic: info == null ? void 0 : info.pic,
+                  title: info == null ? void 0 : info.title,
+                  pubdate: info == null ? void 0 : info.pubdate,
+                  ctime: info == null ? void 0 : info.ctime,
+                  desc: info == null ? void 0 : info.desc,
+                  state: info == null ? void 0 : info.state,
+                  duration: info == null ? void 0 : info.duration,
+                  rights: info == null ? void 0 : info.rights,
+                  author: info == null ? void 0 : info.owner,
+                  stat: info == null ? void 0 : info.stat,
+                  dynamic: info == null ? void 0 : info.dynamic,
+                  dimension: info == null ? void 0 : info.dimension,
+                  desc_v2: info == null ? void 0 : info.desc_v2,
+                  is_chargeable_season: info == null ? void 0 : info.is_chargeable_season,
+                  is_blooper: info == null ? void 0 : info.is_blooper,
+                  enable_vt: info == null ? void 0 : info.enable_vt,
+                  vt_display: info == null ? void 0 : info.vt_display
                 },
-                page: (_b = info == null ? undefined : info.pages) == null ? undefined : _b[currentPage],
-                pages: info == null ? undefined : info.pages
+                page: (_b = info == null ? void 0 : info.pages) == null ? void 0 : _b[currentPage],
+                pages: info == null ? void 0 : info.pages
               });
             }
           }
@@ -8271,7 +8269,7 @@
           let isHandled = Boolean($vCard.querySelector(".gm-right-container"));
           let vueObj = VueUtils.getVue($vCard);
           if ($originTitle && $originLeft && vueObj && !isHandled) {
-            let upName = (_b = (_a2 = vueObj == null ? undefined : vueObj.info) == null ? undefined : _a2.owner) == null ? undefined : _b.name;
+            let upName = (_b = (_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.owner) == null ? void 0 : _b.name;
             if (upName == null) {
               log.error("美化显示-handleVCardToApp：获取up主名字失败");
               return;
@@ -8312,12 +8310,12 @@
           let isHandled = Boolean($vCard.querySelector(".gm-right-container"));
           let vueObj = VueUtils.getVue($vCard);
           if ($originTitle && $originCount && vueObj && !isHandled) {
-            let duration = (_a2 = vueObj == null ? undefined : vueObj.info) == null ? undefined : _a2.duration;
+            let duration = (_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.duration;
             if (duration == null) {
               log.error("美化显示-handleVCard：获取视频时长失败");
               return;
             }
-            let upName = (_c = (_b = vueObj == null ? undefined : vueObj.info) == null ? undefined : _b.owner) == null ? undefined : _c.name;
+            let upName = (_c = (_b = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _b.owner) == null ? void 0 : _c.name;
             if (upName == null) {
               log.error("美化显示-handleVCard：获取up主名字失败");
               return;
@@ -8443,7 +8441,7 @@
             log.error("获取元素.bottom-wrapper的vue实例失败");
             return;
           }
-          let mid = (_b = (_a2 = vueInstance == null ? undefined : vueInstance.upInfo) == null ? undefined : _a2.card) == null ? undefined : _b.mid;
+          let mid = (_b = (_a2 = vueInstance == null ? void 0 : vueInstance.upInfo) == null ? void 0 : _a2.card) == null ? void 0 : _b.mid;
           if (typeof mid === "string") {
             BilibiliUtils.goToUrl(BilibiliUrl.getUserSpaceUrl(mid));
           } else {
@@ -8577,7 +8575,7 @@
             if (vueObj == null) {
               return false;
             }
-            return typeof ((_b = (_a2 = vueObj == null ? undefined : vueObj.$router) == null ? undefined : _a2.options) == null ? undefined : _b.scrollBehavior) != null;
+            return typeof ((_b = (_a2 = vueObj == null ? void 0 : vueObj.$router) == null ? void 0 : _a2.options) == null ? void 0 : _b.scrollBehavior) != null;
           },
           250,
           1e4
@@ -8748,7 +8746,7 @@
         msg: "等待tab的vue属性touchstart、touchmove、touchend事件，_bindEvents函数",
         check(vueInstance) {
           var _a2, _b, _c, _d, _e, _f, _g, _h;
-          return ((_a2 = vueInstance == null ? undefined : vueInstance.slider) == null ? undefined : _a2.el) instanceof HTMLElement && typeof ((_c = (_b = vueInstance == null ? undefined : vueInstance.slider) == null ? undefined : _b.events) == null ? undefined : _c.touchstart) === "function" && typeof ((_e = (_d = vueInstance == null ? undefined : vueInstance.slider) == null ? undefined : _d.events) == null ? undefined : _e.touchmove) === "function" && typeof ((_g = (_f = vueInstance == null ? undefined : vueInstance.slider) == null ? undefined : _f.events) == null ? undefined : _g.touchend) === "function" && typeof ((_h = vueInstance == null ? undefined : vueInstance.slider) == null ? undefined : _h._bindEvents) === "function";
+          return ((_a2 = vueInstance == null ? void 0 : vueInstance.slider) == null ? void 0 : _a2.el) instanceof HTMLElement && typeof ((_c = (_b = vueInstance == null ? void 0 : vueInstance.slider) == null ? void 0 : _b.events) == null ? void 0 : _c.touchstart) === "function" && typeof ((_e = (_d = vueInstance == null ? void 0 : vueInstance.slider) == null ? void 0 : _d.events) == null ? void 0 : _e.touchmove) === "function" && typeof ((_g = (_f = vueInstance == null ? void 0 : vueInstance.slider) == null ? void 0 : _f.events) == null ? void 0 : _g.touchend) === "function" && typeof ((_h = vueInstance == null ? void 0 : vueInstance.slider) == null ? void 0 : _h._bindEvents) === "function";
         },
         set(vueInstance) {
           let $bindTarget = vueInstance.slider.el;
@@ -8844,7 +8842,7 @@
       let serverHostList = BilibiliApiProxy.getBangumiProxyHost();
       log.info(`番剧播放地址请求数据`);
       let failReponseJSON = [];
-      let result = undefined;
+      let result = void 0;
       const urlPath = "/pgc/player/web/playurl";
       log.info(`请求路径：${urlPath}`);
       for (let index = 0; index < serverHostList.length; index++) {
@@ -8945,9 +8943,9 @@
   const TAG = "[artplayer-plugin-airborneHelper]：";
   const AirborneHelperEvent = {
     $data: {
-      tipJumpToastTimeoutId: undefined,
-      tipJumpToastInfo: undefined,
-      successJumpToastInfo: undefined
+      tipJumpToastTimeoutId: void 0,
+      tipJumpToastInfo: void 0,
+      successJumpToastInfo: void 0
     },
     $event: {
       "video:timeupdate": () => {
@@ -8973,9 +8971,9 @@
           let toastCloseCallBack = function() {
             var _a2;
             clearTimeout(AirborneHelperEvent.$data.tipJumpToastTimeoutId);
-            AirborneHelperEvent.$data.tipJumpToastTimeoutId = undefined;
-            (_a2 = AirborneHelperEvent.$data.tipJumpToastInfo) == null ? undefined : _a2.close();
-            AirborneHelperEvent.$data.tipJumpToastInfo = undefined;
+            AirborneHelperEvent.$data.tipJumpToastTimeoutId = void 0;
+            (_a2 = AirborneHelperEvent.$data.tipJumpToastInfo) == null ? void 0 : _a2.close();
+            AirborneHelperEvent.$data.tipJumpToastInfo = void 0;
             AirborneHelper.$data.option.clip_info_list.splice(findIndex, 1);
           };
           let findValue = AirborneHelper.$data.option.clip_info_list[findIndex];
@@ -8983,21 +8981,21 @@
           let timeout = (findValue.start - currentTime) * 1e3;
           AirborneHelperEvent.$data.tipJumpToastTimeoutId = setTimeout(() => {
             AirborneHelper.$data.art.currentTime = findValue.end;
-            AirborneHelperEvent.$data.tipJumpToastTimeoutId = undefined;
+            AirborneHelperEvent.$data.tipJumpToastTimeoutId = void 0;
             if (AirborneHelperEvent.$data.successJumpToastInfo) {
               AirborneHelperEvent.$data.successJumpToastInfo.close();
-              AirborneHelperEvent.$data.successJumpToastInfo = undefined;
+              AirborneHelperEvent.$data.successJumpToastInfo = void 0;
             }
             AirborneHelperEvent.$data.successJumpToastInfo = plugin_toast.toast({
               text: "空降成功~o(*≧▽≦)ツ┏━┓",
               closeCallback() {
-                AirborneHelperEvent.$data.successJumpToastInfo = undefined;
+                AirborneHelperEvent.$data.successJumpToastInfo = void 0;
               }
             });
           }, timeout);
           if (AirborneHelperEvent.$data.tipJumpToastInfo) {
             AirborneHelperEvent.$data.tipJumpToastInfo.close();
-            AirborneHelperEvent.$data.tipJumpToastInfo = undefined;
+            AirborneHelperEvent.$data.tipJumpToastInfo = void 0;
           }
           AirborneHelperEvent.$data.tipJumpToastInfo = plugin_toast.toast({
             text: typeof findValue.toastText === "string" ? findValue.toastText : "站稳扶好，准备起飞~",
@@ -9011,7 +9009,7 @@
           setTimeout(() => {
             if (AirborneHelperEvent.$data.tipJumpToastInfo) {
               AirborneHelperEvent.$data.tipJumpToastInfo.close();
-              AirborneHelperEvent.$data.tipJumpToastInfo = undefined;
+              AirborneHelperEvent.$data.tipJumpToastInfo = void 0;
             }
           }, (beforeToastTime + 3) * 1e3);
         }
@@ -9033,14 +9031,14 @@
         );
       });
       clearTimeout(AirborneHelperEvent.$data.tipJumpToastTimeoutId);
-      AirborneHelperEvent.$data.tipJumpToastTimeoutId = undefined;
+      AirborneHelperEvent.$data.tipJumpToastTimeoutId = void 0;
       if (AirborneHelperEvent.$data.successJumpToastInfo) {
         AirborneHelperEvent.$data.successJumpToastInfo.close();
-        AirborneHelperEvent.$data.successJumpToastInfo = undefined;
+        AirborneHelperEvent.$data.successJumpToastInfo = void 0;
       }
       if (AirborneHelperEvent.$data.tipJumpToastInfo) {
         AirborneHelperEvent.$data.tipJumpToastInfo.close();
-        AirborneHelperEvent.$data.tipJumpToastInfo = undefined;
+        AirborneHelperEvent.$data.tipJumpToastInfo = void 0;
       }
     }
   };
@@ -9125,8 +9123,8 @@
       }
       let flvInfoList = this.$data.currentOption.flvInfo;
       if (this.$data.flv != null || flvInfoList == null) {
-        (_a2 = this.$data.flv) == null ? undefined : _a2.detachMediaElement();
-        (_b = this.$data.flv) == null ? undefined : _b.destroy();
+        (_a2 = this.$data.flv) == null ? void 0 : _a2.detachMediaElement();
+        (_b = this.$data.flv) == null ? void 0 : _b.destroy();
       }
       let currentOption = this.$data.currentOption;
       console.log(TAG_FLV + "加载视频", flvInfoList);
@@ -9245,8 +9243,7 @@
         artOption.plugins.push(
           artplayerPluginM4SAudioSupport({
             from: BilibiliBangumiArtPlayer.$data.from,
-            audioList: option.audioList || [],
-            showSetting: true
+            audioList: option.audioList || []
           })
         );
       }
@@ -9488,7 +9485,7 @@
         dashVideoInfo.backupUrl
       );
       videoUrl = BilibiliCDNProxy.replaceBangumiVideoCDN(videoUrl);
-      let qualityName = findSupportFormat == null ? undefined : findSupportFormat.new_description;
+      let qualityName = findSupportFormat == null ? void 0 : findSupportFormat.new_description;
       result.push({
         name: qualityName,
         url: videoUrl,
@@ -9496,7 +9493,7 @@
         id: dashVideoInfo.id,
         size: dashVideoInfo.size,
         quality: dashVideoInfo.id,
-        vip: Boolean(findSupportFormat == null ? undefined : findSupportFormat.need_vip),
+        vip: Boolean(findSupportFormat == null ? void 0 : findSupportFormat.need_vip),
         bandwidth: dashVideoInfo.bandwidth,
         frameRate: dashVideoInfo.frameRate,
         codecid: dashVideoInfo.codecid,
@@ -9511,7 +9508,7 @@
   const handleQueryVideoQualityData = (bangumiInfo, userChooseVideoCodingCode) => {
     var _a2, _b;
     let qualityInfoList = [];
-    if ((_b = (_a2 = bangumiInfo == null ? undefined : bangumiInfo.dash) == null ? undefined : _a2.video) == null ? undefined : _b.length) {
+    if ((_b = (_a2 = bangumiInfo == null ? void 0 : bangumiInfo.dash) == null ? void 0 : _a2.video) == null ? void 0 : _b.length) {
       let dashBangumiInfo = bangumiInfo;
       qualityInfoList = [
         ...handleDashVideoQualityInfo({
@@ -9559,7 +9556,7 @@
           currentDurl.url,
           currentDurl.backup_url
         );
-        let qualityName = findSupportFormat == null ? undefined : findSupportFormat.new_description;
+        let qualityName = findSupportFormat == null ? void 0 : findSupportFormat.new_description;
         qualityInfoList.push({
           name: qualityName,
           url: videoUrl,
@@ -9567,7 +9564,7 @@
           id: durlInfo.quality,
           size: currentDurl.size,
           quality: durlInfo.quality,
-          vip: Boolean(findSupportFormat == null ? undefined : findSupportFormat.need_vip),
+          vip: Boolean(findSupportFormat == null ? void 0 : findSupportFormat.need_vip),
           bandwidth: 0,
           frameRate: "",
           codecid: 0,
@@ -9598,9 +9595,9 @@
       if (!bangumiInfo) {
         return;
       }
-      if (Array.isArray(bangumiInfo == null ? undefined : bangumiInfo.clip_info_list)) {
+      if (Array.isArray(bangumiInfo == null ? void 0 : bangumiInfo.clip_info_list)) {
         clip_info_list = bangumiInfo.clip_info_list;
-      } else if (Array.isArray(bangumiInfo == null ? undefined : bangumiInfo.clip_info)) {
+      } else if (Array.isArray(bangumiInfo == null ? void 0 : bangumiInfo.clip_info)) {
         clip_info_list = // @ts-ignore
         bangumiInfo.clip_info;
       }
@@ -9623,7 +9620,7 @@
           });
         });
       } else if (bangumiInfo.type.toLowerCase() === "dash" || bangumiInfo.type.toLowerCase() === "mp4") {
-        (((_a2 = bangumiInfo == null ? undefined : bangumiInfo.dash) == null ? undefined : _a2.audio) || []).forEach((item) => {
+        (((_a2 = bangumiInfo == null ? void 0 : bangumiInfo.dash) == null ? void 0 : _a2.audio) || []).forEach((item) => {
           let audioUrl = BilibiliCDNProxy.findBetterCDN(
             item.baseUrl,
             item.base_url,
@@ -9663,10 +9660,10 @@
       if (!bangumiInfo) {
         return;
       }
-      if (Array.isArray(bangumiInfo == null ? undefined : bangumiInfo.clip_info_list)) {
+      if (Array.isArray(bangumiInfo == null ? void 0 : bangumiInfo.clip_info_list)) {
         clip_info_list = // @ts-ignore
         bangumiInfo.clip_info_list;
-      } else if (Array.isArray(bangumiInfo == null ? undefined : bangumiInfo.clip_info)) {
+      } else if (Array.isArray(bangumiInfo == null ? void 0 : bangumiInfo.clip_info)) {
         clip_info_list = bangumiInfo.clip_info;
       }
       qualityInfo = qualityInfo.concat(handleQueryVideoQualityData(bangumiInfo));
@@ -9700,7 +9697,7 @@
       flvTotalDuration,
       flvTotalSize
     };
-    artPlayerOption.url = (_b = qualityInfo == null ? undefined : qualityInfo[0]) == null ? undefined : _b.url;
+    artPlayerOption.url = (_b = qualityInfo == null ? void 0 : qualityInfo[0]) == null ? void 0 : _b.url;
     if (audioInfo.length) {
       artPlayerOption.audioList = audioInfo.map((item, index) => {
         return {
@@ -9732,11 +9729,11 @@
         {
           check(reactInstance) {
             var _a2, _b, _c, _d, _e, _f;
-            return typeof ((_f = (_e = (_d = (_c = (_b = (_a2 = reactInstance == null ? undefined : reactInstance.return) == null ? undefined : _a2.memoizedState) == null ? undefined : _b.queue) == null ? undefined : _c.lastRenderedState) == null ? undefined : _d[0]) == null ? undefined : _e.epInfo) == null ? undefined : _f.bvid) === "string";
+            return typeof ((_f = (_e = (_d = (_c = (_b = (_a2 = reactInstance == null ? void 0 : reactInstance.return) == null ? void 0 : _a2.memoizedState) == null ? void 0 : _b.queue) == null ? void 0 : _c.lastRenderedState) == null ? void 0 : _d[0]) == null ? void 0 : _e.epInfo) == null ? void 0 : _f.bvid) === "string";
           },
           async set(reactInstance) {
             var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j;
-            let epInfo = (_e = (_d = (_c = (_b = (_a2 = reactInstance == null ? undefined : reactInstance.return) == null ? undefined : _a2.memoizedState) == null ? undefined : _b.queue) == null ? undefined : _c.lastRenderedState) == null ? undefined : _d[0]) == null ? undefined : _e.epInfo;
+            let epInfo = (_e = (_d = (_c = (_b = (_a2 = reactInstance == null ? void 0 : reactInstance.return) == null ? void 0 : _a2.memoizedState) == null ? void 0 : _b.queue) == null ? void 0 : _c.lastRenderedState) == null ? void 0 : _d[0]) == null ? void 0 : _e.epInfo;
             const $playerWrapper = $("#bilibiliPlayer");
             if (ep_info == null) {
               ep_info = epInfo;
@@ -9748,7 +9745,7 @@
               );
               if ($epList) {
                 let react = utils.getReactObj($epList);
-                let epList = (_j = (_i = (_h = (_g = (_f = react == null ? undefined : react.reactFiber) == null ? undefined : _f.return) == null ? undefined : _g.memoizedState) == null ? undefined : _h.memoizedState) == null ? undefined : _i[0]) == null ? undefined : _j.episodes;
+                let epList = (_j = (_i = (_h = (_g = (_f = react == null ? void 0 : react.reactFiber) == null ? void 0 : _f.return) == null ? void 0 : _g.memoizedState) == null ? void 0 : _h.memoizedState) == null ? void 0 : _i[0]) == null ? void 0 : _j.episodes;
                 if (Array.isArray(epList)) {
                   ep_list = epList;
                 }
@@ -10304,10 +10301,10 @@
         ".gm-card-display-info"
       );
       let totalDisplayInfo = [];
-      if (Array.isArray(option == null ? undefined : option.display_info)) {
+      if (Array.isArray(option == null ? void 0 : option.display_info)) {
         totalDisplayInfo = totalDisplayInfo.concat(option.display_info);
       }
-      if (Array.isArray(option == null ? undefined : option.badges)) {
+      if (Array.isArray(option == null ? void 0 : option.badges)) {
         totalDisplayInfo = totalDisplayInfo.concat(option.badges);
       }
       totalDisplayInfo = utils.uniqueArray(totalDisplayInfo, (item) => item.text);
@@ -10356,8 +10353,8 @@
           $mediaScore,
           /*html*/
           `
-				<span class="gm-card-media_score-score">${((_a2 = option.media_score) == null ? undefined : _a2.score) || 0}分</span>
-				<span class="gm-card-media_score-user_count">${((_b = option.media_score) == null ? undefined : _b.user_count) || 0}人参与</span>
+				<span class="gm-card-media_score-score">${((_a2 = option.media_score) == null ? void 0 : _a2.score) || 0}分</span>
+				<span class="gm-card-media_score-user_count">${((_b = option.media_score) == null ? void 0 : _b.user_count) || 0}人参与</span>
 				`
         );
       }
@@ -10817,7 +10814,7 @@
         this.dispatch((vueInstance, fnName) => {
           if (typeof fnName === "string" && fnName === "opus/handleFallback" && ![1, 2].includes(vueInstance.fallback.type)) {
             log.success(`禁止调用handleFallback函数前往404`);
-            if (typeof (vueInstance == null ? undefined : vueInstance.showComment) === "boolean" && vueInstance.showComment && typeof (vueInstance == null ? undefined : vueInstance.initFullComment) === "function") {
+            if (typeof (vueInstance == null ? void 0 : vueInstance.showComment) === "boolean" && vueInstance.showComment && typeof (vueInstance == null ? void 0 : vueInstance.initFullComment) === "function") {
               vueInstance.initFullComment();
             }
             return false;
@@ -10848,7 +10845,7 @@
       VueUtils.waitVuePropToSet(BilibiliData.className.opus, {
         msg: "等待 覆盖函数autoOpenApp",
         check(vueInstance) {
-          return typeof (vueInstance == null ? undefined : vueInstance.autoOpenApp) === "function";
+          return typeof (vueInstance == null ? void 0 : vueInstance.autoOpenApp) === "function";
         },
         set(vueInstance) {
           log.success(`成功 覆盖函数autoOpenApp`);
@@ -10865,7 +10862,7 @@
       VueUtils.waitVuePropToSet(BilibiliData.className.opus, {
         msg: "等待 覆盖函数go404",
         check(vueInstance) {
-          return typeof (vueInstance == null ? undefined : vueInstance.go404) === "function";
+          return typeof (vueInstance == null ? void 0 : vueInstance.go404) === "function";
         },
         set(vueInstance) {
           log.success(`成功 覆盖函数go404`);
@@ -10884,12 +10881,12 @@
         msg: "等待 覆盖对象fallback",
         check(vueInstance) {
           var _a2;
-          return typeof ((_a2 = vueInstance == null ? undefined : vueInstance.fallback) == null ? undefined : _a2.type) === "number";
+          return typeof ((_a2 = vueInstance == null ? void 0 : vueInstance.fallback) == null ? void 0 : _a2.type) === "number";
         },
         set(vueInstance) {
           log.success(`成功 覆盖对象fallback`);
           vueInstance.$watch(
-            () => vueInstance == null ? undefined : vueInstance.fallback,
+            () => vueInstance == null ? void 0 : vueInstance.fallback,
             () => {
               vueInstance.fallback = null;
               log.success(`覆盖对象fallback`);
@@ -10923,7 +10920,7 @@
         msg: "等待 覆盖函数dispatch",
         check(vueInstance) {
           var _a2;
-          return typeof ((_a2 = vueInstance == null ? undefined : vueInstance.$store) == null ? undefined : _a2.dispatch) === "function";
+          return typeof ((_a2 = vueInstance == null ? void 0 : vueInstance.$store) == null ? void 0 : _a2.dispatch) === "function";
         },
         set(vueInstance) {
           log.success(`成功 覆盖函数dispatch`);
@@ -10979,8 +10976,8 @@
             Qmsg.error("获取话题的__vue__失败");
             return;
           }
-          let data2 = (_a2 = vueObj == null ? undefined : vueObj.$props) == null ? undefined : _a2.data;
-          let jump_url = data2 == null ? undefined : data2.jump_url;
+          let data2 = (_a2 = vueObj == null ? void 0 : vueObj.$props) == null ? void 0 : _a2.data;
+          let jump_url = data2 == null ? void 0 : data2.jump_url;
           if (utils.isNull(jump_url)) {
             Qmsg.error("获取话题的jump_url失败");
             return;
@@ -11030,7 +11027,7 @@
             Qmsg.error("获取vue属性失败");
             return;
           }
-          let mid = (_a2 = vueObj == null ? undefined : vueObj.data) == null ? undefined : _a2.mid;
+          let mid = (_a2 = vueObj == null ? void 0 : vueObj.data) == null ? void 0 : _a2.mid;
           if (!mid) {
             Qmsg.error("获取mid失败");
             return;
@@ -11105,8 +11102,8 @@
             Qmsg.error("获取vue属性失败");
             return;
           }
-          let data2 = (_a2 = vueObj == null ? undefined : vueObj.$props) == null ? undefined : _a2.data;
-          let jump_url = data2 == null ? undefined : data2.jump_url;
+          let data2 = (_a2 = vueObj == null ? void 0 : vueObj.$props) == null ? void 0 : _a2.data;
+          let jump_url = data2 == null ? void 0 : data2.jump_url;
           if (utils.isNull(jump_url)) {
             Qmsg.error("获取jump_url失败");
             return;
@@ -11132,7 +11129,7 @@
           var _a2, _b;
           utils.preventEvent(event);
           let $click = event.target;
-          let oid = $click.getAttribute("data-oid") || ((_b = (_a2 = VueUtils.getVue($click)) == null ? undefined : _a2.$props) == null ? undefined : _b.rid);
+          let oid = $click.getAttribute("data-oid") || ((_b = (_a2 = VueUtils.getVue($click)) == null ? void 0 : _a2.$props) == null ? void 0 : _b.rid);
           if (utils.isNull(oid)) {
             Qmsg.error("获取data-oid或rid失败");
             return;
@@ -11181,7 +11178,7 @@
             Qmsg.error("获取vue属性失败");
             return;
           }
-          let jump_url = (_a2 = vueObj == null ? undefined : vueObj.data) == null ? undefined : _a2.jump_url;
+          let jump_url = (_a2 = vueObj == null ? void 0 : vueObj.data) == null ? void 0 : _a2.jump_url;
           if (utils.isNull(jump_url)) {
             Qmsg.error("获取jump_url失败");
             return;
@@ -11211,7 +11208,7 @@
      * @param checkCallBack 如果mainCoreData匹配上，则调用此回调函数
      */
     windowWebPack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
-      let originObject = undefined;
+      let originObject = void 0;
       OriginPrototype.Object.defineProperty(_unsafeWindow, webpackName, {
         get() {
           return originObject;
@@ -11331,13 +11328,13 @@
             if (opener == null) {
               return;
             }
-            let originOpen = opener == null ? undefined : opener.open;
+            let originOpen = opener == null ? void 0 : opener.open;
             if (typeof originOpen === "function") {
               Reflect.set(opener, "open", (config) => {
                 log.success(
                   `拦截bili-open-app.open跳转: ${JSON.stringify(config)}`
                 );
-                if (typeof (config == null ? undefined : config.universalLink) === "string") {
+                if (typeof (config == null ? void 0 : config.universalLink) === "string") {
                   BilibiliUtils.goToUrl(config.universalLink);
                 }
               });
@@ -11547,7 +11544,7 @@
      */
     removeScrollEvent() {
       var _a2;
-      (_a2 = this.$data.intersectionObserver) == null ? undefined : _a2.disconnect();
+      (_a2 = this.$data.intersectionObserver) == null ? void 0 : _a2.disconnect();
       this.$data.intersectionObserver = null;
     },
     /**
@@ -11594,7 +11591,7 @@
       var _a2;
       let getData = {
         appkey: AppKeyInfo.ios.appkey,
-        access_key: ((_a2 = BilibiliQrCodeLogin.getAccessTokenInfo()) == null ? undefined : _a2.access_token) || ""
+        access_key: ((_a2 = BilibiliQrCodeLogin.getAccessTokenInfo()) == null ? void 0 : _a2.access_token) || ""
       };
       let Api = "https://app.bilibili.com/x/v2/feed/index";
       let getResp = await httpx.get(
@@ -11682,7 +11679,7 @@
     getRecommendItemAVElement(data2) {
       var _a2;
       let goto = data2.goto;
-      let aid = ((_a2 = data2 == null ? undefined : data2.player_args) == null ? undefined : _a2.aid) || data2.args.aid;
+      let aid = ((_a2 = data2 == null ? void 0 : data2.player_args) == null ? void 0 : _a2.aid) || data2.args.aid;
       let bvid = av2bv(aid);
       let url = "/video/" + bvid;
       let upName = data2.args.up_name;
@@ -11804,8 +11801,8 @@
           ).forEach(($vcard) => {
             var _a2, _b, _c, _d, _e;
             let vueObj = VueUtils.getVue($vcard);
-            let upName = ((_b = (_a2 = vueObj == null ? undefined : vueObj.info) == null ? undefined : _a2.author) == null ? undefined : _b.name) || ((_d = (_c = vueObj == null ? undefined : vueObj.info) == null ? undefined : _c.owner) == null ? undefined : _d.name);
-            let duration = (_e = vueObj == null ? undefined : vueObj.info) == null ? undefined : _e.duration;
+            let upName = ((_b = (_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.author) == null ? void 0 : _b.name) || ((_d = (_c = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _c.owner) == null ? void 0 : _d.name);
+            let duration = (_e = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _e.duration;
             if (upName && !$vcard.querySelector(".gm-up-info")) {
               let $upInfo = document.createElement("div");
               $upInfo.innerHTML = /*html*/
@@ -11920,21 +11917,21 @@
         {
           check(vueIns) {
             var _a2, _b, _c, _d;
-            return typeof ((_d = (_c = (_b = (_a2 = vueIns == null ? undefined : vueIns.$store) == null ? undefined : _a2.state) == null ? undefined : _b.common) == null ? undefined : _c.userInfo) == null ? undefined : _d.isLogin) === "boolean";
+            return typeof ((_d = (_c = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.userInfo) == null ? void 0 : _d.isLogin) === "boolean";
           },
           set(vueIns) {
             var _a2, _b, _c;
-            let userInfo = (_c = (_b = (_a2 = vueIns == null ? undefined : vueIns.$store) == null ? undefined : _a2.state) == null ? undefined : _b.common) == null ? undefined : _c.userInfo;
-            isLogin = userInfo == null ? undefined : userInfo.isLogin;
+            let userInfo = (_c = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.userInfo;
+            isLogin = userInfo == null ? void 0 : userInfo.isLogin;
             if (isLogin) {
-              uid = userInfo == null ? undefined : userInfo.mid;
+              uid = userInfo == null ? void 0 : userInfo.mid;
               if (uid == null) {
                 log.warn(`当前是脚本设置的isLogin但其实未登录账号`);
                 isLogin = false;
                 return;
               }
-              userInfo == null ? undefined : userInfo.uname;
-              $img.src = (userInfo == null ? undefined : userInfo.face) || $img.src;
+              userInfo == null ? void 0 : userInfo.uname;
+              $img.src = (userInfo == null ? void 0 : userInfo.face) || $img.src;
             } else {
               log.warn(`经检测，Bilibili尚未登录账号`);
             }
@@ -12106,7 +12103,7 @@
         $$(BilibiliData.className.space + " .wx-tag.open-app-wrapper").forEach(
           ($el) => {
             let vueIns = VueUtils.getVue($el);
-            if (typeof (vueIns == null ? undefined : vueIns.disabled) === "boolean") {
+            if (typeof (vueIns == null ? void 0 : vueIns.disabled) === "boolean") {
               vueIns.disabled = false;
             }
           }
@@ -12146,7 +12143,7 @@
             Qmsg.error("未找到对应的vue实例");
             return;
           }
-          let url = (_b = (_a2 = vueIns == null ? undefined : vueIns.shareData) == null ? undefined : _a2.default) == null ? undefined : _b.url;
+          let url = (_b = (_a2 = vueIns == null ? void 0 : vueIns.shareData) == null ? void 0 : _a2.default) == null ? void 0 : _b.url;
           if (!url) {
             Qmsg.error("未找到对应的url");
             return;
@@ -12200,7 +12197,7 @@
           msg: "设置参数 $store.state.common.noCallApp",
           check(vueIns) {
             var _a2, _b, _c;
-            return typeof ((_c = (_b = (_a2 = vueIns == null ? undefined : vueIns.$store) == null ? undefined : _a2.state) == null ? undefined : _b.common) == null ? undefined : _c.noCallApp) === "boolean";
+            return typeof ((_c = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.noCallApp) === "boolean";
           },
           set(vueIns) {
             log.success("成功设置参数 $store.state.common.noCallApp=true");
@@ -12211,7 +12208,7 @@
           msg: "设置参数 $store.state.common.userInfo.isLogin",
           check(vueObj) {
             var _a2, _b, _c, _d;
-            return typeof ((_d = (_c = (_b = (_a2 = vueObj == null ? undefined : vueObj.$store) == null ? undefined : _a2.state) == null ? undefined : _b.common) == null ? undefined : _c.userInfo) == null ? undefined : _d.isLogin) === "boolean";
+            return typeof ((_d = (_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.userInfo) == null ? void 0 : _d.isLogin) === "boolean";
           },
           set(vueObj) {
             log.success("成功设置参数 $store.state.common.userInfo.isLogin=true");
@@ -12222,7 +12219,7 @@
           msg: "设置参数 $store.state.loginInfo.isLogin",
           check(vueObj) {
             var _a2, _b, _c;
-            return typeof ((_c = (_b = (_a2 = vueObj == null ? undefined : vueObj.$store) == null ? undefined : _a2.state) == null ? undefined : _b.loginInfo) == null ? undefined : _c.isLogin) === "boolean";
+            return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.loginInfo) == null ? void 0 : _c.isLogin) === "boolean";
           },
           set(vueObj) {
             log.success("成功设置参数 $store.state.loginInfo.isLogin=true");
@@ -12246,7 +12243,7 @@
           msg: "设置参数 $store.state.video.isClient",
           check(vueIns) {
             var _a2, _b, _c;
-            return typeof typeof ((_c = (_b = (_a2 = vueIns == null ? undefined : vueIns.$store) == null ? undefined : _a2.state) == null ? undefined : _b.video) == null ? undefined : _c.isClient) === "boolean";
+            return typeof typeof ((_c = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.video) == null ? void 0 : _c.isClient) === "boolean";
           },
           set(vueIns) {
             log.success("成功设置参数 $store.state.video.isClient=true");
@@ -12257,7 +12254,7 @@
           msg: "设置参数 $store.state.opus.isClient=true",
           check(vueObj) {
             var _a2, _b, _c;
-            return typeof ((_c = (_b = (_a2 = vueObj == null ? undefined : vueObj.$store) == null ? undefined : _a2.state) == null ? undefined : _b.opus) == null ? undefined : _c.isClient) === "boolean";
+            return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.opus) == null ? void 0 : _c.isClient) === "boolean";
           },
           set(vueObj) {
             log.success("成功设置参数 $store.state.opus.isClient");
@@ -12268,7 +12265,7 @@
           msg: "设置参数 $store.state.playlist.isClient",
           check(vueObj) {
             var _a2, _b, _c;
-            return typeof ((_c = (_b = (_a2 = vueObj == null ? undefined : vueObj.$store) == null ? undefined : _a2.state) == null ? undefined : _b.playlist) == null ? undefined : _c.isClient) === "boolean";
+            return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.playlist) == null ? void 0 : _c.isClient) === "boolean";
           },
           set(vueObj) {
             log.success("成功设置参数 $store.state.playlist.isClient=true");
@@ -12279,7 +12276,7 @@
           msg: "设置参数 $store.state.ver.bili",
           check(vueObj) {
             var _a2, _b, _c;
-            return typeof ((_c = (_b = (_a2 = vueObj == null ? undefined : vueObj.$store) == null ? undefined : _a2.state) == null ? undefined : _b.ver) == null ? undefined : _c.bili) === "boolean";
+            return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.ver) == null ? void 0 : _c.bili) === "boolean";
           },
           set(vueObj) {
             log.success("成功设置参数 $store.state.ver.bili=true");
@@ -12290,7 +12287,7 @@
           msg: "设置参数 $store.state.ver.biliVer",
           check(vueObj) {
             var _a2, _b, _c;
-            return typeof ((_c = (_b = (_a2 = vueObj == null ? undefined : vueObj.$store) == null ? undefined : _a2.state) == null ? undefined : _b.ver) == null ? undefined : _c.biliVer) === "number";
+            return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.ver) == null ? void 0 : _c.biliVer) === "number";
           },
           set(vueObj) {
             log.success("成功设置参数 $store.state.ver.biliVer=2333333");
@@ -12310,7 +12307,7 @@
           msg: "设置参数 $store.state.common.tinyApp",
           check(vueIns) {
             var _a2, _b, _c;
-            return typeof ((_c = (_b = (_a2 = vueIns == null ? undefined : vueIns.$store) == null ? undefined : _a2.state) == null ? undefined : _b.common) == null ? undefined : _c.tinyApp) === "boolean";
+            return typeof ((_c = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.tinyApp) === "boolean";
           },
           set(vueIns) {
             vueIns.$store.state.common.tinyApp = true;
@@ -12510,7 +12507,7 @@
             } = this.createSearchButton(() => {
               var _a2;
               let spaceUrl = $memberLink.getAttribute("data-url");
-              let mid = (_a2 = spaceUrl.match(/space.bilibili.com\/([\d]+)/i)) == null ? undefined : _a2[1];
+              let mid = (_a2 = spaceUrl.match(/space.bilibili.com\/([\d]+)/i)) == null ? void 0 : _a2[1];
               if (mid == null) {
                 throw new TypeError("获取mid失败");
               }
@@ -12625,8 +12622,8 @@
         var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o;
         if (spaceData.orig == null) {
           let contentInfo = {
-            title: (_b = (_a2 = spaceData.modules.module_dynamic.major) == null ? undefined : _a2.archive) == null ? undefined : _b.title,
-            desc: ((_d = (_c = spaceData.modules.module_dynamic.major) == null ? undefined : _c.archive) == null ? undefined : _d.desc) || ((_e = spaceData.modules.module_dynamic.desc) == null ? undefined : _e.text),
+            title: (_b = (_a2 = spaceData.modules.module_dynamic.major) == null ? void 0 : _a2.archive) == null ? void 0 : _b.title,
+            desc: ((_d = (_c = spaceData.modules.module_dynamic.major) == null ? void 0 : _c.archive) == null ? void 0 : _d.desc) || ((_e = spaceData.modules.module_dynamic.desc) == null ? void 0 : _e.text),
             pub_ts: spaceData.modules.module_author.pub_ts * 1e3,
             id_str: spaceData.id_str
           };
@@ -12636,7 +12633,7 @@
         } else {
           let contentInfo = {
             title: null,
-            desc: (_f = spaceData.modules.module_dynamic.desc) == null ? undefined : _f.text,
+            desc: (_f = spaceData.modules.module_dynamic.desc) == null ? void 0 : _f.text,
             pub_ts: spaceData.modules.module_author.pub_ts * 1e3,
             id_str: spaceData.id_str
           };
@@ -12645,21 +12642,21 @@
             name: spaceData.orig.modules.module_author.name,
             title: (
               // 转发的内容的标题
-              ((_i = (_h = (_g = spaceData.orig.modules.module_dynamic) == null ? undefined : _g.major) == null ? undefined : _h.archive) == null ? undefined : _i.title) || null
+              ((_i = (_h = (_g = spaceData.orig.modules.module_dynamic) == null ? void 0 : _g.major) == null ? void 0 : _h.archive) == null ? void 0 : _i.title) || null
             ),
-            desc: ((_j = spaceData.orig.modules.module_dynamic.desc) == null ? undefined : _j.text) ?? // 转发的内容的描述
-            ((_m = (_l = (_k = spaceData.orig.modules.module_dynamic) == null ? undefined : _k.major) == null ? undefined : _l.archive) == null ? undefined : _m.desc),
+            desc: ((_j = spaceData.orig.modules.module_dynamic.desc) == null ? void 0 : _j.text) ?? // 转发的内容的描述
+            ((_m = (_l = (_k = spaceData.orig.modules.module_dynamic) == null ? void 0 : _k.major) == null ? void 0 : _l.archive) == null ? void 0 : _m.desc),
             pub_ts: spaceData.orig.modules.module_author.pub_ts * 1e3,
             id_str: spaceData.orig.id_str
           };
           if (typeof forwardInfo.desc === "string" && Array.isArray(
-            (_o = (_n = spaceData.orig.modules.module_dynamic) == null ? undefined : _n.desc) == null ? undefined : _o.rich_text_nodes
+            (_o = (_n = spaceData.orig.modules.module_dynamic) == null ? void 0 : _n.desc) == null ? void 0 : _o.rich_text_nodes
           )) {
             spaceData.orig.modules.module_dynamic.desc.rich_text_nodes.forEach(
               (richInfo) => {
                 var _a3;
                 if (richInfo.type === "RICH_TEXT_NODE_TYPE_AT") {
-                  forwardInfo.desc = (_a3 = forwardInfo.desc) == null ? undefined : _a3.replace(richInfo.text, "");
+                  forwardInfo.desc = (_a3 = forwardInfo.desc) == null ? void 0 : _a3.replace(richInfo.text, "");
                 }
               }
             );
@@ -12848,7 +12845,7 @@
         if (!$prev) {
           break;
         }
-        if ((_a2 = $prev == null ? undefined : $prev.classList) == null ? undefined : _a2.contains("composition-checked")) {
+        if ((_a2 = $prev == null ? void 0 : $prev.classList) == null ? void 0 : _a2.contains("composition-checked")) {
           $prev.remove();
         } else {
           break;
@@ -12931,9 +12928,9 @@
               } else {
                 if (typeof spaceData.contentInfo.desc === "string" && spaceData.contentInfo.desc.match(keyword)) {
                   reason = "空间动态转发";
-                } else if (typeof ((_a2 = spaceData.forwardInfo) == null ? undefined : _a2.title) === "string" && spaceData.forwardInfo.title.match(keyword)) {
+                } else if (typeof ((_a2 = spaceData.forwardInfo) == null ? void 0 : _a2.title) === "string" && spaceData.forwardInfo.title.match(keyword)) {
                   reason = "空间动态视频标题";
-                } else if (typeof ((_b = spaceData.forwardInfo) == null ? undefined : _b.desc) === "string" && spaceData.forwardInfo.desc.match(keyword)) {
+                } else if (typeof ((_b = spaceData.forwardInfo) == null ? void 0 : _b.desc) === "string" && spaceData.forwardInfo.desc.match(keyword)) {
                   reason = "空间动态视频简介";
                 }
               }
@@ -12983,11 +12980,11 @@
         {
           msg: "等待覆盖playlist播放器",
           check(vueInstance) {
-            return typeof (vueInstance == null ? undefined : vueInstance.aid) === "number" && typeof (vueInstance == null ? undefined : vueInstance.cid) === "number" && typeof (vueInstance == null ? undefined : vueInstance.bvid) === "string";
+            return typeof (vueInstance == null ? void 0 : vueInstance.aid) === "number" && typeof (vueInstance == null ? void 0 : vueInstance.cid) === "number" && typeof (vueInstance == null ? void 0 : vueInstance.bvid) === "string";
           },
           async set(vueInstance) {
             var _a2;
-            (_a2 = $(".playlist-player .player-container")) == null ? undefined : _a2.remove();
+            (_a2 = $(".playlist-player .player-container")) == null ? void 0 : _a2.remove();
             let $player = $(
               BilibiliData.className.playlist + " .playlist-player"
             );
@@ -13232,7 +13229,7 @@
         msg: "监听路由变化",
         check: (vueInstance) => {
           var _a2;
-          return typeof ((_a2 = vueInstance == null ? undefined : vueInstance.$router) == null ? undefined : _a2.afterEach) === "function";
+          return typeof ((_a2 = vueInstance == null ? void 0 : vueInstance.$router) == null ? void 0 : _a2.afterEach) === "function";
         },
         set: (vueInstance) => {
           log.success("成功设置监听路由变化");

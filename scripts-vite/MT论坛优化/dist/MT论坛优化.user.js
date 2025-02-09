@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.2.7
+// @version      2025.2.10
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、用户状态查看、美化导航、动态头像上传、最新发表、评论过滤器等
 // @license      GPL-3.0-only
@@ -9,8 +9,8 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
-// @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.0/dist/index.umd.js
+// @require      https://update.cn-greasyfork.org/scripts/494167/1413255/CoverUMD.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
@@ -47,15 +47,15 @@
   var require_entrance_001 = __commonJS({
     "entrance-Dr3GdeWI.js"(exports, module) {
       var _a;
-      var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : undefined)();
-      var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : undefined)();
-      var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : undefined)();
-      var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : undefined)();
-      var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : undefined)();
-      var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : undefined)();
-      var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : undefined)();
-      var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : undefined)();
-      var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : undefined)();
+      var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
+      var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
+      var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
+      var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
+      var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+      var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
+      var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+      var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
+      var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
       var _monkeyWindow = /* @__PURE__ */ (() => window)();
       const HttpxCookieManager = {
         $data: {
@@ -285,7 +285,7 @@
           global = typeof globalThis !== "undefined" ? globalThis : global || self;
           global.Watermark = factory(global.Watermark);
         }
-      })(typeof window !== "undefined" ? window : undefined, function(AnotherWatermark) {
+      })(typeof window !== "undefined" ? window : void 0, function(AnotherWatermark) {
         let Watermark = function() {
         };
         CanvasRenderingContext2D.prototype.letterSpacingText = function(text, x, y, letterSpacing) {
@@ -837,7 +837,7 @@
         _GM_info,
         _unsafeWindow.console || _monkeyWindow.console
       );
-      const SCRIPT_NAME = ((_a = _GM_info == null ? undefined : _GM_info.script) == null ? undefined : _a.name) || _SCRIPT_NAME_;
+      const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
       const DEBUG = false;
       log.config({
         debug: DEBUG,
@@ -889,7 +889,7 @@
         HttpxCookieManager.handle(data);
         return data;
       });
-      httpx.interceptors.response.use(undefined, (data) => {
+      httpx.interceptors.response.use(void 0, (data) => {
         log.error(["拦截器-请求错误", data]);
         if (data.type === "onabort") {
           Qmsg.warning("请求取消");
@@ -1412,7 +1412,7 @@
         setUploadChangeEvent($file, $status, sizeInfo, successCallBack) {
           domUtils.on($file, "change", (event) => {
             var _a2;
-            if (!((_a2 = $file.files) == null ? undefined : _a2.length)) {
+            if (!((_a2 = $file.files) == null ? void 0 : _a2.length)) {
               return;
             }
             domUtils.text($status, "🤡获取文件信息中...");
@@ -1843,14 +1843,14 @@
                             text: "5"
                           }
                         ],
-                        undefined,
+                        void 0,
                         "限制Toast显示的数量"
                       ),
                       UISwitch(
                         "逆序弹出",
                         "qmsg-config-showreverse",
                         false,
-                        undefined,
+                        void 0,
                         "修改Toast弹出的顺序"
                       )
                     ]
@@ -1909,14 +1909,14 @@
                         "新增【最新发表】",
                         "mt-addLatestPostBtn",
                         true,
-                        undefined,
+                        void 0,
                         "便于快捷跳转"
                       ),
                       UISwitch(
                         "超链接文字转换",
                         "mt-link-text-to-hyperlink",
                         true,
-                        undefined,
+                        void 0,
                         "自动把符合超链接格式的文字转为超链接"
                       )
                     ]
@@ -1931,21 +1931,21 @@
                     text: "",
                     type: "forms",
                     forms: [
-                      UISwitch("启用", "mt-auto-sign", true, undefined, "自动请求签到"),
+                      UISwitch("启用", "mt-auto-sign", true, void 0, "自动请求签到"),
                       UISwitch(
                         "使用fetch请求",
                         "mt-auto-sign-useFetch",
                         false,
-                        undefined,
+                        void 0,
                         ""
                       ),
                       UIButton(
                         "签到信息",
                         `上次签到时间：${MTAutoSignIn.getSignTime() == null ? "尚未签到" : Utils.formatTime(MTAutoSignIn.getSignTime())}`,
                         "清空信息",
-                        undefined,
-                        undefined,
-                        undefined,
+                        void 0,
+                        void 0,
+                        void 0,
                         "primary",
                         (event) => {
                           let $click = event.composedPath()[0];
@@ -2088,7 +2088,7 @@
                         MTDyncmicAvatar.$data.avatarInfo.maxSize
                       )}`,
                         "上传",
-                        undefined,
+                        void 0,
                         false,
                         false,
                         "primary",
@@ -2124,28 +2124,28 @@
                         "拦截附件",
                         "mt-forum-post-interceptionAttachment",
                         true,
-                        undefined,
+                        void 0,
                         "点击附件时弹出提示框进行确认是否下载附件"
                       ),
                       UISwitch(
                         "图片查看优化",
                         "mt-forum-post-optimizationImagePreview",
                         true,
-                        undefined,
+                        void 0,
                         "使用Viewer查看图片"
                       ),
                       UISwitch(
                         "自动加载下一页",
                         "mt-forum-post-loadNextPageComment",
                         true,
-                        undefined,
+                        void 0,
                         "无缝预览下一页"
                       ),
                       UISwitch(
                         "代码块优化",
                         "mt-forum-post-codeQuoteOptimization",
                         true,
-                        undefined,
+                        void 0,
                         "自动检测代码块语言并设置关键字高亮"
                       )
                     ]
@@ -2164,21 +2164,21 @@
                         "探测用户在线状态",
                         "mt-forum-post-detectingUserOnlineStatus",
                         false,
-                        undefined,
+                        void 0,
                         "获取用户在线状态并在用户信息处显示状态表情"
                       ),
                       UISwitch(
                         "显示用户等级",
                         "mt-forum-post-showUserLevel",
                         true,
-                        undefined,
+                        void 0,
                         "在用户信息处显示当前用户的等级"
                       ),
                       UISwitch(
                         "隐藏底部信息块",
                         "mt-forum-post-hideBottomInfoBlock",
                         false,
-                        undefined,
+                        void 0,
                         "包括金币、好评、信誉等信息"
                       )
                     ]
@@ -2197,14 +2197,14 @@
                         "新增【快捷收藏】",
                         "mt-forum-post-quickCollentBtn",
                         true,
-                        undefined,
+                        void 0,
                         "在右侧悬浮工具栏添加【收藏】按钮，用于快捷收藏"
                       ),
                       UISwitch(
                         "快捷回复优化",
                         "mt-forum-post-quickReplyOptimization",
                         true,
-                        undefined,
+                        void 0,
                         "为快捷回复弹窗底部区域添加【一键空格】按钮"
                       )
                     ]
@@ -2227,7 +2227,7 @@
                 "页面美化",
                 "mt-guide-beautifyPage",
                 true,
-                undefined,
+                void 0,
                 "美化样式"
               )
             ]
@@ -2441,7 +2441,7 @@
           Reflect.deleteProperty(locaData, key);
           _GM_setValue(KEY, locaData);
           if (this.$listener.listenData.has(key)) {
-            this.$listener.listenData.get(key).callback(key, oldValue, undefined);
+            this.$listener.listenData.get(key).callback(key, oldValue, void 0);
           }
         },
         /**
@@ -2529,7 +2529,7 @@
           } else {
             runKeyList.push(key);
           }
-          let value = undefined;
+          let value = void 0;
           for (let index = 0; index < runKeyList.length; index++) {
             const runKey = runKeyList[index];
             if (!this.$data.data.has(runKey)) {
@@ -3129,7 +3129,7 @@
           var _a2;
           log.info(`移除评论区的字体效果`);
           let $fontList = $$("font");
-          let $postForumMainContent = ((_a2 = $(".comiis_postlist .comiis_postli")) == null ? undefined : _a2.innerHTML) || "";
+          let $postForumMainContent = ((_a2 = $(".comiis_postlist .comiis_postli")) == null ? void 0 : _a2.innerHTML) || "";
           if ($postForumMainContent !== "") {
             $fontList.forEach(($font) => {
               if (!$postForumMainContent.includes($font.innerHTML)) {
@@ -3182,8 +3182,8 @@
             }
             var pageHTML = utils.parseFromString(response.data.responseText);
             var nextPageBtn = pageHTML.querySelector(".pgbtn a");
-            (_a2 = pageHTML.querySelector("#postlistreply")) == null ? undefined : _a2.remove();
-            (_b = pageHTML.querySelector(".bm_h.comiis_snvbt")) == null ? undefined : _b.remove();
+            (_a2 = pageHTML.querySelector("#postlistreply")) == null ? void 0 : _a2.remove();
+            (_b = pageHTML.querySelector(".bm_h.comiis_snvbt")) == null ? void 0 : _b.remove();
             return {
               url: nextPageBtn ? nextPageBtn.getAttribute("href") : null,
               postlist: pageHTML.querySelector("#postlist"),
@@ -3197,7 +3197,7 @@
             if (nextURL) {
               let pageInfo = await getPageInfo(nextURL);
               if (pageInfo) {
-                if ((_b = (_a2 = pageInfo["postlist"]) == null ? undefined : _a2.querySelector(".comiis_vrx")) == null ? undefined : _b.querySelector(".km1")) {
+                if ((_b = (_a2 = pageInfo["postlist"]) == null ? void 0 : _a2.querySelector(".comiis_vrx")) == null ? void 0 : _b.querySelector(".km1")) {
                   Object.keys(pageInfo).forEach((it) => {
                     pageInfo[it] = null;
                   });
@@ -3642,7 +3642,7 @@
             let doc = domUtils.parseHTML(response.data.responseText, true, true);
             let $flb = doc.querySelector(".flb");
             if ($flb) {
-              let statusText = (_a2 = domUtils.text($flb)) == null ? undefined : _a2.trim();
+              let statusText = (_a2 = domUtils.text($flb)) == null ? void 0 : _a2.trim();
               let isOffLine = statusText.endsWith("……[离线]");
               setAvatarOnlineStatus($favatar, isOffLine);
             } else {
@@ -3939,7 +3939,7 @@
                     white-space: nowrap;
                 }
 
-                ${((_a2 = this.option) == null ? undefined : _a2.style) ?? ""}
+                ${((_a2 = this.option) == null ? void 0 : _a2.style) ?? ""}
             `
             ),
             width: typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
@@ -4038,9 +4038,9 @@
             }
             let $name = item.querySelector(".pls .authi a");
             let postForumInfo = {
-              userName: ($name == null ? undefined : $name.innerText) || "",
-              userUID: ((_c = (_b = (_a2 = $name == null ? undefined : $name.href) == null ? undefined : _a2.match(MTRegExp.uid)) == null ? undefined : _b[2]) == null ? undefined : _c.trim()) || "",
-              content: ((_e = (_d = item.querySelector(".plc td.t_f")) == null ? undefined : _d.innerText) == null ? undefined : _e.trim()) || "",
+              userName: ($name == null ? void 0 : $name.innerText) || "",
+              userUID: ((_c = (_b = (_a2 = $name == null ? void 0 : $name.href) == null ? void 0 : _a2.match(MTRegExp.uid)) == null ? void 0 : _b[2]) == null ? void 0 : _c.trim()) || "",
+              content: ((_e = (_d = item.querySelector(".plc td.t_f")) == null ? void 0 : _d.innerText) == null ? void 0 : _e.trim()) || "",
               // PC端无法实现
               isAuthor: false
             };
@@ -4125,7 +4125,7 @@
                 "处理回复引用",
                 "replyFlag",
                 false,
-                undefined,
+                void 0,
                 "移除引用"
               );
               Reflect.set(
@@ -4163,7 +4163,7 @@
                 "minLength",
                 5,
                 "小于此长度的评论就算关键字匹配成功了也不会被排除",
-                undefined,
+                void 0,
                 "",
                 true
               );
@@ -4180,7 +4180,7 @@
                 "keywordLength",
                 8,
                 "大于此长度的评论就算关键字匹配成功了也不会被排除",
-                undefined,
+                void 0,
                 "",
                 true
               );
@@ -4477,7 +4477,7 @@
               reverse: false,
               position: "space-between",
               ok: {
-                enable: ((_c = (_b = (_a2 = this.option) == null ? undefined : _a2.bottomControls) == null ? undefined : _b.add) == null ? undefined : _c.enable) || true,
+                enable: ((_c = (_b = (_a2 = this.option) == null ? void 0 : _a2.bottomControls) == null ? void 0 : _b.add) == null ? void 0 : _c.enable) || true,
                 type: "primary",
                 text: "添加",
                 callback: async (event) => {
@@ -4495,12 +4495,12 @@
                 }
               },
               cancel: {
-                enable: ((_f = (_e = (_d = this.option) == null ? undefined : _d.bottomControls) == null ? undefined : _e.filter) == null ? undefined : _f.enable) || false,
+                enable: ((_f = (_e = (_d = this.option) == null ? void 0 : _d.bottomControls) == null ? void 0 : _e.filter) == null ? void 0 : _f.enable) || false,
                 type: "default",
                 text: "过滤",
                 callback: (details, event) => {
                   var _a3, _b2, _c2, _d2, _e2, _f2, _g2;
-                  if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? undefined : _a3.bottomControls) == null ? undefined : _b2.filter) == null ? undefined : _c2.callback) === "function") {
+                  if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.filter) == null ? void 0 : _c2.callback) === "function") {
                     this.option.bottomControls.filter.callback();
                   }
                   let getAllRuleElement = () => {
@@ -4518,8 +4518,8 @@
                     domUtils.text($button, "过滤");
                   } else {
                     let ruleFilterView = new RuleFilterView({
-                      title: ((_e2 = (_d2 = this.option.bottomControls) == null ? undefined : _d2.filter) == null ? undefined : _e2.title) ?? "过滤规则",
-                      filterOption: ((_g2 = (_f2 = this.option.bottomControls) == null ? undefined : _f2.filter) == null ? undefined : _g2.option) || [],
+                      title: ((_e2 = (_d2 = this.option.bottomControls) == null ? void 0 : _d2.filter) == null ? void 0 : _e2.title) ?? "过滤规则",
+                      filterOption: ((_g2 = (_f2 = this.option.bottomControls) == null ? void 0 : _f2.filter) == null ? void 0 : _g2.option) || [],
                       execFilterCallBack() {
                         domUtils.text($button, "取消过滤");
                       },
@@ -4537,7 +4537,7 @@
                 }
               },
               other: {
-                enable: ((_i = (_h = (_g = this.option) == null ? undefined : _g.bottomControls) == null ? undefined : _h.clear) == null ? undefined : _i.enable) || true,
+                enable: ((_i = (_h = (_g = this.option) == null ? void 0 : _g.bottomControls) == null ? void 0 : _h.clear) == null ? void 0 : _i.enable) || true,
                 type: "xiaomi-primary",
                 text: `清空所有(${(await this.option.data()).length})`,
                 callback: (event) => {
@@ -4556,7 +4556,7 @@
                         callback: async (popsEvent) => {
                           var _a3, _b2, _c2;
                           log.success("清空所有");
-                          if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? undefined : _a3.bottomControls) == null ? undefined : _b2.clear) == null ? undefined : _c2.callback) === "function") {
+                          if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.clear) == null ? void 0 : _c2.callback) === "function") {
                             this.option.bottomControls.clear.callback();
                           }
                           let data = await this.option.data();
@@ -5032,7 +5032,7 @@
                   )
                 ),
                 remainingQuantity: parseInt(
-                  ((_b = (_a2 = $taskList.querySelector(".mall-info .mall-count .count-r")) == null ? undefined : _a2.innerText) == null ? undefined : _b.replace(/仅剩|件/gi, "")) || "0"
+                  ((_b = (_a2 = $taskList.querySelector(".mall-info .mall-count .count-r")) == null ? void 0 : _a2.innerText) == null ? void 0 : _b.replace(/仅剩|件/gi, "")) || "0"
                 )
               });
             });
@@ -5181,7 +5181,7 @@
                     "name",
                     "",
                     "",
-                    undefined,
+                    void 0,
                     "必填"
                   );
                   Reflect.set(
@@ -5197,7 +5197,7 @@
                     "productName",
                     "",
                     "",
-                    undefined,
+                    void 0,
                     "可正则，需手动转义"
                   );
                   Reflect.set(
