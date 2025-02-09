@@ -228,10 +228,16 @@ export class ViteUtils {
 	): Promise<string> {
 		try {
 			let scriptInfo = await fetch(
-				`https://update.greasyfork.org/scripts/${libId}.json`
+				`https://update.cn-greasyfork.org/scripts/${libId}.json`
 			).then((res) => res.json());
 			let name: string = scriptInfo?.name;
 			let code_url: string = scriptInfo?.code_url;
+			let codeUrlInstance = new URL(code_url);
+			if (codeUrlInstance.hostname == "update.greasyfork.org") {
+				// 官方域名已被污染
+				// codeUrlInstance.hostname = "update.cn-greasyfork.org";
+				// code_url = codeUrlInstance.toString();
+			}
 			let code_url_split = code_url.split("/");
 			let findIndex = code_url_split.findIndex(
 				(item) => item == libId.toString()
@@ -311,7 +317,9 @@ export class ViteUtils {
 	 * @param libName
 	 */
 	getNpmLibVersion(libName: string) {
-		let version:string = execSync(`npm view ${libName.trim()} version`).toString().trim();
+		let version: string = execSync(`npm view ${libName.trim()} version`)
+			.toString()
+			.trim();
 		console.log(`npm库: ${libName}\n版 本: ${version}\n`);
 		return version;
 	}
