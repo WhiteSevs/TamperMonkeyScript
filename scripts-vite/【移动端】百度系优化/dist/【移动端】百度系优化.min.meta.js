@@ -11,8 +11,8 @@
 // @match        *://www.tieba.com/*
 // @match        *://jump2.bdimg.com/*
 // @match        *://uf9kyh.smartapps.cn/*
-// @require      https://update.cn-greasyfork.org/scripts/494167/1413255/CoverUMD.js
-// @require      https://update.cn-greasyfork.org/scripts/488179/1413254/showdown.js
+// @require      https://update.greasyfork.org/scripts/494167/1413255/CoverUMD.js
+// @require      https://update.greasyfork.org/scripts/488179/1413254/showdown.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
@@ -22,7 +22,7 @@
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.10/lib/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/pinia@2.3.1/dist/pinia.iife.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-router@4.5.0/dist/vue-router.global.js
-// @require      https://update.cn-greasyfork.org/scripts/495227/1533655/Element-Plus.js
+// @require      https://update.greasyfork.org/scripts/495227/1533655/Element-Plus.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.9.4/dist/index.min.css
 // @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css

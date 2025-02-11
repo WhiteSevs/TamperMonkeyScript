@@ -228,15 +228,16 @@ export class ViteUtils {
 	): Promise<string> {
 		try {
 			let scriptInfo = await fetch(
-				`https://update.cn-greasyfork.org/scripts/${libId}.json`
+				`https://update.greasyfork.org/scripts/${libId}.json`
 			).then((res) => res.json());
 			let name: string = scriptInfo?.name;
 			let code_url: string = scriptInfo?.code_url;
 			let codeUrlInstance = new URL(code_url);
 			if (codeUrlInstance.hostname == "update.greasyfork.org") {
 				// 官方域名已被污染
-				codeUrlInstance.hostname = "update.cn-greasyfork.org";
-				code_url = codeUrlInstance.toString();
+				// cn-greasyfork.org再次被污染
+				// codeUrlInstance.hostname = "update.cn-greasyfork.org";
+				// code_url = codeUrlInstance.toString();
 			}
 			let code_url_split = code_url.split("/");
 			let findIndex = code_url_split.findIndex(
