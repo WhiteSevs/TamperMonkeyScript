@@ -113,6 +113,55 @@ export class ApiTest_getValues extends ApiAsyncTestBase {
 					});
 				})(),
 				(() => {
+					return UIInfo(() => {
+						let localStorageDataValue = {
+							"GM_getValues-test-key-non-exists-1": 1111,
+							"GM_getValues-test-key-non-exists-2": 2222,
+						};
+						return {
+							text: "测试读取不存在的数据",
+							description:
+								"数据默认值：" + JSON.stringify(localStorageDataValue),
+							tag: "info",
+							afterRender(container) {
+								let $button = DOMUtils.parseHTML(
+									/*html*/ `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击测试</span>
+										</button>
+									</div>
+								`,
+									false,
+									false
+								);
+								DOMUtils.after(container.$leftContainer, $button);
+								// 点击事件
+								DOMUtils.on($button, "click", (event) => {
+									utils.preventEvent(event);
+									try {
+										let value = GM_getValues(localStorageDataValue);
+										console.log(value);
+										if (value == null) {
+											Qmsg.error("读取失败，读取的数据为null");
+										} else if (
+											JSON.stringify(value) ===
+											JSON.stringify(localStorageDataValue)
+										) {
+											Qmsg.success("读取成功，读取的数据和默认值相同");
+										} else {
+											Qmsg.error("读取成功，但读取的数据和默认值不同");
+										}
+									} catch (error: any) {
+										Qmsg.error(error.toString(), { consoleLogContent: true });
+									}
+								});
+							},
+						};
+					});
+				})(),
+				(() => {
 					let localStorageDataValue = {
 						"GM_getValues-test-key-1": 1,
 						"GM_getValues-test-key-2": 2,

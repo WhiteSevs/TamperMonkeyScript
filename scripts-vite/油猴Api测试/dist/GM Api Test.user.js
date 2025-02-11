@@ -22071,6 +22071,51 @@ ${err.stack}`);
             });
           })(),
           (() => {
+            return UIInfo(() => {
+              let localStorageDataValue = {
+                "GM_getValues-test-key-non-exists-1": 1111,
+                "GM_getValues-test-key-non-exists-2": 2222
+              };
+              return {
+                text: "测试读取不存在的数据",
+                description: "数据默认值：" + JSON.stringify(localStorageDataValue),
+                tag: "info",
+                afterRender(container) {
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击测试</span>
+										</button>
+									</div>
+								`,
+                    false,
+                    false
+                  );
+                  domUtils.after(container.$leftContainer, $button);
+                  domUtils.on($button, "click", (event) => {
+                    utils.preventEvent(event);
+                    try {
+                      let value = _GM_getValues(localStorageDataValue);
+                      console.log(value);
+                      if (value == null) {
+                        qmsg.error("读取失败，读取的数据为null");
+                      } else if (JSON.stringify(value) === JSON.stringify(localStorageDataValue)) {
+                        qmsg.success("读取成功，读取的数据和默认值相同");
+                      } else {
+                        qmsg.error("读取成功，但读取的数据和默认值不同");
+                      }
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    }
+                  });
+                }
+              };
+            });
+          })(),
+          (() => {
             let localStorageDataValue = {
               "GM_getValues-test-key-1": 1,
               "GM_getValues-test-key-2": 2
