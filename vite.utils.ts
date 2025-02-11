@@ -375,10 +375,9 @@ const jsdelivrHost = "fastly.jsdelivr.net";
  * github的链接
  */
 const github_jsdelivr = (sha_hash, file_path) => {
-	return `https://${jsdelivrHost}/gh/WhiteSevs/TamperMonkeyScript@${sha_hash}/${file_path.replace(
-		/^\//i,
-		""
-	)}`;
+	file_path = file_path.replace(/^\//i, "");
+	file_path = encodeURI(file_path);
+	return `https://${jsdelivrHost}/gh/WhiteSevs/TamperMonkeyScript@${sha_hash}/${file_path}`;
 };
 
 /** 库映射信息 */
