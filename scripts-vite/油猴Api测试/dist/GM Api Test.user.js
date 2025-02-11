@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.2.10
+// @version      2025.2.11
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -22035,21 +22035,88 @@ ${err.stack}`);
       };
       if (this.isSupport()) {
         result2["forms"][1].forms.push(
-          UIInfo(() => {
-            try {
+          (() => {
+            return UIInfo(() => {
               return {
-                text: CommonUtil.escapeHtml("TODO"),
-                tag: "info"
+                text: "测试直接读取",
+                description: "没有入参",
+                tag: "info",
+                afterRender(container) {
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击测试</span>
+										</button>
+									</div>
+								`,
+                    false,
+                    false
+                  );
+                  domUtils.after(container.$leftContainer, $button);
+                  domUtils.on($button, "click", (event) => {
+                    utils.preventEvent(event);
+                    try {
+                      let value = _GM_getValues();
+                      qmsg.info("请在控制台查看读取的数据");
+                      console.log(value);
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    }
+                  });
+                }
               };
-            } catch (error2) {
-              console.error(error2);
+            });
+          })(),
+          (() => {
+            let localStorageDataValue = {
+              "GM_getValues-test-key-1": 1,
+              "GM_getValues-test-key-2": 2
+            };
+            return UIInfo(() => {
               return {
-                text: "执行错误 " + error2,
-                tag: "error"
+                text: "测试存储对象并读取",
+                description: JSON.stringify(localStorageDataValue),
+                tag: "info",
+                afterRender(container) {
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击测试</span>
+										</button>
+									</div>
+								`,
+                    false,
+                    false
+                  );
+                  domUtils.after(container.$leftContainer, $button);
+                  domUtils.on($button, "click", (event) => {
+                    utils.preventEvent(event);
+                    try {
+                      _GM_setValues(localStorageDataValue);
+                      let keys = Object.keys(localStorageDataValue);
+                      let value = _GM_getValues(keys);
+                      console.log(value);
+                      if (value == null) {
+                        qmsg.error("读取失败，读取的数据为null");
+                      } else if (JSON.stringify(value) === JSON.stringify(localStorageDataValue)) {
+                        qmsg.success("读取成功，写入的数据和读取的数据相同");
+                      } else {
+                        qmsg.error("读取成功，但写入的数据和读取的数据不同");
+                      }
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    }
+                  });
+                }
               };
-            } finally {
-            }
-          })
+            });
+          })()
         );
       }
       return result2;
@@ -24316,7 +24383,7 @@ ${err.stack}`);
     </body>
 </html>
 
-似乎注入到页面有点慢
+注入速度等级：4
 `;
       } else {
         if (document.head.childNodes.length) {
@@ -24326,25 +24393,25 @@ ${err.stack}`);
 	</head>
 </html>
 		
-注入到页面很快`;
+注入速度等级：3`;
         } else {
           injectDocumentTime = `<html>
 	<head></head>
 </html>
 
-注入到页面非常快`;
+注入速度等级：2`;
         }
       }
     } else {
       injectDocumentTime = `<html>
 </html>
 
-注入到页面超级快`;
+注入速度等级：1`;
     }
   } else {
     injectDocumentTime = `document.documentElement is null
 	
-注入到页面超级无敌快`;
+注入速度等级：0`;
   }
   const setTimeoutLog = (handler, timeout, ...args2) => {
     return setTimeout(() => {
@@ -24450,7 +24517,7 @@ ${err.stack}`);
       forms: [
         {
           type: "forms",
-          text: "@run-at document-start",
+          text: "@run-at document-start<br>注：注入速度等级越低，注入的速度越快",
           forms: [
             UIInfo(() => {
               return {

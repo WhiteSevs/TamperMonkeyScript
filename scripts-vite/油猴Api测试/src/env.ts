@@ -143,7 +143,7 @@ if (document.documentElement) {
     </body>
 </html>
 
-似乎注入到页面有点慢
+注入速度等级：4
 `;
 		} else {
 			if (document.head.childNodes.length) {
@@ -153,25 +153,25 @@ if (document.documentElement) {
 	</head>
 </html>
 		
-注入到页面很快`;
+注入速度等级：3`;
 			} else {
 				injectDocumentTime = `<html>
 	<head></head>
 </html>
 
-注入到页面非常快`;
+注入速度等级：2`;
 			}
 		}
 	} else {
 		injectDocumentTime = `<html>
 </html>
 
-注入到页面超级快`;
+注入速度等级：1`;
 	}
 } else {
 	injectDocumentTime = `document.documentElement is null
 	
-注入到页面超级无敌快`;
+注入速度等级：0`;
 }
 /**
  * 延迟执行，并捕捉异常

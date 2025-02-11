@@ -105,7 +105,7 @@ export const Component_Common = (): PopsPanelContentConfig => {
 		forms: [
 			{
 				type: "forms",
-				text: "@run-at document-start",
+				text: "@run-at document-start<br>注：注入速度等级越低，注入的速度越快",
 				forms: [
 					UIInfo(() => {
 						return {
