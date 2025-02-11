@@ -258,6 +258,47 @@ export class ViteUtils {
 		}
 	}
 	/**
+	 * 获取github上文件的最新的链接
+	 */
+	async getGitHubLibLatestVersionUrl(
+		repoName: string,
+		branchName: string,
+		pathName: string,
+		reTry: boolean = true
+	): Promise<string> {
+		try {
+			pathName = pathName.replace(/^\//i, "");
+			let scriptInfo = await fetch(
+				`https://github.com/${repoName}/latest-commit/${branchName}/${pathName}`,
+				{
+					headers: {
+						accept: "application/json",
+						"content-type": "application/json",
+					},
+				}
+			).then((res) => res.json());
+			let oid = scriptInfo?.oid;
+			if (oid == null) {
+				throw new TypeError("获取github文件sha值失败", scriptInfo);
+			}
+			console.log(
+				`github文件路径：https://github.com/${repoName}/tree/${branchName}/${pathName}`
+			);
+			console.log(`github文件sha值：${oid}`);
+			console.log("");
+			return github_jsdelivr(oid, pathName);
+		} catch (error) {
+			if (reTry) {
+				return await this.getGitHubLibLatestVersionUrl(
+					repoName,
+					branchName,
+					pathName,
+					false
+				);
+			}
+		}
+	}
+	/**
 	 * 获取脚本版本号
 	 * @param useFileVersion 是否直接使用Version文件的版本号
 	 */
@@ -328,127 +369,237 @@ export class ViteUtils {
 
 export const viteUtils = new ViteUtils();
 
+const jsdelivrHost = "fastly.jsdelivr.net";
+
+/**
+ * github的链接
+ */
+const github_jsdelivr = (sha_hash, file_path) => {
+	return `https://${jsdelivrHost}/gh/WhiteSevs/TamperMonkeyScript@${sha_hash}/${file_path.replace(
+		/^\//i,
+		""
+	)}`;
+};
+
 /** 库映射信息 */
 const LIB_MAP = {
 	CoverUMD: {
 		localPath:
 			"file://" + viteUtils.getOriginAbsolutePath("./lib/CoverUMD/index.js"),
 		url: async () => {
-			return await viteUtils.getGreasyForkLibLatestVersionUrl(494167);
+			// return await viteUtils.getGreasyForkLibLatestVersionUrl(494167);
+			return await viteUtils.getGitHubLibLatestVersionUrl(
+				"WhiteSevs/TamperMonkeyScript",
+				"master",
+				"/lib/CoverUMD/index.js"
+			);
 		},
 	},
 	Viewer: {
 		localPath: "file://" + viteUtils.getAbsolutePath("./lib/Viewer/index.js"),
 		url: async () => {
-			return await viteUtils.getGreasyForkLibLatestVersionUrl(449471);
+			// return await viteUtils.getGreasyForkLibLatestVersionUrl(449471);
+			return await viteUtils.getGitHubLibLatestVersionUrl(
+				"WhiteSevs/TamperMonkeyScript",
+				"master",
+				"/lib/Viewer/index.js"
+			);
 		},
 	},
 	Qmsg: {
 		localPath:
 			"file://" + viteUtils.getAbsolutePath("./lib/Qmsg/dist/index.umd.js"),
 		url: async () => {
-			return await viteUtils.getGreasyForkLibLatestVersionUrl(462234);
+			// return await viteUtils.getGreasyForkLibLatestVersionUrl(462234);
+			return await viteUtils.getGitHubLibLatestVersionUrl(
+				"WhiteSevs/TamperMonkeyScript",
+				"master",
+				"/lib/Qmsg/dist/index.umd.js"
+			);
 		},
 	},
 	pops: {
-		localPath: "file://" + viteUtils.getAbsolutePath("./lib/pops/index.js"),
+		localPath:
+			"file://" + viteUtils.getAbsolutePath("./lib/pops/dist/index.umd.js"),
 		url: async () => {
-			return await viteUtils.getGreasyForkLibLatestVersionUrl(456485);
+			// return await viteUtils.getGreasyForkLibLatestVersionUrl(456485);
+			return await viteUtils.getGitHubLibLatestVersionUrl(
+				"WhiteSevs/TamperMonkeyScript",
+				"master",
+				"/lib/pops/dist/index.umd.js"
+			);
 		},
 	},
 	Utils: {
-		localPath: "file://" + viteUtils.getAbsolutePath("./lib/Utils/index.js"),
+		localPath:
+			"file://" + viteUtils.getAbsolutePath("./lib/Utils/dist/index.umd.js"),
 		url: async () => {
-			return await viteUtils.getGreasyForkLibLatestVersionUrl(455186);
+			// return await viteUtils.getGreasyForkLibLatestVersionUrl(455186);
+			return await viteUtils.getGitHubLibLatestVersionUrl(
+				"WhiteSevs/TamperMonkeyScript",
+				"master",
+				"/lib/Utils/dist/index.umd.js"
+			);
 		},
 	},
 	DOMUtils: {
-		localPath: "file://" + viteUtils.getAbsolutePath("./lib/DOMUtils/index.js"),
+		localPath:
+			"file://" + viteUtils.getAbsolutePath("./lib/DOMUtils/dist/index.umd.js"),
 		url: async () => {
-			return await viteUtils.getGreasyForkLibLatestVersionUrl(465772);
+			// return await viteUtils.getGreasyForkLibLatestVersionUrl(465772);
+			return await viteUtils.getGitHubLibLatestVersionUrl(
+				"WhiteSevs/TamperMonkeyScript",
+				"master",
+				"/lib/DOMUtils/dist/index.umd.js"
+			);
 		},
 	},
 	showdown: {
 		localPath: "file://" + viteUtils.getAbsolutePath("./lib/showdown/index.js"),
 		url: async () => {
-			return await viteUtils.getGreasyForkLibLatestVersionUrl(488179);
+			// return await viteUtils.getGreasyForkLibatestVersionUrl(488179);
+			return await viteUtils.getGitHubLibLatestVersionUrl(
+				"WhiteSevs/TamperMonkeyScript",
+				"master",
+				"/lib/showdown/index.js"
+			);
 		},
 	},
 	Xtiper: {
 		localPath: "file://" + viteUtils.getAbsolutePath("./lib/Xtiper/index.js"),
 		url: async () => {
-			return await viteUtils.getGreasyForkLibLatestVersionUrl(449512);
+			// return await viteUtils.getGreasyForkLibLatestVersionUrl(449512);
+			return await viteUtils.getGitHubLibLatestVersionUrl(
+				"WhiteSevs/TamperMonkeyScript",
+				"master",
+				"/lib/Xtiper/index.js"
+			);
 		},
 	},
 	NZMsgBox: {
 		localPath: "file://" + viteUtils.getAbsolutePath("./lib/NZMsgBox/index.js"),
 		url: async () => {
-			return await viteUtils.getGreasyForkLibLatestVersionUrl(449562);
+			// return await viteUtils.getGreasyForkLibLatestVersionUrl(449562);
+			return await viteUtils.getGitHubLibLatestVersionUrl(
+				"WhiteSevs/TamperMonkeyScript",
+				"master",
+				"/lib/NZMsgBox/index.js"
+			);
 		},
 	},
 	"js-watermark": {
 		localPath:
 			"file://" + viteUtils.getAbsolutePath("./lib/js-watermark/index.js"),
 		url: async () => {
-			return await viteUtils.getGreasyForkLibLatestVersionUrl(452322);
+			// return await viteUtils.getGreasyForkLibLatestVersionUrl(452322);
+			return await viteUtils.getGitHubLibLatestVersionUrl(
+				"WhiteSevs/TamperMonkeyScript",
+				"master",
+				"/lib/js-watermark/index.js"
+			);
 		},
 	},
 	GM_html2canvas: {
 		localPath:
 			"file://" + viteUtils.getAbsolutePath("./lib/html2canvas/index.js"),
 		url: async () => {
-			return await viteUtils.getGreasyForkLibLatestVersionUrl(456607);
+			// return await viteUtils.getGreasyForkLibLatestVersionUrl(456607);
+			return await viteUtils.getGitHubLibLatestVersionUrl(
+				"WhiteSevs/TamperMonkeyScript",
+				"master",
+				"/lib/html2canvas/index.js"
+			);
 		},
 	},
 	"JS-分页插件": {
 		localPath:
 			"file://" + viteUtils.getAbsolutePath("./lib/DataPaging/index.js"),
 		url: async () => {
-			return await viteUtils.getGreasyForkLibLatestVersionUrl(465550);
+			// return await viteUtils.getGreasyForkLibLatestVersionUrl(465550);
+			return await viteUtils.getGitHubLibLatestVersionUrl(
+				"WhiteSevs/TamperMonkeyScript",
+				"master",
+				"/lib/DataPaging/index.js"
+			);
 		},
 	},
 	Eruda: {
 		localPath: "file://" + viteUtils.getAbsolutePath("./lib/Eruda/index.js"),
 		url: async () => {
-			return await viteUtils.getGreasyForkLibLatestVersionUrl(483694);
+			// return await viteUtils.getGreasyForkLibLatestVersionUrl(483694);
+			return await viteUtils.getGitHubLibLatestVersionUrl(
+				"WhiteSevs/TamperMonkeyScript",
+				"master",
+				"/lib/Eruda/index.js"
+			);
 		},
 	},
 	vConsole: {
 		localPath: "file://" + viteUtils.getAbsolutePath("./lib/VConsole/index.js"),
 		url: async () => {
-			return await viteUtils.getGreasyForkLibLatestVersionUrl(483695);
+			// return await viteUtils.getGreasyForkLibLatestVersionUrl(483695);
+			return await viteUtils.getGitHubLibLatestVersionUrl(
+				"WhiteSevs/TamperMonkeyScript",
+				"master",
+				"/lib/VConsole/index.js"
+			);
 		},
 	},
 	PageSpy: {
 		localPath: "file://" + viteUtils.getAbsolutePath("./lib/PageSpy/index.js"),
 		url: async () => {
-			return await viteUtils.getGreasyForkLibLatestVersionUrl(483696);
+			// return await viteUtils.getGreasyForkLibLatestVersionUrl(483696);
+			return await viteUtils.getGitHubLibLatestVersionUrl(
+				"WhiteSevs/TamperMonkeyScript",
+				"master",
+				"/lib/PageSpy/index.js"
+			);
 		},
 	},
 	Leaflet: {
 		localPath: "file://" + viteUtils.getAbsolutePath("./lib/leaflet/index.js"),
 		url: async () => {
-			return await viteUtils.getGreasyForkLibLatestVersionUrl(483765);
+			// return await viteUtils.getGreasyForkLibLatestVersionUrl(483765);
+			return await viteUtils.getGitHubLibLatestVersionUrl(
+				"WhiteSevs/TamperMonkeyScript",
+				"master",
+				"/lib/leaflet/index.js"
+			);
 		},
 	},
 	"Crypto-JS": {
 		localPath: "file://" + viteUtils.getAbsolutePath("./lib/CryptoJS/index.js"),
 		url: async () => {
-			return await viteUtils.getGreasyForkLibLatestVersionUrl(486152);
+			// return await viteUtils.getGreasyForkLibLatestVersionUrl(486152);
+			return await viteUtils.getGitHubLibLatestVersionUrl(
+				"WhiteSevs/TamperMonkeyScript",
+				"master",
+				"/lib/CryptoJS/index.js"
+			);
 		},
 	},
 	"Element-Plus": {
 		localPath:
 			"file://" + viteUtils.getAbsolutePath("./lib/Element-Plus/index.js"),
 		url: async () => {
-			return await viteUtils.getGreasyForkLibLatestVersionUrl(495227);
+			// return await viteUtils.getGreasyForkLibLatestVersionUrl(495227);
+			return await viteUtils.getGitHubLibLatestVersionUrl(
+				"WhiteSevs/TamperMonkeyScript",
+				"master",
+				"/lib/Element-Plus/index.js"
+			);
 		},
 	},
 	QRCode: {
 		localPath:
 			"file://" + viteUtils.getAbsolutePath("./lib/QRCode/index.umd.js"),
 		url: async () => {
-			return await viteUtils.getGreasyForkLibLatestVersionUrl(497907);
+			// return await viteUtils.getGreasyForkLibLatestVersionUrl(497907);
+			return await viteUtils.getGitHubLibLatestVersionUrl(
+				"WhiteSevs/TamperMonkeyScript",
+				"master",
+				"/lib/QRCode/index.umd.js"
+			);
 		},
 	},
 	"网盘链接识别-图标库": {
@@ -458,7 +609,12 @@ const LIB_MAP = {
 				"./scripts-vite/网盘链接识别/网盘链接识别-图标.js"
 			),
 		url: async () => {
-			return await viteUtils.getGreasyForkLibLatestVersionUrl(456470);
+			// return await viteUtils.getGreasyForkLibLatestVersionUrl(456470);
+			return await viteUtils.getGitHubLibLatestVersionUrl(
+				"WhiteSevs/TamperMonkeyScript",
+				"master",
+				"/scripts-vite/网盘链接识别/网盘链接识别-图标.js"
+			);
 		},
 	},
 };
