@@ -76,7 +76,9 @@ export const GreasyforkScriptsCode = {
 				});
 				return;
 			}
-			let code_text_response = await httpx.get(code_url);
+			let code_text_response = await httpx.get(code_url, {
+				timeout: 20000,
+			});
 			if (!code_text_response.status) {
 				return;
 			}

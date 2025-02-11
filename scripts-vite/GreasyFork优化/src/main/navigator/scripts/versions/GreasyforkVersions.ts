@@ -179,13 +179,17 @@ export const GreasyforkVersions = {
 						);
 						let compareLeftText = "";
 						let compareRightText = "";
-						let compareLeftResponse = await httpx.get(compareLeftUrl);
+						let compareLeftResponse = await httpx.get(compareLeftUrl, {
+							timeout: 20000,
+						});
 						if (!compareLeftResponse.status) {
 							loading.close();
 							return;
 						}
 						compareLeftText = compareLeftResponse.data.responseText;
-						let compareRightResponse = await httpx.get(compareRightUrl);
+						let compareRightResponse = await httpx.get(compareRightUrl, {
+							timeout: 20000,
+						});
 						if (!compareRightResponse.status) {
 							loading.close();
 							return;

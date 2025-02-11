@@ -2649,7 +2649,9 @@
           });
           return;
         }
-        let code_text_response = await httpx.get(code_url);
+        let code_text_response = await httpx.get(code_url, {
+          timeout: 2e4
+        });
         if (!code_text_response.status) {
           return;
         }
@@ -2863,13 +2865,17 @@
               );
               let compareLeftText = "";
               let compareRightText = "";
-              let compareLeftResponse = await httpx.get(compareLeftUrl);
+              let compareLeftResponse = await httpx.get(compareLeftUrl, {
+                timeout: 2e4
+              });
               if (!compareLeftResponse.status) {
                 loading.close();
                 return;
               }
               compareLeftText = compareLeftResponse.data.responseText;
-              let compareRightResponse = await httpx.get(compareRightUrl);
+              let compareRightResponse = await httpx.get(compareRightUrl, {
+                timeout: 2e4
+              });
               if (!compareRightResponse.status) {
                 loading.close();
                 return;
