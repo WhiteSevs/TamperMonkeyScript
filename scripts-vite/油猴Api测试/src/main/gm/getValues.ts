@@ -100,7 +100,6 @@ export class ApiTest_getValues extends ApiAsyncTestBase {
 								DOMUtils.on($button, "click", (event) => {
 									utils.preventEvent(event);
 									try {
-										// @ts-ignore
 										let value = GM_getValues();
 										Qmsg.info("请在控制台查看读取的数据");
 										console.log(value);
