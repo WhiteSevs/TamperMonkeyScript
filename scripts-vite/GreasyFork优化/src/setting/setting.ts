@@ -21,7 +21,7 @@ import { SettingUIUsers } from "./components/users";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { GithubUrl2WebhookUrl } from "@/main/GithubUrl2WebhookUrl";
 import { PanelUISize } from "./panel-ui-size";
-import { SettingUIScriptSearch } from "./components/script-search";
+import { SettingUIScriptSearch } from "./components/search";
 import Utils from "@whitesev/utils";
 
 type PosPanelListenerData = {

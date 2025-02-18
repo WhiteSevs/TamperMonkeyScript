@@ -8,7 +8,7 @@ export const SettingUIScriptSearch: PopsPanelContentConfig = {
 	forms: [
 		{
 			type: "forms",
-			text: "",
+			text: "搜素结果过滤",
 			forms: [
 				UISwitch(
 					i18next.t("新增【关键词】搜索框"),

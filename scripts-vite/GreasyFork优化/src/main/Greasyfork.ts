@@ -19,7 +19,7 @@ import { GreasyforkUsers } from "./navigator/users/GreasyforkUsers";
 import { GreasyforkShortCut } from "./GreasyforkShortCut";
 import { GreasyforkConversations } from "./navigator/users/conversations/GreasyforkConversations";
 import { GreasyforkRememberFormTextArea } from "./GreasyforkRememberFormTextArea";
-import { GreasyforkScriptsSearch } from "./navigator/scripts-search/GreasyforkScriptsSearch";
+import { GreasyforkScriptsSearch } from "./navigator/search/GreasyforkScriptsSearch";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 import { GreasyforkElementUtils } from "@/utils/GreasyforkElementUtils";
 import { PanelUISize } from "@/setting/panel-ui-size";
