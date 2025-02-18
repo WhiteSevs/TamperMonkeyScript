@@ -46,7 +46,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
   var require_entrance_001 = __commonJS({
-    "entrance-DcS4z3Fu.js"(exports, module) {
+    "entrance-z0dJ9Fiv.js"(exports, module) {
       var _a;
       var _GM = /* @__PURE__ */ (() => typeof GM != "undefined" ? GM : void 0)();
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
@@ -1915,7 +1915,7 @@
                         "便于快捷跳转"
                       ),
                       UISwitch(
-                        "超链接文字转换",
+                        "文本转超链接",
                         "mt-link-text-to-hyperlink",
                         true,
                         void 0,
@@ -1924,7 +1924,7 @@
                       UISwitch(
                         "延长登录Cookie过期时间",
                         "mt-extend-cookie-expire",
-                        true,
+                        false,
                         void 0,
                         "减少频繁登录账号的问题"
                       )

@@ -49,7 +49,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var require_entrance_001 = __commonJS({
-    "entrance-B1fawVjU.js"(exports, module) {
+    "entrance-CnzUYzGj.js"(exports, module) {
       var _a;
       var _GM = /* @__PURE__ */ (() => typeof GM != "undefined" ? GM : void 0)();
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
@@ -1703,7 +1703,7 @@
                       UISwitch(
                         "延长登录Cookie过期时间",
                         "mt-extend-cookie-expire",
-                        true,
+                        false,
                         void 0,
                         "减少频繁登录账号的问题"
                       )

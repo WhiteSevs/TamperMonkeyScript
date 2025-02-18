@@ -179,7 +179,7 @@ export const Component_Common: PopsPanelContentConfig = {
 								UISwitch(
 									"延长登录Cookie过期时间",
 									"mt-extend-cookie-expire",
-									true,
+									false,
 									void 0,
 									"减少频繁登录账号的问题"
 								),
