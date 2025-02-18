@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359
-// @version      2025.2.12
+// @version      2025.2.18
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -25,6 +25,7 @@
 // @connect      z4a.net
 // @connect      kggzs.cn
 // @connect      woozooo.com
+// @grant        GM.cookie
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
 // @grant        GM_getValue
@@ -48,8 +49,9 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var require_entrance_001 = __commonJS({
-    "entrance-DusUpp8L.js"(exports, module) {
+    "entrance-B1fawVjU.js"(exports, module) {
       var _a;
+      var _GM = /* @__PURE__ */ (() => typeof GM != "undefined" ? GM : void 0)();
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
       var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
@@ -1678,11 +1680,11 @@
                     type: "forms",
                     forms: [
                       UISwitch(
-                        "链接文本转超链接",
+                        "文本转超链接",
                         "mt-link-text-to-hyperlink",
                         true,
                         void 0,
-                        "自动把页面中的链接文本转换为超链接"
+                        "自动把符合超链接格式的文字转为超链接"
                       ),
                       UISwitch(
                         "显示用户UID",
@@ -1697,6 +1699,13 @@
                         true,
                         void 0,
                         "开启后点击帖子右侧区域为小窗打开"
+                      ),
+                      UISwitch(
+                        "延长登录Cookie过期时间",
+                        "mt-extend-cookie-expire",
+                        true,
+                        void 0,
+                        "减少频繁登录账号的问题"
                       )
                     ]
                   }
@@ -13172,6 +13181,9 @@
             PopsPanel.execMenu("mt-auto-sign", () => {
               MTAutoSignIn.init();
             });
+            PopsPanel.execMenu("mt-extend-cookie-expire", () => {
+              this.extendCookieExpire();
+            });
           });
         },
         /**
@@ -13242,6 +13254,48 @@
             callback() {
               lockFn.run();
             }
+          });
+        },
+        /**
+         * 延长cookie有效期
+         */
+        async extendCookieExpire() {
+          log.info(`延长cookie有效期`);
+          let cookieList = await _GM.cookie.list({});
+          let needExtendCookieNameList = [
+            "_auth",
+            "_saltkey",
+            "_client_created",
+            "_client_token"
+          ];
+          cookieList.forEach(async (cookieItem) => {
+            if (cookieItem.session) {
+              return;
+            }
+            let expireTime = cookieItem.expirationDate;
+            let nowTime = Date.now() / 1e3;
+            if (expireTime < nowTime) {
+              return;
+            }
+            let _30days = 60 * 60 * 24 * 30;
+            if (expireTime - nowTime > _30days) {
+              return;
+            }
+            let flag = needExtendCookieNameList.find(
+              (it) => cookieItem.name.endsWith(it)
+            );
+            if (!flag) {
+              return;
+            }
+            _GM.cookie.set({
+              name: cookieItem.name,
+              value: cookieItem.value,
+              expirationDate: cookieItem.expirationDate + _30days
+            }).then(() => {
+              log.info(`延长Cookie +30天成功：${cookieItem.name}`);
+            }).catch(() => {
+              log.error(`延长Cookie +30天失败：${cookieItem.name}`);
+            });
           });
         }
       };

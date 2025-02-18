@@ -161,11 +161,11 @@ export const Component_Common: PopsPanelContentConfig = {
 							type: "forms",
 							forms: [
 								UISwitch(
-									"链接文本转超链接",
+									"文本转超链接",
 									"mt-link-text-to-hyperlink",
 									true,
 									void 0,
-									"自动把页面中的链接文本转换为超链接"
+									"自动把符合超链接格式的文字转为超链接"
 								),
 								UISwitch(
 									"显示用户UID",
@@ -180,6 +180,13 @@ export const Component_Common: PopsPanelContentConfig = {
 									true,
 									void 0,
 									"开启后点击帖子右侧区域为小窗打开"
+								),
+								UISwitch(
+									"延长登录Cookie过期时间",
+									"mt-extend-cookie-expire",
+									true,
+									void 0,
+									"减少频繁登录账号的问题"
 								),
 							],
 						},

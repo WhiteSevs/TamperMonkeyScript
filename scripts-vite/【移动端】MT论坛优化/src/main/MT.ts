@@ -20,6 +20,7 @@ import { MTCommentFilter } from "./forum-post/MTCommentFilter";
 import { MTProductListingReminder } from "./MTProductListingReminder";
 import { MTCustomizeUserLabels } from "./MTCustomizeUserLabels";
 import { MTForumPostPublish } from "./forum-post-publish/MTForumPostPublish";
+import { GM } from "ViteGM";
 
 export const MT = {
 	$flag: {
@@ -100,6 +101,9 @@ export const MT = {
 			PopsPanel.execMenu("mt-auto-sign", () => {
 				MTAutoSignIn.init();
 			});
+			PopsPanel.execMenu("mt-extend-cookie-expire", () => {
+				this.extendCookieExpire();
+			});
 		});
 	},
 	/**
@@ -172,6 +176,53 @@ export const MT = {
 			callback() {
 				lockFn.run();
 			},
+		});
+	},
+	/**
+	 * 延长cookie有效期
+	 */
+	async extendCookieExpire() {
+		log.info(`延长cookie有效期`);
+		let cookieList = await GM.cookie.list({});
+		let needExtendCookieNameList: string[] = [
+			"_auth",
+			"_saltkey",
+			"_client_created",
+			"_client_token",
+		];
+		cookieList.forEach(async (cookieItem) => {
+			if (cookieItem.session) {
+				return;
+			}
+			let expireTime = cookieItem.expirationDate;
+			let nowTime = Date.now() / 1000;
+			if (expireTime < nowTime) {
+				// 已过期
+				return;
+			}
+			let _30days = 60 * 60 * 24 * 30;
+			if (expireTime - nowTime > _30days) {
+				// 过期时间大于30天，无需延长
+				return;
+			}
+			let flag = needExtendCookieNameList.find((it) =>
+				cookieItem.name.endsWith(it)
+			);
+			if (!flag) {
+				return;
+			}
+			GM.cookie
+				.set({
+					name: cookieItem.name,
+					value: cookieItem.value,
+					expirationDate: cookieItem.expirationDate + _30days,
+				})
+				.then(() => {
+					log.info(`延长Cookie +30天成功：${cookieItem.name}`);
+				})
+				.catch(() => {
+					log.error(`延长Cookie +30天失败：${cookieItem.name}`);
+				});
 		});
 	},
 };
