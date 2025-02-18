@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.2.12
+// @version      2025.2.18
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、用户状态查看、美化导航、动态头像上传、最新发表、评论过滤器等
 // @license      GPL-3.0-only
@@ -19,6 +19,7 @@
 // @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      *
+// @grant        GM.cookie
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
@@ -45,8 +46,9 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
   var require_entrance_001 = __commonJS({
-    "entrance-Dr3GdeWI.js"(exports, module) {
+    "entrance-DcS4z3Fu.js"(exports, module) {
       var _a;
+      var _GM = /* @__PURE__ */ (() => typeof GM != "undefined" ? GM : void 0)();
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
       var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
@@ -1918,6 +1920,13 @@
                         true,
                         void 0,
                         "自动把符合超链接格式的文字转为超链接"
+                      ),
+                      UISwitch(
+                        "延长登录Cookie过期时间",
+                        "mt-extend-cookie-expire",
+                        true,
+                        void 0,
+                        "减少频繁登录账号的问题"
                       )
                     ]
                   }
@@ -5877,6 +5886,9 @@
             PopsPanel.execMenu("mt-auto-sign", () => {
               MTAutoSignIn.init();
             });
+            PopsPanel.execMenu("mt-extend-cookie-expire", () => {
+              this.extendCookieExpire();
+            });
           });
         },
         /**
@@ -5901,6 +5913,48 @@
               'url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAADICAYAAAAk7PuyAAAAAXNSR0IArs4c6QAAAGFJREFUWEft1zESgCAQQ9HsVfb+d5RRlLHRVotHS5f5+YHKyymXiRAihKMISBDCNOInJHT39iTkcpkIYUcTCUKYkkKCEJBwTaY6cML5eiNGYiRGYrz9pqyDdbAOqxC/q8MApobR97qxnMwAAAAASUVORK5CYII=") repeat-x 50% -50px'
             );
           }
+        },
+        /**
+         * 延长cookie有效期
+         */
+        async extendCookieExpire() {
+          log.info(`延长cookie有效期`);
+          let cookieList = await _GM.cookie.list({});
+          let needExtendCookieNameList = [
+            "_auth",
+            "_saltkey",
+            "_client_created",
+            "_client_token"
+          ];
+          cookieList.forEach(async (cookieItem) => {
+            if (cookieItem.session) {
+              return;
+            }
+            let expireTime = cookieItem.expirationDate;
+            let nowTime = Date.now() / 1e3;
+            if (expireTime < nowTime) {
+              return;
+            }
+            let _30days = 60 * 60 * 24 * 30;
+            if (expireTime - nowTime > _30days) {
+              return;
+            }
+            let flag = needExtendCookieNameList.find(
+              (it) => cookieItem.name.endsWith(it)
+            );
+            if (!flag) {
+              return;
+            }
+            _GM.cookie.set({
+              name: cookieItem.name,
+              value: cookieItem.value,
+              expirationDate: cookieItem.expirationDate + _30days
+            }).then(() => {
+              log.info(`延长Cookie +30天成功：${cookieItem.name}`);
+            }).catch(() => {
+              log.error(`延长Cookie +30天失败：${cookieItem.name}`);
+            });
+          });
         }
       };
       PopsPanel.init();

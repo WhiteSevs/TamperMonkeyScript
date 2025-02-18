@@ -7,7 +7,7 @@ import { MTForumPost } from "./forum-post/MTForumPost";
 import { MTGuide } from "./guide/MTGuide";
 import { MTCommentFilter } from "./forum-post/MTCommentFilter";
 import { MTProductListingReminder } from "./MTProductListingReminder";
-import { unsafeWindow } from "ViteGM";
+import { GM, GM_cookie, unsafeWindow } from "ViteGM";
 import { MTBlackHome } from "./MTBlackHome";
 import { MTOnlineUser } from "./MTOnlineUser";
 
@@ -48,6 +48,9 @@ export const MT = {
 			PopsPanel.execMenu("mt-auto-sign", () => {
 				MTAutoSignIn.init();
 			});
+			PopsPanel.execMenu("mt-extend-cookie-expire", () => {
+				this.extendCookieExpire();
+			});
 		});
 	},
 	/**
@@ -71,5 +74,52 @@ export const MT = {
 				'url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAADICAYAAAAk7PuyAAAAAXNSR0IArs4c6QAAAGFJREFUWEft1zESgCAQQ9HsVfb+d5RRlLHRVotHS5f5+YHKyymXiRAihKMISBDCNOInJHT39iTkcpkIYUcTCUKYkkKCEJBwTaY6cML5eiNGYiRGYrz9pqyDdbAOqxC/q8MApobR97qxnMwAAAAASUVORK5CYII=") repeat-x 50% -50px'
 			);
 		}
+	},
+	/**
+	 * 延长cookie有效期
+	 */
+	async extendCookieExpire() {
+		log.info(`延长cookie有效期`);
+		let cookieList = await GM.cookie.list({});
+		let needExtendCookieNameList: string[] = [
+			"_auth",
+			"_saltkey",
+			"_client_created",
+			"_client_token",
+		];
+		cookieList.forEach(async (cookieItem) => {
+			if (cookieItem.session) {
+				return;
+			}
+			let expireTime = cookieItem.expirationDate;
+			let nowTime = Date.now() / 1000;
+			if (expireTime < nowTime) {
+				// 已过期
+				return;
+			}
+			let _30days = 60 * 60 * 24 * 30;
+			if (expireTime - nowTime > _30days) {
+				// 过期时间大于30天，无需延长
+				return;
+			}
+			let flag = needExtendCookieNameList.find((it) =>
+				cookieItem.name.endsWith(it)
+			);
+			if (!flag) {
+				return;
+			}
+			GM.cookie
+				.set({
+					name: cookieItem.name,
+					value: cookieItem.value,
+					expirationDate: cookieItem.expirationDate + _30days,
+				})
+				.then(() => {
+					log.info(`延长Cookie +30天成功：${cookieItem.name}`);
+				})
+				.catch(() => {
+					log.error(`延长Cookie +30天失败：${cookieItem.name}`);
+				});
+		});
 	},
 };

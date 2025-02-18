@@ -9,6 +9,7 @@ import { MTDyncmicAvatar } from "@/main/MTDyncmicAvatar";
 import Utils from "@whitesev/utils";
 import { MTAutoSignIn } from "@/main/sign/MTAutoSignIn";
 import Qmsg from "qmsg";
+import { GM, GM_getValue, GM_setValue } from "ViteGM";
 
 export const Component_Common: PopsPanelContentConfig = {
 	id: "component-common",
@@ -169,11 +170,18 @@ export const Component_Common: PopsPanelContentConfig = {
 									"便于快捷跳转"
 								),
 								UISwitch(
-									"超链接文字转换",
+									"文本转超链接",
 									"mt-link-text-to-hyperlink",
 									true,
 									void 0,
 									"自动把符合超链接格式的文字转为超链接"
+								),
+								UISwitch(
+									"延长登录Cookie过期时间",
+									"mt-extend-cookie-expire",
+									true,
+									void 0,
+									"减少频繁登录账号的问题"
 								),
 							],
 						},
