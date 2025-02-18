@@ -123,10 +123,8 @@ export const DouYinLiveBlock = {
 		log.info("【屏蔽】底部的礼物栏");
 		return [
 			CommonUtil.addBlockCSS(
-				// 2025.1.16
-				'div[data-e2e="living-container"] >div> div:not(:has(video)):not(:has([id^="living_player_container"])):has(pace-island >.gitBarOptimizeEnabled [data-e2e="gifts-container"])',
-				// 2025.1.22
-				'div[data-e2e="living-container"] > [id^="living_room_player_container"] > :last-child:has(>.gitBarOptimizeEnabled )',
+				// 2025.2.18
+				'div[data-e2e="living-container"] [id^="living_room_player_container"] > :last-child:has(>.gitBarOptimizeEnabled )',
 				// Firefox上的CSS，多了个pace-island
 				'div[data-e2e="living-container"] >div> div:has(>pace-island >.gitBarOptimizeEnabled)',
 				// 全屏状态下的
@@ -169,7 +167,7 @@ export const DouYinLiveChatRoomBlock = {
 		log.info("【屏蔽】评论区（聊天室）");
 		return [
 			CommonUtil.addBlockCSS("#chatroom"),
-			addStyle(`
+			addStyle(/*css*/ `
             div[data-e2e="living-container"],
             div[data-e2e="living-container"] > div{
                 margin-bottom: 0px !important;
