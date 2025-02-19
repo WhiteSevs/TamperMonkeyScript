@@ -1,6 +1,6 @@
 import { GreasyforkRouter } from "@/router/GreasyforkRouter";
 import { GreasyforkElementUtils } from "./GreasyforkElementUtils";
-import { addStyle, DOMUtils } from "@/env";
+import { addStyle, DOMUtils, log } from "@/env";
 import { unsafeWindow } from "ViteGM";
 
 let isRegisdterMonacoEditorCSS = false;
@@ -24,24 +24,27 @@ export const GreasyforkUtils = {
 	/**
 	 * 加载monaco编辑器
 	 */
-	async monacoEditor() {
+	monacoEditor() {
 		/** 版本号 */
 		const MonacoVersion = "0.52.0";
+		const readyEventType = "monaco-editor-ready";
+		log.info(`网络加载monaco编辑器中，请稍后...`);
 		if (!isRegisdterMonacoEditorCSS) {
 			isRegisdterMonacoEditorCSS = true;
-			addStyle(`
-			@font-face {
-				font-family: 'codicon';
-				src: url('https://fastly.jsdelivr.net/npm/monaco-editor@${MonacoVersion}/min/vs/base/browser/ui/codicons/codicon/codicon.ttf') format('truetype');
-			}
-		`);
+			let $css = addStyle(/*css*/ `
+				@font-face {
+					font-family: 'codicon';
+					src: url('https://fastly.jsdelivr.net/npm/monaco-editor@${MonacoVersion}/min/vs/base/browser/ui/codicons/codicon/codicon.ttf') format('truetype');
+				}
+			`);
 		}
 		let $monacoScript = DOMUtils.createElement("script", {
 			type: "module",
-			innerHTML: `
+			defer: true,
+			innerHTML: /*js*/ `
 					import * as monaco from "https://fastly.jsdelivr.net/npm/monaco-editor@${MonacoVersion}/+esm";
 					window.monaco = monaco;
-					window.dispatchEvent(new CustomEvent("monaco-editor-ready"));
+					window.dispatchEvent(new CustomEvent("${readyEventType}"));
 				`,
 		});
 		DOMUtils.append(document.head || document.documentElement, $monacoScript);
@@ -49,10 +52,11 @@ export const GreasyforkUtils = {
 		return new Promise<any>((resolve) => {
 			DOMUtils.on(
 				unsafeWindow,
-				"monaco-editor-ready",
+				readyEventType,
 				() => {
 					// @ts-ignore
 					let monaco = unsafeWindow.monaco;
+					log.success(`网络加载monaco编辑器成功`);
 					resolve(monaco);
 				},
 				{ once: true }
