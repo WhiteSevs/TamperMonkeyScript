@@ -32,7 +32,10 @@ export class ApiTest_openInTab extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: "" + apiName,
-			headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+			headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+				apiName,
+				`${apiName} & ${apiAsyncInfo.name}`
+			)}`,
 			scrollToDefaultView: true,
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -122,17 +125,21 @@ export class ApiTest_openInTab extends ApiAsyncTestBase {
 												DOMUtils.html(
 													container.$leftText,
 													/*html*/ `
-											<p class="${support_close ? "success" : "error"}">${
-														support_close ? "支持 .close()" : "不支持 .close()"
-													}</p>
-											<p class="${support_closed ? "success" : "error"}">${
-														support_close ? "支持 .closed" : "不支持 .closed"
-													}</p>
-											<p class="${support_onclose ? "success" : "error"}">${
+													${
 														support_close
-															? "支持设置属性 .onclose"
-															: "不支持设置属性 .onclose"
-													}</p>
+															? `<p class="success">支持 .close()</p>`
+															: `<p class="error">不支持 .close()</p>`
+													}
+													${
+														support_closed
+															? `<p class="success">支持 .closed</p>`
+															: `<p class="error">不支持 .closed</p>`
+													}
+													${
+														support_onclose
+															? `<p class="success">支持设置属性 .onclose</p>`
+															: `<p class="error">不支持设置属性 .onclose</p>`
+													}
 										`
 												);
 											}

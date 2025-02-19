@@ -8,6 +8,7 @@ import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/common-components/ui-info";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 export class ApiTest_unsafeWindow extends ApiAsyncTestBase {
 	public getApiName() {
@@ -25,6 +26,7 @@ export class ApiTest_unsafeWindow extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: apiName,
+			headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(apiName)}`,
 			scrollToDefaultView: true,
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;

@@ -28,7 +28,10 @@ export class ApiTest_getResourceText extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: "" + apiName,
-			headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+			headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+				apiName,
+				`${apiName} & ${apiAsyncInfo.name}`
+			)}`,
 			scrollToDefaultView: true,
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;

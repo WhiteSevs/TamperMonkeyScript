@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.2.12
+// @version      2025.2.19
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -20419,6 +20419,20 @@ ${err.stack}`);
   };
   const TagUtil = {
     /**
+     * 设置多组tag（自动清除旧tag）
+     */
+    setTagList($el, tagList) {
+      domUtils.html($el, "");
+      let tagHTML = "";
+      tagList.forEach((tagItem) => {
+        tagHTML += /*html*/
+        `
+				<p class="${tagItem.tag}">${tagItem.text ?? ""}</p>
+			`;
+      });
+      domUtils.html($el, tagHTML);
+    },
+    /**
      * 设置tag（自动清除旧tag）
      */
     setTag($el, tag, text) {
@@ -20566,6 +20580,15 @@ ${err.stack}`);
      */
     escapeHtml(unsafe) {
       return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+    },
+    /**
+     * 获取文档的超链接文本
+     * @param navName 链接导航锚点名
+     * @param text 超链接显示的文本
+     */
+    getTampoerMonkeyApiUrl(navName, text) {
+      text = text ?? navName;
+      return `<a href="https://www.tampermonkey.net/documentation.php?ext=gcal&version=#api:${navName}" target="_blank">${text}</a>`;
     }
   };
   const GlobalUtil = {
@@ -20604,7 +20627,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -20761,7 +20787,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-GM_addStyle" + apiName,
         title: apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -20872,7 +20901,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -20914,21 +20946,115 @@ ${err.stack}`);
       };
       if (this.isSupport()) {
         result2["forms"][1].forms.push(
-          UIInfo(() => {
-            try {
+          (() => {
+            let localStorageDataKey = "GM_addValueChangeListener_key_1";
+            return UIInfo(() => {
               return {
-                text: CommonUtil.escapeHtml("TODO"),
-                tag: "info"
+                text: "测试监听数据存储改变",
+                description: ``,
+                tag: "info",
+                afterRender(container) {
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+										<div class="pops-panel-button pops-panel-button-no-icon">
+											<button class="pops-panel-button_inner" type="default">
+												<i class="pops-bottom-icon" is-loading="false"></i>
+												<span class="pops-panel-button-text">点击测试</span>
+											</button>
+										</div>
+									`,
+                    false,
+                    false
+                  );
+                  domUtils.after(container.$leftContainer, $button);
+                  let timeoutId = void 0;
+                  let listenerId = void 0;
+                  let tagTextList = [];
+                  domUtils.on($button, "click", (event) => {
+                    utils.preventEvent(event);
+                    try {
+                      tagTextList = [];
+                      clearTimeout(timeoutId);
+                      TagUtil.setTag(container.$leftText, "info", "等待触发回调");
+                      domUtils.text(container.$leftDesc, this.text);
+                      domUtils.show(container.$leftDesc, false);
+                      let delaySetValue = utils.formatTime(Date.now());
+                      listenerId = listenerId ?? _GM_addValueChangeListener(
+                        localStorageDataKey,
+                        function(key, oldValue, newValue, remote) {
+                          console.log(arguments);
+                          clearTimeout(timeoutId);
+                          tagTextList.push({
+                            tag: "success",
+                            text: "支持触发回调"
+                          });
+                          if (typeof key !== "string") {
+                            tagTextList.push({
+                              tag: "error",
+                              text: `不支持回调参数key，当前类型：${typeof key}`
+                            });
+                          } else {
+                            tagTextList.push({
+                              tag: "success",
+                              text: `支持回调参数key，当前类型：${typeof key}`
+                            });
+                          }
+                          if (typeof newValue !== typeof delaySetValue) {
+                            tagTextList.push({
+                              tag: "error",
+                              text: `不支持回调参数newValue，当前类型：${typeof delaySetValue}`
+                            });
+                          } else {
+                            tagTextList.push({
+                              tag: "success",
+                              text: `支持回调参数newValue，当前类型：${typeof delaySetValue}`
+                            });
+                          }
+                          if (typeof remote !== "boolean") {
+                            tagTextList.push({
+                              tag: "error",
+                              text: `不支持回调参数remote，当前类型：${typeof remote}`
+                            });
+                          } else {
+                            tagTextList.push({
+                              tag: "success",
+                              text: `支持回调参数remote，当前类型：${typeof remote}`
+                            });
+                          }
+                          TagUtil.setTagList(container.$leftText, tagTextList);
+                        }
+                      );
+                      console.log(
+                        "GM_addValueChangeListener listenerId：" + listenerId + " typeof：" + typeof listenerId
+                      );
+                      if (typeof listenerId !== "number" && typeof listenerId !== "string") {
+                        tagTextList.push({
+                          tag: "warn",
+                          text: "listenerId类型不是number或string"
+                        });
+                      } else {
+                        tagTextList.push({
+                          tag: "success",
+                          text: "listenerId类型：" + typeof listenerId
+                        });
+                      }
+                      timeoutId = setTimeout(() => {
+                        tagTextList.push({
+                          tag: "error",
+                          text: "不支持触发回调"
+                        });
+                        TagUtil.setTagList(container.$leftText, tagTextList);
+                      }, 3e3);
+                      _GM_setValue(localStorageDataKey, delaySetValue);
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    }
+                  });
+                }
               };
-            } catch (error2) {
-              console.error(error2);
-              return {
-                text: "执行错误 " + error2,
-                tag: "error"
-              };
-            } finally {
-            }
-          })
+            });
+          })()
         );
       }
       return result2;
@@ -20966,7 +21092,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName + ".list",
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -21107,7 +21236,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -21215,7 +21347,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -21257,21 +21392,61 @@ ${err.stack}`);
       };
       if (this.isSupport()) {
         result2["forms"][1].forms.push(
-          UIInfo(() => {
-            try {
+          (() => {
+            let localStorageDataValue = {
+              GM_deleteValues_key_1: 555,
+              "GM.deleteValues_key_2": 666
+            };
+            return UIInfo(() => {
               return {
-                text: CommonUtil.escapeHtml("TODO"),
-                tag: "info"
+                text: "测试存储对象然后删除再读取",
+                description: `${JSON.stringify(localStorageDataValue)}`,
+                tag: "info",
+                afterRender(container) {
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+										<div class="pops-panel-button pops-panel-button-no-icon">
+											<button class="pops-panel-button_inner" type="default">
+												<i class="pops-bottom-icon" is-loading="false"></i>
+												<span class="pops-panel-button-text">点击测试</span>
+											</button>
+										</div>
+									`,
+                    false,
+                    false
+                  );
+                  domUtils.after(container.$leftContainer, $button);
+                  domUtils.on($button, "click", (event) => {
+                    utils.preventEvent(event);
+                    try {
+                      _GM_setValues(localStorageDataValue);
+                      let localKeys = Object.keys(localStorageDataValue);
+                      let values = _GM_getValues(localKeys);
+                      if (JSON.stringify(values) !== JSON.stringify(localStorageDataValue)) {
+                        qmsg.error("写入失败，写入的数据和读取的数据不相同");
+                        return;
+                      }
+                      _GM_deleteValues(localKeys);
+                      let values2 = _GM_getValues(localKeys);
+                      if (values2 == null) {
+                        qmsg.warning("删除情况未知，因为读取到的数据为null");
+                      } else if (typeof values2 === "object" && JSON.stringify(values2) === "{}") {
+                        qmsg.success("删除成功，读取的数据为{}");
+                      } else {
+                        qmsg.error(
+                          "删除情况未知，因为读取到的数据类型不是object"
+                        );
+                        console.log(values2);
+                      }
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    }
+                  });
+                }
               };
-            } catch (error2) {
-              console.error(error2);
-              return {
-                text: "执行错误 " + error2,
-                tag: "error"
-              };
-            } finally {
-            }
-          })
+            });
+          })()
         );
       }
       return result2;
@@ -21296,7 +21471,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -21372,7 +21550,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -21463,7 +21644,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -21568,7 +21752,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -21649,7 +21836,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -21730,7 +21920,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -21993,7 +22186,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -22187,7 +22383,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -22308,7 +22507,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -22416,7 +22618,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -22523,7 +22728,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -22762,7 +22970,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -22845,9 +23056,9 @@ ${err.stack}`);
                             container.$leftText,
                             /*html*/
                             `
-											<p class="${support_close ? "success" : "error"}">${support_close ? "支持 .close()" : "不支持 .close()"}</p>
-											<p class="${support_closed ? "success" : "error"}">${support_close ? "支持 .closed" : "不支持 .closed"}</p>
-											<p class="${support_onclose ? "success" : "error"}">${support_close ? "支持设置属性 .onclose" : "不支持设置属性 .onclose"}</p>
+													${support_close ? `<p class="success">支持 .close()</p>` : `<p class="error">不支持 .close()</p>`}
+													${support_closed ? `<p class="success">支持 .closed</p>` : `<p class="error">不支持 .closed</p>`}
+													${support_onclose ? `<p class="success">支持设置属性 .onclose</p>` : `<p class="error">不支持设置属性 .onclose</p>`}
 										`
                           );
                         }
@@ -23132,7 +23343,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -23372,7 +23586,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -23453,7 +23670,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -23534,7 +23754,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -23647,7 +23870,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -23812,7 +24038,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -23913,7 +24142,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -24029,6 +24261,7 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: apiName,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(apiName)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -24103,7 +24336,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -24170,7 +24406,7 @@ ${err.stack}`);
       return typeof _GM_xmlhttpRequest === "function";
     }
     getApiName() {
-      return "GM_xmlHttpRequest";
+      return "GM_xmlhttpRequest";
     }
     getAsyncApiOption() {
       return {
@@ -24184,7 +24420,10 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        apiName,
+        `${apiName} & ${apiAsyncInfo.name}`
+      )}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -24669,7 +24908,7 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(apiName)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -24712,7 +24951,7 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(apiName)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -24755,7 +24994,7 @@ ${err.stack}`);
       let result2 = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${apiName}`,
+        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(apiName)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;

@@ -8,6 +8,7 @@ import { DOMUtils, setTimeoutLog, utils } from "@/env";
 import { TagUtil } from "@/setting/tag";
 import Qmsg from "qmsg";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 export class ApiTest_setClipboard extends ApiAsyncTestBase {
 	public isSupport() {
@@ -30,7 +31,10 @@ export class ApiTest_setClipboard extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: "" + apiName,
-			headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+			headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+				apiName,
+				`${apiName} & ${apiAsyncInfo.name}`
+			)}`,
 			scrollToDefaultView: true,
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;

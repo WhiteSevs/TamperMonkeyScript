@@ -14,7 +14,7 @@ export class ApiTest_xmlHttpRequest extends ApiAsyncTestBase {
 		return typeof GM_xmlhttpRequest === "function";
 	}
 	public getApiName() {
-		return "GM_xmlHttpRequest";
+		return "GM_xmlhttpRequest";
 	}
 	public getAsyncApiOption() {
 		return {
@@ -30,7 +30,10 @@ export class ApiTest_xmlHttpRequest extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: "" + apiName,
-			headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+			headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+				apiName,
+				`${apiName} & ${apiAsyncInfo.name}`
+			)}`,
 			scrollToDefaultView: true,
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;

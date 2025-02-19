@@ -3,6 +3,7 @@ import { ApiTestBase } from "../base/ApiTestBase";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/common-components/ui-info";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 export class GrantTest_focus extends ApiTestBase {
 	public getApiName() {
@@ -19,7 +20,7 @@ export class GrantTest_focus extends ApiTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: "" + apiName,
-			headerTitle: `${apiName}`,
+			headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(apiName)}`,
 			scrollToDefaultView: true,
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;

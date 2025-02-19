@@ -5,6 +5,7 @@ import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/common-components/ui-info";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 export class ApiTest_info extends ApiAsyncTestBase {
 	public isSupport() {
@@ -27,7 +28,10 @@ export class ApiTest_info extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: "" + apiName,
-			headerTitle: `${apiName} & ${apiAsyncInfo.name}`,
+			headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+				apiName,
+				`${apiName} & ${apiAsyncInfo.name}`
+			)}`,
 			scrollToDefaultView: true,
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
