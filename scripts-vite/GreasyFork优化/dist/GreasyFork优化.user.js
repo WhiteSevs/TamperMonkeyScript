@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.2.19
+// @version            2025.2.20
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -4726,7 +4726,7 @@
                   UISwitch(
                     i18next.t("美化Greasyfork Beautify脚本"),
                     "beautifyGreasyforkBeautify",
-                    true,
+                    false,
                     void 0,
                     i18next.t(
                       '需安装Greasyfork Beautify脚本，<a href="https://greasyfork.org/zh-CN/scripts/446849-greasyfork-beautify" target="_blank">🖐点我安装</a>'
@@ -5450,7 +5450,7 @@
                   UISwitch(
                     i18next.t("过滤重复的评论"),
                     "greasyfork-discussions-filter-duplicate-comments",
-                    false,
+                    true,
                     void 0,
                     i18next.t("过滤掉重复的评论数量(≥2)")
                   ),

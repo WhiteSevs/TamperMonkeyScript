@@ -473,7 +473,7 @@ export const SettingUICommon: PopsPanelContentConfig = {
 								UISwitch(
 									i18next.t("美化Greasyfork Beautify脚本"),
 									"beautifyGreasyforkBeautify",
-									true,
+									false,
 									void 0,
 									i18next.t(
 										'需安装Greasyfork Beautify脚本，<a href="https://greasyfork.org/zh-CN/scripts/446849-greasyfork-beautify" target="_blank">🖐点我安装</a>'

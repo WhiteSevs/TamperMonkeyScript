@@ -108,7 +108,7 @@ export const SettingUIDiscuessions: PopsPanelContentConfig = {
 								UISwitch(
 									i18next.t("过滤重复的评论"),
 									"greasyfork-discussions-filter-duplicate-comments",
-									false,
+									true,
 									void 0,
 									i18next.t("过滤掉重复的评论数量(≥2)")
 								),
