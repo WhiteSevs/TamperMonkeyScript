@@ -146,26 +146,27 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 				},
 				{
 					text: "吧内",
+					description: "新版的uni-app",
 					type: "deepMenu",
 					forms: [
 						{
 							text: "功能",
 							type: "forms",
 							forms: [
-								UISwitch(
-									"记住当前选择的看帖排序",
-									"baidu_tieba_remember_user_post_sort",
-									true,
-									void 0,
-									"记住选择的发布/回复"
-								),
-								UISwitch(
-									"过滤重复帖子",
-									"baidu_tieba_filterDuplicatePosts",
-									false,
-									void 0,
-									"过滤掉重复id的帖"
-								),
+								// UISwitch(
+								// 	"记住当前选择的看帖排序",
+								// 	"baidu_tieba_remember_user_post_sort",
+								// 	true,
+								// 	void 0,
+								// 	"记住选择的发布/回复"
+								// ),
+								// UISwitch(
+								// 	"过滤重复帖子",
+								// 	"baidu_tieba_filterDuplicatePosts",
+								// 	false,
+								// 	void 0,
+								// 	"过滤掉重复id的帖"
+								// ),
 								UISwitch(
 									"解除签到限制",
 									"baidu_tieba_removeForumSignInLimit",
@@ -179,6 +180,26 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 									false,
 									void 0,
 									"新标签页打开帖子"
+								),
+							],
+						},
+						{
+							type: "forms",
+							text: "劫持",
+							forms: [
+								UISwitch(
+									"劫持.wake-up",
+									"baidu_tieba_banei_hookWakeUp",
+									true,
+									void 0,
+									"阻止点击唤醒App"
+								),
+								UISwitch(
+									"劫持iframe call App",
+									"baidu_tieba_banei_hook_iframe_call_app",
+									true,
+									void 0,
+									"阻止点击唤醒App或下载App"
 								),
 							],
 						},

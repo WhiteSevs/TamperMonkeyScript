@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.2.12
+// @version      2025.2.21
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -4094,26 +4094,27 @@ match-attr##srcid##sp_purc_atom
           },
           {
             text: "吧内",
+            description: "新版的uni-app",
             type: "deepMenu",
             forms: [
               {
                 text: "功能",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "记住当前选择的看帖排序",
-                    "baidu_tieba_remember_user_post_sort",
-                    true,
-                    void 0,
-                    "记住选择的发布/回复"
-                  ),
-                  UISwitch(
-                    "过滤重复帖子",
-                    "baidu_tieba_filterDuplicatePosts",
-                    false,
-                    void 0,
-                    "过滤掉重复id的帖"
-                  ),
+                  // UISwitch(
+                  // 	"记住当前选择的看帖排序",
+                  // 	"baidu_tieba_remember_user_post_sort",
+                  // 	true,
+                  // 	void 0,
+                  // 	"记住选择的发布/回复"
+                  // ),
+                  // UISwitch(
+                  // 	"过滤重复帖子",
+                  // 	"baidu_tieba_filterDuplicatePosts",
+                  // 	false,
+                  // 	void 0,
+                  // 	"过滤掉重复id的帖"
+                  // ),
                   UISwitch(
                     "解除签到限制",
                     "baidu_tieba_removeForumSignInLimit",
@@ -4127,6 +4128,26 @@ match-attr##srcid##sp_purc_atom
                     false,
                     void 0,
                     "新标签页打开帖子"
+                  )
+                ]
+              },
+              {
+                type: "forms",
+                text: "劫持",
+                forms: [
+                  UISwitch(
+                    "劫持.wake-up",
+                    "baidu_tieba_banei_hookWakeUp",
+                    true,
+                    void 0,
+                    "阻止点击唤醒App"
+                  ),
+                  UISwitch(
+                    "劫持iframe call App",
+                    "baidu_tieba_banei_hook_iframe_call_app",
+                    true,
+                    void 0,
+                    "阻止点击唤醒App或下载App"
                   )
                 ]
               }
@@ -9304,7 +9325,7 @@ div[class^="new-summary-container_"] {\r
       return CommonUtil.addBlockCSS("div#wise-invoke-interact-bar");
     }
   };
-  const TieBaShieldCSS = ".tb-backflow-defensive,\r\n.fixed-nav-bar-defensive,\r\n.post-cut-guide,\r\n.ertiao-wrap-defensive,\r\n.feed-warp.gray-background,\r\n.pb-page-wrapper.app-view.transition-fade nav:first-child,\r\n.only-lz,\r\n.nav-bar-v2 .nav-bar-bottom,\r\n.more-image-desc,\r\n.fengchao-banner-defensive,\r\n/*.wake-app,*/\r\n.banner-wrapper-defensive,\r\n.open-app,\r\n.topic-share-page-v2 .bav-bar-top,\r\n/* 打开APP查看更多评论 */\r\n.cmt-large-cut-guide,\r\n/* 底部评论滚动栏 */\r\ndiv.diy-guide-wrapper,\r\n/* 底部评论滚动栏上面的空白 */\r\n.individuality,\r\n/* 吧内的广告 */\r\n.tb-threadlist__wrapper .tb-banner-wrapper-defensive,\r\n/* 首页-我的-底部的 年轻人的潮流文化社区 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .desc,\r\n/* 首页-我的-底部的 立即下载 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .download-btn,\r\n/* 帖子内预览图片模式下底部的打开App查看高清大图 */\r\n.img-preview .operate .wake-app,\r\n/* 帖子 ?share=xxx 顶部的 横幅 立即打开 */\r\n#app_container .pblist-part-wrap .top-guide,\r\n#app_container .pblist-part-wrap .top-ad-bg,\r\n/* 帖子 ?share=xxx 底部的 APP内打开 */\r\n#app_container .bottom-guide,\r\n/* 帖子 ?share=xxx 猜你喜欢*/\r\n#app_container .guessyoulikegraphic-wrap,\r\n/* 帖子 ?share=xxx 打开贴吧APP查看全部回复 */\r\n#app_container .pb-share-post-list .open-tb-bar {\r\n	display: none !important;\r\n}\r\nbody.tb-modal-open {\r\n	overflow: auto !important;\r\n}\r\n";
+  const TieBaShieldCSS = ".tb-backflow-defensive,\r\n.fixed-nav-bar-defensive,\r\n.post-cut-guide,\r\n.ertiao-wrap-defensive,\r\n.feed-warp.gray-background,\r\n.pb-page-wrapper.app-view.transition-fade nav:first-child,\r\n.only-lz,\r\n.nav-bar-v2 .nav-bar-bottom,\r\n.more-image-desc,\r\n.fengchao-banner-defensive,\r\n/*.wake-app,*/\r\n.banner-wrapper-defensive,\r\n.open-app,\r\n.topic-share-page-v2 .bav-bar-top,\r\n/* 打开APP查看更多评论 */\r\n.cmt-large-cut-guide,\r\n/* 底部评论滚动栏 */\r\ndiv.diy-guide-wrapper,\r\n/* 底部评论滚动栏上面的空白 */\r\n.individuality,\r\n/* 吧内的广告 */\r\n.tb-threadlist__wrapper .tb-banner-wrapper-defensive,\r\n/* 首页-我的-底部的 年轻人的潮流文化社区 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .desc,\r\n/* 首页-我的-底部的 立即下载 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .download-btn,\r\n/* 帖子内预览图片模式下底部的打开App查看高清大图 */\r\n.img-preview .operate .wake-app,\r\n/* 帖子 ?share=xxx 顶部的 横幅 立即打开 */\r\n#app_container .pblist-part-wrap .top-guide,\r\n#app_container .pblist-part-wrap .top-ad-bg,\r\n/* 帖子 ?share=xxx 底部的 APP内打开 */\r\n#app_container .bottom-guide,\r\n/* 帖子 ?share=xxx 猜你喜欢*/\r\n#app_container .guessyoulikegraphic-wrap,\r\n/* 帖子 ?share=xxx 打开贴吧APP查看全部回复 */\r\n#app_container .pb-share-post-list .open-tb-bar,\r\n/* 吧内 底部 关注本吧，精彩内容不错过 */\r\nuni-app .bottom-guide .btn-wrapper .wake-app ,\r\n/* 吧内 帖子右上角的 APP内查看 */\r\nuni-app .feed-card .open-app-btn,\r\n/* 吧内 视频流的底部的遮罩层 */\r\nuni-app .bottom-guide:has(.mask) {\r\n	display: none !important;\r\n}\r\nbody.tb-modal-open {\r\n	overflow: auto !important;\r\n}\r\n";
   const UniTieBaShieldCSS = "/* 热门推荐、相关推荐 */\r\nuni-app .recom-layout-container,\r\n/* 热门推荐、相关推荐 */\r\nuni-app #pbRecomContainer,\r\n/* 猜你还想搜（标题） */\r\nuni-app .guess-title,\r\n/* 猜你还想搜 */\r\nuni-app .guess-container,\r\n/* 底部工具栏 来贴吧畅享精彩内容 */\r\nuni-app .operation-chat,\r\n/* 图片右滑最后一个 来贴吧畅享精彩内容 */\r\nuni-app .pic-popup-guide-title,\r\n/* 图片右滑最后一个 下面的按钮 打开APP */\r\nuni-app .operate-group .wake-app:has(.external-btn-class),\r\n/* 顶部右上角的 App内查看 */\r\nuni-app .operate-btn-wake {\r\n	display: none !important;\r\n}\r\n\r\n/* 评论内容高度 */\r\nuni-app .swiper-content {\r\n	max-height: unset !important;\r\n}\r\n";
   const TiebaUrlHandler = {
     /**
@@ -9483,65 +9504,78 @@ div[class^="new-summary-container_"] {\r
     }
   };
   const TiebaBaNei = {
-    /**
-     * __vue__
-     */
-    vueRootView: null,
     init() {
-      PopsPanel.execMenu("baidu_tieba_openANewTab", () => {
+      PopsPanel.execMenuOnce("baidu_tieba_banei_hook_iframe_call_app", () => {
+        BaiduHook.setTimeout("tiebaCallAppIframe");
+      });
+      PopsPanel.execMenuOnce("baidu_tieba_removeForumSignInLimit", () => {
+        this.removeForumSignInLimit();
+      });
+      PopsPanel.execMenuOnce("baidu_tieba_banei_hookWakeUp", () => {
+        this.hookWakeUp();
+      });
+      PopsPanel.execMenuOnce("baidu_tieba_openANewTab", () => {
         this.openANewTab();
       });
-      PopsPanel.execMenu("baidu_tieba_remember_user_post_sort", () => {
-        this.rememberPostSort();
-      });
-      PopsPanel.execMenu("baidu_tieba_filterDuplicatePosts", () => {
-        this.filterDuplicatePosts();
-      });
-      PopsPanel.execMenu("baidu_tieba_removeForumSignInLimit", () => {
-        this.removeForumSignInLimit();
+      PopsPanel.execMenu("baidu_tieba_add_search", () => {
+        this.repairSearch();
       });
     },
     /**
      * 解除签到限制
      */
     removeForumSignInLimit() {
-      utils.waitNode(".tb-mobile-viewport").then(async () => {
-        var _a3, _b;
-        TiebaBaNei.vueRootView = VueUtils.getVue($(".tb-mobile-viewport"));
-        let isLogin = Boolean((_b = (_a3 = TiebaBaNei.vueRootView) == null ? void 0 : _a3["user"]) == null ? void 0 : _b["is_login"]);
-        utils.waitNode(".tb-forum-user__join-btn").then((element) => {
-          if (isLogin) {
-            element.children[0].innerText = "点击签到";
-          } else {
-            element.children[0].innerText = "点击登录";
-          }
-          log.success("修改页面中的APP内签到");
-          domutils.on(
-            element,
-            "click",
-            async function(event) {
-              utils.preventEvent(event);
-              if (isLogin) {
-                TiebaBaNei.vueRootView["user"]["portrait"];
-                let forumName = TiebaBaNei.vueRootView["forum"]["name"];
-                let tbs2 = TiebaBaNei.vueRootView["$store"]["state"]["common"]["tbs"];
-                let signResult = await TieBaApi.forumSign(forumName, tbs2);
-                if (signResult && typeof signResult["data"] === "object") {
-                  Qmsg.success(
-                    `今日本吧第${signResult["data"]["finfo"]["current_rank_info"]["sign_count"]}个签到`
-                  );
-                } else {
-                  Qmsg.error(signResult == null ? void 0 : signResult["error"]);
-                }
-              } else {
-                TiebaBaNei.vueRootView["isShowModal"] = true;
-              }
-            },
-            {
-              capture: true
+      VueUtils.waitVuePropToSet("uni-app #forumInfoId .sign-wakeup", {
+        check(vueInstance) {
+          return typeof vueInstance.$root.commonParams.fname === "string";
+        },
+        set(vueInstance) {
+          let $signWakeUp = $("uni-app #forumInfoId .sign-wakeup");
+          $signWakeUp.setAttribute("data-gm-prevent-hook-event", "true");
+          let isLogin = () => {
+            return vueInstance.$root.commonParams.uid != null;
+          };
+          utils.waitNode(
+            "uni-app #forumInfoId .sign-wakeup .sign-wakeup-text"
+          ).then((element) => {
+            if (isLogin()) {
+              domutils.text(element, "点击签到");
+            } else {
+              domutils.text(element, "点击登录");
             }
-          );
-        });
+            log.success("修改页面中的APP内签到");
+            domutils.on(
+              $signWakeUp,
+              "click",
+              async function(event) {
+                utils.preventEvent(event);
+                if (isLogin()) {
+                  log.info(`已登录-签到`);
+                  let fname = vueInstance.$root.commonParams.fname;
+                  let tbs2 = vueInstance.$root.tbs;
+                  let signResult = await TieBaApi.forumSign(fname, tbs2);
+                  if (signResult && typeof signResult["data"] === "object") {
+                    Qmsg.success(
+                      `今日本吧第${signResult["data"]["finfo"]["current_rank_info"]["sign_count"]}个签到`
+                    );
+                  } else {
+                    Qmsg.error(signResult == null ? void 0 : signResult["error"]);
+                  }
+                } else {
+                  window.open(
+                    `https://wappass.baidu.com/passport?login&tpl=tb&u=${encodeURIComponent(
+                    window.location.href
+                  )}`,
+                    "_blank"
+                  );
+                }
+              },
+              {
+                capture: true
+              }
+            );
+          });
+        }
       });
     },
     /**
@@ -9551,14 +9585,19 @@ div[class^="new-summary-container_"] {\r
       domutils.on(
         document,
         "click",
-        "div.tb-threadlist__item",
+        [
+          "div.tb-threadlist__item",
+          "uni-app .feed-card",
+          "uni-app .swiperItemWrapper .video-feed  .wake-app",
+          "uni-app .swiperItemWrapper > div > div"
+        ],
         function(event) {
-          var _a3, _b;
+          var _a3, _b, _c, _d;
           utils.preventEvent(event);
-          let vueObj = VueUtils.getVue(event.target);
-          let pbUrl = vueObj == null ? void 0 : vueObj.pbUrl;
-          let tid = (vueObj == null ? void 0 : vueObj.tid) ?? ((_a3 = vueObj == null ? void 0 : vueObj.thread) == null ? void 0 : _a3.tid);
-          let id = (vueObj == null ? void 0 : vueObj.id) ?? ((_b = vueObj == null ? void 0 : vueObj.thread) == null ? void 0 : _b.id);
+          let vueInstance = VueUtils.getVue(event.target);
+          let pbUrl = vueInstance == null ? void 0 : vueInstance.pbUrl;
+          let tid = (vueInstance == null ? void 0 : vueInstance.tid) ?? ((_a3 = vueInstance == null ? void 0 : vueInstance.thread) == null ? void 0 : _a3.tid) ?? ((_c = (_b = vueInstance == null ? void 0 : vueInstance.config) == null ? void 0 : _b.param) == null ? void 0 : _c.tid);
+          let id = (vueInstance == null ? void 0 : vueInstance.id) ?? ((_d = vueInstance == null ? void 0 : vueInstance.thread) == null ? void 0 : _d.id);
           let newUrl = "";
           if (pbUrl) {
             newUrl = window.location.origin + pbUrl;
@@ -9649,6 +9688,114 @@ div[class^="new-summary-container_"] {\r
           }
         }
       ]);
+    },
+    /**
+     * 阻止唤醒App
+     */
+    hookWakeUp() {
+      let lockFn = new utils.LockFunction(() => {
+        $$("uni-app .wake-app").forEach(($wakeUp) => {
+          let vueInstance = VueUtils.getVue($wakeUp);
+          if (!vueInstance) {
+            return;
+          }
+          let isOpenApp = vueInstance.isOpenApp;
+          if (typeof isOpenApp === "boolean") {
+            vueInstance.isOpenApp = false;
+          }
+          let handleLaunchApp = vueInstance.handleLaunchApp;
+          if (typeof handleLaunchApp === "function") {
+            vueInstance.handleLaunchApp = function() {
+              if ($wakeUp.getAttribute("data-gm-prevent-hook-event")) {
+                return;
+              }
+              if (typeof vueInstance.$listeners["handle-click"] === "function") {
+                vueInstance.$listeners["handle-click"]();
+              } else {
+                log.success("阻止点击唤醒App .wake-up");
+              }
+            };
+          }
+        });
+      });
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        }
+      });
+      document.addEventListener("click", (event) => {
+        let vueInstance = VueUtils.getVue(event.target);
+        if (vueInstance == null ? void 0 : vueInstance.isOpenApp) {
+          utils.preventEvent(event);
+          log.success("阻止点击唤醒App .wake-up");
+        }
+      });
+    },
+    /**
+     * 修复搜索功能的样式
+     */
+    repairSearch() {
+      addStyle$1(
+        /*css*/
+        `
+			.nav-bar .more-btn-desc,
+			uni-app .frs-wise-nav-bar .more-btn-desc{
+				font-size: 15px;
+			}
+			#search .nav-search-container{
+				height: 48px;
+			}
+			#search .nav-search-container svg{
+				width: 16px;
+				height: 16px;
+			}
+			#search .nav-search-btn{
+				font-size: 15px;
+			}
+			#search .search-result{
+				top: 48px;
+			}
+			#search .search-result-model{
+				top: 48px;
+				height: 32px;
+			}
+			#search .search-result-model .search-result-model-item[data-active]:after{
+				width: 20px;
+				margin: 0 5px 0px;
+			}
+			#search .search-result-from-info{
+				margin-top: 32px;
+			}
+			#search .search-result-media-left{
+				padding-right: 8px !important;
+			}
+			#search .search-result-media-left img{
+				width: 35px !important;;
+				height: 35px !important;;
+			}
+			#search .search-result-media-body-author-name{
+				margin-top: 2px !important;
+				font-size: 16px !important;
+				line-height: 15px !important;
+			}
+			#search .search-result-media-body-time{
+				margin-top: 6px !important;
+				font-size: 12px !important;
+				line-height: 12px !important;
+			}
+			#search .search-result-title, #search .search-result-content, #search .search-result-bottom-toolbar{
+				margin-top: 8px !important;
+			}
+			#search h1.search-result-title-h1{
+				font-size: 16px !important;
+			}
+			`
+      );
     }
   };
   const TiebaCore = {
@@ -9726,9 +9873,7 @@ div[class^="new-summary-container_"] {\r
       let mainPageWrap = (_f = (_e = (_d = (_c = VueUtils.getVue($(".main-page-wrap"))) == null ? void 0 : _c.$children[0]) == null ? void 0 : _d.$children[0]) == null ? void 0 : _e.forum) == null ? void 0 : _f.name;
       let tbForum = (_h = (_g = VueUtils.getVue($(".tb-mobile-viewport .tb-forum"))) == null ? void 0 : _g.forum) == null ? void 0 : _h.name;
       let appView = (_j = (_i = VueUtils.getVue($(".app-view"))) == null ? void 0 : _i.forum) == null ? void 0 : _j.name;
-      let $uniAppPostNavBarForumName = $(
-        "uni-app .nav-bar .forum-name"
-      );
+      let $uniAppPostNavBarForumName = $("uni-app .nav-bar .forum-name") || $("uni-app .forum-name");
       let uniAppPostNavBarForumName = ($uniAppPostNavBarForumName == null ? void 0 : $uniAppPostNavBarForumName.textContent) || "";
       uniAppPostNavBarForumName = uniAppPostNavBarForumName.replace(/吧$/g, "");
       return tbMobileViewport || mainPageWrap || tbForum || appView || uniAppPostNavBarForumName;
@@ -10162,7 +10307,10 @@ div[class^="new-summary-container_"] {\r
     },
     init() {
       let that = this;
-      utils.waitNode(".more-btn-desc", 1e4).then(($oldMoreBtnDesc) => {
+      utils.waitAnyNode(
+        [".more-btn-desc", "uni-app .frs-wise-nav-bar .forum-name"],
+        1e4
+      ).then(($oldMoreBtnDesc) => {
         if (!$oldMoreBtnDesc) {
           return;
         }
@@ -10337,7 +10485,7 @@ div[class^="new-summary-container_"] {\r
         `
 		.more-btn-desc{
 			margin-right: 10px;
-			font-size: .15rem;
+			font-size: 1em;
 			font-weight: 700;
 			color: #614ec2;
 		}
@@ -10377,15 +10525,15 @@ div[class^="new-summary-container_"] {\r
 			-ms-flex-align: center;
 			align-items: center;
 			width: 100%;
-			height: .48rem;
+			height: auto;
 			-webkit-box-pack: justify;
 			-webkit-justify-content: space-between;
 			-ms-flex-pack: justify;
 			justify-content: space-between;
 		}
 		.nav-search-container svg{
-			width: 0.16rem;
-			height: 0.16rem;
+			width: 1em;
+			height: 1em;
 		}
 		.nav-search-back{
 			margin-left: 10px;
@@ -10418,7 +10566,6 @@ div[class^="new-summary-container_"] {\r
 		}
 		.nav-search-btn{
 			margin-right: 10px;
-			font-size: .15rem;
 			font-weight: 700;
 			color: #614ec2;
 		}
@@ -10679,7 +10826,7 @@ div[class^="new-summary-container_"] {\r
      * + 2 按相关性顺序
      */
     async getSearchResult(qw = "", pn = 0, sm = 1, kw = "") {
-      var _a3, _b;
+      var _a3, _b, _c;
       let param_sm = sm.toString();
       if (sm === 3) {
         param_sm = "1&only_thread=1";
@@ -10700,7 +10847,7 @@ div[class^="new-summary-container_"] {\r
       log.success(
         `当前请求第 ${new URLSearchParams(new URL(url).search).get("pn")} 页`
       );
-      let getResp = await httpx.get(url, {
+      let searchResponse = await httpx.get(url, {
         fetch: true,
         headers: {
           accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
@@ -10714,19 +10861,27 @@ div[class^="new-summary-container_"] {\r
           "sec-fetch-site": "none"
         }
       });
-      let respText = getResp.data.responseText;
-      if (!getResp.status) {
-        if (utils.isNull(respText)) {
+      let responseText = searchResponse.data.responseText;
+      if (!searchResponse.status) {
+        if (utils.isNull(responseText)) {
           log.error("获取内容为空，可能触发了百度校验，请刷新网页再试");
           return {
             success: false,
             error: "获取内容为空，可能触发了百度校验，请刷新网页再试"
           };
         }
-        if (respText.match("wappass.baidu.com") || respText.match(
+        if (responseText.match("wappass.baidu.com") || responseText.match(
           "https://seccaptcha.baidu.com/v1/webapi/verint/svcp.html"
         )) {
-          let wappassUrl = (_a3 = respText == null ? void 0 : respText.match(/href="(.*?)"/)) == null ? void 0 : _a3[1];
+          let wappassUrl = (_a3 = responseText == null ? void 0 : responseText.match(/href="(.*?)"/)) == null ? void 0 : _a3[1];
+          log.error("触发百度校验: " + wappassUrl);
+          window.location.href = wappassUrl;
+          return {
+            success: false,
+            error: "触发百度校验"
+          };
+        } else if (responseText.match("<title>百度安全验证</title>") && responseText.match(`backurl:'(.+?)'`)) {
+          let wappassUrl = (_b = responseText == null ? void 0 : responseText.match(/backurl:\'(.+?)\'/)) == null ? void 0 : _b[1];
           log.error("触发百度校验: " + wappassUrl);
           window.location.href = wappassUrl;
           return {
@@ -10734,14 +10889,14 @@ div[class^="new-summary-container_"] {\r
             error: "触发百度校验"
           };
         }
-        log.error(respText);
+        log.error(responseText);
         return {
           success: false,
           error: "请求失败，可能是网络异常或者接口异常"
         };
       }
-      log.success(getResp);
-      let searchDoc = domutils.parseHTML(respText, true, true);
+      log.success(searchResponse);
+      let searchDoc = domutils.parseHTML(responseText, true, true);
       if (searchDoc.querySelector(".search_noresult")) {
         return {
           success: false,
@@ -10749,7 +10904,7 @@ div[class^="new-summary-container_"] {\r
         };
       }
       let result = [];
-      let nextPageUrl = (_b = searchDoc.querySelector(".pager-search a.next")) == null ? void 0 : _b.href;
+      let nextPageUrl = (_c = searchDoc.querySelector(".pager-search a.next")) == null ? void 0 : _c.href;
       searchDoc.querySelectorAll(".s_main .s_post_list .s_post").forEach(($s_post) => {
         if ($s_post.id === "post_user" || $s_post.id === "no_head") {
           return;
@@ -15496,20 +15651,12 @@ div[class^="new-summary-container_"] {\r
      */
     repairSearch() {
       log.info(`uni-app ===> 修复搜索功能`);
-      utils.waitNode(".nav-bar .nav-bar-forum-info", 1e4).then(($navBarForumInfo) => {
-        if (!$navBarForumInfo) {
-          return;
-        }
-        let $navBar = $navBarForumInfo.closest(".nav-bar");
-        let $moreBtnDesc = domutils.createElement("div", {
-          className: "more-btn-desc",
-          innerText: "搜索"
-        });
-        $navBar.appendChild($moreBtnDesc);
+      let repairCSS = () => {
         addStyle$1(
           /*css*/
           `
-				.nav-bar .more-btn-desc{
+				.nav-bar .more-btn-desc,
+				uni-app .frs-wise-nav-bar .more-btn-desc{
 					font-size: 15px;
 				}
 				#search .nav-search-container{
@@ -15561,6 +15708,18 @@ div[class^="new-summary-container_"] {\r
 				}
 				`
         );
+      };
+      utils.waitNode(".nav-bar .nav-bar-forum-info", 1e4).then(($navBarForumInfo) => {
+        if (!$navBarForumInfo) {
+          return;
+        }
+        let $navBar = $navBarForumInfo.closest(".nav-bar");
+        let $moreBtnDesc = domutils.createElement("div", {
+          className: "more-btn-desc",
+          innerText: "搜索"
+        });
+        $navBar.appendChild($moreBtnDesc);
+        repairCSS();
       });
     },
     /**

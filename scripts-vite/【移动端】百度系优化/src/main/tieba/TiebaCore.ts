@@ -114,9 +114,10 @@ const TiebaCore = {
 
 		let appView = VueUtils.getVue($(".app-view"))?.forum?.name;
 
-		let $uniAppPostNavBarForumName = $<HTMLDivElement>(
-			"uni-app .nav-bar .forum-name"
-		);
+		let $uniAppPostNavBarForumName =
+			$<HTMLDivElement>("uni-app .nav-bar .forum-name") ||
+			$<HTMLElement>("uni-app .forum-name");
+
 		let uniAppPostNavBarForumName =
 			$uniAppPostNavBarForumName?.textContent || "";
 		uniAppPostNavBarForumName = uniAppPostNavBarForumName.replace(/吧$/g, "");

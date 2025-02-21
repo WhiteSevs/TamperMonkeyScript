@@ -34,7 +34,13 @@ div.diy-guide-wrapper,
 /* 帖子 ?share=xxx 猜你喜欢*/
 #app_container .guessyoulikegraphic-wrap,
 /* 帖子 ?share=xxx 打开贴吧APP查看全部回复 */
-#app_container .pb-share-post-list .open-tb-bar {
+#app_container .pb-share-post-list .open-tb-bar,
+/* 吧内 底部 关注本吧，精彩内容不错过 */
+uni-app .bottom-guide .btn-wrapper .wake-app ,
+/* 吧内 帖子右上角的 APP内查看 */
+uni-app .feed-card .open-app-btn,
+/* 吧内 视频流的底部的遮罩层 */
+uni-app .bottom-guide:has(.mask) {
 	display: none !important;
 }
 body.tb-modal-open {

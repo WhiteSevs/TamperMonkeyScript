@@ -583,20 +583,10 @@ export const TiebaUniAppPost = {
 	 */
 	repairSearch() {
 		log.info(`uni-app ===> 修复搜索功能`);
-		utils
-			.waitNode(".nav-bar .nav-bar-forum-info", 10000)
-			.then(($navBarForumInfo) => {
-				if (!$navBarForumInfo) {
-					return;
-				}
-				let $navBar = $navBarForumInfo.closest<HTMLDivElement>(".nav-bar")!;
-				let $moreBtnDesc = DOMUtils.createElement("div", {
-					className: "more-btn-desc",
-					innerText: "搜索",
-				});
-				$navBar.appendChild($moreBtnDesc);
-				addStyle(/*css*/ `
-				.nav-bar .more-btn-desc{
+		let repairCSS = () => {
+			addStyle(/*css*/ `
+				.nav-bar .more-btn-desc,
+				uni-app .frs-wise-nav-bar .more-btn-desc{
 					font-size: 15px;
 				}
 				#search .nav-search-container{
@@ -647,6 +637,20 @@ export const TiebaUniAppPost = {
 					font-size: 16px !important;
 				}
 				`);
+		};
+		utils
+			.waitNode(".nav-bar .nav-bar-forum-info", 10000)
+			.then(($navBarForumInfo) => {
+				if (!$navBarForumInfo) {
+					return;
+				}
+				let $navBar = $navBarForumInfo.closest<HTMLDivElement>(".nav-bar")!;
+				let $moreBtnDesc = DOMUtils.createElement("div", {
+					className: "more-btn-desc",
+					innerText: "搜索",
+				});
+				$navBar.appendChild($moreBtnDesc);
+				repairCSS();
 			});
 	},
 	/**

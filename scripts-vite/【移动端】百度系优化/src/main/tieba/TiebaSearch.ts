@@ -296,7 +296,10 @@ const TiebaSearch = {
 	init() {
 		let that = this;
 		utils
-			.waitNode<HTMLDivElement>(".more-btn-desc", 10000)
+			.waitAnyNode<HTMLDivElement>(
+				[".more-btn-desc", "uni-app .frs-wise-nav-bar .forum-name"],
+				10000
+			)
 			.then(($oldMoreBtnDesc) => {
 				if (!$oldMoreBtnDesc) {
 					return;
@@ -488,7 +491,7 @@ const TiebaSearch = {
 		addStyle(/*css*/ `
 		.more-btn-desc{
 			margin-right: 10px;
-			font-size: .15rem;
+			font-size: 1em;
 			font-weight: 700;
 			color: #614ec2;
 		}
@@ -525,15 +528,15 @@ const TiebaSearch = {
 			-ms-flex-align: center;
 			align-items: center;
 			width: 100%;
-			height: .48rem;
+			height: auto;
 			-webkit-box-pack: justify;
 			-webkit-justify-content: space-between;
 			-ms-flex-pack: justify;
 			justify-content: space-between;
 		}
 		.nav-search-container svg{
-			width: 0.16rem;
-			height: 0.16rem;
+			width: 1em;
+			height: 1em;
 		}
 		.nav-search-back{
 			margin-left: 10px;
@@ -566,7 +569,6 @@ const TiebaSearch = {
 		}
 		.nav-search-btn{
 			margin-right: 10px;
-			font-size: .15rem;
 			font-weight: 700;
 			color: #614ec2;
 		}
@@ -842,7 +844,7 @@ const TiebaSearch = {
 		log.success(
 			`当前请求第 ${new URLSearchParams(new URL(url).search).get("pn")} 页`
 		);
-		let getResp = await httpx.get(url, {
+		let searchResponse = await httpx.get(url, {
 			fetch: true,
 			headers: {
 				accept:
@@ -857,9 +859,9 @@ const TiebaSearch = {
 				"sec-fetch-site": "none",
 			},
 		});
-		let respText = getResp.data.responseText;
-		if (!getResp.status) {
-			if (utils.isNull(respText)) {
+		let responseText = searchResponse.data.responseText;
+		if (!searchResponse.status) {
+			if (utils.isNull(responseText)) {
 				log.error("获取内容为空，可能触发了百度校验，请刷新网页再试");
 				return {
 					success: false,
@@ -867,12 +869,23 @@ const TiebaSearch = {
 				};
 			}
 			if (
-				respText.match("wappass.baidu.com") ||
-				respText.match(
+				responseText.match("wappass.baidu.com") ||
+				responseText.match(
 					"https://seccaptcha.baidu.com/v1/webapi/verint/svcp.html"
 				)
 			) {
-				let wappassUrl = respText?.match(/href="(.*?)"/)?.[1] as string;
+				let wappassUrl = responseText?.match(/href="(.*?)"/)?.[1] as string;
+				log.error("触发百度校验: " + wappassUrl);
+				window.location.href = wappassUrl;
+				return {
+					success: false,
+					error: "触发百度校验",
+				};
+			} else if (
+				responseText.match("<title>百度安全验证</title>") &&
+				responseText.match(`backurl:\'(.+?)\'`)
+			) {
+				let wappassUrl = responseText?.match(/backurl:\'(.+?)\'/)?.[1]!;
 				log.error("触发百度校验: " + wappassUrl);
 				window.location.href = wappassUrl;
 				return {
@@ -880,14 +893,14 @@ const TiebaSearch = {
 					error: "触发百度校验",
 				};
 			}
-			log.error(respText);
+			log.error(responseText);
 			return {
 				success: false,
 				error: "请求失败，可能是网络异常或者接口异常",
 			};
 		}
-		log.success(getResp);
-		let searchDoc = DOMUtils.parseHTML(respText, true, true) as Document;
+		log.success(searchResponse);
+		let searchDoc = DOMUtils.parseHTML(responseText, true, true) as Document;
 		if (searchDoc.querySelector(".search_noresult")) {
 			return {
 				success: false,
