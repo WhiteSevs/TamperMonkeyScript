@@ -6,7 +6,7 @@ import { GM_getValue, GM_setValue } from "ViteGM";
 import { TiebaUniAppComment } from "./TiebaUniAppComment";
 import { TiebaPostApi } from "../api/TiebaPostApi";
 import { GestureBack } from "@/utils/GestureBack";
-import { TiebaPost } from "../post-dev/TiebaPost";
+import { TiebaPost } from "../post/TiebaPost";
 import { TiebaUniAppCommentFilter } from "./TiebaUniAppCommentFilter";
 import { TiebaUniAppComponentDetection } from "./TiebaUniAppComponentDetection";
 import { TiebaCore } from "../TiebaCore";

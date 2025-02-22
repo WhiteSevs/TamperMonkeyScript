@@ -1,7 +1,7 @@
 import { $, DOMUtils, MountVue, addStyle, httpx, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { TiebaComment } from "./TiebaComment";
-import { TiebaData } from "../home-dev/data";
+import { TiebaData } from "../home/data";
 import { TieBaApi } from "../api/TiebaApi";
 import { TiebaCore } from "../TiebaCore";
 import Qmsg from "qmsg";
