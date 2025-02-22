@@ -4,21 +4,22 @@ import UniTieBaShieldCSS from "./uni-app-shield.css?raw";
 import { PopsPanel } from "@/setting/setting";
 import { BaiduRouter } from "@/router/BaiduRouter";
 import { BaiduHook } from "@/hook/BaiduHook";
-import { TiebaTopicTemplate } from "./TopicTemplate/TiebaTopicTemplate";
-import { TiebaHybrid } from "./Hybrid/TiebaHybrid";
-import { TiebaBaNei } from "./BaNei/TiebaBaNei";
+import { TiebaTopicTemplate } from "./topic-template/TiebaTopicTemplate";
+import { TiebaHybrid } from "./hybrid/TiebaHybrid";
+import { TiebaBaNei } from "./ba-nei/TiebaBaNei";
 import { TiebaSearch } from "./TiebaSearch";
-import { TiebaData } from "./Home/data";
+import { TiebaData } from "./home/data";
 import { TiebaCore } from "./TiebaCore";
-import { TiebaPost } from "./Post/TiebaPost";
-import { TiebaHome } from "./Home/TiebaHome";
+import { TiebaPost } from "./post/TiebaPost";
+import { TiebaHome } from "./home/TiebaHome";
 import Qmsg from "qmsg";
 import { VueUtils } from "@/utils/VueUtils";
 import { TiebaUniAppPost } from "./uni-app-post/TiebaUniAppPost";
-import { TiebaCheckUrl } from "./CheckUrl/TiebaCheckUrl";
-import { TiebaHotTopic } from "./HotTopic/TiebaHotTopic";
+import { TiebaCheckUrl } from "./utils/TiebaCheckUrl";
+import { TiebaHotTopic } from "./hot-topic/TiebaHotTopic";
 import { TiebaMsgTab } from "./msgtab/TiebaMsgTab";
 import { TiebaUrlHandler } from "./handler/TiebaUrlHandler";
+import { TiebaCollectionCenter } from "./collection-center/TiebaCollectionCenter";
 
 /**
  * 百度贴吧
@@ -41,7 +42,7 @@ import { TiebaUrlHandler } from "./handler/TiebaUrlHandler";
  * document.querySelector("div.tb-mobile-viewport").__vue_
  * + isShowModal 是否显示需要登录的弹窗【继续操作需要登录贴吧账号】
  */
-const BaiduTieBa = {
+export const BaiduTieBa = {
 	init() {
 		addStyle(TieBaShieldCSS);
 		addStyle(UniTieBaShieldCSS);
@@ -81,7 +82,7 @@ const BaiduTieBa = {
 			/* 首页 */
 			log.success("Router: 首页");
 			PopsPanel.execMenu("baidu_tieba_index_openANewTab", () => {
-				TiebaBaNei.openANewTab();
+				TiebaBaNei.repairCardClickJump();
 			});
 			PopsPanel.execMenu("baidu_tieba_index_add_msgtab", () => {
 				if (window.location.pathname.startsWith(TiebaMsgTab.pathname)) {
@@ -131,6 +132,10 @@ const BaiduTieBa = {
 			/* 搜索综合 */
 			log.success("Router: 搜索综合");
 			TiebaHybrid.init();
+		} else if (BaiduRouter.isTieBaCollectionCenter()) {
+			/* 合辑 */
+			log.success("Router: 合辑");
+			TiebaCollectionCenter.init();
 		} else if (BaiduRouter.isTieBaNei()) {
 			/* 吧内 */
 			log.success("Router: 吧内");
@@ -530,5 +535,3 @@ const BaiduTieBa = {
 			});
 	},
 };
-
-export { BaiduTieBa };

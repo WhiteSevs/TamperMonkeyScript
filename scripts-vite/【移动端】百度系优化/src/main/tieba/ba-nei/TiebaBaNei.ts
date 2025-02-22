@@ -7,6 +7,7 @@ import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
 import { TiebaUniAppPost } from "../uni-app-post/TiebaUniAppPost";
 import { BaiduHook } from "@/hook/BaiduHook";
+import { BaiduRouter } from "@/router/BaiduRouter";
 
 interface BaNeiPostInfo {
 	abstract: [
@@ -57,8 +58,8 @@ export const TiebaBaNei = {
 		PopsPanel.execMenuOnce("baidu_tieba_banei_hookWakeUp", () => {
 			this.hookWakeUp();
 		});
-		PopsPanel.execMenuOnce("baidu_tieba_openANewTab", () => {
-			this.openANewTab();
+		PopsPanel.execMenuOnce("baidu_tieba_banei_repair_card_click_jump", () => {
+			this.repairCardClickJump();
 		});
 		PopsPanel.execMenu("baidu_tieba_add_search", () => {
 			this.repairSearch();
@@ -133,9 +134,10 @@ export const TiebaBaNei = {
 		});
 	},
 	/**
-	 * 新标签页打开
+	 * 修复卡片点击跳转
 	 */
-	openANewTab() {
+	repairCardClickJump() {
+		log.info(`修复卡片点击跳转`);
 		DOMUtils.on(
 			document,
 			"click",
@@ -149,6 +151,7 @@ export const TiebaBaNei = {
 				utils.preventEvent(event);
 				let vueInstance = VueUtils.getVue(event.target);
 				let pbUrl = vueInstance?.pbUrl;
+				let collectH5Url = vueInstance?.collectH5Url;
 				let tid =
 					vueInstance?.tid ??
 					vueInstance?.thread?.tid ??
@@ -159,12 +162,23 @@ export const TiebaBaNei = {
 					newUrl = window.location.origin + pbUrl;
 				} else if (tid || id) {
 					newUrl = TiebaUrlHandler.getPost(tid ?? id);
+				} else if (typeof collectH5Url === "string") {
+					// 合辑
+					newUrl = decodeURIComponent(collectH5Url);
 				} else {
 					Qmsg.error("获取帖子链接失败");
 					return;
 				}
 				log.info("帖子链接: " + newUrl);
-				window.open(newUrl, "_blank");
+				if (
+					BaiduRouter.isTieBaNei() &&
+					PopsPanel.getValue("baidu_tieba_banei_openANewTab")
+				) {
+					// 吧内-新标签页打开
+					window.open(newUrl, "_blank");
+				} else {
+					window.location.href = newUrl;
+				}
 			},
 			{
 				capture: true,
