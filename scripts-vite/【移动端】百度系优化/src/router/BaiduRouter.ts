@@ -1,4 +1,4 @@
-const BaiduRouter = {
+export const BaiduRouter = {
 	/**
 	 * 百度搜索
 	 */
@@ -345,5 +345,3 @@ const BaiduRouter = {
 		return Boolean(window.location.hostname === "byokpg.smartapps.baidu.com");
 	},
 };
-
-export { BaiduRouter };
