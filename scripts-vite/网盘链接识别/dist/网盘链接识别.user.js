@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2025.2.12
+// @version      2025.2.22
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -10969,15 +10969,16 @@
     /** 规则 */
     rule: [
       {
-        link_innerText: `115.com/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
-        link_innerHTML: `115.com/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
-        shareCode: /115.com\/s\/([0-9a-zA-Z\-_]{8,24})/gi,
-        shareCodeNeedRemoveStr: /115.com\/s\//gi,
+        link_innerText: `(115.com|115cdn.com|anxia.com)/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+        link_innerHTML: `(115.com|115cdn.com|anxia.com)/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+        shareCode: /(115.com|115cdn.com|anxia.com)\/s\/([0-9a-zA-Z\-_]{8,24})/gi,
+        shareCodeNeedRemoveStr: /(115.com|115cdn.com|anxia.com)\/s\//gi,
         checkAccessCode: /(提取码|密码|\?password=|访问码)[\s\S]+/gi,
         accessCode: /(\?password=|)([0-9a-zA-Z]{4})/i,
-        uiLinkShow: "115.com/s/{#shareCode#} 提取码: {#accessCode#}",
-        blank: "https://115.com/s/{#shareCode#}",
-        copyUrl: "https://115.com/s/{#shareCode#}\n密码：{#accessCode#}"
+        paramMatch: /(115.com|115cdn.com|anxia.com)/i,
+        uiLinkShow: "{#$1#}/s/{#shareCode#} 提取码: {#accessCode#}",
+        blank: "https://{#$1#}/s/{#shareCode#}",
+        copyUrl: "https://{#$1#}/s/{#shareCode#}\n密码：{#accessCode#}"
       }
     ],
     /** 设置项 */
