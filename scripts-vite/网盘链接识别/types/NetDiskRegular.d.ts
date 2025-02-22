@@ -4,18 +4,18 @@
 declare interface NetDiskMatchRuleOption {
 	/**
 	 * 当设置中匹配类型为文本，使用该规则
-	 * 
+	 *
 	 * 以下是可使用的替换的参数
-	 * 
+	 *
 	 * + `{#matchRange-text-before#}`替换为setting配置的`innerTextAccessCodeBeforeMaxRange`
 	 * + `{#matchRange-text-after#}`替换为setting配置的`innerTextAccessCodeAfterMaxRange`
 	 */
 	link_innerText: string;
 	/**
 	 * 当设置中匹配类型为超文本，使用该规则
-	 * 
+	 *
 	 * 以下是可使用的替换的参数
-	 * 
+	 *
 	 * + `{#matchRange-html-before#}`替换为setting配置的`innerHTMLAccessCodeBeforeMaxRange`
 	 * + `{#matchRange-html-after#}`替换为setting配置的`innerHTMLAccessCodeAfterMaxRange`
 	 */
@@ -57,14 +57,20 @@ declare interface NetDiskMatchRuleOption {
 	paramMatch?: RegExp;
 	/**
 	 * 用于显示在弹窗中的字符串
+	 *
+	 * + 如果设置了paramMatch进行匹配，可以使用：{#$1#}、{#$2#}...进行引用匹配结果
 	 */
 	uiLinkShow: string;
 	/**
 	 * 用于点击跳转的链接
+	 *
+	 * + 如果设置了paramMatch进行匹配，可以使用：{#$1#}、{#$2#}...进行引用匹配结果
 	 */
 	blank: string;
 	/**
 	 * 用于复制到剪贴板的链接
+	 *
+	 * + 如果设置了paramMatch进行匹配，可以使用：{#$1#}、{#$2#}...进行引用匹配结果
 	 */
 	copyUrl: string;
 }
