@@ -48,7 +48,7 @@ const TiebaCore = {
 				return originGetItem.call(window.localStorage, key);
 			}
 		};
-		/* 伪装localStorage已赋值 */
+		/* localStorage赋值 1 */
 		let masqueradeParamsList = [
 			"p_w_new_slient_",
 			"f_w_slient_",
@@ -66,7 +66,11 @@ const TiebaCore = {
 				"1"
 			);
 		});
-		let masqueradeParamsList2 = ["auto_slient_wake_"];
+		let masqueradeParamsList2 = [
+			"auto_slient_wake_",
+			"f_w_silencePopup_",
+			"f_w_silence_",
+		];
 		masqueradeParamsList2.forEach((masqueradeParam) => {
 			window.localStorage.setItem(
 				masqueradeParam + utils.formatTime(void 0, "yyyy-MM-dd"),

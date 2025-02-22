@@ -145,6 +145,26 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 					],
 				},
 				{
+					type: "deepMenu",
+					text: "合辑",
+					forms: [
+						UISwitch(
+							"修复卡片点击跳转",
+							"tieba_collection_center_repair_card_click_jump",
+							true,
+							void 0,
+							"修复帖子点击不跳转的问题"
+						),
+						UISwitch(
+							"新标签页打开",
+							"tieba_collection_center_repair_card_click_jump_open_new_tab",
+							false,
+							void 0,
+							"新标签页打开帖子（需开启->修复卡片点击跳转）"
+						),
+					],
+				},
+				{
 					text: "吧内",
 					description: "新版的uni-app",
 					type: "deepMenu",
@@ -175,11 +195,18 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 									"在登录情况下可点击签到"
 								),
 								UISwitch(
+									"修复卡片点击跳转",
+									"baidu_tieba_banei_repair_card_click_jump",
+									true,
+									void 0,
+									"修复帖子点击不跳转的问题"
+								),
+								UISwitch(
 									"新标签页打开",
-									"baidu_tieba_openANewTab",
+									"baidu_tieba_banei_openANewTab",
 									false,
 									void 0,
-									"新标签页打开帖子"
+									"新标签页打开帖子（需开启->修复卡片点击跳转）"
 								),
 							],
 						},

@@ -3,10 +3,11 @@ import { PopsPanel } from "@/setting/setting";
 import { LoadingView } from "@/utils/LoadingView";
 import { TiebaCore } from "./TiebaCore";
 import Qmsg from "qmsg";
-import { TiebaBaNei } from "./BaNei/TiebaBaNei";
+import { TiebaBaNei } from "./ba-nei/TiebaBaNei";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { TieBaApi } from "./api/TiebaApi";
 import { TiebaUrlHandler } from "./handler/TiebaUrlHandler";
+import { BaiduRouter } from "@/router/BaiduRouter";
 
 interface SearchResultInfo {
 	url: string;
@@ -391,16 +392,14 @@ const TiebaSearch = {
 				let searchParams = new URLSearchParams(window.location.search);
 				this.$ele.$moreBtnDesc = $(".more-btn-desc") as HTMLDivElement;
 				if (
-					window.location.pathname === "/f" &&
+					BaiduRouter.isTieBaNei() &&
 					utils.isNotNull(searchParams.get("kw"))
 				) {
 					/* 吧内 -> 搜索帖子 */
 					DOMUtils.on(this.$ele.$moreBtnDesc, "click", () => {
 						this.enterSeachMode();
 					});
-				} else if (
-					window.location.href.startsWith("https://tieba.baidu.com/p/")
-				) {
+				} else if (BaiduRouter.isTieBaPost()) {
 					/* 帖子 -> 搜索帖子 */
 					DOMUtils.on(this.$ele.$moreBtnDesc, "click", () => {
 						this.enterSeachMode();
@@ -413,11 +412,22 @@ const TiebaSearch = {
 
 				/**
 				 * 搜索事件
+				 *
+				 * 点击按钮搜索
+				 *
+				 * 按下回车键搜索
 				 */
 				let searchEvent = () => {
 					let searchText = that.getSearchText();
 					if (utils.isNull(searchText)) {
 						alert("请勿输入纯空格或空内容");
+						return;
+					}
+					if (PopsPanel.getValue("baidu_tieba_use_hybrid_search")) {
+						// 使用搜索综合
+						window.location.href = TiebaUrlHandler.getHybridSearch(
+							this.getSearchText()
+						);
 						return;
 					}
 					this.$data.currentSearchText = searchText;

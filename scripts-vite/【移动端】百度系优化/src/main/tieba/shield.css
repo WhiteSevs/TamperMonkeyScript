@@ -40,7 +40,13 @@ uni-app .bottom-guide .btn-wrapper .wake-app ,
 /* 吧内 帖子右上角的 APP内查看 */
 uni-app .feed-card .open-app-btn,
 /* 吧内 视频流的底部的遮罩层 */
-uni-app .bottom-guide:has(.mask) {
+uni-app .bottom-guide:has(.mask),
+/* 合辑 /mo/q/hybrid-main-user/collectionCenter  打开贴吧App畅享精彩内容  */
+.collection-center .app-out-guide-text,
+/* 合辑 滚动出现的底部中间的 /mo/q/hybrid-main-user/collectionCenter  打开贴吧App畅享精彩内容 */
+.collection-center .app-out-fixed-btn,
+/* 合辑 帖子卡片右下角的  打开贴吧App畅享精彩内容  */
+.collection-center .guide-text {
 	display: none !important;
 }
 body.tb-modal-open {

@@ -127,7 +127,8 @@ const BaiduRouter = {
 	 */
 	isTieBaHybrid() {
 		return Boolean(
-			this.isTieBa() && window.location.pathname.startsWith("/mo/q/hybrid")
+			this.isTieBa() &&
+				window.location.pathname.startsWith("/mo/q/hybrid/search")
 		);
 	},
 	/**
@@ -158,6 +159,17 @@ const BaiduRouter = {
 	isTieBaHome() {
 		return Boolean(
 			this.isTieBa() && window.location.pathname.startsWith("/home/main")
+		);
+	},
+	/**
+	 * 贴吧 - 合辑
+	 */
+	isTieBaCollectionCenter() {
+		return Boolean(
+			this.isTieBa() &&
+				window.location.pathname.startsWith(
+					"/mo/q/hybrid-main-user/collectionCenter"
+				)
 		);
 	},
 	/**
