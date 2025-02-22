@@ -10,7 +10,7 @@ import { TiebaBaNei } from "./ba-nei/TiebaBaNei";
 import { TiebaSearch } from "./TiebaSearch";
 import { TiebaData } from "./home-dev/data";
 import { TiebaCore } from "./TiebaCore";
-import { TiebaPost } from "./post/TiebaPost";
+import { TiebaPost } from "./post-dev/TiebaPost";
 import { TiebaHome } from "./home-dev/TiebaHome";
 import Qmsg from "qmsg";
 import { VueUtils } from "@/utils/VueUtils";
