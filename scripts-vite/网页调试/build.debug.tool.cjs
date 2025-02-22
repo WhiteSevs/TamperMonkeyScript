@@ -161,9 +161,9 @@ let initEruda = function (
 	var window = currentWindow;
 	var globalThis = currentWindow;
 	var console = currentWindow.console;
-	// !function(e,t){e[erudaName] = t();}(currentWindow
-	// 替换
 	// !function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t():"function"==typeof define&&define.amd?define([],t):"object"==typeof exports?exports.eruda=t():e.eruda=t()}(self
+	// 替换↓
+	// !function(e,t){e[erudaName] = t();}(currentWindow
 	
 ${eruda_text}
 
@@ -282,8 +282,8 @@ class initPageSpy {
 
 (async () => {
 	await update_eruda();
-	console.log("")
+	console.log("");
 	await update_vconsole();
-	console.log("")
+	console.log("");
 	await update_pagespy();
 })();
