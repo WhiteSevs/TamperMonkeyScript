@@ -82,7 +82,7 @@ export class ApiTest_addValueChangeListener extends ApiAsyncTestBase {
 		if (this.isSupport()) {
 			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
 				(() => {
-					let localStorageDataKey = "GM_addValueChangeListener_key_1";
+					let localStorageDataKey = apiName + "_key_1";
 					return UIInfo(() => {
 						return {
 							text: "测试监听数据存储改变",

@@ -1,13 +1,20 @@
-import { GM, GM_removeValueChangeListener } from "ViteGM";
+import {
+	GM,
+	GM_addValueChangeListener,
+	GM_removeValueChangeListener,
+	GM_setValue,
+} from "ViteGM";
 import { ApiTestBase } from "../base/ApiTestBase";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/common-components/ui-info";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
-import { DOMUtils } from "@/env";
+import { DOMUtils, utils } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
+import Qmsg from "qmsg";
+import { TagUtil, type Tag } from "@/setting/tag";
 
 export class ApiTest_removeValueChangeListener extends ApiAsyncTestBase {
 	public isSupport() {
@@ -81,21 +88,71 @@ export class ApiTest_removeValueChangeListener extends ApiAsyncTestBase {
 		};
 		if (this.isSupport()) {
 			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
-				UIInfo(() => {
-					try {
+				(() => {
+					let localStorageDataKey = apiName + "_key_1";
+					return UIInfo(() => {
 						return {
-							text: CommonUtil.escapeHtml("TODO"),
+							text: "测试移除监听器",
+							description: ``,
 							tag: "info",
+							afterRender(container) {
+								let $button = DOMUtils.parseHTML(
+									/*html*/ `
+										<div class="pops-panel-button pops-panel-button-no-icon">
+											<button class="pops-panel-button_inner" type="default">
+												<i class="pops-bottom-icon" is-loading="false"></i>
+												<span class="pops-panel-button-text">点击测试</span>
+											</button>
+										</div>
+									`,
+									false,
+									false
+								);
+								DOMUtils.after(container.$leftContainer, $button);
+								// 点击事件
+								let tagTextList: {
+									tag: keyof typeof Tag;
+									text?: string;
+								}[] = [];
+								DOMUtils.on($button, "click", (event) => {
+									utils.preventEvent(event);
+									try {
+										tagTextList = [];
+										TagUtil.setTag(
+											container.$leftText,
+											"info",
+											"等待移除监听器"
+										);
+										DOMUtils.text(container.$leftDesc, this.text);
+										DOMUtils.show(container.$leftDesc, false);
+										let delaySetValue = utils.formatTime(Date.now());
+
+										let listenerId = GM_addValueChangeListener(
+											localStorageDataKey,
+											function (key, oldValue, newValue, remote) {
+												console.log(arguments);
+												tagTextList.push({
+													tag: "error",
+													text: "未成功移除监听器",
+												});
+												TagUtil.setTagList(container.$leftText, tagTextList);
+											}
+										);
+										GM_removeValueChangeListener(listenerId);
+										tagTextList.push({
+											tag: "success",
+											text: "支持移除监听器",
+										});
+										TagUtil.setTagList(container.$leftText, tagTextList);
+										GM_setValue(localStorageDataKey, delaySetValue);
+									} catch (error: any) {
+										Qmsg.error(error.toString(), { consoleLogContent: true });
+									}
+								});
+							},
 						};
-					} catch (error) {
-						console.error(error);
-						return {
-							text: "执行错误 " + error,
-							tag: "error",
-						};
-					} finally {
-					}
-				})
+					});
+				})()
 			);
 		}
 		return result;

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.2.19
+// @version      2025.2.22
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -20677,7 +20677,7 @@ ${err.stack}`);
             let $page_test = null;
             try {
               let win = GlobalUtil.getWindow();
-              let element_id = "GM_addElement_test_script_exec";
+              let element_id = apiName + "_test_script_exec";
               $test = _GM_addElement("script", {
                 id: element_id,
                 textContent: 'window.GM_addElement_test_str = "bar";'
@@ -20947,7 +20947,7 @@ ${err.stack}`);
       if (this.isSupport()) {
         result2["forms"][1].forms.push(
           (() => {
-            let localStorageDataKey = "GM_addValueChangeListener_key_1";
+            let localStorageDataKey = apiName + "_key_1";
             return UIInfo(() => {
               return {
                 text: "测试监听数据存储改变",
@@ -23631,21 +23631,67 @@ ${err.stack}`);
       };
       if (this.isSupport()) {
         result2["forms"][1].forms.push(
-          UIInfo(() => {
-            try {
+          (() => {
+            let localStorageDataKey = apiName + "_key_1";
+            return UIInfo(() => {
               return {
-                text: CommonUtil.escapeHtml("TODO"),
-                tag: "info"
+                text: "测试移除监听器",
+                description: ``,
+                tag: "info",
+                afterRender(container) {
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+										<div class="pops-panel-button pops-panel-button-no-icon">
+											<button class="pops-panel-button_inner" type="default">
+												<i class="pops-bottom-icon" is-loading="false"></i>
+												<span class="pops-panel-button-text">点击测试</span>
+											</button>
+										</div>
+									`,
+                    false,
+                    false
+                  );
+                  domUtils.after(container.$leftContainer, $button);
+                  let tagTextList = [];
+                  domUtils.on($button, "click", (event) => {
+                    utils.preventEvent(event);
+                    try {
+                      tagTextList = [];
+                      TagUtil.setTag(
+                        container.$leftText,
+                        "info",
+                        "等待移除监听器"
+                      );
+                      domUtils.text(container.$leftDesc, this.text);
+                      domUtils.show(container.$leftDesc, false);
+                      let delaySetValue = utils.formatTime(Date.now());
+                      let listenerId = _GM_addValueChangeListener(
+                        localStorageDataKey,
+                        function(key, oldValue, newValue, remote) {
+                          console.log(arguments);
+                          tagTextList.push({
+                            tag: "error",
+                            text: "未成功移除监听器"
+                          });
+                          TagUtil.setTagList(container.$leftText, tagTextList);
+                        }
+                      );
+                      _GM_removeValueChangeListener(listenerId);
+                      tagTextList.push({
+                        tag: "success",
+                        text: "支持移除监听器"
+                      });
+                      TagUtil.setTagList(container.$leftText, tagTextList);
+                      _GM_setValue(localStorageDataKey, delaySetValue);
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    }
+                  });
+                }
               };
-            } catch (error2) {
-              console.error(error2);
-              return {
-                text: "执行错误 " + error2,
-                tag: "error"
-              };
-            } finally {
-            }
-          })
+            });
+          })()
         );
       }
       return result2;

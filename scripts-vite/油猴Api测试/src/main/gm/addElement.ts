@@ -83,7 +83,7 @@ export class ApiTest_addElement extends ApiAsyncTestBase {
 					let $page_test: HTMLElement | null = null;
 					try {
 						let win = GlobalUtil.getWindow();
-						let element_id = "GM_addElement_test_script_exec";
+						let element_id = apiName + "_test_script_exec";
 						$test = GM_addElement("script", {
 							id: element_id,
 							textContent: 'window.GM_addElement_test_str = "bar";',
