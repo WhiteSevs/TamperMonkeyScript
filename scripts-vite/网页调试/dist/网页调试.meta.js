@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网页调试
 // @namespace    https://greasyfork.org/zh-CN/scripts/475228
-// @version      2025.2.12
+// @version      2025.2.22
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @license      GPL-3.0-only
@@ -9,9 +9,9 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@58ba73dabe08e81725f8552d6037682530045f87/lib/Eruda/index.js
+// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@43c5e2f39b1a52cdb0ed0f6209da0cde412bff54/lib/Eruda/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@9f63667d501ec8df5bdb4af680f37793f393754f/lib/VConsole/index.js
-// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@c58f3bcbec7aadfd5758206106639e5bf6645b0d/lib/PageSpy/index.js
+// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@1e70239d9ef9ea3e76b8de2def7c79adab0f2495/lib/PageSpy/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
